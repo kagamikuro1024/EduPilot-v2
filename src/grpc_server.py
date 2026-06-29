@@ -18,7 +18,6 @@ except ImportError:
 
 from .agent import run_agent_loop_stream
 from .config import GRPC_PORT
-from .document_callback import run_ingestion_with_callback
 from .guardrails import (
     classify_and_guard,
     classify_channel_intent,
@@ -269,6 +268,9 @@ class AIDocumentServicer(ai_service_pb2_grpc.AIDocumentServiceServicer if ai_ser
         self.agent_client = agent_client
 
     async def ProcessDocument(self, request, context: grpc.aio.ServicerContext):
+        # Import Docling only when an upload actually arrives. Chat-only Spaces
+        # otherwise avoid loading the PyTorch/document stack into RAM at startup.
+        from .document_callback import run_ingestion_with_callback
         asyncio.create_task(run_ingestion_with_callback(request.document_id, request.file_url))
         return ai_service_pb2.DocumentResponse(accepted=True)
 

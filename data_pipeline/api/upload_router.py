@@ -14,11 +14,16 @@ from typing import Optional
 from pydantic import BaseModel
 from fastapi import Depends
 
-# Internal imports updated for the new structure
-from data_pipeline.workers.ingestion_worker import process_document_task
 from src.api.auth import verify_admin_token
 
 logger = logging.getLogger(__name__)
+
+
+async def _process_document_lazily(**kwargs):
+    """Keep Docling/PyTorch unloaded until a document is actually submitted."""
+    from data_pipeline.workers.ingestion_worker import process_document_task
+
+    return await process_document_task(**kwargs)
 
 router = APIRouter(
     prefix="/api/v1/documents",
@@ -88,18 +93,20 @@ async def upload_document(
         except Exception:
             logger.warning("Failed to parse metadata JSON. Proceeding with empty metadata.")
             
+    request_id = str(metadata_dict.get("java_document_id") or uuid.uuid4())
     background_tasks.add_task(
-        process_document_task, 
-        temp_path, 
-        file.filename, 
-        metadata_dict
+        _process_document_lazily,
+        java_document_id=request_id,
+        file_path=temp_path,
+        source_uri=file.filename,
+        metadata=metadata_dict,
     )
 
     return {
         "status": "processing",
         "message": "Document is being processed in the background.",
         "source_uri": file.filename,
-        "request_id": str(uuid.uuid4())
+        "request_id": request_id
     }
 
 # --- Admin Admin Ingestion Route (TIP-002) ---

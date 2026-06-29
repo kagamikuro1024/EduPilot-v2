@@ -118,6 +118,7 @@ COPY --chown=1000:1000 huggingface /app/huggingface
 
 RUN mkdir -p /app/data/tmp /home/user/data \
     && chown -R 1000:1000 /app /home/user/data \
+    && sed -i 's/\r$//' /app/huggingface/*.sh \
     && chmod +x /app/huggingface/entrypoint.sh /app/huggingface/run-redis.sh
 
 ENV HOME=/home/user \
@@ -129,6 +130,15 @@ ENV HOME=/home/user \
     GRPC_PORT=50051 \
     NEXT_TELEMETRY_DISABLED=1 \
     HF_DATA_DIR=/home/user/data \
+    DOCLING_LOW_MEMORY=true \
+    DOCLING_MAX_WORKERS=1 \
+    DOCLING_TABLE_STRUCTURE=false \
+    DOCUMENT_INGESTION_CONCURRENCY=1 \
+    OMP_NUM_THREADS=1 \
+    MKL_NUM_THREADS=1 \
+    OPENBLAS_NUM_THREADS=1 \
+    TOKENIZERS_PARALLELISM=false \
+    MALLOC_ARENA_MAX=2 \
     OTEL_SDK_DISABLED=true
 
 USER 1000:1000
