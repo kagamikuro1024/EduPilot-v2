@@ -2,8 +2,8 @@ name: Keep Hugging Face Space Awake
 
 on:
   schedule:
-    # Every five minutes, offset from the top of the hour to reduce scheduler delays.
-    - cron: "2/5 * * * *"
+    # Once every 24 hours at 02:17 UTC (09:17 in Vietnam).
+    - cron: "17 2 * * *"
   workflow_dispatch:
 
 permissions:
