@@ -43,6 +43,7 @@ mkdir -p "$PGDATA" "$REDIS_DATA_DIR" "$UPLOAD_DIR" /app/data/tmp
 chmod 700 "$PGDATA"
 
 MIGRATION_MARKER="$PGDATA/.a20-migrations-complete"
+RUN_FULL_MIGRATIONS=0
 
 if [[ ! -f "$MIGRATION_MARKER" ]]; then
   if [[ -f "$PGDATA/PG_VERSION" ]]; then
@@ -58,22 +59,26 @@ if [[ ! -f "$MIGRATION_MARKER" ]]; then
     --encoding=UTF8 \
     --no-locale > /tmp/initdb.log
 
-  cleanup_postgres() {
-    pg_ctl --pgdata="$PGDATA" --mode=fast stop > /dev/null 2>&1 || true
-  }
-  trap cleanup_postgres EXIT
+  RUN_FULL_MIGRATIONS=1
+fi
 
-  pg_ctl \
-    --pgdata="$PGDATA" \
-    --options="-h 127.0.0.1 -p 5432 -k /tmp" \
-    --wait start > /tmp/postgres-bootstrap.log
+cleanup_postgres() {
+  pg_ctl --pgdata="$PGDATA" --mode=fast stop > /dev/null 2>&1 || true
+}
+trap cleanup_postgres EXIT
 
-  if ! psql -h 127.0.0.1 -p 5432 -U "$DB_USERNAME" -d postgres \
-      -tAc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1; then
-    createdb -h 127.0.0.1 -p 5432 -U "$DB_USERNAME" "$DB_NAME"
-  fi
+pg_ctl \
+  --pgdata="$PGDATA" \
+  --options="-h 127.0.0.1 -p 5432 -k /tmp" \
+  --wait start > /tmp/postgres-bootstrap.log
 
-  log "Chạy database migrations V1-V22..."
+if ! psql -h 127.0.0.1 -p 5432 -U "$DB_USERNAME" -d postgres \
+    -tAc "SELECT 1 FROM pg_database WHERE datname = '${DB_NAME}'" | grep -q 1; then
+  createdb -h 127.0.0.1 -p 5432 -U "$DB_USERNAME" "$DB_NAME"
+fi
+
+if (( RUN_FULL_MIGRATIONS == 1 )); then
+  log "Chạy database migrations V1-V23..."
   psql \
     -h 127.0.0.1 \
     -p 5432 \
@@ -81,9 +86,23 @@ if [[ ! -f "$MIGRATION_MARKER" ]]; then
     -d "$DB_NAME" \
     -v ON_ERROR_STOP=1 \
     -f /app/db/00-init.sql
+else
+  # Persistent Spaces already have the legacy completion marker, so new
+  # idempotent migrations must also run when the database volume exists.
+  log "Áp dụng incremental migration V23..."
+  psql \
+    -h 127.0.0.1 \
+    -p 5432 \
+    -U "$DB_USERNAME" \
+    -d "$DB_NAME" \
+    -v ON_ERROR_STOP=1 \
+    -f /app/db/migration/V23__add_chat_message_created_at.sql
+fi
 
-  pg_ctl --pgdata="$PGDATA" --mode=fast --wait stop > /dev/null
-  trap - EXIT
+pg_ctl --pgdata="$PGDATA" --mode=fast --wait stop > /dev/null
+trap - EXIT
+
+if (( RUN_FULL_MIGRATIONS == 1 )); then
   touch "$MIGRATION_MARKER"
 fi
 
