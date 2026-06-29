@@ -1,11 +1,18 @@
+import asyncio
 import logging
+import os
 
 import httpx
 
-from data_pipeline.workers.ingestion_worker import process_document_task
 from .config import INTERNAL_CALLBACK_TOKEN, JAVA_CALLBACK_URL
 
 logger = logging.getLogger(__name__)
+
+try:
+    _INGESTION_CONCURRENCY = max(1, int(os.getenv("DOCUMENT_INGESTION_CONCURRENCY", "1")))
+except ValueError:
+    _INGESTION_CONCURRENCY = 1
+_INGESTION_SEMAPHORE = asyncio.Semaphore(_INGESTION_CONCURRENCY)
 
 
 async def run_ingestion_with_callback(document_id: str, file_url: str) -> None:
@@ -13,12 +20,16 @@ async def run_ingestion_with_callback(document_id: str, file_url: str) -> None:
     reason = "Unknown ingestion result."
 
     try:
-        result = await process_document_task(
-            java_document_id=document_id,
-            file_path=file_url,
-            source_uri=file_url,
-            metadata={"java_document_id": document_id},
-        )
+        async with _INGESTION_SEMAPHORE:
+            # Lazy import keeps Docling/PyTorch out of chat-only process startup.
+            from data_pipeline.workers.ingestion_worker import process_document_task
+
+            result = await process_document_task(
+                java_document_id=document_id,
+                file_path=file_url,
+                source_uri=file_url,
+                metadata={"java_document_id": document_id},
+            )
         status_map = {
             "READY": ("READY", None),
             "DUPLICATE": ("DUPLICATE", "Duplicate content_hash already exists in another document."),
