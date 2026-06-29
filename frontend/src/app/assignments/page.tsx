@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { WorkspaceLayout } from "@/components/layout/WorkspaceLayout";
 import { useAuthStore } from "@/store/authStore";
+import javaClient from "@/services/javaClient";
 
 // -----------------------------------------------------------------------------
 // Data models (mirror future API payloads)
@@ -242,12 +243,8 @@ export default function AssignmentsPage() {
   const [todayRef] = useState(() => new Date());
 
   useEffect(() => {
-    const pythonApi = process.env.NEXT_PUBLIC_PYTHON_API_URL || "http://localhost:8003";
-    fetch(`${pythonApi}/api/v1/assignments`)
-      .then((res) => {
-        if (!res.ok) throw new Error("HTTP " + res.status);
-        return res.json();
-      })
+    javaClient.get("/api/v1/assignments")
+      .then((res) => res.data)
       .then((data) => {
         if (Array.isArray(data)) {
           const mapped: CalendarEvent[] = data.map((item: any, idx: number) => {
@@ -306,12 +303,7 @@ export default function AssignmentsPage() {
     setEvents((prev) => [...prev, newEvent]);
 
     try {
-      const pythonApi = process.env.NEXT_PUBLIC_PYTHON_API_URL || "http://localhost:8003";
-      await fetch(`${pythonApi}/api/v1/assignments`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      await javaClient.post("/api/v1/assignments", payload);
     } catch (err) {
       console.error("Failed to post assignment to database:", err);
     }
