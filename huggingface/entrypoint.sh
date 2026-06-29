@@ -78,7 +78,7 @@ if ! psql -h 127.0.0.1 -p 5432 -U "$DB_USERNAME" -d postgres \
 fi
 
 if (( RUN_FULL_MIGRATIONS == 1 )); then
-  log "Chạy database migrations V1-V23..."
+  log "Chạy database migrations V1-V24..."
   psql \
     -h 127.0.0.1 \
     -p 5432 \
@@ -89,14 +89,14 @@ if (( RUN_FULL_MIGRATIONS == 1 )); then
 else
   # Persistent Spaces already have the legacy completion marker, so new
   # idempotent migrations must also run when the database volume exists.
-  log "Áp dụng incremental migration V23..."
+  log "Áp dụng incremental migrations V23-V24..."
   psql \
     -h 127.0.0.1 \
     -p 5432 \
     -U "$DB_USERNAME" \
     -d "$DB_NAME" \
     -v ON_ERROR_STOP=1 \
-    -f /app/db/migration/V23__add_chat_message_created_at.sql
+    -f /app/db/hf-incremental.sql
 fi
 
 pg_ctl --pgdata="$PGDATA" --mode=fast --wait stop > /dev/null
