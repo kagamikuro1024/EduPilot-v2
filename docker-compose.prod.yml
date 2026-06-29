@@ -1,0 +1,110 @@
+services:
+  python-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-ai
+    ports:
+      - "8001:8000"
+      - "50051:50051"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - APP_ENV=production
+      - TZ=Asia/Ho_Chi_Minh
+      - RAG_MAX_RETRIEVAL_DISTANCE=${RAG_MAX_RETRIEVAL_DISTANCE:-0.45}
+      - RAG_FALLBACK_MAX_DISTANCE=${RAG_FALLBACK_MAX_DISTANCE:-0.65}
+      - RAG_RETRIEVAL_CANDIDATES=${RAG_RETRIEVAL_CANDIDATES:-50}
+      - RAG_RERANK_LIMIT=${RAG_RERANK_LIMIT:-15}
+      - RAG_DEBUG_TOP_K=${RAG_DEBUG_TOP_K:-5}
+      - DATABASE_URL=${DATABASE_URL} 
+      - REDIS_URL=${REDIS_URL}
+      - GRPC_PORT=50051
+      - ADMIN_TOKEN=${ADMIN_TOKEN}
+      - INTERNAL_CALLBACK_TOKEN=${INTERNAL_CALLBACK_TOKEN}
+      - JAVA_CALLBACK_URL=${JAVA_CALLBACK_URL:-http://java-backend:8080}
+    volumes:
+      - shared_uploads:/app/uploads
+    healthcheck:
+      # Sử dụng curl shell chuẩn, nhẹ hơn gọi script python
+      test: ["CMD-SHELL", "curl -f http://127.0.0.1:8000/health || exit 1"]
+      interval: 30s # Tăng thời gian giãn cách để tránh tạo tải lên CPU server
+      timeout: 10s
+      retries: 3
+      start_period: 30s # Chờ 30s cho model và thư viện nạp xong vào RAM/Swap
+    networks:
+      - coolify
+    restart: always
+
+  java-backend:
+    build:
+      context: .
+      dockerfile: ./backend-java/aitrogiang/Dockerfile
+    container_name: java-backend
+    ports:
+      - "8082:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - TZ=Asia/Ho_Chi_Minh
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Ho_Chi_Minh
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USERNAME=${REDIS_USERNAME}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_DB=${REDIS_DB}
+      - AI_SERVICE_HOST=python-ai
+      - AI_SERVICE_PORT=50051
+      - PYTHON_GRPC_URL=static://python-ai:50051
+      - UPLOAD_DIR=/app/uploads
+      - INTERNAL_CALLBACK_TOKEN=${INTERNAL_CALLBACK_TOKEN}
+      - APP_CORS_ALLOWED_ORIGINS=${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://legacy-host.invalid:3000}
+    volumes:
+      - shared_uploads:/app/uploads
+    healthcheck:
+      # Must match HealthController GET /api/v1/health and be permitAll in SecurityConfig (no Bearer token).
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:8080/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 120s # Coolify / small VPS: JVM + PostgreSQL + Redis can exceed 40s
+    depends_on:
+      python-ai:
+        condition: service_healthy
+    networks:
+      - coolify
+    restart: always
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_JAVA_API_URL: ${NEXT_PUBLIC_JAVA_API_URL}
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+    healthcheck:
+      # Kiểm tra trang chủ Next.js có phản hồi không
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      java-backend:
+        condition: service_healthy
+    networks:
+      - coolify
+    restart: always
+
+networks:
+  coolify:
+    external: true
+
+volumes:
+  shared_uploads:

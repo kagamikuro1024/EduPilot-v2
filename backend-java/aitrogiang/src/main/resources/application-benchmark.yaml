@@ -1,0 +1,9 @@
+app:
+  chat:
+    confidence-threshold: 0.0
+  rate-limit:
+    ask-ai:
+      limit: 10000
+      ttl-seconds: 86400
+      key-date-format: yyyy-MM-dd
+

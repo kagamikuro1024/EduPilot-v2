@@ -1,0 +1,43 @@
+anthropic>=0.40.0
+openai>=1.50.0
+python-dotenv>=1.0.0
+httpx>=0.27.0
+duckduckgo-search>=7.0.0
+pydantic>=2.0.0
+
+# Web framework
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+
+# LangChain ecosystem
+langchain>=0.3.0
+langchain-openai>=0.3.0
+langchain-anthropic>=0.3.0
+
+# Database (PostgreSQL + pgvector)
+psycopg2-binary>=2.9.9
+asyncpg>=0.29.0
+pgvector>=0.3.0
+
+# gRPC
+grpcio>=1.60.0
+grpcio-tools>=1.60.0
+
+# Document Parsing
+docling>=2.0.0
+langchain-text-splitters>=0.2.0
+
+# Resilience
+tenacity>=8.3.0
+
+# Observability (TD-06)
+opentelemetry-api==1.24.0
+opentelemetry-sdk==1.24.0
+opentelemetry-exporter-otlp==1.24.0
+opentelemetry-exporter-otlp-proto-grpc==1.24.0
+opentelemetry-instrumentation-grpc==0.45b0
+redis>=5.0.0
+
+# Benchmark tooling
+numpy>=1.26.0

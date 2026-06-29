@@ -1,0 +1,136 @@
+
+services:
+  python-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-ai
+    ports:
+      - "8000:8000"   # FastAPI healthcheck and REST API
+      - "50051:50051" # gRPC port
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - APP_ENV=development
+      - TZ=Asia/Ho_Chi_Minh
+      - ADMIN_TOKEN=${ADMIN_TOKEN:-}
+      - INTERNAL_CALLBACK_TOKEN=${INTERNAL_CALLBACK_TOKEN:-}
+      - JAVA_CALLBACK_URL=${JAVA_CALLBACK_URL:-http://java-backend:8080}
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - GRPC_PORT=50051
+    networks:
+      - app-network
+    volumes:
+      - ./src:/app/src
+      - ./data_pipeline:/app/data_pipeline
+      - ./shared-proto:/app/shared-proto
+    restart: unless-stopped
+
+  java-backend:
+    # Uses standard openjdk image. In a real environment, you'd use a Dockerfile 
+    # to build the Spring Boot app, e.g. using Gradle inside a multi-stage build.
+    image: eclipse-temurin:21-jdk-jammy
+    container_name: java-backend
+    # Mount local backend-java for compilation and run it via Gradle wrapper
+    working_dir: /app/backend-java/aitrogiang
+    command: ./gradlew bootRun
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - TZ=Asia/Ho_Chi_Minh
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=Asia/Ho_Chi_Minh
+      - DB_URL=${DB_URL}
+      - DB_USERNAME=${DB_USERNAME}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD:?}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_EXPIRATION=${JWT_EXPIRATION}
+      - PYTHON_GRPC_URL=static://python-ai:50051
+      - AI_SERVICE_HOST=python-ai
+      - AI_SERVICE_PORT=50051
+      - APP_CORS_ALLOWED_ORIGINS=${APP_CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      - INTERNAL_CALLBACK_TOKEN=${INTERNAL_CALLBACK_TOKEN}
+    depends_on:
+      python-ai:
+        condition: service_started
+    networks:
+      - app-network
+    volumes:
+      - ./backend-java:/app/backend-java
+      - ./shared-proto:/app/shared-proto
+      - ./.gradle-cache:/root/.gradle
+    restart: unless-stopped
+
+  # Next.js: bind-mount source for hot reload. NEXT_PUBLIC_* is read when dev starts;
+  # use http://localhost:8080 so the browser (on the host) reaches the published Java port.
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- -H 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      NEXT_PUBLIC_JAVA_API_URL: http://localhost:8080
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      java-backend:
+        condition: service_started
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  postgres-db:
+    # Sử dụng image ankane/pgvector — PostgreSQL + extension pgvector
+    # pgvector cho phép lưu trữ và tìm kiếm vector embedding (mảng số 1536 chiều)
+    image: ankane/pgvector:latest
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=agent_db
+    ports:
+      - "5432:5432"
+    volumes:
+      # Lưu dữ liệu DB vào Docker volume (không mất khi restart container)
+      - postgres_data:/var/lib/postgresql/data
+      # Mount script SQL khởi tạo schema (pgvector, bảng, index)
+      # Script này TỰ ĐỘNG chạy khi container start LẦN ĐẦU TIÊN
+      # Nếu muốn chạy lại: docker-compose down -v (xóa volume) rồi up lại
+      - ./scripts/init_pgvector.sql:/docker-entrypoint-initdb.d/01_init_pgvector.sql:ro
+    # Healthcheck: kiểm tra PostgreSQL đã sẵn sàng nhận kết nối chưa
+    # Các service phụ thuộc (python-ai, java-backend) sẽ chờ DB healthy
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d agent_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+    restart: unless-stopped
+
+  redis-cache:
+    image: redis/redis-stack-server:latest
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
+  frontend_node_modules:

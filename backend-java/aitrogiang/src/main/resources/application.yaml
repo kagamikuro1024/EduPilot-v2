@@ -1,0 +1,83 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://legacy-host.invalid:5432/agent_db}
+    username: ${DB_USERNAME:trolyai}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10            # Tăng nhẹ lên trên mức 50 CCU
+      connection-timeout: 30000        # Tăng lên 30s vì DB ở xa
+      idle-timeout: 60000
+      max-lifetime: 1800000
+      minimum-idle: 5                 # Luôn giữ ít nhất 10 kết nối mở sẵn
+
+  mvc:
+    async:
+      request-timeout: 180000          # Quan trọng: Giữ kết nối SSE mở trong 3 phút (180.000ms)
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  data:
+    redis:
+      host: ${REDIS_HOST:legacy-host.invalid}
+      port: ${REDIS_PORT:6380}
+      username: ${REDIS_USERNAME:default}
+      password: ${REDIS_PASSWORD}
+      database: ${REDIS_DB:1}
+      repositories:
+        enabled: false
+
+  servlet:
+    multipart:
+      max-file-size: 50MB      # Dung lượng tối đa cho 1 file
+      max-request-size: 50MB   # Dung lượng tối đa cho toàn bộ request
+
+application:
+  security:
+    jwt:
+      # Base64 encoded secret key (min 256 bits for HS256)
+      secret-key: ${JWT_SECRET_KEY:REDACTED_LEGACY_JWT_SECRET}
+      # 1 day in milliseconds
+      expiration: ${JWT_EXPIRATION:86400000}
+
+grpc:
+  client:
+    ai-service:
+      # KHI CHẠY LOCAL (Dev máy cá nhân):
+      # address: 'static://localhost:50051' 
+      
+      # KHI DEPLOY LÊN COOLIFY (Dùng tên container của Python):
+      # Lưu ý: Thay 'python-service-name' bằng tên thực tế trên Coolify
+      address: ${PYTHON_GRPC_URL:static://localhost:50051}
+      negotiation-type: plaintext # Không cần SSL vì chạy trong mạng nội bộ
+
+app:
+  chat:
+    confidence-threshold: 0.4
+  rate-limit:
+    ask-ai:
+      limit: 15
+      ttl-seconds: 86400
+      key-date-format: yyyy-MM-dd
+    classify:
+      limit: 30
+      ttl-seconds: 60
+      key-date-format: yyyy-MM-dd-HH-mm
+  upload:
+    dir: ${UPLOAD_DIR:./uploads}
+  internal:
+    token: ${INTERNAL_CALLBACK_TOKEN:REDACTED_LEGACY_JWT_SECRET}
+
+management:
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://jaeger:4317}
