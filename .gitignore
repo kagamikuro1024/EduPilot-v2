@@ -1,0 +1,45 @@
+# Environment
+.env
+.env.example
+.env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+build/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# Java
+backend-java/target/
+backend-java/.gradle/
+backend-java/build/
+*.class
+*.jar
+
+# Gradle cache (global / custom)
+.gradle/
+.gradle-cache/
+**/.gradle/
+**/.gradle-cache/
+
+# OS
+.DS_Store
+# AI logs — tracked structure, ignored content
+#.ai-log/*.jsonl
+.agent
+antigravity-awesome-skills/
+# Reports and Tasks
+reports/*.md
+*COMPLETION-REPORT*.md
+*COMPLETION_REPORT*.md
+*completion-report*.md
+*completion report*.md
+TIP-*.md
+
+vibecode
+.pytest_cache/

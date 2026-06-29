@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  postgres-db:
+    image: ankane/pgvector:latest
+    container_name: postgres-db-local
+    environment:
+      - POSTGRES_USER=${DB_USERNAME:-user}
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
+      - POSTGRES_DB=agent_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_local_data:/var/lib/postgresql/data
+      - ./scripts/init_pgvector.sql:/docker-entrypoint-initdb.d/01_init_pgvector.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USERNAME:-user} -d agent_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - local-network
+    restart: unless-stopped
+
+  redis-cache:
+    image: redis/redis-stack-server:latest
+    container_name: redis-cache-local
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_local_data:/data
+    networks:
+      - local-network
+    restart: unless-stopped
+
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: jaeger-all-in-one
+    ports:
+      - "16686:16686" # UI
+      - "4317:4317"   # OTLP gRPC
+      - "4318:4318"   # OTLP HTTP
+    networks:
+      - local-network
+    restart: unless-stopped
+
+  python-ai:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: python-ai-local
+    env_file:
+      - .env.local
+    ports:
+      - "8000:8000"
+      - "50051:50051"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+    networks:
+      - local-network
+    restart: unless-stopped
+
+  java-backend:
+    build:
+      context: .
+      dockerfile: backend-java/aitrogiang/Dockerfile
+    container_name: java-backend-local
+    env_file:
+      - .env.local
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres-db:
+        condition: service_healthy
+      redis-cache:
+        condition: service_started
+      python-ai:
+        condition: service_started
+    networks:
+      - local-network
+    restart: unless-stopped
+
+networks:
+  local-network:
+    driver: bridge
+
+volumes:
+  postgres_local_data:
+  redis_local_data:
