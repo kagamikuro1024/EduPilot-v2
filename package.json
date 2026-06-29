@@ -1,0 +1,14 @@
+{
+  "name": "a20-app-128",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:down": "docker compose --env-file .env.local -f docker-compose.local.yml down",
+    "dev:status": "docker compose --env-file .env.local -f docker-compose.local.yml ps",
+    "dev:logs": "docker compose --env-file .env.local -f docker-compose.local.yml logs -f"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -2,7 +2,7 @@ services:
   python-ai:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.ai
     container_name: python-ai
     ports:
       - "8001:8000"

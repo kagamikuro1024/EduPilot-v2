@@ -1,0 +1,5 @@
+packages:
+  - frontend
+
+# The root launcher has no npm dependencies, so it can run without an install.
+verifyDepsBeforeRun: false

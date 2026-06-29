@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package ai.teachingassistant;
+
+option java_package = "team._8.aitrogiang.grpc";
+option java_multiple_files = true;
+
+message AIRequest {
+  string thread_id = 1;
+  string thread_title = 2;
+  repeated string tags = 3;
+  string current_message = 4;
+  repeated Message history = 5;
+}
+
+message Message {
+  string author_role = 1;
+  string author_name = 2;
+  string content = 3;
+}
+
+message AIResponse {
+  string chunk = 1;
+  bool is_finished = 2;
+  ResponseMetadata metadata = 3;
+}
+
+message ClassifyRequest {
+  string content = 1;
+  string channel_hint = 2;
+}
+
+message ClassifyResponse {
+  IntentType suggested_channel = 1;
+  float confidence = 2;
+  string reasoning = 3;
+  bool is_violation = 4;
+}
+
+message ResponseMetadata {
+  string agent_used = 1;
+  repeated Citation citations = 2;
+}
+
+message Citation {
+  string source_file = 1;
+  int32 page_number = 2;
+  string document_id = 3;
+  string source_uri = 4;
+  string chunk_id = 5;
+  int32 chunk_index = 6;
+  string snippet = 7;
+}
+
+message SuggestRequest {
+  string query = 1;
+  int32 limit = 2;
+}
+
+message SuggestResponse {
+  repeated ThreadPreview threads = 1;
+}
+
+message ThreadPreview {
+  string thread_id = 1;
+  string title = 2;
+  float similarity_score = 3;
+}
+
+message UpdateChunkRequest {
+  string chunk_id = 1;
+  string new_content = 2;
+  string updated_by = 3;
+}
+
+message UpdateChunkResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message DocumentRequest {
+  string document_id = 1;
+  string file_url = 2;
+}
+
+message DocumentResponse {
+  bool accepted = 1;
+}
+
+enum IntentType {
+  PUBLIC = 0;
+  PRIVATE = 1;
+  UNCERTAIN = 2;
+}
+
+service AIThreadService {
+  rpc StreamAIResponse(AIRequest) returns (stream AIResponse);
+  rpc SuggestSimilarThreads(SuggestRequest) returns (SuggestResponse);
+  rpc ClassifyIntent(ClassifyRequest) returns (ClassifyResponse);
+}
+
+service AIDocumentService {
+  rpc ProcessDocument(DocumentRequest) returns (DocumentResponse);
+  rpc UpdateChunkContent(UpdateChunkRequest) returns (UpdateChunkResponse);
+}

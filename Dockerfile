@@ -1,46 +1,87 @@
-# ==========================================
-# Giai đoạn 1: Builder
-# ==========================================
-FROM python:3.11-slim AS builder
+# syntax=docker/dockerfile:1
 
-WORKDIR /app
+# Hugging Face Docker Space image. It packages the whole application into one
+# container because Spaces do not run docker-compose.yml.
 
-# Cài đặt công cụ build hệ thống (gcc, C/C++)
+# -----------------------------------------------------------------------------
+# Frontend build
+# -----------------------------------------------------------------------------
+FROM node:20-bookworm-slim AS frontend-builder
+
+WORKDIR /build/frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci
+
+COPY frontend/ ./
+
+# Browser requests stay on the Space origin. Nginx strips /backend before
+# forwarding them to Spring Boot.
+ARG NEXT_PUBLIC_JAVA_API_URL=/backend
+ENV NEXT_PUBLIC_JAVA_API_URL=${NEXT_PUBLIC_JAVA_API_URL}
+ENV NEXT_TELEMETRY_DISABLED=1
+RUN npm run build
+
+
+# -----------------------------------------------------------------------------
+# Java build
+# -----------------------------------------------------------------------------
+FROM eclipse-temurin:21-jdk-jammy AS java-builder
+
+WORKDIR /build
+COPY backend-java/aitrogiang/gradlew backend-java/aitrogiang/
+COPY backend-java/aitrogiang/gradle backend-java/aitrogiang/gradle
+COPY backend-java/aitrogiang/build.gradle backend-java/aitrogiang/settings.gradle backend-java/aitrogiang/
+COPY shared-proto shared-proto
+
+WORKDIR /build/backend-java/aitrogiang
+RUN chmod +x gradlew
+RUN ./gradlew dependencies --no-daemon || true
+
+COPY backend-java/aitrogiang/src src
+RUN ./gradlew bootJar -x test --no-daemon
+
+
+# -----------------------------------------------------------------------------
+# Python dependencies
+# -----------------------------------------------------------------------------
+FROM python:3.11-slim-bookworm AS python-builder
+
+WORKDIR /build
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        build-essential \
        gcc \
        libpq-dev \
-       curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Tạo Python Virtual Environment
 RUN python -m venv /opt/venv
-# Đưa venv vào biến môi trường PATH để dùng pip trong venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy file requirements trước để tận dụng Docker Cache
 COPY requirements.txt .
-
-# Ép cài đặt PyTorch phiên bản CPU-only trước tiên để bỏ bản CUDA mặc định
-RUN pip install --no-cache-dir torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-
-# Cài đặt các thư viện còn lại vào venv
+RUN pip install --no-cache-dir torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
 RUN pip install --no-cache-dir -r requirements.txt
 
 
-# ==========================================
-# Giai đoạn 2: Runner (Môi trường chạy thực tế)
-# ==========================================
-FROM python:3.11-slim
+# Runtime-only binaries copied into the final Debian image.
+FROM eclipse-temurin:21-jre-jammy AS java-runtime
+FROM redis/redis-stack-server:latest AS redis-runtime
 
-WORKDIR /app
 
-# Cài đặt các thư viện C cốt lõi cần thiết lúc chạy (runtime dependencies)
-# KHÔNG cài gcc hay các công cụ biên dịch ở giai đoạn này để giảm dung lượng và tăng bảo mật
+# -----------------------------------------------------------------------------
+# All-in-one Hugging Face runtime
+# -----------------------------------------------------------------------------
+FROM pgvector/pgvector:0.8.2-pg16-bookworm
+
+USER root
+
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+       ca-certificates \
        curl \
+       nginx \
+       supervisor \
+       tini \
        libxcb1 \
        libx11-6 \
        libxext6 \
@@ -48,23 +89,54 @@ RUN apt-get update \
        libsm6 \
        libglib2.0-0 \
        libgl1 \
-       libpq5 \
-    && rm -rf /var/lib/apt/lists/*
+       libssl3 \
+       libstdc++6 \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 1000 user \
+    && useradd --uid 1000 --gid 1000 --create-home user
 
-# Copy nguyên thư mục Virtual Environment từ giai đoạn builder sang
-COPY --from=builder /opt/venv /opt/venv
+# Python interpreter/stdlib and its isolated dependencies.
+COPY --from=python-builder /usr/local/ /usr/local/
+COPY --from=python-builder /opt/venv /opt/venv
 
-# Đưa venv vào biến môi trường PATH để ứng dụng mặc định dùng Python trong venv
-ENV PATH="/opt/venv/bin:$PATH"
+# Java 21, Node.js runtime and Redis Stack (including RediSearch).
+COPY --from=java-runtime /opt/java/openjdk /opt/java/openjdk
+COPY --from=frontend-builder /usr/local/bin/node /usr/local/bin/node
+COPY --from=redis-runtime /opt/redis-stack /opt/redis-stack
 
-# Copy source code FastAPI vào container
-COPY src/ /app/src/
-COPY data_pipeline/ /app/data_pipeline/
+WORKDIR /app
 
-# Expose port mà FastAPI sẽ chạy
-EXPOSE 8000
-# gRPC port
-EXPOSE 50051
+# Application runtimes.
+COPY --chown=1000:1000 --from=frontend-builder /build/frontend/.next/standalone /app/frontend
+COPY --chown=1000:1000 --from=frontend-builder /build/frontend/.next/static /app/frontend/.next/static
+COPY --chown=1000:1000 --from=frontend-builder /build/frontend/public /app/frontend/public
+COPY --chown=1000:1000 --from=java-builder /build/backend-java/aitrogiang/build/libs/*.jar /app/backend/app.jar
+COPY --chown=1000:1000 src /app/src
+COPY --chown=1000:1000 data_pipeline /app/data_pipeline
+COPY --chown=1000:1000 db /app/db
+COPY --chown=1000:1000 huggingface /app/huggingface
 
-# Sử dụng lệnh python thuần để chạy main.py
-CMD ["python", "-m", "src.main"]
+RUN mkdir -p /app/data/tmp /home/user/data \
+    && chown -R 1000:1000 /app /home/user/data \
+    && chmod +x /app/huggingface/entrypoint.sh /app/huggingface/run-redis.sh
+
+ENV HOME=/home/user \
+    PATH=/opt/venv/bin:/opt/java/openjdk/bin:/usr/lib/postgresql/16/bin:/usr/local/bin:/usr/bin:/bin \
+    JAVA_HOME=/opt/java/openjdk \
+    NODE_ENV=production \
+    APP_ENV=production \
+    APP_HOST=127.0.0.1 \
+    GRPC_PORT=50051 \
+    NEXT_TELEMETRY_DISABLED=1 \
+    HF_DATA_DIR=/home/user/data \
+    OTEL_SDK_DISABLED=true
+
+USER 1000:1000
+
+EXPOSE 7860
+STOPSIGNAL SIGTERM
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=120s --retries=3 \
+    CMD curl -fsS http://127.0.0.1:7860/ > /dev/null || exit 1
+
+ENTRYPOINT ["/usr/bin/tini", "--", "/app/huggingface/entrypoint.sh"]
