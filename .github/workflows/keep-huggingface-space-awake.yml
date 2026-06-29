@@ -1,0 +1,60 @@
+name: Keep Hugging Face Space Awake
+
+on:
+  schedule:
+    # Every five minutes, offset from the top of the hour to reduce scheduler delays.
+    - cron: "2/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keep-hugging-face-space-awake
+  cancel-in-progress: true
+
+jobs:
+  ping-space:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Wake Space and wait for health
+        env:
+          SPACE_ROOT_URL: https://levanquangtrung-ta-agent-levanquangtrung-20225104.hf.space
+        shell: bash
+        run: |
+          set -Eeuo pipefail
+
+          # Any response to the public page wakes a sleeping Space.
+          curl \
+            --silent \
+            --show-error \
+            --location \
+            --max-time 60 \
+            --connect-timeout 15 \
+            --retry 3 \
+            --retry-delay 5 \
+            --retry-all-errors \
+            --output /dev/null \
+            "${SPACE_ROOT_URL}/"
+
+          # Java starts slightly later than Next.js. Retry so cold starts do not
+          # turn the workflow red while the all-in-one container is still booting.
+          for attempt in 1 2 3 4 5 6; do
+            if response="$(curl \
+              --silent \
+              --show-error \
+              --fail \
+              --max-time 20 \
+              --connect-timeout 10 \
+              "${SPACE_ROOT_URL}/backend/api/v1/health")"; then
+              echo "Space is healthy: ${response}"
+              exit 0
+            fi
+
+            echo "Health check attempt ${attempt}/6 is not ready yet."
+            sleep 15
+          done
+
+          echo "Space was contacted but Java health did not become ready in time."
+          exit 1
