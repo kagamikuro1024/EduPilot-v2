@@ -25,3 +25,4 @@
 \ir migration/V21__add_document_type_to_documents.sql
 \ir migration/V22__add_global_content_hash_unique_idx.sql
 \ir migration/V23__add_chat_message_created_at.sql
+\ir migration/V24__add_forum_post_created_at.sql
