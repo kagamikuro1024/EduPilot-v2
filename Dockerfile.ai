@@ -1,0 +1,54 @@
+# ==========================================
+# Stage 1: Python dependency builder
+# ==========================================
+FROM python:3.11-slim-bookworm AS builder
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       build-essential \
+       gcc \
+       libpq-dev \
+       curl \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir torch torchvision torchaudio \
+    --index-url https://download.pytorch.org/whl/cpu
+RUN pip install --no-cache-dir -r requirements.txt
+
+
+# ==========================================
+# Stage 2: Python AI runtime
+# ==========================================
+FROM python:3.11-slim-bookworm
+
+WORKDIR /app
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       curl \
+       libxcb1 \
+       libx11-6 \
+       libxext6 \
+       libxrender1 \
+       libsm6 \
+       libglib2.0-0 \
+       libgl1 \
+       libpq5 \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY --from=builder /opt/venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+COPY src/ /app/src/
+COPY data_pipeline/ /app/data_pipeline/
+
+EXPOSE 8000 50051
+
+CMD ["python", "-m", "src.main"]

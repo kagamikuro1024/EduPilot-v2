@@ -12,6 +12,10 @@ logger = logging.getLogger(__name__)
 def setup_tracing():
     """Sets up OpenTelemetry tracing with OTLP exporter to Jaeger."""
     try:
+        if os.getenv("OTEL_SDK_DISABLED", "false").lower() == "true":
+            logger.info("OpenTelemetry is disabled by OTEL_SDK_DISABLED")
+            return
+
         service_name = os.getenv("OTEL_SERVICE_NAME", "python-ai-orchestrator")
         endpoint = os.getenv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://jaeger:4317")
         

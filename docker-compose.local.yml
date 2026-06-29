@@ -1,20 +1,18 @@
-version: '3.8'
-
 services:
   postgres-db:
     image: ankane/pgvector:latest
     container_name: postgres-db-local
     environment:
-      - POSTGRES_USER=${DB_USERNAME:-user}
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-password}
-      - POSTGRES_DB=agent_db
+      POSTGRES_USER: ${DB_USERNAME:-user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-agent_db}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
     volumes:
       - postgres_local_data:/var/lib/postgresql/data
-      - ./scripts/init_pgvector.sql:/docker-entrypoint-initdb.d/01_init_pgvector.sql:ro
+      - ./db:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${DB_USERNAME:-user} -d agent_db"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -26,7 +24,7 @@ services:
     image: redis/redis-stack-server:latest
     container_name: redis-cache-local
     ports:
-      - "6379:6379"
+      - "${REDIS_HOST_PORT:-6380}:6379"
     volumes:
       - redis_local_data:/data
     networks:
@@ -38,8 +36,6 @@ services:
     container_name: jaeger-all-in-one
     ports:
       - "16686:16686" # UI
-      - "4317:4317"   # OTLP gRPC
-      - "4318:4318"   # OTLP HTTP
     networks:
       - local-network
     restart: unless-stopped
@@ -47,10 +43,15 @@ services:
   python-ai:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.ai
     container_name: python-ai-local
     env_file:
       - .env.local
+    environment:
+      DATABASE_URL: postgresql://${DB_USERNAME:-user}:${DB_PASSWORD:-password}@postgres-db:5432/${DB_NAME:-agent_db}
+      REDIS_URL: redis://redis-cache:6379/0
+      JAVA_CALLBACK_URL: http://java-backend:8080
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
     ports:
       - "8000:8000"
       - "50051:50051"
@@ -59,6 +60,16 @@ services:
         condition: service_healthy
       redis-cache:
         condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://127.0.0.1:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+    volumes:
+      - ./src:/app/src
+      - ./data_pipeline:/app/data_pipeline
+      - shared_uploads:/app/uploads
     networks:
       - local-network
     restart: unless-stopped
@@ -70,14 +81,48 @@ services:
     container_name: java-backend-local
     env_file:
       - .env.local
+    environment:
+      DB_URL: jdbc:postgresql://postgres-db:5432/${DB_NAME:-agent_db}
+      DB_USERNAME: ${DB_USERNAME:-user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      REDIS_HOST: redis-cache
+      REDIS_PORT: 6379
+      REDIS_USERNAME: default
+      REDIS_PASSWORD: ""
+      REDIS_DB: 0
+      PYTHON_GRPC_URL: static://python-ai:50051
+      JAVA_CALLBACK_URL: http://java-backend:8080
+      UPLOAD_DIR: /app/uploads
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
     ports:
       - "8080:8080"
+    volumes:
+      - shared_uploads:/app/uploads
     depends_on:
       postgres-db:
         condition: service_healthy
       redis-cache:
         condition: service_started
       python-ai:
+        condition: service_healthy
+    networks:
+      - local-network
+    restart: unless-stopped
+
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm ci && npm run dev -- -H 0.0.0.0 -p 3000"
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_JAVA_API_URL: http://localhost:8080
+      NEXT_TELEMETRY_DISABLED: 1
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    depends_on:
+      java-backend:
         condition: service_started
     networks:
       - local-network
@@ -90,3 +135,5 @@ networks:
 volumes:
   postgres_local_data:
   redis_local_data:
+  frontend_node_modules:
+  shared_uploads:

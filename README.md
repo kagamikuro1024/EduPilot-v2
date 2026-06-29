@@ -1,3 +1,15 @@
+---
+title: EduPilot AI Teaching Assistant
+emoji: 🎓
+colorFrom: indigo
+colorTo: blue
+sdk: docker
+app_port: 7860
+fullWidth: true
+pinned: false
+short_description: Full-stack Next.js, Spring Boot and FastAPI teaching assistant
+---
+
 # EduPilot - Hệ Thống Trợ giảng Quy mô lớn- 9000+ Sinh viên
 ### Đề tài AIK024 - Nhóm AIK-128
 ### Thành viên thực hiện:
@@ -7,6 +19,11 @@
 
 ---
 ## Video Demo: [Link Video Demo](https://drive.google.com/file/d/1YW6TyoQ9L1EVqjyKlHOXYj8u-GhqCDe8/view)
+
+## Deploy lên Hugging Face
+
+Xem hướng dẫn đầy đủ tại [`docs/HUGGINGFACE_DEPLOY.md`](docs/HUGGINGFACE_DEPLOY.md).
+
 ## Mô tả hệ thống
 
 Hệ thống EduPilot là một nền tảng Multi-Agent hỗ trợ dạy và học quy mô lớn, được thiết kế chuyên biệt nhằm giải quyết bài toán tối ưu hóa nguồn lực trợ giảng (1 TA hỗ trợ cho 1800 sinh viên). Hệ thống tự động hóa lên tới 80% các câu hỏi học vụ và lý thuyết lặp đi lặp lại, rút ngắn thời gian phản hồi sinh viên từ 2-3 ngày xuống còn dưới 1.5 giây thông qua kiến trúc RAG nâng cao kết hợp bộ nhớ đệm ngữ nghĩa (Semantic Cache).
@@ -613,49 +630,48 @@ A20-App-128/
 Tiến trình cài đặt và chạy thử nghiệm hệ thống được thực hiện trên môi trường máy chủ cục bộ thông qua tệp tin cấu hình container hóa `docker-compose.local.yml`.
 
 ### Yêu cầu hệ thống trước khi cài đặt
-* Máy tính đã cài đặt **Docker** và **Docker Compose** phiên bản mới nhất.
+* Máy tính đã cài đặt **Docker**, **Docker Compose**, **Node.js 20+** và **pnpm**.
 * Tài khoản có quyền truy cập dịch vụ và có sẵn khóa API từ **OpenAI** (OpenAI API Key)/Claude.
 
 ### Bước 1: Sao chép mã nguồn và cấu hình biến môi trường
 Tải toàn bộ mã nguồn dự án về máy tính cá nhân và tiến hành thiết lập các biến cấu hình cần thiết:
 
 ```bash
-# 1. Truy cập thư mục chứa mã nguồn dự án
 cd A20-App-128
-
-# 2. Tạo tệp tin biến môi trường cục bộ từ bản mẫu
-cp .env.example .env.local
 ```
 
-Mở tệp tin `.env.local` vừa tạo bằng trình soạn thảo văn bản và cập nhật khóa OpenAI API của bạn cùng các cấu hình kết nối mong muốn:
+Bạn không cần tạo file môi trường thủ công. Lần chạy `pnpm dev` đầu tiên sẽ tự tạo `.env.local` từ `.env.example`. Cập nhật khóa OpenAI API trong file này rồi khởi động lại stack để dùng đầy đủ tính năng AI:
 ```env
 OPENAI_API_KEY=your_openai_api_key_here
 DB_USERNAME=user
 DB_PASSWORD=password
 ```
 
-### Bước 2: Khởi dựng hệ thống bằng Docker Compose
-Khởi động đồng thời cả 5 thành phần dịch vụ của hệ thống thông qua tệp cấu hình môi trường cục bộ:
+### Bước 2: Các lệnh development
+`pnpm dev` chạy đồng thời Frontend, Java Backend, Python AI cùng PostgreSQL, Redis và Jaeger; log của tất cả service được hiển thị ngay trong terminal. Nhấn `Ctrl+C` để dừng.
 
 ```bash
-docker compose -f docker-compose.local.yml up -d --build
+pnpm dev           # Khởi động và theo dõi log
+pnpm dev:status    # Xem trạng thái các container
+pnpm dev:logs      # Theo dõi lại log
+pnpm dev:down      # Dừng và gỡ các container local
 ```
 
-Lệnh này sẽ tiến hành tải hình ảnh container cần thiết, xây dựng mã nguồn Java, đóng gói Python AI, thiết lập mạng nội bộ cục bộ và chạy ngầm toàn bộ hệ thống.
+Lần chạy đầu có thể mất vài phút vì Docker cần tải image và build dependency của Java/Python/Frontend.
 
 ### Bước 3: Kiểm tra trạng thái hoạt động của các dịch vụ
 Sau khi quá trình khởi động hoàn tất, bạn có thể kiểm tra danh sách container đang chạy và truy cập vào các cổng dịch vụ công khai tương ứng:
 
 ```bash
-docker compose -f docker-compose.local.yml ps
+pnpm dev:status
 ```
 
 * **Frontend Next.js**: Truy cập qua trình duyệt tại địa chỉ `http://localhost:3000`
 * **Java Gateway Service**: REST API công khai tại `http://localhost:8080`
 * **Python AI Engine**: REST API phụ tại `http://localhost:8000`
 * **Jaeger Tracing Dashboard**: Quản lý độ trễ dịch vụ tại `http://localhost:16686`
-* **Cơ sở dữ liệu PostgreSQL**: Cổng kết nối dữ liệu tại `localhost:5432`
-* **Redis Stack Server**: Bộ nhớ đệm và giao diện RedisInsight tại `localhost:6379`
+* **Cơ sở dữ liệu PostgreSQL**: Cổng kết nối dữ liệu tại `localhost:5433`
+* **Redis Stack Server**: Bộ nhớ đệm tại `localhost:6380`
 
 ---
 
