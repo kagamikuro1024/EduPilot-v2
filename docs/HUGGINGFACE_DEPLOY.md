@@ -94,7 +94,7 @@ Space là một Git repository. Tại thư mục dự án:
 git add .
 git commit -m "Add Hugging Face full-stack deployment"
 git remote add hf https://huggingface.co/spaces/<HF_USERNAME>/<SPACE_NAME>
-git push hf main
+git push hf hf-deploy:main
 ```
 
 Thay `<HF_USERNAME>` và `<SPACE_NAME>` bằng thông tin thật. Khi Git hỏi credentials:
@@ -102,13 +102,24 @@ Thay `<HF_USERNAME>` và `<SPACE_NAME>` bằng thông tin thật. Khi Git hỏi 
 - Username: Hugging Face username.
 - Password: User Access Token có quyền ghi, tạo tại <https://huggingface.co/settings/tokens>.
 
-Không đặt token trực tiếp trong remote URL. Sau mỗi lần push, Space tự build và restart.
-
-Nếu branch local không tên `main`, dùng:
+Nếu remote `hf` đã tồn tại nhưng sai URL, sửa bằng:
 
 ```powershell
-git push hf HEAD:main
+git remote set-url hf https://huggingface.co/spaces/<HF_USERNAME>/<SPACE_NAME>
 ```
+
+Không đặt token trực tiếp trong remote URL. Nhánh `hf-deploy` đã chuyển các PDF/PNG/JPG/JAR/ICO sang Git LFS để Hugging Face chấp nhận binary mà không rewrite lịch sử GitHub.
+
+Sau những lần sửa code tiếp theo, commit trên `main`, sau đó đưa commit mới sang nhánh deploy:
+
+```powershell
+git switch hf-deploy
+git cherry-pick <HASH_COMMIT_MOI_TREN_MAIN>
+git push hf hf-deploy:main
+git switch main
+```
+
+Mỗi lần push thành công, Space tự build và restart.
 
 ## 6. Theo dõi build
 
