@@ -7,6 +7,7 @@ sdk: docker
 app_port: 7860
 fullWidth: true
 pinned: false
+license: mit
 short_description: Full-stack Next.js, Spring Boot and FastAPI teaching assistant
 ---
 
