@@ -8,7 +8,7 @@ app_port: 7860
 fullWidth: true
 pinned: false
 license: mit
-short_description: Full-stack Next.js, Spring Boot and FastAPI teaching assistant
+short_description: EduPilot full-stack AI teaching assistant
 ---
 
 # EduPilot - Hệ Thống Trợ giảng Quy mô lớn- 9000+ Sinh viên
