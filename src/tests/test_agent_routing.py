@@ -27,7 +27,14 @@ sys.modules.setdefault("asyncpg", fake_asyncpg)
 from src.agent import run_agent_loop_stream
 
 
-def test_low_confidence_triggers_fallback_without_model_call():
+def test_low_confidence_emits_fallback_status_and_never_raises():
+    """
+    Low intent confidence must emit the fallback STATUS event, then continue
+    with the normal model flow. With a broken client (no .chat attribute) the
+    stream must terminate with a clean terminal `system_error` event instead
+    of raising out of the generator (which previously killed the gRPC stream).
+    """
+
     class DummyClient:
         pass
 
@@ -45,8 +52,10 @@ def test_low_confidence_triggers_fallback_without_model_call():
     chunks = asyncio.run(_run())
 
     assert any(c["type"] == "STATUS" and "intent_low_confidence" in c["content"] for c in chunks)
-    assert any(c["type"] == "TOKEN" and "TA" in c["content"] for c in chunks)
-    assert chunks[-1]["type"] == "DONE"
+    assert chunks[-1]["type"] == "system_error"
+    assert chunks[-1]["code"] == 500
+    assert chunks[-1]["message"]  # user-facing text, no raw exception detail
+    assert "AttributeError" not in chunks[-1]["message"]
 
 
 def test_procedural_intent_injects_assignment_routing_prompt():

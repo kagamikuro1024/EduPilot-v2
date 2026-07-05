@@ -138,7 +138,7 @@ def main() -> None:
     parser.add_argument("--locust-profiles", default="baseline,stress,spike")
     parser.add_argument("--login-email", default=os.getenv("BENCHMARK_LOGIN_EMAIL"))
     parser.add_argument("--login-password", default=os.getenv("BENCHMARK_LOGIN_PASSWORD"))
-    parser.add_argument("--ragas-model", default=os.getenv("BENCHMARK_RAGAS_MODEL", "gpt-4o-mini"))
+    parser.add_argument("--ragas-model", default=os.getenv("BENCHMARK_RAGAS_MODEL", "gpt-5.4-mini"))
     parser.add_argument("--concurrency", type=int, default=3)
     args = parser.parse_args()
 

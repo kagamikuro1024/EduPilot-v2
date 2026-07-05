@@ -256,7 +256,7 @@ function ChatMetaBar({ messageCount, isStreaming }: { messageCount: number; isSt
         <span className="h-3 w-px bg-slate-200 dark:bg-zinc-700" />
         <span className="inline-flex items-center gap-1">
           <Sparkles className="h-3 w-3 text-indigo-400" />
-          GPT-4o-mini
+          GPT-5.4-mini
         </span>
         {messageCount > 0 && (
           <>

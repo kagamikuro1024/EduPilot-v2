@@ -173,7 +173,7 @@ def _system_prompt_for_channel(normalized_hint: str) -> str:
 async def classify_and_guard(
     client: AsyncOpenAI,
     message: str,
-    model: str = "gpt-4o-mini",
+    model: str = "gpt-5.4-mini",
     timeout_seconds: float = 12.0,
     channel_hint: str = "PRIVATE",
 ) -> ClassificationResult:
@@ -183,7 +183,7 @@ async def classify_and_guard(
     Args:
         client: AsyncOpenAI client.
         message: The raw user message to classify.
-        model: Fast LLM model for classification (default: gpt-4o-mini).
+        model: Fast LLM model for classification (default: gpt-5.4-mini).
         timeout_seconds: Max time to wait for classification. If exceeded, 
                          returns a safe default (UNCERTAIN, no violation).
         channel_hint: PUBLIC (forum) vs PRIVATE (1:1 chat). Drives forum-only rules.

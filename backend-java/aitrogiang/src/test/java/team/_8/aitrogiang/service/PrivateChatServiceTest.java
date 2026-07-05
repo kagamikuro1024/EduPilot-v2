@@ -13,6 +13,9 @@ import team._8.aitrogiang.model.User;
 import team._8.aitrogiang.model.UserRole;
 import team._8.aitrogiang.repository.ChatMessageRepository;
 import team._8.aitrogiang.repository.ChatSessionRepository;
+import team._8.aitrogiang.repository.ForumPostRepository;
+import team._8.aitrogiang.repository.ForumThreadRepository;
+import team._8.aitrogiang.repository.UserRepository;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -30,12 +33,18 @@ class PrivateChatServiceTest {
     private ChatSessionRepository sessionRepository;
     @Mock
     private ChatMessageRepository messageRepository;
+    @Mock
+    private ForumThreadRepository forumThreadRepository;
+    @Mock
+    private ForumPostRepository forumPostRepository;
+    @Mock
+    private UserRepository userRepository;
 
     private PrivateChatService privateChatService;
 
     @BeforeEach
     void setUp() {
-        privateChatService = new PrivateChatService(sessionRepository, messageRepository);
+        privateChatService = new PrivateChatService(sessionRepository, messageRepository, forumThreadRepository, forumPostRepository, userRepository);
     }
 
     @Test

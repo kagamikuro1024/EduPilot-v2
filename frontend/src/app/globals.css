@@ -168,3 +168,24 @@ body {
   font-family: "Unica77 Cohere Web", "Inter", Arial, ui-sans-serif, system-ui;
   -webkit-font-smoothing: antialiased;
 }
+
+/* Font Scaling using data-font-size attribute */
+html[data-font-size="SMALL"] {
+  font-size: 14px;
+}
+html[data-font-size="DEFAULT"] {
+  font-size: 16px;
+}
+html[data-font-size="LARGE"] {
+  font-size: 18px;
+}
+
+/* Reduced Motion Override */
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}

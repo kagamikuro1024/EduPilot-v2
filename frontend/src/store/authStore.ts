@@ -10,18 +10,21 @@ const noopStorage = {
   removeItem: () => {},
 };
 
-
 interface AuthState {
   token: string | null;
   role: UserRole | null;
   fullName: string | null;
+  avatarAvailable: boolean;
+  avatarVersion: number;
   /** Preferred: set token + role from AuthResponse after login/register. */
-  setSession: (session: { token: string; role?: UserRole | null; fullName?: string | null }) => void;
+  setSession: (session: { token: string; role?: UserRole | null; fullName?: string | null; avatarAvailable?: boolean }) => void;
   /** Clears session or sets token only (infers role from JWT when possible). */
   setToken: (token: string | null) => void;
   /** If token exists but role is missing (legacy persisted state), derive role from JWT. */
   ensureRoleFromToken: () => void;
   logout: () => void;
+  setAvatarState: (available: boolean) => void;
+  updateFullName: (fullName: string) => void;
 }
 
 function syncAuthCookie(token: string | null) {
@@ -38,14 +41,22 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       role: null,
       fullName: null,
-      setSession: ({ token, role, fullName }) => {
+      avatarAvailable: false,
+      avatarVersion: 0,
+      setSession: ({ token, role, fullName, avatarAvailable }) => {
         const resolved = (role ?? parseRoleFromJwt(token)) as UserRole | null;
-        set({ token, role: resolved, fullName: fullName ?? null });
+        set({
+          token,
+          role: resolved,
+          fullName: fullName ?? null,
+          avatarAvailable: avatarAvailable ?? false,
+          avatarVersion: get().avatarVersion + 1,
+        });
         syncAuthCookie(token);
       },
       setToken: (token) => {
         if (!token) {
-          set({ token: null, role: null, fullName: null });
+          set({ token: null, role: null, fullName: null, avatarAvailable: false, avatarVersion: 0 });
           syncAuthCookie(null);
           return;
         }
@@ -60,12 +71,21 @@ export const useAuthStore = create<AuthState>()(
         if (inferred) set({ role: inferred });
       },
       logout: () => {
-        set({ token: null, role: null, fullName: null });
+        set({ token: null, role: null, fullName: null, avatarAvailable: false, avatarVersion: 0 });
         Cookies.remove("auth-token");
         if (typeof window !== "undefined") {
           localStorage.removeItem("auth-storage");
           window.location.href = "/login";
         }
+      },
+      setAvatarState: (available) => {
+        set((state) => ({
+          avatarAvailable: available,
+          avatarVersion: state.avatarVersion + 1,
+        }));
+      },
+      updateFullName: (fullName) => {
+        set({ fullName });
       },
     }),
     {

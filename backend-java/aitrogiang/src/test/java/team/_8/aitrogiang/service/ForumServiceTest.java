@@ -10,6 +10,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import team._8.aitrogiang.constant.SystemConstants;
 import team._8.aitrogiang.exception.ForbiddenException;
 import team._8.aitrogiang.model.ForumPost;
+import team._8.aitrogiang.model.ForumThread;
 import team._8.aitrogiang.model.PostAuthorType;
 import team._8.aitrogiang.model.User;
 import team._8.aitrogiang.model.UserRole;
@@ -122,7 +123,7 @@ class ForumServiceTest {
                 .content("safe answer")
                 .verificationStatus(VerificationStatus.VERIFIED)
                 .build();
-        when(threadRepository.existsById(threadId)).thenReturn(true);
+        when(threadRepository.findById(threadId)).thenReturn(Optional.of(ForumThread.builder().id(threadId).build()));
         when(postRepository.findByThreadIdOrderByCreatedAtAsc(threadId))
                 .thenReturn(List.of(rejectedAiPost, verifiedAiPost));
 

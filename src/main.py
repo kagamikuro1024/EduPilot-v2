@@ -69,7 +69,7 @@ async def lifespan(app: FastAPI):
         async def warm_up():
             try:
                 await agent_client.chat.completions.create(
-                    model="gpt-4o-mini",
+                    model="gpt-5.4-mini",
                     messages=[{"role": "user", "content": "hi"}],
                     max_completion_tokens=1
                 )
@@ -239,11 +239,10 @@ async def update_chunk_correction(request: CorrectionRequest):
     """
     try:
         from .database.vector_repo import update_chunk_content
-        from openai import AsyncOpenAI
-        from .config import OPENAI_API_KEY
+        from .tools import _get_openai_client
 
-        # 1. Generate new embedding
-        client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        # 1. Generate new embedding (shared pooled client)
+        client = _get_openai_client()
         emb_resp = await client.embeddings.create(
             input=[request.new_content],
             model="text-embedding-3-small"

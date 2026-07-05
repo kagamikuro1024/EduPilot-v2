@@ -10,6 +10,7 @@ import { Bell, LogOut, Settings, ChevronLeft, ChevronRight, User, Shield, HelpCi
 import { getWorkspaceNavLinks } from "@/config/workspaceNav";
 import { useAuthStore } from "@/store/authStore";
 import type { UserRole } from "@/types/auth";
+import AuthenticatedAvatar from "@/components/profile/AuthenticatedAvatar";
 
 export type WorkspaceFooterLine2 = "operational" | "rights";
 
@@ -115,6 +116,8 @@ export function WorkspaceLayout({
   const pathname = usePathname() ?? "";
   const role = useAuthStore((s) => s.role);
   const fullName = useAuthStore((s) => s.fullName);
+  const avatarAvailable = useAuthStore((s) => s.avatarAvailable);
+  const avatarVersion = useAuthStore((s) => s.avatarVersion);
   const logout = useAuthStore((s) => s.logout);
   const navLinks = getWorkspaceNavLinks(role);
   const avatarLetters = defaultAvatarLetters(role, studentProfile, avatarInitialsOverride, fullName);
@@ -164,9 +167,12 @@ export function WorkspaceLayout({
               }`}
             >
               <div className="relative">
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 via-violet-500 to-purple-600 text-sm font-bold text-white shadow-lg shadow-indigo-500/25 transition-transform duration-200 group-hover:scale-105">
-                  {avatarLetters}
-                </div>
+                <AuthenticatedAvatar
+                  fullName={fullName}
+                  avatarAvailable={avatarAvailable}
+                  avatarVersion={avatarVersion}
+                  className="h-9 w-9 text-sm font-bold"
+                />
                 {/* Online status dot */}
                 <span className="absolute -bottom-0.5 -right-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full border-2 border-white bg-emerald-500">
                   <span className="h-1.5 w-1.5 animate-ping rounded-full bg-emerald-300" />
@@ -193,8 +199,13 @@ export function WorkspaceLayout({
                       <div className="absolute -left-4 -bottom-8 h-20 w-20 rounded-full bg-white/5" />
                       
                       <div className="relative flex items-center gap-3.5">
-                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/20 text-lg font-bold text-white shadow-inner backdrop-blur-sm ring-1 ring-white/30">
-                          {avatarLetters}
+                        <div className="shrink-0">
+                          <AuthenticatedAvatar
+                            fullName={fullName}
+                            avatarAvailable={avatarAvailable}
+                            avatarVersion={avatarVersion}
+                            className="h-12 w-12 text-sm font-bold"
+                          />
                         </div>
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-bold text-white">
@@ -215,7 +226,7 @@ export function WorkspaceLayout({
                     <div className="p-1.5">
                       {/* Profile */}
                       <Link
-                        href="/settings"
+                        href="/profile"
                         className="group flex items-center gap-3 rounded-xl px-3.5 py-2.5 transition-all duration-150 hover:bg-indigo-50"
                         onClick={() => setUserMenuOpen(false)}
                       >

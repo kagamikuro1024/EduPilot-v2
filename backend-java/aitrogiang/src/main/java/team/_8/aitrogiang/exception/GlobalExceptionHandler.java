@@ -97,9 +97,39 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
     public ResponseEntity<Map<String, Object>> handleAuthException(org.springframework.security.core.AuthenticationException ex) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                .body(Map.of(
-                        "error", "UNAUTHORIZED",
-                        "message", "Tài khoản/mật khẩu của bạn sai, vui lòng kiểm tra lại"
-                ));
+            .body(Map.of(
+                "error", "UNAUTHORIZED",
+                "message", "Tài khoản/mật khẩu của bạn sai, vui lòng kiểm tra lại"
+            ));
+    }
+
+    @ExceptionHandler(UnsupportedMediaTypeException.class)
+    public ResponseEntity<Map<String, Object>> handleUnsupportedMediaType(UnsupportedMediaTypeException ex) {
+        return ResponseEntity.status(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+            .body(Map.of("error", "UNSUPPORTED_MEDIA_TYPE", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(PayloadTooLargeException.class)
+    public ResponseEntity<Map<String, Object>> handlePayloadTooLarge(PayloadTooLargeException ex) {
+        return ResponseEntity.status(HttpStatus.PAYLOAD_TOO_LARGE)
+            .body(Map.of("error", "PAYLOAD_TOO_LARGE", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidPassword(InvalidPasswordException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of("error", "INVALID_PASSWORD", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidPreferencesException.class)
+    public ResponseEntity<Map<String, Object>> handleInvalidPreferences(InvalidPreferencesException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of("error", "INVALID_PREFERENCES", "message", ex.getMessage()));
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(Map.of("error", "BAD_REQUEST", "message", ex.getMessage()));
     }
 }

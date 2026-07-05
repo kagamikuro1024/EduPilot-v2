@@ -1,0 +1,122 @@
+{
+  "before": {
+    "label": "before",
+    "extra_tool_arg": {
+      "terminal_ok": false
+    },
+    "missing_required_arg": {
+      "terminal_ok": false
+    },
+    "unknown_tool": {
+      "terminal_ok": true
+    },
+    "malformed_args_json": {
+      "terminal_ok": true
+    },
+    "api_connection_error": {
+      "terminal_ok": false
+    },
+    "unexpected_exception": {
+      "terminal_ok": false
+    },
+    "escalation_content": {
+      "terminal_ok": true,
+      "escalated": true,
+      "content_delivered_ratio": 0.413
+    },
+    "duplicate_rag_calls": {
+      "terminal_ok": true,
+      "tool_executions_for_3_identical_calls": 3
+    },
+    "slow_cache_event_loop": {
+      "max_event_loop_stall_ms": 291.4
+    },
+    "client_instantiations": {
+      "openai_clients_created_for_5_calls": 5
+    },
+    "grpc_429_visibility": {
+      "user_sees_terminal_message_on_429": false
+    },
+    "citation_alignment": {
+      "invented_citations": 0
+    },
+    "routing_rules": {
+      "procedural_cases": 24,
+      "regulation_prefetch_recall": 0.875,
+      "sql_case_false_prefetch_rate": null
+    },
+    "latency": {
+      "agent_overhead_p50_ms": 0.05,
+      "agent_overhead_p95_ms": 0.09
+    },
+    "memory": {
+      "rss_after_chat_imports_mb": 84.4,
+      "docling_loaded": false,
+      "torch_loaded": false
+    },
+    "summary": {
+      "robustness_pass": 4,
+      "robustness_total": 8
+    }
+  },
+  "after": {
+    "label": "after",
+    "extra_tool_arg": {
+      "terminal_ok": true
+    },
+    "missing_required_arg": {
+      "terminal_ok": true
+    },
+    "unknown_tool": {
+      "terminal_ok": true
+    },
+    "malformed_args_json": {
+      "terminal_ok": true
+    },
+    "api_connection_error": {
+      "terminal_ok": true
+    },
+    "unexpected_exception": {
+      "terminal_ok": true
+    },
+    "escalation_content": {
+      "terminal_ok": true,
+      "escalated": true,
+      "content_delivered_ratio": 1.0
+    },
+    "duplicate_rag_calls": {
+      "terminal_ok": true,
+      "tool_executions_for_3_identical_calls": 1
+    },
+    "slow_cache_event_loop": {
+      "max_event_loop_stall_ms": 1.2
+    },
+    "client_instantiations": {
+      "openai_clients_created_for_5_calls": 1
+    },
+    "grpc_429_visibility": {
+      "user_sees_terminal_message_on_429": true
+    },
+    "citation_alignment": {
+      "invented_citations": 0
+    },
+    "routing_rules": {
+      "procedural_cases": 24,
+      "regulation_prefetch_recall": 0.875,
+      "sql_case_false_prefetch_rate": null
+    },
+    "latency": {
+      "agent_overhead_p50_ms": 0.11,
+      "agent_overhead_p95_ms": 0.22
+    },
+    "memory": {
+      "rss_after_chat_imports_mb": 87.9,
+      "docling_loaded": false,
+      "torch_loaded": false
+    },
+    "summary": {
+      "robustness_pass": 8,
+      "robustness_total": 8
+    }
+  }
+}

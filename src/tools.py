@@ -14,12 +14,15 @@ from openai import AsyncOpenAI
 from .config import (
     DATABASE_URL,
     OPENAI_API_KEY,
+    OPENAI_MAX_RETRIES,
+    OPENAI_TIMEOUT_SECONDS,
     RAG_MAX_RETRIEVAL_DISTANCE,
     RAG_RETRIEVAL_CANDIDATES,
     RAG_RERANK_LIMIT,
     RAG_FALLBACK_MAX_DISTANCE,
     RAG_RELATIVE_DISTANCE_RATIO,
     RAG_DEBUG_TOP_K,
+    RAG_UTILITY_MODEL,
 )
 from .database.cache_repo import check_semantic_cache, set_semantic_cache
 from .database.vector_repo import (
@@ -29,6 +32,39 @@ from .database.vector_repo import (
 )
 
 logger = logging.getLogger(__name__)
+
+# ---------------------------------------------------------------------------
+# Shared OpenAI client (lazy singleton).
+#
+# Creating a new AsyncOpenAI per RAG call builds a fresh httpx connection pool
+# each time. We memoize one client keyed on (client class, api key) so:
+#   * production reuses a single pool with explicit timeout/retry bounds;
+#   * tests that monkeypatch ``tools.AsyncOpenAI`` / ``tools.OPENAI_API_KEY``
+#     still get their fake client (the cache key changes with the patch).
+# ---------------------------------------------------------------------------
+_openai_client_cache: dict = {"key": None, "client": None}
+
+
+def _get_openai_client():
+    cls = AsyncOpenAI  # late module-global lookups: respect monkeypatching
+    api_key = OPENAI_API_KEY
+    cache_key = (cls, api_key)
+    if _openai_client_cache["key"] == cache_key and _openai_client_cache["client"] is not None:
+        return _openai_client_cache["client"]
+    try:
+        client = cls(
+            api_key=api_key,
+            timeout=OPENAI_TIMEOUT_SECONDS,
+            max_retries=OPENAI_MAX_RETRIES,
+        )
+    except TypeError:
+        # Test doubles may not accept timeout/max_retries kwargs.
+        client = cls(api_key=api_key)
+    _openai_client_cache["key"] = cache_key
+    _openai_client_cache["client"] = client
+    return client
+
+
 _LAST_RAG_CITATIONS: contextvars.ContextVar[list[dict]] = contextvars.ContextVar("last_rag_citations", default=[])
 _LAST_RAG_RUNTIME: contextvars.ContextVar[dict] = contextvars.ContextVar(
     "last_rag_runtime",
@@ -223,7 +259,7 @@ async def _rewrite_regulation_query(client: AsyncOpenAI, query: str) -> str:
     try:
         resp = await asyncio.wait_for(
             client.chat.completions.create(
-                model="gpt-4o-mini",
+                model=RAG_UTILITY_MODEL,
                 messages=[
                     {"role": "system", "content": _REWRITE_SYSTEM},
                     {"role": "user", "content": query},
@@ -595,7 +631,7 @@ async def _synthesize_regulation_answer_from_chunks(
 
     started = time.perf_counter()
     request = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=RAG_UTILITY_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_content},
@@ -1199,7 +1235,7 @@ async def _execute_rag_pipeline(query: str, document_type: str = DOCUMENT_TYPE_C
         logger.error("OPENAI_API_KEY is missing")
         return "Cấu hình AI chưa hoàn tất.", []
 
-    client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+    client = _get_openai_client()
 
     # Canonical query for course materials: equivalent student phrasings share embeddings + cache.
     effective_query = query
@@ -1244,9 +1280,15 @@ async def _execute_rag_pipeline(query: str, document_type: str = DOCUMENT_TYPE_C
         raise
 
     # 1. LAYER 1: Semantic Cache (Hit check) — course materials only (isolate regulation retrieval)
+    # The Redis client is synchronous; run it in a worker thread so a slow or
+    # unreachable cache cannot block the event loop (and every other stream).
     cache_result = None
     if document_type == DOCUMENT_TYPE_COURSE_MATERIAL:
-        cache_result = check_semantic_cache(query_vector)
+        try:
+            cache_result = await asyncio.to_thread(check_semantic_cache, query_vector)
+        except Exception as cache_exc:
+            logger.warning("Semantic cache check failed (treated as miss): %s", cache_exc)
+            cache_result = None
     if cache_result:
         answer = str(cache_result.get("answer", "")).strip()
         citations = cache_result.get("citations", [])
@@ -1268,6 +1310,7 @@ async def _execute_rag_pipeline(query: str, document_type: str = DOCUMENT_TYPE_C
         kw_terms = _course_keyword_terms_from_hints(hint_tokens)
 
     # Parallelize vector search and keyword search
+    retrieval_started_at = time.perf_counter()
     kw_raw: list[dict] = []
     if kw_terms:
         raw_vector, kw_raw = await asyncio.gather(
@@ -1276,6 +1319,7 @@ async def _execute_rag_pipeline(query: str, document_type: str = DOCUMENT_TYPE_C
         )
     else:
         raw_vector = await search_vectors(query_vector, limit=candidate_limit, document_type=document_type)
+    retrieval_elapsed_ms = int((time.perf_counter() - retrieval_started_at) * 1000)
 
     raw_merged = raw_vector
     if is_regulation:
@@ -1327,7 +1371,8 @@ async def _execute_rag_pipeline(query: str, document_type: str = DOCUMENT_TYPE_C
         chunks = _dedupe_regulation_chunks(chunks, max_items=rerank_limit)
     top_candidates = _build_candidate_diagnostics(raw_merged, RAG_DEBUG_TOP_K)
     logger.info(
-        "RAG Layer2 stats raw=%s distance=%s final=%s dist_drop=%s hint_drop=%s hint_fallback=%s adaptive_fallback=%s hints=%s min_dist=%s max_dist=%s",
+        "RAG Layer2 stats retrieval_ms=%s raw=%s distance=%s final=%s dist_drop=%s hint_drop=%s hint_fallback=%s adaptive_fallback=%s hints=%s min_dist=%s max_dist=%s",
+        retrieval_elapsed_ms,
         retrieval_stats["raw_count"],
         retrieval_stats["distance_count"],
         len(chunks),
@@ -1443,7 +1488,7 @@ async def _execute_rag_pipeline(query: str, document_type: str = DOCUMENT_TYPE_C
     try:
         rerank_started_at = time.perf_counter()
         rerank_request = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=RAG_UTILITY_MODEL,
             messages=[
                 {"role": "system", "content": rerank_system_prompt},
                 {"role": "user", "content": rerank_user_content},
@@ -1538,8 +1583,14 @@ async def _execute_rag_pipeline(query: str, document_type: str = DOCUMENT_TYPE_C
         rerank_result = "\n".join(answer_lines)
 
         # Save successful result to cache for future Layer 1 hits (course materials only).
+        # Best-effort and off-loop: a cache write failure must never fail the answer.
         if citations and document_type == DOCUMENT_TYPE_COURSE_MATERIAL:
-            set_semantic_cache(effective_query, rerank_result, query_vector, citations=citations)
+            try:
+                await asyncio.to_thread(
+                    set_semantic_cache, effective_query, rerank_result, query_vector, citations=citations
+                )
+            except Exception as cache_exc:
+                logger.warning("Semantic cache write failed (ignored): %s", cache_exc)
 
         rerank_elapsed_ms = int((time.perf_counter() - rerank_started_at) * 1000)
         logger.info("RAG Pipeline: Layer 3 (Rerank) Success. Cache updated. elapsed_ms=%s", rerank_elapsed_ms)
@@ -1626,9 +1677,75 @@ def get_tool_schemas() -> list[dict]:
         })
     return schemas
 
+# Last-resort tool failure message. Individual tools already return their own
+# domain-specific error strings; this only covers unexpected crashes so a bad
+# tool call can never terminate the whole answer stream.
+TOOL_EXECUTION_ERROR_MSG = (
+    "Lỗi hệ thống khi thực thi công cụ hỗ trợ. Vui lòng thử lại sau hoặc liên hệ TA."
+)
+
+
+def _validate_tool_args(tool: dict, args: object) -> tuple[dict, str | None]:
+    """
+    Defensively validate model-generated tool arguments against the registry schema.
+
+    - Non-dict payloads are treated as empty.
+    - Unknown keys are dropped (previously they raised TypeError via ``**args``
+      and killed the stream).
+    - "integer" params accept numeric strings (models frequently emit "7").
+    - Returns (clean_args, error_message); error_message is set when a required
+      parameter is absent.
+    """
+    params: dict = tool.get("parameters", {}) or {}
+    required = tool.get("required", []) or []
+    if not isinstance(args, dict):
+        args = {}
+
+    clean: dict = {}
+    for key, expected_type in params.items():
+        if key not in args:
+            continue
+        value = args[key]
+        if value is None:
+            continue
+        if expected_type == "string":
+            clean[key] = value if isinstance(value, str) else str(value)
+        elif expected_type == "integer":
+            if isinstance(value, bool):
+                continue
+            if isinstance(value, int):
+                clean[key] = value
+            else:
+                try:
+                    clean[key] = int(str(value).strip())
+                except (TypeError, ValueError):
+                    continue
+        else:
+            clean[key] = value
+
+    missing = [r for r in required if r not in clean]
+    if missing:
+        return clean, (
+            "Thiếu tham số bắt buộc cho công cụ: " + ", ".join(missing) + ". "
+            "Hãy gọi lại công cụ với đầy đủ tham số."
+        )
+    return clean, None
+
+
 async def execute_tool(name: str, args: dict) -> str:
-    """Execute a tool by name."""
+    """Execute a tool by name. Never raises: returns an error string instead."""
     tool = TOOLS.get(name)
     if not tool:
+        logger.warning("tool_unknown name=%r", name)
         return f"Tool '{name}' does not exist"
-    return await tool["fn"](**args)
+
+    clean_args, validation_error = _validate_tool_args(tool, args)
+    if validation_error:
+        logger.warning("tool_args_invalid tool=%s missing_required=1", name)
+        return validation_error
+
+    try:
+        return await tool["fn"](**clean_args)
+    except Exception as exc:
+        logger.exception("tool_execution_failed tool=%s error=%s", name, exc)
+        return TOOL_EXECUTION_ERROR_MSG

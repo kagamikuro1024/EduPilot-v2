@@ -158,7 +158,7 @@ def main() -> None:
     parser.add_argument("--concurrency", type=int, default=3)
     parser.add_argument(
         "--model",
-        default=os.getenv("BENCHMARK_RAGAS_MODEL", os.getenv("BENCHMARK_JUDGE_MODEL", "gpt-4o-mini")),
+        default=os.getenv("BENCHMARK_RAGAS_MODEL", os.getenv("BENCHMARK_JUDGE_MODEL", "gpt-5.4-mini")),
     )
     args = parser.parse_args()
 

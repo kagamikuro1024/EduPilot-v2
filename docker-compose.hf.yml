@@ -10,7 +10,7 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-REDACTED_LEGACY_JWT_SECRET}
       INTERNAL_CALLBACK_TOKEN: ${INTERNAL_CALLBACK_TOKEN:-local-internal-token-change-me}
       ADMIN_TOKEN: ${ADMIN_TOKEN:-local-admin-token-change-me}
-      DEFAULT_MODEL: ${DEFAULT_MODEL:-gpt-4o-mini}
+      DEFAULT_MODEL: ${DEFAULT_MODEL:-gpt-5.4-mini}
       APP_ENV: production
       LOG_LEVEL: INFO
       HF_DATA_DIR: /home/user/data

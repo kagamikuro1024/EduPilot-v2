@@ -29,6 +29,91 @@ from .guardrails import (
 
 logger = logging.getLogger(__name__)
 
+# Generic student-facing text for unexpected server errors. Never embed
+# raw exception strings in the stream (they can leak internals).
+_SANITIZED_INTERNAL_ERROR = (
+    "Internal error: Hệ thống AI đang gặp sự cố tạm thời. Vui lòng thử lại sau ít phút."
+)
+
+# Map technical status to friendly Vietnamese labels (module-level: built once).
+_STATUS_LABEL_MAP = {
+    "academic-prefetch": "Đang tra cứu tài liệu học tập",
+    "procedural-prefetch": "Đang kiểm tra quy chế đào tạo",
+    "intent_low_confidence": "Đang phân tích kỹ câu hỏi",
+    "classifier_unavailable": "Hệ thống đang bận, chuyển sang chế độ dự phòng",
+    "query_course_materials": "Tìm kiếm tài liệu môn học",
+    "query_regulations": "Tra cứu quy định & quy chế",
+}
+
+# Keep strong references to fire-and-forget ingestion tasks. Without this,
+# asyncio may garbage-collect a running task mid-ingestion (CPython caveat).
+_BACKGROUND_TASKS: set = set()
+
+
+def _spawn_background_task(coro) -> "asyncio.Task":
+    task = asyncio.create_task(coro)
+    _BACKGROUND_TASKS.add(task)
+    task.add_done_callback(_BACKGROUND_TASKS.discard)
+    return task
+
+
+def _friendly_status(raw_content: str) -> str:
+    """Translate an agent STATUS payload into the student-facing label."""
+    friendly_label = _STATUS_LABEL_MAP.get(raw_content, raw_content)
+    # Check for partial matches (e.g. "Searching: query_regulations")
+    for key, val in _STATUS_LABEL_MAP.items():
+        if key in raw_content:
+            friendly_label = val
+            break
+    return friendly_label
+
+
+def _build_agent_used(classification, collected_metrics: dict) -> str:
+    """
+    Assemble the pipe-tag `agent_used` metadata string parsed by the Java
+    gateway. The format is a contract: AGENT|k1=v1|k2=v2...
+    """
+    agent_used = "QA_AGENT"
+    if classification.intent == IntentType.PROCEDURAL:
+        agent_used = "ASSIGNMENT_AGENT"
+    # Non-breaking metadata extension: append routing context into agent_used.
+    if classification.intent == IntentType.UNCERTAIN:
+        agent_used = f"{agent_used}|intent=UNCERTAIN|fallback={classification.reasoning or 'none'}"
+    elif classification.confidence < 0.45:
+        agent_used = f"{agent_used}|intent={classification.intent.value if hasattr(classification.intent, 'value') else classification.intent}|fallback=low_confidence"
+    # Non-breaking metadata extension via tag suffix (Java parses these into structured metadata fields).
+    cache_hit = "true" if collected_metrics.get("cache_hit") else "false"
+    in_tok = collected_metrics.get("usage", {}).get("input_tokens")
+    out_tok = collected_metrics.get("usage", {}).get("output_tokens")
+    in_tok_s = str(in_tok) if isinstance(in_tok, int) else ""
+    out_tok_s = str(out_tok) if isinstance(out_tok, int) else ""
+    return f"{agent_used}|cache_hit={cache_hit}|input_tokens={in_tok_s}|output_tokens={out_tok_s}"
+
+
+def _build_proto_citations(collected_citations: list) -> list:
+    """Convert citation dicts to protobuf Citation messages (schema unchanged)."""
+    proto_citations = []
+    for c in collected_citations:
+        try:
+            source_file = str(c.get("source_file", "")).strip()
+            if not source_file:
+                continue
+            page_number = int(c.get("page_number", 0) or 0)
+            proto_citations.append(
+                ai_service_pb2.Citation(
+                    source_file=source_file,
+                    page_number=page_number,
+                    document_id=str(c.get("document_id", "") or ""),
+                    source_uri=str(c.get("source_uri", "") or ""),
+                    chunk_id=str(c.get("chunk_id", "") or ""),
+                    chunk_index=int(c.get("chunk_index", 0) or 0),
+                    snippet=str(c.get("snippet", "") or ""),
+                )
+            )
+        except Exception:
+            continue
+    return proto_citations
+
 
 def _channel_hint_from_grpc_tags(tags) -> str:
     """Java adds tags like channel:FORUM / channel:CHAT → PUBLIC / PRIVATE classifier hints."""
@@ -128,25 +213,7 @@ class AIThreadServicer(ai_service_pb2_grpc.AIThreadServiceServicer if ai_service
                     # Stream plain text instead of JSON to avoid raw payload rendering on UI.
                     yield ai_service_pb2.AIResponse(chunk=chunk_data["content"], is_finished=False)
                 elif chunk_data["type"] == "STATUS":
-                    # Map technical status to friendly Vietnamese labels
-                    status_map = {
-                        "academic-prefetch": "Đang tra cứu tài liệu học tập",
-                        "procedural-prefetch": "Đang kiểm tra quy chế đào tạo",
-                        "intent_low_confidence": "Đang phân tích kỹ câu hỏi",
-                        "classifier_unavailable": "Hệ thống đang bận, chuyển sang chế độ dự phòng",
-                        "query_course_materials": "Tìm kiếm tài liệu môn học",
-                        "query_regulations": "Tra cứu quy định & quy chế"
-                    }
-                    
-                    raw_content = chunk_data.get("content", "")
-                    friendly_label = status_map.get(raw_content, raw_content)
-                    
-                    # Check for partial matches (e.g. "Searching: query_regulations")
-                    for key, val in status_map.items():
-                        if key in raw_content:
-                            friendly_label = val
-                            break
-
+                    friendly_label = _friendly_status(chunk_data.get("content", ""))
                     status_msg = f"🔍 {friendly_label}...\n"
                     yield ai_service_pb2.AIResponse(chunk=status_msg, is_finished=False)
                 elif chunk_data["type"] == "CITATIONS":
@@ -173,47 +240,24 @@ class AIThreadServicer(ai_service_pb2_grpc.AIThreadServiceServicer if ai_service
                                 collected_metrics["usage"]["input_tokens"] = in_tok
                             if isinstance(out_tok, int):
                                 collected_metrics["usage"]["output_tokens"] = out_tok
+                elif chunk_data["type"] == "system_error":
+                    # Provider failure (rate limit / timeout / outage) already
+                    # translated by the agent into a friendly message. Finish the
+                    # stream cleanly so Java persists the message and the client
+                    # receives a terminal event (previously this type was dropped
+                    # and the stream ended with no final chunk).
+                    message = str(chunk_data.get("message", "") or "").strip() or _SANITIZED_INTERNAL_ERROR
+                    logger.warning(
+                        "StreamAIResponse terminal system_error code=%s",
+                        chunk_data.get("code", ""),
+                    )
+                    yield ai_service_pb2.AIResponse(chunk=message, is_finished=True)
+                    break
                 elif chunk_data["type"] == "DONE":
-                    # 4. Set agent metadata based on intent
-                    agent_used = "QA_AGENT"
-                    if classification.intent == IntentType.PROCEDURAL:
-                        agent_used = "ASSIGNMENT_AGENT"
-                    # Non-breaking metadata extension: append routing context into agent_used.
-                    if classification.intent == IntentType.UNCERTAIN:
-                        agent_used = f"{agent_used}|intent=UNCERTAIN|fallback={classification.reasoning or 'none'}"
-                    elif classification.confidence < 0.45:
-                        agent_used = f"{agent_used}|intent={classification.intent.value if hasattr(classification.intent, 'value') else classification.intent}|fallback=low_confidence"
-                    # Non-breaking metadata extension via tag suffix (Java parses these into structured metadata fields).
-                    cache_hit = "true" if collected_metrics.get("cache_hit") else "false"
-                    in_tok = collected_metrics.get("usage", {}).get("input_tokens")
-                    out_tok = collected_metrics.get("usage", {}).get("output_tokens")
-                    in_tok_s = str(in_tok) if isinstance(in_tok, int) else ""
-                    out_tok_s = str(out_tok) if isinstance(out_tok, int) else ""
-                    agent_used = f"{agent_used}|cache_hit={cache_hit}|input_tokens={in_tok_s}|output_tokens={out_tok_s}"
-                    
-                    proto_citations = []
-                    for c in collected_citations:
-                        try:
-                            source_file = str(c.get("source_file", "")).strip()
-                            if not source_file:
-                                continue
-                            page_number = int(c.get("page_number", 0) or 0)
-                            proto_citations.append(
-                                ai_service_pb2.Citation(
-                                    source_file=source_file,
-                                    page_number=page_number,
-                                    document_id=str(c.get("document_id", "") or ""),
-                                    source_uri=str(c.get("source_uri", "") or ""),
-                                    chunk_id=str(c.get("chunk_id", "") or ""),
-                                    chunk_index=int(c.get("chunk_index", 0) or 0),
-                                    snippet=str(c.get("snippet", "") or ""),
-                                )
-                            )
-                        except Exception:
-                            continue
+                    # 4. Set agent metadata based on intent (pipe-tag contract with Java)
                     metadata = ai_service_pb2.ResponseMetadata(
-                        agent_used=agent_used,
-                        citations=proto_citations
+                        agent_used=_build_agent_used(classification, collected_metrics),
+                        citations=_build_proto_citations(collected_citations)
                     )
                     yield ai_service_pb2.AIResponse(chunk="", is_finished=True, metadata=metadata)
                 elif chunk_data["type"] == "ERROR":
@@ -222,8 +266,9 @@ class AIThreadServicer(ai_service_pb2_grpc.AIThreadServiceServicer if ai_service
         except Exception as e:
             if isinstance(e, grpc.RpcError):
                 raise e # Re-raise gRPC errors (like the abort above)
-            logger.error(f"gRPC StreamAIResponse error: {e}")
-            yield ai_service_pb2.AIResponse(chunk=f"Internal error: {str(e)}", is_finished=True)
+            # Log full detail server-side; send only a sanitized message to users.
+            logger.exception(f"gRPC StreamAIResponse error: {e}")
+            yield ai_service_pb2.AIResponse(chunk=_SANITIZED_INTERNAL_ERROR, is_finished=True)
 
     async def ClassifyIntent(self, request, context: grpc.aio.ServicerContext):
         """Implementation of ClassifyIntent RPC using the public channel contract."""
@@ -271,7 +316,8 @@ class AIDocumentServicer(ai_service_pb2_grpc.AIDocumentServiceServicer if ai_ser
         # Import Docling only when an upload actually arrives. Chat-only Spaces
         # otherwise avoid loading the PyTorch/document stack into RAM at startup.
         from .document_callback import run_ingestion_with_callback
-        asyncio.create_task(run_ingestion_with_callback(request.document_id, request.file_url))
+        # Hold a strong reference so the running ingestion task cannot be GC'd.
+        _spawn_background_task(run_ingestion_with_callback(request.document_id, request.file_url))
         return ai_service_pb2.DocumentResponse(accepted=True)
 
     async def UpdateChunkContent(self, request, context: grpc.aio.ServicerContext):
@@ -281,11 +327,10 @@ class AIDocumentServicer(ai_service_pb2_grpc.AIDocumentServiceServicer if ai_ser
         """
         try:
             from .database.vector_repo import update_chunk_content
-            from openai import AsyncOpenAI
-            from .config import OPENAI_API_KEY
-            
-            # 1. Generate new embedding for corrected text
-            client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+            from .tools import _get_openai_client
+
+            # 1. Generate new embedding for corrected text (shared pooled client)
+            client = _get_openai_client()
             emb_resp = await client.embeddings.create(
                 input=[request.new_content],
                 model="text-embedding-3-small"

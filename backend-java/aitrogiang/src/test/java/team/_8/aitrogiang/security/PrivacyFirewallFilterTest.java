@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import team._8.aitrogiang.dto.AskAiRequest;
+import team._8.aitrogiang.IntegrationTestBase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -16,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
-public class PrivacyFirewallFilterTest {
+public class PrivacyFirewallFilterTest extends IntegrationTestBase {
 
     @Autowired
     private MockMvc mockMvc;

@@ -8,7 +8,11 @@ from redis import Redis
 from redis.commands.search.field import TextField, VectorField
 from redis.commands.search.index_definition import IndexDefinition, IndexType
 from redis.commands.search.query import Query
-from src.config import REDIS_URL
+from src.config import (
+    REDIS_CONNECT_TIMEOUT_SECONDS,
+    REDIS_SOCKET_TIMEOUT_SECONDS,
+    REDIS_URL,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -36,8 +40,15 @@ def get_redis_client() -> Redis:
             return _redis_client
         
         try:
-            # 1. Initialize temporary client
-            temp_client = Redis.from_url(REDIS_URL, decode_responses=False)
+            # 1. Initialize temporary client.
+            # Socket timeouts keep a slow/unreachable Redis from stalling callers:
+            # cache lookups degrade to a miss instead of hanging the request path.
+            temp_client = Redis.from_url(
+                REDIS_URL,
+                decode_responses=False,
+                socket_timeout=REDIS_SOCKET_TIMEOUT_SECONDS,
+                socket_connect_timeout=REDIS_CONNECT_TIMEOUT_SECONDS,
+            )
             # 2. Ping to verify connection
             temp_client.ping()
             # 3. Only assign to global if ping succeeds

@@ -43,6 +43,12 @@ public class User implements UserDetails {
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)
     private UserRole role;
 
+    @Column(name = "avatar_filename")
+    private String avatarFilename;
+
+    @Column(name = "password_changed_at")
+    private LocalDateTime passwordChangedAt;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

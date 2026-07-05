@@ -43,7 +43,25 @@ public class JwtService {
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        if (!username.equals(userDetails.getUsername()) || isTokenExpired(token)) {
+            return false;
+        }
+
+        if (userDetails instanceof team._8.aitrogiang.model.User) {
+            team._8.aitrogiang.model.User user = (team._8.aitrogiang.model.User) userDetails;
+            if (user.getPasswordChangedAt() != null) {
+                Date issuedAt = extractClaim(token, Claims::getIssuedAt);
+                if (issuedAt != null) {
+                    long issuedAtSec = issuedAt.getTime() / 1000;
+                    long passwordChangedSec = user.getPasswordChangedAt().atZone(java.time.ZoneId.systemDefault()).toEpochSecond();
+                    if (issuedAtSec < passwordChangedSec) {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        return true;
     }
 
     private boolean isTokenExpired(String token) {

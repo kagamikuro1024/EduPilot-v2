@@ -26,3 +26,5 @@
 \ir migration/V22__add_global_content_hash_unique_idx.sql
 \ir migration/V23__add_chat_message_created_at.sql
 \ir migration/V24__add_forum_post_created_at.sql
+\ir migration/V25__add_user_profile_and_preferences.sql
+

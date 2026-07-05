@@ -9,6 +9,7 @@ import { authService } from "@/services/auth.service";
 import { useAuthStore } from "@/store/authStore";
 import AuthBackground from "@/components/auth/AuthBackground";
 import { extractErrorMessage } from "@/lib/utils";
+import javaClient from "@/services/javaClient";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -28,7 +29,23 @@ export default function LoginPage() {
     try {
       const response = await authService.login({ email, password });
       setSession({ token: response.token, role: response.role, fullName: response.fullName });
-      router.push(getPostAuthPath(response.role));
+      
+      if (response.role === "STUDENT") {
+        try {
+          const prefsRes = await javaClient.get("/api/v1/users/me/preferences");
+          const defaultPage = prefsRes.data?.default_student_page;
+          if (defaultPage === "CHAT") {
+            router.push("/chat");
+          } else {
+            router.push("/assignments");
+          }
+        } catch (prefErr) {
+          console.warn("Failed to fetch user preferences on login, falling back to assignments:", prefErr);
+          router.push("/assignments");
+        }
+      } else {
+        router.push(getPostAuthPath(response.role));
+      }
     } catch (err: unknown) {
       setError(extractErrorMessage(err, "Invalid email or password. Please try again."));
     } finally {
