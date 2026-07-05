@@ -68,7 +68,7 @@ export default function Footer() {
               ))}
             </div>
             <Link 
-              href="https://github.com/a20-ai-thuc-chien/A20-App-128" 
+              href="https://github.com/kagamikuro1024/TA_Agent" 
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 px-6 py-3 rounded-2xl glass-panel glass-panel-hover text-sm font-bold text-slate-700 dark:text-slate-200 group"

@@ -45,8 +45,8 @@ export default {
         "error-cohere":     "var(--cohere-error)",
       },
       fontFamily: {
-        "cohere-display": ["CohereText", "Space Grotesk", "Inter", "ui-sans-serif", "system-ui"],
-        "cohere-body":    ["Unica77 Cohere Web", "Inter", "Arial", "ui-sans-serif", "system-ui"],
+        "cohere-display": ["var(--font-space-grotesk)", "CohereText", "Space Grotesk", "Inter", "ui-sans-serif", "system-ui"],
+        "cohere-body":    ["var(--font-inter)", "Unica77 Cohere Web", "Inter", "Arial", "ui-sans-serif", "system-ui"],
         "cohere-mono":    ["CohereMono", "Arial", "ui-monospace", "system-ui"],
       },
       borderRadius: {

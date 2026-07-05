@@ -237,7 +237,7 @@ export default function AssignmentsPage() {
   const role = useAuthStore((s) => s.role);
   const canCreate = role === "TA" || role === "ADMIN";
 
-  const [viewDate, setViewDate] = useState(() => new Date(2024, 9, 1)); // Default to Oct 2024 as per current design basis
+  const [viewDate, setViewDate] = useState(() => new Date()); // Default to current date
   const [events, setEvents] = useState<CalendarEvent[]>(MOCK_CALENDAR_EVENTS);
   const [showModal, setShowModal] = useState(false);
   const [todayRef] = useState(() => new Date());
@@ -336,7 +336,8 @@ export default function AssignmentsPage() {
     return events.filter(ev => {
       // Mock events (e1..e4) exist only for fallback display in October 2024 mock view
       if (["e1","e2","e3","e4"].includes(ev.id)) {
-        return currentYear === 2024 && currentMonthIndex === 9;
+        const now = new Date();
+        return currentYear === now.getFullYear() && currentMonthIndex === now.getMonth();
       }
       // For DB retrieved events, verify they fall into the selected month
       const evtAny = ev as any;

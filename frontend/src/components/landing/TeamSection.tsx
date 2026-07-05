@@ -5,22 +5,8 @@ import Image from "next/image";
 
 const team = [
   {
-    name: "Mạc Phạm Thiên Long",
-    role: "AI Application",
-    initials: "ML",
-    avatar: "/team/long.jpg",
-    desc: "Designs the student-facing experience that makes learning feel effortless.",
-  },
-  {
-    name: "Lê Tuấn Đạt",
-    role: "AI Infrastructure",
-    initials: "LTĐ",
-    avatar: "/team/dat.jpg",
-    desc: "Builds the engine behind every fast, reliable answer.",
-  },
-  {
     name: "Lê Văn Quang Trung",
-    role: "AI Business & Product",
+    role: "Creator & Developer",
     initials: "LVQT",
     avatar: "/team/trung.jpg",
     desc: "Connects student needs with product vision to deliver real impact.",
@@ -66,7 +52,7 @@ export default function TeamSection() {
           </motion.p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="flex justify-center">
           {team.map((member, idx) => (
             <motion.div
               key={member.name}
@@ -75,7 +61,7 @@ export default function TeamSection() {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, duration: 0.8, ease: [0.16, 1, 0.3, 1] as any }}
               whileHover={{ y: -8 }}
-              className="glass-panel glass-panel-hover p-10 rounded-[2.5rem] text-center relative group overflow-hidden"
+              className="glass-panel glass-panel-hover p-10 rounded-[2.5rem] text-center relative group overflow-hidden max-w-md w-full"
             >
               {/* Card Background Glow */}
               <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-500/10 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

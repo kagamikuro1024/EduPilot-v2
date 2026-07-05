@@ -23,7 +23,7 @@ export default function ValueCarousel() {
       type: "old",
       title: "The Old Way",
       icon: <Clock className="w-10 h-10 text-gray-400" />,
-      highlight: "2–3 days",
+      highlight: "2-3 days",
       description: "Wait 2-3 days for an answer to a simple question. Email ping-pong destroys momentum.",
       subtext: "Academic friction creates learning burnout.",
       bgColor: "bg-gray-50",

@@ -1,7 +1,20 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
+import { Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
 import PreferenceSyncProvider from "@/components/theme/PreferenceSyncProvider";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["vietnamese", "latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["vietnamese", "latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "EduPilot — Trợ giảng AI thông minh",
@@ -16,7 +29,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="h-full antialiased"
+      className={`h-full antialiased ${spaceGrotesk.variable} ${inter.variable}`}
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col font-sans">
