@@ -243,9 +243,10 @@ public class UserProfileService {
     }
 
     private UserPreferences createDefaultPreferences(User user) {
+        User managedUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new team._8.aitrogiang.exception.ResourceNotFoundException("User not found: " + user.getId()));
         UserPreferences prefs = UserPreferences.builder()
-                .userId(user.getId())
-                .user(user)
+                .user(managedUser)
                 .theme(ThemePreference.SYSTEM)
                 .fontSize(FontSizePreference.DEFAULT)
                 .reduceMotion(false)

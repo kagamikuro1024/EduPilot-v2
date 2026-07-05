@@ -43,6 +43,15 @@ class FakeCursor:
         self.idx += 1
         return value
 
+    def fetchall(self):
+        return self.rows
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _exc_type, _exc, _tb):
+        return False
+
 
 class FakeConn:
     def __init__(self, rows):
@@ -53,6 +62,12 @@ class FakeConn:
 
     def close(self):
         return None
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, _exc_type, _exc, _tb):
+        return False
 
 
 def test_assignment_known_deadline_and_penalty(monkeypatch):
@@ -105,3 +120,18 @@ def test_assignment_db_error_fallback(monkeypatch):
     result = asyncio.run(tools.check_assignment_deadline("Lab 3"))
     assert "Loi he thong khi truy van thong tin bai tap" in result
     assert "LMS" in result
+
+
+def test_assignment_list_includes_late_penalty_rule(monkeypatch):
+    def fake_connect(_url):
+        return FakeConn([
+            ("aid-1", "Lab CSS", "2026-07-10 16:59:00", "Cứ muộn 1 ngày bị trừ 10% điểm"),
+        ])
+
+    fake_psycopg2 = types.ModuleType("psycopg2")
+    fake_psycopg2.connect = fake_connect
+    monkeypatch.setattr(tools, "psycopg2", fake_psycopg2)
+
+    result = tools._run_get_assignments()
+
+    assert '"late_penalty_rule": "Cứ muộn 1 ngày bị trừ 10% điểm"' in result

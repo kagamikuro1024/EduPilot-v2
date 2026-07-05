@@ -1118,7 +1118,7 @@ def _run_get_assignments(days_limit: int = None) -> str:
         
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
-            query = "SELECT id, title, due_date FROM assignments"
+            query = "SELECT id, title, due_date, late_penalty_rule FROM assignments"
             params = []
             if days_limit is not None:
                 query += " WHERE due_date IS NOT NULL AND due_date >= NOW() AND due_date <= NOW() + INTERVAL '1 days' * %s"
@@ -1138,6 +1138,7 @@ def _run_get_assignments(days_limit: int = None) -> str:
                     "id": row[0],
                     "title": row[1],
                     "due_date": str(row[2]) if row[2] else None,
+                    "late_penalty_rule": row[3],
                     # Keep contract-compatible field for older clients.
                     "created_at": None
                 })
@@ -1629,7 +1630,11 @@ TOOLS = {
     },
     "get_assignments": {
         "fn": get_assignments,
-        "description": "Chỉ sử dụng tool này khi cần lấy danh sách bài tập. Nếu sinh viên hỏi bài tập trong X ngày qua, truyền tham số days_limit = X",
+        "description": (
+            "Lấy danh sách bài tập từ database, gồm deadline và quy định nộp muộn của từng bài. "
+            "Nếu sinh viên hỏi các bài tập trong X ngày tới, truyền days_limit = X. "
+            "Khi trả lời, không được bỏ qua late_penalty_rule nếu trường này có dữ liệu."
+        ),
         "parameters": {"days_limit": "integer"},
         "required": [],
     },

@@ -24,7 +24,7 @@ fake_asyncpg.Pool = object
 fake_asyncpg.create_pool = None
 sys.modules.setdefault("asyncpg", fake_asyncpg)
 
-from src.agent import run_agent_loop_stream
+from src.agent import _should_prefetch_regulations, run_agent_loop_stream
 
 
 def test_low_confidence_emits_fallback_status_and_never_raises():
@@ -107,4 +107,17 @@ def test_procedural_intent_injects_assignment_routing_prompt():
     system_prompt = client.chat.completions.last_messages[0]["content"]
     assert "PROCEDURAL matters" in system_prompt
     assert "Do not invent deadlines/logistics" in system_prompt
+    assert "explicitly state" in system_prompt
     assert chunks[-1]["type"] == "DONE"
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "Nộp muộn bài CSS bị trừ điểm thế nào?",
+        "Late submission penalty của assignment này là gì?",
+        "Nếu nộp trễ hạn thì bị phạt bao nhiêu?",
+    ],
+)
+def test_assignment_late_policy_does_not_trigger_regulation_prefetch(question):
+    assert _should_prefetch_regulations(question) is False

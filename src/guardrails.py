@@ -87,7 +87,7 @@ Your ONLY job is to analyze a student's message (provided inside <user_input> ta
 
 1. "intent": Classify the message intent. Must be one of:
    - "ACADEMIC": Questions about course concepts, theory, OOP, programming, assignments needing explanation.
-   - "PROCEDURAL": Questions about deadlines, exam schedules, grades, lab submission procedures, administrative tasks, school policies, regulations (quy chế), disciplinary actions (kỷ luật, thi hộ), or graduation rules.
+   - "PROCEDURAL": Questions about deadlines, late submissions or late penalties, exam schedules, grades, lab submission procedures, administrative tasks, school policies, regulations (quy chế), disciplinary actions (kỷ luật, thi hộ), or graduation rules.
    - "CONVERSATIONAL": Greetings, pleasantries, meta-questions about the assistant's capabilities (e.g., 'bạn là ai?', 'bạn có thể làm được gì?', 'hello', 'xin chào', 'cảm ơn'), or small talk that does NOT require course material lookup.
    - "UNCERTAIN": Cannot determine clearly.
 

@@ -312,5 +312,13 @@ if __name__ == "__main__":
         host=host_binding,
         port=8000,
         reload=(APP_ENV == "development"),
+        # Runtime artifacts must never restart the process while an ingestion
+        # task is running. Python source edits still retain normal dev reload.
+        reload_excludes=[
+            "*.jsonl",
+            "data/*",
+            ".ai-log/*",
+            "*/__pycache__/*",
+        ],
         timeout_keep_alive=60,
     )

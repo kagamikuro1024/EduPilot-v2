@@ -145,6 +145,7 @@ public class UserProfileServiceTest {
 
     @Test
     public void testGetPreferences_DefaultCreatedWhenEmpty() {
+        when(userRepository.findById(testUser.getId())).thenReturn(Optional.of(testUser));
         when(userPreferencesRepository.findById(testUser.getId())).thenReturn(Optional.empty());
         when(userPreferencesRepository.save(any(UserPreferences.class))).thenAnswer(inv -> inv.getArgument(0));
 

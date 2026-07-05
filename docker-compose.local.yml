@@ -49,6 +49,8 @@ services:
       - .env.local
     environment:
       DATABASE_URL: postgresql://${DB_USERNAME:-user}:${DB_PASSWORD:-password}@postgres-db:5432/${DB_NAME:-agent_db}
+      # Keep lazy imports from writing bytecode into bind-mounted source trees.
+      PYTHONDONTWRITEBYTECODE: "1"
       REDIS_URL: redis://redis-cache:6379/0
       JAVA_CALLBACK_URL: http://java-backend:8080
       OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317

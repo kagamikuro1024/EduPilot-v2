@@ -48,7 +48,9 @@ _REGULATION_KEYWORDS = (
 )
 _PROCEDURAL_SQL_KEYWORDS = (
     "deadline", "hạn nộp", "han nop", "nộp bài", "nop bai", "assignment", "bài tập", "bai tap",
-    "lms", "quá hạn", "qua han", "ngày nộp", "ngay nop",
+    "lms", "quá hạn", "qua han", "ngày nộp", "ngay nop", "nộp muộn", "nop muon",
+    "nộp trễ", "nop tre", "trễ hạn", "tre han", "phạt nộp muộn", "phat nop muon",
+    "trừ điểm", "tru diem", "late penalty", "late submission",
 )
 
 # Truncate user-provided text in logs: keep diagnostics without recording
@@ -108,7 +110,7 @@ CONSTRAINTS:
 1. NEVER provide direct answers to homework or solve problems for the student.
 2. Provide hints, ask guiding questions, or explain underlying concepts.
 3. You MUST use IN-TEXT CITATIONS: cite your source INLINE at the end of each claim or paragraph, using the format [FileName, p.X]. Do NOT list all sources at the bottom. Example: 'RabbitMQ sử dụng mô hình Exchange để định tuyến tin nhắn [RabbitMQ_Architecture.pdf, p.3].' (No citations needed for database deadline lookups).
-4. If asked about a SPECIFIC assignment deadline, use the 'check_assignment_deadline' tool. If asked about a LIST of deadlines or general upcoming assignments, use the 'get_assignments' tool. DO NOT invent assignment names.
+4. If asked about a SPECIFIC assignment deadline or its late-submission consequences, use the 'check_assignment_deadline' tool. If asked about a LIST of deadlines, general upcoming assignments, or their late-submission policies, use the 'get_assignments' tool. When a database result contains a late-submission policy (`late_penalty_rule` / `Quy dinh nop muon`), explicitly include it in the answer; never omit it. DO NOT invent assignment names, deadlines, or penalties.
 5. If the information is not in the course materials or database, state that you don't know and suggest they wait for a TA.
 6. Use a professional, encouraging, and academic tone.
 7. Keep answers concise and evidence-first. Avoid generic filler.
@@ -150,7 +152,9 @@ def _build_system_prompt(intent: str, risk_level: str, current_time: str) -> str
     elif intent == "PROCEDURAL":
         system_prompt += (
             "\n\nROUTING: This question is about PROCEDURAL matters. "
-            "Use 'check_assignment_deadline' for specific assignments, or 'get_assignments' to list assignments/deadlines. "
+            "Use 'check_assignment_deadline' for a specific assignment's deadline or late-submission rule, "
+            "or 'get_assignments' to list assignments, deadlines, and late-submission rules. "
+            "If a tool returns a late-submission rule, explicitly state it in the student-facing answer. "
             "For quy chế đào tạo, điểm số lý thuyết, thi cử, kỷ luật, học vụ, or other official school rules, "
             "you MUST call 'query_regulations' (in addition to SQL tools if the user also asks about concrete deadlines)."
         )
