@@ -1041,20 +1041,36 @@ def _extract_student_code(text: str) -> str | None:
         return match.group(1)
     return None
 
+
+def _compact_assignment_lookup(text: str) -> str:
+    """Normalize harmless title formatting differences (``lab4`` vs ``Lab 4``)."""
+    return re.sub(r"[\W_]+", "", (text or "").strip(), flags=re.UNICODE).lower()
+
 def _run_assignment_query(assignment_name: str, student_code: str | None) -> str:
 
     conn = psycopg2.connect(DATABASE_URL)
     try:
         cur = conn.cursor()
+        raw_pattern = "%" + assignment_name.strip() + "%"
+        compact_name = _compact_assignment_lookup(assignment_name)
+        compact_pattern = "%" + compact_name + "%"
         cur.execute(
             """
             SELECT a.id, a.title, a.due_date, a.late_penalty_rule
             FROM assignments a
             WHERE a.title ILIKE %s
-            ORDER BY a.due_date NULLS LAST
+               OR regexp_replace(lower(a.title), '[^[:alnum:]]+', '', 'g') LIKE %s
+            ORDER BY
+                CASE
+                    WHEN lower(a.title) = lower(%s) THEN 0
+                    WHEN regexp_replace(lower(a.title), '[^[:alnum:]]+', '', 'g') = %s THEN 1
+                    WHEN a.title ILIKE %s THEN 2
+                    ELSE 3
+                END,
+                a.due_date NULLS LAST
             LIMIT 1
             """,
-            ("%" + assignment_name + "%",),
+            (raw_pattern, compact_pattern, assignment_name.strip(), compact_name, raw_pattern),
         )
         assignment_row = cur.fetchone()
         if not assignment_row:

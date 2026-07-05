@@ -25,6 +25,7 @@ from .guardrails import (
     IntentType,
     classification_from_java_preflight_tags,
     normalize_classifier_channel_hint,
+    refine_intent_with_history,
 )
 
 logger = logging.getLogger(__name__)
@@ -151,6 +152,21 @@ class AIThreadServicer(ai_service_pb2_grpc.AIThreadServiceServicer if ai_service
                     request.current_message,
                     channel_hint=stream_hint,
                 )
+
+            refined_intent = refine_intent_with_history(
+                classification.intent,
+                request.current_message,
+                [msg.content for msg in request.history],
+            )
+            if refined_intent != classification.intent:
+                logger.info(
+                    "Conversation-aware intent refinement: %s -> %s",
+                    classification.intent,
+                    refined_intent,
+                )
+                classification.intent = refined_intent
+                classification.confidence = max(classification.confidence, 0.9)
+                classification.reasoning = "Assignment logistics follow-up detected from conversation context"
             
             if classification.is_violation:
                 logger.warning(f"Security Violation detected: {classification.violation_reason}")

@@ -70,6 +70,18 @@ class FakeConn:
         return False
 
 
+@pytest.mark.parametrize(
+    ("raw", "expected"),
+    [
+        ("lab4", "lab4"),
+        ("Lab 4", "lab4"),
+        ("Lab-4: Automation", "lab4automation"),
+    ],
+)
+def test_compact_assignment_lookup_ignores_formatting(raw, expected):
+    assert tools._compact_assignment_lookup(raw) == expected
+
+
 def test_assignment_known_deadline_and_penalty(monkeypatch):
     def fake_connect(_url):
         return FakeConn([

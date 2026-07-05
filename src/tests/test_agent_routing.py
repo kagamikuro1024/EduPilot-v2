@@ -24,7 +24,7 @@ fake_asyncpg.Pool = object
 fake_asyncpg.create_pool = None
 sys.modules.setdefault("asyncpg", fake_asyncpg)
 
-from src.agent import _should_prefetch_regulations, run_agent_loop_stream
+from src.agent import _assignment_lookup_hint, _should_prefetch_regulations, run_agent_loop_stream
 
 
 def test_low_confidence_emits_fallback_status_and_never_raises():
@@ -121,3 +121,14 @@ def test_procedural_intent_injects_assignment_routing_prompt():
 )
 def test_assignment_late_policy_does_not_trigger_regulation_prefetch(question):
     assert _should_prefetch_regulations(question) is False
+
+
+def test_assignment_lookup_hint_normalizes_context_to_stable_lab_alias():
+    history = [
+        {"author_role": "assistant", "content": "Chưa tìm thấy quy định nộp muộn của lab4 trên LMS."},
+    ]
+    assert _assignment_lookup_hint("Lab4: Automation ấy", history) == "Lab4"
+
+
+def test_assignment_content_question_does_not_force_database_lookup():
+    assert _assignment_lookup_hint("Lab 4 yêu cầu viết API nào?", []) is None

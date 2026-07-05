@@ -8,7 +8,26 @@ from src.guardrails import (
     classify_and_guard,
     classify_channel_intent,
     normalize_classifier_channel_hint,
+    refine_intent_with_history,
 )
+
+
+def test_assignment_name_correction_uses_procedural_history():
+    refined = refine_intent_with_history(
+        IntentType.ACADEMIC,
+        "Lab4: Automation ấy",
+        ["Không tìm thấy thông tin bài lab4. Hãy kiểm tra quy định nộp muộn trên LMS."],
+    )
+    assert refined == IntentType.PROCEDURAL
+
+
+def test_assignment_topic_question_without_logistics_stays_academic():
+    refined = refine_intent_with_history(
+        IntentType.ACADEMIC,
+        "Lab 4 Automation yêu cầu xây dựng chức năng gì?",
+        ["Chúng ta đang học về fullstack."],
+    )
+    assert refined == IntentType.ACADEMIC
 
 
 class FakeMessage:

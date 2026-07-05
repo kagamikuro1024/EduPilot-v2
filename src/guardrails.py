@@ -13,6 +13,7 @@ import base64
 import binascii
 import json
 import logging
+import re
 from enum import Enum
 from typing import Iterable, Optional
 
@@ -75,6 +76,44 @@ class ChannelClassificationResult:
         self.confidence = confidence
         self.reasoning = reasoning
         self.is_violation = is_violation
+
+
+_ASSIGNMENT_REFERENCE_RE = re.compile(
+    r"\b(?:lab|assignment|bài\s*tập|bai\s*tap)\s*[-_:#]?\s*\d+\b",
+    re.IGNORECASE,
+)
+_ASSIGNMENT_LOGISTICS_SIGNALS = (
+    "deadline", "hạn nộp", "han nop", "nộp muộn", "nop muon",
+    "nộp trễ", "nop tre", "quá hạn", "qua han", "trừ điểm", "tru diem",
+    "không tìm thấy thông tin", "khong tim thay thong tin", "lms",
+)
+
+
+def refine_intent_with_history(
+    intent: IntentType,
+    message: str,
+    history_contents: list[str] | None,
+) -> IntentType:
+    """Recover terse assignment corrections that an isolated classifier misroutes."""
+    if intent not in (IntentType.ACADEMIC, IntentType.UNCERTAIN):
+        return intent
+
+    safe_message = (message or "").strip()
+    if not _ASSIGNMENT_REFERENCE_RE.search(safe_message):
+        return intent
+
+    lowered = safe_message.lower()
+    recent_context = " ".join((history_contents or [])[-4:]).lower()
+    has_logistics_context = any(
+        signal in lowered or signal in recent_context
+        for signal in _ASSIGNMENT_LOGISTICS_SIGNALS
+    )
+    is_terse_correction = len(safe_message) <= 80 and any(
+        marker in lowered for marker in (" ấy", " đây", " này")
+    )
+    if has_logistics_context or is_terse_correction:
+        return IntentType.PROCEDURAL
+    return intent
 
 
 # ---------------------------------------------------------------------------

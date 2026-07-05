@@ -52,6 +52,11 @@ _PROCEDURAL_SQL_KEYWORDS = (
     "nộp trễ", "nop tre", "trễ hạn", "tre han", "phạt nộp muộn", "phat nop muon",
     "trừ điểm", "tru diem", "late penalty", "late submission",
 )
+_ASSIGNMENT_REFERENCE_RE = re.compile(
+    r"\b(?:lab|assignment|bài\s*tập|bai\s*tap)\s*[-_:#]?\s*\d+\b",
+    re.IGNORECASE,
+)
+_ASSIGNMENT_FOLLOWUP_MARKERS = (" ấy", " đây", " này")
 
 # Truncate user-provided text in logs: keep diagnostics without recording
 # full messages (they may contain personal data).
@@ -73,6 +78,31 @@ def _should_prefetch_regulations(user_input: str) -> bool:
     has_sql_deadline_signal = any(k in lowered for k in _PROCEDURAL_SQL_KEYWORDS)
     # Hybrid queries may ask both policy and deadlines; still prefetch regulations.
     return has_regulation_signal or (("thi" in lowered or "điểm" in lowered or "diem" in lowered) and not has_sql_deadline_signal)
+
+
+def _assignment_lookup_hint(user_input: str, history: list | None = None) -> str | None:
+    """Return a stable assignment alias for deadline/late-policy lookups."""
+    safe_input = (user_input or "").strip()
+    match = _ASSIGNMENT_REFERENCE_RE.search(safe_input)
+    if not match:
+        return None
+
+    lowered = safe_input.lower()
+    recent_history = " ".join(
+        str(item.get("content", ""))
+        for item in (history or [])[-4:]
+        if isinstance(item, dict)
+    ).lower()
+    has_logistics_signal = any(
+        signal in lowered or signal in recent_history
+        for signal in _PROCEDURAL_SQL_KEYWORDS
+    )
+    is_terse_correction = len(safe_input) <= 80 and any(
+        marker in lowered for marker in _ASSIGNMENT_FOLLOWUP_MARKERS
+    )
+    if not (has_logistics_signal or is_terse_correction):
+        return None
+    return match.group(0)
 
 
 # Ban models from echoing internal context labels (e.g. *_CONTEXT) into student-visible text.
@@ -309,6 +339,7 @@ async def run_agent_loop_stream(
     # Per-request ledger: repeated identical tool calls reuse the first result
     # instead of re-running side effects (bounded duplicate execution).
     executed_tool_results: dict = {}
+    assignment_lookup_hint = _assignment_lookup_hint(user_input, history)
 
     if intent == "ACADEMIC":
         rag_query = user_input
@@ -324,6 +355,23 @@ async def run_agent_loop_stream(
         messages.append(_grounded_context_message("course", rag_result))
         # Keep academic flow deterministic: the grounded context above is the
         # single source for this turn, so model-side tool planning is disabled.
+        tools = []
+    elif intent == "PROCEDURAL" and assignment_lookup_hint:
+        yield {"type": "STATUS", "content": "Searching: check_assignment_deadline"}
+        assignment_result = await execute_tool(
+            "check_assignment_deadline",
+            {"assignment_name": assignment_lookup_hint},
+        )
+        used_deadline_tool = True
+        messages.append({
+            "role": "system",
+            "content": (
+                "Use this verified assignment database result to answer the current logistics question:\n"
+                f"{assignment_result}\n"
+                "State the deadline and late-submission consequence when available. "
+                "Do not add document citations to database facts and do not search course materials."
+            ),
+        })
         tools = []
     elif intent == "PROCEDURAL" and _should_prefetch_regulations(user_input):
         regulation_query = user_input
