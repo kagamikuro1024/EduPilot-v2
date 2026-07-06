@@ -519,7 +519,13 @@ export default function ProfilePage() {
                   <div className="flex justify-end pt-4">
                     <button
                       type="submit"
-                      disabled={saving || nameInput.trim() === profile.full_name}
+                      disabled={
+                        saving ||
+                        (
+                          nameInput.trim() === profile.full_name &&
+                          (Boolean(profile.student_code) || studentCodeInput.trim() === "")
+                        )
+                      }
                       className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 shadow-md hover:shadow-lg hover:shadow-indigo-500/10 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {saving ? (
