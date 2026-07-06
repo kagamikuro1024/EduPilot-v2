@@ -58,6 +58,17 @@ async def lifespan(app: FastAPI):
         
         # Initialize Shared Database Pool
         await init_db_pool()
+
+        # Privacy migration for grade PDFs uploaded before GRADE_REPORT existed.
+        try:
+            from .database.grade_repo import backfill_legacy_grade_reports
+            converted = await backfill_legacy_grade_reports()
+            if converted:
+                logger.info("Backfilled %s legacy grade report document(s)", converted)
+        except Exception as grade_backfill_error:
+            # Startup must remain available even when no grade schema exists yet;
+            # normal migrations will make the next restart succeed.
+            logger.warning("Legacy grade report backfill skipped: %s", grade_backfill_error)
         
         # Initialize Semantic Cache Index (TIP-005)
         init_semantic_cache_index()

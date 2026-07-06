@@ -107,7 +107,16 @@ async def process_document_task(
 
         # 1. Extract & 2. Transform (Cleaner)
         extension = os.path.splitext(source_uri)[1].lower()
-        if extension == ".txt":
+        if document_type == "GRADE_REPORT" and extension == ".pdf":
+            # Grade tables need their raw text rows. Docling's low-memory/table
+            # settings can replace tables with a literal "[Table Content]",
+            # while pypdfium2 reliably preserves the PDF's text layer.
+            content_to_clean = await anyio.to_thread.run_sync(
+                DoclingParser._extract_pages_pypdfium,
+                file_path,
+            )
+            markdown_clean = await anyio.to_thread.run_sync(clean_markdown_text, content_to_clean)
+        elif extension == ".txt":
             # For TXT files, use lightweight plain text extractor
             content_to_clean = await anyio.to_thread.run_sync(extract_text_file, file_path)
             # TIP-006: Apply cleaning even for plain text to ensure NFC normalization & noise removal

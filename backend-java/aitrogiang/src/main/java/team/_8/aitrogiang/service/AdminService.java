@@ -56,6 +56,7 @@ public class AdminService {
         Path savedPath = storeToSharedVolume(file);
         String originalFilename = file.getOriginalFilename() == null ? "document" : file.getOriginalFilename();
         DocumentType documentType = resolveDocumentType(documentTypeRaw);
+        documentType = applyGradeReportFilenameSafetyOverride(documentType, originalFilename);
 
         Document document = Document.builder()
                 .title(originalFilename)
@@ -176,6 +177,24 @@ public class AdminService {
             log.warn("Unknown document_type '{}', defaulting to COURSE_MATERIAL", raw);
             return DocumentType.COURSE_MATERIAL;
         }
+    }
+
+    DocumentType applyGradeReportFilenameSafetyOverride(DocumentType selectedType, String filename) {
+        String normalized = filename == null ? "" : filename.toLowerCase(java.util.Locale.ROOT);
+        boolean clearlyGradeReport = normalized.contains("bang_diem")
+                || normalized.contains("bang-diem")
+                || normalized.contains("bang diem")
+                || normalized.contains("bảng_điểm")
+                || normalized.contains("bảng-điểm")
+                || normalized.contains("bảng điểm")
+                || normalized.contains("grade_report")
+                || normalized.contains("grade-report")
+                || normalized.contains("grade report");
+        if (clearlyGradeReport && selectedType != DocumentType.GRADE_REPORT) {
+            log.warn("Safety override: classifying grade-like filename '{}' as GRADE_REPORT", filename);
+            return DocumentType.GRADE_REPORT;
+        }
+        return selectedType;
     }
 
     public AnalyticsSummaryDTO getAnalyticsSummary() {

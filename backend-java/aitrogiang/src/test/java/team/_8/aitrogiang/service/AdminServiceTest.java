@@ -8,6 +8,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import team._8.aitrogiang.dto.AnalyticsSummaryDTO;
 import team._8.aitrogiang.dto.AdminDocumentStatsResponse;
 import team._8.aitrogiang.model.DocumentStatus;
+import team._8.aitrogiang.model.DocumentType;
 import team._8.aitrogiang.repository.*;
 
 import java.util.Collections;
@@ -82,5 +83,13 @@ class AdminServiceTest {
         assertThat(stats.getTotal_documents()).isEqualTo(5L);
         assertThat(stats.getIndex_health()).isEqualTo("80%");
         assertThat(stats.getKnowledge_volume()).isEqualTo("0 B");
+    }
+
+    @Test
+    void gradeLikeFilename_ShouldOverrideCourseMaterialForPrivacy() {
+        assertThat(adminService.applyGradeReportFilenameSafetyOverride(
+                DocumentType.COURSE_MATERIAL,
+                "bang_diem_mock_lab2_search_algorithms.pdf"
+        )).isEqualTo(DocumentType.GRADE_REPORT);
     }
 }
