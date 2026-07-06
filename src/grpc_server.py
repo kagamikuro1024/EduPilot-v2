@@ -4,6 +4,12 @@ import grpc
 from grpc import aio
 import sys
 import os
+import base64
+import hashlib
+import hmac
+import json
+import re
+import uuid
 
 # Add the current directory to sys.path to allow importing generated files correctly
 sys.path.insert(0, os.path.dirname(__file__))
@@ -17,7 +23,7 @@ except ImportError:
     ai_service_pb2_grpc = None
 
 from .agent import run_agent_loop_stream
-from .config import GRPC_PORT
+from .config import GRPC_PORT, INTERNAL_CALLBACK_TOKEN
 from .guardrails import (
     classify_and_guard,
     classify_channel_intent,
@@ -44,7 +50,10 @@ _STATUS_LABEL_MAP = {
     "classifier_unavailable": "Hệ thống đang bận, chuyển sang chế độ dự phòng",
     "query_course_materials": "Tìm kiếm tài liệu môn học",
     "query_regulations": "Tra cứu quy định & quy chế",
+    "get_my_grade": "Đang tra cứu điểm cá nhân",
 }
+
+_AUTHENTICATED_USER_TAG_PREFIX = "authenticated_user:v1:"
 
 # Keep strong references to fire-and-forget ingestion tasks. Without this,
 # asyncio may garbage-collect a running task mid-ingestion (CPython caveat).
@@ -125,6 +134,42 @@ def _channel_hint_from_grpc_tags(tags) -> str:
             raw = tag[len("channel:") :].strip()
             return normalize_classifier_channel_hint(raw)
     return "PRIVATE"
+
+
+def _authenticated_user_from_grpc_tags(tags) -> dict:
+    """Verify and decode the server-owned identity context from Java."""
+    if not tags or not INTERNAL_CALLBACK_TOKEN:
+        return {}
+    for tag in tags:
+        if not tag.startswith(_AUTHENTICATED_USER_TAG_PREFIX):
+            continue
+        encoded = tag[len(_AUTHENTICATED_USER_TAG_PREFIX) :]
+        try:
+            payload_b64, signature_b64 = encoded.split(".", 1)
+            expected = hmac.new(
+                INTERNAL_CALLBACK_TOKEN.encode("utf-8"),
+                payload_b64.encode("ascii"),
+                hashlib.sha256,
+            ).digest()
+            supplied = base64.urlsafe_b64decode(signature_b64 + "=" * (-len(signature_b64) % 4))
+            if not hmac.compare_digest(expected, supplied):
+                logger.warning("Rejected invalid authenticated user context signature")
+                return {}
+            raw = base64.urlsafe_b64decode(payload_b64 + "=" * (-len(payload_b64) % 4))
+            payload = json.loads(raw.decode("utf-8"))
+            user_id = str(payload.get("user_id") or "")
+            uuid.UUID(user_id)
+            role = str(payload.get("role") or "").upper()
+            student_code = str(payload.get("student_code") or "").strip().upper()
+            if role not in {"STUDENT", "TA", "ADMIN"}:
+                return {}
+            if student_code and not re.fullmatch(r"[A-Z0-9_-]{4,50}", student_code):
+                return {}
+            return {"user_id": user_id, "student_code": student_code, "role": role}
+        except (ValueError, TypeError, json.JSONDecodeError):
+            logger.warning("Rejected malformed authenticated user context")
+            return {}
+    return {}
 
 
 class AIThreadServicer(ai_service_pb2_grpc.AIThreadServiceServicer if ai_service_pb2_grpc else object):
@@ -208,6 +253,7 @@ class AIThreadServicer(ai_service_pb2_grpc.AIThreadServiceServicer if ai_service
                 logger.error(f"Failed to fetch risk level: {r_err}")
             
             # 3. Pass history + intent to agent loop
+            trusted_user_context = _authenticated_user_from_grpc_tags(request.tags)
             collected_citations = []
             collected_metrics = {"cache_hit": False, "usage": {"input_tokens": None, "output_tokens": None}}
             async for chunk_data in run_agent_loop_stream(
@@ -218,7 +264,8 @@ class AIThreadServicer(ai_service_pb2_grpc.AIThreadServiceServicer if ai_service
                 intent_confidence=classification.confidence,
                 fallback_reason=classification.reasoning,
                 risk_level=risk_level,
-                thread_id=request.thread_id
+                thread_id=request.thread_id,
+                trusted_user_context=trusted_user_context,
             ):
                 if context.cancelled():
                     break

@@ -1127,6 +1127,125 @@ async def check_assignment_deadline(assignment_name: str, student_code: str = ""
         logger.error(f"SQL Execution Error: {e}")
         return "Loi he thong khi truy van thong tin bai tap. Vui long doi chieu voi LMS de dam bao chinh xac tuyet doi."
 
+
+def _run_my_grade_query(student_code: str, assignment_name: str = "") -> str:
+    """Fetch only the authenticated student's structured grade rows."""
+    compact_name = _compact_assignment_lookup(assignment_name)
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            params: list = [student_code]
+            assignment_filter = ""
+            if compact_name:
+                assignment_filter = """
+                  AND (
+                    regexp_replace(lower(gr.assignment_title), '[^[:alnum:]]+', '', 'g') LIKE %s
+                    OR regexp_replace(lower(d.title), '[^[:alnum:]]+', '', 'g') LIKE %s
+                  )
+                """
+                compact_pattern = "%" + compact_name + "%"
+                params.extend([compact_pattern, compact_pattern])
+
+            cur.execute(
+                f"""
+                SELECT
+                    gr.assignment_title,
+                    gr.total_score,
+                    gr.max_score,
+                    gr.feedback,
+                    gr.component_scores,
+                    gr.source_page,
+                    gr.source_notice,
+                    d.title,
+                    gr.updated_at
+                FROM grade_records gr
+                JOIN documents d ON d.id = gr.document_id
+                WHERE upper(gr.student_code) = upper(%s)
+                  AND d.status = 'READY'
+                  AND d.document_type = 'GRADE_REPORT'
+                  {assignment_filter}
+                ORDER BY gr.updated_at DESC, gr.assignment_title ASC
+                LIMIT 10
+                """,
+                tuple(params),
+            )
+            rows = cur.fetchall()
+
+    if not rows:
+        return json.dumps(
+            {
+                "status": "NOT_FOUND",
+                "message": (
+                    f"Chưa tìm thấy điểm của bài '{assignment_name}' cho tài khoản hiện tại."
+                    if assignment_name
+                    else "Chưa tìm thấy bảng điểm nào cho tài khoản hiện tại."
+                ),
+            },
+            ensure_ascii=False,
+        )
+
+    records = []
+    for row in rows:
+        component_scores = row[4]
+        if isinstance(component_scores, str):
+            try:
+                component_scores = json.loads(component_scores)
+            except json.JSONDecodeError:
+                component_scores = {}
+        records.append(
+            {
+                "assignment_title": row[0],
+                "total_score": row[1],
+                "max_score": row[2],
+                "feedback": row[3],
+                "component_scores": component_scores or {},
+                "source_page": row[5],
+                "source_notice": row[6],
+                "source_document": row[7],
+                "updated_at": str(row[8]) if row[8] else None,
+            }
+        )
+    return json.dumps({"status": "FOUND", "grades": records}, ensure_ascii=False)
+
+
+async def get_my_grade(
+    assignment_name: str = "",
+    _student_code: str = "",
+    _user_role: str = "",
+) -> str:
+    """Return private grades for the authenticated student only."""
+    if (_user_role or "").upper() != "STUDENT":
+        return json.dumps(
+            {"status": "FORBIDDEN", "message": "Chỉ tài khoản sinh viên mới có thể tra cứu điểm cá nhân."},
+            ensure_ascii=False,
+        )
+    safe_code = (_student_code or "").strip().upper()
+    if not safe_code:
+        return json.dumps(
+            {
+                "status": "IDENTITY_REQUIRED",
+                "message": "Tài khoản chưa có MSSV. Hãy mở My Profile và thiết lập MSSV trước khi tra cứu điểm.",
+            },
+            ensure_ascii=False,
+        )
+    if not re.fullmatch(r"[A-Z0-9_-]{4,50}", safe_code):
+        return json.dumps(
+            {"status": "IDENTITY_INVALID", "message": "MSSV của tài khoản không hợp lệ."},
+            ensure_ascii=False,
+        )
+    if not DATABASE_URL:
+        return json.dumps(
+            {"status": "UNAVAILABLE", "message": "Kết nối cơ sở dữ liệu chưa được cấu hình."},
+            ensure_ascii=False,
+        )
+    try:
+        return await asyncio.to_thread(_run_my_grade_query, safe_code, (assignment_name or "").strip())
+    except Exception as exc:
+        logger.error("Private grade lookup failed: %s", exc)
+        return json.dumps(
+            {"status": "ERROR", "message": "Hệ thống chưa thể tra cứu điểm lúc này. Vui lòng thử lại sau."},
+            ensure_ascii=False,
+        )
+
 def _run_get_assignments(days_limit: int = None) -> str:
     
     if days_limit is not None and not isinstance(days_limit, int):
@@ -1638,6 +1757,17 @@ async def search_web(query: str) -> str:
 
 # Tool registry
 TOOLS = {
+    "get_my_grade": {
+        "fn": get_my_grade,
+        "description": (
+            "Tra cứu điểm, điểm thành phần và nhận xét của chính sinh viên đang đăng nhập. "
+            "Dùng cho câu hỏi như 'điểm Lab 2 của tôi', 'tôi được bao nhiêu điểm', "
+            "hoặc 'TA nhận xét bài của tôi thế nào'. Không yêu cầu và không nhận MSSV từ mô hình."
+        ),
+        "parameters": {"assignment_name": "string"},
+        "required": [],
+        "requires_authenticated_student": True,
+    },
     "check_assignment_deadline": {
         "fn": check_assignment_deadline,
         "description": "Get assignment deadline/late policy and optional submission status from database.",
@@ -1753,7 +1883,7 @@ def _validate_tool_args(tool: dict, args: object) -> tuple[dict, str | None]:
     return clean, None
 
 
-async def execute_tool(name: str, args: dict) -> str:
+async def execute_tool(name: str, args: dict, trusted_context: dict | None = None) -> str:
     """Execute a tool by name. Never raises: returns an error string instead."""
     tool = TOOLS.get(name)
     if not tool:
@@ -1764,6 +1894,13 @@ async def execute_tool(name: str, args: dict) -> str:
     if validation_error:
         logger.warning("tool_args_invalid tool=%s missing_required=1", name)
         return validation_error
+
+    if tool.get("requires_authenticated_student"):
+        # These values come from the signed Java -> Python transport context,
+        # never from model-generated arguments or user message text.
+        trusted_context = trusted_context or {}
+        clean_args["_student_code"] = str(trusted_context.get("student_code") or "")
+        clean_args["_user_role"] = str(trusted_context.get("role") or "")
 
     try:
         return await tool["fn"](**clean_args)

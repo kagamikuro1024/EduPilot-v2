@@ -78,7 +78,7 @@ if ! psql -h 127.0.0.1 -p 5432 -U "$DB_USERNAME" -d postgres \
 fi
 
 if (( RUN_FULL_MIGRATIONS == 1 )); then
-  log "Chạy database migrations V1-V25..."
+  log "Chạy database migrations V1-V26..."
   psql \
     -h 127.0.0.1 \
     -p 5432 \
@@ -89,7 +89,7 @@ if (( RUN_FULL_MIGRATIONS == 1 )); then
 else
   # Persistent Spaces already have the legacy completion marker, so new
   # idempotent migrations must also run when the database volume exists.
-  log "Áp dụng incremental migrations V23-V25..."
+  log "Áp dụng incremental migrations V23-V26..."
   psql \
     -h 127.0.0.1 \
     -p 5432 \

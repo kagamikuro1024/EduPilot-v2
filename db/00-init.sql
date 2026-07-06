@@ -27,6 +27,7 @@
 \ir migration/V23__add_chat_message_created_at.sql
 \ir migration/V24__add_forum_post_created_at.sql
 \ir migration/V25__add_user_profile_and_preferences.sql
+\ir migration/V26__add_grade_report_support.sql
 
 -- Seed default assignments for July 2026
 DELETE FROM assignments WHERE title IN ('Lab 1: Introduction to AI', 'Assignment 1: Neural Networks', 'Lab 2: Search Algorithms', 'Assignment 2: Machine Learning');

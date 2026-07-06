@@ -1,7 +1,7 @@
 export type DocumentStatus = "READY" | "VECTORIZING" | "ERROR" | "DUPLICATE";
 
 /** Matches backend `DocumentType` / DB `documents.document_type` */
-export type DocumentKind = "COURSE_MATERIAL" | "REGULATION";
+export type DocumentKind = "COURSE_MATERIAL" | "REGULATION" | "GRADE_REPORT";
 
 export interface DocumentItem {
   id: string;
@@ -40,6 +40,7 @@ export interface AdminDocumentListItemWire {
 
 export function mapWireDocumentType(raw: string | null | undefined): DocumentKind {
   if (raw === "REGULATION") return "REGULATION";
+  if (raw === "GRADE_REPORT") return "GRADE_REPORT";
   return "COURSE_MATERIAL";
 }
 

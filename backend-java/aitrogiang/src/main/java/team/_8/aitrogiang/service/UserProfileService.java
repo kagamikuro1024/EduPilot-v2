@@ -60,6 +60,28 @@ public class UserProfileService {
         return getProfile(saved);
     }
 
+    /**
+     * Bind a student code once. It becomes immutable through the student API
+     * because this identifier controls access to private grade records.
+     */
+    public UserProfileResponse setStudentCode(User user, StudentCodeUpdateRequest request) {
+        if (user.getRole() != UserRole.STUDENT) {
+            throw new IllegalArgumentException("Only student accounts can set a student code");
+        }
+        String normalized = request.getStudent_code().trim().toUpperCase();
+        if (user.getStudentCode() != null && !user.getStudentCode().isBlank()) {
+            if (user.getStudentCode().equalsIgnoreCase(normalized)) {
+                return getProfile(user);
+            }
+            throw new IllegalArgumentException("Student code is already set and cannot be changed");
+        }
+        if (userRepository.existsByStudentCodeIgnoreCase(normalized)) {
+            throw new IllegalArgumentException("Student code is already linked to another account");
+        }
+        user.setStudentCode(normalized);
+        return getProfile(userRepository.save(user));
+    }
+
     public void changePassword(User user, PasswordChangeRequest request) {
         if (!passwordEncoder.matches(request.getCurrent_password(), user.getPassword())) {
             throw new InvalidPasswordException("Mật khẩu hiện tại không chính xác");

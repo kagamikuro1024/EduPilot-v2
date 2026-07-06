@@ -16,7 +16,14 @@ from data_pipeline.pipeline.document_parser import compute_hash, DoclingParser, 
 from data_pipeline.pipeline.chunking import chunk_markdown
 from data_pipeline.pipeline.cleaner import clean_markdown_text
 from data_pipeline.pipeline.embedding import generate_embeddings
-from src.database.vector_repo import IngestionResult, attach_chunks_to_java_document, has_duplicate_content_hash
+from src.database.vector_repo import (
+    IngestionResult,
+    attach_chunks_to_java_document,
+    attach_structured_document_to_java_document,
+    has_duplicate_content_hash,
+)
+from src.database.grade_repo import get_document_type, replace_grade_records
+from data_pipeline.pipeline.grade_report import parse_grade_report
 
 logger = logging.getLogger(__name__)
 
@@ -96,6 +103,8 @@ async def process_document_task(
             logger.info("Duplicate document detected before parsing for java_document_id=%s", java_document_id)
             return {"status": "DUPLICATE", "chunks_persisted": 0, "reason": "duplicate_content_hash"}
 
+        document_type = await get_document_type(java_document_id)
+
         # 1. Extract & 2. Transform (Cleaner)
         extension = os.path.splitext(source_uri)[1].lower()
         if extension == ".txt":
@@ -108,6 +117,40 @@ async def process_document_task(
             parser = DoclingParser()
             content_to_clean = await anyio.to_thread.run_sync(parser.parse, file_path)
             markdown_clean = await anyio.to_thread.run_sync(clean_markdown_text, content_to_clean)
+
+        grade_records = []
+        if document_type == "GRADE_REPORT":
+            grade_records = await anyio.to_thread.run_sync(
+                parse_grade_report,
+                markdown_clean,
+                os.path.basename(source_uri),
+            )
+            if not grade_records:
+                reason = "No grade rows with student codes were found in this grade report."
+                logger.warning("Grade report parsing failed for %s: %s", source_uri, reason)
+                await _update_document_status(java_document_id, 'FAILED')
+                return {"status": "FAILED", "chunks_persisted": 0, "reason": reason}
+
+            # Grade reports are private structured data. Do not generate
+            # embeddings or persist class-wide text in the general RAG table.
+            result = await attach_structured_document_to_java_document(
+                java_document_id=java_document_id,
+                filename=os.path.basename(source_uri),
+                source_uri=source_uri,
+                content_hash=content_hash,
+                metadata=metadata,
+            )
+            if result["status"] == "READY":
+                await replace_grade_records(java_document_id, grade_records)
+                await _update_document_status(java_document_id, 'READY')
+                logger.info(
+                    "Grade report ingestion completed with %s private rows: %s",
+                    len(grade_records),
+                    source_uri,
+                )
+            else:
+                await _update_document_status(java_document_id, 'FAILED')
+            return result
         
         # 3 & 4. Transform (Chunking & Embedding) with Retry
         try:

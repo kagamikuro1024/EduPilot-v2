@@ -10,6 +10,11 @@ gRPC servicer contract tests (fake agent generator, no network):
 """
 
 import asyncio
+import base64
+import hashlib
+import hmac
+import json
+import uuid
 
 import pytest
 
@@ -167,3 +172,25 @@ def test_background_task_registry_holds_reference():
         assert task not in grpc_server._BACKGROUND_TASKS  # cleaned up when done
 
     asyncio.run(_run())
+
+
+def test_authenticated_user_tag_is_verified_before_use(monkeypatch):
+    secret = "test-secret"
+    monkeypatch.setattr(grpc_server, "INTERNAL_CALLBACK_TOKEN", secret)
+    payload = {
+        "user_id": str(uuid.uuid4()),
+        "student_code": "SV260115",
+        "role": "STUDENT",
+    }
+    payload_b64 = base64.urlsafe_b64encode(
+        json.dumps(payload, separators=(",", ":")).encode("utf-8")
+    ).decode("ascii").rstrip("=")
+    signature = base64.urlsafe_b64encode(
+        hmac.new(secret.encode(), payload_b64.encode("ascii"), hashlib.sha256).digest()
+    ).decode("ascii").rstrip("=")
+    tag = f"authenticated_user:v1:{payload_b64}.{signature}"
+
+    assert grpc_server._authenticated_user_from_grpc_tags([tag]) == payload
+
+    tampered = tag[:-1] + ("A" if tag[-1] != "A" else "B")
+    assert grpc_server._authenticated_user_from_grpc_tags([tampered]) == {}

@@ -27,6 +27,8 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [nameInput, setNameInput] = useState("");
   const [nameError, setNameError] = useState("");
+  const [studentCodeInput, setStudentCodeInput] = useState("");
+  const [studentCodeError, setStudentCodeError] = useState("");
   
   // Avatar uploading states
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -43,6 +45,7 @@ export default function ProfilePage() {
       const res = await javaClient.get<UserProfile>("/api/v1/users/me");
       setProfile(res.data);
       setNameInput(res.data.full_name || "");
+      setStudentCodeInput(res.data.student_code || "");
       // Sync authStore state if it differs
       if (res.data.full_name !== fullName) {
         updateFullName(res.data.full_name);
@@ -80,13 +83,27 @@ export default function ProfilePage() {
       return;
     }
     setNameError("");
+    const normalizedStudentCode = studentCodeInput.trim().toUpperCase();
+    if (!profile?.student_code && !/^[A-Z0-9_-]{4,50}$/.test(normalizedStudentCode)) {
+      setStudentCodeError("Student ID must be 4-50 letters, numbers, _ or -");
+      return;
+    }
+    setStudentCodeError("");
     setSaving(true);
     try {
       const res = await javaClient.patch<UserProfile>("/api/v1/users/me", {
         full_name: trimmed,
       });
-      setProfile(res.data);
-      updateFullName(res.data.full_name);
+      let updatedProfile = res.data;
+      if (!profile?.student_code) {
+        const codeRes = await javaClient.patch<UserProfile>("/api/v1/users/me/student-code", {
+          student_code: normalizedStudentCode,
+        });
+        updatedProfile = codeRes.data;
+      }
+      setProfile(updatedProfile);
+      setStudentCodeInput(updatedProfile.student_code || "");
+      updateFullName(updatedProfile.full_name);
       toast.success("Profile updated successfully");
     } catch (err: any) {
       console.error(err);
@@ -438,25 +455,37 @@ export default function ProfilePage() {
                       </div>
                     </div>
 
-                    {/* Student Code (Read Only) */}
-                    {profile.student_code && (
-                      <div className="space-y-2">
-                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                          Student ID (Read-only)
-                        </label>
-                        <div className="relative rounded-2xl shadow-sm opacity-70">
-                          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
-                            <Award className="h-4 w-4" />
-                          </div>
-                          <input
-                            type="text"
-                            readOnly
-                            value={profile.student_code}
-                            className="w-full pl-11 pr-5 py-3.5 bg-slate-100/50 dark:bg-zinc-900/30 border border-slate-200 dark:border-zinc-800 rounded-2xl text-slate-500 dark:text-slate-400 cursor-not-allowed"
-                          />
+                    {/* Student Code (one-time binding for private grade lookup) */}
+                    <div className="space-y-2">
+                      <label htmlFor="studentCodeInput" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                        Student ID {profile.student_code ? "(Read-only)" : "(Required for grade lookup)"}
+                      </label>
+                      <div className={`relative rounded-2xl shadow-sm ${profile.student_code ? "opacity-70" : ""}`}>
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
+                          <Award className="h-4 w-4" />
                         </div>
+                        <input
+                          id="studentCodeInput"
+                          type="text"
+                          readOnly={Boolean(profile.student_code)}
+                          required
+                          value={studentCodeInput}
+                          onChange={(e) => setStudentCodeInput(e.target.value.toUpperCase())}
+                          placeholder="Example: SV260115"
+                          className={`w-full pl-11 pr-5 py-3.5 border rounded-2xl transition-all ${
+                            profile.student_code
+                              ? "bg-slate-100/50 dark:bg-zinc-900/30 border-slate-200 dark:border-zinc-800 text-slate-500 dark:text-slate-400 cursor-not-allowed"
+                              : "bg-slate-50/50 dark:bg-zinc-900/50 border-slate-200 dark:border-zinc-800 text-slate-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500"
+                          }`}
+                        />
                       </div>
-                    )}
+                      {!profile.student_code && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400">
+                          Check carefully: this ID is used for private grades and can only be set once.
+                        </p>
+                      )}
+                      {studentCodeError && <p className="text-xs font-semibold text-red-500 pl-1">{studentCodeError}</p>}
+                    </div>
 
                     {/* Account Metadata Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-zinc-900">

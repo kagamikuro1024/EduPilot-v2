@@ -57,6 +57,16 @@ _ASSIGNMENT_REFERENCE_RE = re.compile(
     re.IGNORECASE,
 )
 _ASSIGNMENT_FOLLOWUP_MARKERS = (" ấy", " đây", " này")
+_PERSONAL_GRADE_SIGNALS = (
+    "điểm", "diem", "nhận xét", "nhan xet", "kết quả", "ket qua", "bao nhiêu", "bao nhieu",
+)
+_PERSONAL_REFERENCE_SIGNALS = (
+    "của tôi", "cua toi", "của em", "cua em", "của mình", "cua minh",
+    "tôi được", "toi duoc", "em được", "em duoc", "bài của tôi", "bai cua toi",
+)
+_GRADE_POLICY_SIGNALS = (
+    "cách tính", "cach tinh", "tính như thế nào", "tinh nhu the nao", "quy định", "quy dinh", "tỷ trọng", "ty trong",
+)
 
 # Truncate user-provided text in logs: keep diagnostics without recording
 # full messages (they may contain personal data).
@@ -74,10 +84,39 @@ def _should_prefetch_regulations(user_input: str) -> bool:
     lowered = (user_input or "").strip().lower()
     if not lowered:
         return False
+    if _personal_grade_lookup_hint(user_input) is not None:
+        return False
     has_regulation_signal = any(k in lowered for k in _REGULATION_KEYWORDS)
     has_sql_deadline_signal = any(k in lowered for k in _PROCEDURAL_SQL_KEYWORDS)
     # Hybrid queries may ask both policy and deadlines; still prefetch regulations.
     return has_regulation_signal or (("thi" in lowered or "điểm" in lowered or "diem" in lowered) and not has_sql_deadline_signal)
+
+
+def _personal_grade_lookup_hint(user_input: str, history: list | None = None) -> str | None:
+    """Return an assignment alias (or empty string for all grades) for private grade questions."""
+    safe_input = (user_input or "").strip()
+    lowered = safe_input.lower()
+    recent_history = " ".join(
+        str(item.get("content", ""))
+        for item in (history or [])[-4:]
+        if isinstance(item, dict)
+    )
+    has_grade_signal = any(signal in lowered for signal in _PERSONAL_GRADE_SIGNALS)
+    has_personal_signal = any(signal in lowered for signal in _PERSONAL_REFERENCE_SIGNALS)
+    asks_general_policy = any(signal in lowered for signal in _GRADE_POLICY_SIGNALS)
+    current_match = _ASSIGNMENT_REFERENCE_RE.search(safe_input)
+
+    # "Điểm Lab 2" is inherently a personal lookup in private chat; broader
+    # policy wording such as "cách tính điểm" remains regulation/course RAG.
+    if has_grade_signal and not asks_general_policy and (has_personal_signal or current_match):
+        return current_match.group(0) if current_match else ""
+
+    # Handle terse follow-ups such as "nhận xét thế nào?" after mentioning a lab.
+    if has_grade_signal:
+        history_match = _ASSIGNMENT_REFERENCE_RE.search(recent_history)
+        if history_match:
+            return history_match.group(0)
+    return None
 
 
 def _assignment_lookup_hint(user_input: str, history: list | None = None) -> str | None:
@@ -127,12 +166,13 @@ SYSTEM_PROMPT = """You are the AI Teaching Assistant for the 'Introduction to IT
 Your goal is to help students learn using the Socratic method.
 
 MANDATORY TOOL USAGE:
-- You MUST call 'query_course_materials' tool BEFORE composing ANY response to the student, EXCEPT when the question is about assignment deadlines, submission status, or logistics (where you MUST use database tools 'check_assignment_deadline' or 'get_assignments' instead).
+- You MUST call 'query_course_materials' tool BEFORE composing ANY response to the student, EXCEPT when the question is about personal grades (use 'get_my_grade') or assignment deadlines, submission status, or logistics (use 'check_assignment_deadline' or 'get_assignments').
 - Every claim, explanation, or concept you mention MUST be grounded in retrieved course materials.
 - If query_course_materials returns no relevant results, explicitly tell the student that the topic is not covered in the current course materials and suggest they consult the TA. (This does not apply to assignment/deadline queries where you should use database tools 'check_assignment_deadline' or 'get_assignments', or to simple greetings/conversational pleasantries where you can respond naturally).
 - This rule applies to ALL academic questions. For simple greetings (e.g., 'Hello', 'Hi', 'Xin chào'), meta-questions about your capabilities (e.g., 'bạn có thể làm được gì?', 'bạn là ai?'), or expressions of thanks ('cảm ơn'), respond naturally WITHOUT calling any tools. Ask how you can help with their course work.
 - For ACADEMIC / conceptual questions (bài học, kiến thức môn): you MUST call 'query_course_materials' before answering.
 - For school REGULATIONS / policy (quy chế, quy định, điểm lý thuyết, thi cử, điều kiện tốt nghiệp, học vụ): you MUST call 'query_regulations' before answering.
+- For a student's own score, component scores, or grader feedback, you MUST call 'get_my_grade'. Never ask the model/user to supply another student's code and never use general RAG to answer a private grade question.
 - NEVER answer from your own knowledge or training data alone for factual rules or course content.
 - If the relevant tool returns no useful results, say so clearly and suggest TA / phòng đào tạo as appropriate.
 
@@ -141,6 +181,7 @@ CONSTRAINTS:
 2. Provide hints, ask guiding questions, or explain underlying concepts.
 3. You MUST use IN-TEXT CITATIONS: cite your source INLINE at the end of each claim or paragraph, using the format [FileName, p.X]. Do NOT list all sources at the bottom. Example: 'RabbitMQ sử dụng mô hình Exchange để định tuyến tin nhắn [RabbitMQ_Architecture.pdf, p.3].' (No citations needed for database deadline lookups).
 4. If asked about a SPECIFIC assignment deadline or its late-submission consequences, use the 'check_assignment_deadline' tool. If asked about a LIST of deadlines, general upcoming assignments, or their late-submission policies, use the 'get_assignments' tool. When a database result contains a late-submission policy (`late_penalty_rule` / `Quy dinh nop muon`), explicitly include it in the answer; never omit it. DO NOT invent assignment names, deadlines, or penalties.
+4a. If asked about the current student's score or feedback, use 'get_my_grade'. Present total score, available component scores, feedback, and any source notice. If it returns IDENTITY_REQUIRED, tell the student to set their MSSV in My Profile. Do not add document citations to private grade data.
 5. If the information is not in the course materials or database, state that you don't know and suggest they wait for a TA.
 6. Use a professional, encouraging, and academic tone.
 7. Keep answers concise and evidence-first. Avoid generic filler.
@@ -184,6 +225,7 @@ def _build_system_prompt(intent: str, risk_level: str, current_time: str) -> str
             "\n\nROUTING: This question is about PROCEDURAL matters. "
             "Use 'check_assignment_deadline' for a specific assignment's deadline or late-submission rule, "
             "or 'get_assignments' to list assignments, deadlines, and late-submission rules. "
+            "Use 'get_my_grade' for the authenticated student's score, component scores, or grader feedback. "
             "If a tool returns a late-submission rule, explicitly state it in the student-facing answer. "
             "For quy chế đào tạo, điểm số lý thuyết, thi cử, kỷ luật, học vụ, or other official school rules, "
             "you MUST call 'query_regulations' (in addition to SQL tools if the user also asks about concrete deadlines)."
@@ -303,6 +345,7 @@ async def run_agent_loop_stream(
     fallback_reason: str = "",
     risk_level: str = "NORMAL",
     thread_id: str = None,
+    trusted_user_context: dict | None = None,
 ):
     """
     Run the agent loop with Server Streaming Events.
@@ -330,6 +373,7 @@ async def run_agent_loop_stream(
     tools = get_tool_schemas()
     used_deadline_tool = False
     used_assignments_tool = False
+    used_grade_tool = False
     rag_was_called = False
     rag_cache_hit = None
     usage_prompt_tokens = None
@@ -340,8 +384,27 @@ async def run_agent_loop_stream(
     # instead of re-running side effects (bounded duplicate execution).
     executed_tool_results: dict = {}
     assignment_lookup_hint = _assignment_lookup_hint(user_input, history)
+    grade_lookup_hint = _personal_grade_lookup_hint(user_input, history)
 
-    if intent == "ACADEMIC":
+    if grade_lookup_hint is not None:
+        yield {"type": "STATUS", "content": "Searching: get_my_grade"}
+        grade_result = await execute_tool(
+            "get_my_grade",
+            {"assignment_name": grade_lookup_hint},
+            trusted_context=trusted_user_context,
+        )
+        used_grade_tool = True
+        messages.append({
+            "role": "system",
+            "content": (
+                "Use this privacy-filtered grade result to answer the current student's question:\n"
+                f"{grade_result}\n"
+                "Only describe data present in this result. Include total, component scores, feedback, and source notice when available. "
+                "Do not search regulations/course materials and do not include document citations for this private database result."
+            ),
+        })
+        tools = []
+    elif intent == "ACADEMIC":
         rag_query = user_input
         logger.info("Academic RAG prefetch query=%s", _log_snippet(rag_query))
         yield {"type": "STATUS", "content": "Searching: query_course_materials (academic-prefetch)"}
@@ -575,13 +638,19 @@ async def run_agent_loop_stream(
                 logger.info("tool_call_deduped tool=%s", func_name)
                 result = executed_tool_results[call_key]
             else:
-                result = await execute_tool(func_name, func_args)
+                result = await execute_tool(
+                    func_name,
+                    func_args,
+                    trusted_context=trusted_user_context if func_name == "get_my_grade" else None,
+                )
                 executed_tool_results[call_key] = result
 
             if func_name == "check_assignment_deadline":
                 used_deadline_tool = True
             if func_name == "get_assignments":
                 used_assignments_tool = True
+            if func_name == "get_my_grade":
+                used_grade_tool = True
             if func_name in ("query_course_materials", "query_regulations"):
                 rag_was_called = True
                 if not deduped:
@@ -610,11 +679,15 @@ async def run_agent_loop_stream(
     # Also treat CONVERSATIONAL intent as greeting regardless of keyword match
     is_greeting = is_greeting or intent == "CONVERSATIONAL"
 
-    procedural_sql_only = used_deadline_tool or used_assignments_tool
+    procedural_sql_only = used_deadline_tool or used_assignments_tool or used_grade_tool
     fallback_citations: list = []
 
     if not is_escalated and not rag_was_called and not is_greeting:
-        if intent == "PROCEDURAL" and procedural_sql_only:
+        if used_grade_tool:
+            # Private grade lookup is complete and must never fall through to
+            # course/regulation RAG, regardless of classifier intent.
+            pass
+        elif intent == "PROCEDURAL" and procedural_sql_only:
             # Pure LMS / deadline questions — no forced regulation RAG
             pass
         else:

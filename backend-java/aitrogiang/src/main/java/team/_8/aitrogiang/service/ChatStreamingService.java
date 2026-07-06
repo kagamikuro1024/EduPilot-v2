@@ -102,7 +102,10 @@ public class ChatStreamingService {
                             userMessage,
                             grpcHistory,
                             channel.name(),
-                            classification
+                            classification,
+                            currentUser.getId().toString(),
+                            currentUser.getStudentCode(),
+                            currentUser.getRole().name()
                     )
                     .flatMap(aiResponse -> {
                         String chunk = aiResponse.getChunk();

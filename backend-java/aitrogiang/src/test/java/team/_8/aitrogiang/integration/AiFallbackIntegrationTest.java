@@ -59,7 +59,7 @@ public class AiFallbackIntegrationTest extends IntegrationTestBase {
         when(pythonClient.classifyIntent(anyString(), anyString())).thenReturn(mockResponse);
         
         // Mock the streamResponse to return empty (we are testing fallback, not the stream result)
-        when(pythonClient.streamResponse(anyString(), anyString(), anyString(), any(), anyString(), any()))
+        when(pythonClient.streamResponse(anyString(), anyString(), anyString(), any(), anyString(), any(), anyString(), any(), anyString()))
                 .thenReturn(reactor.core.publisher.Flux.empty());
 
         // 3. Trigger the process

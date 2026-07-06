@@ -125,6 +125,51 @@ async def attach_chunks_to_java_document(
             logger.info("Successfully attached %s chunks to java document %s", len(values), java_document_id)
             return {"status": "READY", "chunks_persisted": len(values), "reason": None}
 
+
+@retry(
+    stop=stop_after_attempt(5),
+    wait=wait_exponential(multiplier=1, min=1, max=10),
+    retry=retry_if_exception_type(Exception),
+)
+async def attach_structured_document_to_java_document(
+    java_document_id: str,
+    filename: str,
+    source_uri: str,
+    content_hash: str,
+    metadata: dict | str | None,
+) -> IngestionResult:
+    """Attach metadata for a structured document without creating RAG chunks."""
+    pool = get_db_pool()
+    async with pool.acquire() as conn:
+        try:
+            doc_metadata = metadata if metadata is not None else {}
+            if isinstance(doc_metadata, dict):
+                doc_metadata = json.dumps(doc_metadata)
+            update_result = await conn.execute(
+                """
+                UPDATE documents
+                SET filename = $2,
+                    source_uri = $3,
+                    content_hash = $4,
+                    metadata = $5::jsonb,
+                    updated_at = NOW()
+                WHERE id = $1
+                """,
+                java_document_id,
+                filename,
+                source_uri,
+                content_hash,
+                doc_metadata,
+            )
+        except asyncpg.UniqueViolationError:
+            return {"status": "DUPLICATE", "chunks_persisted": 0, "reason": "duplicate_content_hash"}
+        except Exception as exc:
+            logger.error("Failed to attach structured document %s: %s", java_document_id, exc)
+            return {"status": "FAILED", "chunks_persisted": 0, "reason": str(exc)}
+        if update_result.endswith(" 0"):
+            return {"status": "NOT_FOUND", "chunks_persisted": 0, "reason": "java_document_row_missing"}
+    return {"status": "READY", "chunks_persisted": 0, "reason": None}
+
 async def get_chunks_by_document_id(doc_id: str) -> list[dict]:
     """Retrieves all chunks associated with a specific document ID."""
     try:

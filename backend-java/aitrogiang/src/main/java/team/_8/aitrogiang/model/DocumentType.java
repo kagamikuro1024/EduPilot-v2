@@ -5,5 +5,6 @@ package team._8.aitrogiang.model;
  */
 public enum DocumentType {
     COURSE_MATERIAL,
-    REGULATION
+    REGULATION,
+    GRADE_REPORT
 }

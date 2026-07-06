@@ -147,3 +147,34 @@ def test_assignment_list_includes_late_penalty_rule(monkeypatch):
     result = tools._run_get_assignments()
 
     assert '"late_penalty_rule": "Cứ muộn 1 ngày bị trừ 10% điểm"' in result
+
+
+def test_private_grade_lookup_returns_only_authenticated_student(monkeypatch):
+    row = (
+        "LAB 2: SEARCH ALGORITHMS",
+        9.4,
+        10.0,
+        "Code sạch, giải thích tốt",
+        {"Linear": 2.0, "Binary": 1.9},
+        1,
+        "MOCK DATA",
+        "bang_diem_lab2.pdf",
+        "2026-07-06 10:00:00",
+    )
+
+    def fake_connect(_url):
+        return FakeConn([row])
+
+    fake_psycopg2 = types.ModuleType("psycopg2")
+    fake_psycopg2.connect = fake_connect
+    monkeypatch.setattr(tools, "psycopg2", fake_psycopg2)
+    result = asyncio.run(tools.get_my_grade("Lab 2", "SV260115", "STUDENT"))
+
+    assert '"total_score": 9.4' in result
+    assert "Code sạch, giải thích tốt" in result
+    assert "SV260114" not in result
+
+
+def test_private_grade_lookup_requires_server_identity():
+    result = asyncio.run(tools.get_my_grade("Lab 2", "", "STUDENT"))
+    assert "IDENTITY_REQUIRED" in result

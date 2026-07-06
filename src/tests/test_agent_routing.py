@@ -24,7 +24,12 @@ fake_asyncpg.Pool = object
 fake_asyncpg.create_pool = None
 sys.modules.setdefault("asyncpg", fake_asyncpg)
 
-from src.agent import _assignment_lookup_hint, _should_prefetch_regulations, run_agent_loop_stream
+from src.agent import (
+    _assignment_lookup_hint,
+    _personal_grade_lookup_hint,
+    _should_prefetch_regulations,
+    run_agent_loop_stream,
+)
 
 
 def test_low_confidence_emits_fallback_status_and_never_raises():
@@ -132,3 +137,58 @@ def test_assignment_lookup_hint_normalizes_context_to_stable_lab_alias():
 
 def test_assignment_content_question_does_not_force_database_lookup():
     assert _assignment_lookup_hint("Lab 4 yêu cầu viết API nào?", []) is None
+
+
+def test_personal_grade_routes_to_private_tool_not_regulations():
+    question = "Điểm Lab2 của tôi là bao nhiêu, được nhận xét như nào?"
+    assert _personal_grade_lookup_hint(question) == "Lab2"
+    assert _should_prefetch_regulations(question) is False
+
+
+def test_general_grading_policy_still_routes_to_regulations():
+    assert _personal_grade_lookup_hint("Quy định cách tính điểm thành phần là gì?") is None
+    assert _should_prefetch_regulations("Quy định cách tính điểm thành phần là gì?") is True
+
+
+def test_private_grade_prefetch_never_falls_through_to_rag(monkeypatch):
+    calls = []
+
+    async def fake_execute_tool(name, args, trusted_context=None):
+        calls.append((name, args, trusted_context))
+        return '{"status":"FOUND","grades":[{"total_score":9.4}]}'
+
+    monkeypatch.setattr("src.agent.execute_tool", fake_execute_tool)
+
+    class Delta:
+        content = "[CONFIDENCE: 99]Bạn được 9.4 điểm."
+        tool_calls = None
+
+    class Choice:
+        delta = Delta()
+        finish_reason = "stop"
+
+    class Chunk:
+        choices = [Choice()]
+        usage = None
+
+    class Completions:
+        async def create(self, **_kwargs):
+            async def stream():
+                yield Chunk()
+            return stream()
+
+    client = type("Client", (), {"chat": type("Chat", (), {"completions": Completions()})()})()
+
+    async def run():
+        return [item async for item in run_agent_loop_stream(
+            client,
+            "Điểm Lab2 của tôi là bao nhiêu?",
+            intent="ACADEMIC",
+            intent_confidence=0.95,
+            trusted_user_context={"student_code": "SV260115", "role": "STUDENT"},
+        )]
+
+    chunks = asyncio.run(run())
+    assert [call[0] for call in calls] == ["get_my_grade"]
+    assert calls[0][2]["student_code"] == "SV260115"
+    assert chunks[-1]["type"] == "DONE"

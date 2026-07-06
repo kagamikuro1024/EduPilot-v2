@@ -40,6 +40,7 @@ class DocumentType(str, Enum):
 
     COURSE_MATERIAL = "COURSE_MATERIAL"
     REGULATION = "REGULATION"
+    GRADE_REPORT = "GRADE_REPORT"
 
 
 # -----------------------------------------------------------------------

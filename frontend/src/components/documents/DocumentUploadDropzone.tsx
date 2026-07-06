@@ -24,11 +24,11 @@ export function DocumentUploadDropzone({
         </div>
         <h2 className="mt-6 text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">Upload knowledge documents</h2>
         <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
-          Drag and drop PDF files here, or click to browse. Choose document type so the AI searches the right corpus (course vs quy chế).
+          Drag and drop PDF files here, or click to browse. Choose document type so the AI uses the correct, privacy-safe data flow.
         </p>
         <div className="mt-6 flex flex-col items-center gap-2">
           <label htmlFor="doc-upload-type" className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
-            Document type for RAG
+            Document type
           </label>
           <select
             id="doc-upload-type"
@@ -39,6 +39,7 @@ export function DocumentUploadDropzone({
           >
             <option value="COURSE_MATERIAL">Course material (slides, syllabus)</option>
             <option value="REGULATION">Regulation / quy chế (school policy)</option>
+            <option value="GRADE_REPORT">Grade report / bảng điểm (private lookup)</option>
           </select>
         </div>
         <div className="mt-8 flex flex-wrap items-center justify-center gap-3">

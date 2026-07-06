@@ -39,6 +39,15 @@ public class UserController {
         return ResponseEntity.ok(userProfileService.updateProfile(user, request));
     }
 
+    @PatchMapping("/student-code")
+    public ResponseEntity<UserProfileResponse> setStudentCode(
+            @Valid @RequestBody StudentCodeUpdateRequest request,
+            Authentication authentication
+    ) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(userProfileService.setStudentCode(user, request));
+    }
+
     @GetMapping("/avatar")
     public ResponseEntity<byte[]> getAvatar(Authentication authentication) throws IOException {
         User user = (User) authentication.getPrincipal();

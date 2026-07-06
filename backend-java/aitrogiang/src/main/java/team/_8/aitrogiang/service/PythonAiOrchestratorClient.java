@@ -6,6 +6,7 @@ import io.grpc.stub.StreamObserver;
 import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 import team._8.aitrogiang.grpc.AIDocumentServiceGrpc;
@@ -18,6 +19,7 @@ import team._8.aitrogiang.grpc.DocumentRequest;
 import team._8.aitrogiang.grpc.IntentType;
 import team._8.aitrogiang.grpc.Message;
 import team._8.aitrogiang.util.JavaPreflightTagBuilder;
+import team._8.aitrogiang.util.AuthenticatedUserTagBuilder;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -35,6 +37,9 @@ import java.util.concurrent.TimeUnit;
 public class PythonAiOrchestratorClient {
 
     private static final long CLASSIFY_DEADLINE_SEC = 15L;
+
+    @Value("${app.internal.token:}")
+    private String internalToken;
 
     @GrpcClient("ai-service")
     private AIThreadServiceGrpc.AIThreadServiceStub aiThreadServiceStub;
@@ -88,7 +93,10 @@ public class PythonAiOrchestratorClient {
             String currentMessage,
             List<Message> history,
             String channelHint,
-            ClassifyResponse javaPreflight
+            ClassifyResponse javaPreflight,
+            String authenticatedUserId,
+            String authenticatedStudentCode,
+            String authenticatedRole
     ) {
         AIRequest.Builder req = AIRequest.newBuilder()
                 .setThreadId(contextId)
@@ -99,6 +107,15 @@ public class PythonAiOrchestratorClient {
         String preflightTag = JavaPreflightTagBuilder.buildTag(javaPreflight);
         if (preflightTag != null) {
             req.addTags(preflightTag);
+        }
+        String authenticatedUserTag = AuthenticatedUserTagBuilder.buildTag(
+                authenticatedUserId,
+                authenticatedStudentCode,
+                authenticatedRole,
+                internalToken
+        );
+        if (authenticatedUserTag != null) {
+            req.addTags(authenticatedUserTag);
         }
         AIRequest request = req.build();
 

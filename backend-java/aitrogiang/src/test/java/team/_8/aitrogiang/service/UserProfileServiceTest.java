@@ -96,6 +96,29 @@ public class UserProfileServiceTest {
     }
 
     @Test
+    public void testSetStudentCodeOnce() {
+        testUser.setStudentCode(null);
+        when(userRepository.existsByStudentCodeIgnoreCase("SV260115")).thenReturn(false);
+        when(userRepository.save(any(User.class))).thenAnswer(inv -> inv.getArgument(0));
+
+        UserProfileResponse response = userProfileService.setStudentCode(
+                testUser,
+                new StudentCodeUpdateRequest("sv260115")
+        );
+
+        assertEquals("SV260115", response.getStudent_code());
+        assertEquals("SV260115", testUser.getStudentCode());
+    }
+
+    @Test
+    public void testStudentCodeCannotBeChanged() {
+        assertThrows(IllegalArgumentException.class, () -> userProfileService.setStudentCode(
+                testUser,
+                new StudentCodeUpdateRequest("SV999999")
+        ));
+    }
+
+    @Test
     public void testChangePassword_Success() {
         PasswordChangeRequest request = new PasswordChangeRequest("current_pwd", "NewPassword123");
         when(passwordEncoder.matches("current_pwd", testUser.getPassword())).thenReturn(true);
