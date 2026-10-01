@@ -33,7 +33,7 @@ Cách dời: `git mv <mục> legacy/<mục>` (giữ nguyên đường dẫn bên
 | 11 | `benchmarks/` | 13 | Dời (script đánh giá của Project III; khung đánh giá mới dựng ở P10 — xem Q2) | `legacy/benchmarks/` |
 | 12 | `data/Mordern_Network_Security_Threats.pdf`, `data/QMB12ch6b.pdf`, `data/Quyche.pdf` | 3 | Dời sang seed (D10) | `seed/documents/` |
 | 13 | `data/benchmark_failed_cases.jsonl`, `data/benchmark_ground_truth.jsonl`, `data/golden_dataset_quyche.jsonl` | 3 | Dời (bộ dữ liệu đánh giá của Project III — xem Q2) | `legacy/data/` |
-| 14 | `data/tmp/492218d5-5f99-4eb4-b18a-06e55141e824.pdf` | 1 | Dời (file tải lên còn sót, chưa rõ nội dung — xem Q3) | `legacy/data/tmp/` |
+| 14 | `data/tmp/492218d5-5f99-4eb4-b18a-06e55141e824.pdf` | 1 | `git rm` — bản sao trùng SHA-1 với `data/Mordern_Network_Security_Threats.pdf`, không dời (Q3) | (không còn) |
 | 15 | `data_pipeline/` | 15 | Dời | `legacy/data_pipeline/` |
 | 16 | `db/` | 28 | Dời (schema cũ; goose mới bắt đầu `00001` ở `backend-go/db/migrations`) | `legacy/db/` |
 | 17 | `docker-compose.yml`, `docker-compose.local.yml`, `docker-compose.prod.yml`, `docker-compose.hf.yml` | 4 | Dời; viết `docker-compose.local.yml` mới (FR-8) | `legacy/` + `docker-compose.local.yml` mới |
@@ -63,7 +63,7 @@ Cách dời: `git mv <mục> legacy/<mục>` (giữ nguyên đường dẫn bên
 | FR-5 | Gateway dừng êm khi nhận SIGTERM/SIGINT (đóng server có hạn chờ) để `dev:down` không phải giết cứng | AC5 |
 | FR-6 | `backend-go/api/openapi.yaml`: OpenAPI 3.1, mô tả `GET /healthz` và schema response | AC3 |
 | FR-7 | Test Go table-driven: (a) cấu hình — đủ biến / thiếu một / thiếu cả hai → đúng danh sách biến thiếu; (b) `/healthz` → 200 + body đúng | AC3, AC4 |
-| FR-8 | `docker-compose.local.yml` mới, đủ 6 service, mọi service có healthcheck, image ghim tag (D48): `postgres` = `pgvector/pgvector:pg18` (5433→5432), `redis` = `redis:8` (6380→6379), `minio` (9000 API, 9001 console), `mailhog` (1025 SMTP, 8025 UI), `gateway` (build `backend-go/Dockerfile`, 8080), `frontend` (Node 24, 3000). `gateway` phụ thuộc `postgres`, `redis` healthy. Volume có tên cho postgres, redis, minio. Không mount hay build gì trong `legacy/` | AC2, AC6 |
+| FR-8 | `docker-compose.local.yml` mới, đủ 6 service, mọi service có healthcheck, image ghim tag (D48): `postgres` = `pgvector/pgvector:pg18` (5433→5432), `redis` = `redis:8` (6380→6379), `minio` (9000 API, 9001 console), `mailpit` = `axllent/mailpit` (1025 SMTP, 8025 UI + REST `/api/v1/info`), `gateway` (build `backend-go/Dockerfile`, 8080), `frontend` (Node 24, 3000). `gateway` phụ thuộc `postgres`, `redis` healthy. Volume có tên cho postgres, redis, minio. Không mount hay build gì trong `legacy/` | AC2, AC6 |
 | FR-9 | `package.json` gốc: `dev` = chạy `scripts/dev.mjs` → tạo `.env.local` từ `.env.example` nếu chưa có, kiểm Docker, rồi `docker compose … -p edupilot up -d --build --wait` (thoát 0 khi mọi service healthy, khác 0 nếu có service không healthy); `dev:status` / `dev:logs` / `dev:down` dùng cùng `--env-file .env.local -f docker-compose.local.yml -p edupilot` | AC2, AC5 |
 | FR-10 | `.env.example` mới chỉ chứa biến P0 dùng (`DATABASE_URL`, `REDIS_URL`, `BLOB_*`, `SMTP_*`, `MAIL_FROM`) với giá trị dev giả (vd mật khẩu `edupilot-dev`); không secret thật | AC7 |
 | FR-11 | `backend-go/Dockerfile` nhiều tầng, chạy bằng user không phải root; healthcheck không cần `curl` trong image (vd gateway có cờ `-healthcheck` tự gọi `http://127.0.0.1:8080/healthz`) | AC2 |
@@ -80,7 +80,7 @@ Không áp dụng — story hạ tầng (không migration; `backend-go/db/migrat
 
 Không gRPC (D46). Không tool agent.
 
-Cổng dev cố định: gateway 8080, frontend 3000, MailHog 1025 / 8025, MinIO 9000 / 9001, Postgres 5433, Redis 6380 (lệch cổng mặc định để không đụng dịch vụ sẵn có trên máy dev).
+Cổng dev cố định: gateway 8080, frontend 3000, Mailpit 1025 / 8025, MinIO 9000 / 9001, Postgres 5433, Redis 6380 (lệch cổng mặc định để không đụng dịch vụ sẵn có trên máy dev).
 
 ## 7. Giao diện
 Không áp dụng — story hạ tầng. (Trang `/` chỉ là trang trống kiểm font + token; khung giao diện thật dựng ở PU.)
@@ -96,7 +96,6 @@ Không áp dụng — story hạ tầng. (Trang `/` chỉ là trang trống ki�
 
 Rủi ro đã biết:
 - Máy dev đang có `node@20` (plan sprint 1, Toolchain); dev cài Node 24 trước khi làm.
-- Image `mailhog/mailhog` chỉ có bản amd64; trên máy arm64 (colima) cần `platform: linux/amd64`. Nếu không chạy được thì DỪNG và báo PM, không tự đổi sang công cụ khác.
 - Frontend mới tạo trong `frontend/` đang chứa `tokens.css` + `brand/`: dời mã cũ trước (FR-1), rồi mới chạy trình tạo dự án; không để trình tạo dự án ghi đè hai thứ này.
 - `.env.example` cũ chứa khoá JWT mẫu; sau khi dời vẫn nằm trong `legacy/` và lịch sử git. Không dùng lại khoá này cho stack mới.
 
@@ -116,7 +115,7 @@ Không áp dụng — story hạ tầng. Câu hỏi: `QUESTIONS.md`. Chi tiết 
 ## 11. Truy vết
 | PRD | FLOWS | Phase | US | FR | Kiểm |
 | --- | --- | --- | --- | --- | --- |
-| §5 Triển khai (`pnpm dev`, MailHog) | – | P0 L1 | US-P0-02 AC1 | FR-1 | lệnh AC1 |
+| §5 Triển khai (`pnpm dev`, mail giả lập: Mailpit theo D48) | – | P0 L1 | US-P0-02 AC1 | FR-1 | lệnh AC1 |
 | §5 | – | P0 L1 | AC2 | FR-3, FR-8, FR-9, FR-11, FR-12 | `pnpm dev`, curl |
 | – | – | P0 L1 | AC3 | FR-2, FR-6, FR-7, FR-12 | `go test`, redocly lint, `pnpm lint/build` |
 | – | – | P0 L1 | AC4 | FR-4, FR-7 | chạy gateway thiếu env |

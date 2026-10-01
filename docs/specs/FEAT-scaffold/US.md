@@ -7,26 +7,27 @@ Quy ước trong file: `$C` = `docker compose --env-file .env.local -f docker-co
 Ưu tiên: Must · Ước lượng: M · Sprint: 1
 
 ### Tiêu chí nghiệm thu
-- AC1. Given repo ở `5cfb4af` When dev dời mã theo `SRS.md` mục 4.1 bằng `git mv` Then gốc repo chỉ còn các mục ở cột "Sau" của bảng; mọi file mã Project III có mặt ở `legacy/<đường dẫn cũ>`; 3 PDF môn học ở `seed/documents/`; lịch sử được giữ.
+- AC1. Given repo ở `5cfb4af` When dev dời mã theo `SRS.md` mục 4.1 bằng `git mv` Then gốc repo chỉ còn các mục ở cột "Sau" của bảng; mọi file mã Project III có mặt ở `legacy/<đường dẫn cũ>`; 3 PDF môn học ở `seed/documents/`; bản sao `data/tmp/492218d5-….pdf` bị `git rm` (Q3); lịch sử được giữ.
   Kiểm:
   ```bash
   git ls-files | awk -F/ '{print $1}' | sort -u | xargs
   # = .claude .dockerignore .env.example .gitattributes .github .gitignore AGENTS.md CLAUDE.md backend-go docker-compose.local.yml docs frontend legacy package.json pnpm-lock.yaml pnpm-workspace.yaml scripts seed
   git ls-tree -r --name-only 5cfb4af \
-    | grep -vE '^(docs/|\.claude/|\.github/|AGENTS\.md$|CLAUDE\.md$|\.gitattributes$|\.gitignore$|\.dockerignore$|package\.json$|pnpm-workspace\.yaml$|scripts/(dev\.mjs|team-up\.sh|ui-antipatterns\.sh)$|frontend/src/shared/styles/tokens\.css$|frontend/public/brand/|data/(Mordern_Network_Security_Threats|QMB12ch6b|Quyche)\.pdf$)' \
+    | grep -vE '^(docs/|\.claude/|\.github/|AGENTS\.md$|CLAUDE\.md$|\.gitattributes$|\.gitignore$|\.dockerignore$|package\.json$|pnpm-workspace\.yaml$|scripts/(dev\.mjs|team-up\.sh|ui-antipatterns\.sh)$|frontend/src/shared/styles/tokens\.css$|frontend/public/brand/|data/(Mordern_Network_Security_Threats|QMB12ch6b|Quyche)\.pdf$|data/tmp/)' \
     | while read -r f; do git ls-files --error-unmatch "legacy/$f" >/dev/null 2>&1 || echo "THIẾU legacy/$f"; done   # không in gì
+  git ls-files | grep -c '492218d5'   # 0 (không còn ở đâu, kể cả legacy/)
   ls seed/documents   # Mordern_Network_Security_Threats.pdf  QMB12ch6b.pdf  Quyche.pdf
   git ls-files frontend/src/shared/styles/tokens.css frontend/public/brand | wc -l   # 4
   git log --follow --oneline -- legacy/backend-java/aitrogiang/build.gradle | wc -l # ≥ 2 (còn lịch sử trước khi dời)
   ```
-- AC2. Given máy có Docker When chạy `pnpm dev` Then lệnh dựng đủ 6 service `postgres`, `redis`, `minio`, `mailhog`, `gateway`, `frontend`, chờ tới khi mọi service healthy rồi thoát mã 0; không có service Python.
+- AC2. Given máy có Docker When chạy `pnpm dev` Then lệnh dựng đủ 6 service `postgres`, `redis`, `minio`, `mailpit`, `gateway`, `frontend`, chờ tới khi mọi service healthy rồi thoát mã 0; không có service Python.
   Kiểm:
   ```bash
   pnpm dev; echo "exit=$?"                                         # exit=0
   pnpm -s dev:status --format '{{.Service}} {{.Health}}'           # 6 dòng, đều healthy
   $C config --services | grep -ciE 'python|ai$'                    # 0
   curl -fsS localhost:8080/healthz                                 # {"status":"ok"}
-  curl -s localhost:8025 | grep -ci mailhog                        # ≥ 1
+  curl -fsS localhost:8025/api/v1/info                             # 200, JSON thông tin Mailpit
   curl -s localhost:3000 | grep -c 'lang="vi"'                     # ≥ 1
   ```
   Thêm bằng mắt (chủ dự án): `http://localhost:3000` là trang trống tiếng Việt, logo EduPilot, chữ Be Vietnam Pro, màu từ token.
