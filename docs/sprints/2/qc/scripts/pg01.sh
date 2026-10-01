@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # QC US-PG-01 — khung dịch vụ: config, log, trace, redis, tắt êm, giới hạn, deadline, pool, slow query, worker, Makefile, phụ thuộc chết.
-# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.1 (US-PG-01 AC1…AC15) + SRS.md 3.4, 4.1, 5.6, 6.1, 6.3, 8.1, 8.4, 9.4.
+# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.2 (US-PG-01 AC1…AC15 + các dòng "Làm rõ (QC questions #…)") + SRS.md 3.1, 3.4, 4.1, 5.6, 6.1, 6.3, 8.1, 8.4, 9.4.
 # Chạy ở gốc worktree sau `pnpm dev`:  bash docs/sprints/2/qc/scripts/pg01.sh [MM …|--list]
 # Hộp đen: chỉ dùng binary/ảnh đã dựng, lệnh curl/psql/redis-cli/docker/make. Không đọc mã nguồn.
 source "$(dirname "$0")/lib.sh"
@@ -47,6 +47,9 @@ wait_worker() { local i=0; while [ $i -lt 90 ]; do
 worker_up() { $C start worker >/dev/null 2>&1 || $C up -d --wait worker >/dev/null 2>&1; wait_worker; }
 newtrace() { printf '%016x%016x' "$(now_ms)" "$(( RANDOM * 32768 + RANDOM + 1 ))"; }   # 32 hex, khác toàn 0
 pg_sleep_cnt() { $PSQL -c "select count(*) from pg_stat_activity where query ilike '%pg_sleep%' and state='active' and pid<>pg_backend_pid()" 2>/dev/null | tr -d ' \r'; }
+show_clients_gw() {  # AC10 (#Q-QC-01-3): số dòng `SHOW CLIENTS` của PgBouncer có cột application_name = edupilot-gateway
+  $C exec -T postgres psql "$PGB" -Atc 'SHOW CLIENTS' 2>/dev/null \
+    | awk -F'|' '{for(i=1;i<=NF;i++) if ($i=="edupilot-gateway") {c++; break}} END{print c+0}'; }
 
 # ============================================================ AC1 — thiếu biến bắt buộc
 tc_pg01_01() {  # AC1 — thiếu TỪNG biến trong 7 biến: rc=1, ≤ 1 s, `missing` nêu đúng tên, mức error, không in giá trị biến khác
@@ -135,9 +138,9 @@ tc_pg01_11() {  # AC2 — JWT_EXPIRATION=abc
   bins || { fail_tc "không dựng được binary"; return; }
   cfg_bad "$QC_OUT/tc-pg01-11.log" JWT_EXPIRATION '(^|[^0-9a-f])abc([^0-9a-f]|$)' JWT_EXPIRATION=abc; }
 
-tc_pg01_12() {  # AC2 — APP_CORS_ALLOWED_ORIGINS=*  (SRS 6.7: giá trị `*` bị từ chối lúc khởi động)
+tc_pg01_12() {  # AC2 — CORS_ORIGINS=*  (SRS 6.7 / 8.1: giá trị `*` bị từ chối lúc khởi động)
   bins || { fail_tc "không dựng được binary"; return; }
-  cfg_bad "$QC_OUT/tc-pg01-12.log" APP_CORS_ALLOWED_ORIGINS '' 'APP_CORS_ALLOWED_ORIGINS=*'; }
+  cfg_bad "$QC_OUT/tc-pg01-12.log" CORS_ORIGINS '' 'CORS_ORIGINS=*'; }
 
 tc_pg01_13() {  # AC2 — APP_ENV=staging
   bins || { fail_tc "không dựng được binary"; return; }
@@ -197,7 +200,7 @@ tc_pg01_18() {  # AC3 — mỗi bản gateway ghi ĐÚNG MỘT dòng `config loa
     chk_ge "dòng có \"secrets\":\"[redacted]\"" "$(docker logs "$id" 2>&1 | grep -c '"secrets":"\[redacted\]"')" 1
   done; }
 
-tc_pg01_19() {  # AC3 — binary trần, CHỈ 7 biến bắt buộc → mặc định dev hiệu lực (DB_MAX_CONNS 10, REQUEST_TIMEOUT 30s, SSE_HEARTBEAT 25s)
+tc_pg01_19() {  # AC3 (#Q-QC-01-2) — binary trần, CHỈ 7 biến bắt buộc → `config loaded` JSON phẳng, khoá = tên biến viết thường, mặc định dev
   bins || { fail_tc "không dựng được binary"; return; }
   local out=$QC_OUT/tc-pg01-19.log usr pw db bb ba bs pid i=0 line
   usr=$(envv POSTGRES_USER); [ -n "$usr" ] || usr=edupilot
@@ -213,11 +216,18 @@ tc_pg01_19() {  # AC3 — binary trần, CHỈ 7 biến bắt buộc → mặc �
   kill "$pid" 2>/dev/null; wait "$pid" 2>/dev/null
   line=$(jq -c 'select(.msg=="config loaded")' "$out" 2>/dev/null | head -1)
   chk "số dòng 'config loaded'" "$(jq -c 'select(.msg=="config loaded")' "$out" 2>/dev/null | wc -l | tr -d ' ')" 1
-  chk_re "DB_MAX_CONNS mặc định 10" "$line" '(^|[^0-9])10([^0-9]|$)'
-  chk_re "REQUEST_TIMEOUT mặc định 30s" "$line" '30s'
-  chk_re "SSE_HEARTBEAT mặc định 25s" "$line" '25s'
-  chk_re 'secrets đã che' "$line" '"secrets":"\[redacted\]"'
-  chk "dòng không chứa khoá JWT thật" "$(printf '%s' "$line" | grep -cF "$SECRET")" 0; }
+  chk "db_max_conns (kiểu JSON)" "$(printf '%s' "$line" | jq -r '.db_max_conns|type' 2>/dev/null)" number
+  chk "db_max_conns (mặc định dev)" "$(printf '%s' "$line" | jq -r '.db_max_conns // empty' 2>/dev/null)" 10
+  chk "request_timeout (chuỗi thời lượng)" "$(printf '%s' "$line" | jq -r 'if (.request_timeout|type)=="string" then .request_timeout else "kiểu \(.request_timeout|type)" end' 2>/dev/null)" 30s
+  chk "sse_heartbeat (chuỗi thời lượng)" "$(printf '%s' "$line" | jq -r 'if (.sse_heartbeat|type)=="string" then .sse_heartbeat else "kiểu \(.sse_heartbeat|type)" end' 2>/dev/null)" 25s
+  chk "app_env (mặc định dev)" "$(printf '%s' "$line" | jq -r '.app_env // empty' 2>/dev/null)" dev
+  chk "cors_origins (mặc định SRS 8.1)" "$(printf '%s' "$line" | jq -r '.cors_origins // empty' 2>/dev/null)" 'http://localhost:3000,https://localhost'
+  chk "db_via (không đặt PGBOUNCER_URL)" "$(printf '%s' "$line" | jq -r '.db_via // empty' 2>/dev/null)" direct
+  chk "secrets" "$(printf '%s' "$line" | jq -r '.secrets // empty' 2>/dev/null)" '[redacted]'
+  chk "số khoá bí mật bị in (database_url/redis_url/pgbouncer_url/jwt_secret_key/blob_access_key/blob_secret_key)" \
+    "$(printf '%s' "$line" | jq -r '[to_entries[]|select(.key|test("^(database_url|redis_url|pgbouncer_url|jwt_secret_key|blob_access_key|blob_secret_key)$";"i"))]|length' 2>/dev/null)" 0
+  chk "dòng không chứa khoá JWT thật" "$(printf '%s' "$line" | grep -cF "$SECRET")" 0
+  chk "dòng không chứa mật khẩu Postgres" "$(printf '%s' "$line" | grep -cF "$pw")" 0; }
 
 tc_pg01_20() {  # AC3 — không dòng log nào chứa bí mật (lệnh nguyên văn của AC3)
   [ -n "$SECRET" ] || { fail_tc "không đọc được JWT_SECRET_KEY từ .env.local"; return; }
@@ -418,9 +428,9 @@ tc_pg01_39() {  # AC7 (4) — kết nối mới sau SIGTERM bị từ chối ho�
   chk_nre "kết nối mới KHÔNG được 2xx" "$c" '^2'
   chk_re "mã của kết nối mới (503 / từ chối)" "$c" '^(000|502|503)$'; }
 
-tc_pg01_40() {  # AC7 (nhánh lỗi) — request vượt SHUTDOWN_TIMEOUT bị cắt → log warn số request bị cắt, thoát mã 1
+tc_pg01_40() {  # AC7 nhánh lỗi (#Q-QC-01-5) — request vượt SHUTDOWN_TIMEOUT bị cắt → `msg:"forced shutdown"` mức warn, `cancelled_requests` ≥ 1, thoát mã 1
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
-  local pid s e ec nmax
+  local pid s e ec nline line
   env SHUTDOWN_TIMEOUT=2s $CT up -d --force-recreate --scale gateway=1 --wait gateway >/dev/null 2>&1
   wait_ready 90 || fail_tc "gateway không sẵn sàng sau khi đặt SHUTDOWN_TIMEOUT=2s"
   ( curl -sk -o /dev/null -m 40 "$GW/api/v1/_test/slow?ms=10000" >/dev/null 2>&1 ) &
@@ -428,18 +438,21 @@ tc_pg01_40() {  # AC7 (nhánh lỗi) — request vượt SHUTDOWN_TIMEOUT bị c
   sleep 0.5; s=$(now_ms); $C stop -t 30 gateway >/dev/null 2>&1; e=$(now_ms); wait "$pid" 2>/dev/null
   ec=$($C ps -a --format '{{.Service}} {{.ExitCode}}' 2>/dev/null | grep '^gateway' | awk '{print $2}' | head -1)
   $C logs --no-log-prefix --since 90s gateway > "$QC_OUT/tc-pg01-40.log" 2>&1
-  nmax=$(jq -c 'select((.level|ascii_downcase)=="warn")' "$QC_OUT/tc-pg01-40.log" 2>/dev/null \
-         | jq -r '[to_entries[]|select(.value|type=="number")|.value]|max // 0' 2>/dev/null | sort -n | tail -1)
+  nline=$(jq -c 'select(.msg=="forced shutdown")' "$QC_OUT/tc-pg01-40.log" 2>/dev/null | wc -l | tr -d ' ')
+  line=$(jq -c 'select(.msg=="forced shutdown")' "$QC_OUT/tc-pg01-40.log" 2>/dev/null | head -1)
   gw_restore test
   chk "mã thoát khi cắt request quá hạn" "$ec" 1
   chk_le "thời gian tắt (ms) ≈ SHUTDOWN_TIMEOUT 2 s" "$((e-s))" 8000
-  chk_ge "dòng warn có số request bị cắt ≥ 1" "${nmax:-0}" 1; }
+  chk_ge "số dòng msg=\"forced shutdown\"" "${nline:-0}" 1
+  chk "mức log của dòng forced shutdown" "$(printf '%s' "$line" | jq -r '(.level // "")|ascii_downcase' 2>/dev/null)" warn
+  chk "cancelled_requests là số nguyên" "$(printf '%s' "$line" | jq -r 'if (.cancelled_requests|type)=="number" and (.cancelled_requests==(.cancelled_requests|floor)) then "nguyên" else "kiểu \(.cancelled_requests|type)" end' 2>/dev/null)" nguyên
+  chk_ge "cancelled_requests" "$(printf '%s' "$line" | jq -r '.cancelled_requests // 0' 2>/dev/null | cut -d. -f1)" 1; }
 
 tc_pg01_41() {  # AC7 — test Go
   gt './cmd/gateway ./internal/httpapi' 'TestGracefulShutdown|TestShutdown_ForcedAfterTimeout'; }
 
 # ============================================================ AC8 — giới hạn tầng HTTP
-tc_pg01_42() {  # AC8 — thân 2 MB > MAX_BODY_BYTES → 413 PAYLOAD_TOO_LARGE
+tc_pg01_42() {  # AC8 (#Q-QC-01-7) — thân 2 MB > MAX_BODY_BYTES, lệnh nguyên văn AC (KHÔNG gửi Idempotency-Key) → 413 PAYLOAD_TOO_LARGE, không phải 422 (SRS 3.1: M5 trước M8)
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
   local out
   out=$(head -c 2000000 /dev/zero | tr '\0' a | curl -sk --max-time 60 -X POST -H 'Content-Type: application/json' \
@@ -458,14 +471,16 @@ tc_pg01_43() {  # AC8 (biên dưới) — thân đúng 1 048 576 byte KHÔNG b�
   chk_nre "mã KHÔNG phải 413 (thân hợp lệ JSON nên có thể 2xx hoặc 422)" "$c" '^413$'
   chk_re "mã nằm trong dải hợp lệ" "$c" '^(200|201|202|400|415|422)$'; }
 
-tc_pg01_44() {  # AC8 (biên trên) — thân 1 048 577 byte → 413
+tc_pg01_44() {  # AC8 (biên trên, #Q-QC-01-7) — thân 1 048 577 byte, lệnh nguyên văn AC (KHÔNG gửi Idempotency-Key) → 413
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
-  local f=$QC_TMP/body-1mib1.json c
+  local f=$QC_TMP/body-1mib1.json c out
   { printf '{"name":"'; head -c 1048566 /dev/zero | tr '\0' a; printf '"}'; } > "$f"
   chk "kích thước thân" "$(wc -c < "$f" | tr -d ' ')" 1048577
-  c=$(CURL_MAX=60 code -X POST -H 'Content-Type: application/json' -H "$H" -H "Idempotency-Key: qc-1mib1-$(now_ms)" \
-      --data-binary @"$f" "$GW/api/v1/_test/items")
-  chk "mã" "$c" 413; }
+  out=$(curl -sk --max-time 60 -X POST -H 'Content-Type: application/json' -H "$H" \
+        --data-binary @"$f" -w '\n%{http_code}' "$GW/api/v1/_test/items" 2>/dev/null)
+  c=$(printf '%s' "$out" | tail -1)
+  chk "mã" "$c" 413
+  chk "code (413 thắng IDEMPOTENCY_KEY_REQUIRED — SRS 3.1)" "$(printf '%s' "$out" | sed '$d' | jq -r '.code // empty' 2>/dev/null)" PAYLOAD_TOO_LARGE; }
 
 tc_pg01_45() {  # AC8 — gửi header chậm hơn 5 s → server đóng kết nối (ReadHeaderTimeout 5 s), thẳng gateway:8080
   local s e out
@@ -556,24 +571,27 @@ tc_pg01_54() {  # AC9 — test Go
 tc_pg01_55() {  # AC10 — test Go
   gt ./internal/platform/db 'TestPool_MaxConns|TestPool_AcquireHonorsDeadline'; }
 
-tc_pg01_56() {  # AC10 (hộp đen) — DB_MAX_CONNS=3, 20 request đồng thời giữ truy vấn 1 s → không bao giờ > 3 kết nối
+tc_pg01_56() {  # AC10 (#Q-QC-01-3, trên stack qua PgBouncer) — DB_MAX_CONNS=3: `SHOW CLIENTS` của gateway ≤ 3 × số bản gateway và ≥ 1 trong lúc 20 request giữ truy vấn
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
   env DB_MAX_CONNS=3 $CT up -d --force-recreate --scale gateway=1 --wait gateway >/dev/null 2>&1
   wait_ready 90 || fail_tc "gateway không sẵn sàng với DB_MAX_CONNS=3"
-  local i n max=0 f=$QC_OUT/tc-pg01-56-samples.txt
+  local i n max=0 ngw lim f=$QC_OUT/tc-pg01-56-samples.txt
+  ngw=$($C ps -q gateway 2>/dev/null | grep -c .); case $ngw in ''|*[!0-9]*) ngw=1;; esac
+  lim=$((3 * ngw))
   : > "$f"
   i=0; while [ $i -lt 20 ]; do
     ( curl -sk -o /dev/null -m 30 "$GW/api/v1/_test/db-sleep?seconds=1" >/dev/null 2>&1 & ) ; i=$((i+1)); done
   i=0; while [ $i -lt 25 ]; do
-    n=$($PSQL -c "select count(*) from pg_stat_activity where application_name='edupilot-gateway'" 2>/dev/null | tr -d ' \r')
+    n=$(show_clients_gw)
     case $n in ''|*[!0-9]*) n=0;; esac
     echo "$n" >> "$f"; [ "$n" -gt "$max" ] && max=$n
     i=$((i+1))
   done
-  $C exec -T postgres psql "$PGB" -At -c 'SHOW POOLS' > "$QC_OUT/tc-pg01-56-pgbouncer.txt" 2>&1
+  $C exec -T postgres psql "$PGB" -Atc 'SHOW CLIENTS' > "$QC_OUT/tc-pg01-56-clients.txt" 2>&1
   gw_restore test
-  chk_le "số kết nối tối đa của pool (application_name='edupilot-gateway')" "$max" 3
-  chk_ge "đã quan sát được ít nhất 1 kết nối của pool (nếu 0 → xem Q-QC-01-3)" "$max" 1; }
+  chk "số bản gateway lúc đo" "$ngw" 1
+  chk_le "số client PgBouncer của gateway lớn nhất (≤ DB_MAX_CONNS × số bản)" "$max" "$lim"
+  chk_ge "đã quan sát được ≥ 1 client của gateway (không đo rỗng)" "$max" 1; }
 
 tc_pg01_57() {  # AC10 — request chờ lấy kết nối vẫn tuân deadline: hết deadline → 504, không treo
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
@@ -592,7 +610,7 @@ tc_pg01_57() {  # AC10 — request chờ lấy kết nối vẫn tuân deadline:
   chk_le "tổng thời gian 5 request song song (ms; không treo)" "$((e-s))" 6000; }
 
 # ============================================================ AC11 — log truy vấn chậm
-tc_pg01_58() {  # AC11 — truy vấn 250 ms → ĐÚNG MỘT dòng `slow query` mức warn, duration_ms ≥ 200, đúng trace_id, có tên truy vấn
+tc_pg01_58() {  # AC11 (#Q-QC-01-4) — truy vấn 250 ms → ĐÚNG MỘT dòng `slow query` mức warn có `query_name`, `duration_ms` (số) ≥ 200, `trace_id` của request
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
   local tid n line
   tid=$(newtrace)
@@ -602,9 +620,11 @@ tc_pg01_58() {  # AC11 — truy vấn 250 ms → ĐÚNG MỘT dòng `slow query`
   n=$(grep -c . "$QC_OUT/tc-pg01-58.log"); line=$(head -1 "$QC_OUT/tc-pg01-58.log")
   chk "số dòng 'slow query' của request" "$n" 1
   chk "mức log" "$(printf '%s' "$line" | jq -r '.level // empty' 2>/dev/null | tr 'A-Z' 'a-z')" warn
+  chk "duration_ms (kiểu JSON)" "$(printf '%s' "$line" | jq -r '.duration_ms|type' 2>/dev/null)" number
   chk_ge "duration_ms" "$(printf '%s' "$line" | jq -r '.duration_ms // 0' 2>/dev/null | cut -d. -f1)" 200
-  chk_ge "có trường tên truy vấn (khoá khớp /quer|name/, giá trị khác rỗng)" \
-    "$(printf '%s' "$line" | jq -r '[to_entries[]|select((.key|test("quer|name";"i")) and (.key!="duration_ms") and ((.value|tostring|length)>0))]|length' 2>/dev/null)" 1; }
+  chk "trace_id của dòng log" "$(printf '%s' "$line" | jq -r '.trace_id // empty' 2>/dev/null)" "$tid"
+  chk "query_name (tên sqlc, chuỗi khác rỗng)" \
+    "$(printf '%s' "$line" | jq -r 'if (.query_name|type)=="string" and ((.query_name|length)>0) then "có" else "vắng/rỗng" end' 2>/dev/null)" "có"; }
 
 tc_pg01_59() {  # AC11 — truy vấn 50 ms → KHÔNG sinh dòng nào
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
@@ -669,9 +689,9 @@ tc_pg01_66() {  # AC12 — test Go
   gt ./cmd/worker 'TestWorker_Health|TestWorker_Shutdown'; }
 
 # ============================================================ AC13 — Makefile
-tc_pg01_67() {  # AC13 — có đủ 5 mục tiêu run, test, lint, sqlc, migrate
+tc_pg01_67() {  # AC13 / SRS 9.4 v1.2 — có đủ 7 mục tiêu run, test, lint, sqlc, migrate, build, lint-depguard-negative
   local t missing=""
-  for t in run test lint sqlc migrate; do
+  for t in run test lint sqlc migrate build lint-depguard-negative; do
     make -C backend-go -n "$t" >/dev/null 2>&1 || missing="$missing $t"
   done
   chk "mục tiêu Makefile thiếu" "$missing" ""; }
@@ -764,20 +784,22 @@ tc_pg01_74() {  # AC14 — tắt CẢ HAI: details.db="down" và details.redis="
   chk "details.redis" "$(printf '%s' "$body" | jq -r '.details.redis // empty' 2>/dev/null)" down
   chk "RestartCount|Running trước = sau" "$after" "$before"; }
 
-tc_pg01_75() {  # AC14 / SRS 3.4 — khởi động khi Postgres chưa lên: thử lại mỗi 1 s, log warn, quá STARTUP_TIMEOUT thoát mã 1 nêu tên phụ thuộc
+tc_pg01_75() {  # AC14 / SRS 3.4 (#Q-QC-01-6) — Postgres chưa lên lúc khởi động: mỗi giây warn `msg:"dependency not ready"` `dependency:"db"`; quá STARTUP_TIMEOUT → error cùng msg, thoát 1
   bins || { fail_tc "không dựng được binary"; return; }
   local out=$QC_OUT/tc-pg01-75.log nwarn
   run_gw "$out" $(full7 | grep -v '^DATABASE_URL=' | grep -v '^REDIS_URL=') \
     DATABASE_URL=postgres://u:p@127.0.0.1:1/db REDIS_URL="redis://127.0.0.1:6380/0" STARTUP_TIMEOUT=3s
-  nwarn=$(jq -c 'select((.level|ascii_downcase)=="warn")' "$out" 2>/dev/null | wc -l | tr -d ' ')
+  nwarn=$(jq -c 'select(((.level // "")|ascii_downcase)=="warn" and .msg=="dependency not ready")' "$out" 2>/dev/null | wc -l | tr -d ' ')
   chk "rc" "$RC" 1
   chk_ge "ms ≈ STARTUP_TIMEOUT 3 s" "$MS" 2500
   chk_le "ms" "$MS" 9000
-  chk_ge "số dòng warn (mỗi giây một dòng)" "${nwarn:-0}" 2
-  chk_le "số dòng warn" "${nwarn:-0}" 6
-  chk_ge "dòng lỗi nêu tên phụ thuộc Postgres" "$(errline "$out" | grep -ciE 'postgres|database|\"db\"|db ')" 1; }
+  chk_ge "số dòng warn msg=\"dependency not ready\" (mỗi giây một dòng)" "${nwarn:-0}" 2
+  chk_le "số dòng warn msg=\"dependency not ready\"" "${nwarn:-0}" 6
+  chk "dependency ở các dòng warn" "$(jq -r 'select(.msg=="dependency not ready")|.dependency // "vắng"' "$out" 2>/dev/null | sort -u | paste -sd, -)" db
+  chk_ge "số dòng error msg=\"dependency not ready\"" "$(jq -c 'select(((.level // "")|ascii_downcase)=="error" and .msg=="dependency not ready")' "$out" 2>/dev/null | wc -l | tr -d ' ')" 1
+  chk "dependency ở dòng error" "$(jq -r 'select(((.level // "")|ascii_downcase)=="error" and .msg=="dependency not ready")|.dependency // "vắng"' "$out" 2>/dev/null | head -1)" db; }
 
-tc_pg01_76() {  # AC14 / SRS 3.4 — khởi động khi Redis chưa lên: thoát mã 1 nêu redis
+tc_pg01_76() {  # AC14 / SRS 3.4 (#Q-QC-01-6) — Redis chưa lên lúc khởi động: warn/error `msg:"dependency not ready"` với `dependency:"redis"`, thoát 1
   bins || { fail_tc "không dựng được binary"; return; }
   local out=$QC_OUT/tc-pg01-76.log nwarn usr pw db
   usr=$(envv POSTGRES_USER); [ -n "$usr" ] || usr=edupilot
@@ -786,12 +808,14 @@ tc_pg01_76() {  # AC14 / SRS 3.4 — khởi động khi Redis chưa lên: thoát
   [ -n "$pw" ] || { fail_tc "thiếu POSTGRES_PASSWORD trong .env.local"; return; }
   run_gw "$out" $(full7 | grep -v '^DATABASE_URL=' | grep -v '^REDIS_URL=') \
     DATABASE_URL="postgres://$usr:$pw@127.0.0.1:5433/$db" REDIS_URL=redis://127.0.0.1:1/0 STARTUP_TIMEOUT=3s
-  nwarn=$(jq -c 'select((.level|ascii_downcase)=="warn")' "$out" 2>/dev/null | wc -l | tr -d ' ')
+  nwarn=$(jq -c 'select(((.level // "")|ascii_downcase)=="warn" and .msg=="dependency not ready")' "$out" 2>/dev/null | wc -l | tr -d ' ')
   chk "rc" "$RC" 1
   chk_ge "ms ≈ STARTUP_TIMEOUT 3 s" "$MS" 2500
   chk_le "ms" "$MS" 9000
-  chk_ge "số dòng warn" "${nwarn:-0}" 2
-  chk_ge "dòng lỗi nêu tên phụ thuộc Redis" "$(errline "$out" | grep -ci 'redis')" 1; }
+  chk_ge "số dòng warn msg=\"dependency not ready\"" "${nwarn:-0}" 2
+  chk "dependency ở các dòng warn" "$(jq -r 'select(.msg=="dependency not ready")|.dependency // "vắng"' "$out" 2>/dev/null | sort -u | paste -sd, -)" redis
+  chk_ge "số dòng error msg=\"dependency not ready\"" "$(jq -c 'select(((.level // "")|ascii_downcase)=="error" and .msg=="dependency not ready")' "$out" 2>/dev/null | wc -l | tr -d ' ')" 1
+  chk "dependency ở dòng error" "$(jq -r 'select(((.level // "")|ascii_downcase)=="error" and .msg=="dependency not ready")|.dependency // "vắng"' "$out" 2>/dev/null | head -1)" redis; }
 
 tc_pg01_77() {  # AC14 — test Go
   gt ./internal/httpapi 'TestReadyz_DependencyDown|TestStartup_WaitsForDeps'; }
@@ -820,5 +844,55 @@ tc_pg01_80() {  # AC15 — log không lộ bí mật THẬT của .env.local (kh
     n=$($C logs --no-log-prefix gateway worker 2>/dev/null | grep -cF "$p")
     chk "số dòng log chứa giá trị $v" "$n" 0
   done; }
+
+# ============================================================ Bổ sung theo spec v1.2 (trả lời QC questions)
+tc_pg01_81() {  # AC1 (#Q-QC-01-1) — worker CHỈ bắt buộc DATABASE_URL + REDIS_URL: KHÔNG thoát vì `missing`; gateway vẫn đòi đủ 7
+  bins || { fail_tc "không dựng được binary"; return; }
+  local out=$QC_OUT/tc-pg01-81-worker.log out2=$QC_OUT/tc-pg01-81-gateway.log
+  run_wk "$out" DATABASE_URL=postgres://u:p@127.0.0.1:1/db REDIS_URL="redis://127.0.0.1:6380/0"
+  chk "worker: số dòng log có .missing (JWT/BLOB_* không bắt buộc)" "$(jq -c 'select(.missing)' "$out" 2>/dev/null | wc -l | tr -d ' ')" 0
+  chk_ge "worker: đã qua kiểm cấu hình, chờ phụ thuộc tới STARTUP_TIMEOUT=2s (ms)" "$MS" 1500
+  chk "worker: rc (thoát vì phụ thuộc chưa lên, không phải vì thiếu biến)" "$RC" 1
+  chk "worker: dependency ở dòng error" "$(jq -r 'select(((.level // "")|ascii_downcase)=="error" and .msg=="dependency not ready")|.dependency // "vắng"' "$out" 2>/dev/null | head -1)" db
+  run_gw "$out2" DATABASE_URL=postgres://u:p@127.0.0.1:1/db REDIS_URL=redis://127.0.0.1:1/0
+  chk "gateway: rc khi chỉ có 2 biến" "$RC" 1
+  chk_le "gateway: ms" "$MS" 1000
+  chk "gateway: missing (vẫn đòi đủ 7 biến)" "$(jq -c 'select(.missing)|.missing|sort' "$out2" 2>/dev/null | head -1)" \
+    '["BLOB_ACCESS_KEY","BLOB_BUCKET","BLOB_ENDPOINT","BLOB_SECRET_KEY","JWT_SECRET_KEY"]'; }
+
+tc_pg01_82() {  # AC2 (#Q-QC-04-4) — BCRYPT_COST=3 (ngoài 4–14) và BCRYPT_COST=abc (không nguyên) → thoát 1 nêu tên biến, KHÔNG kẹp về 12
+  bins || { fail_tc "không dựng được binary"; return; }
+  cfg_bad "$QC_OUT/tc-pg01-82a.log" BCRYPT_COST '' BCRYPT_COST=3
+  chk "BCRYPT_COST=3: số dòng 'config loaded' (không kẹp, không chạy tiếp)" \
+    "$(jq -c 'select(.msg=="config loaded")' "$QC_OUT/tc-pg01-82a.log" 2>/dev/null | wc -l | tr -d ' ')" 0
+  cfg_bad "$QC_OUT/tc-pg01-82b.log" BCRYPT_COST '(^|[^0-9a-f])abc([^0-9a-f]|$)' BCRYPT_COST=abc
+  chk "BCRYPT_COST=abc: số dòng 'config loaded'" \
+    "$(jq -c 'select(.msg=="config loaded")' "$QC_OUT/tc-pg01-82b.log" 2>/dev/null | wc -l | tr -d ' ')" 0; }
+
+tc_pg01_83() {  # AC2 (biên, #Q-QC-04-4) — BCRYPT_COST = 4 và 14 hợp lệ: không dòng error nào nêu biến
+  bins || { fail_tc "không dựng được binary"; return; }
+  local n out
+  for n in 4 14; do
+    out=$QC_OUT/tc-pg01-83-$n.log
+    run_gw "$out" $(full7) BCRYPT_COST=$n
+    chk "BCRYPT_COST=$n: số dòng error nêu biến" "$(nerr_var "$out" BCRYPT_COST)" 0
+    chk_ge "BCRYPT_COST=$n: đi tới bước chờ phụ thuộc (ms)" "$MS" 1500
+  done; }
+
+tc_pg01_84() {  # AC8 (#Q-QC-01-7) — thân 1 048 577 byte CÓ Idempotency-Key cũng 413 (giới hạn thân chạy trước kiểm khoá, SRS 3.1)
+  ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
+  local f=$QC_TMP/body-1mib1.json out
+  { printf '{"name":"'; head -c 1048566 /dev/zero | tr '\0' a; printf '"}'; } > "$f"
+  chk "kích thước thân" "$(wc -c < "$f" | tr -d ' ')" 1048577
+  out=$(curl -sk --max-time 60 -X POST -H 'Content-Type: application/json' -H "$H" \
+        -H "Idempotency-Key: qc-1mib1-$(now_ms)" --data-binary @"$f" -w '\n%{http_code}' "$GW/api/v1/_test/items" 2>/dev/null)
+  chk "mã" "$(printf '%s' "$out" | tail -1)" 413
+  chk "code" "$(printf '%s' "$out" | sed '$d' | jq -r '.code // empty' 2>/dev/null)" PAYLOAD_TOO_LARGE; }
+
+tc_pg01_85() {  # AC13 / SRS 9.4 v1.2 — `make lint` gọi golangci-lint HAI lần: một lần không tag, một lần -tags testroutes
+  local out=$QC_OUT/tc-pg01-85.txt
+  make -C backend-go -n lint > "$out" 2>&1
+  chk "số lần gọi golangci-lint" "$(grep -c 'golangci-lint' "$out")" 2
+  chk "số lần golangci-lint chạy với tag testroutes" "$(grep 'golangci-lint' "$out" | grep -c 'testroutes')" 1; }
 
 main 01 "$@"

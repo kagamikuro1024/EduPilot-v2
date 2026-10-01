@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # QC US-PG-03 — chuẩn HTTP: request id, panic, CORS, định dạng lỗi, validation, rate limit, cursor,
 # idempotency, khoá lạc quan, ETag, job 202, phân quyền + route thử khoá build tag.
-# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.1 US-PG-03 AC1–AC18; SRS.md 3.4, 5.3–5.6, 6.1, 6.3–6.7, 8.1.
+# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.2 US-PG-03 AC1–AC18 (gồm các dòng "Làm rõ (QC questions #Q-QC-03-1…6)"); SRS.md 3.4, 5.3–5.6, 6.1, 6.3–6.7, 8.1.
 # Chạy ở gốc worktree sau `pnpm dev`:  bash docs/sprints/2/qc/scripts/pg03.sh [MM …|--list]
 source "$(dirname "$0")/lib.sh"
 
@@ -22,6 +22,8 @@ b64d() { local p; p=$(printf '%s' "$1" | tr '_-' '/+'); while [ $(( ${#p} % 4 ))
   printf '%s' "$p" | base64 -d 2>/dev/null; }
 win_wait() { local s; s=$(date +%S | sed 's/^0//'); [ "${s:-0}" -ge 45 ] && sleep $((63-s)); true; }  # tránh biên cửa sổ phút
 next_window() { local s; s=$(date +%S | sed 's/^0//'); sleep $((62-${s:-0})); }
+etag16() { openssl dgst -sha256 -binary "$1" | base64 | tr -d '\n=' | tr '/+' '_-' | cut -c1-16; }  # base64url 16 ký tự đầu của sha256 một FILE (ETag danh sách, SRS 6.5)
+njobs() { cnt "select count(*) from jobs where owner_id='$U1'"; }                                   # số job của U1 (chấm "không job nào được tạo")
 
 post_item() {  # post_item <idem-key|""> <json> [header Authorization] → in status; thân $B, header $HD
   local k=$1 b=$2 a=${3:-$H}
@@ -172,22 +174,25 @@ tc_pg03_10() {  # AC3 — preflight origin hợp lệ: 204 + ACAO + Allow-Method
   for n in ETag X-Request-Id Retry-After Idempotent-Replayed; do
     chk_re "Expose-Headers có $n" "$(printf '%s' "$v" | tr 'A-Z' 'a-z')" "$(printf '%s' "$n" | tr 'A-Z' 'a-z')"; done
 }
-tc_pg03_11() {  # AC3 — Allow-Credentials: true (theo US AC3; xung đột SRS 6.7 → Q-QC-03-1)
+tc_pg03_11() {  # AC3 — Allow-Credentials: true khi origin trong CORS_ORIGINS (US-PG-03 AC3 + SRS 6.7 v1.2)
   ensure_mode test
   local v
   v=$(hdr -X OPTIONS -H 'Origin: http://localhost:3000' -H 'Access-Control-Request-Method: POST' \
         $GW/api/v1/jobs/$UX | hval access-control-allow-credentials)
-  chk "Access-Control-Allow-Credentials (US-PG-03 AC3)" "$v" 'true'
+  chk "Access-Control-Allow-Credentials (origin trong danh sách)" "$v" 'true'
 }
-tc_pg03_12() {  # AC3 — origin lạ / null / không Origin → không ACAO; không bao giờ `*`
+tc_pg03_12() {  # AC3 — origin lạ / null / không Origin → không ACAO VÀ không Allow-Credentials; không bao giờ `*`
   ensure_mode test
-  local v
-  v=$(hdr -X OPTIONS -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' $GW/api/v1/jobs/$UX | hval access-control-allow-origin)
-  chk "origin lạ: không có ACAO" "$v" ''
-  v=$(hdr -X OPTIONS -H 'Origin: null' -H 'Access-Control-Request-Method: POST' $GW/api/v1/jobs/$UX | hval access-control-allow-origin)
-  chk "Origin: null: không có ACAO" "$v" ''
-  v=$(hdr -X OPTIONS -H 'Access-Control-Request-Method: POST' $GW/api/v1/jobs/$UX | hval access-control-allow-origin)
-  chk "không gửi Origin: không có ACAO" "$v" ''
+  local h v
+  h=$(hdr -X OPTIONS -H 'Origin: https://evil.example' -H 'Access-Control-Request-Method: POST' $GW/api/v1/jobs/$UX)
+  chk "origin lạ: không có ACAO" "$(printf '%s\n' "$h" | hval access-control-allow-origin)" ''
+  chk "origin lạ: không có Allow-Credentials" "$(printf '%s\n' "$h" | hval access-control-allow-credentials)" ''
+  h=$(hdr -X OPTIONS -H 'Origin: null' -H 'Access-Control-Request-Method: POST' $GW/api/v1/jobs/$UX)
+  chk "Origin: null: không có ACAO" "$(printf '%s\n' "$h" | hval access-control-allow-origin)" ''
+  chk "Origin: null: không có Allow-Credentials" "$(printf '%s\n' "$h" | hval access-control-allow-credentials)" ''
+  h=$(hdr -X OPTIONS -H 'Access-Control-Request-Method: POST' $GW/api/v1/jobs/$UX)
+  chk "không gửi Origin: không có ACAO" "$(printf '%s\n' "$h" | hval access-control-allow-origin)" ''
+  chk "không gửi Origin: không có Allow-Credentials" "$(printf '%s\n' "$h" | hval access-control-allow-credentials)" ''
   v=$(hdr -X OPTIONS -H 'Origin: http://localhost:3000' -H 'Access-Control-Request-Method: POST' $GW/api/v1/jobs/$UX | hval access-control-allow-origin)
   chk_ne "ACAO không bao giờ là *" "$v" '*'
 }
@@ -288,7 +293,7 @@ tc_pg03_23() {  # AC5 — thiếu name → 422; biên name 200 ký tự OK, 201 
   chk "thiếu name: field" "$(jq -r '.details[0].field' "$B" 2>/dev/null)" name
   n200=$(rep 200 x); n201=$(rep 201 x)
   s=$(post_item "qc23b-$(now_ms)" "{\"name\":\"$n200\"}")
-  chk_re "name 200 ký tự được nhận" "$s" '^(200|201)$'
+  chk "name 200 ký tự được nhận (201 Created)" "$s" 201
   s=$(post_item "qc23c-$(now_ms)" "{\"name\":\"$n201\"}")
   chk "name 201 ký tự: status" "$s" 422
   chk "name 201 ký tự: field" "$(jq -r '.details[0].field' "$B" 2>/dev/null)" name
@@ -306,10 +311,10 @@ tc_pg03_24() {  # AC5 — Content-Type: text/plain và thiếu → 415; applicat
   chk "thiếu Content-Type: status" "$s" 415
   s=$(curl -sk --max-time 25 -o "$B" -w '%{http_code}' -X POST -H "$H" -H 'Content-Type: application/json' \
         -H "Idempotency-Key: qc24c-$(now_ms)" -d '{"name":"qc24c"}' "$ITEMS")
-  chk_re "application/json được nhận" "$s" '^(200|201)$'
+  chk "application/json được nhận (201)" "$s" 201
   s=$(curl -sk --max-time 25 -o "$B" -w '%{http_code}' -X POST -H "$H" -H 'Content-Type: application/json; charset=utf-8' \
         -H "Idempotency-Key: qc24d-$(now_ms)" -d '{"name":"qc24d"}' "$ITEMS")
-  chk_re "application/json; charset=utf-8 được nhận" "$s" '^(200|201)$'
+  chk "application/json; charset=utf-8 được nhận (201)" "$s" 201
   $PSQL -c "delete from _test_items where name in ('qc24c','qc24d')" >/dev/null 2>&1
 }
 tc_pg03_25() {  # AC5 (test Go) — TestValidation
@@ -641,8 +646,8 @@ tc_pg03_53() {  # AC11 — cùng khoá + cùng thân: 1 bản ghi, lần 2 y h�
   local K="qc53-$(now_ms)" N="qc53-$(now_ms)-$RANDOM" s1 s2
   s1=$(post_item "$K" "{\"name\":\"$N\"}"); cp "$B" "$QC_TMP/pg03-53.b1"; cp "$HD" "$QC_TMP/pg03-53.h1"
   s2=$(post_item "$K" "{\"name\":\"$N\"}"); cp "$B" "$QC_TMP/pg03-53.b2"; cp "$HD" "$QC_TMP/pg03-53.h2"
-  chk_re "status lần 1" "$s1" '^(200|201)$'
-  chk "status lần 2 = lần 1" "$s2" "$s1"
+  chk "status lần 1" "$s1" 201
+  chk "status lần 2 (phát lại đúng 201)" "$s2" 201
   chk "thân lần 2 giống từng byte" "$(cmp -s "$QC_TMP/pg03-53.b1" "$QC_TMP/pg03-53.b2" && echo giong || echo khac)" giong
   chk "Content-Type lần 2 = lần 1" "$(hv "$QC_TMP/pg03-53.h2" content-type)" "$(hv "$QC_TMP/pg03-53.h1" content-type)"
   chk "lần 1 không có Idempotent-Replayed" "$(hv "$QC_TMP/pg03-53.h1" idempotent-replayed)" ''
@@ -655,8 +660,8 @@ tc_pg03_54() {  # AC11 — khoá khác (cùng thân) → bản ghi mới
   local N="qc54-$(now_ms)-$RANDOM" s1 s2 id1 id2
   s1=$(post_item "qc54a-$(now_ms)" "{\"name\":\"$N\"}"); id1=$(jb '.id')
   s2=$(post_item "qc54b-$(now_ms)" "{\"name\":\"$N\"}"); id2=$(jb '.id')
-  chk_re "status lần 1" "$s1" '^(200|201)$'
-  chk_re "status lần 2" "$s2" '^(200|201)$'
+  chk "status lần 1" "$s1" 201
+  chk "status lần 2" "$s2" 201
   chk_ne "id khác nhau" "$id2" "$id1"
   chk "số dòng _test_items" "$(cnt "select count(*) from _test_items where name='$N'")" 2
   chk "lần 2 không phải replay" "$(hv "$HD" idempotent-replayed)" ''
@@ -678,12 +683,12 @@ tc_pg03_56() {  # AC12 — 50 request song song cùng khoá: 1 bản ghi, chỉ 
   wait
   for i in $(seq 50); do
     s=$(cat "$d/s$i" 2>/dev/null)
-    case $s in 200|201) [ -n "$ref" ] || ref="$d/b$i";; esac
+    case $s in 201) [ -n "$ref" ] || ref="$d/b$i";; esac
   done
   for i in $(seq 50); do
     s=$(cat "$d/s$i" 2>/dev/null)
     case $s in
-      200|201) if [ -n "$ref" ] && cmp -s "$d/b$i" "$ref"; then ok=$((ok+1)); else bad="$bad #$i(thân khác bản đầu)"; fi;;
+      201) if [ -n "$ref" ] && cmp -s "$d/b$i" "$ref"; then ok=$((ok+1)); else bad="$bad #$i(thân khác bản đầu)"; fi;;
       409) n409=$((n409+1))
            if jq -e '.code=="IDEMPOTENCY_IN_PROGRESS"' "$d/b$i" >/dev/null 2>&1 && grep -qi '^retry-after:' "$d/h$i"; then ok=$((ok+1));
            else bad="$bad #$i(409 thiếu code/Retry-After)"; fi;;
@@ -711,8 +716,8 @@ tc_pg03_57() {  # AC12 — "hai tab gửi trùng" (PG.md): hai tiến trình cur
   s1=$(cat "$d/s1"); s2=$(cat "$d/s2")
   r1=$(hv "$d/h1" idempotent-replayed); r2=$(hv "$d/h2" idempotent-replayed)
   chk "số dòng _test_items" "$(cnt "select count(*) from _test_items where name='$N'")" 1
-  chk_re "status tiến trình 1" "$s1" '^(200|201|409)$'
-  chk_re "status tiến trình 2" "$s2" '^(200|201|409)$'
+  chk_re "status tiến trình 1" "$s1" '^(201|409)$'
+  chk_re "status tiến trình 2" "$s2" '^(201|409)$'
   chk "số phản hồi KHÔNG mang Idempotent-Replayed (tối đa 1 bản gốc)" \
     "$(printf '%s\n%s\n' "$r1" "$r2" | grep -vc '^true$')" 1
   chk "số phản hồi 5xx" "$(cat "$d/s1" "$d/s2" | grep -c '^5')" 0
@@ -723,7 +728,7 @@ tc_pg03_58() {  # AC12 — cùng khoá nhưng thân khác → 422 IDEMPOTENCY_KE
   local K="qc58-$(now_ms)" N="qc58-$(now_ms)" s1 s2
   s1=$(post_item "$K" "{\"name\":\"$N-a\"}")
   s2=$(post_item "$K" "{\"name\":\"$N-b\"}")
-  chk_re "status lần 1" "$s1" '^(200|201)$'
+  chk "status lần 1" "$s1" 201
   chk "status lần 2" "$s2" 422
   chk "code lần 2" "$(jb .code)" IDEMPOTENCY_KEY_REUSED
   chk "không tạo bản ghi cho thân thứ hai" "$(cnt "select count(*) from _test_items where name='$N-b'")" 0
@@ -743,8 +748,8 @@ tc_pg03_60() {  # AC12 — biên độ dài khoá: 7 → 422, 8 OK, 128 OK, 129 
   k7=$(rep 7 k); k8=$(rep 8 k); k128=$(rep 128 k); k129=$(rep 129 k)
   s=$(post_item "$k7" "{\"name\":\"$N-7\"}");   chk "khoá 7 ký tự: status" "$s" 422
   chk "khoá 7 ký tự: code" "$(jb .code)" VALIDATION_FAILED
-  s=$(post_item "$k8$N" "{\"name\":\"$N-8\"}"); chk_re "khoá 8+ ký tự được nhận" "$s" '^(200|201)$'
-  s=$(post_item "$k128" "{\"name\":\"$N-128\"}"); chk_re "khoá 128 ký tự được nhận" "$s" '^(200|201)$'
+  s=$(post_item "$k8$N" "{\"name\":\"$N-8\"}"); chk "khoá 8+ ký tự được nhận" "$s" 201
+  s=$(post_item "$k128" "{\"name\":\"$N-128\"}"); chk "khoá 128 ký tự được nhận" "$s" 201
   s=$(post_item "$k129" "{\"name\":\"$N-129\"}"); chk "khoá 129 ký tự: status" "$s" 422
   chk "khoá 129 ký tự: code" "$(jb .code)" VALIDATION_FAILED
   chk "không tạo bản ghi cho khoá sai" "$(cnt "select count(*) from _test_items where name in ('$N-7','$N-129')")" 0
@@ -766,8 +771,8 @@ tc_pg03_62() {  # AC12 — cùng khoá của người dùng khác là độc l�
   local K="qc62-$(now_ms)" N="qc62-$(now_ms)-$RANDOM" s1 s2 id1 id2
   s1=$(post_item "$K" "{\"name\":\"$N\"}" "$(toka $U1)"); id1=$(jb '.id')
   s2=$(post_item "$K" "{\"name\":\"$N\"}" "$(toka $U2)"); id2=$(jb '.id')
-  chk_re "U1: status" "$s1" '^(200|201)$'
-  chk_re "U2: status" "$s2" '^(200|201)$'
+  chk "U1: status" "$s1" 201
+  chk "U2: status" "$s2" 201
   chk "U2 không nhận replay" "$(hv "$HD" idempotent-replayed)" ''
   chk_ne "hai id khác nhau" "$id2" "$id1"
   chk "số dòng _test_items" "$(cnt "select count(*) from _test_items where name='$N'")" 2
@@ -780,7 +785,7 @@ tc_pg03_63() {  # AC12 — khoá và thân không bao giờ vào log
   s=$(post_item "$IDEM" "{\"name\":\"$N\"}")
   sleep 2
   $C logs --no-log-prefix --since 90s gateway worker 2>/dev/null > "$QC_OUT/tc-pg03-63.log"
-  chk_re "request được xử lý" "$s" '^(200|201|422)$'
+  chk_re "request được xử lý" "$s" '^(201|422)$'
   chk "số dòng log chứa khoá idem" "$(grep -c "$IDEM" "$QC_OUT/tc-pg03-63.log")" 0
   chk "số dòng log chứa thân (pii-canary)" "$(grep -c 'pii-canary' "$QC_OUT/tc-pg03-63.log")" 0
   $PSQL -c "delete from _test_items where name like 'pii-canary-%'" >/dev/null 2>&1
@@ -821,7 +826,7 @@ tc_pg03_66() {  # AC13 — TTL khoá chạy-dở …:lock ≤ 30 s (chậm ~40 s
     echo "    ok   không bắt được khoá :lock khi đang chạy (handler quá nhanh) — chấm bằng điều kiện hết hạn dưới đây + TC-PG03-69"
   fi
   chk_ge "có ≥ 1 phản hồi 409 hoặc replay (chứng tỏ có khoá chạy-dở)" \
-    "$(cat "$d"/s* 2>/dev/null | grep -cE '^(409|200|201)')" 1
+    "$(cat "$d"/s* 2>/dev/null | grep -cE '^(409|201)')" 1
   sleep 35
   chk "số khoá :lock còn lại sau 35 s" "$($RDS --scan --pattern 'ep:idem:*:lock' 2>/dev/null | tr -d '\r' | grep -c .)" 0
   chk "số dòng _test_items" "$(cnt "select count(*) from _test_items where name='$N'")" 1
@@ -895,6 +900,7 @@ tc_pg03_72() {  # AC14 — thiếu version → 422; id không có → 404
   s=$(put_item "$id" '{"name":"qc72-khong-version"}')
   chk "thiếu version: status" "$s" 422
   chk "thiếu version: code" "$(jb .code)" VALIDATION_FAILED
+  chk "thiếu version: details[0].field" "$(jq -r '.details[0].field' "$B" 2>/dev/null)" version
   chk "version trong DB không đổi" "$(cnt "select version from _test_items where id='$id'")" 1
   s=$(put_item "$UX" '{"name":"qc72-khong-ton-tai","version":1}')
   chk "id không có: status" "$s" 404
@@ -988,13 +994,16 @@ tc_pg03_79() {  # AC15 — không khớp → 200; sau PUT thì ETag đổi
   chk "ETag cũ không còn khớp" "$(code -H "$H" -H "If-None-Match: $e1" "$ITEMS/$id")" 200
   $PSQL -c "delete from _test_items where id='$id'" >/dev/null 2>&1
 }
-tc_pg03_80() {  # AC15 — ETag của danh sách = W/"<base64url 16 ký tự>" băm thân
+tc_pg03_80() {  # AC15 (#Q-QC-03-6) — ETag danh sách = W/"<16 ký tự đầu base64url của sha256 TOÀN BỘ byte thân>"
   ensure_mode test
-  local e s
-  e=$(hdr -H "$H" "$ITEMS?limit=5" | hval etag)
+  local e s exp
+  s=$(get_json -H "$H" "$ITEMS?limit=5")           # thân (đúng byte trả về) ở $B, header ở $HD
+  e=$(hv "$HD" etag)
+  chk "status" "$s" 200
   chk_re "định dạng ETag danh sách" "$e" '^W/"[A-Za-z0-9_-]{16}"$'
-  s=$(code -H "$H" -H "If-None-Match: $e" "$ITEMS?limit=5")
-  chk "If-None-Match khớp trên danh sách → 304" "$s" 304
+  exp=$(etag16 "$B")
+  chk "ETag = sha256 của đúng byte thân (gồm items + next_cursor)" "$e" "W/\"$exp\""
+  chk "If-None-Match khớp trên danh sách → 304" "$(code -H "$H" -H "If-None-Match: $e" "$ITEMS?limit=5")" 304
   chk "ETag danh sách ổn định khi thân không đổi" "$(hdr -H "$H" "$ITEMS?limit=5" | hval etag)" "$e"
 }
 tc_pg03_81() {  # AC15 — If-None-Match trên POST / PUT bị bỏ qua
@@ -1002,7 +1011,7 @@ tc_pg03_81() {  # AC15 — If-None-Match trên POST / PUT bị bỏ qua
   local id s N="qc81-$(now_ms)"
   s=$(curl -sk --max-time 25 -o "$B" -D "$HD" -w '%{http_code}' -X POST -H "$H" -H 'Content-Type: application/json' \
        -H "Idempotency-Key: qc81-$(now_ms)" -H 'If-None-Match: *' -d "{\"name\":\"$N\"}" "$ITEMS")
-  chk_re "POST với If-None-Match: * vẫn tạo (không 304)" "$s" '^(200|201)$'
+  chk "POST với If-None-Match: * vẫn tạo (201, không 304)" "$s" 201
   id=$(jb '.id')
   s=$(put_item "$id" '{"name":"qc81-moi","version":1}' 'If-None-Match: *')
   chk "PUT với If-None-Match: * vẫn ghi (không 304)" "$s" 200
@@ -1218,6 +1227,134 @@ tc_pg03_98() {  # AC18 — binary dựng có tag + APP_ENV=production → thoát
 }
 tc_pg03_99() {  # AC18 (test Go, KHÔNG tag) — TestDefaultBinary_NoTestRoutes
   gt_notag ./cmd/gateway 'TestDefaultBinary_NoTestRoutes'
+}
+
+# ========= Bổ sung spec v1.2: lọc theo chủ sở hữu, 201 + Location, biên steps/kind, version, ETag danh sách =========
+tc_pg03_100() {  # AC8 (#Q-QC-03-2) — U2 GET item của U1 → 404 NOT_FOUND (không lộ sự tồn tại)
+  ensure_mode test
+  local id s
+  id=$(newitem "qc100-$(now_ms)")
+  chk_re "dựng được item của U1" "$id" '^[0-9a-f-]{36}$'
+  s=$(get_json -H "$(toka $U2)" "$ITEMS/$id")
+  chk "U2 GET item của U1: status" "$s" 404
+  chk "U2 GET item của U1: code" "$(jb .code)" NOT_FOUND
+  chk "chủ sở hữu vẫn đọc được" "$(get_json -H "$(toka $U1)" "$ITEMS/$id")" 200
+  $PSQL -c "delete from _test_items where id='$id'" >/dev/null 2>&1
+}
+tc_pg03_101() {  # AC14 (#Q-QC-03-2) — U2 PUT item của U1 → 404, bản ghi không đổi
+  ensure_mode test
+  local id s n0
+  id=$(newitem "qc101-$(now_ms)")
+  n0=$(cnt "select name from _test_items where id='$id'")
+  s=$(curl -sk --max-time 25 -o "$B" -D "$HD" -w '%{http_code}' -X PUT -H "$(toka $U2)" \
+        -H 'Content-Type: application/json' -d '{"name":"qc101-cua-U2","version":1}' "$ITEMS/$id")
+  chk "U2 PUT item của U1: status" "$s" 404
+  chk "U2 PUT item của U1: code" "$(jb .code)" NOT_FOUND
+  chk "version không đổi" "$(cnt "select version from _test_items where id='$id'")" 1
+  chk "name không đổi" "$(cnt "select name from _test_items where id='$id'")" "$n0"
+  $PSQL -c "delete from _test_items where id='$id'" >/dev/null 2>&1
+}
+tc_pg03_102() {  # AC8 (#Q-QC-03-2) — GET _test/items chỉ trả bản ghi có owner_id = sub của người gọi
+  ensure_mode test
+  local O=00000000-0000-7000-8000-000000000102 A id f1=$QC_TMP/pg03-102.u1 f2=$QC_TMP/pg03-102.u2
+  A=$(toka $O); owner_del $O
+  id=$(newitem "qc102-$(now_ms)")                       # item của U1 ($H)
+  page_all "$H" 100 "$f1" >/dev/null
+  page_all "$A" 100 "$f2" >/dev/null
+  chk "U1 thấy item của mình" "$(grep -c "^$id$" "$f1")" 1
+  chk "người dùng khác không thấy item của U1" "$(grep -c "^$id$" "$f2")" 0
+  chk "danh sách của người dùng không có dữ liệu là rỗng" "$(grep -c . "$f2")" 0
+  $PSQL -c "delete from _test_items where id='$id'" >/dev/null 2>&1
+}
+tc_pg03_103() {  # AC11 (#Q-QC-03-3) — POST _test/items → 201 + Location: /api/v1/_test/items/<id> trỏ đúng bản ghi
+  ensure_mode test
+  local s loc id N="qc103-$(now_ms)-$RANDOM"
+  s=$(post_item "qc103-$(now_ms)" "{\"name\":\"$N\"}"); id=$(jb '.id'); loc=$(hv "$HD" location)
+  chk "status" "$s" 201
+  chk_re "Location khớp /api/v1/_test/items/<uuid>" "$loc" \
+    '^/api/v1/_test/items/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+  chk "Location trỏ đúng id của thân" "$loc" "/api/v1/_test/items/$id"
+  chk "thân là bản ghi vừa tạo" "$(jb '.name')" "$N"
+  chk "GET theo Location (chủ bản ghi) → 200" "$(code -H "$H" "$GW$loc")" 200
+  $PSQL -c "delete from _test_items where name='$N'" >/dev/null 2>&1
+}
+tc_pg03_104() {  # AC16 (#Q-QC-03-4) — steps biên 1 và 100 hợp lệ → 202; thiếu steps → 202 với 4 bước (mặc định)
+  ensure_mode test
+  local s id i=0 p="" bad=""
+  s=$(post_job '{"steps":1}');   chk "steps=1: status" "$s" 202
+  s=$(post_job '{"steps":100}'); chk "steps=100: status" "$s" 202
+  s=$(post_job '{}');            chk "thiếu steps: status" "$s" 202
+  id=$(jb '.job_id')
+  chk_re "job_id là uuid" "$id" '^[0-9a-f-]{36}$'
+  while [ $i -lt 120 ]; do
+    get_json -H "$H" "$GW/api/v1/jobs/$id" >/dev/null; p=$(jb '.progress')
+    case "$p" in 0|25|50|75|100) ;; *) bad="$bad [$p]";; esac
+    [ "$p" = 100 ] && break
+    sleep 0.05; i=$((i+1))
+  done
+  chk "mọi progress quan sát được là bội của 100/4 (mặc định 4 bước)" "$bad" ''
+  chk "progress cuối" "$p" 100
+}
+tc_pg03_105() {  # AC16 (#Q-QC-03-4) — steps ngoài 1..100 hoặc không nguyên → 422 VALIDATION_FAILED field="steps"
+  ensure_mode test
+  local s v n0 n1
+  n0=$(njobs)
+  for v in 0 -1 101 1.5 '"x"'; do
+    s=$(post_job "{\"steps\":$v}")
+    chk "steps=$v: status" "$s" 422
+    chk "steps=$v: code" "$(jb .code)" VALIDATION_FAILED
+    chk "steps=$v: details[0].field" "$(jq -r '.details[0].field' "$B" 2>/dev/null)" steps
+  done
+  n1=$(njobs)
+  chk "không job nào được tạo (số dòng jobs không đổi)" "$n1" "$n0"
+}
+tc_pg03_106() {  # AC16 (#Q-QC-03-4) — kind mặc định test.progress; kind lạ → 422 VALIDATION_FAILED field="kind"
+  ensure_mode test
+  local s id n0 n1
+  s=$(post_job '{"steps":4}'); id=$(jb '.job_id')
+  chk "thiếu kind: status" "$s" 202
+  chk "thiếu kind: kind trong DB" "$(cnt "select kind from jobs where id='$id'")" 'test.progress'
+  n0=$(njobs)
+  s=$(post_job '{"steps":4,"kind":"test.khong-co"}')
+  chk "kind lạ: status" "$s" 422
+  chk "kind lạ: code" "$(jb .code)" VALIDATION_FAILED
+  chk "kind lạ: details[0].field" "$(jq -r '.details[0].field' "$B" 2>/dev/null)" kind
+  n1=$(njobs)
+  chk "không job nào được tạo (số dòng jobs không đổi)" "$n1" "$n0"
+}
+tc_pg03_107() {  # AC14 (#Q-QC-03-5) — version không phải số nguyên ≥ 1 → 422 VALIDATION_FAILED field="version"
+  ensure_mode test
+  local id s v
+  id=$(newitem "qc107-$(now_ms)")
+  for v in 0 -1 1.5 '"a"'; do
+    s=$(put_item "$id" "{\"name\":\"qc107-moi\",\"version\":$v}")
+    chk "version=$v: status" "$s" 422
+    chk "version=$v: code" "$(jb .code)" VALIDATION_FAILED
+    chk "version=$v: details[0].field" "$(jq -r '.details[0].field' "$B" 2>/dev/null)" version
+  done
+  chk "version trong DB không đổi" "$(cnt "select version from _test_items where id='$id'")" 1
+  $PSQL -c "delete from _test_items where id='$id'" >/dev/null 2>&1
+}
+tc_pg03_108() {  # AC15 (#Q-QC-03-6) — ETag danh sách đổi khi và chỉ khi thân đổi (gồm next_cursor)
+  ensure_mode test
+  local O=00000000-0000-7000-8000-000000000108 A e1 e1b e2 e3 it1 it2 first other ia ib
+  A=$(toka $O); owner_del $O
+  ia=$(newitem "qc108-a-$(now_ms)" "" "$A"); ib=$(newitem "qc108-b-$(now_ms)" "" "$A")
+  chk_re "dựng được 2 item" "$ia$ib" '^[0-9a-f-]{72}$'
+  get_json -H "$A" "$ITEMS?limit=1" >/dev/null; e1=$(hv "$HD" etag); it1=$(jq -c '.items' "$B")
+  first=$(jq -r '.items[0].id' "$B"); other=$ia; [ "$first" = "$ia" ] && other=$ib
+  chk_re "next_cursor có mặt khi còn trang" "$(jb '.next_cursor')" '^[A-Za-z0-9_-]+$'
+  get_json -H "$A" "$ITEMS?limit=1" >/dev/null; e1b=$(hv "$HD" etag)
+  chk "hai lần cùng tham số, dữ liệu không đổi → cùng ETag" "$e1b" "$e1"
+  $PSQL -c "delete from _test_items where id='$other'" >/dev/null 2>&1   # chỉ next_cursor đổi, items giữ nguyên
+  get_json -H "$A" "$ITEMS?limit=1" >/dev/null; e2=$(hv "$HD" etag); it2=$(jq -c '.items' "$B")
+  chk "items không đổi" "$it2" "$it1"
+  chk "next_cursor = null (hết trang)" "$(jq -r '.next_cursor|type' "$B")" null
+  chk_ne "thân đổi chỉ ở next_cursor → ETag đổi" "$e2" "$e1"
+  newitem "qc108-c-$(now_ms)" "" "$A" >/dev/null
+  get_json -H "$A" "$ITEMS?limit=1" >/dev/null; e3=$(hv "$HD" etag)
+  chk_ne "thêm 1 item → ETag đổi" "$e3" "$e2"
+  owner_del $O
 }
 
 main 03 "$@"

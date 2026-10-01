@@ -92,10 +92,11 @@ Cổng không có endpoint phân quyền riêng; phân quyền được chấm t
 9. `diff-review.sh` dùng merge-base với `origin/main` làm mốc; nếu dev rebase thì đặt `BASE=<sha>`.
 
 ## Câu hỏi cho PM
-- **Q-QC-GATE-1**: PG.md "Bạn tự kiểm" mục 3 nói "rút mạng 10 giây": spec không nêu cách rút mạng ở máy dev (localhost). QC chọn ba mức ở Điểm khó kiểm 2 và coi **TC-GATE-23 hoặc TC-GATE-25 PASS** là đủ cho dòng này (24 chỉ bổ trợ). PM xác nhận hoặc chọn cách khác.
-- **Q-QC-GATE-2**: số test tối thiểu cho cổng (Điểm khó kiểm 7). Nếu PM muốn ngưỡng khác (hoặc không có ngưỡng), báo để sửa TC-GATE-04 qua đề xuất thay đổi.
+- **Q-QC-GATE-1** — đã trả lời (PM chốt, góp ý #2 ACCEPTED 01/10): TC-GATE-23 hoặc TC-GATE-25 PASS là đủ cho dòng "rút mạng 10 giây"; TC-GATE-24 bổ trợ, nếu "không kiểm được" vì colima thì ghi rõ. TC không đổi.
+- **Q-QC-GATE-2** — đã trả lời (PM chốt, góp ý #2): giữ sàn ≥ 100 test PASS, 0 skip, mỗi gói SRS 9.2 ≥ 1 test. TC-GATE-04 không đổi.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-10-02 — viết lần đầu theo `PG.md` + `US.md` v1.1 (đã gồm góp ý #1: route thử = build tag `testroutes`, `tmode`/`dmode`/`CT`, AC20). Không có TC cũ để sửa.
+- 2026-10-02 — spec v1.2 (commit 02a4435) + góp ý #2 (PM ACCEPTED 01/10; QC questions #Q-QC-GATE-1, #Q-QC-GATE-2): không TC nào đổi nội dung — PM chốt đúng cách QC đã chọn (TC-GATE-23/25 đủ cho "rút mạng 10 s"; sàn ≥ 100 test PASS giữ). Ghi nhận để TC-GATE-24 "không kiểm được" không làm FAIL dòng "rút mạng" khi 23 hoặc 25 PASS.
 
 Tổng: 25 TC (22 tự động bằng `gate-pg.sh`, 3 tay: TC-GATE-25, 27, 30 — ba TC này có script hỗ trợ; TC-GATE-24 bán tự động).

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # QC US-PG-07 — hạ tầng chạy (compose 10 service, Caddy, PgBouncer, image, CI, k6, baseline, env thiếu, bề mặt mạng, Redis, route thử ở target thử)
-# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.1 US-PG-07 AC1…AC20 + SRS.md 8.2, 8.3, 8.4, 8.5, 9.3.
+# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.2 US-PG-07 AC1…AC20 + SRS.md 8.2, 8.3, 8.4, 8.5, 9.3.
 # Chạy ở gốc worktree sau `pnpm dev`:  bash docs/sprints/2/qc/scripts/pg07.sh [MM …|--list]
 # Trạng thái chuẩn của story: stack đầy đủ, CHẾ ĐỘ DEFAULT (image edupilot-gateway/worker), `--scale gateway=2`.
 # Mọi TC đổi chế độ / tắt service / sửa .env.local đều khôi phục trạng thái chuẩn ngay sau lệnh đo, trước khi chấm.
@@ -158,6 +158,7 @@ _pg07_kill_round() {  # $1 = số vòng; in "<số dòng không-200> <số dòng
   echo "$(grep -vc '^200$' "$f") $(tail -60 "$f" | grep -vc '^200$')"
 }
 tc_pg07_18() {  # AC6 — 200 request 10/s, tắt một gateway ở giây 5; lặp 3 vòng, pass khi cả 3 đạt
+  # "lỗi" = mọi response không-200 HOẶC kết nối 000; ≤ 4/200 và 0 ở 60 dòng cuối (US.md 07-AC6, QC questions #Q-QC-07-4)
   local r res bad tail60
   for r in 1 2 3; do
     res=$(_pg07_kill_round $r); bad=${res% *}; tail60=${res#* }
@@ -291,10 +292,11 @@ tc_pg07_32() {  # AC10 — không có shell trong image
     chk_no "edupilot-$t không chạy được /bin/sh" docker run --rm --entrypoint /bin/sh edupilot-$t -c true
   done
 }
-tc_pg07_33() {  # AC10 — migrate dùng lại image gateway và chạy lệnh migrate
+tc_pg07_33() {  # AC10 / SRS 8.4 — migrate dùng lại image gateway, entrypoint+command đúng y hệt (QC questions #Q-QC-07-1)
   local j; j=$(_pg07_cfgjson)
   chk "image của service migrate" "$(printf '%s' "$j" | jq -r '.services.migrate.image // "KHÔNG CÓ"')" edupilot-gateway
-  chk_re "entrypoint + command của migrate" "$(printf '%s' "$j" | jq -r '[.services.migrate.entrypoint, .services.migrate.command] | tostring')" 'migrate'
+  chk "entrypoint của migrate" "$(printf '%s' "$j" | jq -cr '.services.migrate.entrypoint // "KHÔNG CÓ"')" '["/gateway","migrate"]'
+  chk "command của migrate"    "$(printf '%s' "$j" | jq -cr '.services.migrate.command // "KHÔNG CÓ"')" '["up"]'
 }
 
 # ---------- AC11: không trạng thái ----------
@@ -435,7 +437,7 @@ tc_pg07_48() {  # AC14 — kịch bản ghi với -e TEST_ROUTES=1 ở chế đ�
   chk "số ngưỡng ✗" "$(grep -c '✗' "$f")" 0
   chk_ge "có ngưỡng p(95)<500 của kịch bản ghi" "$(grep -c 'p(95)<500' "$f")" 1
 }
-tc_pg07_49() {  # AC14 — TEST_ROUTES=1 trên stack mặc định: k6 dừng với thông báo rõ
+tc_pg07_49() {  # AC14 — TEST_ROUTES=1 trên stack mặc định: rc≠0 + đúng chuỗi thông báo (QC questions #Q-QC-07-5)
   local rc T f=$QC_OUT/k6-testroutes-default.txt
   command -v k6 >/dev/null 2>&1 || { fail_tc "k6 chưa cài trên máy chạy QC"; return; }
   ensure_mode default || fail_tc "không về được chế độ default"
@@ -443,7 +445,8 @@ tc_pg07_49() {  # AC14 — TEST_ROUTES=1 trên stack mặc định: k6 dừng v�
   k6 run -e BASE=https://localhost -e TOKEN="$T" -e TEST_ROUTES=1 benchmarks/load/smoke.js > "$f" 2>&1; rc=$?
   tail -15 "$f"
   chk_ne "rc của k6 run (TEST_ROUTES=1, dmode)" "$rc" 0
-  chk_ge "thông báo nêu route thử / 404" "$(grep -ciE '_test|route thử|test route|404' "$f")" 1
+  chk_ge "đầu ra chứa đúng chuỗi 'TEST_ROUTES=1 cần stack dựng bằng docker-compose.test.yml'" \
+      "$(grep -cF 'TEST_ROUTES=1 cần stack dựng bằng docker-compose.test.yml' "$f")" 1
 }
 
 # ---------- AC15: baseline ----------
@@ -470,7 +473,7 @@ tc_pg07_51() {  # AC15 — QC tự đo lại 4 số (RAM nghỉ sau 60 s, kích 
   chk_re "RAM nghỉ worker đo được"  "${w:-}" '^[0-9]'
   chk_re "kích thước image gateway đo được" "${sg:-}" '^[0-9]+$'
   chk_re "kích thước image worker đo được"  "${sw:-}" '^[0-9]+$'
-  echo "    (so sánh với số trong benchmarks/reports/pg-baseline.md — dung sai chưa có trong spec, xem Q-QC-07-2)"
+  echo "    (PM chốt góp ý #2: chỉ ghi nhận số đo vào report, KHÔNG FAIL vì lệch so với benchmarks/reports/pg-baseline.md)"
 }
 
 # ---------- AC16 (nhánh lỗi): thiếu env trong compose ----------
@@ -546,9 +549,12 @@ tc_pg07_57() {  # AC17 — không bí mật trong compose (mọi giá trị nh�
   chk "số dòng bí mật trong docker-compose.local.yml" "$(grep -nE '(PASSWORD|SECRET|KEY)[A-Z_]*: *[^$ ]' docker-compose.local.yml | grep -c .)" 0
   chk "số dòng bí mật trong docker-compose.test.yml"  "$(grep -nE '(PASSWORD|SECRET|KEY)[A-Z_]*: *[^$ ]' docker-compose.test.yml 2>/dev/null | grep -c .)" 0
 }
-tc_pg07_58() {  # AC17 — .env.example chỉ có giá trị dev giả; .env.local không vào git
+tc_pg07_58() {  # AC17 — .env.example chỉ có giá trị dev giả: đo TRỰC TIẾP bằng quy ước '-dev' (PM chốt góp ý #2, QC questions #Q-QC-07-3)
   local ex
-  ex=$(grep '^JWT_SECRET_KEY=' .env.example | cut -d= -f2-)
+  chk_ge "số biến bí mật trong .env.example (không đo rỗng)" "$(grep -cE '^[A-Z_]*(PASSWORD|SECRET|ACCESS_KEY)[A-Z_]*=' .env.example)" 1
+  chk "số giá trị bí mật của .env.example KHÔNG chứa '-dev'" \
+      "$(grep -E '^[A-Z_]*(PASSWORD|SECRET|ACCESS_KEY)[A-Z_]*=' .env.example | grep -vc -- '-dev')" 0
+  ex=$(grep '^JWT_SECRET_KEY=' .env.example | cut -d= -f2-)      # các kiểm gián tiếp (phụ)
   chk_ne "JWT_SECRET_KEY ở .env.example khác giá trị đang dùng" "$ex" "$SECRET"
   chk_ok ".env.local bị git bỏ qua" git check-ignore -q .env.local
   chk "số chỗ lộ JWT_SECRET_KEY ngoài .env.example/docs" "$(git grep -nE 'JWT_SECRET_KEY=[^ ]{20,}' -- ':!.env.example' ':!docs' | grep -c .)" 0

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # QC US-PG-05 — SSE: khung, heartbeat, giới hạn kết nối, Last-Event-ID, chéo bản, tắt gateway, Caddy, Redis chết.
-# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.1 (US-PG-05 AC1…AC15); SRS mục 3.3, 3.4, 5.6, 6.1, 6.2, 6.3, 6.5, 6.8, 8.1, 8.2.
+# Nguồn: docs/specs/FEAT-pg-foundation/US.md v1.2 (US-PG-05 AC1…AC15, kèm các dòng "Làm rõ (QC questions #…)"); SRS mục 3.3, 3.4, 5.6, 6.1, 6.2, 6.3, 6.5, 6.8, 8.1, 8.2.
 # Chạy ở gốc worktree sau `pnpm dev`:  bash docs/sprints/2/qc/scripts/pg05.sh [MM …|--list]
 # TC chậm (≥ 2 phút) mặc định chỉ in MANUAL; chạy thật bằng:  QC_SLOW=1 bash docs/sprints/2/qc/scripts/pg05.sh 25 27
 . "$(dirname "$0")/lib.sh"
@@ -20,6 +20,7 @@ sse_open_code() {  # sse_open_code <token> [cờ curl thêm…] → mã HTTP khi
   local t=$1; shift; curl -sk -N --max-time 3 -o /dev/null -w '%{http_code}' -H "Authorization: Bearer $t" "$@" "$EVURL"; }
 zcard() { $RDS zcard "ep:sse:conn:$1" 2>/dev/null | tr -d '\r'; }
 numsub() { $RDS pubsub numsub "ep:sse:ch:$1" 2>/dev/null | tr -d '\r' | awk 'NR==2'; }
+xlen_buf() { local n; n=$($RDS xlen "ep:sse:buf:$1" 2>/dev/null | tr -d '\r'); echo "${n:-0}"; }   # độ dài bộ đệm sự kiện (0 nếu khoá chưa có)
 wait_slots_free() {  # wait_slots_free <uid> <giây> → 0 khi ZCARD = 0 và NUMSUB = 0
   local u=$1 max=$2 i=0
   while [ "$i" -lt $((max * 5)) ]; do
@@ -116,30 +117,35 @@ tc_pg05_07() {  # AC2 (biên) — type hợp lệ 1 ký tự và 64 ký tự (^[
   chk "type 1 ký tự tới nơi" "$(sse_ntype "$f" a)" 1
   chk "type 64 ký tự tới nơi" "$(sse_ntype "$f" "$t64")" 1
 }
-tc_pg05_08() {  # AC2 (nhánh lỗi) — type sai → `Publish` từ chối (ErrInvalidEventType), không sự kiện nào ra stream
+tc_pg05_08() {  # AC2 (nhánh lỗi) — type sai → 422 VALIDATION_FAILED, details[0].field="type", không gì vào Stream (QC #Q-QC-05-1)
   ensure_mode test
-  local u t f t65 c b; u=$(uid 123); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-08.sse; sse_clean "$u"
+  local u t f t65 b x0 x1; u=$(uid 123); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-08.sse; sse_clean "$u"
   t65=$(printf 'a%.0s' $(seq 1 65))
   sse_bg "$f" 20 "$t"; sse_wait_line "$f" '^event: ready' 10
+  x0=$(xlen_buf "$u")
   for v in 'Bad Type' 'Type' '1abc' '' "$t65" 'test..x#'; do
-    c=$(sse_pub "$v" '{"n":1}' "$t"); b=$(sse_pub_body "$v" '{"n":1}' "$t" | jq -r '.code // empty')
-    chk_re "type [$v] → mã 4xx" "$c" '^4[0-9][0-9]$'
-    chk_re "type [$v] → code lỗi theo SRS 6.1" "$b" '^(VALIDATION_FAILED|BAD_REQUEST)$'
+    b=$(sse_pub_body "$v" '{"n":1}' "$t")
+    chk "type [$v] → mã HTTP"           "$(sse_pub "$v" '{"n":1}' "$t")" 422
+    chk "type [$v] → code"              "$(printf '%s' "$b" | jq -r '.code // empty')" VALIDATION_FAILED
+    chk "type [$v] → details[0].field"  "$(printf '%s' "$b" | jq -r '.details[0].field // empty')" type
   done
   sleep 1; sse_kill
+  x1=$(xlen_buf "$u")
   chk "số sự kiện lọt vào stream" "$(sse_nid "$f")" 0
+  chk "XLEN ep:sse:buf không đổi (không vào Stream)" "$x1" "$x0"
 }
-tc_pg05_09() {  # AC2 (biên) — data > 64 KiB bị từ chối (ErrEventTooLarge); data < 64 KiB đi qua
+tc_pg05_09() {  # AC2 (biên) — data > 64 KiB → 422 VALIDATION_FAILED, details[0].field="data" (QC #Q-QC-05-2)
   ensure_mode test
-  local u t f big small c; u=$(uid 124); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-09.sse; sse_clean "$u"
+  local u t f big small b; u=$(uid 124); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-09.sse; sse_clean "$u"
   small=$(head -c 60000 /dev/zero | tr '\0' a); big=$(head -c 66000 /dev/zero | tr '\0' a)
   sse_bg "$f" 25 "$t"; sse_wait_line "$f" '^event: ready' 10
-  chk_re "data 60 KiB → chấp nhận" "$(sse_pub test.size "{\"s\":\"$small\"}" "$t")" '^2[0-9][0-9]$'
-  c=$(sse_pub test.size "{\"s\":\"$big\"}" "$t")
-  chk_re "data ≈ 64,5 KiB → từ chối (4xx)" "$c" '^4[0-9][0-9]$'
-  chk_re "code lỗi theo SRS 6.1" "$(sse_pub_body test.size "{\"s\":\"$big\"}" "$t" | jq -r '.code // empty')" '^(VALIDATION_FAILED|PAYLOAD_TOO_LARGE|BAD_REQUEST)$'
+  chk_re "data 60.000 byte → chấp nhận" "$(sse_pub test.size "{\"s\":\"$small\"}" "$t")" '^2[0-9][0-9]$'
+  b=$(sse_pub_body test.size "{\"s\":\"$big\"}" "$t")
+  chk "data 66.000 byte → mã HTTP"      "$(sse_pub test.size "{\"s\":\"$big\"}" "$t")" 422
+  chk "code"                            "$(printf '%s' "$b" | jq -r '.code // empty')" VALIDATION_FAILED
+  chk "details[0].field"                "$(printf '%s' "$b" | jq -r '.details[0].field // empty')" data
   sse_wait_ids "$f" 1 10; sleep 1; sse_kill
-  chk "số sự kiện nhận được (chỉ cái 60 KiB)" "$(sse_nid "$f")" 1
+  chk "số sự kiện nhận được (chỉ cái 60.000 byte)" "$(sse_nid "$f")" 1
 }
 tc_pg05_10() {  # AC2 — test Go (lệnh trong AC)
   gt ./internal/httpapi/sse 'TestSSE_Framing|TestPublish_Validation|TestSSE_IDsMonotonic'
@@ -220,7 +226,7 @@ tc_pg05_18() {  # AC5 — đúng lệnh trong AC: 3 stream của U1 → hai `000
   chk "số mã 000 (hai stream được giữ)" "$(printf '%s\n' "$o" | grep -c '^000$')" 2
   chk "số mã 429 (stream thứ 3)"        "$(printf '%s\n' "$o" | grep -c '^429$')" 1
 }
-tc_pg05_19() {  # AC5 — thân 429 là JSON `SSE_LIMIT_REACHED` + `Retry-After`, TRƯỚC khi mở stream
+tc_pg05_19() {  # AC5 — thân 429 `SSE_LIMIT_REACHED` + `retry_after: 5` trùng header `Retry-After: 5`, TRƯỚC khi mở stream (QC #Q-QC-05-5)
   ensure_mode test
   local t f1 f2 o h b; t=$(tok STUDENT "$U1"); sse_clean "$U1"
   f1=$QC_OUT/tc-pg05-19a.sse; f2=$QC_OUT/tc-pg05-19b.sse
@@ -233,7 +239,9 @@ tc_pg05_19() {  # AC5 — thân 429 là JSON `SSE_LIMIT_REACHED` + `Retry-After`
   chk    "mã HTTP stream thứ 3" "$(printf '%s\n' "$o" | awk 'END{print}')" 429
   chk    "code trong thân" "$(printf '%s' "$b" | jq -r '.code // empty')" SSE_LIMIT_REACHED
   chk_re "trace_id 32 hex" "$(printf '%s' "$b" | jq -r '.trace_id // empty')" '^[0-9a-f]{32}$'
-  chk_re "header Retry-After (giây)" "$(printf '%s\n' "$h" | hval retry-after)" '^[0-9]+$'
+  chk    "header Retry-After (giây)" "$(printf '%s\n' "$h" | hval retry-after)" 5
+  chk    "retry_after trong thân (trùng header)" "$(printf '%s' "$b" | jq -r '.retry_after // empty')" 5
+  chk    "retry_after là số nguyên" "$(printf '%s' "$b" | jq -r 'if (.retry_after|type) == "number" and (.retry_after % 1) == 0 then "nguyên" else "khác" end')" nguyên
   chk_re "Content-Type là JSON (không phải event-stream)" "$(printf '%s\n' "$h" | hval content-type)" '^application/json'
   chk    "không mở stream (không có dòng retry:/event:)" "$(printf '%s' "$b" | grep -cE '^(retry|event):')" 0
 }
@@ -425,18 +433,18 @@ tc_pg05_36() {  # AC8 — test Go có -race (lệnh trong AC)
 }
 
 # =============================== AC9 — bộ đệm và resync ===============================
-tc_pg05_37() {  # AC9 — Last-Event-ID SAI ĐỊNH DẠNG → `event: resync` `{"reason":"buffer_exceeded"}` đầu tiên, không 4xx/5xx
+tc_pg05_37() {  # AC9 — Last-Event-ID SAI ĐỊNH DẠNG → `event: resync` `{"reason":"invalid_last_event_id"}` đầu tiên, không 4xx/5xx (QC #Q-QC-05-4)
   ensure_mode test
   local u t v f c; u=$(uid 160); t=$(tok STUDENT "$u"); sse_clean "$u"
-  for v in 'abc' '1-' '-1' '1-2-3' ' ' '0x1-0'; do
+  for v in 'abc' '1-' '-1' '1-2-3' '0x1-0' '1_0'; do
     f=$QC_OUT/tc-pg05-37-$(printf '%s' "$v" | tr -c 'A-Za-z0-9' '_').sse
     c=$(curl -sk -N --max-time 3 -o "$f" -w '%{http_code}' -H "Authorization: Bearer $t" -H "Last-Event-ID: $v" "$EVURL" 2>/dev/null)
     chk_re "Last-Event-ID [$v] → không 4xx/5xx" "$c" '^(000|200)$'
     chk    "Last-Event-ID [$v] → sự kiện đầu sau ready là resync" "$(sse_first_event "$f")" resync
-    chk    "Last-Event-ID [$v] → reason" "$(sse_data_of "$f" resync | jq -r '.reason // empty')" buffer_exceeded
+    chk    "Last-Event-ID [$v] → reason" "$(sse_data_of "$f" resync | jq -r '.reason // empty')" invalid_last_event_id
   done
 }
-tc_pg05_38() {  # AC9 — Last-Event-ID QUÁ CŨ (cũ hơn sự kiện đầu còn trong bộ đệm) → resync, rồi chuyển sang sự kiện mới
+tc_pg05_38() {  # AC9 — Last-Event-ID HỢP LỆ nhưng CŨ hơn id đầu bộ đệm → resync `buffer_exceeded`, rồi chuyển sang sự kiện mới (QC #Q-QC-05-4)
   ensure_mode test
   local u t f; u=$(uid 161); t=$(tok STUDENT "$u"); sse_clean "$u"; f=$QC_OUT/tc-pg05-38.sse
   sse_burst 5 test.old "$t" 5        # bộ đệm có sự kiện mới hơn id 1-0
@@ -604,19 +612,21 @@ tc_pg05_53() {  # AC11 / SRS 6.1 — token sai chữ ký → 401 TOKEN_INVALID
   chk "mã HTTP" "$c" 401
   chk "code" "$b" TOKEN_INVALID
 }
-tc_pg05_54() {  # AC11 / SRS 6.3 — ADMIN phát hộ người khác được; STUDENT chỉ phát cho chính mình
+tc_pg05_54() {  # AC11 / SRS 6.3 — ADMIN chỉ định user_id được; người thường gửi user_id khác mình → 403 FORBIDDEN (QC #Q-QC-05-3)
   ensure_mode test
-  local ta ts f c; ta=$(tok ADMIN "$(uid 180)"); ts=$(tok STUDENT "$U1"); sse_clean "$U2"
+  local ta ts f c b; ta=$(tok ADMIN "$(uid 180)"); ts=$(tok STUDENT "$U1"); sse_clean "$U2"
   f=$QC_OUT/tc-pg05-54.sse
-  sse_bg "$f" 12 "$(tok STUDENT "$U2")"; sse_wait_line "$f" '^event: ready' 10
+  sse_bg "$f" 15 "$(tok STUDENT "$U2")"; sse_wait_line "$f" '^event: ready' 10
   chk_re "ADMIN phát user_id=U2 → 2xx" "$(sse_pub test.adm '{"n":1}' "$ta" "$U2")" '^2[0-9][0-9]$'
   sse_wait_ids "$f" 1 8
-  c=$(sse_pub test.stu '{"n":2}' "$ts" "$U2")     # STUDENT U1 cố phát cho U2
-  echo "    (mã khi STUDENT chỉ định user_id người khác: $c — spec không nêu mã, xem 'Câu hỏi cho PM')"
+  c=$(sse_pub test.stu '{"n":2}' "$ts" "$U2")           # STUDENT U1 cố phát cho U2
+  b=$(sse_pub_body test.stu '{"n":3}' "$ts" "$U2")
   sleep 2; sse_kill
-  chk    "U2 nhận sự kiện do ADMIN phát" "$(sse_ntype "$f" test.adm)" 1
-  chk    "U2 KHÔNG nhận sự kiện STUDENT khác cố phát hộ" "$(sse_ntype "$f" test.stu)" 0
-  chk_re "mã trả về cho STUDENT phát hộ (2xx = bỏ qua user_id, 4xx = từ chối)" "$c" '^(2[0-9][0-9]|4[0-9][0-9])$'
+  chk "U2 nhận sự kiện do ADMIN phát" "$(sse_ntype "$f" test.adm)" 1
+  chk "mã khi STUDENT chỉ định user_id người khác" "$c" 403
+  chk "code" "$(printf '%s' "$b" | jq -r '.code // empty')" FORBIDDEN
+  chk "details.reason" "$(printf '%s' "$b" | jq -r '.details.reason // empty')" role
+  chk "U2 KHÔNG nhận sự kiện STUDENT khác cố phát hộ (không phát gì)" "$(sse_ntype "$f" test.stu)" 0
 }
 tc_pg05_55() {  # AC11 — test Go (lệnh trong AC)
   gt ./internal/httpapi/sse 'TestSSE_IsolationBetweenUsers|TestSSE_UserIDQueryIgnored|TestSSE_Unauthenticated'
@@ -795,6 +805,62 @@ tc_pg05_69() {  # AC15 — Redis về → nối lại được ngay, stream ch�
 }
 tc_pg05_70() {  # AC15 — test Go (lệnh trong AC)
   gt ./internal/httpapi/sse 'TestSSE_RedisDownMidStream|TestSSE_RedisDownOnConnect'
+}
+
+# ====================== TC thêm theo spec v1.2 (QC questions #Q-QC-05-2, #Q-QC-05-3, #Q-QC-05-4) ======================
+tc_pg05_71() {  # AC2 (biên chính xác) — giá trị JSON của `data` dạng gọn: 65.536 byte (= 64 KiB) hợp lệ, 65.537 byte → 422 (QC #Q-QC-05-2)
+  ensure_mode test
+  local u t f d64 d65 b; u=$(uid 193); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-71.sse; sse_clean "$u"
+  d64="{\"s\":\"$(head -c 65528 /dev/zero | tr '\0' a)\"}"      # 65.528 + 8 byte bao ngoài = 65.536
+  d65="{\"s\":\"$(head -c 65529 /dev/zero | tr '\0' a)\"}"      # = 65.537, hơn 64 KiB đúng 1 byte
+  chk "độ dài JSON gọn của data (biên dưới)" "$(printf '%s' "$d64" | wc -c | tr -d ' ')" 65536
+  chk "độ dài JSON gọn của data (biên trên)" "$(printf '%s' "$d65" | wc -c | tr -d ' ')" 65537
+  sse_bg "$f" 25 "$t"; sse_wait_line "$f" '^event: ready' 10
+  chk_re "data đúng 65.536 byte → chấp nhận (2xx)" "$(sse_pub test.edge "$d64" "$t")" '^2[0-9][0-9]$'
+  b=$(sse_pub_body test.edge "$d65" "$t")
+  chk "data 65.537 byte → mã HTTP" "$(sse_pub test.edge "$d65" "$t")" 422
+  chk "code"                       "$(printf '%s' "$b" | jq -r '.code // empty')" VALIDATION_FAILED
+  chk "details[0].field"           "$(printf '%s' "$b" | jq -r '.details[0].field // empty')" data
+  sse_wait_ids "$f" 1 10; sleep 1; sse_kill
+  chk "số sự kiện nhận được (chỉ cái 65.536 byte)" "$(sse_nid "$f")" 1
+}
+tc_pg05_72() {  # AC2 / SRS 6.1 — cả THÂN > MAX_BODY_BYTES (1 MiB) → 413 PAYLOAD_TOO_LARGE (QC #Q-QC-05-2: 413 chỉ dành cho thân)
+  ensure_mode test
+  local u t bf c b; u=$(uid 194); t=$(tok STUDENT "$u"); bf=$QC_OUT/tc-pg05-72.json; sse_clean "$u"
+  { printf '{"type":"test.body","data":{"s":"'; head -c 1100000 /dev/zero | tr '\0' a; printf '"}}'; } > "$bf"
+  chk_ge "thân gửi đi (byte) > MAX_BODY_BYTES" "$(wc -c < "$bf" | tr -d ' ')" 1048577
+  c=$(curl -sk --max-time 30 -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $t" \
+        -H 'Content-Type: application/json' --data-binary @"$bf" "$GW/api/v1/_test/events")
+  b=$(curl -sk --max-time 30 -X POST -H "Authorization: Bearer $t" \
+        -H 'Content-Type: application/json' --data-binary @"$bf" "$GW/api/v1/_test/events")
+  chk "mã HTTP"            "$c" 413
+  chk "code"               "$(printf '%s' "$b" | jq -r '.code // empty')" PAYLOAD_TOO_LARGE
+  chk "details.max_bytes"  "$(printf '%s' "$b" | jq -r '.details.max_bytes // empty')" 1048576
+  chk "XLEN ep:sse:buf (không gì vào Stream)" "$(xlen_buf "$u")" 0
+}
+tc_pg05_73() {  # AC9 — Last-Event-ID RỖNG / chỉ khoảng trắng = KHÔNG có: stream bình thường, không `resync` (QC #Q-QC-05-4)
+  ensure_mode test
+  local u t ip f lbl hv; u=$(uid 195); t=$(tok STUDENT "$u"); sse_clean "$u"
+  ip=$(gw_ip "$(gw_ids | awk 'NR==1')")                 # gửi thẳng vào gateway: curl -H không gửi được header rỗng / chỉ khoảng trắng
+  sse_burst 3 test.empty "$t" 3                         # bộ đệm đã có sự kiện cũ: nếu bị coi là sai định dạng thì phải thấy resync
+  for lbl in rong khoangtrang; do
+    if [ "$lbl" = rong ]; then hv=""; else hv="   "; fi
+    f=$QC_OUT/tc-pg05-73-$lbl.sse
+    rawhttp "$ip" 8080 "GET /api/v1/events HTTP/1.1\r\nHost: g\r\nAuthorization: Bearer $t\r\nLast-Event-ID:$hv\r\n\r\n" 4 | tr -d '\r' > "$f"
+    chk_re "[$lbl] dòng trạng thái 200"      "$(awk 'NR==1' "$f")" '^HTTP/1\.1 200 '
+    chk    "[$lbl] có event: ready"          "$(grep -c '^event: ready' "$f")" 1
+    chk    "[$lbl] không có event: resync"   "$(sse_ntype "$f" resync)" 0
+    chk    "[$lbl] không đọc bù sự kiện cũ"  "$(sse_nid "$f")" 0
+  done
+}
+tc_pg05_74() {  # AC11 — người thường gửi `user_id` = CHÍNH MÌNH → 2xx và nhận được (QC #Q-QC-05-3)
+  ensure_mode test
+  local u t f; u=$(uid 196); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-74.sse; sse_clean "$u"
+  sse_bg "$f" 15 "$t"; sse_wait_line "$f" '^event: ready' 10
+  chk_re "STUDENT phát user_id = chính mình → 2xx" "$(sse_pub test.self '{"n":1}' "$t" "$u")" '^2[0-9][0-9]$'
+  sse_wait_ids "$f" 1 10; sse_kill
+  chk "nhận đúng 1 sự kiện test.self" "$(sse_ntype "$f" test.self)" 1
+  chk "không có event: resync"        "$(sse_ntype "$f" resync)" 0
 }
 
 main 05 "$@"

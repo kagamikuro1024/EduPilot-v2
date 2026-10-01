@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 # QC US-PG-06 — hợp đồng API: openapi.yaml / openapi.test.yaml + contract test hai chiều
-# (nguồn US.md v1.1 US-PG-06 AC1–AC8; SRS 6.1, 6.2, 6.3, 6.5, 9.2). Hộp đen: chỉ grep artefact hợp đồng + gọi stack thật.
+# (nguồn US.md v1.2 US-PG-06 AC1–AC8 + dòng "Làm rõ (QC questions #Q-QC-06-1…5)"; SRS 6.1, 6.2, 6.3, 6.5, 9.2, 9.4). Hộp đen: chỉ grep artefact hợp đồng (gồm internal/contract/exempt.go, xem AC5) + gọi stack thật.
 # Chạy: bash docs/sprints/2/qc/scripts/pg06.sh [MM …|--list]
 source "$(dirname "$0")/lib.sh"
 
 API=backend-go/api/openapi.yaml
 APIT=backend-go/api/openapi.test.yaml
 CPKG=./internal/contract
-# 7 test của gói contract (tên lấy nguyên văn từ AC1, AC3…AC7)
-C7='TestSpec_LoadsAndValidates|TestRouteSpecParity|TestSpec_ErrorResponsesDeclared|TestSpec_EveryDocumentedStatusExercised|TestValidator_RejectsBadResponses|TestSpec_SecurityDeclared|TestContract_UnauthenticatedMatchesSpec'
+# 8 test của gói contract (tên lấy nguyên văn từ AC1, AC3…AC7; TestStatusParity theo US.md v1.2 AC4 — QC questions #Q-QC-06-5)
+C8='TestSpec_LoadsAndValidates|TestRouteSpecParity|TestStatusParity|TestSpec_ErrorResponsesDeclared|TestSpec_EveryDocumentedStatusExercised|TestValidator_RejectsBadResponses|TestSpec_SecurityDeclared|TestContract_UnauthenticatedMatchesSpec'
 # 5 đường dẫn sản xuất (AC2 / SRS 6.2), đã sắp xếp
 PROD5='/api/v1/events /api/v1/healthz /api/v1/jobs/{id} /api/v1/readyz /healthz'
 # 13 đường dẫn thử (SRS 6.3), chuẩn hoá {x} -> {}, đã sắp xếp
@@ -109,14 +109,14 @@ tc_pg06_05() {  # AC2 — không rò route thử; giữ /healthz của scaffold
   chk "grep -c '_test' api/openapi.yaml" "$(grep -c '_test' $API)" 0
   chk "khai /healthz (giữ từ FEAT-scaffold)" "$(grep -cE '^  /healthz:' $API)" 1
 }
-tc_pg06_06() {  # AC2 / SRS 6.3 — openapi.test.yaml có đủ 13 đường dẫn thử
+tc_pg06_06() {  # AC2 / SRS 6.3 — openapi.test.yaml có đúng 13 đường dẫn thử (US.md v1.2, QC questions #Q-QC-06-1)
   need $APIT || return
   local got p
-  chk_ge "grep -cE '^  /api/v1/_test' (AC2 đòi ≥ 10)" "$(grep -cE '^  /api/v1/_test' $APIT)" 10
+  chk "grep -cE '^  /api/v1/_test' api/openapi.test.yaml" "$(grep -cE '^  /api/v1/_test' $APIT)" 13
   got=$(paths_of $APIT | norm | flat)
   chk "13 đường dẫn thử (SRS 6.3, chuẩn hoá {x}→{})" "$got" "$TEST13"
   for p in $TEST13; do
-    chk_ge "có đường dẫn $p" "$(paths_of $APIT | norm | grep -cFx -- "$p")" 1
+    chk "có đúng một đường dẫn $p" "$(paths_of $APIT | norm | grep -cFx -- "$p")" 1
   done
 }
 tc_pg06_07() {  # AC2 — mọi thao tác có operationId; operationId duy nhất trên hai tệp
@@ -126,7 +126,7 @@ tc_pg06_07() {  # AC2 — mọi thao tác có operationId; operationId duy nhấ
   chk "số operationId openapi.yaml"    "$(grep -cE '^ +operationId:' $API)" 5
   chk "operationId = số thao tác (openapi.test.yaml)" \
       "$(grep -cE '^ +operationId:' $APIT)" "$(grep -cE "$m" $APIT)"
-  chk_ge "số thao tác openapi.test.yaml (SRS 6.3: 15 route)" "$(grep -cE "$m" $APIT)" 15
+  chk "số thao tác openapi.test.yaml (SRS 6.3: đúng 15 route)" "$(grep -cE "$m" $APIT)" 15
   chk "operationId trùng nhau" \
       "$(grep -hE '^ +operationId:' $API $APIT | sed 's/.*operationId:[ ]*//' | tr -d "\"' \r" | LC_ALL=C sort | uniq -d | tr '\n' ' ' | sed 's/ $//')" ""
 }
@@ -140,8 +140,8 @@ tc_pg06_08() {  # AC3 — lệnh nguyên văn: gotest ./internal/contract/... rc
   chk_re "có gói contract chạy thật" "$out" 'ok[ \t]+.*internal/contract'
   chk_nre "không gói nào rỗng test" "$out" 'internal/contract.*no test files'
 }
-tc_pg06_09() {  # AC3 — 7 test của gói contract thật sự PASS (có tag)
-  gt $CPKG "$C7"
+tc_pg06_09() {  # AC3 — 8 test của gói contract thật sự PASS (có tag)
+  gt $CPKG "$C8"
 }
 tc_pg06_10() {  # AC3 — lệnh nguyên văn không tag: go test -count=1 ./internal/contract/... rc=0
   local out rc
@@ -150,8 +150,8 @@ tc_pg06_10() {  # AC3 — lệnh nguyên văn không tag: go test -count=1 ./int
   chk "go test (không tag) ./internal/contract/... rc" "$rc" 0
   chk_re "có gói contract chạy thật" "$out" 'ok[ \t]+.*internal/contract'
 }
-tc_pg06_11() {  # AC3 — 7 test PASS ở bản KHÔNG tag
-  gt_notag $CPKG "$C7"
+tc_pg06_11() {  # AC3 — 8 test PASS ở bản KHÔNG tag
+  gt_notag $CPKG "$C8"
 }
 tc_pg06_12() {  # AC3 — chế độ default: mọi đường dẫn của openapi.test.yaml trả 404
   need $APIT || return
@@ -302,7 +302,7 @@ tc_pg06_23() {  # AC4 — thêm /api/v1/khong-co vào spec → đỏ, nêu đư�
   chk_ge "có --- FAIL: TestRouteSpecParity" "$(grep -c '^--- FAIL: TestRouteSpecParity' "$log")" 1
   chk_ge "thông báo nêu /api/v1/khong-co" "$(grep -c '/api/v1/khong-co' "$log")" 1
 }
-tc_pg06_24() {  # AC4 — xoá status 404 của /api/v1/jobs/{id} → gói contract đỏ, nêu thao tác và status
+tc_pg06_24() {  # AC4 — xoá status 404 của /api/v1/jobs/{id} → TestStatusParity đỏ (US.md v1.2, QC questions #Q-QC-06-5)
   need $API || return
   local log=$QC_OUT/tc-pg06-24.log rc before after
   before=$(block_of $API '/api/v1/jobs/{id}' | grep -cE "^ +['\"]?404['\"]?:")
@@ -310,10 +310,10 @@ tc_pg06_24() {  # AC4 — xoá status 404 của /api/v1/jobs/{id} → gói contr
   after=$(block_of "$QC_TMP/m3.yaml" '/api/v1/jobs/{id}' | grep -cE "^ +['\"]?404['\"]?:")
   chk_ge "spec gốc khai 404 cho jobs/{id}" "$before" 1
   chk "bản sửa đã xoá 404" "$after" 0
-  rc=$(parity_run "$QC_TMP/m3.yaml" tag "$log")
+  rc=$(parity_run "$QC_TMP/m3.yaml" tag "$log" -run TestStatusParity)
   chk_ne "rc (status thật không có trong spec)" "$rc" 0
-  chk_ge "có --- FAIL" "$(grep -c '^--- FAIL' "$log")" 1
-  chk_ge "thông báo nêu /api/v1/jobs/{id}" "$(grep -c '/api/v1/jobs/{id}' "$log")" 1
+  chk_ge "có --- FAIL: TestStatusParity" "$(grep -c '^--- FAIL: TestStatusParity' "$log")" 1
+  chk_ge "thông báo nêu GET /api/v1/jobs/{id}" "$(grep -c 'GET /api/v1/jobs/{id}' "$log")" 1
   chk_ge "thông báo nêu 404" "$(grep -c '404' "$log")" 1
 }
 
@@ -340,8 +340,19 @@ tc_pg06_27() {  # AC5 — mọi response lỗi $ref schema Error
   chk_ge "số \$ref schemas/Error trong components.responses" "$(comp_resp $API | grep -c 'schemas/Error')" 8
   chk "định nghĩa schema Error" "$(grep -cE '^    Error:' $API)" 1
 }
-tc_pg06_28() {  # AC5 — hai test khai báo lỗi / mọi status được gọi thật
+tc_pg06_28() {  # AC5 — hai test khai báo lỗi / mọi status được gọi thật + mọi miễn trừ có reason (QC questions #Q-QC-06-4)
   gt $CPKG 'TestSpec_ErrorResponsesDeclared|TestSpec_EveryDocumentedStatusExercised'
+  local f=backend-go/internal/contract/exempt.go nop nst nre bad
+  [ -f "$f" ] || { fail_tc "không có artefact miễn trừ $f (AC5 đòi danh sách miễn trừ nằm ở đây)"; return; }
+  # mỗi mục là {operation, status, reason} — đếm theo khoá trường, không phụ thuộc cách xuống dòng
+  nop=$(grep -cE '[Oo]peration:' "$f"); nst=$(grep -cE '[Ss]tatus:' "$f"); nre=$(grep -cE '[Rr]eason:' "$f")
+  bad=$(grep -cE '[Rr]eason:[[:space:]]*(""|``|,|$)' "$f")
+  printf 'operation=%s status=%s reason=%s reason-rong=%s\n' "$nop" "$nst" "$nre" "$bad" > "$QC_OUT/tc-pg06-28.txt"
+  grep -nE '[Oo]peration:|[Ss]tatus:|[Rr]eason:' "$f" >> "$QC_OUT/tc-pg06-28.txt" 2>/dev/null
+  chk "số trường status = số trường operation" "$nst" "$nop"
+  chk "số trường reason = số trường operation" "$nre" "$nop"
+  chk "số reason rỗng" "$bad" 0
+  echo "    info $nop mục miễn trừ — trích vào $QC_OUT/tc-pg06-28.txt (đối chiếu handoff: TC-PG06-38, tay)"
 }
 
 # ---------- AC6 — đối chứng âm của validator ----------
@@ -395,18 +406,27 @@ tc_pg06_35() {  # AC8 — kin-openapi có trong cây test của internal/contrac
   chk_ge "kin-openapi trong go list -deps -test ./internal/contract" \
     "$( (cd backend-go && go list -deps -test ./internal/contract) 2>/dev/null | grep -c kin-openapi )" 1
 }
-tc_pg06_36() {  # AC8 — golangci-lint sạch (luật depguard)
+tc_pg06_36() {  # AC8 — lint sạch hai cấu hình (SRS 9.4) + ca âm depguard của dev (QC questions #Q-QC-06-3)
   if ! command -v golangci-lint >/dev/null 2>&1; then
     fail_tc "KHÔNG KIỂM ĐƯỢC: không có golangci-lint trên PATH — QC không cài"; return; fi
-  local out rc
+  local out rc log=$QC_OUT/tc-pg06-36.log
   out=$( (cd backend-go && golangci-lint run) 2>&1 ); rc=$?
-  printf '%s\n' "$out" > "$QC_OUT/tc-pg06-36.log"
+  printf '%s\n' "$out" > "$log"
   chk "golangci-lint run rc" "$rc" 0
   chk_nre "không vi phạm depguard" "$out" 'depguard'
   out=$( (cd backend-go && golangci-lint run --build-tags testroutes) 2>&1 ); rc=$?
-  printf '%s\n' "$out" >> "$QC_OUT/tc-pg06-36.log"
+  printf '%s\n' "$out" >> "$log"
   chk "golangci-lint run --build-tags testroutes rc" "$rc" 0
   chk_nre "không vi phạm depguard (có tag)" "$out" 'depguard'
+  # ca âm do dev để sẵn: gói tạm internal/zz_depguard_probe/ phải bị lint chặn rồi bị xoá; lệnh thoát 0 khi chặn đúng
+  out=$(make -C backend-go lint-depguard-negative 2>&1); rc=$?
+  printf '%s\n' "$out" >> "$log"
+  chk "make -C backend-go lint-depguard-negative rc" "$rc" 0
+  chk_re "ca âm nêu depguard" "$out" 'depguard'
+  chk_ok "gói tạm đã bị xoá (test ! -e backend-go/internal/zz_depguard_probe)" test ! -e backend-go/internal/zz_depguard_probe
+  out=$(git status --porcelain backend-go 2>&1)
+  printf 'git status --porcelain backend-go:\n%s\n' "$out" >> "$log"
+  chk "git status --porcelain backend-go không còn vết gói tạm" "$(printf '%s\n' "$out" | grep -c 'zz_depguard_probe')" 0
 }
 tc_pg06_37() {  # AC8 — đối chứng trên binary đã dựng: go version -m không có getkin/kin-openapi
   local b cmd tag out
@@ -425,6 +445,10 @@ tc_pg06_37() {  # AC8 — đối chứng trên binary đã dựng: go version -m
       rm -f "$b"
     done
   done
+}
+tc_pg06_38() {  # AC5 (TAY) — đối chiếu danh sách miễn trừ exempt.go với bản chép trong handoff
+  manual "mở $QC_OUT/tc-pg06-28.txt (trích từ backend-go/internal/contract/exempt.go) và bản chép danh sách miễn trừ trong handoff của dev:" \
+         "cùng số mục, cùng từng cặp (operation, status), mỗi lý do nêu được vì sao status đó không gọi thật được; thừa / thiếu / lý do vô nghĩa → FAIL"
 }
 
 main 06 "$@"

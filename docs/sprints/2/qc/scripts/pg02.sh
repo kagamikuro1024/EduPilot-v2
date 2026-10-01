@@ -45,29 +45,17 @@ cmp_cols() {
 
 idef() { $PSQL -c "select indexdef from pg_indexes where schemaname='public' and indexname='$1'" 2>/dev/null; }
 
-# DB sạch: image gateway-test tạo thêm bảng `_test_items` (+2 index) làm sai các phép ĐẾM của AC1/AC4/AC6.
-db_dirty() { [ "$($PSQL -c "select count(*) from pg_tables where schemaname='public' and tablename like '\_test\_%'" 2>/dev/null)" != 0 ]; }
-fresh_db() {   # xoá volume Postgres rồi dựng lại ở chế độ default (đắt: vài phút)
-  echo "    … fresh_db: xoá volume edupilot_postgres_data và dựng lại (chậm)"
-  pnpm dev:down >/dev/null 2>&1
-  docker volume rm edupilot_postgres_data >/dev/null 2>&1
-  $C up -d --wait >/dev/null 2>&1
-  dmode >/dev/null 2>&1; wait_ready 120
-}
-need_fresh() { if db_dirty; then fresh_db; else ensure_mode default >/dev/null 2>&1; fi; }
+# Bảng thử `_test_items` (+2 index, do image gateway-test tạo) KHÔNG tính: mọi truy vấn đếm bảng / index / cột `id`
+# đều loại `\_test\_%` (US.md 02-AC1 "Làm rõ" #Q-QC-02-3) nên chạy được cả khi DB đã qua `tmode` — không cần DB sạch.
 
 xlen() { local v; v=$($RDS xlen "$1" 2>/dev/null); case "$v" in ''|*ERR*) echo 0;; *) echo "$v";; esac; }
 xpend() { local v; v=$($RDS xpending "$1" "$2" 2>/dev/null | head -1); case "$v" in ''|*ERR*) echo 0;; *) echo "$v";; esac; }
 
-mig() {  # mig up|down — AC6 ghi `$C run --rm migrate <sub>`; với `command:["migrate","up"]` thì `run` THAY command,
-         # nên dạng nguyên văn có thể thành `/gateway down`. Thử dạng AC trước, rồi dạng đầy đủ (xem Q-QC-02-1).
-  local sub=$1 o rc
-  o=$($C run --rm migrate "$sub" 2>&1); rc=$?
-  if [ $rc -ne 0 ]; then
-    echo "    … '$C run --rm migrate $sub' rc=$rc → thử dạng đầy đủ 'migrate $sub' (Q-QC-02-1)"
-    o=$($C run --rm migrate migrate "$sub" 2>&1); rc=$?
-  fi
-  printf '%s\n' "$o" > "$QC_OUT/mig-$sub.log"; return $rc
+mig() {  # mig up|down — service `migrate` có entrypoint ["/gateway","migrate"] + command ["up"] (SRS 8.4), `run` chỉ thay
+         # `command` → `$C run --rm migrate down` chạy `/gateway migrate down` (US.md 02-AC6 "Làm rõ" #Q-QC-02-1). rc≠0 là FAIL.
+  local o rc
+  o=$($C run --rm migrate "$1" 2>&1); rc=$?
+  printf '%s\n' "$o" > "$QC_OUT/mig-$1.log"; return $rc
 }
 
 newjob() {  # newjob <kind> <steps> <hậu tố khoá idem> → in mã HTTP
@@ -89,22 +77,19 @@ ac15_dead_row() {
 
 # ================= AC1 — 5 bảng + goose_db_version, 3 enum, extension vector =================
 tc_pg02_01() {  # AC1 — đúng 6 bảng, không bảng nghiệp vụ nào khác
-  need_fresh
   local t
-  t=$($PSQL -c "select tablename from pg_tables where schemaname='public' order by 1" | tr '\n' ' ' | sed 's/ $//')
+  t=$($PSQL -c "select tablename from pg_tables where schemaname='public' and tablename not like '\_test\_%' order by 1" | tr '\n' ' ' | sed 's/ $//')
   chk "danh sách bảng public" "$t" "audit_log goose_db_version idempotency_keys jobs outbox users"
   chk "bảng nghiệp vụ ngoài phạm vi (courses/enrollments/documents/notifications)" \
       "$($PSQL -c "select count(*) from pg_tables where schemaname='public' and tablename in ('courses','enrollments','documents','notifications')")" 0
 }
 tc_pg02_02() {  # AC1 — 3 enum đúng tên và đúng thứ tự nhãn (SRS 5.0)
-  need_fresh
   chk "danh sách enum" "$($PSQL -c "select typname from pg_type t join pg_namespace n on n.oid=typnamespace where nspname='public' and typtype='e' order by 1" | tr '\n' ' ' | sed 's/ $//')" "job_status user_role user_status"
   chk "user_role"   "$($PSQL -c "select enum_range(null::user_role)::text")"   '{ADMIN,TEACHER,TA,STUDENT}'
   chk "user_status" "$($PSQL -c "select enum_range(null::user_status)::text")" '{PENDING_VERIFICATION,INVITED,ACTIVE,DISABLED}'
   chk "job_status"  "$($PSQL -c "select enum_range(null::job_status)::text")"  '{QUEUED,RUNNING,SUCCEEDED,FAILED}'
 }
 tc_pg02_03() {  # AC1 — extension vector
-  need_fresh
   chk "extension vector" "$($PSQL -c "select extname from pg_extension where extname='vector'")" vector
 }
 
@@ -167,13 +152,11 @@ tc_pg02_18() { gt ./internal/store 'TestSchema_UsersConstraints'; }   # AC3 — 
 
 # ================= AC4 — 4 bảng còn lại, 17 index, uuidv7, các CHECK =================
 tc_pg02_19() {  # AC4 — đúng 17 index, đúng tên
-  need_fresh
-  local l; l=$($PSQL -c "select indexname from pg_indexes where schemaname='public' and tablename<>'goose_db_version' order by 1" | tr '\n' ' ' | sed 's/ $//')
+  local l; l=$($PSQL -c "select indexname from pg_indexes where schemaname='public' and tablename<>'goose_db_version' and tablename not like '\_test\_%' order by 1" | tr '\n' ' ' | sed 's/ $//')
   chk "số index" "$(printf '%s' "$l" | tr ' ' '\n' | grep -c .)" 17
   chk "danh sách index" "$l" "audit_log_actor_created_idx audit_log_course_created_idx audit_log_entity_idx audit_log_pkey idempotency_keys_created_idx idempotency_keys_pkey idempotency_keys_user_endpoint_key_key jobs_active_idx jobs_owner_created_idx jobs_pkey outbox_pending_idx outbox_pkey outbox_stale_idx users_email_key users_ics_token_key users_pkey users_student_code_idx"
 }
 tc_pg02_20() {  # AC4 — định nghĩa index: UNIQUE, partial WHERE, DESC (SRS 5.1–5.5)
-  need_fresh
   local d
   d=$(idef users_email_key);        chk_re 'users_email_key UNIQUE (email)' "$d" 'CREATE UNIQUE INDEX.*\(email\)'; chk_nre 'users_email_key không partial' "$d" 'WHERE'
   d=$(idef users_ics_token_key);    chk_re 'users_ics_token_key UNIQUE partial' "$d" 'CREATE UNIQUE INDEX.*\(ics_token\) WHERE \(ics_token IS NOT NULL\)'
@@ -195,7 +178,7 @@ tc_pg02_20() {  # AC4 — định nghĩa index: UNIQUE, partial WHERE, DESC (SRS
   d=$(idef idempotency_keys_created_idx); chk_re 'idempotency_keys_created_idx' "$d" '\(created_at\)'
 }
 tc_pg02_21() {  # AC4 — 5 khoá chính uuid mặc định uuidv7()
-  chk "cột id mặc định uuidv7()" "$($PSQL -c "select count(*) from information_schema.columns where table_schema='public' and column_name='id' and column_default='uuidv7()'")" 5
+  chk "cột id mặc định uuidv7()" "$($PSQL -c "select count(*) from information_schema.columns where table_schema='public' and table_name not like '\_test\_%' and column_name='id' and column_default='uuidv7()'")" 5
   chk "PK là cột id kiểu uuid (5 bảng)" "$($PSQL -c "select count(*) from pg_index i join pg_class c on c.oid=i.indrelid join pg_attribute a on a.attrelid=c.oid and a.attnum=any(i.indkey) where i.indisprimary and c.relname in ('users','audit_log','outbox','jobs','idempotency_keys') and a.attname='id' and format_type(a.atttypid,-1)='uuid'")" 5
 }
 tc_pg02_22() {  # AC4 — cột audit_log (SRS 5.2), không có updated_at
@@ -347,7 +330,7 @@ tc_pg02_38() { gt ./internal/store 'TestSchema_AuditAppendOnly'; }   # AC5 — t
 
 # ================= AC6 — goose hai chiều =================
 tc_pg02_39() {  # AC6 — pg_dump trước / sau (down && up) giống hệt
-  need_fresh
+  # pg_dump so chính nó: bảng thử `_test_items` (nếu có) không đổi giữa hai lần dump nên không cần DB sạch.
   local a=$QC_OUT/tc-pg02-39-a.sql b=$QC_OUT/tc-pg02-39-b.sql rcd rcu
   $C exec -T postgres pg_dump -U edupilot -d edupilot -s > "$a" 2>/dev/null
   mig down; rcd=$?
@@ -359,7 +342,6 @@ tc_pg02_39() {  # AC6 — pg_dump trước / sau (down && up) giống hệt
   else fail_tc "lược đồ đổi sau down+up — xem $QC_OUT/tc-pg02-39.diff"; head -20 "$QC_OUT/tc-pg02-39.diff" | sed 's/^/      /'; fi
 }
 tc_pg02_40() {  # AC6 — sau `down`: 5 bảng biến mất, extension vector GIỮ LẠI
-  need_fresh
   local rcd n v rcu
   mig down; rcd=$?
   n=$($PSQL -c "select count(*) from pg_tables where schemaname='public' and tablename in ('users','audit_log','outbox','jobs','idempotency_keys')")
@@ -373,17 +355,15 @@ tc_pg02_40() {  # AC6 — sau `down`: 5 bảng biến mất, extension vector GI
   chk "5 bảng trở lại sau up" "$($PSQL -c "select count(*) from pg_tables where schemaname='public' and tablename in ('users','audit_log','outbox','jobs','idempotency_keys')")" 5
 }
 tc_pg02_41() {  # AC6 — `migrate up` lần hai là no-op, mã 0
-  need_fresh
   local n0 n1 rc
   n0=$($PSQL -c "select count(*) from goose_db_version")
   mig up; rc=$?
   n1=$($PSQL -c "select count(*) from goose_db_version")
   chk "migrate up lần hai rc" "$rc" 0
   chk "goose_db_version không thêm dòng" "$n1" "$n0"
-  chk "vẫn đúng 5 bảng + goose_db_version" "$($PSQL -c "select count(*) from pg_tables where schemaname='public'")" 6
+  chk "vẫn đúng 5 bảng + goose_db_version" "$($PSQL -c "select count(*) from pg_tables where schemaname='public' and tablename not like '\_test\_%'")" 6
 }
 tc_pg02_42() {  # AC6 — version_id mới nhất = 1
-  need_fresh
   chk "goose_db_version.version_id mới nhất" "$($PSQL -c "select version_id from goose_db_version where is_applied order by id desc limit 1")" 1
 }
 tc_pg02_43() { gt ./db 'TestMigrations_RoundTrip'; }   # AC6 — test Go của AC
@@ -524,7 +504,7 @@ tc_pg02_60() {  # AC13 (hộp đen) — commit: jobs + outbox job.enqueue cùng 
 tc_pg02_61() { gt ./internal/platform/outbox 'TestOutbox_TwoWorkers_ExactlyOnce'; }
 tc_pg02_62() {  # AC14 (hộp đen, ~1–2 phút) — 100 job, hai worker: mọi dòng dispatched, không trùng, không dead
   ensure_mode test
-  local t0 dead0 dead1 i n202 tot undisp maxatt succ done100 pend w el s0
+  local t0 dead0 dead1 i n202 tot undisp maxatt succ done100 pend xdisp w el s0
   $CT up -d --scale worker=2 --wait worker >/dev/null 2>&1
   w=$($C ps -q worker | grep -c .)
   dead0=$(xlen outbox.dispatch.dead)
@@ -544,7 +524,8 @@ tc_pg02_62() {  # AC14 (hộp đen, ~1–2 phút) — 100 job, hai worker: mọi
   maxatt=$($PSQL -c "select coalesce(max(attempts),0) from outbox where created_at > '$t0'")
   succ=$($PSQL -c "select count(*) from jobs where created_at > '$t0' and kind='test.progress' and status='SUCCEEDED'")
   done100=$($PSQL -c "select count(*) from jobs where created_at > '$t0' and kind='test.progress' and progress=100")
-  pend=$(xpend outbox.dispatch outbox); dead1=$(xlen outbox.dispatch.dead)
+  sleep 10                                   # lặng 10 s: consumer XACK rồi XDEL (US.md 02-AC15 "Làm rõ" #Q-QC-02-6)
+  pend=$(xpend outbox.dispatch outbox); dead1=$(xlen outbox.dispatch.dead); xdisp=$(xlen outbox.dispatch)
   $CT up -d --scale worker=1 --wait worker >/dev/null 2>&1   # khôi phục TRƯỚC khi chấm
   wait_ready 90
   chk "số worker lúc chạy" "$w" 2
@@ -552,18 +533,19 @@ tc_pg02_62() {  # AC14 (hộp đen, ~1–2 phút) — 100 job, hai worker: mọi
   chk "dòng outbox job.enqueue mới" "$tot" 100
   echo "    thời gian tới khi dispatched hết: ${el}s"
   chk "dòng outbox chưa dispatched" "$undisp" 0
-  chk_le "thời gian dispatched hết (giây, ngưỡng QC 30 s — AC ghi 10 s cho test Go, xem Q-QC-02-2)" "$el" 30
+  chk_le "thời gian dispatched hết (giây; ngưỡng stack compose thật ≤ 30 s — US.md 02-AC14 \"Làm rõ\" #Q-QC-02-2, 10 s chỉ cho test Go)" "$el" 30
   chk "max(attempts) (0 = handler chạy đúng 1 lần mỗi dòng)" "$maxatt" 0
   chk "job SUCCEEDED" "$succ" 100
   chk "job progress=100" "$done100" 100
   chk "XPENDING outbox.dispatch outbox" "$pend" 0
+  chk "XLEN outbox.dispatch sau 10 s lặng (đã XACK + XDEL)" "$xdisp" 0
   chk "XLEN outbox.dispatch.dead không đổi" "$dead1" "$dead0"
 }
 
 # ================= AC15 — retry rồi dead-letter =================
 tc_pg02_63() { gt ./internal/platform/outbox 'TestOutbox_RetryThenDead|TestOutbox_PanicIsFailure|TestOutbox_UnknownTopicDead'; }
 tc_pg02_64() {  # AC15 (hộp đen, ~60–90 s) — topic chưa đăng ký: 4 lần gọi rồi dead-letter (SRS 3.4)
-  local id dead0 dead1 pend
+  local id dead0 dead1 pend xdisp
   dead0=$(xlen outbox.dispatch.dead)
   id=$(ac15_dead_row)
   chk_re "tạo được dòng outbox topic lạ" "$id" '^[0-9a-f-]{36}$'
@@ -580,8 +562,10 @@ tc_pg02_64() {  # AC15 (hộp đen, ~60–90 s) — topic chưa đăng ký: 4 l�
   chk_ge "tin dead-letter có trường topic" "$(grep -c 'topic' "$QC_OUT/tc-pg02-64.dead")" 1
   chk_ge "tin dead-letter có trường error" "$(grep -c 'error' "$QC_OUT/tc-pg02-64.dead")" 1
   chk_ge "tin dead-letter nêu topic qc.unknown.topic" "$(grep -c 'qc.unknown.topic' "$QC_OUT/tc-pg02-64.dead")" 1
-  pend=$(xpend outbox.dispatch outbox)
+  sleep 10                                   # lặng 10 s rồi mới đo stream (US.md 02-AC15 "Làm rõ" #Q-QC-02-6)
+  pend=$(xpend outbox.dispatch outbox); xdisp=$(xlen outbox.dispatch)
   chk "XPENDING outbox.dispatch outbox (tin gốc đã XACK)" "$pend" 0
+  chk "XLEN outbox.dispatch sau 10 s lặng (XACK rồi XDEL)" "$xdisp" 0
   chk_re "worker vẫn sống sau topic lạ" "$($C ps --format '{{.Service}} {{.Health}}' | grep '^worker')" 'healthy'
 }
 tc_pg02_65() {  # AC15 / SRS 5.3 — last_error ≤ 1000 ký tự và KHÔNG chứa PII của payload
@@ -647,6 +631,21 @@ tc_pg02_69() {  # AC17 — idempotency_keys khoá theo user_id (US-PG-03 AC12)
   chk_re "chèn được 2 dòng" "$o" '^2$'
   sql_err "cùng user + cùng endpoint + cùng key" 23505 idempotency_keys_user_endpoint_key_key \
     "insert into idempotency_keys(user_id,endpoint,key,request_hash,status_code,response) values('$U1','POST /api/v1/_test/items','$IDEM','h',201,'{}'::jsonb); insert into idempotency_keys(user_id,endpoint,key,request_hash,status_code,response) values('$U1','POST /api/v1/_test/items','$IDEM','h2',200,'{}'::jsonb)"
+}
+
+# ================= AC1/AC4 ở chế độ test — phép đếm loại `\_test\_%` vẫn đúng (US.md "Làm rõ" #Q-QC-02-3) =================
+tc_pg02_70() {  # chế độ test (có `_test_items`): 5 bảng nền + goose_db_version, 17 index, 5 cột id uuidv7()
+  ensure_mode test
+  local ntest
+  ntest=$($PSQL -c "select count(*) from pg_tables where schemaname='public' and tablename like '\_test\_%'")
+  chk_ge "bảng thử _test_% đang tồn tại (điều kiện để phép đo có nghĩa)" "$ntest" 1
+  chk "bảng public sau khi loại _test_%" \
+      "$($PSQL -c "select tablename from pg_tables where schemaname='public' and tablename not like '\_test\_%' order by 1" | tr '\n' ' ' | sed 's/ $//')" \
+      "audit_log goose_db_version idempotency_keys jobs outbox users"
+  chk "số index sau khi loại _test_%" \
+      "$($PSQL -c "select count(*) from pg_indexes where schemaname='public' and tablename<>'goose_db_version' and tablename not like '\_test\_%'")" 17
+  chk "cột id mặc định uuidv7() sau khi loại _test_%" \
+      "$($PSQL -c "select count(*) from information_schema.columns where table_schema='public' and table_name not like '\_test\_%' and column_name='id' and column_default='uuidv7()'")" 5
 }
 
 main 02 "$@"

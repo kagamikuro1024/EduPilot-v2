@@ -15,6 +15,7 @@ RBS=$GW/api/v1/_test/rbac/staff
 CRS=$GW/api/v1/_test/courses                # $CRS/<courseId>/ping
 CID=00000000-0000-7000-8000-0000000000aa    # courseId mẫu của AC7
 UUID_RE='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$'
+UUID7_RE='^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'   # uuid v7: nibble phiên bản = 7, biến thể RFC 4122
 JWT_RE='^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$'
 CLAIM_EMAIL=qc-claim@example.test           # user tạm của TC-PG04-32/33 (dọn ở cuối mỗi TC)
 SEC32=0123456789abcdef0123456789abcdef      # secret 32 byte cố định cho các TC chạy binary trần
@@ -54,11 +55,21 @@ call() {  # call <url> <giá trị header Authorization, hoặc "-" = không g�
 }
 jqf() { printf '%s' "$RBODY" | jq -r "$1" 2>/dev/null; }
 wwwa() { printf '%s\n' "$RHDR" | hval WWW-Authenticate; }
+# message cố định theo mã 401 (SRS 6.1 — QC questions #Q-QC-04-6): một chuỗi duy nhất cho mỗi mã
+MSG_UNAUTHENTICATED='Bạn cần đăng nhập để tiếp tục.'
+MSG_TOKEN_EXPIRED='Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.'
+MSG_TOKEN_INVALID='Phiên đăng nhập không hợp lệ.'
+msg401() { case $1 in                        # msg401 <code> → message bắt buộc
+  UNAUTHENTICATED) printf '%s' "$MSG_UNAUTHENTICATED";;
+  TOKEN_EXPIRED)   printf '%s' "$MSG_TOKEN_EXPIRED";;
+  TOKEN_INVALID)   printf '%s' "$MSG_TOKEN_INVALID";;
+esac; }
 chk401() {  # chk401 <mô tả> <giá trị header Authorization (hoặc "-")> <code mong đợi> [url]
   local d=$1 w
   call "${4:-$JOB}" "$2"
   chk "$d · status" "$RCODE" 401
   chk "$d · code" "$(jqf '.code // "?"')" "$3"
+  chk "$d · message cố định" "$(jqf '.message // "?"')" "$(msg401 "$3")"
   w=$(wwwa)
   chk_re "$d · WWW-Authenticate realm" "$w" 'Bearer realm="edupilot"'
   case $3 in
@@ -198,7 +209,7 @@ tc_pg04_19() {  # AC2 — không / sai kiểu header Authorization → UNAUTHENT
   chk401 'Bearer rỗng ("Bearer ")' "Bearer " UNAUTHENTICATED
   chk401 'Authorization rỗng' "" UNAUTHENTICATED
 }
-tc_pg04_20() {  # AC2 — thân lỗi không lộ lý do: mọi TOKEN_INVALID cùng message, không nêu alg/iss/aud/signature
+tc_pg04_20() {  # AC2 — mọi TOKEN_INVALID có ĐÚNG message cố định của SRS 6.1, không nêu alg/iss/aud/signature
   local b f=$QC_OUT/tc-pg04-20.msg m
   : > "$f"
   for b in "$(mkjwt "$HJWT" "$(pay 900)" HS256 "$SEC_OTHER")" \
@@ -213,19 +224,20 @@ tc_pg04_20() {  # AC2 — thân lỗi không lộ lý do: mọi TOKEN_INVALID c�
   done
   chk "số message khác nhau giữa các TOKEN_INVALID" "$(sort -u "$f" | grep -c . | tr -d ' ')" 1
   m=$(sort -u "$f" | head -1)
+  chk "message TOKEN_INVALID đúng chuỗi cố định (SRS 6.1)" "$m" "$MSG_TOKEN_INVALID"
   chk_nre "message không nêu lý do kỹ thuật" "$m" '[Aa][Ll][Gg]|HS256|HS512|RS256|[Ss]ignature|chữ ký|"iss"|"aud"|"nbf"|"exp"|base64|JWT|[Cc]laim'
   chk_nre "message không chứa token" "$m" 'eyJ'
 }
 tc_pg04_21() {  # AC2 + SRS 3.4 "không truy DB" — Postgres dừng, 401 vẫn đúng mã
   local pg o1 o2 o3; pg=$($C ps -q postgres)
   docker pause "$pg" >/dev/null 2>&1
-  o1=$(curl -sk --max-time 20 -H "Authorization: Bearer $(tok STUDENT $U1 --ttl -1m)" "$JOB" | jq -r '.code // "?"')
-  o2=$(curl -sk --max-time 20 -H "Authorization: Bearer garbage" "$JOB" | jq -r '.code // "?"')
-  o3=$(curl -sk --max-time 20 "$JOB" | jq -r '.code // "?"')
+  o1=$(curl -sk --max-time 20 -H "Authorization: Bearer $(tok STUDENT $U1 --ttl -1m)" "$JOB" | jq -r '[.code,.message]|join("|")')
+  o2=$(curl -sk --max-time 20 -H "Authorization: Bearer garbage" "$JOB" | jq -r '[.code,.message]|join("|")')
+  o3=$(curl -sk --max-time 20 "$JOB" | jq -r '[.code,.message]|join("|")')
   docker unpause "$pg" >/dev/null 2>&1; wait_ready 60
-  chk "DB dừng · token hết hạn" "$o1" TOKEN_EXPIRED
-  chk "DB dừng · token hỏng" "$o2" TOKEN_INVALID
-  chk "DB dừng · không token" "$o3" UNAUTHENTICATED
+  chk "DB dừng · token hết hạn" "$o1" "TOKEN_EXPIRED|$MSG_TOKEN_EXPIRED"
+  chk "DB dừng · token hỏng" "$o2" "TOKEN_INVALID|$MSG_TOKEN_INVALID"
+  chk "DB dừng · không token" "$o3" "UNAUTHENTICATED|$MSG_UNAUTHENTICATED"
 }
 tc_pg04_22() {  # AC2 — test Go bảng ≥ 14 dòng
   gt ./internal/auth 'TestVerify_Table'
@@ -241,10 +253,8 @@ tc_pg04_24() {  # AC3 — biên thật qua HTTP: hết hạn 3 s / 4 s → chấ
   c=$(code -H "Authorization: Bearer $(mkjwt "$HJWT" "$(pay 900)")" "$WHO");  chk "token mkjwt còn hạn (đối chứng dương)" "$c" 200
   c=$(code -H "Authorization: Bearer $(mkjwt "$HJWT" "$(pay -3)")" "$WHO");   chk "hết hạn 3 s (trong leeway)" "$c" 200
   c=$(code -H "Authorization: Bearer $(mkjwt "$HJWT" "$(pay -4)")" "$WHO");   chk "hết hạn 4 s (trong leeway)" "$c" 200
-  call "$WHO" "Bearer $(mkjwt "$HJWT" "$(pay -7)")"
-  chk "hết hạn 7 s · status" "$RCODE" 401; chk "hết hạn 7 s · code" "$(jqf '.code // "?"')" TOKEN_EXPIRED
-  call "$WHO" "Bearer $(mkjwt "$HJWT" "$(pay -10)")"
-  chk "hết hạn 10 s · status" "$RCODE" 401; chk "hết hạn 10 s · code" "$(jqf '.code // "?"')" TOKEN_EXPIRED
+  chk401 'hết hạn 7 s' "Bearer $(mkjwt "$HJWT" "$(pay -7)")" TOKEN_EXPIRED "$WHO"
+  chk401 'hết hạn 10 s' "Bearer $(mkjwt "$HJWT" "$(pay -10)")" TOKEN_EXPIRED "$WHO"
 }
 
 # ================= AC4 — danh tính từ claim, không truy DB =================
@@ -362,7 +372,7 @@ tc_pg04_37() {  # AC7 — courseId không phải uuid → 404 NOT_FOUND (JSON), 
   done
   chk "courseId uuid hợp lệ vẫn vào guard (403, không 404)" "$(code -H "Authorization: Bearer $t" "$CRS/$CID/ping")" 403
 }
-tc_pg04_38() {  # AC7 + AC2 — ẩn danh ở route guard → 401 (xác thực trước guard). Chờ Q-QC-04-3.
+tc_pg04_38() {  # AC7 + AC2 — ẩn danh ở route guard → 401 UNAUTHENTICATED (xác thực → RBAC → guard, US.md 04-AC7)
   ensure_mode test || fail_tc "không vào được chế độ test"
   chk401 "ẩn danh · guard ping" "-" UNAUTHENTICATED "$CRS/$CID/ping"
   chk401 "token hỏng · guard ping" "Bearer garbage" TOKEN_INVALID "$CRS/$CID/ping"
@@ -381,15 +391,19 @@ tc_pg04_40() {  # AC8 — test Go + chứng minh có nhánh 72/73 byte trong log
   chk_no "log test không chứa mật khẩu rõ '$PW'" grep -q -- "$PW" "$l"
   chk_no "log test không chứa chuỗi bcrypt" grep -qE '\$2[aby]\$[0-9]{2}\$' "$l"
 }
-tc_pg04_41() {  # AC8 (biên env) — BCRYPT_COST: 3 và 15 → thoát 1 nêu tên biến; 4 và 14 → chạy tiếp. Chờ Q-QC-04-4.
+tc_pg04_41() {  # AC8 (biên env) — BCRYPT_COST sai (ngoài 4–14 hoặc không nguyên) → thoát 1 nêu tên biến, KHÔNG kẹp; 4 và 14 hợp lệ
   local r rc l v
-  for v in 3 15; do
+  for v in 3 15 abc 12.5; do
     r=$(serve_rc "BCRYPT_COST=$v"); rc=${r%%|*}; l=${r#*|}
     chk "BCRYPT_COST=$v · rc" "$rc" 1
     chk_ok "BCRYPT_COST=$v · log nêu tên biến" grep -q BCRYPT_COST "$l"
+    chk "BCRYPT_COST=$v · không kẹp rồi chạy tiếp (không mở cổng)" \
+      "$(grep -ciE 'listening|serving|started' "$l" | tr -d ' ')" 0
   done
+  chk "BCRYPT_COST=abc · không in giá trị" \
+    "$(grep -c -- abc "$QC_OUT/serve-BCRYPT_COST_abc.log" | tr -d ' ')" 0
   for v in 4 14; do
-    chk "BCRYPT_COST=$v · tiến trình không thoát vì cấu hình (sống sau 3 s)" "$(serve_alive "BCRYPT_COST=$v" 3)" 1
+    chk "BCRYPT_COST=$v (biên hợp lệ) · tiến trình không thoát vì cấu hình (sống sau 3 s)" "$(serve_alive "BCRYPT_COST=$v" 3)" 1
   done
 }
 
@@ -480,18 +494,20 @@ tc_pg04_50() {  # AC11 — --role sai / thiếu → rc≠0, không in token
   chk_ne "thiếu --role · rc" "$rc" 0
   chk "thiếu --role · không in token" "$(cat "$o" "$e" | grep -cE "$JWT_RE" | tr -d ' ')" 0
 }
-tc_pg04_51() {  # AC11 — --ttl hỏng → không âm thầm cấp token. Chờ Q-QC-04-2.
-  local o=$QC_OUT/tc-pg04-51.out e=$QC_OUT/tc-pg04-51.err rc
-  JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role ADMIN --ttl abc >"$o" 2>"$e"; rc=$?
-  chk_ne "--ttl abc · rc" "$rc" 0
-  chk "--ttl abc · không in token" "$(cat "$o" "$e" | grep -cE "$JWT_RE" | tr -d ' ')" 0
-  JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role ADMIN --ttl '' >"$o" 2>"$e"; rc=$?
-  chk_ne "--ttl rỗng · rc" "$rc" 0
+tc_pg04_51() {  # AC11 — --ttl sai định dạng → thoát 1, thông báo nêu `--ttl`, stdout rỗng (US.md 04-AC11)
+  local o=$QC_OUT/tc-pg04-51.out e=$QC_OUT/tc-pg04-51.err rc v
+  for v in abc ''; do
+    JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role ADMIN --ttl "$v" >"$o" 2>"$e"; rc=$?
+    chk "--ttl '$v' · rc" "$rc" 1
+    chk_ok "--ttl '$v' · thông báo nêu --ttl" grep -q -- '--ttl' "$o" "$e"
+    chk "--ttl '$v' · stdout rỗng" "$(wc -c <"$o" | tr -d ' ')" 0
+    chk "--ttl '$v' · không in token" "$(cat "$o" "$e" | grep -cE "$JWT_RE" | tr -d ' ')" 0
+  done
 }
-tc_pg04_52() {  # AC11 + AC1 — cờ tuỳ chọn: bỏ --sub → sub vẫn là uuid; --email vào đúng claim
+tc_pg04_52() {  # AC11 + AC1 — cờ tuỳ chọn: bỏ --sub → sub là uuid v7; --email/--sub vào đúng claim
   local t p
   t=$(JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role TEACHER); p=$(jwt_part "$t" 2)
-  chk_re "bỏ --sub → claim sub là uuid" "$(printf '%s' "$p" | jq -r .sub)" "$UUID_RE"
+  chk_re "bỏ --sub → claim sub là uuid v7" "$(printf '%s' "$p" | jq -r .sub)" "$UUID7_RE"
   t=$(JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role TEACHER); chk_ne "hai lần cấp cho hai jti khác nhau" \
     "$(jwt_part "$t" 2 | jq -r .jti)" "$(printf '%s' "$p" | jq -r .jti)"
   t=$(JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role TA --sub "$U2" --email qc-tc52@example.test)
@@ -526,6 +542,36 @@ tc_pg04_55() {  # AC12 — 200 request song song, 4 token (4 vai, 2 sub): không
   chk "TA · giá trị duy nhất" "$(sort -u "$QC_OUT/tc-pg04-55.TA")" "$U2|TA"
   chk "STUDENT · số phản hồi" "$(grep -c . "$QC_OUT/tc-pg04-55.STUDENT" | tr -d ' ')" 50
   chk "STUDENT · giá trị duy nhất" "$(sort -u "$QC_OUT/tc-pg04-55.STUDENT")" "$U2|STUDENT"
+}
+
+# ================= TC bổ sung theo spec v1.2 (QC questions #Q-QC-04-1, #Q-QC-04-5) =================
+tc_pg04_56() {  # AC2 — tên scheme KHÔNG phân biệt hoa thường (RFC 7235): "bearer" và "BEARER" → 200
+  ensure_mode test || fail_tc "không vào được chế độ test"
+  local t s; t=$(tok STUDENT $U1)
+  for s in bearer BEARER Bearer; do
+    call "$WHO" "$s $t"
+    chk "scheme '$s' · status" "$RCODE" 200
+    chk "scheme '$s' · danh tính" "$(jqf '[.sub,.role]|join("|")')" "$U1|STUDENT"
+  done
+}
+tc_pg04_57() {  # AC11 — --sub không phải uuid → thoát 1, nêu --sub, stdout rỗng
+  local o=$QC_OUT/tc-pg04-57.out e=$QC_OUT/tc-pg04-57.err rc v
+  for v in khong-phai-uuid 00000000-0000-7000-8000-00000000000; do
+    JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role ADMIN --sub "$v" >"$o" 2>"$e"; rc=$?
+    chk "--sub '$v' · rc" "$rc" 1
+    chk_ok "--sub '$v' · thông báo nêu --sub" grep -q -- '--sub' "$o" "$e"
+    chk "--sub '$v' · stdout rỗng" "$(wc -c <"$o" | tr -d ' ')" 0
+    chk "--sub '$v' · không in token" "$(cat "$o" "$e" | grep -cE "$JWT_RE" | tr -d ' ')" 0
+  done
+}
+tc_pg04_58() {  # AC11 + AC1 — bỏ --sub → uuid v7 NGẪU NHIÊN (nibble phiên bản = 7, hai lần cấp hai giá trị khác nhau)
+  local s1 s2
+  s1=$(JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role STUDENT | { read -r t; jwt_part "$t" 2; } | jq -r .sub)
+  s2=$(JWT_SECRET_KEY="$SECRET" "$GWBIN" token --role STUDENT | { read -r t; jwt_part "$t" 2; } | jq -r .sub)
+  chk_re "lần 1 · sub là uuid v7" "$s1" "$UUID7_RE"
+  chk_re "lần 2 · sub là uuid v7" "$s2" "$UUID7_RE"
+  chk "nibble phiên bản của sub" "$(printf '%s' "$s1" | cut -d- -f3 | cut -c1)" 7
+  chk_ne "hai lần bỏ --sub cho hai sub khác nhau (ngẫu nhiên)" "$s1" "$s2"
 }
 
 main 04 "$@"
