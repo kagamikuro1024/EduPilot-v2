@@ -35,3 +35,7 @@ F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh tc_02_01 
 
 ## Nợ / chưa làm / cần hỏi
 - Công tắc "Giả lập mất mạng" là mô phỏng phía client qua state cờ tạm.
+
+## Cập nhật theo spec v4 (Proposals #15, #16)
+- Phân định rõ 2 panel độc lập ở `/inbox` (FR-X11, 02-AC5): cột danh sách ticket (bên trái, max 380px) và panel chi tiết ticket (bên phải), đều có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc `var(--ep-radius-md)`, padding đầy đủ, cuộn riêng biệt.
+- Thao tác kiểm duyệt câu trả lời AI ở `/threads/[id]` cho GV/TA (02-AC8): Chỉnh sửa câu trả lời inline → Lưu và xác nhận (`Đã được giảng viên sửa & xác nhận`), hiển thị đối chiếu câu trả lời AI gốc; Xác nhận (`Đã được giảng viên xác nhận`); Loại khỏi tri thức kèm thanh Hoàn tác.

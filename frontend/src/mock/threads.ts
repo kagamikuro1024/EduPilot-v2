@@ -237,6 +237,36 @@ export const THREAD_TOPICS = [...new Set(THREADS.map((t) => t.topic))];
 /** Lý do báo cáo một bài viết (SV chọn một lý do rồi gửi). */
 export const REPORT_REASONS = ["Sai kiến thức", "Lộ thông tin cá nhân", "Nội dung không phù hợp", "Spam hoặc lặp lại"];
 
+export type ThreadReply = {
+  id: string;
+  threadId: string;
+  author: string;
+  role: PostAuthor;
+  body: string;
+  minsAgo: number;
+};
+
+export type ThreadModeration = {
+  state: "pending" | "verified" | "corrected" | "removed";
+  verifiedBy?: string;
+  editedBody?: string;
+  originalBody?: string;
+};
+
+export const THREAD_REPLIES_KEY = "threads.replies";
+export const THREAD_MODERATION_KEY = "threads.moderation";
+
 /** Bài mới do người dùng đăng trong phiên demo (lát trạng thái "threads.posts"). */
-export type NewThread = { id: string; title: string; body: string; topic: string; answered: boolean };
+export type NewThread = {
+  id: string;
+  courseId?: string;
+  title: string;
+  body: string;
+  topic: string;
+  answered: boolean;
+  askAi?: boolean;
+  authorName?: string;
+  authorRole?: PostAuthor;
+  createdAtMinsAgo?: number;
+};
 export const NEW_THREADS_KEY = "threads.posts";

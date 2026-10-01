@@ -3,27 +3,139 @@
 .pinNote { display: inline-flex; align-items: center; gap: var(--ep-space-1); }
 .pinNote svg { width: 13px; height: 13px; }
 
-.posts { list-style: none; margin: 0; padding: 0; display: grid; }
-.post { display: grid; gap: var(--ep-space-3); padding: var(--ep-space-6) 0; border-top: 1px solid var(--ep-rule); }
-.post:first-child { border-top: 0; padding-top: 0; }
-.verified { border-left: 1px solid var(--ep-green); padding-left: var(--ep-space-5); }
-.draft { border-left: 1px solid var(--ep-rule); padding-left: var(--ep-space-5); }
+/* Panel tạo thread mới (Proposal #15, #16) */
+.createPanel {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-6);
+  display: grid;
+  gap: var(--ep-space-4);
+}
+
+.createActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ep-space-4);
+  flex-wrap: wrap;
+  padding-top: var(--ep-space-2);
+}
+
+.checkboxRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+}
+
+/* Danh sách thread */
+.posts { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ep-space-4); }
+
+/* Khung chi tiết thread (Proposal #16 - Panel riêng) */
+.detailContainer {
+  display: grid;
+  gap: var(--ep-space-6);
+}
+
+.questionPanel {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-6);
+  display: grid;
+  gap: var(--ep-space-4);
+}
+
+.aiPanel {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-left: 3px solid var(--ep-amber);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-6);
+  display: grid;
+  gap: var(--ep-space-4);
+  transition: border-color var(--ep-fast) var(--ep-ease-standard);
+}
+
+.aiPanelVerified {
+  border-left-color: var(--ep-green);
+  background: var(--ep-surface);
+}
+
+.replyPanel {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-5);
+  display: grid;
+  gap: var(--ep-space-3);
+}
+
+.replyComposerPanel {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-6);
+  display: grid;
+  gap: var(--ep-space-4);
+}
+
 .postHead { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-2) var(--ep-space-4); }
-.author { font-size: var(--ep-text-label); font-weight: 600; }
+.author { font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink); }
 .postMeta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .verifiedLabel { display: inline-flex; align-items: center; gap: var(--ep-space-1); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-green); }
 .verifiedLabel svg { width: 14px; height: 14px; }
-.body { margin: 0; line-height: 1.65; max-width: 68ch; white-space: pre-wrap; }
+.correctedLabel { display: inline-flex; align-items: center; gap: var(--ep-space-1); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-blue); }
+.correctedLabel svg { width: 14px; height: 14px; }
+.body { margin: 0; line-height: 1.65; max-width: 72ch; white-space: pre-wrap; font-size: var(--ep-text-body); color: var(--ep-ink); }
 
-.cites { list-style: none; margin: 0; padding: 0; display: grid; max-width: 56ch; }
-.cites li { display: grid; gap: var(--ep-space-0_5); padding: var(--ep-space-2) 0; border-top: 1px solid var(--ep-rule); }
-.cites li:last-child { border-bottom: 1px solid var(--ep-rule); }
-.citeTitle { font-size: var(--ep-text-label); }
+/* Trích dẫn có thể bấm xem chi tiết */
+.citesHeader { font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink-2); margin-top: var(--ep-space-2); }
+.cites { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ep-space-2); max-width: 68ch; }
+.citeItem {
+  display: grid;
+  gap: var(--ep-space-1);
+  padding: var(--ep-space-3) var(--ep-space-4);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-sm);
+  background: var(--ep-surface-subtle);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--ep-fast) var(--ep-ease-standard), background-color var(--ep-fast) var(--ep-ease-standard);
+}
+.citeItem:hover {
+  border-color: var(--ep-ink-3);
+  background: var(--ep-surface);
+}
+.citeTitle { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink); }
 .citeMeta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.citeSnippet { font-size: var(--ep-text-meta); color: var(--ep-ink-2); line-height: 1.5; padding-top: var(--ep-space-1); border-top: 1px dashed var(--ep-rule); }
 
-.postActions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-2); min-height: 44px; }
-.editBox { display: grid; gap: var(--ep-space-2); width: 100%; max-width: 60ch; }
+.postActions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-2); min-height: 40px; }
+.editBox { display: grid; gap: var(--ep-space-3); width: 100%; max-width: 68ch; }
 .editActions { display: flex; gap: var(--ep-space-2); }
+
+.originalAnswerToggle {
+  font-size: var(--ep-text-meta);
+  color: var(--ep-ink-2);
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: var(--ep-space-1) 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-align: left;
+}
+.originalAnswerToggle:hover { color: var(--ep-ink); }
+.originalAnswerBox {
+  padding: var(--ep-space-3);
+  background: var(--ep-surface-subtle);
+  border-radius: var(--ep-radius-sm);
+  font-size: var(--ep-text-label);
+  line-height: 1.6;
+  color: var(--ep-ink-2);
+  border-left: 2px solid var(--ep-rule);
+}
 
 .reportPanel { display: grid; padding: var(--ep-space-2); }
 .reportLabel { margin: 0 0 var(--ep-space-1); padding: 0 var(--ep-space-2); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); }
@@ -46,4 +158,5 @@
 
 @media (max-width: 719px) {
   .search { min-width: 0; width: 100%; }
+  .createActions { flex-direction: column; align-items: stretch; }
 }

@@ -3,8 +3,7 @@
 import { Pin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { scanPersonal } from "@/mock/chat";
-import { ago, at } from "@/mock/core";
+import { redact, scanPersonal } from "@/mock/chat";
 import { KEYS, type InsightThread } from "@/mock/state";
 import { NEW_THREADS_KEY, THREADS, THREAD_TOPICS, type NewThread, type Thread } from "@/mock/threads";
 import { CHAT_DRAFT_KEY } from "@/features/chat/ChatScreen";
@@ -13,17 +12,21 @@ import { useDemoSlice } from "@/shared/state/demo";
 import {
   ActionList,
   ActionRow,
+  Button,
   ButtonLink,
-  Composer,
+  Checkbox,
   EmptyState,
+  Field,
   FilterChips,
   Input,
   Page,
   PageHeader,
   PageState,
   Section,
+  Select,
   Skeleton,
   StatusText,
+  Textarea,
   Toolbar,
 } from "@/shared/ui";
 import { PIIChannelDialog } from "./PIIChannelDialog";
@@ -35,35 +38,59 @@ const ANSWER_LABEL = {
   none: { tone: "neutral", text: "Chưa có câu trả lời" },
 } as const;
 
-/** Threads: đọc và đặt câu hỏi công khai của lớp (DESIGN §14.3). */
+/** Threads: đọc và đặt câu hỏi công khai của lớp (DESIGN §14.3, Proposals #15, #16). */
 export function ThreadsScreen() {
-  const { role, course } = useSession();
+  const { role, user, course } = useSession();
   const router = useRouter();
   const [posts, setPosts] = useDemoSlice<NewThread[]>(NEW_THREADS_KEY, []);
   const [pinned] = useDemoSlice<InsightThread[]>(KEYS.insightThreads, []);
   const [, setChatDraft] = useDemoSlice<string>(CHAT_DRAFT_KEY, "");
-  const [draft, setDraft] = useState("");
-  const [guard, setGuard] = useState<{ text: string; reasons: string[] } | null>(null);
+
+  // Form tạo thread mới (Proposal #15)
+  const [title, setTitle] = useState("");
+  const [topic, setTopic] = useState(THREAD_TOPICS[0] ?? "Mật mã đối xứng");
+  const [content, setContent] = useState("");
+  const [askAi, setAskAi] = useState(true);
+
+  const [guard, setGuard] = useState<{ title: string; content: string; reasons: string[] } | null>(null);
   const [query, setQuery] = useState("");
   const [topics, setTopics] = useState<string[]>([]);
 
   const coursePinned = pinned.filter((p) => p.courseId === course.id);
 
-  function publish(text: string) {
+  function publish(cleanTitle: string, cleanContent: string) {
     const id = `t-new-${Date.now()}`;
-    const title = text.length > 80 ? `${text.slice(0, 80).trimEnd()}…` : text;
-    setPosts((prev) => [{ id, title, body: text, topic: "Câu hỏi của bạn", answered: false }, ...prev]);
-    setDraft("");
+    const newPost: NewThread = {
+      id,
+      courseId: course.id,
+      title: cleanTitle.trim(),
+      body: cleanContent.trim(),
+      topic,
+      answered: askAi,
+      askAi,
+      authorName: user.name || "Bạn",
+      authorRole: role === "teacher" || role === "ta" ? "teacher" : "student",
+      createdAtMinsAgo: 0,
+    };
+    setPosts((prev) => [newPost, ...prev]);
+    setTitle("");
+    setContent("");
     setGuard(null);
-    window.setTimeout(() => setPosts((prev) => prev.map((p) => (p.id === id ? { ...p, answered: true } : p))), 2000);
+    // Chuyển hướng ngay lập tức sang /threads/${id} (Proposal #15, 01-AC4)
+    router.push(`/threads/${id}`);
   }
 
   function submit() {
-    const text = draft.trim();
-    if (!text) return;
-    const found = scanPersonal(text);
-    if (found.count > 0) setGuard({ text, reasons: found.reasons });
-    else publish(text);
+    const t = title.trim();
+    const c = content.trim();
+    if (!t || !c) return;
+    const fullText = `${t}\n${c}`;
+    const found = scanPersonal(fullText);
+    if (found.count > 0) {
+      setGuard({ title: t, content: c, reasons: found.reasons });
+    } else {
+      publish(t, c);
+    }
   }
 
   const rows = THREADS.filter((t) => t.courseId === course.id)
@@ -81,14 +108,55 @@ export function ThreadsScreen() {
 
       {role === "student" && (
         <Section title="Đặt câu hỏi" description="Hỏi về nội dung môn học. Đừng ghi mã số sinh viên hay điểm cá nhân — chuyện riêng hỏi ở Chat riêng.">
-          <Composer
-            value={draft}
-            onChange={setDraft}
-            onSubmit={submit}
-            submitLabel="Đăng câu hỏi"
-            label="Nội dung câu hỏi"
-            placeholder="Ví dụ: Vì sao CBC cần véc-tơ khởi tạo ngẫu nhiên?"
-          />
+          <div className={s.createPanel}>
+            <Field label="Tiêu đề câu hỏi" required helper="Tóm tắt ngắn gọn thắc mắc của bạn">
+              {(id) => (
+                <Input
+                  id={id}
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="Ví dụ: Vì sao CBC cần véc-tơ khởi tạo ngẫu nhiên?"
+                />
+              )}
+            </Field>
+
+            <Field label="Chủ đề môn học" required>
+              {(id) => (
+                <Select id={id} value={topic} onChange={(e) => setTopic(e.target.value)}>
+                  {THREAD_TOPICS.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
+                </Select>
+              )}
+            </Field>
+
+            <Field label="Nội dung chi tiết câu hỏi" required helper="Mô tả bối cảnh và thắc mắc cụ thể. Đừng ghi MSSV hay điểm cá nhân.">
+              {(id) => (
+                <Textarea
+                  id={id}
+                  rows={4}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  placeholder="Mô tả chi tiết thắc mắc của bạn về kiến thức môn học..."
+                />
+              )}
+            </Field>
+
+            <div className={s.createActions}>
+              <div className={s.checkboxRow}>
+                <Checkbox
+                  label="Nhờ AI trả lời gợi ý (Socratic) ngay sau khi đăng"
+                  checked={askAi}
+                  onChange={(e) => setAskAi(e.target.checked)}
+                />
+              </div>
+              <Button variant="primary" onClick={submit} disabled={!title.trim() || !content.trim()}>
+                Đăng câu hỏi
+              </Button>
+            </div>
+          </div>
         </Section>
       )}
 
@@ -160,15 +228,23 @@ export function ThreadsScreen() {
 
       <PIIChannelDialog
         open={Boolean(guard)}
-        text={guard?.text ?? ""}
+        text={guard ? `${guard.title}\n\n${guard.content}` : ""}
         reasons={guard?.reasons ?? []}
         onClose={() => setGuard(null)}
         onPrivateChat={() => {
-          setChatDraft(guard?.text ?? "");
-          setGuard(null);
-          router.push("/chat");
+          if (guard) {
+            setChatDraft(`${guard.title}\n\n${guard.content}`);
+            setGuard(null);
+            router.push("/chat");
+          }
         }}
-        onRedactedPost={publish}
+        onRedactedPost={() => {
+          if (guard) {
+            const cleanTitle = redact(guard.title);
+            const cleanContent = redact(guard.content);
+            publish(cleanTitle, cleanContent);
+          }
+        }}
       />
     </Page>
   );
@@ -178,13 +254,13 @@ function SeedRow({ thread }: { thread: Thread }) {
   const a = ANSWER_LABEL[thread.answer];
   return (
     <ActionRow
-      lead={thread.pinned ? <Pin className={s.pin} aria-hidden /> : undefined}
       href={`/threads/${thread.id}`}
       title={thread.title}
-      context={thread.posts[0].body}
+      context={thread.posts[0]?.body ?? ""}
       meta={
         <>
-          {`Tuần ${thread.week} · ${thread.topic} · ${thread.replies} trả lời · ${ago(at(-thread.minsAgo))} · `}
+          {thread.pinned ? "Ghim · " : ""}
+          {`${thread.topic} · Tuần ${thread.week} · ${thread.replies} phản hồi · `}
           <StatusText tone={a.tone}>{a.text}</StatusText>
         </>
       }

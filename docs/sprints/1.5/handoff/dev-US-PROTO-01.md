@@ -40,3 +40,8 @@ F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh tc_01_01 
 ## Nợ / chưa làm / cần hỏi
 - Kịch bản What-if hiện tính theo công thức chuẩn đã chốt (QT 8,7 sau công bố, CK 8,0 → HP 8,3).
 - Phần xem trước PDF bài giảng trong Thư viện hiển thị trang giả lập dạng văn bản/khung xem trước.
+
+## Cập nhật theo spec v4 (Proposals #15, #16)
+- Form tạo thread mới (`ThreadsScreen.tsx`): đầy đủ Tiêu đề (Input bắt buộc), Chủ đề (Select `THREAD_TOPICS`), Nội dung chi tiết (Textarea bắt buộc), Checkbox "Nhờ AI trả lời gợi ý (Socratic) ngay sau khi đăng" (mặc định bật), nút Đăng câu hỏi (primary). Quét PII 2 lối. Đăng thành công chuyển hướng ngay sang `/threads/${id}` (01-AC4).
+- Chi tiết thread (`ThreadDetail.tsx`): cấu trúc 4 panel độc lập rõ ràng (câu hỏi gốc, câu trả lời AI, thảo luận, Reply Composer). Trích dẫn citations bấm mở rộng xem snippet đoạn trích.
+- Reply Composer ở cuối trang: nhập phản hồi, nút "Hỏi trợ lý AI" gợi ý Socratic, quét PII trước khi gửi (01-AC10).
