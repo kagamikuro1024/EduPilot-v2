@@ -29,7 +29,9 @@ tc_04(){ eq "$(ls seed/documents 2>/dev/null | xargs)" "Mordern_Network_Security
   eq "$(git ls-files data | wc -l | xargs)" 0 "không còn data/ ở gốc"
   for f in Mordern_Network_Security_Threats QMB12ch6b Quyche; do eq "$(git rev-parse $BASE:data/$f.pdf)" "$(git rev-parse HEAD:seed/documents/$f.pdf)" "PDF $f nguyên vẹn (cùng blob)"; done; }
 tc_05(){ eq "$(git ls-files frontend/src/shared/styles/tokens.css frontend/public/brand | wc -l | xargs)" 4 "tokens.css + 3 brand"
-  ok "tokens.css + brand không đổi so với base" git diff --quiet $BASE HEAD -- frontend/src/shared/styles/tokens.css frontend/public/brand; }
+  ok "brand không đổi so với base" git diff --quiet $BASE HEAD -- frontend/public/brand
+  # proposals #8 (PM chấp nhận): tokens.css được thêm đúng 1 chú thích ui-allow, không đổi gì khác
+  eq "$(git diff -U0 $BASE HEAD -- frontend/src/shared/styles/tokens.css | grep -E '^[+-][^+-]' | cut -c2- | sed -E 's#[[:space:]]*/\* ui-allow:.*\*/##' | sort | uniq -c | awk '$1!=2{n++} END{print n+0}')" 0 "tokens.css chỉ khác base ở chú thích ui-allow (proposals #8)"; }
 tc_06(){ local n; n=$(git log --follow --oneline -- legacy/backend-java/aitrogiang/build.gradle | wc -l | xargs); [ "$n" -ge 2 ] && pass "lịch sử còn ($n)" || fail "chỉ $n commit"
   n=$(git log --follow --oneline -- legacy/src/main.py 2>/dev/null | wc -l | xargs); echo "info: legacy/src/main.py -> $n commit (nếu file không tồn tại, bỏ qua)"; }
 tc_07(){ local bad; bad=$(git -c diff.renameLimit=5000 diff -M -C --find-copies-harder --name-status $BASE HEAD | awk '$NF ~ /^legacy\// && $1 !~ /^[RC]100/')
@@ -58,7 +60,7 @@ tc_09(){ local J; J=$($C config --format json) || { fail "compose config lỗi (
   eq "$(echo "$J" | jq -r '.volumes|keys|length>=3')" true "≥ 3 volume có tên"
   eq "$($C config --services | grep -ciE 'python|ai$')" 0 "không service Python/AI"; }
 tc_10(){ pnpm dev; eq "$?" 0 "pnpm dev exit"; }
-tc_11(){ local o; o=$(pnpm -s dev:status --format '{{.Service}} {{.Health}}' | sort)
+tc_11(){ local o; o=$(pnpm --silent dev:status --format '{{.Service}} {{.Health}}' | sort)
   eq "$(echo "$o" | wc -l | xargs)" 6 "6 dòng"; eq "$(echo "$o" | grep -c ' healthy$')" 6 "6 healthy"; echo "$o"; }
 tc_12(){ local h; h=$(curl -si localhost:8080/healthz); echo "$h" | head -1 | grep -q ' 200' && pass "200" || fail "status"
   echo "$h" | grep -qi '^content-type: application/json' && pass "content-type" || fail "content-type"
@@ -76,7 +78,7 @@ tc_14(){ local H; H=$(curl -s localhost:3000)
   echo "$H" | grep -q 'lang="vi"' && pass "lang=vi" || fail "lang=vi"
   echo "$H" | grep -q 'logo-edupilot' && pass "HTML tham chiếu logo-edupilot" || fail "không thấy logo"
   eq "$(curl -s -o /dev/null -w '%{http_code}' localhost:3000/brand/logo-edupilot.svg)" 200 "logo phục vụ được"
-  echo "$H" | LC_ALL=C grep -q '[^ -~]' && pass "có chữ có dấu (tiếng Việt)" || fail "không thấy ký tự non-ASCII"
+  echo "info: <title> = $(echo "$H" | grep -oE '<title>[^<]*' | sed 's/<title>//') (spec: trang trống, chỉ lang=vi + logo; không đòi chữ có dấu)"
   local css; css=$(echo "$H" | grep -oE '/_next/static/[^"]+\.css' | sort -u | while read -r u; do curl -s "localhost:3000$u"; done)
   echo "$css" | grep -q -- '--ep-' && pass "CSS có token --ep-*" || fail "CSS thiếu token --ep-*"
   echo "$css" | grep -qi 'Be Vietnam Pro' && pass "CSS có Be Vietnam Pro" || fail "CSS thiếu Be Vietnam Pro"
@@ -84,17 +86,19 @@ tc_14(){ local H; H=$(curl -s localhost:3000)
 tc_15(){ local g img; g=$($C ps -q gateway); local u; u=$(docker inspect -f '{{.Config.User}}' $g)
   case "$u" in ""|0|root|0:*|root:*) fail "gateway chạy root (User=[$u])";; *) pass "gateway non-root (User=$u)";; esac
   eq "$($C config --format json | jq -r '.services.gateway.healthcheck.test|join(" ")|test("curl|wget")')" false "healthcheck không dùng curl/wget"
-  eq "$(docker exec $g which curl >/dev/null 2>&1; echo $?)" 1 "image gateway không có curl (exit≠0)"; }
+  docker exec $g curl --version >/dev/null 2>&1 && fail "image gateway có curl" || pass "image gateway không có curl"; }
 tc_16(){ [ -f .env.local ] && cp .env.local /tmp/qc-env.local.bak; rm -f .env.local; pnpm dev >/dev/null 2>&1; local rc=$?
   eq "$rc" 0 "pnpm dev sau khi xoá .env.local"; ok ".env.local được tạo từ .env.example" diff -q .env.local .env.example
   ok ".env.local bị gitignore" git check-ignore -q .env.local
   [ -f /tmp/qc-env.local.bak ] && cp /tmp/qc-env.local.bak .env.local; }
-tc_17(){ pnpm dev:down >/dev/null 2>&1; python3 -m http.server 8080 >/dev/null 2>&1 & local p=$!; sleep 1
-  timeout_run(){ ( "$@" & q=$!; for _ in $(seq 600); do kill -0 $q 2>/dev/null || { wait $q; exit $?; }; sleep 1; done; kill -9 $q; exit 124 ); }
-  timeout_run pnpm dev >/tmp/qc-dev17.log 2>&1; local rc=$?; kill $p
-  [ $rc -ne 0 ] && [ $rc -ne 124 ] && pass "pnpm dev thoát mã $rc khi cổng 8080 bị chiếm" || fail "exit=$rc (0 = nuốt lỗi, 124 = treo)"; tail -5 /tmp/qc-dev17.log; pnpm dev:down >/dev/null 2>&1; }
-tc_18(){ local d; d=$(mktemp -d); ln -s "$(command -v node)" $d/node; ln -s "$(command -v pnpm)" $d/pnpm; ln -s "$(command -v git)" $d/git
-  PATH="$d" pnpm dev >/tmp/qc-dev18.log 2>&1; local rc=$?
+tc_17(){ pnpm dev:down >/dev/null 2>&1; [ -f .env.local ] && cp .env.local /tmp/qc-env17.bak
+  grep -vE '^(DATABASE_URL|REDIS_URL)=' /tmp/qc-env17.bak >.env.local   # gateway thiếu env → thoát 1 → không bao giờ healthy
+  ( pnpm dev >/tmp/qc-dev17.log 2>&1 & q=$!; for _ in $(seq 300); do kill -0 $q 2>/dev/null || { wait $q; echo $? >/tmp/qc-rc17; exit; }; sleep 1; done; kill -9 $q; echo 124 >/tmp/qc-rc17 )
+  local rc; rc=$(cat /tmp/qc-rc17); cp /tmp/qc-env17.bak .env.local
+  [ "$rc" -ne 0 ] && [ "$rc" -ne 124 ] && pass "pnpm dev thoát mã $rc khi gateway không healthy" || fail "exit=$rc (0 = nuốt lỗi, 124 = treo)"; tail -5 /tmp/qc-dev17.log; pnpm dev:down >/dev/null 2>&1; }
+tc_18(){ local d; d=$(mktemp -d); ln -s "$(command -v node)" $d/node; ln -s "$(command -v pnpm)" $d/pnpm
+  PATH="$d:/usr/bin:/bin" command -v docker >/dev/null && { fail "điều kiện: docker vẫn trong PATH giả"; return; }
+  PATH="$d:/usr/bin:/bin" pnpm dev >/tmp/qc-dev18.log 2>&1; local rc=$?; cat /tmp/qc-dev18.log | head -5
   [ $rc -ne 0 ] && pass "thoát mã $rc khi thiếu Docker" || fail "exit 0 khi không có Docker"
   grep -qi docker /tmp/qc-dev18.log && pass "thông báo nhắc Docker" || fail "thông báo không nhắc Docker"
   [ "$(grep -cE '^\s+at .*\.(mjs|js):[0-9]+' /tmp/qc-dev18.log)" = 0 ] && pass "không stack trace" || fail "có stack trace"; }
@@ -111,9 +115,11 @@ tc_20(){ (cd backend-go && go vet ./... && go test -race -count=1 -v ./... >/tmp
   local n; n=$(grep -cE '^\s*--- PASS' /tmp/qc-gotest.log); [ "$n" -ge 4 ] && pass "≥ 4 test/subtest PASS ($n): 3 cấu hình + healthz" || fail "chỉ $n PASS (cần ≥ 4 theo FR-7)"
   eq "$(grep -cE '^\s*--- (FAIL|SKIP)' /tmp/qc-gotest.log)" 0 "không FAIL/SKIP"; }
 tc_21(){ eq "$(grep -c '^openapi: 3.1' backend-go/api/openapi.yaml)" 1 "openapi 3.1"; eq "$(grep -c '/healthz:' backend-go/api/openapi.yaml)" 1 "mô tả /healthz"
-  pnpm dlx @redocly/cli lint backend-go/api/openapi.yaml; eq "$?" 0 "redocly lint 0 lỗi"
-  pnpm dlx @redocly/cli bundle backend-go/api/openapi.yaml --ext json -o /tmp/qc-oa.json >/dev/null 2>&1
-  eq "$(jq -r '.paths["/healthz"].get.responses["200"].content["application/json"].schema|(.properties.status.type // .["$ref"])' /tmp/qc-oa.json | head -1)" string "response 200 có schema status:string (sau bundle)"; }
+  eq "$(jq -r '.devDependencies["@redocly/cli"] // empty' package.json | wc -l | xargs)" 1 "@redocly/cli trong devDependencies gốc (FR-14)"
+  eq "$(grep -c '@redocly/cli' pnpm-lock.yaml | awk '{print ($1>0)}')" 1 "bản ghim trong pnpm-lock.yaml"
+  pnpm exec redocly lint backend-go/api/openapi.yaml; eq "$?" 0 "redocly lint 0 lỗi"
+  pnpm exec redocly bundle backend-go/api/openapi.yaml --ext json -o /tmp/qc-oa.json >/dev/null 2>&1
+  eq "$(jq -r '.paths["/healthz"].get.responses["200"].content["application/json"].schema as $s | (if $s["$ref"] then .components.schemas[($s["$ref"]|split("/")|last)] else $s end) | .properties.status.type' /tmp/qc-oa.json)" string "response 200 có schema status:string (theo ref nếu có)"; }
 tc_22(){ pnpm -C frontend lint; eq "$?" 0 "frontend lint"; pnpm -C frontend build; eq "$?" 0 "frontend build"; }
 tc_23(){ bash scripts/ui-antipatterns.sh; eq "$?" 0 "ui-antipatterns"; }
 tc_24(){ local o; o=$(grep -nE 'Be_Vietnam_Pro|tokens\.css' frontend/src/app/layout.tsx); echo "$o"
@@ -137,19 +143,29 @@ tc_26(){ build_gw || { fail "go build"; return; }
   grep -q DATABASE_URL $GWLOG && pass "nêu DATABASE_URL" || fail "không nêu DATABASE_URL"
   [ "$(grep -c REDIS_URL $GWLOG)" = 0 ] && pass "không nêu REDIS_URL (đã có)" || fail "nêu nhầm REDIS_URL"
   [ "$(grep -c QCSECRET2 $GWLOG)" = 0 ] && pass "không log giá trị env" || fail "log lộ giá trị env"
-  eq "$(grep -cE 'panic|goroutine' $GWLOG)" 0 "không panic"; }
+  eq "$(grep -cE 'panic|goroutine' $GWLOG)" 0 "không panic"
+  gw_run DATABASE_URL='' REDIS_URL='   '; eq "$GWRC" 1 "cả hai rỗng/khoảng trắng: exit 1 (FR-4 v2)"
+  eq "$(jq -c 'select(.level=="ERROR")' $GWLOG 2>/dev/null | wc -l | xargs)" 1 "đúng 1 dòng ERROR"
+  grep -q DATABASE_URL $GWLOG && grep -q REDIS_URL $GWLOG && pass "nêu cả hai biến" || fail "không nêu đủ hai biến"
+  eq "$(grep -cE 'panic|goroutine' $GWLOG)" 0 "không panic"
+  gw_run DATABASE_URL='   ' REDIS_URL='redis://:QCSECRET3@h:6379'; eq "$GWRC" 1 "DATABASE_URL khoảng trắng, REDIS_URL hợp lệ: exit 1"
+  grep -q DATABASE_URL $GWLOG && pass "nêu DATABASE_URL" || fail "không nêu DATABASE_URL"
+  [ "$(grep -c REDIS_URL $GWLOG)" = 0 ] && [ "$(grep -c QCSECRET3 $GWLOG)" = 0 ] && pass "không nêu biến đã có, không lộ giá trị" || fail "nêu nhầm REDIS_URL hoặc lộ giá trị"; }
 tc_27(){ build_gw || { fail "go build"; return; }; lsof -i :8080 >/dev/null 2>&1 && { fail "cổng 8080 đang bận — chạy pnpm dev:down"; return; }
-  local d; d=$(mktemp -d); (cd $d && env -i PATH="$PATH" DATABASE_URL=postgres://x REDIS_URL=redis://x /tmp/gw >$GWLOG 2>&1 & echo $! >/tmp/qc-gwpid); sleep 1.5; local p; p=$(cat /tmp/qc-gwpid)
+  local d; d=$(mktemp -d); rm -f /tmp/qc-gwexit /tmp/qc-gwpid
+  D=$d bash -c 'cd "$D"; env -i PATH="$PATH" DATABASE_URL=postgres://x REDIS_URL=redis://x /tmp/gw >'$GWLOG' 2>&1 & p=$!; echo $p >/tmp/qc-gwpid; wait $p; echo $? >/tmp/qc-gwexit' &
+  sleep 1.5; local p; p=$(cat /tmp/qc-gwpid)
   eq "$(curl -fsS localhost:8080/healthz)" '{"status":"ok"}' "đủ env, DB/Redis không tồn tại: /healthz vẫn ok (chỉ kiểm sống)"
   eq "$(find $d -type f | wc -l | xargs)" 0 "không ghi file ra đĩa"
-  kill -TERM $p; local t=0; while kill -0 $p 2>/dev/null && [ $t -lt 50 ]; do sleep 0.1; t=$((t+1)); done
-  kill -0 $p 2>/dev/null && { kill -9 $p; fail "SIGTERM: không thoát sau 5s"; } || pass "SIGTERM: thoát trong $((t/10)).$((t%10))s"
+  kill -TERM $p; local t=0; while [ ! -f /tmp/qc-gwexit ] && [ $t -lt 50 ]; do sleep 0.1; t=$((t+1)); done
+  [ -f /tmp/qc-gwexit ] && pass "SIGTERM: thoát trong $((t/10)).$((t%10))s" || { kill -9 $p; fail "SIGTERM: không thoát sau 5s"; }
+  eq "$(cat /tmp/qc-gwexit 2>/dev/null)" 0 "SIGTERM: thoát mã 0 (FR-5 v2)"
   eq "$(grep -cE 'panic|goroutine' $GWLOG)" 0 "không panic khi dừng"; }
 
 # ---------- AC5 ----------
 tc_28(){ local n; n=$(docker ps --filter label=com.docker.compose.project=edupilot -q | wc -l | xargs); eq "$n" 6 "trước down: 6 container project edupilot"
-  eq "$(pnpm -s dev:status --format '{{.Service}}' | sort -u | wc -l | xargs)" 6 "dev:status thấy 6"
-  ( pnpm -s dev:logs --tail=3 >/tmp/qc-logs.log 2>&1 & p=$!; sleep 12; kill $p 2>/dev/null; pkill -P $p 2>/dev/null ); for s in postgres redis minio mailpit gateway frontend; do grep -q "$s" /tmp/qc-logs.log && pass "dev:logs có $s" || fail "dev:logs thiếu $s"; done
+  eq "$(pnpm --silent dev:status --format '{{.Service}}' | sort -u | wc -l | xargs)" 6 "dev:status thấy 6"
+  ( pnpm --silent dev:logs --tail=3 >/tmp/qc-logs.log 2>&1 & p=$!; sleep 12; kill $p 2>/dev/null; pkill -P $p 2>/dev/null ); for s in postgres redis minio mailpit gateway frontend; do grep -q "$s" /tmp/qc-logs.log && pass "dev:logs có $s" || fail "dev:logs thiếu $s"; done
   pnpm dev:down; eq "$?" 0 "dev:down exit"
   eq "$(docker ps --filter label=com.docker.compose.project=edupilot -q | wc -l | xargs)" 0 "sau down: 0 container"; }
 tc_29(){ local g s e; g=$($C ps -q gateway); s=$(date +%s); $C stop gateway >/dev/null 2>&1; e=$(date +%s)
@@ -183,11 +199,13 @@ tc_34(){ eq "$(grep -nE 'sk-[A-Za-z0-9]|AKIA[0-9A-Z]{12}' .env.example | wc -l |
   grep -qE 'edupilot-dev' .env.example && pass "mật khẩu dev giả edupilot-dev" || fail "không thấy mật khẩu dev giả"; }
 
 # ---------- Kiểm chéo ----------
-tc_35(){ local bad; bad=$(git -c diff.renameLimit=5000 diff -M --name-status $SBASE HEAD | awk '{print $NF"\t"$0}' | cut -f1 \
-   | grep -vE '^(legacy/|backend-go/|frontend/|seed/|\.env\.example$|\.dockerignore$|\.gitignore$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|docker-compose\.local\.yml$|scripts/dev\.mjs$|docs/|\.github/workflows/ci\.yml$|data/tmp/492218d5)')
-  [ -z "$bad" ] && pass "diff nằm trong vùng story" || { fail "file ngoài vùng story"; echo "$bad" | head; }
-  for f in scripts/team-up.sh scripts/ui-antipatterns.sh CLAUDE.md AGENTS.md .claude .gitattributes .github/workflows/keep-huggingface-space-awake.yml; do ok "$f không đổi so với base" git diff --quiet $SBASE HEAD -- $f; done
-  echo "docs/ đổi (xem tay: dev chỉ được đụng handoff/PROGRESS?):"; git diff --name-only $SBASE HEAD -- docs | grep -vE '^docs/(sprints/1/|specs/)' | head; }
+tc_35(){ # chỉ xét commit của dev cho story này (subject "US-P0-02:"); thay đổi của PM/BA ở commit khác không tính
+  local files bad; files=$(git log --grep='^US-P0-02' -M --format= --name-only $SBASE..HEAD | sort -u)
+  bad=$(echo "$files" | grep -vE '^$|^(legacy/|backend-go/|frontend/|seed/|\.env\.example$|\.dockerignore$|\.gitignore$|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|docker-compose\.local\.yml$|scripts/dev\.mjs$|docs/sprints/1/(handoff|proposals)|data/tmp/492218d5)')
+  [ -z "$bad" ] && pass "commit US-P0-02 chỉ đụng vùng story" || { fail "commit US-P0-02 đụng file ngoài vùng"; echo "$bad" | head; }
+  for f in scripts/team-up.sh scripts/ui-antipatterns.sh CLAUDE.md AGENTS.md .claude .gitattributes .github/workflows/keep-huggingface-space-awake.yml; do
+    [ -z "$(git log --grep='^US-P0-02' --format=%h $SBASE..HEAD -- $f)" ] && pass "$f không bị commit US-P0-02 đụng" || fail "$f bị commit US-P0-02 đụng"; done
+  echo "docs/ đổi bởi commit US-P0-02 (xem tay):"; echo "$files" | grep '^docs/'; }
 tc_36(){ local h; h=$(git diff $SBASE HEAD -- . ':!legacy' ':!docs' | grep '^+' | grep -nE 'sk-[A-Za-z0-9]{10,}|AKIA[0-9A-Z]{12}|BEGIN [A-Z ]*PRIVATE KEY|ghp_[A-Za-z0-9]{20}|xox[bp]-|AIza[0-9A-Za-z_-]{20}|(password|secret|token)[A-Za-z_]*[=:] *["'\'']?[A-Za-z0-9+/]{16,}')
   [ -z "$h" ] && pass "không thấy secret trong dòng thêm" || { fail "nghi secret"; echo "$h" | head -5 | cut -c1-80; }; }
 tc_37(){ echo "--- go.mod require (đối chiếu ARCHITECTURE §3 bằng mắt):"; sed -n '/^require/,/^)/p;/^require [^(]/p' backend-go/go.mod

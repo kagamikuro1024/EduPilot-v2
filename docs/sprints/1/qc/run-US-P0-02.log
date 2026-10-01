@@ -1,0 +1,160 @@
+PASS TC-01: gốc repo
+PASS TC-02: mọi file Project III có ở legacy/
+PASS TC-03: không còn 492218d5 (kể cả legacy/)
+PASS TC-04: seed/documents
+PASS TC-04: không còn data/ ở gốc
+PASS TC-04: PDF Mordern_Network_Security_Threats nguyên vẹn (cùng blob)
+PASS TC-04: PDF QMB12ch6b nguyên vẹn (cùng blob)
+PASS TC-04: PDF Quyche nguyên vẹn (cùng blob)
+PASS TC-05: tokens.css + 3 brand
+PASS TC-05: brand không đổi so với base
+PASS TC-05: tokens.css chỉ khác base ở chú thích ui-allow (proposals #8)
+PASS TC-06: lịch sử còn (4)
+PASS TC-07: mọi file legacy/ là rename/copy 100% (không sửa nội dung)
+PASS TC-08: có commit dời (#15)
+PASS TC-08: commit dời không lẫn thay đổi khác (ngoài git rm 492218d5)
+PASS TC-08: mã mới đến sau commit dời
+PASS TC-19: go.mod go 1.27
+PASS TC-19: next 16
+PASS TC-19: react 19
+PASS TC-19: packageManager pnpm
+PASS TC-19: frontend Dockerfile node:24
+PASS TC-19: không có dep ngoài phạm vi (tailwind/zustand/tanstack)
+PASS TC-20: go vet + go test -race
+PASS TC-20: ≥ 4 test/subtest PASS (10): 3 cấu hình + healthz
+PASS TC-20: không FAIL/SKIP
+PASS TC-21: openapi 3.1
+PASS TC-21: mô tả /healthz
+PASS TC-21: @redocly/cli trong devDependencies gốc (FR-14)
+PASS TC-21: bản ghim trong pnpm-lock.yaml
+PASS TC-21: redocly lint 0 lỗi
+PASS TC-21: response 200 có schema status:string (theo ref nếu có)
+PASS TC-22: frontend lint
+PASS TC-22: frontend build
+PASS TC-23: ui-antipatterns
+PASS TC-24: có cả hai
+PASS TC-24: subset vietnamese+latin
+PASS TC-24: <html lang="vi">
+PASS TC-25: thiếu cả hai: exit
+PASS TC-25: không panic/goroutine
+PASS TC-25: đúng 1 dòng log mức ERROR (slog JSON)
+PASS TC-25: cả hai tên cùng một dòng
+PASS TC-26: chỉ có DATABASE_URL: exit
+PASS TC-26: nêu REDIS_URL
+PASS TC-26: không nêu DATABASE_URL (đã có)
+PASS TC-26: không log giá trị env
+PASS TC-26: chỉ có REDIS_URL: exit
+PASS TC-26: nêu DATABASE_URL
+PASS TC-26: không nêu REDIS_URL (đã có)
+PASS TC-26: không log giá trị env
+PASS TC-26: không panic
+PASS TC-26: cả hai rỗng/khoảng trắng: exit 1 (FR-4 v2)
+PASS TC-26: đúng 1 dòng ERROR
+PASS TC-26: nêu cả hai biến
+PASS TC-26: không panic
+PASS TC-26: DATABASE_URL khoảng trắng, REDIS_URL hợp lệ: exit 1
+PASS TC-26: nêu DATABASE_URL
+PASS TC-26: không nêu biến đã có, không lộ giá trị
+PASS TC-31: compose config không nhắc legacy
+PASS TC-31: workspace/package.json/go.mod
+PASS TC-31: .dockerignore có dòng legacy
+PASS TC-31: frontend/ backend-go/ compose, dev.mjs không nhắc legacy
+PASS TC-34: .env.example không có khoá thật
+FAIL TC-34: có biến ngoài FR-10
+PASS TC-34: đủ nhóm biến FR-10
+PASS TC-34: không dùng lại khoá JWT/secret cũ
+PASS TC-34: .env/.env.local không bị track
+PASS TC-34: mật khẩu dev giả edupilot-dev
+PASS TC-35: commit US-P0-02 chỉ đụng vùng story
+PASS TC-35: scripts/team-up.sh không bị commit US-P0-02 đụng
+PASS TC-35: scripts/ui-antipatterns.sh không bị commit US-P0-02 đụng
+PASS TC-35: CLAUDE.md không bị commit US-P0-02 đụng
+PASS TC-35: AGENTS.md không bị commit US-P0-02 đụng
+PASS TC-35: .claude không bị commit US-P0-02 đụng
+PASS TC-35: .gitattributes không bị commit US-P0-02 đụng
+PASS TC-35: .github/workflows/keep-huggingface-space-awake.yml không bị commit US-P0-02 đụng
+PASS TC-36: không thấy secret trong dòng thêm
+PASS TC-37: frontend/src không có fetch trần
+PASS TC-37: frontend/src không màu viết cứng ngoài tokens.css
+PASS TC-37: gateway không ghi đĩa (luật 10)
+PASS TC-37: không float64 trong backend-go (luật 5; nghi ngờ thì xem tay)
+PASS TC-38: không còn requirements.txt ở gốc
+PASS TC-38: không còn requirements.dev.txt ở gốc
+PASS TC-38: không còn Dockerfile ở gốc
+PASS TC-38: không còn Dockerfile.ai ở gốc
+PASS TC-38: không còn src ở gốc
+PASS TC-38: không còn shared-proto ở gốc
+PASS TC-38: không còn data_pipeline ở gốc
+PASS TC-38: không còn backend-java ở gốc
+PASS TC-38: không còn benchmarks ở gốc
+PASS TC-38: không còn db ở gốc
+PASS TC-38: không còn huggingface ở gốc
+PASS TC-38: không file Python ngoài legacy/docs
+PASS TC-27: đủ env, DB/Redis không tồn tại: /healthz vẫn ok (chỉ kiểm sống)
+PASS TC-27: không ghi file ra đĩa
+PASS TC-27: SIGTERM: thoát trong 0.1s
+PASS TC-27: SIGTERM: thoát mã 0 (FR-5 v2)
+PASS TC-27: không panic khi dừng
+PASS TC-09: đúng 6 service
+PASS TC-09: mọi service có healthcheck
+PASS TC-09: image ghim tag (không :latest/không tag)
+PASS TC-09: postgres image
+PASS TC-09: redis image
+PASS TC-09: mailpit image
+PASS TC-09: cổng host
+PASS TC-09: cổng trong của postgres,redis
+PASS TC-09: gateway phụ thuộc postgres, redis healthy
+PASS TC-09: ≥ 3 volume có tên
+PASS TC-09: không service Python/AI
+PASS TC-10: pnpm dev exit
+PASS TC-11: 6 dòng
+PASS TC-11: 6 healthy
+PASS TC-12: 200
+PASS TC-12: content-type
+PASS TC-12: body
+PASS TC-13: mailpit /api/v1/info là JSON
+PASS TC-13: minio live (9000)
+PASS TC-13: minio console (9001)
+PASS TC-13: postgres 18
+PASS TC-13: pgvector có sẵn
+PASS TC-13: redis ping
+PASS TC-13: redis 8
+PASS TC-13: SMTP mailpit 1025 mở
+PASS TC-14: lang=vi
+PASS TC-14: HTML tham chiếu logo-edupilot
+PASS TC-14: logo phục vụ được
+PASS TC-14: CSS có token --ep-*
+PASS TC-14: CSS có Be Vietnam Pro
+PASS TC-15: gateway non-root (User=nonroot)
+PASS TC-15: healthcheck không dùng curl/wget
+PASS TC-15: image gateway không có curl
+PASS TC-32: không mount nào từ legacy/
+PASS TC-32: go list không có package legacy
+PASS TC-32: image gateway không COPY legacy
+PASS TC-33: body chỉ có khoá status
+PASS TC-33: POST /healthz → 405
+PASS TC-33: đường dẫn lạ → 404
+PASS TC-33: 404 không lộ stack
+PASS TC-33: công khai: có/không Authorization đều 200
+PASS TC-28: trước down: 6 container project edupilot
+PASS TC-28: dev:status thấy 6
+PASS TC-28: dev:logs có postgres
+PASS TC-28: dev:logs có redis
+PASS TC-28: dev:logs có minio
+PASS TC-28: dev:logs có mailpit
+PASS TC-28: dev:logs có gateway
+PASS TC-28: dev:logs có frontend
+PASS TC-28: dev:down exit
+PASS TC-28: sau down: 0 container
+PASS TC-10: pnpm dev exit
+PASS TC-29: gateway dừng êm: ExitCode 0 (137 = bị kill cứng)
+PASS TC-29: dừng trong 0s (< 8s, mặc định chờ 10s)
+PASS TC-30: dev:down lần 2 khi đã dừng: exit 0
+PASS TC-30: volume còn sau down (suy ra từ FR-8; dev:down không xoá dữ liệu)
+PASS TC-16: pnpm dev sau khi xoá .env.local
+PASS TC-16: .env.local được tạo từ .env.example
+PASS TC-16: .env.local bị gitignore
+PASS TC-17: pnpm dev thoát mã 1 khi gateway không healthy
+PASS TC-18: thoát mã 1 khi thiếu Docker
+PASS TC-18: thông báo nhắc Docker
+PASS TC-18: không stack trace
