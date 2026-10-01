@@ -3,16 +3,16 @@
 Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phiên. Giữ ngắn; chi tiết nằm trong git log.
 
 ## Đang ở đâu
-- Phase hiện tại: **P0**
-- Lát việc hiện tại: L1
-- Nhánh: `feat/p0-prep`
+- Phase hiện tại: **PG — Nền Go** (chưa bắt đầu; chờ chủ dự án gõ `tiếp`)
+- Sprint gần nhất: **1** — xong, `docs/sprints/1/report.md`
+- Nhánh: `sprint/1-p0-prep` (tách từ `chore/edupilot-v2-docs`, đã push, chờ merge)
 
 ## Bảng phase
 
 | Phase | Trạng thái | Bắt đầu | Xong | Cổng nghiệm thu | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
-| P0 Chuẩn bị | Chưa | | | | |
-| PG Port sang Go | Chưa | | | | |
+| P0 Chuẩn bị | Xong | 2026-10-01 | 2026-10-01 | PASS (`sprints/1/qc/gate-P0.md`) | Viết mới toàn bộ (D45), chỉ Go (D46) |
+| PG Nền Go | Chưa | | | | Viết lại theo D45/D46 |
 | PU Nền giao diện | Chưa | | | | |
 | P1 LLM Gateway | Chưa | | | | |
 | P2 Lớp học | Chưa | | | | |
@@ -31,13 +31,18 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · F9 ☐ · F10 ☐ · F11 ☐ · F12 ☐ · F13 ☐ · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐
 
 ## Phiên gần nhất
-- Ngày:
-- Đã làm:
-- Đang dở (file, hàm, test đang đỏ):
-- Bước kế tiếp cụ thể:
+- Ngày: 2026-10-01
+- Đã làm: sprint 1 — US-P0-01 (kịch bản demo), US-P0-02 (dời `legacy/` + khung Go/Next.js + stack 6 service), US-P0-03 (CI). Quyết định D45–D48. Toàn bộ tài liệu nền cập nhật theo chỉ Go.
+- Đang dở: không.
+- Bước kế tiếp cụ thể: chủ dự án trả lời mục "Rủi ro và điều cần chủ dự án quyết" trong `sprints/1/report.md`, merge, gõ `tiếp` → PM lập sprint 2 từ `phases/PG.md` L1.
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
--
+- Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).
+- `typescript` ghim `^5` (typescript-eslint chưa hỗ trợ TS 7).
+- GitHub Actions ghim theo major, chưa theo SHA.
+- Lịch WORKFLOW §6 chưa điều chỉnh theo D45/D46 — chủ dự án quyết.
+- 9 câu hỏi sản phẩm của kịch bản demo (`specs/FEAT-demo-script/QUESTIONS.md`) — chặn P1/P2/P4/P7.
+- `thesis-notes/legacy-perf.md` thân bài còn tiếng Anh.
 
 ## Ánh xạ migration
 | Số goose | Tên | Phase |
@@ -53,3 +58,5 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - [ ] VPS hoặc máy demo (trước P10)
 - [ ] Gặp trường về pháp lý dữ liệu cá nhân, hạ tầng, mail, LLM được phép (trước PR; bắt đầu hỏi từ sớm)
 - [ ] 2 người ngoài dự án dùng thử (PR)
+- [ ] Quyết lịch sau D45 (lùi vạch bảo vệ hay cắt) — trước sprint 2
+- [ ] Đổi mật khẩu máy (đã gửi trong hội thoại sprint 1)

@@ -75,7 +75,7 @@ Merge vào `main` chỉ khi cả hai lớp đều qua. Gắn tag `v2-<phase>` sa
 | Viết `fetch` trần / spinner riêng / bảng riêng / confirm riêng | Yêu cầu dùng `frontend/src/shared/`; thiếu thì bổ sung vào đó |
 | Danh sách không phân trang, truy vấn trong vòng lặp | Từ chối merge; luật 13 trong `CLAUDE.md` |
 | Tự thêm thư viện lạ | Từ chối trừ khi có trong bảng ở `ARCHITECTURE.md`; nếu thật cần, thêm vào bảng trước |
-| Đổi hợp đồng API cũ trong PG | Không bao giờ chấp nhận trong PG |
+| Đổi API mà không cập nhật `openapi.yaml` + contract test | Từ chối; nguyên tắc 7 trong `CLAUDE.md` (D45) |
 | Quên nguyên tắc giữa phiên dài | `/handoff`, `/clear`, mở phiên mới |
 | Hỏng nặng | Quay về commit trước (commit nhỏ là bảo hiểm của bạn); nếu phiên bản có tính năng rewind/checkpoint thì dùng |
 
