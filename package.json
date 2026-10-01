@@ -2,6 +2,7 @@
   "name": "edupilot",
   "version": "2.0.0",
   "private": true,
+  "packageManager": "pnpm@12.8.1",
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "dev:down": "docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot down",

@@ -1,8 +1,9 @@
 # Ngữ cảnh build = gốc repo (lockfile pnpm nằm ở gốc workspace): docker build -f frontend/Dockerfile .
 FROM node:24-alpine AS build
-RUN npm install -g pnpm@12.8.1
 WORKDIR /app
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+# Bản pnpm lấy từ trường packageManager (cùng nguồn với CI).
+RUN npm install -g "pnpm@$(node -p "require('./package.json').packageManager.split('@')[1]")"
 COPY frontend/package.json frontend/
 RUN pnpm install --frozen-lockfile --filter frontend
 COPY frontend frontend
