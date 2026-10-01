@@ -35,19 +35,23 @@ Quy ước trong file: `$C` = `docker compose --env-file .env.local -f docker-co
   Kiểm:
   ```bash
   (cd backend-go && go vet ./... && go test ./...)
-  pnpm dlx @redocly/cli lint backend-go/api/openapi.yaml          # 0 lỗi
+  pnpm exec redocly lint backend-go/api/openapi.yaml               # 0 lỗi; @redocly/cli nằm trong devDependencies gốc, bản ghim theo pnpm-lock.yaml (proposals #3)
   grep -c '^openapi: 3.1' backend-go/api/openapi.yaml && grep -c '/healthz:' backend-go/api/openapi.yaml
   pnpm -C frontend lint && pnpm -C frontend build
   bash scripts/ui-antipatterns.sh                                  # sạch
   grep -nE 'Be_Vietnam_Pro|tokens\.css' frontend/src/app/layout.tsx # có cả hai
   ```
-- AC4 (nhánh lỗi — thiếu env). Given không đặt `DATABASE_URL` và `REDIS_URL` When chạy gateway Then gateway thoát mã khác 0, một dòng log lỗi nêu **đủ tên mọi biến thiếu**, không panic, không stack trace.
+- AC4 (nhánh lỗi — thiếu env, dừng êm). Given `DATABASE_URL` và `REDIS_URL` không đặt, **hoặc đặt nhưng rỗng sau khi bỏ khoảng trắng** When chạy gateway Then gateway thoát mã 1, một dòng log lỗi nêu **đủ tên mọi biến thiếu**, không panic, không stack trace. Given gateway đang chạy đủ env When nhận SIGTERM Then dừng êm, thoát mã 0 (proposals #4).
   Kiểm:
   ```bash
   cd backend-go && go build -o /tmp/gw ./cmd/gateway
   env -i PATH="$PATH" /tmp/gw > /tmp/gw.log 2>&1; echo "exit=$?"   # exit=1
   grep -c DATABASE_URL /tmp/gw.log; grep -c REDIS_URL /tmp/gw.log    # ≥ 1 mỗi biến
   grep -cE 'panic|goroutine' /tmp/gw.log                           # 0
+  env -i PATH="$PATH" DATABASE_URL='' REDIS_URL='   ' /tmp/gw > /tmp/gw2.log 2>&1; echo "exit=$?"   # exit=1
+  grep -c DATABASE_URL /tmp/gw2.log; grep -c REDIS_URL /tmp/gw2.log  # ≥ 1 mỗi biến
+  env -i PATH="$PATH" DATABASE_URL=postgres://x REDIS_URL=redis://x /tmp/gw & pid=$!
+  sleep 1; kill -TERM $pid; wait $pid; echo "exit=$?"              # exit=0
   ```
 - AC5 (nhánh lỗi — dừng stack). Given stack đang chạy When `pnpm dev:down` Then mọi container của project `edupilot` dừng; `dev:status`, `dev:logs`, `dev:down` thấy đúng các container mà `pnpm dev` dựng.
   Kiểm: `pnpm dev:down && docker ps --filter label=com.docker.compose.project=edupilot -q | wc -l` → `0`.

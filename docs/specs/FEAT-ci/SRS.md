@@ -1,5 +1,5 @@
 # SRS FEAT-ci CI cho Go gateway và frontend mới
-Phiên bản 1 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; không có câu hỏi mở)
+Phiên bản 2 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; không có câu hỏi mở) · v2: AC3/AC4 theo proposals #5
 
 ## 1. Mục đích và phạm vi
 Mỗi lần push lên bất kỳ nhánh nào và mỗi pull request đều chạy đúng các lệnh kiểm trong CLAUDE.md "Lệnh" cho phần Go và phần frontend; một lỗi bất kỳ làm CI đỏ. Không chạy gì trong `legacy/` (D45), không có job Python (D46), không gọi LLM thật.
@@ -48,7 +48,7 @@ Không thêm test cố định cho riêng workflow (theo luật kiểm thử: kh
 | Xanh trên HEAD | AC1 |
 | Đỏ đúng job khi test Go đỏ | AC3, nhánh tạm `ci/red-check` |
 | Đỏ đúng job khi có phản mẫu UI | AC4, cùng nhánh tạm, commit kế tiếp |
-| Dọn nhánh tạm | `git ls-remote --heads origin ci/red-check` rỗng |
+| Dọn nhánh tạm | Chỉ sau khi QC chấm AC3/AC4 (handoff có `<ID>`, `headSha`, nhánh cho từng run); rồi `git ls-remote --heads origin ci/red-check` rỗng |
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 Không áp dụng — story hạ tầng. `QUESTIONS.md` hiện không có câu nào. Chi tiết kỹ thuật BA tự chốt theo tài liệu: không job Python (D46); OpenAPI lint chưa đưa vào CI (chỉ có `/healthz`, kiểm tay ở FEAT-scaffold AC3; đưa vào cùng contract test ở PG).

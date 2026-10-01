@@ -18,9 +18,9 @@ Lệnh `<ID>` = `databaseId` của run, lấy bằng `gh run list`.
 - AC2. Given workflow CI When đọc file Then không bước nào đọc, cài hay build gì trong `legacy/`, không dùng secret, không có khoá LLM (không thể gọi LLM thật).
   Kiểm: `grep -nE 'legacy|secrets\.|_API_KEY' .github/workflows/ci.yml` → không in gì.
 - AC3 (nhánh lỗi — test Go đỏ). Given nhánh tạm `ci/red-check` có một test Go cố ý đỏ When CI chạy Then run `failure`, job Go `failure`, job Frontend vẫn chạy hết và `success`.
-  Kiểm: dev push nhánh tạm, dán `<ID>` vào handoff. QC: `gh run view <ID> --json conclusion,jobs --jq '.conclusion, (.jobs[] | "\(.name) \(.conclusion)")'` → `failure`, Go `failure`, Frontend `success`.
-- AC4 (nhánh lỗi — phản mẫu UI). Given commit kế tiếp trên `ci/red-check` bỏ test đỏ và thêm một màu viết cứng vào `frontend/src/app/page.tsx` When CI chạy Then run `failure`, job Frontend `failure` ở bước phản mẫu UI, job Go `success`. Sau khi kiểm xong, nhánh tạm bị xoá.
-  Kiểm: như AC3 với `<ID>` thứ hai; `git ls-remote --heads origin ci/red-check` → không in gì; `grep -c continue-on-error .github/workflows/ci.yml` → `0`.
+  Kiểm: dev push nhánh tạm; handoff ghi cho run này `<ID>`, `headSha`, tên nhánh (proposals #5). QC: `gh run view <ID> --json conclusion,headSha,headBranch,jobs --jq '.conclusion, .headSha, .headBranch, (.jobs[] | "\(.name) \(.conclusion)")'` → `failure`, `headSha`/`headBranch` khớp handoff, Go `failure`, Frontend `success`; nội dung commit (có test đỏ): `gh api repos/{owner}/{repo}/commits/<headSha> --jq '.files[].filename'` có file `_test.go`.
+- AC4 (nhánh lỗi — phản mẫu UI). Given commit kế tiếp trên `ci/red-check` bỏ test đỏ và thêm một màu viết cứng vào `frontend/src/app/page.tsx` When CI chạy Then run `failure`, job Frontend `failure` ở bước phản mẫu UI, job Go `success`. Dev **chỉ xoá** `ci/red-check` sau khi QC báo đã chấm xong AC3 và AC4.
+  Kiểm: như AC3 với `<ID>`, `headSha`, nhánh của run thứ hai ghi trong handoff; `gh api repos/{owner}/{repo}/commits/<headSha> --jq '.files[].filename'` có `frontend/src/app/page.tsx`. Sau khi QC chấm và dev xoá nhánh: `git ls-remote --heads origin ci/red-check` → không in gì. `grep -c continue-on-error .github/workflows/ci.yml` → `0`.
 - AC5 (phân quyền). **Không áp dụng — chưa có API nghiệp vụ.** Lý do: story chỉ thêm workflow CI; không có endpoint, vai trò hay dữ liệu người dùng. Ràng buộc an toàn thay thế: workflow chỉ có quyền đọc mã (`permissions: contents: read`).
   Kiểm: `grep -nA1 '^permissions:' .github/workflows/ci.yml` → `contents: read`.
 

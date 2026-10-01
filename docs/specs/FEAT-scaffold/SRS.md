@@ -1,5 +1,5 @@
 # SRS FEAT-scaffold Dọn mặt bằng + khung Go gateway và Next.js mới
-Phiên bản 1 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; câu hỏi mở đã chốt ở QUESTIONS.md)
+Phiên bản 2 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; câu hỏi mở đã chốt ở QUESTIONS.md) · v2: FR-4, FR-5, FR-7, FR-14, AC3, AC4 theo proposals #3, #4
 
 ## 1. Mục đích và phạm vi
 Dời toàn bộ mã Project III vào `legacy/` (D45), dựng khung chạy được của hai phần mới — gateway Go và frontend Next.js 16 — cùng stack local mới (D48), để từ PG trở đi mọi dòng mã nằm trên nền mới. Không có service Python (D46). Không có tính năng nghiệp vụ.
@@ -59,16 +59,17 @@ Cách dời: `git mv <mục> legacy/<mục>` (giữ nguyên đường dẫn bên
 | FR-1 | Dời mã theo bảng 4.1 bằng `git mv`, trong một commit riêng trước mọi mã mới | AC1 |
 | FR-2 | Có module Go duy nhất ở `backend-go/` (`go.mod`, Go 1.27) với `cmd/gateway/main.go`, `internal/platform/` (đọc env, `slog` JSON ra stdout), `internal/httpapi/` (router chi) theo ARCHITECTURE §2; chỉ dùng thư viện trong ARCHITECTURE §3 | AC3 |
 | FR-3 | Gateway nghe cổng 8080; `GET /healthz` trả 200, `Content-Type: application/json`, body `{"status":"ok"}`; chỉ là kiểm sống, không gọi DB/Redis | AC2, AC7 |
-| FR-4 | Khi khởi động, gateway kiểm biến bắt buộc `DATABASE_URL`, `REDIS_URL` (ARCHITECTURE §8); thiếu bất kỳ biến nào → ghi **một** dòng log lỗi liệt kê mọi biến thiếu, thoát mã 1, không panic. P0 chỉ kiểm có mặt, chưa kết nối | AC4 |
-| FR-5 | Gateway dừng êm khi nhận SIGTERM/SIGINT (đóng server có hạn chờ) để `dev:down` không phải giết cứng | AC5 |
+| FR-4 | Khi khởi động, gateway kiểm biến bắt buộc `DATABASE_URL`, `REDIS_URL` (ARCHITECTURE §8); biến không đặt **hoặc rỗng sau trim** đều tính là thiếu; thiếu bất kỳ biến nào → ghi **một** dòng log lỗi liệt kê mọi biến thiếu, thoát mã 1, không panic. P0 chỉ kiểm có mặt, chưa kết nối | AC4 |
+| FR-5 | Gateway dừng êm khi nhận SIGTERM/SIGINT (đóng server có hạn chờ) và thoát mã 0, để `dev:down` không phải giết cứng | AC4, AC5 |
 | FR-6 | `backend-go/api/openapi.yaml`: OpenAPI 3.1, mô tả `GET /healthz` và schema response | AC3 |
-| FR-7 | Test Go table-driven: (a) cấu hình — đủ biến / thiếu một / thiếu cả hai → đúng danh sách biến thiếu; (b) `/healthz` → 200 + body đúng | AC3, AC4 |
+| FR-7 | Test Go table-driven: (a) cấu hình — đủ biến / thiếu một / thiếu cả hai / rỗng / chỉ khoảng trắng → đúng danh sách biến thiếu; (b) `/healthz` → 200 + body đúng | AC3, AC4 |
 | FR-8 | `docker-compose.local.yml` mới, đủ 6 service, mọi service có healthcheck, image ghim tag (D48): `postgres` = `pgvector/pgvector:pg18` (5433→5432), `redis` = `redis:8` (6380→6379), `minio` (9000 API, 9001 console), `mailpit` = `axllent/mailpit` (1025 SMTP, 8025 UI + REST `/api/v1/info`), `gateway` (build `backend-go/Dockerfile`, 8080), `frontend` (Node 24, 3000). `gateway` phụ thuộc `postgres`, `redis` healthy. Volume có tên cho postgres, redis, minio. Không mount hay build gì trong `legacy/` | AC2, AC6 |
 | FR-9 | `package.json` gốc: `dev` = chạy `scripts/dev.mjs` → tạo `.env.local` từ `.env.example` nếu chưa có, kiểm Docker, rồi `docker compose … -p edupilot up -d --build --wait` (thoát 0 khi mọi service healthy, khác 0 nếu có service không healthy); `dev:status` / `dev:logs` / `dev:down` dùng cùng `--env-file .env.local -f docker-compose.local.yml -p edupilot` | AC2, AC5 |
 | FR-10 | `.env.example` mới chỉ chứa biến P0 dùng (`DATABASE_URL`, `REDIS_URL`, `BLOB_*`, `SMTP_*`, `MAIL_FROM`) với giá trị dev giả (vd mật khẩu `edupilot-dev`); không secret thật | AC7 |
 | FR-11 | `backend-go/Dockerfile` nhiều tầng, chạy bằng user không phải root; healthcheck không cần `curl` trong image (vd gateway có cờ `-healthcheck` tự gọi `http://127.0.0.1:8080/healthz`) | AC2 |
 | FR-12 | `frontend/` mới: Next.js 16 App Router + React 19 + TypeScript, quản lý bằng pnpm (lockfile ở gốc workspace), Node 24; `src/app/layout.tsx` đặt `<html lang="vi">`, nạp Be Vietnam Pro qua `next/font/google` (subset `vietnamese`, `latin`), import `src/shared/styles/tokens.css`; `src/app/page.tsx` là trang trống tiếng Việt có logo `public/brand/logo-edupilot.svg`; mọi màu, cỡ chữ, khoảng cách lấy từ token `--ep-*`; ESLint cấu hình cho Next 16 (`pnpm -C frontend lint` chạy `eslint .`) | AC2, AC3 |
 | FR-13 | Không file cấu hình nào (workspace, compose, `go.mod`, ESLint, tsconfig) trỏ tới `legacy/`; `.dockerignore` có dòng `legacy` | AC6 |
+| FR-14 | `@redocly/cli` khai báo trong `devDependencies` của `package.json` gốc (bản ghim qua `pnpm-lock.yaml`); lint OpenAPI chạy bằng `pnpm exec redocly lint backend-go/api/openapi.yaml` | AC3 |
 
 ## 5. Dữ liệu
 Không áp dụng — story hạ tầng (không migration; `backend-go/db/migrations/` chưa tạo).
@@ -117,8 +118,8 @@ Không áp dụng — story hạ tầng. Câu hỏi: `QUESTIONS.md`. Chi tiết 
 | --- | --- | --- | --- | --- | --- |
 | §5 Triển khai (`pnpm dev`, mail giả lập: Mailpit theo D48) | – | P0 L1 | US-P0-02 AC1 | FR-1 | lệnh AC1 |
 | §5 | – | P0 L1 | AC2 | FR-3, FR-8, FR-9, FR-11, FR-12 | `pnpm dev`, curl |
-| – | – | P0 L1 | AC3 | FR-2, FR-6, FR-7, FR-12 | `go test`, redocly lint, `pnpm lint/build` |
-| – | – | P0 L1 | AC4 | FR-4, FR-7 | chạy gateway thiếu env |
+| – | – | P0 L1 | AC3 | FR-2, FR-6, FR-7, FR-12, FR-14 | `go test`, `pnpm exec redocly lint`, `pnpm lint/build` |
+| – | – | P0 L1 | AC4 | FR-4, FR-5, FR-7 | chạy gateway thiếu / rỗng env; SIGTERM → mã 0 |
 | – | – | P0 L1 | AC5 | FR-5, FR-9 | `pnpm dev:down` |
 | D45 | – | P0 L1 | AC6 | FR-8, FR-13 | grep `legacy` |
 | – | – | P0 L1 | AC7 | FR-3, FR-10 | curl body, grep secret |
