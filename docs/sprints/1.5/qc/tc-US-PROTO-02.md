@@ -18,17 +18,22 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.4. Hộp đen. Công c�
 | TC-02-13 | AC4 | D đã gửi yêu cầu (US-PROTO-01 TC-01-23) | **B** GV → `/class/members` lớp 2 | 24 thành viên + 3 chờ duyệt + D; mã `BX4P9TW`, bật duyệt |
 | TC-02-14 | AC4 | Sau TC-02-13 | **B** `Duyệt` D | D thành thành viên; có Hoàn tác; đổi vai về D → bộ chọn lớp có 761988, "Hôm nay" bình thường |
 | TC-02-15 | AC4 / SRS 4.4 | GV | **B** `Từ chối` một yêu cầu; `Tạo lại mã` | `Từ chối` có Hoàn tác; `Tạo lại mã` qua xác nhận "mã cũ vô hiệu ngay" → mã mới + `Sao chép link`; mã cũ ở `/join` của D → câu chung "Mã không hợp lệ…" |
-| TC-02-16 | AC5 | – | **B** 375 × 812: `/inbox` | Danh sách → chi tiết (hai bước, nút quay lại); chữ không tràn; vùng chạm ≥ 44 px |
-| TC-02-17 | AC5 | – | **B** 375 × 812: `/attendance` | Hàng có kẻ, **không card**, vùng chạm ≥ 44 px, thao tác bằng chạm; không cuộn ngang |
-| TC-02-18 | AC6 (nhánh lỗi) | `/attendance` | **B** Bật "Giả lập mất mạng", đổi 2 ô | "Đang chờ mạng · 2 thay đổi"; tắt công tắc → "Đã lưu 09:2x", không mất thay đổi, không trùng |
-| TC-02-19 | AC6 | – | **B** `/students?state=error` | Lỗi có câu khắc phục + `Thử lại` |
-| TC-02-20 | AC7 (phân quyền) | – | **C** `tc_02_07` | SV, Admin bị chặn mọi route của US; TA không có `Tạo lại mã`, không có `Mời ra khỏi lớp` |
-| TC-02-21 | AC7 | TA | **B** `/class/members` lớp 2 | TA xem được danh sách, `Duyệt` được; thiếu `Tạo lại mã` và mời ra |
-| TC-02-22 | SRS 4.4 `/students` | GV | **B** Tìm "Huy"/"20229003"/"zzzz"; chip `Cần chú ý`, `Vắng nhiều`, `Điểm giảm`, `Ít hoạt động` | 30 SV lớp 1; chip `Cần chú ý` = C + 2; tìm theo tên/MSSV; không khớp → rỗng có hướng; bấm hàng → `/students/[id]`, quay lại giữ vị trí cuộn |
-| TC-02-23 | SRS 4.4 `/students/[id]` | GV | **B** `/students/sv-3` (C) | Câu rủi ro "Vắng 5/9 buổi, đã bị trừ 1,5 điểm; thiếu BT02"; tab Tổng quan / Chuyên cần / Điểm / Hoạt động học / Ghi chú; ghi chú "Chỉ giảng viên/TA thấy" |
-| TC-02-24 | SRS 4.4 | GV | **B** `Thêm ghi chú`; `Nhắn riêng` | Ghi chú thêm tại chỗ + Hoàn tác (không modal); `Nhắn riêng` → dòng xác nhận mô phỏng |
-| TC-02-25 | **Quyền chat riêng** (CLAUDE.md) | Sau D1–D3 của B | **B** GV ở mọi route (`/inbox`, `/students/sv-2`, `/`, `/analytics`) | Không thấy nội dung D1/D2 (chat riêng chưa escalate); chỉ thấy ticket D3 (đã escalate) với câu hỏi D3 |
-| TC-02-26 | SRS 4.4 trạng thái | – | **B** `?state=` trên 6 route; Lọc Open rỗng ở `/inbox` | Rỗng "Không còn câu hỏi đang chờ"; loading skeleton đúng hình |
+| TC-02-16 | AC5 | GV trên desktop (1440 px) | **B** Mở `/inbox` | Bố cục split view 2 panel độc lập (FR-X11, Proposal #16): Cột danh sách ticket (bên trái, max 380px) và Panel chi tiết ticket (bên phải), đều có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc (`var(--radius-sm)` hoặc `var(--radius-md)`), padding rõ ràng (`var(--space-4)` hoặc `var(--space-5)`), cuộn độc lập giữa 2 cột |
+| TC-02-17 | AC5 | 375 × 812 | **B** `/inbox` trên mobile | Chuyển thành danh sách → chi tiết (hai bước, nút quay lại); chữ không tràn; vùng chạm ≥ 44 px |
+| TC-02-18 | AC5 | 375 × 812 | **B** `/attendance` trên mobile | Hàng có kẻ, **không card**, vùng chạm ≥ 44 px, thao tác bằng chạm; không cuộn ngang |
+| TC-02-19 | AC6 (nhánh lỗi) | `/attendance` | **B** Bật "Giả lập mất mạng", đổi 2 ô | "Đang chờ mạng · 2 thay đổi"; tắt công tắc → "Đã lưu 09:2x", không mất thay đổi, không trùng |
+| TC-02-20 | AC6 | – | **B** `/students?state=error` | Lỗi có câu khắc phục + `Thử lại` |
+| TC-02-21 | AC7 (phân quyền) | – | **C** `tc_02_07` | SV, Admin bị chặn mọi route của US; TA không có `Tạo lại mã`, không có `Mời ra khỏi lớp` |
+| TC-02-22 | AC7 | TA | **B** `/class/members` lớp 2 | TA xem được danh sách, `Duyệt` được; thiếu `Tạo lại mã` và mời ra |
+| TC-02-23 | SRS 4.4 `/students` | GV | **B** Tìm "Huy"/"20229003"/"zzzz"; chip `Cần chú ý`, `Vắng nhiều`, `Điểm giảm`, `Ít hoạt động` | 30 SV lớp 1; chip `Cần chú ý` = C + 2; tìm theo tên/MSSV; không khớp → rỗng có hướng; bấm hàng → `/students/[id]`, quay lại giữ vị trí cuộn |
+| TC-02-24 | SRS 4.4 `/students/[id]` | GV | **B** `/students/sv-3` (C) | Câu rủi ro "Vắng 5/9 buổi, đã bị trừ 1,5 điểm; thiếu BT02"; tab Tổng quan / Chuyên cần / Điểm / Hoạt động học / Ghi chú; ghi chú "Chỉ giảng viên/TA thấy" |
+| TC-02-25 | SRS 4.4 | GV | **B** `Thêm ghi chú`; `Nhắn riêng` | Ghi chú thêm tại chỗ + Hoàn tác (không modal); `Nhắn riêng` → dòng xác nhận mô phỏng |
+| TC-02-26 | **Quyền chat riêng** (CLAUDE.md) | Sau D1–D3 của B | **B** GV ở mọi route (`/inbox`, `/students/sv-2`, `/`, `/analytics`) | Không thấy nội dung D1/D2 (chat riêng chưa escalate); chỉ thấy ticket D3 (đã escalate) với câu hỏi D3 |
+| TC-02-27 | SRS 4.4 trạng thái | – | **B** `?state=` trên 6 route; Lọc Open rỗng ở `/inbox` | Rỗng "Không còn câu hỏi đang chờ"; loading skeleton đúng hình |
+| TC-02-28 | AC8 | GV / TA ở `/threads/[id]` có câu trả lời AI `Chờ xác nhận` | **B** Bấm `Xác nhận` | Trạng thái câu trả lời chuyển thành `Đã được giảng viên xác nhận` (verified) |
+| TC-02-29 | AC8 | GV / TA ở `/threads/[id]` có câu trả lời AI `Chờ xác nhận` | **B** Bấm `Chỉnh sửa` | Mở ô sửa inline chứa sẵn nội dung câu trả lời AI |
+| TC-02-30 | AC8 | Sau TC-02-29 | **B** Sửa nội dung và bấm `Lưu và xác nhận` | Trạng thái chuyển thành `Đã được giảng viên sửa & xác nhận` (CORRECTED), hiển thị nội dung đã sửa kèm nút/chi tiết "Xem câu trả lời AI gốc" để đối chiếu (Proposal #15) |
+| TC-02-31 | AC8 | GV / TA ở `/threads/[id]` có câu trả lời AI | **B** Bấm `Loại khỏi tri thức` | Câu trả lời AI bị ẩn/loại bỏ khỏi thread và hiển thị dòng Hoàn tác |
 
 ## Nhánh lỗi
 TC-02-07 (409 giả lập), TC-02-18 (mất mạng), TC-02-19, TC-02-26 (`?state=`), TC-02-11 (hoàn tác).
@@ -46,4 +51,4 @@ TC-02-20, 21 (SV/Admin/TA); TC-02-25 (GV không đọc chat riêng chưa escalat
 - Phụ thuộc chéo: TC-02-05 cần D3 (US-PROTO-01); TC-02-13/14 cần yêu cầu của D.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
-(chưa có)
+- 2026-10-01 · TC-02-16..18: Cập nhật kiểm tra cấu trúc 2 panel độc lập (viền, nền surface, bo góc, cuộn độc lập) của `/inbox` (02-AC5); thêm TC-02-28..31 kiểm duyệt câu trả lời AI ở Threads (Xác nhận, Chỉnh sửa inline lưu CORRECTED, Loại bỏ có Hoàn tác) theo spec v4 (02-AC8, proposals #15, #16).
