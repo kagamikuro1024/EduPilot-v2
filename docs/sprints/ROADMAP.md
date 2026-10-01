@@ -30,3 +30,4 @@ Tổng ước lượng gốc: 23,5 tuần người. Đội agent làm nhanh hơn
 - Một sprint = các phase ở bảng trên. Story vẫn nhỏ (`dev` ≤ 1 ngày), `dev` làm **từng story một**; QC viết TC song song (PM.md §3.3).
 - Sprint kết thúc bằng `/gate` của **mỗi** phase trong sprint, rồi `report.md`, rồi DỪNG chờ chủ dự án chốt.
 - Nhánh `sprint/N-<slug>` tạo từ `main` của `origin` (TA_Agent_v2). Chủ dự án chốt báo cáo → PM merge `--no-ff` vào `main` và push.
+- **Thay mock bằng thật (D51):** sprint nào làm phase nào thì màn prototype của phase đó được thay bằng màn nối API thật, spec thật viết ở `docs/specs/`; dữ liệu `frontend/src/mock/` của màn đó bị xoá trong cùng sprint. Cuối sprint 10 không còn `src/mock/`.
