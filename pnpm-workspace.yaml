@@ -1,5 +1,9 @@
 packages:
   - frontend
 
-# The root launcher has no npm dependencies, so it can run without an install.
+# Gốc workspace không có phụ thuộc npm riêng nên chạy được khi chưa cài.
 verifyDepsBeforeRun: false
+
+# unrs-resolver (qua eslint-config-next) có bản dựng sẵn qua optionalDependencies; không cần chạy postinstall.
+allowBuilds:
+  unrs-resolver: false

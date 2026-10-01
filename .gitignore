@@ -13,19 +13,6 @@ build/
 .pytest_cache/
 .mypy_cache/
 
-# Java
-backend-java/target/
-backend-java/.gradle/
-backend-java/build/
-*.class
-*.jar
-
-# Gradle cache (global / custom)
-.gradle/
-.gradle-cache/
-**/.gradle/
-**/.gradle-cache/
-
 # OS
 .DS_Store
 # AI logs — tracked structure, ignored content
@@ -42,3 +29,8 @@ TIP-*.md
 
 vibecode
 .pytest_cache/
+
+# Node / Next / Go (khung mới)
+node_modules/
+frontend/.next/
+backend-go/bin/
