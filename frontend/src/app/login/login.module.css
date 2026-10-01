@@ -29,3 +29,7 @@
 .text { display: grid; gap: var(--ep-space-1); min-width: 0; }
 .who { font-size: var(--ep-text-label); color: var(--ep-ink-2); overflow-wrap: anywhere; }
 .sees { font-size: var(--ep-text-label); color: var(--ep-ink-3); }
+.step { display: grid; gap: var(--ep-space-4); }
+.back { display: inline-flex; align-items: center; gap: var(--ep-space-1); width: fit-content; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; }
+.back:hover { color: var(--ep-ink); }
+.back svg { width: 16px; height: 16px; }

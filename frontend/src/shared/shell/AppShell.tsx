@@ -1,40 +1,56 @@
 "use client";
 
-import { Bell, Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, Search, Settings, UserPlus, Users } from "lucide-react";
+import { Bell, Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
-import { clearDemoSession } from "@/shared/session/cookies";
+import { DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, SUBJECT, type Role } from "@/mock/core";
+import { KEYS, type Ticket } from "@/mock/state";
+import { ALL_COURSES, clearDemoSession } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
+import { resetDemo, useDemoSlice } from "@/shared/state/demo";
 import { ButtonLink, Drawer, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
-import { MOBILE_PRIMARY, canOpen, navFor, type NavItem } from "./nav";
+import { MOBILE_PRIMARY, canOpen, navFor, whoCanOpen, type NavItem } from "./nav";
 import s from "./AppShell.module.css";
 
-const NOTIFICATIONS: Record<Role, Array<{ title: string; meta: string; href: string; unread?: boolean }>> = {
+type Note = { title: string; meta: string; href: string; unread?: boolean };
+
+/** Thông báo gốc theo vai; phần phát sinh từ tương tác (ticket) thêm ở `useNotes`. */
+const NOTIFICATIONS: Record<Role, Note[]> = {
   student: [
-    { title: "Giảng viên đã trả lời câu hỏi về điểm cộng của bạn", meta: "Hộp thư · 12 phút trước", href: "/chat", unread: true },
-    { title: "Câu trả lời trong thread “Vì sao ECB lộ mẫu?” đã được xác nhận", meta: "Threads · 1 giờ trước", href: "/threads/t-ecb", unread: true },
-    { title: "Tài liệu mới: Tuần 5 — Mật mã khối và chế độ hoạt động", meta: "Thư viện · hôm qua", href: "/library" },
+    { title: "Tài liệu mới: Tuần 10 — Quản lý khoá và PKI", meta: "Thư viện · hôm qua", href: "/library" },
+    { title: "Bài tập 03 đã nộp, đang chờ chấm", meta: "Bài tập · 12 ngày trước", href: "/assignments/bt03" },
   ],
   ta: [
-    { title: "2 câu hỏi mới cần xử lý", meta: "Hộp thư hỗ trợ · 26 phút trước", href: "/inbox", unread: true },
     { title: "4 bài chấm lệch giữa hai lượt", meta: "Chấm bài · 1 giờ trước", href: "/grading", unread: true },
+    { title: "Buổi 10 lớp 761987 đang diễn ra — chưa điểm danh", meta: "Điểm danh · 09:00", href: "/attendance", unread: true },
   ],
   teacher: [
-    { title: "Bạn được phân công dạy INT1006 2 — mã tham gia K7MQ2RD", meta: "Admin · hôm qua", href: "/class/members", unread: true },
-    { title: "2 câu hỏi mới cần xử lý", meta: "Hộp thư hỗ trợ · 26 phút trước", href: "/inbox", unread: true },
-    { title: "Quy chế INT1006 2 chưa có công thức điểm", meta: "Sổ điểm · hôm qua", href: "/gradebook/scheme" },
+    { title: "Bạn được phân công lớp An ninh mạng – 761988. Mã tham gia: BX4P9TW", meta: "Quản trị viên · hôm qua", href: "/class/members", unread: true },
+    { title: "Công thức điểm lớp 761988 chưa được xác nhận", meta: "Sổ điểm · hôm qua", href: "/gradebook/scheme" },
   ],
   admin: [
-    { title: "Tỷ lệ dùng model dự phòng tăng lên 4,2%", meta: "Quan sát AI · 40 phút trước", href: "/observability", unread: true },
-    { title: "Ngân sách LLM tháng đã dùng 61%", meta: "Cấu hình LLM · sáng nay", href: "/settings/llm" },
+    { title: "Tỷ lệ dùng model dự phòng tăng lên 1,2%", meta: "Quan sát AI · 40 phút trước", href: "/observability", unread: true },
+    { title: "Ngân sách LLM tháng đã dùng 62%", meta: "Cấu hình LLM · sáng nay", href: "/settings/llm" },
   ],
 };
 
+function useNotes(role: Role, studentId: string | undefined): Note[] {
+  const [tickets] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
+  const out = [...NOTIFICATIONS[role]];
+  const d3 = tickets.find((t) => t.id === "tk-d3");
+  if (d3 && role === "student" && studentId === d3.studentId && d3.status === "answered" && !d3.closedBySv) {
+    out.unshift({ title: "Giảng viên đã trả lời câu hỏi của bạn", meta: "Chat riêng · vừa xong", href: "/chat", unread: true });
+  }
+  if (d3 && (role === "teacher" || role === "ta") && d3.status === "open") {
+    out.unshift({ title: "1 câu hỏi mới cần xử lý", meta: "Hộp thư hỗ trợ · vừa gửi", href: "/inbox", unread: true });
+  }
+  return out;
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, user, course, courses, setRole, setCourse } = useSession();
+  const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const groups = useMemo(() => navFor(role), [role]);
@@ -58,12 +74,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
   const mobilePrimary = flat.filter((i) => MOBILE_PRIMARY[role].includes(i.href));
   const mobileMore = flat.filter((i) => !MOBILE_PRIMARY[role].includes(i.href));
-  const notes = NOTIFICATIONS[role];
+  const notes = useNotes(role, studentId);
   const unread = notes.filter((n) => n.unread).length;
 
-  function switchRole(next: Role) {
-    setRole(next);
+  function switchRole(next: Role, person?: string) {
+    switchTo(next, person);
     if (!canOpen(next, pathname)) router.push("/");
+    else router.refresh();
   }
 
   return (
@@ -117,30 +134,49 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             label="Chọn lớp"
             trigger={(p) => (
               <button type="button" className={s.courseBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
-                <span className={s.courseCode}>{course.code}</span>
-                <span className={s.courseName}>· {course.name}</span>
+                {role === "student" && !hasCourse ? (
+                  <span className={s.courseCode}>Chưa có lớp</span>
+                ) : isAll ? (
+                  <span className={s.courseCode}>Tất cả lớp của tôi</span>
+                ) : (
+                  <>
+                    <span className={s.courseCode}>{course.code}</span>
+                    <span className={s.courseName}>· {course.name}</span>
+                  </>
+                )}
                 <ChevronDown aria-hidden />
               </button>
             )}
           >
             {(close) => (
               <div className={s.coursePanel}>
-                <p className={s.panelLabel}>{role === "student" ? "Lớp của bạn" : "Lớp bạn dạy"}</p>
+                <p className={s.panelLabel}>{role === "student" ? "Lớp của bạn" : "Lớp bạn phụ trách"}</p>
                 <MenuList
                   onPicked={close}
-                  items={courses.map((c) => ({
-                    label: (
-                      <span className={s.courseOpt}>
-                        <span>{c.code}</span>
-                        <span className={s.courseOptMeta}>
-                          {c.schedule}
-                          {c.state === "new" ? " · lớp mới nhận" : ""}
+                  items={[
+                    ...courses.map((c) => ({
+                      label: (
+                        <span className={s.courseOpt}>
+                          <span>{c.label}</span>
+                          <span className={s.courseOptMeta}>
+                            {c.schedule}
+                            {c.state === "new" ? " · lớp mới nhận" : ""}
+                          </span>
                         </span>
-                      </span>
-                    ),
-                    icon: c.id === course.id ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                    onSelect: () => setCourse(c.id),
-                  }))}
+                      ),
+                      icon: !isAll && c.id === course.id ? <Check aria-hidden /> : <span className={s.iconGap} />,
+                      onSelect: () => setCourse(c.id),
+                    })),
+                    ...(role !== "student"
+                      ? [
+                          {
+                            label: "Tất cả lớp của tôi",
+                            icon: isAll ? <Check aria-hidden /> : <span className={s.iconGap} />,
+                            onSelect: () => setCourse(ALL_COURSES),
+                          },
+                        ]
+                      : []),
+                  ]}
                 />
                 <MenuDivider />
                 <MenuList
@@ -148,12 +184,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   items={
                     role === "student"
                       ? [{ label: "Tham gia lớp bằng mã", icon: <KeyRound aria-hidden />, onSelect: () => router.push("/join") }]
-                      : role === "teacher"
-                        ? [
-                            { label: "Quản lý lớp này", icon: <Users aria-hidden />, onSelect: () => router.push("/class/members") },
-                            { label: "Mời trợ giảng", icon: <UserPlus aria-hidden />, onSelect: () => router.push("/class/members?tab=staff") },
-                          ]
-                        : []
+                      : [
+                          { label: "Quản lý lớp này", icon: <Users aria-hidden />, onSelect: () => router.push("/class/members") },
+                          ...(role === "teacher"
+                            ? [{ label: "Mời trợ giảng", icon: <UserPlus aria-hidden />, onSelect: () => router.push("/class/members?tab=staff") }]
+                            : []),
+                        ]
                   }
                 />
               </div>
@@ -212,7 +248,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     .slice(-1)[0]
                     .slice(0, 1)}
                 </span>
-                <span className={s.profileRole}>{ROLE_LABEL[role]}</span>
+                <span className={s.profileRole}>{role === "student" ? user.name : ROLE_LABEL[role]}</span>
                 <ChevronDown aria-hidden />
               </button>
             )}
@@ -227,14 +263,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <p className={s.whoMail}>{user.email}</p>
                 </div>
                 <MenuDivider />
-                <p className={s.panelLabel}>Xem bản mô phỏng với vai trò</p>
+                <p className={s.panelLabel}>Đổi vai</p>
                 <MenuList
                   onPicked={close}
-                  items={(["student", "ta", "teacher", "admin"] as Role[]).map((r) => ({
-                    label: ROLE_LABEL[r],
-                    icon: r === role ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                    onSelect: () => switchRole(r),
-                  }))}
+                  items={[
+                    ...DEMO_STUDENT_IDS.map((id, i) => {
+                      const st = STUDENTS.find((x) => x.id === id)!;
+                      const here = role === "student" && studentId === id;
+                      return {
+                        label: (
+                          <span className={s.courseOpt}>
+                            <span>
+                              Sinh viên {"ABCD"[i]} · {st.name}
+                            </span>
+                            <span className={s.courseOptMeta}>{DEMO_STUDENT_BLURB[id]}</span>
+                          </span>
+                        ),
+                        icon: here ? <Check aria-hidden /> : <span className={s.iconGap} />,
+                        onSelect: () => switchRole("student", id),
+                      };
+                    }),
+                    ...(["ta", "teacher", "admin"] as const).map((r) => ({
+                      label: (
+                        <span className={s.courseOpt}>
+                          <span>
+                            {ROLE_LABEL[r]} · {STAFF[r].name}
+                          </span>
+                        </span>
+                      ),
+                      icon: r === role ? <Check aria-hidden /> : <span className={s.iconGap} />,
+                      onSelect: () => switchRole(r),
+                    })),
+                  ]}
                 />
                 <MenuDivider />
                 <MenuList
@@ -243,6 +303,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     ...(role === "teacher" || role === "admin"
                       ? [{ label: "Cài đặt hệ thống", icon: <Settings aria-hidden />, onSelect: () => router.push("/settings/llm") }]
                       : []),
+                    {
+                      label: "Đặt lại dữ liệu demo",
+                      icon: <RotateCcw aria-hidden />,
+                      onSelect: () => {
+                        resetDemo();
+                        router.refresh();
+                      },
+                    },
                     {
                       label: "Đăng xuất",
                       icon: <LogOut aria-hidden />,
@@ -265,8 +333,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ) : (
           <Page>
             <PageHeader
-              title={`Vai trò ${ROLE_LABEL[role]} không mở được trang này`}
-              description="Mỗi vai trò chỉ thấy đúng phần việc của mình. Đổi vai trò ở góc trên bên phải để xem trang này trong bản mô phỏng."
+              title="Bạn không có quyền mở trang này"
+              description={whoCanOpen(pathname)}
               actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>}
             />
           </Page>

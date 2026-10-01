@@ -126,7 +126,8 @@ export const MOBILE_PRIMARY: Record<Role, string[]> = {
   admin: ["/", "/observability", "/admin/courses", "/settings/llm"],
 };
 
-// Ai được mở route nào (bản mô phỏng của CourseAccessGuard / RBAC). Khớp theo tiền tố dài nhất.
+// Ai được mở route nào (bản mô phỏng của CourseAccessGuard / RBAC) — ma trận SRS prototype mục 2.
+// Khớp theo tiền tố dài nhất. Quyền "chỉ đọc" của TA ở sổ điểm / cấu hình do từng trang tự xử lý.
 const ACCESS: Array<[string, Role[]]> = [
   ["/inbox", ["ta", "teacher"]],
   ["/students", ["ta", "teacher"]],
@@ -137,7 +138,7 @@ const ACCESS: Array<[string, Role[]]> = [
   ["/documents", ["ta", "teacher"]],
   ["/insights", ["ta", "teacher"]],
   ["/analytics", ["ta", "teacher"]],
-  ["/class", ["teacher"]],
+  ["/class", ["ta", "teacher"]],
   ["/observability", ["teacher", "admin"]],
   ["/settings", ["teacher", "admin"]],
   ["/admin", ["admin"]],
@@ -151,7 +152,21 @@ const ACCESS: Array<[string, Role[]]> = [
   ["/calendar", ["student", "ta", "teacher"]],
 ];
 
+function ruleFor(pathname: string) {
+  return ACCESS.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
+}
+
 export function canOpen(role: Role, pathname: string) {
-  const rule = ACCESS.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
+  const rule = ruleFor(pathname);
   return !rule || rule[1].includes(role);
+}
+
+const NOUN: Record<Role, string> = { teacher: "giảng viên", ta: "trợ giảng", student: "sinh viên", admin: "quản trị viên" };
+
+/** "Trang này dành cho giảng viên và trợ giảng." — câu lý do ở màn chặn quyền (FR-X4). */
+export function whoCanOpen(pathname: string) {
+  const rule = ruleFor(pathname);
+  const roles = (rule?.[1] ?? []).slice().sort((a, b) => Object.keys(NOUN).indexOf(a) - Object.keys(NOUN).indexOf(b));
+  const names = roles.map((r) => NOUN[r]);
+  return `Trang này dành cho ${names.length > 1 ? `${names.slice(0, -1).join(", ")} và ${names[names.length - 1]}` : names[0]}.`;
 }
