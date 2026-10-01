@@ -55,13 +55,12 @@ backend-go/
     privacy/
     store/        # sqlc: queries/*.sql → generated
     jobs/
-    contract/     # contract test với testdata/golden
-    chat/ thread/ document/ analytics/ assignment/ user/      # port từ Java
+    contract/     # contract test: response khớp api/openapi.yaml
+    chat/ thread/ document/ analytics/ assignment/ user/
     course/ crm/ grade/ quiz/ submission/ escalation/ notify/ mail/
     calendar/ library/ insight/ llmconfig/ activity/ observability/ today/
-  db/migrations/  # goose: 00001–00026 = V1–V26 nguyên văn; mới từ 00027
+  db/migrations/  # goose, từ 00001 (D32: không kế thừa schema Project III)
   api/openapi.yaml
-  testdata/golden/
   sqlc.yaml  Dockerfile  Makefile
 ```
 
@@ -157,7 +156,7 @@ Mã hoá: `APP_ENCRYPTION_KEY` (32 byte base64), AES-256-GCM, IV ngẫu nhiên m
 
 Lỗi thống nhất: `{code, message, details?, retry_after?}`; 401 chưa đăng nhập, 403 sai quyền/ngoài lớp, 409 xung đột trạng thái hoặc phiên bản, 422 validation, 429 rate limit, 503 quá tải (kèm `retry_after`).
 
-### Quy ước cho MỌI API mới (từ P2)
+### Quy ước cho MỌI API (D32)
 
 | Quy ước | Chi tiết |
 | --- | --- |
@@ -170,7 +169,7 @@ Lỗi thống nhất: `{code, message, details?, retry_after?}`; 401 chưa đăn
 | Thời hạn | Gateway đặt deadline cho mỗi request; truyền qua gRPC; client huỷ thì huỷ luôn lời gọi LLM |
 | SSE | Sự kiện có `id`; hỗ trợ `Last-Event-ID`; tối đa 2 kết nối mỗi người; heartbeat comment mỗi 25 s |
 
-API cũ của Project III giữ nguyên trong phase PG (hợp đồng bất biến); được nâng lên quy ước này khi module tương ứng được đụng tới ở phase sau, có cập nhật frontend đi kèm.
+Mọi API, kể cả nhóm chat/thread/document/analytics, theo quy ước này ngay từ đầu (D32). Không có API kế thừa từ Project III.
 
 ## 6. gRPC (`shared-proto`)
 
@@ -308,7 +307,7 @@ Dữ liệu của **lớp 1** (lớp 2 có phiên bản rút gọn 3 tuần):
 | --- | --- | --- |
 | Unit Go | `go test`, testify, table-driven | Grade Engine (biên làm tròn), Quiz Engine, khớp bài nộp, RBAC theo lớp, AES-GCM, tường lửa PII |
 | Tích hợp Go | testcontainers-go + API MailHog | Escalation → mail; IMAP → bài nộp; finalize; heartbeat |
-| Contract | Golden response từ gateway Java | Mọi endpoint cũ; giữ làm hồi quy sau khi xoá Java |
+| Contract | `internal/contract`: response thật khớp schema `api/openapi.yaml` (D32) | Mọi endpoint; chạy trong CI |
 | Unit Python | pytest (provider giả) | detector, phân loại kênh, redact, mask/unmask_stream (token cắt mọi vị trí), gateway, grading parser, tool từ chối hỏi hộ |
 | Hồi quy AI | pytest + golden set | Guardrails, injection (chat + bài nộp), citation, lọc `ANSWER_KEY` |
 | E2E | Playwright | Hỏi điểm; escalate–trả lời; điểm danh; chấm–công bố; thi thử |

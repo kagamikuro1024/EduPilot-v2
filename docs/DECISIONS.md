@@ -16,6 +16,7 @@
 | D17 | Thời gian học on-screen chỉ tham khảo + tín hiệu at-risk; không tính điểm | Không đo được việc học thật; dễ bị lách |
 | D18 | Viết lại toàn bộ gateway bằng Go, bỏ Java; Python giữ cho AI | Một ngôn ngữ backend; tách rõ đóng góp cá nhân khỏi mã kế thừa của nhóm; hợp với worker nền |
 | D19 | chi + pgx + sqlc; goose; decimal cho điểm | SQL có kiểu, sát stdlib |
+| D32 | (2026-10-01, thay D18) **Viết mới toàn bộ**: gateway Go, Python AI, frontend, schema DB. Mã Project III dời vào `legacy/`, chỉ để tham khảo, không build, không chạy trong CI/compose. Không giữ hợp đồng API cũ, không contract test với golden Java, không migrate dữ liệu Project III; migration goose bắt đầu từ `00001`. Mọi API theo quy ước ARCHITECTURE §5 ngay từ đầu | Mã cũ chất lượng thấp, tối ưu lại tốn hơn viết mới; toàn bộ mã trong ĐATN là đóng góp cá nhân. Đánh đổi: thêm ≈ 3–5 tuần (viết lại RAG, PII, LLM gateway, chấm bài) — lịch WORKFLOW §6 phải cắt lại |
 
 ## Quyết định thiết kế hệ thống (2026-09-20, theo phương pháp system-design-primer)
 

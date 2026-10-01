@@ -7,7 +7,7 @@ Người này duyệt kế hoạch, chạy cổng nghiệm thu và merge. Bạn 
 
 EduPilot v2 = nền tảng vận hành lớp học có AI cho một học phần: hỏi đáp hai kênh (chat riêng + Threads),
 chấm bài tự động, CRM sinh viên, sổ điểm, luyện đề, lịch, thư viện, cấu hình LLM, observation.
-Nâng cấp từ Project III (repo này). Gateway đang được viết lại từ Spring Boot sang Go.
+Viết mới toàn bộ (D32). Mã Project III nằm ở `legacy/`, chỉ đọc để tham khảo: không import, không build, không sửa.
 
 Tài liệu nguồn (đọc khi cần, KHÔNG đọc hết mỗi phiên):
 
@@ -38,9 +38,9 @@ Next.js (frontend) → Go gateway `backend-go` (chi + pgx + sqlc; HTTP, SSE, ngh
 3. **Không gọi SDK provider trực tiếp.** Mọi lời gọi LLM/embedding đi qua `src/llm/gateway.py`.
 4. **Hai kênh, một tường lửa.** Bài đăng/bình luận công khai qua tường lửa PII trước khi lưu. Tool dữ liệu cá nhân chỉ đăng ký cho agent kênh chat riêng. Tên và MSSV được thay placeholder quanh MỌI lời gọi LLM.
 5. **Tính điểm là code thuần.** LLM chỉ trích công thức từ quy chế thành bản nháp. Không prompt nào tính hay làm tròn điểm. Go dùng `shopspring/decimal`, cấm `float64` cho điểm.
-6. **Migration bằng goose**, file mới từ V27, không sửa file migration đã merge.
-7. **Hợp đồng API bất biến khi port.** Trong phase PG: đường dẫn, JSON, mã lỗi, sự kiện SSE, proto giữ nguyên.
-8. **Không phá cái đang chạy.** Trước và sau mỗi lát việc: chạy test Python, test Go, contract test.
+6. **Migration bằng goose**, bắt đầu từ `00001`, không sửa file migration đã merge.
+7. **API theo quy ước `docs/ARCHITECTURE.md` §5 từ đầu.** Endpoint mới nào cũng có trong `backend-go/api/openapi.yaml`; không giữ hợp đồng của Project III.
+8. **Không phá cái đang chạy.** Trước và sau mỗi lát việc: chạy test Python, test Go, test frontend.
 9. **Commit nhỏ**, nhánh `feat/<phase>-<tên>`, thông điệp `<phase>: <việc>`.
 
 ## 6 luật mở rộng (thiết kế cho tải T1 = 1.000 SV, xem `docs/SYSTEM_DESIGN.md`)
@@ -101,7 +101,7 @@ pnpm dev:status | dev:logs | dev:down
 cd backend-go && go vet ./... && golangci-lint run && go test -race ./...
 cd backend-go && sqlc generate && sqlc diff
 cd backend-go && goose -dir db/migrations postgres "$DATABASE_URL" up
-cd backend-go && go test ./internal/contract/...        # contract test với golden response
+cd backend-go && go test ./internal/contract/...        # contract test: response khớp openapi.yaml
 # Python
 pytest -q                          # không gọi LLM thật
 pytest -q -m llm                   # gọi LLM thật, chỉ chạy tay
@@ -114,7 +114,7 @@ make eval                          # E1–E6 → benchmarks/reports/
 k6 run benchmarks/load/<kịch-bản>.js   # test tải theo SLO ở docs/SYSTEM_DESIGN.md mục 5
 ```
 
-(Trước khi xong phase PG: `backend-go` chưa tồn tại; backend là `backend-java`, test bằng `mvn -q test`.)
+(`legacy/` không nằm trong lệnh nào ở trên.)
 
 ## Quy ước code
 

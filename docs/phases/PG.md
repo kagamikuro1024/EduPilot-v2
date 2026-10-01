@@ -1,3 +1,5 @@
+> **D32 (2026-10-01): phase này viết lại trước sprint 2.** Không còn "port bất biến": gateway Go viết mới theo ARCHITECTURE §5, không golden Java, không xoá Java (Java đã ở `legacy/`). Phần dưới chỉ còn giá trị như danh mục nhóm nghiệp vụ cần có (auth, chat+SSE, threads, documents, analytics, rate limit, stateless). PM viết lại phase này khi lập sprint 2.
+
 # PG — Port gateway từ Spring Boot sang Go
 
 | Ước lượng | Phụ thuộc | Nhánh |

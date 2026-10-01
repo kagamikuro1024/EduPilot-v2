@@ -89,7 +89,7 @@ sequenceDiagram
 - **Hai đường vào lớp song song:** import danh sách (CSV/XLSX) vẫn giữ cho giảng viên muốn nạp sẵn; sinh viên có trong danh sách import mà tự nhập mã thì được nối vào đúng bản ghi đó.
 - **Quản lý lớp** (giảng viên, mở từ bộ chọn lớp → "Quản lý lớp này"): thành viên, yêu cầu chờ duyệt, mời ra khỏi lớp, mã tham gia, cài đặt lớp.
 - **Nhiều lớp một giảng viên:** bộ chọn lớp ở thanh trên; riêng "Hôm nay" và "Hộp thư hỗ trợ" có chế độ **Tất cả lớp của tôi**, mỗi việc ghi rõ thuộc lớp nào. Tài liệu, ngân hàng câu hỏi và công thức điểm của một lớp **chia sẻ sang lớp khác cùng học phần** được mà không phải trích và nhúng lại.
-- AC: sinh viên ngoài lớp nhận 403 ở mọi API lớp; STUDENT gọi API mở lớp / gán giảng viên nhận 403; thông báo phân công tới giảng viên ≤ 60 s; tạo lại mã thì mã cũ bị từ chối ngay; dữ liệu lớp A không bao giờ xuất hiện trong chat, RAG, báo cáo hay sổ điểm của lớp B; dữ liệu Project III cũ migrate vào một lớp mặc định.
+- AC: sinh viên ngoài lớp nhận 403 ở mọi API lớp; STUDENT gọi API mở lớp / gán giảng viên nhận 403; thông báo phân công tới giảng viên ≤ 60 s; tạo lại mã thì mã cũ bị từ chối ngay; dữ liệu lớp A không bao giờ xuất hiện trong chat, RAG, báo cáo hay sổ điểm của lớp B. (D32: không migrate dữ liệu Project III.)
 
 ### M1. Chat riêng tư, tường lửa PII hai kênh, che danh tính trước LLM
 - Hai kênh: **chat riêng** cho thông tin cá nhân (điểm, quy chế áp vào mình, lịch thi, chuyên cần, điểm cộng); **Threads công khai** cho hỏi bài.
