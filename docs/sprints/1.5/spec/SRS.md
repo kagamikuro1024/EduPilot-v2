@@ -1,5 +1,5 @@
 # SRS FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
-Phiên bản 5.1 · 2026-10-01 · Trạng thái: DRAFT (chờ PM duyệt v5.1). v5 đã APPROVED (PM, 2026-10-01; Q3, Q4 chốt theo mặc định của BA)
+Phiên bản 5.1 · 2026-10-01 · Trạng thái: **APPROVED** (PM duyệt v5.1 2026-10-01; Q5–Q13 chốt theo mặc định của BA). v5 đã APPROVED (PM, 2026-10-01; Q3, Q4 chốt theo mặc định của BA)
 
 Lịch sử: v1 bản đầu · v2 mốc thời gian tuần 10, "bây giờ" = 29/10/2026 09:20 (#12) · v3 điểm BT03 của B = 8,0, QT = 8,7 (#13) · v4 chi tiết luồng Threads (#15) + phân định panel (#16) — APPROVED · v5 UI polish (#17: FR-X12, mục 4.7) + Threads như thật (#18: mục 4.3.1) — APPROVED · **v5.1 (#19, QC thăm dò 37 lỗi E1–E37): màn SV chưa vào lớp 4.3.2, hộp chặn thông tin cá nhân ở Threads 4.3.3, luyện đề 4.3.4, nguồn số liệu mock duy nhất 4.8, thông báo + liên kết sâu 4.9, bảng truy vết E → AC 4.10, FR-X13…X19; cộng 3 điểm PM chốt theo `qc/tc-US-PROTO-01.md` "Điểm khó kiểm": mục 4.3.1 J**. v5.1 không đổi số liệu #12 / #13 (QT 8,3 → 8,5 → 8,7; BT03 8,0; What-if 8,3). **Sửa hai chỗ của v5:** (1) `t-rsa-key` có câu AI đã được GV xác nhận (v5 để `Chờ xác nhận` làm "Hôm nay" có 2 câu chờ trong khi thẻ ghi 1 — cùng họ lỗi E6, mục 4.8 N10); (2) dòng `/chat` ở 4.3 ghi "Lịch sử 4 phiên (ẩn ở 375 px)" đọc là "panel lịch sử thu lại, thay bằng nút `Phiên trước (4)`" (01-AC22).
 
