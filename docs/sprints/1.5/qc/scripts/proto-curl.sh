@@ -95,6 +95,34 @@ tc_04_04(){ eq "$(visible teacher /settings/llm | grep -c 'Test kết nối')" 0
 tc_04_06(){ local v r; for v in student ta; do for r in /observability /settings/llm /settings/integrations /admin/courses /admin/users; do want CHAN $v "$r" sv-2; done; done; want CHAN teacher /admin/courses
   eq "$(visible ta /analytics | grep -ci 'chi phí')" 0 "TA ở /analytics không có 'chi phí'"; }
 
+# ---------- Spec v5 (#17 UI polish, #18 Threads như thật) ----------
+hook(){ # hook <vai> <route> <data-part> <min> [người]  → đếm thuộc tính data-part trong HTML
+  local n; n=$(curl -s -b "ep_demo_role=$1; ep_demo_person=${5:-sv-2}; ep_demo_course=int1006-1" "$F$2" | grep -o "data-part=\"$3\"" | wc -l | tr -d ' '); ge "$n" "$4" "$1 $2 có data-part=$3"; }
+tc_00_07(){ local v; for v in student ta teacher admin; do hook $v / brand 1; done
+  ge "$(curl -s "$F/login" | grep -c 'alt="EduPilot"')" 1 "/login có logo alt=EduPilot (AC7)"; }
+tc_00_08(){ ge "$(curl -s -b "ep_demo_role=teacher; ep_demo_course=int1006-1" $F/ | grep -c 'title="761987 · An ninh mạng"')" 1 "bộ chọn lớp có title đầy đủ (AC8)"
+  ge "$(curl -s -b "ep_demo_role=teacher; ep_demo_course=int1006-1" $F/ | grep -c 'aria-label="[^"]*761987 · An ninh mạng')" 1 "bộ chọn lớp có aria-label đầy đủ (SRS 4.7 b2)"; }
+tc_00_09(){ local p v n
+  for p in "teacher:TS. Lê Thu Hà" "ta:Phạm Quốc Bảo" "admin:Đỗ Hoàng Nam" "student:Trần Thu Uyên"; do
+    ge "$(curl -s -b "ep_demo_role=${p%%:*}; ep_demo_person=sv-2; ep_demo_course=int1006-1" $F/ | grep -c "Tài khoản: ${p#*:}")" 1 "aria-label Tài khoản: ${p#*:}"; done
+  for p in sv-1:'Nguyễn Minh Trung' sv-3:'Lê Quang Huy' sv-4:'Phạm Ngọc Linh'; do
+    ge "$(curl -s -b "ep_demo_role=student; ep_demo_person=${p%%:*}; ep_demo_course=int1006-1" $F/ | grep -c "Tài khoản: ${p#*:}")" 1 "SV ${p%%:*} → Tài khoản: ${p#*:}"; done
+  for v in teacher ta admin; do eq "$(curl -s -b "ep_demo_role=$v; ep_demo_person=sv-2; ep_demo_course=int1006-1" $F/ | grep -c 'Tài khoản: \(Giảng viên\|Trợ giảng\|Admin\)"')" 0 "$v: aria-label không ghi tên vai"; done; }
+tc_00_hooks(){ hook student /chat chat-history 1; hook student /chat chat-thread 1; hook student /chat chat-composer 1; hook teacher /inbox inbox-list 1; hook admin /settings/llm provider-status 3 sv-2; hook admin /settings/llm provider-action 3 sv-2; }
+THREADS_N='t-cbc:4 t-salt:3 t-sqli:3 t-pin-rubric:4 t-pin-lab:3 t-rsa-key:2 t-xss:2 t-vpn:2 t-pki:2 t-phishing:2 t-firewall:2 t-wifi:2'
+tc_01_10(){ local p id n v   # 01-AC10: không còn hai tiêu đề cũ; "Thảo luận (n)" khớp SRS 4.3.1 B, mọi vai được vào thread
+  for v in student ta teacher; do for p in $THREADS_N; do id=${p%%:*}; n=${p#*:}
+    eq "$(visible $v /threads/$id sv-2 | grep -cE 'Thảo luận của lớp|Phản hồi trong thread này')" 0 "$v $id không còn tiêu đề cũ"
+    ge "$(visible $v /threads/$id sv-2 | grep -c "Thảo luận ($n)")" 1 "$v $id có 'Thảo luận ($n)'"; done; done; }
+tc_01_11(){ local t   # 01-AC10: seed t-cbc / t-salt đúng bảng B (nếu curl không thấy → so tay bằng trình duyệt)
+  t=$(visible student /threads/t-cbc sv-2)
+  for s in 'Đặng Gia An' 'Dương Thanh Hiếu' 'Vậy IV có cần giữ bí mật không ạ' 'Phạm Quốc Bảo' 'Em hiểu rồi: IV cố định' 'Nguyễn Thị Giang' 'Còn CTR thì sao ạ' 'Nguồn tham khảo (2)' 'Chờ xác nhận'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-cbc có «$s»"; done
+  eq "$(echo "$t" | grep -c 'Xác nhận\b.*Chỉnh sửa\|Loại khỏi tri thức')" 0 "SV không có nút Xác nhận/Chỉnh sửa/Loại (t-cbc)"
+  t=$(visible student /threads/t-salt sv-2)
+  for s in 'Đã được giảng viên xác nhận' 'Lê Thu Hà' 'Muối lưu ở đâu ạ' 'bcrypt còn cố tình chậm' 'Em nghĩ là để mỗi lần đoán thử'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-salt có «$s»"; done
+  for id in t-firewall t-wifi; do eq "$(visible student /threads/$id sv-2 | grep -c 'Trợ lý AI của lớp')" 0 "$id không có câu AI"; done; }
+tc_04_07(){ hook admin /settings/llm provider-status 3; hook teacher /settings/llm provider-status 3; eq "$(visible teacher /settings/llm | grep -c 'Test kết nối')" 0 "GV không có Test kết nối"; }
+
 [ $# -eq 0 ] && { echo "dùng: F=… $0 tc_00_01 …  (hoặc: $0 all)"; grep -oE '^tc_[0-9a-z_]+' "$0" | xargs; exit 2; }
 for t in "$@"; do TC=$t; if [ "$t" = all ]; then for f in $(grep -oE '^tc_[0-9a-z_]+' "$0"); do TC=$f; $f; done; elif declare -F "$t" >/dev/null; then "$t"; else echo "FAIL $t: không có TC này"; RC=1; fi; done
 exit $RC

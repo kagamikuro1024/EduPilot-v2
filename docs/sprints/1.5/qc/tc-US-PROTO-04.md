@@ -28,9 +28,22 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.6. Hộp đen. Công c�
 | TC-04-23 | SRS 4.6 `/settings/integrations` | Admin; GV | **B** `Gửi thư thử` / `Kiểm tra` | Mail đã kết nối (kiểm 08:55), IMAP chưa cấu hình, Teams "cần quản trị viên trường đồng ý" bằng lời; kết quả tại chỗ; GV chỉ xem |
 | TC-04-24 | Trạng thái | – | **B** `?state=loading|empty|error` 8 route | Skeleton đúng hình, rỗng có một hành động, lỗi có `Thử lại` |
 | TC-04-25 | **Chéo: nội dung prompt chỉ ADMIN, có audit** (CLAUDE.md) | – | **B** GV/TA tìm nội dung yêu cầu ở mọi màn (`/observability`, `/analytics`, `/inbox`) | Không thấy nội dung prompt/chat riêng; chỉ Admin sau khi nhập lý do |
+| TC-04-26 | AC7 (#17g) | Admin, `/settings/llm`, 1440 | **A** "04-AC7 cột thẳng hàng"; **B** Console của US 04-AC7 | `['provider-status','provider-action'].map(… Set(left).size)` → `[1, 1]` với ≥ 3 hàng (OpenAI, Gemini, Máy chủ trong trường); v4 lệch x = 693 / 716 / 764; ảnh |
+| TC-04-27 | AC7 | Như TC-04-26 | **A** "04-AC7 lưới cố định" | Cột trạng thái rộng 200 px, cột nút 140 px (±1) ở mọi hàng (lưới `minmax(0, 1fr) 200px 140px`); dòng "Kiểm gần nhất: 09:05 hôm nay · 3 lần lỗi trong 15 phút" của Gemini (dài nhất) xuống dòng trong cột, không tràn, không làm lệch hàng |
+| TC-04-28 | AC7 | Admin, 390 và 375 px | **A** "04-AC7 hàng xếp dọc" | Mỗi hàng: thông tin → trạng thái → nút theo thứ tự trên xuống; nút rộng 100 % hàng, cao ≥ 44 px; dòng hạn mức "Tháng 10 · 1.240.000 đ / 2.000.000 đ" xuống dòng, không `…`; AUDIT `ell: []`, `cut: []`; ảnh |
+| TC-04-29 | AC7 (biên) | Admin | **A** AUDIT `/settings/llm` ở 1100, 1024, 720, 719, 600 px | Không `…` không `title`, không cắt, không tràn ngang ở mọi bề rộng; 1440 → 390 không có bề rộng nào làm hai cột chồng lên nhau |
+| TC-04-30 | AC7 / AC4 | GV (chỉ xem), 1440 và 390 | **A** `provider-status` thẳng hàng; **B** | Cột trạng thái vẫn thẳng hàng khi không có nút sửa/test; không có khoảng trống cột nút kéo dài lạ; không `Test kết nối` (US 04-AC4) |
+| TC-04-31 | AC7 / AC4 | Admin | **B** `Test kết nối` ở từng hàng (kể cả Gemini lỗi); đổi model tác vụ CHAT; đổi khoá | Kết quả hiện tại chỗ ("Kết nối được · 412 ms" / lỗi có cách khắc phục) và dòng Hoàn tác **không làm lệch** các cột (đo lại `[1, 1]`); ở 390 kết quả dài xuống dòng, không tràn |
+| TC-04-32 | AC7 | Admin, 390 | **B** Khoá API ở hàng: "••••3f9a · đã kết nối" | Chữ khoá che vẫn đủ, không `…`; nhãn "Kiểm gần nhất" không bị cắt |
+| TC-04-33 | 00-AC10 h1 (US-04) | GV, Admin; 390 và 375 | **A** `/observability` (GV, Admin) | `ox` = 0 (v4: 34 px); bảng 50 yêu cầu của Admin đọc được (cuộn ngang trong vùng `data-scroll-x` hoặc dạng danh sách), `cut: []`; GV chỉ thấy dải trạng thái + số tổng hợp |
+| TC-04-34 | 00-AC10 h3 (US-04) | Admin, 390 và 719 | **A** `/admin/courses`, `/admin/users` | Dạng danh sách (không `<table>`), chip trạng thái và vai đủ chữ ("Đang học", "Mới mở"), `ox` = 0 (v4 `/admin/users` 101 px); hàng có `…` mở menu `Lưu trữ` / khoá dùng được bằng chạm ≥ 44 px |
+
+
+## Công cụ bổ sung (spec v5)
+**A** = `scripts/audit.mjs` (phép đo "04-AC7"), `proto-curl.sh` `tc_04_07` (có `data-part` `provider-status` ≥ 3, GV không có `Test kết nối`).
 
 ## Nhánh lỗi
-TC-04-09, 15, 16, 24.
+TC-04-09, 15, 16, 24; spec v5: TC-04-29 (mọi bề rộng), 31 (kết quả test lỗi không làm vỡ lưới).
 
 ## Phân quyền
 TC-04-10, 14, 17, 18, 25 (GV R, TA bị chặn, SV bị chặn; Admin có lý do + audit).
@@ -43,6 +56,8 @@ TC-04-10, 14, 17, 18, 25 (GV R, TA bị chặn, SV bị chặn; Admin có lý do
 ## Điểm khó kiểm
 - Biểu đồ SVG tự vẽ: kiểm bằng ảnh, không tính chính xác số.
 - "Khoá API chỉ ghi": phải xem DOM (không chỉ chữ hiển thị).
+- AC7: lưới `200px / 140px` ghi trong SRS 4.7 g1 (không có trong US); TC-04-27 chấm theo SRS 4.7. Hàng 390 px "nút rộng 100 %" đo bằng so sánh với bề rộng hàng, cho sai số 32 px lề trong.
+- Sinh viên / TA không mở `/settings/llm` nên TC-04-26…32 chỉ cần Admin và GV.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
-(chưa có)
+- 2026-10-02 · Thêm TC-04-26…34 (không sửa TC cũ): spec v5 — 04-AC7 (#17g `/settings/llm` lưới cột 1440 / xếp dọc 390), cộng 00-AC10 h1 / h3 cho `/observability`, `/admin/courses`, `/admin/users` (SRS 4.7 g1, g2, h1, h3).

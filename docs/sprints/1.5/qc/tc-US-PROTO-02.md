@@ -34,9 +34,31 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.4. Hộp đen. Công c�
 | TC-02-29 | AC8 | GV / TA ở `/threads/[id]` có câu trả lời AI `Chờ xác nhận` | **B** Bấm `Chỉnh sửa` | Mở ô sửa inline chứa sẵn nội dung câu trả lời AI |
 | TC-02-30 | AC8 | Sau TC-02-29 | **B** Sửa nội dung và bấm `Lưu và xác nhận` | Trạng thái chuyển thành `Đã được giảng viên sửa & xác nhận` (CORRECTED), hiển thị nội dung đã sửa kèm nút/chi tiết "Xem câu trả lời AI gốc" để đối chiếu (Proposal #15) |
 | TC-02-31 | AC8 | GV / TA ở `/threads/[id]` có câu trả lời AI | **B** Bấm `Loại khỏi tri thức` | Câu trả lời AI bị ẩn/loại bỏ khỏi thread và hiển thị dòng Hoàn tác |
+| TC-02-32 | AC9 (#17c) | GV, 1440 × 900, `/inbox` | **A** "02-AC9 chip", AUDIT `/inbox` 1440; **B** | Hàng tab / chip lọc cuộn ngang (`data-scroll-x`), đọc đủ "Tất cả 6" (và Đang chờ, Đã nhận, Đã trả lời); `cut: []`; không chữ nào bị cắt ngang |
+| TC-02-33 | AC9 | GV, 1440 | **A** đo cột danh sách; **B** ảnh | Cột danh sách ≤ 380 px, không phần tử vượt cột; mỗi ticket: dòng 1 tên + thời gian, dòng 2 câu hỏi tối đa 2 dòng (ticket dài của Lý Gia Thảo bị cắt đúng 2 dòng, không tràn), dòng 3 meta xuống dòng được (không cắt giữa chữ như v4 "…bấm Nhờ giảng viên hỗ trợ") |
+| TC-02-34 | AC9 | GV, 375 và 390 px | **A** `/inbox` | Chỉ thấy danh sách; bấm ticket (Lý Gia Thảo / D3) → chi tiết toàn bề rộng, URL có `?ticket=<id>`, có `← Hộp thư` cao và rộng ≥ 44 px, danh sách ẩn; AUDIT `cut: []` ở 375 |
+| TC-02-35 | AC9 | GV, 375 và 390 px | **A** cuộn danh sách 250 px → mở ticket → `← Hộp thư`; lặp lại với Back của trình duyệt | Về danh sách **đúng vị trí cuộn** (±2 px) cả hai cách; URL bỏ `?ticket=` |
+| TC-02-36 | AC9 (biên) | GV | **A** 1100 → 1099 px; **B** mở thẳng `/inbox?ticket=<id>` ở 1440 và 375, tải lại ở 375 khi đang xem chi tiết | 1100: hai panel; 1099: chỉ danh sách rồi chi tiết (ngưỡng SRS 4.7 c2). 1440 + `?ticket=`: ticket đó được chọn sẵn; 375: tải lại vẫn ở chi tiết đúng ticket |
+| TC-02-37 | AC9 (nhánh lỗi) | GV | **B** `/inbox?ticket=khong-co`; `/inbox?state=error` ở 375 | `?ticket=` sai → quay về danh sách hoặc thông báo rỗng có hướng, không trắng trang, không lỗi console; `?state=error` có `Thử lại`, không vỡ bố cục |
+| TC-02-38 | AC9 | GV, 375 | **B** Chip lọc: Đang chờ → Đã nhận → Đã trả lời | Hàng chip cuộn ngang, chip đang chọn tự cuộn vào khung; số trên chip đủ chữ; không cắt |
+| TC-02-39 | AC10 (#17d) | GV, 1440 | **A** "02-AC10" cho 5 ticket: Nguyễn Minh Trung, Đặng Gia An, Lê Quang Huy, Đỗ Thanh Long, Lý Gia Thảo | `[data-part=inbox-reply]` cách phần tử liền trước ≤ 24 px (v4: 100 px); `Gửi trả lời` cách ô soạn ≤ 24 px; ảnh ticket Lý Gia Thảo |
+| TC-02-40 | AC10 | GV, 1440 | **B** Ticket ngắn (D3) so với ticket có bản nháp AI dài | Panel chi tiết cao theo nội dung, không kéo giãn khối thông tin để lấp chiều cao; không khoảng trống lớn trước hoặc sau ô trả lời |
+| TC-02-41 | AC10 | GV | **A** sau `Nhận`; sau `Gửi trả lời` (Answered) | Khoảng cách ≤ 24 px được giữ ở trạng thái Claimed; ở Answered dòng "Đã gửi thư thông báo… (mô phỏng)" nằm sát phía dưới, không khoảng trống |
+| TC-02-42 | AC10 (biên) | GV | **B** Ticket "đã có người nhận" (Phạm Quốc Bảo, 09:12) | Thay nút `Nhận` bằng dòng "đã nhận lúc 09:12"; ô "Trả lời của bạn" vẫn cách khối trên ≤ 24 px |
+| TC-02-43 | AC11 (#18) | GV, sau `Đặt lại dữ liệu`; B vừa tạo thread khớp mẫu | **T** `T1j`, `T1k`, `T1l` (hoặc **B**: B tạo "Dùng lại IV trong CTR có sao không?" → đổi vai GV) | Hôm nay: "7 việc cần xử lý hôm nay"; có việc "Câu hỏi mới: «Dùng lại IV trong CTR có sao không?» · Mật mã đối xứng · vừa xong" nhãn `Chờ xác nhận`; chuông: "Câu hỏi mới trong Threads: «…»" |
+| TC-02-44 | AC11 | Sau TC-02-43 | **T** `T1m`, `T1n` | Bấm việc → `/threads/<id>`; `Xác nhận` → việc rời Hôm nay, tiêu đề "6 việc cần xử lý hôm nay" |
+| TC-02-45 | AC11 (nhánh không khớp) | B vừa tạo "WPA3 chặn được KRACK không?" | **T** `T4e`, `T4f` | Hôm nay "7 việc", nhãn `Cần giảng viên trả lời`; GV gửi phản hồi trong thread → việc rời, "6 việc" |
+| TC-02-46 | AC11 / H (TA) | TA, cùng trạng thái TC-02-43 và TC-02-45 | **T** `T4g`; **B** | Trợ giảng thấy giống GV: việc, nhãn, đếm, chuông; thao tác của TA làm việc rời |
+| TC-02-47 | AC11 / H | GV, sau TC-02-43 | **B** `Chỉnh sửa` → `Lưu và xác nhận`; làm lại ở thread khác với `Loại khỏi tri thức` | Mỗi thao tác (Xác nhận / Chỉnh sửa / Loại / gửi phản hồi) đều làm việc rời Hôm nay và đếm giảm 1 |
+| TC-02-48 | AC11 (biên) | GV, sau `Đặt lại dữ liệu demo` | **B** B tạo 2 thread khớp → đếm; Xác nhận một thread mới; Xác nhận `t-cbc` của seed; `Đặt lại dữ liệu demo` | 8 → 7 → 6 (việc seed "1 câu trả lời của AI chờ bạn xác nhận" rời độc lập với việc mới); sau Đặt lại: 6, thread mới biến mất khỏi `/threads` |
+| TC-02-49 | AC11 / phân quyền | SV B, D | **T** `T1o`; **B** | SV không thấy việc "Câu hỏi mới" của GV ở `/`; GV không thấy việc của SV; việc dành cho GV/TA không lộ nội dung chat riêng |
+
+
+## Công cụ bổ sung (spec v5)
+**A** = `scripts/audit.mjs` (phép đo "02-AC9", "02-AC10"); **T** = `scripts/threads-timeline.mjs` (các bước `T1j`…`T1o`, `T4e`…`T4g`).
 
 ## Nhánh lỗi
-TC-02-07 (409 giả lập), TC-02-18 (mất mạng), TC-02-19, TC-02-26 (`?state=`), TC-02-11 (hoàn tác).
+TC-02-07 (409 giả lập), TC-02-18 (mất mạng), TC-02-19, TC-02-26 (`?state=`), TC-02-11 (hoàn tác); spec v5: TC-02-36, 37 (`?ticket=` sai / tải lại), 45 (nhánh không khớp), 48 (đếm khi nhiều thread).
 
 ## Phân quyền
 TC-02-20, 21 (SV/Admin/TA); TC-02-25 (GV không đọc chat riêng chưa escalate — luật CLAUDE.md); TC-02-23 (ghi chú chỉ GV/TA).
@@ -48,7 +70,10 @@ TC-02-20, 21 (SV/Admin/TA); TC-02-25 (GV không đọc chat riêng chưa escalat
 
 ## Điểm khó kiểm
 - "Toàn bộ ≤ 60 s" phụ thuộc người bấm: ghi thời gian thực tế trong report (bấm giờ bằng script `demo-run.mjs` khi có).
-- Phụ thuộc chéo: TC-02-05 cần D3 (US-PROTO-01); TC-02-13/14 cần yêu cầu của D.
+- Phụ thuộc chéo: TC-02-05 cần D3 (US-PROTO-01); TC-02-13/14 cần yêu cầu của D; TC-02-43…49 cần thread do B tạo (US-PROTO-01 TC-01-39 / TC-01-79).
+- AC9 / AC10 đo ở trình duyệt thật (Console); `data-part` `inbox-list`, `inbox-detail`, `inbox-reply` do dev thêm — thiếu móc = FAIL.
+- Spec chưa nói thứ tự của việc "Câu hỏi mới" trong danh sách 7 việc (02-AC11) nên TC chỉ kiểm có mặt, nhãn và số đếm.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-10-01 · TC-02-16..18: Cập nhật kiểm tra cấu trúc 2 panel độc lập (viền, nền surface, bo góc, cuộn độc lập) của `/inbox` (02-AC5); thêm TC-02-28..31 kiểm duyệt câu trả lời AI ở Threads (Xác nhận, Chỉnh sửa inline lưu CORRECTED, Loại bỏ có Hoàn tác) theo spec v4 (02-AC8, proposals #15, #16).
+- 2026-10-02 · Thêm TC-02-32…49 (không sửa TC cũ): spec v5 — 02-AC9 (#17c `/inbox` danh sách + mobile `?ticket=`), 02-AC10 (#17d khoảng trống chi tiết), 02-AC11 (#18 việc "Câu hỏi mới" ở Hôm nay, 6 ↔ 7).
