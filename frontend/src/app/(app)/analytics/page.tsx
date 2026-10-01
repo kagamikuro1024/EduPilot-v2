@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { AnalyticsScreen } from "@/features/analytics/AnalyticsScreen";
 
 export const metadata: Metadata = { title: "Analytics" };
 
 export default function Page() {
-  return <RouteStub title="Analytics" />;
+  return <AnalyticsScreen />;
 }

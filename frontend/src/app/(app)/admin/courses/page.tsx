@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { AdminCourses } from "@/features/admin/AdminCourses";
 
 export const metadata: Metadata = { title: "Lớp học" };
 
 export default function Page() {
-  return <RouteStub title="Lớp học" />;
+  return <AdminCourses />;
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { LlmSettings } from "@/features/settings/LlmSettings";
 
 export const metadata: Metadata = { title: "Cấu hình LLM" };
 
 export default function Page() {
-  return <RouteStub title="Cấu hình LLM" />;
+  return <LlmSettings />;
 }

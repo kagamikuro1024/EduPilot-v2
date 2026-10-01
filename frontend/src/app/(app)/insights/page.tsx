@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { InsightsScreen } from "@/features/insights/InsightsScreen";
 
 export const metadata: Metadata = { title: "Insights" };
 
 export default function Page() {
-  return <RouteStub title="Insights" />;
+  return <InsightsScreen />;
 }
