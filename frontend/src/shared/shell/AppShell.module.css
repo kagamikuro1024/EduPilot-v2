@@ -141,7 +141,7 @@
 
 /* ---------- main ---------- */
 .main { margin-left: var(--side); min-height: calc(100dvh - var(--ep-topbar)); outline: none; transition: margin-left var(--ep-normal) var(--ep-ease-standard); }
-.main:focus-visible { box-shadow: none; }
+.main:focus-visible { box-shadow: none; } /* ui-allow: vùng nhận focus bằng chương trình, không phải điều khiển */
 .blocked { max-width: 960px; margin: 0 auto; padding: var(--ep-space-16) var(--ep-space-8); }
 
 /* ---------- mobile ---------- */

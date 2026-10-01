@@ -2,7 +2,7 @@
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
 import { COURSES, PEOPLE, type Course, type Person, type Role } from "@/mock/core";
-import { COURSE_COOKIE, ROLE_COOKIE } from "./cookies";
+import { COURSE_COOKIE, ROLE_COOKIE, writeDemoCookie } from "./cookies";
 
 type Session = {
   role: Role;
@@ -14,10 +14,6 @@ type Session = {
 };
 
 const SessionContext = createContext<Session | null>(null);
-
-function writeCookie(name: string, value: string) {
-  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax`;
-}
 
 export function SessionProvider({
   initialRole,
@@ -32,12 +28,12 @@ export function SessionProvider({
   const [courseId, setCourseId] = useState(initialCourseId);
 
   const setRole = useCallback((next: Role) => {
-    writeCookie(ROLE_COOKIE, next);
+    writeDemoCookie(ROLE_COOKIE, next);
     setRoleState(next);
   }, []);
 
   const setCourse = useCallback((id: string) => {
-    writeCookie(COURSE_COOKIE, id);
+    writeDemoCookie(COURSE_COOKIE, id);
     setCourseId(id);
   }, []);
 

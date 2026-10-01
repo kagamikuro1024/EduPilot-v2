@@ -5,10 +5,22 @@ import { courseById, type Role } from "@/mock/core";
 export const ROLE_COOKIE = "ep_demo_role";
 export const COURSE_COOKIE = "ep_demo_course";
 
-export function parseRole(value: string | undefined): Role {
-  return value === "student" || value === "ta" || value === "teacher" || value === "admin" ? value : "teacher";
+const ROLES: readonly string[] = ["student", "ta", "teacher", "admin"];
+
+/** Cookie vai trò hợp lệ → Role; thiếu hoặc sai → null (chưa "đăng nhập"). */
+export function parseRole(value: string | undefined): Role | null {
+  return value && ROLES.includes(value) ? (value as Role) : null;
 }
 
 export function parseCourse(value: string | undefined) {
   return courseById(value ?? "").id;
+}
+
+/** Chỉ gọi ở trình duyệt. */
+export function writeDemoCookie(name: string, value: string) {
+  document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax`;
+}
+
+export function clearDemoSession() {
+  for (const name of [ROLE_COOKIE, COURSE_COOKIE]) document.cookie = `${name}=; path=/; max-age=0; samesite=lax`;
 }

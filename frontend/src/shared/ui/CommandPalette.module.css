@@ -2,7 +2,7 @@
 .search { display: flex; align-items: center; gap: var(--ep-space-3); padding: var(--ep-space-4); border-bottom: 1px solid var(--ep-rule); }
 .search svg { width: 18px; height: 18px; color: var(--ep-ink-3); flex: none; }
 .search input { flex: 1; border: 0; outline: none; background: transparent; font-size: var(--ep-text-item); color: var(--ep-ink); }
-.search input:focus-visible { box-shadow: none; }
+.search input:focus-visible { box-shadow: none; } /* ui-allow: tắt vòng focus toàn cục vì khung ngoài đã có viền focus */
 .list { max-height: 360px; overflow-y: auto; padding: var(--ep-space-2); }
 .item {
   display: flex;

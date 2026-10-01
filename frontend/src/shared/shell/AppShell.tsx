@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ROLE_LABEL, SUBJECT, TERM, type Role } from "@/mock/core";
+import { clearDemoSession } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { ButtonLink, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Popover } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
@@ -251,7 +252,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     ...(role === "teacher" || role === "admin"
                       ? [{ label: "Cài đặt hệ thống", icon: <Settings aria-hidden />, onSelect: () => router.push("/settings/llm") }]
                       : []),
-                    { label: "Đăng xuất", icon: <LogOut aria-hidden />, onSelect: () => router.push("/login") },
+                    {
+                      label: "Đăng xuất",
+                      icon: <LogOut aria-hidden />,
+                      onSelect: () => {
+                        clearDemoSession();
+                        router.push("/login");
+                      },
+                    },
                   ]}
                 />
               </div>
