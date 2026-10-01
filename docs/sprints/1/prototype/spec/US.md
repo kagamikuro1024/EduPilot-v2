@@ -63,7 +63,7 @@ Route: `/`, `/chat`, `/threads`, `/threads/[id]`, `/practice`, `/practice/[attem
   Kiểm: `for r in / /chat /threads /threads/t-cbc /practice /library /calendar /me /assignments/bt03; do visible student $r sv-2; done | grep -inE 'RAG|PII|fallback|trace|provider|confidence|redaction|độ tin cậy|cần chú ý|rủi ro'` → không in gì. Tay: `/assignments/bt03` trước khi GV công bố không có con số điểm.
 - AC6. Given điện thoại 375 px When dùng mọi route của US Then không cuộn ngang, vùng chạm ≥ 44 px, bottom nav ≤ 5 đích, lịch sử chat ẩn.
   Kiểm: DevTools 375 × 812, đi lần lượt các route; ảnh chụp đính vào báo cáo QC.
-- AC7. Given B ở `/me` When nhập CK = 8,0 vào What-if Then hiện 8,3; nhập 11 → báo lỗi tại ô. Sau bước điểm danh của GV, QT của B = 8,5; sau công bố BT03 = 8,8 (`SRS.md` 4.1).
+- AC7. Given B ở `/me` When nhập CK = 11 vào What-if Then báo lỗi tại ô. Sau bước điểm danh của GV, QT của B = 8,5; sau công bố BT03 (8,0), QT = 8,7 và What-if CK = 8,0 hiện 8,3 (`SRS.md` 4.1).
   Kiểm: tay.
 - AC8 (nhánh lỗi). Given Sinh viên D When nhập mã `ABCDEFG` ở `/join` Then thấy câu chung "Mã không hợp lệ hoặc đã hết hạn…", không lộ lý do; nhập `BX4P9TW` → xem trước lớp 761988 → `Tham gia lớp` → "chờ giảng viên duyệt". Và: `?state=error` trên `/chat` giữ nguyên chữ trong composer.
   Kiểm: tay; `visible student /join/BX4P9TW sv-4 | grep -c 761988` ≥ 1.
@@ -111,7 +111,7 @@ Route: `/gradebook`, `/gradebook/scheme`, `/grading`, `/grading/[submissionId]`,
 ### Tiêu chí nghiệm thu
 - AC1. Given Giảng viên When mở từng route Then mở được, khung nhìn đầu đúng §14.10–14.14, 14.17.
   Kiểm: `for r in /gradebook /gradebook/scheme /grading /grading/sub-bt03-sv-2 /questions /documents; do open_as teacher $r; done` → đều `MO`.
-- AC2. Given `/grading` lọc mặc định When mở bài B → thấy thông báo vàng "Hai lượt chấm lệch 1,5 điểm" ở tiêu chí 2 → sửa tiêu chí 2 thành 2,5 → `Duyệt bài` → về hàng chờ → `Công bố` Then tổng 8,5 (đã trừ nộp muộn 0,5); `/assignments/bt03` của B có điểm và nhận xét; sổ điểm có BT03; QT của B = 8,8.
+- AC2. Given `/grading` lọc mặc định When mở bài B → thấy thông báo vàng "Hai lượt chấm lệch 1,5 điểm" ở tiêu chí 2 → sửa tiêu chí 2 thành 2,5 → `Duyệt bài` → về hàng chờ → `Công bố` Then tổng các tiêu chí 8,5, trừ nộp muộn 0,5 → công bố 8,0; `/assignments/bt03` của B có điểm 8,0 và nhận xét; sổ điểm có BT03; QT của B = 8,7.
   Kiểm: tay theo `DEMO_SCRIPT.md` 08:00–09:35.
 - AC3. Given lớp 2 When mở `/gradebook` Then banner công thức chưa xác nhận, `Chốt điểm` khoá có lý do; `/gradebook/scheme` → điền D5 → `Xác nhận công thức` (qua hộp xác nhận) → về `/gradebook` lớp 2 hết banner.
   Kiểm: tay theo `DEMO_SCRIPT.md` 10:00–11:15.

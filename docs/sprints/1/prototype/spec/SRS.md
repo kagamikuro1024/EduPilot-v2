@@ -1,5 +1,5 @@
 # SRS FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
-Phiên bản 2 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; Q1, Q2 chủ dự án đã trả lời) · v2: mốc thời gian tuần 10, "bây giờ" = 29/10/2026 (proposals #12)
+Phiên bản 3 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; Q1, Q2 chủ dự án đã trả lời) · v2: mốc thời gian tuần 10, "bây giờ" = 29/10/2026 (proposals #12) · v3: điểm BT03 của B = 8,0, QT = 8,7 (proposals #13)
 
 Nguồn: `docs/sprints/1/prototype/plan.md`, `docs/design/DESIGN.md` (§1–§2, §10, §12–§15, §21–§22), `docs/design/INTEGRATION.md` mục 2, `docs/PRD.md` §3–§4, `docs/FLOWS.md`, `docs/DEMO_SCRIPT.md`. Mục 5, 6, 8, 10 rút gọn theo prompt.
 
@@ -93,7 +93,7 @@ Mọi dữ liệu nằm ở `frontend/src/mock/*.ts`. Khi `mock/core.ts` (nháp 
 | Sinh viên D | Phạm Ngọc Linh, `20229004` — **chưa vào lớp nào** |
 | 53 SV còn lại | Sinh tất định như `mock/core.ts`; 3 SV (gồm A) học cả hai lớp |
 | Bài tập lớp 1 | BT01 "Mô hình đe doạ" (ESSAY, hạn 17/09, đã công bố); BT02 "Tấn công mạng phổ biến" (ESSAY, hạn 01/10, đã công bố); **BT03 "Phân tích một vụ tấn công thực tế"** (ESSAY, hạn 22/10 23:59, cho nộp muộn −0,5/ngày tối đa 2 ngày, rubric 4 tiêu chí × 2,5, chấm nháp xong, chưa công bố); QUIZ01 "Mật mã đối xứng" (tính điểm, đóng 30/10 03:20 — còn 18 giờ). Giữa kỳ tuần 11 (05/11), cuối kỳ tuần 16 |
-| Bài BT03 của SV B | AI lượt 1: 2,0 / 1,0 / 2,0 / 2,0 = 7,0; lượt 2 tiêu chí 2 "Phân tích tấn công" = 2,5 → 8,5; **lệch 1,5** → "Cần xem kỹ"; trừ nộp muộn −0,5 |
+| Bài BT03 của SV B | AI lượt 1: 2,0 / 1,0 / 2,0 / 2,0 = 7,0; lượt 2 tiêu chí 2 "Phân tích tấn công" = 2,5 → 8,5; **lệch 1,5** → "Cần xem kỹ". GV sửa tiêu chí 2 = 2,5 → 2,0 + 2,5 + 2,0 + 2,0 = 8,5; trừ nộp muộn −0,5 → **công bố 8,0** |
 | Tài liệu | 6 bài giảng (Chương 1–5 + "Modern Network Security Threats"), 1 quy chế trường (`Quyche.pdf`), 1 quy chế môn học lớp 1, 2 đề cũ (`EXAM_PAPER`), 2 đáp án (`ANSWER_KEY` — không bao giờ hiện cho SV); lấy tên từ `seed/documents/` |
 | Ngân hàng câu hỏi | 80 đã duyệt + 20 chờ duyệt |
 | Threads lớp 1 | 12 thread, 2 ghim; thread "CBC khác ECB ở điểm nào?" có câu trả lời AI `Chờ xác nhận`; 1 thread đã xác nhận |
@@ -105,8 +105,8 @@ Câu nhập nguyên văn D1–D5 lấy đúng `DEMO_SCRIPT.md` mục 3 với `{H
 Điểm tính trong prototype: cộng / nhân bằng số nguyên phần trăm (hai chữ số thập phân), làm tròn nửa lên ở bước cuối, hiển thị dấu phẩy. Giá trị phải ra đúng:
 - QT SV B lúc 09:20 (BT01, BT02 + 0,75): **8,3**.
 - Sau bước điểm danh (+0,25 → trần 1,0): **8,5**.
-- Sau công bố BT03 = 8,5 (9,0 − 0,5): TB(7,0; 8,0; 8,5) = 7,83 + 1,0 → **8,8**.
-- What-if `/me`: CK = 8,0 → 0,4 × 8,8 + 0,6 × 8,0 = **8,3**.
+- Sau công bố BT03 = 8,0 (8,5 − 0,5): TB(7,0; 8,0; 8,0) = 7,67 + 1,0 → **8,7**.
+- What-if `/me` tính từ QT hiện tại; sau công bố (QT 8,7): CK = 8,0 → 0,4 × 8,7 + 0,6 × 8,0 = 8,28 → **8,3**.
 
 ### 4.2 Yêu cầu chung (mọi US)
 
@@ -136,8 +136,8 @@ Câu nhập nguyên văn D1–D5 lấy đúng `DEMO_SCRIPT.md` mục 3 với `{H
 | `/practice/history` | §14.20 | 6 lượt theo thời gian + tóm tắt chủ đề yếu | Bấm lượt → xem lại | Rỗng |
 | `/library` | §14.15 | Chỉ tài liệu `visible_to_students`: 6 bài giảng, quy chế trường, 2 đề cũ; **không có ANSWER_KEY** | Tìm kiếm lọc tại chỗ; `Xem` mở chi tiết; `Hỏi AI về tài liệu` → `/chat` có ngữ cảnh tài liệu; đề cũ có `Luyện đề này` | Không có kết quả tìm |
 | `/calendar` | §14.16 | Buổi học, hạn BT/QUIZ01, giữa kỳ (tuần 11, 05/11), cuối kỳ (tuần 16) | Tuần / Tháng / Danh sách (SegmentedControl); 375 px mặc định Danh sách; `Thêm vào lịch` → "Đã sao chép link lịch (mô phỏng)" | Rỗng tuần không có sự kiện |
-| `/me` | §14.9 | B: câu nhận định "Điểm quá trình hiện tại 8,3 (tạm tính)"; giải trình tuyến tính TB bài tập 7,5 + cộng 0,75 = 8,25 → 8,3; chuyên cần 2 vắng / 9 buổi; bài sắp tới QUIZ01, giữa kỳ 05/11; thời gian học tuần — xu hướng nhỏ ở cuối. Dòng "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường". **Không** nhãn rủi ro, ghi chú, điểm nháp | What-if tại chỗ "Nếu cuối kỳ được [ 8,0 ], điểm học phần sẽ là 8,3" cập nhật khi gõ; số ngoài 0–10 → báo lỗi tại ô. SV A chọn lớp 2 → "Lớp này chưa có công thức điểm chính thức" thay phần giải trình | Lỗi chuẩn |
-| `/assignments/[id]` | INTEGRATION mục 2 | BT03 của B: đã nộp 23/10 08:10, nhãn "Nộp muộn 1 ngày", file `bt03-tran-thu-uyen.pdf` | Trước công bố: "Đang chấm" (không số). Sau khi GV công bố: điểm 8,5, nhận xét theo 4 tiêu chí, mỗi tiêu chí trích một đoạn bài của B; `Yêu cầu xem lại` (trong 7 ngày) mở form chọn tiêu chí + lý do → "Đã gửi yêu cầu". QUIZ01 → nút làm bài | Bài không tồn tại / không thuộc lớp → rỗng |
+| `/me` | §14.9 | B: câu nhận định "Điểm quá trình hiện tại 8,3 (tạm tính)"; giải trình tuyến tính TB bài tập 7,5 + cộng 0,75 = 8,25 → 8,3; chuyên cần 2 vắng / 9 buổi; bài sắp tới QUIZ01, giữa kỳ 05/11; thời gian học tuần — xu hướng nhỏ ở cuối. Dòng "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường". **Không** nhãn rủi ro, ghi chú, điểm nháp | What-if tại chỗ "Nếu cuối kỳ được [ 8,0 ], điểm học phần sẽ là …" tính từ QT hiện tại, cập nhật khi gõ (sau công bố BT03: 8,3 — mục 4.1); số ngoài 0–10 → báo lỗi tại ô. SV A chọn lớp 2 → "Lớp này chưa có công thức điểm chính thức" thay phần giải trình | Lỗi chuẩn |
+| `/assignments/[id]` | INTEGRATION mục 2 | BT03 của B: đã nộp 23/10 08:10, nhãn "Nộp muộn 1 ngày", file `bt03-tran-thu-uyen.pdf` | Trước công bố: "Đang chấm" (không số). Sau khi GV công bố: điểm 8,0, nhận xét theo 4 tiêu chí, mỗi tiêu chí trích một đoạn bài của B; `Yêu cầu xem lại` (trong 7 ngày) mở form chọn tiêu chí + lý do → "Đã gửi yêu cầu". QUIZ01 → nút làm bài | Bài không tồn tại / không thuộc lớp → rỗng |
 | `/join`, `/join/[code]` | INTEGRATION mục 2 | Mã `BX4P9TW` → xem trước: An ninh mạng · 761988 · TS. Lê Thu Hà · HK1 2026–2027 | `Tham gia lớp` → "Đã gửi yêu cầu, chờ giảng viên duyệt"; sau khi GV duyệt, D thấy lớp trong bộ chọn và "Hôm nay" bình thường. `AN7K2MQ` → vào ngay. Mã sai → câu chung (mục 3) | Nhập sai 5 lần → "Thử lại sau 10 phút" |
 
 ### 4.4 US-PROTO-02 — Giảng viên: vận hành lớp
