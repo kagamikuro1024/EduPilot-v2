@@ -14,7 +14,7 @@ import {
   PageHeader,
   PageState,
   Skeleton,
-  Split,
+  
   StatusText,
   Textarea,
 } from "@/shared/ui";
@@ -151,11 +151,9 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
         }
         error={{ problem: "Không tải được bài nộp.", recovery: "Điểm và nhận xét bạn đã sửa vẫn được giữ. Thử lại sau ít phút." }}
       >
-        <Split
-          ratio="half"
-          main={
+        <div className={s.reviewGrid}>
             <div className={s.doc}>
-              <p className={s.docTitle}>{title}</p>
+            <p className={s.docTitle}>{title}</p>
               <div className={s.docMeta}>
                 <span>{paras.reduce((a, p) => a + p.text.split(" ").length, 0)} từ</span>
                 <span>{isB ? "2 trang" : "1 trang"}</span>
@@ -170,10 +168,8 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
                 </div>
               ))}
             </div>
-          }
-          aside={
-            <div className={s.panel}>
-              <div className={s.total}>
+          <div className={s.panel}>
+            <div className={s.total}>
                 <span className={s.totalLabel}>
                   Tổng điểm bài tập
                   <span className={s.totalCalc}>
@@ -243,8 +239,7 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
                 </Button>
               </div>
             </div>
-          }
-        />
+        </div>
       </PageState>
     </Page>
   );

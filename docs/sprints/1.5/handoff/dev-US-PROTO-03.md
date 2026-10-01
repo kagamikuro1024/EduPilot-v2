@@ -34,3 +34,6 @@ F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh tc_03_01 
 
 ## Nợ / chưa làm / cần hỏi
 - Xuất XLSX trong Sổ điểm tạo file blob tải về mô phỏng bảng điểm.
+
+## Cập nhật theo spec v4 (Proposals #16)
+- Phân định rõ 2 panel độc lập ở `/grading/[submissionId]` (FR-X11, 03-AC1): Panel xem bài nộp sinh viên bên trái (55%) và Panel rubric / điểm số bên phải (45%), đều có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc `var(--ep-radius-md)`, padding rõ ràng và cuộn độc lập.
