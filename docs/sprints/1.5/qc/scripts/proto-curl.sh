@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # QC — kiểm prototype bằng curl + cookie (không cần trình duyệt). Chạy khi stack/dev server đang chạy.
-#   F=http://localhost:3000 bash docs/sprints/1/prototype/qc/scripts/proto-curl.sh TC-xx ...
-# Các hàm open_as / visible lấy NGUYÊN VĂN từ docs/sprints/1/prototype/spec/US.md (Quy ước kiểm chung).
+#   F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh TC-xx ...
+# Các hàm open_as / visible lấy NGUYÊN VĂN từ docs/sprints/1.5/spec/US.md (Quy ước kiểm chung).
 set -u
 F=${F:-http://localhost:3000}
 RC=0; TC=""

@@ -1,5 +1,5 @@
 # QC test case — US-PROTO-02 (Giảng viên / trợ giảng: vận hành lớp)
-Nguồn: `docs/sprints/1/prototype/spec/US.md` + `SRS.md` 4.1, 4.4. Hộp đen. Công cụ: **C** = `proto-curl.sh`, **B** = trình duyệt. Đặt lại dữ liệu demo trước chuỗi TC.
+Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.4. Hộp đen. Công cụ: **C** = `proto-curl.sh`, **B** = trình duyệt. Đặt lại dữ liệu demo trước chuỗi TC.
 
 | TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
 | --- | --- | --- | --- | --- |

@@ -1,5 +1,5 @@
 # QC report — US-PROTO-00 (Nền)  · Kết luận: FAIL
-Nhánh `sprint/1-mock-ui`, chạy trên HEAD `3d90daa` (commit dev mới hơn handoff `e5d2f9f`), `next start -p 3100` từ `next build`. Spec: `docs/sprints/1/prototype/spec/` (v2). TC: `qc/tc-US-PROTO-00.md`. 2026-10-01.
+Nhánh `sprint/1.5-mock-ui`, chạy trên HEAD `3d90daa` (commit dev mới hơn handoff `e5d2f9f`), `next start -p 3100` từ `next build`. Spec: `docs/sprints/1.5/spec/` (v2). TC: `qc/tc-US-PROTO-00.md`. 2026-10-01.
 **Tóm tắt:** AC3, AC6 PASS. AC1 FAIL (1 lỗi thật: dải mô phỏng không có trên điện thoại). AC2, AC4, AC5 có phần nền đạt nhưng **phần còn lại KHÔNG KIỂM ĐƯỢC** vì route còn là trang tạm — QC.md tính là FAIL; đề xuất chấm lại sau story 01–04 (proposals #14, chờ PM). 3 lỗi (1 trung bình, 2 thấp) ghi bên dưới.
 
 ## Cổng nghiệm thu đã chạy

@@ -1,7 +1,7 @@
 # Prompt cho `ba` — spec prototype giao diện
 
-1. Đọc `docs/team/CONTEXT.md` (mới — bối cảnh cả đội), rồi `docs/sprints/1/prototype/plan.md`.
-2. Viết `docs/specs/FEAT-prototype-ui/` gồm `US.md`, `SRS.md`, `QUESTIONS.md`. Nhánh `sprint/1-mock-ui` (đã có, đừng đổi nhánh).
+1. Đọc `docs/team/CONTEXT.md` (mới — bối cảnh cả đội), rồi `docs/sprints/1.5/plan.md`.
+2. Viết `docs/specs/FEAT-prototype-ui/` gồm `US.md`, `SRS.md`, `QUESTIONS.md`. Nhánh `sprint/1.5-mock-ui` (đã có, đừng đổi nhánh).
 
 ## Nội dung
 - Một feature, **US-PROTO-00 … US-PROTO-04** đúng nhóm route trong `plan.md`.

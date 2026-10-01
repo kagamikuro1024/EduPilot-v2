@@ -10,8 +10,8 @@ Người dùng: sinh viên (chủ yếu điện thoại), trợ giảng và gi�
 ## 2. Đang ở đâu
 - Repo: `github.com/kagamikuro1024/TA_Agent_v2`. `main` = sprint 1 (P0: mã cũ dời vào `legacy/`, khung Go + Next.js, stack local, CI).
 - Lộ trình 10 sprint: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
-- **Việc hiện tại — sprint 1 bổ sung: PROTOTYPE GIAO DIỆN** (`docs/sprints/1/prototype/plan.md`). Chủ dự án thuyết trình với thầy hướng dẫn **cuối tuần này**: cần một prototype bấm được, đẹp, phủ TOÀN BỘ tính năng dự định, dữ liệu mô phỏng, đổi được vai trò, đi trọn `docs/DEMO_SCRIPT.md`. Không backend; nhưng primitive dựng đúng chuẩn ở `frontend/src/shared/` để phase PU dùng lại.
-- **Prototype là MOCK có hạn dùng (D51):** spec của nó ở `docs/sprints/1/prototype/spec/`, KHÔNG phải `docs/specs/`. Từ sprint 2, mỗi sprint build thật thay dần màn mock; spec thật viết mới ở `docs/specs/<FEAT>/` và thắng spec prototype. Đừng coi spec prototype là yêu cầu thật khi build thật — đọc nó chỉ để biết màn đã dựng trông thế nào.
+- **Việc hiện tại — sprint 1 bổ sung: PROTOTYPE GIAO DIỆN** (`docs/sprints/1.5/plan.md`). Chủ dự án thuyết trình với thầy hướng dẫn **cuối tuần này**: cần một prototype bấm được, đẹp, phủ TOÀN BỘ tính năng dự định, dữ liệu mô phỏng, đổi được vai trò, đi trọn `docs/DEMO_SCRIPT.md`. Không backend; nhưng primitive dựng đúng chuẩn ở `frontend/src/shared/` để phase PU dùng lại.
+- **Prototype là MOCK có hạn dùng (D51):** spec của nó ở `docs/sprints/1.5/spec/`, KHÔNG phải `docs/specs/`. Từ sprint 2, mỗi sprint build thật thay dần màn mock; spec thật viết mới ở `docs/specs/<FEAT>/` và thắng spec prototype. Đừng coi spec prototype là yêu cầu thật khi build thật — đọc nó chỉ để biết màn đã dựng trông thế nào.
 
 ## 3. Đã chốt — không mở lại
 | Mã | Chốt |
@@ -35,8 +35,8 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 | Vai | Đọc |
 | --- | --- |
 | ba | `docs/design/DESIGN.md` (§1–§2 vai trò + điều hướng, §13 lời văn, §14 hợp đồng 25 route), `docs/design/INTEGRATION.md` mục 2 (route ngoài §14), `docs/PRD.md`, `docs/DEMO_SCRIPT.md` |
-| dev | `docs/design/DESIGN.md` toàn bộ, `docs/UX.md`, spec `docs/sprints/1/prototype/spec/`, hướng thiết kế `frontend/.impeccable/surfaces/frontend-src-app.md`, nền đã có ở `frontend/src/shared/` + `frontend/src/mock/` |
-| qc | spec `docs/sprints/1/prototype/spec/`, `docs/design/DESIGN.md` §21–§22, `docs/UX.md` mục 6, `docs/DEMO_SCRIPT.md` |
+| dev | `docs/design/DESIGN.md` toàn bộ, `docs/UX.md`, spec `docs/sprints/1.5/spec/`, hướng thiết kế `frontend/.impeccable/surfaces/frontend-src-app.md`, nền đã có ở `frontend/src/shared/` + `frontend/src/mock/` |
+| qc | spec `docs/sprints/1.5/spec/`, `docs/design/DESIGN.md` §21–§22, `docs/UX.md` mục 6, `docs/DEMO_SCRIPT.md` |
 
 ## 6. Từ điển nhanh
 Hôm nay = trang `/` theo vai · Hộp thư hỗ trợ = ticket escalation · Threads = hỏi đáp công khai, giảng viên Xác nhận / Loại câu trả lời AI · Hồ sơ 360 = trang một sinh viên · Sổ điểm / Công thức điểm = gradebook / scheme trích từ quy chế · Duyệt bài = xem AI chấm nháp rồi quyết · Insights = lỗ hổng kiến thức của lớp · Quan sát AI = observability (chỉ GV/Admin).

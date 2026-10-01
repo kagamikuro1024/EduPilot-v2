@@ -1,5 +1,5 @@
 # QC test case — US-PROTO-03 (Đánh giá)
-Nguồn: `docs/sprints/1/prototype/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công cụ: **C** = `proto-curl.sh`, **B** = trình duyệt. Đặt lại dữ liệu demo trước chuỗi TC.
+Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công cụ: **C** = `proto-curl.sh`, **B** = trình duyệt. Đặt lại dữ liệu demo trước chuỗi TC.
 
 **Điểm (SRS 4.1, cộng/nhân bằng số nguyên phần trăm, làm tròn nửa lên ở cuối).** Con số BT03 / QT B sau công bố đang mâu thuẫn rubric: xem proposals #13. TC chấm theo spec hiện hành (BT03 = 8,5; QT B = 8,8); khi PM quyết thì sửa TC-03-04, TC-01-19, TC-DEMO-05 theo số mới (dẫn số proposal).
 

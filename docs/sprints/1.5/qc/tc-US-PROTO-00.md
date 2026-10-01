@@ -1,7 +1,7 @@
 # QC test case — US-PROTO-00 (Nền: vào bằng một vai, đổi vai)
-Nguồn: `docs/sprints/1/prototype/spec/US.md` + `SRS.md` (v2 APPROVED; spec dời vào đây theo PM). Viết hộp đen, không đọc code dev.
+Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` (v2 APPROVED; spec dời vào đây theo PM). Viết hộp đen, không đọc code dev.
 Chạy: dev server `pnpm dev` hoặc `pnpm -C frontend exec next dev -p 3000` → `F=http://localhost:3000`. Mỗi shell `source ~/.zprofile`.
-Công cụ: **C** = `F=… bash docs/sprints/1/prototype/qc/scripts/proto-curl.sh <TC>`; **B** = trình duyệt thật qua `sweep.mjs` / thao tác tay trong Eval (`browser`), ảnh vào `qc/shots/`.
+Công cụ: **C** = `F=… bash docs/sprints/1.5/qc/scripts/proto-curl.sh <TC>`; **B** = trình duyệt thật qua `sweep.mjs` / thao tác tay trong Eval (`browser`), ảnh vào `qc/shots/`.
 
 | TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
 | --- | --- | --- | --- | --- |

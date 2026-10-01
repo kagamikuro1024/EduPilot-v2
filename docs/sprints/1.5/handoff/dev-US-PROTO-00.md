@@ -1,5 +1,5 @@
 # DEV handoff — US-PROTO-00 Nền prototype
-Nhánh `sprint/1-mock-ui` · commit mã cuối: xem `git log --oneline -4` (các commit `US-PROTO-00: …`).
+Nhánh `sprint/1.5-mock-ui` · commit mã cuối: xem `git log --oneline -4` (các commit `US-PROTO-00: …`).
 
 ## Đã làm (theo thứ tự lát dọc)
 - Nháp `eb488d6` build + lint + `tsc` sạch sẵn; chỉ sửa chỗ vướng: 3 dòng `box-shadow: none` (CommandPalette, DataTable, AppShell) bị `ui-antipatterns.sh` bắt → thêm chú thích `ui-allow`.
@@ -10,7 +10,7 @@ Nhánh `sprint/1-mock-ui` · commit mã cuối: xem `git log --oneline -4` (các
 - Sửa lỗi tìm thấy khi chạy thật: thanh bên không vừa 900 px (bỏ khối tên lớp lặp với thanh trên, chặt khoảng cách); drawer rộng 354 px thay vì toàn màn hình trên 390 px (thiếu `max-width`); `<dialog>` trùng `id` tiêu đề (đổi `useId`); nhãn bottom nav "Hộp thư hỗ trợ" xuống dòng (thêm `short: "Hộp thư"`); cỡ chữ 10/11 px ngoài thang → `--ep-text-meta`; màn chặn quyền dùng `PageHeader` (có `h1`) thay `EmptyState`; thanh bên thu gọn hiện chấm đỏ thay số đếm; ⌘K tìm không dấu ("diem" ra "Điểm danh").
 
 ## File đổi
-`frontend/next.config.ts`; `frontend/src/app/{layout.tsx,login/*,(app)/**}`; `frontend/src/shared/session/{cookies.ts,session.tsx}`; `frontend/src/shared/shell/{AppShell.tsx,AppShell.module.css,nav.ts}`; `frontend/src/shared/ui/{CommandPalette.tsx,CommandPalette.module.css,DataTable.module.css,Dialog.tsx,Dialog.module.css}`; `docs/sprints/1/prototype/shots/00-*.png`. Xoá `src/app/page.tsx` (chuyển vào `(app)/page.tsx`).
+`frontend/next.config.ts`; `frontend/src/app/{layout.tsx,login/*,(app)/**}`; `frontend/src/shared/session/{cookies.ts,session.tsx}`; `frontend/src/shared/shell/{AppShell.tsx,AppShell.module.css,nav.ts}`; `frontend/src/shared/ui/{CommandPalette.tsx,CommandPalette.module.css,DataTable.module.css,Dialog.tsx,Dialog.module.css}`; `docs/sprints/1.5/shots/00-*.png`. Xoá `src/app/page.tsx` (chuyển vào `(app)/page.tsx`).
 
 ## Lệnh QC chạy để kiểm
 ```bash
@@ -22,7 +22,7 @@ Tay: `/` khi chưa có cookie → `/login`; chọn Giảng viên → `/`; thanh 
 
 ## Test đã chạy và kết quả
 - `eslint .` / `tsc --noEmit` / `next build` (31 route) / `ui-antipatterns.sh` (0 `✗`): xanh.
-- Trình duyệt thật (Chromium, `next dev -p 3100`), 1440×900 và 390×844, console không lỗi: đã bấm đủ các mục "Lệnh QC" ở trên. Ảnh: `docs/sprints/1/prototype/shots/00-desktop-teacher-1440.png`, `00-desktop-student-blocked-1440.png`, `00-mobile-390.png`, `00-mobile-more-390.png`.
+- Trình duyệt thật (Chromium, `next dev -p 3100`), 1440×900 và 390×844, console không lỗi: đã bấm đủ các mục "Lệnh QC" ở trên. Ảnh: `docs/sprints/1.5/shots/00-desktop-teacher-1440.png`, `00-desktop-student-blocked-1440.png`, `00-mobile-390.png`, `00-mobile-more-390.png`.
 - Không có test tự động mới (nền giao diện, story sau mới có hành vi); Playwright thuộc PU.
 
 ## AC tự đánh giá

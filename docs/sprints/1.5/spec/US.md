@@ -1,5 +1,5 @@
 # FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
-Nguồn: PRD §3–§4 (M0–M14), FLOWS F2–F17, `docs/DEMO_SCRIPT.md`, `docs/sprints/1/prototype/plan.md`; hợp đồng giao diện `docs/design/DESIGN.md` §14, `docs/design/INTEGRATION.md` mục 2. Chi tiết dữ liệu và tương tác từng route: `SRS.md` mục 4.
+Nguồn: PRD §3–§4 (M0–M14), FLOWS F2–F17, `docs/DEMO_SCRIPT.md`, `docs/sprints/1.5/plan.md`; hợp đồng giao diện `docs/design/DESIGN.md` §14, `docs/design/INTEGRATION.md` mục 2. Chi tiết dữ liệu và tương tác từng route: `SRS.md` mục 4.
 
 ## Quy ước kiểm chung
 

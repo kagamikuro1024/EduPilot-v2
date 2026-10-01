@@ -1,6 +1,6 @@
 # Sprint 1 bổ sung — Prototype giao diện toàn bộ tính năng
 
-Trạng thái: **ĐÃ DUYỆT** (chủ dự án yêu cầu 2026-10-01: "bổ sung vào sprint 1… giao diện mock với toàn bộ tính năng… bấm được, có tương tác giả lập") · Nhánh `sprint/1-mock-ui` từ `main` · Hạn: trước buổi thuyết trình cuối tuần.
+Trạng thái: **ĐÃ DUYỆT** (chủ dự án yêu cầu 2026-10-01: "bổ sung vào sprint 1… giao diện mock với toàn bộ tính năng… bấm được, có tương tác giả lập") · Nhánh `sprint/1.5-mock-ui` từ `main` · Hạn: trước buổi thuyết trình cuối tuần.
 
 ## Mục tiêu
 Một prototype chạy trong app Next.js thật (`pnpm dev` → http://localhost:3000), phủ mọi route dự định, dữ liệu mô phỏng, đổi vai Sinh viên / Trợ giảng / Giảng viên / Admin, tương tác giả lập bằng trạng thái cục bộ, đi trọn `docs/DEMO_SCRIPT.md`. Không backend, không gọi API.
@@ -24,4 +24,4 @@ Commit `eb488d6`: `frontend/PRODUCT.md`; hướng thiết kế `frontend/.impecc
 - Prototype nằm trong app thật, không làm file HTML riêng: chủ dự án muốn "khởi động stack lên xem"; primitive dùng lại ở PU.
 - Không thêm thư viện ngoài `lucide-react` (đã có trong ARCHITECTURE). Không tailwind, không thư viện chart: CSS Modules + token, biểu đồ SVG tự vẽ.
 - Mọi dữ liệu nằm ở `frontend/src/mock/*.ts`, ghi rõ là mô phỏng; giao diện có dòng "Bản mô phỏng · dữ liệu giả".
-- Spec gộp một feature `FEAT-prototype-ui`, US theo nhóm route; AC bám DESIGN.md §14 (không chép lại, trỏ mục) + tương tác cụ thể + kịch bản dữ liệu. **Spec nằm ở `docs/sprints/1/prototype/spec/`, không ở `docs/specs/`** (chủ dự án chốt, D51): đây là spec của mock, spec thật viết lại theo từng sprint build thật.
+- Spec gộp một feature `FEAT-prototype-ui`, US theo nhóm route; AC bám DESIGN.md §14 (không chép lại, trỏ mục) + tương tác cụ thể + kịch bản dữ liệu. **Spec nằm ở `docs/sprints/1.5/spec/`, không ở `docs/specs/`** (chủ dự án chốt, D51): đây là spec của mock, spec thật viết lại theo từng sprint build thật.

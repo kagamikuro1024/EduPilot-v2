@@ -1,5 +1,5 @@
 # QC test case — US-PROTO-01 (Sinh viên)
-Nguồn: `docs/sprints/1/prototype/spec/US.md` + `SRS.md` 4.1, 4.3. Hộp đen. Công cụ **C** = `proto-curl.sh`, **B** = trình duyệt (sweep + tay), như `tc-US-PROTO-00.md`. Dữ liệu gốc: `Đặt lại dữ liệu demo` trước mỗi chuỗi TC.
+Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.3. Hộp đen. Công cụ **C** = `proto-curl.sh`, **B** = trình duyệt (sweep + tay), như `tc-US-PROTO-00.md`. Dữ liệu gốc: `Đặt lại dữ liệu demo` trước mỗi chuỗi TC.
 Câu nhập nguyên văn D1–D3: `docs/DEMO_SCRIPT.md` mục 3 với `{HO_TEN_B}` = Trần Thu Uyên, `{MSSV_B}` = 20229002, `{HO_TEN_C}` = Lê Quang Huy.
 
 | TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |

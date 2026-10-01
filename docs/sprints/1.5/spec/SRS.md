@@ -1,7 +1,7 @@
 # SRS FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
 Phiên bản 3 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; Q1, Q2 chủ dự án đã trả lời) · v2: mốc thời gian tuần 10, "bây giờ" = 29/10/2026 (proposals #12) · v3: điểm BT03 của B = 8,0, QT = 8,7 (proposals #13)
 
-Nguồn: `docs/sprints/1/prototype/plan.md`, `docs/design/DESIGN.md` (§1–§2, §10, §12–§15, §21–§22), `docs/design/INTEGRATION.md` mục 2, `docs/PRD.md` §3–§4, `docs/FLOWS.md`, `docs/DEMO_SCRIPT.md`. Mục 5, 6, 8, 10 rút gọn theo prompt.
+Nguồn: `docs/sprints/1.5/plan.md`, `docs/design/DESIGN.md` (§1–§2, §10, §12–§15, §21–§22), `docs/design/INTEGRATION.md` mục 2, `docs/PRD.md` §3–§4, `docs/FLOWS.md`, `docs/DEMO_SCRIPT.md`. Mục 5, 6, 8, 10 rút gọn theo prompt.
 
 ## 1. Mục đích và phạm vi
 Prototype bấm được trong app Next.js thật (`pnpm dev` → `http://localhost:3000`), phủ mọi route dự định, dữ liệu mô phỏng, đổi được 4 vai, tương tác giả lập bằng trạng thái phía trình duyệt, đi trọn `docs/DEMO_SCRIPT.md` trong **một trình duyệt** bằng cách đổi vai. Phục vụ buổi thuyết trình với thầy hướng dẫn cuối tuần.

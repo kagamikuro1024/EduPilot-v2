@@ -1,5 +1,5 @@
 # QC test case xuyên suốt — đi trọn `docs/DEMO_SCRIPT.md` bước 1–7 trên prototype
-Nguồn: `docs/DEMO_SCRIPT.md` (kim chỉ nam), `docs/sprints/1/prototype/spec/SRS.md` mục 3 (đường đi), 4.1 (con số), FR-X7 (bỏ bước Mailpit 05:55). Một trình duyệt, đổi vai bằng menu hồ sơ; **không** tải lại trang bằng tay giữa chừng ngoài chỗ kịch bản ghi "Tải lại". Chạy sau khi cả US-PROTO-01…04 có handoff. Đặt lại dữ liệu demo trước khi bắt đầu; ghi giờ thực mỗi bước (≤ khoảng của kịch bản).
+Nguồn: `docs/DEMO_SCRIPT.md` (kim chỉ nam), `docs/sprints/1.5/spec/SRS.md` mục 3 (đường đi), 4.1 (con số), FR-X7 (bỏ bước Mailpit 05:55). Một trình duyệt, đổi vai bằng menu hồ sơ; **không** tải lại trang bằng tay giữa chừng ngoài chỗ kịch bản ghi "Tải lại". Chạy sau khi cả US-PROTO-01…04 có handoff. Đặt lại dữ liệu demo trước khi bắt đầu; ghi giờ thực mỗi bước (≤ khoảng của kịch bản).
 Công cụ: **B** trình duyệt (Eval `browser`, `scripts/demo-run.mjs` khi dựng xong; ảnh `qc/shots/demo-*.png`, 1440 px cho GV/Admin, 390 px cho SV B / SV D như cột "Vai trò" của kịch bản).
 
 | TC-id | Bước | Vai / viewport | Thao tác (nguyên văn kịch bản) | Kết quả phải thấy |

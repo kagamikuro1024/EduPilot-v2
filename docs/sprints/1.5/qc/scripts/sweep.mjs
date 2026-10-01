@@ -1,5 +1,5 @@
 // QC — duyệt mọi route × vai × khung nhìn, chụp ảnh, đo lỗi cơ học. Chạy trong Eval (JS) có global `browser`:
-//   const run = (await import('/abs/path/docs/sprints/1/prototype/qc/scripts/sweep.mjs')).default;
+//   const run = (await import('/abs/path/docs/sprints/1.5/qc/scripts/sweep.mjs')).default;
 //   const res = await run(browser, { base:'http://localhost:3000', only:'student', out:'<abs>/qc/shots/sweep' });
 // Không thêm phụ thuộc vào frontend/; dùng Puppeteer `page` có sẵn của `browser`.
 export const ROUTES = {
