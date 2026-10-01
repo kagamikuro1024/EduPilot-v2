@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { AttendanceView } from "@/features/attendance/AttendanceView";
 
 export const metadata: Metadata = { title: "Điểm danh" };
 
 export default function Page() {
-  return <RouteStub title="Điểm danh" />;
+  return <AttendanceView />;
 }

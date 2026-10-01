@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { InboxView } from "@/features/inbox/InboxView";
 
 export const metadata: Metadata = { title: "Hộp thư hỗ trợ" };
 
 export default function Page() {
-  return <RouteStub title="Hộp thư hỗ trợ" />;
+  return <InboxView />;
 }

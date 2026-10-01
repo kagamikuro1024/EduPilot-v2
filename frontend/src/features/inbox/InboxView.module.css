@@ -1,0 +1,60 @@
+/* Màn chia đôi: danh sách 380px + chi tiết co giãn (DESIGN §14.5); dưới 1100px thành danh sách → chi tiết. */
+.split {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: var(--ep-space-8);
+  align-items: start;
+}
+.list {
+  display: grid;
+  gap: var(--ep-space-4);
+  min-width: 0;
+}
+.detail {
+  min-width: 0;
+  padding-left: var(--ep-space-8);
+  border-left: 1px solid var(--ep-rule);
+}
+.back {
+  display: none;
+}
+
+.question {
+  font-size: var(--ep-text-item);
+  line-height: 1.55;
+  max-width: 68ch;
+}
+.answer {
+  max-width: 68ch;
+  padding-left: var(--ep-space-4);
+  border-left: 2px solid var(--ep-rule);
+}
+.claimRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-3);
+  flex-wrap: wrap;
+}
+
+@media (max-width: 1099px) {
+  .split {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .detail {
+    display: none;
+    padding-left: 0;
+    border-left: 0;
+  }
+  .showDetail .list {
+    display: none;
+  }
+  .showDetail .detail {
+    display: block;
+  }
+  .back {
+    display: inline-flex;
+    margin-bottom: var(--ep-space-4);
+    min-height: 44px;
+  }
+}
