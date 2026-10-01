@@ -135,7 +135,9 @@ Nếu hội đồng hỏi: nộp sau hạn khi bài không cho nộp muộn → 
 | 11:25 | Giảng viên | `/gradebook`, lớp 1 | Đổi lớp, mở giải trình dòng Sinh viên B | Thành phần điểm có +0,25 từ bước 4 và điểm Bài tập 03 từ bước 5; dòng ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" | P6 (dữ liệu: P5, P7) |
 | 11:45 | Giảng viên | `/gradebook`, lớp 1 | Xuất XLSX (menu) | File tải về có cột theo mẫu và dòng ghi chú điểm chính thức | P6 |
 
-`Chốt điểm` lớp 1 không làm trực tiếp trong 15 phút (xem Q5). Nếu hội đồng hỏi: hai người sửa cùng ô → 409 và chọn giữ bên nào; mở khoá sau chốt cần lý do. E2E: `gradebook.spec.ts`.
+`Chốt điểm` lớp 1 không làm trực tiếp trong 15 phút (xem Q5).
+
+Nếu hội đồng hỏi: hai người sửa cùng ô → 409 và chọn giữ bên nào; mở khoá sau chốt cần lý do. E2E: `gradebook.spec.ts`.
 
 ### Bước 7. Báo cáo lỗ hổng kiến thức — F17 (12:00–13:15)
 
