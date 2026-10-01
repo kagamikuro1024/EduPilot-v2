@@ -34,3 +34,33 @@ Theo prompt `dev-00.md`: build/lint/phản mẫu sạch ✓ · `(app)` layout đ
 - Đổi vai trò ở trang có `[id]` chỉ kiểm tiền tố đường dẫn (`canOpen`), chưa kiểm sở hữu bản ghi.
 - `frontend/Dockerfile` chưa được chạy lại với bản nền mới (chỉ `next build` cục bộ).
 - Palette chỉ liệt kê mục điều hướng của vai trò; tìm sinh viên / tài liệu / thread sẽ thêm cùng story tương ứng.
+
+## v5 / v5.1 — bổ sung
+
+**v5 (#17, FR-X12):** 00-AC7 logo 32 px + vùng brand 56 px (`data-part=brand`); 00-AC8 nút chọn lớp có `title` / `aria-label`; 00-AC9 menu hồ sơ ghi tên người + vai + email; 00-AC10 `DataTable` có `mobile="list"|"scroll"`, `Tabs`/`SegmentedControl`/`FilterChips` cuộn ngang, `AttendanceView` dạng danh sách.
+
+**v5.1 (#19, #20):**
+
+| E | Đã sửa | AC |
+| --- | --- | --- |
+| E1 | `app/error.tsx`, `app/not-found.tsx` tiếng Việt; `ep_demo_state` hỏng (JSON sai, không phải object) → dùng dữ liệu gốc | 00-AC13 |
+| E22 | Vùng chạm ≥ 44 px ở ≤ 720 px / `pointer: coarse` ngay trong primitive (`Button`, `Tabs`, `Field`, `Menu`, `Dialog`, `Composer`…) | 00-AC15 |
+| E23 | `Page` bỏ căn giữa; `[data-part=page-title]` ở 240 / 16 px mọi route | 00-AC11 |
+| E26, E30 | `mock/derive.ts` `agoLabel` + `ASSIGNED_AT`, `BT03_SUBMITTED_AT`, `CH5_UPLOADED_AT`; đồng hồ giả lập `shared/state/clock.ts` (09:20 29/10, chạy theo giờ thật, `Đặt lại` về 09:20) | 00-AC14 |
+| E31 | Thanh trên nền đặc; `scripts/ui-antipatterns.sh` có thêm mẫu `backdrop-filter` và `transparent)` (thử chèn `backdrop-filter: blur(4px)` → đỏ, gỡ → sạch) | 00-AC12 |
+
+Tự kiểm: `bash scripts/ui-antipatterns.sh`; `curl -s $F/khong-co-trang | grep -c 'This page could'` → 0.
+
+### AUDIT v5.1 (prod/dev server :3300, trình duyệt headless)
+
+Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi route × vai: 135 lượt đo (SV 15 route × 1440/390/375; TA 17 + GV 20 + Admin 6 route × 1440/390 (+ 375 cho `/attendance`, `/inbox`)).
+
+| Vai | Số lượt | `ox` ≠ 0 | `cut` | `ell` | `TOUCH` (≤ 390) |
+| --- | --- | --- | --- | --- | --- |
+| Sinh viên | 45 | 0 | 0 | 0 | 0 |
+| Trợ giảng | 36 | 0 | 0 | 0 | – |
+| Giảng viên | 42 | 0 | 0 | 0 | 0 (`/attendance`, `/inbox`) |
+| Admin | 12 | 0 | 0 | 0 | – |
+
+`LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
+Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).

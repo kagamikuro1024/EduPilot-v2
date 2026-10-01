@@ -41,3 +41,31 @@ F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh tc_04_01 
 ## Cập nhật theo spec v4 (Proposals #16)
 - Phân định rõ các khối cấu hình thành các panel sạch sẽ (`configPanel`, `integration`): viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc `var(--ep-radius-md)`, padding `var(--ep-space-6)` ở `/settings/llm` và `/settings/integrations`.
 - Danh sách chủ đề ở `/insights` được đóng gói thành các panel độc lập rõ ràng (`.topic`, `.gap`).
+
+## v5 / v5.1 — bổ sung
+
+**v5:** 04-AC7 `/settings/llm` lưới 3 cột (`provider-status`, `provider-action` thẳng hàng), xếp chồng < 720 px.
+
+**v5.1 (#19):**
+
+| E | Đã sửa | AC |
+| --- | --- | --- |
+| E6, E25 | `ticketStats` là nguồn duy nhất: "Chờ > 24 giờ" = 3 khớp hộp thư; "AI tự trả lời" = `aiShare` (98% / 99%) | 04-AC8 |
+| E17 | `Tạo thread ghim` idempotent; nút thành "Đã ghim · Xem thread" | 04-AC9 |
+| E30 | `ASSIGNED_AT` (28/10 16:40) là nguồn mốc phân công → "hôm qua 16:40" | 04-AC10 |
+| E35 | `/settings/llm` khoảng cách giữa các `settings-section` đều | 04-AC11 |
+| E37 | Biểu đồ "Hoạt động học" có trục, điểm (`chart-point`), nhãn trục, giá trị cao nhất / thấp nhất | 04-AC12 |
+
+### AUDIT v5.1 (prod/dev server :3300, trình duyệt headless)
+
+Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi route × vai: 135 lượt đo (SV 15 route × 1440/390/375; TA 17 + GV 20 + Admin 6 route × 1440/390 (+ 375 cho `/attendance`, `/inbox`)).
+
+| Vai | Số lượt | `ox` ≠ 0 | `cut` | `ell` | `TOUCH` (≤ 390) |
+| --- | --- | --- | --- | --- | --- |
+| Sinh viên | 45 | 0 | 0 | 0 | 0 |
+| Trợ giảng | 36 | 0 | 0 | 0 | – |
+| Giảng viên | 42 | 0 | 0 | 0 | 0 (`/attendance`, `/inbox`) |
+| Admin | 12 | 0 | 0 | 0 | – |
+
+`LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
+Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).

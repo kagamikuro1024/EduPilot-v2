@@ -39,3 +39,36 @@ F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh tc_02_01 
 ## Cập nhật theo spec v4 (Proposals #15, #16)
 - Phân định rõ 2 panel độc lập ở `/inbox` (FR-X11, 02-AC5): cột danh sách ticket (bên trái, max 380px) và panel chi tiết ticket (bên phải), đều có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc `var(--ep-radius-md)`, padding đầy đủ, cuộn riêng biệt.
 - Thao tác kiểm duyệt câu trả lời AI ở `/threads/[id]` cho GV/TA (02-AC8): Chỉnh sửa câu trả lời inline → Lưu và xác nhận (`Đã được giảng viên sửa & xác nhận`), hiển thị đối chiếu câu trả lời AI gốc; Xác nhận (`Đã được giảng viên xác nhận`); Loại khỏi tri thức kèm thanh Hoàn tác.
+
+## v5 / v5.1 — bổ sung
+
+**v5:** 02-AC9 `/inbox` `?ticket=` + `← Hộp thư`; 02-AC10 ô trả lời cách khối thông tin ≤ 24 px; 02-AC11 thread mới của SV thành việc "Câu hỏi mới" ở Hôm nay + chuông.
+
+**v5.1 (#19):**
+
+| E | Đã sửa | AC |
+| --- | --- | --- |
+| E3 | Thẻ 761988 mang `?course=int1006-2`; `useCourseDeepLink` đặt lớp rồi bỏ tham số; tab `Chờ duyệt` mở sẵn | 02-AC12 |
+| E9 | Thẻ "chờ 3 ngày 4 giờ" mở đúng `/inbox?ticket=tk-5`, danh sách cuộn tới hàng | 02-AC13 |
+| E19 | Badge Hộp thư / Chấm bài tính từ `ticketStats` + `reviewPending`, giảm ngay, ẩn khi 0, cả sidebar và thanh dưới | 02-AC14 |
+| E7, E8 | `/attendance` 390 / 375: ô Buổi ≥ 160 px, công tắc hàng riêng, hàng SV 2 dòng, 4 nút ≥ 44 px, chọn = tick + đậm | 02-AC15 |
+| E18 | Trạng thái lưu về đúng sau offline / `Lưu điểm danh`; nút `Đã lưu` trung tính; không còn "· 0 thay đổi" | 02-AC16 |
+| E16 | `Lưu và xác nhận` khoá khi rỗng / không đổi, kèm câu lý do | 02-AC17 |
+| E12 | Một tập "Cần chú ý" (`attentionSet`): chip, bộ lọc, cột Rủi ro, Hôm nay | 02-AC18 |
+| E28 | Thứ tự `sv-n` ở mọi màn (`rosterOf`) | 02-AC19 |
+| E29 | Thẻ "N bài cần xem kỹ" nêu đúng lý do thật (N8) | 02-AC20 |
+| – | Thứ tự việc Hôm nay + `data-part=today-task` / `data-task-id` (J3) | 02-AC21 |
+
+### AUDIT v5.1 (prod/dev server :3300, trình duyệt headless)
+
+Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi route × vai: 135 lượt đo (SV 15 route × 1440/390/375; TA 17 + GV 20 + Admin 6 route × 1440/390 (+ 375 cho `/attendance`, `/inbox`)).
+
+| Vai | Số lượt | `ox` ≠ 0 | `cut` | `ell` | `TOUCH` (≤ 390) |
+| --- | --- | --- | --- | --- | --- |
+| Sinh viên | 45 | 0 | 0 | 0 | 0 |
+| Trợ giảng | 36 | 0 | 0 | 0 | – |
+| Giảng viên | 42 | 0 | 0 | 0 | 0 (`/attendance`, `/inbox`) |
+| Admin | 12 | 0 | 0 | 0 | – |
+
+`LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
+Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).

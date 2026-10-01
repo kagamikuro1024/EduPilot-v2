@@ -37,3 +37,24 @@ F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh tc_03_01 
 
 ## Cập nhật theo spec v4 (Proposals #16)
 - Phân định rõ 2 panel độc lập ở `/grading/[submissionId]` (FR-X11, 03-AC1): Panel xem bài nộp sinh viên bên trái (55%) và Panel rubric / điểm số bên phải (45%), đều có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc `var(--ep-radius-md)`, padding rõ ràng và cuộn độc lập.
+
+## v5.1 — bổ sung
+
+| E | Đã sửa | AC |
+| --- | --- | --- |
+| E21 | Bảng cuộn ngang 390 px (`/gradebook`): cột tên dính trái, dòng "Vuốt ngang để xem thêm", `data-part=col-qt` / `col-status`, cột sắp tên · QT · Trạng thái · … | 03-AC7 |
+| E10, E33 | `/documents` dùng bảng N5: tên hiển thị (không tên tệp thô), `Mordern_…` chỉ ở Drawer chi tiết, tệp đang xử lý ghi "Chờ xử lý" (#20a) và chưa bật "Dùng cho AI" | 03-AC8 |
+
+### AUDIT v5.1 (prod/dev server :3300, trình duyệt headless)
+
+Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi route × vai: 135 lượt đo (SV 15 route × 1440/390/375; TA 17 + GV 20 + Admin 6 route × 1440/390 (+ 375 cho `/attendance`, `/inbox`)).
+
+| Vai | Số lượt | `ox` ≠ 0 | `cut` | `ell` | `TOUCH` (≤ 390) |
+| --- | --- | --- | --- | --- | --- |
+| Sinh viên | 45 | 0 | 0 | 0 | 0 |
+| Trợ giảng | 36 | 0 | 0 | 0 | – |
+| Giảng viên | 42 | 0 | 0 | 0 | 0 (`/attendance`, `/inbox`) |
+| Admin | 12 | 0 | 0 | 0 | – |
+
+`LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
+Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).
