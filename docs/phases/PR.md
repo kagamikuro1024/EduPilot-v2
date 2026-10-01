@@ -16,6 +16,7 @@
 - [ ] Công tắc tính năng AI theo lớp (chat / tự trả lời Threads / chấm bài) ở `/admin/courses`
 
 **L2. Dữ liệu cá nhân và vòng đời**
+- [ ] `00016 production`: `consents`, `retention_policies`, `data_requests`, `course_features` (công tắc tính năng AI ở L1 đọc bảng này). Cột `courses.archived_at` cho việc lưu trữ lớp đã có từ `00003`, không ALTER lại
 - [ ] Màn đồng ý có phiên bản (`consents(user_id, doc, version, accepted_at, optional_flags)`); theo dõi thời gian học là mục tuỳ chọn tách riêng
 - [ ] `/settings/privacy`: xuất dữ liệu của tôi (việc nền → ZIP qua URL ký sẵn), yêu cầu xoá (việc cho Admin; ẩn danh hoá bản ghi học vụ, xoá hẳn phần còn lại)
 - [ ] F18: lưu trữ lớp (chỉ-đọc), xuất dữ liệu lớp, nhân bản sang học kỳ mới, job xoá theo thời hạn cấu hình ở `retention_policies`

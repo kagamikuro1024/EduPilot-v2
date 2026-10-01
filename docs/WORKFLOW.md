@@ -116,7 +116,7 @@ Hai vạch đích khác nhau (xem `PRODUCTION_READINESS.md`): **bảo vệ đồ
 1. Kịch bản lỗi nâng cao của mock-graph: `slow`, `partial_failure`, `expired_token` (giữ `happy`, `paged`, `throttle`, `no_consent`) — P7 L4 (≈ 1 ngày)
 2. `GenerateQuestions` (giữ trích từ đề cũ), bỏ E5 — P9 L1 (≈ 3 ngày)
 3. `FormsImportSource` (giữ QUIZ trong app) — P9 L3 (≈ 2 ngày)
-4. Tầng NER cho PII — P3 L1 (≈ 2 ngày)
+4. Tầng NER cho PII — P3 L1 (≈ 2 ngày) — **đã cắt bởi D46, ≈ 2 ngày đã tiết kiệm**; giữ dòng để không đổi thứ tự cắt
 4a. Tuỳ chọn nâng cao của mã tham gia: giới hạn tên miền email, sĩ số, ngày hết hạn (giữ mã + tạo lại + bật/tắt + yêu cầu duyệt); chia sẻ ngân hàng câu hỏi và công thức giữa các lớp (giữ chia sẻ tài liệu) — P2 (≈ 1,5 ngày)
 4b. Toàn bộ `mock-graph` + nút "Đồng bộ từ Teams" (giữ adapter + unit test `httptest`) — P7 L4 (≈ 3 ngày). Chỉ cắt khi thật sự trễ, vì đây là thứ duy nhất cho phép demo luồng Teams
 5. Hàng đợi ghi cục bộ khi mất mạng cho điểm danh (giữ cập nhật lạc quan + báo lỗi) — P5 (≈ 2 ngày)

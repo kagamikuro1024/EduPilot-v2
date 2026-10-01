@@ -25,8 +25,9 @@ Ngoài phạm vi: mọi endpoint nghiệp vụ; vòng đời tài khoản đầy
 - [ ] Makefile: `run`, `test`, `lint`, `sqlc`, `migrate`
 
 **L2. Dữ liệu**
-- [ ] goose từ `00001` (D45): CHỈ bảng nền tảng — `users`, `audit_log`, `jobs`, `outbox`; bảng nghiệp vụ do phase sở hữu nó tạo
-- [ ] Bật extension `vector` (PostgreSQL 18 + pgvector, D48); `pgvector-go` cho cột vector; quy ước index HNSW và `halfvec` ghi sẵn trong migration mẫu để P1/P8 dùng lại
+- [ ] `00001 pg_platform` (D45, goose bắt đầu từ `00001`): `users` ở dạng cuối — có sẵn cả những cột mãi P2/P5/P8 mới dùng tới (`email_verified_at`, `failed_logins`, `locked_until`, `status`, `ics_token`, `tracking_notice_ack_at`) — cùng `audit_log`, `outbox`, `jobs`, `idempotency_keys` và extension `vector`
+- [ ] **Nguyên tắc sở hữu bảng (D45) — luật cho mọi phase sau:** phase ĐẦU TIÊN dùng một bảng là phase TẠO bảng đó, ngay ở dạng cuối cùng; vì viết mới nên không ALTER cho cột đã biết trước. PG không tạo bảng nghiệp vụ nào
+- [ ] `pgvector-go` cho cột vector (PostgreSQL 18 + pgvector, D48); quy ước index HNSW và `halfvec` ghi sẵn trong migration mẫu để P1/P2 dùng lại
 - [ ] `sqlc.yaml` + `sqlc generate`; enum Postgres → kiểu Go; `sqlc diff` là cổng CI
 - [ ] Chạy sạch trên DB trống; `goose down` về `00001` rồi `up` lại vẫn xanh
 - [ ] `platform/blob` (minio-go, MinIO trong compose): `Put/Get/PresignGet/Delete` + URL ký sẵn cho cả tải lên và tải xuống; không bao giờ ghi file vào đĩa cục bộ của gateway

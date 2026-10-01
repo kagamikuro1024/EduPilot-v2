@@ -36,6 +36,8 @@ Một hệ thống scale tốt mà dùng bực mình thì vẫn thất bại. Qu
 | Phản hồi đầu tiên của chat | Hiện trạng thái "đang xử lý" ≤ 300 ms; token đầu theo SLO | |
 | Bảng 1.000 dòng | Cuộn 60 fps | Ảo hoá danh sách; phân trang con trỏ phía server |
 | Điểm danh 30 SV trên điện thoại | ≤ 60 s, 0 hộp thoại | Kiểm tay ở P5 |
+| Vẽ token stream | Gom theo khung hình (`requestAnimationFrame`), không setState mỗi token | D47 (8): không parse lại markdown toàn bộ mỗi token — chỉ dựng lại khối cuối |
+| Dữ liệu đầu trang | Render phía server (React Server Components) | D47 (8): khung nhìn đầu có chữ ngay, không chờ một vòng fetch phía client |
 
 ## 4. Nền tảng frontend dùng chung (dựng một lần ở phase PU, mọi phase sau dùng lại)
 
