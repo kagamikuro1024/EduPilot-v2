@@ -108,6 +108,7 @@ Mỗi story giao cho `dev` và mỗi feature giao cho `ba` nên bắt đầu b�
 - Tiền: test gọi LLM thật chỉ chạy khi tôi cho phép rõ ràng trong sprint đó; mặc định mọi test dùng provider `fake`.
 - Nếu một agent đề xuất thêm hạ tầng hay thư viện ngoài `ARCHITECTURE.md`/`SYSTEM_DESIGN.md` → từ chối, trừ khi tôi đồng ý.
 - Viết mọi file bằng tiếng Việt, tên kỹ thuật giữ nguyên tiếng Anh.
+- **Góp ý của đội** (chủ dự án chốt 2026-10-01): `ba`, `dev`, `qc` được phản biện khi thấy spec, AC, kế hoạch, quy trình hay quyết định kỹ thuật không hợp lý. Họ ghi vào `docs/sprints/N/proposals.md` (mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh hưởng nếu không đổi) và báo PM; trong lúc chờ vẫn làm theo spec hiện hành trừ khi việc đó gây hỏng hoặc vi phạm `CLAUDE.md`. **PM quyết định** và ghi cột "Quyết định PM" + ngày; chấp nhận thì cập nhật plan/spec/DECISIONS tương ứng. Ngoại lệ: góp ý đụng hành vi sản phẩm, quyền, điểm, dữ liệu cá nhân, hay điều kiện DỪNG trong `CLAUDE.md` → PM gom hỏi chủ dự án.
 
 ## 6. Bắt đầu
 
