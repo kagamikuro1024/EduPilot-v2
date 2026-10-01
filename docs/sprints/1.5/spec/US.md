@@ -57,8 +57,10 @@ Route: `/`, `/chat`, `/threads`, `/threads/[id]`, `/practice`, `/practice/[attem
   Kiểm: tay theo `DEMO_SCRIPT.md` 02:15–03:45.
 - AC3. Given B gửi D3 When câu trả lời xong Then thấy "AI chưa đủ chắc chắn về câu này" và "Đang chờ giảng viên · vừa gửi"; sau khi GV trả lời (US-PROTO-02 AC2), B thấy câu trả lời có nhãn giảng viên và `Đã rõ` đóng câu hỏi.
   Kiểm: tay theo `DEMO_SCRIPT.md` 04:15–06:10 (bỏ bước Mailpit).
-- AC4. Given B soạn bài ở `/threads` có MSSV `20229002` When bấm đăng Then mở Dialog đúng hai lối `Chuyển sang chat riêng` / `Ẩn thông tin rồi đăng`; chọn lối 1 → `/chat` có sẵn bản nháp, không mất chữ.
-  Kiểm: tay.
+- AC4. Given B ở `/threads` When mở form tạo thread Then thấy các trường: Tiêu đề câu hỏi (Input rõ ràng, bắt buộc), Chủ đề (Select danh sách chủ đề), Nội dung chi tiết (Textarea, bắt buộc), checkbox "Nhờ AI trả lời gợi ý (Socratic) ngay sau khi đăng" (mặc định bật) (Proposal #15).
+  When soạn bài có MSSV `20229002` trong Tiêu đề hoặc Nội dung rồi bấm `Đăng câu hỏi` Then mở Dialog đúng hai lối: chọn lối 1 (`Chuyển sang chat riêng`) → sang `/chat` mang toàn bộ bản nháp, không mất chữ; chọn lối 2 (`Ẩn thông tin rồi đăng`) → ẩn MSSV thành `[đã ẩn]` rồi tạo thread.
+  When tạo thread hợp lệ Then hệ thống **chuyển hướng ngay lập tức sang `/threads/${id}`** của thread vừa tạo, hiển thị câu hỏi gốc và câu trả lời AI `Chờ xác nhận`.
+  Kiểm: tay theo thao tác; quan sát URL đổi sang `/threads/...` sau khi đăng.
 - AC5. Given vai Sinh viên When đọc văn bản hiển thị mọi route của US Then không có từ kỹ thuật AI, không số độ tin cậy, không điểm nháp, không nhãn rủi ro / ghi chú về chính mình.
   Kiểm: `for r in / /chat /threads /threads/t-cbc /practice /library /calendar /me /assignments/bt03; do visible student $r sv-2; done | grep -inE 'RAG|PII|fallback|trace|provider|confidence|redaction|độ tin cậy|cần chú ý|rủi ro'` → không in gì. Tay: `/assignments/bt03` trước khi GV công bố không có con số điểm.
 - AC6. Given điện thoại 375 px When dùng mọi route của US Then không cuộn ngang, vùng chạm ≥ 44 px, bottom nav ≤ 5 đích, lịch sử chat ẩn.
@@ -69,6 +71,9 @@ Route: `/`, `/chat`, `/threads`, `/threads/[id]`, `/practice`, `/practice/[attem
   Kiểm: tay; `visible student /join/BX4P9TW sv-4 | grep -c 761988` ≥ 1.
 - AC9 (phân quyền). Given vai TA / GV / Admin When mở `/chat`, `/me`, `/practice`, `/library`, `/assignments/bt03`, `/join` Then màn chặn quyền; Admin cũng bị chặn ở `/threads`, `/calendar`.
   Kiểm: `for v in ta teacher admin; do for r in /chat /me /practice /library /assignments/bt03 /join; do open_as $v $r; done; done` → đều `CHAN`; `open_as admin /threads; open_as admin /calendar` → `CHAN`.
+- AC10. Given Sinh viên (hoặc bất kỳ vai trò nào) ở chi tiết thread `/threads/[id]` When xem chi tiết Then thấy: khối câu hỏi gốc (người hỏi, thời gian, chủ đề, nội dung), khối câu trả lời AI (kèm trích dẫn nguồn mở rộng xem được), danh sách các phản hồi thảo luận, và **ô trả lời thảo luận (Reply Composer) ở cuối trang** (Proposal #15).
+  When bấm `Hỏi trợ lý AI` trong Reply Composer Then sinh câu trả lời AI Socratic gợi ý; When gõ nội dung phản hồi và bấm `Gửi phản hồi` Then phản hồi mới xuất hiện ngay ở cuối danh sách thảo luận (nếu có thông tin cá nhân trong phản hồi → mở Dialog 2 lối).
+  Kiểm: tay theo thao tác.
 
 ### Ngoài phạm vi
 Phúc khảo đầy đủ (chỉ có form gửi), thi thử đủ ma trận, ICS thật, xem trước PDF thật (hiện trang mẫu).
@@ -90,12 +95,14 @@ Route: `/` (GV/TA), `/inbox`, `/students`, `/students/[id]`, `/attendance`, `/cl
   Kiểm: tay, bấm giờ; lặp lại ở 375 px bằng chạm.
 - AC4. Given Sinh viên D đã gửi yêu cầu vào lớp 761988 When GV mở `/class/members` lớp 2 và `Duyệt` D Then D thành thành viên; đổi vai về D → bộ chọn lớp có 761988.
   Kiểm: tay theo `DEMO_SCRIPT.md` 01:10–01:55.
-- AC5. Given điện thoại 375 px When dùng `/inbox` và `/attendance` Then dùng được: `/inbox` là danh sách → chi tiết; `/attendance` hàng có kẻ, không card, vùng chạm ≥ 44 px.
-  Kiểm: DevTools 375 × 812; ảnh chụp.
+- AC5. Given màn hình `/inbox` trên desktop When hiển thị Then phân định rõ thành 2 panel độc lập (Proposal #16): cột danh sách ticket (bên trái, max 380px) và panel chi tiết ticket (bên phải), đều có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc (`var(--radius-sm)` hoặc `var(--radius-md)`), padding rõ ràng, và cuộn độc lập. Trên điện thoại 375 px: `/inbox` chuyển thành danh sách → chi tiết; `/attendance` hàng có kẻ, không card, vùng chạm ≥ 44 px.
+  Kiểm: DevTools 375 × 812 và 1440 px; ảnh chụp.
 - AC6 (nhánh lỗi). Given `/attendance` When bật "Giả lập mất mạng" và đổi 2 ô Then thấy "Đang chờ mạng · 2 thay đổi"; tắt công tắc → "Đã lưu …", không mất thay đổi. Given `/students?state=error` Then lỗi có `Thử lại`.
   Kiểm: tay.
 - AC7 (phân quyền). Given Sinh viên / Admin When mở các route của US Then màn chặn quyền. Given TA When mở `/class/members` Then xem và `Duyệt` được, không có `Tạo lại mã`, không có `Mời ra khỏi lớp`.
   Kiểm: `for v in student admin; do for r in /inbox /students /students/sv-3 /attendance /class/members; do open_as $v $r sv-2; done; done` → đều `CHAN`; `visible ta /class/members | grep -c 'Tạo lại mã'` → `0`.
+- AC8. Given Giảng viên hoặc Trợ giảng ở chi tiết thread `/threads/[id]` có câu trả lời AI `Chờ xác nhận` When bấm `Chỉnh sửa` Then mở ô sửa inline chứa nội dung câu trả lời; When sửa nội dung và bấm `Lưu và xác nhận` Then trạng thái câu trả lời chuyển thành `Đã được giảng viên sửa & xác nhận` (CORRECTED), hiển thị nội dung đã sửa kèm nút/chi tiết "Xem câu trả lời AI gốc" để đối chiếu (Proposal #15); When bấm `Xác nhận` Then trạng thái chuyển thành `Đã được giảng viên xác nhận`; When bấm `Loại khỏi tri thức` Then câu trả lời bị ẩn và có dòng Hoàn tác.
+  Kiểm: tay.
 
 ### Ngoài phạm vi
 Tạo lịch buổi học hàng loạt (chỉ có bộ chọn buổi), `/class/settings`, nhận xét tổng hợp AI ở hồ sơ 360.
@@ -109,7 +116,7 @@ US-PROTO-00; dữ liệu D3 từ US-PROTO-01.
 Route: `/gradebook`, `/gradebook/scheme`, `/grading`, `/grading/[submissionId]`, `/questions`, `/documents` — `SRS.md` 4.5.
 
 ### Tiêu chí nghiệm thu
-- AC1. Given Giảng viên When mở từng route Then mở được, khung nhìn đầu đúng §14.10–14.14, 14.17.
+- AC1. Given Giảng viên When mở từng route Then mở được, khung nhìn đầu đúng §14.10–14.14, 14.17. Riêng `/grading/[submissionId]` phân định rõ thành 2 panel độc lập (Proposal #16): Panel xem bài nộp sinh viên (bên trái, 52–58%) và Panel rubric / điểm số (bên phải, 42–48%), đều có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc, padding rõ ràng và cuộn độc lập.
   Kiểm: `for r in /gradebook /gradebook/scheme /grading /grading/sub-bt03-sv-2 /questions /documents; do open_as teacher $r; done` → đều `MO`.
 - AC2. Given `/grading` lọc mặc định When mở bài B → thấy thông báo vàng "Hai lượt chấm lệch 1,5 điểm" ở tiêu chí 2 → sửa tiêu chí 2 thành 2,5 → `Duyệt bài` → về hàng chờ → `Công bố` Then tổng các tiêu chí 8,5, trừ nộp muộn 0,5 → công bố 8,0; `/assignments/bt03` của B có điểm 8,0 và nhận xét; sổ điểm có BT03; QT của B = 8,7.
   Kiểm: tay theo `DEMO_SCRIPT.md` 08:00–09:35.
