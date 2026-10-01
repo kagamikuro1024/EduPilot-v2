@@ -1,0 +1,13 @@
+<svg width="188" height="40" viewBox="0 0 188 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>EduPilot</title>
+  <g>
+    <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#251D1E" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M35.25 10.25C31.15 9.2 27.35 9.65 23.75 11.75" stroke="#251D1E" stroke-width="2" stroke-linecap="round"/>
+    <path d="M35.25 12.8V28.15C30.05 26.7 25.3 27.55 20 31.6" stroke="#251D1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M20 31.55C20.05 24.9 20.75 19.5 23.15 15.25C25.45 11.15 28.55 8.75 33.55 7.15" stroke="#C81D32" stroke-width="2.7" stroke-linecap="round"/>
+    <path d="M29.4 6.65L34.1 6.9L31.9 11.1" stroke="#C81D32" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="20" cy="31.55" r="2.2" fill="#C81D32"/>
+  </g>
+  <text x="51" y="27" fill="#251D1E" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Edu</text>
+  <text x="88" y="27" fill="#C81D32" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Pilot</text>
+</svg>

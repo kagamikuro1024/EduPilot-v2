@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(go test:*)", "Bash(go vet:*)", "Bash(go build:*)", "Bash(go run:*)", "Bash(golangci-lint:*)", "Bash(sqlc:*)", "Bash(goose:*)",
+      "Bash(pytest:*)", "Bash(python3:*)", "Bash(pip:*)",
+      "Bash(pnpm:*)", "Bash(npx playwright:*)", "Bash(npm:*)",
+      "Bash(docker compose:*)", "Bash(docker:*)", "Bash(make:*)",
+      "Bash(git status:*)", "Bash(git diff:*)", "Bash(git log:*)", "Bash(git add:*)", "Bash(git commit:*)", "Bash(git switch:*)", "Bash(git checkout:*)", "Bash(git branch:*)",
+      "Bash(bash scripts/ui-antipatterns.sh)", "Bash(herdr:*)", "Bash(curl:*)", "Bash(jq:*)", "Bash(ls:*)", "Bash(cat:*)", "Bash(grep:*)", "Bash(rg:*)", "Bash(find:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)", "Bash(git merge:*)", "Bash(git reset --hard:*)", "Bash(rm -rf:*)"
+    ]
+  }
+}

@@ -1,0 +1,72 @@
+:root {
+  color-scheme: light;
+
+  --ep-paper: oklch(99% 0.006 25);
+  --ep-surface: oklch(100% 0 0);
+  --ep-surface-subtle: oklch(97% 0.008 25);
+  --ep-ink: oklch(19% 0.02 25);
+  --ep-ink-2: oklch(40% 0.018 25);
+  --ep-ink-3: oklch(58% 0.014 25);
+  --ep-rule: oklch(89% 0.012 25);
+
+  --ep-red: oklch(54% 0.22 27);
+  --ep-red-hover: oklch(49% 0.22 27);
+  --ep-red-soft: oklch(96% 0.025 25);
+  --ep-green: oklch(49% 0.13 145);
+  --ep-amber: oklch(63% 0.14 75);
+  --ep-blue: oklch(51% 0.12 245);
+
+  --ep-focus: 0 0 0 2px var(--ep-paper), 0 0 0 4px var(--ep-red);
+
+  --ep-font: "Be Vietnam Pro", "Noto Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  --ep-text-page: 1.75rem;
+  --ep-text-section: 1.25rem;
+  --ep-text-item: 1rem;
+  --ep-text-body: .9375rem;
+  --ep-text-label: .875rem;
+  --ep-text-meta: .75rem;
+
+  --ep-space-0_5: .125rem;
+  --ep-space-1: .25rem;
+  --ep-space-2: .5rem;
+  --ep-space-3: .75rem;
+  --ep-space-4: 1rem;
+  --ep-space-5: 1.25rem;
+  --ep-space-6: 1.5rem;
+  --ep-space-8: 2rem;
+  --ep-space-10: 2.5rem;
+  --ep-space-12: 3rem;
+  --ep-space-16: 4rem;
+  --ep-space-20: 5rem;
+
+  --ep-radius-xs: 4px;
+  --ep-radius-sm: 6px;
+  --ep-radius-md: 8px;
+  --ep-radius-lg: 12px;
+  --ep-radius-pill: 999px;
+
+  --ep-sidebar: 216px;
+  --ep-sidebar-collapsed: 72px;
+  --ep-topbar: 56px;
+
+  --ep-ease-out: cubic-bezier(.16, 1, .3, 1);
+  --ep-ease-standard: cubic-bezier(.2, .8, .2, 1);
+  --ep-fast: 140ms;
+  --ep-normal: 200ms;
+  --ep-slow: 250ms;
+
+  --ep-shadow-popover: 0 10px 30px rgba(71, 32, 37, .12);
+
+  --ep-z-sidebar: 20;
+  --ep-z-topbar: 30;
+  --ep-z-popover: 50;
+  --ep-z-dialog: 100;
+}
+
+* { box-sizing: border-box; }
+html { font-family: var(--ep-font); background: var(--ep-paper); color: var(--ep-ink); }
+body { margin: 0; font-size: var(--ep-text-body); line-height: 1.6; }
+::selection { background: var(--ep-red-soft); color: var(--ep-ink); }
+:focus-visible { outline: none; box-shadow: var(--ep-focus); }
+button, input, select, textarea { font: inherit; }
