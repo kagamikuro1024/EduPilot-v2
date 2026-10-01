@@ -1,5 +1,6 @@
 # FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
 Nguồn: PRD §3–§4 (M0–M14), FLOWS F2–F17, `docs/DEMO_SCRIPT.md`, `docs/sprints/1.5/plan.md`; hợp đồng giao diện `docs/design/DESIGN.md` §14, `docs/design/INTEGRATION.md` mục 2. Chi tiết dữ liệu và tương tác từng route: `SRS.md` mục 4.
+Phiên bản 5 · 2026-10-01 · v5 thêm UI polish (#17 → 00-AC7…AC10, 01-AC11, 02-AC9, 02-AC10, 04-AC7) và Threads như thật (#18 → 01-AC4, 01-AC10, 01-AC12…AC14, 02-AC11). Lịch sử phiên bản: `SRS.md` dòng đầu.
 
 ## Quy ước kiểm chung
 
@@ -13,6 +14,22 @@ open_as() {  # $1 vai (student|ta|teacher|admin)  $2 đường dẫn  $3 ngườ
 # văn bản hiển thị (bỏ thẻ script) của một route
 visible() { curl -s -b "ep_demo_role=$1; ep_demo_person=${3:-}" "$F$2" | perl -0pe 's#<script.*?</script>##gs; s#<[^>]+># #g'; }
 ```
+
+Đo bố cục (FR-X12, `SRS.md` 4.7): DevTools đúng bề rộng, dán đoạn sau vào Console. `ox` = số px tràn ngang trang; `cut` = chữ bị cắt ngang bởi khung chứa; `ell` = chữ bị `…` mà không có `title` đủ chữ. Đạt khi `{ ox: 0, cut: [], ell: [] }`. Vùng cố ý cuộn ngang đánh dấu `data-scroll-x`.
+
+```js
+// AUDIT
+(() => { const ox = document.documentElement.scrollWidth - innerWidth, cut = [], ell = [];
+  for (const e of document.querySelectorAll('main *, header *')) {
+    if (e.children.length || !e.textContent.trim() || e.closest('[data-scroll-x]')) continue;
+    if (getComputedStyle(e).textOverflow === 'ellipsis' && e.scrollWidth > e.clientWidth && !e.title) { ell.push(e.textContent.trim()); continue; }
+    let p = e.parentElement; while (p && getComputedStyle(p).overflowX === 'visible') p = p.parentElement;
+    if (!p) continue; const a = e.getBoundingClientRect(), b = p.getBoundingClientRect();
+    if (a.right > b.right + 1 || a.left < b.left - 1) cut.push(e.textContent.trim().slice(0, 30));
+  } return { ox, cut, ell }; })()
+```
+
+Móc đo dev thêm (`data-part`): `brand`, `chat-history`, `chat-thread`, `chat-composer`, `inbox-list`, `inbox-detail`, `inbox-reply`, `provider-status`, `provider-action`.
 
 ID mẫu cố định (dev dùng đúng các ID này để lệnh kiểm chạy được): người `sv-1`…`sv-4` = Sinh viên A…D; `/threads/t-cbc`; `/practice/at-symmetric` (luyện chủ đề), `/practice/at-quiz01` (QUIZ01); `/assignments/bt03`; `/students/sv-3`; `/grading/sub-bt03-sv-2`; `/join/BX4P9TW`.
 
@@ -38,6 +55,19 @@ ID mẫu cố định (dev dùng đúng các ID này để lệnh kiểm chạy 
   for r in /chat /inbox /gradebook /calendar; do open_as admin $r; done      # đều CHAN
   open_as ta /class/members; open_as ta /admin/users                         # MO, CHAN
   ```
+- AC7 (#17a). Given mọi vai ở 1440 px When nhìn sidebar Then vùng brand cao 56 px, viền dưới liền một đường với viền dưới topbar, logo đầy đủ cao 32 px; thu gọn sidebar → chỉ mark 32 × 32. Given 390 px Then topbar có mark 28 px link về `/`. Given `/login` Then logo cao 40 px (1440) / 32 px (390).
+  Kiểm (Console, 1440): `document.querySelector('[data-part=brand] img').getBoundingClientRect().height` → `32`; `document.querySelector('[data-part=brand]').getBoundingClientRect().bottom === document.querySelector('header').getBoundingClientRect().bottom` → `true`; ảnh `/`, `/login` ở 1440 và 390 đính báo cáo QC.
+- AC8 (#17b). Given Giảng viên ở 1440 px When nhìn topbar Then bộ chọn lớp hiện đủ "761987 · An ninh mạng", ô tìm nhanh hiện đủ chữ. Given 1024 px Then tên dài có `…` và rê chuột thấy tooltip đủ tên. Given 390 px Then chỉ "761987"; mở bộ chọn thấy tên đầy đủ.
+  Kiểm: `AUDIT` ở 1440 trên `/`, `/inbox`, `/gradebook` → `ell: []`; `curl -s -b "ep_demo_role=teacher; ep_demo_course=int1006-1" $F/ | grep -c 'title="761987 · An ninh mạng"'` ≥ 1.
+- AC9 (#17f). Given vai Giảng viên / Trợ giảng / Admin / Sinh viên B When mở menu hồ sơ Then dòng 1 là tên người, dòng 2 (chữ phụ) là vai; không vai nào hiện tên vai ở chỗ tên người.
+  Kiểm:
+  ```bash
+  for p in "teacher:TS. Lê Thu Hà" "ta:Phạm Quốc Bảo" "admin:Đỗ Hoàng Nam" "student:Trần Thu Uyên"; do
+    curl -s -b "ep_demo_role=${p%%:*}; ep_demo_person=sv-2; ep_demo_course=int1006-1" $F/ | grep -c "Tài khoản: ${p#*:}"; done   # mỗi dòng ≥ 1
+  ```
+  Tay: mở menu ở 3 vai, chụp ảnh.
+- AC10 (#17h). Given mọi route của mọi vai When mở ở 1440 px và 390 px (route SV, `/attendance`, `/inbox` thêm 375 px) Then `AUDIT` trả `{ ox: 0, cut: [], ell: [] }`. Riêng các chỗ v4 lỗi (`SRS.md` 4.7 h1–h4): `/library` (SV), `/attendance`, `/observability`, `/admin/users` hết tràn ngang; dưới 720 px bảng của `/students`, `/grading`, `/documents`, `/admin/courses`, `/admin/users` hiện dạng danh sách, `/gradebook` cuộn ngang có cột tên dính trái; `/attendance` ẩn chú thích phím tắt; tab `/students/sv-3` cuộn ngang, không cắt "Hoạt động học".
+  Kiểm: chạy `AUDIT` lần lượt từng route (danh sách route theo vai: `SRS.md` mục 2), ghi bảng route × bề rộng → kết quả vào báo cáo QC; ảnh 390 px của 4 route h1.
 
 ### Ngoài phạm vi
 Đăng nhập thật, màn tài khoản F1, cookie `httpOnly`, đồng bộ trạng thái giữa hai trình duyệt khác nhau.
@@ -57,10 +87,10 @@ Route: `/`, `/chat`, `/threads`, `/threads/[id]`, `/practice`, `/practice/[attem
   Kiểm: tay theo `DEMO_SCRIPT.md` 02:15–03:45.
 - AC3. Given B gửi D3 When câu trả lời xong Then thấy "AI chưa đủ chắc chắn về câu này" và "Đang chờ giảng viên · vừa gửi"; sau khi GV trả lời (US-PROTO-02 AC2), B thấy câu trả lời có nhãn giảng viên và `Đã rõ` đóng câu hỏi.
   Kiểm: tay theo `DEMO_SCRIPT.md` 04:15–06:10 (bỏ bước Mailpit).
-- AC4. Given B ở `/threads` When mở form tạo thread Then thấy các trường: Tiêu đề câu hỏi (Input rõ ràng, bắt buộc), Chủ đề (Select danh sách chủ đề), Nội dung chi tiết (Textarea, bắt buộc), checkbox "Nhờ AI trả lời gợi ý (Socratic) ngay sau khi đăng" (mặc định bật) (Proposal #15).
+- AC4. Given B ở `/threads` When mở form tạo thread Then thấy các trường: Tiêu đề câu hỏi (Input rõ ràng, bắt buộc), Chủ đề (Select theo `THREAD_TOPICS`), Nội dung chi tiết (Textarea, bắt buộc), checkbox "Nhờ AI trả lời gợi ý (Socratic) ngay sau khi đăng" (mặc định bật) (Proposal #15).
   When soạn bài có MSSV `20229002` trong Tiêu đề hoặc Nội dung rồi bấm `Đăng câu hỏi` Then mở Dialog đúng hai lối: chọn lối 1 (`Chuyển sang chat riêng`) → sang `/chat` mang toàn bộ bản nháp, không mất chữ; chọn lối 2 (`Ẩn thông tin rồi đăng`) → ẩn MSSV thành `[đã ẩn]` rồi tạo thread.
-  When tạo thread hợp lệ Then hệ thống **chuyển hướng ngay lập tức sang `/threads/${id}`** của thread vừa tạo, hiển thị câu hỏi gốc và câu trả lời AI `Chờ xác nhận`.
-  Kiểm: tay theo thao tác; quan sát URL đổi sang `/threads/...` sau khi đăng.
+  When tạo thread hợp lệ Then **chuyển ngay sang `/threads/${id}`**; khối AI chạy đúng trình tự `SRS.md` 4.3.1 E: "Trợ lý AI đang soạn…" (~1,2 s) → chữ chảy có nút `Dừng` → `Nguồn tham khảo (n)` → nhãn `Chờ xác nhận`. Nội dung theo mẫu chọn ở 4.3.1 D (#18): tiêu đề "Dùng lại IV trong CTR có sao không?" (Mật mã đối xứng) → mẫu S2, kết thúc bằng câu hỏi ngược về XOR hai bản mã, nguồn Chương 3 tr. 18–20; tiêu đề "Vì sao ECB làm lộ ảnh?" → mẫu S1, nguồn Chương 3 tr. 14–17. Hai câu hỏi khác nhau không ra cùng một câu trả lời.
+  Kiểm: tay, bấm giờ; tạo 2 thread với 2 tiêu đề trên rồi so 2 câu trả lời; quan sát URL đổi sang `/threads/...` ngay sau khi đăng.
 - AC5. Given vai Sinh viên When đọc văn bản hiển thị mọi route của US Then không có từ kỹ thuật AI, không số độ tin cậy, không điểm nháp, không nhãn rủi ro / ghi chú về chính mình.
   Kiểm: `for r in / /chat /threads /threads/t-cbc /practice /library /calendar /me /assignments/bt03; do visible student $r sv-2; done | grep -inE 'RAG|PII|fallback|trace|provider|confidence|redaction|độ tin cậy|cần chú ý|rủi ro'` → không in gì. Tay: `/assignments/bt03` trước khi GV công bố không có con số điểm.
 - AC6. Given điện thoại 375 px When dùng mọi route của US Then không cuộn ngang, vùng chạm ≥ 44 px, bottom nav ≤ 5 đích, lịch sử chat ẩn.
@@ -71,9 +101,16 @@ Route: `/`, `/chat`, `/threads`, `/threads/[id]`, `/practice`, `/practice/[attem
   Kiểm: tay; `visible student /join/BX4P9TW sv-4 | grep -c 761988` ≥ 1.
 - AC9 (phân quyền). Given vai TA / GV / Admin When mở `/chat`, `/me`, `/practice`, `/library`, `/assignments/bt03`, `/join` Then màn chặn quyền; Admin cũng bị chặn ở `/threads`, `/calendar`.
   Kiểm: `for v in ta teacher admin; do for r in /chat /me /practice /library /assignments/bt03 /join; do open_as $v $r; done; done` → đều `CHAN`; `open_as admin /threads; open_as admin /calendar` → `CHAN`.
-- AC10. Given Sinh viên (hoặc bất kỳ vai trò nào) ở chi tiết thread `/threads/[id]` When xem chi tiết Then thấy: khối câu hỏi gốc (người hỏi, thời gian, chủ đề, nội dung), khối câu trả lời AI (kèm trích dẫn nguồn mở rộng xem được), danh sách các phản hồi thảo luận, và **ô trả lời thảo luận (Reply Composer) ở cuối trang** (Proposal #15).
-  When bấm `Hỏi trợ lý AI` trong Reply Composer Then sinh câu trả lời AI Socratic gợi ý; When gõ nội dung phản hồi và bấm `Gửi phản hồi` Then phản hồi mới xuất hiện ngay ở cuối danh sách thảo luận (nếu có thông tin cá nhân trong phản hồi → mở Dialog 2 lối).
-  Kiểm: tay theo thao tác.
+- AC10 (#18). Given B ở `/threads` When đọc danh sách Then số phản hồi mỗi thread đúng cột "n" ở `SRS.md` 4.3.1 B (`t-cbc` 4, `t-salt` 3, `t-sqli` 3, `t-pin-rubric` 4, …). When mở `/threads/t-cbc` Then thấy từ trên xuống: khối câu hỏi gốc (Đặng Gia An, thời gian, chủ đề, tuần, "4 người tham gia"); khối câu trả lời AI `Chờ xác nhận` mẫu S1 + `Nguồn tham khảo (2)`; **một** vùng "Thảo luận (4)" gồm 4 phản hồi của sv-10, TA (có khối trích bài sv-10), sv-7, sv-19 theo thời gian; ô "Phản hồi của bạn" ở cuối chính vùng đó với `Gửi phản hồi` (chính) và `Hỏi trợ lý AI` (phụ). Không còn tiêu đề "Thảo luận của lớp" hay "Phản hồi trong thread này".
+  Kiểm: `visible student /threads/t-cbc sv-2 | grep -cE 'Thảo luận của lớp|Phản hồi trong thread này'` → `0`; `visible student /threads/t-cbc sv-2 | grep -c 'Thảo luận (4)'` ≥ 1; tay: đếm bài từng thread trong danh sách so bảng 4.3.1 B.
+- AC11 (#17e). Given B ở `/chat` 1440 px When phiên trống và khi phiên đã có ≥ 6 tin Then lịch sử phiên là một panel (viền, nền, bo góc FR-X11) rộng 240 px; hội thoại và composer cùng mép trái và cùng bề rộng; composer ghim đáy (cách đáy màn ≤ 24 px), hội thoại cuộn bên trong. Given 375 px Then lịch sử ẩn (AC6).
+  Kiểm (Console): `const r = p => document.querySelector('[data-part=' + p + ']').getBoundingClientRect(); [r('chat-thread').left === r('chat-composer').left, r('chat-thread').width === r('chat-composer').width, innerHeight - r('chat-composer').bottom <= 24]` → `[true, true, true]` ở cả hai trạng thái.
+- AC12 (#18). Given B ở `/threads/t-cbc` When ô soạn trống và bấm `Hỏi trợ lý AI` Then AI đăng `Gợi ý thêm` của S1 ("…bao nhiêu khối bản rõ bị ảnh hưởng?") theo trình tự 4.3.1 E. When gõ "Còn CTR thì sao, có cần IV ngẫu nhiên không?" rồi bấm `Hỏi trợ lý AI` Then phản hồi của B hiện trước, AI trả lời ngay dưới theo S2 với dòng "↳ trả lời Trần Thu Uyên". When gửi phản hồi "@AI dùng lại nonce có sao không" bằng `Gửi phản hồi` Then xử lý như bấm `Hỏi trợ lý AI`. Trong lúc AI soạn, hai nút khoá; bấm `Dừng` giữ phần đã hiện + "Đã dừng" + `Hỏi lại`.
+  Kiểm: tay, bấm giờ.
+- AC13 (#18). Given B ở `/threads/t-salt` When gửi phản hồi "Em hiểu rồi ạ" Then phản hồi hiện ngay cuối vùng thảo luận và trang cuộn tới; ~2 s sau "Phạm Quốc Bảo đang trả lời…"; ~6 s sau phản hồi của TA có khối trích bài của B, nội dung cột "Phản hồi trễ của TA" mẫu H1; chuông có chấm chưa đọc "Phạm Quốc Bảo đã trả lời trong «Vì sao cần muối (salt) khi băm mật khẩu?»", bấm → về đúng phản hồi; `/threads` hiện `t-salt` 5 phản hồi. Given gửi xong chuyển ngay sang `/calendar` (trước 6 s) Then tới hạn chuông vẫn có thông báo, quay lại thread thấy phản hồi TA. Gửi phản hồi thứ hai trong cùng thread → không có phản hồi trễ nữa.
+  Kiểm: tay, bấm giờ; tải lại trang ở giây thứ 3 rồi chờ.
+- AC14 (nhánh lỗi, #18). Given B tạo thread "WPA3 chặn được KRACK không?" chủ đề "An toàn mạng không dây" (nhờ AI bật) Then AI hiện ngay toàn văn "Mình chưa đủ chắc chắn để gợi ý câu này từ tài liệu của lớp…", không nguồn, nhãn `Đang chờ giảng viên`, không có `Chờ xác nhận`; `/inbox` của GV không thêm ticket (Q4). Given ô soạn trống Then `Gửi phản hồi` khoá. Given gõ dở phản hồi rồi rời trang và quay lại Then chữ còn nguyên. Given phản hồi chứa `20229002` Then Dialog hai lối (như AC4).
+  Kiểm: tay; đổi vai GV → `/inbox` số ticket không đổi.
 
 ### Ngoài phạm vi
 Phúc khảo đầy đủ (chỉ có form gửi), thi thử đủ ma trận, ICS thật, xem trước PDF thật (hiện trang mẫu).
@@ -103,6 +140,12 @@ Route: `/` (GV/TA), `/inbox`, `/students`, `/students/[id]`, `/attendance`, `/cl
   Kiểm: `for v in student admin; do for r in /inbox /students /students/sv-3 /attendance /class/members; do open_as $v $r sv-2; done; done` → đều `CHAN`; `visible ta /class/members | grep -c 'Tạo lại mã'` → `0`.
 - AC8. Given Giảng viên hoặc Trợ giảng ở chi tiết thread `/threads/[id]` có câu trả lời AI `Chờ xác nhận` When bấm `Chỉnh sửa` Then mở ô sửa inline chứa nội dung câu trả lời; When sửa nội dung và bấm `Lưu và xác nhận` Then trạng thái câu trả lời chuyển thành `Đã được giảng viên sửa & xác nhận` (CORRECTED), hiển thị nội dung đã sửa kèm nút/chi tiết "Xem câu trả lời AI gốc" để đối chiếu (Proposal #15); When bấm `Xác nhận` Then trạng thái chuyển thành `Đã được giảng viên xác nhận`; When bấm `Loại khỏi tri thức` Then câu trả lời bị ẩn và có dòng Hoàn tác.
   Kiểm: tay.
+- AC9 (#17c). Given Giảng viên ở `/inbox` 1440 px When nhìn panel danh sách Then hàng tab / chip lọc cuộn ngang, đủ chữ ("Tất cả 6"); mỗi ticket: tên + thời gian, câu hỏi tối đa 2 dòng, dòng meta xuống dòng được; không chữ nào bị cắt ngang. Given 375 px Then chỉ thấy danh sách; bấm ticket D3 → chi tiết toàn bề rộng, URL có `?ticket=`, có `← Hộp thư` (≥ 44 px); `←` hoặc Back của trình duyệt về danh sách đúng vị trí cuộn.
+  Kiểm: `AUDIT` ở 1440 và 375 trên `/inbox` → `cut: []`; tay ở 375.
+- AC10 (#17d). Given Giảng viên mở một ticket ở `/inbox` 1440 px When nhìn panel chi tiết Then ô "Trả lời của bạn" cách khối thông tin ngay trên ≤ 24 px, `Gửi trả lời` ngay dưới ô soạn; không khoảng trống kéo giãn.
+  Kiểm (Console): `const q = document.querySelector('[data-part=inbox-reply]'); q.getBoundingClientRect().top - q.previousElementSibling.getBoundingClientRect().bottom` ≤ `24`.
+- AC11 (#18). Given sau `Đặt lại dữ liệu demo`, B tạo một thread mới có câu AI khớp mẫu (01-AC4) When đổi vai sang Giảng viên Then "Hôm nay" có việc "Câu hỏi mới: «<tiêu đề>» · <chủ đề> · vừa xong" nhãn `Chờ xác nhận`, tiêu đề thành "7 việc cần xử lý hôm nay", chuông có "Câu hỏi mới trong Threads: «<tiêu đề>»"; bấm việc → thread; `Xác nhận` → việc rời "Hôm nay", về "6 việc". Thread nhánh không khớp (01-AC14) hiện nhãn `Cần giảng viên trả lời`, GV gửi phản hồi → việc rời. Trợ giảng thấy giống Giảng viên.
+  Kiểm: tay theo thứ tự trên, một trình duyệt.
 
 ### Ngoài phạm vi
 Tạo lịch buổi học hàng loạt (chỉ có bộ chọn buổi), `/class/settings`, nhận xét tổng hợp AI ở hồ sơ 360.
@@ -153,6 +196,8 @@ Route: `/insights`, `/analytics`, `/observability`, `/settings/llm`, `/settings/
   Kiểm: tay.
 - AC6 (phân quyền). Given Sinh viên / TA When mở `/observability`, `/settings/llm`, `/settings/integrations`, `/admin/courses`, `/admin/users` Then màn chặn quyền; Given Giảng viên When mở `/admin/courses` Then màn chặn quyền; Given TA ở `/analytics` Then không có mục chi phí (Q2).
   Kiểm: `for v in student ta; do for r in /observability /settings/llm /settings/integrations /admin/courses /admin/users; do open_as $v $r sv-2; done; done; open_as teacher /admin/courses` → đều `CHAN`; `visible ta /analytics | grep -ci 'chi phí'` → `0`.
+- AC7 (#17g). Given Admin ở `/settings/llm` 1440 px When nhìn danh sách nhà cung cấp Then cột trạng thái và cột nút thẳng hàng ở mọi hàng (lưới cột cố định). Given 390 px Then mỗi hàng xếp dọc: thông tin → trạng thái → nút rộng 100 % (≥ 44 px); dòng hạn mức xuống dòng, không `…`.
+  Kiểm (Console, 1440): `['provider-status','provider-action'].map(p => new Set([...document.querySelectorAll('[data-part=' + p + ']')].map(e => Math.round(e.getBoundingClientRect().left))).size)` → `[1, 1]`; `AUDIT` ở 390 → `ell: []`.
 
 ### Ngoài phạm vi
 `/admin/audit`, `/admin/health`, trace Jaeger thật, ngân sách theo lớp.
