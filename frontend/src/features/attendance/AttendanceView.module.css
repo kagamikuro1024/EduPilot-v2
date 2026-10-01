@@ -69,8 +69,15 @@
   min-width: 190px;
 }
 
-/* Hàng điểm danh trên điện thoại: tên → 4 nhãn trạng thái đủ chữ (≥ 44px) → phát biểu. Có kẻ, không card. */
+/* Tóm tắt xuống dòng giữa các cụm, không ngắt trong cụm (02-AC15). */
+.summary { display: flex; flex-wrap: wrap; gap: var(--ep-space-1) var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.summaryPart { white-space: nowrap; }
+.summaryPart + .summaryPart::before { content: "· "; }
+
+/* Hàng điểm danh trên điện thoại: dòng 1 tên + Phát biểu, dòng 2 bốn trạng thái đủ chữ (≥ 44px). Có kẻ, không card. */
 .mRow { display: grid; gap: var(--ep-space-2); font-weight: 400; }
+.mTop { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-2); }
+.mTop .name { flex: 1; min-width: 140px; }
 .mMarks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ep-space-1); }
 .mMark {
   position: relative;
@@ -88,10 +95,11 @@
   line-height: 1.25;
   cursor: pointer;
 }
-.mMark:has(input:checked) { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 600; }
+.mMark:has(input:checked) { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 700; }
+/* Trạng thái đang chọn có dấu tick, không chỉ phân biệt bằng màu (02-AC15). */
+.mMark:has(input:checked) .mMarkLabel::before { content: "✓ "; }
 .mMark:has(input:focus-visible) { outline: 2px solid var(--ep-red); outline-offset: 2px; }
 .mRadio { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
-.mRow .speak { justify-self: start; }
 
 @media (max-width: 719px) {
   .keyHint { display: none; }
@@ -99,7 +107,7 @@
     flex: 1;
   }
   .picker select {
-    min-width: 0;
+    min-width: 160px;
     flex: 1;
   }
 }

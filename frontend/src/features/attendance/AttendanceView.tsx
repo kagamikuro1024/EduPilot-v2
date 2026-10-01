@@ -1,7 +1,8 @@
 "use client";
 
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
-import { at, fmtLongDate, fmtTime, type Student } from "@/mock/core";
+import { fmtLongDate, fmtTime, type Student } from "@/mock/core";
 import { absentSessions, rosterOf, sessionsOf } from "@/mock/roster";
 import {
   ATTENDANCE_SEED,
@@ -17,7 +18,8 @@ import {
 } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
-import { useDemoSlice } from "@/shared/state/demo";
+import { simNowMs } from "@/shared/state/clock";
+import { useDemoSlice, writeSlice } from "@/shared/state/demo";
 import {
   Button,
   ButtonLink,
@@ -51,11 +53,13 @@ export function AttendanceView() {
   const [attendance, setAttendance] = useDemoSlice<AttendanceState>(KEYS.attendance, ATTENDANCE_SEED);
   const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
   const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
-  const [n, setN] = useState(CURRENT_SESSION);
+  // Hôm nay liên kết tới /attendance?session=10
+  const deepLink = useSearchParams().get("session");
+  const [n, setN] = useState(Number(deepLink) || CURRENT_SESSION);
   const [cursor, setCursor] = useState(0);
   const [offline, setOffline] = useState(false);
   const [queued, setQueued] = useState<SessionAttendance | null>(null);
-  const [syncs, setSyncs] = useState(0);
+  const [savedAt, setSavedAt] = useState<number | null>(null);
   const undo = useUndoLine();
   const routeState = useRouteState();
 
@@ -78,7 +82,7 @@ export function AttendanceView() {
       return;
     }
     setQueued(null);
-    setSyncs((k) => k + 1);
+    setSavedAt(simNowMs());
     setAttendance((prev) => ({ ...prev, [course.id]: { ...prev[course.id], [n]: next } }));
   }
 
@@ -86,22 +90,32 @@ export function AttendanceView() {
     if (readOnly) return;
     const before = view.marks[st.id] ?? "present";
     if (before === mark) return;
-    write({ ...view, marks: { ...view.marks, [st.id]: mark } });
-    undo.push(`${MARKS.find((m) => m.value === mark)?.verb} ${st.name}`, () => write({ ...view, marks: { ...view.marks, [st.id]: before } }));
+    write({ ...view, marks: { ...view.marks, [st.id]: mark }, finalized: false });
+    undo.push(`${MARKS.find((m) => m.value === mark)?.verb} ${st.name}`, () => write({ ...view, marks: { ...view.marks, [st.id]: before }, finalized: false }));
   }
 
   function addSpeak(st: Student) {
     if (readOnly) return;
     const before = view.speaks[st.id] ?? 0;
-    write({ ...view, speaks: { ...view.speaks, [st.id]: before + 1 } });
-    undo.push(`Đã ghi phát biểu cho ${st.name} · +0,25`, () => write({ ...view, speaks: { ...view.speaks, [st.id]: before } }));
+    write({ ...view, speaks: { ...view.speaks, [st.id]: before + 1 }, finalized: false });
+    undo.push(`Đã ghi phát biểu cho ${st.name} · +0,25`, () => write({ ...view, speaks: { ...view.speaks, [st.id]: before }, finalized: false }));
+  }
+
+  /** `Lưu điểm danh`: chốt buổi và ghi mốc cho "Cập nhật …" ở /me (4.8 N7). */
+  function finalize() {
+    const stamp = simNowMs();
+    setQueued(null);
+    setSavedAt(stamp);
+    setAttendance((prev) => ({ ...prev, [course.id]: { ...prev[course.id], [n]: { ...view, finalized: true } } }));
+    writeSlice(KEYS.meStamp, stamp);
+    undo.clear();
   }
 
   function toggleOffline(next: boolean) {
     setOffline(next);
     if (!next && queued) {
       setQueued(null);
-      setSyncs((k) => k + 1);
+      setSavedAt(simNowMs());
       const flush = queued;
       setAttendance((prev) => ({ ...prev, [course.id]: { ...prev[course.id], [n]: flush } }));
     }
@@ -129,9 +143,9 @@ export function AttendanceView() {
 
   const count = (m: Mark) => roster.filter((st) => (view.marks[st.id] ?? "present") === m).length;
   // chỉ nêu loại có người: "27 có mặt, 1 muộn, 2 vắng"
-  const summary = MARKS.map((m) => (count(m.value) > 0 ? `${count(m.value)} ${m.label.toLowerCase()}` : null))
-    .filter(Boolean)
-    .join(", ");
+  const parts = MARKS.filter((m) => count(m.value) > 0).map((m) => `${count(m.value)} ${m.label.toLowerCase()}`);
+  const summary = parts.join(", ");
+  const changes = queued ? changeCount(queued, base) : 0;
 
   const columns: Column<Student>[] = [
     {
@@ -202,17 +216,16 @@ export function AttendanceView() {
           )
         }
         actions={
-          session?.state === "current" && (
-            <Button
-              variant="primary"
-              onClick={() => {
-                write({ ...view, finalized: true });
-                undo.clear();
-              }}
-            >
+          session?.state === "current" &&
+          (view.finalized ? (
+            <Button variant="secondary" disabled>
+              Đã lưu
+            </Button>
+          ) : (
+            <Button variant="primary" onClick={finalize}>
               Lưu điểm danh
             </Button>
-          )
+          ))
         }
       />
       <PageState
@@ -231,10 +244,12 @@ export function AttendanceView() {
               end={
                 <>
                   <Switch label="Giả lập mất mạng" checked={offline} onChange={toggleOffline} />
-                  {offline && queued ? (
-                    <StatusText tone="amber">Đang chờ mạng · {changeCount(queued, base)} thay đổi</StatusText>
-                  ) : syncs > 0 ? (
-                    <StatusText tone="green">Đã lưu {fmtTime(at(syncs))}</StatusText>
+                  {offline && changes > 0 ? (
+                    <StatusText tone="amber">Đang chờ mạng · {changes} thay đổi</StatusText>
+                  ) : offline ? (
+                    <StatusText tone="amber">Đang giả lập mất mạng</StatusText>
+                  ) : savedAt ? (
+                    <StatusText tone="green">Đã lưu {fmtTime(new Date(savedAt))}</StatusText>
                   ) : (
                     <StatusText tone="neutral">Chưa có thay đổi</StatusText>
                   )}
@@ -243,7 +258,14 @@ export function AttendanceView() {
             >
               <label className={s.picker}>
                 <span className="ep-label">Buổi</span>
-                <Select value={n} onChange={(e) => { setN(Number(e.target.value)); setQueued(null); }}>
+                <Select
+                  data-part="att-session-select"
+                  value={n}
+                  onChange={(e) => {
+                    setN(Number(e.target.value));
+                    setQueued(null);
+                  }}
+                >
                   {sessions.map((x) => (
                     <option key={x.n} value={x.n}>
                       {x.label}
@@ -252,7 +274,13 @@ export function AttendanceView() {
                   ))}
                 </Select>
               </label>
-              <span className="ep-meta">{summary}</span>
+              <span className={s.summary}>
+                {parts.map((p) => (
+                  <span key={p} className={s.summaryPart}>
+                    {p}
+                  </span>
+                ))}
+              </span>
             </Toolbar>
 
             {schemes[course.id]?.status !== "confirmed" && (
@@ -280,12 +308,18 @@ export function AttendanceView() {
                   rows={roster}
                   rowKey={(st) => st.id}
                   activeKey={roster[cursor]?.id}
+                  rowAttrs={(st) => ({ "data-part": "student-row", "data-student-id": st.id })}
                   mobileRow={(st) => (
-                    <div className={s.mRow}>
-                      <span className={s.name}>
-                        <span className="ep-item-title">{st.name}</span>
-                        <span className="ep-meta">{st.code}</span>
-                      </span>
+                    <div className={s.mRow} data-part="att-row">
+                      <div className={s.mTop}>
+                        <span className={s.name}>
+                          <span className="ep-item-title">{st.name}</span>
+                          <span className="ep-meta">{st.code}</span>
+                        </span>
+                        <button type="button" className={s.speak} disabled={readOnly} onClick={() => addSpeak(st)}>
+                          {view.speaks[st.id] ? `${view.speaks[st.id]} lần · +${(view.speaks[st.id] * 0.25).toFixed(2).replace(".", ",")}` : "Phát biểu"}
+                        </button>
+                      </div>
                       <div className={s.mMarks} role="radiogroup" aria-label={`Điểm danh ${st.name}`}>
                         {MARKS.map((m) => (
                           <label key={m.value} className={s.mMark}>
@@ -298,13 +332,10 @@ export function AttendanceView() {
                               onChange={() => setMark(st, m.value)}
                               onFocus={() => setCursor(roster.indexOf(st))}
                             />
-                            <span>{m.label}</span>
+                            <span className={s.mMarkLabel}>{m.label}</span>
                           </label>
                         ))}
                       </div>
-                      <button type="button" className={s.speak} disabled={readOnly} onClick={() => addSpeak(st)}>
-                        {view.speaks[st.id] ? `${view.speaks[st.id]} lần phát biểu · +${(view.speaks[st.id] * 0.25).toFixed(2).replace(".", ",")}` : "+ Phát biểu"}
-                      </button>
                     </div>
                   )}
                 />
