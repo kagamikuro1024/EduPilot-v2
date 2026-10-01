@@ -27,7 +27,8 @@ gh api repos/kagamikuro1024/TA_Agent/commits/1efb08a19f7d06291f65c1e0204bcfd1ecb
 ## Run bằng chứng (proposals #5)
 | Mục | `<ID>` | `headSha` | Nhánh | Kết quả |
 | --- | --- | --- | --- | --- |
-| AC1 (xanh trên HEAD mã) | 36878528413 | 53770ee50e67b47a040e3a5ca5b315a22a308ee2 | sprint/1-p0-prep | success; Go success, Frontend success |
+| AC1 (mới nhất, sau ghim `ubuntu-24.04`, proposals #11) | 36879160770 | a44586a22dd1960c1812eac0e84500ff35aac494 | sprint/1-p0-prep | success; Go success, Frontend success |
+| AC1 (trước khi ghim runner) | 36878528413 | 53770ee50e67b47a040e3a5ca5b315a22a308ee2 | sprint/1-p0-prep | success; Go success, Frontend success |
 | AC1 (lần đầu, trước khi thêm cache go.sum) | 36878347940 | 93742140d8e71b92d8761a57ec3c73eee20bc4c5 | sprint/1-p0-prep | success |
 | AC3 (test Go đỏ) | 36878548063 | 8deac88facf8a65da8f412f165fb9d9a4b7ce2f7 | ci/red-check | failure; Go failure, Frontend success; commit có `backend-go/internal/platform/red_test.go` |
 | AC4 (màu viết cứng) | 36878726051 | 1efb08a19f7d06291f65c1e0204bcfd1ecb68a0a | ci/red-check | failure; Go success, Frontend failure ở bước `ui antipatterns`; commit có `frontend/src/app/page.tsx` (và xoá `red_test.go`) |
@@ -41,6 +42,6 @@ Bốn run ở bảng trên (kết quả thật từ `gh run view`). Trước khi
 AC1 ✓ · AC2 ✓ (grep rỗng) · AC3 ✓ · AC4 ✓ (phần "xoá nhánh + `ls-remote` rỗng" chờ QC) · AC5 ✓ (`permissions: contents: read`; `continue-on-error` = 0).
 
 ## Nợ / chưa làm / cần hỏi
-- Annotation của GitHub: nhãn `ubuntu-latest` chuyển sang Ubuntu 26 từ 2026-10-19 — chưa ghim `ubuntu-24.04`; cần PM quyết nếu muốn tái lập tuyệt đối.
+- Runner đã ghim `ubuntu-24.04` (proposals #11).
 - Action ghim theo major (`@v7`, `@v6`, `@v9`), không theo SHA.
 - OpenAPI lint chưa vào CI (đúng SRS mục 10).
