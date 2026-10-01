@@ -24,7 +24,7 @@ Quy ước trong file: `$C` = `docker compose --env-file .env.local -f docker-co
   Kiểm:
   ```bash
   pnpm dev; echo "exit=$?"                                         # exit=0
-  pnpm -s dev:status --format '{{.Service}} {{.Health}}'           # 6 dòng, đều healthy
+  pnpm --silent dev:status --format '{{.Service}} {{.Health}}'     # 6 dòng, đều healthy
   $C config --services | grep -ciE 'python|ai$'                    # 0
   curl -fsS localhost:8080/healthz                                 # {"status":"ok"}
   curl -fsS localhost:8025/api/v1/info                             # 200, JSON thông tin Mailpit
