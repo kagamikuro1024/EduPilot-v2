@@ -1,0 +1,5 @@
+.form { display: grid; gap: var(--ep-space-4); max-width: 420px; justify-items: start; }
+.codeInput { width: 220px; letter-spacing: .12em; text-transform: uppercase; font-weight: 600; }
+.mine { margin: 0; padding-left: var(--ep-space-5); color: var(--ep-ink-2); }
+.actions { display: grid; gap: var(--ep-space-3); justify-items: start; margin-top: var(--ep-space-6); }
+.note { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); max-width: 60ch; }

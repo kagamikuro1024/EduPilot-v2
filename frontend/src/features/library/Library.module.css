@@ -1,0 +1,13 @@
+.search { min-width: 280px; }
+.file { width: 18px; height: 18px; color: var(--ep-ink-3); margin-top: 2px; }
+.rowActions { display: flex; align-items: center; gap: var(--ep-space-2); }
+
+.preview { margin-top: var(--ep-space-6); padding: var(--ep-space-6); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface); }
+.previewTitle { margin: 0 0 var(--ep-space-4); font-weight: 600; }
+.previewLine, .previewLineShort { height: 8px; margin: 0 0 var(--ep-space-3); background: var(--ep-surface-subtle); border-radius: var(--ep-radius-xs); }
+.previewLineShort { width: 60%; }
+.previewNote { margin: var(--ep-space-6) 0 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+
+@media (max-width: 719px) {
+  .search { min-width: 0; width: 100%; }
+}

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { PracticeScreen } from "@/features/practice/PracticeScreen";
 
 export const metadata: Metadata = { title: "Luyện đề" };
 
 export default function Page() {
-  return <RouteStub title="Luyện đề" />;
+  return <PracticeScreen />;
 }

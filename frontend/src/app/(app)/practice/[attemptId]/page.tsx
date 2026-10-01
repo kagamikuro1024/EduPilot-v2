@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { AttemptScreen } from "@/features/practice/AttemptScreen";
 
 export const metadata: Metadata = { title: "Làm bài" };
 
-export default function Page() {
-  return <RouteStub title="Làm bài" />;
+export default async function Page({ params }: { params: Promise<{ attemptId: string }> }) {
+  const { attemptId } = await params;
+  return <AttemptScreen attemptId={attemptId} />;
 }

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { ThreadDetail } from "@/features/threads/ThreadDetail";
 
 export const metadata: Metadata = { title: "Thread" };
 
-export default function Page() {
-  return <RouteStub title="Thread" />;
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  return <ThreadDetail id={id} />;
 }
