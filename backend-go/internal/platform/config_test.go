@@ -16,6 +16,7 @@ func TestLoadConfig(t *testing.T) {
 		{"thiếu DATABASE_URL", map[string]string{"REDIS_URL": "rd"}, []string{"DATABASE_URL"}},
 		{"thiếu REDIS_URL", map[string]string{"DATABASE_URL": "pg"}, []string{"REDIS_URL"}},
 		{"thiếu cả hai", map[string]string{}, []string{"DATABASE_URL", "REDIS_URL"}},
+		{"chỉ có khoảng trắng coi như thiếu", map[string]string{"DATABASE_URL": "pg", "REDIS_URL": "  \t"}, []string{"REDIS_URL"}},
 		{"rỗng coi như thiếu", map[string]string{"DATABASE_URL": "", "REDIS_URL": "rd"}, []string{"DATABASE_URL"}},
 	}
 	for _, tt := range tests {

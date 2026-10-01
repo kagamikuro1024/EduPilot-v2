@@ -21,11 +21,11 @@ func (e *ErrMissingEnv) Error() string {
 	return "thiếu biến môi trường bắt buộc: " + strings.Join(e.Names, ", ")
 }
 
-// LoadConfig đọc env qua getenv; thiếu bất kỳ biến nào → *ErrMissingEnv chứa đủ tên.
+// LoadConfig đọc env qua getenv; rỗng (sau trim) = thiếu; thiếu bất kỳ biến nào → *ErrMissingEnv chứa đủ tên.
 func LoadConfig(getenv func(string) string) (Config, error) {
 	var missing []string
 	need := func(name string) string {
-		v := getenv(name)
+		v := strings.TrimSpace(getenv(name))
 		if v == "" {
 			missing = append(missing, name)
 		}
