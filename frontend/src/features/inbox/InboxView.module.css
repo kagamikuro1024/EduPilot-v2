@@ -1,34 +1,65 @@
-/* Màn chia đôi: danh sách 380px + chi tiết co giãn (DESIGN §14.5); dưới 1100px thành danh sách → chi tiết. */
+/* Màn chia đôi 2 panel độc lập (DESIGN §14.5, FR-X11, Proposal #16) */
 .split {
   display: grid;
   grid-template-columns: 380px minmax(0, 1fr);
-  gap: var(--ep-space-8);
+  gap: var(--ep-space-6);
   align-items: start;
 }
+
 .list {
   display: grid;
   gap: var(--ep-space-4);
   min-width: 0;
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-5);
+  max-height: calc(100vh - var(--ep-topbar) - 130px);
+  overflow-y: auto;
 }
+
 .detail {
   min-width: 0;
-  padding-left: var(--ep-space-8);
-  border-left: 1px solid var(--ep-rule);
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-6);
+  display: grid;
+  gap: var(--ep-space-6);
+  max-height: calc(100vh - var(--ep-topbar) - 130px);
+  overflow-y: auto;
 }
+
 .back {
   display: none;
 }
 
+.questionBox {
+  padding: var(--ep-space-4);
+  background: var(--ep-surface-subtle);
+  border-radius: var(--ep-radius-sm);
+  border-left: 2px solid var(--ep-rule);
+  font-size: var(--ep-text-item);
+  line-height: 1.6;
+}
+
 .question {
+  margin: 0;
   font-size: var(--ep-text-item);
   line-height: 1.55;
   max-width: 68ch;
 }
+
 .answer {
+  margin: 0;
   max-width: 68ch;
-  padding-left: var(--ep-space-4);
-  border-left: 2px solid var(--ep-rule);
+  padding: var(--ep-space-3) var(--ep-space-4);
+  background: var(--ep-surface-subtle);
+  border-radius: var(--ep-radius-sm);
+  border-left: 2px solid var(--ep-green);
+  line-height: 1.6;
 }
+
 .claimRow {
   display: flex;
   align-items: center;
@@ -41,16 +72,19 @@
     grid-template-columns: 1fr;
     gap: 0;
   }
+  .list {
+    max-height: none;
+  }
   .detail {
     display: none;
-    padding-left: 0;
-    border-left: 0;
+    max-height: none;
   }
   .showDetail .list {
     display: none;
   }
   .showDetail .detail {
     display: block;
+    max-height: none;
   }
   .back {
     display: inline-flex;
