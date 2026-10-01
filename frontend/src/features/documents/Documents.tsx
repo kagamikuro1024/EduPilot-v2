@@ -7,6 +7,8 @@ import {
   ConfirmIrreversible,
   type Column,
   DataTable,
+  DefinitionList,
+  Drawer,
   EmptyState,
   InlineNotice,
   OverflowMenu,
@@ -16,27 +18,29 @@ import {
   Skeleton,
   StatusText,
 } from "@/shared/ui";
-import { ANSWER_KEY_NOTE, DOCUMENTS, DOC_KIND_LABEL, FAILING_UPLOAD, type Doc, type DocStatus } from "@/mock/documents";
-import { fmtShortDate, NOW } from "@/mock/core";
+import { ANSWER_KEY_NOTE, DOCUMENTS, DOC_KIND_LABEL, FAILING_UPLOAD, titleFromFile, type DocRow, type DocStatus } from "@/mock/documents";
+import { fmtShortDate } from "@/mock/core";
 import { useSession } from "@/shared/session/session";
+import { simNowMs } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import s from "./Documents.module.css";
 
 type Flags = Record<string, { forAi: boolean; forStudents: boolean }>;
-type Upload = { id: string; name: string; progress: number };
+type Progress = { id: string; file: string; progress: number };
 
 const STATUS_LABEL: Record<DocStatus, string> = { READY: "Sẵn sàng", PROCESSING: "Đang xử lý", FAILED: "Lỗi xử lý" };
 const STATUS_TONE: Record<DocStatus, "green" | "amber" | "red"> = { READY: "green", PROCESSING: "amber", FAILED: "red" };
 
 export function Documents() {
   const { role } = useSession();
-  const [added, setAdded] = useDemoSlice<Doc[]>("documents.added", []);
+  const [added, setAdded] = useDemoSlice<DocRow[]>("documents.new", []);
   const [removed, setRemoved] = useDemoSlice<string[]>("documents.removed", []);
   const [flags, setFlags] = useDemoSlice<Flags>("documents.flags", {});
-  const [uploads, setUploads] = useState<Upload[]>([]);
+  const [uploads, setUploads] = useState<Progress[]>([]);
   const [over, setOver] = useState(false);
-  const [deleting, setDeleting] = useState<Doc | null>(null);
+  const [deleting, setDeleting] = useState<DocRow | null>(null);
+  const [detail, setDetail] = useState<DocRow | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const undo = useUndoLine();
 
@@ -54,60 +58,61 @@ export function Documents() {
     return () => window.clearInterval(t);
   }, [uploads.length]);
 
-  function startUpload(names: string[]) {
-    const ups = names.map((name, i) => ({ id: `up-${Date.now()}-${i}`, name, progress: 0 }));
+  /** Tải lên: dòng hiện ngay ở trạng thái `PROCESSING` (chưa dùng cho AI, chưa hiện cho SV), xong mới `READY` / `FAILED`. */
+  function startUpload(files: string[]) {
+    const ups = files.map((file, i) => ({ id: `up-${Date.now()}-${i}`, file, progress: 0 }));
     setUploads((prev) => [...prev, ...ups]);
+    setAdded((prev) => [
+      ...ups.map<DocRow>((u) => ({
+        id: u.id,
+        title: titleFromFile(u.file),
+        file: u.file,
+        kind: "lecture",
+        week: null,
+        uploaded: fmtShortDate(new Date(simNowMs())),
+        pages: 18,
+        size: "1,9 MB",
+        forStudents: false,
+        forAi: false,
+        status: "PROCESSING",
+      })),
+      ...prev,
+    ]);
     window.setTimeout(() => {
       setUploads((prev) => prev.filter((u) => !ups.some((x) => x.id === u.id)));
-      setAdded((prev) => [
-        ...ups.map<Doc>((u) => {
-          const failed = u.name === FAILING_UPLOAD.name;
-          return {
-            id: u.id,
-            name: u.name,
-            kind: "LECTURE",
-            week: null,
-            topic: failed ? "Chưa đọc được nội dung" : "Tài liệu vừa tải lên, chưa gắn tuần",
-            forAi: !failed,
-            forStudents: false,
-            status: failed ? "FAILED" : "READY",
-            updated: fmtShortDate(NOW),
-            size: failed ? "4,8 MB" : "1,9 MB",
-            pages: failed ? 12 : 18,
-            failReason: failed ? FAILING_UPLOAD.failReason : undefined,
-            failFix: failed ? FAILING_UPLOAD.failFix : undefined,
-          };
+      setAdded((prev) =>
+        prev.map((d) => {
+          const up = ups.find((u) => u.id === d.id);
+          if (!up) return d;
+          const failed = up.file === FAILING_UPLOAD.name;
+          return failed
+            ? { ...d, status: "FAILED", pages: 12, size: "4,8 MB", failReason: FAILING_UPLOAD.failReason, failFix: FAILING_UPLOAD.failFix }
+            : { ...d, status: "READY", forAi: true };
         }),
-        ...prev,
-      ]);
+      );
     }, 1500);
   }
 
-  function toggle(d: Doc, key: "forAi" | "forStudents") {
+  function toggle(d: DocRow, key: "forAi" | "forStudents") {
     const next = !d[key];
     setFlags((prev) => ({ ...prev, [d.id]: { forAi: d.forAi, forStudents: d.forStudents, [key]: next } }));
     undo.push(
       key === "forAi"
-        ? `${next ? "Đã dùng" : "Đã ngừng dùng"} “${d.name}” cho AI`
-        : `${next ? "Đã hiện" : "Đã ẩn"} “${d.name}” với sinh viên`,
+        ? `${next ? "Đã dùng" : "Đã ngừng dùng"} “${d.title}” cho AI`
+        : `${next ? "Đã hiện" : "Đã ẩn"} “${d.title}” với sinh viên`,
       () => setFlags((prev) => ({ ...prev, [d.id]: { ...prev[d.id], [key]: !next } as Flags[string] })),
     );
   }
 
   const failedDocs = docs.filter((d) => d.status === "FAILED");
 
-  const columns: Column<Doc>[] = [
+  const columns: Column<DocRow>[] = [
     {
       key: "name",
       header: "Tài liệu",
       frozen: true,
-      width: "280px",
-      render: (d) => (
-        <span className={s.name}>
-          <span className={s.fileName}>{d.name}</span>
-          <span className={s.topic}>{d.topic}</span>
-        </span>
-      ),
+      width: "320px",
+      render: (d) => <span className={s.name}>{d.title}</span>,
     },
     { key: "kind", header: "Loại", width: "110px", render: (d) => <span className={s.meta}>{DOC_KIND_LABEL[d.kind]}</span> },
     { key: "week", header: "Tuần", width: "80px", hideOnMobile: true, render: (d) => <span className={s.meta}>{d.week ? `Tuần ${d.week}` : "—"}</span> },
@@ -116,10 +121,12 @@ export function Documents() {
       header: "Dùng cho AI",
       width: "150px",
       render: (d) =>
-        d.kind === "ANSWER_KEY" ? (
+        d.kind === "answer" ? (
           <span className={s.locked}>Không dùng cho AI của sinh viên</span>
+        ) : d.status !== "READY" ? (
+          <StatusText tone="amber">Chờ xử lý</StatusText>
         ) : (
-          <button type="button" className={s.toggle} aria-pressed={d.forAi} disabled={role !== "teacher" || d.status !== "READY"} onClick={() => toggle(d, "forAi")}>
+          <button type="button" className={s.toggle} aria-pressed={d.forAi} disabled={role !== "teacher"} onClick={() => toggle(d, "forAi")}>
             <StatusText tone={d.forAi ? "green" : "neutral"}>{d.forAi ? "Có" : "Không"}</StatusText>
           </button>
         ),
@@ -129,7 +136,7 @@ export function Documents() {
       header: "Hiện cho sinh viên",
       width: "170px",
       render: (d) =>
-        d.kind === "ANSWER_KEY" ? (
+        d.kind === "answer" ? (
           <span className={s.locked}>Không hiển thị cho sinh viên</span>
         ) : (
           <button type="button" className={s.toggle} aria-pressed={d.forStudents} disabled={role !== "teacher" || d.status !== "READY"} onClick={() => toggle(d, "forStudents")}>
@@ -147,16 +154,23 @@ export function Documents() {
         </span>
       ),
     },
-    { key: "updated", header: "Cập nhật", width: "110px", hideOnMobile: true, render: (d) => <span className={s.meta}>{d.updated}</span> },
+    { key: "updated", header: "Cập nhật", width: "110px", hideOnMobile: true, render: (d) => <span className={s.meta}>{d.uploaded}</span> },
     {
       key: "menu",
       header: "",
       width: "48px",
       align: "end",
-      render: (d) =>
-        role === "teacher" ? (
-          <OverflowMenu label={`Hành động với ${d.name}`} items={[{ label: "Xoá tài liệu", icon: <Trash2 aria-hidden />, danger: true, onSelect: () => setDeleting(d) }]} />
-        ) : null,
+      render: (d) => (
+        <OverflowMenu
+          label={`Hành động với ${d.title}`}
+          items={[
+            { label: "Xem chi tiết", onSelect: () => setDetail(d) },
+            ...(role === "teacher"
+              ? [{ label: "Xoá tài liệu", icon: <Trash2 aria-hidden />, danger: true, onSelect: () => setDeleting(d) }]
+              : []),
+          ]}
+        />
+      ),
     },
   ];
 
@@ -219,7 +233,7 @@ export function Documents() {
           {uploads.map((u) => (
             <div key={u.id} className={s.upload}>
               <div className={s.uploadHead}>
-                <span className={s.uploadName}>{u.name}</span>
+                <span className={s.uploadName}>{titleFromFile(u.file)}</span>
                 <span className={s.meta}>{u.progress < 60 ? "Đang tải lên…" : "Đang đọc nội dung…"}</span>
               </div>
               <span className={s.bar}>
@@ -250,7 +264,7 @@ export function Documents() {
         error={{ problem: "Không tải được danh sách tài liệu.", recovery: "Tệp đã tải lên vẫn được giữ. Thử lại sau ít phút." }}
       >
         {failedDocs.map((d) => (
-          <InlineNotice key={d.id} tone="danger" title={`${d.name}: ${d.failReason}`}>
+          <InlineNotice key={d.id} tone="danger" title={`${d.title}: ${d.failReason}`}>
             {d.failFix}
           </InlineNotice>
         ))}
@@ -261,8 +275,43 @@ export function Documents() {
 
         {undo.node}
 
-        <DataTable caption="Tài liệu của học phần" columns={columns} rows={docs} rowKey={(d) => d.id} empty={<EmptyState title="Chưa có tài liệu">Tải tài liệu đầu tiên lên để bắt đầu.</EmptyState>} />
+        <DataTable
+          caption="Tài liệu của học phần"
+          columns={columns}
+          rows={docs}
+          rowKey={(d) => d.id}
+          empty={<EmptyState title="Chưa có tài liệu">Tải tài liệu đầu tiên lên để bắt đầu.</EmptyState>}
+        />
       </PageState>
+
+      <Drawer open={Boolean(detail)} onClose={() => setDetail(null)} title={detail?.title ?? ""} description={detail ? DOC_KIND_LABEL[detail.kind] : undefined}>
+        {detail && (
+          <DefinitionList
+            items={[
+              { term: "Tên tệp gốc", value: detail.file },
+              { term: "Tuần", value: detail.week ? `Tuần ${detail.week}` : "Không gắn tuần" },
+              { term: "Tải lên", value: detail.uploaded },
+              { term: "Dung lượng", value: `${detail.pages} trang · ${detail.size}` },
+              { term: "Trạng thái", value: <StatusText tone={STATUS_TONE[detail.status]}>{STATUS_LABEL[detail.status]}</StatusText> },
+              {
+                term: "Hiện cho sinh viên",
+                value: detail.kind === "answer" ? "Không hiển thị cho sinh viên" : detail.forStudents ? "Có" : "Không",
+              },
+              {
+                term: "Dùng cho AI",
+                value:
+                  detail.kind === "answer"
+                    ? "Không dùng cho AI của sinh viên"
+                    : detail.status !== "READY"
+                      ? "Chờ xử lý"
+                      : detail.forAi
+                        ? "Có"
+                        : "Không",
+              },
+            ]}
+          />
+        )}
+      </Drawer>
 
       <ConfirmIrreversible
         open={Boolean(deleting)}
@@ -271,12 +320,12 @@ export function Documents() {
           if (!deleting) return;
           const doc = deleting;
           setRemoved((prev) => [...prev, doc.id]);
-          undo.push(`Đã xoá “${doc.name}”`, () => setRemoved((prev) => prev.filter((x) => x !== doc.id)));
+          undo.push(`Đã xoá “${doc.title}”`, () => setRemoved((prev) => prev.filter((x) => x !== doc.id)));
         }}
         title="Xoá tài liệu khỏi lớp"
         consequence={
           deleting
-            ? `Xoá “${deleting.name}” (${deleting.pages} trang). AI sẽ không dùng tài liệu này để trả lời nữa${deleting.forStudents ? " và sinh viên không còn thấy trong Thư viện" : ""}.`
+            ? `Xoá “${deleting.title}” (${deleting.pages} trang). AI sẽ không dùng tài liệu này để trả lời nữa${deleting.forStudents ? " và sinh viên không còn thấy trong Thư viện" : ""}.`
             : ""
         }
         confirmLabel="Xoá tài liệu"

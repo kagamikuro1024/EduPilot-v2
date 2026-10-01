@@ -2,10 +2,12 @@
 
 import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { CHAT_DRAFT_KEY } from "@/features/chat/ChatScreen";
-import { ago, at } from "@/mock/core";
-import { DOCS, DOC_KIND_LABEL, docById, type DocKind } from "@/mock/library";
+import { agoLabel } from "@/mock/derive";
+import { DOC_KIND_LABEL, docById, libraryDocs, uploadedAt, type DocKind } from "@/mock/library";
+import { useSession } from "@/shared/session/session";
+import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
   ActionList,
@@ -31,13 +33,16 @@ type Filter = "all" | DocKind;
 /** Thư viện của sinh viên: tìm tài liệu và dùng được ngay (DESIGN §14.15). */
 export function LibraryScreen() {
   const router = useRouter();
+  const { course } = useSession();
+  const now = useSimNow();
   const [, setChatDraft] = useDemoSlice<string>(CHAT_DRAFT_KEY, "");
   const [query, setQuery] = useState("");
   const [kind, setKind] = useState<Filter>("all");
   const [open, setOpen] = useState<string | null>(null);
 
+  const docs = useMemo(() => libraryDocs(course.id), [course.id]);
   const q = query.trim().toLowerCase();
-  const rows = DOCS.filter((d) => (kind === "all" ? true : d.kind === kind)).filter(
+  const rows = docs.filter((d) => (kind === "all" ? true : d.kind === kind)).filter(
     (d) => !q || d.title.toLowerCase().includes(q) || d.topic.toLowerCase().includes(q) || d.summary.toLowerCase().includes(q),
   );
   const doc = open ? docById(open) : undefined;
@@ -49,7 +54,7 @@ export function LibraryScreen() {
 
   return (
     <Page>
-      <PageHeader title="Thư viện" description="Bài giảng, quy chế và đề cũ của lớp. Tìm theo tên, chủ đề hoặc tuần học." meta={`${DOCS.length} tài liệu`} />
+      <PageHeader title="Thư viện" description="Bài giảng, quy chế và đề cũ của lớp. Tìm theo tên, chủ đề hoặc tuần học." meta={`${docs.length} tài liệu`} />
 
       <Toolbar
         end={
@@ -58,10 +63,10 @@ export function LibraryScreen() {
             value={kind}
             onChange={setKind}
             options={[
-              { value: "all", label: "Tất cả", count: DOCS.length },
-              { value: "lecture", label: "Bài giảng", count: DOCS.filter((d) => d.kind === "lecture").length },
-              { value: "regulation", label: "Quy chế", count: DOCS.filter((d) => d.kind === "regulation").length },
-              { value: "exam", label: "Đề cũ", count: DOCS.filter((d) => d.kind === "exam").length },
+              { value: "all", label: "Tất cả", count: docs.length },
+              { value: "lecture", label: "Bài giảng", count: docs.filter((d) => d.kind === "lecture").length },
+              { value: "regulation", label: "Quy chế", count: docs.filter((d) => d.kind === "regulation").length },
+              { value: "exam", label: "Đề cũ", count: docs.filter((d) => d.kind === "exam").length },
             ]}
           />
         }
@@ -96,7 +101,7 @@ export function LibraryScreen() {
                 lead={<FileText className={s.file} aria-hidden />}
                 title={d.title}
                 context={d.summary}
-                meta={`${DOC_KIND_LABEL[d.kind]}${d.week ? ` · tuần ${d.week}` : ""} · ${d.pages} trang · cập nhật ${ago(at(-d.minsAgo))}`}
+                meta={`${DOC_KIND_LABEL[d.kind]}${d.week ? ` · tuần ${d.week}` : ""} · ${d.pages} trang · ${d.size} · cập nhật ${agoLabel(uploadedAt(d), now)}`}
                 onSelect={() => setOpen(d.id)}
                 action={
                   <span className={s.rowActions}>
@@ -138,8 +143,8 @@ export function LibraryScreen() {
                 { term: "Loại", value: DOC_KIND_LABEL[doc.kind] },
                 { term: "Chủ đề", value: doc.topic },
                 { term: "Tuần", value: doc.week ? `Tuần ${doc.week}` : "Không gắn tuần" },
-                { term: "Tệp", value: `${doc.file} · ${doc.pages} trang · ${doc.sizeMb} MB` },
-                { term: "Cập nhật", value: ago(at(-doc.minsAgo)) },
+                { term: "Tệp", value: `${doc.file} · ${doc.pages} trang · ${doc.size}` },
+                { term: "Cập nhật", value: `${doc.uploaded} · ${agoLabel(uploadedAt(doc), now)}` },
               ]}
             />
             <div className={s.preview} aria-label="Trang xem trước">

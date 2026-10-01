@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { EVENT_LABEL, WEEK_DAY_SHORT, eventsFor, isNow, startOfWeek, type CalEvent } from "@/mock/calendar";
 import { NOW, fmtLongDate, fmtShortDate, fmtTime } from "@/mock/core";
-import { QUIZ_KEY, QUIZ_SEED, type QuizState } from "@/mock/practice";
+import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
 import { KEYS, type CalendarExtra } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
@@ -42,9 +42,9 @@ function getNarrow() {
 
 /** Lịch: thấy việc kế tiếp (DESIGN §14.16). Dùng chung cho sinh viên và giảng viên / trợ giảng. */
 export function CalendarScreen() {
-  const { role, course } = useSession();
+  const { role, course, studentId } = useSession();
   const [extras] = useDemoSlice<CalendarExtra[]>(KEYS.calendarExtras, []);
-  const [quiz] = useDemoSlice<QuizState>(QUIZ_KEY, QUIZ_SEED);
+  const [quiz] = useDemoSlice<QuizState>(quizKey(studentId), QUIZ_SEED);
   const [chosenView, setChosenView] = useState<View | null>(null);
   const [offset, setOffset] = useState(0);
   const undo = useUndoLine();
@@ -126,7 +126,7 @@ function EventLine({ e, isStudent }: { e: CalEvent; isStudent: boolean }) {
   return (
     <span className={[s.event, s[e.kind]].join(" ")}>
       <span className={s.eventTime}>{e.kind === "deadline" ? `Hạn ${fmtTime(e.start)}` : fmtTime(e.start)}</span>
-      <span className={s.eventTitle}>{e.title}</span>
+      <span className={s.eventTitle} data-part="cal-event">{e.title}</span>
       {isNow(e) && <StatusText tone="green">Đang diễn ra</StatusText>}
       {isStudent && e.studentNote && <span className={s.eventNote}>{e.studentNote}</span>}
     </span>

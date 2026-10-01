@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { BT03_SEED } from "@/mock/assess";
-import { COURSE_1, NOW, STUDENT_B, fmtLongDate, fmtScore, fmtShortDate, fmtTime, studentById } from "@/mock/core";
+import { COURSE_1, NOW, STUDENT_B, fmtLongDate, fmtScore, fmtShortDate, studentById } from "@/mock/core";
+import { fmtStamp } from "@/mock/derive";
 import { SCHEME_1, calcFinal, qtOf } from "@/mock/grades";
 import { ATTENDANCE_SEED, CURRENT_SESSION, KEYS, SCHEMES_SEED, type AttendanceState, type Bt03State, type SchemesState } from "@/mock/state";
 import { ASSIGNMENTS, B_ABSENT_DATES, MIDTERM, sessionDate, until } from "@/mock/student";
@@ -42,6 +43,8 @@ export function MeScreen() {
   const [attendance] = useDemoSlice<AttendanceState>(KEYS.attendance, ATTENDANCE_SEED);
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
+  /** Mốc "Cập nhật" = giờ giả lập của sự kiện cuối làm đổi QT: lưu điểm danh, công bố BT03 (SRS 4.8 N7). */
+  const [meStamp] = useDemoSlice<number>(KEYS.meStamp, NOW.getTime());
   const student = studentById(studentId ?? "") ?? STUDENT_B;
   const g = qtOf(student.id, attendance, bt03);
   const todaySession = attendance[COURSE_1]?.[CURRENT_SESSION];
@@ -54,7 +57,7 @@ export function MeScreen() {
 
   return (
     <Page>
-      <PageHeader title="Kết quả của tôi" description={`${course.label} · ${course.schedule}`} meta={`Cập nhật ${fmtLongDate(NOW)} ${fmtTime(NOW)}`} />
+      <PageHeader title="Kết quả của tôi" description={`${course.label} · ${course.schedule}`} meta={`Cập nhật ${fmtStamp(meStamp)}`} />
       <PageState
         loading={
           <>
@@ -73,6 +76,10 @@ export function MeScreen() {
             Giảng viên chưa xác nhận công thức tính điểm cho {course.label}, nên chưa thể giải trình điểm quá trình. Bài tập và buổi
             học của lớp vẫn xem được ở Lịch và Thư viện.
           </InlineNotice>
+        ) : g.qt === null ? (
+          <EmptyState title="Chưa có điểm quá trình" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
+            Lớp chưa công bố bài tập nào của bạn. Khi có bài được công bố hoặc buổi điểm danh đầu tiên, phần giải trình điểm sẽ hiện ở đây.
+          </EmptyState>
         ) : (
           <>
             <Section title="Điểm quá trình">
@@ -138,35 +145,41 @@ export function MeScreen() {
           </>
         )}
 
-        <Section title="Bài sắp tới">
-          <ActionList label="Bài sắp tới">
-            <ActionRow
-              tone="amber"
-              href="/practice/at-quiz01"
-              title={`${quiz01.code} — ${quiz01.title}`}
-              context={`Đóng ${fmtShortDate(quiz01.due)} · còn ${until(quiz01.due)}`}
-              meta={`${quiz01.minutes} phút · tính điểm`}
-            />
-            <ActionRow
-              href="/assignments/bt03"
-              title="Bài tập 03 — Phân tích một vụ tấn công thực tế"
-              context={bt03.status === "published" ? "Đã có điểm và nhận xét" : "Đã nộp · đang chấm"}
-              meta={bt03.status === "published" ? <StatusText tone="green">Đã công bố</StatusText> : <StatusText tone="neutral">Đang chấm</StatusText>}
-            />
-            <ActionRow
-              href="/calendar"
-              title={MIDTERM.title}
-              context={`${fmtLongDate(MIDTERM.at)} · ${MIDTERM.room}`}
-              meta={`Tuần ${MIDTERM.week}`}
-            />
-          </ActionList>
-        </Section>
+        {course.id === COURSE_1 && g.qt !== null && (
+          <>
+            <Section title="Bài sắp tới">
+              <ActionList label="Bài sắp tới">
+                <ActionRow
+                  tone="amber"
+                  href="/practice/at-quiz01"
+                  title={`${quiz01.code} — ${quiz01.title}`}
+                  context={`Đóng ${fmtShortDate(quiz01.due)} · còn ${until(quiz01.due)}`}
+                  meta={`${quiz01.minutes} phút · tính điểm`}
+                />
+                {student.id === STUDENT_B.id && (
+                  <ActionRow
+                    href="/assignments/bt03"
+                    title="Bài tập 03 — Phân tích một vụ tấn công thực tế"
+                    context={bt03.status === "published" ? "Đã có điểm và nhận xét" : "Đã nộp · đang chấm"}
+                    meta={bt03.status === "published" ? <StatusText tone="green">Đã công bố</StatusText> : <StatusText tone="neutral">Đang chấm</StatusText>}
+                  />
+                )}
+                <ActionRow
+                  href="/calendar"
+                  title={MIDTERM.title}
+                  context={`${fmtLongDate(MIDTERM.at)} · ${MIDTERM.room}`}
+                  meta={`Tuần ${MIDTERM.week}`}
+                />
+              </ActionList>
+            </Section>
 
-        <Section title="Thời gian học mỗi tuần" description="Chỉ để bạn tự theo dõi nhịp học, không tính vào điểm.">
-          <div className={s.trend}>
-            <TrendChart points={STUDY_WEEKS} label="Thời gian học theo tuần (phút)" height={96} format={(v) => `${v} phút`} />
-          </div>
-        </Section>
+            <Section title="Thời gian học mỗi tuần" description="Chỉ để bạn tự theo dõi nhịp học, không tính vào điểm.">
+              <div className={s.trend}>
+                <TrendChart points={STUDY_WEEKS} label="Thời gian học theo tuần (phút)" height={96} format={(v) => `${v} phút`} />
+              </div>
+            </Section>
+          </>
+        )}
       </PageState>
     </Page>
   );

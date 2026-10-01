@@ -1,7 +1,8 @@
 // Chat riêng của sinh viên (US-PROTO-01, /chat). Câu nhập D1–D3 nguyên văn DEMO_SCRIPT mục 3.
 // Bản mô phỏng chỉ có câu trả lời ghi sẵn cho đúng ba câu này.
 
-import { COURSE_1, STUDENTS, STUDENT_B, STUDENT_C, fmtScore } from "./core";
+import { STUDENTS, STUDENT_B, STUDENT_C, fmtScore } from "./core";
+import { docCite } from "./docs";
 import { D3_TEXT } from "./support";
 
 export const D1_TEXT = `Em là ${STUDENT_B.name}, MSSV ${STUDENT_B.code}. Em đã nghỉ mấy buổi và được cộng bao nhiêu điểm phát biểu rồi ạ?`;
@@ -40,10 +41,8 @@ export function answerD1(input: { absences: number; dates: string[]; speaks: num
 
 export type Citation = { title: string; locator: string; href: string };
 
-export const D1_CITATIONS: Citation[] = [
-  { title: "Quy chế môn học An ninh mạng", locator: "trang 2 · mục Điểm quá trình", href: "/library" },
-  { title: `Sổ điểm danh lớp ${COURSE_1}`, locator: "buổi 1–9", href: "/me" },
-];
+/** Nguồn tham khảo luôn là tên hiển thị của bảng N5 (SRS 4.8 N5, 01-AC24). */
+export const D1_CITATIONS: Citation[] = [docCite("d-quyche-mon", "trang 2 · mục Điểm quá trình")];
 
 /** Giải thích ngắn mở tại chỗ sau khi bấm `Tìm hiểu`. */
 export const PII_EXPLAINER =
@@ -75,35 +74,56 @@ export function redact(text: string) {
 
 // ---- lịch sử phiên chat ---------------------------------------------------------------------
 
-export type ChatSession = { id: string; title: string; meta: string; q: string; a: string };
+export type ChatSession = {
+  id: string;
+  /** phiên thuộc về một sinh viên: bạn khác mở /chat thấy "Chưa có phiên nào" (E2) */
+  studentId: string;
+  title: string;
+  at: Date;
+  msgs: number;
+  q: string;
+  a: string;
+};
 
-export const CHAT_HISTORY: ChatSession[] = [
+export const CHAT_SESSIONS: ChatSession[] = [
   {
     id: "cs-1",
+    studentId: STUDENT_B.id,
     title: "Cách chọn độ dài khoá RSA",
-    meta: "hôm qua · 6 tin",
+    at: new Date("2026-10-28T20:10:00+07:00"),
+    msgs: 6,
     q: "Khoá RSA 2048 bit với 3072 bit khác nhau nhiều không ạ?",
     a: "2048 bit vẫn được khuyến nghị cho dữ liệu dùng trong vài năm tới; 3072 bit dành cho dữ liệu cần bảo vệ lâu hơn, đổi lại ký và giải mã chậm hơn khoảng 3 lần. Với bài thực hành của môn, bạn dùng 2048 bit là đủ.",
   },
   {
     id: "cs-2",
+    studentId: STUDENT_B.id,
     title: "Nộp muộn Bài tập 03 bị trừ bao nhiêu?",
-    meta: "3 ngày trước · 4 tin",
+    at: new Date("2026-10-26T15:30:00+07:00"),
+    msgs: 4,
     q: "Em nộp Bài tập 03 muộn một ngày thì bị trừ bao nhiêu điểm ạ?",
     a: "Bài tập 03 cho nộp muộn tối đa 2 ngày, mỗi ngày trừ 0,5 điểm vào tổng điểm bài. Nộp muộn 1 ngày thì bị trừ 0,5 điểm.",
   },
   {
     id: "cs-3",
+    studentId: STUDENT_B.id,
     title: "Hàm băm SHA-256 dùng ở đâu trong chữ ký số",
-    meta: "tuần trước · 9 tin",
+    at: new Date("2026-10-22T09:45:00+07:00"),
+    msgs: 9,
     q: "Trong chữ ký số thì băm SHA-256 nằm ở bước nào ạ?",
     a: "Người ký băm văn bản bằng SHA-256 rồi mã hoá giá trị băm đó bằng khoá riêng. Người nhận băm lại văn bản và so với giá trị giải mã từ chữ ký — trùng nghĩa là văn bản chưa bị sửa.",
   },
   {
     id: "cs-4",
+    studentId: STUDENT_B.id,
     title: "Phân biệt IDS và IPS",
-    meta: "tuần trước · 5 tin",
+    at: new Date("2026-10-21T16:05:00+07:00"),
+    msgs: 5,
     q: "IDS và IPS khác nhau thế nào ạ?",
     a: "IDS chỉ phát hiện và cảnh báo, đặt song song với luồng mạng. IPS nằm trực tiếp trên đường đi của gói tin nên chặn được tấn công, đổi lại một luật sai có thể cắt nhầm lưu lượng hợp lệ.",
   },
 ];
+
+export function sessionsFor(studentId: string): ChatSession[] {
+  return CHAT_SESSIONS.filter((c) => c.studentId === studentId);
+}

@@ -24,10 +24,9 @@
 .bar { height: 4px; border-radius: var(--ep-radius-pill); background: var(--ep-rule); overflow: hidden; }
 .barFill { display: block; height: 100%; background: var(--ep-red); transition: width var(--ep-fast) linear; }
 
-.name { display: grid; gap: 2px; min-width: 220px; }
-.fileName { font-weight: 550; line-height: 1.4; word-break: break-word; }
-.topic { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
-.meta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+/* Tên dài xuống dòng theo từ, không ngắt giữa từ (03-AC8). */
+.name { display: block; min-width: 220px; font-weight: 550; line-height: 1.4; overflow-wrap: break-word; word-break: normal; hyphens: none; }
+.meta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.4; }
 .flagCell { display: flex; align-items: center; gap: var(--ep-space-2); }
 .locked { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.4; }
 .toggle {

@@ -4,11 +4,13 @@ import { FileText } from "lucide-react";
 import { useState } from "react";
 import { BT03_CRITERIA, BT03_MAX_PER_CRITERION, BT03_SEED } from "@/mock/assess";
 import { STUDENT_B, fmtLongDate, fmtScore, fmtTime, studentById } from "@/mock/core";
+import { agoLabel } from "@/mock/derive";
 import { baseBtScores, bt03Total } from "@/mock/grades";
 import { KEYS, type Bt03State } from "@/mock/state";
-import { QUIZ_KEY, QUIZ_SEED, type QuizState } from "@/mock/practice";
+import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
 import { BT03_EXCERPTS, BT03_SUBMISSION, assignmentById, until } from "@/mock/student";
 import { useSession } from "@/shared/session/session";
+import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
   Button,
@@ -31,8 +33,9 @@ import s from "./Assignment.module.css";
 /** Bài tập của sinh viên: đã nộp gì, chấm tới đâu, nhận xét ra sao (INTEGRATION mục 2). */
 export function AssignmentScreen({ id }: { id: string }) {
   const { studentId } = useSession();
+  const now = useSimNow();
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
-  const [quiz] = useDemoSlice<QuizState>(QUIZ_KEY, QUIZ_SEED);
+  const [quiz] = useDemoSlice<QuizState>(quizKey(studentId), QUIZ_SEED);
   const quizDone = quiz.status === "submitted";
   const assignment = assignmentById(id);
   const student = studentById(studentId ?? "") ?? STUDENT_B;
@@ -107,7 +110,7 @@ export function AssignmentScreen({ id }: { id: string }) {
                   </p>
                   <DefinitionList
                     items={[
-                      { term: "Nộp lúc", value: `${fmtTime(BT03_SUBMISSION.at)} ${fmtLongDate(BT03_SUBMISSION.at)}` },
+                      { term: "Nộp lúc", value: `${fmtTime(BT03_SUBMISSION.at)} ${fmtLongDate(BT03_SUBMISSION.at)} · ${agoLabel(BT03_SUBMISSION.at, now)}` },
                       { term: "Hạn nộp", value: `${fmtTime(assignment.due)} ${fmtLongDate(assignment.due)}` },
                       { term: "Ghi nhận", value: <StatusText tone="amber">Nộp muộn {BT03_SUBMISSION.lateDays} ngày · trừ {fmtScore(total.late, 1)} điểm</StatusText> },
                     ]}

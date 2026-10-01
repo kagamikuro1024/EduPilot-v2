@@ -1,6 +1,7 @@
 // Dữ liệu mô phỏng cho các màn sinh viên (US-PROTO-01): buổi học, bài tập, bài nộp của SV B,
 // khuyến nghị "việc nên làm". Mốc ngày/điểm theo SRS 4.1 — không tự đổi số.
 
+import { BT03_SUBMITTED_AT } from "./assess";
 import { COURSE_1, COURSE_2, NOW, STUDENT_B, TERM_START, fmtShortDate, type Student } from "./core";
 
 const DAY = 86_400_000;
@@ -100,10 +101,10 @@ export function assignmentById(id: string) {
   return ASSIGNMENTS.find((a) => a.id === id);
 }
 
-/** Bài nộp BT03 của SV B: nộp 23/10 08:10, muộn 1 ngày. */
+/** Bài nộp BT03 của SV B: mốc nộp lấy từ N6 (`BT03_SUBMITTED_AT` = 23/10 08:10), muộn 1 ngày. */
 export const BT03_SUBMISSION = {
   studentId: STUDENT_B.id,
-  at: new Date("2026-10-23T08:10:00+07:00"),
+  at: BT03_SUBMITTED_AT,
   lateDays: 1,
   file: "bt03-tran-thu-uyen.pdf",
   sizeKb: 418,
@@ -153,10 +154,10 @@ export function recommendationFor(student: Student, quizDone: boolean): Recommen
   };
 }
 
-/** Học dở: thread và phiên chat gần nhất của sinh viên. */
+/** Học dở: thread và phiên chat gần nhất của sinh viên; nhãn thời gian do màn tính bằng `agoLabel` (N6). */
 export const CONTINUE_LEARNING = [
-  { title: "CBC khác ECB ở điểm nào?", context: "Threads · bạn đọc dở", meta: "2 giờ trước", href: "/threads/t-cbc" },
-  { title: "Cách chọn độ dài khoá RSA", context: "Chat riêng · phiên trước", meta: "hôm qua", href: "/chat" },
+  { title: "CBC khác ECB ở điểm nào?", context: "Threads · bạn đọc dở", at: new Date(NOW.getTime() - 2 * 3600_000), href: "/threads/t-cbc" },
+  { title: "Cách chọn độ dài khoá RSA", context: "Chat riêng · phiên trước", at: new Date("2026-10-28T20:10:00+07:00"), href: "/chat" },
 ];
 
 export const COURSE_IDS = [COURSE_1, COURSE_2];

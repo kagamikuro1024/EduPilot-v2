@@ -2,7 +2,8 @@
 .range { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink-2); }
 
 .week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--ep-rule); border: 1px solid var(--ep-rule); }
-.day { display: grid; gap: var(--ep-space-2); align-content: start; min-height: 150px; padding: var(--ep-space-3); background: var(--ep-surface); }
+/* Lưới tuần cao theo nội dung, không đặt chiều cao cố định (01-AC25). */
+.day { display: grid; gap: var(--ep-space-2); align-content: start; padding: var(--ep-space-3); background: var(--ep-surface); }
 .today { background: var(--ep-red-soft); }
 .dayHead { display: grid; gap: var(--ep-space-0_5); margin: 0; }
 .dayName { font-size: var(--ep-text-meta); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ep-ink-3); }
@@ -15,7 +16,18 @@
 .event.extra { border-left-color: var(--ep-blue); }
 .event.session { border-left-color: var(--ep-ink-3); }
 .eventTime { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
-.eventTitle { font-size: var(--ep-text-label); line-height: 1.35; }
+/* Nhãn sự kiện tối đa 2 dòng, xuống dòng theo từ (01-AC25). */
+.eventTitle {
+  font-size: var(--ep-text-label);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
 .eventNote { font-size: var(--ep-text-meta); color: var(--ep-ink-2); }
 
 .month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--ep-rule); border: 1px solid var(--ep-rule); }
@@ -32,7 +44,6 @@
 
 @media (max-width: 1099px) {
   .week { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .day { min-height: 0; }
 }
 
 @media (max-width: 719px) {

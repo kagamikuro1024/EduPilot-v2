@@ -94,6 +94,30 @@
 .shield { display: inline-flex; align-items: center; gap: var(--ep-space-2); }
 .shield svg { width: 14px; height: 14px; color: var(--ep-green); flex: none; }
 
+/* Nút mở bảng phiên trước: chỉ hiện khi panel bị thu lại; vùng chạm ≥ 44 px (01-AC22, FR-X14). */
+.sessionsBtn {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ep-space-3);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--ep-space-2) var(--ep-space-4);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  background: var(--ep-surface);
+  font: inherit;
+  font-weight: 500;
+  color: var(--ep-ink);
+  text-align: left;
+  cursor: pointer;
+}
+.sessionsBtn:hover { background: var(--ep-surface-subtle); }
+.sheet { display: grid; gap: var(--ep-space-3); }
+.sheetHint { margin: 0; text-align: center; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.historyEmpty { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-3); }
+.sessionActions { margin: 0; }
+
 /* ≥ 720px: không gian làm việc cao đúng phần còn lại của màn; hội thoại cuộn bên trong, composer ghim đáy (01-AC11). */
 @media (min-width: 720px) {
   .page.page { height: calc(100dvh - var(--ep-topbar)); grid-template-rows: auto minmax(0, 1fr); padding-bottom: var(--ep-space-6); }
@@ -104,13 +128,20 @@
   .composer { position: static; padding-bottom: 0; }
 }
 
+/* < 1100px: panel lịch sử thu lại, thay bằng nút `Phiên trước (n)` mở bảng trượt từ đáy (01-AC22). */
 @media (max-width: 1099px) {
-  .layout { grid-template-columns: 200px minmax(0, 1fr); gap: var(--ep-space-4); }
+  .layout { grid-template-columns: minmax(0, 1fr); gap: var(--ep-space-4); }
+  .history { display: none; }
+  .sessionsBtn { display: flex; }
+}
+
+@media (min-width: 720px) and (max-width: 1099px) {
+  .column { grid-template-rows: auto minmax(0, 1fr) auto; }
 }
 
 @media (max-width: 719px) {
-  .layout { grid-template-columns: minmax(0, 1fr); }
-  .history { display: none; }
   .thread { gap: var(--ep-space-6); min-height: 42vh; }
   .composer { position: sticky; bottom: 56px; }
+  /* Vùng chạm ≥ 44 px cho nút chữ trong luồng chat (00-AC15). */
+  .sourceBtn, .linkBtn { min-height: 44px; }
 }

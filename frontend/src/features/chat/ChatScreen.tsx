@@ -3,7 +3,7 @@
 import { Check, ShieldCheck, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
-  CHAT_HISTORY,
+  CHAT_SESSIONS,
   D1_CITATIONS,
   LOW_CONFIDENCE_ANSWER,
   NEUTRAL_ANSWER,
@@ -13,19 +13,23 @@ import {
   answerD1,
   matchScript,
   scanPersonal,
+  sessionsFor,
   type Script,
 } from "@/mock/chat";
-import { NOW, STAFF, STUDENT_B, fmtScore, fmtTime } from "@/mock/core";
+import { COURSE_1, NOW, STAFF, STUDENT_B, fmtScore, fmtTime } from "@/mock/core";
 import { qtOf } from "@/mock/grades";
-import { QUIZ_KEY, QUIZ_SEED, type QuizState } from "@/mock/practice";
+import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
 import { BT03_SEED } from "@/mock/assess";
 import { ATTENDANCE_SEED, KEYS, type AttendanceState, type Bt03State, type Ticket } from "@/mock/state";
 import { B_ABSENT_DATES } from "@/mock/student";
 import { TICKETS_SEED, ticketD3 } from "@/mock/support";
+import { noteNewTicket } from "@/mock/notes";
 import { useStreamedText } from "@/shared/lib/useStreamedText";
 import { useSession } from "@/shared/session/session";
+import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import { Button, Composer, DefinitionList, InlineNotice, Page, PageHeader, PageState, Skeleton, StatusText } from "@/shared/ui";
+import { SessionSheet, sessionMeta } from "./SessionSheet";
 import s from "./ChatScreen.module.css";
 
 type Msg = { id: string; from: "sv" | "ai"; text: string; script?: Script; hidden?: number };
@@ -35,15 +39,19 @@ export const CHAT_DRAFT_KEY = "chat.draft";
 
 /** Chat riêng của sinh viên (DESIGN §14.2): hỏi về chính mình, ẩn thông tin cá nhân trước khi gửi. */
 export function ChatScreen() {
-  const { user, course } = useSession();
-  const [msgs, setMsgs] = useDemoSlice<Msg[]>(MSG_KEY, []);
+  const { user, course, studentId } = useSession();
+  const now = useSimNow();
+  /** Phiên chat thuộc về từng sinh viên (E2): B có 4 phiên seed, A / C / D chưa có phiên nào. */
+  const sessions = sessionsFor(studentId ?? "");
+  const [msgs, setMsgs] = useDemoSlice<Msg[]>(`${MSG_KEY}.${studentId ?? "none"}`, []);
   const [draft, setDraft] = useDemoSlice<string>(CHAT_DRAFT_KEY, "");
   const [tickets, setTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, TICKETS_SEED);
   const [attendance] = useDemoSlice<AttendanceState>(KEYS.attendance, ATTENDANCE_SEED);
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
-  const [quiz] = useDemoSlice<QuizState>(QUIZ_KEY, QUIZ_SEED);
+  const [quiz] = useDemoSlice<QuizState>(quizKey(studentId), QUIZ_SEED);
   const [streaming, setStreaming] = useState<{ id: string; full: string } | null>(null);
   const [openSession, setOpenSession] = useState<string | null>(null);
+  const [sheet, setSheet] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const stream = useStreamedText(streaming?.full ?? null, { cps: 55 });
@@ -53,7 +61,15 @@ export function ChatScreen() {
 
   const quizDoing = quiz.status === "doing";
   const personal = scanPersonal(draft);
-  const past = CHAT_HISTORY.find((h) => h.id === openSession);
+  const past = CHAT_SESSIONS.find((h) => h.id === openSession);
+
+  /** `Hỏi tiếp`: mở phiên mới, mang câu hỏi cũ sang ô soạn làm ngữ cảnh. */
+  function askAgain(session: { title: string }) {
+    setOpenSession(null);
+    setSheet(false);
+    setMsgs([]);
+    setDraft(`Hỏi tiếp về “${session.title}”: `);
+  }
 
   function send() {
     const text = draft.trim();
@@ -80,9 +96,11 @@ export function ChatScreen() {
       { id: aiId, from: "ai", text: answer, script: quizDoing ? "other" : script },
     ]);
     setDraft("");
+    setOpenSession(null);
     setStreaming({ id: aiId, full: answer });
     if (script === "d3" && !quizDoing) {
       setTickets((prev) => (prev.some((t) => t.id === "tk-d3") ? prev : [ticketD3(), ...prev]));
+      noteNewTicket(COURSE_1, "tk-d3");
     }
   }
 
@@ -108,24 +126,38 @@ export function ChatScreen() {
       <div className={s.layout}>
         <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
           <p className={s.historyLabel}>Phiên trước</p>
-          <ul>
-            {CHAT_HISTORY.map((h) => (
-              <li key={h.id}>
-                <button
-                  type="button"
-                  className={[s.historyItem, openSession === h.id ? s.historyOn : ""].join(" ")}
-                  aria-pressed={openSession === h.id}
-                  onClick={() => setOpenSession(openSession === h.id ? null : h.id)}
-                >
-                  <span className={s.historyTitle}>{h.title}</span>
-                  <span className={s.historyMeta}>{h.meta}</span>
-                </button>
-              </li>
-            ))}
-          </ul>
+          {sessions.length === 0 ? (
+            <p className={s.historyEmpty}>Chưa có phiên nào</p>
+          ) : (
+            <ul>
+              {sessions.map((h) => (
+                <li key={h.id}>
+                  <button
+                    type="button"
+                    className={[s.historyItem, openSession === h.id ? s.historyOn : ""].join(" ")}
+                    aria-pressed={openSession === h.id}
+                    onClick={() => setOpenSession(openSession === h.id ? null : h.id)}
+                  >
+                    <span className={s.historyTitle}>{h.title}</span>
+                    <span className={s.historyMeta}>{sessionMeta(h, now)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </nav>
 
         <div className={s.column}>
+          <button
+            type="button"
+            className={s.sessionsBtn}
+            data-part="chat-sessions-button"
+            onClick={() => setSheet(true)}
+            aria-haspopup="dialog"
+          >
+            Phiên trước ({sessions.length})
+          </button>
+
           <PageState
             loading={
               <div className={s.thread} data-part="chat-thread">
@@ -145,10 +177,15 @@ export function ChatScreen() {
               {past ? (
                 <>
                   <p className={s.sessionNote}>
-                    Phiên đã kết thúc · {past.meta}. Gõ câu mới ở dưới để bắt đầu phiên khác.
+                    Phiên đã kết thúc · {sessionMeta(past, now)}. Bấm “Hỏi tiếp” để mở phiên mới mang ngữ cảnh phiên này.
                   </p>
                   <Bubble from="sv" text={past.q} />
                   <Bubble from="ai" text={past.a} />
+                  <p className={s.sessionActions}>
+                    <Button variant="primary" onClick={() => askAgain(past)}>
+                      Hỏi tiếp
+                    </Button>
+                  </p>
                 </>
               ) : msgs.length === 0 ? (
                 <Intro name={user.name} />
@@ -201,6 +238,23 @@ export function ChatScreen() {
           </div>
         </div>
       </div>
+
+      <SessionSheet
+        open={sheet}
+        onClose={() => setSheet(false)}
+        sessions={sessions}
+        now={now}
+        openSession={openSession}
+        onPick={(id) => {
+          setOpenSession(id);
+          setSheet(false);
+        }}
+        onNew={() => {
+          setOpenSession(null);
+          setMsgs([]);
+          setSheet(false);
+        }}
+      />
     </Page>
   );
 }
@@ -362,6 +416,7 @@ function AskTeacher() {
       className={s.linkBtn}
       onClick={() => {
         setTickets((prev) => (prev.some((t) => t.id === "tk-d3") ? prev : [ticketD3(), ...prev]));
+        noteNewTicket(COURSE_1, "tk-d3");
         setSent(true);
       }}
     >
