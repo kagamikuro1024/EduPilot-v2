@@ -32,7 +32,7 @@ Phiên bản · Ngày · Trạng thái: DRAFT | APPROVED
 ## 3. Luồng chính (sơ đồ mermaid) và các nhánh lỗi (bảng: tình huống → hệ thống phản ứng → người dùng thấy gì)
 ## 4. Yêu cầu chức năng (FR-1…: câu "Hệ thống phải…", mỗi FR trỏ về AC nào)
 ## 5. Dữ liệu: bảng/cột mới hoặc đổi, ràng buộc, index; migration số mấy
-## 6. API: endpoint, quyền, request/response, mã lỗi; gRPC nếu có; tool agent nếu có
+## 6. API: endpoint, quyền, request/response, mã lỗi; tool agent nếu có
 ## 7. Giao diện: route, khung nhìn đầu, primitive dùng, trạng thái tải/rỗng/lỗi, mobile; tham chiếu DESIGN.md §14.x
 ## 8. Phi chức năng áp dụng: hiệu năng, riêng tư, idempotency, phân trang, cache (trích từ SYSTEM_DESIGN/UX)
 ## 9. Kiểm thử: unit, tích hợp, E2E spec tên gì; dữ liệu seed cần gì
@@ -53,12 +53,26 @@ Phiên bản · Ngày · Trạng thái: DRAFT | APPROVED
 # DEV handoff — US-<id>
 Nhánh / commit cuối: ...
 ## Đã làm (theo thứ tự lát dọc)
-migration → store → service/handler → proto/Python → frontend → test → seed
+migration → store → service/handler → frontend → test → seed
 ## File đổi
 ## Lệnh QC chạy để kiểm
 ## Test đã chạy và kết quả
 ## AC tự đánh giá (AC1 ✓/✗ …)
 ## Nợ / chưa làm / cần hỏi
+```
+
+## qc/tc-<story>.md
+
+```markdown
+# QC test case — US-<id>
+Nguồn: `docs/specs/<feature>/US.md` + `SRS.md`. Viết trước khi có code, không đọc code của dev.
+| TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
+| --- | --- | --- | --- | --- |
+| TC-01 | AC1 | ... | ... | ... |
+## Nhánh lỗi (mỗi tình huống ở SRS mục 3 một TC)
+## Phân quyền (vai trò sai, sinh viên ngoài lớp → 403 / không thấy)
+## Script chạy được: `frontend/e2e/**` hoặc `docs/sprints/N/qc/scripts/`
+## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 ```
 
 ## qc/report-<story>.md

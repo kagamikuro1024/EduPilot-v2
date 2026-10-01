@@ -8,7 +8,7 @@ disable-model-invocation: true
 Chạy cổng nghiệm thu cho phase: $ARGUMENTS
 
 1. Đọc mục "Cổng nghiệm thu" trong `docs/phases/$0.md`.
-2. Chạy TỪNG lệnh, đúng như viết. Không sửa lệnh, không bỏ qua lệnh, không sửa test hay golden file để qua.
+2. Chạy TỪNG lệnh, đúng như viết. Không sửa lệnh, không bỏ qua lệnh, không sửa test để qua.
 3. Với mỗi lệnh báo: PASS / FAIL + trích 10 dòng đầu ra liên quan.
 4. Kiểm Definition of Done chung: migration chạy sạch trên DB trống; test cũ không đỏ; API mới có trong `backend-go/api/openapi.yaml`; STUDENT gọi API giảng viên nhận 403; seed có dữ liệu cho màn mới; không có PII/secret trong log và diff.
 4b. Kiểm luật mở rộng trên diff của phase: không `fetch(` ngoài `frontend/src/shared/`; không `OFFSET` hay danh sách thiếu `limit` trong `internal/store/queries/`; không ghi đĩa cục bộ trong `internal/`; mọi lời gọi LLM mới có `task` và đi qua Scheduler; POST có tác dụng phụ mới đều nhận `Idempotency-Key`; việc dài trả 202. Báo từng vi phạm kèm file:dòng.

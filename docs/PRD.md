@@ -197,7 +197,7 @@ Toàn bộ giao diện theo hệ thiết kế *Red Thread / Academic Instrument*
 | Toàn vẹn điểm | Code Go + decimal + unit test; audit mọi thay đổi điểm/điểm danh/điểm cộng; snapshot khi chốt |
 | Tin cậy | Việc nền qua Redis Streams, retry 3 lần + dead-letter; hỏng LLM thì việc chờ, không mất |
 | Quan sát | Jaeger + `llm_audit` có `trace_id` |
-| Triển khai | `pnpm dev` dựng đủ stack + seed; MailHog để demo mail; demo bảo vệ bằng Docker Compose trên VPS/máy cá nhân |
+| Triển khai | `pnpm dev` dựng đủ stack + seed; Mailpit để demo mail; demo bảo vệ bằng Docker Compose trên VPS/máy cá nhân |
 | Ngôn ngữ | UI tiếng Việt; prompt và phát hiện PII tối ưu tiếng Việt |
 
 ## 6. Thí nghiệm cho luận văn
@@ -209,4 +209,4 @@ Toàn bộ giao diện theo hệ thiết kế *Red Thread / Academic Instrument*
 | E3 | Chấm tự luận | ≥ 60 bài chấm tay theo rubric | QWK, MAE, Pearson; ≥ 2 provider |
 | E4 | So sánh provider | Chạy lại E2, E3 trên 2–3 model | Chất lượng, độ trễ, chi phí / 100 yêu cầu |
 | E5 | Câu hỏi sinh tự động | 100 câu AI sinh, giảng viên duyệt | Tỷ lệ duyệt nguyên / sửa nhẹ / loại |
-| E6 | Port Java → Go | Cùng máy, cùng seed | RAM nghỉ, thời gian khởi động, kích thước image, p95 một số endpoint |
+| E6 | Chi phí vận hành của nền Go một tiến trình | Cùng máy, cùng seed | RAM nghỉ, thời gian khởi động, kích thước image, p95 một số endpoint; so với cấu hình giả định tách riêng service AI |

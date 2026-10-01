@@ -60,7 +60,7 @@ Rà từng luồng theo câu hỏi "một trường dùng thật thì chỗ nào
 - **QUY TẮC AN TOÀN SỐ 1 — MSSV tự khai không bao giờ mở được dữ liệu.** Việc nối một tài khoản vào một dòng trong danh sách lớp import chỉ xảy ra khi **email đã xác minh trùng với email trong danh sách**. MSSV trùng mà email khác → vào trạng thái `PENDING`, giảng viên duyệt tay và thấy rõ cảnh báo lệch.
 - **Tuỳ chọn (PR):** đăng nhập bằng tài khoản Microsoft của trường qua OIDC (chỉ xin `openid profile email`); có dùng được hay không tuỳ chính sách tenant của trường.
 - **Nhánh lỗi:** link hết hạn / đã dùng → trang giải thích + gửi lại; mail không tới → gửi lại sau 60 s; email chưa xác minh → đăng nhập được nhưng không vào lớp được.
-- **E2E:** `account.spec.ts` — đăng ký → xác minh qua MailHog → đăng nhập; quên mật khẩu thu hồi phiên cũ; mạo danh MSSV bị chặn.
+- **E2E:** `account.spec.ts` — đăng ký → xác minh qua Mailpit → đăng nhập; quên mật khẩu thu hồi phiên cũ; mạo danh MSSV bị chặn.
 
 ### F2. Mở lớp → vào lớp
 Đường chính như sơ đồ ở PRD M0. Bổ sung sau rà soát:

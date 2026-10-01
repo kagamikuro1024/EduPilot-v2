@@ -13,7 +13,7 @@ Thả toàn bộ gói này vào gốc repo `TA_Agent` (không ghi đè file đan
 | 4 | `docs/design/DESIGN.md` | Trông thế nào: hệ thiết kế *Red Thread / Academic Instrument*, hợp đồng từng route |
 | 5 | `docs/design/INTEGRATION.md` | `DESIGN.md` khớp vào kế hoạch ra sao; 10 điểm lệch đã chốt |
 | 6 | `docs/UX.md` | Cư xử thế nào khi mạng xấu, bấm đúp, dữ liệu lớn; ngân sách hiệu năng; cổng UX |
-| 7 | `docs/ARCHITECTURE.md` | Làm bằng gì: cấu trúc Go, thư viện, schema, API, gRPC, route, env, seed, test |
+| 7 | `docs/ARCHITECTURE.md` | Làm bằng gì: cấu trúc Go, thư viện, schema, API, provider LLM, route, env, seed, test |
 | 8 | `docs/phases/` | 14 lệnh thi công: P0 → PG → PU → P1 … P10 → PR |
 | 8b | `docs/PRODUCTION_READINESS.md` | Từ "chạy được trên seed" tới "trường dùng thật": pháp lý dữ liệu cá nhân, bảo mật, sao lưu, giám sát, kế hoạch thí điểm |
 | 9 | `docs/DECISIONS.md` | 43 quyết định và lý do |

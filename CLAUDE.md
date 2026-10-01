@@ -28,22 +28,23 @@ Tài liệu nguồn (đọc khi cần, KHÔNG đọc hết mỗi phiên):
 
 ## Kiến trúc một dòng
 
-Next.js (frontend) → Go gateway `backend-go` (chi + pgx + sqlc; HTTP, SSE, nghiệp vụ) → gRPC → Python AI service `src/`
-(agent, RAG, chấm bài, PII mask, LLM gateway). Postgres + pgvector, Redis (cache, Streams, pub/sub). Worker Go chạy việc nền.
+Next.js (frontend) → Go gateway `backend-go` (chi + pgx + sqlc; HTTP, SSE, nghiệp vụ VÀ AI: `internal/llm`, `internal/rag`,
+`internal/privacy`, `internal/grading`, `internal/agent`). Postgres + pgvector, Redis (cache, Streams, pub/sub).
+Worker Go chạy việc nền và gọi container `docling-serve` để trích PDF/DOCX. Không có service Python (D46).
 
 ## 9 nguyên tắc bất biến
 
-1. **Go sở hữu nghiệp vụ, Python sở hữu AI.** Bảng nghiệp vụ chỉ Go đọc ghi. Python chỉ ghi chunk/embedding, cache, `llm_audit`. Kết quả chấm bài trả qua gRPC để Go lưu.
+1. **Go sở hữu cả nghiệp vụ lẫn AI (D46).** Không có service Python nào chạy thường trực: agent, RAG, chấm bài, PII, LLM gateway đều là package Go trong `backend-go/internal/`. Python chỉ còn script đánh giá offline ở `benchmarks/`, gọi qua HTTP API như một client ngoài.
 2. **Danh tính lấy từ JWT.** Tool của agent không nhận `student_code`/`user_id` từ LLM; luôn lấy từ `trusted_context`.
-3. **Không gọi SDK provider trực tiếp.** Mọi lời gọi LLM/embedding đi qua `src/llm/gateway.py`.
+3. **Không gọi SDK provider trực tiếp.** Mọi lời gọi LLM/embedding đi qua `internal/llm` (dựng trên `openai-go`, mỗi provider là một base URL tương thích OpenAI + key). Cấm import SDK provider ở bất kỳ package nào khác.
 4. **Hai kênh, một tường lửa.** Bài đăng/bình luận công khai qua tường lửa PII trước khi lưu. Tool dữ liệu cá nhân chỉ đăng ký cho agent kênh chat riêng. Tên và MSSV được thay placeholder quanh MỌI lời gọi LLM.
 5. **Tính điểm là code thuần.** LLM chỉ trích công thức từ quy chế thành bản nháp. Không prompt nào tính hay làm tròn điểm. Go dùng `shopspring/decimal`, cấm `float64` cho điểm.
 6. **Migration bằng goose**, bắt đầu từ `00001`, không sửa file migration đã merge.
 7. **API theo quy ước `docs/ARCHITECTURE.md` §5 từ đầu.** Endpoint mới nào cũng có trong `backend-go/api/openapi.yaml`; không giữ hợp đồng của Project III.
-8. **Không phá cái đang chạy.** Trước và sau mỗi lát việc: chạy test Python, test Go, test frontend.
+8. **Không phá cái đang chạy.** Trước và sau mỗi lát việc: chạy test Go và test frontend.
 9. **Commit nhỏ**, nhánh `feat/<phase>-<tên>`, thông điệp `<phase>: <việc>`.
 
-## 6 luật mở rộng (thiết kế cho tải T1 = 1.000 SV, xem `docs/SYSTEM_DESIGN.md`)
+## 7 luật mở rộng (thiết kế cho tải T1 = 1.000 SV, xem `docs/SYSTEM_DESIGN.md`)
 
 10. **Gateway không trạng thái.** Không giữ gì trong bộ nhớ tiến trình hay đĩa cục bộ: phiên = JWT; rate limit, idempotency, ánh xạ placeholder, hạn mức = Redis; file = object storage qua `platform/blob` + URL ký sẵn.
 11. **Mọi lời gọi LLM đi qua Scheduler** với làn ưu tiên (`INTERACTIVE` > `NEAR_REALTIME` > `BATCH`), hạn mức, cầu dao, deadline truyền từ request gốc. Việc BATCH không bao giờ được làm chat của sinh viên treo.
@@ -51,6 +52,7 @@ Next.js (frontend) → Go gateway `backend-go` (chi + pgx + sqlc; HTTP, SSE, ngh
 13. **Danh sách nào cũng phân trang con trỏ** (`cursor`, `limit` ≤ 100). Cấm OFFSET trên bảng lớn, cấm trả danh sách không giới hạn, cấm N+1. Index phức hợp bắt đầu bằng `course_id`.
 14. **Ghi có tác dụng phụ phải idempotent.** POST quan trọng nhận `Idempotency-Key`; thông báo/mail/sự kiện đi qua transactional outbox; sửa đồng thời dùng cột `version` → 409.
 15. **Cache vô hiệu theo sự kiện**, TTL chỉ là lưới an toàn. Dữ liệu điểm/điểm danh không cache phía server.
+16. **Đường hỏi–đáp theo luật tốc độ D47** (`docs/DECISIONS.md`): một lời gọi LLM sinh chữ mỗi câu hỏi, truy xuất tất định bằng SQL, phân loại một lần mỗi tin nhắn, không vòng lặp agent mở, sự kiện SSE đầu tiên ≤ 300 ms.
 
 ## Luật giao diện — hướng "Red Thread / Academic Instrument" (chi tiết ở `docs/design/DESIGN.md`)
 
@@ -70,7 +72,7 @@ Thao tác đảo ngược được → cập nhật lạc quan + dòng "Hoàn t�
 
 ## Cấm tuyệt đối
 
-- Sửa golden file, contract test, `expected_final_grades.csv` hay nới lỏng assertion để test xanh. Test đỏ → sửa code, hoặc DỪNG và hỏi.
+- Sửa contract test, `expected_final_grades.csv` hay nới lỏng assertion để test xanh. Test đỏ → sửa code, hoặc DỪNG và hỏi.
 - Làm việc của phase khác "tiện tay". Thấy cần → ghi vào mục Nợ trong `docs/PROGRESS.md`.
 - Ghi secret vào repo, log PII (tên, MSSV, email, điểm kèm danh tính), log bảng ánh xạ placeholder.
 - Tự công bố điểm AI chấm; tự xác nhận công thức điểm. Hai việc này luôn cần thao tác của giảng viên.
@@ -80,7 +82,7 @@ Thao tác đảo ngược được → cập nhật lạc quan + dòng "Hoàn t�
 - Cho sinh viên thấy điểm nháp, ghi chú quan sát, nhãn rủi ro của chính mình, hay đáp án khi bài còn mở.
 - Lưu token ở localStorage; lưu token xác minh / đặt lại / mời ở dạng rõ (phải băm).
 - Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi.
-- Thêm hạ tầng ngoài `docs/SYSTEM_DESIGN.md` mục 2 (Kafka, Kubernetes, microservice mới, vector DB riêng…). Con số T1 không biện minh cho chúng.
+- Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi. Thêm service mới (nhất là service Python) — D46 chốt chỉ còn Go + `docling-serve`.
 - Ghi file ra đĩa cục bộ của container; giữ trạng thái người dùng trong biến toàn cục.
 
 ## Định nghĩa "xong" ở mức luồng
@@ -102,15 +104,12 @@ cd backend-go && go vet ./... && golangci-lint run && go test -race ./...
 cd backend-go && sqlc generate && sqlc diff
 cd backend-go && goose -dir db/migrations postgres "$DATABASE_URL" up
 cd backend-go && go test ./internal/contract/...        # contract test: response khớp openapi.yaml
-# Python
-pytest -q                          # không gọi LLM thật
-pytest -q -m llm                   # gọi LLM thật, chỉ chạy tay
+# Đánh giá offline (script Python, gọi qua HTTP API như client ngoài)
+make eval                          # E1–E6 → benchmarks/reports/
 # Frontend
 pnpm -C frontend lint && pnpm -C frontend build
 pnpm -C frontend exec playwright test
 bash scripts/ui-antipatterns.sh     # phản mẫu giao diện theo DESIGN.md §21
-# Đánh giá
-make eval                          # E1–E6 → benchmarks/reports/
 k6 run benchmarks/load/<kịch-bản>.js   # test tải theo SLO ở docs/SYSTEM_DESIGN.md mục 5
 ```
 
@@ -120,13 +119,13 @@ k6 run benchmarks/load/<kịch-bản>.js   # test tải theo SLO ở docs/SYSTEM
 
 - Go: `internal/<module>/{handler,service,repo}.go`; handler mỏng, logic ở service, SQL ở `internal/store/queries/*.sql` (sqlc). Lỗi bọc bằng `%w`. Log bằng `slog`, có `trace_id`. Context đi xuyên suốt. Test table-driven.
 - Mọi handler lớp học đi qua middleware `CourseAccessGuard`; STUDENT chỉ đọc dữ liệu của `user_id` trong JWT.
-- Python: type hints, pydantic cho I/O có cấu trúc, đầu ra LLM có cấu trúc dùng `gateway.structured(json_schema)`.
+- Go AI: `internal/llm` (chat/stream/structured/embed, registry provider, fallback, `llm_audit`) + `internal/llm/scheduler`; `internal/rag` (chunk, embed, tìm lai); `internal/privacy` (detect, redact, mask, unmask_stream, phân loại kênh); `internal/grading` (rubric qua structured output, hai lượt); `internal/agent` (định tuyến tất định, tool lấy danh tính từ trusted context); `internal/ingest` (worker gọi `docling-serve`). Đầu ra LLM có cấu trúc luôn dùng `llm.Structured(json_schema)`, không parse văn bản tự do.
 - Frontend: `frontend/src/features/<module>/`, gọi API qua `services/`, state bằng zustand, biểu đồ bằng recharts. Mỗi màn có trạng thái loading / rỗng / lỗi. Giao diện tiếng Việt.
 - Tên bảng, cột, enum: snake_case tiếng Anh. Văn bản hiển thị: tiếng Việt.
 
 ## Thứ tự làm trong một phase
 
-migration → sqlc/store → service + handler Go → proto/Python (nếu có) → frontend → test → seed → cập nhật `docs/PROGRESS.md`.
+migration → sqlc/store → service + handler Go → frontend → test → seed → cập nhật `docs/PROGRESS.md`.
 Mỗi bước một commit. Kết thúc: chạy cổng nghiệm thu trong phase file, dán kết quả, liệt kê file đổi và việc còn nợ.
 
 ## Khi chạy trong đội herdr (`docs/team/`)

@@ -9,29 +9,34 @@ flowchart TD
   U[Trình duyệt] --> RP[Caddy: TLS, nén, giới hạn kết nối]
   RP --> FE[Next.js]
   RP --> GW[Go gateway ×N, không trạng thái]
-  GW --> FW[Tường lửa PII kênh công khai]
+  GW --> FW[internal/privacy: tường lửa PII + phân loại kênh]
+  GW --> AG[internal/agent: định tuyến tất định + tool]
+  AG --> RAG[internal/rag: embed + tìm lai trên pgvector]
+  AG --> MASK[mask/unmask stream] --> SCH[internal/llm/scheduler: làn ưu tiên, hạn mức, cầu dao] --> LLM[internal/llm] --> EXT[OpenAI / Anthropic / Gemini / endpoint tương thích OpenAI]
   GW --> PGB[PgBouncer] --> PG[(Postgres + pgvector)]
   GW --> RD[(Redis: cache, Streams, pub/sub, rate limit, idempotency)]
   GW --> OS[(Object storage MinIO / S3)]
-  GW -->|gRPC + deadline| AI[Python AI ×M]
-  FW -->|phân loại kênh| AI
-  AI --> MASK[PII mask/unmask] --> SCH[LLM Scheduler: làn ưu tiên, hạn mức, cầu dao] --> EXT[OpenAI / Anthropic / Gemini / OpenAI-compatible]
-  AI --> PG
-  AI --> OS
+  RAG --> PG
   RD --> WK[Go worker ×K: outbox, chấm bài, ingest, IMAP, nhắc lịch, heartbeat]
-  WK --> AI
+  WK --> SCH
+  WK --> DOC[docling-serve: trích PDF/DOCX]
   WK --> MAIL[SMTP gửi / IMAP nhận]
 ```
 
+Không có tiến trình Python nào trong sơ đồ: D46 chốt gateway và worker Go tự gọi LLM, tự truy vấn pgvector, tự che danh tính. `docling-serve` là container dùng sẵn, chỉ nói chuyện HTTP.
+
 | Thành phần | Nằm ở | Trách nhiệm |
 | --- | --- | --- |
-| Go Gateway | `backend-go/cmd/gateway` | REST, SSE, auth, RBAC, nghiệp vụ, gRPC client |
+| Go Gateway | `backend-go/cmd/gateway` | REST, SSE, auth, RBAC, nghiệp vụ và AI trong cùng tiến trình |
 | Go Worker | `backend-go/cmd/worker` | Consumer Redis Streams: `grading.jobs`, `mail.inbound`, `mail.outbox`, `reminder.jobs`, `reindex.jobs`, `heartbeat.rollup`; cron; retry 3 lần → dead-letter |
-| LLM Gateway + Scheduler | `src/llm/` | `chat`, `stream`, `structured(json_schema)`, `embed`; chọn model theo task từ DB; fallback; ghi `llm_audit`; bọc `mask`/`unmask`. `scheduler.py`: ba làn ưu tiên, token bucket RPM/TPM trên Redis, semaphore, cầu dao, deadline, hàng chờ có giới hạn (back pressure), suy giảm sang trả lời trích xuất |
+| LLM Gateway + Scheduler | `internal/llm`, `internal/llm/scheduler` | `Chat`, `Stream`, `Structured(json_schema)`, `Embed` trên `openai-go`; registry provider theo base URL tương thích OpenAI; chọn model theo task từ DB; fallback; ghi `llm_audit`; bọc `mask`/`unmask`. Scheduler: ba làn ưu tiên, token bucket RPM/TPM trên Redis, semaphore, cầu dao, deadline từ `context.Context`, hàng chờ có giới hạn (back pressure), suy giảm sang trả lời trích xuất |
+| RAG | `internal/rag` | Chunk, embed, tìm lai vector + từ khoá bằng SQL trên pgvector; truy xuất tất định, không LLM trên đường nóng (D47) |
+| Agent | `internal/agent` | Định tuyến tất định theo ý định đã phân loại → tool Go → đúng một lần sinh chữ; tool dữ liệu cá nhân nhận danh tính từ trusted context. Không vòng lặp agent mở |
 | Blob | `internal/platform/blob` | Giao diện `Put/Get/PresignPut/PresignGet/Delete`; MinIO (dev, tự host) hoặc S3; DB chỉ lưu khoá object |
 | Outbox | `internal/platform/outbox` | Ghi nghiệp vụ + dòng `outbox` trong cùng transaction; worker phát thông báo, mail, sự kiện vô hiệu cache; at-least-once + khử trùng |
-| PII | Go `internal/privacy` + Python `src/privacy/` | Go: regex + từ điển roster ở middleware kênh công khai. Python: phân loại kênh, `redact`, `mask`, `unmask`, `unmask_stream` |
-| Grading Engine | `src/grading/` | Trích văn bản (docling), bỏ tên/MSSV, chấm theo rubric ra JSON schema, hai lượt |
+| PII | `internal/privacy` | Regex + từ điển roster ở middleware kênh công khai; phân loại kênh bằng luật + độ tương đồng embedding; `redact`, `mask`, `unmask`, `unmask_stream` |
+| Grading Engine | `internal/grading` | Bỏ tên/MSSV, chấm theo rubric bằng structured output (`json_schema`), hai lượt |
+| Ingest | `internal/ingest` (worker) | Gọi `docling-serve` qua HTTP để trích văn bản PDF/DOCX, rồi chunk + embed qua `internal/rag` |
 | Quiz Engine | `internal/quiz` | Chấm trắc nghiệm/đúng–sai/trả lời ngắn bằng code; dùng cho QUIZ, import Forms, luyện đề |
 | Grade Engine | `internal/grade` | Tính điểm decimal từ `grade_components` + `grade_rules`; snapshot; XLSX |
 | Mail | `internal/mail` | go-mail + `html/template` gửi qua `mail_outbox`; go-imap poll 60 s chỉ để nhận bài nộp |
@@ -47,12 +52,17 @@ backend-go/
   cmd/worker/main.go
   cmd/mock-graph/main.go   # chỉ dùng cho dev/test
   internal/
-    platform/     # config env, slog, otel, redis, crypto AES-GCM, clock
+    platform/     # config env, slog, otel, redis, crypto AES-GCM, clock, blob, outbox
     auth/         # JWT, bcrypt, RBAC, CourseAccessGuard
     httpapi/      # router chi, middleware, mã lỗi, DTO chung, validation
     sse/
-    aiclient/     # gRPC client sinh từ shared-proto
-    privacy/
+    llm/          # gateway provider (openai-go): chat, stream, structured, embed, fallback, llm_audit
+    llm/scheduler/# ba làn ưu tiên, token bucket Redis, cầu dao, deadline, hàng chờ có giới hạn
+    rag/          # chunk, embed, tìm lai vector + từ khoá trên pgvector
+    privacy/      # detect, redact, mask, unmask_stream, phân loại kênh (luật + embedding)
+    grading/      # chấm theo rubric bằng structured output, hai lượt
+    agent/        # định tuyến tất định + tool dữ liệu cá nhân (danh tính từ trusted context)
+    ingest/       # worker: gọi docling-serve, chunk, embed
     store/        # sqlc: queries/*.sql → generated
     jobs/
     contract/     # contract test: response khớp api/openapi.yaml
@@ -68,27 +78,28 @@ Mỗi module: `handler.go` (mỏng) · `service.go` (logic, transaction, audit) 
 
 ## 3. Thư viện được phép
 
-| Việc | Go | Thay cho (Java) |
-| --- | --- | --- |
-| Router | `go-chi/chi` v5 | Spring MVC |
-| DB | `jackc/pgx` v5 + `sqlc` + `pgvector-go` | JPA/Hibernate |
-| Migration | `pressly/goose` | (chưa có) |
-| Auth | `golang-jwt/jwt` v5 + `x/crypto/bcrypt` | Spring Security |
-| Validation | `go-playground/validator` | Bean Validation |
-| Redis | `redis/go-redis` v9 | Spring Data Redis |
-| gRPC | `google.golang.org/grpc` + `protoc-gen-go` | grpc-java |
-| SSE | `net/http` + `http.Flusher` | SseEmitter |
-| Mail gửi / nhận | `wneessen/go-mail` + `html/template` / `emersion/go-imap` v2 + `go-message` | Spring Mail + Thymeleaf / Jakarta Mail |
-| XLSX | `xuri/excelize` v2 | Apache POI |
-| Thập phân | `shopspring/decimal` | BigDecimal |
-| Cron | `robfig/cron` v3 | @Scheduled |
-| OpenAPI | `oapi-codegen` | springdoc |
-| Quan sát | OpenTelemetry Go + `log/slog` | Micrometer |
-| Object storage | `minio/minio-go` v7 (tương thích S3) | Ghi file ra volume |
-| Test | `testing` + `testify` + `testcontainers-go` + API MailHog | JUnit, Testcontainers, GreenMail |
+| Việc | Go |
+| --- | --- |
+| Router | `go-chi/chi` v5 |
+| DB | `jackc/pgx` v5 + `sqlc` + `pgvector-go` |
+| Migration | `pressly/goose` |
+| Auth | `golang-jwt/jwt` v5 + `x/crypto/bcrypt` |
+| Validation | `go-playground/validator` |
+| Redis | `redis/go-redis` v9 |
+| LLM / embedding | `openai/openai-go` (một client cho mọi provider có endpoint tương thích OpenAI) |
+| SSE | `net/http` + `http.Flusher` |
+| Mail gửi / nhận | `wneessen/go-mail` + `html/template` / `emersion/go-imap` v2 + `go-message` |
+| XLSX | `xuri/excelize` v2 |
+| Thập phân | `shopspring/decimal` |
+| Cron | `robfig/cron` v3 |
+| OpenAPI | `oapi-codegen` |
+| Quan sát | OpenTelemetry Go + `log/slog` |
+| Object storage | `minio/minio-go` v7 (tương thích S3) |
+| Test | `testing` + `testify` + `testcontainers-go` + REST API Mailpit |
 
-Python thêm: `litellm` (lớp dịch provider), `underthesea` hoặc tương đương cho NER tiếng Việt (bật bằng `PII_NER_ENABLED`). Frontend giữ: Next.js, React, zustand (chỉ trạng thái UI + phiên), tailwind, recharts; thêm `@tanstack/react-query`, `@tanstack/react-virtual`, `lucide-react` (thư viện icon DUY NHẤT), font Be Vietnam Pro qua `next/font`, Playwright, `@axe-core/playwright`, Lighthouse CI.
-Hạ tầng thêm trong compose: Caddy, PgBouncer, MinIO, MailHog, mock-graph (chỉ local). Test tải: k6.
+Frontend giữ: Next.js, React, zustand (chỉ trạng thái UI + phiên), tailwind, recharts; thêm `@tanstack/react-query`, `@tanstack/react-virtual`, `lucide-react` (thư viện icon DUY NHẤT), font Be Vietnam Pro qua `next/font`, Playwright, `@axe-core/playwright`, Lighthouse CI.
+Hạ tầng thêm trong compose: Caddy, PgBouncer, MinIO, Mailpit, `docling-serve` (trích PDF/DOCX cho worker), mock-graph (chỉ local). Test tải: k6.
+Python chỉ xuất hiện ở `benchmarks/` cho script đánh giá offline (D46); không có thư viện Python nào nằm trong đường chạy của sản phẩm.
 
 ## 4. Lược đồ dữ liệu mới
 
@@ -166,25 +177,36 @@ Lỗi thống nhất: `{code, message, details?, retry_after?}`; 401 chưa đăn
 | Việc dài | `202 {job_id}`; `GET /jobs/{id}`; tiến độ đẩy qua SSE sự kiện `job.progress` |
 | Cache HTTP | `ETag` + `If-None-Match` cho lịch, thư viện, công thức điểm, danh sách lớp |
 | File | `POST …/uploads/presign` → client PUT thẳng lên object storage → `POST …/uploads/complete`; tải xuống qua URL ký sẵn 5 phút sau khi kiểm quyền |
-| Thời hạn | Gateway đặt deadline cho mỗi request; truyền qua gRPC; client huỷ thì huỷ luôn lời gọi LLM |
+| Thời hạn | Gateway đặt deadline cho mỗi request bằng `context.Context`; context đi thẳng xuống `internal/llm`; client huỷ thì huỷ luôn lời gọi LLM |
 | SSE | Sự kiện có `id`; hỗ trợ `Last-Event-ID`; tối đa 2 kết nối mỗi người; heartbeat comment mỗi 25 s |
 
 Mọi API, kể cả nhóm chat/thread/document/analytics, theo quy ước này ngay từ đầu (D45). Không có API kế thừa từ Project III.
 
-## 6. gRPC (`shared-proto`)
+## 6. Provider LLM (D46)
 
-| Service | RPC | Ghi chú |
-| --- | --- | --- |
-| `AIThreadService` (có sẵn) | `StreamAIResponse`, `SuggestSimilarThreads`, `ClassifyIntent` | Sau PG mới được thêm trường optional: request `course_id`, `channel`; metadata `confidence`, `pii_masked_count`, `should_escalate`, `no_context` |
-| `AIDocumentService` (có sẵn) | `ProcessDocument`, `UpdateChunkContent` | Thêm `document_type`, `audience` |
-| `AIPrivacyService` | `ClassifyChannel(text)`, `Redact(text, roster_key)` | Gateway gọi khi tường lửa Go chưa chắc |
-| `AIGradingService` | `SuggestRubric`, `GradeSubmission`, `GenerateFeedbackSummary`, `ExtractGradeScheme(document_id)` | Worker Go gọi; trả JSON theo schema cố định |
-| `AIQuestionService` | `ExtractQuestions(document_id)`, `GenerateQuestions(topic, n, types)`, `ExplainAnswer` (stream) | Kết quả luôn ở trạng thái chờ duyệt |
-| `AIInsightService` | `GenerateKnowledgeGapReport(course_id, from, to, items[])` | Go gom dữ liệu đã che; Python gom cụm, gắn chương, viết khuyến nghị |
-| `AIAdminService` | `TestProvider`, `ReloadConfig`, `StartReindex` | `ReloadConfig` cũng kích bằng pub/sub `llm.config.changed` |
+Không còn gRPC và `shared-proto`: AI nằm trong cùng tiến trình Go, gọi bằng hàm chứ không qua mạng nội bộ.
 
-Tool agent mới (`src/tools.py`, chỉ kênh riêng): `get_my_attendance`, `get_my_participation`, `get_my_grade_summary`, `what_if_final_grade`, `get_exam_schedule`, `get_upcoming_events`; cả hai kênh: `search_library`.
-Python đọc bảng nghiệp vụ chỉ qua view/truy vấn chỉ-đọc; không ghi.
+**Registry provider.** Mỗi dòng `llm_providers` là một cặp (base URL tương thích OpenAI, API key). `internal/llm` dựng một `openai-go` client cho mỗi provider; chọn model theo `llm_task_routes.task`, fallback theo `fallback_order`. Thêm provider = thêm một dòng trong bảng, không sửa code.
+
+| Hàm `internal/llm` | Dùng cho |
+| --- | --- |
+| `Chat(ctx, task, msgs, opts)` | Lời gọi một lượt, không stream |
+| `Stream(ctx, task, msgs, opts)` | Trả lời chat / thread: đúng một lần sinh chữ mỗi câu hỏi (D47), token đẩy thẳng ra SSE sau khi `unmask_stream` |
+| `Structured(ctx, task, msgs, jsonSchema, out)` | Mọi đầu ra có cấu trúc: chấm theo rubric, trích công thức điểm, sinh câu hỏi, báo cáo lỗ hổng kiến thức. Dùng `response_format: json_schema`; provider nào không hỗ trợ thì hạ xuống `json_object` + validate lại bằng schema, hỏng thì tính là lỗi provider và sang fallback |
+| `Embed(ctx, texts)` | Khoá 1536 chiều; từ chối model khác chiều |
+
+**Provider `fake`.** Một provider giả nằm trong `internal/llm`, bật bằng `LLM_PROVIDER=fake`: độ trễ và tỷ lệ lỗi cấu hình được, có chế độ phát lại (replay) các response đã ghi. Dùng cho CI, test tải và demo; CI không bao giờ gọi provider thật. Vì lớp tương thích OpenAI của mỗi provider mạnh yếu khác nhau, mỗi provider thật có một test hợp đồng đối chiếu với `fake`, chạy tay.
+
+**`docling-serve` (hợp đồng cho `internal/ingest`).** Container riêng, chỉ HTTP, không trạng thái:
+
+| Việc | Gọi |
+| --- | --- |
+| Trích văn bản | `POST {DOCLING_URL}/v1/convert/source` với nguồn là URL ký sẵn của object storage; nhận Markdown + cấu trúc trang |
+| Sức khoẻ | `GET {DOCLING_URL}/health` — worker báo degraded khi đỏ, job ingest nằm lại hàng đợi |
+
+Worker đặt deadline cho mỗi lần gọi, retry 3 lần rồi dead-letter; file không trích được chuyển trạng thái `FAILED` kèm lý do hiển thị cho giảng viên.
+
+Tool agent (`internal/agent`, chỉ kênh chat riêng): `get_my_attendance`, `get_my_participation`, `get_my_grade_summary`, `what_if_final_grade`, `get_exam_schedule`, `get_upcoming_events`; cả hai kênh: `search_library`. Tool nhận `user_id` từ trusted context (claim JWT), không bao giờ từ đầu ra LLM.
 
 ## 7. Frontend
 
@@ -240,7 +262,7 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 
 | Biến | Dùng cho |
 | --- | --- |
-| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `JWT_EXPIRATION`, `PYTHON_GRPC_URL`, `APP_CORS_ALLOWED_ORIGINS` | Gateway Go (giữ tên cũ của Java khi có thể) |
+| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `JWT_EXPIRATION`, `APP_CORS_ALLOWED_ORIGINS` | Gateway Go |
 | `APP_ENCRYPTION_KEY` | AES-GCM |
 | `ACCESS_TOKEN_TTL` (15m), `REFRESH_TOKEN_TTL` (14d), `COOKIE_DOMAIN` | Phiên đăng nhập |
 | `SUPPORT_RESOURCES_VI` | Thông tin hỗ trợ sinh viên do trường cung cấp (F3) |
@@ -249,13 +271,15 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 | `BLOB_ENDPOINT`, `BLOB_BUCKET`, `BLOB_ACCESS_KEY`, `BLOB_SECRET_KEY`, `BLOB_USE_SSL` | Object storage (dev → MinIO) |
 | `PGBOUNCER_URL`, `DB_MAX_CONNS` | Pool kết nối |
 | `LLM_MAX_CONCURRENCY`, `LLM_BATCH_SHARE`, `LLM_QUEUE_MAX` | Scheduler: luồng đồng thời, phần hạn mức tối đa cho làn BATCH (mặc định 0,5), độ dài hàng chờ INTERACTIVE |
+| `LLM_PROVIDER` (`fake` trên CI), `LLM_REQUEST_TIMEOUT`, `LLM_EMBED_DIMS` (1536) | `internal/llm`: provider mặc định khi bảng trống, thời hạn mỗi lời gọi, số chiều embedding khoá cứng |
+| `DOCLING_URL` | Địa chỉ `docling-serve` cho `internal/ingest` (dev → `http://docling:5001`) |
 | `GRADING_WORKERS`, `INGEST_WORKERS` | Số consumer đồng thời |
 | `APP_PUBLIC_URL` | Deep link mail, ICS |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Gửi mail (dev → MailHog 1025) |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Gửi mail (dev → Mailpit 1025) |
 | `IMAP_HOST`, `IMAP_USER`, `IMAP_PASS`, `IMAP_POLL_SECONDS` | Nhận bài nộp |
 | `TEAMS_ENABLED`, `TEAMS_TENANT_ID`, `TEAMS_CLIENT_ID`, `TEAMS_CLIENT_SECRET` | Adapter Teams; production mặc định tắt, dev mặc định bật và trỏ vào mock-graph |
 | `GRAPH_BASE_URL`, `GRAPH_AUTH_URL` | Thật: `https://graph.microsoft.com/v1.0`, `https://login.microsoftonline.com`. Dev: `http://mock-graph:8090/v1.0`, `http://mock-graph:8090` |
-| `PII_NER_ENABLED` | Tầng NER |
+| `PII_NER_ENABLED` | ~~Tầng NER~~ — cắt theo D46 (không còn NER tiếng Việt); giữ tên biến làm chỗ mở rộng, mặc định tắt |
 | `SEED_ON_EMPTY_DB`, `SEED_DEFAULT_PASSWORD` | Seed |
 | `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` | Chỉ dự phòng khi `llm_providers` trống |
 
@@ -306,14 +330,14 @@ Dữ liệu của **lớp 1** (lớp 2 có phiên bản rút gọn 3 tuần):
 | Tầng | Công cụ | Bắt buộc |
 | --- | --- | --- |
 | Unit Go | `go test`, testify, table-driven | Grade Engine (biên làm tròn), Quiz Engine, khớp bài nộp, RBAC theo lớp, AES-GCM, tường lửa PII |
-| Tích hợp Go | testcontainers-go + API MailHog | Escalation → mail; IMAP → bài nộp; finalize; heartbeat |
+| Tích hợp Go | testcontainers-go + REST API Mailpit | Escalation → mail; IMAP → bài nộp; finalize; heartbeat |
 | Contract | `internal/contract`: response thật khớp schema `api/openapi.yaml` (D45) | Mọi endpoint; chạy trong CI |
-| Unit Python | pytest (provider giả) | detector, phân loại kênh, redact, mask/unmask_stream (token cắt mọi vị trí), gateway, grading parser, tool từ chối hỏi hộ |
-| Hồi quy AI | pytest + golden set | Guardrails, injection (chat + bài nộp), citation, lọc `ANSWER_KEY` |
+| Unit Go — AI | `go test` với provider `fake` | `internal/privacy` (detector, phân loại kênh, redact, mask/unmask_stream với token cắt ở mọi vị trí), `internal/llm` (fallback, cầu dao, hạn mức), `internal/grading` (parser structured output), `internal/agent` (tool từ chối hỏi hộ) |
+| Hồi quy AI | `go test` + golden set (`benchmarks/`) | Guardrails, injection (chat + bài nộp), citation, lọc `ANSWER_KEY` |
 | E2E | Playwright | Hỏi điểm; escalate–trả lời; điểm danh; chấm–công bố; thi thử |
 | Đánh giá | `make eval` | E1–E6 |
 | Tải | k6 + `scripts/seed-t1.mjs` (1.000 SV, 20 lớp) + provider LLM giả có độ trễ 5–15 s | SLO ở `SYSTEM_DESIGN.md` mục 5; kịch bản hỗn hợp chat + chấm 1.000 bài |
-| Hỗn loạn nhỏ | Script giết worker / Redis / Python giữa chừng | 0 việc thất lạc; chat suy giảm đúng kiểu |
+| Hỗn loạn nhỏ | Script giết worker / Redis / `docling-serve` giữa chừng | 0 việc thất lạc; chat suy giảm đúng kiểu |
 | UX | `@axe-core/playwright`, Lighthouse CI (mobile), Playwright ở 375 px và mạng 3G chậm | Cổng UX ở `UX.md` mục 6 |
 
-Test gọi LLM thật gắn marker `llm`, không chạy trên CI. CI sau PG: `go vet`, `golangci-lint`, `go test -race ./...`, `sqlc diff`, `pytest`, frontend lint + build.
+Test gọi provider LLM thật nằm sau build tag `llm`, không chạy trên CI. CI sau PG: `go vet`, `golangci-lint`, `go test -race ./...`, `sqlc diff`, frontend lint + build.

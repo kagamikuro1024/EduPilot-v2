@@ -11,6 +11,6 @@ Thi công phase: $ARGUMENTS
 2. Nếu có tham số lát việc ($1) thì chỉ làm lát đó; nếu không, làm lát đầu tiên chưa xong theo `PROGRESS.md`. KHÔNG làm quá một lát trong một phiên.
 3. Trước khi sửa gì: chạy bộ test hiện có liên quan và ghi lại kết quả làm mốc.
 4. Trình bày KẾ HOẠCH trước: file sẽ tạo/sửa, migration, API, test sẽ viết, rủi ro. DỪNG chờ chủ dự án duyệt. Không viết code trước khi được duyệt.
-5. Thi công theo thứ tự: migration → sqlc/store → service + handler Go → proto/Python → frontend → test → seed. Mỗi bước một commit `$0: <việc>`.
+5. Thi công theo thứ tự: migration → sqlc/store → service + handler Go → frontend → test → seed. Mỗi bước một commit `$0: <việc>`.
 6. Tuân thủ 9 nguyên tắc và mục Cấm trong `CLAUDE.md`. Gặp điều kiện DỪNG thì dừng và hỏi.
 7. Kết thúc lát: chạy test liên quan, tick các ô đã xong trong phase file, cập nhật `docs/PROGRESS.md` (Phiên gần nhất, Nợ), rồi báo cáo: đã làm gì, file đổi, test nào xanh/đỏ, bước kế tiếp.

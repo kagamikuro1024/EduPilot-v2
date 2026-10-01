@@ -11,7 +11,7 @@
 ## Lát việc
 
 **L1. Bảo mật và file**
-- [ ] Rà OWASP ASVS mức 1 (ghi kết quả vào `docs/security-review.md`); header bảo mật ở Caddy; cookie `Secure`; `govulncheck`, `pip-audit`, `pnpm audit` trong CI
+- [ ] Rà OWASP ASVS mức 1 (ghi kết quả vào `docs/security-review.md`); header bảo mật ở Caddy; cookie `Secure`; `govulncheck` và `pnpm audit` trong CI
 - [ ] Danh sách trắng loại file theo magic bytes; container ClamAV; quét trong `ingest.jobs` và khi nhận bài nộp; file nhiễm → cách ly + báo Admin
 - [ ] Công tắc tính năng AI theo lớp (chat / tự trả lời Threads / chấm bài) ở `/admin/courses`
 
@@ -39,10 +39,10 @@
 ## Cổng nghiệm thu
 ```bash
 make restore-drill                       # khôi phục + smoke test xanh; ghi thời gian
-make security-check                      # govulncheck + pip-audit + pnpm audit: 0 lỗ hổng mức cao
+make security-check                      # govulncheck + pnpm audit: 0 lỗ hổng mức cao
 pnpm -C frontend exec playwright test semester-end.spec.ts privacy-rights.spec.ts
 curl -sI https://$STAGING/ | grep -iE "strict-transport|content-security|x-content-type"
-bash scripts/chaos-prod.sh               # tắt lần lượt Redis, Python, SMTP → cảnh báo về hộp thư trong 5 phút, hệ thống tự hồi
+bash scripts/chaos-prod.sh               # tắt lần lượt Redis, worker, SMTP → cảnh báo về hộp thư trong 5 phút, hệ thống tự hồi
 ```
 
 ## Bạn tự kiểm

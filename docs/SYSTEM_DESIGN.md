@@ -36,7 +36,7 @@ Nguyên tắc xuyên suốt của tài liệu đó cũng là của tài liệu n
 Lưu lượng HTTP và dữ liệu đều **nhỏ** đối với một gateway Go và một Postgres. Hệ thống này không chết vì QPS. Nó chết vì năm thứ sau, và toàn bộ thiết kế xoay quanh chúng:
 
 1. **LLM chậm, có hạn mức, tốn tiền** — tài nguyên khan hiếm duy nhất. Chấm 1.000 bài có thể ăn hết hạn mức và làm chat của sinh viên treo đúng đêm trước hạn.
-2. **Kết nối sống lâu** (SSE, gRPC stream) — mỗi luồng giữ tài nguyên 10 s trở lên ở cả Go, Python và kết nối DB.
+2. **Kết nối sống lâu** (SSE, stream token từ provider) — mỗi luồng giữ tài nguyên 10 s trở lên ở tiến trình Go và ở kết nối DB.
 3. **Trạng thái nằm trong tiến trình hoặc trên đĩa cục bộ** — hiện file upload nằm ở volume `shared_uploads`; chừng nào còn thế thì không nhân bản gateway được.
 4. **Truy vấn không giới hạn** — danh sách không phân trang, N+1, thiếu index theo `(course_id, …)` — nhanh với 30 SV, sập với 1.000.
 5. **Việc nặng chạy trong request** — trích tài liệu, chấm bài, tạo báo cáo, gửi mail.
@@ -51,11 +51,12 @@ flowchart TD
   GW --> PGB[PgBouncer] --> PG[(Postgres + pgvector)]
   GW --> RD[(Redis: cache, Streams,<br/>pub/sub, rate limit, idempotency)]
   GW --> OS[(Object storage<br/>MinIO / S3)]
-  GW -->|gRPC| AI[Python AI ×M]
-  AI --> SCH[LLM Scheduler<br/>làn ưu tiên + hạn mức + cầu dao] --> EXT[Nhà cung cấp LLM]
+  GW -->|trong cùng tiến trình| AI[internal/agent + internal/rag + internal/privacy]
+  AI --> SCH[internal/llm/scheduler<br/>làn ưu tiên + hạn mức + cầu dao] --> LLM[internal/llm<br/>openai-go] --> EXT[Nhà cung cấp LLM]
   AI --> PG
   AI --> OS
-  RD --> WK[Go worker ×K] --> AI
+  RD --> WK[Go worker ×K] --> SCH
+  WK --> DOC[docling-serve<br/>trích PDF/DOCX]
   WK --> MAIL[SMTP / IMAP]
 ```
 
@@ -73,15 +74,17 @@ Quyết định kiến trúc (và cái bị từ chối):
 
 ## 3. Thành phần lõi
 
-### 3.1. LLM Scheduler — bảo vệ tài nguyên khan hiếm nhất (Python `src/llm/scheduler.py`)
+### 3.1. LLM Scheduler — bảo vệ tài nguyên khan hiếm nhất (`internal/llm/scheduler`)
 
 - **Ba làn ưu tiên:** `INTERACTIVE` (chat, giải thích đáp án) > `NEAR_REALTIME` (phân loại kênh, trích công thức, gợi ý rubric) > `BATCH` (chấm bài, sinh câu hỏi, báo cáo). Làn BATCH chỉ được dùng tối đa 50% hạn mức khi có việc INTERACTIVE đang chờ.
-- **Hạn mức theo provider:** token bucket cho RPM và TPM, đọc từ `llm_models`; semaphore số luồng đồng thời. Trạng thái bucket nằm ở Redis để nhiều bản Python dùng chung.
+- **Hạn mức theo provider:** token bucket cho RPM và TPM, đọc từ `llm_models`; semaphore số luồng đồng thời. Trạng thái bucket nằm ở Redis để nhiều bản gateway và worker dùng chung.
 - **Back pressure:** hàng chờ INTERACTIVE có giới hạn độ dài. Đầy thì trả lỗi "đang quá tải" kèm thời gian chờ ước tính, KHÔNG xếp hàng vô hạn. UI hiện thông báo chờ và nút thử lại/nhờ giảng viên.
 - **Cầu dao (circuit breaker):** lỗi liên tiếp hoặc 429 → mở cầu dao provider đó 30 s, chuyển sang fallback (M12). Thử lại có backoff luỹ thừa + jitter.
-- **Thời hạn (deadline):** mọi lời gọi mang deadline từ request gốc (context Go → metadata gRPC → Python). Người dùng đóng tab thì huỷ luồng LLM, không đốt token vô ích.
-- **Suy giảm có kiểm soát:** mọi provider đều chết → chat trả lời trích xuất từ chunk (repo đã có `_build_extractive_answer_from_chunks`) kèm nhãn "AI tạm thời không khả dụng", và mời escalate.
-- **Giảm cầu:** semantic cache (đã có) cho câu hỏi học thuật; không cache câu hỏi cá nhân; dedupe các yêu cầu giống hệt đang bay.
+- **Thời hạn (deadline):** mọi lời gọi mang deadline từ `context.Context` của request gốc, đi thẳng xuống `internal/llm` — không còn hop mạng nội bộ nào ở giữa. Người dùng đóng tab thì huỷ luồng LLM, không đốt token vô ích.
+- **Suy giảm có kiểm soát:** mọi provider đều chết → chat trả lời trích xuất từ chunk đã truy xuất kèm nhãn "AI tạm thời không khả dụng", và mời escalate.
+- **Giảm cầu:** cache câu trả lời cuối theo lớp cho câu hỏi học thuật; không cache câu hỏi cá nhân; dedupe các yêu cầu giống hệt đang bay.
+
+**Đường nóng hỏi–đáp theo D47.** Luật tốc độ chốt ở `DECISIONS.md` D47 ràng buộc phần này và `internal/rag`/`internal/agent`: mỗi câu hỏi tiêu đúng **một** suất `INTERACTIVE` sinh chữ có stream; truy xuất là SQL tất định nên không nằm trong hạn mức LLM; phân loại kênh/ý định chỉ một lần mỗi tin nhắn (`NEAR_REALTIME`) rồi mang kết quả xuống dưới; không vòng lặp agent mở, nên số lời gọi mỗi câu hỏi là hằng số và ước lượng hạn mức ở mục 1.2 mới đúng. Truy vấn vector `ORDER BY` chỉ theo khoảng cách để dùng được HNSW, lọc `course_id` trong cùng truy vấn.
 
 ### 3.2. Gateway không trạng thái
 
@@ -131,16 +134,16 @@ Mọi consumer: consumer group, ack sau khi xong, thử lại 3 lần có backof
 
 ### 3.6. Bảo mật (mục Security của primer)
 
-TLS ở reverse proxy; mọi đầu vào được validate; chỉ truy vấn tham số hoá (sqlc); quyền tối thiểu: user DB của Python chỉ có SELECT trên view nghiệp vụ; secret mã hoá khi lưu; rate limit theo người dùng và theo IP; tải file chỉ qua URL ký sẵn ngắn hạn sau khi kiểm quyền; CORS theo danh sách; log không PII. Mã tham gia lớp: 31^7 ≈ 2,7 × 10^10 khả năng + giới hạn 5 lần / 10 phút + lỗi đồng nhất → dò mã là bất khả thi; tạo lại mã vô hiệu mã cũ ngay; vai trò chỉ do Admin cấp, `/register` không bao giờ tạo được TEACHER.
+TLS ở reverse proxy; mọi đầu vào được validate; chỉ truy vấn tham số hoá (sqlc); quyền tối thiểu: gateway và worker dùng user DB riêng, user của worker chỉ có quyền trên bảng nó cần; secret mã hoá khi lưu; rate limit theo người dùng và theo IP; tải file chỉ qua URL ký sẵn ngắn hạn sau khi kiểm quyền; CORS theo danh sách; log không PII. `docling-serve` không nhận được danh tính người dùng, chỉ nhận URL ký sẵn có hạn ngắn. Mã tham gia lớp: 31^7 ≈ 2,7 × 10^10 khả năng + giới hạn 5 lần / 10 phút + lỗi đồng nhất → dò mã là bất khả thi; tạo lại mã vô hiệu mã cũ ngay; vai trò chỉ do Admin cấp, `/register` không bao giờ tạo được TEACHER.
 
 ## 4. Nút cổ chai và lộ trình mở rộng
 
 | Giai đoạn | Hạ tầng | Gỡ nút cổ chai nào | Thay đổi code |
 | --- | --- | --- | --- |
-| **S1 — T0/T1 (xây trong đồ án)** | 1 VPS 4 vCPU / 8 GB, Docker Compose: Caddy, gateway ×1, worker ×1, Python ×1, Postgres, PgBouncer, Redis, MinIO | – | – |
-| S2 — T1 lúc cao điểm | Tăng `replicas` gateway/Python/worker; Caddy cân bằng tải | Luồng đồng thời, SSE | **Không** (nhờ 3.2) |
+| **S1 — T0/T1 (xây trong đồ án)** | 1 VPS 4 vCPU / 8 GB, Docker Compose: Caddy, gateway ×1, worker ×1, `docling-serve` ×1, Postgres, PgBouncer, Redis, MinIO | – | – |
+| S2 — T1 lúc cao điểm | Tăng `replicas` gateway/worker; Caddy cân bằng tải | Luồng đồng thời, SSE | **Không** (nhờ 3.2) |
 | S3 — tiến tới T2 | Postgres managed + read replica cho analytics/insight; Redis managed; S3; CDN cho tĩnh | Đọc nặng của dashboard; đĩa | Chỉ thêm DSN chỉ-đọc cho gói analytics |
-| S4 — T2 | Partition bảng chỉ-thêm theo tháng; partial index vector; tách Python chấm bài khỏi Python chat; nhiều khoá API/provider | Kích thước bảng; tranh chấp LLM | Nhỏ, cục bộ |
+| S4 — T2 | Partition bảng chỉ-thêm theo tháng; partial index vector; tách worker chấm bài khỏi gateway chat (hai deployment cùng một binary, khác cờ); nhiều khoá API/provider | Kích thước bảng; tranh chấp LLM | Nhỏ, cục bộ |
 
 Cái **cố ý không làm**: sharding, master-master, Kubernetes, service discovery, Kafka, đa vùng. Con số ở 1.2 không biện minh cho chúng; mỗi thứ là thêm chế độ hỏng mà một người phải vận hành.
 
@@ -153,6 +156,7 @@ Chuỗi nối tiếp proxy → gateway → Postgres → Redis trên một máy: 
 | Chỉ số | Mục tiêu ở tải T1 | Đo bằng |
 | --- | --- | --- |
 | API đọc p95 / ghi p95 | ≤ 300 ms / ≤ 500 ms | k6 + OpenTelemetry |
+| Sự kiện SSE trạng thái đầu tiên | ≤ 300 ms (D47 mục 4) | k6 kịch bản SSE |
 | TTFT chat p95 | ≤ 1,5 s cache hit; ≤ 4 s RAG | k6 kịch bản SSE |
 | Chuông thông báo | ≤ 5 s | Test tích hợp |
 | Dashboard / hồ sơ 360 | ≤ 3 s với 1.000 SV | k6 trên dữ liệu T1 |
@@ -161,6 +165,7 @@ Chuỗi nối tiếp proxy → gateway → Postgres → Redis trên một máy: 
 | Tỷ lệ lỗi 5xx | < 0,5% | k6 |
 
 Bộ sinh dữ liệu `scripts/seed-t1.mjs` tạo 1.000 SV / 20 lớp / một học kỳ dữ liệu để các phép đo trên có nghĩa. Kịch bản k6 nằm ở `benchmarks/load/`. LLM dùng provider giả có độ trễ mô phỏng (phân phối 5–15 s) để test tải không tốn tiền.
+Luật tốc độ D47 (`DECISIONS.md`) là ràng buộc thiết kế để đạt hai dòng đầu bảng này, không phải mục tiêu riêng: một lời gọi LLM sinh chữ mỗi câu hỏi, truy xuất tất định bằng SQL, phân loại một lần mỗi tin nhắn, không vòng lặp agent mở, cache câu trả lời cuối theo lớp, danh tính từ claim JWT, render token theo frame và dữ liệu đầu render ở server. Mỗi lần đo SLO mà trượt thì kiểm lại bảy luật đó trước khi nghĩ đến thêm hạ tầng.
 
 ## 6. Ánh xạ sang phase
 
@@ -168,8 +173,8 @@ Bộ sinh dữ liệu `scripts/seed-t1.mjs` tạo 1.000 SV / 20 lớp / một h�
 | --- | --- |
 | Object storage + URL ký sẵn, Caddy, PgBouncer, timeout/giới hạn, log truy vấn chậm | PG |
 | LLM Scheduler (làn, hạn mức, cầu dao, deadline, suy giảm) | P1 |
-| Phân trang con trỏ, `Idempotency-Key`, `ETag`, khoá lạc quan — thành chuẩn cho MỌI API mới | P2 trở đi (API cũ giữ nguyên trong PG, nâng dần sau) |
-| Outbox + SSE qua pub/sub + `Last-Event-ID` | P4 |
+| Phân trang con trỏ, `Idempotency-Key`, `ETag`, khoá lạc quan — chuẩn cho MỌI API ngay từ đầu (D45) | PG |
+| Hạ tầng outbox + SSE qua Redis pub/sub + `Last-Event-ID` | PG (nghiệp vụ thông báo dùng nó ở P4) |
 | Stream chat tiếp tục được | P3 |
 | Heartbeat write-behind | P5 |
 | `ingest.jobs`, `grading.jobs` làn BATCH | P7, P8 |

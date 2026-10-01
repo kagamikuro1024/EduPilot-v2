@@ -42,14 +42,14 @@ Không ai đọc được hết mọi dòng AI viết. Dồn sức vào chỗ sa
 | Mọi file migration | Handler CRUD | Code sqlc sinh ra |
 | `internal/auth`, `CourseAccessGuard`, mọi chỗ kiểm quyền | Component frontend | DTO, mapper |
 | `internal/grade` (tính điểm) | Template mail | Cấu hình lint |
-| `internal/privacy`, `src/privacy/` (mask/unmask) | Seed | |
+| `internal/privacy` (mask/unmask, phân loại kênh) | Seed | |
 | `platform/crypto` (AES-GCM) | | |
 | Prompt chấm bài và prompt trích công thức điểm | | |
-| `src/llm/scheduler.py`, `platform/outbox`, middleware idempotency | | |
+| `internal/llm/scheduler`, `platform/outbox`, middleware idempotency | | |
 | Luồng tài khoản F1: token, cookie, thu hồi phiên, nối roster | | |
 | Mọi truy vấn trả dữ liệu cá nhân: có lọc `course_id` + `user_id` từ phiên không? | | |
 | `shared/styles/tokens.css` và mọi thay đổi vào primitive ở `shared/ui/` sau phase PU | | |
-| Mọi thay đổi vào test, golden file, CSV đối chiếu | | |
+| Mọi thay đổi vào test, contract test, CSV đối chiếu | | |
 
 Mỗi lần xong lát, chạy `git diff --stat main...` và tự hỏi: *có file nào không nên bị đụng không?* Đó là dấu hiệu lan phạm vi.
 Cuối các phase đụng auth / PII / điểm (PG, P3, P6, P7): nếu phiên bản của bạn có `/security-review` thì chạy nó trên nhánh trước khi merge.
@@ -65,7 +65,7 @@ Merge vào `main` chỉ khi cả hai lớp đều qua. Gắn tag `v2-<phase>` sa
 
 | Dấu hiệu | Cách xử lý |
 | --- | --- |
-| Sửa test / golden / CSV cho xanh | Dừng ngay. Hoàn tác thay đổi đó. Nhắc mục Cấm trong `CLAUDE.md`. Yêu cầu tìm nguyên nhân gốc |
+| Sửa test / contract test / CSV cho xanh | Dừng ngay. Hoàn tác thay đổi đó. Nhắc mục Cấm trong `CLAUDE.md`. Yêu cầu tìm nguyên nhân gốc |
 | Cổng đỏ sau 2 lần sửa | Đừng để nó thử lần 3 kiểu mò. Yêu cầu viết test tái hiện nhỏ nhất, hoặc bạn thu hẹp lát việc |
 | Diff lan sang module khác | Hoàn tác phần lan, ghi vào Nợ trong `PROGRESS.md` |
 | Đề xuất thêm hạ tầng (Kafka, K8s, microservice, vector DB riêng) | Từ chối. Hỏi: "nút cổ chai nào ở tải T1 mà cái này gỡ?" — xem `SYSTEM_DESIGN.md` mục 1.3 và 4 |
@@ -87,8 +87,8 @@ Hai vạch đích khác nhau (xem `PRODUCTION_READINESS.md`): **bảo vệ đồ
 
 | Tuần | Phase | Mốc phải đạt cuối giai đoạn |
 | --- | --- | --- |
-| 1 (nửa đầu) | P0 (0,5) | CI xanh, có openapi + golden + mốc k6 |
-| 1 (nửa sau)–4 (giữa) | PG (3) | Contract test 100%, đã xoá Java, chạy được `--scale gateway=2` |
+| 1 (nửa đầu) | P0 (0,5) | CI xanh, có openapi + bộ dữ liệu đánh giá + mốc k6 |
+| 1 (nửa sau)–4 (giữa) | PG (3) | Nền Go viết mới: contract test khớp `openapi.yaml` 100%, hạ tầng SSE + outbox + blob, chạy được `--scale gateway=2` |
 | 4 (giữa)–5 | PU (1,5) | Token + app shell + primitive đủ 8 trạng thái; `/chat`, `/threads` dựng lại |
 | 6–7 (giữa) | P1 (1,5) | Đổi provider trên UI; Scheduler + trần ngân sách qua test. **Đã hỏi thầy về D4** |
 | 7 (giữa)–9 | P2 (2,5) | F1 + F2 đi trọn: xác minh email, mời giảng viên, mở lớp, mã tham gia; test mạo danh MSSV bị chặn; seed 2 lớp |
@@ -126,7 +126,9 @@ Hai vạch đích khác nhau (xem `PRODUCTION_READINESS.md`): **bảo vệ đồ
 
 **KHÔNG BAO GIỜ cắt** (đây chính là "cái nền"): tài khoản an toàn + quy tắc nối danh sách lớp theo email đã xác minh (P2), phân quyền xem prompt (P10), phúc khảo (P7), gateway không trạng thái + object storage (PG), token + app shell + primitive đủ trạng thái (PU), LLM Scheduler (P1), chuẩn API + outbox (P2, P4), contract test (PG), test tải hỗn hợp chat + chấm bài (P10), `make eval` (P10).
 
-Nếu quỹ thời gian thật là 14–15 tuần thì cắt danh sách trên là KHÔNG đủ (chỉ bớt ≈ 3,5 tuần). Khi đó phải chọn một trong ba, và nên bàn với thầy hướng dẫn: (a) bỏ hẳn M4 luyện đề + form trắc nghiệm (−1,5 tuần) và M13-B/C (−1 tuần); (b) giữ gateway Java, không port sang Go (−3 tuần, mất lợi ích D18); (c) xin thêm thời gian. Ghi vào `DECISIONS.md`.
+Nếu quỹ thời gian thật là 14–15 tuần thì cắt danh sách trên là KHÔNG đủ (chỉ bớt ≈ 3,5 tuần). Khi đó phải chọn một trong ba, và nên bàn với thầy hướng dẫn: (a) bỏ hẳn M4 luyện đề + form trắc nghiệm (−1,5 tuần) và M13-B/C (−1 tuần); (b) rút phạm vi PG xuống mức tối thiểu để chạy được P1–P3 (mất contract test đầy đủ và một phần nền không trạng thái); (c) xin thêm thời gian. Ghi vào `DECISIONS.md`.
+
+**Lịch trên chưa tính D45 và D46.** D45 (viết mới toàn bộ, không kế thừa mã Project III) thêm ≈ 3–5 tuần; D46 (chỉ Go, bỏ service Python AI) bỏ đi phần việc dựng và kiểm thử một service riêng. Số tuần trong bảng và thứ tự cắt ở trên giữ nguyên cho tới khi **chủ dự án** chốt lại ước lượng ròng.
 
 ## 7. Việc chỉ bạn làm được (Claude Code không thay được)
 
