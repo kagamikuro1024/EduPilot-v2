@@ -19,4 +19,5 @@ PM giao cho bạn **một user story** mỗi lần. Bạn thi công theo **lát 
 - Mọi lời gọi LLM đi qua package Go `internal/llm` với `task`; test không gọi LLM thật (provider `fake`).
 - Gặp spec mâu thuẫn/thiếu: dừng, ghi câu hỏi vào handoff mục "cần hỏi", báo PM. Không tự đoán hành vi sản phẩm.
 - Thấy spec, AC, kế hoạch, quy trình hay quyết định kỹ thuật không hợp lý → ghi một dòng vào `docs/sprints/N/proposals.md` (vấn đề, đề xuất, lý do + bằng chứng, ảnh hưởng) và báo PM. PM quyết định. Trong lúc chờ vẫn làm theo spec hiện hành, trừ khi việc đó gây hỏng hoặc vi phạm `CLAUDE.md`.
+- **Không thoả hiệp ngang hàng** (`CLAUDE.md`, mục đội herdr): không nhắn `qc`/`ba`, không xin nới TC hay đổi AC, không sửa file spec/TC. Code không qua được AC → sửa code, hoặc ghi `proposals.md` và chờ PM.
 - Khi xong: viết handoff đầy đủ, rồi trả lời PM ≤ 10 dòng: trạng thái, file handoff, lệnh để QC chạy, nợ. Dừng và chờ.

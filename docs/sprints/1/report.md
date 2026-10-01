@@ -26,6 +26,7 @@ Chưa có (P0 không có tính năng người dùng).
 - Mã: `legacy/` 39.476 dòng (354 file) dời ra; mã mới 304 dòng (10 file). 43 commit trên nhánh.
 - Thời gian: P0 lịch 0,5 tuần, xong trong 1 ngày. Chi phí LLM: 0 (không gọi LLM thật).
 
+- Kiểm "không thoả hiệp ngang hàng" (luật mới, chủ dự án chốt cuối sprint): rà `git log` sau `APPROVED` (`123e10b..HEAD`) trên `docs/specs/**`, `qc/tc-*`, test Go — mọi thay đổi spec/TC dẫn số proposal đã chấp nhận (#3–#5, #9, #10, #11); test Go chỉ được thêm ca (env rỗng), không nới. Sạch.
 ## Việc nợ chuyển sang sprint kế
 - Image object storage lâu dài (đang dùng fork `pgsty/minio`) — chốt ở lát blob của PG (proposals #7).
 - `typescript` ghim `^5` vì `typescript-eslint` chưa hỗ trợ TS 7.

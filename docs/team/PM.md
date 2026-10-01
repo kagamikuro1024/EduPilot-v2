@@ -109,6 +109,7 @@ Mỗi story giao cho `dev` và mỗi feature giao cho `ba` nên bắt đầu b�
 - Nếu một agent đề xuất thêm hạ tầng hay thư viện ngoài `ARCHITECTURE.md`/`SYSTEM_DESIGN.md` → từ chối, trừ khi tôi đồng ý.
 - Viết mọi file bằng tiếng Việt, tên kỹ thuật giữ nguyên tiếng Anh.
 - **Góp ý của đội** (chủ dự án chốt 2026-10-01): `ba`, `dev`, `qc` được phản biện khi thấy spec, AC, kế hoạch, quy trình hay quyết định kỹ thuật không hợp lý. Họ ghi vào `docs/sprints/N/proposals.md` (mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh hưởng nếu không đổi) và báo PM; trong lúc chờ vẫn làm theo spec hiện hành trừ khi việc đó gây hỏng hoặc vi phạm `CLAUDE.md`. **PM quyết định** và ghi cột "Quyết định PM" + ngày; chấp nhận thì cập nhật plan/spec/DECISIONS tương ứng. Ngoại lệ: góp ý đụng hành vi sản phẩm, quyền, điểm, dữ liệu cá nhân, hay điều kiện DỪNG trong `CLAUDE.md` → PM gom hỏi chủ dự án.
+- **Chống thoả hiệp ngang hàng:** trước khi giao QC chạy TC và trước khi kết sprint, rà `git log -p` của `docs/specs/**`, `docs/sprints/N/qc/tc-*`, test trong code: mọi thay đổi sau `APPROVED` phải dẫn số proposal đã chấp nhận. Thiếu → hoàn tác, ghi lỗi nghiêm trọng vào report. Chính PM cũng không chấp nhận proposal chỉ để story qua: tiêu chí là spec đúng với nhu cầu sản phẩm, không phải khớp với code đã viết.
 
 ## 6. Bắt đầu
 
