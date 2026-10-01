@@ -86,7 +86,7 @@ Route: `/` (GV/TA), `/inbox`, `/students`, `/students/[id]`, `/attendance`, `/cl
   Kiểm: `for r in / /inbox /students /students/sv-3 /attendance /class/members; do open_as teacher $r; done` → đều `MO`; tay so §14.1.
 - AC2. Given ticket D3 của B ở `/inbox` When `Nhận` → gõ D4 → `Gửi trả lời` Then ticket chuyển Claimed rồi Answered, dòng "Đã gửi thư thông báo… (mô phỏng)" hiện tại chỗ; ticket mẫu "đã có người nhận" hiện "Phạm Quốc Bảo đã nhận lúc 09:12" thay nút `Nhận`.
   Kiểm: tay theo `DEMO_SCRIPT.md` 04:45–05:35.
-- AC3. Given `/attendance` buổi 5 lớp 1 When dùng bàn phím (↑/↓, `1`–`4`, `P`) đánh 2 vắng, 1 muộn, +phát biểu cho B rồi `Lưu điểm danh` Then mỗi thao tác hiện dòng Hoàn tác 5 s và trạng thái lưu; kết thúc "Đã hoàn tất buổi 5 · 27 có mặt, 1 muộn, 2 vắng"; `/me` của B lên 8,5. Toàn bộ ≤ 60 s.
+- AC3. Given `/attendance` buổi 10 lớp 1 (29/10) When dùng bàn phím (↑/↓, `1`–`4`, `P`) đánh 2 vắng, 1 muộn, +phát biểu cho B rồi `Lưu điểm danh` Then mỗi thao tác hiện dòng Hoàn tác 5 s và trạng thái lưu; kết thúc "Đã hoàn tất buổi 10 · 27 có mặt, 1 muộn, 2 vắng"; `/me` của B lên 8,5. Toàn bộ ≤ 60 s.
   Kiểm: tay, bấm giờ; lặp lại ở 375 px bằng chạm.
 - AC4. Given Sinh viên D đã gửi yêu cầu vào lớp 761988 When GV mở `/class/members` lớp 2 và `Duyệt` D Then D thành thành viên; đổi vai về D → bộ chọn lớp có 761988.
   Kiểm: tay theo `DEMO_SCRIPT.md` 01:10–01:55.
