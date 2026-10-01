@@ -49,6 +49,11 @@ function useNotes(role: Role, studentId: string | undefined): Note[] {
   return out;
 }
 
+/** Tên người hiển thị: GV có học hàm ("TS. Lê Thu Hà"), TA / Admin / SV chỉ có tên. */
+function displayName(role: Role, name: string, title?: string) {
+  return role === "teacher" && title ? `${title} ${name}` : name;
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse } = useSession();
   const pathname = usePathname();
@@ -76,6 +81,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mobileMore = flat.filter((i) => !MOBILE_PRIMARY[role].includes(i.href));
   const notes = useNotes(role, studentId);
   const unread = notes.filter((n) => n.unread).length;
+  const courseTitle = isAll ? "Tất cả lớp của tôi" : `${course.code} · ${course.name}`;
+  const personName = displayName(role, user.name, user.title);
 
   function switchRole(next: Role, person?: string) {
     switchTo(next, person);
@@ -90,9 +97,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
 
       <aside className={s.sidebar} aria-label="Điều hướng chính">
-        <Link href="/" className={s.brand} aria-label="EduPilot — Hôm nay">
+        <Link href="/" className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={24} className={s.logo} />
+          <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={32} className={collapsed ? s.logoMark : s.logo} />
         </Link>
 
         <nav className={s.nav}>
@@ -122,7 +129,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <header className={s.topbar}>
         <Link href="/" className={s.mobileBrand} aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-edupilot-mark.svg" alt="" width={24} height={24} />
+          <img src="/brand/logo-edupilot-mark.svg" alt="" width={28} height={28} />
         </Link>
 
         {role === "admin" ? (
@@ -133,7 +140,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             width={300}
             label="Chọn lớp"
             trigger={(p) => (
-              <button type="button" className={s.courseBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
+              <button
+                type="button"
+                className={s.courseBtn}
+                onClick={p.toggle}
+                aria-expanded={p["aria-expanded"]}
+                aria-haspopup="true"
+                aria-label={`Chọn lớp, đang xem ${courseTitle}`}
+                title={courseTitle}
+              >
                 {role === "student" && !hasCourse ? (
                   <span className={s.courseCode}>Chưa có lớp</span>
                 ) : isAll ? (
@@ -141,7 +156,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 ) : (
                   <>
                     <span className={s.courseCode}>{course.code}</span>
-                    <span className={s.courseName}>· {course.name}</span>
+                    <span className={s.courseName} title={courseTitle}>
+                      · {course.name}
+                    </span>
                   </>
                 )}
                 <ChevronDown aria-hidden />
@@ -150,6 +167,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             {(close) => (
               <div className={s.coursePanel}>
+                <p className={s.courseCurrent}>{role === "student" && !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : course.label}</p>
                 <p className={s.panelLabel}>{role === "student" ? "Lớp của bạn" : "Lớp bạn phụ trách"}</p>
                 <MenuList
                   onPicked={close}
@@ -198,7 +216,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className={s.topEnd}>
-          <button type="button" className={s.search} onClick={() => setPalette(true)}>
+          <button type="button" className={s.search} onClick={() => setPalette(true)} aria-label="Tìm nhanh hoặc đi đến">
             <Search aria-hidden />
             <span className={s.searchText}>Tìm nhanh hoặc đi đến…</span>
             <span className={s.searchKey}>
@@ -241,7 +259,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             width={260}
             label="Tài khoản"
             trigger={(p) => (
-              <button type="button" className={s.profile} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
+              <button type="button" className={s.profile} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={`Tài khoản: ${personName}`}>
                 <span className={s.initials} aria-hidden>
                   {user.name
                     .split(" ")
@@ -256,10 +274,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             {(close) => (
               <div className={s.coursePanel}>
                 <div className={s.who}>
-                  <p className={s.whoName}>
-                    {user.title && role !== "admin" ? `${user.title} ` : ""}
-                    {user.name}
-                  </p>
+                  <p className={s.whoName}>{personName}</p>
+                  <p className={s.whoRole}>{ROLE_LABEL[role]}</p>
                   <p className={s.whoMail}>{user.email}</p>
                 </div>
                 <MenuDivider />

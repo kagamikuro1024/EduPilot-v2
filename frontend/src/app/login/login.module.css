@@ -5,7 +5,8 @@
   display: grid;
   gap: var(--ep-space-4);
 }
-.logo { margin-bottom: var(--ep-space-8); width: auto; }
+.logo { margin-bottom: var(--ep-space-8); width: auto; height: 40px; }
+@media (max-width: 719px) { .logo { height: 32px; } }
 .lede { color: var(--ep-ink-2); max-width: 52ch; margin-bottom: var(--ep-space-6); }
 .list { border-top: 1px solid var(--ep-rule); }
 .list li { border-bottom: 1px solid var(--ep-rule); }

@@ -16,8 +16,9 @@
   border-right: 1px solid var(--ep-rule);
   transition: width var(--ep-normal) var(--ep-ease-standard);
 }
-.brand { display: flex; align-items: center; height: var(--ep-topbar); padding: 0 var(--ep-space-5); flex: none; }
-.logo { height: 24px; width: auto; }
+.brand { display: flex; align-items: center; height: var(--ep-topbar); padding: 0 var(--ep-space-5); flex: none; border-bottom: 1px solid var(--ep-rule); }
+.logo { height: 32px; width: auto; }
+.logoMark { width: 32px; height: 32px; }
 .collapsed .brand { justify-content: center; padding: 0; }
 
 .nav { flex: 1; overflow-y: auto; padding: var(--ep-space-2) 0 var(--ep-space-4); }
@@ -84,11 +85,12 @@
 .demoMobile { display: none; }
 .scope { font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink); }
 
-.courseBtn { display: inline-flex; align-items: center; gap: var(--ep-space-2); min-height: 36px; padding: 0 var(--ep-space-2); margin-left: calc(-1 * var(--ep-space-2)); border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; max-width: 100%; }
+.courseBtn { display: inline-flex; align-items: center; gap: var(--ep-space-2); min-height: 36px; padding: 0 var(--ep-space-2); border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; max-width: 360px; min-width: 0; }
 .courseBtn:hover, .courseBtn[aria-expanded="true"] { background: var(--ep-surface-subtle); }
 .courseBtn svg { width: 16px; height: 16px; color: var(--ep-ink-2); flex: none; }
 .courseCode { white-space: nowrap; }
-.courseName { font-weight: 500; color: var(--ep-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.courseName { font-weight: 500; color: var(--ep-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.courseCurrent { display: none; }
 
 .coursePanel { display: grid; padding: var(--ep-space-1) 0; }
 .panelLabel { padding: var(--ep-space-2) var(--ep-space-3) var(--ep-space-1); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); }
@@ -102,7 +104,8 @@
   align-items: center;
   gap: var(--ep-space-2);
   height: 34px;
-  width: 260px;
+  width: 300px;
+  flex: none;
   padding: 0 var(--ep-space-2) 0 var(--ep-space-3);
   border: 1px solid var(--ep-rule);
   border-radius: var(--ep-radius-sm);
@@ -127,7 +130,8 @@
 
 .who { padding: var(--ep-space-2) var(--ep-space-3) var(--ep-space-3); }
 .whoName { font-size: var(--ep-text-label); font-weight: 600; }
-.whoMail { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.whoRole { font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-2); }
+.whoMail { font-size: var(--ep-text-meta); color: var(--ep-ink-3); overflow-wrap: anywhere; }
 
 .notes ul { display: grid; padding-bottom: var(--ep-space-1); }
 .note { display: flex; gap: var(--ep-space-3); padding: var(--ep-space-3); border-radius: var(--ep-radius-sm); }
@@ -151,6 +155,7 @@
 .moreItem span:nth-child(2) { flex: 1; }
 
 @media (max-width: 1099px) {
+  .courseBtn { max-width: 240px; }
   .search { width: 36px; padding: 0; justify-content: center; border-color: transparent; background: transparent; }
   .searchText, .searchKey { display: none; }
   .profileRole { display: none; }
@@ -163,6 +168,7 @@
   .mobileBrand { display: grid; place-items: center; flex: none; width: 44px; height: 44px; margin-left: calc(-1 * var(--ep-space-2)); }
   .courseName { display: none; }
   .courseBtn { min-height: 44px; }
+  .courseCurrent { display: block; padding: var(--ep-space-2) var(--ep-space-3) var(--ep-space-1); font-size: var(--ep-text-label); font-weight: 600; line-height: 1.4; color: var(--ep-ink); overflow-wrap: anywhere; }
   .search { width: 44px; height: 44px; }
   .iconBtn { width: 44px; height: 44px; }
   .profile { height: 44px; min-width: 44px; }
