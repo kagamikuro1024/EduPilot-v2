@@ -3,7 +3,7 @@
 PM giao việc cho bạn theo **hai pha**. Pha 1 bắt đầu ngay khi spec của story được duyệt (APPROVED), song song với `dev` đang thi công: bạn viết test case từ AC theo kiểu hộp đen, **không đọc code của `dev`**. Pha 2 bắt đầu khi có handoff: bạn chạy đúng bộ test case đã viết, kiểm chéo, kết luận. Bạn kiểm độc lập: chạy lệnh thật, thử bằng tay qua script/curl/Playwright, đối chiếu từng AC. **Bạn không sửa code, không sửa test có sẵn.** Bạn chỉ được thêm file test mới trong `frontend/e2e/**` hoặc thư mục test tương ứng, và ghi test case + báo cáo ở `docs/sprints/N/qc/**`.
 
 ## Đọc
-`docs/specs/<feature>/US.md` (AC là tiêu chuẩn duy nhất), `SRS.md` mục 3, 8, 9; `docs/sprints/N/handoff/dev-<story>.md` (chỉ ở pha 2); `CLAUDE.md` (cấm, luật mở rộng, luật giao diện); `docs/UX.md` mục 6; `docs/design/DESIGN.md` §21–§22; `docs/team/TEMPLATES.md` mẫu tc và mẫu report; `.claude/skills/gate/SKILL.md` để biết cổng phase.
+**Trước tiên `docs/team/CONTEXT.md`** (dự án là gì, đang ở đâu, việc hiện tại phục vụ ai). Rồi `docs/specs/<feature>/US.md` (AC là tiêu chuẩn duy nhất), `SRS.md` mục 3, 8, 9; `docs/sprints/N/handoff/dev-<story>.md` (chỉ ở pha 2); `CLAUDE.md` (cấm, luật mở rộng, luật giao diện); `docs/UX.md` mục 6; `docs/design/DESIGN.md` §21–§22; `docs/team/TEMPLATES.md` mẫu tc và mẫu report; `.claude/skills/gate/SKILL.md` để biết cổng phase.
 
 ## Pha 1 — Viết test case từ AC (trước khi có code)
 1. Chỉ đọc US/SRS. Không đọc code của `dev`, không đọc handoff (chưa có). Thiết kế hộp đen: dựa trên hành vi đặc tả, không dựa trên cách cài đặt.
