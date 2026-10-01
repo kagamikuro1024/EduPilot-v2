@@ -1,0 +1,8 @@
+# FEAT-scaffold — Câu hỏi mở
+
+| # | Câu hỏi | Phương án BA đề xuất | Trả lời của chủ dự án | Ngày |
+| --- | --- | --- | --- | --- |
+| Q1 | `.github/workflows/keep-huggingface-space-awake.yml` định kỳ gọi HF Space đang chạy bản Project III. Dời vào `legacy/` thì GitHub ngừng chạy nó và Space sẽ ngủ. Có còn cần Space đó không? | Dời vào `legacy/.github/` (tắt): demo bảo vệ dùng Docker Compose (D13), bản Project III không còn là sản phẩm. **Mặc định khi chưa trả lời:** giữ nguyên chỗ (không phá cái đang chạy); dev không đụng file này. | | |
+| Q2 | `benchmarks/` và 3 file `data/*.jsonl` (ground truth, golden set quy chế) là bộ đánh giá của Project III. E1 ở P10 yêu cầu nhãn do **người** gán. Có tái dùng bộ golden quy chế cũ làm điểm xuất phát không? | Dời cả vào `legacy/` ở sprint này; P10 quyết định tái dùng sau khi người duyệt lại từng nhãn. **Mặc định:** dời vào `legacy/` như bảng 4.1. | | |
+| Q3 | `data/tmp/492218d5-….pdf` là file tải lên còn sót trong repo, chưa rõ nội dung. Nếu chứa dữ liệu cá nhân thật thì không được để trong repo (D44). | Chủ dự án mở xem. Nếu là tài liệu môn học → dời sang `seed/documents/` với tên có nghĩa; nếu có dữ liệu cá nhân → xoá khỏi cây hiện tại và báo PM xử lý lịch sử git. **Mặc định:** dời vào `legacy/data/tmp/`. | | |
+| Q4 | (cho PM) `docs/DEMO_SCRIPT.md` mục 5.1, 5 (lệnh `up -d python-ai`) và `FEAT-demo-script/QUESTIONS.md` Q7 còn nhắc `src/llm/gateway.py` và service `python-ai`, lỗi thời theo D46. Cho phép BA sửa ngoài `docs/specs/**`? | Cho BA sửa trong một commit riêng `sprint 1: DEMO_SCRIPT theo D46`: thay bằng gói LLM trong gateway Go và lệnh khởi động lại `gateway`. Không đổi bước demo nào. | | |
