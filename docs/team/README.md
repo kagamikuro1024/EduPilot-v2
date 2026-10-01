@@ -23,10 +23,10 @@ hợp lại khi có handoff ─▶ qc chạy đúng bộ TC đã viết + kiểm
                       ─▶ docs/sprints/N/qc/report-<story>.md (PASS/FAIL)
         FAIL ─▶ pm ─▶ dev sửa (tối đa 2 vòng) ─▶ qc kiểm lại
 pm: docs/sprints/N/report.md + cập nhật PROGRESS + thesis-notes ─▶ DỪNG, báo cáo bạn
-bạn: đọc, bấm thử, merge, "tiếp" ──▶ sprint N+1
+bạn: đọc, bấm thử, "chốt" ──▶ pm merge --no-ff vào main, push ──▶ "tiếp" ──▶ sprint N+1
 ```
 
-Một sprint = 1–3 user story, ước lượng 1–3 ngày làm việc. Mỗi story là **lát dọc**: migration → API → giao diện → test → seed, chạy được từ đầu đến cuối trước khi sang story kế. Không có sprint "chỉ backend".
+Toàn dự án = **10 sprint**, mỗi sprint 1–2 phase: xem `docs/sprints/ROADMAP.md`. Story trong sprint vẫn nhỏ (dev ≤ 1 ngày) và là **lát dọc**: migration → API → giao diện → test → seed, chạy được từ đầu đến cuối trước khi sang story kế. Không có sprint "chỉ backend" (ngoại lệ: PG — nền Go). Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2`; nhánh `sprint/N-<slug>` từ `main`.
 
 ## Dựng đội
 

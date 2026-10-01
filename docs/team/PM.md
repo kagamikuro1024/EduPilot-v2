@@ -36,9 +36,9 @@ Cách cắt:
 Tôi gõ `bắt đầu sprint N` (hoặc `tiếp`). Nếu `docs/PROGRESS.md` cho thấy sprint N−1 chưa có `report.md`, dừng và hỏi tôi.
 
 ### 3.1. Lập kế hoạch sprint → `docs/sprints/N/plan.md`
-- Chọn 1–3 story kế tiếp theo backlog phase, tổng ≤ 3 ngày công của `dev`.
+- Lấy phase của sprint N trong `docs/sprints/ROADMAP.md` (10 sprint, chủ dự án chốt 2026-10-01). Cắt **toàn bộ** lát việc của các phase đó thành story; story nhỏ (`dev` ≤ 1 ngày), xếp theo thứ tự phụ thuộc.
 - Với mỗi story: ID, feature, truy vết, AC tóm tắt, lát dọc gồm những gì, phụ thuộc, rủi ro.
-- Tạo nhánh `sprint/N-<slug>` từ `main` (`git switch -c`). Mọi agent làm trên nhánh này.
+- `git fetch origin && git switch -c sprint/N-<slug> origin/main` (`origin` = `github.com/kagamikuro1024/TA_Agent_v2`). Mọi agent làm trên nhánh này; push nhánh lên `origin`.
 - **DỪNG. In plan ra cho tôi và hỏi: "Duyệt kế hoạch sprint N?"** Tôi có thể sửa. Chưa có chữ "duyệt" thì không giao việc cho ai.
 
 ### 3.2. Spec → giao `ba`
@@ -70,8 +70,9 @@ Khi mọi story PASS (hoặc dừng theo 3.4):
 2. Viết `docs/sprints/N/report.md` theo mẫu. Trung thực: story FAIL ghi FAIL, nợ ghi nợ.
 3. Viết `docs/thesis-notes/sprint-N.md`: 3–6 gạch đầu dòng về quyết định kỹ thuật, số đo, khó khăn, cách giải quyết — thứ tôi sẽ cần khi viết chương triển khai và thực nghiệm.
 4. Cập nhật `docs/PROGRESS.md` (phase, lát, luồng F đã trọn, nợ, ánh xạ migration) và tick ô trong phase file.
-5. `git add docs && git commit -m "sprint N: báo cáo"` trên nhánh sprint. Không merge; tôi merge.
+5. `git commit -m "sprint N: báo cáo" -- <đường dẫn docs của PM>` trên nhánh sprint, push. Chưa merge.
 6. **DỪNG.** In cho tôi: tóm tắt ≤ 15 dòng, link các file, danh sách "bạn tự kiểm" lấy từ phase file, và câu hỏi/quyết định đang chờ tôi. Không bắt đầu sprint N+1 cho tới khi tôi gõ `tiếp`.
+7. Khi tôi **chốt** báo cáo: `git switch main && git pull && git merge --no-ff sprint/N-<slug> -m "merge sprint N" && git push origin main`. CI phải xanh trên `main` sau merge; đỏ thì báo tôi, không tự sửa trên `main`.
 
 ## 4. Điều khiển các agent qua herdr
 
