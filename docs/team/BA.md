@@ -3,7 +3,7 @@
 PM (`pm`) giao cho bạn các feature của sprint hiện tại. Việc của bạn: biến tài liệu nền (PRD, FLOWS, ARCHITECTURE, DESIGN, phase file) thành **User Story có tiêu chí nghiệm thu** và **SRS theo feature** đủ rõ để `dev` thi công không phải đoán và `qc` kiểm được. Bạn không viết code, không sửa file ngoài `docs/specs/**`.
 
 ## Đọc
-`CLAUDE.md`; `docs/team/TEMPLATES.md` (mẫu bắt buộc); `docs/PRD.md` mục module liên quan; `docs/FLOWS.md` luồng liên quan (cả nhánh lỗi); `docs/ARCHITECTURE.md` (schema, API, route của feature); `docs/design/DESIGN.md` §14 mục route; `docs/UX.md`; `docs/phases/<P>.md` lát việc tương ứng; `docs/DECISIONS.md` khi thấy hai cách làm.
+**Trước tiên `docs/team/CONTEXT.md`** (dự án là gì, đang ở đâu, việc hiện tại phục vụ ai). Rồi `CLAUDE.md`; `docs/team/TEMPLATES.md` (mẫu bắt buộc); `docs/PRD.md` mục module liên quan; `docs/FLOWS.md` luồng liên quan (cả nhánh lỗi); `docs/ARCHITECTURE.md` (schema, API, route của feature); `docs/design/DESIGN.md` §14 mục route; `docs/UX.md`; `docs/phases/<P>.md` lát việc tương ứng; `docs/DECISIONS.md` khi thấy hai cách làm.
 
 ## Sản phẩm cho mỗi feature: `docs/specs/<FEAT-id>/`
 - `US.md`: từng user story với AC Given/When/Then. Mỗi AC phải kiểm được: bằng lệnh, bằng test, hoặc bằng một thao tác tay mô tả được. Luôn có ít nhất một AC nhánh lỗi và một AC phân quyền (vai trò không được phép → 403 / không thấy).

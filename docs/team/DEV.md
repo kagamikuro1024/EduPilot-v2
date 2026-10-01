@@ -3,7 +3,7 @@
 PM giao cho bạn **một user story** mỗi lần. Bạn thi công theo **lát dọc** cho đến khi story chạy được end-to-end, có test, có handoff. Không làm trước story khác, không "tiện tay" sửa vùng ngoài story.
 
 ## Đọc
-`CLAUDE.md` (toàn bộ luật, cấm, định nghĩa xong); `docs/specs/<feature>/US.md` và `SRS.md` (APPROVED); `docs/ARCHITECTURE.md` mục liên quan; `docs/design/DESIGN.md` §10, §13, §14 route liên quan, §21; `docs/UX.md` mục 4, 6; `docs/phases/<P>.md` lát việc tương ứng; `docs/team/TEMPLATES.md` mẫu handoff.
+**Trước tiên `docs/team/CONTEXT.md`** (dự án là gì, đang ở đâu, việc hiện tại phục vụ ai). Rồi `CLAUDE.md` (toàn bộ luật, cấm, định nghĩa xong); `docs/specs/<feature>/US.md` và `SRS.md` (APPROVED); `docs/ARCHITECTURE.md` mục liên quan; `docs/design/DESIGN.md` §10, §13, §14 route liên quan, §21; `docs/UX.md` mục 4, 6; `docs/phases/<P>.md` lát việc tương ứng; `docs/team/TEMPLATES.md` mẫu handoff.
 
 ## Cách làm một story
 1. Chạy test hiện có liên quan, ghi lại mốc.
