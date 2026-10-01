@@ -1,5 +1,5 @@
 # QC report — US-P0-01  · Kết luận: PASS
-Story tài liệu, sản phẩm `docs/DEMO_SCRIPT.md` (phiên bản 1). Spec `docs/specs/FEAT-demo-script/US.md`. Không có handoff dev. Chạy 2026-10-01. TC: `docs/sprints/1/qc/tc-US-P0-01.md` (14 TC). Kết quả: `docs/sprints/1/qc/run-US-P0-01.log` — **108 PASS, 0 FAIL**. 9/9 AC PASS.
+Story tài liệu, sản phẩm `docs/DEMO_SCRIPT.md` (phiên bản 1). Spec `docs/specs/FEAT-demo-script/US.md`. Không có handoff dev. Chạy 2026-10-01. TC: `docs/sprints/1/qc/tc-US-P0-01.md` (14 TC). Kết quả: `docs/sprints/1/qc/run-US-P0-01.log` — **109 PASS, 0 FAIL** (chạy lại toàn bộ sau commit `sprint 1: DEMO_SCRIPT BUG-1`). 9/9 AC PASS.
 
 ## Cổng nghiệm thu đã chạy (lệnh nguyên văn trong US.md → PASS/FAIL)
 | AC | Lệnh | Đầu ra | KQ |
@@ -10,7 +10,7 @@ Story tài liệu, sản phẩm `docs/DEMO_SCRIPT.md` (phiên bản 1). Spec `do
 | AC4 | vòng `grep -qF` route ở DESIGN/ARCHITECTURE | không `THIẾU` | PASS |
 | AC5 | `grep -E '^\| [0-9:]+ \| Sinh viên' … \| grep -inE 'RAG\|PII\|…'` | không in gì | PASS |
 | AC6 | vòng 7 khoá | không `THIẾU` | PASS |
-| AC7 | `grep -c '^Nếu hội đồng hỏi'`; vòng `*.spec.ts` | 5; không `THIẾU` | PASS |
+| AC7 | `grep -c '^Nếu hội đồng hỏi'`; vòng `*.spec.ts` | 6 (trước: 5); không `THIẾU` | PASS |
 | AC8 | `grep -cE 'chỉ trả lời được…\|…'` | 4 (≥ 4) | PASS |
 | AC9 | `grep -E '^\| P(1\|…\|10) \|' \| wc -l`; `grep -c '^## 7. Nhật ký chạy lại'` | 8; 1 | PASS |
 
@@ -28,7 +28,7 @@ Story tài liệu, sản phẩm `docs/DEMO_SCRIPT.md` (phiên bản 1). Spec `do
 | AC9 | PASS | Mục 6 có đúng P1–P7, P10; mục 7 có bảng nhật ký 6 cột; mọi phase ở cột Phase đều có yêu cầu ở mục 6 và `docs/phases/Px.md` tồn tại |
 
 ## Lỗi
-- **BUG-1 (rất thấp, trình bày):** Bước 6 (F10) viết "Nếu hội đồng hỏi:" giữa dòng (sau câu "`Chốt điểm` lớp 1 không làm trực tiếp…") chứ không ở đầu dòng như bước 1–5, nên `grep -c '^Nếu hội đồng hỏi'` đếm 5 chứ không phải 6. Nội dung và spec E2E đủ nên AC7 vẫn PASS. Gợi ý (BA): xuống dòng cho nhất quán.
+- **BUG-1 (rất thấp, trình bày) — ĐÃ SỬA:** Bước 6 viết "Nếu hội đồng hỏi" giữa dòng nên lệnh `^Nếu hội đồng hỏi` đếm 5. BA tách thành dòng riêng (commit `sprint 1: DEMO_SCRIPT BUG-1`); chạy lại TC-07: `grep -c '^Nếu hội đồng hỏi'` = 6, cả 6 bước (F2…F10) đều có dòng ở đầu dòng + spec E2E đúng mục flow, không còn dòng `info`. Không lỗi còn mở.
 
 ## Kiểm chéo
 - Dữ liệu cá nhân/secret: mọi email thuộc `@edupilot.local`; không MSSV; không khoá; mật khẩu chỉ nêu bằng tên biến `SEED_DEFAULT_PASSWORD`.
@@ -39,4 +39,4 @@ Story tài liệu, sản phẩm `docs/DEMO_SCRIPT.md` (phiên bản 1). Spec `do
 - Không áp dụng: idempotency, phân trang, migration, 375 px màn mới, diff code.
 
 ## Đề nghị
-PASS, nhận US-P0-01. Gợi ý nhỏ cho BA ở BUG-1.
+PASS, đóng US-P0-01.

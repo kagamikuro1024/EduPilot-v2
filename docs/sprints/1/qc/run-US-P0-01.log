@@ -39,7 +39,7 @@ PASS TC-06: cả 7 khoá nằm trong mục 5 (không chỉ đâu đó trong file
 PASS TC-06: 3 tầng 1/2/3
 PASS TC-06: lệnh bật tầng 2 khớp stack US-P0-02 (--env-file .env.local -f docker-compose.local.yml -p edupilot)
 PASS TC-06: ghi ai bật (Chủ dự án)
-PASS TC-07: ≥ 5 dòng 'Nếu hội đồng hỏi' (5)
+PASS TC-07: ≥ 5 dòng 'Nếu hội đồng hỏi' (6)
 PASS TC-07: mọi *.spec.ts có trong FLOWS (lệnh AC7)
 PASS TC-07: Bước 1 (F2) có 'Nếu hội đồng hỏi'
 PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
@@ -62,6 +62,7 @@ PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
 PASS TC-07: Bước 5 nêu spec E2E: assignment-lifecycle.spec.ts
 PASS TC-07:   assignment-lifecycle.spec.ts nằm trong mục F9 của FLOWS
 PASS TC-07: Bước 6 (F10) có 'Nếu hội đồng hỏi'
+PASS TC-07:   … ở đầu dòng (đếm được bằng lệnh AC7)
 PASS TC-07: Bước 6 nêu spec E2E: gradebook.spec.ts
 PASS TC-07:   gradebook.spec.ts nằm trong mục F10 của FLOWS
 PASS TC-07: mục 5: tầng 2 dùng khi mạng/API LLM lỗi

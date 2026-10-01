@@ -1,7 +1,7 @@
 # QC report — US-P0-03  · Kết luận: PASS
-Nhánh `sprint/1-p0-prep`, spec `docs/specs/FEAT-ci/` v2, handoff `docs/sprints/1/handoff/dev-US-P0-03.md`. Chạy 2026-10-01. TC: `docs/sprints/1/qc/tc-US-P0-03.md` (16 TC). Kết quả: `docs/sprints/1/qc/run-US-P0-03.log` — **70 PASS, 1 FAIL đang chờ** (TC-12 dòng "nhánh `ci/red-check` đã xoá": spec v2 chỉ cho xoá **sau khi QC chấm**, nên FAIL này là trạng thái chờ, không phải lỗi).
+Nhánh `sprint/1-p0-prep`, spec `docs/specs/FEAT-ci/` v2, handoff `docs/sprints/1/handoff/dev-US-P0-03.md`. Chạy 2026-10-01. TC: `docs/sprints/1/qc/tc-US-P0-03.md` (16 TC). Kết quả: `docs/sprints/1/qc/run-US-P0-03.log` — 70 PASS, 1 FAIL chờ (TC-12: nhánh `ci/red-check` chưa xoá; spec v2 chỉ cho xoá sau khi QC chấm). **Cập nhật lần 2 (cổng P0):** nhánh đã xoá, chạy lại TC-12 → `PASS: nhánh ci/red-check đã xoá`, `PASS: không continue-on-error`; `git ls-remote --heads origin` chỉ còn `main` và `sprint/1-p0-prep`. AC4 đã đóng hoàn toàn; không còn FAIL.
 
-> **QC đã chấm xong AC3 và AC4. PM có thể cho dev xoá `ci/red-check`** (`git push origin --delete ci/red-check`). Sau đó chạy lại `tc-US-P0-03.sh TC-12` để chốt `git ls-remote --heads origin ci/red-check` rỗng.
+> AC3 và AC4 đã chấm xong; `ci/red-check` đã xoá và TC-12 PASS.
 
 ## Cổng nghiệm thu đã chạy (lệnh → PASS/FAIL)
 | Lệnh | KQ | Đầu ra chính |
@@ -20,7 +20,7 @@ Nhánh `sprint/1-p0-prep`, spec `docs/specs/FEAT-ci/` v2, handoff `docs/sprints/
 | AC1 | TC-01…04, 06 | PASS | Run của đúng HEAD (`75ddd58`, sau ghim `ubuntu-24.04` — proposals #11) xanh, 2 job, 7 bước khớp. Tĩnh: push (mọi nhánh) + pull_request; Go: `working-directory: backend-go`, `go-version-file`, thứ tự `go vet` < `golangci-lint` < `go test -race`, golangci-lint ghim `v2.14.0`; Frontend: pnpm theo `packageManager` (`pnpm@12.8.1`), Node 24 + cache pnpm, `--frozen-lockfile`, lint/build/antipatterns. Log run có `golangci-lint run` và `go test -race` thật |
 | AC2 | TC-05, 06 | PASS | Không `legacy`/`secrets.`/`_API_KEY`/biến khoá LLM; log run không nhắc `legacy/`, không API key; `GITHUB_TOKEN` chỉ `Contents: read`, `Metadata: read` |
 | AC3 | TC-07, 08, 09 | PASS | Run `36878548063`, `headSha=8deac88…`, nhánh `ci/red-check`: `failure`; `Go failure` ở bước `go test -race` (log có `FAIL`), `Frontend success` chạy hết, không bước bị skipped/cancelled; commit chỉ thêm `backend-go/internal/platform/red_test.go` |
-| AC4 | TC-10, 11, 12 | PASS (chờ xoá nhánh) | Run `36878726051`, `headSha=1efb08a…`: `failure`; `Frontend failure` đúng bước `ui antipatterns` (install/lint/build trước đó `success`); `Go success`; commit xoá `red_test.go` và sửa `frontend/src/app/page.tsx` thêm màu cứng. `continue-on-error` = 0. Phần "`ls-remote` rỗng" chỉ kiểm được sau khi dev xoá nhánh — spec v2 |
+| AC4 | TC-10, 11, 12 | PASS | Run `36878726051`, `headSha=1efb08a…`: `failure`; `Frontend failure` đúng bước `ui antipatterns` (install/lint/build trước đó `success`); `Go success`; commit xoá `red_test.go` và sửa `frontend/src/app/page.tsx` thêm màu cứng. `continue-on-error` = 0. Sau khi dev xoá nhánh: `git ls-remote --heads origin ci/red-check` không in gì (TC-12 PASS) |
 | AC5 | TC-13 | PASS (n/a có ràng buộc thay thế) | `permissions: contents: read` ở mức workflow; không `write` ở đâu; job không ghi đè |
 
 ## Lỗi
@@ -36,4 +36,4 @@ Không có lỗi.
 - Mọi commit tài liệu mới đẩy lên nhánh sẽ sinh run mới; TC-01 luôn chấm run của HEAD tại thời điểm chạy.
 
 ## Đề nghị
-PASS. PM cho dev xoá `ci/red-check`; QC chạy lại `TC-12` để đóng AC4 hoàn toàn.
+PASS, đóng US-P0-03.
