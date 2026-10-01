@@ -1,7 +1,7 @@
 # QC test case — US-PROTO-03 (Đánh giá)
 Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công cụ: **C** = `proto-curl.sh`, **B** = trình duyệt. Đặt lại dữ liệu demo trước chuỗi TC.
 
-**Điểm (SRS 4.1, cộng/nhân bằng số nguyên phần trăm, làm tròn nửa lên ở cuối).** Con số BT03 / QT B sau công bố đang mâu thuẫn rubric: xem proposals #13. TC chấm theo spec hiện hành (BT03 = 8,5; QT B = 8,8); khi PM quyết thì sửa TC-03-04, TC-01-19, TC-DEMO-05 theo số mới (dẫn số proposal).
+**Điểm (SRS 4.1, cộng/nhân bằng số nguyên phần trăm, làm tròn nửa lên ở cuối).** Con số BT03 / QT B sau công bố đang mâu thuẫn rubric: xem proposals #13. Đã cập nhật theo spec v3 (proposals #13): BT03 công bố = 8,0 (tổng 8,5 trừ muộn 0,5); QT B sau công bố = 8,7.
 
 | TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
 | --- | --- | --- | --- | --- |
@@ -11,8 +11,8 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công c�
 | TC-03-04 | AC2 | – | **B** Mở bài B (`/grading/sub-bt03-sv-2`) | Văn bản 2 trang bên trái; bên phải 4 tiêu chí (điểm AI, đoạn trích, nhận xét); thông báo vàng "Hai lượt chấm lệch 1,5 điểm" ở tiêu chí 2; dòng trừ nộp muộn −0,5; tổng hiện tại khớp lượt chấm |
 | TC-03-05 | AC2 | – | **B** Sửa tiêu chí 2 thành 2,5 (bước 0,25: thử 2,6 → bị chặn/làm tròn; 3,0 → trên trần 2,5 bị chặn); sửa một nhận xét | Tổng tính lại **ngay** khi sửa; không cho vượt trần 2,5; nhận xét sửa giữ lại sau reload |
 | TC-03-06 | AC2 | Sau TC-03-05 | **B** `Duyệt bài` | Trạng thái đã duyệt; quay về hàng chờ **giữ vị trí**; thông báo vàng không chặn `Duyệt bài` (SRS mục 3) |
-| TC-03-07 | AC2 | Sau TC-03-06 | **B** Chọn bài đã duyệt → `Công bố` | Dialog xác nhận có hậu quả; sau xác nhận: đã công bố; tổng **8,5 (đã trừ nộp muộn 0,5)** theo spec; sổ điểm có BT03 của B |
-| TC-03-08 | AC2 | Sau TC-03-07 | **B** Đổi vai B → `/assignments/bt03`, `/me` | Có điểm và nhận xét; `/me` QT = **8,8** (theo spec; xem proposals #13) |
+| TC-03-07 | AC2 | Sau TC-03-06 | **B** Chọn bài đã duyệt → `Công bố` | Dialog xác nhận có hậu quả; sau xác nhận: đã công bố; tổng các tiêu chí 8,5, trừ nộp muộn 0,5 → công bố **8,0** (SRS 4.1 v3); sổ điểm có BT03 của B |
+| TC-03-08 | AC2 | Sau TC-03-07 | **B** Đổi vai B → `/assignments/bt03`, `/me` | Có điểm 8,0 và nhận xét; `/me` QT = **8,7** (SRS 4.1 v3) |
 | TC-03-09 | AC2 / SRS mục 3 | – | **B** Chỉ GV thấy `Công bố`; người duyệt khác (TA) | `Công bố` có ở GV; TA thấy "Chỉ giảng viên công bố điểm" |
 | TC-03-10 | AC3 | – | **B** GV đổi lớp 2 → `/gradebook` | Banner cố định "công thức điểm chưa xác nhận"; `Chốt điểm` khoá, lý do hiện khi rê chuột **và khi focus bàn phím** |
 | TC-03-11 | AC3 | Lớp 2, `/gradebook/scheme` | **B** Xem bản nháp | QT 30% / CK 70%, +0,2/lần phát biểu trần +0,6, −0,5/buổi vắng từ buổi thứ 3; mỗi mục cạnh trích dẫn có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận |
@@ -20,7 +20,7 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công c�
 | TC-03-13 | AC3 | Sau TC-03-12 | **B** Về `/gradebook` lớp 2 | Hết banner; `Chốt điểm` mở |
 | TC-03-14 | AC3 (nhánh) | – | **B** `/gradebook/scheme` lớp 2, chưa điền D5, bấm `Xác nhận công thức` bằng bàn phím | Bị khoá, nêu lý do; không mở hộp xác nhận |
 | TC-03-15 | AC4 | Lớp 1 `/gradebook` | **B** Mở giải trình hàng B (trước khi US-02 điểm danh) | TB bài tập 7,5 + cộng 0,75 = 8,25 → **8,3**; chuyên cần 2 vắng/9 buổi (không bị trừ); ghi chú "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường" |
-| TC-03-16 | AC4 | Sau điểm danh + công bố | **B** Giải trình B | Thành phần có +0,25 từ điểm danh (tổng cộng 1,0 = trần) và BT03; QT 8,8 (spec) |
+| TC-03-16 | AC4 | Sau điểm danh + công bố | **B** Giải trình B | Thành phần có +0,25 từ điểm danh (tổng cộng 1,0 = trần) và BT03; QT 8,7 (spec v3) |
 | TC-03-17 | AC4 | – | **B** Hàng C (`Lê Quang Huy`) | Vắng 5/9 buổi → trừ 1,5 (= (5−2) × 0,5), thiếu BT02 |
 | TC-03-18 | AC4 | – | **B** Menu → `Xuất XLSX` | "Đã tạo file sổ điểm (mô phỏng)"; không tải file thật; menu overflow (không nút phụ thứ 3) |
 | TC-03-19 | AC5 (nhánh lỗi) | `/documents` | **B** Tải "scan-khong-co-chu.pdf" | Tiến độ → FAILED "File không có lớp chữ, không đọc được" (nói vấn đề + cách khắc phục) |
@@ -46,8 +46,8 @@ TC-03-09, 22, 23, 26 (chỉ TEACHER công bố / xác nhận công thức / ch�
 - Phản mẫu §21: `/gradebook` không tường KPI; Dialog chỉ cho `Công bố`, `Chốt điểm`, `Xác nhận công thức` (danh sách trắng); không toast "Thành công!".
 
 ## Điểm khó kiểm
-- Con số BT03/QT: proposals #13 chưa quyết.
+- Con số BT03/QT: đã chốt theo proposals #13 (v3: BT03 = 8,0; QT = 8,7).
 - Bảng dài 30 hàng: kiểm tràn chữ ở 1440 px và 390 px bằng ảnh.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
-(chưa có)
+- 2026-10-01 · TC-03-07, 08, 16: Cập nhật BT03 công bố = 8,0 và QT sau công bố = 8,7 theo spec v3 (proposals #13).

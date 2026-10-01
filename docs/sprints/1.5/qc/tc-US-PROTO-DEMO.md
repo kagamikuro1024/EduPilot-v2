@@ -30,14 +30,14 @@ Công cụ: **B** trình duyệt (Eval `browser`, `scripts/demo-run.mjs` khi d�
 | TC-DEMO-23 | 5 · 08:35 | Giảng viên | Mở bài B; sửa điểm tiêu chí lệch; sửa một nhận xét | Thông báo vàng tại tiêu chí 2; mỗi tiêu chí có đoạn trích; tổng tính lại ngay |
 | TC-DEMO-24 | 5 · 09:05 | Giảng viên | `Duyệt bài` | Đã duyệt |
 | TC-DEMO-25 | 5 · 09:15 | Giảng viên | `/grading` → bài vừa duyệt → `Công bố` | Đã công bố; chỉ TEACHER thấy hành động này |
-| TC-DEMO-26 | 5 · 09:35 | B 390 | `/assignments/bt03` tải lại | Điểm 8,5 (theo spec; proposals #13), nhận xét theo tiêu chí, đoạn trích từ bài của B; `/me` QT **8,8** (8,5 → 8,8) |
+| TC-DEMO-26 | 5 · 09:35 | B 390 | `/assignments/bt03` tải lại | Điểm 8,0 (spec v3; proposals #13), nhận xét theo tiêu chí, đoạn trích từ bài của B; `/me` QT **8,7** (8,5 → 8,7) |
 | TC-DEMO-27 | 6 · 10:00 | Giảng viên | `/gradebook` lớp 2 | Banner "công thức điểm chưa xác nhận"; `Chốt điểm` khoá, lý do khi rê / focus |
 | TC-DEMO-28 | 6 · 10:15 | Giảng viên | `/gradebook/scheme` lớp 2, tải `seed/demo/quy-che-lop2.pdf` | Tiến độ xử lý nền; bản nháp: thành phần, trọng số, điểm cộng, mỗi mục cạnh đoạn trích có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận |
 | TC-DEMO-29 | 6 · 10:55 | Giảng viên | Điền D5 → `Xác nhận công thức` → xác nhận trong hộp thoại | Đã xác nhận |
 | TC-DEMO-30 | 6 · 11:15 | Giảng viên | `/gradebook` lớp 2 | Banner biến mất; `Chốt điểm` mở |
-| TC-DEMO-31 | 6 · 11:25 | Giảng viên | `/gradebook` lớp 1, mở giải trình hàng B | Có +0,25 từ bước 4 và điểm BT03 từ bước 5; dòng "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường"; QT 8,8 |
+| TC-DEMO-31 | 6 · 11:25 | Giảng viên | `/gradebook` lớp 1, mở giải trình hàng B | Có +0,25 từ bước 4 và điểm BT03 từ bước 5; dòng "điểm chính thức nằm ở hệ thống quản lý đào tạo của trường"; QT 8,7 |
 | TC-DEMO-32 | 6 · 11:45 | Giảng viên | `Xuất XLSX` (menu) | "Đã tạo file sổ điểm (mô phỏng)" có dòng ghi chú điểm chính thức |
-| TC-DEMO-33 | 6 · What-if | B 390 | `/me`: What-if CK = 8,0 | **8,3** (0,4 × 8,8 + 0,6 × 8,0; SRS 4.1) |
+| TC-DEMO-33 | 6 · What-if | B 390 | `/me`: What-if CK = 8,0 | **8,3** (0,4 × 8,7 + 0,6 × 8,0; SRS 4.1) |
 | TC-DEMO-34 | 7 · 12:00 | Giảng viên | `/insights` lớp 1 → `Tạo báo cáo mới` | Tiến độ; chủ đề A, B đứng đầu, mỗi chủ đề lý do + tín hiệu |
 | TC-DEMO-35 | 7 · 12:35 | Giảng viên | Mở câu mẫu chủ đề A | 3–5 câu đã ẩn danh, không tên / MSSV; chủ đề < 3 SV không có câu mẫu |
 | TC-DEMO-36 | 7 · 12:50 | Giảng viên | `Tạo thread ghim` | Thread ghim mới ở `/threads` lớp 1 (kiểm bằng vai B) |
@@ -49,7 +49,7 @@ Công cụ: **B** trình duyệt (Eval `browser`, `scripts/demo-run.mjs` khi d�
 | --- | --- | --- |
 | QT B lúc 09:20 | **8,3** | TC-01-16, TC-03-15 |
 | Sau điểm danh | **8,5** | TC-DEMO-19, TC-02-10 |
-| Sau công bố BT03 | **8,8** (8,5 = 9,0 − 0,5 theo spec; mâu thuẫn rubric → proposals #13) | TC-DEMO-26, TC-03-08 |
+| Sau công bố BT03 | **8,7** (BT03 8,0 = 8,5 − 0,5 theo spec v3; proposals #13) | TC-DEMO-26, TC-03-08 |
 | What-if CK 8,0 | **8,3** | TC-DEMO-33, TC-01-17 |
 
 ## Quy tắc kiểm áp dụng ở mọi bước
@@ -69,4 +69,4 @@ Mạng/AI hỏng (tầng 2/3 của DEMO_SCRIPT mục 5) không có trong prototy
 - Bỏ bước Mailpit 05:55 (FR-X7) và các nhánh "Nếu hội đồng hỏi" (không có trong prototype).
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
-(chưa có)
+- 2026-10-01 · TC-DEMO-26, 31, 33 và bảng kiểm số: Cập nhật BT03 công bố = 8,0 và QT sau công bố = 8,7 theo spec v3 (proposals #13).

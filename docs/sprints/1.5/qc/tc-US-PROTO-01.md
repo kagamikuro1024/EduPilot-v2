@@ -20,9 +20,9 @@ Câu nhập nguyên văn D1–D3: `docs/DEMO_SCRIPT.md` mục 3 với `{HO_TEN_B
 | TC-01-14 | AC6 | – | **B** Viewport 375 × 812: đi lần lượt các route của US | Không cuộn ngang; vùng chạm ≥ 44 px (sweep `nSmall = 0`); bottom nav ≤ 5 đích; lịch sử chat ẩn; ảnh `shots/` 375 |
 | TC-01-15 | AC6 | – | **B** 375 px: Dialog hai lối, Drawer "Thêm", `/calendar` | Dialog / Drawer vừa màn hình, không tràn; `/calendar` mặc định **Danh sách** |
 | TC-01-16 | AC7 | B ở `/me` | **B** Đọc `/me` | "Điểm quá trình hiện tại 8,3 (tạm tính)"; giải trình TB bài tập 7,5 + cộng 0,75 = 8,25 → 8,3; 2 vắng / 9 buổi; QUIZ01, giữa kỳ 05/11; dòng "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường"; **không** nhãn rủi ro / ghi chú / điểm nháp |
-| TC-01-17 | AC7 | – | **B** What-if: nhập 8,0 → 11 → −1 → "abc" → xoá trống | 8,0 → "8,3"; 11, −1, abc → lỗi **tại ô** (không alert, không mất chữ); trống → không lỗi giả. 8,0 với QT 8,8 (sau công bố) cũng ra 8,3 |
+| TC-01-17 | AC7 | – | **B** What-if: nhập 8,0 → 11 → −1 → "abc" → xoá trống | 8,0 → "8,3"; 11, −1, abc → lỗi **tại ô** (không alert, không mất chữ); trống → không lỗi giả. 8,0 với QT 8,7 (sau công bố) cũng ra 8,3 |
 | TC-01-18 | AC7 | Sau TC-02-03 (điểm danh) | **B** `/me` của B | QT = 8,5 |
-| TC-01-19 | AC7 (xem proposals #13) | Sau TC-03-02 (công bố BT03) | **B** `/me` của B | QT = 8,8 theo spec hiện hành (nếu PM chọn phương án (b) của #13 → 8,7; TC sửa theo quyết định đó) |
+| TC-01-19 | AC7 (xem proposals #13) | Sau TC-03-02 (công bố BT03) | **B** `/me` của B | QT = 8,7 (SRS 4.1 v3; proposals #13) |
 | TC-01-20 | AC7 | – | **B** SV A đổi sang lớp 2 ở `/me` | "Lớp này chưa có công thức điểm chính thức" thay phần giải trình |
 | TC-01-21 | AC8 (nhánh lỗi) | D, `/join` | **B** Nhập `ABCDEFG` | "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên." — cùng câu cho mã sai chữ, mã hết hạn, mã rỗng (không lộ lý do) |
 | TC-01-22 | AC8 | – | **B** Nhập sai 5 lần liên tiếp | "Thử lại sau 10 phút" |
@@ -55,4 +55,4 @@ TC-01-25, 26 (AC9, ma trận SRS 2); TC-01-13 (SV không thấy nhãn rủi ro /
 - Bước Mailpit bỏ (FR-X7): AC3 chỉ kiểm dòng xác nhận mô phỏng.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
-(chưa có)
+- 2026-10-01 · TC-01-17, 19: Cập nhật QT sau công bố = 8,7; What-if CK 8,0 = 8,3 theo spec v3 (proposals #13).
