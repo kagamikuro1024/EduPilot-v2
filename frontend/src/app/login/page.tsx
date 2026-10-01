@@ -12,6 +12,7 @@ export default function LoginPage() {
       <h1 className="ep-page-title">Đăng nhập</h1>
       <p className={s.lede}>Đây là bản mô phỏng: mọi dữ liệu đều là giả. Chọn một tài khoản để xem EduPilot theo vai trò đó.</p>
       <LoginChoices />
+      <p className={s.foot}>Bản mô phỏng · dữ liệu giả</p>
     </main>
   );
 }

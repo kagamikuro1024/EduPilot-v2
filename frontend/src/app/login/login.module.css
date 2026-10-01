@@ -33,3 +33,4 @@
 .back { display: inline-flex; align-items: center; gap: var(--ep-space-1); width: fit-content; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; }
 .back:hover { color: var(--ep-ink); }
 .back svg { width: 16px; height: 16px; }
+.foot { margin-top: var(--ep-space-8); font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-3); }

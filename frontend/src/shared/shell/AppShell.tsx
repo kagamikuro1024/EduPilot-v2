@@ -167,7 +167,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       icon: !isAll && c.id === course.id ? <Check aria-hidden /> : <span className={s.iconGap} />,
                       onSelect: () => setCourse(c.id),
                     })),
-                    ...(role !== "student"
+                    ...(role === "teacher"
                       ? [
                           {
                             label: "Tất cả lớp của tôi",
@@ -326,6 +326,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Popover>
         </div>
       </header>
+
+      <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
 
       <main id="main" className={s.main} tabIndex={-1}>
         {canOpen(role, pathname) ? (

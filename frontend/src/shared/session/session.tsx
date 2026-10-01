@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useMemo, useState } from "react";
-import { COURSES, STAFF, STUDENTS, type Course, type Person, type Role } from "@/mock/core";
+import { COURSES, COURSE_1, STAFF, STUDENTS, type Course, type Person, type Role } from "@/mock/core";
 import { KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
 import { useDemoSlice } from "@/shared/state/demo";
 import { ALL_COURSES, COURSE_COOKIE, PERSON_COOKIE, ROLE_COOKIE, writeDemoCookie } from "./cookies";
@@ -15,7 +15,7 @@ type Session = {
   course: Course;
   /** các lớp người này có (SV: theo thành viên thật, kể cả vừa được duyệt) */
   courses: Course[];
-  /** GV / TA chọn "Tất cả lớp của tôi" */
+  /** GV chọn "Tất cả lớp của tôi" */
   isAll: boolean;
   /** false với SV chưa vào lớp nào (D) */
   hasCourse: boolean;
@@ -68,9 +68,10 @@ export function SessionProvider({
   const value = useMemo<Session>(() => {
     const student = STUDENTS.find((s) => s.id === personId) ?? STUDENTS[1];
     const user: Person = role === "student" ? { id: student.id, name: student.name, email: student.email } : STAFF[role];
-    const ids = role === "student" ? studentCourseIds(student.id, members) : COURSES.map((c) => c.id);
+    // TA chỉ phụ trách lớp 1 (SRS 4.1); GV phụ trách cả hai; Admin thấy tất cả.
+    const ids = role === "student" ? studentCourseIds(student.id, members) : role === "ta" ? [COURSE_1] : COURSES.map((c) => c.id);
     const courses = COURSES.filter((c) => ids.includes(c.id));
-    const isAll = courseId === ALL_COURSES && role !== "student" && role !== "admin";
+    const isAll = courseId === ALL_COURSES && role === "teacher";
     const course = courses.find((c) => c.id === courseId) ?? courses[0] ?? COURSES[0];
     return { role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, switchTo, setCourse };
   }, [role, personId, courseId, members, switchTo, setCourse]);
