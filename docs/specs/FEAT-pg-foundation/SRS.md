@@ -1,7 +1,9 @@
 # SRS FEAT-pg-foundation Nền Go: gateway không trạng thái cho mọi phase sau
-Phiên bản 1.1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**)
+Phiên bản 1.2 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**; v1.2 trả lời câu hỏi QC)
 
 Lịch sử phiên bản: v1 (2026-10-02, BA viết). **v1.1 (2026-10-02)** — góp ý #1 `docs/sprints/2/proposals.md` (PM chốt, `ACCEPTED` 01/10): "Khoá bằng **build tag `testroutes`**: file đăng ký route thử có `//go:build testroutes`; Dockerfile có target riêng `gateway-test` (`go build -tags testroutes`); compose dùng target đó qua override `docker-compose.test.yml` cho QC. Binary/image mặc định không chứa route thử. AC18 của US-PG-03 đổi thành: image mặc định → mọi `/api/v1/_test/*` 404; `go tool nm` của binary mặc định không có symbol của gói route thử." Mục đổi: 1 (phạm vi), 2 (ma trận quyền), 4 (FR-35, FR-64, thêm FR-69), 6.3, 8.1 (`APP_ENV`), 8.4–8.5, 9.1, 9.4, 10, 11 (truy vết, rủi ro 11). Hệ quả BA bổ sung (PM xem lại nếu không đồng ý): thêm target `worker-test` vì job `test.progress` / `test.fail` do worker xử lý; binary có tag từ chối khởi động khi `APP_ENV=production`.
+
+**v1.2 (2026-10-02)** — trả lời 43 câu hỏi QC (`docs/sprints/2/qc/questions.md`, cột trả lời; trích "QC questions #n" ở từng chỗ sửa). Không đổi số AC (105) và số FR (69). **CORS (PM chốt):** `Access-Control-Allow-Credentials: true` kèm danh sách origin từ env **`CORS_ORIGINS`** (đổi tên từ `APP_CORS_ALLOWED_ORIGINS`), không bao giờ `*` — mục 4.3 FR-27, 6.7, 8.1 (QC questions #Q-QC-03-1). Mục khác: 3.1 và 3.4 (thứ tự middleware; tên phụ thuộc — #Q-QC-01-6, #Q-QC-01-7, #Q-QC-04-3), 4.1 FR-2 (cấu hình theo vai — #Q-QC-01-1), 6.1 (message 401 cố định, `retry_after` của `SSE_LIMIT_REACHED` — #Q-QC-04-6, #Q-QC-05-5), 6.3 (hành vi route thử: `owner_id`, 201, `steps`/`kind`, lỗi `events` — #Q-QC-03-2…4, #Q-QC-05-1…3), 6.5 (ETag danh sách — #Q-QC-03-6), 6.8 (`resync` hai `reason`, `Last-Event-ID` rỗng — #Q-QC-05-4), 8.1 (`BLOB_*` chỉ gateway, `BLOB_PUBLIC_ENDPOINT` dev, `BCRYPT_COST` — #Q-QC-01-1, #Q-QC-02-5, #Q-QC-04-4), 8.4 (`migrate` có `entrypoint` — #Q-QC-02-1, #Q-QC-07-1), 9.4 (Makefile `lint-depguard-negative` — #Q-QC-06-3). Hệ quả cho dev: `.env.example`, `ARCHITECTURE.md` mục env (dòng `APP_CORS_ALLOWED_ORIGINS`) phải đổi sang `CORS_ORIGINS` (PM / dev đồng bộ; BA không sửa `ARCHITECTURE.md`). Bốn câu để PM chốt, giữ cách hiện hành: #Q-QC-07-2, #Q-QC-07-3, #Q-QC-GATE-1, #Q-QC-GATE-2.
 
 Nguồn: `docs/phases/PG.md` (nguồn chính), `docs/sprints/2/plan.md`, `ARCHITECTURE.md` §2 §3 §4 §5 §8, `SYSTEM_DESIGN.md` §2 §3.2 §3.3 §3.4 §5, `DECISIONS.md` D22 D45–D48 D52, luật 10–15 `AGENTS.md`; mã hiện có: `backend-go/` (sprint 1), `docker-compose.local.yml`, `.github/workflows/ci.yml`. Truy vết đầy đủ: mục 11. Story: `US.md` (US-PG-01…07, 105 AC).
 
@@ -46,7 +48,7 @@ flowchart LR
   H --> OS[(MinIO)]
 ```
 
-Thứ tự middleware cố định (như hình). `/healthz` và `/api/v1/healthz` đi qua `recover`, `access log`, nhưng bỏ `rate limit`; chúng không gọi DB/Redis.
+Thứ tự middleware cố định (như hình): giới hạn thân (413) chạy **trước** kiểm `Idempotency-Key` (422) và xác thực chạy **trước** RBAC và `CourseAccessGuard` — nên ẩn danh vào route có guard nhận 401, không phải 403. `/healthz` và `/api/v1/healthz` đi qua `recover`, `access log`, nhưng bỏ `rate limit`; chúng không gọi DB/Redis.
 
 ### 3.2 Outbox → worker
 
@@ -104,7 +106,7 @@ sequenceDiagram
 | --- | --- | --- |
 | Thiếu biến bắt buộc | Thoát mã 1 trước khi mở cổng; log `missing:[…]` (chỉ tên) | Tên biến thiếu |
 | Giá trị biến sai | Thoát mã 1; log tên + lý do, không in giá trị | `JWT_SECRET_KEY: cần ≥ 32 byte` |
-| DB/Redis chưa lên lúc khởi động | Thử lại mỗi 1 s tới `STARTUP_TIMEOUT` rồi thoát mã 1 nêu tên phụ thuộc | Log `warn` từng giây |
+| DB/Redis chưa lên lúc khởi động | Thử lại mỗi 1 s tới `STARTUP_TIMEOUT` rồi thoát mã 1 nêu tên phụ thuộc (trường log `dependency` = `db` \| `redis`) | Log `warn` `dependency not ready` từng giây |
 | DB/Redis mất khi đang chạy | Không thoát; `readyz` 503 `NOT_READY`; rate limit fail-open; endpoint cần Idempotency-Key 503 | `details:{redis:"down"}` |
 | Request quá `REQUEST_TIMEOUT` hoặc client ngắt | Huỷ ctx → huỷ truy vấn DB / lệnh Redis | 504 `DEADLINE_EXCEEDED` |
 | Thân quá `MAX_BODY_BYTES` | Cắt đọc, đóng kết nối sau trả lời | 413 `PAYLOAD_TOO_LARGE` |
@@ -128,7 +130,7 @@ Cột AC trỏ `<story>-AC<n>` trong `US.md`.
 | FR | Hệ thống phải… | AC |
 | --- | --- | --- |
 | FR-1 | Có `backend-go` theo `ARCHITECTURE.md` §2, Go 1.27 (D48): `cmd/gateway` (lệnh con `serve` mặc định, `migrate`, `token`, cờ `-healthcheck`), `cmd/worker` (cờ `-healthcheck`) | 01-AC1, 01-AC12 |
-| FR-2 | Đọc cấu hình từ env qua một hàm duy nhất, mặc định dev cho biến không bắt buộc (mục 8.1), kiểm lúc khởi động: thiếu biến bắt buộc hoặc giá trị sai → thoát mã 1 **trước khi mở cổng**, nêu **tên** biến và lý do, không in giá trị; liệt kê đủ mọi biến thiếu cùng lúc | 01-AC1, 01-AC2 |
+| FR-2 | Đọc cấu hình từ env qua một hàm duy nhất theo vai (`gateway` \| `worker`: tập biến bắt buộc khác nhau, mục 8.1), mặc định dev cho biến không bắt buộc, kiểm lúc khởi động: thiếu biến bắt buộc hoặc giá trị sai (kể cả `BCRYPT_COST` ngoài 4–14, `CORS_ORIGINS` chứa `*`) → thoát mã 1 **trước khi mở cổng**, nêu **tên** biến và lý do, không in giá trị; liệt kê đủ mọi biến thiếu cùng lúc | 01-AC1, 01-AC2 |
 | FR-3 | Ghi đúng một dòng `config loaded` (giá trị hiệu lực của biến không bí mật, `db_via`, `"secrets":"[redacted]"`) và dòng `gateway ready` có `startup_ms` | 01-AC3, 07-AC8, 07-AC15 |
 | FR-4 | Log `slog` JSON ra stdout; mọi dòng có `time, level, msg, service, instance, trace_id`; `trace_id` 32 hex khác 0 (mọi tiến trình có span gốc: khởi động, dừng, mỗi nhịp worker, mỗi tin consumer); không PII, không thân request, không token | 01-AC4 |
 | FR-5 | Dùng OpenTelemetry: tôn trọng `traceparent` đến; tạo span HTTP và span cho mỗi truy vấn DB; xuất OTLP/HTTP khi có `OTEL_EXPORTER_OTLP_ENDPOINT`, không thì chỉ sinh id; `trace_id` có trong mọi thân lỗi và header `X-Request-Id` | 01-AC4, 01-AC5, 03-AC1 |
@@ -163,7 +165,7 @@ Cột AC trỏ `<story>-AC<n>` trong `US.md`.
 | --- | --- | --- |
 | FR-25 | Router `chi` v5 dưới `/api/v1`; middleware theo thứ tự mục 3.1; `X-Request-Id`, `X-Instance-Id` trên mọi response | 03-AC1 |
 | FR-26 | `recover`: panic → 500 `INTERNAL` chung, log stack; không nuốt `http.ErrAbortHandler` | 03-AC2 |
-| FR-27 | CORS theo `APP_CORS_ALLOWED_ORIGINS` (mục 6.7); không bao giờ `*`; `Vary: Origin` | 03-AC3 |
+| FR-27 | CORS theo `CORS_ORIGINS` (mục 6.7): origin nằm trong danh sách → `Allow-Origin` = origin đó **và** `Allow-Credentials: true`; origin lạ → không có cả hai; không bao giờ `*`; `Vary: Origin` | 03-AC3 |
 | FR-28 | Lỗi thống nhất `{code, message, details?, retry_after?, trace_id}` + bảng mã → status (mục 6.1); 404/405 JSON; `message` tiếng Việt, không lộ nội bộ | 03-AC4 |
 | FR-29 | Validation (`go-playground/validator`) → 422 `VALIDATION_FAILED` liệt kê mọi lỗi dạng `{field, code, message}`; JSON hỏng 400; trường lạ 422; `Content-Type` sai 415 | 03-AC5 |
 | FR-30 | Rate limit trên Redis (mục 5.6): theo IP và theo người dùng, cửa sổ phút, dùng chung giữa các bản; miễn health; fail-open khi Redis chết | 03-AC6, 03-AC7 |
@@ -367,9 +369,9 @@ Mọi đường dẫn nghiệp vụ nằm dưới `/api/v1`; JSON `application/j
 | Status | `code` | Khi nào | `details` |
 | --- | --- | --- | --- |
 | 400 | `BAD_REQUEST` | JSON hỏng, tham số không đọc được | — |
-| 401 | `UNAUTHENTICATED` | Thiếu / sai kiểu header `Authorization` | — |
-| 401 | `TOKEN_EXPIRED` | JWT hết hạn (quá leeway) | — |
-| 401 | `TOKEN_INVALID` | Chữ ký, thuật toán, `iss`, `aud`, `nbf`, claim sai | — |
+| 401 | `UNAUTHENTICATED` | Thiếu / sai kiểu header `Authorization` (tên scheme `Bearer` không phân biệt hoa thường). `message` cố định: "Bạn cần đăng nhập để tiếp tục." | — |
+| 401 | `TOKEN_EXPIRED` | JWT hết hạn (quá leeway). `message` cố định: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại." | — |
+| 401 | `TOKEN_INVALID` | Chữ ký, thuật toán, `iss`, `aud`, `nbf`, claim sai. `message` cố định: "Phiên đăng nhập không hợp lệ." | — |
 | 403 | `FORBIDDEN` | Sai vai trò / ngoài lớp | `{"reason":"role"}` hoặc `{"reason":"course"}` |
 | 404 | `NOT_FOUND` | Không có route / tài nguyên / không có quyền biết | — |
 | 405 | `METHOD_NOT_ALLOWED` | Sai method (kèm `Allow`) | — |
@@ -383,7 +385,7 @@ Mọi đường dẫn nghiệp vụ nằm dưới `/api/v1`; JSON `application/j
 | 422 | `IDEMPOTENCY_KEY_REUSED` | Cùng khoá, thân khác | — |
 | 422 | `IDEMPOTENCY_KEY_REQUIRED` | Thiếu header ở endpoint bắt buộc | — |
 | 429 | `RATE_LIMITED` | Quá hạn mức (kèm `Retry-After`, `retry_after`) | — |
-| 429 | `SSE_LIMIT_REACHED` | Quá `SSE_MAX_PER_USER` | — |
+| 429 | `SSE_LIMIT_REACHED` | Quá `SSE_MAX_PER_USER` (kèm `Retry-After: 5`, `retry_after: 5`) | — |
 | 500 | `INTERNAL` | Lỗi không lường / panic | — |
 | 503 | `SERVICE_UNAVAILABLE` | Phụ thuộc hỏng khi bắt buộc (Redis cho Idempotency, guard resolver, SSE) | — |
 | 503 | `NOT_READY` | `readyz` khi DB/Redis hỏng hoặc đang tắt | `{"db":"up|down","redis":"up|down","draining":bool}` |
@@ -409,10 +411,10 @@ Mô tả trong `backend-go/api/openapi.test.yaml`. Mã nằm trong gói `interna
 
 | # | Method + đường dẫn | Quyền | Dùng để kiểm |
 | --- | --- | --- | --- |
-| 1 | `GET /api/v1/_test/items?cursor&limit` | đăng nhập | Phân trang (6.4), ETag danh sách |
-| 2 | `POST /api/v1/_test/items` (`Idempotency-Key` **bắt buộc**) | đăng nhập | Idempotency, validation, 413/415 |
-| 3 | `GET /api/v1/_test/items/{id}` | đăng nhập | ETag / 304 |
-| 4 | `PUT /api/v1/_test/items/{id}` | đăng nhập | Khoá lạc quan / `If-Match` |
+| 1 | `GET /api/v1/_test/items?cursor&limit` | đăng nhập; chỉ trả bản ghi có `owner_id` = `sub` của người gọi | Phân trang (6.4), ETag danh sách |
+| 2 | `POST /api/v1/_test/items` (`Idempotency-Key` **bắt buộc**) → **201** + `Location: /api/v1/_test/items/<id>` | đăng nhập; `owner_id` = `sub` | Idempotency, validation, 413/415 |
+| 3 | `GET /api/v1/_test/items/{id}` | đăng nhập; bản ghi của người khác → 404 | ETag / 304 |
+| 4 | `PUT /api/v1/_test/items/{id}` (`version` trong thân hoặc `If-Match`; thiếu → 422 `VALIDATION_FAILED`, `field="version"`) | đăng nhập; bản ghi của người khác → 404 | Khoá lạc quan / `If-Match` |
 | 5 | `GET /api/v1/_test/slow?ms=` | ẩn danh | Tắt êm (request chậm) |
 | 6 | `GET /api/v1/_test/db-sleep?seconds=` | ẩn danh | Deadline xuống DB |
 | 7 | `GET /api/v1/_test/redis-block?seconds=` | ẩn danh | Deadline xuống Redis |
@@ -422,8 +424,8 @@ Mô tả trong `backend-go/api/openapi.test.yaml`. Mã nằm trong gói `interna
 | 11 | `GET /api/v1/_test/rbac/admin` | ADMIN | RBAC |
 | 12 | `GET /api/v1/_test/rbac/staff` | TEACHER, TA | RBAC |
 | 13 | `GET /api/v1/_test/courses/{courseId}/ping` | qua `CourseAccessGuard` | Guard |
-| 14 | `POST /api/v1/_test/jobs` `{"steps":n,"kind":"test.progress"|"test.fail"}` | đăng nhập | Việc dài 202 |
-| 15 | `POST /api/v1/_test/events` `{"type","data","user_id"?}` | đăng nhập; chỉ phát cho **chính mình** (ADMIN có thể chỉ định `user_id`) | Phát SSE |
+| 14 | `POST /api/v1/_test/jobs` `{"steps":n,"kind":"test.progress"\|"test.fail"}` — `steps` nguyên 1..100 (mặc định 4), `kind` mặc định `test.progress`; sai → 422 `VALIDATION_FAILED` (`field="steps"` / `"kind"`) | đăng nhập | Việc dài 202 |
+| 15 | `POST /api/v1/_test/events` `{"type","data","user_id"?}` — `type` sai định dạng hoặc `data` > 64 KiB (byte) → 422 `VALIDATION_FAILED` (`field="type"` / `"data"`) | đăng nhập; phát cho **chính mình**; `user_id` khác mình: ADMIN được, người khác → 403 `FORBIDDEN` (`details.reason="role"`) | Phát SSE |
 
 ### 6.4 Cursor
 
@@ -438,7 +440,7 @@ Mô tả trong `backend-go/api/openapi.test.yaml`. Mã nằm trong gói `interna
 | `X-Instance-Id` | ra | Tên container (`INSTANCE_ID`, mặc định hostname) |
 | `Retry-After` | ra | 429 / 503 / 409 `IDEMPOTENCY_IN_PROGRESS` (giây) |
 | `X-RateLimit-Limit`, `X-RateLimit-Remaining` | ra | Trên mọi response bị giới hạn |
-| `ETag`, `If-None-Match`, `If-Match` | cả hai | `W/"v<version>"` cho tài nguyên có `version`; `W/"<base64url 16 ký tự sha256 thân>"` cho danh sách |
+| `ETag`, `If-None-Match`, `If-Match` | cả hai | `W/"v<version>"` cho tài nguyên có `version`; cho danh sách: `W/"<base64url 16 ký tự đầu của sha256 toàn bộ byte thân JSON trả về>"` (gồm `items` và `next_cursor`) — đổi khi và chỉ khi thân đổi |
 | `Idempotency-Key` | vào | 8–128 ký tự `[A-Za-z0-9._:-]` |
 | `Idempotent-Replayed` | ra | `true` khi phát lại |
 | `Location` | ra | 202 việc dài: `/api/v1/jobs/<id>` |
@@ -453,12 +455,12 @@ Chỉ áp cho handler khai báo `RequireIdempotencyKey()` (ở PG: `POST /api/v1
 
 ### 6.7 CORS và ETag
 
-CORS: `Access-Control-Allow-Origin` = đúng origin nếu nằm trong `APP_CORS_ALLOWED_ORIGINS` (phẩy ngăn cách; không bao giờ `*`; giá trị `*` trong env bị từ chối lúc khởi động); `Vary: Origin`; `Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS`; `Allow-Headers: Authorization, Content-Type, Idempotency-Key, If-Match, If-None-Match, Last-Event-ID, X-Request-Id`; `Expose-Headers: ETag, X-Request-Id, Retry-After, Idempotent-Replayed`; `Max-Age: 600`; `Allow-Credentials` **không** gửi (token qua header, không cookie ở PG). Preflight → 204.
+CORS: `Access-Control-Allow-Origin` = đúng origin nếu nằm trong `CORS_ORIGINS` (phẩy ngăn cách; không bao giờ `*`; giá trị `*` trong env bị từ chối lúc khởi động); `Access-Control-Allow-Credentials: true` **chỉ khi** origin nằm trong danh sách (PM chốt; chuẩn bị cho cookie phiên của P2 — token ở PG vẫn đi bằng header `Authorization`); `Vary: Origin`; `Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS`; `Allow-Headers: Authorization, Content-Type, Idempotency-Key, If-Match, If-None-Match, Last-Event-ID, X-Request-Id`; `Expose-Headers: ETag, X-Request-Id, Retry-After, Idempotent-Replayed`; `Max-Age: 600`. Origin lạ: không có `Allow-Origin` và không có `Allow-Credentials`. Preflight → 204.
 ETag trên GET: `Cache-Control: private, no-cache`, `Vary: Authorization`; `If-None-Match` khớp (một giá trị, danh sách, `*`) → 304 thân rỗng + `ETag`.
 
 ### 6.8 Giao thức SSE (`GET /api/v1/events`)
 
-Header phản hồi: `Content-Type: text/event-stream`, `Cache-Control: no-cache, no-transform`, `Connection: keep-alive` (HTTP/1.1), `X-Accel-Buffering: no`. Thứ tự byte: `retry: 3000\n\n` → `event: ready\ndata: {"connection_id","server_time"}\n\n` (không `id`) → đọc bù nếu có `Last-Event-ID` → sự kiện trực tiếp. Khung sự kiện: `id: <id Redis Stream>\nevent: <type>\ndata: <JSON một dòng>\n\n`; heartbeat `: hb\n\n`. Sự kiện điều khiển (không `id`): `ready`, `reconnect` (`reason`: `max_duration` | `token_expired` | `upstream_unavailable`), `shutdown` (`reason: server_shutdown`), `resync` (`reason`: `buffer_exceeded`). Sự kiện dữ liệu ở PG: `job.progress` (`{job_id,status,progress,result?}`) và `test.*` (chỉ phát được từ `gateway-test`, qua `POST /api/v1/_test/events`). `type` khớp `^[a-z][a-z0-9_.]{0,63}$`; `data` ≤ 64 KiB. Thuật toán nối lại: subscribe `ep:sse:ch:{uid}` **trước**; đọc `XRANGE ep:sse:buf:{uid} (<Last-Event-ID> +`; gửi; mỗi tin Pub/Sub kích hoạt `XRANGE (<id đã gửi cuối> +`; id ≤ id đã gửi bị bỏ. `Last-Event-ID` không khớp `^\d+-\d+$`, hoặc cũ hơn id đầu của bộ đệm khi bộ đệm đã bị cắt (`XINFO STREAM … first-entry`) → `resync`. Token qua query string **không** được hỗ trợ (tránh lọt vào log); `EventSource` gốc không gửi được header nên frontend dùng `fetch` + `ReadableStream` (việc của PU).
+Header phản hồi: `Content-Type: text/event-stream`, `Cache-Control: no-cache, no-transform`, `Connection: keep-alive` (HTTP/1.1), `X-Accel-Buffering: no`. Thứ tự byte: `retry: 3000\n\n` → `event: ready\ndata: {"connection_id","server_time"}\n\n` (không `id`) → đọc bù nếu có `Last-Event-ID` → sự kiện trực tiếp. Khung sự kiện: `id: <id Redis Stream>\nevent: <type>\ndata: <JSON một dòng>\n\n`; heartbeat `: hb\n\n`. Sự kiện điều khiển (không `id`): `ready`, `reconnect` (`reason`: `max_duration` | `token_expired` | `upstream_unavailable`), `shutdown` (`reason: server_shutdown`), `resync` (`reason`: `buffer_exceeded` khi `Last-Event-ID` hợp lệ nhưng cũ hơn id đầu của bộ đệm | `invalid_last_event_id` khi sai định dạng). Sự kiện dữ liệu ở PG: `job.progress` (`{job_id,status,progress,result?}`) và `test.*` (chỉ phát được từ `gateway-test`, qua `POST /api/v1/_test/events`). `type` khớp `^[a-z][a-z0-9_.]{0,63}$`; `data` ≤ 64 KiB. Thuật toán nối lại: subscribe `ep:sse:ch:{uid}` **trước**; đọc `XRANGE ep:sse:buf:{uid} (<Last-Event-ID> +`; gửi; mỗi tin Pub/Sub kích hoạt `XRANGE (<id đã gửi cuối> +`; id ≤ id đã gửi bị bỏ. `Last-Event-ID` rỗng hoặc chỉ khoảng trắng = không có (stream bình thường); không khớp `^\d+-\d+$` → `resync` `invalid_last_event_id`; cũ hơn id đầu của bộ đệm khi bộ đệm đã bị cắt (`XINFO STREAM … first-entry`) → `resync` `buffer_exceeded`. Token qua query string **không** được hỗ trợ (tránh lọt vào log); `EventSource` gốc không gửi được header nên frontend dùng `fetch` + `ReadableStream` (việc của PU).
 
 ## 7. Giao diện
 
@@ -475,10 +477,10 @@ Một nguồn duy nhất: `platform.LoadConfig(getenv)` (mở rộng từ FEAT-s
 | `DATABASE_URL` | **có** | — | URL Postgres **trực tiếp** (migrate, và là dự phòng của runtime) | gateway, worker, migrate |
 | `REDIS_URL` | **có** | — | `redis://host:port/db` | gateway, worker |
 | `JWT_SECRET_KEY` | **có** | — | ≥ **32 byte** (HS256); không được là giá trị mẫu của `.env.example` khi `APP_ENV=production` | gateway |
-| `BLOB_ENDPOINT` | **có** | — | `host:port` MinIO nhìn từ container (ví dụ `minio:9000`) | gateway, worker |
-| `BLOB_BUCKET` | **có** | — | Tên bucket (tạo nếu chưa có khi khởi động `APP_ENV` ≠ production) | gateway, worker |
-| `BLOB_ACCESS_KEY` | **có** | — | | gateway, worker |
-| `BLOB_SECRET_KEY` | **có** | — | | gateway, worker |
+| `BLOB_ENDPOINT` | **có** (gateway); worker: không ở PG | — | `host:port` MinIO nhìn từ container (ví dụ `minio:9000`) | gateway (worker khi phase sau dùng blob) |
+| `BLOB_BUCKET` | **có** (gateway); worker: không ở PG | — | Tên bucket (tạo nếu chưa có khi khởi động `APP_ENV` ≠ production) | gateway (worker như trên) |
+| `BLOB_ACCESS_KEY` | **có** (gateway); worker: không ở PG | — | | gateway (worker như trên) |
+| `BLOB_SECRET_KEY` | **có** (gateway); worker: không ở PG | — | | gateway (worker như trên) |
 | `PGBOUNCER_URL` | không | rỗng → dùng `DATABASE_URL` | URL runtime qua PgBouncer; có giá trị thì log `db_via=pgbouncer` | gateway, worker |
 | `APP_ENV` | không | `dev` | `dev` \| `test` \| `production` (giá trị khác → thoát 1); chỉ để phân biệt môi trường (log, kiểm bí mật mẫu, chặn `gateway token`), **không** mở / đóng route thử | tất cả |
 | `HTTP_ADDR` | không | `:8080` | | gateway |
@@ -492,9 +494,9 @@ Một nguồn duy nhất: `platform.LoadConfig(getenv)` (mở rộng từ FEAT-s
 | `STARTUP_TIMEOUT` | không | `30s` | Chờ DB + Redis lúc khởi động | tất cả |
 | `MAX_BODY_BYTES` | không | `1048576` (1 MiB) | | gateway |
 | `WORKER_HEALTH_ADDR` | không | `:8081` | | worker |
-| `APP_CORS_ALLOWED_ORIGINS` | không | `http://localhost:3000,https://localhost` | Danh sách phẩy; cấm `*` | gateway |
+| `CORS_ORIGINS` | không | `http://localhost:3000,https://localhost` | Danh sách origin được phép, phẩy ngăn cách; cấm `*` (thoát 1); kèm `Access-Control-Allow-Credentials: true` (6.7). Thay `APP_CORS_ALLOWED_ORIGINS` | gateway |
 | `JWT_EXPIRATION` | không | `15m` | | gateway |
-| `BCRYPT_COST` | không | `12` | 4–14; production ≥ 10 | gateway |
+| `BCRYPT_COST` | không | `12` | Nguyên 4–14 (ngoài khoảng / không phải số → thoát 1, không kẹp); production ≥ 10 | gateway |
 | `RATE_LIMIT_IP_PER_MIN` | không | `300` | | gateway |
 | `RATE_LIMIT_USER_PER_MIN` | không | `600` | | gateway |
 | `TRUSTED_PROXY_CIDRS` | không | `127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16` | Chỉ tin `X-Forwarded-For` từ các dải này | gateway |
@@ -510,7 +512,7 @@ Một nguồn duy nhất: `platform.LoadConfig(getenv)` (mở rộng từ FEAT-s
 | `OUTBOX_CLAIM_IDLE` | không | `60s` | Tin trong PEL quá hạn thì `XAUTOCLAIM` | worker |
 | `OUTBOX_STALE_AFTER` | không | `120s` | Phải **>** `OUTBOX_CLAIM_IDLE`; dòng đã xếp hàng quá hạn bị đặt lại | worker |
 | `BLOB_USE_SSL` | không | `false` | | gateway, worker |
-| `BLOB_PUBLIC_ENDPOINT` | không | = `BLOB_ENDPOINT` | Host trình duyệt dùng được (`localhost:9000`) | gateway, worker |
+| `BLOB_PUBLIC_ENDPOINT` | không | = `BLOB_ENDPOINT` khi **không đặt**; `.env.example` và compose đặt sẵn `localhost:9000` cho dev | Host trình duyệt dùng được (`localhost:9000`) | gateway, worker |
 | `BLOB_REGION` | không | `us-east-1` | Ký URL không cần gọi mạng | gateway, worker |
 
 Biến chỉ của hạ tầng / kiểm thử (không do `LoadConfig` đọc): `POSTGRES_USER|PASSWORD|DB`, `PGBOUNCER_STATS_USER|PASSWORD`, `TESTCONTAINERS_RYUK_DISABLED`, `DOCKER_HOST`, `OPENAPI_PATH` (test contract), `TEST_ROUTES` (k6), `NEXT_PUBLIC_API_URL`. `APP_ENCRYPTION_KEY` **chưa dùng ở PG** (P1). Hằng cố định: `iss="edupilot"`, `aud="edupilot-api"`, leeway JWT 5 s, `ReadHeaderTimeout` 5 s, `ReadTimeout` 15 s, `WriteTimeout` 30 s, `IdleTimeout` 60 s, `MaxHeaderBytes` 64 KiB.
@@ -587,7 +589,7 @@ Phía pgx: `pgx.QueryExecModeExec` hoặc `QueryExecModeSimpleProtocol` cho **m�
 | `redis` | `redis:8` + `--appendonly yes --appendfsync everysec --maxmemory-policy noeviction` | `6380` | volume `redis_data` |
 | `minio`, `mailpit` | giữ | giữ | |
 | `pgbouncer` | mục 8.3 | **không** | healthcheck `SHOW VERSION` qua stats user |
-| `migrate` | image gateway, `command: ["migrate","up"]`, `DATABASE_URL` trực tiếp, `restart: "no"` | không | `depends_on: postgres healthy` |
+| `migrate` | image gateway, `entrypoint: ["/gateway","migrate"]`, `command: ["up"]` (nên `docker compose run --rm migrate down` chạy `/gateway migrate down`), `DATABASE_URL` trực tiếp, `restart: "no"` | không | `depends_on: postgres healthy` |
 | `gateway` | `build: backend-go --target gateway`, `image: edupilot-gateway`, `read_only: true`, `tmpfs: /tmp`, `restart: on-failure:3`, healthcheck `["/gateway","-healthcheck"]` | **bỏ `8080:8080`** | `depends_on: migrate completed_successfully, pgbouncer healthy, redis healthy, minio healthy`; không `container_name` (để `--scale`) |
 | `worker` | `--target worker`, `image: edupilot-worker`, như gateway, healthcheck `["/worker","-healthcheck"]` | không | |
 | `caddy` | `caddy:2`, mount Caddyfile `:ro`, volume `caddy_data`, `caddy_config` | **`80:80`, `443:443`** | `depends_on: gateway healthy`, healthcheck `caddy validate` hoặc `wget` đến `localhost` nội bộ |
@@ -656,11 +658,11 @@ Bằng lệnh trong `US.md` mục 07: số service, hai bản gateway, Caddy, im
 
 ### 9.4 Makefile (`backend-go/Makefile`)
 
-`run` (gateway), `run-worker`, `build` (`go build ./...`, không tag), `test` (`go test -race -count=1 -tags testroutes ./...` với biến môi trường colima), `lint` (`go vet` + `golangci-lint run`, mỗi lệnh chạy hai lần: không tag và `-tags testroutes`), `sqlc` (`sqlc generate`), `sqlc-check` (`sqlc diff`), `migrate` (`go run ./cmd/gateway migrate up`), `tidy`.
+`run` (gateway), `run-worker`, `build` (`go build ./...`, không tag), `test` (`go test -race -count=1 -tags testroutes ./...` với biến môi trường colima), `lint` (`go vet` + `golangci-lint run`, mỗi lệnh chạy hai lần: không tag và `-tags testroutes`), `lint-depguard-negative` (ca âm: gói tạm `internal/zz_depguard_probe/` import `kin-openapi`, `golangci-lint` phải báo `depguard`, xoá gói tạm, thoát 0 khi lint chặn đúng — US-PG-06 AC8), `sqlc` (`sqlc generate`), `sqlc-check` (`sqlc diff`), `migrate` (`go run ./cmd/gateway migrate up`), `tidy`.
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 
-Câu hỏi mở: xem `QUESTIONS.md` (Q1–Q17; **mọi câu đã có phương án mặc định**, dev thi công theo mặc định cho đến khi chủ dự án trả lời; không câu nào chặn việc bắt đầu).
+Câu hỏi mở: xem `QUESTIONS.md` (Q1–Q18; **mọi câu đã có phương án mặc định**, dev thi công theo mặc định cho đến khi chủ dự án trả lời; không câu nào chặn việc bắt đầu). Câu hỏi của QC và trả lời: `docs/sprints/2/qc/questions.md`.
 
 Quyết định đã chốt (từ tài liệu nguồn, không hỏi lại): D22 gateway không trạng thái; D45 Go sở hữu nghiệp vụ, PG không tạo bảng nghiệp vụ, hợp đồng API bất biến khi port; D46–D48 phiên bản (Go 1.27, PostgreSQL 18 + pgvector, Redis 8, Caddy 2, MinIO, Mailpit); D47 mục 4 (SSE, max 2 kết nối), mục 6 (JWT claim-only); D51 (CourseAccessGuard); D52 (`getkin/kin-openapi` chỉ cho test); luật 6 (goose), 9–15 `AGENTS.md`; `SYSTEM_DESIGN.md` §5 (SLO); **Q4 = build tag `testroutes` (góp ý #1, PM)**.
 
