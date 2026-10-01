@@ -73,6 +73,7 @@ export function LlmSettings() {
         )}
 
         <Section title="Kết nối nhà cung cấp" description="Khoá API chỉ ghi được: lưu xong không đọc lại được, chỉ còn 4 ký tự cuối.">
+          <div className={s.configPanel}>
           <ul className={s.rows}>
             {PROVIDERS.map((p) => {
               const tail = keys[p.id] ?? p.keyTail;
@@ -138,9 +139,11 @@ export function LlmSettings() {
               );
             })}
           </ul>
+          </div>
         </Section>
 
         <Section title="Tác vụ nào dùng model nào" description="Đổi ở đây có hiệu lực ngay cho yêu cầu tiếp theo; yêu cầu đang chạy vẫn dùng model cũ.">
+          <div className={s.configPanel}>
           <ul className={s.rows}>
             {TASK_ROUTES.map((r) => {
               const model = routes[r.id] ?? r.model;
@@ -165,10 +168,12 @@ export function LlmSettings() {
               );
             })}
           </ul>
+          </div>
           {undo.node}
         </Section>
 
         <Section title="Chuỗi dự phòng" description="Khi nhà cung cấp đầu tiên hỏng, yêu cầu tự chuyển xuống nhà cung cấp kế tiếp, không báo lỗi cho sinh viên.">
+          <div className={s.configPanel}>
           <ol className={s.chain}>
             {FALLBACK_CHAIN.map((name, i) => (
               <li key={name}>
@@ -178,11 +183,13 @@ export function LlmSettings() {
               </li>
             ))}
           </ol>
+          </div>
         </Section>
 
         <section className={s.embedding}>
           <h2 className="ep-section-title">Mô hình embedding</h2>
           <p className={s.sectionDesc}>Tách riêng vì đổi mô hình này buộc phải đánh chỉ mục lại toàn bộ tài liệu, không chỉ đổi cấu hình.</p>
+          <div className={s.configPanel}>
           <DefinitionList
             items={[
               {
@@ -208,9 +215,11 @@ export function LlmSettings() {
               {EMBEDDING.chunks} sẽ được tính lại bằng {embedding} (khoảng 25 phút). Trong lúc đó AI vẫn trả lời được nhưng tìm tài liệu kém chính xác hơn, và chi phí của ngày hôm nay tăng thêm khoảng 60.000 đ.
             </InlineNotice>
           )}
+        </div>
         </section>
 
         <Section title="Ngân sách" description="Trần chi tiêu cho toàn hệ thống. Chạm trần không tắt chat, chỉ hạ model.">
+          <div className={s.configPanel}>
           <BarList
             items={[
               { label: `Hôm nay · ${BUDGET.dayUsed} / ${BUDGET.dayCap}`, value: BUDGET.dayPercent, tone: "ink" },
@@ -220,6 +229,7 @@ export function LlmSettings() {
             format={(v) => `${v}%`}
           />
           <p className={s.sub}>{BUDGET.note}</p>
+          </div>
         </Section>
 
         <details className={s.advanced}>

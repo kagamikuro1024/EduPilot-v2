@@ -1,23 +1,35 @@
 .loading { display: grid; gap: var(--ep-space-8); }
 
+/* Panel cấu hình độc lập (FR-X11, Proposal #16) */
+.configPanel {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  padding: var(--ep-space-6);
+  display: grid;
+  gap: var(--ep-space-4);
+}
+
 .rows { display: grid; }
-.row { display: grid; gap: var(--ep-space-3); padding: var(--ep-space-5) 0; border-top: 1px solid var(--ep-rule); }
-.row:last-child { border-bottom: 1px solid var(--ep-rule); }
+.row { display: grid; gap: var(--ep-space-3); padding: var(--ep-space-4) 0; border-top: 1px solid var(--ep-rule); }
+.row:first-child { border-top: 0; padding-top: 0; }
+.row:last-child { border-bottom: 0; padding-bottom: 0; }
 .rowMain { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ep-space-6); flex-wrap: wrap; }
 .rowSide { display: grid; gap: var(--ep-space-1); min-width: 220px; }
 .rowActions { display: flex; align-items: center; gap: var(--ep-space-2); }
 
 .taskRow { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-6); padding: var(--ep-space-4) 0; border-top: 1px solid var(--ep-rule); }
-.taskRow:last-child { border-bottom: 1px solid var(--ep-rule); }
+.taskRow:first-child { border-top: 0; padding-top: 0; }
+.taskRow:last-child { border-bottom: 0; padding-bottom: 0; }
 
-.sub { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.45; }
-.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--ep-text-meta); color: var(--ep-ink-2); }
+.sub { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.45; margin: 0; }
+.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: var(--ep-text-meta); color: var(--ep-ink-2); margin: 0; }
 .modelSelect { width: auto; min-width: 230px; }
 
 .inlineForm { display: grid; gap: var(--ep-space-3); max-width: 420px; padding-left: var(--ep-space-4); border-left: 2px solid var(--ep-red-soft); }
 .inlineFormActions { display: flex; gap: var(--ep-space-2); }
 
-.chain { display: flex; align-items: center; gap: var(--ep-space-4); flex-wrap: wrap; font-size: var(--ep-text-label); }
+.chain { display: flex; align-items: center; gap: var(--ep-space-4); flex-wrap: wrap; font-size: var(--ep-text-label); list-style: none; margin: 0; padding: 0; }
 .chain li { display: flex; align-items: center; gap: var(--ep-space-2); }
 .chain li + li::before { content: "→"; margin-right: var(--ep-space-2); color: var(--ep-ink-3); }
 .chainIndex {
@@ -32,19 +44,26 @@
   color: var(--ep-ink-2);
 }
 
-/* Embedding tách khỏi phần còn lại bằng khoảng trống lớn + đường kẻ (DESIGN §14.23). */
-.embedding { display: grid; gap: var(--ep-space-4); margin-top: var(--ep-space-16); padding-top: var(--ep-space-8); border-top: 2px solid var(--ep-rule); }
-.sectionDesc { max-width: 68ch; font-size: var(--ep-text-label); color: var(--ep-ink-3); }
+/* Embedding tách khỏi phần còn lại bằng panel độc lập (DESIGN §14.23, Proposal #16). */
+.embedding { display: grid; gap: var(--ep-space-4); margin-top: var(--ep-space-8); }
+.sectionDesc { max-width: 68ch; font-size: var(--ep-text-label); color: var(--ep-ink-3); margin: 0; }
 
-.advanced { margin-top: var(--ep-space-12); font-size: var(--ep-text-label); }
-.advanced summary { width: fit-content; padding: var(--ep-space-2) 0; font-weight: 500; text-decoration: underline; text-decoration-color: var(--ep-rule); text-underline-offset: 3px; }
+.advanced { margin-top: var(--ep-space-4); font-size: var(--ep-text-label); }
+.advanced summary { width: fit-content; padding: var(--ep-space-2) 0; font-weight: 500; text-decoration: underline; text-decoration-color: var(--ep-rule); text-underline-offset: 3px; cursor: pointer; }
 .advanced summary:hover { text-decoration-color: var(--ep-red); }
 
-/* Tích hợp: mỗi mục là một vùng phẳng, ngăn bằng khoảng trống lớn, không phải ba thẻ (DESIGN §14.24). */
-.integration { display: grid; gap: var(--ep-space-4); padding: var(--ep-space-8) 0; border-top: 1px solid var(--ep-rule); }
-.integration:last-of-type { border-bottom: 1px solid var(--ep-rule); }
+/* Tích hợp: mỗi mục là một panel độc lập có viền, nền surface (FR-X11, Proposal #16). */
+.integration {
+  display: grid;
+  gap: var(--ep-space-4);
+  padding: var(--ep-space-6);
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  margin-bottom: var(--ep-space-6);
+}
 .integrationHead { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ep-space-6); flex-wrap: wrap; }
-.integrationPurpose { max-width: 68ch; color: var(--ep-ink-2); }
+.integrationPurpose { max-width: 68ch; color: var(--ep-ink-2); margin: var(--ep-space-1) 0 0; font-size: var(--ep-text-label); }
 
 @media (max-width: 719px) {
   .taskRow { flex-direction: column; align-items: stretch; gap: var(--ep-space-2); }

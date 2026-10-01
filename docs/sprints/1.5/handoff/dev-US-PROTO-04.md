@@ -37,3 +37,7 @@ F=http://localhost:3000 bash docs/sprints/1.5/qc/scripts/proto-curl.sh tc_04_01 
 
 ## Nợ / chưa làm / cần hỏi
 - Chi tiết yêu cầu ở Observability của Admin mở drawer hiển thị log kiểm toán mô phỏng.
+
+## Cập nhật theo spec v4 (Proposals #16)
+- Phân định rõ các khối cấu hình thành các panel sạch sẽ (`configPanel`, `integration`): viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)`, bo góc `var(--ep-radius-md)`, padding `var(--ep-space-6)` ở `/settings/llm` và `/settings/integrations`.
+- Danh sách chủ đề ở `/insights` được đóng gói thành các panel độc lập rõ ràng (`.topic`, `.gap`).
