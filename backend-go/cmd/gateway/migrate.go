@@ -22,13 +22,13 @@ func runMigrate(args []string, getenv func(string) string, stdout, stderr io.Wri
 	case 1:
 		cmd = args[0]
 	default:
-		fmt.Fprintln(stderr, "migrate: dùng `gateway migrate [up|down|status]`")
+		_, _ = fmt.Fprintln(stderr, "migrate: dùng `gateway migrate [up|down|status]`")
 		return 1
 	}
 
 	url := getenv("DATABASE_URL")
 	if url == "" {
-		fmt.Fprintln(stderr, "migrate: thiếu biến môi trường DATABASE_URL")
+		_, _ = fmt.Fprintln(stderr, "migrate: thiếu biến môi trường DATABASE_URL")
 		return 1
 	}
 
@@ -38,7 +38,7 @@ func runMigrate(args []string, getenv func(string) string, stdout, stderr io.Wri
 	defer cancel()
 
 	if err := db.Migrate(ctx, url, cmd, stdout); err != nil {
-		fmt.Fprintf(stderr, "migrate: %v\n", err)
+		_, _ = fmt.Fprintf(stderr, "migrate: %v\n", err)
 		return 1
 	}
 	return 0
