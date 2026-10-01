@@ -1,14 +1,24 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import s from "./Tabs.module.css";
 
 type Option<V extends string> = { value: V; label: ReactNode; count?: number };
 
 /** Chuyển giữa các phần lớn của MỘT đối tượng (DESIGN.md §10.8). */
 export function Tabs<V extends string>({ value, onChange, options, label }: { value: V; onChange: (v: V) => void; options: Option<V>[]; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  // thiếu chỗ thì hàng tab cuộn ngang; tab đang chọn tự cuộn vào khung (chỉ theo chiều ngang, không kéo cả trang)
+  useEffect(() => {
+    const box = ref.current;
+    const el = box?.querySelector<HTMLElement>('[aria-selected="true"]');
+    if (!box || !el) return;
+    const left = el.offsetLeft;
+    if (left < box.scrollLeft) box.scrollLeft = left;
+    else if (left + el.offsetWidth > box.scrollLeft + box.clientWidth) box.scrollLeft = left + el.offsetWidth - box.clientWidth;
+  }, [value]);
   return (
-    <div role="tablist" aria-label={label} className={s.tabs}>
+    <div role="tablist" aria-label={label} className={s.tabs} ref={ref} data-scroll-x="">
       {options.map((o) => (
         <button
           key={o.value}
@@ -34,7 +44,7 @@ export function Tabs<V extends string>({ value, onChange, options, label }: { va
 /** 2–4 chế độ loại trừ nhau đổi khung nhìn cục bộ (DESIGN.md §10.7). */
 export function SegmentedControl<V extends string>({ value, onChange, options, label }: { value: V; onChange: (v: V) => void; options: Option<V>[]; label: string }) {
   return (
-    <div role="radiogroup" aria-label={label} className={s.segmented}>
+    <div role="radiogroup" aria-label={label} className={s.segmented} data-scroll-x="">
       {options.map((o) => (
         <button key={o.value} type="button" role="radio" aria-checked={o.value === value} className={s.segment} onClick={() => onChange(o.value)}>
           {o.label}
@@ -48,7 +58,7 @@ export function SegmentedControl<V extends string>({ value, onChange, options, l
 /** Bộ lọc nhanh dạng chip bật/tắt (nhiều lựa chọn). */
 export function FilterChips<V extends string>({ value, onChange, options, label }: { value: V[]; onChange: (v: V[]) => void; options: Option<V>[]; label: string }) {
   return (
-    <div role="group" aria-label={label} className={s.chips}>
+    <div role="group" aria-label={label} className={s.chips} data-scroll-x="">
       {options.map((o) => {
         const on = value.includes(o.value);
         return (

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import s from "./DataTable.module.css";
@@ -12,13 +13,22 @@ export type Column<T> = {
   width?: string;
   /** cột cố định bên trái khi cuộn ngang (tên sinh viên…) */
   frozen?: boolean;
-  /** ẩn ở màn < 720px */
+  /** ẩn ở màn < 720px (cả chế độ bảng cuộn lẫn chế độ danh sách) */
   hideOnMobile?: boolean;
+  /** nhãn dòng phụ ở chế độ danh sách; mặc định dùng `header` nếu là chữ */
+  mobileLabel?: string;
+  /** cột chính của chế độ danh sách (in đậm, dòng đầu); mặc định cột `frozen` hoặc cột đầu tiên */
+  primary?: boolean;
 };
 
 /**
  * Bảng so sánh: header dính, hàng 44–52px, không kẻ dọc (DESIGN.md §10.4).
  * `rowHref` làm cả hàng là liên kết; chọn nhiều qua `selection`.
+ *
+ * Dưới 720px (`mobile`):
+ *  - "list" (mặc định): mỗi hàng thành mục danh sách 2–3 dòng — cột chính đậm, các cột còn lại là dòng phụ "Nhãn: giá trị".
+ *    `mobileRow` thay hẳn nội dung mục (dùng khi hàng có điều khiển riêng như điểm danh).
+ *  - "scroll": giữ bảng, cuộn ngang trong vùng `data-scroll-x`, cột `frozen` dính trái (sổ điểm — cần so cột).
  */
 export function DataTable<T>({
   columns,
@@ -31,6 +41,8 @@ export function DataTable<T>({
   empty,
   selection,
   dense,
+  mobile = "list",
+  mobileRow,
 }: {
   columns: Column<T>[];
   rows: T[];
@@ -42,6 +54,8 @@ export function DataTable<T>({
   empty?: ReactNode;
   selection?: { selected: Set<string>; onChange: (next: Set<string>) => void };
   dense?: boolean;
+  mobile?: "list" | "scroll";
+  mobileRow?: (row: T) => ReactNode;
 }) {
   const router = useRouter();
   const allSelected = selection && rows.length > 0 && rows.every((r) => selection.selected.has(rowKey(r)));
@@ -62,7 +76,8 @@ export function DataTable<T>({
   const clickable = Boolean(onRowClick || rowHref);
 
   return (
-    <div className={s.scroll}>
+    <div className={s.root}>
+      <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} data-scroll-x={mobile === "scroll" ? "" : undefined}>
       <table className={[s.table, dense ? s.dense : ""].join(" ")}>
         <caption className="ep-sr-only">{caption}</caption>
         <thead>
@@ -119,6 +134,55 @@ export function DataTable<T>({
           })}
         </tbody>
       </table>
+      </div>
+      {mobile === "list" && (
+        <ul className={s.list} aria-label={caption}>
+          {rows.map((row) => {
+            const key = rowKey(row);
+            const main = columns.find((c) => c.primary) ?? columns.find((c) => c.frozen) ?? columns[0];
+            const rest = columns.filter((c) => c !== main && !c.hideOnMobile);
+            const href = rowHref?.(row);
+            const inner = mobileRow ? (
+              mobileRow(row)
+            ) : (
+              <>
+                <div className={s.itemMain}>{main.render(row)}</div>
+                <dl className={s.itemMeta}>
+                  {rest.map((c) => {
+                    const label = c.mobileLabel ?? (typeof c.header === "string" ? c.header : null);
+                    return (
+                      <div key={c.key} className={s.itemField}>
+                        {label && <dt>{label}</dt>}
+                        <dd>{c.render(row)}</dd>
+                      </div>
+                    );
+                  })}
+                </dl>
+              </>
+            );
+            return (
+              <li key={key} className={[s.item, selection ? s.itemSelectable : "", key === activeKey ? s.itemActive : ""].join(" ")}>
+                {selection && (
+                  <label className={s.itemCheck}>
+                    <input type="checkbox" aria-label="Chọn hàng" checked={selection.selected.has(key)} onChange={() => toggle(key)} />
+                  </label>
+                )}
+                {href ? (
+                  <Link href={href} className={s.itemLink}>
+                    {inner}
+                  </Link>
+                ) : onRowClick ? (
+                  <div className={s.itemLink} role="button" tabIndex={0} onClick={() => onRowClick(row)} onKeyDown={(e) => e.key === "Enter" && onRowClick(row)}>
+                    {inner}
+                  </div>
+                ) : (
+                  <div className={s.itemStatic}>{inner}</div>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
       {rows.length === 0 && empty && <div className={s.empty}>{empty}</div>}
     </div>
   );

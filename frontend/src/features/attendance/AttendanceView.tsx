@@ -195,7 +195,7 @@ export function AttendanceView() {
           session && (
             <>
               <span>Mặc định mọi sinh viên có mặt — chỉ đánh người vắng, muộn.</span>
-              <span>
+              <span className={s.keyHint}>
                 <Kbd>↑</Kbd> <Kbd>↓</Kbd> chọn hàng · <Kbd>1</Kbd>–<Kbd>4</Kbd> đánh dấu · <Kbd>P</Kbd> ghi phát biểu
               </span>
             </>
@@ -274,7 +274,40 @@ export function AttendanceView() {
 
             {session?.state !== "future" && (
               <div className={s.grid} tabIndex={0} onKeyDown={onKeyDown} aria-label="Bảng điểm danh — phím mũi tên chọn hàng, phím 1 đến 4 đánh dấu, phím P ghi phát biểu">
-                <DataTable caption={`Điểm danh buổi ${n} lớp ${course.code}`} columns={columns} rows={roster} rowKey={(st) => st.id} activeKey={roster[cursor]?.id} />
+                <DataTable
+                  caption={`Điểm danh buổi ${n} lớp ${course.code}`}
+                  columns={columns}
+                  rows={roster}
+                  rowKey={(st) => st.id}
+                  activeKey={roster[cursor]?.id}
+                  mobileRow={(st) => (
+                    <div className={s.mRow}>
+                      <span className={s.name}>
+                        <span className="ep-item-title">{st.name}</span>
+                        <span className="ep-meta">{st.code}</span>
+                      </span>
+                      <div className={s.mMarks} role="radiogroup" aria-label={`Điểm danh ${st.name}`}>
+                        {MARKS.map((m) => (
+                          <label key={m.value} className={s.mMark}>
+                            <input
+                              type="radio"
+                              name={`m-mark-${st.id}`}
+                              className={s.mRadio}
+                              disabled={readOnly}
+                              checked={(view.marks[st.id] ?? "present") === m.value}
+                              onChange={() => setMark(st, m.value)}
+                              onFocus={() => setCursor(roster.indexOf(st))}
+                            />
+                            <span>{m.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                      <button type="button" className={s.speak} disabled={readOnly} onClick={() => addSpeak(st)}>
+                        {view.speaks[st.id] ? `${view.speaks[st.id]} lần phát biểu · +${(view.speaks[st.id] * 0.25).toFixed(2).replace(".", ",")}` : "+ Phát biểu"}
+                      </button>
+                    </div>
+                  )}
+                />
               </div>
             )}
             {undo.node}

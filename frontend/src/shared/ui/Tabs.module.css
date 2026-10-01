@@ -1,6 +1,7 @@
-.tabs { display: flex; gap: var(--ep-space-6); border-bottom: 1px solid var(--ep-rule); overflow-x: auto; scrollbar-width: none; }
+.tabs { position: relative; display: flex; gap: var(--ep-space-6); border-bottom: 1px solid var(--ep-rule); overflow-x: auto; scrollbar-width: none; }
 .tab {
   position: relative;
+  flex: none;
   display: inline-flex;
   align-items: center;
   gap: var(--ep-space-2);
@@ -24,13 +25,14 @@
   background: var(--ep-red);
 }
 
-.segmented { display: inline-flex; padding: 2px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface); }
+.segmented { display: flex; width: fit-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; padding: 2px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface); }
 .segment {
   display: inline-flex;
   align-items: center;
   gap: var(--ep-space-2);
+  flex: none;
   min-height: 30px;
-  padding: 0 var(--ep-space-3);
+  padding: 0 var(--ep-space-2);
   border: 0;
   border-radius: var(--ep-radius-sm);
   background: transparent;
@@ -43,11 +45,12 @@
 .segment[aria-checked="true"] { background: var(--ep-ink); color: var(--ep-surface); }
 .segment[aria-checked="true"] .count { color: inherit; opacity: 0.75; }
 
-.chips { display: flex; flex-wrap: wrap; gap: var(--ep-space-2); }
+.chips { display: flex; flex-wrap: nowrap; gap: var(--ep-space-2); max-width: 100%; overflow-x: auto; scrollbar-width: none; padding-block: 1px; }
 .chip {
+  flex: none;
   display: inline-flex;
   align-items: center;
-  gap: var(--ep-space-2);
+  gap: var(--ep-space-1);
   min-height: 30px;
   padding: 0 var(--ep-space-3);
   border: 1px solid var(--ep-rule);

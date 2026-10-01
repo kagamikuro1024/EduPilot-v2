@@ -360,6 +360,7 @@ export function Gradebook() {
           columns={columns}
           rows={rows}
           rowKey={(r) => r.st.id}
+          mobile="scroll"
           empty={<EmptyState title="Lớp chưa có điểm">Chưa có sinh viên nào trong lớp này.</EmptyState>}
         />
         <p className={s.note}>{OFFICIAL_GRADE_NOTE}</p>

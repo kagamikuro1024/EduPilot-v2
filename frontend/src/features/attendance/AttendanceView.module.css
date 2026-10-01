@@ -69,7 +69,32 @@
   min-width: 190px;
 }
 
+/* Hàng điểm danh trên điện thoại: tên → 4 nhãn trạng thái đủ chữ (≥ 44px) → phát biểu. Có kẻ, không card. */
+.mRow { display: grid; gap: var(--ep-space-2); font-weight: 400; }
+.mMarks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ep-space-1); }
+.mMark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 var(--ep-space-1);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-sm);
+  background: var(--ep-surface);
+  color: var(--ep-ink-2);
+  font-size: var(--ep-text-meta);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.mMark:has(input:checked) { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 600; }
+.mMark:has(input:focus-visible) { outline: 2px solid var(--ep-red); outline-offset: 2px; }
+.mRadio { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+.mRow .speak { justify-self: start; }
+
 @media (max-width: 719px) {
+  .keyHint { display: none; }
   .picker {
     flex: 1;
   }
