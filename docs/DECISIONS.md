@@ -14,9 +14,8 @@
 | D15 | Che danh tính hai chiều trước LLM, bản đầy đủ (placeholder + khôi phục khi stream) | Tra điểm không bị ảnh hưởng vì tool lấy danh tính từ JWT |
 | D16 | Form trắc nghiệm: làm trong app (QUIZ) và import XLSX/CSV từ Forms | Dùng chung Quiz Engine |
 | D17 | Thời gian học on-screen chỉ tham khảo + tín hiệu at-risk; không tính điểm | Không đo được việc học thật; dễ bị lách |
-| D18 | Viết lại toàn bộ gateway bằng Go, bỏ Java; Python giữ cho AI | Một ngôn ngữ backend; tách rõ đóng góp cá nhân khỏi mã kế thừa của nhóm; hợp với worker nền |
+| D18 | ~~Viết lại toàn bộ gateway bằng Go, bỏ Java; Python giữ cho AI~~ → thay bởi D45, D46 | Một ngôn ngữ backend; tách rõ đóng góp cá nhân khỏi mã kế thừa của nhóm; hợp với worker nền |
 | D19 | chi + pgx + sqlc; goose; decimal cho điểm | SQL có kiểu, sát stdlib |
-| D32 | (2026-10-01, thay D18) **Viết mới toàn bộ**: gateway Go, Python AI, frontend, schema DB. Mã Project III dời vào `legacy/`, chỉ để tham khảo, không build, không chạy trong CI/compose. Không giữ hợp đồng API cũ, không contract test với golden Java, không migrate dữ liệu Project III; migration goose bắt đầu từ `00001`. Mọi API theo quy ước ARCHITECTURE §5 ngay từ đầu | Mã cũ chất lượng thấp, tối ưu lại tốn hơn viết mới; toàn bộ mã trong ĐATN là đóng góp cá nhân. Đánh đổi: thêm ≈ 3–5 tuần (viết lại RAG, PII, LLM gateway, chấm bài) — lịch WORKFLOW §6 phải cắt lại |
 
 ## Quyết định thiết kế hệ thống (2026-09-20, theo phương pháp system-design-primer)
 
@@ -57,6 +56,15 @@
 
 | D44 | Phạm vi đồ án: chứng minh hệ thống chạy end-to-end trên **dữ liệu mô phỏng hoàn toàn**. Phase PR và mọi việc pháp lý / vận hành thật nằm NGOÀI đồ án; nếu sau này trường muốn dùng thì trường lo giấy phép và pháp lý, khi đó mới làm PR | Điều kiện đi kèm: không nạp dữ liệu sinh viên thật vào hệ thống dưới bất kỳ hình thức "thử" nào khi chưa làm PR; điểm chuẩn cho E1 và E3 phải do người gán để thí nghiệm có nghĩa |
 
+## Quyết định viết mới (2026-10-01, sprint 1)
+
+| Mã | Quyết định | Đánh đổi |
+| --- | --- | --- |
+| D45 | **Viết mới toàn bộ** (thay D18). Mã Project III dời vào `legacy/`, chỉ để tham khảo: không import, không build, không chạy trong CI/compose. Không giữ hợp đồng API cũ, không golden Java, không migrate dữ liệu Project III; goose bắt đầu từ `00001`. Mọi API theo ARCHITECTURE §5 ngay từ đầu. PDF môn học trong `data/` là nội dung seed (D10), không phải mã | Mã cũ chậm và khó sửa (xem `thesis-notes/legacy-perf.md`); mọi dòng mã trong ĐATN là đóng góp cá nhân. Thêm ≈ 3–5 tuần → lịch WORKFLOW §6 phải cắt lại |
+| D46 | **Chỉ Go, bỏ service Python AI** (thay D8, sửa nguyên tắc 1 và 3). Gateway + worker Go gọi LLM bằng `openai-go` qua endpoint tương thích OpenAI của từng provider; RAG truy vấn pgvector từ Go; PII regex + từ điển + mask/unmask stream trong Go; trích PDF/DOCX giao container `docling-serve` (gọi từ worker). Không gRPC, không `shared-proto`. Python chỉ còn cho script đánh giá offline ở `benchmarks/` | Mất litellm và NER tiếng Việt (vốn ở thứ tự cắt #4); structured output của vài provider qua lớp tương thích yếu hơn bản gốc → mỗi provider có test hợp đồng với provider `fake`. Đổi lại: bớt một service, một hop, một bộ test, một Dockerfile; token stream thẳng ra SSE |
+| D47 | **Luật tốc độ cho đường hỏi–đáp** (rút từ `thesis-notes/legacy-perf.md`): (1) mỗi câu hỏi đúng MỘT lời gọi LLM sinh chữ, có stream; truy xuất là tất định (embed + tìm lai vector/từ khoá bằng SQL), không LLM viết lại câu hỏi, không LLM rerank/tổng hợp trên đường nóng; (2) phân loại ý định / kênh bằng luật + độ tương đồng embedding, tối đa một lần mỗi tin nhắn, kết quả mang theo xuống dưới, không gọi lại; (3) không vòng lặp agent mở cho hỏi đáp: định tuyến tất định → tool Go → một lần sinh; (4) sự kiện SSE trạng thái đầu tiên ≤ 300 ms; (5) cache câu trả lời cuối theo lớp, vô hiệu khi tài liệu đổi; (6) danh tính lấy từ claim JWT, không truy DB mỗi request; (7) SQL truy xuất: `ORDER BY` chỉ theo khoảng cách để dùng HNSW, lọc `course_id` trong cùng truy vấn, `tsvector` lưu sẵn + GIN; (8) frontend render token theo khung hình, không parse lại markdown mỗi token; dữ liệu đầu trang render phía server | Độ tin cậy để escalate phải lấy từ cùng lời gọi sinh chữ (trường có cấu trúc ở cuối stream) hoặc từ điểm truy xuất, không thêm lời gọi chấm điểm riêng |
+| D48 | **Phiên bản nền**: Go 1.27; Node 24 LTS; PostgreSQL 18 + pgvector (HNSW, `halfvec` nếu đủ chính xác); Redis 8; Next.js 16 (App Router, React Server Components, Turbopack) + React 19; pnpm; Caddy 2; `docling-serve` bản ổn định v1; MinIO; MailHog. Bản vá cụ thể ghim trong `go.mod`, lockfile, tag image | Dùng bản mới nhất ổn định ở thời điểm bắt đầu; không nâng bản lớn giữa chừng trừ khi có lỗi bảo mật |
+
 ## Mặc định theo khuyến nghị (chưa được chủ dự án xác nhận riêng, đổi được)
 
 | Mã | Mặc định | Ghi chú |
@@ -64,7 +72,7 @@
 | D4 | Trục nghiên cứu: chấm tự luận tự động + che danh tính hai chiều | NÊN HỎI THẦY HƯỚNG DẪN trước tuần 4. Không đổi phạm vi code, chỉ đổi thí nghiệm nào làm sâu |
 | D5 | Thêm role TEACHER tách với TA | Người duy nhất xác nhận công thức, công bố, chốt điểm |
 | D7 | Chỉ giảng viên upload tài liệu | Tránh bản quyền, lộ đề |
-| D8 | LiteLLM; embedding cố định 1536 chiều | Ít code nhất |
+| D8 | ~~LiteLLM~~ (thay bởi D46: `openai-go` + endpoint tương thích OpenAI); embedding cố định 1536 chiều | Ít code nhất |
 | D10 | Seed môn An ninh mạng, dùng lại PDF trong `data/`; quy chế môn học tự soạn | Có quy chế môn học thật thì thay vào, demo thuyết phục hơn |
 | D11 | Luyện đề: trắc nghiệm + trả lời ngắn + tự luận | Tự luận dùng lại Grading Engine |
 | D13 | Demo bảo vệ bằng Docker Compose trên VPS/máy cá nhân | Worker + IMAP + MailHog khó gói trong một container HF |

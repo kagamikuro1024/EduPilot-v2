@@ -1,6 +1,6 @@
-# Prompt cho `ba` — sprint 1, bản 2 (sau D32)
+# Prompt cho `ba` — sprint 1, bản 2 (sau D45)
 
-Đọc lại: `docs/DECISIONS.md` D32, `CLAUDE.md` (đã sửa nguyên tắc 6–8), `docs/phases/P0.md` (đã viết lại), `docs/sprints/1/plan.md` (bản 2).
+Đọc lại: `docs/DECISIONS.md` D45, `CLAUDE.md` (đã sửa nguyên tắc 6–8), `docs/phases/P0.md` (đã viết lại), `docs/sprints/1/plan.md` (bản 2).
 
 ## Việc
 1. Xoá thư mục dở `docs/specs/FEAT-ci-mailhog/` (lỗi thời).

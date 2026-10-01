@@ -26,7 +26,7 @@ Cách cắt:
 - Một **user story** = một phần của feature mà một vai trò làm được một việc trọn vẹn, có AC kiểm được. Story phải nhỏ: `dev` làm trong ≤ 1 ngày.
 - Thứ tự story trong một feature: đường chính trước, nhánh lỗi sau; story đầu tiên của mỗi feature phải chạm đủ các tầng (dù mỏng) để lộ sớm lỗi tích hợp.
 - Mỗi story ghi rõ truy vết: PRD §module → FLOWS Fx → phase Px lát Ly → US-id. Chuỗi này là cái tôi sẽ đưa vào báo cáo.
-- **PG (D32):** gateway Go viết mới, không giữ hợp đồng Java. PG vẫn cắt theo nhóm nghiệp vụ (auth → chat+SSE → threads → documents → analytics); mỗi story kết thúc bằng contract test với `openapi.yaml` mới + smoke qua API (giao diện dựng ở PU).
+- **PG (D45):** gateway Go viết mới, không giữ hợp đồng Java. PG vẫn cắt theo nhóm nghiệp vụ (auth → chat+SSE → threads → documents → analytics); mỗi story kết thúc bằng contract test với `openapi.yaml` mới + smoke qua API (giao diện dựng ở PU).
 - Giữ đúng thứ tự phụ thuộc của phase (P0 → PG → PU → P1 → P2 → …). Trong một phase có thể xếp lại thứ tự lát việc, không được nhảy phase.
 - Cổng nghiệm thu của phase (trong phase file) được chạy khi story cuối của phase đó xong; `qc` dùng lệnh `/gate <phase>`.
 

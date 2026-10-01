@@ -7,7 +7,7 @@ Người này duyệt kế hoạch, chạy cổng nghiệm thu và merge. Bạn 
 
 EduPilot v2 = nền tảng vận hành lớp học có AI cho một học phần: hỏi đáp hai kênh (chat riêng + Threads),
 chấm bài tự động, CRM sinh viên, sổ điểm, luyện đề, lịch, thư viện, cấu hình LLM, observation.
-Viết mới toàn bộ (D32). Mã Project III nằm ở `legacy/`, chỉ đọc để tham khảo: không import, không build, không sửa.
+Viết mới toàn bộ (D45). Mã Project III nằm ở `legacy/`, chỉ đọc để tham khảo: không import, không build, không sửa.
 
 Tài liệu nguồn (đọc khi cần, KHÔNG đọc hết mỗi phiên):
 
