@@ -59,4 +59,3 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - [ ] Gặp trường về pháp lý dữ liệu cá nhân, hạ tầng, mail, LLM được phép (trước PR; bắt đầu hỏi từ sớm)
 - [ ] 2 người ngoài dự án dùng thử (PR)
 - [ ] Quyết lịch sau D45 (lùi vạch bảo vệ hay cắt) — trước sprint 2
-- [ ] Đổi mật khẩu máy (đã gửi trong hội thoại sprint 1)
