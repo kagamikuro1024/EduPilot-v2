@@ -1,78 +1,114 @@
 "use client";
 
-import { Check, ChevronDown, ChevronUp, Edit3, MessageSquare, Pin, Sparkles } from "lucide-react";
+import { MessageSquare, Pin, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { scanPersonal } from "@/mock/chat";
-import { ago, at } from "@/mock/core";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { CHAT_DRAFT_KEY } from "@/features/chat/ChatScreen";
+import { describePii, findPii, redactPii } from "@/mock/pii";
 import { KEYS, type InsightThread } from "@/mock/state";
 import {
-  NEW_THREADS_KEY,
-  REPORT_REASONS,
-  THREAD_MODERATION_KEY,
-  THREAD_REPLIES_KEY,
-  threadById,
-  type NewThread,
-  type ThreadModeration,
+  THREADS_LIVE_KEY,
+  THREADS_LIVE_SEED,
+  TA_REPLY_AFTER_MS,
+  TA_TYPING_AFTER_MS,
+  findThread,
+  postAgo,
   type ThreadPost,
-  type ThreadReply,
+  type ThreadsLive,
 } from "@/mock/threads";
-import { CHAT_DRAFT_KEY } from "@/features/chat/ChatScreen";
+import { STAFF } from "@/mock/core";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
+import { simNowMs, useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  Button,
-  ButtonLink,
-  EmptyState,
-  Field,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  Popover,
-  Section,
-  Skeleton,
-  StatusText,
-  Textarea,
-} from "@/shared/ui";
+import { Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Section, Skeleton, Textarea } from "@/shared/ui";
 import { PIIChannelDialog } from "./PIIChannelDialog";
+import { AiBlock, EditInline, PostActions, QuoteBlock, ReportButton, RoleChip } from "./ThreadParts";
+import {
+  addReply,
+  aiBusy,
+  askAiEmpty,
+  deleteLiveThread,
+  editPost,
+  hasMention,
+  removePost,
+  restorePost,
+  retryAi,
+  saveDraft,
+  setMod,
+  stopAi,
+  type Actor,
+} from "./threadsActions";
 import s from "./Threads.module.css";
 
-const CITATION_SNIPPETS: Record<string, string> = {
-  "Chương 3 — Mật mã đối xứng và chế độ vận hành":
-    "Định lý chế độ khối (tr. 14–17): ECB không che giấu mẫu lặp; CBC đạt bảo mật ngữ nghĩa (semantic security) khi và chỉ khi IV được sinh ngẫu nhiên đồng đều và không thể dự đoán trước.",
-  "Modern Network Security Threats":
-    "Mục 2.4: Pattern leakage in Electronic Codebook (ECB) vs. Cipher Block Chaining (CBC) with unique Initialization Vector.",
-};
+const NOTICE_MS = 8000;
 
-/** Một thread và các phản hồi / câu trả lời của nó (DESIGN §14.4, Proposals #15, #16). */
+/** Một thread: câu hỏi gốc → câu trả lời AI → MỘT vùng "Thảo luận (n)" có ô soạn ở cuối (SRS 4.3.1, DESIGN §14.4). */
 export function ThreadDetail({ id }: { id: string }) {
-  const { role, user } = useSession();
+  const { role, user, courses } = useSession();
   const router = useRouter();
-  const [posts, setPosts] = useDemoSlice<NewThread[]>(NEW_THREADS_KEY, []);
-  const [pinned] = useDemoSlice<InsightThread[]>(KEYS.insightThreads, []);
-  const [moderations, setModerations] = useDemoSlice<Record<string, ThreadModeration>>(THREAD_MODERATION_KEY, {});
-  const [allReplies, setAllReplies] = useDemoSlice<Record<string, ThreadReply[]>>(THREAD_REPLIES_KEY, {});
+  const [live, setLive] = useDemoSlice<ThreadsLive>(THREADS_LIVE_KEY, THREADS_LIVE_SEED);
+  const [insight] = useDemoSlice<InsightThread[]>(KEYS.insightThreads, []);
   const [, setChatDraft] = useDemoSlice<string>(CHAT_DRAFT_KEY, "");
-
-  const [edits, setEdits] = useState<Record<string, string>>({});
-  const [expandedCites, setExpandedCites] = useState<Record<string, boolean>>({});
-  const [editingAi, setEditingAi] = useState(false);
-  const [aiEditText, setAiEditText] = useState("");
-  const [showOriginalAi, setShowOriginalAi] = useState(false);
-
-  // Reply composer state
-  const [replyText, setReplyText] = useState("");
-  const [replyGuard, setReplyGuard] = useState<{ text: string; reasons: string[] } | null>(null);
-
   const undo = useUndoLine();
 
-  const seeded = threadById(id);
-  const mine = posts.find((p) => p.id === id);
-  const fromInsights = pinned.find((p) => p.id === id);
+  const taTyping = live.due.some((d) => d.threadId === id && !d.fired);
+  const now = useSimNow(taTyping ? 500 : 1000);
+  const view = useMemo(() => findThread(id, live, insight, now), [id, live, insight, now]);
+  const busy = view ? aiBusy(view, now) : false;
 
-  if (!seeded && !mine && !fromInsights) {
+  const isStaff = role === "teacher" || role === "ta";
+  const actor: Actor = { id: user.id, name: role === "teacher" ? `${user.title ?? "TS."} ${user.name}` : user.name, role: role === "teacher" ? "teacher" : role === "ta" ? "ta" : "student" };
+
+  // Bản nháp theo thread: lưu trong phiên (sống qua rời trang); `edit` là bản đang gõ, chưa gõ thì lấy bản đã lưu.
+  const [edit, setEdit] = useState<{ text: string; quoteOf?: string } | null>(null);
+  const draft = edit ?? live.drafts[id] ?? { text: "" };
+  const text = draft.text;
+  const quoteOf = draft.quoteOf;
+  const setText = (t: string) => setEdit({ text: t, quoteOf });
+  const setQuoteOf = (q: string | undefined) => setEdit({ text, quoteOf: q });
+  const [localNotice, setNotice] = useState<string | null>(null);
+  const notice = localNotice ?? live.flash ?? null;
+  const [guard, setGuard] = useState<{ kind: "reply"; text: string; withAi: boolean } | { kind: "edit"; postId: string; text: string } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (!edit) return;
+    const t = window.setTimeout(() => setLive((prev) => ((prev.drafts[id]?.text ?? "") === edit.text && prev.drafts[id]?.quoteOf === edit.quoteOf ? prev : saveDraft(prev, id, edit))), 300);
+    return () => window.clearTimeout(t);
+  }, [edit, id, setLive]);
+
+  // Dòng báo tự mất sau 8 s (hoặc khi gõ vào ô soạn).
+  useEffect(() => {
+    if (!localNotice && !live.flash) return;
+    const t = window.setTimeout(() => {
+      setNotice(null);
+      setLive((prev) => (prev.flash ? { ...prev, flash: undefined } : prev));
+    }, NOTICE_MS);
+    return () => window.clearTimeout(t);
+  }, [localNotice, live.flash, setLive]);
+
+  // Tự cuộn tới bài mới (và tới bài trong liên kết `#post-…` của chuông).
+  const lastCount = useRef<number | null>(null);
+  const postsTotal = view ? view.discussion.length + (view.mainAi ? 1 : 0) : 0;
+  useEffect(() => {
+    if (!view) return;
+    const smooth = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (lastCount.current === null) {
+      lastCount.current = postsTotal;
+      const hash = window.location.hash.slice(1);
+      if (hash) document.getElementById(hash)?.scrollIntoView({ block: "center" });
+      return;
+    }
+    if (postsTotal > lastCount.current) {
+      const last = view.discussion[view.discussion.length - 1];
+      document.getElementById(`post-${last?.id}`)?.scrollIntoView({ block: "nearest", behavior: smooth ? "smooth" : "auto" });
+    }
+    lastCount.current = postsTotal;
+  }, [postsTotal, view]);
+
+  if (!view || !courses.some((c) => c.id === view.courseId)) {
     return (
       <Page>
         <PageHeader title="Thread" back={{ href: "/threads", label: "Threads" }} />
@@ -83,371 +119,284 @@ export function ThreadDetail({ id }: { id: string }) {
     );
   }
 
-  const title = seeded?.title ?? mine?.title ?? fromInsights?.title ?? "";
-  const topic = seeded?.topic ?? fromInsights?.topic ?? "Câu hỏi của bạn";
+  const all = [view.question, ...(view.mainAi ? [view.mainAi] : []), ...view.discussion];
+  const byId = (pid?: string) => all.find((p) => p.id === pid);
+  const mineOf = (p: ThreadPost) => p.authorId === user.id && p.role !== "ai";
+  const canModerate = isStaff;
+  const taWriting = live.due.some((d) => d.threadId === id && !d.fired && now >= d.sentMs + TA_TYPING_AFTER_MS && now < d.sentMs + TA_REPLY_AFTER_MS);
+  const hits = findPii(text);
 
-  // Danh sách posts gốc (câu hỏi + câu trả lời AI)
-  const initialPosts: ThreadPost[] = seeded
-    ? seeded.posts
-    : mine
-      ? [
-          { id: "p1", author: mine.authorName || "Bạn", role: mine.authorRole || "student", body: mine.body, minsAgo: mine.createdAtMinsAgo || 0, mine: true },
-          ...(mine.answered
-            ? [
-                {
-                  id: "p2",
-                  author: "Trợ lý AI của lớp",
-                  role: "ai" as const,
-                  body: "Theo bài giảng An ninh mạng, đối với vấn đề này cần xem xét bối cảnh thực thi và tính chất ngẫu nhiên của véc-tơ khởi tạo. Bạn có thể đối chiếu thêm bảng so sánh chế độ khối trong tài liệu Chương 3.",
-                  minsAgo: 0,
-                  state: "pending" as const,
-                  citations: [
-                    { title: "Chương 3 — Mật mã đối xứng và chế độ vận hành", locator: "trang 14–17", href: "/library" },
-                  ],
-                },
-              ]
-            : []),
-        ]
-      : [{ id: "p1", author: "Giảng viên", role: "teacher", body: fromInsights?.body ?? "", minsAgo: 0 }];
-
-  // Tách câu hỏi gốc và câu trả lời AI
-  const questionPost = initialPosts[0];
-  const aiPost = initialPosts.find((p) => p.role === "ai");
-  const otherPosts = initialPosts.slice(1).filter((p) => p.role !== "ai");
-
-  // Moderation state cho AI post của thread này
-  const modKey = `${id}:${aiPost?.id || "p2"}`;
-  const currentMod = moderations[modKey];
-  const aiState = currentMod?.state ?? aiPost?.state ?? "pending";
-  const aiBody = currentMod?.editedBody ?? edits[aiPost?.id || ""] ?? aiPost?.body ?? "";
-  const originalAiBody = currentMod?.originalBody ?? aiPost?.body ?? "";
-
-  // Danh sách các replies thảo luận (bao gồm cả reply động do người dùng thêm)
-  const threadReplies: ThreadReply[] = allReplies[id] ?? [];
-
-  // GV / TA xác nhận câu trả lời AI
-  function verifyAiAnswer() {
-    if (!aiPost) return;
-    const prevMod = currentMod;
-    setModerations((prev) => ({
-      ...prev,
-      [modKey]: { state: "verified", verifiedBy: user.name, originalBody: originalAiBody, editedBody: aiBody },
-    }));
-    undo.push("Đã xác nhận câu trả lời của AI", () => {
-      setModerations((prev) => {
-        const next = { ...prev };
-        if (prevMod) next[modKey] = prevMod;
-        else delete next[modKey];
-        return next;
-      });
-    });
+  function update(fn: (p: ThreadsLive) => ThreadsLive) {
+    setLive(fn);
   }
 
-  // GV / TA lưu chỉnh sửa và xác nhận (Proposal #15, 02-AC8)
-  function saveEditedAiAnswer() {
-    if (!aiPost) return;
-    const prevMod = currentMod;
-    setModerations((prev) => ({
-      ...prev,
-      [modKey]: {
-        state: "corrected",
-        verifiedBy: user.name,
-        originalBody: originalAiBody,
-        editedBody: aiEditText.trim() || aiBody,
-      },
-    }));
-    setEditingAi(false);
-    undo.push("Đã sửa và xác nhận câu trả lời AI", () => {
-      setModerations((prev) => {
-        const next = { ...prev };
-        if (prevMod) next[modKey] = prevMod;
-        else delete next[modKey];
-        return next;
-      });
-    });
+  function send(raw: string, withAi: boolean, hidden = 0) {
+    if (!view) return;
+    const nowMs = simNowMs();
+    update((prev) => addReply(prev, findThread(id, prev, insight, nowMs) ?? view, { actor, text: raw, quoteOf, withAi: withAi || hasMention(raw) }, nowMs).live);
+    setEdit({ text: "" });
+    setNotice(hidden > 0 ? `Đã ẩn ${hidden} thông tin cá nhân` : null);
+    setGuard(null);
   }
 
-  // GV / TA loại bỏ câu trả lời AI khỏi tri thức
-  function removeAiAnswer() {
-    if (!aiPost) return;
-    const prevMod = currentMod;
-    setModerations((prev) => ({
-      ...prev,
-      [modKey]: { state: "removed", originalBody: originalAiBody },
-    }));
-    undo.push("Đã loại câu trả lời khỏi tri thức", () => {
-      setModerations((prev) => {
-        const next = { ...prev };
-        if (prevMod) next[modKey] = prevMod;
-        else delete next[modKey];
-        return next;
-      });
-    });
+  function submit(withAi: boolean) {
+    const raw = text.trim();
+    if (!raw) return;
+    if (findPii(raw).length > 0) setGuard({ kind: "reply", text: raw, withAi });
+    else send(raw, withAi);
   }
 
-  // Gửi phản hồi thảo luận (Reply Composer)
-  function publishReply(text: string) {
-    const newReply: ThreadReply = {
-      id: `rep-${Date.now()}`,
-      threadId: id,
-      author: user.name || (role === "student" ? "Bạn" : "Giảng viên"),
-      role: role === "teacher" || role === "ta" ? "teacher" : "student",
-      body: text.trim(),
-      minsAgo: 0,
-    };
-    setAllReplies((prev) => ({
-      ...prev,
-      [id]: [...(prev[id] ?? []), newReply],
-    }));
-    setReplyText("");
-    setReplyGuard(null);
+  function askAi() {
+    if (text.trim()) return submit(true);
+    if (!view) return;
+    const r = askAiEmpty(live, view, simNowMs());
+    if (r.notice) setNotice(r.notice);
+    else update(() => r.live);
   }
 
-  function handleSendReply() {
-    const text = replyText.trim();
-    if (!text) return;
-    const found = scanPersonal(text);
-    if (found.count > 0) {
-      setReplyGuard({ text, reasons: found.reasons });
-    } else {
-      publishReply(text);
-    }
+  function moderate(post: ThreadPost, state: "verified" | "corrected" | "removed", edited?: string) {
+    const prev = live.mods[`${id}:${post.id}`];
+    update((p) => setMod(p, id, post.id, { state, by: user.name, edited }));
+    undo.push(state === "verified" ? "Đã xác nhận câu trả lời của AI" : state === "corrected" ? "Đã sửa và xác nhận câu trả lời AI" : "Đã loại câu trả lời khỏi tri thức", () =>
+      update((p) => setMod(p, id, post.id, prev ?? null)),
+    );
   }
 
-  // Nút Hỏi trợ lý AI gợi ý phản hồi
-  function handleAskAiHelper() {
-    const suggestion =
-      "Gợi ý từ AI: Đối với câu hỏi về chế độ mật mã, bạn hãy chú ý đến tính chất lan truyền lỗi (error propagation). Khi một khối bản mã bị lỗi, các khối bản rõ giải mã sau đó có bị ảnh hưởng hay không?";
-    setReplyText((prev) => (prev ? `${prev}\n\n${suggestion}` : suggestion));
+  function saveAiEdit(post: ThreadPost, edited: string) {
+    if (findPii(edited).length > 0) return setGuard({ kind: "edit", postId: post.id, text: edited });
+    moderate(post, edited === (post.ai?.originalBody ?? post.body) ? "verified" : "corrected", edited);
   }
 
-  const isStaff = role === "teacher" || role === "ta";
+  function quote(p: ThreadPost) {
+    setQuoteOf(p.id);
+    composerRef.current?.focus();
+    composerRef.current?.scrollIntoView({ block: "center" });
+  }
+
+  const quotePost = byId(quoteOf);
+  const aiPostById = (pid: string) => view.mainAi?.id === pid ? view.mainAi : view.discussion.find((p) => p.id === pid);
+  const disabledReason = busy ? "Trợ lý AI đang soạn…" : !text.trim() ? "Nhập nội dung phản hồi" : "";
+
+  function bodyOf(p: ThreadPost) {
+    if (editingId === p.id)
+      return (
+        <EditInline
+          body={p.body}
+          onCancel={() => setEditingId(null)}
+          onSave={(t) => {
+            update((prev) => editPost(prev, id, p.id, t));
+            setEditingId(null);
+          }}
+        />
+      );
+    return (
+      <>
+        <p className={s.body}>{p.body}</p>
+        {p.edited && <p className={s.edited}>Đã sửa</p>}
+      </>
+    );
+  }
 
   return (
     <Page>
       <PageHeader
-        title={title}
+        title={view.title}
         back={{ href: "/threads", label: "Threads" }}
         meta={
-          <>
-            {fromInsights || seeded?.pinned ? (
-              <span className={s.pinNote}>
-                <Pin aria-hidden /> Ghim
-              </span>
-            ) : null}
-            <span>{topic}</span>
-            {seeded && <span>Tuần {seeded.week}</span>}
-          </>
+          view.pinned ? (
+            <span className={s.pinNote}>
+              <Pin aria-hidden /> Ghim
+            </span>
+          ) : undefined
         }
       />
 
       <PageState loading={<Skeleton lines={8} />} empty={<EmptyState title="Thread này chưa có nội dung">Nội dung sẽ hiện khi người đăng gửi câu hỏi.</EmptyState>}>
         <div className={s.detailContainer}>
-          {/* 1. KHỐI CÂU HỎI GỐC (Panel 1) */}
-          {questionPost && (
-            <div className={s.questionPanel}>
-              <div className={s.postHead}>
-                <span className={s.author}>{questionPost.author}</span>
-                <span className={s.postMeta}>{questionPost.minsAgo > 0 ? ago(at(-questionPost.minsAgo)) : "vừa xong"}</span>
-                <StatusText tone="neutral">Câu hỏi gốc</StatusText>
-              </div>
-              <p className={s.body}>{edits[questionPost.id] ?? questionPost.body}</p>
-
-              <div className={s.postActions}>
-                {role === "student" ? (
+          {/* 1. Câu hỏi gốc */}
+          <div className={s.questionPanel} data-part="thread-question" id={`post-${view.question.id}`}>
+            <div className={s.postHead}>
+              <span className={s.author}>
+                {view.question.author}
+                {mineOf(view.question) ? " (bạn)" : ""}
+              </span>
+              <span className={s.postMeta}>
+                {`${view.topic} · Tuần ${view.week} · ${postAgo(view.question, now)} · ${view.participants} người tham gia`}
+              </span>
+            </div>
+            {editingId === view.question.id ? (
+              <EditInline
+                body={view.question.body}
+                onCancel={() => setEditingId(null)}
+                onSave={(t) => {
+                  update((prev) => editPost(prev, id, view.question.id, t));
+                  setEditingId(null);
+                }}
+              />
+            ) : (
+              <p className={s.body}>{view.question.body}</p>
+            )}
+            {role === "student" && editingId !== view.question.id && (
+              <PostActions>
+                {mineOf(view.question) ? (
                   <>
-                    <ReportButton />
-                    {questionPost.mine && (
-                      <EditOwnPost
-                        body={edits[questionPost.id] ?? questionPost.body}
-                        onSave={(text) => {
-                          setEdits((e) => ({ ...e, [questionPost.id]: text }));
-                          if (mine) setPosts((prev) => prev.map((x) => (x.id === mine.id ? { ...x, body: text } : x)));
-                        }}
-                        onDelete={() => {
-                          if (mine) setPosts((prev) => prev.filter((x) => x.id !== mine.id));
+                    <Button size="sm" onClick={() => setEditingId(view.question.id)}>
+                      Sửa
+                    </Button>
+                    {view.origin === "live" && (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => {
+                          update((prev) => deleteLiveThread(prev, id));
                           router.push("/threads");
                         }}
-                      />
+                      >
+                        Xoá bài của tôi
+                      </Button>
                     )}
                   </>
-                ) : null}
-              </div>
-            </div>
+                ) : (
+                  <ReportButton />
+                )}
+              </PostActions>
+            )}
+          </div>
+
+          {/* 2. Câu trả lời AI chính */}
+          {view.mainAi && (
+            <AiBlock
+              panel
+              post={view.mainAi}
+              now={now}
+              canModerate={canModerate}
+              onStop={(n) => update((p) => stopAi(p, id, view.mainAi!.id, n))}
+              onRetry={() => update((p) => retryAi(p, id, view.mainAi!.id, simNowMs()))}
+              onVerify={() => moderate(view.mainAi!, "verified")}
+              onSaveEdit={(t) => saveAiEdit(view.mainAi!, t)}
+              onRemove={() => moderate(view.mainAi!, "removed")}
+            />
           )}
 
-          {/* 2. KHỐI CÂU TRẢ LỜI AI (Panel 2 - nếu chưa bị loại bỏ) */}
-          {aiPost && aiState !== "removed" && (
-            <div className={[s.aiPanel, aiState === "verified" || aiState === "corrected" ? s.aiPanelVerified : ""].join(" ")}>
-              <div className={s.postHead}>
-                <span className={s.author}>
-                  <Sparkles style={{ width: 15, height: 15, display: "inline", verticalAlign: "middle", marginRight: 4, color: "var(--ep-amber)" }} aria-hidden />
-                  {aiPost.author}
+          {/* 3. MỘT vùng thảo luận, ô soạn ở cuối chính vùng này */}
+          <Section title={`Thảo luận (${view.discussion.length})`} id="discussion">
+            {view.discussion.length > 0 && (
+              <ol className={s.posts}>
+                {view.discussion.map((p) => (
+                  <li key={p.id}>
+                    {p.role === "ai" && p.ai ? (
+                      <AiBlock
+                        post={p}
+                        now={now}
+                        canModerate={canModerate}
+                        onStop={(n) => update((prev) => stopAi(prev, id, p.id, n))}
+                        onRetry={() => update((prev) => retryAi(prev, id, p.id, simNowMs()))}
+                        onVerify={() => moderate(p, "verified")}
+                        onSaveEdit={(t) => saveAiEdit(p, t)}
+                        onRemove={() => moderate(p, "removed")}
+                      />
+                    ) : (
+                      <article className={s.replyPanel} id={`post-${p.id}`} data-part="thread-post">
+                        <div className={s.postHead}>
+                          <span className={s.author}>
+                            {p.author}
+                            {mineOf(p) ? " (bạn)" : ""}
+                          </span>
+                          <RoleChip post={p} />
+                          <span className={s.postMeta}>{postAgo(p, now)}</span>
+                        </div>
+                        {p.quoteOf && byId(p.quoteOf) && <QuoteBlock post={byId(p.quoteOf)!} now={now} />}
+                        {bodyOf(p)}
+                        {editingId !== p.id && (
+                          <PostActions>
+                            <Button size="sm" variant="ghost" onClick={() => quote(p)}>
+                              Trả lời
+                            </Button>
+                            {mineOf(p) && role === "student" ? (
+                              <>
+                                <Button size="sm" variant="ghost" onClick={() => setEditingId(p.id)}>
+                                  Sửa
+                                </Button>
+                                {p.ms !== undefined && (
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      update((prev) => removePost(prev, id, p.id));
+                                      undo.push("Đã xoá phản hồi của bạn", () => update((prev) => restorePost(prev, id, p.id)));
+                                    }}
+                                  >
+                                    Xoá
+                                  </Button>
+                                )}
+                              </>
+                            ) : role === "student" ? (
+                              <ReportButton />
+                            ) : null}
+                          </PostActions>
+                        )}
+                      </article>
+                    )}
+                  </li>
+                ))}
+              </ol>
+            )}
+
+            {taWriting && (
+              <p className={s.typing} role="status">
+                {STAFF.ta.name} đang trả lời…
+                <span className={s.dots} aria-hidden>
+                  <i />
+                  <i />
+                  <i />
                 </span>
-                <span className={s.postMeta}>{aiPost.minsAgo > 0 ? ago(at(-aiPost.minsAgo)) : "vừa xong"}</span>
+              </p>
+            )}
 
-                {aiState === "verified" && (
-                  <span className={s.verifiedLabel}>
-                    <Check aria-hidden /> Đã được giảng viên xác nhận
-                  </span>
-                )}
-                {aiState === "corrected" && (
-                  <span className={s.correctedLabel}>
-                    <Check aria-hidden /> Đã được giảng viên sửa & xác nhận
-                  </span>
-                )}
-                {aiState === "pending" && <StatusText tone="amber">Chờ xác nhận</StatusText>}
-              </div>
-
-              {/* Chế độ sửa câu trả lời AI (Proposal #15, 02-AC8) */}
-              {editingAi ? (
-                <div className={s.editBox}>
-                  <Field label="Chỉnh sửa câu trả lời AI trước khi xác nhận">
-                    {(fid) => <Textarea id={fid} rows={5} value={aiEditText} onChange={(e) => setAiEditText(e.target.value)} />}
-                  </Field>
-                  <div className={s.editActions}>
-                    <Button variant="primary" size="sm" onClick={saveEditedAiAnswer}>
-                      Lưu và xác nhận
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setEditingAi(false)}>
-                      Huỷ
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <p className={s.body}>{aiBody}</p>
-
-                  {/* Nút xem câu trả lời gốc nếu đã qua sửa */}
-                  {aiState === "corrected" && originalAiBody && (
-                    <div>
-                      <button type="button" className={s.originalAnswerToggle} onClick={() => setShowOriginalAi((prev) => !prev)}>
-                        {showOriginalAi ? "Ẩn câu trả lời AI gốc" : "Xem câu trả lời AI gốc (so sánh)"}
-                      </button>
-                      {showOriginalAi && <p className={s.originalAnswerBox}>{originalAiBody}</p>}
-                    </div>
-                  )}
-
-                  {/* Trích dẫn nguồn mở rộng xem chi tiết được */}
-                  {aiPost.citations && aiPost.citations.length > 0 && (
-                    <div>
-                      <p className={s.citesHeader}>Nguồn tham khảo trích dẫn:</p>
-                      <ul className={s.cites}>
-                        {aiPost.citations.map((c) => {
-                          const isExpanded = expandedCites[c.title] ?? false;
-                          const snippet = CITATION_SNIPPETS[c.title] || `Trích từ ${c.title}, ${c.locator}: Nội dung đối chiếu học thuật về quy chuẩn an toàn.`;
-                          return (
-                            <li key={c.title}>
-                              <button
-                                type="button"
-                                className={s.citeItem}
-                                onClick={() => setExpandedCites((prev) => ({ ...prev, [c.title]: !prev[c.title] }))}
-                                aria-expanded={isExpanded}
-                              >
-                                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                                  <span className={s.citeTitle}>{c.title}</span>
-                                  {isExpanded ? <ChevronUp style={{ width: 14, height: 14 }} aria-hidden /> : <ChevronDown style={{ width: 14, height: 14 }} aria-hidden />}
-                                </div>
-                                <span className={s.citeMeta}>{c.locator} · Bấm để xem đoạn trích</span>
-                                {isExpanded && <p className={s.citeSnippet}>{snippet}</p>}
-                              </button>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </div>
-                  )}
-                </>
-              )}
-
-              {/* Các thao tác kiểm duyệt của GV / TA */}
-              {isStaff && !editingAi && aiState === "pending" && (
-                <div className={s.postActions}>
-                  <Button variant="primary" size="sm" onClick={verifyAiAnswer}>
-                    Xác nhận
+            <div className={s.replyComposerPanel} data-part="reply-composer">
+              <p className={s.composerLabel} id="reply-label">
+                Phản hồi của bạn
+              </p>
+              {quotePost && (
+                <div className={s.quoteDraft}>
+                  <QuoteBlock post={quotePost} now={now} />
+                  <Button size="sm" variant="ghost" onClick={() => setQuoteOf(undefined)}>
+                    Bỏ trích
                   </Button>
-                  <Button
-                    size="sm"
-                    icon={<Edit3 style={{ width: 14, height: 14 }} aria-hidden />}
-                    onClick={() => {
-                      setAiEditText(aiBody);
-                      setEditingAi(true);
-                    }}
-                  >
-                    Chỉnh sửa
-                  </Button>
-                  <OverflowMenu
-                    items={[
-                      {
-                        label: "Loại khỏi tri thức",
-                        danger: true,
-                        onSelect: removeAiAnswer,
-                      },
-                    ]}
-                  />
                 </div>
               )}
-            </div>
-          )}
-
-          {/* 3. KHỐI THẢO LUẬN / PHẢN HỒI KHÁC (Panel 3...) */}
-          {(otherPosts.length > 0 || threadReplies.length > 0) && (
-            <Section title="Thảo luận của lớp" description="Ý kiến và giải đáp từ sinh viên, trợ giảng và giảng viên">
-              <div style={{ display: "grid", gap: "var(--ep-space-3)" }}>
-                {otherPosts.map((p) => (
-                  <div key={p.id} className={s.replyPanel}>
-                    <div className={s.postHead}>
-                      <span className={s.author}>{p.author}</span>
-                      <span className={s.postMeta}>{p.minsAgo > 0 ? ago(at(-p.minsAgo)) : "vừa xong"}</span>
-                      {p.role === "teacher" && <StatusText tone="green">Giảng viên</StatusText>}
-                    </div>
-                    <p className={s.body}>{p.body}</p>
-                  </div>
-                ))}
-                {threadReplies.map((r) => (
-                  <div key={r.id} className={s.replyPanel}>
-                    <div className={s.postHead}>
-                      <span className={s.author}>{r.author}</span>
-                      <span className={s.postMeta}>{r.minsAgo > 0 ? ago(at(-r.minsAgo)) : "vừa xong"}</span>
-                      {r.role === "teacher" && <StatusText tone="green">Giảng viên</StatusText>}
-                    </div>
-                    <p className={s.body}>{r.body}</p>
-                  </div>
-                ))}
-              </div>
-            </Section>
-          )}
-
-          {/* 4. KHỐI REPLY COMPOSER Ở CUỐI TRANG (Panel 4) */}
-          <Section title="Phản hồi trong thread này" description="Đóng góp câu trả lời hoặc thảo luận mở rộng với cả lớp">
-            <div className={s.replyComposerPanel}>
-              <Field label="Nội dung phản hồi của bạn" helper="Hỏi đáp hoặc đóng góp ý kiến. Không ghi thông tin cá nhân.">
-                {(fid) => (
-                  <Textarea
-                    id={fid}
-                    rows={3}
-                    value={replyText}
-                    onChange={(e) => setReplyText(e.target.value)}
-                    placeholder="Viết phản hồi hoặc đặt câu hỏi tiếp nối tại đây..."
-                  />
+              {hits.length > 0 && <p className={s.hint}>Có vẻ bài có thông tin cá nhân. Bạn sẽ được hỏi trước khi đăng.</p>}
+              <Textarea
+                id="reply-body"
+                aria-labelledby="reply-label"
+                ref={composerRef}
+                rows={3}
+                value={text}
+                onChange={(e) => {
+                  setText(e.target.value);
+                  if (notice) {
+                    setNotice(null);
+                    if (live.flash) setLive((prev) => ({ ...prev, flash: undefined }));
+                  }
+                }}
+                aria-describedby={disabledReason ? "reply-hint" : undefined}
+                placeholder="Viết phản hồi hoặc đặt câu hỏi tiếp nối tại đây…"
+              />
+              {notice && (
+                <p className={s.notice} role="status">
+                  {notice}
+                </p>
+              )}
+              <div className={s.composerBar}>
+                {disabledReason && (
+                  <span id="reply-hint" className={s.missing}>
+                    {disabledReason}
+                  </span>
                 )}
-              </Field>
-
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "var(--ep-space-3)" }}>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  icon={<Sparkles style={{ width: 14, height: 14, color: "var(--ep-amber)" }} aria-hidden />}
-                  onClick={handleAskAiHelper}
-                >
+                <Button variant="secondary" icon={<Sparkles aria-hidden />} onClick={askAi} disabled={busy}>
                   Hỏi trợ lý AI
                 </Button>
-                <Button
-                  variant="primary"
-                  icon={<MessageSquare style={{ width: 15, height: 15 }} aria-hidden />}
-                  onClick={handleSendReply}
-                  disabled={!replyText.trim()}
-                >
+                <Button variant="primary" icon={<MessageSquare aria-hidden />} onClick={() => submit(false)} disabled={busy || !text.trim()} aria-describedby={disabledReason ? "reply-hint" : undefined}>
                   Gửi phản hồi
                 </Button>
               </div>
@@ -459,100 +408,31 @@ export function ThreadDetail({ id }: { id: string }) {
       </PageState>
 
       <PIIChannelDialog
-        open={Boolean(replyGuard)}
-        text={replyGuard?.text ?? ""}
-        reasons={replyGuard?.reasons ?? []}
-        onClose={() => setReplyGuard(null)}
-        onPrivateChat={() => {
-          if (replyGuard) {
-            setChatDraft(replyGuard.text);
-            setReplyGuard(null);
-            router.push("/chat");
-          }
-        }}
-        onRedactedPost={(clean) => {
-          if (replyGuard) {
-            publishReply(clean);
+        open={Boolean(guard)}
+        summary={describePii(findPii(guard?.text ?? ""))}
+        onClose={() => setGuard(null)}
+        onPrivateChat={
+          role === "student" && guard?.kind === "reply"
+            ? () => {
+                setChatDraft(guard.text);
+                setEdit({ text: "" });
+                setLive((prev) => saveDraft(prev, id, { text: "" }));
+                setGuard(null);
+                router.push("/chat");
+              }
+            : undefined
+        }
+        onRedactedPost={() => {
+          if (!guard) return;
+          if (guard.kind === "reply") send(redactPii(guard.text), guard.withAi, findPii(guard.text).length);
+          else {
+            const post = aiPostById(guard.postId);
+            const edited = redactPii(guard.text);
+            setGuard(null);
+            if (post) moderate(post, "corrected", edited);
           }
         }}
       />
     </Page>
-  );
-}
-
-function ReportButton() {
-  const [sent, setSent] = useState(false);
-  if (sent) return <StatusText tone="green">Đã gửi báo cáo</StatusText>;
-  return (
-    <Popover
-      label="Báo cáo bài viết"
-      width={240}
-      trigger={(p) => (
-        <Button size="sm" onClick={p.toggle} aria-expanded={p["aria-expanded"]}>
-          Báo cáo
-        </Button>
-      )}
-    >
-      {(close) => (
-        <div className={s.reportPanel}>
-          <p className={s.reportLabel}>Lý do báo cáo</p>
-          {REPORT_REASONS.map((r) => (
-            <button
-              key={r}
-              type="button"
-              className={s.reportItem}
-              onClick={() => {
-                setSent(true);
-                close();
-              }}
-            >
-              {r}
-            </button>
-          ))}
-        </div>
-      )}
-    </Popover>
-  );
-}
-
-function EditOwnPost({ body, onSave, onDelete }: { body: string; onSave: (text: string) => void; onDelete: () => void }) {
-  const [editing, setEditing] = useState(false);
-  const [text, setText] = useState(body);
-  if (editing) {
-    return (
-      <div className={s.editBox}>
-        <Textarea value={text} rows={4} aria-label="Sửa bài của bạn" onChange={(e) => setText(e.target.value)} />
-        <div className={s.editActions}>
-          <Button
-            size="sm"
-            variant="primary"
-            onClick={() => {
-              onSave(text);
-              setEditing(false);
-            }}
-          >
-            Lưu
-          </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            onClick={() => {
-              setText(body);
-              setEditing(false);
-            }}
-          >
-            Huỷ
-          </Button>
-        </div>
-      </div>
-    );
-  }
-  return (
-    <>
-      <Button size="sm" onClick={() => setEditing(true)}>
-        Sửa
-      </Button>
-      <OverflowMenu items={[{ label: "Xoá bài của tôi", danger: true, onSelect: onDelete }]} />
-    </>
   );
 }

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { ThreadsBackground } from "@/features/threads/ThreadsBackground";
 import { AppShell } from "@/shared/shell/AppShell";
 import { COURSE_COOKIE, PERSON_COOKIE, ROLE_COOKIE, parseCourse, parsePerson, parseRole } from "@/shared/session/cookies";
 import { SessionProvider } from "@/shared/session/session";
@@ -12,6 +13,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <SessionProvider initialRole={role} initialPersonId={parsePerson(jar.get(PERSON_COOKIE)?.value)} initialCourseId={parseCourse(jar.get(COURSE_COOKIE)?.value)}>
       <AppShell>{children}</AppShell>
+      <ThreadsBackground />
     </SessionProvider>
   );
 }
