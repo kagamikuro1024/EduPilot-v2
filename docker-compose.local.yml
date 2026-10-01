@@ -1,4 +1,25 @@
-# Stack dev local (D48). Chạy qua `pnpm dev`; tên project: edupilot.
+# Stack dev local (D48, SRS 8.4). Chạy qua `pnpm dev`; tên project: edupilot.
+# Mọi giá trị nhạy cảm là ${BIEN} lấy từ .env.local (tạo từ .env.example).
+
+# Biến môi trường chung của gateway / worker. Giá trị để trống = dùng mặc định của platform/config.
+x-app-env: &app-env
+  APP_ENV: ${APP_ENV:-dev}
+  LOG_LEVEL: ${LOG_LEVEL:-}
+  DATABASE_URL: ${DATABASE_URL}
+  PGBOUNCER_URL: ${PGBOUNCER_URL}
+  REDIS_URL: ${REDIS_URL}
+  DB_MAX_CONNS: ${DB_MAX_CONNS:-}
+  DB_SLOW_QUERY_MS: ${DB_SLOW_QUERY_MS:-}
+  STARTUP_TIMEOUT: ${STARTUP_TIMEOUT:-}
+  OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+  BLOB_ENDPOINT: ${BLOB_ENDPOINT}
+  BLOB_BUCKET: ${BLOB_BUCKET}
+  BLOB_ACCESS_KEY: ${BLOB_ACCESS_KEY}
+  BLOB_SECRET_KEY: ${BLOB_SECRET_KEY}
+  BLOB_USE_SSL: ${BLOB_USE_SSL:-}
+  BLOB_PUBLIC_ENDPOINT: ${BLOB_PUBLIC_ENDPOINT:-}
+  BLOB_REGION: ${BLOB_REGION:-}
+
 services:
   postgres:
     image: pgvector/pgvector:pg18
@@ -14,8 +35,28 @@ services:
       timeout: 3s
       retries: 20
 
+  pgbouncer:
+    # Image cộng đồng cấu hình bằng biến môi trường (QUESTIONS.md Q12), ghim phiên bản.
+    # Cấu hình hiệu lực ở deploy/pgbouncer/pgbouncer.ini (SRS 8.3); entrypoint chỉ sinh userlist.txt
+    # từ DATABASE_URLS nên không có mật khẩu nào nằm trong file này hay trong image.
+    image: edoburu/pgbouncer:v1.26.0-p0
+    environment:
+      AUTH_TYPE: scram-sha-256
+      DATABASE_URLS: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB},postgres://${PGBOUNCER_STATS_USER}:${PGBOUNCER_STATS_PASSWORD}@postgres:5432/
+      PGBOUNCER_STATS_USER: ${PGBOUNCER_STATS_USER}
+      PGBOUNCER_STATS_PASSWORD: ${PGBOUNCER_STATS_PASSWORD}
+    volumes: ["./deploy/pgbouncer/pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro"]
+    depends_on:
+      postgres: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD-SHELL", "psql \"postgres://$${PGBOUNCER_STATS_USER}:$${PGBOUNCER_STATS_PASSWORD}@127.0.0.1:6432/pgbouncer\" -Atc 'SHOW VERSION' >/dev/null"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   redis:
     image: redis:8
+    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory-policy", "noeviction"]
     ports: ["6380:6379"]
     volumes: ["redis_data:/data"]
     healthcheck:
@@ -26,6 +67,7 @@ services:
 
   minio:
     # minio/minio (Docker Hub, quay.io) đã ngừng phát hành; dùng bản fork cộng đồng cùng API S3 (xem proposals.md #3).
+    # Bucket do gateway tự tạo lúc khởi động khi APP_ENV ≠ production (SRS 8.1).
     image: pgsty/minio:RELEASE.2026-08-04T00-00-00Z
     command: server /data --console-address ":9001"
     environment:
@@ -48,23 +90,110 @@ services:
       timeout: 3s
       retries: 20
 
-  gateway:
-    build: ./backend-go
-    env_file: .env.local
-    ports: ["8080:8080"]
+  migrate:
+    # Một lần: goose up qua DATABASE_URL trực tiếp (không qua PgBouncer — goose dùng khoá tư vấn session).
+    build:
+      context: ./backend-go
+      target: gateway
+    image: edupilot-gateway
+    entrypoint: ["/gateway", "migrate"]
+    command: ["up"]
+    environment:
+      APP_ENV: ${APP_ENV:-dev}
+      LOG_LEVEL: ${LOG_LEVEL:-}
+      DATABASE_URL: ${DATABASE_URL}
+    restart: "no"
+    read_only: true
+    tmpfs: ["/tmp"]
     depends_on:
       postgres: { condition: service_healthy }
+
+  gateway:
+    # Không container_name và không công bố cổng: `--scale gateway=2` không tranh cổng (SRS 8.4).
+    build:
+      context: ./backend-go
+      target: gateway
+    image: edupilot-gateway
+    environment:
+      <<: *app-env
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      HTTP_ADDR: ${HTTP_ADDR:-}
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-}
+      BCRYPT_COST: ${BCRYPT_COST:-}
+      MAX_BODY_BYTES: ${MAX_BODY_BYTES:-}
+      REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-}
+      SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-}
+      RATE_LIMIT_IP_PER_MIN: ${RATE_LIMIT_IP_PER_MIN:-}
+      RATE_LIMIT_USER_PER_MIN: ${RATE_LIMIT_USER_PER_MIN:-}
+      TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
+      SSE_HEARTBEAT: ${SSE_HEARTBEAT:-}
+      SSE_MAX_DURATION: ${SSE_MAX_DURATION:-}
+      SSE_MAX_PER_USER: ${SSE_MAX_PER_USER:-}
+      SSE_CONN_TTL: ${SSE_CONN_TTL:-}
+      SSE_BUFFER_MAXLEN: ${SSE_BUFFER_MAXLEN:-}
+      SSE_BUFFER_TTL: ${SSE_BUFFER_TTL:-}
+    read_only: true
+    tmpfs: ["/tmp"]
+    restart: on-failure:3
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
+      minio: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/gateway", "-healthcheck"]
       interval: 5s
       timeout: 3s
       retries: 20
 
+  worker:
+    build:
+      context: ./backend-go
+      target: worker
+    image: edupilot-worker
+    environment:
+      <<: *app-env
+      WORKER_HEALTH_ADDR: ${WORKER_HEALTH_ADDR:-}
+      OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-}
+      OUTBOX_BATCH: ${OUTBOX_BATCH:-}
+      OUTBOX_RETRY_BACKOFF: ${OUTBOX_RETRY_BACKOFF:-}
+      OUTBOX_CLAIM_IDLE: ${OUTBOX_CLAIM_IDLE:-}
+      OUTBOX_STALE_AFTER: ${OUTBOX_STALE_AFTER:-}
+    read_only: true
+    tmpfs: ["/tmp"]
+    restart: on-failure:3
+    depends_on:
+      migrate: { condition: service_completed_successfully }
+      pgbouncer: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "/worker", "-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  caddy:
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    volumes:
+      - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      gateway: { condition: service_healthy }
+    healthcheck:
+      test: ["CMD", "caddy", "validate", "--config", "/etc/caddy/Caddyfile"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://localhost}
     ports: ["3000:3000"]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
@@ -76,3 +205,5 @@ volumes:
   postgres_data:
   redis_data:
   minio_data:
+  caddy_data:
+  caddy_config:

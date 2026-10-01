@@ -28,7 +28,7 @@ if (docker.status !== 0) {
   process.exit(docker.status || 1);
 }
 
-console.log("[dev] Dựng postgres, redis, minio, mailpit, gateway, frontend và chờ healthy...");
+console.log("[dev] Dựng postgres, pgbouncer, redis, minio, mailpit, migrate, gateway, worker, caddy, frontend và chờ healthy...");
 const up = spawnSync(
   "docker",
   ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-p", "edupilot", "up", "-d", "--build", "--remove-orphans", "--wait"],
@@ -39,4 +39,4 @@ if (up.error) {
   process.exit(1);
 }
 if (up.status !== 0) process.exit(up.status ?? 1);
-console.log("[dev] Sẵn sàng — frontend http://localhost:3000 · gateway http://localhost:8080/healthz · mail http://localhost:8025 · minio http://localhost:9001");
+console.log("[dev] Sẵn sàng — https://localhost (chứng chỉ nội bộ của Caddy: dùng `curl -k`) · mail http://localhost:8025 · minio http://localhost:9001");
