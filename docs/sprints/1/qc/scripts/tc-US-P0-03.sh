@@ -42,7 +42,8 @@ tc_04(){ [ -f $WF ] || { fail "không có $WF"; return; }
   eq "$(grep -cE 'uses: *[^ ]+@(main|master|latest)\b' $WF)" 0 "action không trỏ @main/@master"
   eq "$(grep -cE 'pull_request_target' $WF)" 0 "không pull_request_target"
   local order; order=$(grep -nE 'go vet|golangci-lint run|go test -race|frozen-lockfile|frontend lint|frontend build|ui-antipatterns' $WF | cut -d: -f1 | xargs); echo "thứ tự dòng lệnh: $order"
-  grep -nE 'go vet' $WF | head -1 | cut -d: -f1 | { read a; b=$(grep -nE 'golangci-lint run' $WF | head -1 | cut -d: -f1); c=$(grep -nE 'go test -race' $WF | head -1 | cut -d: -f1); [ "$a" -lt "$b" ] && [ "$b" -lt "$c" ] && pass "Go: vet < golangci < test" || fail "thứ tự bước Go sai"; }
+  local n1 n2 n3; n1=$(grep -nE '^\s+- name: go vet' $WF | cut -d: -f1); n2=$(grep -nE '^\s+- name: golangci-lint' $WF | cut -d: -f1); n3=$(grep -nE '^\s+- name: go test -race' $WF | cut -d: -f1)
+  [ -n "$n1" ] && [ -n "$n2" ] && [ -n "$n3" ] && [ "$n1" -lt "$n2" ] && [ "$n2" -lt "$n3" ] && pass "Go: vet < golangci-lint < test (theo tên bước)" || fail "thứ tự/tên bước Go sai ($n1,$n2,$n3)"
   grep -qE 'go test -race \./\.\.\.' $WF && grep -qE 'go vet \./\.\.\.' $WF && pass "đúng lệnh đủ ./..." || fail "lệnh Go không dùng ./..."
   grep -qE 'pnpm -C frontend lint' $WF && grep -qE 'pnpm -C frontend build' $WF && grep -qE 'bash scripts/ui-antipatterns.sh' $WF && pass "đúng 3 lệnh frontend" || fail "thiếu lệnh frontend"
   eq "$(grep -cE '^\s+name: *(Go|Frontend)\s*$' $WF)" 2 "tên job Go, Frontend"; }
@@ -54,7 +55,9 @@ tc_05(){ eq "$(grep -nE 'legacy|secrets\.|_API_KEY' $WF | wc -l | xargs)" 0 "kh�
 tc_06(){ head_run; gh run view $ID --log >/tmp/qc-ci.log 2>&1; eq "$?" 0 "tải log run"
   eq "$(grep -c 'legacy/' /tmp/qc-ci.log)" 0 "log không nhắc legacy/ (dòng khớp cần xem tay nếu >0)"
   eq "$(grep -ciE 'api_key|apikey' /tmp/qc-ci.log)" 0 "log không có API key"
-  grep -A3 'GITHUB_TOKEN Permissions' /tmp/qc-ci.log | grep -E 'Contents: read|Metadata: read' | sort -u; grep -A6 'GITHUB_TOKEN Permissions' /tmp/qc-ci.log | grep -E 'write' && fail "token có quyền write" || pass "token không có quyền write"; }
+  grep -q 'golangci-lint run' /tmp/qc-ci.log && pass "log: action chạy thật 'golangci-lint run'" || fail "log không có 'golangci-lint run'"
+  grep -qE 'go test -race' /tmp/qc-ci.log && pass "log: có go test -race" || fail "log không có go test -race"
+  grep -A3 'GITHUB_TOKEN Permissions' /tmp/qc-ci.log | grep -E 'Contents: read|Metadata: read' | sort -u; sed -n '/GITHUB_TOKEN Permissions/,/endgroup/p' /tmp/qc-ci.log | grep -E ': write' && fail "token có quyền write" || pass "token không có quyền write"; }
 
 # ---------- AC3 ----------
 tc_07(){ need RUN_RED_GO || return; local j; j=$(gh run view $RUN_RED_GO --json conclusion,jobs,headBranch,event --jq '[.conclusion,.headBranch,.event,(.jobs[]|"\(.name)=\(.conclusion)")]|join(" ")'); echo "$j"
@@ -98,7 +101,7 @@ tc_14(){ eq "$(git diff --name-only $SBASE HEAD -- .github | xargs)" ".github/wo
 tc_15(){ (cd backend-go && go vet ./... && golangci-lint run && go test -race -count=1 ./...); eq "$?" 0 "chạy local đúng ba lệnh Go của CI"
   pnpm install --frozen-lockfile && pnpm -C frontend lint && pnpm -C frontend build && bash scripts/ui-antipatterns.sh; eq "$?" 0 "chạy local đúng bốn lệnh Frontend của CI (lockfile khớp)"; }
 tc_16(){ git fetch -q origin; eq "$(git rev-list --count origin/$BR..HEAD)" 0 "không còn commit chưa push (AC1 cần HEAD đã push)"
-  eq "$(git branch -r --list origin/ci/red-check | wc -l | xargs)" 0 "origin không còn nhánh tạm"; }
+  echo "info: nhánh ci/red-check chỉ xoá sau khi QC chấm AC3/AC4 (spec v2) — kiểm lại bằng TC-12 sau khi dev xoá"; }
 
 [ $# -eq 0 ] && { echo "dùng: $0 TC-01 [TC-02 ...]"; exit 2; }
 for t in "$@"; do TC=$t; f="tc_${t#TC-}"; if declare -F "$f" >/dev/null; then "$f"; else echo "FAIL $t: không có TC này"; RC=1; fi; done

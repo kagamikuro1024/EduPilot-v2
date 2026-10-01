@@ -1,0 +1,71 @@
+PASS TC-01: có run cho HEAD origin/sprint/1-p0-prep (75ddd58ec2b2f5046b35fd62f68d63ff4006ec08)
+PASS TC-01: run conclusion
+PASS TC-01: headSha = origin/sprint/1-p0-prep
+PASS TC-01: event = push
+PASS TC-02: đúng 2 job
+PASS TC-02: Go + Frontend đều success
+PASS TC-03: ≥ 6 bước khớp (7)
+PASS TC-03: job Go có bước 'go vet'
+PASS TC-03: job Go có bước 'golangci-lint'
+PASS TC-03: job Go có bước 'go test -race'
+PASS TC-03: job Frontend có bước 'install'
+PASS TC-03: job Frontend có bước 'lint'
+PASS TC-03: job Frontend có bước 'build'
+PASS TC-03: job Frontend có bước 'antipattern|ui antipatterns'
+PASS TC-04: có khối on
+PASS TC-04: trigger push
+PASS TC-04: trigger pull_request
+PASS TC-04: push không lọc nhánh/đường dẫn (mọi nhánh)
+PASS TC-04: Go: working-directory backend-go
+PASS TC-04: go-version-file
+PASS TC-04: golangci-lint không latest
+PASS TC-04: có bản ghim cụ thể (golangci-lint/pnpm/…)
+PASS TC-04: Node 24
+PASS TC-04: cache pnpm
+PASS TC-04: package.json có packageManager ghim
+PASS TC-04: frozen-lockfile
+PASS TC-04: hai job không needs (FR-4)
+PASS TC-04: action không trỏ @main/@master
+PASS TC-04: không pull_request_target
+PASS TC-04: Go: vet < golangci-lint < test (theo tên bước)
+PASS TC-04: đúng lệnh đủ ./...
+PASS TC-04: đúng 3 lệnh frontend
+PASS TC-04: tên job Go, Frontend
+PASS TC-05: không legacy/secrets./_API_KEY
+PASS TC-05: không biến khoá LLM
+PASS TC-05: không deploy/push image (ngoài phạm vi)
+PASS TC-06: tải log run
+PASS TC-06: log không nhắc legacy/ (dòng khớp cần xem tay nếu >0)
+PASS TC-06: log không có API key
+PASS TC-06: log: action chạy thật 'golangci-lint run'
+PASS TC-06: log: có go test -race
+PASS TC-06: token không có quyền write
+PASS TC-07: run failure, nhánh ci/red-check, push
+PASS TC-07: job Go failure
+PASS TC-07: job Frontend success
+PASS TC-08: bước Go đỏ là go test -race (không phải vet/lint)
+PASS TC-08: Frontend chạy hết, không bước nào bị bỏ/hủy
+PASS TC-08: log lỗi có FAIL của test Go
+PASS TC-08: commit đỏ có file *_test.go
+PASS TC-08: commit đỏ chỉ đụng test Go
+PASS TC-09: nhánh ci/red-check đã chạy CI cho push thứ hai khác sha
+PASS TC-10: run failure trên ci/red-check
+PASS TC-10: Frontend failure
+PASS TC-10: Go success (test đỏ đã bỏ)
+PASS TC-10: đỏ ở bước phản mẫu UI
+PASS TC-10: lint/build/install của Frontend vẫn success trước bước đỏ
+PASS TC-11: commit 2 sửa page.tsx
+PASS TC-11: commit 2 bỏ/sửa test đỏ
+PASS TC-11: page.tsx thêm màu viết cứng
+FAIL TC-12: nhánh ci/red-check đã xoá — got [1] want [0]
+PASS TC-12: không continue-on-error
+PASS TC-13: permissions: contents: read ở mức workflow
+PASS TC-13: không quyền write ở đâu
+PASS TC-13: job không ghi đè permissions
+PASS TC-14: story chỉ thêm ci.yml dưới .github (không sửa keep-huggingface)
+PASS TC-14: keep-huggingface-space-awake.yml không đổi
+PASS TC-14: đúng 2 workflow (cũ + ci.yml)
+PASS TC-14: không secret trong dòng thêm
+PASS TC-15: chạy local đúng ba lệnh Go của CI
+PASS TC-15: chạy local đúng bốn lệnh Frontend của CI (lockfile khớp)
+PASS TC-16: không còn commit chưa push (AC1 cần HEAD đã push)
