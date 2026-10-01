@@ -223,6 +223,43 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
       push('T14 reduced-motion: không chấm/không chảy, hiện ngay kết quả bước 4 (Chờ xác nhận)', ev.pending !== undefined && ev.pending <= TOL.instantMax + 0.4 && ev.dung === undefined, `pending@${f2(ev.pending)} dung=${ev.dung}`);
       await page.emulateMediaFeatures([]);
     }
+
+    // ---- T15: J1 — Hỏi trợ lý AI ô trống từ lần hai (SRS 4.3.1 J1, US 01-AC28) ----
+    const nOf = async () => ((await text()).match(/Thảo luận \((\d+)\)/) || [])[1];
+    const MSG_J1 = 'Trợ lý đã đưa hết gợi ý có trong tài liệu của lớp';
+    if (want('T15')) {
+      await fresh('student', 'sv-2', '/threads/t-cbc'); const n0 = await nOf(); const t0 = Date.now(); await click(/^Hỏi trợ lý AI$/, 'button', 0);
+      await sample(9000, t0, (s, e) => e.dungEnd !== undefined && Date.now() - t0 > 3200); const n1 = await nOf(); const t1 = await text();
+      push('T15a lần 1 (ô trống, đã có AI chính): Gợi ý thêm S1 "Thử thêm: nếu một khối bản mã CBC bị hỏng…", n tăng 1', /Thử thêm: nếu một khối bản mã CBC bị hỏng/.test(t1) && +n1 === +n0 + 1, `n ${n0}→${n1}`);
+      await sleep(400); await click(/^Hỏi trợ lý AI$/, 'button', 500); await click(/^Hỏi trợ lý AI$/, 'button', 500); const n2 = await nOf(); const t2 = await text();
+      const locked = await page.evaluate(() => [...document.querySelectorAll('button')].filter((b) => /^Hỏi trợ lý AI$/.test(b.innerText.trim())).some((b) => b.disabled));
+      push('T15b lần 2, 3 (ô trống): không bài mới (n không đổi), có dòng "Trợ lý đã đưa hết gợi ý…", nút không khoá', n2 === n1 && t2.includes(MSG_J1) && !locked, `n=${n2} msg=${t2.includes(MSG_J1)} locked=${locked}`, await shot('T15'));
+      await typeReply('Em thử rồi'); await sleep(300); push('T15c gõ vào ô → dòng thông báo tự mất', !(await text()).includes(MSG_J1), '');
+      await typeReply(''); await click(/^Hỏi trợ lý AI$/, 'button', 400); await sleep(8600); push('T15d không gõ: dòng thông báo tự mất sau 8 s', !(await text()).includes(MSG_J1), '');
+      const m0 = await nOf(); for (let i = 0; i < 2; i++) { await typeReply('Còn CTR thì sao, có cần IV ngẫu nhiên không?'); await click(/^Hỏi trợ lý AI$/, 'button', 0); await sample(9000, Date.now(), (s, e) => e.dungEnd !== undefined); await sleep(500); }
+      const m1 = await nOf(); push('T15e ô có chữ: mỗi lần bấm là một cặp mới (+2 mỗi lần, bấm bao nhiêu lần cũng được)', +m1 === +m0 + 4, `n ${m0}→${m1}`);
+      await fresh('student', 'sv-2', '/threads'); await newThread('WPA3 chặn được KRACK không?', 'WPA3 có chặn KRACK không ạ?', 'An toàn mạng không dây'); await sample(3000, Date.now(), () => false);
+      const k0 = await nOf(); await click(/^Hỏi trợ lý AI$/, 'button', 600); const k1 = await nOf(); const tk = await text();
+      push('T15f thread không khớp mẫu, ô trống: không bài mới, dòng "Mình đã báo giảng viên; câu trả lời sẽ hiện ngay trong thread…"', k1 === k0 && /Mình đã báo giảng viên; câu trả lời sẽ hiện ngay trong thread/.test(tk), `n ${k0}→${k1}`);
+    }
+
+    // ---- T16: J2 — Hỏi trợ lý AI có chữ kích hoạt phản hồi trễ, một lần mỗi thread, chỉ SV ----
+    if (want('T16')) {
+      await fresh('student', 'sv-2', '/threads/t-salt'); await typeReply('Em hỏi thêm: muối và bcrypt khác nhau thế nào ạ?'); const t0 = Date.now(); await click(/^Hỏi trợ lý AI$/, 'button', 0);
+      const { ev } = await sample(9000, t0, () => false); const t = await text();
+      push('T16a có chữ: "Phạm Quốc Bảo đang trả lời…" ~2 s và phản hồi TA ~6 s (song song với chuỗi AI)', between(ev.typing, TOL.typingAt) && between(ev.late, TOL.lateAt) && ev.compose !== undefined, `typing@${f2(ev.typing)} late@${f2(ev.late)} compose@${f2(ev.compose)}`, await shot('T16'));
+      push('T16b phản hồi TA trích đúng chữ của sinh viên', t.includes('Em hỏi thêm: muối và bcrypt khác nhau thế nào ạ?') && (t.match(/muối và bcrypt khác nhau/g) || []).length >= 2, '');
+      const b = await bellText(); push('T16c chuông có "Phạm Quốc Bảo đã trả lời trong «…»"', /Phạm Quốc Bảo đã trả lời trong/.test(b), ''); await page.keyboard.press('Escape');
+      const c1 = await taBlocks(); await typeReply('Thêm một câu nữa ạ'); await click(/^Hỏi trợ lý AI$/, 'button', 0); await sleep(9000); const c2 = await taBlocks();
+      push('T16d lần hai trong cùng thread: không có phản hồi trễ nữa (một lần mỗi thread)', c2 === c1, `TA ${c1}→${c2}`);
+      await fresh('student', 'sv-2', '/threads/t-salt'); const d0 = await taBlocks(); await click(/^Hỏi trợ lý AI$/, 'button', 0); const r2 = await sample(9000, Date.now(), () => false);
+      push('T16e ô trống (J1): không kích hoạt phản hồi trễ', r2.ev.typing === undefined && (await taBlocks()) === d0, `typing=${r2.ev.typing}`);
+      await fresh('student', 'sv-2', '/threads/t-salt'); await typeReply('Em trả lời trước bằng Gửi phản hồi ạ'); await click(/^Gửi phản hồi$/, 'button', 400); await sleep(7600);
+      const e0 = await taBlocks(); await typeReply('Rồi hỏi AI thêm'); await click(/^Hỏi trợ lý AI$/, 'button', 0); await sleep(9000);
+      push('T16f đã có phản hồi trễ từ Gửi phản hồi → Hỏi trợ lý AI có chữ không kích hoạt thêm', (await taBlocks()) === e0, '');
+      await fresh('student', 'sv-2', '/threads/t-salt'); const g0 = await taBlocks(); await sleep(9000);
+      push('T16g phản hồi seed (kể cả của B ở t-salt) không kích hoạt gì khi chỉ mở trang', (await taBlocks()) === g0, '');
+    }
     return rows;
   }, { args: [{ base, out, only, TOL, AI_NOMATCH, H1_TA, FALLBACK_TA_SRC: 'Cảm ơn em, anh đã ghi nhận. Thầy cô sẽ trả lời chi tiết trong buổi học tới; em xem trước tài liệu tuần ${w} nhé.' }] });
   await tab.close();

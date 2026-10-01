@@ -53,13 +53,80 @@ Công cụ: **C** = `F=… bash docs/sprints/1.5/qc/scripts/proto-curl.sh <TC>`;
 | TC-00-46 | AC10 / US "Móc đo" | – | **C** `tc_00_07`, `tc_00_hooks` | Có `data-part`: `brand` (4 vai), `chat-history` / `chat-thread` / `chat-composer` (SV `/chat`), `inbox-list` (GV `/inbox`), `provider-status` / `provider-action` ≥ 3 (Admin `/settings/llm`); `inbox-detail` + `inbox-reply` có khi mở ticket (đo bằng **A**) |
 | TC-00-47 | AC10 (chống lách) | – | **B** Console: `document.querySelectorAll('[data-scroll-x]')` ở mọi route 390 | `data-scroll-x` chỉ nằm trên vùng cố ý (hàng tab/chip lọc, bảng `/gradebook`, dải tab hồ sơ); không nằm trên `body`, `main`, `header` hoặc khối bao cả trang; mỗi vùng thực sự cuộn được (`scrollWidth` > `clientWidth`) |
 | TC-00-48 | AC10 / SRS 4.7 cuối | – | `bash scripts/ui-antipatterns.sh`; `grep -rnE '#[0-9a-fA-F]{3,8}\b' frontend/src --include=*.css \| grep -v tokens.css` | Antipatterns 0 `✗`; không màu cứng ngoài `tokens.css` (chỉ token `--ep-*`) |
+| TC-00-49 | AC11 (#19 E23, FR-X15) | SV B và GV, 1440 × 900 | **A** `LEFT (00-AC11) = 240` trên ma trận; **B** Console `LEFT` của US | `/`, `/chat`, `/threads`, `/practice`, `/library`, `/me`, `/calendar` (SV B), `/inbox`, `/students`, `/gradebook` (GV) đều `240` (v4 lệch 348 / 240 / 248); mọi route còn lại của 4 vai cũng `240` |
+| TC-00-50 | AC11 | 390 px | **A** `LEFT = 16` | Mọi route (trừ `/login`) `16` |
+| TC-00-51 | AC11 (biên) | 1920 × 1080 và 1100 px | **B** Console `LEFT` + bề rộng khối đọc / biểu mẫu | Khối đọc / biểu mẫu rộng tối đa 960 px và **căn trái** (tiêu đề không dịch ra giữa khi màn rộng); bảng và lưới rộng hơn vẫn bắt đầu từ cùng lề; `/chat` và `/calendar` cùng lề 240 (Q12) |
+| TC-00-52 | AC11 (nhánh) | – | **B** `?state=loading`, `?state=empty`, `?state=error`; màn chặn quyền; màn "Bạn chưa vào lớp nào" (D); 404 | Tiêu đề trang vẫn ở lề 240 / 16 ở mọi trạng thái (không nhảy khi nội dung đổi); mỗi màn có đúng một `[data-part=page-title]` |
+| TC-00-53 | AC12 (E31) | 1440, 390, 375 | **A** `HEADER đặc (00-AC12)` trên ma trận, đã cuộn 200 px | `background-color` dạng `rgb(…)` (không `rgba(`, không `/ 0.`) và `backdrop-filter: none` ở mọi route |
+| TC-00-54 | AC12 | Cây sạch | **C** `tc_00_15`, `tc_00_16`; `bash scripts/ui-antipatterns.sh`; **thử đỏ** trong `git worktree` tạm ở `/tmp` (không đụng cây làm việc): thêm `backdrop-filter: blur(4px)` vào một CSS trong `shared/shell`, chạy script, xoá worktree | `shared/shell`, `shared/ui` không còn `backdrop-filter` / `transparent)` / `color-mix(… transparent`; script có mẫu `backdrop-filter` và **đỏ** khi thêm dòng thử, xanh khi cây sạch |
+| TC-00-55 | AC12 (tay) | SV B, `/chat` 390 | **B** Gửi một tin, cuộn 200 px, chụp ảnh | Không chữ nào lộ mờ qua thanh trên (v4: "Chat riêng" lộ ra); ảnh đính report |
+| TC-00-56 | AC13 (#19 E1, FR-X16) | – | **C** `tc_00_13` | Không cookie: không "This page could…"; GV / SV / TA / Admin: "Không tìm thấy trang" + `Về Hôm nay`; có `app/error.tsx` và `app/not-found.tsx` |
+| TC-00-57 | AC13 | 4 vai | **A** 404 và id lạ: `/khong-co-trang`, `/threads/khong-co`, `/assignments/khong-co`, `/practice/khong-co`, `/students/sv-999` | Không bao giờ trang tiếng Anh mặc định ("404 This page could not be found", "This page couldn't load"); id lạ trong route có thật ra màn rỗng / 404 của app có hướng đi tiếp, không trắng trang |
+| TC-00-58 | AC13 (nhánh lỗi) | SV B | **A** ghi đè `ep_demo_state` = `{`, `null`, `[]`, `{"x":1}` rồi tải `/`, `/practice`, `/chat`, `/threads`, `/me`, `/calendar`; thêm `{"practice":"x","tickets":5,"bell":7}` | Bốn dạng đầu: app dùng dữ liệu gốc, vào được, không màn lỗi; dạng sai cấu trúc: dữ liệu gốc **hoặc** màn "Trang này gặp sự cố" tiếng Việt có `Thử lại` + `Về Hôm nay`; không trang tiếng Anh; sau `Đặt lại dữ liệu demo` mọi thứ bình thường |
+| TC-00-59 | AC13 | – | **B** Ở màn "Không tìm thấy trang" bấm `Về Hôm nay`; ở màn "Trang này gặp sự cố" (từ TC-00-58) bấm `Thử lại` rồi `Về Hôm nay` | Về `/` của vai đang chọn; `Thử lại` không treo vòng lặp, không để lại màn lỗi nếu dữ liệu đã sạch; màn lỗi nằm trong khung app (sidebar / thanh trên còn) |
+| TC-00-60 | AC14 (#19 E26, E30, FR-X13) | – | **C** `tc_00_14` | Không còn chuỗi "N ngày / giờ / phút trước" ngoài `mock/derive.ts`; SV B không có "12 ngày trước"; Admin `/` và `/admin/courses` có "hôm qua 16:40"; Admin `/` không có "08:30" |
+| TC-00-61 | AC14 | Sau `Đặt lại dữ liệu` | **B** Mở chuông SV B, chuông GV, Admin `/` | B: "Bài tập 03 đã nộp, đang chờ chấm · 6 ngày trước", "Tài liệu mới: Chương 5 — Quản lý khoá và PKI · hôm qua 14:00"; GV: phân công 761988 "hôm qua 16:40"; Admin: "Phân công · hôm qua 16:40" và "Mới mở · hôm qua 16:40" |
+| TC-00-62 | AC14 / SRS 4.8 N6 (biên) | B đã gửi D3 | **B** Ghi đè `Date.now` bằng `page.evaluateOnNewDocument` lệch +59 / +60 phút / +23 giờ / +24 giờ rồi mở chuông | Mốc "vừa gửi" → "59 phút trước" → "1 giờ trước" → "23 giờ trước"; BT03 nộp 23/10 08:10 → "7 ngày trước" ở +24 giờ; Chương 5 (28/10 14:00) ở +24 giờ không còn "hôm qua" mà là "N ngày trước"; không chuỗi nào đứng yên |
+| TC-00-63 | AC14 / N6 | B | **B** Gửi D3, chờ 2 phút thật, mở chuông; rồi `Đặt lại dữ liệu demo` | Mục D3 ghi "2 phút trước" (đồng hồ chạy theo giờ thật); sau Đặt lại: đồng hồ về 09:20 ("Thứ Năm, 29 tháng 10 09:20" ở `/me`, Hôm nay) |
+| TC-00-64 | AC15 (#19 E22, FR-X14) | 375 và 390 px | **A** `TOUCH (00-AC15)` trên 12 route SV (B) + `/attendance`, `/inbox` (GV) | Mọi dòng `[]` (không vùng bấm nào < 44 × 44, trừ `data-inline`); ảnh 375 px của route FAIL |
+| TC-00-65 | AC15 | SV B, 375 | **B** Từng phần tử v4 lỗi: 11 chip chủ đề Threads (cao 40), ô tích "Nhờ AI trả lời…" (14 × 16), `Báo cáo` (76 × 40), `Hỏi trợ lý AI` (117 × 40), bộ lọc Thư viện, Tuần / Tháng / Danh sách, liên kết quay lại "Threads" / "Thoát về Luyện đề" / "Kết quả của tôi" / "Hôm nay" / "Luyện đề" | Mỗi hộp bấm được ≥ 44 × 44 (ô tích tính theo vùng nhãn); bấm vào chữ nhãn tích / bỏ tích ô |
+| TC-00-66 | AC15 (chống lách) | SV B, 375 | **B** Console: `[...document.querySelectorAll('[data-inline]')]` ở mọi route SV | `data-inline` chỉ trên liên kết **nằm giữa câu chữ** (có chữ đứng trước hoặc sau trong cùng khối); không trên nút, chip, tab, liên kết quay lại, nút ở hàng riêng |
+| TC-00-67 | AC15 (nhánh) | SV B, GV; 375 | **A** kịch bản tương tác + `?state=`: Dialog hai lối, drawer Thêm, popover bộ chọn lớp, dải chip đã cuộn; `/inbox` sau mở ticket | `TOUCH` chạy trong các trạng thái đó cũng `[]` (nút `Đóng`, mục popover, `← Hộp thư`) |
+| TC-00-68 | FR-X13, FR-X15 (tĩnh) | Cây sạch | **C** `tc_00_16` | Có `frontend/src/mock/derive.ts` xuất `ticketStats`, `attentionSet`, `navBadges`, `ago`; không còn số cứng `overdue: [`, `answeredByAi`, `escalated: [`; shell / ui không `color-mix(… transparent` |
 
-## Công cụ bổ sung (spec v5)
-**A** = `docs/sprints/1.5/qc/scripts/audit.mjs` (Eval JS, global `browser`): chạy đoạn `AUDIT` nguyên văn của US.md trên mọi route × vai × bề rộng, thêm phép đo riêng cho SRS 4.7 (brand, bộ chọn lớp, menu hồ sơ, chat, inbox, provider, bảng danh sách). Xuất bảng PASS/FAIL (`table(rows)`, `summary(rows)`). Frontend không có Playwright nên dùng Puppeteer của `browser`, không thêm phụ thuộc. Cách chạy: đầu file script.
-**T** = `scripts/threads-timeline.mjs` (đo bước thời gian Threads, dùng ở US-PROTO-01 / 02).
+## Truy vết hồi quy E1–E37 → TC (spec v5.1, SRS 4.10)
+Mỗi lỗi QC thăm dò (`qc/explore-v4.md`) có ít nhất một TC chính và một TC nhánh lỗi / biên. Mức theo 4.10.
+
+| E | Mức | TC chính | TC nhánh lỗi / biên |
+| --- | --- | --- | --- |
+| E1 `/practice` `Xem kết quả` sập | cao | TC-01-88, 90 | TC-01-91, 94, 95; TC-00-56…59 (màn lỗi tiếng Việt) |
+| E2 SV D thấy dữ liệu lớp / phiên của B | cao | TC-01-98, 99 | TC-01-100…107 |
+| E3 thẻ 761988 mở thành viên 761987 | cao | TC-02-50, 51 | TC-02-52, 53, 55 |
+| E4 công bố BT03 không báo chuông SV | cao | TC-01-135 | TC-01-136, 137, 138 |
+| E5 email / SĐT không qua hộp PII | cao | TC-01-108, 109 | TC-01-110…120 (P1–P4, bảng, GV / TA, rò rỉ) |
+| E6 "chờ > 24 h": 1 ≠ 3 | cao | TC-04-35 | TC-02-89, TC-04-37 |
+| E7 `/attendance` 390: ô Buổi co, đè nhau | cao | TC-02-64 | TC-02-68 |
+| E8 `/attendance` 390: cột tên 89 px, cột ngoài màn | cao | TC-02-65 | TC-02-66, 67 |
+| E9 thẻ "chờ 3 ngày" mở sai phiếu | vừa | TC-02-57 | TC-02-58, 59 |
+| E10 `/documents` ≠ `/library` | vừa | TC-03-35, 37 | TC-01-140, 141; TC-03-41 |
+| E11 câu 1 luyện đề trùng QUIZ01 | vừa | TC-01-96 | TC-01-97 |
+| E12 "Cần chú ý": 8 / 2 / 3 | vừa | TC-02-74 | TC-02-75…77 |
+| E13 chủ đề mặc định "Thông báo" | vừa | TC-01-121 | TC-01-128 |
+| E14 thread mới: meta "Câu hỏi của bạn" | vừa | TC-01-122 | TC-01-123 |
+| E15 `Hỏi trợ lý AI` gợi ý sai chủ đề, chèn vào ô | vừa | TC-01-124 | TC-01-125, 126 |
+| E16 GV lưu câu AI rỗng vẫn "đã sửa" | vừa | TC-02-72 | TC-02-73 |
+| E17 `Tạo thread ghim` nhiều lần | vừa | TC-04-40 | TC-04-41, 42 |
+| E18 điểm danh: công tắc / nút lưu | vừa | TC-02-69, 70 | TC-02-71 |
+| E19 badge sidebar không giảm | vừa | TC-02-60, 61 | TC-02-62, 63 |
+| E20 `/chat` 390 không mở phiên cũ | vừa | TC-01-131, 132 | TC-01-133 |
+| E21 bảng 390: cột chính khuất | vừa | TC-03-30, 32 | TC-03-31, 33, 34 |
+| E22 vùng chạm < 44 px (SV 390) | vừa | TC-00-64, 65 | TC-00-66, 67 |
+| E23 lề trái 348 / 240 / 248 | vừa | TC-00-49, 50 | TC-00-51, 52 |
+| E24 lịch tuần 175 px, chữ ngắt | thấp | TC-01-142 | TC-01-143 |
+| E25 "AI trả lời 94%" ≠ 6/392 | vừa | TC-04-36 | TC-04-37…39 |
+| E26 chuông "12 ngày trước", tên tài liệu lệch | thấp | TC-00-60, 61 | TC-00-62, 63; TC-01-134, 141 |
+| E27 `/me` "Cập nhật 09:20" đứng yên | thấp | TC-01-144 | TC-01-145 |
+| E28 thứ tự SV khác nhau | thấp | TC-02-78 | TC-02-79 |
+| E29 thẻ "4 bài" sai lý do | thấp | TC-02-80, 81 | TC-02-82 |
+| E30 mốc phân công 08:30 / 16:40 | thấp | TC-04-43, 44 | TC-00-60, 61 |
+| E31 thanh trên bán trong suốt | thấp | TC-00-53, 54 | TC-00-55 |
+| E32 nút gửi mờ, không nói thiếu gì | thấp | TC-01-128, 129 | TC-01-130 |
+| E33 `/documents`: tên tệp thô, "Mordern" | thấp | TC-03-35, 36 | TC-03-39, 40 |
+| E34 form `/threads` chiếm ~530 px đầu | thấp | TC-01-127 | TC-01-128 |
+| E35 `/settings/llm` khoảng cách các phần | thấp | TC-04-45 | TC-04-50 |
+| E36 thẻ "Câu hỏi gốc" trống 80 px | thấp | TC-01-146 | TC-01-152 |
+| E37 biểu đồ "Hoạt động học" không đọc được | thấp | TC-04-46, 47 | TC-04-48 |
+| J1, J2 (PM chốt, 01-AC28) | – | TC-01-147, 150 | TC-01-148, 149, 151 |
+| J3 (02-AC21) | – | TC-02-83, 84 | TC-02-85…87 |
+
+FR-X13: TC-00-60…63, 68; TC-02-60, 74, 78; TC-04-35…39, 43, 49 · FR-X14: TC-00-64…67 · FR-X15: TC-00-49…55, 68 · FR-X16: TC-00-56…59 · FR-X17: TC-01-135…139, TC-02-50…56, 88 · FR-X18: TC-01-98…120 · FR-X19: TC-01-128…130.
+
+## Công cụ bổ sung (spec v5, v5.1)
+**A** = `docs/sprints/1.5/qc/scripts/audit.mjs` (Eval JS, global `browser`): chạy đoạn `AUDIT` nguyên văn của US.md trên mọi route × vai × bề rộng, thêm phép đo riêng cho SRS 4.7 (brand, bộ chọn lớp, menu hồ sơ, chat, inbox, provider, bảng danh sách). **v5.1:** ma trận có thêm ba dòng mỗi route: `TOUCH (00-AC15)` (nguyên văn `TOUCH` của US.md, 375 / 390, 12 route SV + `/attendance`, `/inbox`), `LEFT (00-AC11)` (240 ở 1440, 16 ở 390), `HEADER đặc (00-AC12)` (sau cuộn 200 px); và `SPEC_V51` (404 / `ep_demo_state` hỏng, SV D, form Threads, chat 390, thẻ câu hỏi gốc, `/attendance` 375 / 390, danh sách sinh viên, badge, analytics, biểu đồ, `settings-section`, `/gradebook` 390). Xuất bảng PASS/FAIL (`table(rows)`, `summary(rows)`). Frontend không có Playwright nên dùng Puppeteer của `browser`, không thêm phụ thuộc. Cách chạy: đầu file script.
+**T** = `scripts/threads-timeline.mjs` (đo bước thời gian Threads, dùng ở US-PROTO-01 / 02). **P** = `scripts/pii-matrix.mjs` (bảng nhận diện PII, US-PROTO-01). **C** v5.1: `tc_00_13…16`, `tc_01_17`, `tc_01_20`, `tc_01_24`, `tc_02_14`, `tc_02_18`, `tc_02_20`, `tc_03_08`, `tc_04_08`, `tc_04_10`.
 
 ## Nhánh lỗi
-TC-00-14, 15, 16 (`?state=`); TC-00-01 (không cookie); thêm: cookie vai rác `ep_demo_role=hacker` → không 5xx (`tc_00_01`). Spec v5: TC-00-26 (375/414), 29 (ngưỡng 720 / 1100), 31 (D chưa có lớp), 35, 43, 44 (`?state=` vẫn đạt AUDIT), 47 (chống lách `data-scroll-x`).
+TC-00-14, 15, 16 (`?state=`); TC-00-01 (không cookie); thêm: cookie vai rác `ep_demo_role=hacker` → không 5xx (`tc_00_01`). Spec v5: TC-00-26 (375/414), 29 (ngưỡng 720 / 1100), 31 (D chưa có lớp), 35, 43, 44 (`?state=` vẫn đạt AUDIT), 47 (chống lách `data-scroll-x`). Spec v5.1: TC-00-52, 57, 58, 59 (404, `ep_demo_state` hỏng, màn lỗi), 62 (biên đồng hồ), 66 (chống lách `data-inline`), 67.
 
 ## Phân quyền
 TC-00-17…21 (ma trận SRS mục 2, gõ thẳng URL bằng cookie vai khác).
@@ -80,3 +147,4 @@ TC-00-17…21 (ma trận SRS mục 2, gõ thẳng URL bằng cookie vai khác).
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-10-02 · Thêm TC-00-22…48 (không sửa TC cũ): spec v5 — 00-AC7…AC10 (#17a, b, f, h; SRS 4.7 a1–a4, b1–b3, f1, h1–h4). Thêm script `audit.mjs`, hàm `tc_00_07…09`, `tc_00_hooks` trong `proto-curl.sh`.
+- 2026-10-02 · Thêm TC-00-49…68 (không sửa TC cũ): spec v5.1 (#19) — 00-AC11 (E23, FR-X15), 00-AC12 (E31), 00-AC13 (E1, FR-X16), 00-AC14 (E26, E30, FR-X13), 00-AC15 (E22, FR-X14). `audit.mjs` thêm `TOUCH_SRC`, `LEFT_SRC`, `SPEC_V51`; `proto-curl.sh` thêm `tc_00_13…16`.

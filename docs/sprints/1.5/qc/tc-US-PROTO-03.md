@@ -34,9 +34,25 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công c�
 | TC-03-27 | **Chéo: SV không thấy đáp án** | Sau bật/tắt cờ ở TC-03-25 | **B** SV `/library` | Đáp án (`ANSWER_KEY`) không hiện dù GV thử bật "hiện cho SV" (nếu cho bật → ghi BUG nghiêm trọng: luật "Không cho sinh viên thấy đáp án khi bài còn mở") |
 | TC-03-28 | SRS 4.5 `/gradebook/scheme` rỗng | – | **B** `?state=empty` | "Tải quy chế" → tải giả lập có tiến độ → bản nháp |
 | TC-03-29 | Trạng thái | – | **B** `?state=loading|empty|error` 6 route | Skeleton đúng hình, rỗng có hành động, lỗi có `Thử lại` |
+| TC-03-30 | AC7 (#19 E21) | GV, `/gradebook`, 390 px | **A** (SPEC_V51 "03-AC7"); **B** Console `['col-qt','col-status'].map(p => document.querySelector('[data-part=' + p + ']').getBoundingClientRect().right <= innerWidth)` | `[true, true]`: cột tên (dính trái), "QT tạm tính" và "Trạng thái" đều trong khung nhìn đầu, không phải cuộn ngang; dòng gợi ý "Kéo ngang để xem BT01–BT03 và Cuối kỳ" phía trên bảng |
+| TC-03-31 | AC7 | Như TC-03-30 | **B** Vuốt ngang bảng; ảnh 390 | Các cột còn lại (BT01–BT03, cộng / trừ, Cuối kỳ) cuộn ngang, cột tên giữ chỗ khi cuộn; mép phải bảng lộ một phần cột kế (gợi ý có thể kéo); không cột nào bị mất; `ox` 0 |
+| TC-03-32 | AC7 | GV, 390 px | **A** AUDIT + **B** `/students`, `/grading`, `/documents` (GV), `/admin/courses`, `/admin/users` (Admin) | Dạng danh sách, không cột nào biến mất: số cặp "Nhãn: giá trị" ở dòng phụ = số cột − 1 (`/documents`: loại · tuần · Dùng cho AI · Hiện cho SV · trạng thái · ngày); `cut: []` |
+| TC-03-33 | AC7 | GV, `/students/sv-3`, 390 px | **A** + **B** vuốt dải tab; chọn "Ghi chú" | Thanh tab cuộn ngang, mép tab kế lộ ra; "Ghi chú" tới được và tự cuộn vào khung khi chọn; `cut: []` |
+| TC-03-34 | AC7 (biên) | GV | **A** 719 / 720 px và 375 px trên các route TC-03-30…33 | 720: dạng bảng đúng ngưỡng; 719 và 375: dạng danh sách / vẫn thấy `col-qt`, `col-status` trong khung nhìn đầu; không tràn |
+| TC-03-35 | AC8 (#19 E10, E33) | GV, `/documents`, 1440 | **B** + **C** `tc_03_08` | 12 dòng đúng bảng SRS 4.8 N5 (tên hiển thị, loại, tuần, ngày tải): Chương 1 (tuần 1 · 27/08) … Chương 5 (tuần 10 · 28/10), Modern Network Security Threats (tuần 2 · 03/09), Quy chế đào tạo của trường, Quy chế môn học An ninh mạng – 761987, 2 đề cũ, 2 đáp án; không còn "Hạ tầng khoá công khai" (v4) |
+| TC-03-36 | AC8 | Như TC-03-35 | **B** Mở Drawer chi tiết của từng dòng; `Ctrl+F` ở danh sách | Tên tệp gốc (`an-ninh-mang-ch3.pdf`, `Mordern_Network_Security_Threats.pdf`) **chỉ** ở Drawer và tên khi tải; danh sách không có tên dạng gạch dưới / "Mordern" (`… \| grep -cE 'Chuong[0-9]_\|Mordern'` → `0`) |
+| TC-03-37 | AC8 / E10 | GV, SV B | **B** So tên 10 tài liệu SV thấy ở `/documents` với `/library` (chữ, tuần, ngày, trang, dung lượng) | Trùng chữ từng dòng; `Nguồn tham khảo` của AI (chat, Threads, luyện đề) và chuông dùng cùng cột "Tên hiển thị" |
+| TC-03-38 | AC8 / luật đáp án | GV, SV B | **B** 2 `ANSWER_KEY` ở `/documents`; thử bật cờ "Hiện cho SV"; SV `/library` | Hai dòng ghi "Không hiển thị cho sinh viên" (cột SV thấy / AI: **Không**); không bật được hoặc bật không làm SV thấy (nếu SV thấy → BUG nghiêm trọng); SV `/library` không có "Đáp án đề" |
+| TC-03-39 | AC8 (nhánh) | GV | **B** Tải một file mẫu; quan sát trong lúc "Đang xử lý" | Cột "Dùng cho AI" **không** ghi "Có" (ghi "Chờ xác nhận" theo AC, hoặc "Chờ xử lý" theo dòng Kiểm — ghi lại chữ thật); cờ "Hiện cho SV" khoá trong lúc xử lý; xong: `READY`, cờ mở |
+| TC-03-40 | AC8 (biên) | GV, 1440 và 390 | **B** Tên dài ("Quy chế môn học An ninh mạng – 761987", "Đề thi giữa kỳ An ninh mạng — HK1 2024–2025") | Xuống dòng giữa các từ, không ngắt giữa từ, không `…` mất chữ; AUDIT `cut: []` |
+| TC-03-41 | AC8 / N5 | GV lớp 2 | **B** `/documents` lớp 761988; SV A / D chọn lớp 2 `/library` | Lớp 2: như bảng N5 trừ `Quy chế môn học … 761987` → GV 11 dòng, SV 9 tài liệu; không chữ "761987" ở lớp 2 |
+
+
+## Công cụ bổ sung (v5.1)
+**A** = `scripts/audit.mjs` (phép đo "03-AC7", `TOUCH` / `LEFT` / header toàn ma trận); **C** `tc_03_08`.
 
 ## Nhánh lỗi
-TC-03-14, 19, 20, 21, 28; TC-03-05 (số ngoài thang).
+TC-03-14, 19, 20, 21, 28; TC-03-05 (số ngoài thang); v5.1: TC-03-34 (ngưỡng 720), 39 (tài liệu đang xử lý), 40 (tên dài).
 
 ## Phân quyền
 TC-03-09, 22, 23, 26 (chỉ TEACHER công bố / xác nhận công thức / chốt điểm; TA chỉ đọc sổ điểm; SV/Admin bị chặn; đáp án không tới SV).
@@ -49,7 +65,10 @@ TC-03-09, 22, 23, 26 (chỉ TEACHER công bố / xác nhận công thức / ch�
 ## Điểm khó kiểm
 - Con số BT03/QT: đã chốt theo proposals #13 (v3: BT03 = 8,0; QT = 8,7).
 - Bảng dài 30 hàng: kiểm tràn chữ ở 1440 px và 390 px bằng ảnh.
+- 03-AC8 tự mâu thuẫn một chữ: phần AC ghi tài liệu `PROCESSING` hiện "Chờ xác nhận" ở "Dùng cho AI", phần Kiểm ghi "Chờ xử lý" — TC-03-39 chỉ đòi "không phải Có" và ghi lại chữ thật; BA cần chốt một chữ.
+- 03-AC7 "mép phải bảng lộ một phần cột kế" không có phép đo trong spec — TC-03-31 kiểm bằng mắt / ảnh; `audit.mjs` chỉ đo `col-qt`, `col-status` và dòng gợi ý.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-10-01 · TC-03-07, 08, 16: Cập nhật BT03 công bố = 8,0 và QT sau công bố = 8,7 theo spec v3 (proposals #13).
 - 2026-10-01 · TC-03-03: Thêm kiểm tra bố cục 2 panel độc lập (viền, nền surface, bo góc, cuộn độc lập giữa bài nộp và rubric) của `/grading/[submissionId]` theo spec v4 (03-AC1, proposals #16).
+- 2026-10-02 · Thêm TC-03-30…41 (không sửa TC cũ): spec v5.1 (#19) — 03-AC7 (E21), 03-AC8 (E10, E33) + SRS 4.8 N5. TC-03-26 vẫn đúng (12 dòng, 2 đáp án).

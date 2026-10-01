@@ -23,6 +23,15 @@ const PERSON = { A: 'sv-1', B: 'sv-2', C: 'sv-3', D: 'sv-4' };
 const BLOCKED = { student: ['/inbox'], ta: ['/observability'], teacher: ['/chat'], admin: ['/threads'] };
 // route SV + /attendance + /inbox thêm 375 (AC10); mọi route 1440 + 390
 const needs375 = (role, r) => role === 'student' || r === '/attendance' || r === '/inbox';
+// NGUYÊN VĂN `TOUCH` của US.md (v5.1): vùng bấm < 44 px, chạy ở 375 / 390. Đạt khi `[]`.
+export const TOUCH_SRC = `[...document.querySelectorAll('main a, main button, main [role=tab], main [role=radio], main label, main input, header a, header button, nav a')]
+  .filter(e => e.offsetParent && !e.closest('[data-inline]') && !(e.matches('input') && e.closest('label')))
+  .map(e => { const b = e.getBoundingClientRect(); return { t: (e.getAttribute('aria-label') || e.textContent).trim().slice(0, 24), w: Math.round(b.width), h: Math.round(b.height) }; })
+  .filter(x => x.w < 44 || x.h < 44)`;
+// `LEFT` của US.md, bọc để route thiếu `[data-part=page-title]` trả null (= FAIL) thay vì ném lỗi.
+export const LEFT_SRC = `(() => { const e = document.querySelector('[data-part=page-title]'); return e ? Math.round(e.getBoundingClientRect().left) : null; })()`;
+// phạm vi TOUCH của 00-AC15: 12 route SV + /attendance, /inbox của GV
+const TOUCH_SV = ['/', '/chat', '/threads', '/threads/t-cbc', '/practice', '/practice/at-symmetric', '/practice/history', '/library', '/calendar', '/me', '/assignments/bt03', '/join'];
 // bề rộng quanh ngưỡng của SRS 4.7 (b: 720/1100; h2/h3: 720), chỉ cho ba route shell + route dùng DataTable
 const EDGE_W = [{ w: 1100, tag: '1100' }, { w: 1024, tag: '1024' }, { w: 720, tag: '720' }, { w: 719, tag: '719' }];
 const EDGE_ROUTES = { teacher: ['/', '/inbox', '/gradebook', '/students', '/grading', '/documents', '/attendance'], admin: ['/admin/courses', '/admin/users', '/settings/llm'], student: ['/', '/library'] };
@@ -56,7 +65,7 @@ export function SCN_RUNNERS({ click, type, sleep }) {
 export default async function audit(browser, { base = 'http://localhost:3000', out, only, skipSpec = false, skipMatrix = false, states = false } = {}) {
   const tab = await browser.open({ name: 'qc-audit', url: base + '/login', viewport: { width: 1440, height: 900 } });
   const rows = await tab.run(async ({ page }, a) => {
-    const { base, out, only, skipSpec, skipMatrix, states, ROUTES, VIEWPORTS, BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META, AUDIT_SRC, specSrc, scnSrc } = a;
+    const { base, out, only, skipSpec, skipMatrix, states, ROUTES, VIEWPORTS, BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc, spec51Src, scnSrc } = a;
     const rows = [];
     const click = async (p, re, sel = 'button,a,[role=button],[role=menuitem],[role=tab],summary,label', wait = 300) => {
       const ok = await p.evaluate((src, flags, s) => { const r = new RegExp(src, flags); const el = [...document.querySelectorAll(s)].find((e) => r.test((e.innerText || e.getAttribute('aria-label') || '').trim()) && e.getBoundingClientRect().width > 0); if (el) { el.click(); return true; } return false; }, re.source, re.flags, sel);
@@ -86,6 +95,16 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
       const blocked = await page.evaluate(() => /Bạn không có quyền mở trang này/.test(document.body.innerText));
       const f = !okOf(r) || errs.length ? await shot(`${role}${route}-${tag}-${label || 'audit'}`) : '';
       push(role, route, tag, label || 'AUDIT', okOf(r) && !errs.length, fmt(r) + (blocked ? ' [màn chặn]' : '') + (errs.length ? ` console=${errs[0]}` : ''), f);
+      if (label) return; // phép đo dưới đây chỉ cho ma trận chính (không cho kịch bản / biên)
+      // 00-AC15 TOUCH: 375/390, 12 route SV + /attendance, /inbox (GV)
+      if ((tag === '375' || tag === '390') && ((role === 'student' && TOUCH_SV.includes(route)) || (role === 'teacher' && (route === '/attendance' || route === '/inbox')))) {
+        const t = await page.evaluate(TOUCH_SRC); push(role, route, tag, 'TOUCH (00-AC15)', t.length === 0, JSON.stringify(t.slice(0, 4)) + (t.length > 4 ? ` +${t.length - 4}` : ''), t.length ? await shot(`${role}${route}-${tag}-touch`) : '');
+      }
+      // 00-AC11 LEFT: 240 ở 1440, 16 ở 390 (mọi route trừ /login)
+      if ((tag === '1440' || tag === '390') && role !== '(không vai)') { const l = await page.evaluate(LEFT_SRC); const want = tag === '1440' ? 240 : 16; push(role, route, tag, `LEFT (00-AC11) = ${want}`, l === want, `left=${l}`); }
+      // 00-AC12 thanh trên đặc, kể cả sau khi cuộn 200 px
+      { await page.evaluate(() => window.scrollTo(0, 200)); await sleep(120); const h = await page.evaluate(() => { const e = document.querySelector('header'); if (!e) return null; const c = getComputedStyle(e); return { bg: c.backgroundColor, bf: c.backdropFilter || c.webkitBackdropFilter || 'none' }; });
+        const ok = h && /^rgb\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); await page.evaluate(() => window.scrollTo(0, 0)); }
     };
 
     // ---------- 1. Ma trận AUDIT: mọi route × vai × bề rộng ----------
@@ -114,9 +133,9 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
     }
 
     // ---------- 3. Phép đo riêng của spec v5 (SRS 4.7) ----------
-    if (!skipSpec && !only) await new Function('ctx', 'return (' + specSrc + ')(ctx)')({ page, base, setRole, setVp, go, reset, push, sleep, shot });
+    if (!skipSpec && !only) { const ctx = { page, base, setRole, setVp, go, reset, push, sleep, shot, ROUTES }; await new Function('ctx', 'return (' + specSrc + ')(ctx)')(ctx); await new Function('ctx', 'return (' + spec51Src + ')(ctx)')(ctx); }
     return rows;
-  }, { args: [{ base, out, only, skipSpec, skipMatrix, states, ROUTES, VIEWPORTS: VIEWPORTS.map(({ w, h, tag }) => ({ w, h, tag })), BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META: SCENARIOS, AUDIT_SRC, specSrc: SPEC_CHECKS.toString(), scnSrc: SCN_RUNNERS.toString() }] });
+  }, { args: [{ base, out, only, skipSpec, skipMatrix, states, ROUTES, VIEWPORTS: VIEWPORTS.map(({ w, h, tag }) => ({ w, h, tag })), BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META: SCENARIOS, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc: SPEC_CHECKS.toString(), spec51Src: SPEC_V51.toString(), scnSrc: SCN_RUNNERS.toString() }] });
   await tab.close();
   return rows;
 }
@@ -237,6 +256,124 @@ export async function SPEC_CHECKS({ page, setRole, setVp, go, reset, push, sleep
   { await setRole('teacher'); await setVp(390, 844); await go('/students/sv-3');
     const m = await q(async () => { const tabs = [...document.querySelectorAll('[role=tab]')]; if (!tabs.length) return null; const list = tabs[0].parentElement; const hd = tabs.find((t) => /Hoạt động học/.test(t.innerText)); const scrollable = list.scrollWidth > list.clientWidth || !!list.closest('[data-scroll-x]') || list.hasAttribute('data-scroll-x'); const note = tabs.find((t) => /Ghi chú/.test(t.innerText)); note.click(); await new Promise((r) => setTimeout(r, 400)); const lb = list.getBoundingClientRect(), nb = note.getBoundingClientRect(); return { scrollable, noteInView: nb.left >= lb.left - 1 && nb.right <= lb.right + 1, ox: document.documentElement.scrollWidth - innerWidth, hdFull: hd ? hd.scrollWidth <= hd.clientWidth + 1 : false }; });
     chk('teacher', '/students/sv-3', 390, '00-AC10 h4: tab cuộn ngang, tab chọn tự cuộn vào khung, "Hoạt động học" không cắt', m && m.scrollable && m.noteInView && m.hdFull && m.ox <= 0, JSON.stringify(m), await shot('tabs-sv3-390')); }
+}
+
+// ---- Spec v5.1 (#19): phép đo riêng, chạy TRONG trang. Mỗi phép đo ghi rõ AC. ----
+export async function SPEC_V51({ page, setRole, setVp, go, reset, push, sleep, shot, ROUTES }) {
+  const q = (fn, ...a) => page.evaluate(fn, ...a);
+  const chk = (role, route, w, what, ok, detail, f) => push(role, route, String(w), what, !!ok, detail, f);
+  const clickTxt = async (re, sel = 'button,a,[role=menuitem],[role=button],[role=tab],label,summary,li', wait = 300) => {
+    const ok = await q((src, fl, s) => { const r = new RegExp(src, fl); const el = [...document.querySelectorAll(s)].find((e) => r.test((e.innerText || e.getAttribute('aria-label') || '').trim()) && e.getBoundingClientRect().width > 0); if (el) { el.click(); return true; } return false; }, re.source, re.flags, sel);
+    await sleep(wait); return ok;
+  };
+  const ENG = /This page (could not be found|couldn.t load)|Application error|Internal Server Error/;
+  const txt = () => q(() => document.body.innerText);
+  const parts = (p) => q((s) => [...document.querySelectorAll('[data-part=' + s + ']')].length, p);
+
+  // 00-AC13 / FR-X16: 404 + lỗi chạy bằng tiếng Việt, không lộ trang mặc định của Next.js
+  for (const [role, person] of [['teacher', ''], ['student', 'sv-2'], ['ta', ''], ['admin', '']]) {
+    await setRole(role, person || 'sv-2'); await setVp(1440, 900);
+    await go('/khong-co-trang'); const t = await txt();
+    chk(role, '/khong-co-trang', 1440, '00-AC13 404 tiếng Việt: "Không tìm thấy trang" + Về Hôm nay', /Không tìm thấy trang/.test(t) && /Về Hôm nay/.test(t) && !ENG.test(t), t.replace(/\s+/g, ' ').slice(0, 120), await shot(`404-${role}`));
+    for (const p of ['/threads/khong-co', '/assignments/khong-co', '/practice/khong-co', '/students/sv-999']) { await go(p); const n = await txt(); chk(role, p, 1440, '00-AC13 id lạ: không trang tiếng Anh, không trắng', !ENG.test(n) && n.trim().length > 30, n.replace(/\s+/g, ' ').slice(0, 100)); }
+  }
+  await setRole('student', 'sv-2'); await go('/');
+  for (const [bad, strict] of [['{', true], ['null', true], ['[]', true], ['{"x":1}', true], ['{"practice":"x","tickets":5,"bell":7}', false]]) {
+    await q((v) => localStorage.setItem('ep_demo_state', v), bad);
+    for (const r of ['/', '/practice', '/chat', '/threads', '/me', '/calendar']) { await go(r); const t = await txt();
+      const sick = /Trang này gặp sự cố/.test(t); chk('student', r, 1440, `00-AC13 ep_demo_state hỏng ${bad.slice(0, 14)}`, !ENG.test(t) && t.trim().length > 30 && (strict ? !sick : !sick || (/Thử lại/.test(t) && /Về Hôm nay/.test(t))), sick ? 'màn lỗi app' : 'dùng dữ liệu gốc'); }
+  }
+  await q(() => localStorage.removeItem('ep_demo_state'));
+
+  // 01-AC17 / FR-X18: SV D chưa vào lớp
+  await setRole('student', 'sv-4'); await setVp(1440, 900); await go('/'); await reset(); await go('/');
+  for (const r of ['/chat', '/threads', '/threads/t-cbc', '/practice', '/practice/at-symmetric', '/practice/history', '/library', '/calendar', '/me', '/assignments/bt03']) {
+    await go(r); const m = await q(() => { const t = document.body.innerText; return { url: location.pathname, title: /Bạn chưa vào lớp nào/.test(t), sentence: /Nhập mã tham gia do giảng viên cung cấp để dùng Chat riêng, Threads, Luyện đề, Thư viện và Lịch\./.test(t), blocked: /Bạn không có quyền mở trang này/.test(t), leak: /phiên trước|Cách chọn độ dài khoá RSA|Nộp muộn Bài tập 03|CBC khác ECB|Chương 3 — Mật mã/i.test(t), input: !!document.querySelector('input'), go: [...document.querySelectorAll('button,a')].some((b) => /^Tiếp tục$/.test(b.innerText.trim())) }; });
+    chk('student:sv-4', r, 1440, '01-AC17 D: một màn "Bạn chưa vào lớp nào", URL giữ nguyên, không rò dữ liệu', m.title && m.sentence && !m.blocked && !m.leak && m.input && m.go && m.url === r, JSON.stringify(m));
+  }
+  await go('/'); { const n = await q(() => [...document.querySelectorAll('nav a')].filter((a) => a.offsetParent).map((a) => a.innerText.trim()).filter(Boolean)); chk('student:sv-4', '/', 1440, '01-AC17 sidebar chỉ có Hôm nay', n.length === 1 && /Hôm nay/.test(n[0]), JSON.stringify(n), await shot('D-home-1440')); }
+  await setVp(390, 844); await go('/'); { const n = await q(() => [...document.querySelectorAll('nav a')].filter((a) => a.offsetParent).map((a) => a.innerText.trim()).filter(Boolean)); chk('student:sv-4', '/', 390, '01-AC17 thanh dưới chỉ có Hôm nay', n.length === 1, JSON.stringify(n), await shot('D-home-390')); }
+
+  // 01-AC19 form tạo thread
+  await setRole('student', 'sv-2'); await setVp(1440, 900); await go('/threads'); await reset(); await go('/threads');
+  { const top = await q(() => { const r = document.querySelector('[data-part=thread-row]'); return r ? Math.round(r.getBoundingClientRect().top) : null; });
+    chk('student', '/threads', '1440×900', '01-AC21 hàng thread đầu cách đỉnh ≤ 420 khi form chưa mở', top !== null && top <= 420, `top=${top}`, await shot('threads-1440')); }
+  await clickTxt(/^Đặt câu hỏi$/, 'button', 400);
+  { const o = await q(() => { const s = document.querySelector('[data-part=thread-form] select'); return s ? [...s.options].map((x) => x.textContent.trim()) : null; });
+    chk('student', '/threads', 1440, '01-AC19 Chủ đề: đầu "Chọn chủ đề", không có "Thông báo"', o && o[0] === 'Chọn chủ đề' && !o.includes('Thông báo'), JSON.stringify(o));
+    const hint = () => q(() => { const b = [...document.querySelectorAll('[data-part=thread-form] button')].find((x) => /^Đăng câu hỏi$/.test(x.innerText.trim())); if (!b) return null; const id = b.getAttribute('aria-describedby'); const d = id && document.getElementById(id); return { disabled: b.disabled, hint: d ? d.innerText.trim() : null }; });
+    const h0 = await hint(); chk('student', '/threads', 1440, '01-AC21 "Đăng câu hỏi" khoá + "Còn thiếu: tiêu đề, chủ đề, nội dung"', h0 && h0.disabled && h0.hint === 'Còn thiếu: tiêu đề, chủ đề, nội dung', JSON.stringify(h0));
+    const inp = await page.$('[data-part=thread-form] input[type=text], [data-part=thread-form] input:not([type]):not([type=checkbox])'); if (inp) { await inp.click(); await inp.type('Hỏi về IV'); }
+    const h1 = await hint(); chk('student', '/threads', 1440, '01-AC21 dòng nhắc thu hẹp: "Còn thiếu: chủ đề, nội dung"', h1 && h1.disabled && h1.hint === 'Còn thiếu: chủ đề, nội dung', JSON.stringify(h1));
+    const all = await q(() => [...document.querySelectorAll('button:disabled')].every((b) => b.getAttribute('aria-describedby') && document.getElementById(b.getAttribute('aria-describedby'))?.innerText.trim()));
+    chk('student', '/threads', 1440, '01-AC21 mọi nút đang khoá có aria-describedby trỏ tới dòng chữ', all, '');
+  }
+  await setRole('teacher'); await go('/threads'); await clickTxt(/^Đặt câu hỏi$/, 'button', 400);
+  { const o = await q(() => { const s = document.querySelector('[data-part=thread-form] select'); return s ? [...s.options].map((x) => x.textContent.trim()) : null; }); chk('teacher', '/threads', 1440, '01-AC19 GV có "Thông báo" trong Chủ đề', o && o.includes('Thông báo'), JSON.stringify(o)); }
+
+  // 01-AC22 chat 390: Phiên trước (4)
+  await setRole('student', 'sv-2'); await setVp(390, 844); await go('/chat'); await reset(); await go('/chat');
+  { const b = await q(() => { const e = document.querySelector('[data-part=chat-sessions-button]'); if (!e) return null; const r = e.getBoundingClientRect(); return { h: Math.round(r.height), t: e.innerText.trim() }; });
+    chk('student', '/chat', 390, '01-AC22 nút "Phiên trước (4)" cao ≥ 44', b && b.h >= 44 && /Phiên trước \(4\)/.test(b.t), JSON.stringify(b), await shot('chat-sessions-btn-390'));
+    await clickTxt(/Phiên trước \(4\)/, 'button', 500);
+    const sheet = await q(() => { const d = [...document.querySelectorAll('[role=dialog],[popover],[class*=sheet i],[class*=drawer i]')].find((e) => /Cách chọn độ dài khoá RSA/.test(e.innerText)); return d ? { n: ['Cách chọn độ dài khoá RSA', 'Nộp muộn Bài tập 03', 'Hàm băm SHA-256', 'Phân biệt'].filter((s) => d.innerText.includes(s)).length, newBtn: /Phiên mới/.test(d.innerText) } : null; });
+    chk('student', '/chat', 390, '01-AC22 bảng liệt kê 4 phiên + Phiên mới', sheet && sheet.n === 4 && sheet.newBtn, JSON.stringify(sheet), await shot('chat-sessions-sheet-390'));
+    await clickTxt(/Cách chọn độ dài khoá RSA/, '[role=dialog] *,[popover] *,button,li,a', 600); const t = await txt();
+    chk('student', '/chat', 390, '01-AC22 chọn phiên: xem chỉ đọc + nút "Hỏi tiếp"', /Hỏi tiếp/.test(t), '');
+    await setVp(1100, 900); await go('/chat'); const hp = await parts('chat-history'); chk('student', '/chat', 1100, '01-AC22 ≥ 1100 px: panel chat-history', hp >= 1, `chat-history=${hp}`); }
+
+  // 01-AC27 thẻ "Câu hỏi gốc"
+  for (const [role, person] of [['student', 'sv-2'], ['ta', ''], ['teacher', ''], ['student', 'sv-1']]) { await setRole(role, person || 'sv-2'); await setVp(1440, 900);
+    for (const th of ['t-cbc', 't-salt', 't-wifi']) { await go('/threads/' + th); const s = await q(() => { const c = document.querySelector('[data-part=thread-question]'); return c && c.lastElementChild ? Math.round(c.getBoundingClientRect().bottom - c.lastElementChild.getBoundingClientRect().bottom) : null; });
+      chk(role + (person ? ':' + person : ''), '/threads/' + th, 1440, '01-AC27 đáy thẻ câu hỏi gốc ≤ 21 px', s !== null && s <= 21, `slack=${s}`); } }
+
+  // 02-AC15 /attendance 375 / 390
+  await setRole('teacher');
+  for (const w of [375, 390]) { await setVp(w, 812); await go('/attendance');
+    const m = await q(() => { const R = (e) => { const b = e.getBoundingClientRect(); return { l: b.left, r: b.right, t: b.top, b: b.bottom, w: b.width, h: b.height }; };
+      const sel = document.querySelector('[data-part=att-session-select]'); const tog = [...document.querySelectorAll('main label,main button,main [role=switch]')].find((e) => /Giả lập mất mạng/.test(e.innerText)); const rows = [...document.querySelectorAll('[data-part=att-row]')].slice(0, 3);
+      const inter = (a, b) => !(a.r <= b.l || b.r <= a.l || a.b <= b.t || b.b <= a.t);
+      const out = { sel: sel ? Math.round(R(sel).w) : null, selText: sel ? (sel.options ? sel.options[sel.selectedIndex].text : sel.innerText.trim()) : null, overlap: sel && tog ? inter(R(sel), R(tog)) : null, ox: document.documentElement.scrollWidth - innerWidth, rows: [] };
+      for (const row of rows) { const btns = [...row.querySelectorAll('button,[role=radio],label')].filter((b) => /Có mặt|Muộn|Vắng phép|Vắng|Phát biểu/.test(b.innerText || b.getAttribute('aria-label') || '') && b.getBoundingClientRect().width > 0); const small = btns.filter((b) => R(b).w < 44 || R(b).h < 44).map((b) => (b.innerText || b.getAttribute('aria-label')).trim().slice(0, 12)); const name = row.querySelector('[data-part=att-name],strong,b,span'); out.rows.push({ n: btns.length, small, inW: btns.every((b) => R(b).r <= innerWidth + 1), nameW: name ? Math.round(R(name).w) : null, h: Math.round(R(row).h) }); }
+      const sum = [...document.querySelectorAll('main *')].find((e) => /\d+ có mặt/.test(e.textContent) && !e.children.length); out.sumHeight = sum ? Math.round(R(sum).h) : null; return out; });
+    chk('teacher', '/attendance', w, '02-AC15 ô Buổi ≥ 160 hiện "Buổi 10 · 29/10"; không đè công tắc; ox 0', m.sel >= 160 && /Buổi 10 · 29\/10/.test(m.selText || '') && m.overlap === false && m.ox <= 0, JSON.stringify({ sel: m.sel, t: m.selText, overlap: m.overlap, ox: m.ox }), await shot(`att-${w}`));
+    chk('teacher', '/attendance', w, '02-AC15 mỗi SV: 5 nút ≥ 44 × 44, trong bề rộng màn, tên ≥ 140, đủ trong một màn hình', m.rows.length === 3 && m.rows.every((r) => r.n >= 5 && r.small.length === 0 && r.inW && (r.nameW === null || r.nameW >= 140) && r.h < 300), JSON.stringify(m.rows)); }
+
+  // 02-AC18..AC19 (+N3, N4) danh sách sinh viên
+  await setRole('teacher'); await setVp(1440, 900); await go('/students');
+  { const m = await q(() => { const chip = [...document.querySelectorAll('main button')].find((b) => /^Cần chú ý\s*\d+/.test(b.innerText.trim())); const n = chip ? +chip.innerText.match(/\d+/)[0] : null; return { n, text: document.body.innerText }; });
+    const hasOld = /Theo dõi/.test(m.text);
+    await clickTxt(/^Cần chú ý\s*\d+/, 'main button', 400);
+    const rows = await q(() => { const r = [...document.querySelectorAll('[data-part=student-row]')]; return { n: r.length, flagged: r.filter((x) => x.innerText.includes('Cần chú ý')).length }; });
+    chk('teacher', '/students', 1440, '02-AC18 chip Cần chú ý = số hàng sau lọc = số hàng ghi "Cần chú ý" (= 8); không còn "Theo dõi"', m.n === 8 && rows.n === 8 && rows.flagged === 8 && !hasOld, JSON.stringify({ chip: m.n, rows, theoDoi: hasOld }), await shot('students-watch-1440')); }
+  const ids = async (route) => { await setVp(1440, 900); await go(route); return q(() => [...document.querySelectorAll('[data-part=student-row]')].map((r) => r.dataset.studentId)); };
+  { const [a, b, c, d] = [await ids('/students'), await ids('/attendance'), await ids('/gradebook'), await ids('/class/members')]; const asc = (x) => x.every((v, i) => i === 0 || +v.split('-')[1] > +x[i - 1].split('-')[1]);
+    chk('teacher', '/students,/attendance,/gradebook,/class/members', 1440, '02-AC19 cùng thứ tự sv-n tăng dần (30 hàng, A–C đầu)', [a, b, c, d].every((x) => x.length >= 30 && x.join() === a.join() && asc(x)) && a.slice(0, 3).join() === 'sv-1,sv-2,sv-3', JSON.stringify({ n: [a.length, b.length, c.length, d.length], head: a.slice(0, 4) })); }
+  await go('/'); { const t = await txt(); chk('teacher', '/', 1440, '02-AC18 Hôm nay: "Lớp cần chú ý · 8 sinh viên" + Xem cả 8', /Lớp cần chú ý · 8 sinh viên/.test(t) && /Xem cả 8/.test(t), ''); }
+  await go('/'); { const ids2 = await q(() => [...document.querySelectorAll('[data-part=today-task]')].map((e) => e.dataset.taskId)); chk('teacher', '/', 1440, '02-AC21 thứ tự thẻ Hôm nay (6 việc seed): ticket, …, ai-pending, setup, members', ids2.length === 6 && /ticket/.test(ids2[0]) && ids2[3] === 'ai-pending' && ids2[4] === 'setup' && ids2[5] === 'members', JSON.stringify(ids2)); }
+
+  // 02-AC14 (N9) badge điều hướng
+  for (const w of [1440, 390]) { await setVp(w, 844); for (const r of ['/', '/inbox', '/gradebook', '/grading']) { await go(r); const b = await q(() => [...document.querySelectorAll('[data-part^=nav-badge]')].filter((e) => e.offsetParent).map((e) => e.dataset.part + ':' + e.textContent.trim()));
+      chk('teacher', r, w, '02-AC14 badge Hộp thư 5 và Chấm bài 4', b.includes('nav-badge-inbox:5') && b.includes('nav-badge-grading:4') && new Set(b).size === 2, JSON.stringify(b)); } }
+
+  // 04-AC8 (N1, N2) analytics ↔ inbox
+  await go('/inbox'); const over = await q(() => (document.body.innerText.match(/Quá 24 giờ/g) || []).length);
+  await go('/analytics'); { const t = await txt(); const n24 = +(t.match(/Câu chờ quá 24 giờ[\s\S]{0,30}?(\d+)/) || [])[1];
+    chk('teacher', '/inbox ↔ /analytics', 1440, '04-AC8 "Câu chờ quá 24 giờ" = 3 = số hàng "Quá 24 giờ"', n24 === 3 && over === 3, JSON.stringify({ n24, over }));
+    chk('teacher', '/analytics', 1440, '04-AC8 "AI tự trả lời 98%" trong 392 câu, 6 chuyển', /AI tự trả lời 98%/.test(t) && /392 câu/.test(t) && /6 câu chuyển/.test(t), (t.match(/AI tự trả lời[^\n]*/) || [''])[0]);
+    await clickTxt(/^30 ngày$/, 'button,[role=radio],label', 400); const t30 = await txt();
+    chk('teacher', '/analytics', 1440, '04-AC8 30 ngày: 99% trong 1.424 câu, 19 chuyển; "chờ quá 24 giờ" vẫn 3', /99%/.test(t30) && /1\.424/.test(t30) && /19/.test(t30) && +(t30.match(/Câu chờ quá 24 giờ[\s\S]{0,30}?(\d+)/) || [])[1] === 3, '');
+    // 04-AC12 biểu đồ
+    const ch30 = await q(() => [document.querySelectorAll('[data-part=chart-point]').length, document.querySelectorAll('[data-part=chart-axis-label]').length]);
+    await clickTxt(/^7 ngày$/, 'button,[role=radio],label', 400); const ch7 = await q(() => [document.querySelectorAll('[data-part=chart-point]').length, document.querySelectorAll('[data-part=chart-axis-label]').length, [...document.querySelectorAll('[data-part=chart-point]')].every((p) => p.getAttribute('aria-label'))]);
+    chk('teacher', '/analytics', 1440, '04-AC12 7 ngày: 7 điểm, ≥ 3 nhãn trục, mỗi điểm có aria-label; 30 ngày: 10 điểm', ch7[0] === 7 && ch7[1] >= 3 && ch7[2] && ch30[0] === 10 && ch30[1] >= 3, JSON.stringify({ ch7, ch30 }), await shot('analytics-chart')); }
+
+  // 04-AC11 khoảng cách các phần của /settings/llm; 03-AC7 /gradebook 390
+  await setRole('admin'); await setVp(1440, 900); await go('/settings/llm');
+  { const g = await q(() => [...document.querySelectorAll('[data-part=settings-section]')].map((s, i, a) => i ? Math.round(s.getBoundingClientRect().top - a[i - 1].getBoundingClientRect().bottom) : null).slice(1)); chk('admin', '/settings/llm', 1440, '04-AC11 khoảng cách các phần bằng nhau (lệch 0)', g.length >= 3 && new Set(g).size === 1, JSON.stringify(g), await shot('llm-sections')); }
+  await setRole('teacher'); await setVp(390, 844); await go('/gradebook');
+  { const m = await q(() => ({ inView: ['col-qt', 'col-status'].map((p) => { const e = document.querySelector('[data-part=' + p + ']'); return e ? e.getBoundingClientRect().right <= innerWidth : null; }), hint: /Kéo ngang để xem BT01–BT03 và Cuối kỳ/.test(document.body.innerText) }));
+    chk('teacher', '/gradebook', 390, '03-AC7 col-qt, col-status trong khung nhìn đầu + dòng gợi ý kéo ngang', m.inView.every((x) => x === true) && m.hint, JSON.stringify(m), await shot('gradebook-v51-390')); }
 }
 
 export function table(rows) {

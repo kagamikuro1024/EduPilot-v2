@@ -122,6 +122,49 @@ tc_01_11(){ local t   # 01-AC10: seed t-cbc / t-salt đúng bảng B (nếu curl
   for s in 'Đã được giảng viên xác nhận' 'Lê Thu Hà' 'Muối lưu ở đâu ạ' 'bcrypt còn cố tình chậm' 'Em nghĩ là để mỗi lần đoán thử'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-salt có «$s»"; done
   for id in t-firewall t-wifi; do eq "$(visible student /threads/$id sv-2 | grep -c 'Trợ lý AI của lớp')" 0 "$id không có câu AI"; done; }
 tc_04_07(){ hook admin /settings/llm provider-status 3; hook teacher /settings/llm provider-status 3; eq "$(visible teacher /settings/llm | grep -c 'Test kết nối')" 0 "GV không có Test kết nối"; }
+# ---------- Spec v5.1 (#19) — lệnh Kiểm lấy từ US.md; mỗi hàm một AC ----------
+ROOT(){ git rev-parse --show-toplevel; }
+tc_00_13(){ local v   # 00-AC13 / FR-X16
+  eq "$(curl -s $F/khong-co-trang | grep -c 'This page could')" 0 "404 không lộ trang tiếng Anh của Next.js (không cookie)"
+  for v in teacher student ta admin; do ge "$(curl -s -b "ep_demo_role=$v; ep_demo_person=sv-2" $F/khong-co-trang | grep -c 'Không tìm thấy trang')" 1 "$v: 404 tiếng Việt"
+    ge "$(curl -s -b "ep_demo_role=$v; ep_demo_person=sv-2" $F/khong-co-trang | grep -c 'Về Hôm nay')" 1 "$v: 404 có nút Về Hôm nay"; done
+  [ -f "$(ROOT)/frontend/src/app/error.tsx" ] && [ -f "$(ROOT)/frontend/src/app/not-found.tsx" ] && pass "có app/error.tsx và app/not-found.tsx" || fail "thiếu app/error.tsx hoặc app/not-found.tsx"; }
+tc_00_14(){ local o r   # 00-AC14 / FR-X13 (N6): không chuỗi thời gian cứng
+  o=$(grep -rnE '[0-9]+ (ngày|giờ|phút) trước' "$(ROOT)/frontend/src" --include=*.ts --include=*.tsx | grep -v 'mock/derive.ts'); [ -z "$o" ] && pass "không chuỗi 'N … trước' ngoài mock/derive.ts" || { fail "còn chuỗi thời gian cứng"; echo "$o" | cut -c1-150 | head -5; }
+  eq "$(visible student / sv-2 | grep -c '12 ngày trước')" 0 "SV B không còn '12 ngày trước'"
+  for r in / /admin/courses; do ge "$(visible admin $r | grep -ci 'hôm qua 16:40')" 1 "Admin $r có 'hôm qua 16:40'"; done
+  eq "$(visible admin / | grep -c '08:30')" 0 "Admin / không còn '08:30'"; }
+tc_00_15(){ local o   # 00-AC12 tĩnh: không glass; chạy được ngay trên cây sạch
+  o=$(grep -rnE 'backdrop-filter|transparent\)' "$(ROOT)/frontend/src/shared/shell" "$(ROOT)/frontend/src/shared/ui" 2>/dev/null); [ -z "$o" ] && pass "shared/shell, shared/ui không có backdrop-filter / transparent)" || { fail "còn glass"; echo "$o" | cut -c1-150 | head -5; }
+  grep -qE 'backdrop-filter' "$(ROOT)/scripts/ui-antipatterns.sh" && pass "ui-antipatterns.sh có mẫu backdrop-filter" || fail "ui-antipatterns.sh thiếu mẫu backdrop-filter"; }
+tc_01_17(){ local r a b   # 01-AC17 / FR-X18: SV D
+  for r in /chat /threads /threads/t-cbc /practice /practice/at-symmetric /practice/history /library /calendar /me /assignments/bt03; do
+    a=$(visible student $r sv-4 | grep -c 'Bạn chưa vào lớp nào'); b=$(visible student $r sv-4 | grep -ciE 'phiên trước|Cách chọn độ dài khoá RSA|Nộp muộn Bài tập 03|CBC khác ECB|Chương 3 — Mật mã')
+    ge "$a" 1 "D $r: màn 'Bạn chưa vào lớp nào'"; eq "$b" 0 "D $r: không dữ liệu lớp / phiên của B"
+    eq "$(open_as student $r sv-4 | awk '{print $1}')" MO "D $r: không phải màn chặn quyền (FR-X4)"; done
+  eq "$(visible student / sv-4 | grep -cE 'Chat riêng|Luyện đề|Thư viện|Lịch')" 0 "D: sidebar chỉ Hôm nay"
+  ge "$(visible student / sv-4 | grep -ci 'mã tham gia')" 1 "D: ô nhập 'mã tham gia'"
+  for r in /inbox /attendance /gradebook /observability; do want CHAN student $r sv-4; done; }
+tc_01_20(){ eq "$(visible student /threads/t-rsa-key sv-2 | grep -c 'lan truyền lỗi')" 0 "t-rsa-key không có nội dung CBC 'lan truyền lỗi' (01-AC20)"; }
+tc_01_24(){ local t; t=$(visible student /library sv-2)   # 01-AC24 / N5
+  ge "$(echo "$t" | grep -c 'Chương 5 — Quản lý khoá và PKI')" 1 "/library có Chương 5 — Quản lý khoá và PKI"; ge "$(echo "$t" | grep -c 'Modern Network Security Threats')" 1 "/library có Modern Network Security Threats"
+  eq "$(echo "$t" | grep -cE 'Đáp án đề|Mordern')" 0 "/library không Đáp án đề / Mordern"
+  for s in 'Chương 1 — Tổng quan an ninh mạng và mô hình đe doạ' 'Chương 2 — Tấn công mạng phổ biến' 'Chương 3 — Mật mã đối xứng và chế độ vận hành' 'Chương 4 — Hàm băm và chữ ký số' 'Quy chế đào tạo của trường' 'Quy chế môn học An ninh mạng – 761987' 'Đề thi cuối kỳ An ninh mạng — HK1 2025–2026' 'Đề thi giữa kỳ An ninh mạng — HK1 2024–2025'; do ge "$(echo "$t" | grep -c "$s")" 1 "/library có «$s»"; done; }
+tc_02_14(){ local o; o=$(grep -n 'badge:' "$(ROOT)/frontend/src/shared/shell/nav.ts" 2>/dev/null | grep -E 'badge: *[0-9]'); [ -z "$o" ] && pass "nav.ts không còn badge số cứng (02-AC14)" || { fail "nav.ts còn badge cứng"; echo "$o" | head -3; }; }
+tc_02_18(){ eq "$(visible teacher /students | grep -c 'Theo dõi')" 0 "/students không còn 'Theo dõi' (02-AC18)"; }
+tc_02_20(){ local k; for k in '1 lệch hai lượt chấm' '1 bài ngắn bất thường' '1 trùng đoạn với bài khác' '1 AI không chắc ở một tiêu chí'; do ge "$(visible teacher / | grep -c "$k")" 1 "Hôm nay có lý do «$k» (02-AC20)"; done; }
+tc_03_08(){ local t; t=$(visible teacher /documents)   # 03-AC8 / N5
+  ge "$(echo "$t" | grep -c 'Chương 3 — Mật mã đối xứng và chế độ vận hành')" 1 "/documents có tên hiển thị Chương 3"
+  eq "$(echo "$t" | grep -cE 'Chuong[0-9]_|Mordern')" 0 "/documents không tên tệp gạch dưới / Mordern ngoài Drawer"
+  eq "$(echo "$t" | grep -c 'Hạ tầng khoá công khai')" 0 "/documents không còn tài liệu 'Hạ tầng khoá công khai' (v4)"; ge "$(echo "$t" | grep -c 'Không hiển thị cho sinh viên')" 1 "/documents ghi 'Không hiển thị cho sinh viên' cho đáp án"; }
+tc_04_08(){ eq "$(visible teacher /inbox | grep -c 'Quá 24 giờ')" 3 "/inbox có 3 hàng 'Quá 24 giờ' (04-AC8)"; ge "$(visible teacher /analytics | grep -c 'AI tự trả lời 98%')" 1 "/analytics 'AI tự trả lời 98%'"; }
+tc_04_10(){ local r; for r in / /admin/courses; do ge "$(visible admin $r | grep -ci 'hôm qua 16:40')" 1 "Admin $r có 'hôm qua 16:40' (04-AC10)"; done; eq "$(visible admin / | grep -c '08:30')" 0 "Admin / không '08:30'"; }
+tc_00_16(){ local d f n; d="$(ROOT)/frontend/src/mock/derive.ts"   # FR-X13: một nguồn số liệu (SRS 4.8)
+  [ -f "$d" ] && pass "có mock/derive.ts" || { fail "thiếu mock/derive.ts"; return; }
+  for f in ticketStats attentionSet navBadges ago; do ge "$(grep -c "$f" "$d")" 1 "derive.ts có $f"; done
+  n=$(grep -rnE 'overdue: *\[|answeredByAi|escalated: *\[' "$(ROOT)/frontend/src" --include=*.ts --include=*.tsx | wc -l | tr -d ' '); eq "$n" 0 "không còn số cứng overdue / answeredByAi / escalated (N1, N2)"
+  n=$(grep -rnE 'color-mix\([^)]*transparent' "$(ROOT)/frontend/src/shared/shell" "$(ROOT)/frontend/src/shared/ui" 2>/dev/null | wc -l | tr -d ' '); eq "$n" 0 "shell / ui không color-mix(… transparent) (FR-X15)"; }
+
 
 [ $# -eq 0 ] && { echo "dùng: F=… $0 tc_00_01 …  (hoặc: $0 all)"; grep -oE '^tc_[0-9a-z_]+' "$0" | xargs; exit 2; }
 for t in "$@"; do TC=$t; if [ "$t" = all ]; then for f in $(grep -oE '^tc_[0-9a-z_]+' "$0"); do TC=$f; $f; done; elif declare -F "$t" >/dev/null; then "$t"; else echo "FAIL $t: không có TC này"; RC=1; fi; done
