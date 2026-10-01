@@ -81,34 +81,38 @@ export function LlmSettings() {
               const result = tested[p.id] ?? (keys[p.id] ? { ok: true as const, latencyMs: 356 } : undefined);
               return (
                 <li key={p.id} className={s.row}>
-                  <div className={s.rowMain}>
-                    <div>
+                  <div className={s.providerGrid}>
+                    <div className={s.providerInfo}>
                       <p className="ep-item-title">{p.name}</p>
                       <p className={s.sub}>{p.kind}</p>
                       <p className={s.mono}>{p.endpoint}</p>
                     </div>
-                    <div className={s.rowSide}>
-                      <StatusText tone={failing ? "amber" : "green"}>••••{tail} · {failing ? "khoá bị từ chối" : "đã kết nối"}</StatusText>
+                    <div className={s.providerStatus} data-part="provider-status">
+                      <StatusText tone={failing ? "amber" : "green"}>
+                        ••••{tail} · {failing ? "khoá bị từ chối" : "đã kết nối"}
+                      </StatusText>
                       <p className={s.sub}>Kiểm gần nhất: {p.lastCheck}</p>
                     </div>
-                    {canEdit && (
-                      <div className={s.rowActions}>
-                        <Button size="sm" icon={<PlugZap aria-hidden />} onClick={() => setTested((prev) => ({ ...prev, [p.id]: failing ? p.test : { ok: true, latencyMs: p.test.ok ? p.test.latencyMs : 356 } }))}>
-                          Test kết nối
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          icon={<KeyRound aria-hidden />}
-                          onClick={() => {
-                            setEditingKey(editingKey === p.id ? null : p.id);
-                            setKeyDraft("");
-                          }}
-                        >
-                          Đổi khoá
-                        </Button>
-                      </div>
-                    )}
+                    <div className={s.providerAction} data-part="provider-action">
+                      {canEdit && (
+                        <>
+                          <Button size="sm" icon={<PlugZap aria-hidden />} onClick={() => setTested((prev) => ({ ...prev, [p.id]: failing ? p.test : { ok: true, latencyMs: p.test.ok ? p.test.latencyMs : 356 } }))}>
+                            Test kết nối
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            icon={<KeyRound aria-hidden />}
+                            onClick={() => {
+                              setEditingKey(editingKey === p.id ? null : p.id);
+                              setKeyDraft("");
+                            }}
+                          >
+                            Đổi khoá
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {canEdit && editingKey === p.id && (

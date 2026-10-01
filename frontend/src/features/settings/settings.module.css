@@ -15,6 +15,12 @@
 .row:first-child { border-top: 0; padding-top: 0; }
 .row:last-child { border-bottom: 0; padding-bottom: 0; }
 .rowMain { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ep-space-6); flex-wrap: wrap; }
+/* Lưới cột cố định để trạng thái và nút thẳng hàng ở mọi hàng (04-AC7): thông tin · trạng thái · hành động. */
+.providerGrid { display: grid; grid-template-columns: minmax(0, 1fr) 200px 140px; gap: var(--ep-space-6); align-items: start; }
+.providerInfo { display: grid; gap: var(--ep-space-1); min-width: 0; }
+.providerInfo p { overflow-wrap: anywhere; }
+.providerStatus { display: grid; gap: var(--ep-space-1); align-content: start; }
+.providerAction { display: grid; gap: var(--ep-space-2); align-content: start; justify-items: stretch; }
 .rowSide { display: grid; gap: var(--ep-space-1); min-width: 220px; }
 .rowActions { display: flex; align-items: center; gap: var(--ep-space-2); }
 
@@ -66,6 +72,8 @@
 .integrationPurpose { max-width: 68ch; color: var(--ep-ink-2); margin: var(--ep-space-1) 0 0; font-size: var(--ep-text-label); }
 
 @media (max-width: 719px) {
+  .providerGrid { grid-template-columns: minmax(0, 1fr); gap: var(--ep-space-3); }
+  .providerAction :global(button) { width: 100%; min-height: 44px; justify-content: center; }
   .taskRow { flex-direction: column; align-items: stretch; gap: var(--ep-space-2); }
   .modelSelect { min-width: 0; width: 100%; }
   .rowSide { min-width: 0; }
