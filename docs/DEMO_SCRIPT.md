@@ -159,12 +159,12 @@ Ba tầng, đi từ trên xuống. Người trình bày (chủ dự án) quyết
 | Tầng | Khi nào dùng | Ai bật | Bật ở đâu, thế nào | Mất gì |
 | --- | --- | --- | --- | --- |
 | 1. Chạy thật | Mặc định (xem Q6) | – | `.env.local` không đặt `DEMO_MODE` | – |
-| 2. `DEMO_MODE=true` | Mạng hoặc API LLM lỗi lúc chuẩn bị, hoặc một bước lỗi 2 lần liên tiếp trong lúc demo | Chủ dự án | Sửa `.env.local`: `DEMO_MODE=true` → `docker compose --env-file .env.local -f docker-compose.local.yml up -d python-ai` (≈ 30 s, nói lời dẫn trong lúc chờ) | Câu trả lời là bản ghi sẵn; chỉ đúng với các câu ở mục 3 |
+| 2. `DEMO_MODE=true` | Mạng hoặc API LLM lỗi lúc chuẩn bị, hoặc một bước lỗi 2 lần liên tiếp trong lúc demo | Chủ dự án | Sửa `.env.local`: `DEMO_MODE=true` → `docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot up -d gateway` (≈ 30 s, nói lời dẫn trong lúc chờ) | Câu trả lời là bản ghi sẵn; chỉ đúng với các câu ở mục 3 |
 | 3. Video quay sẵn | Stack không lên, hoặc tầng 2 cũng lỗi | Chủ dự án | Mở file video trên laptop (bản sao trên USB), nhảy tới chương của bước đang dở | Không tương tác được |
 
 ### 5.1 `DEMO_MODE=true` phải làm gì
 
-- Gateway LLM ở `src/llm/gateway.py` dùng provider `fake` (P1 L1) cho mọi tác vụ trong kịch bản: CHAT, CLASSIFY, UTILITY, GRADING, INSIGHT, EMBEDDING.
+- Lớp gọi LLM trong gateway Go (`openai-go`, D46) dùng provider `fake` (P1 L1) cho mọi tác vụ trong kịch bản: CHAT, CLASSIFY, UTILITY, GRADING, INSIGHT, EMBEDDING. Worker Go dùng cùng cờ cho các việc nền.
 - Provider `fake` trả câu trả lời ghi sẵn cho đúng các đầu vào ở mục 3 và các việc nền của bước 5, 6, 7 (chấm Bài tập 03, trích quy chế lớp 2, báo cáo lỗ hổng hai lớp). Đầu vào khác → câu trả lời trung tính "chưa có câu trả lời ghi sẵn", không lỗi.
 - Đường đi còn nguyên: che tên / MSSV, Scheduler, `llm_audit`, ngưỡng độ tin cậy, escalation, mail. Chỉ lời gọi ra provider bị thay. Vì vậy dòng "Đã ẩn 2 thông tin cá nhân" và ticket ở bước 3 vẫn sinh thật.
 - Không cần mạng ra ngoài. Kiểm: tắt Wi-Fi máy demo, chạy toàn kịch bản, mọi bước qua.
