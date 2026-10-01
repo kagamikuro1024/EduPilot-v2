@@ -1,5 +1,5 @@
 # SRS FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
-Phiên bản 5 · 2026-10-01 · Trạng thái: DRAFT (chờ PM duyệt v5)
+Phiên bản 5 · 2026-10-01 · Trạng thái: **APPROVED** (PM duyệt v5 2026-10-01; Q3, Q4 chốt theo mặc định của BA)
 
 Lịch sử: v1 bản đầu · v2 mốc thời gian tuần 10, "bây giờ" = 29/10/2026 09:20 (#12) · v3 điểm BT03 của B = 8,0, QT = 8,7 (#13) · v4 chi tiết luồng Threads (#15) + phân định panel (#16) — APPROVED · **v5 UI polish (#17: FR-X12, mục 4.7) + Threads như thật (#18: mục 4.3.1)**. v5 không đổi số liệu, quyền hay luồng đã duyệt ở v4 ngoài phần Threads.
 
