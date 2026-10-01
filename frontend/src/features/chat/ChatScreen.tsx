@@ -106,7 +106,7 @@ export function ChatScreen() {
       />
 
       <div className={s.layout}>
-        <nav className={s.history} aria-label="Phiên trước">
+        <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
           <p className={s.historyLabel}>Phiên trước</p>
           <ul>
             {CHAT_HISTORY.map((h) => (
@@ -128,20 +128,20 @@ export function ChatScreen() {
         <div className={s.column}>
           <PageState
             loading={
-              <div className={s.thread}>
+              <div className={s.thread} data-part="chat-thread">
                 <Skeleton lines={2} />
                 <Skeleton lines={4} />
               </div>
             }
             empty={
-              <div className={s.thread}>
+              <div className={s.thread} data-part="chat-thread">
                 <InlineNotice title="Phiên chat này chưa có tin nhắn">
                   Hỏi một câu về điểm hoặc chuyên cần của bạn, ví dụ “Em đã nghỉ mấy buổi rồi ạ?”.
                 </InlineNotice>
               </div>
             }
           >
-            <div className={s.thread}>
+            <div className={s.thread} data-part="chat-thread">
               {past ? (
                 <>
                   <p className={s.sessionNote}>
@@ -175,7 +175,7 @@ export function ChatScreen() {
             </div>
           </PageState>
 
-          <div className={s.composer}>
+          <div className={s.composer} data-part="chat-composer">
             {quizDoing && (
               <InlineNotice tone="warning" compact>
                 Bạn đang làm QUIZ01. Trong lúc làm bài, Chat riêng chỉ trả lời câu hỏi thủ tục.

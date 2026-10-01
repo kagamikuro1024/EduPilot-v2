@@ -1,9 +1,21 @@
 .page { display: grid; }
-.layout { display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: var(--ep-space-10); align-items: start; }
-.column { display: grid; gap: var(--ep-space-6); max-width: 840px; min-width: 0; }
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--ep-space-6); align-items: start; }
+.column { display: grid; gap: var(--ep-space-4); width: 100%; max-width: 820px; min-width: 0; justify-self: center; }
 
-.history { position: sticky; top: calc(var(--ep-topbar) + var(--ep-space-6)); display: grid; gap: var(--ep-space-2); }
-.historyLabel { margin: 0; font-size: var(--ep-text-meta); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ep-ink-3); }
+/* Lịch sử phiên là một panel (FR-X11): viền, nền, bo góc, cuộn riêng. */
+.history {
+  position: sticky;
+  top: calc(var(--ep-topbar) + var(--ep-space-6));
+  display: grid;
+  gap: var(--ep-space-2);
+  align-content: start;
+  max-height: calc(100dvh - var(--ep-topbar) - var(--ep-space-12));
+  overflow-y: auto;
+  padding: var(--ep-space-4) var(--ep-space-3);
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+}
 .history ul { list-style: none; margin: 0; padding: 0; display: grid; }
 .historyItem {
   display: grid;
@@ -16,13 +28,13 @@
   text-align: left;
   cursor: pointer;
 }
-.history li:last-child .historyItem { border-bottom: 1px solid var(--ep-rule); }
+.history li:first-child .historyItem { border-top: 0; }
 .historyItem:hover { background: var(--ep-surface-subtle); }
 .historyOn { background: var(--ep-surface-subtle); box-shadow: inset 2px 0 0 var(--ep-red); } /* ui-allow: vạch chọn 2px bằng token, không phải bóng */
-.historyTitle { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink); line-height: 1.35; }
+.historyTitle { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink); line-height: 1.35; overflow-wrap: anywhere; }
 .historyMeta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 
-.thread { display: grid; gap: var(--ep-space-8); min-height: 42vh; align-content: start; }
+.thread { display: grid; gap: var(--ep-space-8); align-content: start; }
 .intro { display: grid; gap: var(--ep-space-2); padding: var(--ep-space-6) 0; }
 .introText { margin: 0; color: var(--ep-ink-2); max-width: 60ch; }
 .introMeta { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
@@ -82,13 +94,23 @@
 .shield { display: inline-flex; align-items: center; gap: var(--ep-space-2); }
 .shield svg { width: 14px; height: 14px; color: var(--ep-green); flex: none; }
 
+/* ≥ 720px: không gian làm việc cao đúng phần còn lại của màn; hội thoại cuộn bên trong, composer ghim đáy (01-AC11). */
+@media (min-width: 720px) {
+  .page.page { height: calc(100dvh - var(--ep-topbar)); grid-template-rows: auto minmax(0, 1fr); padding-bottom: var(--ep-space-6); }
+  .layout { min-height: 0; height: 100%; align-items: stretch; }
+  .history { position: static; max-height: none; height: 100%; }
+  .column { min-height: 0; height: 100%; grid-template-rows: minmax(0, 1fr) auto; }
+  .thread { min-height: 0; overflow-y: auto; padding-right: var(--ep-space-2); }
+  .composer { position: static; padding-bottom: 0; }
+}
+
 @media (max-width: 1099px) {
-  .layout { grid-template-columns: 180px minmax(0, 1fr); gap: var(--ep-space-6); }
+  .layout { grid-template-columns: 200px minmax(0, 1fr); gap: var(--ep-space-4); }
 }
 
 @media (max-width: 719px) {
   .layout { grid-template-columns: minmax(0, 1fr); }
   .history { display: none; }
-  .thread { gap: var(--ep-space-6); }
+  .thread { gap: var(--ep-space-6); min-height: 42vh; }
   .composer { position: sticky; bottom: 56px; }
 }
