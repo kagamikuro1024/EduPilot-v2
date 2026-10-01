@@ -43,7 +43,7 @@ export function PageHeader({
       )}
       <div className={s.headRow}>
         <div className={s.headText}>
-          <h1 ref={titleRef} className="ep-page-title">
+          <h1 ref={titleRef} className="ep-page-title" data-part="page-title">
             {title}
           </h1>
           {description && <p className={s.desc}>{description}</p>}
@@ -63,6 +63,7 @@ export function Section({
   children,
   className,
   id,
+  part,
 }: {
   title?: ReactNode;
   description?: ReactNode;
@@ -70,9 +71,11 @@ export function Section({
   children: ReactNode;
   className?: string;
   id?: string;
+  /** móc đo dev: `data-part` của phần (vd. `settings-section`) */
+  part?: string;
 }) {
   return (
-    <section className={[s.section, className ?? ""].join(" ")} id={id} aria-labelledby={title && id ? `${id}-title` : undefined}>
+    <section className={[s.section, className ?? ""].join(" ")} id={id} data-part={part} aria-labelledby={title && id ? `${id}-title` : undefined}>
       {(title || action) && (
         <div className={s.sectionHead}>
           <div>

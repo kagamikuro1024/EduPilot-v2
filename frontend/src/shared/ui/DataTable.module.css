@@ -57,8 +57,14 @@ th.frozen { z-index: 2; }
 .itemField dt::after { content: ":"; }
 .itemField dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
 
+.scrollHint { display: none; }
+
 @media (max-width: 719px) {
   .hideMobile { display: none; }
   .tableOnly { display: none; }
   .list { display: block; border-top: 1px solid var(--ep-rule); }
+  /* 03-AC7: bảng cuộn ngang giữ cột tên dính trái và nói trước là cuộn được. */
+  .scrollHint { display: block; margin-bottom: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+  .scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-ink-3); }
+  .scroll[data-scroll-x] .table { width: auto; min-width: 100%; }
 }

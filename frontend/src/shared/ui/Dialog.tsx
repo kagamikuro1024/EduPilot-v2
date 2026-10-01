@@ -43,6 +43,7 @@ function Overlay({
       className={[s.overlay, variant === "drawer" ? s.drawer : s.dialog, wide ? s.wide : ""].join(" ")}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
+      role="dialog"
       aria-labelledby={titleId}
     >
       <div className={s.frame}>

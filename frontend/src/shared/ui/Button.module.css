@@ -57,8 +57,10 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-@media (pointer: coarse) {
-  .btn { min-height: 44px; }
-  .sm { min-height: 40px; }
-  .iconBtn { width: 44px; height: 44px; }
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14): áp cho cả màn hẹp lẫn thiết bị chạm. */
+@media (max-width: 719px), (pointer: coarse) {
+  .btn { min-height: 44px; min-width: 44px; }
+  .sm { min-height: 44px; }
+  .text { min-height: 44px; padding: 0 var(--ep-space-2); }
+  .iconBtn, .iconSm { width: 44px; height: 44px; }
 }

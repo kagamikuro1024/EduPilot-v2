@@ -60,6 +60,27 @@
 }
 .switch[aria-checked="true"] .knob { transform: translateX(16px); }
 
-@media (pointer: coarse) {
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14): ô tích đo theo nhãn bọc nó, công tắc có hộp bấm 44. */
+@media (max-width: 719px), (pointer: coarse) {
   .control { min-height: 44px; font-size: 1rem; }
+  /* nhãn ô nhập cũng là vùng bấm (bấm nhãn → focus ô) */
+  .field { gap: var(--ep-space-1); }
+  .label { display: flex; align-items: center; min-height: 44px; min-width: 44px; }
+  .check { min-height: 44px; min-width: 44px; }
+  .check input { width: 20px; height: 20px; }
+  .switch { width: 44px; height: 44px; margin-top: 0; background: transparent; }
+  .switch[aria-checked="true"] { background: transparent; }
+  .switch::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 4px;
+    width: 36px;
+    height: 20px;
+    border-radius: var(--ep-radius-pill);
+    background: var(--ep-rule);
+    transition: background-color var(--ep-normal) var(--ep-ease-standard);
+  }
+  .switch[aria-checked="true"]::before { background: var(--ep-ink); }
+  .knob { top: 14px; left: 6px; }
 }

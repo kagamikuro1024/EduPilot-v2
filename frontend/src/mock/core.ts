@@ -38,7 +38,7 @@ export type Course = {
 
 export const COURSES: Course[] = [
   {
-    id: "761987",
+    id: "int1006-1",
     code: "761987",
     name: SUBJECT.name,
     label: `${SUBJECT.name} – 761987`,
@@ -52,7 +52,7 @@ export const COURSES: Course[] = [
     teacher: "TS. Lê Thu Hà",
   },
   {
-    id: "761988",
+    id: "int1006-2",
     code: "761988",
     name: SUBJECT.name,
     label: `${SUBJECT.name} – 761988`,
@@ -241,16 +241,6 @@ export function fmtTime(d: Date) {
 
 export function fmtShortDate(d: Date) {
   return `${d.getDate().toString().padStart(2, "0")}/${(d.getMonth() + 1).toString().padStart(2, "0")}`;
-}
-
-/** "26 phút trước", "3 giờ trước", "2 ngày trước" tính từ NOW */
-export function ago(d: Date) {
-  const m = Math.round((NOW.getTime() - d.getTime()) / 60000);
-  if (m < 1) return "vừa xong";
-  if (m < 60) return `${m} phút trước`;
-  const h = Math.round(m / 60);
-  if (h < 24) return `${h} giờ trước`;
-  return `${Math.round(h / 24)} ngày trước`;
 }
 
 /** mốc thời gian tương đối so với NOW, tính bằng phút */

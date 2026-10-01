@@ -21,6 +21,10 @@ export const KEYS = {
   insightThreads: "insightThreads",
   /** Sự kiện thêm vào lịch (buổi ôn tập). Ghi: /insights. Đọc: /calendar. */
   calendarExtras: "calendarExtras",
+  /** Thông báo chuông (mock/notes.ts). Ghi: nơi xảy ra sự kiện liên vai. Đọc: khung chuông ở AppShell. */
+  notes: "notes",
+  /** Giờ giả lập của sự kiện cuối làm đổi điểm quá trình (SRS 4.8 N7). Ghi: lưu điểm danh, công bố BT03. Đọc: /me. */
+  meStamp: "meStamp",
 } as const;
 
 // ---- tickets -------------------------------------------------------------------------------
@@ -35,6 +39,8 @@ export type Ticket = {
   question: string;
   /** số phút trước "bây giờ" (NOW) khi ticket được tạo; ticket mới tạo = 0 */
   ageMin: number;
+  /** ticket tạo trong phiên: mốc giả lập (ms) lúc tạo; có thì `ageMin` bị bỏ qua (xem derive.ticketAgeMin) */
+  createdMs?: number;
   status: TicketStatus;
   /** lý do nêu cho giảng viên, ví dụ "Độ tin cậy 0,42 < 0,80" */
   reason: string;

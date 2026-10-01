@@ -31,6 +31,7 @@ export function ActionRow({
   selected,
   onSelect,
   lead,
+  data,
 }: {
   tone?: Tone;
   title: ReactNode;
@@ -42,6 +43,8 @@ export function ActionRow({
   selected?: boolean;
   onSelect?: () => void;
   lead?: ReactNode;
+  /** thuộc tính `data-*` cho hàng (móc đo / kiểm), ví dụ `{ "data-part": "thread-row" }` */
+  data?: Record<`data-${string}`, string>;
 }) {
   const body = (
     <>
@@ -54,7 +57,7 @@ export function ActionRow({
     </>
   );
   return (
-    <li className={[s.row, selected ? s.selected : ""].join(" ")}>
+    <li className={[s.row, selected ? s.selected : ""].join(" ")} {...data}>
       {href ? (
         <Link href={href} className={s.main} onClick={(e) => redThread && markRedThread(e.currentTarget)}>
           {body}

@@ -78,3 +78,8 @@
 
 .private { display: inline-flex; align-items: center; gap: var(--ep-space-1); font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-2); }
 .private svg { width: 14px; height: 14px; color: var(--ep-green); }
+
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14). */
+@media (max-width: 719px), (pointer: coarse) {
+  .undoBtn { min-height: 44px; min-width: 44px; }
+}

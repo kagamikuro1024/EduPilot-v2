@@ -1,7 +1,8 @@
-.page { margin: 0 auto; padding: var(--ep-space-10) var(--ep-space-8) var(--ep-space-20); }
-.reading { max-width: calc(960px + 2 * var(--ep-space-8)); }
+/* Khung nội dung: lề trái giống nhau ở mọi route (00-AC11) — không căn giữa. */
+.page { padding: var(--ep-space-10) var(--ep-space-6) var(--ep-space-20); }
+.reading { max-width: calc(960px + 2 * var(--ep-space-6)); }
 .wide { max-width: 1440px; }
-.full { max-width: none; padding-left: var(--ep-space-6); padding-right: var(--ep-space-6); }
+.full { max-width: none; }
 
 .header { display: grid; gap: var(--ep-space-3); margin-bottom: var(--ep-space-10); }
 .back {
@@ -9,6 +10,7 @@
   align-items: center;
   gap: var(--ep-space-1);
   width: fit-content;
+  min-height: 28px;
   font-size: var(--ep-text-label);
   font-weight: 500;
   color: var(--ep-ink-2);
@@ -49,8 +51,14 @@
 
 @media (max-width: 719px) {
   .page { padding: var(--ep-space-6) var(--ep-space-4) calc(var(--ep-space-20) + 64px); }
-  .full { padding-left: var(--ep-space-4); padding-right: var(--ep-space-4); }
   .header { margin-bottom: var(--ep-space-8); }
   .headRow { align-items: flex-start; }
   .dlRow { grid-template-columns: 1fr; gap: var(--ep-space-1); }
+  /* công tắc / trạng thái xuống hàng riêng, không đè ô nào (02-AC15) */
+  .toolbarEnd { width: 100%; justify-content: space-between; }
+}
+
+/* Vùng chạm ≥ 44 px (00-AC15 / FR-X14). */
+@media (max-width: 719px), (pointer: coarse) {
+  .back { min-height: 44px; min-width: 44px; margin-bottom: calc(var(--ep-space-2) * -1); }
 }

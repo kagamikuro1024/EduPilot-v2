@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useSyncExternalStore } from "react";
+import { resetClock } from "./clock";
 
 // Trạng thái giả lập (SRS FR-X3): MỘT khoá localStorage `ep_demo_state` chứa mọi lát (slice) theo tên.
 // Đổi vai vẫn thấy hệ quả của vai trước; `resetDemo()` xoá khoá. Không lưu gì giống token.
@@ -16,7 +17,9 @@ function read(): Bag {
   if (cache) return cache;
   try {
     const raw = localStorage.getItem(DEMO_STATE_KEY);
-    cache = raw ? (JSON.parse(raw) as Bag) : {};
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    // Khoá hỏng (JSON sai, hoặc `null` / mảng / số): quay về dữ liệu gốc thay vì sập app (00-AC13).
+    cache = parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Bag) : {};
   } catch {
     cache = {};
   }
@@ -69,6 +72,19 @@ export function useDemoSlice<T>(key: string, initial: T): [T, (next: T | ((prev:
   return [value, set];
 }
 
+/** Đọc một lát ngoài React (hàm thuần cần đồng hồ giả lập, bộ hẹn giờ…). Trên server luôn trả `initial`. */
+export function readSlice<T>(key: string, initial: T): T {
+  if (typeof window === "undefined") return initial;
+  const bag = read();
+  return (key in bag ? bag[key] : initial) as T;
+}
+
+/** Ghi một lát ngoài React (cùng bộ nghe với `useDemoSlice`). */
+export function writeSlice<T>(key: string, next: T | ((prev: T | undefined) => T)) {
+  const cur = read();
+  write({ ...cur, [key]: typeof next === "function" ? (next as (p: T | undefined) => T)(cur[key] as T | undefined) : next });
+}
+
 /** `Đặt lại dữ liệu demo`: xoá khoá duy nhất, mọi màn về dữ liệu gốc. */
 export function resetDemo() {
   try {
@@ -77,5 +93,6 @@ export function resetDemo() {
     /* bỏ qua */
   }
   cache = {};
+  resetClock();
   listeners.forEach((l) => l());
 }

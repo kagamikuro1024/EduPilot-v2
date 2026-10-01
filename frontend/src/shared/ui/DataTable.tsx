@@ -19,6 +19,8 @@ export type Column<T> = {
   mobileLabel?: string;
   /** cột chính của chế độ danh sách (in đậm, dòng đầu); mặc định cột `frozen` hoặc cột đầu tiên */
   primary?: boolean;
+  /** móc đo dev: `data-part` đặt lên ô tiêu đề của cột (vd. `col-qt`, `col-status`) */
+  part?: string;
 };
 
 /**
@@ -43,6 +45,8 @@ export function DataTable<T>({
   dense,
   mobile = "list",
   mobileRow,
+  scrollHint = "Vuốt ngang để xem thêm",
+  rowAttrs,
 }: {
   columns: Column<T>[];
   rows: T[];
@@ -56,6 +60,10 @@ export function DataTable<T>({
   dense?: boolean;
   mobile?: "list" | "scroll";
   mobileRow?: (row: T) => ReactNode;
+  /** dòng gợi ý cuộn ngang, chỉ hiện dưới 720px ở chế độ `scroll` (03-AC7) */
+  scrollHint?: ReactNode;
+  /** móc đo dev trên `<tr>` (vd. `{ "data-part": "student-row", "data-student-id": id }`) — chỉ ở hàng bảng để không đếm đôi với chế độ danh sách */
+  rowAttrs?: (row: T) => Record<string, string>;
 }) {
   const router = useRouter();
   const allSelected = selection && rows.length > 0 && rows.every((r) => selection.selected.has(rowKey(r)));
@@ -77,6 +85,7 @@ export function DataTable<T>({
 
   return (
     <div className={s.root}>
+      {mobile === "scroll" && scrollHint && <p className={s.scrollHint}>{scrollHint}</p>}
       <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} data-scroll-x={mobile === "scroll" ? "" : undefined}>
       <table className={[s.table, dense ? s.dense : ""].join(" ")}>
         <caption className="ep-sr-only">{caption}</caption>
@@ -98,6 +107,7 @@ export function DataTable<T>({
                 scope="col"
                 style={{ width: c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}
                 className={[c.frozen ? s.frozen : "", c.hideOnMobile ? s.hideMobile : ""].join(" ")}
+                data-part={c.part}
               >
                 {c.header}
               </th>
@@ -114,6 +124,7 @@ export function DataTable<T>({
                 onClick={clickable ? () => activate(row) : undefined}
                 onKeyDown={clickable ? (e) => e.key === "Enter" && activate(row) : undefined}
                 tabIndex={clickable ? 0 : undefined}
+                {...rowAttrs?.(row)}
               >
                 {selection && (
                   <td className={s.checkCol} onClick={(e) => e.stopPropagation()}>
@@ -125,6 +136,7 @@ export function DataTable<T>({
                     key={c.key}
                     style={{ textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}
                     className={[c.frozen ? s.frozen : "", c.hideOnMobile ? s.hideMobile : ""].join(" ")}
+                    data-part={c.part}
                   >
                     {c.render(row)}
                   </td>

@@ -48,7 +48,11 @@
 .stop { background: var(--ep-ink); color: var(--ep-surface); }
 .send svg, .stop svg { width: 15px; height: 15px; }
 
-@media (pointer: coarse) {
-  .send, .stop { min-height: 44px; }
+.sendGroup { display: flex; align-items: center; justify-content: flex-end; gap: var(--ep-space-3); min-width: 0; flex-wrap: wrap; }
+.hint { font-size: var(--ep-text-meta); color: var(--ep-ink-2); min-width: 0; }
+
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14). */
+@media (max-width: 719px), (pointer: coarse) {
+  .send, .stop { min-height: 44px; min-width: 44px; }
   .input { font-size: 1rem; }
 }

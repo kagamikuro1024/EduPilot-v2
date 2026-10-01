@@ -6,7 +6,7 @@
   box-shadow: var(--ep-shadow-popover);
   max-height: calc(100dvh - 48px);
 }
-.overlay::backdrop { background: color-mix(in oklch, var(--ep-ink) 28%, transparent); }
+.overlay::backdrop { background: var(--ep-scrim); }
 .overlay[open] { animation: fadeIn var(--ep-slow) var(--ep-ease-out); }
 
 .dialog { width: min(520px, calc(100vw - 32px)); border-radius: var(--ep-radius-lg); }
@@ -42,4 +42,8 @@
   .dialog { margin: auto auto 0; width: 100vw; max-width: 100vw; border-radius: var(--ep-radius-lg) var(--ep-radius-lg) 0 0; }
   .foot { flex-direction: column-reverse; }
   .foot > * { width: 100%; }
+}
+
+@media (max-width: 719px), (pointer: coarse) {
+  .close { width: 44px; height: 44px; margin: -6px -12px 0 0; }
 }

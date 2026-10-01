@@ -45,7 +45,8 @@
 .danger svg { color: var(--ep-red); }
 .divider { border: 0; border-top: 1px solid var(--ep-rule); margin: var(--ep-space-1) 0; }
 
-@media (pointer: coarse) {
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14). */
+@media (max-width: 719px), (pointer: coarse) {
   .item { min-height: 44px; }
   .dots { width: 44px; height: 44px; }
 }

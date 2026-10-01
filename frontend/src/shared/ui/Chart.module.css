@@ -5,12 +5,16 @@
 .goalText { fill: var(--ep-ink-3); font-size: var(--ep-text-meta); font-weight: 500; font-family: var(--ep-font); }
 .line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .ink .line { stroke: var(--ep-ink); }
-.ink .dot { fill: var(--ep-ink); }
 .red .line { stroke: var(--ep-red); }
-.red .dot { fill: var(--ep-red); }
 .green .line { stroke: var(--ep-green); }
-.green .dot { fill: var(--ep-green); }
 .tick { fill: var(--ep-ink-3); font-size: var(--ep-text-meta); font-weight: 500; font-family: var(--ep-font); font-variant-numeric: tabular-nums; }
+/* Điểm dữ liệu bấm / focus được: nhãn hiện khi rê chuột và khi focus bàn phím (04-AC12). */
+.point { fill: var(--ep-surface); stroke: var(--ep-ink); stroke-width: 2; cursor: pointer; }
+.red .point { stroke: var(--ep-red); }
+.green .point { stroke: var(--ep-green); }
+.point:hover, .point:focus-visible { fill: var(--ep-ink); outline: none; }
+.pointLabel, .lastValue { fill: var(--ep-ink); font-size: var(--ep-text-meta); font-weight: 600; font-family: var(--ep-font); font-variant-numeric: tabular-nums; }
+.caption { margin-top: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
 
 .bars { display: grid; gap: var(--ep-space-3); }
 .barRow { display: grid; grid-template-columns: minmax(120px, 32%) 1fr 56px; align-items: center; gap: var(--ep-space-3); font-size: var(--ep-text-label); }

@@ -6,8 +6,8 @@ import type { Ticket } from "./state";
 export const D3_TEXT = "Thi cuối kỳ có được mang một tờ A4 ghi chú viết tay vào phòng thi không ạ?";
 
 /** Ticket sinh ra khi SV B gửi D3 ở /chat (AI dưới ngưỡng → tự chuyển giảng viên, Q1). */
-export function ticketD3(): Ticket {
-  return { id: "tk-d3", courseId: COURSE_1, studentId: STUDENT_B.id, question: D3_TEXT, ageMin: 0, status: "open", reason: "Độ tin cậy 0,42 < 0,80 — không tài liệu nào trả lời được" };
+export function ticketD3(createdMs?: number): Ticket {
+  return { id: "tk-d3", courseId: COURSE_1, studentId: STUDENT_B.id, question: D3_TEXT, ageMin: 0, createdMs, status: "open", reason: "Độ tin cậy 0,42 < 0,80 — không tài liệu nào trả lời được" };
 }
 
 /** Ticket gốc (SRS 4.1): 5 mở — tuổi 26 phút, 3 giờ, 1 ngày, 2 ngày, 3 ngày 4 giờ — + 1 đã có người nhận. */

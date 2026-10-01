@@ -20,6 +20,7 @@ export function Composer({
   onStop,
   submitLabel = "Gửi",
   disabled,
+  hint,
   label = "Nội dung",
 }: {
   value: string;
@@ -32,6 +33,8 @@ export function Composer({
   onStop?: () => void;
   submitLabel?: string;
   disabled?: boolean;
+  /** Dòng chữ cạnh nút gửi khi nút bị khoá — nói còn thiếu gì (FR-X19). */
+  hint?: ReactNode;
   label?: string;
 }) {
   const ref = useRef<HTMLTextAreaElement>(null);
@@ -55,11 +58,9 @@ export function Composer({
           if (canSend) onSubmit();
         }}
       >
-        <label className="ep-sr-only" htmlFor="ep-composer">
-          {label}
-        </label>
         <textarea
           id="ep-composer"
+          aria-label={label}
           ref={ref}
           rows={1}
           className={s.input}
@@ -82,10 +83,17 @@ export function Composer({
               Dừng
             </button>
           ) : (
-            <button type="submit" className={s.send} disabled={!canSend}>
-              <Send aria-hidden />
-              {submitLabel}
-            </button>
+            <div className={s.sendGroup}>
+              {!canSend && hint && (
+                <p id="ep-composer-hint" className={s.hint}>
+                  {hint}
+                </p>
+              )}
+              <button type="submit" className={s.send} disabled={!canSend} aria-describedby={!canSend && hint ? "ep-composer-hint" : undefined}>
+                <Send aria-hidden />
+                {submitLabel}
+              </button>
+            </div>
           )}
         </div>
       </form>

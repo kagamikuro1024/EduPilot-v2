@@ -50,6 +50,9 @@
   --ep-sidebar-collapsed: 72px;
   --ep-topbar: 56px;
 
+  /* Nền mờ sau hộp thoại — chỉ dùng cho ::backdrop, không dùng cho thanh trên (DESIGN §21). */
+  --ep-scrim: color-mix(in oklch, var(--ep-ink) 28%, transparent);
+
   --ep-ease-out: cubic-bezier(.16, 1, .3, 1);
   --ep-ease-standard: cubic-bezier(.2, .8, .2, 1);
   --ep-fast: 140ms;

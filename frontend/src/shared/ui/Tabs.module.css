@@ -65,7 +65,8 @@
 
 .count { font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
 
-@media (pointer: coarse) {
-  .segment, .chip { min-height: 40px; }
-  .tab { padding: var(--ep-space-4) 0; }
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14). */
+@media (max-width: 719px), (pointer: coarse) {
+  .segment, .chip { min-height: 44px; min-width: 44px; }
+  .tab { min-height: 44px; min-width: 44px; padding: var(--ep-space-3) 0; }
 }
