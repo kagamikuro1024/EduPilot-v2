@@ -1,5 +1,5 @@
 # SRS FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
-Phiên bản 2 · 2026-10-01 · Trạng thái: DRAFT · v2: mốc thời gian tuần 10, "bây giờ" = 29/10/2026 (proposals #12)
+Phiên bản 2 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; Q1, Q2 chủ dự án đã trả lời) · v2: mốc thời gian tuần 10, "bây giờ" = 29/10/2026 (proposals #12)
 
 Nguồn: `docs/sprints/1/prototype/plan.md`, `docs/design/DESIGN.md` (§1–§2, §10, §12–§15, §21–§22), `docs/design/INTEGRATION.md` mục 2, `docs/PRD.md` §3–§4, `docs/FLOWS.md`, `docs/DEMO_SCRIPT.md`. Mục 5, 6, 8, 10 rút gọn theo prompt.
 
