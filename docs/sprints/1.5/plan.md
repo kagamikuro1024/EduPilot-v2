@@ -1,4 +1,4 @@
-# Sprint 1 bổ sung — Prototype giao diện toàn bộ tính năng
+# Sprint 1.5 — Prototype giao diện toàn bộ tính năng
 
 Trạng thái: **ĐÃ DUYỆT** (chủ dự án yêu cầu 2026-10-01: "bổ sung vào sprint 1… giao diện mock với toàn bộ tính năng… bấm được, có tương tác giả lập") · Nhánh `sprint/1.5-mock-ui` từ `main` · Hạn: trước buổi thuyết trình cuối tuần.
 

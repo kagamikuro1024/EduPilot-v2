@@ -10,7 +10,7 @@ Người dùng: sinh viên (chủ yếu điện thoại), trợ giảng và gi�
 ## 2. Đang ở đâu
 - Repo: `github.com/kagamikuro1024/TA_Agent_v2`. `main` = sprint 1 (P0: mã cũ dời vào `legacy/`, khung Go + Next.js, stack local, CI).
 - Lộ trình 10 sprint: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
-- **Việc hiện tại — sprint 1 bổ sung: PROTOTYPE GIAO DIỆN** (`docs/sprints/1.5/plan.md`). Chủ dự án thuyết trình với thầy hướng dẫn **cuối tuần này**: cần một prototype bấm được, đẹp, phủ TOÀN BỘ tính năng dự định, dữ liệu mô phỏng, đổi được vai trò, đi trọn `docs/DEMO_SCRIPT.md`. Không backend; nhưng primitive dựng đúng chuẩn ở `frontend/src/shared/` để phase PU dùng lại.
+- **Việc hiện tại — SPRINT 1.5: PROTOTYPE GIAO DIỆN** (`docs/sprints/1.5/plan.md`, nhánh `sprint/1.5-mock-ui`). Chủ dự án thuyết trình với thầy hướng dẫn **cuối tuần này**: cần một prototype bấm được, đẹp, phủ TOÀN BỘ tính năng dự định, dữ liệu mô phỏng, đổi được vai trò, đi trọn `docs/DEMO_SCRIPT.md`. Không backend; nhưng primitive dựng đúng chuẩn ở `frontend/src/shared/` để phase PU dùng lại.
 - **Prototype là MOCK có hạn dùng (D51):** spec của nó ở `docs/sprints/1.5/spec/`, KHÔNG phải `docs/specs/`. Từ sprint 2, mỗi sprint build thật thay dần màn mock; spec thật viết mới ở `docs/specs/<FEAT>/` và thắng spec prototype. Đừng coi spec prototype là yêu cầu thật khi build thật — đọc nó chỉ để biết màn đã dựng trông thế nào.
 
 ## 3. Đã chốt — không mở lại
