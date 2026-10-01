@@ -11,6 +11,8 @@ import s from "./Join.module.css";
 
 export const JOIN_FAILS_KEY = "join.fails";
 export const MAX_TRIES = 5;
+/** Giờ giả lập (ms) lúc gửi yêu cầu vào lớp, theo lớp — Hôm nay của SV ghi "gửi lúc <giờ>" (SRS 4.3.2). */
+export const JOIN_SENT_KEY = "join.sentAt";
 /** Cùng một câu cho mọi trường hợp — không tiết lộ mã có tồn tại hay không (SRS mục 3). */
 export const BAD_CODE = "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.";
 

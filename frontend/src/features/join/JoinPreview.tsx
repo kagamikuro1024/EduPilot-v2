@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { SUBJECT, TERM } from "@/mock/core";
+import { noteJoinRequest } from "@/mock/notes";
 import { KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
 import { useSession } from "@/shared/session/session";
+import { simNowMs } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
   Button,
@@ -18,13 +20,14 @@ import {
   Skeleton,
   StatusText,
 } from "@/shared/ui";
-import { BAD_CODE, courseByJoinCode } from "./JoinScreen";
+import { BAD_CODE, JOIN_SENT_KEY, courseByJoinCode } from "./JoinScreen";
 import s from "./Join.module.css";
 
 /** Xem trước lớp trước khi tham gia; lớp bật duyệt thì gửi yêu cầu chờ giảng viên. */
 export function JoinPreview({ code }: { code: string }) {
-  const { studentId, courses } = useSession();
+  const { user, studentId, courses } = useSession();
   const [members, setMembers] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
+  const [sentAt, setSentAt] = useDemoSlice<Record<string, number>>(JOIN_SENT_KEY, {});
   const [justSent, setJustSent] = useState(false);
   const course = courseByJoinCode(code, members);
   const me = studentId ?? "";
@@ -46,6 +49,8 @@ export function JoinPreview({ code }: { code: string }) {
   function join() {
     if (course!.requireApproval) {
       setMembers({ ...members, pending: { ...members.pending, [course!.id]: [...(members.pending[course!.id] ?? []), me] } });
+      setSentAt({ ...sentAt, [course!.id]: simNowMs() });
+      noteJoinRequest(user.name, course!);
     } else {
       setMembers({ ...members, joined: { ...members.joined, [course!.id]: [...(members.joined[course!.id] ?? []), me] } });
     }

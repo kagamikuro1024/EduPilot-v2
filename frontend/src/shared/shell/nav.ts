@@ -22,8 +22,11 @@ import {
 } from "lucide-react";
 import type { Role } from "@/mock/core";
 
-/** `short`: nhãn ngắn cho bottom nav điện thoại khi nhãn đầy đủ quá dài. */
-export type NavItem = { href: string; label: string; short?: string; icon: LucideIcon; badge?: number };
+/**
+ * `short`: nhãn ngắn cho bottom nav điện thoại khi nhãn đầy đủ quá dài.
+ * `badgeKey`: con số do khung app tính từ `mock/derive.ts` (SRS 4.8 N9) — KHÔNG ghi số ở đây.
+ */
+export type NavItem = { href: string; label: string; short?: string; icon: LucideIcon; badgeKey?: "inbox" | "grading" };
 export type NavGroup = { label?: string; items: NavItem[] };
 
 const STUDENT: NavGroup[] = [
@@ -46,7 +49,7 @@ function staff(role: "ta" | "teacher"): NavGroup[] {
       label: "Làm việc",
       items: [
         { href: "/", label: "Hôm nay", icon: House },
-        { href: "/inbox", label: "Hộp thư hỗ trợ", short: "Hộp thư", icon: Inbox, badge: 5 },
+        { href: "/inbox", label: "Hộp thư hỗ trợ", short: "Hộp thư", icon: Inbox, badgeKey: "inbox" },
         { href: "/students", label: "Sinh viên", icon: Users },
         { href: "/attendance", label: "Điểm danh", icon: ClipboardCheck },
       ],
@@ -55,7 +58,7 @@ function staff(role: "ta" | "teacher"): NavGroup[] {
       label: "Đánh giá",
       items: [
         { href: "/gradebook", label: "Sổ điểm", icon: NotebookPen },
-        { href: "/grading", label: "Chấm bài", icon: ListChecks, badge: 4 },
+        { href: "/grading", label: "Chấm bài", icon: ListChecks, badgeKey: "grading" },
         { href: "/questions", label: "Ngân hàng câu hỏi", icon: CircleHelp },
       ],
     },
@@ -112,8 +115,11 @@ const ADMIN: NavGroup[] = [
   },
 ];
 
-export function navFor(role: Role): NavGroup[] {
-  if (role === "student") return STUDENT;
+/** SV chưa vào lớp chỉ có `Hôm nay` (SRS 4.3.2) — mọi mục khác cần dữ liệu lớp. */
+const STUDENT_NO_COURSE: NavGroup[] = [{ items: [STUDENT[0].items[0]] }];
+
+export function navFor(role: Role, hasCourse = true): NavGroup[] {
+  if (role === "student") return hasCourse ? STUDENT : STUDENT_NO_COURSE;
   if (role === "admin") return ADMIN;
   return staff(role);
 }
@@ -159,6 +165,11 @@ function ruleFor(pathname: string) {
 export function canOpen(role: Role, pathname: string) {
   const rule = ruleFor(pathname);
   return !rule || rule[1].includes(role);
+}
+
+/** Route cần dữ liệu lớp: mọi route của SV trừ `Hôm nay` và `/join` (SRS 4.3.2). */
+export function needsCourse(role: Role, pathname: string) {
+  return role === "student" && pathname !== "/" && pathname !== "/join" && !pathname.startsWith("/join/");
 }
 
 const NOUN: Record<Role, string> = { teacher: "giảng viên", ta: "trợ giảng", student: "sinh viên", admin: "quản trị viên" };

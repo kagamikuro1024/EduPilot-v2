@@ -3,48 +3,76 @@
 import { Bell, Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
-import { DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, SUBJECT, type Role } from "@/mock/core";
-import { KEYS, type Ticket } from "@/mock/state";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { BT03_SEED } from "@/mock/assess";
+import { COURSE_1, COURSE_2, DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, SUBJECT, type Role } from "@/mock/core";
+import { ASSIGNED_AT, BT03_SUBMITTED_AT, CH5_UPLOADED_AT, agoLabel, reviewPending, ticketStats } from "@/mock/derive";
+import { docById } from "@/mock/docs";
+import { markNoteRead, notesFor, viewerKey, type Note } from "@/mock/notes";
+import { KEYS, SCHEMES_SEED, type Bt03State, type SchemesState, type Ticket } from "@/mock/state";
+import { mergeTickets } from "@/mock/support";
 import { ALL_COURSES, clearDemoSession } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
+import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { resetDemo, useDemoSlice } from "@/shared/state/demo";
-import { ButtonLink, Drawer, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
+import { Button, ButtonLink, Drawer, Field, Input, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover, Section } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
-import { MOBILE_PRIMARY, canOpen, navFor, whoCanOpen, type NavItem } from "./nav";
+import { MOBILE_PRIMARY, canOpen, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import s from "./AppShell.module.css";
 
-type Note = { title: string; meta: string; href: string; unread?: boolean };
+/** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
+const FALLBACK_RATE_AT = new Date("2026-10-29T08:40:00+07:00");
+const BUDGET_AT = new Date("2026-10-29T08:20:00+07:00");
 
-/** Thông báo gốc theo vai; phần phát sinh từ tương tác (ticket) thêm ở `useNotes`. */
-const NOTIFICATIONS: Record<Role, Note[]> = {
-  student: [
-    { title: "Tài liệu mới: Tuần 10 — Quản lý khoá và PKI", meta: "Thư viện · hôm qua", href: "/library" },
-    { title: "Bài tập 03 đã nộp, đang chờ chấm", meta: "Bài tập · 12 ngày trước", href: "/assignments/bt03" },
-  ],
-  ta: [
-    { title: "4 bài chấm lệch giữa hai lượt", meta: "Chấm bài · 1 giờ trước", href: "/grading", unread: true },
-    { title: "Buổi 10 lớp 761987 đang diễn ra — chưa điểm danh", meta: "Điểm danh · 09:00", href: "/attendance", unread: true },
-  ],
-  teacher: [
-    { title: "Bạn được phân công lớp An ninh mạng – 761988. Mã tham gia: BX4P9TW", meta: "Quản trị viên · hôm qua", href: "/class/members", unread: true },
-    { title: "Công thức điểm lớp 761988 chưa được xác nhận", meta: "Sổ điểm · hôm qua", href: "/gradebook/scheme" },
-  ],
-  admin: [
-    { title: "Tỷ lệ dùng model dự phòng tăng lên 1,2%", meta: "Quan sát AI · 40 phút trước", href: "/observability", unread: true },
-    { title: "Ngân sách LLM tháng đã dùng 62%", meta: "Cấu hình LLM · sáng nay", href: "/settings/llm" },
-  ],
-};
-
-function useNotes(role: Role, studentId: string | undefined): Note[] {
-  const [tickets] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
-  const out = [...NOTIFICATIONS[role]];
-  const d3 = tickets.find((t) => t.id === "tk-d3");
-  if (d3 && role === "student" && studentId === d3.studentId && d3.status === "answered" && !d3.closedBySv) {
-    out.unshift({ title: "Giảng viên đã trả lời câu hỏi của bạn", meta: "Chat riêng · vừa xong", href: "/chat", unread: true });
+/**
+ * Mục "trạng thái" của chuông: TÍNH TỪ DỮ LIỆU (SRS 4.9) nên tự biến khi sự kiện xảy ra;
+ * không có chấm chưa đọc (chỉ sự kiện mới có). Tên tài liệu lấy từ bảng N5, mốc từ 4.8 N6.
+ */
+function statusNotes(role: Role, studentId: string | undefined, hasCourse: boolean, bt03: Bt03State, schemes: SchemesState, viewer: string): Note[] {
+  const read = [viewer];
+  const out: Note[] = [];
+  if (role === "student" && hasCourse) {
+    const ch5 = docById("d-ch5")!;
+    out.push({ id: "n-doc-ch5", to: { roles: ["student"] }, title: `Tài liệu mới: ${ch5.title}`, meta: "Thư viện", href: "/library", ms: CH5_UPLOADED_AT.getTime(), readBy: read });
+    if (studentId === "sv-2" && bt03.status !== "published") {
+      out.push({
+        id: "n-bt03-waiting",
+        to: { studentId: "sv-2" },
+        title: "Bài tập 03 đã nộp, đang chờ chấm",
+        meta: "Bài tập",
+        href: "/assignments/bt03",
+        ms: BT03_SUBMITTED_AT.getTime(),
+        readBy: read,
+      });
+    }
   }
-  if (d3 && (role === "teacher" || role === "ta") && d3.status === "open") {
-    out.unshift({ title: "1 câu hỏi mới cần xử lý", meta: "Hộp thư hỗ trợ · vừa gửi", href: "/inbox", unread: true });
+  if (role === "teacher" || role === "ta") {
+    out.push({
+      id: "n-assigned",
+      to: { roles: ["teacher", "ta"] },
+      title: `Bạn được phân công lớp An ninh mạng – 761988. Mã tham gia: BX4P9TW`,
+      meta: "Quản trị viên",
+      href: `/class/members?course=${COURSE_2}`,
+      ms: ASSIGNED_AT.getTime(),
+      readBy: read,
+    });
+  }
+  if (role === "teacher" && schemes[COURSE_2]?.status !== "confirmed") {
+    out.push({
+      id: "n-scheme-2",
+      to: { roles: ["teacher"] },
+      title: "Công thức điểm lớp 761988 chưa được xác nhận",
+      meta: "Sổ điểm",
+      href: `/gradebook/scheme?course=${COURSE_2}`,
+      ms: ASSIGNED_AT.getTime(),
+      readBy: read,
+    });
+  }
+  if (role === "admin") {
+    out.push(
+      { id: "n-fallback", to: { roles: ["admin"] }, title: "Tỷ lệ dùng model dự phòng tăng lên 1,2%", meta: "Quan sát AI", href: "/observability", ms: FALLBACK_RATE_AT.getTime(), readBy: read },
+      { id: "n-budget", to: { roles: ["admin"] }, title: "Ngân sách LLM tháng đã dùng 62%", meta: "Cấu hình LLM", href: "/settings/llm", ms: BUDGET_AT.getTime(), readBy: read },
+    );
   }
   return out;
 }
@@ -54,11 +82,18 @@ function displayName(role: Role, name: string, title?: string) {
   return role === "teacher" && title ? `${title} ${name}` : name;
 }
 
+const NARROW = "(max-width: 719px)";
+function subscribeNarrow(cb: () => void) {
+  const mql = window.matchMedia(NARROW);
+  mql.addEventListener("change", cb);
+  return () => mql.removeEventListener("change", cb);
+}
+
 export function AppShell({ children }: { children: React.ReactNode }) {
   const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse } = useSession();
   const pathname = usePathname();
   const router = useRouter();
-  const groups = useMemo(() => navFor(role), [role]);
+  const groups = useMemo(() => navFor(role, hasCourse), [role, hasCourse]);
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
   const [collapsed, setCollapsed] = useState(false);
   const [palette, setPalette] = useState(false);
@@ -79,10 +114,33 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
   const mobilePrimary = flat.filter((i) => MOBILE_PRIMARY[role].includes(i.href));
   const mobileMore = flat.filter((i) => !MOBILE_PRIMARY[role].includes(i.href));
-  const notes = useNotes(role, studentId);
-  const unread = notes.filter((n) => n.unread).length;
-  const courseTitle = isAll ? "Tất cả lớp của tôi" : `${course.code} · ${course.name}`;
+  const courseTitle = !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : `${course.code} · ${course.name}`;
   const personName = displayName(role, user.name, user.title);
+  const viewer = viewerKey(role, studentId);
+  const scope = useMemo(() => (isAll ? courses.map((c) => c.id) : hasCourse ? [course.id] : []), [isAll, courses, hasCourse, course.id]);
+
+  // Đồng hồ giả lập: khung app lưu mốc t0 một lần, mọi chuỗi thời gian tương đối đọc `now` này (SRS 4.8 N6).
+  useEnsureClock();
+  const now = useSimNow();
+
+  // N9: badge tính từ dữ liệu, giảm ngay khi hành động xảy ra; không bao giờ ghi số ở nav.ts.
+  const [storedTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
+  const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
+  const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
+  const badges = {
+    inbox: ticketStats(mergeTickets(storedTickets), scope, now).open,
+    grading: scope.includes(COURSE_1) ? reviewPending(bt03.status).length : 0,
+  };
+
+  const [storedNotes] = useDemoSlice<Note[]>(KEYS.notes, []);
+  const notes = useMemo(
+    () => notesFor([...storedNotes, ...statusNotes(role, studentId, hasCourse, bt03, schemes, viewer)], role, studentId, scope),
+    [storedNotes, role, studentId, hasCourse, bt03, schemes, viewer, scope],
+  );
+  const unread = notes.filter((n) => !n.readBy.includes(viewer)).length;
+
+  // Thanh bên và thanh dưới loại trừ nhau: chỉ gắn một bộ badge vào DOM ở mỗi bề rộng.
+  const narrow = useSyncExternalStore(subscribeNarrow, () => window.matchMedia(NARROW).matches, () => false);
 
   function switchRole(next: Role, person?: string) {
     switchTo(next, person);
@@ -96,6 +154,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Bỏ qua điều hướng
       </a>
 
+      {!narrow && (
       <aside className={s.sidebar} aria-label="Điều hướng chính">
         <Link href="/" className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -109,7 +168,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <ul>
                 {g.items.map((item) => (
                   <li key={item.href}>
-                    <NavLink item={item} active={isActive(item.href)} collapsed={collapsed} />
+                    <NavLink item={item} active={isActive(item.href)} collapsed={collapsed} badge={item.badgeKey ? badges[item.badgeKey] : 0} />
                   </li>
                 ))}
               </ul>
@@ -125,6 +184,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
         </div>
       </aside>
+      )}
 
       <header className={s.topbar}>
         <Link href="/" className={s.mobileBrand} aria-label="EduPilot — Hôm nay">
@@ -231,26 +291,42 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             trigger={(p) => (
               <button type="button" className={s.iconBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={unread ? `Thông báo, ${unread} chưa đọc` : "Thông báo"}>
                 <Bell aria-hidden />
-                {unread > 0 && <span className={s.unreadDot} aria-hidden />}
+                {unread > 0 && <span className={s.unreadDot} data-part="bell-dot" aria-hidden />}
               </button>
             )}
           >
             {(close) => (
               <div className={s.notes}>
                 <p className={s.panelLabel}>Thông báo</p>
-                <ul>
-                  {notes.map((n) => (
-                    <li key={n.title}>
-                      <Link href={n.href} className={s.note} onClick={close}>
-                        <span className={[s.noteDot, n.unread ? s.noteUnread : ""].join(" ")} aria-hidden />
-                        <span>
-                          <span className={s.noteTitle}>{n.title}</span>
-                          <span className={s.noteMeta}>{n.meta}</span>
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                {notes.length === 0 ? (
+                  <p className={s.noteEmpty}>Chưa có thông báo nào.</p>
+                ) : (
+                  <ul>
+                    {notes.map((n) => {
+                      const ago = agoLabel(n.ms, now);
+                      return (
+                        <li key={n.id}>
+                          <Link
+                            href={n.href}
+                            className={s.note}
+                            onClick={() => {
+                              markNoteRead(n.id, viewer);
+                              close();
+                            }}
+                          >
+                            <span className={[s.noteDot, n.readBy.includes(viewer) ? "" : s.noteUnread].join(" ")} aria-hidden />
+                            <span>
+                              <span className={s.noteTitle}>{n.title}</span>
+                              <span className={s.noteMeta}>
+                                {n.meta} · {n.just && ago === "vừa xong" ? n.just : ago}
+                              </span>
+                            </span>
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
               </div>
             )}
           </Popover>
@@ -346,9 +422,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
 
       <main id="main" className={s.main} tabIndex={-1}>
-        {canOpen(role, pathname) ? (
-          children
-        ) : (
+        {!canOpen(role, pathname) ? (
           <Page>
             <PageHeader
               title="Bạn không có quyền mở trang này"
@@ -356,58 +430,130 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>}
             />
           </Page>
+        ) : !hasCourse && needsCourse(role, pathname) ? (
+          <NoCourse />
+        ) : (
+          children
         )}
       </main>
 
-      <nav className={s.bottomNav} aria-label="Điều hướng chính">
-        {mobilePrimary.map((item) => (
-          <BottomLink key={item.href} item={item} active={isActive(item.href)} />
-        ))}
-        <button type="button" className={[s.bottomItem, mobileMore.some((i) => isActive(i.href)) ? s.bottomActive : ""].join(" ")} onClick={() => setMore(true)}>
-          <MenuIcon aria-hidden />
-          <span>Thêm</span>
-        </button>
-      </nav>
+      {narrow && (
+        <>
+          <nav className={s.bottomNav} aria-label="Điều hướng chính">
+            {mobilePrimary.map((item) => (
+              <BottomLink key={item.href} item={item} active={isActive(item.href)} badge={item.badgeKey ? badges[item.badgeKey] : 0} />
+            ))}
+            {mobileMore.length > 0 && (
+              <button type="button" className={[s.bottomItem, mobileMore.some((i) => isActive(i.href)) ? s.bottomActive : ""].join(" ")} onClick={() => setMore(true)}>
+                <span className={s.bottomIcon}>
+                  <MenuIcon aria-hidden />
+                  {/* badge của mục nằm trong "Thêm" vẫn phải thấy được ở thanh dưới (SRS 4.8 N9) */}
+                  {mobileMore.map((i) =>
+                    i.badgeKey && badges[i.badgeKey] > 0 ? (
+                      <span key={i.href} className={s.bottomBadge} data-part={`nav-badge-${i.badgeKey}`} title={i.label}>
+                        {badges[i.badgeKey]}
+                      </span>
+                    ) : null,
+                  )}
+                </span>
+                <span>Thêm</span>
+              </button>
+            )}
+          </nav>
 
-      <Drawer open={more} onClose={() => setMore(false)} title="Thêm">
-        <ul className={s.moreList}>
-          {mobileMore.map((item) => (
-            <li key={item.href}>
-              <Link href={item.href} className={s.moreItem} onClick={() => setMore(false)} aria-current={isActive(item.href) ? "page" : undefined}>
-                <item.icon aria-hidden />
-                <span>{item.label}</span>
-                {item.badge ? <span className={s.badge}>{item.badge}</span> : null}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Drawer>
+          <Drawer open={more} onClose={() => setMore(false)} title="Thêm">
+            <ul className={s.moreList}>
+              {mobileMore.map((item) => (
+                <li key={item.href}>
+                  <Link href={item.href} className={s.moreItem} onClick={() => setMore(false)} aria-current={isActive(item.href) ? "page" : undefined}>
+                    <item.icon aria-hidden />
+                    <span>{item.label}</span>
+                    {item.badgeKey && badges[item.badgeKey] > 0 ? <span className={s.badge}>{badges[item.badgeKey]}</span> : null}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </Drawer>
+        </>
+      )}
 
       <CommandPalette open={palette} onClose={() => setPalette(false)} items={flat} />
     </div>
   );
 }
 
-function NavLink({ item, active, collapsed }: { item: NavItem; active: boolean; collapsed: boolean }) {
+function NavLink({ item, active, collapsed, badge }: { item: NavItem; active: boolean; collapsed: boolean; badge: number }) {
   const Icon = item.icon;
   return (
     <Link href={item.href} className={s.navItem} aria-current={active ? "page" : undefined} title={collapsed ? item.label : undefined}>
       <Icon aria-hidden />
       <span className={s.navLabel}>{item.label}</span>
-      {item.badge ? <span className={s.badge}>{item.badge}</span> : null}
+      {item.badgeKey && badge > 0 ? (
+        <span className={s.badge} data-part={`nav-badge-${item.badgeKey}`}>
+          {badge}
+        </span>
+      ) : null}
     </Link>
   );
 }
 
-function BottomLink({ item, active }: { item: NavItem; active: boolean }) {
+function BottomLink({ item, active, badge }: { item: NavItem; active: boolean; badge: number }) {
   const Icon = item.icon;
   return (
     <Link href={item.href} className={[s.bottomItem, active ? s.bottomActive : ""].join(" ")} aria-current={active ? "page" : undefined}>
       <span className={s.bottomIcon}>
         <Icon aria-hidden />
-        {item.badge ? <span className={s.bottomBadge}>{item.badge}</span> : null}
+        {item.badgeKey && badge > 0 ? (
+          <span className={s.bottomBadge} data-part={`nav-badge-${item.badgeKey}`}>
+            {badge}
+          </span>
+        ) : null}
       </span>
       <span>{item.short ?? item.label}</span>
     </Link>
+  );
+}
+
+/**
+ * SV chưa vào lớp mở route cần lớp (SRS 4.3.2): một màn duy nhất trong khung app, URL giữ nguyên,
+ * KHÔNG phải màn chặn quyền và không có dòng dữ liệu nào của lớp.
+ */
+function NoCourse() {
+  const router = useRouter();
+  const [code, setCode] = useState("");
+  return (
+    <Page>
+      <PageHeader
+        title="Bạn chưa vào lớp nào"
+        description="Nhập mã tham gia do giảng viên cung cấp để dùng Chat riêng, Threads, Luyện đề, Thư viện và Lịch."
+      />
+      <Section>
+        <form
+          className={s.joinForm}
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (code.trim()) router.push(`/join/${code.trim().toUpperCase()}`);
+          }}
+        >
+          <Field label="Mã tham gia" helper="Mã gồm 7 ký tự, không phân biệt chữ hoa chữ thường.">
+            {(id, describedBy) => (
+              <Input
+                id={id}
+                aria-describedby={describedBy}
+                value={code}
+                autoComplete="off"
+                spellCheck={false}
+                maxLength={12}
+                placeholder="Nhập mã tham gia"
+                onChange={(e) => setCode(e.target.value)}
+              />
+            )}
+          </Field>
+          <Button type="submit" variant="primary" disabled={!code.trim()}>
+            Tiếp tục
+          </Button>
+        </form>
+      </Section>
+    </Page>
   );
 }

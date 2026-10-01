@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, type Role } from "@/mock/core";
+import { COURSE_1, DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, type Role } from "@/mock/core";
 import { ALL_COURSES, COURSE_COOKIE, PERSON_COOKIE, ROLE_COOKIE, writeDemoCookie } from "@/shared/session/cookies";
 import s from "./login.module.css";
 
@@ -21,7 +21,7 @@ export function LoginChoices() {
   function enter(role: Role, person?: string) {
     writeDemoCookie(ROLE_COOKIE, role);
     if (person) writeDemoCookie(PERSON_COOKIE, person);
-    writeDemoCookie(COURSE_COOKIE, role === "teacher" || role === "ta" ? ALL_COURSES : "761987");
+    writeDemoCookie(COURSE_COOKIE, role === "teacher" || role === "ta" ? ALL_COURSES : COURSE_1);
     router.push("/");
   }
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { COURSES, COURSE_1, STAFF, STUDENTS, type Course, type Person, type Role } from "@/mock/core";
 import { KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
 import { useDemoSlice } from "@/shared/state/demo";
@@ -76,7 +77,30 @@ export function SessionProvider({
     return { role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, switchTo, setCourse };
   }, [role, personId, courseId, members, switchTo, setCourse]);
 
+  useCourseDeepLink(value.courses, setCourse);
+
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>;
+}
+
+/**
+ * Liên kết sâu `?course=<id>` (SRS 4.9): lớp đó thành lớp đang chọn rồi BỎ tham số khỏi URL
+ * (giữ các tham số khác, ví dụ `?tab=pending`). Id lạ hoặc ngoài quyền của vai: chỉ bỏ tham số.
+ */
+function useCourseDeepLink(courses: Course[], setCourse: (id: string) => void) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const wanted = params.get("course");
+  const allowed = courses.some((c) => c.id === wanted);
+
+  useEffect(() => {
+    if (!wanted) return;
+    if (allowed) setCourse(wanted);
+    const rest = new URLSearchParams(params.toString());
+    rest.delete("course");
+    const query = rest.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  }, [wanted, allowed, params, pathname, router, setCourse]);
 }
 
 export function useSession() {

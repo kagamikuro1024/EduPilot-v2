@@ -2,10 +2,12 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { NOW, STUDENT_B, fmtLongDate, fmtShortDate, fmtTime, studentById } from "@/mock/core";
-import { QUIZ_KEY, QUIZ_SEED, type QuizState } from "@/mock/practice";
+import { JOIN_SENT_KEY } from "@/features/join/JoinScreen";
+import { agoLabel } from "@/mock/derive";
+import { COURSES, COURSE_1, NOW, STUDENT_B, fmtLongDate, fmtShortDate, fmtTime, studentById } from "@/mock/core";
+import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
 import { ASSIGNMENTS, CONTINUE_LEARNING, SESSION_HOURS, recommendationFor, sessionDate, until } from "@/mock/student";
-import { CURRENT_SESSION } from "@/mock/state";
+import { CURRENT_SESSION, KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
@@ -28,12 +30,15 @@ import s from "./StudentHome.module.css";
 /** "Hôm nay" của sinh viên: một việc nên làm, dòng thời gian hôm nay, chỗ học dở (DESIGN §14.1). */
 export function StudentHome() {
   const { user, course, courses, hasCourse, studentId } = useSession();
-  const [quiz] = useDemoSlice<QuizState>(QUIZ_KEY, QUIZ_SEED);
+  const [quiz] = useDemoSlice<QuizState>(quizKey(studentId), QUIZ_SEED);
   const student = studentById(studentId ?? "") ?? STUDENT_B;
   const firstName = user.name.split(" ").slice(-1)[0];
-  const hours = SESSION_HOURS[course.id] ?? SESSION_HOURS["761987"];
+  const hours = SESSION_HOURS[course.id] ?? SESSION_HOURS[COURSE_1];
   const quiz01 = ASSIGNMENTS[3];
   const rec = recommendationFor(student, quiz.status === "submitted");
+  const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
+  const [sentAt] = useDemoSlice<Record<string, number>>(JOIN_SENT_KEY, {});
+  const pendingCourse = COURSES.find((c) => (members.pending[c.id] ?? []).includes(studentId ?? ""));
 
   return (
     <Page>
@@ -100,11 +105,19 @@ export function StudentHome() {
             <Section title="Học dở" description="Mở lại chỗ bạn dừng hôm qua.">
               <ActionList label="Học dở">
                 {CONTINUE_LEARNING.map((c) => (
-                  <ActionRow key={c.href} title={c.title} context={c.context} meta={c.meta} href={c.href} />
+                  <ActionRow key={c.href} title={c.title} context={c.context} meta={agoLabel(c.at)} href={c.href} />
                 ))}
               </ActionList>
             </Section>
           </>
+        ) : pendingCourse ? (
+          <Section title="Vào lớp của bạn">
+            <StatusText tone="amber">
+              Yêu cầu vào lớp {pendingCourse.code} đang chờ giảng viên duyệt · gửi lúc{" "}
+              {fmtTime(new Date(sentAt[pendingCourse.id] ?? NOW.getTime()))}
+            </StatusText>
+            <p className={s.hint}>Khi giảng viên duyệt, lớp sẽ hiện trong bộ chọn lớp và bạn nhận được thông báo.</p>
+          </Section>
         ) : (
           <JoinPrompt />
         )}
@@ -112,9 +125,11 @@ export function StudentHome() {
       {hasCourse && courses.length > 1 && (
         <p className={s.hint}>Bạn đang xem {course.label}. Đổi lớp ở bộ chọn lớp phía trên.</p>
       )}
-      <p className={s.hint}>
-        Buổi tiếp theo: {fmtLongDate(sessionDate(CURRENT_SESSION + 1))} · {hours.start}
-      </p>
+      {hasCourse && (
+        <p className={s.hint}>
+          Buổi tiếp theo: {fmtLongDate(sessionDate(CURRENT_SESSION + 1))} · {hours.start}
+        </p>
+      )}
     </Page>
   );
 }
