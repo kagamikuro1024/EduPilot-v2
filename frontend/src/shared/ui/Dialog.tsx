@@ -1,7 +1,7 @@
 "use client";
 
 import { X } from "lucide-react";
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, type ReactNode } from "react";
 import s from "./Dialog.module.css";
 
 /**
@@ -28,6 +28,7 @@ function Overlay({
   wide?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const d = ref.current;
@@ -42,12 +43,12 @@ function Overlay({
       className={[s.overlay, variant === "drawer" ? s.drawer : s.dialog, wide ? s.wide : ""].join(" ")}
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
-      aria-labelledby="ep-overlay-title"
+      aria-labelledby={titleId}
     >
       <div className={s.frame}>
         <header className={s.head}>
           <div className={s.headText}>
-            <h2 id="ep-overlay-title" className="ep-section-title">
+            <h2 id={titleId} className="ep-section-title">
               {title}
             </h2>
             {description && <p className={s.desc}>{description}</p>}

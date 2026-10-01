@@ -4,10 +4,10 @@ import { Bell, Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeft
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { ROLE_LABEL, SUBJECT, TERM, type Role } from "@/mock/core";
+import { ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
 import { clearDemoSession } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
-import { ButtonLink, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Popover } from "@/shared/ui";
+import { ButtonLink, Drawer, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
 import { MOBILE_PRIMARY, canOpen, navFor, type NavItem } from "./nav";
 import s from "./AppShell.module.css";
@@ -77,15 +77,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={24} className={s.logo} />
         </Link>
-
-        {role !== "admin" && !collapsed && (
-          <div className={s.context}>
-            <p className={s.contextName}>{course.name}</p>
-            <p className={s.contextMeta}>
-              {course.code} · {TERM}
-            </p>
-          </div>
-        )}
 
         <nav className={s.nav}>
           {groups.map((g, gi) => (
@@ -272,14 +263,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {canOpen(role, pathname) ? (
           children
         ) : (
-          <div className={s.blocked}>
-            <EmptyState
+          <Page>
+            <PageHeader
               title={`Vai trò ${ROLE_LABEL[role]} không mở được trang này`}
-              action={<ButtonLink href="/">Về Hôm nay</ButtonLink>}
-            >
-              Mỗi vai trò chỉ thấy đúng phần việc của mình. Đổi vai trò ở góc trên bên phải để xem trang này trong bản mô phỏng.
-            </EmptyState>
-          </div>
+              description="Mỗi vai trò chỉ thấy đúng phần việc của mình. Đổi vai trò ở góc trên bên phải để xem trang này trong bản mô phỏng."
+              actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>}
+            />
+          </Page>
         )}
       </main>
 
@@ -331,7 +321,7 @@ function BottomLink({ item, active }: { item: NavItem; active: boolean }) {
         <Icon aria-hidden />
         {item.badge ? <span className={s.bottomBadge}>{item.badge}</span> : null}
       </span>
-      <span>{item.label}</span>
+      <span>{item.short ?? item.label}</span>
     </Link>
   );
 }

@@ -20,12 +20,8 @@
 .logo { height: 24px; width: auto; }
 .collapsed .brand { justify-content: center; padding: 0; }
 
-.context { margin: var(--ep-space-2) var(--ep-space-5) var(--ep-space-3); padding-bottom: var(--ep-space-4); border-bottom: 1px solid var(--ep-rule); }
-.contextName { font-size: var(--ep-text-label); font-weight: 600; line-height: 1.4; color: var(--ep-ink); }
-.contextMeta { margin-top: 2px; font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-weight: 500; }
-
 .nav { flex: 1; overflow-y: auto; padding: var(--ep-space-2) 0 var(--ep-space-4); }
-.group + .group { margin-top: var(--ep-space-4); }
+.group + .group { margin-top: var(--ep-space-3); }
 .groupLabel { padding: var(--ep-space-2) var(--ep-space-5) var(--ep-space-1); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); }
 
 .navItem {
@@ -33,7 +29,7 @@
   display: flex;
   align-items: center;
   gap: var(--ep-space-3);
-  min-height: 36px;
+  min-height: 34px;
   margin: 1px var(--ep-space-2);
   padding: 0 var(--ep-space-3);
   border-radius: var(--ep-radius-sm);
@@ -59,7 +55,8 @@
 .navLabel { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .badge { font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-red); font-variant-numeric: tabular-nums; }
 .collapsed .navItem { justify-content: center; padding: 0; }
-.collapsed .navLabel, .collapsed .badge { display: none; }
+.collapsed .navLabel { display: none; }
+.collapsed .badge { position: absolute; top: 7px; right: 12px; width: 7px; height: 7px; border-radius: var(--ep-radius-pill); background: var(--ep-red); font-size: 0; }
 
 .sideFoot { flex: none; display: grid; gap: var(--ep-space-2); padding: var(--ep-space-3) var(--ep-space-4) var(--ep-space-4); border-top: 1px solid var(--ep-rule); }
 .demo { font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-weight: 500; padding: 0 var(--ep-space-1); }
@@ -142,7 +139,6 @@
 /* ---------- main ---------- */
 .main { margin-left: var(--side); min-height: calc(100dvh - var(--ep-topbar)); outline: none; transition: margin-left var(--ep-normal) var(--ep-ease-standard); }
 .main:focus-visible { box-shadow: none; } /* ui-allow: vùng nhận focus bằng chương trình, không phải điều khiển */
-.blocked { max-width: 960px; margin: 0 auto; padding: var(--ep-space-16) var(--ep-space-8); }
 
 /* ---------- mobile ---------- */
 .bottomNav { display: none; }
@@ -177,10 +173,10 @@
     background: var(--ep-surface);
     border-top: 1px solid var(--ep-rule);
   }
-  .bottomItem { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; padding: var(--ep-space-1) 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: 11px; font-weight: 500; line-height: 1.2; }
+  .bottomItem { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; min-height: 56px; padding: var(--ep-space-1) 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-meta); font-weight: 500; line-height: 1.2; }
   .bottomItem svg { width: 20px; height: 20px; stroke-width: 1.8; }
   .bottomIcon { position: relative; }
-  .bottomBadge { position: absolute; top: -4px; right: -10px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); font-size: 10px; font-weight: 700; line-height: 16px; text-align: center; }
+  .bottomBadge { position: absolute; top: -4px; right: -10px; min-width: 16px; height: 16px; padding: 0 4px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; line-height: 16px; text-align: center; }
   .bottomActive { color: var(--ep-ink); font-weight: 600; }
   .bottomActive svg { color: var(--ep-red); }
   .bottomActive::before { content: ""; position: absolute; top: 0; left: 30%; right: 30%; height: 2px; background: var(--ep-red); }

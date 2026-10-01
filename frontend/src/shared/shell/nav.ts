@@ -22,7 +22,8 @@ import {
 } from "lucide-react";
 import type { Role } from "@/mock/core";
 
-export type NavItem = { href: string; label: string; icon: LucideIcon; badge?: number };
+/** `short`: nhãn ngắn cho bottom nav điện thoại khi nhãn đầy đủ quá dài. */
+export type NavItem = { href: string; label: string; short?: string; icon: LucideIcon; badge?: number };
 export type NavGroup = { label?: string; items: NavItem[] };
 
 const STUDENT: NavGroup[] = [
@@ -45,7 +46,7 @@ function staff(role: "ta" | "teacher"): NavGroup[] {
       label: "Làm việc",
       items: [
         { href: "/", label: "Hôm nay", icon: House },
-        { href: "/inbox", label: "Hộp thư hỗ trợ", icon: Inbox, badge: 5 },
+        { href: "/inbox", label: "Hộp thư hỗ trợ", short: "Hộp thư", icon: Inbox, badge: 5 },
         { href: "/students", label: "Sinh viên", icon: Users },
         { href: "/attendance", label: "Điểm danh", icon: ClipboardCheck },
       ],

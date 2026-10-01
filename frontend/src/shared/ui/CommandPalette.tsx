@@ -7,6 +7,9 @@ import type { NavItem } from "@/shared/shell/nav";
 import dlg from "./Dialog.module.css";
 import s from "./CommandPalette.module.css";
 
+// Bỏ dấu để gõ "diem" vẫn ra "Điểm danh".
+const fold = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").toLowerCase();
+
 /** "Tìm nhanh hoặc đi đến…" (⌘K, /): lọc theo tên route của vai trò hiện tại, Enter để đi. */
 export function CommandPalette({ open, onClose, items }: { open: boolean; onClose: () => void; items: NavItem[] }) {
   const ref = useRef<HTMLDialogElement>(null);
@@ -15,8 +18,8 @@ export function CommandPalette({ open, onClose, items }: { open: boolean; onClos
   const [active, setActive] = useState(0);
 
   const results = useMemo(() => {
-    const needle = q.trim().toLocaleLowerCase("vi");
-    return needle ? items.filter((i) => i.label.toLocaleLowerCase("vi").includes(needle)) : items;
+    const needle = fold(q.trim());
+    return needle ? items.filter((i) => fold(i.label).includes(needle)) : items;
   }, [q, items]);
 
   useEffect(() => {
