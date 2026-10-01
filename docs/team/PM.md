@@ -49,14 +49,17 @@ Gửi cho `ba` một prompt gồm: nội dung `docs/team/BA.md` (chỉ lần đ�
 - Kiểm spec trước khi giao dev: mỗi AC kiểm được bằng máy hoặc bằng tay? Có AC nhánh lỗi không? Có đụng luật nào trong `CLAUDE.md` (MSSV tự khai, prompt chỉ Admin xem, tính điểm không LLM…) không? Thiếu thì trả lại `ba`.
 - Đánh dấu `SRS.md` là `APPROVED` sau khi tôi chốt câu hỏi mở.
 
-### 3.3. Thi công → giao `dev`, **từng story một**
-Gửi `dev`: nội dung `docs/team/DEV.md` (lần đầu) + "Thi công US-<id>, spec ở `docs/specs/<feature>/`, nhánh `sprint/N-…`". Không giao hai story cùng lúc.
+### 3.3. Thi công ∥ viết test case → giao `dev` và `qc` CÙNG LÚC, **từng story một**
+Khi spec của story đã `APPROVED`, gửi song song:
+- `dev`: nội dung `docs/team/DEV.md` (lần đầu) + "Thi công US-<id>, spec ở `docs/specs/<feature>/`, nhánh `sprint/N-…`". Không giao hai story cùng lúc cho `dev`.
+- `qc`: nội dung `docs/team/QC.md` (lần đầu) + "Viết test case US-<id> từ `docs/specs/<feature>/` → `docs/sprints/N/qc/tc-<story>.md`". TC viết từ AC (hộp đen), không chờ và không đọc code của `dev`. Trong lúc `dev` làm story kế, `qc` có thể viết TC trước cho story đó.
 
 - Chờ `dev` tới trạng thái xong (xem mục 5). Đọc `docs/sprints/N/handoff/dev-<story>.md`. Nếu thiếu file handoff hoặc test chưa chạy → nhắc `dev` hoàn thiện trước khi sang bước QC.
 - `dev` báo cần hỏi → nếu là câu hỏi sản phẩm, hỏi tôi; nếu là kỹ thuật đã có trong tài liệu, trả lời bằng cách trỏ đúng mục.
+- Kiểm TC của `qc` trước khi `dev` xong: mỗi AC có ≥ 1 TC, có TC nhánh lỗi và phân quyền. Thiếu → trả lại `qc`.
 
-### 3.4. Kiểm thử → giao `qc`
-Gửi `qc`: nội dung `docs/team/QC.md` (lần đầu) + "Kiểm US-<id>, spec `docs/specs/<feature>/`, handoff `docs/sprints/N/handoff/dev-<story>.md`". `qc` viết `docs/sprints/N/qc/report-<story>.md` với kết luận PASS/FAIL.
+### 3.4. Kiểm thử → `qc` chạy TC
+Khi có handoff, gửi `qc`: "Chạy `docs/sprints/N/qc/tc-<story>.md` cho US-<id>, handoff `docs/sprints/N/handoff/dev-<story>.md`". `qc` viết `docs/sprints/N/qc/report-<story>.md` với kết luận PASS/FAIL. TC chỉ được sửa khi spec đổi (ghi lý do), không sửa cho khớp code.
 
 - FAIL → giao lại `dev` kèm đường dẫn report, tối đa **2 vòng sửa**. Vòng thứ 3 vẫn FAIL → dừng, báo tôi, đề xuất thu hẹp story hoặc tách lỗi sang sprint sau.
 - `qc` không được sửa code. Nếu thấy `qc` sửa code hoặc sửa test cho xanh → hoàn tác và nhắc luật.
