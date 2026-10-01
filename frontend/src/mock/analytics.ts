@@ -1,6 +1,7 @@
 // Số liệu lớp học cho /analytics (DESIGN §14.25). Dữ liệu MÔ PHỎNG. Người giữ: US-PROTO-04.
 // Chi phí chỉ giảng viên và quản trị viên được xem (SRS 4.6, Q2) — màn tự lọc theo vai.
 import { COURSE_1, COURSE_2, NOW, fmtShortDate } from "./core";
+import { aiShare, type TicketStats } from "./derive";
 
 export type AnalyticsRange = "7" | "30";
 
@@ -14,11 +15,9 @@ type CourseSeed = {
   active30: number;
   topics7: Series[];
   topics30: Series[];
-  /** hỗ trợ: [7 ngày, 30 ngày] */
-  escalated: [number, number];
+  /** phiếu đã đóng trước đó (không còn trong hộp thư): [7 ngày, 30 ngày] — phiếu đang mở lấy từ `ticketStats` */
+  escalatedPrior: [number, number];
   medianReply: [string, string];
-  overdue: [number, number];
-  answeredByAi: [number, number];
   piiDetected: [number, number];
   piiChannels: Series[];
   submissions: [number, number];
@@ -48,10 +47,9 @@ const SEED: Record<string, CourseSeed> = {
       { label: "RSA và trao đổi khoá", value: 41 },
       { label: "Quy chế và cách tính điểm", value: 33 },
     ],
-    escalated: [6, 19],
+    // 19 câu chuyển trong 30 ngày = 6 phiếu còn trong hộp thư + 13 phiếu đã đóng (SRS 4.8 N2)
+    escalatedPrior: [0, 13],
     medianReply: ["3 giờ 40 phút", "4 giờ 05 phút"],
-    overdue: [1, 3],
-    answeredByAi: [94, 92],
     piiDetected: [9, 31],
     piiChannels: [
       { label: "Chat riêng", value: 6 },
@@ -80,10 +78,8 @@ const SEED: Record<string, CourseSeed> = {
       { label: "Quy chế và cách tính điểm", value: 18 },
       { label: "VPN site-to-site và IPsec", value: 11 },
     ],
-    escalated: [2, 4],
+    escalatedPrior: [2, 4],
     medianReply: ["5 giờ 10 phút", "5 giờ 10 phút"],
-    overdue: [0, 1],
-    answeredByAi: [89, 89],
     piiDetected: [3, 5],
     piiChannels: [
       { label: "Chat riêng", value: 2 },
@@ -99,16 +95,18 @@ const SEED: Record<string, CourseSeed> = {
 export type Analytics = {
   range: AnalyticsRange;
   /** câu hỏi theo ngày (7 ngày) hoặc theo cụm 3 ngày (30 ngày) */
-  trend: Array<{ x: string; y: number }>;
+  trend: Array<{ x: string; full: string; y: number }>;
   questions: number;
   questionsPerDay: number;
   activeStudents: number;
   students: number;
   topics: Series[];
-  answeredByAi: number;
+  /** `aiShare(questions, escalated)` — không có số viết sẵn (SRS 4.8 N2) */
+  aiSharePct: number;
   escalated: number;
   medianReply: string;
-  overdue: number;
+  /** ảnh chụp hộp thư lúc này: phiếu mở ≥ 24 giờ (N1) */
+  overdue24: number;
   piiDetected: number;
   piiChannels: Series[];
   piiLeaked: number;
@@ -127,18 +125,27 @@ function trendPoints(daily: number[], range: AnalyticsRange) {
   if (range === "7") {
     const last = daily.slice(-7);
     // hôm nay là Thứ Năm → 7 ngày gần nhất bắt đầu từ Thứ Sáu tuần trước
-    return last.map((y, i) => ({ x: DAY_LABEL[(4 + i) % 7], y }));
+    return last.map((y, i) => {
+      const x = DAY_LABEL[(4 + i) % 7];
+      return { x, full: `${x} ${fmtShortDate(new Date(NOW.getTime() - (last.length - 1 - i) * 86400000))}`, y };
+    });
   }
-  const buckets: Array<{ x: string; y: number }> = [];
+  const buckets: Array<{ x: string; full: string; y: number }> = [];
   for (let i = 0; i < daily.length; i += 3) {
     const sum = daily.slice(i, i + 3).reduce((a, b) => a + b, 0);
     // nhãn là ngày đầu của cụm 3 ngày, tính lùi từ hôm nay
-    buckets.push({ x: fmtShortDate(new Date(NOW.getTime() - (daily.length - 1 - i) * 86400000)), y: sum });
+    const from = new Date(NOW.getTime() - (daily.length - 1 - i) * 86400000);
+    const to = new Date(from.getTime() + 2 * 86400000);
+    buckets.push({ x: fmtShortDate(from), full: `${fmtShortDate(from)}–${fmtShortDate(to)}`, y: sum });
   }
   return buckets;
 }
 
-export function analyticsFor(courseId: string, range: AnalyticsRange): Analytics {
+/**
+ * `stats` là ảnh chụp hộp thư lúc này (`ticketStats`, SRS 4.8 N1): "Câu chờ quá 24 giờ" và số câu
+ * đã chuyển giảng viên đều lấy từ đó, nên hai màn /inbox và /analytics không bao giờ lệch nhau.
+ */
+export function analyticsFor(courseId: string, range: AnalyticsRange, stats: TicketStats): Analytics {
   const s = SEED[courseId] ?? SEED[COURSE_1];
   const i = range === "7" ? 0 : 1;
   const days = range === "7" ? 7 : 30;
@@ -146,6 +153,7 @@ export function analyticsFor(courseId: string, range: AnalyticsRange): Analytics
   const questions = daily.reduce((a, b) => a + b, 0);
   const edited = s.edited[i];
   const submissions = s.submissions[i];
+  const escalated = s.escalatedPrior[i] + stats.createdIn7d;
   return {
     range,
     trend: trendPoints(s.daily, range),
@@ -154,10 +162,10 @@ export function analyticsFor(courseId: string, range: AnalyticsRange): Analytics
     activeStudents: range === "7" ? s.active7 : s.active30,
     students: s.students,
     topics: range === "7" ? s.topics7 : s.topics30,
-    answeredByAi: s.answeredByAi[i],
-    escalated: s.escalated[i],
+    aiSharePct: aiShare(questions, escalated),
+    escalated,
     medianReply: s.medianReply[i],
-    overdue: s.overdue[i],
+    overdue24: stats.overdue24,
     piiDetected: s.piiDetected[i],
     piiChannels: s.piiChannels,
     piiLeaked: 0,

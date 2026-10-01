@@ -71,7 +71,7 @@ export const SCHEME_DOC_2: SchemeDoc = {
 export const SCHEME_DOC_1: SchemeDoc = {
   courseId: COURSE_1,
   file: "quy-che-mon-hoc-761987.pdf",
-  pages: 5,
+  pages: 4,
   scheme: SCHEME_1,
   rules: [
     { id: "weight", label: "Trọng số", value: "Quá trình 40% · Cuối kỳ 60%", quote: "Điểm quá trình chiếm 40%, điểm thi kết thúc học phần chiếm 60% điểm học phần.", page: 2 },

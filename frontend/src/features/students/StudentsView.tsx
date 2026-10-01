@@ -1,6 +1,8 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import { fmtScore, type Student } from "@/mock/core";
 import { attendanceStats, qtOf, type AttendanceStats } from "@/mock/grades";
 import { STUDENT_FILTERS, matchesFilter, rosterOf, type StudentFilter } from "@/mock/roster";
@@ -49,7 +51,13 @@ export function StudentsView() {
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
   const [{ q, chips }, setFilter] = useDemoSlice<FilterState>(FILTER_KEY, { q: "", chips: [] });
+  const urlFilter = useSearchParams().get("filter");
   const routeState = useRouteState();
+
+  // Liên kết sâu `/students?filter=watch` từ thẻ "Lớp cần chú ý" ở Hôm nay (SRS 4.8 N3).
+  useEffect(() => {
+    if (STUDENT_FILTERS.some((f) => f.value === urlFilter)) setFilter((p) => ({ ...p, chips: [urlFilter as StudentFilter] }));
+  }, [urlFilter, setFilter]);
 
   const hasScheme = schemes[course.id]?.status === "confirmed";
   const rows: Row[] = rosterOf(course.id, members).map((student) => {
@@ -86,9 +94,9 @@ export function StudentsView() {
       header: "Rủi ro",
       render: (r) =>
         r.student.risk === "none" ? (
-          <span className="ep-meta">Không</span>
+          <span className="ep-meta">–</span>
         ) : (
-          <StatusText tone={r.student.risk === "high" ? "red" : "amber"}>{r.student.risk === "high" ? "Cần chú ý" : "Theo dõi"}</StatusText>
+          <StatusText tone={r.student.risk === "high" ? "red" : "amber"}>Cần chú ý</StatusText>
         ),
     },
   ];
@@ -139,6 +147,7 @@ export function StudentsView() {
           columns={columns}
           rows={shown}
           rowKey={(r) => r.student.id}
+          rowAttrs={(r) => ({ "data-part": "student-row", "data-student-id": r.student.id })}
           rowHref={(r) => `/students/${r.student.id}`}
           empty={
             <EmptyState

@@ -26,10 +26,13 @@ import {
 } from "@/shared/ui";
 import { COURSE_2, fmtScore, fmtShortDate, fmtTime, studentById, studentsOf } from "@/mock/core";
 import { ASSIGNMENTS, BT03, BT03_SEED, bt03Submissions, type Assignment, type Submission } from "@/mock/assess";
+import { studentNo } from "@/mock/derive";
 import { bt03Total } from "@/mock/grades";
+import { noteBt03Published } from "@/mock/notes";
 import { KEYS, type Bt03State } from "@/mock/state";
 import { useSession } from "@/shared/session/session";
-import { useDemoSlice } from "@/shared/state/demo";
+import { simNowMs } from "@/shared/state/clock";
+import { useDemoSlice, writeSlice } from "@/shared/state/demo";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import s from "./Grading.module.css";
 
@@ -69,11 +72,11 @@ export function GradingQueue() {
         (!filters.includes("unapproved") || !isApproved(x)) &&
         (!filters.includes("late") || x.lateDays > 0),
     );
+    // Bài của B (đang được lọc ưu tiên) đứng đầu; còn lại theo thứ tự chuẩn `sv-n` (SRS 4.8 N4).
     return kept.sort((a, b) => {
       if (a.id === "sub-bt03-sv-2") return -1;
       if (b.id === "sub-bt03-sv-2") return 1;
-      const flag = Number(Boolean(b.flag)) - Number(Boolean(a.flag));
-      return flag !== 0 ? flag : a.submittedAt.getTime() - b.submittedAt.getTime();
+      return studentNo(a.studentId) - studentNo(b.studentId);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [all, filters, bt03.status, approvedIds]);
@@ -138,6 +141,8 @@ export function GradingQueue() {
     const ids = picked.map((x) => x.id);
     if (ids.includes("sub-bt03-sv-2")) setBt03((prev) => ({ ...prev, status: "published" }));
     setPublishedIds((prev) => [...new Set([...prev, ...ids])]);
+    for (const sub of picked) noteBt03Published(sub.studentId);
+    writeSlice(KEYS.meStamp, simNowMs());
     setSelected(new Set());
     undo.push(`Đã công bố điểm Bài tập 03 cho ${ids.length} sinh viên · sinh viên thấy điểm và nhận xét ngay`);
   }
@@ -207,7 +212,16 @@ export function GradingQueue() {
               </InlineNotice>
             )}
             <Toolbar end={<span className={s.progressText}>{rows.length} bài khớp bộ lọc</span>}>
-              <FilterChips label="Lọc hàng chờ chấm" value={filters} onChange={setFilters} options={FILTERS} />
+              <FilterChips
+                label="Lọc hàng chờ chấm"
+                value={filters}
+                onChange={setFilters}
+                options={FILTERS.map((f) => ({
+                  ...f,
+                  // "Cần xem kỹ" đếm bài còn phải xem (có cờ, chưa duyệt) — cùng số với thẻ Hôm nay (SRS 4.8 N8)
+                  count: all.filter((x) => (f.value === "flag" ? Boolean(x.flag) && !isApproved(x) : f.value === "unapproved" ? !isApproved(x) : x.lateDays > 0)).length,
+                }))}
+              />
             </Toolbar>
 
             {picked.length > 0 && pickedUnapproved > 0 && (

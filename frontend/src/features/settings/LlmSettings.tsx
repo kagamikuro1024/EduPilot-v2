@@ -72,7 +72,7 @@ export function LlmSettings() {
           </InlineNotice>
         )}
 
-        <Section title="Kết nối nhà cung cấp" description="Khoá API chỉ ghi được: lưu xong không đọc lại được, chỉ còn 4 ký tự cuối.">
+        <Section part="settings-section" title="Kết nối nhà cung cấp" description="Khoá API chỉ ghi được: lưu xong không đọc lại được, chỉ còn 4 ký tự cuối.">
           <div className={s.configPanel}>
           <ul className={s.rows}>
             {PROVIDERS.map((p) => {
@@ -146,7 +146,7 @@ export function LlmSettings() {
           </div>
         </Section>
 
-        <Section title="Tác vụ nào dùng model nào" description="Đổi ở đây có hiệu lực ngay cho yêu cầu tiếp theo; yêu cầu đang chạy vẫn dùng model cũ.">
+        <Section part="settings-section" title="Tác vụ nào dùng model nào" description="Đổi ở đây có hiệu lực ngay cho yêu cầu tiếp theo; yêu cầu đang chạy vẫn dùng model cũ.">
           <div className={s.configPanel}>
           <ul className={s.rows}>
             {TASK_ROUTES.map((r) => {
@@ -176,7 +176,7 @@ export function LlmSettings() {
           {undo.node}
         </Section>
 
-        <Section title="Chuỗi dự phòng" description="Khi nhà cung cấp đầu tiên hỏng, yêu cầu tự chuyển xuống nhà cung cấp kế tiếp, không báo lỗi cho sinh viên.">
+        <Section part="settings-section" title="Chuỗi dự phòng" description="Khi nhà cung cấp đầu tiên hỏng, yêu cầu tự chuyển xuống nhà cung cấp kế tiếp, không báo lỗi cho sinh viên.">
           <div className={s.configPanel}>
           <ol className={s.chain}>
             {FALLBACK_CHAIN.map((name, i) => (
@@ -190,9 +190,11 @@ export function LlmSettings() {
           </div>
         </Section>
 
-        <section className={s.embedding}>
-          <h2 className="ep-section-title">Mô hình embedding</h2>
-          <p className={s.sectionDesc}>Tách riêng vì đổi mô hình này buộc phải đánh chỉ mục lại toàn bộ tài liệu, không chỉ đổi cấu hình.</p>
+        <Section
+          part="settings-section"
+          title="Mô hình embedding"
+          description="Tách riêng vì đổi mô hình này buộc phải đánh chỉ mục lại toàn bộ tài liệu, không chỉ đổi cấu hình."
+        >
           <div className={s.configPanel}>
           <DefinitionList
             items={[
@@ -219,10 +221,10 @@ export function LlmSettings() {
               {EMBEDDING.chunks} sẽ được tính lại bằng {embedding} (khoảng 25 phút). Trong lúc đó AI vẫn trả lời được nhưng tìm tài liệu kém chính xác hơn, và chi phí của ngày hôm nay tăng thêm khoảng 60.000 đ.
             </InlineNotice>
           )}
-        </div>
-        </section>
+          </div>
+        </Section>
 
-        <Section title="Ngân sách" description="Trần chi tiêu cho toàn hệ thống. Chạm trần không tắt chat, chỉ hạ model.">
+        <Section part="settings-section" title="Ngân sách" description="Trần chi tiêu cho toàn hệ thống. Chạm trần không tắt chat, chỉ hạ model.">
           <div className={s.configPanel}>
           <BarList
             items={[

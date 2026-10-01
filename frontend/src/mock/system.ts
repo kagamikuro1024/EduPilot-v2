@@ -1,6 +1,7 @@
 // Hệ thống: quan sát AI, cấu hình LLM, tích hợp, việc của quản trị viên (FLOWS F15–F16).
 // Dữ liệu MÔ PHỎNG, sinh tất định để hai lần render giống hệt nhau. Người giữ: US-PROTO-04.
-import { COURSE_1, COURSE_2, at } from "./core";
+import { COURSE_1, COURSE_2, at, fmtTime } from "./core";
+import { ASSIGNED_AT, agoLabel } from "./derive";
 
 // ---- dải trạng thái + số tổng hợp theo lớp ---------------------------------------------------
 
@@ -93,8 +94,8 @@ const BY_TASK: Record<string, { masked: string[]; tools: string[][]; privacy: bo
     privacy: true,
   },
   "Trích quy chế": {
-    masked: ["Trích điều kiện dự thi và cách làm tròn điểm từ tài liệu Quyche.pdf.", "Trích thang điểm quá trình và trọng số từ tài liệu Quyche.pdf."],
-    tools: [["doc_tai_lieu(ten=Quyche.pdf)", "trich_muc(muc=dieu-kien-du-thi)"]],
+    masked: ["Trích điều kiện dự thi và cách làm tròn điểm từ tài liệu “Quy chế đào tạo của trường”.", "Trích thang điểm quá trình và trọng số từ tài liệu “Quy chế đào tạo của trường”."],
+    tools: [["doc_tai_lieu(ten=Quy chế đào tạo của trường)", "trich_muc(muc=dieu-kien-du-thi)"]],
     privacy: false,
   },
   "Sinh câu hỏi": {
@@ -106,8 +107,8 @@ const BY_TASK: Record<string, { masked: string[]; tools: string[][]; privacy: bo
     privacy: false,
   },
   "Tóm tắt tài liệu": {
-    masked: ["Tóm tắt chương 3 tài liệu Mordern_Network_Security_Threats.pdf thành 5 ý chính cho lớp."],
-    tools: [["doc_tai_lieu(ten=Mordern_Network_Security_Threats.pdf)", "tom_tat(so_y=5)"]],
+    masked: ["Tóm tắt chương 3 tài liệu “Modern Network Security Threats” thành 5 ý chính cho lớp."],
+    tools: [["doc_tai_lieu(ten=Modern Network Security Threats)", "tom_tat(so_y=5)"]],
     privacy: false,
   },
   "Đánh chỉ mục tài liệu": {
@@ -314,7 +315,9 @@ export const INTEGRATIONS: Integration[] = [
 
 export type AdminTask = { id: string; tone: "red" | "amber" | "blue" | "neutral"; title: string; context: string; meta: string; href: string };
 
-export const ADMIN_TASKS: AdminTask[] = [
+/** Việc của quản trị viên ở "Hôm nay"; mốc phân công lớp 761988 lấy từ `ASSIGNED_AT` (SRS 4.8 N6). */
+export function adminTasks(nowMs: number): AdminTask[] {
+  return [
   {
     id: "gemini",
     tone: "red",
@@ -343,18 +346,24 @@ export const ADMIN_TASKS: AdminTask[] = [
     id: "no-teacher",
     tone: "neutral",
     title: "Lớp 761988 chưa có giảng viên hoạt động",
-    context: "Vừa phân công TS. Lê Thu Hà lúc 08:30, chờ xác nhận lần đăng nhập đầu. Kiểm tra lại trong danh sách lớp.",
-    meta: "Phân công 08:30",
+    context: `Vừa phân công TS. Lê Thu Hà ${agoLabel(ASSIGNED_AT, nowMs)}, chờ xác nhận lần đăng nhập đầu. Kiểm tra lại trong danh sách lớp.`,
+    meta: `Phân công · ${agoLabel(ASSIGNED_AT, nowMs)}`,
     href: "/admin/courses",
   },
-];
+  ];
+}
 
 // ---- quản trị lớp và người dùng --------------------------------------------------------------
 
 /** Giảng viên có thể phân công khi mở lớp mới. */
 export const TEACHER_OPTIONS = ["TS. Lê Thu Hà", "ThS. Nguyễn Minh Khôi", "TS. Trần Quốc Việt"];
 
-export const COURSE_ADMIN_META: Record<string, { opened: string; lastActive: string }> = {
-  [COURSE_1]: { opened: "20/08/2026", lastActive: "Hôm nay 09:20" },
-  [COURSE_2]: { opened: "09/10/2026", lastActive: "Hôm qua 16:40" },
+/** Ngày mở lớp cố định; "hoạt động gần nhất" của 761988 chính là lúc phân công (`ASSIGNED_AT`). */
+export const COURSE_ADMIN_META: Record<string, { opened: string }> = {
+  [COURSE_1]: { opened: "20/08/2026" },
+  [COURSE_2]: { opened: "09/10/2026" },
 };
+
+export function courseLastActive(courseId: string, nowMs: number): string {
+  return courseId === COURSE_2 ? agoLabel(ASSIGNED_AT, nowMs) : `hôm nay ${fmtTime(new Date(nowMs))}`;
+}

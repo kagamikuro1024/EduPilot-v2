@@ -2,14 +2,26 @@
 
 import { useState } from "react";
 import { analyticsFor, fmtVnd, type AnalyticsRange } from "@/mock/analytics";
+import { fmtTime } from "@/mock/core";
+import { ticketStats } from "@/mock/derive";
+import { KEYS, type Ticket } from "@/mock/state";
+import { mergeTickets } from "@/mock/support";
 import { useSession } from "@/shared/session/session";
+import { useSimNow } from "@/shared/state/clock";
+import { useDemoSlice } from "@/shared/state/demo";
 import { BarList, DefinitionList, EmptyState, Page, PageHeader, PageState, Section, SegmentedControl, Skeleton, TrendChart } from "@/shared/ui";
 import s from "./analytics.module.css";
 
+/** "1.424" — nhóm nghìn giống `fmtVnd` để server và trình duyệt cho ra cùng một chuỗi. */
+const fmtNum = (n: number) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
 export function AnalyticsScreen() {
-  const { role, course } = useSession();
+  const { role, course, courses, isAll } = useSession();
+  const [stored] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
   const [range, setRange] = useState<AnalyticsRange>("7");
-  const a = analyticsFor(course.id, range);
+  const nowMs = useSimNow();
+  const courseIds = isAll ? courses.map((c) => c.id) : [course.id];
+  const a = analyticsFor(course.id, range, ticketStats(mergeTickets(stored), courseIds, nowMs));
   const days = range === "7" ? "7 ngày" : "30 ngày";
 
   return (
@@ -20,7 +32,7 @@ export function AnalyticsScreen() {
         meta={
           <>
             <span>{course.label}</span>
-            <span>Tính tới hôm nay, 09:20</span>
+            <span>Tính tới hôm nay, {fmtTime(new Date(nowMs))}</span>
           </>
         }
         actions={
@@ -56,11 +68,7 @@ export function AnalyticsScreen() {
       >
         <Section title="Hoạt động học" description={`Câu hỏi sinh viên gửi trong ${days}`}>
           <p className={s.lead}>
-            <strong>{a.questions.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")} câu hỏi</strong> trong {days}, trung bình {a.questionsPerDay} câu mỗi ngày.{" "}
-            <strong>
-              {a.activeStudents}/{a.students} sinh viên
-            </strong>{" "}
-            có hỏi ít nhất một câu; {a.students - a.activeStudents} bạn chưa hỏi câu nào.
+            {`${fmtNum(a.questions)} câu hỏi trong ${days}, trung bình ${a.questionsPerDay} câu mỗi ngày. ${a.activeStudents}/${a.students} sinh viên có hỏi ít nhất một câu; ${a.students - a.activeStudents} bạn chưa hỏi câu nào.`}
           </p>
           <TrendChart points={a.trend} label={`Câu hỏi mỗi ngày trong ${days}`} format={(v) => `${v} câu`} />
           <h3 className={s.subhead}>Chủ đề được hỏi nhiều nhất</h3>
@@ -69,12 +77,12 @@ export function AnalyticsScreen() {
 
         <Section title="Hỗ trợ" description="Câu AI không tự trả lời được và thời gian lớp chờ bạn">
           <p className={s.lead}>
-            AI tự trả lời <strong>{a.answeredByAi}%</strong> câu hỏi; <strong>{a.escalated} câu</strong> chuyển sang giảng viên vì không đủ chắc chắn hoặc sinh viên tự yêu cầu.
+            {`AI tự trả lời ${a.aiSharePct}% trong ${fmtNum(a.questions)} câu hỏi; ${a.escalated} câu chuyển sang giảng viên vì không đủ chắc chắn hoặc sinh viên tự yêu cầu.`}
           </p>
           <DefinitionList
             items={[
               { term: "Thời gian trả lời (trung vị)", value: a.medianReply },
-              { term: "Câu chờ quá 24 giờ", value: a.overdue === 0 ? "Không có" : `${a.overdue} câu` },
+              { term: "Câu chờ quá 24 giờ", value: a.overdue24 === 0 ? "Không có" : `${a.overdue24} câu` },
               { term: "Câu đã chuyển giảng viên", value: `${a.escalated} câu trong ${days}` },
             ]}
           />

@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { CalendarPlus, Pin, Sparkles } from "lucide-react";
-import { fmtLongDate, fmtTime } from "@/mock/core";
+import { COURSE_1, fmtLongDate, fmtTime } from "@/mock/core";
 import { REVIEW_SLOT, reportFor, type InsightTopic } from "@/mock/insights";
 import { KEYS, type CalendarExtra, type InsightThread } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import { Button, EmptyState, InlineNotice, Page, PageHeader, PageState, Section, Skeleton, StatusText, useRouteState } from "@/shared/ui";
+import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Section, Skeleton, StatusText, useRouteState } from "@/shared/ui";
 import s from "./insights.module.css";
 
 const STEPS = ["Gom câu hỏi của lớp và bỏ tên, mã số sinh viên", "Nhóm câu hỏi theo chủ đề", "Xếp hạng chủ đề và soạn gợi ý dạy lại"];
@@ -40,12 +40,13 @@ export function InsightsScreen() {
 
   function pinThread(topic: InsightTopic) {
     const id = `ith-${course.id}-${topic.id}`;
-    setThreads((prev) => [...prev, { id, courseId: course.id, title: `Chủ đề đang vướng: ${topic.title}`, topic: topic.title, body: topic.threadBody }]);
+    // Một chủ đề chỉ có MỘT thread ghim: bấm lại (hay quay lại màn) không tạo thêm (04-AC9).
+    setThreads((prev) => (prev.some((t) => t.id === id) ? prev : [...prev, { id, courseId: course.id, title: `Chủ đề đang vướng: ${topic.title}`, topic: topic.title, body: topic.threadBody }]));
     undo.push(`Đã ghim thread “${topic.title}” vào Threads của lớp ${course.code}`, () => setThreads((prev) => prev.filter((t) => t.id !== id)));
   }
 
   function addReview(topic: InsightTopic) {
-    const slot = REVIEW_SLOT[course.id] ?? REVIEW_SLOT["761987"];
+    const slot = REVIEW_SLOT[course.id] ?? REVIEW_SLOT[COURSE_1];
     const id = `ice-${course.id}-${topic.id}`;
     setExtras((prev) => [...prev, { id, courseId: course.id, title: `Ôn tập: ${topic.title}`, at: slot.at, durationMin: slot.durationMin }]);
     undo.push(`Đã thêm buổi ôn tập “${topic.title}” vào lịch lớp ${course.code} — ${slot.label}`, () => setExtras((prev) => prev.filter((e) => e.id !== id)));
@@ -166,14 +167,15 @@ export function InsightsScreen() {
 
                     {canWrite && (
                       <div className={s.topicActions}>
-                        <Button
-                          size="sm"
-                          icon={<Pin aria-hidden />}
-                          disabled={threads.some((th) => th.id === `ith-${course.id}-${t.id}`)}
-                          onClick={() => pinThread(t)}
-                        >
-                          {threads.some((th) => th.id === `ith-${course.id}-${t.id}`) ? "Đã ghim thread" : "Tạo thread ghim"}
-                        </Button>
+                        {threads.some((th) => th.id === `ith-${course.id}-${t.id}`) ? (
+                          <ButtonLink size="sm" href={`/threads/ith-${course.id}-${t.id}`} icon={<Pin aria-hidden />}>
+                            Đã ghim · Xem thread
+                          </ButtonLink>
+                        ) : (
+                          <Button size="sm" icon={<Pin aria-hidden />} onClick={() => pinThread(t)}>
+                            Tạo thread ghim
+                          </Button>
+                        )}
                         <Button
                           size="sm"
                           icon={<CalendarPlus aria-hidden />}

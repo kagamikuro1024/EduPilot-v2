@@ -38,3 +38,9 @@
   font-weight: 400;
   color: var(--ep-ink-3);
 }
+
+/* "Xem cả N" dưới ba sinh viên đầu của "Lớp cần chú ý" (SRS 4.8 N3). */
+.seeAll {
+  margin-top: var(--ep-space-2);
+  font-size: var(--ep-text-label);
+}

@@ -193,18 +193,12 @@ export function Gradebook() {
         </span>
       ),
     },
-    { key: "bt01", header: "BT01", align: "end", width: "88px", render: (r) => cell(r, "bt01") },
-    { key: "bt02", header: "BT02", align: "end", width: "88px", render: (r) => cell(r, "bt02") },
-    { key: "bt03", header: "BT03", align: "end", width: "88px", render: (r) => cell(r, "bt03") },
-    { key: "bonus", header: "Cộng", align: "end", width: "80px", hideOnMobile: true, render: (r) => <span className={s.delta}>{r.bonus > 0 ? `+${fmtScore(r.bonus, 2)}` : "—"}</span> },
-    { key: "penalty", header: "Trừ", align: "end", width: "80px", hideOnMobile: true, render: (r) => <span className={s.delta}>{r.penalty > 0 ? `−${fmtScore(r.penalty, 2)}` : "—"}</span> },
-    { key: "qt", header: "QT tạm tính", align: "end", width: "104px", render: (r) => <span className={s.qt}>{r.qt === null ? "—" : fmtScore(r.qt)}</span> },
-    { key: "ck", header: "Cuối kỳ", align: "end", width: "96px", render: (r) => cell(r, "ck") },
+    { key: "qt", header: "QT tạm tính", align: "end", width: "104px", part: "col-qt", render: (r) => <span className={s.qt}>{r.qt === null ? "—" : fmtScore(r.qt)}</span> },
     {
       key: "state",
       header: "Trạng thái",
-      width: "180px",
-      hideOnMobile: true,
+      width: "150px",
+      part: "col-status",
       render: (r) =>
         r.bt01 === null || r.bt02 === null ? (
           <StatusText tone="red">Thiếu bài tập</StatusText>
@@ -214,6 +208,12 @@ export function Gradebook() {
           <StatusText tone="green">Đủ điểm, chờ chốt</StatusText>
         ),
     },
+    { key: "bt01", header: "BT01", align: "end", width: "88px", render: (r) => cell(r, "bt01") },
+    { key: "bt02", header: "BT02", align: "end", width: "88px", render: (r) => cell(r, "bt02") },
+    { key: "bt03", header: "BT03", align: "end", width: "88px", render: (r) => cell(r, "bt03") },
+    { key: "bonus", header: "Cộng", align: "end", width: "80px", hideOnMobile: true, render: (r) => <span className={s.delta}>{r.bonus > 0 ? `+${fmtScore(r.bonus, 2)}` : "—"}</span> },
+    { key: "penalty", header: "Trừ", align: "end", width: "80px", hideOnMobile: true, render: (r) => <span className={s.delta}>{r.penalty > 0 ? `−${fmtScore(r.penalty, 2)}` : "—"}</span> },
+    { key: "ck", header: "Cuối kỳ", align: "end", width: "96px", render: (r) => cell(r, "ck") },
     {
       key: "menu",
       header: "",
@@ -360,7 +360,9 @@ export function Gradebook() {
           columns={columns}
           rows={rows}
           rowKey={(r) => r.st.id}
+          rowAttrs={(r) => ({ "data-part": "student-row", "data-student-id": r.st.id })}
           mobile="scroll"
+          scrollHint="Kéo ngang để xem BT01–BT03 và Cuối kỳ"
           empty={<EmptyState title="Lớp chưa có điểm">Chưa có sinh viên nào trong lớp này.</EmptyState>}
         />
         <p className={s.note}>{OFFICIAL_GRADE_NOTE}</p>

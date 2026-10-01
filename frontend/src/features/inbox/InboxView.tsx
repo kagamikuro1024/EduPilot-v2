@@ -3,10 +3,13 @@
 import { ArrowLeft } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { STUDENTS, at, ago, courseById, fmtTime, NOW } from "@/mock/core";
+import { STUDENTS, courseById, fmtTime, NOW } from "@/mock/core";
+import { agoLabel, ticketAgeMin } from "@/mock/derive";
 import { KEYS, type Ticket, type TicketStatus } from "@/mock/state";
+import { noteTicketAnswered } from "@/mock/notes";
 import { mergeTickets } from "@/mock/support";
 import { waitText, OVERDUE_MIN } from "@/mock/staff";
+import { useSimNow } from "@/shared/state/clock";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
@@ -57,6 +60,7 @@ export function InboxView() {
   const saved = useRef({ page: 0, list: 0 });
   const [draft, setDraft] = useState("");
   const [knowledge, setKnowledge] = useState(false);
+  const nowMs = useSimNow();
   const routeState = useRouteState();
 
   const courseIds = isAll ? courses.map((c) => c.id) : [course.id];
@@ -74,6 +78,8 @@ export function InboxView() {
   useLayoutEffect(() => {
     if (picked) {
       window.scrollTo({ top: 0 });
+      // 02-AC13: phiếu được chọn sẵn và hàng của nó nằm trong khung nhìn của danh sách
+      listRef.current?.querySelector<HTMLElement>(`[data-ticket-id="${CSS.escape(picked)}"]`)?.scrollIntoView({ block: "nearest" });
       return;
     }
     window.scrollTo({ top: saved.current.page });
@@ -90,6 +96,7 @@ export function InboxView() {
 
   function send(t: Ticket) {
     update(t.id, { status: "answered", answer: { by: user.name, text: draft.trim(), saveAsKnowledge: knowledge } });
+    noteTicketAnswered(t.studentId, t.id);
     setDraft("");
     setKnowledge(false);
   }
@@ -134,22 +141,26 @@ export function InboxView() {
               <ActionList label="Câu hỏi cần xử lý">
                 {rows.map((t) => {
                   const who = STUDENTS.find((x) => x.id === t.studentId);
+                  const age = ticketAgeMin(t, nowMs);
+                  const overdue = age >= 1440 && t.status === "open";
                   return (
                     <ActionRow
                       key={t.id}
-                      tone={t.ageMin >= OVERDUE_MIN && t.status === "open" ? "red" : STATUS[t.status].tone}
+                      data={{ "data-ticket-id": t.id }}
+                      tone={age >= OVERDUE_MIN && t.status === "open" ? "red" : STATUS[t.status].tone}
                       selected={Boolean(!picked ? t.id === selected?.id : t.id === picked)}
                       onSelect={() => open(t.id)}
                       title={
                         <span className={s.rowHead}>
                           <span className={s.rowName}>{who?.name ?? "Sinh viên"}</span>
-                          <span className={s.rowTime}>{ago(at(-t.ageMin))}</span>
+                          <span className={s.rowTime}>{agoLabel(nowMs - age * 60000, nowMs)}</span>
                         </span>
                       }
                       context={<span className={s.clamp}>{t.question}</span>}
                       meta={
                         <span className={s.rowMeta}>
-                          {STATUS[t.status].label} · {t.reason}
+                          {STATUS[t.status].label}
+                          {overdue ? " · Quá 24 giờ" : ""} · {t.reason}
                         </span>
                       }
                     />
@@ -177,7 +188,7 @@ export function InboxView() {
                   <dl className={s.facts}>
                     <div>
                       <dt>Đã chờ</dt>
-                      <dd>{waitText(selected.ageMin)}</dd>
+                      <dd>{waitText(ticketAgeMin(selected, nowMs))}</dd>
                     </div>
                     <div>
                       <dt>Lý do chuyển</dt>

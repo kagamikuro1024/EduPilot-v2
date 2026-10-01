@@ -2,10 +2,12 @@
 
 import { Check } from "lucide-react";
 import Link from "next/link";
-import { NOW, fmtLongDate } from "@/mock/core";
+import { NOW, courseById, fmtLongDate } from "@/mock/core";
+import { attentionSet } from "@/mock/derive";
 import { attendanceStats } from "@/mock/grades";
-import { needsAttention, riskSentence, rosterOf } from "@/mock/roster";
+import { riskSentence, rosterOf } from "@/mock/roster";
 import { staffTasks, upcoming } from "@/mock/staff";
+import { THREADS_LIVE_KEY, THREADS_LIVE_SEED, pendingAi, threadTasks, type ThreadsLive } from "@/mock/threads";
 import {
   ATTENDANCE_SEED,
   KEYS,
@@ -13,6 +15,7 @@ import {
   SCHEMES_SEED,
   type AttendanceState,
   type Bt03State,
+  type InsightThread,
   type MembersState,
   type SchemesState,
   type Ticket,
@@ -20,6 +23,7 @@ import {
 import { BT03_SEED } from "@/mock/assess";
 import { mergeTickets } from "@/mock/support";
 import { useSession } from "@/shared/session/session";
+import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
   ActionList,
@@ -40,22 +44,36 @@ import s from "./StaffHome.module.css";
 
 /** "Hôm nay" của giảng viên / trợ giảng: việc cần người quyết định, không phải bảng số liệu (DESIGN §14.1). */
 export function StaffHome() {
-  const { role, courses, course } = useSession();
+  const { role, courses, course, isAll } = useSession();
   const [stored] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
   const [attendance] = useDemoSlice<AttendanceState>(KEYS.attendance, ATTENDANCE_SEED);
   const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
+  const [live] = useDemoSlice<ThreadsLive>(THREADS_LIVE_KEY, THREADS_LIVE_SEED);
+  const [insight] = useDemoSlice<InsightThread[]>(KEYS.insightThreads, []);
+  const nowMs = useSimNow();
   const routeState = useRouteState();
 
   const staffRole = role === "ta" ? "ta" : "teacher";
   const courseIds = courses.map((c) => c.id);
-  const tasks = staffTasks({ role: staffRole, courseIds, tickets: mergeTickets(stored), attendance, members, bt03, schemes });
+  const tasks = staffTasks({
+    role: staffRole,
+    courseIds,
+    tickets: mergeTickets(stored),
+    attendance,
+    members,
+    bt03,
+    schemes,
+    threads: threadTasks(live, courseIds, nowMs),
+    pendingAi: pendingAi(live, insight, courseIds, nowMs),
+    nowMs,
+  });
 
-  const roster = courses
+  const roster = (isAll ? courses : [course])
     .flatMap((c) => rosterOf(c.id, members))
     .filter((st, i, all) => all.findIndex((x) => x.id === st.id) === i);
-  const watch = needsAttention(roster);
+  const watch = attentionSet(roster);
 
   const emptyTasks = (
     <EmptyState title="Không còn việc cần bạn quyết định" action={<ButtonLink href="/students">Xem sinh viên cần chú ý</ButtonLink>}>
@@ -78,6 +96,7 @@ export function StaffHome() {
               {tasks.map((t) => (
                 <ActionRow
                   key={t.id}
+                  data={{ "data-part": "today-task", "data-task-id": t.id }}
                   tone={t.tone}
                   href={t.steps ? undefined : t.href}
                   redThread
@@ -101,7 +120,7 @@ export function StaffHome() {
                       t.context
                     )
                   }
-                  meta={t.course}
+                  meta={t.tag ? `${t.tag} · ${t.course}` : t.course}
                   action={
                     <ButtonLink href={t.href} size="sm" variant={t.urgent ? "primary" : "secondary"}>
                       {t.actionLabel}
@@ -114,19 +133,28 @@ export function StaffHome() {
         </Section>
 
         {watch.length > 0 && (
-          <Section title="Lớp cần chú ý" action={<PrivateMark />}>
+          <Section
+            title={`Lớp cần chú ý · ${watch.length} sinh viên`}
+            action={<PrivateMark />}
+          >
             <ActionList label="Sinh viên cần chú ý">
-              {watch.map((st) => (
+              {watch.slice(0, 3).map((st) => (
                 <ActionRow
                   key={st.id}
+                  data={{ "data-part": "student-row", "data-student-id": st.id }}
                   tone={st.risk === "high" ? "red" : "amber"}
                   href={`/students/${st.id}`}
                   title={st.name}
                   context={riskSentence(st, attendanceStats(st, attendance)) ?? undefined}
-                  meta={`${st.code} · ${st.courseIds.join(", ")}`}
+                  meta={`${st.code} · ${st.courseIds.map((id) => courseById(id).code).join(", ")}`}
                 />
               ))}
             </ActionList>
+            <p className={s.seeAll}>
+              <Link href="/students?filter=watch" className="ep-link">
+                Xem cả {watch.length}
+              </Link>
+            </p>
           </Section>
         )}
 

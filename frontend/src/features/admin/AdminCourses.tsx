@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Plus } from "lucide-react";
 import { COURSES, SUBJECT } from "@/mock/core";
-import { COURSE_ADMIN_META, TEACHER_OPTIONS } from "@/mock/system";
+import { COURSE_ADMIN_META, TEACHER_OPTIONS, courseLastActive } from "@/mock/system";
+import { useSimNow } from "@/shared/state/clock";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
@@ -42,6 +43,7 @@ export function AdminCourses() {
   const [code, setCode] = useState("761989");
   const [teacher, setTeacher] = useState(TEACHER_OPTIONS[1]);
   const [size, setSize] = useState("30");
+  const nowMs = useSimNow();
   const undo = useUndoLine();
 
   const rows: Row[] = [
@@ -52,7 +54,7 @@ export function AdminCourses() {
       size: c.size,
       state: (archived.includes(c.code) ? "archived" : c.state) as Row["state"],
       opened: COURSE_ADMIN_META[c.id]?.opened ?? "—",
-      lastActive: COURSE_ADMIN_META[c.id]?.lastActive ?? "—",
+      lastActive: courseLastActive(c.id, nowMs),
     })),
     ...extra.map((c) => ({ ...c, state: (archived.includes(c.code) ? "archived" : "new") as Row["state"], lastActive: "Chưa có hoạt động" })),
   ];

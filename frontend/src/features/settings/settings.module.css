@@ -50,8 +50,6 @@
   color: var(--ep-ink-2);
 }
 
-/* Embedding tách khỏi phần còn lại bằng panel độc lập (DESIGN §14.23, Proposal #16). */
-.embedding { display: grid; gap: var(--ep-space-4); margin-top: var(--ep-space-8); }
 .sectionDesc { max-width: 68ch; font-size: var(--ep-text-label); color: var(--ep-ink-3); margin: 0; }
 
 .advanced { margin-top: var(--ep-space-4); font-size: var(--ep-text-label); }

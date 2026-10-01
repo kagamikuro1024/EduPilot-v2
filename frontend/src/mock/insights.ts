@@ -248,12 +248,12 @@ const UNCOVERED: Record<string, UncoveredGap[]> = {
     {
       title: "Quy định mang tài liệu vào phòng thi cuối kỳ",
       asks: 4,
-      note: "Không tài liệu nào của lớp trả lời được. Quyche.pdf chỉ nói thang điểm và điều kiện dự thi.",
+      note: "Không tài liệu nào của lớp trả lời được. “Quy chế đào tạo của trường” chỉ nói thang điểm và điều kiện dự thi.",
     },
     {
       title: "Thiết bị tường lửa dùng trong bài thực hành 3",
       asks: 3,
-      note: "Mordern_Network_Security_Threats.pdf dừng ở mức khái niệm, chưa có hướng dẫn thao tác trên thiết bị của phòng lab.",
+      note: "Tài liệu “Modern Network Security Threats” dừng ở mức khái niệm, chưa có hướng dẫn thao tác trên thiết bị của phòng lab.",
     },
     {
       title: "Cách nộp lại bài khi gửi nhầm tệp",
@@ -285,7 +285,7 @@ export function reportFor(courseId: string, fresh: boolean): InsightReport {
   return {
     courseId,
     generatedAt: fresh ? NOW : PREVIOUS_AT[courseId] ?? PREVIOUS_AT[COURSE_1],
-    window: fresh ? "Câu hỏi 7 ngày gần nhất, đã ẩn danh" : "Câu hỏi 7 ngày trước đó, đã ẩn danh",
+    window: fresh ? "Câu hỏi 7 ngày gần nhất, đã ẩn danh" : "Câu hỏi trong 7 ngày liền trước đó, đã ẩn danh",
     questions,
     students,
     topics: list,

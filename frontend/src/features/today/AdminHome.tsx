@@ -1,12 +1,14 @@
 "use client";
 
 import { NOW, fmtLongDate, fmtTime } from "@/mock/core";
-import { ADMIN_TASKS, STATUS_STRIP } from "@/mock/system";
+import { STATUS_STRIP, adminTasks } from "@/mock/system";
 import { StatusStrip } from "@/features/observability/ObservabilityScreen";
+import { useSimNow } from "@/shared/state/clock";
 import { ActionList, ActionRow, ButtonLink, EmptyState, Page, PageHeader, PageState, Section, Skeleton } from "@/shared/ui";
 
 /** "Hôm nay" của quản trị viên: việc của hệ thống, không phải việc của lớp (FLOWS F14). */
 export function AdminHome() {
+  const tasks = adminTasks(useSimNow());
   return (
     <Page>
       <PageHeader
@@ -17,7 +19,7 @@ export function AdminHome() {
             <span>
               {fmtLongDate(NOW)} · {fmtTime(NOW)}
             </span>
-            <span>{ADMIN_TASKS.length} việc đang chờ</span>
+            <span>{tasks.length} việc đang chờ</span>
           </>
         }
       />
@@ -36,7 +38,7 @@ export function AdminHome() {
       >
         <Section title="Việc cần bạn xử lý">
           <ActionList label="Việc của quản trị viên">
-            {ADMIN_TASKS.map((t) => (
+            {tasks.map((t) => (
               <ActionRow key={t.id} tone={t.tone} href={t.href} redThread title={t.title} context={t.context} meta={t.meta} />
             ))}
           </ActionList>

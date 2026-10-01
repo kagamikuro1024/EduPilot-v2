@@ -1,12 +1,14 @@
 // Danh sách lớp, lịch buổi học và hồ sơ 360 — US-PROTO-02 (/students, /attendance, /class/members).
 import { COURSE_1, RECORDED_SESSIONS, TERM_START, fmtShortDate, studentById, studentsOf, type Student } from "./core";
+import { orderStudents } from "./derive";
 import { baseBtScores, type AttendanceStats } from "./grades";
 import { CURRENT_SESSION, type MembersState } from "./state";
 
 /** Thành viên hiện tại của một lớp: dữ liệu gốc + người vừa được duyệt ở /class/members. */
 export function rosterOf(courseId: string, members: MembersState): Student[] {
   const extra = (members.joined[courseId] ?? []).map(studentById).filter((s): s is Student => s !== undefined && !s.courseIds.includes(courseId));
-  return [...studentsOf(courseId), ...extra].sort((a, b) => a.name.localeCompare(b.name, "vi"));
+  // Thứ tự chuẩn của mọi màn: `sv-n` tăng dần (SRS 4.8 N4) — không sắp theo tên.
+  return orderStudents([...studentsOf(courseId), ...extra]);
 }
 
 // ---- lịch buổi học ---------------------------------------------------------------------------
@@ -115,10 +117,3 @@ export function matchesFilter(f: StudentFilter, s: Student, stats: AttendanceSta
   return s.activityMin < 45;
 }
 
-/** Danh sách "Lớp cần chú ý" ở Hôm nay: nặng nhất trước, tối đa `limit`. */
-export function needsAttention(roster: Student[], limit = 3): Student[] {
-  return roster
-    .filter((s) => s.risk !== "none")
-    .sort((a, b) => (a.risk === b.risk ? b.absences - a.absences : a.risk === "high" ? -1 : 1))
-    .slice(0, limit);
-}

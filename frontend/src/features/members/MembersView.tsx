@@ -2,9 +2,10 @@
 
 import { Copy, Link2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PENDING_STUDENT_IDS, studentById, type Student } from "@/mock/core";
 import { rosterOf } from "@/mock/roster";
+import { noteJoinDecided } from "@/mock/notes";
 import { KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
@@ -34,13 +35,19 @@ const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 export function MembersView() {
   const { role, course } = useSession();
   const [members, setMembers] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
-  const [inviting, setInviting] = useState(useSearchParams().get("tab") === "staff");
+  const tab = useSearchParams().get("tab");
+  const [inviting, setInviting] = useState(tab === "staff");
   const [email, setEmail] = useState("");
   const [regenerating, setRegenerating] = useState(false);
   const [removing, setRemoving] = useState<Student | null>(null);
   const [removed, setRemoved] = useState<string[]>([]);
   const undo = useUndoLine();
   const routeState = useRouteState();
+
+  // Liên kết sâu `?tab=pending` từ thẻ "yêu cầu vào lớp chờ duyệt" và từ chuông (SRS 4.9).
+  useEffect(() => {
+    if (tab === "pending") document.getElementById("pending")?.scrollIntoView({ block: "start" });
+  }, [tab]);
 
   const isTeacher = role === "teacher";
   const code = members.joinCodes[course.id] ?? course.joinCode;
@@ -55,6 +62,7 @@ export function MembersView() {
       joined: approve ? { ...prev.joined, [course.id]: [...(prev.joined[course.id] ?? []), st.id] } : prev.joined,
       rejected: approve ? prev.rejected : { ...prev.rejected, [course.id]: [...(prev.rejected[course.id] ?? []), st.id] },
     }));
+    noteJoinDecided(st.id, course, approve);
     undo.push(`${approve ? "Đã duyệt" : "Đã từ chối"} ${st.name}`, () => setMembers(before));
   }
 
@@ -129,7 +137,7 @@ export function MembersView() {
           )}
         </Section>
 
-        <Section title={`Yêu cầu chờ duyệt${pending.length > 0 ? ` (${pending.length})` : ""}`}>
+        <Section id="pending" title={`Yêu cầu chờ duyệt${pending.length > 0 ? ` (${pending.length})` : ""}`}>
           {pending.length === 0 ? (
             <EmptyState title="Không có yêu cầu chờ">Khi sinh viên nhập mã {code}, yêu cầu sẽ xuất hiện ở đây để bạn duyệt.</EmptyState>
           ) : (
@@ -176,6 +184,7 @@ export function MembersView() {
             ]}
             rows={roster}
             rowKey={(st) => st.id}
+            rowAttrs={(st) => ({ "data-part": "student-row", "data-student-id": st.id })}
             empty={<EmptyState title="Chưa có sinh viên nào trong lớp">Chia sẻ mã {code} để sinh viên vào lớp.</EmptyState>}
           />
         </Section>
