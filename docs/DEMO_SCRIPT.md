@@ -34,7 +34,7 @@ Quy tắc giữ giờ: trễ quá 30 s so với mốc của một bước thì b
 | 5 | Có buổi học lớp 1 "đang diễn ra" vào giờ demo | Seed (xem Q1) | "Hôm nay" của giảng viên có việc điểm danh lớp 761987 |
 | 6 | Cửa sổ trình duyệt desktop: Admin (hồ sơ trình duyệt 1), Giảng viên (hồ sơ 2) | Đăng nhập sẵn | – |
 | 7 | Điện thoại thật hoặc giả lập 375 px: Sinh viên D, Sinh viên B, Giảng viên (cho điểm danh) | Đăng nhập sẵn, mỗi tài khoản một hồ sơ trình duyệt | – |
-| 8 | Tab MailHog `http://localhost:8025`, hộp thư trống | Xoá thư cũ trong MailHog | Không còn thư |
+| 8 | Tab Mailpit `http://localhost:8025`, hộp thư trống | Xoá thư cũ trong Mailpit | Không còn thư |
 | 9 | File quy chế lớp 2 trên máy demo | `seed/demo/quy-che-lop2.pdf` (xem mục 6) | File mở được |
 | 10 | Video dự phòng sẵn trên laptop và USB | mục 5.3 | Phát thử 5 s |
 
@@ -92,7 +92,7 @@ Nếu hội đồng hỏi: mất mạng giữa lúc đang trả lời → tải 
 | 05:00 | Giảng viên | `/inbox` | `Nhận` | Trạng thái Claimed, ghi tên người nhận | P4 |
 | 05:10 | Giảng viên | `/inbox` | Gõ D4 → `Gửi trả lời` | Ticket chuyển Answered | P4 |
 | 05:35 | Sinh viên B (375 px) | `/chat` | Mở chuông | Câu trả lời của giảng viên nằm ngay trong phiên chat, có nhãn người trả lời là giảng viên | P4 |
-| 05:55 | Người trình bày | `http://localhost:8025` (MailHog, công cụ dev, không phải màn sản phẩm) | Mở thư mới nhất | Thư tới `sv.kha@edupilot.local` chứa câu trả lời và link về app | P4 (MailHog: P0 L1) |
+| 05:55 | Người trình bày | `http://localhost:8025` (Mailpit, công cụ dev, không phải màn sản phẩm) | Mở thư mới nhất | Thư tới `sv.kha@edupilot.local` chứa câu trả lời và link về app | P4 (Mailpit: P0 L1) |
 | 06:10 | Sinh viên B (375 px) | `/chat` | Xác nhận đã rõ | Câu hỏi được đóng | P4 |
 
 Nếu hội đồng hỏi: hai người cùng `Nhận` → người sau thấy ai đã nhận (409); mail lỗi → thử lại 3 lần, trả lời trong app không ảnh hưởng; không ai nhận 72 giờ → nổi lên đầu "Hôm nay". E2E: `escalation.spec.ts`.
@@ -187,7 +187,7 @@ Chạy kịch bản trọn vẹn hai lần với `DEMO_MODE=true`, một lần n
 | P1 | Provider `fake` phát lại bản ghi sẵn theo đầu vào; cờ `DEMO_MODE` | 5.1 |
 | P2 | Seed cố định: họ tên, MSSV của Sinh viên B, C (Q2); mã tham gia `AN7K2MQ` / `BX4P9TW`; lớp 2 bật yêu cầu duyệt; chuông phân công chưa đọc | 1, 2 |
 | P3 | Dòng "Đã ẩn N thông tin cá nhân"; từ chối hỏi về người khác | 2 |
-| P4 | Câu D3 thuộc nhóm "câu ngoài tài liệu" của seed (không tài liệu nào trả lời được); mail qua MailHog | 3 |
+| P4 | Câu D3 thuộc nhóm "câu ngoài tài liệu" của seed (không tài liệu nào trả lời được); mail qua Mailpit | 3 |
 | P5 | Một buổi học lớp 1 trùng giờ demo (Q1) | 4 |
 | P6 | File `seed/demo/quy-che-lop2.pdf` cố ý thiếu quy tắc làm tròn | 6 |
 | P7 | Bài tập 03 lớp 1 có bài nộp muộn của Sinh viên B; hai lượt chấm của bài đó lệch > 1 điểm (bản ghi sẵn khi `DEMO_MODE`) | 5 |
