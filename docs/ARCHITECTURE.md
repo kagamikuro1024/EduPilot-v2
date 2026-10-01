@@ -261,7 +261,7 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 
 | Biến | Dùng cho |
 | --- | --- |
-| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `JWT_EXPIRATION`, `APP_CORS_ALLOWED_ORIGINS` | Gateway Go |
+| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `JWT_EXPIRATION`, `CORS_ORIGINS` | Gateway Go |
 | `APP_ENCRYPTION_KEY` | AES-GCM |
 | `ACCESS_TOKEN_TTL` (15m), `REFRESH_TOKEN_TTL` (14d), `COOKIE_DOMAIN` | Phiên đăng nhập |
 | `SUPPORT_RESOURCES_VI` | Thông tin hỗ trợ sinh viên do trường cung cấp (F3) |
