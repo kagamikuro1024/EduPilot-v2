@@ -1,0 +1,48 @@
+.drop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ep-space-4);
+  flex-wrap: wrap;
+  padding: var(--ep-space-5);
+  border: 1px dashed var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  background: var(--ep-surface);
+  margin-bottom: var(--ep-space-6);
+}
+.dropOver { border-color: var(--ep-red); background: var(--ep-red-soft); }
+.dropText { display: grid; gap: var(--ep-space-1); }
+.dropTitle { font-weight: 600; }
+.dropHint { font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.dropActions { display: flex; align-items: center; gap: var(--ep-space-2); flex-wrap: wrap; }
+.file { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+.uploads { display: grid; gap: var(--ep-space-3); margin-bottom: var(--ep-space-6); }
+.upload { display: grid; gap: var(--ep-space-2); padding-bottom: var(--ep-space-3); border-bottom: 1px solid var(--ep-rule); }
+.uploadHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--ep-space-3); }
+.uploadName { font-weight: 550; }
+.bar { height: 4px; border-radius: var(--ep-radius-pill); background: var(--ep-rule); overflow: hidden; }
+.barFill { display: block; height: 100%; background: var(--ep-red); transition: width var(--ep-fast) linear; }
+
+.name { display: grid; gap: 2px; min-width: 220px; }
+.fileName { font-weight: 550; line-height: 1.4; word-break: break-word; }
+.topic { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.meta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.flagCell { display: flex; align-items: center; gap: var(--ep-space-2); }
+.locked { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.4; }
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  min-height: 32px;
+  padding: var(--ep-space-1) var(--ep-space-2);
+  border: 1px solid transparent;
+  border-radius: var(--ep-radius-sm);
+  background: transparent;
+  font: inherit;
+  font-size: var(--ep-text-label);
+  color: var(--ep-ink);
+  cursor: pointer;
+}
+.toggle:hover { border-color: var(--ep-rule); background: var(--ep-surface); }
+.toggle[aria-pressed="false"] { color: var(--ep-ink-3); }

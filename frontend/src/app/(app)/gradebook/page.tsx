@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { Gradebook } from "@/features/gradebook/Gradebook";
 
 export const metadata: Metadata = { title: "Sổ điểm" };
 
 export default function Page() {
-  return <RouteStub title="Sổ điểm" />;
+  return <Gradebook />;
 }

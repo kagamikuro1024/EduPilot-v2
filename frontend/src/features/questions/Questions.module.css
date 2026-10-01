@@ -1,0 +1,19 @@
+.text { display: block; max-width: 60ch; line-height: 1.5; }
+.meta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.filterPanel { display: grid; gap: var(--ep-space-3); padding: var(--ep-space-3); }
+
+.detail { display: grid; gap: var(--ep-space-5); }
+.question { font-size: var(--ep-text-item); font-weight: 600; line-height: 1.55; }
+.options { display: grid; gap: var(--ep-space-2); margin: 0; padding: 0; list-style: none; }
+.option { display: flex; gap: var(--ep-space-2); align-items: baseline; padding: var(--ep-space-2) var(--ep-space-3); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); }
+.optionRight { border-color: var(--ep-green); }
+.optionMark { font-size: var(--ep-text-meta); color: var(--ep-green); font-weight: 600; flex: none; }
+.answer { padding-left: var(--ep-space-4); border-left: 2px solid var(--ep-rule); color: var(--ep-ink-2); line-height: 1.6; }
+.detailActions { display: flex; align-items: center; gap: var(--ep-space-2); }
+
+.gen { display: grid; gap: var(--ep-space-3); max-width: 560px; padding: var(--ep-space-5) 0; border-top: 1px solid var(--ep-rule); border-bottom: 1px solid var(--ep-rule); }
+.genRow { display: flex; align-items: flex-end; gap: var(--ep-space-3); flex-wrap: wrap; }
+.genField { flex: 1; min-width: 220px; }
+.bar { height: 4px; border-radius: var(--ep-radius-pill); background: var(--ep-rule); overflow: hidden; }
+.barFill { display: block; height: 100%; background: var(--ep-red); transition: width var(--ep-fast) linear; }
+.genText { font-size: var(--ep-text-label); color: var(--ep-ink-2); }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { RouteStub } from "@/app/(app)/RouteStub";
+import { GradingQueue } from "@/features/grading/GradingQueue";
 
 export const metadata: Metadata = { title: "Chấm bài" };
 
 export default function Page() {
-  return <RouteStub title="Chấm bài" />;
+  return <GradingQueue />;
 }
