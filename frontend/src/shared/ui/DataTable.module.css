@@ -1,0 +1,42 @@
+.scroll { overflow-x: auto; border-top: 1px solid var(--ep-rule); }
+.table { width: 100%; font-size: var(--ep-text-label); font-variant-numeric: tabular-nums; }
+
+.table th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ep-paper);
+  padding: var(--ep-space-3) var(--ep-space-3);
+  font-size: var(--ep-text-meta);
+  font-weight: 600;
+  color: var(--ep-ink-2);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--ep-rule);
+}
+.table td {
+  height: 48px;
+  padding: var(--ep-space-2) var(--ep-space-3);
+  color: var(--ep-ink);
+  border-bottom: 1px solid var(--ep-rule);
+  vertical-align: middle;
+}
+.dense td { height: 44px; }
+
+.clickable { cursor: pointer; transition: background-color var(--ep-fast) var(--ep-ease-standard); }
+.clickable:hover td, .clickable:focus-visible td { background: var(--ep-surface-subtle); }
+.clickable:focus-visible { outline: none; box-shadow: none; }
+.clickable:focus-visible td:first-child { box-shadow: inset 2px 0 0 var(--ep-red); } /* ui-allow: chỉ báo focus của hàng */
+.active td { background: var(--ep-surface-subtle); }
+
+.frozen { position: sticky; left: 0; background: var(--ep-paper); z-index: 1; }
+th.frozen { z-index: 2; }
+.clickable:hover .frozen, .active .frozen { background: var(--ep-surface-subtle); }
+
+.checkCol { width: 40px; text-align: center; }
+.checkCol input { width: 16px; height: 16px; accent-color: var(--ep-red); }
+
+.empty { padding: var(--ep-space-12) var(--ep-space-4); }
+
+@media (max-width: 719px) {
+  .hideMobile { display: none; }
+}

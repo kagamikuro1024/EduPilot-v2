@@ -1,0 +1,29 @@
+.figure { margin: 0; }
+.svg { width: 100%; height: auto; overflow: visible; }
+.axis { stroke: var(--ep-rule); stroke-width: 1; }
+.goal { stroke: var(--ep-ink-3); stroke-width: 1; stroke-dasharray: 3 4; }
+.goalText { fill: var(--ep-ink-3); font-size: 11px; font-weight: 500; font-family: var(--ep-font); }
+.line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.ink .line { stroke: var(--ep-ink); }
+.ink .dot { fill: var(--ep-ink); }
+.red .line { stroke: var(--ep-red); }
+.red .dot { fill: var(--ep-red); }
+.green .line { stroke: var(--ep-green); }
+.green .dot { fill: var(--ep-green); }
+.tick { fill: var(--ep-ink-3); font-size: 11px; font-weight: 500; font-family: var(--ep-font); font-variant-numeric: tabular-nums; }
+
+.bars { display: grid; gap: var(--ep-space-3); }
+.barRow { display: grid; grid-template-columns: minmax(120px, 32%) 1fr 56px; align-items: center; gap: var(--ep-space-3); font-size: var(--ep-text-label); }
+.barLabel { color: var(--ep-ink); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.barTrack { height: 6px; border-radius: var(--ep-radius-pill); background: var(--ep-surface-subtle); overflow: hidden; }
+.barFill { display: block; height: 100%; border-radius: inherit; }
+.b_ink { background: var(--ep-ink-2); }
+.b_red { background: var(--ep-red); }
+.b_amber { background: var(--ep-amber); }
+.b_green { background: var(--ep-green); }
+.barValue { text-align: right; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ep-ink); }
+
+@media (max-width: 719px) {
+  .barRow { grid-template-columns: 1fr 48px; }
+  .barTrack { grid-column: 1 / -1; grid-row: 2; }
+}

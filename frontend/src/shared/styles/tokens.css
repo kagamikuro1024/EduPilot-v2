@@ -57,6 +57,7 @@
   --ep-slow: 250ms;
 
   --ep-shadow-popover: 0 10px 30px rgba(71, 32, 37, .12);
+  --ep-shadow-composer: 0 6px 20px rgba(71, 32, 37, .06);
 
   --ep-z-sidebar: 20;
   --ep-z-topbar: 30;

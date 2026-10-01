@@ -1,0 +1,24 @@
+.palette { margin-top: 12vh; width: min(560px, calc(100vw - 32px)); }
+.search { display: flex; align-items: center; gap: var(--ep-space-3); padding: var(--ep-space-4); border-bottom: 1px solid var(--ep-rule); }
+.search svg { width: 18px; height: 18px; color: var(--ep-ink-3); flex: none; }
+.search input { flex: 1; border: 0; outline: none; background: transparent; font-size: var(--ep-text-item); color: var(--ep-ink); }
+.search input:focus-visible { box-shadow: none; }
+.list { max-height: 360px; overflow-y: auto; padding: var(--ep-space-2); }
+.item {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-3);
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--ep-space-3);
+  border: 0;
+  border-radius: var(--ep-radius-sm);
+  background: transparent;
+  color: var(--ep-ink);
+  font-size: var(--ep-text-label);
+  text-align: left;
+}
+.item svg { width: 16px; height: 16px; color: var(--ep-ink-2); }
+[aria-selected="true"] > .item { background: var(--ep-surface-subtle); }
+.enter { margin-left: auto; }
+.none { padding: var(--ep-space-4); color: var(--ep-ink-2); font-size: var(--ep-text-label); }
