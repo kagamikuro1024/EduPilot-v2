@@ -39,6 +39,7 @@
 .cite { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 
 .rowActions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-3); margin-top: var(--ep-space-2); }
+.hint { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .quizEnd { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .result { margin: 0; font-size: var(--ep-text-section); }
 

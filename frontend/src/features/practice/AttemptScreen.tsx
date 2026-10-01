@@ -1,10 +1,31 @@
 "use client";
 
 import { Check, X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { QUIZ_KEY, QUIZ_SEED, attemptById, type Question, type QuizState } from "@/mock/practice";
+import { useEffect, useMemo, useState } from "react";
+import {
+  HISTORY_KEY,
+  HISTORY_SEED,
+  quizKey,
+  QUIZ_SEED,
+  RUN_KEY,
+  RUN_SEED,
+  attemptById,
+  isCorrect,
+  newRun,
+  questionsOf,
+  scoreOf,
+  type Answer,
+  type Attempt,
+  type Question,
+  type QuizState,
+  type Run,
+  type RunRecord,
+} from "@/mock/practice";
 import { fmtTime } from "@/mock/core";
 import { NOW } from "@/mock/core";
+import { agoLabel } from "@/mock/derive";
+import { simNowMs, useSimNow } from "@/shared/state/clock";
+import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
 import {
   Button,
@@ -24,7 +45,14 @@ import s from "./Practice.module.css";
 
 /** Làm bài: luyện theo chủ đề (có phản hồi ngay) hoặc bài tính điểm (có giờ) — DESIGN §14.19. */
 export function AttemptScreen({ attemptId }: { attemptId: string }) {
+  const { studentId } = useSession();
+  const [history] = useDemoSlice<RunRecord[]>(`${HISTORY_KEY}.${studentId}`, HISTORY_SEED);
   const attempt = attemptById(attemptId);
+  const record = history.find((r) => r.id === attemptId);
+
+  if (record) {
+    return <ReviewRun title={`${record.topic} · ${record.qids.length} câu`} questions={questionsOf(record.qids)} answers={record.answers} />;
+  }
   if (!attempt) {
     return (
       <Page>
@@ -37,59 +65,143 @@ export function AttemptScreen({ attemptId }: { attemptId: string }) {
   }
   if (attempt.mode === "quiz") return <QuizRun title={attempt.title} questions={attempt.questions} minutes={attempt.minutes ?? 20} />;
   if (attempt.mode === "review") return <ReviewRun title={attempt.title} questions={attempt.questions} answers={attempt.answers ?? []} />;
-  return <TopicRun title={attempt.title} topic={attempt.topic} questions={attempt.questions} />;
+  return <TopicRun attempt={attempt} />;
 }
 
 // ---- luyện theo chủ đề ----------------------------------------------------------------------
 
-function TopicRun({ title, topic, questions }: { title: string; topic: string; questions: Question[] }) {
-  const [index, setIndex] = useState(0);
+const HINT_ID = "practice-check-hint";
+
+function TopicRun({ attempt }: { attempt: Attempt }) {
+  const { studentId } = useSession();
+  const [stored, setRun] = useDemoSlice<Run | null>(`${RUN_KEY}.${studentId}`, RUN_SEED);
+  const [, setHistory] = useDemoSlice<RunRecord[]>(`${HISTORY_KEY}.${studentId}`, HISTORY_SEED);
+  const now = useSimNow();
+  const [bootMs] = useState(() => simNowMs());
   const [picked, setPicked] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
-  const [checked, setChecked] = useState(false);
-  const [right, setRight] = useState(0);
-  const q = questions[index];
-  const last = index === questions.length - 1;
-  const correct = q.kind === "choice" ? picked === q.correct : (q.keywords ?? []).some((k) => typed.toLowerCase().includes(k));
+  /** chỉ số câu vừa bấm `Kiểm tra` (đang xem phản hồi), `null` = đang làm câu chưa trả lời đầu tiên. */
+  const [checked, setChecked] = useState<number | null>(null);
+
+  const run = useMemo(() => (stored && stored.attemptId === attempt.id ? stored : newRun(attempt, bootMs)), [stored, attempt, bootMs]);
+  const questions = useMemo(() => questionsOf(run.qids), [run.qids]);
+  const open = run.answers.findIndex((a) => a === null);
+  const index = checked ?? (open < 0 ? questions.length : open);
+  const q: Question | undefined = questions[index];
+  const right = questions.filter((item, i) => isCorrect(item, run.answers[i])).length;
 
   function check() {
-    setChecked(true);
-    if (correct) setRight((n) => n + 1);
+    if (!q) return;
+    const value: Answer = q.kind === "choice" ? picked : typed.trim();
+    setRun({ ...run, answers: run.answers.map((a, k) => (k === index ? value : a)) });
+    setChecked(index);
   }
 
   function next() {
-    setIndex((i) => i + 1);
+    setChecked(null);
     setPicked(null);
     setTyped("");
-    setChecked(false);
   }
+
+  /** Ghi lượt vào lịch sử ngay lúc bấm `Xem kết quả`, rồi chuyển màn kết quả cùng route. */
+  function finish() {
+    const ms = simNowMs();
+    setHistory((prev) => [{ id: `run-${ms}`, topic: run.topic, qids: run.qids, answers: run.answers, score: scoreOf(run.qids, run.answers), atMs: ms }, ...prev]);
+    setRun({ ...run, finishedMs: ms });
+    next();
+  }
+
+  /** `Ôn lại n câu sai`: lượt mới chỉ gồm các câu còn sai. */
+  function reviewWrong(ids: string[]) {
+    setRun(newRun(attempt, simNowMs(), ids, `Ôn lại câu sai: ${attempt.topic}`));
+    next();
+  }
+
+  if (run.finishedMs) {
+    const wrong = questions.map((item, i) => ({ item, i })).filter(({ item, i }) => !isCorrect(item, run.answers[i]));
+    const total = questions.length;
+    return (
+      <Page>
+        <PageHeader
+          title={wrong.length === 0 ? `Bạn đúng cả ${total} câu` : `Bạn đúng ${total - wrong.length}/${total} câu`}
+          back={{ href: "/practice", label: "Luyện đề" }}
+          description={`${run.topic} · ${total} câu · ${agoLabel(run.finishedMs, now)}`}
+        />
+        {wrong.length > 0 && (
+          <Section title={`Câu cần ôn (${wrong.length})`}>
+            <ol className={s.review}>
+              {wrong.map(({ item, i }) => (
+                <li key={item.id} className={s.reviewItem}>
+                  <div className={s.reviewHead}>
+                    <span className={s.reviewNo}>Câu {i + 1}</span>
+                    <StatusText tone="red">Sai</StatusText>
+                  </div>
+                  <p className={s.question}>{item.text}</p>
+                  <p className={s.reviewLine}>Bạn chọn: {answerText(item, run.answers[i])}</p>
+                  <p className={s.reviewLine}>Đáp án đúng: {correctText(item)}</p>
+                  <p className={s.explain}>{item.explain}</p>
+                  <p className={s.cite}>
+                    {item.source.title} · {item.source.locator}
+                  </p>
+                  <div className={s.rowActions}>
+                    <ButtonLink href={item.source.href} size="sm">
+                      Nguồn tham khảo
+                    </ButtonLink>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </Section>
+        )}
+        <Section>
+          <div className={s.rowActions}>
+            {wrong.length > 0 ? (
+              <>
+                <Button variant="primary" onClick={() => reviewWrong(wrong.map(({ item }) => item.id))}>
+                  Ôn lại {wrong.length} câu sai
+                </Button>
+                <ButtonLink href="/practice">Về Luyện đề</ButtonLink>
+              </>
+            ) : (
+              <>
+                <ButtonLink href="/practice" variant="primary">
+                  Luyện chủ đề khác
+                </ButtonLink>
+                <ButtonLink href="/practice/history">Xem lịch sử luyện tập</ButtonLink>
+              </>
+            )}
+          </div>
+        </Section>
+      </Page>
+    );
+  }
+
+  const missing = !q ? false : q.kind === "choice" ? picked === null : typed.trim().length < 3;
+  const last = index === questions.length - 1;
 
   return (
     <Page>
       <PageHeader
-        title={title}
+        title={run.title}
         back={{ href: "/practice", label: "Thoát về Luyện đề" }}
         meta={
           <>
             <span>
-              Câu {index + 1}/{questions.length}
+              Câu {Math.min(index + 1, questions.length)}/{questions.length}
             </span>
             <span>Đúng {right}</span>
-            <span>{topic}</span>
+            <span>{run.topic}</span>
           </>
         }
       />
       <PageState loading={<Skeleton lines={6} />} empty={<EmptyState title="Lượt này chưa có câu hỏi">Chọn một chủ đề khác ở màn Luyện đề.</EmptyState>}>
-        {index >= questions.length ? (
-          <Section title="Xong lượt này">
-            <p className={s.result}>
-              Bạn đúng {right}/{questions.length} câu.
-            </p>
+        {!q ? (
+          <Section title="Bạn đã trả lời hết các câu">
+            <p className={s.result}>Xem kết quả để biết mình cần ôn lại câu nào.</p>
             <div className={s.rowActions}>
-              <ButtonLink href="/practice" variant="primary">
-                Luyện chủ đề khác
-              </ButtonLink>
-              <ButtonLink href="/practice/history">Xem lịch sử luyện tập</ButtonLink>
+              <Button variant="primary" onClick={finish}>
+                Xem kết quả
+              </Button>
             </div>
           </Section>
         ) : (
@@ -102,22 +214,22 @@ function TopicRun({ title, topic, questions }: { title: string; topic: string; q
             {q.kind === "choice" ? (
               <ul className={s.options}>
                 {(q.options ?? []).map((opt, i) => {
-                  const state = !checked ? "" : i === q.correct ? s.optRight : i === picked ? s.optWrong : "";
+                  const state = checked === null ? "" : i === q.correct ? s.optRight : i === picked ? s.optWrong : "";
                   return (
                     <li key={opt}>
                       <button
                         type="button"
                         className={[s.option, picked === i ? s.optPicked : "", state].join(" ")}
                         aria-pressed={picked === i}
-                        disabled={checked}
+                        disabled={checked !== null}
                         onClick={() => setPicked(i)}
                       >
                         <span className={s.optMark} aria-hidden>
                           {String.fromCharCode(65 + i)}
                         </span>
                         {opt}
-                        {checked && i === q.correct && <Check className={s.optIcon} aria-hidden />}
-                        {checked && i === picked && i !== q.correct && <X className={s.optIcon} aria-hidden />}
+                        {checked !== null && i === q.correct && <Check className={s.optIcon} aria-hidden />}
+                        {checked !== null && i === picked && i !== q.correct && <X className={s.optIcon} aria-hidden />}
                       </button>
                     </li>
                   );
@@ -129,14 +241,15 @@ function TopicRun({ title, topic, questions }: { title: string; topic: string; q
                 rows={3}
                 aria-label="Câu trả lời ngắn"
                 placeholder="Trả lời ngắn gọn trong 1–2 câu"
-                disabled={checked}
+                disabled={checked !== null}
                 onChange={(e) => setTyped(e.target.value)}
               />
             )}
 
-            {checked && (
-              <div className={correct ? s.feedbackRight : s.feedbackWrong}>
-                <p className={s.feedbackHead}>{correct ? "Đúng rồi" : "Chưa đúng"}</p>
+            {checked !== null && (
+              <div className={isCorrect(q, run.answers[index]) ? s.feedbackRight : s.feedbackWrong}>
+                <p className={s.feedbackHead}>{isCorrect(q, run.answers[index]) ? "Đúng rồi" : "Chưa đúng"}</p>
+                {!isCorrect(q, run.answers[index]) && <p className={s.reviewLine}>Đáp án đúng: {correctText(q)}</p>}
                 <p className={s.explain}>{q.explain}</p>
                 <p className={s.cite}>
                   Nguồn: {q.source.title} · {q.source.locator}
@@ -145,14 +258,21 @@ function TopicRun({ title, topic, questions }: { title: string; topic: string; q
             )}
 
             <div className={s.rowActions}>
-              {checked ? (
-                <Button variant="primary" onClick={next}>
+              {checked !== null ? (
+                <Button variant="primary" onClick={last ? finish : next}>
                   {last ? "Xem kết quả" : "Câu tiếp theo"}
                 </Button>
               ) : (
-                <Button variant="primary" disabled={q.kind === "choice" ? picked === null : typed.trim().length < 3} onClick={check}>
-                  Kiểm tra
-                </Button>
+                <>
+                  <Button variant="primary" disabled={missing} aria-describedby={missing ? HINT_ID : undefined} onClick={check}>
+                    Kiểm tra
+                  </Button>
+                  {missing && (
+                    <p id={HINT_ID} className={s.hint}>
+                      {q.kind === "choice" ? "Chọn một đáp án để kiểm tra" : "Nhập câu trả lời để kiểm tra"}
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </Section>
@@ -162,10 +282,23 @@ function TopicRun({ title, topic, questions }: { title: string; topic: string; q
   );
 }
 
+/** Chữ hiển thị cho đáp án người học đã đưa ra. */
+function answerText(q: Question, given: Answer): string {
+  if (typeof given === "number") return q.options?.[given] ?? "Không trả lời";
+  const typed = (given ?? "").trim();
+  return typed.length > 0 ? typed : "Không trả lời";
+}
+
+/** Chữ hiển thị cho đáp án đúng: lựa chọn đúng, hoặc đáp án mẫu của câu trả lời ngắn. */
+function correctText(q: Question): string {
+  return q.kind === "choice" ? (q.options?.[q.correct ?? 0] ?? "—") : (q.answer ?? q.explain);
+}
+
 // ---- bài tính điểm (QUIZ01) -------------------------------------------------------------------
 
 function QuizRun({ title, questions, minutes }: { title: string; questions: Question[]; minutes: number }) {
-  const [quiz, setQuiz] = useDemoSlice<QuizState>(QUIZ_KEY, QUIZ_SEED);
+  const { studentId } = useSession();
+  const [quiz, setQuiz] = useDemoSlice<QuizState>(quizKey(studentId), QUIZ_SEED);
   const [index, setIndex] = useState(0);
   const [left, setLeft] = useState(minutes * 60);
   const [endAt] = useState(() => Date.now() + minutes * 60_000);
@@ -296,8 +429,8 @@ function QuizRun({ title, questions, minutes }: { title: string; questions: Ques
 
 // ---- xem lại lượt đã làm ----------------------------------------------------------------------
 
-function ReviewRun({ title, questions, answers }: { title: string; questions: Question[]; answers: number[] }) {
-  const right = questions.filter((q, i) => answers[i] === q.correct).length;
+function ReviewRun({ title, questions, answers }: { title: string; questions: Question[]; answers: Answer[] }) {
+  const right = questions.filter((q, i) => isCorrect(q, answers[i])).length;
   return (
     <Page>
       <PageHeader
@@ -313,7 +446,7 @@ function ReviewRun({ title, questions, answers }: { title: string; questions: Qu
       <PageState loading={<Skeleton lines={8} />} empty={<EmptyState title="Lượt này không còn dữ liệu">Chọn một lượt khác trong lịch sử luyện tập.</EmptyState>}>
         <ol className={s.review}>
           {questions.map((q, i) => {
-            const ok = answers[i] === q.correct;
+            const ok = isCorrect(q, answers[i]);
             return (
               <li key={q.id} className={s.reviewItem}>
                 <div className={s.reviewHead}>
@@ -321,8 +454,8 @@ function ReviewRun({ title, questions, answers }: { title: string; questions: Qu
                   <StatusText tone={ok ? "green" : "red"}>{ok ? "Đúng" : "Sai"}</StatusText>
                 </div>
                 <p className={s.question}>{q.text}</p>
-                <p className={s.reviewLine}>Bạn chọn: {q.options?.[answers[i]] ?? "Không trả lời"}</p>
-                {!ok && <p className={s.reviewLine}>Đáp án đúng: {q.options?.[q.correct ?? 0]}</p>}
+                <p className={s.reviewLine}>Bạn chọn: {answerText(q, answers[i] ?? null)}</p>
+                {!ok && <p className={s.reviewLine}>Đáp án đúng: {correctText(q)}</p>}
                 <p className={s.explain}>{q.explain}</p>
                 <p className={s.cite}>
                   Nguồn: {q.source.title} · {q.source.locator}
