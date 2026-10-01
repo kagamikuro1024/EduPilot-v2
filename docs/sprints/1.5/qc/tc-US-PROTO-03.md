@@ -43,7 +43,7 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công c�
 | TC-03-36 | AC8 | Như TC-03-35 | **B** Mở Drawer chi tiết của từng dòng; `Ctrl+F` ở danh sách | Tên tệp gốc (`an-ninh-mang-ch3.pdf`, `Mordern_Network_Security_Threats.pdf`) **chỉ** ở Drawer và tên khi tải; danh sách không có tên dạng gạch dưới / "Mordern" (`… \| grep -cE 'Chuong[0-9]_\|Mordern'` → `0`) |
 | TC-03-37 | AC8 / E10 | GV, SV B | **B** So tên 10 tài liệu SV thấy ở `/documents` với `/library` (chữ, tuần, ngày, trang, dung lượng) | Trùng chữ từng dòng; `Nguồn tham khảo` của AI (chat, Threads, luyện đề) và chuông dùng cùng cột "Tên hiển thị" |
 | TC-03-38 | AC8 / luật đáp án | GV, SV B | **B** 2 `ANSWER_KEY` ở `/documents`; thử bật cờ "Hiện cho SV"; SV `/library` | Hai dòng ghi "Không hiển thị cho sinh viên" (cột SV thấy / AI: **Không**); không bật được hoặc bật không làm SV thấy (nếu SV thấy → BUG nghiêm trọng); SV `/library` không có "Đáp án đề" |
-| TC-03-39 | AC8 (nhánh) | GV | **B** Tải một file mẫu; quan sát trong lúc "Đang xử lý" | Cột "Dùng cho AI" **không** ghi "Có" (ghi "Chờ xác nhận" theo AC, hoặc "Chờ xử lý" theo dòng Kiểm — ghi lại chữ thật); cờ "Hiện cho SV" khoá trong lúc xử lý; xong: `READY`, cờ mở |
+| TC-03-39 | AC8 (nhánh; siết theo #20a) | GV | **B** Tải một file mẫu; quan sát trong lúc "Đang xử lý" | Cột "Dùng cho AI" ghi đúng **"Chờ xử lý"** (không "Có", không "Chờ xác nhận" — chữ này dành riêng cho câu AI); cờ "Hiện cho SV" khoá trong lúc xử lý; xong: `READY`, "Dùng cho AI" = "Có", cờ mở |
 | TC-03-40 | AC8 (biên) | GV, 1440 và 390 | **B** Tên dài ("Quy chế môn học An ninh mạng – 761987", "Đề thi giữa kỳ An ninh mạng — HK1 2024–2025") | Xuống dòng giữa các từ, không ngắt giữa từ, không `…` mất chữ; AUDIT `cut: []` |
 | TC-03-41 | AC8 / N5 | GV lớp 2 | **B** `/documents` lớp 761988; SV A / D chọn lớp 2 `/library` | Lớp 2: như bảng N5 trừ `Quy chế môn học … 761987` → GV 11 dòng, SV 9 tài liệu; không chữ "761987" ở lớp 2 |
 
@@ -65,10 +65,11 @@ TC-03-09, 22, 23, 26 (chỉ TEACHER công bố / xác nhận công thức / ch�
 ## Điểm khó kiểm
 - Con số BT03/QT: đã chốt theo proposals #13 (v3: BT03 = 8,0; QT = 8,7).
 - Bảng dài 30 hàng: kiểm tràn chữ ở 1440 px và 390 px bằng ảnh.
-- 03-AC8 tự mâu thuẫn một chữ: phần AC ghi tài liệu `PROCESSING` hiện "Chờ xác nhận" ở "Dùng cho AI", phần Kiểm ghi "Chờ xử lý" — TC-03-39 chỉ đòi "không phải Có" và ghi lại chữ thật; BA cần chốt một chữ.
+- 03-AC8 (đã chốt, proposals #20a): tài liệu `PROCESSING` ghi **"Chờ xử lý"** ở "Dùng cho AI"; "Chờ xác nhận" dành riêng cho câu AI — TC-03-39 kiểm đúng chữ; tài liệu seed không có dòng nào ở trạng thái này (mọi dòng `READY`).
 - 03-AC7 "mép phải bảng lộ một phần cột kế" không có phép đo trong spec — TC-03-31 kiểm bằng mắt / ảnh; `audit.mjs` chỉ đo `col-qt`, `col-status` và dòng gợi ý.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-10-01 · TC-03-07, 08, 16: Cập nhật BT03 công bố = 8,0 và QT sau công bố = 8,7 theo spec v3 (proposals #13).
 - 2026-10-01 · TC-03-03: Thêm kiểm tra bố cục 2 panel độc lập (viền, nền surface, bo góc, cuộn độc lập giữa bài nộp và rubric) của `/grading/[submissionId]` theo spec v4 (03-AC1, proposals #16).
 - 2026-10-02 · Thêm TC-03-30…41 (không sửa TC cũ): spec v5.1 (#19) — 03-AC7 (E21), 03-AC8 (E10, E33) + SRS 4.8 N5. TC-03-26 vẫn đúng (12 dòng, 2 đáp án).
+- 2026-10-02 · **Siết TC-03-39:** "Chờ xử lý" (PM chốt, proposals #20a, ACCEPTED).

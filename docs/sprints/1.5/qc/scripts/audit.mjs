@@ -320,7 +320,10 @@ export async function SPEC_V51({ page, setRole, setVp, go, reset, push, sleep, s
     chk('student', '/chat', 390, '01-AC22 bảng liệt kê 4 phiên + Phiên mới', sheet && sheet.n === 4 && sheet.newBtn, JSON.stringify(sheet), await shot('chat-sessions-sheet-390'));
     await clickTxt(/Cách chọn độ dài khoá RSA/, '[role=dialog] *,[popover] *,button,li,a', 600); const t = await txt();
     chk('student', '/chat', 390, '01-AC22 chọn phiên: xem chỉ đọc + nút "Hỏi tiếp"', /Hỏi tiếp/.test(t), '');
-    await setVp(1100, 900); await go('/chat'); const hp = await parts('chat-history'); chk('student', '/chat', 1100, '01-AC22 ≥ 1100 px: panel chat-history', hp >= 1, `chat-history=${hp}`); }
+    await setVp(1100, 900); await go('/chat'); const hp = await parts('chat-history'); const bp = await parts('chat-sessions-button'); chk('student', '/chat', 1100, '01-AC22 ≥ 1100 px: panel chat-history, không nút Phiên trước', hp >= 1 && bp === 0, `chat-history=${hp} nút=${bp}`);
+    // PM #20(b): 720–1099 px như 390 px — nút `Phiên trước (n)` ≥ 44, không panel, hội thoại + composer cùng trục
+    for (const w of [1099, 900, 720]) { await setVp(w, 900); await go('/chat'); const m = await q(() => { const R = (p) => { const e = document.querySelector('[data-part=' + p + ']'); return e && e.getBoundingClientRect(); }; const t = R('chat-thread'), c = R('chat-composer'), h = R('chat-history'), b = R('chat-sessions-button'); return { btn: !!b && b.width > 0, btnH: b ? Math.round(b.height) : null, hist: !!h && h.width > 0, sameLeft: !!t && !!c && t.left === c.left, sameW: !!t && !!c && t.width === c.width, ox: document.documentElement.scrollWidth - innerWidth }; });
+      chk('student', '/chat', w, '01-AC22 (#20b) 720–1099: nút Phiên trước ≥ 44, không panel, cùng trục', m.btn && m.btnH >= 44 && !m.hist && m.sameLeft && m.sameW && m.ox <= 0, JSON.stringify(m), await shot(`chat-${w}`)); } }
 
   // 01-AC27 thẻ "Câu hỏi gốc"
   for (const [role, person] of [['student', 'sv-2'], ['ta', ''], ['teacher', ''], ['student', 'sv-1']]) { await setRole(role, person || 'sv-2'); await setVp(1440, 900);

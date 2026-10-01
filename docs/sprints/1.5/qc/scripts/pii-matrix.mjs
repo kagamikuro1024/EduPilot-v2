@@ -8,36 +8,36 @@
 // Chỉ chạy khi dev báo xong 4.3.3; mỗi ca bắt đầu từ `ep_demo_state` sạch. Không dùng Playwright (không có trong frontend).
 export const CASES = [
   // P1–P4 cố định của SRS
-  { id: 'P1', title: 'Hỏi về bài tập 03', body: 'Mail của em là uyen.tt229002@sv.edupilot.test, SĐT 0912345678.', count: '1 địa chỉ email, 1 số điện thoại', hide: 'Mail của em là [đã ẩn], SĐT [đã ẩn].' },
-  { id: 'P2', title: 'SĐT em', body: '0912 345 678 / +84 912 345 678', count: '2 số điện thoại' },
+  { id: 'P1', n: 2, title: 'Hỏi về bài tập 03', body: 'Mail của em là uyen.tt229002@sv.edupilot.test, SĐT 0912345678.', count: '1 địa chỉ email, 1 số điện thoại', hide: 'Mail của em là [đã ẩn], SĐT [đã ẩn].' },
+  { id: 'P2', n: 2, title: 'SĐT em', body: '0912 345 678 / +84 912 345 678', count: '2 số điện thoại' },
   { id: 'P3', title: 'Hỏi về khoá RSA', body: 'Em nghĩ 2048 bit an toàn đến 2030 theo NIST SP 800-57, phiên bản 1.3.1, cổng 8443, mỗi lần phát biểu +0,25 điểm', count: null },
   // email
-  { id: 'mail-hoa', title: 'Hỏi', body: 'Mail UYEN.TT229002@SV.EDUPILOT.TEST giúp em', count: '1 địa chỉ email' },
-  { id: 'mail-cham-cuoi', title: 'Hỏi', body: 'Thầy gửi tới uyen.tt229002@sv.edupilot.test.', count: '1 địa chỉ email' },
+  { id: 'mail-hoa', n: 1, title: 'Hỏi', body: 'Mail UYEN.TT229002@SV.EDUPILOT.TEST giúp em', count: '1 địa chỉ email' },
+  { id: 'mail-cham-cuoi', n: 1, title: 'Hỏi', body: 'Thầy gửi tới uyen.tt229002@sv.edupilot.test.', count: '1 địa chỉ email' },
   { id: 'mail-@AI', title: 'Hỏi', body: '@AI giải thích giúp em về IV', count: null },
   { id: 'mail-lab@2', title: 'Hỏi', body: 'Bài lab@2 chạy chưa ổn ạ', count: null },
   // số điện thoại — khớp
-  { id: 'sdt-10', title: 'Hỏi', body: 'Gọi 0912345678 nhé', count: '1 số điện thoại' },
-  { id: 'sdt-cach', title: 'Hỏi', body: 'Gọi 0912 345 678 nhé', count: '1 số điện thoại' },
-  { id: 'sdt-cham', title: 'Hỏi', body: 'Gọi 091.234.5678 nhé', count: '1 số điện thoại' },
-  { id: 'sdt-gach', title: 'Hỏi', body: 'Gọi 091-234-5678 nhé', count: '1 số điện thoại' },
-  { id: 'sdt-+84', title: 'Hỏi', body: 'Gọi +84 912 345 678 nhé', count: '1 số điện thoại' },
-  { id: 'sdt-84', title: 'Hỏi', body: 'Gọi 84912345678 nhé', count: '1 số điện thoại' },
+  { id: 'sdt-10', n: 1, title: 'Hỏi', body: 'Gọi 0912345678 nhé', count: '1 số điện thoại' },
+  { id: 'sdt-cach', n: 1, title: 'Hỏi', body: 'Gọi 0912 345 678 nhé', count: '1 số điện thoại' },
+  { id: 'sdt-cham', n: 1, title: 'Hỏi', body: 'Gọi 091.234.5678 nhé', count: '1 số điện thoại' },
+  { id: 'sdt-gach', n: 1, title: 'Hỏi', body: 'Gọi 091-234-5678 nhé', count: '1 số điện thoại' },
+  { id: 'sdt-+84', n: 1, title: 'Hỏi', body: 'Gọi +84 912 345 678 nhé', count: '1 số điện thoại' },
+  { id: 'sdt-84', n: 1, title: 'Hỏi', body: 'Gọi 84912345678 nhé', count: '1 số điện thoại' },
   // số điện thoại — KHÔNG khớp
   ...['2048', '0,25', '8443', '1.3.1', '800-57', 'QUIZ01'].map((v) => ({ id: 'khong-sdt-' + v, title: 'Hỏi về ' + v, body: `Em thấy con số ${v} trong tài liệu, nghĩa là gì ạ?`, count: null })),
   // MSSV
-  { id: 'mssv', title: 'Hỏi', body: 'MSSV của em là 20229002 ạ', count: /mã số sinh viên|MSSV/i },
+  { id: 'mssv', n: 1, title: 'Hỏi', body: 'MSSV của em là 20229002 ạ', count: /mã số sinh viên|MSSV/i },
   { id: 'khong-mssv', title: 'Hỏi', body: 'Khoá 2048 bit dùng đến năm 2030 ạ', count: null },
   // họ tên
-  { id: 'ten-day-du', title: 'Hỏi', body: 'Bạn Lê Quang Huy nghỉ mấy buổi ạ', count: '1 họ tên' },
-  { id: 'ten-hoa', title: 'Hỏi', body: 'Bạn LÊ QUANG HUY nghỉ mấy buổi ạ', count: '1 họ tên' },
-  { id: 'ten-NFD', title: 'Hỏi', body: 'Bạn ' + 'Lê Quang Huy'.normalize('NFD') + ' nghỉ mấy buổi ạ', count: '1 họ tên' },
-  { id: 'ten-chinh-minh', title: 'Hỏi', body: 'Em là Trần Thu Uyên, em hỏi về IV', count: '1 họ tên' },
+  { id: 'ten-day-du', n: 1, title: 'Hỏi', body: 'Bạn Lê Quang Huy nghỉ mấy buổi ạ', count: '1 họ tên' },
+  { id: 'ten-hoa', n: 1, title: 'Hỏi', body: 'Bạn LÊ QUANG HUY nghỉ mấy buổi ạ', count: '1 họ tên' },
+  { id: 'ten-NFD', n: 1, title: 'Hỏi', body: 'Bạn ' + 'Lê Quang Huy'.normalize('NFD') + ' nghỉ mấy buổi ạ', count: '1 họ tên' },
+  { id: 'ten-chinh-minh', n: 1, title: 'Hỏi', body: 'Em là Trần Thu Uyên, em hỏi về IV', count: '1 họ tên' },
   { id: 'khong-ten-don', title: 'Hỏi', body: 'Huy có hỏi về IV không ạ', count: null },
   { id: 'khong-ten-TA', title: 'Hỏi', body: 'Anh Phạm Quốc Bảo và cô Lê Thu Hà đã trả lời rồi ạ', count: null },
   // điểm gắn danh tính
-  { id: 'diem-em', title: 'Hỏi', body: 'em được 8,5 điểm Bài tập 03', count: /điểm gắn với một người/ },
-  { id: 'diem-ten', title: 'Hỏi', body: 'điểm của Lê Quang Huy là 4,9', count: '1 họ tên, 1 điểm gắn với một người' },
+  { id: 'diem-em', n: 1, title: 'Hỏi', body: 'em được 8,5 điểm Bài tập 03', count: /điểm gắn với một người/ },
+  { id: 'diem-ten', n: 2, title: 'Hỏi', body: 'điểm của Lê Quang Huy là 4,9', count: '1 họ tên, 1 điểm gắn với một người' },
   { id: 'khong-diem-1', title: 'Hỏi', body: '+0,25 điểm mỗi lần phát biểu', count: null },
   { id: 'khong-diem-2', title: 'Hỏi', body: 'Bài tập 03 chấm 4 tiêu chí × 2,5 điểm', count: null },
 ];
@@ -73,12 +73,12 @@ export default async function piiMatrix(browser, { base = 'http://localhost:3000
         const twoBtns = d && d.btns.length === 2 && d.btns.includes('Chuyển sang chat riêng') && d.btns.includes('Ẩn thông tin rồi đăng');
         const noValueEcho = d && !/uyen\.tt229002@sv\.edupilot\.test|0912345678|20229002/.test(d.text);
         ok = !!(d && /Bài này có thông tin cá nhân/.test(d.text) && countOk && twoBtns && noValueEcho && !created && typedHint); detail = d ? `count=${countOk} 2nút=${twoBtns} khôngInLại=${noValueEcho} chưaTạo=${!created} nhắc=${typedHint} [${d.text.slice(0, 90)}]` : 'không có dialog';
-        // 3b: bản đã ẩn (chỉ P1 có chuỗi chuẩn)
-        if (d && c.hide) {
+        // 3b: ẩn rồi đăng — mọi ca khớp: dòng "Đã ẩn n thông tin cá nhân" (PM #20c) + bản gốc không còn ở DOM / ep_demo_state
+        if (d && c.n) {
           await page.evaluate(() => { const b = [...document.querySelector('[role=dialog]').querySelectorAll('button')].find((x) => /Ẩn thông tin rồi đăng/.test(x.innerText)); b && b.click(); }); await sleep(900);
           const t = await textOf(); const st = await page.evaluate(() => localStorage.getItem('ep_demo_state') || '');
-          const clean = t.includes(c.hide) && !/uyen\.tt229002@|0912345678/.test(t) && !/uyen\.tt229002@|0912345678/.test(st);
-          rows.push({ id: c.id + ' · 3b ẩn rồi đăng', ok: clean && /\/threads\/[^/]+$/.test(page.url().replace(base, '')), detail: `bản ẩn đúng=${t.includes(c.hide)} bản gốc không còn trong DOM/state=${!/uyen\.tt229002@|0912345678/.test(t + st)}`, file: '' });
+          const hideOk = !c.hide || t.includes(c.hide); const nOk = t.includes(`Đã ẩn ${c.n} thông tin cá nhân`); const clean = hideOk && nOk && !/uyen\.tt229002@|0912345678|20229002/.test(t) && !/uyen\.tt229002@|0912345678|20229002/.test(st);
+          rows.push({ id: c.id + ' · 3b ẩn rồi đăng', ok: clean && /\/threads\/[^/]+$/.test(page.url().replace(base, '')), detail: `"Đã ẩn ${c.n} thông tin cá nhân"=${nOk} bản ẩn đúng=${hideOk} bản gốc không còn trong DOM/state=${!/uyen\.tt229002@|0912345678|20229002/.test(t + st)}`, file: '' });
         }
       }
       let file = ''; if (out && !ok) { file = `${out}/${c.id.replace(/[^\w-]/g, '_')}.png`; await page.screenshot({ path: file }); }
