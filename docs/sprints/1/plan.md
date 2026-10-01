@@ -43,7 +43,7 @@ Xong trọn P0 trong sprint này: kịch bản demo; mã Project III dời vào 
 - PDF môn học trong `data/` là nội dung seed (D10), dời sang `seed/documents/`, không vào `legacy/`.
 
 ## Toolchain (PM đã cài)
-Homebrew + `node@20 pnpm colima docker docker-compose docker-buildx openjdk@21 gh k6 cloc go python@3.11`. Shell mới: `source ~/.zprofile`. Docker qua `colima start`. `gh` đã đăng nhập `kagamikuro1024`.
+Homebrew + `node@24 pnpm colima docker docker-compose docker-buildx openjdk@21 gh k6 cloc go python@3.11 golangci-lint` (`node@20` cài trước đó, đã unlink). Shell mới: `source ~/.zprofile`. Docker qua `colima start`. `gh` đã đăng nhập `kagamikuro1024`.
 
 ## Trả lời của chủ dự án (2026-10-01)
 1. Duyệt kế hoạch: có. Toàn quyền máy; `dev` được tự cài công cụ.
