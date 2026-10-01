@@ -1,7 +1,9 @@
 # SRS FEAT-pg-foundation Nền Go: gateway không trạng thái cho mọi phase sau
-Phiên bản 1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 đổi theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**)
+Phiên bản 1.1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**)
 
-Nguồn: `docs/phases/PG.md` (nguồn chính), `docs/sprints/2/plan.md`, `ARCHITECTURE.md` §2 §3 §4 §5 §8, `SYSTEM_DESIGN.md` §2 §3.2 §3.3 §3.4 §5, `DECISIONS.md` D22 D45–D48 D52, luật 10–15 `AGENTS.md`; mã hiện có: `backend-go/` (sprint 1), `docker-compose.local.yml`, `.github/workflows/ci.yml`. Truy vết đầy đủ: mục 11. Story: `US.md` (US-PG-01…07, 104 AC).
+Lịch sử phiên bản: v1 (2026-10-02, BA viết). **v1.1 (2026-10-02)** — góp ý #1 `docs/sprints/2/proposals.md` (PM chốt, `ACCEPTED` 01/10): "Khoá bằng **build tag `testroutes`**: file đăng ký route thử có `//go:build testroutes`; Dockerfile có target riêng `gateway-test` (`go build -tags testroutes`); compose dùng target đó qua override `docker-compose.test.yml` cho QC. Binary/image mặc định không chứa route thử. AC18 của US-PG-03 đổi thành: image mặc định → mọi `/api/v1/_test/*` 404; `go tool nm` của binary mặc định không có symbol của gói route thử." Mục đổi: 1 (phạm vi), 2 (ma trận quyền), 4 (FR-35, FR-64, thêm FR-69), 6.3, 8.1 (`APP_ENV`), 8.4–8.5, 9.1, 9.4, 10, 11 (truy vết, rủi ro 11). Hệ quả BA bổ sung (PM xem lại nếu không đồng ý): thêm target `worker-test` vì job `test.progress` / `test.fail` do worker xử lý; binary có tag từ chối khởi động khi `APP_ENV=production`.
+
+Nguồn: `docs/phases/PG.md` (nguồn chính), `docs/sprints/2/plan.md`, `ARCHITECTURE.md` §2 §3 §4 §5 §8, `SYSTEM_DESIGN.md` §2 §3.2 §3.3 §3.4 §5, `DECISIONS.md` D22 D45–D48 D52, luật 10–15 `AGENTS.md`; mã hiện có: `backend-go/` (sprint 1), `docker-compose.local.yml`, `.github/workflows/ci.yml`. Truy vết đầy đủ: mục 11. Story: `US.md` (US-PG-01…07, 105 AC).
 
 ## 1. Mục đích và phạm vi
 
@@ -11,7 +13,7 @@ Dựng nền Go viết mới cho **gateway không trạng thái** (D22, D45): kh
 
 **Ngoài phạm vi:** mọi endpoint nghiệp vụ; vòng đời tài khoản (đăng ký, xác minh, mời, quên mật khẩu, khoá khi dò, refresh, phiên — P2, D36); `llm_*`, gọi LLM (P1); mã hoá AES-GCM (P1); mọi bảng nghiệp vụ (D45); giao diện (PU); `docling-serve`, `mock-graph`; sao lưu, giám sát, vai trò DB riêng (PR); sinh mã từ OpenAPI (`oapi-codegen`).
 
-**Endpoint được phép** (mục 6): `/healthz`, `/api/v1/healthz`, `/api/v1/readyz`, `/api/v1/jobs/{id}`, `/api/v1/events`, và 15 thao tác thử (13 đường dẫn) dưới `/api/v1/_test/` **chỉ khi `APP_ENV=test`**.
+**Endpoint được phép** (mục 6): `/healthz`, `/api/v1/healthz`, `/api/v1/readyz`, `/api/v1/jobs/{id}`, `/api/v1/events`, và 15 thao tác thử (13 đường dẫn) dưới `/api/v1/_test/` **chỉ có trong binary / image dựng bằng build tag `testroutes`** (`gateway-test`, `worker-test`); binary và image mặc định không chứa chúng.
 
 ## 2. Người dùng và quyền
 
@@ -22,7 +24,7 @@ Dựng nền Go viết mới cho **gateway không trạng thái** (D22, D45): kh
 | `/healthz`, `/api/v1/healthz`, `/api/v1/readyz` | ✓ | ✓ | ✓ | ✓ | ✓ | Miễn rate limit |
 | `GET /api/v1/jobs/{id}` | 401 | chủ job | chủ job | chủ job | mọi job | Người khác → 404 (không lộ tồn tại) |
 | `GET /api/v1/events` | 401 | ✓ stream của chính mình | ✓ | ✓ | ✓ | Tối đa 2 kết nối / người |
-| `/api/v1/_test/*` | 404 khi `APP_ENV` ≠ `test` | — | — | — | — | Khi `test`: `whoami`, `items*`, `jobs`, `events`: mọi vai đã đăng nhập; `rbac/admin`: ADMIN; `rbac/staff`: TEACHER, TA; `courses/{id}/ping`: qua `CourseAccessGuard` |
+| `/api/v1/_test/*` | 404 ở binary / image mặc định (route không tồn tại) | — | — | — | — | Chỉ ở `gateway-test`: `whoami`, `items*`, `jobs`, `events`: mọi vai đã đăng nhập; `rbac/admin`: ADMIN; `rbac/staff`: TEACHER, TA; `courses/{id}/ping`: qua `CourseAccessGuard` |
 | `gateway migrate`, `gateway token` | lệnh CLI, không phải HTTP | | | | | `token` bị chặn khi `APP_ENV=production` |
 
 Nguyên tắc (D47 mục 6, luật 2): danh tính và vai trò **chỉ lấy từ claim JWT**, không truy DB mỗi request. Hệ quả: đổi vai trò có hiệu lực khi token hết hạn (≤ 15 phút); thu hồi sớm do P2 làm bằng `jti`.
@@ -169,7 +171,7 @@ Cột AC trỏ `<story>-AC<n>` trong `US.md`.
 | FR-32 | Middleware `Idempotency-Key` (mục 6.6): khoá + thân khớp → phát lại đúng phản hồi; đua → 1 bản ghi; thân khác → 422; thiếu khi bắt buộc → 422; TTL 24 h; dự phòng bảng `idempotency_keys` khi Redis mất; Redis chết → 503 cho endpoint bắt buộc | 03-AC11…03-AC13 |
 | FR-33 | Helper khoá lạc quan `version`: `UPDATE … WHERE id AND version RETURNING`; 0 dòng → 409 `VERSION_CONFLICT` kèm `current_version`, `current`, `ETag` | 03-AC14 |
 | FR-34 | Helper `ETag` + `If-None-Match`: GET → `W/"v<version>"` (tài nguyên có `version`) hoặc băm thân (danh sách); khớp → 304; `Cache-Control: private, no-cache`; `Vary: Authorization` | 03-AC15 |
-| FR-35 | Việc dài: `jobs` + outbox `job.enqueue` cùng transaction → 202 `{job_id}` + `Location`; worker chạy `test.progress` / `test.fail` khi `APP_ENV=test`; `GET /api/v1/jobs/{id}`; tiến độ qua SSE `job.progress` | 03-AC16, 03-AC17, 05-AC12 |
+| FR-35 | Việc dài: `jobs` + outbox `job.enqueue` cùng transaction → 202 `{job_id}` + `Location`; worker (`worker-test`, dựng bằng tag `testroutes`) chạy `test.progress` / `test.fail`; `GET /api/v1/jobs/{id}`; tiến độ qua SSE `job.progress` | 03-AC16, 03-AC17, 05-AC12 |
 | FR-36 | Chỉ chủ job hoặc ADMIN đọc được job; người khác 404 | 03-AC18 |
 
 ### 4.4 Auth nền (US-PG-04)
@@ -218,11 +220,12 @@ Cột AC trỏ `<story>-AC<n>` trong `US.md`.
 | FR-61 | PgBouncer transaction mode (mục 8.3); runtime qua PgBouncer, migrate trực tiếp; pgx tắt prepared statement ngầm; có test qua PgBouncer thật | 07-AC7…07-AC9 |
 | FR-62 | Dockerfile nhiều tầng, hai image gateway / worker < 40 MB, non-root, không shell | 07-AC10 |
 | FR-63 | Không trạng thái: `read_only` rootfs, không ghi đĩa cục bộ, không biến toàn cục (`gochecknoglobals`) | 07-AC11 |
-| FR-64 | CI: `go vet`, `golangci-lint`, `go test -race`, `sqlc diff`; nhánh lệch sqlc → đỏ | 07-AC12, 07-AC13 |
+| FR-64 | CI: `go vet` và `golangci-lint` ở cả hai cấu hình (không tag, `testroutes`), `go test -race -tags testroutes`, `sqlc diff`; nhánh lệch sqlc → đỏ | 07-AC12, 07-AC13 |
 | FR-65 | `benchmarks/load/smoke.js` và `benchmarks/reports/pg-baseline.md` | 07-AC14, 07-AC15 |
 | FR-66 | Thiếu env trong compose → gateway thoát 1, restart tối đa 3 lần | 07-AC16 |
 | FR-67 | Redis AOF + `noeviction`; volume tên cố định | 07-AC18 |
 | FR-68 | Cổng nghiệm thu PG chạy trọn trên nhánh `sprint/2-pg` và kết quả dán vào handoff | 07-AC19 |
+| FR-69 | Route thử và handler job thử nằm trong gói `internal/testroutes`, chỉ biên dịch khi có tag `testroutes` (`//go:build testroutes`; phía mặc định `//go:build !testroutes` là hàm đăng ký rỗng); Dockerfile có target `gateway-test`, `worker-test`; `docker-compose.test.yml` là override đổi target + image; binary có tag thoát mã 1 khi `APP_ENV=production`; binary / image mặc định không chứa gói (`go tool nm`, chuỗi `/api/v1/_test/`) và trả 404 cho mọi đường dẫn thử | 03-AC18, 06-AC3, 06-AC4, 07-AC20 |
 
 Ghi chú: 02-AC17 (phân quyền của story dữ liệu) là "không áp dụng" — chưa có API nghiệp vụ; ràng buộc an toàn thay thế do 02-AC5, 04-AC8, 03-AC12 đảm nhiệm.
 
@@ -400,9 +403,9 @@ Mọi đường dẫn nghiệp vụ nằm dưới `/api/v1`; JSON `application/j
 
 Lệnh CLI (không phải HTTP): `gateway serve` (mặc định), `gateway migrate up|down|status`, `gateway token --role R [--sub UUID] [--email E] [--ttl D]`, `gateway -healthcheck` (đã có), `worker`, `worker -healthcheck`.
 
-### 6.3 Endpoint thử — chỉ khi `APP_ENV=test`, ngược lại **404** (route không được đăng ký)
+### 6.3 Endpoint thử — chỉ có trong binary dựng bằng build tag `testroutes`; binary / image mặc định trả **404** (route không tồn tại)
 
-Mô tả trong `backend-go/api/openapi.test.yaml`. Các route này nằm trong **cùng binary** với route sản xuất nhưng chỉ được đăng ký khi `APP_ENV=test`; với `dev` và `production` chúng không tồn tại (404, US-PG-03 AC18). Phương án thay thế (build tag `testroutes`, binary riêng) ở `QUESTIONS.md` Q4. Khi `APP_ENV=test`, lúc khởi động gói này chạy `CREATE TABLE IF NOT EXISTS _test_items (id uuid PK DEFAULT uuidv7(), name text NOT NULL, version integer NOT NULL DEFAULT 1, owner_id uuid NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now())` + index `(created_at, id)`.
+Mô tả trong `backend-go/api/openapi.test.yaml`. Mã nằm trong gói `internal/testroutes`: mọi file có dòng `//go:build testroutes`; `internal/httpapi` chỉ gọi một hàm `registerTestRoutes(r, deps)` có hai bản — bản `//go:build testroutes` đăng ký route, bản `//go:build !testroutes` rỗng — nên binary mặc định **không liên kết** gói (`go tool nm` không có symbol `internal/testroutes`; chuỗi `/api/v1/_test/` không có trong file thực thi). `APP_ENV` **không** mở hay đóng route; ở binary có tag, `APP_ENV=production` bị từ chối lúc khởi động (thoát 1). Build: `go build -tags testroutes ./cmd/gateway ./cmd/worker`; Docker: target `gateway-test`, `worker-test`; chạy bằng `docker compose -f docker-compose.local.yml -f docker-compose.test.yml …` (QC / test; `docker-compose.local.yml` không biết các target này). Lý do (góp ý #1): cấu hình nhầm một biến env ở production không được mở endpoint ghi dữ liệu. Khi khởi động, gói này chạy `CREATE TABLE IF NOT EXISTS _test_items (id uuid PK DEFAULT uuidv7(), name text NOT NULL, version integer NOT NULL DEFAULT 1, owner_id uuid NOT NULL, created_at timestamptz NOT NULL DEFAULT now(), updated_at timestamptz NOT NULL DEFAULT now())` + index `(created_at, id)`; handler job `test.progress` / `test.fail` của worker cũng chỉ có ở `worker-test` (cùng gói `internal/testroutes`).
 
 | # | Method + đường dẫn | Quyền | Dùng để kiểm |
 | --- | --- | --- | --- |
@@ -455,7 +458,7 @@ ETag trên GET: `Cache-Control: private, no-cache`, `Vary: Authorization`; `If-N
 
 ### 6.8 Giao thức SSE (`GET /api/v1/events`)
 
-Header phản hồi: `Content-Type: text/event-stream`, `Cache-Control: no-cache, no-transform`, `Connection: keep-alive` (HTTP/1.1), `X-Accel-Buffering: no`. Thứ tự byte: `retry: 3000\n\n` → `event: ready\ndata: {"connection_id","server_time"}\n\n` (không `id`) → đọc bù nếu có `Last-Event-ID` → sự kiện trực tiếp. Khung sự kiện: `id: <id Redis Stream>\nevent: <type>\ndata: <JSON một dòng>\n\n`; heartbeat `: hb\n\n`. Sự kiện điều khiển (không `id`): `ready`, `reconnect` (`reason`: `max_duration` | `token_expired` | `upstream_unavailable`), `shutdown` (`reason: server_shutdown`), `resync` (`reason`: `buffer_exceeded`). Sự kiện dữ liệu ở PG: `job.progress` (`{job_id,status,progress,result?}`) và `test.*` (chỉ khi `APP_ENV=test`). `type` khớp `^[a-z][a-z0-9_.]{0,63}$`; `data` ≤ 64 KiB. Thuật toán nối lại: subscribe `ep:sse:ch:{uid}` **trước**; đọc `XRANGE ep:sse:buf:{uid} (<Last-Event-ID> +`; gửi; mỗi tin Pub/Sub kích hoạt `XRANGE (<id đã gửi cuối> +`; id ≤ id đã gửi bị bỏ. `Last-Event-ID` không khớp `^\d+-\d+$`, hoặc cũ hơn id đầu của bộ đệm khi bộ đệm đã bị cắt (`XINFO STREAM … first-entry`) → `resync`. Token qua query string **không** được hỗ trợ (tránh lọt vào log); `EventSource` gốc không gửi được header nên frontend dùng `fetch` + `ReadableStream` (việc của PU).
+Header phản hồi: `Content-Type: text/event-stream`, `Cache-Control: no-cache, no-transform`, `Connection: keep-alive` (HTTP/1.1), `X-Accel-Buffering: no`. Thứ tự byte: `retry: 3000\n\n` → `event: ready\ndata: {"connection_id","server_time"}\n\n` (không `id`) → đọc bù nếu có `Last-Event-ID` → sự kiện trực tiếp. Khung sự kiện: `id: <id Redis Stream>\nevent: <type>\ndata: <JSON một dòng>\n\n`; heartbeat `: hb\n\n`. Sự kiện điều khiển (không `id`): `ready`, `reconnect` (`reason`: `max_duration` | `token_expired` | `upstream_unavailable`), `shutdown` (`reason: server_shutdown`), `resync` (`reason`: `buffer_exceeded`). Sự kiện dữ liệu ở PG: `job.progress` (`{job_id,status,progress,result?}`) và `test.*` (chỉ phát được từ `gateway-test`, qua `POST /api/v1/_test/events`). `type` khớp `^[a-z][a-z0-9_.]{0,63}$`; `data` ≤ 64 KiB. Thuật toán nối lại: subscribe `ep:sse:ch:{uid}` **trước**; đọc `XRANGE ep:sse:buf:{uid} (<Last-Event-ID> +`; gửi; mỗi tin Pub/Sub kích hoạt `XRANGE (<id đã gửi cuối> +`; id ≤ id đã gửi bị bỏ. `Last-Event-ID` không khớp `^\d+-\d+$`, hoặc cũ hơn id đầu của bộ đệm khi bộ đệm đã bị cắt (`XINFO STREAM … first-entry`) → `resync`. Token qua query string **không** được hỗ trợ (tránh lọt vào log); `EventSource` gốc không gửi được header nên frontend dùng `fetch` + `ReadableStream` (việc của PU).
 
 ## 7. Giao diện
 
@@ -477,7 +480,7 @@ Một nguồn duy nhất: `platform.LoadConfig(getenv)` (mở rộng từ FEAT-s
 | `BLOB_ACCESS_KEY` | **có** | — | | gateway, worker |
 | `BLOB_SECRET_KEY` | **có** | — | | gateway, worker |
 | `PGBOUNCER_URL` | không | rỗng → dùng `DATABASE_URL` | URL runtime qua PgBouncer; có giá trị thì log `db_via=pgbouncer` | gateway, worker |
-| `APP_ENV` | không | `dev` | `dev` \| `test` \| `production` (giá trị khác → thoát 1) | tất cả |
+| `APP_ENV` | không | `dev` | `dev` \| `test` \| `production` (giá trị khác → thoát 1); chỉ để phân biệt môi trường (log, kiểm bí mật mẫu, chặn `gateway token`), **không** mở / đóng route thử | tất cả |
 | `HTTP_ADDR` | không | `:8080` | | gateway |
 | `INSTANCE_ID` | không | hostname | `X-Instance-Id`, log `instance` | tất cả |
 | `LOG_LEVEL` | không | `info` | `debug` \| `info` \| `warn` \| `error` | tất cả |
@@ -585,8 +588,8 @@ Phía pgx: `pgx.QueryExecModeExec` hoặc `QueryExecModeSimpleProtocol` cho **m�
 | `minio`, `mailpit` | giữ | giữ | |
 | `pgbouncer` | mục 8.3 | **không** | healthcheck `SHOW VERSION` qua stats user |
 | `migrate` | image gateway, `command: ["migrate","up"]`, `DATABASE_URL` trực tiếp, `restart: "no"` | không | `depends_on: postgres healthy` |
-| `gateway` | `build: backend-go --target gateway`, `read_only: true`, `tmpfs: /tmp`, `restart: on-failure:3`, healthcheck `["/gateway","-healthcheck"]` | **bỏ `8080:8080`** | `depends_on: migrate completed_successfully, pgbouncer healthy, redis healthy, minio healthy`; không `container_name` (để `--scale`) |
-| `worker` | `--target worker`, như gateway, healthcheck `["/worker","-healthcheck"]` | không | |
+| `gateway` | `build: backend-go --target gateway`, `image: edupilot-gateway`, `read_only: true`, `tmpfs: /tmp`, `restart: on-failure:3`, healthcheck `["/gateway","-healthcheck"]` | **bỏ `8080:8080`** | `depends_on: migrate completed_successfully, pgbouncer healthy, redis healthy, minio healthy`; không `container_name` (để `--scale`) |
+| `worker` | `--target worker`, `image: edupilot-worker`, như gateway, healthcheck `["/worker","-healthcheck"]` | không | |
 | `caddy` | `caddy:2`, mount Caddyfile `:ro`, volume `caddy_data`, `caddy_config` | **`80:80`, `443:443`** | `depends_on: gateway healthy`, healthcheck `caddy validate` hoặc `wget` đến `localhost` nội bộ |
 | `frontend` | giữ (`3000`) | giữ | `NEXT_PUBLIC_API_URL=https://localhost` |
 
@@ -594,8 +597,10 @@ Bí mật: mọi giá trị nhạy cảm trong compose là `${BIEN}` lấy từ 
 
 ### 8.5 Dockerfile, CI, k6
 
-Dockerfile `backend-go/Dockerfile`, tầng build `golang:1.27` (`CGO_ENABLED=0`, `-trimpath -ldflags "-s -w"`), hai tầng chạy `gcr.io/distroless/static-debian12:nonroot` đặt tên `gateway` (copy `/gateway`, `ENTRYPOINT ["/gateway"]`) và `worker` (copy `/worker`, `ENTRYPOINT ["/worker"]`); mỗi image < 40.000.000 byte (`QUESTIONS.md` Q13).
-CI (`.github/workflows/ci.yml`, sửa từ FEAT-ci): job **Go** = `go vet ./...` → `golangci-lint` (v2.14.0 đã ghim) → `sqlc diff` (cài `sqlc-dev/setup-sqlc`, phiên bản ghim) → `go test -race ./...` (runner `ubuntu-latest` có Docker cho testcontainers) → `go test ./internal/contract/...` đã nằm trong `./...`. Job **Frontend** giữ nguyên. Không secret, không đọc `legacy/`.
+`docker-compose.test.yml` (override, không thêm service): với `gateway` đặt `build.target: gateway-test`, `image: edupilot-gateway-test`, `APP_ENV: test`; với `worker` đặt `build.target: worker-test`, `image: edupilot-worker-test`, `APP_ENV: test`; mọi thứ khác (mạng, healthcheck, `depends_on`, `read_only`) kế thừa từ `docker-compose.local.yml`. Dùng: `docker compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -p edupilot up -d --build --scale gateway=2 --wait`. Tên image khác nhau để chuyển qua lại giữa chế độ thường và chế độ thử không ghi đè nhau.
+
+Dockerfile `backend-go/Dockerfile`, tầng build `golang:1.27` (`CGO_ENABLED=0`, `-trimpath -ldflags "-s -w"`), tầng chạy `gcr.io/distroless/static-debian12:nonroot` với **bốn** target: `gateway` (copy `/gateway`, `ENTRYPOINT ["/gateway"]`), `worker` (copy `/worker`, `ENTRYPOINT ["/worker"]`) — hai target này dựng **không** tag; `gateway-test` và `worker-test` — cùng tầng chạy nhưng binary dựng bằng `go build -tags testroutes`. Mỗi image < 40.000.000 byte (`QUESTIONS.md` Q13).
+CI (`.github/workflows/ci.yml`, sửa từ FEAT-ci): job **Go** = `go vet ./...` + `go vet -tags testroutes ./...` → `golangci-lint` (v2.14.0 đã ghim) ở cả hai cấu hình (`--build-tags testroutes` cho lượt hai) → `sqlc diff` (cài `sqlc-dev/setup-sqlc`, phiên bản ghim) → `go test -race -tags testroutes ./...` (runner `ubuntu-latest` có Docker cho testcontainers; gồm `internal/contract` và `TestDefaultBinary_NoTestRoutes` tự dựng bản không tag). Job **Frontend** giữ nguyên. Không secret, không đọc `legacy/`.
 k6 `benchmarks/load/smoke.js`:
 
 | Kịch bản | Tải | Ngưỡng (`options.thresholds`) |
@@ -629,7 +634,7 @@ Giá trị lấy từ `SYSTEM_DESIGN.md` §5 (đọc p95 ≤ 300 ms, ghi p95 ≤
 
 - Test Go dùng **container thật** qua `testcontainers-go`: Postgres 18 + pgvector, Redis 8, MinIO, PgBouncer (trước Postgres, transaction mode). Không mock DB/Redis/blob. Không Docker thì test **fail**, trừ `go test -short` (bỏ qua test cần container; `make test` không dùng `-short`).
 - Môi trường dev colima: `make -C backend-go test` tự đặt `TESTCONTAINERS_RYUK_DISABLED=true` và `DOCKER_HOST=unix://$HOME/.colima/default/docker.sock` nếu chưa đặt (rủi ro đã ghi ở plan sprint 2).
-- Container dùng chung trong một gói test (`TestMain`); mỗi test tự tạo dữ liệu với uuid ngẫu nhiên hoặc schema riêng, chạy song song được, `-race -count=1`. Đồng hồ và nguồn ngẫu nhiên đi qua `platform/clock` để test hết hạn / TTL không `sleep` thật quá 3 s.
+- Container dùng chung trong một gói test (`TestMain`); mỗi test tự tạo dữ liệu với uuid ngẫu nhiên hoặc schema riêng, chạy song song được, `-race -count=1 -tags testroutes` (test route thử, SSE chéo bản, auth, jobs, contract cần route thử; riêng `internal/contract` và `cmd/gateway` có test chạy **cả không tag** — `TestDefaultBinary_NoTestRoutes`, contract không tag). Đồng hồ và nguồn ngẫu nhiên đi qua `platform/clock` để test hết hạn / TTL không `sleep` thật quá 3 s.
 - Không seed dữ liệu nghiệp vụ; người dùng mẫu `U1`, `U2` chỉ là uuid trong JWT (không cần dòng `users`; test về ràng buộc `users` tự `INSERT`).
 - E2E Playwright: **không áp dụng** (không có UI). "E2E" của PG là các lệnh `curl`/`k6`/`docker` ghi ở `US.md`, QC gom vào `docs/sprints/2/qc/scripts/`.
 
@@ -651,13 +656,13 @@ Bằng lệnh trong `US.md` mục 07: số service, hai bản gateway, Caddy, im
 
 ### 9.4 Makefile (`backend-go/Makefile`)
 
-`run` (gateway), `run-worker`, `test` (`go test -race -count=1 ./...` với biến môi trường colima), `lint` (`go vet` + `golangci-lint run`), `sqlc` (`sqlc generate`), `sqlc-check` (`sqlc diff`), `migrate` (`go run ./cmd/gateway migrate up`), `tidy`.
+`run` (gateway), `run-worker`, `build` (`go build ./...`, không tag), `test` (`go test -race -count=1 -tags testroutes ./...` với biến môi trường colima), `lint` (`go vet` + `golangci-lint run`, mỗi lệnh chạy hai lần: không tag và `-tags testroutes`), `sqlc` (`sqlc generate`), `sqlc-check` (`sqlc diff`), `migrate` (`go run ./cmd/gateway migrate up`), `tidy`.
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 
 Câu hỏi mở: xem `QUESTIONS.md` (Q1–Q17; **mọi câu đã có phương án mặc định**, dev thi công theo mặc định cho đến khi chủ dự án trả lời; không câu nào chặn việc bắt đầu).
 
-Quyết định đã chốt (từ tài liệu nguồn, không hỏi lại): D22 gateway không trạng thái; D45 Go sở hữu nghiệp vụ, PG không tạo bảng nghiệp vụ, hợp đồng API bất biến khi port; D46–D48 phiên bản (Go 1.27, PostgreSQL 18 + pgvector, Redis 8, Caddy 2, MinIO, Mailpit); D47 mục 4 (SSE, max 2 kết nối), mục 6 (JWT claim-only); D51 (CourseAccessGuard); D52 (`getkin/kin-openapi` chỉ cho test); luật 6 (goose), 9–15 `AGENTS.md`; `SYSTEM_DESIGN.md` §5 (SLO).
+Quyết định đã chốt (từ tài liệu nguồn, không hỏi lại): D22 gateway không trạng thái; D45 Go sở hữu nghiệp vụ, PG không tạo bảng nghiệp vụ, hợp đồng API bất biến khi port; D46–D48 phiên bản (Go 1.27, PostgreSQL 18 + pgvector, Redis 8, Caddy 2, MinIO, Mailpit); D47 mục 4 (SSE, max 2 kết nối), mục 6 (JWT claim-only); D51 (CourseAccessGuard); D52 (`getkin/kin-openapi` chỉ cho test); luật 6 (goose), 9–15 `AGENTS.md`; `SYSTEM_DESIGN.md` §5 (SLO); **Q4 = build tag `testroutes` (góp ý #1, PM)**.
 
 ## 11. Truy vết, rủi ro, giả định
 
@@ -671,7 +676,7 @@ Quyết định đã chốt (từ tài liệu nguồn, không hỏi lại): D22 
 | `PG.md` L4 | JWT, bcrypt, RBAC, guard | L4 (5 mục) | US-PG-04 | FR-37…44 | `internal/auth` |
 | `PG.md` L5 | SSE, fan-out, giới hạn, test | L5 (4 mục) | US-PG-05 | FR-45…53 | `internal/httpapi/sse` |
 | `PG.md` L6 | OpenAPI + contract | L6 (3 mục) | US-PG-06 | FR-54…58 | `internal/contract` |
-| `PG.md` L7 + cổng | Caddy, PgBouncer, audit không trạng thái, image, CI, k6, hai gateway | L7 (4 mục) + cổng | US-PG-07 | FR-59…67 | lệnh trong `US.md` |
+| `PG.md` L7 + cổng | Caddy, PgBouncer, audit không trạng thái, image, CI, k6, hai gateway | L7 (4 mục) + cổng | US-PG-07 | FR-59…69 | lệnh trong `US.md` |
 | `AGENTS.md` luật 10–15 | Mở rộng cho T1 | — | 01, 03, 05, 07 | FR-6, 24, 30…36, 48, 63 | như trên |
 | `PRD.md` §3 | ADMIN không thấy nội dung lớp | — | US-PG-04 AC7 | FR-41 | `internal/auth` |
 | `FLOWS.md` F1–F18 | Chưa luồng nào đi trọn ở PG (D45) — PG là điều kiện của mọi luồng; "xong" của PG là cổng nghiệm thu `PG.md` | — | 07-AC19 | — | cổng PG |
@@ -691,6 +696,7 @@ Quyết định đã chốt (từ tài liệu nguồn, không hỏi lại): D22 
 | 8 | Image > 40 MB do OTel + minio-go + pgx | Cổng L7 đỏ | `-s -w`, distroless static; Q13 |
 | 9 | Bộ đệm SSE Redis 1.000 sự kiện / 1 h chưa đủ cho chat | Client phải `resync` | `resync` là hành vi định nghĩa sẵn (05-AC9); phase P3 chỉnh `SSE_BUFFER_MAXLEN` |
 | 10 | Idempotency fail-closed làm endpoint ghi chết khi Redis chết | Ghi không được trong lúc Redis hỏng | Chấp nhận để không ghi đôi (Q6); `readyz` báo `redis:"down"` |
+| 11 | Image `-test` (có route thử ghi dữ liệu) bị triển khai nhầm lên production | Endpoint ghi dữ liệu mở ở production | Image mặc định không chứa route (03-AC18, kiểm bằng `go tool nm` + chuỗi); tên image `-test` khác; `docker-compose.local.yml` không tham chiếu target `-test` (07-AC20); binary có tag thoát 1 khi `APP_ENV=production` |
 
 ### 11.3 Giả định
 
