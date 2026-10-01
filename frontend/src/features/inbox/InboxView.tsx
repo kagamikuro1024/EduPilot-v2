@@ -1,7 +1,8 @@
 "use client";
 
 import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { STUDENTS, at, ago, courseById, fmtTime, NOW } from "@/mock/core";
 import { KEYS, type Ticket, type TicketStatus } from "@/mock/state";
 import { mergeTickets } from "@/mock/support";
@@ -14,14 +15,12 @@ import {
   Button,
   Checkbox,
   Composer,
-  DefinitionList,
   EmptyState,
   InlineNotice,
   Page,
   PageHeader,
   PageState,
   SegmentedControl,
-  Section,
   Skeleton,
   StatusText,
   useRouteState,
@@ -49,7 +48,13 @@ export function InboxView() {
   const { user, course, courses, isAll } = useSession();
   const [stored, setStored] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
   const [filter, setFilter] = useState<Filter>("open");
-  const [picked, setPicked] = useState<string | null>(null);
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const picked = params.get("ticket");
+  // dưới 1100px: danh sách → chi tiết là hai bước; nhớ vị trí cuộn để quay lại đúng chỗ (02-AC9)
+  const listRef = useRef<HTMLElement>(null);
+  const saved = useRef({ page: 0, list: 0 });
   const [draft, setDraft] = useState("");
   const [knowledge, setKnowledge] = useState(false);
   const routeState = useRouteState();
@@ -58,6 +63,26 @@ export function InboxView() {
   const tickets = mergeTickets(stored).filter((t) => courseIds.includes(t.courseId));
   const rows = tickets.filter((t) => filter === "all" || t.status === filter);
   const selected = tickets.find((t) => t.id === picked) ?? rows[0] ?? tickets[0] ?? null;
+
+  function open(id: string) {
+    saved.current = { page: window.scrollY, list: listRef.current?.scrollTop ?? 0 };
+    router.push(`${pathname}?ticket=${encodeURIComponent(id)}`, { scroll: false });
+  }
+  function backToList() {
+    router.push(pathname, { scroll: false });
+  }
+  useLayoutEffect(() => {
+    if (picked) {
+      window.scrollTo({ top: 0 });
+      return;
+    }
+    window.scrollTo({ top: saved.current.page });
+    if (listRef.current) listRef.current.scrollTop = saved.current.list;
+  }, [picked]);
+  useEffect(() => {
+    // chọn bộ lọc khác thì danh sách về đầu
+    if (listRef.current) listRef.current.scrollTop = 0;
+  }, [filter]);
 
   function update(id: string, patch: Partial<Ticket>) {
     setStored(mergeTickets(stored).map((t) => (t.id === id ? { ...t, ...patch } : t)));
@@ -73,7 +98,7 @@ export function InboxView() {
   const mine = selected?.claimedBy === user.name;
 
   return (
-    <Page width="full">
+    <Page width="full" className={s.page}>
       <PageHeader
         title="Hộp thư hỗ trợ"
         description="Câu hỏi được chuyển cho người thật khi AI không đủ chắc chắn hoặc sinh viên yêu cầu."
@@ -92,14 +117,14 @@ export function InboxView() {
           recovery: "Câu trả lời bạn đang soạn vẫn được giữ. Thử lại, hoặc mở lại sau ít phút.",
         }}
       >
-        <div className={[s.split, selected && picked ? s.showDetail : ""].join(" ")}>
-          <div className={s.list}>
+        <div className={[s.split, picked ? s.showDetail : ""].join(" ")}>
+          <section className={s.list} data-part="inbox-list" aria-label="Danh sách câu hỏi" ref={listRef}>
             <SegmentedControl
               label="Lọc câu hỏi"
               value={filter}
               onChange={(next) => {
                 setFilter(next);
-                setPicked(null);
+                if (picked) backToList();
               }}
               options={FILTERS.map((f) => ({ ...f, count: f.value === "all" ? tickets.length : tickets.filter((t) => t.status === f.value).length }))}
             />
@@ -113,45 +138,72 @@ export function InboxView() {
                     <ActionRow
                       key={t.id}
                       tone={t.ageMin >= OVERDUE_MIN && t.status === "open" ? "red" : STATUS[t.status].tone}
-                      selected={t.id === selected?.id}
-                      onSelect={() => setPicked(t.id)}
-                      title={who?.name ?? "Sinh viên"}
-                      context={t.question}
+                      selected={Boolean(!picked ? t.id === selected?.id : t.id === picked)}
+                      onSelect={() => open(t.id)}
+                      title={
+                        <span className={s.rowHead}>
+                          <span className={s.rowName}>{who?.name ?? "Sinh viên"}</span>
+                          <span className={s.rowTime}>{ago(at(-t.ageMin))}</span>
+                        </span>
+                      }
+                      context={<span className={s.clamp}>{t.question}</span>}
                       meta={
-                        <>
-                          {ago(at(-t.ageMin))} · {STATUS[t.status].label} · {t.reason}
-                        </>
+                        <span className={s.rowMeta}>
+                          {STATUS[t.status].label} · {t.reason}
+                        </span>
                       }
                     />
                   );
                 })}
               </ActionList>
             )}
-          </div>
+          </section>
 
-          <div className={s.detail}>
+          <section className={s.detail} data-part="inbox-detail" aria-label="Chi tiết câu hỏi">
             {selected && student ? (
               <>
-                <Button className={s.back} variant="text" size="sm" icon={<ArrowLeft aria-hidden />} onClick={() => setPicked(null)}>
-                  Danh sách câu hỏi
+                <Button className={s.back} variant="text" size="sm" icon={<ArrowLeft aria-hidden />} onClick={backToList}>
+                  Hộp thư
                 </Button>
-                <Section title={student.name} description={`${student.code} · ${courseById(selected.courseId).label}`}>
-                  <p className={s.question}>{selected.question}</p>
-                  <DefinitionList
-                    items={[
-                      { term: "Đã chờ", value: waitText(selected.ageMin) },
-                      { term: "Lý do chuyển", value: selected.reason },
-                      { term: "Trạng thái", value: <StatusText tone={STATUS[selected.status].tone}>{STATUS[selected.status].label}</StatusText> },
-                      { term: "AI đã tra", value: "Quy chế môn học (tr. 2), Đề cương học phần — không đoạn nào trả lời đủ" },
-                    ]}
-                  />
-                </Section>
+                <header className={s.detailHead}>
+                  <h2 className="ep-section-title">{student.name}</h2>
+                  <p className="ep-meta">
+                    {student.code} · {courseById(selected.courseId).label}
+                  </p>
+                </header>
 
-                <Section title="Trả lời của bạn">
+                <div className={s.info}>
+                  <p className={s.question}>{selected.question}</p>
+                  <dl className={s.facts}>
+                    <div>
+                      <dt>Đã chờ</dt>
+                      <dd>{waitText(selected.ageMin)}</dd>
+                    </div>
+                    <div>
+                      <dt>Lý do chuyển</dt>
+                      <dd>{selected.reason}</dd>
+                    </div>
+                    <div>
+                      <dt>Trạng thái</dt>
+                      <dd>
+                        <StatusText tone={STATUS[selected.status].tone}>{STATUS[selected.status].label}</StatusText>
+                      </dd>
+                    </div>
+                    <div>
+                      <dt>AI đã tra</dt>
+                      <dd>Quy chế môn học (tr. 2), Đề cương học phần — không đoạn nào trả lời đủ</dd>
+                    </div>
+                  </dl>
+                </div>
+
+                <div className={s.reply} data-part="inbox-reply">
+                  <h3 className="ep-section-title">Trả lời của bạn</h3>
                   {selected.status === "answered" && selected.answer ? (
                     <>
                       <p className={s.answer}>{selected.answer.text}</p>
-                      <p className="ep-meta">{selected.answer.by} · {fmtTime(NOW)}</p>
+                      <p className="ep-meta">
+                        {selected.answer.by} · {fmtTime(NOW)}
+                      </p>
                       <InlineNotice tone="success" compact>
                         Đã gửi thư thông báo tới email của sinh viên (mô phỏng)
                         {selected.answer.saveAsKnowledge ? " · đã lưu thành tri thức cho lớp" : ""}
@@ -187,12 +239,12 @@ export function InboxView() {
                       />
                     </>
                   )}
-                </Section>
+                </div>
               </>
             ) : (
               <EmptyState title="Chọn một câu hỏi để xem">Danh sách bên trái xếp theo thời gian chờ.</EmptyState>
             )}
-          </div>
+          </section>
         </div>
       </PageState>
     </Page>
