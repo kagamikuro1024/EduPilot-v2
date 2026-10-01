@@ -1,5 +1,5 @@
 # SRS FEAT-scaffold Dọn mặt bằng + khung Go gateway và Next.js mới
-Phiên bản 1 · 2026-10-01 · Trạng thái: DRAFT
+Phiên bản 1 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; câu hỏi mở đã chốt ở QUESTIONS.md)
 
 ## 1. Mục đích và phạm vi
 Dời toàn bộ mã Project III vào `legacy/` (D45), dựng khung chạy được của hai phần mới — gateway Go và frontend Next.js 16 — cùng stack local mới (D48), để từ PG trở đi mọi dòng mã nằm trên nền mới. Không có service Python (D46). Không có tính năng nghiệp vụ.

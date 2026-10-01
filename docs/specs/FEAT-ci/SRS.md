@@ -1,5 +1,5 @@
 # SRS FEAT-ci CI cho Go gateway và frontend mới
-Phiên bản 1 · 2026-10-01 · Trạng thái: DRAFT
+Phiên bản 1 · 2026-10-01 · Trạng thái: APPROVED (PM, 2026-10-01; không có câu hỏi mở)
 
 ## 1. Mục đích và phạm vi
 Mỗi lần push lên bất kỳ nhánh nào và mỗi pull request đều chạy đúng các lệnh kiểm trong CLAUDE.md "Lệnh" cho phần Go và phần frontend; một lỗi bất kỳ làm CI đỏ. Không chạy gì trong `legacy/` (D45), không có job Python (D46), không gọi LLM thật.
