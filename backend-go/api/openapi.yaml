@@ -1,0 +1,30 @@
+openapi: 3.1.0
+info:
+  title: EduPilot Gateway API
+  version: 0.1.0
+  description: Hợp đồng API của gateway Go. P0 chỉ có kiểm sống.
+servers:
+  - url: /
+paths:
+  /healthz:
+    get:
+      operationId: getHealthz
+      security: []
+      summary: Kiểm sống (công khai, không gọi DB/Redis)
+      responses:
+        "200":
+          description: Gateway đang chạy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+components:
+  schemas:
+    Health:
+      type: object
+      required: [status]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          const: ok
