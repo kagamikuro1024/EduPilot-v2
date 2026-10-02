@@ -1,0 +1,15 @@
+# Câu hỏi mở — FEAT-ui-foundation (US-PU-01…05)
+Phiên bản 1 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`.
+
+| # | Câu hỏi | Phương án BA đề xuất | Trả lời của chủ dự án | Ngày |
+| --- | --- | --- | --- | --- |
+| Q1 | `PU.md` L1 nói Tailwind v4 `@theme`; D53 giữ CSS Modules + token. Có cần sửa chữ trong `PU.md` cho khớp D53? | Spec theo D53 (01-AC4 mục 6 chặn Tailwind). PM sửa chữ `PU.md` L1 cho khớp, không chặn thi công. | | |
+| Q2 | Thêm stylelint để lint CSS Modules (thư viện ngoài bảng `ARCHITECTURE.md` §3)? | **Không.** CSS kiểm bằng `scripts/ui-antipatterns.sh` (grep, 19 phép + `--selftest`) và ESLint cho `.tsx`. Cần stylelint thì phải duyệt thêm thư viện. | | |
+| Q3 | Dùng `zustand` ở PU (có trong bảng thư viện, quy ước ghi "state bằng zustand")? | Không dùng ở PU: TanStack Query lo dữ liệu máy chủ; trạng thái giao diện cục bộ dùng React state. Thêm zustand khi một phase cần trạng thái toàn cục thật. | | |
+| Q4 | Ngưỡng "tối đa 10 `ui-allow`" (hiện đúng 10) và "tối đa 3 ngoại lệ axe", "5 ngoại lệ một-nút-chính": có cứng quá không? | Giữ trần như spec; QC đếm lại; vượt phải xin PM qua `proposals.md`. | | |
+| Q5 | Ở build `MOCK_SCREENS=0`, màn Sinh viên có nên nói "giai đoạn P3" (thông tin tiến độ dự án) không? | Có ở sprint này (chỉ dev / QC thấy vì chưa phát hành); trước khi có người dùng thật phải đổi sang câu trung tính "Tính năng này sắp có." — ghi vào Nợ PR. | | |
+| Q6 | INP không đo được trong lab; dùng TBT ≤ 200 ms làm đại diện có chấp nhận không? | Chấp nhận; INP thật đo ở nghiệm thu P10 với người dùng thật (8.2). Không nới ngưỡng. | | |
+| Q7 | Lighthouse trên máy QC có thể chậm hơn CI → kết quả dao động. Xử lý? | Chạy 3 lần lấy trung vị; không đạt do máy thì ghi số đo thực + cấu hình máy và báo PM, không nới ngưỡng (05-AC5). | | |
+| Q8 | Cổng dán token Admin dev (`NEXT_PUBLIC_DEV_AUTH=1`) — có chấp nhận cho sprint 3 khi chưa có đăng nhập thật (P2)? | Có: token chỉ trong bộ nhớ, build thường không chứa mã cổng (03-AC23); sẽ bỏ khi P2 xong. Token tạo bằng `go run ./cmd/gateway token --role ADMIN` của PG. | | |
+| Q9 | Ảnh mốc `/settings/llm` chụp bản mock hay bản thật? | Chụp bản mock trước khi US-P1-05 xong, **cập nhật có giải thích** khi bản thật vào (05, Phụ thuộc). | | |
+| Q10 | `audit-baseline.md` (QC lập từ `307bfd2`) có phải điều kiện để bắt đầu story PU đầu tiên? | Có: QC lập trước khi dev gộp story PU-01. Nếu QC chưa kịp, dev vẫn làm nhưng chưa gộp; PM theo dõi. | | |
