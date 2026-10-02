@@ -1,8 +1,10 @@
 # FEAT-prototype-ui Prototype giao diện toàn bộ tính năng
 Nguồn: PRD §3–§4 (M0–M14), FLOWS F2–F17, `docs/DEMO_SCRIPT.md`, `docs/sprints/1.5/plan.md`; hợp đồng giao diện `docs/design/DESIGN.md` §14, `docs/design/INTEGRATION.md` mục 2. Chi tiết dữ liệu và tương tác từng route: `SRS.md` mục 4.
-Phiên bản 5.1 · 2026-10-01 · v5 (APPROVED) thêm UI polish (#17 → 00-AC7…AC10, 01-AC11, 02-AC9, 02-AC10, 04-AC7) và Threads như thật (#18 → 01-AC4, 01-AC10, 01-AC12…AC14, 02-AC11). **v5.1 (#19, 37 lỗi QC thăm dò `qc/explore-v4.md`) thêm 36 AC: 00-AC11…AC15, 01-AC15…AC28, 02-AC12…AC21, 03-AC7…AC8, 04-AC8…AC12** (34 AC cho E1–E37; 01-AC28 và 02-AC21 chốt ba điểm QC hỏi thêm ở `qc/tc-US-PROTO-01.md`); bảng E → AC: `SRS.md` 4.10; nguồn số liệu: `SRS.md` 4.8; ba điểm chốt: `SRS.md` 4.3.1 J. Lịch sử phiên bản: `SRS.md` dòng đầu.
+Phiên bản 5.2 · 2026-10-02 (5.1 · 2026-10-01; 5.2 = #26) · v5 (APPROVED) thêm UI polish (#17 → 00-AC7…AC10, 01-AC11, 02-AC9, 02-AC10, 04-AC7) và Threads như thật (#18 → 01-AC4, 01-AC10, 01-AC12…AC14, 02-AC11). **v5.1 (#19, 37 lỗi QC thăm dò `qc/explore-v4.md`) thêm 36 AC: 00-AC11…AC15, 01-AC15…AC28, 02-AC12…AC21, 03-AC7…AC8, 04-AC8…AC12** (34 AC cho E1–E37; 01-AC28 và 02-AC21 chốt ba điểm QC hỏi thêm ở `qc/tc-US-PROTO-01.md`); bảng E → AC: `SRS.md` 4.10; nguồn số liệu: `SRS.md` 4.8; ba điểm chốt: `SRS.md` 4.3.1 J. Lịch sử phiên bản: `SRS.md` dòng đầu.
 
 **Cập nhật theo góp ý #20 (PM chốt, 01/10; không đổi số AC):** 03-AC8 gọi tài liệu đang xử lý là "Chờ xử lý" (không "Chờ xác nhận", nhãn này dành riêng cho câu AI); 01-AC22 và 01-AC11 nêu rõ `/chat` ở 720–1099 px như 390 px; 01-AC18 thêm dòng "Đã ẩn n thông tin cá nhân" sau lối `Ẩn thông tin rồi đăng` (`SRS.md` 4.3.3). Nguồn: `docs/sprints/1.5/proposals.md` #20.
+
+**Phiên bản 5.2 (góp ý #26, PM `ACCEPTED` (a), 02/10; không đổi AC):** luật mốc thời gian tương đối theo **ngày lịch** — cùng ngày → "N giờ / phút trước"; khác ngày lịch → "hôm qua HH:MM" / "N ngày trước" (`SRS.md` 4.8 N6 đã sửa chữ cho khớp ví dụ; 04-AC10, 00-AC14 giữ nguyên). Nguồn: `docs/sprints/1.5/proposals.md` #26.
 
 ## Quy ước kiểm chung
 
