@@ -36,20 +36,21 @@ func TestVectorConventions(t *testing.T) {
 		using hnsw ((embedding::halfvec(1536)) halfvec_cosine_ops) with (m = 16, ef_construction = 64)`)
 	require.NoError(t, err)
 
-	// HNSW là xấp xỉ; 1.000 vector gần như trực giao (mọi cặp gần bằng khoảng cách nhau) nên với ef_search mặc định (40)
-	// kết quả đầu không luôn là chính vector truy vấn (CI đỏ ngẫu nhiên). Nâng tới mức tối đa để top-1 chắc chắn đúng.
-	// Bảng 1.000 dòng nhỏ nên planner có thể chọn Seq Scan khi ef_search lớn → ép dùng index để kiểm đúng đường chạy thật.
+	// HNSW là xấp xỉ: nâng ef_search tới mức tối đa để top-1 chắc chắn đúng. Bảng 1.000 dòng nhỏ nên planner có thể chọn
+	// Seq Scan khi ef_search lớn → ép dùng index để kiểm đúng đường chạy thật.
 	_, err = conn.Exec(ctx, `set hnsw.ef_search = 1000`)
 	require.NoError(t, err)
 	_, err = conn.Exec(ctx, `set enable_seqscan = off`)
 	require.NoError(t, err)
 
 	courseID, otherCourse := uuid.New(), uuid.New()
-	// 1.000 dòng: mỗi dòng một vector khác nhau (một chiều được đẩy lên 1.0 theo chỉ số dòng).
+	// 1.000 dòng, mỗi dòng một vector ngẫu nhiên (hạt giống cố định → tái lập). Không dùng vector "một chiều bật" (cơ sở trực
+	// giao): đồ thị HNSW trên dữ liệu suy biến như vậy có nút không tới được (CI x86 không tìm thấy chính vector truy vấn).
+	_, err = conn.Exec(ctx, `select setseed(0.42)`)
+	require.NoError(t, err)
 	_, err = conn.Exec(ctx, `insert into `+table+` (course_id, content, embedding)
 		select case when i % 5 = 0 then $2::uuid else $1::uuid end, 'chunk ' || i,
-		       (select array_agg(case when s = i % 1536 then 1::real else 0.001::real end order by s)
-		          from generate_series(0, 1535) s)::vector(1536)
+		       (select array_agg(random()::real - 0.5 order by s) from generate_series(0, 1535) s where i > 0)::vector(1536)
 		  from generate_series(1, 1000) i`, courseID, otherCourse)
 	require.NoError(t, err)
 	_, err = conn.Exec(ctx, `analyze `+table)
@@ -81,7 +82,7 @@ func TestVectorConventions(t *testing.T) {
 	require.NoError(t, rows.Err())
 	require.Len(t, ids, 5)
 	// Kết quả đầu là chính vector truy vấn: khoảng cosine ≈ 0 (so khoảng cách thay vì id — làm tròn dấu phẩy động của
-	// pgvector khác nhau giữa CPU, nên không đòi trùng id tuyệt đối). Các vector còn lại gần như trực giao (≈ 0,9965).
+	// pgvector khác nhau giữa CPU, nên không đòi trùng id tuyệt đối). Vector ngẫu nhiên khác cách xa (≈ 0,5).
 	require.Contains(t, ids, wantID, "vector truy vấn phải nằm trong top 5 (dist=%v)", dists)
 	require.Less(t, dists[0], 0.001, "kết quả đầu phải là chính vector truy vấn (dist=%v)", dists)
 
