@@ -31,6 +31,8 @@ Cách cắt:
 - Giữ đúng thứ tự phụ thuộc của phase (P0 → PG → PU → P1 → P2 → …). Trong một phase có thể xếp lại thứ tự lát việc, không được nhảy phase.
 - Cổng nghiệm thu của phase (trong phase file) được chạy khi story cuối của phase đó xong; `qc` dùng lệnh `/gate <phase>`.
 
+**Chạy cuốn chiếu (chủ dự án chốt 2026-10-02):** không để ai chờ ai. Khi `qc` đang chạy TC sprint N, PM lập kế hoạch sprint N+1 và giao `ba` viết spec ngay; `dev` xong việc sprint N thì nhận story đầu sprint N+1 khi spec đã `APPROVED`. Nhánh sprint N+1 tạo từ nhánh sprint N (xếp chồng) khi N chưa vào `main`, rồi gộp lại khi N được merge.
+
 ## 3. Vòng sprint — làm đúng thứ tự này
 
 ### 3.0. Nhận lệnh
