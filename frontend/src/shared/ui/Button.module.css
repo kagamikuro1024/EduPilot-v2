@@ -42,7 +42,8 @@
   color: var(--ep-ink-2);
   transition: background-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
 }
-.iconBtn:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+.iconBtn:hover:not(:disabled) { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+.iconBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 .iconBtn svg { width: 18px; height: 18px; stroke-width: 1.8; }
 .iconSm { width: 30px; height: 30px; }
 .iconSm svg { width: 16px; height: 16px; }

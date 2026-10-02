@@ -25,13 +25,13 @@
 
 .section { display: grid; gap: var(--ep-space-4); }
 .section + .section { margin-top: var(--ep-space-12); }
-.sectionHead { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--ep-space-4); }
+.sectionHead { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: var(--ep-space-2) var(--ep-space-4); } /* hẹp thì cụm điều khiển xuống dưới tiêu đề, không bóp tiêu đề còn 45 px (04-5) */
 .sectionDesc { margin-top: var(--ep-space-1); font-size: var(--ep-text-label); color: var(--ep-ink-3); }
 .sectionAction { flex: none; }
 
-.toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-3); flex-wrap: wrap; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-3); flex-wrap: wrap; min-width: 0; }
 .toolbarStart { display: flex; align-items: center; gap: var(--ep-space-2); flex-wrap: wrap; min-width: 0; flex: 1; }
-.toolbarEnd { display: flex; align-items: center; gap: var(--ep-space-2); }
+.toolbarEnd { display: flex; align-items: center; gap: var(--ep-space-2); min-width: 0; max-width: 100%; } /* hàng chip cuộn ngang bên trong không được nới cả trang (01-1) */
 
 .split { display: grid; grid-template-columns: minmax(0, 1fr) minmax(280px, 340px); gap: var(--ep-space-12); align-items: start; }
 .half { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--ep-space-8); }

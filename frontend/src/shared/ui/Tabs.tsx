@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
+import { useScrollRow } from "@/shared/lib/useScrollRow";
 import s from "./Tabs.module.css";
 
 type Option<V extends string> = { value: V; label: ReactNode; count?: number };
@@ -8,6 +9,7 @@ type Option<V extends string> = { value: V; label: ReactNode; count?: number };
 /** Chuyển giữa các phần lớn của MỘT đối tượng (DESIGN.md §10.8). */
 export function Tabs<V extends string>({ value, onChange, options, label }: { value: V; onChange: (v: V) => void; options: Option<V>[]; label: string }) {
   const ref = useRef<HTMLDivElement>(null);
+  useScrollRow(ref, options.length);
   // thiếu chỗ thì hàng tab cuộn ngang; tab đang chọn tự cuộn vào khung (chỉ theo chiều ngang, không kéo cả trang)
   useEffect(() => {
     const box = ref.current;
@@ -18,7 +20,7 @@ export function Tabs<V extends string>({ value, onChange, options, label }: { va
     else if (left + el.offsetWidth > box.scrollLeft + box.clientWidth) box.scrollLeft = left + el.offsetWidth - box.clientWidth;
   }, [value]);
   return (
-    <div role="tablist" aria-label={label} className={s.tabs} ref={ref} data-scroll-x="">
+    <div role="tablist" aria-label={label} className={s.tabs} ref={ref}>
       {options.map((o) => (
         <button
           key={o.value}
@@ -43,8 +45,10 @@ export function Tabs<V extends string>({ value, onChange, options, label }: { va
 
 /** 2–4 chế độ loại trừ nhau đổi khung nhìn cục bộ (DESIGN.md §10.7). */
 export function SegmentedControl<V extends string>({ value, onChange, options, label }: { value: V; onChange: (v: V) => void; options: Option<V>[]; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useScrollRow(ref, options.length);
   return (
-    <div role="radiogroup" aria-label={label} className={s.segmented} data-scroll-x="">
+    <div role="radiogroup" aria-label={label} className={s.segmented} ref={ref}>
       {options.map((o) => (
         <button key={o.value} type="button" role="radio" aria-checked={o.value === value} className={s.segment} onClick={() => onChange(o.value)}>
           {o.label}
@@ -57,8 +61,10 @@ export function SegmentedControl<V extends string>({ value, onChange, options, l
 
 /** Bộ lọc nhanh dạng chip bật/tắt (nhiều lựa chọn). */
 export function FilterChips<V extends string>({ value, onChange, options, label }: { value: V[]; onChange: (v: V[]) => void; options: Option<V>[]; label: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  useScrollRow(ref, options.length);
   return (
-    <div role="group" aria-label={label} className={s.chips} data-scroll-x="">
+    <div role="group" aria-label={label} className={s.chips} ref={ref}>
       {options.map((o) => {
         const on = value.includes(o.value);
         return (

@@ -46,10 +46,11 @@ function statusNotes(role: Role, studentId: string | undefined, hasCourse: boole
       });
     }
   }
-  if (role === "teacher" || role === "ta") {
+  // Trợ giảng chỉ có lớp 761987 (SRS 4.1): không nhận thông báo phân công lớp 761988
+  if (role === "teacher") {
     out.push({
       id: "n-assigned",
-      to: { roles: ["teacher", "ta"] },
+      to: { roles: ["teacher"] },
       title: `Bạn được phân công lớp An ninh mạng – 761988. Mã tham gia: BX4P9TW`,
       meta: "Quản trị viên",
       href: `/class/members?course=${COURSE_2}`,
@@ -118,6 +119,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const personName = displayName(role, user.name, user.title);
   const viewer = viewerKey(role, studentId);
   const scope = useMemo(() => (isAll ? courses.map((c) => c.id) : hasCourse ? [course.id] : []), [isAll, courses, hasCourse, course.id]);
+  // Chuông không theo lớp đang chọn: mục của lớp khác vẫn tới, đích mang `course=` nên mở đúng lớp (SRS 4.9)
+  const noteScope = useMemo(() => courses.map((c) => c.id), [courses]);
 
   // Đồng hồ giả lập: khung app lưu mốc t0 một lần, mọi chuỗi thời gian tương đối đọc `now` này (SRS 4.8 N6).
   useEnsureClock();
@@ -127,15 +130,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [storedTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
+  const [approvedIds] = useDemoSlice<string[]>("grading.approved", []);
   const badges = {
     inbox: ticketStats(mergeTickets(storedTickets), scope, now).open,
-    grading: scope.includes(COURSE_1) ? reviewPending(bt03.status).length : 0,
+    grading: scope.includes(COURSE_1) ? reviewPending(bt03.status, approvedIds).length : 0,
   };
 
   const [storedNotes] = useDemoSlice<Note[]>(KEYS.notes, []);
   const notes = useMemo(
-    () => notesFor([...storedNotes, ...statusNotes(role, studentId, hasCourse, bt03, schemes, viewer)], role, studentId, scope),
-    [storedNotes, role, studentId, hasCourse, bt03, schemes, viewer, scope],
+    () => notesFor([...storedNotes, ...statusNotes(role, studentId, hasCourse, bt03, schemes, viewer)], role, studentId, noteScope),
+    [storedNotes, role, studentId, hasCourse, bt03, schemes, viewer, noteScope],
   );
   const unread = notes.filter((n) => !n.readBy.includes(viewer)).length;
 
@@ -227,7 +231,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             {(close) => (
               <div className={s.coursePanel}>
-                <p className={s.courseCurrent}>{role === "student" && !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : course.label}</p>
+                {narrow && <p className={s.courseCurrent}>{role === "student" && !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : course.label}</p>}
                 <p className={s.panelLabel}>{role === "student" ? "Lớp của bạn" : "Lớp bạn phụ trách"}</p>
                 <MenuList
                   onPicked={close}
@@ -342,7 +346,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     .slice(-1)[0]
                     .slice(0, 1)}
                 </span>
-                <span className={s.profileRole}>{role === "student" ? user.name : ROLE_LABEL[role]}</span>
+                <span className={s.profileRole}>{personName}</span>
                 <ChevronDown aria-hidden />
               </button>
             )}
@@ -400,6 +404,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       icon: <RotateCcw aria-hidden />,
                       onSelect: () => {
                         resetDemo();
+                        // về lớp mặc định của vai để diễn lại kịch bản từ đầu (không kẹt ở lớp 761988)
+                        setCourse(COURSE_1);
                         router.refresh();
                       },
                     },

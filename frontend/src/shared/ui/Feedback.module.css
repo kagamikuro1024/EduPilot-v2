@@ -33,7 +33,7 @@
 .t_green { color: var(--ep-green); }
 .chip { padding: 2px var(--ep-space-2); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-pill); background: var(--ep-surface); font-size: var(--ep-text-meta); }
 
-.empty { display: grid; justify-items: start; gap: var(--ep-space-2); padding: var(--ep-space-10) 0; max-width: 56ch; }
+.empty { display: grid; align-content: start; align-self: start; justify-items: start; gap: var(--ep-space-2); padding: var(--ep-space-10) 0; max-width: 56ch; }
 .emptyIcon { color: var(--ep-ink-3); margin-bottom: var(--ep-space-2); }
 .emptyIcon svg { width: 22px; height: 22px; stroke-width: 1.6; }
 .emptyText { color: var(--ep-ink-2); }
@@ -82,4 +82,9 @@
 /* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14). */
 @media (max-width: 719px), (pointer: coarse) {
   .undoBtn { min-height: 44px; min-width: 44px; }
+}
+
+/* Hẹp thì trạng thái được xuống dòng thay vì đẩy cột / khung ra ngoài màn (E21, 03-3). */
+@media (max-width: 719px) {
+  .status { white-space: normal; }
 }

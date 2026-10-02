@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type { ReactNode } from "react";
+import { useRef, type CSSProperties, type ReactNode } from "react";
+import { useScrollRow } from "@/shared/lib/useScrollRow";
 import s from "./DataTable.module.css";
 
 export type Column<T> = {
@@ -13,8 +14,8 @@ export type Column<T> = {
   width?: string;
   /** cột cố định bên trái khi cuộn ngang (tên sinh viên…) */
   frozen?: boolean;
-  /** ẩn ở màn < 720px (cả chế độ bảng cuộn lẫn chế độ danh sách) */
-  hideOnMobile?: boolean;
+  /** bề rộng ở màn < 720px (chế độ bảng cuộn); mặc định = `width`. Không cột nào bị ẩn: cột thừa cuộn ngang hoặc thành dòng phụ. */
+  mobileWidth?: string;
   /** nhãn dòng phụ ở chế độ danh sách; mặc định dùng `header` nếu là chữ */
   mobileLabel?: string;
   /** cột chính của chế độ danh sách (in đậm, dòng đầu); mặc định cột `frozen` hoặc cột đầu tiên */
@@ -66,6 +67,9 @@ export function DataTable<T>({
   rowAttrs?: (row: T) => Record<string, string>;
 }) {
   const router = useRouter();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // bảng rộng hơn khung (ví dụ 720 px có thanh bên) cuộn ngang được và nói rõ: data-scroll-x + mép mờ
+  useScrollRow(scrollRef, columns.length + rows.length);
   const allSelected = selection && rows.length > 0 && rows.every((r) => selection.selected.has(rowKey(r)));
 
   function toggle(key: string) {
@@ -86,7 +90,7 @@ export function DataTable<T>({
   return (
     <div className={s.root}>
       {mobile === "scroll" && scrollHint && <p className={s.scrollHint}>{scrollHint}</p>}
-      <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} data-scroll-x={mobile === "scroll" ? "" : undefined}>
+      <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} ref={scrollRef}>
       <table className={[s.table, dense ? s.dense : ""].join(" ")}>
         <caption className="ep-sr-only">{caption}</caption>
         <thead>
@@ -105,8 +109,8 @@ export function DataTable<T>({
               <th
                 key={c.key}
                 scope="col"
-                style={{ width: c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}
-                className={[c.frozen ? s.frozen : "", c.hideOnMobile ? s.hideMobile : ""].join(" ")}
+                style={{ "--w": c.width, "--wm": c.mobileWidth ?? c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties}
+                className={[s.th, c.frozen ? s.frozen : ""].join(" ")}
                 data-part={c.part}
               >
                 {c.header}
@@ -135,7 +139,7 @@ export function DataTable<T>({
                   <td
                     key={c.key}
                     style={{ textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}
-                    className={[c.frozen ? s.frozen : "", c.hideOnMobile ? s.hideMobile : ""].join(" ")}
+                    className={c.frozen ? s.frozen : undefined}
                     data-part={c.part}
                   >
                     {c.render(row)}
@@ -152,7 +156,7 @@ export function DataTable<T>({
           {rows.map((row) => {
             const key = rowKey(row);
             const main = columns.find((c) => c.primary) ?? columns.find((c) => c.frozen) ?? columns[0];
-            const rest = columns.filter((c) => c !== main && !c.hideOnMobile);
+            const rest = columns.filter((c) => c !== main);
             const href = rowHref?.(row);
             const inner = mobileRow ? (
               mobileRow(row)

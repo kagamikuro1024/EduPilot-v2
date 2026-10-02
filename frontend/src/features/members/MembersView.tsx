@@ -172,7 +172,7 @@ export function MembersView() {
             columns={[
               { key: "name", header: "Sinh viên", frozen: true, width: "30%", render: (st) => st.name },
               { key: "code", header: "MSSV", render: (st) => st.code },
-              { key: "mail", header: "Email", hideOnMobile: true, render: (st) => st.email },
+              { key: "mail", header: "Email", render: (st) => st.email },
               {
                 key: "act",
                 header: "",

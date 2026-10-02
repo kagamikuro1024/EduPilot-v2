@@ -108,10 +108,10 @@ export function QuestionBank() {
 
   const columns: Column<Question>[] = [
     { key: "text", header: "Câu hỏi", render: (q) => <span className={s.text}>{q.text}</span> },
-    { key: "topic", header: "Chủ đề", width: "200px", hideOnMobile: true, render: (q) => <span className={s.meta}>{q.topic}</span> },
-    { key: "difficulty", header: "Độ khó", width: "110px", hideOnMobile: true, render: (q) => <span className={s.meta}>{DIFFICULTY_LABEL[q.difficulty]}</span> },
-    { key: "kind", header: "Loại", width: "130px", hideOnMobile: true, render: (q) => <span className={s.meta}>{KIND_LABEL[q.kind]}</span> },
-    { key: "source", header: "Nguồn", width: "180px", hideOnMobile: true, render: (q) => <span className={s.meta}>{SOURCE_LABEL[q.source]}</span> },
+    { key: "topic", header: "Chủ đề", width: "200px", render: (q) => <span className={s.meta}>{q.topic}</span> },
+    { key: "difficulty", header: "Độ khó", width: "110px", render: (q) => <span className={s.meta}>{DIFFICULTY_LABEL[q.difficulty]}</span> },
+    { key: "kind", header: "Loại", width: "130px", render: (q) => <span className={s.meta}>{KIND_LABEL[q.kind]}</span> },
+    { key: "source", header: "Nguồn", width: "180px", render: (q) => <span className={s.meta}>{SOURCE_LABEL[q.source]}</span> },
     { key: "status", header: "Trạng thái", width: "130px", render: (q) => <StatusText tone={STATUS_TONE[q.status]}>{STATUS_LABEL[q.status]}</StatusText> },
   ];
 

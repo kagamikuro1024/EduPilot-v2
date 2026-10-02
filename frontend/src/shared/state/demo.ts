@@ -26,6 +26,18 @@ function read(): Bag {
   return cache;
 }
 
+/** Lát lưu sai kiểu so với giá trị gốc (chuỗi thay mảng, số thay đối tượng…) bị bỏ qua: quay về dữ liệu gốc thay vì sập app (00-1). */
+function fits(value: unknown, initial: unknown): boolean {
+  if (initial === null || initial === undefined) return true;
+  if (Array.isArray(initial)) return Array.isArray(value);
+  if (typeof initial === "object") return value !== null && typeof value === "object" && !Array.isArray(value);
+  return typeof value === typeof initial;
+}
+
+function pick<T>(bag: Bag, key: string, initial: T): T {
+  return (key in bag && fits(bag[key], initial) ? bag[key] : initial) as T;
+}
+
 function write(next: Bag) {
   cache = next;
   try {
@@ -58,11 +70,11 @@ function subscribe(cb: () => void) {
  */
 export function useDemoSlice<T>(key: string, initial: T): [T, (next: T | ((prev: T) => T)) => void] {
   const bag = useSyncExternalStore(subscribe, read, () => EMPTY);
-  const value = (key in bag ? bag[key] : initial) as T;
+  const value = pick(bag, key, initial);
   const set = useCallback(
     (next: T | ((prev: T) => T)) => {
       const cur = read();
-      const prev = (key in cur ? cur[key] : initial) as T;
+      const prev = pick(cur, key, initial);
       write({ ...cur, [key]: typeof next === "function" ? (next as (p: T) => T)(prev) : next });
     },
     // `initial` thường là hằng số module; không đưa vào deps để `set` ổn định.
@@ -75,8 +87,7 @@ export function useDemoSlice<T>(key: string, initial: T): [T, (next: T | ((prev:
 /** Đọc một lát ngoài React (hàm thuần cần đồng hồ giả lập, bộ hẹn giờ…). Trên server luôn trả `initial`. */
 export function readSlice<T>(key: string, initial: T): T {
   if (typeof window === "undefined") return initial;
-  const bag = read();
-  return (key in bag ? bag[key] : initial) as T;
+  return pick(read(), key, initial);
 }
 
 /** Ghi một lát ngoài React (cùng bộ nghe với `useDemoSlice`). */
