@@ -1,0 +1,598 @@
+== TC-PG04-01
+    ok   token có 3 đoạn = [3]
+    ok   header.alg = [HS256]
+    ok   header.typ = [JWT]
+    ok   header chỉ có alg,typ = [alg,typ]
+-- TC-PG04-01 PASS
+== TC-PG04-02
+jq: parse error: Unfinished string at EOF at line 1, column 210
+    FAIL keys của payload: thực tế [] ≠ mong đợi [["aud","email","exp","iat","iss","jti","nbf","role","sub"]]
+-- TC-PG04-02 FAIL
+== TC-PG04-03
+    ok   exp-iat mặc định = [900]
+    ok   exp-iat với --ttl 10m = [600]
+    ok   exp-iat với --ttl 1m = [60]
+    ok   exp-iat với --ttl 1h = [3600]
+-- TC-PG04-03 PASS
+== TC-PG04-04
+    ok   role=ADMIN = [ADMIN]
+    ok   iss (vai ADMIN) = [edupilot]
+    ok   aud (vai ADMIN) = [edupilot-api]
+    ok   sub (vai ADMIN) = [00000000-0000-7000-8000-000000000001]
+    ok   email là chuỗi không rỗng (vai ADMIN) ~ /.+@.+/
+    ok   role=TEACHER = [TEACHER]
+    ok   iss (vai TEACHER) = [edupilot]
+    ok   aud (vai TEACHER) = [edupilot-api]
+    ok   sub (vai TEACHER) = [00000000-0000-7000-8000-000000000001]
+    ok   email là chuỗi không rỗng (vai TEACHER) ~ /.+@.+/
+    ok   role=TA = [TA]
+    ok   iss (vai TA) = [edupilot]
+    ok   aud (vai TA) = [edupilot-api]
+    ok   sub (vai TA) = [00000000-0000-7000-8000-000000000001]
+    ok   email là chuỗi không rỗng (vai TA) ~ /.+@.+/
+    ok   role=STUDENT = [STUDENT]
+    ok   iss (vai STUDENT) = [edupilot]
+    ok   aud (vai STUDENT) = [edupilot-api]
+    ok   sub (vai STUDENT) = [00000000-0000-7000-8000-000000000001]
+    ok   email là chuỗi không rỗng (vai STUDENT) ~ /.+@.+/
+    ok   sub theo --sub U2 = [00000000-0000-7000-8000-000000000002]
+-- TC-PG04-04 PASS
+== TC-PG04-05
+    ok   nbf ≤ iat = 1790965702 (≤ 1790965702)
+    ok   |iat - now| ≤ 120 (iat=1790965702 now=1790965702) = 0 (≤ 120)
+    ok   exp > iat = 1790966602 (≥ 1790965703)
+    ok   iat là số nguyên ~ /^[0-9]+$/
+-- TC-PG04-05 PASS
+== TC-PG04-06
+    ok   số token cấp = [200]
+    ok   số jti duy nhất = [200]
+    ok   số jti dài 22 ký tự base64url = [200]
+-- TC-PG04-06 PASS
+== TC-PG04-07
+    ok   go test ./internal/auth -run 'TestJWT_Claims|TestJWT_JTIUnique' rc = [0]
+    ok   --- PASS: TestJWT_Claims
+    ok   --- PASS: TestJWT_JTIUnique
+-- TC-PG04-07 PASS
+== TC-PG04-08
+    ok   hết hạn (--ttl -1m) · status = [401]
+    ok   hết hạn (--ttl -1m) · code = [TOKEN_EXPIRED]
+    ok   hết hạn (--ttl -1m) · message cố định = [Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.]
+    ok   hết hạn (--ttl -1m) · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   hết hạn (--ttl -1m) · error=invalid_token ~ /error="invalid_token"/
+    ok   hết hạn (--ttl -1m) · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   hết hạn (--ttl -1m) · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   hết hạn 1 giờ (mkjwt exp=now-3600) · status = [401]
+    ok   hết hạn 1 giờ (mkjwt exp=now-3600) · code = [TOKEN_EXPIRED]
+    ok   hết hạn 1 giờ (mkjwt exp=now-3600) · message cố định = [Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.]
+    ok   hết hạn 1 giờ (mkjwt exp=now-3600) · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   hết hạn 1 giờ (mkjwt exp=now-3600) · error=invalid_token ~ /error="invalid_token"/
+    ok   hết hạn 1 giờ (mkjwt exp=now-3600) · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   hết hạn 1 giờ (mkjwt exp=now-3600) · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-08 PASS
+== TC-PG04-09
+    ok   chữ ký đổi 1 ký tự · status = [401]
+    ok   chữ ký đổi 1 ký tự · code = [TOKEN_INVALID]
+    ok   chữ ký đổi 1 ký tự · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   chữ ký đổi 1 ký tự · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   chữ ký đổi 1 ký tự · error=invalid_token ~ /error="invalid_token"/
+    ok   chữ ký đổi 1 ký tự · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   chữ ký đổi 1 ký tự · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   ký bằng secret khác · status = [401]
+    ok   ký bằng secret khác · code = [TOKEN_INVALID]
+    ok   ký bằng secret khác · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   ký bằng secret khác · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   ký bằng secret khác · error=invalid_token ~ /error="invalid_token"/
+    ok   ký bằng secret khác · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   ký bằng secret khác · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   chữ ký rỗng (3 đoạn, đoạn 3 trống) · status = [401]
+    ok   chữ ký rỗng (3 đoạn, đoạn 3 trống) · code = [TOKEN_INVALID]
+    ok   chữ ký rỗng (3 đoạn, đoạn 3 trống) · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   chữ ký rỗng (3 đoạn, đoạn 3 trống) · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   chữ ký rỗng (3 đoạn, đoạn 3 trống) · error=invalid_token ~ /error="invalid_token"/
+    ok   chữ ký rỗng (3 đoạn, đoạn 3 trống) · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   chữ ký rỗng (3 đoạn, đoạn 3 trống) · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-09 PASS
+== TC-PG04-10
+    ok   alg=none · status = [401]
+    ok   alg=none · code = [TOKEN_INVALID]
+    ok   alg=none · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   alg=none · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   alg=none · error=invalid_token ~ /error="invalid_token"/
+    ok   alg=none · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   alg=none · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-10 PASS
+== TC-PG04-11
+    ok   alg=HS512 (chữ ký hợp lệ theo HS512) · status = [401]
+    ok   alg=HS512 (chữ ký hợp lệ theo HS512) · code = [TOKEN_INVALID]
+    ok   alg=HS512 (chữ ký hợp lệ theo HS512) · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   alg=HS512 (chữ ký hợp lệ theo HS512) · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   alg=HS512 (chữ ký hợp lệ theo HS512) · error=invalid_token ~ /error="invalid_token"/
+    ok   alg=HS512 (chữ ký hợp lệ theo HS512) · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   alg=HS512 (chữ ký hợp lệ theo HS512) · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-11 PASS
+== TC-PG04-12
+    ok   alg=RS256 (chữ ký rác) · status = [401]
+    ok   alg=RS256 (chữ ký rác) · code = [TOKEN_INVALID]
+    ok   alg=RS256 (chữ ký rác) · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   alg=RS256 (chữ ký rác) · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   alg=RS256 (chữ ký rác) · error=invalid_token ~ /error="invalid_token"/
+    ok   alg=RS256 (chữ ký rác) · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   alg=RS256 (chữ ký rác) · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-12 PASS
+== TC-PG04-13
+    ok   thiếu claim exp · status = [401]
+    ok   thiếu claim exp · code = [TOKEN_INVALID]
+    ok   thiếu claim exp · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   thiếu claim exp · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   thiếu claim exp · error=invalid_token ~ /error="invalid_token"/
+    ok   thiếu claim exp · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   thiếu claim exp · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-13 PASS
+== TC-PG04-14
+    ok   role=SUPERUSER · status = [401]
+    ok   role=SUPERUSER · code = [TOKEN_INVALID]
+    ok   role=SUPERUSER · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   role=SUPERUSER · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   role=SUPERUSER · error=invalid_token ~ /error="invalid_token"/
+    ok   role=SUPERUSER · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   role=SUPERUSER · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   role="student" (chữ thường, ngoài 4 giá trị) · status = [401]
+    ok   role="student" (chữ thường, ngoài 4 giá trị) · code = [TOKEN_INVALID]
+    ok   role="student" (chữ thường, ngoài 4 giá trị) · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   role="student" (chữ thường, ngoài 4 giá trị) · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   role="student" (chữ thường, ngoài 4 giá trị) · error=invalid_token ~ /error="invalid_token"/
+    ok   role="student" (chữ thường, ngoài 4 giá trị) · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   role="student" (chữ thường, ngoài 4 giá trị) · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   thiếu claim role · status = [401]
+    ok   thiếu claim role · code = [TOKEN_INVALID]
+    ok   thiếu claim role · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   thiếu claim role · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   thiếu claim role · error=invalid_token ~ /error="invalid_token"/
+    ok   thiếu claim role · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   thiếu claim role · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-14 PASS
+== TC-PG04-15
+    ok   iss="khac" · status = [401]
+    ok   iss="khac" · code = [TOKEN_INVALID]
+    ok   iss="khac" · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   iss="khac" · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   iss="khac" · error=invalid_token ~ /error="invalid_token"/
+    ok   iss="khac" · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   iss="khac" · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   thiếu iss · status = [401]
+    ok   thiếu iss · code = [TOKEN_INVALID]
+    ok   thiếu iss · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   thiếu iss · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   thiếu iss · error=invalid_token ~ /error="invalid_token"/
+    ok   thiếu iss · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   thiếu iss · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-15 PASS
+== TC-PG04-16
+    ok   aud="edupilot-web" · status = [401]
+    ok   aud="edupilot-web" · code = [TOKEN_INVALID]
+    ok   aud="edupilot-web" · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   aud="edupilot-web" · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   aud="edupilot-web" · error=invalid_token ~ /error="invalid_token"/
+    ok   aud="edupilot-web" · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   aud="edupilot-web" · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   thiếu aud · status = [401]
+    ok   thiếu aud · code = [TOKEN_INVALID]
+    ok   thiếu aud · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   thiếu aud · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   thiếu aud · error=invalid_token ~ /error="invalid_token"/
+    ok   thiếu aud · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   thiếu aud · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-16 PASS
+== TC-PG04-17
+    ok   nbf = iat + 600 · status = [401]
+    ok   nbf = iat + 600 · code = [TOKEN_INVALID]
+    ok   nbf = iat + 600 · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   nbf = iat + 600 · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   nbf = iat + 600 · error=invalid_token ~ /error="invalid_token"/
+    ok   nbf = iat + 600 · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   nbf = iat + 600 · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-17 PASS
+== TC-PG04-18
+    ok   chỉ 2 đoạn · status = [401]
+    ok   chỉ 2 đoạn · code = [TOKEN_INVALID]
+    ok   chỉ 2 đoạn · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   chỉ 2 đoạn · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   chỉ 2 đoạn · error=invalid_token ~ /error="invalid_token"/
+    ok   chỉ 2 đoạn · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   chỉ 2 đoạn · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   rác "garbage" · status = [401]
+    ok   rác "garbage" · code = [TOKEN_INVALID]
+    ok   rác "garbage" · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   rác "garbage" · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   rác "garbage" · error=invalid_token ~ /error="invalid_token"/
+    ok   rác "garbage" · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   rác "garbage" · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   4 đoạn · status = [401]
+    ok   4 đoạn · code = [TOKEN_INVALID]
+    ok   4 đoạn · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   4 đoạn · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   4 đoạn · error=invalid_token ~ /error="invalid_token"/
+    ok   4 đoạn · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   4 đoạn · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   payload không phải base64url hợp lệ · status = [401]
+    ok   payload không phải base64url hợp lệ · code = [TOKEN_INVALID]
+    ok   payload không phải base64url hợp lệ · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   payload không phải base64url hợp lệ · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   payload không phải base64url hợp lệ · error=invalid_token ~ /error="invalid_token"/
+    ok   payload không phải base64url hợp lệ · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   payload không phải base64url hợp lệ · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-18 PASS
+== TC-PG04-19
+    ok   không gửi header Authorization · status = [401]
+    ok   không gửi header Authorization · code = [UNAUTHENTICATED]
+    ok   không gửi header Authorization · message cố định = [Bạn cần đăng nhập để tiếp tục.]
+    ok   không gửi header Authorization · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   không gửi header Authorization · không kèm error= !~ /error=/
+    ok   không gửi header Authorization · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   không gửi header Authorization · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   Authorization: Basic … · status = [401]
+    ok   Authorization: Basic … · code = [UNAUTHENTICATED]
+    ok   Authorization: Basic … · message cố định = [Bạn cần đăng nhập để tiếp tục.]
+    ok   Authorization: Basic … · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   Authorization: Basic … · không kèm error= !~ /error=/
+    ok   Authorization: Basic … · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   Authorization: Basic … · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   Bearer rỗng ("Bearer ") · status = [401]
+    ok   Bearer rỗng ("Bearer ") · code = [UNAUTHENTICATED]
+    ok   Bearer rỗng ("Bearer ") · message cố định = [Bạn cần đăng nhập để tiếp tục.]
+    ok   Bearer rỗng ("Bearer ") · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   Bearer rỗng ("Bearer ") · không kèm error= !~ /error=/
+    ok   Bearer rỗng ("Bearer ") · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   Bearer rỗng ("Bearer ") · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   Authorization rỗng · status = [401]
+    ok   Authorization rỗng · code = [UNAUTHENTICATED]
+    ok   Authorization rỗng · message cố định = [Bạn cần đăng nhập để tiếp tục.]
+    ok   Authorization rỗng · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   Authorization rỗng · không kèm error= !~ /error=/
+    ok   Authorization rỗng · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   Authorization rỗng · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-19 PASS
+== TC-PG04-20
+    ok   mã lỗi = [TOKEN_INVALID]
+    ok   mã lỗi = [TOKEN_INVALID]
+    ok   mã lỗi = [TOKEN_INVALID]
+    ok   mã lỗi = [TOKEN_INVALID]
+    ok   mã lỗi = [TOKEN_INVALID]
+    ok   mã lỗi = [TOKEN_INVALID]
+    ok   số message khác nhau giữa các TOKEN_INVALID = [1]
+    ok   message TOKEN_INVALID đúng chuỗi cố định (SRS 6.1) = [Phiên đăng nhập không hợp lệ.]
+    ok   message không nêu lý do kỹ thuật !~ /[Aa][Ll][Gg]|HS256|HS512|RS256|[Ss]ignature|chữ ký|"iss"|"aud"|"nbf"|"exp"|base64|JWT|[Cc]laim/
+    ok   message không chứa token !~ /eyJ/
+-- TC-PG04-20 PASS
+== TC-PG04-21
+    ok   DB dừng · token hết hạn = [TOKEN_EXPIRED|Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.]
+    ok   DB dừng · token hỏng = [TOKEN_INVALID|Phiên đăng nhập không hợp lệ.]
+    ok   DB dừng · không token = [UNAUTHENTICATED|Bạn cần đăng nhập để tiếp tục.]
+-- TC-PG04-21 PASS
+== TC-PG04-22
+    ok   go test ./internal/auth -run 'TestVerify_Table' rc = [0]
+    ok   --- PASS: TestVerify_Table
+    ok   số dòng bảng (subtest PASS của TestVerify_Table) = 23 (≥ 14)
+-- TC-PG04-22 PASS
+== TC-PG04-23
+    ok   go test ./internal/auth -run 'TestVerify_Leeway' rc = [0]
+    ok   --- PASS: TestVerify_Leeway
+-- TC-PG04-23 PASS
+== TC-PG04-24
+    ok   token mkjwt còn hạn (đối chứng dương) = [200]
+    ok   hết hạn 3 s (trong leeway) = [200]
+    ok   hết hạn 4 s (trong leeway) = [200]
+    ok   hết hạn 7 s · status = [401]
+    ok   hết hạn 7 s · code = [TOKEN_EXPIRED]
+    ok   hết hạn 7 s · message cố định = [Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.]
+    ok   hết hạn 7 s · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   hết hạn 7 s · error=invalid_token ~ /error="invalid_token"/
+    ok   hết hạn 7 s · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   hết hạn 7 s · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   hết hạn 10 s · status = [401]
+    ok   hết hạn 10 s · code = [TOKEN_EXPIRED]
+    ok   hết hạn 10 s · message cố định = [Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.]
+    ok   hết hạn 10 s · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   hết hạn 10 s · error=invalid_token ~ /error="invalid_token"/
+    ok   hết hạn 10 s · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   hết hạn 10 s · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-24 PASS
+== TC-PG04-25
+    ok   DB dừng · whoami vai ADMIN · status = [200]
+    ok   DB dừng · whoami ADMIN · [sub,role] = [["00000000-0000-7000-8000-000000000001","ADMIN"]]
+    ok   DB dừng · whoami vai TEACHER · status = [200]
+    ok   DB dừng · whoami TEACHER · [sub,role] = [["00000000-0000-7000-8000-000000000001","TEACHER"]]
+    ok   DB dừng · whoami vai TA · status = [200]
+    ok   DB dừng · whoami TA · [sub,role] = [["00000000-0000-7000-8000-000000000001","TA"]]
+    ok   DB dừng · whoami vai STUDENT · status = [200]
+    ok   DB dừng · whoami STUDENT · [sub,role] = [["00000000-0000-7000-8000-000000000001","STUDENT"]]
+    ok   DB dừng · whoami vai STUDENT-U2 · status = [200]
+    ok   DB dừng · whoami STUDENT-U2 · [sub,role] = [["00000000-0000-7000-8000-000000000002","STUDENT"]]
+-- TC-PG04-25 PASS
+== TC-PG04-26
+    info nền=3/s  cửa sổ=748ms  delta=2  ngưỡng=5
+    ok   giao dịch DB trong 20 request whoami = 2 (≤ 5)
+-- TC-PG04-26 PASS
+== TC-PG04-27
+    ok   go test ./internal/auth -run 'TestAuth_NoDBQueryPerRequest' rc = [0]
+    ok   --- PASS: TestAuth_NoDBQueryPerRequest
+-- TC-PG04-27 PASS
+== TC-PG04-28
+    ok   rbac/admin vai ADMIN = [200]
+    ok   rbac/staff vai ADMIN = [403]
+    ok   rbac/admin vai TEACHER = [403]
+    ok   rbac/staff vai TEACHER = [200]
+    ok   rbac/admin vai TA = [403]
+    ok   rbac/staff vai TA = [200]
+    ok   rbac/admin vai STUDENT = [403]
+    ok   rbac/staff vai STUDENT = [403]
+-- TC-PG04-28 PASS
+== TC-PG04-29
+    ok   ẩn danh · rbac/admin · status = [401]
+    ok   ẩn danh · rbac/admin · code = [UNAUTHENTICATED]
+    ok   ẩn danh · rbac/admin · message cố định = [Bạn cần đăng nhập để tiếp tục.]
+    ok   ẩn danh · rbac/admin · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   ẩn danh · rbac/admin · không kèm error= !~ /error=/
+    ok   ẩn danh · rbac/admin · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   ẩn danh · rbac/admin · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   ẩn danh · rbac/staff · status = [401]
+    ok   ẩn danh · rbac/staff · code = [UNAUTHENTICATED]
+    ok   ẩn danh · rbac/staff · message cố định = [Bạn cần đăng nhập để tiếp tục.]
+    ok   ẩn danh · rbac/staff · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   ẩn danh · rbac/staff · không kèm error= !~ /error=/
+    ok   ẩn danh · rbac/staff · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   ẩn danh · rbac/staff · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-29 PASS
+== TC-PG04-30
+    ok   STUDENT → rbac/admin · status = [403]
+    ok   STUDENT → rbac/admin · code = [FORBIDDEN]
+    ok   STUDENT → rbac/admin · details.reason = [role]
+    ok   STUDENT → rbac/admin · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   ADMIN → rbac/staff · status = [403]
+    ok   ADMIN → rbac/staff · code = [FORBIDDEN]
+    ok   ADMIN → rbac/staff · details.reason = [role]
+    ok   ADMIN → rbac/staff · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   khoá của thân 403 = [code,details,message,trace_id]
+    ok   message 403 không nêu vai cần có !~ /ADMIN|TEACHER|STUDENT|[Aa]dmin|[Tt]eacher|[Ss]tudent/
+-- TC-PG04-30 PASS
+== TC-PG04-31
+    ok   go test ./internal/auth -run 'TestRBAC_Matrix' rc = [0]
+    ok   --- PASS: TestRBAC_Matrix
+-- TC-PG04-31 PASS
+== TC-PG04-32
+    ok   users.role trong DB = [ADMIN]
+    ok   DB=ADMIN, claim=STUDENT → rbac/admin · status = [403]
+    ok   DB=ADMIN, claim=STUDENT → rbac/admin · code = [FORBIDDEN]
+    ok   DB=ADMIN, claim=STUDENT → rbac/admin · details.reason = [role]
+    ok   DB=ADMIN, claim=STUDENT → rbac/admin · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   đã dọn user tạm = [0]
+-- TC-PG04-32 PASS
+== TC-PG04-33
+    ok   DB=STUDENT, claim=ADMIN → rbac/admin = [200]
+    ok   đã dọn user tạm = [0]
+-- TC-PG04-33 PASS
+== TC-PG04-34
+    ok   go test ./internal/auth -run 'TestRBAC_ClaimWinsOverDB' rc = [0]
+    ok   --- PASS: TestRBAC_ClaimWinsOverDB
+-- TC-PG04-34 PASS
+== TC-PG04-35
+    ok   guard · vai ADMIN → 403 = [403]
+    ok   guard · vai TEACHER → 403 = [403]
+    ok   guard · vai TA → 403 = [403]
+    ok   guard · vai STUDENT → 403 = [403]
+    ok   guard · vai STUDENT, sub khác (U2) → 403 = [403]
+-- TC-PG04-35 PASS
+== TC-PG04-36
+    ok   guard ADMIN · status = [403]
+    ok   guard ADMIN · code = [FORBIDDEN]
+    ok   guard ADMIN · details.reason = [course]
+    ok   guard ADMIN · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   guard STUDENT · status = [403]
+    ok   guard STUDENT · code = [FORBIDDEN]
+    ok   guard STUDENT · details.reason = [course]
+    ok   guard STUDENT · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+-- TC-PG04-36 PASS
+== TC-PG04-37
+    ok   courseId='abc' · status = [404]
+    ok   courseId='abc' · code = [NOT_FOUND]
+    ok   courseId='abc' · trace_id ~ /^[0-9a-f]{32}$/
+    ok   courseId='123' · status = [404]
+    ok   courseId='123' · code = [NOT_FOUND]
+    ok   courseId='123' · trace_id ~ /^[0-9a-f]{32}$/
+    ok   courseId='00000000-0000-7000-8000-0000000000a' · status = [404]
+    ok   courseId='00000000-0000-7000-8000-0000000000a' · code = [NOT_FOUND]
+    ok   courseId='00000000-0000-7000-8000-0000000000a' · trace_id ~ /^[0-9a-f]{32}$/
+    ok   courseId='00000000-0000-7000-8000-0000000000aaa' · status = [404]
+    ok   courseId='00000000-0000-7000-8000-0000000000aaa' · code = [NOT_FOUND]
+    ok   courseId='00000000-0000-7000-8000-0000000000aaa' · trace_id ~ /^[0-9a-f]{32}$/
+    ok   courseId='not-a-uuid-at-all' · status = [404]
+    ok   courseId='not-a-uuid-at-all' · code = [NOT_FOUND]
+    ok   courseId='not-a-uuid-at-all' · trace_id ~ /^[0-9a-f]{32}$/
+    ok   courseId uuid hợp lệ vẫn vào guard (403, không 404) = [403]
+-- TC-PG04-37 PASS
+== TC-PG04-38
+    ok   ẩn danh · guard ping · status = [401]
+    ok   ẩn danh · guard ping · code = [UNAUTHENTICATED]
+    ok   ẩn danh · guard ping · message cố định = [Bạn cần đăng nhập để tiếp tục.]
+    ok   ẩn danh · guard ping · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   ẩn danh · guard ping · không kèm error= !~ /error=/
+    ok   ẩn danh · guard ping · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   ẩn danh · guard ping · chỉ khoá code/message/trace_id = [code,message,trace_id]
+    ok   token hỏng · guard ping · status = [401]
+    ok   token hỏng · guard ping · code = [TOKEN_INVALID]
+    ok   token hỏng · guard ping · message cố định = [Phiên đăng nhập không hợp lệ.]
+    ok   token hỏng · guard ping · WWW-Authenticate realm ~ /Bearer realm="edupilot"/
+    ok   token hỏng · guard ping · error=invalid_token ~ /error="invalid_token"/
+    ok   token hỏng · guard ping · trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   token hỏng · guard ping · chỉ khoá code/message/trace_id = [code,message,trace_id]
+-- TC-PG04-38 PASS
+== TC-PG04-39
+    ok   go test ./internal/auth -run 'TestCourseAccessGuard_DefaultDenyAll|TestCourseAccessGuard_Membership|TestCourseAccessGuard_BadID|TestCourseAccessGuard_ResolverError|TestCourseAccessGuard_NoCache' rc = [0]
+    ok   --- PASS: TestCourseAccessGuard_DefaultDenyAll
+    ok   --- PASS: TestCourseAccessGuard_Membership
+    ok   --- PASS: TestCourseAccessGuard_BadID
+    ok   --- PASS: TestCourseAccessGuard_ResolverError
+    ok   --- PASS: TestCourseAccessGuard_NoCache
+-- TC-PG04-39 PASS
+== TC-PG04-40
+    ok   go test ./internal/auth -run 'TestBcrypt_Format|TestBcrypt_DefaultCost|TestBcrypt_TooLong|TestBcrypt_Check' rc = [0]
+    ok   --- PASS: TestBcrypt_Format
+    ok   --- PASS: TestBcrypt_DefaultCost
+    ok   --- PASS: TestBcrypt_TooLong
+    ok   --- PASS: TestBcrypt_Check
+    ok   số dòng PASS TestBcrypt_* (4 test + subtest) = 13 (≥ 4)
+    ok   log test không chứa mật khẩu rõ 'Correct-Horse-9'
+    ok   log test không chứa chuỗi bcrypt
+-- TC-PG04-40 PASS
+== TC-PG04-41
+    ok   BCRYPT_COST=3 · rc = [1]
+    FAIL BCRYPT_COST=3 · log nêu tên biến (lệnh trả khác 0): grep -q BCRYPT_COST /tmp/epqc.IOFL2j/out/serve-BCRYPT_COST_3.log
+    ok   BCRYPT_COST=3 · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=15 · rc = [1]
+    FAIL BCRYPT_COST=15 · log nêu tên biến (lệnh trả khác 0): grep -q BCRYPT_COST /tmp/epqc.IOFL2j/out/serve-BCRYPT_COST_15.log
+    ok   BCRYPT_COST=15 · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=abc · rc = [1]
+    FAIL BCRYPT_COST=abc · log nêu tên biến (lệnh trả khác 0): grep -q BCRYPT_COST /tmp/epqc.IOFL2j/out/serve-BCRYPT_COST_abc.log
+    ok   BCRYPT_COST=abc · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=12.5 · rc = [1]
+    FAIL BCRYPT_COST=12.5 · log nêu tên biến (lệnh trả khác 0): grep -q BCRYPT_COST /tmp/epqc.IOFL2j/out/serve-BCRYPT_COST_12_5.log
+    ok   BCRYPT_COST=12.5 · không kẹp rồi chạy tiếp (không mở cổng) = [0]
+    ok   BCRYPT_COST=abc · không in giá trị = [0]
+    FAIL BCRYPT_COST=4 (biên hợp lệ) · tiến trình không thoát vì cấu hình (sống sau 3 s): thực tế [0] ≠ mong đợi [1]
+    FAIL BCRYPT_COST=14 (biên hợp lệ) · tiến trình không thoát vì cấu hình (sống sau 3 s): thực tế [0] ≠ mong đợi [1]
+-- TC-PG04-41 FAIL
+== TC-PG04-42
+    FAIL go test ./internal/auth -run './internal/httpapi' rc: thực tế [1] ≠ mong đợi [0]
+    FAIL không thấy '--- PASS: ./internal/httpapi' (test không tồn tại / bị skip / fail) — log: /tmp/epqc.IOFL2j/out/gt-__internal_auth__internal_httpapi.log
+    LOG  FAIL	TestAuth_NoSecretsInLogs [setup failed]
+    LOG  FAIL
+-- TC-PG04-42 FAIL
+== TC-PG04-43
+    ok   log có nội dung để soi = 150 (≥ 1)
+    ok   số dòng log chứa token đầy đủ = [0]
+    ok   số dòng log chứa đoạn chữ ký của token = [0]
+    ok   số dòng log chứa JWT_SECRET_KEY = [0]
+    ok   số dòng log chứa mật khẩu thử 'Correct-Horse-9' = [0]
+    ok   số dòng log chứa hash bcrypt = [0]
+    ok   số dòng log chứa jti đầy đủ (22 ký tự) = [0]
+    ok   số dòng log chứa 'Bearer ' = [0]
+-- TC-PG04-43 PASS
+== TC-PG04-44
+    ok   có tệp backend-go/api/openapi.yaml
+    ok   grep -c '/auth/' backend-go/api/openapi.yaml = [0]
+    ok   grep -c '/me/' backend-go/api/openapi.yaml = [0]
+    ok   grep -c '/admin/' backend-go/api/openapi.yaml = [0]
+-- TC-PG04-44 PASS
+== TC-PG04-45
+    ok   GET /api/v1/auth/login (chế độ test) · status = [404]
+    ok   GET /api/v1/auth/login · code = [NOT_FOUND]
+    ok   GET /api/v1/auth/register (chế độ test) · status = [404]
+    ok   GET /api/v1/auth/register · code = [NOT_FOUND]
+    ok   GET /api/v1/auth/refresh (chế độ test) · status = [404]
+    ok   GET /api/v1/auth/refresh · code = [NOT_FOUND]
+    ok   GET /api/v1/auth/verify (chế độ test) · status = [404]
+    ok   GET /api/v1/auth/verify · code = [NOT_FOUND]
+    ok   GET /api/v1/me (chế độ test) · status = [404]
+    ok   GET /api/v1/me · code = [NOT_FOUND]
+    ok   GET /api/v1/me/profile (chế độ test) · status = [404]
+    ok   GET /api/v1/me/profile · code = [NOT_FOUND]
+    ok   GET /api/v1/admin/x (chế độ test) · status = [404]
+    ok   GET /api/v1/admin/x · code = [NOT_FOUND]
+    ok   GET /api/v1/admin/users (chế độ test) · status = [404]
+    ok   GET /api/v1/admin/users · code = [NOT_FOUND]
+    ok   POST /api/v1/auth/login (chế độ test) = [404]
+-- TC-PG04-45 PASS
+== TC-PG04-46
+    ok   POST /api/v1/auth/login = [404]
+    ok   GET /api/v1/auth/login · code = [NOT_FOUND]
+    ok   GET /api/v1/auth/login · trace_id ~ /^[0-9a-f]{32}$/
+    ok   GET /api/v1/me (chế độ default) = [404]
+    ok   GET /api/v1/admin/users (chế độ default) = [404]
+    ok   GET /api/v1/auth/refresh (chế độ default) = [404]
+-- TC-PG04-46 PASS
+== TC-PG04-47
+    ok   rc = [0]
+    ok   số dòng stdout = [1]
+    ok   stdout là JWT 3 đoạn ~ /^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*$/
+    ok   stderr không chứa token = [0]
+    ok   claim role của token in ra = [ADMIN]
+-- TC-PG04-47 PASS
+== TC-PG04-48
+    ok   rc = [1]
+    ok   số dòng stdout khớp dạng JWT = [0]
+    ok   số dòng stderr khớp dạng JWT = [0]
+    ok   có thông báo lỗi = 1 (≥ 1)
+-- TC-PG04-48 PASS
+== TC-PG04-49
+    ok   rc = [1]
+    ok   thông báo nêu tên biến JWT_SECRET_KEY
+    ok   không in token = [0]
+-- TC-PG04-49 PASS
+== TC-PG04-50
+    ok   --role ROOT · rc = [1]
+    ok   --role ROOT · không in token = [0]
+    ok   --role student (chữ thường) · rc = [1]
+    ok   thiếu --role · rc = [1] (≠ [0])
+    ok   thiếu --role · không in token = [0]
+-- TC-PG04-50 PASS
+== TC-PG04-51
+    ok   --ttl 'abc' · rc = [1]
+    ok   --ttl 'abc' · thông báo nêu --ttl
+    ok   --ttl 'abc' · stdout rỗng = [0]
+    ok   --ttl 'abc' · không in token = [0]
+    ok   --ttl '' · rc = [1]
+    ok   --ttl '' · thông báo nêu --ttl
+    ok   --ttl '' · stdout rỗng = [0]
+    ok   --ttl '' · không in token = [0]
+-- TC-PG04-51 PASS
+== TC-PG04-52
+    ok   bỏ --sub → claim sub là uuid v7 ~ /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+    ok   hai lần cấp cho hai jti khác nhau = [4M6d3mRAis_QzO0FOgxf-A] (≠ [iyhaOHLm9aM7PfSxqMBmwQ])
+    ok   --email vào claim email = [qc-tc52@example.test]
+    ok   --sub vào claim sub = [00000000-0000-7000-8000-000000000002]
+-- TC-PG04-52 PASS
+== TC-PG04-53
+    ok   go test ./cmd/gateway -run 'TestTokenCommand' rc = [0]
+    ok   --- PASS: TestTokenCommand
+-- TC-PG04-53 PASS
+== TC-PG04-54
+    ok   go test ./internal/auth -run 'TestPrincipal_ContextOnly|TestAuth_ParallelRequests' rc = [0]
+    ok   --- PASS: TestPrincipal_ContextOnly
+    ok   --- PASS: TestAuth_ParallelRequests
+-- TC-PG04-54 PASS
+== TC-PG04-55
+    ok   ADMIN · số phản hồi = [50]
+    ok   ADMIN · giá trị duy nhất = [00000000-0000-7000-8000-000000000001|ADMIN]
+    ok   TEACHER · số phản hồi = [50]
+    ok   TEACHER · giá trị duy nhất = [00000000-0000-7000-8000-000000000001|TEACHER]
+    ok   TA · số phản hồi = [50]
+    ok   TA · giá trị duy nhất = [00000000-0000-7000-8000-000000000002|TA]
+    ok   STUDENT · số phản hồi = [50]
+    ok   STUDENT · giá trị duy nhất = [00000000-0000-7000-8000-000000000002|STUDENT]
+-- TC-PG04-55 PASS
+== TC-PG04-56
+    ok   scheme 'bearer' · status = [200]
+    ok   scheme 'bearer' · danh tính = [00000000-0000-7000-8000-000000000001|STUDENT]
+    ok   scheme 'BEARER' · status = [200]
+    ok   scheme 'BEARER' · danh tính = [00000000-0000-7000-8000-000000000001|STUDENT]
+    ok   scheme 'Bearer' · status = [200]
+    ok   scheme 'Bearer' · danh tính = [00000000-0000-7000-8000-000000000001|STUDENT]
+-- TC-PG04-56 PASS
+== TC-PG04-57
+    ok   --sub 'khong-phai-uuid' · rc = [1]
+    ok   --sub 'khong-phai-uuid' · thông báo nêu --sub
+    ok   --sub 'khong-phai-uuid' · stdout rỗng = [0]
+    ok   --sub 'khong-phai-uuid' · không in token = [0]
+    ok   --sub '00000000-0000-7000-8000-00000000000' · rc = [1]
+    ok   --sub '00000000-0000-7000-8000-00000000000' · thông báo nêu --sub
+    ok   --sub '00000000-0000-7000-8000-00000000000' · stdout rỗng = [0]
+    ok   --sub '00000000-0000-7000-8000-00000000000' · không in token = [0]
+-- TC-PG04-57 PASS
+== TC-PG04-58
+    ok   lần 1 · sub là uuid v7 ~ /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+    ok   lần 2 · sub là uuid v7 ~ /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/
+    ok   nibble phiên bản của sub = [7]
+    ok   hai lần bỏ --sub cho hai sub khác nhau (ngẫu nhiên) = [01a0fde1-cc5f-7177-bd48-21212ef0c1ac] (≠ [01a0fde1-cc6b-78f1-a17b-9c42df5bba31])
+-- TC-PG04-58 PASS
+TỔNG story 04: PASS=55 FAIL=3 MANUAL=0
+FAIL: TC-PG04-02 TC-PG04-41 TC-PG04-42
