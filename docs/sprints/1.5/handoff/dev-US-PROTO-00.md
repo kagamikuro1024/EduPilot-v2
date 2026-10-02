@@ -64,3 +64,16 @@ Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi 
 
 `LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
 Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).
+
+## Sửa lỗi QC v5 vòng 1 (US-PROTO-00)
+
+| Lỗi | Đã sửa | Cách tự kiểm |
+| --- | --- | --- |
+| BUG-v5-00-1 state hỏng → mọi route sự cố | `useDemoSlice`/`readSlice` bỏ lát sai kiểu so với giá trị gốc (`shared/state/demo.ts`); `app/error.tsx` tự xoá khoá hỏng và chạy tiếp một lần, kèm nút `Đặt lại dữ liệu demo` | `localStorage.setItem('ep_demo_state','{"practice":"x","tickets":5,"bell":7}')` → tải lại `/`: vào thẳng Hôm nay, không màn sự cố (cũng với `{"members":"x","bt03":7,…}` ở `/chat`) |
+| BUG-v5-00-2 màn 404 / lỗi ngoài khung | `app/(app)/not-found.tsx`, `(app)/error.tsx`, `(app)/[...slug]/page.tsx` (bắt URL lạ → `notFound()` trong khung) | Admin mở `/khong-co-trang`: có `nav`, `[data-part=page-title]` left = 240 |
+| BUG-v5-00-5 nút hồ sơ ghi tên vai | `AppShell`: nhãn nút = `personName` (TS. Lê Thu Hà / Phạm Quốc Bảo / Đỗ Hoàng Nam) | `regress-v24.mjs` TC-00-69 12/12 PASS |
+| BUG-v5-00-6 `data-scroll-x` trên vùng không cuộn | Hook dùng chung `shared/lib/useScrollRow.ts` đặt/gỡ `data-scroll-x` theo `scrollWidth > clientWidth`, thêm `data-fade` (mép mờ); dùng cho Tabs/SegmentedControl/FilterChips/DataTable | 390/375: `[...document.querySelectorAll('[data-scroll-x]')].every(e => e.scrollWidth > e.clientWidth)` |
+| BUG-v5-DEMO-12 Đặt lại dữ liệu giữ lớp 761988 | `AppShell`: `Đặt lại dữ liệu demo` gọi `setCourse(COURSE_1)` | Chọn lớp 761988 → Đặt lại → bộ chọn lớp ghi 761987 |
+| Gốc chung (BUG-v5-01-1/2, 03-3/4/5, 02-9, 04-4) | `DataTable`: bỏ `hideOnMobile` (không cột nào biến mất: dòng phụ ở < 720, cuộn ngang ở bảng), thêm `mobileWidth`; bảng rộng hơn khung tự có `data-scroll-x` + mép mờ; `Layout`: `toolbarEnd` `min-width:0`, `sectionHead` `flex-wrap`; `StatusText` xuống dòng ở < 720 | AUDIT 495/495; 720 px: `/documents`, `/grading`, `/students`, `/attendance` có `data-scroll-x` + `data-fade=end`; `/gradebook` 390: `col-qt` right 255, `col-status` right 341 |
+
+**Tự kiểm (build production :3400, trình duyệt headless):** `regress-v24.mjs` 30/30 PASS · `audit.mjs` 495/495 PASS (SV 165, TA 106, GV 170, Admin 54) và `states:true` GV + Admin 544/544 PASS · `demo-run.mjs` 21/21 hàng PASS, 173 s (< 13:45) · `proto-curl.sh all` 497 PASS / 0 FAIL · `pnpm lint` sạch · `pnpm build` OK · `bash scripts/ui-antipatterns.sh` 0 ✗. Commit: `4f7b5b5` (00) · `5086445` (02) · `821be9d` (01) · `0fc7ffb` (03) · `94dbf38` (04) · `6a043ae`.

@@ -69,3 +69,17 @@ Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi 
 
 `LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
 Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).
+
+## Sửa lỗi QC v5 vòng 1 (US-PROTO-04)
+
+| Lỗi | Đã sửa | Cách tự kiểm |
+| --- | --- | --- |
+| BUG-v5-04-2 `/analytics` 7→30 ngày lệch | `piiChannels` theo [7, 30 ngày]; `piiDetected` = tổng các kênh | 30 ngày: 19+7+5 = 31; lớp 761988: 3+2 = 5 |
+| BUG-v5-04-1 lý do xem nội dung không báo lỗi tại ô | `Field error` + `aria-invalid` khi trống sau Tab hoặc < 10 ký tự (trả lời câu hỏi: nút vô hiệu **chưa đủ**, nay có dòng lỗi) | Mở hàng, gõ 4 khoảng trắng, Tab |
+| BUG-v5-04-3 trạng thái rỗng chung | Rỗng riêng + một hành động cho `/settings/llm`, `/settings/integrations` | `?state=empty` |
+| BUG-v5-04-7 số đếm không khớp rỗng | Admin Hôm nay / Lớp học / Người dùng: 0 khi `state=empty` | '0 việc đang chờ', '0 lớp đang chạy', '0 tài khoản' |
+| BUG-v5-04-4/5 /admin/users 720, /observability 375 | Gốc chung ở 00 (DataTable cuộn + `sectionHead` xuống dòng) | AUDIT |
+| BUG-v5-04-6 gạch thừa trong panel embedding | `.configPanel dl` không kẻ hàng đầu/cuối | `/settings/llm` |
+| BUG-v5-DEMO-10 khối rỗng ~270 px trắng | `EmptyState` `align-content: start` | `/inbox` lớp 761988: tiêu đề và câu giải thích cách nhau 31 px |
+
+**Tự kiểm (build production :3400, trình duyệt headless):** `regress-v24.mjs` 30/30 PASS · `audit.mjs` 495/495 PASS (SV 165, TA 106, GV 170, Admin 54) và `states:true` GV + Admin 544/544 PASS · `demo-run.mjs` 21/21 hàng PASS, 173 s (< 13:45) · `proto-curl.sh all` 497 PASS / 0 FAIL · `pnpm lint` sạch · `pnpm build` OK · `bash scripts/ui-antipatterns.sh` 0 ✗. Commit: `4f7b5b5` (00) · `5086445` (02) · `821be9d` (01) · `0fc7ffb` (03) · `94dbf38` (04) · `6a043ae`.

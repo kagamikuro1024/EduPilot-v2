@@ -84,3 +84,18 @@ Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi 
 
 `LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
 Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).
+
+## Sửa lỗi QC v5 vòng 1 (US-PROTO-01)
+
+| Lỗi | Đã sửa | Cách tự kiểm |
+| --- | --- | --- |
+| BUG-v5-01-5 = DEMO-2 đoạn trích không phải bài của B | Bỏ `BT03_EXCERPTS` (student.ts); `/assignments/bt03` đọc `BT03_EVIDENCE` (assess.ts) — cùng nguồn với `/grading` | Công bố BT03 → SV B: 4 đoạn trích nói về SolarWinds / SBOM / Golden SAML |
+| BUG-v5-DEMO-4 mất câu trả lời GV sau `Đã rõ` | `TeacherHandoff`: câu trả lời + nhãn giảng viên ở lại, `Đã rõ` đổi thành `Câu hỏi đã đóng` | GV trả lời tk-d3 → SV `Đã rõ` → câu trả lời còn; tải lại vẫn còn |
+| BUG-v5-DEMO-7 SV D lớp 761988 thấy Buổi 10 + học dở | `StudentHome`: lớp không học hôm nay (≠ lớp 1) → 'Hôm nay lớp không có buổi học', bỏ 'Học dở', buổi tiếp theo Thứ Ba 03/11 | SV D vào 761988 → Hôm nay |
+| BUG-v5-DEMO-11 thân tin nhắn ≠ chip | `Msg.stats` chụp số liệu lúc trả lời; chip đọc `m.stats` | Ghi +0,25 sau D1 → thân và chip cùng '3 lần · +0,75' |
+| BUG-v5-00-3 nhãn chờ giảng viên đứng yên, chuông thiếu D3 | `sentLabel()` (derive.ts) theo `ago()`; `ticketD3(simNowMs())`; `noteTicketSent` đẩy mục vào chuông SV | Lệch đồng hồ +59 phút: chuông 'Câu hỏi của bạn đang chờ giảng viên · 59 phút trước'; +23 giờ: nhãn '23 giờ trước' |
+| BUG-v5-01-3 nguồn D1 chỉ 1, thu gọn | `D1_CITATIONS` thêm 'Sổ điểm danh lớp 761987'; danh sách mở sẵn | D1: 'Nguồn tham khảo (2)' mở ngay |
+| BUG-v5-01-4 What-if trống báo lỗi giả | `MeScreen`: trống không `aria-invalid`, không câu lỗi | Xoá chữ ô điểm giả định: `aria-invalid` null, 0 `[role=alert]` |
+| BUG-v5-01-6 nhãn lịch tháng cắt … | `.chip` bỏ `nowrap/ellipsis` | `/calendar` Tháng 1100: nhãn QUIZ01 hiện đủ 2 dòng |
+
+**Tự kiểm (build production :3400, trình duyệt headless):** `regress-v24.mjs` 30/30 PASS · `audit.mjs` 495/495 PASS (SV 165, TA 106, GV 170, Admin 54) và `states:true` GV + Admin 544/544 PASS · `demo-run.mjs` 21/21 hàng PASS, 173 s (< 13:45) · `proto-curl.sh all` 497 PASS / 0 FAIL · `pnpm lint` sạch · `pnpm build` OK · `bash scripts/ui-antipatterns.sh` 0 ✗. Commit: `4f7b5b5` (00) · `5086445` (02) · `821be9d` (01) · `0fc7ffb` (03) · `94dbf38` (04) · `6a043ae`.

@@ -72,3 +72,21 @@ Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi 
 
 `LEFT` (`[data-part=page-title]`): mọi route = **240** ở 1440, **16** ở 390 và 375. `curl` bộ `proto-curl.sh all` (bản đã sửa lỗi biến `$s»` của bash UTF-8): 496 PASS, 1 FAIL giả ở `tc_04_08` — xem góp ý #23 (`grep -c` đếm dòng, HTML SSR chỉ một dòng; `grep -o … | wc -l` ra đúng 3). `pnpm -C frontend lint`, `tsc --noEmit`, `bash scripts/ui-antipatterns.sh` sạch.
 Ảnh: `docs/sprints/1.5/shots/v5/` (thread, danh sách, Hôm nay GV, inbox 1440/375, điểm danh 390, chat 390/900/1440, SV D chưa vào lớp, `/settings/llm`, luyện đề 390, analytics).
+
+## Sửa lỗi QC v5 vòng 1 (US-PROTO-02)
+
+| Lỗi | Đã sửa | Cách tự kiểm |
+| --- | --- | --- |
+| BUG-v5-DEMO-1 mất trạng thái chốt khi giả lập mất mạng (chặn demo) | `SessionAttendance.committed` (bản chốt) + `committedOf()`; sửa ô không đổi `finalized`, `/me`/Hôm nay/hồ sơ đọc bản chốt; dải 'Đã hoàn tất' theo bản chốt, nút `Lưu điểm danh` bật lại khi có ô khác bản chốt | Lưu điểm danh buổi 10 → bật Giả lập mất mạng → đổi 1 ô → tắt: dải còn, SV B `/me` QT 8,5 |
+| BUG-v5-DEMO-3 = 02-2 link thẻ thiếu `course=` | `courseHref()` (core.ts) cho mọi việc Hôm nay; `pushNote` tự gắn `course=` khi thông báo có `courseId` | Chọn 761988 → Hôm nay → `Trả lời`/`Điểm danh`: tới đúng 761987 |
+| BUG-v5-02-1 badge + thẻ kẹt 3 | `isSubmissionApproved` / `reviewPending(status, approvedIds)` (derive.ts) là nguồn duy nhất cho hàng chờ, badge, Hôm nay | Duyệt cả 4 bài: Hôm nay 6→5 việc, thẻ 'cần xem kỹ' biến, badge Chấm bài ẩn |
+| BUG-v5-02-3 tab `/inbox` 1440 co 3 px | `.list { grid-auto-rows: max-content }` | regress-v24 TC-02-90 8/8 PASS |
+| BUG-v5-02-4 ô Buổi cắt | Nhãn 'Buổi 10 · 29/10', trạng thái ở dòng phụ, select ≥ 190 px | regress-v24 TC-02-91 2/2 PASS |
+| BUG-v5-02-5/6 chuông GV thiếu yêu cầu lớp 2; TA nhận thông báo phân công lớp 2 | Chuông lọc theo mọi lớp của vai (đích mang `course=`); `n-assigned` chỉ cho GV (SRS 4.1: TA chỉ lớp 1) | GV ở 761987 thấy 'xin vào lớp 761988'; TA không thấy mục 761988 |
+| BUG-v5-02-7 hàng ticket cắt đáy | Không cuộn danh sách về 0 ở lần dựng đầu (`InboxView`) | `/inbox?ticket=tk-5` 1440: hàng [751, 875] trong khung [230, 876] |
+| BUG-v5-02-8 /students thiếu lý do rủi ro | Cột Rủi ro: nhãn + `riskSentence` | `/students` hàng Lê C…: 'Vắng 5/9 buổi, đã bị trừ 1,5 điểm; …' |
+| BUG-v5-DEMO-6 Hôm nay vẫn còn việc điểm danh | Cùng gốc DEMO-1 (việc chỉ rời khi bản chốt tồn tại) | Lưu điểm danh → Hôm nay '5 việc', không còn 'Điểm danh buổi 10' |
+| BUG-v5-DEMO-8 sổ điểm lớp 2 '24 sinh viên' | `Gradebook` lấy `rosterOf(course, members)` | Duyệt SV D → sổ điểm 761988 '25 sinh viên' |
+| BUG-v5-00-4 '23 giờ' ghi 'hôm qua' | **Chưa sửa** — SRS N6 tự mâu thuẫn, góp ý #26 | – |
+
+**Tự kiểm (build production :3400, trình duyệt headless):** `regress-v24.mjs` 30/30 PASS · `audit.mjs` 495/495 PASS (SV 165, TA 106, GV 170, Admin 54) và `states:true` GV + Admin 544/544 PASS · `demo-run.mjs` 21/21 hàng PASS, 173 s (< 13:45) · `proto-curl.sh all` 497 PASS / 0 FAIL · `pnpm lint` sạch · `pnpm build` OK · `bash scripts/ui-antipatterns.sh` 0 ✗. Commit: `4f7b5b5` (00) · `5086445` (02) · `821be9d` (01) · `0fc7ffb` (03) · `94dbf38` (04) · `6a043ae`.
