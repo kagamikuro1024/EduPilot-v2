@@ -21,7 +21,7 @@ Câu nhập nguyên văn D1–D3: `docs/DEMO_SCRIPT.md` mục 3 với `{HO_TEN_B
 | TC-01-15 | AC6 | – | **B** Viewport 375 × 812: đi lần lượt các route của US | Không cuộn ngang; vùng chạm ≥ 44 px (sweep `nSmall = 0`); bottom nav ≤ 5 đích; lịch sử chat ẩn; ảnh `shots/` 375 |
 | TC-01-16 | AC6 | – | **B** 375 px: Dialog hai lối, Drawer "Thêm", `/calendar` | Dialog / Drawer vừa màn hình, không tràn; `/calendar` mặc định **Danh sách** |
 | TC-01-17 | AC7 | B ở `/me` | **B** Đọc `/me` | "Điểm quá trình hiện tại 8,3 (tạm tính)"; giải trình TB bài tập 7,5 + cộng 0,75 = 8,25 → 8,3; 2 vắng / 9 buổi; QUIZ01, giữa kỳ 05/11; dòng "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường"; **không** nhãn rủi ro / ghi chú / điểm nháp |
-| TC-01-18 | AC7 | – | **B** What-if: nhập 8,0 → 11 → −1 → "abc" → xoá trống | 8,0 → "8,3"; 11, −1, abc → lỗi **tại ô** (không alert, không mất chữ); trống → không lỗi giả. 8,0 với QT 8,7 (sau công bố) cũng ra 8,3 |
+| TC-01-18 | AC7 | – | **B** What-if: nhập 8,0 → 11 → −1 → "abc" → xoá trống | Ở QT 8,3 (seed): 8,0 → "8,1" (40% × 8,3 + 60% × 8,0); sau công bố BT03 (QT 8,7): 8,0 → "8,3"; 11, −1, abc → lỗi **tại ô** (không alert, không mất chữ); trống → không lỗi giả |
 | TC-01-19 | AC7 | Sau TC-02-03 (điểm danh) | **B** `/me` của B | QT = 8,5 |
 | TC-01-20 | AC7 (xem proposals #13) | Sau TC-03-02 (công bố BT03) | **B** `/me` của B | QT = 8,7 (SRS 4.1 v3; proposals #13) |
 | TC-01-21 | AC7 | – | **B** SV A đổi sang lớp 2 ở `/me` | "Lớp này chưa có công thức điểm chính thức" thay phần giải trình |
@@ -36,7 +36,7 @@ Câu nhập nguyên văn D1–D3: `docs/DEMO_SCRIPT.md` mục 3 với `{HO_TEN_B
 | TC-01-30 | SRS 4.3 | – | **B** `/library`: tìm "hash"/"zzzz"; `Xem`; `Hỏi AI về tài liệu` | Lọc tại chỗ; không kết quả → rỗng có hướng; `Hỏi AI về tài liệu` sang `/chat` có ngữ cảnh |
 | TC-01-31 | SRS 4.3 | – | **B** `/threads/t-cbc` + thread đã xác nhận; `Báo cáo` | Câu AI `Chờ xác nhận` có nguồn (SV không có nút Xác nhận / Loại); câu "Đã được giảng viên xác nhận"; `Báo cáo` → "Đã gửi báo cáo" |
 | TC-01-32 | SRS 4.3 `/assignments` | B | **B** `/assignments/bt03` trước công bố | Đã nộp 23/10 08:10, nhãn "Nộp muộn 1 ngày", file `bt03-tran-thu-uyen.pdf`, "Đang chấm" (không số); `/assignments/khong-co` → rỗng |
-| TC-01-33 | SRS 4.3 `/assignments` | Sau công bố | **B** Tải lại | Điểm, nhận xét 4 tiêu chí, mỗi tiêu chí trích một đoạn bài của B; `Yêu cầu xem lại` → form chọn tiêu chí + lý do → "Đã gửi yêu cầu" |
+| TC-01-33 | SRS 4.3 `/assignments` | Sau công bố | **B** Tải lại | Điểm, nhận xét 4 tiêu chí ("Xác định tác nhân và bề mặt tấn công", "Phân tích tấn công", "Đánh giá tác động", "Biện pháp phòng thủ"), mỗi tiêu chí trích một đoạn bài của B; `Yêu cầu xem lại` → form chọn tiêu chí + lý do → "Đã gửi yêu cầu" |
 | TC-01-34 | SRS 4.3 trạng thái | – | **B** Rỗng / lỗi / loading từng route SV (`?state=`) | Rỗng có một hành động ("Hôm nay bạn không có việc gấp" + `Luyện đề` …); lỗi có `Thử lại` |
 | TC-01-35 | AC10 | B ở `/threads/[id]` | **B** Xem chi tiết thread bất kỳ | Bố cục panel rõ ràng (FR-X11): Khối câu hỏi gốc (người hỏi, vai trò, thời gian, chủ đề, nội dung), Khối câu trả lời AI (kèm nguồn trích dẫn mở rộng), Danh sách phản hồi thảo luận, Khối Reply Composer ở cuối trang (Proposal #15) |
 | TC-01-36 | AC10 | B ở `/threads/[id]` | **B** Bấm `Hỏi trợ lý AI` trong Reply Composer | Sinh câu trả lời gợi ý định hướng (Socratic) kèm nguồn trích dẫn tài liệu |
@@ -191,3 +191,5 @@ TC-01-25, 26 (AC9, ma trận SRS 2); TC-01-13 (SV không thấy nhãn rủi ro /
 - 2026-10-02 · **Sửa TC-01-54:** `t-rsa-key` có câu AI `Đã được giảng viên xác nhận` (SRS v5.1 sửa v5, N10) thay cho `Chờ xác nhận`. Lý do: spec đổi.
 - 2026-10-02 · **Siết TC-01-109, 114 (#20c), TC-01-131, 133 (#20b):** PM chốt `Đã ẩn n thông tin cá nhân` và 720–1099 px như 390 px (proposals #20, ACCEPTED). `audit.mjs` (01-AC22 ở 1099 / 900 / 720) và `pii-matrix.mjs` (n ở mọi ca khớp) cập nhật.
 - 2026-10-02 · **Thêm TC-01-153 (không sửa TC cũ):** góp ý #24c (PM, ACCEPTED 01/10) — hàng chip chủ đề `/threads` bị cắt ở mép phải ("Tường lửa và phân đoạn r") không có dấu hiệu cuộn. `scripts/regress-v24.mjs`.
+- 2026-10-02 · **Sửa chữ TC-01-18, TC-01-33 (proposals #25, ACCEPTED):** TC-01-18 ghi cả hai giá trị (8,1 ở QT 8,3; 8,3 ở QT 8,7); TC-01-33 ghi đúng 4 tên tiêu chí.
+

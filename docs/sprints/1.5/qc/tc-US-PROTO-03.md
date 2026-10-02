@@ -13,7 +13,7 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.5. Hộp đen. Công c�
 | TC-03-06 | AC2 | – | **B** Sửa tiêu chí 2 thành 2,5 (bước 0,25: thử 2,6 → bị chặn/làm tròn; 3,0 → trên trần 2,5 bị chặn); sửa một nhận xét | Tổng tính lại **ngay** khi sửa; không cho vượt trần 2,5; nhận xét sửa giữ lại sau reload |
 | TC-03-07 | AC2 | Sau TC-03-05 | **B** `Duyệt bài` | Trạng thái đã duyệt; quay về hàng chờ **giữ vị trí**; thông báo vàng không chặn `Duyệt bài` (SRS mục 3) |
 | TC-03-08 | AC2 | Sau TC-03-06 | **B** Chọn bài đã duyệt → `Công bố` | Dialog xác nhận có hậu quả; sau xác nhận: đã công bố; tổng các tiêu chí 8,5, trừ nộp muộn 0,5 → công bố **8,0** (SRS 4.1 v3); sổ điểm có BT03 của B |
-| TC-03-09 | AC2 | Sau TC-03-07 | **B** Đổi vai B → `/assignments/bt03`, `/me` | Có điểm 8,0 và nhận xét; `/me` QT = **8,7** (SRS 4.1 v3) |
+| TC-03-09 | AC2 | Sau TC-03-07 | **B** Đổi vai B → `/assignments/bt03`, `/me` | Có điểm 8,0 và nhận xét; `/me` QT = **8,7** (SRS 4.1 v3) — chuỗi đủ: GV `Lưu điểm danh` buổi 10 (B có phát biểu) → QT 8,5; rồi chỉnh + công bố BT03 → 8,7; chỉ công bố BT03 mà chưa lưu điểm danh cho QT 8,2–8,4 |
 | TC-03-10 | AC2 / SRS mục 3 | – | **B** Chỉ GV thấy `Công bố`; người duyệt khác (TA) | `Công bố` có ở GV; TA thấy "Chỉ giảng viên công bố điểm" |
 | TC-03-11 | AC3 | – | **B** GV đổi lớp 2 → `/gradebook` | Banner cố định "công thức điểm chưa xác nhận"; `Chốt điểm` khoá, lý do hiện khi rê chuột **và khi focus bàn phím** |
 | TC-03-12 | AC3 | Lớp 2, `/gradebook/scheme` | **B** Xem bản nháp | QT 30% / CK 70%, +0,2/lần phát biểu trần +0,6, −0,5/buổi vắng từ buổi thứ 3; mỗi mục cạnh trích dẫn có số trang; mục "chưa rõ: quy tắc làm tròn" chặn nút xác nhận |
@@ -73,3 +73,4 @@ TC-03-09, 22, 23, 26 (chỉ TEACHER công bố / xác nhận công thức / ch�
 - 2026-10-01 · TC-03-03: Thêm kiểm tra bố cục 2 panel độc lập (viền, nền surface, bo góc, cuộn độc lập giữa bài nộp và rubric) của `/grading/[submissionId]` theo spec v4 (03-AC1, proposals #16).
 - 2026-10-02 · Thêm TC-03-30…41 (không sửa TC cũ): spec v5.1 (#19) — 03-AC7 (E21), 03-AC8 (E10, E33) + SRS 4.8 N5. TC-03-26 vẫn đúng (12 dòng, 2 đáp án).
 - 2026-10-02 · **Siết TC-03-39:** "Chờ xử lý" (PM chốt, proposals #20a, ACCEPTED).
+- 2026-10-02 · **Sửa chữ TC-03-09 (proposals #25, ACCEPTED):** thêm bước lưu điểm danh trước khi QT = 8,7.
