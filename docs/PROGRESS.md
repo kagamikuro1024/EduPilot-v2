@@ -4,8 +4,8 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 
 ## Đang ở đâu
 - Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2` (private). Sprint 1 = `main` của repo này. Repo cũ `TA_Agent` = remote `old-origin`, không push thêm.
-- Lộ trình: **10 sprint** (`docs/sprints/ROADMAP.md`). Sprint kế: **2 — PG Nền Go** (chờ chủ dự án gõ `tiếp`).
-- Sprint gần nhất: **1** — xong, đã thành `main`, `docs/sprints/1/report.md`
+- Lộ trình: **10 sprint + sprint 1.5 chen giữa** (`docs/sprints/ROADMAP.md`). Sprint kế sau 1.5: **2 — PG Nền Go** (chờ chủ dự án gõ `tiếp`).
+- Sprint gần nhất: **1** — xong, đã thành `main`, `docs/sprints/1/report.md`. **Đang chạy: 1.5 — prototype giao diện** (`docs/sprints/1.5/`, nhánh `sprint/1.5-mock-ui`).
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase

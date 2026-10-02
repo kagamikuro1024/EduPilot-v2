@@ -1,0 +1,7 @@
+.loading { display: grid; gap: var(--ep-space-8); }
+
+/* Trả lời bằng câu có số in đậm thay cho tường thẻ KPI (DESIGN §14.25). */
+.lead { max-width: 68ch; font-size: var(--ep-text-item); line-height: 1.55; }
+.lead strong { font-weight: 650; font-variant-numeric: tabular-nums; }
+
+.subhead { margin-top: var(--ep-space-4); font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink-2); }

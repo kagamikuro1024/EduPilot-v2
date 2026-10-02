@@ -1,0 +1,114 @@
+/* Lưới điểm danh: hàng ngăn bằng kẻ, không card; ô đánh dấu đủ 44px cho ngón tay. */
+.grid:focus-visible {
+  border-radius: var(--ep-radius-sm);
+}
+
+.name {
+  display: grid;
+  gap: var(--ep-space-0_5);
+  min-width: 0;
+}
+
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  margin: calc(var(--ep-space-2) * -1) auto;
+  cursor: pointer;
+}
+.radio {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  border: 1.5px solid var(--ep-rule);
+  border-radius: var(--ep-radius-pill);
+  background: var(--ep-surface);
+  transition: border-color var(--ep-fast) var(--ep-ease-standard), background-color var(--ep-fast) var(--ep-ease-standard);
+}
+.cell:hover .radio {
+  border-color: var(--ep-ink-3);
+}
+.radio:checked {
+  border-color: var(--ep-red);
+  border-width: 6px;
+}
+.radio:disabled {
+  border-color: var(--ep-rule);
+  background: var(--ep-surface-subtle);
+  cursor: not-allowed;
+}
+
+.speak {
+  min-height: 44px;
+  padding: 0 var(--ep-space-3);
+  border: 1px solid transparent;
+  border-radius: var(--ep-radius-sm);
+  background: transparent;
+  color: var(--ep-ink-2);
+  font-size: var(--ep-text-label);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.speak:hover:not(:disabled) {
+  border-color: var(--ep-rule);
+  color: var(--ep-ink);
+}
+.speak:disabled {
+  color: var(--ep-ink-3);
+}
+
+.picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--ep-space-1) var(--ep-space-2);
+}
+.picker select {
+  min-width: 190px;
+}
+
+/* Tóm tắt xuống dòng giữa các cụm, không ngắt trong cụm (02-AC15). */
+.summary { display: flex; flex-wrap: wrap; gap: var(--ep-space-1) var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.summaryPart { white-space: nowrap; }
+.summaryPart + .summaryPart::before { content: "· "; }
+
+/* Hàng điểm danh trên điện thoại: dòng 1 tên + Phát biểu, dòng 2 bốn trạng thái đủ chữ (≥ 44px). Có kẻ, không card. */
+.mRow { display: grid; gap: var(--ep-space-2); font-weight: 400; }
+.mTop { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-2); }
+.mTop .name { flex: 1; min-width: 140px; }
+.mMarks { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--ep-space-1); }
+.mMark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0 var(--ep-space-1);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-sm);
+  background: var(--ep-surface);
+  color: var(--ep-ink-2);
+  font-size: var(--ep-text-meta);
+  font-weight: 500;
+  text-align: center;
+  line-height: 1.25;
+  cursor: pointer;
+}
+.mMark:has(input:checked) { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 700; }
+/* Trạng thái đang chọn có dấu tick, không chỉ phân biệt bằng màu (02-AC15). */
+.mMark:has(input:checked) .mMarkLabel::before { content: "✓ "; }
+.mMark:has(input:focus-visible) { outline: 2px solid var(--ep-red); outline-offset: 2px; }
+.mRadio { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: pointer; }
+
+@media (max-width: 719px) {
+  .keyHint { display: none; }
+  .picker {
+    flex: 1;
+  }
+  .picker select {
+    min-width: 190px;
+    flex: 1;
+  }
+}

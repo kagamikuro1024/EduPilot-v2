@@ -1,0 +1,92 @@
+[
+ {
+  "role": "admin",
+  "route": "/admin/users",
+  "w": "720",
+  "what": "AUDIT-biên",
+  "ok": false,
+  "detail": "ox=0 cut=[\"Trạng thái\",\"Khoá\",\"Khoá\"] ell=[] sx=1",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/admin_admin_users-720-AUDIT-biên.png",
+  "batch": "admin"
+ },
+ {
+  "role": "teacher",
+  "route": "/students",
+  "w": "720",
+  "what": "AUDIT-biên",
+  "ok": false,
+  "detail": "ox=0 cut=[\"Hoạt động học\",\"Rủi ro\",\"185 phút/tuần\"] ell=[] sx=1",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/teacher_students-720-AUDIT-biên.png",
+  "batch": "teacherEdge"
+ },
+ {
+  "role": "teacher",
+  "route": "/grading",
+  "w": "1024",
+  "what": "AUDIT-biên",
+  "ok": false,
+  "detail": "ox=0 cut=[\"Nộp lúc\",\"23/10 08:10 · muộn 1 ngày\",\"20/10 18:03\"] ell=[] sx=2",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/teacher_grading-1024-AUDIT-biên.png",
+  "batch": "teacherEdge"
+ },
+ {
+  "role": "teacher",
+  "route": "/grading",
+  "w": "720",
+  "what": "AUDIT-biên",
+  "ok": false,
+  "detail": "ox=0 cut=[\"Điểm AI (nháp)\",\"Trạng thái\",\"Lý do cần xem kỹ\"] ell=[] sx=2",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/teacher_grading-720-AUDIT-biên.png",
+  "batch": "teacherEdge"
+ },
+ {
+  "role": "teacher",
+  "route": "/documents",
+  "w": "1024",
+  "what": "AUDIT-biên",
+  "ok": false,
+  "detail": "ox=0 cut=[\"Cập nhật\"] ell=[] sx=0",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/teacher_documents-1024-AUDIT-biên.png",
+  "batch": "teacherEdge"
+ },
+ {
+  "role": "teacher",
+  "route": "/documents",
+  "w": "720",
+  "what": "AUDIT-biên",
+  "ok": false,
+  "detail": "ox=0 cut=[\"Hiện cho sinh viên\",\"Trạng thái\",\"Cập nhật\"] ell=[] sx=0",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/teacher_documents-720-AUDIT-biên.png",
+  "batch": "teacherEdge"
+ },
+ {
+  "role": "teacher",
+  "route": "/attendance",
+  "w": "720",
+  "what": "AUDIT-biên",
+  "ok": false,
+  "detail": "ox=0 cut=[\"P\",\"+ Phát biểu\",\"+ Phát biểu\"] ell=[] sx=0",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/teacher_attendance-720-AUDIT-biên.png",
+  "batch": "teacherEdge"
+ },
+ {
+  "role": "teacher",
+  "route": "/",
+  "w": "1440",
+  "what": "bộ chọn lớp mở",
+  "ok": false,
+  "detail": "ox=0 cut=[\"An ninh mạng – 761987\"] ell=[] sx=0",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/teacher_-1440-bộ_chọn_lớp_mở.png",
+  "batch": "teacherScen"
+ },
+ {
+  "role": "teacher",
+  "route": "/gradebook",
+  "w": "390",
+  "what": "03-AC7 col-qt, col-status trong khung nhìn đầu + dòng gợi ý kéo ngang",
+  "ok": false,
+  "detail": "{\"inView\":[true,false],\"hint\":true}",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit/gradebook-v51-390.png",
+  "batch": "specV51"
+ }
+]

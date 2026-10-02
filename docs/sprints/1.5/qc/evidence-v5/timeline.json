@@ -1,0 +1,405 @@
+{
+ "T1": [
+  {
+   "id": "T1a checkbox \"Nhờ AI\" mặc định bật",
+   "ok": true,
+   "detail": "checked=true",
+   "file": ""
+  },
+  {
+   "id": "T1b chuyển ngay sang /threads/<id>",
+   "ok": true,
+   "detail": "url@0.05s",
+   "file": ""
+  },
+  {
+   "id": "T1c bước 1 \"Trợ lý AI đang soạn…\" xuất hiện ngay",
+   "ok": true,
+   "detail": "compose@0.05s",
+   "file": ""
+  },
+  {
+   "id": "T1d bước 1 kéo dài ~1,2 s (nút Dừng xuất hiện)",
+   "ok": true,
+   "detail": "dung−compose=1.19s",
+   "file": ""
+  },
+  {
+   "id": "T1e bước 2 chữ chảy 2,5–3,5 s (Dừng biến mất)",
+   "ok": true,
+   "detail": "stream=2.73s",
+   "file": ""
+  },
+  {
+   "id": "T1f bước 3 Nguồn tham khảo (n) sau bước 2 ≤ 0,8 s",
+   "ok": true,
+   "detail": "src−dungEnd=0.00s",
+   "file": ""
+  },
+  {
+   "id": "T1g bước 4 nhãn Chờ xác nhận ngay sau nguồn",
+   "ok": true,
+   "detail": "pending−src=0.32s",
+   "file": ""
+  },
+  {
+   "id": "T1h trong bước 1–2 hai nút Hỏi trợ lý AI / Gửi phản hồi khoá",
+   "ok": true,
+   "detail": "locked=true",
+   "file": ""
+  },
+  {
+   "id": "T1i nội dung S2: nonce + XOR hai bản mã, nguồn Chương 3 tr. 18–20, kết bằng câu hỏi",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T1j GV Hôm nay: \"7 việc cần xử lý hôm nay\"",
+   "ok": true,
+   "detail": "7 việc cần xử lý hôm nay",
+   "file": ""
+  },
+  {
+   "id": "T1k GV Hôm nay: \"Câu hỏi mới: «Dùng lại IV trong CTR có sao không?» · Mật mã đối xứng · vừa xong\" + Chờ xác nhận",
+   "ok": true,
+   "detail": "",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T1-gv-home.png"
+  },
+  {
+   "id": "T1l GV chuông: \"Câu hỏi mới trong Threads: «…»\"",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T1m bấm việc → /threads/<id>",
+   "ok": true,
+   "detail": "/threads/t-new-1",
+   "file": ""
+  },
+  {
+   "id": "T1n Xác nhận → việc rời, về \"6 việc\"",
+   "ok": true,
+   "detail": "6 việc cần xử lý hôm nay",
+   "file": ""
+  },
+  {
+   "id": "T1o SV không thấy việc \"Câu hỏi mới\" của GV",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  }
+ ],
+ "T2": [
+  {
+   "id": "T2a \"Vì sao ECB làm lộ ảnh?\" → S1 (so sánh ECB/CBC, nguồn tr. 14–17)",
+   "ok": true,
+   "detail": "Trợ lý AI của lớp Chờ xác nhận Hãy so sánh cách mỗi chế độ xử lý hai khối bản rõ giống hệt",
+   "file": ""
+  },
+  {
+   "id": "T2b hai thread → hai câu trả lời khác nhau",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  }
+ ],
+ "T3": [
+  {
+   "id": "T3a bấm Dừng: có \"Đã dừng\" + nút Hỏi lại",
+   "ok": true,
+   "detail": "clicked=true",
+   "file": ""
+  },
+  {
+   "id": "T3b chữ dừng lại (giữ phần đã hiện, không chảy tiếp, không nhãn Chờ xác nhận giả)",
+   "ok": true,
+   "detail": "len 536→536",
+   "file": ""
+  },
+  {
+   "id": "T3c Hỏi lại → soạn lại và chảy tới nhãn Chờ xác nhận",
+   "ok": true,
+   "detail": "compose@0.00 pending@4.68",
+   "file": ""
+  }
+ ],
+ "T4": [
+  {
+   "id": "T4a toàn văn hiện ngay (≤ 0,8 s sau khi sang thread), không \"đang soạn\", không chữ chảy",
+   "ok": true,
+   "detail": "waitTeacher@0.05 compose=undefined",
+   "file": ""
+  },
+  {
+   "id": "T4b đúng toàn văn không khớp",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T4c không nguồn; nhãn Đang chờ giảng viên; không Chờ xác nhận",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T4d /inbox GV không thêm ticket (vẫn \"Tất cả 6\")",
+   "ok": true,
+   "detail": "Tất cả\n6",
+   "file": ""
+  },
+  {
+   "id": "T4e GV Hôm nay: \"7 việc\", nhãn \"Cần giảng viên trả lời\"",
+   "ok": true,
+   "detail": "",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T4-gv-home.png"
+  },
+  {
+   "id": "T4f GV gửi phản hồi trong thread → việc rời, về \"6 việc\"",
+   "ok": true,
+   "detail": "6 việc cần xử lý hôm nay",
+   "file": ""
+  },
+  {
+   "id": "T4g TA thấy giống GV ở Hôm nay (việc rời sau thao tác của GV; nền của TA là 4 việc, không có \"Thiết lập lớp\" và \"yêu cầu vào lớp\")",
+   "ok": true,
+   "detail": "4 việc cần xử lý hôm nay",
+   "file": ""
+  }
+ ],
+ "T5": [
+  {
+   "id": "T5a phản hồi hiện ngay cuối vùng thảo luận và cuộn tới",
+   "ok": true,
+   "detail": "{\"shown\":true,\"inView\":true}",
+   "file": ""
+  },
+  {
+   "id": "T5b ~2 s sau: \"Phạm Quốc Bảo đang trả lời…\"",
+   "ok": true,
+   "detail": "typing@2.52s",
+   "file": ""
+  },
+  {
+   "id": "T5c ~6 s sau: phản hồi TA đúng nội dung H1 (5,4–7,0 s), có khối trích phản hồi của B",
+   "ok": true,
+   "detail": "late@6.51s",
+   "file": ""
+  },
+  {
+   "id": "T5d chuông: \"Phạm Quốc Bảo đã trả lời trong «Vì sao cần muối (salt) khi băm mật khẩu?»\"",
+   "ok": true,
+   "detail": "Thông báo Phạm Quốc Bảo đã trả lời trong «Vì sao cần muối (salt) khi băm mật khẩu?» Threads · vừa xong Tài liệu mới: Chương 5 — Quản lý khoá",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T5-bell.png"
+  },
+  {
+   "id": "T5e bấm thông báo → /threads/t-salt, cuộn tới đúng phản hồi",
+   "ok": true,
+   "detail": "{\"url\":\"/threads/t-salt\",\"inView\":true}",
+   "file": ""
+  },
+  {
+   "id": "T5f /threads: t-salt \"5 phản hồi\"",
+   "ok": true,
+   "detail": "Vì sao cần muối (salt) khi băm mật khẩu? Của bạn Nếu SHA-256 đã khó đảo ngược thì vì sao còn phải thêm muối cho mỗi mật ",
+   "file": ""
+  },
+  {
+   "id": "T8 phản hồi thứ hai cùng thread → không có phản hồi trễ nữa",
+   "ok": true,
+   "detail": "\"Phạm Quốc Bảo\" 1→1",
+   "file": ""
+  }
+ ],
+ "T6": [
+  {
+   "id": "T6a gửi xong sang /calendar trước 6 s → tới hạn chuông vẫn có thông báo",
+   "ok": true,
+   "detail": "at=/calendar",
+   "file": ""
+  },
+  {
+   "id": "T6b quay lại thread thấy phản hồi TA",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  }
+ ],
+ "T7": [
+  {
+   "id": "T7a tải lại ở giây 3: phản hồi của B còn nguyên",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T7b chờ tiếp: phản hồi TA vẫn hiện (≤ ~7,5 s kể từ lúc gửi), không phụ thuộc bộ hẹn giờ của trang",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T7c chuông có thông báo sau tải lại",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  }
+ ],
+ "T9": [
+  {
+   "id": "T9 thread không có mẫu → TA trả lời câu chung có \"tuần <tuần của thread>\"",
+   "ok": true,
+   "detail": "tuần=6",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T9.png"
+  }
+ ],
+ "T10": [
+  {
+   "id": "T10a ô trống + đã có câu AI → Gợi ý thêm của S1 (\"…bao nhiêu khối bản rõ bị ảnh hưởng?\")",
+   "ok": true,
+   "detail": "",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T10.png"
+  },
+  {
+   "id": "T10b theo trình tự E (soạn → chảy → Dừng)",
+   "ok": true,
+   "detail": "compose@0.01 dung@1.21 end@4.58",
+   "file": ""
+  },
+  {
+   "id": "T10c hai nút khoá trong lúc AI soạn",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T10d bấm lần nữa không bao giờ \"không có gì\" (có phản hồi hoặc lời nhắn hiển thị)",
+   "ok": true,
+   "detail": "len 1743→1870",
+   "file": ""
+  }
+ ],
+ "T11": [
+  {
+   "id": "T11 có chữ: phản hồi của B hiện trước, AI trả lời ngay dưới theo S2 với \"↳ trả lời Trần Thu Uyên\"",
+   "ok": true,
+   "detail": "q@1544 ↳@1625 nonce@1791",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T11.png"
+  }
+ ],
+ "T12": [
+  {
+   "id": "T12 \"@AI …\" qua Gửi phản hồi xử lý như Hỏi trợ lý AI (có \"↳ trả lời Trần Thu Uyên\", S2)",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  }
+ ],
+ "T13": [
+  {
+   "id": "T13 gõ dở → rời trang → quay lại chữ còn nguyên; thread khác không lẫn; tải lại vẫn còn",
+   "ok": true,
+   "detail": "{\"v1\":\"Em đang gõ dở\",\"v2\":\"\",\"v3\":\"Em đang gõ dở\"}",
+   "file": ""
+  },
+  {
+   "id": "T13b ô trống / chỉ khoảng trắng → Gửi phản hồi khoá",
+   "ok": true,
+   "detail": "{\"empty\":true,\"spaces\":true}",
+   "file": ""
+  }
+ ],
+ "T14": [
+  {
+   "id": "T14 reduced-motion: không chấm/không chảy, hiện ngay kết quả bước 4 (Chờ xác nhận)",
+   "ok": true,
+   "detail": "pending@0.05 dung=undefined",
+   "file": ""
+  }
+ ],
+ "T15": [
+  {
+   "id": "T15a lần 1 (ô trống, đã có AI chính): Gợi ý thêm S1 \"Thử thêm: nếu một khối bản mã CBC bị hỏng…\", n tăng 1",
+   "ok": true,
+   "detail": "n 4→5",
+   "file": ""
+  },
+  {
+   "id": "T15b lần 2, 3 (ô trống): không bài mới (n không đổi), có dòng \"Trợ lý đã đưa hết gợi ý…\", nút không khoá",
+   "ok": true,
+   "detail": "n=5 msg=true locked=false",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T15.png"
+  },
+  {
+   "id": "T15c gõ vào ô → dòng thông báo tự mất",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T15d không gõ: dòng thông báo tự mất sau 8 s",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T15e ô có chữ: mỗi lần bấm là một cặp mới (+2; lần đầu có thể +3 vì phản hồi trễ của TA, một lần mỗi thread)",
+   "ok": true,
+   "detail": "n 8 → +2, +2",
+   "file": ""
+  },
+  {
+   "id": "T15f thread không khớp mẫu, ô trống: không bài mới, dòng \"Mình đã báo giảng viên; câu trả lời sẽ hiện ngay trong thread…\"",
+   "ok": true,
+   "detail": "n 0→0",
+   "file": ""
+  }
+ ],
+ "T16": [
+  {
+   "id": "T16a có chữ: \"Phạm Quốc Bảo đang trả lời…\" ~2 s và phản hồi TA ~6 s (song song với chuỗi AI)",
+   "ok": true,
+   "detail": "typing@2.52 late@6.50 compose@0.01",
+   "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/threads/T16.png"
+  },
+  {
+   "id": "T16b phản hồi TA trích đúng chữ của sinh viên",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T16c chuông có \"Phạm Quốc Bảo đã trả lời trong «…»\"",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T16d lần hai trong cùng thread: không có phản hồi trễ nữa (một lần mỗi thread)",
+   "ok": true,
+   "detail": "TA 1→1",
+   "file": ""
+  },
+  {
+   "id": "T16e ô trống (J1): không kích hoạt phản hồi trễ",
+   "ok": true,
+   "detail": "typing=undefined",
+   "file": ""
+  },
+  {
+   "id": "T16f đã có phản hồi trễ từ Gửi phản hồi → Hỏi trợ lý AI có chữ không kích hoạt thêm",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  },
+  {
+   "id": "T16g phản hồi seed (kể cả của B ở t-salt) không kích hoạt gì khi chỉ mở trang",
+   "ok": true,
+   "detail": "",
+   "file": ""
+  }
+ ],
+ "T8": []
+}

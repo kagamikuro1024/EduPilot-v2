@@ -1,0 +1,46 @@
+/* Các bước "Thiết lập lớp mới" nằm ngay trong hàng việc: danh sách dọc, không khung. */
+.steps {
+  display: grid;
+  gap: var(--ep-space-1);
+  margin-top: var(--ep-space-2);
+  counter-reset: step;
+}
+.steps li {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  font-size: var(--ep-text-label);
+  color: var(--ep-ink-2);
+}
+.steps li::before {
+  counter-increment: step;
+  content: counter(step) ".";
+  min-width: 14px;
+  color: var(--ep-ink-3);
+  font-variant-numeric: tabular-nums;
+}
+.steps svg {
+  width: 14px;
+  height: 14px;
+  color: var(--ep-green);
+}
+.done {
+  color: var(--ep-ink-3);
+}
+.done a {
+  text-decoration-line: line-through;
+}
+
+.note {
+  display: block;
+  margin-top: var(--ep-space-0_5);
+  font-size: var(--ep-text-meta);
+  font-weight: 400;
+  color: var(--ep-ink-3);
+}
+
+/* "Xem cả N" dưới ba sinh viên đầu của "Lớp cần chú ý" (SRS 4.8 N3). */
+.seeAll {
+  margin-top: var(--ep-space-2);
+  font-size: var(--ep-text-label);
+}

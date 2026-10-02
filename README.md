@@ -4,7 +4,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** sprint 1/10 xong (P0 — mặt bằng, khung chạy được, CI). Hiện mới có `GET /healthz` và một trang trống; tính năng nghiệp vụ bắt đầu từ sprint 2. Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** sprint 1/10 xong (P0); sprint 1.5 xong (prototype giao diện tương tác toàn bộ tính năng phục vụ thuyết trình với thầy hướng dẫn; chạy tại `http://localhost:3000`). Sprint kế tiếp: sprint 2 (PG — Nền Go). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -214,6 +214,7 @@ flowchart LR
 | Sprint | Phase | Kết quả chính |
 | --- | --- | --- |
 | 1 ✅ | P0 Chuẩn bị | Mặt bằng mới, khung Go + Next.js, stack local, CI, kịch bản demo |
+| 1.5 ✅ | Prototype giao diện (D51) | Prototype tương tác toàn bộ tính năng (31 route), đổi 4 vai, đi trọn kịch bản demo 15 phút, sẵn sàng thuyết trình |
 | 2 | PG Nền Go | DB/migration/sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, nhân bản gateway |
 | 3 | PU + P1 | Token, app shell, primitive; LLM gateway + Scheduler + cấu hình provider |
 | 4 | P2 | Tài khoản an toàn, mở lớp, phân công, mã tham gia, "Hôm nay" |

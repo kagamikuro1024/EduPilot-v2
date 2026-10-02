@@ -1,0 +1,33 @@
+.headline { margin: 0; font-size: var(--ep-text-section); line-height: 1.4; }
+.headline strong { font-variant-numeric: tabular-nums; }
+.sub { margin: 0; color: var(--ep-ink-2); max-width: 70ch; }
+
+.calc { display: grid; }
+.calcLine {
+  display: grid;
+  grid-template-columns: minmax(150px, 22%) 1fr auto;
+  gap: var(--ep-space-4);
+  align-items: baseline;
+  margin: 0;
+  padding: var(--ep-space-3) 0;
+  border-top: 1px solid var(--ep-rule);
+  font-size: var(--ep-text-label);
+}
+.calcLine span:nth-child(2) { color: var(--ep-ink-3); }
+.calcLine strong { font-variant-numeric: tabular-nums; }
+.calcTotal { border-top: 1px solid var(--ep-ink); font-size: var(--ep-text-item); }
+.calcTotal span:first-child { font-weight: 600; }
+
+.whatIf { display: flex; align-items: flex-start; flex-wrap: wrap; gap: var(--ep-space-4); margin-top: var(--ep-space-6); }
+.whatIfInput { width: 110px; font-variant-numeric: tabular-nums; }
+.whatIfOut { display: grid; gap: var(--ep-space-0_5); margin: var(--ep-space-6) 0 0; font-size: var(--ep-text-item); }
+.whatIfOut strong { font-variant-numeric: tabular-nums; }
+.whatIfNote { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+
+.official { margin: var(--ep-space-6) 0 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.trend { max-width: 560px; }
+
+@media (max-width: 719px) {
+  .calcLine { grid-template-columns: 1fr auto; }
+  .calcLine span:nth-child(2) { grid-column: 1 / -1; font-size: var(--ep-text-meta); }
+}

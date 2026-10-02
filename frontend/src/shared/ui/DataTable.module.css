@@ -1,0 +1,74 @@
+.root { min-width: 0; }
+.scroll { overflow-x: auto; border-top: 1px solid var(--ep-rule); }
+.scroll[data-fade~="end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.scroll[data-fade~="start"] { -webkit-mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.scroll[data-fade="start end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.list { display: none; }
+.table { width: 100%; font-size: var(--ep-text-label); font-variant-numeric: tabular-nums; }
+
+.table th {
+  width: var(--w);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--ep-paper);
+  padding: var(--ep-space-3) var(--ep-space-3);
+  font-size: var(--ep-text-meta);
+  font-weight: 600;
+  color: var(--ep-ink-2);
+  white-space: nowrap;
+  border-bottom: 1px solid var(--ep-rule);
+}
+.table td {
+  height: 48px;
+  padding: var(--ep-space-2) var(--ep-space-3);
+  color: var(--ep-ink);
+  border-bottom: 1px solid var(--ep-rule);
+  vertical-align: middle;
+}
+.dense td { height: 44px; }
+
+.clickable { cursor: pointer; transition: background-color var(--ep-fast) var(--ep-ease-standard); }
+.clickable:hover td, .clickable:focus-visible td { background: var(--ep-surface-subtle); }
+.clickable:focus-visible { outline: none; box-shadow: none; } /* ui-allow: hàng bảng có vòng focus riêng ở dòng trên */
+.clickable:focus-visible td:first-child { box-shadow: inset 2px 0 0 var(--ep-red); } /* ui-allow: chỉ báo focus của hàng */
+.active td { background: var(--ep-surface-subtle); }
+
+.scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-rule); }
+.frozen { position: sticky; left: 0; background: var(--ep-paper); z-index: 1; }
+th.frozen { z-index: 2; }
+.clickable:hover .frozen, .active .frozen { background: var(--ep-surface-subtle); }
+
+.checkCol { width: 40px; text-align: center; }
+.checkCol input { width: 16px; height: 16px; accent-color: var(--ep-red); }
+
+.empty { padding: var(--ep-space-12) var(--ep-space-4); }
+
+/* Chế độ danh sách (< 720px): mỗi hàng 2–3 dòng, không cắt chữ, không cuộn ngang. */
+.item { border-bottom: 1px solid var(--ep-rule); }
+.itemLink, .itemStatic { display: grid; gap: var(--ep-space-1); padding: var(--ep-space-3) var(--ep-space-1); min-height: 56px; color: inherit; }
+.itemLink { cursor: pointer; }
+.itemLink:hover { background: var(--ep-surface-subtle); }
+.itemActive { background: var(--ep-surface-subtle); }
+.itemSelectable { display: flex; align-items: flex-start; }
+.itemSelectable > :last-child { flex: 1; min-width: 0; }
+.itemCheck { flex: none; display: grid; place-items: center; width: 44px; min-height: 56px; }
+.itemCheck input { width: 18px; height: 18px; accent-color: var(--ep-red); }
+.itemMain { min-width: 0; font-weight: 600; font-size: var(--ep-text-item); line-height: 1.4; overflow-wrap: anywhere; }
+.itemMeta { display: flex; flex-wrap: wrap; gap: var(--ep-space-1) var(--ep-space-4); margin: 0; }
+.itemField { display: flex; align-items: baseline; flex-wrap: wrap; gap: var(--ep-space-1); min-width: 0; font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.itemField dt { font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-3); }
+.itemField dt::after { content: ":"; }
+.itemField dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+
+.scrollHint { display: none; }
+
+@media (max-width: 719px) {
+  .table th { width: var(--wm); }
+  .tableOnly { display: none; }
+  .list { display: block; border-top: 1px solid var(--ep-rule); }
+  /* 03-AC7: bảng cuộn ngang giữ cột tên dính trái và nói trước là cuộn được. */
+  .scrollHint { display: block; margin-bottom: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+  .scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-ink-3); }
+  .scroll[data-scroll-x] .table { width: auto; min-width: 100%; }
+}

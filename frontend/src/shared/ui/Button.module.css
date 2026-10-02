@@ -1,0 +1,67 @@
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ep-space-2);
+  min-height: 36px;
+  padding: 0 var(--ep-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--ep-radius-sm);
+  font-size: var(--ep-text-label);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  transition: background-color var(--ep-fast) var(--ep-ease-standard), border-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
+}
+.btn svg { width: 16px; height: 16px; flex: none; stroke-width: 2; }
+.sm { min-height: 30px; padding: 0 var(--ep-space-3); font-size: var(--ep-text-meta); }
+
+.primary { background: var(--ep-red); color: var(--ep-surface); }
+.primary:hover:not(:disabled) { background: var(--ep-red-hover); }
+
+.secondary { background: var(--ep-surface); color: var(--ep-ink); border-color: var(--ep-rule); }
+.secondary:hover:not(:disabled) { border-color: var(--ep-ink-3); }
+
+.ghost { background: transparent; color: var(--ep-ink-2); }
+.ghost:hover:not(:disabled) { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+
+/* hành động dạng chữ đỏ ở cuối một hàng / section */
+.text { background: transparent; color: var(--ep-red); padding: 0 var(--ep-space-1); min-height: 28px; }
+.text:hover:not(:disabled) { color: var(--ep-red-hover); text-decoration: underline; text-underline-offset: 3px; }
+
+.btn:disabled { opacity: 0.45; }
+
+.iconBtn {
+  display: inline-grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--ep-radius-sm);
+  background: transparent;
+  color: var(--ep-ink-2);
+  transition: background-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
+}
+.iconBtn:hover:not(:disabled) { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+.iconBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+.iconBtn svg { width: 18px; height: 18px; stroke-width: 1.8; }
+.iconSm { width: 30px; height: 30px; }
+.iconSm svg { width: 16px; height: 16px; }
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: var(--ep-radius-pill);
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  animation: spin 700ms linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14): áp cho cả màn hẹp lẫn thiết bị chạm. */
+@media (max-width: 719px), (pointer: coarse) {
+  .btn { min-height: 44px; min-width: 44px; }
+  .sm { min-height: 44px; }
+  .text { min-height: 44px; padding: 0 var(--ep-space-2); }
+  .iconBtn, .iconSm { width: 44px; height: 44px; }
+}

@@ -18,8 +18,12 @@ check "Bóng ngoài Popover/Dialog/Menu/Composer"   '\bshadow-(sm|md|lg|xl|2xl)\
 check "Cỡ chữ tuỳ ý ngoài thang vai trò"          'text-\[[0-9.]+(px|rem)\]'                        "shared/styles/"
 check "fetch trần ngoài shared/"                  '\bfetch\('                                       "src/shared/"
 check "Spinner toàn trang"                        'FullPageSpinner|fixed inset-0.*animate-spin'
-check "Hiệu ứng bị cấm (glass, chữ gradient, nảy)" 'backdrop-blur|bg-clip-text|animate-bounce'
+check "Hiệu ứng bị cấm (glass, chữ gradient, nảy)" 'backdrop-blur|backdrop-filter|bg-clip-text|animate-bounce'
 check "Gamification"                              '[Ss]treak|[Ll]eaderboard|[Cc]onfetti'
+# Thanh trên / khung vỏ phải nền đặc: không kính mờ, không màu có độ trong suốt (DESIGN §21, FR-X15, 00-AC12)
+out=$(grep -rnE 'backdrop-filter|transparent\)|/ 0\.[0-9]' "$SRC/shared/shell" "$SRC/shared/ui" \
+        --include=*.ts --include=*.tsx --include=*.css 2>/dev/null | grep -v "ui-allow:" || true)
+[ -n "$out" ] && { echo "✗ Nền trong suốt / kính mờ trong shared/shell, shared/ui"; echo "$out" | head -10; FAIL=1; } || echo "✓ Khung vỏ dùng nền đặc"
 # Từ kỹ thuật lọt vào màn sinh viên
 STU="$SRC/app/(student) $SRC/features/chat $SRC/features/practice $SRC/features/library $SRC/features/me $SRC/features/today"
 for d in $STU; do [ -d "$d" ] || continue
@@ -27,6 +31,6 @@ for d in $STU; do [ -d "$d" ] || continue
   [ -n "$out" ] && { echo "✗ Từ kỹ thuật trong màn sinh viên ($d)"; echo "$out" | head -10; FAIL=1; }
 done
 # Dialog chỉ cho việc cần bảo vệ
-out=$(grep -rln "<Dialog" "$SRC" --include=*.tsx | grep -vE "shared/ui/|ConfirmIrreversible|PIIChannelDialog|FinalizeGrades|PublishGrades|ConfirmGradeScheme|DeleteDocument" || true)
+out=$(grep -rln "<Dialog" "$SRC" --include=*.tsx | grep -vE "shared/ui/|ConfirmIrreversible|PIIChannelDialog|FinalizeGrades|PublishGrades|ConfirmGradeScheme|DeleteDocument|SessionSheet" || true)
 [ -n "$out" ] && { echo "✗ <Dialog> ngoài danh sách việc cần bảo vệ (DESIGN.md §10.11):"; echo "$out"; FAIL=1; } || echo "✓ Dialog chỉ dùng cho việc cần bảo vệ"
 exit $FAIL

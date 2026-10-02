@@ -1,0 +1,81 @@
+.who { display: grid; gap: 2px; min-width: 150px; }
+.name { font-weight: 550; line-height: 1.35; }
+.code { font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
+
+/* ô sửa tại chỗ kiểu bảng tính */
+.cell {
+  width: 100%;
+  min-height: 32px;
+  padding: var(--ep-space-1) var(--ep-space-2);
+  text-align: right;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--ep-ink);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--ep-radius-sm);
+  cursor: text;
+}
+.cell:hover { border-color: var(--ep-rule); background: var(--ep-surface); }
+.cell[data-empty="true"] { color: var(--ep-ink-3); }
+.cellRead { display: block; text-align: right; font-variant-numeric: tabular-nums; }
+.cellRead[data-empty="true"] { color: var(--ep-ink-3); }
+.input {
+  width: 100%;
+  min-height: 32px;
+  padding: var(--ep-space-1) var(--ep-space-2);
+  text-align: right;
+  font: inherit;
+  font-variant-numeric: tabular-nums;
+  color: var(--ep-ink);
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-red);
+  border-radius: var(--ep-radius-sm);
+}
+.input:focus-visible { outline: none; box-shadow: var(--ep-focus); } /* ui-allow: vòng focus là token, không phải bóng trang trí */
+
+.invalid { display: block; margin-top: var(--ep-space-1); text-align: right; font-size: var(--ep-text-meta); color: var(--ep-red); }
+.qt { font-weight: 650; font-variant-numeric: tabular-nums; }
+.delta { font-variant-numeric: tabular-nums; color: var(--ep-ink-2); }
+
+.note { margin-top: var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-3); max-width: 68ch; }
+.hint { display: flex; align-items: center; gap: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+
+/* nút bị khoá: lý do hiện khi rê chuột hoặc focus */
+.lock { position: relative; display: inline-flex; }
+.lockBtn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
+.lockWhy {
+  position: absolute;
+  top: calc(100% + var(--ep-space-2));
+  right: 0;
+  z-index: var(--ep-z-popover);
+  width: max-content;
+  max-width: 280px;
+  padding: var(--ep-space-2) var(--ep-space-3);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-sm);
+  background: var(--ep-surface);
+  box-shadow: var(--ep-shadow-popover); /* ui-allow: cùng lớp nổi với Popover của shared/ui */
+  font-size: var(--ep-text-meta);
+  color: var(--ep-ink-2);
+  line-height: 1.45;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ep-fast) var(--ep-ease-standard);
+}
+.lock:hover .lockWhy, .lock:focus-within .lockWhy { opacity: 1; }
+
+/* giải trình điểm */
+.calc { display: grid; gap: var(--ep-space-3); }
+.calcRow { display: grid; grid-template-columns: 1fr auto; gap: var(--ep-space-4); padding-bottom: var(--ep-space-3); border-bottom: 1px solid var(--ep-rule); align-items: baseline; }
+.calcLabel { color: var(--ep-ink-2); font-size: var(--ep-text-label); }
+.calcFormula { display: block; color: var(--ep-ink-3); font-size: var(--ep-text-meta); margin-top: 2px; }
+.calcValue { font-variant-numeric: tabular-nums; font-weight: 600; }
+.calcTotal { font-size: var(--ep-text-section); font-weight: 680; font-variant-numeric: tabular-nums; }
+.history { display: grid; gap: var(--ep-space-3); }
+.historyRow { display: grid; gap: 2px; padding-bottom: var(--ep-space-3); border-bottom: 1px solid var(--ep-rule); }
+.historyMeta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+
+@media (max-width: 719px) {
+  .who { min-width: 120px; }
+}

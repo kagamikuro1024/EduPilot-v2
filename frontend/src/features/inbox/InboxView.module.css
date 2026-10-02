@@ -1,0 +1,185 @@
+/* Hộp thư hỗ trợ: hai panel độc lập (FR-X11) — danh sách 380px + chi tiết; dưới 1100px là hai bước (02-AC9). */
+.split {
+  display: grid;
+  grid-template-columns: 380px minmax(0, 1fr);
+  gap: var(--ep-space-6);
+  align-items: start;
+}
+
+.list,
+.detail {
+  min-width: 0;
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-md);
+  overflow-y: auto;
+}
+
+/* ≥ 1100px: không gian làm việc vừa đúng màn — tiêu đề ở trên, hai panel chiếm phần còn lại và cuộn riêng. */
+@media (min-width: 1100px) {
+  .page.page {
+    display: grid;
+    grid-template-rows: auto minmax(0, 1fr);
+    height: calc(100dvh - var(--ep-topbar));
+    padding-bottom: var(--ep-space-6);
+  }
+  .split {
+    min-height: 0;
+    height: 100%;
+  }
+  .list {
+    height: 100%;
+  }
+  .detail {
+    max-height: 100%;
+  }
+}
+
+.list {
+  display: grid;
+  gap: var(--ep-space-4);
+  padding: var(--ep-space-4);
+  align-content: start;
+  /* hàng cao đúng nội dung: panel có chiều cao cố định (≥ 1100px) không được ép hàng tab cuộn ngang co còn 3px (góp ý 24a) */
+  grid-auto-rows: max-content;
+}
+
+/* Panel chi tiết cao theo nội dung; khối con cách nhau đúng một khoảng (≤ 24px), không kéo giãn. */
+.detail {
+  display: grid;
+  gap: var(--ep-space-6);
+  padding: var(--ep-space-6);
+  align-content: start;
+}
+
+.back {
+  display: none;
+  justify-self: start;
+}
+
+.detailHead {
+  display: grid;
+  gap: var(--ep-space-1);
+}
+
+.info {
+  display: grid;
+  gap: var(--ep-space-4);
+}
+
+.question {
+  margin: 0;
+  font-size: var(--ep-text-item);
+  line-height: 1.55;
+  max-width: 68ch;
+  overflow-wrap: anywhere;
+}
+
+.facts {
+  display: grid;
+  margin: 0;
+  border-top: 1px solid var(--ep-rule);
+}
+.facts > div {
+  display: grid;
+  grid-template-columns: minmax(96px, 28%) minmax(0, 1fr);
+  gap: var(--ep-space-4);
+  padding: var(--ep-space-3) 0;
+  border-bottom: 1px solid var(--ep-rule);
+  font-size: var(--ep-text-label);
+}
+.facts dt {
+  color: var(--ep-ink-2);
+}
+.facts dd {
+  margin: 0;
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.reply {
+  display: grid;
+  gap: var(--ep-space-3);
+}
+
+.answer {
+  margin: 0;
+  max-width: 68ch;
+  padding: var(--ep-space-3) var(--ep-space-4);
+  background: var(--ep-surface-subtle);
+  border-radius: var(--ep-radius-sm);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.claimRow {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-3);
+  flex-wrap: wrap;
+}
+
+/* Hàng ticket: dòng 1 tên + thời gian, dòng 2 câu hỏi ≤ 2 dòng, dòng 3 meta xuống dòng được. */
+.rowHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--ep-space-1) var(--ep-space-3);
+}
+.rowName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.rowTime {
+  font-size: var(--ep-text-meta);
+  font-weight: 500;
+  color: var(--ep-ink-3);
+  white-space: nowrap;
+}
+.clamp {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.rowMeta {
+  display: block;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1099px) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+  .list,
+  .detail {
+    overflow-y: visible;
+  }
+  .detail {
+    display: none;
+  }
+  .showDetail .list {
+    display: none;
+  }
+  .showDetail .detail {
+    display: grid;
+  }
+  .back {
+    display: inline-flex;
+    min-height: 44px;
+    margin-left: calc(-1 * var(--ep-space-2));
+  }
+}
+
+@media (max-width: 719px) {
+  .list,
+  .detail {
+    padding: var(--ep-space-4);
+  }
+  .facts > div {
+    grid-template-columns: 1fr;
+    gap: var(--ep-space-1);
+  }
+}
