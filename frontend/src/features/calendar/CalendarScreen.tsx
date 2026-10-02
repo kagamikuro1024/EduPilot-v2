@@ -2,7 +2,7 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState, useSyncExternalStore } from "react";
-import { EVENT_LABEL, WEEK_DAY_SHORT, eventsFor, isNow, startOfWeek, type CalEvent } from "@/mock/calendar";
+import { EVENT_LABEL, WEEK_DAY_SHORT, eventsFor, isNow, shortLabel, startOfWeek, type CalEvent } from "@/mock/calendar";
 import { NOW, fmtLongDate, fmtShortDate, fmtTime } from "@/mock/core";
 import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
 import { KEYS, type CalendarExtra } from "@/mock/state";
@@ -182,8 +182,8 @@ function MonthView({ anchor, events }: { anchor: Date; events: CalEvent[] }) {
           <div key={d.toISOString()} className={[s.cell, other ? s.otherMonth : "", d.toDateString() === NOW.toDateString() ? s.today : ""].join(" ")}>
             <span className={s.cellNum}>{d.getDate()}</span>
             {items.slice(0, 2).map((e) => (
-              <span key={e.id} className={[s.chip, s[e.kind]].join(" ")}>
-                {e.title}
+              <span key={e.id} className={[s.chip, s[e.kind]].join(" ")} title={e.title} aria-label={e.title}>
+                {shortLabel(e.title)}
               </span>
             ))}
             {items.length > 2 && <span className={s.more}>+{items.length - 2} việc khác</span>}
