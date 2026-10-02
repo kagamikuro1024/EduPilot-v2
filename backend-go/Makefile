@@ -47,4 +47,4 @@ tidy:
 
 # Dọn container test dùng chung (internal/testutil giữ chúng sống giữa các lần chạy).
 test-clean:
-	-docker rm -f edupilot-test-postgres edupilot-test-redis edupilot-test-minio
+	-docker rm -f edupilot-test-postgres edupilot-test-redis edupilot-test-minio edupilot-test-pgbouncer
