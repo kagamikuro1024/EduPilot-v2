@@ -1,5 +1,5 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1 · 2026-10-02 · Trạng thái: DRAFT (chờ PM duyệt)
+Phiên bản 1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
 
 Nguồn: `docs/phases/PU.md` (nguồn chính; L4 thu hẹp theo plan sprint 3), `docs/sprints/3/plan.md` (D53, token Admin dev, `make eval` hoãn), `design/DESIGN.md` §1–§2, §10, §13–§17, §19, §21–§22, `design/INTEGRATION.md`, `UX.md` mục 2–4 và 6, `ARCHITECTURE.md` §3 (thư viện được phép), §7 (cấu trúc frontend); spec nền `docs/specs/FEAT-pg-foundation/` (v1.3: mã lỗi, cursor, `Idempotency-Key`, SSE, CORS, JWT); mã hiện có: `frontend/src/shared/`, `scripts/ui-antipatterns.sh`, `docs/sprints/1.5/qc/scripts/{audit,sweep}.mjs`. Truy vết đầy đủ: mục 11. Story: `US.md` (US-PU-01…05, 77 AC).
 

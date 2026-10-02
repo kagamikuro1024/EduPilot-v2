@@ -1,5 +1,5 @@
 # SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
-Phiên bản 1 · 2026-10-02 · Trạng thái: DRAFT (chờ PM duyệt)
+Phiên bản 1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2)
 
 Nguồn: `docs/phases/P1.md` (nguồn chính), `docs/sprints/3/plan.md`, PRD M12 + §3, FLOWS F15, `ARCHITECTURE.md` §4 (schema), §5 (API), §8 (env), `SYSTEM_DESIGN.md` §1.2, §3.1, §5, `DECISIONS.md` D22, D46, D47, D51–D53; spec nền `docs/specs/FEAT-pg-foundation/` v1.3 (mã lỗi 6.1, cursor 6.4, header 6.5, Idempotency 6.6, SSE 6.8, env 8.1, `testroutes`); `docs/specs/FEAT-ui-foundation/`; `design/DESIGN.md` §14.23. Story: `US.md` (US-P1-01…05). Truy vết: mục 11.
 

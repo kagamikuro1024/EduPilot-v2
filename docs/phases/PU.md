@@ -13,7 +13,7 @@
 ## Lát việc
 
 **L1. Token và nền chữ** (`AGENT_PROMPT` Phase 1)
-- [ ] `frontend/src/shared/styles/tokens.css` (đã có sẵn từ kit) là nguồn duy nhất; ánh xạ vào cấu hình Tailwind v4 (`@theme`) để chỉ dùng lớp ngữ nghĩa; xoá bảng màu mặc định `gray/slate/zinc/neutral` khỏi theme
+- [ ] `frontend/src/shared/styles/tokens.css` (đã có sẵn từ kit) là nguồn duy nhất; dùng qua CSS Modules + biến `--ep-*` (D53, không Tailwind); `ui-antipatterns.sh` + ESLint chặn giá trị viết cứng
 - [ ] Be Vietnam Pro qua `next/font` (400/500/600/700, `display: swap`, subset `vietnamese`), fallback đúng `--ep-font`; `tabular-nums` cho bảng
 - [ ] Chuẩn hoá: focus ring `--ep-focus`, selection, scrollbar, input, button; `prefers-reduced-motion`
 - [ ] Logo + favicon từ `frontend/public/brand/`; không đặt logo trong ô vuông bo góc
