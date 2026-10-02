@@ -1,16 +1,29 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.1.0
-  description: Hợp đồng API của gateway Go. P0 chỉ có kiểm sống.
+  version: 0.2.0
+  description: |
+    Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
+    (`internal/contract` kiểm hai chiều). Route thử `/api/v1/_test/*` nằm ở `openapi.test.yaml`, chỉ có trong
+    binary dựng bằng build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
 servers:
   - url: /
+security:
+  - bearerAuth: []
+tags:
+  - name: health
+  - name: jobs
+  - name: events
 paths:
   /healthz:
     get:
       operationId: getHealthz
-      security: []
+      tags: [health]
       summary: Kiểm sống (công khai, không gọi DB/Redis)
+      security: []
       responses:
         "200":
           description: Gateway đang chạy
@@ -18,7 +31,151 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Health"
+  /api/v1/healthz:
+    get:
+      operationId: getApiHealthz
+      tags: [health]
+      summary: Kiểm sống dưới /api/v1 (công khai)
+      security: []
+      responses:
+        "200":
+          description: Gateway đang chạy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+  /api/v1/readyz:
+    get:
+      operationId: getReadyz
+      tags: [health]
+      summary: Kiểm sẵn sàng — Postgres và Redis (công khai)
+      security: []
+      responses:
+        "200":
+          description: DB và Redis đều lên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ready"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/jobs/{id}:
+    get:
+      operationId: getJob
+      tags: [jobs]
+      summary: Trạng thái một việc dài (chủ job hoặc ADMIN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trạng thái và tiến độ của job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Job"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/events:
+    get:
+      operationId: streamEvents
+      tags: [events]
+      summary: Luồng sự kiện thời gian thực (SSE) của chính người gọi
+      description: |
+        `text/event-stream`. Xác thực bằng header `Authorization` (không nhận token qua query). Khung sự kiện
+        `id/event/data`; heartbeat `: hb` mỗi 25 s; tối đa 2 kết nối mỗi người; tự đóng sau 120 s bằng
+        `event: reconnect`. Nối lại bằng header `Last-Event-ID`.
+      parameters:
+        - name: Last-Event-ID
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Luồng SSE đang mở
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "429":
+          $ref: "#/components/responses/RateLimited"
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Unauthorized:
+      description: Chưa đăng nhập, token hết hạn hoặc không hợp lệ (`UNAUTHENTICATED`, `TOKEN_EXPIRED`, `TOKEN_INVALID`)
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: Sai vai trò hoặc ngoài lớp (`FORBIDDEN`, `details.reason` = `role` | `course`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Không có route / tài nguyên / không có quyền biết (`NOT_FOUND`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Xung đột trạng thái hoặc phiên bản (`CONFLICT`, `VERSION_CONFLICT`, `IDEMPOTENCY_IN_PROGRESS`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationFailed:
+      description: Dữ liệu không hợp lệ (`VALIDATION_FAILED`, `INVALID_CURSOR`, `IDEMPOTENCY_KEY_*`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: Quá hạn mức (`RATE_LIMITED`, `SSE_LIMIT_REACHED`); kèm `Retry-After`
+      headers:
+        Retry-After:
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unavailable:
+      description: Phụ thuộc hỏng (`SERVICE_UNAVAILABLE`, `NOT_READY`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    DeadlineExceeded:
+      description: Quá thời hạn xử lý của request (`DEADLINE_EXCEEDED`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
   schemas:
     Health:
       type: object
@@ -27,4 +184,92 @@ components:
       properties:
         status:
           type: string
-          const: ok
+          enum: [ok]
+    Ready:
+      type: object
+      required: [status, db, redis]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [ready]
+        db:
+          type: string
+          enum: [up]
+        redis:
+          type: string
+          enum: [up]
+    Job:
+      type: object
+      required: [id, kind, status, progress, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+        status:
+          type: string
+          enum: [QUEUED, RUNNING, SUCCEEDED, FAILED]
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        result: {}
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      required: [code, message, trace_id]
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          enum:
+            - BAD_REQUEST
+            - UNAUTHENTICATED
+            - TOKEN_EXPIRED
+            - TOKEN_INVALID
+            - FORBIDDEN
+            - NOT_FOUND
+            - METHOD_NOT_ALLOWED
+            - CONFLICT
+            - VERSION_CONFLICT
+            - IDEMPOTENCY_IN_PROGRESS
+            - PAYLOAD_TOO_LARGE
+            - UNSUPPORTED_MEDIA_TYPE
+            - VALIDATION_FAILED
+            - INVALID_CURSOR
+            - IDEMPOTENCY_KEY_REUSED
+            - IDEMPOTENCY_KEY_REQUIRED
+            - RATE_LIMITED
+            - SSE_LIMIT_REACHED
+            - INTERNAL
+            - SERVICE_UNAVAILABLE
+            - NOT_READY
+            - DEADLINE_EXCEEDED
+        message:
+          type: string
+        trace_id:
+          type: string
+          pattern: "^[0-9a-f]{32}$"
+        details: {}
+        retry_after:
+          type: integer
+          minimum: 1
