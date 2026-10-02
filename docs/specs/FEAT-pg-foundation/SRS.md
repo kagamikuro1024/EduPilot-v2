@@ -1,11 +1,13 @@
 # SRS FEAT-pg-foundation Nền Go: gateway không trạng thái cho mọi phase sau
-Phiên bản 1.4 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**; v1.2 trả lời câu hỏi QC; v1.3 theo góp ý #3(b): Caddy chỉ có health check bị động; v1.4 theo góp ý #4: literal khoá 31 byte ở US-PG-01 AC2 sửa đúng 31 byte, luật "≥ 32 byte" ở 8.1 giữ nguyên)
+Phiên bản 1.5 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**; v1.2 trả lời câu hỏi QC; v1.3 theo góp ý #3(b): Caddy chỉ có health check bị động; v1.4 theo góp ý #4: literal khoá 31 byte ở US-PG-01 AC2 sửa đúng 31 byte, luật "≥ 32 byte" ở 8.1 giữ nguyên; v1.5 theo góp ý #12: `float64` chỉ cấm cho điểm / tiền, `security` toàn cục + `security: []` hợp lệ, checklist rà mã 9.5)
 
 Lịch sử phiên bản: v1 (2026-10-02, BA viết). **v1.1 (2026-10-02)** — góp ý #1 `docs/sprints/2/proposals.md` (PM chốt, `ACCEPTED` 01/10): "Khoá bằng **build tag `testroutes`**: file đăng ký route thử có `//go:build testroutes`; Dockerfile có target riêng `gateway-test` (`go build -tags testroutes`); compose dùng target đó qua override `docker-compose.test.yml` cho QC. Binary/image mặc định không chứa route thử. AC18 của US-PG-03 đổi thành: image mặc định → mọi `/api/v1/_test/*` 404; `go tool nm` của binary mặc định không có symbol của gói route thử." Mục đổi: 1 (phạm vi), 2 (ma trận quyền), 4 (FR-35, FR-64, thêm FR-69), 6.3, 8.1 (`APP_ENV`), 8.4–8.5, 9.1, 9.4, 10, 11 (truy vết, rủi ro 11). Hệ quả BA bổ sung (PM xem lại nếu không đồng ý): thêm target `worker-test` vì job `test.progress` / `test.fail` do worker xử lý; binary có tag từ chối khởi động khi `APP_ENV=production`.
 
 **v1.2 (2026-10-02)** — trả lời 43 câu hỏi QC (`docs/sprints/2/qc/questions.md`, cột trả lời; trích "QC questions #n" ở từng chỗ sửa). Không đổi số AC (105) và số FR (69). **CORS (PM chốt):** `Access-Control-Allow-Credentials: true` kèm danh sách origin từ env **`CORS_ORIGINS`** (đổi tên từ `APP_CORS_ALLOWED_ORIGINS`), không bao giờ `*` — mục 4.3 FR-27, 6.7, 8.1 (QC questions #Q-QC-03-1). Mục khác: 3.1 và 3.4 (thứ tự middleware; tên phụ thuộc — #Q-QC-01-6, #Q-QC-01-7, #Q-QC-04-3), 4.1 FR-2 (cấu hình theo vai — #Q-QC-01-1), 6.1 (message 401 cố định, `retry_after` của `SSE_LIMIT_REACHED` — #Q-QC-04-6, #Q-QC-05-5), 6.3 (hành vi route thử: `owner_id`, 201, `steps`/`kind`, lỗi `events` — #Q-QC-03-2…4, #Q-QC-05-1…3), 6.5 (ETag danh sách — #Q-QC-03-6), 6.8 (`resync` hai `reason`, `Last-Event-ID` rỗng — #Q-QC-05-4), 8.1 (`BLOB_*` chỉ gateway, `BLOB_PUBLIC_ENDPOINT` dev, `BCRYPT_COST` — #Q-QC-01-1, #Q-QC-02-5, #Q-QC-04-4), 8.4 (`migrate` có `entrypoint` — #Q-QC-02-1, #Q-QC-07-1), 9.4 (Makefile `lint-depguard-negative` — #Q-QC-06-3). Hệ quả cho dev: `.env.example`, `ARCHITECTURE.md` mục env (dòng `APP_CORS_ALLOWED_ORIGINS`) phải đổi sang `CORS_ORIGINS` (PM / dev đồng bộ; BA không sửa `ARCHITECTURE.md`). Bốn câu để PM chốt, giữ cách hiện hành: #Q-QC-07-2, #Q-QC-07-3, #Q-QC-GATE-1, #Q-QC-GATE-2.
 
 **v1.3 (2026-10-02)** — góp ý #3 mục (b) `docs/sprints/2/proposals.md` (dòng nguồn "research", PM `ACCEPTED` 02/10): "giữ `dynamic a` ở sprint 2, BA sửa chữ spec thành 'health check bị động', ghi Nợ P10/PR: upstream tĩnh + `health_uri /api/v1/healthz`". Lý do (PoC của research): Caddy `dynamic a` không hỗ trợ health check chủ động — gateway treo mà vẫn nhận TCP không bị loại. Đổi: 3.1 (sơ đồ), 4.7 FR-60, 8.2 (đoạn sau Caddyfile), 11.2 rủi ro 4, thêm 11.4 "Nợ"; `US.md` 07-AC6 và "Ngoài phạm vi" của US-PG-07; `QUESTIONS.md` Q11. Không đổi số AC (105), số FR (69) và các phép thử (AC6 chỉ kiểm tắt hẳn một bản). Các mục (a), (c), (d) của #3 là việc của dev (contract test `format: uuid`, ghim `caddy:2.11`, README `~/.testcontainers.properties`), không phải thay đổi spec này.
+
+**v1.5 (2026-10-03)** — góp ý #12 `docs/sprints/2/proposals.md` (PM `ACCEPTED` 03/10; nguồn: QC, `qc/report-GATE-PG.md`; trích phần BA: "**PM chốt**: BUG-PG-5 — luật cấm `float64` áp cho **điểm / tiền**, không áp khoảng cách vector trong `_test.go` → BA sửa AC8; BUG-PG-6 phần `bearerAuth` — khai `security` toàn cục + `security: []` cho endpoint công khai là hợp lệ → BA sửa AC7; `time.Sleep` cho cửa sổ drain tắt êm là ngoại lệ hợp lệ → BA thêm vào checklist"). Không đổi số AC (105). Đổi: US-PG-02 AC8 (cấm `float64` chỉ cho điểm / tiền; `_test.go` tính khoảng cách vector được miễn), US-PG-06 AC7 (`security` toàn cục + `security: []` cho endpoint công khai là hợp lệ), `SRS.md` mục 9.5 (checklist rà mã: `time.Sleep` cho cửa sổ drain khi tắt êm là ngoại lệ), `SRS.md` 8.6 dòng "Dữ liệu" của bảng phi chức năng.
 
 Nguồn: `docs/phases/PG.md` (nguồn chính), `docs/sprints/2/plan.md`, `ARCHITECTURE.md` §2 §3 §4 §5 §8, `SYSTEM_DESIGN.md` §2 §3.2 §3.3 §3.4 §5, `DECISIONS.md` D22 D45–D48 D52, luật 10–15 `AGENTS.md`; mã hiện có: `backend-go/` (sprint 1), `docker-compose.local.yml`, `.github/workflows/ci.yml`. Truy vết đầy đủ: mục 11. Story: `US.md` (US-PG-01…07, 105 AC).
 
@@ -630,7 +632,7 @@ Giá trị lấy từ `SYSTEM_DESIGN.md` §5 (đọc p95 ≤ 300 ms, ghi p95 ≤
 | Bảo mật | JWT HS256 cố định thuật toán; không bí mật trong log / compose / repo; bcrypt; token CLI chặn ở production; CORS không `*`; `ics_token` băm | 04-AC1…11, 01-AC3, 07-AC17 |
 | Riêng tư | Log không PII (tên, MSSV, email, token, thân request); `last_error` không PII | 01-AC4 |
 | Quan sát | `trace_id` trong mọi dòng log, thân lỗi, `X-Request-Id`; truy vấn chậm > 200 ms | 01-AC4, 01-AC5, 01-AC11 |
-| Dữ liệu | Migration goose hai chiều giống hệt; `sqlc diff` sạch; không `float64` cho điểm | 02-AC6, 02-AC8 |
+| Dữ liệu | Migration goose hai chiều giống hệt; `sqlc diff` sạch; không `float64` cho điểm / tiền (khoảng cách vector trong `_test.go` được miễn) | 02-AC6, 02-AC8 |
 
 ## 9. Kiểm thử
 
@@ -661,6 +663,19 @@ Bằng lệnh trong `US.md` mục 07: số service, hai bản gateway, Caddy, im
 ### 9.4 Makefile (`backend-go/Makefile`)
 
 `run` (gateway), `run-worker`, `build` (`go build ./...`, không tag), `test` (`go test -race -count=1 -tags testroutes ./...` với biến môi trường colima), `lint` (`go vet` + `golangci-lint run`, mỗi lệnh chạy hai lần: không tag và `-tags testroutes`), `lint-depguard-negative` (ca âm: gói tạm `internal/zz_depguard_probe/` import `kin-openapi`, `golangci-lint` phải báo `depguard`, xoá gói tạm, thoát 0 khi lint chặn đúng — US-PG-06 AC8), `sqlc` (`sqlc generate`), `sqlc-check` (`sqlc diff`), `migrate` (`go run ./cmd/gateway migrate up`), `tidy`.
+
+### 9.5 Checklist rà mã sản xuất (QC đọc diff; áp cho mã không phải `_test.go`)
+
+| # | Quy tắc | Ngoại lệ hợp lệ |
+| --- | --- | --- |
+| 1 | Không ghi đĩa cục bộ (`os.Create`, `os.WriteFile`, `os.OpenFile`, `os.Mkdir*`, `ioutil.WriteFile`) — luật 10, 07-AC11 | không |
+| 2 | Không `fmt.Print*` / `println` (dùng `slog`) | không |
+| 3 | Không `float64` / `float32` cho **điểm hoặc tiền** (`AGENTS.md` nguyên tắc 5) | `_test.go` tính khoảng cách / độ tương đồng vector; chưa có cột điểm hay tiền ở PG |
+| 4 | Không `time.Sleep` — chờ điều kiện bằng `select` với `ctx.Done()` / timer / kênh | **Một** lệnh `time.Sleep(drain)` trong đường **tắt êm**: cửa sổ drain giữa lúc `readyz` báo `draining` và lúc đóng listener (01-AC7, hiện `server.go`); độ dài cấu hình được, có chú thích giải thích tại chỗ. Mọi `time.Sleep` khác là lỗi |
+| 5 | Không `context.Background()` trong handler; mọi truy vấn có `ctx`; lỗi bọc `%w` | khởi động / tắt máy ở `cmd/*` |
+| 6 | Không log token, mật khẩu, hash, thân request, `Idempotency-Key` | không |
+
+Danh sách này **bổ sung** cho checklist của QC (`docs/sprints/2/qc/tc-GATE-PG.md`, `scripts/diff-review.sh`); QC cập nhật ngoại lệ mục 4 ở đó. Thêm ngoại lệ mới = đề xuất thay đổi spec qua `proposals.md`.
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 
