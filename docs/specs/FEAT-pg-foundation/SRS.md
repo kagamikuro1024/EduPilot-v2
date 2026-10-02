@@ -1,9 +1,11 @@
 # SRS FEAT-pg-foundation Nền Go: gateway không trạng thái cho mọi phase sau
-Phiên bản 1.2 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**; v1.2 trả lời câu hỏi QC)
+Phiên bản 1.3 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-01; Q1–Q3, Q5–Q17 theo mặc định của BA; **Q4 theo góp ý #1 `docs/sprints/2/proposals.md`: route thử khoá bằng build tag `testroutes`, không bằng `APP_ENV`**; v1.2 trả lời câu hỏi QC; v1.3 theo góp ý #3(b): Caddy chỉ có health check bị động)
 
 Lịch sử phiên bản: v1 (2026-10-02, BA viết). **v1.1 (2026-10-02)** — góp ý #1 `docs/sprints/2/proposals.md` (PM chốt, `ACCEPTED` 01/10): "Khoá bằng **build tag `testroutes`**: file đăng ký route thử có `//go:build testroutes`; Dockerfile có target riêng `gateway-test` (`go build -tags testroutes`); compose dùng target đó qua override `docker-compose.test.yml` cho QC. Binary/image mặc định không chứa route thử. AC18 của US-PG-03 đổi thành: image mặc định → mọi `/api/v1/_test/*` 404; `go tool nm` của binary mặc định không có symbol của gói route thử." Mục đổi: 1 (phạm vi), 2 (ma trận quyền), 4 (FR-35, FR-64, thêm FR-69), 6.3, 8.1 (`APP_ENV`), 8.4–8.5, 9.1, 9.4, 10, 11 (truy vết, rủi ro 11). Hệ quả BA bổ sung (PM xem lại nếu không đồng ý): thêm target `worker-test` vì job `test.progress` / `test.fail` do worker xử lý; binary có tag từ chối khởi động khi `APP_ENV=production`.
 
 **v1.2 (2026-10-02)** — trả lời 43 câu hỏi QC (`docs/sprints/2/qc/questions.md`, cột trả lời; trích "QC questions #n" ở từng chỗ sửa). Không đổi số AC (105) và số FR (69). **CORS (PM chốt):** `Access-Control-Allow-Credentials: true` kèm danh sách origin từ env **`CORS_ORIGINS`** (đổi tên từ `APP_CORS_ALLOWED_ORIGINS`), không bao giờ `*` — mục 4.3 FR-27, 6.7, 8.1 (QC questions #Q-QC-03-1). Mục khác: 3.1 và 3.4 (thứ tự middleware; tên phụ thuộc — #Q-QC-01-6, #Q-QC-01-7, #Q-QC-04-3), 4.1 FR-2 (cấu hình theo vai — #Q-QC-01-1), 6.1 (message 401 cố định, `retry_after` của `SSE_LIMIT_REACHED` — #Q-QC-04-6, #Q-QC-05-5), 6.3 (hành vi route thử: `owner_id`, 201, `steps`/`kind`, lỗi `events` — #Q-QC-03-2…4, #Q-QC-05-1…3), 6.5 (ETag danh sách — #Q-QC-03-6), 6.8 (`resync` hai `reason`, `Last-Event-ID` rỗng — #Q-QC-05-4), 8.1 (`BLOB_*` chỉ gateway, `BLOB_PUBLIC_ENDPOINT` dev, `BCRYPT_COST` — #Q-QC-01-1, #Q-QC-02-5, #Q-QC-04-4), 8.4 (`migrate` có `entrypoint` — #Q-QC-02-1, #Q-QC-07-1), 9.4 (Makefile `lint-depguard-negative` — #Q-QC-06-3). Hệ quả cho dev: `.env.example`, `ARCHITECTURE.md` mục env (dòng `APP_CORS_ALLOWED_ORIGINS`) phải đổi sang `CORS_ORIGINS` (PM / dev đồng bộ; BA không sửa `ARCHITECTURE.md`). Bốn câu để PM chốt, giữ cách hiện hành: #Q-QC-07-2, #Q-QC-07-3, #Q-QC-GATE-1, #Q-QC-GATE-2.
+
+**v1.3 (2026-10-02)** — góp ý #3 mục (b) `docs/sprints/2/proposals.md` (dòng nguồn "research", PM `ACCEPTED` 02/10): "giữ `dynamic a` ở sprint 2, BA sửa chữ spec thành 'health check bị động', ghi Nợ P10/PR: upstream tĩnh + `health_uri /api/v1/healthz`". Lý do (PoC của research): Caddy `dynamic a` không hỗ trợ health check chủ động — gateway treo mà vẫn nhận TCP không bị loại. Đổi: 3.1 (sơ đồ), 4.7 FR-60, 8.2 (đoạn sau Caddyfile), 11.2 rủi ro 4, thêm 11.4 "Nợ"; `US.md` 07-AC6 và "Ngoài phạm vi" của US-PG-07; `QUESTIONS.md` Q11. Không đổi số AC (105), số FR (69) và các phép thử (AC6 chỉ kiểm tắt hẳn một bản). Các mục (a), (c), (d) của #3 là việc của dev (contract test `format: uuid`, ghim `caddy:2.11`, README `~/.testcontainers.properties`), không phải thay đổi spec này.
 
 Nguồn: `docs/phases/PG.md` (nguồn chính), `docs/sprints/2/plan.md`, `ARCHITECTURE.md` §2 §3 §4 §5 §8, `SYSTEM_DESIGN.md` §2 §3.2 §3.3 §3.4 §5, `DECISIONS.md` D22 D45–D48 D52, luật 10–15 `AGENTS.md`; mã hiện có: `backend-go/` (sprint 1), `docker-compose.local.yml`, `.github/workflows/ci.yml`. Truy vết đầy đủ: mục 11. Story: `US.md` (US-PG-01…07, 105 AC).
 
@@ -37,7 +39,7 @@ Nguyên tắc (D47 mục 6, luật 2): danh tính và vai trò **chỉ lấy t�
 
 ```mermaid
 flowchart LR
-  C[Client] --> CD[Caddy: TLS, nén, health check, flush_interval -1]
+  C[Client] --> CD[Caddy: TLS, nén, thử lại + health check bị động, flush_interval -1]
   CD --> GW[gateway]
   subgraph GW[gateway]
     direction LR
@@ -218,7 +220,7 @@ Cột AC trỏ `<story>-AC<n>` trong `US.md`.
 | FR | Hệ thống phải… | AC |
 | --- | --- | --- |
 | FR-59 | Compose có 10 service (mục 8.4); gateway chạy `--scale gateway=2` không tranh cổng | 07-AC1, 07-AC2, 07-AC17 |
-| FR-60 | Caddy 2: TLS nội bộ, nén có chọn lọc, `/api` → gateway (cân bằng tải, health check chủ động, thử lại, `flush_interval -1`), `/` → frontend (mục 8.2) | 07-AC3, 07-AC4, 07-AC5, 07-AC6 |
+| FR-60 | Caddy 2: TLS nội bộ, nén có chọn lọc, `/api` → gateway (cân bằng tải, **health check bị động** — `fail_duration` / `max_fails` + thử lại sang bản khác, không có health check chủ động với upstream `dynamic a`; `flush_interval -1`), `/` → frontend (mục 8.2) | 07-AC3, 07-AC4, 07-AC5, 07-AC6 |
 | FR-61 | PgBouncer transaction mode (mục 8.3); runtime qua PgBouncer, migrate trực tiếp; pgx tắt prepared statement ngầm; có test qua PgBouncer thật | 07-AC7…07-AC9 |
 | FR-62 | Dockerfile nhiều tầng, hai image gateway / worker < 40 MB, non-root, không shell | 07-AC10 |
 | FR-63 | Không trạng thái: `read_only` rootfs, không ghi đĩa cục bộ, không biến toàn cục (`gochecknoglobals`) | 07-AC11 |
@@ -559,7 +561,7 @@ localhost {
 }
 ```
 
-HTTP `:80` tự chuyển hướng sang HTTPS (hành vi mặc định của Caddy với tên máy chủ). Chứng chỉ do `Caddy Local Authority` cấp; dữ liệu CA nằm ở volume tên cố định `caddy_data` (tránh đổi CA mỗi lần dựng). Client dev dùng `curl -k`. `dynamic a` cho cả hai bản `--scale gateway=2` (Docker DNS trả nhiều A record) và loại container đã dừng sau ≤ 2 s; `lb_try_*` + `fail_duration` bù cho khoảng trễ đó (AC6 là phép thử quyết định; `QUESTIONS.md` Q11 cho phép dev đổi cơ chế khám phá upstream miễn AC đạt).
+HTTP `:80` tự chuyển hướng sang HTTPS (hành vi mặc định của Caddy với tên máy chủ). Chứng chỉ do `Caddy Local Authority` cấp; dữ liệu CA nằm ở volume tên cố định `caddy_data` (tránh đổi CA mỗi lần dựng). Client dev dùng `curl -k`. `dynamic a` cho cả hai bản `--scale gateway=2` (Docker DNS trả nhiều A record) và loại container đã dừng sau ≤ 2 s; `lb_try_*` + `fail_duration` bù cho khoảng trễ đó (AC6 là phép thử quyết định; `QUESTIONS.md` Q11 cho phép dev đổi cơ chế khám phá upstream miễn AC đạt). **Giới hạn đã biết (góp ý #3b):** với upstream `dynamic a` Caddy chỉ có **health check bị động** (đếm lỗi kết nối / thất bại thật của request); **không có health check chủ động** (`health_uri`), nên một gateway còn nhận TCP nhưng treo (ví dụ `docker pause`) **không** bị loại khỏi vòng cân bằng — PoC của research đo 101/200 lỗi. Chấp nhận ở PG vì AC6 chỉ đòi tắt hẳn một bản; khắc phục ở Nợ 11.4.
 
 ### 8.3 PgBouncer
 
@@ -691,7 +693,7 @@ Quyết định đã chốt (từ tài liệu nguồn, không hỏi lại): D22 
 | 1 | PgBouncer transaction mode + pgx tự chuẩn bị statement | Lỗi `prepared statement … already exists` ngẫu nhiên | 07-AC9 chạy qua PgBouncer thật; 8.3 cấm cache statement |
 | 2 | Caddy đệm SSE hoặc nén | Sự kiện đến trễ / dồn cục | `flush_interval -1`, không `encode` ở `/api`; 05-AC14 |
 | 3 | testcontainers trên colima (Ryuk, socket) | Test Go đỏ vì môi trường | `make test` đặt biến; 9.1 |
-| 4 | `dynamic a` của Caddy không loại bản chết kịp | Lỗi 5xx khi tắt một bản | `lb_try_*`, `fail_duration`; 07-AC6 là phép thử quyết định; Q11 |
+| 4 | `dynamic a` của Caddy chỉ có health check bị động: không loại bản chết kịp (≤ 2 s) và **không loại bản treo còn nhận TCP** | Lỗi 5xx khi tắt hẳn một bản; nhiều lỗi khi một bản treo (chưa chết) | `lb_try_*`, `fail_duration`; 07-AC6 (tắt hẳn một bản) là phép thử quyết định; bản treo là Nợ 11.4; Q11 |
 | 5 | Ngưỡng k6 không đạt trên máy dev | Cổng đỏ không do code | Ghi số đo thực + lý do; không nới (plan) |
 | 6 | Bỏ `8080:8080` làm frontend / lệnh cũ không gọi được gateway | Hỏng tay dev | `NEXT_PUBLIC_API_URL=https://localhost`; mock-ui của sprint 1.5 không gọi gateway; dev kiểm `pnpm -C frontend build` (07-AC19) |
 | 7 | `kin-openapi` chưa hỗ trợ đầy đủ OpenAPI 3.1 | Contract test không nạp được spec | 06-AC1 + Q5 (hạ 3.0.3 nếu cần) |
@@ -706,3 +708,9 @@ Quyết định đã chốt (từ tài liệu nguồn, không hỏi lại): D22 
 - Frontend sprint 1.5 (mock-ui) không phụ thuộc cổng 8080 của gateway.
 - `pgvector/pgvector:pg18` có `uuidv7()` native và extension `vector` ≥ 0.8 (có `halfvec`, HNSW); nếu `uuidv7()` không có, dùng hàm SQL tự viết cùng tên trong `00001` (Q2) — 02-AC4 vẫn kiểm `column_default='uuidv7()'`.
 - `docs/phases/PG.md` là nguồn chính; mâu thuẫn giữa `PG.md` và spec này → hỏi PM, không tự sửa.
+
+### 11.4 Nợ (ghi vào mục Nợ của `docs/PROGRESS.md` khi dev / PM cập nhật; BA không sửa file đó)
+
+| # | Nợ | Phase | Cách trả |
+| --- | --- | --- | --- |
+| 1 | Caddy chưa có health check **chủ động** cho gateway; bản treo mà vẫn nhận TCP không bị loại (góp ý #3b) | P10 / PR | Chuyển upstream sang **tĩnh** (`edupilot-gateway-1`, `edupilot-gateway-2`, hoặc danh sách theo số bản) + `health_uri /api/v1/healthz` (`health_interval`, `health_timeout`, `health_status 2xx`); thêm phép thử `docker pause` một bản (≤ 2 % lỗi, 0 lỗi sau cửa sổ loại) vào k6 / script cổng; cân nhắc `readyz` thay `healthz` khi cần loại bản mất DB / Redis |
