@@ -1,0 +1,601 @@
+# SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
+Phiên bản 1 · 2026-10-02 · Trạng thái: DRAFT (chờ PM duyệt)
+
+Nguồn: `docs/phases/P1.md` (nguồn chính), `docs/sprints/3/plan.md`, PRD M12 + §3, FLOWS F15, `ARCHITECTURE.md` §4 (schema), §5 (API), §8 (env), `SYSTEM_DESIGN.md` §1.2, §3.1, §5, `DECISIONS.md` D22, D46, D47, D51–D53; spec nền `docs/specs/FEAT-pg-foundation/` v1.3 (mã lỗi 6.1, cursor 6.4, header 6.5, Idempotency 6.6, SSE 6.8, env 8.1, `testroutes`); `docs/specs/FEAT-ui-foundation/`; `design/DESIGN.md` §14.23. Story: `US.md` (US-P1-01…05). Truy vết: mục 11.
+
+## 1. Mục đích và phạm vi
+
+Đưa **mọi** lời gọi LLM / embedding của Go qua một cổng duy nhất `backend-go/internal/llm` có: nhà cung cấp cấu hình được trong DB (khoá mã hoá), định tuyến theo tác vụ + chuỗi dự phòng, Scheduler chia làn ưu tiên (INTERACTIVE > NEAR_REALTIME > BATCH) với hạn mức, đồng thời, mạch ngắt, ngân sách, suy giảm có kiểm soát, nhật ký `llm_audit`; API cấu hình cho Admin; màn `/settings/llm` thật. Luật 3 và 11 của `AGENTS.md` trở thành kiểm được bằng máy (grep SDK, test hai tiến trình).
+
+**Trong phạm vi:** migration `00002_llm`; `platform/crypto`; `internal/llmconfig` (service + repo + handler); `internal/llm` (+ `fake`, `scheduler`, `budget`, `cost`); `cmd/llmload` (công cụ đo, không vào image); route thử `testroutes`; `openapi.yaml` + golden; màn `/settings/llm`; cấu hình env.
+
+**Ngoài phạm vi:** agent / RAG / tool / che PII (P3); gọi LLM từ Python và `llm_audit` phía Python (P3); bảng `courses` và ràng buộc "TEACHER chỉ lớp của mình" (P2); thông báo giao diện khi ngân sách 80 % (P4 — sprint này chỉ ghi outbox); việc lập chỉ mục lại khi đổi mô hình nhúng (P8); xoay vòng khoá mã hoá và dọn `llm_audit` (Nợ PR); `make eval` (hoãn — plan sprint 3); ghi phản hồi thật từ nhà cung cấp (cần khoá — chủ dự án).
+
+**Giả định vận hành:** gateway **không trạng thái** (luật 10) và có thể chạy nhiều bản sao: trạng thái dùng chung của Scheduler (đồng thời, RPM / TPM, mạch, ngân sách, thông báo nạp lại) nằm ở **Redis**; hàng đợi chờ nằm trong bộ nhớ từng tiến trình (ghi `ponytail:` — công bằng giữa tiến trình chỉ gần đúng).
+
+## 2. Người dùng và quyền
+
+| Thao tác | Admin | Giảng viên | TA | Sinh viên | Ghi chú |
+| --- | --- | --- | --- | --- | --- |
+| Xem nhà cung cấp, tuyến, mức dùng, ngân sách hệ thống | ✓ | ✓ (chỉ đọc) | ✗ 403 | ✗ 403 | PRD §3: GV "Xem", TA "–" |
+| Tạo / sửa / xoá nhà cung cấp, đổi khoá, `…/test`, `PUT routes`, `PUT budget` | ✓ | ✗ 403 | ✗ 403 | ✗ 403 | |
+| Xem / sửa ngân sách theo lớp `/courses/{id}/llm-budget` | ✓ | ✗ 403 (sprint này) | ✗ | ✗ | GV xem ngân sách lớp mình: P2 |
+| Xem mức dùng lọc theo `course_id` | ✓ | ✗ 403 (sprint này) | ✗ | ✗ | như trên |
+| Thấy khoá API (rõ hoặc đuôi) | **không ai** | không | không | không | chỉ `has_key`, `key_status` |
+| Route thử `_test/llm/*` | ✓ (build `testroutes`) | ✗ 403 | ✗ 403 | ✗ 403 | binary mặc định: 404 |
+
+Quy tắc: danh tính và vai trò từ JWT (`RequireRole`); `user_id`, `course_id` ghi vào `llm_audit` từ **ctx** (không từ thân yêu cầu hay tham số của người gọi). ADMIN không đọc nội dung lớp mặc định — `llm_audit` **không** chứa nội dung prompt / câu trả lời nên Admin xem được mức dùng mà không lộ nội dung. Sinh viên không bao giờ thấy từ kỹ thuật: chuỗi suy giảm của chat không chứa `provider`, `fallback`, `trace`, `RAG`, `PII`.
+
+## 3. Luồng chính và các nhánh lỗi
+
+### 3.1 Một lời gọi LLM
+
+```mermaid
+flowchart TD
+  C[Người gọi: handler / worker] -->|ctx: trace_id, user_id, course_id, deadline| R[Resolve lane + route]
+  R -->|không có cấu hình, không env| E1[LLM_NOT_CONFIGURED 503]
+  R --> B{Ngân sách}
+  B -->|BATCH và cạn| E2[LLM_UNAVAILABLE reason=budget_exhausted]
+  B -->|INTERACTIVE hoặc NEAR_REALTIME và cạn| M[đổi sang mô hình rẻ nhất]
+  B -->|ok / warn| Q
+  M --> Q{Hàng đợi theo làn}
+  Q -->|đầy hoặc chờ quá LLM_QUEUE_WAIT_MAX| E3[OVERLOADED 503 + retry_after]
+  Q -->|cấp chỗ theo ưu tiên + BATCH share| T[Token bucket RPM/TPM + inflight toàn cục]
+  T --> CB{Mạch của nhà cung cấp}
+  CB -->|mở| N[Nhà kế trong chuỗi]
+  CB -->|đóng / bán mở| P[Gọi nhà cung cấp + retry jitter]
+  P -->|thành công| OK[Response + ghi llm_audit]
+  P -->|lỗi đáng thử lại hết lần| N
+  P -->|BAD_REQUEST| E4[Lỗi, không chuyển tiếp]
+  N -->|còn nhà| CB
+  N -->|hết chuỗi, INTERACTIVE| D[Suy giảm: degraded=true, trích đoạn]
+  N -->|hết chuỗi, BATCH / GRADING| E5[LLM_UNAVAILABLE 503]
+  P -->|ctx huỷ| X[Dừng lời gọi, status=cancelled]
+```
+
+### 3.2 Mạch ngắt (mỗi nhà cung cấp, dùng chung qua Redis)
+
+```mermaid
+stateDiagram-v2
+  [*] --> closed
+  closed --> open: 5 lỗi liên tiếp (AUTH, 429, 5xx, timeout, network)
+  open --> half_open: sau 30 s
+  half_open --> closed: 1 lời gọi thử thành công
+  half_open --> open: thử thất bại (mở lại 30 s)
+  closed --> closed: thành công đặt lại bộ đếm
+```
+
+### 3.3 Lưu nhà cung cấp (khoá sai không lưu)
+
+```mermaid
+sequenceDiagram
+  participant UI
+  participant API as POST/PUT providers
+  participant V as Verify (internal/llm, 1 lời gọi nhỏ)
+  participant DB
+  UI->>API: api_key mới, skip_verify=false
+  API->>V: gọi thử (Chat max_tokens=1 hoặc Embed "ping")
+  alt thành công
+    V-->>API: ok
+    API->>DB: mã hoá khoá (AES-GCM, AAD=id), ghi + audit_log
+    API-->>UI: 201/200 (không có khoá)
+  else lỗi AUTH / NETWORK / MODEL_NOT_FOUND
+    V-->>API: lỗi + loại
+    API-->>UI: 422 VALIDATION_FAILED details[api_key] — KHÔNG ghi gì
+  end
+```
+
+### 3.4 Nhánh lỗi
+
+| Tình huống | Hệ thống phản ứng | Người dùng thấy |
+| --- | --- | --- |
+| Khoá sai khi Test | 200 `{ok:false,error_kind:"AUTH"}`, không lưu | InlineNotice dưới hàng: "Khoá API không được nhà cung cấp chấp nhận…" |
+| Khoá sai khi Lưu | 422 `PROVIDER_AUTH_FAILED`, không ghi | Lỗi dưới ô khoá, "Chưa lưu gì" |
+| Máy chủ nội bộ không với tới | 422 `PROVIDER_UNREACHABLE`; `skip_verify` cho Admin | "Lưu mà không kiểm tra" |
+| Hàng INTERACTIVE đầy | 503 `OVERLOADED` ngay + `retry_after` | "Hệ thống đang rất đông. Thử lại sau N giây." |
+| Mọi nhà cung cấp chết (chat) | 200 `degraded=true`, trích đoạn | "AI tạm thời không khả dụng. Dưới đây là các đoạn tài liệu…" |
+| Mọi nhà cung cấp chết (BATCH) | 503 `LLM_UNAVAILABLE` → consumer thử lại 3 lần → dead-letter | (việc nền) hiện ở "Hôm nay" khi P4+ |
+| Ngân sách ≥ 100 % | BATCH dừng; chat đổi sang mô hình rẻ nhất | Admin: thông báo ở `/settings/llm`; sinh viên: không thấy gì |
+| Client huỷ giữa stream | huỷ lời gọi ≤ 1 s, `status=cancelled` | — |
+| Redis mất | giới hạn cục bộ, log `error` mỗi 30 s, vẫn gọi | — |
+| Cấu hình nạp lại hỏng | giữ cấu hình cũ, log `error` | — |
+| `APP_ENCRYPTION_KEY` hỏng | gateway không khởi động | (vận hành) lỗi rõ ở log |
+| Khoá một nhà không giải mã được | nhà đó `key_status=unreadable`, bị bỏ qua | Hàng "Lỗi khoá — nhập lại khoá" |
+| Embedding sai số chiều | `MODEL_DIMS_MISMATCH`, không trả vectơ | "Mô hình này không dùng được cho tìm kiếm tài liệu" |
+| Hai Admin cùng sửa | 409 `VERSION_CONFLICT` | "Cài đặt này vừa được người khác đổi…" |
+
+## 4. Yêu cầu chức năng
+
+### 4.1 Hợp đồng `internal/llm`
+
+```go
+type Lane int // LaneInteractive=0 < LaneNearRealtime=1 < LaneBatch=2 (số nhỏ = ưu tiên cao)
+type Task string // CHAT CLASSIFY UTILITY GRADING QUESTION_GEN INSIGHT EMBEDDING
+
+type Request struct {
+    Task Task; Lane *Lane            // nil = mặc định theo bảng 4.3
+    Messages []Message; Params Params
+    Shareable bool                   // chỉ true cho việc không chứa dữ liệu cá nhân
+    PIIMaskedCount int
+    Passages []Passage               // dùng cho đường suy giảm (INTERACTIVE)
+}                                    // KHÔNG có UserID/CourseID: lấy từ ctx
+type Response struct {
+    Text string; TokensIn, TokensOut int
+    Provider, Model string; FallbackIndex int
+    Degraded bool; QueueWait time.Duration; CostEst decimal.Decimal
+}
+type Client interface {
+    Chat(ctx context.Context, r Request) (Response, error)
+    Stream(ctx context.Context, r Request) (<-chan Chunk, error)
+    Structured(ctx context.Context, r Request, schema json.RawMessage) (json.RawMessage, error)
+    Embed(ctx context.Context, r EmbedRequest) ([][]float32, error)
+}
+```
+
+Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailable{Reason}`, `ErrDeadline`, `ErrBadRequest`, `ErrAllProvidersFailed`, `ErrDimsMismatch`, `ErrBadLane`; handler ánh xạ sang mã HTTP ở 6.1. Gói **không** import `net/http` của handler; SDK chỉ ở `internal/llm/provider/`.
+
+### 4.2 Nhà cung cấp, ánh xạ lỗi, thử lại
+
+**Loại và địa chỉ gốc (D46 — mọi loại đi qua `openai-go` với `base_url` + khoá):**
+
+| `type` | `base_url` | Ghi chú |
+| --- | --- | --- |
+| `openai` | `https://api.openai.com/v1` | |
+| `anthropic` | `https://api.anthropic.com/v1/` | lớp tương thích OpenAI; `Structured` luôn dùng `json_object` + kiểm schema |
+| `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai/` | lớp tương thích OpenAI |
+| `openai_compatible` | bắt buộc ở bản ghi (vLLM, LM Studio, máy chủ trường) | khoá có thể rỗng |
+| `fake` | — | provider giả (8.3); có thể tạo ở DB cho dev / test |
+
+**Ánh xạ lỗi (`error_kind`):**
+
+| Loại | Điều kiện | Thử lại cùng nhà | Chuyển nhà tiếp | Tính vào mạch |
+| --- | --- | --- | --- | --- |
+| `AUTH` | HTTP 401, 403 | không | có | có |
+| `MODEL_NOT_FOUND` | 404, mã `model_not_found` | không | có | không |
+| `RATE_LIMIT` | 429 | có (tôn trọng `Retry-After` ≤ 5 s) | có | có |
+| `SERVER` | 500, 502, 503, 504 | có | có | có |
+| `TIMEOUT` | quá hạn, `DeadlineExceeded` của lời gọi (không phải huỷ của client) | có | có | có |
+| `NETWORK` | đứt kết nối, DNS, từ chối | có | có | có |
+| `BAD_REQUEST` | 400, 422, nội dung bị lọc | không | **không** | không |
+| `DIMS_MISMATCH` | vectơ ≠ 1536 | không | không (không có dự phòng cho embedding) | không |
+| `CANCELLED` | `ctx` huỷ bởi client | không | không | không |
+
+**Thử lại:** INTERACTIVE tối đa 1 lần, làn khác 2 lần (`params.retries` của tuyến, 0–5, chỉ **thu hẹp** mặc định theo làn); trễ cơ sở 500 ms × 2^(n−1), jitter đầy đủ (đều trong `[0, trễ]`), trần 4 s; không thử khi còn < 1 s tới hạn.
+
+**Cấu hình mặc định khi chưa có dòng DB (env dự phòng):** `LLM_PROVIDER=fake` → mọi tác vụ dùng `fake-chat` / `fake-embed`; nếu có `OPENAI_API_KEY` → `CHAT`, `CLASSIFY`, `UTILITY`, `QUESTION_GEN`, `INSIGHT`, `GRADING` = `gpt-4o-mini`, `EMBEDDING` = `text-embedding-3-small` (1536 chiều); `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` thêm vào làm dự phòng theo thứ tự OpenAI → Anthropic (`claude-3-5-haiku-latest`) → Gemini (`gemini-2.0-flash`) cho các tác vụ chat (embedding: chỉ OpenAI). Tên mô hình mặc định nằm ở hằng số trong `internal/llm/defaults.go` (đổi bằng DB, không cần sửa spec).
+
+### 4.3 Scheduler
+
+**Tác vụ → làn mặc định:**
+
+| Tác vụ | Làn mặc định | Người gọi có thể | Ghi chú |
+| --- | --- | --- | --- |
+| `CHAT` | INTERACTIVE | hạ xuống NEAR_REALTIME | trả lời chat riêng, Threads |
+| `CLASSIFY` | NEAR_REALTIME | hạ xuống BATCH | phân loại câu hỏi / leo thang |
+| `UTILITY` | NEAR_REALTIME | hạ xuống BATCH | tóm tắt, đặt tên, việc nhỏ |
+| `GRADING` | BATCH | — (không nâng) | chấm bài hàng loạt |
+| `QUESTION_GEN` | BATCH | — | sinh câu hỏi |
+| `INSIGHT` | BATCH | — | tóm tắt lớp học |
+| `EMBEDDING` | BATCH | **nâng lên INTERACTIVE** cho vectơ hoá câu hỏi lúc chat | nạp tài liệu: BATCH |
+
+Nâng làn của `GRADING`, `QUESTION_GEN`, `INSIGHT` lên INTERACTIVE → `ErrBadLane`.
+
+**Hằng số (biến môi trường — mặc định trong ngoặc):**
+
+| Biến | Mặc định | Ý nghĩa |
+| --- | --- | --- |
+| `LLM_MAX_CONCURRENCY` | 10 | số lời gọi nhà cung cấp chạy cùng lúc **mỗi nhà cung cấp, toàn cục** (ZSET Redis) |
+| `LLM_BATCH_SHARE` | 0.5 | trần chỗ của BATCH = `ceil(MAX × share)` khi có INTERACTIVE đang chờ hoặc vừa chạy trong 2 s; ngoài ra BATCH dùng hết công suất |
+| `LLM_QUEUE_MAX` | 200 | số yêu cầu chờ tối đa **mỗi làn mỗi tiến trình**; vượt → `OVERLOADED` |
+| `LLM_QUEUE_WAIT_MAX` | 10s | chờ hàng tối đa của INTERACTIVE |
+| `LLM_REQUEST_TIMEOUT` | 30s | hạn mặc định (INTERACTIVE, NEAR_REALTIME) khi `ctx` không có hạn; BATCH 120 s |
+| `LLM_BREAKER_FAILS` | 5 | số lỗi liên tiếp để mở mạch |
+| `LLM_BREAKER_OPEN` | 30s | thời gian mở trước khi bán mở |
+| `LLM_DEFAULT_RPM` | 60 | khi `llm_providers.rpm_limit` null |
+| `LLM_DEFAULT_TPM` | 100000 | khi `tpm_limit` null |
+| `LLM_EMBED_DIMS` | 1536 | khoá cố định; giá trị khác → không khởi động |
+| `LLM_PROVIDER` | (trống) | `fake` → dự phòng env |
+
+**Công thức `retry_after` của `OVERLOADED`:** `clamp(ceil(độ_dài_hàng ÷ LLM_MAX_CONCURRENCY × trễ_trung_bình_s), 1, 30)`, trễ trung bình = trung bình trượt 100 lời gọi gần nhất của nhà chính (mặc định 5 s khi chưa có số liệu).
+
+**Mục tiêu đo được (ghi vào AC):** với 200 việc BATCH đang chờ, INTERACTIVE tới ≤ 50 % công suất: chờ hàng p95 **≤ 500 ms**, BATCH tối đa **5** chỗ trong 10, TTFT không chậm hơn **+20 %** (SYSTEM_DESIGN §5); suy ra từ trần BATCH share nên ≥ 5 chỗ luôn dành cho INTERACTIVE.
+
+**Cấp chỗ:** (1) làn INTERACTIVE trước; (2) NEAR_REALTIME; (3) BATCH nếu `batch_inflight < ceil(MAX × share)` **hoặc** không có INTERACTIVE chờ / vừa chạy; FIFO trong làn. Chỗ = một phần tử trong `ZSET ep:llm:inflight:<provider_id>` (điểm = hạn thuê, ms); lease `deadline + 10 s`; dọn phần tử hết thuê trước mỗi lần cấp.
+
+**Token bucket:** hai bucket mỗi nhà cung cấp (RPM, TPM) bằng script Lua nguyên tử (làm đầy theo thời gian, dung lượng = hạn mức, burst = max(1, 10 % hạn mức)); ước tính TPM trước khi gọi = `ceil(len(prompt_bytes) / 4) + max_tokens`, đối soát bằng `tokens_in + tokens_out` thật sau khi xong; thiếu token → chờ trong hàng (không lỗi) tới khi đủ hoặc quá hạn.
+
+**Suy giảm (INTERACTIVE, chuỗi chết):** `Response.Degraded=true`; câu trả lời = đúng câu mở đầu + ≤ 3 `Passages` có điểm cao nhất, mỗi đoạn "«trích nguyên văn» — tên tài liệu, tr. N" (cắt ≤ 600 ký tự mỗi đoạn, không sinh); không có đoạn: câu "AI tạm thời không khả dụng. Câu hỏi của bạn đã được ghi lại, giảng viên sẽ xem." Chuỗi cố định: `degraded.opening` = "AI tạm thời không khả dụng. Dưới đây là các đoạn tài liệu liên quan nhất:". Làn NEAR_REALTIME khi chuỗi chết → `LLM_UNAVAILABLE` (người gọi quyết định; leo thang không phụ thuộc LLM ở P4). BATCH → `LLM_UNAVAILABLE`.
+
+**Single-flight:** khoá `sha256(task ‖ model ‖ canonical(messages) ‖ canonical(params))`; chỉ `Shareable=true` và làn ≠ INTERACTIVE và task ≠ GRADING; trong tiến trình (map + mutex, không thêm thư viện); `ponytail:` hợp nhất giữa tiến trình cần khoá Redis + pub/sub — chỉ làm khi đo thấy trùng lặp đáng kể.
+
+**Ngân sách:** chi phí lời gọi = `tokens_in × price_in ÷ 1.000.000 + tokens_out × price_out ÷ 1.000.000` (VND, `decimal`); bộ đếm Redis cộng theo **số nguyên 1/10.000 đ** (`INCRBY`) hai phạm vi (hệ thống, lớp) × hai kỳ (ngày, tháng theo `Asia/Ho_Chi_Minh`); trạng thái theo `max(pct_day, pct_month)` của phạm vi tệ nhất: `< 80 %` ok, `80–<100 %` warn, `≥ 100 %` exhausted; vào `warn` lần đầu mỗi kỳ → một dòng outbox (`topic=llm.budget.warn`, `payload={scope,course_id?,period,pct}` không chứa nội dung); `exhausted`: 5.2/4.3 quy tắc BATCH dừng, INTERACTIVE + NEAR_REALTIME đổi sang **mô hình chat rẻ nhất đang bật** (`price_in + price_out` nhỏ nhất, hoà thì theo `created_at`); **không bao giờ** từ chối INTERACTIVE vì ngân sách. Đối soát khi Redis về: tính lại từ `llm_audit` của kỳ hiện tại.
+
+### 4.4 Danh sách FR
+
+| FR | Hệ thống phải… | AC |
+| --- | --- | --- |
+| FR-1 | Migration `00002_llm`: 5 bảng đủ cột, ràng buộc, chỉ mục; không đổi `00001` | 01-AC1, AC2, AC3 |
+| FR-2 | `sqlc` sinh sạch; SQL chỉ ở `store/queries` | 01-AC4 |
+| FR-3 | `platform/crypto` AES-256-GCM (nonce ngẫu nhiên, AAD = id bản ghi); từ chối khởi động khi khoá hỏng | 01-AC5, AC6 |
+| FR-4 | Khoá chỉ ghi: DB mã hoá, mọi đầu ra / log / audit redact; một đường giải mã duy nhất | 01-AC7, AC8, 04-AC4, 02-AC16 |
+| FR-5 | Dịch vụ cấu hình: version, giữ / thay khoá, xoá có kiểm tra dùng, audit_log, hạn mức | 01-AC9, AC11, AC12 |
+| FR-6 | Quy tắc tuyến bất biến (chain, kind, dims, nhà tắt, params) và cờ `reindex_required` | 01-AC10, 04-AC6 |
+| FR-7 | Cổng chặn SDK ngoài `internal/llm`; chỉ thêm `openai-go` | 02-AC1 |
+| FR-8 | `Chat/Stream/Structured/Embed`; danh tính từ ctx; D47 một lần sinh văn bản | 02-AC2, AC3 |
+| FR-9 | Registry theo loại nhà cung cấp; ánh xạ lỗi 7 loại; thử lại jitter | 02-AC4, AC5, AC6 |
+| FR-10 | Fallback theo `fallback_order`; không chuyển khi `BAD_REQUEST` | 02-AC7 |
+| FR-11 | `llm_audit` một dòng mỗi lời gọi, bất đồng bộ, không nội dung; `trace_id` xuyên suốt | 02-AC8, AC9 |
+| FR-12 | `Structured` json_schema → json_object + kiểm schema; embedding khoá 1536 | 02-AC10, AC11 |
+| FR-13 | Provider `fake` + phát lại; `TestProviderContract` | 02-AC12, AC13 |
+| FR-14 | Nạp lại nóng nguyên tử qua Redis pub/sub + thăm dò 60 s; dự phòng env; `LLM_NOT_CONFIGURED` | 02-AC14, AC15, 04-AC9 |
+| FR-15 | Ba làn + FIFO + bảng tác vụ → làn | 03-AC1 |
+| FR-16 | Đồng thời toàn cục và token bucket RPM / TPM dùng chung (hai tiến trình) | 03-AC2, AC3 |
+| FR-17 | BATCH ≤ share khi có INTERACTIVE; số đo chờ hàng p95 ≤ 500 ms | 03-AC4 |
+| FR-18 | `OVERLOADED` + `retry_after`; chờ tối đa; mọi từ chối đều có mã | 03-AC5, AC12 |
+| FR-19 | Mạch ngắt 5 lỗi / 30 s dùng chung tiến trình | 03-AC6 |
+| FR-20 | Hạn chót từ ctx gồm chờ hàng; client huỷ thì huỷ nhà cung cấp | 03-AC7, AC8 |
+| FR-21 | Suy giảm trích đoạn cho INTERACTIVE; BATCH báo `LLM_UNAVAILABLE` | 03-AC9 |
+| FR-22 | Single-flight cho việc dùng chung | 03-AC10 |
+| FR-23 | Ngân sách 80 % cảnh báo, 100 % dừng BATCH + mô hình rẻ cho chat | 03-AC11 |
+| FR-24 | Redis mất → giới hạn cục bộ; vào lại thì đối soát | 03-AC13 |
+| FR-25 | Cấu hình env có kiểm tra | 03-AC15 |
+| FR-26 | Ma trận quyền API: ADMIN tất cả; GV chỉ đọc; TA / SV 403 | 04-AC1, 05-AC10 |
+| FR-27 | `…/test` (không lưu) và verify-before-save; `skip_verify` | 04-AC2, AC3, 05-AC4 |
+| FR-28 | CRUD nhà cung cấp, định tuyến, mức dùng, ngân sách; quy tắc chung PG | 04-AC5…AC8, AC11 |
+| FR-29 | `openapi.yaml` + golden + contract test; không sửa golden của PG | 04-AC10 |
+| FR-30 | Màn `/settings/llm` 4 phần; khoá chỉ ghi; Test phụ; nâng cao mở dần; mức dùng | 05-AC1…AC8 |
+| FR-31 | Màn xử lý lỗi, vai, mobile, bàn phím, thay mock | 05-AC9…AC14 |
+| FR-32 | Kịch bản "Bạn tự kiểm" (API và giao diện) | 04-AC12, 05-AC15 |
+
+## 5. Dữ liệu
+
+### 5.1 Quy ước chung (theo PG)
+`id uuid primary key default uuidv7()`; `created_at timestamptz not null default now()`, `updated_at timestamptz not null default now()` (trigger cập nhật như `00001`); bảng có thể sửa đồng thời có `version int not null default 1`; tên `snake_case` tiếng Anh; **không FK** tới `users` / `courses` (đối tượng `courses` ra đời ở P2; `users` giữ tham chiếu mềm để `llm_audit` sống lâu hơn tài khoản); tiền là `numeric` (VND); thời gian lưu UTC.
+
+### 5.2 Bảng (DDL ý định — dev viết SQL theo đúng tên / kiểu / ràng buộc này)
+
+```sql
+-- 00002_llm.sql
+create table llm_providers (
+  id uuid primary key default uuidv7(),
+  type text not null check (type in ('openai','anthropic','gemini','openai_compatible','fake')),
+  name text not null check (char_length(name) between 1 and 60),
+  base_url text,                       -- null = địa chỉ gốc mặc định theo type
+  api_key_enc bytea,                   -- 0x01 ‖ nonce(12) ‖ ct ‖ tag; null = chưa có khoá
+  enabled boolean not null default true,
+  rpm_limit integer check (rpm_limit is null or rpm_limit > 0),
+  tpm_limit integer check (tpm_limit is null or tpm_limit > 0),
+  last_test_ok boolean,                -- null = chưa kiểm tra / lưu bằng skip_verify
+  last_test_at timestamptz,
+  last_test_error text,                -- chỉ error_kind, không thân lỗi
+  version integer not null default 1,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint llm_providers_name_uq unique (name),
+  constraint llm_providers_base_url_chk check (type <> 'openai_compatible' or base_url is not null)
+);
+
+create table llm_models (
+  id uuid primary key default uuidv7(),
+  provider_id uuid not null references llm_providers(id) on delete cascade,
+  model text not null check (char_length(model) between 1 and 120),
+  kind text not null check (kind in ('chat','embedding')),
+  dims integer check (dims is null or dims > 0),
+  price_in numeric(14,4) not null default 0 check (price_in >= 0),   -- đ / 1 triệu token
+  price_out numeric(14,4) not null default 0 check (price_out >= 0),
+  enabled boolean not null default true,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint llm_models_uq unique (provider_id, model),
+  constraint llm_models_dims_chk check (kind <> 'embedding' or dims is not null)
+);
+
+create table llm_task_routes (
+  id uuid primary key default uuidv7(),
+  task text not null check (task in ('CHAT','CLASSIFY','UTILITY','GRADING','QUESTION_GEN','INSIGHT','EMBEDDING')),
+  model_id uuid not null references llm_models(id),               -- không cascade: xoá mô hình đang dùng bị chặn
+  fallback_order integer not null check (fallback_order >= 0),    -- 0 = chính, 1.. = dự phòng
+  params jsonb not null default '{}'::jsonb,                      -- temperature, max_tokens, timeout_s, retries
+  version integer not null default 1,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint llm_task_routes_uq unique (task, fallback_order)
+);
+
+create table llm_audit (
+  id uuid primary key default uuidv7(),
+  task text not null,
+  lane text not null check (lane in ('INTERACTIVE','NEAR_REALTIME','BATCH')),
+  provider text,                       -- tên nhà cung cấp lúc gọi (không FK: sống lâu hơn cấu hình)
+  model text,
+  tokens_in integer not null default 0,
+  tokens_out integer not null default 0,
+  latency_ms integer not null default 0,
+  queue_wait_ms integer not null default 0,
+  attempts integer not null default 1,
+  fallback_index integer not null default 0,
+  cost_est numeric(14,4) not null default 0,
+  status text not null check (status in ('ok','error','timeout','rate_limited','overloaded','degraded','cancelled','circuit_open','budget_blocked','not_configured')),
+  error_kind text,
+  degraded boolean not null default false,
+  pii_masked_count integer not null default 0,
+  user_id uuid,                        -- null cho việc hệ thống
+  course_id uuid,                      -- null cho việc ngoài lớp
+  trace_id text not null,
+  created_at timestamptz not null default now()
+);
+
+create table llm_budgets (
+  id uuid primary key default uuidv7(),
+  scope text not null check (scope in ('system','course')),
+  course_id uuid,
+  daily_limit numeric(14,2) check (daily_limit is null or daily_limit >= 0),
+  monthly_limit numeric(14,2) check (monthly_limit is null or monthly_limit >= 0),
+  version integer not null default 1,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  constraint llm_budgets_scope_chk check ((scope = 'system' and course_id is null) or (scope = 'course' and course_id is not null)),
+  constraint llm_budgets_order_chk check (daily_limit is null or monthly_limit is null or daily_limit <= monthly_limit)
+);
+```
+
+Ghi chú: bảng `llm_audit` ghi thêm **các cột** so với `ARCHITECTURE.md` §4 (`lane`, `queue_wait_ms`, `attempts`, `fallback_index`, `cost_est`, `error_kind`, `degraded`) vì "không ALTER cột đã biết" — đây là hình dạng cuối cùng; `llm_providers` thêm `rpm_limit`, `tpm_limit`, `last_test_*`, `version`; `llm_task_routes` / `llm_budgets` thêm `version`. Cần PM xác nhận phần bổ sung so với ARCHITECTURE (Q1 trong `QUESTIONS.md`). **Phân vùng theo tháng cho `llm_audit`** và dọn dữ liệu cũ: Nợ PR (ghi `ponytail:` trong migration — ở T1 ≈ 1.000 SV × vài chục lượt/ngày vẫn chấp nhận được 12 tháng; chỉ mục theo thời gian đủ cho `usage`).
+
+### 5.3 Chỉ mục
+
+| Bảng | Chỉ mục | Phục vụ |
+| --- | --- | --- |
+| `llm_providers` | `unique(name)` | trùng tên → 409 |
+| `llm_models` | `unique(provider_id, model)`; `(provider_id)` | danh sách theo nhà |
+| `llm_task_routes` | `unique(task, fallback_order)`; `(model_id)` | giải chuỗi; kiểm "đang dùng" khi xoá |
+| `llm_audit` | `(course_id, created_at desc) where course_id is not null`; `(created_at desc)`; `(task, created_at desc)`; `(trace_id)` | usage theo lớp; usage hệ thống; theo tác vụ; truy vết |
+| `llm_budgets` | `unique(scope) where scope='system'`; `unique(course_id) where scope='course'` | một dòng mỗi phạm vi |
+
+### 5.4 Giá trị cố định
+
+| Tập | Giá trị |
+| --- | --- |
+| `task` | `CHAT`, `CLASSIFY`, `UTILITY`, `GRADING`, `QUESTION_GEN`, `INSIGHT`, `EMBEDDING` |
+| `lane` | `INTERACTIVE`, `NEAR_REALTIME`, `BATCH` |
+| `type` | `openai`, `anthropic`, `gemini`, `openai_compatible`, `fake` |
+| `status` (audit) | `ok`, `error`, `timeout`, `rate_limited`, `overloaded`, `degraded`, `cancelled`, `circuit_open`, `budget_blocked`, `not_configured` |
+| `params` cho phép | `temperature` 0–2; `max_tokens` 1–32768; `timeout_s` 1–300; `retries` 0–5 |
+| Hạn mức | ≤ 20 nhà cung cấp; ≤ 100 mô hình / nhà; chuỗi ≤ 4 mô hình / tác vụ; `EMBEDDING` đúng 1 |
+
+### 5.5 Khoá Redis của Scheduler (tiền tố `ep:` theo PG)
+
+| Khoá | Kiểu | TTL | Nội dung |
+| --- | --- | --- | --- |
+| `ep:llm:inflight:{provider_id}` | ZSET | 300 s (làm mới mỗi lần cấp) | phần tử `{req_id}`, điểm = hạn thuê (ms) |
+| `ep:llm:wait:{lane}` | STRING (đếm) | 60 s (làm mới khi có người chờ) | gợi ý số người đang chờ toàn cục (dùng cho "có INTERACTIVE đang chờ") |
+| `ep:llm:lastint` | STRING | 5 s | thời điểm INTERACTIVE gần nhất chạy (cho cửa sổ "2 s") |
+| `ep:llm:rl:rpm:{provider_id}` | HASH `{tokens, ts}` | 120 s | bucket RPM |
+| `ep:llm:rl:tpm:{provider_id}` | HASH `{tokens, ts}` | 120 s | bucket TPM |
+| `ep:llm:cb:{provider_id}` | HASH `{state, fails, opened_at}` | 600 s | mạch |
+| `ep:llm:budget:system:d:{yyyymmdd}` | STRING (int, 1/10.000 đ) | 40 h | chi phí ngày hệ thống |
+| `ep:llm:budget:system:m:{yyyymm}` | STRING | 40 ngày | chi phí tháng hệ thống |
+| `ep:llm:budget:course:{course_id}:d:{yyyymmdd}` / `:m:{yyyymm}` | STRING | 40 h / 40 ngày | chi phí lớp |
+| `ep:llm:budgetwarn:{scope}:{id|-}:{period}` | STRING (`SET NX`) | 40 ngày | đã phát cảnh báo 80 % chưa |
+| `ep:llm:test:{user_id}` | STRING (đếm) | 60 s | giới hạn 10 lần Test / phút |
+| kênh `ep:llm:reload` | pub/sub | — | thông báo nạp lại cấu hình |
+
+Mọi khoá chỉ chứa định danh và số; **không** chứa prompt, câu trả lời, khoá API.
+
+### 5.6 Thành phần mã hoá
+
+`platform/crypto`: AES-256-GCM; khoá `APP_ENCRYPTION_KEY` (32 byte, base64); định dạng bản mã `0x01 ‖ nonce(12) ‖ ciphertext ‖ tag(16)` (byte đầu = phiên bản, chừa chỗ xoay vòng khoá — Nợ PR); AAD = `"llm_providers:" + id` (id sinh ở Go trước khi chèn); lỗi giải mã không bao giờ in bản mã / khoá.
+
+## 6. API
+
+Tiền tố `/api/v1`; JSON; tiếng Việt cho `message`; định dạng lỗi PG `{code,message,trace_id,details?,retry_after?}`; vai trò: bảng mục 2.
+
+### 6.1 Mã lỗi mới (6 mã, bổ sung vào bảng mã của PG 6.1)
+
+| Status | `code` | Khi nào | `details` |
+| --- | --- | --- | --- |
+| 503 | `OVERLOADED` | hàng chờ đầy hoặc chờ quá `LLM_QUEUE_WAIT_MAX` (kèm `Retry-After`, `retry_after`) | — |
+| 503 | `LLM_NOT_CONFIGURED` | không có cấu hình và không có env dự phòng | — |
+| 503 | `LLM_UNAVAILABLE` | mọi nhà cung cấp lỗi (BATCH / NEAR_REALTIME) hoặc ngân sách cạn với BATCH | `{"reason":"all_providers_failed"|"budget_exhausted"}` |
+| 409 | `PROVIDER_IN_USE` | xoá nhà cung cấp đang được tuyến dùng | `{"tasks":["CHAT",…]}` |
+| 422 | `MODEL_DIMS_MISMATCH` | mô hình nhúng ≠ 1536 chiều | `{"expected":1536,"actual":n}` |
+| 422 | `ROUTE_INVALID` | vi phạm quy tắc tuyến | `{"rule":"chain_empty"|"chain_too_long"|"kind_mismatch"|"embedding_single"|"provider_disabled"|"duplicate_model"|"params_out_of_range","field":…}` |
+
+Ngoài ra dùng lại mã PG: `VALIDATION_FAILED` (với `details[].code` ∈ `PROVIDER_AUTH_FAILED`, `PROVIDER_UNREACHABLE`, `MODEL_NOT_FOUND`, `DUPLICATE_NAME`…), `VERSION_CONFLICT`, `CONFLICT` (trùng tên), `FORBIDDEN`, `RATE_LIMITED` (Test), `IDEMPOTENCY_KEY_REQUIRED`, `DEADLINE_EXCEEDED`. Tổng mã của hai spec = 22 + 6 = 28.
+
+### 6.2 Bảng thao tác (8 đường dẫn, 13 thao tác)
+
+| # | Thao tác | Vai | Ghi chú |
+| --- | --- | --- | --- |
+| 1 | `GET /admin/llm/providers` | ADMIN, TEACHER | không phân trang (trần 20 nhà) |
+| 2 | `POST /admin/llm/providers` | ADMIN | `Idempotency-Key` bắt buộc; verify-before-save |
+| 3 | `PUT /admin/llm/providers/{id}` | ADMIN | `version` bắt buộc; verify nếu đổi `api_key` / `base_url` |
+| 4 | `DELETE /admin/llm/providers/{id}` | ADMIN | 204; 409 `PROVIDER_IN_USE` |
+| 5 | `POST /admin/llm/providers/{id}/test` | ADMIN | thử bản ghi đã lưu; thân tuỳ chọn `{api_key?, base_url?, model?}` ghi đè **không lưu** |
+| 6 | `POST /admin/llm/providers/test` | ADMIN | thử khoá ứng viên chưa lưu (**mở rộng so với ARCHITECTURE §5**, Q2) |
+| 7 | `GET /admin/llm/routes` | ADMIN, TEACHER | 7 tác vụ + khối embedding |
+| 8 | `PUT /admin/llm/routes` | ADMIN | một tác vụ mỗi lần: `{task, chain[], params?, version}` |
+| 9 | `GET /admin/llm/usage` | ADMIN, TEACHER | `from`, `to`, `group=task|day`, `course_id?` (chỉ ADMIN) |
+| 10 | `GET /admin/llm/budget` | ADMIN, TEACHER | ngân sách hệ thống |
+| 11 | `PUT /admin/llm/budget` | ADMIN | `{daily_limit, monthly_limit, version}` |
+| 12 | `GET /courses/{id}/llm-budget` | ADMIN | ngân sách lớp |
+| 13 | `PUT /courses/{id}/llm-budget` | ADMIN | như 11 |
+
+Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
+
+### 6.3 Thân phản hồi
+
+**Nhà cung cấp** (GET, POST, PUT):
+```json
+{ "id":"…", "type":"openai", "name":"OpenAI", "base_url":null, "enabled":true,
+  "has_key":true, "key_status":"ok", "rpm_limit":null, "tpm_limit":null,
+  "last_test":{"ok":true,"at":"2026-10-02T02:12:00Z","error_kind":null},
+  "circuit":"closed",
+  "models":[{"id":"…","model":"gpt-4o-mini","kind":"chat","dims":null,"price_in":"4000.0000","price_out":"16000.0000","enabled":true}],
+  "version":3 }
+```
+`GET providers` → `{"items":[…],"env_fallback":{"active":false,"providers":[]}}`. `key_status` ∈ `ok`, `missing`, `unreadable`. **Không có trường khoá, đuôi khoá, hay `api_key`** trong bất kỳ phản hồi nào. Tiền là chuỗi thập phân.
+
+**`POST/PUT` yêu cầu:** `{type, name, base_url?, api_key?, enabled?, rpm_limit?, tpm_limit?, models:[{model, kind, dims?, price_in, price_out, enabled?}], skip_verify?, version?}` — `PUT` không gửi `api_key` = giữ khoá; gửi chuỗi rỗng → 422; `models` thay thế toàn bộ danh sách (mô hình đang được tuyến dùng không được bỏ → 409 `PROVIDER_IN_USE`).
+
+**Test:** `{"ok":true,"latency_ms":420}` hoặc `{"ok":false,"error_kind":"AUTH","message":"Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.","latency_ms":180}`; `message` theo `error_kind`: `AUTH` "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá."; `NETWORK` "Không kết nối được tới nhà cung cấp. Kiểm tra địa chỉ và mạng."; `TIMEOUT` "Nhà cung cấp phản hồi quá chậm."; `RATE_LIMIT` "Nhà cung cấp đang giới hạn tốc độ. Thử lại sau."; `MODEL_NOT_FOUND` "Nhà cung cấp không có mô hình này."; `BAD_RESPONSE` "Nhà cung cấp trả về dữ liệu không đúng định dạng."; `DIMS_MISMATCH` "Mô hình nhúng không trả về 1536 chiều." Test dùng **một** lời gọi nhỏ trực tiếp qua `internal/llm` (bỏ qua hàng đợi và fallback, `max_tokens=1`, hoặc `Embed("ping")` cho mô hình nhúng), hạn 10 s, ghi `audit_log` (`llm.provider.test`, kết quả, không khoá).
+
+**Routes** (GET): `{"items":[{"task":"CHAT","lane":"INTERACTIVE","chain":[{"model_id":"…","provider_id":"…","provider_name":"OpenAI","model":"gpt-4o-mini"}],"params":{},"version":2}, …],"embedding":{"model_id":"…","provider_name":"OpenAI","model":"text-embedding-3-small","dims":1536,"reindex_required":false,"indexed_chunks":null}}`. `PUT` thành công trả cùng dạng một phần tử + `reindex_required` khi đổi mô hình nhúng; `ETag: W/"v<n>"`.
+
+**Usage:** `{"from":"…","to":"…","group":"task","items":[{"key":"CHAT","calls":120,"tokens_in":120000,"tokens_out":40000,"cost_est":"184000.0000","latency_p50_ms":900,"latency_p95_ms":2100,"errors":3,"degraded":1}]}`; mặc định 7 ngày, tối đa 92 ngày; truy vấn dùng `percentile_cont` trên `llm_audit` theo `created_at` / `task` (chỉ mục 5.3).
+
+**Budget:** `{"scope":"system","daily_limit":"100000.00","monthly_limit":"2000000.00","spent_today":"42000.0000","spent_month":"1240000.0000","pct_today":42.0,"pct_month":62.0,"state":"ok","version":1}` (`pct_*` là số phần trăm, `null` khi không có hạn mức; **số tiền là chuỗi** — `pct` chỉ để hiển thị, không dùng để tính tiền).
+
+### 6.4 Route thử (chỉ build `testroutes`; binary mặc định → 404; vai ADMIN)
+
+| Route | Việc |
+| --- | --- |
+| `POST /api/v1/_test/llm/chat` | `{task, prompt, lane?, stream?, passages?[]}` → `{text, degraded, provider, model, fallback_index, queue_wait_ms}` hoặc SSE khi `stream` |
+| `GET /api/v1/_test/llm/stats` | `{queue_depth:{INTERACTIVE:n,…}, inflight:{<provider>:n}, provider_inflight:n, circuit:{<provider>:"closed"}}` — **chỉ số đếm**, không nội dung |
+| `POST /api/v1/_test/llm/fake` | đặt tham số `fake` lúc chạy (độ trễ, tỉ lệ lỗi, `FAKE_LLM_VALID_KEY`) |
+
+### 6.5 Hợp đồng sự kiện / outbox
+
+`llm.budget.warn` (outbox): `{scope, course_id?, period:"day|month", pct}`; chưa có consumer ở sprint này (P4 làm thông báo).
+
+## 7. Giao diện — `/settings/llm`
+
+### 7.1 Bố cục (đúng `DESIGN.md` §14.23; một cột `reading`/`wide`, các phần ngăn bằng khoảng trắng + đường kẻ 1 px)
+
+1. **Kết nối nhà cung cấp** — hàng mỗi nhà: tên · loại · trạng thái (chữ + chấm) · công tắc · `Test kết nối` (secondary, cục bộ) · `OverflowMenu` (Sửa, Đổi khoá, Xoá); dưới danh sách: `Thêm nhà cung cấp` (text button); form xổ tại chỗ khi thêm / sửa; `Cài đặt nâng cao` (base URL, RPM / TPM, giá mô hình).
+2. **Mô hình theo tác vụ** — `LLMRouteTable` 6 hàng chat; chọn mô hình chính; nhãn làn; `Cài đặt nâng cao` mỗi hàng (nhiệt độ, số token tối đa, thời gian chờ, số lần thử).
+3. **Chuỗi dự phòng** — theo tác vụ: danh sách 0–3 mô hình; thêm / bớt; `Lên` / `Xuống`; cảnh báo khi không có dự phòng.
+4. **Mô hình tìm kiếm tài liệu** — một mô hình + "1536 chiều" cố định; đổi → `ConfirmIrreversible`.
+5. (dưới cùng, không đánh số) **Mức dùng và ngân sách** — dòng chữ ngân sách; `DataTable` theo tác vụ; chọn khoảng 7 / 30 ngày.
+
+(Plan nêu "usage table" thuộc màn này; `DESIGN.md` liệt kê 4 phần cấu hình — mức dùng là phần đọc phụ, không đánh số, Q4.)
+
+### 7.2 Trạng thái nhà cung cấp → chữ
+
+| Điều kiện | Chữ | Chấm |
+| --- | --- | --- |
+| `enabled=false` | "Đã tắt" | xám |
+| `key_status=unreadable` | "Lỗi khoá — nhập lại khoá" | đỏ (cần hành động) |
+| `circuit=open` | "Tạm dừng do lỗi liên tiếp" | hổ phách |
+| `last_test.ok=false` | "Lỗi xác thực" / theo `error_kind` | đỏ |
+| `last_test.ok=true` | "Đã kết nối · kiểm tra lúc HH:mm" | xanh |
+| `last_test.ok=null` | "Chưa kiểm tra" | xám |
+
+### 7.3 Nhãn tác vụ và làn (đọc được, không từ kỹ thuật)
+
+| `task` | Nhãn | Làn → nhãn |
+| --- | --- | --- |
+| `CHAT` | Trả lời chat riêng | Trả lời ngay |
+| `CLASSIFY` | Phân loại câu hỏi | Gần thời gian thực |
+| `UTILITY` | Việc nhỏ (tóm tắt, đặt tên) | Gần thời gian thực |
+| `GRADING` | Chấm bài | Chạy nền |
+| `QUESTION_GEN` | Sinh câu hỏi | Chạy nền |
+| `INSIGHT` | Tóm tắt lớp học | Chạy nền |
+| `EMBEDDING` (phần 4) | Mô hình tìm kiếm tài liệu | — |
+
+### 7.4 Khác biệt giữa mock 1.5 và bản thật (D51: spec thật thắng)
+
+| # | Hạng mục | Mock 1.5 (`LlmSettings.tsx`) | Bản thật (spec này) |
+| --- | --- | --- | --- |
+| 1 | Nguồn dữ liệu | `useDemoSlice` + cookie / localStorage | TanStack Query + `apiClient` + JWT (Admin dev) |
+| 2 | Nhà cung cấp | 3 cố định (OpenAI, Gemini, "Máy chủ trong trường") | CRUD động, 5 loại (`openai`, `anthropic`, `gemini`, `openai_compatible`, `fake`) |
+| 3 | Hiển thị khoá | "••••3f9a · đã kết nối" (4 ký tự cuối) | chuỗi tĩnh "•••••••• · đã kết nối"; **máy chủ không bao giờ trả ký tự nào của khoá** (Q3) |
+| 4 | Test kết nối | mô phỏng, luôn thành công / lỗi theo kịch bản | gọi nhà cung cấp thật qua `internal/llm`; sai khoá → báo rõ, không lưu |
+| 5 | Lưu khoá sai | lưu được | bị từ chối 422 (trừ `skip_verify`) |
+| 6 | Tác vụ | 5 nhãn mock ("Trả lời chat", "Chấm bài tập", "Trích quy chế", "Sinh câu hỏi", "Tóm tắt tài liệu") + embedding | 6 tác vụ chat theo PRD (`CHAT`, `CLASSIFY`, `UTILITY`, `GRADING`, `QUESTION_GEN`, `INSIGHT`) + phần embedding riêng; "Trích quy chế" được gộp vào `GRADING`/`UTILITY` (Q5) |
+| 7 | Chuỗi dự phòng | danh sách tên nhà cung cấp tĩnh dùng chung | theo **từng tác vụ** (`fallback_order`), thứ tự sửa được bằng nút |
+| 8 | Embedding | có `3-large`, `bge-m3` | chỉ mô hình `dims=1536`; đổi cần xác nhận + "cần lập chỉ mục lại" |
+| 9 | Ngân sách | khối cố định "42.000 đ / 80.000 đ", "1.240.000 đ / 2.000.000 đ" | từ `GET budget` (Redis); trạng thái `ok/warn/exhausted`; Admin sửa hạn mức |
+| 10 | Mức dùng | không có bảng | `DataTable` tokens, chi phí ước tính, độ trễ p95, lỗi theo tác vụ |
+| 11 | Cài đặt nâng cao | nhiệt độ 0,2; max tokens 1.024; timeout 30 s; retries 2 (cố định) | lưu thật vào `params` / cột nhà cung cấp, kiểm khoảng |
+| 12 | Giảng viên | xem như Admin, không sửa | chỉ đọc (giữ), nhưng **TA bị chặn** (PRD §3); sinh viên bị chặn |
+| 13 | Đổi mô hình | đổi ngay, không hoàn tác | lạc quan + `UndoLine` 5 s + `version` chống ghi đè |
+| 14 | Lỗi / mất mạng | không có | `PageState`, `OfflineBanner`, `Gửi lại` cùng `Idempotency-Key` |
+| 15 | Hook QC 1.5 | `provider-status`, `provider-action`, `settings-section` | giữ nguyên tên `data-part`; khoảng cách đều giữa các phần (AC11 1.5) |
+| 16 | Mã mock | `mock/system.ts` (LLM) | xoá phần LLM; không giữ hai bản |
+
+### 7.5 Cổng truy cập vào màn
+
+`canOpen(role, "/settings/llm")` = GV, Admin (TA, SV chặn — ma trận `nav.ts` của `FEAT-ui-foundation` 7.5); Admin cần JWT (cổng dán token dev ở `NEXT_PUBLIC_DEV_AUTH=1`; build thường → "Cần đăng nhập").
+
+## 8. Phi chức năng
+
+### 8.1 Biến môi trường (bổ sung vào PG 8.1; mặc định đã kiểm tra khi khởi động)
+
+`LLM_MAX_CONCURRENCY=10`, `LLM_BATCH_SHARE=0.5`, `LLM_QUEUE_MAX=200`, `LLM_QUEUE_WAIT_MAX=10s`, `LLM_REQUEST_TIMEOUT=30s`, `LLM_BREAKER_FAILS=5`, `LLM_BREAKER_OPEN=30s`, `LLM_DEFAULT_RPM=60`, `LLM_DEFAULT_TPM=100000`, `LLM_EMBED_DIMS=1536`, `LLM_PROVIDER=` (trống), `APP_ENCRYPTION_KEY` (bắt buộc, 32 byte base64), `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (tuỳ chọn, dự phòng), `FAKE_LLM_LATENCY` (`0-0`), `FAKE_LLM_ERROR_RATE` (`0`), `FAKE_LLM_VALID_KEY` (trống), `LLM_REPLAY_DIR` (`internal/llm/testdata/replay`). `.env.example` thêm các biến này (không có giá trị thật). Khoá thật chỉ ở `.env.local` (không commit; `git check-ignore .env.local` → in tên tệp).
+
+### 8.2 Hiệu năng và SLO (`SYSTEM_DESIGN.md` §5; áp cho phần P1 kiểm được)
+
+| Chỉ số | Mục tiêu | Cách đo |
+| --- | --- | --- |
+| Cấp chỗ INTERACTIVE khi có 200 BATCH chờ | chờ hàng p95 ≤ **500 ms** | `TestBatchDoesNotStarveInteractive`, `cmd/llmload` |
+| BATCH khi có INTERACTIVE | ≤ **5** / 10 chỗ | như trên |
+| TTFT chat khi có BATCH | không chậm hơn **+20 %** | như trên (so với không BATCH) |
+| Từ chối `OVERLOADED` | ≤ **50 ms** | `TestQueueFullOverloaded` |
+| Huỷ → dừng nhà cung cấp | ≤ **1 s** | `TestClientCancelStopsProvider` |
+| Nạp lại nóng | ≤ **1 s** | `TestRoutesHotReload` |
+| Mạch mở → bỏ qua nhà | thêm < **5 ms** | `TestBreakerOpensAfter5` |
+| `GET` cấu hình | p95 ≤ 300 ms (SLO đọc); ghi p95 ≤ 500 ms (kể cả verify ≤ 10 s thì **không** tính vào SLO ghi: ghi có verify được ghi nhận là ngoại lệ vì phụ thuộc nhà cung cấp, hạn tuyệt đối 10 s) | k6 nhẹ ở handoff |
+| Chi phí của Scheduler / lời gọi | thêm ≤ 2 ms (Redis round-trip, không tính chờ) khi không có hàng đợi | benchmark `BenchmarkSchedulerAcquire` ghi số |
+| Thông lượng cấu hình T1 | LLM đồng thời ≈ 10 (đỉnh 50) | `LLM_MAX_CONCURRENCY` điều chỉnh được; ghi nhận ở P10 |
+
+Không đo được ở sprint này (nêu rõ để không giấu): TTFT chat thật và SLO đầu cuối (cần RAG — P3 / P10); đo trên nhà cung cấp thật (cần khoá).
+
+### 8.3 Provider `fake` và phát lại
+
+| Tham số | Hành vi |
+| --- | --- |
+| `FAKE_LLM_LATENCY=min-max` ms | ngủ ngẫu nhiên đều trong khoảng (test: `0-0`; tải: `5000-15000`) |
+| `FAKE_LLM_ERROR_RATE` (0–1) + `fake` API đặt `error_kind` | tỉ lệ trả lỗi theo loại (`SERVER` mặc định) |
+| `FAKE_LLM_VALID_KEY` | khác rỗng → khoá không khớp trả `AUTH`; rỗng → mọi khoá đều hợp lệ |
+| Chat | `"[fake] " + 40 ký tự đầu của tin nhắn cuối`, token đếm theo từ |
+| Stream | từng từ, cách 20 ms (`FAKE_LLM_TOKEN_GAP`), tôn trọng `ctx` |
+| Embed | 1536 `float32` xác định theo `sha256(input)`, chuẩn hoá L2 |
+| Structured | JSON theo schema: `string`→`"fake"`, `integer/number`→`0`, `boolean`→`false`, `array`→`[]`, `enum`→phần tử đầu, `object`→thuộc tính bắt buộc |
+| Phát lại (`LLM_REPLAY_DIR`) | tệp `<sha256>.json` = `{request, response}`; thiếu → `REPLAY_MISS` (lỗi `BAD_REQUEST`) |
+| Ghi (`LLM_RECORD=1` + khoá thật) | ghi phản hồi thật vào thư mục phát lại (chỉ dùng tay) |
+
+### 8.4 Bảo mật
+
+Khoá API: chỉ ghi, AES-256-GCM, không bao giờ vào phản hồi / log / audit / outbox / Redis; kiểu giữ khoá triển khai `fmt.Stringer`, `GoStringer`, `slog.LogValuer`, `json.Marshaler` trả `[REDACTED]`; thân lỗi nhà cung cấp cắt ≤ 200 ký tự, bôi `sk-…` / `Bearer …` trước khi log; `slog` có bộ lọc thuộc tính tên chứa `key|token|secret|authorization` ở gói này. Danh tính từ ctx; không prompt trong `llm_audit` (Admin xem được audit mà không lộ nội dung). `skip_verify` chỉ ADMIN và ghi `audit_log`. Route thử chỉ ở `testroutes`.
+
+### 8.5 Vận hành
+
+Gateway không trạng thái (luật 10); trạng thái toàn cục ở Redis; `llm_audit` ghi bất đồng bộ (đệm 1.000 / 1 s / 100 dòng; đệm đầy bỏ dòng cũ nhất + bộ đếm); tắt gateway đẩy đệm trước khi thoát; Redis mất → giới hạn cục bộ (3.4); nạp lại cấu hình mỗi 60 s như lưới an toàn.
+
+### 8.6 Thư viện
+
+Thêm: `github.com/openai/openai-go` (đã nằm trong bảng `ARCHITECTURE.md` §3). Dùng sẵn: `pgx`, `sqlc`, `chi`, `shopspring/decimal`, `go-redis`. Không thêm `golang.org/x/sync` (single-flight tự viết nhỏ), không SDK Anthropic / Gemini (đi qua lớp tương thích OpenAI — D46).
+
+## 9. Kiểm thử
+
+| Tầng | Công cụ | Nội dung |
+| --- | --- | --- |
+| Đơn vị | `go test -race ./internal/llm/... ./internal/platform/crypto/... ./internal/llmconfig/...` | ánh xạ lỗi, retry (đồng hồ giả), fallback, structured, embed, fake, mã hoá, quy tắc tuyến, RBAC dịch vụ |
+| Tích hợp (Postgres + Redis thật, `-tags integration`) | `go test -tags integration ./internal/llm/scheduler/... ./internal/llmconfig/...` | **hai tiến trình thật** (binary test tự `exec`, `SCHED_WORKER=1`): đồng thời toàn cục, RPM, mạch, nạp lại; Redis mất / về; schema, ràng buộc, chỉ mục, truy vấn usage |
+| Contract | `go test ./internal/contract/...` | golden 13 thao tác, OpenAPI |
+| Hợp đồng provider | `go test ./internal/llm -run TestProviderContract -v` | `fake` + phát lại; nhà cung cấp thật: **BLOCKED** tới khi có khoá |
+| Gate quét | lệnh grep của P1 + `scripts/canary-scan.sh` | SDK ngoài `internal/llm`; khoá không rò |
+| Giao diện | Playwright `frontend/e2e/settings-llm.spec.ts` (máy chủ giả theo hợp đồng thật ở CI; `@real` cho gateway thật) | US-P1-05 |
+| Tải nhẹ | `go run ./cmd/llmload --batch 200 --chat 25` | 200 BATCH + 25 chat; in các số của 8.2 |
+| Tay (QC) | `docs/sprints/3/qc/scenario-P1.md` | kịch bản "Bạn tự kiểm" |
+| `make eval` | **hoãn** (P3 / P10) | — |
+
+Test hai tiến trình **không** chỉ dùng goroutine: tiến trình con thật + Redis thật là yêu cầu của AC (US-P1-03 AC2, AC3, AC6; US-P1-02 AC14; US-P1-04 AC9).
+
+## 10. Câu hỏi mở và quyết định đã chốt
+
+**Đã chốt (nguồn):** D46 (mọi loại qua OpenAI-compatible + `base_url` + khoá); D47 (một lần sinh văn bản mỗi câu hỏi; Structured không gọi kép); D52, D53; plan sprint 3 (không đăng nhập thật; `make eval` hoãn; thư viện `openai-go`); P1.md (nạp lại trong tiến trình; env dự phòng; `fake` khi bảng trống); luật 3, 10, 11, 12, 13, 14.
+
+**Quyết định của BA (mặc định an toàn, PM duyệt) và câu hỏi mở:** `QUESTIONS.md` Q1–Q14 — gồm cột thêm vào schema, endpoint `providers/test`, khoá không trả đuôi, nhãn tác vụ, nạp lại nóng hai cơ chế, làn của EMBEDDING, các hằng số Scheduler, tiền VND, `skip_verify`, ghi `llm_audit` bất đồng bộ, khoá thật = việc chủ dự án.
+
+## 11. Truy vết PRD → FLOWS → phase → US → FR → test
+
+| PRD | FLOWS | Phase / lát | US | FR | Test |
+| --- | --- | --- | --- | --- | --- |
+| M12 (lưu bền, mã hoá khoá) | F15 | P1 L3 | US-P1-01 | FR-1…FR-6 | `store`, `crypto`, `llmconfig` |
+| M12 (nhà cung cấp, tác vụ, fallback, embedding 1536) | F15 | P1 L1, L2 | US-P1-02 | FR-7…FR-14 | `internal/llm/...`, `TestProviderContract` |
+| M12 (ngân sách, hạn mức) + SYSTEM_DESIGN §3.1, §5; luật 11 | F15, F1 (chat không bị treo) | P1 L1b | US-P1-03 | FR-15…FR-25 | `scheduler/...` (2 tiến trình), `llmload` |
+| M12 + §3 (quyền), D52 | F15 | P1 L3 | US-P1-04 | FR-26…FR-29, FR-32 | `llmconfig` RBAC, contract |
+| M12 + DESIGN §14.23, §13 | F15 | P1 L4 | US-P1-05 | FR-30…FR-32 | `settings-llm.spec.ts`, QC tay |
+
+**Yêu cầu của `P1.md` → AC:** L1 hợp đồng bốn hàm → 02-AC2; registry / base URL → 02-AC4; ánh xạ lỗi → 02-AC5; retry → 02-AC6; fallback `fallback_order` → 02-AC7; `llm_audit` + `trace_id` → 02-AC8, AC9; provider `fake` + phát lại + `TestProviderContract` → 02-AC12, AC13; `Structured` json_schema → json_object → 02-AC10; L1b ba làn → 03-AC1; token bucket Redis → 03-AC3; semaphore + `LLM_MAX_CONCURRENCY` → 03-AC2; BATCH share → 03-AC4; `LLM_QUEUE_MAX` → `OVERLOADED` + 503 + `retry_after` → 03-AC5; mạch → 03-AC6; deadline + huỷ → 03-AC7, AC8; suy giảm → 03-AC9; single-flight → 03-AC10; ngân sách 80 / 100 % → 03-AC11; "không bao giờ tắt chat im lặng" → 03-AC11, AC12; L2 grep SDK → 02-AC1; embed 1536 → 02-AC11; L3 migration → 01-AC1…AC3; `platform/crypto` → 01-AC5…AC6; `llmconfig` CRUD / khoá chỉ ghi → 01-AC7…AC9, 04-AC4, AC5; `POST …/test` → 04-AC2; nạp lại registry → 02-AC14, 04-AC9; `openapi.yaml` + contract → 04-AC10; L4 màn thật → 05-AC1…AC15. Lệnh gate của P1 (`go test -race ./internal/llm/...`, `…/scheduler/...`, `TestProviderContract`, `go test -race ./internal/llmconfig/... ./internal/platform/...`, grep SDK) nằm trong Kiểm của AC tương ứng; `make eval` hoãn. "Bạn tự kiểm" của P1 (thêm 2 nhà thật + chuyển CHAT; khoá sai; tắt nhà chính → fallback; 200 BATCH rồi chat; tắt hết → trích đoạn) → 04-AC12, 05-AC15, 03-AC4, 03-AC9 (dùng `fake` thay "nhà thật" khi chưa có khoá — Q11).
