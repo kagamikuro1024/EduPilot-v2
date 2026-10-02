@@ -1,5 +1,5 @@
 # Makefile của backend-go (SRS 9.4). Chạy: make -C backend-go <mục tiêu>
-.PHONY: run run-worker build test lint lint-depguard-negative sqlc sqlc-check migrate tidy
+.PHONY: run run-worker build test lint lint-depguard-negative sqlc sqlc-check migrate tidy test-clean
 
 # Docker của dev chạy qua colima; chỉ đặt khi môi trường chưa có (SRS 9.1).
 COLIMA_DOCKER_HOST := unix://$(HOME)/.colima/default/docker.sock
@@ -44,3 +44,7 @@ migrate:
 
 tidy:
 	go mod tidy
+
+# Dọn container test dùng chung (internal/testutil giữ chúng sống giữa các lần chạy).
+test-clean:
+	-docker rm -f edupilot-test-postgres edupilot-test-redis edupilot-test-minio
