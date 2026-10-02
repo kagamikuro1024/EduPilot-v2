@@ -116,10 +116,10 @@ tc_01_10(){ local p id n v   # 01-AC10: không còn hai tiêu đề cũ; "Thảo
     ge "$(visible $v /threads/$id sv-2 | grep -c "Thảo luận ($n)")" 1 "$v $id có 'Thảo luận ($n)'"; done; done; }
 tc_01_11(){ local t   # 01-AC10: seed t-cbc / t-salt đúng bảng B (nếu curl không thấy → so tay bằng trình duyệt)
   t=$(visible student /threads/t-cbc sv-2)
-  for s in 'Đặng Gia An' 'Dương Thanh Hiếu' 'Vậy IV có cần giữ bí mật không ạ' 'Phạm Quốc Bảo' 'Em hiểu rồi: IV cố định' 'Nguyễn Thị Giang' 'Còn CTR thì sao ạ' 'Nguồn tham khảo (2)' 'Chờ xác nhận'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-cbc có «$s»"; done
+  for s in 'Đặng Gia An' 'Dương Thanh Hiếu' 'Vậy IV có cần giữ bí mật không ạ' 'Phạm Quốc Bảo' 'Em hiểu rồi: IV cố định' 'Nguyễn Thị Giang' 'Còn CTR thì sao ạ' 'Nguồn tham khảo (2)' 'Chờ xác nhận'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-cbc có «${s}»"; done
   eq "$(echo "$t" | grep -c 'Xác nhận\b.*Chỉnh sửa\|Loại khỏi tri thức')" 0 "SV không có nút Xác nhận/Chỉnh sửa/Loại (t-cbc)"
   t=$(visible student /threads/t-salt sv-2)
-  for s in 'Đã được giảng viên xác nhận' 'Lê Thu Hà' 'Muối lưu ở đâu ạ' 'bcrypt còn cố tình chậm' 'Em nghĩ là để mỗi lần đoán thử'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-salt có «$s»"; done
+  for s in 'Đã được giảng viên xác nhận' 'Lê Thu Hà' 'Muối lưu ở đâu ạ' 'bcrypt còn cố tình chậm' 'Em nghĩ là để mỗi lần đoán thử'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-salt có «${s}»"; done
   for id in t-firewall t-wifi; do eq "$(visible student /threads/$id sv-2 | grep -c 'Trợ lý AI của lớp')" 0 "$id không có câu AI"; done; }
 tc_04_07(){ hook admin /settings/llm provider-status 3; hook teacher /settings/llm provider-status 3; eq "$(visible teacher /settings/llm | grep -c 'Test kết nối')" 0 "GV không có Test kết nối"; }
 # ---------- Spec v5.1 (#19) — lệnh Kiểm lấy từ US.md; mỗi hàm một AC ----------
@@ -149,15 +149,15 @@ tc_01_20(){ eq "$(visible student /threads/t-rsa-key sv-2 | grep -c 'lan truyề
 tc_01_24(){ local t; t=$(visible student /library sv-2)   # 01-AC24 / N5
   ge "$(echo "$t" | grep -c 'Chương 5 — Quản lý khoá và PKI')" 1 "/library có Chương 5 — Quản lý khoá và PKI"; ge "$(echo "$t" | grep -c 'Modern Network Security Threats')" 1 "/library có Modern Network Security Threats"
   eq "$(echo "$t" | grep -cE 'Đáp án đề|Mordern')" 0 "/library không Đáp án đề / Mordern"
-  for s in 'Chương 1 — Tổng quan an ninh mạng và mô hình đe doạ' 'Chương 2 — Tấn công mạng phổ biến' 'Chương 3 — Mật mã đối xứng và chế độ vận hành' 'Chương 4 — Hàm băm và chữ ký số' 'Quy chế đào tạo của trường' 'Quy chế môn học An ninh mạng – 761987' 'Đề thi cuối kỳ An ninh mạng — HK1 2025–2026' 'Đề thi giữa kỳ An ninh mạng — HK1 2024–2025'; do ge "$(echo "$t" | grep -c "$s")" 1 "/library có «$s»"; done; }
+  for s in 'Chương 1 — Tổng quan an ninh mạng và mô hình đe doạ' 'Chương 2 — Tấn công mạng phổ biến' 'Chương 3 — Mật mã đối xứng và chế độ vận hành' 'Chương 4 — Hàm băm và chữ ký số' 'Quy chế đào tạo của trường' 'Quy chế môn học An ninh mạng – 761987' 'Đề thi cuối kỳ An ninh mạng — HK1 2025–2026' 'Đề thi giữa kỳ An ninh mạng — HK1 2024–2025'; do ge "$(echo "$t" | grep -c "$s")" 1 "/library có «${s}»"; done; }
 tc_02_14(){ local o; o=$(grep -n 'badge:' "$(ROOT)/frontend/src/shared/shell/nav.ts" 2>/dev/null | grep -E 'badge: *[0-9]'); [ -z "$o" ] && pass "nav.ts không còn badge số cứng (02-AC14)" || { fail "nav.ts còn badge cứng"; echo "$o" | head -3; }; }
 tc_02_18(){ eq "$(visible teacher /students | grep -c 'Theo dõi')" 0 "/students không còn 'Theo dõi' (02-AC18)"; }
-tc_02_20(){ local k; for k in '1 lệch hai lượt chấm' '1 bài ngắn bất thường' '1 trùng đoạn với bài khác' '1 AI không chắc ở một tiêu chí'; do ge "$(visible teacher / | grep -c "$k")" 1 "Hôm nay có lý do «$k» (02-AC20)"; done; }
+tc_02_20(){ local k; for k in '1 lệch hai lượt chấm' '1 bài ngắn bất thường' '1 trùng đoạn với bài khác' '1 AI không chắc ở một tiêu chí'; do ge "$(visible teacher / | grep -c "$k")" 1 "Hôm nay có lý do «${k}» (02-AC20)"; done; }
 tc_03_08(){ local t; t=$(visible teacher /documents)   # 03-AC8 / N5
   ge "$(echo "$t" | grep -c 'Chương 3 — Mật mã đối xứng và chế độ vận hành')" 1 "/documents có tên hiển thị Chương 3"
   eq "$(echo "$t" | grep -cE 'Chuong[0-9]_|Mordern')" 0 "/documents không tên tệp gạch dưới / Mordern ngoài Drawer"
   eq "$(echo "$t" | grep -c 'Hạ tầng khoá công khai')" 0 "/documents không còn tài liệu 'Hạ tầng khoá công khai' (v4)"; ge "$(echo "$t" | grep -c 'Không hiển thị cho sinh viên')" 1 "/documents ghi 'Không hiển thị cho sinh viên' cho đáp án"; }
-tc_04_08(){ eq "$(visible teacher /inbox | grep -c 'Quá 24 giờ')" 3 "/inbox có 3 hàng 'Quá 24 giờ' (04-AC8)"; ge "$(visible teacher /analytics | grep -c 'AI tự trả lời 98%')" 1 "/analytics 'AI tự trả lời 98%'"; }
+tc_04_08(){ eq "$(visible teacher /inbox | grep -o 'Quá 24 giờ' | wc -l | tr -d ' ')" 3 "/inbox có 3 hàng 'Quá 24 giờ' (04-AC8)"; ge "$(visible teacher /analytics | grep -c 'AI tự trả lời 98%')" 1 "/analytics 'AI tự trả lời 98%'"; }
 tc_04_10(){ local r; for r in / /admin/courses; do ge "$(visible admin $r | grep -ci 'hôm qua 16:40')" 1 "Admin $r có 'hôm qua 16:40' (04-AC10)"; done; eq "$(visible admin / | grep -c '08:30')" 0 "Admin / không '08:30'"; }
 tc_00_16(){ local d f n; d="$(ROOT)/frontend/src/mock/derive.ts"   # FR-X13: một nguồn số liệu (SRS 4.8)
   [ -f "$d" ] && pass "có mock/derive.ts" || { fail "thiếu mock/derive.ts"; return; }

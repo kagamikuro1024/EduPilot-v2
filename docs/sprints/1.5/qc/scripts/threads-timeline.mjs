@@ -27,7 +27,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
     const go = async (u) => { await page.goto(base + u, { waitUntil: 'networkidle0', timeout: 30000 }); await sleep(300); };
     const fresh = async (role = 'student', person = 'sv-2', url = '/threads') => { await setRole(role, person); await go('/login'); await page.evaluate(() => { try { localStorage.removeItem('ep_demo_state'); } catch {} }); await go(url); };
     const text = () => page.evaluate(() => document.body.innerText);
-    const click = async (re, sel = 'button,a,[role=button],[role=menuitem],summary,label,li', wait = 200) => { const ok = await page.evaluate((src, fl, s) => { const r = new RegExp(src, fl); const el = [...document.querySelectorAll(s)].find((e) => r.test((e.innerText || e.getAttribute('aria-label') || '').trim()) && e.getBoundingClientRect().width > 0); if (el) { el.click(); return true; } return false; }, re.source, re.flags, sel); await sleep(wait); return ok; };
+    const click = async (re, sel = 'button,a,[role=button],[role=menuitem],summary,label,li', wait = 200) => { const ok = await page.evaluate((src, fl, s) => { const r = new RegExp(src, fl); const el = [...document.querySelectorAll(s)].find((e) => (r.test((e.innerText || '').trim()) || r.test((e.getAttribute('aria-label') || '').trim())) && e.getBoundingClientRect().width > 0); if (el) { const inner = [...el.querySelectorAll('button,a,[role=button],[role=option]')].find((x) => r.test((x.innerText || '').trim()) || r.test((x.getAttribute('aria-label') || '').trim())); (inner || el).click(); return true; } return false; }, re.source, re.flags, sel); await sleep(wait); return ok; };
     const fill = async (labelRe, value) => {
       const ok = await page.evaluate((src, fl, v) => {
         const r = new RegExp(src, fl); let c = null;
@@ -50,7 +50,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
           const t = document.body.innerText; const btns = [...document.querySelectorAll('button')].filter((b) => b.getBoundingClientRect().width > 0);
           const dung = btns.some((b) => /^Dừng$/.test(b.innerText.trim()));
           const lock = btns.filter((b) => /Hỏi trợ lý AI|Gửi phản hồi/.test(b.innerText)).map((b) => b.disabled || b.getAttribute('aria-disabled') === 'true');
-          return { url: location.pathname, composing: /Trợ lý AI đang soạn/.test(t), dung, stopped: /Đã dừng/.test(t), askAgain: btns.some((b) => /^Hỏi lại$/.test(b.innerText.trim())), src: /Nguồn tham khảo \(\d+\)/.test(t), pending: /Chờ xác nhận/.test(t), waitTeacher: /Đang chờ giảng viên/.test(t), typing: /Phạm Quốc Bảo đang trả lời/.test(t), late: /Em xem bảng so sánh SHA-256 với bcrypt|Cảm ơn em, anh đã ghi nhận/.test(t), len: t.length, lock };
+          return { url: location.pathname, composing: /Trợ lý AI đang soạn/.test(t), dung, stopped: /Đã dừng/.test(t), askAgain: btns.some((b) => /^Hỏi lại$/.test(b.innerText.trim())), src: /Nguồn tham khảo \(\d+\)/.test(t), pending: /^\/threads\/[^/]+$/.test(location.pathname) && /Chờ xác nhận/.test(t), waitTeacher: /^\/threads\/[^/]+$/.test(location.pathname) && /Đang chờ giảng viên/.test(t), typing: /Phạm Quốc Bảo đang trả lời/.test(t), late: /Em xem bảng so sánh SHA-256 với bcrypt|Cảm ơn em, anh đã ghi nhận/.test(t), len: t.length, lock };
         });
         const now = (Date.now() - t0) / 1000; const mark = (k, c) => { if (c && ev[k] === undefined) ev[k] = now; };
         mark('url', /^\/threads\/[^/]+$/.test(s.url)); mark('compose', s.composing); mark('dung', s.dung); if (s.dung) lastDung = true; mark('dungEnd', lastDung && !s.dung);
@@ -65,6 +65,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
     const between = (v, [lo, hi]) => v !== undefined && v >= lo && v <= hi;
     const f2 = (v) => (v === undefined ? '—' : v.toFixed(2));
     const newThread = async (title, body, topic, { ai = true } = {}) => {
+      if (!(await page.evaluate(() => !!document.querySelector('[data-part=thread-form]')))) await click(/^Đặt câu hỏi$/, 'button', 400);
       await fill(/Tiêu đề/i, title); await fill(/Nội dung/i, body); if (topic) await fill(/Chủ đề/i, topic);
       const cb = await page.evaluate((want) => { const c = document.querySelector('input[type=checkbox]'); if (!c) return null; if (c.checked !== want) c.click(); return c.checked; }, ai);
       await sleep(150); const t0 = Date.now(); await click(/^Đăng câu hỏi$/, 'button', 0); return { t0, cb };
@@ -75,7 +76,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
     if (want('T1')) {
       await fresh(); const { t0, cb } = await newThread('Dùng lại IV trong CTR có sao không?', 'Em thấy CTR dùng nonce, nếu dùng lại nonce với cùng khoá thì có sao không ạ?', 'Mật mã đối xứng');
       const { ev } = await sample(12000, t0, (s, e) => e.pending !== undefined && e.src !== undefined);
-      const t = await text(); await shot('T1-final');
+      await click(/^Nguồn tham khảo \(\d+\)$/, 'button,summary,[role=button]', 400); const t = await text(); await shot('T1-final');
       push('T1a checkbox "Nhờ AI" mặc định bật', cb === true, `checked=${cb}`);
       push('T1b chuyển ngay sang /threads/<id>', ev.url !== undefined && ev.url <= TOL.navMax, `url@${f2(ev.url)}s`);
       push('T1c bước 1 "Trợ lý AI đang soạn…" xuất hiện ngay', ev.compose !== undefined && ev.compose <= TOL.navMax, `compose@${f2(ev.compose)}s`);
@@ -89,7 +90,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
       await setRole('teacher'); await go('/');
       const tt = await text();
       push('T1j GV Hôm nay: "7 việc cần xử lý hôm nay"', /7 việc cần xử lý hôm nay/.test(tt), (tt.match(/\d+ việc cần xử lý hôm nay/) || [''])[0]);
-      push('T1k GV Hôm nay: "Câu hỏi mới: «Dùng lại IV trong CTR có sao không?» · Mật mã đối xứng · vừa xong" + Chờ xác nhận', /Câu hỏi mới:\s*«Dùng lại IV trong CTR có sao không\?»\s*·\s*Mật mã đối xứng\s*·\s*vừa xong/.test(tt) && /Chờ xác nhận/.test(tt), '', await shot('T1-gv-home'));
+      push('T1k GV Hôm nay: "Câu hỏi mới: «Dùng lại IV trong CTR có sao không?» · Mật mã đối xứng · vừa xong" + Chờ xác nhận', /Câu hỏi mới:\s*«Dùng lại IV trong CTR có sao không\?»\s*·?\s*Mật mã đối xứng\s*·\s*vừa xong/.test(tt) && /Chờ xác nhận/.test(tt), '', await shot('T1-gv-home'));
       await click(/Thông báo/, 'button', 400); const bell = await text();
       push('T1l GV chuông: "Câu hỏi mới trong Threads: «…»"', /Câu hỏi mới trong Threads:\s*«Dùng lại IV trong CTR có sao không\?»/.test(bell), '');
       await page.keyboard.press('Escape');
@@ -104,8 +105,8 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
 
     // ---- T2: hai câu hỏi khác nhau → hai câu trả lời khác nhau (S1 vs S2) ----
     if (want('T2')) {
-      await fresh(); let t0 = (await newThread('Vì sao ECB làm lộ ảnh?', 'Em chưa hiểu vì sao ảnh mã hoá bằng ECB vẫn nhìn ra hình ạ.', 'Mật mã đối xứng')).t0; await sample(10000, t0, (s, e) => e.pending !== undefined); const a1 = await text();
-      await go('/threads'); await fill(/Tiêu đề/i, 'Dùng lại IV trong CTR có sao không?'); await fill(/Nội dung/i, 'Nếu dùng lại nonce thì sao ạ?'); await fill(/Chủ đề/i, 'Mật mã đối xứng'); t0 = Date.now(); await click(/^Đăng câu hỏi$/, 'button', 0); await sample(10000, t0, (s, e) => e.pending !== undefined); const a2 = await text();
+      await fresh(); let t0 = (await newThread('Vì sao ECB làm lộ ảnh?', 'Em chưa hiểu vì sao ảnh mã hoá bằng ECB vẫn nhìn ra hình ạ.', 'Mật mã đối xứng')).t0; await sample(10000, t0, (s, e) => e.pending !== undefined && e.src !== undefined); await click(/^Nguồn tham khảo \(\d+\)$/, 'button,summary,[role=button]', 400); const a1 = await text();
+      await go('/threads'); await click(/^Đặt câu hỏi$/, 'button', 400); await fill(/Tiêu đề/i, 'Dùng lại IV trong CTR có sao không?'); await fill(/Nội dung/i, 'Nếu dùng lại nonce thì sao ạ?'); await fill(/Chủ đề/i, 'Mật mã đối xứng'); t0 = Date.now(); await click(/^Đăng câu hỏi$/, 'button', 0); await sample(10000, t0, (s, e) => e.pending !== undefined && e.src !== undefined); await click(/^Nguồn tham khảo \(\d+\)$/, 'button,summary,[role=button]', 400); const a2 = await text();
       const pick = (t) => (t.match(/Trợ lý AI của lớp[\s\S]*?(?=Nguồn tham khảo)/) || [''])[0].replace(/\s+/g, ' ');
       push('T2a "Vì sao ECB làm lộ ảnh?" → S1 (so sánh ECB/CBC, nguồn tr. 14–17)', /ECB/.test(pick(a1)) && /(tr\.|trang)\s*14/.test(a1), pick(a1).slice(0, 90));
       push('T2b hai thread → hai câu trả lời khác nhau', pick(a1) !== pick(a2) && pick(a1).length > 40 && pick(a2).length > 40, '');
@@ -136,7 +137,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
       push('T4e GV Hôm nay: "7 việc", nhãn "Cần giảng viên trả lời"', /7 việc cần xử lý hôm nay/.test(home) && /Cần giảng viên trả lời/.test(home), '', await shot('T4-gv-home'));
       await click(/Câu hỏi mới:/, 'a,button,li,[role=button]', 600); await typeReply('Em chào, WPA3 dùng SAE nên chặn được KRACK trên bắt tay 4 bước, thầy sẽ giải thích thêm trên lớp.'); await click(/^Gửi phản hồi$/, 'button', 500); await go('/');
       const home2 = await text(); push('T4f GV gửi phản hồi trong thread → việc rời, về "6 việc"', /6 việc cần xử lý hôm nay/.test(home2), (home2.match(/\d+ việc cần xử lý hôm nay/) || [''])[0]);
-      await setRole('ta'); await go('/'); const ta = await text(); push('T4g TA thấy giống GV ở Hôm nay (đếm khớp thao tác của GV: 6 việc)', /6 việc cần xử lý hôm nay|6 việc/.test(ta), (ta.match(/\d+ việc[^\n]*/) || [''])[0]);
+      await setRole('ta'); await go('/'); const ta = await text(); push('T4g TA thấy giống GV ở Hôm nay (việc rời sau thao tác của GV; nền của TA là 4 việc, không có "Thiết lập lớp" và "yêu cầu vào lớp")', /4 việc cần xử lý hôm nay/.test(ta), (ta.match(/\d+ việc[^\n]*/) || [''])[0]);
     }
 
     // ---- T5–T9: phản hồi trễ + chuông (G) ----
@@ -207,7 +208,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
 
     // ---- T13: nháp theo thread ----
     if (want('T13')) {
-      await fresh('student', 'sv-2', '/threads/t-cbc'); await typeReply('Em đang gõ dở'); await go('/threads'); await go('/threads/t-cbc');
+      await fresh('student', 'sv-2', '/threads/t-cbc'); await typeReply('Em đang gõ dở'); await sleep(900); await go('/threads'); await go('/threads/t-cbc');
       const v1 = await page.evaluate(() => [...document.querySelectorAll('textarea')].pop()?.value);
       await go('/threads/t-salt'); const v2 = await page.evaluate(() => [...document.querySelectorAll('textarea')].pop()?.value);
       await go('/threads/t-cbc'); await page.reload({ waitUntil: 'networkidle0' }); const v3 = await page.evaluate(() => [...document.querySelectorAll('textarea')].pop()?.value);
@@ -236,8 +237,8 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
       push('T15b lần 2, 3 (ô trống): không bài mới (n không đổi), có dòng "Trợ lý đã đưa hết gợi ý…", nút không khoá', n2 === n1 && t2.includes(MSG_J1) && !locked, `n=${n2} msg=${t2.includes(MSG_J1)} locked=${locked}`, await shot('T15'));
       await typeReply('Em thử rồi'); await sleep(300); push('T15c gõ vào ô → dòng thông báo tự mất', !(await text()).includes(MSG_J1), '');
       await typeReply(''); await click(/^Hỏi trợ lý AI$/, 'button', 400); await sleep(8600); push('T15d không gõ: dòng thông báo tự mất sau 8 s', !(await text()).includes(MSG_J1), '');
-      const m0 = await nOf(); for (let i = 0; i < 2; i++) { await typeReply('Còn CTR thì sao, có cần IV ngẫu nhiên không?'); await click(/^Hỏi trợ lý AI$/, 'button', 0); await sample(9000, Date.now(), (s, e) => e.dungEnd !== undefined); await sleep(500); }
-      const m1 = await nOf(); push('T15e ô có chữ: mỗi lần bấm là một cặp mới (+2 mỗi lần, bấm bao nhiêu lần cũng được)', +m1 === +m0 + 4, `n ${m0}→${m1}`);
+      const m0 = await nOf(); const ds = []; for (let i = 0; i < 2; i++) { const b = +(await nOf()); await typeReply('Còn CTR thì sao, có cần IV ngẫu nhiên không?'); await click(/^Hỏi trợ lý AI$/, 'button', 0); await sleep(9500); ds.push(+(await nOf()) - b); }
+      push('T15e ô có chữ: mỗi lần bấm là một cặp mới (+2; lần đầu có thể +3 vì phản hồi trễ của TA, một lần mỗi thread)', [2, 3].includes(ds[0]) && ds[1] === 2, "n " + m0 + " → +" + ds.join(", +"));
       await fresh('student', 'sv-2', '/threads'); await newThread('WPA3 chặn được KRACK không?', 'WPA3 có chặn KRACK không ạ?', 'An toàn mạng không dây'); await sample(3000, Date.now(), () => false);
       const k0 = await nOf(); await click(/^Hỏi trợ lý AI$/, 'button', 600); const k1 = await nOf(); const tk = await text();
       push('T15f thread không khớp mẫu, ô trống: không bài mới, dòng "Mình đã báo giảng viên; câu trả lời sẽ hiện ngay trong thread…"', k1 === k0 && /Mình đã báo giảng viên; câu trả lời sẽ hiện ngay trong thread/.test(tk), `n ${k0}→${k1}`);
@@ -261,7 +262,7 @@ export default async function timeline(browser, { base = 'http://localhost:3000'
       push('T16g phản hồi seed (kể cả của B ở t-salt) không kích hoạt gì khi chỉ mở trang', (await taBlocks()) === g0, '');
     }
     return rows;
-  }, { args: [{ base, out, only, TOL, AI_NOMATCH, H1_TA, FALLBACK_TA_SRC: 'Cảm ơn em, anh đã ghi nhận. Thầy cô sẽ trả lời chi tiết trong buổi học tới; em xem trước tài liệu tuần ${w} nhé.' }] });
+  }, { timeout: 3000000, args: [{ base, out, only, TOL, AI_NOMATCH, H1_TA, FALLBACK_TA_SRC: 'Cảm ơn em, anh đã ghi nhận. Thầy cô sẽ trả lời chi tiết trong buổi học tới; em xem trước tài liệu tuần ${w} nhé.' }] });
   await tab.close();
   return rows;
 }

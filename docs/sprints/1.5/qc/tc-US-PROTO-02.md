@@ -92,6 +92,8 @@ Nguồn: `docs/sprints/1.5/spec/US.md` + `SRS.md` 4.1, 4.4. Hộp đen. Công c�
 | TC-02-87 | AC21 / N10 | SV B / GV | **B** `/threads` chip "chờ xác nhận" | Chip đếm **mọi** thread có câu AI chờ (kể cả thread mới của B); `t-rsa-key` không còn ở trạng thái chờ (đã xác nhận, v5.1) |
 | TC-02-88 | 4.9 / FR-X17 | B gửi D3 (ticket mới) | **B** Đổi vai GV, rồi TA; mở chuông | Cả hai thấy "1 câu hỏi mới cần xử lý" (Hộp thư hỗ trợ · vừa gửi) có chấm; bấm → `/inbox?ticket=tk-d3` chọn sẵn D3; đã đọc thì chấm giảm; GV `Gửi trả lời` → B nhận thông báo (US-PROTO-01 TC-01-138) |
 | TC-02-89 | N1 (SRS 4.8) | GV | **B** `/inbox`: đếm nhãn "Quá 24 giờ" trước và sau `Nhận` phiếu 1 ngày | 3 hàng có nhãn (1 ngày, 2 ngày, 3 ngày 4 giờ); sau `Nhận` phiếu quá 24 giờ còn 2 (khớp "Câu chờ quá 24 giờ" ở `/analytics`, US-PROTO-04 TC-04-35); nhãn tính từ tuổi ≥ 1440 phút, không ghi cứng |
+| TC-02-90 | AC9 (#24a, biên) | GV; `/inbox` 1440, 1280, 1100, 1099, 900, 720, 390, 375 | **A** `regress-v24.mjs` (TC-02-90) + **B** ảnh | Hàng tab "Đang chờ / Đã nhận / Đã trả lời / Tất cả" trong panel danh sách hiện **đủ chữ ở mọi bề rộng**: phần nhìn thấy (sau khi trừ vùng bị cha cắt) cao ≥ 28 px, không co thành vạch mỏng; chữ không bị cắt |
+| TC-02-91 | AC15 (#24d, biên) | GV; `/attendance` 390, 375 | **A** `regress-v24.mjs` (TC-02-91) + **B** ảnh | Ô chọn buổi hiện nhãn ngắn "Buổi 10 · 29/10" **không bị cắt** (độ rộng chữ ≤ chỗ trống của ô); trạng thái ("đang diễn ra") ở dòng phụ ngoài ô; không cuộn ngang |
 
 
 
@@ -123,3 +125,4 @@ TC-02-20, 21 (SV/Admin/TA); TC-02-25 (GV không đọc chat riêng chưa escalat
 - 2026-10-02 · Thêm TC-02-32…49 (không sửa TC cũ): spec v5 — 02-AC9 (#17c `/inbox` danh sách + mobile `?ticket=`), 02-AC10 (#17d khoảng trống chi tiết), 02-AC11 (#18 việc "Câu hỏi mới" ở Hôm nay, 6 ↔ 7).
 - 2026-10-02 · Thêm TC-02-50…89: spec v5.1 (#19) — 02-AC12 (E3, FR-X17), 02-AC13 (E9), 02-AC14 (E19, FR-X13), 02-AC15 (E7, E8), 02-AC16 (E18), 02-AC17 (E16), 02-AC18 (E12), 02-AC19 (E28), 02-AC20 (E29), 02-AC21 (J3), cộng SRS 4.8 N1, N3, N4, N8, N9, N10 và 4.9 (bảng liên kết sâu + thông báo).
 - 2026-10-02 · **Sửa TC-02-03, TC-02-08, TC-02-23:** "Lớp cần chú ý (C + 2 SV)" / chip `Cần chú ý` = C + 2 → N = 8 (SRS 4.8 N3); thêm nhãn "Quá 24 giờ" (N1). Lý do: spec v5.1 đổi.
+- 2026-10-02 · **Thêm TC-02-90, 91 (không sửa TC cũ):** góp ý #24a (`/inbox` 1440 tab co thành vạch, vi phạm 02-AC9) và #24d (`/attendance` 390 ô chọn buổi cắt "đang diễn…", biên 02-AC15) — PM, ACCEPTED 01/10. `scripts/regress-v24.mjs`.

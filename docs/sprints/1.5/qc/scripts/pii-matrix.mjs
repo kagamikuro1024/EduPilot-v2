@@ -64,7 +64,7 @@ export default async function piiMatrix(browser, { base = 'http://localhost:3000
       const typedHint = (await textOf()).includes('Có vẻ bài có thông tin cá nhân. Bạn sẽ được hỏi trước khi đăng.');
       const urlBefore = page.url();
       await page.evaluate(() => { const b = [...document.querySelectorAll('button')].find((x) => /^Đăng câu hỏi$/.test(x.innerText.trim())); if (b && !b.disabled) b.click(); }); await sleep(700);
-      const d = await page.evaluate(() => { const dl = document.querySelector('[role=dialog]'); if (!dl) return null; const btns = [...dl.querySelectorAll('button')].filter((b) => b.getAttribute('aria-label') !== 'Đóng' && !/^[×x]$/i.test(b.innerText.trim())).map((b) => b.innerText.trim()); return { text: dl.innerText.replace(/\s+/g, ' '), btns }; });
+      const d = await page.evaluate(() => { const dl = [...document.querySelectorAll('[role=dialog]')].find((e) => e.getBoundingClientRect().width > 0 && /thông tin cá nhân/.test(e.innerText)); if (!dl) return null; const btns = [...dl.querySelectorAll('button')].filter((b) => b.getAttribute('aria-label') !== 'Đóng' && !/^[×x]$/i.test(b.innerText.trim())).map((b) => b.innerText.trim()); return { text: dl.innerText.replace(/\s+/g, ' '), btns }; });
       const url = page.url(); const created = /\/threads\/[^/]+$/.test(url.replace(base, '')) && url !== urlBefore;
       let ok, detail;
       if (!count) { ok = !d && created && !typedHint; detail = `dialog=${!!d} created=${created} nhắc=${typedHint}`; }
@@ -75,7 +75,7 @@ export default async function piiMatrix(browser, { base = 'http://localhost:3000
         ok = !!(d && /Bài này có thông tin cá nhân/.test(d.text) && countOk && twoBtns && noValueEcho && !created && typedHint); detail = d ? `count=${countOk} 2nút=${twoBtns} khôngInLại=${noValueEcho} chưaTạo=${!created} nhắc=${typedHint} [${d.text.slice(0, 90)}]` : 'không có dialog';
         // 3b: ẩn rồi đăng — mọi ca khớp: dòng "Đã ẩn n thông tin cá nhân" (PM #20c) + bản gốc không còn ở DOM / ep_demo_state
         if (d && c.n) {
-          await page.evaluate(() => { const b = [...document.querySelector('[role=dialog]').querySelectorAll('button')].find((x) => /Ẩn thông tin rồi đăng/.test(x.innerText)); b && b.click(); }); await sleep(900);
+          await page.evaluate(() => { const b = [...[...document.querySelectorAll('[role=dialog]')].find((e) => e.getBoundingClientRect().width > 0 && /thông tin cá nhân/.test(e.innerText)).querySelectorAll('button')].find((x) => /Ẩn thông tin rồi đăng/.test(x.innerText)); b && b.click(); }); await sleep(900);
           const t = await textOf(); const st = await page.evaluate(() => localStorage.getItem('ep_demo_state') || '');
           const hideOk = !c.hide || t.includes(c.hide); const nOk = t.includes(`Đã ẩn ${c.n} thông tin cá nhân`); const clean = hideOk && nOk && !/uyen\.tt229002@|0912345678|20229002/.test(t) && !/uyen\.tt229002@|0912345678|20229002/.test(st);
           rows.push({ id: c.id + ' · 3b ẩn rồi đăng', ok: clean && /\/threads\/[^/]+$/.test(page.url().replace(base, '')), detail: `"Đã ẩn ${c.n} thông tin cá nhân"=${nOk} bản ẩn đúng=${hideOk} bản gốc không còn trong DOM/state=${!/uyen\.tt229002@|0912345678|20229002/.test(t + st)}`, file: '' });
@@ -85,7 +85,7 @@ export default async function piiMatrix(browser, { base = 'http://localhost:3000
       rows.push({ id: c.id, ok: !!ok, detail, file });
     }
     return rows;
-  }, { args: [{ base, out, only, CASES: CASES.map((c) => ({ ...c, count: c.count instanceof RegExp ? { source: c.count.source, flags: c.count.flags } : c.count })) }] });
+  }, { timeout: 3000000, args: [{ base, out, only, CASES: CASES.map((c) => ({ ...c, count: c.count instanceof RegExp ? { source: c.count.source, flags: c.count.flags } : c.count })) }] });
   await tab.close();
   return rows;
 }

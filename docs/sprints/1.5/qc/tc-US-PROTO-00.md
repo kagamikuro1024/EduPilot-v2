@@ -73,6 +73,7 @@ Công cụ: **C** = `F=… bash docs/sprints/1.5/qc/scripts/proto-curl.sh <TC>`;
 | TC-00-66 | AC15 (chống lách) | SV B, 375 | **B** Console: `[...document.querySelectorAll('[data-inline]')]` ở mọi route SV | `data-inline` chỉ trên liên kết **nằm giữa câu chữ** (có chữ đứng trước hoặc sau trong cùng khối); không trên nút, chip, tab, liên kết quay lại, nút ở hàng riêng |
 | TC-00-67 | AC15 (nhánh) | SV B, GV; 375 | **A** kịch bản tương tác + `?state=`: Dialog hai lối, drawer Thêm, popover bộ chọn lớp, dải chip đã cuộn; `/inbox` sau mở ticket | `TOUCH` chạy trong các trạng thái đó cũng `[]` (nút `Đóng`, mục popover, `← Hộp thư`) |
 | TC-00-68 | FR-X13, FR-X15 (tĩnh) | Cây sạch | **C** `tc_00_16` | Có `frontend/src/mock/derive.ts` xuất `ticketStats`, `attentionSet`, `navBadges`, `ago`; không còn số cứng `overdue: [`, `answeredByAi`, `escalated: [`; shell / ui không `color-mix(… transparent` |
+| TC-00-69 | AC9 (#24b) | GV, TA, Admin, SV; 1440, 1100, 390 | **A** `regress-v24.mjs` (TC-00-69) + **B** ảnh thanh trên mỗi vai | Nút hồ sơ ghi **tên người** (TS. Lê Thu Hà, Phạm Quốc Bảo, Đỗ Hoàng Nam, tên SV), không ghi tên vai ("Giảng viên", "Trợ giảng", "Admin", "Sinh viên"); nhãn truy cập `Tài khoản: <tên>`; ≥ 1100 px chữ tên hiện đủ, không cắt; vai chỉ ở dòng phụ trong menu (00-AC9) |
 
 ## Truy vết hồi quy E1–E37 → TC (spec v5.1, SRS 4.10)
 Mỗi lỗi QC thăm dò (`qc/explore-v4.md`) có ít nhất một TC chính và một TC nhánh lỗi / biên. Mức theo 4.10.
@@ -148,3 +149,4 @@ TC-00-17…21 (ma trận SRS mục 2, gõ thẳng URL bằng cookie vai khác).
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-10-02 · Thêm TC-00-22…48 (không sửa TC cũ): spec v5 — 00-AC7…AC10 (#17a, b, f, h; SRS 4.7 a1–a4, b1–b3, f1, h1–h4). Thêm script `audit.mjs`, hàm `tc_00_07…09`, `tc_00_hooks` trong `proto-curl.sh`.
 - 2026-10-02 · Thêm TC-00-49…68 (không sửa TC cũ): spec v5.1 (#19) — 00-AC11 (E23, FR-X15), 00-AC12 (E31), 00-AC13 (E1, FR-X16), 00-AC14 (E26, E30, FR-X13), 00-AC15 (E22, FR-X14). `audit.mjs` thêm `TOUCH_SRC`, `LEFT_SRC`, `SPEC_V51`; `proto-curl.sh` thêm `tc_00_13…16`.
+- 2026-10-02 · **Thêm TC-00-69 (không sửa TC cũ):** góp ý #24b (PM nghiệm thu UI v5, ACCEPTED 01/10) — nút hồ sơ GV/Admin/TA vẫn ghi tên vai trong khi SV ghi tên người, trái 00-AC9. Thêm `scripts/regress-v24.mjs`.

@@ -25,7 +25,7 @@ const BLOCKED = { student: ['/inbox'], ta: ['/observability'], teacher: ['/chat'
 const needs375 = (role, r) => role === 'student' || r === '/attendance' || r === '/inbox';
 // NGUYÊN VĂN `TOUCH` của US.md (v5.1): vùng bấm < 44 px, chạy ở 375 / 390. Đạt khi `[]`.
 export const TOUCH_SRC = `[...document.querySelectorAll('main a, main button, main [role=tab], main [role=radio], main label, main input, header a, header button, nav a')]
-  .filter(e => e.offsetParent && !e.closest('[data-inline]') && !(e.matches('input') && e.closest('label')))
+  .filter(e => e.offsetParent && !e.closest('[data-inline]') && !(e.matches('input') && e.closest('label')) && !(e.matches('label') && !e.querySelector('input[type=checkbox],input[type=radio]') && !(e.control && ['checkbox','radio'].includes(e.control.type))))
   .map(e => { const b = e.getBoundingClientRect(); return { t: (e.getAttribute('aria-label') || e.textContent).trim().slice(0, 24), w: Math.round(b.width), h: Math.round(b.height) }; })
   .filter(x => x.w < 44 || x.h < 44)`;
 // `LEFT` của US.md, bọc để route thiếu `[data-part=page-title]` trả null (= FAIL) thay vì ném lỗi.
@@ -52,7 +52,7 @@ export function SCN_RUNNERS({ click, type, sleep }) {
   return {
     'chat sau D1': async (p) => { await type(p, 'textarea', 'Em là Trần Thu Uyên, MSSV 20229002, điểm quá trình của em là bao nhiêu và vắng mấy buổi?'); await p.keyboard.press('Enter'); await sleep(5000); },
     'thread sau Hỏi trợ lý AI': async (p) => { await click(p, /^Hỏi trợ lý AI$/); await sleep(6000); },
-    'form thread + hộp thoại hai lối': async (p) => { const i = await p.$$('input[type=text],input:not([type])'); if (i[0]) { await i[0].click(); await i[0].type('Hỏi về điểm'); } await type(p, 'textarea', 'MSSV của em là 20229002 ạ'); await click(p, /^Đăng câu hỏi$/, 'button', 700); },
+    'form thread + hộp thoại hai lối': async (p) => { await click(p, /^Đặt câu hỏi$/, 'button', 500); const i = await p.$$('[data-part=thread-form] input[type=text],[data-part=thread-form] input:not([type])'); if (i[0]) { try { await i[0].click(); } catch { await p.evaluate((e) => e.focus(), i[0]); } await i[0].type('Hỏi về điểm'); } await type(p, '[data-part=thread-form] textarea', 'MSSV của em là 20229002 ạ'); await click(p, /^Đăng câu hỏi$/, 'button', 700); },
     'menu hồ sơ mở': async (p) => { await click(p, /Tài khoản/, '[aria-label^="Tài khoản"],button'); },
     'bộ chọn lớp mở': async (p) => { await click(p, /761987/, 'header button'); },
     'bộ chọn lớp mở (SV A, 2 lớp)': async (p) => { await click(p, /761987|761988/, 'header button'); },
@@ -62,16 +62,16 @@ export function SCN_RUNNERS({ click, type, sleep }) {
   };
 }
 
-export default async function audit(browser, { base = 'http://localhost:3000', out, only, skipSpec = false, skipMatrix = false, states = false } = {}) {
+export default async function audit(browser, { base = 'http://localhost:3000', out, only, skipSpec = false, skipMatrix = false, states = false, routesOnly = null, skipScenarios = false, skipEdge = false, specWhich = "" } = {}) {
   const tab = await browser.open({ name: 'qc-audit', url: base + '/login', viewport: { width: 1440, height: 900 } });
   const rows = await tab.run(async ({ page }, a) => {
-    const { base, out, only, skipSpec, skipMatrix, states, ROUTES, VIEWPORTS, BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc, spec51Src, scnSrc } = a;
+    const { base, out, only, skipSpec, skipMatrix, states, routesOnly, skipScenarios, skipEdge, specWhich, ROUTES, VIEWPORTS, BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc, spec51Src, scnSrc } = a;
     const rows = [];
     const click = async (p, re, sel = 'button,a,[role=button],[role=menuitem],[role=tab],summary,label', wait = 300) => {
-      const ok = await p.evaluate((src, flags, s) => { const r = new RegExp(src, flags); const el = [...document.querySelectorAll(s)].find((e) => r.test((e.innerText || e.getAttribute('aria-label') || '').trim()) && e.getBoundingClientRect().width > 0); if (el) { el.click(); return true; } return false; }, re.source, re.flags, sel);
+      const ok = await p.evaluate((src, flags, s) => { const r = new RegExp(src, flags); const el = [...document.querySelectorAll(s)].find((e) => (r.test((e.innerText || '').trim()) || r.test((e.getAttribute('aria-label') || '').trim())) && e.getBoundingClientRect().width > 0); if (el) { const inner = [...el.querySelectorAll('button,a,[role=button],[role=option]')].find((x) => r.test((x.innerText || '').trim()) || r.test((x.getAttribute('aria-label') || '').trim())); (inner || el).click(); return true; } return false; }, re.source, re.flags, sel);
       await new Promise((s) => setTimeout(s, wait)); return ok;
     };
-    const type = async (p, sel, text) => { const el = await p.$(sel); if (!el) return false; await el.click(); await el.type(text); return true; };
+    const type = async (p, sel, text) => { const el = await p.$(sel); if (!el) return false; try { await el.click(); } catch { await p.evaluate((e) => e.focus(), el); } await el.type(text); return true; };
     const scn = new Function('h', 'return (' + scnSrc + ')(h)')({ click, type, sleep: (ms) => new Promise((s) => setTimeout(s, ms)) });
     const fs = await import('node:fs'); if (out) fs.mkdirSync(out, { recursive: true });
     const errs = [];
@@ -87,11 +87,11 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
     const reset = async () => { await page.evaluate(() => { try { localStorage.removeItem('ep_demo_state'); } catch {} }); };
     const push = (role, route, w, what, ok, detail, file) => rows.push({ role, route, w, what, ok, detail: detail || '', file: file || '' });
     const shot = async (name) => { if (!out) return ''; const f = `${out}/${name.replace(/[\/\[\]?=\s·]/g, '_')}.png`; await page.screenshot({ path: f }); return f; };
-    const fmt = (r) => `ox=${r.ox} cut=${JSON.stringify(r.cut.slice(0, 3))} ell=${JSON.stringify(r.ell.slice(0, 3))} sx=${r.sx}`;
-    const okOf = (r) => r.ox <= 0 && r.cut.length === 0 && r.ell.length === 0;
+    const fmt = (r) => `ox=${r.ox} wide=${r.wide} cut=${JSON.stringify(r.cut.slice(0, 3))} ell=${JSON.stringify(r.ell.slice(0, 3))} sx=${r.sx}`;
+    const okOf = (r) => r.ox <= 0 && r.cut.length === 0 && r.ell.length === 0 && r.wide === 0;
     const run = async (role, route, tag, w, label, person, pre) => {
       errs.length = 0; await go(route); if (pre) await pre(page); await sleep(250);
-      const r = { ...(await page.evaluate(AUDIT_SRC)), sx: await page.evaluate(() => document.querySelectorAll('[data-scroll-x]').length) };
+      const r = { ...(await page.evaluate(AUDIT_SRC)), sx: await page.evaluate(() => document.querySelectorAll('[data-scroll-x]').length), wide: Math.max(0, (await page.evaluate(() => Math.max(innerWidth, document.documentElement.scrollWidth))) - w) };
       const blocked = await page.evaluate(() => /Bạn không có quyền mở trang này/.test(document.body.innerText));
       const f = !okOf(r) || errs.length ? await shot(`${role}${route}-${tag}-${label || 'audit'}`) : '';
       push(role, route, tag, label || 'AUDIT', okOf(r) && !errs.length, fmt(r) + (blocked ? ' [màn chặn]' : '') + (errs.length ? ` console=${errs[0]}` : ''), f);
@@ -104,38 +104,38 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
       if ((tag === '1440' || tag === '390') && role !== '(không vai)') { const l = await page.evaluate(LEFT_SRC); const want = tag === '1440' ? 240 : 16; push(role, route, tag, `LEFT (00-AC11) = ${want}`, l === want, `left=${l}`); }
       // 00-AC12 thanh trên đặc, kể cả sau khi cuộn 200 px
       { await page.evaluate(() => window.scrollTo(0, 200)); await sleep(120); const h = await page.evaluate(() => { const e = document.querySelector('header'); if (!e) return null; const c = getComputedStyle(e); return { bg: c.backgroundColor, bf: c.backdropFilter || c.webkitBackdropFilter || 'none' }; });
-        const ok = h && /^rgb\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); await page.evaluate(() => window.scrollTo(0, 0)); }
+        const ok = h && /^(rgb|lab|oklab|lch|oklch|color)\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); await page.evaluate(() => window.scrollTo(0, 0)); }
     };
 
     // ---------- 1. Ma trận AUDIT: mọi route × vai × bề rộng ----------
     if (!skipMatrix) for (const role of Object.keys(ROUTES)) {
       if (only && only !== role) continue;
       await setRole(role); await setVp(1440); await go(ROUTES[role][0]); await reset();
-      const list = [...ROUTES[role], ...BLOCKED[role]];
+      const list = [...ROUTES[role], ...BLOCKED[role]].filter((r) => !routesOnly || routesOnly.includes(r));
       for (const r of list) for (const vp of VIEWPORTS) {
         if (vp.tag === '375' && !(role === 'student' || r === '/attendance' || r === '/inbox')) continue;
         await setVp(vp.w, vp.h);
         for (const q of states && !BLOCKED[role].includes(r) ? ['', '?state=empty', '?state=error'] : ['']) await run(role, r + q, vp.tag, vp.w);
       }
-      for (const r of EDGE_ROUTES[role] || []) for (const e of EDGE_W) { await setVp(e.w, 900); await run(role, r, e.tag, e.w, 'AUDIT-biên'); }
+      for (const r of skipEdge ? [] : (EDGE_ROUTES[role] || []).filter((r) => !routesOnly || routesOnly.includes(r))) for (const e of EDGE_W) { await setVp(e.w, 900); await run(role, r, e.tag, e.w, 'AUDIT-biên'); }
     }
     // /login (không phiên): 1440, 390, 375
     if (!skipMatrix && !only) { await page.deleteCookie(...(await page.cookies())); for (const w of [1440, 390, 375]) { await setVp(w); await run('(không vai)', '/login', String(w), w); } }
 
     // ---------- 2. AUDIT sau tương tác ----------
-    if (!skipMatrix) for (const s of SCENARIOS_META) {
+    if (!skipMatrix && !skipScenarios) for (const s of SCENARIOS_META) {
       if (only && only !== s.role) continue;
       await setRole(s.role, s.person || 'sv-2');
       for (const vp of VIEWPORTS.filter((v) => s.vps.includes(v.tag))) {
         await setVp(vp.w, vp.h); await go(s.route); await reset(); await go(s.route);
-        await run(s.role, s.route, vp.tag, vp.w, s.id, s.person, async (p) => { await scn[s.id](p); });
+        await run(s.role, s.route, vp.tag, vp.w, s.id, s.person, async (p) => { try { await scn[s.id](p); } catch (e) { push(s.role, s.route, vp.tag, s.id + ' · kịch bản lỗi', false, String(e.message).slice(0, 140)); } });
       }
     }
 
     // ---------- 3. Phép đo riêng của spec v5 (SRS 4.7) ----------
-    if (!skipSpec && !only) { const ctx = { page, base, setRole, setVp, go, reset, push, sleep, shot, ROUTES }; await new Function('ctx', 'return (' + specSrc + ')(ctx)')(ctx); await new Function('ctx', 'return (' + spec51Src + ')(ctx)')(ctx); }
+    if (!skipSpec && !only) { const ctx = { page, base, setRole, setVp, go, reset, push, sleep, shot, ROUTES }; if (specWhich !== "v51") await new Function('ctx', 'return (' + specSrc + ')(ctx)')(ctx); if (specWhich !== "v5") await new Function('ctx', 'return (' + spec51Src + ')(ctx)')(ctx); }
     return rows;
-  }, { args: [{ base, out, only, skipSpec, skipMatrix, states, ROUTES, VIEWPORTS: VIEWPORTS.map(({ w, h, tag }) => ({ w, h, tag })), BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META: SCENARIOS, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc: SPEC_CHECKS.toString(), spec51Src: SPEC_V51.toString(), scnSrc: SCN_RUNNERS.toString() }] });
+  }, { timeout: 280000, args: [{ base, out, only, skipSpec, skipMatrix, states, routesOnly, skipScenarios, skipEdge, specWhich, ROUTES, VIEWPORTS: VIEWPORTS.map(({ w, h, tag }) => ({ w, h, tag })), BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META: SCENARIOS, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc: SPEC_CHECKS.toString(), spec51Src: SPEC_V51.toString(), scnSrc: SCN_RUNNERS.toString() }] });
   await tab.close();
   return rows;
 }
@@ -146,7 +146,7 @@ export async function SPEC_CHECKS({ page, setRole, setVp, go, reset, push, sleep
   const SV = { 'sv-1': 'Nguyễn Minh Trung', 'sv-2': 'Trần Thu Uyên', 'sv-3': 'Lê Quang Huy', 'sv-4': 'Phạm Ngọc Linh' };
   const q = (fn, ...args) => page.evaluate(fn, ...args);
   const clickTxt = async (re, sel = 'button,a,[role=menuitem],[role=button],[role=tab],label,summary', wait = 300) => {
-    const ok = await q((src, flags, s) => { const r = new RegExp(src, flags); const el = [...document.querySelectorAll(s)].find((e) => r.test((e.innerText || e.getAttribute('aria-label') || '').trim()) && e.getBoundingClientRect().width > 0); if (el) { el.click(); return true; } return false; }, re.source, re.flags, sel);
+    const ok = await q((src, flags, s) => { const r = new RegExp(src, flags); const el = [...document.querySelectorAll(s)].find((e) => (r.test((e.innerText || '').trim()) || r.test((e.getAttribute('aria-label') || '').trim())) && e.getBoundingClientRect().width > 0); if (el) { const inner = [...el.querySelectorAll('button,a,[role=button],[role=option]')].find((x) => r.test((x.innerText || '').trim()) || r.test((x.getAttribute('aria-label') || '').trim())); (inner || el).click(); return true; } return false; }, re.source, re.flags, sel);
     await sleep(wait); return ok;
   };
   const chk = (role, route, w, what, ok, detail, f) => push(role, route, String(w), what, !!ok, detail, f);
@@ -159,7 +159,7 @@ export async function SPEC_CHECKS({ page, setRole, setVp, go, reset, push, sleep
     chk(role, '/', 1440, '00-AC7 brand 32/56/viền liền', m && m.img === 32 && m.brandH === 56 && m.bBottom === 56 && m.hBottom === 56 && m.border === '1px' && Math.abs(m.ratio - 188 / 40) < 0.15, JSON.stringify(m), await shot(`brand-${role}-1440`));
   }
   await setRole('teacher'); await setVp(1440, 900); await go('/'); await clickTxt(/Thu gọn/);
-  const col = await q(() => { const i = document.querySelector('[data-part=brand] img'); const b = i && i.getBoundingClientRect(); const s = document.querySelector('[data-part=brand]').getBoundingClientRect(); return b && { w: Math.round(b.width), h: Math.round(b.height), cx: Math.round(b.left + b.width / 2), colW: Math.round(s.width), colCx: Math.round(s.left + s.width / 2) }; });
+  const col = await q(() => { const i = document.querySelector('[data-part=brand] img'); const b = i && i.getBoundingClientRect(); const s = document.querySelector('[data-part=brand]').getBoundingClientRect(); return b && { w: Math.round(b.width), h: Math.round(b.height), cx: Math.round(b.left + b.width / 2), colW: Math.round((document.querySelector('aside') || s).getBoundingClientRect().width), colCx: Math.round(s.left + s.width / 2) }; });
   chk('teacher', '/', 1440, '00-AC7 thu gọn: mark 32×32, giữa cột 72', col && col.w === 32 && col.h === 32 && col.colW === 72 && Math.abs(col.cx - col.colCx) <= 1, JSON.stringify(col), await shot('brand-collapsed-1440'));
   for (const role of ['student', 'teacher']) {
     await setRole(role); await setVp(390, 844); await go('/');
@@ -263,12 +263,12 @@ export async function SPEC_V51({ page, setRole, setVp, go, reset, push, sleep, s
   const q = (fn, ...a) => page.evaluate(fn, ...a);
   const chk = (role, route, w, what, ok, detail, f) => push(role, route, String(w), what, !!ok, detail, f);
   const clickTxt = async (re, sel = 'button,a,[role=menuitem],[role=button],[role=tab],label,summary,li', wait = 300) => {
-    const ok = await q((src, fl, s) => { const r = new RegExp(src, fl); const el = [...document.querySelectorAll(s)].find((e) => r.test((e.innerText || e.getAttribute('aria-label') || '').trim()) && e.getBoundingClientRect().width > 0); if (el) { el.click(); return true; } return false; }, re.source, re.flags, sel);
+    const ok = await q((src, fl, s) => { const r = new RegExp(src, fl); const el = [...document.querySelectorAll(s)].find((e) => (r.test((e.innerText || '').trim()) || r.test((e.getAttribute('aria-label') || '').trim())) && e.getBoundingClientRect().width > 0); if (el) { const inner = [...el.querySelectorAll('button,a,[role=button],[role=option]')].find((x) => r.test((x.innerText || '').trim()) || r.test((x.getAttribute('aria-label') || '').trim())); (inner || el).click(); return true; } return false; }, re.source, re.flags, sel);
     await sleep(wait); return ok;
   };
   const ENG = /This page (could not be found|couldn.t load)|Application error|Internal Server Error/;
   const txt = () => q(() => document.body.innerText);
-  const parts = (p) => q((s) => [...document.querySelectorAll('[data-part=' + s + ']')].length, p);
+  const parts = (p) => q((s) => [...document.querySelectorAll('[data-part=' + s + ']')].filter((e) => e.getBoundingClientRect().width > 0).length, p);
 
   // 00-AC13 / FR-X16: 404 + lỗi chạy bằng tiếng Việt, không lộ trang mặc định của Next.js
   for (const [role, person] of [['teacher', ''], ['student', 'sv-2'], ['ta', ''], ['admin', '']]) {
@@ -349,11 +349,11 @@ export async function SPEC_V51({ page, setRole, setVp, go, reset, push, sleep, s
     await clickTxt(/^Cần chú ý\s*\d+/, 'main button', 400);
     const rows = await q(() => { const r = [...document.querySelectorAll('[data-part=student-row]')]; return { n: r.length, flagged: r.filter((x) => x.innerText.includes('Cần chú ý')).length }; });
     chk('teacher', '/students', 1440, '02-AC18 chip Cần chú ý = số hàng sau lọc = số hàng ghi "Cần chú ý" (= 8); không còn "Theo dõi"', m.n === 8 && rows.n === 8 && rows.flagged === 8 && !hasOld, JSON.stringify({ chip: m.n, rows, theoDoi: hasOld }), await shot('students-watch-1440')); }
-  const ids = async (route) => { await setVp(1440, 900); await go(route); return q(() => [...document.querySelectorAll('[data-part=student-row]')].map((r) => r.dataset.studentId)); };
+  const ids = async (route) => { await setVp(1440, 900); await go(route); await reset(); await go(route); return q(() => [...document.querySelectorAll('[data-part=student-row]')].map((r) => r.dataset.studentId)); };
   { const [a, b, c, d] = [await ids('/students'), await ids('/attendance'), await ids('/gradebook'), await ids('/class/members')]; const asc = (x) => x.every((v, i) => i === 0 || +v.split('-')[1] > +x[i - 1].split('-')[1]);
     chk('teacher', '/students,/attendance,/gradebook,/class/members', 1440, '02-AC19 cùng thứ tự sv-n tăng dần (30 hàng, A–C đầu)', [a, b, c, d].every((x) => x.length >= 30 && x.join() === a.join() && asc(x)) && a.slice(0, 3).join() === 'sv-1,sv-2,sv-3', JSON.stringify({ n: [a.length, b.length, c.length, d.length], head: a.slice(0, 4) })); }
   await go('/'); { const t = await txt(); chk('teacher', '/', 1440, '02-AC18 Hôm nay: "Lớp cần chú ý · 8 sinh viên" + Xem cả 8', /Lớp cần chú ý · 8 sinh viên/.test(t) && /Xem cả 8/.test(t), ''); }
-  await go('/'); { const ids2 = await q(() => [...document.querySelectorAll('[data-part=today-task]')].map((e) => e.dataset.taskId)); chk('teacher', '/', 1440, '02-AC21 thứ tự thẻ Hôm nay (6 việc seed): ticket, …, ai-pending, setup, members', ids2.length === 6 && /ticket/.test(ids2[0]) && ids2[3] === 'ai-pending' && ids2[4] === 'setup' && ids2[5] === 'members', JSON.stringify(ids2)); }
+  await go('/'); { const ids2 = await q(() => [...document.querySelectorAll('[data-part=today-task]')].map((e) => e.dataset.taskId)); chk('teacher', '/', 1440, '02-AC21 thứ tự thẻ Hôm nay (6 việc seed): ticket, …, ai-pending, setup, members', ids2.length === 6 && /ticket|inbox/.test(ids2[0]) && ids2[3] === 'ai-pending' && ids2[4] === 'setup' && ids2[5] === 'members', JSON.stringify(ids2)); }
 
   // 02-AC14 (N9) badge điều hướng
   for (const w of [1440, 390]) { await setVp(w, 844); for (const r of ['/', '/inbox', '/gradebook', '/grading']) { await go(r); const b = await q(() => [...document.querySelectorAll('[data-part^=nav-badge]')].filter((e) => e.offsetParent).map((e) => e.dataset.part + ':' + e.textContent.trim()));

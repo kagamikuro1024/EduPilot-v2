@@ -53,7 +53,7 @@ export default async function sweep(browser, { base = 'http://localhost:3000', o
         }
       }
     }
-  }, { args: [{ base, only, out, person, course, states, ROUTES, VIEWPORTS, FORBIDDEN: { source: FORBIDDEN.source, flags: FORBIDDEN.flags }, results }] });
+  }, { timeout: 3000000, args: [{ base, only, out, person, course, states, ROUTES, VIEWPORTS, FORBIDDEN: { source: FORBIDDEN.source, flags: FORBIDDEN.flags }, results }] });
   await tab.close();
   return results;
 }

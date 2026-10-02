@@ -156,6 +156,7 @@ Câu nhập nguyên văn D1–D3: `docs/DEMO_SCRIPT.md` mục 3 với `{HO_TEN_B
 | TC-01-150 | AC28 (PM chốt J2) | B, `t-salt` | **T** `T16a`…`T16c` | `Hỏi trợ lý AI` có chữ → phản hồi của B đăng ngay; ~2 s "Phạm Quốc Bảo đang trả lời…"; ~6 s phản hồi TA trích chữ của B + chuông "Phạm Quốc Bảo đã trả lời trong «…»", song song với chuỗi AI |
 | TC-01-151 | AC28 / J2 (không kích hoạt) | B; TA / GV | **T** `T16d`…`T16g`; **B** TA / GV bấm `Hỏi trợ lý AI` có chữ | Không phản hồi trễ khi: lần hai trong cùng thread, ô trống, đã có phản hồi trễ từ `Gửi phản hồi`, chỉ mở trang (phản hồi seed — kể cả seed của chính B ở `t-salt` — không tính), người gửi là TA / GV |
 | TC-01-152 | AC27 (biên, E36) | B, GV | **B** Đo thẻ "Câu hỏi gốc" ở thread câu hỏi dài (`t-pin-lab`), ngắn, có nút `Sửa` của chính B (`t-salt`), và sau khi bấm `Báo cáo` / `Sửa`; 1440 và 390 | Khoảng từ đáy phần tử cuối tới đáy thẻ ≤ 21 px ở mọi trường hợp (không còn ~80 px trống), kể cả khi hàng nút đổi / mở ô sửa |
+| TC-01-153 | AC19 / 00-AC10 (#24c, biên) | SV B, GV; `/threads` 1440, 1100, 900, 390 | **A** `regress-v24.mjs` (TC-01-153) + **B** ảnh hàng chip chủ đề | Hàng chip chủ đề: không chip nào bị cắt ở mép phải mà **không có dấu hiệu cuộn nhìn thấy** (mép mờ / nút cuộn) — hoặc xuống dòng; `data-scroll-x` một mình không đủ (người dùng không thấy) |
 
 
 ## Công cụ bổ sung (spec v5, v5.1)
@@ -189,3 +190,4 @@ TC-01-25, 26 (AC9, ma trận SRS 2); TC-01-13 (SV không thấy nhãn rủi ro /
 - 2026-10-02 · Thêm TC-01-88…152: spec v5.1 (#19) — 01-AC15 (E1), 01-AC16 (E11), 01-AC17 (E2) + SRS 4.3.2, 01-AC18 (E5) + SRS 4.3.3 (P1–P4, bảng nhận diện), 01-AC19 (E13, E14), 01-AC20 (E15), 01-AC21 (E32, E34, FR-X19), 01-AC22 (E20), 01-AC23 (E4, E26, FR-X17) + SRS 4.9, 01-AC24 (E10), 01-AC25 (E24), 01-AC26 (E27), 01-AC27 (E36), 01-AC28 (J1, J2).
 - 2026-10-02 · **Sửa TC-01-54:** `t-rsa-key` có câu AI `Đã được giảng viên xác nhận` (SRS v5.1 sửa v5, N10) thay cho `Chờ xác nhận`. Lý do: spec đổi.
 - 2026-10-02 · **Siết TC-01-109, 114 (#20c), TC-01-131, 133 (#20b):** PM chốt `Đã ẩn n thông tin cá nhân` và 720–1099 px như 390 px (proposals #20, ACCEPTED). `audit.mjs` (01-AC22 ở 1099 / 900 / 720) và `pii-matrix.mjs` (n ở mọi ca khớp) cập nhật.
+- 2026-10-02 · **Thêm TC-01-153 (không sửa TC cũ):** góp ý #24c (PM, ACCEPTED 01/10) — hàng chip chủ đề `/threads` bị cắt ở mép phải ("Tường lửa và phân đoạn r") không có dấu hiệu cuộn. `scripts/regress-v24.mjs`.
