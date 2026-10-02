@@ -57,3 +57,17 @@ Nhánh: `sprint/2-pg`. Commit cuối của cổng: `98f61b5` + commit chứa fil
 - Caddy chỉ có health check bị động (spec v1.3); nợ P10/PR: upstream tĩnh + `health_uri /api/v1/healthz`.
 - Nhánh `ci/sqlc-drift` (cố ý đỏ) **chưa xoá**: chỉ xoá sau khi QC chấm TC-PG07-43/44.
 - Bộ container test dùng chung toàn máy (`edupilot-test-*`); dọn bằng `make -C backend-go test-clean`.
+
+## Vòng sửa 1 (QC cổng PG → góp ý #12)
+
+| BUG | Đã sửa (commit) | Tự kiểm (kết quả thật) |
+| --- | --- | --- |
+| BUG-PG-1 Caddy 503 rỗng | `US-PG-05: fix BUG-PG-1` — `Caddyfile`: bỏ `unhealthy_status 503` ở nhánh `/api/*`; gateway đang tắt gắn `X-EP-Draining: 1` vào 503 NOT_READY (`drainingMiddleware`), Caddy `handle_response` chỉ bắt response có header đó và thử lại (lần thử lại tính 503 là lỗi để loại bản đang tắt). Test Go: `TestGracefulShutdown` kiểm header có ở 503 khi tắt và không có ở readyz | `compose -f local -f test -p edupilot up --scale gateway=2`, tắt Redis: 8/8 lần `GET /api/v1/events` và 6/6 lần `_test/error/503` qua Caddy → 503 JSON `SERVICE_UNAVAILABLE`, có `X-Instance-Id`; `_test` có `Retry-After: 7` và `.retry_after=7`. AC6: 3 vòng 200 request @10/s + `docker stop` 1 bản → **1** lỗi/vòng (≤ 4), 0 lỗi ở 60 dòng cuối (bản cũ đo lại với cùng Caddy chưa có `handle_response`: 5–6 lỗi/vòng). Redis sống lại → readyz 200 |
+| BUG-PG-2 Last-Event-ID mới hơn mọi id | `US-PG-05: fix BUG-PG-2` — `startFrom`: id mới hơn sự kiện mới nhất (hoặc bộ đệm trống mà client có id ≠ `0-0`) → `resync` `buffer_exceeded`, bắt đầu từ sự kiện mới nhất, rồi nhận live. Test `TestSSE_ResyncWhenFuture` (3 ca) | Test mới PASS `-race`; xem góp ý #13 (TC-PG05-41 cũ đòi 0 `resync`, #12 chốt có `resync`) |
+| BUG-PG-3 test chập chờn | `US-PG-01: fix BUG-PG-3` — `TestServe_InvalidEnvNamesVariable` so giá trị bí mật trong mọi trường trừ `trace_id`/`instance`/`time` | `go test -race` toàn bộ nhiều lần: xanh |
+| BUG-PG-4 chờ phụ thuộc 1 warn | `US-PG-01: fix BUG-PG-4` — `WaitForDeps`: ping chờ tối đa 400 ms, vòng đúng 1 s. Test `TestStartup_WaitsForDeps/ping treo vẫn mỗi giây một dòng warn` | Trước sửa test đỏ (`2 warn trong 3,5 s`), sau sửa xanh |
+| BUG-PG-6 chữ `_test` | `US-PG-06: fix BUG-PG-6 (bỏ chữ _test khỏi chú thích openapi)` — `grep -c _test api/openapi.yaml` = 0; `bearerAuth` giữ nguyên (PM chốt) | `grep -c _test` → 0; `go test ./internal/contract` ok |
+| TC-PG07-45 nhánh `ci/sqlc-drift` | `git push origin --delete ci/sqlc-drift` | `git ls-remote --heads origin \| grep -c sqlc-drift` → 0 |
+| BUG-PG-5 | Không sửa (PM chốt) | – |
+
+Cổng: `go vet` (cả `-tags testroutes`) sạch; `golangci-lint run` và `--build-tags testroutes` `0 issues.`; `go test -race -count=1 -tags testroutes ./...` toàn bộ `ok`; `sqlc diff` rc=0. Lưu ý: một lần chạy toàn bộ khi stack compose đang chạy song song, `TestOutbox_UnknownTopicDead` đỏ một lần (chạy lại `-count=3` xanh, toàn bộ lần sau xanh) — nghi chập chờn theo tải, không liên quan thay đổi này.
