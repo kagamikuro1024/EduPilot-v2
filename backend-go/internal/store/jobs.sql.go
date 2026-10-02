@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -154,7 +155,7 @@ returning id, kind, status, progress, result, error, owner_id, created_at, updat
 `
 
 type MarkJobFailedParams struct {
-	Error []byte
+	Error json.RawMessage
 	ID    uuid.UUID
 }
 
@@ -184,7 +185,7 @@ returning id, kind, status, progress, result, error, owner_id, created_at, updat
 `
 
 type MarkJobSucceededParams struct {
-	Result []byte
+	Result json.RawMessage
 	ID     uuid.UUID
 }
 

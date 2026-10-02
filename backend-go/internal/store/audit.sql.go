@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 )
@@ -33,8 +34,8 @@ type InsertAuditLogParams struct {
 	Entity   string
 	EntityID string
 	Action   string
-	Before   []byte
-	After    []byte
+	Before   json.RawMessage
+	After    json.RawMessage
 	TraceID  *string
 }
 

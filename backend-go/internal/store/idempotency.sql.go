@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 )
@@ -59,7 +60,7 @@ type InsertIdempotencyKeyParams struct {
 	Key         string
 	RequestHash string
 	StatusCode  int16
-	Response    []byte
+	Response    json.RawMessage
 }
 
 func (q *Queries) InsertIdempotencyKey(ctx context.Context, arg InsertIdempotencyKeyParams) (int64, error) {

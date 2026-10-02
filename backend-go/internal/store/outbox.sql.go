@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 )
@@ -43,7 +44,7 @@ returning id, topic, payload, created_at, next_attempt_at, enqueued_at, dispatch
 
 type InsertOutboxParams struct {
 	Topic   string
-	Payload []byte
+	Payload json.RawMessage
 }
 
 // Outbox (SRS 3.2, 5.3): relay lấy dòng tới hạn bằng FOR UPDATE SKIP LOCKED, consumer đánh dấu

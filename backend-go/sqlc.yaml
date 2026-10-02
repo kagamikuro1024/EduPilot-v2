@@ -27,3 +27,14 @@ sql:
               import: time
               type: Time
               pointer: true
+          # jsonb PHẢI là json.RawMessage, không phải []byte: pool chạy QueryExecModeExec (PgBouncer) gửi
+          # tham số []byte dưới dạng literal bytea `\x…` → Postgres báo "invalid input syntax for type json".
+          - db_type: jsonb
+            go_type:
+              import: encoding/json
+              type: RawMessage
+          - db_type: jsonb
+            nullable: true
+            go_type:
+              import: encoding/json
+              type: RawMessage

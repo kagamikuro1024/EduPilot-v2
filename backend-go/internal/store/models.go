@@ -6,6 +6,7 @@ package store
 
 import (
 	"database/sql/driver"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -151,8 +152,8 @@ type AuditLog struct {
 	Entity    string
 	EntityID  string
 	Action    string
-	Before    []byte
-	After     []byte
+	Before    json.RawMessage
+	After     json.RawMessage
 	TraceID   *string
 	CreatedAt time.Time
 }
@@ -164,7 +165,7 @@ type IdempotencyKey struct {
 	Key         string
 	RequestHash string
 	StatusCode  int16
-	Response    []byte
+	Response    json.RawMessage
 	CreatedAt   time.Time
 }
 
@@ -173,8 +174,8 @@ type Job struct {
 	Kind       string
 	Status     JobStatus
 	Progress   int16
-	Result     []byte
-	Error      []byte
+	Result     json.RawMessage
+	Error      json.RawMessage
 	OwnerID    uuid.UUID
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
@@ -184,7 +185,7 @@ type Job struct {
 type Outbox struct {
 	ID            uuid.UUID
 	Topic         string
-	Payload       []byte
+	Payload       json.RawMessage
 	CreatedAt     time.Time
 	NextAttemptAt time.Time
 	EnqueuedAt    *time.Time
