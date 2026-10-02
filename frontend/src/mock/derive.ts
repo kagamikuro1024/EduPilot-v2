@@ -15,7 +15,7 @@ const hhmm = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
 /**
- * "vừa xong" · "N phút trước" · "N giờ trước" (dưới 24 giờ) · "hôm qua HH:mm" · "N ngày trước" (làm tròn xuống).
+ * "vừa xong" · "N phút trước" · "N giờ trước" (cùng ngày) · "hôm qua HH:mm" · "N ngày trước" (làm tròn xuống).
  * `now` mặc định là 09:20 29/10; màn có đồng hồ chạy truyền `useSimNow()`.
  */
 export function agoLabel(at: Date | number, now: Date | number = NOW): string {
@@ -23,9 +23,8 @@ export function agoLabel(at: Date | number, now: Date | number = NOW): string {
   const n = new Date(now);
   const diff = n.getTime() - a.getTime();
   if (diff < MIN) return "vừa xong";
-  if (diff < 60 * MIN) return `${Math.floor(diff / MIN)} phút trước`;
-  if (diff < DAY) return `${Math.floor(diff / (60 * MIN))} giờ trước`; // N6: dưới 24 giờ luôn là "N giờ trước", kể cả qua nửa đêm
   const calendarDays = Math.round((dayStart(n) - dayStart(a)) / DAY);
+  if (calendarDays <= 0) return diff < 60 * MIN ? `${Math.floor(diff / MIN)} phút trước` : `${Math.floor(diff / (60 * MIN))} giờ trước`;
   if (calendarDays === 1) return `hôm qua ${hhmm(a)}`;
   return `${Math.floor(diff / DAY)} ngày trước`;
 }

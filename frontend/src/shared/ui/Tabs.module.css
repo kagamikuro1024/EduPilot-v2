@@ -47,9 +47,9 @@
 
 /* Mép mờ báo còn nội dung cuộn được (useScrollRow đặt data-fade); min-width: 0 để hàng co theo khung cha, không nới cả trang */
 .tabs, .segmented, .chips { min-width: 0; }
-.tabs[data-fade~="end"], .segmented[data-fade~="end"], .chips[data-fade~="end"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); } /* ui-allow: mặt nạ mờ mép báo còn nội dung cuộn, không phải nền trong suốt */
-.tabs[data-fade~="start"], .segmented[data-fade~="start"], .chips[data-fade~="start"] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); } /* ui-allow: mặt nạ mờ mép báo còn nội dung cuộn, không phải nền trong suốt */
-.tabs[data-fade="start end"], .segmented[data-fade="start end"], .chips[data-fade="start end"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); } /* ui-allow: mặt nạ mờ mép báo còn nội dung cuộn, không phải nền trong suốt */
+.tabs[data-fade~="end"], .segmented[data-fade~="end"], .chips[data-fade~="end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.tabs[data-fade~="start"], .segmented[data-fade~="start"], .chips[data-fade~="start"] { -webkit-mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.tabs[data-fade="start end"], .segmented[data-fade="start end"], .chips[data-fade="start end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
 
 .chips { display: flex; flex-wrap: nowrap; gap: var(--ep-space-2); max-width: 100%; overflow-x: auto; scrollbar-width: none; padding-block: 1px; }
 .chip {

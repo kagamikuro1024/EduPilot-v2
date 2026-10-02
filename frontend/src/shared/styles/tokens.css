@@ -1,4 +1,7 @@
 :root {
+  /* Mặt nạ mờ mép cho hàng / bảng cuộn ngang: chỉ dùng kênh alpha, không phải màu hiển thị */
+  --ep-mask-solid: #000;
+  --ep-mask-clear: rgb(0 0 0 / 0);
   color-scheme: light;
 
   --ep-paper: oklch(99% 0.006 25);

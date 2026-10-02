@@ -1,8 +1,8 @@
 .root { min-width: 0; }
 .scroll { overflow-x: auto; border-top: 1px solid var(--ep-rule); }
-.scroll[data-fade~="end"] { -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); } /* ui-allow: mặt nạ mờ mép báo còn nội dung cuộn, không phải nền trong suốt */
-.scroll[data-fade~="start"] { -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to left, #000 calc(100% - 32px), transparent); } /* ui-allow: mặt nạ mờ mép báo còn nội dung cuộn, không phải nền trong suốt */
-.scroll[data-fade="start end"] { -webkit-mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, transparent, #000 32px, #000 calc(100% - 32px), transparent); } /* ui-allow: mặt nạ mờ mép báo còn nội dung cuộn, không phải nền trong suốt */
+.scroll[data-fade~="end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.scroll[data-fade~="start"] { -webkit-mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.scroll[data-fade="start end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
 .list { display: none; }
 .table { width: 100%; font-size: var(--ep-text-label); font-variant-numeric: tabular-nums; }
 
