@@ -30,6 +30,7 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 - Chỉ TEACHER xác nhận công thức, công bố, chốt điểm. AI không tự công bố.
 - Chỉ token `--ep-*` + primitive ở `frontend/src/shared/`; `bash scripts/ui-antipatterns.sh` phải sạch.
 - Không thoả hiệp ngang hàng; góp ý qua `docs/sprints/N/proposals.md`, PM quyết.
+- Không mở subagent (task/agent con) trừ khi PM cho phép: mỗi subagent đọc lại bối cảnh + spec từ đầu, tốn token gấp nhiều lần. Làm tuần tự trong phiên của mình.
 
 ## 5. Mỗi vai đọc gì cho việc hiện tại
 | Vai | Đọc |
