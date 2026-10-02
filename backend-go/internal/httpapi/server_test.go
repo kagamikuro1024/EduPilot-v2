@@ -257,6 +257,26 @@ func TestStartup_WaitsForDeps(t *testing.T) {
 			t.Errorf("số dòng error = %d, muốn 1", errs)
 		}
 	})
+
+	// BUG-PG-4: phụ thuộc treo (go-redis tự thử dial lại nhiều lần) không được làm vòng chờ giãn ra — vẫn một warn mỗi giây.
+	t.Run("ping treo vẫn mỗi giây một dòng warn", func(t *testing.T) {
+		t.Parallel()
+		d, buf := coreDeps(t, nil)
+		hang := Dep{Name: "redis", Ping: func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }}
+
+		if err := WaitForDeps(t.Context(), d.Log, 3500*time.Millisecond, hang); err == nil {
+			t.Fatal("WaitForDeps = nil, muốn lỗi khi quá STARTUP_TIMEOUT")
+		}
+		var warns int
+		for _, l := range coreLogLines(t, buf.String()) {
+			if l["msg"] == "dependency not ready" && l["level"] == "WARN" {
+				warns++
+			}
+		}
+		if warns < 3 {
+			t.Errorf("số dòng warn = %d trong 3,5 s, muốn ≥ 3", warns)
+		}
+	})
 }
 
 // TestServe_PortInUse: lỗi mở cổng được trả về ngay (lệnh thoát mã 1), không treo.
