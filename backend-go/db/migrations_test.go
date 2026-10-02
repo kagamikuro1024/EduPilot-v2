@@ -58,8 +58,8 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.NoError(t, conn.QueryRow(ctx, snapshotSQL).Scan(&before))
 	require.Contains(t, before, "col users.email")
 
-	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn 1.
-	var gooseRows, version int
+	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn là bản mới nhất (2).
+	var gooseRows, version, tables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from goose_db_version`).Scan(&gooseRows))
 	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard))
 	var gooseRows2 int
@@ -67,14 +67,16 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.Equal(t, gooseRows, gooseRows2, "up lần hai phải là no-op")
 	require.NoError(t, conn.QueryRow(ctx,
 		`select version_id from goose_db_version where is_applied order by id desc limit 1`).Scan(&version))
-	require.Equal(t, 1, version)
+	require.Equal(t, 2, version)
 
-	// down về version 0: 5 bảng biến mất, extension vector GIỮ LẠI.
+	// down lùi về version 0: 5 bảng nền + 5 bảng llm_* biến mất, extension vector GIỮ LẠI.
 	require.NoError(t, db.Migrate(ctx, url, "down", io.Discard))
-	var tables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from pg_tables where schemaname='public'
 		and tablename in ('users','audit_log','outbox','jobs','idempotency_keys')`).Scan(&tables))
 	require.Equal(t, 0, tables)
+	var llmTables int
+	require.NoError(t, conn.QueryRow(ctx, `select count(*) from pg_tables where schemaname='public' and tablename like 'llm\_%'`).Scan(&llmTables))
+	require.Equal(t, 0, llmTables)
 	var hasVector bool
 	require.NoError(t, conn.QueryRow(ctx, `select exists(select 1 from pg_extension where extname='vector')`).Scan(&hasVector))
 	require.True(t, hasVector, "down không được xoá extension vector")
@@ -89,8 +91,9 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.NoError(t, conn.QueryRow(ctx, snapshotSQL).Scan(&after))
 	require.Equal(t, before, after, "lược đồ sau down+up phải giống hệt")
 
-	// status chạy được và nêu migration 00001.
+	// status chạy được và nêu cả hai migration.
 	var out strings.Builder
 	require.NoError(t, db.Migrate(ctx, url, "status", &out))
 	require.Contains(t, out.String(), "00001_pg_platform.sql")
+	require.Contains(t, out.String(), "00002_llm.sql")
 }

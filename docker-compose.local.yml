@@ -117,6 +117,7 @@ services:
     environment:
       <<: *app-env
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-}
@@ -154,6 +155,7 @@ services:
     image: edupilot-worker
     environment:
       <<: *app-env
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
       WORKER_HEALTH_ADDR: ${WORKER_HEALTH_ADDR:-}
       OUTBOX_POLL_INTERVAL: ${OUTBOX_POLL_INTERVAL:-}
       OUTBOX_BATCH: ${OUTBOX_BATCH:-}

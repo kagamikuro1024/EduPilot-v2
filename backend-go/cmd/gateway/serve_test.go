@@ -30,14 +30,15 @@ func (s *safeOut) String() string {
 
 func serveEnv() map[string]string {
 	return map[string]string{
-		"DATABASE_URL":    "postgres://u:p@127.0.0.1:1/db",
-		"REDIS_URL":       "redis://127.0.0.1:1/0",
-		"JWT_SECRET_KEY":  "0123456789abcdef0123456789abcdef",
-		"BLOB_ENDPOINT":   "127.0.0.1:1",
-		"BLOB_BUCKET":     "b",
-		"BLOB_ACCESS_KEY": "ak",
-		"BLOB_SECRET_KEY": "sk",
-		"HTTP_ADDR":       "127.0.0.1:0",
+		"DATABASE_URL":       "postgres://u:p@127.0.0.1:1/db",
+		"REDIS_URL":          "redis://127.0.0.1:1/0",
+		"JWT_SECRET_KEY":     "0123456789abcdef0123456789abcdef",
+		"BLOB_ENDPOINT":      "127.0.0.1:1",
+		"BLOB_BUCKET":        "b",
+		"BLOB_ACCESS_KEY":    "ak",
+		"BLOB_SECRET_KEY":    "sk",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=",
+		"HTTP_ADDR":          "127.0.0.1:0",
 	}
 }
 

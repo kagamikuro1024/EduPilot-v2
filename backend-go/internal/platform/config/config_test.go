@@ -20,13 +20,14 @@ const (
 
 func full() map[string]string {
 	return map[string]string{
-		"DATABASE_URL":    dbURL,
-		"REDIS_URL":       redisURL,
-		"JWT_SECRET_KEY":  secretKey,
-		"BLOB_ENDPOINT":   "minio:9000",
-		"BLOB_BUCKET":     "edupilot",
-		"BLOB_ACCESS_KEY": "ak-dev",
-		"BLOB_SECRET_KEY": "sk-dev",
+		"DATABASE_URL":       dbURL,
+		"REDIS_URL":          redisURL,
+		"JWT_SECRET_KEY":     secretKey,
+		"BLOB_ENDPOINT":      "minio:9000",
+		"BLOB_BUCKET":        "edupilot",
+		"BLOB_ACCESS_KEY":    "ak-dev",
+		"BLOB_SECRET_KEY":    "sk-dev",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=",
 	}
 }
 
@@ -36,7 +37,7 @@ func getenv(env map[string]string) func(string) string {
 
 func TestLoad_MissingEnv(t *testing.T) {
 	t.Parallel()
-	required := []string{"DATABASE_URL", "REDIS_URL", "JWT_SECRET_KEY", "BLOB_ENDPOINT", "BLOB_BUCKET", "BLOB_ACCESS_KEY", "BLOB_SECRET_KEY"}
+	required := []string{"DATABASE_URL", "REDIS_URL", "JWT_SECRET_KEY", "BLOB_ENDPOINT", "BLOB_BUCKET", "BLOB_ACCESS_KEY", "BLOB_SECRET_KEY", "APP_ENCRYPTION_KEY"}
 
 	for _, name := range required {
 		t.Run("thiếu "+name, func(t *testing.T) {
