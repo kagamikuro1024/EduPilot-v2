@@ -111,9 +111,12 @@ func timeoutMiddleware(d Deps) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx, cancel := context.WithTimeout(r.Context(), d.Cfg.RequestTimeout)
 			defer cancel()
+			deadline, _ := ctx.Deadline()
 			sw := &statusWriter{ResponseWriter: w}
 			next.ServeHTTP(sw, r.WithContext(ctx))
-			if !sw.wrote && ctx.Err() != nil {
+			// Client Redis/DB báo lỗi i/o-timeout theo deadline của ctx có thể về TRƯỚC khi ctx.Err() kịp khác nil
+			// (hai bộ đếm giờ riêng); nên coi mốc deadline đã qua cũng là hết hạn, không để lọt 200 rỗng.
+			if !sw.wrote && (ctx.Err() != nil || !time.Now().Before(deadline)) {
 				apierr.Write(sw, r, apierr.New(http.StatusGatewayTimeout, apierr.DeadlineExceeded))
 			}
 		})

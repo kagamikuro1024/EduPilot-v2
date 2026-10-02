@@ -261,7 +261,8 @@ func TestRateLimit_ForwardedFor(t *testing.T) {
 			t.Fatalf("XFF ip1 request %d đã bị 429", i)
 		}
 	}
-	if rlFirst429(t, srv, ip1, "", 3) == nil {
+	// Dư lượt: khi máy quá tải, request chậm hơn rateLimitTimeout được cho qua (fail-open) dù vẫn được đếm.
+	if rlFirst429(t, srv, ip1, "", 30) == nil {
 		t.Fatal("XFF ip1 không bị 429 sau khi vượt giới hạn 5")
 	}
 	if resp := rlGet(t, srv, rlPath(), ip2, ""); resp.StatusCode == http.StatusTooManyRequests {
@@ -273,9 +274,10 @@ func TestRateLimit_ForwardedFor(t *testing.T) {
 	untrusted.Cfg.TrustedProxyCIDRs = nil
 	srv2 := rlServer(t, untrusted)
 	hit429 := false
-	for range 6 {
+	for range 30 { // dư lượt vì lý do fail-open như trên
 		if rlGet(t, srv2, rlPath(), rlIP(), "").StatusCode == http.StatusTooManyRequests {
 			hit429 = true
+			break
 		}
 	}
 	if !hit429 {

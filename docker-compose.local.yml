@@ -116,7 +116,7 @@ services:
     image: edupilot-gateway
     environment:
       <<: *app-env
-      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-}

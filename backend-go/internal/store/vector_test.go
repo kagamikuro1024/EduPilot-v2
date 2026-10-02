@@ -61,7 +61,7 @@ func TestVectorConventions(t *testing.T) {
 	require.NoError(t, conn.QueryRow(ctx,
 		`select id, embedding from `+table+` where course_id = $1 order by content limit 1`, courseID).Scan(&wantID, &probe))
 
-	query := `select id from ` + table + `
+	query := `select id, embedding::halfvec(1536) <=> $1::halfvec(1536) as dist from ` + table + `
 		 where course_id = $2
 		 order by embedding::halfvec(1536) <=> $1::halfvec(1536)
 		 limit 5`
@@ -70,14 +70,20 @@ func TestVectorConventions(t *testing.T) {
 	rows, err := conn.Query(ctx, query, arg, courseID)
 	require.NoError(t, err)
 	var ids []uuid.UUID
+	var dists []float64
 	for rows.Next() {
 		var id uuid.UUID
-		require.NoError(t, rows.Scan(&id))
+		var d float64
+		require.NoError(t, rows.Scan(&id, &d))
 		ids = append(ids, id)
+		dists = append(dists, d)
 	}
 	require.NoError(t, rows.Err())
 	require.Len(t, ids, 5)
-	require.Equal(t, wantID, ids[0], "kết quả đầu phải là chính vector truy vấn")
+	// Kết quả đầu là chính vector truy vấn: khoảng cosine ≈ 0 (so khoảng cách thay vì id — làm tròn dấu phẩy động của
+	// pgvector khác nhau giữa CPU, nên không đòi trùng id tuyệt đối). Các vector còn lại gần như trực giao (≈ 0,9965).
+	require.Contains(t, ids, wantID, "vector truy vấn phải nằm trong top 5 (dist=%v)", dists)
+	require.Less(t, dists[0], 0.001, "kết quả đầu phải là chính vector truy vấn (dist=%v)", dists)
 
 	// Plan phải dùng index HNSW (không quét tuần tự).
 	plan := explain(t, ctx, conn, `explain (analyze, costs off) `+query, arg, courseID)

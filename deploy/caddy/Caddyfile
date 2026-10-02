@@ -3,6 +3,20 @@
 	admin off
 }
 
+(gateway_upstream) {
+	dynamic a gateway 8080 {
+		refresh 2s
+	}
+	lb_policy round_robin
+	lb_try_duration 5s
+	lb_try_interval 250ms
+	flush_interval -1
+	transport http {
+		dial_timeout 2s
+		response_header_timeout 35s
+	}
+}
+
 localhost {
 	header {
 		Strict-Transport-Security "max-age=31536000"
@@ -10,25 +24,23 @@ localhost {
 		-Server
 	}
 
+	# readyz đi riêng, KHÔNG bị đánh dấu lỗi thụ động: 503 NOT_READY của nó là trả lời đúng khi Postgres/Redis đang tắt,
+	# không phải bản gateway hỏng; nếu đánh dấu thì Caddy loại cả hai bản thêm `fail_duration` sau khi phụ thuộc đã sống lại.
+	handle /api/v1/readyz {
+		reverse_proxy {
+			import gateway_upstream
+		}
+	}
+
 	@api path /healthz /api/*
 	handle @api {
 		# không có `encode` ở nhánh này: JSON nhỏ và text/event-stream không bị nén / đệm
 		reverse_proxy {
-			dynamic a gateway 8080 {
-				refresh 2s
-			}
-			lb_policy round_robin
-			lb_try_duration 5s
-			lb_try_interval 250ms
+			import gateway_upstream
 			fail_duration 10s
 			max_fails 1
-			# Gateway đang tắt trả 503 NOT_READY: coi là lỗi thụ động để Caddy ngừng gửi tới bản đó ngay (AC6).
+			# Gateway đang tắt trả 503 NOT_READY cho mọi đường (trừ readyz): coi là lỗi thụ động để Caddy ngừng gửi tới bản đó ngay (AC6).
 			unhealthy_status 503
-			flush_interval -1
-			transport http {
-				dial_timeout 2s
-				response_header_timeout 35s
-			}
 		}
 	}
 
