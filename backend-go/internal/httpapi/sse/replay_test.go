@@ -163,6 +163,38 @@ func TestSSE_ResyncWhenTooOld(t *testing.T) {
 	s.close()
 }
 
+// 05-AC9 / BUG-PG-2 — Last-Event-ID MỚI hơn mọi id (hoặc bộ đệm trống mà client đã có id) → resync buffer_exceeded, rồi vẫn nhận sự kiện live.
+func TestSSE_ResyncWhenFuture(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		seed   int
+		lastID string
+	}{
+		{"mới hơn mọi id", 3, "99999999999999-0"},
+		{"id rất lớn cả hai phần", 3, "9999999999999999-9999999999"},
+		{"bộ đệm trống nhưng client có id", 0, "5-0"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := newRig(t, nil)
+			uid := newUID()
+			tok := r.token(uid, time.Hour)
+			for i := 1; i <= tc.seed; i++ {
+				r.publish(uid, "test.old", map[string]int{"n": i})
+			}
+			s := r.connect(tok, map[string]string{"Last-Event-ID": tc.lastID})
+			f := s.want(grace)
+			if f.typ != evResync || f.reason(t) != reasonBufferTooOld {
+				t.Fatalf("sự kiện đầu sau ready = %+v, muốn resync %s", f, reasonBufferTooOld)
+			}
+			r.publish(uid, "test.future", map[string]int{"n": 99})
+			if n := payloadN(t, s.want(grace)); n != 99 {
+				t.Fatalf("sau resync phải nhận sự kiện live, n = %d", n)
+			}
+			s.close()
+		})
+	}
+}
+
 // 05-AC9 — Last-Event-ID sai định dạng → resync invalid_last_event_id; rỗng / khoảng trắng = không có.
 func TestSSE_ResyncOnMalformedLastEventID(t *testing.T) {
 	r := newRig(t, nil)
