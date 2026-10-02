@@ -1,10 +1,10 @@
 // "Hôm nay" của giảng viên / trợ giảng: việc cần quyết định, dải lịch sắp tới, các bước thiết lập lớp mới.
 // Thứ tự và cách đếm việc theo SRS 4.3.1 J3; mọi con số lấy từ `mock/derive.ts` (FR-X13), không đếm lại ở màn.
 import { REVIEW_KIND_SHORT, type ReviewKind } from "./assess";
-import { COURSE_1, COURSE_2, courseById, studentById } from "./core";
+import { COURSE_1, COURSE_2, courseById, courseHref, studentById } from "./core";
 import { agoLabel, reviewPending, ticketAgeMin } from "./derive";
 import type { PendingAi, ThreadTask } from "./threads";
-import { CURRENT_SESSION, type AttendanceState, type Bt03State, type MembersState, type SchemesState, type Ticket } from "./state";
+import { committedOf, CURRENT_SESSION, type AttendanceState, type Bt03State, type MembersState, type SchemesState, type Ticket } from "./state";
 
 /** "3 ngày 4 giờ", "26 phút" — thời gian chờ nói đủ chính xác để quyết định (khác `ago` ở chỗ không làm tròn). */
 export function waitText(minutes: number): string {
@@ -52,6 +52,8 @@ export function staffTasks(input: {
   attendance: AttendanceState;
   members: MembersState;
   bt03: Bt03State;
+  /** id bài BT03 GV đã `Duyệt bài` (slice `grading.approved`) — để việc "cần xem kỹ" giảm theo */
+  approvedIds: string[];
   schemes: SchemesState;
   /** việc "Câu hỏi mới" của Threads, mới nhất trước (`threadTasks`) */
   threads: ThreadTask[];
@@ -60,7 +62,7 @@ export function staffTasks(input: {
   /** giờ giả lập (ms) — tuổi phiếu và "vừa xong" lớn dần theo đồng hồ */
   nowMs: number;
 }): StaffTask[] {
-  const { role, courseIds, tickets, attendance, members, bt03, schemes, threads, pendingAi, nowMs } = input;
+  const { role, courseIds, tickets, attendance, members, bt03, approvedIds, schemes, threads, pendingAi, nowMs } = input;
   const out: StaffTask[] = [];
   const c1 = courseById(COURSE_1).label;
   const c2 = courseById(COURSE_2).label;
@@ -80,25 +82,25 @@ export function staffTasks(input: {
       title: `Câu hỏi của ${who} đã chờ ${waitText(age)}`,
       context: open.length > 1 ? `“${oldest.question}” · còn ${open.length - 1} câu khác đang chờ` : `“${oldest.question}”`,
       course: courseById(oldest.courseId).label,
-      href: `/inbox?ticket=${oldest.id}`,
+      href: courseHref(`/inbox?ticket=${oldest.id}`, oldest.courseId),
       actionLabel: "Trả lời",
       urgent: age >= OVERDUE_MIN,
     });
   }
 
-  if (has1 && !attendance[COURSE_1]?.[CURRENT_SESSION]?.finalized) {
+  if (has1 && !committedOf(attendance[COURSE_1]?.[CURRENT_SESSION])) {
     out.push({
       id: "attendance",
       tone: "amber",
       title: `Điểm danh buổi ${CURRENT_SESSION} đang diễn ra`,
       context: `Lớp bắt đầu lúc 09:00, 30 sinh viên chưa được chốt điểm danh`,
       course: c1,
-      href: `/attendance?session=${CURRENT_SESSION}`,
+      href: courseHref(`/attendance?session=${CURRENT_SESSION}`, COURSE_1),
       actionLabel: "Điểm danh",
     });
   }
 
-  const kinds = has1 ? reviewPending(bt03.status) : [];
+  const kinds = has1 ? reviewPending(bt03.status, approvedIds) : [];
   if (kinds.length > 0) {
     out.push({
       id: "review",
@@ -106,7 +108,7 @@ export function staffTasks(input: {
       title: `${kinds.length} bài Bài tập 03 cần xem kỹ`,
       context: reviewLine(kinds),
       course: c1,
-      href: "/grading?filter=review",
+      href: courseHref("/grading?filter=review", COURSE_1),
       actionLabel: "Xem bài",
     });
   }
@@ -119,7 +121,7 @@ export function staffTasks(input: {
       context: `${t.topic} · ${agoLabel(t.ms, nowMs)}`,
       tag: t.label,
       course: courseById(t.courseId).label,
-      href: `/threads/${t.threadId}`,
+      href: courseHref(`/threads/${t.threadId}`, COURSE_1),
       actionLabel: "Xem thread",
     });
   }
@@ -131,7 +133,7 @@ export function staffTasks(input: {
       title: `${pendingAi.length} câu trả lời của AI chờ bạn xác nhận`,
       context: "Sinh viên chỉ thấy nhãn chờ xác nhận cho tới khi bạn duyệt câu trả lời",
       course: has1 ? c1 : c2,
-      href: pendingAi.length === 1 ? `/threads/${pendingAi[0].threadId}` : "/threads?filter=pending",
+      href: courseHref(pendingAi.length === 1 ? `/threads/${pendingAi[0].threadId}` : "/threads?filter=pending", COURSE_1),
       actionLabel: "Xem thread",
     });
   }

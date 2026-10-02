@@ -62,8 +62,9 @@
 
 .picker {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--ep-space-2);
+  gap: var(--ep-space-1) var(--ep-space-2);
 }
 .picker select {
   min-width: 190px;
@@ -107,7 +108,7 @@
     flex: 1;
   }
   .picker select {
-    min-width: 160px;
+    min-width: 190px;
     flex: 1;
   }
 }

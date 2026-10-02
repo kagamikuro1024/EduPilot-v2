@@ -217,6 +217,14 @@ export function studentById(id: string) {
   return STUDENTS.find((s) => s.id === id);
 }
 
+/** Gắn `?course=<id>` vào một đích để mở đúng lớp dù bộ chọn lớp đang ở lớp khác (SRS 4.9 liên kết sâu). */
+export function courseHref(href: string, courseId: string) {
+  if (/[?&]course=/.test(href)) return href;
+  const hash = href.indexOf("#");
+  const path = hash < 0 ? href : href.slice(0, hash);
+  return `${path}${path.includes("?") ? "&" : "?"}course=${courseId}${hash < 0 ? "" : href.slice(hash)}`;
+}
+
 export function courseById(id: string) {
   return COURSES.find((c) => c.id === id) ?? COURSES[0];
 }

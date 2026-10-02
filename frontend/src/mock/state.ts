@@ -63,7 +63,14 @@ export type SessionAttendance = {
   speaks: Record<string, number>;
   /** đã bấm `Lưu điểm danh` (hoàn tất buổi) → mới tính vào điểm */
   finalized: boolean;
+  /** bản đã chốt lúc bấm `Lưu điểm danh`: điểm của SV đọc bản này; ô sửa sau đó (kể cả lúc giả lập mất mạng) chưa đổi điểm cho tới lần lưu kế */
+  committed?: { marks: Record<string, Mark>; speaks: Record<string, number> };
 };
+
+/** Bản đã chốt của một buổi (undefined nếu chưa `Lưu điểm danh`). Dữ liệu cũ chưa có `committed` thì lấy chính nó. */
+export function committedOf(sa: SessionAttendance | undefined): { marks: Record<string, Mark>; speaks: Record<string, number> } | undefined {
+  return sa?.finalized ? (sa.committed ?? sa) : undefined;
+}
 
 /** courseId → số buổi (1–15) → dữ liệu điểm danh. Thiếu = chưa ghi (mặc định có mặt). */
 export type AttendanceState = Record<string, Record<number, SessionAttendance>>;

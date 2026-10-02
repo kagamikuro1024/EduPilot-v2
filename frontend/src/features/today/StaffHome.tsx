@@ -50,6 +50,7 @@ export function StaffHome() {
   const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
+  const [approvedIds] = useDemoSlice<string[]>("grading.approved", []);
   const [live] = useDemoSlice<ThreadsLive>(THREADS_LIVE_KEY, THREADS_LIVE_SEED);
   const [insight] = useDemoSlice<InsightThread[]>(KEYS.insightThreads, []);
   const nowMs = useSimNow();
@@ -64,6 +65,7 @@ export function StaffHome() {
     attendance,
     members,
     bt03,
+    approvedIds,
     schemes,
     threads: threadTasks(live, courseIds, nowMs),
     pendingAi: pendingAi(live, insight, courseIds, nowMs),

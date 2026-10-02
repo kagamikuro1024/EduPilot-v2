@@ -40,6 +40,8 @@
   gap: var(--ep-space-4);
   padding: var(--ep-space-4);
   align-content: start;
+  /* hàng cao đúng nội dung: panel có chiều cao cố định (≥ 1100px) không được ép hàng tab cuộn ngang co còn 3px (góp ý 24a) */
+  grid-auto-rows: max-content;
 }
 
 /* Panel chi tiết cao theo nội dung; khối con cách nhau đúng một khoảng (≤ 24px), không kéo giãn. */

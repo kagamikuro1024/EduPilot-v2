@@ -3,7 +3,7 @@
 
 import { COURSE_1, RECORDED_SESSIONS, STUDENT_B, studentById, type Student } from "./core";
 import type { AttendanceState, Bt03State } from "./state";
-import { CURRENT_SESSION } from "./state";
+import { committedOf, CURRENT_SESSION } from "./state";
 
 export type Scheme = {
   /** trọng số quá trình, % (CK = 100 − qt) */
@@ -88,12 +88,12 @@ export type AttendanceStats = { recorded: number; absences: number; speaks: numb
 
 /** Chuyên cần + phát biểu của một SV lớp 1: dữ liệu gốc + buổi hôm nay nếu GV đã `Lưu điểm danh`. */
 export function attendanceStats(s: Student, attendance: AttendanceState): AttendanceStats {
-  const today = attendance[COURSE_1]?.[CURRENT_SESSION];
+  const today = committedOf(attendance[COURSE_1]?.[CURRENT_SESSION]);
   let absences = s.absences;
   let speaks = s.speaks;
   let late = 0;
   let recorded = RECORDED_SESSIONS;
-  if (today?.finalized) {
+  if (today) {
     recorded += 1;
     const m = today.marks[s.id] ?? "present";
     if (m === "absent") absences += 1;

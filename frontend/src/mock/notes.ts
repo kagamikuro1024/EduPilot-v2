@@ -3,7 +3,7 @@
 // KHÔNG nằm ở đây — chúng được tính từ dữ liệu nên tự biến khi sự kiện xảy ra.
 import { simNowMs } from "@/shared/state/clock";
 import { writeSlice } from "@/shared/state/demo";
-import type { Course, Role } from "./core";
+import { courseHref, type Course, type Role } from "./core";
 
 export type NoteTarget = {
   /** vai nhận; bỏ trống = mọi vai (kết hợp với `studentId` / `courseId` để thu hẹp) */
@@ -32,7 +32,9 @@ export type Note = {
 
 export function pushNote(n: Omit<Note, "readBy" | "ms" | "id"> & { id?: string; ms?: number }) {
   const ms = n.ms ?? simNowMs();
-  const note: Note = { ...n, id: n.id ?? `note-${ms}-${Math.floor(Math.random() * 1e6)}`, ms, readBy: [] };
+  // thông báo cho một lớp thì đích luôn mang `course=` để mở đúng lớp
+  const href = n.to.courseId ? courseHref(n.href, n.to.courseId) : n.href;
+  const note: Note = { ...n, href, id: n.id ?? `note-${ms}-${Math.floor(Math.random() * 1e6)}`, ms, readBy: [] };
   writeSlice<Note[]>("notes", (prev) => (prev?.some((x) => x.id === note.id) ? prev : [note, ...(prev ?? [])]));
 }
 
@@ -61,6 +63,11 @@ export function noteNewTicket(courseId: string, ticketId: string) {
     just: "vừa gửi",
     href: `/inbox?ticket=${ticketId}`,
   });
+}
+
+/** Câu hỏi của SV được chuyển cho giảng viên (D3) → mục trên chuông của chính SV đó. */
+export function noteTicketSent(studentId: string, ticketId: string) {
+  pushNote({ id: `n-${ticketId}-sent`, to: { studentId }, title: "Câu hỏi của bạn đang chờ giảng viên", meta: "Chat riêng", just: "vừa gửi", href: "/chat" });
 }
 
 /** Giảng viên gửi trả lời phiếu → sinh viên đã hỏi. */

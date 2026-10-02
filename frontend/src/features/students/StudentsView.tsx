@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { fmtScore, type Student } from "@/mock/core";
 import { attendanceStats, qtOf, type AttendanceStats } from "@/mock/grades";
-import { STUDENT_FILTERS, matchesFilter, rosterOf, type StudentFilter } from "@/mock/roster";
+import { STUDENT_FILTERS, matchesFilter, riskSentence, rosterOf, type StudentFilter } from "@/mock/roster";
 import { BT03_SEED } from "@/mock/assess";
 import {
   ATTENDANCE_SEED,
@@ -87,8 +87,8 @@ export function StudentsView() {
     },
     { key: "att", header: "Chuyên cần", render: (r) => `${r.stats.recorded - r.stats.absences}/${r.stats.recorded} buổi` },
     { key: "qt", header: "Điểm hiện tại", align: "end", render: (r) => (r.qt === null ? "—" : fmtScore(r.qt)) },
-    { key: "speak", header: "Phát biểu", align: "end", hideOnMobile: true, render: (r) => `${r.stats.speaks} lần` },
-    { key: "act", header: "Hoạt động học", align: "end", hideOnMobile: true, render: (r) => `${r.student.activityMin} phút/tuần` },
+    { key: "speak", header: "Phát biểu", align: "end", render: (r) => `${r.stats.speaks} lần` },
+    { key: "act", header: "Hoạt động học", align: "end", render: (r) => `${r.student.activityMin} phút/tuần` },
     {
       key: "risk",
       header: "Rủi ro",
@@ -96,7 +96,11 @@ export function StudentsView() {
         r.student.risk === "none" ? (
           <span className="ep-meta">–</span>
         ) : (
-          <StatusText tone={r.student.risk === "high" ? "red" : "amber"}>Cần chú ý</StatusText>
+          // cùng một `riskSentence` với Hôm nay và hồ sơ sinh viên: nhãn + lý do, không chỉ nhãn trơ (02-8)
+          <span className={s.risk}>
+            <StatusText tone={r.student.risk === "high" ? "red" : "amber"}>Cần chú ý</StatusText>
+            <span className="ep-meta">{riskSentence(r.student, r.stats)}</span>
+          </span>
         ),
     },
   ];

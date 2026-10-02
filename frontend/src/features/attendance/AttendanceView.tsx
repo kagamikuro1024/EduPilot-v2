@@ -6,6 +6,7 @@ import { fmtLongDate, fmtTime, type Student } from "@/mock/core";
 import { absentSessions, rosterOf, sessionsOf } from "@/mock/roster";
 import {
   ATTENDANCE_SEED,
+  committedOf,
   CURRENT_SESSION,
   KEYS,
   MEMBERS_SEED,
@@ -90,15 +91,15 @@ export function AttendanceView() {
     if (readOnly) return;
     const before = view.marks[st.id] ?? "present";
     if (before === mark) return;
-    write({ ...view, marks: { ...view.marks, [st.id]: mark }, finalized: false });
-    undo.push(`${MARKS.find((m) => m.value === mark)?.verb} ${st.name}`, () => write({ ...view, marks: { ...view.marks, [st.id]: before }, finalized: false }));
+    write({ ...view, marks: { ...view.marks, [st.id]: mark } });
+    undo.push(`${MARKS.find((m) => m.value === mark)?.verb} ${st.name}`, () => write({ ...view, marks: { ...view.marks, [st.id]: before } }));
   }
 
   function addSpeak(st: Student) {
     if (readOnly) return;
     const before = view.speaks[st.id] ?? 0;
-    write({ ...view, speaks: { ...view.speaks, [st.id]: before + 1 }, finalized: false });
-    undo.push(`Đã ghi phát biểu cho ${st.name} · +0,25`, () => write({ ...view, speaks: { ...view.speaks, [st.id]: before }, finalized: false }));
+    write({ ...view, speaks: { ...view.speaks, [st.id]: before + 1 } });
+    undo.push(`Đã ghi phát biểu cho ${st.name} · +0,25`, () => write({ ...view, speaks: { ...view.speaks, [st.id]: before } }));
   }
 
   /** `Lưu điểm danh`: chốt buổi và ghi mốc cho "Cập nhật …" ở /me (4.8 N7). */
@@ -106,7 +107,7 @@ export function AttendanceView() {
     const stamp = simNowMs();
     setQueued(null);
     setSavedAt(stamp);
-    setAttendance((prev) => ({ ...prev, [course.id]: { ...prev[course.id], [n]: { ...view, finalized: true } } }));
+    setAttendance((prev) => ({ ...prev, [course.id]: { ...prev[course.id], [n]: { ...view, finalized: true, committed: { marks: view.marks, speaks: view.speaks } } } }));
     writeSlice(KEYS.meStamp, stamp);
     undo.clear();
   }
@@ -141,10 +142,17 @@ export function AttendanceView() {
     }
   }
 
-  const count = (m: Mark) => roster.filter((st) => (view.marks[st.id] ?? "present") === m).length;
   // chỉ nêu loại có người: "27 có mặt, 1 muộn, 2 vắng"
-  const parts = MARKS.filter((m) => count(m.value) > 0).map((m) => `${count(m.value)} ${m.label.toLowerCase()}`);
-  const summary = parts.join(", ");
+  const partsOf = (marks: Record<string, Mark>) =>
+    MARKS.map((m) => ({ m, n: roster.filter((st) => (marks[st.id] ?? "present") === m.value).length }))
+      .filter((x) => x.n > 0)
+      .map((x) => `${x.n} ${x.m.label.toLowerCase()}`);
+  const parts = partsOf(view.marks);
+  // "Đã hoàn tất" nói về bản đã chốt, không đổi khi có ô sửa sau đó (kể cả lúc đang giả lập mất mạng)
+  const committed = committedOf(view);
+  const summary = partsOf(committed?.marks ?? view.marks).join(", ");
+  // có ô khác bản đã chốt → nút `Lưu điểm danh` bật lại, điểm của SV vẫn theo bản đã chốt tới lần lưu kế
+  const dirty = !!committed && changeCount(view, committed) > 0;
   const changes = queued ? changeCount(queued, base) : 0;
 
   const columns: Column<Student>[] = [
@@ -217,7 +225,7 @@ export function AttendanceView() {
         }
         actions={
           session?.state === "current" &&
-          (view.finalized ? (
+          (view.finalized && !dirty ? (
             <Button variant="secondary" disabled>
               Đã lưu
             </Button>
@@ -269,10 +277,11 @@ export function AttendanceView() {
                   {sessions.map((x) => (
                     <option key={x.n} value={x.n}>
                       {x.label}
-                      {x.state === "current" ? " · đang diễn ra" : x.state === "future" ? " · chưa diễn ra" : ""}
                     </option>
                   ))}
                 </Select>
+                {/* trạng thái buổi ở dòng phụ để nhãn trong ô chọn đủ ngắn, không bị cắt ở 375–390 px (góp ý 24d) */}
+                {session && session.state !== "recorded" && <span className="ep-meta">{session.state === "current" ? "Đang diễn ra" : "Chưa diễn ra"}</span>}
               </label>
               <span className={s.summary}>
                 {parts.map((p) => (
@@ -350,7 +359,7 @@ export function AttendanceView() {
 }
 
 /** Số ô đã đổi so với bản đã lưu — con số trong "Đang chờ mạng · n thay đổi". */
-function changeCount(next: SessionAttendance, saved: SessionAttendance): number {
+function changeCount(next: SessionAttendance, saved: Pick<SessionAttendance, "marks" | "speaks">): number {
   const marks = Object.keys(next.marks).filter((id) => next.marks[id] !== saved.marks[id]).length;
   const speaks = Object.keys(next.speaks).filter((id) => (next.speaks[id] ?? 0) !== (saved.speaks[id] ?? 0)).length;
   return marks + speaks;

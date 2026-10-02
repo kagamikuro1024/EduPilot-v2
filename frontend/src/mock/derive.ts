@@ -1,7 +1,7 @@
 // MỘT nguồn cho mỗi con số / mốc thời gian của prototype (SRS 4.8, FR-X13).
 // Màn chỉ GỌI các hàm này; cấm tự đếm lại hay viết cứng chuỗi như "12 ngày trước", "5", "4".
 // Mọi hàm thuần: nhận dữ liệu và "bây giờ" (ms giả lập, xem `shared/state/clock.ts`) làm tham số.
-import { bt03Submissions, type ReviewKind } from "./assess";
+import { bt03Submissions, type ReviewKind, type Submission } from "./assess";
 import { COURSE_1, NOW, studentsOf, type Student } from "./core";
 import type { Ticket } from "./state";
 
@@ -15,7 +15,7 @@ const hhmm = (d: Date) => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
 
 /**
- * "vừa xong" · "N phút trước" · "N giờ trước" (cùng ngày) · "hôm qua HH:mm" · "N ngày trước" (làm tròn xuống).
+ * "vừa xong" · "N phút trước" · "N giờ trước" (dưới 24 giờ) · "hôm qua HH:mm" · "N ngày trước" (làm tròn xuống).
  * `now` mặc định là 09:20 29/10; màn có đồng hồ chạy truyền `useSimNow()`.
  */
 export function agoLabel(at: Date | number, now: Date | number = NOW): string {
@@ -23,8 +23,9 @@ export function agoLabel(at: Date | number, now: Date | number = NOW): string {
   const n = new Date(now);
   const diff = n.getTime() - a.getTime();
   if (diff < MIN) return "vừa xong";
+  if (diff < 60 * MIN) return `${Math.floor(diff / MIN)} phút trước`;
+  if (diff < DAY) return `${Math.floor(diff / (60 * MIN))} giờ trước`; // N6: dưới 24 giờ luôn là "N giờ trước", kể cả qua nửa đêm
   const calendarDays = Math.round((dayStart(n) - dayStart(a)) / DAY);
-  if (calendarDays <= 0) return diff < 60 * MIN ? `${Math.floor(diff / MIN)} phút trước` : `${Math.floor(diff / (60 * MIN))} giờ trước`;
   if (calendarDays === 1) return `hôm qua ${hhmm(a)}`;
   return `${Math.floor(diff / DAY)} ngày trước`;
 }
@@ -39,6 +40,12 @@ export const CH5_UPLOADED_AT = new Date("2026-10-28T14:00:00+07:00");
 /** Tuổi phiếu (phút) tại `nowMs`: phiếu seed tính từ 09:20; phiếu mới tạo trong phiên mang `createdMs`. */
 export function ticketAgeMin(t: Ticket, nowMs: number): number {
   return t.createdMs !== undefined ? Math.max(0, Math.floor((nowMs - t.createdMs) / MIN)) : t.ageMin + Math.max(0, Math.floor((nowMs - NOW.getTime()) / MIN));
+}
+
+/** Nhãn "Đang chờ giảng viên · …" của SV: "vừa gửi" trong phút đầu, sau đó theo `agoLabel` (N6). */
+export function sentLabel(t: Ticket | undefined, nowMs: number): string {
+  const age = t ? ticketAgeMin(t, nowMs) : 0;
+  return age < 1 ? "vừa gửi" : agoLabel(nowMs - age * MIN, nowMs);
 }
 
 export type TicketStats = { open: number; overdue24: number; createdIn7d: number };
@@ -85,10 +92,15 @@ export function navBadges(stats: TicketStats, reviewPending: number): NavBadges 
 
 // ---- N8: bài "Cần xem kỹ" chưa duyệt ---------------------------------------------------------------------------------------
 
+/** Đã duyệt? Bài của B theo `Bt03State`; các bài khác theo dữ liệu gốc hoặc id GV vừa `Duyệt bài` (`grading.approved`). Nguồn duy nhất cho hàng chờ, badge, thẻ Hôm nay. */
+export function isSubmissionApproved(x: Submission, bt03Status: "draft" | "approved" | "published", approvedIds: readonly string[]): boolean {
+  return x.studentId === "sv-2" ? bt03Status !== "draft" : x.approved || approvedIds.includes(x.id);
+}
+
 /** Loại cờ của các bài `Cần xem kỹ` CHƯA duyệt (bài của B chỉ còn khi GV chưa `Duyệt bài`). Lớp 2 chưa có bài. */
-export function reviewPending(bt03Status: "draft" | "approved" | "published"): ReviewKind[] {
+export function reviewPending(bt03Status: "draft" | "approved" | "published", approvedIds: readonly string[] = []): ReviewKind[] {
   return bt03Submissions(studentsOf(COURSE_1))
-    .filter((x) => x.flagKind && !(x.studentId === "sv-2" ? bt03Status !== "draft" : x.approved))
+    .filter((x) => x.flagKind && !isSubmissionApproved(x, bt03Status, approvedIds))
     .map((x) => x.flagKind!);
 }
 

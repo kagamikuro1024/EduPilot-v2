@@ -7,6 +7,7 @@ import { BT03_SEED } from "@/mock/assess";
 import { NOTES_KEY, NOTES_SEED, absentSessions, activitySeries, riskSentence, rosterOf, sessionsOf, type StudentNote } from "@/mock/roster";
 import {
   ATTENDANCE_SEED,
+  committedOf,
   CURRENT_SESSION,
   KEYS,
   MEMBERS_SEED,
@@ -80,11 +81,11 @@ export function StudentProfile({ id }: { id: string }) {
   const risk = riskSentence(student, stats);
   const mine = notes[student.id] ?? [];
   const absent = absentSessions(student);
-  const today = attendance[course.id]?.[CURRENT_SESSION];
+  const today = committedOf(attendance[course.id]?.[CURRENT_SESSION]);
   const activity = activitySeries(student);
 
   const rowsAttendance = sessionsOf(course.id)
-    .filter((x) => x.state === "recorded" || (x.state === "current" && today?.finalized))
+    .filter((x) => x.state === "recorded" || (x.state === "current" && today))
     .map((x) => {
       const mark = x.state === "current" ? today?.marks[student.id] ?? "present" : absent.includes(x.n) ? "absent" : "present";
       const speaks = x.state === "current" ? today?.speaks[student.id] ?? 0 : 0;

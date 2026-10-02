@@ -85,8 +85,11 @@ export function InboxView() {
     window.scrollTo({ top: saved.current.page });
     if (listRef.current) listRef.current.scrollTop = saved.current.list;
   }, [picked]);
+  const prevFilter = useRef(filter);
   useEffect(() => {
-    // chọn bộ lọc khác thì danh sách về đầu
+    // chọn bộ lọc khác thì danh sách về đầu (lần dựng đầu không đụng: phiếu `?ticket=` đã được cuộn vào khung nhìn)
+    if (prevFilter.current === filter) return;
+    prevFilter.current = filter;
     if (listRef.current) listRef.current.scrollTop = 0;
   }, [filter]);
 

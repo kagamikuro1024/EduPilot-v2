@@ -24,3 +24,5 @@
 .search input {
   padding-left: calc(var(--ep-space-3) * 2 + 16px);
 }
+
+.risk { display: grid; gap: 2px; min-width: 0; }
