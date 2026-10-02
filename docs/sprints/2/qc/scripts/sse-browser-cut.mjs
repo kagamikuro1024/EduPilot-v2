@@ -77,7 +77,7 @@ export default async function run(browser, { base = 'https://localhost', token, 
       push('K8 không có resync', !S.control.some((c) => c.ev === 'resync'), JSON.stringify(S.control));
       push('K9 mọi lần nối lại HTTP 200 (không 401/429)', S.status.filter((s) => s !== 200).length === 0, 'status=' + S.status.join(','));
       return rows;
-    }, { base, token, cwd, CFG });
+    }, { args: [{ base, token, cwd, CFG }], timeout: 200 });   // QC v2: tham số của tab.run đi qua { args: [...] }
   } finally { try { await tab.close(); } catch (e) {} }
 }
 export const table = (rows) => rows.map((r) => `${r.ok ? 'PASS' : 'FAIL'} ${r.id} — ${r.detail}`).join('\n') + '\n=> ' + (rows.every((r) => r.ok) ? 'ok=true' : 'ok=false');

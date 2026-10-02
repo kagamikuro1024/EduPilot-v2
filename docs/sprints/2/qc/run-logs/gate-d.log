@@ -1,0 +1,40 @@
+== TC-GATE-23
+    ok   đã nhận id e5 ~ /^[0-9]+-[0-9]+$/
+    ok   đã nhận n 1..5 = [1 2 3 4 5]
+    ok   sau nối lại nhận đúng 6..12 theo thứ tự = [6 7 8 9 10 11 12]
+    ok   không nhận lại e5 = [0]
+    ok   không trùng = [0]
+    ok   không có resync = [0]
+    ok   dòng đầu stream nối lại = [retry: 3000]
+-- TC-GATE-23 PASS
+== TC-GATE-24
+    mạng đã rút 04:24:27
+    mạng đã cắm 04:24:37
+    ok   gateway nhận lại qua Caddy ≤ 40 s sau khi cắm = [200]
+    ok   đã nhận trước khi rút: 1 2 = [1 2]
+    ok   nối lại nhận 3 4 (không lặp 2) = [3 4]
+    ok   gateway/worker không restart = [0]
+-- TC-GATE-24 PASS
+== TC-GATE-28
+    stream đang ở f7791d4b8186
+    docker stop mất 3133 ms
+    ok   client nhận event: shutdown = [1]
+    ok   shutdown reason = [server_shutdown]
+    ok   đã nhận 1 2 3 trước khi tắt = [1 2 3]
+    ok   phiên kế tiếp vẫn chạy (cùng token, không 401) = [404]
+    ok   nối lại bản còn lại: nhận 4 5 6 = [4 5 6]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-28 PASS
+== TC-GATE-29
+    ok   dòng không-200 trong 200 request = 1 (≤ 4)
+    ok   60 dòng cuối 0 lỗi = [0]
+    ok   stream cũ vẫn sống và nhận n=99 = [99]
+    ok   không có event: shutdown (bản mang stream không bị tắt) = [0]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-29 PASS
+== TC-GATE-99
+    ok   chế độ cuối = [default]
+    ok   2 gateway healthy = [2]
+    ok   mọi container không ở trạng thái exited bất ngờ (trừ migrate) = [0]
+-- TC-GATE-99 PASS
+TỔNG story gate: PASS=5 FAIL=0 MANUAL=0

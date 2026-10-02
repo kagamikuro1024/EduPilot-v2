@@ -49,7 +49,8 @@ tc_pg05_02() {  # AC1 + SRS 6.8 — header phản hồi qua Caddy (chỉ đọc 
   chk_ne "X-Instance-Id có mặt" "$(printf '%s\n' "$h" | hval x-instance-id)" ''
   chk    "không có Content-Encoding" "$(printf '%s\n' "$h" | grep -ci '^content-encoding')" 0
   h1=$(curl -sk -N --http1.1 --max-time 2 -D- -o /dev/null -H "Authorization: Bearer $t" "$EVURL" 2>/dev/null | tr -d '\r')
-  chk_re "Connection (HTTP/1.1)" "$(printf '%s\n' "$h1" | hval connection)" 'keep-alive'
+  # QC v2: Caddy là reverse proxy nên bỏ header hop-by-hop `Connection` (RFC 7230 §6.1); header do GATEWAY phát → đo thẳng gateway:8080 trong mạng compose
+  chk_re "Connection (HTTP/1.1, thẳng gateway)" "$(direct_sse "$(gw_ip "$(gw_ids | head -1)")" "$t" 2 | hval connection)" 'keep-alive'
 }
 tc_pg05_03() {  # AC1 — p95 độ trễ byte đầu ≤ 300 ms trên 50 kết nối (5 lô × 10 song song; 25 user × 2 kết nối)
   ensure_mode test
@@ -223,7 +224,7 @@ tc_pg05_18() {  # AC5 — đúng lệnh trong AC: 3 stream của U1 → hai `000
         curl -sk -N -o /dev/null -m 5 -w '%{http_code}\n' -H "Authorization: Bearer $t" "$EVURL" & sleep 0.5
       done; wait)
   echo "    (mã thu được: $(printf '%s' "$o" | tr '\n' ' '))"
-  chk "số mã 000 (hai stream được giữ)" "$(printf '%s\n' "$o" | grep -c '^000$')" 2
+  chk "số mã 000/200 (hai stream được giữ; curl 8.7 in 200 khi hết -m giữa thân)" "$(printf '%s\n' "$o" | grep -cE '^(000|200)$')" 2
   chk "số mã 429 (stream thứ 3)"        "$(printf '%s\n' "$o" | grep -c '^429$')" 1
 }
 tc_pg05_19() {  # AC5 — thân 429 `SSE_LIMIT_REACHED` + `retry_after: 5` trùng header `Retry-After: 5`, TRƯỚC khi mở stream (QC #Q-QC-05-5)
@@ -254,7 +255,7 @@ tc_pg05_20() {  # AC5 — giới hạn tính theo người dùng: U1 đầy như
   c=$(sse_open_code "$t2")
   local cu1; cu1=$(sse_open_code "$t1")
   kill -9 "$pa" "$pb" 2>/dev/null; wait 2>/dev/null
-  chk "mã của U2 (đang stream → 000)" "$c" 000
+  chk_re "mã của U2 (đang stream → 000/200)" "$c" '^(000|200)$'
   chk "mã của U1 (stream thứ 3 → 429)" "$cu1" 429
 }
 tc_pg05_21() {  # AC5 — đóng một stream của U1 → stream mới được nhận trong ≤ 2 s
@@ -266,7 +267,7 @@ tc_pg05_21() {  # AC5 — đóng một stream của U1 → stream mới được
   chk "trước khi đóng: stream thứ 3" "$(sse_open_code "$t")" 429
   kill -9 "$pa" 2>/dev/null; wait "$pa" 2>/dev/null
   i=0; while [ "$i" -lt 10 ]; do
-    [ "$(sse_open_code "$t")" = 000 ] && { ok=1; break; }; sleep 0.2; i=$((i + 1)); done
+    [[ "$(sse_open_code "$t")" =~ ^(000|200)$ ]] && { ok=1; break; }; sleep 0.2; i=$((i + 1)); done
   kill -9 "$pb" 2>/dev/null; wait 2>/dev/null
   chk "sau khi đóng 1 stream: mở được trong ≤ 2 s" "$ok" 1
 }
@@ -285,11 +286,12 @@ tc_pg05_22() {  # AC5 — đếm CHUNG giữa hai bản: A giữ 2 stream → st
 }
 tc_pg05_23() {  # AC5 / SRS 5.6 — ZSET ep:sse:conn:<uid>: 1 member / kết nối, score = hạn ms ≈ now + SSE_CONN_TTL (150 s)
   ensure_mode test
-  local u t f now sc d; u=$(uid 144); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-23.sse; sse_clean "$u"
+  local u t f now sc d nm; u=$(uid 144); t=$(tok STUDENT "$u"); f=$QC_OUT/tc-pg05-23.sse; sse_clean "$u"
   sse_bg "$f" 12 "$t"; sse_wait_line "$f" '^event: ready' 10
   now=$(now_ms); sc=$($RDS zrange "ep:sse:conn:$u" 0 -1 WITHSCORES 2>/dev/null | tr -d '\r' | awk 'NR==2{printf "%d", $1}')
+  nm=$(zcard "$u")   # QC v2: đếm member TRƯỚC khi cắt stream (ngắt kết nối giải phóng chỗ ngay)
   sse_kill
-  chk    "số member (1 kết nối)" "$(zcard "$u")" 1
+  chk    "số member (1 kết nối)" "$nm" 1
   d=$((${sc:-0} - now))
   chk_ge "score − now (ms) ≈ SSE_CONN_TTL" "$d" 140000
   chk_le "score − now (ms) ≈ SSE_CONN_TTL" "$d" 152000
@@ -712,7 +714,7 @@ tc_pg05_61() {  # AC13 — nối lại bản CÒN LẠI với Last-Event-ID + C�
   sse_pub test.fo '{"n":5}' "$t" >/dev/null; sse_wait_ids "$f2" 3 10; sse_kill
   gw_restore test
   ns=$(sse_datas "$f2" | sed -n 's/.*"n":\([0-9]*\).*/\1/p' | tr '\n' ' ')
-  chk    "mã HTTP khi nối lại bằng token cũ (000 = đang stream, không 401)" "$c" 000
+  chk_re "mã HTTP khi nối lại bằng token cũ (000/200 = đang stream, không 401)" "$c" '^(000|200)$'
   chk    "phiên 2 nhận đúng n=3,4,5 theo thứ tự" "$ns" '3 4 5 '
   chk    "không nhận lại sự kiện đã nhận (id trùng)" "$(cat "$f1" "$f2" | grep '^id: ' | sort | uniq -d | grep -c .)" 0
   chk    "phiên 2 không phải resync" "$(sse_ntype "$f2" resync)" 0

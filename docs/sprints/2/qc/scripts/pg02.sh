@@ -67,7 +67,7 @@ newjob() {  # newjob <kind> <steps> <hậu tố khoá idem> → in mã HTTP
 ac15_dead_row() {
   local f=$QC_OUT/ac15-dead-id id i st
   if [ -s "$f" ]; then cat "$f"; return 0; fi
-  id=$($PSQL -c "insert into outbox(topic,payload) values('qc.unknown.topic','{\"email\":\"qc-pii-canary@example.com\"}'::jsonb) returning id" 2>/dev/null)
+  id=$($PSQL -c "insert into outbox(topic,payload) values('qc.unknown.topic','{\"email\":\"qc-pii-canary@example.com\"}'::jsonb) returning id" 2>/dev/null | head -1)   # QC v2: psql in thêm dòng "INSERT 0 1" sau RETURNING — chỉ lấy dòng đầu
   i=0; while [ $i -lt 90 ]; do
     st=$($PSQL -c "select coalesce(dead_at::text,'') from outbox where id='$id'" 2>/dev/null)
     [ -n "$st" ] && break
@@ -320,7 +320,7 @@ tc_pg02_37() {  # AC5 — định nghĩa hai trigger (SRS 5.2)
   local u t
   u=$($PSQL -c "select pg_get_triggerdef(oid) from pg_trigger where tgname='audit_log_no_update'")
   t=$($PSQL -c "select pg_get_triggerdef(oid) from pg_trigger where tgname='audit_log_no_truncate'")
-  chk_re "audit_log_no_update BEFORE UPDATE OR DELETE" "$u" 'BEFORE UPDATE OR DELETE ON public.audit_log'
+  chk_re "audit_log_no_update BEFORE UPDATE OR DELETE" "$u" 'BEFORE (UPDATE OR DELETE|DELETE OR UPDATE) ON public.audit_log'   # QC v2: pg_get_triggerdef in sự kiện theo thứ tự DELETE OR UPDATE
   chk_re "audit_log_no_update FOR EACH ROW" "$u" 'FOR EACH ROW'
   chk_re "audit_log_no_update gọi audit_log_block_mutation" "$u" 'audit_log_block_mutation\(\)'
   chk_re "audit_log_no_truncate BEFORE TRUNCATE" "$t" 'BEFORE TRUNCATE ON public.audit_log'
@@ -338,7 +338,8 @@ tc_pg02_39() {  # AC6 — pg_dump trước / sau (down && up) giống hệt
   $C exec -T postgres pg_dump -U edupilot -d edupilot -s > "$b" 2>/dev/null
   chk "migrate down rc" "$rcd" 0
   chk "migrate up rc" "$rcu" 0
-  if diff "$a" "$b" > "$QC_OUT/tc-pg02-39.diff" 2>&1; then echo "    ok   lược đồ sau down+up giống hệt (diff rỗng)"
+  # QC v2: pg_dump (≥ 17.6) chèn dòng \restrict/\unrestrict kèm token NGẪU NHIÊN mỗi lần dump — không phải lược đồ; bỏ hai dòng này trước khi so
+  if diff <(grep -vE '^\\(un)?restrict ' "$a") <(grep -vE '^\\(un)?restrict ' "$b") > "$QC_OUT/tc-pg02-39.diff" 2>&1; then echo "    ok   lược đồ sau down+up giống hệt (diff rỗng)"
   else fail_tc "lược đồ đổi sau down+up — xem $QC_OUT/tc-pg02-39.diff"; head -20 "$QC_OUT/tc-pg02-39.diff" | sed 's/^/      /'; fi
 }
 tc_pg02_40() {  # AC6 — sau `down`: 5 bảng biến mất, extension vector GIỮ LẠI

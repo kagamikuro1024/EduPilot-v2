@@ -63,7 +63,7 @@ gw_env() {  # gw_env test|default VAR=giá_trị … — dựng lại gateway (+
   env "$@" $cmd up -d --force-recreate --scale gateway=2 --wait gateway >/dev/null 2>&1; wait_ready 60; }
 gw_restore() { if [ "$1" = test ]; then tmode >/dev/null 2>&1; else dmode >/dev/null 2>&1; fi; wait_ready 90; }   # trả về cấu hình chuẩn sau TC đổi env
 heal() { $C start postgres redis minio pgbouncer >/dev/null 2>&1; wait_ready 60; }                   # bật lại phụ thuộc đã tắt
-rl_reset() { $RDS --scan --pattern 'ep:rl:*' 2>/dev/null | while read -r k; do [ -n "$k" ] && $RDS del "$k" >/dev/null 2>&1; done; true; }   # xoá bộ đếm rate limit giữa các TC (không phải cách kiểm — chỉ vệ sinh)
+rl_reset() { $RDS --scan --pattern 'ep:rl:*' 2>/dev/null | while read -r k; do [ -n "$k" ] && $RDS del "$k" </dev/null >/dev/null 2>&1; done; true; }   # xoá bộ đếm rate limit giữa các TC (không phải cách kiểm — chỉ vệ sinh)
 rawhttp() {  # rawhttp <host> <port> '<yêu cầu thô, dùng \r\n>' [giây chờ] — chạy TRONG container postgres (có bash): chạm thẳng gateway:8080, không qua Caddy
   $C exec -T postgres bash -c 'exec 3<>/dev/tcp/$0/$1; printf "%b" "$2" >&3; timeout "${3:-3}" cat <&3' "$1" "$2" "$3" "${4:-3}" 2>/dev/null; }
 newitem() {  # newitem <tên> [idem-key] [header Authorization đầy đủ] → in id (route thử, chế độ test)
@@ -85,8 +85,8 @@ _gt() {
   for n in $(printf '%s' "$pat" | tr -d '^$()' | tr '|' ' '); do
     if grep -Eq "^--- PASS: $n( |\$)" "$log"; then echo "    ok   --- PASS: $n"; else fail_tc "không thấy '--- PASS: $n' (test không tồn tại / bị skip / fail) — log: $log"; fi
   done
-  grep -E '^(--- FAIL|--- SKIP|FAIL|panic:)|no tests to run' "$log" | head -5 | while read -r l; do echo "    LOG  $l"; done
-  [ "$(grep -cE '^--- FAIL|^--- SKIP|no tests to run' "$log")" = 0 ] || TC_OK=0
+  grep -E '^(--- FAIL|--- SKIP|FAIL|panic:)' "$log" | head -5 | while read -r l; do echo "    LOG  $l"; done
+  [ "$(grep -cE '^--- FAIL|^--- SKIP' "$log")" = 0 ] || TC_OK=0   # #10(2)/#11: gói không có test khớp in 'no tests to run' là bình thường — bằng chứng là dòng '--- PASS' của từng tên
 }
 gt() { _gt testroutes "$@"; }
 gt_notag() { _gt "" "$@"; }

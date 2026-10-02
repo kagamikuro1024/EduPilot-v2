@@ -17,11 +17,11 @@ export default async function run(browser, { base = 'https://localhost', token, 
       return { status: r.status, body: await r.text(), replayed: r.headers.get('idempotent-replayed'), ct: r.headers.get('content-type'), retry: r.headers.get('retry-after') };
     }, a.base, a.token, a.key, a.name);
     const arg = { base, token, key, name };
-    let [ra, rb] = await Promise.all([A.run(send, arg), B.run(send, arg)]);
+    let [ra, rb] = await Promise.all([A.run(send, { args: [arg] }), B.run(send, { args: [arg] })]);
     const first = { a: ra.status, b: rb.status };
     const sleep = (ms) => new Promise((s) => setTimeout(s, ms));
-    if (ra.status === 409) { await sleep(((+ra.retry) || 1) * 1000 + 200); ra = await A.run(send, arg); }
-    if (rb.status === 409) { await sleep(((+rb.retry) || 1) * 1000 + 200); rb = await B.run(send, arg); }
+    if (ra.status === 409) { await sleep(((+ra.retry) || 1) * 1000 + 200); ra = await A.run(send, { args: [arg] }); }
+    if (rb.status === 409) { await sleep(((+rb.retry) || 1) * 1000 + 200); rb = await B.run(send, { args: [arg] }); }
     const cp = await import('node:child_process');
     const psql = `docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot exec -T postgres psql -U edupilot -d edupilot -At -c "select count(*) from _test_items where name='${name}'"`;
     const count = cp.execSync(psql, { cwd }).toString().trim();
