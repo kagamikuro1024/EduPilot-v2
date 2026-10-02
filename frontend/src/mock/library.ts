@@ -2,9 +2,8 @@
 // SRS 4.8 N5): ở đây chỉ thêm phần riêng của màn thư viện (chủ đề, tóm tắt, đề luyện được).
 // Đáp án đề thi (`forStudents = false`) không bao giờ có trong danh sách này.
 
-import { COURSE_1 } from "./core";
 import { CH5_UPLOADED_AT } from "./derive";
-import { DOCS as N5_DOCS, type Doc, type DocKind } from "./docs";
+import { DOCS as N5_DOCS, isDocOfCourse, type Doc, type DocKind } from "./docs";
 
 export { DOC_KIND_LABEL } from "./docs";
 export type { DocKind };
@@ -40,7 +39,7 @@ export const DOCS: LibraryDoc[] = N5_DOCS.filter((d) => d.forStudents).map((d) =
 
 /** Lớp 2 không có quy chế môn học của lớp 1 → 9 tài liệu (SRS 4.8 N5). */
 export function libraryDocs(courseId: string): LibraryDoc[] {
-  return DOCS.filter((d) => courseId === COURSE_1 || d.id !== "d-quyche-mon");
+  return DOCS.filter((d) => isDocOfCourse(d, courseId));
 }
 
 export function docById(id: string) {

@@ -32,6 +32,7 @@ import {
   bt03Submissions,
   submissionDetail,
 } from "@/mock/assess";
+import { logGrade } from "@/mock/audit";
 import { LATE_PENALTY_BT03, bt03Total } from "@/mock/grades";
 import { KEYS, type Bt03State } from "@/mock/state";
 import { useSession } from "@/shared/session/session";
@@ -42,7 +43,7 @@ const STEP = 0.25;
 
 export function SubmissionReview({ submissionId }: { submissionId: string }) {
   const router = useRouter();
-  const { course } = useSession();
+  const { course, user } = useSession();
   const [bt03, setBt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [approvedIds, setApprovedIds] = useDemoSlice<string[]>("grading.approved", []);
   const [active, setActive] = useState<string | null>(null);
@@ -65,6 +66,7 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
   }
   const student = studentById(sub.studentId);
   const subId = sub.id;
+  const subStudentId = sub.studentId;
   const scores = isB ? bt03.scores : otherScores;
   const comments = isB ? bt03.comments : otherComments;
   const paras = isB ? BT03_ESSAY : (other?.paras ?? []);
@@ -111,6 +113,13 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
   }
 
   function approve() {
+    // ghi nhật ký sửa điểm: tiêu chí đã đổi so với bản AI nháp, rồi dòng duyệt bài (DEMO-9)
+    const by = user.name;
+    scores.forEach((v, i) => {
+      const was = isB ? BT03_SEED.scores[i] : (other?.scores[i] ?? v);
+      if (v !== was) logGrade(subStudentId, by, `Sửa điểm tiêu chí ${i + 1} (${BT03_CRITERIA[i]}): ${fmtScore(was, 2)} → ${fmtScore(v, 2)}`);
+    });
+    logGrade(subStudentId, by, `Duyệt bài Bài tập 03: ${fmtScore(total)}`);
     if (isB) setBt03((prev) => ({ ...prev, status: prev.status === "published" ? "published" : "approved" }));
     else setApprovedIds((prev) => [...new Set([...prev, subId])]);
     router.push("/grading");
@@ -188,14 +197,14 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
                   <div className={s.critHead}>
                     <span className={s.critName}>{name}</span>
                     <span className={s.stepper} role="group" aria-label={`Điểm tiêu chí ${name}`}>
-                      <IconButton size="sm" label={`Giảm điểm ${name}`} onClick={() => setScore(i, scores[i] - STEP)}>
+                      <IconButton size="sm" label={`Giảm điểm ${name}`} disabled={scores[i] <= 0} onClick={() => setScore(i, scores[i] - STEP)}>
                         <Minus aria-hidden />
                       </IconButton>
                       <span className={s.stepValue}>
                         {fmtScore(scores[i], 2)}
                         <span className={s.stepMax}> / {fmtScore(BT03_MAX_PER_CRITERION, 1)}</span>
                       </span>
-                      <IconButton size="sm" label={`Tăng điểm ${name}`} onClick={() => setScore(i, scores[i] + STEP)}>
+                      <IconButton size="sm" label={`Tăng điểm ${name}`} disabled={scores[i] >= BT03_MAX_PER_CRITERION} onClick={() => setScore(i, scores[i] + STEP)}>
                         <Plus aria-hidden />
                       </IconButton>
                     </span>

@@ -34,6 +34,7 @@
 }
 .input:focus-visible { outline: none; box-shadow: var(--ep-focus); } /* ui-allow: vòng focus là token, không phải bóng trang trí */
 
+.invalid { display: block; margin-top: var(--ep-space-1); text-align: right; font-size: var(--ep-text-meta); color: var(--ep-red); }
 .qt { font-weight: 650; font-variant-numeric: tabular-nums; }
 .delta { font-variant-numeric: tabular-nums; color: var(--ep-ink-2); }
 

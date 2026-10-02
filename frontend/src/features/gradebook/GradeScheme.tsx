@@ -148,9 +148,10 @@ export function GradeScheme() {
                         Trang {r.page}
                       </button>
                     </div>
-                    {r.value === null ? (
+                    {/* mục quy chế không nêu: ô điền ở lại tới khi xác nhận — không đổi thành chữ ngay sau ký tự đầu (03-1) */}
+                    {doc.rules.find((x) => x.id === r.id)?.value === null && state !== "confirmed" ? (
                       <>
-                        <p className={s.ruleMissing}>Chưa rõ: quy chế không nêu quy tắc làm tròn</p>
+                        {blocked && <p className={s.ruleMissing}>Chưa rõ: quy chế không nêu quy tắc làm tròn</p>}
                         <div className={s.ask}>
                           <p>{doc.rules.find((x) => x.id === r.id)?.ask}</p>
                           <div className={s.askRow}>

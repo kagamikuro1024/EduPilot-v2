@@ -2,6 +2,7 @@
 // Tên hiển thị (`title`) là tên duy nhất người dùng thấy ở mọi nơi; tên tệp gốc (`file`) chỉ ở Drawer chi tiết và khi tải.
 // Ngày tải lên của bài giảng tuần w = 27/08 + 7·(w − 1) ngày, trừ Chương 5 (tải hôm qua 28/10 14:00).
 import type { Citation } from "./chat";
+import { COURSE_1 } from "./core";
 
 export type DocKind = "lecture" | "regulation" | "exam" | "answer";
 
@@ -45,6 +46,9 @@ export const DOCS: Doc[] = [
 ];
 
 export const docById = (id: string) => DOCS.find((d) => d.id === id);
+
+/** Quy chế môn học là của lớp 1 (N5: lớp 2 "như bảng trừ `d-quyche-mon`"): `/documents`, `/library`, nguồn của AI đều lọc bằng hàm này. */
+export const isDocOfCourse = (d: { id: string }, courseId: string) => courseId === COURSE_1 || d.id !== "d-quyche-mon";
 
 /** Trích dẫn của AI luôn dùng đúng tên hiển thị của bảng này; `locator` ví dụ "trang 14–17" hoặc "mục 2.4". */
 export function docCite(id: string, locator: string): Citation {

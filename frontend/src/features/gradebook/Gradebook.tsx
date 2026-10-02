@@ -19,10 +19,12 @@ import {
   StatusText,
   Toolbar,
 } from "@/shared/ui";
-import { COURSE_2, fmtScore, studentsOf, type Student } from "@/mock/core";
+import { COURSE_2, fmtScore, type Student } from "@/mock/core";
+import { GRADE_AUDIT_KEY, fmtAuditAt, gradeAuditOf, logGrade, type GradeAudit } from "@/mock/audit";
+import { rosterOf } from "@/mock/roster";
 import { attendanceStats, btScoresFor, calcQt, SCHEME_1, SCHEME_2_DRAFT } from "@/mock/grades";
 import { BT03_SEED } from "@/mock/assess";
-import { ATTENDANCE_SEED, KEYS, SCHEMES_SEED, type AttendanceState, type Bt03State, type SchemesState } from "@/mock/state";
+import { ATTENDANCE_SEED, KEYS, MEMBERS_SEED, SCHEMES_SEED, type AttendanceState, type Bt03State, type MembersState, type SchemesState } from "@/mock/state";
 import { CELL_HISTORY, CONFLICT_CELL, OFFICIAL_GRADE_NOTE } from "@/mock/gradebook";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
@@ -59,13 +61,16 @@ type Row = {
 };
 
 export function Gradebook() {
-  const { role, course } = useSession();
+  const { role, course, user } = useSession();
+  const [audit] = useDemoSlice<GradeAudit[]>(GRADE_AUDIT_KEY, []);
   const [attendance] = useDemoSlice<AttendanceState>(KEYS.attendance, ATTENDANCE_SEED);
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
+  const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
   const [edits, setEdits] = useDemoSlice<Edits>("gradebook.edits", {});
   const [editing, setEditing] = useState<{ id: string; col: EditCol } | null>(null);
   const [draft, setDraft] = useState("");
+  const [invalid, setInvalid] = useState<string | null>(null);
   const [conflict, setConflict] = useState<{ id: string; col: EditCol; mine: number | null } | null>(null);
   const [conflictDone, setConflictDone] = useState(false);
   const [explain, setExplain] = useState<string | null>(null);
@@ -80,7 +85,7 @@ export function Gradebook() {
 
   const rows = useMemo<Row[]>(
     () =>
-      studentsOf(course.id).map((st) => {
+      rosterOf(course.id, members).map((st) => {
         const base = btScoresFor(st, bt03);
         const at = attendanceStats(st, attendance);
         const bt01 = edits[`${st.id}:bt01`] !== undefined ? edits[`${st.id}:bt01`] : base.bt01;
@@ -89,29 +94,38 @@ export function Gradebook() {
         const q = calcQt({ scores: [bt01, bt02, base.bt03], speaks: at.speaks, absences: at.absences }, scheme);
         return { st, bt01, bt02, bt03: base.bt03, ck, bonus: q.bonus, penalty: q.penalty, avg: q.avg, qt: q.qt, speaks: at.speaks, absences: at.absences };
       }),
-    [course.id, bt03, attendance, edits, scheme],
+    [course.id, members, bt03, attendance, edits, scheme],
   );
 
   const missingCk = rows.filter((r) => r.ck === null).length;
   const explainRow = rows.find((r) => r.st.id === explain);
   const historyStudent = rows.find((r) => r.st.id === historyOf);
 
-  function commit(id: string, col: EditCol, raw: string) {
+  /** Trả `false` khi giá trị không hợp lệ: ô ở lại, báo lỗi tại ô, không lặng lẽ quay về giá trị cũ (03-9). */
+  function commit(id: string, col: EditCol, raw: string): boolean {
     const parsed = parseScore(raw);
-    if (parsed === undefined) return;
     const key = `${id}:${col}`;
+    const was = rows.find((r) => r.st.id === id)?.[col] ?? null;
+    if (parsed === undefined) {
+      setInvalid(key);
+      return false;
+    }
+    setInvalid(null);
+    if (parsed !== was) logGrade(id, user.name, `Sửa ${COL_LABEL[col]}: ${was === null ? "—" : fmtScore(was)} → ${parsed === null ? "—" : fmtScore(parsed)}`);
     const before = edits[key];
     setEdits((prev) => ({ ...prev, [key]: parsed }));
     if (id === CONFLICT_CELL.studentId && col === CONFLICT_CELL.column && !conflictDone) {
       setConflict({ id, col, mine: parsed });
-      return;
+      return true;
     }
     undo.push(`Đã sửa ${COL_LABEL[col]} của ${rows.find((r) => r.st.id === id)?.st.name ?? ""}`, () =>
       setEdits((prev) => ({ ...prev, [key]: before === undefined ? null : before })),
     );
+    return true;
   }
 
   function startEdit(id: string, col: EditCol, value: number | null) {
+    setInvalid(null);
     setEditing({ id, col });
     setDraft(value === null ? "" : fmtScore(value));
   }
@@ -145,32 +159,42 @@ export function Gradebook() {
     }
     const on = editing?.id === row.st.id && editing.col === col;
     if (on) {
+      const bad = invalid === `${row.st.id}:${col}`;
       return (
-        <input
-          className={s.input}
-          autoFocus
-          inputMode="decimal"
-          aria-label={`${COL_LABEL[col]} của ${row.st.name}`}
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onBlur={() => {
-            commit(row.st.id, col, draft);
-            setEditing(null);
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              commit(row.st.id, col, draft);
-              moveFrom(row.st.id, col, "down");
-            } else if (e.key === "Tab") {
-              e.preventDefault();
-              commit(row.st.id, col, draft);
-              moveFrom(row.st.id, col, "right");
-            } else if (e.key === "Escape") {
-              setEditing(null);
-            }
-          }}
-        />
+        <>
+          <input
+            className={s.input}
+            autoFocus
+            inputMode="decimal"
+            aria-label={`${COL_LABEL[col]} của ${row.st.name}`}
+            aria-invalid={bad || undefined}
+            value={draft}
+            onChange={(e) => {
+              setDraft(e.target.value);
+              setInvalid(null);
+            }}
+            onBlur={() => {
+              if (commit(row.st.id, col, draft)) setEditing(null);
+            }}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                if (commit(row.st.id, col, draft)) moveFrom(row.st.id, col, "down");
+              } else if (e.key === "Tab") {
+                e.preventDefault();
+                if (commit(row.st.id, col, draft)) moveFrom(row.st.id, col, "right");
+              } else if (e.key === "Escape") {
+                setInvalid(null);
+                setEditing(null);
+              }
+            }}
+          />
+          {bad && (
+            <span role="alert" className={s.invalid}>
+              Điểm là số từ 0 đến 10, ví dụ 7,5
+            </span>
+          )}
+        </>
       );
     }
     return (
@@ -186,6 +210,7 @@ export function Gradebook() {
       header: "Sinh viên",
       frozen: true,
       width: "208px",
+      mobileWidth: "132px",
       render: (r) => (
         <span className={s.who}>
           <span className={s.name}>{r.st.name}</span>
@@ -193,11 +218,12 @@ export function Gradebook() {
         </span>
       ),
     },
-    { key: "qt", header: "QT tạm tính", align: "end", width: "104px", part: "col-qt", render: (r) => <span className={s.qt}>{r.qt === null ? "—" : fmtScore(r.qt)}</span> },
+    { key: "qt", header: "QT tạm tính", align: "end", width: "104px", mobileWidth: "76px", part: "col-qt", render: (r) => <span className={s.qt}>{r.qt === null ? "—" : fmtScore(r.qt)}</span> },
     {
       key: "state",
       header: "Trạng thái",
       width: "150px",
+      mobileWidth: "112px",
       part: "col-status",
       render: (r) =>
         r.bt01 === null || r.bt02 === null ? (
@@ -211,8 +237,8 @@ export function Gradebook() {
     { key: "bt01", header: "BT01", align: "end", width: "88px", render: (r) => cell(r, "bt01") },
     { key: "bt02", header: "BT02", align: "end", width: "88px", render: (r) => cell(r, "bt02") },
     { key: "bt03", header: "BT03", align: "end", width: "88px", render: (r) => cell(r, "bt03") },
-    { key: "bonus", header: "Cộng", align: "end", width: "80px", hideOnMobile: true, render: (r) => <span className={s.delta}>{r.bonus > 0 ? `+${fmtScore(r.bonus, 2)}` : "—"}</span> },
-    { key: "penalty", header: "Trừ", align: "end", width: "80px", hideOnMobile: true, render: (r) => <span className={s.delta}>{r.penalty > 0 ? `−${fmtScore(r.penalty, 2)}` : "—"}</span> },
+    { key: "bonus", header: "Cộng", align: "end", width: "80px", render: (r) => <span className={s.delta}>{r.bonus > 0 ? `+${fmtScore(r.bonus, 2)}` : "—"}</span> },
+    { key: "penalty", header: "Trừ", align: "end", width: "80px", render: (r) => <span className={s.delta}>{r.penalty > 0 ? `−${fmtScore(r.penalty, 2)}` : "—"}</span> },
     { key: "ck", header: "Cuối kỳ", align: "end", width: "96px", render: (r) => cell(r, "ck") },
     {
       key: "menu",
@@ -384,7 +410,7 @@ export function Gradebook() {
         description="Mỗi thay đổi điểm đều ghi lại người sửa và thời điểm."
       >
         <div className={s.history}>
-          {CELL_HISTORY.map((h) => (
+          {[...gradeAuditOf(audit, historyStudent?.st.id ?? "").map((a) => ({ at: fmtAuditAt(a.atMs), by: a.by, text: a.text })), ...CELL_HISTORY].map((h) => (
             <div key={`${h.at}-${h.text}`} className={s.historyRow}>
               <span>{h.text}</span>
               <span className={s.historyMeta}>

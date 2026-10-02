@@ -15,9 +15,11 @@ import {
   Page,
   PageHeader,
   PageState,
+  useRouteState,
   Skeleton,
   StatusText,
 } from "@/shared/ui";
+import { isDocOfCourse } from "@/mock/docs";
 import { ANSWER_KEY_NOTE, DOCUMENTS, DOC_KIND_LABEL, FAILING_UPLOAD, titleFromFile, type DocRow, type DocStatus } from "@/mock/documents";
 import { fmtShortDate } from "@/mock/core";
 import { useSession } from "@/shared/session/session";
@@ -33,7 +35,7 @@ const STATUS_LABEL: Record<DocStatus, string> = { READY: "Sẵn sàng", PROCESSI
 const STATUS_TONE: Record<DocStatus, "green" | "amber" | "red"> = { READY: "green", PROCESSING: "amber", FAILED: "red" };
 
 export function Documents() {
-  const { role } = useSession();
+  const { role, course } = useSession();
   const [added, setAdded] = useDemoSlice<DocRow[]>("documents.new", []);
   const [removed, setRemoved] = useDemoSlice<string[]>("documents.removed", []);
   const [flags, setFlags] = useDemoSlice<Flags>("documents.flags", {});
@@ -43,13 +45,15 @@ export function Documents() {
   const [detail, setDetail] = useState<DocRow | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const undo = useUndoLine();
+  // `?state=empty` minh hoạ danh sách rỗng: số đếm ở đầu màn phải khớp (03-8)
+  const emptyShown = useRouteState() === "empty";
 
   const docs = useMemo(
     () =>
       [...added, ...DOCUMENTS]
-        .filter((d) => !removed.includes(d.id))
+        .filter((d) => isDocOfCourse(d, course.id) && !removed.includes(d.id))
         .map((d) => ({ ...d, forAi: flags[d.id]?.forAi ?? d.forAi, forStudents: flags[d.id]?.forStudents ?? d.forStudents })),
-    [added, removed, flags],
+    [added, removed, flags, course.id],
   );
 
   useEffect(() => {
@@ -115,7 +119,7 @@ export function Documents() {
       render: (d) => <span className={s.name}>{d.title}</span>,
     },
     { key: "kind", header: "Loại", width: "110px", render: (d) => <span className={s.meta}>{DOC_KIND_LABEL[d.kind]}</span> },
-    { key: "week", header: "Tuần", width: "80px", hideOnMobile: true, render: (d) => <span className={s.meta}>{d.week ? `Tuần ${d.week}` : "—"}</span> },
+    { key: "week", header: "Tuần", width: "80px", render: (d) => <span className={s.meta}>{d.week ? `Tuần ${d.week}` : "—"}</span> },
     {
       key: "ai",
       header: "Dùng cho AI",
@@ -123,6 +127,8 @@ export function Documents() {
       render: (d) =>
         d.kind === "answer" ? (
           <span className={s.locked}>Không dùng cho AI của sinh viên</span>
+        ) : d.status === "FAILED" ? (
+          <StatusText tone="neutral">Không dùng được</StatusText>
         ) : d.status !== "READY" ? (
           <StatusText tone="amber">Chờ xử lý</StatusText>
         ) : (
@@ -154,7 +160,7 @@ export function Documents() {
         </span>
       ),
     },
-    { key: "updated", header: "Cập nhật", width: "110px", hideOnMobile: true, render: (d) => <span className={s.meta}>{d.uploaded}</span> },
+    { key: "updated", header: "Cập nhật", width: "110px", render: (d) => <span className={s.meta}>{d.uploaded}</span> },
     {
       key: "menu",
       header: "",
@@ -181,8 +187,8 @@ export function Documents() {
         description="Nguồn để AI trả lời sinh viên và nội dung hiện trong Thư viện của lớp."
         meta={
           <>
-            <span>{docs.length} tài liệu</span>
-            <span>{docs.filter((d) => d.forAi).length} tài liệu đang dùng cho AI</span>
+            <span>{emptyShown ? 0 : docs.length} tài liệu</span>
+            <span>{emptyShown ? 0 : docs.filter((d) => d.forAi).length} tài liệu đang dùng cho AI</span>
             <span>Đáp án không bao giờ hiện cho sinh viên</span>
           </>
         }
@@ -302,11 +308,13 @@ export function Documents() {
                 value:
                   detail.kind === "answer"
                     ? "Không dùng cho AI của sinh viên"
-                    : detail.status !== "READY"
-                      ? "Chờ xử lý"
-                      : detail.forAi
-                        ? "Có"
-                        : "Không",
+                    : detail.status === "FAILED"
+                      ? "Không dùng được"
+                      : detail.status !== "READY"
+                        ? "Chờ xử lý"
+                        : detail.forAi
+                          ? "Có"
+                          : "Không",
               },
             ]}
           />
