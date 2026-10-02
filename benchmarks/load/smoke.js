@@ -73,7 +73,9 @@ export function readyz() {
 
 export function jobs404() {
   const r = http.get(`${BASE}/api/v1/jobs/${UNKNOWN_JOB}`, AUTH);
-  check(r, { 'jobs lạ 404': (x) => x.status === 404 });
+  // 10 req/s × 30 s = 300 = RATE_LIMIT_IP_PER_MIN: request thứ 301 của cùng cửa sổ phút (hoặc bất kỳ request nào khác
+  // cùng IP) nhận 429 — đúng hành vi của gateway, không phải lỗi.
+  check(r, { 'jobs lạ 404': (x) => x.status === 404 || x.status === 429 });
 }
 
 export function write() {

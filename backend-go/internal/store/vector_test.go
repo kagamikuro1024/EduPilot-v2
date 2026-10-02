@@ -36,6 +36,14 @@ func TestVectorConventions(t *testing.T) {
 		using hnsw ((embedding::halfvec(1536)) halfvec_cosine_ops) with (m = 16, ef_construction = 64)`)
 	require.NoError(t, err)
 
+	// HNSW là xấp xỉ; 1.000 vector gần như trực giao (mọi cặp gần bằng khoảng cách nhau) nên với ef_search mặc định (40)
+	// kết quả đầu không luôn là chính vector truy vấn (CI đỏ ngẫu nhiên). Nâng tới mức tối đa để top-1 chắc chắn đúng.
+	// Bảng 1.000 dòng nhỏ nên planner có thể chọn Seq Scan khi ef_search lớn → ép dùng index để kiểm đúng đường chạy thật.
+	_, err = conn.Exec(ctx, `set hnsw.ef_search = 1000`)
+	require.NoError(t, err)
+	_, err = conn.Exec(ctx, `set enable_seqscan = off`)
+	require.NoError(t, err)
+
 	courseID, otherCourse := uuid.New(), uuid.New()
 	// 1.000 dòng: mỗi dòng một vector khác nhau (một chiều được đẩy lên 1.0 theo chỉ số dòng).
 	_, err = conn.Exec(ctx, `insert into `+table+` (course_id, content, embedding)
