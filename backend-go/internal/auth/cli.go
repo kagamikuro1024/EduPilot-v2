@@ -30,7 +30,7 @@ func RunTokenCommand(args []string, getenv func(string) string, stdout, stderr i
 	}
 
 	fail := func(msg string) int {
-		fmt.Fprintln(stderr, "token: "+msg)
+		_, _ = fmt.Fprintln(stderr, "token: "+msg)
 		return 1
 	}
 
@@ -58,7 +58,7 @@ func RunTokenCommand(args []string, getenv func(string) string, stdout, stderr i
 	if err != nil {
 		return fail("không ký được token")
 	}
-	fmt.Fprintln(stdout, tok)
+	_, _ = fmt.Fprintln(stdout, tok)
 	return 0
 }
 

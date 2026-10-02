@@ -15,6 +15,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appdb "github.com/edupilot/backend-go/internal/platform/db"
@@ -260,10 +261,10 @@ func coreEcho(r chi.Router) {
 	r.Post("/echo", func(w http.ResponseWriter, r *http.Request) {
 		n, err := io.Copy(io.Discard, r.Body)
 		if err != nil {
-			writeJSON(w, http.StatusBadRequest, map[string]string{"status": "lỗi đọc thân"})
+			httpx.WriteJSON(w, http.StatusBadRequest, map[string]string{"status": "lỗi đọc thân"})
 			return
 		}
-		writeJSON(w, http.StatusOK, map[string]int64{"bytes": n})
+		httpx.WriteJSON(w, http.StatusOK, map[string]int64{"bytes": n})
 	})
 }
 
@@ -375,7 +376,7 @@ func TestDeadline_DB(t *testing.T) {
 				"-- name: TestDBSleep :one\nselect 1 from pg_sleep($1::float)", 5).Scan(&n); err != nil {
 				return // middleware timeout trả 504
 			}
-			writeJSON(w, http.StatusOK, map[string]int{"n": n})
+			httpx.WriteJSON(w, http.StatusOK, map[string]int{"n": n})
 		})
 	}))
 	t.Cleanup(srv.Close)
@@ -425,7 +426,7 @@ func TestDeadline_Redis(t *testing.T) {
 			if err := d.Redis.BLPop(r.Context(), 5*time.Second, key).Err(); err != nil {
 				return // middleware timeout trả 504
 			}
-			writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+			httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 		})
 	}))
 	t.Cleanup(srv.Close)
@@ -477,7 +478,7 @@ func TestDeadline_ClientCancel(t *testing.T) {
 				"-- name: TestDBSleep :one\nselect 1 from pg_sleep($1::float)", 5).Scan(&n); err != nil {
 				return
 			}
-			writeJSON(w, http.StatusOK, map[string]int{"n": n})
+			httpx.WriteJSON(w, http.StatusOK, map[string]int{"n": n})
 		})
 	}))
 	t.Cleanup(srv.Close)

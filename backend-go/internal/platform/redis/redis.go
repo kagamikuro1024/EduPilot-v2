@@ -17,12 +17,12 @@ const Prefix = "ep:"
 
 // TTL mặc định theo SRS 5.6. Khoá nào cũng phải đặt TTL — không khoá nào để -1.
 const (
-	TTLIdempotency     = 24 * time.Hour      // ep:idem:{uid}:{ep}:{key}
-	TTLIdempotencyLock = 30 * time.Second    // ep:idem:…:lock
-	TTLRateLimit       = 120 * time.Second   // ep:rl:ip|user:…
-	TTLSSEConn         = 150 * time.Second   // ep:sse:conn:{uid}
-	TTLSSEBuffer       = time.Hour           // ep:sse:buf:{uid}
-	TTLCache           = 5 * time.Minute     // ep:cache:…
+	TTLIdempotency     = 24 * time.Hour    // ep:idem:{uid}:{ep}:{key}
+	TTLIdempotencyLock = 30 * time.Second  // ep:idem:…:lock
+	TTLRateLimit       = 120 * time.Second // ep:rl:ip|user:…
+	TTLSSEConn         = 150 * time.Second // ep:sse:conn:{uid}
+	TTLSSEBuffer       = time.Hour         // ep:sse:buf:{uid}
+	TTLCache           = 5 * time.Minute   // ep:cache:…
 )
 
 // Stream dùng tên riêng, KHÔNG mang tiền tố "ep:" (SYSTEM_DESIGN §3.3, SRS 5.6).

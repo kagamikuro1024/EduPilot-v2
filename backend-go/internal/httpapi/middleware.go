@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"regexp"
 	"runtime/debug"
@@ -52,10 +53,14 @@ func recoverMiddleware(d Deps) func(http.Handler) http.Handler {
 }
 
 // recoverPanic chạy trong defer của recoverMiddleware: log stack rồi trả 500 INTERNAL.
+// `http.ErrAbortHandler` KHÔNG bị nuốt — panic tiếp để net/http đóng kết nối như quy ước (FR-26).
 func recoverPanic(ctx context.Context, d Deps, sw *statusWriter, r *http.Request) {
 	rec := recover()
 	if rec == nil {
 		return
+	}
+	if err, ok := rec.(error); ok && errors.Is(err, http.ErrAbortHandler) {
+		panic(rec)
 	}
 	if d.Log != nil {
 		d.Log.ErrorContext(ctx, "panic trong handler",

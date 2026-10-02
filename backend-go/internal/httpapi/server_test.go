@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/go-chi/chi/v5"
 )
@@ -26,7 +27,7 @@ func coreSlowServer(t *testing.T, d Deps, delay time.Duration) (addr string, ser
 			case <-time.After(delay):
 			case <-r.Context().Done():
 			}
-			writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+			httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 		})
 	})
 	ln, err := net.Listen("tcp", "127.0.0.1:0")

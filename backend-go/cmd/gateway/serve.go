@@ -39,6 +39,10 @@ func runServe(args []string, getenv func(string) string, stdout, stderr io.Write
 		logConfigError(log, err)
 		return 1
 	}
+	if err := refuseTestBuild(cfg); err != nil {
+		log.Error(err.Error(), "app_env", cfg.AppEnv)
+		return 1
+	}
 	if *healthcheck {
 		return probe(httpURL(cfg.HTTPAddr) + "/healthz")
 	}

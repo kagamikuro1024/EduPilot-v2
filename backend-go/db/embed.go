@@ -50,22 +50,22 @@ func Migrate(ctx context.Context, databaseURL string, cmd string, out io.Writer)
 			return fmt.Errorf("goose up: %w", err)
 		}
 		for _, r := range results {
-			fmt.Fprintf(out, "goose: applied %s (%s)\n", r.Source.Path, r.Duration)
+			_, _ = fmt.Fprintf(out, "goose: applied %s (%s)\n", r.Source.Path, r.Duration)
 		}
 		version, err := provider.GetDBVersion(ctx)
 		if err != nil {
 			return fmt.Errorf("đọc version: %w", err)
 		}
-		fmt.Fprintf(out, "goose: up to date, version=%d (%d migration mới)\n", version, len(results))
+		_, _ = fmt.Fprintf(out, "goose: up to date, version=%d (%d migration mới)\n", version, len(results))
 	case "down":
 		results, err := provider.DownTo(ctx, 0)
 		if err != nil {
 			return fmt.Errorf("goose down: %w", err)
 		}
 		for _, r := range results {
-			fmt.Fprintf(out, "goose: rolled back %s (%s)\n", r.Source.Path, r.Duration)
+			_, _ = fmt.Fprintf(out, "goose: rolled back %s (%s)\n", r.Source.Path, r.Duration)
 		}
-		fmt.Fprintf(out, "goose: version=0 (%d migration đã lùi)\n", len(results))
+		_, _ = fmt.Fprintf(out, "goose: version=0 (%d migration đã lùi)\n", len(results))
 	case "status":
 		statuses, err := provider.Status(ctx)
 		if err != nil {
@@ -76,7 +76,7 @@ func Migrate(ctx context.Context, databaseURL string, cmd string, out io.Writer)
 			if s.State == goose.StateApplied {
 				applied = s.AppliedAt.UTC().Format("2006-01-02 15:04:05 MST")
 			}
-			fmt.Fprintf(out, "%-8d %-28s %s\n", s.Source.Version, s.Source.Path, applied)
+			_, _ = fmt.Fprintf(out, "%-8d %-28s %s\n", s.Source.Version, s.Source.Path, applied)
 		}
 	default:
 		return fmt.Errorf("lệnh migrate không hợp lệ: %q (dùng up|down|status)", cmd)

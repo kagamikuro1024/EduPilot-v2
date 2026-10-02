@@ -2,7 +2,7 @@
 
 package main
 
-import "github.com/edupilot/backend-go/internal/platform/outbox"
+import "github.com/edupilot/backend-go/internal/jobs"
 
-// registerTestHandlers không làm gì trong bản dựng thường (không có tuyến thử).
-func registerTestHandlers(_ *outbox.Registry, _ Deps) {}
+// registerTestKinds không làm gì trong bản dựng thường (không có loại việc thử).
+func registerTestKinds(_ *jobs.Runner) {}

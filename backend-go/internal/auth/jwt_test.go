@@ -285,7 +285,7 @@ func TestVerify_Leeway(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			clk.Set(start.Add(tt.after))
 			_, err := v.Verify(tok)
-			if !errors.Is(err, tt.want) && !(tt.want == nil && err == nil) {
+			if !errors.Is(err, tt.want) {
 				t.Fatalf("tại +%v: lỗi %v, muốn %v", tt.after, err, tt.want)
 			}
 		})
@@ -305,7 +305,7 @@ func TestVerify_Leeway(t *testing.T) {
 			c := baseClaims(start, 15*time.Minute)
 			c["nbf"] = start.Add(tt.skew).Unix()
 			_, err := v.Verify(mkToken(t, jwt.SigningMethodHS256, []byte(testSecret), c))
-			if !errors.Is(err, tt.want) && !(tt.want == nil && err == nil) {
+			if !errors.Is(err, tt.want) {
 				t.Fatalf("lỗi %v, muốn %v", err, tt.want)
 			}
 		})
