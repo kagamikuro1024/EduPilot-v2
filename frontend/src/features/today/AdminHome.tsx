@@ -4,11 +4,13 @@ import { NOW, fmtLongDate, fmtTime } from "@/mock/core";
 import { STATUS_STRIP, adminTasks } from "@/mock/system";
 import { StatusStrip } from "@/features/observability/ObservabilityScreen";
 import { useSimNow } from "@/shared/state/clock";
-import { ActionList, ActionRow, ButtonLink, EmptyState, Page, PageHeader, PageState, Section, Skeleton } from "@/shared/ui";
+import { ActionList, ActionRow, ButtonLink, EmptyState, Page, PageHeader, PageState, Section, Skeleton, useRouteState } from "@/shared/ui";
 
 /** "Hôm nay" của quản trị viên: việc của hệ thống, không phải việc của lớp (FLOWS F14). */
 export function AdminHome() {
   const tasks = adminTasks(useSimNow());
+  // `?state=empty` minh hoạ không có việc: số đếm ở đầu màn khớp (04-7)
+  const emptyShown = useRouteState() === "empty";
   return (
     <Page>
       <PageHeader
@@ -19,7 +21,7 @@ export function AdminHome() {
             <span>
               {fmtLongDate(NOW)} · {fmtTime(NOW)}
             </span>
-            <span>{tasks.length} việc đang chờ</span>
+            <span>{emptyShown ? 0 : tasks.length} việc đang chờ</span>
           </>
         }
       />

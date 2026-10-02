@@ -18,8 +18,8 @@ type CourseSeed = {
   /** phiếu đã đóng trước đó (không còn trong hộp thư): [7 ngày, 30 ngày] — phiếu đang mở lấy từ `ticketStats` */
   escalatedPrior: [number, number];
   medianReply: [string, string];
-  piiDetected: [number, number];
-  piiChannels: Series[];
+  /** chi tiết theo kênh cho [7 ngày, 30 ngày]; tổng "lần phát hiện" luôn là tổng các kênh (không ghi số riêng) */
+  piiChannels: [Series[], Series[]];
   submissions: [number, number];
   edited: [number, number];
   avgGap: [string, string];
@@ -50,11 +50,17 @@ const SEED: Record<string, CourseSeed> = {
     // 19 câu chuyển trong 30 ngày = 6 phiếu còn trong hộp thư + 13 phiếu đã đóng (SRS 4.8 N2)
     escalatedPrior: [0, 13],
     medianReply: ["3 giờ 40 phút", "4 giờ 05 phút"],
-    piiDetected: [9, 31],
     piiChannels: [
-      { label: "Chat riêng", value: 6 },
-      { label: "Bài nộp qua email", value: 2 },
-      { label: "Thread công khai", value: 1 },
+      [
+        { label: "Chat riêng", value: 6 },
+        { label: "Bài nộp qua email", value: 2 },
+        { label: "Thread công khai", value: 1 },
+      ],
+      [
+        { label: "Chat riêng", value: 19 },
+        { label: "Bài nộp qua email", value: 7 },
+        { label: "Thread công khai", value: 5 },
+      ],
     ],
     submissions: [28, 84],
     edited: [5, 14],
@@ -80,10 +86,15 @@ const SEED: Record<string, CourseSeed> = {
     ],
     escalatedPrior: [2, 4],
     medianReply: ["5 giờ 10 phút", "5 giờ 10 phút"],
-    piiDetected: [3, 5],
     piiChannels: [
-      { label: "Chat riêng", value: 2 },
-      { label: "Yêu cầu vào lớp", value: 1 },
+      [
+        { label: "Chat riêng", value: 2 },
+        { label: "Yêu cầu vào lớp", value: 1 },
+      ],
+      [
+        { label: "Chat riêng", value: 3 },
+        { label: "Yêu cầu vào lớp", value: 2 },
+      ],
     ],
     submissions: [0, 0],
     edited: [0, 0],
@@ -166,8 +177,8 @@ export function analyticsFor(courseId: string, range: AnalyticsRange, stats: Tic
     escalated,
     medianReply: s.medianReply[i],
     overdue24: stats.overdue24,
-    piiDetected: s.piiDetected[i],
-    piiChannels: s.piiChannels,
+    piiDetected: s.piiChannels[i].reduce((a, c) => a + c.value, 0),
+    piiChannels: s.piiChannels[i],
     piiLeaked: 0,
     submissions,
     edited,

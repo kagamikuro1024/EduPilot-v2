@@ -6,7 +6,7 @@ import { ADVANCED, BUDGET, EMBEDDING, FALLBACK_CHAIN, PROVIDERS, TASK_ROUTES } f
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import { BarList, Button, DefinitionList, Field, InlineNotice, Input, Page, PageHeader, PageState, Section, Select, Skeleton, StatusText } from "@/shared/ui";
+import { BarList, Button, ButtonLink, DefinitionList, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Section, Select, Skeleton, StatusText } from "@/shared/ui";
 import s from "./settings.module.css";
 
 type TestResult = { ok: true; latencyMs: number } | { ok: false; problem: string; recovery: string };
@@ -60,6 +60,11 @@ export function LlmSettings() {
             <Skeleton lines={4} />
             <Skeleton lines={5} />
           </div>
+        }
+        empty={
+          <EmptyState title="Chưa cấu hình model nào" action={<ButtonLink href="/settings/llm">Xem cấu hình mặc định</ButtonLink>}>
+            Mỗi tác vụ (trả lời sinh viên, chấm bài, embedding) cần một model chính và một model dự phòng. Chọn model cho tác vụ đầu tiên để AI bắt đầu trả lời.
+          </EmptyState>
         }
         error={{
           problem: "Không đọc được cấu hình LLM.",

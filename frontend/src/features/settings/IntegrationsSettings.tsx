@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { INTEGRATIONS } from "@/mock/system";
 import { useSession } from "@/shared/session/session";
-import { Button, DefinitionList, InlineNotice, Page, PageHeader, PageState, Skeleton, StatusText } from "@/shared/ui";
+import { Button, ButtonLink, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, PageState, Skeleton, StatusText } from "@/shared/ui";
 import s from "./settings.module.css";
 
 export function IntegrationsSettings() {
@@ -25,6 +25,11 @@ export function IntegrationsSettings() {
             <Skeleton lines={4} />
             <Skeleton lines={4} />
           </div>
+        }
+        empty={
+          <EmptyState title="Chưa có đường tích hợp nào" action={<ButtonLink href="/settings/integrations">Xem ba đường mặc định</ButtonLink>}>
+            Thư đi, thư đến và Teams sẽ hiện ở đây khi được nối. Bắt đầu từ thư đi để sinh viên và giảng viên nhận được thông báo.
+          </EmptyState>
         }
         error={{
           problem: "Không đọc được trạng thái tích hợp.",

@@ -15,6 +15,7 @@ import {
   Page,
   PageHeader,
   PageState,
+  useRouteState,
   Section,
   SegmentedControl,
   Skeleton,
@@ -30,6 +31,8 @@ type Row = { id: string; name: string; email: string; role: Exclude<RoleFilter, 
 const ROLE_TEXT: Record<Exclude<RoleFilter, "all">, string> = { teacher: "Giảng viên", ta: "Trợ giảng", admin: "Quản trị viên", student: "Sinh viên" };
 
 export function AdminUsers() {
+  // `?state=empty` minh hoạ chưa có tài khoản: số đếm ở đầu màn khớp (04-7)
+  const emptyShown = useRouteState() === "empty";
   const [locked, setLocked] = useDemoSlice<string[]>("admin.locked", []);
   const [invites, setInvites] = useDemoSlice<string[]>("admin.invites", []);
   const [filter, setFilter] = useState<RoleFilter>("all");
@@ -84,7 +87,7 @@ export function AdminUsers() {
       ),
     },
     { key: "role", header: "Vai trò", render: (r) => ROLE_TEXT[r.role] },
-    { key: "detail", header: "Thuộc lớp", hideOnMobile: true, render: (r) => <span className={s.sub}>{r.detail}</span> },
+    { key: "detail", header: "Thuộc lớp", render: (r) => <span className={s.sub}>{r.detail}</span> },
     {
       key: "state",
       header: "Trạng thái",
@@ -118,9 +121,9 @@ export function AdminUsers() {
         description="Tài khoản giảng viên, trợ giảng, quản trị viên và sinh viên của toàn hệ thống."
         meta={
           <>
-            <span>{all.length} tài khoản</span>
-            <span>{STUDENTS.length} sinh viên</span>
-            {locked.length > 0 && <span>{locked.length} tài khoản đang bị khoá</span>}
+            <span>{emptyShown ? 0 : all.length} tài khoản</span>
+            <span>{emptyShown ? 0 : STUDENTS.length} sinh viên</span>
+            {!emptyShown && locked.length > 0 && <span>{locked.length} tài khoản đang bị khoá</span>}
           </>
         }
         actions={

@@ -76,3 +76,7 @@
   .modelSelect { min-width: 0; width: 100%; }
   .rowSide { min-width: 0; }
 }
+
+/* Trong panel có viền: đường kẻ chỉ NGĂN GIỮA các hàng — không kẻ trên hàng đầu / dưới hàng cuối (04-6). */
+.configPanel dl > :first-child { border-top: 0; padding-top: 0; }
+.configPanel dl > :last-child { border-bottom: 0; padding-bottom: 0; }

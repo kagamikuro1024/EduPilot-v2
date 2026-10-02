@@ -48,6 +48,10 @@ export function ObservabilityScreen() {
   const [filter, setFilter] = useState<Filter>("all");
   const [open, setOpen] = useState<LlmRequest | null>(null);
   const [reason, setReason] = useState("");
+  const [reasonTouched, setReasonTouched] = useState(false);
+  // báo lỗi TẠI Ô (không chỉ làm mờ nút): trống sau khi rời ô, hoặc đã gõ mà còn ngắn (04-1)
+  const reasonError =
+    reason.trim().length >= 10 ? undefined : reason.trim().length > 0 ? "Viết rõ hơn một chút (ít nhất 10 ký tự) để người đọc nhật ký sau này hiểu được." : reasonTouched || reason.length > 0 ? "Cần nhập lý do trước khi mở nội dung." : undefined;
   const [unlocked, setUnlocked] = useState(false);
   const [trace, setTrace] = useState(false);
 
@@ -67,19 +71,19 @@ export function ObservabilityScreen() {
         </>
       ),
     },
-    { key: "model", header: "Model", hideOnMobile: true, render: (r) => <span className={s.mono}>{r.model}</span> },
+    { key: "model", header: "Model", render: (r) => <span className={s.mono}>{r.model}</span> },
     { key: "latency", header: "Độ trễ", align: "end", render: (r) => <span className="ep-num">{r.latencyMs >= 1000 ? `${fmtScore(r.latencyMs / 1000)} s` : `${r.latencyMs} ms`}</span> },
     {
       key: "confidence",
       header: "Độ tin cậy",
       align: "end",
-      hideOnMobile: true,
+     
       render: (r) => (r.task === "Đánh chỉ mục tài liệu" ? <span className={s.sub}>—</span> : <span className="ep-num">{fmtScore(r.confidence, 2)}</span>),
     },
     {
       key: "privacy",
       header: "Bảo vệ thông tin",
-      hideOnMobile: true,
+     
       render: (r) => (r.privacy ? <StatusText tone="blue">{r.privacy}</StatusText> : <span className={s.sub}>Không có</span>),
     },
     {
@@ -93,6 +97,7 @@ export function ObservabilityScreen() {
     setOpen(null);
     setUnlocked(false);
     setReason("");
+    setReasonTouched(false);
     setTrace(false);
   }
 
@@ -181,15 +186,28 @@ export function ObservabilityScreen() {
                 <InlineNotice tone="privacy" title="Nội dung yêu cầu là dữ liệu của sinh viên">
                   Tên và mã số sinh viên đã được thay bằng nhãn, nhưng nội dung vẫn là câu hỏi của người học. Nhập lý do trước khi mở; lý do và tên bạn được ghi vào nhật ký kiểm toán.
                 </InlineNotice>
-                <Field label="Lý do xem nội dung" required helper="Ví dụ: xử lý khiếu nại của giảng viên về câu trả lời sai lúc 08:40.">
+                <Field
+                  label="Lý do xem nội dung"
+                  required
+                  error={reasonError}
+                  helper={reasonError ? undefined : "Ví dụ: xử lý khiếu nại của giảng viên về câu trả lời sai lúc 08:40."}
+                >
                   {(id, describedBy) => (
-                    <Textarea id={id} aria-describedby={describedBy} rows={3} value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Vì sao bạn cần xem yêu cầu này?" />
+                    <Textarea
+                      id={id}
+                      aria-describedby={describedBy}
+                      rows={3}
+                      value={reason}
+                      invalid={Boolean(reasonError)}
+                      onChange={(e) => setReason(e.target.value)}
+                      onBlur={() => setReasonTouched(true)}
+                      placeholder="Vì sao bạn cần xem yêu cầu này?"
+                    />
                   )}
                 </Field>
                 <Button variant="primary" disabled={reason.trim().length < 10} onClick={() => setUnlocked(true)}>
                   Mở nội dung
                 </Button>
-                {reason.trim().length > 0 && reason.trim().length < 10 && <p className={s.sub}>Viết rõ hơn một chút để người đọc nhật ký sau này hiểu được.</p>}
               </div>
             ) : (
               <div className={s.detail}>

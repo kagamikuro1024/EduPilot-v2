@@ -18,6 +18,7 @@ import {
   Page,
   PageHeader,
   PageState,
+  useRouteState,
   Section,
   Select,
   Skeleton,
@@ -36,6 +37,8 @@ const STATE_TEXT = {
 };
 
 export function AdminCourses() {
+  // `?state=empty` minh hoạ chưa có lớp: số đếm ở đầu màn khớp (04-7)
+  const emptyShown = useRouteState() === "empty";
   const [extra, setExtra] = useDemoSlice<NewCourse[]>("admin.courses", []);
   const [archived, setArchived] = useDemoSlice<string[]>("admin.archived", []);
   const [opening, setOpening] = useState(false);
@@ -111,7 +114,7 @@ export function AdminCourses() {
       <PageHeader
         title="Lớp học"
         description="Mở lớp, phân công giảng viên và lưu trữ lớp đã kết thúc."
-        meta={<span>{rows.filter((r) => r.state !== "archived").length} lớp đang chạy · học kỳ HK1 2026–2027</span>}
+        meta={<span>{emptyShown ? 0 : rows.filter((r) => r.state !== "archived").length} lớp đang chạy · học kỳ HK1 2026–2027</span>}
         actions={
           opening ? undefined : (
             <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setOpening(true)}>
