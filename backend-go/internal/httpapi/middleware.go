@@ -71,6 +71,9 @@ func recoverPanic(ctx context.Context, d Deps, sw *statusWriter, r *http.Request
 	}
 }
 
+// DrainingHeader đánh dấu response 503 NOT_READY do gateway đang tắt (deploy/caddy/Caddyfile khớp tên này).
+const DrainingHeader = "X-EP-Draining"
+
 // drainingMiddleware (M3b): sau SIGTERM, request MỚI nhận 503 NOT_READY (request đang chạy vẫn
 // chạy tiếp tới SHUTDOWN_TIMEOUT). `/api/v1/readyz` tự trả 503 kèm details nên được đi tiếp.
 func drainingMiddleware(d Deps) func(http.Handler) http.Handler {
@@ -80,6 +83,9 @@ func drainingMiddleware(d Deps) func(http.Handler) http.Handler {
 				next.ServeHTTP(w, r)
 				return
 			}
+			// Dấu hiệu riêng cho Caddy (`handle_response` thử lại sang bản khác): phân biệt 503 do bản này đang tắt với mọi
+			// 503 khác của ứng dụng — những cái đó phải tới client nguyên vẹn (BUG-PG-1).
+			w.Header().Set(DrainingHeader, "1")
 			apierr.Write(w, r, apierr.New(http.StatusServiceUnavailable, apierr.NotReady).
 				WithDetails(map[string]any{"draining": true}).WithRetryAfter(5))
 		})
