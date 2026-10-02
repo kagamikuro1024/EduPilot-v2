@@ -13,7 +13,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | Phase | Trạng thái | Bắt đầu | Xong | Cổng nghiệm thu | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
 | P0 Chuẩn bị | Xong | 2026-10-01 | 2026-10-01 | PASS (`sprints/1/qc/gate-P0.md`) | Viết mới toàn bộ (D45), chỉ Go (D46) |
-| PG Nền Go | Chưa | | | | Viết lại theo D45/D46 |
+| PG Nền Go | Xong | 2026-10-01 | 2026-10-03 | PASS (`sprints/2/qc/report-GATE-PG.md`) | Gateway không trạng thái, `--scale gateway=2`, image 9,4 MB |
 | PU Nền giao diện | Chưa | | | | |
 | P1 LLM Gateway | Chưa | | | | |
 | P2 Lớp học | Chưa | | | | |
@@ -44,10 +44,12 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - Lịch WORKFLOW §6 chưa điều chỉnh theo D45/D46 — chủ dự án quyết.
 - 9 câu hỏi sản phẩm của kịch bản demo (`specs/FEAT-demo-script/QUESTIONS.md`) — chặn P1/P2/P4/P7.
 - `thesis-notes/legacy-perf.md` thân bài còn tiếng Anh.
+- Caddy: upstream tĩnh + `health_uri` khi số bản gateway cố định (P10/PR, sprint 2 #3).
 
 ## Ánh xạ migration
 | Số goose | Tên | Phase |
 | --- | --- | --- |
+| 00001 | pg_platform | PG |
 
 ## Việc chỉ chủ dự án làm được
 - [ ] API key ≥ 2 provider LLM (trước P1)
