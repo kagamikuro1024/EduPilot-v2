@@ -49,6 +49,10 @@ Kết quả thật (chạy ở HEAD):
 - AC14: ✓ test Go; compose xem GATE
 - AC15: n/a (story hạ tầng, đúng US)
 
+## Sửa ở cổng PG (xem `dev-GATE-PG.md`)
+- `timeoutMiddleware` (AC9): lỗi i/o-timeout của client Redis/DB theo deadline của ctx có thể về trước khi `ctx.Err()` khác nil ⇒ trước đây lọt **200 rỗng** (tái hiện dưới tải CPU, `TestDeadline_Redis`). Nay mốc deadline đã qua cũng được coi là hết hạn → 504 `DEADLINE_EXCEEDED`. `TestDeadline*` ×60 dưới tải: PASS.
+- `TestRateLimit_ForwardedFor`: dư lượt thử vì rate limiter fail-open khi Redis chậm > 50 ms (máy quá tải).
+
 ## Nợ / chưa làm / cần hỏi
 - testutil dùng **container dùng chung toàn máy** (tên cố định `edupilot-test-*`, flock, Reuse) thay vì container riêng mỗi gói: bỏ flaky khi `go test ./...` khởi động nhiều container song song. Dọn bằng `make -C backend-go test-clean` (cũng cần sau khi kéo image mới). `go test` trần cần `~/.testcontainers.properties` (README backend).
 - `internal/testutil/containers.go` khoá tệp bằng `syscall` (không `os.OpenFile`) để vẫn khớp lệnh grep "không ghi đĩa" của AC11b; đây là hạ tầng test, không chạy ở production.

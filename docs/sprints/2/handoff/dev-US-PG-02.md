@@ -49,6 +49,10 @@ Kết quả thật (chạy ở HEAD):
 - AC15: ✓
 - AC16: ✓
 
+## Sửa ở cổng PG
+- `TestVectorConventions` (AC10) đỏ ngẫu nhiên ở CI x86 (vector "một chiều bật" là dữ liệu suy biến: chỉ số HNSW có nút không tới được, kết quả đầu không phải chính vector truy vấn, dist ≈ 0,9965). Nay dùng vector ngẫu nhiên có `setseed`, `hnsw.ef_search=1000`, `enable_seqscan=off`, và so khoảng cosine (≈ 0) thay vì id tuyệt đối.
+- AC7 đã chạy thật: `down -v` → `up --scale gateway=2 --wait` → `migrate exited 0`, 2 dòng goose áp dụng, 6 bảng.
+
 ## Nợ / chưa làm / cần hỏi
 - QC `pg02.sh` TC-37 đòi `pg_get_triggerdef` in `BEFORE UPDATE OR DELETE`; PostgreSQL luôn in `BEFORE DELETE OR UPDATE` — đã ghi `docs/sprints/2/proposals.md` #3 (dòng dev). Migration giữ đúng DDL của SRS 5.2; hành vi (42501) đã test.
 - AC7 (xoá volume rồi `pnpm dev`), AC17: hạ tầng ở GATE (xem `dev-GATE-PG.md`); AC17 n/a.

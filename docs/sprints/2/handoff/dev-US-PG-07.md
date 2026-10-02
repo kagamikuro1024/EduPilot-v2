@@ -51,6 +51,12 @@ Kết quả thật (chạy ở HEAD):
 - AC19: ✓ xem GATE
 - AC20: ✓ xem GATE
 
+## Sửa ở cổng PG (số đo thật ở `dev-GATE-PG.md`)
+- PgBouncer: `server_login_retry=1`, `dns_nxdomain_ttl=1`, `dns_max_ttl=5` (mặc định 15 s làm `readyz` hồi phục 11–19 s sau khi Postgres khởi động lại, vượt AC14 ≤ 10 s của US-PG-01; nay 1 s, 3/3 lần).
+- Caddyfile: snippet `gateway_upstream`; `readyz` đi riêng không bị loại thụ động (503 NOT_READY hợp lệ khi phụ thuộc chết không được loại gateway), các đường còn lại có `fail_duration 10s`, `max_fails 1`, `unhealthy_status 503`. AC6: 199 × 200 + 1 × 503 (≤ 4), 0 lỗi ở 60 request cuối, 3/3 lần.
+- `smoke.js` `jobs404`: 429 ở biên 300/phút/IP được chấp nhận trong check.
+- Compose: `JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}` để compose không in cảnh báo; gateway tự thoát 1 khi rỗng (AC16).
+
 ## Nợ / chưa làm / cần hỏi
 - Caddy health check bị động (spec v1.3). Ảnh PgBouncer `edoburu/pgbouncer:v1.26.0-p0`; `pgb_stats` cố định trong ini. CI AC12/AC13: xem GATE.
 - Thư viện ngoài bảng `ARCHITECTURE.md` §3: chỉ `kin-openapi` (test-only, D52). Không thêm hàng nào vào `proposals.md` cho thư viện.

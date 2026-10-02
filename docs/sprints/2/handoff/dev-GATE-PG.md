@@ -1,5 +1,5 @@
 # DEV handoff — Cổng PG (sprint 2)
-Nhánh: `sprint/2-pg`. Commit cuối của cổng: xem `git log -1` (ghi ở cuối file). Đo ngày 2026-10-02, colima 4 CPU / 8 GiB, Apple Silicon.
+Nhánh: `sprint/2-pg`. Commit cuối của cổng: `98f61b5` + commit chứa file này. Đo ngày 2026-10-02, colima 4 CPU / 8 GiB, Apple Silicon.
 
 ## Lệnh đã chạy và kết quả thật
 
@@ -50,7 +50,8 @@ Nhánh: `sprint/2-pg`. Commit cuối của cổng: xem `git log -1` (ghi ở cu�
 - TC-GATE-13 (k6 `TEST_ROUTES=1` ở bản mặc định phải dừng): trong lần chạy script, k6 chạy được kịch bản `write` nghĩa là stack đang ở chế độ test lúc đó; chạy tay cùng lệnh trên stack mặc định thoát 107 với thông báo đúng. Không tái hiện được nguyên nhân chuyển chế độ trong script; QC xin chạy lại sau khi sửa các lỗi script ở #10.
 
 ## CI (AC12/AC13)
-CI_PLACEHOLDER
+- AC12: workflow `CI` trên `sprint/2-pg` @ `98f61b5` — run `37030315082`: job **Go** success (go vet ×2, golangci-lint ×2, `sqlc diff`, `go test -race -tags testroutes ./...`), job **Frontend** success. Các run đỏ trước đó (`37020762877`, `37020879559`, `37021871815`, `37024603659`, `37029469936`) đều do `TestVectorConventions` (sửa ở `98f61b5`).
+- AC13: nhánh tạm `ci/sqlc-drift` (commit `12532f7`, thêm `-- name: DriftProbe :one` vào `queries/users.sql` mà không chạy `sqlc generate`): run `37024642343` kết luận **failure** ở step **`sqlc diff`**, job Frontend success. Local: `sqlc diff` rc=1 trên nhánh đó. Nhánh **chưa xoá** — xoá sau khi QC chấm TC-PG07-43/44 (`git push origin --delete ci/sqlc-drift`).
 
 ## Nợ chuyển tiếp
 - Caddy chỉ có health check bị động (spec v1.3); nợ P10/PR: upstream tĩnh + `health_uri /api/v1/healthz`.
