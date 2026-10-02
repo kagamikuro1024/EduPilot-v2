@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -42,6 +43,16 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 				t.Errorf("operationId %q trùng giữa %s và %s", o.ID, prev, o.Key())
 			}
 			ids[o.ID] = o.Key()
+		}
+	}
+	// Cả hai tệp là 3.1: cấm từ khoá `nullable` của 3.0 (kin-openapi không bắt, null vẫn lọt — dùng `type: [x, "null"]`).
+	for _, p := range []string{ProdSpecPath(), TestSpecPath()} {
+		raw, err := os.ReadFile(p)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if strings.Contains(string(raw), "nullable:") {
+			t.Errorf("%s dùng `nullable:` (cú pháp 3.0) trong tệp 3.1", p)
 		}
 	}
 	// AC2: openapi.yaml không chứa route thử.
@@ -211,6 +222,30 @@ func TestValidator_RejectsBadResponses(t *testing.T) {
 	for _, c := range bad {
 		if err := test.ValidateResponse(ctx, list(), c.status, c.hdr, []byte(c.body), ValidateOpts{}); err == nil {
 			t.Errorf("validator KHÔNG bắt được response sai: %s", c.name)
+		}
+	}
+}
+
+// Góp ý #3(a): `format: uuid` được kiểm thật (RFC 9562, nhận cả UUIDv7); id sai định dạng bị bắt.
+func TestValidator_UUIDFormat(t *testing.T) {
+	prod, _ := loadBoth(t)
+	req := httptest.NewRequest(http.MethodGet, "http://localhost/api/v1/jobs/"+uuid.NewString(), nil)
+	h := http.Header{"Content-Type": {"application/json; charset=utf-8"}}
+	job := func(id string) []byte {
+		return []byte(`{"id":"` + id + `","kind":"k","status":"QUEUED","progress":0,"created_at":"2026-10-02T00:00:00Z","updated_at":"2026-10-02T00:00:00Z"}`)
+	}
+	v7, err := uuid.NewV7()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, ok := range []string{v7.String(), uuid.NewString()} {
+		if err := prod.ValidateResponse(context.Background(), req, 200, h, job(ok), ValidateOpts{}); err != nil {
+			t.Errorf("uuid hợp lệ %s bị từ chối: %v", ok, err)
+		}
+	}
+	for _, bad := range []string{"x", "not-a-uuid", "0192a3b4-c5d6-7e8f-9a0b-1c2d3e4f5a6", ""} {
+		if err := prod.ValidateResponse(context.Background(), req, 200, h, job(bad), ValidateOpts{}); err == nil {
+			t.Errorf("Job.id %q sai định dạng uuid mà validator không bắt", bad)
 		}
 	}
 }

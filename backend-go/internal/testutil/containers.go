@@ -64,16 +64,17 @@ var (
 )
 
 // withLock chạy fn khi giữ khoá tệp toàn máy (nhiều tiến trình test không cùng tạo một container).
+// Dùng syscall thuần: gói này là hạ tầng test, không phải mã sản xuất ghi đĩa (US-PG-07 AC11b).
 func withLock(fn func() error) error {
-	f, err := os.OpenFile(filepath.Join(os.TempDir(), "edupilot-testutil.lock"), os.O_CREATE|os.O_RDWR, 0o600)
+	fd, err := syscall.Open(filepath.Join(os.TempDir(), "edupilot-testutil.lock"), syscall.O_CREAT|syscall.O_RDWR, 0o600)
 	if err != nil {
 		return fmt.Errorf("open lock: %w", err)
 	}
-	defer func() { _ = f.Close() }()
-	if err := syscall.Flock(int(f.Fd()), syscall.LOCK_EX); err != nil {
+	defer func() { _ = syscall.Close(fd) }()
+	if err := syscall.Flock(fd, syscall.LOCK_EX); err != nil {
 		return fmt.Errorf("flock: %w", err)
 	}
-	defer func() { _ = syscall.Flock(int(f.Fd()), syscall.LOCK_UN) }()
+	defer func() { _ = syscall.Flock(fd, syscall.LOCK_UN) }()
 	return fn()
 }
 

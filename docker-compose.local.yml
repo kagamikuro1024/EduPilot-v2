@@ -174,7 +174,7 @@ services:
       retries: 20
 
   caddy:
-    image: caddy:2
+    image: caddy:2.11
     ports: ["80:80", "443:443"]
     volumes:
       - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro

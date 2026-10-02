@@ -16,6 +16,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/getkin/kin-openapi/openapi3filter"
@@ -62,8 +63,15 @@ func ProdSpecPath() string {
 // TestSpecPath là đường dẫn spec route thử.
 func TestSpecPath() string { return filepath.Join(APIDir(), "openapi.test.yaml") }
 
+// formatOnce đăng ký định dạng `uuid` đúng một lần: kin-openapi mặc định KHÔNG kiểm `format: uuid`
+// (id sai định dạng vẫn qua). Mẫu RFC 9562 (không phải RFC 4122, vốn từ chối nhầm UUIDv7 mà dự án dùng).
+var formatOnce sync.Once //nolint:gochecknoglobals // đăng ký định dạng vào bảng toàn cục của kin-openapi, chỉ một lần
+
 // Load nạp và kiểm hợp lệ một tệp spec.
 func Load(ctx context.Context, path string) (*Spec, error) {
+	formatOnce.Do(func() {
+		openapi3.DefineStringFormatValidator("uuid", openapi3.NewRegexpFormatValidator(openapi3.FormatOfStringForUUIDOfRFC9562))
+	})
 	loader := openapi3.NewLoader()
 	loader.IsExternalRefsAllowed = false
 	doc, err := loader.LoadFromFile(path)

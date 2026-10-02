@@ -22,6 +22,8 @@ localhost {
 			lb_try_interval 250ms
 			fail_duration 10s
 			max_fails 1
+			# Gateway đang tắt trả 503 NOT_READY: coi là lỗi thụ động để Caddy ngừng gửi tới bản đó ngay (AC6).
+			unhealthy_status 503
 			flush_interval -1
 			transport http {
 				dial_timeout 2s
