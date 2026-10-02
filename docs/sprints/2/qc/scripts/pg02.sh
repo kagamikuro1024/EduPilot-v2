@@ -418,7 +418,7 @@ tc_pg02_47() {  # AC8 — sqlc diff thoát 0, không in gì
 }
 tc_pg02_48() {  # AC8 — enum Postgres thành kiểu Go, không float64
   chk "3 kiểu enum Go trong internal/store/models.go" "$(grep -cE '^type (UserRole|UserStatus|JobStatus) string' backend-go/internal/store/models.go 2>/dev/null)" 3
-  chk "không float64 trong internal/store" "$(grep -rn 'float64' backend-go/internal/store 2>/dev/null | grep -c .)" 0
+  chk "không float64 trong mã sản xuất internal/store (spec v1.5, #12: _test.go miễn)" "$(grep -rn 'float64' backend-go/internal/store --include=*.go 2>/dev/null | grep -v '_test.go' | grep -c .)" 0
   chk_ge "timestamptz ánh xạ time.Time" "$(grep -c 'time\.Time' backend-go/internal/store/models.go 2>/dev/null)" 1
 }
 tc_pg02_49() {  # AC8 — không OFFSET trong queries, mọi file truy vấn có '-- name:'

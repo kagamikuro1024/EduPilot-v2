@@ -1,7 +1,7 @@
-# QC report — US-PG-05 (SSE) · sprint 2 (PG Nền Go) · Kết luận: **FAIL**
+# QC report — US-PG-05 (SSE) · sprint 2 (PG Nền Go) · Kết luận: **PASS** (vòng sửa 1, 2026-10-03)
 
 Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `37055504838`). Máy: colima, curl 8.7.1, sqlc 1.31.1. Đo 2026-10-03. Script: `pg05.sh` (+ `QC_SLOW=1 pg05.sh 25 27`) (lượt đầu → sau triage + sửa script: 59/74 (+2 MANUAL) → 72/74). Nhật ký thô: `run-logs/`.
-**Tóm tắt:** 72/74 TC PASS, **2 FAIL** — lỗi sản phẩm / TC: BUG-PG-1, BUG-PG-2.
+**Tóm tắt:** 74/74 TC PASS, **0 FAIL** sau vòng sửa 1 (lỗi sản phẩm BUG-PG-1/2/3/4/6 dev đã sửa; BUG-PG-5, bearerAuth, `time.Sleep` drain: PM chốt #12 — spec v1.5; TC-PG05-41: #13).
 
 ## TC
 | TC-id | PASS/FAIL | AC | Bằng chứng / ghi chú |
@@ -46,7 +46,7 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG05-38 | PASS | AC9 (nhánh lỗi) | sự kiện đầu sau ready = [resync] ; reason = [buffer_exceeded] (+2 dòng ok) |
 | TC-PG05-39 | PASS | AC9 / SRS 5.6 | XLEN ep:sse:buf (MAXLEN ~ 1000) = 1000 (≥ 1000) ; XLEN ep:sse:buf (MAXLEN ~ 1000, cho phép xấp xỉ) = 1000 (≤ 1100) (+2 dòng ok) — _sửa script QC: như 05_ |
 | TC-PG05-40 | PASS | AC9 / SRS 5.6 | TTL ep:sse:conn (giây) > 0 = 150 (≥ 1) ; TTL ep:sse:conn (giây) ≤ SSE_CONN_TTL 150 = 150 (≤ 150) |
-| TC-PG05-41 | **FAIL** | AC9 (biên) | **FAIL — sản phẩm (trung bình-thấp)**: `Last-Event-ID: 99999999999999-0` (mới hơn mọi id): `ready` đến nhưng sự kiện live phát sau (id nhỏ hơn) bị loại do so id → client không nhận `n=99` (tay: 0 sự kiện sau 3 s). → BUG-PG-2 |
+| TC-PG05-41 | PASS | AC9 (biên) | Vòng sửa 1 (BUG-PG-2) + #13: `Last-Event-ID: 99999999999999-0` → đúng 1 `resync` (`reason=buffer_exceeded`), rồi nhận `n=99`, không đọc bù n=1..3. TC và script sửa theo #13. |
 | TC-PG05-42 | PASS | AC9 | go test ./internal/httpapi/sse -run 'TestSSE_ResyncWhenTooOld\|TestSSE_ResyncOnMalformedLastEventID' rc = [0] ; --- PASS: TestSSE_ResyncWhenTooOld (+1 dòng ok) |
 | TC-PG05-43 | PASS | AC10 | số 'event: test.ping' nhận được = [5] |
 | TC-PG05-44 | PASS | AC10 | X-Instance-Id của stream = [35881e44e194] (≠ []) ; số bản gateway nhận POST (round_robin của Caddy) = 2 (≥ 2) (+2 dòng ok) |
@@ -73,7 +73,7 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG05-65 | PASS | AC14 | số dòng khớp '^content-encoding\|^event: ready' (chỉ còn event: ready) = [1] |
 | TC-PG05-66 | PASS | AC14 | ttfb (ms) khi xin gzip = 5 (≤ 300) ; dòng đầu đọc được dạng văn bản = [retry: 3000] (+2 dòng ok) |
 | TC-PG05-67 | PASS | AC15 (nhánh lỗi) | có event: reconnect = [1] ; reason = [upstream_unavailable] (+3 dòng ok) |
-| TC-PG05-68 | **FAIL** | AC15 (nhánh lỗi) | **FAIL — sản phẩm (trung bình)**: Redis tắt, mở `/api/v1/events` 3 lần liên tiếp qua Caddy: lần 1–2 `503 SERVICE_UNAVAILABLE` JSON, lần 3 là `503` rỗng (không `Content-Type`, không `X-Instance-Id`) — do Caddy tự trả "không có upstream" sau khi coi hai gateway là hỏng (`unhealthy_status 503`). Lặp lại 6 lần: lần 3 và 6 rỗng. → BUG-PG-1 |
+| TC-PG05-68 | PASS | AC15 (nhánh lỗi) | Vòng sửa 1 (BUG-PG-1): Caddyfile bỏ `unhealthy_status 503`, gateway đang tắt gắn `X-EP-Draining`. Redis tắt: `/api/v1/events` 503 JSON `SERVICE_UNAVAILABLE`; chạy lại cả story 05: 72/72 (+ TC chậm 25, 27 PASS). |
 | TC-PG05-69 | PASS | AC15 | có event: ready sau khi Redis về = [1] ; nhận được sự kiện mới = [1] |
 | TC-PG05-70 | PASS | AC15 | go test ./internal/httpapi/sse -run 'TestSSE_RedisDownMidStream\|TestSSE_RedisDownOnConnect' rc = [0] ; --- PASS: TestSSE_RedisDownMidStream (+1 dòng ok) |
 | TC-PG05-71 | PASS | AC2 (biên chính xác) | độ dài JSON gọn của data (biên dưới) = [65536] ; độ dài JSON gọn của data (biên trên) = [65537] (+5 dòng ok) |
@@ -82,6 +82,8 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG05-74 | PASS | AC11 (phân quyền) | STUDENT phát user_id = chính mình → 2xx ~ /^2[0-9][0-9]$/ ; nhận đúng 1 sự kiện test.self = [1] (+1 dòng ok) |
 
 ## Lỗi
+_Vòng sửa 1: BUG-PG-1, 2, 3, 4, 6 dev đã sửa và QC chạy lại — **đóng**; BUG-PG-5 không phải lỗi (PM chốt #12, spec v1.5). Bảng dưới là hồ sơ vòng 1._
+
 | Mã | Mức | Nơi | Bước tái hiện | Thấy | Mong đợi | AC / TC |
 | --- | --- | --- | --- | --- | --- | --- |
 | BUG-PG-1 | **trung bình** | Caddy (`Caddyfile`, `unhealthy_status 503`) | Tắt Redis; gọi `GET /api/v1/events` (hoặc `_test/error/503`) 6 lần liên tiếp qua `https://localhost` | Lần 1–2 `503` JSON `SERVICE_UNAVAILABLE`; lần 3 và 6 là `503` rỗng (không Content-Type, không `X-Instance-Id`, không `Retry-After`) vì Caddy coi cả hai gateway là hỏng | Mọi 503 của ứng dụng (trừ readyz) vẫn là JSON có `Retry-After`; Caddy không loại upstream vì 503 hợp lệ của ứng dụng | US-PG-05 AC15 · TC-PG05-68, US-PG-06 AC5 · TC-PG06-18 |

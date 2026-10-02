@@ -1,0 +1,6 @@
+== TC-PG02-48
+    ok   3 kiểu enum Go trong internal/store/models.go = [3]
+    ok   không float64 trong mã sản xuất internal/store (spec v1.5, #12: _test.go miễn) = [0]
+    ok   timestamptz ánh xạ time.Time = 17 (≥ 1)
+-- TC-PG02-48 PASS
+TỔNG story 02: PASS=1 FAIL=0 MANUAL=0

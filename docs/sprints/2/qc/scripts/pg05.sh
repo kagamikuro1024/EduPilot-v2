@@ -484,9 +484,11 @@ tc_pg05_41() {  # AC9 (biên) — Last-Event-ID đúng định dạng nhưng m�
   sse_burst 3 test.future "$t" 3
   sse_bg "$f" 15 "$t" -H "Last-Event-ID: 99999999999999-0"; sse_wait_line "$f" '^event: ready' 10
   sleep 1; sse_pub test.future '{"n":99}' "$t" >/dev/null; sse_wait_ids "$f" 1 10; sse_kill
-  chk "không resync (id không cũ hơn bộ đệm)" "$(sse_ntype "$f" resync)" 0
-  chk "số sự kiện đọc bù" "$(sse_nid "$f")" 1
-  chk "sự kiện nhận được là cái mới" "$(sse_datas "$f" | sed -n 's/.*"n":\([0-9]*\).*/\1/p' | awk 'END{print}')" 99
+  # #13 (PM ACCEPTED): id mới hơn id mới nhất → đúng 1 `resync` (reason buffer_exceeded) rồi nhận live
+  chk "đúng 1 resync" "$(sse_ntype "$f" resync)" 1
+  chk_re "resync reason" "$(sse_data_of "$f" resync | head -1)" 'buffer_exceeded'
+  chk "sự kiện nhận được là cái mới (n=99, sau resync)" "$(sse_datas "$f" | sed -n 's/.*"n":\([0-9]*\).*/\1/p' | awk 'END{print}')" 99
+  chk "không đọc bù sự kiện cũ (n=1..3)" "$(sse_datas "$f" | sed -n 's/.*"n":\([0-9]*\).*/\1/p' | grep -cE '^[123]$')" 0
 }
 tc_pg05_42() {  # AC9 — test Go (lệnh trong AC)
   gt ./internal/httpapi/sse 'TestSSE_ResyncWhenTooOld|TestSSE_ResyncOnMalformedLastEventID'

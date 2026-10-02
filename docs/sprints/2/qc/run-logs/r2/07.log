@@ -1,0 +1,438 @@
+== TC-PG07-01
+    ok   danh sách service của docker-compose.local.yml = [caddy frontend gateway mailpit migrate minio pgbouncer postgres redis worker]
+-- TC-PG07-01 PASS
+== TC-PG07-02
+    ok   service có tên python|docling = [0]
+    ok   chuỗi docling trong compose = [0]
+-- TC-PG07-02 PASS
+== TC-PG07-03
+    (thời gian up --wait: 22 s — xem /tmp/epqc.H7VlnE/out/tc-PG07-03.log)
+    ok   rc của up -d --scale gateway=2 --wait = [0]
+-- TC-PG07-03 PASS
+== TC-PG07-04
+    ok   số dòng 'gateway running healthy 0' = [2]
+    ok   postgres running healthy 0 = [1]
+    ok   redis running healthy 0 = [1]
+    ok   minio running healthy 0 = [1]
+    ok   mailpit running healthy 0 = [1]
+    ok   pgbouncer running healthy 0 = [1]
+    ok   caddy running healthy 0 = [1]
+    ok   worker running healthy 0 = [1]
+    ok   frontend running healthy 0 = [1]
+    ok   migrate <state> <exit> = [exited 0]
+-- TC-PG07-04 PASS
+== TC-PG07-05
+    ok   migrate có FinishedAt thật (không phải mốc rỗng 0001-01-01) ~ /^20[0-9]{12}/
+    ok   e898e15c1d9a2072a14c48acb17d548e9f634a42d6ac99958f3e0e1957692103 StartedAt (202610022222588949848570) > migrate FinishedAt (202610022222537825662130)
+    ok   ecc709e595483363fc872770e339676b41e717c2aaffccfe5e6b0b766d00912d StartedAt (202610022222587693140220) > migrate FinishedAt (202610022222537825662130)
+    ok   f27fc14a6f2bb608a15ff3bf77b4e7bdf5e7f2fafe5c1a21428d78230e0b821c StartedAt (202610022222588328452450) > migrate FinishedAt (202610022222537825662130)
+-- TC-PG07-05 PASS
+== TC-PG07-06
+    ok   gateway depends_on.migrate.condition = [service_completed_successfully]
+    ok   worker depends_on.migrate.condition = [service_completed_successfully]
+    ok   gateway depends_on.pgbouncer.condition = [service_healthy]
+    ok   gateway depends_on.redis.condition = [service_healthy]
+-- TC-PG07-06 PASS
+== TC-PG07-07
+    ok   mã HTTP = [200]
+    ok   status trong thân = [ok]
+-- TC-PG07-07 PASS
+== TC-PG07-08
+    ok   số lần '<html' ở trang gốc = 1 (≥ 1)
+    ok   content-type của / ~ /text/html/
+-- TC-PG07-08 PASS
+== TC-PG07-09
+    ok   dòng trạng thái ~ /^HTTP/[0-9.]+ (301|308)/
+    ok   header location ~ /^https://localhost/?$/
+-- TC-PG07-09 PASS
+== TC-PG07-10
+    ok   GET: số header (HSTS|nosniff) = [2]
+    ok   max-age của HSTS ~ /max-age=31536000/
+    (HEAD trả: HTTP/2 405 )
+    ok   HEAD: số header (HSTS|nosniff) = [2]
+-- TC-PG07-10 PASS
+== TC-PG07-11
+    ok   content-encoding của / ~ /^(zstd|gzip)$/
+-- TC-PG07-11 PASS
+== TC-PG07-12
+    ok   số header content-encoding của JSON nhỏ = [0]
+    ok   content-type của SSE ~ /text/event-stream/
+    ok   số header content-encoding của SSE = [0]
+-- TC-PG07-12 PASS
+== TC-PG07-13
+    ok   header Server ở /api/v1/healthz = [0]
+    ok   header Server ở / = [0]
+-- TC-PG07-13 PASS
+== TC-PG07-14
+    ok   số dòng chứa 'Caddy Local Authority' = 2 (≥ 1)
+    ok   SAN DNS:localhost = 1 (≥ 1)
+    ok   có notAfter (hạn chứng chỉ) = 1 (≥ 1)
+-- TC-PG07-14 PASS
+== TC-PG07-15
+    ok   số lần mã 200 = [40]
+    ok   số lần mã khác 200 = [0]
+    ok   số giá trị X-Instance-Id khác nhau = [2]
+    ok   số lần của bản ít được chọn nhất = 20 (≥ 1)
+-- TC-PG07-15 PASS
+== TC-PG07-16
+    ok   số bản gateway đang chạy = 2 (≥ 2)
+    ok   X-Instance-Id [e898e15c1d9a] khớp container
+    ok   X-Instance-Id [ecc709e59548] khớp container
+-- TC-PG07-16 PASS
+== TC-PG07-17
+    ok   số lần 404 = [20]
+    ok   số lần 401 = [0]
+-- TC-PG07-17 PASS
+== TC-PG07-18
+    vòng 1: không-200 = 1, 60 dòng cuối không-200 = 0 (/tmp/epqc.H7VlnE/out/tc-PG07-18-r1.codes)
+    ok   vòng 1: số dòng không-200 (≤ 2 % của 200) = 1 (≤ 4)
+    ok   vòng 1: số dòng không-200 ở 60 dòng cuối (sau ~6 s) = [0]
+    vòng 2: không-200 = 1, 60 dòng cuối không-200 = 0 (/tmp/epqc.H7VlnE/out/tc-PG07-18-r2.codes)
+    ok   vòng 2: số dòng không-200 (≤ 2 % của 200) = 1 (≤ 4)
+    ok   vòng 2: số dòng không-200 ở 60 dòng cuối (sau ~6 s) = [0]
+    vòng 3: không-200 = 1, 60 dòng cuối không-200 = 0 (/tmp/epqc.H7VlnE/out/tc-PG07-18-r3.codes)
+    ok   vòng 3: số dòng không-200 (≤ 2 % của 200) = 1 (≤ 4)
+    ok   vòng 3: số dòng không-200 ở 60 dòng cuối (sau ~6 s) = [0]
+-- TC-PG07-18 PASS
+== TC-PG07-19
+    ok   trước khi tắt = [404]
+    ok   sau khi tắt, cùng token (không 401) = [404]
+-- TC-PG07-19 PASS
+== TC-PG07-20
+    ok   số container gateway 'running healthy 0' = [2]
+-- TC-PG07-20 PASS
+== TC-PG07-21
+    ok   pool_mode = [transaction]
+    ok   listen_port = [6432]
+    ok   max_client_conn = [200]
+    ok   default_pool_size = [20]
+    ok   reserve_pool_size = [5]
+    ok   reserve_pool_timeout = [3]
+    ok   query_wait_timeout = [30]
+    ok   server_lifetime = [1800]
+    ok   server_idle_timeout = [600]
+    ok   auth_type = [scram-sha-256]
+    ok   max_prepared_statements = [0]
+    ok   ignore_startup_parameters ~ /extra_float_digits/
+-- TC-PG07-21 PASS
+== TC-PG07-22
+    ok   số cổng công bố của pgbouncer = [0]
+    ok   đối chứng: cổng 5433 (postgres) mở được từ host
+    ok   cổng 6432 KHÔNG mở được từ host
+-- TC-PG07-22 PASS
+== TC-PG07-23
+    ok   psql "$PGB" -Atc 'SHOW VERSION' từ container postgres
+    ok   chuỗi phiên bản ~ /pgbouncer/
+-- TC-PG07-23 PASS
+== TC-PG07-24
+    ok   gateway db_via = [pgbouncer]
+    ok   worker db_via = [pgbouncer]
+-- TC-PG07-24 PASS
+== TC-PG07-25
+    ok   số client edupilot = 3 (≥ 3)
+    ok   số client migrate = [0]
+-- TC-PG07-25 PASS
+== TC-PG07-26
+    ok   env của migrate dùng Postgres trực tiếp ~ /postgres:5432/
+    ok   env của migrate không trỏ PgBouncer !~ /pgbouncer:6432/
+    ok   số lần thấy client migrate trên PgBouncer (12 lần lấy mẫu) = [0]
+    ok   migrate chạy lại vẫn thoát 0 = [exited 0]
+-- TC-PG07-26 PASS
+== TC-PG07-27
+    ok   go test ./internal/platform/db -run 'TestPgBouncer_TransactionMode|TestPgBouncer_NoPreparedStatements|TestVector_ThroughPgBouncer' rc = [0]
+    ok   --- PASS: TestPgBouncer_TransactionMode
+    ok   --- PASS: TestPgBouncer_NoPreparedStatements
+    ok   --- PASS: TestVector_ThroughPgBouncer
+-- TC-PG07-27 PASS
+== TC-PG07-28
+    ok   số request trả 404 (có truy vấn DB) = [1000]
+    ok   số dòng log gateway có lỗi prepared statement / bind message = [0]
+-- TC-PG07-28 PASS
+== TC-PG07-29
+    (build --target gateway: 1 s)
+    ok   rc của docker build --target gateway = [0]
+    (build --target worker: 1 s)
+    ok   rc của docker build --target worker = [0]
+    ok   số dòng FROM trong backend-go/Dockerfile = 6 (≥ 2)
+-- TC-PG07-29 PASS
+== TC-PG07-30
+    (edupilot-gateway = 9424558 byte)
+    ok   kích thước edupilot-gateway (byte) = 9424558 (≤ 39999999)
+    (edupilot-worker = 8917617 byte)
+    ok   kích thước edupilot-worker (byte) = 8917617 (≤ 39999999)
+-- TC-PG07-30 PASS
+== TC-PG07-31
+    ok   Config.User của edupilot-gateway ~ /^(nonroot|65532)(:(nonroot|65532))?$/
+    ok   Config.User của edupilot-worker ~ /^(nonroot|65532)(:(nonroot|65532))?$/
+-- TC-PG07-31 PASS
+== TC-PG07-32
+    ok   edupilot-gateway không chạy được sh
+    ok   edupilot-gateway không chạy được /bin/sh
+    ok   edupilot-worker không chạy được sh
+    ok   edupilot-worker không chạy được /bin/sh
+-- TC-PG07-32 PASS
+== TC-PG07-33
+    ok   image của service migrate = [edupilot-gateway]
+    ok   entrypoint của migrate = [["/gateway","migrate"]]
+    ok   command của migrate = [["up"]]
+-- TC-PG07-33 PASS
+== TC-PG07-34
+    ok   số container gateway+worker đã kiểm = 3 (≥ 3)
+    ok   số container KHÔNG read_only = [0]
+-- TC-PG07-34 PASS
+== TC-PG07-35
+    ok   số chỗ ghi đĩa trong mã sản xuất = [0]
+-- TC-PG07-35 PASS
+== TC-PG07-36
+    ok   rc của golangci-lint run = [0]
+    ok   số dòng báo lỗi lint = [0]
+-- TC-PG07-36 PASS
+== TC-PG07-37
+    ok   số thay đổi hệ thống file của e898e15c1d9a2072a14c48acb17d548e9f634a42d6ac99958f3e0e1957692103 = [0]
+    ok   số thay đổi hệ thống file của ecc709e595483363fc872770e339676b41e717c2aaffccfe5e6b0b766d00912d = [0]
+    ok   số thay đổi hệ thống file của f27fc14a6f2bb608a15ff3bf77b4e7bdf5e7f2fafe5c1a21428d78230e0b821c = [0]
+-- TC-PG07-37 PASS
+== TC-PG07-38
+    ok   headSha của run mới nhất = [4ebf8c59b24dfcb8e1a2a75cca0ad3e988c4d2b5]
+    ok   conclusion = [success]
+-- TC-PG07-38 PASS
+== TC-PG07-39
+    ok   tìm được run id ~ /^[0-9]+$/
+    ok   số bước khớp sqlc|race|vet|golangci = 9 (≥ 6)
+-- TC-PG07-39 PASS
+== TC-PG07-40
+    ok   số bước có 'vet' = 2 (≥ 2)
+    ok   số bước có 'golangci' = 4 (≥ 2)
+    ok   số bước có 'sqlc' = 2 (≥ 1)
+-- TC-PG07-40 PASS
+== TC-PG07-41
+    ok   số job tên chứa Frontend = 1 (≥ 1)
+    ok   job Frontend không success = [0]
+    ok   job Go không success = [0]
+-- TC-PG07-41 PASS
+== TC-PG07-42
+    ok   số lần 'testroutes' trong ci.yml = 6 (≥ 3)
+    ok   số dòng khớp 'legacy|secrets\.' = [0]
+-- TC-PG07-42 PASS
+== TC-PG07-43
+    ok   conclusion của run = [failure]
+    ok   headBranch = [ci/sqlc-drift]
+    ok   job Go = [failure]
+    ok   job Frontend = [success]
+    ok   số bước thất bại có tên chứa sqlc = 1 (≥ 1)
+-- TC-PG07-43 PASS
+== TC-PG07-44
+    FAIL headSha của run = SHA đầu nhánh trên origin: thực tế [12532f776fab74512b9bdbb0ab099acee3eeb3ea] ≠ mong đợi []
+    ok   số tệp internal/store/queries/*.sql bị đổi = 1 (≥ 1)
+    ok   số tệp đổi NGOÀI internal/store/queries/*.sql = [0]
+-- TC-PG07-44 FAIL
+== TC-PG07-45
+    ok   git ls-remote --heads origin ci/sqlc-drift (phải không in gì) = []
+-- TC-PG07-45 PASS
+== TC-PG07-46
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+    ok   rc của k6 run = [0]
+    ok   số ngưỡng ✗ (không đạt) = [0]
+    ok   số dòng ngưỡng ✓ = 71 (≥ 3)
+-- TC-PG07-46 PASS
+== TC-PG07-47
+    ok   số lần 'p(95)<300' = 3 (≥ 3)
+    ok   tập ngưỡng p(95) có trong tệp = [p(95)<300,p(95)<500]
+    ok   ngưỡng http_req_failed rate<0.005 = 1 (≥ 1)
+    ok   ngưỡng checks rate>0.99 = 1 (≥ 1)
+-- TC-PG07-47 PASS
+== TC-PG07-48
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+healthz ✓ [ 100% ] 00/20 VUs  30s        20.00 iters/s
+readyz  ✓ [ 100% ] 00/10 VUs  30s        10.00 iters/s
+    ok   rc của k6 run (TEST_ROUTES=1, tmode) = [0]
+    ok   số ngưỡng ✗ = [0]
+    ok   có ngưỡng p(95)<500 của kịch bản ghi = 1 (≥ 1)
+-- TC-PG07-48 PASS
+== TC-PG07-49
+    http_reqs......................: 1      93.923171/s
+
+    NETWORK
+    data_received..................: 2.9 kB 271 kB/s
+    data_sent......................: 2.1 kB 197 kB/s
+
+
+
+
+Run       [ 100% ] setup()
+healthz   [   0% ]
+readyz    [   0% ]
+jobs404   [   0% ]
+write     [   0% ]
+time="2026-10-03T05:30:07+07:00" level=error msg="GoError: TEST_ROUTES=1 cần stack dựng bằng docker-compose.test.yml\n\tat go.k6.io/k6/v2/internal/js/modules/k6.(*K6).Fail-fm (native)\n\tat setup (file:///Users/kuro/Documents/TA_Agent_v2-s2/benchmarks/load/smoke.js:60:9(23))\n" hint="script exception" source=stacktrace
+    ok   rc của k6 run (TEST_ROUTES=1, dmode) = [107] (≠ [0])
+    ok   đầu ra chứa đúng chuỗi 'TEST_ROUTES=1 cần stack dựng bằng docker-compose.test.yml' = 1 (≥ 1)
+-- TC-PG07-49 PASS
+== TC-PG07-50
+    ok   tệp benchmarks/reports/pg-baseline.md tồn tại
+    ok   số dòng khớp RAM|khởi động|image|p95 = 9 (≥ 4)
+    ok   số con số trong báo cáo = 68 (≥ 4)
+    ok   startup_ms trong log là số ~ /^[0-9]+$/
+-- TC-PG07-50 PASS
+== TC-PG07-51
+edupilot-worker-1 4.348MiB / 7.738GiB
+edupilot-gateway-1 3.965MiB / 7.738GiB
+edupilot-gateway-2 3.809MiB / 7.738GiB
+edupilot-test-pgbouncer 7.828MiB / 7.738GiB
+edupilot-caddy-1 18.89MiB / 7.738GiB
+edupilot-pgbouncer-1 7.754MiB / 7.738GiB
+edupilot-redis-1 6.895MiB / 7.738GiB
+edupilot-postgres-1 37.98MiB / 7.738GiB
+edupilot-minio-1 82.51MiB / 7.738GiB
+edupilot-mailpit-1 6.445MiB / 7.738GiB
+edupilot-frontend-1 38.34MiB / 7.738GiB
+edupilot-test-redis 6.859MiB / 7.738GiB
+edupilot-test-postgres 259.1MiB / 7.738GiB
+    ĐO LẠI: RAM gateway=3.965MiB, RAM worker=4.348MiB, image gateway=9424685 B, image worker=8917743 B, k6:     http_req_duration{scenario:healthz}
+    ok   RAM nghỉ gateway đo được ~ /^[0-9]/
+    ok   RAM nghỉ worker đo được ~ /^[0-9]/
+    ok   kích thước image gateway đo được ~ /^[0-9]+$/
+    ok   kích thước image worker đo được ~ /^[0-9]+$/
+    (PM chốt góp ý #2: chỉ ghi nhận số đo vào report, KHÔNG FAIL vì lệch so với benchmarks/reports/pg-baseline.md)
+-- TC-PG07-51 PASS
+== TC-PG07-52
+    ok   .env.local giống hệt bản gốc
+    ok   danh sách missing trong log ~ /JWT_SECRET_KEY/
+    ok   mã thoát của container gateway ~ /(^|,)1(,|$)/
+-- TC-PG07-52 PASS
+== TC-PG07-53
+    (RestartCount lớn nhất = 3; State.Running = false)
+    ok   RestartCount lớn nhất sau 60 s = 3 (≤ 3)
+    ok   số container gateway còn đang chạy = [0]
+-- TC-PG07-53 PASS
+== TC-PG07-54
+    ok   migrate FinishedAt không đổi = [2026-10-02T22:32:35.815596846Z]
+    ok   trạng thái migrate = [exited 0]
+-- TC-PG07-54 PASS
+== TC-PG07-55
+caddy 0.0.0.0:80->80/tcp, [::]:80->80/tcp, 0.0.0.0:443->443/tcp, [::]:443->443/tcp, 443/udp, 2019/tcp
+frontend 0.0.0.0:3000->3000/tcp, [::]:3000->3000/tcp
+gateway 8080/tcp
+gateway 8080/tcp
+mailpit 0.0.0.0:1025->1025/tcp, [::]:1025->1025/tcp, 0.0.0.0:8025->8025/tcp, [::]:8025->8025/tcp, 1110/tcp
+migrate 
+minio 0.0.0.0:9000-9001->9000-9001/tcp, [::]:9000-9001->9000-9001/tcp
+pgbouncer 5432/tcp
+postgres 0.0.0.0:5433->5432/tcp, [::]:5433->5432/tcp
+redis 0.0.0.0:6380->6379/tcp, [::]:6380->6379/tcp
+worker 8081/tcp
+    ok   số dòng gateway|worker|pgbouncer|migrate có '->' = [0]
+-- TC-PG07-55 PASS
+== TC-PG07-56
+    ok   tập service có cổng công bố = [caddy frontend mailpit minio postgres redis]
+    ok   caddy công bố 80 = 1 (≥ 1)
+    ok   caddy công bố 443 = 1 (≥ 1)
+    ok   postgres 5433 = 1 (≥ 1)
+    ok   redis 6380 = 1 (≥ 1)
+    ok   minio 9000 = 1 (≥ 1)
+    ok   mailpit 8025 = 1 (≥ 1)
+    ok   frontend 3000 = 1 (≥ 1)
+-- TC-PG07-56 PASS
+== TC-PG07-57
+    ok   số dòng bí mật trong docker-compose.local.yml = [0]
+    ok   số dòng bí mật trong docker-compose.test.yml = [0]
+-- TC-PG07-57 PASS
+== TC-PG07-58
+    ok   số biến bí mật trong .env.example (không đo rỗng) = 5 (≥ 1)
+    ok   số giá trị bí mật của .env.example KHÔNG chứa '-dev' = [0]
+    ok   .env.local bị git bỏ qua
+    ok   số chỗ lộ JWT_SECRET_KEY ngoài .env.example/docs = [0]
+    ok   .env.example có mục JWT_SECRET_KEY = 1 (≥ 1)
+-- TC-PG07-58 PASS
+== TC-PG07-59
+    ok   GET http://localhost:8080/healthz từ host = [000]
+    ok   GET http://localhost:8081/healthz từ host = [000]
+    ok   đối chứng trong mạng compose (rawhttp gateway:8080) ~ /^HTTP/1\.1 200/
+-- TC-PG07-59 PASS
+== TC-PG07-60
+    ok   appendonly = [yes]
+    ok   appendfsync = [everysec]
+    ok   maxmemory-policy = [noeviction]
+-- TC-PG07-60 PASS
+== TC-PG07-61
+    (compose volumes: caddy_config caddy_data minio_data postgres_data redis_data)
+    ok   volume postgres = 1 (≥ 1)
+    ok   volume redis = 1 (≥ 1)
+    ok   volume minio = 1 (≥ 1)
+    ok   volume caddy_data = 1 (≥ 1)
+    ok   volume thật của project edupilot = 5 (≥ 4)
+-- TC-PG07-61 PASS
+== TC-PG07-62
+    ok   giá trị khoá sau khi restart redis = [v1]
+-- TC-PG07-62 PASS
+== TC-PG07-63
+    MANUAL AC19 = TC-GATE-01…13 của tc-GATE-PG.md đều PASS (bash docs/sprints/2/qc/scripts/gate-pg.sh 01 02 03 04 05 06 07 08 09 10 11 12 13); chép kết luận vào report-US-PG-07 mục AC19 (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-PG07-63 MANUAL
+== TC-PG07-64
+    ok   số 'FROM … AS (gateway-test|worker-test)' = [2]
+    ok   số dòng chứa 'testroutes' = [2]
+    ok   số 'FROM … AS (gateway|worker)' = [2]
+-- TC-PG07-64 PASS
+== TC-PG07-65
+    ok   số lần 'gateway-test|worker-test' trong docker-compose.local.yml = [0]
+-- TC-PG07-65 PASS
+== TC-PG07-66
+    ok   danh sách service khi có override = [caddy frontend gateway mailpit migrate minio pgbouncer postgres redis worker]
+    ok   số dòng 'image: edupilot-(gateway|worker)-test' = [2]
+    ok   số dòng 'target: (gateway|worker)-test' = [2]
+    ok   APP_ENV của gateway ở override ~ /APP_ENV[^,]*test/
+    ok   APP_ENV của worker ở override ~ /APP_ENV[^,]*test/
+-- TC-PG07-66 PASS
+== TC-PG07-67
+    ok   whoami ở image *-test = [200]
+    ok   whoami ở image mặc định = [404]
+-- TC-PG07-67 PASS
+== TC-PG07-68
+    (edupilot-gateway-test = 9644088 byte)
+    ok   kích thước edupilot-gateway-test (byte) = 9644088 (≤ 39999999)
+    (edupilot-worker-test = 8919427 byte)
+    ok   kích thước edupilot-worker-test (byte) = 8919427 (≤ 39999999)
+-- TC-PG07-68 PASS
+== TC-PG07-69
+    ok   số dòng đẩy image (docker push / --push / build-push-action) = [0]
+    ok   số dòng vừa nhắc '-test' vừa nhắc push = [0]
+-- TC-PG07-69 PASS
+TỔNG story 07: PASS=67 FAIL=1 MANUAL=1
+FAIL: TC-PG07-44
+MANUAL: TC-PG07-63

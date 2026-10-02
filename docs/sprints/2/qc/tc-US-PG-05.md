@@ -45,7 +45,7 @@ Tiền điều kiện chung của story: stack chạy `pnpm dev`, **chế độ 
 | TC-PG05-38 | AC9 (nhánh lỗi) | chế độ test; uuid 161; bộ đệm đã có 5 sự kiện | **S** `pg05.sh 38` — `Last-Event-ID: 1-0` (đúng định dạng, cũ hơn sự kiện đầu bộ đệm) | Sự kiện đầu sau `ready` là `resync`, `reason = buffer_exceeded`, **không** mang `id:`; sau đó vẫn nhận ≥ 1 sự kiện mới |
 | TC-PG05-39 | AC9 / SRS 5.6 | chế độ test; uuid 162 | **S** `pg05.sh 39` (≈ 2 phút) — phát 1.500 sự kiện rồi `XLEN` / `PTTL ep:sse:buf:<uid>` | `XLEN` ∈ [1.000, 1.100] (`MAXLEN ~ 1000`); `PTTL` > 0 và ≤ **3.600.000** ms (`SSE_BUFFER_TTL` 1 h) |
 | TC-PG05-40 | AC9 / SRS 5.6 | chế độ test; uuid 163 | **S** `pg05.sh 40` — mở 1 stream rồi `TTL ep:sse:conn:<uid>` | TTL > 0 và ≤ **150** s (không khoá nào `-1`) |
-| TC-PG05-41 | AC9 (biên) | chế độ test; uuid 164 | **S** `pg05.sh 41` — `Last-Event-ID: 99999999999999-0` (đúng định dạng, mới hơn mọi id) | **0** `resync`; đọc bù 0 sự kiện cũ; nhận đúng sự kiện mới phát sau đó (`n = 99`) |
+| TC-PG05-41 | AC9 (biên) | chế độ test; uuid 164 | **S** `pg05.sh 41` — `Last-Event-ID: 99999999999999-0` (đúng định dạng, mới hơn mọi id) | **1** `resync` (`reason=buffer_exceeded`, góp ý #13 / #12); đọc bù 0 sự kiện cũ; rồi nhận đúng sự kiện mới phát sau đó (`n = 99`) |
 | TC-PG05-42 | AC9 | Docker | **S** `pg05.sh 42` — `gt ./internal/httpapi/sse 'TestSSE_ResyncWhenTooOld\|TestSSE_ResyncOnMalformedLastEventID'` | rc = 0, đủ 2 dòng `--- PASS:` |
 | TC-PG05-43 | AC10 | chế độ test; `--scale gateway=2` | **S** `pg05.sh 43` — đúng lệnh AC: stream qua Caddy + 5 `POST _test/events` `test.ping` | `grep -c '^event: test.ping'` = **5** |
 | TC-PG05-44 | AC10 | chế độ test; uuid 170 | **S** `pg05.sh 44` — đọc `X-Instance-Id` của response SSE và của từng POST (`-D-`) | Stream có `X-Instance-Id` khác rỗng; POST rơi vào ≥ **2** bản khác nhau (round_robin); ≥ **1** POST rơi vào bản **khác** bản giữ stream; stream vẫn nhận đủ **5** sự kiện |
@@ -156,3 +156,4 @@ AC11 là mục phân quyền của story (khác US-PG-01 AC15 / US-PG-02 AC17 "k
 - 2026-10-02 — spec v1.2 (commit 02a4435; QC questions #Q-QC-05-5): TC-PG05-19 sửa: siết header `Retry-After: 5` và thân `retry_after: 5` (số nguyên) thay cho "`Retry-After` là số".
 
 Tổng: 74 TC (72 S tự động, 2 T tay).
+- 2026-10-03 · **Sửa TC-PG05-41** (góp ý #13): kỳ vọng 1 `resync` rồi nhận live.

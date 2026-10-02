@@ -368,7 +368,8 @@ tc_pg06_30() {  # AC7 — jobs/{id} và events: bearerAuth + 401
   need $API || return
   local p
   for p in '/api/v1/jobs/{id}' '/api/v1/events'; do
-    chk_ge "$p khai bearerAuth" "$(block_of $API "$p" | grep -c 'bearerAuth')" 1
+    # spec v1.5 (#12): security HIỆU LỰC — thao tác tự khai bearerAuth, hoặc không khai `security` riêng và gốc tài liệu khai bearerAuth
+    chk_ge "$p có hiệu lực bearerAuth (riêng hoặc kế thừa gốc)" "$(b=$(block_of $API "$p"); if printf '%s' "$b" | grep -q 'bearerAuth'; then echo 1; elif ! printf '%s' "$b" | grep -qE '^ +security:' && grep -qE '^security:' $API && awk '/^security:/{f=1;next} f&&/^[a-z]/{exit} f' $API | grep -q bearerAuth; then echo 1; else echo 0; fi)" 1
     chk_ge "$p khai 401" "$(block_of $API "$p" | grep -cE "(^ +['\"]?401['\"]?:|responses/Unauthorized)")" 1
   done
 }

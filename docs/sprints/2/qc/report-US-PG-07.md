@@ -1,7 +1,7 @@
-# QC report — US-PG-07 (hạ tầng + CI) · sprint 2 (PG Nền Go) · Kết luận: **FAIL**
+# QC report — US-PG-07 (hạ tầng + CI) · sprint 2 (PG Nền Go) · Kết luận: **PASS** (vòng sửa 1, 2026-10-03)
 
 Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `37055504838`). Máy: colima, curl 8.7.1, sqlc 1.31.1. Đo 2026-10-03. Script: `pg07.sh` (lượt đầu → sau triage + sửa script: 61/69 → 68/69). Nhật ký thô: `run-logs/`.
-**Tóm tắt:** 68/69 TC PASS, **1 FAIL**.
+**Tóm tắt:** 69/69 TC PASS, **0 FAIL** sau vòng sửa 1 (lỗi sản phẩm BUG-PG-1/2/3/4/6 dev đã sửa; BUG-PG-5, bearerAuth, `time.Sleep` drain: PM chốt #12 — spec v1.5; TC-PG05-41: #13).
 
 ## TC
 | TC-id | PASS/FAIL | AC | Bằng chứng / ghi chú |
@@ -49,8 +49,8 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG07-41 | PASS | AC12 | số job tên chứa Frontend = 1 (≥ 1) ; job Frontend không success = [0] (+1 dòng ok) |
 | TC-PG07-42 | PASS | AC12 | số lần 'testroutes' trong ci.yml = 6 (≥ 3) ; số dòng khớp 'legacy\|secrets\.' = [0] |
 | TC-PG07-43 | PASS | AC13 (nhánh lỗi) | conclusion của run = [failure] ; headBranch = [ci/sqlc-drift] (+3 dòng ok) |
-| TC-PG07-44 | PASS | AC13 (xác thực) | headSha của run = SHA đầu nhánh trên origin = [12532f776fab74512b9bdbb0ab099acee3eeb3ea] ; số tệp internal/store/queries/*.sql bị đổi = 1 (≥ 1) (+1 dòng ok) |
-| TC-PG07-45 | **FAIL** | AC13 | **FAIL — KHÔNG KIỂM ĐƯỢC (dev chưa xoá)**: `git ls-remote --heads origin ci/sqlc-drift` vẫn in `12532f7… refs/heads/ci/sqlc-drift`. TC-43/44 đã PASS (run `37024642343` failure đúng step `sqlc diff`; headSha khớp) → dev xoá nhánh rồi chạy lại TC này. |
+| TC-PG07-44 | PASS | AC13 | Chấm ở vòng 1 (run `37024642343`, headSha `12532f7` khớp nhánh, chỉ đụng `queries/*.sql`); vòng 2 nhánh đã xoá theo TC-PG07-45 nên không chạy lại. |
+| TC-PG07-45 | PASS | AC13 | `git ls-remote --heads origin ci/sqlc-drift` không in gì — dev đã xoá nhánh. (TC-PG07-43/44 chấm PASS ở vòng 1 khi nhánh còn; không chạy lại được sau khi nhánh bị xoá — `pg07.sh 44` đỏ "headSha ≠ []" chỉ vì nhánh không còn.) |
 | TC-PG07-46 | PASS | AC14 | rc của k6 run = [0] ; số ngưỡng ✗ (không đạt) = [0] (+1 dòng ok) |
 | TC-PG07-47 | PASS | AC14 | số lần 'p(95)<300' = 3 (≥ 3) ; tập ngưỡng p(95) có trong tệp = [p(95)<300,p(95)<500] (+2 dòng ok) |
 | TC-PG07-48 | PASS | AC14 | rc của k6 run (TEST_ROUTES=1, tmode) = [0] ; số ngưỡng ✗ = [0] (+1 dòng ok) |
@@ -68,7 +68,7 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG07-60 | PASS | AC18 | appendonly = [yes] ; appendfsync = [everysec] (+1 dòng ok) |
 | TC-PG07-61 | PASS | AC18 | volume postgres = 1 (≥ 1) ; volume redis = 1 (≥ 1) (+3 dòng ok) |
 | TC-PG07-62 | PASS | AC18 | giá trị khoá sau khi restart redis = [v1] |
-| TC-PG07-63 | PASS | AC19 | PASS — AC19 = TC-GATE-01…13 đều PASS (xem report-GATE-PG). |
+| TC-PG07-63 | PASS | AC19 | AC19 = TC-GATE-01…13 đều PASS (xem report-GATE-PG, chạy lại vòng sửa 1). |
 | TC-PG07-64 | PASS | AC20 | số 'FROM … AS (gateway-test\|worker-test)' = [2] ; số dòng chứa 'testroutes' = [2] (+1 dòng ok) |
 | TC-PG07-65 | PASS | AC20 | số lần 'gateway-test\|worker-test' trong docker-compose.local.yml = [0] |
 | TC-PG07-66 | PASS | AC20 | danh sách service khi có override = [caddy frontend gateway mailpit migrate minio pgbouncer postgres redis wor ; số dòng 'image: edupilot-(gateway\|worker)-test' = [2] (+3 dòng ok) |
@@ -77,6 +77,8 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG07-69 | PASS | AC20 | số dòng đẩy image (docker push / --push / build-push-action) = [0] ; số dòng vừa nhắc '-test' vừa nhắc push = [0] |
 
 ## Lỗi
+_Vòng sửa 1: BUG-PG-1, 2, 3, 4, 6 dev đã sửa và QC chạy lại — **đóng**; BUG-PG-5 không phải lỗi (PM chốt #12, spec v1.5). Bảng dưới là hồ sơ vòng 1._
+
 | Mã | Mức | Nơi | Bước tái hiện | Thấy | Mong đợi | AC / TC |
 | --- | --- | --- | --- | --- | --- | --- |
 | BUG-PG-1 | **trung bình** | Caddy (`Caddyfile`, `unhealthy_status 503`) | Tắt Redis; gọi `GET /api/v1/events` (hoặc `_test/error/503`) 6 lần liên tiếp qua `https://localhost` | Lần 1–2 `503` JSON `SERVICE_UNAVAILABLE`; lần 3 và 6 là `503` rỗng (không Content-Type, không `X-Instance-Id`, không `Retry-After`) vì Caddy coi cả hai gateway là hỏng | Mọi 503 của ứng dụng (trừ readyz) vẫn là JSON có `Retry-After`; Caddy không loại upstream vì 503 hợp lệ của ứng dụng | US-PG-05 AC15 · TC-PG05-68, US-PG-06 AC5 · TC-PG06-18 |

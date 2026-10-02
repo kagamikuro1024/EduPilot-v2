@@ -403,7 +403,7 @@ tc_pg07_44() {  # AC13 — tính xác thực: headSha = SHA nhánh, và chỉ đ
   chk "số tệp đổi NGOÀI internal/store/queries/*.sql" "$(printf '%s\n' "$files" | grep -v 'internal/store/queries/.*\.sql$' | grep -c .)" 0
 }
 tc_pg07_45() {  # AC13 (Tay) — sau khi QC chấm xong, dev xoá nhánh ci/sqlc-drift
-  manual "chạy sau TC-PG07-43/44: báo dev xoá nhánh, rồi 'git ls-remote --heads origin ci/sqlc-drift' phải không in gì (xem Bước tay TC-PG07-45)"
+  chk "git ls-remote --heads origin ci/sqlc-drift (phải không in gì)" "$(git ls-remote --heads origin ci/sqlc-drift 2>/dev/null)" ""   # TC-43/44 đã chấm xong ở report vòng 1
 }
 
 # ---------- AC14: k6 ----------

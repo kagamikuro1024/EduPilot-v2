@@ -1,23 +1,23 @@
 # QC report — GATE-PG · sprint 2 (PG Nền Go) · Kết luận: **PASS**
 
 Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `37055504838`). Máy: colima, curl 8.7.1, sqlc 1.31.1. Đo 2026-10-03. Script: `gate-pg.sh` (lượt đầu → sau triage + sửa script: 15/25 → 25/25). Nhật ký thô: `run-logs/`.
-**Tóm tắt:** 25/25 TC PASS, **0 FAIL** — lỗi sản phẩm / TC: BUG-PG-3.
+**Tóm tắt:** 25/25 TC PASS, **0 FAIL** sau vòng sửa 1 (lỗi sản phẩm BUG-PG-1/2/3/4/6 dev đã sửa; BUG-PG-5, bearerAuth, `time.Sleep` drain: PM chốt #12 — spec v1.5; TC-PG05-41: #13).
 
-## Kết luận cổng PG: **FAIL**
-25/25 TC-GATE đạt (sau triage + sửa script), nhưng bảy story còn **8 TC FAIL**:
+## Kết luận cổng PG: **PASS**
+Vòng sửa 1 (dev `3f1a39d`…`8d8f3c4`; PM #12, #13): 8 TC FAIL của vòng 1 đã chạy lại **PASS** (01-76, 02-48, 05-41, 05-68, 06-05, 06-18, 06-30, 07-45) và hồi quy toàn bộ:
 
-| Story | TC | PASS | FAIL | Kết luận |
-| --- | --- | --- | --- | --- |
-| US-PG-01 (gateway nền) | 85 | 84 | 1 | FAIL |
-| US-PG-02 (schema + sqlc) | 70 | 69 | 1 | FAIL |
-| US-PG-03 (HTTP: lỗi, idempotency, cursor, ETag) | 108 | 108 | 0 | PASS |
-| US-PG-04 (auth) | 58 | 58 | 0 | PASS |
-| US-PG-05 (SSE) | 74 | 72 | 2 | FAIL |
-| US-PG-06 (OpenAPI + contract) | 38 | 35 | 3 | FAIL |
-| US-PG-07 (hạ tầng + CI) | 69 | 68 | 1 | FAIL |
-| GATE-PG | 25 | 25 | 0 | PASS |
+| Story | TC | PASS | FAIL |
+| --- | --- | --- | --- |
+| US-PG-01 | 85 | 85 | 0 |
+| US-PG-02 | 70 | 70 | 0 |
+| US-PG-03 | 108 | 108 | 0 |
+| US-PG-04 | 58 | 58 | 0 |
+| US-PG-05 | 74 | 74 | 0 |
+| US-PG-06 | 38 | 38 | 0 |
+| US-PG-07 | 69 | 69 | 0 |
+| GATE-PG | 25 | 25 | 0 |
 
-FAIL còn lại: TC-PG01-76, TC-PG02-48, TC-PG05-41, TC-PG05-68, TC-PG06-05, TC-PG06-18, TC-PG06-30, TC-PG07-45. Lỗi sản phẩm cần dev: **BUG-PG-1 (Caddy 503 rỗng, trung bình)**, BUG-PG-2, BUG-PG-4; sửa nhẹ: BUG-PG-3, 5, 6; TC-PG07-45 chờ dev xoá nhánh `ci/sqlc-drift`. Cổng PASS khi dev sửa BUG-PG-1/2 (+4), PM chốt BUG-PG-6 và dev xoá nhánh; QC chạy lại 8 TC trên.
+Hồi quy vòng 2 đã chạy: `pg05.sh` đủ (72 + TC chậm 25, 27), `pg06.sh` đủ (37 + 38 tay), `pg07.sh` đủ (67 + 44/63 chép), `gate-pg.sh` đủ (22 tự động + 25, 27 trình duyệt thật + 30 đọc diff) — gồm `--scale gateway=2`, tắt một gateway giữa stream (TC-GATE-28/29), rút mạng SSE (23/24/25), Idempotency-Key gửi đôi (26/27), `down -v` rồi `up` (20). Story 01–04 giữ kết quả vòng 1 (đã PASS), riêng TC-PG01-76 và TC-PG02-48 chạy lại. CI `sprint/2-pg` xanh (xem TC-PG07-39). Lưu ý: TC-PG07-43/44 chấm ở vòng 1, nhánh `ci/sqlc-drift` nay đã xoá (TC-PG07-45 PASS).
 
 ## TC
 | TC-id | PASS/FAIL | AC | Bằng chứng / ghi chú |
@@ -40,12 +40,12 @@ FAIL còn lại: TC-PG01-76, TC-PG02-48, TC-PG05-41, TC-PG05-68, TC-PG06-05, TC-
 | TC-GATE-22 | PASS | mục 2 (compose) "… không chết lúc đang phục vụ" | gateway thiếu JWT_SECRET_KEY: rc = [1] ; log nêu tên biến = [JWT_SECRET_KEY] (+4 dòng ok) — _sửa script QC: jq bỏ qua dòng "Container …"_ |
 | TC-GATE-23 | PASS | mục 3 "Mở một stream SSE thử, rút mạng 10 giây rồi cắm lại … không mất sự kiện nào" (mô phỏng phía client, tự động) | đã nhận id e5 ~ /^[0-9]+-[0-9]+$/ ; đã nhận n 1..5 = [1 2 3 4 5] (+5 dòng ok) — _sửa script QC: #10(1) + `wait` pid subshell + `sse_ns` bỏ "data: "_ |
 | TC-GATE-24 | PASS | mục 3 (rút mạng thật) | gateway nhận lại qua Caddy ≤ 40 s sau khi cắm = [200] ; đã nhận trước khi rút: 1 2 = [1 2] (+2 dòng ok) — _sửa script QC: như 23_ |
-| TC-GATE-25 | PASS | mục 3 "trình duyệt tự nối lại bằng Last-Event-ID" (Chromium thật) | (đạt theo script) — _sửa script QC: chạy `sse-browser-cut.mjs` (sửa `tab.run` args)_ |
+| TC-GATE-25 | PASS | mục 3c | `sse-browser-cut.mjs` (Chrome thật): 9/9 PASS — nhận đúng 1…30, không trùng, 4 lần nối lại gửi `Last-Event-ID`, không `resync`. |
 | TC-GATE-26 | PASS | mục 4 "Gửi đúp … `Idempotency-Key` bằng hai tab" (hai tiến trình song song) | một bản ghi duy nhất = [1] ; hai thân giống hệt (byte) = [same] (+3 dòng ok) |
-| TC-GATE-27 | PASS | mục 4 (hai tab trình duyệt thật) | (đạt theo script) — _sửa script QC: chạy `idem-two-tabs.mjs` (sửa `tab.run` args)_ |
+| TC-GATE-27 | PASS | mục 4b | `idem-two-tabs.mjs` (hai tab thật): 5/5 PASS — 1 bản ghi, hai response 201 giống hệt, một bên `Idempotent-Replayed: true`. |
 | TC-GATE-28 | PASS | mục 5 "Tắt một trong hai bản gateway giữa lúc đang có stream: phiên kế tiếp vẫn chạy, không mất đăng nhập" (bản mang stream) | client nhận event: shutdown = [1] ; shutdown reason = [server_shutdown] (+4 dòng ok) — _sửa script QC: như 23 + `--filter id=` (#10(3))_ |
 | TC-GATE-29 | PASS | mục 5 (bản không mang stream) | dòng không-200 trong 200 request = 1 (≤ 4) ; 60 dòng cuối 0 lỗi = [0] (+3 dòng ok) — _sửa script QC: như 28_ |
-| TC-GATE-30 | PASS | mục 6 "Đọc toàn bộ diff của `internal/auth` và `httpapi/`" | PASS (đọc chọn lọc, xem bảng checklist dưới đây). |
+| TC-GATE-30 | PASS | mục 6 | Đọc lại diff từ `4bf829c` đến HEAD: 7 tệp (header `X-EP-Draining` `middleware.go`, `server.go` đặt header lúc tắt, `sse/handler.go` `startFrom`, `depProbeTimeout` 400 ms) — đạt; ứng viên `diff-review.sh` giữ nguyên như vòng 1 và đều đã giải thích (`time.Sleep(drain)` là ngoại lệ hợp lệ theo #12). |
 | TC-GATE-99 | PASS | dọn | chế độ cuối = [default] ; 2 gateway healthy = [2] (+1 dòng ok) |
 
 ## Bước tay đã làm
@@ -54,6 +54,8 @@ FAIL còn lại: TC-PG01-76, TC-PG02-48, TC-PG05-41, TC-PG05-68, TC-PG06-05, TC-
   - xác nhận bằng `file:dòng`: HS256 cố định `jwt.go:105` (`WithValidMethods`), leeway `jwt.go:109`, `jti` `crypto/rand` `jwt.go:4`; `RequireRole` so khớp bằng map `middleware.go:70-81`; Principal chỉ từ context `auth.go:32`; idempotency lock `SetNX` `idempotency.go:152`; `X-Forwarded-For` chỉ tin `TRUSTED_PROXY_CIDRS` `ratelimit.go:139-160`; các mục còn lại (bcrypt, cursor, CORS, ETag, CourseAccessGuard) được kiểm hộp đen ở US-PG-03/04 và `diff-review.sh`. **Hạn chế:** không đọc từng dòng 8,5 nghìn dòng diff.
 
 ## Lỗi
+_Vòng sửa 1: BUG-PG-1, 2, 3, 4, 6 dev đã sửa và QC chạy lại — **đóng**; BUG-PG-5 không phải lỗi (PM chốt #12, spec v1.5). Bảng dưới là hồ sơ vòng 1._
+
 | Mã | Mức | Nơi | Bước tái hiện | Thấy | Mong đợi | AC / TC |
 | --- | --- | --- | --- | --- | --- | --- |
 | BUG-PG-1 | **trung bình** | Caddy (`Caddyfile`, `unhealthy_status 503`) | Tắt Redis; gọi `GET /api/v1/events` (hoặc `_test/error/503`) 6 lần liên tiếp qua `https://localhost` | Lần 1–2 `503` JSON `SERVICE_UNAVAILABLE`; lần 3 và 6 là `503` rỗng (không Content-Type, không `X-Instance-Id`, không `Retry-After`) vì Caddy coi cả hai gateway là hỏng | Mọi 503 của ứng dụng (trừ readyz) vẫn là JSON có `Retry-After`; Caddy không loại upstream vì 503 hợp lệ của ứng dụng | US-PG-05 AC15 · TC-PG05-68, US-PG-06 AC5 · TC-PG06-18 |

@@ -1,7 +1,7 @@
-# QC report — US-PG-01 (gateway nền) · sprint 2 (PG Nền Go) · Kết luận: **FAIL**
+# QC report — US-PG-01 (gateway nền) · sprint 2 (PG Nền Go) · Kết luận: **PASS** (vòng sửa 1, 2026-10-03)
 
 Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `37055504838`). Máy: colima, curl 8.7.1, sqlc 1.31.1. Đo 2026-10-03. Script: `bash docs/sprints/2/qc/scripts/pg01.sh` (lượt đầu → sau triage + sửa script: 82/85 → sau sửa script 84/85). Nhật ký thô: `run-logs/`.
-**Tóm tắt:** 84/85 TC PASS, **1 FAIL** — lỗi sản phẩm / TC: BUG-PG-4.
+**Tóm tắt:** 85/85 TC PASS, **0 FAIL** sau vòng sửa 1 (lỗi sản phẩm BUG-PG-1/2/3/4/6 dev đã sửa; BUG-PG-5, bearerAuth, `time.Sleep` drain: PM chốt #12 — spec v1.5; TC-PG05-41: #13).
 
 ## TC
 | TC-id | PASS/FAIL | AC | Bằng chứng / ghi chú |
@@ -81,7 +81,7 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG01-73 | PASS | AC14 | mã readyz = [503] ; code = [NOT_READY] (+3 dòng ok) |
 | TC-PG01-74 | PASS | AC14 | mã readyz = [503] ; details.db = [down] (+2 dòng ok) |
 | TC-PG01-75 | PASS | AC14 / SRS 3.4 | rc = [1] ; ms ≈ STARTUP_TIMEOUT 3 s = 3051 (≥ 2500) (+6 dòng ok) |
-| TC-PG01-76 | **FAIL** | AC14 / SRS 3.4 | **FAIL — sản phẩm (thấp)**: STARTUP_TIMEOUT=3s, Redis đóng: chỉ 1 dòng warn `dependency not ready` (t=+1,0 s) rồi error (t=+3,0 s); TC/SRS 3.4 đòi ≥ 2 warn "mỗi giây". Log cho thấy go-redis thử dial 5 lần (~1 s/lần) kéo vòng chờ giãn ra. → BUG-PG-4 |
+| TC-PG01-76 | PASS | AC14 | Vòng sửa 1 (BUG-PG-4, dev `WaitForDeps` ping tối đa 400 ms): chạy lại `pg01.sh 76` → PASS (≥ 2 dòng warn `dependency not ready` `redis` trong 2,5–9 s, ≥ 1 error). |
 | TC-PG01-77 | PASS | AC14 | go test ./internal/httpapi -run 'TestReadyz_DependencyDown\|TestStartup_WaitsForDeps' rc = [0] ; --- PASS: TestReadyz_DependencyDown (+1 dòng ok) |
 | TC-PG01-78 | PASS | AC15 | số dòng khớp bí mật trong repo = [0] — _sửa script QC: #9(2)/#11 `:!legacy`_ |
 | TC-PG01-79 | PASS | AC15 | .env.example tồn tại ; có khai báo DATABASE_URL = 1 (≥ 1) (+7 dòng ok) — _sửa script QC: #9(1)/#11 đo `-dev` thay so với .env.local_ |
@@ -93,6 +93,8 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG01-85 | PASS | AC13 / SRS 9.4 | số lần gọi golangci-lint = [2] ; số lần golangci-lint chạy với tag testroutes = [1] |
 
 ## Lỗi
+_Vòng sửa 1: BUG-PG-1, 2, 3, 4, 6 dev đã sửa và QC chạy lại — **đóng**; BUG-PG-5 không phải lỗi (PM chốt #12, spec v1.5). Bảng dưới là hồ sơ vòng 1._
+
 | Mã | Mức | Nơi | Bước tái hiện | Thấy | Mong đợi | AC / TC |
 | --- | --- | --- | --- | --- | --- | --- |
 | BUG-PG-1 | **trung bình** | Caddy (`Caddyfile`, `unhealthy_status 503`) | Tắt Redis; gọi `GET /api/v1/events` (hoặc `_test/error/503`) 6 lần liên tiếp qua `https://localhost` | Lần 1–2 `503` JSON `SERVICE_UNAVAILABLE`; lần 3 và 6 là `503` rỗng (không Content-Type, không `X-Instance-Id`, không `Retry-After`) vì Caddy coi cả hai gateway là hỏng | Mọi 503 của ứng dụng (trừ readyz) vẫn là JSON có `Retry-After`; Caddy không loại upstream vì 503 hợp lệ của ứng dụng | US-PG-05 AC15 · TC-PG05-68, US-PG-06 AC5 · TC-PG06-18 |

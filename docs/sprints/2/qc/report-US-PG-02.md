@@ -1,7 +1,7 @@
-# QC report — US-PG-02 (schema + sqlc) · sprint 2 (PG Nền Go) · Kết luận: **FAIL**
+# QC report — US-PG-02 (schema + sqlc) · sprint 2 (PG Nền Go) · Kết luận: **PASS** (vòng sửa 1, 2026-10-03)
 
 Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `37055504838`). Máy: colima, curl 8.7.1, sqlc 1.31.1. Đo 2026-10-03. Script: `pg02.sh` (lượt đầu → sau triage + sửa script: 63/70 → 69/70). Nhật ký thô: `run-logs/`.
-**Tóm tắt:** 69/70 TC PASS, **1 FAIL** — lỗi sản phẩm / TC: BUG-PG-5.
+**Tóm tắt:** 70/70 TC PASS, **0 FAIL** sau vòng sửa 1 (lỗi sản phẩm BUG-PG-1/2/3/4/6 dev đã sửa; BUG-PG-5, bearerAuth, `time.Sleep` drain: PM chốt #12 — spec v1.5; TC-PG05-41: #13).
 
 ## TC
 | TC-id | PASS/FAIL | AC | Bằng chứng / ghi chú |
@@ -53,7 +53,7 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG02-45 | PASS | AC7 | migrate có FinishedAt ~ /^[0-9]{4}-/ ; StartedAt(/edupilot-gateway-1) > migrate.FinishedAt = [t] (+3 dòng ok) |
 | TC-PG02-46 | PASS | AC7 | migrate DATABASE_URL trỏ thẳng postgres ~ /@postgres(:5432)?// ; migrate không trỏ pgbouncer !~ /pgbouncer/ (+2 dòng ok) |
 | TC-PG02-47 | PASS | AC8 | sqlc diff rc = [0] ; sqlc diff không in gì (số dòng) = [0] — _sửa script QC: cài sqlc 1.31.1 (= CI)_ |
-| TC-PG02-48 | **FAIL** | AC8 | **FAIL — sản phẩm (thấp)**: `grep -rn float64 backend-go/internal/store` = 2 dòng, đều ở `vector_test.go:74,77` (khoảng cách cosine trong test, không phải điểm). TC đòi 0 dòng. → BUG-PG-5 |
+| TC-PG02-48 | PASS | AC8 | Spec v1.5 / #12: quét `float64` chỉ mã sản xuất (`grep … --include=*.go \| grep -v _test.go` = 0); enum Go = 3; `time.Time` ≥ 1. TC và `pg02.sh` đã sửa theo #12. |
 | TC-PG02-49 | PASS | AC8 | OFFSET trong internal/store/queries = [0] ; số file queries/*.sql = 5 (≥ 1) (+1 dòng ok) |
 | TC-PG02-50 | PASS | AC9 (nhánh lỗi) | sqlc diff rc (phải khác 0) = [1] (≠ [0]) ; diff nêu tên file sinh ra lệch ~ /\.go/ (+1 dòng ok) — _sửa script QC: cài sqlc 1.31.1 (= CI)_ |
 | TC-PG02-51 | PASS | AC10 | go test ./internal/store -run 'TestVectorConventions' rc = [0] ; --- PASS: TestVectorConventions |
@@ -78,6 +78,8 @@ Worktree `TA_Agent_v2-s2`, nhánh `sprint/2-pg` @ `4bf829c` (CI xanh run `370555
 | TC-PG02-70 | PASS | AC1 / AC4 (v1.2 #Q-QC-02-3) | bảng thử _test_% đang tồn tại (điều kiện để phép đo có nghĩa) = 1 (≥ 1) ; bảng public sau khi loại _test_% = [audit_log goose_db_version idempotency_keys jobs outbox users] (+2 dòng ok) |
 
 ## Lỗi
+_Vòng sửa 1: BUG-PG-1, 2, 3, 4, 6 dev đã sửa và QC chạy lại — **đóng**; BUG-PG-5 không phải lỗi (PM chốt #12, spec v1.5). Bảng dưới là hồ sơ vòng 1._
+
 | Mã | Mức | Nơi | Bước tái hiện | Thấy | Mong đợi | AC / TC |
 | --- | --- | --- | --- | --- | --- | --- |
 | BUG-PG-1 | **trung bình** | Caddy (`Caddyfile`, `unhealthy_status 503`) | Tắt Redis; gọi `GET /api/v1/events` (hoặc `_test/error/503`) 6 lần liên tiếp qua `https://localhost` | Lần 1–2 `503` JSON `SERVICE_UNAVAILABLE`; lần 3 và 6 là `503` rỗng (không Content-Type, không `X-Instance-Id`, không `Retry-After`) vì Caddy coi cả hai gateway là hỏng | Mọi 503 của ứng dụng (trừ readyz) vẫn là JSON có `Retry-After`; Caddy không loại upstream vì 503 hợp lệ của ứng dụng | US-PG-05 AC15 · TC-PG05-68, US-PG-06 AC5 · TC-PG06-18 |
