@@ -4,8 +4,8 @@ info:
   version: 0.2.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
-    (`internal/contract` kiểm hai chiều). Route thử `/api/v1/_test/*` nằm ở `openapi.test.yaml`, chỉ có trong
-    binary dựng bằng build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ.
+    (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
+    build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
