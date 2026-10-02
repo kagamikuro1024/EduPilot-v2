@@ -57,7 +57,6 @@ Truy vết: P1 L3 (migration `00002`, `platform/crypto`, `internal/llmconfig`); 
 
 ### Ngoài phạm vi của story này
 - Handler HTTP, mã lỗi HTTP, `openapi.yaml` (US-P1-04); gọi LLM (US-P1-02); bảng `courses` và khoá ngoại `course_id` (P2); xoay vòng khoá mã hoá `APP_ENCRYPTION_KEY` và dọn `llm_audit` cũ (Nợ PR).
-- Giá trị `llm_audit` từ phía Python (`src/llm/gateway.py`) — P3.
 
 ### Phụ thuộc
 - `FEAT-pg-foundation` (goose `00001`, `audit_log`, JWT claims, `platform/*`). Không phụ thuộc story P1 khác.
@@ -106,7 +105,7 @@ Truy vết: P1 L1 (gói `internal/llm`, hợp đồng `Chat/Stream/Structured/Em
   Kiểm: `curl -sk -o /dev/null -w '%{http_code}\n' -H "$A" -X POST $GW/api/v1/_test/llm/chat -d '{}'` trên binary **không** `testroutes` → `404`; trên binary `testroutes` với `$S` → `403`.
 
 ### Ngoài phạm vi của story này
-- Scheduler, hạn mức, mạch, suy giảm, ngân sách (US-P1-03); API cấu hình (US-P1-04); tool / agent / RAG / che PII (P3); gọi LLM từ Python.
+- Scheduler, hạn mức, mạch, suy giảm, ngân sách (US-P1-03); API cấu hình (US-P1-04); tool / agent / RAG / che PII (P3).
 - Ghi phản hồi thật từ nhà cung cấp: cần khoá thật — **việc của chủ dự án** (AC13).
 
 ### Phụ thuộc

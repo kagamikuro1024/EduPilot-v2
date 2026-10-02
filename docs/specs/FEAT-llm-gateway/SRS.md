@@ -9,7 +9,7 @@ Nguồn: `docs/phases/P1.md` (nguồn chính), `docs/sprints/3/plan.md`, PRD M12
 
 **Trong phạm vi:** migration `00002_llm`; `platform/crypto`; `internal/llmconfig` (service + repo + handler); `internal/llm` (+ `fake`, `scheduler`, `budget`, `cost`); `cmd/llmload` (công cụ đo, không vào image); route thử `testroutes`; `openapi.yaml` + golden; màn `/settings/llm`; cấu hình env.
 
-**Ngoài phạm vi:** agent / RAG / tool / che PII (P3); gọi LLM từ Python và `llm_audit` phía Python (P3); bảng `courses` và ràng buộc "TEACHER chỉ lớp của mình" (P2); thông báo giao diện khi ngân sách 80 % (P4 — sprint này chỉ ghi outbox); việc lập chỉ mục lại khi đổi mô hình nhúng (P8); xoay vòng khoá mã hoá và dọn `llm_audit` (Nợ PR); `make eval` (hoãn — plan sprint 3); ghi phản hồi thật từ nhà cung cấp (cần khoá — chủ dự án).
+**Ngoài phạm vi:** agent / RAG / tool / che PII (P3); bảng `courses` và ràng buộc "TEACHER chỉ lớp của mình" (P2); thông báo giao diện khi ngân sách 80 % (P4 — sprint này chỉ ghi outbox); việc lập chỉ mục lại khi đổi mô hình nhúng (P8); xoay vòng khoá mã hoá và dọn `llm_audit` (Nợ PR); `make eval` (hoãn — plan sprint 3); ghi phản hồi thật từ nhà cung cấp (cần khoá — chủ dự án).
 
 **Giả định vận hành:** gateway **không trạng thái** (luật 10) và có thể chạy nhiều bản sao: trạng thái dùng chung của Scheduler (đồng thời, RPM / TPM, mạch, ngân sách, thông báo nạp lại) nằm ở **Redis**; hàng đợi chờ nằm trong bộ nhớ từng tiến trình (ghi `ponytail:` — công bằng giữa tiến trình chỉ gần đúng).
 
