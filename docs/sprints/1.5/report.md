@@ -1,27 +1,38 @@
-# Sprint 1.5 — Báo cáo nghiệm thu Prototype Giao diện
+# Sprint 1.5 — báo cáo (prototype giao diện toàn bộ tính năng)
 
-Mục tiêu: Hoàn thành prototype giao diện tương tác toàn bộ tính năng phục vụ thuyết trình với thầy hướng dẫn cuối tuần · Kết quả: **5/5 story PASS · DEMO 15 phút PASS 100%** · Nhánh `sprint/1.5-mock-ui`
+Mục tiêu: prototype bấm được, đủ mọi route dự định, đổi 4 vai, đi trọn kịch bản demo 15 phút, để trình bày với thầy hướng dẫn (D51) · Kết quả: **5/5 story PASS · DEMO PASS** sau 2 vòng QC và 2 vòng sửa · Nhánh `sprint/1.5-mock-ui`
 
-| Story | Phạm vi | Trạng thái | QC | Ghi chú |
-| --- | --- | --- | --- | --- |
-| US-PROTO-00 | Nền tảng prototype, layout, /login, phân quyền | PASS | `report-US-PROTO-00.md` (17 TC) | 4 vai, chọn SV A–D, cookie phiên, ma trận 128/128 quyền, sửa BUG-1..3 |
-| US-PROTO-01 | Giao diện Sinh viên (Chat, Threads, Luyện đề, Thư viện, Lịch, Kết quả, Bài tập, Join) | PASS | `report-US-PROTO-01.md` (38 TC) | Form tạo thread đầy đủ, chuyển hướng sang `/threads/${id}`, reply composer, hỏi AI, quét PII 2 lối, stream chữ, What-if |
-| US-PROTO-02 | Giao diện GV/TA vận hành lớp (Hôm nay, Hộp thư, Sinh viên, Điểm danh, Thành viên) | PASS | `report-US-PROTO-02.md` (31 TC) | Hộp thư 2 panel độc lập, điểm danh phím tắt + giả lập mất mạng, kiểm duyệt Threads GV/TA (sửa inline CORRECTED, xác nhận, loại bỏ) |
-| US-PROTO-03 | Giao diện Đánh giá (Sổ điểm, Công thức điểm, Chấm bài, Ngân hàng câu hỏi, Tài liệu) | PASS | `report-US-PROTO-03.md` (29 TC) | Màn chấm bài 2 panel độc lập (doc 55% & rubric 45%), lệch điểm > 1 cảnh báo, duyệt & công bố BT03 = 8,0, xác nhận công thức lớp 2 |
-| US-PROTO-04 | Giao diện Hiểu lớp + Hệ thống (Insights, Analytics, Quan sát AI, Cấu hình, Quản trị) | PASS | `report-US-PROTO-04.md` (23 TC) | Phân định panel /settings, /insights, bảo vệ thông tin cá nhân, audit log Drawer |
-| US-PROTO-DEMO | Đi trọn kịch bản demo 15 phút (F2→F3→F5→F7→F9→F10→F17) | PASS | `report-US-PROTO-DEMO.md` | Đi trọn 7 luồng trong một trình duyệt bằng cách đổi vai; điểm quá trình SV B khớp: 8,3 → 8,5 → 8,7; What-if 8,3 |
+| Story | Phạm vi | Trạng thái | QC |
+| --- | --- | --- | --- |
+| US-PROTO-00 | Nền: `/login` chọn vai, shell, bộ chọn lớp, chuông, phân quyền theo vai, trạng thái tải/rỗng/lỗi, màn lỗi/404 trong khung | PASS | `qc/report-v5-US-PROTO-00.md`, `qc/report-v5-round2.md` |
+| US-PROTO-01 | Sinh viên: Hôm nay, Chat riêng, Threads, Luyện đề, Thư viện, Lịch, Kết quả, Bài tập, Tham gia lớp | PASS (sau vòng sửa 2: BUG-v5-01-6) | như trên |
+| US-PROTO-02 | GV/TA vận hành lớp: Hôm nay, Hộp thư, Sinh viên, Điểm danh, Thành viên | PASS | như trên |
+| US-PROTO-03 | Đánh giá: Sổ điểm, Công thức điểm, Chấm bài, Ngân hàng câu hỏi, Tài liệu | PASS | như trên |
+| US-PROTO-04 | Hiểu lớp + Hệ thống: Insights, Analytics, Quan sát AI, Cấu hình LLM, Tích hợp, Quản trị | PASS | như trên |
+| DEMO | Kịch bản 15 phút F2→F3→F5→F7→F9→F10→F17 trong một trình duyệt | PASS — `demo-run.mjs` 22/22 nhóm bước, 170 s | `qc/report-v5-DEMO.md` |
 
-## Thay đổi lớn theo góp ý của chủ dự án trong sprint
-1. **Luồng Threads hoàn chỉnh (Proposal #15)**: Bám sát mã cũ `legacy/` và `DESIGN.md` §14.3–14.4: form tạo thread gồm Tiêu đề, Chủ đề, Nội dung chi tiết, checkbox hỏi AI; quét PII 2 lối; đăng xong chuyển hướng ngay sang `/threads/${id}`; chi tiết thread có Reply Composer ở cuối trang cho mọi vai trò; GV/TA có nút Chỉnh sửa inline câu trả lời AI (lưu thành `CORRECTED` kèm xem bản gốc), Xác nhận, Loại khỏi tri thức.
-2. **Phân định rõ các Panel giao diện (Proposal #16, FR-X11)**: Khắc phục cảm giác phẳng lỳ, khó phân biệt khu vực. Các màn chia đôi (Hộp thư `/inbox`, Chấm bài `/grading/[submissionId]`, Threads `/threads/[id]`, Cài đặt `/settings/*`) và các khối lớn trên trang được đóng gói thành các panel độc lập có viền `1px solid var(--ep-rule)`, nền `var(--ep-surface)` hoặc `var(--ep-surface-subtle)`, bo góc `var(--ep-radius-md)`, padding phù hợp.
-3. **Mốc thời gian và điểm số chuẩn hóa**: Tuần 10, ngày 29/10/2026 09:20; điểm BT03 công bố = 8,0 (trừ muộn 0,5), QT SV B = 8,7, What-if CK 8,0 = 8,3 (Proposals #12, #13).
+## Diễn biến
+1. **v1–v4** (01/10): 5 story theo spec v1–v4, QC ALL PASS. Chủ dự án xem và không ưng: luồng Threads sai so với hệ cũ (#15), panel không phân tách (#16) → spec v4, sửa, PASS.
+2. **v5** (01/10, chủ dự án giao PM toàn quyền nghiệm thu UI): PM rà 36 ảnh → #17 (logo nhỏ, bộ chọn lớp cắt chữ, inbox tràn, chat lệch trục, menu hồ sơ ghi tên vai, lưới `/settings/llm`). Chủ dự án: "Threads chưa ổn, chưa thấy mock phản hồi thật" → #18 Threads như thật (seed phản hồi khớp số đếm, 10 mẫu AI Socratic theo chủ đề + nhánh "chưa đủ chắc chắn", đang soạn → stream → nguồn, phản hồi trễ của TA + chuông, hộp chặn thông tin cá nhân).
+3. **QC thăm dò** tìm thêm 37 lỗi ngoài spec (#19, 8 mức cao: sập trang luyện đề, SV chưa vào lớp thấy dữ liệu người khác, thread đăng email/SĐT không chặn…) → spec v5.1 có **một nguồn số liệu** cho mọi con số (`mock/derive.ts`).
+4. **QC chạy v5**: ~50 lỗi (gồm 4 lỗi UI PM thấy, #24) → dev sửa vòng 1 49/50 (lỗi còn lại là spec tự mâu thuẫn, đóng theo #26, spec v5.2).
+5. **QC vòng 2**: mọi lỗi mức cao PASS; còn 1 lỗi thấp (nhãn lịch tháng 3 dòng) → dev sửa vòng 2.
 
-## Số liệu nghiệm thu
-- Tổng test case: **138 TC**, 100% PASS, 0 FAIL.
-- Kiểm tra tĩnh: `tsc --noEmit` xanh, `eslint .` (0 lỗi, 0 cảnh báo), `next build` biên dịch sạch 31 route.
-- Phản mẫu UI (`scripts/ui-antipatterns.sh`): **10/10 check XANH**.
-- Ảnh chụp nghiệm thu: 24 ảnh tại `docs/sprints/1.5/shots/`.
+## Số liệu
+- Test case: **449** (00: 70 · 01: 154 · 02: 92 · 03: 42 · 04: 51 · DEMO: 40).
+- Tự động vòng 2: `proto-curl.sh` 497/0 · `audit.mjs` 495 dòng (4 vai × 1440/390/375 + bề rộng biên) 0 FAIL · `regress-v24` 30/30 · `pii-matrix` 48/48 · `threads-timeline` 0 FAIL · `demo-run` 22/22.
+- Lint, build, `ui-antipatterns.sh` sạch. 27 nhóm route, `frontend/src` +19.008 dòng, 90 commit trên nhánh.
+- Góp ý của đội: #15–#26 (12), PM chấp nhận 12 (1 theo phương án khác: #21).
 
-## Trạng thái bàn giao
-Prototype đã sẵn sàng 100% để khởi động và trình chiếu trước thầy hướng dẫn.
-Mọi dữ liệu mô phỏng được lưu tại `localStorage` (`ep_demo_state`), có nút `Đặt lại dữ liệu demo` trong menu hồ sơ để reset trạng thái sạch bất cứ lúc nào.
+## Quy trình rút ra (đã ghi vào `docs/team/`)
+- Cấm subagent khi PM chưa cho phép (tốn token gấp nhiều lần) — `CONTEXT.md`.
+- Thêm vai **Research** (`RESEARCH.md`, pane `research`).
+- Chạy cuốn chiếu: PM lập kế hoạch sprint kế trong lúc QC test — `PM.md`.
+
+## Nợ
+- BUG-v5-03-9, 03-10, DEMO-9, 04-6 chỉ có bằng chứng máy đo, chưa đo tay riêng (không có TC FAIL).
+- Chrome headless trên máy dev treo khi màn hình ngủ → chạy QC kèm `caffeinate` hoặc `--disable-gpu --use-angle=swiftshader`.
+- Prototype là mock có hạn dùng (D51): mỗi sprint build thật thay dần màn mock.
+
+## Chủ dự án tự kiểm
+`pnpm -C frontend build && node frontend/.next/standalone/frontend/server.js` (cổng 3000) hoặc `pnpm dev`; `/login` chọn vai, menu hồ sơ → `Đổi vai`, `Đặt lại dữ liệu demo`. Đi theo `docs/DEMO_SCRIPT.md`. Xem kỹ Threads với SV B (`/threads/t-cbc`, tạo thread mới có/không khớp chủ đề, gửi phản hồi chờ TA trả lời).
