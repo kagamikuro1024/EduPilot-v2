@@ -2,13 +2,13 @@
 
 import { FileText } from "lucide-react";
 import { useState } from "react";
-import { BT03_CRITERIA, BT03_MAX_PER_CRITERION, BT03_SEED } from "@/mock/assess";
+import { BT03_CRITERIA, BT03_EVIDENCE, BT03_MAX_PER_CRITERION, BT03_SEED } from "@/mock/assess";
 import { STUDENT_B, fmtLongDate, fmtScore, fmtTime, studentById } from "@/mock/core";
 import { agoLabel } from "@/mock/derive";
 import { baseBtScores, bt03Total } from "@/mock/grades";
 import { KEYS, type Bt03State } from "@/mock/state";
 import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
-import { BT03_EXCERPTS, BT03_SUBMISSION, assignmentById, until } from "@/mock/student";
+import { BT03_SUBMISSION, assignmentById, until } from "@/mock/student";
 import { useSession } from "@/shared/session/session";
 import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
@@ -150,7 +150,7 @@ export function AssignmentScreen({ id }: { id: string }) {
                           </span>
                         </div>
                         <p className={s.comment}>{bt03.comments[i]}</p>
-                        <p className={s.excerpt}>{BT03_EXCERPTS[i]}</p>
+                        <p className={s.excerpt}>“{BT03_EVIDENCE[i].quote}”</p>
                       </li>
                     ))}
                   </ol>

@@ -5,7 +5,7 @@ import { BT03_SEED } from "@/mock/assess";
 import { COURSE_1, NOW, STUDENT_B, fmtLongDate, fmtScore, fmtShortDate, studentById } from "@/mock/core";
 import { fmtStamp } from "@/mock/derive";
 import { SCHEME_1, calcFinal, qtOf } from "@/mock/grades";
-import { ATTENDANCE_SEED, CURRENT_SESSION, KEYS, SCHEMES_SEED, type AttendanceState, type Bt03State, type SchemesState } from "@/mock/state";
+import { ATTENDANCE_SEED, committedOf, CURRENT_SESSION, KEYS, SCHEMES_SEED, type AttendanceState, type Bt03State, type SchemesState } from "@/mock/state";
 import { ASSIGNMENTS, B_ABSENT_DATES, MIDTERM, sessionDate, until } from "@/mock/student";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
@@ -47,10 +47,10 @@ export function MeScreen() {
   const [meStamp] = useDemoSlice<number>(KEYS.meStamp, NOW.getTime());
   const student = studentById(studentId ?? "") ?? STUDENT_B;
   const g = qtOf(student.id, attendance, bt03);
-  const todaySession = attendance[COURSE_1]?.[CURRENT_SESSION];
+  const todaySession = committedOf(attendance[COURSE_1]?.[CURRENT_SESSION]);
   const absentDates =
     student.id === STUDENT_B.id
-      ? [...B_ABSENT_DATES, ...(todaySession?.finalized && todaySession.marks[student.id] === "absent" ? [fmtShortDate(sessionDate(CURRENT_SESSION))] : [])]
+      ? [...B_ABSENT_DATES, ...(todaySession && todaySession.marks[student.id] === "absent" ? [fmtShortDate(sessionDate(CURRENT_SESSION))] : [])]
       : [];
   const quiz01 = ASSIGNMENTS[3];
   const schemeReady = course.id === COURSE_1 || schemes[course.id]?.status === "confirmed";
@@ -189,7 +189,9 @@ export function MeScreen() {
 function WhatIf({ qt }: { qt: number }) {
   const [raw, setRaw] = useState("8,0");
   const value = Number(raw.replace(",", "."));
-  const invalid = raw.trim() === "" || Number.isNaN(value) || value < 0 || value > 10;
+  // ô trống chưa phải lỗi: chỉ chưa có gì để tính (không báo lỗi giả, không aria-invalid)
+  const empty = raw.trim() === "";
+  const invalid = !empty && (Number.isNaN(value) || value < 0 || value > 10);
   return (
     <div className={s.whatIf}>
       <Field
@@ -209,7 +211,7 @@ function WhatIf({ qt }: { qt: number }) {
           />
         )}
       </Field>
-      {!invalid && (
+      {!invalid && !empty && (
         <p className={s.whatIfOut}>
           điểm học phần sẽ là <strong>{fmtScore(calcFinal(qt, value))}</strong>
           <span className={s.whatIfNote}>

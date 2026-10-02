@@ -110,14 +110,6 @@ export const BT03_SUBMISSION = {
   sizeKb: 418,
 };
 
-/** Đoạn trích bài làm của SV B cho từng tiêu chí rubric (bằng chứng kèm nhận xét). */
-export const BT03_EXCERPTS = [
-  "“Nhóm tấn công vào hệ thống bán lẻ qua tài khoản VPN của một nhà thầu bảo trì, không bật xác thực đa yếu tố.”",
-  "“Sau khi vào mạng, kẻ tấn công dùng công cụ quản trị có sẵn để di chuyển ngang sang máy chủ quản lý bản vá.”",
-  "“Hệ thống thanh toán tại 240 cửa hàng ngừng nhận thẻ; dữ liệu của khách hàng bị sao chép trước khi mã hoá.”",
-  "“Đề xuất: phân đoạn mạng cho hệ thống thanh toán, bắt buộc xác thực đa yếu tố cho mọi truy cập từ xa.”",
-];
-
 // ---- kỳ thi ---------------------------------------------------------------------------------
 
 export const MIDTERM = { title: "Thi giữa kỳ", at: new Date("2026-11-05T09:00:00+07:00"), end: "10:30", room: "P.302 – G2", week: 11 };

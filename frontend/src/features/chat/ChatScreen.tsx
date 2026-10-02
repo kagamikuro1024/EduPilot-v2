@@ -20,19 +20,21 @@ import { COURSE_1, NOW, STAFF, STUDENT_B, fmtScore, fmtTime } from "@/mock/core"
 import { qtOf } from "@/mock/grades";
 import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
 import { BT03_SEED } from "@/mock/assess";
-import { ATTENDANCE_SEED, KEYS, type AttendanceState, type Bt03State, type Ticket } from "@/mock/state";
+import { ATTENDANCE_SEED, committedOf, KEYS, type AttendanceState, type Bt03State, type Ticket } from "@/mock/state";
 import { B_ABSENT_DATES } from "@/mock/student";
 import { TICKETS_SEED, ticketD3 } from "@/mock/support";
-import { noteNewTicket } from "@/mock/notes";
+import { noteNewTicket, noteTicketSent } from "@/mock/notes";
+import { sentLabel } from "@/mock/derive";
 import { useStreamedText } from "@/shared/lib/useStreamedText";
 import { useSession } from "@/shared/session/session";
-import { useSimNow } from "@/shared/state/clock";
+import { simNowMs, useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import { Button, Composer, DefinitionList, InlineNotice, Page, PageHeader, PageState, Skeleton, StatusText } from "@/shared/ui";
 import { SessionSheet, sessionMeta } from "./SessionSheet";
 import s from "./ChatScreen.module.css";
 
-type Msg = { id: string; from: "sv" | "ai"; text: string; script?: Script; hidden?: number };
+/** `stats`: số liệu của SV tại lúc câu trả lời được tạo — chip dưới tin nhắn khớp với chữ trong tin nhắn dù điểm danh đổi sau đó (DEMO-11). */
+type Msg = { id: string; from: "sv" | "ai"; text: string; script?: Script; hidden?: number; stats?: { absences: number; speaks: number; bonus: number } };
 
 const MSG_KEY = "chat.messages";
 export const CHAT_DRAFT_KEY = "chat.draft";
@@ -77,8 +79,8 @@ export function ChatScreen() {
     const script = matchScript(text);
     const stats = qtOf(STUDENT_B.id, attendance, bt03);
     const dates = [...B_ABSENT_DATES];
-    const today = attendance[course.id]?.[10];
-    if (today?.finalized && today.marks[STUDENT_B.id] === "absent") dates.push("29/10");
+    const today = committedOf(attendance[course.id]?.[10]);
+    if (today && today.marks[STUDENT_B.id] === "absent") dates.push("29/10");
     const answer = quizDoing
       ? QUIZ_ANSWER
       : script === "d1"
@@ -93,14 +95,15 @@ export function ChatScreen() {
     setMsgs((prev) => [
       ...prev,
       { id: `sv-${seq}`, from: "sv", text, hidden: personal.count },
-      { id: aiId, from: "ai", text: answer, script: quizDoing ? "other" : script },
+      { id: aiId, from: "ai", text: answer, script: quizDoing ? "other" : script, stats: { absences: stats.absences, speaks: stats.speaks, bonus: stats.bonus } },
     ]);
     setDraft("");
     setOpenSession(null);
     setStreaming({ id: aiId, full: answer });
     if (script === "d3" && !quizDoing) {
-      setTickets((prev) => (prev.some((t) => t.id === "tk-d3") ? prev : [ticketD3(), ...prev]));
+      setTickets((prev) => (prev.some((t) => t.id === "tk-d3") ? prev : [ticketD3(simNowMs()), ...prev]));
       noteNewTicket(COURSE_1, "tk-d3");
+      noteTicketSent(STUDENT_B.id, "tk-d3");
     }
   }
 
@@ -199,7 +202,7 @@ export function ChatScreen() {
                       msg={m}
                       shown={streaming?.id === m.id && !stream.done ? stream.text : m.text}
                       live={streaming?.id === m.id && !stream.done}
-                      stats={qtOf(STUDENT_B.id, attendance, bt03)}
+                      stats={m.stats ?? qtOf(STUDENT_B.id, attendance, bt03)}
                       ticket={tickets.find((t) => t.id === "tk-d3")}
                       onClose={() =>
                         setTickets((prev) => prev.map((t) => (t.id === "tk-d3" ? { ...t, closedBySv: true, status: "closed" } : t)))
@@ -319,7 +322,7 @@ function AiMessage({
   onClose: () => void;
 }) {
   const [vote, setVote] = useState<"up" | "down" | null>(null);
-  const [sources, setSources] = useState(false);
+  const [sources, setSources] = useState(true); // nguồn mở sẵn dưới câu trả lời (SRS §14.2)
 
   return (
     <div className={s.fromAi}>
@@ -378,7 +381,9 @@ function AiMessage({
 
 /** D3: AI tự chuyển câu hỏi cho giảng viên — chỗ nút thay bằng trạng thái chờ. */
 function TeacherHandoff({ ticket, onClose }: { ticket?: Ticket; onClose: () => void }) {
-  if (ticket?.answer && !ticket.closedBySv) {
+  const now = useSimNow();
+  // Câu trả lời của giảng viên ở lại trong phiên kể cả sau `Đã rõ`: đóng câu hỏi chỉ đổi nút thành trạng thái (DEMO-4)
+  if (ticket?.answer) {
     return (
       <div className={s.teacher}>
         <p className={s.teacherWho}>
@@ -386,9 +391,13 @@ function TeacherHandoff({ ticket, onClose }: { ticket?: Ticket; onClose: () => v
           Giảng viên {STAFF.teacher.name} trả lời
         </p>
         <p className={s.text}>{ticket.answer.text}</p>
-        <Button size="sm" onClick={onClose}>
-          Đã rõ
-        </Button>
+        {ticket.closedBySv ? (
+          <StatusText tone="green">Câu hỏi đã đóng</StatusText>
+        ) : (
+          <Button size="sm" onClick={onClose}>
+            Đã rõ
+          </Button>
+        )}
       </div>
     );
   }
@@ -401,22 +410,24 @@ function TeacherHandoff({ ticket, onClose }: { ticket?: Ticket; onClose: () => v
   }
   return (
     <p className={s.waiting}>
-      <StatusText tone="amber">Đang chờ giảng viên · vừa gửi</StatusText>
+      <StatusText tone="amber">Đang chờ giảng viên · {sentLabel(ticket, now)}</StatusText>
     </p>
   );
 }
 
 function AskTeacher() {
   const [sent, setSent] = useState(false);
-  const [, setTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, TICKETS_SEED);
-  if (sent) return <StatusText tone="amber">Đang chờ giảng viên · vừa gửi</StatusText>;
+  const [tickets, setTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, TICKETS_SEED);
+  const now = useSimNow();
+  if (sent) return <StatusText tone="amber">Đang chờ giảng viên · {sentLabel(tickets.find((t) => t.id === "tk-d3"), now)}</StatusText>;
   return (
     <button
       type="button"
       className={s.linkBtn}
       onClick={() => {
-        setTickets((prev) => (prev.some((t) => t.id === "tk-d3") ? prev : [ticketD3(), ...prev]));
+        setTickets((prev) => (prev.some((t) => t.id === "tk-d3") ? prev : [ticketD3(simNowMs()), ...prev]));
         noteNewTicket(COURSE_1, "tk-d3");
+        noteTicketSent(STUDENT_B.id, "tk-d3");
         setSent(true);
       }}
     >

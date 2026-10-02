@@ -42,7 +42,10 @@ export function answerD1(input: { absences: number; dates: string[]; speaks: num
 export type Citation = { title: string; locator: string; href: string };
 
 /** Nguồn tham khảo luôn là tên hiển thị của bảng N5 (SRS 4.8 N5, 01-AC24). */
-export const D1_CITATIONS: Citation[] = [docCite("d-quyche-mon", "trang 2 · mục Điểm quá trình")];
+export const D1_CITATIONS: Citation[] = [
+  docCite("d-quyche-mon", "trang 2 · mục Điểm quá trình"),
+  { title: "Sổ điểm danh lớp 761987", locator: "buổi 1–9 của bạn", href: "/me" },
+];
 
 /** Giải thích ngắn mở tại chỗ sau khi bấm `Tìm hiểu`. */
 export const PII_EXPLAINER =
