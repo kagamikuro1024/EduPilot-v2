@@ -15,8 +15,9 @@ const FORBIDDEN = /\b(RAG|PII|fallback|trace|provider|confidence|redaction|embed
 export default async function sweep(browser, { base = 'http://localhost:3000', only, out, person = 'sv-2', course = 'int1006-1', states = false } = {}) {
   const results = [];
   const tab = await browser.open({ name: 'qc-sweep', url: base + '/login', viewport: { width: 1440, height: 900 } });
-  await tab.run(async ({ page }, a) => {
-    const { base, only, out, person, course, states, ROUTES, VIEWPORTS, FORBIDDEN, results } = a;
+  const got = await tab.run(async ({ page }, a) => {
+    const { base, only, out, person, course, states, ROUTES, VIEWPORTS, FORBIDDEN } = a;
+    const results = [];
     const re = new RegExp(FORBIDDEN.source, FORBIDDEN.flags);
     const fs = await import('node:fs');
     if (out) fs.mkdirSync(out, { recursive: true });
@@ -53,9 +54,10 @@ export default async function sweep(browser, { base = 'http://localhost:3000', o
         }
       }
     }
-  }, { timeout: 3000000, args: [{ base, only, out, person, course, states, ROUTES, VIEWPORTS, FORBIDDEN: { source: FORBIDDEN.source, flags: FORBIDDEN.flags }, results }] });
+    return results;
+  }, { timeout: 280000, args: [{ base, only, out, person, course, states, ROUTES, VIEWPORTS: VIEWPORTS.map(({ w, h, tag, only }) => ({ w, h, tag, only: !!only })), FORBIDDEN: { source: FORBIDDEN.source, flags: FORBIDDEN.flags } }] });
   await tab.close();
-  return results;
+  return got; // QC s3: tab.run trả giá trị (đối số không được sao ngược lại)
 }
 export function summarize(results) {
   const bad = results.filter((r) => r.status >= 400 || (typeof r.status === 'string') || r.overflowX || r.forbidden || r.consoleErrors.length || r.h1 !== 1 || r.nSmall > 0 || r.clipped.length);
