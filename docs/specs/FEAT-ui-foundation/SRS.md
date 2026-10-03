@@ -1,5 +1,7 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1.1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+Phiên bản 1.2 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+
+**v1.2 (2026-10-03)** — góp ý #22 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-PU-04; trích: "AC5 yêu cầu thanh trên điện thoại có \"tên trang (h1)\" và \"đúng một hành động ngữ cảnh\", nhưng AC13 giữ nguyên khung 1.5 (logo mark, bộ chọn lớp, tìm, chuông, hồ sơ) và AC6 cấm lặp tiêu đề route ở thanh trên… Giữ thanh trên 1.5: không thêm tên trang (h1 nằm ngay trong trang, `LEFT=16`) và không thêm hành động ngữ cảnh. Kiểm AC5 theo phần đo được: ≤ 5 đích dưới, `Thêm` đủ mục, ≥ 44 px, không tràn ngang"; **ACCEPTED** — BA sửa AC5 theo cách đo của dev) và QC `docs/sprints/3/qc/report-US-PU-02.md` ("TC-11, TC-12 chờ BA định nghĩa"), `report-US-PU-03.md` ("lệnh Kiểm AC24 `\bfetch\(`"). Không đổi số AC (77). Đổi: US-PU-04 AC5; US-PU-02 AC3 (trỏ tới bảng mới); US-PU-03 AC24 (lệnh grep); `SRS.md` thêm **7.3a** (hợp đồng ô `empty` / `error` theo từng khối, trả lời TC-PU02-11/12), FR-33 (thanh trên điện thoại). Q-QC-PU03-2/-3, Q-QC-PU04-1/-2/-3 đã trả lời từ v1.1 (không đổi).
 
 **v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/3/qc/tc-US-PU-0*.md`, `tc-GATE-PU.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi số AC (77). Đổi: US-PU-01 AC9 (Q-QC-PU01-2), US-PU-02 AC2 (Q-QC-PU02-1), US-PU-03 AC5 (Q-QC-PU03-2), US-PU-04 AC3 (Q-QC-PU04-1) và AC9 (Q-QC-PU04-3), mục "Quy ước kiểm chung" (CORS cho cổng, Q-QC-P105-1 của `FEAT-llm-gateway`), `SRS.md` 6.3 và 8.7. Các câu còn lại chỉ trả lời ở tệp TC.
 
@@ -191,7 +193,7 @@ Mỗi phép in một dòng `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi ph
 | FR-30 | `useAutosaveDraft`, `useUndoableAction`, `ConfirmIrreversible` (kiểu), `OfflineBanner`, `PageState` gắn truy vấn | 03-AC18…AC22 |
 | FR-31 | An toàn token (bộ nhớ, không URL / storage / console); mã cổng token không vào build thường | 03-AC23 |
 | FR-32 | Shell: kích thước theo bề rộng, vạch đỏ 2 px, nền đặc, điều hướng đúng vai, huy hiệu chỉ khi cần | 04-AC1…AC4 |
-| FR-33 | Thanh dưới ≤ 5 đích + `Thêm`; thanh trên chỉ tiện ích toàn cục | 04-AC5, 04-AC6 |
+| FR-33 | Thanh dưới ≤ 5 đích + `Thêm`; thanh trên chỉ tiện ích toàn cục (điện thoại: giữ khung 1.5, không `h1`, không hành động ngữ cảnh — góp ý #22) | 04-AC5, 04-AC6 |
 | FR-34 | `CommandPalette` và `NotificationPopover` (khung) | 04-AC7, 04-AC8 |
 | FR-35 | Hai nguồn phiên `jwt` / `demo`; cổng dán token dev | 04-AC9 |
 | FR-36 | Chặn route theo vai ở khung (không gọi API); `EmptyState` route chưa có backend | 04-AC10, 04-AC11 |
@@ -433,6 +435,30 @@ Mã lý do N/A: `A` thành phần không có khái niệm "được chọn"; `B`
 | loading | khung xương đúng hình, `aria-busy="true"`; không spinner giữa trang | `[aria-busy=true]`, không `animate-spin` ngoài Button |
 | empty | nói vì sao rỗng + đúng 1 hành động | đếm `button, a` trong ô = 1 |
 | error | `role="alert"`; vấn đề + an toàn + cách khắc phục; có `Thử lại` | chuỗi không khớp `/^[A-Z_]{3,}$/` |
+
+### 7.3a Hợp đồng ô `empty` và `error` theo từng khối (trả lời TC-PU02-11 / 12; v1.2)
+
+Bảng 7.3 là quy ước **chung**; ô nào áp dụng ở 7.2 phải theo dòng của khối đó dưới đây. **Phạm vi đếm** là vùng của trạng thái (`[data-part=empty]` / `[data-part=error]` hoặc phần tử có `data-state="empty|error"`), **không** phải cả khung bao của khối (nút đóng, nút Gửi, mục của bảng lệnh… không tính).
+
+**`empty`** — luôn có câu nói *vì sao rỗng*, ≥ 1 mệnh đề (không "Không có dữ liệu" trơ trọi). Số hành động `button, a` trong vùng:
+
+| Khối | Hành động trong vùng `empty` | Ghi chú |
+| --- | --- | --- |
+| ActionList, DataTable | đúng **1** | khối làm việc: hành động kế tiếp (`DESIGN.md` §15) |
+| Popover, Composer | đúng **1** | ví dụ Composer "Chọn một lớp để bắt đầu" |
+| CommandPalette | **0** `button, a`; `[role=option]` không tính | câu "Không có lệnh nào khớp." + gợi ý đổi từ khoá |
+| Field (Select không có mục), CitationList | **0** | chỉ câu; hành động thuộc nơi dùng (mã lý do `B`: không có "rỗng" riêng) |
+
+**`error`** — không bao giờ khớp `/^[A-Z_]{3,}$|Something went wrong|undefined|\[object/`. Bốn loại:
+
+| Loại | Khối | `role="alert"` | Ý bắt buộc | `Thử lại` |
+| --- | --- | --- | --- | --- |
+| Tải / thao tác lỗi | ActionList, DataTable, Layout, CitationList, Dialog, Drawer, Composer, ConfirmIrreversible, UndoLine | có | **ba**: vấn đề, dữ liệu có an toàn không, cách khắc phục | đúng **1** nút `Thử lại` (UndoLine: câu + một `Thử lại`, không lặp) |
+| Lỗi nhập | Field, Checkbox | không bắt buộc | **hai**: vấn đề, cách sửa; `aria-invalid="true"` + `aria-describedby` trỏ câu lỗi | **không** có (không có gì để thử lại) |
+| Thông báo | InlineNotice | có | hai: vấn đề, cách khắc phục | tuỳ nơi dùng (0–1) |
+| Trạng thái chữ | StatusText | có | hai: vấn đề + an toàn ("Chưa lưu — nội dung vẫn ở đây") | **không** có |
+
+Ví dụ câu đạt cho UndoLine: "Không hoàn tác được. Thay đổi vẫn được giữ nguyên. [Thử lại]". Mọi ô của bảng này đo bằng Playwright trên `/dev/ui` (đếm trong vùng, `getAttribute('role')`, regex cấm); phần "đủ ý" do QC đọc bằng mắt và ghi chuỗi thật vào báo cáo.
 
 ### 7.4 Chuỗi mẫu cho kiểm tràn chữ (cố định, dùng ở `/dev/ui` và `e2e/support/fixtures.ts`)
 

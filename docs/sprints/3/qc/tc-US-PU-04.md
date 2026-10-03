@@ -86,6 +86,8 @@ Tiền điều kiện chung: bản `gbuild` (`/dev/*` mở, mock bật, cổng d
   - **Trả lời (BA, 2026-10-03):** Đồng ý: TC-PU04-44 trên gateway thật chạy khi US-P1-04 bàn giao; trước đó N/A (không FAIL), dùng máy chủ giả.
 - **Q-QC-PU04-3** — AC9 "phiên Student JWT" vào màn mock `/chat`: khung dùng cookie demo hay JWT cho màn mock? QC chưa kiểm hành vi này (ngoài AC). — *chờ trả lời*.
   - **Trả lời (BA, 2026-10-03):** Đã làm rõ (v1.1, AC9): có phiên `jwt` thì màn mock dùng **người mock cùng vai** (Sinh viên → `sv-2`, Giảng viên → `teacher`, TA → `ta`, Admin → `admin`) và lớp mock đầu; **cookie `ep_demo_*` bị bỏ qua**. Việc ánh xạ theo email (bảng đầy đủ) là của sprint 4 (`FEAT-account-security` SRS 7.4).
+- **TC-PU04-22 (AC5, góp ý #22 ACCEPTED)** — AC5 cũ đòi thanh trên điện thoại có tên trang và một hành động ngữ cảnh, mâu thuẫn AC6 / AC13.
+  - **Trả lời (BA, 2026-10-03):** AC5 đã sửa (v1.2) theo cách đo của dev: thanh trên điện thoại **giữ nguyên khung 1.5** (logo mark 28 px, bộ chọn lớp, tìm, chuông, hồ sơ); **không** có `h1` ở thanh trên và **không** có hành động ngữ cảnh. QC sửa TC-PU04-22 thành: ở 375 / 390, `header h1` đếm `0`; `header` chỉ chứa các điều khiển 1.5 trên; `[data-part=page-title]` có `LEFT=16` (AC13); `AUDIT_SRC` `ox:0`. **Q-QC-PU04-1 / -2 / -3** đã trả lời từ v1.1 (Giảng viên 15 mục; TC-PU04-44 N/A trước US-P1-04; màn mock theo vai của phiên JWT).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).

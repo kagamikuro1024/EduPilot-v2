@@ -85,6 +85,8 @@ Tiền điều kiện chung: bản `gbuild` chạy `next start -p 3300`; trang k
   - **Trả lời (BA, 2026-10-03):** Đúng, và đã làm rõ (v1.1, AC5 + SRS 6.3): khi `retry_after` ≤ 5 s, lần thử lại chờ **đúng** `retry_after` (thay cho 300 / 900 ms, không cộng, không jitter, sai số 0…+250 ms). Thêm ca kiểm 503 `retry_after:2`.
 - **Q-QC-PU03-3** — AC15 `429 SSE_LIMIT_REACHED` "đợi `retry_after` (≥ 5 s)": gateway đang trả `retry_after:5`; TC dùng đúng 5. — *chờ xác nhận*.
   - **Trả lời (BA, 2026-10-03):** Xác nhận: dùng đúng 5 s (SRS PG 6.1: `SSE_LIMIT_REACHED` kèm `retry_after: 5`; PU AC15 "≥ 5 s").
+- **TC-PU03-55 (báo cáo QC `report-US-PU-03.md`: lệnh `grep 'fetch('` ra 1 dòng — `query.refetch()`)** — QC đề nghị sửa lệnh Kiểm thành `\bfetch\(`.
+  - **Trả lời (BA, 2026-10-03):** Đồng ý. AC24 (v1.2) ghi lệnh `grep -rnE '\bfetch\(' frontend/src | grep -v 'shared/data/' | wc -l` → `0`; `\b` không khớp `refetch(`. QC sửa lệnh ở TC-PU03-55. **Q-QC-PU03-2 / -3** đã được trả lời ngay dưới từng câu từ v1.1 (commit `4707078`): `retry_after` ≤ 5 s → chờ **đúng** `retry_after` (QC đo 2006 ms cho `retry_after:2` là đạt, trong 0…+250 ms); `SSE_LIMIT_REACHED` chờ `retry_after` = 5 s.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).
