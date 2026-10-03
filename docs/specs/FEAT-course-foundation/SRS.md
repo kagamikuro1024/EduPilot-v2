@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.2 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.2 (2026-10-03)** — góp ý #7 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC5 \"mọi route có `{id}` dưới `/courses/` đều mang `CourseAccessGuard`\" mâu thuẫn với hợp đồng bất biến của sprint 3 (`GET/PUT /courses/{id}/llm-budget`)… Giữ nguyên hai route, KHÔNG gắn guard; `TestAllCourseRoutesGuarded` có danh sách đóng `adminOnly` (2 route). **ACCEPTED** — danh sách `adminOnly` đóng, chỉ 2 route này; thêm route phải có góp ý mới"). Không đổi số AC. Đổi: US-P2-07 AC5, `SRS.md` 4.1.
 
 **v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/4/qc/tc-US-P2-0*.md`, `tc-US-P2-1*.md`, `tc-GATE-P2.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi số AC (83). Đổi: US-P2-07 AC4 (lớp không tồn tại → 403, Q-QC-P207-1), US-P2-08 AC4 (`ta_ids: []`, Q-QC-P208-1), US-P2-09 AC10 (thông báo cho TA, thứ tự ngược, Q-QC-P209-2, Q-QC-P209-3) và AC14 (mã trong log, Q-QC-P209-1), US-P2-10 AC2 (`dry_run` không ghi gì kể cả `audit_log`, Q-QC-P210-1) và AC3 (ca (d) đầy đủ, Q-QC-P210-2), US-P2-11 AC3, AC9, AC11 (Q-QC-P211-1…3), US-P2-12 AC1, AC7, AC9 (Q-QC-P212-1…3), `SRS.md` 2, 4.1, 4.4, 4.5, 4.8, 4.9, 8.3. Các câu còn lại chỉ trả lời ở tệp TC.
 
@@ -106,6 +108,8 @@ Giao diện (mở rộng khung PG; thay `CourseResolver.CanAccess` trả `bool`)
 | `MemberOrAdmin` | `Member` **hoặc** JWT `ADMIN` (chỉ `GET /courses/{id}`) |
 
 Bảng route → chế độ: `GET /courses/{id}` `MemberOrAdmin`; `GET …/sessions`, `GET …/today` `Member`; `POST …/sessions/generate` `Staff`; `GET …/join-code`, `GET …/members` `StaffOrAdmin`; `POST …/members/{uid}/approve|reject|undo` `StaffOrAdmin` (+ kiểm riêng `EMAIL_MISMATCH` → `Manage`); `POST …/join-code/regenerate`, `PUT …/join-settings`, `DELETE …/members/{uid}`, `PUT …/assistants`, `GET …/assistant-candidates` `Manage`; `POST …/roster/import`, `GET …/share-sources`, `POST …/share-from`, `POST …/setup/dismiss` `Teacher`. Route `/admin/*` dùng `RequireRole(ADMIN)` (không qua guard lớp).
+
+**Ngoại lệ đóng (góp ý #7):** `GET/PUT /courses/{id}/llm-budget` là hợp đồng bất biến của sprint 3 (ADMIN-only bằng `RequireRole`, 403 `reason=role` cho người khác, 422 cho `id` không phải uuid) và **không** đi qua `CourseAccessGuard`; `TestAllCourseRoutesGuarded` có danh sách `adminOnly` cố định đúng 2 route này; mọi route lớp khác phải 403 `reason=course` với người ngoài lớp.
 
 Quy tắc: một truy vấn có chỉ mục (`enrollments (course_id, user_id)`), **không cache** (mời ra → 403 ngay yêu cầu sau); `id` không phải uuid → 404; **uuid hợp lệ nhưng lớp không tồn tại → 403** (như người ngoài lớp; không lộ tồn tại; Q-QC-P207-1); lỗi DB → 503; từ chối → 403 `reason="course"` (hoặc `role`); `CourseAccess.Role` từ `enrollments`, không từ JWT; vai `ADMIN` chỉ xuất hiện ở các chế độ có "hoặc ADMIN". Lớp `ARCHIVED`: guard cho qua (đọc được); các **handler ghi** trả 409 `COURSE_ARCHIVED`.
 
