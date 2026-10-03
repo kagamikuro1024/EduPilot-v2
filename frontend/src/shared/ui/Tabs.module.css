@@ -1,0 +1,78 @@
+.tabs { position: relative; display: flex; gap: var(--ep-space-6); border-bottom: 1px solid var(--ep-rule); overflow-x: auto; scrollbar-width: none; }
+.tab {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  padding: var(--ep-space-3) 0;
+  border: 0;
+  background: transparent;
+  color: var(--ep-ink-2);
+  font-size: var(--ep-text-label);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--ep-ink); }
+.tab[aria-selected="true"] { color: var(--ep-ink); font-weight: 600; }
+.tab[aria-selected="true"]::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: var(--ep-red);
+}
+
+.segmented { display: flex; width: fit-content; max-width: 100%; overflow-x: auto; scrollbar-width: none; padding: 2px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface); }
+.segment {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+  flex: none;
+  min-height: 30px;
+  padding: 0 var(--ep-space-2);
+  border: 0;
+  border-radius: var(--ep-radius-sm);
+  background: transparent;
+  color: var(--ep-ink-2);
+  font-size: var(--ep-text-label);
+  font-weight: 500;
+  white-space: nowrap;
+}
+.segment:hover { color: var(--ep-ink); }
+.segment[aria-checked="true"] { background: var(--ep-ink); color: var(--ep-surface); }
+.segment[aria-checked="true"] .count { color: inherit; opacity: 0.75; }
+
+/* Mép mờ báo còn nội dung cuộn được (useScrollRow đặt data-fade); min-width: 0 để hàng co theo khung cha, không nới cả trang */
+.tabs, .segmented, .chips { min-width: 0; }
+.tabs[data-fade~="end"], .segmented[data-fade~="end"], .chips[data-fade~="end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.tabs[data-fade~="start"], .segmented[data-fade~="start"], .chips[data-fade~="start"] { -webkit-mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to left, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+.tabs[data-fade="start end"], .segmented[data-fade="start end"], .chips[data-fade="start end"] { -webkit-mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); mask-image: linear-gradient(to right, var(--ep-mask-clear), var(--ep-mask-solid) 32px, var(--ep-mask-solid) calc(100% - 32px), var(--ep-mask-clear)); }
+
+.chips { display: flex; flex-wrap: nowrap; gap: var(--ep-space-2); max-width: 100%; overflow-x: auto; scrollbar-width: none; padding-block: 1px; }
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ep-space-1);
+  min-height: 30px;
+  padding: 0 var(--ep-space-3);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-pill);
+  background: var(--ep-surface);
+  color: var(--ep-ink-2);
+  font-size: var(--ep-text-label);
+  font-weight: 500;
+}
+.chip:hover { border-color: var(--ep-ink-3); color: var(--ep-ink); }
+.chip[aria-pressed="true"] { border-color: var(--ep-ink); color: var(--ep-ink); background: var(--ep-surface-subtle); }
+
+.count { font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
+
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14). */
+@media (max-width: 719px), (pointer: coarse) {
+  .segment, .chip { min-height: 44px; min-width: 44px; }
+  .tab { min-height: 44px; min-width: 44px; padding: var(--ep-space-3) 0; }
+}

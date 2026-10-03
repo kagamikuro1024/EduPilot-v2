@@ -1,0 +1,28 @@
+.name {
+  display: grid;
+  gap: var(--ep-space-0_5);
+  min-width: 0;
+}
+
+/* Ô tìm kiếm có icon nằm trong, không thêm khung ngoài. */
+.search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 220px;
+  max-width: 360px;
+}
+.search svg {
+  position: absolute;
+  left: var(--ep-space-3);
+  width: 16px;
+  height: 16px;
+  color: var(--ep-ink-3);
+  pointer-events: none;
+}
+.search input {
+  padding-left: calc(var(--ep-space-3) * 2 + 16px);
+}
+
+.risk { display: grid; gap: 2px; min-width: 0; }

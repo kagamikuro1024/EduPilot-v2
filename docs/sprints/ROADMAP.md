@@ -7,6 +7,7 @@ Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). 
 | Sprint | Phase | Ước lượng gốc (tuần người) | Luồng đi trọn khi xong | Cổng | Cắt được nếu trễ (WORKFLOW §6) |
 | --- | --- | --- | --- | --- | --- |
 | 1 ✅ | P0 Chuẩn bị | 0,5 | – | `gate P0` PASS | – |
+| 1.5 | Prototype giao diện (mock, D51) — chen giữa theo yêu cầu chủ dự án cho buổi thuyết trình với thầy | – | Đi trọn `DEMO_SCRIPT.md` trên mock | QC đi trọn kịch bản + `ui-antipatterns` | – (`docs/sprints/1.5/`) |
 | 2 | PG Nền Go | 3,5 | – (nền: contract test, SSE, outbox, blob, `--scale gateway=2`) | `gate PG` | – (toàn bộ là "cái nền") |
 | 3 | PU Nền giao diện + P1 LLM Gateway | 1,5 + 1,5 | Đổi provider trên UI; Scheduler + trần ngân sách | `gate PU`, `gate P1` | #0 chuyển động trang trí, bố cục ≥ 1440 px |
 | 4 | P2 Lớp học | 2,5 | F1, F2 | `gate P2` | #4a tuỳ chọn nâng cao mã tham gia; #6 CommandPalette |
@@ -30,3 +31,4 @@ Tổng ước lượng gốc: 23,5 tuần người. Đội agent làm nhanh hơn
 - Một sprint = các phase ở bảng trên. Story vẫn nhỏ (`dev` ≤ 1 ngày), `dev` làm **từng story một**; QC viết TC song song (PM.md §3.3).
 - Sprint kết thúc bằng `/gate` của **mỗi** phase trong sprint, rồi `report.md`, rồi DỪNG chờ chủ dự án chốt.
 - Nhánh `sprint/N-<slug>` tạo từ `main` của `origin` (TA_Agent_v2). Chủ dự án chốt báo cáo → PM merge `--no-ff` vào `main` và push.
+- **Thay mock bằng thật (D51):** sprint nào làm phase nào thì màn prototype của phase đó được thay bằng màn nối API thật, spec thật viết ở `docs/specs/`; dữ liệu `frontend/src/mock/` của màn đó bị xoá trong cùng sprint. Cuối sprint 10 không còn `src/mock/`.

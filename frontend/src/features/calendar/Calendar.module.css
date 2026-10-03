@@ -1,0 +1,60 @@
+.nav { display: inline-flex; align-items: center; gap: var(--ep-space-1); }
+.range { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink-2); }
+
+.week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--ep-rule); border: 1px solid var(--ep-rule); }
+/* Lưới tuần cao theo nội dung, không đặt chiều cao cố định (01-AC25). */
+.day { display: grid; gap: var(--ep-space-2); align-content: start; padding: var(--ep-space-3); background: var(--ep-surface); }
+.today { background: var(--ep-red-soft); }
+.dayHead { display: grid; gap: var(--ep-space-0_5); margin: 0; }
+.dayName { font-size: var(--ep-text-meta); font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ep-ink-3); }
+.dayNum { font-size: var(--ep-text-label); font-weight: 600; }
+.dayEmpty { margin: 0; color: var(--ep-ink-3); }
+
+.event { display: grid; gap: var(--ep-space-0_5); padding-left: var(--ep-space-3); border-left: 2px solid var(--ep-ink-3); }
+.event.deadline { border-left-color: var(--ep-amber); }
+.event.exam { border-left-color: var(--ep-red); }
+.event.extra { border-left-color: var(--ep-blue); }
+.event.session { border-left-color: var(--ep-ink-3); }
+.eventTime { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+/* Nhãn sự kiện tối đa 2 dòng, xuống dòng theo từ (01-AC25). */
+.eventTitle {
+  font-size: var(--ep-text-label);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: normal;
+  hyphens: none;
+}
+.eventNote { font-size: var(--ep-text-meta); color: var(--ep-ink-2); }
+
+.month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--ep-rule); border: 1px solid var(--ep-rule); }
+.monthHead { margin: 0; padding: var(--ep-space-2); background: var(--ep-surface-subtle); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); text-align: center; }
+.cell { display: grid; gap: var(--ep-space-1); align-content: start; min-height: 96px; padding: var(--ep-space-2); background: var(--ep-surface); }
+.otherMonth { background: var(--ep-paper); }
+.otherMonth .cellNum { color: var(--ep-ink-3); }
+.cellNum { font-size: var(--ep-text-meta); font-weight: 600; }
+.chip { font-size: var(--ep-text-meta); line-height: 1.3; padding-left: var(--ep-space-2); border-left: 2px solid var(--ep-ink-3); overflow-wrap: anywhere; } /* tối đa hai dòng thật sự cần, không cắt bằng … (01-6) */
+.chip.deadline { border-left-color: var(--ep-amber); }
+.chip.exam { border-left-color: var(--ep-red); }
+.chip.extra { border-left-color: var(--ep-blue); }
+.more { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+
+@media (max-width: 1099px) {
+  .week { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+@media (max-width: 719px) {
+  .week, .month { grid-template-columns: minmax(0, 1fr); }
+  .monthHead { display: none; }
+  .cell { min-height: 0; }
+  .otherMonth { display: none; }
+}
+
+/* Ô tháng hẹp (≈ 48 px ở 720 px): bớt đệm trái để nhãn ngắn vẫn tối đa 2 dòng (BUG-v5-01-6). */
+@media (max-width: 900px) {
+  .chip { padding-left: 2px; }
+  .cell { padding-inline: 2px; }
+}

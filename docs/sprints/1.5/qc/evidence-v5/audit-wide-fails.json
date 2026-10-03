@@ -1,0 +1,62 @@
+[
+ {
+  "role": "admin",
+  "route": "/observability",
+  "w": "390",
+  "what": "AUDIT",
+  "ok": false,
+  "detail": "ox=0 wide=10 cut=[] ell=[] sx=1",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit-wide/admin_observability-390-audit.png",
+  "batch": "admin"
+ },
+ {
+  "role": "teacher",
+  "route": "/threads",
+  "w": "390",
+  "what": "AUDIT",
+  "ok": false,
+  "detail": "ox=0 wide=449 cut=[] ell=[] sx=2",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit-wide/teacher_threads-390-audit.png",
+  "batch": "teacher1"
+ },
+ {
+  "role": "teacher",
+  "route": "/observability",
+  "w": "390",
+  "what": "AUDIT",
+  "ok": false,
+  "detail": "ox=0 wide=10 cut=[] ell=[] sx=1",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit-wide/teacher_observability-390-audit.png",
+  "batch": "teacher2"
+ },
+ {
+  "role": "student",
+  "route": "/threads",
+  "w": "390",
+  "what": "AUDIT",
+  "ok": false,
+  "detail": "ox=0 wide=382 cut=[] ell=[] sx=1",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit-wide/student_threads-390-audit.png",
+  "batch": "student1"
+ },
+ {
+  "role": "student",
+  "route": "/threads",
+  "w": "375",
+  "what": "AUDIT",
+  "ok": false,
+  "detail": "ox=0 wide=396 cut=[] ell=[] sx=1",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit-wide/student_threads-375-audit.png",
+  "batch": "student1"
+ },
+ {
+  "role": "ta",
+  "route": "/threads",
+  "w": "390",
+  "what": "AUDIT",
+  "ok": false,
+  "detail": "ox=0 wide=449 cut=[] ell=[] sx=2",
+  "file": "/Users/kuro/Documents/TA_Agent/docs/sprints/1.5/shots/qc-v5/audit-wide/ta_threads-390-audit.png",
+  "batch": "ta1"
+ }
+]

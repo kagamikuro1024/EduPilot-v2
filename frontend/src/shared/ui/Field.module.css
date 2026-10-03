@@ -1,0 +1,86 @@
+.field { display: grid; gap: var(--ep-space-2); min-width: 0; }
+.label { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink); line-height: 1.4; }
+.req { color: var(--ep-ink-3); font-weight: 500; }
+.helper { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.45; }
+.error { font-size: var(--ep-text-meta); color: var(--ep-red); font-weight: 500; line-height: 1.45; }
+
+.control {
+  width: 100%;
+  min-height: 38px;
+  padding: var(--ep-space-2) var(--ep-space-3);
+  border: 1px solid var(--ep-rule);
+  border-radius: var(--ep-radius-sm);
+  background: var(--ep-surface);
+  color: var(--ep-ink);
+  font-size: var(--ep-text-body);
+  line-height: 1.4;
+  transition: border-color var(--ep-fast) var(--ep-ease-standard);
+}
+.control:hover:not(:disabled) { border-color: var(--ep-ink-3); }
+.control:focus-visible { border-color: var(--ep-red); }
+.control[aria-invalid="true"] { border-color: var(--ep-red); }
+.control:disabled { background: var(--ep-surface-subtle); color: var(--ep-ink-3); }
+
+.textarea { min-height: 96px; resize: vertical; line-height: 1.6; }
+
+.select {
+  appearance: none;
+  padding-right: var(--ep-space-8);
+  background-image: linear-gradient(45deg, transparent 50%, var(--ep-ink-2) 50%), linear-gradient(135deg, var(--ep-ink-2) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+.check { display: inline-flex; align-items: center; gap: var(--ep-space-2); font-size: var(--ep-text-label); color: var(--ep-ink); cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--ep-red); margin: 0; }
+
+.switchRow { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ep-space-6); }
+.switch {
+  flex: none;
+  position: relative;
+  width: 36px;
+  height: 20px;
+  margin-top: 2px;
+  border: 0;
+  border-radius: var(--ep-radius-pill);
+  background: var(--ep-rule);
+  transition: background-color var(--ep-normal) var(--ep-ease-standard);
+}
+.switch[aria-checked="true"] { background: var(--ep-ink); }
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--ep-radius-pill);
+  background: var(--ep-surface);
+  transition: transform var(--ep-normal) var(--ep-ease-out);
+}
+.switch[aria-checked="true"] .knob { transform: translateX(16px); }
+
+/* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14): ô tích đo theo nhãn bọc nó, công tắc có hộp bấm 44. */
+@media (max-width: 719px), (pointer: coarse) {
+  .control { min-height: 44px; font-size: 1rem; }
+  /* nhãn ô nhập cũng là vùng bấm (bấm nhãn → focus ô) */
+  .field { gap: var(--ep-space-1); }
+  .label { display: flex; align-items: center; min-height: 44px; min-width: 44px; }
+  .check { min-height: 44px; min-width: 44px; }
+  .check input { width: 20px; height: 20px; }
+  .switch { width: 44px; height: 44px; margin-top: 0; background: transparent; }
+  .switch[aria-checked="true"] { background: transparent; }
+  .switch::before {
+    content: "";
+    position: absolute;
+    top: 12px;
+    left: 4px;
+    width: 36px;
+    height: 20px;
+    border-radius: var(--ep-radius-pill);
+    background: var(--ep-rule);
+    transition: background-color var(--ep-normal) var(--ep-ease-standard);
+  }
+  .switch[aria-checked="true"]::before { background: var(--ep-ink); }
+  .knob { top: 14px; left: 6px; }
+}

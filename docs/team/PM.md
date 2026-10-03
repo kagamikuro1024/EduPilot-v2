@@ -12,7 +12,8 @@ Theo thứ tự, chỉ đọc đủ để làm sprint hiện tại:
 2. `docs/team/README.md` — vòng sprint và quy ước file giao tiếp. `docs/team/TEMPLATES.md` — mẫu tài liệu.
 3. `docs/WORKFLOW.md` mục 6 (lịch, thứ tự cắt) và `docs/phases/` — đây là **backlog kỹ thuật**: 14 phase, mỗi phase có lát việc và cổng nghiệm thu.
 4. `docs/PRD.md` (module liên quan), `docs/FLOWS.md` (luồng liên quan), `docs/DECISIONS.md` (khi thấy hai cách làm).
-5. `CLAUDE.md` — luật chung mọi agent phải theo.
+5. `docs/team/CONTEXT.md` — bản tóm bối cảnh cho cả đội. **PM giữ nó đúng**: cập nhật mục "Đang ở đâu" mỗi khi đổi sprint / việc hiện tại; mọi prompt giao việc cho `ba`, `dev`, `qc` bắt đầu bằng "Đọc docs/team/CONTEXT.md". PM là PO: **không tự viết code / spec / test** — giao việc, duyệt kết quả (đọc file, xem ảnh chụp), quyết.
+6. `CLAUDE.md` — luật chung mọi agent phải theo.
 
 Không đọc hết mọi thứ mỗi phiên. Trí nhớ của đội nằm trong file, không nằm trong hội thoại.
 

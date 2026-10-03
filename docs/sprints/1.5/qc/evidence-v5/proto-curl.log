@@ -1,0 +1,498 @@
+PASS tc_00_01: / không cookie → /login (http://localhost:3400/login)
+PASS tc_00_01: /inbox không cookie → /login
+PASS tc_00_01: /chat không cookie → /login
+PASS tc_00_01: /gradebook không cookie → /login
+PASS tc_00_01: /me không cookie → /login
+cookie vai rác: [http://localhost:3400/login|307]
+PASS tc_00_01: cookie vai rác không gây 5xx (http://localhost:3400/login|307)
+PASS tc_00_01: dải 'Bản mô phỏng · dữ liệu giả' hiện ở / (SV B) (1 ≥ 1)
+PASS tc_00_01: dải mô phỏng ở / (vai teacher) (1 ≥ 1)
+PASS tc_00_01: dải mô phỏng ở / (vai ta) (1 ≥ 1)
+PASS tc_00_01: dải mô phỏng ở / (vai admin) (1 ≥ 1)
+PASS tc_00_02: tên 'Trần Thu Uyên' hiện cho Sinh viên B (1 ≥ 1)
+PASS tc_00_04: SV D: 'Hôm nay' có ô nhập 'mã tham gia' (1 ≥ 1)
+PASS tc_00_05: /inbox?state=empty có 'Thử lại'/'Không còn câu hỏi' (1 ≥ 1)
+PASS tc_00_05: /inbox?state=error có 'Thử lại'/'Không còn câu hỏi' (1 ≥ 1)
+PASS tc_00_05: /students?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: /gradebook?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: /documents?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: /insights?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: /analytics?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: /questions?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: /grading?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: (SV) /threads?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: (SV) /library?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: (SV) /calendar?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: (SV) /me?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: (SV) /practice/history?state=error có 'Thử lại' (1 ≥ 1)
+PASS tc_00_05: /inbox?state=loading không có chữ spinner (xem mắt để chắc)
+PASS tc_00_05: /students?state=loading không có chữ spinner (xem mắt để chắc)
+PASS tc_00_05: /gradebook?state=loading không có chữ spinner (xem mắt để chắc)
+PASS tc_00_06: teacher /chat → CHAN
+PASS tc_00_06: teacher /me → CHAN
+PASS tc_00_06: teacher /practice → CHAN
+PASS tc_00_06: teacher /library → CHAN
+PASS tc_00_06: teacher /join → CHAN
+PASS tc_00_06: student /inbox → CHAN
+PASS tc_00_06: student /attendance → CHAN
+PASS tc_00_06: student /gradebook → CHAN
+PASS tc_00_06: student /grading → CHAN
+PASS tc_00_06: student /admin/courses → CHAN
+PASS tc_00_06: student /observability → CHAN
+PASS tc_00_06: admin /chat → CHAN
+PASS tc_00_06: admin /inbox → CHAN
+PASS tc_00_06: admin /gradebook → CHAN
+PASS tc_00_06: admin /calendar → CHAN
+PASS tc_00_06: ta /class/members → MO
+PASS tc_00_06: ta /admin/users → CHAN
+PASS tc_00_06: màn chặn có nút 'Về Hôm nay'
+PASS tc_00_06: màn chặn có một câu lý do theo vai
+PASS tc_00_06: màn chặn không lộ nút của /inbox
+PASS tc_00_matrix: student / → MO
+PASS tc_00_matrix: student /chat → MO
+PASS tc_00_matrix: student /practice → MO
+PASS tc_00_matrix: student /practice/at-symmetric → MO
+PASS tc_00_matrix: student /practice/at-quiz01 → MO
+PASS tc_00_matrix: student /practice/history → MO
+PASS tc_00_matrix: student /library → MO
+PASS tc_00_matrix: student /me → MO
+PASS tc_00_matrix: student /assignments/bt03 → MO
+PASS tc_00_matrix: student /join → MO
+PASS tc_00_matrix: student /join/BX4P9TW → MO
+PASS tc_00_matrix: student /threads → MO
+PASS tc_00_matrix: student /threads/t-cbc → MO
+PASS tc_00_matrix: student /calendar → MO
+PASS tc_00_matrix: student /inbox → CHAN
+PASS tc_00_matrix: student /students → CHAN
+PASS tc_00_matrix: student /students/sv-3 → CHAN
+PASS tc_00_matrix: student /attendance → CHAN
+PASS tc_00_matrix: student /class/members → CHAN
+PASS tc_00_matrix: student /gradebook → CHAN
+PASS tc_00_matrix: student /gradebook/scheme → CHAN
+PASS tc_00_matrix: student /grading → CHAN
+PASS tc_00_matrix: student /grading/sub-bt03-sv-2 → CHAN
+PASS tc_00_matrix: student /questions → CHAN
+PASS tc_00_matrix: student /documents → CHAN
+PASS tc_00_matrix: student /insights → CHAN
+PASS tc_00_matrix: student /analytics → CHAN
+PASS tc_00_matrix: student /observability → CHAN
+PASS tc_00_matrix: student /settings/llm → CHAN
+PASS tc_00_matrix: student /settings/integrations → CHAN
+PASS tc_00_matrix: student /admin/courses → CHAN
+PASS tc_00_matrix: student /admin/users → CHAN
+PASS tc_00_matrix: ta / → MO
+PASS tc_00_matrix: ta /chat → CHAN
+PASS tc_00_matrix: ta /practice → CHAN
+PASS tc_00_matrix: ta /practice/at-symmetric → CHAN
+PASS tc_00_matrix: ta /practice/at-quiz01 → CHAN
+PASS tc_00_matrix: ta /practice/history → CHAN
+PASS tc_00_matrix: ta /library → CHAN
+PASS tc_00_matrix: ta /me → CHAN
+PASS tc_00_matrix: ta /assignments/bt03 → CHAN
+PASS tc_00_matrix: ta /join → CHAN
+PASS tc_00_matrix: ta /join/BX4P9TW → CHAN
+PASS tc_00_matrix: ta /threads → MO
+PASS tc_00_matrix: ta /threads/t-cbc → MO
+PASS tc_00_matrix: ta /calendar → MO
+PASS tc_00_matrix: ta /inbox → MO
+PASS tc_00_matrix: ta /students → MO
+PASS tc_00_matrix: ta /students/sv-3 → MO
+PASS tc_00_matrix: ta /attendance → MO
+PASS tc_00_matrix: ta /class/members → MO
+PASS tc_00_matrix: ta /gradebook → MO
+PASS tc_00_matrix: ta /gradebook/scheme → MO
+PASS tc_00_matrix: ta /grading → MO
+PASS tc_00_matrix: ta /grading/sub-bt03-sv-2 → MO
+PASS tc_00_matrix: ta /questions → MO
+PASS tc_00_matrix: ta /documents → MO
+PASS tc_00_matrix: ta /insights → MO
+PASS tc_00_matrix: ta /analytics → MO
+PASS tc_00_matrix: ta /observability → CHAN
+PASS tc_00_matrix: ta /settings/llm → CHAN
+PASS tc_00_matrix: ta /settings/integrations → CHAN
+PASS tc_00_matrix: ta /admin/courses → CHAN
+PASS tc_00_matrix: ta /admin/users → CHAN
+PASS tc_00_matrix: teacher / → MO
+PASS tc_00_matrix: teacher /chat → CHAN
+PASS tc_00_matrix: teacher /practice → CHAN
+PASS tc_00_matrix: teacher /practice/at-symmetric → CHAN
+PASS tc_00_matrix: teacher /practice/at-quiz01 → CHAN
+PASS tc_00_matrix: teacher /practice/history → CHAN
+PASS tc_00_matrix: teacher /library → CHAN
+PASS tc_00_matrix: teacher /me → CHAN
+PASS tc_00_matrix: teacher /assignments/bt03 → CHAN
+PASS tc_00_matrix: teacher /join → CHAN
+PASS tc_00_matrix: teacher /join/BX4P9TW → CHAN
+PASS tc_00_matrix: teacher /threads → MO
+PASS tc_00_matrix: teacher /threads/t-cbc → MO
+PASS tc_00_matrix: teacher /calendar → MO
+PASS tc_00_matrix: teacher /inbox → MO
+PASS tc_00_matrix: teacher /students → MO
+PASS tc_00_matrix: teacher /students/sv-3 → MO
+PASS tc_00_matrix: teacher /attendance → MO
+PASS tc_00_matrix: teacher /class/members → MO
+PASS tc_00_matrix: teacher /gradebook → MO
+PASS tc_00_matrix: teacher /gradebook/scheme → MO
+PASS tc_00_matrix: teacher /grading → MO
+PASS tc_00_matrix: teacher /grading/sub-bt03-sv-2 → MO
+PASS tc_00_matrix: teacher /questions → MO
+PASS tc_00_matrix: teacher /documents → MO
+PASS tc_00_matrix: teacher /insights → MO
+PASS tc_00_matrix: teacher /analytics → MO
+PASS tc_00_matrix: teacher /observability → MO
+PASS tc_00_matrix: teacher /settings/llm → MO
+PASS tc_00_matrix: teacher /settings/integrations → MO
+PASS tc_00_matrix: teacher /admin/courses → CHAN
+PASS tc_00_matrix: teacher /admin/users → CHAN
+PASS tc_00_matrix: admin / → MO
+PASS tc_00_matrix: admin /chat → CHAN
+PASS tc_00_matrix: admin /practice → CHAN
+PASS tc_00_matrix: admin /practice/at-symmetric → CHAN
+PASS tc_00_matrix: admin /practice/at-quiz01 → CHAN
+PASS tc_00_matrix: admin /practice/history → CHAN
+PASS tc_00_matrix: admin /library → CHAN
+PASS tc_00_matrix: admin /me → CHAN
+PASS tc_00_matrix: admin /assignments/bt03 → CHAN
+PASS tc_00_matrix: admin /join → CHAN
+PASS tc_00_matrix: admin /join/BX4P9TW → CHAN
+PASS tc_00_matrix: admin /threads → CHAN
+PASS tc_00_matrix: admin /threads/t-cbc → CHAN
+PASS tc_00_matrix: admin /calendar → CHAN
+PASS tc_00_matrix: admin /inbox → CHAN
+PASS tc_00_matrix: admin /students → CHAN
+PASS tc_00_matrix: admin /students/sv-3 → CHAN
+PASS tc_00_matrix: admin /attendance → CHAN
+PASS tc_00_matrix: admin /class/members → CHAN
+PASS tc_00_matrix: admin /gradebook → CHAN
+PASS tc_00_matrix: admin /gradebook/scheme → CHAN
+PASS tc_00_matrix: admin /grading → CHAN
+PASS tc_00_matrix: admin /grading/sub-bt03-sv-2 → CHAN
+PASS tc_00_matrix: admin /questions → CHAN
+PASS tc_00_matrix: admin /documents → CHAN
+PASS tc_00_matrix: admin /insights → CHAN
+PASS tc_00_matrix: admin /analytics → CHAN
+PASS tc_00_matrix: admin /observability → MO
+PASS tc_00_matrix: admin /settings/llm → MO
+PASS tc_00_matrix: admin /settings/integrations → MO
+PASS tc_00_matrix: admin /admin/courses → MO
+PASS tc_00_matrix: admin /admin/users → MO
+PASS tc_00_static: không fetch( ngoài src/shared
+PASS tc_00_static: package.json không thêm phụ thuộc ngoài lucide-react
+PASS tc_00_static: localStorage chỉ dùng khoá ep_demo_state
+PASS tc_00_static: không lưu token ở storage
+PASS tc_00_static: không màu viết cứng ngoài tokens.css
+PASS tc_01_01: student / → MO
+PASS tc_01_01: student /chat → MO
+PASS tc_01_01: student /threads → MO
+PASS tc_01_01: student /threads/t-cbc → MO
+PASS tc_01_01: student /practice → MO
+PASS tc_01_01: student /practice/at-symmetric → MO
+PASS tc_01_01: student /practice/history → MO
+PASS tc_01_01: student /library → MO
+PASS tc_01_01: student /calendar → MO
+PASS tc_01_01: student /me → MO
+PASS tc_01_01: student /assignments/bt03 → MO
+PASS tc_01_01: student /join → MO
+PASS tc_01_05: (AC5) / sạch từ cấm
+PASS tc_01_05: (AC5) /chat sạch từ cấm
+PASS tc_01_05: (AC5) /threads sạch từ cấm
+PASS tc_01_05: (AC5) /threads/t-cbc sạch từ cấm
+PASS tc_01_05: (AC5) /practice sạch từ cấm
+PASS tc_01_05: (AC5) /library sạch từ cấm
+PASS tc_01_05: (AC5) /calendar sạch từ cấm
+PASS tc_01_05: (AC5) /me sạch từ cấm
+PASS tc_01_05: (AC5) /assignments/bt03 sạch từ cấm
+PASS tc_01_05: (mở rộng) / không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: (mở rộng) /chat không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: (mở rộng) /threads không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: (mở rộng) /practice/history không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: (mở rộng) /library không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: (mở rộng) /me không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: (mở rộng) /join không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: (mở rộng) /join/BX4P9TW không RAG/PII/LLM/prompt/placeholder
+PASS tc_01_05: /assignments/bt03 trước công bố không có điểm nháp (8,5, 7,0)
+PASS tc_01_08: /join/BX4P9TW xem trước lớp 761988 (1 ≥ 1)
+PASS tc_01_09: ta /chat → CHAN
+PASS tc_01_09: ta /me → CHAN
+PASS tc_01_09: ta /practice → CHAN
+PASS tc_01_09: ta /library → CHAN
+PASS tc_01_09: ta /assignments/bt03 → CHAN
+PASS tc_01_09: ta /join → CHAN
+PASS tc_01_09: teacher /chat → CHAN
+PASS tc_01_09: teacher /me → CHAN
+PASS tc_01_09: teacher /practice → CHAN
+PASS tc_01_09: teacher /library → CHAN
+PASS tc_01_09: teacher /assignments/bt03 → CHAN
+PASS tc_01_09: teacher /join → CHAN
+PASS tc_01_09: admin /chat → CHAN
+PASS tc_01_09: admin /me → CHAN
+PASS tc_01_09: admin /practice → CHAN
+PASS tc_01_09: admin /library → CHAN
+PASS tc_01_09: admin /assignments/bt03 → CHAN
+PASS tc_01_09: admin /join → CHAN
+PASS tc_01_09: admin /threads → CHAN
+PASS tc_01_09: admin /calendar → CHAN
+PASS tc_02_01: teacher / → MO
+PASS tc_02_01: teacher /inbox → MO
+PASS tc_02_01: teacher /students → MO
+PASS tc_02_01: teacher /students/sv-3 → MO
+PASS tc_02_01: teacher /attendance → MO
+PASS tc_02_01: teacher /class/members → MO
+PASS tc_02_07: student /inbox → CHAN
+PASS tc_02_07: student /students → CHAN
+PASS tc_02_07: student /students/sv-3 → CHAN
+PASS tc_02_07: student /attendance → CHAN
+PASS tc_02_07: student /class/members → CHAN
+PASS tc_02_07: admin /inbox → CHAN
+PASS tc_02_07: admin /students → CHAN
+PASS tc_02_07: admin /students/sv-3 → CHAN
+PASS tc_02_07: admin /attendance → CHAN
+PASS tc_02_07: admin /class/members → CHAN
+PASS tc_02_07: TA không có 'Tạo lại mã'
+PASS tc_02_07: TA không có 'Mời ra khỏi lớp'
+PASS tc_03_01: teacher /gradebook → MO
+PASS tc_03_01: teacher /gradebook/scheme → MO
+PASS tc_03_01: teacher /grading → MO
+PASS tc_03_01: teacher /grading/sub-bt03-sv-2 → MO
+PASS tc_03_01: teacher /questions → MO
+PASS tc_03_01: teacher /documents → MO
+PASS tc_03_06: TA ở /grading thấy 'Chỉ giảng viên công bố điểm' (1 ≥ 1)
+PASS tc_03_06: TA ở /gradebook/scheme không có 'Xác nhận công thức'
+PASS tc_03_06: student /gradebook → CHAN
+PASS tc_03_06: student /gradebook/scheme → CHAN
+PASS tc_03_06: student /grading → CHAN
+PASS tc_03_06: student /questions → CHAN
+PASS tc_03_06: student /documents → CHAN
+PASS tc_03_06: admin /gradebook → CHAN
+PASS tc_03_06: admin /gradebook/scheme → CHAN
+PASS tc_03_06: admin /grading → CHAN
+PASS tc_03_06: admin /questions → CHAN
+PASS tc_03_06: admin /documents → CHAN
+PASS tc_04_01: teacher /insights → MO
+PASS tc_04_01: teacher /analytics → MO
+PASS tc_04_01: teacher /observability → MO
+PASS tc_04_01: teacher /settings/llm → MO
+PASS tc_04_01: teacher /settings/integrations → MO
+PASS tc_04_01: admin / → MO
+PASS tc_04_01: admin /observability → MO
+PASS tc_04_01: admin /settings/llm → MO
+PASS tc_04_01: admin /settings/integrations → MO
+PASS tc_04_01: admin /admin/courses → MO
+PASS tc_04_01: admin /admin/users → MO
+PASS tc_04_02: /insights không tên/MSSV
+PASS tc_04_03: GV ở /observability không thấy [[SV_
+PASS tc_04_04: GV ở /settings/llm không có 'Test kết nối'
+PASS tc_04_06: student /observability → CHAN
+PASS tc_04_06: student /settings/llm → CHAN
+PASS tc_04_06: student /settings/integrations → CHAN
+PASS tc_04_06: student /admin/courses → CHAN
+PASS tc_04_06: student /admin/users → CHAN
+PASS tc_04_06: ta /observability → CHAN
+PASS tc_04_06: ta /settings/llm → CHAN
+PASS tc_04_06: ta /settings/integrations → CHAN
+PASS tc_04_06: ta /admin/courses → CHAN
+PASS tc_04_06: ta /admin/users → CHAN
+PASS tc_04_06: teacher /admin/courses → CHAN
+PASS tc_04_06: TA ở /analytics không có 'chi phí'
+PASS tc_00_07: student / có data-part=brand (1 ≥ 1)
+PASS tc_00_07: ta / có data-part=brand (1 ≥ 1)
+PASS tc_00_07: teacher / có data-part=brand (1 ≥ 1)
+PASS tc_00_07: admin / có data-part=brand (1 ≥ 1)
+PASS tc_00_07: /login có logo alt=EduPilot (AC7) (1 ≥ 1)
+PASS tc_00_08: bộ chọn lớp có title đầy đủ (AC8) (1 ≥ 1)
+PASS tc_00_08: bộ chọn lớp có aria-label đầy đủ (SRS 4.7 b2) (1 ≥ 1)
+PASS tc_00_09: aria-label Tài khoản: TS. Lê Thu Hà (1 ≥ 1)
+PASS tc_00_09: aria-label Tài khoản: Phạm Quốc Bảo (1 ≥ 1)
+PASS tc_00_09: aria-label Tài khoản: Đỗ Hoàng Nam (1 ≥ 1)
+PASS tc_00_09: aria-label Tài khoản: Trần Thu Uyên (1 ≥ 1)
+PASS tc_00_09: SV sv-1 → Tài khoản: Nguyễn Minh Trung (1 ≥ 1)
+PASS tc_00_09: SV sv-3 → Tài khoản: Lê Quang Huy (1 ≥ 1)
+PASS tc_00_09: SV sv-4 → Tài khoản: Phạm Ngọc Linh (1 ≥ 1)
+PASS tc_00_09: teacher: aria-label không ghi tên vai
+PASS tc_00_09: ta: aria-label không ghi tên vai
+PASS tc_00_09: admin: aria-label không ghi tên vai
+PASS tc_00_hooks: student /chat có data-part=chat-history (1 ≥ 1)
+PASS tc_00_hooks: student /chat có data-part=chat-thread (1 ≥ 1)
+PASS tc_00_hooks: student /chat có data-part=chat-composer (1 ≥ 1)
+PASS tc_00_hooks: teacher /inbox có data-part=inbox-list (1 ≥ 1)
+PASS tc_00_hooks: admin /settings/llm có data-part=provider-status (3 ≥ 3)
+PASS tc_00_hooks: admin /settings/llm có data-part=provider-action (3 ≥ 3)
+PASS tc_01_10: student t-cbc không còn tiêu đề cũ
+PASS tc_01_10: student t-cbc có 'Thảo luận (4)' (1 ≥ 1)
+PASS tc_01_10: student t-salt không còn tiêu đề cũ
+PASS tc_01_10: student t-salt có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: student t-sqli không còn tiêu đề cũ
+PASS tc_01_10: student t-sqli có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: student t-pin-rubric không còn tiêu đề cũ
+PASS tc_01_10: student t-pin-rubric có 'Thảo luận (4)' (1 ≥ 1)
+PASS tc_01_10: student t-pin-lab không còn tiêu đề cũ
+PASS tc_01_10: student t-pin-lab có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: student t-rsa-key không còn tiêu đề cũ
+PASS tc_01_10: student t-rsa-key có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: student t-xss không còn tiêu đề cũ
+PASS tc_01_10: student t-xss có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: student t-vpn không còn tiêu đề cũ
+PASS tc_01_10: student t-vpn có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: student t-pki không còn tiêu đề cũ
+PASS tc_01_10: student t-pki có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: student t-phishing không còn tiêu đề cũ
+PASS tc_01_10: student t-phishing có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: student t-firewall không còn tiêu đề cũ
+PASS tc_01_10: student t-firewall có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: student t-wifi không còn tiêu đề cũ
+PASS tc_01_10: student t-wifi có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: ta t-cbc không còn tiêu đề cũ
+PASS tc_01_10: ta t-cbc có 'Thảo luận (4)' (1 ≥ 1)
+PASS tc_01_10: ta t-salt không còn tiêu đề cũ
+PASS tc_01_10: ta t-salt có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: ta t-sqli không còn tiêu đề cũ
+PASS tc_01_10: ta t-sqli có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: ta t-pin-rubric không còn tiêu đề cũ
+PASS tc_01_10: ta t-pin-rubric có 'Thảo luận (4)' (1 ≥ 1)
+PASS tc_01_10: ta t-pin-lab không còn tiêu đề cũ
+PASS tc_01_10: ta t-pin-lab có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: ta t-rsa-key không còn tiêu đề cũ
+PASS tc_01_10: ta t-rsa-key có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: ta t-xss không còn tiêu đề cũ
+PASS tc_01_10: ta t-xss có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: ta t-vpn không còn tiêu đề cũ
+PASS tc_01_10: ta t-vpn có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: ta t-pki không còn tiêu đề cũ
+PASS tc_01_10: ta t-pki có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: ta t-phishing không còn tiêu đề cũ
+PASS tc_01_10: ta t-phishing có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: ta t-firewall không còn tiêu đề cũ
+PASS tc_01_10: ta t-firewall có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: ta t-wifi không còn tiêu đề cũ
+PASS tc_01_10: ta t-wifi có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: teacher t-cbc không còn tiêu đề cũ
+PASS tc_01_10: teacher t-cbc có 'Thảo luận (4)' (1 ≥ 1)
+PASS tc_01_10: teacher t-salt không còn tiêu đề cũ
+PASS tc_01_10: teacher t-salt có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: teacher t-sqli không còn tiêu đề cũ
+PASS tc_01_10: teacher t-sqli có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: teacher t-pin-rubric không còn tiêu đề cũ
+PASS tc_01_10: teacher t-pin-rubric có 'Thảo luận (4)' (1 ≥ 1)
+PASS tc_01_10: teacher t-pin-lab không còn tiêu đề cũ
+PASS tc_01_10: teacher t-pin-lab có 'Thảo luận (3)' (1 ≥ 1)
+PASS tc_01_10: teacher t-rsa-key không còn tiêu đề cũ
+PASS tc_01_10: teacher t-rsa-key có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: teacher t-xss không còn tiêu đề cũ
+PASS tc_01_10: teacher t-xss có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: teacher t-vpn không còn tiêu đề cũ
+PASS tc_01_10: teacher t-vpn có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: teacher t-pki không còn tiêu đề cũ
+PASS tc_01_10: teacher t-pki có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: teacher t-phishing không còn tiêu đề cũ
+PASS tc_01_10: teacher t-phishing có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: teacher t-firewall không còn tiêu đề cũ
+PASS tc_01_10: teacher t-firewall có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_10: teacher t-wifi không còn tiêu đề cũ
+PASS tc_01_10: teacher t-wifi có 'Thảo luận (2)' (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Đặng Gia An» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Dương Thanh Hiếu» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Vậy IV có cần giữ bí mật không ạ» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Phạm Quốc Bảo» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Em hiểu rồi: IV cố định» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Nguyễn Thị Giang» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Còn CTR thì sao ạ» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Nguồn tham khảo (2)» (1 ≥ 1)
+PASS tc_01_11: t-cbc có «Chờ xác nhận» (1 ≥ 1)
+PASS tc_01_11: SV không có nút Xác nhận/Chỉnh sửa/Loại (t-cbc)
+PASS tc_01_11: t-salt có «Đã được giảng viên xác nhận» (1 ≥ 1)
+PASS tc_01_11: t-salt có «Lê Thu Hà» (1 ≥ 1)
+PASS tc_01_11: t-salt có «Muối lưu ở đâu ạ» (1 ≥ 1)
+PASS tc_01_11: t-salt có «bcrypt còn cố tình chậm» (1 ≥ 1)
+PASS tc_01_11: t-salt có «Em nghĩ là để mỗi lần đoán thử» (1 ≥ 1)
+PASS tc_01_11: t-firewall không có câu AI
+PASS tc_01_11: t-wifi không có câu AI
+PASS tc_04_07: admin /settings/llm có data-part=provider-status (3 ≥ 3)
+PASS tc_04_07: teacher /settings/llm có data-part=provider-status (3 ≥ 3)
+PASS tc_04_07: GV không có Test kết nối
+PASS tc_00_13: 404 không lộ trang tiếng Anh của Next.js (không cookie)
+PASS tc_00_13: teacher: 404 tiếng Việt (1 ≥ 1)
+PASS tc_00_13: teacher: 404 có nút Về Hôm nay (1 ≥ 1)
+PASS tc_00_13: student: 404 tiếng Việt (1 ≥ 1)
+PASS tc_00_13: student: 404 có nút Về Hôm nay (1 ≥ 1)
+PASS tc_00_13: ta: 404 tiếng Việt (1 ≥ 1)
+PASS tc_00_13: ta: 404 có nút Về Hôm nay (1 ≥ 1)
+PASS tc_00_13: admin: 404 tiếng Việt (1 ≥ 1)
+PASS tc_00_13: admin: 404 có nút Về Hôm nay (1 ≥ 1)
+PASS tc_00_13: có app/error.tsx và app/not-found.tsx
+PASS tc_00_14: không chuỗi 'N … trước' ngoài mock/derive.ts
+PASS tc_00_14: SV B không còn '12 ngày trước'
+PASS tc_00_14: Admin / có 'hôm qua 16:40' (1 ≥ 1)
+PASS tc_00_14: Admin /admin/courses có 'hôm qua 16:40' (1 ≥ 1)
+PASS tc_00_14: Admin / không còn '08:30'
+PASS tc_00_15: shared/shell, shared/ui không có backdrop-filter / transparent)
+PASS tc_00_15: ui-antipatterns.sh có mẫu backdrop-filter
+PASS tc_01_17: D /chat: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /chat: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /chat: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /threads: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /threads: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /threads: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /threads/t-cbc: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /threads/t-cbc: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /threads/t-cbc: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /practice: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /practice: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /practice: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /practice/at-symmetric: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /practice/at-symmetric: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /practice/at-symmetric: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /practice/history: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /practice/history: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /practice/history: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /library: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /library: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /library: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /calendar: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /calendar: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /calendar: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /me: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /me: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /me: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D /assignments/bt03: màn 'Bạn chưa vào lớp nào' (1 ≥ 1)
+PASS tc_01_17: D /assignments/bt03: không dữ liệu lớp / phiên của B
+PASS tc_01_17: D /assignments/bt03: không phải màn chặn quyền (FR-X4)
+PASS tc_01_17: D: sidebar chỉ Hôm nay
+PASS tc_01_17: D: ô nhập 'mã tham gia' (1 ≥ 1)
+PASS tc_01_17: student /inbox → CHAN
+PASS tc_01_17: student /attendance → CHAN
+PASS tc_01_17: student /gradebook → CHAN
+PASS tc_01_17: student /observability → CHAN
+PASS tc_01_20: t-rsa-key không có nội dung CBC 'lan truyền lỗi' (01-AC20)
+PASS tc_01_24: /library có Chương 5 — Quản lý khoá và PKI (1 ≥ 1)
+PASS tc_01_24: /library có Modern Network Security Threats (1 ≥ 1)
+PASS tc_01_24: /library không Đáp án đề / Mordern
+PASS tc_01_24: /library có «Chương 1 — Tổng quan an ninh mạng và mô hình đe doạ» (1 ≥ 1)
+PASS tc_01_24: /library có «Chương 2 — Tấn công mạng phổ biến» (1 ≥ 1)
+PASS tc_01_24: /library có «Chương 3 — Mật mã đối xứng và chế độ vận hành» (1 ≥ 1)
+PASS tc_01_24: /library có «Chương 4 — Hàm băm và chữ ký số» (1 ≥ 1)
+PASS tc_01_24: /library có «Quy chế đào tạo của trường» (1 ≥ 1)
+PASS tc_01_24: /library có «Quy chế môn học An ninh mạng – 761987» (1 ≥ 1)
+PASS tc_01_24: /library có «Đề thi cuối kỳ An ninh mạng — HK1 2025–2026» (1 ≥ 1)
+PASS tc_01_24: /library có «Đề thi giữa kỳ An ninh mạng — HK1 2024–2025» (1 ≥ 1)
+PASS tc_02_14: nav.ts không còn badge số cứng (02-AC14)
+PASS tc_02_18: /students không còn 'Theo dõi' (02-AC18)
+PASS tc_02_20: Hôm nay có lý do «1 lệch hai lượt chấm» (02-AC20) (1 ≥ 1)
+PASS tc_02_20: Hôm nay có lý do «1 bài ngắn bất thường» (02-AC20) (1 ≥ 1)
+PASS tc_02_20: Hôm nay có lý do «1 trùng đoạn với bài khác» (02-AC20) (1 ≥ 1)
+PASS tc_02_20: Hôm nay có lý do «1 AI không chắc ở một tiêu chí» (02-AC20) (1 ≥ 1)
+PASS tc_03_08: /documents có tên hiển thị Chương 3 (1 ≥ 1)
+PASS tc_03_08: /documents không tên tệp gạch dưới / Mordern ngoài Drawer
+PASS tc_03_08: /documents không còn tài liệu 'Hạ tầng khoá công khai' (v4)
+PASS tc_03_08: /documents ghi 'Không hiển thị cho sinh viên' cho đáp án (1 ≥ 1)
+PASS tc_04_08: /inbox có 3 hàng 'Quá 24 giờ' (04-AC8)
+PASS tc_04_08: /analytics 'AI tự trả lời 98%' (1 ≥ 1)
+PASS tc_04_10: Admin / có 'hôm qua 16:40' (04-AC10) (1 ≥ 1)
+PASS tc_04_10: Admin /admin/courses có 'hôm qua 16:40' (04-AC10) (1 ≥ 1)
+PASS tc_04_10: Admin / không '08:30'
+PASS tc_00_16: có mock/derive.ts
+PASS tc_00_16: derive.ts có ticketStats (1 ≥ 1)
+PASS tc_00_16: derive.ts có attentionSet (1 ≥ 1)
+PASS tc_00_16: derive.ts có navBadges (1 ≥ 1)
+PASS tc_00_16: derive.ts có ago (1 ≥ 1)
+PASS tc_00_16: không còn số cứng overdue / answeredByAi / escalated (N1, N2)
+PASS tc_00_16: shell / ui không color-mix(… transparent) (FR-X15)

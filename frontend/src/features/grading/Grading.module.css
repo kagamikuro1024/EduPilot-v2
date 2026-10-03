@@ -1,0 +1,18 @@
+.who { display: grid; gap: 2px; min-width: 150px; }
+.name { font-weight: 550; line-height: 1.35; }
+.code { font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
+.score { font-variant-numeric: tabular-nums; font-weight: 600; }
+.sub { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.flag { color: var(--ep-ink-2); font-size: var(--ep-text-label); line-height: 1.4; }
+
+.bar { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-4); flex-wrap: wrap; }
+.progressText { font-size: var(--ep-text-label); color: var(--ep-ink-2); font-variant-numeric: tabular-nums; }
+.tabsRow { margin-bottom: var(--ep-space-6); }
+
+.form { display: grid; gap: var(--ep-space-4); max-width: 640px; padding: var(--ep-space-5) 0; border-top: 1px solid var(--ep-rule); border-bottom: 1px solid var(--ep-rule); }
+.formRow { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ep-space-4); }
+.formActions { display: flex; gap: var(--ep-space-2); align-items: center; }
+
+@media (max-width: 719px) {
+  .formRow { grid-template-columns: 1fr; }
+}

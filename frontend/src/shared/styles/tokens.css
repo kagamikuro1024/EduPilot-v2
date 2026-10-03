@@ -1,4 +1,7 @@
 :root {
+  /* Mặt nạ mờ mép cho hàng / bảng cuộn ngang: chỉ dùng kênh alpha, không phải màu hiển thị */
+  --ep-mask-solid: #000;
+  --ep-mask-clear: rgb(0 0 0 / 0);
   color-scheme: light;
 
   --ep-paper: oklch(99% 0.006 25);
@@ -50,6 +53,9 @@
   --ep-sidebar-collapsed: 72px;
   --ep-topbar: 56px;
 
+  /* Nền mờ sau hộp thoại — chỉ dùng cho ::backdrop, không dùng cho thanh trên (DESIGN §21). */
+  --ep-scrim: color-mix(in oklch, var(--ep-ink) 28%, transparent);
+
   --ep-ease-out: cubic-bezier(.16, 1, .3, 1);
   --ep-ease-standard: cubic-bezier(.2, .8, .2, 1);
   --ep-fast: 140ms;
@@ -57,6 +63,7 @@
   --ep-slow: 250ms;
 
   --ep-shadow-popover: 0 10px 30px rgba(71, 32, 37, .12);
+  --ep-shadow-composer: 0 6px 20px rgba(71, 32, 37, .06);
 
   --ep-z-sidebar: 20;
   --ep-z-topbar: 30;

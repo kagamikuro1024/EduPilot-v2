@@ -1,0 +1,27 @@
+.narrative {
+  max-width: 68ch;
+  font-size: var(--ep-text-item);
+  line-height: 1.6;
+}
+
+.compose {
+  display: grid;
+  gap: var(--ep-space-3);
+  margin-bottom: var(--ep-space-6);
+}
+.composeBar {
+  display: flex;
+  align-items: center;
+  gap: var(--ep-space-2);
+}
+
+.notes {
+  border-top: 1px solid var(--ep-rule);
+}
+.notes li {
+  display: grid;
+  gap: var(--ep-space-1);
+  padding: var(--ep-space-4) 0;
+  border-bottom: 1px solid var(--ep-rule);
+  max-width: 68ch;
+}

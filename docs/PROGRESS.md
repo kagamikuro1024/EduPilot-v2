@@ -4,8 +4,8 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 
 ## Đang ở đâu
 - Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2` (private). Sprint 1 = `main` của repo này. Repo cũ `TA_Agent` = remote `old-origin`, không push thêm.
-- Lộ trình: **10 sprint** (`docs/sprints/ROADMAP.md`). Sprint kế: **2 — PG Nền Go** (chờ chủ dự án gõ `tiếp`).
-- Sprint gần nhất: **1** — xong, đã thành `main`, `docs/sprints/1/report.md`
+- Lộ trình: **10 sprint + sprint 1.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu, nhánh xếp chồng: `sprint/2-pg` (từ `main`), `sprint/3-pu-p1` (từ 2 + 1.5), `sprint/4-p2` (từ 3).
+- Sprint gần nhất: **1.5 — prototype giao diện** — xong, PASS, `docs/sprints/1.5/report.md`, PR chờ chủ dự án chốt. Sprint 2 (PG) đang QC cổng. Sprint 3, 4: kế hoạch + spec có sẵn, tạm dừng theo lệnh chủ dự án.
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
@@ -32,10 +32,10 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · F9 ☐ · F10 ☐ · F11 ☐ · F12 ☐ · F13 ☐ · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐
 
 ## Phiên gần nhất
-- Ngày: 2026-10-01
-- Đã làm: sprint 1 — US-P0-01 (kịch bản demo), US-P0-02 (dời `legacy/` + khung Go/Next.js + stack 6 service), US-P0-03 (CI). Quyết định D45–D48. Toàn bộ tài liệu nền cập nhật theo chỉ Go.
-- Đang dở: không.
-- Bước kế tiếp cụ thể: chủ dự án trả lời mục "Rủi ro và điều cần chủ dự án quyết" trong `sprints/1/report.md`, merge, gõ `tiếp` → PM lập sprint 2 từ `phases/PG.md` L1.
+- Ngày: 2026-10-03
+- Đã làm: sprint 1.5 — prototype 5 story + DEMO PASS sau 2 vòng QC (spec v5.2, góp ý #15–#26). Thêm vai Research, luật cấm subagent, quy trình cuốn chiếu.
+- Đang dở: sprint 2 (QC triage + cổng PG); sprint 3/4 dừng sau khi có kế hoạch + spec.
+- Bước kế tiếp cụ thể: chủ dự án chốt PR 1.5 và PR 2 → PM merge `--no-ff` → gộp `main` vào `sprint/3-pu-p1`, gõ `tiếp` để thi công sprint 3.
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
 - Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).

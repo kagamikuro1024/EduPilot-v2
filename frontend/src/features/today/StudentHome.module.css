@@ -1,0 +1,2 @@
+.join { display: grid; gap: var(--ep-space-4); max-width: 420px; justify-items: start; }
+.hint { margin: var(--ep-space-6) 0 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
