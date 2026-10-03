@@ -42,6 +42,10 @@ jobs:
       - name: sqlc diff
         run: sqlc diff
       - name: go test -race (testroutes)
+        # internal/testutil dùng chung container (tên cố định, Reuse) giữa các gói test chạy song song. Ryuk giết container khi
+        # tiến trình ĐÃ TẠO ra nó thoát — các gói còn lại gặp "connection refused" giữa chừng (CI đỏ ngẫu nhiên). Runner dùng một lần nên tắt Ryuk.
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: go test -race -tags testroutes ./...
 
   frontend:
