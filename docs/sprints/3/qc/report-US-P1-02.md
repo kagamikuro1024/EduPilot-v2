@@ -1,5 +1,5 @@
 # Báo cáo QC — US-P1-02 (cổng `internal/llm`)
-**Kết luận: FAIL** — 3 lỗi (BUG-P102-1…3); 47/50 TC PASS (TC-41 BLOCKED có chủ đích, tính riêng).
+**Kết luận: PASS (sau vòng sửa 1)** — vòng 1: 3 lỗi; vòng 2 (commit `ef56cf0` + PM duyệt góp ý #1): BUG-P102-1 và -3 đã sửa, BUG-P102-2 đóng theo quyết định PM → 49/50 PASS, TC-41 BLOCKED có chủ đích (cần khoá thật). Xem "Vòng sửa 1".
 
 - Bản chấm: commit `1b71421` trong worktree QC riêng (như `report-US-P1-01.md`); không chạm worktree của dev.
 - Môi trường: gateway `-tags testroutes` native :8080/:8081 (2 bản, Redis dùng chung), Postgres + Redis riêng. **Máy chủ OpenAI giả của QC** (Bun, :9701-9703; mã / thân / `Retry-After` / độ trễ chọn được, ghi lại từng request) nối qua nhà cung cấp `openai_compatible`; `fake` của dev dùng cho ca không cần mạng.
@@ -85,3 +85,11 @@ Dev sửa BUG-P102-1 và -3; PM quyết góp ý #1 (BUG-P102-2). QC chạy lại
 
 ## Lịch sử sửa TC
 - 2026-10-03 — TC-P102-03: bỏ vế "lint đỏ khi import SDK" (không thuộc AC1); giữ phép grep.
+
+## Vòng sửa 1 (đo trên `ef56cf0`)
+| Lỗi | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| BUG-P102-1 (504→`SERVER`) | **ĐÃ SỬA** | máy chủ giả trả 500, 502, 503, **504**: audit `error / SERVER / 3 lần thử` cả bốn; 429 → `rate_limited / RATE_LIMIT` |
+| BUG-P102-2 (Structured) | **ĐÓNG** (PM duyệt góp ý #1) | TC-28/30 sửa: nhà `openai_compatible` nhận **đúng 1** lời gọi mỗi `Structured`, `response_format={"type":"json_object"}` và schema trong lời nhắc; JSON sai schema (`{"x":1}`) → `ErrAllProvidersFailed`, không trả JSON sai; `TestStructuredRequestShape` (4 loại), `TestStructuredJSONSchema`, `TestStructuredInvalidFallsBack` PASS |
+| BUG-P102-3 (stats) | **ĐÃ SỬA** | `GET _test/llm/stats` (ADMIN) có đủ `audit{buffer_len,flushed,dropped}`, `circuit`, `fake_calls`, `inflight` (khoá theo `provider_id`, gồm cả nhà `openai_compatible`), `provider_inflight`, `queue_depth`; không `prompt`/`text` |
+Chạy lại TC-11 (mã lỗi), TC-31 (Embed 768 → `vectơ 768 chiều, cần 1536`, 250 chuỗi → 100/100/50, rỗng → 0 request), TC-29 (JSON sai), v1.3 "không theo chuyển hướng" (nhà giả trả 307 sang nhà khác: **0** request tới nơi chuyển, khoá không bị chuyển tiếp, audit `BAD_RESPONSE`): đều PASS. `go test -race -tags testroutes ./...` 0 FAIL.

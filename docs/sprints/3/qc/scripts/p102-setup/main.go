@@ -27,6 +27,7 @@ type spec struct {
 			Dims        *int
 		}
 	}
+	Budget *struct{ Daily, Monthly *string }
 	Routes []struct {
 		Task   string
 		Chain  []string // "provider/model"
@@ -78,6 +79,21 @@ func main() {
 		}
 		if _, err := svc.SetRoute(ctx, r.Task, ch, llmconfig.Params(r.Params), 0); err != nil {
 			panic(fmt.Sprint(r.Task, ": ", err))
+		}
+	}
+	if sp.Budget != nil {
+		pd := func(x *string) *decimal.Decimal {
+			if x == nil {
+				return nil
+			}
+			d := decimal.RequireFromString(*x)
+			return &d
+		}
+		if _, err := pool.Exec(ctx, "delete from llm_budgets"); err != nil {
+			panic(err)
+		}
+		if _, err := svc.SetBudget(ctx, "system", nil, pd(sp.Budget.Daily), pd(sp.Budget.Monthly), 0); err != nil {
+			panic(err)
 		}
 	}
 	rc := redis.NewClient(&redis.Options{Addr: "localhost:46379"})

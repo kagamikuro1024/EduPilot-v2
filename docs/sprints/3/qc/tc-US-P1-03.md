@@ -16,8 +16,8 @@ Tiền điều kiện chung: stack test 2 gateway (`testroutes`) + Redis + Postg
 | TC-P103-09 | AC3 | cột `rpm_limit`/`tpm_limit` null | **D** gửi tải vượt 60 rpm khi cột null | Dùng mặc định `LLM_DEFAULT_RPM=60`, `LLM_DEFAULT_TPM=100000` |
 | TC-P103-10 | AC4 | `LLM_BATCH_SHARE=0.5` | **G** `-tags integration -run TestBatchDoesNotStarveInteractive -v` | `ok`; in `interactive_wait_p95_ms`, `ttft_ratio`, `batch_peak` |
 | TC-P103-11 | AC4 (QC đo độc lập — số cụ thể) | 200 BATCH chờ, `fake 5–15 s` | **L** k6 (kịch bản `p103-batch-vs-chat.js`): 200 việc `GRADING` + 25 `CHAT` tốc độ ≤ 50 % công suất (≤ 5 đồng thời); đo `queue_wait_ms` của INTERACTIVE từ `llm_audit`; đo đỉnh BATCH đang chạy từ `ZCARD`; chạy lại 1 lần **không có BATCH** làm mốc | `interactive_wait_p95 ≤ 500 ms`; `batch_peak ≤ 5` **khi có INTERACTIVE chờ/vừa chạy trong 2 s**; chênh p95 so với mốc không BATCH ≤ 100 ms; TTFT (đo token đầu của `Stream`) không chậm hơn **+20 %** so với mốc |
-| TC-P103-12 | AC4 (không INTERACTIVE) | – | **L** chỉ 200 BATCH | BATCH dùng tới **10** chỗ (không bị kìm khi rảnh) |
-| TC-P103-13 | AC4 (tay) | – | **S** `cd backend-go && go run ./cmd/llmload --batch 200 --chat 25` | In `interactive_wait_p95_ms ≤ 500`, `batch_peak ≤ 5`; QC ghi số **in ra** cạnh số tự đo (TC-11); lệch lớn → báo "nghi lỗi công cụ" và lấy số tự đo |
+| TC-P103-12 | AC4 (spec v1.4, góp ý #6) | – | **L** chỉ 200 BATCH (không có INTERACTIVE nào); đo đỉnh BATCH đang chạy (ZRANGE tiền tố `B:`) | BATCH **luôn** ≤ `ceil(10 × 0,5)` = **5** chỗ, kể cả khi không có INTERACTIVE (v1.4 bỏ ngoại lệ "dùng hết công suất"); chat đầu tiên sau khi BATCH đã chạy hàng loạt chờ hàng p95 ≤ 500 ms (không cần "mồi") |
+| TC-P103-13 | AC4 (tay) | – | **S** `cd backend-go && go run ./cmd/llmload --batch 200 --chat 25` (không `--prime`: v1.4 bỏ cờ này) | In `interactive_wait_p95_ms ≤ 500`, `batch_peak ≤ 5`; QC ghi số **in ra** cạnh số tự đo (TC-11); lệch lớn → "nghi lỗi công cụ", lấy số tự đo |
 | TC-P103-14 | AC5 | `LLM_QUEUE_MAX=200`, `LLM_MAX_CONCURRENCY=1`, `fake 10 s` | **S** 201 `POST /api/v1/_test/llm/chat` song song (k6/`xargs -P201`); đo thời gian phản hồi của yêu cầu bị từ chối | **Đúng 1** phản hồi `503` thân `{"code":"OVERLOADED",…,"retry_after":N}` + header `Retry-After: N`, `1 ≤ N ≤ 30`, trả **≤ 50 ms**, kết nối không bị giữ; `message` tiếng Việt |
 | TC-P103-15 | AC5 | – | **S** yêu cầu INTERACTIVE chờ > 10 s (`LLM_QUEUE_WAIT_MAX=10s`) | Nhận `OVERLOADED` sau ≈ 10 s |
 | TC-P103-16 | AC5 | – | **D** sau các lần từ chối: `inflight` và token bucket không đổi; `llm_audit.status='overloaded'` đúng số yêu cầu bị từ chối | Từ chối **không** chiếm chỗ / token; có dòng audit `overloaded` |
@@ -80,6 +80,7 @@ Tiền điều kiện chung: stack test 2 gateway (`testroutes`) + Redis + Postg
   - **Trả lời (BA, 2026-10-03):** Múi giờ **`Asia/Ho_Chi_Minh`** (SRS 4.3 "Ngân sách": ngày / tháng theo múi giờ này; khoá `ep:llm:budget:…:d:{yyyymmdd}` tính theo giờ Việt Nam). TC-P103-39 chuyển ngày bằng đồng hồ giả tại 00:00 giờ Việt Nam (17:00 UTC hôm trước).
 
 ## Lịch sử sửa TC
+- 2026-10-03 — spec v1.4 (góp ý #6 ACCEPTED): TC-P103-12/13 sửa — BATCH luôn ≤ ceil(MAX×share), bỏ `--prime`. Góp ý #8: `TestLLMEnv` ở `internal/platform/config` (TC-P103-48 đã chạy ở đó).
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).
 
 Tổng: 50 TC.

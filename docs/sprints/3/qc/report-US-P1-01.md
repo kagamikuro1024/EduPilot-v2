@@ -1,5 +1,5 @@
 # Báo cáo QC — US-P1-01 (migration `00002_llm`, `platform/crypto`, `llmconfig`)
-**Kết luận: FAIL** — 34/35 TC PASS, 1 TC FAIL (TC-P101-19, định dạng `APP_ENCRYPTION_KEY`; lệch spec v1.2). Phần còn lại đạt.
+**Kết luận: PASS (sau vòng sửa 1)** — vòng 1: 34/35 PASS, TC-P101-19 FAIL (BUG-P101-1); vòng 2 (commit `ef56cf0`): TC-19 và TC-18 PASS → 35/35. Xem mục "Vòng sửa 1".
 
 - Bản chấm: commit bàn giao `1b71421` (nhánh `sprint/3-pu-p1`), trong **worktree QC riêng** `../TA_Agent_qcp1` (detached) — không chạm worktree của dev. Tệp dev đang sửa dở (US-P1-03) không nằm trong bản chấm.
 - Môi trường QC: Postgres `pgvector:pg18` + Redis + MinIO riêng, gateway `go build -tags testroutes` chạy native :8080/:8081 (không dùng Caddy / compose của dev). Máy: macOS arm64, Go 1.27.1.
@@ -68,3 +68,11 @@ Ghi chú: spec v1.2 được commit lúc 13:22 ngày 03/10, **sau** bàn giao c�
 
 ## Việc sau
 Sửa BUG-P101-1 → QC chạy lại TC-19 (và TC-18).
+
+## Vòng sửa 1 (commit `9018e24`, đo trên `ef56cf0`)
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| 18 | PASS | `""`, `abc`, 16 byte, 33 byte → `rc=1`, đúng câu "APP_ENCRYPTION_KEY không hợp lệ: cần 32 byte (base64)", không in lại giá trị |
+| 19 | **PASS** | base64 chuẩn có đệm và có khoảng trắng / xuống dòng hai đầu → chạy được (tới kết nối DB); **base64url (`-`/`_`) → rc=1**, **không đệm (43 ký tự) → rc=1**, **xuống dòng ở giữa → rc=1**, **`\r` ở giữa → rc=1**, khoảng trắng ở giữa → rc=1; thông điệp đúng, không in giá trị khoá |
+| (lại) | PASS | `TestParseKey` + toàn bộ `go test -race -tags testroutes ./...` 0 FAIL; `golangci-lint`, `sqlc diff` sạch |
+BUG-P101-1 **đóng**.

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 	goredis "github.com/redis/go-redis/v9"
@@ -26,7 +27,7 @@ func main() {
 	pool, _ := pgxpool.New(ctx, cfg.DatabaseURL)
 	rdb := goredis.NewClient(&goredis.Options{Addr: "localhost:46379"})
 	lg := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: slog.LevelError}))
-	rt, err := llm.NewRuntime(ctx, cfg, pool, rdb, lg)
+	rt, err := llmrt.New(ctx, cfg, pool, rdb, lg)
 	if err != nil {
 		panic(err)
 	}
