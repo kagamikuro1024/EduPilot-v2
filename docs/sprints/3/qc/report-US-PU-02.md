@@ -33,3 +33,7 @@ Bản chấm `5dfca9b` (chứa `a5e219a`), `build:gate`, `next start -p 3400`. C
 
 ## Việc dở (cho phiên sau)
 TC-39 (audit TA/GV/Admin/spec, sweep, 18 `data-part`), TC-40, TC-20, TC-24/25 độc lập, TC-46/47 (bảng §22, ảnh), nốt TC-36 (nền/viền), chốt TC-11/12 với BA. Lưu ý chạy: cổng 3300 là của Playwright dev (giết server của QC) — dùng 3400 và kiểm `lsof -i :3400` trước mỗi lượt; server dựng bằng `python3 subprocess.Popen(start_new_session=True)`.
+
+## Cập nhật khi chạy lại (`a0ecef6`) — DỪNG GIỮA CHỪNG theo lệnh PM
+- **TC-39 (một phần → đạt phần đo được):** `audit.mjs` 5 lượt: **683 hàng, FAIL 0** (SV 165, GV 170, TA 106, Admin 54, spec 188); `sweep` SV 42 hàng `FORBIDDEN`=0. `proto-curl.sh` 496/1 do dương tính giả ở `tokenStore.ts` (xem report PU-01); 18 `data-part` chưa đối chiếu.
+- Vẫn dở: TC-40 (production build), TC-20 bàn phím DataTable độc lập, TC-46/47, chốt TC-11/12 với BA. BUG-PU02-1, BUG-PU02-2 chưa kiểm lại (dev chưa báo sửa).

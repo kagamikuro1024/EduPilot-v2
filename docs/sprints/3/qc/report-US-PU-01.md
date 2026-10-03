@@ -59,3 +59,8 @@
 
 ## Việc sau
 Dev: BUG-PU01-1 (sửa chuỗi hoặc BA sửa AC3). PM: cho phép QC nới phép kiểm `tc_00_static` (cho `@playwright/test`) và loại `.ep-sr-only` khỏi `audit.mjs`; sau đó QC chấm lại TC-33 (đồng thời TC-34 khi US-PU-05 có ảnh mốc).
+
+## Vòng sửa 1 (dev `00425f0`; công cụ QC sửa theo góp ý #13) — DỪNG GIỮA CHỪNG theo lệnh PM
+- **TC-11 PASS:** `lint-selftest.sh` in `7 / 7 luật ESLint bắt được` và `19 / 19 phép ui-antipatterns bắt được`, rc=0, `git status frontend`=0, không còn `__selftest__`. BUG-PU01-1 **đóng**.
+- **TC-32 PASS:** `audit.mjs` (đã bỏ `.ep-sr-only`) trên `a0ecef6`: SV 165, GV 170, TA 106, Admin 54, spec 188 = **683 hàng, FAIL 0**.
+- **TC-33:** `sweep` SV 42 hàng, `FORBIDDEN` 0, 0 cuộn ngang, 1 `h1`/trang. `proto-curl.sh all` = 496 PASS / **1 FAIL**: `tc_00_static: token ở storage` do phép `grep` tìm chữ "localStorage" + "token" bắt **dòng chú thích** đầu `frontend/src/shared/data/tokenStore.ts` (US-PU-03, nói rằng token KHÔNG nằm ở storage) — dương tính giả của công cụ QC 1.5, không phải lỗi mã. Chưa sửa công cụ (đã dừng); đề nghị phiên sau cho phép phép kiểm bỏ qua dòng chú thích rồi chốt TC-33.

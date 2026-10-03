@@ -1,0 +1,2 @@
+# Báo cáo QC — US-PU-03 (lớp dữ liệu) — **CHƯA BẮT ĐẦU**
+Chủ dự án chuyển chỗ → PM lệnh dừng trước khi QC chạy bất kỳ TC nào của `tc-US-PU-03.md` (dev `dc2ecab`). Không có kết luận. Ghi chú cho phiên sau: spec dev chạy cổng 3310/3311 (dev dùng); QC dùng cổng riêng (vd. 3510/3511), build `build:gate`, `/dev/data` có ở bản gate; cổng 3100 là demo của chủ dự án — không đụng. Go: `TestSSE_ReconnectRace` FAIL một lần khi máy tải (xem report P1-04) cần chạy lại riêng.

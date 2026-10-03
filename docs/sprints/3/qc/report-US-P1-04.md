@@ -82,3 +82,8 @@ SLO đọc (2 gateway, 20 nhà × 10 mô hình): `providers` p95 **8 ms**, `rout
 
 ## Việc sau
 Dev sửa BUG-P104-1 → QC chạy lại TC-P104-34/43 và 3 ca tràn số.
+
+## Vòng sửa 1 (dev `ac85ab0`; đo trên `a0ecef6`) — DỪNG GIỮA CHỪNG theo lệnh PM
+- **BUG-P104-1 đã sửa:** `PUT /admin/llm/budget` (daily và monthly), `PUT /courses/{id}/llm-budget`, `POST providers` có `price_in`/`price_out` vượt biên → **`422 VALIDATION_FAILED` `OUT_OF_RANGE`** có message tiếng Việt nêu trần ("tối đa 999.999.999.999,99 đ"; giá "tối đa 9.999.999.999,9999 đ / 1 triệu token"). Biên: `999999999999.99` → 200, `9999999999999.99` → 422; giá `9999999999.9999` → 201, `10000000000` → 422. Ca bình thường vẫn 200/201. → **TC-P104-34 PASS; verdict P1-04: PASS** (chờ cổng Go).
+- Cổng Go: `go vet` (+testroutes), `golangci-lint`, `sqlc diff`, `go test ./internal/contract` rc=0. `go test -race -tags testroutes ./...` có **`TestSSE_ReconnectRace` FAIL (60 s)** ở `internal/httpapi/sse` — chạy khi máy đang tải stack QC + build; **chưa chạy lại riêng** → việc dở, chưa kết luận lỗi dev.
+- Log gateway có 1 dòng ERROR lúc khởi động hai gateway cùng lúc ("không tạo được bảng thử _test_items", va chạm `pg_type`) — chỉ ở bản `testroutes`, vô hại.
