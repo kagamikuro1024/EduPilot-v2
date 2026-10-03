@@ -1,85 +1,26 @@
 "use client";
 
-import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
+import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { BT03_SEED } from "@/mock/assess";
-import { COURSE_1, COURSE_2, DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, SUBJECT, type Role } from "@/mock/core";
-import { ASSIGNED_AT, BT03_SUBMITTED_AT, CH5_UPLOADED_AT, agoLabel, reviewPending, ticketStats } from "@/mock/derive";
-import { docById } from "@/mock/docs";
-import { markNoteRead, notesFor, viewerKey, type Note } from "@/mock/notes";
-import { KEYS, SCHEMES_SEED, type Bt03State, type SchemesState, type Ticket } from "@/mock/state";
+import { COURSE_1, ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
+import { reviewPending, ticketStats } from "@/mock/derive";
+import { KEYS, type Bt03State, type Ticket } from "@/mock/state";
 import { mergeTickets } from "@/mock/support";
-import { ALL_COURSES, clearDemoSession } from "@/shared/session/cookies";
+import { ALL_COURSES } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { useEnsureClock, useSimNow } from "@/shared/state/clock";
-import { resetDemo, useDemoSlice } from "@/shared/state/demo";
+import { useDemoSlice } from "@/shared/state/demo";
 import { ButtonLink, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
 import { useRealNotifications } from "@/shared/session/notifications";
-import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, needsToken, whoCanOpen, type NavItem } from "./nav";
+import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
 import s from "./AppShell.module.css";
 
 /** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
-const FALLBACK_RATE_AT = new Date("2026-10-29T08:40:00+07:00");
-const BUDGET_AT = new Date("2026-10-29T08:20:00+07:00");
-
-/**
- * Mục "trạng thái" của chuông: TÍNH TỪ DỮ LIỆU (SRS 4.9) nên tự biến khi sự kiện xảy ra;
- * không có chấm chưa đọc (chỉ sự kiện mới có). Tên tài liệu lấy từ bảng N5, mốc từ 4.8 N6.
- */
-function statusNotes(role: Role, studentId: string | undefined, hasCourse: boolean, bt03: Bt03State, schemes: SchemesState, viewer: string): Note[] {
-  const read = [viewer];
-  const out: Note[] = [];
-  if (role === "student" && hasCourse) {
-    const ch5 = docById("d-ch5")!;
-    out.push({ id: "n-doc-ch5", to: { roles: ["student"] }, title: `Tài liệu mới: ${ch5.title}`, meta: "Thư viện", href: "/library", ms: CH5_UPLOADED_AT.getTime(), readBy: read });
-    if (studentId === "sv-2" && bt03.status !== "published") {
-      out.push({
-        id: "n-bt03-waiting",
-        to: { studentId: "sv-2" },
-        title: "Bài tập 03 đã nộp, đang chờ chấm",
-        meta: "Bài tập",
-        href: "/assignments/bt03",
-        ms: BT03_SUBMITTED_AT.getTime(),
-        readBy: read,
-      });
-    }
-  }
-  // Trợ giảng chỉ có lớp 761987 (SRS 4.1): không nhận thông báo phân công lớp 761988
-  if (role === "teacher") {
-    out.push({
-      id: "n-assigned",
-      to: { roles: ["teacher"] },
-      title: `Bạn được phân công lớp An ninh mạng – 761988. Mã tham gia: BX4P9TW`,
-      meta: "Quản trị viên",
-      href: `/class/members?course=${COURSE_2}`,
-      ms: ASSIGNED_AT.getTime(),
-      readBy: read,
-    });
-  }
-  if (role === "teacher" && schemes[COURSE_2]?.status !== "confirmed") {
-    out.push({
-      id: "n-scheme-2",
-      to: { roles: ["teacher"] },
-      title: "Công thức điểm lớp 761988 chưa được xác nhận",
-      meta: "Sổ điểm",
-      href: `/gradebook/scheme?course=${COURSE_2}`,
-      ms: ASSIGNED_AT.getTime(),
-      readBy: read,
-    });
-  }
-  if (role === "admin") {
-    out.push(
-      { id: "n-fallback", to: { roles: ["admin"] }, title: "Tỷ lệ dùng model dự phòng tăng lên 1,2%", meta: "Quan sát AI", href: "/observability", ms: FALLBACK_RATE_AT.getTime(), readBy: read },
-      { id: "n-budget", to: { roles: ["admin"] }, title: "Ngân sách LLM tháng đã dùng 62%", meta: "Cấu hình LLM", href: "/settings/llm", ms: BUDGET_AT.getTime(), readBy: read },
-    );
-  }
-  return out;
-}
-
 /** Tên người hiển thị: GV có học hàm ("TS. Lê Thu Hà"), TA / Admin / SV chỉ có tên. */
 function displayName(role: Role, name: string, title?: string) {
   return role === "teacher" && title ? `${title} ${name}` : name;
@@ -133,7 +74,7 @@ function useSidebarCollapsed(): [boolean, (v: boolean) => void] {
 const MOCK_SCREENS_OFF = process.env.NEXT_PUBLIC_MOCK_SCREENS === "0";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, user, studentId, course, courses, isAll, hasCourse, realCourses, realCourseId, switchTo, setCourse, source, identity, logout } = useSession();
+  const { role, user, course, courses, isAll, hasCourse, realCourses, realCourseId, setCourse, identity, logout } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const groups = useMemo(() => navFor(role, hasCourse), [role, hasCourse]);
@@ -171,10 +112,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const courseTitle = !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : realPicked ? `${realPicked.class_code} · ${realPicked.name}` : `${course.code} · ${course.name}`;
   const canAll = realCourses ? role !== "student" && realCourses.length > 1 : role === "teacher";
   const personName = displayName(role, user.name, user.title);
-  const viewer = viewerKey(role, studentId);
   const scope = useMemo(() => (isAll ? courses.map((c) => c.id) : hasCourse ? [course.id] : []), [isAll, courses, hasCourse, course.id]);
-  // Chuông không theo lớp đang chọn: mục của lớp khác vẫn tới, đích mang `course=` nên mở đúng lớp (SRS 4.9)
-  const noteScope = useMemo(() => courses.map((c) => c.id), [courses]);
 
   // Đồng hồ giả lập: khung app lưu mốc t0 một lần, mọi chuỗi thời gian tương đối đọc `now` này (SRS 4.8 N6).
   useEnsureClock();
@@ -183,34 +121,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // N9: badge tính từ dữ liệu, giảm ngay khi hành động xảy ra; không bao giờ ghi số ở nav.ts.
   const [storedTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
   const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
-  const [schemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
   const [approvedIds] = useDemoSlice<string[]>("grading.approved", []);
   const badges = {
     inbox: ticketStats(mergeTickets(storedTickets), scope, now).open,
     grading: scope.includes(COURSE_1) ? reviewPending(bt03.status, approvedIds).length : 0,
   };
 
-  const [storedNotes] = useDemoSlice<Note[]>(KEYS.notes, []);
-  const notes = useMemo(
-    () => notesFor([...storedNotes, ...statusNotes(role, studentId, hasCourse, bt03, schemes, viewer)], role, studentId, noteScope),
-    [storedNotes, role, studentId, hasCourse, bt03, schemes, viewer, noteScope],
-  );
-  const unread = notes.filter((n) => !n.readBy.includes(viewer)).length;
-  // Phiên thật: chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus); phiên mô phỏng giữ thông báo mô phỏng.
-  const real = useRealNotifications(source === "jwt");
-  const bellItems = notes.map((n) => {
-    const ago = agoLabel(n.ms, now);
-    return { id: n.id, title: n.title, context: n.meta, when: n.just && ago === "vừa xong" ? n.just : ago, href: n.href, read: n.readBy.includes(viewer) };
-  });
+  // Chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus).
+  const real = useRealNotifications(true);
 
   // Thanh bên và thanh dưới loại trừ nhau: chỉ gắn một bộ badge vào DOM ở mỗi bề rộng.
   const narrow = useMedia(NARROW);
-
-  function switchRole(next: Role, person?: string) {
-    switchTo(next, person);
-    if (!canOpen(next, pathname)) router.push("/");
-    else router.refresh();
-  }
 
   return (
     <div className={[s.shell, collapsed ? s.collapsed : ""].join(" ")}>
@@ -329,10 +250,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
 
           <NotificationPopover
-            items={source === "jwt" ? real.items : bellItems}
-            unread={source === "jwt" ? real.unread : unread}
-            failed={source === "jwt" && real.failed}
-            onRead={(id) => (source === "jwt" ? real.markRead(id) : markNoteRead(id, viewer))}
+            items={real.items}
+            unread={real.unread}
+            failed={real.failed}
+            onRead={(id) => real.markRead(id)}
           />
 
           <Popover
@@ -359,74 +280,17 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <p className={s.whoMail}>{identity ? identity.email || identity.sub : user.email}</p>
                 </div>
                 <MenuDivider />
-                {source === "demo" && (
-                  <>
-                <p className={s.panelLabel}>Đổi vai</p>
                 <MenuList
                   onPicked={close}
                   items={[
-                    ...DEMO_STUDENT_IDS.map((id, i) => {
-                      const st = STUDENTS.find((x) => x.id === id)!;
-                      const here = role === "student" && studentId === id;
-                      return {
-                        label: (
-                          <span className={s.courseOpt}>
-                            <span>
-                              Sinh viên {"ABCD"[i]} · {st.name}
-                            </span>
-                            <span className={s.courseOptMeta}>{DEMO_STUDENT_BLURB[id]}</span>
-                          </span>
-                        ),
-                        icon: here ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                        onSelect: () => switchRole("student", id),
-                      };
-                    }),
-                    ...(["ta", "teacher", "admin"] as const).map((r) => ({
-                      label: (
-                        <span className={s.courseOpt}>
-                          <span>
-                            {ROLE_LABEL[r]} · {STAFF[r].name}
-                          </span>
-                        </span>
-                      ),
-                      icon: r === role ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                      onSelect: () => switchRole(r),
-                    })),
-                  ]}
-                />
-                <MenuDivider />
-                  </>
-                )}
-                <MenuList
-                  onPicked={close}
-                  items={[
-                    ...(source === "jwt" ? [{ label: "Tài khoản và bảo mật", icon: <ShieldCheck aria-hidden />, onSelect: () => router.push("/settings") }] : []),
+                    { label: "Tài khoản và bảo mật", icon: <ShieldCheck aria-hidden />, onSelect: () => router.push("/settings") },
                     ...(role === "teacher" || role === "admin"
                       ? [{ label: "Cài đặt hệ thống", icon: <Settings aria-hidden />, onSelect: () => router.push("/settings/llm") }]
-                      : []),
-                    ...(source === "demo"
-                      ? [{
-                          label: "Đặt lại dữ liệu demo",
-                          icon: <RotateCcw aria-hidden />,
-                          onSelect: () => {
-                            resetDemo();
-                            // về lớp mặc định của vai để diễn lại kịch bản từ đầu (không kẹt ở lớp 761988)
-                            setCourse(COURSE_1);
-                            router.refresh();
-                          },
-                        }]
                       : []),
                     {
                       label: "Đăng xuất",
                       icon: <LogOut aria-hidden />,
-                      onSelect: () => {
-                        if (source === "jwt") {
-                          logout(); // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
-                          return;
-                        }
-                        clearDemoSession();
-                        router.push("/login");
-                      },
+                      onSelect: () => logout(), // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
                     },
                   ]}
                 />
@@ -483,14 +347,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Page>
         ) : !hasCourse && needsCourse(role, pathname) ? (
           <NoCourse />
-        ) : needsToken(pathname) && source === "demo" ? (
-          <Page>
-            <PageHeader
-              title="Cần đăng nhập thật"
-              description="Màn này làm việc với máy chủ thật. Bạn đang xem bản mô phỏng; hãy đăng nhập bằng tài khoản để tiếp tục."
-              actions={<ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>}
-            />
-          </Page>
         ) : MOCK_SCREENS_OFF && mockBackend(pathname) ? (
           <NoBackend phase={mockBackend(pathname)!} />
         ) : (

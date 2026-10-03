@@ -5,10 +5,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { acceptSession, apiClient, ApiError, type SessionPayload } from "@/shared/data";
 import { useAuth } from "@/shared/session/AuthProvider";
-import { clearDemoSession } from "@/shared/session/cookies";
 import { safeNext } from "@/shared/session/safeNext";
 import { Button, Field, Input, InlineNotice, PasswordInput } from "@/shared/ui";
-import LoginChoices from "@ep/login-choices";
 import s from "./login.module.css";
 
 const REVOKED_COPY: Record<string, string> = {
@@ -51,7 +49,6 @@ export function LoginForm() {
     setError(null);
     try {
       const { data } = await apiClient.post<SessionPayload>("/auth/login", { email: email.trim(), password });
-      clearDemoSession(); // phiên thật luôn thắng phiên mô phỏng
       acceptSession(data);
       setPassword("");
       router.replace(next);
@@ -106,12 +103,6 @@ export function LoginForm() {
         <Link href="/forgot-password">Quên mật khẩu?</Link>
         <Link href="/register">Chưa có tài khoản? Đăng ký</Link>
       </p>
-      {LoginChoices && (
-        <details className={s.dev}>
-          <summary>Tài khoản mẫu (chỉ bản dev)</summary>
-          <LoginChoices />
-        </details>
-      )}
     </>
   );
 }

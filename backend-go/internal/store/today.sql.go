@@ -32,6 +32,145 @@ func (q *Queries) DismissCourseSetup(ctx context.Context, arg DismissCourseSetup
 	return result.RowsAffected(), nil
 }
 
+const existingSessionStarts = `-- name: ExistingSessionStarts :many
+select starts_at from class_sessions where course_id = $1 and starts_at = any($2::text[]::timestamptz[])
+`
+
+type ExistingSessionStartsParams struct {
+	CourseID uuid.UUID
+	Starts   []string
+}
+
+// Giờ bắt đầu đã có trong lớp (chuỗi RFC 3339 → timestamptz) để bỏ qua buổi trùng.
+func (q *Queries) ExistingSessionStarts(ctx context.Context, arg ExistingSessionStartsParams) ([]time.Time, error) {
+	rows, err := q.db.Query(ctx, existingSessionStarts, arg.CourseID, arg.Starts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []time.Time{}
+	for rows.Next() {
+		var starts_at time.Time
+		if err := rows.Scan(&starts_at); err != nil {
+			return nil, err
+		}
+		items = append(items, starts_at)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const insertSession = `-- name: InsertSession :execrows
+insert into class_sessions (course_id, session_no, starts_at, ends_at, room)
+values ($1, $2, $3, $4, $5)
+on conflict (course_id, starts_at) do nothing
+`
+
+type InsertSessionParams struct {
+	CourseID  uuid.UUID
+	SessionNo int32
+	StartsAt  time.Time
+	EndsAt    time.Time
+	Room      *string
+}
+
+func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertSession,
+		arg.CourseID,
+		arg.SessionNo,
+		arg.StartsAt,
+		arg.EndsAt,
+		arg.Room,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const listSessions = `-- name: ListSessions :many
+select id, session_no, starts_at, ends_at, room, topic
+from class_sessions
+where course_id = $1 and ($2::timestamptz is null or starts_at > $2::timestamptz)
+order by starts_at
+limit $3
+`
+
+type ListSessionsParams struct {
+	CourseID uuid.UUID
+	After    *time.Time
+	Lim      int32
+}
+
+type ListSessionsRow struct {
+	ID        uuid.UUID
+	SessionNo int32
+	StartsAt  time.Time
+	EndsAt    time.Time
+	Room      *string
+	Topic     *string
+}
+
+// Theo starts_at tăng dần; con trỏ = starts_at của dòng cuối trang trước.
+func (q *Queries) ListSessions(ctx context.Context, arg ListSessionsParams) ([]ListSessionsRow, error) {
+	rows, err := q.db.Query(ctx, listSessions, arg.CourseID, arg.After, arg.Lim)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListSessionsRow{}
+	for rows.Next() {
+		var i ListSessionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SessionNo,
+			&i.StartsAt,
+			&i.EndsAt,
+			&i.Room,
+			&i.Topic,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const maxSessionNo = `-- name: MaxSessionNo :one
+
+select coalesce(max(session_no), 0)::int from class_sessions where course_id = $1
+`
+
+// ===== Buổi học tối thiểu (US-P2-12) =====
+func (q *Queries) MaxSessionNo(ctx context.Context, courseID uuid.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, maxSessionNo, courseID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const sessionNoInRange = `-- name: SessionNoInRange :one
+select exists (select 1 from class_sessions where course_id = $1 and session_no between $2::int and $3::int) as taken
+`
+
+type SessionNoInRangeParams struct {
+	CourseID uuid.UUID
+	Lo       int32
+	Hi       int32
+}
+
+func (q *Queries) SessionNoInRange(ctx context.Context, arg SessionNoInRangeParams) (bool, error) {
+	row := q.db.QueryRow(ctx, sessionNoInRange, arg.CourseID, arg.Lo, arg.Hi)
+	var taken bool
+	err := row.Scan(&taken)
+	return taken, err
+}
+
 const todayAdminCoursesNoTeacher = `-- name: TodayAdminCoursesNoTeacher :many
 select c.id, c.class_code
 from courses c

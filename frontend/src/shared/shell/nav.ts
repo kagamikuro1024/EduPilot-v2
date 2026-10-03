@@ -220,5 +220,3 @@ export function mockBackend(pathname: string): Backend | null {
   return hit ? hit[1] : null;
 }
 
-/** Route có backend thật cần JWT (US-PU-04 AC9). */
-export const needsToken = (pathname: string) => pathname === "/settings/llm" || pathname.startsWith("/settings/llm/");

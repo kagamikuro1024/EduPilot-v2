@@ -1,13 +1,10 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useSyncExternalStore } from "react";
+import { Suspense, useEffect } from "react";
 import { Skeleton } from "@/shared/ui";
-import { DEV_TOOLS, useAuth } from "./AuthProvider";
-import { parseDemoCookies } from "./cookies";
+import { useAuth } from "./AuthProvider";
 import { SessionProvider } from "./session";
-
-const noopSubscribe = () => () => {};
 
 /** Khung xương toàn trang trong lúc xác định phiên (không nháy /login). */
 export function AuthSkeleton() {
@@ -20,7 +17,7 @@ export function AuthSkeleton() {
 
 /**
  * Cổng của mọi route cần đăng nhập: chưa biết phiên → khung xương; chưa đăng nhập / bị thu hồi → `/login?next=…`;
- * đã đăng nhập → SessionProvider (vai từ JWT). Build NEXT_PUBLIC_DEV_TOOLS=1 còn nhận phiên mô phỏng từ cookie khi chưa có phiên thật.
+ * đã đăng nhập → SessionProvider (vai từ JWT).
  */
 export function AuthGate({ children }: { children: React.ReactNode }) {
   return (
@@ -35,12 +32,8 @@ function Gate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const search = useSearchParams().toString();
-  // cookie chỉ đọc được ở trình duyệt: server/hydrate thấy `null` (chưa kiểm) → `demo` undefined, tránh lệch hydrate
-  const rawCookie = useSyncExternalStore(noopSubscribe, () => document.cookie, () => null);
-  const demo = useMemo(() => (rawCookie === null ? undefined : DEV_TOOLS ? parseDemoCookies(rawCookie) : null), [rawCookie]);
 
-  const useDemo = auth.status !== "authenticated" && demo != null;
-  const bounce = (auth.status === "anonymous" || auth.status === "revoked") && demo === null;
+  const bounce = auth.status === "anonymous" || auth.status === "revoked";
 
   useEffect(() => {
     if (!bounce) return;
@@ -52,6 +45,5 @@ function Gate({ children }: { children: React.ReactNode }) {
   }, [bounce, auth.status, auth.reason, pathname, search, router]);
 
   if (auth.status === "authenticated") return <SessionProvider fullName={auth.user?.full_name}>{children}</SessionProvider>;
-  if (useDemo) return <SessionProvider demo={demo}>{children}</SessionProvider>;
   return <AuthSkeleton />;
 }

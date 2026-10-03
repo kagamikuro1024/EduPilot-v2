@@ -1,7 +1,7 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 import { BASE_URL } from "./support/env";
 import { loadAudit, runAudit } from "./support/audit";
-import { sessionBody, type JwtRole } from "./support/session";
+import { asDemo, sessionBody, type JwtRole } from "./support/session";
 
 // US-P2-02: đăng nhập thật, làm mới, khôi phục khi tải lại. Backend được giả lập TỪNG TRANG bằng page.route (không dùng máy chủ giả
 // dùng chung). Ca @real (gateway + Mailpit thật) không chạy ở CI.
@@ -864,4 +864,20 @@ test("@real login + refresh qua Caddy cùng origin (cần stack Go: docker-compo
 
 test("@real register verify login (cần stack Go + Mailpit: đăng ký → đọc Mailpit → xác minh → đăng nhập → vào /)", async () => {
   test.skip(true, "@real: cần stack Go + Mailpit trên https://localhost — QC chạy tay");
+});
+
+// US-P2-12 AC3: 7 tài khoản seed (đăng nhập giả bằng đúng email seed) thấy đúng số mục điều hướng: SV 7, TA 12, GV 15, Admin 6, SV chưa vào lớp 1.
+test("seed accounts nav: số mục theo vai (7 / 12 / 15 / 6 / 1)", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "thanh bên chỉ có ở bề rộng desktop");
+  const cases: Array<[Parameters<typeof asDemo>[1], string | undefined, number]> = [
+    ["student", "sv-1", 7], ["student", "sv-2", 7], ["student", "sv-3", 7], ["student", "sv-4", 1], ["ta", undefined, 12], ["teacher", undefined, 15], ["admin", undefined, 6],
+  ];
+  for (const [role, person, want] of cases) {
+    await context.clearCookies();
+    await context.unrouteAll();
+    await asDemo(context, role, { person });
+    await page.goto("/");
+    await expect(page.locator("[data-part=sidebar] nav a").first()).toBeVisible();
+    await expect(page.locator("[data-part=sidebar] nav a"), `${role} ${person ?? ""}`).toHaveCount(want);
+  }
 });

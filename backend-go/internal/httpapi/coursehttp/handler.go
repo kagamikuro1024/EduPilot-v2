@@ -58,6 +58,8 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(h.Guard(auth.Teacher)).Get("/courses/{id}/share-sources", h.shareSources)
 	r.With(h.Guard(auth.Teacher), h.Idem).Post("/courses/{id}/share-from", h.shareFrom)
 	r.With(h.Guard(auth.Teacher)).Post("/courses/{id}/setup/dismiss", h.dismissSetup)
+	r.With(h.Guard(auth.Staff), h.Idem).Post("/courses/{id}/sessions/generate", h.generateSessions)
+	r.With(h.Guard(auth.Member)).Get("/courses/{id}/sessions", h.listSessions)
 	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/assistants", h.putAssistants)
 	r.With(h.Guard(auth.Manage)).Get("/courses/{id}/assistant-candidates", h.candidates)
 }

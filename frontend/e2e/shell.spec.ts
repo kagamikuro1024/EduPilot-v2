@@ -193,7 +193,7 @@ test("topbar: không h1, 4 nhóm điều khiển, hồ sơ có aria-label Tài k
   }));
   expect(groups).toEqual({ course: true, search: true, bell: true, profile: true });
   await page.getByRole("button", { name: /^Tài khoản: / }).click();
-  await expect(page.getByText("Đổi vai")).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Đăng xuất" })).toBeVisible();
 });
 
 test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV không thấy Điểm danh", async ({ page, context }) => {
@@ -310,7 +310,8 @@ test.describe("session", () => {
 
 test("forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1", async ({ page, context }) => {
   const api: string[] = [];
-  page.on("request", (r) => /\/api\/v1\//.test(r.url()) && api.push(r.url()));
+  // phiên giả (asDemo) gọi refresh / lớp của tôi / thông báo ở MỌI trang; màn bị chặn không được gọi thêm API nào khác
+  page.on("request", (r) => /\/api\/v1\//.test(r.url()) && !/\/api\/v1\/(auth\/refresh|me\/courses|notifications)/.test(r.url()) && api.push(r.url()));
   const cases: Array<[DemoRole, string[]]> = [["student", ["/settings/llm", "/observability", "/admin/users"]], ["ta", ["/settings/llm", "/observability", "/admin/users"]], ["teacher", ["/admin/courses"]]];
   for (const [role, routes] of cases) {
     await context.clearCookies();
@@ -385,7 +386,7 @@ test("keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự he
   const prof = page.getByRole("button", { name: /^Tài khoản: / });
   await prof.focus();
   await page.keyboard.press("Enter");
-  await expect(page.getByText("Đổi vai")).toBeVisible();
+  await expect(page.getByRole("menuitem", { name: "Đăng xuất" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(prof).toBeFocused();
 });

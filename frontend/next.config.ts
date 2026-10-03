@@ -5,12 +5,7 @@ import { PHASE_DEVELOPMENT_SERVER } from "next/constants";
 // hoặc NEXT_PUBLIC_DEV_TOOLS=1; bản như production không biên dịch chúng.
 const base = ["tsx", "ts", "jsx", "js"];
 
-// Bộ chọn "Tài khoản mẫu" của /login chỉ có ở bản NEXT_PUBLIC_DEV_TOOLS=1: bản khác thay mô-đun bằng mô-đun rỗng ngay lúc phân giải
-// (nhánh chết + import động vẫn phát chunk), nên build thường không chứa chữ nào của nó.
-const loginChoices = process.env.NEXT_PUBLIC_DEV_TOOLS === "1" ? "./src/app/login/LoginChoices.tsx" : "./src/app/login/LoginChoices.off.ts";
-
 const config = (phase: string): NextConfig => ({
-  turbopack: { resolveAlias: { "@ep/login-choices": loginChoices } },
   output: "standalone",
   // Trang nhận liên kết một lần (xác minh email, đặt lại mật khẩu, lời mời): không gửi Referer, không cache (SRS FEAT-account-security 6.3).
   async headers() {

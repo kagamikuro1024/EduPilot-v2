@@ -3,13 +3,45 @@ import type { BrowserContext, Page } from "@playwright/test";
 
 export type DemoRole = "student" | "ta" | "teacher" | "admin";
 
-/** Đặt phiên MÔ PHỎNG (cookie ep_demo_*) trước khi mở trang — như bộ đổi vai của prototype 1.5. */
+// Tài khoản seed (US-P2-12) ↔ người mock: màn mô phỏng lấy NGƯỜI từ email của phiên (src/mock/identity.ts). Không còn cookie phiên mô phỏng (AC10).
+const SEED_EMAIL: Record<string, string> = {
+  "sv-1": "sv.gioi@edupilot.local", "sv-2": "sv.kha@edupilot.local", "sv-3": "sv.nguyco@edupilot.local", "sv-4": "sv.moi@edupilot.local",
+  ta: "ta@edupilot.local", teacher: "teacher@edupilot.local", admin: "admin@edupilot.local",
+};
+// Lớp THẬT tương ứng lớp mô phỏng (class_code 761987 ↔ int1006-1, 761988 ↔ int1006-2); mã sinh viên mô phỏng → lớp họ học.
+const COURSE_ID = { "761987": "00000000-0000-7000-8000-00000000c001", "761988": "00000000-0000-7000-8000-00000000c002" } as const;
+const STUDENT_CLASSES: Record<string, Array<keyof typeof COURSE_ID>> = { "sv-1": ["761987", "761988"], "sv-2": ["761987"], "sv-3": ["761987"], "sv-4": [] };
+
+const mineItem = (code: keyof typeof COURSE_ID, role: "TEACHER" | "TA" | "STUDENT") => ({
+  course: { id: COURSE_ID[code], class_code: code, subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" },
+  role_in_course: role,
+  enrollment_status: "ACTIVE",
+});
+
+/**
+ * Đăng nhập GIẢ bằng JWT cho màn mô phỏng (thay bộ đổi vai bằng cookie đã bị xoá — US-P2-12 AC10): `POST /auth/refresh` trả phiên của
+ * tài khoản seed tương ứng vai / người, `GET /me/courses` trả lớp thật tương ứng. Gateway không chạy: mọi lời gọi khác bị bỏ qua.
+ */
 export async function asDemo(context: BrowserContext, role: DemoRole, opts: { person?: string } = {}) {
-  const url = BASE_URL;
-  await context.addCookies([
-    { name: "ep_demo_role", value: role, url },
-    ...(role === "student" ? [{ name: "ep_demo_person", value: opts.person ?? "sv-2", url }] : []),
-  ]);
+  const person = role === "student" ? (opts.person ?? "sv-2") : role;
+  const email = SEED_EMAIL[person];
+  const jwtRole: JwtRole = role === "student" ? "STUDENT" : (role.toUpperCase() as JwtRole);
+  const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+  const json = (body: unknown) => ({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+  await context.route("**/api/v1/auth/refresh", (r) => r.fulfill(json(sessionBody(jwtRole, { email }))));
+  await context.route("**/api/v1/auth/logout", (r) => r.fulfill({ status: 204, headers: cors }));
+  const items =
+    role === "student" ? (STUDENT_CLASSES[person] ?? []).map((c) => mineItem(c, "STUDENT"))
+    : role === "ta" ? [mineItem("761987", "TA")]
+    : role === "teacher" ? [mineItem("761987", "TEACHER"), mineItem("761988", "TEACHER")]
+    : [];
+  await context.route("**/api/v1/me/courses**", (r) => r.fulfill(json({ items, next_cursor: null })));
+  const today = role === "student" ? { no_course: items.length === 0, email_verified: true, recommended: null, timeline: [], continue: [] }
+    : role === "admin" ? { count: 0, actions: [] }
+    : { count: 0, actions: [], attention: [], upcoming: [] };
+  await context.route("**/api/v1/me/today**", (r) => r.fulfill(json(today)));
+  await context.route("**/api/v1/courses/*/today**", (r) => r.fulfill(json(today)));
+  await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }
 
 export type JwtRole = "ADMIN" | "TEACHER" | "TA" | "STUDENT";

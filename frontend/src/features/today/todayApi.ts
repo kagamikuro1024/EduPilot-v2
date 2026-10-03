@@ -28,8 +28,8 @@ export const TODAY_KEY = ["today"] as const;
 
 /** Đường dẫn "Hôm nay": một lớp thật đang chọn ⇒ `/courses/{id}/today`; "Tất cả lớp", Admin, chưa có lớp ⇒ `/me/today`. */
 export function useToday<T>() {
-  const { role, source, realCourses, realCourseId } = useSession();
-  const ready = source === "jwt" && (role === "admin" || realCourses !== null);
+  const { role, realCourses, realCourseId } = useSession();
+  const ready = role === "admin" || realCourses !== null;
   const path = role !== "admin" && realCourseId && realCourseId !== "all" ? `/courses/${realCourseId}/today` : "/me/today";
   const q = useQuery({
     queryKey: [...TODAY_KEY, path],

@@ -81,3 +81,28 @@ where id = sqlc.arg(id) and (settings #>> '{setup,dismissed_at}') is null;
 -- name: TodayCourseMembers :many
 -- Mọi người đang ở / chờ trong lớp: bị ảnh hưởng khi lớp đổi hoặc lưu trữ.
 select user_id from enrollments where course_id = sqlc.arg(course_id) and status in ('ACTIVE', 'PENDING');
+
+-- ===== Buổi học tối thiểu (US-P2-12) =====
+
+-- name: MaxSessionNo :one
+select coalesce(max(session_no), 0)::int from class_sessions where course_id = sqlc.arg(course_id);
+
+-- name: SessionNoInRange :one
+select exists (select 1 from class_sessions where course_id = sqlc.arg(course_id) and session_no between sqlc.arg(lo)::int and sqlc.arg(hi)::int) as taken;
+
+-- name: ExistingSessionStarts :many
+-- Giờ bắt đầu đã có trong lớp (chuỗi RFC 3339 → timestamptz) để bỏ qua buổi trùng.
+select starts_at from class_sessions where course_id = sqlc.arg(course_id) and starts_at = any(sqlc.arg(starts)::text[]::timestamptz[]);
+
+-- name: InsertSession :execrows
+insert into class_sessions (course_id, session_no, starts_at, ends_at, room)
+values (sqlc.arg(course_id), sqlc.arg(session_no), sqlc.arg(starts_at), sqlc.arg(ends_at), sqlc.narg(room))
+on conflict (course_id, starts_at) do nothing;
+
+-- name: ListSessions :many
+-- Theo starts_at tăng dần; con trỏ = starts_at của dòng cuối trang trước.
+select id, session_no, starts_at, ends_at, room, topic
+from class_sessions
+where course_id = sqlc.arg(course_id) and (sqlc.narg(after)::timestamptz is null or starts_at > sqlc.narg(after)::timestamptz)
+order by starts_at
+limit sqlc.arg(lim);

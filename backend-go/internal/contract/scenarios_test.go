@@ -1167,6 +1167,24 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "GET", path: ct, token: svIn}, 200)
 	r.must(call{method: "GET", path: td, token: svIn}, 200)
 
+	// buổi học tối thiểu
+	gen := "/api/v1/courses/" + c2 + "/sessions/generate"
+	wk := `{"weekdays":[4],"start_time":"09:00","end_time":"11:30","room":"P.302","from":"2026-09-01","to":"2026-09-30"}`
+	r.must(call{method: "POST", path: gen, token: gv, headers: idem(), body: wk}, 201)
+	r.must(call{method: "POST", path: gen, token: ta, headers: idem(), body: wk}, 201)
+	r.must(call{method: "POST", path: gen, headers: idem(), body: wk}, 401)
+	r.must(call{method: "POST", path: gen, token: admin, headers: idem(), body: wk}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/sessions/generate", token: gv, headers: idem(), body: wk}, 404)
+	r.must(call{method: "POST", path: "/api/v1/courses/" + cid + "/sessions/generate", token: gv, headers: idem(), body: wk}, 409)
+	r.must(call{method: "POST", path: gen, token: gv, headers: idem(), body: `{"weekdays":[9],"start_time":"09:00","end_time":"11:30","from":"2026-09-01","to":"2026-09-30"}`}, 422)
+	ls := "/api/v1/courses/" + c2 + "/sessions"
+	r.must(call{method: "GET", path: ls, token: gv}, 200)
+	r.must(call{method: "GET", path: ls + "?limit=2", token: svIn}, 200)
+	r.must(call{method: "GET", path: ls}, 401)
+	r.must(call{method: "GET", path: ls, token: admin}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/sessions", token: gv}, 404)
+	r.must(call{method: "GET", path: ls + "?limit=0", token: gv}, 422)
+
 	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"
 	r.must(call{method: "POST", path: dm, token: gv}, 204)
 	r.must(call{method: "POST", path: dm, token: gv}, 204)

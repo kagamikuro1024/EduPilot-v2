@@ -8,7 +8,7 @@ import { KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
 import { tokenStore } from "@/shared/data/tokenStore";
 import { useDemoSlice } from "@/shared/state/demo";
 import { useAuth } from "./AuthProvider";
-import { ALL_COURSES, COURSE_COOKIE, PERSON_COOKIE, ROLE_COOKIE, writeDemoCookie } from "./cookies";
+import { ALL_COURSES } from "./cookies";
 import { checkToken, type Claims } from "./jwt";
 import { mockCourseFor, readStoredCourse, useMyCourses, writeStoredCourse, type RealCourse } from "./myCourses";
 
@@ -29,11 +29,7 @@ type Session = {
   realCourses: RealCourse[] | null;
   /** id lớp thật đang chọn, hoặc "all"; null khi `realCourses` là null */
   realCourseId: string | null;
-  /** đổi vai (và người, nếu là sinh viên) tại chỗ */
-  switchTo: (role: Role, personId?: string) => void;
   setCourse: (id: string) => void;
-  /** `jwt`: phiên đăng nhập thật (vai từ claim, cookie `ep_demo_*` bị bỏ qua); `demo`: cookie mô phỏng, chỉ ở build NEXT_PUBLIC_DEV_TOOLS=1. */
-  source: "jwt" | "demo";
   /** claim của phiên `jwt` (sub, email, role) — chỉ giải mã, không xác minh */
   identity: Claims | null;
   /** đăng xuất thiết bị này rồi về /login */
@@ -51,20 +47,14 @@ function studentCourseIds(studentId: string, members: MembersState): string[] {
 }
 
 export function SessionProvider({
-  demo,
   fullName,
   children,
 }: {
-  /** phiên mô phỏng từ cookie (chỉ khi chưa có phiên thật); null/undefined khi đã đăng nhập thật */
-  demo?: { role: Role; person: string; course: string } | null;
   /** họ tên thật từ phiên đăng nhập (dùng cho người không có trong bảng ánh xạ mock) */
   fullName?: string;
   children: React.ReactNode;
 }) {
   const auth = useAuth();
-  const [cookieRole, setRole] = useState<Role>(demo?.role ?? "student");
-  const [cookiePersonId, setPersonId] = useState(demo?.person ?? "sv-2");
-  const [cookieCourseId, setCourseId] = useState(demo?.course ?? COURSE_1);
   const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
   const token = useSyncExternalStore(tokenStore.subscribe, tokenStore.get, () => null);
   const identity = useMemo(() => {
@@ -75,25 +65,9 @@ export function SessionProvider({
   const mine = useMyCourses(!!identity);
   const real = useMemo(() => (identity && mine.data ? mine.data.filter((c) => c.enrollment_status === "ACTIVE") : null), [identity, mine.data]);
 
-  const switchTo = useCallback((next: Role, person?: string) => {
-    if (tokenStore.get()) return; // phiên jwt: vai theo claim, không đổi vai mô phỏng
-    writeDemoCookie(ROLE_COOKIE, next);
-    setRole(next);
-    if (next === "student") {
-      const p = person ?? "sv-2";
-      writeDemoCookie(PERSON_COOKIE, p);
-      setPersonId(p);
-    }
-  }, []);
-
   const setCourse = useCallback((id: string) => {
-    if (tokenStore.get()) {
-      setJwtCourseId(id); // không đụng cookie ep_demo_*
-      writeStoredCourse(id);
-      return;
-    }
-    writeDemoCookie(COURSE_COOKIE, id);
-    setCourseId(id);
+    setJwtCourseId(id);
+    writeStoredCourse(id);
   }, []);
 
   const logout = useCallback(() => {
@@ -102,9 +76,9 @@ export function SessionProvider({
 
   const value = useMemo<Session>(() => {
     // phiên jwt: vai từ claim, người mock theo email đã xác minh (mock/identity.ts; email lạ → sv-2 / người mock cùng vai) và lớp mock đầu;
-    // cookie ep_demo_* bị bỏ qua (SRS FEAT-account-security 7.4). Họ tên thật chỉ thay cho người không có trong bảng ánh xạ.
-    const role: Role = identity?.role ?? cookieRole;
-    const personId = identity ? mockStudentFor(identity.email) : cookiePersonId;
+    // không còn phiên mô phỏng bằng cookie (US-P2-12 AC10). Họ tên thật chỉ thay cho người không có trong bảng ánh xạ.
+    const role: Role = identity?.role ?? "student";
+    const personId = mockStudentFor(identity?.email ?? "");
     const student = STUDENTS.find((s) => s.id === personId) ?? STUDENTS[1];
     const named = identity && fullName && !isSeedAccount(identity.email) ? fullName : undefined;
     const user: Person =
@@ -126,7 +100,7 @@ export function SessionProvider({
       course = chosen ? mockCourseFor(chosen.class_code) : (courses[0] ?? COURSES[0]);
     } else {
       // TA chỉ phụ trách lớp 1 (SRS 4.1); GV phụ trách cả hai; Admin thấy tất cả.
-      const courseId = identity ? COURSE_1 : cookieCourseId;
+      const courseId = COURSE_1;
       const ids = role === "student" ? studentCourseIds(student.id, members) : role === "ta" ? [COURSE_1] : COURSES.map((c) => c.id);
       courses = COURSES.filter((c) => ids.includes(c.id));
       isAll = courseId === ALL_COURSES && role === "teacher";
@@ -134,9 +108,9 @@ export function SessionProvider({
     }
     return {
       role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, realCourses: identity ? real : null, realCourseId,
-      switchTo, setCourse, source: identity ? "jwt" : "demo", identity, logout,
+      setCourse, identity, logout,
     };
-  }, [identity, fullName, cookieRole, cookiePersonId, cookieCourseId, pickedCourseId, real, members, switchTo, setCourse, logout]);
+  }, [identity, fullName, pickedCourseId, real, members, setCourse, logout]);
 
   // phiên thật chưa tải xong lớp thật (đang tải / lỗi) → chưa xử lý tham số, tránh bỏ nhầm một id hợp lệ
   useCourseDeepLink(value.realCourses ? value.realCourses.map((c) => c.id) : identity && value.role !== "admin" ? null : value.courses.map((c) => c.id), setCourse);

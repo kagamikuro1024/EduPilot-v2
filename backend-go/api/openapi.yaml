@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.13.0
+  version: 0.14.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
@@ -1791,6 +1791,83 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/sessions:
+    get:
+      operationId: listCourseSessions
+      tags: [courses]
+      summary: Lịch buổi học của lớp theo starts_at (thành viên ACTIVE của lớp; cursor, tối đa 100)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang buổi học
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseSessionList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/sessions/generate:
+    post:
+      operationId: generateCourseSessions
+      tags: [courses]
+      summary: Sinh buổi học theo tuần (giảng viên / TA; ≤ 60 buổi mỗi lần; giờ Asia/Ho_Chi_Minh; bỏ buổi trùng starts_at)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionGenerateRequest"
+      responses:
+        "201":
+          description: Kết quả sinh buổi (created = 0 khi chạy lại)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionGenerateResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -2851,6 +2928,83 @@ components:
           maxItems: 50
           items:
             $ref: "#/components/schemas/TodayItem"
+    SessionGenerateRequest:
+      type: object
+      required: [weekdays, start_time, end_time, from, to]
+      additionalProperties: false
+      properties:
+        weekdays:
+          type: array
+          minItems: 1
+          items:
+            type: integer
+            minimum: 1
+            maximum: 7
+        start_time:
+          type: string
+          pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+        end_time:
+          type: string
+          pattern: "^([01][0-9]|2[0-3]):[0-5][0-9]$"
+        room:
+          type: [string, "null"]
+          maxLength: 40
+        from:
+          type: string
+          format: date
+        to:
+          type: string
+          format: date
+        exclude_dates:
+          type: array
+          items:
+            type: string
+            format: date
+        first_session_no:
+          type: [integer, "null"]
+          minimum: 1
+    SessionGenerateResult:
+      type: object
+      required: [created, first_session_no, last_session_no, skipped]
+      additionalProperties: false
+      properties:
+        created:
+          type: integer
+        first_session_no:
+          type: [integer, "null"]
+        last_session_no:
+          type: [integer, "null"]
+        skipped:
+          type: integer
+    CourseSessionList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, session_no, starts_at, ends_at, room, topic]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                format: uuid
+              session_no:
+                type: integer
+              starts_at:
+                type: string
+                format: date-time
+              ends_at:
+                type: string
+                format: date-time
+              room:
+                type: [string, "null"]
+              topic:
+                type: [string, "null"]
+        next_cursor:
+          type: [string, "null"]
     JoinInfo:
       type: object
       required: [join_code, join_url, enabled, expires_at, require_approval, allowed_email_domain, capacity, active_students, pending, version]
