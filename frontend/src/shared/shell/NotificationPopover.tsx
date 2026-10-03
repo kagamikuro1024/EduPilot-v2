@@ -31,7 +31,7 @@ export function NotificationPopover({ items, unread, onRead }: { items: Notifica
         width={340}
         label="Thông báo"
         trigger={(p) => (
-          <button type="button" className={s.iconBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={unread ? `Thông báo, ${unread} chưa đọc` : "Thông báo"}>
+          <button type="button" className={s.iconBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
             <Bell aria-hidden />
             {unread > 0 && <span className={s.unreadDot} data-part="bell-dot" aria-hidden />}
           </button>
