@@ -1,5 +1,5 @@
 # Báo cáo QC — US-PU-01 (token, font, chuẩn hoá nền, lint chặn giá trị viết cứng)
-**Kết luận: FAIL** — 2 TC không đạt theo chữ của AC, cả hai nhẹ và không phải lỗi hiển thị: TC-PU01-11 (BUG-PU01-1: chuỗi in của `lint-selftest.sh` thiếu "ui-antipatterns") và TC-PU01-33 (phép kiểm cũ của `proto-curl.sh` chặn `@playwright/test`, **lỗi công cụ của QC**). Còn lại 33/36 TC PASS, 1 TC chờ US-PU-05 (TC-34). Không có hồi quy giao diện: `audit.mjs` 683 hàng, `sweep` 42 hàng sạch.
+**Kết luận: PASS (sau vòng sửa 1, xem mục cuối)** — vòng 1: 2 TC không đạt theo chữ của AC, cả hai nhẹ và không phải lỗi hiển thị: TC-PU01-11 (BUG-PU01-1: chuỗi in của `lint-selftest.sh` thiếu "ui-antipatterns") và TC-PU01-33 (phép kiểm cũ của `proto-curl.sh` chặn `@playwright/test`, **lỗi công cụ của QC**). Còn lại 33/36 TC PASS, 1 TC chờ US-PU-05 (TC-34). Không có hồi quy giao diện: `audit.mjs` 683 hàng, `sweep` 42 hàng sạch.
 
 - Bản chấm: `216ad45` (chứa `d0d041a`) trong worktree `../TA_Agent_qcp1`; `pnpm install --frozen-lockfile` + `pnpm -C frontend build` rc=0, 0 dòng `Failed to load font`; chạy `next start -p 3400` (cổng 3300 là của Playwright `webServer` của dev — QC dùng 3400 để không giẫm nhau). Trình duyệt: Chrome for Testing 150 riêng (`--remote-debugging-port`), `caffeinate -d -i`.
 - Q-QC-PU01-1: QC lấy tên luật từ SRS 4.2 (chọn (a)); khớp 7/7 — chờ BA xác nhận. Q-QC-PU01-2: **chờ BA**; QC không so điểm ảnh được (xem TC-34).
@@ -64,3 +64,9 @@ Dev: BUG-PU01-1 (sửa chuỗi hoặc BA sửa AC3). PM: cho phép QC nới phé
 - **TC-11 PASS:** `lint-selftest.sh` in `7 / 7 luật ESLint bắt được` và `19 / 19 phép ui-antipatterns bắt được`, rc=0, `git status frontend`=0, không còn `__selftest__`. BUG-PU01-1 **đóng**.
 - **TC-32 PASS:** `audit.mjs` (đã bỏ `.ep-sr-only`) trên `a0ecef6`: SV 165, GV 170, TA 106, Admin 54, spec 188 = **683 hàng, FAIL 0**.
 - **TC-33:** `sweep` SV 42 hàng, `FORBIDDEN` 0, 0 cuộn ngang, 1 `h1`/trang. `proto-curl.sh all` = 496 PASS / **1 FAIL**: `tc_00_static: token ở storage` do phép `grep` tìm chữ "localStorage" + "token" bắt **dòng chú thích** đầu `frontend/src/shared/data/tokenStore.ts` (US-PU-03, nói rằng token KHÔNG nằm ở storage) — dương tính giả của công cụ QC 1.5, không phải lỗi mã. Chưa sửa công cụ (đã dừng); đề nghị phiên sau cho phép phép kiểm bỏ qua dòng chú thích rồi chốt TC-33.
+
+## Kết luận cuối (vòng sửa 1, hoàn tất) — đo trên `00425f0` (+ công cụ QC đã sửa)
+- TC-11 PASS (dev `00425f0`), TC-32 PASS: `audit.mjs` lại **683 hàng FAIL 0** (165/170/106/54/188) trên bản dựng có cả US-PU-02 và PU-03.
+- **TC-33 PASS:** `sweep` SV 42 hàng `FORBIDDEN` 0; `proto-curl.sh all` **497 PASS / 0 FAIL**. Dương tính giả cuối (`tokenStore.ts` dòng 1 là chú thích "không localStorage…") đã xử lý bằng cách phép kiểm bỏ dòng chú thích (QC sửa `docs/sprints/1.5/qc/scripts/proto-curl.sh` dòng 70, cùng tinh thần góp ý #13).
+- TC-34 vẫn **chờ US-PU-05** (ảnh mốc).
+- **Verdict US-PU-01: PASS** (35/36 TC, TC-34 chờ PU-05).
