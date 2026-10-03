@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -420,5 +421,102 @@ func TestKeyNeverLeaksViaErrors(t *testing.T) {
 	}
 	if got := provider.Redact("x sk-ABCDEFGH12345 y Bearer abc.def z"); strings.Contains(got, "ABCDEFGH") || strings.Contains(got, "abc.def") {
 		t.Errorf("Redact = %q", got)
+	}
+}
+
+// SDK không tự thử lại (WithMaxRetries(0)): 429 + Retry-After 3 → đúng 1 lần gọi, không chờ 6 s như mặc định (research 2026-10-03).
+func TestSDKNoInternalRetry(t *testing.T) {
+	t.Parallel()
+	srv, calls, _ := server(t, func(int, string, map[string]any) reply {
+		return reply{429, `{"error":{"message":"slow down"}}`, map[string]string{"Retry-After": "3"}}
+	})
+	start := time.Now()
+	_, err := newP("openai", srv.URL, "k").Chat(t.Context(), chatOpts())
+	var pe *provider.Error
+	if !errors.As(err, &pe) || pe.Kind != provider.KindRateLimit || pe.RetryAfter != 3*time.Second {
+		t.Fatalf("err = %v", err)
+	}
+	if calls.Load() != 1 || time.Since(start) > time.Second {
+		t.Errorf("calls=%d sau %v, muốn 1 lần gọi và không chờ", calls.Load(), time.Since(start))
+	}
+}
+
+// 429 với Retry-After 30 mà ctx chỉ còn 2 s vẫn là RATE_LIMIT (SDK mặc định sẽ trả DeadlineExceeded và mất status).
+func TestRateLimitKeepsStatusOnDeadline(t *testing.T) {
+	t.Parallel()
+	srv, _, _ := server(t, func(int, string, map[string]any) reply {
+		return reply{429, `{"error":{"message":"x"}}`, map[string]string{"Retry-After": "30"}}
+	})
+	ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
+	defer cancel()
+	start := time.Now()
+	_, err := newP("openai", srv.URL, "k").Chat(ctx, chatOpts())
+	var pe *provider.Error
+	if !errors.As(err, &pe) || pe.Kind != provider.KindRateLimit || pe.Status != 429 {
+		t.Fatalf("err = %v, muốn RATE_LIMIT 429", err)
+	}
+	if time.Since(start) > time.Second {
+		t.Errorf("mất %v", time.Since(start))
+	}
+}
+
+// Structured chọn cách gọi CỐ ĐỊNH theo type, một lời gọi (D47): nhà cung cấp trả 400 cho json_schema → KHÔNG có yêu cầu thứ hai, BAD_REQUEST thẳng.
+func TestStructuredDowngrade(t *testing.T) {
+	t.Parallel()
+	schema := json.RawMessage(`{"type":"object","properties":{"a":{"type":"string"}},"required":["a"],"additionalProperties":false}`)
+	for _, typ := range []string{"openai", "gemini", "anthropic", "openai_compatible"} {
+		srv, calls, bodies := server(t, func(int, string, map[string]any) reply {
+			return reply{400, `{"error":{"message":"response_format json_schema is not supported","type":"invalid_request_error"}}`, nil}
+		})
+		o := chatOpts()
+		o.Schema = schema
+		_, err := newP(typ, srv.URL, "k").Chat(t.Context(), o)
+		var pe *provider.Error
+		if !errors.As(err, &pe) || pe.Kind != provider.KindBadRequest {
+			t.Errorf("%s: err = %v, muốn BAD_REQUEST thẳng", typ, err)
+		}
+		if calls.Load() != 1 || len(*bodies) != 1 {
+			t.Errorf("%s: %d yêu cầu, muốn đúng 1 (không lùi sang json_object)", typ, calls.Load())
+		}
+	}
+}
+
+// Gemini: gửi dimensions 1536 và chuẩn hoá L2 (|v| = 1 ± 1e-6).
+func TestEmbedGeminiNormalizesL2(t *testing.T) {
+	t.Parallel()
+	srv, _, bodies := server(t, func(int, string, map[string]any) reply {
+		return reply{200, `{"object":"list","model":"e","data":[{"object":"embedding","index":0,"embedding":[0.5,1.5,-2,0.25]}],"usage":{"prompt_tokens":1,"total_tokens":1}}`, nil}
+	})
+	vecs, _, err := newP("gemini", srv.URL, "k").Embed(t.Context(), provider.EmbedOpts{Model: "gemini-embedding-001", Inputs: []string{"a"}, Dims: 1536})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var s float64
+	for _, x := range vecs[0] {
+		s += float64(x) * float64(x)
+	}
+	if math.Abs(math.Sqrt(s)-1) > 1e-6 {
+		t.Errorf("|v| = %v, muốn 1 ± 1e-6", math.Sqrt(s))
+	}
+	if (*bodies)[0]["dimensions"] != float64(1536) {
+		t.Errorf("dimensions = %v", (*bodies)[0]["dimensions"])
+	}
+}
+
+// Không theo chuyển hướng (SSRF qua base_url của ADMIN): máy chủ trả 302 → đúng 1 yêu cầu, không tới địa chỉ đích.
+func TestProviderNoRedirectFollow(t *testing.T) {
+	t.Parallel()
+	var hits atomic.Int64
+	target := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { hits.Add(1) }))
+	defer target.Close()
+	srv, calls, _ := server(t, func(int, string, map[string]any) reply {
+		return reply{302, ``, map[string]string{"Location": target.URL + "/steal"}}
+	})
+	_, err := newP("openai_compatible", srv.URL, "k").Chat(t.Context(), chatOpts())
+	if err == nil {
+		t.Fatal("302 phải là lỗi")
+	}
+	if calls.Load() != 1 || hits.Load() != 0 {
+		t.Errorf("calls=%d hits=%d: không được theo chuyển hướng", calls.Load(), hits.Load())
 	}
 }

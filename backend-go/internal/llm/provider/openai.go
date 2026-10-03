@@ -68,9 +68,12 @@ func NewOpenAI(c OpenAIConfig) Provider {
 	} else {
 		opts = append(opts, option.WithAPIKey("none")) // openai_compatible có thể không cần khoá; SDK đòi chuỗi khác rỗng
 	}
-	if c.HTTP != nil {
-		opts = append(opts, option.WithHTTPClient(c.HTTP))
+	hc := c.HTTP
+	if hc == nil {
+		// Không theo chuyển hướng: base_url do ADMIN đặt, chuyển hướng 3xx sang địa chỉ khác là đường SSRF (SRS 4.2, Q-QC-P102-1).
+		hc = &http.Client{CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}
 	}
+	opts = append(opts, option.WithHTTPClient(hc))
 	return &oaClient{cl: openai.NewClient(opts...), typ: c.Type, key: c.APIKey, base: base}
 }
 
@@ -310,7 +313,7 @@ func classify(err error, secrets ...string) error {
 	case errors.As(err, &ne), errors.As(err, &ue):
 		return &Error{Kind: KindNetwork}
 	}
-	return &Error{Kind: KindNetwork, Detail: Redact(err.Error(), secrets...)}
+	return &Error{Kind: KindBadResponse, Detail: Redact(err.Error(), secrets...)} // SDK không giải mã được phản hồi (kể cả 3xx không theo)
 }
 
 // bodyOf đọc tối đa 4 KiB thân đã được SDK nạp lại.
