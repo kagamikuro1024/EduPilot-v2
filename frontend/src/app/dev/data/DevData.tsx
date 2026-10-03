@@ -8,6 +8,7 @@ import {
   useSSEStatus, useUndoableAction, newIdempotencyKey,
 } from "@/shared/data";
 import { Button, EmptyState, Field, Input, PageState, Textarea } from "@/shared/ui";
+import { NotificationPopover, type NotificationItem } from "@/shared/shell/NotificationPopover";
 import s from "./DevData.module.css";
 
 declare global {
@@ -179,6 +180,24 @@ function Offline() {
   );
 }
 
+function BellDemo() {
+  const seed = (n: number): NotificationItem => ({ id: `n${n}`, title: `Thông báo số ${n}`, context: "Hộp thư hỗ trợ", when: "2 phút trước", href: "/dev/data", read: false });
+  const [items, setItems] = useState<NotificationItem[]>([seed(1), seed(2)]);
+  const unread = items.filter((i) => !i.read).length;
+  return (
+    <section className={s.block} data-part="bell-demo" aria-label="Chuông thông báo">
+      <h2 className="ep-section-title">Chuông thông báo</h2>
+      <div className={s.row}>
+        <NotificationPopover items={items} unread={unread} onRead={(id) => setItems((xs) => xs.map((x) => (x.id === id ? { ...x, read: true } : x)))} />
+        <Button onClick={() => setItems((xs) => xs.map((x) => ({ ...x, read: true })))}>Đọc hết</Button>
+        <Button onClick={() => setItems((xs) => [seed(xs.length + 1), ...xs])}>Thêm một thông báo</Button>
+        <Button onClick={() => setItems([])}>Xoá hết</Button>
+        <Button onClick={() => setItems((xs) => [...xs])}>Hiển thị lại</Button>
+      </div>
+    </section>
+  );
+}
+
 function PageStateDemo({ staff }: { staff: boolean }) {
   const q = useQuery({ queryKey: ["ps"], queryFn: async () => (await apiClient.get<{ items: string[] }>("/ps")).data });
   return (
@@ -225,6 +244,7 @@ export default function DevData() {
       <Autosave />
       <Undo />
       <Offline />
+      <BellDemo />
       <PageStateDemo staff={staff} />
       <Token />
     </div>

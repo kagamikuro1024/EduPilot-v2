@@ -34,7 +34,7 @@ export function PageHeader({
     if (titleRef.current) consumeRedThread(titleRef.current);
   }, []);
   return (
-    <header className={s.header}>
+    <div className={s.header}>
       {back && (
         <Link href={back.href} className={s.back}>
           <ArrowLeft aria-hidden />
@@ -51,7 +51,7 @@ export function PageHeader({
         </div>
         {actions && <div className={s.actions}>{actions}</div>}
       </div>
-    </header>
+    </div>
   );
 }
 

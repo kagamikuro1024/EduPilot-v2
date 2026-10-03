@@ -2,13 +2,13 @@
 
 import { CornerDownLeft, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { NavItem } from "@/shared/shell/nav";
 import dlg from "./Dialog.module.css";
 import s from "./CommandPalette.module.css";
 
 // Bỏ dấu để gõ "diem" vẫn ra "Điểm danh".
-const fold = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").toLowerCase();
+const fold = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
 
 /** "Tìm nhanh hoặc đi đến…" (⌘K, /): lọc theo tên route của vai trò hiện tại, Enter để đi. */
 export function CommandPalette({ open, onClose, items, initialQuery = "", loading }: { open: boolean; onClose: () => void; items: NavItem[]; initialQuery?: string; loading?: boolean }) {
@@ -16,6 +16,7 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
   const router = useRouter();
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
+  const uid = useId();
 
   const results = useMemo(() => {
     const needle = fold(q.trim());
@@ -48,6 +49,11 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
           value={q}
           placeholder="Tìm nhanh hoặc đi đến…"
           aria-label="Tìm nhanh hoặc đi đến"
+          role="combobox"
+          aria-expanded="true"
+          aria-controls={`${uid}-list`}
+          aria-autocomplete="list"
+          aria-activedescendant={results[active] && !loading ? `${uid}-opt-${active}` : undefined}
           onChange={(e) => {
             setQ(e.target.value);
             setActive(0);
@@ -65,7 +71,7 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
           }}
         />
       </div>
-      <ul className={s.list} role="listbox" aria-label="Kết quả" aria-busy={loading || undefined}>
+      <ul id={`${uid}-list`} className={s.list} role="listbox" aria-label="Kết quả" aria-busy={loading || undefined}>
         {loading && (
           <li className={s.none} aria-label="Đang tải">
             <span className={s.sk} />
@@ -74,7 +80,7 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
         {!loading && results.map((it, i) => {
           const Icon = it.icon;
           return (
-            <li key={it.href} role="option" aria-selected={i === active}>
+            <li key={it.href} id={`${uid}-opt-${i}`} role="option" aria-selected={i === active}>
               <button type="button" className={s.item} onMouseEnter={() => setActive(i)} onClick={() => go(it)}>
                 <Icon aria-hidden />
                 <span>{it.label}</span>
@@ -83,7 +89,7 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
             </li>
           );
         })}
-        {!loading && results.length === 0 && <li className={s.none}>Không có trang nào tên &ldquo;{q}&rdquo;. Thử từ khác, ví dụ &ldquo;điểm&rdquo;.</li>}
+        {!loading && results.length === 0 && <li className={s.none}>Không thấy mục nào khớp. Thử từ khác, ví dụ &ldquo;điểm&rdquo;.</li>}
       </ul>
     </dialog>
   );

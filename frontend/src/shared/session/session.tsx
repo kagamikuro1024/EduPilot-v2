@@ -1,11 +1,13 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { COURSES, COURSE_1, STAFF, STUDENTS, type Course, type Person, type Role } from "@/mock/core";
 import { KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
+import { tokenStore } from "@/shared/data/tokenStore";
 import { useDemoSlice } from "@/shared/state/demo";
 import { ALL_COURSES, COURSE_COOKIE, PERSON_COOKIE, ROLE_COOKIE, writeDemoCookie } from "./cookies";
+import { checkToken, type Claims } from "./jwt";
 
 type Session = {
   role: Role;
@@ -23,6 +25,14 @@ type Session = {
   /** đổi vai (và người, nếu là sinh viên) tại chỗ */
   switchTo: (role: Role, personId?: string) => void;
   setCourse: (id: string) => void;
+  /** `jwt`: token hợp lệ trong bộ nhớ (vai từ claim, cookie `ep_demo_*` bị bỏ qua); `demo`: cookie mô phỏng. */
+  source: "jwt" | "demo";
+  /** claim của phiên `jwt` (sub, email, role) — chỉ giải mã, không xác minh */
+  identity: Claims | null;
+  /** xoá token → quay về phiên `demo` */
+  logout: () => void;
+  /** phiên `jwt` vừa hết hạn / bị gateway từ chối (cổng dán token hiện "Phiên đã hết hạn") */
+  expired: boolean;
 };
 
 const SessionContext = createContext<Session | null>(null);
@@ -46,12 +56,35 @@ export function SessionProvider({
   initialCourseId: string;
   children: React.ReactNode;
 }) {
-  const [role, setRole] = useState<Role>(initialRole);
-  const [personId, setPersonId] = useState(initialPersonId);
-  const [courseId, setCourseId] = useState(initialCourseId);
+  const [cookieRole, setRole] = useState<Role>(initialRole);
+  const [cookiePersonId, setPersonId] = useState(initialPersonId);
+  const [cookieCourseId, setCourseId] = useState(initialCourseId);
   const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
+  const token = useSyncExternalStore(tokenStore.subscribe, tokenStore.get, () => null);
+  const identity = useMemo(() => {
+    const c = token ? checkToken(token) : null;
+    return c?.ok ? c.claims : null;
+  }, [token]);
+  const [jwtCourseId, setJwtCourseId] = useState(COURSE_1);
+  const [expired, setExpired] = useState(false);
+
+  // hết hạn giữa chừng hoặc gateway trả 401 → bỏ token, về phiên demo, cổng dán token báo "Phiên đã hết hạn"
+  useEffect(() => {
+    const onExpired = () => setExpired(true);
+    window.addEventListener("auth:expired", onExpired);
+    return () => window.removeEventListener("auth:expired", onExpired);
+  }, []);
+  useEffect(() => {
+    if (!identity) return;
+    const t = setTimeout(() => {
+      tokenStore.clear();
+      setExpired(true);
+    }, Math.max(0, identity.exp * 1000 - Date.now()));
+    return () => clearTimeout(t);
+  }, [identity]);
 
   const switchTo = useCallback((next: Role, person?: string) => {
+    if (tokenStore.get()) return; // phiên jwt: vai theo claim, không đổi vai mô phỏng
     writeDemoCookie(ROLE_COOKIE, next);
     setRole(next);
     if (next === "student") {
@@ -62,11 +95,24 @@ export function SessionProvider({
   }, []);
 
   const setCourse = useCallback((id: string) => {
+    if (tokenStore.get()) {
+      setJwtCourseId(id); // không đụng cookie ep_demo_*
+      return;
+    }
     writeDemoCookie(COURSE_COOKIE, id);
     setCourseId(id);
   }, []);
 
+  const logout = useCallback(() => {
+    setExpired(false);
+    tokenStore.clear();
+  }, []);
+
   const value = useMemo<Session>(() => {
+    // phiên jwt: người mock CÙNG VAI (Sinh viên → sv-2) và lớp mock đầu; cookie bị bỏ qua (US-PU-04 AC9, Q-QC-PU04-3)
+    const role: Role = identity?.role ?? cookieRole;
+    const personId = identity ? "sv-2" : cookiePersonId;
+    const courseId = identity ? jwtCourseId : cookieCourseId;
     const student = STUDENTS.find((s) => s.id === personId) ?? STUDENTS[1];
     const user: Person = role === "student" ? { id: student.id, name: student.name, email: student.email } : STAFF[role];
     // TA chỉ phụ trách lớp 1 (SRS 4.1); GV phụ trách cả hai; Admin thấy tất cả.
@@ -74,8 +120,11 @@ export function SessionProvider({
     const courses = COURSES.filter((c) => ids.includes(c.id));
     const isAll = courseId === ALL_COURSES && role === "teacher";
     const course = courses.find((c) => c.id === courseId) ?? courses[0] ?? COURSES[0];
-    return { role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, switchTo, setCourse };
-  }, [role, personId, courseId, members, switchTo, setCourse]);
+    return {
+      role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, switchTo, setCourse,
+      source: identity ? "jwt" : "demo", identity, logout, expired: expired && !identity,
+    };
+  }, [identity, cookieRole, cookiePersonId, cookieCourseId, jwtCourseId, members, switchTo, setCourse, logout, expired]);
 
   useCourseDeepLink(value.courses, setCourse);
 

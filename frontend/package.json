@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "build:gate": "NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_API_URL=http://localhost:3311 next build",
+    "build:gate": "NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_DEV_AUTH=1 NEXT_PUBLIC_API_URL=http://localhost:3311 next build",
     "e2e": "playwright test"
   },
   "dependencies": {
