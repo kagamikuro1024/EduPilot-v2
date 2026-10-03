@@ -79,3 +79,16 @@ Việc cần dev: cài v1.4 (trần BATCH vĩnh viễn, bỏ `--prime`). Không 
 
 ## Việc sau
 Dev sửa BUG-P103-1 và BUG-P103-2 → QC chạy lại TC-11/12/13/25/41. BA sửa lệnh kiểm TC-14 (201→202) và trả lời Q-QC-P103-2/-3.
+
+## Vòng sửa 1 (dev `3f21ff4`, spec v1.5; đo trên `5dfca9b`, 2 gateway native, MAX=10 trừ TC-14)
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| 11 | PASS | 60 GRADING nền + 25 chat (400 ms/chat), Q giữ 1,5 s: `queue_wait` INTERACTIVE **p95 4 ms, max 5 ms** (trước: 318–718 ms); TTFT stream trung vị ×1,00, p95 ×1,00 so với mốc không BATCH |
+| 12 | PASS | chỉ 100 GRADING (không INTERACTIVE): đỉnh phần tử `B:` ở `ep:llm:inflight:<Q1>` = **5**, tổng 5, Q thấy tối đa 5 đồng thời; BUG-P103-2 **đóng** |
+| 13 | PASS | `llmload -batch 200 -chat 25`: `interactive_wait_p95_ms=1`, `batch_peak=5`, chat 25/25, batch 200/200 |
+| 14 | PASS (v1.5) | MAX=1, QUEUE_MAX=200, Q 10 s, 205 yêu cầu NEAR_REALTIME: `queue_depth`=200; 201 đầu được nhận; yêu cầu **202–205 bị `503 OVERLOADED`** sau **34–35 ms**, `retry_after=30`, header `Retry-After: 30`, message tiếng Việt. TC đã sửa thành 202 theo spec v1.5 |
+| 25 | PASS (một phần) | CHAT và CLASSIFY (Q 45 s, curl): **`504 {"code":"DEADLINE_EXCEEDED","message":"Xử lý quá thời hạn."}` ở 30,01 s**, JSON đầy đủ, `llm_audit` có dòng `timeout/TIMEOUT`; BUG-P103-1 **đóng**. `timeout_s=10` → 504 ở **10,00 s**; `timeout_s=100` → vẫn 504 ở **30,01 s** (không nới). **Không đo được** hạn 120 s của BATCH qua HTTP: tuyến thử bị `REQUEST_TIMEOUT` 30 s cắt (GRADING Q 130 s → `504` ở 30,00 s); chỉ có test dev (`TestDeadlineDefaults`) |
+| 41 | PASS | `DEADLINE_EXCEEDED` nay có mã + message tiếng Việt + dòng audit; `OVERLOADED` (TC-14) đủ; hai mã còn lại đã PASS vòng 1 |
+Cổng Go (`5dfca9b`): `go vet` (+testroutes), `golangci-lint` ×2, `sqlc diff` rc=0; `go test -race -tags testroutes ./...` rc=0. **Chưa kết luận:** `-tags "integration testroutes" ./internal/httpapi/...` có `TestRateLimit_IP` và `TestRateLimit_SharedAcrossInstances` FAIL — chạy khi stack QC đang bật (Redis/cổng dùng chung?); QC **chưa chạy lại** trên máy sạch → việc dở, xem cuối tệp.
+
+**Kết luận sau vòng sửa 1: PASS** cho TC-11/12/13/14/25(phần đo được)/41; còn treo: TC-25 BATCH 120 s (chỉ test dev) và hai test tích hợp `TestRateLimit_*` (cần chạy lại không có stack QC).
