@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.3 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.4 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.4 (2026-10-03)** — góp ý #9 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC8 yêu cầu thông báo `JOIN_APPROVED` có `link` `/`, nhưng `CHECK notifications_link_chk` của `00003` là `^/[^/\\]`… Lưu `link` NULL cho `JOIN_APPROVED`; chuông mở `/` (\"Hôm nay\") khi `link` rỗng. **ACCEPTED** (phương án NULL, không thêm migration) — quy ước chung: `link` NULL = mở \"Hôm nay\""). Không đổi số AC. Đổi: US-P2-09 AC8 (`JOIN_APPROVED` có `link` NULL, dòng `Kiểm`), `SRS.md` 5.5 (cột `link`).
 
 **v1.3 (2026-10-03)** — góp ý #8 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC11 \"bấm mục → … `link` (nội bộ)\" và Kiểm \"bấm mục → URL = `link`\" mâu thuẫn với SRS 4.9 / liên kết sâu: `?course=<uuid>` của lớp mình được chọn rồi BỊ BỎ khỏi URL… Giữ hành vi liên kết sâu: đường dẫn đúng = `link`, tham số `course` được tiêu thụ. Test e2e khẳng định `pathname` + bộ chọn lớp hiện lớp đó"). Không đổi số AC. Đổi: US-P2-08 AC11 (câu điều hướng và dòng `Kiểm`).
 
@@ -394,7 +396,7 @@ Index: PK · `class_sessions_course_no_key` UNIQUE (course_id, session_no) · `c
 | `type` | `text` | NOT NULL | — | `CHECK (type ~ '^[A-Z][A-Z0-9_]{0,39}$')`; P2: `COURSE_ASSIGNED`, `JOIN_REQUEST`, `JOIN_APPROVED`, `JOIN_REJECTED` |
 | `title` | `text` | NOT NULL | — | `CHECK (char_length(title) BETWEEN 1 AND 200)` |
 | `body` | `text` | NULL | — | `CHECK (char_length(body) <= 1000)` |
-| `link` | `text` | NULL | — | `CHECK (link IS NULL OR link ~ '^/[^/\\]')` (đường dẫn nội bộ) |
+| `link` | `text` | NULL | — | `CHECK (link IS NULL OR link ~ '^/[^/\\]')` (đường dẫn nội bộ); **`NULL` = giao diện mở `/` ("Hôm nay")** — `JOIN_APPROVED` lưu NULL (góp ý #9) |
 | `dedupe_key` | `text` | NULL | — | |
 | `read_at` | `timestamptz` | NULL | — | |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
