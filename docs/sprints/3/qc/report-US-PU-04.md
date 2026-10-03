@@ -1,5 +1,5 @@
 # Báo cáo QC — US-PU-04 (khung ứng dụng: phiên jwt/demo, điều hướng theo vai, chuông, màn chặn)
-**Kết luận: FAIL** — 1 lỗi thật nhẹ (BUG-PU04-1, TC-21) và 3 TC đỏ do **công cụ QC 1.5 lỗi thời** so với thiết kế mới (TC-45, TC-53, TC-59; nguyên nhân từng dòng ở dưới, đề nghị góp ý #25). Phần đo được còn lại đạt: khung đúng kích thước 3 mốc, nav 5 vai khớp SRS 7.5, cổng token / phiên jwt, màn chặn 0 request, `no-backend` 40/40, build thường sạch.
+**Kết luận: PASS (sau vòng sửa 1, xem cuối)** — vòng 1: FAIL do 1 lỗi thật nhẹ (BUG-PU04-1, TC-21) và 3 TC đỏ do **công cụ QC 1.5 lỗi thời** so với thiết kế mới (TC-45, TC-53, TC-59; nguyên nhân từng dòng ở dưới, đề nghị góp ý #25). Phần đo được còn lại đạt: khung đúng kích thước 3 mốc, nav 5 vai khớp SRS 7.5, cổng token / phiên jwt, màn chặn 0 request, `no-backend` 40/40, build thường sạch.
 
 - Bản chấm: `dacd348` (chứa `4d02364`), `build:gate` (có `DEV_AUTH`), `next start -p 3400`; Chrome for Testing riêng; gateway thật `testroutes` (token `gateway token`); `playwright shell.spec.ts` cổng 3510 (máy chủ giả :3312 là của dev, dùng chung theo `reuseExistingServer`).
 - Q-QC-PU04-1: QC chấm theo bảng SRS 7.5 (GV 15) — khớp. Q-QC-PU04-2: `/api/v1/admin/llm/*` đã có (P1-04) nên TC-44 chạy thật. Q-QC-PU04-3: chưa kiểm (ngoài AC).
@@ -52,3 +52,8 @@ Bảng "Thêm" là `<dialog>` **toàn màn hình** (rect 0,0,375×844 ở 375): 
 
 ## Việc sau
 Dev: BUG-PU04-1 (hoặc BA nới AC5: bảng toàn màn chỉ cần `Esc`/`Đóng`). PM: duyệt #25 để QC cập nhật `audit.mjs` (chọn `[data-part=brand]` đang hiện, xoá `ep:ui:sidebar` giữa các bước, chạy `/settings/llm` kèm token) và `proto-curl.sh` (hook `/settings/llm` theo cổng token; bỏ `app/dev`).
+
+## Vòng sửa 1 (dev `9cf0d44`, góp ý #32; đo trên `fc7c920`)
+- **BUG-PU04-1 đã sửa (TC-21 PASS):** bảng "Thêm" ở 375×844 là bảng trượt từ đáy (top y=211, cao 633, ≤ 75 % màn): `Esc` → đóng, focus về nút "Thêm"; **bấm vùng phía trên bảng** (y≈105) → đóng; **vuốt xuống** (cảm ứng thật, touchStart/move/end 260 px) → đóng và focus về "Thêm". (Chuột kéo giả lập `mouse.down/move` không đóng — không phải cử chỉ cảm ứng.)
+- TC-45/53/59 (công cụ QC 1.5 lỗi thời) vẫn chờ cập nhật công cụ (#25 ở đây là đề nghị riêng của QC; góp ý #25 chính thức của PM nay là `--ep-ink-3`): `proto-curl.sh` đã nhận lời màn chặn mới (492 PASS / 5 FAIL cũ do `/settings/llm` nay là cổng token); xem cổng PU.
+- **Verdict US-PU-04: PASS** (TC-45/53/59 xử lý ở cổng PU bằng công cụ đã cập nhật).
