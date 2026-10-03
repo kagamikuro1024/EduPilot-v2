@@ -48,3 +48,14 @@ Cổng: `go vet` (cả `testroutes`, `integration`) sạch; `golangci-lint run` 
 ## Khớp spec v1.2/v1.3 (sau khi BA đổi spec)
 - Thêm test theo tên mới của AC6/AC10/AC11: `TestSDKNoInternalRetry` (429 + `Retry-After: 3` → 1 lần gọi, không chờ), `TestRateLimitKeepsStatusOnDeadline` (`Retry-After: 30`, ctx 2 s → vẫn `RATE_LIMIT` 429), `TestStructuredDowngrade` (kiểm hành vi theo loại: nhà cung cấp trả 400 cho `json_schema` → đúng 1 yêu cầu, `BAD_REQUEST` thẳng, cả 4 loại), `TestEmbedGeminiNormalizesL2` (|v| = 1 ± 1e-6, `dimensions: 1536`).
 - Provider không theo chuyển hướng (`CheckRedirect = ErrUseLastResponse`; `TestProviderNoRedirectFollow`: 302 → đúng 1 yêu cầu, đích không bị chạm). Lỗi SDK không giải mã được phản hồi → `BAD_RESPONSE` (trước là `NETWORK`).
+
+## Ghi âm thật (AC13, AC11) — openai và gemini ĐÃ GHI; anthropic còn BLOCKED (chưa có khoá)
+Chạy MỘT lần: `LLM_RECORD=1 OPENAI_API_KEY=… GEMINI_API_KEY=… go test ./internal/llm -run TestRecordReplay -v` (khoá lấy từ `.env.local` gitignored, không in ra log / handoff).
+| Nhà | Mô hình | Lời gọi | Token (vào / ra) | Tệp |
+| --- | --- | --- | --- | --- |
+| openai | `gpt-4o-mini` (3 schema: `classify`, `formula`, `rubric`; `max_completion_tokens` 300) + `text-embedding-3-small` 1536 chiều | **4** (3 Structured + 1 nhúng; mỗi lời gọi 1 lần HTTP) | 335 / 334 (token vào gồm cả câu nhúng) | `testdata/replay/openai/{classify,formula,rubric,embed}.json` |
+| gemini | `gemini-3.6-flash` (mặc định; cùng 3 schema; `max_tokens` 300) + `gemini-embedding-001` `dimensions=1536` | **4** ghi được + 1 lượt thất bại (3 lần thử của gateway, mô hình "suy nghĩ" ăn hết 300 token) + 1 lời gọi dò trực tiếp = **≤ 8** (< 10) | 48 / 301 ở lượt ghi được (lượt thất bại không có số liệu) | `testdata/replay/gemini/{classify,formula,rubric,embed}.json` |
+- Bản ghi chỉ chứa NỘI DUNG JSON đã kiểm schema (+ `embed.json` = `{model, dims, l2_norm}`); không header, URL, thân yêu cầu, khoá hay mã tổ chức. `TestReplayHasNoSecrets` quét `testdata/replay` tìm `Authorization`, `Bearer `, `sk-`, `AIza`, `org-`, `x-api-key` ⇒ 0; `git check-ignore .env.local` ⇒ `.env.local`, không đưa vào commit.
+- `TestProviderContract`: `fake`, `fake-replay`, **`openai`, `gemini` PASS** (cùng khoá, kiểu, bắt buộc với `fake`); `anthropic` SKIP "BLOCKED: cần khoá thật để ghi".
+- AC11: `TestEmbedReplay` — openai: 1536 chiều, chuẩn L2 = 0,99982 (≤ 1 ± 1e-3); gemini: 1536 chiều, chuẩn L2 = 1,0000000238 (≤ 1 ± 1e-6, sau `Normalize`).
+- Phát hiện (không đổi mã): với Gemini 3.x, `Structured` ở làn **không INTERACTIVE** (ví dụ `CLASSIFY` / `GRADING`) và `max_tokens` nhỏ (300) thất bại vì mô hình "suy nghĩ" dùng hết token (`Fast` chỉ bật ở làn INTERACTIVE); bản ghi dùng tác vụ `CHAT`. Khi đặt `max_tokens` cho tác vụ chạy nền, nên để ≥ 2.048 (US-P1-05 cho chỉnh `max_tokens` đến 32.768).
