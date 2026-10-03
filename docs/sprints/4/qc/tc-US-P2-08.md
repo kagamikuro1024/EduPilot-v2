@@ -38,7 +38,7 @@ Tiền điều kiện chung: stack test + seed (US-P2-12); `$A`, `$T`, `$TA_`, `
 | TC-P208-31 | AC10 | Admin `/admin/courses` | **A** bảng, nút primary, Drawer `Mở lớp`; mở lớp; nhấp đúp; `Lưu trữ` → xác nhận | Cột Mã lớp, Học phần, Giảng viên, Sĩ số ("30 / 30"), Trạng thái; **một** nút `Mở lớp`; Drawer tại chỗ (không `role=dialog` khi mở form); xong: "Đã mở lớp. Đã gửi thông báo phân công cho {tên}." tại chỗ (không toast); nhấp đúp → **1** lớp; `Lưu trữ` mở `ConfirmIrreversible` nêu số ("Lưu trữ lớp 761987: 30 sinh viên chỉ còn quyền đọc; mã tham gia ngừng…") — `role=dialog` chỉ ở đây |
 | TC-P208-32 | AC10 | 375 | **A** `AUDIT_SRC`, `TOUCH_SRC`, axe, bàn phím; `grep useDemoSlice` ở `/admin/courses` | Sạch; 0 `serious`; `< 720 px` thành danh sách; mã mock bị thay |
 | TC-P208-33 | AC10 | – | **G** `$PW class-join.spec.ts -g 'admin courses page'` | `rc=0` |
-| TC-P208-34 | AC11 (chuông thật) | GV2 vừa được gán | **A** đăng nhập GV2, đo thời gian chấm chưa đọc; mở khung; bấm mục; đếm `unread`; mở khung không xoá chấm | Chấm `bell-dot` ≤ **35 s** (refetch 30 s + focus); khung hiện "Bạn được phân công lớp …"; bấm → URL = `link`, đánh dấu đọc (lạc quan), `unread` giảm 1; mở khung **không** xoá chấm; hết chưa đọc → chấm biến; rỗng "Chưa có thông báo. Khi có việc…" |
+| TC-P208-34 | AC11 (chuông thật; góp ý #8) | GV2 vừa được gán | **A** đăng nhập GV2, đo thời gian chấm chưa đọc; mở khung; bấm mục; đếm `unread`; mở khung không xoá chấm | Chấm `bell-dot` ≤ **35 s** (refetch 30 s + focus); khung hiện "Bạn được phân công lớp …"; bấm → **`location.pathname` = đường dẫn của `link`** (tham số `?course=` được tiêu thụ khỏi URL) **và bộ chọn lớp hiện đúng lớp đó**; đánh dấu đọc (lạc quan), `unread` giảm 1; mở khung **không** xoá chấm; hết chưa đọc → chấm biến; rỗng "Chưa có thông báo. Khi có việc…" |
 | TC-P208-35 | AC11 (thời gian) | – | **A** thông báo tạo 59 giây, 5 phút, 3 giờ, hôm qua 16:40, 5 ngày trước (sửa `created_at` trong DB) | "vừa xong", "N phút trước", "N giờ trước", "hôm qua 16:40", "dd/MM" theo **ngày lịch** (đồng hồ thật, `Asia/Ho_Chi_Minh`); `grep -rnE '[0-9]+ (ngày\|giờ\|phút) trước' frontend/src \| grep -v shared/lib/timeAgo` → rỗng |
 | TC-P208-36 | AC11 | – | **G** `$PW class-join.spec.ts -g 'bell real'` | `rc=0` |
 | TC-P208-37 | AC12 | Admin | **A** ép: email trùng `class_code` (409), 422, người sai vai ("Người này không phải giảng viên."), sai `version` ("Lớp này vừa được người khác sửa. Giữ thay đổi của bạn hay dùng bản mới?"), offline, lưu trữ lớp đã lưu trữ ("Lớp này đã được lưu trữ.") | Lỗi tại ô, giữ chữ; offline → `OfflineBanner` + `Gửi lại` dùng **cùng** `Idempotency-Key` (so header) |
@@ -70,5 +70,6 @@ Tiền điều kiện chung: stack test + seed (US-P2-12); `$A`, `$T`, `$TA_`, `
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).
+- 2026-10-04 — góp ý sprint 4 #8 (AC11: kiểm `pathname` + lớp đang chọn thay vì URL = `link`) — PM ACCEPTED.
 
 Tổng: 42 TC.
