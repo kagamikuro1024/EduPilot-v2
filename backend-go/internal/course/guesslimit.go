@@ -20,6 +20,8 @@ const (
 	guessPerUser = 5
 	guessPerIP   = 20
 	guessWarn    = 30 * time.Second
+	// guessRedisTimeout chặn việc Redis chết kéo mỗi yêu cầu join chờ hạn dial mặc định (≈ 5 s): quá hạn ⇒ mở cửa như lỗi Redis.
+	guessRedisTimeout = 250 * time.Millisecond
 )
 
 // ZSET: member = mã ngẫu nhiên của lần thử, score = ms. Khoá chỉ chứa định danh và số — không mã tham gia, email, MSSV.
@@ -48,15 +50,19 @@ return 1
 `
 
 type guessLimiter struct {
-	rdb      *appredis.Client
-	log      *slog.Logger
-	check    *goredis.Script
-	add      *goredis.Script
-	lastWarn atomic.Int64
+	rdb   *appredis.Client
+	log   *slog.Logger
+	check *goredis.Script
+	add   *goredis.Script
+	// lastWarn dùng CHUNG cho mọi yêu cầu của một Service (con trỏ do NewService cấp); mỗi bộ giới hạn là của MỘT yêu cầu.
+	lastWarn *atomic.Int64
 }
 
-func newGuessLimiter(rdb *appredis.Client, log *slog.Logger) *guessLimiter {
-	return &guessLimiter{rdb: rdb, log: log, check: goredis.NewScript(guessCheckLua), add: goredis.NewScript(guessAddLua)}
+func newGuessLimiter(rdb *appredis.Client, log *slog.Logger, lastWarn *atomic.Int64) *guessLimiter {
+	if lastWarn == nil {
+		lastWarn = new(atomic.Int64) // Service dựng bằng literal (test): giới hạn log theo từng bộ
+	}
+	return &guessLimiter{rdb: rdb, log: log, check: goredis.NewScript(guessCheckLua), add: goredis.NewScript(guessAddLua), lastWarn: lastWarn}
 }
 
 func guessKeys(userID uuid.UUID, ip string) []string {
@@ -86,6 +92,8 @@ func (g *guessLimiter) Blocked(ctx context.Context, userID uuid.UUID, ip string,
 	if len(keys) > 1 {
 		args = append(args, guessPerIP)
 	}
+	ctx, cancel := context.WithTimeout(ctx, guessRedisTimeout)
+	defer cancel()
 	ms, err := g.check.Run(ctx, g.rdb, keys, args...).Int64()
 	if err != nil {
 		g.warn(ctx, "check", err)
@@ -107,6 +115,8 @@ func (g *guessLimiter) Fail(ctx context.Context, userID uuid.UUID, ip string, no
 	for range keys {
 		args = append(args, fmt.Sprintf("%s-%s", strconv.FormatInt(now.UnixNano(), 36), uuid.NewString()[:8]))
 	}
+	ctx, cancel := context.WithTimeout(ctx, guessRedisTimeout)
+	defer cancel()
 	if err := g.add.Run(ctx, g.rdb, keys, args...).Err(); err != nil {
 		g.warn(ctx, "add", err)
 	}

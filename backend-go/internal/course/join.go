@@ -100,7 +100,7 @@ func (s Service) lookupByCode(ctx context.Context, q *store.Queries, code string
 
 // guard chạy trước tra mã: vượt giới hạn ⇒ 429 kể cả mã đúng. Trả hàm ghi thất bại cho nhánh ErrJoinInvalid.
 func (s Service) guardGuess(ctx context.Context, userID uuid.UUID, ip string) (func(), error) {
-	g := newGuessLimiter(s.Redis, s.log())
+	g := newGuessLimiter(s.Redis, s.log(), s.warned)
 	if secs := g.Blocked(ctx, userID, ip, s.now()); secs > 0 {
 		return nil, &RateLimitedError{RetryAfter: secs}
 	}

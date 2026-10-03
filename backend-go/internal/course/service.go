@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"sync/atomic"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,6 +54,14 @@ type Service struct {
 	PublicURL string
 
 	genCode func() (string, error) // thay được trong test để tiêm mã trùng; nil = NewJoinCode
+	// warned: mốc log "Redis lỗi" gần nhất của giới hạn đoán mã, chung cho mọi yêu cầu (≤ 1 dòng / 30 s). NewService cấp; nil = theo từng yêu cầu.
+	warned *atomic.Int64
+}
+
+// NewService là cách dựng Service cho gateway (cấp trạng thái dùng chung giữa các yêu cầu). Service value-type nên mọi bản sao chung con trỏ.
+func NewService(s Service) Service {
+	s.warned = new(atomic.Int64)
+	return s
 }
 
 func (s Service) now() time.Time {

@@ -1,7 +1,9 @@
 package course_test
 
 import (
+	"bytes"
 	"context"
+	"log/slog"
 	"net/http"
 	"sort"
 	"strings"
@@ -12,6 +14,8 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/course"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/testutil"
 )
 
 // ===== AC3: thời gian xử lý không phân biệt được nguyên nhân =====
@@ -375,4 +379,22 @@ func TestJoinSettingsTAForbidden(t *testing.T) {
 	res := r.put(k.a.A, "/courses/"+k.id+"/join-settings", map[string]any{"enabled": false, "version": 1})
 	require.Equal(t, http.StatusOK, res.code, "Admin được")
 	_ = uuid.Nil
+}
+
+// QC B1 (US-P2-09 TC-14): Redis lỗi ⇒ mở cửa và log "Redis lỗi" ≤ 1 dòng / 30 s CHO CẢ Service (không phải mỗi yêu cầu một dòng).
+func TestJoinRedisDownLogsOncePer30s(t *testing.T) {
+	r := newRig(t)
+	rdb, err := appredis.New(t.Context(), testutil.RedisURL(t))
+	require.NoError(t, err)
+	require.NoError(t, rdb.Close()) // mọi lệnh sau đó lỗi ngay
+	logs := &bytes.Buffer{}
+	svc := course.NewService(course.Service{Pool: r.pool, Clock: r.clk, Redis: rdb, Log: slog.New(slog.NewTextHandler(logs, nil))})
+	u, _ := r.student("")
+	start := time.Now()
+	for range 10 {
+		_, err := svc.Join(t.Context(), u.ID, "10.9.9.9", "ZZZZZZZ")
+		require.ErrorIs(t, err, course.ErrJoinInvalid, "Redis lỗi không chặn người dùng")
+	}
+	require.Less(t, time.Since(start), 5*time.Second, "mỗi yêu cầu không chờ hạn dial Redis")
+	require.Equal(t, 1, strings.Count(logs.String(), "Redis lỗi"), logs.String())
 }

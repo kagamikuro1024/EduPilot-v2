@@ -56,7 +56,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		courseGuard := func(m auth.GuardMode) func(http.Handler) http.Handler { return auth.CourseAccessGuard(resolver, m) }
 		if d.DB != nil {
 			// US-P2-07 — lớp của tôi và chi tiết lớp.
-			svc := course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production", Clock: d.Clock, Redis: d.Redis, Log: d.Log, PublicURL: d.Cfg.AppPublicURL}
+			svc := course.NewService(course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production", Clock: d.Clock, Redis: d.Redis, Log: d.Log, PublicURL: d.Cfg.AppPublicURL})
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.LLM != nil && d.Redis != nil {
