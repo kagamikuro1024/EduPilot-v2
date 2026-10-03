@@ -12,7 +12,7 @@ ge(){ [ "$1" -ge "$2" ] && pass "$3 ($1 ≥ $2)" || fail "$3 — got $1 want ≥
 
 open_as() {  # $1 vai (student|ta|teacher|admin)  $2 đường dẫn  $3 người (tuỳ chọn: sv-1..sv-4)
   curl -s -b "ep_demo_role=$1; ep_demo_person=${3:-}; ep_demo_course=int1006-1" "$F$2" \
-    | grep -q 'Bạn không có quyền mở trang này' && echo "CHAN $1 $2" || echo "MO   $1 $2"; }
+    | grep -qE 'Bạn không có quyền (mở trang|xem màn) này' && echo "CHAN $1 $2" || echo "MO   $1 $2"; }  # sprint 3 (US-PU-04 AC10): lời mới "xem màn này"
 visible() {  # $1 vai $2 đường dẫn $3 người
   curl -s -b "ep_demo_role=$1; ep_demo_person=${3:-}" "$F$2" | perl -0pe 's#<script.*?</script>##gs; s#<[^>]+># #g'; }
 # want <MO|CHAN> <vai> <route> [người]  → PASS/FAIL một dòng
