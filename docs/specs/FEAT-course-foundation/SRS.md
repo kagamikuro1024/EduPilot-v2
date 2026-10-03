@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.5 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.6 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.6 (2026-10-04)** — góp ý #11 `docs/sprints/4/proposals.md` (PM chọn **phương án thay thế**; nguồn: dev, US-P2-10; trích: "lặp MSSV trong tệp ⇒ `DUPLICATE_STUDENT_CODE_IN_FILE` (dòng sau); trùng với ghi danh có sẵn ⇒ `STUDENT_CODE_CONFLICT`. Giảng viên biết ngay lỗi nằm ở tệp hay ở lớp; không có mã chết"). Không đổi số AC (83). Đổi: US-P2-10 AC6 (lời văn và test), `SRS.md` 4.5 (mã lỗi dòng).
 
 **v1.5 (2026-10-03)** — góp ý #10 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "`FEAT-course-foundation` AC13 yêu cầu `GET …/members?q=` tìm theo MSSV, nhưng `FEAT-account-security` 4.2.5 chỉ cho 3 truy vấn… Thêm đúng MỘT tên (`ListMembers`) vào danh sách trắng. **ACCEPTED có điều kiện** — `q` theo MSSV chỉ cho TEACHER / TA của lớp (sinh viên không lọc theo MSSV, không thấy MSSV người khác); có test phân quyền cho điều kiện này"). Không đổi số AC. Đổi: US-P2-09 AC13 (điều kiện quyền + test), `SRS.md` 4.3.
 
@@ -146,7 +148,7 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 
 **Tệp:** multipart `file`; CSV UTF-8 (BOM tuỳ chọn; dấu `,` hoặc `;` tự nhận) hoặc XLSX (sheet đầu); ≤ 500 dòng dữ liệu, ≤ 2 MiB (route nâng `MAX_BODY_BYTES` lên 2 MiB), XLSX giải nén ≤ 20 MiB; magic bytes; **tệp không được lưu** (xử lý trong bộ nhớ, không ghi đĩa hay blob). Tiêu đề (không phân biệt hoa thường, bỏ dấu): email ∈ {`email`, `e-mail`, `mail`}; tên ∈ {`full_name`, `họ và tên`, `họ tên`, `name`}; MSSV ∈ {`student_code`, `mssv`, `mã số sinh viên`}. Chuẩn hoá: email chữ thường, tên cắt khoảng trắng ≤ 100 ký tự, MSSV chữ hoa `^[A-Z0-9]{6,15}$`; giá trị bắt đầu bằng `= + - @` giữ như chữ.
 
-**Mã lỗi dòng:** `INVALID_EMAIL`, `MISSING_NAME`, `INVALID_STUDENT_CODE`, `DUPLICATE_EMAIL_IN_FILE`, `DUPLICATE_STUDENT_CODE_IN_FILE`, `STUDENT_CODE_CONFLICT` (MSSV đã là snapshot của người khác `ACTIVE`/`PENDING` trong lớp), `EMAIL_BELONGS_TO_STAFF`, `EMAIL_DISABLED`, `COURSE_FULL` (dòng vượt sĩ số). Số dòng = số dòng trong tệp (tiêu đề = 1).
+**Mã lỗi dòng:** `INVALID_EMAIL`, `MISSING_NAME`, `INVALID_STUDENT_CODE`, `DUPLICATE_EMAIL_IN_FILE`, `DUPLICATE_STUDENT_CODE_IN_FILE` (cùng MSSV, khác email, **lặp trong tệp** — báo ở dòng sau), `STUDENT_CODE_CONFLICT` (MSSV đã là snapshot của người khác `ACTIVE`/`PENDING` **có sẵn trong lớp** — góp ý #11), `EMAIL_BELONGS_TO_STAFF`, `EMAIL_DISABLED`, `COURSE_FULL` (dòng vượt sĩ số). Số dòng = số dòng trong tệp (tiêu đề = 1).
 
 **Bảng nối (mặc định `send_invites=true`):**
 
