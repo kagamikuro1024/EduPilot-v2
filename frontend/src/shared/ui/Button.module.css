@@ -1,4 +1,6 @@
 .btn {
+  position: relative;
+  top: 3px; /* ci/ui-drift (b): nút lệch 3 px — visual.spec.ts PHẢI đỏ */
   display: inline-flex;
   align-items: center;
   justify-content: center;
