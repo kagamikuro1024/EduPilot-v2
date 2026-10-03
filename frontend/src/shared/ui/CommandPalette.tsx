@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { NavItem } from "@/shared/shell/nav";
 import dlg from "./Dialog.module.css";
+import { useScrollLock } from "./useScrollLock";
 import s from "./CommandPalette.module.css";
 
 // Bỏ dấu để gõ "diem" vẫn ra "Điểm danh".
@@ -17,6 +18,7 @@ export function CommandPalette({ open, tick = 0, onClose, items, initialQuery = 
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
   const uid = useId();
+  useScrollLock(open);
 
   const results = useMemo(() => {
     const needle = fold(q.trim());

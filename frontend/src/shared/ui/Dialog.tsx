@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useScrollLock } from "./useScrollLock";
 import { InlineNotice } from "./Feedback";
 import s from "./Dialog.module.css";
 
@@ -64,6 +65,7 @@ function Overlay({
   const titleId = useId();
   const autoDesc = useId();
   const descId = descriptionId ?? autoDesc;
+  useScrollLock(open);
 
   useEffect(() => {
     const d = ref.current;

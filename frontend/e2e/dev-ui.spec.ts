@@ -445,6 +445,28 @@ test("confirm: disabledReason khoá nút xác nhận và gắn aria-describedby"
   await expect(dlg.locator(`[id="${id}"]`)).toContainText("chưa có điểm cuối kỳ");
 });
 
+test("BUG-PU02-2: Dialog, Drawer, ConfirmIrreversible khoá cuộn nền và mở khoá khi đóng", async ({ page }) => {
+  await page.goto("/dev/ui");
+  for (const [block, state] of [["Dialog", "default"], ["Drawer", "default"], ["ConfirmIrreversible", "default"]] as const) {
+    const opener = cell(page, block, state).locator("[data-open-overlay]");
+    await opener.scrollIntoViewIfNeeded();
+    await page.evaluate(() => window.scrollBy(0, 0));
+    const before = await page.evaluate(() => window.scrollY);
+    await opener.click();
+    await expect(page.locator("dialog[open]")).toHaveCount(1);
+    await page.mouse.move(700, 450);
+    await page.mouse.wheel(0, 800);
+    await page.waitForTimeout(200);
+    expect(await page.evaluate(() => window.scrollY), `${block}: nền không được trôi`).toBe(before);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow)).toBe("hidden");
+    await page.keyboard.press("Escape");
+    await expect(page.locator("dialog[open]")).toHaveCount(0);
+    expect(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), `${block}: mở khoá sau khi đóng`).not.toBe("hidden");
+    await page.mouse.wheel(0, 400);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before);
+  }
+});
+
 test("BUG-PU02-1: hàng DataTable focus bằng bàn phím có box-shadow = --ep-focus", async ({ page }) => {
   await page.goto("/dev/ui");
   const row = page.locator('[data-part=primitive][data-name="DataTable"] tbody tr[tabindex="0"]').first();
