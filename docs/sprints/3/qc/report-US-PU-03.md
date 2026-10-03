@@ -1,5 +1,5 @@
 # Báo cáo QC — US-PU-03 (lớp dữ liệu: apiClient, TanStack Query, useSSE, useJob, nháp, hoàn tác, mất mạng)
-**Kết luận: FAIL** — 2 lỗi nhẹ do QC tự đo bằng máy chủ giả của QC (BUG-PU03-1: `traceId` không lấy từ header `X-Request-Id`; BUG-PU03-2: sự kiện `reconnect` mở **hai** kết nối SSE cùng lúc). Phần còn lại: bộ Playwright của dev xanh, phần backend thật đạt, nhưng **nhóm TC "Q" mới đo độc lập một phần** (liệt kê rõ ở "Chưa đo độc lập").
+**Kết luận: PASS (sau vòng sửa 1; nhóm Q còn lại dựa spec dev)** — vòng 1: FAIL do 2 lỗi nhẹ do QC tự đo bằng máy chủ giả của QC (BUG-PU03-1: `traceId` không lấy từ header `X-Request-Id`; BUG-PU03-2: sự kiện `reconnect` mở **hai** kết nối SSE cùng lúc). Phần còn lại: bộ Playwright của dev xanh, phần backend thật đạt, nhưng **nhóm TC "Q" mới đo độc lập một phần** (liệt kê rõ ở "Chưa đo độc lập").
 
 - Bản chấm `00425f0` (chứa `dc2ecab` + sửa P1-04/PU-01; không có WIP US-PU-04), `build:gate` (`NEXT_PUBLIC_API_URL=http://localhost:3311` đóng sẵn trong `package.json`), `next start -p 3400`; gateway thật `testroutes` cổng 8080/8081 + worker (`WORKER_HEALTH_ADDR=:8095`). **Q-QC-PU03-1:** QC chọn (a) — vì URL được đóng lúc build và trùng cổng 3311 nên QC chạy máy chủ giả **của QC** (`scripts/pu03-fake-api.mjs`, cổng 3311) thay cho `api-server.mjs` của dev và điều khiển bằng `window.__ep` trong Chrome thật. Q-QC-PU03-2/-3 vẫn **chờ BA** (QC đo: `retry_after:2` → chờ 2006 ms rồi thử; 429 SSE giữ nguyên `retry_after:5`).
 - Máy chủ giả thứ hai (cổng 3512) làm "kẻ lạ" cho TC-02.
@@ -50,3 +50,9 @@ TC-08/09 (ẩn mã kỹ thuật theo vai), 14, 17 (cổng token — thuộc US-P
 
 ## Việc sau
 Dev: BUG-PU03-1, BUG-PU03-2. BA: lệnh Kiểm AC24 (`\bfetch\(`), Q-QC-PU03-2/-3. Sau khi sửa: QC chạy lại TC-05, TC-32 và hoàn tất các TC ở mục "Chưa đo độc lập" bằng máy chủ giả của QC.
+
+## Vòng sửa 1 (dev `74d7fb0` BUG-PU03-1, `690337a` BUG-PU03-2; đo trên `ea9289a`, bản dựng `NEXT_PUBLIC_API_URL=http://localhost:3511` + máy chủ giả của QC)
+- **BUG-PU03-1 đã sửa (TC-05 PASS):** 500 chỉ có header `X-Request-Id: hdr-trace-1` → `error.traceId = "hdr-trace-1"`; 422 → `hdr-trace-2`; có cả `trace_id` thân (`body-trace`) và header khác → **ưu tiên thân**; không có cả hai → `undefined`.
+- **BUG-PU03-2 đã sửa (TC-32 PASS):** `event: reconnect` → máy chủ thấy **2** kết nối (0 ms và **58 ms**), client đóng **1** lần (trước: 3 kết nối, đóng 2).
+- Hồi quy TC-27: 13 sự kiện e1…e13, duy nhất, 2 kết nối, `Last-Event-ID: 1000-5`, cách 981 ms.
+- **Verdict US-PU-03: PASS** — với điều kiện đã nêu: nhóm TC "Q" ở mục "Chưa đo độc lập" chỉ có bộ Playwright của dev (xanh 25/25 khi không dùng chung cổng). TC-56 (ngân sách JS) chờ số nền PU-05; AC24 lệnh `grep 'fetch('` chờ BA (`\bfetch\(`).

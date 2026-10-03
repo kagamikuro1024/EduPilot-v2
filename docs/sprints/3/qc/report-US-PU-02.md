@@ -1,4 +1,4 @@
-# Báo cáo QC — US-PU-02 (primitive đủ trạng thái, `/dev/ui`, CitationList, VerificationState) — **FAIL (2 lỗi thấp; TC-11/12 chờ BA)**
+# Báo cáo QC — US-PU-02 (primitive đủ trạng thái, `/dev/ui`, CitationList, VerificationState) — **PASS (sau vòng sửa 1; TC-11/12 chờ BA)**
 Bản chấm `5dfca9b` (chứa `a5e219a`), `build:gate`, `next start -p 3400`. Chủ dự án chuyển chỗ → QC dừng theo lệnh PM. **Không có kết luận story**; dưới đây là cái đã đo.
 
 ## Lỗi tìm thấy (có tái hiện)
@@ -51,3 +51,9 @@ TC-39 (audit TA/GV/Admin/spec, sweep, 18 `data-part`), TC-40, TC-20, TC-24/25 đ
 | 11, 12 | chờ BA | như trên |
 
 **Verdict US-PU-02: FAIL** — TC-06 (BUG-PU02-1) và TC-26 (BUG-PU02-2); TC-11/12 chờ BA định nghĩa; 44/47 TC PASS hoặc chờ, còn lại PASS. Sau khi dev sửa hai lỗi: QC chạy lại TC-06, TC-26 (≈ 10 phút).
+
+## Vòng sửa 1 (dev `94d0c67` BUG-PU02-1, `0832dcb` BUG-PU02-2; đo trên `ea9289a` = origin sprint/3-pu-p1 có cả US-PU-04/05)
+- **BUG-PU02-1 đã sửa (TC-06 PASS):** hàng bảng focus bằng bàn phím: `tr` `box-shadow` = đúng `--ep-focus` đã tính (đỏ 2 px + khoảng 2 px), không còn vạch inset ở `td`.
+- **BUG-PU02-2 đã sửa (TC-26 PASS):** mở Dialog / Drawer / ConfirmIrreversible rồi `wheel(800)`: `scrollY` **không đổi** (11396, 11955, 12514); đóng bằng `Esc` rồi `wheel(300)` cuộn lại bình thường (+300).
+- Hồi quy: `playwright dev-ui ui-foundation tokens shell` → **92 pass**, 21 skip, 1 đỏ là ca `shell › touch` do test gọi cứng `http://localhost:3310` (máy chủ của dev không chạy lúc đó) — không liên quan.
+- **Verdict US-PU-02: PASS** (TC-11/12 vẫn chờ BA định nghĩa "đúng 1 hành động" cho khối ghép; TC-34/37 phần đo nền/viền trái chỉ có spec dev).
