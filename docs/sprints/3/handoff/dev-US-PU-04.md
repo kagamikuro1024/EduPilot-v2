@@ -1,25 +1,33 @@
-# DEV handoff — US-PU-04 (khung ứng dụng) — **DỞ DANG, chưa bàn giao cho QC**
-Nhánh `sprint/3-pu-p1`. Dừng giữa chừng vì chủ dự án chuyển chỗ. Mã đã commit nhưng story CHƯA xong: còn 1 lỗi đã biết + chưa chạy cổng đầy đủ.
+# DEV handoff — US-PU-04 (khung ứng dụng: phiên jwt/demo, điều hướng theo vai, chuông, màn chặn)
+Nhánh `sprint/3-pu-p1`. Góp ý #22–#24. Chạy: `pnpm -C frontend build:gate && pnpm -C frontend exec playwright test shell.spec.ts` (Next :3310, gateway giả :3312). Ca `no-backend` cần bản `NEXT_PUBLIC_MOCK_SCREENS=0 pnpm build:gate` rồi `NEXT_PUBLIC_MOCK_SCREENS=0 playwright test shell.spec.ts -g no-backend`.
 
-## Đã làm (có trong commit)
-- `shared/session/jwt.ts` (`checkToken`: giải mã HS256, role ∈ ADMIN/TEACHER/TA/STUDENT, `exp`; không xác minh chữ ký); `session.tsx` có hai nguồn `source: "jwt" | "demo"`, `identity`, `logout`, `expired` (claim thắng cookie `ep_demo_*`; màn mock dùng người mock cùng vai/lớp mock đầu; `auth:expired` + hết hạn giữa chừng ⇒ về demo).
-- `shared/session/TokenGate.tsx` (lazy, chỉ khi `NEXT_PUBLIC_DEV_AUTH=1`; ô password `autocomplete=off`; "Token không hợp lệ." / "Phiên đã hết hạn"); build thường: "Cần đăng nhập".
-- `AppShell`: DOM header → sidebar → main; `data-part=sidebar|topbar|bottom-nav`; 216 (≥1100, nhớ `ep:ui:sidebar`) / 72 (720–1099) / không sidebar (<720); `aria-expanded` ở nút thu gọn; `aria-label` khi thu gọn; padding dưới `main` ở <720; menu hồ sơ ẩn "Đổi vai" ở phiên jwt; "Đăng xuất" xoá token; màn chặn "Bạn không có quyền xem màn này"; `NoBackend` (`MOCK_SCREENS=0`, bảng `mockBackend` ở `nav.ts`).
-- `NotificationPopover` (props `items`, `unread`, vùng `aria-live`, chuỗi rỗng theo spec) + khối thử ở `/dev/data`.
-- `CommandPalette`: combobox + `aria-activedescendant`, "Không thấy mục nào khớp.", sửa bỏ dấu cho chữ Đ hoa (lỗi cũ: `Điểm danh` không khớp "diem danh").
-- `PageHeader` dùng `<div>` thay `<header>` (để `header h1` = 0 theo AC6); vùng chạm 44 px cho `.seeAll a` và `.steps a` của StaffHome (AC14).
-- `build:gate` thêm `NEXT_PUBLIC_DEV_AUTH=1`; `e2e/shell.spec.ts` (16 ca).
+## Làm gì
+- `shared/session/jwt.ts` (`checkToken`: chỉ giải mã HS256 + role + `exp`); `session.tsx`: `source: "jwt"|"demo"`, `identity`, `logout`, `expired`; claim thắng cookie `ep_demo_*`, màn mock dùng người/lớp mock cùng vai (Sinh viên → `sv-2`).
+- Cổng dán token `TokenGate.tsx` (ô password `autocomplete=off`, "Token không hợp lệ." / "Phiên đã hết hạn"); chỉ vào bundle khi `NEXT_PUBLIC_DEV_AUTH=1` nhờ alias `@ep/token-gate` (#23); build thường: "Cần đăng nhập" không có ô nhập.
+- `AppShell`: thứ tự DOM header → sidebar → main; `data-part=sidebar|topbar|bottom-nav`; sidebar 216 (≥1100, `ep:ui:sidebar`) / 72 (720–1099) / không có (<720); nút thu gọn `aria-expanded`; `aria-label` khi thu gọn; đệm dưới `main` ở <720; hồ sơ: ẩn "Đổi vai" ở phiên jwt, `Đăng xuất` xoá token; màn chặn "Bạn không có quyền xem màn này"; `NoBackend` (`MOCK_SCREENS=0`, bảng `mockBackend` ở `nav.ts`).
+- `NotificationPopover` (props `items`/`unread`, `aria-live`, chuỗi rỗng theo spec; khối thử ở `/dev/data`); `CommandPalette` combobox + `aria-activedescendant`, "Không thấy mục nào khớp.", sửa bỏ dấu cho chữ Đ hoa; `PageHeader` dùng `<div>` thay `<header>` (để `header h1`=0); vùng chạm 44 px cho `.seeAll a`, `.steps a` của `StaffHome` (AC14).
 
-## Đã chạy (thật)
-- `playwright test shell.spec.ts --project=desktop --workers=1` trên `build:gate`: **15 passed, 1 skipped** (`no-backend` chỉ chạy ở bản `NEXT_PUBLIC_MOCK_SCREENS=0`).
-- Bản dựng `NEXT_PUBLIC_MOCK_SCREENS=0 build:gate`: `shell.spec.ts -g no-backend` **1 passed**.
-- `tsc --noEmit` sạch; `eslint src` sạch (trước khi thêm `shell.spec.ts` — chưa chạy lại `eslint .`).
+## AC tự đánh giá
+| AC | Kết quả thật |
+| --- | --- |
+| 1 | `metrics`: sidebar 216 ở 1440/1100, 72 ở 1099/900/720, không có ở 719/375; header cao 56 ở ≥720; `ep:ui:sidebar`=`collapsed` nhớ qua tải lại; ở 375 nút cuối `/threads` nằm trên thanh dưới, `padding-bottom ≥ 56` |
+| 2 | `active indicator`: `::before` rộng 2px màu `--ep-red`, nền mục không đỏ, số phần tử nền đỏ ≤ số chấm/huy hiệu, `backdrop-filter:none`, nền không trong suốt |
+| 3 | `nav per role`: 5 ngữ cảnh khớp nhãn + `href` + thứ tự (SV 7, SV chưa vào lớp 1, TA 12 không "Hệ thống", GV 15 với 5 nhóm, Admin 6); SV không có chữ "Cấu hình LLM" |
+| 4 | `badges`: hậu tố chỉ `inbox`/`grading`, giá trị >0; `grep 'badge: [0-9]' nav.ts`=0 |
+| 5 | `mobile` 4 vai × 375/390: ≤5 đích, mỗi đích ≥44 px, `Thêm` đủ (tổng−4) mục, `Esc` đóng và trả focus về `Thêm`, không tràn ngang. **Không làm** "tên trang + 1 hành động ngữ cảnh" trên thanh trên (#22) |
+| 6 | `topbar`: `header h1`=0; 4 nhóm (chọn lớp, tìm nhanh, chuông, hồ sơ); nút hồ sơ `aria-label` `Tài khoản: …`; "Đổi vai" có ở demo |
+| 7 | `palette`: `Ctrl K`, focus ô nhập, "diem danh" ⇒ "Điểm danh" đứng đầu, `↑↓` đổi `aria-activedescendant`, Tab×10 vẫn trong hộp, `Esc` trả focus, Enter ⇒ `/attendance`; SV: không thấy, "zzzz" ⇒ "Không thấy mục nào khớp.", ô trống = 7 mục |
+| 8 | `notifications` (`/dev/data`): chấm theo `unread`, mở khung không xoá chấm, 2 hàng đủ tiêu đề + "Hộp thư hỗ trợ · 2 phút trước", rỗng đúng chuỗi, `aria-live` "Có 1 thông báo mới" một lần (hiển thị lại: 0 thay đổi DOM) |
+| 9 | `session`: token ADMIN (cookie GV) ⇒ nav Admin 6 mục, không "Đổi vai", có email claim, `Đăng xuất` ⇒ quay phiên demo; `abc`, `a.b.c`, rỗng, role `SUPERUSER` ⇒ "Token không hợp lệ."; hết hạn ⇒ "Phiên đã hết hạn"; `localStorage`/`sessionStorage` không đổi, token không vào DOM/cookie/URL; JWT STUDENT ⇒ nav Sinh viên + chặn `/settings/llm` + hồ sơ hiện email claim. `pbuild`: `grep -rl 'DEV_AUTH\|Dán token' .next/static`=**0**, `/settings/llm` có "Cần đăng nhập", 0 `type="password"`, `/dev/ui`=404 |
+| 10 | `forbidden`: SV và TA ở `/settings/llm`, `/observability`, `/admin/users` và GV ở `/admin/courses` ⇒ "Bạn không có quyền xem màn này" + "Trang này dành cho …" + 1 liên kết `Về Hôm nay`, **0** request `/api/v1/`; GV mở được `/settings/llm`; SV chưa vào lớp ở `/chat` ⇒ "Bạn chưa vào lớp nào" |
+| 11 | `no-backend` (bản `MOCK_SCREENS=0`): 4 vai × mọi mục nav trừ `/settings/llm`: `[data-part=empty-no-backend]` đúng phase P2…P10, 1 nút, mục nav còn; `/settings/llm`, `/dev/ui` không bị ảnh hưởng; SV không có từ kỹ thuật |
+| 12 | `keyboard`: Tab đầu = "Bỏ qua điều hướng", Enter ⇒ focus trong `main`, 1 `main`, `nav[aria-label]`; thứ tự skip → header → sidebar → main; `Esc` ở menu hồ sơ trả focus |
+| 13 | `regression-1.5`: `LEFT page-title` 240 (1440) / 16 (390), brand cao 56, logo 32, mark 28. **`audit.mjs` đầy đủ: QC chạy** |
+| 14 | `touch` (thiết bị cảm ứng): `TOUCH_SRC`=`[]` và `ox`=0 ở `/` + 2 đích thanh dưới, 4 vai × 375/390 (sửa 2 liên kết 18–21 px của `StaffHome`) |
 
-## LỖI ĐÃ BIẾT — chặn bàn giao
-- **AC9/AC23: bản dựng thường (`pnpm build`) VẪN chứa mã cổng token**: `grep -rl 'DEV_AUTH\|Dán token' .next/static` = **2**, `grep -rl token-gate .next/static .next/server` = **3** (kỳ vọng 0). `const TokenGate = process.env.NEXT_PUBLIC_DEV_AUTH === "1" ? lazy(() => import(...)) : null` không loại được chunk. Hướng sửa (như PU-02): tách bằng `pageExtensions`/tệp chỉ có ở bản dev, hoặc đặt cổng sau một route `*.dev.tsx`; rồi chạy lại `pbuild; grep`, và `curl -b ep_demo_role=admin :3310/settings/llm` không có `type="password"` (lần kiểm này chưa xác nhận được vì máy chủ chưa lên kịp).
+## Cổng frontend đã chạy
+`eslint .` 0 vấn đề · `tsc` sạch · `ui-antipatterns.sh` 0 ✗ · `lint-selftest.sh` 7/7, 19/19 · `ui-allow:` = 10 · `build:gate` + `playwright test` (2 dự án): **111 passed, 43 skipped** (ca chỉ-desktop ở dự án mobile) · bản thường: `/dev/ui` 404, `state-cell`=0, gate strings=0.
 
-## Chưa làm / chưa chạy
-- Toàn bộ Playwright (`playwright test`, 2 dự án) sau thay đổi này; `ui-antipatterns.sh`, `lint-selftest.sh`, `eslint .`, đếm `ui-allow:` (≤ 10) — chưa chạy.
-- AC5 "tên trang (h1) + đúng một hành động ngữ cảnh" trên thanh trên điện thoại: KHÔNG làm (giữ thanh trên 1.5: logo mark, bộ chọn lớp, tìm, chuông, hồ sơ; h1 nằm trong trang). Cần PM/BA xác nhận — chưa ghi `proposals.md`.
-- `audit.mjs` đầy đủ (AC13) để QC chạy; chỉ đo `LEFT`/brand/logo/mark ở `shell.spec.ts › regression-1.5` (pass).
-- Còn US-PU-05, US-P1-05, cổng PU + P1: chưa bắt đầu.
+## Nợ / ghi chú
+- Ca `no-backend` chỉ chạy ở bản `MOCK_SCREENS=0` (không nằm trong lượt `playwright test` mặc định).
+- `/settings/llm` sau khi dán token vẫn là bản mock (`LlmSettings`) cho tới US-P1-05.

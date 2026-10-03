@@ -2,7 +2,7 @@
 // mọi request đều được ghi lại (thời điểm, header) để test đếm / đo khoảng cách. Điều khiển qua /__ctl/*.
 import http from "node:http";
 
-const PORT = Number(process.env.API_PORT ?? 3311);
+const PORT = Number(process.env.API_PORT ?? 3312);
 /** @type {Map<string, any[]>} */
 const scripts = new Map();
 /** @type {any[]} */

@@ -3,7 +3,8 @@
 import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Suspense, lazy, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ComponentType } from "react";
+import TokenGate from "@ep/token-gate";
 import { BT03_SEED } from "@/mock/assess";
 import { COURSE_1, COURSE_2, DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, SUBJECT, type Role } from "@/mock/core";
 import { ASSIGNED_AT, BT03_SUBMITTED_AT, CH5_UPLOADED_AT, agoLabel, reviewPending, ticketStats } from "@/mock/derive";
@@ -129,8 +130,8 @@ function useSidebarCollapsed(): [boolean, (v: boolean) => void] {
   return [v, set];
 }
 
-// Cổng dán token dev: CHỈ nạp khi build bật cờ (hằng số lúc dựng ⇒ nhánh chết bị loại, build thường không chứa mã cổng).
-const TokenGate = process.env.NEXT_PUBLIC_DEV_AUTH === "1" ? lazy(() => import("@/shared/session/TokenGate")) : null;
+// Cổng dán token dev: `@ep/token-gate` phân giải sang cổng thật chỉ ở build NEXT_PUBLIC_DEV_AUTH=1, còn lại là `null` (xem next.config.ts).
+const Gate: ComponentType<{ expired: boolean }> | null = TokenGate;
 const MOCK_SCREENS_OFF = process.env.NEXT_PUBLIC_MOCK_SCREENS === "0";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -455,10 +456,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ) : !hasCourse && needsCourse(role, pathname) ? (
           <NoCourse />
         ) : needsToken(pathname) && source === "demo" ? (
-          TokenGate ? (
-            <Suspense fallback={null}>
-              <TokenGate expired={expired} />
-            </Suspense>
+          Gate ? (
+            <Gate expired={expired} />
           ) : (
             <Page>
               <PageHeader title="Cần đăng nhập" description="Màn này làm việc với máy chủ thật. Tính năng đăng nhập sẽ có ở bản sau." actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>} />

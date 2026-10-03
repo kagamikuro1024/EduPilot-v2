@@ -13,5 +13,5 @@ US-P1-01…04 (+ bản sửa lỗi QC: BUG-P101-1, P102-1/3, P103-1/2, P104-1, g
 - Ca `@real` của US-PU-03 (AC6, 8, 11, 13, 16, 17) chưa chạy; cần stack Go + bản dựng `NEXT_PUBLIC_API_URL=https://localhost`.
 - AC23 của PU-03 (`grep DEV_AUTH` trong bản production) thuộc cổng dán token của PU-04.
 - Proposals #5–#21 ở `docs/sprints/3/proposals.md`: #13–#21 chờ PM.
-- Playwright: `pnpm -C frontend build:gate && pnpm -C frontend exec playwright test` (cổng 3310 + gateway giả 3311). `next start` có thể để lại tiến trình `next-server`; kiểm `lsof -i :3310 -i :3311`.
+- Playwright: `pnpm -C frontend build:gate && pnpm -C frontend exec playwright test` (cổng 3310 + gateway giả 3312). `next start` có thể để lại tiến trình `next-server`; kiểm `lsof -i :3310 -i :3312`.
 - Go: `DOCKER_HOST=unix://$HOME/.colima/default/docker.sock TESTCONTAINERS_RYUK_DISABLED=true`; dọn container test bằng `make -C backend-go test-clean`.

@@ -28,6 +28,6 @@ export default defineConfig({
       timeout: 60_000,
     },
     // máy chủ gateway GIẢ cho test lớp dữ liệu (bản dựng cổng đặt NEXT_PUBLIC_API_URL tới đây)
-    { command: "node e2e/support/api-server.mjs", url: "http://localhost:3311/__ctl/ping", reuseExistingServer: true, timeout: 20_000 },
+    { command: "node e2e/support/api-server.mjs", url: "http://localhost:3312/__ctl/ping", reuseExistingServer: true, timeout: 20_000 },
   ],
 });
