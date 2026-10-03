@@ -51,6 +51,19 @@ func (g *Gateway) Stream(ctx context.Context, r Request) (<-chan Chunk, error) {
 				return opened{}, 0, ctx.Err()
 			}
 		})
+	if errors.Is(err, ErrAllProvidersFailed) {
+		if c.lane != LaneInteractive {
+			err = &ErrUnavailable{Reason: ReasonAllFailed}
+		} else { // chưa phát byte nào: trả câu suy giảm trích nguyên văn
+			resp := degraded(r)
+			c.finish(&resp, nil)
+			out := make(chan Chunk, 2)
+			out <- Chunk{Text: resp.Text}
+			out <- Chunk{Done: true, Response: &resp}
+			close(out)
+			return out, nil
+		}
+	}
 	if err != nil {
 		c.finish(nil, err)
 		return nil, err

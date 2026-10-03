@@ -646,7 +646,7 @@ components:
           minimum: 0
     LLMStats:
       type: object
-      required: [queue_depth, inflight, provider_inflight, provider_calls, audit_dropped, circuit]
+      required: [queue_depth, inflight, inflight_batch, provider_inflight, provider_calls, audit_dropped, circuit, redis_down]
       additionalProperties: false
       properties:
         queue_depth:
@@ -657,6 +657,12 @@ components:
           type: object
           additionalProperties:
             type: integer
+        inflight_batch:
+          type: object
+          additionalProperties:
+            type: integer
+        redis_down:
+          type: boolean
         provider_inflight:
           type: integer
         provider_calls:

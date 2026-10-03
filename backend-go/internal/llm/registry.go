@@ -51,8 +51,9 @@ type Route struct {
 }
 
 type regState struct {
-	routes  map[Task]Route
-	envOnly bool
+	routes   map[Task]Route
+	envOnly  bool
+	cheapest *Target // mô hình chat rẻ nhất đang bật (ngân sách cạn → chat chuyển sang đây)
 }
 
 // ProviderSpec là đầu vào của Factory.
@@ -72,6 +73,33 @@ type Registry struct {
 	log     *slog.Logger
 	cur     atomic.Pointer[regState]
 	mu      sync.Mutex // một lần nạp tại một thời điểm
+	hooksMu sync.Mutex
+	hooks   []func()
+}
+
+// OnReload đăng ký hàm gọi SAU mỗi lần nạp thành công (Load/Reload) — dùng để vô hiệu cache giới hạn ngân sách.
+func (r *Registry) OnReload(f func()) {
+	r.hooksMu.Lock()
+	r.hooks = append(r.hooks, f)
+	r.hooksMu.Unlock()
+}
+
+func (r *Registry) fire() {
+	r.hooksMu.Lock()
+	hs := append([]func(){}, r.hooks...)
+	r.hooksMu.Unlock()
+	for _, f := range hs {
+		f()
+	}
+}
+
+// Cheapest trả mô hình chat rẻ nhất đang bật (price_in + price_out nhỏ nhất, hoà thì theo thứ tự tạo).
+func (r *Registry) Cheapest() (Target, bool) {
+	st := r.cur.Load()
+	if st == nil || st.cheapest == nil {
+		return Target{}, false
+	}
+	return *st.cheapest, true
 }
 
 // NewRegistry dựng Registry. res có thể nil (chỉ dùng env — test). factory nil = mặc định.
@@ -87,6 +115,30 @@ func NewRegistry(res *llmconfig.Resolver, env EnvConfig, factory Factory, log *s
 		r.factory = r.defaultFactory
 	}
 	return r
+}
+
+// NewStaticRegistry dựng Registry chỉ-bộ-nhớ từ tuyến cho sẵn (không DB, không env) — dùng cho test và công cụ đo.
+func NewStaticRegistry(routes map[Task]Route) *Registry {
+	r := &Registry{ctl: fake.NewController(fake.Settings{})}
+	r.cur.Store(&regState{routes: routes})
+	return r
+}
+
+// SetRoute đặt tuyến của một tác vụ (hoán đổi nguyên tử).
+func (r *Registry) SetRoute(t Task, rt Route) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	st := r.cur.Load()
+	next := &regState{routes: map[Task]Route{}, envOnly: st.envOnly, cheapest: st.cheapest}
+	for k, v := range st.routes {
+		next.routes[k] = v
+	}
+	next.routes[t] = rt
+	if next.cheapest == nil && t == TaskChat && len(rt.Targets) > 0 {
+		c := rt.Targets[0]
+		next.cheapest = &c
+	}
+	r.cur.Store(next)
 }
 
 // Fake là Controller của các provider fake (route thử `_test/llm/fake`, bộ đếm của test).
@@ -112,6 +164,7 @@ func (r *Registry) Load(ctx context.Context) error {
 		return err
 	}
 	r.cur.Store(st)
+	r.fire()
 	return nil
 }
 
@@ -125,6 +178,7 @@ func (r *Registry) Reload(ctx context.Context) error {
 		return err
 	}
 	r.cur.Store(st)
+	r.fire()
 	return nil
 }
 
@@ -195,6 +249,22 @@ func (r *Registry) build(ctx context.Context) (*regState, error) {
 			}
 			limits[p.ID] = [2]int{rpm, tpm}
 		}
+		for _, p := range snap.Providers {
+			pv, ok := built[p.ID]
+			if !ok {
+				continue
+			}
+			rpm, tpm := limits[p.ID][0], limits[p.ID][1]
+			for _, m := range p.Models {
+				if m.Kind != "chat" || !m.Enabled {
+					continue
+				}
+				if st.cheapest == nil || m.PriceIn.Add(m.PriceOut).LessThan(st.cheapest.PriceIn.Add(st.cheapest.PriceOut)) {
+					st.cheapest = &Target{ProviderID: p.ID.String(), ProviderName: p.Name, Type: p.Type, Model: m.Model,
+						PriceIn: m.PriceIn, PriceOut: m.PriceOut, RPM: rpm, TPM: tpm, P: pv}
+				}
+			}
+		}
 		for taskName, rt := range snap.Routes {
 			var targets []Target
 			for _, e := range rt.Chain {
@@ -228,6 +298,12 @@ func (r *Registry) build(ctx context.Context) (*regState, error) {
 		}
 	}
 	st.envOnly = dbTargets == 0
+	if st.cheapest == nil { // không có mô hình chat trong DB: lấy mô hình chính của CHAT (env)
+		if rt, ok := st.routes[TaskChat]; ok && len(rt.Targets) > 0 {
+			t := rt.Targets[0]
+			st.cheapest = &t
+		}
+	}
 	return st, nil
 }
 

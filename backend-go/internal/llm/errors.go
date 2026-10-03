@@ -34,6 +34,11 @@ type ErrUnavailable struct{ Reason string }
 
 func (e *ErrUnavailable) Error() string { return "llm: không khả dụng: " + e.Reason }
 
+// Is: ErrUnavailable{all_providers_failed} cũng là ErrAllProvidersFailed (người gọi có thể kiểm bằng errors.Is).
+func (e *ErrUnavailable) Is(target error) bool {
+	return target == ErrAllProvidersFailed && e.Reason == ReasonAllFailed
+}
+
 // ErrDimsMismatch: vectơ trả về khác 1536 chiều (422 MODEL_DIMS_MISMATCH).
 type ErrDimsMismatch struct{ Expected, Actual int }
 

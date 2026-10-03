@@ -71,7 +71,7 @@ func TestRetryBackoff(t *testing.T) {
 		wantSleep []time.Duration // Rand=1 → đúng trần: 500 ms rồi 1 s
 		wantErr   error
 	}{
-		{"INTERACTIVE: chỉ 1 lần thử lại", llm.LaneInteractive, provider.KindServer, 5, 2, []time.Duration{500 * time.Millisecond}, llm.ErrAllProvidersFailed},
+		{"INTERACTIVE: chỉ 1 lần thử lại (hết chuỗi → suy giảm, không lỗi)", llm.LaneInteractive, provider.KindServer, 5, 2, []time.Duration{500 * time.Millisecond}, nil},
 		{"NEAR_REALTIME: 2 lần, trễ nhân đôi", llm.LaneNearRealtime, provider.KindServer, 5, 3, []time.Duration{500 * time.Millisecond, time.Second}, llm.ErrAllProvidersFailed},
 		{"BATCH: 2 lần", llm.LaneBatch, provider.KindNetwork, 5, 3, []time.Duration{500 * time.Millisecond, time.Second}, llm.ErrAllProvidersFailed},
 		{"RATE_LIMIT được thử lại", llm.LaneNearRealtime, provider.KindRateLimit, 1, 2, []time.Duration{500 * time.Millisecond}, nil},

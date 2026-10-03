@@ -15,7 +15,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/jobs"
-	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/go-chi/chi/v5"
@@ -34,7 +34,7 @@ type Deps struct {
 	Verifier  *auth.Verifier
 	Publisher sse.Publisher
 	Jobs      *jobs.Service
-	LLM       *llm.Runtime
+	LLM       *llmrt.Runtime
 	// RequireIdempotencyKey là middleware `Idempotency-Key` bắt buộc của httpapi (SRS 6.6).
 	RequireIdempotencyKey func(http.Handler) http.Handler
 }

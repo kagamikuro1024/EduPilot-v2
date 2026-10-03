@@ -12,7 +12,7 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/jobs"
-	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appdb "github.com/edupilot/backend-go/internal/platform/db"
@@ -88,7 +88,7 @@ func buildRig(t *testing.T) (*rig, error) {
 	if err != nil {
 		return nil, err
 	}
-	rt, err := llm.NewRuntime(ctx, cfg, pool, rdb.Client, log)
+	rt, err := llmrt.New(ctx, cfg, pool, rdb.Client, log)
 	if err != nil {
 		return nil, err
 	}

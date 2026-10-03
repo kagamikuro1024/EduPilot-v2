@@ -42,8 +42,9 @@ type Options struct {
 
 // Gateway cài Client.
 type Gateway struct {
-	o    Options
-	gate Gate
+	o       Options
+	gate    Gate
+	flights flightGroup
 }
 
 var _ Client = (*Gateway)(nil)
@@ -118,6 +119,15 @@ func (g *Gateway) begin(ctx context.Context, task Task, want *Lane, pii int) (*c
 		return c.fail(ctx, "not_configured", "", err)
 	}
 	c.route = rt
+	// Ngân sách (US-P1-03 AC11): cạn → BATCH dừng; INTERACTIVE / NEAR_REALTIME đổi sang mô hình chat rẻ nhất, KHÔNG BAO GIỜ bị từ chối.
+	if task != TaskEmbedding && g.gate.BudgetState(ctx, id.CourseID) == BudgetExhausted {
+		if lane == LaneBatch {
+			return c.fail(ctx, "budget_blocked", "BUDGET", &ErrUnavailable{Reason: ReasonBudgetExhausted})
+		}
+		if cheap, ok := g.o.Registry.Cheapest(); ok {
+			c.route = Route{Targets: []Target{cheap}, Params: rt.Params}
+		}
+	}
 	c.maxRet = 2
 	if lane == LaneInteractive {
 		c.maxRet = 1
@@ -457,8 +467,18 @@ func validRequest(r Request) error {
 	return nil
 }
 
-// Chat sinh văn bản một lần.
+// Chat sinh văn bản một lần. Yêu cầu Shareable ở làn NEAR_REALTIME / BATCH (không GRADING) giống hệt nhau được hợp nhất trong tiến trình.
 func (g *Gateway) Chat(ctx context.Context, r Request) (Response, error) {
+	if lane, err := ResolveLane(r.Task, r.Lane); err == nil && shareable(r, lane) {
+		if rt, rerr := g.o.Registry.Route(r.Task); rerr == nil {
+			resp, ferr, _ := g.flights.do(ctx, flightKey(r, rt.Targets[0].Model), func(c context.Context) (Response, error) { return g.chat1(c, r) })
+			return resp, ferr
+		}
+	}
+	return g.chat1(ctx, r)
+}
+
+func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 	c, err := g.begin(ctx, r.Task, r.Lane, r.PIIMaskedCount)
 	if err != nil {
 		return Response{}, err
@@ -469,6 +489,14 @@ func (g *Gateway) Chat(ctx context.Context, r Request) (Response, error) {
 		return Response{}, err
 	}
 	resp, err := g.chat(c, r, nil)
+	if errors.Is(err, ErrAllProvidersFailed) {
+		if c.lane == LaneInteractive { // suy giảm có kiểm soát: trích nguyên văn, không sinh (SRS 4.3)
+			resp = degraded(r)
+			c.finish(&resp, nil)
+			return resp, nil
+		}
+		err = &ErrUnavailable{Reason: ReasonAllFailed}
+	}
 	c.finish(optional(resp, err), err)
 	return resp, err
 }
@@ -528,6 +556,9 @@ func (g *Gateway) Structured(ctx context.Context, r Request, schema json.RawMess
 		return nil, ErrBadRequest
 	}
 	resp, err := g.chat(c, r, schema)
+	if errors.Is(err, ErrAllProvidersFailed) {
+		err = &ErrUnavailable{Reason: ReasonAllFailed}
+	}
 	c.finish(optional(resp, err), err)
 	if err != nil {
 		return nil, err
@@ -602,4 +633,11 @@ func itoa(n int) string {
 		n /= 10
 	}
 	return string(b[i:])
+}
+
+// FlushAudit đẩy ngay các dòng llm_audit đang đệm (test, và bước tắt gateway trước khi đóng pool).
+func (g *Gateway) FlushAudit(ctx context.Context) {
+	if g.o.Auditor != nil {
+		g.o.Auditor.flush(ctx)
+	}
 }

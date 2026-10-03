@@ -215,13 +215,13 @@ func TestKeyNeverLeaksViaErrors(t *testing.T) {
 	defer srv.Close()
 	buf, log := jsonBuf()
 	reg := llm.NewRegistry(nil, llm.EnvConfig{}, nil, log)
-	reg.SetStaticForTest(llm.TaskChat, llm.Route{Targets: []llm.Target{{ProviderID: "x", ProviderName: "X", Type: "openai_compatible", Model: "m",
+	reg.SetStaticForTest(llm.TaskClassify, llm.Route{Targets: []llm.Target{{ProviderID: "x", ProviderName: "X", Type: "openai_compatible", Model: "m",
 		P: provider.NewOpenAI(provider.OpenAIConfig{Type: "openai_compatible", BaseURL: srv.URL, APIKey: canary})}}})
 	cap := &capture{}
 	aud := llm.NewAuditor(context.Background(), cap.write, log)
 	defer aud.Close(context.Background())
 	g := llm.New(llm.Options{Registry: reg, Auditor: aud, Log: log})
-	_, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskChat, Messages: userMsg("x")})
+	_, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskClassify, Messages: userMsg("x")})
 	require.ErrorIs(t, err, llm.ErrAllProvidersFailed)
 	require.NotContains(t, err.Error(), canary)
 	rows := cap.all(t, g)

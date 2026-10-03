@@ -13,7 +13,7 @@ import (
 	"time"
 
 	"github.com/edupilot/backend-go/internal/httpapi"
-	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/db"
@@ -92,7 +92,7 @@ func runServe(args []string, getenv func(string) string, stdout, stderr io.Write
 		return 1
 	}
 
-	llmRT, err := llm.NewRuntime(startCtx, cfg, pool, rdb.Client, log)
+	llmRT, err := llmrt.New(startCtx, cfg, pool, rdb.Client, log)
 	if err != nil {
 		log.ErrorContext(startCtx, "không dựng được cổng LLM", "error", err.Error())
 		startSpan.End()
