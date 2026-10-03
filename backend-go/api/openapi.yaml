@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.12.0
+  version: 0.13.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
@@ -20,6 +20,7 @@ tags:
   - name: events
   - name: llm
   - name: auth
+  - name: today
 paths:
   /healthz:
     get:
@@ -1707,6 +1708,89 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/today:
+    get:
+      operationId: getMyToday
+      tags: [today]
+      summary: '"Hôm nay" của chính tôi, tất cả lớp. Dạng theo VAI trong JWT (sinh viên / giảng viên-TA / admin), không theo tham số'
+      responses:
+        "200":
+          description: Việc kế tiếp, xếp bằng luật cứng; ETag + `Cache-Control private, no-cache`
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/TodayStudent"
+                  - $ref: "#/components/schemas/TodayStaff"
+                  - $ref: "#/components/schemas/TodayAdmin"
+        "304":
+          description: Không đổi (If-None-Match khớp ETag)
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "504":
+          description: Quá hạn yêu cầu (`DEADLINE_EXCEEDED`)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/courses/{id}/today:
+    get:
+      operationId: getCourseToday
+      tags: [today]
+      summary: '"Hôm nay" trong một lớp (sinh viên / TA / giảng viên ĐANG HOẠT ĐỘNG của lớp; Admin, PENDING, REMOVED, người ngoài - 403)'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Việc trong lớp này
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/TodayStudent"
+                  - $ref: "#/components/schemas/TodayStaff"
+        "304":
+          description: Không đổi (If-None-Match khớp ETag)
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "504":
+          description: Quá hạn yêu cầu (`DEADLINE_EXCEEDED`)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/v1/courses/{id}/setup/dismiss:
+    post:
+      operationId: dismissCourseSetup
+      tags: [courses]
+      summary: Giảng viên bỏ qua mục "Thiết lập lớp mới" ở Hôm nay (idempotent)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã bỏ qua
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -2631,6 +2715,142 @@ components:
                 type: string
               reason:
                 type: string
+    TodayCourse:
+      type: object
+      required: [id, class_code]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_code:
+          type: string
+    TodayStep:
+      type: object
+      required: [key, label, done, href]
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        done:
+          type: boolean
+        href:
+          type: string
+    TodayItem:
+      type: object
+      required: [id, kind, title, reason, urgency, href, course]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        kind:
+          type: string
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED]
+        title:
+          type: string
+        reason:
+          type: string
+        urgency:
+          type: string
+          enum: [overdue, high, normal]
+        href:
+          type: string
+        course:
+          oneOf:
+            - $ref: "#/components/schemas/TodayCourse"
+            - type: "null"
+        age_minutes:
+          type: integer
+        estimate_minutes:
+          type: integer
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/TodayStep"
+    TodayStudent:
+      type: object
+      required: [no_course, email_verified, recommended, timeline, continue]
+      additionalProperties: false
+      properties:
+        no_course:
+          type: boolean
+        email_verified:
+          type: boolean
+        recommended:
+          oneOf:
+            - $ref: "#/components/schemas/TodayItem"
+            - type: "null"
+        timeline:
+          type: array
+          items:
+            type: object
+            required: [at, ends_at, title, place, state, course]
+            additionalProperties: false
+            properties:
+              at:
+                type: string
+                format: date-time
+              ends_at:
+                type: string
+                format: date-time
+              title:
+                type: string
+              place:
+                type: string
+              state:
+                type: string
+                enum: [NOW, NEXT, DONE]
+              course:
+                $ref: "#/components/schemas/TodayCourse"
+        continue:
+          type: array
+          items: {}
+    TodayStaff:
+      type: object
+      required: [count, actions, attention, upcoming]
+      additionalProperties: false
+      properties:
+        count:
+          type: integer
+        actions:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/TodayItem"
+        attention:
+          type: array
+          items: {}
+        upcoming:
+          type: array
+          maxItems: 10
+          items:
+            type: object
+            required: [at, title, place, course]
+            additionalProperties: false
+            properties:
+              at:
+                type: string
+                format: date-time
+              title:
+                type: string
+              place:
+                type: string
+              course:
+                $ref: "#/components/schemas/TodayCourse"
+    TodayAdmin:
+      type: object
+      required: [count, actions]
+      additionalProperties: false
+      properties:
+        count:
+          type: integer
+        actions:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/TodayItem"
     JoinInfo:
       type: object
       required: [join_code, join_url, enabled, expires_at, require_approval, allowed_email_domain, capacity, active_students, pending, version]

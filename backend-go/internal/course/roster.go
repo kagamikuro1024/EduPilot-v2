@@ -13,6 +13,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/mail"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -76,6 +77,7 @@ func (s Service) ImportRoster(ctx context.Context, courseID, teacherID uuid.UUID
 	at := s.now()
 
 	seenEmail, seenCode := map[string]bool{}, map[string]bool{}
+	touched := make([]string, 0, len(rows)) // người có ghi danh mới: xoá cache "Hôm nay" của họ
 	for _, row := range rows {
 		email := auth.NormalizeEmail(row.Email)
 		name := truncateRunes(row.Name, 100)
@@ -178,6 +180,7 @@ func (s Service) ImportRoster(ctx context.Context, courseID, teacherID uuid.UUID
 		if status == store.EnrollmentStatusACTIVE {
 			active++
 		}
+		touched = append(touched, u.ID.String())
 		switch {
 		case created:
 			rep.CreatedUsers++
@@ -207,6 +210,9 @@ func (s Service) ImportRoster(ctx context.Context, courseID, teacherID uuid.UUID
 		After: []byte(fmt.Sprintf(`{"total":%d,"created":%d,"linked":%d,"already":%d,"pending":%d,"skipped":%d,"errors":%d}`,
 			rep.Total, rep.CreatedUsers, rep.LinkedExisting, rep.AlreadyMember, rep.PendingUnverified, rep.SkippedRemoved, len(rep.Errors)))}); err != nil {
 		return rep, fmt.Errorf("course: ghi audit_log: %w", err)
+	}
+	if _, err := outbox.Write(ctx, tx, TopicRosterImport, map[string]any{"course_id": courseID.String(), "user_ids": touched}); err != nil {
+		return rep, err
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return rep, fmt.Errorf("course: commit roster: %w", err)

@@ -192,6 +192,12 @@ func roomLeft(ctx context.Context, q *store.Queries, c store.Course) error {
 
 func ptr[T any](v T) *T { return &v }
 
+// emitMemberChanged báo "Hôm nay" của giảng viên / TA và của chính người đó làm mới (mời ra, hoàn tác).
+func emitMemberChanged(ctx context.Context, tx pgx.Tx, courseID, uid uuid.UUID) error {
+	_, err := outbox.Write(ctx, tx, TopicMemberChanged, map[string]string{"course_id": courseID.String(), "user_id": uid.String()})
+	return err
+}
+
 // Approve duyệt PENDING → ACTIVE. Hàng EMAIL_MISMATCH chỉ giảng viên / Admin duyệt và phải gửi confirm_mismatch (TA → ErrMismatchNeedsTeacher).
 func (s Service) Approve(ctx context.Context, actor Actor, courseID, uid uuid.UUID, confirmMismatch bool) (Transition, error) {
 	return s.member(ctx, courseID, uid, func(tx pgx.Tx, q *store.Queries, c store.Course, e store.Enrollment) (store.Enrollment, error) {
@@ -235,17 +241,21 @@ func (s Service) Reject(ctx context.Context, actor Actor, courseID, uid uuid.UUI
 
 // Remove mời ACTIVE → REMOVED (chỉ giảng viên / Admin — route Manage). Mất quyền ngay: guard không cache; dữ liệu học tập giữ nguyên.
 func (s Service) Remove(ctx context.Context, actor Actor, courseID, uid uuid.UUID) (Transition, error) {
-	return s.member(ctx, courseID, uid, func(_ pgx.Tx, q *store.Queries, c store.Course, e store.Enrollment) (store.Enrollment, error) {
+	return s.member(ctx, courseID, uid, func(tx pgx.Tx, q *store.Queries, c store.Course, e store.Enrollment) (store.Enrollment, error) {
 		if e.Status != store.EnrollmentStatusACTIVE {
 			return store.Enrollment{}, ErrNotActive
 		}
-		return s.setStatus(ctx, q, c, e, store.EnrollmentStatusREMOVED, ptr(store.EnrollmentStatusACTIVE), actor.ID, "member_removed")
+		row, err := s.setStatus(ctx, q, c, e, store.EnrollmentStatusREMOVED, ptr(store.EnrollmentStatusACTIVE), actor.ID, "member_removed")
+		if err != nil {
+			return store.Enrollment{}, err
+		}
+		return row, emitMemberChanged(ctx, tx, c.ID, uid)
 	})
 }
 
 // Undo đưa về previous_status nếu cùng quyền với hành động gốc và trong UndoWindow. Mời ra cần giảng viên / Admin.
 func (s Service) Undo(ctx context.Context, actor Actor, courseID, uid uuid.UUID) (Transition, error) {
-	return s.member(ctx, courseID, uid, func(_ pgx.Tx, q *store.Queries, c store.Course, e store.Enrollment) (store.Enrollment, error) {
+	return s.member(ctx, courseID, uid, func(tx pgx.Tx, q *store.Queries, c store.Course, e store.Enrollment) (store.Enrollment, error) {
 		if e.PreviousStatus == nil || s.now().Sub(e.StatusChangedAt) > UndoWindow {
 			return store.Enrollment{}, ErrUndoExpired
 		}
@@ -258,7 +268,11 @@ func (s Service) Undo(ctx context.Context, actor Actor, courseID, uid uuid.UUID)
 				return store.Enrollment{}, err
 			}
 		}
-		return s.setStatus(ctx, q, c, e, prev, nil, actor.ID, "member_undo")
+		row, err := s.setStatus(ctx, q, c, e, prev, nil, actor.ID, "member_undo")
+		if err != nil {
+			return store.Enrollment{}, err
+		}
+		return row, emitMemberChanged(ctx, tx, c.ID, uid)
 	})
 }
 

@@ -27,6 +27,7 @@ import {
 } from "@/shared/ui";
 import s from "./MembersView.module.css";
 import { classKey, useClassCourse, type Member, type MemberCounts } from "./classApi";
+import { TODAY_KEY } from "@/features/today/todayApi";
 import { RosterImport } from "./RosterImport";
 
 type Tab = "members" | "pending" | "staff" | "import";
@@ -84,7 +85,11 @@ function Members({ courseId, code, canManage }: { courseId: string; code: string
     queryFn: async ({ signal }): Promise<MemberCounts> =>
       (await apiClient.get<{ counts: MemberCounts }>(`/courses/${courseId}/members`, { signal, query: { limit: 1, status: "ACTIVE", role: "STUDENT" } })).data.counts,
   });
-  const refresh = () => qc.invalidateQueries({ queryKey: classKey(courseId) });
+  // Việc của mình làm xong thì "Hôm nay" cũng làm mới ngay (máy chủ xoá cache theo sự kiện ≤ 2 s).
+  const refresh = async () => {
+    await qc.invalidateQueries({ queryKey: classKey(courseId) });
+    void qc.invalidateQueries({ queryKey: TODAY_KEY });
+  };
   const hide = (ids: string[]) => setGone((g) => new Set([...g, ...ids]));
   const show = (ids: string[]) => setGone((g) => new Set([...g].filter((x) => !ids.includes(x))));
   const path = (uid: string, op = "") => `/courses/${courseId}/members/${uid}${op}`;

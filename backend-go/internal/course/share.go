@@ -120,6 +120,9 @@ func (s Service) ShareFrom(ctx context.Context, targetID, teacherID, sourceID uu
 		After: []byte(fmt.Sprintf(`{"source":%q,"documents":%d}`, sourceID, res.Documents))}); err != nil {
 		return ShareResult{}, fmt.Errorf("course: ghi audit_log: %w", err)
 	}
+	if err := emitChanged(ctx, tx, targetID); err != nil {
+		return ShareResult{}, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return ShareResult{}, fmt.Errorf("course: commit chia sẻ: %w", err)
 	}

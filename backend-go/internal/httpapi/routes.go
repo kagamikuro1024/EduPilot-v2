@@ -8,8 +8,10 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -57,6 +59,11 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		if d.DB != nil {
 			// US-P2-07 — lớp của tôi và chi tiết lớp.
 			svc := course.NewService(course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production", Clock: d.Clock, Redis: d.Redis, Log: d.Log, PublicURL: d.Cfg.AppPublicURL})
+			var sig today.LLMSignals
+			if d.LLM != nil {
+				sig = todayLLM{rt: d.LLM}
+			}
+			(&todayhttp.Handler{Today: today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig), Guard: courseGuard, Log: d.Log}).Mount(r)
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.LLM != nil && d.Redis != nil {

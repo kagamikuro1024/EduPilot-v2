@@ -46,6 +46,7 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - `thesis-notes/legacy-perf.md` thân bài còn tiếng Anh.
 - Caddy: upstream tĩnh + `health_uri` khi số bản gateway cố định (P10/PR, sprint 2 #3).
 - **LCP Lighthouse > 2,5 s (góp ý #26, sprint 3):** sau khi bỏ phông 500 (còn 400 / 600 / 700, subset latin + vietnamese) trung vị vẫn 2,71–3,39 s trên 7 route (CLS 0, TBT ≤ 83 ms, JS ≤ 230 KB đạt). `lighthouserc.json` đang `warn` **tạm** cho LCP, ngưỡng giữ 2500. **Cổng P2 (sprint 4): đưa mock ra khỏi bundle layout rồi đổi LCP về `error` ≤ 2,5 s.**
+- **Nguồn việc của "Hôm nay" mà phase sau phải đăng ký (US-P2-11, SRS 4.7 bảng bậc):** P4 `TICKET` (10), `AI_CONFIRM` (50), thread; P5 điểm danh, `STUDENT_ATTENTION` (95) + "Lớp cần chú ý"; P6 `GRADE_SCHEME_UNCONFIRMED` (70); P7 hạn nộp, `GRADING_REVIEW` (30), `APPEAL` (20), `UNMATCHED_SUBMISSION` (60); P9 `QUESTION_REVIEW` (90), QUIZ; P10 insight. Mỗi phase gọi `today.Aggregator.Register(provider)` ở `today.NewService` và thêm Kind vào `allowed` (bộ lọc theo vai) — Provider P2 hiện chỉ có ở `internal/today/providers.go`. `continue[]` của sinh viên rỗng tới khi P3 / P9 đăng ký.
 
 ## Ánh xạ migration
 | Số goose | Tên | Phase |

@@ -14,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -39,6 +40,19 @@ const maxCodeAttempts = 5
 
 // TopicAssigned là topic outbox khi một giảng viên / TA MỚI được gán vào lớp (SRS 4.9).
 const TopicAssigned = "course.assigned"
+
+// Các sự kiện xoá cache "Hôm nay" (US-P2-11, SRS 4.9): payload nêu course_id (+ user_id / user_ids của người liên quan).
+const (
+	TopicChanged       = "course.changed"
+	TopicMemberChanged = "course.member_changed"
+	TopicRosterImport  = "roster.imported"
+)
+
+// emitChanged ghi `course.changed` trong transaction của thay đổi.
+func emitChanged(ctx context.Context, tx pgx.Tx, courseID uuid.UUID) error {
+	_, err := outbox.Write(ctx, tx, TopicChanged, map[string]string{"course_id": courseID.String()})
+	return err
+}
 
 // Person là người trong cột "Giảng viên" / "Trợ giảng".
 type Person struct {
@@ -314,6 +328,9 @@ func (s Service) Update(ctx context.Context, actor, id uuid.UUID, in UpdateInput
 	if err := s.audit(ctx, q, id, actor, id.String(), "course_updated", courseFacts(cur), courseFacts(upd)); err != nil {
 		return AdminView{}, err
 	}
+	if err := emitChanged(ctx, tx, id); err != nil {
+		return AdminView{}, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return AdminView{}, fmt.Errorf("course: commit cập nhật: %w", err)
 	}
@@ -345,6 +362,9 @@ func (s Service) Archive(ctx context.Context, actor, id uuid.UUID) (AdminView, e
 			return AdminView{}, fmt.Errorf("course: lưu trữ lớp: %w", err)
 		}
 		if err := s.audit(ctx, q, id, actor, id.String(), "course_archived", courseFacts(cur), courseFacts(upd)); err != nil {
+			return AdminView{}, err
+		}
+		if err := emitChanged(ctx, tx, id); err != nil {
 			return AdminView{}, err
 		}
 		if err := tx.Commit(ctx); err != nil {

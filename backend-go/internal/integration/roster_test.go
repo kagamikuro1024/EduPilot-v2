@@ -124,6 +124,15 @@ func TestRosterLinkRequiresVerifiedEmail(t *testing.T) {
 	require.Len(t, mine, 1, "chỉ dòng chờ duyệt của chính mình, kèm thông tin tóm tắt như màn xem trước")
 	require.Equal(t, "PENDING", mine[0].(map[string]any)["enrollment_status"])
 
+	// "Hôm nay" của kẻ tấn công: chỉ yêu cầu chờ duyệt của CHÍNH họ; không có gì của B (tên, email, MSSV, id) và không có buổi học / việc của lớp.
+	today := r.do(req{method: http.MethodGet, path: "/me/today", bearer: sa.access})
+	require.Equal(t, http.StatusOK, today.code, string(today.body))
+	require.Equal(t, "JOIN_PENDING", today.json()["recommended"].(map[string]any)["kind"])
+	require.Empty(t, today.json()["timeline"])
+	for _, leak := range []string{bMail, "Sinh Viên Khá", "20229002", b, x.gv.Email, "JOIN_REQUEST", "EMAIL_MISMATCH", "COURSE_SETUP"} {
+		require.NotContains(t, string(today.body), leak)
+	}
+
 	// Giảng viên thấy cảnh báo ở hàng chờ.
 	m := r.do(req{method: http.MethodGet, path: "/courses/" + id + "/members?status=PENDING", bearer: x.G.access}).json()["items"].([]any)
 	require.Len(t, m, 1)

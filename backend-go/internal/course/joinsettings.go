@@ -189,6 +189,9 @@ func (s Service) PutJoinSettings(ctx context.Context, actor, courseID uuid.UUID,
 	if err := s.audit(ctx, q, courseID, actor, courseID.String(), "join_settings_updated", facts(cur), facts(upd)); err != nil {
 		return JoinInfo{}, err
 	}
+	if err := emitChanged(ctx, tx, courseID); err != nil {
+		return JoinInfo{}, err
+	}
 	if err := tx.Commit(ctx); err != nil {
 		return JoinInfo{}, fmt.Errorf("course: commit cài đặt: %w", err)
 	}

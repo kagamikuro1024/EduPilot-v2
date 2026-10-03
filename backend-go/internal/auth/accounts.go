@@ -17,6 +17,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -196,6 +197,9 @@ func (a *Accounts) Register(ctx context.Context, in RegisterInput) error {
 	return nil
 }
 
+// TopicUserVerified: sự kiện outbox khi email được xác minh (xoá cache "Hôm nay" của người đó).
+const TopicUserVerified = "user.verified"
+
 // mailExisting gửi thư thích hợp tới chủ hộp thư của tài khoản đã tồn tại.
 func (a *Accounts) mailExisting(ctx context.Context, tx pgx.Tx, q *store.Queries, u store.User) error {
 	switch u.Status {
@@ -253,6 +257,9 @@ func (a *Accounts) VerifyEmail(ctx context.Context, plain string) error {
 	}
 	if _, err := q.PromoteUnverifiedRosterEnrollments(ctx, store.PromoteUnverifiedRosterEnrollmentsParams{UserID: uid, Now: now}); err != nil {
 		return fmt.Errorf("auth: đẩy danh sách lớp: %w", err)
+	}
+	if _, err := outbox.Write(ctx, tx, TopicUserVerified, map[string]string{"user_id": uid.String()}); err != nil {
+		return err
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("auth: commit xác minh: %w", err)

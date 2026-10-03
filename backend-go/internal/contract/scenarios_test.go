@@ -1112,7 +1112,7 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "POST", path: rg, token: gv}, 409)
 
 	// roster và chia sẻ (US-P2-10): cid đã lưu trữ; c2 là lớp sống cùng học phần, cùng giảng viên.
-	c2, _ := openCourse("")
+	c2, c2code := openCourse("")
 	multipart := func(file string) (string, string) {
 		const bd = "ctboundary7MA4YWxkTrZu0gW"
 		return "multipart/form-data; boundary=" + bd, "--" + bd + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"r.csv\"\r\nContent-Type: text/csv\r\n\r\n" + file + "\r\n--" + bd + "--\r\n"
@@ -1146,4 +1146,33 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/share-from", token: gv, headers: idem(), body: from(other, "documents")}, 404)
 	r.must(call{method: "POST", path: sf, token: gv, headers: idem(), body: from(cid, "documents")}, 409)
 	r.must(call{method: "POST", path: sf, token: gv, headers: idem(), body: from(other, "questions")}, 422)
+
+	// "Hôm nay" và bỏ qua thiết lập (US-P2-11): ba dạng phản hồi + mọi status.
+	td := "/api/v1/me/today"
+	r.must(call{method: "GET", path: td, token: gv}, 200)
+	r.must(call{method: "GET", path: td, token: admin}, 200)
+	_, svToday := student()
+	r.must(call{method: "GET", path: td, token: svToday}, 200)
+	r.must(call{method: "GET", path: td}, 401)
+	ct := "/api/v1/courses/" + c2 + "/today"
+	r.must(call{method: "GET", path: ct, token: gv}, 200)
+	r.must(call{method: "GET", path: ct, token: ta}, 200)
+	r.must(call{method: "GET", path: ct}, 401)
+	r.must(call{method: "GET", path: ct, token: admin}, 403)
+	r.must(call{method: "GET", path: ct, token: svToday}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/today", token: gv}, 404)
+	// sinh viên đã vào lớp: dạng sinh viên có timeline.
+	_, svIn := student()
+	r.must(call{method: "POST", path: join, token: svIn, body: body(c2code)}, 200)
+	r.must(call{method: "GET", path: ct, token: svIn}, 200)
+	r.must(call{method: "GET", path: td, token: svIn}, 200)
+
+	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"
+	r.must(call{method: "POST", path: dm, token: gv}, 204)
+	r.must(call{method: "POST", path: dm, token: gv}, 204)
+	r.must(call{method: "POST", path: dm}, 401)
+	r.must(call{method: "POST", path: dm, token: ta}, 403)
+	r.must(call{method: "POST", path: dm, token: admin}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/setup/dismiss", token: gv}, 404)
+	r.must(call{method: "POST", path: "/api/v1/courses/" + cid + "/setup/dismiss", token: gv}, 409)
 }

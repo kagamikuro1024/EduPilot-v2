@@ -370,7 +370,7 @@ test("keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự he
   expect(await page.evaluate(() => !!document.activeElement?.closest("main") || document.activeElement?.id === "main")).toBe(true);
   expect(await page.locator("main").count()).toBe(1);
   expect(await page.locator("nav[aria-label]").count()).toBeGreaterThan(0);
-  await page.goto("/");
+  await page.goto("/gradebook"); // "/" là Hôm nay thật (US-P2-11) và không có phần tử nhận focus khi chưa đăng nhập; thứ tự focus kiểm ở một route mô phỏng
   const seq: string[] = [];
   for (let i = 0; i < 40; i++) {
     await page.keyboard.press("Tab");

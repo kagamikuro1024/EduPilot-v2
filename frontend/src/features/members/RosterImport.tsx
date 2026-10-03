@@ -5,6 +5,7 @@ import { useRef, useState, type DragEvent } from "react";
 import { ApiError, apiClient, useIdempotentMutation } from "@/shared/data";
 import { Button, Checkbox, DataTable, InlineNotice, type Column } from "@/shared/ui";
 import s from "./RosterImport.module.css";
+import { TODAY_KEY } from "@/features/today/todayApi";
 import { classKey } from "./classApi";
 
 const MAX_BYTES = 2 * 1024 * 1024;
@@ -107,6 +108,7 @@ export function RosterImport({ courseId }: { courseId: string }) {
         setPreview(null);
         setFile(null);
         await qc.invalidateQueries({ queryKey: classKey(courseId) });
+        void qc.invalidateQueries({ queryKey: TODAY_KEY });
       }
     } catch (e) {
       if (!(e instanceof ApiError) || e.code !== "NETWORK") setProblem(fileMessage(e));
