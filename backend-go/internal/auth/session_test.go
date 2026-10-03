@@ -132,18 +132,24 @@ func TestLoginTimingEqualized(t *testing.T) {
 	_, err = store.New(r.pool).InsertUser(t.Context(), store.InsertUserParams{Email: email, FullName: "T", Role: store.UserRoleSTUDENT, Status: store.UserStatusACTIVE, PasswordHash: &hash})
 	require.NoError(t, err)
 
-	median := func(e string) time.Duration {
-		r.login(e, "sai-mat-khau-1") // làm nóng
-		ds := make([]time.Duration, 20)
-		for i := range ds {
-			t0 := time.Now()
-			require.Equal(t, http.StatusUnauthorized, r.login(e, "sai-mat-khau-1").code)
-			ds[i] = time.Since(t0)
-		}
+	// Hai mẫu đo XEN KẼ từng cặp: tải của máy (CI chạy song song nhiều gói, -race) tác động đều lên cả hai, không làm lệch tỉ lệ.
+	r.login(email, "sai-mat-khau-1") // làm nóng
+	r.login(uniq("khong.co"), "sai-mat-khau-1")
+	missing := uniq("khong.co")
+	wrongs, unknowns := make([]time.Duration, 20), make([]time.Duration, 20)
+	for i := range wrongs {
+		t0 := time.Now()
+		require.Equal(t, http.StatusUnauthorized, r.login(email, "sai-mat-khau-1").code)
+		wrongs[i] = time.Since(t0)
+		t0 = time.Now()
+		require.Equal(t, http.StatusUnauthorized, r.login(missing, "sai-mat-khau-1").code)
+		unknowns[i] = time.Since(t0)
+	}
+	median := func(ds []time.Duration) time.Duration {
 		sort.Slice(ds, func(i, j int) bool { return ds[i] < ds[j] })
 		return ds[len(ds)/2]
 	}
-	wrong, unknown := median(email), median(uniq("khong.co"))
+	wrong, unknown := median(wrongs), median(unknowns)
 	require.GreaterOrEqual(t, float64(unknown), 0.65*float64(wrong), "unknown=%v wrong=%v", unknown, wrong)
 }
 

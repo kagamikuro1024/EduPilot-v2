@@ -1,6 +1,6 @@
 // Gateway GIẢ tối thiểu cho Lighthouse CI (US-P2-12 AC10 bỏ phiên mô phỏng bằng cookie): trả phiên JWT giả theo cookie `lh_role` (đặt bởi
 // lighthouse-auth.cjs), lớp của vai đó và "Hôm nay" rỗng. Mọi đường khác → 404 JSON. Chỉ dùng để đo; không phải gateway thật.
-const http = require("node:http");
+import http from "node:http";
 
 const PORT = Number(process.env.LH_API_PORT || 3312);
 const ORIGIN = process.env.LH_ORIGIN || "http://localhost:3310";

@@ -12,7 +12,7 @@
       ],
       "numberOfRuns": 3,
       "puppeteerScript": "./lighthouse-auth.cjs",
-      "startServerCommand": "node lighthouse-api.cjs & exec pnpm exec next start -p 3310",
+      "startServerCommand": "node lighthouse-api.mjs & exec pnpm exec next start -p 3310",
       "startServerReadyPattern": "Ready",
       "startServerReadyTimeout": 60000,
       "puppeteerLaunchOptions": {
