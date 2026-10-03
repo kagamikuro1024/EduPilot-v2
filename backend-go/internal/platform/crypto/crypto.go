@@ -35,19 +35,15 @@ type Cipher struct {
 	rand io.Reader
 }
 
-// ParseKey dựng Cipher từ chuỗi base64 (chuẩn hoặc URL, có/không đệm) của đúng 32 byte.
+// ParseKey dựng Cipher từ chuỗi base64 CHUẨN CÓ ĐỆM (RFC 4648 §4) của đúng 32 byte. Khoảng trắng / xuống dòng ở HAI ĐẦU được cắt;
+// base64url (`-`, `_`), không đệm, hay khoảng trắng / xuống dòng Ở GIỮA đều bị từ chối (SRS FEAT-llm-gateway 5.6, v1.2) — vì
+// `base64.StdEncoding` âm thầm bỏ qua \r và \n, phải kiểm riêng.
 func ParseKey(b64 string) (*Cipher, error) {
 	b64 = strings.TrimSpace(b64)
-	if b64 == "" {
+	if b64 == "" || strings.ContainsAny(b64, " \t\r\n\v\f") {
 		return nil, ErrInvalidKey
 	}
-	var raw []byte
-	var err error
-	for _, enc := range []*base64.Encoding{base64.StdEncoding, base64.RawStdEncoding, base64.URLEncoding, base64.RawURLEncoding} {
-		if raw, err = enc.DecodeString(b64); err == nil {
-			break
-		}
-	}
+	raw, err := base64.StdEncoding.Strict().DecodeString(b64)
 	if err != nil || len(raw) != keyLen {
 		return nil, ErrInvalidKey
 	}

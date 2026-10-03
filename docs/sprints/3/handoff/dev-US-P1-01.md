@@ -29,3 +29,8 @@ Cổng: `go vet` (cả `-tags testroutes`), `golangci-lint run` (cả `--build-t
 - `APP_ENCRYPTION_KEY` thành biến bắt buộc của gateway: `.env.local` đang dùng phải thêm dòng này (copy `.env.example`).
 - `UsageRow` làm tròn p50/p95 về số nguyên ms ngay trong SQL (không float ở Go).
 - Hook `WithOnChange` để US-P1-02 PUBLISH `ep:llm:reload`.
+
+## Sửa lỗi QC (report-US-P1-01)
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-P101-1 `APP_ENCRYPTION_KEY` chấp nhận base64url / không đệm / xuống dòng giữa | `crypto.ParseKey`: chỉ nhận base64 CHUẨN CÓ ĐỆM (`StdEncoding.Strict()`), cắt khoảng trắng hai đầu, từ chối mọi khoảng trắng / `\n` / `\t` ở giữa (`StdEncoding` âm thầm bỏ `\r\n` nên phải kiểm riêng) | `go test -race ./internal/platform/crypto -run TestParseKey` (12 ca: std có đệm ✓, trắng hai đầu ✓, base64url ✗, không đệm 43 ký tự ✗, trắng/xuống dòng/tab giữa ✗, 16/33 byte ✗, rỗng ✗); gateway với khoá sai rc=1, không in giá trị |
