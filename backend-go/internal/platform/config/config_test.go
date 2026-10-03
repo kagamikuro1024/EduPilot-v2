@@ -37,7 +37,7 @@ func getenv(env map[string]string) func(string) string {
 
 func TestLoad_MissingEnv(t *testing.T) {
 	t.Parallel()
-	required := []string{"DATABASE_URL", "REDIS_URL", "JWT_SECRET_KEY", "BLOB_ENDPOINT", "BLOB_BUCKET", "BLOB_ACCESS_KEY", "BLOB_SECRET_KEY", "APP_ENCRYPTION_KEY"}
+	required := []string{"DATABASE_URL", "REDIS_URL", "JWT_SECRET_KEY", "BLOB_ENDPOINT", "BLOB_BUCKET", "BLOB_ACCESS_KEY", "BLOB_SECRET_KEY"}
 
 	for _, name := range required {
 		t.Run("thiếu "+name, func(t *testing.T) {
@@ -132,6 +132,9 @@ func TestLoad_Invalid(t *testing.T) {
 		{"LOG_LEVEL lạ", "LOG_LEVEL", "verbose", "verbose"},
 		{"TRUSTED_PROXY_CIDRS sai", "TRUSTED_PROXY_CIDRS", "10.0.0.1", ""},
 		{"OUTBOX_RETRY_BACKOFF chỉ 2 giá trị", "OUTBOX_RETRY_BACKOFF", "1s,5s", ""},
+		{"APP_ENCRYPTION_KEY không phải base64", "APP_ENCRYPTION_KEY", "abc$%^-not-base64", "abc$%^-not-base64"},
+		{"APP_ENCRYPTION_KEY 16 byte", "APP_ENCRYPTION_KEY", "AAAAAAAAAAAAAAAAAAAAAA==", "AAAAAAAAAAAAAAAAAAAAAA=="},
+		{"APP_ENCRYPTION_KEY rỗng ở gateway", "APP_ENCRYPTION_KEY", "", ""},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

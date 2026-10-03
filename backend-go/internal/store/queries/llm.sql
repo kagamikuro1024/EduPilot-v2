@@ -79,7 +79,7 @@ select distinct task from llm_task_routes where model_id = any(sqlc.arg(ids)::uu
 
 -- name: ListLLMRoutes :many
 select r.id, r.task, r.model_id, r.fallback_order, r.params, r.version,
-       m.provider_id, m.model, m.kind, m.dims, m.enabled as model_enabled, p.name as provider_name, p.enabled as provider_enabled
+       m.provider_id, m.model, m.kind, m.dims, m.price_in, m.price_out, m.enabled as model_enabled, p.name as provider_name, p.enabled as provider_enabled
   from llm_task_routes r
   join llm_models m on m.id = r.model_id
   join llm_providers p on p.id = m.provider_id
@@ -114,3 +114,44 @@ update llm_budgets
    set daily_limit = sqlc.narg(daily_limit), monthly_limit = sqlc.narg(monthly_limit), version = version + 1
  where id = sqlc.arg(id) and version = sqlc.arg(version)
 returning *;
+
+-- Mức dùng (GET usage): gom theo tác vụ hoặc theo ngày (Asia/Ho_Chi_Minh); `course_id` NULL = toàn hệ thống.
+-- name: LLMUsageByTask :many
+select task as key, count(*)::bigint as calls, coalesce(sum(tokens_in), 0)::bigint as tokens_in, coalesce(sum(tokens_out), 0)::bigint as tokens_out,
+       coalesce(sum(cost_est), 0)::numeric(14,4) as cost_est,
+       coalesce(round(percentile_cont(0.5) within group (order by latency_ms)), 0)::bigint as latency_p50_ms,
+       coalesce(round(percentile_cont(0.95) within group (order by latency_ms)), 0)::bigint as latency_p95_ms,
+       count(*) filter (where status in ('error', 'timeout', 'rate_limited', 'circuit_open', 'not_configured'))::bigint as errors,
+       count(*) filter (where degraded)::bigint as degraded
+  from llm_audit
+ where created_at >= sqlc.arg(from_ts) and created_at < sqlc.arg(to_ts)
+   and (sqlc.narg(course_id)::uuid is null or course_id = sqlc.narg(course_id))
+ group by task
+ order by task;
+
+-- name: LLMUsageByDay :many
+select to_char(created_at at time zone 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') as key, count(*)::bigint as calls,
+       coalesce(sum(tokens_in), 0)::bigint as tokens_in, coalesce(sum(tokens_out), 0)::bigint as tokens_out,
+       coalesce(sum(cost_est), 0)::numeric(14,4) as cost_est,
+       coalesce(round(percentile_cont(0.5) within group (order by latency_ms)), 0)::bigint as latency_p50_ms,
+       coalesce(round(percentile_cont(0.95) within group (order by latency_ms)), 0)::bigint as latency_p95_ms,
+       count(*) filter (where status in ('error', 'timeout', 'rate_limited', 'circuit_open', 'not_configured'))::bigint as errors,
+       count(*) filter (where degraded)::bigint as degraded
+  from llm_audit
+ where created_at >= sqlc.arg(from_ts) and created_at < sqlc.arg(to_ts)
+   and (sqlc.narg(course_id)::uuid is null or course_id = sqlc.narg(course_id))
+ group by 1
+ order by 1;
+
+-- Ghi llm_audit theo lô bằng COPY — cổng llm ghi bất đồng bộ, một lần cho cả lô.
+-- name: InsertLLMAudit :copyfrom
+insert into llm_audit (task, lane, provider, model, tokens_in, tokens_out, latency_ms, queue_wait_ms, attempts, fallback_index,
+                       cost_est, status, error_kind, degraded, pii_masked_count, user_id, course_id, trace_id, created_at)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19);
+
+-- Ngân sách: tổng chi phí thực tế từ llm_audit để đối soát bộ đếm Redis.
+-- name: LLMCostSum :one
+select coalesce(sum(cost_est), 0)::numeric(14,4) as total
+  from llm_audit
+ where created_at >= sqlc.arg(from_ts) and created_at < sqlc.arg(to_ts)
+   and (sqlc.narg(course_id)::uuid is null or course_id = sqlc.narg(course_id));

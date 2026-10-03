@@ -115,6 +115,7 @@ type ProviderInput struct {
 type Service struct {
 	pool     *pgxpool.Pool
 	q        *store.Queries
+	res      *Resolver
 	cipher   *crypto.Cipher
 	clock    clock.Clock
 	onChange func(context.Context)
@@ -131,7 +132,7 @@ func WithOnChange(f func(context.Context)) Option { return func(s *Service) { s.
 
 // New dựng Service.
 func New(pool *pgxpool.Pool, c *crypto.Cipher, opts ...Option) *Service {
-	s := &Service{pool: pool, q: store.New(pool), cipher: c, clock: clock.Real{}}
+	s := &Service{pool: pool, q: store.New(pool), res: NewResolver(pool, c), cipher: c, clock: clock.Real{}}
 	for _, o := range opts {
 		o(s)
 	}
@@ -227,7 +228,7 @@ func (s *Service) ListProviders(ctx context.Context) ([]Provider, error) {
 	}
 	out := make([]Provider, 0, len(rows))
 	for _, r := range rows {
-		out = append(out, s.toProvider(r, byProvider[r.ID]))
+		out = append(out, toProvider(r, byProvider[r.ID], s.cipher))
 	}
 	return out, nil
 }
@@ -256,23 +257,23 @@ func (s *Service) getProvider(ctx context.Context, q *store.Queries, id uuid.UUI
 	for _, m := range ms {
 		models = append(models, toModel(m))
 	}
-	return s.toProvider(r, models), nil
+	return toProvider(r, models, s.cipher), nil
 }
 
-func (s *Service) keyStatus(r store.LlmProvider) KeyStatus {
+func keyStatus(c *crypto.Cipher, r store.LlmProvider) KeyStatus {
 	if len(r.ApiKeyEnc) == 0 {
 		return KeyMissing
 	}
-	if _, err := s.cipher.Decrypt(r.ApiKeyEnc, aadFor(r.ID)); err != nil {
+	if _, err := c.Decrypt(r.ApiKeyEnc, aadFor(r.ID)); err != nil {
 		return KeyUnreadable
 	}
 	return KeyOK
 }
 
-func (s *Service) toProvider(r store.LlmProvider, models []Model) Provider {
+func toProvider(r store.LlmProvider, models []Model, c *crypto.Cipher) Provider {
 	p := Provider{
 		ID: r.ID, Type: r.Type, Name: r.Name, BaseURL: r.BaseUrl, Enabled: r.Enabled,
-		HasKey: len(r.ApiKeyEnc) > 0, KeyStatus: s.keyStatus(r),
+		HasKey: len(r.ApiKeyEnc) > 0, KeyStatus: keyStatus(c, r),
 		RPMLimit: intPtr(r.RpmLimit), TPMLimit: intPtr(r.TpmLimit),
 		Version: int(r.Version), Models: models, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt,
 	}
