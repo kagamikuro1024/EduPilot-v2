@@ -47,6 +47,7 @@ type runner struct {
 	mu    sync.Mutex
 	obs   []Observation
 	cache map[string]string // giá trị dùng lại giữa các bước (id, version…)
+	xff   string            // IP khách giả cho các lời gọi /auth/* (gateway tin X-Forwarded-For từ 127.0.0.1)
 }
 
 var (
@@ -111,6 +112,9 @@ func (r *runner) request(c call, base string) (*http.Request, error) {
 	}
 	if c.token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.token)
+	}
+	if r.xff != "" && strings.HasPrefix(c.path, "/api/v1/auth/") {
+		req.Header.Set("X-Forwarded-For", r.xff)
 	}
 	for k, v := range c.headers {
 		req.Header.Set(k, v)
@@ -281,7 +285,30 @@ func (r *runner) prodScenarios() {
 }
 
 // authScenarios gọi 3 thao tác phiên (FEAT-account-security US-P2-02) với mọi status đã khai báo.
+// freshIP đổi IP khách giả: bộ đếm giới hạn theo IP ở Redis dùng chung giữa các lần chạy (cửa sổ 1 phút – 1 giờ) nên mỗi nhóm kịch bản
+// dùng một IP riêng để kết quả không phụ thuộc thứ tự hay lần chạy trước.
+func (r *runner) freshIP() {
+	id := uuid.New()
+	r.xff = fmt.Sprintf("198.18.%d.%d", id[0], id[1]) // 198.18.0.0/15: dải kiểm thử mạng (RFC 2544)
+}
+
+// exhaust gọi c (với IP riêng) tới khi gặp 429; fail nếu 80 lần mà chưa thấy. Trả số lần gọi.
+func (r *runner) exhaust(c call) int {
+	r.t.Helper()
+	saved := r.xff
+	defer func() { r.xff = saved }()
+	r.freshIP()
+	for i := 1; i <= 80; i++ {
+		if st, _, _ := r.do(c); st == 429 {
+			return i
+		}
+	}
+	r.t.Fatalf("%s %s: 80 lần vẫn chưa 429", c.method, c.path)
+	return 0
+}
+
 func (r *runner) authScenarios() {
+	r.freshIP()
 	const password = "Edupilot#2026-demo"
 	ctx := context.Background()
 	hash, err := auth.HashPassword(password, 4)
@@ -323,6 +350,7 @@ func (r *runner) authScenarios() {
 
 // accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.
 func (r *runner) accountScenarios() {
+	r.freshIP()
 	ctx := context.Background()
 	email := "ct-reg-" + uuid.NewString()[:8] + "@example.test"
 	body := `{"email":"` + email + `","password":"Edupilot#2026-demo","full_name":"Người Thử"}`
@@ -593,6 +621,7 @@ func (r *runner) testScenarios() {
 
 // passwordScenarios: forgot / reset / tokens-preview / đổi mật khẩu / thiết bị (US-P2-04) với mọi status đã khai báo.
 func (r *runner) passwordScenarios() {
+	r.freshIP()
 	const password = "Edupilot#2026-demo"
 	ctx := context.Background()
 	hash, err := auth.HashPassword(password, 4)
@@ -677,6 +706,25 @@ func (r *runner) passwordScenarios() {
 		r.must(call{method: "POST", path: "/api/v1/me/password", token: a, body: `{"current_password":"sai-mat-khau-1","new_password":"Mat-khau-lan-ba-2026"}`}, 422)
 	}
 	r.must(call{method: "POST", path: "/api/v1/me/password", token: a, body: `{"current_password":"sai-mat-khau-1","new_password":"Mat-khau-lan-ba-2026"}`}, 429)
+
+	// 429 theo IP/hành động (SRS 4.2.2): mỗi hành động một IP riêng, gọi tới khi chạm trần mặc định.
+	badLogin := `{"email":"ct-throttle-` + uuid.NewString()[:8] + `@example.test","password":"sai-mat-khau-1"}`
+	r.exhaust(call{method: "POST", path: "/api/v1/auth/login", headers: map[string]string{"Origin": "https://localhost"}, body: badLogin})
+	r.exhaust(call{method: "POST", path: "/api/v1/auth/register", body: `{"email":"a@b","password":"x","full_name":""}`})
+	r.exhaust(call{method: "POST", path: "/api/v1/auth/verify-email", body: `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}`})
+	r.exhaust(call{method: "POST", path: "/api/v1/auth/reset-password", body: `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","new_password":"Mat-khau-moi-2026"}`})
+	r.exhaust(call{method: "POST", path: "/api/v1/auth/refresh", headers: map[string]string{"Origin": "https://localhost"}})
+
+	// khoá đăng nhập: 10 lần sai ⇒ LOGIN_THROTTLED (cùng mã 429 với giới hạn IP)
+	r.freshIP()
+	locked := "ct-lock-" + uuid.NewString()[:8] + "@example.test"
+	if _, err := r.rig.deps.DB.Exec(ctx, `insert into users (email, full_name, role, status, password_hash) values ($1, 'Người Thử', 'STUDENT', 'ACTIVE', $2)`, locked, hash); err != nil {
+		r.t.Fatalf("tạo người dùng: %v", err)
+	}
+	for range 5 {
+		r.must(call{method: "POST", path: "/api/v1/auth/login", headers: map[string]string{"Origin": "https://localhost"}, body: `{"email":"` + locked + `","password":"sai-mat-khau-1"}`}, 401)
+	}
+	r.must(call{method: "POST", path: "/api/v1/auth/login", headers: map[string]string{"Origin": "https://localhost"}, body: `{"email":"` + locked + `","password":"` + password + `"}`}, 429)
 }
 
 // clearPreviewLimit xoá bộ đếm 20 lần / phút / IP của tokens/preview: Redis dùng chung giữa các test và các lần chạy (TTL 2 phút),

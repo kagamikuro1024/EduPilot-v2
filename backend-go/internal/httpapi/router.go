@@ -113,12 +113,12 @@ func withDefaults(d Deps) Deps {
 	if d.Sessions == nil && d.DB != nil {
 		cfg := auth.SessionConfig{
 			AccessTTL: d.Cfg.AccessTokenTTL, RefreshTTL: d.Cfg.RefreshTokenTTL,
-			AbsoluteTTL: d.Cfg.SessionAbsoluteTTL, BcryptCost: d.Cfg.BcryptCost,
+			AbsoluteTTL: d.Cfg.SessionAbsoluteTTL, BcryptCost: d.Cfg.BcryptCost, Limits: authLimits(d.Cfg), Mail: queueMail,
 		}
 		d.Sessions = auth.NewSessions(d.DB, d.Redis, d.Clock, auth.NewIssuer(d.Cfg.JWTSecretKey, d.Cfg.AccessTokenTTL, d.Clock), cfg, d.Log)
 	}
 	if d.Accounts == nil && d.DB != nil {
-		d.Accounts = auth.NewAccounts(d.DB, d.Redis, d.Clock, d.Sessions, queueMail, auth.AccountsConfig{BcryptCost: d.Cfg.BcryptCost, ResendWindow: d.Cfg.AuthResendWindow, VerifyTTL: d.Cfg.VerifyTokenTTL}, d.Log)
+		d.Accounts = auth.NewAccounts(d.DB, d.Redis, d.Clock, d.Sessions, queueMail, auth.AccountsConfig{BcryptCost: d.Cfg.BcryptCost, ResendWindow: d.Cfg.AuthResendWindow, VerifyTTL: d.Cfg.VerifyTokenTTL, Limits: authLimits(d.Cfg)}, d.Log)
 	}
 	return d
 }
@@ -217,4 +217,14 @@ func pingRedis(ctx context.Context, d Deps) error {
 		return errNoDependency
 	}
 	return d.Redis.Ping(ctx).Err()
+}
+
+// authLimits gom các ngưỡng chờ / khoá / giới hạn IP từ cấu hình (SRS FEAT-account-security 8.1).
+func authLimits(c config.Config) auth.Limits {
+	return auth.Limits{
+		LoginIPPerMin: c.AuthLoginIPPerMin, LoginIPFailPer15m: c.AuthLoginIPFailPer15m, RegisterIPPerHour: c.AuthRegisterIPPerHour,
+		ForgotIPPerHour: c.AuthForgotIPPerHour, ForgotEmailPerHour: c.AuthForgotEmailPerHour, TokenIPPerMin: c.AuthLinkIPPerMin,
+		RefreshIPPerMin: c.AuthRefreshIPPerMin, ChangePWFailPer10m: c.AuthChangePWFailPer10m,
+		BackoffFrom: c.LockoutBackoffFrom, LockAt: c.LockoutLockAt, LockDuration: c.LockoutDuration,
+	}
 }

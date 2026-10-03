@@ -103,14 +103,32 @@ test("login page: sai ⇒ dòng lỗi role=alert, giữ email, xoá mật khẩu
   await expect(page).toHaveURL(/\/login$/);
 });
 
-test("login page: bị chờ ⇒ đếm ngược và khoá nút", async ({ page }) => {
-  await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
-  await page.route("**/api/v1/auth/login", (r) => json(r, 429, err("LOGIN_THROTTLED", "m", { retry_after: 32 }), { "Retry-After": "32" }));
-  await page.goto("/login");
-  await fillLogin(page, "a@b.example", "x");
-  await expect(page.getByRole("alert").filter({ hasText: /^Bạn đã thử quá nhiều lần\. Thử lại sau 00:3[12]\.$/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Đăng nhập", exact: true })).toBeDisabled();
-});
+for (const code of ["LOGIN_THROTTLED", "RATE_LIMITED"]) {
+  test(`login throttled (${code}): đếm ngược mỗi giây, nút khoá kèm lý do rồi mở lại, giữ chữ đã gõ, không lộ mã`, async ({ page }) => {
+    await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
+    let calls = 0;
+    await page.route("**/api/v1/auth/login", (r) => {
+      calls++;
+      return calls === 1 ? json(r, 429, err(code, "m", { retry_after: 3 }), { "Retry-After": "3" }) : json(r, 401, err("INVALID_CREDENTIALS"));
+    });
+    await page.goto("/login");
+    await fillLogin(page, "Khong.Biet@Sv.Example", "mat-khau-dang-go");
+    const line = page.getByRole("status").filter({ hasText: /^Bạn đã thử quá nhiều lần\. Thử lại sau 00:0[123]\.$/ });
+    await expect(line).toBeVisible();
+    const submit = page.getByRole("button", { name: "Đăng nhập", exact: true });
+    await expect(submit).toBeDisabled();
+    await expect(submit).toHaveAttribute("aria-describedby", "login-wait"); // lý do khoá
+    await expect(page.getByLabel("Email")).toHaveValue("Khong.Biet@Sv.Example");
+    await expect(page.getByLabel("Mật khẩu", { exact: true })).toHaveValue("mat-khau-dang-go"); // giữ nguyên, không buộc gõ lại
+    await expect(page.getByRole("link", { name: "Quên mật khẩu?" })).toBeVisible();
+    expect(await page.locator("body").innerText()).not.toMatch(/LOGIN_THROTTLED|RATE_LIMITED/);
+    await expect(submit).toBeEnabled({ timeout: 4_000 }); // sau ~3 s
+    await expect(line).toHaveCount(0);
+    await submit.click();
+    await expect(page.getByRole("alert").filter({ hasText: "Email hoặc mật khẩu không đúng." })).toBeVisible();
+    expect(calls).toBe(2);
+  });
+}
 
 test("login page: phiên bị thu hồi ⇒ dòng thông báo", async ({ page }) => {
   await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));

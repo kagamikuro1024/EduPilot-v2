@@ -586,7 +586,7 @@ func TestTokenPreviewNoEmail(t *testing.T) {
 }
 
 func TestTokenPreviewRateLimit(t *testing.T) {
-	r := newSessRig(t)
+	r := newSessRig(t, func(e map[string]string) { e["AUTH_TOKEN_IP_PER_MIN"] = "20" })
 	for i := range 20 {
 		require.Equal(t, http.StatusGone, r.preview("INVITE", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA").code, i)
 	}

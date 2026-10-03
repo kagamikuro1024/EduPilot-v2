@@ -122,7 +122,10 @@ func TestLoginTimingEqualized(t *testing.T) {
 	if testing.Short() {
 		t.Skip("đo thời gian")
 	}
-	r := newSessRig(t, func(e map[string]string) { e["BCRYPT_COST"] = "10" })
+	r := newSessRig(t, func(e map[string]string) {
+		e["BCRYPT_COST"] = "10"
+		e["LOCKOUT_BACKOFF_FROM"], e["LOCKOUT_LOCK_AT"] = "999", "1000" // phép đo 20 lần sai liên tiếp: tắt chờ / khoá (US-P2-05 có test riêng)
+	})
 	hash, err := authHash(10)
 	require.NoError(t, err)
 	email := uniq("timing")

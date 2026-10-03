@@ -54,16 +54,28 @@ type Config struct {
 
 	WorkerHealthAddr string
 
-	CORSOrigins         []string
-	AccessTokenTTL      time.Duration
-	RefreshTokenTTL     time.Duration
-	SessionAbsoluteTTL  time.Duration
-	CookieDomain        string
-	AuthResendWindow    time.Duration
-	BcryptCost          int
-	RateLimitIPPerMin   int
-	RateLimitUserPerMin int
-	TrustedProxyCIDRs   []netip.Prefix
+	CORSOrigins        []string
+	AccessTokenTTL     time.Duration
+	RefreshTokenTTL    time.Duration
+	SessionAbsoluteTTL time.Duration
+	CookieDomain       string
+	AuthResendWindow   time.Duration
+	// Giới hạn đăng nhập và hành động công khai (FEAT-account-security SRS 4.2.2 / 8.1).
+	AuthLoginIPPerMin      int
+	AuthLoginIPFailPer15m  int
+	AuthRegisterIPPerHour  int
+	AuthForgotIPPerHour    int
+	AuthForgotEmailPerHour int
+	AuthLinkIPPerMin       int
+	AuthRefreshIPPerMin    int
+	AuthChangePWFailPer10m int
+	LockoutBackoffFrom     int
+	LockoutLockAt          int
+	LockoutDuration        time.Duration
+	BcryptCost             int
+	RateLimitIPPerMin      int
+	RateLimitUserPerMin    int
+	TrustedProxyCIDRs      []netip.Prefix
 
 	SSEHeartbeat    time.Duration
 	SSEMaxDuration  time.Duration
@@ -192,6 +204,20 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	}
 	c.CookieDomain = l.str("COOKIE_DOMAIN", "")
 	c.AuthResendWindow = time.Duration(l.num("AUTH_RESEND_SECONDS", 60, 1, 3600)) * time.Second
+	c.AuthLoginIPPerMin = l.num("AUTH_LOGIN_IP_PER_MIN", 10, 1, 1_000_000)
+	c.AuthLoginIPFailPer15m = l.num("AUTH_LOGIN_IP_FAIL_PER_15M", 30, 1, 1_000_000)
+	c.AuthRegisterIPPerHour = l.num("AUTH_REGISTER_IP_PER_HOUR", 5, 1, 1_000_000)
+	c.AuthForgotIPPerHour = l.num("AUTH_FORGOT_IP_PER_HOUR", 5, 1, 1_000_000)
+	c.AuthForgotEmailPerHour = l.num("AUTH_FORGOT_EMAIL_PER_HOUR", 3, 1, 1_000_000)
+	c.AuthLinkIPPerMin = l.num("AUTH_TOKEN_IP_PER_MIN", 20, 1, 1_000_000)
+	c.AuthRefreshIPPerMin = l.num("AUTH_REFRESH_IP_PER_MIN", 60, 1, 1_000_000)
+	c.AuthChangePWFailPer10m = l.num("AUTH_CHANGE_PW_FAIL_PER_10M", 5, 1, 1_000)
+	c.LockoutBackoffFrom = l.num("LOCKOUT_BACKOFF_FROM", 5, 1, 1_000)
+	c.LockoutLockAt = l.num("LOCKOUT_LOCK_AT", 10, 2, 1_000)
+	if c.LockoutLockAt <= c.LockoutBackoffFrom {
+		l.bad("LOCKOUT_LOCK_AT", "phải > LOCKOUT_BACKOFF_FROM")
+	}
+	c.LockoutDuration = l.durRange("LOCKOUT_DURATION", 15*time.Minute, time.Second, 24*time.Hour)
 	c.BcryptCost = l.num("BCRYPT_COST", 12, 4, 14)
 	c.RateLimitIPPerMin = l.num("RATE_LIMIT_IP_PER_MIN", 300, 1, 1_000_000)
 	c.RateLimitUserPerMin = l.num("RATE_LIMIT_USER_PER_MIN", 600, 1, 1_000_000)

@@ -56,11 +56,11 @@ export function LoginForm() {
       setPassword("");
       router.replace(next);
     } catch (err) {
-      setPassword("");
-      if (err instanceof ApiError && err.code === "LOGIN_THROTTLED" && err.retryAfter) {
-        setWait(err.retryAfter);
+      if (err instanceof ApiError && (err.code === "LOGIN_THROTTLED" || err.code === "RATE_LIMITED") && err.retryAfter) {
+        setWait(Math.ceil(err.retryAfter)); // bị chờ / khoá / vượt giới hạn: cùng một câu, không gợi ý email có tồn tại; giữ nguyên chữ đã gõ
         setError(null);
       } else {
+        setPassword("");
         setError(err instanceof ApiError ? err.userMessage : "Có lỗi xảy ra. Hãy thử lại.");
       }
       passwordRef.current?.focus();
@@ -89,7 +89,7 @@ export function LoginForm() {
           )}
         </Field>
         {wait > 0 && (
-          <p role="alert" className={s.problem}>
+          <p role="status" id="login-wait" className={s.problem}>
             Bạn đã thử quá nhiều lần. Thử lại sau {mmss(wait)}.
           </p>
         )}
@@ -98,7 +98,7 @@ export function LoginForm() {
             {error}
           </p>
         )}
-        <Button type="submit" variant="primary" loading={busy} disabled={wait > 0 || !email.trim() || !password}>
+        <Button type="submit" variant="primary" loading={busy} disabled={wait > 0 || !email.trim() || !password} aria-describedby={wait > 0 ? "login-wait" : undefined}>
           Đăng nhập
         </Button>
       </form>

@@ -1,12 +1,12 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.6.0
+  version: 0.7.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
     build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ; P1 (FEAT-llm-gateway US-P1-04) thêm 13 thao tác `/admin/llm/*` và `/courses/{id}/llm-budget`.
-    P2 (FEAT-account-security US-P2-02) thêm 9 thao tác `/auth/{login,refresh,logout,register,verify-email,resend-verification,forgot-password,reset-password,tokens/preview}` và 4 thao tác `/me/{password,sessions,sessions/{id}}` (US-P2-04): công khai (không Bearer); `refresh`/`logout` dùng cookie `ep_rt` (HttpOnly) + kiểm Origin.
+    P2 (FEAT-account-security US-P2-02) thêm 9 thao tác `/auth/{login,refresh,logout,register,verify-email,resend-verification,forgot-password,reset-password,tokens/preview}` và 4 thao tác `/me/{password,sessions,sessions/{id}}` (US-P2-04); US-P2-05 thêm 429 (`LOGIN_THROTTLED` | `RATE_LIMITED`) cho login / register / verify-email / reset-password / refresh: công khai (không Bearer); `refresh`/`logout` dùng cookie `ep_rt` (HttpOnly) + kiểm Origin.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -448,6 +448,8 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/auth/verify-email:
     post:
       operationId: verifyEmail
@@ -471,6 +473,8 @@ paths:
           $ref: "#/components/responses/Gone"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/auth/resend-verification:
     post:
       operationId: resendVerification
@@ -540,6 +544,8 @@ paths:
           $ref: "#/components/responses/Gone"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/auth/tokens/preview:
     post:
       operationId: previewToken
@@ -660,6 +666,8 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/auth/refresh:
     post:
       operationId: refreshSession
@@ -682,6 +690,8 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/auth/logout:
     post:
       operationId: logout

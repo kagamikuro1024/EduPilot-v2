@@ -21,7 +21,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 	if d.Sessions != nil {
 		// US-P2-02: các đường /auth/* công khai (không Bearer) và kiểm thu hồi cho mọi API có Bearer.
 		authAPI = &authhttp.Handler{
-			Sessions: d.Sessions, Accounts: d.Accounts, Verify: d.Verifier.Verify, Cfg: d.Cfg, Log: d.Log, ClientIP: func(r *http.Request) string { return clientIP(r, d) },
+			Sessions: d.Sessions, Accounts: d.Accounts, Verify: d.Verifier.Verify, Limiter: auth.NewLimiter(d.Redis, d.now, d.Log), Limits: authLimits(d.Cfg), Cfg: d.Cfg, Log: d.Log, ClientIP: func(r *http.Request) string { return clientIP(r, d) },
 		}
 		authAPI.Mount(r)
 		mw = append(mw, auth.WithRevocation(d.Sessions))

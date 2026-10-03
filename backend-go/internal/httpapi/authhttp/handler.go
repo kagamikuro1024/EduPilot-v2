@@ -31,8 +31,11 @@ type Handler struct {
 	Accounts *auth.Accounts
 	// Verify kiểm Bearer tuỳ chọn (resend-verification khi đã đăng nhập, không kèm thân); nil = không hỗ trợ.
 	Verify func(raw string) (auth.Principal, error)
-	Cfg    config.Config
-	Log    *slog.Logger
+	// Limiter đếm theo (hành động, IP) trên Redis; nil = không giới hạn (test).
+	Limiter *auth.Limiter
+	Limits  auth.Limits
+	Cfg     config.Config
+	Log     *slog.Logger
 	// ClientIP trả IP đã kiểm chứng của request (theo TRUSTED_PROXY_CIDRS); nil → không ghi IP.
 	ClientIP func(*http.Request) string
 }
@@ -41,14 +44,15 @@ type Handler struct {
 func (h *Handler) Mount(r chi.Router) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Use(noStore)
-		r.Post("/login", h.login)
-		r.Post("/register", h.register)
-		r.Post("/verify-email", h.verifyEmail)
+		lim := h.Limits
+		r.With(h.limitIP("login", time.Minute, lim.LoginIPPerMin)).Post("/login", h.login)
+		r.With(h.limitIP("register", time.Hour, lim.RegisterIPPerHour)).Post("/register", h.register)
+		r.With(h.limitIP("token", time.Minute, lim.TokenIPPerMin)).Post("/verify-email", h.verifyEmail)
 		r.Post("/resend-verification", h.resendVerification)
-		r.Post("/forgot-password", h.forgotPassword)
-		r.Post("/reset-password", h.resetPassword)
-		r.Post("/tokens/preview", h.previewToken)
-		r.With(h.cookieGuard).Post("/refresh", h.refresh)
+		r.With(h.limitIP("forgot", time.Hour, lim.ForgotIPPerHour)).Post("/forgot-password", h.forgotPassword)
+		r.With(h.limitIP("token", time.Minute, lim.TokenIPPerMin)).Post("/reset-password", h.resetPassword)
+		r.With(h.limitIP("token", time.Minute, lim.TokenIPPerMin)).Post("/tokens/preview", h.previewToken)
+		r.With(h.limitIP("refresh", time.Minute, lim.RefreshIPPerMin), h.cookieGuard).Post("/refresh", h.refresh)
 		r.With(h.cookieGuard).Post("/logout", h.logout)
 	})
 }
@@ -78,6 +82,7 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 	if !httpx.DecodeJSON(w, r, &b) {
 		return
 	}
+	var lt *auth.LoginThrottledError
 	res, err := h.Sessions.Login(r.Context(), auth.LoginInput{
 		Email: b.Email, Password: b.Password, UserAgent: r.UserAgent(), IP: h.ip(r),
 	})
@@ -88,6 +93,8 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, apierr.New(http.StatusUnauthorized, apierr.InvalidCredentials))
 	case errors.Is(err, auth.ErrAccountDisabled):
 		apierr.Write(w, r, apierr.New(http.StatusForbidden, apierr.AccountDisabled))
+	case errors.As(err, &lt):
+		apierr.Write(w, r, apierr.New(http.StatusTooManyRequests, apierr.LoginThrottled).WithRetryAfter(lt.RetryAfter))
 	default:
 		h.internal(w, r, "login", err)
 	}
@@ -372,11 +379,7 @@ func (h *Handler) previewToken(w http.ResponseWriter, r *http.Request) {
 	if !httpx.DecodeJSON(w, r, &b) {
 		return
 	}
-	ip := ""
-	if h.ClientIP != nil {
-		ip = h.ClientIP(r)
-	}
-	p, err := h.Accounts.PreviewToken(r.Context(), b.Kind, b.Token, ip)
+	p, err := h.Accounts.PreviewToken(r.Context(), b.Kind, b.Token)
 	if h.writeAccountErr(w, r, "tokens-preview", err) {
 		return
 	}
@@ -476,4 +479,20 @@ func (h *Handler) changePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// limitIP giới hạn theo (hành động, IP đã kiểm chứng) trong cửa sổ cố định; vượt ⇒ 429 RATE_LIMITED + Retry-After. IP lấy theo
+// TRUSTED_PROXY_CIDRS nên X-Forwarded-For từ nguồn lạ không đổi IP bị tính.
+func (h *Handler) limitIP(action string, window time.Duration, limit int) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if ip := h.ip(r); ip != "" {
+				if ra, over := h.Limiter.HitWindow(r.Context(), action, ip, window, limit); over {
+					apierr.Write(w, r, apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithRetryAfter(ra))
+					return
+				}
+			}
+			next.ServeHTTP(w, r)
+		})
+	}
 }

@@ -20,13 +20,10 @@ import (
 
 const (
 	// forgotFloor: mọi nhánh của forgot-password mất ít nhất ngần này ⇒ thời gian không lộ email có tài khoản hay không (SRS 4.2.3).
-	forgotFloor      = 80 * time.Millisecond
-	forgotPerEmail   = 3
-	forgotWindow     = time.Hour
-	changePwMaxWrong = 5
-	changePwWindow   = 10 * time.Minute
-	tokenPreviewMax  = 20
-	maxSessionsList  = 50
+	forgotFloor     = 80 * time.Millisecond
+	forgotWindow    = time.Hour
+	changePwWindow  = 10 * time.Minute
+	maxSessionsList = 50
 )
 
 // ForgotPassword xếp thư `reset_password` cho tài khoản ACTIVE / PENDING_VERIFICATION. Mọi trường hợp khác (không có, INVITED,
@@ -34,7 +31,7 @@ const (
 func (a *Accounts) ForgotPassword(ctx context.Context, email string) error {
 	start := time.Now()
 	email = NormalizeEmail(email)
-	if err := a.hit(ctx, appredis.Key("auth", "forgot", emailHash(email)[:32]), forgotWindow, forgotPerEmail); err != nil {
+	if err := a.hit(ctx, appredis.Key("auth", "forgot", emailHash(email)[:32]), forgotWindow, a.cfg.Limits.ForgotEmailPerHour); err != nil {
 		return err
 	}
 	err := a.queueReset(ctx, email)
@@ -114,6 +111,9 @@ func (a *Accounts) ResetPassword(ctx context.Context, plain, newPassword string)
 		return fmt.Errorf("auth: commit đặt lại mật khẩu: %w", err)
 	}
 	a.markRevoked(ctx, ids)
+	if a.sess != nil {
+		a.sess.ClearFailures(ctx, emailHash(u.Email), u.ID) // đặt lại mật khẩu mở khoá ngay (Redis; cột DB đã xoá trong giao dịch)
+	}
 	return nil
 }
 
@@ -124,7 +124,7 @@ func (a *Accounts) ChangePassword(ctx context.Context, userID, currentSID uuid.U
 	bucket := appredis.Key("rl", "auth", "chgpw", userID.String(), strconv.FormatInt(now.Unix()/int64(changePwWindow/time.Second), 10))
 	if a.rdb != nil {
 		n, err := a.rdb.Get(ctx, bucket).Int()
-		if err == nil && n >= changePwMaxWrong {
+		if err == nil && n >= a.cfg.Limits.ChangePWFailPer10m {
 			return &ThrottledError{RetryAfter: secondsToNextWindow(now, changePwWindow)}
 		}
 	}
@@ -234,8 +234,8 @@ type TokenPreview struct {
 	Role      string // chỉ INVITE
 }
 
-// PreviewToken kiểm token cho trang đặt lại / nhận lời mời. Giới hạn 20 lần / phút / ip.
-func (a *Accounts) PreviewToken(ctx context.Context, kind, plain, ip string) (TokenPreview, error) {
+// PreviewToken kiểm token cho trang đặt lại / nhận lời mời. Giới hạn theo IP do middleware ở tầng HTTP lo (action "token").
+func (a *Accounts) PreviewToken(ctx context.Context, kind, plain string) (TokenPreview, error) {
 	var k store.AuthTokenKind
 	switch kind {
 	case "RESET_PASSWORD":
@@ -244,15 +244,6 @@ func (a *Accounts) PreviewToken(ctx context.Context, kind, plain, ip string) (To
 		k = store.AuthTokenKindINVITE
 	default:
 		return TokenPreview{}, &ValidationError{Problems: []FieldProblem{{"kind", "INVALID_KIND", "Loại liên kết không hợp lệ."}}}
-	}
-	if ip != "" {
-		if err := a.hit(ctx, appredis.Key("rl", "auth", "token", "ip", ip, strconv.FormatInt(a.clk.Now().Unix()/60, 10)), 2*time.Minute, tokenPreviewMax); err != nil {
-			var te *ThrottledError
-			if errors.As(err, &te) {
-				te.RetryAfter = secondsToNextWindow(a.clk.Now(), time.Minute)
-			}
-			return TokenPreview{}, err
-		}
 	}
 	now := a.clk.Now()
 	q := store.New(a.pool)

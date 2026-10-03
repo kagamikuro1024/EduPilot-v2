@@ -192,4 +192,3 @@ func fakeOut(s fake.Settings) map[string]any {
 		"error_kind": string(s.ErrorKind), "valid_key_set": s.ValidKey != "", "stream_delay_ms": s.StreamDelay.Milliseconds(),
 	}
 }
-

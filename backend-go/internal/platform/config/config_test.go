@@ -340,6 +340,31 @@ func TestLLMEnv(t *testing.T) {
 	}
 }
 
+// US-P2-05: ngưỡng chờ / khoá / giới hạn IP — mặc định theo SRS 8.1, sai nêu tên biến, LOCKOUT_LOCK_AT phải lớn hơn LOCKOUT_BACKOFF_FROM.
+func TestLoad_AuthLimits(t *testing.T) {
+	t.Parallel()
+	c, err := config.Load(getenv(full()), config.Gateway)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if c.AuthLoginIPPerMin != 10 || c.AuthLoginIPFailPer15m != 30 || c.AuthRegisterIPPerHour != 5 || c.AuthForgotIPPerHour != 5 ||
+		c.AuthForgotEmailPerHour != 3 || c.AuthLinkIPPerMin != 20 || c.AuthRefreshIPPerMin != 60 || c.AuthChangePWFailPer10m != 5 ||
+		c.LockoutBackoffFrom != 5 || c.LockoutLockAt != 10 || c.LockoutDuration != 15*time.Minute {
+		t.Fatalf("mặc định sai: %+v", c)
+	}
+	for _, tc := range []struct{ key, val string }{
+		{"AUTH_LOGIN_IP_PER_MIN", "0"}, {"AUTH_REGISTER_IP_PER_HOUR", "x"}, {"LOCKOUT_LOCK_AT", "5"}, {"LOCKOUT_DURATION", "0s"}, {"LOCKOUT_DURATION", "abc"},
+	} {
+		env := full()
+		env[tc.key] = tc.val
+		_, err := config.Load(getenv(env), config.Gateway)
+		var ie *config.ErrInvalidEnv
+		if !errors.As(err, &ie) || !slices.Contains(ie.Names, tc.key) {
+			t.Errorf("%s=%s: err = %v, muốn *ErrInvalidEnv nêu %s", tc.key, tc.val, err, tc.key)
+		}
+	}
+}
+
 // US-P2-01: cấu hình thư — mặc định dev, giá trị sai nêu tên biến, production ở worker bắt buộc https + TLS.
 func TestLoad_Mail(t *testing.T) {
 	t.Parallel()

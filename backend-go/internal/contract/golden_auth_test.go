@@ -3,6 +3,7 @@ package contract
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -27,6 +28,7 @@ func TestGolden_Auth(t *testing.T) {
 	if _, err := r.deps.DB.Exec(ctx, `insert into users (email, full_name, role, status, password_hash) values ($1, 'Nguyễn Minh Trung', 'STUDENT', 'ACTIVE', $2)`, email, hash); err != nil {
 		t.Fatal(err)
 	}
+	xff := fmt.Sprintf("198.19.%d.%d", uuid.New()[0], uuid.New()[1]) // IP riêng cho lần chạy: bộ đếm theo IP ở Redis còn sống qua các lần chạy
 	do := func(path, body string, hdr map[string]string, name string, want int) http.Header {
 		t.Helper()
 		var rd io.Reader
@@ -40,6 +42,7 @@ func TestGolden_Auth(t *testing.T) {
 		if body != "" {
 			req.Header.Set("Content-Type", "application/json")
 		}
+		req.Header.Set("X-Forwarded-For", xff)
 		for k, v := range hdr {
 			req.Header.Set(k, v)
 		}

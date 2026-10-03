@@ -29,6 +29,15 @@ func (q *Queries) ChangeUserPassword(ctx context.Context, arg ChangeUserPassword
 	return err
 }
 
+const clearLoginFailures = `-- name: ClearLoginFailures :exec
+update users set failed_logins = 0, locked_until = null where id = $1 and (failed_logins <> 0 or locked_until is not null)
+`
+
+func (q *Queries) ClearLoginFailures(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, clearLoginFailures, id)
+	return err
+}
+
 const consumeAuthToken = `-- name: ConsumeAuthToken :one
 update auth_tokens
 set used_at = $1::timestamptz
@@ -83,6 +92,33 @@ func (q *Queries) GetAuthTokenByHash(ctx context.Context, tokenHash string) (Aut
 		&i.CreatedBy,
 		&i.CreatedAt,
 	)
+	return i, err
+}
+
+const incrementFailedLogin = `-- name: IncrementFailedLogin :one
+update users
+set failed_logins = failed_logins + 1,
+    locked_until = case when failed_logins + 1 >= $1::int then $2::timestamptz else locked_until end
+where id = $3
+returning failed_logins, locked_until
+`
+
+type IncrementFailedLoginParams struct {
+	LockAt int32
+	Until  time.Time
+	ID     uuid.UUID
+}
+
+type IncrementFailedLoginRow struct {
+	FailedLogins int32
+	LockedUntil  *time.Time
+}
+
+// Đường rơi về khi Redis mất: tăng bộ đếm ở DB, đủ ngưỡng thì khoá. Không có thời gian lần sai gần nhất ⇒ không tự phai sau 30 phút.
+func (q *Queries) IncrementFailedLogin(ctx context.Context, arg IncrementFailedLoginParams) (IncrementFailedLoginRow, error) {
+	row := q.db.QueryRow(ctx, incrementFailedLogin, arg.LockAt, arg.Until, arg.ID)
+	var i IncrementFailedLoginRow
+	err := row.Scan(&i.FailedLogins, &i.LockedUntil)
 	return i, err
 }
 
@@ -583,5 +619,22 @@ func (q *Queries) RotateAuthSession(ctx context.Context, arg RotateAuthSessionPa
 		arg.ExpiresAt,
 		arg.ID,
 	)
+	return err
+}
+
+const setLoginFailures = `-- name: SetLoginFailures :exec
+
+update users set failed_logins = $1, locked_until = $2 where id = $3
+`
+
+type SetLoginFailuresParams struct {
+	N           int32
+	LockedUntil *time.Time
+	ID          uuid.UUID
+}
+
+// Chờ / khoá đăng nhập (US-P2-05). Redis là bộ đếm nhanh; hai cột này là nguồn sự thật bền cho tài khoản CÓ THẬT (sống sót khi Redis mất).
+func (q *Queries) SetLoginFailures(ctx context.Context, arg SetLoginFailuresParams) error {
+	_, err := q.db.Exec(ctx, setLoginFailures, arg.N, arg.LockedUntil, arg.ID)
 	return err
 }

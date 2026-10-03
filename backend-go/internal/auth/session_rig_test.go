@@ -58,6 +58,8 @@ func newSessRig(t *testing.T, opts ...rigOpt) *sessRig {
 		"DATABASE_URL": testutil.MigratedPostgresURL(t), "REDIS_URL": testutil.RedisURL(t), "JWT_SECRET_KEY": rigSecret,
 		"BLOB_ENDPOINT": "127.0.0.1:9", "BLOB_BUCKET": "x", "BLOB_ACCESS_KEY": "x", "BLOB_SECRET_KEY": "x",
 		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "test", "BCRYPT_COST": "4",
+		"AUTH_LOGIN_IP_PER_MIN": "1000000", "AUTH_LOGIN_IP_FAIL_PER_15M": "1000000", "AUTH_REGISTER_IP_PER_HOUR": "1000000",
+		"AUTH_FORGOT_IP_PER_HOUR": "1000000", "AUTH_TOKEN_IP_PER_MIN": "1000000", "AUTH_REFRESH_IP_PER_MIN": "1000000", // test giới hạn IP đặt lại bằng rigOpt
 		"RATE_LIMIT_IP_PER_MIN": "1000000", "RATE_LIMIT_USER_PER_MIN": "1000000", "LOG_LEVEL": "debug",
 	}
 	for _, o := range opts {

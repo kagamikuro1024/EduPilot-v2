@@ -140,3 +140,19 @@ where user_id = sqlc.arg(user_id)
   and absolute_expires_at > sqlc.arg(now)::timestamptz
 order by coalesce(id = sqlc.narg(current_id)::uuid, false) desc, last_used_at desc
 limit 50;
+
+-- Chờ / khoá đăng nhập (US-P2-05). Redis là bộ đếm nhanh; hai cột này là nguồn sự thật bền cho tài khoản CÓ THẬT (sống sót khi Redis mất).
+
+-- name: SetLoginFailures :exec
+update users set failed_logins = sqlc.arg(n), locked_until = sqlc.narg(locked_until) where id = sqlc.arg(id);
+
+-- name: IncrementFailedLogin :one
+-- Đường rơi về khi Redis mất: tăng bộ đếm ở DB, đủ ngưỡng thì khoá. Không có thời gian lần sai gần nhất ⇒ không tự phai sau 30 phút.
+update users
+set failed_logins = failed_logins + 1,
+    locked_until = case when failed_logins + 1 >= sqlc.arg(lock_at)::int then sqlc.arg(until)::timestamptz else locked_until end
+where id = sqlc.arg(id)
+returning failed_logins, locked_until;
+
+-- name: ClearLoginFailures :exec
+update users set failed_logins = 0, locked_until = null where id = sqlc.arg(id) and (failed_logins <> 0 or locked_until is not null);

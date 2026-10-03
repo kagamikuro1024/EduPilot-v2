@@ -67,6 +67,7 @@ type AccountsConfig struct {
 	BcryptCost   int
 	ResendWindow time.Duration
 	VerifyTTL    time.Duration
+	Limits       Limits
 }
 
 // Accounts: đăng ký, xác minh email, gửi lại thư xác minh. Gói duy nhất chạm auth_tokens (xem tokens.go).
@@ -87,6 +88,9 @@ func NewAccounts(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, sess
 	}
 	if log == nil {
 		log = slog.Default()
+	}
+	if cfg.Limits == (Limits{}) {
+		cfg.Limits = DefaultLimits()
 	}
 	if cfg.ResendWindow <= 0 {
 		cfg.ResendWindow = 60 * time.Second

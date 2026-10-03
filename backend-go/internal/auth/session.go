@@ -60,6 +60,8 @@ type SessionConfig struct {
 	RefreshTTL  time.Duration
 	AbsoluteTTL time.Duration
 	BcryptCost  int
+	Limits      Limits    // ngưỡng chờ / khoá / chặn IP (US-P2-05)
+	Mail        MailQueue // xếp thư account_locked cùng transaction; nil = không gửi (test)
 }
 
 // Sessions là dịch vụ phiên: đăng nhập, làm mới xoay vòng, đăng xuất, thu hồi. Gói duy nhất chạm auth_sessions.
@@ -68,6 +70,7 @@ type Sessions struct {
 	rdb    *appredis.Client
 	clk    clock.Clock
 	issuer *Issuer
+	thr    *Throttle // nil khi không có Redis
 	cfg    SessionConfig
 	log    *slog.Logger
 
@@ -86,7 +89,14 @@ func NewSessions(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, issu
 	if log == nil {
 		log = slog.Default()
 	}
-	return &Sessions{pool: pool, rdb: rdb, clk: clk, issuer: issuer, cfg: cfg, log: log}
+	if cfg.Limits == (Limits{}) {
+		cfg.Limits = DefaultLimits()
+	}
+	s := &Sessions{pool: pool, rdb: rdb, clk: clk, issuer: issuer, cfg: cfg, log: log}
+	if rdb != nil {
+		s.thr = newThrottle(rdb, cfg.Limits, log)
+	}
+	return s
 }
 
 // UserInfo là phần người dùng trả cho client sau đăng nhập / làm mới.
@@ -129,41 +139,57 @@ func (s *Sessions) dummy() []byte {
 	return s.dummyHash
 }
 
-// Login xác thực email + mật khẩu. Luôn chạy đúng một phép bcrypt (kể cả email lạ) để thời gian không lộ tài khoản có tồn tại.
+// LoginThrottledError: đang phải chờ / bị khoá / IP bị chặn (429 LOGIN_THROTTLED). Không phân biệt lý do với client (SRS 4.2.3).
+type LoginThrottledError struct{ RetryAfter int }
+
+func (e *LoginThrottledError) Error() string {
+	return "auth: đăng nhập đang bị chờ hoặc khoá"
+}
+
+// Login xác thực email + mật khẩu. Thứ tự: (1) IP bị chặn? (2) email đang chờ / khoá? — cả hai trả LOGIN_THROTTLED TRƯỚC khi kiểm mật khẩu;
+// (3) luôn chạy đúng một phép bcrypt (kể cả email lạ) để thời gian không lộ tài khoản có tồn tại; (4) sai ⇒ ghi lần sai (chờ tăng dần / khoá).
 func (s *Sessions) Login(ctx context.Context, in LoginInput) (Result, error) {
 	email := NormalizeEmail(in.Email)
 	q := store.New(s.pool)
 	ip := parseIP(in.IP)
 	now := s.clk.Now()
+	eh := emailHash(email)
 
 	u, err := q.GetUserByEmail(ctx, email)
 	found := err == nil
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		return Result{}, fmt.Errorf("auth: tra người dùng: %w", err)
 	}
-	hash := s.dummy()
-	if found && u.PasswordHash != nil && *u.PasswordHash != "" {
-		hash = []byte(*u.PasswordHash)
-	}
-	pwOK := len(in.Password) <= MaxPasswordBytes && bcrypt.CompareHashAndPassword(hash, []byte(in.Password)) == nil
-	usable := found && u.PasswordHash != nil && *u.PasswordHash != "" && u.Status != store.UserStatusINVITED
 	record := func(o store.LoginOutcome) {
 		var uid *uuid.UUID
 		if found {
 			uid = &u.ID
 		}
 		if err := q.InsertLoginAttempt(ctx, store.InsertLoginAttemptParams{
-			EmailHash: emailHash(email), UserID: uid, Ip: ip, UserAgent: clip(in.UserAgent, 200), Outcome: o, Now: now,
+			EmailHash: eh, UserID: uid, Ip: ip, UserAgent: clip(in.UserAgent, 200), Outcome: o, Now: now,
 		}); err != nil {
 			s.log.WarnContext(ctx, "ghi login_attempts lỗi", "error", err.Error())
 		}
 	}
+
+	if secs, outcome := s.mustWait(ctx, in.IP, eh, found, u, now); secs > 0 {
+		record(outcome)
+		return Result{}, &LoginThrottledError{RetryAfter: secs}
+	}
+
+	hash := s.dummy()
+	if found && u.PasswordHash != nil && *u.PasswordHash != "" {
+		hash = []byte(*u.PasswordHash)
+	}
+	pwOK := len(in.Password) <= MaxPasswordBytes && bcrypt.CompareHashAndPassword(hash, []byte(in.Password)) == nil
+	usable := found && u.PasswordHash != nil && *u.PasswordHash != "" && u.Status != store.UserStatusINVITED
 	if !pwOK || !usable {
 		if found {
 			record(store.LoginOutcomeBADPASSWORD)
 		} else {
 			record(store.LoginOutcomeUNKNOWNEMAIL)
 		}
+		s.recordFailure(ctx, in.IP, eh, found, u, now)
 		return Result{}, ErrInvalidCredentials
 	}
 	if u.Status == store.UserStatusDISABLED {
@@ -178,8 +204,109 @@ func (s *Sessions) Login(ctx context.Context, in LoginInput) (Result, error) {
 	if err := q.TouchLastLogin(ctx, store.TouchLastLoginParams{ID: u.ID, Now: now}); err != nil {
 		s.log.WarnContext(ctx, "cập nhật last_login_at lỗi", "error", err.Error())
 	}
+	s.ClearFailures(ctx, eh, u.ID)
 	record(store.LoginOutcomeSUCCESS)
 	return res, nil
+}
+
+// mustWait cho biết còn phải chờ bao lâu (giây) trước khi được thử mật khẩu. Redis là nguồn nhanh; cột users.locked_until là nguồn bền:
+// Redis mất thì lịch chờ tăng dần mất theo (chấp nhận, SRS AC5) nhưng khoá 15 phút của tài khoản thật vẫn được thi hành.
+func (s *Sessions) mustWait(ctx context.Context, ip, eh string, found bool, u store.User, now time.Time) (int, store.LoginOutcome) {
+	secs, outcome := 0, store.LoginOutcomeTHROTTLED
+	if s.thr != nil {
+		if ip != "" {
+			if sec, err := s.thr.IPBlocked(ctx, ip); err != nil {
+				s.warnRedis(ctx, err)
+			} else if sec > 0 {
+				return sec, store.LoginOutcomeTHROTTLED
+			}
+		}
+		if st, err := s.thr.State(ctx, eh); err != nil {
+			s.warnRedis(ctx, err)
+		} else if w, locked := st.wait(now, s.cfg.Limits); w > 0 {
+			secs = w
+			if locked {
+				outcome = store.LoginOutcomeLOCKED
+			}
+		}
+	}
+	if found && u.LockedUntil != nil && now.Before(*u.LockedUntil) {
+		if w := ceilSecs(u.LockedUntil.Sub(now)); w > secs {
+			secs, outcome = w, store.LoginOutcomeLOCKED
+		}
+	}
+	return secs, outcome
+}
+
+// recordFailure ghi một lần sai: Redis (cho cả email lạ) + cột DB (tài khoản thật); đủ ngưỡng ⇒ khoá và xếp ĐÚNG MỘT thư account_locked.
+func (s *Sessions) recordFailure(ctx context.Context, ip, eh string, found bool, u store.User, now time.Time) {
+	lim := s.cfg.Limits
+	n, lockedTo, fresh, redisOK := 0, time.Time{}, false, false
+	if s.thr != nil {
+		var err error
+		if n, lockedTo, fresh, err = s.thr.Fail(ctx, eh, now); err != nil {
+			s.warnRedis(ctx, err)
+		} else {
+			redisOK = true
+		}
+		if ip != "" {
+			if err := s.thr.IPFail(ctx, ip); err != nil {
+				s.warnRedis(ctx, err)
+			}
+		}
+	}
+	if !found {
+		return
+	}
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		s.log.ErrorContext(ctx, "auth: mở transaction ghi lần sai lỗi", "error", err.Error())
+		return
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	q := store.New(tx)
+	if redisOK {
+		var lock *time.Time
+		if !lockedTo.IsZero() {
+			lock = &lockedTo
+		}
+		err = q.SetLoginFailures(ctx, store.SetLoginFailuresParams{ID: u.ID, N: int32(n), LockedUntil: lock})
+	} else {
+		var row store.IncrementFailedLoginRow
+		if row, err = q.IncrementFailedLogin(ctx, store.IncrementFailedLoginParams{ID: u.ID, LockAt: int32(lim.LockAt), Until: now.Add(lim.LockDuration)}); err == nil {
+			n = int(row.FailedLogins)
+			if row.LockedUntil != nil {
+				lockedTo = *row.LockedUntil
+			}
+			fresh = n == lim.LockAt
+		}
+	}
+	if err != nil {
+		s.log.ErrorContext(ctx, "auth: ghi bộ đếm sai ở DB lỗi", "error", err.Error())
+		return
+	}
+	if fresh && s.cfg.Mail != nil {
+		dedupe := "account_locked:" + u.ID.String() + ":" + strconv.FormatInt(lockedTo.Unix(), 10)
+		if err := s.cfg.Mail(ctx, tx, u.Email, "account_locked", map[string]any{"full_name": u.FullName, "until": lockedTo.UTC().Format(time.RFC3339)}, dedupe); err != nil {
+			s.log.ErrorContext(ctx, "auth: xếp thư account_locked lỗi", "error", err.Error())
+			return
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		s.log.ErrorContext(ctx, "auth: commit bộ đếm sai lỗi", "error", err.Error())
+	}
+}
+
+// ClearFailures đưa bộ đếm sai về 0 (đăng nhập đúng, đặt lại mật khẩu): Redis + cột DB.
+func (s *Sessions) ClearFailures(ctx context.Context, eh string, userID uuid.UUID) {
+	if s.thr != nil {
+		if err := s.thr.Clear(ctx, eh); err != nil {
+			s.warnRedis(ctx, err)
+		}
+	}
+	if err := store.New(s.pool).ClearLoginFailures(ctx, userID); err != nil {
+		s.log.WarnContext(ctx, "auth: xoá bộ đếm sai ở DB lỗi", "error", err.Error())
+	}
 }
 
 // CreateSessionFor mở phiên cho người dùng đã được xác thực bằng cách khác (chấp nhận lời mời, US-P2-06). Không kiểm mật khẩu.
