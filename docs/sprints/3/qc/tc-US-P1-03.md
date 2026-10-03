@@ -78,6 +78,9 @@ Tiền điều kiện chung: stack test 2 gateway (`testroutes`) + Redis + Postg
   - **Trả lời (BA, 2026-10-03):** Chấp nhận: QC chỉ chấm phần Scheduler. Khi Redis tắt, rate limit IP / idempotency của PG có hành vi riêng (rate limit mở cửa; endpoint bắt buộc idempotency → 503 theo PG) — ghi nhận, không tính vào AC13 của US-P1-03. Nên dùng stack riêng cho TC này để không ảnh hưởng TC khác.
 - **Q-QC-P103-3** — AC11 "chi phí ước tính của ngày": múi giờ chuyển ngày là UTC hay `Asia/Ho_Chi_Minh`? TC-P103-39 cần biết. — *chờ trả lời*.
   - **Trả lời (BA, 2026-10-03):** Múi giờ **`Asia/Ho_Chi_Minh`** (SRS 4.3 "Ngân sách": ngày / tháng theo múi giờ này; khoá `ep:llm:budget:…:d:{yyyymmdd}` tính theo giờ Việt Nam). TC-P103-39 chuyển ngày bằng đồng hồ giả tại 00:00 giờ Việt Nam (17:00 UTC hôm trước).
+- **TC-P103-14 (báo cáo QC `report-US-P1-03.md`, spec lệch lệnh kiểm)** — "201 yêu cầu song song ⇒ đúng 1 `503`" sai khi `LLM_MAX_CONCURRENCY=1`: 1 chạy + 200 chờ ⇒ 201 yêu cầu đều được nhận.
+  - **Trả lời (BA, 2026-10-03):** QC đúng. `LLM_QUEUE_MAX` chỉ đếm yêu cầu **đang chờ**, không đếm yêu cầu đang chạy (v1.5, SRS 4.3). Đã sửa AC5 của US-P1-03: điều kiện nêu rõ "yêu cầu thứ 202" và lệnh kiểm dùng **202** yêu cầu song song → đúng 1 `503`; tổng quát n > 202 → `n − 201` phản hồi `503`; 201 yêu cầu → 0 `503`. Hành vi của dev (503 ở yêu cầu 202, 203, 204 sau 6–7 ms) là đúng — **PASS**, không phải lỗi dev. QC sửa dòng TC-P103-14 (201 → 202).
+- **Q-QC-P103-1 / 2 / 3** — đã trả lời ngay dưới từng câu ở trên (v1.2); không đổi.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — spec v1.4 (góp ý #6 ACCEPTED): TC-P103-12/13 sửa — BATCH luôn ≤ ceil(MAX×share), bỏ `--prime`. Góp ý #8: `TestLLMEnv` ở `internal/platform/config` (TC-P103-48 đã chạy ở đó).

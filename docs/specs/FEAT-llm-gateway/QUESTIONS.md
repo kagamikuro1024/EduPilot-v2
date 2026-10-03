@@ -1,5 +1,5 @@
 # Câu hỏi mở — FEAT-llm-gateway (US-P1-01…05)
-Phiên bản 1.4 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`. Câu 11 là việc của chủ dự án (cần khoá thật), không phải của BA / dev.
+Phiên bản 1.5 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`. Câu 11 là việc của chủ dự án (cần khoá thật), không phải của BA / dev.
 
 | # | Câu hỏi | Phương án BA đề xuất | Trả lời của chủ dự án | Ngày |
 | --- | --- | --- | --- | --- |
