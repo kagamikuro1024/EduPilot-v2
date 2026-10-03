@@ -517,6 +517,40 @@ func TestMembersListFilters(t *testing.T) {
 	require.Equal(t, http.StatusUnprocessableEntity, r.get(k.a.G, "/courses/"+k.id+"/members?role=NOPE").code)
 }
 
+// Đề xuất #10: `q` khớp MSSV chỉ cho giảng viên / TA của lớp; sinh viên không gọi được danh sách nên không lọc, không thấy MSSV người khác.
+func TestMembersSearchByStudentCodeStaffOnly(t *testing.T) {
+	r := newRig(t)
+	k := r.klass(nil)
+	users := r.fillMembers(k, 3)
+	var code string
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select student_code_snapshot from enrollments where course_id = $1 and user_id = $2`, k.id, users[0].ID).Scan(&code))
+	require.NotEmpty(t, code)
+	q := "/courses/" + k.id + "/members?q=" + code
+
+	for name, s := range map[string]session{"giảng viên": k.a.G, "trợ giảng": k.a.T} {
+		res := r.get(s, q)
+		require.Equal(t, http.StatusOK, res.code, name)
+		require.Len(t, res.json()["items"], 1, name+": tìm được theo MSSV")
+	}
+	res := r.get(k.a.A, q)
+	require.Equal(t, http.StatusOK, res.code)
+	require.Empty(t, res.json()["items"], "Admin xem được danh sách nhưng không tìm theo MSSV")
+
+	// Sinh viên ACTIVE của chính lớp, sinh viên PENDING, người ngoài lớp: 403, thân không chứa MSSV nào.
+	pend, _ := r.student("")
+	r.enroll(k.course, pend.ID, "STUDENT", "PENDING")
+	outsider, so := r.student("")
+	_ = outsider
+	for name, s := range map[string]session{"sinh viên trong lớp": r.mustLogin(users[1].Email), "sinh viên chờ duyệt": r.mustLogin(pend.Email), "người ngoài lớp": so} {
+		for _, path := range []string{q, "/courses/" + k.id + "/members"} {
+			res := r.get(s, path)
+			require.Equal(t, http.StatusForbidden, res.code, name+" "+path)
+			require.NotContains(t, string(res.body), code, name)
+			require.NotContains(t, string(res.body), "student_code", name)
+		}
+	}
+}
+
 func TestMembersListMinimalFields(t *testing.T) {
 	r := newRig(t)
 	k := r.klass(nil)

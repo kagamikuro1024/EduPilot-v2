@@ -230,6 +230,9 @@ func (h *Handler) members(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "q", Code: "TOO_LONG", Message: "Từ khoá tối đa 100 ký tự."}))
 		return
 	}
+	if access, ok := auth.CourseFromContext(r.Context()); ok {
+		f.ByStudentCode = access.Status == "ACTIVE" && (access.CourseRole == auth.RoleTeacher || access.CourseRole == auth.RoleTA)
+	}
 	if p.Cursor != nil {
 		f.Cursor = &course.Cursor{At: p.Cursor.CreatedAt, ID: p.Cursor.ID}
 	}

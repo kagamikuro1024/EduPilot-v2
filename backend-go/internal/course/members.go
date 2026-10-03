@@ -54,8 +54,10 @@ type Member struct {
 // MemberFilter là query của GET …/members.
 type MemberFilter struct {
 	Status, Role, Q string
-	Cursor          *Cursor
-	Limit           int
+	// ByStudentCode cho `Q` khớp cả MSSV: chỉ giảng viên / TA ĐANG HOẠT ĐỘNG của lớp (đề xuất #10). Người khác chỉ tìm được theo tên / email.
+	ByStudentCode bool
+	Cursor        *Cursor
+	Limit         int
 }
 
 // MemberPage là một trang thành viên kèm số đếm sinh viên của cả lớp.
@@ -80,7 +82,10 @@ func (s Service) Members(ctx context.Context, courseID uuid.UUID, f MemberFilter
 		name := "%" + likeEscape(auth.Fold(q)) + "%"
 		code := likeEscape(strings.ToUpper(q)) + "%"
 		email := likeEscape(strings.ToLower(q)) + "%"
-		p.NameLike, p.CodeLike, p.EmailLike = &name, &code, &email
+		p.NameLike, p.EmailLike = &name, &email
+		if f.ByStudentCode {
+			p.CodeLike = &code
+		}
 	}
 	if f.Cursor != nil {
 		p.CurAt, p.CurID = &f.Cursor.At, &f.Cursor.ID

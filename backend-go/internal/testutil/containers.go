@@ -159,6 +159,7 @@ func startPG() {
 		ExposedPorts: []string{"5432/tcp"},
 		Env:          map[string]string{"POSTGRES_USER": pgUser, "POSTGRES_PASSWORD": pgPass, "POSTGRES_DB": "postgres"},
 		Cmd:          []string{"-c", "max_connections=400", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"},
+		ShmSize:      256 << 20, // mặc định 64 MB: truy vấn song song của vài gói test cùng lúc làm "could not resize shared memory segment"
 		WaitingFor:   wait.ForListeningPort("5432/tcp").WithStartupTimeout(3 * time.Minute),
 	}, "5432/tcp", func(hp string) error {
 		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
