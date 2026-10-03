@@ -99,3 +99,11 @@ Chạy `AUDIT` + `TOUCH` + `LEFT` (US.md "Quy ước kiểm chung") trên mọi 
 | BUG-v5-01-6 nhãn lịch tháng cắt … | `.chip` bỏ `nowrap/ellipsis` | `/calendar` Tháng 1100: nhãn QUIZ01 hiện đủ 2 dòng |
 
 **Tự kiểm (build production :3400, trình duyệt headless):** `regress-v24.mjs` 30/30 PASS · `audit.mjs` 495/495 PASS (SV 165, TA 106, GV 170, Admin 54) và `states:true` GV + Admin 544/544 PASS · `demo-run.mjs` 21/21 hàng PASS, 173 s (< 13:45) · `proto-curl.sh all` 497 PASS / 0 FAIL · `pnpm lint` sạch · `pnpm build` OK · `bash scripts/ui-antipatterns.sh` 0 ✗. Commit: `4f7b5b5` (00) · `5086445` (02) · `821be9d` (01) · `0fc7ffb` (03) · `94dbf38` (04) · `6a043ae`.
+
+## Sửa lỗi QC v5 vòng 2 (US-PROTO-01)
+
+| Lỗi | Đã sửa | Cách tự kiểm |
+| --- | --- | --- |
+| BUG-v5-01-6 `/calendar` Tháng 1100 px: nhãn "QUIZ01 đóng · Mật mã đối xứng" xuống 3 dòng | `shortLabel()` (mock/calendar.ts): ô Tháng hiện nhãn ngắn — phần trước " · " và bỏ tiền tố "Hạn nộp " ("QUIZ01 đóng", "Bài tập 02", "Buổi 10", "Thi giữa kỳ"); tên đầy đủ ở `title` và `aria-label` của từng chip. `Calendar.module.css`: ≤ 900 px bớt đệm ô/chip để nhãn hẹp vẫn ≤ 2 dòng | Range rects của mọi chip ở chế độ Tháng, SV B và GV: 1440 → 1 dòng, **1100 → 1 dòng** (QUIZ01 rộng 102 px), 900 → 1, **720 → tối đa 2**, 390 → 1; không chip nào bị cắt (`scrollWidth ≤ clientWidth`), `ox = 0`, 10/10 chip có `title` = `aria-label` = tên đầy đủ |
+
+**Tự kiểm sau sửa (build production :3400):** `audit.mjs` SV (matrix 144 + edge/720 152 + kịch bản 23), GV 170, TA 106, Admin 54 — tất cả PASS, 0 FAIL · `regress-v24.mjs` 30/30 · `proto-curl.sh all` 497 PASS / 0 FAIL · `pnpm lint` sạch · `pnpm build` OK · `ui-antipatterns.sh` 0 ✗. Ghi chú vận hành: lần chạy `audit.mjs` SV đầy đủ trong một lệnh vượt 300 s nên chạy theo phần (matrix / edge / kịch bản) — số lượt không đổi.

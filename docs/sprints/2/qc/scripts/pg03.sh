@@ -137,7 +137,7 @@ tc_pg03_07() {  # AC2 — log error có stack + trace_id của request panic
   $C logs --no-log-prefix --since 60s gateway 2>/dev/null \
     | jq -c "select(.trace_id==\"$t\")" 2>/dev/null > "$f"
   chk_ge "dòng log cùng trace_id $t" "$(grep -c . "$f")" 1
-  chk_ge "dòng log mức error" "$(grep -c '"level":"error"' "$f")" 1
+  chk_ge "dòng log mức error" "$(grep -ci '"level":"error"' "$f")" 1   # QC v2: slog in "ERROR" (hoa)
   chk_ge "dòng log có stack (chuỗi '.go:')" "$(grep -c '\.go:' "$f")" 1
 }
 tc_pg03_08() {  # AC2 — request kế tiếp 200, tiến trình không khởi động lại
@@ -428,13 +428,15 @@ tc_pg03_34() {  # AC6 (test Go) — IP, user, chia bản, miễn health, X-Forwa
 # ================= AC7 — Redis chết khi rate limit (fail-open) =================
 tc_pg03_35() {  # AC7 — Redis dừng: request thường vẫn được xử lý, không treo > 50 ms, log warn ≤ 1/10 s
   ensure_mode test
-  local t0 t1 base d c i warn
+  local t0 t1 base d c i warn s0 rd
   t0=$(now_ms); code -H "$H" $P/whoami >/dev/null; t1=$(now_ms); base=$((t1-t0))
+  s0=$(date +%s)   # QC v2: chỉ đếm log của CHÍNH lần chạy này (không lẫn lần chạy trước)
   $C stop redis >/dev/null 2>&1
   t0=$(now_ms); c=$(code -H "$H" $P/whoami); t1=$(now_ms); d=$((t1-t0))
   for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do code -H "$H" $P/whoami >/dev/null; sleep 0.6; done
-  warn=$($C logs --no-log-prefix --since 40s gateway 2>/dev/null | grep -i '"level":"warn' | grep -ci 'rate')
+  warn=$($C logs --no-log-prefix --since "$(( $(date +%s) - s0 + 1 ))s" gateway 2>/dev/null | grep -i '"level":"warn' | grep -ci 'rate')
   $C start redis >/dev/null 2>&1; wait_ready 90
+  i=0; while [ "$(code $GW/api/v1/readyz)" != 200 ] && [ $i -lt 40 ]; do sleep 0.25; i=$((i+1)); done   # QC v2: readyz 503 ~0,5 s sau khi Redis bật lại (đo tay) — chờ hồi phục ≤ 10 s (AC14), không đọc ngay
   chk "request thường vẫn 200 khi Redis chết (fail-open)" "$c" 200
   chk_le "độ trễ thêm so với baseline (ms)" "$((d-base))" 50
   chk_le "dòng log warn về rate limit trong ~13 s (≤ 1/10 s × 2 bản)" "$warn" 4
@@ -928,7 +930,7 @@ tc_pg03_74() {  # AC14 — 20 PUT song song cùng version: đúng 1 lần 200, 1
   id=$(newitem "qc74-$(now_ms)")
   rm -rf "$d"; mkdir -p "$d"
   for i in $(seq 20); do
-    ( curl -sk --max-time 40 -o "$d/b$i" -w '%{http_code}' -X PUT -H "$H" -H 'Content-Type: application/json' \
+    ( curl -sk --max-time 40 -o "$d/b$i" -w '%{http_code}\n' -X PUT -H "$H" -H 'Content-Type: application/json' \
         -d "{\"name\":\"qc74-$i\",\"version\":1}" "$ITEMS/$id" > "$d/s$i" ) &
   done
   wait
@@ -952,7 +954,7 @@ tc_pg03_76() {  # AC15 — GET item: ETag W/"v<version>", Cache-Control: private
   chk "status" "$s" 200
   chk "ETag" "$(hv "$HD" etag)" 'W/"v1"'
   chk "Cache-Control" "$(hv "$HD" cache-control)" 'private, no-cache'
-  chk_re "Vary có Authorization" "$(hv "$HD" vary)" 'Authorization'
+  chk_re "Vary có Authorization" "$(tr -d '\r' < "$HD" | grep -i '^vary:' | tr '\n' ' ')" 'Authorization'   # QC v2: gateway gửi Vary thành hai dòng (Origin, Authorization)
   $PSQL -c "delete from _test_items where id='$id'" >/dev/null 2>&1
 }
 tc_pg03_77() {  # AC15 — If-None-Match khớp (một giá trị) → 304, thân rỗng, có ETag
@@ -1286,7 +1288,7 @@ tc_pg03_104() {  # AC16 (#Q-QC-03-4) — steps biên 1 và 100 hợp lệ → 20
   s=$(post_job '{}');            chk "thiếu steps: status" "$s" 202
   id=$(jb '.job_id')
   chk_re "job_id là uuid" "$id" '^[0-9a-f-]{36}$'
-  while [ $i -lt 120 ]; do
+  while [ $i -lt 600 ]; do   # QC v2: việc mặc định xếp sau việc 100 bước (worker xử lý tuần tự ~17 s) — cần hơn 120 lần thăm
     get_json -H "$H" "$GW/api/v1/jobs/$id" >/dev/null; p=$(jb '.progress')
     case "$p" in 0|25|50|75|100) ;; *) bad="$bad [$p]";; esac
     [ "$p" = 100 ] && break

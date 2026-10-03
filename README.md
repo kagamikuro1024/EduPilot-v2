@@ -4,7 +4,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** sprint 1/10 xong (P0); sprint 1.5 xong (prototype giao diện tương tác toàn bộ tính năng phục vụ thuyết trình với thầy hướng dẫn; chạy tại `http://localhost:3000`). Sprint kế tiếp: sprint 2 (PG — Nền Go). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** sprint 1/10 xong (P0); sprint 1.5 xong (prototype giao diện bấm được toàn bộ tính năng, dữ liệu mô phỏng, 4 vai, kịch bản demo 15 phút — 449 test case PASS; xem mục 5 "Xem prototype"). Đang làm: sprint 2 (PG — Nền Go). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -134,6 +134,12 @@ Biến môi trường: [`.env.example`](.env.example) (chỉ giá trị dev gi�
 
 Không ghi secret vào repo. Khoá LLM thật chỉ đặt trong `.env.local` (đã bị `.gitignore`); mọi test dùng provider `fake`.
 
+### Xem prototype (sprint 1.5)
+```bash
+pnpm -C frontend build && pnpm -C frontend start     # http://localhost:3000
+```
+`/login` → chọn vai (Sinh viên chọn tiếp A/B/C/D); menu hồ sơ → `Đổi vai`, `Đặt lại dữ liệu demo`. Dữ liệu là mô phỏng (`frontend/src/mock/`), trạng thái lưu ở trình duyệt; màn mock được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
+
 ## 6. Kiểm thử và CI
 
 ```bash
@@ -214,7 +220,7 @@ flowchart LR
 | Sprint | Phase | Kết quả chính |
 | --- | --- | --- |
 | 1 ✅ | P0 Chuẩn bị | Mặt bằng mới, khung Go + Next.js, stack local, CI, kịch bản demo |
-| 1.5 ✅ | Prototype giao diện (D51) | Prototype tương tác toàn bộ tính năng (31 route), đổi 4 vai, đi trọn kịch bản demo 15 phút, sẵn sàng thuyết trình |
+| 1.5 ✅ | Prototype giao diện (D51) | Prototype bấm được toàn bộ tính năng, đổi 4 vai, Threads mô phỏng như thật, đi trọn kịch bản demo 15 phút |
 | 2 | PG Nền Go | DB/migration/sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, nhân bản gateway |
 | 3 | PU + P1 | Token, app shell, primitive; LLM gateway + Scheduler + cấu hình provider |
 | 4 | P2 | Tài khoản an toàn, mở lớp, phân công, mã tham gia, "Hôm nay" |

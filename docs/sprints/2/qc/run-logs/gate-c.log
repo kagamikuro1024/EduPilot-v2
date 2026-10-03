@@ -1,0 +1,51 @@
+== TC-GATE-22
+    ok   gateway thiếu JWT_SECRET_KEY: rc = [1]
+    ok   log nêu tên biến = [JWT_SECRET_KEY]
+    ok   cổng 8080 không mở / không phục vụ (readyz của bản thiếu env không tồn tại) = [0]
+    ok   bản đang phục vụ không bị ảnh hưởng (RestartCount/StartedAt) = [/edupilot-gateway-1 0 2026-10-02T21:18:17.577033609Z
+/edupilot-gateway-2 0 2026-10-02T21:18:17.481588436Z
+/edupilot-worker-1 0 2026-10-02T21:18:17.398358634Z]
+    ok   readyz vẫn 200 = [200]
+    ok   .env.local khôi phục = [y]
+-- TC-GATE-22 PASS
+== TC-GATE-23
+    ok   đã nhận id e5 ~ /^[0-9]+-[0-9]+$/
+    ok   đã nhận n 1..5 = [1 2 3 4 5]
+    FAIL sau nối lại nhận đúng 6..12 theo thứ tự: thực tế [] ≠ mong đợi [6 7 8 9 10 11 12]
+    ok   không nhận lại e5 = [0]
+    ok   không trùng = [0]
+    ok   không có resync = [0]
+    ok   dòng đầu stream nối lại = [retry: 3000]
+-- TC-GATE-23 FAIL
+== TC-GATE-24
+    mạng đã rút 04:21:42
+    mạng đã cắm 04:21:52
+    ok   gateway nhận lại qua Caddy ≤ 40 s sau khi cắm = [200]
+    ok   đã nhận trước khi rút: 1 2 = [1 2]
+    FAIL nối lại nhận 3 4 (không lặp 2): thực tế [] ≠ mong đợi [3 4]
+    ok   gateway/worker không restart = [0]
+-- TC-GATE-24 FAIL
+== TC-GATE-28
+    stream đang ở f6ebc3352314
+    docker stop mất 3200 ms
+    ok   client nhận event: shutdown = [1]
+    ok   shutdown reason = [server_shutdown]
+    ok   đã nhận 1 2 3 trước khi tắt = [1 2 3]
+    ok   phiên kế tiếp vẫn chạy (cùng token, không 401) = [404]
+    FAIL nối lại bản còn lại: nhận 4 5 6: thực tế [] ≠ mong đợi [4 5 6]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-28 FAIL
+== TC-GATE-29
+    ok   dòng không-200 trong 200 request = 1 (≤ 4)
+    ok   60 dòng cuối 0 lỗi = [0]
+    FAIL stream cũ vẫn sống và nhận n=99: thực tế [] ≠ mong đợi [99]
+    FAIL không có event: shutdown (bản mang stream không bị tắt): thực tế [1] ≠ mong đợi [0]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-29 FAIL
+== TC-GATE-99
+    ok   chế độ cuối = [default]
+    ok   2 gateway healthy = [2]
+    ok   mọi container không ở trạng thái exited bất ngờ (trừ migrate) = [0]
+-- TC-GATE-99 PASS
+TỔNG story gate: PASS=2 FAIL=4 MANUAL=0
+FAIL: TC-GATE-23 TC-GATE-24 TC-GATE-28 TC-GATE-29

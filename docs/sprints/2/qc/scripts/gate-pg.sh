@@ -12,7 +12,8 @@ GATE_BR=sprint/2-pg
 gojson_check() {  # gojson_check <file.json> — không skip, không fail; mỗi gói của SRS 9.2 có ≥ 1 test PASS
   local f=$1 n s p pk
   n=$(jq -rs '[.[]|select(.Action=="pass" and .Test!=null)]|length' "$f"); chk_ge "số test PASS" "$n" 100
-  s=$(jq -rs '[.[]|select(.Action=="skip")]|length' "$f");                 chk "số test SKIP (Docker phải có ⇒ không được skip)" "$s" 0
+  s=$(jq -rs '[.[]|select(.Action=="skip" and .Test!=null)]|length' "$f");   # QC v2: chỉ đếm test bị skip (gói không có tệp test cũng phát Action=skip ở mức gói — #10)
+                  chk "số test SKIP (Docker phải có ⇒ không được skip)" "$s" 0
   p=$(jq -rs '[.[]|select(.Action=="fail")]|length' "$f");                 chk "số test/gói FAIL" "$p" 0
   for pk in internal/platform/config internal/platform/log internal/platform/otel internal/platform/redis internal/platform/db internal/platform/blob internal/platform/outbox \
             internal/store internal/httpapi internal/httpapi/sse internal/jobs internal/auth internal/contract cmd/gateway cmd/worker; do
@@ -27,7 +28,7 @@ pub() {  # pub <token> <type> <json-data> [user_id] — phát một sự kiện 
   curl -sk --max-time 10 -o /dev/null -w '%{http_code}' -X POST -H "Authorization: Bearer $1" -H 'Content-Type: application/json' \
     -d "{\"type\":\"$2\",\"data\":$3${4:+,\"user_id\":\"$4\"}}" $GW/api/v1/_test/events; }
 sse_ids() { grep -E '^id: ' "$1" | sed 's/^id: //;s/\r//'; }                    # id Redis Stream đã nhận
-sse_ns()  { grep -E '^data: ' "$1" | jq -r 'select(.n!=null).n' 2>/dev/null; }    # giá trị n đã nhận (thứ tự)
+sse_ns()  { grep -E '^data: ' "$1" | sed 's/^data: //;s/\r//' | jq -r 'select(.n!=null).n' 2>/dev/null; }   # QC v2: bỏ tiền tố "data: " trước khi jq    # giá trị n đã nhận (thứ tự)
 dup_free() { sort | uniq -d | wc -l | tr -d ' '; }
 
 # ================= A. CỔNG NGHIỆM THU (PG.md mục "Cổng nghiệm thu") =================
@@ -41,7 +42,7 @@ tc_gate_02() {  # golangci-lint, hai cấu hình
   (cd $BG && golangci-lint run --build-tags testroutes) >$QC_OUT/g02b.log 2>&1; chk "golangci-lint run --build-tags testroutes rc" "$?" 0; }
 tc_gate_03() {  # go test -race ./... đúng như PG.md (không tag): rc 0, ghi nhận không skip
   (cd $BG && go test -race -count=1 -timeout 40m -json ./...) >$QC_OUT/g03.json 2>$QC_OUT/g03.err; chk "go test -race ./... (PG.md, không tag) rc" "$?" 0
-  chk "FAIL/SKIP trong -json" "$(jq -rs '[.[]|select(.Action=="fail" or .Action=="skip")]|length' $QC_OUT/g03.json)" 0; }
+  chk "FAIL/SKIP trong -json" "$(jq -rs '[.[]|select(.Action=="fail" or (.Action=="skip" and .Test!=null))]|length' $QC_OUT/g03.json)" 0; }
 tc_gate_04() {  # go test -race -tags testroutes ./... (US-PG-07 AC19; make test): đủ gói, đủ test, 0 skip
   (cd $BG && go test -race -count=1 -timeout 40m -tags testroutes -json ./...) >$QC_OUT/g04.json 2>$QC_OUT/g04.err; chk "go test -race -tags testroutes ./... rc" "$?" 0
   gojson_check $QC_OUT/g04.json; }
@@ -54,7 +55,7 @@ tc_gate_06() {  # contract test: PG.md (không tag) + có tag
   chk_nre "contract không tag không 'no tests'" "$(cat $QC_OUT/g06a.log)" 'no tests to run|no test files'
   chk_nre "contract có tag không 'no tests'" "$(cat $QC_OUT/g06b.log)" 'no tests to run|no test files'; }
 tc_gate_07() {  # httpapi -race: cursor, Idempotency gửi đôi → một bản ghi, 409 version, ETag — chứng minh bằng tên test
-  gt './internal/httpapi/...' 'TestCursor_NoSkipNoDup|TestCursor_SameTimestamp|TestCursor_InsertAndDeleteDuringScan|TestIdempotency_DoubleSend_OneRecord|TestIdempotency_ReplayIdentical|TestIdempotency_Concurrent50|TestOptimisticLock_Stale409|TestOptimisticLock_Concurrent20|TestETag_NotModified|TestETag_ChangesAfterUpdate'
+  gt './internal/httpapi' 'TestCursor_NoSkipNoDup|TestCursor_SameTimestamp|TestCursor_InsertAndDeleteDuringScan|TestIdempotency_DoubleSend_OneRecord|TestIdempotency_ReplayIdentical|TestIdempotency_Concurrent50|TestOptimisticLock_Stale409|TestOptimisticLock_Concurrent20|TestETag_NotModified|TestETag_ChangesAfterUpdate'
   (cd $BG && go test -race -count=1 -timeout 20m -tags testroutes ./internal/httpapi/...) >$QC_OUT/g07.log 2>&1; chk "go test -race ./internal/httpapi/... rc" "$?" 0; }
 tc_gate_08() {  # sse + auth -race
   gt './internal/httpapi/sse/...' 'TestSSE_Headers|TestSSE_LastEventID_NoLossNoDup|TestSSE_ReconnectRace|TestSSE_CrossInstance|TestSSE_GatewayShutdownFailover|TestSSE_MaxTwoPerUser'
@@ -80,7 +81,7 @@ tc_gate_12() {  # k6 smoke trên bản mặc định: rc 0, ngưỡng đạt; st
   k6 run -e BASE=$GW -e TOKEN="$(tok STUDENT $U1 --ttl 30m)" benchmarks/load/smoke.js >$QC_OUT/g12.k6 2>&1; rc=$?
   chk "k6 rc" "$rc" 0
   chk_ge "số dòng p(95)<300 trong smoke.js" "$(grep -c 'p(95)<300' benchmarks/load/smoke.js)" 3
-  chk "không ngưỡng lớn hơn SLO (chỉ 300 và 500)" "$(grep -oE 'p\(95\)<[0-9]+' benchmarks/load/smoke.js | sort -u | paste -sd' ')" "p(95)<300 p(95)<500"
+  chk "không ngưỡng lớn hơn SLO (chỉ 300 và 500)" "$(grep -oE 'p\(95\)<[0-9]+' benchmarks/load/smoke.js | sort -u | paste -sd' ' -)" "p(95)<300 p(95)<500"
   chk_nre "k6 không có ngưỡng ✗" "$(grep -E '^\s+(✗|X) ' $QC_OUT/g12.k6 | head -3)" '.'
   after=$(rc_snapshot); chk "RestartCount/StartedAt gateway+worker không đổi khi chạy k6" "$after" "$before"; }
 tc_gate_13() {  # biến thể ghi (-e TEST_ROUTES=1) trên bản test; rồi trả về mặc định
@@ -100,7 +101,7 @@ tc_gate_20() {  # (1) xoá volume DB rồi pnpm dev: migration 00001 chạy hế
   echo "    thời gian tới readyz: $(( ($(now_ms)-t0)/1000 )) s"
   chk "migrate" "$($C ps -a --format '{{.Service}} {{.State}} {{.ExitCode}}' | grep '^migrate ')" "migrate exited 0"
   chk_ge "goose_db_version dòng đã áp" "$($PSQL -c 'select count(*) from goose_db_version where is_applied')" 2
-  chk "bảng nền" "$($PSQL -c "select tablename from pg_tables where schemaname='public' and tablename not like '\\_test%' order by 1" | paste -sd' ')" "audit_log goose_db_version idempotency_keys jobs outbox users"
+  chk "bảng nền" "$($PSQL -c "select tablename from pg_tables where schemaname='public' and tablename not like '\\_test%' order by 1" | paste -sd' ' -)" "audit_log goose_db_version idempotency_keys jobs outbox users"
   chk_nre "pnpm dev không hỏi/nhắc thao tác tay" "$(cat $QC_OUT/g20.dev)" '\[y/N\]|\(y/n\)|Press|Enter to|please run|chạy tay'
   kill $pid 2>/dev/null; true; }
 tc_gate_21() {  # (2) bỏ một biến bắt buộc: chết NGAY lúc khởi động, nêu đúng tên; không chết lúc đang phục vụ
@@ -116,7 +117,7 @@ tc_gate_22() {  # (2b) cùng việc ở compose: gateway thật thoát 1 nêu t�
   sed -i.bak '/^JWT_SECRET_KEY=/d' .env.local; $C run --rm --no-deps --name qc-gw-noenv gateway serve >$QC_OUT/g22.log 2>&1; rc=$?
   cp $QC_TMP/env.local.bak .env.local; rm -f .env.local.bak
   chk "gateway thiếu JWT_SECRET_KEY: rc" "$rc" 1
-  chk "log nêu tên biến" "$(jq -r 'select(.missing).missing[]' $QC_OUT/g22.log 2>/dev/null | sort -u)" JWT_SECRET_KEY
+  chk "log nêu tên biến" "$(grep '^{' $QC_OUT/g22.log | jq -r 'select(.missing).missing[]' 2>/dev/null | sort -u)" JWT_SECRET_KEY   # QC v2: log của `compose run` có dòng "Container … Creating" không phải JSON
   chk "cổng 8080 không mở / không phục vụ (readyz của bản thiếu env không tồn tại)" "$(docker ps -q --filter name=qc-gw-noenv | wc -l | tr -d ' ')" 0
   chk "bản đang phục vụ không bị ảnh hưởng (RestartCount/StartedAt)" "$(rc_snapshot)" "$before"
   chk "readyz vẫn 200" "$(code $GW/api/v1/readyz)" 200; chk ".env.local khôi phục" "$(cmp -s $QC_TMP/env.local.bak .env.local && echo y)" y; }
@@ -125,10 +126,10 @@ tc_gate_23() {  # (3a) SSE: rút mạng phía client 10 s rồi nối lại bằ
   pid=$(sse_cap $f1 60 "$T"); sleep 1
   for n in 1 2 3 4 5; do pub "$T" test.ping "{\"n\":$n}" >/dev/null; sleep 0.3; done
   sleep 1; kill $pid 2>/dev/null; wait $pid 2>/dev/null           # rút mạng
-  last=$(sse_ids $f1 | tail -1); chk_re "đã nhận id e5" "$last" '^[0-9]+-[0-9]+$'; chk "đã nhận n 1..5" "$(sse_ns $f1 | paste -sd' ')" "1 2 3 4 5"
+  last=$(sse_ids $f1 | tail -1); chk_re "đã nhận id e5" "$last" '^[0-9]+-[0-9]+$'; chk "đã nhận n 1..5" "$(sse_ns $f1 | paste -sd' ' -)" "1 2 3 4 5"
   for n in 6 7 8 9 10 11 12; do pub "$T" test.ping "{\"n\":$n}" >/dev/null; sleep 1.2; done      # 10+ giây mất mạng, phát tiếp
-  pid=$(sse_cap $f2 8 "$T" -H "Last-Event-ID: $last"); wait $pid 2>/dev/null
-  chk "sau nối lại nhận đúng 6..12 theo thứ tự" "$(sse_ns $f2 | paste -sd' ')" "6 7 8 9 10 11 12"
+  pid=$(sse_cap $f2 8 "$T" -H "Last-Event-ID: $last"); while kill -0 $pid 2>/dev/null; do sleep 0.3; done   # QC v2: pid của sse_cap thuộc subshell $(…) nên `wait` trả về ngay
+  chk "sau nối lại nhận đúng 6..12 theo thứ tự" "$(sse_ns $f2 | paste -sd' ' -)" "6 7 8 9 10 11 12"
   chk "không nhận lại e5" "$(sse_ns $f2 | grep -c '^5$')" 0
   chk "không trùng" "$(sse_ns $f2 | dup_free)" 0
   chk "không có resync" "$(grep -c '^event: resync' $f2)" 0
@@ -144,10 +145,10 @@ tc_gate_24() {  # (3b) rút mạng THẬT giữa Caddy và mạng compose 10 s (
   last=$(sse_ids $f1 | tail -1)
   wait_ready 40; chk "gateway nhận lại qua Caddy ≤ 40 s sau khi cắm" "$(code $GW/api/v1/readyz)" 200
   pub "$T" test.ping '{"n":3}' >/dev/null; pub "$T" test.ping '{"n":4}' >/dev/null
-  pid=$(sse_cap $f2 4 "$T" -H "Last-Event-ID: $last"); wait $pid 2>/dev/null
-  chk "đã nhận trước khi rút: 1 2" "$(sse_ns $f1 | paste -sd' ')" "1 2"
-  chk "nối lại nhận 3 4 (không lặp 2)" "$(sse_ns $f2 | paste -sd' ')" "3 4"
-  chk "gateway/worker không restart" "$($C ps -q gateway worker | while read c; do docker inspect -f '{{.RestartCount}}' $c; done | sort -u | paste -sd' ')" 0; }
+  pid=$(sse_cap $f2 4 "$T" -H "Last-Event-ID: $last"); while kill -0 $pid 2>/dev/null; do sleep 0.3; done   # QC v2: pid của sse_cap thuộc subshell $(…) nên `wait` trả về ngay
+  chk "đã nhận trước khi rút: 1 2" "$(sse_ns $f1 | paste -sd' ' -)" "1 2"
+  chk "nối lại nhận 3 4 (không lặp 2)" "$(sse_ns $f2 | paste -sd' ' -)" "3 4"
+  chk "gateway/worker không restart" "$($C ps -q gateway worker | while read c; do docker inspect -f '{{.RestartCount}}' $c; done | sort -u | paste -sd' ' -)" 0; }
 tc_gate_25() {  # (3c) trình duyệt thật: Chrome offline 10 s → tự nối lại bằng Last-Event-ID (sse-browser-cut.mjs, chạy bằng eval)
   manual "chạy: const m = await import('$SD/sse-browser-cut.mjs'); await m.default(browser, { base: '$GW', token: <tok STUDENT U1 --ttl 10m>, publishCmd: <xem tc-GATE-PG.md> }); kỳ vọng ok=true"; }
 tc_gate_26() {  # (4a) gửi đúp Idempotency-Key bằng hai tiến trình song song (hai 'tab'): một bản ghi, hai response giống hệt
@@ -168,7 +169,7 @@ tc_gate_28() {  # (5a) tắt MỘT trong hai gateway giữa stream: bản mang s
   ensure_mode test; T=$(tok STUDENT $U1 --ttl 10m); f1=$QC_OUT/g28.1; f2=$QC_OUT/g28.2
   ids=$(gw_ids); victim=""; for k in 1 2 3 4 5 6; do   # tìm stream rơi vào bản nào qua X-Instance-Id
     hdrf=$QC_OUT/g28.h; : >$f1; ( curl -sk -N --max-time 40 -D $hdrf -H "Authorization: Bearer $T" $GW/api/v1/events >$f1 2>/dev/null ) & pid=$!; sleep 1.5
-    inst=$(tr -d '\r' <$hdrf | hval x-instance-id); victim=$(docker ps -q --filter "name=$inst" | head -1)
+    inst=$(tr -d '\r' <$hdrf | hval x-instance-id); victim=$(docker ps -q --filter "id=$inst" | head -1)
     [ -n "$victim" ] && break; kill $pid 2>/dev/null; wait $pid 2>/dev/null; done
   [ -n "$victim" ] || { fail_tc "không xác định được bản mang stream (X-Instance-Id=$inst)"; return; }
   echo "    stream đang ở $inst"; for n in 1 2 3; do pub "$T" test.ping "{\"n\":$n}" >/dev/null; done; sleep 1
@@ -176,17 +177,17 @@ tc_gate_28() {  # (5a) tắt MỘT trong hai gateway giữa stream: bản mang s
   sleep 1; wait $pid 2>/dev/null
   chk "client nhận event: shutdown" "$(grep -c '^event: shutdown' $f1)" 1
   chk "shutdown reason" "$(grep -A1 '^event: shutdown' $f1 | grep '^data:' | sed 's/^data: //;s/\r//' | jq -r .reason)" server_shutdown
-  last=$(sse_ids $f1 | tail -1); chk "đã nhận 1 2 3 trước khi tắt" "$(sse_ns $f1 | paste -sd' ')" "1 2 3"
+  last=$(sse_ids $f1 | tail -1); chk "đã nhận 1 2 3 trước khi tắt" "$(sse_ns $f1 | paste -sd' ' -)" "1 2 3"
   for n in 4 5 6; do pub "$T" test.ping "{\"n\":$n}" >/dev/null; done                   # phát trong lúc chuyển bản
   chk "phiên kế tiếp vẫn chạy (cùng token, không 401)" "$(code -H "Authorization: Bearer $T" $GW/api/v1/jobs/$UX)" 404
-  : >$f2; pid=$(sse_cap $f2 4 "$T" -H "Last-Event-ID: $last"); wait $pid 2>/dev/null
-  chk "nối lại bản còn lại: nhận 4 5 6" "$(sse_ns $f2 | paste -sd' ')" "4 5 6"
+  : >$f2; pid=$(sse_cap $f2 4 "$T" -H "Last-Event-ID: $last"); while kill -0 $pid 2>/dev/null; do sleep 0.3; done   # QC v2: pid của sse_cap thuộc subshell $(…) nên `wait` trả về ngay
+  chk "nối lại bản còn lại: nhận 4 5 6" "$(sse_ns $f2 | paste -sd' ' -)" "4 5 6"
   $C up -d --scale gateway=2 --wait gateway >/dev/null 2>&1; wait_ready 60; chk "khôi phục 2 gateway" "$(gw_ids | wc -l | tr -d ' ')" 2; }
 tc_gate_29() {  # (5b) tắt MỘT gateway KHÔNG mang stream: stream giữ nguyên; lưu lượng GET 0 lỗi sau 6 s
   ensure_mode test; T=$(tok STUDENT $U1 --ttl 10m); f1=$QC_OUT/g29.1; : >$f1
   for k in 1 2 3 4 5 6; do hdrf=$QC_OUT/g29.h; ( curl -sk -N --max-time 60 -D $hdrf -H "Authorization: Bearer $T" $GW/api/v1/events >$f1 2>/dev/null ) & pid=$!; sleep 1.5
     inst=$(tr -d '\r' <$hdrf | hval x-instance-id); [ -n "$inst" ] && break; done
-  other=$(docker ps --filter name=gateway --format '{{.Names}}' | grep -v "^$inst$" | head -1); [ -n "$other" ] || { fail_tc "không thấy bản thứ hai"; return; }
+  other=$(docker ps -q --filter name=gateway | grep -v "^$inst" | head -1)   # QC v2: X-Instance-Id là id container (12 hex), không phải tên; [ -n "$other" ] || { fail_tc "không thấy bản thứ hai"; return; }
   ( for i in $(seq 200); do code $GW/api/v1/healthz; echo; sleep 0.1; done >$QC_OUT/g29.codes ) & lp=$!
   sleep 5; docker stop -t 30 $other >/dev/null 2>&1; wait $lp
   chk_le "dòng không-200 trong 200 request" "$(grep -vc '^200$' $QC_OUT/g29.codes)" 4

@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net"
 	"strings"
 	"sync"
@@ -30,14 +31,15 @@ func (s *safeOut) String() string {
 
 func serveEnv() map[string]string {
 	return map[string]string{
-		"DATABASE_URL":    "postgres://u:p@127.0.0.1:1/db",
-		"REDIS_URL":       "redis://127.0.0.1:1/0",
-		"JWT_SECRET_KEY":  "0123456789abcdef0123456789abcdef",
-		"BLOB_ENDPOINT":   "127.0.0.1:1",
-		"BLOB_BUCKET":     "b",
-		"BLOB_ACCESS_KEY": "ak",
-		"BLOB_SECRET_KEY": "sk",
-		"HTTP_ADDR":       "127.0.0.1:0",
+		"DATABASE_URL":       "postgres://u:p@127.0.0.1:1/db",
+		"REDIS_URL":          "redis://127.0.0.1:1/0",
+		"JWT_SECRET_KEY":     "0123456789abcdef0123456789abcdef",
+		"BLOB_ENDPOINT":      "127.0.0.1:1",
+		"BLOB_BUCKET":        "b",
+		"BLOB_ACCESS_KEY":    "ak",
+		"BLOB_SECRET_KEY":    "sk",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=",
+		"HTTP_ADDR":          "127.0.0.1:0",
 	}
 }
 
@@ -126,8 +128,17 @@ func TestServe_InvalidEnvNamesVariable(t *testing.T) {
 			if msg, _ := m["msg"].(string); !strings.Contains(msg, tc.key) {
 				t.Fatalf("msg = %q, muốn nêu %s", msg, tc.key)
 			}
-			if tc.leak != "" && strings.Contains(out, tc.leak) {
-				t.Fatalf("log lộ giá trị %q: %s", tc.leak, out)
+			// Chỉ so trong các trường do ứng dụng viết; `trace_id` / `instance` / `time` là chuỗi ngẫu nhiên và có thể
+			// tình cờ chứa "abc" (BUG-PG-3).
+			if tc.leak != "" {
+				for k, v := range m {
+					if k == "trace_id" || k == "instance" || k == "time" {
+						continue
+					}
+					if strings.Contains(fmt.Sprint(v), tc.leak) {
+						t.Fatalf("log lộ giá trị %q ở trường %s: %s", tc.leak, k, out)
+					}
+				}
 			}
 			if strings.Contains(out, "config loaded") {
 				t.Fatalf("không được chạy tiếp sau cấu hình sai: %s", out)

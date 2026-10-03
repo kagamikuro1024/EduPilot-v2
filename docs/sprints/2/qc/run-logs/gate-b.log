@@ -1,0 +1,29 @@
+== TC-GATE-03
+    ok   go test -race ./... (PG.md, không tag) rc = [0]
+    ok   FAIL/SKIP trong -json = [0]
+-- TC-GATE-03 PASS
+== TC-GATE-04
+    ok   go test -race -tags testroutes ./... rc = [0]
+    ok   số test PASS = 357 (≥ 100)
+    ok   số test SKIP (Docker phải có ⇒ không được skip) = [0]
+    ok   số test/gói FAIL = [0]
+    ok   gói internal/platform/config — test PASS = 31 (≥ 1)
+    ok   gói internal/platform/log — test PASS = 2 (≥ 1)
+    ok   gói internal/platform/otel — test PASS = 2 (≥ 1)
+    ok   gói internal/platform/redis — test PASS = 4 (≥ 1)
+    ok   gói internal/platform/db — test PASS = 8 (≥ 1)
+    ok   gói internal/platform/blob — test PASS = 16 (≥ 1)
+    ok   gói internal/platform/outbox — test PASS = 9 (≥ 1)
+    ok   gói internal/store — test PASS = 19 (≥ 1)
+    ok   gói internal/httpapi — test PASS = 83 (≥ 1)
+    ok   gói internal/httpapi/sse — test PASS = 38 (≥ 1)
+    ok   gói internal/jobs — test PASS = 7 (≥ 1)
+    ok   gói internal/auth — test PASS = 98 (≥ 1)
+    ok   gói internal/contract — test PASS = 10 (≥ 1)
+    ok   gói cmd/gateway — test PASS = 26 (≥ 1)
+    ok   gói cmd/worker — test PASS = 3 (≥ 1)
+    ok   gói db (migration) — test PASS = 9 (≥ 1)
+-- TC-GATE-04 PASS
+== TC-GATE-22
+    ok   gateway thiếu JWT_SECRET_KEY: rc = [1]
+docs/sprints/2/qc/scripts/lib.sh: line 38: $3: unbound variable

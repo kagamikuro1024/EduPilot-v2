@@ -93,12 +93,12 @@ genv() { printf '%s\n' DATABASE_URL=postgres://u:p@127.0.0.1:1/db REDIS_URL=redi
   "JWT_SECRET_KEY=$SEC32" BLOB_ENDPOINT=127.0.0.1:1 BLOB_BUCKET=b BLOB_ACCESS_KEY=ak BLOB_SECRET_KEY=sk STARTUP_TIMEOUT=20s; }
 serve_rc() {  # serve_rc <VAR=giá_trị> → in "<rc>|<đường dẫn log>"; dùng cho giá trị env SAI (phải thoát ngay)
   local f=$QC_OUT/serve-$(printf '%s' "$1" | tr -c 'A-Za-z0-9' '_').log
-  { printf '%s\n' "$1"; genv; } | xargs env -i PATH="$PATH" "$GWBIN" serve >"$f" 2>&1
+  env -i PATH="$PATH" "$1" $(genv) "$GWBIN" serve >"$f" 2>&1   # QC v2: xargs đẩy VAR=… SAU `serve` (thành đối số, không phải biến môi trường) — dùng env trực tiếp
   echo "$?|$f"
 }
 serve_alive() {  # serve_alive <VAR=giá_trị> <giây> → 1 nếu tiến trình còn sống (không thoát vì cấu hình)
   local f=$QC_OUT/serve-alive-$(printf '%s' "$1" | tr -c 'A-Za-z0-9' '_').log p
-  ( { printf '%s\n' "$1"; genv; } | xargs env -i PATH="$PATH" "$GWBIN" serve >"$f" 2>&1 ) & p=$!
+  ( env -i PATH="$PATH" "$1" $(genv) "$GWBIN" serve >"$f" 2>&1 ) & p=$!
   sleep "$2"
   local r=0; kill -0 $p 2>/dev/null && r=1
   kill $p 2>/dev/null; pkill -f "$GWBIN serve" 2>/dev/null; wait $p 2>/dev/null; sleep 1   # không để lại tiến trình giữ :8080 cho lần đo sau
@@ -114,7 +114,7 @@ tc_pg04_01() {  # AC1 — header JWT: alg=HS256, typ=JWT, đúng 2 khoá
   chk "header chỉ có alg,typ" "$(printf '%s' "$h" | jq -r '[keys[]]|join(",")')" "alg,typ"
 }
 tc_pg04_02() {  # AC1 — payload đúng 9 khoá (lệnh Kiểm nguyên văn của AC1)
-  local k; k=$(tok STUDENT $U1 | cut -d. -f2 | tr '_-' '/+' | base64 -d 2>/dev/null | jq -c 'keys')
+  local k; k=$(jwt_part "$(tok STUDENT $U1)" 2 | jq -c 'keys')   # QC v2: base64 -d của macOS đòi đệm '=' — dùng jwt_part (lib.sh) cùng phép giải mã
   chk "keys của payload" "$k" '["aud","email","exp","iat","iss","jti","nbf","role","sub"]'
 }
 tc_pg04_03() {  # AC1 — exp − iat = JWT_EXPIRATION; mặc định 900; --ttl đổi đúng
@@ -408,7 +408,7 @@ tc_pg04_41() {  # AC8 (biên env) — BCRYPT_COST sai (ngoài 4–14 hoặc khô
 }
 
 # ================= AC9 — không log bí mật =================
-tc_pg04_42() { gt ./internal/auth ./internal/httpapi 'TestAuth_NoSecretsInLogs'; }   # AC9 — test Go
+tc_pg04_42() { gt './internal/auth ./internal/httpapi' 'TestAuth_NoSecretsInLogs'; }   # AC9 — test Go
 tc_pg04_43() {  # AC9 — hộp đen: 20 request có token rồi soi log container
   ensure_mode test || fail_tc "không vào được chế độ test"
   local t jti i lg=$QC_OUT/tc-pg04-43.log

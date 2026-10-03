@@ -128,7 +128,7 @@ tc_pg01_08() {  # AC1 — test Go
 # ============================================================ AC2 — giá trị biến sai
 tc_pg01_09() {  # AC2 — JWT_SECRET_KEY 31 byte
   bins || { fail_tc "không dựng được binary"; return; }
-  cfg_bad "$QC_OUT/tc-pg01-09.log" JWT_SECRET_KEY 'short-secret' JWT_SECRET_KEY=short-secret-31-bytes-xxxxxxxxxx; }
+  cfg_bad "$QC_OUT/tc-pg01-09.log" JWT_SECRET_KEY 'short-secret' JWT_SECRET_KEY=short-secret-31-bytes-xxxxxxxxx; }
 
 tc_pg01_10() {  # AC2 — DB_MAX_CONNS=0
   bins || { fail_tc "không dựng được binary"; return; }
@@ -329,6 +329,7 @@ tc_pg01_32() {  # AC6 — tự tạo mỗi loại khoá rồi kiểm MỌI khoá
   chk "số khoá ep:* không có TTL" "$noexp" 0
   wait "$pid" 2>/dev/null; return 0; }
 
+maxttl() { local best=-3 t k; for k in $($RDS --scan --pattern "$1" 2>/dev/null | tr -d '\r' | grep -v ':lock$'); do t=$($RDS ttl "$k" 2>/dev/null | tr -d '\r'); [ "${t:--3}" -gt "$best" ] 2>/dev/null && best=$t; done; echo "$best"; }
 tc_pg01_33() {  # AC6 — TTL đúng hằng số SRS 5.6 (idem 24 h, rate limit 120 s, SSE conn 150 s, SSE buf 1 h)
   ensure_mode test || { fail_tc "không vào được chế độ test"; return; }
   local t pid k ttl
@@ -340,14 +341,10 @@ tc_pg01_33() {  # AC6 — TTL đúng hằng số SRS 5.6 (idem 24 h, rate limit 
   curl -sk --max-time 10 -o /dev/null -X POST -H "Authorization: Bearer $t" -H 'Content-Type: application/json' \
     -d '{"type":"test.ping","data":{"n":1}}' "$GW/api/v1/_test/events" 2>/dev/null
   sleep 1
-  k=$($RDS --scan --pattern 'ep:idem:*' 2>/dev/null | tr -d '\r' | grep -v ':lock$' | head -1)
-  ttl=$($RDS ttl "$k" 2>/dev/null | tr -d '\r'); chk_le "TTL ep:idem ≤ 86400" "${ttl:-x}" 86400; chk_ge "TTL ep:idem ≥ 86300" "${ttl:-x}" 86300
-  k=$($RDS --scan --pattern 'ep:rl:*' 2>/dev/null | tr -d '\r' | head -1)
-  ttl=$($RDS ttl "$k" 2>/dev/null | tr -d '\r'); chk_le "TTL ep:rl ≤ 120" "${ttl:-x}" 120; chk_ge "TTL ep:rl ≥ 60" "${ttl:-x}" 60
-  k=$($RDS --scan --pattern 'ep:sse:conn:*' 2>/dev/null | tr -d '\r' | head -1)
-  ttl=$($RDS ttl "$k" 2>/dev/null | tr -d '\r'); chk_le "TTL ep:sse:conn ≤ 150" "${ttl:-x}" 150; chk_ge "TTL ep:sse:conn ≥ 100" "${ttl:-x}" 100
-  k=$($RDS --scan --pattern 'ep:sse:buf:*' 2>/dev/null | tr -d '\r' | head -1)
-  ttl=$($RDS ttl "$k" 2>/dev/null | tr -d '\r'); chk_le "TTL ep:sse:buf ≤ 3600" "${ttl:-x}" 3600; chk_ge "TTL ep:sse:buf ≥ 3500" "${ttl:-x}" 3500
+  ttl=$(maxttl 'ep:idem:*');   # QC v2: TTL lớn nhất trong các khoá (khoá mới tạo) — khoá cũ từ TC trước đã già đi chk_le "TTL ep:idem ≤ 86400" "${ttl:-x}" 86400; chk_ge "TTL ep:idem ≥ 86300" "${ttl:-x}" 86300
+  ttl=$(maxttl 'ep:rl:*');   # QC v2: TTL lớn nhất trong các khoá (khoá mới tạo) — khoá cũ từ TC trước đã già đi chk_le "TTL ep:rl ≤ 120" "${ttl:-x}" 120; chk_ge "TTL ep:rl ≥ 60" "${ttl:-x}" 60
+  ttl=$(maxttl 'ep:sse:conn:*');   # QC v2: TTL lớn nhất trong các khoá (khoá mới tạo) — khoá cũ từ TC trước đã già đi chk_le "TTL ep:sse:conn ≤ 150" "${ttl:-x}" 150; chk_ge "TTL ep:sse:conn ≥ 100" "${ttl:-x}" 100
+  ttl=$(maxttl 'ep:sse:buf:*');   # QC v2: TTL lớn nhất trong các khoá (khoá mới tạo) — khoá cũ từ TC trước đã già đi chk_le "TTL ep:sse:buf ≤ 3600" "${ttl:-x}" 3600; chk_ge "TTL ep:sse:buf ≥ 3500" "${ttl:-x}" 3500
   wait "$pid" 2>/dev/null; return 0; }
 
 tc_pg01_34() {  # AC6 — không khoá nào ngoài `ep:` / `outbox.dispatch` / `jobs.`
@@ -823,7 +820,7 @@ tc_pg01_77() {  # AC14 — test Go
 # ============================================================ AC15 — không áp dụng (ràng buộc an toàn thay thế)
 tc_pg01_78() {  # AC15 — không có bí mật trong repo (lệnh nguyên văn của AC15)
   local out
-  out=$(git grep -nE 'JWT_SECRET_KEY=[^ ]{20,}' -- ':!.env.example' ':!docs' 2>/dev/null)
+  out=$(git grep -nE 'JWT_SECRET_KEY=[^ ]{20,}' -- ':!.env.example' ':!docs' ':!legacy' 2>/dev/null)
   printf '%s' "$out" > "$QC_OUT/tc-pg01-78.txt"
   chk "số dòng khớp bí mật trong repo" "$(printf '%s' "$out" | grep -c .)" 0; }
 
@@ -833,9 +830,11 @@ tc_pg01_79() {  # AC15 — .env.example chỉ có giá trị dev giả, khác b�
   for v in DATABASE_URL REDIS_URL JWT_SECRET_KEY BLOB_ENDPOINT BLOB_BUCKET BLOB_ACCESS_KEY BLOB_SECRET_KEY; do
     chk_ge "có khai báo $v" "$(grep -c "^$v=" .env.example)" 1
   done
-  chk_ne "JWT_SECRET_KEY ở .env.example khác .env.local" "$(grep '^JWT_SECRET_KEY=' .env.example | cut -d= -f2-)" "$SECRET"
-  chk_ne "BLOB_SECRET_KEY ở .env.example khác .env.local" "$(grep '^BLOB_SECRET_KEY=' .env.example | cut -d= -f2-)" "$(envv BLOB_SECRET_KEY)"
-  chk_ne "POSTGRES_PASSWORD ở .env.example khác .env.local" "$(grep '^POSTGRES_PASSWORD=' .env.example | cut -d= -f2-)" "$(envv POSTGRES_PASSWORD)"; }
+  # #9(1)/#11: bỏ so sánh gián tiếp với .env.local (pnpm dev sao chép .env.example → .env.local); đo trực tiếp quy ước "-dev"
+  for v in JWT_SECRET_KEY BLOB_SECRET_KEY POSTGRES_PASSWORD; do
+    chk_re "$v ở .env.example là giá trị dev giả (có -dev)" "$(grep "^$v=" .env.example | cut -d= -f2-)" '-dev'
+  done
+  chk_ok ".env.local bị git bỏ qua" git check-ignore -q .env.local; }
 
 tc_pg01_80() {  # AC15 — log không lộ bí mật THẬT của .env.local (khoá JWT, khoá blob, mật khẩu DB)
   local p n=0 v

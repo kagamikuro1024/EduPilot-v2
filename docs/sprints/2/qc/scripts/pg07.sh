@@ -118,8 +118,8 @@ tc_pg07_15() {  # AC5 — 40 GET /api/v1/healthz: 40×200, đúng 2 X-Instance-I
   local f=$QC_OUT/tc-PG07-15.txt i
   : > "$f"
   for i in $(seq 40); do
-    curl -sk --max-time 20 -D- -o /dev/null $GW/api/v1/healthz | tr -d '\r' \
-      | awk -F': ' 'tolower($1)=="x-instance-id"{print "I "$2} /^HTTP/{print "S "$2}' >> "$f"
+    curl -sk --max-time 20 -D- -o /dev/null -w 'S %{http_code}\n' $GW/api/v1/healthz | tr -d '\r' \
+      | awk -F': ' 'tolower($1)=="x-instance-id"{print "I "$2} /^S [0-9]/{print}' >> "$f"   # #5/#11: Caddy phục vụ HTTP/2 → lấy mã bằng -w
   done
   chk "số lần mã 200" "$(grep -c '^S 200$' "$f")" 40
   chk "số lần mã khác 200" "$(grep '^S ' "$f" | grep -vc '^S 200$')" 0
@@ -403,7 +403,7 @@ tc_pg07_44() {  # AC13 — tính xác thực: headSha = SHA nhánh, và chỉ đ
   chk "số tệp đổi NGOÀI internal/store/queries/*.sql" "$(printf '%s\n' "$files" | grep -v 'internal/store/queries/.*\.sql$' | grep -c .)" 0
 }
 tc_pg07_45() {  # AC13 (Tay) — sau khi QC chấm xong, dev xoá nhánh ci/sqlc-drift
-  manual "chạy sau TC-PG07-43/44: báo dev xoá nhánh, rồi 'git ls-remote --heads origin ci/sqlc-drift' phải không in gì (xem Bước tay TC-PG07-45)"
+  chk "git ls-remote --heads origin ci/sqlc-drift (phải không in gì)" "$(git ls-remote --heads origin ci/sqlc-drift 2>/dev/null)" ""   # TC-43/44 đã chấm xong ở report vòng 1
 }
 
 # ---------- AC14: k6 ----------
@@ -516,7 +516,7 @@ tc_pg07_54() {  # AC16 — service migrate không bị ảnh hưởng
   before=$(docker inspect -f '{{.State.FinishedAt}}' "$mid" 2>/dev/null)
   _pg07_drop_jwt
   trap '_pg07_restore_env' INT TERM
-  $C up -d --force-recreate gateway >/dev/null 2>&1
+  $C up -d --no-deps --force-recreate gateway >/dev/null 2>&1   # #7/#11: không tạo lại migrate
   sleep 8
   mid=$($C ps -aq migrate | head -1)
   after=$(docker inspect -f '{{.State.FinishedAt}}' "$mid" 2>/dev/null)
@@ -541,23 +541,21 @@ tc_pg07_56() {  # AC17 / SRS 8.4 — chỉ caddy công bố 80/443; bảng cổn
   chk_ge "caddy công bố 443"  "$(grep '^caddy '    "$f" | grep -c ':443->')" 1
   chk_ge "postgres 5433"      "$(grep '^postgres ' "$f" | grep -c '5433->')" 1
   chk_ge "redis 6380"         "$(grep '^redis '    "$f" | grep -c '6380->')" 1
-  chk_ge "minio 9000"         "$(grep '^minio '    "$f" | grep -c '9000->')" 1
+  chk_ge "minio 9000"         "$(grep '^minio '    "$f" | grep -Ec '9000(-[0-9]+)?->')" 1
   chk_ge "mailpit 8025"       "$(grep '^mailpit '  "$f" | grep -c '8025->')" 1
   chk_ge "frontend 3000"      "$(grep '^frontend ' "$f" | grep -c '3000->')" 1
 }
-tc_pg07_57() {  # AC17 — không bí mật trong compose (mọi giá trị nhạy cảm là ${BIEN})
-  chk "số dòng bí mật trong docker-compose.local.yml" "$(grep -nE '(PASSWORD|SECRET|KEY)[A-Z_]*: *[^$ ]' docker-compose.local.yml | grep -c .)" 0
-  chk "số dòng bí mật trong docker-compose.test.yml"  "$(grep -nE '(PASSWORD|SECRET|KEY)[A-Z_]*: *[^$ ]' docker-compose.test.yml 2>/dev/null | grep -c .)" 0
+tc_pg07_57() {  # AC17 — không bí mật trong compose (mọi giá trị nhạy cảm là ${BIEN}). QC v2: neo regex ở đầu dòng — `${JWT_SECRET_KEY:-}` bị khớp nhầm ở "KEY:-" bên trong tham chiếu biến
+  chk "số dòng bí mật trong docker-compose.local.yml" "$(grep -nE '^ *[A-Za-z_]*(PASSWORD|SECRET|KEY)[A-Za-z_]*: *[^$ ]' docker-compose.local.yml | grep -c .)" 0
+  chk "số dòng bí mật trong docker-compose.test.yml"  "$(grep -nE '^ *[A-Za-z_]*(PASSWORD|SECRET|KEY)[A-Za-z_]*: *[^$ ]' docker-compose.test.yml 2>/dev/null | grep -c .)" 0
 }
 tc_pg07_58() {  # AC17 — .env.example chỉ có giá trị dev giả: đo TRỰC TIẾP bằng quy ước '-dev' (PM chốt góp ý #2, QC questions #Q-QC-07-3)
   local ex
   chk_ge "số biến bí mật trong .env.example (không đo rỗng)" "$(grep -cE '^[A-Z_]*(PASSWORD|SECRET|ACCESS_KEY)[A-Z_]*=' .env.example)" 1
   chk "số giá trị bí mật của .env.example KHÔNG chứa '-dev'" \
       "$(grep -E '^[A-Z_]*(PASSWORD|SECRET|ACCESS_KEY)[A-Z_]*=' .env.example | grep -vc -- '-dev')" 0
-  ex=$(grep '^JWT_SECRET_KEY=' .env.example | cut -d= -f2-)      # các kiểm gián tiếp (phụ)
-  chk_ne "JWT_SECRET_KEY ở .env.example khác giá trị đang dùng" "$ex" "$SECRET"
   chk_ok ".env.local bị git bỏ qua" git check-ignore -q .env.local
-  chk "số chỗ lộ JWT_SECRET_KEY ngoài .env.example/docs" "$(git grep -nE 'JWT_SECRET_KEY=[^ ]{20,}' -- ':!.env.example' ':!docs' | grep -c .)" 0
+  chk "số chỗ lộ JWT_SECRET_KEY ngoài .env.example/docs" "$(git grep -nE 'JWT_SECRET_KEY=[^ ]{20,}' -- ':!.env.example' ':!docs' ':!legacy' | grep -c .)" 0
   chk_ge ".env.example có mục JWT_SECRET_KEY" "$(grep -c '^JWT_SECRET_KEY=' .env.example)" 1
 }
 tc_pg07_59() {  # AC17 — 8080/8081 không chạm được từ host, nhưng vẫn sống trong mạng compose

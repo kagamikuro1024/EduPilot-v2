@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/edupilot/backend-go/internal/platform/crypto"
 )
 
 // Role chọn tập biến bắt buộc (SRS 8.1 cột "Dùng bởi").
@@ -31,6 +33,8 @@ type Config struct {
 	JWTSecretKey  string
 	BlobAccessKey string
 	BlobSecretKey string
+	// AppEncryptionKey: 32 byte base64 cho AES-GCM (khoá API của nhà cung cấp LLM). Bắt buộc ở gateway; worker kiểm nếu có.
+	AppEncryptionKey string
 
 	AppEnv       string
 	HTTPAddr     string
@@ -106,12 +110,19 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.BlobBucket = l.need("BLOB_BUCKET", gw)
 	c.BlobAccessKey = l.need("BLOB_ACCESS_KEY", gw)
 	c.BlobSecretKey = l.need("BLOB_SECRET_KEY", gw)
+	c.AppEncryptionKey = l.need("APP_ENCRYPTION_KEY", gw)
 	if len(l.missing) > 0 {
 		return Config{}, &ErrMissingEnv{Names: l.missing}
 	}
 
 	if c.JWTSecretKey != "" && len(c.JWTSecretKey) < 32 {
 		l.bad("JWT_SECRET_KEY", "cần ≥ 32 byte")
+	}
+	if c.AppEncryptionKey != "" {
+		if _, err := crypto.ParseKey(c.AppEncryptionKey); err != nil {
+			l.invalid = append(l.invalid, "APP_ENCRYPTION_KEY")
+			l.problems = append(l.problems, err.Error()) // "APP_ENCRYPTION_KEY không hợp lệ: cần 32 byte (base64)" — không in giá trị
+		}
 	}
 
 	c.PgBouncerURL = l.str("PGBOUNCER_URL", "")

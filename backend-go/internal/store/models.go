@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type JobStatus string
@@ -180,6 +181,81 @@ type Job struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	FinishedAt *time.Time
+}
+
+type LlmAudit struct {
+	ID             uuid.UUID
+	Task           string
+	Lane           string
+	Provider       *string
+	Model          *string
+	TokensIn       int32
+	TokensOut      int32
+	LatencyMs      int32
+	QueueWaitMs    int32
+	Attempts       int32
+	FallbackIndex  int32
+	CostEst        decimal.Decimal
+	Status         string
+	ErrorKind      *string
+	Degraded       bool
+	PiiMaskedCount int32
+	UserID         *uuid.UUID
+	CourseID       *uuid.UUID
+	TraceID        string
+	CreatedAt      time.Time
+}
+
+type LlmBudget struct {
+	ID           uuid.UUID
+	Scope        string
+	CourseID     *uuid.UUID
+	DailyLimit   decimal.NullDecimal
+	MonthlyLimit decimal.NullDecimal
+	Version      int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type LlmModel struct {
+	ID         uuid.UUID
+	ProviderID uuid.UUID
+	Model      string
+	Kind       string
+	Dims       *int32
+	PriceIn    decimal.Decimal
+	PriceOut   decimal.Decimal
+	Enabled    bool
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+type LlmProvider struct {
+	ID            uuid.UUID
+	Type          string
+	Name          string
+	BaseUrl       *string
+	ApiKeyEnc     []byte
+	Enabled       bool
+	RpmLimit      *int32
+	TpmLimit      *int32
+	LastTestOk    *bool
+	LastTestAt    *time.Time
+	LastTestError *string
+	Version       int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type LlmTaskRoute struct {
+	ID            uuid.UUID
+	Task          string
+	ModelID       uuid.UUID
+	FallbackOrder int32
+	Params        json.RawMessage
+	Version       int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type Outbox struct {

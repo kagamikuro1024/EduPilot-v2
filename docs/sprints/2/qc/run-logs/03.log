@@ -1,0 +1,810 @@
+== TC-PG03-01
+    ok   X-Request-Id giữ nguyên = [abc-123]
+    ok   X-Instance-Id có mặt ~ /^.+$/
+    ok   X-Instance-Id là tên container gateway ~ /./
+-- TC-PG03-01 PASS
+== TC-PG03-02
+    ok   64 ký tự được giữ = [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa]
+    ok   65 ký tự bị thay = [5e74947f7b2641cc57e65fce7296344b] (≠ [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa])
+    ok   id sinh thay thế = 32 hex ~ /^[0-9a-f]{32}$/
+    ok   ký tự lạ bị thay = [13f962c22ae99b1d804c9d314f2bfc48] (≠ [bad id!])
+    ok   id sinh thay thế = 32 hex ~ /^[0-9a-f]{32}$/
+    ok   header rỗng → gateway sinh ~ /^[0-9a-f]{32}$/
+-- TC-PG03-02 PASS
+== TC-PG03-03
+    ok   có item để thử 304 ~ /^[0-9a-f-]{36}$/
+    ok   X-Request-Id trên 200 ~ /^.+$/
+    ok   X-Request-Id trên 404 ~ /^.+$/
+    ok   X-Request-Id trên 401 ~ /^.+$/
+    ok   X-Request-Id trên 429 ~ /^.+$/
+    ok   mã khi If-None-Match khớp = [304]
+    ok   X-Request-Id trên 304 ~ /^.+$/
+    ok   X-Request-Id trên SSE ~ /^.+$/
+-- TC-PG03-03 PASS
+== TC-PG03-04
+    ok   Content-Type 404 = [application/json; charset=utf-8]
+    ok   Content-Type 500 = [application/json; charset=utf-8]
+    ok   Content-Type 422 = [application/json; charset=utf-8]
+-- TC-PG03-04 PASS
+== TC-PG03-05
+    ok   go test ./internal/httpapi -run 'TestRequestID' rc = [0]
+    ok   --- PASS: TestRequestID
+-- TC-PG03-05 PASS
+== TC-PG03-06
+    ok   status = [500]
+    ok   code = [INTERNAL]
+    ok   trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message không rỗng ~ /^.+$/
+    ok   message không chứa panic/.go/sql/đường dẫn !~ /panic|\.go|sql|//
+-- TC-PG03-06 PASS
+== TC-PG03-07
+    ok   dòng log cùng trace_id d88897db73e5d37be035cb5e1f88c81f = 1 (≥ 1)
+    FAIL dòng log mức error: thực tế [0] phải ≥ 1
+    ok   dòng log có stack (chuỗi '.go:') = 1 (≥ 1)
+-- TC-PG03-07 FAIL
+== TC-PG03-08
+    ok   request kế tiếp = [200]
+    ok   request thử kế tiếp = [200]
+    ok   có đọc được trạng thái container ~ /^.+$/
+    ok   RestartCount + StartedAt không đổi = [0|2026-10-02T18:16:12.841434301Z 0|2026-10-02T18:16:12.585794143Z]
+-- TC-PG03-08 PASS
+== TC-PG03-09
+    ok   go test ./internal/httpapi -run 'TestRecover' rc = [0]
+    ok   --- PASS: TestRecover
+-- TC-PG03-09 PASS
+== TC-PG03-10
+    ok   mã preflight = [204]
+    ok   Access-Control-Allow-Origin = [http://localhost:3000]
+    ok   Allow-Methods có GET ~ /GET/
+    ok   Allow-Methods có POST ~ /POST/
+    ok   Allow-Methods có PUT ~ /PUT/
+    ok   Allow-Methods có PATCH ~ /PATCH/
+    ok   Allow-Methods có DELETE ~ /DELETE/
+    ok   Allow-Methods có OPTIONS ~ /OPTIONS/
+    ok   Allow-Headers có Authorization ~ /authorization/
+    ok   Allow-Headers có Content-Type ~ /content-type/
+    ok   Allow-Headers có Idempotency-Key ~ /idempotency-key/
+    ok   Allow-Headers có If-Match ~ /if-match/
+    ok   Allow-Headers có If-None-Match ~ /if-none-match/
+    ok   Allow-Headers có Last-Event-ID ~ /last-event-id/
+    ok   Allow-Headers có X-Request-Id ~ /x-request-id/
+    ok   Max-Age = [600]
+    ok   Vary có Origin ~ /Origin/
+    ok   Expose-Headers có ETag ~ /etag/
+    ok   Expose-Headers có X-Request-Id ~ /x-request-id/
+    ok   Expose-Headers có Retry-After ~ /retry-after/
+    ok   Expose-Headers có Idempotent-Replayed ~ /idempotent-replayed/
+-- TC-PG03-10 PASS
+== TC-PG03-100
+    ok   dựng được item của U1 ~ /^[0-9a-f-]{36}$/
+    ok   U2 GET item của U1: status = [404]
+    ok   U2 GET item của U1: code = [NOT_FOUND]
+    ok   chủ sở hữu vẫn đọc được = [200]
+-- TC-PG03-100 PASS
+== TC-PG03-101
+    ok   U2 PUT item của U1: status = [404]
+    ok   U2 PUT item của U1: code = [NOT_FOUND]
+    ok   version không đổi = [1]
+    ok   name không đổi = [qc101-1790965223074]
+-- TC-PG03-101 PASS
+== TC-PG03-102
+    ok   U1 thấy item của mình = [1]
+    ok   người dùng khác không thấy item của U1 = [0]
+    ok   danh sách của người dùng không có dữ liệu là rỗng = [0]
+-- TC-PG03-102 PASS
+== TC-PG03-103
+    ok   status = [201]
+    ok   Location khớp /api/v1/_test/items/<uuid> ~ /^/api/v1/_test/items/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+    ok   Location trỏ đúng id của thân = [/api/v1/_test/items/01a0fdd8-9308-707e-be1e-ae29dc46629f]
+    ok   thân là bản ghi vừa tạo = [qc103-1790965224148-4619]
+    ok   GET theo Location (chủ bản ghi) → 200 = [200]
+-- TC-PG03-103 PASS
+== TC-PG03-104
+    ok   steps=1: status = [202]
+    ok   steps=100: status = [202]
+    ok   thiếu steps: status = [202]
+    ok   job_id là uuid ~ /^[0-9a-f-]{36}$/
+    ok   mọi progress quan sát được là bội của 100/4 (mặc định 4 bước) = []
+    FAIL progress cuối: thực tế [0] ≠ mong đợi [100]
+-- TC-PG03-104 FAIL
+== TC-PG03-105
+    ok   steps=0: status = [422]
+    ok   steps=0: code = [VALIDATION_FAILED]
+    ok   steps=0: details[0].field = [steps]
+    ok   steps=-1: status = [422]
+    ok   steps=-1: code = [VALIDATION_FAILED]
+    ok   steps=-1: details[0].field = [steps]
+    ok   steps=101: status = [422]
+    ok   steps=101: code = [VALIDATION_FAILED]
+    ok   steps=101: details[0].field = [steps]
+    ok   steps=1.5: status = [422]
+    ok   steps=1.5: code = [VALIDATION_FAILED]
+    ok   steps=1.5: details[0].field = [steps]
+    ok   steps="x": status = [422]
+    ok   steps="x": code = [VALIDATION_FAILED]
+    ok   steps="x": details[0].field = [steps]
+    ok   không job nào được tạo (số dòng jobs không đổi) = [134]
+-- TC-PG03-105 PASS
+== TC-PG03-106
+    ok   thiếu kind: status = [202]
+    ok   thiếu kind: kind trong DB = [test.progress]
+    ok   kind lạ: status = [422]
+    ok   kind lạ: code = [VALIDATION_FAILED]
+    ok   kind lạ: details[0].field = [kind]
+    ok   không job nào được tạo (số dòng jobs không đổi) = [135]
+-- TC-PG03-106 PASS
+== TC-PG03-107
+    ok   version=0: status = [422]
+    ok   version=0: code = [VALIDATION_FAILED]
+    ok   version=0: details[0].field = [version]
+    ok   version=-1: status = [422]
+    ok   version=-1: code = [VALIDATION_FAILED]
+    ok   version=-1: details[0].field = [version]
+    ok   version=1.5: status = [422]
+    ok   version=1.5: code = [VALIDATION_FAILED]
+    ok   version=1.5: details[0].field = [version]
+    ok   version="a": status = [422]
+    ok   version="a": code = [VALIDATION_FAILED]
+    ok   version="a": details[0].field = [version]
+    ok   version trong DB không đổi = [1]
+-- TC-PG03-107 PASS
+== TC-PG03-108
+    ok   dựng được 2 item ~ /^[0-9a-f-]{72}$/
+    ok   next_cursor có mặt khi còn trang ~ /^[A-Za-z0-9_-]+$/
+    ok   hai lần cùng tham số, dữ liệu không đổi → cùng ETag = [W/"NvJ5nWzov4M9iZAK"]
+    ok   items không đổi = [[{"id":"01a0fdd8-bffa-7d7f-a442-a87aaf8e5327","name":"qc108-b-1790965235655","version":1,"created_at":"2026-10-02T18:20:35.706798Z","updated_at":"2026-10-02T18:20:35.706798Z"}]]
+    ok   next_cursor = null (hết trang) = [null]
+    ok   thân đổi chỉ ở next_cursor → ETag đổi = [W/"pZgHkOsKzGgogYBI"] (≠ [W/"NvJ5nWzov4M9iZAK"])
+    ok   thêm 1 item → ETag đổi = [W/"J3rWKWZmJuMg667w"] (≠ [W/"pZgHkOsKzGgogYBI"])
+-- TC-PG03-108 PASS
+== TC-PG03-11
+    ok   Access-Control-Allow-Credentials (origin trong danh sách) = [true]
+-- TC-PG03-11 PASS
+== TC-PG03-12
+    ok   origin lạ: không có ACAO = []
+    ok   origin lạ: không có Allow-Credentials = []
+    ok   Origin: null: không có ACAO = []
+    ok   Origin: null: không có Allow-Credentials = []
+    ok   không gửi Origin: không có ACAO = []
+    ok   không gửi Origin: không có Allow-Credentials = []
+    ok   ACAO không bao giờ là * = [http://localhost:3000] (≠ [*])
+-- TC-PG03-12 PASS
+== TC-PG03-13
+    ok   ACAO trên GET = [http://localhost:3000]
+    ok   Vary có Origin trên GET ~ /Origin/
+    ok   origin lạ trên GET: không ACAO = []
+-- TC-PG03-13 PASS
+== TC-PG03-14
+    ok   go test ./internal/httpapi -run 'TestCORS' rc = [0]
+    ok   --- PASS: TestCORS
+-- TC-PG03-14 PASS
+== TC-PG03-15
+    ok   status 400 = [400]
+    ok   code 400 = [BAD_REQUEST]
+    ok   trace_id 400 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 400 không rỗng ~ /^.+$/
+    ok   message 400 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 400 = []
+    ok   status 401 = [401]
+    ok   code 401 = [UNAUTHENTICATED]
+    ok   trace_id 401 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 401 không rỗng ~ /^.+$/
+    ok   message 401 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 401 = []
+    ok   status 403 = [403]
+    ok   code 403 = [FORBIDDEN]
+    ok   trace_id 403 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 403 không rỗng ~ /^.+$/
+    ok   message 403 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 403 = []
+    ok   status 404 = [404]
+    ok   code 404 = [NOT_FOUND]
+    ok   trace_id 404 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 404 không rỗng ~ /^.+$/
+    ok   message 404 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 404 = []
+    ok   status 405 = [405]
+    ok   code 405 = [METHOD_NOT_ALLOWED]
+    ok   trace_id 405 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 405 không rỗng ~ /^.+$/
+    ok   message 405 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 405 = []
+    ok   status 409 = [409]
+    ok   code 409 = [CONFLICT]
+    ok   trace_id 409 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 409 không rỗng ~ /^.+$/
+    ok   message 409 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 409 = []
+    ok   status 413 = [413]
+    ok   code 413 = [PAYLOAD_TOO_LARGE]
+    ok   trace_id 413 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 413 không rỗng ~ /^.+$/
+    ok   message 413 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 413 = []
+    ok   status 415 = [415]
+    ok   code 415 = [UNSUPPORTED_MEDIA_TYPE]
+    ok   trace_id 415 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 415 không rỗng ~ /^.+$/
+    ok   message 415 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 415 = []
+    ok   status 422 = [422]
+    ok   code 422 = [VALIDATION_FAILED]
+    ok   trace_id 422 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 422 không rỗng ~ /^.+$/
+    ok   message 422 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 422 = []
+    ok   status 429 = [429]
+    ok   code 429 = [RATE_LIMITED]
+    ok   trace_id 429 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 429 không rỗng ~ /^.+$/
+    ok   message 429 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 429 = []
+    ok   status 500 = [500]
+    ok   code 500 = [INTERNAL]
+    ok   trace_id 500 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 500 không rỗng ~ /^.+$/
+    ok   message 500 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 500 = []
+    ok   status 503 = [503]
+    ok   code 503 = [SERVICE_UNAVAILABLE]
+    ok   trace_id 503 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 503 không rỗng ~ /^.+$/
+    ok   message 503 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 503 = []
+    ok   status 504 = [504]
+    ok   code 504 = [DEADLINE_EXCEEDED]
+    ok   trace_id 504 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message 504 không rỗng ~ /^.+$/
+    ok   message 504 không lộ nội bộ !~ /panic|\.go|sql|select |//
+    ok   khoá lạ trong thân 504 = []
+-- TC-PG03-15 PASS
+== TC-PG03-16
+    ok   retry_after trong thân 429 = [7]
+    ok   header Retry-After 429 = [7]
+    ok   retry_after 429 là số nguyên ≥ 1 ~ /^[1-9][0-9]*$/
+    ok   retry_after trong thân 503 = [7]
+    ok   header Retry-After 503 = [7]
+    ok   retry_after 503 là số nguyên ≥ 1 ~ /^[1-9][0-9]*$/
+-- TC-PG03-16 PASS
+== TC-PG03-17
+    ok   status = [404]
+    ok   code = [NOT_FOUND]
+    ok   không trả văn bản 404 page not found = [0]
+    ok   thân là JSON có trace_id ~ /^[0-9a-f]{32}$/
+-- TC-PG03-17 PASS
+== TC-PG03-18
+    ok   status = [405]
+    ok   code = [METHOD_NOT_ALLOWED]
+    ok   header Allow có GET ~ /GET/
+    ok   Content-Type = [application/json; charset=utf-8]
+-- TC-PG03-18 PASS
+== TC-PG03-19
+    ok   status không token = [401]
+    ok   code = [UNAUTHENTICATED]
+    ok   status có token hợp lệ vẫn 401 (route trả cố định) = [401]
+-- TC-PG03-19 PASS
+== TC-PG03-20
+    ok   go test ./internal/httpapi -run 'TestErrorFormat_AllStatuses|TestNotFoundAndMethodNotAllowed' rc = [0]
+    ok   --- PASS: TestErrorFormat_AllStatuses
+    ok   --- PASS: TestNotFoundAndMethodNotAllowed
+-- TC-PG03-20 PASS
+== TC-PG03-21
+    ok   status = [400]
+    ok   code = [BAD_REQUEST]
+    ok   khoá lạ = []
+-- TC-PG03-21 PASS
+== TC-PG03-22
+    ok   status = [422]
+    ok   code = [VALIDATION_FAILED]
+    ok   details.field theo thứ tự = [["name","extra"]]
+    ok   mọi phần tử có field+code+message = [2]
+-- TC-PG03-22 PASS
+== TC-PG03-23
+    ok   thiếu name: status = [422]
+    ok   thiếu name: code = [VALIDATION_FAILED]
+    ok   thiếu name: field = [name]
+    ok   name 200 ký tự được nhận (201 Created) = [201]
+    ok   name 201 ký tự: status = [422]
+    ok   name 201 ký tự: field = [name]
+-- TC-PG03-23 PASS
+== TC-PG03-24
+    ok   text/plain: status = [415]
+    ok   text/plain: code = [UNSUPPORTED_MEDIA_TYPE]
+    ok   thiếu Content-Type: status = [415]
+    ok   application/json được nhận (201) = [201]
+    ok   application/json; charset=utf-8 được nhận (201) = [201]
+-- TC-PG03-24 PASS
+== TC-PG03-25
+    ok   go test ./internal/httpapi -run 'TestValidation' rc = [0]
+    ok   --- PASS: TestValidation
+-- TC-PG03-25 PASS
+== TC-PG03-26
+    ok   X-RateLimit-Limit = 5 (compose có chuyển tiếp RATE_LIMIT_IP_PER_MIN?) = [5]
+    ok   code khi 429 = [RATE_LIMITED]
+    ok   code khi 429 = [RATE_LIMITED]
+    ok   số request không-429 trong 7 = [5]
+    ok   số request 429 trong 7 = [2]
+-- TC-PG03-26 PASS
+== TC-PG03-27
+    ok   có đạt 429 = [429]
+    ok   retry_after ≥ 1 = 20 (≥ 1)
+    ok   retry_after ≤ 60 = 20 (≤ 60)
+    ok   header Retry-After = retry_after = [20]
+-- TC-PG03-27 PASS
+== TC-PG03-28
+    ok   X-RateLimit-Limit là số ~ /^[0-9]+$/
+    ok   X-RateLimit-Remaining request 1 là số ~ /^[0-9]+$/
+    ok   X-RateLimit-Remaining request 2 là số ~ /^[0-9]+$/
+    ok   Remaining giảm (r2 < r1) = 3 (≤ 3)
+-- TC-PG03-28 PASS
+== TC-PG03-29
+    ok   đã vượt giới hạn trước khi thử health = [yes]
+    ok   /healthz = [200]
+    ok   /api/v1/healthz = [200]
+    ok   /api/v1/readyz = [200]
+-- TC-PG03-29 PASS
+== TC-PG03-30
+    ok   cuối cửa sổ cũ bị 429 = [429]
+    ok   cửa sổ mới không 429 = [404] (≠ [429])
+-- TC-PG03-30 PASS
+== TC-PG03-31
+    ok   U1 request thứ 4 (giới hạn user = 3) = [429]
+    ok   code của U1 = [RATE_LIMITED]
+    ok   U2 không bị ảnh hưởng = [404] (≠ [429])
+-- TC-PG03-31 PASS
+== TC-PG03-32
+    ok   có hai bản gateway ~ /^.+$/
+    ok   số 429 trên 6 request chia hai bản = [1]
+-- TC-PG03-32 PASS
+== TC-PG03-33
+    ok   XFF 203.0.113.7 request thứ 6 bị 429 ~ / 429/
+    ok   XFF 203.0.113.8 (bộ đếm khác) không 429 !~ / 429/
+-- TC-PG03-33 PASS
+== TC-PG03-34
+    ok   go test ./internal/httpapi -run 'TestRateLimit_IP|TestRateLimit_User|TestRateLimit_SharedAcrossInstances|TestRateLimit_ExemptHealth|TestRateLimit_ForwardedFor' rc = [0]
+    ok   --- PASS: TestRateLimit_IP
+    ok   --- PASS: TestRateLimit_User
+    ok   --- PASS: TestRateLimit_SharedAcrossInstances
+    ok   --- PASS: TestRateLimit_ExemptHealth
+    ok   --- PASS: TestRateLimit_ForwardedFor
+-- TC-PG03-34 PASS
+== TC-PG03-35
+    ok   request thường vẫn 200 khi Redis chết (fail-open) = [200]
+    ok   độ trễ thêm so với baseline (ms) = 32 (≤ 50)
+    ok   dòng log warn về rate limit trong ~13 s (≤ 1/10 s × 2 bản) = 4 (≤ 4)
+    ok   readyz trở lại 200 sau khi bật Redis = [200]
+-- TC-PG03-35 PASS
+== TC-PG03-36
+    ok   go test ./internal/httpapi -run 'TestRateLimit_RedisDown_FailOpen' rc = [0]
+    ok   --- PASS: TestRateLimit_RedisDown_FailOpen
+-- TC-PG03-36 PASS
+== TC-PG03-37
+    ok   số mục mặc định = [30]
+    ok   items là mảng = [array]
+    ok   có trường next_cursor = [true]
+    ok   next_cursor không rỗng khi còn trang ~ /^[A-Za-z0-9_-]+$/
+    ok   khoá lạ ở thân danh sách = []
+-- TC-PG03-37 PASS
+== TC-PG03-38
+    ok   limit=1 = [1]
+    ok   limit=100 = [100]
+-- TC-PG03-38 PASS
+== TC-PG03-39
+    ok   limit=0 status = [422]
+    ok   limit=0 code = [VALIDATION_FAILED]
+    ok   limit=0 details[0].field = [limit]
+    ok   limit=101 status = [422]
+    ok   limit=101 code = [VALIDATION_FAILED]
+    ok   limit=101 details[0].field = [limit]
+    ok   limit=abc status = [422]
+    ok   limit=abc code = [VALIDATION_FAILED]
+    ok   limit=abc details[0].field = [limit]
+    ok   limit=-1 status = [422]
+    ok   limit=-1 code = [VALIDATION_FAILED]
+    ok   limit=-1 details[0].field = [limit]
+    ok   limit=1.5 status = [422]
+    ok   limit=1.5 code = [VALIDATION_FAILED]
+    ok   limit=1.5 details[0].field = [limit]
+-- TC-PG03-39 PASS
+== TC-PG03-40
+    ok   cursor rac status = [422]
+    ok   cursor rac code = [INVALID_CURSOR]
+    ok   cursor json_hong status = [422]
+    ok   cursor json_hong code = [INVALID_CURSOR]
+    ok   cursor v2 status = [422]
+    ok   cursor v2 code = [INVALID_CURSOR]
+    ok   cursor t_chuoi status = [422]
+    ok   cursor t_chuoi code = [INVALID_CURSOR]
+    ok   cursor i_khong_uuid status = [422]
+    ok   cursor i_khong_uuid code = [INVALID_CURSOR]
+-- TC-PG03-40 PASS
+== TC-PG03-41
+    ok   đi được ít nhất 1 trang = 1 (≥ 1)
+    ok   trang cuối có trường next_cursor = [true]
+    ok   trang cuối next_cursor = null = [null]
+-- TC-PG03-41 PASS
+== TC-PG03-42
+    ok   items là mảng = [array]
+    ok   items rỗng = [0]
+    ok   next_cursor = null = [null]
+-- TC-PG03-42 PASS
+== TC-PG03-43
+    ok   số id của mình đọc được = [40]
+    ok   thứ tự giống psql (created_at DESC, id DESC) = [giong]
+-- TC-PG03-43 PASS
+== TC-PG03-44
+    ok   go test ./internal/httpapi -run 'TestPagination_Defaults|TestPagination_LimitBounds|TestPagination_InvalidCursor|TestPagination_Shape' rc = [0]
+    ok   --- PASS: TestPagination_Defaults
+    ok   --- PASS: TestPagination_LimitBounds
+    ok   --- PASS: TestPagination_InvalidCursor
+    ok   --- PASS: TestPagination_Shape
+-- TC-PG03-44 PASS
+== TC-PG03-45
+    ok   số dòng đã dựng = [250]
+    ok   số id đọc được = [250]
+    ok   số id duy nhất = [250]
+    ok   số id lặp = [0]
+    ok   số trang đã đi = 3 (≥ 3)
+-- TC-PG03-45 PASS
+== TC-PG03-46
+    ok   mọi dòng cùng created_at = [1]
+    ok   số id đọc được = [300]
+    ok   số id duy nhất = [300]
+    ok   số id lặp = [0]
+-- TC-PG03-46 PASS
+== TC-PG03-47
+    ok   trang 1 đọc được 20 mục = [20]
+    ok   không id nào lặp trong cả lần đi = [0]
+    ok   47 bản ghi gốc chưa xoá xuất hiện đúng 1 lần = [47]
+    ok   5 bản ghi chen vào vùng chưa đọc xuất hiện đúng 1 lần = [5]
+-- TC-PG03-47 PASS
+== TC-PG03-48
+    ok   go test ./internal/httpapi -run 'TestCursor_NoSkipNoDup|TestCursor_SameTimestamp|TestCursor_InsertAndDeleteDuringScan' rc = [0]
+    ok   --- PASS: TestCursor_NoSkipNoDup
+    ok   --- PASS: TestCursor_SameTimestamp
+    ok   --- PASS: TestCursor_InsertAndDeleteDuringScan
+-- TC-PG03-48 PASS
+== TC-PG03-49
+    ok   cursor không rỗng ~ /^.+$/
+    ok   độ dài cursor ≤ 120 = 95 (≤ 120)
+    ok   chỉ ký tự base64url ~ /^[A-Za-z0-9_-]+$/
+    ok   không ký tự đệm '=' !~ /=/
+    ok   tập khoá JSON = [i,t,v]
+    ok   v = [1]
+    ok   t là số = [number]
+    ok   t là số nguyên ~ /^[0-9]+$/
+    ok   t tính bằng micro-giây (≥ 1,7e15) = 1790965560319429 (≥ 1700000000000000)
+    ok   i là uuid ~ /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+-- TC-PG03-49 PASS
+== TC-PG03-50
+    ok   số dòng trong bảng = 10000 (≥ 10000)
+    ok   plan có Index Scan / Index Only Scan ~ /Index (Only )?Scan/
+    ok   plan không có Sort !~ /Sort/
+-- TC-PG03-50 PASS
+== TC-PG03-51
+    ok   số dòng có OFFSET (ngoài _test.go) = [0]
+-- TC-PG03-51 PASS
+== TC-PG03-52
+    ok   go test ./internal/httpapi -run 'TestCursor_Format|TestCursor_UsesIndex' rc = [0]
+    ok   --- PASS: TestCursor_Format
+    ok   --- PASS: TestCursor_UsesIndex
+-- TC-PG03-52 PASS
+== TC-PG03-53
+    ok   status lần 1 = [201]
+    ok   status lần 2 (phát lại đúng 201) = [201]
+    ok   thân lần 2 giống từng byte = [giong]
+    ok   Content-Type lần 2 = lần 1 = [application/json; charset=utf-8]
+    ok   lần 1 không có Idempotent-Replayed = []
+    ok   lần 2 có Idempotent-Replayed = [true]
+    ok   số dòng _test_items = [1]
+-- TC-PG03-53 PASS
+== TC-PG03-54
+    ok   status lần 1 = [201]
+    ok   status lần 2 = [201]
+    ok   id khác nhau = [01a0fddd-cb9e-75a0-9181-22c161119abf] (≠ [01a0fddd-cb81-7764-b8ec-46681ab016d4])
+    ok   số dòng _test_items = [2]
+    ok   lần 2 không phải replay = []
+-- TC-PG03-54 PASS
+== TC-PG03-55
+    ok   go test ./internal/httpapi -run 'TestIdempotency_DoubleSend_OneRecord|TestIdempotency_ReplayIdentical' rc = [0]
+    ok   --- PASS: TestIdempotency_DoubleSend_OneRecord
+    ok   --- PASS: TestIdempotency_ReplayIdentical
+-- TC-PG03-55 PASS
+== TC-PG03-56
+    ok   số dòng _test_items = [1]
+    ok   số phản hồi hợp lệ (replay hoặc 409) = [50]
+    ok   số phản hồi 5xx = [0]
+    ok   phản hồi sai quy ước = []
+    ok   có ít nhất 1 phản hồi 2xx ~ /^.+$/
+    (409 IDEMPOTENCY_IN_PROGRESS: 0 / 50; chứng cứ: /tmp/epqc.DRQgIM/out/tc-pg03-56)
+-- TC-PG03-56 PASS
+== TC-PG03-57
+    ok   số dòng _test_items = [1]
+    ok   status tiến trình 1 ~ /^(201|409)$/
+    ok   status tiến trình 2 ~ /^(201|409)$/
+    ok   số phản hồi KHÔNG mang Idempotent-Replayed (tối đa 1 bản gốc) = [1]
+    ok   số phản hồi 5xx = [0]
+-- TC-PG03-57 PASS
+== TC-PG03-58
+    ok   status lần 1 = [201]
+    ok   status lần 2 = [422]
+    ok   code lần 2 = [IDEMPOTENCY_KEY_REUSED]
+    ok   không tạo bản ghi cho thân thứ hai = [0]
+-- TC-PG03-58 PASS
+== TC-PG03-59
+    ok   status = [422]
+    ok   code = [IDEMPOTENCY_KEY_REQUIRED]
+    ok   không tạo bản ghi = [0]
+-- TC-PG03-59 PASS
+== TC-PG03-60
+    ok   khoá 7 ký tự: status = [422]
+    ok   khoá 7 ký tự: code = [VALIDATION_FAILED]
+    ok   khoá 8+ ký tự được nhận = [201]
+    ok   khoá 128 ký tự được nhận = [201]
+    ok   khoá 129 ký tự: status = [422]
+    ok   khoá 129 ký tự: code = [VALIDATION_FAILED]
+    ok   không tạo bản ghi cho khoá sai = [0]
+-- TC-PG03-60 PASS
+== TC-PG03-61
+    ok   khoá 'bad key!': status = [422]
+    ok   khoá 'bad key!': code = [VALIDATION_FAILED]
+    ok   khoá có 'ä': status = [422]
+    ok   khoá có 'ä': code = [VALIDATION_FAILED]
+    ok   không tạo bản ghi = [0]
+-- TC-PG03-61 PASS
+== TC-PG03-62
+    ok   U1: status = [201]
+    ok   U2: status = [201]
+    ok   U2 không nhận replay = []
+    ok   hai id khác nhau = [01a0fddd-e662-7b1d-a93e-e7a1ef032eb2] (≠ [01a0fddd-e647-7a17-81cc-4d0fccb3e4bb])
+    ok   số dòng _test_items = [2]
+    ok   mỗi người một dòng = [2]
+-- TC-PG03-62 PASS
+== TC-PG03-63
+    ok   request được xử lý ~ /^(201|422)$/
+    ok   số dòng log chứa khoá idem = [0]
+    ok   số dòng log chứa thân (pii-canary) = [0]
+-- TC-PG03-63 PASS
+== TC-PG03-64
+    ok   go test ./internal/httpapi -run 'TestIdempotency_Concurrent50|TestIdempotency_KeyReused|TestIdempotency_Required|TestIdempotency_BadKey|TestIdempotency_ScopedByUserAndEndpoint|TestIdempotency_5xxNotStored|TestIdempotency_NotLogged' rc = [0]
+    ok   --- PASS: TestIdempotency_Concurrent50
+    ok   --- PASS: TestIdempotency_KeyReused
+    ok   --- PASS: TestIdempotency_Required
+    ok   --- PASS: TestIdempotency_BadKey
+    ok   --- PASS: TestIdempotency_ScopedByUserAndEndpoint
+    ok   --- PASS: TestIdempotency_5xxNotStored
+    ok   --- PASS: TestIdempotency_NotLogged
+-- TC-PG03-64 PASS
+== TC-PG03-65
+    ok   tìm thấy khoá phản hồi của qc65-1790965579970 ~ /^ep:idem:/
+    ok   TTL ≥ 86300 = 86400 (≥ 86300)
+    ok   TTL ≤ 86400 = 86400 (≤ 86400)
+-- TC-PG03-65 PASS
+== TC-PG03-66
+    ok   không bắt được khoá :lock khi đang chạy (handler quá nhanh) — chấm bằng điều kiện hết hạn dưới đây + TC-PG03-69
+    ok   có ≥ 1 phản hồi 409 hoặc replay (chứng tỏ có khoá chạy-dở) = 1 (≥ 1)
+    ok   số khoá :lock còn lại sau 35 s = [0]
+    ok   số dòng _test_items = [1]
+-- TC-PG03-66 PASS
+== TC-PG03-67
+    ok   số dòng idempotency_keys sau lần 1 = [1]
+    ok   Redis đã sạch khoá ep:idem = [0]
+    ok   status lần 2 = lần 1 = [201]
+    ok   Idempotent-Replayed lần 2 = [true]
+    ok   thân lần 2 tương đương lần 1 (JSON) = [{"created_at":"2026-10-02T18:26:59.226323Z","id":"01a0fdde-9a1a-78f0-a170-e6778f504f8e","name":"qc67-1790965619168-12225","updated_at":"2026-10-02T18:26:59.226323Z","version":1}]
+    ok   số dòng _test_items = [1]
+    ok   số dòng idempotency_keys = [1]
+-- TC-PG03-67 PASS
+== TC-PG03-68
+    ok   status = [503]
+    ok   code = [SERVICE_UNAVAILABLE]
+    ok   số bản ghi mới = [0]
+    ok   số dòng mang tên vừa gửi = [0]
+    ok   readyz trở lại 200 = [200]
+-- TC-PG03-68 PASS
+== TC-PG03-69
+    ok   go test ./internal/httpapi -run 'TestIdempotency_TTL|TestIdempotency_RedisFlushedFallsBackToTable|TestIdempotency_RedisDown_FailClosed' rc = [0]
+    ok   --- PASS: TestIdempotency_TTL
+    ok   --- PASS: TestIdempotency_RedisFlushedFallsBackToTable
+    ok   --- PASS: TestIdempotency_RedisDown_FailClosed
+-- TC-PG03-69 PASS
+== TC-PG03-70
+    ok   dựng được item ~ /^[0-9a-f-]{36}$/
+    ok   version ban đầu = [1]
+    ok   status = [200]
+    ok   version trong thân = [2]
+    ok   version trong DB = [2]
+-- TC-PG03-70 PASS
+== TC-PG03-71
+    ok   status = [409]
+    ok   code = [VERSION_CONFLICT]
+    ok   details.current_version = [2]
+    ok   details.current là object = [object]
+    ok   header ETag = version hiện tại = [W/"v2"]
+    ok   version trong DB không đổi = [2]
+-- TC-PG03-71 PASS
+== TC-PG03-72
+    ok   thiếu version: status = [422]
+    ok   thiếu version: code = [VALIDATION_FAILED]
+    ok   thiếu version: details[0].field = [version]
+    ok   version trong DB không đổi = [1]
+    ok   id không có: status = [404]
+    ok   id không có: code = [NOT_FOUND]
+-- TC-PG03-72 PASS
+== TC-PG03-73
+    ok   If-Match đúng: status = [200]
+    ok   version sau If-Match = [2]
+    ok   If-Match cũ: status = [409]
+    ok   If-Match cũ: code = [VERSION_CONFLICT]
+    ok   If-Match ≠ version trong thân: status = [422]
+    ok   version trong DB không đổi = [2]
+-- TC-PG03-73 PASS
+== TC-PG03-74
+    ok   số 200 = [1]
+    FAIL số 409: thực tế [0] ≠ mong đợi [19]
+    ok   số 5xx = [0]
+    ok   version cuối = n+1 = [2]
+-- TC-PG03-74 FAIL
+== TC-PG03-75
+    ok   go test ./internal/httpapi -run 'TestOptimisticLock_Stale409|TestOptimisticLock_Concurrent20|TestOptimisticLock_IfMatch|TestOptimisticLock_Missing' rc = [0]
+    ok   --- PASS: TestOptimisticLock_Stale409
+    ok   --- PASS: TestOptimisticLock_Concurrent20
+    ok   --- PASS: TestOptimisticLock_IfMatch
+    ok   --- PASS: TestOptimisticLock_Missing
+-- TC-PG03-75 PASS
+== TC-PG03-76
+    ok   status = [200]
+    ok   ETag = [W/"v1"]
+    ok   Cache-Control = [private, no-cache]
+    FAIL Vary có Authorization: [Origin] không khớp /Authorization/
+-- TC-PG03-76 FAIL
+== TC-PG03-77
+    ok   status = [304]
+    ok   thân rỗng (byte tải về) = [0]
+    ok   ETag trên 304 = [W/"v1"]
+-- TC-PG03-77 PASS
+== TC-PG03-78
+    ok   danh sách có ETag hiện tại = [304]
+    ok   danh sách W/"v1", W/"v9" (khớp v1) = [304]
+    ok   If-None-Match: * = [304]
+-- TC-PG03-78 PASS
+== TC-PG03-79
+    ok   ETag không khớp → 200 = [200]
+    ok   ETag đổi sau PUT = [W/"v2"] (≠ [W/"v1"])
+    ok   ETag mới = [W/"v2"]
+    ok   ETag cũ không còn khớp = [200]
+-- TC-PG03-79 PASS
+== TC-PG03-80
+    ok   status = [200]
+    ok   định dạng ETag danh sách ~ /^W/"[A-Za-z0-9_-]{16}"$/
+    ok   ETag = sha256 của đúng byte thân (gồm items + next_cursor) = [W/"ro6mpN8uhJcJ4ZTm"]
+    ok   If-None-Match khớp trên danh sách → 304 = [304]
+    ok   ETag danh sách ổn định khi thân không đổi = [W/"ro6mpN8uhJcJ4ZTm"]
+-- TC-PG03-80 PASS
+== TC-PG03-81
+    ok   POST với If-None-Match: * vẫn tạo (201, không 304) = [201]
+    ok   PUT với If-None-Match: * vẫn ghi (không 304) = [200]
+    ok   version đã tăng = [2]
+-- TC-PG03-81 PASS
+== TC-PG03-82
+    ok   go test ./internal/httpapi -run 'TestETag_NotModified|TestETag_ChangesAfterUpdate|TestETag_MultipleValues' rc = [0]
+    ok   --- PASS: TestETag_NotModified
+    ok   --- PASS: TestETag_ChangesAfterUpdate
+    ok   --- PASS: TestETag_MultipleValues
+-- TC-PG03-82 PASS
+== TC-PG03-83
+    ok   status = [202]
+    ok   job_id là uuid ~ /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
+    ok   Location = [/api/v1/jobs/01a0fdde-ec61-77ec-b024-0a885e9678e5]
+    ok   kind trong DB = [test.progress]
+    ok   owner_id trong DB = [00000000-0000-7000-8000-000000000001]
+-- TC-PG03-83 PASS
+== TC-PG03-84
+    ok   trạng thái trong DB = [SUCCEEDED]
+    ok   khoá lạ trong thân = []
+    ok   đủ trường bắt buộc = [true]
+    ok   status = [SUCCEEDED]
+    ok   progress = [100]
+    ok   finished_at có giá trị = [true]
+-- TC-PG03-84 PASS
+== TC-PG03-85
+    ok   status POST = [202]
+    ok   số lần đo = 15 (≥ 2)
+    ok   số lần progress giảm = [0]
+    ok   progress cuối = [100]
+    ok   trạng thái cuối = [SUCCEEDED]
+    ok   giá trị progress khác nhau (có tiến độ trung gian hoặc 0→100) = 5 (≥ 2)
+-- TC-PG03-85 PASS
+== TC-PG03-86
+    ok   status POST = [202]
+    ok   jobs.status ngay sau POST (worker dừng) = [QUEUED]
+    ok   số dòng outbox job.enqueue của job = [1]
+    ok   outbox tăng đúng 1 dòng = [1]
+    ok   jobs.created_at = outbox.created_at (cùng transaction) = [1]
+    ok   sau khi bật lại worker = [SUCCEEDED]
+-- TC-PG03-86 PASS
+== TC-PG03-87
+    ok   go test ./internal/jobs ./internal/httpapi -run 'TestJobs_Lifecycle|TestJobs_ProgressMonotonic|TestJobs_EnqueueAtomic' rc = [0]
+    ok   --- PASS: TestJobs_Lifecycle
+    ok   --- PASS: TestJobs_ProgressMonotonic
+    ok   --- PASS: TestJobs_EnqueueAtomic
+    LOG  testing: warning: no tests to run
+    LOG  ok  	github.com/edupilot/backend-go/internal/httpapi	1.406s [no tests to run]
+-- TC-PG03-87 FAIL
+== TC-PG03-88
+    ok   status POST = [202]
+    ok   trạng thái = [FAILED]
+    ok   status trong thân = [FAILED]
+    ok   error.code có giá trị ~ /^.+$/
+    ok   finished_at có giá trị = [true]
+    ok   progress giữ nguyên sau 2 s = [0]
+    ok   progress không đạt 100 = 0 (≤ 99)
+    ok   không treo ở RUNNING = [0]
+-- TC-PG03-88 PASS
+== TC-PG03-89
+    ok   uuid không tồn tại: status = [404]
+    ok   uuid không tồn tại: code = [NOT_FOUND]
+    ok   không phải uuid: status = [404]
+    ok   không phải uuid: code = [NOT_FOUND]
+-- TC-PG03-89 PASS
+== TC-PG03-90
+    ok   go test ./internal/jobs -run 'TestJobs_Failed|TestJobs_PanicFailed' rc = [0]
+    ok   --- PASS: TestJobs_Failed
+    ok   --- PASS: TestJobs_PanicFailed
+-- TC-PG03-90 PASS
+== TC-PG03-91
+    ok   U2 (STUDENT khác): status = [404]
+    ok   U2: code = [NOT_FOUND]
+    ok   U2 không nhận 403 = [404] (≠ [403])
+    ok   ADMIN: status = [200]
+    ok   chủ job (U1): status = [200]
+    ok   go test ./internal/httpapi -run 'TestJobs_Ownership' rc = [0]
+    ok   --- PASS: TestJobs_Ownership
+-- TC-PG03-91 PASS
+== TC-PG03-92
+    ok   không token: status = [401]
+    ok   không token: code = [UNAUTHENTICATED]
+    ok   WWW-Authenticate ~ /Bearer realm="edupilot"/
+    ok   token hết hạn: status = [401]
+    ok   token hết hạn: code = [TOKEN_EXPIRED]
+-- TC-PG03-92 PASS
+== TC-PG03-93
+    ok   số đường dẫn trả 404 / 13 = [13]
+    ok   đường dẫn không trả 404 = []
+    ok   code = [NOT_FOUND]
+    ok   chế độ hiện tại = [default]
+-- TC-PG03-93 PASS
+== TC-PG03-94
+    ok   số đường dẫn trả 404 / 13 = [13]
+    ok   đường dẫn không trả 404 (401/403 là lỗi: lộ sự tồn tại) = []
+-- TC-PG03-94 PASS
+== TC-PG03-95
+    ok   POST _test/items = [404]
+    ok   POST _test/jobs = [404]
+    ok   POST _test/events = [404]
+    ok   PUT _test/items/{id} = [404]
+    ok   số dòng _test_items tên qc95 (bảng thử không bị ghi) = [0]
+-- TC-PG03-95 PASS
+== TC-PG03-96
+    ok   symbol internal/testroutes trong binary mặc định = [0]
+    ok   symbol internal/testroutes trong binary -tags testroutes = 32 (≥ 1)
+-- TC-PG03-96 PASS
+== TC-PG03-97
+    ok   lấy được binary từ image mặc định
+    ok   lấy được binary từ image test
+    ok   chuỗi /api/v1/_test/ trong binary image mặc định = [0]
+    ok   chuỗi /api/v1/_test/ trong binary image test = 1 (≥ 1)
+-- TC-PG03-97 PASS
+== TC-PG03-98
+    ok   mã thoát = [1]
+    ok   log nêu APP_ENV = 1 (≥ 1)
+    ok   thời gian thoát (ms) = 657 (≤ 5000)
+    ok   go test ./cmd/gateway -run 'TestTestBinary_RefusesProduction' rc = [0]
+    ok   --- PASS: TestTestBinary_RefusesProduction
+-- TC-PG03-98 PASS
+== TC-PG03-99
+    ok   go test ./cmd/gateway -run 'TestDefaultBinary_NoTestRoutes' rc = [0]
+    ok   --- PASS: TestDefaultBinary_NoTestRoutes
+-- TC-PG03-99 PASS
+TỔNG story 03: PASS=103 FAIL=5 MANUAL=0
+FAIL: TC-PG03-07 TC-PG03-104 TC-PG03-74 TC-PG03-76 TC-PG03-87

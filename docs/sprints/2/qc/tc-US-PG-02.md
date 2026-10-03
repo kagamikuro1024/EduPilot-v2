@@ -54,7 +54,7 @@ Mọi TC ràng buộc dữ liệu chạy trong `BEGIN; …; ROLLBACK;` (không �
 | TC-PG02-45 | AC7 | chạy **ngay sau** TC-PG02-44 | **S** `pg02.sh 45` — `docker inspect` `StartedAt` của mọi gateway/worker so với `FinishedAt` của `migrate` (so bằng `timestamptz` trong Postgres) + nhãn compose | Mỗi container: `StartedAt > migrate.FinishedAt` → `t` (≥ 2 container); nhãn `com.docker.compose.depends_on` của gateway chứa `migrate:service_completed_successfully` |
 | TC-PG02-46 | AC7 | sau TC-PG02-44 | **S** `pg02.sh 46` — `docker inspect` env của container `migrate` và `gateway` | `migrate`: `DATABASE_URL` khớp `@postgres(:5432)?/`, **không** chứa `pgbouncer`, không có `PGBOUNCER_URL` có giá trị (đếm = 0); `gateway`: có `PGBOUNCER_URL` (đếm = 1) |
 | TC-PG02-47 | AC8 | `sqlc` đã cài | **S** `pg02.sh 47` — `cd backend-go && sqlc diff` | rc=`0`, không in dòng nào (số dòng = 0). Thiếu `sqlc` → FAIL "KHÔNG KIỂM ĐƯỢC" (không tự cài theo phỏng đoán) |
-| TC-PG02-48 | AC8 | — | **S** `pg02.sh 48` — `grep -cE '^type (UserRole\|UserStatus\|JobStatus) string' backend-go/internal/store/models.go`; `grep -rn 'float64' backend-go/internal/store` | `3`; `0` dòng `float64`; ≥ 1 dòng `time.Time` trong `models.go` |
+| TC-PG02-48 | AC8 | — | **S** `pg02.sh 48` — `grep -cE '^type (UserRole\|UserStatus\|JobStatus) string' backend-go/internal/store/models.go`; `grep -rn 'float64' backend-go/internal/store` | `3`; `0` dòng `float64` **trong mã sản xuất** (`grep … | grep -v '_test.go'`; spec v1.5 / góp ý #12: `_test.go` miễn); ≥ 1 dòng `time.Time` trong `models.go` |
 | TC-PG02-49 | AC8 | — | **S** `pg02.sh 49` — `grep -rniE '\boffset\b' backend-go/internal/store/queries`; mỗi `queries/*.sql` có `-- name:` | `0` dòng OFFSET; ≥ 1 file; `0` file thiếu `-- name:` |
 | TC-PG02-50 | AC9 (nhánh lỗi) | `sqlc` đã cài | **S** `pg02.sh 50` — `cp -R backend-go $QC_TMP/bg`; nối `-- name: QcTmpDrift :one select 1;` vào bản sao; `sqlc diff` trong bản sao | rc **khác 0**; đầu ra nêu tên file `.go` sinh ra lệch; `git status --porcelain backend-go` = 0 dòng (repo thật không bị sửa) |
 | TC-PG02-51 | AC10 | Docker | **S** `pg02.sh 51` — `gt ./internal/store 'TestVectorConventions'` | rc=0 và `--- PASS: TestVectorConventions` |
@@ -133,3 +133,4 @@ Cả 6 câu đã được trả lời trong `US.md`/`SRS.md` v1.2 (commit 02a443
 - 2026-10-02 — spec v1.2 (commit 02a4435; QC questions #Q-QC-02-2, #Q-QC-02-4, #Q-QC-02-5): TC-62 sửa: ngưỡng 30 s ghi rõ nguồn (10 s chỉ cho test Go); TC-04 sửa: ghi rõ so tập hợp đã sắp xếp, thứ tự cột không bị chấm; TC-57 sửa: ghi rõ `BLOB_PUBLIC_ENDPOINT=localhost:9000` là giá trị bắt buộc, không chấp nhận trống.
 
 Tổng: 70 TC (70 S tự động, 0 T tay).
+- 2026-10-03 · **Sửa TC-PG02-48** (spec v1.5, góp ý #12): quét `float64` chỉ mã sản xuất.

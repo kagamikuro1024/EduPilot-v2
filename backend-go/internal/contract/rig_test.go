@@ -56,6 +56,7 @@ func buildRig(t *testing.T) (*rig, error) {
 		"BLOB_BUCKET":             "contract",
 		"BLOB_ACCESS_KEY":         "contract-dev",
 		"BLOB_SECRET_KEY":         "contract-dev-secret",
+		"APP_ENCRYPTION_KEY":      "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=",
 		"APP_ENV":                 "test",
 		"REQUEST_TIMEOUT":         "1s",
 		"MAX_BODY_BYTES":          "4096",

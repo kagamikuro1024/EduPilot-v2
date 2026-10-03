@@ -1,0 +1,275 @@
+== TC-PG06-01
+    info redocly version = [2.57.0]
+    ok   redocly lint rc = [0]
+    ok   đầu ra redocly không có lỗi !~ /[1-9][0-9]* error/
+-- TC-PG06-01 PASS
+== TC-PG06-02
+    ok   go test ./internal/contract -run 'TestSpec_LoadsAndValidates' rc = [0]
+    ok   --- PASS: TestSpec_LoadsAndValidates
+-- TC-PG06-02 PASS
+== TC-PG06-03
+    ok   openapi: của openapi.yaml ~ /^(3\.1\.0|3\.0\.3)$/
+    ok   openapi: của openapi.test.yaml ~ /^(3\.1\.0|3\.0\.3)$/
+    ok   hai tệp cùng phiên bản = [3.1.0]
+-- TC-PG06-03 PASS
+== TC-PG06-04
+    ok   grep -cE '^  /' api/openapi.yaml = [5]
+    ok   danh sách đường dẫn = [/api/v1/events /api/v1/healthz /api/v1/jobs/{id} /api/v1/readyz /healthz]
+-- TC-PG06-04 PASS
+== TC-PG06-05
+    ok   grep -c '_test' api/openapi.yaml = [0]
+    ok   khai /healthz (giữ từ FEAT-scaffold) = [1]
+-- TC-PG06-05 PASS
+== TC-PG06-06
+    ok   grep -cE '^  /api/v1/_test' api/openapi.test.yaml = [13]
+    ok   13 đường dẫn thử (SRS 6.3, chuẩn hoá {x}→{}) = [/api/v1/_test/courses/{}/ping /api/v1/_test/db-sleep /api/v1/_test/error/{} /api/v1/_test/events /api/v1/_test/items /api/v1/_test/items/{} /api/v1/_test/jobs /api/v1/_test/panic /api/v1/_test/rbac/admin /api/v1/_test/rbac/staff /api/v1/_test/redis-block /api/v1/_test/slow /api/v1/_test/whoami]
+    ok   có đúng một đường dẫn /api/v1/_test/courses/{}/ping = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/db-sleep = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/error/{} = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/events = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/items = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/items/{} = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/jobs = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/panic = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/rbac/admin = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/rbac/staff = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/redis-block = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/slow = [1]
+    ok   có đúng một đường dẫn /api/v1/_test/whoami = [1]
+-- TC-PG06-06 PASS
+== TC-PG06-07
+    ok   số thao tác openapi.yaml = [5]
+    ok   số operationId openapi.yaml = [5]
+    ok   operationId = số thao tác (openapi.test.yaml) = [15]
+    ok   số thao tác openapi.test.yaml (SRS 6.3: đúng 15 route) = [15]
+    ok   operationId trùng nhau = []
+-- TC-PG06-07 PASS
+== TC-PG06-08
+    ok   gotest ./internal/contract/... rc = [0]
+    ok   có gói contract chạy thật ~ /ok[ \t]+.*internal/contract/
+    ok   không gói nào rỗng test !~ /internal/contract.*no test files/
+-- TC-PG06-08 PASS
+== TC-PG06-09
+    ok   go test ./internal/contract -run 'TestSpec_LoadsAndValidates|TestRouteSpecParity|TestStatusParity|TestSpec_ErrorResponsesDeclared|TestSpec_EveryDocumentedStatusExercised|TestValidator_RejectsBadResponses|TestSpec_SecurityDeclared|TestContract_UnauthenticatedMatchesSpec' rc = [0]
+    ok   --- PASS: TestSpec_LoadsAndValidates
+    ok   --- PASS: TestRouteSpecParity
+    ok   --- PASS: TestStatusParity
+    ok   --- PASS: TestSpec_ErrorResponsesDeclared
+    ok   --- PASS: TestSpec_EveryDocumentedStatusExercised
+    ok   --- PASS: TestValidator_RejectsBadResponses
+    ok   --- PASS: TestSpec_SecurityDeclared
+    ok   --- PASS: TestContract_UnauthenticatedMatchesSpec
+-- TC-PG06-09 PASS
+== TC-PG06-10
+    ok   go test (không tag) ./internal/contract/... rc = [0]
+    ok   có gói contract chạy thật ~ /ok[ \t]+.*internal/contract/
+-- TC-PG06-10 PASS
+== TC-PG06-11
+    ok   go test ./internal/contract -run 'TestSpec_LoadsAndValidates|TestRouteSpecParity|TestStatusParity|TestSpec_ErrorResponsesDeclared|TestSpec_EveryDocumentedStatusExercised|TestValidator_RejectsBadResponses|TestSpec_SecurityDeclared|TestContract_UnauthenticatedMatchesSpec' rc = [0]
+    ok   --- PASS: TestSpec_LoadsAndValidates
+    ok   --- PASS: TestRouteSpecParity
+    ok   --- PASS: TestStatusParity
+    ok   --- PASS: TestSpec_ErrorResponsesDeclared
+    ok   --- PASS: TestSpec_EveryDocumentedStatusExercised
+    ok   --- PASS: TestValidator_RejectsBadResponses
+    ok   --- PASS: TestSpec_SecurityDeclared
+    ok   --- PASS: TestContract_UnauthenticatedMatchesSpec
+-- TC-PG06-11 PASS
+== TC-PG06-12
+    ok   số (method, đường dẫn) thử đã gọi = 15 (≥ 15)
+    ok   số phản hồi khác 404 ở image mặc định = [0]
+-- TC-PG06-12 PASS
+== TC-PG06-13
+    ok   GET /api/v1/jobs/{id} không token = [401]
+    ok   code của thân lỗi = [UNAUTHENTICATED]
+    ok   WWW-Authenticate ~ /^Bearer realm="edupilot"/
+    ok   GET /api/v1/events không token = [401]
+    ok   code của thân lỗi (events) = [UNAUTHENTICATED]
+-- TC-PG06-13 PASS
+== TC-PG06-14
+    ok   GET /healthz ẩn danh = [200]
+    ok   GET /api/v1/healthz ẩn danh = [200]
+    ok   GET /api/v1/readyz ẩn danh = [200]
+-- TC-PG06-14 PASS
+== TC-PG06-15
+    ok   GET /healthz = [{"status":"ok"}]
+    ok   GET /api/v1/healthz = [ok]
+    ok   readyz status/db/redis = [ready/up/up]
+    ok   GET /api/v1/jobs/<uuid lạ> (có token) = [404]
+    ok   code = [NOT_FOUND]
+    ok   trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   khoá lạ ngoài hợp đồng lỗi (SRS 6.1) = []
+    ok   GET /api/v1/events mã = [200]
+    ok   Content-Type của SSE ~ /^text/event-stream/
+-- TC-PG06-15 PASS
+== TC-PG06-16
+    ok   spec khai ETag = 7 (≥ 1)
+    ok   spec khai Location = 2 (≥ 1)
+    ok   spec khai Retry-After = 4 (≥ 1)
+    ok   ETag thật của danh sách ~ /^W/"/
+    ok   POST /api/v1/_test/jobs mã = [202]
+    ok   Location của việc dài ~ /^/api/v1/jobs/[0-9a-f-]{36}$/
+    ok   Retry-After của 429 ~ /^[1-9][0-9]*$/
+-- TC-PG06-16 PASS
+== TC-PG06-17
+    ok   kiểu của items = [array]
+    ok   số phần tử (limit=1) = [1]
+    ok   có khoá next_cursor = [true]
+    ok   next_cursor khi còn trang sau = [eyJ2IjoxLCJ0IjoxNzkwOTc4ODA3NjU3MDgwLCJpIjoiMDFhMGZlYTctZDc2OS03MWYwLWJkYjctNTNiZGRkZDg1NTNmIn0] (≠ [null])
+    ok   khoá lạ ngoài {items,next_cursor} = []
+-- TC-PG06-17 PASS
+== TC-PG06-18
+    ok   GET /api/v1/_test/error/401 mã = [401]
+    ok   code của 401 = [UNAUTHENTICATED]
+    ok   GET /api/v1/_test/error/403 mã = [403]
+    ok   code của 403 = [FORBIDDEN]
+    ok   GET /api/v1/_test/error/404 mã = [404]
+    ok   code của 404 = [NOT_FOUND]
+    ok   GET /api/v1/_test/error/409 mã = [409]
+    ok   code của 409 = [CONFLICT]
+    ok   GET /api/v1/_test/error/422 mã = [422]
+    ok   code của 422 = [VALIDATION_FAILED]
+    ok   GET /api/v1/_test/error/429 mã = [429]
+    ok   code của 429 = [RATE_LIMITED]
+    ok   retry_after của 429 = [7]
+    ok   header Retry-After của 429 ~ /^[0-9]+$/
+    ok   GET /api/v1/_test/error/503 mã = [503]
+    ok   code của 503 = [SERVICE_UNAVAILABLE]
+    ok   retry_after của 503 = [7]
+    ok   header Retry-After của 503 ~ /^[0-9]+$/
+    ok   GET /api/v1/_test/error/504 mã = [504]
+    ok   code của 504 = [DEADLINE_EXCEEDED]
+-- TC-PG06-18 PASS
+== TC-PG06-19
+    ok   rbac/admin không token = [401]
+    ok   WWW-Authenticate ~ /^Bearer realm="edupilot"/
+    ok   rbac/admin với STUDENT = [403]
+    ok   code = [FORBIDDEN]
+    ok   details.reason = [role]
+    ok   rbac/admin với ADMIN = [200]
+-- TC-PG06-19 PASS
+== TC-PG06-20
+    ok   rc (spec nguyên vẹn) = [0]
+    ok   có --- PASS: TestRouteSpecParity = 1 (≥ 1)
+-- TC-PG06-20 PASS
+== TC-PG06-21
+    ok   đường dẫn còn lại sau khi xoá = [0]
+    ok   rc (spec thiếu readyz) = [1] (≠ [0])
+    ok   có --- FAIL: TestRouteSpecParity = 1 (≥ 1)
+    ok   thông báo nêu GET /api/v1/readyz = 1 (≥ 1)
+-- TC-PG06-21 PASS
+== TC-PG06-22
+    ok   rc (không tag, spec thiếu readyz) = [1] (≠ [0])
+    ok   có --- FAIL: TestRouteSpecParity = 1 (≥ 1)
+    ok   thông báo nêu GET /api/v1/readyz = 1 (≥ 1)
+-- TC-PG06-22 PASS
+== TC-PG06-23
+    ok   spec thử có đường dẫn thừa = [1]
+    ok   rc (spec thừa đường dẫn) = [1] (≠ [0])
+    ok   có --- FAIL: TestRouteSpecParity = 1 (≥ 1)
+    ok   thông báo nêu /api/v1/khong-co = 1 (≥ 1)
+-- TC-PG06-23 PASS
+== TC-PG06-24
+    ok   spec gốc khai 404 cho jobs/{id} = 1 (≥ 1)
+    ok   bản sửa đã xoá 404 = [0]
+    ok   rc (status thật không có trong spec) = [1] (≠ [0])
+    ok   có --- FAIL: TestStatusParity = 1 (≥ 1)
+    ok   thông báo nêu GET /api/v1/jobs/{id} = 1 (≥ 1)
+    ok   thông báo nêu 404 = 1 (≥ 1)
+-- TC-PG06-24 PASS
+== TC-PG06-25
+    ok   components.responses.Unauthorized = [1]
+    ok   components.responses.Forbidden = [1]
+    ok   components.responses.NotFound = [1]
+    ok   components.responses.Conflict = [1]
+    ok   components.responses.ValidationFailed = [1]
+    ok   components.responses.RateLimited = [1]
+    ok   components.responses.Unavailable = [1]
+    ok   components.responses.DeadlineExceeded = [1]
+-- TC-PG06-25 PASS
+== TC-PG06-26
+    ok   status 401 → responses/Unauthorized = 13 (≥ 1)
+    ok   status 403 → responses/Forbidden = 5 (≥ 1)
+    ok   status 404 → responses/NotFound = 5 (≥ 1)
+    ok   status 409 → responses/Conflict = 2 (≥ 1)
+    ok   status 422 → responses/ValidationFailed = 6 (≥ 1)
+    ok   status 429 → responses/RateLimited = 2 (≥ 1)
+    ok   status 503 → responses/Unavailable = 2 (≥ 1)
+    ok   status 504 → responses/DeadlineExceeded = 4 (≥ 1)
+-- TC-PG06-26 PASS
+== TC-PG06-27
+    ok   số $ref schemas/Error trong components.responses = 8 (≥ 8)
+    ok   định nghĩa schema Error = [1]
+-- TC-PG06-27 PASS
+== TC-PG06-28
+    ok   go test ./internal/contract -run 'TestSpec_ErrorResponsesDeclared|TestSpec_EveryDocumentedStatusExercised' rc = [0]
+    ok   --- PASS: TestSpec_ErrorResponsesDeclared
+    ok   --- PASS: TestSpec_EveryDocumentedStatusExercised
+    ok   số trường status = số trường operation = [0]
+    ok   số trường reason = số trường operation = [0]
+    ok   số reason rỗng = [0]
+    info 0 mục miễn trừ — trích vào /tmp/epqc.Hh6Pj7/out/tc-pg06-28.txt (đối chiếu handoff: TC-PG06-38, tay)
+-- TC-PG06-28 PASS
+== TC-PG06-29
+    ok   go test ./internal/contract -run 'TestValidator_RejectsBadResponses' rc = [0]
+    ok   --- PASS: TestValidator_RejectsBadResponses
+-- TC-PG06-29 PASS
+== TC-PG06-30
+    ok   /api/v1/jobs/{id} có hiệu lực bearerAuth (riêng hoặc kế thừa gốc) = 1 (≥ 1)
+    ok   /api/v1/jobs/{id} khai 401 = 2 (≥ 1)
+    ok   /api/v1/events có hiệu lực bearerAuth (riêng hoặc kế thừa gốc) = 1 (≥ 1)
+    ok   /api/v1/events khai 401 = 2 (≥ 1)
+-- TC-PG06-30 PASS
+== TC-PG06-31
+    ok   /healthz khai security: [] = [1]
+    ok   /healthz không khai bearerAuth = [0]
+    ok   /api/v1/healthz khai security: [] = [1]
+    ok   /api/v1/healthz không khai bearerAuth = [0]
+    ok   /api/v1/readyz khai security: [] = [1]
+    ok   /api/v1/readyz không khai bearerAuth = [0]
+-- TC-PG06-31 PASS
+== TC-PG06-32
+    ok   /api/v1/_test/rbac/admin khai 403 = 2 (≥ 1)
+    ok   /api/v1/_test/rbac/admin khai 401 = 2 (≥ 1)
+    ok   /api/v1/_test/rbac/staff khai 403 = 2 (≥ 1)
+    ok   /api/v1/_test/rbac/staff khai 401 = 2 (≥ 1)
+-- TC-PG06-32 PASS
+== TC-PG06-33
+    ok   go test ./internal/contract -run 'TestSpec_SecurityDeclared|TestContract_UnauthenticatedMatchesSpec' rc = [0]
+    ok   --- PASS: TestSpec_SecurityDeclared
+    ok   --- PASS: TestContract_UnauthenticatedMatchesSpec
+-- TC-PG06-33 PASS
+== TC-PG06-34
+    ok   số gói phụ thuộc (không tag) = 505 (≥ 50)
+    ok   số gói phụ thuộc (-tags testroutes) = 506 (≥ 50)
+    ok   kin-openapi trong deps (không tag) = [0]
+    ok   kin-openapi trong deps (-tags testroutes) = [0]
+-- TC-PG06-34 PASS
+== TC-PG06-35
+    ok   kin-openapi trong go list -deps -test ./internal/contract = 5 (≥ 1)
+-- TC-PG06-35 PASS
+== TC-PG06-36
+    ok   golangci-lint run rc = [0]
+    ok   không vi phạm depguard !~ /depguard/
+    ok   golangci-lint run --build-tags testroutes rc = [0]
+    ok   không vi phạm depguard (có tag) !~ /depguard/
+    ok   make -C backend-go lint-depguard-negative rc = [0]
+    ok   ca âm nêu depguard ~ /depguard/
+    ok   gói tạm đã bị xoá (test ! -e backend-go/internal/zz_depguard_probe)
+    ok   git status --porcelain backend-go không còn vết gói tạm = [0]
+-- TC-PG06-36 PASS
+== TC-PG06-37
+    ok   số dòng dep của gateway (notag) = 43 (≥ 5)
+    ok   getkin/kin-openapi trong gateway (notag) = [0]
+    ok   số dòng dep của gateway (testroutes) = 43 (≥ 5)
+    ok   getkin/kin-openapi trong gateway (testroutes) = [0]
+    ok   số dòng dep của worker (notag) = 39 (≥ 5)
+    ok   getkin/kin-openapi trong worker (notag) = [0]
+    ok   số dòng dep của worker (testroutes) = 39 (≥ 5)
+    ok   getkin/kin-openapi trong worker (testroutes) = [0]
+-- TC-PG06-37 PASS
+== TC-PG06-38
+    MANUAL mở /tmp/epqc.Hh6Pj7/out/tc-pg06-28.txt (trích từ backend-go/internal/contract/exempt.go) và bản chép danh sách miễn trừ trong handoff của dev: cùng số mục, cùng từng cặp (operation, status), mỗi lý do nêu được vì sao status đó không gọi thật được; thừa / thiếu / lý do vô nghĩa → FAIL (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-PG06-38 MANUAL
+TỔNG story 06: PASS=37 FAIL=0 MANUAL=1
+MANUAL: TC-PG06-38

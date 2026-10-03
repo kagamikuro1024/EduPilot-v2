@@ -86,14 +86,15 @@ sse_pub_body() {  # như sse_pub nhưng in THÂN phản hồi (để đọc `cod
   curl -sk --max-time 15 -X POST \
     -H "Authorization: Bearer $t" -H 'Content-Type: application/json' -d "$body" "$GW/api/v1/_test/events"; }
 sse_burst() {  # sse_burst <n> <type> <token> [song song=10] — phát n sự kiện data={"n":i}; tự `rl_reset` mỗi 150 lần
-  local n=$1 ty=$2 t=$3 par=${4:-10} i=1 c=0                       # (giới hạn mặc định 300/phút/IP, 600/phút/user — SRS 6.5)
+  local n=$1 ty=$2 t=$3 par=${4:-10} i=1 c=0 pids=""   # QC v2: `wait` trần đợi cả curl SSE nền (--max-time) → sau lô đầu bị chặn tới hết stream; chỉ đợi các tiến trình phát                       # (giới hạn mặc định 300/phút/IP, 600/phút/user — SRS 6.5)
   while [ "$i" -le "$n" ]; do
     sse_pub "$ty" "{\"n\":$i}" "$t" >/dev/null &
+    pids="$pids $!"
     c=$((c+1))
-    [ $((c % par)) -eq 0 ] && wait
+    [ $((c % par)) -eq 0 ] && { wait $pids; pids=""; }
     [ $((c % 150)) -eq 0 ] && rl_reset >/dev/null 2>&1
     i=$((i+1))
-  done; wait; return 0; }
+  done; wait $pids; return 0; }
 
 # ---------- Dọn khoá SSE của một người dùng (vệ sinh giữa các TC, KHÔNG phải phép kiểm) ----------
 sse_clean() { $RDS del "ep:sse:buf:$1" "ep:sse:conn:$1" >/dev/null 2>&1; return 0; }

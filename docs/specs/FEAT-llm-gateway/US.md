@@ -1,7 +1,7 @@
 # FEAT-llm-gateway Cổng LLM của Go: lược đồ cấu hình, `internal/llm`, Scheduler, API cấu hình, màn `/settings/llm` thật (P1)
 Nguồn: PRD M12 (và §3 ma trận quyền), FLOWS F15, phase P1 lát L1–L4 (`docs/phases/P1.md`), `docs/SYSTEM_DESIGN.md` §1.2, §3.1, §5, `docs/ARCHITECTURE.md` §4–§5, §8, quyết định D22, D36, D46, D47, D51, D52, D53; `design/DESIGN.md` §14.23, §13; spec nền `docs/specs/FEAT-pg-foundation/` (v1.3: mã lỗi, JWT, RBAC, Idempotency, outbox, `audit_log`, build tag `testroutes`) và `docs/specs/FEAT-ui-foundation/` (primitive, `apiClient`). Chi tiết kỹ thuật: `SRS.md`; câu hỏi mở: `QUESTIONS.md`.
 
-Phiên bản 1 · 2026-10-02 · Trạng thái: DRAFT (chờ PM duyệt). **Phạm vi:** 5 story US-P1-01…05 (số 06–10 trong bảng story của `plan.md`). **Quyết định phạm vi sprint 3 (plan):** (1) không có đăng nhập thật (P2): API cấu hình dùng JWT + RBAC của PG, dev lấy token Admin bằng `go run ./cmd/gateway token --role ADMIN`; (2) `make eval` hoãn tới P3/P10 (cần RAG và bộ vàng) — sprint này chỉ chạy `TestProviderContract` với provider `fake` + phát lại; ghi nhận phản hồi thật cần **khoá provider thật = việc của chủ dự án** (đặt ở `.env.local`, không commit); thiếu khoá thì AC ghi âm thanh thật được đánh dấu **BLOCKED**, các AC còn lại vẫn xong; (3) thư viện mới duy nhất được phép: `openai-go`.
+Phiên bản 1.1 · 2026-10-02 · Trạng thái: DRAFT (chờ PM duyệt). **Phạm vi:** 5 story US-P1-01…05 (số 06–10 trong bảng story của `plan.md`). **Quyết định phạm vi sprint 3 (plan):** (1) không có đăng nhập thật (P2): API cấu hình dùng JWT + RBAC của PG, dev lấy token Admin bằng `go run ./cmd/gateway token --role ADMIN`; (2) `make eval` hoãn tới P3/P10 (cần RAG và bộ vàng) — sprint này chỉ chạy `TestProviderContract` với provider `fake` + phát lại; ghi nhận phản hồi thật cần **khoá provider thật = việc của chủ dự án** (đặt ở `.env.local`, không commit); thiếu khoá thì AC ghi âm thanh thật được đánh dấu **BLOCKED**, các AC còn lại vẫn xong; (3) thư viện mới duy nhất được phép: `openai-go`.
 
 ## Quy ước kiểm chung
 
@@ -57,7 +57,6 @@ Truy vết: P1 L3 (migration `00002`, `platform/crypto`, `internal/llmconfig`); 
 
 ### Ngoài phạm vi của story này
 - Handler HTTP, mã lỗi HTTP, `openapi.yaml` (US-P1-04); gọi LLM (US-P1-02); bảng `courses` và khoá ngoại `course_id` (P2); xoay vòng khoá mã hoá `APP_ENCRYPTION_KEY` và dọn `llm_audit` cũ (Nợ PR).
-- Giá trị `llm_audit` từ phía Python (`src/llm/gateway.py`) — P3.
 
 ### Phụ thuộc
 - `FEAT-pg-foundation` (goose `00001`, `audit_log`, JWT claims, `platform/*`). Không phụ thuộc story P1 khác.
@@ -106,7 +105,7 @@ Truy vết: P1 L1 (gói `internal/llm`, hợp đồng `Chat/Stream/Structured/Em
   Kiểm: `curl -sk -o /dev/null -w '%{http_code}\n' -H "$A" -X POST $GW/api/v1/_test/llm/chat -d '{}'` trên binary **không** `testroutes` → `404`; trên binary `testroutes` với `$S` → `403`.
 
 ### Ngoài phạm vi của story này
-- Scheduler, hạn mức, mạch, suy giảm, ngân sách (US-P1-03); API cấu hình (US-P1-04); tool / agent / RAG / che PII (P3); gọi LLM từ Python.
+- Scheduler, hạn mức, mạch, suy giảm, ngân sách (US-P1-03); API cấu hình (US-P1-04); tool / agent / RAG / che PII (P3).
 - Ghi phản hồi thật từ nhà cung cấp: cần khoá thật — **việc của chủ dự án** (AC13).
 
 ### Phụ thuộc
