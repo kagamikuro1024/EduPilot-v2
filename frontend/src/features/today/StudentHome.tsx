@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { JOIN_SENT_KEY } from "@/features/join/JoinScreen";
 import { agoLabel } from "@/mock/derive";
 import { COURSES, COURSE_1, COURSE_2, NOW, STUDENT_B, fmtLongDate, fmtShortDate, fmtTime, studentById } from "@/mock/core";
 import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
@@ -31,6 +30,9 @@ import s from "./StudentHome.module.css";
 const NEXT_MEETING: Record<string, Date> = { [COURSE_2]: new Date("2026-11-03T07:00:00+07:00") };
 
 /** "Hôm nay" của sinh viên: một việc nên làm, dòng thời gian hôm nay, chỗ học dở (DESIGN §14.1). */
+/** Giờ giả lập (ms) lúc gửi yêu cầu vào lớp, theo lớp — Hôm nay của SV ghi "gửi lúc <giờ>" (mô phỏng; US-P2-11 thay bằng dữ liệu thật). */
+export const JOIN_SENT_KEY = "join.sentAt";
+
 export function StudentHome() {
   const { user, course, courses, hasCourse, studentId } = useSession();
   const [quiz] = useDemoSlice<QuizState>(quizKey(studentId), QUIZ_SEED);

@@ -214,6 +214,7 @@ const MOCK_BACKEND: Array<[string, Backend]> = [
 export function mockBackend(pathname: string): Backend | null {
   if (pathname === "/admin/users" || pathname.startsWith("/admin/users/")) return null; // US-P2-06: màn thật
   if (pathname === "/admin/courses" || pathname.startsWith("/admin/courses/")) return null; // US-P2-08: màn thật
+  if (pathname === "/join" || pathname.startsWith("/join/") || pathname.startsWith("/class/")) return null; // US-P2-09: màn thật
   if (pathname === "/") return { phase: "P2", name: "Lớp học" };
   const hit = MOCK_BACKEND.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
   return hit ? hit[1] : null;

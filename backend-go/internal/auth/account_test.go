@@ -216,7 +216,8 @@ func firstDetailCode(res resp) string {
 // SRS 4.2.5: không truy vấn sqlc nào dùng MSSV trong điều kiện để nối / mở dữ liệu, ngoài danh sách trắng.
 func TestNoQueryLinksByStudentCode(t *testing.T) {
 	t.Parallel()
-	allowed := map[string]bool{"EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true}
+	// ListMembers: ô tìm của GIẢNG VIÊN / TA trong lớp của họ (US-P2-09 AC13: `q` tìm MSSV) — chỉ lọc hiển thị, không nối, không mở dữ liệu (đề xuất #10).
+	allowed := map[string]bool{"EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true, "ListMembers": true}
 	dir := filepath.Join("..", "store", "queries")
 	files, err := filepath.Glob(filepath.Join(dir, "*.sql"))
 	require.NoError(t, err)

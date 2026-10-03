@@ -156,3 +156,87 @@ select count(*)::int from notifications where user_id = sqlc.arg(user_id) and re
 -- name: MarkNotificationRead :execrows
 -- Chỉ thông báo CỦA MÌNH (người khác ⇒ 0 dòng ⇒ 404). Đã đọc rồi vẫn tính là thành công (idempotent): giữ read_at đầu tiên.
 update notifications set read_at = coalesce(read_at, now()) where id = sqlc.arg(id) and user_id = sqlc.arg(user_id);
+
+-- ===== Vào lớp bằng mã, cài đặt tham gia, thành viên (US-P2-09) =====
+
+-- name: GetCourseByJoinCode :one
+-- Bước tra mã DUY NHẤT của preview và join (luôn đúng một truy vấn ở mọi nhánh thất bại).
+select * from courses where join_code = sqlc.arg(join_code);
+
+-- name: LockEnrollment :one
+select * from enrollments where course_id = sqlc.arg(course_id) and user_id = sqlc.arg(user_id) for update;
+
+-- name: EnrollmentConflictByStudentCode :one
+-- (Danh sách trắng SRS FEAT-account-security 4.2.5.) MSSV tự khai của người vào bằng mã đã là ảnh chụp của người KHÁC đang ở / chờ vào lớp? (không bao giờ dùng để nối tài khoản)
+select exists (
+    select 1 from enrollments
+    where course_id = sqlc.arg(course_id) and student_code_snapshot = sqlc.arg(code) and user_id <> sqlc.arg(user_id) and status in ('ACTIVE', 'PENDING')
+) as held;
+
+-- name: InsertCodeEnrollment :one
+insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, status_changed_at)
+values (sqlc.arg(course_id), sqlc.arg(user_id), 'STUDENT', sqlc.arg(status), 'CODE', sqlc.narg(snapshot), sqlc.narg(warning), sqlc.arg(at))
+returning *;
+
+-- name: RejoinEnrollment :one
+-- Vào lại sau khi bị mời ra: CÙNG dòng, REMOVED → PENDING (mặc định an toàn, Q5); snapshot cũ giữ nguyên.
+update enrollments
+set status = 'PENDING', previous_status = 'REMOVED', warning = sqlc.narg(warning), status_changed_at = sqlc.arg(at), status_changed_by = null, removed_at = null, version = version + 1
+where id = sqlc.arg(id) and status = 'REMOVED'
+returning *;
+
+-- name: SetEnrollmentStatus :one
+-- Đổi trạng thái một ghi danh (duyệt / từ chối / mời ra / hoàn tác). `previous` = trạng thái ghi vào previous_status (null = không hoàn tác được nữa).
+update enrollments
+set status = sqlc.arg(status)::enrollment_status,
+    previous_status = sqlc.narg(previous)::enrollment_status,
+    status_changed_at = sqlc.arg(at),
+    status_changed_by = sqlc.narg(actor),
+    removed_at = case when sqlc.arg(status)::enrollment_status = 'REMOVED' then sqlc.arg(at)::timestamptz else null end,
+    version = version + 1
+where id = sqlc.arg(id)
+returning *;
+
+-- name: UpdateJoinSettings :one
+update courses
+set join_enabled = coalesce(sqlc.narg(enabled), join_enabled),
+    join_require_approval = coalesce(sqlc.narg(require_approval), join_require_approval),
+    join_expires_at = case when sqlc.arg(set_expires)::bool then sqlc.narg(expires_at)::timestamptz else join_expires_at end,
+    allowed_email_domain = case when sqlc.arg(set_domain)::bool then sqlc.narg(domain)::text else allowed_email_domain end,
+    capacity = case when sqlc.arg(set_capacity)::bool then sqlc.narg(capacity)::int else capacity end,
+    version = version + 1
+where id = sqlc.arg(id) and version = sqlc.arg(version)
+returning *;
+
+-- name: RegenerateJoinCode :one
+-- Thay mã trong MỘT câu UPDATE (mã cũ chết ngay). Trùng mã mới ⇒ không dòng (người gọi thử mã khác, tối đa 5 lần).
+update courses
+set join_code = sqlc.arg(join_code), version = version + 1
+where courses.id = sqlc.arg(id) and courses.status = 'ACTIVE' and not exists (select 1 from courses o where o.join_code = sqlc.arg(join_code))
+returning *;
+
+-- name: ListMembers :many
+-- Một truy vấn: số đếm (toàn lớp, không theo bộ lọc) + một trang thành viên. Trang rỗng vẫn trả đúng một dòng mang số đếm.
+with cnt as (
+    select count(*) filter (where c.status = 'ACTIVE' and c.role_in_course = 'STUDENT')::int as active,
+           count(*) filter (where c.status = 'PENDING' and c.role_in_course = 'STUDENT')::int as pending
+    from enrollments c where c.course_id = sqlc.arg(course_id)
+), page as (
+    select e.user_id, u.full_name, u.email, e.student_code_snapshot, e.role_in_course, e.status, e.joined_via, e.warning, e.status_changed_at
+    from enrollments e join users u on u.id = e.user_id
+    where e.course_id = sqlc.arg(course_id)
+      and (case when sqlc.narg(status)::enrollment_status is null then e.status in ('ACTIVE', 'PENDING') else e.status = sqlc.narg(status)::enrollment_status end)
+      and (sqlc.narg(role)::enrollment_role is null or e.role_in_course = sqlc.narg(role)::enrollment_role)
+      and (sqlc.narg(name_like)::text is null
+           or vn_fold(u.full_name) like sqlc.narg(name_like)::text escape '\'
+           or e.student_code_snapshot like sqlc.narg(code_like)::text escape '\'
+           or u.email like sqlc.narg(email_like)::text escape '\')
+      and (sqlc.narg(cur_at)::timestamptz is null
+           or e.status_changed_at < sqlc.narg(cur_at)::timestamptz
+           or (e.status_changed_at = sqlc.narg(cur_at)::timestamptz and e.user_id > sqlc.narg(cur_id)::uuid))
+    order by e.status_changed_at desc, e.user_id
+    limit sqlc.arg(lim)
+)
+select cnt.active, cnt.pending, page.user_id, page.full_name, page.email, page.student_code_snapshot, page.role_in_course, page.status, page.joined_via, page.warning, page.status_changed_at
+from cnt left join page on true
+order by page.status_changed_at desc nulls last, page.user_id;

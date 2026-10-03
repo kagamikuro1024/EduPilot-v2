@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 51 {
-			t.Errorf("openapi.yaml: %d thao tác (cần 51)", n)
+		if n := len(prod.Operations()); n != 61 {
+			t.Errorf("openapi.yaml: %d thao tác (cần 61)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
 		if n := len(test.Operations()); n != 18 {
@@ -272,6 +272,9 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"POST /api/v1/me/password": true, "GET /api/v1/me/sessions": true, "DELETE /api/v1/me/sessions": true, "DELETE /api/v1/me/sessions/{id}": true,
 		"GET /api/v1/admin/courses": true, "POST /api/v1/admin/courses": true, "PUT /api/v1/admin/courses/{id}": true, "POST /api/v1/admin/courses/{id}/assign": true, "POST /api/v1/admin/courses/{id}/archive": true,
 		"PUT /api/v1/courses/{id}/assistants": true, "GET /api/v1/courses/{id}/assistant-candidates": true, "GET /api/v1/notifications": true, "POST /api/v1/notifications/{id}/read": true,
+		"POST /api/v1/courses/join/preview": true, "POST /api/v1/courses/join": true, "GET /api/v1/courses/{id}/join-code": true, "POST /api/v1/courses/{id}/join-code/regenerate": true,
+		"PUT /api/v1/courses/{id}/join-settings": true, "GET /api/v1/courses/{id}/members": true, "POST /api/v1/courses/{id}/members/{uid}/approve": true,
+		"POST /api/v1/courses/{id}/members/{uid}/reject": true, "DELETE /api/v1/courses/{id}/members/{uid}": true, "POST /api/v1/courses/{id}/members/{uid}/undo": true,
 		"GET /api/v1/me/courses": true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {

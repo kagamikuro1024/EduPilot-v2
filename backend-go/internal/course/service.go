@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,6 +14,8 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -41,7 +44,29 @@ type Service struct {
 	Pool *pgxpool.Pool
 	// Production chặn việc đặt join_code cố định qua API (chỉ seed ở dev / test).
 	Production bool
-	genCode    func() (string, error) // thay được trong test để tiêm mã trùng; nil = NewJoinCode
+	// Clock là đồng hồ của mọi mốc nghiệp vụ (hết hạn mã, cửa sổ hoàn tác, giới hạn đoán mã); nil = đồng hồ thật.
+	Clock clock.Clock
+	// Redis giữ bộ đếm đoán mã dùng chung giữa các bản gateway; nil = không giới hạn (chỉ test).
+	Redis *appredis.Client
+	Log   *slog.Logger
+	// PublicURL dựng `join_url` (APP_PUBLIC_URL, không có dấu / cuối).
+	PublicURL string
+
+	genCode func() (string, error) // thay được trong test để tiêm mã trùng; nil = NewJoinCode
+}
+
+func (s Service) now() time.Time {
+	if s.Clock == nil {
+		return time.Now().UTC()
+	}
+	return s.Clock.Now().UTC()
+}
+
+func (s Service) log() *slog.Logger {
+	if s.Log == nil {
+		return slog.Default()
+	}
+	return s.Log
 }
 
 // Brief là phần lớp trong danh sách "lớp của tôi". Không có join_code.

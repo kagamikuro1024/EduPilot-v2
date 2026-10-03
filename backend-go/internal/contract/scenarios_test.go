@@ -113,7 +113,7 @@ func (r *runner) request(c call, base string) (*http.Request, error) {
 	if c.token != "" {
 		req.Header.Set("Authorization", "Bearer "+c.token)
 	}
-	if r.xff != "" && strings.HasPrefix(c.path, "/api/v1/auth/") {
+	if r.xff != "" && (strings.HasPrefix(c.path, "/api/v1/auth/") || strings.HasPrefix(c.path, "/api/v1/courses/join")) { // /courses/join*: bộ đếm đoán mã theo IP
 		req.Header.Set("X-Forwarded-For", r.xff)
 	}
 	for k, v := range c.headers {
@@ -349,6 +349,7 @@ func (r *runner) authScenarios() {
 	r.adminUserScenarios()
 	r.courseScenarios()
 	r.courseAdminScenarios()
+	r.courseJoinScenarios()
 }
 
 // accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.
@@ -975,4 +976,138 @@ func (r *runner) courseAdminScenarios() {
 	r.must(call{method: "POST", path: read, token: gv}, 204)
 	r.must(call{method: "POST", path: read}, 401)
 	r.must(call{method: "POST", path: read, token: student}, 404)
+}
+
+// courseJoinScenarios: vào lớp bằng mã, mã và cài đặt tham gia, thành viên (US-P2-09) với mọi status đã khai báo.
+func (r *runner) courseJoinScenarios() {
+	r.freshIP()
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	mkUser := func(role string, verified bool) uuid.UUID {
+		var id uuid.UUID
+		if err := db.QueryRow(ctx, `insert into users (email, full_name, role, status, password_hash, email_verified_at) values ($1, 'Người Thử', $2::user_role, 'ACTIVE', 'x', case when $3 then now() end) returning id`,
+			"ct-jn-"+uuid.NewString()[:8]+"@example.test", role, verified).Scan(&id); err != nil {
+			r.t.Fatalf("tạo người dùng: %v", err)
+		}
+		return id
+	}
+	adminID, gvID, gv2ID, taID := mkUser("ADMIN", true), mkUser("TEACHER", true), mkUser("TEACHER", true), mkUser("TA", true)
+	admin, gv := r.rig.token(r.t, adminID.String(), auth.RoleAdmin), r.rig.token(r.t, gvID.String(), auth.RoleTeacher)
+	gv2, ta := r.rig.token(r.t, gv2ID.String(), auth.RoleTeacher), r.rig.token(r.t, taID.String(), auth.RoleTA)
+	student := func() (uuid.UUID, string) {
+		id := mkUser("STUDENT", true)
+		return id, r.rig.token(r.t, id.String(), auth.RoleStudent)
+	}
+	idem := func() map[string]string { return map[string]string{"Idempotency-Key": "ct-" + uuid.NewString()} }
+	openCourse := func(extra string) (id, code string) {
+		body := `{"subject_code":"INT1006","class_code":"` + "JN-" + uuid.NewString()[:8] + `","name":"An ninh mạng","semester":"2026-2027-HK1","teacher_id":"` + gvID.String() + `","ta_ids":["` + taID.String() + `"]` + extra + `}`
+		_, b := r.must(call{method: "POST", path: "/api/v1/admin/courses", token: admin, headers: idem(), body: body}, 201)
+		var c struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(b, &c); err != nil {
+			r.t.Fatal(err)
+		}
+		if err := db.QueryRow(context.Background(), `select trim(join_code) from courses where id = $1`, c.ID).Scan(&code); err != nil {
+			r.t.Fatal(err)
+		}
+		return c.ID, code
+	}
+	cid, code := openCourse("")
+	const preview, join = "/api/v1/courses/join/preview", "/api/v1/courses/join"
+	body := func(c string) string { return `{"code":"` + c + `"}` }
+
+	// xem trước
+	_, sv1 := student()
+	r.must(call{method: "POST", path: preview, token: sv1, body: body(strings.ToLower(code))}, 200)
+	r.must(call{method: "POST", path: preview, token: sv1, body: body("ZZZZZZZ")}, 404)
+	r.must(call{method: "POST", path: preview, token: sv1, body: `{"x":1}`}, 422)
+	r.must(call{method: "POST", path: preview, body: body(code)}, 401)
+	r.must(call{method: "POST", path: preview, token: gv, body: body(code)}, 403)
+	_, spammer := student()
+	for range 5 {
+		r.must(call{method: "POST", path: preview, token: spammer, body: body("ZZZZZZZ")}, 404)
+	}
+	r.must(call{method: "POST", path: preview, token: spammer, body: body(code)}, 429)
+	r.freshIP()
+
+	// vào lớp
+	r.must(call{method: "POST", path: join, token: sv1, body: body(code)}, 200)
+	r.must(call{method: "POST", path: join, token: sv1, body: body(code)}, 200)
+	r.must(call{method: "POST", path: join, token: sv1, body: `{"x":1}`}, 422)
+	r.must(call{method: "POST", path: join, body: body(code)}, 401)
+	r.must(call{method: "POST", path: join, token: ta, body: body(code)}, 403)
+	_, sv2 := student()
+	r.must(call{method: "POST", path: join, token: sv2, body: body("ZZZZZZZ")}, 404)
+	_, spammer2 := student()
+	for range 5 {
+		r.must(call{method: "POST", path: join, token: spammer2, body: body("ZZZZZZZ")}, 404)
+	}
+	r.must(call{method: "POST", path: join, token: spammer2, body: body(code)}, 429)
+	r.freshIP()
+	fullID, fullCode := openCourse(`,"capacity":1`)
+	_, a := student()
+	_, b := student()
+	r.must(call{method: "POST", path: join, token: a, body: body(fullCode)}, 200)
+	r.must(call{method: "POST", path: join, token: b, body: body(fullCode)}, 409)
+	_ = fullID
+
+	// mã và cài đặt tham gia
+	jc := "/api/v1/courses/" + cid + "/join-code"
+	r.must(call{method: "GET", path: jc, token: ta}, 200)
+	r.must(call{method: "GET", path: jc}, 401)
+	r.must(call{method: "GET", path: jc, token: sv1}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/join-code", token: gv}, 404)
+	js := "/api/v1/courses/" + cid + "/join-settings"
+	r.must(call{method: "PUT", path: js, token: gv, body: `{"require_approval":true,"version":1}`}, 200)
+	r.must(call{method: "PUT", path: js, token: gv, body: `{"require_approval":false,"version":1}`}, 409)
+	r.must(call{method: "PUT", path: js, token: gv, body: `{"capacity":1001,"version":2}`}, 422)
+	r.must(call{method: "PUT", path: js, body: `{"version":2}`}, 401)
+	r.must(call{method: "PUT", path: js, token: ta, body: `{"version":2}`}, 403)
+	r.must(call{method: "PUT", path: "/api/v1/courses/khong-phai-uuid/join-settings", token: gv, body: `{"version":2}`}, 404)
+
+	// thành viên: hai sinh viên chờ duyệt
+	u3, s3 := student()
+	u4, s4 := student()
+	r.must(call{method: "POST", path: join, token: s3, body: body(code)}, 200)
+	r.must(call{method: "POST", path: join, token: s4, body: body(code)}, 200)
+	mem := "/api/v1/courses/" + cid + "/members"
+	r.must(call{method: "GET", path: mem, token: ta}, 200)
+	r.must(call{method: "GET", path: mem + "?limit=0", token: ta}, 422)
+	r.must(call{method: "GET", path: mem}, 401)
+	r.must(call{method: "GET", path: mem, token: sv1}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/members", token: ta}, 404)
+	one := func(uid uuid.UUID, op string) string { return mem + "/" + uid.String() + op }
+	r.must(call{method: "POST", path: one(u3, "/approve"), token: ta, body: `{}`}, 200)
+	r.must(call{method: "POST", path: one(u3, "/approve"), token: ta, body: `{}`}, 409)
+	r.must(call{method: "POST", path: one(gvID, "/approve"), token: gv, body: `{}`}, 422)
+	r.must(call{method: "POST", path: one(uuid.New(), "/approve"), token: gv, body: `{}`}, 404)
+	r.must(call{method: "POST", path: one(u4, "/approve")}, 401)
+	r.must(call{method: "POST", path: one(u4, "/approve"), token: s4, body: `{}`}, 403)
+	r.must(call{method: "POST", path: one(u4, "/reject"), token: gv}, 200)
+	r.must(call{method: "POST", path: one(u4, "/reject"), token: gv}, 409)
+	r.must(call{method: "POST", path: one(uuid.New(), "/reject"), token: gv}, 404)
+	r.must(call{method: "POST", path: one(u4, "/reject")}, 401)
+	r.must(call{method: "POST", path: one(u4, "/reject"), token: sv1}, 403)
+	r.must(call{method: "POST", path: one(u4, "/undo"), token: ta}, 200)
+	r.must(call{method: "POST", path: one(u4, "/undo"), token: ta}, 409)
+	r.must(call{method: "POST", path: one(uuid.New(), "/undo"), token: ta}, 404)
+	r.must(call{method: "POST", path: one(u4, "/undo")}, 401)
+	r.must(call{method: "POST", path: one(u4, "/undo"), token: sv1}, 403)
+	r.must(call{method: "DELETE", path: one(u3, ""), token: gv}, 200)
+	r.must(call{method: "DELETE", path: one(u3, ""), token: gv}, 409)
+	r.must(call{method: "DELETE", path: one(gvID, ""), token: admin}, 422)
+	r.must(call{method: "DELETE", path: one(uuid.New(), ""), token: gv}, 404)
+	r.must(call{method: "DELETE", path: one(u3, "")}, 401)
+	r.must(call{method: "DELETE", path: one(u3, ""), token: ta}, 403)
+	r.must(call{method: "DELETE", path: one(u3, ""), token: gv2}, 403)
+
+	// tạo lại mã, rồi lưu trữ ⇒ 409
+	rg := jc + "/regenerate"
+	r.must(call{method: "POST", path: rg, token: gv}, 200)
+	r.must(call{method: "POST", path: rg}, 401)
+	r.must(call{method: "POST", path: rg, token: ta}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/join-code/regenerate", token: gv}, 404)
+	r.must(call{method: "POST", path: "/api/v1/admin/courses/" + cid + "/archive", token: admin}, 200)
+	r.must(call{method: "POST", path: rg, token: gv}, 409)
 }

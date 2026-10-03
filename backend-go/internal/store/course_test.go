@@ -182,10 +182,14 @@ func TestCourseConstraints(t *testing.T) {
 func TestCourseIndexes(t *testing.T) {
 	t.Parallel()
 	ctx, conn := connect(t)
+	// Postgres của bộ test dùng chung /dev/shm 64 MB cho mọi gói chạy song song: truy vấn song song của 20.000 dòng giả có thể xin 32 MB và làm
+	// gói khác lỗi "could not resize shared memory segment". Tắt worker song song cho phiên này (kế hoạch chỉ mục kiểm không phụ thuộc chúng).
+	_, err := conn.Exec(ctx, `set max_parallel_workers_per_gather = 0; set max_parallel_maintenance_workers = 0`)
+	require.NoError(t, err)
 	var admin, hot uuid.UUID
 	require.NoError(t, conn.QueryRow(ctx, `insert into users (email, full_name, role) values ($1, 'A', 'ADMIN') returning id`, "ix."+uuid.NewString()[:8]+"@example.test").Scan(&admin))
 	require.NoError(t, conn.QueryRow(ctx, `insert into users (email, full_name, role) values ($1, 'H', 'STUDENT') returning id`, "hot."+uuid.NewString()[:8]+"@example.test").Scan(&hot))
-	_, err := conn.Exec(ctx, `
+	_, err = conn.Exec(ctx, `
 		insert into courses (subject_code, class_code, name, semester, join_code, created_by)
 		select 'INT1006', 'IX-'||i, 'Lớp '||i, '2026-2027-HK1', translate(upper(substr(md5(i::text), 1, 7)), '01', 'XY'), $1
 		  from generate_series(1, 3000) i`, admin)

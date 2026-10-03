@@ -86,3 +86,90 @@ func (n *Notifier) HandleAssigned(ctx context.Context, m outbox.Message) error {
 	}
 	return nil
 }
+
+// Loại thông báo vào lớp.
+const (
+	TypeJoinRequest  = "JOIN_REQUEST"
+	TypeJoinApproved = "JOIN_APPROVED"
+	TypeJoinRejected = "JOIN_REJECTED"
+)
+
+func (n *Notifier) put(ctx context.Context, q *store.Queries, user uuid.UUID, courseID uuid.UUID, typ, title string, body, link *string, key string) error {
+	if _, err := q.InsertNotification(ctx, store.InsertNotificationParams{UserID: user, CourseID: &courseID, Type: typ, Title: title, Body: body, Link: link, DedupeKey: &key}); err != nil {
+		return fmt.Errorf("ghi thông báo: %w", err)
+	}
+	return nil
+}
+
+// HandleJoinRequested (`course.join_requested`): JOIN_REQUEST cho giảng viên VÀ các TA của lớp. Thân của GIẢNG VIÊN thêm "— email chưa khớp MSSV"
+// khi có cảnh báo; TA nhận thân thường, không nêu lý do (TA không duyệt được hàng này). Bỏ qua nếu yêu cầu không còn chờ.
+func (n *Notifier) HandleJoinRequested(ctx context.Context, m outbox.Message) error {
+	var p struct {
+		CourseID uuid.UUID `json:"course_id"`
+		UserID   uuid.UUID `json:"user_id"`
+		Mismatch bool      `json:"mismatch"`
+	}
+	if err := json.Unmarshal(m.Payload, &p); err != nil || p.CourseID == uuid.Nil || p.UserID == uuid.Nil {
+		return errors.New("payload course.join_requested không hợp lệ")
+	}
+	q := store.New(n.Pool)
+	e, err := q.GetMembership(ctx, store.GetMembershipParams{CourseID: p.CourseID, UserID: p.UserID})
+	if errors.Is(err, pgx.ErrNoRows) || (err == nil && e.Status != store.EnrollmentStatusPENDING) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("đọc ghi danh: %w", err)
+	}
+	c, err := q.GetCourse(ctx, p.CourseID)
+	if err != nil {
+		return fmt.Errorf("đọc lớp: %w", err)
+	}
+	u, err := q.GetUser(ctx, p.UserID)
+	if err != nil {
+		return fmt.Errorf("đọc người xin vào: %w", err)
+	}
+	staff, err := q.ListStaffEnrollments(ctx, p.CourseID)
+	if err != nil {
+		return fmt.Errorf("đọc đội ngũ: %w", err)
+	}
+	title := fmt.Sprintf("%s xin vào lớp %s", u.FullName, c.ClassCode)
+	link := fmt.Sprintf("/class/members?course=%s&tab=pending", c.ID)
+	key := TopicJoinRequested + ":" + m.ID.String()
+	for _, r := range staff {
+		body := "Mở hàng chờ duyệt để xem."
+		if p.Mismatch && r.RoleInCourse == store.EnrollmentRoleTEACHER {
+			body += " — email chưa khớp MSSV"
+		}
+		if err := n.put(ctx, q, r.UserID, c.ID, TypeJoinRequest, title, &body, &link, key); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// HandleJoinDecided (`course.join_decided`): JOIN_APPROVED / JOIN_REJECTED cho sinh viên.
+func (n *Notifier) HandleJoinDecided(ctx context.Context, m outbox.Message) error {
+	var p struct {
+		CourseID uuid.UUID `json:"course_id"`
+		UserID   uuid.UUID `json:"user_id"`
+		Decision string    `json:"decision"`
+	}
+	if err := json.Unmarshal(m.Payload, &p); err != nil || p.CourseID == uuid.Nil || p.UserID == uuid.Nil {
+		return errors.New("payload course.join_decided không hợp lệ")
+	}
+	q := store.New(n.Pool)
+	c, err := q.GetCourse(ctx, p.CourseID)
+	if err != nil {
+		return fmt.Errorf("đọc lớp: %w", err)
+	}
+	key := TopicJoinDecided + ":" + m.ID.String()
+	switch p.Decision {
+	case "APPROVED":
+		// link NULL = "Hôm nay": CHECK `notifications_link_chk` (^/[^/\\]) của 00003 không nhận "/" (đề xuất #9); chuông mở "/" khi không có link.
+		return n.put(ctx, q, p.UserID, c.ID, TypeJoinApproved, fmt.Sprintf("Bạn đã được duyệt vào lớp %s – %s", c.Name, c.ClassCode), nil, nil, key)
+	case "REJECTED":
+		link := "/join"
+		return n.put(ctx, q, p.UserID, c.ID, TypeJoinRejected, fmt.Sprintf("Yêu cầu vào lớp %s chưa được chấp nhận", c.ClassCode), nil, &link, key)
+	}
+	return errors.New("quyết định course.join_decided không hợp lệ")
+}

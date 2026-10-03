@@ -21,7 +21,10 @@ type Handler struct {
 	Courses course.Service
 	Guard   func(auth.GuardMode) func(http.Handler) http.Handler
 	Idem    func(http.Handler) http.Handler
-	Log     *slog.Logger
+	// OptIdem: `Idempotency-Key` tuỳ chọn (có thì phát lại, không thì cứ chạy — endpoint tự idempotent).
+	OptIdem  func(http.Handler) http.Handler
+	ClientIP func(*http.Request) string
+	Log      *slog.Logger
 }
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware. RBAC (ADMIN) chạy TRƯỚC Idempotency-Key (403 đến trước 422 thiếu khoá).
@@ -32,13 +35,25 @@ func (h *Handler) Mount(r chi.Router) {
 		r.With(admin).Get("/", h.adminList)
 		r.With(admin, h.Idem).Post("/", h.adminCreate)
 		r.With(admin).Put("/{id}", h.adminUpdate)
-		r.With(admin).Post("/{id}/assign", h.adminAssign)
+		r.With(admin, h.OptIdem).Post("/{id}/assign", h.adminAssign)
 		r.With(admin).Post("/{id}/archive", h.adminArchive)
 	})
 	r.Get("/me/courses", h.myCourses)
+	// Đường tĩnh /courses/join… PHẢI đứng trước /courses/{id}. Chỉ sinh viên (đã xác minh email) vào lớp bằng mã.
+	student := auth.RequireRole(auth.RoleStudent)
+	r.With(student).Post("/courses/join/preview", h.joinPreview)
+	r.With(student, h.OptIdem).Post("/courses/join", h.join)
 	r.Get("/notifications", h.notifications)
 	r.Post("/notifications/{id}/read", h.markRead)
 	r.With(h.Guard(auth.MemberOrAdmin)).Get("/courses/{id}", h.get)
+	r.With(h.Guard(auth.StaffOrAdmin)).Get("/courses/{id}/join-code", h.joinCode)
+	r.With(h.Guard(auth.Manage)).Post("/courses/{id}/join-code/regenerate", h.regenerate)
+	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/join-settings", h.putJoinSettings)
+	r.With(h.Guard(auth.StaffOrAdmin)).Get("/courses/{id}/members", h.members)
+	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/approve", h.approve())
+	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/reject", h.reject())
+	r.With(h.Guard(auth.Manage)).Delete("/courses/{id}/members/{uid}", h.removeMember())
+	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/undo", h.undo())
 	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/assistants", h.putAssistants)
 	r.With(h.Guard(auth.Manage)).Get("/courses/{id}/assistant-candidates", h.candidates)
 }

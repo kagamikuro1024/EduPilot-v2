@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { JoinPreview } from "@/features/join/JoinPreview";
+import { JoinScreen } from "@/features/join/JoinScreen";
 
-export const metadata: Metadata = { title: "Tham gia lớp" };
+export const metadata: Metadata = { title: "Tham gia lớp", referrer: "no-referrer" };
 
 export default async function Page({ params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
-  return <JoinPreview code={code} />;
+  return <JoinScreen initialCode={code} />;
 }

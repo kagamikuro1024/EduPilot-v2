@@ -348,6 +348,9 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 	}
 	var inv *course.InvalidError
 	var vc *course.VersionConflictError
+	var jv *course.JoinVersionConflictError
+	var rl *course.RateLimitedError
+	var ce course.ConfirmError
 	switch {
 	case errors.As(err, &inv):
 		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: inv.Field, Code: inv.Code, Message: inv.Message}))
@@ -359,6 +362,30 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
 	case errors.As(err, &vc):
 		httpx.WriteVersionConflict(w, r, vc.Current.Version, adminItemOf(vc.Current))
+	case errors.As(err, &jv):
+		httpx.WriteVersionConflict(w, r, jv.Current.Version, joinInfoOf(jv.Current))
+	case errors.Is(err, course.ErrJoinInvalid):
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.JoinCodeInvalid))
+	case errors.Is(err, course.ErrCourseFull):
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.CourseFull).WithMessage("Lớp đã đủ sĩ số. Hãy báo giảng viên."))
+	case errors.Is(err, course.ErrNotVerified):
+		apierr.Write(w, r, apierr.New(http.StatusForbidden, apierr.EmailNotVerified))
+	case errors.As(err, &rl):
+		apierr.Write(w, r, apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithRetryAfter(rl.RetryAfter))
+	case errors.Is(err, course.ErrMismatchNeedsTeacher):
+		apierr.Write(w, r, apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "mismatch_needs_teacher"}))
+	case errors.As(err, &ce):
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "confirm_mismatch", Code: "REQUIRED", Message: "Hãy xác nhận email chưa khớp trước khi duyệt."}))
+	case errors.Is(err, course.ErrUndoExpired):
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.Conflict).WithDetails(map[string]string{"reason": "undo_expired"}).WithMessage("Đã quá thời gian hoàn tác."))
+	case errors.Is(err, course.ErrNotPending):
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.Conflict).WithDetails(map[string]string{"reason": "not_pending"}).WithMessage("Yêu cầu này không còn chờ duyệt."))
+	case errors.Is(err, course.ErrNotActive):
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.Conflict).WithDetails(map[string]string{"reason": "not_active"}).WithMessage("Sinh viên này không còn trong lớp."))
+	case errors.Is(err, course.ErrStaffMember):
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "user_id", Code: "STAFF_MEMBER", Message: "Giảng viên và trợ giảng đổi bằng cách gán lớp."}))
+	case errors.Is(err, course.ErrForbiddenAction):
+		apierr.Write(w, r, apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "role"}))
 	default:
 		h.Log.ErrorContext(r.Context(), "courses lỗi", "op", op, "error", err.Error())
 		apierr.Write(w, r, apierr.New(http.StatusInternalServerError, apierr.Internal))

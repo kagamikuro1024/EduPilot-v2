@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.10.0
+  version: 0.11.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
@@ -1235,6 +1235,354 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/courses/join/preview:
+    post:
+      operationId: previewJoinCourse
+      tags: [courses]
+      summary: Xem trước lớp theo mã (chỉ sinh viên đã xác minh email); mọi nguyên nhân sai mã - cùng một 404 JOIN_CODE_INVALID; 5 lần sai / 10 phút / người dùng (20 / IP) - 429
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinCodeInput"
+      responses:
+        "200":
+          description: Xem trước (không mã, không id lớp, không sinh viên)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinPreview"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/join:
+    post:
+      operationId: joinCourse
+      tags: [courses]
+      summary: Vào lớp bằng mã (idempotent; Idempotency-Key tuỳ chọn). Cần duyệt hoặc MSSV trùng ảnh chụp của người khác - PENDING; bị mời ra vào lại - cùng dòng, PENDING
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinCodeInput"
+      responses:
+        "200":
+          description: Kết quả ghi danh
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinResult"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/join-code:
+    get:
+      operationId: getCourseJoinCode
+      tags: [courses]
+      summary: Mã tham gia và cài đặt tham gia (TA, giảng viên, Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Mã và cài đặt
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/join-code/regenerate:
+    post:
+      operationId: regenerateCourseJoinCode
+      tags: [courses]
+      summary: "Tạo lại mã (giảng viên hoặc Admin): mã cũ chết ngay, sinh viên đã vào lớp không bị ảnh hưởng"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Mã mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinRegenerated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/join-settings:
+    put:
+      operationId: putCourseJoinSettings
+      tags: [courses]
+      summary: Cài đặt tham gia (giảng viên hoặc Admin; khoá vắng - giữ nguyên; khoá lạc quan theo version)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JoinSettingsInput"
+      responses:
+        "200":
+          description: Cài đặt sau khi lưu
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JoinInfo"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/members:
+    get:
+      operationId: listCourseMembers
+      tags: [courses]
+      summary: Thành viên lớp (TA, giảng viên, Admin; con trỏ; kèm số đếm sinh viên; một truy vấn)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, PENDING, REMOVED]
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [STUDENT, TA, TEACHER]
+        - name: q
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Một trang thành viên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/members/{uid}/approve:
+    post:
+      operationId: approveCourseMember
+      tags: [courses]
+      summary: Duyệt PENDING - ACTIVE (TA, giảng viên, Admin); hàng EMAIL_MISMATCH cần giảng viên hoặc Admin và confirm_mismatch
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApproveInput"
+      responses:
+        "200":
+          description: Trạng thái mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberTransition"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/members/{uid}/reject:
+    post:
+      operationId: rejectCourseMember
+      tags: [courses]
+      summary: Từ chối PENDING - REMOVED (TA, giảng viên, Admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Trạng thái mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberTransition"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/members/{uid}:
+    delete:
+      operationId: removeCourseMember
+      tags: [courses]
+      summary: "Mời sinh viên ra khỏi lớp (giảng viên hoặc Admin): mất quyền ngay, vào lại bằng mã - cùng dòng, PENDING"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Trạng thái mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberTransition"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/members/{uid}/undo:
+    post:
+      operationId: undoCourseMember
+      tags: [courses]
+      summary: Hoàn tác đổi trạng thái trong 60 giây (cùng quyền với hành động gốc)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Trạng thái sau khi hoàn tác
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MemberTransition"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -2019,6 +2367,178 @@ components:
           type: [string, "null"]
         unread_count:
           type: integer
+    JoinCodeInput:
+      type: object
+      required: [code]
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          maxLength: 64
+    JoinPreview:
+      type: object
+      required: [name, class_code, semester, teachers, state]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        class_code:
+          type: string
+        semester:
+          type: string
+        teachers:
+          type: array
+          items:
+            type: object
+            required: [full_name]
+            additionalProperties: false
+            properties:
+              full_name:
+                type: string
+        state:
+          type: string
+          enum: [OPEN, REQUIRES_APPROVAL, FULL, ALREADY_MEMBER, PENDING]
+    JoinResult:
+      type: object
+      required: [course_id, status, already_member]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [ACTIVE, PENDING]
+        already_member:
+          type: boolean
+    JoinInfo:
+      type: object
+      required: [join_code, join_url, enabled, expires_at, require_approval, allowed_email_domain, capacity, active_students, pending, version]
+      additionalProperties: false
+      properties:
+        join_code:
+          type: string
+        join_url:
+          type: string
+        enabled:
+          type: boolean
+        expires_at:
+          type: [string, "null"]
+          format: date-time
+        require_approval:
+          type: boolean
+        allowed_email_domain:
+          type: [string, "null"]
+        capacity:
+          type: [integer, "null"]
+        active_students:
+          type: integer
+        pending:
+          type: integer
+        version:
+          type: integer
+    JoinRegenerated:
+      type: object
+      required: [join_code, join_url, version]
+      additionalProperties: false
+      properties:
+        join_code:
+          type: string
+        join_url:
+          type: string
+        version:
+          type: integer
+    JoinSettingsInput:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        enabled:
+          type: boolean
+        expires_at:
+          type: [string, "null"]
+          format: date-time
+        require_approval:
+          type: boolean
+        allowed_email_domain:
+          type: [string, "null"]
+        capacity:
+          type: [integer, "null"]
+        version:
+          type: integer
+          minimum: 1
+    ApproveInput:
+      type: object
+      additionalProperties: false
+      properties:
+        confirm_mismatch:
+          type: boolean
+    Member:
+      type: object
+      required: [user_id, full_name, email, student_code, role_in_course, status, joined_via, warning, status_changed_at]
+      additionalProperties: false
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        email:
+          type: string
+        student_code:
+          type: string
+        role_in_course:
+          type: string
+          enum: [TEACHER, TA, STUDENT]
+        status:
+          type: string
+          enum: [ACTIVE, PENDING, REMOVED]
+        joined_via:
+          type: string
+          enum: [ADMIN, ROSTER, CODE]
+        warning:
+          type: [string, "null"]
+          enum: [EMAIL_MISMATCH, EMAIL_UNVERIFIED, null]
+        status_changed_at:
+          type: string
+          format: date-time
+    MemberPage:
+      type: object
+      required: [items, next_cursor, counts]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/Member"
+        next_cursor:
+          type: [string, "null"]
+        counts:
+          type: object
+          required: [active, pending]
+          additionalProperties: false
+          properties:
+            active:
+              type: integer
+            pending:
+              type: integer
+    MemberTransition:
+      type: object
+      required: [user_id, status, previous_status, warning]
+      additionalProperties: false
+      properties:
+        user_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [ACTIVE, PENDING, REMOVED]
+        previous_status:
+          type: [string, "null"]
+          enum: [ACTIVE, PENDING, REMOVED, null]
+        warning:
+          type: [string, "null"]
     AdminUserPage:
       type: object
       required: [items, next_cursor]

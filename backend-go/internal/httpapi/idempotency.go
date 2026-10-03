@@ -53,6 +53,22 @@ type idemScope struct {
 	lockKey  string
 }
 
+// OptionalIdempotencyKey: có header `Idempotency-Key` thì xử lý như RequireIdempotencyKey (phát lại đúng phản hồi cũ), không có thì chạy thẳng.
+// Dành cho endpoint tự idempotent (vào lớp bằng mã, gán giảng viên).
+func OptionalIdempotencyKey(d Deps) func(http.Handler) http.Handler {
+	require := RequireIdempotencyKey(d)
+	return func(next http.Handler) http.Handler {
+		guarded := require(next)
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Header.Get(idemHeader) == "" {
+				next.ServeHTTP(w, r)
+				return
+			}
+			guarded.ServeHTTP(w, r)
+		})
+	}
+}
+
 // RequireIdempotencyKey bắt buộc header `Idempotency-Key` cho một route (SRS 6.6). Phải đặt SAU auth middleware:
 // khoá logic là (user_id, endpoint, key). Gửi lại cùng khoá + cùng thân → phát lại nguyên phản hồi cũ;
 // cùng khoá + thân khác → 422; đang chạy → 409; Redis chết → 503 (fail-closed: không bao giờ xử lý hai lần).

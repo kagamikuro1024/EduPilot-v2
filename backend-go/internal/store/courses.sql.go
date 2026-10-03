@@ -163,6 +163,27 @@ func (q *Queries) CountUnreadNotifications(ctx context.Context, userID uuid.UUID
 	return column_1, err
 }
 
+const enrollmentConflictByStudentCode = `-- name: EnrollmentConflictByStudentCode :one
+select exists (
+    select 1 from enrollments
+    where course_id = $1 and student_code_snapshot = $2 and user_id <> $3 and status in ('ACTIVE', 'PENDING')
+) as held
+`
+
+type EnrollmentConflictByStudentCodeParams struct {
+	CourseID uuid.UUID
+	Code     *string
+	UserID   uuid.UUID
+}
+
+// (Danh sách trắng SRS FEAT-account-security 4.2.5.) MSSV tự khai của người vào bằng mã đã là ảnh chụp của người KHÁC đang ở / chờ vào lớp? (không bao giờ dùng để nối tài khoản)
+func (q *Queries) EnrollmentConflictByStudentCode(ctx context.Context, arg EnrollmentConflictByStudentCodeParams) (bool, error) {
+	row := q.db.QueryRow(ctx, enrollmentConflictByStudentCode, arg.CourseID, arg.Code, arg.UserID)
+	var held bool
+	err := row.Scan(&held)
+	return held, err
+}
+
 const getCourse = `-- name: GetCourse :one
 select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at from courses where id = $1
 `
@@ -218,6 +239,40 @@ func (q *Queries) GetCourseBasic(ctx context.Context, id uuid.UUID) (GetCourseBa
 		&i.Name,
 		&i.Semester,
 		&i.Status,
+	)
+	return i, err
+}
+
+const getCourseByJoinCode = `-- name: GetCourseByJoinCode :one
+
+select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at from courses where join_code = $1
+`
+
+// ===== Vào lớp bằng mã, cài đặt tham gia, thành viên (US-P2-09) =====
+// Bước tra mã DUY NHẤT của preview và join (luôn đúng một truy vấn ở mọi nhánh thất bại).
+func (q *Queries) GetCourseByJoinCode(ctx context.Context, joinCode string) (Course, error) {
+	row := q.db.QueryRow(ctx, getCourseByJoinCode, joinCode)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -280,6 +335,51 @@ func (q *Queries) GetUsersForAssign(ctx context.Context, ids []string) ([]GetUse
 		return nil, err
 	}
 	return items, nil
+}
+
+const insertCodeEnrollment = `-- name: InsertCodeEnrollment :one
+insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, status_changed_at)
+values ($1, $2, 'STUDENT', $3, 'CODE', $4, $5, $6)
+returning id, course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, previous_status, status_changed_at, status_changed_by, removed_at, version, created_at, updated_at
+`
+
+type InsertCodeEnrollmentParams struct {
+	CourseID uuid.UUID
+	UserID   uuid.UUID
+	Status   EnrollmentStatus
+	Snapshot *string
+	Warning  *string
+	At       time.Time
+}
+
+func (q *Queries) InsertCodeEnrollment(ctx context.Context, arg InsertCodeEnrollmentParams) (Enrollment, error) {
+	row := q.db.QueryRow(ctx, insertCodeEnrollment,
+		arg.CourseID,
+		arg.UserID,
+		arg.Status,
+		arg.Snapshot,
+		arg.Warning,
+		arg.At,
+	)
+	var i Enrollment
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.UserID,
+		&i.RoleInCourse,
+		&i.Status,
+		&i.JoinedVia,
+		&i.StudentCodeSnapshot,
+		&i.Warning,
+		&i.PreviousStatus,
+		&i.StatusChangedAt,
+		&i.StatusChangedBy,
+		&i.RemovedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const insertCourse = `-- name: InsertCourse :one
@@ -537,6 +637,101 @@ func (q *Queries) ListCourseTeacherNames(ctx context.Context, courseID uuid.UUID
 	return items, nil
 }
 
+const listMembers = `-- name: ListMembers :many
+with cnt as (
+    select count(*) filter (where c.status = 'ACTIVE' and c.role_in_course = 'STUDENT')::int as active,
+           count(*) filter (where c.status = 'PENDING' and c.role_in_course = 'STUDENT')::int as pending
+    from enrollments c where c.course_id = $1
+), page as (
+    select e.user_id, u.full_name, u.email, e.student_code_snapshot, e.role_in_course, e.status, e.joined_via, e.warning, e.status_changed_at
+    from enrollments e join users u on u.id = e.user_id
+    where e.course_id = $1
+      and (case when $2::enrollment_status is null then e.status in ('ACTIVE', 'PENDING') else e.status = $2::enrollment_status end)
+      and ($3::enrollment_role is null or e.role_in_course = $3::enrollment_role)
+      and ($4::text is null
+           or vn_fold(u.full_name) like $4::text escape '\'
+           or e.student_code_snapshot like $5::text escape '\'
+           or u.email like $6::text escape '\')
+      and ($7::timestamptz is null
+           or e.status_changed_at < $7::timestamptz
+           or (e.status_changed_at = $7::timestamptz and e.user_id > $8::uuid))
+    order by e.status_changed_at desc, e.user_id
+    limit $9
+)
+select cnt.active, cnt.pending, page.user_id, page.full_name, page.email, page.student_code_snapshot, page.role_in_course, page.status, page.joined_via, page.warning, page.status_changed_at
+from cnt left join page on true
+order by page.status_changed_at desc nulls last, page.user_id
+`
+
+type ListMembersParams struct {
+	CourseID  uuid.UUID
+	Status    *EnrollmentStatus
+	Role      *EnrollmentRole
+	NameLike  *string
+	CodeLike  *string
+	EmailLike *string
+	CurAt     *time.Time
+	CurID     *uuid.UUID
+	Lim       int32
+}
+
+type ListMembersRow struct {
+	Active              int32
+	Pending             int32
+	UserID              *uuid.UUID
+	FullName            *string
+	Email               *string
+	StudentCodeSnapshot *string
+	RoleInCourse        *EnrollmentRole
+	Status              *EnrollmentStatus
+	JoinedVia           *EnrollmentJoinedVia
+	Warning             *string
+	StatusChangedAt     *time.Time
+}
+
+// Một truy vấn: số đếm (toàn lớp, không theo bộ lọc) + một trang thành viên. Trang rỗng vẫn trả đúng một dòng mang số đếm.
+func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]ListMembersRow, error) {
+	rows, err := q.db.Query(ctx, listMembers,
+		arg.CourseID,
+		arg.Status,
+		arg.Role,
+		arg.NameLike,
+		arg.CodeLike,
+		arg.EmailLike,
+		arg.CurAt,
+		arg.CurID,
+		arg.Lim,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListMembersRow{}
+	for rows.Next() {
+		var i ListMembersRow
+		if err := rows.Scan(
+			&i.Active,
+			&i.Pending,
+			&i.UserID,
+			&i.FullName,
+			&i.Email,
+			&i.StudentCodeSnapshot,
+			&i.RoleInCourse,
+			&i.Status,
+			&i.JoinedVia,
+			&i.Warning,
+			&i.StatusChangedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listMyCourses = `-- name: ListMyCourses :many
 select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status as course_status,
        e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id
@@ -735,6 +930,38 @@ func (q *Queries) LockCourse(ctx context.Context, id uuid.UUID) (Course, error) 
 	return i, err
 }
 
+const lockEnrollment = `-- name: LockEnrollment :one
+select id, course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, previous_status, status_changed_at, status_changed_by, removed_at, version, created_at, updated_at from enrollments where course_id = $1 and user_id = $2 for update
+`
+
+type LockEnrollmentParams struct {
+	CourseID uuid.UUID
+	UserID   uuid.UUID
+}
+
+func (q *Queries) LockEnrollment(ctx context.Context, arg LockEnrollmentParams) (Enrollment, error) {
+	row := q.db.QueryRow(ctx, lockEnrollment, arg.CourseID, arg.UserID)
+	var i Enrollment
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.UserID,
+		&i.RoleInCourse,
+		&i.Status,
+		&i.JoinedVia,
+		&i.StudentCodeSnapshot,
+		&i.Warning,
+		&i.PreviousStatus,
+		&i.StatusChangedAt,
+		&i.StatusChangedBy,
+		&i.RemovedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const markNotificationRead = `-- name: MarkNotificationRead :execrows
 update notifications set read_at = coalesce(read_at, now()) where id = $1 and user_id = $2
 `
@@ -753,6 +980,83 @@ func (q *Queries) MarkNotificationRead(ctx context.Context, arg MarkNotification
 	return result.RowsAffected(), nil
 }
 
+const regenerateJoinCode = `-- name: RegenerateJoinCode :one
+update courses
+set join_code = $1, version = version + 1
+where courses.id = $2 and courses.status = 'ACTIVE' and not exists (select 1 from courses o where o.join_code = $1)
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+`
+
+type RegenerateJoinCodeParams struct {
+	JoinCode string
+	ID       uuid.UUID
+}
+
+// Thay mã trong MỘT câu UPDATE (mã cũ chết ngay). Trùng mã mới ⇒ không dòng (người gọi thử mã khác, tối đa 5 lần).
+func (q *Queries) RegenerateJoinCode(ctx context.Context, arg RegenerateJoinCodeParams) (Course, error) {
+	row := q.db.QueryRow(ctx, regenerateJoinCode, arg.JoinCode, arg.ID)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const rejoinEnrollment = `-- name: RejoinEnrollment :one
+update enrollments
+set status = 'PENDING', previous_status = 'REMOVED', warning = $1, status_changed_at = $2, status_changed_by = null, removed_at = null, version = version + 1
+where id = $3 and status = 'REMOVED'
+returning id, course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, previous_status, status_changed_at, status_changed_by, removed_at, version, created_at, updated_at
+`
+
+type RejoinEnrollmentParams struct {
+	Warning *string
+	At      time.Time
+	ID      uuid.UUID
+}
+
+// Vào lại sau khi bị mời ra: CÙNG dòng, REMOVED → PENDING (mặc định an toàn, Q5); snapshot cũ giữ nguyên.
+func (q *Queries) RejoinEnrollment(ctx context.Context, arg RejoinEnrollmentParams) (Enrollment, error) {
+	row := q.db.QueryRow(ctx, rejoinEnrollment, arg.Warning, arg.At, arg.ID)
+	var i Enrollment
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.UserID,
+		&i.RoleInCourse,
+		&i.Status,
+		&i.JoinedVia,
+		&i.StudentCodeSnapshot,
+		&i.Warning,
+		&i.PreviousStatus,
+		&i.StatusChangedAt,
+		&i.StatusChangedBy,
+		&i.RemovedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const removeStaffEnrollment = `-- name: RemoveStaffEnrollment :exec
 update enrollments
 set previous_status = status, status = 'REMOVED', status_changed_at = now(), status_changed_by = $1, removed_at = now(), version = version + 1
@@ -769,6 +1073,56 @@ type RemoveStaffEnrollmentParams struct {
 func (q *Queries) RemoveStaffEnrollment(ctx context.Context, arg RemoveStaffEnrollmentParams) error {
 	_, err := q.db.Exec(ctx, removeStaffEnrollment, arg.Actor, arg.CourseID, arg.UserID)
 	return err
+}
+
+const setEnrollmentStatus = `-- name: SetEnrollmentStatus :one
+update enrollments
+set status = $1::enrollment_status,
+    previous_status = $2::enrollment_status,
+    status_changed_at = $3,
+    status_changed_by = $4,
+    removed_at = case when $1::enrollment_status = 'REMOVED' then $3::timestamptz else null end,
+    version = version + 1
+where id = $5
+returning id, course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, previous_status, status_changed_at, status_changed_by, removed_at, version, created_at, updated_at
+`
+
+type SetEnrollmentStatusParams struct {
+	Status   EnrollmentStatus
+	Previous *EnrollmentStatus
+	At       time.Time
+	Actor    *uuid.UUID
+	ID       uuid.UUID
+}
+
+// Đổi trạng thái một ghi danh (duyệt / từ chối / mời ra / hoàn tác). `previous` = trạng thái ghi vào previous_status (null = không hoàn tác được nữa).
+func (q *Queries) SetEnrollmentStatus(ctx context.Context, arg SetEnrollmentStatusParams) (Enrollment, error) {
+	row := q.db.QueryRow(ctx, setEnrollmentStatus,
+		arg.Status,
+		arg.Previous,
+		arg.At,
+		arg.Actor,
+		arg.ID,
+	)
+	var i Enrollment
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.UserID,
+		&i.RoleInCourse,
+		&i.Status,
+		&i.JoinedVia,
+		&i.StudentCodeSnapshot,
+		&i.Warning,
+		&i.PreviousStatus,
+		&i.StatusChangedAt,
+		&i.StatusChangedBy,
+		&i.RemovedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const updateCourse = `-- name: UpdateCourse :one
@@ -801,6 +1155,69 @@ func (q *Queries) UpdateCourse(ctx context.Context, arg UpdateCourseParams) (Cou
 		arg.ClassCode,
 		arg.Name,
 		arg.Semester,
+		arg.SetCapacity,
+		arg.Capacity,
+		arg.ID,
+		arg.Version,
+	)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateJoinSettings = `-- name: UpdateJoinSettings :one
+update courses
+set join_enabled = coalesce($1, join_enabled),
+    join_require_approval = coalesce($2, join_require_approval),
+    join_expires_at = case when $3::bool then $4::timestamptz else join_expires_at end,
+    allowed_email_domain = case when $5::bool then $6::text else allowed_email_domain end,
+    capacity = case when $7::bool then $8::int else capacity end,
+    version = version + 1
+where id = $9 and version = $10
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+`
+
+type UpdateJoinSettingsParams struct {
+	Enabled         *bool
+	RequireApproval *bool
+	SetExpires      bool
+	ExpiresAt       *time.Time
+	SetDomain       bool
+	Domain          *string
+	SetCapacity     bool
+	Capacity        *int32
+	ID              uuid.UUID
+	Version         int32
+}
+
+func (q *Queries) UpdateJoinSettings(ctx context.Context, arg UpdateJoinSettingsParams) (Course, error) {
+	row := q.db.QueryRow(ctx, updateJoinSettings,
+		arg.Enabled,
+		arg.RequireApproval,
+		arg.SetExpires,
+		arg.ExpiresAt,
+		arg.SetDomain,
+		arg.Domain,
 		arg.SetCapacity,
 		arg.Capacity,
 		arg.ID,

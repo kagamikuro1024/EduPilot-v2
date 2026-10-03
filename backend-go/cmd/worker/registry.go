@@ -20,6 +20,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(mail.Topic, mh.Handle)
 	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log}
 	reg.Register(course.TopicAssigned, cn.HandleAssigned)
+	reg.Register(course.TopicJoinRequested, cn.HandleJoinRequested)
+	reg.Register(course.TopicJoinDecided, cn.HandleJoinDecided)
 	registerTestKinds(runner)
 	return reg
 }

@@ -38,6 +38,8 @@ func (r *rig) worker() *sync.Map {
 		hits.Store(m.ID, true)
 		return n.HandleAssigned(ctx, m)
 	})
+	reg.Register(course.TopicJoinRequested, n.HandleJoinRequested)
+	reg.Register(course.TopicJoinDecided, n.HandleJoinDecided)
 	ctx, cancel := context.WithCancel(context.Background())
 	var wg sync.WaitGroup
 	for _, task := range []interface{ Run(context.Context) error }{outbox.NewRelay(od), outbox.NewConsumer(od, reg)} {
