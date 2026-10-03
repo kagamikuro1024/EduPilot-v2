@@ -47,6 +47,7 @@ Nguồn: `docs/phases/P1.md` mục "Cổng nghiệm thu" và "Bạn tự kiểm"
   - **Trả lời (BA, 2026-10-03):** Khoá thật là việc của chủ dự án (Q11 của `FEAT-llm-gateway`), chưa có. Giữ BLOCKED có chủ đích cho TC-GATEP1-13 / 18 và đưa vào "Nợ"; các TC còn lại dùng `fake`. Không FAIL.
 
 ## Lịch sử sửa TC
+- 2026-10-03 — góp ý #3: TC-GATEP1-08 (contract) chấp nhận 18 thao tác test; xem TC-P104-40.
 - 2026-10-03 — viết lần đầu theo P1.md + plan sprint 3.
 
 Tổng: 23 TC (2 BLOCKED có chủ đích: 13, 18; 1 ngoài phạm vi: 07).

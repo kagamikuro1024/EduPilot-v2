@@ -32,9 +32,9 @@ Tiền điều kiện chung: stack test (binary `testroutes`, 2 gateway) chạy;
 | TC-P102-25 | AC8 (tắt) | – | **D** gửi 50 lời gọi rồi `SIGTERM` gateway ngay | Mọi 50 dòng có mặt trong DB trước khi tiến trình thoát (đẩy hết khi tắt) |
 | TC-P102-26 | AC8 | – | **G** `-run 'TestAuditRow\|TestAuditAsync\|TestAuditDropOldest\|TestAuditFlushOnShutdown'` | `ok` |
 | TC-P102-27 | AC9 | route thử | **S** `curl -sk -H "$A" -H 'traceparent: 00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01' -X POST $GW/api/v1/_test/llm/chat -d '{"task":"CHAT","prompt":"xin chao"}'`; `$PSQL -c "select count(*) from llm_audit where trace_id='0af7651916cd43dd8448eb211c80319c'"`; grep log gateway theo `trace_id` | `1`; mọi dòng log của lời gọi mang cùng 32 hex; không `traceparent` → `trace_id` do gateway sinh, vẫn khớp giữa `llm_audit` và log |
-| TC-P102-28 | AC10 | **Q** | `Structured` với schema 3 mẫu: máy chủ Q trả 400 `response_format` không hỗ trợ lần đầu | Lùi về `json_object` kèm schema trong lời nhắc (máy chủ Q thấy request thứ hai khác `response_format`); kết quả hợp lệ schema |
+| TC-P102-28 | AC10 (góp ý #1, PM duyệt) | **Q** | `Structured` với schema 3 mẫu vào nhà `openai_compatible`; máy chủ Q ghi `response_format` và lời nhắc | **Một** lời gọi nhà cung cấp mỗi `Structured` (D47: không thử rồi lùi); request có `response_format={"type":"json_object"}` **và** schema nằm trong lời nhắc; `type` khác chọn cố định: openai/gemini `json_schema`, anthropic tool bắt buộc (kiểm bằng `TestStructuredRequestShape`, 4 loại); kết quả luôn được kiểm bằng schema |
 | TC-P102-29 | AC10 | **Q** | Máy chủ Q trả JSON **sai schema** (thiếu khoá bắt buộc / thừa khoá khi `additionalProperties:false`) cả hai chế độ | Không bao giờ trả JSON sai schema; tính là lỗi nhà cung cấp, chuyển fallback; nếu hết chuỗi → `ErrAllProvidersFailed` |
-| TC-P102-30 | AC10 | – | **G** `-run 'TestStructuredJSONSchema\|TestStructuredDowngrade\|TestStructuredInvalidFallsBack'` | `ok` |
+| TC-P102-30 | AC10 (góp ý #1) | – | **G** `-run 'TestStructuredJSONSchema\|TestStructuredRequestShape\|TestStructuredInvalidFallsBack\|TestValidateJSON'` | `ok`; `TestStructuredDowngrade` không còn (bỏ theo #1) |
 | TC-P102-31 | AC11 | **Q** | `Embed`: máy chủ Q trả vectơ 768 chiều; 1.536 chiều; 250 chuỗi; chuỗi rỗng | 768 → `MODEL_DIMS_MISMATCH`, **không** thử lại, không trả vectơ; 1.536 → ok, request có `dimensions=1536`; 250 chuỗi → chia 3 lô (100 / 100 / 50 ở máy chủ Q); rỗng → `BAD_REQUEST` cục bộ, máy chủ Q **0 request** |
 | TC-P102-32 | AC11 | `bin/gateway` | **S** `LLM_EMBED_DIMS=768 timeout 10 ./bin/gateway serve; echo rc=$?` | `rc≠0` (từ chối khởi động), thông báo nêu `LLM_EMBED_DIMS` |
 | TC-P102-33 | AC11 | – | **G** `-run 'TestEmbedDims\|TestEmbedBatchSplit\|TestEmbedEmptyInput'` | `ok` |
@@ -79,6 +79,7 @@ Tiền điều kiện chung: stack test (binary `testroutes`, 2 gateway) chạy;
   - **Trả lời (BA, 2026-10-03):** Đã thêm (v1.2, SRS 6.4): `GET /api/v1/_test/llm/stats` trả thêm `fake_calls:{<provider>:n}` và `audit:{buffer_len,flushed,dropped}` (chỉ số đếm, không nội dung; chỉ build `testroutes`, ADMIN). TC-P102-07 / 24 đọc qua đó.
 
 ## Lịch sử sửa TC
+- 2026-10-03 — PM duyệt góp ý sprint 3 #1: TC-P102-28/30 đổi từ "json_schema rồi lùi json_object" sang "`Structured` cố định theo `type`, một lời gọi" (SDK `openai-go/v3`, TC-P102-02 chấp nhận `v3`). BUG-P102-2 đóng.
 - 2026-10-03 — TC-P102-03: bỏ yêu cầu "lint đỏ" (QC viết thừa so với AC1); chỉ còn ghi nhận.
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).
 

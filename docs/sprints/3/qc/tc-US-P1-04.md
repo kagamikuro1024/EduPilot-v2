@@ -44,7 +44,7 @@ Tiền điều kiện chung: stack test (2 gateway, Postgres, Redis, Caddy) ch�
 | TC-P104-37 | AC9 | 2 gateway | **S** sửa ở gateway A (`PUT providers`/`routes`), gọi `_test/llm/chat` ở gateway B ngay; rồi chặn `PUBLISH` (dừng Redis tạm hoặc `redis-cli CLIENT PAUSE`) và sửa tiếp | B dùng cấu hình mới ≤ 1 s; khi PUBLISH hỏng: thăm dò **60 s** vẫn nạp kịp |
 | TC-P104-38 | AC9 | – | **G** `-tags integration -run TestReloadAcrossProcesses -v` | `ok` |
 | TC-P104-39 | AC10 | – | **S** `cd backend-go && go test -count=1 ./internal/contract/...; echo rc=$?` | `rc=0` |
-| TC-P104-40 | AC10 | – | **S** `git diff --stat origin/main -- backend-go/internal/contract/testdata/golden/ \| grep -v '/llm/' \| grep -c golden`; `grep -c 'operationId' backend-go/openapi.yaml` so với bản sprint 2 + 13; `redocly lint` | `0` golden PG bị sửa; `operationId` ≥ cũ + 13; 8 đường dẫn `/api/v1/admin/llm/...` / `/courses/{id}/llm-budget`; `redocly lint` rc=0 |
+| TC-P104-40 | AC10 (góp ý #3) | – | **S** `git diff --stat origin/main -- backend-go/internal/contract/testdata/golden/ \| grep -v '/llm/' \| grep -c golden`; `grep -c 'operationId' backend-go/api/openapi.yaml`; `redocly lint` | `0` golden PG bị sửa; `operationId` = **18** (5 của PG + 13 mới); `openapi.test.yaml` = **18** thao tác (15 + 3 route thử LLM: chat, stats, fake); chỉ hằng số đếm trong `contract_test.go` đổi (15→18 ở P1-02, 5→18 ở P1-04), không nới assertion khác; 8 đường dẫn mới; `redocly lint` rc=0 |
 | TC-P104-41 | AC10 (đối chứng âm) | – | **S** thêm khoá lạ vào một phản hồi (tệp tạm ở handler, không commit) → `go test ./internal/contract/...`; hoàn tác | Contract test **đỏ**; hoàn tác → xanh; `git status` sạch |
 | TC-P104-42 | AC10 | – | **S** `make -C backend-go lint` + `go vet`; PG routes (`/api/v1/events`, `healthz`, `readyz`, `jobs/{id}`) còn y nguyên (so golden) | Không đường dẫn PG nào đổi (nguyên tắc 7) |
 | TC-P104-43 | AC11 | – | **S** thân lỗi mọi nhánh: `Content-Type: application/json`, `{code,message,trace_id}`; thân > `MAX_BODY_BYTES`; JSON hỏng; `Content-Type` sai; CORS với `Origin` không có trong `CORS_ORIGINS` | Định dạng lỗi chuẩn PG; `413`/`400` đúng mã SRS 6.1; CORS không cho origin lạ (không `Access-Control-Allow-Origin` cho evil.example); `GET` một tài nguyên có `ETag` |
@@ -79,6 +79,7 @@ Tiền điều kiện chung: stack test (2 gateway, Postgres, Redis, Caddy) ch�
   - **Trả lời (BA, 2026-10-03):** **QC viết** `docs/sprints/3/qc/scenario-P1.md` (đã sửa AC12, v1.2). Dev tự kiểm theo kịch bản trong AC và ghi vào handoff; QC viết từ kịch bản AC12 + "Bạn tự kiểm" của `P1.md` rồi lặp lại.
 
 ## Lịch sử sửa TC
+- 2026-10-03 — PM duyệt góp ý #3: TC-P104-40 đòi đúng 18 thao tác ở `openapi.yaml` và 18 ở `openapi.test.yaml`.
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).
 
 Tổng: 48 TC.
