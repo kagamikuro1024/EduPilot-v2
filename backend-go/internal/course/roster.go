@@ -75,7 +75,7 @@ func (s Service) ImportRoster(ctx context.Context, courseID, teacherID uuid.UUID
 	active := int(counts.Active)
 	at := s.now()
 
-	seenEmail := map[string]bool{}
+	seenEmail, seenCode := map[string]bool{}, map[string]bool{}
 	for _, row := range rows {
 		email := auth.NormalizeEmail(row.Email)
 		name := truncateRunes(row.Name, 100)
@@ -98,8 +98,11 @@ func (s Service) ImportRoster(ctx context.Context, courseID, teacherID uuid.UUID
 		case seenEmail[email]:
 			fail("email", "DUPLICATE_EMAIL_IN_FILE", "Email này đã có ở dòng phía trên.")
 			continue
+		case seenCode[code]:
+			fail("student_code", "DUPLICATE_STUDENT_CODE_IN_FILE", "MSSV này đã có ở dòng phía trên.")
+			continue
 		}
-		seenEmail[email] = true
+		seenEmail[email], seenCode[code] = true, true
 
 		// 2. Tài khoản theo EMAIL (không bao giờ theo MSSV).
 		u, err := tq.GetUserByEmail(ctx, email)

@@ -232,7 +232,7 @@ func TestRosterRowErrorCodes(t *testing.T) {
 		"ok4@example.test|Tên|",                         // 6 INVALID_STUDENT_CODE (rỗng)
 		"hop.le@example.test|Hợp Lệ|B20DC00010",         // 7 tạo
 		"HOP.LE@example.test|Hợp Lệ Lần Hai|B20DC00011", // 8 DUPLICATE_EMAIL_IN_FILE (không phân biệt hoa thường)
-		"khac@example.test|Người Khác|b20dc00010",       // 9 STUDENT_CODE_CONFLICT (cùng MSSV, email khác)
+		"khac@example.test|Người Khác|b20dc00010",       // 9 DUPLICATE_STUDENT_CODE_IN_FILE (cùng MSSV với dòng 7, email khác)
 		k.a.gv.Email+"|Giảng viên|B20DC00012",           // 10 EMAIL_BELONGS_TO_STAFF
 		disabled.Email+"|Đã Khoá|B20DC00013",            // 11 EMAIL_DISABLED
 		"ok5@example.test|Thứ hai|B20DC00014",           // 12 tạo
@@ -243,7 +243,7 @@ func TestRosterRowErrorCodes(t *testing.T) {
 	rows, codes := errRows(rep)
 	require.Equal(t, []int{2, 3, 4, 5, 6, 8, 9, 10, 11, 14}, rows)
 	require.Equal(t, []string{"INVALID_EMAIL", "MISSING_NAME", "INVALID_STUDENT_CODE", "INVALID_STUDENT_CODE", "INVALID_STUDENT_CODE",
-		"DUPLICATE_EMAIL_IN_FILE", "STUDENT_CODE_CONFLICT", "EMAIL_BELONGS_TO_STAFF", "EMAIL_DISABLED", "COURSE_FULL"}, codes)
+		"DUPLICATE_EMAIL_IN_FILE", "DUPLICATE_STUDENT_CODE_IN_FILE", "EMAIL_BELONGS_TO_STAFF", "EMAIL_DISABLED", "COURSE_FULL"}, codes)
 	require.Equal(t, 3, intOf(rep, "created_users"))
 	require.Equal(t, 3, r.count(`select count(*) from enrollments where course_id = $1 and joined_via = 'ROSTER'`, k.id))
 	require.Equal(t, 0, r.count(`select count(*) from users where email in ('khac@example.test', 'ok7@example.test')`), "dòng lỗi không để lại tài khoản")
@@ -282,14 +282,37 @@ func TestRosterReimportNoDuplicate(t *testing.T) {
 	require.Equal(t, []int{users, enrolls, mails}, []int{r.count(`select count(*) from users`), r.count(`select count(*) from enrollments where course_id = $1`, k.id), r.count(`select count(*) from mail_outbox`)})
 }
 
+// Đề xuất #11 (PM chọn phương án thay thế): lặp MSSV TRONG tệp ⇒ DUPLICATE_STUDENT_CODE_IN_FILE ở dòng sau.
 func TestRosterSameStudentCodeConflict(t *testing.T) {
 	r := newRig(t)
 	k := r.klass(nil)
 	rep := r.importOK(k, csvOf("a.one@example.test|Một|B20DC00031", "b.two@example.test|Hai|B20DC00031"), "")
 	rows, codes := errRows(rep)
 	require.Equal(t, []int{3}, rows, "dòng sau bị báo, dòng trước vào bình thường")
-	require.Equal(t, []string{"STUDENT_CODE_CONFLICT"}, codes)
+	require.Equal(t, []string{"DUPLICATE_STUDENT_CODE_IN_FILE"}, codes)
 	require.Equal(t, 1, intOf(rep, "created_users"))
+	require.Equal(t, 0, r.count(`select count(*) from users where email = 'b.two@example.test'`))
+}
+
+// ... còn MSSV đã là ảnh chụp của NGƯỜI KHÁC đang ở / chờ trong lớp (ghi danh có sẵn) ⇒ STUDENT_CODE_CONFLICT.
+func TestRosterStudentCodeConflictWithMember(t *testing.T) {
+	r := newRig(t)
+	k := r.klass(nil)
+	member, _ := r.student("")
+	_, err := r.pool.Exec(t.Context(), `insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot) values ($1, $2, 'STUDENT', 'ACTIVE', 'CODE', 'B20DC00041')`, k.id, member.ID)
+	require.NoError(t, err)
+	pend, _ := r.student("")
+	_, err = r.pool.Exec(t.Context(), `insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot) values ($1, $2, 'STUDENT', 'PENDING', 'CODE', 'B20DC00042')`, k.id, pend.ID)
+	require.NoError(t, err)
+	rep := r.importOK(k, csvOf("moi.mot@example.test|Mới Một|B20DC00041", "moi.hai@example.test|Mới Hai|b20dc00042", "moi.ba@example.test|Mới Ba|B20DC00043"), "")
+	rows, codes := errRows(rep)
+	require.Equal(t, []int{2, 3}, rows)
+	require.Equal(t, []string{"STUDENT_CODE_CONFLICT", "STUDENT_CODE_CONFLICT"}, codes)
+	require.Equal(t, 1, intOf(rep, "created_users"))
+	require.Equal(t, 0, r.count(`select count(*) from users where email in ('moi.mot@example.test', 'moi.hai@example.test')`), "dòng lỗi không để lại tài khoản")
+	// Người ĐÃ có trong lớp với đúng MSSV đó không tự xung đột với chính mình.
+	again := r.importOK(k, csvOf(member.Email+"|Chính Mình|B20DC00041"), "")
+	require.Equal(t, 1, intOf(again, "already_member"))
 }
 
 func TestRosterInviteMails(t *testing.T) {
