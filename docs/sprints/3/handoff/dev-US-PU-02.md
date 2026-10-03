@@ -33,3 +33,8 @@ Nhánh `sprint/3-pu-p1`. Góp ý #13–#18 ở `docs/sprints/3/proposals.md`. Ch
 - `/dev/data` (PU-03) sẽ thêm `page.dev.tsx` cùng cổng.
 - Một số ô hover/focus/overlay (Dialog, Drawer, CommandPalette, Popover) kiểm bằng ca `overlay` riêng vì cần mở bằng nút.
 - Lỗi vặt gặp khi chạy test: `next start` bỏ rơi tiến trình `next-server` sau khi Playwright kết thúc (giữ cổng 3300) ⇒ kiểm `lsof -i :3300` trước khi dựng lại.
+
+## Sửa lỗi QC (report-US-PU-02)
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-PU02-1 hàng `DataTable` focus bàn phím không có `--ep-focus` | Bỏ hai quy tắc ghi đè (`.clickable:focus-visible { box-shadow: none }` và vạch inset của ô đầu) trong `DataTable.module.css`; hàng nhận luôn quy tắc chung `:focus-visible { box-shadow: var(--ep-focus) }` của `tokens.css`. Đồng thời giảm 2 dòng `ui-allow:` (10 → 8) | `dev-ui.spec.ts › BUG-PU02-1`: `getComputedStyle(tr).boxShadow` === giá trị tính của `var(--ep-focus)` và ≠ `none`; `ui-antipatterns` 0 ✗ |

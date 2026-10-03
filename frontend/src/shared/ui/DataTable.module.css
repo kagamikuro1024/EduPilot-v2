@@ -30,8 +30,6 @@
 
 .clickable { cursor: pointer; transition: background-color var(--ep-fast) var(--ep-ease-standard); }
 .clickable:hover td, .clickable:focus-visible td { background: var(--ep-surface-subtle); }
-.clickable:focus-visible { outline: none; box-shadow: none; } /* ui-allow: hàng bảng có vòng focus riêng ở dòng trên */
-.clickable:focus-visible td:first-child { box-shadow: inset 2px 0 0 var(--ep-red); } /* ui-allow: chỉ báo focus của hàng */
 .active td { background: var(--ep-surface-subtle); }
 
 .scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-rule); }

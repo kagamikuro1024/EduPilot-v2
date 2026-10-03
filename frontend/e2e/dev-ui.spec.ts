@@ -444,3 +444,23 @@ test("confirm: disabledReason khoá nút xác nhận và gắn aria-describedby"
   expect(id).toBeTruthy();
   await expect(dlg.locator(`[id="${id}"]`)).toContainText("chưa có điểm cuối kỳ");
 });
+
+test("BUG-PU02-1: hàng DataTable focus bằng bàn phím có box-shadow = --ep-focus", async ({ page }) => {
+  await page.goto("/dev/ui");
+  const row = page.locator('[data-part=primitive][data-name="DataTable"] tbody tr[tabindex="0"]').first();
+  await row.scrollIntoViewIfNeeded();
+  await page.keyboard.press("Tab"); // bật chế độ focus-visible bằng bàn phím
+  await row.focus();
+  const r = await page.evaluate(() => {
+    const el = document.activeElement as HTMLElement;
+    const probe = document.createElement("i");
+    probe.style.boxShadow = "var(--ep-focus)";
+    document.body.append(probe);
+    const want = getComputedStyle(probe).boxShadow;
+    probe.remove();
+    return { tag: el.tagName, got: getComputedStyle(el).boxShadow, want };
+  });
+  expect(r.tag).toBe("TR");
+  expect(r.got).toBe(r.want);
+  expect(r.got).not.toBe("none");
+});
