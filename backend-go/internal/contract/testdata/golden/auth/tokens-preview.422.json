@@ -1,0 +1,12 @@
+{
+  "code": "VALIDATION_FAILED",
+  "details": [
+    {
+      "code": "INVALID_KIND",
+      "field": "kind",
+      "message": "Loại liên kết không hợp lệ."
+    }
+  ],
+  "message": "Dữ liệu chưa hợp lệ.",
+  "trace_id": "<trace_id>"
+}

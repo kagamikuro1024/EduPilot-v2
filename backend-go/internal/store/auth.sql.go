@@ -13,6 +13,22 @@ import (
 	"github.com/google/uuid"
 )
 
+const changeUserPassword = `-- name: ChangeUserPassword :exec
+update users
+set password_hash = $1, failed_logins = 0, locked_until = null
+where id = $2
+`
+
+type ChangeUserPasswordParams struct {
+	PasswordHash *string
+	ID           uuid.UUID
+}
+
+func (q *Queries) ChangeUserPassword(ctx context.Context, arg ChangeUserPasswordParams) error {
+	_, err := q.db.Exec(ctx, changeUserPassword, arg.PasswordHash, arg.ID)
+	return err
+}
+
 const consumeAuthToken = `-- name: ConsumeAuthToken :one
 update auth_tokens
 set used_at = $1::timestamptz
@@ -253,6 +269,60 @@ func (q *Queries) LatestInviterName(ctx context.Context, userID uuid.UUID) (stri
 	return full_name, err
 }
 
+const listOwnSessions = `-- name: ListOwnSessions :many
+select id, device_label, ip, created_at, last_used_at, coalesce(id = $1::uuid, false)::bool as is_current
+from auth_sessions
+where user_id = $2
+  and revoked_at is null
+  and expires_at > $3::timestamptz
+  and absolute_expires_at > $3::timestamptz
+order by coalesce(id = $1::uuid, false) desc, last_used_at desc
+limit 50
+`
+
+type ListOwnSessionsParams struct {
+	CurrentID *uuid.UUID
+	UserID    uuid.UUID
+	Now       time.Time
+}
+
+type ListOwnSessionsRow struct {
+	ID          uuid.UUID
+	DeviceLabel *string
+	Ip          *netip.Addr
+	CreatedAt   time.Time
+	LastUsedAt  time.Time
+	IsCurrent   bool
+}
+
+// Phiên còn hiệu lực của chính mình; phiên hiện tại đứng đầu, rồi theo last_used_at giảm dần. Không trả refresh hash / user agent.
+func (q *Queries) ListOwnSessions(ctx context.Context, arg ListOwnSessionsParams) ([]ListOwnSessionsRow, error) {
+	rows, err := q.db.Query(ctx, listOwnSessions, arg.CurrentID, arg.UserID, arg.Now)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListOwnSessionsRow{}
+	for rows.Next() {
+		var i ListOwnSessionsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.DeviceLabel,
+			&i.Ip,
+			&i.CreatedAt,
+			&i.LastUsedAt,
+			&i.IsCurrent,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const lockAuthSessionByRefresh = `-- name: LockAuthSessionByRefresh :one
 select id, user_id, refresh_hash, prev_refresh_hash, user_agent, device_label, ip, created_at, rotated_at, last_used_at, expires_at, absolute_expires_at, revoked_at, revoked_reason, updated_at from auth_sessions
 where refresh_hash = $1 or prev_refresh_hash = $1
@@ -340,6 +410,50 @@ func (q *Queries) PromoteUnverifiedRosterEnrollments(ctx context.Context, arg Pr
 	return result.RowsAffected(), nil
 }
 
+const resetUserPassword = `-- name: ResetUserPassword :one
+
+update users
+set password_hash = $1,
+    failed_logins = 0,
+    locked_until = null,
+    email_verified_at = coalesce(email_verified_at, $2::timestamptz),
+    status = case when status = 'PENDING_VERIFICATION' then 'ACTIVE'::user_status else status end
+where id = $3
+returning id, email, password_hash, full_name, role, student_code, email_verified_at, failed_logins, locked_until, status, ics_token, tracking_notice_ack_at, last_login_at, version, created_at, updated_at
+`
+
+type ResetUserPasswordParams struct {
+	PasswordHash *string
+	Now          time.Time
+	ID           uuid.UUID
+}
+
+// Đặt lại / đổi mật khẩu, quản lý thiết bị (US-P2-04).
+// Đặt lại = đọc thư = kiểm soát hộp thư: xác minh email, mở khoá, bỏ bộ đếm sai.
+func (q *Queries) ResetUserPassword(ctx context.Context, arg ResetUserPasswordParams) (User, error) {
+	row := q.db.QueryRow(ctx, resetUserPassword, arg.PasswordHash, arg.Now, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FullName,
+		&i.Role,
+		&i.StudentCode,
+		&i.EmailVerifiedAt,
+		&i.FailedLogins,
+		&i.LockedUntil,
+		&i.Status,
+		&i.IcsToken,
+		&i.TrackingNoticeAckAt,
+		&i.LastLoginAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const revokeAuthSession = `-- name: RevokeAuthSession :execrows
 update auth_sessions
 set revoked_at = $1::timestamptz, revoked_reason = $2::text
@@ -358,6 +472,27 @@ func (q *Queries) RevokeAuthSession(ctx context.Context, arg RevokeAuthSessionPa
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const revokeOwnSession = `-- name: RevokeOwnSession :one
+update auth_sessions
+set revoked_at = $1::timestamptz, revoked_reason = 'REVOKED_BY_USER'
+where id = $2 and user_id = $3 and revoked_at is null
+returning id
+`
+
+type RevokeOwnSessionParams struct {
+	Now    time.Time
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+// Chỉ phiên của CHÍNH người dùng và còn sống; không khớp ⇒ không dòng (handler trả 404, không lộ tồn tại).
+func (q *Queries) RevokeOwnSession(ctx context.Context, arg RevokeOwnSessionParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, revokeOwnSession, arg.Now, arg.ID, arg.UserID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
 }
 
 const revokeUnusedAuthTokens = `-- name: RevokeUnusedAuthTokens :execrows
@@ -380,6 +515,48 @@ func (q *Queries) RevokeUnusedAuthTokens(ctx context.Context, arg RevokeUnusedAu
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const revokeUserSessions = `-- name: RevokeUserSessions :many
+update auth_sessions
+set revoked_at = $1::timestamptz, revoked_reason = $2::text
+where user_id = $3
+  and revoked_at is null
+  and ($4::uuid is null or id <> $4::uuid)
+returning id
+`
+
+type RevokeUserSessionsParams struct {
+	Now      time.Time
+	Reason   string
+	UserID   uuid.UUID
+	ExceptID *uuid.UUID
+}
+
+// Thu hồi mọi phiên còn sống của người dùng, trừ phiên `except_id` (NULL = không trừ). Trả id để đặt khoá thu hồi ở Redis.
+func (q *Queries) RevokeUserSessions(ctx context.Context, arg RevokeUserSessionsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, revokeUserSessions,
+		arg.Now,
+		arg.Reason,
+		arg.UserID,
+		arg.ExceptID,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []uuid.UUID{}
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const rotateAuthSession = `-- name: RotateAuthSession :exec

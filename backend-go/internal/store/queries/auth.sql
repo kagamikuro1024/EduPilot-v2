@@ -95,3 +95,48 @@ join users u on u.id = t.created_by
 where t.user_id = sqlc.arg(user_id) and t.kind = 'INVITE' and t.created_by is not null
 order by t.created_at desc
 limit 1;
+
+-- Đặt lại / đổi mật khẩu, quản lý thiết bị (US-P2-04).
+
+-- name: ResetUserPassword :one
+-- Đặt lại = đọc thư = kiểm soát hộp thư: xác minh email, mở khoá, bỏ bộ đếm sai.
+update users
+set password_hash = sqlc.arg(password_hash),
+    failed_logins = 0,
+    locked_until = null,
+    email_verified_at = coalesce(email_verified_at, sqlc.arg(now)::timestamptz),
+    status = case when status = 'PENDING_VERIFICATION' then 'ACTIVE'::user_status else status end
+where id = sqlc.arg(id)
+returning *;
+
+-- name: ChangeUserPassword :exec
+update users
+set password_hash = sqlc.arg(password_hash), failed_logins = 0, locked_until = null
+where id = sqlc.arg(id);
+
+-- name: RevokeUserSessions :many
+-- Thu hồi mọi phiên còn sống của người dùng, trừ phiên `except_id` (NULL = không trừ). Trả id để đặt khoá thu hồi ở Redis.
+update auth_sessions
+set revoked_at = sqlc.arg(now)::timestamptz, revoked_reason = sqlc.arg(reason)::text
+where user_id = sqlc.arg(user_id)
+  and revoked_at is null
+  and (sqlc.narg(except_id)::uuid is null or id <> sqlc.narg(except_id)::uuid)
+returning id;
+
+-- name: RevokeOwnSession :one
+-- Chỉ phiên của CHÍNH người dùng và còn sống; không khớp ⇒ không dòng (handler trả 404, không lộ tồn tại).
+update auth_sessions
+set revoked_at = sqlc.arg(now)::timestamptz, revoked_reason = 'REVOKED_BY_USER'
+where id = sqlc.arg(id) and user_id = sqlc.arg(user_id) and revoked_at is null
+returning id;
+
+-- name: ListOwnSessions :many
+-- Phiên còn hiệu lực của chính mình; phiên hiện tại đứng đầu, rồi theo last_used_at giảm dần. Không trả refresh hash / user agent.
+select id, device_label, ip, created_at, last_used_at, coalesce(id = sqlc.narg(current_id)::uuid, false)::bool as is_current
+from auth_sessions
+where user_id = sqlc.arg(user_id)
+  and revoked_at is null
+  and expires_at > sqlc.arg(now)::timestamptz
+  and absolute_expires_at > sqlc.arg(now)::timestamptz
+order by coalesce(id = sqlc.narg(current_id)::uuid, false) desc, last_used_at desc
+limit 50;

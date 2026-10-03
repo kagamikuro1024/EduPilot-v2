@@ -1,6 +1,6 @@
 "use client";
 
-import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, UserPlus, Users } from "lucide-react";
+import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
@@ -378,6 +378,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <MenuList
                   onPicked={close}
                   items={[
+                    ...(source === "jwt" ? [{ label: "Tài khoản và bảo mật", icon: <ShieldCheck aria-hidden />, onSelect: () => router.push("/settings") }] : []),
                     ...(role === "teacher" || role === "admin"
                       ? [{ label: "Cài đặt hệ thống", icon: <Settings aria-hidden />, onSelect: () => router.push("/settings/llm") }]
                       : []),

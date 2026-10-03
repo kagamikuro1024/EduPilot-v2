@@ -118,7 +118,7 @@ func withDefaults(d Deps) Deps {
 		d.Sessions = auth.NewSessions(d.DB, d.Redis, d.Clock, auth.NewIssuer(d.Cfg.JWTSecretKey, d.Cfg.AccessTokenTTL, d.Clock), cfg, d.Log)
 	}
 	if d.Accounts == nil && d.DB != nil {
-		d.Accounts = auth.NewAccounts(d.DB, d.Redis, d.Clock, queueMail, auth.AccountsConfig{BcryptCost: d.Cfg.BcryptCost, ResendWindow: d.Cfg.AuthResendWindow, VerifyTTL: d.Cfg.VerifyTokenTTL}, d.Log)
+		d.Accounts = auth.NewAccounts(d.DB, d.Redis, d.Clock, d.Sessions, queueMail, auth.AccountsConfig{BcryptCost: d.Cfg.BcryptCost, ResendWindow: d.Cfg.AuthResendWindow, VerifyTTL: d.Cfg.VerifyTokenTTL}, d.Log)
 	}
 	return d
 }

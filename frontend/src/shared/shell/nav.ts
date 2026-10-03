@@ -146,7 +146,9 @@ const ACCESS: Array<[string, Role[]]> = [
   ["/analytics", ["ta", "teacher"]],
   ["/class", ["ta", "teacher"]],
   ["/observability", ["teacher", "admin"]],
-  ["/settings", ["teacher", "admin"]],
+  ["/settings/llm", ["teacher", "admin"]],
+  ["/settings/integrations", ["teacher", "admin"]],
+  ["/settings", ["student", "ta", "teacher", "admin"]], // Tài khoản và bảo mật: mọi vai, chỉ tác động chính mình
   ["/admin", ["admin"]],
   ["/chat", ["student"]],
   ["/practice", ["student"]],

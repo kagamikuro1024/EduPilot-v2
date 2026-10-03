@@ -3,6 +3,7 @@ package contract
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -317,6 +318,7 @@ func (r *runner) authScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/auth/logout", headers: map[string]string{"Origin": "https://evil.example"}}, 403)
 	r.must(call{method: "POST", path: "/api/v1/auth/logout", headers: cookie(rt2)}, 204)
 	r.accountScenarios()
+	r.passwordScenarios()
 }
 
 // accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.
@@ -587,4 +589,108 @@ func (r *runner) testScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", body: `{}`}, 401)
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: tok, body: `{}`}, 403)
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":2}`}, 422)
+}
+
+// passwordScenarios: forgot / reset / tokens-preview / đổi mật khẩu / thiết bị (US-P2-04) với mọi status đã khai báo.
+func (r *runner) passwordScenarios() {
+	const password = "Edupilot#2026-demo"
+	ctx := context.Background()
+	hash, err := auth.HashPassword(password, 4)
+	if err != nil {
+		r.t.Fatalf("băm mật khẩu: %v", err)
+	}
+	email := "ct-pw-" + uuid.NewString()[:8] + "@example.test"
+	var uid uuid.UUID
+	if err := r.rig.deps.DB.QueryRow(ctx,
+		`insert into users (email, full_name, role, status, password_hash) values ($1, 'Người Thử', 'STUDENT', 'ACTIVE', $2) returning id`, email, hash).Scan(&uid); err != nil {
+		r.t.Fatalf("tạo người dùng: %v", err)
+	}
+	issue := func() string {
+		tx, err := r.rig.deps.DB.Begin(ctx)
+		if err != nil {
+			r.t.Fatal(err)
+		}
+		tok, err := auth.Tokens{Clock: r.rig.deps.Clock}.Issue(ctx, tx, uid, auth.TokenResetPassword, time.Hour, nil)
+		if err != nil || tx.Commit(ctx) != nil {
+			r.t.Fatalf("phát token đặt lại: %v", err)
+		}
+		return tok
+	}
+
+	r.must(call{method: "POST", path: "/api/v1/auth/forgot-password", body: `{"email":""}`}, 422)
+	for range 3 {
+		r.must(call{method: "POST", path: "/api/v1/auth/forgot-password", body: `{"email":"` + email + `"}`}, 202)
+	}
+	r.must(call{method: "POST", path: "/api/v1/auth/forgot-password", body: `{"email":"` + email + `"}`}, 429)
+
+	tok := issue()
+	r.must(call{method: "POST", path: "/api/v1/auth/reset-password", body: `{"token":"` + tok + `","new_password":"ngan"}`}, 422)
+	r.must(call{method: "POST", path: "/api/v1/auth/reset-password", body: `{"token":"` + tok + `","new_password":"Mat-khau-moi-2026"}`}, 200)
+	r.must(call{method: "POST", path: "/api/v1/auth/reset-password", body: `{"token":"` + tok + `","new_password":"Mat-khau-moi-2026"}`}, 410)
+
+	const pw = "Mat-khau-moi-2026"
+	prev := func(kind, token string, want int) {
+		r.must(call{method: "POST", path: "/api/v1/auth/tokens/preview", body: `{"kind":"` + kind + `","token":"` + token + `"}`}, want)
+	}
+	r.rig.clearPreviewLimit(r.t)
+	prev("RESET_PASSWORD", issue(), 200)
+	prev("VERIFY_EMAIL", "x", 422)
+	prev("INVITE", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 410)
+	for range 25 { // 20 lần / phút / IP; bộ đếm sống 2 phút nên có thể đã có sẵn lần chạy trước ⇒ lặp tới khi chạm trần
+		if st, _, _ := r.do(call{method: "POST", path: "/api/v1/auth/tokens/preview", body: `{"kind":"INVITE","token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}`}); st == 429 {
+			break
+		}
+	}
+	prev("INVITE", "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", 429)
+
+	login := func() (access, sid string) {
+		_, b := r.must(call{method: "POST", path: "/api/v1/auth/login", headers: map[string]string{"Origin": "https://localhost"}, body: `{"email":"` + email + `","password":"` + pw + `"}`}, 200)
+		var m struct {
+			AccessToken string `json:"access_token"`
+		}
+		if err := json.Unmarshal(b, &m); err != nil {
+			r.t.Fatal(err)
+		}
+		parts := strings.Split(m.AccessToken, ".")
+		raw, _ := base64.RawURLEncoding.DecodeString(parts[1])
+		var c struct {
+			Sid string `json:"sid"`
+		}
+		_ = json.Unmarshal(raw, &c)
+		return m.AccessToken, c.Sid
+	}
+	a, _ := login()
+	_, bSid := login()
+	for _, c := range []call{
+		{method: "GET", path: "/api/v1/me/sessions"}, {method: "DELETE", path: "/api/v1/me/sessions"},
+		{method: "DELETE", path: "/api/v1/me/sessions/" + bSid}, {method: "POST", path: "/api/v1/me/password", body: `{}`},
+	} {
+		r.must(c, 401)
+	}
+	r.must(call{method: "GET", path: "/api/v1/me/sessions", token: a}, 200)
+	r.must(call{method: "DELETE", path: "/api/v1/me/sessions/" + bSid, token: a}, 204)
+	r.must(call{method: "DELETE", path: "/api/v1/me/sessions/" + bSid, token: a}, 404)
+	r.must(call{method: "DELETE", path: "/api/v1/me/sessions", token: a}, 200)
+	r.must(call{method: "POST", path: "/api/v1/me/password", token: a, body: `{"current_password":"` + pw + `","new_password":"Mat-khau-lan-hai-2026"}`}, 204)
+	r.must(call{method: "POST", path: "/api/v1/me/password", token: a, body: `{"current_password":"` + pw + `","new_password":"Mat-khau-lan-ba-2026"}`}, 422) // mật khẩu hiện tại giờ là mật khẩu lần hai
+	for range 4 {
+		r.must(call{method: "POST", path: "/api/v1/me/password", token: a, body: `{"current_password":"sai-mat-khau-1","new_password":"Mat-khau-lan-ba-2026"}`}, 422)
+	}
+	r.must(call{method: "POST", path: "/api/v1/me/password", token: a, body: `{"current_password":"sai-mat-khau-1","new_password":"Mat-khau-lan-ba-2026"}`}, 429)
+}
+
+// clearPreviewLimit xoá bộ đếm 20 lần / phút / IP của tokens/preview: Redis dùng chung giữa các test và các lần chạy (TTL 2 phút),
+// IP của rig luôn là 127.0.0.1 nên bộ đếm của lần trước sẽ làm lần sau bị 429 sớm.
+func (rg *rig) clearPreviewLimit(t *testing.T) {
+	t.Helper()
+	ctx := context.Background()
+	keys, err := rg.deps.Redis.Keys(ctx, "ep:rl:auth:token:ip:*").Result()
+	if err != nil {
+		t.Fatalf("liệt kê bộ đếm: %v", err)
+	}
+	if len(keys) > 0 {
+		if err := rg.deps.Redis.Del(ctx, keys...).Err(); err != nil {
+			t.Fatalf("xoá bộ đếm: %v", err)
+		}
+	}
 }

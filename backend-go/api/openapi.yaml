@@ -1,12 +1,12 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.5.0
+  version: 0.6.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
     build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ; P1 (FEAT-llm-gateway US-P1-04) thêm 13 thao tác `/admin/llm/*` và `/courses/{id}/llm-budget`.
-    P2 (FEAT-account-security US-P2-02) thêm 6 thao tác `/auth/{login,refresh,logout,register,verify-email,resend-verification}`: công khai (không Bearer); `refresh`/`logout` dùng cookie `ep_rt` (HttpOnly) + kiểm Origin.
+    P2 (FEAT-account-security US-P2-02) thêm 9 thao tác `/auth/{login,refresh,logout,register,verify-email,resend-verification,forgot-password,reset-password,tokens/preview}` và 4 thao tác `/me/{password,sessions,sessions/{id}}` (US-P2-04): công khai (không Bearer); `refresh`/`logout` dùng cookie `ep_rt` (HttpOnly) + kiểm Origin.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -494,6 +494,142 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/auth/forgot-password:
+    post:
+      operationId: forgotPassword
+      tags: [auth]
+      summary: Quên mật khẩu (công khai); mọi email trả cùng một thân (chống dò). 3 lần / giờ / băm email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendRequest"
+      responses:
+        "202":
+          description: Đã nhận (không cho biết email có tài khoản hay không)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/auth/reset-password:
+    post:
+      operationId: resetPassword
+      tags: [auth]
+      summary: Đặt lại mật khẩu bằng liên kết một lần; thu hồi mọi phiên, không tự đăng nhập
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        "200":
+          description: Mật khẩu đã đổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResult"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/auth/tokens/preview:
+    post:
+      operationId: previewToken
+      tags: [auth]
+      summary: Xem trước liên kết RESET_PASSWORD | INVITE mà KHÔNG tiêu token (không trả email)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenPreviewRequest"
+      responses:
+        "200":
+          description: Liên kết dùng được
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TokenPreview"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/me/password:
+    post:
+      operationId: changePassword
+      tags: [me]
+      summary: Đổi mật khẩu của chính mình; thu hồi mọi phiên khác. 5 lần sai / 10 phút
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChangePasswordRequest"
+      responses:
+        "204":
+          description: Đã đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/me/sessions:
+    get:
+      operationId: listMySessions
+      tags: [me]
+      summary: Thiết bị đang đăng nhập của chính mình (≤ 50; phiên hiện tại đứng đầu; IP đã che)
+      responses:
+        "200":
+          description: Danh sách phiên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    delete:
+      operationId: revokeOtherSessions
+      tags: [me]
+      summary: Đăng xuất mọi thiết bị khác (giữ phiên hiện tại)
+      responses:
+        "200":
+          description: Số phiên đã thu hồi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RevokedCount"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/me/sessions/{id}:
+    delete:
+      operationId: revokeMySession
+      tags: [me]
+      summary: Đăng xuất một thiết bị của chính mình (phiên của người khác = 404)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Đã thu hồi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/auth/login:
     post:
       operationId: login
@@ -741,6 +877,87 @@ components:
       properties:
         status:
           type: string
+    ResetPasswordRequest:
+      type: object
+      required: [token, new_password]
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+        new_password:
+          type: string
+    TokenPreviewRequest:
+      type: object
+      required: [kind, token]
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [RESET_PASSWORD, INVITE]
+        token:
+          type: string
+    TokenPreview:
+      type: object
+      required: [valid, kind, expires_at]
+      additionalProperties: false
+      properties:
+        valid:
+          type: boolean
+        kind:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+        full_name:
+          type: string
+        role:
+          type: string
+    ChangePasswordRequest:
+      type: object
+      required: [current_password, new_password]
+      additionalProperties: false
+      properties:
+        current_password:
+          type: string
+        new_password:
+          type: string
+    SessionItem:
+      type: object
+      required: [id, current, device_label, ip_masked, created_at, last_used_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        current:
+          type: boolean
+        device_label:
+          type: string
+        ip_masked:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_used_at:
+          type: string
+          format: date-time
+    SessionList:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 50
+          items:
+            $ref: "#/components/schemas/SessionItem"
+    RevokedCount:
+      type: object
+      required: [revoked]
+      additionalProperties: false
+      properties:
+        revoked:
+          type: integer
     AuthUser:
       type: object
       required: [id, email, full_name, role, status, email_verified]

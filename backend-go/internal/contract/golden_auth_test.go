@@ -73,5 +73,12 @@ func TestGolden_Auth(t *testing.T) {
 	do("/register", `{"email":"a@b","password":"x","full_name":""}`, nil, "register.422", 422)
 	do("/verify-email", `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}`, nil, "verify-email.410", 410)
 	do("/resend-verification", `{"email":"`+regEmail+`"}`, nil, "resend-verification", 202)
+
+	// US-P2-04: quên / đặt lại / xem trước liên kết
+	do("/forgot-password", `{"email":"`+regEmail+`"}`, nil, "forgot-password", 202)
+	do("/reset-password", `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","new_password":"Mat-khau-moi-2026"}`, nil, "reset-password.410", 410)
+	r.clearPreviewLimit(t)
+	do("/tokens/preview", `{"kind":"INVITE","token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}`, nil, "tokens-preview.410", 410)
+	do("/tokens/preview", `{"kind":"VERIFY_EMAIL","token":"x"}`, nil, "tokens-preview.422", 422)
 	do("/resend-verification", `{"email":"`+regEmail+`"}`, nil, "resend-verification.429", 429)
 }

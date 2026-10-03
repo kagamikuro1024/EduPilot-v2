@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -44,6 +45,9 @@ func (h *Handler) Mount(r chi.Router) {
 		r.Post("/register", h.register)
 		r.Post("/verify-email", h.verifyEmail)
 		r.Post("/resend-verification", h.resendVerification)
+		r.Post("/forgot-password", h.forgotPassword)
+		r.Post("/reset-password", h.resetPassword)
+		r.Post("/tokens/preview", h.previewToken)
 		r.With(h.cookieGuard).Post("/refresh", h.refresh)
 		r.With(h.cookieGuard).Post("/logout", h.logout)
 	})
@@ -302,4 +306,174 @@ func (h *Handler) writeAccountErr(w http.ResponseWriter, r *http.Request, op str
 		h.internal(w, r, op, err)
 	}
 	return true
+}
+
+// MountMe đăng ký các đường /me/* của tài khoản; PHẢI nằm trong nhóm đã qua auth.Middleware. Không đường nào nhận user_id:
+// mọi thao tác chỉ tác động tài khoản trong JWT (chống IDOR).
+func (h *Handler) MountMe(r chi.Router) {
+	r.Route("/me", func(r chi.Router) {
+		r.Get("/sessions", h.listSessions)
+		r.Delete("/sessions", h.revokeOthers)
+		r.Delete("/sessions/{id}", h.revokeSession)
+		r.Post("/password", h.changePassword)
+	})
+}
+
+type emailBody struct {
+	Email string `json:"email"`
+}
+
+func (h *Handler) forgotPassword(w http.ResponseWriter, r *http.Request) {
+	var b emailBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	if strings.TrimSpace(b.Email) == "" || len(b.Email) > 320 {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "email", Code: "INVALID_EMAIL", Message: "Cần nhập email."}))
+		return
+	}
+	if h.writeAccountErr(w, r, "forgot-password", h.Accounts.ForgotPassword(r.Context(), b.Email)) {
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, messageBody{Message: "Nếu email này có tài khoản, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu."})
+}
+
+type resetBody struct {
+	Token       string `json:"token"`
+	NewPassword string `json:"new_password"`
+}
+
+func (h *Handler) resetPassword(w http.ResponseWriter, r *http.Request) {
+	var b resetBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	if h.writeAccountErr(w, r, "reset-password", h.Accounts.ResetPassword(r.Context(), b.Token, b.NewPassword)) {
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "password_reset"})
+}
+
+type previewBody struct {
+	Kind  string `json:"kind"`
+	Token string `json:"token"`
+}
+
+type previewResp struct {
+	Valid     bool      `json:"valid"`
+	Kind      string    `json:"kind"`
+	ExpiresAt time.Time `json:"expires_at"`
+	FullName  string    `json:"full_name,omitempty"`
+	Role      string    `json:"role,omitempty"`
+}
+
+func (h *Handler) previewToken(w http.ResponseWriter, r *http.Request) {
+	var b previewBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	ip := ""
+	if h.ClientIP != nil {
+		ip = h.ClientIP(r)
+	}
+	p, err := h.Accounts.PreviewToken(r.Context(), b.Kind, b.Token, ip)
+	if h.writeAccountErr(w, r, "tokens-preview", err) {
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, previewResp{Valid: true, Kind: p.Kind, ExpiresAt: p.ExpiresAt, FullName: p.FullName, Role: p.Role})
+}
+
+// me trả (user, sid) của Bearer đã qua middleware; false nếu thiếu (đã ghi 401).
+func (h *Handler) me(w http.ResponseWriter, r *http.Request) (uuid.UUID, uuid.UUID, bool) {
+	p, ok := auth.FromContext(r.Context())
+	uid, err := uuid.Parse(p.Sub)
+	if !ok || err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusUnauthorized, apierr.Unauthenticated))
+		return uuid.Nil, uuid.Nil, false
+	}
+	sid, _ := uuid.Parse(p.SessionID) // token dev không có sid ⇒ uuid.Nil
+	return uid, sid, true
+}
+
+type sessionItem struct {
+	ID         uuid.UUID `json:"id"`
+	Current    bool      `json:"current"`
+	Device     string    `json:"device_label"`
+	IPMasked   string    `json:"ip_masked"`
+	CreatedAt  time.Time `json:"created_at"`
+	LastUsedAt time.Time `json:"last_used_at"`
+}
+
+func (h *Handler) listSessions(w http.ResponseWriter, r *http.Request) {
+	uid, sid, ok := h.me(w, r)
+	if !ok {
+		return
+	}
+	list, err := h.Accounts.ListSessions(r.Context(), uid, sid)
+	if err != nil {
+		h.internal(w, r, "sessions-list", err)
+		return
+	}
+	items := make([]sessionItem, len(list))
+	for i, s := range list {
+		items[i] = sessionItem{ID: s.ID, Current: s.Current, Device: s.DeviceLabel, IPMasked: s.IPMasked, CreatedAt: s.CreatedAt, LastUsedAt: s.LastUsedAt}
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+func (h *Handler) revokeSession(w http.ResponseWriter, r *http.Request) {
+	uid, sid, ok := h.me(w, r)
+	if !ok {
+		return
+	}
+	target, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
+	switch err := h.Accounts.RevokeSession(r.Context(), uid, target); {
+	case errors.Is(err, auth.ErrSessionNotFound):
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	case err != nil:
+		h.internal(w, r, "sessions-revoke", err)
+		return
+	}
+	if target == sid {
+		h.clearCookie(w) // xoá phiên hiện tại = đăng xuất
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) revokeOthers(w http.ResponseWriter, r *http.Request) {
+	uid, sid, ok := h.me(w, r)
+	if !ok {
+		return
+	}
+	n, err := h.Accounts.RevokeOtherSessions(r.Context(), uid, sid)
+	if err != nil {
+		h.internal(w, r, "sessions-revoke-others", err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]int{"revoked": n})
+}
+
+type changePasswordBody struct {
+	CurrentPassword string `json:"current_password"`
+	NewPassword     string `json:"new_password"`
+}
+
+func (h *Handler) changePassword(w http.ResponseWriter, r *http.Request) {
+	uid, sid, ok := h.me(w, r)
+	if !ok {
+		return
+	}
+	var b changePasswordBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	if h.writeAccountErr(w, r, "change-password", h.Accounts.ChangePassword(r.Context(), uid, sid, b.CurrentPassword, b.NewPassword)) {
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

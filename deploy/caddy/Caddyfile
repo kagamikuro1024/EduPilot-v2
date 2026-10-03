@@ -18,6 +18,16 @@
 }
 
 localhost {
+	# Log truy cập CHỈ che liên kết bí mật (FEAT-account-security US-P2-04 AC13): `?token=…` của /verify-email, /reset-password và
+	# `/invite/<token>` không bao giờ vào log. Giá trị token đổi thành REDACTED trước khi ghi.
+	log {
+		output stdout
+		format filter {
+			wrap json
+			request>uri regexp (token=|/invite/)[A-Za-z0-9_-]+ ${1}REDACTED
+		}
+	}
+
 	header {
 		Strict-Transport-Security "max-age=31536000"
 		X-Content-Type-Options nosniff

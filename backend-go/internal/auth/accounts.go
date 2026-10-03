@@ -30,6 +30,8 @@ const (
 	tmplVerifyEmail = "verify_email"
 	tmplEmailExists = "email_exists"
 	tmplInviteStaff = "invite_staff"
+	tmplResetPass   = "reset_password"
+	tmplPassChanged = "password_changed"
 	defaultInviter  = "Quản trị viên"
 )
 
@@ -73,12 +75,13 @@ type Accounts struct {
 	rdb  *appredis.Client
 	clk  clock.Clock
 	mail MailQueue
+	sess *Sessions // đặt khoá thu hồi (Redis) sau khi thu hồi phiên ở DB; nil = chỉ DB (test)
 	cfg  AccountsConfig
 	log  *slog.Logger
 }
 
 // NewAccounts dựng dịch vụ. rdb nil = bỏ giới hạn gửi lại (chỉ test).
-func NewAccounts(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, mail MailQueue, cfg AccountsConfig, log *slog.Logger) *Accounts {
+func NewAccounts(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, sess *Sessions, mail MailQueue, cfg AccountsConfig, log *slog.Logger) *Accounts {
 	if clk == nil {
 		clk = clock.Real{}
 	}
@@ -88,7 +91,7 @@ func NewAccounts(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, mail
 	if cfg.ResendWindow <= 0 {
 		cfg.ResendWindow = 60 * time.Second
 	}
-	return &Accounts{pool: pool, rdb: rdb, clk: clk, mail: mail, cfg: cfg, log: log}
+	return &Accounts{pool: pool, rdb: rdb, clk: clk, sess: sess, mail: mail, cfg: cfg, log: log}
 }
 
 var (
@@ -115,7 +118,7 @@ func (in RegisterInput) normalize() (RegisterInput, []FieldProblem) {
 		ps = append(ps, FieldProblem{"student_code", "STUDENT_CODE_FORMAT", "Mã số sinh viên gồm 6–15 chữ và số."})
 	}
 	if code := ValidatePasswordPolicy(out.Password, out.Email); code != "" {
-		ps = append(ps, FieldProblem{"password", code, "Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte."})
+		ps = append(ps, FieldProblem{"password", code, PasswordMessage(code)})
 	}
 	return out, ps
 }
@@ -208,7 +211,7 @@ func (a *Accounts) VerifyEmail(ctx context.Context, plain string) error {
 
 	uid, err := q.ConsumeAuthToken(ctx, store.ConsumeAuthTokenParams{TokenHash: hash, Kind: store.AuthTokenKindVERIFYEMAIL, Now: now})
 	if errors.Is(err, pgx.ErrNoRows) {
-		return linkReason(ctx, q, hash, now) // cùng transaction: không xin thêm kết nối khi pool đã cạn (50 yêu cầu đua nhau)
+		return linkReason(ctx, q, hash, store.AuthTokenKindVERIFYEMAIL, now) // cùng transaction: không xin thêm kết nối khi pool đã cạn (50 yêu cầu đua nhau)
 	}
 	if err != nil {
 		return fmt.Errorf("auth: dùng token: %w", err)
@@ -226,10 +229,10 @@ func (a *Accounts) VerifyEmail(ctx context.Context, plain string) error {
 }
 
 // linkReason phân loại token không dùng được. Token lạ và token đã bị thay đều là "invalid".
-func linkReason(ctx context.Context, q *store.Queries, hash string, now time.Time) error {
+func linkReason(ctx context.Context, q *store.Queries, hash string, kind store.AuthTokenKind, now time.Time) error {
 	t, err := q.GetAuthTokenByHash(ctx, hash)
 	switch {
-	case errors.Is(err, pgx.ErrNoRows) || (err == nil && t.Kind != store.AuthTokenKindVERIFYEMAIL):
+	case errors.Is(err, pgx.ErrNoRows) || (err == nil && t.Kind != kind):
 		return &LinkError{Reason: "invalid"}
 	case err != nil:
 		return fmt.Errorf("auth: tra token: %w", err)

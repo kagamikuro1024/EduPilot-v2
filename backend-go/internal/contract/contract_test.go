@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 24 {
-			t.Errorf("openapi.yaml: %d thao tác (cần 24)", n)
+		if n := len(prod.Operations()); n != 31 {
+			t.Errorf("openapi.yaml: %d thao tác (cần 31)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
 		if n := len(test.Operations()); n != 18 {
@@ -266,6 +266,8 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/courses/{id}/llm-budget": true, "PUT /api/v1/courses/{id}/llm-budget": true,
 		"POST /api/v1/auth/login": false, "POST /api/v1/auth/refresh": false, "POST /api/v1/auth/logout": false,
 		"POST /api/v1/auth/register": false, "POST /api/v1/auth/verify-email": false, "POST /api/v1/auth/resend-verification": false,
+		"POST /api/v1/auth/forgot-password": false, "POST /api/v1/auth/reset-password": false, "POST /api/v1/auth/tokens/preview": false,
+		"POST /api/v1/me/password": true, "GET /api/v1/me/sessions": true, "DELETE /api/v1/me/sessions": true, "DELETE /api/v1/me/sessions/{id}": true,
 	}
 	for _, o := range prod.Operations() {
 		need, ok := want[o.Key()]

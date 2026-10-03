@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/mail"
@@ -75,5 +76,66 @@ func TestRegisterSendsVerifyMail(t *testing.T) {
 	}
 	for _, bad := range []string{"{{", "<no value>", "%!"} {
 		require.NotContains(t, m.Text, bad)
+	}
+}
+
+// mailpitMail gửi qua SMTP thật mọi thư QUEUED của `to` rồi trả thư (duy nhất) tìm được ở Mailpit theo tiêu đề.
+func mailpitMail(t *testing.T, r *sessRig, to, subject string) (text, html string) {
+	t.Helper()
+	smtpAddr, api := testutil.Mailpit(t)
+	u, err := url.Parse("tcp://" + smtpAddr)
+	require.NoError(t, err)
+	port, err := strconv.Atoi(u.Port())
+	require.NoError(t, err)
+	cfg := config.Config{
+		AppPublicURL: "https://localhost", SMTPHost: u.Hostname(), SMTPPort: port, SMTPTLS: "none", MailFrom: "EduPilot <no-reply@edupilot.local>",
+		MailSendTimeout: 3 * time.Second, VerifyTokenTTL: 24 * time.Hour, ResetTokenTTL: 30 * time.Minute, InviteTokenTTL: 72 * time.Hour,
+		OutboxRetryBackoff: []time.Duration{time.Second, time.Second, time.Second},
+	}
+	h := &mail.Handler{Pool: r.pool, Clock: r.clk, Sender: mail.SMTP{Cfg: cfg}, Cfg: cfg, Log: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	rows, err := r.pool.Query(t.Context(), `select id::text from mail_outbox where to_addr = $1 and status = 'QUEUED'`, to)
+	require.NoError(t, err)
+	ids, err := pgx.CollectRows(rows, pgx.RowTo[string])
+	require.NoError(t, err)
+	for _, id := range ids {
+		require.NoError(t, h.Handle(t.Context(), outbox.Message{Topic: mail.Topic, Payload: []byte(`{"mail_id":"` + id + `"}`)}))
+	}
+	var list struct {
+		Messages []struct{ ID, Subject string } `json:"messages"`
+	}
+	mpJSON(t, api, "/api/v1/search?query="+url.QueryEscape("to:"+to+" subject:\""+subject+"\""), &list)
+	require.Len(t, list.Messages, 1, subject)
+	var m struct{ Text, HTML string }
+	mpJSON(t, api, "/api/v1/message/"+list.Messages[0].ID, &m)
+	return m.Text, m.HTML
+}
+
+// US-P2-04 AC12.
+func TestResetMail(t *testing.T) {
+	r := newSessRig(t)
+	e := r.activeUser("rm")
+	require.Equal(t, http.StatusAccepted, r.forgot(e).code)
+	text, html := mailpitMail(t, r, e, "Đặt lại mật khẩu EduPilot")
+	require.Regexp(t, regexp.MustCompile(`https://localhost/reset-password\?token=[A-Za-z0-9_-]{43}\b`), text)
+	require.Equal(t, 1, strings.Count(text, "token="))
+	require.Contains(t, text, "30 phút")
+	require.Contains(t, html, "<html")
+	for _, secret := range []string{rigPassword, newPassword} {
+		require.NotContains(t, text, secret)
+		require.NotContains(t, html, secret)
+	}
+}
+
+func TestPasswordChangedMail(t *testing.T) {
+	r := newSessRig(t)
+	e := r.activeUser("pm")
+	s := r.mustLogin(e)
+	require.Equal(t, http.StatusNoContent, r.changePw(s, rigPassword, newPassword).code)
+	text, html := mailpitMail(t, r, e, "Mật khẩu EduPilot của bạn đã được đổi")
+	require.Regexp(t, `lúc \d{2}:\d{2} \d{2}/\d{2}/\d{4} \(giờ Việt Nam\)`, text)
+	require.Contains(t, text, "https://localhost/forgot-password")
+	for _, secret := range []string{rigPassword, newPassword} {
+		require.NotContains(t, text, secret)
+		require.NotContains(t, html, secret)
 	}
 }

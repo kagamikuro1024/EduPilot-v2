@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -45,6 +46,7 @@ type sessRig struct {
 	rdb  *appredis.Client
 	clk  *clock.Fake
 	logs *bytes.Buffer
+	ip   string // IP khách của rig này (mỗi rig một IP để bộ đếm theo IP ở Redis không đụng nhau giữa các test)
 }
 
 type rigOpt func(env map[string]string)
@@ -77,7 +79,8 @@ func newSessRig(t *testing.T, opts ...rigOpt) *sessRig {
 		Cfg: cfg, Log: slog.New(slog.NewTextHandler(logs, &slog.HandlerOptions{Level: slog.LevelDebug})),
 		DB: pool, Redis: rdb, Clock: clk, State: httpapi.NewState(),
 	}
-	return &sessRig{t: t, h: httpapi.NewRouter(d), pool: pool, rdb: rdb, clk: clk, logs: logs}
+	id := uuid.New()
+	return &sessRig{t: t, h: httpapi.NewRouter(d), pool: pool, rdb: rdb, clk: clk, logs: logs, ip: fmt.Sprintf("203.0.%d.%d", 1+int(id[0])%254, 1+int(id[1])%254)}
 }
 
 // user chèn một người dùng có mật khẩu rigPassword.
@@ -138,7 +141,7 @@ func (r *sessRig) do(q req) resp {
 		q.method = http.MethodPost
 	}
 	hr := httptest.NewRequest(q.method, "/api/v1"+q.path, rd)
-	hr.RemoteAddr = "203.0.113.7:4444"
+	hr.RemoteAddr = r.ip + ":4444"
 	if q.body != nil {
 		hr.Header.Set("Content-Type", "application/json")
 	}

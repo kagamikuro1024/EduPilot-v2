@@ -63,7 +63,7 @@ func TestLoginSuccess(t *testing.T) {
 	require.Equal(t, "edupilot", cl["iss"])
 	require.Equal(t, "edupilot-api", cl["aud"])
 
-	require.Equal(t, "1", r.scalar(`select count(*)::text from auth_sessions where id = $1 and user_id = $2 and device_label = 'Chrome trên macOS' and host(ip) = '203.0.113.7'`, cl["sid"], u.ID))
+	require.Equal(t, "1", r.scalar(`select count(*)::text from auth_sessions where id = $1 and user_id = $2 and device_label = 'Chrome trên macOS' and host(ip) = $3`, cl["sid"], u.ID, r.ip))
 	require.NotEmpty(t, r.scalar(`select last_login_at::text from users where id = $1`, u.ID))
 	require.Equal(t, "1", r.scalar(`select count(*)::text from login_attempts where user_id = $1 and outcome = 'SUCCESS'`, u.ID))
 }

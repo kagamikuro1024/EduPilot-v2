@@ -353,6 +353,215 @@ test("verify page: xác minh tự động đúng một lần, token rời khỏi
   expect(res.headers()["cache-control"]).toContain("no-store");
 });
 
+const FORGOT_MSG = "Nếu email này có tài khoản, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.";
+
+test("forgot page: một ô email, một nút Gửi hướng dẫn, câu chung bất kể email, nút gửi lại khoá đếm ngược", async ({ page }) => {
+  await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
+  const bodies: string[] = [];
+  await page.route("**/api/v1/auth/forgot-password", (r) => {
+    bodies.push(r.request().postData() ?? "");
+    return json(r, 202, { message: FORGOT_MSG });
+  });
+  await page.goto("/forgot-password");
+  await expect(page.getByRole("heading", { name: "Quên mật khẩu" })).toBeVisible();
+  await expect(page.getByLabel("Email")).toHaveCount(1);
+  const send = page.getByRole("button", { name: "Gửi hướng dẫn", exact: true });
+  await expect(send).toHaveCount(1);
+  await expect(send).toHaveAttribute("data-variant", "primary");
+  await expect(send).toBeDisabled(); // chưa nhập email
+  await page.getByLabel("Email").fill("khong.co@sv.example");
+  await send.click();
+  await expect(page.getByText(FORGOT_MSG)).toBeVisible();
+  expect(JSON.parse(bodies[0])).toEqual({ email: "khong.co@sv.example" });
+  const again = page.getByRole("button", { name: /^Gửi lại hướng dẫn/ });
+  await expect(again).toBeDisabled();
+  await expect(again).toContainText(/\(\d+ giây\)/);
+  await expect(page.getByRole("link", { name: "Quay lại đăng nhập" })).toHaveAttribute("href", "/login");
+  const body = (await page.locator("main").innerText()).toLowerCase();
+  for (const w of ["token", "session", "refresh", "jwt", "bcrypt"]) expect(body).not.toContain(w);
+});
+
+test("reset page: kiểm liên kết khi mở, token rời URL, form hai ô, lỗi mật khẩu tại ô, thành công; liên kết xấu", async ({ page }) => {
+  await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
+  const T = "B".repeat(43);
+  let previewCalls = 0;
+  let resetBody = "";
+  let goodLink = true;
+  await page.route("**/api/v1/auth/tokens/preview", async (r) => {
+    previewCalls++;
+    await new Promise((res) => setTimeout(res, 120));
+    const b = JSON.parse(r.request().postData() ?? "{}") as { kind: string; token: string };
+    expect(b.kind).toBe("RESET_PASSWORD");
+    if (!goodLink) return json(r, 410, err("LINK_INVALID", "m", { details: { reason: "expired" } }));
+    return json(r, 200, { valid: true, kind: "RESET_PASSWORD", expires_at: "2030-01-01T00:00:00Z" });
+  });
+  await page.route("**/api/v1/auth/reset-password", (r) => {
+    resetBody = r.request().postData() ?? "";
+    const b = JSON.parse(resetBody) as { new_password: string };
+    if (b.new_password.length < 10) return json(r, 422, err("VALIDATION_FAILED", "m", { details: [{ field: "new_password", code: "PASSWORD_TOO_SHORT", message: "Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte." }] }));
+    return json(r, 200, { status: "password_reset" });
+  });
+  await page.goto(`/reset-password?token=${T}`);
+  await expect(page.getByText("Đang kiểm tra liên kết…")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Đặt mật khẩu mới" })).toBeVisible();
+  expect(await page.evaluate(() => location.search)).toBe("");
+  expect(previewCalls).toBe(1);
+  const a = page.getByLabel("Mật khẩu mới", { exact: true });
+  const b = page.getByLabel("Nhập lại mật khẩu", { exact: true });
+  await expect(a).toHaveAttribute("autocomplete", "new-password");
+  await expect(a).toHaveAttribute("type", "password");
+  await expect(b).toHaveAttribute("type", "password");
+  await expect(page.getByText("Ít nhất 10 ký tự, không phải mật khẩu phổ biến.")).toBeVisible();
+  const submit = page.getByRole("button", { name: "Đổi mật khẩu", exact: true });
+  await expect(submit).toHaveAttribute("data-variant", "primary");
+
+  await a.fill("ngan");
+  await b.fill("khac");
+  await submit.click();
+  await expect(page.getByText("Hai mật khẩu chưa giống nhau.")).toBeVisible();
+  expect(resetBody).toBe("");
+  await b.fill("ngan");
+  await submit.click();
+  await expect(page.getByText("Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte.")).toBeVisible();
+  await expect(a).toHaveAttribute("aria-invalid", "true");
+  await expect(a).toHaveValue("ngan"); // giữ chữ đã gõ; token còn trong bộ nhớ trang để nhập lại
+
+  await a.fill("Mat-khau-moi-2026");
+  await b.fill("Mat-khau-moi-2026");
+  await submit.click();
+  await expect(page.getByRole("heading", { name: "Mật khẩu đã được đổi. Hãy đăng nhập lại." })).toBeVisible();
+  expect(JSON.parse(resetBody)).toEqual({ token: T, new_password: "Mat-khau-moi-2026" });
+  await expect(page.getByRole("link", { name: "Đăng nhập" })).toHaveAttribute("href", "/login");
+
+  goodLink = false;
+  await page.goto(`/reset-password?token=${T}`);
+  await expect(page.getByText("Liên kết đã hết hạn hoặc đã được dùng.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Yêu cầu liên kết mới" })).toHaveAttribute("href", "/forgot-password");
+  await page.goto("/reset-password"); // thiếu token
+  await expect(page.getByRole("link", { name: "Yêu cầu liên kết mới" })).toBeVisible();
+  expect(previewCalls).toBe(2);
+});
+
+test("reset page: Referrer-Policy no-referrer, no-store (kể cả forgot không cần)", async ({ request }) => {
+  const res = await request.get("/reset-password");
+  expect(res.headers()["referrer-policy"]).toBe("no-referrer");
+  expect(res.headers()["cache-control"]).toContain("no-store");
+});
+
+type Dev = { id: string; current: boolean; device_label: string; ip_masked: string; created_at: string; last_used_at: string };
+const dev = (id: string, label: string, current = false, ip = "203.0.*.*", last = "2026-10-03T02:20:00Z"): Dev => ({ id, current, device_label: label, ip_masked: ip, created_at: "2026-10-01T02:20:00Z", last_used_at: last });
+
+test("settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại ô), thiết bị: Thiết bị này, đăng xuất ngay + dòng tĩnh, xác nhận có số", async ({ page }) => {
+  await mockAuth(page, { role: "STUDENT", email: "an.nguyen@sv.example", fullName: "Nguyễn Thị An", loggedIn: true });
+  let list: Dev[] = [dev("s1", "Chrome trên macOS", true), dev("s2", "Safari trên iPhone", false, "113.190.*.*", "2026-10-02T14:05:00Z"), dev("s3", "Firefox trên Windows")];
+  const calls: string[] = [];
+  await page.route("**/api/v1/me/sessions", async (r) => {
+    const m = r.request().method();
+    calls.push(m);
+    if (m === "GET") return json(r, 200, { items: list });
+    const n = list.filter((d) => !d.current).length;
+    list = list.filter((d) => d.current);
+    return json(r, 200, { revoked: n });
+  });
+  await page.route("**/api/v1/me/sessions/*", (r) => {
+    const id = r.request().url().split("/").pop();
+    calls.push(`DELETE ${id}`);
+    list = list.filter((d) => d.id !== id);
+    return r.fulfill({ status: 204, headers: CORS });
+  });
+  let pwBody = "";
+  await page.route("**/api/v1/me/password", (r) => {
+    pwBody = r.request().postData() ?? "";
+    const b = JSON.parse(pwBody) as { current_password: string };
+    if (b.current_password !== "Edupilot#2026-demo") return json(r, 422, err("VALIDATION_FAILED", "m", { details: [{ field: "current_password", code: "WRONG_PASSWORD", message: "Mật khẩu hiện tại chưa đúng." }] }));
+    list = list.filter((d) => d.current);
+    return r.fulfill({ status: 204, headers: CORS });
+  });
+
+  await page.goto("/settings");
+  await expect(page.getByRole("heading", { name: "Tài khoản và bảo mật" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Mật khẩu", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Thiết bị đang đăng nhập" })).toBeVisible();
+
+  // thiết bị
+  const rows = page.locator("ul li").filter({ hasText: /Lần cuối/ });
+  await expect(rows).toHaveCount(3);
+  await expect(rows.nth(0)).toContainText("Chrome trên macOS");
+  await expect(rows.nth(0)).toContainText("Thiết bị này");
+  await expect(rows.nth(0).getByRole("button")).toHaveCount(0); // hàng hiện tại không có menu
+  await expect(rows.nth(1)).toContainText("113.190.*.*");
+  await expect(rows.nth(1)).toContainText(/Lần cuối \d{2}:\d{2}/);
+  const others = page.getByRole("button", { name: "Đăng xuất mọi thiết bị khác" });
+  await expect(others).toBeVisible();
+  await expect(others).not.toHaveAttribute("data-variant", "primary");
+
+  // đăng xuất một thiết bị: thực hiện ngay, không hộp thoại, dòng tĩnh tại chỗ
+  await rows.nth(1).getByRole("button", { name: /Thao tác cho Safari/ }).click();
+  await page.getByRole("menuitem", { name: "Đăng xuất thiết bị này" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByText("Đã đăng xuất thiết bị này")).toBeVisible();
+  expect(calls).toContain("DELETE s2");
+
+  // đăng xuất mọi thiết bị khác: xác nhận nêu số
+  await others.click();
+  await expect(page.getByRole("dialog")).toContainText("Đăng xuất 1 thiết bị khác. Họ sẽ phải đăng nhập lại.");
+  await page.getByRole("dialog").getByRole("button", { name: "Đăng xuất", exact: true }).click();
+  await expect(page.getByText("Không có thiết bị nào khác.")).toBeVisible();
+  await expect(others).toHaveCount(0);
+  expect(calls).toContain("DELETE");
+
+  // đổi mật khẩu
+  const cur = page.getByLabel("Mật khẩu hiện tại", { exact: true });
+  const nw = page.getByLabel("Mật khẩu mới", { exact: true });
+  const again = page.getByLabel("Nhập lại mật khẩu mới", { exact: true });
+  for (const f of [cur, nw, again]) await expect(f).toHaveAttribute("type", "password");
+  await expect(nw).toHaveAttribute("autocomplete", "new-password");
+  await expect(cur).toHaveAttribute("autocomplete", "current-password");
+  const change = page.getByRole("button", { name: "Đổi mật khẩu", exact: true });
+  await expect(change).toHaveAttribute("data-variant", "primary");
+  await cur.fill("sai-mat-khau-hien-tai");
+  await nw.fill("Mat-khau-moi-2026");
+  await again.fill("Mat-khau-moi-2026");
+  await change.click();
+  await expect(page.getByText("Mật khẩu hiện tại chưa đúng.")).toBeVisible();
+  await expect(cur).toHaveAttribute("aria-invalid", "true");
+  await expect(nw).toHaveValue("Mat-khau-moi-2026"); // không mất chữ đã gõ
+  await cur.fill("Edupilot#2026-demo");
+  await change.click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã đổi mật khẩu. Các thiết bị khác đã bị đăng xuất." })).toBeVisible();
+  await expect(cur).toHaveValue("");
+  expect(JSON.parse(pwBody)).toEqual({ current_password: "Edupilot#2026-demo", new_password: "Mat-khau-moi-2026" });
+
+  const text = (await page.locator("main").innerText()).toLowerCase();
+  for (const w of ["session", "token", "refresh", "jwt", "bcrypt"]) expect(text).not.toContain(w);
+});
+
+test("settings security: khung xương, lỗi chuẩn, 375 px dạng danh sách không tràn", async ({ page }) => {
+  await mockAuth(page, { role: "TEACHER", email: "teacher@edupilot.local", loggedIn: true });
+  let fail = true;
+  await page.route("**/api/v1/me/sessions", async (r) => {
+    await new Promise((res) => setTimeout(res, 150));
+    if (fail) return json(r, 500, err("INTERNAL"));
+    return json(r, 200, { items: [dev("s1", "Chrome trên macOS", true)] });
+  });
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto("/settings");
+  await expect(page.getByText("Thiết bị đang đăng nhập")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible({ timeout: 10_000 });
+  fail = false;
+  await page.getByRole("button", { name: "Thử lại" }).click();
+  await expect(page.getByText("Không có thiết bị nào khác.")).toBeVisible();
+  const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
+  const a = await runAudit(page, AUDIT_SRC);
+  expect(a.ox).toBeLessThanOrEqual(0);
+  expect(a.cut).toEqual([]);
+  expect(await page.evaluate(TOUCH_SRC)).toEqual([]);
+});
+
+test("@real reset logs out other device (hai context: máy B bị đăng xuất, /login kèm dòng thông báo)", async () => {
+  test.skip(true, "@real: cần stack Go + Mailpit trên https://localhost — QC chạy tay");
+});
+
 test("@real login + refresh qua Caddy cùng origin (cần stack Go: docker-compose.test.yml)", async () => {
   test.skip(true, "@real: cần stack Go + Caddy trên https://localhost — QC chạy tay");
 });
