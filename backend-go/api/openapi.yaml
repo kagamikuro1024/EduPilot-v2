@@ -1,11 +1,12 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.3.0
+  version: 0.4.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
     build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ; P1 (FEAT-llm-gateway US-P1-04) thêm 13 thao tác `/admin/llm/*` và `/courses/{id}/llm-budget`.
+    P2 (FEAT-account-security US-P2-02) thêm 3 thao tác `/auth/{login,refresh,logout}`: công khai (không Bearer); `refresh`/`logout` dùng cookie `ep_rt` (HttpOnly) + kiểm Origin.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -18,6 +19,7 @@ tags:
   - name: jobs
   - name: events
   - name: llm
+  - name: auth
 paths:
   /healthz:
     get:
@@ -423,6 +425,69 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Đăng nhập bằng email + mật khẩu (công khai); phát access token trong thân và cookie refresh `ep_rt`
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Đã đăng nhập. Refresh token CHỈ nằm ở cookie `ep_rt` (HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth)
+          headers:
+            Set-Cookie:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/auth/refresh:
+    post:
+      operationId: refreshSession
+      tags: [auth]
+      summary: Làm mới phiên bằng cookie `ep_rt` (xoay vòng; dùng lại token cũ thu hồi cả phiên). Cần Origin hợp lệ
+      security: []
+      responses:
+        "200":
+          description: Access token mới (cùng `sid`) và cookie `ep_rt` mới
+          headers:
+            Set-Cookie:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Đăng xuất thiết bị này (luôn 204, idempotent); xoá cookie `ep_rt`. Cần Origin hợp lệ
+      security: []
+      responses:
+        "204":
+          description: Đã đăng xuất (hoặc vốn không có phiên)
+        "403":
+          $ref: "#/components/responses/Forbidden"
   /api/v1/courses/{id}/llm-budget:
     get:
       operationId: getLLMCourseBudget
@@ -494,7 +559,7 @@ components:
       bearerFormat: JWT
   responses:
     Unauthorized:
-      description: Chưa đăng nhập, token hết hạn hoặc không hợp lệ (`UNAUTHENTICATED`, `TOKEN_EXPIRED`, `TOKEN_INVALID`)
+      description: Chưa đăng nhập, token hết hạn / không hợp lệ / phiên bị thu hồi (`UNAUTHENTICATED`, `TOKEN_EXPIRED`, `TOKEN_INVALID`, `SESSION_REVOKED`, `INVALID_CREDENTIALS`)
       headers:
         WWW-Authenticate:
           schema:
@@ -504,7 +569,7 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     Forbidden:
-      description: Sai vai trò hoặc ngoài lớp (`FORBIDDEN`, `details.reason` = `role` | `course`)
+      description: Sai vai trò, ngoài lớp hoặc Origin lạ (`FORBIDDEN`, `details.reason` = `role` | `course` | `origin`); tài khoản bị khoá (`ACCOUNT_DISABLED`)
       content:
         application/json:
           schema:
@@ -552,6 +617,50 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    AuthUser:
+      type: object
+      required: [id, email, full_name, role, status, email_verified]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, TEACHER, TA, STUDENT]
+        status:
+          type: string
+          enum: [PENDING_VERIFICATION, INVITED, ACTIVE, DISABLED]
+        email_verified:
+          type: boolean
+    SessionResponse:
+      type: object
+      required: [access_token, token_type, expires_in, user]
+      additionalProperties: false
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          enum: [Bearer]
+        expires_in:
+          type: integer
+          minimum: 1
+        user:
+          $ref: "#/components/schemas/AuthUser"
     Health:
       type: object
       required: [status]
@@ -1035,6 +1144,12 @@ components:
             - PROVIDER_IN_USE
             - MODEL_DIMS_MISMATCH
             - ROUTE_INVALID
+            - INVALID_CREDENTIALS
+            - LOGIN_THROTTLED
+            - ACCOUNT_DISABLED
+            - SESSION_REVOKED
+            - LINK_INVALID
+            - EMAIL_NOT_VERIFIED
         message:
           type: string
         trace_id:

@@ -55,7 +55,10 @@ type Config struct {
 	WorkerHealthAddr string
 
 	CORSOrigins         []string
-	JWTExpiration       time.Duration
+	AccessTokenTTL      time.Duration
+	RefreshTokenTTL     time.Duration
+	SessionAbsoluteTTL  time.Duration
+	CookieDomain        string
 	BcryptCost          int
 	RateLimitIPPerMin   int
 	RateLimitUserPerMin int
@@ -180,7 +183,13 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.WorkerHealthAddr = l.str("WORKER_HEALTH_ADDR", ":8081")
 
 	c.CORSOrigins = l.origins("CORS_ORIGINS", "http://localhost:3000,https://localhost")
-	c.JWTExpiration = l.dur("JWT_EXPIRATION", 15*time.Minute)
+	c.AccessTokenTTL = l.durRange("ACCESS_TOKEN_TTL", 15*time.Minute, time.Minute, time.Hour)
+	c.RefreshTokenTTL = l.durRange("REFRESH_TOKEN_TTL", 336*time.Hour, time.Hour, 0)
+	c.SessionAbsoluteTTL = l.durRange("SESSION_ABSOLUTE_TTL", 720*time.Hour, time.Hour, 0)
+	if c.SessionAbsoluteTTL < c.RefreshTokenTTL {
+		l.bad("SESSION_ABSOLUTE_TTL", "phải ≥ REFRESH_TOKEN_TTL")
+	}
+	c.CookieDomain = l.str("COOKIE_DOMAIN", "")
 	c.BcryptCost = l.num("BCRYPT_COST", 12, 4, 14)
 	c.RateLimitIPPerMin = l.num("RATE_LIMIT_IP_PER_MIN", 300, 1, 1_000_000)
 	c.RateLimitUserPerMin = l.num("RATE_LIMIT_USER_PER_MIN", 600, 1, 1_000_000)
@@ -290,7 +299,9 @@ func (c Config) LogAttrs() []any {
 		"max_body_bytes", c.MaxBodyBytes,
 		"worker_health_addr", c.WorkerHealthAddr,
 		"cors_origins", strings.Join(c.CORSOrigins, ","),
-		"jwt_expiration", c.JWTExpiration.String(),
+		"access_token_ttl", c.AccessTokenTTL.String(),
+		"refresh_token_ttl", c.RefreshTokenTTL.String(),
+		"session_absolute_ttl", c.SessionAbsoluteTTL.String(),
 		"bcrypt_cost", c.BcryptCost,
 		"rate_limit_ip_per_min", c.RateLimitIPPerMin,
 		"rate_limit_user_per_min", c.RateLimitUserPerMin,
@@ -433,6 +444,16 @@ func (l *loader) dur(name string, def time.Duration) time.Duration {
 	d, err := time.ParseDuration(v)
 	if err != nil || d <= 0 {
 		l.bad(name, "cần thời lượng dương kiểu Go (ví dụ 30s, 15m, 1h)")
+		return def
+	}
+	return d
+}
+
+// durRange như dur nhưng giới hạn [min, max]; max = 0 là không chặn trên.
+func (l *loader) durRange(name string, def, lo, hi time.Duration) time.Duration {
+	d := l.dur(name, def)
+	if d < lo || (hi > 0 && d > hi) {
+		l.bad(name, "ngoài khoảng cho phép")
 		return def
 	}
 	return d

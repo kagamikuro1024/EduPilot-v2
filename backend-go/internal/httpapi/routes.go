@@ -1,7 +1,10 @@
 package httpapi
 
 import (
+	"net/http"
+
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/go-chi/chi/v5"
@@ -13,8 +16,20 @@ import (
 func registerAPIRoutes(r chi.Router, d Deps) {
 	r.Use(rateLimitMiddleware(d))
 
+	mw := []auth.MiddlewareOption{}
+	if d.Sessions != nil {
+		// US-P2-02: các đường /auth/* công khai (không Bearer) và kiểm thu hồi cho mọi API có Bearer.
+		(&authhttp.Handler{
+			Sessions: d.Sessions, Cfg: d.Cfg, Log: d.Log, ClientIP: func(r *http.Request) string { return clientIP(r, d) },
+		}).Mount(r)
+		mw = append(mw, auth.WithRevocation(d.Sessions))
+	}
+	if d.Cfg.AppEnv == "production" {
+		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
+	}
+
 	r.Group(func(r chi.Router) {
-		r.Use(auth.Middleware(d.Verifier))
+		r.Use(auth.Middleware(d.Verifier, mw...))
 		if d.Jobs != nil {
 			// US-PG-03 FR-35/36 — handler việc dài của internal/jobs (chủ job hoặc ADMIN, người khác 404).
 			r.Get("/jobs/{id}", jobs.Handler(d.Jobs))

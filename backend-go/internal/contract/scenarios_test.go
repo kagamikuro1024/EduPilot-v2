@@ -276,6 +276,46 @@ func (r *runner) prodScenarios() {
 		c()
 	}
 	r.llmScenarios()
+	r.authScenarios()
+}
+
+// authScenarios gọi 3 thao tác phiên (FEAT-account-security US-P2-02) với mọi status đã khai báo.
+func (r *runner) authScenarios() {
+	const password = "Edupilot#2026-demo"
+	ctx := context.Background()
+	hash, err := auth.HashPassword(password, 4)
+	if err != nil {
+		r.t.Fatalf("băm mật khẩu: %v", err)
+	}
+	mk := func(email, status string) {
+		if _, err := r.rig.deps.DB.Exec(ctx,
+			`insert into users (email, full_name, role, status, password_hash) values ($1, 'Người Thử', 'STUDENT', $2::user_status, $3)`,
+			email, status, hash); err != nil {
+			r.t.Fatalf("tạo người dùng: %v", err)
+		}
+	}
+	email, off := "ct-"+uuid.NewString()[:8]+"@example.test", "ct-off-"+uuid.NewString()[:8]+"@example.test"
+	mk(email, "ACTIVE")
+	mk(off, "DISABLED")
+	origin := map[string]string{"Origin": "https://localhost"}
+	login := func(e, p string, want int) (http.Header, []byte) {
+		return r.must(call{method: "POST", path: "/api/v1/auth/login", headers: origin, body: `{"email":"` + e + `","password":"` + p + `"}`}, want)
+	}
+	login(email, "sai-mat-khau-1", 401)
+	login(off, password, 403)
+	r.must(call{method: "POST", path: "/api/v1/auth/login", body: `{"email":"` + email + `"}`}, 422)
+	h, _ := login(email, password, 200)
+	rt := strings.TrimPrefix(strings.SplitN(h.Get("Set-Cookie"), ";", 2)[0], "ep_rt=")
+	cookie := func(v string) map[string]string {
+		return map[string]string{"Origin": "https://localhost", "Cookie": "ep_rt=" + v}
+	}
+
+	r.must(call{method: "POST", path: "/api/v1/auth/refresh", headers: map[string]string{"Origin": "https://evil.example", "Cookie": "ep_rt=" + rt}}, 403)
+	r.must(call{method: "POST", path: "/api/v1/auth/refresh", headers: origin}, 401)
+	h, _ = r.must(call{method: "POST", path: "/api/v1/auth/refresh", headers: cookie(rt)}, 200)
+	rt2 := strings.TrimPrefix(strings.SplitN(h.Get("Set-Cookie"), ";", 2)[0], "ep_rt=")
+	r.must(call{method: "POST", path: "/api/v1/auth/logout", headers: map[string]string{"Origin": "https://evil.example"}}, 403)
+	r.must(call{method: "POST", path: "/api/v1/auth/logout", headers: cookie(rt2)}, 204)
 }
 
 // llmScenarios gọi 13 thao tác cấu hình LLM (FEAT-llm-gateway US-P1-04) với mọi status đã khai báo, trên provider `fake`.

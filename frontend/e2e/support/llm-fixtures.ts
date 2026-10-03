@@ -1,8 +1,9 @@
 import type { Page } from "@playwright/test";
-import { asDemo } from "./session";
+import { API_URL as API } from "./env";
+import { asJwt } from "./session";
 
 // Dữ liệu theo HỢP ĐỒNG THẬT của gateway (backend-go/api/openapi.yaml + golden/llm/*.json) cho máy chủ giả ở :3312.
-export const API = "http://localhost:3312";
+export { API };
 const id = (n: number) => `00000000-0000-7000-8000-${String(n).padStart(12, "0")}`;
 export const IDS = { openai: id(1), gemini: id(2), m1: id(11), m2: id(12), m3: id(13), e1: id(21), e2: id(22) };
 
@@ -51,11 +52,6 @@ export const usage = (items: unknown[] = [
 
 export const err = (status: number, code: string, extra: Record<string, unknown> = {}) => ({ status, body: { code, message: "m", trace_id: "b".repeat(32), ...extra } });
 
-export function jwt(role: "ADMIN" | "TEACHER") {
-  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
-  return `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub: "00000000-0000-7000-8000-0000000000a0", role, email: role === "ADMIN" ? "admin@ptit.edu.vn" : "gv@ptit.edu.vn", exp: 4102444800 })}.c2ln`;
-}
-
 type Step = Record<string, unknown>;
 export const script = (page: Page, s: Record<string, Step[]>) => page.request.post(`${API}/__ctl/script`, { data: s });
 export const reset = (page: Page) => page.request.post(`${API}/__ctl/reset`);
@@ -74,12 +70,11 @@ export const base = (over: Record<string, Step[]> = {}): Record<string, Step[]> 
   ...over,
 });
 
-/** Mở /settings/llm: phiên mô phỏng → dán token (bộ nhớ) ở cổng dev → màn thật. `scripts` ghi đè phản hồi mặc định. */
-export async function openLlm(page: Page, context: Parameters<typeof asDemo>[0], role: "ADMIN" | "TEACHER", scripts: Record<string, Step[]> = {}) {
+/** Mở /settings/llm bằng phiên đăng nhập thật giả lập (refresh → JWT của `role`). `scripts` ghi đè phản hồi mặc định. */
+export async function openLlm(page: Page, role: "ADMIN" | "TEACHER", scripts: Record<string, Step[]> = {}) {
   await reset(page);
   await script(page, base(scripts));
-  await asDemo(context, role === "ADMIN" ? "admin" : "teacher");
+  const calls = await asJwt(page, role, { email: role === "ADMIN" ? "admin@ptit.edu.vn" : "gv@ptit.edu.vn" });
   await page.goto("/settings/llm");
-  await page.locator("main input[type=password]").fill(jwt(role));
-  await page.getByRole("button", { name: "Dùng token" }).click();
+  return calls;
 }

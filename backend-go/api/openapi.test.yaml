@@ -896,6 +896,12 @@ components:
             - PROVIDER_IN_USE
             - MODEL_DIMS_MISMATCH
             - ROUTE_INVALID
+            - INVALID_CREDENTIALS
+            - LOGIN_THROTTLED
+            - ACCOUNT_DISABLED
+            - SESSION_REVOKED
+            - LINK_INVALID
+            - EMAIL_NOT_VERIFIED
         message:
           type: string
         trace_id:

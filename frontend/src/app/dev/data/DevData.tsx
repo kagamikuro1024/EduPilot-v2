@@ -215,7 +215,7 @@ function Token() {
   return (
     <section className={s.block} data-part="token" aria-label="Token">
       <h2 className="ep-section-title">Token</h2>
-      <Field label="Dán token">{(id) => <Input id={id} type="password" value={t} onChange={(e) => setT(e.target.value)} />}</Field>
+      <Field label="Token thử">{(id) => <Input id={id} type="password" value={t} onChange={(e) => setT(e.target.value)} />}</Field>
       <div className={s.row}>
         <Button onClick={() => { tokenStore.set(t); setT(""); }}>Dùng</Button>
       </div>

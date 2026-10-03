@@ -34,6 +34,12 @@ export const ERROR_MESSAGES: Record<string, string> = {
   PROVIDER_IN_USE: "Nhà cung cấp này đang được dùng. Chuyển các tác vụ sang nhà khác trước.",
   MODEL_DIMS_MISMATCH: "Mô hình này không dùng được cho tìm kiếm tài liệu (sai số chiều).",
   ROUTE_INVALID: "Cấu hình tác vụ chưa hợp lệ.",
+  INVALID_CREDENTIALS: "Email hoặc mật khẩu không đúng.",
+  LOGIN_THROTTLED: "Bạn đã thử quá nhiều lần. Thử lại sau {n}.",
+  ACCOUNT_DISABLED: "Tài khoản đã bị khoá. Hãy liên hệ quản trị viên.",
+  SESSION_REVOKED: "Bạn đã bị đăng xuất. Hãy đăng nhập lại.",
+  LINK_INVALID: "Liên kết đã hết hạn hoặc đã được dùng.",
+  EMAIL_NOT_VERIFIED: "Hãy xác minh email trước khi vào lớp.",
   // mã phía client
   BAD_GATEWAY: "Máy chủ chưa phản hồi đúng. Dữ liệu của bạn vẫn an toàn.",
   NETWORK: "Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.",

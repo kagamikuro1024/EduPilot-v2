@@ -34,6 +34,7 @@ test.describe("font", () => {
 test("tabular: số trong bảng canh theo chữ số bằng nhau (/gradebook, giảng viên)", async ({ page, context }) => {
   await asDemo(context, "teacher");
   await page.goto("/gradebook");
+  await page.locator("[data-part=topbar]").waitFor();
   const cells = page.locator("td, th");
   await expect(cells.first()).toBeVisible();
   const n = await cells.count();
@@ -45,6 +46,7 @@ test("tabular: số trong bảng canh theo chữ số bằng nhau (/gradebook, g
 test("diacritics: dấu tiếng Việt không bị cắt ở h1, h2, nút, ô nhập", async ({ page, context }) => {
   await asDemo(context, "teacher");
   await page.goto("/students");
+  await page.locator("[data-part=topbar]").waitFor();
   const res = await page.evaluate(() => {
     const text = "Ặ Ế Ộ Ử Ữ Ầ";
     const mk = (tag: string, cls = "") => {

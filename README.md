@@ -136,7 +136,7 @@ docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot up 
 | --- | --- | --- |
 | caddy | https://localhost | cửa vào duy nhất: `/api/*` → gateway, còn lại → frontend; chứng chỉ "Caddy Local Authority" |
 | gateway | https://localhost/api/v1/healthz | `{"status":"ok"}`; `/api/v1/readyz` kiểm DB + Redis. Không công bố cổng riêng (nhân bản được) |
-| frontend | http://localhost:3000 | Next.js |
+| frontend | http://localhost:3000 | Next.js chạy trực tiếp — **không dùng được để đăng nhập** (khác scheme/site với API nên trình duyệt không gửi cookie `SameSite=Lax` kèm `fetch`). Đăng nhập và mọi thao tác thật: https://localhost (Caddy, cùng một origin) |
 | mailpit | http://localhost:8025 | hộp thư giả; SMTP `localhost:1025` |
 | minio | http://localhost:9001 | console object storage |
 | postgres | `localhost:5433` | user/db `edupilot`; ứng dụng đi qua PgBouncer (trong mạng compose) |
@@ -150,7 +150,7 @@ Không ghi secret vào repo. Khoá LLM thật chỉ đặt trong `.env.local` (�
 ```bash
 pnpm -C frontend build && pnpm -C frontend start     # http://localhost:3000
 ```
-`/login` → chọn vai (Sinh viên chọn tiếp A/B/C/D); menu hồ sơ → `Đổi vai`, `Đặt lại dữ liệu demo`. Dữ liệu là mô phỏng (`frontend/src/mock/`), trạng thái lưu ở trình duyệt; màn mock được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
+`/login` là màn đăng nhập thật (email + mật khẩu, cần stack `pnpm dev` và mở qua https://localhost). Công cụ chọn vai mô phỏng (Sinh viên A/B/C/D, `Đổi vai`, `Đặt lại dữ liệu demo`) chỉ còn ở bản dựng `NEXT_PUBLIC_DEV_TOOLS=1` (`pnpm -C frontend build:gate`), mục "Tài khoản mẫu" dưới form. Dữ liệu là mô phỏng (`frontend/src/mock/`), trạng thái lưu ở trình duyệt; màn mock được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
 
 ## 6. Kiểm thử và CI
 

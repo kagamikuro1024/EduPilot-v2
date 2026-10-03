@@ -3,7 +3,7 @@ import { BASE_URL } from "./support/env";
 import { expect, test, type Page } from "@playwright/test";
 import { MOBILE_PRIMARY, navFor } from "../src/shared/shell/nav";
 import { loadAudit } from "./support/audit";
-import { asDemo, type DemoRole } from "./support/session";
+import { asDemo, asJwt, sessionBody, type DemoRole } from "./support/session";
 
 // US-PU-04: khung ứng dụng. Chỉ chạy ở dự án desktop (tự đặt bề rộng); bản dựng `build:gate` (mock bật, DEV_AUTH bật).
 // Ca `no-backend` chạy ở bản dựng NEXT_PUBLIC_MOCK_SCREENS=0; các ca còn lại bị bỏ qua ở bản đó.
@@ -16,11 +16,6 @@ const mockOnly = () => test.skip(MOCK_OFF, "bản dựng MOCK_SCREENS=0");
 const ROLES: DemoRole[] = ["student", "ta", "teacher", "admin"];
 const size = (page: Page, width: number, height = 900) => page.setViewportSize({ width, height });
 const box = (page: Page, sel: string) => page.locator(sel).first().evaluate((e) => ({ w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height }));
-
-function jwt(role: string, opts: { expIn?: number; email?: string } = {}) {
-  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
-  return `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub: "00000000-0000-7000-8000-0000000000a0", role, email: opts.email ?? "admin@ptit.edu.vn", exp: Math.floor(Date.now() / 1000) + (opts.expIn ?? 1800) })}.c2ln`;
-}
 
 test("metrics: sidebar 216 / 72 / ẩn; header 56; thu gọn nhớ ở ep:ui:sidebar", async ({ page, context }) => {
   mockOnly();
@@ -277,58 +272,34 @@ test("notifications: chấm theo unread, mở không xoá chấm, rỗng, thông
 });
 
 test.describe("session", () => {
-  test("token ADMIN hợp lệ → phiên jwt: nav Admin, không đổi vai, có Đăng xuất; Đăng xuất xoá token", async ({ page, context }) => {
-    await asDemo(context, "teacher"); // cookie nói GV; claim nói ADMIN ⇒ claim thắng
-    await page.goto("/settings/llm");
-    await expect(page.getByRole("heading", { name: "Dán token quản trị để tiếp tục" })).toBeVisible();
-    const pw = page.locator("main input[type=password]");
-    await expect(pw).toHaveAttribute("autocomplete", "off");
-    const before = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }));
-    for (const bad of ["abc", "a.b.c", "   "]) {
-      await pw.fill(bad);
-      await page.getByRole("button", { name: "Dùng token" }).click();
-      await expect(page.getByText("Token không hợp lệ.")).toBeVisible();
-    }
-    await pw.fill(jwt("SUPERUSER"));
-    await page.getByRole("button", { name: "Dùng token" }).click();
-    await expect(page.getByText("Token không hợp lệ.")).toBeVisible();
-    await pw.fill(jwt("ADMIN", { expIn: -60 }));
-    await page.getByRole("button", { name: "Dùng token" }).click();
-    await expect(page.getByText("Phiên đã hết hạn")).toBeVisible();
-    expect(await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }))).toBe(before);
-
-    const tok = jwt("ADMIN");
-    await pw.fill(tok);
-    await page.getByRole("button", { name: "Dùng token" }).click();
-    await expect(page.locator("main input[type=password]")).toHaveCount(0);
+  test("phiên ADMIN thật: nav Admin, không đổi vai, có Đăng xuất; token không lộ ra storage / DOM / URL", async ({ page, context }) => {
+    await context.clearCookies();
+    const calls = await asJwt(page, "ADMIN", { email: "admin@ptit.edu.vn", fullName: "Quản Trị Thử" });
+    await page.goto("/");
+    await expect(page.locator("[data-part=sidebar] nav a").first()).toBeVisible();
+    expect(calls.refresh).toBe(1);
     const nav = await page.locator("[data-part=sidebar] nav a").allTextContents();
     expect(nav.map((t) => t.trim())).toEqual(NAV.admin.map((r) => r[0]));
+    const tok = sessionBody("ADMIN", { email: "admin@ptit.edu.vn" }).access_token.split(".")[1];
     expect(await page.evaluate((t) => document.body.innerHTML.includes(t) || JSON.stringify({ ...localStorage }).includes(t) || document.cookie.includes(t) || location.href.includes(t), tok)).toBe(false);
+    expect(await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }))).not.toContain("eyJ");
     await page.getByRole("button", { name: /^Tài khoản: / }).click();
     await expect(page.getByText("Đổi vai")).toHaveCount(0);
     await expect(page.getByText("admin@ptit.edu.vn").first()).toBeVisible();
-    // màn mock dùng người mock cùng vai, bỏ qua cookie GV
     await page.getByRole("menuitem", { name: "Đăng xuất" }).click();
-    await expect(page.locator("main input[type=password]")).toBeVisible(); // token xoá → phiên demo → cổng
-    const nav2 = await page.locator("[data-part=sidebar] nav a").allTextContents();
-    expect(nav2).toHaveLength(15); // GV (cookie)
+    await expect(page).toHaveURL(/\/login$/);
+    expect(calls.logout).toBe(1);
   });
 
-  test("phiên jwt STUDENT: màn mock dùng sv-2, bỏ qua cookie", async ({ page, context }) => {
+  test("phiên STUDENT thật: màn mock dùng sv-2 + tên thật, SV bị chặn /settings/llm", async ({ page }) => {
     mockOnly();
-    await asDemo(context, "ta");
+    await asJwt(page, "STUDENT", { email: "sv@ptit.edu.vn", fullName: "Sinh Viên Thử" });
     await page.goto("/settings/llm");
-    // TA bị chặn ở /settings/llm ⇒ vào bằng GV để dán token
-    await context.clearCookies();
-    await asDemo(context, "teacher");
-    await page.goto("/settings/llm");
-    await page.locator("main input[type=password]").fill(jwt("STUDENT", { email: "sv@ptit.edu.vn" }));
-    await page.getByRole("button", { name: "Dùng token" }).click();
     await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" })).toBeVisible();
     await page.getByRole("link", { name: "Về Hôm nay" }).click();
     expect((await page.locator("[data-part=sidebar] nav a").allTextContents()).map((t) => t.trim())).toEqual(NAV.student.map((r) => r[0]));
     await page.locator("[data-part=sidebar]").getByRole("link", { name: "Chat riêng" }).click(); // điều hướng trong trang: token ở bộ nhớ không mất
-    await expect(page.getByRole("button", { name: /^Tài khoản: sv@ptit\.edu\.vn/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^Tài khoản: Sinh Viên Thử/ })).toBeVisible();
   });
 });
 

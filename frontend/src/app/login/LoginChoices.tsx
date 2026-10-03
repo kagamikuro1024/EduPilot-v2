@@ -14,7 +14,7 @@ const ROLES: Array<{ role: Role; sees: string }> = [
   { role: "admin", sees: "Quan sát AI, cấu hình LLM, lớp học và người dùng" },
 ];
 
-export function LoginChoices() {
+export default function LoginChoices() {
   const router = useRouter();
   const [pickStudent, setPickStudent] = useState(false);
 

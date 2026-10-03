@@ -17,3 +17,6 @@ select * from users where id = sqlc.arg(id);
 
 -- name: GetUserByEmail :one
 select * from users where email = sqlc.arg(email);
+
+-- name: TouchLastLogin :exec
+update users set last_login_at = sqlc.arg(now)::timestamptz where id = sqlc.arg(id);

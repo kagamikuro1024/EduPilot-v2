@@ -7,10 +7,22 @@ package store
 
 import (
 	"context"
+	"net/netip"
 	"time"
 
 	"github.com/google/uuid"
 )
+
+const getAuthSessionRevokedReason = `-- name: GetAuthSessionRevokedReason :one
+select revoked_reason from auth_sessions where id = $1
+`
+
+func (q *Queries) GetAuthSessionRevokedReason(ctx context.Context, id uuid.UUID) (*string, error) {
+	row := q.db.QueryRow(ctx, getAuthSessionRevokedReason, id)
+	var revoked_reason *string
+	err := row.Scan(&revoked_reason)
+	return revoked_reason, err
+}
 
 const getAuthTokenByHash = `-- name: GetAuthTokenByHash :one
 select id, user_id, kind, token_hash, expires_at, used_at, revoked_at, created_by, created_at from auth_tokens where token_hash = $1
@@ -29,6 +41,60 @@ func (q *Queries) GetAuthTokenByHash(ctx context.Context, tokenHash string) (Aut
 		&i.RevokedAt,
 		&i.CreatedBy,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertAuthSession = `-- name: InsertAuthSession :one
+
+insert into auth_sessions (user_id, refresh_hash, user_agent, device_label, ip, created_at, last_used_at, expires_at, absolute_expires_at)
+values (
+    $1, $2, $3, $4, $5,
+    $6, $6, $7, $8
+)
+returning id, user_id, refresh_hash, prev_refresh_hash, user_agent, device_label, ip, created_at, rotated_at, last_used_at, expires_at, absolute_expires_at, revoked_at, revoked_reason, updated_at
+`
+
+type InsertAuthSessionParams struct {
+	UserID            uuid.UUID
+	RefreshHash       string
+	UserAgent         *string
+	DeviceLabel       *string
+	Ip                *netip.Addr
+	Now               time.Time
+	ExpiresAt         time.Time
+	AbsoluteExpiresAt time.Time
+}
+
+// Phiên đăng nhập (SRS FEAT-account-security 5.2). Thời điểm do ứng dụng truyền vào (đồng hồ giả được trong test).
+func (q *Queries) InsertAuthSession(ctx context.Context, arg InsertAuthSessionParams) (AuthSession, error) {
+	row := q.db.QueryRow(ctx, insertAuthSession,
+		arg.UserID,
+		arg.RefreshHash,
+		arg.UserAgent,
+		arg.DeviceLabel,
+		arg.Ip,
+		arg.Now,
+		arg.ExpiresAt,
+		arg.AbsoluteExpiresAt,
+	)
+	var i AuthSession
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshHash,
+		&i.PrevRefreshHash,
+		&i.UserAgent,
+		&i.DeviceLabel,
+		&i.Ip,
+		&i.CreatedAt,
+		&i.RotatedAt,
+		&i.LastUsedAt,
+		&i.ExpiresAt,
+		&i.AbsoluteExpiresAt,
+		&i.RevokedAt,
+		&i.RevokedReason,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -73,6 +139,82 @@ func (q *Queries) InsertAuthToken(ctx context.Context, arg InsertAuthTokenParams
 	return i, err
 }
 
+const insertLoginAttempt = `-- name: InsertLoginAttempt :exec
+insert into login_attempts (email_hash, user_id, ip, user_agent, outcome, created_at)
+values ($1, $2, $3, $4, $5, $6)
+`
+
+type InsertLoginAttemptParams struct {
+	EmailHash string
+	UserID    *uuid.UUID
+	Ip        *netip.Addr
+	UserAgent *string
+	Outcome   LoginOutcome
+	Now       time.Time
+}
+
+func (q *Queries) InsertLoginAttempt(ctx context.Context, arg InsertLoginAttemptParams) error {
+	_, err := q.db.Exec(ctx, insertLoginAttempt,
+		arg.EmailHash,
+		arg.UserID,
+		arg.Ip,
+		arg.UserAgent,
+		arg.Outcome,
+		arg.Now,
+	)
+	return err
+}
+
+const lockAuthSessionByRefresh = `-- name: LockAuthSessionByRefresh :one
+select id, user_id, refresh_hash, prev_refresh_hash, user_agent, device_label, ip, created_at, rotated_at, last_used_at, expires_at, absolute_expires_at, revoked_at, revoked_reason, updated_at from auth_sessions
+where refresh_hash = $1 or prev_refresh_hash = $1
+for update
+`
+
+// Khoá hàng của phiên có refresh hiện tại HOẶC thế hệ trước; hai yêu cầu cùng phiên chạy tuần tự.
+func (q *Queries) LockAuthSessionByRefresh(ctx context.Context, hash string) (AuthSession, error) {
+	row := q.db.QueryRow(ctx, lockAuthSessionByRefresh, hash)
+	var i AuthSession
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.RefreshHash,
+		&i.PrevRefreshHash,
+		&i.UserAgent,
+		&i.DeviceLabel,
+		&i.Ip,
+		&i.CreatedAt,
+		&i.RotatedAt,
+		&i.LastUsedAt,
+		&i.ExpiresAt,
+		&i.AbsoluteExpiresAt,
+		&i.RevokedAt,
+		&i.RevokedReason,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const revokeAuthSession = `-- name: RevokeAuthSession :execrows
+update auth_sessions
+set revoked_at = $1::timestamptz, revoked_reason = $2::text
+where id = $3 and revoked_at is null
+`
+
+type RevokeAuthSessionParams struct {
+	Now    time.Time
+	Reason string
+	ID     uuid.UUID
+}
+
+func (q *Queries) RevokeAuthSession(ctx context.Context, arg RevokeAuthSessionParams) (int64, error) {
+	result, err := q.db.Exec(ctx, revokeAuthSession, arg.Now, arg.Reason, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const revokeUnusedAuthTokens = `-- name: RevokeUnusedAuthTokens :execrows
 update auth_tokens
 set revoked_at = now()
@@ -93,4 +235,31 @@ func (q *Queries) RevokeUnusedAuthTokens(ctx context.Context, arg RevokeUnusedAu
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const rotateAuthSession = `-- name: RotateAuthSession :exec
+update auth_sessions
+set prev_refresh_hash = refresh_hash,
+    refresh_hash = $1,
+    rotated_at = $2::timestamptz,
+    last_used_at = $2::timestamptz,
+    expires_at = $3
+where id = $4
+`
+
+type RotateAuthSessionParams struct {
+	NewHash   string
+	Now       time.Time
+	ExpiresAt time.Time
+	ID        uuid.UUID
+}
+
+func (q *Queries) RotateAuthSession(ctx context.Context, arg RotateAuthSessionParams) error {
+	_, err := q.db.Exec(ctx, rotateAuthSession,
+		arg.NewHash,
+		arg.Now,
+		arg.ExpiresAt,
+		arg.ID,
+	)
+	return err
 }

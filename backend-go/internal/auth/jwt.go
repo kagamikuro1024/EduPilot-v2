@@ -18,7 +18,7 @@ const (
 	leeway        = 5 * time.Second
 	jtiBytes      = 16 // 128 bit → 22 ký tự base64url không đệm
 
-	// DefaultTTL là hạn mặc định của token (JWT_EXPIRATION mặc định 15 phút).
+	// DefaultTTL là hạn mặc định của token (ACCESS_TOKEN_TTL mặc định 15 phút).
 	DefaultTTL = 15 * time.Minute
 )
 
@@ -32,6 +32,8 @@ var (
 type claims struct {
 	Role  string `json:"role"`
 	Email string `json:"email"`
+	// SID là id phiên (auth_sessions.id); token dev của `gateway token` không có.
+	SID string `json:"sid,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -53,14 +55,23 @@ func NewIssuer(secret string, ttl time.Duration, clk clock.Clock) *Issuer {
 	return &Issuer{secret: []byte(secret), ttl: ttl, clk: clk}
 }
 
-// Issue ký một token cho (sub, role, email). Payload đúng 9 claim của 04-AC1.
+// Issue ký một token dev cho (sub, role, email): đúng 9 claim của 04-AC1, KHÔNG có `sid` (không gắn phiên thật).
 func (i *Issuer) Issue(sub string, role Role, email string) (string, error) {
+	return i.issue(sub, role, email, "")
+}
+
+// IssueSession ký access token của một phiên đăng nhập: 9 claim cộng `sid` (id `auth_sessions`), để thu hồi được.
+func (i *Issuer) IssueSession(sub string, role Role, email, sid string) (string, error) {
+	return i.issue(sub, role, email, sid)
+}
+
+func (i *Issuer) issue(sub string, role Role, email, sid string) (string, error) {
 	jti, err := newJTI()
 	if err != nil {
 		return "", err
 	}
 	now := i.clk.Now()
-	tok := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+	m := jwt.MapClaims{
 		"sub":   sub,
 		"role":  string(role),
 		"email": email,
@@ -70,8 +81,11 @@ func (i *Issuer) Issue(sub string, role Role, email string) (string, error) {
 		"exp":   now.Add(i.ttl).Unix(),
 		"iss":   tokenIssuer,
 		"aud":   tokenAudience,
-	})
-	return tok.SignedString(i.secret)
+	}
+	if sid != "" {
+		m["sid"] = sid
+	}
+	return jwt.NewWithClaims(jwt.SigningMethodHS256, m).SignedString(i.secret)
 }
 
 // newJTI sinh 128 bit ngẫu nhiên mã base64url không đệm (22 ký tự).
@@ -119,9 +133,12 @@ func (v *Verifier) Verify(raw string) (Principal, error) {
 	if !role.Valid() || c.Subject == "" {
 		return Principal{}, ErrTokenInvalid
 	}
-	p := Principal{Sub: c.Subject, Role: role, Email: c.Email, JTI: c.ID}
+	p := Principal{Sub: c.Subject, Role: role, Email: c.Email, JTI: c.ID, SessionID: c.SID}
 	if c.ExpiresAt != nil {
 		p.ExpiresAt = c.ExpiresAt.Time
+	}
+	if c.IssuedAt != nil {
+		p.IssuedAt = c.IssuedAt.Time
 	}
 	return p, nil
 }

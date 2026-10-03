@@ -42,6 +42,8 @@ type Deps struct {
 	Publisher sse.Publisher
 	Jobs      *jobs.Service
 	LLM       *llmrt.Runtime
+	// Sessions: đăng nhập / làm mới / thu hồi (US-P2-02). Trống thì dựng từ Cfg + DB + Redis.
+	Sessions *auth.Sessions
 }
 
 // now là đồng hồ của request (Clock trống → đồng hồ hệ thống).
@@ -103,6 +105,13 @@ func withDefaults(d Deps) Deps {
 	}
 	if d.Jobs == nil && d.DB != nil {
 		d.Jobs = jobs.NewService(d.DB)
+	}
+	if d.Sessions == nil && d.DB != nil {
+		cfg := auth.SessionConfig{
+			AccessTTL: d.Cfg.AccessTokenTTL, RefreshTTL: d.Cfg.RefreshTokenTTL,
+			AbsoluteTTL: d.Cfg.SessionAbsoluteTTL, BcryptCost: d.Cfg.BcryptCost,
+		}
+		d.Sessions = auth.NewSessions(d.DB, d.Redis, d.Clock, auth.NewIssuer(d.Cfg.JWTSecretKey, d.Cfg.AccessTokenTTL, d.Clock), cfg, d.Log)
 	}
 	return d
 }

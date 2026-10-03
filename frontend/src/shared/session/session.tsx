@@ -3,9 +3,11 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { COURSES, COURSE_1, STAFF, STUDENTS, type Course, type Person, type Role } from "@/mock/core";
+import { isSeedAccount, mockStudentFor } from "@/mock/identity";
 import { KEYS, MEMBERS_SEED, type MembersState } from "@/mock/state";
 import { tokenStore } from "@/shared/data/tokenStore";
 import { useDemoSlice } from "@/shared/state/demo";
+import { useAuth } from "./AuthProvider";
 import { ALL_COURSES, COURSE_COOKIE, PERSON_COOKIE, ROLE_COOKIE, writeDemoCookie } from "./cookies";
 import { checkToken, type Claims } from "./jwt";
 
@@ -25,14 +27,12 @@ type Session = {
   /** đổi vai (và người, nếu là sinh viên) tại chỗ */
   switchTo: (role: Role, personId?: string) => void;
   setCourse: (id: string) => void;
-  /** `jwt`: token hợp lệ trong bộ nhớ (vai từ claim, cookie `ep_demo_*` bị bỏ qua); `demo`: cookie mô phỏng. */
+  /** `jwt`: phiên đăng nhập thật (vai từ claim, cookie `ep_demo_*` bị bỏ qua); `demo`: cookie mô phỏng, chỉ ở build NEXT_PUBLIC_DEV_TOOLS=1. */
   source: "jwt" | "demo";
   /** claim của phiên `jwt` (sub, email, role) — chỉ giải mã, không xác minh */
   identity: Claims | null;
-  /** xoá token → quay về phiên `demo` */
+  /** đăng xuất thiết bị này rồi về /login */
   logout: () => void;
-  /** phiên `jwt` vừa hết hạn / bị gateway từ chối (cổng dán token hiện "Phiên đã hết hạn") */
-  expired: boolean;
 };
 
 const SessionContext = createContext<Session | null>(null);
@@ -46,19 +46,20 @@ function studentCourseIds(studentId: string, members: MembersState): string[] {
 }
 
 export function SessionProvider({
-  initialRole,
-  initialPersonId,
-  initialCourseId,
+  demo,
+  fullName,
   children,
 }: {
-  initialRole: Role;
-  initialPersonId: string;
-  initialCourseId: string;
+  /** phiên mô phỏng từ cookie (chỉ khi chưa có phiên thật); null/undefined khi đã đăng nhập thật */
+  demo?: { role: Role; person: string; course: string } | null;
+  /** họ tên thật từ phiên đăng nhập (dùng cho người không có trong bảng ánh xạ mock) */
+  fullName?: string;
   children: React.ReactNode;
 }) {
-  const [cookieRole, setRole] = useState<Role>(initialRole);
-  const [cookiePersonId, setPersonId] = useState(initialPersonId);
-  const [cookieCourseId, setCourseId] = useState(initialCourseId);
+  const auth = useAuth();
+  const [cookieRole, setRole] = useState<Role>(demo?.role ?? "student");
+  const [cookiePersonId, setPersonId] = useState(demo?.person ?? "sv-2");
+  const [cookieCourseId, setCourseId] = useState(demo?.course ?? COURSE_1);
   const [members] = useDemoSlice<MembersState>(KEYS.members, MEMBERS_SEED);
   const token = useSyncExternalStore(tokenStore.subscribe, tokenStore.get, () => null);
   const identity = useMemo(() => {
@@ -66,22 +67,6 @@ export function SessionProvider({
     return c?.ok ? c.claims : null;
   }, [token]);
   const [jwtCourseId, setJwtCourseId] = useState(COURSE_1);
-  const [expired, setExpired] = useState(false);
-
-  // hết hạn giữa chừng hoặc gateway trả 401 → bỏ token, về phiên demo, cổng dán token báo "Phiên đã hết hạn"
-  useEffect(() => {
-    const onExpired = () => setExpired(true);
-    window.addEventListener("auth:expired", onExpired);
-    return () => window.removeEventListener("auth:expired", onExpired);
-  }, []);
-  useEffect(() => {
-    if (!identity) return;
-    const t = setTimeout(() => {
-      tokenStore.clear();
-      setExpired(true);
-    }, Math.min(2 ** 31 - 1, Math.max(0, identity.exp * 1000 - Date.now()))); // setTimeout tràn ở > 24,8 ngày: kẹp để token dài hạn không bị xoá ngay
-    return () => clearTimeout(t);
-  }, [identity]);
 
   const switchTo = useCallback((next: Role, person?: string) => {
     if (tokenStore.get()) return; // phiên jwt: vai theo claim, không đổi vai mô phỏng
@@ -104,17 +89,21 @@ export function SessionProvider({
   }, []);
 
   const logout = useCallback(() => {
-    setExpired(false);
-    tokenStore.clear();
-  }, []);
+    void auth.logout();
+  }, [auth]);
 
   const value = useMemo<Session>(() => {
-    // phiên jwt: người mock CÙNG VAI (Sinh viên → sv-2) và lớp mock đầu; cookie bị bỏ qua (US-PU-04 AC9, Q-QC-PU04-3)
+    // phiên jwt: vai từ claim, người mock theo email đã xác minh (mock/identity.ts; email lạ → sv-2 / người mock cùng vai) và lớp mock đầu;
+    // cookie ep_demo_* bị bỏ qua (SRS FEAT-account-security 7.4). Họ tên thật chỉ thay cho người không có trong bảng ánh xạ.
     const role: Role = identity?.role ?? cookieRole;
-    const personId = identity ? "sv-2" : cookiePersonId;
+    const personId = identity ? mockStudentFor(identity.email) : cookiePersonId;
     const courseId = identity ? jwtCourseId : cookieCourseId;
     const student = STUDENTS.find((s) => s.id === personId) ?? STUDENTS[1];
-    const user: Person = role === "student" ? { id: student.id, name: student.name, email: student.email } : STAFF[role];
+    const named = identity && fullName && !isSeedAccount(identity.email) ? fullName : undefined;
+    const user: Person =
+      role === "student"
+        ? { id: student.id, name: named ?? student.name, email: identity?.email || student.email }
+        : { ...STAFF[role], name: named ?? STAFF[role].name, email: identity?.email || STAFF[role].email };
     // TA chỉ phụ trách lớp 1 (SRS 4.1); GV phụ trách cả hai; Admin thấy tất cả.
     const ids = role === "student" ? studentCourseIds(student.id, members) : role === "ta" ? [COURSE_1] : COURSES.map((c) => c.id);
     const courses = COURSES.filter((c) => ids.includes(c.id));
@@ -122,9 +111,9 @@ export function SessionProvider({
     const course = courses.find((c) => c.id === courseId) ?? courses[0] ?? COURSES[0];
     return {
       role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, switchTo, setCourse,
-      source: identity ? "jwt" : "demo", identity, logout, expired: expired && !identity,
+      source: identity ? "jwt" : "demo", identity, logout,
     };
-  }, [identity, cookieRole, cookiePersonId, cookieCourseId, jwtCourseId, members, switchTo, setCourse, logout, expired]);
+  }, [identity, fullName, cookieRole, cookiePersonId, cookieCourseId, jwtCourseId, members, switchTo, setCourse, logout]);
 
   useCourseDeepLink(value.courses, setCourse);
 

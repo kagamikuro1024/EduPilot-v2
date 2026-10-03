@@ -1,5 +1,5 @@
 import { defineConfig } from "@playwright/test";
-import { PORT } from "./e2e/support/env";
+import { API_PORT, API_URL, PORT } from "./e2e/support/env";
 
 // Gate giao diện (FEAT-ui-foundation SRS 8): hai dự án desktop 1440 × 900 và mobile 390 × 844, chạy trên bản build (`next start -p 3310`).
 // Ca gắn @real cần gateway thật và KHÔNG chạy trong CI (CI không dựng stack).
@@ -33,6 +33,6 @@ export default defineConfig({
       timeout: 60_000,
     },
     // máy chủ gateway GIẢ cho test lớp dữ liệu (bản dựng cổng đặt NEXT_PUBLIC_API_URL tới đây)
-    { command: "node e2e/support/api-server.mjs", url: "http://localhost:3312/__ctl/ping", reuseExistingServer: true, timeout: 20_000 },
+    { command: `API_PORT=${API_PORT} node e2e/support/api-server.mjs`, url: `${API_URL}/__ctl/ping`, reuseExistingServer: true, timeout: 20_000 },
   ],
 });

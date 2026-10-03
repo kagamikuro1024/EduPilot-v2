@@ -20,9 +20,34 @@ type forbiddenDetails struct {
 	Reason string `json:"reason"`
 }
 
+// RevocationChecker cho biết một access token (đã qua chữ ký) thuộc phiên / người dùng đã bị thu hồi chưa.
+// reason (chữ thường, "logout", "password_changed"…) chỉ có khi biết.
+type RevocationChecker interface {
+	Revoked(ctx context.Context, p Principal) (revoked bool, reason string)
+}
+
+type mwConfig struct {
+	rev         RevocationChecker
+	needSession bool
+}
+
+// MiddlewareOption tinh chỉnh Middleware.
+type MiddlewareOption func(*mwConfig)
+
+// WithRevocation bật kiểm thu hồi (US-P2-02 AC8): phiên / người dùng bị thu hồi → 401 SESSION_REVOKED.
+func WithRevocation(c RevocationChecker) MiddlewareOption { return func(m *mwConfig) { m.rev = c } }
+
+// RequireSession từ chối token không có `sid` (token dev của `gateway token`) — dùng ở production.
+func RequireSession() MiddlewareOption { return func(m *mwConfig) { m.needSession = true } }
+
 // Middleware xác thực Bearer token rồi gắn Principal vào context.
-// Phân loại 401 (SRS 6.1): thiếu/sai kiểu header → UNAUTHENTICATED; hết hạn → TOKEN_EXPIRED; còn lại → TOKEN_INVALID.
-func Middleware(v *Verifier) func(http.Handler) http.Handler {
+// Phân loại 401 (SRS 6.1): thiếu/sai kiểu header → UNAUTHENTICATED; hết hạn → TOKEN_EXPIRED; thu hồi → SESSION_REVOKED;
+// còn lại → TOKEN_INVALID.
+func Middleware(v *Verifier, opts ...MiddlewareOption) func(http.Handler) http.Handler {
+	var cfg mwConfig
+	for _, o := range opts {
+		o(&cfg)
+	}
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			raw, ok := bearerToken(r.Header.Get("Authorization"))
@@ -38,6 +63,21 @@ func Middleware(v *Verifier) func(http.Handler) http.Handler {
 				}
 				writeUnauthorized(w, r, code)
 				return
+			}
+			if cfg.needSession && p.SessionID == "" {
+				writeUnauthorized(w, r, apierr.TokenInvalid)
+				return
+			}
+			if cfg.rev != nil {
+				if revoked, reason := cfg.rev.Revoked(r.Context(), p); revoked {
+					w.Header().Set("WWW-Authenticate", `Bearer realm="edupilot", error="invalid_token"`)
+					e := apierr.New(http.StatusUnauthorized, apierr.SessionRevoked)
+					if reason != "" {
+						e = e.WithDetails(map[string]string{"reason": reason})
+					}
+					apierr.Write(w, r, e)
+					return
+				}
 			}
 			next.ServeHTTP(w, r.WithContext(WithPrincipal(r.Context(), p)))
 		})

@@ -42,6 +42,14 @@ const (
 	ProviderInUse     = "PROVIDER_IN_USE"
 	ModelDimsMismatch = "MODEL_DIMS_MISMATCH"
 	RouteInvalid      = "ROUTE_INVALID"
+
+	// Tài khoản an toàn (FEAT-account-security SRS 6.1): 6 mã mới.
+	InvalidCredentials = "INVALID_CREDENTIALS"
+	LoginThrottled     = "LOGIN_THROTTLED"
+	AccountDisabled    = "ACCOUNT_DISABLED"
+	SessionRevoked     = "SESSION_REVOKED"
+	LinkInvalid        = "LINK_INVALID"
+	EmailNotVerified   = "EMAIL_NOT_VERIFIED"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -166,6 +174,18 @@ func DefaultMessage(code string) string {
 		return "Mô hình này không dùng được cho tìm kiếm tài liệu."
 	case RouteInvalid:
 		return "Cấu hình mô hình cho tác vụ chưa hợp lệ."
+	case InvalidCredentials:
+		return "Email hoặc mật khẩu không đúng."
+	case LoginThrottled:
+		return "Bạn đã thử quá nhiều lần. Hãy thử lại sau ít phút."
+	case AccountDisabled:
+		return "Tài khoản đã bị khoá. Hãy liên hệ quản trị viên."
+	case SessionRevoked:
+		return "Bạn đã bị đăng xuất. Hãy đăng nhập lại."
+	case LinkInvalid:
+		return "Liên kết đã hết hạn hoặc đã được dùng."
+	case EmailNotVerified:
+		return "Hãy xác minh email trước khi vào lớp."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

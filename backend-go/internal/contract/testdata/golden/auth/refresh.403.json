@@ -1,0 +1,8 @@
+{
+  "code": "FORBIDDEN",
+  "details": {
+    "reason": "origin"
+  },
+  "message": "Bạn không có quyền thực hiện thao tác này.",
+  "trace_id": "<trace_id>"
+}

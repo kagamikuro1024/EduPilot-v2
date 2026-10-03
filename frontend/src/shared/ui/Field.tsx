@@ -1,6 +1,7 @@
 "use client";
 
-import { useId, type ComponentProps, type ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useId, useState, type ComponentProps, type ReactNode } from "react";
 import s from "./Field.module.css";
 
 /** Nhãn ở trên, gợi ý / lỗi ở dưới (DESIGN.md §10.9). Truyền render-prop để nhận id. */
@@ -39,6 +40,19 @@ export function Field({
 
 export function Input({ className, invalid, ...rest }: ComponentProps<"input"> & { invalid?: boolean }) {
   return <input className={[s.control, className ?? ""].join(" ")} aria-invalid={invalid || undefined} {...rest} />;
+}
+
+/** Ô mật khẩu có nút hiện / ẩn (vùng chạm 44 px). Mặc định ẩn. */
+export function PasswordInput({ className, invalid, ...rest }: Omit<ComponentProps<"input">, "type"> & { invalid?: boolean }) {
+  const [shown, setShown] = useState(false);
+  return (
+    <span className={s.pw}>
+      <input className={[s.control, className ?? ""].join(" ")} aria-invalid={invalid || undefined} {...rest} type={shown ? "text" : "password"} />
+      <button type="button" className={s.pwToggle} onClick={() => setShown((v) => !v)} aria-pressed={shown} aria-label={shown ? "Ẩn mật khẩu" : "Hiện mật khẩu"}>
+        {shown ? <EyeOff aria-hidden /> : <Eye aria-hidden />}
+      </button>
+    </span>
+  );
 }
 
 export function Textarea({ className, invalid, ...rest }: ComponentProps<"textarea"> & { invalid?: boolean }) {

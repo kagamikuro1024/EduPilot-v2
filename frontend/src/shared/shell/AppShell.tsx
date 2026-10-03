@@ -3,8 +3,7 @@
 import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore, type ComponentType } from "react";
-import TokenGate from "@ep/token-gate";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { BT03_SEED } from "@/mock/assess";
 import { COURSE_1, COURSE_2, DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, SUBJECT, type Role } from "@/mock/core";
 import { ASSIGNED_AT, BT03_SUBMITTED_AT, CH5_UPLOADED_AT, agoLabel, reviewPending, ticketStats } from "@/mock/derive";
@@ -130,12 +129,10 @@ function useSidebarCollapsed(): [boolean, (v: boolean) => void] {
   return [v, set];
 }
 
-// Cổng dán token dev: `@ep/token-gate` phân giải sang cổng thật chỉ ở build NEXT_PUBLIC_DEV_AUTH=1, còn lại là `null` (xem next.config.ts).
-const Gate: ComponentType<{ expired: boolean }> | null = TokenGate;
 const MOCK_SCREENS_OFF = process.env.NEXT_PUBLIC_MOCK_SCREENS === "0";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse, source, identity, logout, expired } = useSession();
+  const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse, source, identity, logout } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const groups = useMemo(() => navFor(role, hasCourse), [role, hasCourse]);
@@ -169,7 +166,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mobilePrimary = flat.filter((i) => MOBILE_PRIMARY[role].includes(i.href));
   const mobileMore = flat.filter((i) => !MOBILE_PRIMARY[role].includes(i.href));
   const courseTitle = !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : `${course.code} · ${course.name}`;
-  const personName = identity ? identity.email || ROLE_LABEL[role] : displayName(role, user.name, user.title);
+  const personName = displayName(role, user.name, user.title);
   const viewer = viewerKey(role, studentId);
   const scope = useMemo(() => (isAll ? courses.map((c) => c.id) : hasCourse ? [course.id] : []), [isAll, courses, hasCourse, course.id]);
   // Chuông không theo lớp đang chọn: mục của lớp khác vẫn tới, đích mang `course=` nên mở đúng lớp (SRS 4.9)
@@ -384,22 +381,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     ...(role === "teacher" || role === "admin"
                       ? [{ label: "Cài đặt hệ thống", icon: <Settings aria-hidden />, onSelect: () => router.push("/settings/llm") }]
                       : []),
-                    {
-                      label: "Đặt lại dữ liệu demo",
-                      icon: <RotateCcw aria-hidden />,
-                      onSelect: () => {
-                        resetDemo();
-                        // về lớp mặc định của vai để diễn lại kịch bản từ đầu (không kẹt ở lớp 761988)
-                        setCourse(COURSE_1);
-                        router.refresh();
-                      },
-                    },
+                    ...(source === "demo"
+                      ? [{
+                          label: "Đặt lại dữ liệu demo",
+                          icon: <RotateCcw aria-hidden />,
+                          onSelect: () => {
+                            resetDemo();
+                            // về lớp mặc định của vai để diễn lại kịch bản từ đầu (không kẹt ở lớp 761988)
+                            setCourse(COURSE_1);
+                            router.refresh();
+                          },
+                        }]
+                      : []),
                     {
                       label: "Đăng xuất",
                       icon: <LogOut aria-hidden />,
                       onSelect: () => {
                         if (source === "jwt") {
-                          logout(); // xoá token → về phiên demo (cookie ep_demo_*) hoặc cổng token
+                          logout(); // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
                           return;
                         }
                         clearDemoSession();
@@ -462,13 +461,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         ) : !hasCourse && needsCourse(role, pathname) ? (
           <NoCourse />
         ) : needsToken(pathname) && source === "demo" ? (
-          Gate ? (
-            <Gate expired={expired} />
-          ) : (
-            <Page>
-              <PageHeader title="Cần đăng nhập" description="Màn này làm việc với máy chủ thật. Tính năng đăng nhập sẽ có ở bản sau." actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>} />
-            </Page>
-          )
+          <Page>
+            <PageHeader
+              title="Cần đăng nhập thật"
+              description="Màn này làm việc với máy chủ thật. Bạn đang xem bản mô phỏng; hãy đăng nhập bằng tài khoản để tiếp tục."
+              actions={<ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>}
+            />
+          </Page>
         ) : MOCK_SCREENS_OFF && mockBackend(pathname) ? (
           <NoBackend phase={mockBackend(pathname)!} />
         ) : (

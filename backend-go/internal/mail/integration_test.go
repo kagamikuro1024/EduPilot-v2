@@ -294,7 +294,7 @@ func TestPermanentFailureNoRetry(t *testing.T) {
 
 	// Mẫu không tồn tại, thiếu biến → DEAD ngay, không chạm SMTP.
 	for name, m := range map[string]mail.Message{
-		"mẫu lạ":    {To: uniqueAddr(t), Template: "khong_co", Payload: map[string]any{"full_name": "X"}},
+		"mẫu lạ":     {To: uniqueAddr(t), Template: "khong_co", Payload: map[string]any{"full_name": "X"}},
 		"thiếu biến": {To: uniqueAddr(t), Template: "email_exists", Payload: map[string]any{}},
 	} {
 		mid := r.enqueue(m)

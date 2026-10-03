@@ -35,6 +35,8 @@ type Principal struct {
 	Role      Role
 	Email     string
 	JTI       string
+	SessionID string // claim `sid`; rỗng với token dev
+	IssuedAt  time.Time
 	ExpiresAt time.Time
 }
 

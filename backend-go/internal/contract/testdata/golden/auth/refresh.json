@@ -1,0 +1,13 @@
+{
+  "access_token": "<jwt>",
+  "expires_in": 900,
+  "token_type": "Bearer",
+  "user": {
+    "email": "golden.auth@example.test",
+    "email_verified": false,
+    "full_name": "Nguyễn Minh Trung",
+    "id": "<uuid>",
+    "role": "STUDENT",
+    "status": "ACTIVE"
+  }
+}

@@ -1,6 +1,7 @@
 export { apiClient, newIdempotencyKey, IDEMPOTENCY_KEY_RE, resetApiClientState, type ApiResult, type RequestOpts } from "./apiClient";
 export { ApiError, fieldErrors, type ApiErrorCode } from "./ApiError";
 export { tokenStore } from "./tokenStore";
+export { authStore, acceptSession, dropSession, refreshSession, type AuthUser, type SessionPayload, type AuthSnapshot } from "./authSession";
 export { netStatus } from "./netStatus";
 export { QueryProvider, makeQueryClient } from "./queryClient";
 export { useCursorList, type CursorPage } from "./useCursorList";

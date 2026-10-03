@@ -30,6 +30,19 @@ export function writeDemoCookie(name: string, value: string) {
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=31536000; samesite=lax`;
 }
 
+/** Đọc ba cookie mô phỏng từ chuỗi `document.cookie`; thiếu / sai vai → null. Hàm thuần (dùng được với useSyncExternalStore). */
+export function parseDemoCookies(raw: string): { role: Role; person: string; course: string } | null {
+  const get = (name: string) => {
+    const m = raw.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+    return m ? decodeURIComponent(m[1]) : undefined;
+  };
+  const role = parseRole(get(ROLE_COOKIE));
+  return role ? { role, person: parsePerson(get(PERSON_COOKIE)), course: parseCourse(get(COURSE_COOKIE)) } : null;
+}
+
+/** Có cookie phiên mô phỏng hợp lệ không (chỉ gọi ở trình duyệt). */
+export const hasDemoSession = () => parseDemoCookies(document.cookie) !== null;
+
 export function clearDemoSession() {
   for (const name of [ROLE_COOKIE, PERSON_COOKIE, COURSE_COOKIE]) document.cookie = `${name}=; path=/; max-age=0; samesite=lax`;
 }

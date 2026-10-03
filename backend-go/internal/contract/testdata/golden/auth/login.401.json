@@ -1,0 +1,5 @@
+{
+  "code": "INVALID_CREDENTIALS",
+  "message": "Email hoặc mật khẩu không đúng.",
+  "trace_id": "<trace_id>"
+}

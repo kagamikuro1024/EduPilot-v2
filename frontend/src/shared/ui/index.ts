@@ -1,5 +1,5 @@
 export { Button, ButtonLink, IconButton, type ButtonVariant } from "./Button";
-export { Field, Input, Textarea, Select, Checkbox, Switch } from "./Field";
+export { Field, Input, PasswordInput, Textarea, Select, Checkbox, Switch } from "./Field";
 export { Page, PageHeader, Section, Toolbar, Split, DefinitionList } from "./Layout";
 export { ActionList, ActionRow, type Tone } from "./ActionList";
 export { DataTable, type Column, type Pagination } from "./DataTable";

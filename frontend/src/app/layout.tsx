@@ -4,6 +4,7 @@ import "@/shared/styles/tokens.css";
 import "@/shared/styles/base.css";
 import { OfflineBanner } from "@/shared/data/OfflineBanner";
 import { QueryProvider } from "@/shared/data/queryClient";
+import { AuthProvider } from "@/shared/session/AuthProvider";
 
 // next/font tự lưu font cùng máy chủ và phát @font-face "Be Vietnam Pro" (không gọi Google lúc chạy). KHÔNG đặt font-family qua
 // className: --ep-font ở tokens.css (có "Noto Sans" dự phòng) mới là chuỗi font duy nhất của trang.
@@ -25,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <QueryProvider>
           <OfflineBanner />
-          {children}
+          <AuthProvider>{children}</AuthProvider>
         </QueryProvider>
       </body>
     </html>

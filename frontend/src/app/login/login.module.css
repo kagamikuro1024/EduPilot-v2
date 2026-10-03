@@ -1,13 +1,3 @@
-.wrap {
-  max-width: 560px;
-  margin: 0 auto;
-  padding: var(--ep-space-16) var(--ep-space-6) var(--ep-space-20);
-  display: grid;
-  gap: var(--ep-space-4);
-}
-.logo { margin-bottom: var(--ep-space-8); width: auto; height: 40px; }
-@media (max-width: 719px) { .logo { height: 32px; } }
-.lede { color: var(--ep-ink-2); max-width: 52ch; margin-bottom: var(--ep-space-6); }
 .list { border-top: 1px solid var(--ep-rule); }
 .list li { border-bottom: 1px solid var(--ep-rule); }
 .row {
@@ -34,4 +24,10 @@
 .back { display: inline-flex; align-items: center; gap: var(--ep-space-1); width: fit-content; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; }
 .back:hover { color: var(--ep-ink); }
 .back svg { width: 16px; height: 16px; }
-.foot { margin-top: var(--ep-space-8); font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-3); }
+.form { display: grid; gap: var(--ep-space-4); }
+.problem { color: var(--ep-red); font-size: var(--ep-text-label); }
+.links { display: grid; gap: var(--ep-space-1); }
+.links a { display: inline-flex; align-items: center; min-height: 44px; width: fit-content; color: var(--ep-ink-2); text-decoration: underline; text-underline-offset: 3px; }
+.links a:hover { color: var(--ep-ink); }
+.dev { margin-top: var(--ep-space-8); border-top: 1px solid var(--ep-rule); padding-top: var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-3); }
+.dev summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
