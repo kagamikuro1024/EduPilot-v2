@@ -20,11 +20,12 @@ test.describe("font", () => {
     expect(external).toEqual([]);
   });
 
-  test("layout.tsx chỉ khai báo 4 độ đậm 400/500/600/700", () => {
+  // Góp ý #26 (PM ACCEPTED): bỏ độ đậm 500 để giảm byte phông (LCP); còn 400 / 600 / 700.
+  test("layout.tsx chỉ khai báo 3 độ đậm 400/600/700", () => {
     const src = readFileSync("src/app/layout.tsx", "utf8");
     const lines = src.split("\n").filter((l) => l.includes("weight: ["));
     expect(lines).toHaveLength(1);
-    expect(lines[0].match(/"(\d+)"/g)).toEqual(['"400"', '"500"', '"600"', '"700"']);
+    expect(lines[0].match(/"(\d+)"/g)).toEqual(['"400"', '"600"', '"700"']);
     expect(src).toMatch(/display:\s*"swap"/);
     expect(src).toMatch(/subsets:\s*\[[^\]]*"vietnamese"/);
   });
