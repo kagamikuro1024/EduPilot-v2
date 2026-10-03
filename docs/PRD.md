@@ -23,6 +23,7 @@ kết hợp tường lửa PII hai kênh; (3) LLM Gateway đa provider. Về k�
 | G5 | Điểm cuối kỳ đúng tuyệt đối | 30/30 sinh viên seed khớp bảng tính tay; không dùng LLM để tính |
 | G6 | Hiệu năng và khả năng mở rộng | Ở tải T1 (1.000 SV, 300 đồng thời): TTFT ≤ 1,5 s (cache hit), ≤ 4 s (RAG); API đọc p95 ≤ 300 ms; dashboard ≤ 3 s; chấm 1.000 bài ≤ 3 giờ mà TTFT chat không xấu đi quá 20%; mở rộng ngang không sửa code. Chi tiết: `SYSTEM_DESIGN.md` |
 | G7 | Trải nghiệm | Mọi màn đạt định nghĩa xong của `design/DESIGN.md` §22 và cổng UX (`UX.md` mục 6); 10 câu hỏi nghiệm thu cuối `design/AGENT_PROMPT.md` đều "có"; điểm danh 30 SV trên điện thoại ≤ 60 s; không thao tác nào làm mất chữ đã gõ; LCP mobile ≤ 2,5 s |
+| G8 | Thi hằng tuần chấm tự động, công bằng, không rò đề | Bài trắc nghiệm chấm đúng 100 % bộ test của Quiz Engine; bài code C/C++ phân loại đúng AC / WA / CE / TLE / MLE / RE / OLE và 15 ca tấn công sandbox đều bị chặn; điểm khớp bảng tính tay; 60 bài code nộp dồn trong 5 phút chấm xong p95 ≤ 60 s; **0** đáp án / test ẩn / nhật ký liêm chính lọt tới sinh viên ở mọi endpoint, trước và sau công bố |
 
 ### Vì sao dùng dữ liệu mô phỏng
 
@@ -58,6 +59,11 @@ AI tự công bố điểm; nhận reply mail từ hộp thư giảng viên; quy
 | Mở lớp, gán giảng viên / TA, tạo tài khoản giảng viên | – | – | – | Có |
 | Xem / tạo lại mã tham gia, duyệt thành viên, mời ra khỏi lớp | – | Xem, duyệt | Có | Có |
 | Tham gia lớp bằng mã | Có | – | – | – |
+| Soạn câu hỏi / bài code, duyệt câu, soạn bài thi nháp | – | Có | Có | – |
+| Lên lịch / gia hạn / hoãn công bố bài thi, sửa điểm, chấm lại, trả lời phúc khảo | – | – | Có | – |
+| Làm bài thi, xem điểm bài thi của mình, gửi phúc khảo | Của mình | – | – | – |
+| Xem bảng điểm bài thi cả lớp | – | Có (không có log liêm chính) | Có | – |
+| Xem log rời tab / dán và cặp bài code nghi giống nhau | – | – | Có | – |
 
 Mọi API đọc dữ liệu cá nhân lọc theo `course_id` và, với STUDENT, theo `user_id` từ JWT — không từ tham số hay nội dung câu hỏi.
 
@@ -179,6 +185,18 @@ AC: đổi CHAT sang provider khác trên UI, tin nhắn kế dùng model mới,
 Route `/`. Sinh viên trả lời câu "Hôm nay mình nên làm gì?": đúng MỘT hành động khuyến nghị kèm lý do và thời lượng ước tính, dòng thời gian trong ngày (buổi học, hạn nộp, thi), và việc học đang dở. Giảng viên / TA trả lời câu "Việc nào đang cần tôi quyết định?": danh sách việc xếp theo độ gấp và hệ quả, phần "Lớp cần chú ý", và dải lịch sắp tới.
 Xếp hạng bằng luật cứng, không dùng LLM; lý do là câu tiếng Việt sinh từ dữ liệu. Mỗi module sinh ra việc cần người xử lý tự đăng ký nguồn việc. Không thẻ số liệu, không biểu đồ ở khung nhìn đầu. Giảng viên nhiều lớp thấy việc của **tất cả lớp mình phụ trách**, mỗi việc ghi tên lớp; sinh viên chưa có lớp nào thấy ô nhập mã tham gia thay cho khuyến nghị.
 AC: người dùng đúng vai trò biết việc kế tiếp trong ≈ 3 giây; sinh viên không bao giờ thấy việc hay dữ liệu của người khác; việc đã xử lý biến mất khỏi danh sách trong ≤ 60 s.
+
+### M15. Thi hằng tuần: trắc nghiệm + lập trình C/C++ (F19)
+Yêu cầu của thầy hướng dẫn (D54–D57). Giảng viên giao bài kiểm tra lấy điểm hằng tuần ngay trên hệ thống; sinh viên làm trong khung giờ; máy chấm; điểm tự công bố khi bài đóng với cả lớp.
+- **Ngân hàng câu hỏi** (`/questions`): trắc nghiệm một / nhiều đáp án, đúng–sai và **bài code C11 / C++17** (đề Markdown, giới hạn thời gian / bộ nhớ, mẫu khởi đầu, bộ test mẫu + test ẩn có trọng số, nhập test bằng zip, lời giải mẫu). Mọi câu qua duyệt; AI chỉ **gợi ý nháp** (câu trắc nghiệm; đầu vào test — đầu ra mong đợi lấy từ lời giải mẫu), giảng viên duyệt; bài code chỉ duyệt được khi lời giải mẫu đạt mọi test.
+- **Bài thi** (`/exams`): chọn câu đã duyệt, điểm từng câu, khung giờ + thời lượng, xáo câu / đáp án theo từng lượt làm, xem trước như sinh viên, lên lịch (chỉ Giảng viên); câu và test bị khoá sửa khi đã lên lịch.
+- **Làm bài** (`/exams/[id]/take`): đồng hồ phía máy chủ, mỗi sinh viên một lượt, tự lưu lên máy chủ (mất mạng không mất bài), hết giờ tự nộp. Trắc nghiệm dùng được ở 375 px. Code (màn ≥ 1024 px): soạn mã, `Chạy thử` test mẫu (10 lần / 10 phút), `Nộp lời giải` nhiều lần — **lần cuối tính điểm**; lúc làm bài sinh viên không thấy kết quả test ẩn.
+- **Chấm:** trắc nghiệm bằng Quiz Engine (code thuần, `decimal`); code bằng **sandbox** cách ly (không mạng, giới hạn CPU / RAM / thời gian / output / tiến trình; D58); điểm = tổng trọng số test đạt; không LLM nào tính hay làm tròn điểm. Hàng chấm riêng, idempotent, retry 3 lần + dead-letter; chấm lỗi hệ thống không thành 0 điểm.
+- **Công bố (D56):** tự động khi bài đóng với cả lớp và đã chấm xong (giảng viên có thể hoãn / chấm lại). Sinh viên thấy điểm, đúng / sai từng câu + đáp án (tuỳ chọn của bài), kết quả test mẫu, số test ẩn đạt / tổng; **không bao giờ** thấy test ẩn, lời giải mẫu hay nhật ký liêm chính.
+- **Liêm chính (D56, không phải giám thị):** khoá chat AI trong giờ làm bài, một lượt làm, xáo trộn, log rời tab / dán (chỉ Giảng viên, không tự trừ điểm), so độ giống mã sau khi đóng (winnowing tự viết, chỉ gợi ý; mã không rời hệ thống).
+- **Kết quả cho giảng viên:** bảng điểm lớp, phân bố, câu sai nhiều, cặp nghi giống nhau, xuất CSV; sửa điểm có lý do (`audit_log`); đổi đáp án / bỏ câu; chấm lại khi test sai (điểm cập nhật, sinh viên được báo); **phúc khảo** một lần mỗi bài thi trong hạn (mặc định 7 ngày).
+- Ngoài phạm vi: luyện đề / thi thử (M4, P9); nối điểm bài thi vào sổ điểm (M7, P6); ngôn ngữ ngoài C / C++; giám thị bằng webcam; trích câu hỏi từ đề cũ bằng LLM (P9).
+AC (đo được): (1) trắc nghiệm chấm đúng 100 % bộ test; điểm bài thi khớp bảng tính tay (`TestScoringDecimal`); (2) bài code AC / WA / CE / TLE / MLE / RE / OLE phân loại đúng và mọi ca tấn công (vòng lặp vô hạn, fork bomb, đọc file hệ thống, mở socket, in 1 GB, cấp phát 2 GB, biên dịch bom) bị chặn mà bài của người khác vẫn được chấm; (3) `TestNoAnswerLeak`: đáp án, test ẩn, lời giải mẫu, nhật ký liêm chính **không** xuất hiện ở bất kỳ endpoint nào của sinh viên, ở cả 6 tình huống của bài thi (chưa mở, đang mở chưa làm, đang làm, đã nộp, đã đóng chưa công bố, đã công bố); (4) 60 sinh viên nộp code trong 5 phút → chấm xong p95 ≤ 60 s mà TTFT chat INTERACTIVE không chậm hơn 20 %; (5) mất mạng 30 s giữa bài → 0 chữ mất; hết giờ khi đang gõ → bản lưu cuối được tính; (6) trong giờ làm bài, chat AI của người đó từ chối; hết giờ → hỏi lại được; (7) điểm tự công bố đúng một lần khi bài đóng và chấm xong, hoãn được.
 
 ### Giao diện chung cho mọi module
 Toàn bộ giao diện theo hệ thiết kế *Red Thread / Academic Instrument* ở `design/DESIGN.md`: điều hướng theo vai trò (§1–§2), hợp đồng khung nhìn đầu của từng route (§14), từ vựng component (§10, §19), lời văn tiếng Việt không thuật ngữ kỹ thuật với sinh viên (§13). Riêng với sinh viên, độ tin cậy của AI được diễn đạt bằng lời, không bằng con số.

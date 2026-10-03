@@ -48,6 +48,7 @@ Rà từng luồng theo câu hỏi "một trường dùng thật thì chỗ nào
 | F16 | Quan sát hệ thống AI | Admin | M13-A | P10 |
 | F17 | Báo cáo lỗ hổng kiến thức → cập nhật giáo trình | GV | M13-B | P10 |
 | F18 | Kết thúc học kỳ: lưu trữ, xuất, nhân bản, xoá theo chính sách | Admin, GV | M0 | PR |
+| F19 | Thi hằng tuần: soạn đề → lên lịch → sinh viên làm (trắc nghiệm / code C/C++) → chấm → đóng → tự công bố → xem kết quả → phúc khảo | GV, TA, SV | M15 (+ M4, M7 nối ở P6) | PE |
 
 ## 2. Chi tiết từng luồng
 
@@ -134,8 +135,8 @@ Mỗi module đăng ký nguồn việc; bảng đầy đủ nguồn việc sau r
 
 | Vai trò | Nguồn việc |
 | --- | --- |
-| Sinh viên | Chưa có lớp → nhập mã · email chưa xác minh · hạn nộp < 24 h chưa nộp · QUIZ / thi trong 48 h · điểm vừa công bố · phúc khảo có phản hồi · chủ đề sai nhiều · câu trả lời của giảng viên chưa đọc · tài liệu mới |
-| Giảng viên / TA | Buổi học đang diễn ra chưa điểm danh · ticket chờ (kèm số giờ) · phúc khảo chờ · bài chấm "cần xem kỹ" · bài đã duyệt chưa công bố · câu trả lời AI chờ xác nhận · bài bị báo cáo · bài nộp chưa khớp · yêu cầu vào lớp chờ duyệt · email lệch MSSV chờ duyệt · công thức điểm chưa xác nhận · thiết lập lớp mới · câu hỏi chờ duyệt · sinh viên mới vào diện cần chú ý |
+| Sinh viên | Chưa có lớp → nhập mã · email chưa xác minh · hạn nộp < 24 h chưa nộp · **bài thi đang làm dở / đang mở / sắp mở trong 48 h (F19)** · QUIZ / thi trong 48 h · điểm vừa công bố · phúc khảo có phản hồi · chủ đề sai nhiều · câu trả lời của giảng viên chưa đọc · tài liệu mới |
+| Giảng viên / TA | Buổi học đang diễn ra chưa điểm danh · ticket chờ (kèm số giờ) · phúc khảo chờ · bài chấm "cần xem kỹ" · bài đã duyệt chưa công bố · câu trả lời AI chờ xác nhận · bài bị báo cáo · bài nộp chưa khớp · yêu cầu vào lớp chờ duyệt · email lệch MSSV chờ duyệt · công thức điểm chưa xác nhận · thiết lập lớp mới · câu hỏi chờ duyệt (từ PE) · phúc khảo bài thi chờ · bài thi chấm xong nhưng đang hoãn công bố · bài code chấm lỗi hệ thống · cặp bài code nghi giống nhau cần xem (F19) · sinh viên mới vào diện cần chú ý |
 | Admin | Provider LLM lỗi · sắp chạm trần ngân sách · hàng dead-letter có việc · sao lưu gần nhất thất bại · lớp không có giảng viên hoạt động |
 
 ### F15. Cấu hình LLM, ngân sách, tích hợp
@@ -149,3 +150,26 @@ Như PRD M13-B. Bổ sung: báo cáo chỉ dùng câu hỏi của lớp đang ch
 
 ### F18. Kết thúc học kỳ
 1. Giảng viên chốt điểm → 2. Admin hoặc giảng viên `Lưu trữ lớp`: lớp thành chỉ-đọc, mã tham gia tắt, việc nền dừng, sinh viên vẫn xem được điểm và tài liệu đến hết hạn giữ dữ liệu → 3. `Xuất toàn bộ dữ liệu lớp` (ZIP: sổ điểm, điểm danh, bài nộp, nhận xét) cho giảng viên lưu hồ sơ → 4. `Nhân bản sang học kỳ mới`: tài liệu, ngân hàng câu hỏi, rubric, cấu trúc bài tập, bản nháp công thức; KHÔNG mang theo sinh viên, điểm, hội thoại → 5. job giữ dữ liệu: hội thoại và `llm_audit` xoá sau thời hạn cấu hình (mặc định 12 tháng sau khi lưu trữ); heartbeat thô 7 ngày; sổ điểm và audit giữ theo quy định lưu trữ của trường.
+
+### F19. Thi hằng tuần (trắc nghiệm + lập trình C/C++)
+Yêu cầu của thầy hướng dẫn (D54–D57). Điểm do **máy chấm** (Quiz Engine cho trắc nghiệm, sandbox cho code), **không qua LLM**; điểm **tự công bố khi bài thi đóng với cả lớp** (D56).
+1. **Soạn đề.** Giảng viên / TA tạo câu trong `/questions`: trắc nghiệm (một / nhiều đáp án, đúng–sai) hoặc bài code (đề, giới hạn, test mẫu + test ẩn — nhập từng test hoặc tệp zip, lời giải mẫu). AI chỉ **gợi ý nháp** (câu trắc nghiệm; đầu vào test) vào hàng chờ duyệt (D57). Với bài code, người soạn chạy **lời giải mẫu** qua sandbox: mọi test phải đạt thì mới `Duyệt` được.
+2. **Dựng bài thi.** Giảng viên vào `/exams` → `Tạo bài thi`: chọn câu đã duyệt từ ngân hàng, điểm từng câu, khung giờ mở–đóng, thời lượng, xáo trộn, thang điểm; `Xem trước` như sinh viên; `Lên lịch` (chỉ Giảng viên). Lên lịch → sinh viên có thông báo + việc ở "Hôm nay"; câu hỏi và test của bài bị khoá sửa.
+3. **Làm bài.** Đến giờ mở, sinh viên bấm `Bắt đầu làm bài`: đồng hồ **phía máy chủ** (`deadline = min(giờ bắt đầu + thời lượng, giờ đóng)`), câu và đáp án **xáo theo từng lượt làm**, mỗi sinh viên **một lượt**. Trắc nghiệm dùng được ở 375 px; code cần màn hình ≥ 1024 px: soạn mã, chọn C / C++, `Chạy thử` với test mẫu (10 lần / 10 phút), `Nộp lời giải` **nhiều lần, lần cuối tính điểm**; kết quả lúc làm bài chỉ có biên dịch + test mẫu — **không** có kết quả test ẩn. Câu trả lời và mã nguồn tự lưu lên máy chủ; mất mạng không mất bài. Trong giờ thi, **chat AI bị khoá** cho người đó; hệ thống ghi số lần rời tab / dán (chỉ giảng viên xem, không tự trừ điểm).
+4. **Nộp.** `Nộp bài` (xác nhận có số: còn N câu chưa trả lời) hoặc hết giờ → hệ thống tự nộp (trắc nghiệm chấm ngay; code lấy lần nộp cuối).
+5. **Chấm.** Bài đã nộp vào hàng chấm riêng (không chung làn LLM): sandbox biên dịch, chạy từng test với giới hạn, so khớp; điểm = tổng trọng số test đạt. Tiến độ qua SSE.
+6. **Đóng → công bố.** Hết khung giờ của cả lớp → bài **đóng**; chấm xong mọi bài → **tự công bố** (trừ khi giảng viên đã `Hoãn công bố`). Sinh viên thấy điểm, đúng / sai từng câu + đáp án đúng, kết quả test mẫu, và số test ẩn đạt / tổng; không thấy input / kết quả mong đợi của test ẩn.
+7. **Giảng viên xem kết quả** ở `/exams/[id]/results`: bảng điểm lớp, phân bố, câu sai nhiều, cặp bài code nghi giống nhau (chỉ gợi ý), log rời tab / dán; xuất CSV; sửa điểm có lý do (ghi `audit_log`); đổi đáp án / bỏ câu; chấm lại khi test sai.
+8. **Phúc khảo.** Trong `appeal_days` (mặc định 7) kể từ lúc công bố, sinh viên gửi **một** yêu cầu kèm lý do → việc cho Giảng viên ở "Hôm nay" → giữ nguyên hoặc sửa điểm, bắt buộc phản hồi → sinh viên được báo.
+- **Nhánh lỗi:**
+  - **Mất mạng giữa bài:** bản gõ giữ ở máy (khóa `exam:<attempt_id>`), dải báo "Chưa lưu lên máy chủ"; có mạng lại tự gửi; tới hết giờ vẫn mất mạng → chỉ phần đã lên máy chủ được tính (+ giảng viên có thể `Gia hạn` cả bài).
+  - **Hết giờ khi đang gõ:** máy khách gửi lần lưu cuối ở giây cuối; máy chủ nhận trong `EXAM_GRACE_SECONDS` (10 s) sau hạn; sau đó tự nộp. Bài code chưa từng nộp mà có bản nháp thì bản nháp được nộp thay (đánh dấu tự động).
+  - **Sandbox chết / quá tải:** `Chạy thử` báo "chưa chạy được, thử lại sau N giây"; `Nộp lời giải` vẫn được nhận và xếp hàng; chấm lỗi hệ thống (`IE`) **không bao giờ** thành 0 điểm — bài ở lại "đang chấm", giảng viên thấy việc "bài chấm lỗi hệ thống" và chấm lại; chưa chấm xong thì **không** tự công bố.
+  - **Test sai do giảng viên:** sửa test → `Chấm lại` (job 202, idempotent theo `(bài nộp, phiên bản test)`) → điểm cập nhật; nếu đã công bố thì sinh viên được báo điểm đổi (có thể giảm hoặc tăng; có lý do + `audit_log`).
+  - **Làm ở hai tab / hai thiết bị:** chỉ **một** nơi được ghi; nơi kia nhận "Bài đang mở ở nơi khác" kèm `Làm tiếp ở đây` (chuyển quyền; ghi sự kiện cho giảng viên).
+  - **Nộp trùng:** `Idempotency-Key` → cùng kết quả; nộp lần hai (khác khoá) → 409 "Bạn đã nộp bài này".
+  - **Lỗi biên dịch:** hiện lời gọn của trình biên dịch (đã cắt, bỏ đường dẫn); không trừ gì thêm ngoài việc lần nộp đó 0 test đạt; sinh viên sửa và nộp lại trong giờ.
+  - **Sinh viên không làm:** không có lượt làm; giảng viên thấy "Vắng"; sinh viên thấy "Bạn không làm bài này".
+  - **Mạng / máy chủ khởi động lại giữa giờ thi:** đồng hồ không đổi (tính từ DB); tải lại trang quay đúng câu đang làm.
+- **Liêm chính (không phải giám thị):** khoá chat AI trong giờ làm bài (`ep:exam_lock`), một lượt làm, xáo câu / đáp án, đáp án chỉ hiện sau khi cả lớp đã đóng, log rời tab / dán (chỉ Giảng viên), so độ giống mã sau khi đóng (chỉ gợi ý, không gửi mã ra ngoài). Nói rõ với sinh viên ở màn bắt đầu.
+- **E2E:** `exam.spec.ts` (trắc nghiệm + code, mất mạng giữa chừng, hết giờ tự nộp, xem điểm sau khi đóng, hai tab, rò đáp án).
