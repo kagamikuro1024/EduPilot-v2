@@ -1,5 +1,7 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1.3 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.4 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.4 (2026-10-03)** — góp ý #3 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC13 yêu cầu `vitest run src/shared/session/safeNext.test.ts`, nhưng `vitest` không có trong bảng thư viện `ARCHITECTURE.md`… Kiểm `safeNext` bằng test Playwright không cần trình duyệt (`e2e/safe-next.spec.ts`)"). Không đổi số AC. Đổi: US-P2-02 AC13 (lệnh `Kiểm`).
 
 **v1.3 (2026-10-03)** — góp ý #2 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC6 ghi \"dừng / bật container Mailpit\"; container Mailpit dùng chung giữa các gói `go test`… AC10 nêu `smtpmock` (thư viện ngoài bảng ARCHITECTURE). Dùng `testutil.FakeSMTP` tự viết (~100 dòng, dừng/bật đúng cổng, trả 550/451) cho các ca lỗi; Mailpit thật cho ca gửi thành công"). Không đổi số AC. Đổi: US-P2-01 AC6 và AC10 (dòng `Kiểm`: bỏ `smtpmock`, dùng `testutil.FakeSMTP`), `SRS.md` mục 9.
 
