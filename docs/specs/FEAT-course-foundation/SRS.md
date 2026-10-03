@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.4 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.5 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.5 (2026-10-03)** — góp ý #10 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "`FEAT-course-foundation` AC13 yêu cầu `GET …/members?q=` tìm theo MSSV, nhưng `FEAT-account-security` 4.2.5 chỉ cho 3 truy vấn… Thêm đúng MỘT tên (`ListMembers`) vào danh sách trắng. **ACCEPTED có điều kiện** — `q` theo MSSV chỉ cho TEACHER / TA của lớp (sinh viên không lọc theo MSSV, không thấy MSSV người khác); có test phân quyền cho điều kiện này"). Không đổi số AC. Đổi: US-P2-09 AC13 (điều kiện quyền + test), `SRS.md` 4.3.
 
 **v1.4 (2026-10-03)** — góp ý #9 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC8 yêu cầu thông báo `JOIN_APPROVED` có `link` `/`, nhưng `CHECK notifications_link_chk` của `00003` là `^/[^/\\]`… Lưu `link` NULL cho `JOIN_APPROVED`; chuông mở `/` (\"Hôm nay\") khi `link` rỗng. **ACCEPTED** (phương án NULL, không thêm migration) — quy ước chung: `link` NULL = mở \"Hôm nay\""). Không đổi số AC. Đổi: US-P2-09 AC8 (`JOIN_APPROVED` có `link` NULL, dòng `Kiểm`), `SRS.md` 5.5 (cột `link`).
 
@@ -134,7 +136,7 @@ Quy tắc: một truy vấn có chỉ mục (`enrollments (course_id, user_id)`)
 
 ### 4.3 Thành viên (US-P2-09)
 
-Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → REMOVED` (reject), `ACTIVE → REMOVED` (remove), `REMOVED → PENDING` (join lại), và `undo` đảo về `previous_status`. Mỗi chuyển ghi `previous_status`, `status_changed_at`, `status_changed_by`, `removed_at` (khi `REMOVED`). `undo` hợp lệ khi cùng quyền với hành động gốc và `now() − status_changed_at ≤ COURSE_UNDO_WINDOW` (60 giây). Không xoá / mời ra giảng viên hay TA bằng đường thành viên (đổi bằng `assign` / `assistants`). Thông báo: `JOIN_REQUEST` (GV + TA lớp), `JOIN_APPROVED`, `JOIN_REJECTED` (sinh viên). Mọi chuyển ghi `audit_log` (`entity=enrollment`, `before/after` không chứa email, MSSV).
+Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → REMOVED` (reject), `ACTIVE → REMOVED` (remove), `REMOVED → PENDING` (join lại), và `undo` đảo về `previous_status`. Mỗi chuyển ghi `previous_status`, `status_changed_at`, `status_changed_by`, `removed_at` (khi `REMOVED`). `undo` hợp lệ khi cùng quyền với hành động gốc và `now() − status_changed_at ≤ COURSE_UNDO_WINDOW` (60 giây). Danh sách `GET …/members`: `q` khớp tên không dấu (`vn_fold`) và tiền tố email; khớp **MSSV chỉ với TEACHER / TA của lớp** (góp ý #10) — truy vấn `ListMembers` là truy vấn thứ tư trong danh sách trắng MSSV của `FEAT-account-security` 4.2.5. Không xoá / mời ra giảng viên hay TA bằng đường thành viên (đổi bằng `assign` / `assistants`). Thông báo: `JOIN_REQUEST` (GV + TA lớp), `JOIN_APPROVED`, `JOIN_REJECTED` (sinh viên). Mọi chuyển ghi `audit_log` (`entity=enrollment`, `before/after` không chứa email, MSSV).
 
 ### 4.4 Gán giảng viên và trợ giảng (US-P2-08)
 
