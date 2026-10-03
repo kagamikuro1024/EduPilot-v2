@@ -1,4 +1,4 @@
-# Báo cáo QC — US-PU-02 (primitive đủ trạng thái, `/dev/ui`, CitationList, VerificationState) — **CHƯA XONG, DỪNG GIỮA CHỪNG**
+# Báo cáo QC — US-PU-02 (primitive đủ trạng thái, `/dev/ui`, CitationList, VerificationState) — **FAIL (2 lỗi thấp; TC-11/12 chờ BA)**
 Bản chấm `5dfca9b` (chứa `a5e219a`), `build:gate`, `next start -p 3400`. Chủ dự án chuyển chỗ → QC dừng theo lệnh PM. **Không có kết luận story**; dưới đây là cái đã đo.
 
 ## Lỗi tìm thấy (có tái hiện)
@@ -37,3 +37,17 @@ TC-39 (audit TA/GV/Admin/spec, sweep, 18 `data-part`), TC-40, TC-20, TC-24/25 đ
 ## Cập nhật khi chạy lại (`a0ecef6`) — DỪNG GIỮA CHỪNG theo lệnh PM
 - **TC-39 (một phần → đạt phần đo được):** `audit.mjs` 5 lượt: **683 hàng, FAIL 0** (SV 165, GV 170, TA 106, Admin 54, spec 188); `sweep` SV 42 hàng `FORBIDDEN`=0. `proto-curl.sh` 496/1 do dương tính giả ở `tokenStore.ts` (xem report PU-01); 18 `data-part` chưa đối chiếu.
 - Vẫn dở: TC-40 (production build), TC-20 bàn phím DataTable độc lập, TC-46/47, chốt TC-11/12 với BA. BUG-PU02-1, BUG-PU02-2 chưa kiểm lại (dev chưa báo sửa).
+
+## Hoàn tất (phiên 2) — đo trên `00425f0`, `build:gate` rồi `pnpm build`
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| 20 | PASS | trên bảng ảo 1.000 dòng (`[data-part=virtual-scroll]` nhận focus): `↓` chọn `r0`, `↓×5` → `r5`, `↑` → `r4`, `End` → `r999` (cuộn tới `scrollTop` 47.626), `Home` → `r0`, `Enter` mở Drawer và `Esc` đóng giữ nguyên dòng chọn, `Esc` lần nữa thoát chọn; `aria-activedescendant` theo dòng; DOM luôn 17–19 `tr` |
+| 39 | PASS | `audit.mjs` **683 hàng FAIL 0** (SV 165, GV 170, TA 106, Admin 54, spec 188); `sweep` SV 42 hàng `FORBIDDEN` 0, 0 cuộn ngang, 1 `h1`/trang; `proto-curl.sh all` **497 PASS / 0 FAIL**; 17/18 `data-part` có mặt ở route dùng chúng, `thread-form` có sau khi bấm "Đặt câu hỏi"; `bell-dot` có trong `AppShell.tsx:298` nhưng chỉ vẽ khi `unread > 0` — QC chưa kích hoạt thông báo chưa đọc nên chưa thấy trong DOM (chấp nhận, đúng 1.5) |
+| 40 | PASS | `pnpm build` thường rc=0: `/dev/ui`, `/dev/data`, `/dev/xyz` đều **404**; `grep -rl 'state-cell' .next/static .next/server` = 0, `data-part="primitive"` = 0 tệp; `build:gate`: `/dev/ui` 200 |
+| 46 | PASS có điều kiện | 10 điều kiện `DESIGN.md` §22 cho `/dev/ui`: (1) tiêu đề + mô tả nêu rõ việc, (2) mỗi vùng ≤ 1 hành động chính, (3) hành động phụ ẩn, (4) đủ 24×8 trạng thái, **(5) focus/bàn phím: có, trừ BUG-PU02-1 (hàng bảng) và BUG-PU02-2 (nền cuộn khi mở hộp thoại)**, (6) 375→1440 AUDIT sạch, (7) chuỗi Việt dài không vỡ, (8) chỉ token `--ep-*`, (9) 0 card lồng card (các khối ngăn bằng đường kẻ 1 px), (10) đỏ chỉ ở nút chính, viền ô lỗi và chữ lỗi. Diện tích đỏ đo bằng canvas: **1,02 %** khung nhìn 1440 (0,15 % cả trang), **4,76 %** khung nhìn 375 (0,32 % cả trang) < 8 %. Ảnh: `shots/pu02-devui-1440-top.png`, `shots/pu02-devui-375-top.png`. Ghi chú: bộ chọn bề rộng ở trang vẫn tô "1440" khi mở ở 375 (điều khiển dev, không phải sản phẩm) |
+| 47 | PASS | đọc các chuỗi của `/dev/ui` mà SV có thể thấy (ô trạng thái, lời lỗi, rỗng, bốn lời `VerificationState`): không "RAG/PII/fallback/trace/provider…" (grep TC-38 = 0); nút là động từ ("Lưu thay đổi", "Thử lại", "Gửi lại", "Xem lịch", "Tạo bộ lọc"); các nhãn tiếng Anh `default/hover/focus/…` chỉ là tên trạng thái của trang dev |
+| 36 | PASS (một phần) | khối "đã xác nhận" do dev spec `domain` kiểm nền/viền trái; QC không đo lại |
+| BUG-PU02-1 / -2 | còn nguyên | kiểm lại trên `00425f0`: hàng `tr` focus vẫn chỉ có vạch inset 2 px (`td` `box-shadow` inset, `tr` `none`); mở Dialog rồi `wheel(800)`: `scrollY` 11412 → 12212 |
+| 11, 12 | chờ BA | như trên |
+
+**Verdict US-PU-02: FAIL** — TC-06 (BUG-PU02-1) và TC-26 (BUG-PU02-2); TC-11/12 chờ BA định nghĩa; 44/47 TC PASS hoặc chờ, còn lại PASS. Sau khi dev sửa hai lỗi: QC chạy lại TC-06, TC-26 (≈ 10 phút).
