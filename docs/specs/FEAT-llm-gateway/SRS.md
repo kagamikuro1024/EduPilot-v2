@@ -1,5 +1,7 @@
 # SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
-Phiên bản 1.3 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+Phiên bản 1.4 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+
+**v1.4 (2026-10-03)** — góp ý #6, #7, #8, #9 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-P1-03 / US-P1-04). Trích #6: "luật 11 — BATCH không bao giờ được làm chat treo. BATCH **luôn** ≤ `ceil(MAX × share)` chỗ (bỏ ngoại lệ \"dùng hết công suất khi không có INTERACTIVE\"); bỏ `--prime`"; #7: "dung lượng bucket = burst (10 %); yêu cầu lớn hơn dung lượng chỉ đòi `min(cost, dung lượng)` rồi trừ trọn `cost` (bucket âm = nợ…); đối soát hoàn / trừ phần chênh kẹp ở dung lượng" (research `2026-10-03-scheduler-redis.md`); #8: "gói thật là `internal/platform/config`"; #9: "`active = true` khi DB không có tuyến nào dùng được (Registry đang chạy hoàn toàn bằng env)… có nhà cung cấp trong DB nhưng chưa gán tuyến → vẫn `true`". Không đổi số AC (72). Đổi: `SRS.md` 4.3 (bảng env `LLM_BATCH_SHARE`, "Mục tiêu đo được", "Cấp chỗ", "Token bucket"), 5.5 (bỏ khoá `ep:llm:lastint`, sửa `ep:llm:wait`), 6.3 (`env_fallback`), 8.2, 9; US-P1-03 AC2 (nêu làn), AC3 (luật bucket), AC4 (viết lại, bỏ `--prime`), AC15 (lệnh kiểm). Các góp ý #10–#12 không đổi spec này (QC / FEAT-ui-foundation).
 
 **v1.3 (2026-10-03)** — góp ý #1 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-P1-02; trích: "Làm theo research: `github.com/openai/openai-go/v3` v3.71.1 + `WithMaxRetries(0)`; `Structured` chọn CỐ ĐỊNH theo `type` (openai/gemini `json_schema`, anthropic tool bắt buộc, openai_compatible `json_object` + schema trong lời nhắc), không thử rồi lùi (D47: một lời gọi); `MODEL_NOT_FOUND` = 404; `max_completion_tokens` cho openai/anthropic, `max_tokens` cho gemini/compat; kẹp temperature ≤ 1 cho anthropic/gemini; Gemini chuẩn hoá L2 khi nhúng; mặc định dự phòng `claude-haiku-4-5-20251001`, `gemini-3.6-flash`. Tên test theo AC giữ nguyên (`TestStructuredDowngrade` kiểm hành vi theo loại)"; lý do: "PoC trong research: SDK tự thử lại 2 lần làm mất status 429; Anthropic bỏ qua `response_format`" — `docs/research/2026-10-03-openai-go-compat.md`). Không đổi số AC (72). Đổi: `SRS.md` 4.2 (mô-đun `openai-go/v3`, bảng loại nhà cung cấp, `Structured` theo `type`, ánh xạ lỗi, thử lại, tham số gửi đi, embedding, stream, mô hình mặc định), 8.6, FR-7, FR-12; US-P1-02 AC10 (viết lại), và các chỗ hệ quả: AC1 (đường dẫn mô-đun), AC5 (`MODEL_NOT_FOUND` = 404), AC6 (SDK không tự thử lại), AC11 (Gemini), phụ thuộc US-P1-02. **Không đổi** hợp đồng API, schema, mã lỗi hay số AC.
 
@@ -211,7 +213,7 @@ Nâng làn của `GRADING`, `QUESTION_GEN`, `INSIGHT` lên INTERACTIVE → `ErrB
 | Biến | Mặc định | Ý nghĩa |
 | --- | --- | --- |
 | `LLM_MAX_CONCURRENCY` | 10 | số lời gọi nhà cung cấp chạy cùng lúc **mỗi nhà cung cấp, toàn cục** (ZSET Redis) |
-| `LLM_BATCH_SHARE` | 0.5 | trần chỗ của BATCH = `ceil(MAX × share)` khi có INTERACTIVE đang chờ hoặc vừa chạy trong 2 s; ngoài ra BATCH dùng hết công suất |
+| `LLM_BATCH_SHARE` | 0.5 | trần chỗ của BATCH = `ceil(MAX × share)` **luôn luôn** (không ngoại lệ, không phụ thuộc có INTERACTIVE hay không; góp ý #6); số chỗ còn lại dành cho INTERACTIVE / NEAR_REALTIME |
 | `LLM_QUEUE_MAX` | 200 | số yêu cầu chờ tối đa **mỗi làn mỗi tiến trình**; vượt → `OVERLOADED` |
 | `LLM_QUEUE_WAIT_MAX` | 10s | chờ hàng tối đa của INTERACTIVE |
 | `LLM_REQUEST_TIMEOUT` | 30s | hạn mặc định (INTERACTIVE, NEAR_REALTIME) khi `ctx` không có hạn; BATCH 120 s |
@@ -224,11 +226,17 @@ Nâng làn của `GRADING`, `QUESTION_GEN`, `INSIGHT` lên INTERACTIVE → `ErrB
 
 **Công thức `retry_after` của `OVERLOADED`:** `clamp(ceil(độ_dài_hàng ÷ LLM_MAX_CONCURRENCY × trễ_trung_bình_s), 1, 30)`, trễ trung bình = trung bình trượt 100 lời gọi gần nhất của nhà chính (mặc định 5 s khi chưa có số liệu).
 
-**Mục tiêu đo được (ghi vào AC):** với 200 việc BATCH đang chờ, INTERACTIVE tới ≤ 50 % công suất: chờ hàng p95 **≤ 500 ms**, BATCH tối đa **5** chỗ trong 10, TTFT không chậm hơn **+20 %** (SYSTEM_DESIGN §5); suy ra từ trần BATCH share nên ≥ 5 chỗ luôn dành cho INTERACTIVE.
+**Mục tiêu đo được (ghi vào AC):** với 200 việc BATCH đang chờ, INTERACTIVE tới ≤ 50 % công suất: chờ hàng p95 **≤ 500 ms**, BATCH tối đa **5** chỗ trong 10, TTFT không chậm hơn **+20 %** (SYSTEM_DESIGN §5); suy ra từ trần BATCH share **áp vĩnh viễn** nên ≥ 5 chỗ luôn trống cho INTERACTIVE / NEAR_REALTIME — kể cả yêu cầu INTERACTIVE **đầu tiên** khi BATCH đã bơm đầy (luật 11: BATCH không bao giờ làm chat treo; góp ý #6). Đánh đổi chấp nhận: thông lượng BATCH tối đa `ceil(MAX × share)` chỗ cả khi hệ thống rảnh (chấm 1.000 bài ≤ 3 giờ ở T1 vẫn đạt với 5 chỗ — kiểm ở P10); muốn BATCH nhanh hơn thì chỉnh `LLM_BATCH_SHARE`.
 
-**Cấp chỗ:** (1) làn INTERACTIVE trước; (2) NEAR_REALTIME; (3) BATCH nếu `batch_inflight < ceil(MAX × share)` **hoặc** không có INTERACTIVE chờ / vừa chạy; FIFO trong làn. Chỗ = một phần tử trong `ZSET ep:llm:inflight:<provider_id>` (điểm = hạn thuê, ms); lease `deadline + 10 s`; dọn phần tử hết thuê trước mỗi lần cấp.
+**Cấp chỗ:** (1) làn INTERACTIVE trước; (2) NEAR_REALTIME; (3) BATCH **chỉ khi** `batch_inflight < ceil(MAX × share)` (luôn áp, không ngoại lệ — góp ý #6); FIFO trong làn. Chỗ = một phần tử trong `ZSET ep:llm:inflight:<provider_id>` (điểm = hạn thuê, ms); lease `deadline + 10 s`; dọn phần tử hết thuê trước mỗi lần cấp.
 
-**Token bucket:** hai bucket mỗi nhà cung cấp (RPM, TPM) bằng script Lua nguyên tử (làm đầy theo thời gian, dung lượng = hạn mức, burst = max(1, 10 % hạn mức)); ước tính TPM trước khi gọi = `ceil(len(prompt_bytes) / 4) + max_tokens`, đối soát bằng `tokens_in + tokens_out` thật sau khi xong; thiếu token → chờ trong hàng (không lỗi) tới khi đủ hoặc quá hạn.
+**Token bucket (góp ý #7; research `docs/research/2026-10-03-scheduler-redis.md`):** hai bucket mỗi nhà cung cấp (RPM, TPM), mỗi quyết định là **một script Lua nguyên tử**; thời gian lấy bằng `redis.call('TIME')` **trong script** — client chỉ gửi khoảng thời gian và số lượng (không gửi mốc tuyệt đối: đồng hồ client lệch 3 s làm bucket cấp hàng trăm nghìn lượt trong PoC). Luật:
+- **Dung lượng** mỗi bucket = `burst = max(1, ceil(10 % hạn mức))` (không phải cả hạn mức); nạp lại liên tục `hạn_mức / 60` mỗi giây, kẹp ở dung lượng.
+- **Yêu cầu có chi phí `cost` lớn hơn dung lượng** (ví dụ `GRADING` `max_tokens` tới 32.768 so với dung lượng TPM 10.000) chỉ đòi `min(cost, dung lượng)` để được cấp, rồi trừ **trọn** `cost` — bucket có thể **âm (nợ)** và được trả dần theo tốc độ nạp lại; nhờ vậy yêu cầu lớn không bao giờ bị chờ vô hạn nhưng tốc độ trung bình vẫn đúng hạn mức.
+- **Chi phí ước tính TPM** trước khi gọi = `ceil(len(prompt_bytes) / 4) + max_tokens`; chi phí RPM = 1.
+- **Đối soát** sau lời gọi: cộng / trừ phần chênh `ước tính − thật` (`tokens_in + tokens_out`) vào bucket TPM, kẹp ở dung lượng.
+- Thiếu token → script trả `wait_ms`; người gọi chờ trong hàng (không lỗi) `min(wait_ms, thời gian còn lại của ctx)` + jitter tới khi đủ hoặc quá hạn.
+- Mọi script chạy bằng `Script.Run` (chịu được `SCRIPT FLUSH`), không đặt trong pipeline; inflight dùng ZSET + Lua cùng kiểu (hạn thuê tính trong script từ `TIME`).
 
 **Suy giảm (INTERACTIVE, chuỗi chết):** `Response.Degraded=true`; câu trả lời = đúng câu mở đầu + ≤ 3 `Passages` có điểm cao nhất, mỗi đoạn "«trích nguyên văn» — tên tài liệu, tr. N" (cắt ≤ 600 ký tự mỗi đoạn, không sinh); không có đoạn: câu "AI tạm thời không khả dụng. Câu hỏi của bạn đã được ghi lại, giảng viên sẽ xem." Chuỗi cố định: `degraded.opening` = "AI tạm thời không khả dụng. Dưới đây là các đoạn tài liệu liên quan nhất:". Làn NEAR_REALTIME khi chuỗi chết → `LLM_UNAVAILABLE` (người gọi quyết định; leo thang không phụ thuộc LLM ở P4). BATCH → `LLM_UNAVAILABLE`.
 
@@ -393,8 +401,7 @@ Ghi chú: bảng `llm_audit` ghi thêm **các cột** so với `ARCHITECTURE.md`
 | Khoá | Kiểu | TTL | Nội dung |
 | --- | --- | --- | --- |
 | `ep:llm:inflight:{provider_id}` | ZSET | 300 s (làm mới mỗi lần cấp) | phần tử `{req_id}`, điểm = hạn thuê (ms) |
-| `ep:llm:wait:{lane}` | STRING (đếm) | 60 s (làm mới khi có người chờ) | gợi ý số người đang chờ toàn cục (dùng cho "có INTERACTIVE đang chờ") |
-| `ep:llm:lastint` | STRING | 5 s | thời điểm INTERACTIVE gần nhất chạy (cho cửa sổ "2 s") |
+| `ep:llm:wait:{lane}` | STRING (đếm) | 60 s (làm mới khi có người chờ) | số người đang chờ toàn cục theo làn (chỉ số và `retry_after`; không còn dùng để quyết định cấp chỗ cho BATCH) |
 | `ep:llm:rl:rpm:{provider_id}` | HASH `{tokens, ts}` | 120 s | bucket RPM |
 | `ep:llm:rl:tpm:{provider_id}` | HASH `{tokens, ts}` | 120 s | bucket TPM |
 | `ep:llm:cb:{provider_id}` | HASH `{state, fails, opened_at}` | 600 s | mạch |
@@ -459,7 +466,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
   "models":[{"id":"…","model":"gpt-4o-mini","kind":"chat","dims":null,"price_in":"4000.0000","price_out":"16000.0000","enabled":true}],
   "version":3 }
 ```
-`GET providers` → `{"items":[…],"env_fallback":{"active":false,"providers":[]}}`. `key_status` ∈ `ok`, `missing`, `unreadable`. **Không có trường khoá, đuôi khoá, hay `api_key`** trong bất kỳ phản hồi nào. Tiền là chuỗi thập phân.
+`GET providers` → `{"items":[…],"env_fallback":{"active":false,"providers":[]}}`. **`env_fallback` (góp ý #9):** `active = true` khi **DB không có tuyến nào dùng được** — tức `Registry` đang chạy hoàn toàn bằng cấu hình env dự phòng (4.2); `providers` = các loại nhà cung cấp mà env đang chạy (`"fake"`, `"openai"`, `"anthropic"`, `"gemini"`). DB có nhà cung cấp nhưng **chưa gán tuyến nào** (hoặc mọi tuyến trỏ tới nhà tắt / khoá không đọc được) → vẫn `active = true`. Có ít nhất một tuyến dùng được → `false` và `providers = []`. Màn `/settings/llm` dùng cờ này để hiện "Đang dùng cấu hình mặc định của máy chủ. Thêm nhà cung cấp để thay đổi." (`Registry.EnvActive()`). `key_status` ∈ `ok`, `missing`, `unreadable`. **Không có trường khoá, đuôi khoá, hay `api_key`** trong bất kỳ phản hồi nào. Tiền là chuỗi thập phân.
 
 **`POST/PUT` yêu cầu:** `{type, name, base_url?, api_key?, enabled?, rpm_limit?, tpm_limit?, models:[{model, kind, dims?, price_in, price_out, enabled?}], skip_verify?, version?}` — `PUT` không gửi `api_key` = giữ khoá; gửi chuỗi rỗng → 422; `models` thay thế toàn bộ danh sách (mô hình đang được tuyến dùng không được bỏ → 409 `PROVIDER_IN_USE`).
 
@@ -553,8 +560,8 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 
 | Chỉ số | Mục tiêu | Cách đo |
 | --- | --- | --- |
-| Cấp chỗ INTERACTIVE khi có 200 BATCH chờ | chờ hàng p95 ≤ **500 ms** | `TestBatchDoesNotStarveInteractive`, `cmd/llmload` |
-| BATCH khi có INTERACTIVE | ≤ **5** / 10 chỗ | như trên |
+| Cấp chỗ INTERACTIVE khi có 200 BATCH chờ | chờ hàng p95 ≤ **500 ms** | `TestBatchDoesNotStarveInteractive`, `cmd/llmload` (không cờ `--prime`) |
+| BATCH (luôn, kể cả khi không có INTERACTIVE) | ≤ **5** / 10 chỗ (`ceil(MAX × share)`) | như trên |
 | TTFT chat khi có BATCH | không chậm hơn **+20 %** | như trên (so với không BATCH) |
 | Từ chối `OVERLOADED` | ≤ **50 ms** | `TestQueueFullOverloaded` |
 | Huỷ → dừng nhà cung cấp | ≤ **1 s** | `TestClientCancelStopsProvider` |
@@ -602,7 +609,7 @@ Thêm: `github.com/openai/openai-go/v3` (v3.71.1; `ARCHITECTURE.md` §3 ghi `ope
 | Hợp đồng provider | `go test ./internal/llm -run TestProviderContract -v` | `fake` + phát lại; nhà cung cấp thật: **BLOCKED** tới khi có khoá |
 | Gate quét | lệnh grep của P1 + `scripts/canary-scan.sh` | SDK ngoài `internal/llm`; khoá không rò |
 | Giao diện | Playwright `frontend/e2e/settings-llm.spec.ts` (máy chủ giả theo hợp đồng thật ở CI; `@real` cho gateway thật) | US-P1-05 |
-| Tải nhẹ | `go run ./cmd/llmload --batch 200 --chat 25` | 200 BATCH + 25 chat; in các số của 8.2 |
+| Tải nhẹ | `go run ./cmd/llmload --batch 200 --chat 25` | 200 BATCH + 25 chat; **không có chat "mồi"** — chat đầu tiên cũng phải chờ hàng ≤ 500 ms; in các số của 8.2 |
 | Tay (QC) | `docs/sprints/3/qc/scenario-P1.md` | kịch bản "Bạn tự kiểm" |
 | `make eval` | **hoãn** (P3 / P10) | — |
 
