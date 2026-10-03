@@ -1,5 +1,7 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1.1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.2 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.2 (2026-10-03)** — góp ý #1 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "Đổi cách kiểm AC12(c) thành `TestOnlyAuthPackageTouchesTokenTables` (quét mã nguồn ngoài `auth`/`store`, 0 chỗ chạm `auth_tokens|auth_sessions|AuthToken|AuthSession`). depguard chỉ chặn theo gói import; `internal/store` là gói chung"). Không đổi số AC. Đổi: US-P2-01 AC12(c) và dòng `Kiểm`.
 
 **v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/4/qc/tc-US-P2-0*.md`, `tc-GATE-P2.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi hợp đồng API. Đổi: US-P2-02 AC4 (không có ân hạn khi hai refresh song song — Q-QC-P202-1), US-P2-01 AC3 (Mailpit là ngoại lệ — Q-QC-P201-1), US-P2-04 thêm AC13 (log truy cập không ghi token — Q-QC-P204-2), US-P2-05 AC7 (phép `fold` — Q-QC-P205-3), US-P2-06 AC9 (`--password` không tồn tại — Q-QC-P206-2), `SRS.md` 4.1, 4.2.1, 4.2.4, 4.2.6, 5.6, 8.1 (ghi chú cho QC: TTL rút gọn, `APP_ENV`, `SMTP_HOST`, `X-Forwarded-For`), 8.3, 8.5, FR-35. Các câu còn lại chỉ trả lời ở tệp TC.
 
