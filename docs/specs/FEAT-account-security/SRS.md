@@ -1,5 +1,7 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1.5 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.6 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.6 (2026-10-03)** — góp ý #5 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC10 nói \"mở `Drawer` tại chỗ (không modal)\" nhưng `Drawer` dùng chung (`shared/ui/Dialog.tsx`) là `<dialog>` modal… Dựng khung mời là một `Section` mở dần tại chỗ (không `Drawer`, không modal); test khẳng định bằng `getByRole('dialog')` = 0. **ACCEPTED** — mở dần tại chỗ đúng `DESIGN.md`"). Không đổi số AC. Đổi: US-P2-06 AC10 (khung mời mở tại chỗ, lệnh `Kiểm` dùng `getByRole`), `SRS.md` 7.1, 7.2.
 
 **v1.5 (2026-10-03)** — góp ý #4 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC7 \"chỉ nhận `Content-Type: application/json`\" mâu thuẫn với lệnh tay AC3/AC6/AC7 (`curl -X POST …/auth/refresh` không thân, không Content-Type)… Từ chối khi header có mà khác JSON (415); cho qua khi không có header. **ACCEPTED** — điều kiện: kiểm Origin / `Sec-Fetch-Site` là bắt buộc ở mọi endpoint dùng cookie"). Không đổi số AC. Đổi: US-P2-02 AC7, `SRS.md` 4.1 (kiểm nguồn gốc).
 
@@ -415,7 +417,7 @@ Quy tắc dựng: `html/template` (thoát tự động) cho HTML, `text/template
 | `/reset-password` | `AuthShell` | `Đổi mật khẩu` | đang kiểm token, form, thành công, liên kết không dùng được |
 | `/invite/[token]` | `AuthShell` | `Đặt mật khẩu và vào` | đang kiểm, form, liên kết không dùng được |
 | `/settings` | khung ứng dụng | `Đổi mật khẩu` (phần Mật khẩu) | khung xương, rỗng ("Không có thiết bị nào khác."), lỗi chuẩn |
-| `/admin/users` | khung ứng dụng | `Mời giảng viên` | khung xương, rỗng, lỗi, Drawer tạo, `UndoLine` khoá |
+| `/admin/users` | khung ứng dụng | `Mời giảng viên` | khung xương, rỗng, lỗi, khung mời mở tại chỗ, `UndoLine` khoá |
 
 `AuthShell`: nền `--ep-paper`, không sidebar, một cột, chân trang "Cần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn." Không từ kỹ thuật (`token`, `session`, `refresh`, `JWT`, `bcrypt`, `OIDC`). Nút là động từ. Lỗi nêu *vấn đề + dữ liệu có an toàn không + cách khắc phục*.
 
@@ -430,7 +432,7 @@ Quy tắc dựng: `html/template` (thoát tự động) cho HTML, `text/template
 | `/reset-password` | "Đặt mật khẩu mới"; "Mật khẩu mới", "Nhập lại mật khẩu"; nút "Đổi mật khẩu"; thành công "Mật khẩu đã được đổi. Hãy đăng nhập lại."; không dùng được "Liên kết đã hết hạn hoặc đã được dùng." + "Yêu cầu liên kết mới" |
 | `/invite/[token]` | "Chào {Họ tên}, bạn được mời làm {Giảng viên / Trợ giảng} trên EduPilot."; nút "Đặt mật khẩu và vào"; không dùng được "Lời mời đã hết hạn hoặc đã được dùng. Hãy nhờ quản trị viên gửi lại." |
 | `/settings` | "Mật khẩu" / "Thiết bị đang đăng nhập"; "Thiết bị này"; "Đăng xuất thiết bị này"; "Đăng xuất mọi thiết bị khác" → xác nhận "Đăng xuất 2 thiết bị khác. Họ sẽ phải đăng nhập lại." |
-| `/admin/users` | "Mời giảng viên"; Drawer "Email", "Họ và tên", "Vai" (Giảng viên / Trợ giảng); xong "Đã gửi link mời, hạn 72 giờ."; "Gửi lại lời mời"; "Khoá tài khoản" / "Mở khoá"; undo "Đã khoá {tên} · Hoàn tác"; rỗng "Chưa có người dùng khớp bộ lọc." |
+| `/admin/users` | "Mời giảng viên"; khung mời mở tại chỗ "Email", "Họ và tên", "Vai" (Giảng viên / Trợ giảng); xong "Đã gửi link mời, hạn 72 giờ."; "Gửi lại lời mời"; "Khoá tài khoản" / "Mở khoá"; undo "Đã khoá {tên} · Hoàn tác"; rỗng "Chưa có người dùng khớp bộ lọc." |
 
 Bảng ánh xạ `apiClient` (FEAT-ui-foundation SRS 6.2) thêm 6 mã mới: `INVALID_CREDENTIALS` → "Email hoặc mật khẩu không đúng."; `LOGIN_THROTTLED` → "Bạn đã thử quá nhiều lần. Thử lại sau {N} giây."; `ACCOUNT_DISABLED` → "Tài khoản đã bị khoá. Hãy liên hệ quản trị viên."; `SESSION_REVOKED` → "Bạn đã bị đăng xuất. Hãy đăng nhập lại."; `LINK_INVALID` → "Liên kết đã hết hạn hoặc đã được dùng."; `EMAIL_NOT_VERIFIED` → "Hãy xác minh email trước khi vào lớp."
 
