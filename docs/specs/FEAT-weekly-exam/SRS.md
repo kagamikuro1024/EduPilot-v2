@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.2 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.3 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.3 (2026-10-03)** — theo góp ý #3 `docs/sprints/4/proposals.md` (PM `ACCEPTED`: "`vitest` không có trong bảng thư viện `ARCHITECTURE.md` §3 (chỉ Playwright) … Kiểm bằng test Playwright không cần trình duyệt"): bỏ `vitest` khỏi spec này. Không đổi số AC (124). Đổi: US-PE-03 AC1, US-PE-05 AC3 và AC10 (dòng `Kiểm`), `SRS.md` 9.
 
 **v1.2 (2026-10-03)** — Q27 theo góp ý #6 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; trích: "migration PE (sprint 5) lấy số kế tiếp, không phải `00005` như `FEAT-weekly-exam` Q27" — P2 đã dùng `00005_vn_fold`). Không đổi số AC (124). Đổi: US-PE-01 AC1, US-PE-09 AC10, phần phạm vi (1), `SRS.md` 1, 4.12 (FR-1), 5, 10 (mục 3), `QUESTIONS.md` Q27: bỏ số `00005`, ghi "số kế tiếp khi thi công".
 
@@ -1149,7 +1151,7 @@ Thêm job `judge-attacks` (runner amd64): dựng `deploy/judge` với seccomp b�
 | Tích hợp (`-tags integration`; Postgres + Redis + **judge thật**) | `internal/judge`, `internal/exam`, `internal/integration` | `TestSandboxAttacks` (15 ca), `TestJudgeConsumerIdempotent`, `TestJudgeKillWorkerMidRun`, `TestRunWhenJudgeDown503`, `TestPublishFlowConcurrency`, `TestNoAnswerLeak`, `TestExamLockContract`, `TestExamIsolation`, `TestAllExamRoutesGuarded`, `TestRegrade*`, `TestVerifyReference*`, `TestSuggest*` (provider `fake`) |
 | Contract | `internal/contract` | `TestExamContract`, `TestExamErrorCodes` (56 thao tác ↔ `openapi.yaml`) |
 | Schema | `internal/store` | `TestExamSchema`, `TestExamConstraints`, `TestExamIndexes` |
-| Frontend đơn vị | `vitest` | `clock.test.ts`, `saveQueue.test.ts`, `markdown.test.ts` |
+| Frontend đơn vị | Playwright không cần trình duyệt (`vitest` không có trong bảng thư viện `ARCHITECTURE.md` §3) | `e2e/exam-clock.spec.ts`, `e2e/exam-save-queue.spec.ts`, `e2e/markdown.spec.ts` |
 | E2E | `frontend/e2e/exam.spec.ts` | 12 ca của US-PE-09 AC7 |
 | Tải | `benchmarks/load/exam-submit.js` | `judge_burst`, `autosave`, `mixed` |
 | Seed | `scripts/check-exam-seed.mjs` | `bank`, `scores`, `demo` |
