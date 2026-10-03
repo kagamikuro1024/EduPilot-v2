@@ -681,3 +681,25 @@ func TestTodayDeadline504(t *testing.T) {
 	require.Equal(t, http.StatusGatewayTimeout, w.Code, w.Body.String())
 	require.Contains(t, w.Body.String(), "DEADLINE_EXCEEDED")
 }
+
+type hangLLM struct{}
+
+func (hangLLM) BudgetPercent(ctx context.Context) (int, bool)  { <-ctx.Done(); return 0, false }
+func (hangLLM) OpenCircuit(ctx context.Context, _ string) bool { <-ctx.Done(); return false }
+
+// QC L3 (US-P2-11): Redis chết ⇒ tín hiệu cổng AI treo; Admin vẫn phải thấy việc đọc từ DB (lớp không giảng viên, lời mời hết hạn).
+func TestAdminTodaySurvivesHangingLLMSignals(t *testing.T) {
+	r := newRig(t)
+	r.klass("761995")
+	r.llmProvider("Treo", true, new(bool))
+	start := time.Now()
+	items, err := (today.AdminProvider{Pool: r.pool, LLM: hangLLM{}}).Items(t.Context(), today.Viewer{Role: today.RoleAdmin, Now: r.clk.Now()}, today.Scope{})
+	require.NoError(t, err)
+	require.Less(t, time.Since(start), 140*time.Millisecond, "tín hiệu treo bị cắt ở hạn riêng, trước hạn 150 ms của Provider")
+	var seen bool
+	for _, it := range items {
+		seen = seen || (it.Kind == today.KindCourseNoTeacher && it.Course.ClassCode == "761995")
+	}
+	require.True(t, seen, "việc từ DB vẫn còn")
+	require.NotEmpty(t, find(items, today.KindLLMProviderError), "nhà cung cấp có last_test_ok=false vẫn báo lỗi")
+}

@@ -88,6 +88,7 @@ func (s *Service) warn(ctx context.Context, op string, err error) {
 // Dạng phản hồi chỉ phụ thuộc vai trong JWT, không phụ thuộc tham số nào của client.
 func (s *Service) Get(ctx context.Context, userID uuid.UUID, role Role, scope Scope) ([]byte, error) {
 	key := CacheKey(userID, scope.Key())
+	redisUp := s.Redis != nil
 	if s.Redis != nil {
 		cctx, cancel := context.WithTimeout(ctx, cacheOpTimeout)
 		b, err := s.Redis.Get(cctx, key).Bytes()
@@ -97,13 +98,14 @@ func (s *Service) Get(ctx context.Context, userID uuid.UUID, role Role, scope Sc
 			return b, nil
 		case !errors.Is(err, appredisNil()):
 			s.warn(ctx, "get", err)
+			redisUp = false // Redis lỗi: tính trực tiếp và KHÔNG thử ghi lại (tránh trả thêm một hạn chờ)
 		}
 	}
 	body, err := s.compute(ctx, userID, role, scope)
 	if err != nil {
 		return nil, err
 	}
-	if s.Redis != nil {
+	if redisUp {
 		cctx, cancel := context.WithTimeout(ctx, cacheOpTimeout)
 		if err := s.Redis.Set(cctx, key, body, s.ttl()).Err(); err != nil {
 			s.warn(ctx, "set", err)

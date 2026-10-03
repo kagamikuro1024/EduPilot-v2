@@ -11,6 +11,9 @@ import (
 	"github.com/edupilot/backend-go/internal/store"
 )
 
+// signalTimeout: hạn CHUNG cho mọi tín hiệu cổng AI của Admin (đi qua Redis); nhỏ hơn hạn 150 ms của Provider.
+const signalTimeout = 60 * time.Millisecond
+
 // overdueAfter: yêu cầu vào lớp chờ lâu hơn mức này nổi lên trước mọi bậc (SRS 4.7).
 const overdueAfter = 48 * time.Hour
 
@@ -208,13 +211,30 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 		return nil, nil // không tốn truy vấn cho vai khác
 	}
 	q := store.New(p.Pool)
-	var out []Item
+	// Việc đọc từ DB trước: không phụ thuộc Redis. Tín hiệu cổng AI (mạch mở, % ngân sách) đi qua Redis nên đứng SAU và có hạn riêng —
+	// Redis chậm / chết chỉ mất các tín hiệu đó, không làm Admin mất cả "lớp không giảng viên" và "lời mời hết hạn".
 	provs, err := q.TodayAdminProviders(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("today: nhà cung cấp AI: %w", err)
 	}
+	nt, err := q.TodayAdminCoursesNoTeacher(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("today: lớp không giảng viên: %w", err)
+	}
+	n, err := q.TodayAdminExpiredInvites(ctx, v.Now)
+	if err != nil {
+		return nil, fmt.Errorf("today: lời mời hết hạn: %w", err)
+	}
+
+	sctx := ctx
+	if p.LLM != nil {
+		var cancel context.CancelFunc
+		sctx, cancel = context.WithTimeout(ctx, signalTimeout)
+		defer cancel()
+	}
+	var out []Item
 	for _, pr := range provs {
-		if pr.Ok && (p.LLM == nil || !p.LLM.OpenCircuit(ctx, pr.ID.String())) {
+		if pr.Ok && (p.LLM == nil || !p.LLM.OpenCircuit(sctx, pr.ID.String())) {
 			continue
 		}
 		out = append(out, mk(Item{
@@ -223,7 +243,7 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 		}))
 	}
 	if p.LLM != nil {
-		if pct, ok := p.LLM.BudgetPercent(ctx); ok && pct >= 80 {
+		if pct, ok := p.LLM.BudgetPercent(sctx); ok && pct >= 80 {
 			kind, tier := KindLLMBudgetWarn, TierLLMBudgetWarn
 			if pct >= 100 {
 				kind, tier = KindLLMBudgetOut, TierLLMBudgetOut
@@ -234,20 +254,12 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 			}))
 		}
 	}
-	nt, err := q.TodayAdminCoursesNoTeacher(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("today: lớp không giảng viên: %w", err)
-	}
 	for _, c := range nt {
 		out = append(out, mk(Item{
 			ID: "COURSE_NO_TEACHER:" + c.ID.String(), Kind: KindCourseNoTeacher, Tier: TierCourseNoTeacher, Course: &CourseRef{ID: c.ID, ClassCode: c.ClassCode},
 			Href: "/admin/courses", Title: fmt.Sprintf("Lớp %s chưa có giảng viên", c.ClassCode),
 			Reason: "Hãy gán giảng viên để lớp nhận thông báo và mở mã tham gia.",
 		}))
-	}
-	n, err := q.TodayAdminExpiredInvites(ctx, v.Now)
-	if err != nil {
-		return nil, fmt.Errorf("today: lời mời hết hạn: %w", err)
 	}
 	if n > 0 {
 		out = append(out, mk(Item{
