@@ -85,7 +85,7 @@ func TestErrorMapping(t *testing.T) {
 		{"500", 500, `{"error":{"message":"boom"}}`, nil, provider.KindServer, true, true, true},
 		{"502 HTML", 502, `<html>Bad Gateway</html>`, map[string]string{"Content-Type": "text/html"}, provider.KindServer, true, true, true},
 		{"503", 503, `{"error":{"message":"overloaded"}}`, nil, provider.KindServer, true, true, true},
-		{"504", 504, `{}`, nil, provider.KindTimeout, true, true, true},
+		{"504 là SERVER (không phải TIMEOUT)", 504, `{}`, nil, provider.KindServer, true, true, true},
 		{"400 thường", 400, `{"error":{"message":"bad param","type":"invalid_request_error"}}`, nil, provider.KindBadRequest, false, false, false},
 		{"422", 422, `{"error":{"message":"unprocessable"}}`, nil, provider.KindBadRequest, false, false, false},
 		{"400 nội dung bị lọc", 400, `{"error":{"message":"blocked by content filter","code":"content_filter"}}`, nil, provider.KindBadRequest, false, false, false},

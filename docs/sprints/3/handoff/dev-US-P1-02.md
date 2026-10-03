@@ -37,3 +37,8 @@ Cổng: `go vet` (cả `testroutes`, `integration`) sạch; `golangci-lint run` 
 - Chưa làm tay bước `curl` của AC7/AC9/AC17 (cần stack compose); chạy ở cổng P1 hoặc US-P1-04.
 - Hạn mức / hàng đợi / mạch / ngân sách / suy giảm / single-flight: US-P1-03 (đã chừa `Gate`).
 - Contract: số thao tác của `openapi.test.yaml` 15→18 (góp ý #3). Enum `Error.code` của `openapi.test.yaml` thêm 6 mã; `openapi.yaml` sẽ thêm ở US-P1-04.
+
+## Sửa lỗi QC (report-US-P1-02)
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-P102-1 HTTP 504 bị xếp `TIMEOUT` | `provider.classify`: chỉ 408 → `TIMEOUT`; 504 rơi vào `>= 500` → `SERVER` (`llm_audit`: `error | SERVER`). `TIMEOUT` chỉ còn cho `DeadlineExceeded` / timeout mạng | `TestErrorMapping/504_là_SERVER` (đã sửa ca ghim sai); `go test -race ./internal/llm/provider` |

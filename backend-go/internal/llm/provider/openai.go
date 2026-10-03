@@ -281,7 +281,7 @@ func classify(err error, secrets ...string) error {
 			e.Kind = KindModelNotFound
 		case s == http.StatusTooManyRequests:
 			e.Kind = KindRateLimit
-		case s == http.StatusRequestTimeout || s == http.StatusGatewayTimeout:
+		case s == http.StatusRequestTimeout:
 			e.Kind = KindTimeout
 		case s >= 500:
 			e.Kind = KindServer
