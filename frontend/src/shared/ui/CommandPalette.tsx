@@ -11,7 +11,7 @@ import s from "./CommandPalette.module.css";
 const fold = (v: string) => v.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d");
 
 /** "Tìm nhanh hoặc đi đến…" (⌘K, /): lọc theo tên route của vai trò hiện tại, Enter để đi. */
-export function CommandPalette({ open, onClose, items, initialQuery = "", loading }: { open: boolean; onClose: () => void; items: NavItem[]; initialQuery?: string; loading?: boolean }) {
+export function CommandPalette({ open, tick = 0, onClose, items, initialQuery = "", loading }: { open: boolean; /** tăng mỗi lần yêu cầu mở (mở lại khi `open` không đổi giá trị) */ tick?: number; onClose: () => void; items: NavItem[]; initialQuery?: string; loading?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -27,12 +27,16 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
     const d = ref.current;
     if (!d) return;
     if (open && !d.open) {
-      setQ(initialQuery);
-      setActive(0);
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- đồng bộ DOM <dialog> với prop `open`
+      if (initialQuery) setQ(initialQuery);
       d.showModal();
     }
-    if (!open && d.open) d.close();
-  }, [open, initialQuery]);
+    if (!open && d.open) {
+      d.close();
+      setQ(""); // đặt lại khi ĐÓNG: mở lại không ghi đè chữ người dùng vừa gõ
+      setActive(0);
+    }
+  }, [open, tick, initialQuery]);
 
   function go(item: NavItem | undefined) {
     if (!item) return;
@@ -41,7 +45,7 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
   }
 
   return (
-    <dialog ref={ref} className={[dlg.overlay, dlg.dialog, s.palette].join(" ")} onClose={onClose} onClick={(e) => e.target === ref.current && onClose()} aria-label="Tìm nhanh">
+    <dialog ref={ref} className={[dlg.overlay, dlg.dialog, s.palette].join(" ")} onCancel={(e) => { e.preventDefault(); onClose(); }} /* Esc: đóng qua state (không dựa sự kiện close đến muộn) */ onClick={(e) => e.target === ref.current && onClose()} aria-label="Tìm nhanh">
       <div className={s.search}>
         <Search aria-hidden />
         <input
@@ -73,7 +77,8 @@ export function CommandPalette({ open, onClose, items, initialQuery = "", loadin
       </div>
       <ul id={`${uid}-list`} className={s.list} role="listbox" aria-label="Kết quả" aria-busy={loading || undefined}>
         {loading && (
-          <li className={s.none} aria-label="Đang tải">
+          <li className={s.none}>
+            <span className="ep-sr-only">Đang tải</span>
             <span className={s.sk} />
           </li>
         )}

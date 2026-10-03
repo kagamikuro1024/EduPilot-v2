@@ -9,7 +9,12 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 5_000 },
   fullyParallel: true,
-  reporter: [["list"]],
+  // CI: 2 worker, thử lại 1 lần (ảnh mốc đặt retries: 0 riêng trong visual.spec.ts để không che lỗi lệch ảnh)
+  workers: process.env.CI ? 2 : undefined,
+  retries: process.env.CI ? 1 : 0,
+  // ảnh mốc một tệp cho mỗi (route, bề rộng), không đuôi dự án / hệ điều hành: `e2e/visual.spec.ts-snapshots/<tên>.png` (US-PU-05 AC1)
+  snapshotPathTemplate: "{testDir}/{testFilePath}-snapshots/{arg}{ext}",
+  reporter: process.env.CI ? [["list"], ["html", { open: "never" }]] : [["list"]],
   use: {
     baseURL: `http://localhost:${PORT}`,
     locale: "vi-VN",

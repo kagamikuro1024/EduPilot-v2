@@ -62,7 +62,7 @@ export function EmptyState({ title, children, action, icon }: { title: ReactNode
 /** Khung chờ có hình giống nội dung thật (không spinner giữa màn). */
 export function Skeleton({ lines = 3, className }: { lines?: number; className?: string }) {
   return (
-    <div className={[s.skeleton, className ?? ""].join(" ")} aria-busy="true" aria-label="Đang tải">
+    <div className={[s.skeleton, className ?? ""].join(" ")} role="group" aria-busy="true" aria-label="Đang tải">
       {Array.from({ length: lines }, (_, i) => (
         <span key={i} className={s.skLine} style={{ width: `${92 - ((i * 17) % 40)}%` }} />
       ))}

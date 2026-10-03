@@ -145,6 +145,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // 720–1099 px luôn thu gọn (72 px); ≥ 1100 px theo lựa chọn đã nhớ (216 px mặc định)
   const collapsed = mid || prefCollapsed;
   const [palette, setPalette] = useState(false);
+  // mỗi lần MỞ tăng `paletteTick` để hộp thoại gốc mở lại kể cả khi sự kiện `close` của lần đóng trước chưa kịp cập nhật `palette`
+  const [paletteTick, setPaletteTick] = useState(0);
+  const openPalette = () => {
+    setPalette(true);
+    setPaletteTick((n) => n + 1);
+  };
   const [more, setMore] = useState(false);
 
   useEffect(() => {
@@ -152,7 +158,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       const typing = e.target instanceof HTMLElement && e.target.closest("input, textarea, select, [contenteditable]");
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();
-        setPalette(true);
+        openPalette();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -299,7 +305,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className={s.topEnd}>
-          <button type="button" className={s.search} onClick={() => setPalette(true)} aria-label="Tìm nhanh hoặc đi đến">
+          <button type="button" className={s.search} onClick={openPalette} aria-label="Tìm nhanh hoặc đi đến">
             <Search aria-hidden />
             <span className={s.searchText}>Tìm nhanh hoặc đi đến…</span>
             <span className={s.searchKey}>
@@ -510,7 +516,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </>
       )}
 
-      <CommandPalette open={palette} onClose={() => setPalette(false)} items={flat} />
+      <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />
     </div>
   );
 }

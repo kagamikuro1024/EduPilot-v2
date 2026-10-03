@@ -199,6 +199,8 @@ test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV kh�
   mockOnly();
   await asDemo(context, "teacher");
   await page.goto("/");
+  await page.locator("main").waitFor();
+  await page.waitForTimeout(300); // chờ hydrate trước khi bấm phím tắt
   const opener = page.getByRole("button", { name: "Tìm nhanh hoặc đi đến" });
   await opener.focus();
   await page.keyboard.press("Control+k");
@@ -227,6 +229,8 @@ test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV kh�
   await context.clearCookies();
   await asDemo(context, "student");
   await page.goto("/");
+  await page.locator("main").waitFor();
+  await page.waitForTimeout(300); // chờ hydrate trước khi bấm phím tắt
   await page.keyboard.press("Control+k");
   await page.getByRole("combobox").fill("diem danh");
   await expect(page.getByRole("option")).toHaveCount(0);

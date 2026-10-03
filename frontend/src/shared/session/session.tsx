@@ -79,7 +79,7 @@ export function SessionProvider({
     const t = setTimeout(() => {
       tokenStore.clear();
       setExpired(true);
-    }, Math.max(0, identity.exp * 1000 - Date.now()));
+    }, Math.min(2 ** 31 - 1, Math.max(0, identity.exp * 1000 - Date.now()))); // setTimeout tràn ở > 24,8 ngày: kẹp để token dài hạn không bị xoá ngay
     return () => clearTimeout(t);
   }, [identity]);
 
