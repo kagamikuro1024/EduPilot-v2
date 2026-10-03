@@ -500,7 +500,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </nav>
 
-          <Drawer open={more} onClose={() => setMore(false)} title="Thêm">
+          <Drawer open={more} onClose={() => setMore(false)} title="Thêm" sheet>
             <ul className={s.moreList}>
               {mobileMore.map((item) => (
                 <li key={item.href}>

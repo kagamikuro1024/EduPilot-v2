@@ -39,6 +39,8 @@
 
 @media (max-width: 719px) {
   .drawer, .wide.drawer { width: 100vw; border-width: 0; }
+  /* bảng trượt từ đáy (menu "Thêm" của thanh dưới): không phủ kín màn để còn chỗ bấm ngoài */
+  .sheet.drawer { margin: auto auto 0; height: auto; max-height: 75dvh; border-radius: var(--ep-radius-lg) var(--ep-radius-lg) 0 0; animation: none; }
   .dialog { margin: auto auto 0; width: 100vw; max-width: 100vw; border-radius: var(--ep-radius-lg) var(--ep-radius-lg) 0 0; }
   .foot { flex-direction: column-reverse; }
   .foot > * { width: 100%; }

@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { BASE_URL } from "./support/env";
 import { expect, test, type Page } from "@playwright/test";
 import { MOBILE_PRIMARY, navFor } from "../src/shared/shell/nav";
 import { loadAudit } from "./support/audit";
@@ -435,7 +436,7 @@ test("touch: vùng chạm và tràn ngang ở 4 vai × 375/390", async ({ browse
   for (const role of ROLES) {
     for (const w of [375, 390]) {
       // thiết bị cảm ứng thật (pointer: coarse) — vùng chạm 44 px chỉ áp dụng ở đó
-      const context = await browser.newContext({ viewport: { width: w, height: 844 }, hasTouch: true, isMobile: true, locale: "vi-VN", baseURL: "http://localhost:3310" });
+      const context = await browser.newContext({ viewport: { width: w, height: 844 }, hasTouch: true, isMobile: true, locale: "vi-VN", baseURL: BASE_URL });
       await asDemo(context, role);
       const page = await context.newPage();
       for (const href of ["/", ...MOBILE_PRIMARY[role].slice(1, 3)]) {
@@ -449,4 +450,49 @@ test("touch: vùng chạm và tràn ngang ở 4 vai × 375/390", async ({ browse
       await context.close();
     }
   }
+});
+
+test("BUG-PU04-1: bảng Thêm ở điện thoại là bảng trượt — đóng bằng bấm ngoài, vuốt xuống, Esc và trả focus về nút Thêm", async ({ browser }) => {
+  mockOnly();
+  test.setTimeout(90_000);
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true, locale: "vi-VN", baseURL: BASE_URL });
+  await asDemo(context, "teacher");
+  const page = await context.newPage();
+  await page.goto("/");
+  await page.locator("main").waitFor();
+  await page.waitForTimeout(300);
+  const more = page.locator("[data-part=bottom-nav]").getByRole("button", { name: "Thêm" });
+  const dlg = page.locator("dialog[open]");
+  const open = async () => {
+    await more.tap();
+    await expect(dlg).toHaveCount(1);
+  };
+
+  await open();
+  const box = (await dlg.boundingBox())!;
+  expect(box.height, "bảng không phủ kín màn").toBeLessThan(844 - 60);
+  expect(box.y + box.height).toBeGreaterThanOrEqual(843); // dính đáy
+  expect(await dlg.locator("a").count()).toBe(navFor("teacher").flatMap((g) => g.items).length - MOBILE_PRIMARY.teacher.length);
+
+  // 1) bấm ngoài (vùng nền phía trên bảng)
+  await page.touchscreen.tap(195, 20);
+  await expect(dlg).toHaveCount(0);
+  await expect(more).toBeFocused();
+
+  // 2) vuốt xuống (cử chỉ thật qua CDP)
+  await open();
+  const cdp = await context.newCDPSession(page);
+  const y0 = box.y + 40;
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: 195, y: y0 }] });
+  for (let i = 1; i <= 6; i++) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: 195, y: y0 + i * 30 }] });
+  await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+  await expect(dlg).toHaveCount(0);
+  await expect(more).toBeFocused();
+
+  // 3) Esc
+  await open();
+  await page.keyboard.press("Escape");
+  await expect(dlg).toHaveCount(0);
+  await expect(more).toBeFocused();
+  await context.close();
 });

@@ -31,3 +31,9 @@ Nhánh `sprint/3-pu-p1`. Góp ý #22–#24. Chạy: `pnpm -C frontend build:gate
 ## Nợ / ghi chú
 - Ca `no-backend` chỉ chạy ở bản `MOCK_SCREENS=0` (không nằm trong lượt `playwright test` mặc định).
 - `/settings/llm` sau khi dán token vẫn là bản mock (`LlmSettings`) cho tới US-P1-05.
+
+## Sửa lỗi QC (report-US-PU-04)
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-PU04-1 bảng "Thêm" ở điện thoại chỉ đóng bằng `Esc` / `Đóng` (AC5, TC-21) | Bảng "Thêm" nay là bảng trượt từ đáy (`<Drawer sheet>`): ở < 720 px `dialog` cao theo nội dung (≤ 75 % màn), dính đáy, chừa nền phía trên để **bấm ngoài** đóng; **vuốt xuống** > 64 px từ đầu nội dung đóng; `Esc` / `Đóng` như cũ; cả ba cách trả focus về nút `Thêm`. Kèm: `Dialog` đóng qua `onCancel` + state (không dựa sự kiện `close` đến muộn — làm hộp thoại vừa mở lại bị đóng nhầm) | `shell.spec.ts › BUG-PU04-1` (cảm ứng thật, vuốt bằng CDP `Input.dispatchTouchEvent`): bảng cao < 784 px, dính đáy, số mục = tổng − 4; bấm tại y=20, vuốt 180 px, `Esc` đều đóng và `Thêm` nhận focus |
+| Ghi chú PM: ca `shell › touch` cứng cổng 3310 | Cổng Playwright có MỘT nguồn: `e2e/support/env.ts` (`E2E_PORT`, mặc định 3310) dùng cho `playwright.config.ts`, `asDemo` (cookie) và mọi `browser.newContext({ baseURL })`; không còn `localhost:3310` trong spec | `grep -rn 'localhost:3310' frontend/e2e` = 0 |

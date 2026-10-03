@@ -1,8 +1,8 @@
 import { defineConfig } from "@playwright/test";
+import { PORT } from "./e2e/support/env";
 
 // Gate giao diện (FEAT-ui-foundation SRS 8): hai dự án desktop 1440 × 900 và mobile 390 × 844, chạy trên bản build (`next start -p 3310`).
 // Ca gắn @real cần gateway thật và KHÔNG chạy trong CI (CI không dựng stack).
-const PORT = 3310;
 
 export default defineConfig({
   testDir: "./e2e",

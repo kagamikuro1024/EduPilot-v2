@@ -43,6 +43,7 @@ function Overlay({
   loading,
   error,
   descriptionId,
+  sheet,
 }: {
   open: boolean;
   onClose: () => void;
@@ -60,12 +61,26 @@ function Overlay({
   error?: ReactNode;
   /** id của đoạn mô tả (để nút bên trong trỏ `aria-describedby` tới lý do khoá) */
   descriptionId?: string;
+  /** (Drawer) < 720 px hiện như bảng trượt từ đáy, chừa nền để bấm ngoài và vuốt xuống để đóng */
+  sheet?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const autoDesc = useId();
   const descId = descriptionId ?? autoDesc;
   useScrollLock(open);
+  // Bảng trượt: kéo xuống > 64 px từ đầu nội dung thì đóng (vuốt xuống)
+  const startY = useRef<number | null>(null);
+  const swipeStart = (e: React.TouchEvent) => {
+    const body = (e.currentTarget as HTMLElement).querySelector("[data-sheet-body]");
+    startY.current = !body || (body as HTMLElement).scrollTop <= 0 ? e.touches[0].clientY : null;
+  };
+  const swipeMove = (e: React.TouchEvent) => {
+    if (startY.current !== null && dismissible && e.touches[0].clientY - startY.current > 64) {
+      startY.current = null;
+      onClose();
+    }
+  };
 
   useEffect(() => {
     const d = ref.current;
@@ -77,16 +92,19 @@ function Overlay({
   return (
     <dialog
       ref={ref}
-      className={[s.overlay, variant === "drawer" ? s.drawer : s.dialog, wide ? s.wide : ""].join(" ")}
-      onClose={onClose}
-      onCancel={(e) => !dismissible && e.preventDefault()}
+      className={[s.overlay, variant === "drawer" ? s.drawer : s.dialog, wide ? s.wide : "", sheet ? s.sheet : ""].join(" ")}
+      // Esc đóng qua state (không dựa sự kiện `close` — đến muộn sau khi hộp thoại đã mở lại thì đóng nhầm)
+      onCancel={(e) => {
+        e.preventDefault();
+        if (dismissible) onClose();
+      }}
       onKeyDown={trapTab}
       onClick={(e) => dismissible && e.target === ref.current && onClose()}
       role="dialog"
       aria-labelledby={titleId}
       aria-describedby={description ? descId : undefined}
     >
-      <div className={s.frame}>
+      <div className={s.frame} onTouchStart={sheet ? swipeStart : undefined} onTouchMove={sheet ? swipeMove : undefined}>
         <header className={s.head}>
           <div className={s.headText}>
             <h2 id={titleId} className="ep-section-title">
@@ -99,7 +117,7 @@ function Overlay({
           </button>
         </header>
         {(children || loading || error) && (
-          <div className={s.body} aria-busy={loading || undefined}>
+          <div className={s.body} data-sheet-body aria-busy={loading || undefined}>
             {error && (
               <InlineNotice tone="danger" compact>
                 {error}
