@@ -1,10 +1,13 @@
 import { readFileSync } from "node:fs";
+import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
 import { expect, test, type Page } from "@playwright/test";
 
 // US-PU-03: lớp dữ liệu, thử trên /dev/data với gateway GIẢ (e2e/support/api-server.mjs, :3312). Chỉ chạy ở dự án desktop
 // và tuần tự (máy chủ giả dùng chung). Ca @real cần gateway thật và không chạy ở CI.
 const API = "http://localhost:3312";
 test.describe.configure({ mode: "serial" });
+test.beforeAll(acquireFakeApi);
+test.afterAll(releaseFakeApi);
 test.beforeEach(async ({}, info) => {
   test.skip(info.project.name !== "desktop", "máy chủ giả dùng chung: chỉ chạy một dự án");
 });

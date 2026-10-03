@@ -1,4 +1,4 @@
-// Ma trận 24 khối × 8 trạng thái (docs/specs/FEAT-ui-foundation/SRS.md 7.2): 117 ô áp dụng + 75 ô N/A có lý do.
+// Ma trận 24 khối × 8 trạng thái (docs/specs/FEAT-ui-foundation/SRS.md 7.2): 117 ô áp dụng + 75 ô N/A có lý do; thêm LLMRouteTable ⇒ 25 khối, 125 ô.
 // /dev/ui vẽ đúng theo bảng này; thêm / bớt ô phải qua proposals.md.
 
 export type UiState = "default" | "hover" | "focus" | "selected" | "disabled" | "loading" | "empty" | "error";
@@ -52,7 +52,9 @@ export const REGISTRY: BlockSpec[] = [
   { name: "CommandPalette", states: [D, H, F, S, L, E], na: { disabled: "F", error: "C" } },
   { name: "CitationList", states: [D, H, F, S, L, E, R], na: { disabled: "F" } },
   { name: "VerificationState", states: [D, H, F, X], na: { selected: "H", loading: "C", empty: "C", error: "C" } },
+  // thêm ở sprint 3 (FEAT-llm-gateway US-P1-05 AC5): 25 khối, 125 ô áp dụng
+  { name: "LLMRouteTable", states: [D, H, F, S, X, L, E, R], na: {} },
 ] as BlockSpec[];
 
-export const APPLICABLE = REGISTRY.reduce((n, b) => n + b.states.length, 0); // 117
+export const APPLICABLE = REGISTRY.reduce((n, b) => n + b.states.length, 0); // 125
 export const NOT_APPLICABLE = REGISTRY.reduce((n, b) => n + Object.keys(b.na).length, 0); // 75

@@ -122,7 +122,7 @@ export default function DevUi() {
     <div className={s.wrap} style={{ "--w": `${w}px` } as React.CSSProperties}>
       <PageHeader
         title="Thư viện thành phần"
-        description="24 khối × 8 trạng thái, chỉ có ở bản dev."
+        description="25 khối × 8 trạng thái, chỉ có ở bản dev."
         actions={<SegmentedControl label="Bề rộng xem thử" value={w} onChange={setW} options={WIDTHS.map((x) => ({ value: x, label: `${x}` }))} />}
       />
 

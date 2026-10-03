@@ -9,7 +9,7 @@ import {
   MenuList, Page, Popover, SegmentedControl, Section, Select, Skeleton, StatusText, Switch, Tabs, Textarea, Toolbar, UndoLine, Field, type Column,
 } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
-import { CitationList, VerificationState } from "@/shared/domain";
+import { CitationList, LLMRouteTable, VerificationState, type ModelGroup, type RouteRow } from "@/shared/domain";
 import { navFor } from "@/shared/shell/nav";
 import type { UiState } from "@/shared/ui/registry";
 import { FIX } from "./fixtures";
@@ -257,6 +257,7 @@ export const CELLS: Record<string, Cell> = {
     );
   },
   CommandPalette: (st, _act, role) => <PaletteDemo st={st} role={role} />,
+  LLMRouteTable: (st, act) => <RouteTableDemo st={st} act={act} />,
   CitationList: (st, act) => <CitationDemo st={st} act={act} />,
   VerificationState: (st, act, role) => (
     <VerificationState status="pending" canReview={role !== "student"} disabled={st === "disabled"} onConfirm={act} onEdit={act} onReject={act}>
@@ -265,6 +266,34 @@ export const CELLS: Record<string, Cell> = {
     </VerificationState>
   ),
 };
+
+const ROUTE_ROWS: RouteRow[] = [
+  { task: "CHAT", label: "Trả lời chat riêng", laneLabel: "Trả lời ngay", modelId: "m1" },
+  { task: "GRADING", label: "Chấm bài", laneLabel: "Chạy nền", modelId: "m2" },
+];
+const ROUTE_GROUPS: ModelGroup[] = [{ provider: "OpenAI", models: [{ id: "m1", label: "gpt-4o-mini" }, { id: "m2", label: "gpt-4o" }] }];
+
+function RouteTableDemo({ st, act }: { st: UiState; act: () => void }) {
+  const [rows, setRows] = useState(ROUTE_ROWS);
+  const [open, setOpen] = useState<string | null>(st === "selected" ? "CHAT" : null);
+  return (
+    <LLMRouteTable
+      rows={st === "empty" ? [] : rows}
+      groups={st === "empty" ? [] : ROUTE_GROUPS}
+      disabled={st === "disabled"}
+      loading={st === "loading"}
+      error={st === "error" ? "Chưa tải được cấu hình." : undefined}
+      onRetry={act}
+      emptyAction={<Button onClick={act}>Thêm nhà cung cấp</Button>}
+      openTask={open}
+      onToggleAdvanced={(t) => setOpen((o) => (o === t ? null : t))}
+      onChange={(task, modelId) => {
+        setRows((rs) => rs.map((r) => (r.task === task ? { ...r, modelId } : r)));
+        act();
+      }}
+    />
+  );
+}
 
 function SwitchDemo({ st, act }: { st: UiState; act: () => void }) {
   const [on, setOn] = useState(st === "selected");

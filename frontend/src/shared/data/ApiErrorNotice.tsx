@@ -12,10 +12,10 @@ const BUSY = ["RATE_LIMITED", "NOT_READY", "OVERLOADED", "SERVICE_UNAVAILABLE"];
  * ("Hệ thống đang bận. Bạn có thể thử lại sau N giây."), nút Thử lại khoá tới hết giờ. `trace_id` chỉ nằm trong "Chi tiết kỹ thuật"
  * và CHỈ khi `showTechnical` (TA / GV / Admin) — Sinh viên không bao giờ thấy.
  */
-export function ApiErrorNotice({ error, onRetry, showTechnical = false }: { error: unknown; onRetry?: () => void; showTechnical?: boolean }) {
+export function ApiErrorNotice({ error, onRetry, showTechnical = false, title, context }: { error: unknown; onRetry?: () => void; showTechnical?: boolean; /** thay câu `userMessage` bằng tiêu đề riêng của màn */ title?: string; /** câu trấn an dưới tiêu đề (dữ liệu an toàn…) */ context?: string }) {
   const e = error instanceof ApiError ? error : fallback;
   // key theo từng lỗi cụ thể ⇒ lỗi mới đếm ngược lại từ đầu mà không cần setState trong effect
-  return <Notice key={ident(e)} e={e} onRetry={onRetry} showTechnical={showTechnical} />;
+  return <Notice key={ident(e)} e={e} onRetry={onRetry} showTechnical={showTechnical} title={title} context={context} />;
 }
 
 const fallback = new ApiError({ status: 0, code: "INTERNAL" });
@@ -26,7 +26,7 @@ const ident = (o: object) => {
   return ids.get(o);
 };
 
-function Notice({ e, onRetry, showTechnical }: { e: ApiError; onRetry?: () => void; showTechnical: boolean }) {
+function Notice({ e, onRetry, showTechnical, title, context }: { e: ApiError; onRetry?: () => void; showTechnical: boolean; title?: string; context?: string }) {
   const busy = BUSY.includes(e.code) && (e.retryAfter ?? 0) > 0;
   const [left, setLeft] = useState(busy ? Math.ceil(e.retryAfter ?? 0) : 0);
   const hintId = useId();
@@ -43,7 +43,7 @@ function Notice({ e, onRetry, showTechnical }: { e: ApiError; onRetry?: () => vo
   return (
     <InlineNotice
       tone={busy ? "warning" : "danger"}
-      title={busy ? undefined : message}
+      title={busy ? undefined : (title ?? message)}
       technical={technical}
       action={
         onRetry && (
@@ -53,7 +53,7 @@ function Notice({ e, onRetry, showTechnical }: { e: ApiError; onRetry?: () => vo
         )
       }
     >
-      {busy ? message : undefined}
+      {busy ? message : context}
       {waiting && (
         <span id={hintId} className="ep-sr-only">
           Nút Thử lại bị khoá tới khi hết thời gian chờ.

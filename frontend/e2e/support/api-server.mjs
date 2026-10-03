@@ -67,3 +67,6 @@ http
     return send(res, step.status ?? 200, step.body ?? {}, headers);
   })
   .listen(PORT, () => console.log(`api-server giả: :${PORT}`));
+
+// Máy chủ giả không được chết giữa lượt chạy vì một socket bị huỷ (kịch bản destroy / hold): ghi lại và sống tiếp.
+process.on("uncaughtException", (e) => console.error("api-server giả: bỏ qua lỗi", e?.code ?? e?.message));

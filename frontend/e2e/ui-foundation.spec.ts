@@ -61,7 +61,7 @@ test("ConfirmIrreversible: thiếu consequence ⇒ lỗi biên dịch nêu `cons
 
 // ---- US-PU-05 AC3: Sinh viên đi hết /chat và /threads CHỈ bằng bàn phím; 640 px (≈ zoom 200 % của 1280) vẫn dùng được ----
 import type { Locator, Page } from "@playwright/test";
-import { loadAudit } from "./support/audit";
+import { loadAudit, runAudit } from "./support/audit";
 
 /** Nhấn Tab cho tới khi phần tử đích nhận focus (không gọi .focus() — đúng nghĩa "chỉ bàn phím"). */
 async function tabTo(page: Page, target: Locator, max = 120) {
@@ -184,7 +184,7 @@ test.describe("keyboard-only", () => {
       await page.goto(route);
       await page.locator("main").waitFor();
       await page.waitForTimeout(200);
-      const a = (await page.evaluate(AUDIT_SRC)) as { ox: number; cut: unknown[]; ell: unknown[] };
+      const a = await runAudit(page, AUDIT_SRC);
       expect(a, `${route} AUDIT`).toMatchObject({ ox: 0, cut: [], ell: [] });
     }
     await page.goto("/chat");

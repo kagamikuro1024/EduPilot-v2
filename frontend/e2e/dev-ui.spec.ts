@@ -1,5 +1,5 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
-import { loadAudit } from "./support/audit";
+import { loadAudit, runAudit } from "./support/audit";
 import { REGISTRY } from "../src/shared/ui/registry";
 
 // US-PU-02: thư viện thành phần /dev/ui (chạy trên bản dựng cổng: `pnpm -C frontend build:gate`).
@@ -11,10 +11,10 @@ test.beforeEach(async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
 
-test("matrix: 24 khối, 117 ô, 75 ô N/A có lý do", async ({ page }) => {
+test("matrix: 25 khối, 125 ô, 75 ô N/A có lý do", async ({ page }) => {
   await page.goto("/dev/ui");
-  await expect(page.locator("[data-part=primitive]")).toHaveCount(24);
-  await expect(page.locator("[data-part=state-cell]:not([data-na])")).toHaveCount(117);
+  await expect(page.locator("[data-part=primitive]")).toHaveCount(25);
+  await expect(page.locator("[data-part=state-cell]:not([data-na])")).toHaveCount(125);
   await expect(page.locator("[data-part=state-cell][data-na]")).toHaveCount(75);
   const noReason = await page.locator("[data-part=state-cell][data-na]").evaluateAll((els) => els.filter((e) => !(e.getAttribute("data-reason") ?? "").trim()).length);
   expect(noReason).toBe(0);
@@ -25,7 +25,7 @@ test("matrix: 24 khối, 117 ô, 75 ô N/A có lý do", async ({ page }) => {
 });
 
 test.describe("states", () => {
-  const HOVER = ["Button", "Field", "Checkbox", "Switch", "Tabs", "SegmentedControl", "FilterChips", "ActionList", "DataTable", "Menu", "Composer", "UndoLine", "CitationList", "VerificationState"];
+  const HOVER = ["Button", "Field", "Checkbox", "Switch", "Tabs", "SegmentedControl", "FilterChips", "ActionList", "DataTable", "Menu", "Composer", "UndoLine", "CitationList", "VerificationState", "LLMRouteTable"];
 
   // ảnh chụp thuộc tính tính toán của phần tử, tổ tiên (tới ô) và con trực tiếp — hover thường tô nền hàng / khung cha
   const snap = (el: Locator) =>
@@ -93,7 +93,7 @@ test.describe("states", () => {
   test("selected có ARIA và dấu hiệu không chỉ là màu", async ({ page }) => {
     await page.goto("/dev/ui");
     const bad: string[] = [];
-    for (const b of ["Checkbox", "Switch", "Tabs", "SegmentedControl", "FilterChips", "ActionList", "DataTable", "Menu", "CitationList"]) {
+    for (const b of ["Checkbox", "Switch", "Tabs", "SegmentedControl", "FilterChips", "ActionList", "DataTable", "Menu", "CitationList", "LLMRouteTable"]) {
       const sel = cell(page, b, "selected");
       const aria = await sel.locator('[aria-selected="true"],[aria-pressed="true"],[aria-checked="true"],[aria-current="true"],[aria-expanded="true"],input:checked').count();
       if (aria === 0) bad.push(`${b}: thiếu ARIA`);
@@ -104,7 +104,7 @@ test.describe("states", () => {
   test("disabled: khoá thật, cursor not-allowed, không gọi handler", async ({ page }) => {
     await page.goto("/dev/ui");
     const bad: string[] = [];
-    for (const b of ["Button", "Field", "Checkbox", "Switch", "Tabs", "SegmentedControl", "FilterChips", "ActionList", "Menu", "Composer", "VerificationState"]) {
+    for (const b of ["Button", "Field", "Checkbox", "Switch", "Tabs", "SegmentedControl", "FilterChips", "ActionList", "Menu", "Composer", "VerificationState", "LLMRouteTable"]) {
       const c = cell(page, b, "disabled");
       const target = c.locator(":disabled, [aria-disabled=true]").first();
       if ((await target.count()) === 0) {
@@ -152,9 +152,9 @@ test("overflow: tràn chữ Việt ở 5 bề rộng, AUDIT sạch và TOUCH ở
   for (const width of [375, 640, 900, 1280, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/dev/ui");
-    await expect(page.locator("[data-part=primitive]")).toHaveCount(24);
+    await expect(page.locator("[data-part=primitive]")).toHaveCount(25);
     await page.waitForTimeout(300);
-    const res = await page.evaluate(AUDIT_SRC);
+    const res = await runAudit(page, AUDIT_SRC);
     expect(res, `AUDIT ${width}px`).toEqual({ ox: 0, cut: [], ell: [] });
     if (width === 375) expect(await page.evaluate(TOUCH_SRC), "TOUCH 375px").toEqual([]);
   }
@@ -427,7 +427,7 @@ test("domain: CitationList mở tại chỗ; VerificationState bốn lời, nút
 
 test("one-primary: mỗi vùng làm việc ≤ 1 nút primary", async ({ page }) => {
   await page.goto("/dev/ui");
-  await expect(page.locator("[data-part=primitive]")).toHaveCount(24);
+  await expect(page.locator("[data-part=primitive]")).toHaveCount(25);
   const bad = await page.locator("[data-part=work-region]").evaluateAll((els) =>
     els.map((e, i) => [i, e.querySelectorAll('[data-variant="primary"]').length] as const).filter(([, n]) => n > 1).map(([i]) => i),
   );

@@ -1,4 +1,6 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
+import { base, reset, script } from "./support/llm-fixtures";
 import { asDemo, type DemoRole } from "./support/session";
 
 // US-PU-05 AC1: 7 route đại diện × 2 bề rộng = 14 ảnh mốc (SRS 8.3). Đồng hồ đóng băng 29/10/2026 09:20 giờ VN, animation tắt,
@@ -21,7 +23,7 @@ const ROUTES: Array<{ name: string; path: string; role?: DemoRole; admin?: boole
   { name: "threads", path: "/threads", role: "student" },
   { name: "inbox", path: "/inbox", role: "teacher" },
   { name: "gradebook", path: "/gradebook", role: "teacher" },
-  { name: "settings-llm", path: "/settings/llm", role: "teacher", admin: true }, // Admin bằng token dev (dán ở cổng)
+  { name: "settings-llm", path: "/settings/llm", role: "admin", admin: true }, // Admin bằng token dev (dán ở cổng); màn THẬT với dữ liệu giả cố định
   { name: "dev-ui", path: "/dev/ui" },
 ];
 
@@ -39,8 +41,20 @@ async function settle(page: Page) {
 for (const r of ROUTES) {
   for (const { w, h } of WIDTHS) {
     test(`${r.name} @${w}`, async ({ page, context }) => {
+      if (r.admin) await acquireFakeApi(); // màn thật dùng máy chủ giả dùng chung
+      try {
+        await shoot(page, context, r, w, h);
+      } finally {
+        if (r.admin) releaseFakeApi();
+      }
+    });
+    async function shoot(page: Page, context: BrowserContext, r: (typeof ROUTES)[number], w: number, h: number) {
       await page.setViewportSize({ width: w, height: h });
       await page.clock.setFixedTime(FROZEN);
+      if (r.admin) {
+        await reset(page);
+        await script(page, base()); // dữ liệu cố định theo hợp đồng thật (support/llm-fixtures.ts)
+      }
       if (r.role) await asDemo(context, r.role);
       await page.goto(r.path);
       if (r.admin) {
@@ -51,6 +65,6 @@ for (const r of ROUTES) {
       await page.locator("main").first().waitFor();
       await settle(page);
       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });
-    });
+    }
   }
 }
