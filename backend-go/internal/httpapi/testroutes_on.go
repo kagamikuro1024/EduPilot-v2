@@ -19,6 +19,7 @@ func registerTestRoutes(r chi.Router, d Deps) {
 		Verifier:              d.Verifier,
 		Publisher:             d.Publisher,
 		Jobs:                  d.Jobs,
+		LLM:                   d.LLM,
 		RequireIdempotencyKey: RequireIdempotencyKey(d),
 	})
 }

@@ -352,4 +352,20 @@ func (r *runner) testScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/_test/events", body: `{"type":"test.hello","data":{}}`}, 401)
 	r.must(call{method: "POST", path: "/api/v1/_test/events", token: tok, body: `{"type":"test.hello","data":{},"user_id":"` + uuid.NewString() + `"}`}, 403)
 	r.must(call{method: "POST", path: "/api/v1/_test/events", token: tok, body: `{"type":"SAI ĐỊNH DẠNG","data":{}}`}, 422)
+
+	// cổng LLM (fake): chỉ ADMIN.
+	chat := `{"task":"CHAT","prompt":"xin chào"}`
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: chat}, 200)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", body: chat}, 401)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: tok, body: chat}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: `{"task":"CHAT"}`}, 422)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: admin}, 200)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats"}, 401)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: teacher}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":1,"error_kind":"AUTH"}`}, 200)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: chat}, 503) // mọi nhà cung cấp lỗi
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":0,"error_kind":"SERVER"}`}, 200)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", body: `{}`}, 401)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: tok, body: `{}`}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":2}`}, 422)
 }

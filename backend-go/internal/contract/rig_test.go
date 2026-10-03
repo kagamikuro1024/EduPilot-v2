@@ -12,6 +12,7 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appdb "github.com/edupilot/backend-go/internal/platform/db"
@@ -68,6 +69,7 @@ func buildRig(t *testing.T) (*rig, error) {
 		"INSTANCE_ID":             "contract-gw",
 		"DB_MAX_CONNS":            "8",
 		"LOG_LEVEL":               "error",
+		"LLM_PROVIDER":            "fake",
 	}
 	cfg, err := config.Load(func(k string) string { return env[k] }, config.Gateway)
 	if err != nil {
@@ -86,7 +88,11 @@ func buildRig(t *testing.T) (*rig, error) {
 	if err != nil {
 		return nil, err
 	}
-	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool)}
+	rt, err := llm.NewRuntime(ctx, cfg, pool, rdb.Client, log)
+	if err != nil {
+		return nil, err
+	}
+	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool), LLM: rt}
 	h := httpapi.NewRouter(deps)
 	return &rig{deps: deps, handle: h, srv: httptest.NewServer(h), cfg: cfg}, nil
 }

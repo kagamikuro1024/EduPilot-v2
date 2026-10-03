@@ -65,8 +65,9 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 		if n := len(prod.Operations()); n != 5 {
 			t.Errorf("openapi.yaml: %d thao tác (cần 5)", n)
 		}
-		if n := len(test.Operations()); n != 15 {
-			t.Errorf("openapi.test.yaml: %d thao tác (cần 15)", n)
+		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
+		if n := len(test.Operations()); n != 18 {
+			t.Errorf("openapi.test.yaml: %d thao tác (cần 18)", n)
 		}
 	}
 }
