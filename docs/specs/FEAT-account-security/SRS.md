@@ -1,5 +1,7 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1.4 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.5 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.5 (2026-10-03)** — góp ý #4 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC7 \"chỉ nhận `Content-Type: application/json`\" mâu thuẫn với lệnh tay AC3/AC6/AC7 (`curl -X POST …/auth/refresh` không thân, không Content-Type)… Từ chối khi header có mà khác JSON (415); cho qua khi không có header. **ACCEPTED** — điều kiện: kiểm Origin / `Sec-Fetch-Site` là bắt buộc ở mọi endpoint dùng cookie"). Không đổi số AC. Đổi: US-P2-02 AC7, `SRS.md` 4.1 (kiểm nguồn gốc).
 
 **v1.4 (2026-10-03)** — góp ý #3 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC13 yêu cầu `vitest run src/shared/session/safeNext.test.ts`, nhưng `vitest` không có trong bảng thư viện `ARCHITECTURE.md`… Kiểm `safeNext` bằng test Playwright không cần trình duyệt (`e2e/safe-next.spec.ts`)"). Không đổi số AC. Đổi: US-P2-02 AC13 (lệnh `Kiểm`).
 
@@ -127,7 +129,7 @@ stateDiagram-v2
 
 **Đăng xuất:** thu hồi phiên theo cookie; luôn 204 và xoá cookie, kể cả khi không còn phiên (idempotent).
 
-**Kiểm nguồn gốc (CSRF) cho `refresh` và `logout`:** `Origin` có mặt ⇒ phải thuộc `CORS_ORIGINS` (hoặc cùng origin với `APP_PUBLIC_URL`); không có `Origin` mà `Sec-Fetch-Site` ∈ {`cross-site`, `same-site`} ⇒ 403; không có cả hai ⇒ client không phải trình duyệt, cho qua. Chỉ nhận `POST` + `Content-Type: application/json`. Cookie `SameSite=Lax` là lớp thứ hai.
+**Kiểm nguồn gốc (CSRF) cho `refresh` và `logout`:** `Origin` có mặt ⇒ phải thuộc `CORS_ORIGINS` (hoặc cùng origin với `APP_PUBLIC_URL`); không có `Origin` mà `Sec-Fetch-Site` ∈ {`cross-site`, `same-site`} ⇒ 403; không có cả hai ⇒ client không phải trình duyệt, cho qua. Chỉ nhận `POST`; `Content-Type` có mặt mà khác `application/json` → 415, vắng mặt thì cho qua (góp ý #4); kiểm `Origin` / `Sec-Fetch-Site` ở trên là **bắt buộc ở mọi endpoint dùng cookie**. Cookie `SameSite=Lax` là lớp thứ hai.
 
 **Phía frontend:** `tokenStore` (bộ nhớ) + `AuthProvider` có bốn trạng thái: `initializing` (đang gọi `refresh` lúc tải trang) → `authenticated` | `anonymous` | `revoked` (kèm lý do). `apiClient`: 401 `TOKEN_EXPIRED` → làm mới một lần (gộp trong tab; `navigator.locks` tên `ep-refresh` giữa các tab) → phát lại mỗi request tối đa một lần (POST giữ nguyên `Idempotency-Key`); 401 `SESSION_REVOKED` → không làm mới; làm mới thất bại → `auth:expired` → `/login?next=…`. `next` qua `safeNext()` (chỉ đường dẫn nội bộ).
 
