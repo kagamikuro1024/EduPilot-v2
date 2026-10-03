@@ -144,6 +144,28 @@ func (q *Queries) GetLLMProvider(ctx context.Context, id uuid.UUID) (LlmProvider
 	return i, err
 }
 
+type InsertLLMAuditParams struct {
+	Task           string
+	Lane           string
+	Provider       *string
+	Model          *string
+	TokensIn       int32
+	TokensOut      int32
+	LatencyMs      int32
+	QueueWaitMs    int32
+	Attempts       int32
+	FallbackIndex  int32
+	CostEst        decimal.Decimal
+	Status         string
+	ErrorKind      *string
+	Degraded       bool
+	PiiMaskedCount int32
+	UserID         *uuid.UUID
+	CourseID       *uuid.UUID
+	TraceID        string
+	CreatedAt      time.Time
+}
+
 const insertLLMBudget = `-- name: InsertLLMBudget :one
 insert into llm_budgets (scope, course_id, daily_limit, monthly_limit)
 values ($1, $2, $3, $4)
@@ -271,6 +293,27 @@ func (q *Queries) InsertLLMRoute(ctx context.Context, arg InsertLLMRouteParams) 
 	return i, err
 }
 
+const lLMCostSum = `-- name: LLMCostSum :one
+select coalesce(sum(cost_est), 0)::numeric(14,4) as total
+  from llm_audit
+ where created_at >= $1 and created_at < $2
+   and ($3::uuid is null or course_id = $3)
+`
+
+type LLMCostSumParams struct {
+	FromTs   time.Time
+	ToTs     time.Time
+	CourseID *uuid.UUID
+}
+
+// Ngân sách: tổng chi phí thực tế từ llm_audit để đối soát bộ đếm Redis.
+func (q *Queries) LLMCostSum(ctx context.Context, arg LLMCostSumParams) (decimal.Decimal, error) {
+	row := q.db.QueryRow(ctx, lLMCostSum, arg.FromTs, arg.ToTs, arg.CourseID)
+	var total decimal.Decimal
+	err := row.Scan(&total)
+	return total, err
+}
+
 const lLMTasksUsingModels = `-- name: LLMTasksUsingModels :many
 select distinct task from llm_task_routes where model_id = any($1::uuid[]) order by task
 `
@@ -316,6 +359,132 @@ func (q *Queries) LLMTasksUsingProvider(ctx context.Context, providerID uuid.UUI
 			return nil, err
 		}
 		items = append(items, task)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lLMUsageByDay = `-- name: LLMUsageByDay :many
+select to_char(created_at at time zone 'Asia/Ho_Chi_Minh', 'YYYY-MM-DD') as key, count(*)::bigint as calls,
+       coalesce(sum(tokens_in), 0)::bigint as tokens_in, coalesce(sum(tokens_out), 0)::bigint as tokens_out,
+       coalesce(sum(cost_est), 0)::numeric(14,4) as cost_est,
+       coalesce(round(percentile_cont(0.5) within group (order by latency_ms)), 0)::bigint as latency_p50_ms,
+       coalesce(round(percentile_cont(0.95) within group (order by latency_ms)), 0)::bigint as latency_p95_ms,
+       count(*) filter (where status in ('error', 'timeout', 'rate_limited', 'circuit_open', 'not_configured'))::bigint as errors,
+       count(*) filter (where degraded)::bigint as degraded
+  from llm_audit
+ where created_at >= $1 and created_at < $2
+   and ($3::uuid is null or course_id = $3)
+ group by 1
+ order by 1
+`
+
+type LLMUsageByDayParams struct {
+	FromTs   time.Time
+	ToTs     time.Time
+	CourseID *uuid.UUID
+}
+
+type LLMUsageByDayRow struct {
+	Key          string
+	Calls        int64
+	TokensIn     int64
+	TokensOut    int64
+	CostEst      decimal.Decimal
+	LatencyP50Ms int64
+	LatencyP95Ms int64
+	Errors       int64
+	Degraded     int64
+}
+
+func (q *Queries) LLMUsageByDay(ctx context.Context, arg LLMUsageByDayParams) ([]LLMUsageByDayRow, error) {
+	rows, err := q.db.Query(ctx, lLMUsageByDay, arg.FromTs, arg.ToTs, arg.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LLMUsageByDayRow{}
+	for rows.Next() {
+		var i LLMUsageByDayRow
+		if err := rows.Scan(
+			&i.Key,
+			&i.Calls,
+			&i.TokensIn,
+			&i.TokensOut,
+			&i.CostEst,
+			&i.LatencyP50Ms,
+			&i.LatencyP95Ms,
+			&i.Errors,
+			&i.Degraded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lLMUsageByTask = `-- name: LLMUsageByTask :many
+select task as key, count(*)::bigint as calls, coalesce(sum(tokens_in), 0)::bigint as tokens_in, coalesce(sum(tokens_out), 0)::bigint as tokens_out,
+       coalesce(sum(cost_est), 0)::numeric(14,4) as cost_est,
+       coalesce(round(percentile_cont(0.5) within group (order by latency_ms)), 0)::bigint as latency_p50_ms,
+       coalesce(round(percentile_cont(0.95) within group (order by latency_ms)), 0)::bigint as latency_p95_ms,
+       count(*) filter (where status in ('error', 'timeout', 'rate_limited', 'circuit_open', 'not_configured'))::bigint as errors,
+       count(*) filter (where degraded)::bigint as degraded
+  from llm_audit
+ where created_at >= $1 and created_at < $2
+   and ($3::uuid is null or course_id = $3)
+ group by task
+ order by task
+`
+
+type LLMUsageByTaskParams struct {
+	FromTs   time.Time
+	ToTs     time.Time
+	CourseID *uuid.UUID
+}
+
+type LLMUsageByTaskRow struct {
+	Key          string
+	Calls        int64
+	TokensIn     int64
+	TokensOut    int64
+	CostEst      decimal.Decimal
+	LatencyP50Ms int64
+	LatencyP95Ms int64
+	Errors       int64
+	Degraded     int64
+}
+
+// Mức dùng (GET usage): gom theo tác vụ hoặc theo ngày (Asia/Ho_Chi_Minh); `course_id` NULL = toàn hệ thống.
+func (q *Queries) LLMUsageByTask(ctx context.Context, arg LLMUsageByTaskParams) ([]LLMUsageByTaskRow, error) {
+	rows, err := q.db.Query(ctx, lLMUsageByTask, arg.FromTs, arg.ToTs, arg.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LLMUsageByTaskRow{}
+	for rows.Next() {
+		var i LLMUsageByTaskRow
+		if err := rows.Scan(
+			&i.Key,
+			&i.Calls,
+			&i.TokensIn,
+			&i.TokensOut,
+			&i.CostEst,
+			&i.LatencyP50Ms,
+			&i.LatencyP95Ms,
+			&i.Errors,
+			&i.Degraded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
@@ -471,7 +640,7 @@ func (q *Queries) ListLLMProviders(ctx context.Context) ([]LlmProvider, error) {
 
 const listLLMRoutes = `-- name: ListLLMRoutes :many
 select r.id, r.task, r.model_id, r.fallback_order, r.params, r.version,
-       m.provider_id, m.model, m.kind, m.dims, m.enabled as model_enabled, p.name as provider_name, p.enabled as provider_enabled
+       m.provider_id, m.model, m.kind, m.dims, m.price_in, m.price_out, m.enabled as model_enabled, p.name as provider_name, p.enabled as provider_enabled
   from llm_task_routes r
   join llm_models m on m.id = r.model_id
   join llm_providers p on p.id = m.provider_id
@@ -489,6 +658,8 @@ type ListLLMRoutesRow struct {
 	Model           string
 	Kind            string
 	Dims            *int32
+	PriceIn         decimal.Decimal
+	PriceOut        decimal.Decimal
 	ModelEnabled    bool
 	ProviderName    string
 	ProviderEnabled bool
@@ -514,6 +685,8 @@ func (q *Queries) ListLLMRoutes(ctx context.Context) ([]ListLLMRoutesRow, error)
 			&i.Model,
 			&i.Kind,
 			&i.Dims,
+			&i.PriceIn,
+			&i.PriceOut,
 			&i.ModelEnabled,
 			&i.ProviderName,
 			&i.ProviderEnabled,

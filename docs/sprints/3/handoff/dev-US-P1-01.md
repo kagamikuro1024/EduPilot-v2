@@ -1,26 +1,31 @@
-# DEV handoff — US-P1-01 (DỞ DANG — PM dừng sprint 3 theo chủ dự án)
-Nhánh: `sprint/3-pu-p1`. **Trạng thái: chưa xong, chưa nghiệm thu.** Dừng ở điểm build/vet/lint xanh; phần còn lại ghi dưới. Chưa có US-P1-02…05, chưa có PU.
+# DEV handoff — US-P1-01 (lược đồ LLM, mã hoá khoá, dịch vụ cấu hình)
+Nhánh `sprint/3-pu-p1`. Tầng dịch vụ + kho + mã hoá; chưa có handler (US-P1-04).
 
-## Đã làm
-- `backend-go/db/migrations/00002_llm.sql`: 5 bảng đủ cột/ràng buộc/chỉ mục/trigger `set_updated_at` đúng SRS 5.2–5.3 (có `ponytail:` về phân vùng `llm_audit`). Down gỡ 5 bảng. `00001` không đổi.
-- `db/migrations_test.go`: round-trip cập nhật (version 2, down về 0 gỡ cả `llm_*`, status nêu 00002). Test này sửa vì số migration đổi, không nới assertion.
-- `internal/platform/crypto`: AES-256-GCM, định dạng `0x01‖nonce‖ct‖tag`, AAD, `ParseKey` (base64 → đúng 32 byte), `Cipher` in ra `[REDACTED]`. Test: `TestRoundtrip`, `TestNonceUnique1000`, `TestTamper` (7 vị trí + cụt), `TestAADMismatch`, `TestWrongKey`, `TestVector` (NIST GCM Test Case 16), `TestParseKey`, `TestCipherRedacted` — PASS `-race`.
-- Config: `APP_ENCRYPTION_KEY` bắt buộc ở **gateway** (worker: kiểm nếu có); sai → `APP_ENCRYPTION_KEY không hợp lệ: cần 32 byte (base64)`, không in giá trị. `.env.example` có giá trị dev, compose truyền cho gateway + worker. Các test dựng env gateway (`config_test`, `serve_test`, `contract/rig_test`, `sse/publisher_test`) thêm biến này.
-- `sqlc.yaml`: `pg_catalog.numeric` → `decimal.Decimal` / `decimal.NullDecimal`; `internal/store/queries/llm.sql` (nhà cung cấp, mô hình, tuyến, ngân sách; khoá tư vấn theo tác vụ). `sqlc diff` rc=0.
-- `internal/llmconfig` (chưa có test): `Secret` (redact mọi dạng in/JSON/slog), lỗi kiểu (`ErrVersionConflict`, `ErrProviderInUse`, `ErrRouteInvalid`, `ErrDimsMismatch`, `ErrInvalid`, `ErrLimit`…), `Service` phần **nhà cung cấp**: `ListProviders/GetProvider/CreateProvider/UpdateProvider/DeleteProvider/RecordTest` — RBAC từ ctx (ghi: ADMIN; đọc: ADMIN+TEACHER), version lạc quan, giữ/thay khoá (nonce mới), `key_status` tính tại chỗ (`unreadable` khi AAD sai), thay danh sách mô hình có chặn mô hình đang dùng, hạn mức 20/100, một dòng `audit_log` mỗi thao tác trong cùng giao dịch (ảnh chụp không chứa khoá), hook `WithOnChange` cho `PUBLISH ep:llm:reload` (US-P1-02).
+## Làm gì
+- `db/migrations/00002_llm.sql`: 5 bảng đúng SRS 5.2–5.3 (ràng buộc đặt tên, chỉ mục, trigger `set_updated_at`, không FK tới users/courses). `00001` không đổi. `db/migrations_test.go` sửa cho 2 migration (version 2, down về 0 gỡ cả `llm_*`).
+- `internal/platform/crypto`: AES-256-GCM `0x01‖nonce‖ct‖tag`, AAD, `ParseKey`; `Cipher` in ra `[REDACTED]`.
+- Config: `APP_ENCRYPTION_KEY` bắt buộc ở gateway; thiếu / không base64 / ≠ 32 byte → cùng một thông điệp "APP_ENCRYPTION_KEY không hợp lệ: cần 32 byte (base64)", thoát 1. `.env.example`, `docker-compose.local.yml` và 4 test dựng env cập nhật.
+- `sqlc.yaml`: `numeric` → `decimal.Decimal`; `internal/store/queries/llm.sql` (nhà cung cấp, mô hình, tuyến, ngân sách, mức dùng bằng `percentile_cont`, `InsertLLMAudit :copyfrom`, tổng chi phí).
+- `internal/llmconfig`: `Service` (RBAC từ ctx, version lạc quan, giữ/thay khoá, xoá có kiểm dùng, `audit_log` mỗi thao tác, hạn mức 20/100, `SetRoute` + quy tắc AC10 + `ReindexRequired`, `Get/SetBudget`, `Usage`), `Resolver` (`DecryptKey` là hàm duy nhất trả khoá rõ, `Snapshot`), `Secret` (redact mọi dạng in/JSON/slog). Giá trị `Params` là `json.Number`, tiền là `decimal`.
 
-## Kết quả đã chạy (thật)
-`go build ./... && go vet ./...` sạch · `golangci-lint run` và `--build-tags testroutes`: 0 issues · `sqlc diff` rc=0 · `go test -race -tags testroutes` các gói `db`, `platform/*`, `cmd/*`, `contract`, `httpapi/sse`, `store`: PASS (chưa chạy lại toàn bộ `./...`).
+## AC tự đánh giá
+| AC | Lệnh | Kết quả thật |
+| --- | --- | --- |
+| 1 | `go test ./internal/store -run TestLLMSchema`, `./db` | PASS (5 bảng, mọi cột/kiểu/nullable/mặc định, FK chỉ llm_models→providers, routes→models); `goose status` có `00002_llm.sql`; `git diff origin/main -- db/migrations/00001*` rỗng |
+| 2 | `TestLLMConstraints` | PASS 24 ca với SQLSTATE 23514/23505/23502/23503 |
+| 3 | `TestLLMIndexes` | PASS: 20.000 dòng, 4 truy vấn dùng chỉ mục, không `Seq Scan`; danh sách chỉ mục `llm_audit` khớp |
+| 4 | `sqlc diff` rc=0; grep SQL trong `llmconfig`/`llm` | 0 |
+| 5 | `go test -race ./internal/platform/crypto` | PASS (Roundtrip, Nonce1000, Tamper 7 vị trí, AAD, WrongKey, Vector NIST TC16, ParseKey) |
+| 6 | `for v in "" abc <16 byte>; APP_ENCRYPTION_KEY=$v gateway serve` | 3 lần rc=1 trong <1 s, thông điệp đúng, grep giá trị = 0 |
+| 7–8 | `TestKeyAtRest`, `TestRedacted`, `TestNoKeyInOutputs`; grep `DecryptKey(` ngoài `llm/`,`llmconfig/` | PASS; grep 0 |
+| 9 | `TestVersion TestKeyKeepReplace TestDeleteInUse TestAuditLogRows TestLimits TestProviderValidation` | PASS |
+| 10 | `TestRouteRules` | PASS 18 ca lỗi + ca biên + ReindexRequired |
+| 11 | `TestServiceRBAC` | PASS 5 vai (kể cả không có Principal) × 11 hàm |
+| 12 | grep `float(32|64)` ở llmconfig/budget/cost | 0 |
 
-## Chưa làm của US-P1-01 (AC chưa đạt)
-- AC1 phần test `TestLLMSchema`; AC2 `TestLLMConstraints` (≥14 ca); AC3 `TestLLMIndexes` (20.000 dòng + EXPLAIN) — chưa viết.
-- AC6 chạy tay gateway với khoá hỏng (logic config đã có, chưa chạy lệnh `for v in …`).
-- AC7–AC9, AC11, AC12: chưa có test `TestKeyAtRest`, `TestNoKeyInOutputs|TestRedacted`, `TestVersion|TestKeyKeepReplace|TestDeleteInUse|TestAuditLogRows|TestLimits`, `TestServiceRBAC` (code có, test chưa).
-- `Service` phần **tuyến** (`ListRoutes`, `SetRoute` + quy tắc AC10 + `ReindexRequired`, params bằng `json.Number`, không float) và **ngân sách** (`GetBudget/SetBudget`): chưa viết (SQL đã có trong `llm.sql`).
-- `Resolver.DecryptKey(ctx, id)` (hàm duy nhất trả khoá rõ) chưa viết.
-- `go.mod`: `go mod tidy` đã chạy; `openai-go` chưa vào vì chưa có mã dùng (US-P1-02).
-- Handoff đầy đủ, AC tự đánh giá: viết khi hoàn tất story.
+Cổng: `go vet` (cả `-tags testroutes`), `golangci-lint run` (cả `--build-tags testroutes`) 0 issues, `go test -race -count=1 -tags testroutes ./...` toàn bộ ok, `sqlc diff` rc=0.
 
-## Nợ / cần hỏi PM
-- `APP_ENCRYPTION_KEY` thành biến **bắt buộc** của gateway làm đổi tập "7 biến bắt buộc" của PG (QC `pg01.sh` TC thiếu biến, `.env.local` cũ phải thêm biến) — SRS P1 8.1 yêu cầu; ghi để QC sprint 2/3 biết. `.env.local` hiện có sẽ cần dòng `APP_ENCRYPTION_KEY` (copy từ `.env.example`).
-- Chưa động `frontend/` hay `docs/sprints/3/proposals.md`.
+## Nợ / ghi chú
+- `APP_ENCRYPTION_KEY` thành biến bắt buộc của gateway: `.env.local` đang dùng phải thêm dòng này (copy `.env.example`).
+- `UsageRow` làm tròn p50/p95 về số nguyên ms ngay trong SQL (không float ở Go).
+- Hook `WithOnChange` để US-P1-02 PUBLISH `ep:llm:reload`.
