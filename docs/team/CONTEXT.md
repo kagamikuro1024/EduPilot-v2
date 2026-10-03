@@ -31,6 +31,7 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 - Chỉ token `--ep-*` + primitive ở `frontend/src/shared/`; `bash scripts/ui-antipatterns.sh` phải sạch.
 - Không thoả hiệp ngang hàng; góp ý qua `docs/sprints/N/proposals.md`, PM quyết. Ngoại lệ: dev hỏi Tech Lead (`research`) câu hỏi kỹ thuật qua `docs/sprints/N/techlead.md` (`docs/team/RESEARCH.md`).
 - Không mở subagent (task/agent con) trừ khi PM cho phép: mỗi subagent đọc lại bối cảnh + spec từ đầu, tốn token gấp nhiều lần. Làm tuần tự trong phiên của mình.
+- **Dọn rác Docker định kỳ** (chủ dự án yêu cầu 2026-10-03; ổ máy từng bị colima ăn 57 GB vì volume vô danh của test): mỗi agent chạy Docker, sau mỗi story / lượt test, chạy `docker volume prune -f` (chỉ xoá volume vô danh không container nào dùng, an toàn khi người khác đang test). PM dọn sâu ở mỗi lần đóng sprint và khi chủ dự án bảo dừng: `docker volume prune -f && docker builder prune -af && docker image prune -f && colima ssh -- sudo fstrim -a`. Không dùng `docker system prune -a --volumes`; không xoá volume có tên.
 
 ## 5. Mỗi vai đọc gì cho việc hiện tại
 | Vai | Đọc |
