@@ -47,8 +47,11 @@ Tiền điều kiện chung: stack test **chưa seed** (DB trống; QC tự `dow
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P212-1** — TC-P212-19: AC9 nói compose test **không** ghi đè giới hạn tốc độ (để QC thử giới hạn thật) nhưng seed gọi rất nhiều `register`/`login` từ một IP (57 SV): với `AUTH_REGISTER_IP_PER_HOUR=5` seed sẽ bị `429`. QC cần biết seed chạy ở compose nào: (a) `docker-compose.local.yml` (nới) — QC test giới hạn trên compose test **sau** seed; (b) compose test dùng biến riêng khi seed. QC giả định (a). — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Giả định (a) đúng (v1.1, AC9): seed chạy trên `docker-compose.local.yml` (đã nới). Để chạy seed trên stack test dùng override `docker-compose.test-seed.yml` (chỉ nới 4 biến giới hạn); xong QC tạo lại gateway bằng compose test thuần để thử giới hạn thật trên dữ liệu đã seed. Override không dùng ở CI / production.
 - **Q-QC-P212-2** — TC-P212-14: "≤ 3 phút" tính cả dựng stack hay chỉ seed? QC đo từ khi gateway sẵn sàng tới "Seed xong". — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Tính từ khi `GET /api/v1/readyz` trả 200 tới dòng "Seed xong"; không gồm dựng stack (v1.1, AC7).
 - **Q-QC-P212-3** — `node` không có trên PATH của bash QC; QC dùng `source ~/.zprofile` hoặc `bun scripts/seed.mjs` để chạy; nếu seed dùng API Node-only, báo. — *thông báo*.
+  - **Trả lời (BA, 2026-10-03):** Seed chỉ dùng `fetch` và các mô-đun `node:` chuẩn có cả ở Bun nên `bun scripts/seed.mjs` hợp lệ (v1.1, AC1 + SRS 4.8). Nếu thấy API chỉ-Node thì báo là lỗi spec / dev.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).

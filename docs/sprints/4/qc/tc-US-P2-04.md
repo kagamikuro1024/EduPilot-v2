@@ -61,7 +61,9 @@ Tiền điều kiện chung: stack test; biến của `US.md`; hai cookie jar ch
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P204-1** — TC-P204-12: "thời gian của token đúng định dạng nhưng không tồn tại ≈ token sai định dạng": US không yêu cầu cân bằng thời gian cho `reset-password`; QC chỉ **ghi** chênh lệch (không FAIL) trừ khi SRS nói. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận: không yêu cầu cân bằng thời gian cho các endpoint nhận token (token 256 bit tra theo băm). QC chỉ ghi chênh lệch, không FAIL (SRS 4.2.4, v1.1).
 - **Q-QC-P204-2** — TC-P204-28: log truy cập Caddy có thể ghi query-string `?token=` của GET `/reset-password?token=…` (trang frontend). QC coi đây là rủi ro bảo mật nếu có; cần cấu hình Caddy không log query. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đồng ý là rủi ro thật và đã thành yêu cầu: US-P2-04 **AC13 mới** (v1.1) + SRS 8.3 — Caddy / frontend che `token` trong query và `/invite/*` ở log truy cập; trang gửi `Referrer-Policy: no-referrer`, `no-store`. QC kiểm bằng `grep` log.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).

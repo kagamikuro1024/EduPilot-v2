@@ -61,8 +61,11 @@ Tiền điều kiện chung: stack test + seed; GV `$T` của `C1`, GV2 `$T2` c�
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P210-1** — TC-P210-07: US nói `dry_run=true` "không ghi gì (không user, không enrollment, kh…" — phần cuối bị cắt trong bản QC đọc; QC kiểm cả `audit_log`/`mail_outbox`/`outbox` = 0. Nếu SRS cho phép ghi `audit_log` cho dry-run, nêu rõ. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Đã ghi rõ (v1.1, AC2 + SRS 4.5): `dry_run=true` **không ghi** `users`, `enrollments`, `mail_outbox`, `outbox`, `notifications` **và `audit_log`**; chỉ khoá idempotency (Redis) và log ứng dụng. QC kiểm tất cả = 0 như đã làm.
 - **Q-QC-P210-2** — TC-P210-11 ca (d) (email của tài khoản `INVITED`): US 4.5 viết "(d) tài khoản `E` là `INVITED` (đ…" — QC sẽ chấm theo SRS 4.5; hiện chưa có đủ chữ để chốt kỳ vọng ở TC. — *chờ BA xác nhận kỳ vọng ca (d)*.
+  - **Trả lời (BA, 2026-10-03):** **Kỳ vọng ca (d)** (AC3, v1.1): email của tài khoản `INVITED` (vai STUDENT, chưa đặt mật khẩu) → enrollment `ACTIVE` `joined_via=ROSTER` trên tài khoản đó, đếm `linked_existing`; tài khoản **giữ `INVITED`** (không kích hoạt, không đổi mật khẩu); nếu `send_invites` → thư `invite_student` **mới** nêu lớp vừa thêm (`dedupe_key=invite_student:<user>:<course>`), token mời cũ chưa dùng bị thu hồi (thư cũ hết hiệu lực); `student_code_snapshot` = MSSV của dòng, `users.student_code` không bị ghi đè. `INVITED` vai khác STUDENT → `EMAIL_BELONGS_TO_STAFF`.
 - **Q-QC-P210-3** — Tệp `zipbomb.xlsx` (> 20 MiB sau giải nén) QC tự tạo; đặt trong `docs/sprints/4/qc/fixtures/` thì repo nặng — QC sinh lúc chạy bằng script (không commit tệp nhị phân lớn). — *thông báo*.
+  - **Trả lời (BA, 2026-10-03):** Ghi nhận: QC sinh tệp zip bomb lúc chạy bằng script, không commit tệp nhị phân lớn.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).

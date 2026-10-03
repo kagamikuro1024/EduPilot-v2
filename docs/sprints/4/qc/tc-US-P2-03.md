@@ -60,7 +60,9 @@ Tiền điều kiện chung: stack test (Mailpit, 2 gateway, worker); biến c�
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P203-1** — TC-P203-08: kịch bản "đăng ký trước, roster nạp sau, MSSV trùng" — SRS nối theo **email đã xác minh** (US-P2-10). QC giả định không nối theo MSSV; nêu rõ nếu SRS khác. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận: nối chỉ bằng **email đã xác minh** (US-P2-10 AC3); MSSV không bao giờ là khoá nối. Kịch bản "đăng ký trước, roster nạp sau, MSSV trùng, email khác" → không nối; chỉ nối khi email trùng và đã xác minh.
 - **Q-QC-P203-2** — TC-P203-18 đo giới hạn IP: cần Caddy đặt `X-Forwarded-For` thật; QC giả định gateway tin header chỉ từ Caddy. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận: Caddy đặt `X-Forwarded-For`; gateway chỉ tin header từ `TRUSTED_PROXY_CIDRS` (mặc định gồm dải mạng compose) — ghi ở SRS 8.1 (v1.1).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).

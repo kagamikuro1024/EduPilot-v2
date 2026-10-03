@@ -64,7 +64,9 @@ Tiền điều kiện chung: stack test + seed (US-P2-12); `$A`, `$T`, `$TA_`, `
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P208-1** — TC-P208-14: `assign {ta_ids:[]}` (mảng rỗng) có nghĩa gỡ hết TA hay giữ nguyên? US: "thay thế toàn bộ khi có `ta_ids` (bỏ trống = giữ nguyên)". QC hiểu `[]` = gỡ hết, vắng = giữ. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Đúng, và đã ghi rõ (v1.1, AC4 + SRS 4.4): vắng khoá hoặc `null` = giữ nguyên; `[]` = gỡ hết trợ giảng.
 - **Q-QC-P208-2** — TC-P208-06: phân bố mã đo trên 100.000 mã cần hàm sinh gọi trực tiếp; QC dùng test Go tạm (`qc_probe_test.go`) hoặc test của dev; chấp nhận chỉ chạy test dev nếu không có đường HTTP sinh hàng loạt. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận: chỉ chạy test của dev (`TestJoinCodeDistribution`) nếu không có đường HTTP sinh hàng loạt; QC không phải sinh 100.000 mã qua HTTP.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).

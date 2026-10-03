@@ -60,7 +60,9 @@ Tiền điều kiện chung: stack test + **seed** (US-P2-12): lớp `C1` (76198
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P207-1** — TC-P207-08: lớp tồn tại vs không tồn tại cùng `403` (không lộ tồn tại)? US nói `id` không phải uuid → 404 nhưng không nói uuid hợp lệ không có. QC ghi hành vi thực; nếu khác nhau coi là **rủi ro lộ tồn tại lớp** (không FAIL trừ khi SRS yêu cầu). — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Spec đã quy định (v1.1, AC4 + SRS 4.1): `id` không phải uuid → 404; **uuid hợp lệ nhưng lớp không tồn tại → 403**, cùng thân và mã với lớp có thật mà người gọi không thuộc (không lộ tồn tại). Nếu hai trường hợp khác nhau thì là **FAIL** (không còn là rủi ro).
 - **Q-QC-P207-2** — TC-P207-17: gói `store` không phơi qua HTTP; QC viết test Go tạm (`qc_probe_test.go`, xoá sau) — chấp nhận? — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận: gói `store` không có đường HTTP; dùng test Go của dev hoặc `qc_probe_test.go` tạm (xoá sau).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).

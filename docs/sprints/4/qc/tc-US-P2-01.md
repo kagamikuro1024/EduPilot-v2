@@ -53,7 +53,9 @@ Tiền điều kiện chung: worktree `TA_Agent_v2-s4` (`sprint/4-p2`); `source 
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P201-1** — `token` ở Mailpit là nơi duy nhất chứa bản rõ (SRS 5.6): QC chấp nhận Mailpit là ngoại lệ hợp lệ khi quét "0 lần" (chỉ quét DB, log). Đúng? — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Đúng: bản rõ chỉ tồn tại trong nội dung thư gửi đi (Mailpit) và bộ nhớ consumer; QC quét "0 lần" ở DB / log / Redis / outbox / audit, không quét Mailpit (v1.1, AC3 + SRS 5.6).
 - **Q-QC-P201-2** — AC10 "550 vĩnh viễn": Mailpit không mô phỏng; QC cần SMTP giả riêng (Bun `net.createServer` nói SMTP tối thiểu) và cấu hình `SMTP_HOST` trỏ vào. Có biến cho phép thay `SMTP_HOST` ở stack test? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Có: `SMTP_HOST` / `SMTP_PORT` của worker ghi đè được bằng compose override (`up -d --force-recreate --no-deps worker`) ở stack test — đã ghi vào SRS 8.1 (ghi chú cho QC, v1.1). Dev đảm bảo worker đọc hai biến này lúc khởi động.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).

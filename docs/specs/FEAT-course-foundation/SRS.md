@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/4/qc/tc-US-P2-0*.md`, `tc-US-P2-1*.md`, `tc-GATE-P2.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi số AC (83). Đổi: US-P2-07 AC4 (lớp không tồn tại → 403, Q-QC-P207-1), US-P2-08 AC4 (`ta_ids: []`, Q-QC-P208-1), US-P2-09 AC10 (thông báo cho TA, thứ tự ngược, Q-QC-P209-2, Q-QC-P209-3) và AC14 (mã trong log, Q-QC-P209-1), US-P2-10 AC2 (`dry_run` không ghi gì kể cả `audit_log`, Q-QC-P210-1) và AC3 (ca (d) đầy đủ, Q-QC-P210-2), US-P2-11 AC3, AC9, AC11 (Q-QC-P211-1…3), US-P2-12 AC1, AC7, AC9 (Q-QC-P212-1…3), `SRS.md` 2, 4.1, 4.4, 4.5, 4.8, 4.9, 8.3. Các câu còn lại chỉ trả lời ở tệp TC.
 
 Nguồn: `docs/phases/P2.md` lát L1, L2, L2a, L2c, L3 (nguồn chính); `docs/sprints/4/plan.md`; PRD M0 + M14 + §3; FLOWS F1 ("quy tắc an toàn số 1"), F2, F14; `ARCHITECTURE.md` §4 (00003), §5, §8, §9; `design/DESIGN.md` §14.1, §10, §13; `design/INTEGRATION.md` mục 2, 4; `PRODUCTION_READINESS.md`; `AGENTS.md`; D36, D45, D51; spec nền `docs/specs/FEAT-pg-foundation/` v1.6 (RBAC FR-37…FR-44, outbox 5.3, Redis 5.6, cursor 6.4, Idempotency 6.6, env 8.1), `docs/specs/FEAT-account-security/` (SRS), `docs/specs/FEAT-llm-gateway/`, `docs/specs/FEAT-ui-foundation/`; mã hiện có: `backend-go/internal/auth/{auth,middleware}.go` (khung `CourseAccessGuard`, `CourseResolver`, `CourseAccess`), `internal/platform/{outbox,clock,redis}`, `internal/httpapi/{ratelimit,idempotency}.go`. Story: `US.md` (US-P2-07…12, 83 AC). Truy vết: mục 11.
 
@@ -28,7 +30,7 @@ Vai trong lớp lấy từ `enrollments.role_in_course` của lớp đó (không
 | 9 | `POST /courses/join/preview`, `POST /courses/join` | 403 | 403 | 403 | ✓ (email đã xác minh) | ✓ nếu là STUDENT đã xác minh (đó là cách vào lớp) |
 | 10 | `POST …/roster/import`, `GET …/share-sources`, `POST …/share-from`, `POST …/setup/dismiss` | **403** | ✓ | 403 | 403 | 403 |
 
-Ghi chú quyền: **ADMIN không đọc nội dung lớp mặc định** (`AGENTS.md`): Admin chỉ qua route quản lý (hàng 3, 6, 7, 8) — không `sessions`, `today`, import, share; **Admin không thêm sinh viên vào lớp** (hàng 10, 9 → 403). Giảng viên chỉ quản lý lớp **của mình** (chia sẻ cần là giảng viên của cả lớp nguồn). Mọi lỗi quyền: 403 `FORBIDDEN` `details.reason ∈ {"role","course","source_course","mismatch_needs_teacher"}`; không JWT → 401. Danh tính / `user_id` luôn từ JWT, không từ tham số.
+Ghi chú quyền: **ADMIN không đọc nội dung lớp mặc định** (`AGENTS.md`): Admin chỉ qua route quản lý (hàng 3, 6, 7, 8) — không `sessions`, `today`, import, share; **Admin không thêm sinh viên vào lớp** (hàng 10, 9 → 403). Giảng viên chỉ quản lý lớp **của mình** (chia sẻ cần là giảng viên của cả lớp nguồn). Mọi lỗi quyền: 403 `FORBIDDEN` `details.reason ∈ {"role","course","source_course","mismatch_needs_teacher"}`; không JWT → 401. Danh tính / `user_id` luôn từ JWT, không từ tham số. **"OUTSIDER" của cổng P2** (Q-QC-GATEP2-3) gồm 5 loại: người dùng không có ghi danh, ghi danh `PENDING`, ghi danh `REMOVED`, TA của lớp khác, Admin — mỗi loại phải bị 403 ở mọi route lớp ngoài các route Admin được phép ở bảng trên.
 
 ## 3. Luồng chính và các nhánh lỗi
 
@@ -105,7 +107,7 @@ Giao diện (mở rộng khung PG; thay `CourseResolver.CanAccess` trả `bool`)
 
 Bảng route → chế độ: `GET /courses/{id}` `MemberOrAdmin`; `GET …/sessions`, `GET …/today` `Member`; `POST …/sessions/generate` `Staff`; `GET …/join-code`, `GET …/members` `StaffOrAdmin`; `POST …/members/{uid}/approve|reject|undo` `StaffOrAdmin` (+ kiểm riêng `EMAIL_MISMATCH` → `Manage`); `POST …/join-code/regenerate`, `PUT …/join-settings`, `DELETE …/members/{uid}`, `PUT …/assistants`, `GET …/assistant-candidates` `Manage`; `POST …/roster/import`, `GET …/share-sources`, `POST …/share-from`, `POST …/setup/dismiss` `Teacher`. Route `/admin/*` dùng `RequireRole(ADMIN)` (không qua guard lớp).
 
-Quy tắc: một truy vấn có chỉ mục (`enrollments (course_id, user_id)`), **không cache** (mời ra → 403 ngay yêu cầu sau); `id` không phải uuid → 404; lỗi DB → 503; từ chối → 403 `reason="course"` (hoặc `role`); `CourseAccess.Role` từ `enrollments`, không từ JWT; vai `ADMIN` chỉ xuất hiện ở các chế độ có "hoặc ADMIN". Lớp `ARCHIVED`: guard cho qua (đọc được); các **handler ghi** trả 409 `COURSE_ARCHIVED`.
+Quy tắc: một truy vấn có chỉ mục (`enrollments (course_id, user_id)`), **không cache** (mời ra → 403 ngay yêu cầu sau); `id` không phải uuid → 404; **uuid hợp lệ nhưng lớp không tồn tại → 403** (như người ngoài lớp; không lộ tồn tại; Q-QC-P207-1); lỗi DB → 503; từ chối → 403 `reason="course"` (hoặc `role`); `CourseAccess.Role` từ `enrollments`, không từ JWT; vai `ADMIN` chỉ xuất hiện ở các chế độ có "hoặc ADMIN". Lớp `ARCHIVED`: guard cho qua (đọc được); các **handler ghi** trả 409 `COURSE_ARCHIVED`.
 
 **Ma trận kiểm** (`TestGuardMatrix`): vai JWT {STUDENT, TA, TEACHER, ADMIN} × tình trạng {`ACTIVE` vai tương ứng, `ACTIVE` vai khác, `PENDING`, `REMOVED`, không có} × 6 chế độ.
 
@@ -128,7 +130,7 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 
 ### 4.4 Gán giảng viên và trợ giảng (US-P2-08)
 
-`assign {teacher_id?, ta_ids?[]}`: một giảng viên `ACTIVE` mỗi lớp (partial unique); đổi giảng viên → dòng cũ `REMOVED`, dòng mới `ACTIVE` (`joined_via=ADMIN`; nếu người đó từng có dòng `REMOVED` thì **dùng lại dòng cũ**); `ta_ids` thay thế toàn bộ tập TA; chỉ người mới được thêm nhận `course.assigned`; toàn bộ trong một transaction cùng dòng outbox; `audit_log` trước / sau. `PUT …/assistants` (giảng viên của lớp hoặc Admin) có cùng ngữ nghĩa cho TA.
+`assign {teacher_id?, ta_ids?[]}`: một giảng viên `ACTIVE` mỗi lớp (partial unique); đổi giảng viên → dòng cũ `REMOVED`, dòng mới `ACTIVE` (`joined_via=ADMIN`; nếu người đó từng có dòng `REMOVED` thì **dùng lại dòng cũ**); `ta_ids` thay thế toàn bộ tập TA (**vắng khoá / `null` = giữ nguyên; `[]` = gỡ hết**; Q-QC-P208-1); chỉ người mới được thêm nhận `course.assigned`; toàn bộ trong một transaction cùng dòng outbox; `audit_log` trước / sau. `PUT …/assistants` (giảng viên của lớp hoặc Admin) có cùng ngữ nghĩa cho TA.
 
 ### 4.5 Roster và quy tắc nối (US-P2-10)
 
@@ -143,15 +145,15 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 | không có | `users` `INVITED` (`student_code` = MSSV dòng) + enrollment `ACTIVE` `ROSTER` + thư `invite_student` | `created_users` |
 | có, `email_verified_at` có | enrollment `ACTIVE` `ROSTER` trên tài khoản đó | `linked_existing` |
 | có, chưa xác minh | enrollment `PENDING` `warning=EMAIL_UNVERIFIED`; khi xác minh email → `ACTIVE` (hook `user.verified`) | `pending_unverified` |
-| có, `INVITED` | enrollment `ACTIVE`; gửi lại thư mời nêu lớp này (token cũ bị thu hồi) | `linked_existing` |
+| có, `INVITED` (vai STUDENT) | enrollment `ACTIVE` `ROSTER`; tài khoản **giữ** `INVITED`; nếu `send_invites`: thư `invite_student` mới nêu lớp vừa thêm, token mời cũ chưa dùng bị thu hồi (Q-QC-P210-2) | `linked_existing` |
 | đã có enrollment `ACTIVE`/`PENDING` | không đổi | `already_member` |
 | enrollment `REMOVED` | không đổi; báo "đã bị mời ra, dùng Khôi phục" | `skipped_removed` |
 | vai khác STUDENT | lỗi `EMAIL_BELONGS_TO_STAFF` | `errors` |
 | `DISABLED` | lỗi `EMAIL_DISABLED` | `errors` |
 
-`dry_run=true` chạy toàn bộ phân loại trong transaction rồi **rollback**, không thư. Không dry-run: các dòng hợp lệ ghi trong **một** transaction (cùng dòng `mail_outbox` + `outbox` và `roster.imported`); `dedupe_key` thư = `invite_student:<user>:<course>`.
+`dry_run=true` chạy toàn bộ phân loại trong transaction rồi **rollback**: **không** ghi `users`, `enrollments`, `mail_outbox`, `outbox`, `notifications`, `audit_log`; chỉ khoá idempotency (Redis) và log ứng dụng (Q-QC-P210-1). `student_code_snapshot` ở các nhánh nối = MSSV của dòng roster; `users.student_code` không bị ghi đè. Không dry-run: các dòng hợp lệ ghi trong **một** transaction (cùng dòng `mail_outbox` + `outbox` và `roster.imported`); `dedupe_key` thư = `invite_student:<user>:<course>`.
 
-**Quy tắc vào bằng mã khi MSSV trùng (4.2.5 của `FEAT-account-security`):** khi `join` mà `users.student_code` của người vào **không rỗng** và tồn tại enrollment khác (`ACTIVE`/`PENDING`, vai STUDENT) trong cùng lớp có `student_code_snapshot` bằng đó → enrollment của người vào là `PENDING` + `warning=EMAIL_MISMATCH` **bất kể** `join_require_approval`. Duyệt: `approve` với `confirm_mismatch:true` bởi TEACHER / ADMIN.
+**Quy tắc vào bằng mã khi MSSV trùng (4.2.5 của `FEAT-account-security`):** khi `join` mà `users.student_code` của người vào **không rỗng** và tồn tại enrollment khác (`ACTIVE`/`PENDING`, vai STUDENT) trong cùng lớp có `student_code_snapshot` bằng đó → enrollment của người vào là `PENDING` + `warning=EMAIL_MISMATCH` **bất kể** `join_require_approval`. Duyệt: `approve` với `confirm_mismatch:true` bởi TEACHER / ADMIN. **Thứ tự ngược** (Q-QC-P209-3): người **đến sau** mới bị gắn cảnh báo — vào bằng mã → `PENDING`+`EMAIL_MISMATCH`; nằm trong roster → dòng lỗi `STUDENT_CODE_CONFLICT`; người đã `ACTIVE` trước **không** bị đổi trạng thái tự động (giảng viên thấy cảnh báo và quyết).
 
 ### 4.6 Chia sẻ giữa lớp (US-P2-10)
 
@@ -222,7 +224,7 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 
 ### 4.8 Seed (US-P2-12)
 
-`scripts/seed.mjs` (Node ≥ 24, chỉ `fetch` có sẵn; biến: `API_URL` mặc định `https://localhost/api/v1`, `MAILPIT_URL` mặc định `http://localhost:8025`, `SEED_DEFAULT_PASSWORD`, `SEED_RNG` mặc định `20261029`, `SEED_BASE_DATE` mặc định hôm nay, `SEED_ADMIN_CMD` mặc định `docker compose exec -T gateway /app/gateway admin create`). Cờ: `--if-empty` (dùng bởi `pnpm dev`), `--verbose`. Chặn `APP_ENV=production` (thoát 1 trước mọi lời gọi).
+`scripts/seed.mjs` (Node ≥ 24, chỉ `fetch` có sẵn; biến: `API_URL` mặc định `https://localhost/api/v1`, `MAILPIT_URL` mặc định `http://localhost:8025`, `SEED_DEFAULT_PASSWORD`, `SEED_RNG` mặc định `20261029`, `SEED_BASE_DATE` mặc định hôm nay, `SEED_ADMIN_CMD` mặc định `docker compose exec -T gateway /app/gateway admin create`). Cờ: `--if-empty` (dùng bởi `pnpm dev`), `--verbose`. Chặn `APP_ENV=production` (thoát 1 trước mọi lời gọi). Chạy được bằng Node ≥ 24 **và** Bun (chỉ `fetch` + `node:` chuẩn; Q-QC-P212-3). Trên stack test dùng override `docker-compose.test-seed.yml` (chỉ nới 4 biến giới hạn; Q-QC-P212-1); "≤ 3 phút" tính từ `readyz` xanh tới "Seed xong" (Q-QC-P212-2).
 
 **Kế hoạch (9 bước; mỗi bước kiểm trạng thái trước):**
 
@@ -253,7 +255,7 @@ Mỗi topic có thể có nhiều handler độc lập (idempotent; lỗi một 
 | Topic | Payload | Handler | Việc |
 | --- | --- | --- | --- |
 | `course.assigned` | `{course_id,user_id,role,assigned_by}` | `notify.course_assigned`, `today.invalidate` | `notifications` `COURSE_ASSIGNED` (dedupe `course.assigned:<outbox_id>`) |
-| `course.join_requested` | `{course_id,user_id,mismatch}` | `notify.join_requested`, `today.invalidate` | `JOIN_REQUEST` cho GV + TA (mismatch: chỉ nội dung khác; vẫn gửi GV + TA, TA không duyệt được) |
+| `course.join_requested` | `{course_id,user_id,mismatch}` | `notify.join_requested`, `today.invalidate` | `JOIN_REQUEST` cho GV + TA (mismatch: thân của **GV** thêm "— email chưa khớp MSSV"; **TA nhận thân thường, không nêu lý do** và không duyệt được — Q-QC-P209-2) |
 | `course.join_decided` | `{course_id,user_id,decision}` | `notify.join_decided`, `today.invalidate` | `JOIN_APPROVED` / `JOIN_REJECTED` |
 | `course.member_changed` | `{course_id,user_id}` | `today.invalidate` | |
 | `course.changed` | `{course_id}` | `today.invalidate` | sửa, lưu trữ, đổi cài đặt |
@@ -604,7 +606,7 @@ Tính theo **ngày lịch** (`Asia/Ho_Chi_Minh`) từ đồng hồ thật: cùng
 
 ### 8.3 Bảo mật và cách ly
 
-Cách ly lớp: guard không cache; chunk luôn `course_ids`; mọi route lớp qua guard (kiểm bằng `chi.Walk`); PENDING / REMOVED không truy cập; ADMIN không đọc nội dung lớp và không thêm sinh viên; MSSV tự khai không bao giờ là khoá nối (so sánh MSSV chỉ để chặn / cảnh báo); `student_code_snapshot` bất biến; mã tham gia `crypto/rand`, đồng nhất lỗi, giới hạn đoán mã, mã không vào log; `notifications.link` chỉ nội bộ; roster không lưu tệp; `admin/courses` không trả mã tham gia hay danh sách sinh viên; thông báo không chứa MSSV / email người khác (trừ thông báo cho giảng viên nêu tên sinh viên xin vào lớp).
+Cách ly lớp: guard không cache; chunk luôn `course_ids`; mọi route lớp qua guard (kiểm bằng `chi.Walk`); PENDING / REMOVED không truy cập; ADMIN không đọc nội dung lớp và không thêm sinh viên; MSSV tự khai không bao giờ là khoá nối (so sánh MSSV chỉ để chặn / cảnh báo); `student_code_snapshot` bất biến; mã tham gia `crypto/rand`, đồng nhất lỗi, giới hạn đoán mã, mã không vào log; `notifications.link` chỉ nội bộ; roster không lưu tệp; `admin/courses` không trả mã tham gia hay danh sách sinh viên; mã tham gia nằm trong URL `/join/<mã>`: Caddy / frontend **che mã** trong log (kể cả `next=%2Fjoin%2F<mã>` ở `/login`), `Referrer-Policy: no-referrer`, `no-store`, `history.replaceState` (Q-QC-P209-1); thông báo không chứa MSSV / email người khác (trừ thông báo cho giảng viên nêu tên sinh viên xin vào lớp).
 
 ### 8.4 Dữ liệu cá nhân và lưu giữ (đề xuất; Q — **[CHỦ DỰ ÁN]**)
 

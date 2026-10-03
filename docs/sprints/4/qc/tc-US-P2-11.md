@@ -66,8 +66,11 @@ Tiền điều kiện chung: stack test + seed (US-P2-12); `$A,$T,$TA_,$SVA,$SVB
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P211-1** — TC-P211-33 "ba giây": QC đo thời gian từ tải trang tới khi hành động chính hiện (không phải LCP); đồng ý với phép đo này? — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Đồng ý với phép đo đó (v1.1, AC11): đo từ `page.goto` tới khi hành động chính (hoặc ô nhập mã) hiển thị và bấm được ≤ 3.000 ms ở stack local với seed; không phải LCP.
 - **Q-QC-P211-2** — Bậc của `VERIFY_EMAIL` so với `JOIN_CODE` khi **cả hai** đúng (SV chưa xác minh **và** chưa vào lớp): US AC3 đặt `VERIFY_EMAIL` trước. QC chấm theo đó. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận (v1.1, AC3): `VERIFY_EMAIL` (bậc 10) đứng trước `JOIN_CODE` (bậc 20) khi cả hai đúng; `no_course=true` vẫn trả để giao diện hiện ô nhập mã bên dưới.
 - **Q-QC-P211-3** — TC-P211-26 có 7 loại sự kiện: QC chỉ có thể kích hoạt các sự kiện có API tương ứng (join request/decision, member change, assign, roster import, verify); `course.changed` qua sửa lớp. Nếu có sự kiện không kích hoạt được bằng HTTP, ghi N/A và chạy test Go của dev. — *thông báo*.
+  - **Trả lời (BA, 2026-10-03):** Ghi nhận và đã thêm vào AC9 (v1.1): sự kiện không kích hoạt được bằng HTTP → N/A và dùng test Go của dev (`TestTodayInvalidatedByOutbox` phủ cả 7 topic). Bản đồ kích hoạt: `course.assigned` ← assign; `course.join_requested` / `join_decided` ← join / approve / reject; `member_changed` ← remove / undo; `roster.imported` ← import; `user.verified` ← verify-email; `course.changed` ← sửa / lưu trữ.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).

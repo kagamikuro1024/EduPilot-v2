@@ -63,8 +63,11 @@ Nguồn: `docs/phases/P2.md` mục "Cổng nghiệm thu" và "Bạn tự kiểm"
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-GATEP2-1** — "Đọc từng dòng diff `internal/auth`" (P2.md) là việc của chủ dự án; QC chạy `diff-review.sh` quét mẫu nguy hiểm (TC-GATEP2-23) và **báo phát hiện**, không thay thế việc đọc của chủ dự án. Đúng? — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Đúng: việc đọc từng dòng diff `internal/auth` là của chủ dự án. QC chạy `diff-review.sh` quét mẫu nguy hiểm và **báo phát hiện**, không thay việc đọc.
 - **Q-QC-GATEP2-2** — Cổng P2 có 12 story + seed → thời gian chạy cổng dài (đo giới hạn 15 phút, 5 phút nền, 10 phút khoá). QC sẽ chạy các TC chờ ở nền song song; nếu PM muốn rút gọn, nêu rõ TC nào chỉ chạy bản rút gọn (TTL chỉnh tay). — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận chạy nền song song. Rút gọn được phép (đã ghi ở `FEAT-account-security/SRS.md` 8.1, ghi chú cho QC): dựng **stack riêng** với TTL / thời gian khoá rút gọn và **một lần đo thật** cho mỗi mốc quan trọng (đo thật 15 phút khoá và mốc 10 phút đoán mã ít nhất một lần cho cổng). TC chỉ chạy bản rút gọn: hạn liên kết 24 h / 30 phút / 72 h (làm hết hạn trong DB test), hết hạn phiên 14 / 30 ngày, TTL cache `today`.
 - **Q-QC-GATEP2-3** — `OUTSIDER` ở `P2.md` dòng 12 chưa định nghĩa: QC dùng 5 loại (không ghi danh / PENDING / REMOVED / TA lớp khác / Admin). — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận 5 loại và đã định nghĩa vào spec (v1.1, `FEAT-course-foundation/SRS.md` mục 2): không ghi danh, `PENDING`, `REMOVED`, TA của lớp khác, Admin.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo P2.md + plan sprint 4 + yêu cầu PM (TC tấn công).

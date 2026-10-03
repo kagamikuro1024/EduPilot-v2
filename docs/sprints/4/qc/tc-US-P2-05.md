@@ -61,8 +61,11 @@ Tiền điều kiện chung: stack test (2 gateway sau Caddy; Redis; Mailpit); b
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P205-1** — Giới hạn "30 sai / 15 phút / IP" đo bằng 31 email khác nhau từ một IP: do `login` 10/phút/IP cũng chạm, TC-P205-19 phải rải ≤ 10 lần/phút (≥ 4 phút). QC chấp nhận chạy nền ≈ 5 phút. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận chạy nền ≈ 5 phút (rải ≤ 10 lần / phút để không chạm giới hạn `login`).
 - **Q-QC-P205-2** — Mốc TTL Redis rút gọn: QC chỉnh `locked_until`/khoá Redis để mô phỏng thời gian; xác nhận cách này hợp lệ cho FAIL/PASS (kèm 1 lần đo thật TC-09). — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Hợp lệ: QC chỉnh `locked_until` / khoá Redis hoặc dùng biến rút gọn ở stack riêng để mô phỏng thời gian, kèm **một lần đo thật** TC-09 (SRS 8.1 ghi chú cho QC).
 - **Q-QC-P205-3** — Danh sách mật khẩu phổ biến có "biến thể bỏ dấu" (`matkhau123`): QC thử 5 biến thể; nếu SRS không liệt kê tập biến thể cụ thể QC chỉ ghi kết quả. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đã định nghĩa (v1.1, AC7 + SRS 4.2.1): `fold` = NFD, bỏ dấu, `đ`→`d`, chữ thường, giữ khoảng trắng / ký tự khác, **không** leetspeak, không cắt số; ví dụ `MatKhau12345` và `Mậtkhẩu12345` bị chặn nếu `matkhau12345` có trong danh sách. QC thử 5 biến thể và so với định nghĩa này.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).

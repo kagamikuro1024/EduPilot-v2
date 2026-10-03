@@ -1,7 +1,9 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
 
-Nguồn: `docs/phases/P2.md` lát L1b (nguồn chính) và L2 (phần `internal/user` của Admin), `docs/sprints/4/plan.md`, PRD M0 + §3 + §5, FLOWS F1, `ARCHITECTURE.md` §4 (00004), §5 (Tài khoản, Quản trị lớp), §8, `PRODUCTION_READINESS.md`, `AGENTS.md` ("Cấm tuyệt đối"), `DECISIONS.md` D36, D45, D46, D51; spec nền `docs/specs/FEAT-pg-foundation/` v1.6 (mã lỗi 6.1, Redis 5.6, env 8.1, outbox 5.3, RBAC FR-37…FR-44), `docs/specs/FEAT-ui-foundation/` (`apiClient`, khung, 7.5 điều hướng), `docs/specs/FEAT-llm-gateway/`; mã hiện có: `backend-go/internal/auth/{auth,jwt,middleware,password,cli}.go`, `internal/httpapi/ratelimit.go`, `internal/platform/{outbox,clock,redis}`. Story: `US.md` (US-P2-01…06, 77 AC). Truy vết: mục 11.
+**v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/4/qc/tc-US-P2-0*.md`, `tc-GATE-P2.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi hợp đồng API. Đổi: US-P2-02 AC4 (không có ân hạn khi hai refresh song song — Q-QC-P202-1), US-P2-01 AC3 (Mailpit là ngoại lệ — Q-QC-P201-1), US-P2-04 thêm AC13 (log truy cập không ghi token — Q-QC-P204-2), US-P2-05 AC7 (phép `fold` — Q-QC-P205-3), US-P2-06 AC9 (`--password` không tồn tại — Q-QC-P206-2), `SRS.md` 4.1, 4.2.1, 4.2.4, 4.2.6, 5.6, 8.1 (ghi chú cho QC: TTL rút gọn, `APP_ENV`, `SMTP_HOST`, `X-Forwarded-For`), 8.3, 8.5, FR-35. Các câu còn lại chỉ trả lời ở tệp TC.
+
+Nguồn: `docs/phases/P2.md` lát L1b (nguồn chính) và L2 (phần `internal/user` của Admin), `docs/sprints/4/plan.md`, PRD M0 + §3 + §5, FLOWS F1, `ARCHITECTURE.md` §4 (00004), §5 (Tài khoản, Quản trị lớp), §8, `PRODUCTION_READINESS.md`, `AGENTS.md` ("Cấm tuyệt đối"), `DECISIONS.md` D36, D45, D46, D51; spec nền `docs/specs/FEAT-pg-foundation/` v1.6 (mã lỗi 6.1, Redis 5.6, env 8.1, outbox 5.3, RBAC FR-37…FR-44), `docs/specs/FEAT-ui-foundation/` (`apiClient`, khung, 7.5 điều hướng), `docs/specs/FEAT-llm-gateway/`; mã hiện có: `backend-go/internal/auth/{auth,jwt,middleware,password,cli}.go`, `internal/httpapi/ratelimit.go`, `internal/platform/{outbox,clock,redis}`. Story: `US.md` (US-P2-01…06, 78 AC). Truy vết: mục 11.
 
 ## 1. Mục đích và phạm vi
 
@@ -113,7 +115,7 @@ stateDiagram-v2
 
 **Access token** (HS256): claims của PG (`sub, role, email, jti, iat, nbf, exp, iss, aud`) **cộng `sid`** (uuid phiên). `exp = iat + ACCESS_TOKEN_TTL`. `Principal` thêm `SessionID`. Token dev của `gateway token` không có `sid` (bỏ qua kiểm thu hồi; **từ chối ở `APP_ENV=production`**).
 
-**Refresh token**: 32 byte `crypto/rand`, base64url (43 ký tự), DB lưu `sha256` hex. Xoay mỗi lần dùng; `prev_refresh_hash` giữ **một** thế hệ để phát hiện dùng lại. `expires_at` trượt `REFRESH_TOKEN_TTL` kể từ lần dùng nhưng không quá `absolute_expires_at = created_at + SESSION_ABSOLUTE_TTL`. Khoá hàng (`SELECT … FOR UPDATE`) để hai yêu cầu cùng phiên tuần tự.
+**Refresh token**: 32 byte `crypto/rand`, base64url (43 ký tự), DB lưu `sha256` hex. Xoay mỗi lần dùng; `prev_refresh_hash` giữ **một** thế hệ để phát hiện dùng lại. `expires_at` trượt `REFRESH_TOKEN_TTL` kể từ lần dùng nhưng không quá `absolute_expires_at = created_at + SESSION_ABSOLUTE_TTL`. Khoá hàng (`SELECT … FOR UPDATE`) để hai yêu cầu cùng phiên tuần tự. **Không có khoảng ân hạn** (Q9): hai `refresh` song song cùng một cookie → một thành công, yêu cầu còn lại thấy token ở `prev_refresh_hash` ⇒ dùng lại ⇒ 401 `SESSION_REVOKED` + thu hồi cả phiên (Q-QC-P202-1).
 
 **Thu hồi:** thu hồi một phiên = `auth_sessions.revoked_at/reason` + `SET ep:auth:rev:sid:{sid}` (TTL `ACCESS_TOKEN_TTL + 60 s`); thu hồi mọi phiên của người dùng = cập nhật DB + `SET ep:auth:rev:user:{uid}` = mốc ms (access token có `iat*1000 ≤ mốc` bị từ chối). Middleware kiểm bằng một `MGET` sau khi xác minh chữ ký; Redis lỗi → chấp nhận token + log `error` (≤ 1 lần / 30 s).
 
@@ -125,7 +127,7 @@ stateDiagram-v2
 
 ### 4.2 Quy tắc an toàn
 
-**4.2.1 Chính sách mật khẩu** (`auth.ValidatePasswordPolicy(password, email)`; một hàm cho `register`, `reset-password`, `accept-invite`, `POST /me/password`): ≥ 10 ký tự Unicode; ≤ 72 byte; không thuộc danh sách phổ biến (`common_passwords.txt`, `go:embed`, ≥ 1.000 mục dài ≥ 10 ký tự, so không phân biệt hoa thường và bỏ dấu); không chứa phần trước `@` của email nếu dài ≥ 4; không chỉ một ký tự lặp hay dãy tăng liên tiếp (`abcdefghij`, `1234567890`); không bắt buộc ký tự đặc biệt. Mã lỗi: `PASSWORD_TOO_SHORT`, `PASSWORD_TOO_LONG`, `PASSWORD_COMMON`, `PASSWORD_CONTAINS_EMAIL`, `PASSWORD_LOW_ENTROPY`, `PASSWORD_SAME_AS_OLD` (chỉ đổi mật khẩu).
+**4.2.1 Chính sách mật khẩu** (`auth.ValidatePasswordPolicy(password, email)`; một hàm cho `register`, `reset-password`, `accept-invite`, `POST /me/password`): ≥ 10 ký tự Unicode; ≤ 72 byte; không thuộc danh sách phổ biến (`common_passwords.txt`, `go:embed`, ≥ 1.000 mục dài ≥ 10 ký tự, so không phân biệt hoa thường và bỏ dấu); không chứa phần trước `@` của email nếu dài ≥ 4; không chỉ một ký tự lặp hay dãy tăng liên tiếp (`abcdefghij`, `1234567890`); không bắt buộc ký tự đặc biệt. Phép so danh sách phổ biến dùng `fold(x)`: chuẩn hoá Unicode NFD, bỏ dấu kết hợp, `đ`/`Đ` → `d`, chữ thường; **giữ nguyên** khoảng trắng và mọi ký tự khác; **không** ánh xạ leetspeak (`@`→`a`…) và không cắt hậu tố số (Q-QC-P205-3); cả mật khẩu và mục trong danh sách đều qua `fold`. Mã lỗi: `PASSWORD_TOO_SHORT`, `PASSWORD_TOO_LONG`, `PASSWORD_COMMON`, `PASSWORD_CONTAINS_EMAIL`, `PASSWORD_LOW_ENTROPY`, `PASSWORD_SAME_AS_OLD` (chỉ đổi mật khẩu).
 
 **4.2.2 Chờ, khoá, giới hạn** (mặc định; cấu hình ở 8.1):
 
@@ -147,11 +149,11 @@ Mọi bộ đếm theo email dùng `sha256(email chữ thường)` nên **không
 
 **4.2.3 Chống dò email:** `register` và `forgot-password` trả cùng một thân / mã / khoá JSON dù email có hay không; xử lý nặng (bcrypt, xếp thư) cân bằng thời gian trong dung sai 35 %; thư gửi tới chủ hộp thư (không lộ qua phản hồi).
 
-**4.2.4 Liên kết một lần:** `Issue` phát token 32 byte (43 ký tự) và chỉ lưu `sha256`; dùng bằng `UPDATE … SET used_at = now() WHERE token_hash = $1 AND used_at IS NULL AND revoked_at IS NULL AND expires_at > now() RETURNING …` (nguyên tử; hai yêu cầu song song → một thắng). Hạn: `VERIFY_EMAIL` 24 giờ, `RESET_PASSWORD` 30 phút, `INVITE` 72 giờ. Phát token mới cùng `(user, kind)` thu hồi token cũ chưa dùng. Phản hồi lỗi: 410 `LINK_INVALID` + `details.reason` ∈ `expired` | `used` | `invalid` (token lạ và đã bị thay đều là `invalid`).
+**4.2.4 Liên kết một lần:** `Issue` phát token 32 byte (43 ký tự) và chỉ lưu `sha256`; dùng bằng `UPDATE … SET used_at = now() WHERE token_hash = $1 AND used_at IS NULL AND revoked_at IS NULL AND expires_at > now() RETURNING …` (nguyên tử; hai yêu cầu song song → một thắng). Hạn: `VERIFY_EMAIL` 24 giờ, `RESET_PASSWORD` 30 phút, `INVITE` 72 giờ. Phát token mới cùng `(user, kind)` thu hồi token cũ chưa dùng. **Không yêu cầu** cân bằng thời gian cho các endpoint nhận token (token 256 bit, tra theo băm — thời gian không lộ thông tin khai thác được; Q-QC-P204-1); QC chỉ ghi chênh lệch. Phản hồi lỗi: 410 `LINK_INVALID` + `details.reason` ∈ `expired` | `used` | `invalid` (token lạ và đã bị thay đều là `invalid`).
 
 **4.2.5 MSSV tự khai (quy tắc an toàn số 1):** `users.student_code` chỉ là thông tin khai báo. **Không truy vấn nào dùng nó để nối tài khoản vào lớp hay mở dữ liệu.** Danh sách trắng truy vấn sqlc được phép tham chiếu MSSV (so sánh để *chặn / cảnh báo*, không để *cho phép*): (a) `EnrollmentConflictByStudentCode` (`FEAT-course-foundation` US-P2-09: MSSV trùng ⇒ ghi `PENDING` + cảnh báo `EMAIL_MISMATCH`), (b) `RosterStudentCodeConflict` (US-P2-10: dòng import trùng MSSV khác email ⇒ báo lỗi dòng), (c) `UpdateProfile` (ghi). `TestNoQueryLinksByStudentCode` liệt kê tên truy vấn sqlc có `student_code` trong điều kiện và so với danh sách trên.
 
-**4.2.6 Khởi tạo Admin đầu tiên:** `gateway admin create --email E --name N`; mật khẩu từ biến `ADMIN_PASSWORD` hoặc stdin (không từ tham số dòng lệnh); qua chính sách; tạo `ADMIN`, `ACTIVE`, `email_verified_at = now()`; idempotent theo email (đã có → thoát 0, không đổi mật khẩu); ghi `audit_log` (`actor_id = NULL`, `admin_bootstrap`). Không có route HTTP tạo ADMIN.
+**4.2.6 Khởi tạo Admin đầu tiên:** `gateway admin create --email E --name N`; mật khẩu từ biến `ADMIN_PASSWORD` hoặc stdin (không từ tham số dòng lệnh); qua chính sách; tạo `ADMIN`, `ACTIVE`, `email_verified_at = now()`; idempotent theo email (đã có → thoát 0, không đổi mật khẩu); ghi `audit_log` (`actor_id = NULL`, `admin_bootstrap`). Không có route HTTP tạo ADMIN. Lệnh **không có cờ `--password`** (cờ lạ → thoát 2, thông báo "Dùng biến ADMIN_PASSWORD hoặc stdin."; Q-QC-P206-2).
 
 ### 4.3 Danh sách FR
 
@@ -191,7 +193,7 @@ Mọi bộ đếm theo email dùng `sha256(email chữ thường)` nên **không
 | FR-32 | Máy B bị đăng xuất sau khi đặt lại | 04-AC4 |
 | FR-33 | Đổi mật khẩu giữ phiên hiện tại, thu hồi phiên khác | 04-AC5 |
 | FR-34 | `GET/DELETE /me/sessions*`, chống IDOR, IP rút gọn | 04-AC6, AC7 |
-| FR-35 | `/forgot-password`, `/reset-password`, `/settings` (bảo mật), `tokens/preview`, thư | 04-AC8, AC9, AC11, AC12 |
+| FR-35 | `/forgot-password`, `/reset-password`, `/settings` (bảo mật), `tokens/preview`, thư, log không ghi token | 04-AC8, AC9, AC11, AC12, AC13 |
 | FR-36 | Quyền của `/me/*` và đường công khai | 04-AC10 |
 | FR-37 | Lịch chờ, khoá 15 phút, thư khoá, không lộ tồn tại, đặt lại bộ đếm | 05-AC1…AC4 |
 | FR-38 | Khoá bền khi Redis chết; giới hạn IP / hành động | 05-AC5, AC6 |
@@ -286,7 +288,7 @@ Index: PK · `login_attempts_email_idx` (email_hash, created_at DESC) · `login_
 
 ### 5.6 Phát token lúc gửi (không để bí mật nằm ở hàng đợi)
 
-Luồng: handler ghi `mail_outbox {template, to_addr, payload:{user_id,…}}` **và** `outbox {topic:"mail.send", payload:{mail_id}}` trong cùng transaction với thay đổi nghiệp vụ. Consumer `mail.send` (worker, hạ tầng outbox của PG: thử lại 1 s / 5 s / 30 s, dead-letter): (1) đọc dòng, nếu `SENT` → bỏ qua; (2) nếu mẫu cần liên kết (`verify_email`, `reset_password`, `invite_staff`, `invite_student`) gọi `auth.Tokens.Issue` **trong bộ nhớ** để lấy bản rõ và dựng liên kết; (3) dựng thư từ mẫu; (4) gửi SMTP; (5) `status=SENT`, `sent_at`. Gửi lại sau lỗi tạo token mới và thu hồi token trước (token trước chưa từng tới người nhận). Nếu SMTP đã nhận mà tiến trình chết trước (5), lần thử lại gửi thư thứ hai và token đầu hết hiệu lực — chấp nhận; người dùng bấm "gửi lại". Loại lỗi SMTP: 4xx ⇒ thử lại; 5xx, mẫu lạ, thiếu biến, người nhận sai ⇒ `DEAD` ngay.
+Luồng: handler ghi `mail_outbox {template, to_addr, payload:{user_id,…}}` **và** `outbox {topic:"mail.send", payload:{mail_id}}` trong cùng transaction với thay đổi nghiệp vụ. Consumer `mail.send` (worker, hạ tầng outbox của PG: thử lại 1 s / 5 s / 30 s, dead-letter): (1) đọc dòng, nếu `SENT` → bỏ qua; (2) nếu mẫu cần liên kết (`verify_email`, `reset_password`, `invite_staff`, `invite_student`) gọi `auth.Tokens.Issue` **trong bộ nhớ** để lấy bản rõ và dựng liên kết; (3) dựng thư từ mẫu; (4) gửi SMTP; (5) `status=SENT`, `sent_at`. Gửi lại sau lỗi tạo token mới và thu hồi token trước (token trước chưa từng tới người nhận). Bản rõ của token chỉ tồn tại ở **nội dung thư gửi đi** (hộp thư người nhận; ở dev là Mailpit) và bộ nhớ consumer; QC quét "0 lần" ở DB / log / Redis / outbox / audit, không quét Mailpit (Q-QC-P201-1). Nếu SMTP đã nhận mà tiến trình chết trước (5), lần thử lại gửi thư thứ hai và token đầu hết hiệu lực — chấp nhận; người dùng bấm "gửi lại". Loại lỗi SMTP: 4xx ⇒ thử lại; 5xx, mẫu lạ, thiếu biến, người nhận sai ⇒ `DEAD` ngay.
 
 ### 5.7 Khoá Redis (tiền tố `ep:` theo PG 5.6; mọi khoá có TTL)
 
@@ -491,6 +493,8 @@ Màn mock vẫn hiển thị dải "Bản mô phỏng · dữ liệu giả"; tr�
 | `ADMIN_PASSWORD` | (chỉ lệnh `admin create`) | không đọc ở `serve` |
 | `SEED_DEFAULT_PASSWORD` | `.env.example` có giá trị qua chính sách | seed (US-P2-12) |
 
+**Ghi chú cho QC (Q-QC-GATEP2-2, Q-QC-P202-2, Q-QC-P201-2, Q-QC-P203-2):** (a) mọi hạn thời gian ở bảng trên ghi đè được bằng biến môi trường; QC được dựng **stack riêng** với giá trị rút gọn (ví dụ `ACCESS_TOKEN_TTL=20s`, `LOCKOUT_DURATION=30s`) cho các TC chờ lâu, kèm **một lần đo thật** cho mỗi loại mốc quan trọng; hạn 24 giờ / 30 phút / 72 giờ của liên kết kiểm bằng cách làm hết hạn token trong DB test (`age_token`). Giá trị mặc định (không đổi) vẫn là mặc định của production. (b) `docker-compose.test.yml` đặt `APP_ENV=test`; QC dựng bản gateway thứ ba bằng override `APP_ENV=production` với `JWT_SECRET_KEY` không phải giá trị mẫu và `BCRYPT_COST ≥ 10` để kiểm token dev bị từ chối. (c) `SMTP_HOST` / `SMTP_PORT` của worker ghi đè được (compose override, `up -d --force-recreate --no-deps worker`) — QC dùng máy chủ SMTP giả để mô phỏng 4xx / 5xx; chỉ ở stack test. (d) Caddy đặt `X-Forwarded-For`; gateway chỉ tin header từ `TRUSTED_PROXY_CIDRS` (mặc định gồm dải mạng compose).
+
 `.env.example` thêm các biến trên (không giá trị thật); `JWT_EXPIRATION` bị xoá khỏi mã, compose, `.env.example`, `gateway token --ttl` (mặc định = `ACCESS_TOKEN_TTL`).
 
 ### 8.2 Hiệu năng và SLO
@@ -508,7 +512,7 @@ Màn mock vẫn hiển thị dải "Bản mô phỏng · dữ liệu giả"; tr�
 
 ### 8.3 Bảo mật (tóm tắt các bất biến)
 
-Token và mật khẩu: chỉ băm ở DB, không ở log / `audit_log` / `outbox` / `mail_outbox` / Redis; refresh chỉ ở cookie `httpOnly`; access chỉ ở bộ nhớ; `Cache-Control: no-store` ở `/auth/*`; so sánh hằng thời gian; bcrypt ≤ 72 byte (từ chối, không cắt); phản hồi đồng nhất chống dò email / tài khoản; thời gian cân bằng; CSRF: Origin + `SameSite=Lax` + `POST` JSON; liên kết một lần nguyên tử; thu hồi tức thì; admin không thấy / đặt mật khẩu; MSSV tự khai không mở dữ liệu; `gateway token` bị chặn ở production; `safeNext`; `Referrer-Policy: no-referrer` ở trang có token trong URL; không từ kỹ thuật cho sinh viên. Bảo mật thư: SPF / DKIM / SMTP relay của trường là việc của PR.
+Token và mật khẩu: chỉ băm ở DB, không ở log / `audit_log` / `outbox` / `mail_outbox` / Redis; refresh chỉ ở cookie `httpOnly`; access chỉ ở bộ nhớ; `Cache-Control: no-store` ở `/auth/*`; so sánh hằng thời gian; bcrypt ≤ 72 byte (từ chối, không cắt); phản hồi đồng nhất chống dò email / tài khoản; thời gian cân bằng; CSRF: Origin + `SameSite=Lax` + `POST` JSON; liên kết một lần nguyên tử; thu hồi tức thì; admin không thấy / đặt mật khẩu; MSSV tự khai không mở dữ liệu; `gateway token` bị chặn ở production; `safeNext`; `Referrer-Policy: no-referrer` ở trang có token trong URL; không từ kỹ thuật cho sinh viên. Bảo mật thư: SPF / DKIM / SMTP relay của trường là việc của PR. **Log truy cập:** Caddy và frontend **không** ghi giá trị token trong query (`token`) hay đường dẫn `/invite/*` (bộ lọc log che bằng `REDACTED`, hoặc tắt log đường đó); các trang chứa token gửi `Referrer-Policy: no-referrer` (Q-QC-P204-2).
 
 ### 8.4 Dữ liệu cá nhân và lưu giữ (đề xuất; Q6 — [CHỦ DỰ ÁN])
 
@@ -523,7 +527,7 @@ Việc dọn (job nền) là **Nợ PR** — ghi vào `PROGRESS.md`; P2 chỉ c�
 
 ### 8.5 Vận hành
 
-Gateway không trạng thái (luật 10): phiên = JWT + bảng `auth_sessions`; bộ đếm ở Redis; cookie không phụ thuộc bản sao. Hai bản gateway chia sẻ khoá chặn. Worker gửi mail; nhiều worker không gửi đôi (khoá `mail_outbox.status`). Thu hồi qua `ep:auth:rev:*`. `/auth/*` đi qua Caddy cùng origin với frontend (US-P2-02 AC17); Caddy phải chuyển `Cookie` và `Set-Cookie` nguyên vẹn.
+Gateway không trạng thái (luật 10): phiên = JWT + bảng `auth_sessions`; bộ đếm ở Redis; cookie không phụ thuộc bản sao. Hai bản gateway chia sẻ khoá chặn. Worker gửi mail; nhiều worker không gửi đôi (khoá `mail_outbox.status`). Thu hồi qua `ep:auth:rev:*`. `/auth/*` đi qua Caddy cùng origin với frontend (US-P2-02 AC17); Caddy phải chuyển `Cookie` và `Set-Cookie` nguyên vẹn và áp bộ lọc log của 8.3.
 
 ### 8.6 Thư viện
 

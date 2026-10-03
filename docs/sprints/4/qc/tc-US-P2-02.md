@@ -75,8 +75,11 @@ Tiền điều kiện chung: stack test chạy; `GW=https://localhost` (cùng or
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P202-1** — TC-P202-14 (hai refresh song song cùng `T1`): SRS 4.1 có "khoảng ân hạn" (grace) cho thử lại mạng không? Nếu có, hành vi kỳ vọng khác (không thu hồi trong N giây). QC chưa thấy ở US; chấm theo AC4 (thu hồi) trừ khi SRS nói rõ. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** **Không có ân hạn.** Làm rõ ở AC4 (v1.1) và SRS 4.1: hai refresh song song cùng `T1` → một `200`, một `401 SESSION_REVOKED` và **cả phiên bị thu hồi**; sau đó mọi refresh / access của phiên đều `SESSION_REVOKED`. Chấm theo AC4.
 - **Q-QC-P202-2** — AC8 "production từ chối token dev": QC chạy một gateway thứ ba với `APP_ENV=production` trong stack test; stack chuẩn có `APP_ENV` gì? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** `docker-compose.test.yml` đặt `APP_ENV=test`. QC dựng gateway thứ ba bằng override `APP_ENV=production` (kèm `JWT_SECRET_KEY` không phải giá trị mẫu, `BCRYPT_COST ≥ 10`) — đã ghi vào SRS 8.1 (v1.1).
 - **Q-QC-P202-3** — TC-P202-49 cần `audit.mjs` đăng nhập thật: QC sẽ viết `docs/sprints/4/qc/scripts/audit-login.mjs` (bọc `audit.mjs`, thay phần đặt cookie demo). Chấp nhận? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận: QC viết `docs/sprints/4/qc/scripts/audit-login.mjs` bọc `audit.mjs`, thay phần đặt cookie demo bằng đăng nhập thật bằng 7 tài khoản mẫu. (US-P2-12 AC10 đã yêu cầu QC cập nhật.)
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).

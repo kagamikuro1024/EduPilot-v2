@@ -64,7 +64,9 @@ Tiền điều kiện chung: stack test; biến của `US.md`; `A=$(bearer admin
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P206-1** — TC-P206-22 giả định "vai trong JWT thắng DB" tới khi JWT hết hạn (≤ 15 phút) *trừ khi phiên bị thu hồi*: khi đổi vai bằng API phiên bị thu hồi (AC6); khi sửa DB trực tiếp thì không. QC chỉ kiểm sửa DB để xác nhận FR-40. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận. Đổi vai bằng API thu hồi phiên (AC6) nên token cũ bị từ chối; sửa DB trực tiếp thì JWT còn hạn (≤ 15 phút) vẫn mang vai cũ và "claim thắng DB" (PG FR-40) — QC chỉ kiểm sửa DB để xác nhận FR-40.
 - **Q-QC-P206-2** — TC-P206-30: `--password` trên dòng lệnh không tồn tại theo AC9; QC chỉ kiểm cờ **không được hỗ trợ** (lỗi rõ), không kiểm `ps`. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận và đã ghi rõ (v1.1, AC9 + SRS 4.2.6): **không có cờ `--password`**; cờ lạ (kể cả `--password`) → thoát 2, thông báo "Dùng biến ADMIN_PASSWORD hoặc stdin." QC chỉ kiểm lỗi rõ, không kiểm `ps`.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).

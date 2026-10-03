@@ -75,8 +75,11 @@ Tiền điều kiện chung: stack test + seed (US-P2-12): `C1` (761987, mã `AN
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P209-1** — TC-P209-43/52: mã tham gia nằm trong URL `/join/<mã>` nên có trong log truy cập Caddy và Referer. US/SRS không cấm; QC ghi **rủi ro đã biết** (mã chỉ có giá trị khi chưa bị tạo lại và có giới hạn đoán), không FAIL trừ khi SRS nói rõ. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đã thành yêu cầu (v1.1, AC14 + SRS 8.3): Caddy / frontend **che mã** trong log (`/join/REDACTED`, cả `next=%2Fjoin%2F…` ở `/login`), trang `/join*` gửi `Referrer-Policy: no-referrer` + `no-store`, `history.replaceState` về `/join`. Rủi ro còn lại (lịch sử trình duyệt, người chia sẻ) ghi nhận, không FAIL. Mã là bí mật mức thấp (giới hạn đoán, có thể cần duyệt).
 - **Q-QC-P209-2** — TC-P209-30: US AC10 nói GV (không phải TA) nhận `JOIN_REQUEST` có ghi "email chưa khớp MSSV"; còn TA có nhận thông báo `JOIN_REQUEST` thường (không lý do) không? QC giả định có (AC7: "giảng viên và các TA nhận"). — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Có: TA **nhận `JOIN_REQUEST` thường** (cùng tiêu đề; thân không nêu lý do) ở cả trường hợp mismatch; chỉ **giảng viên** có thêm "— email chưa khớp MSSV". TA thấy hàng chờ nhưng không duyệt được mismatch (403 `mismatch_needs_teacher`). Đã sửa AC10 + SRS 4.9 (v1.1).
 - **Q-QC-P209-3** — TC-P209-32 (thứ tự ngược): phần bị cắt của AC10 nói "MSSV trùng ở thứ tự ngược (X vào…"; QC chưa đọc đủ hành vi kỳ vọng — sẽ đối chiếu SRS khi chạy và ghi lại. — *chờ xác nhận nếu SRS mơ hồ*.
+  - **Trả lời (BA, 2026-10-03):** Đã định nghĩa (v1.1, AC10 + SRS 4.5): X vào **trước** → `ACTIVE`; B đến **sau** → vào bằng mã: `PENDING`+`EMAIL_MISMATCH`; nằm trong roster: dòng lỗi `STUDENT_CODE_CONFLICT`. X **không** bị gỡ hay đổi trạng thái tự động; giảng viên thấy cảnh báo và tự quyết; thành viên chỉ đọc dữ liệu của chính mình nên MSSV trùng không làm lộ dữ liệu người kia.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).
