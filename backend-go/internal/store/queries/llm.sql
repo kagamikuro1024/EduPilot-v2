@@ -51,7 +51,7 @@ select * from llm_models order by provider_id, created_at, id;
 select * from llm_models where provider_id = $1 order by created_at, id;
 
 -- name: ListLLMModelsByIDs :many
-select * from llm_models where id = any(sqlc.arg(ids)::uuid[]);
+select * from llm_models where id = any(sqlc.arg(ids)::text[]::uuid[]);
 
 -- name: CountLLMModelsByProvider :one
 select count(*) from llm_models where provider_id = $1;
@@ -75,7 +75,7 @@ select distinct r.task
  order by r.task;
 
 -- name: LLMTasksUsingModels :many
-select distinct task from llm_task_routes where model_id = any(sqlc.arg(ids)::uuid[]) order by task;
+select distinct task from llm_task_routes where model_id = any(sqlc.arg(ids)::text[]::uuid[]) order by task;
 
 -- name: ListLLMRoutes :many
 select r.id, r.task, r.model_id, r.fallback_order, r.params, r.version,
@@ -155,3 +155,7 @@ select coalesce(sum(cost_est), 0)::numeric(14,4) as total
   from llm_audit
  where created_at >= sqlc.arg(from_ts) and created_at < sqlc.arg(to_ts)
    and (sqlc.narg(course_id)::uuid is null or course_id = sqlc.narg(course_id));
+
+-- Các lớp có chi phí LLM kể từ một thời điểm (đối soát ngân sách khi Redis về).
+-- name: LLMCoursesWithSpend :many
+select distinct course_id::uuid as course_id from llm_audit where course_id is not null and created_at >= sqlc.arg(since);

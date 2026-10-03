@@ -314,11 +314,36 @@ func (q *Queries) LLMCostSum(ctx context.Context, arg LLMCostSumParams) (decimal
 	return total, err
 }
 
-const lLMTasksUsingModels = `-- name: LLMTasksUsingModels :many
-select distinct task from llm_task_routes where model_id = any($1::uuid[]) order by task
+const lLMCoursesWithSpend = `-- name: LLMCoursesWithSpend :many
+select distinct course_id::uuid as course_id from llm_audit where course_id is not null and created_at >= $1
 `
 
-func (q *Queries) LLMTasksUsingModels(ctx context.Context, ids []uuid.UUID) ([]string, error) {
+// Các lớp có chi phí LLM kể từ một thời điểm (đối soát ngân sách khi Redis về).
+func (q *Queries) LLMCoursesWithSpend(ctx context.Context, since time.Time) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, lLMCoursesWithSpend, since)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []uuid.UUID{}
+	for rows.Next() {
+		var course_id uuid.UUID
+		if err := rows.Scan(&course_id); err != nil {
+			return nil, err
+		}
+		items = append(items, course_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lLMTasksUsingModels = `-- name: LLMTasksUsingModels :many
+select distinct task from llm_task_routes where model_id = any($1::text[]::uuid[]) order by task
+`
+
+func (q *Queries) LLMTasksUsingModels(ctx context.Context, ids []string) ([]string, error) {
 	rows, err := q.db.Query(ctx, lLMTasksUsingModels, ids)
 	if err != nil {
 		return nil, err
@@ -528,10 +553,10 @@ func (q *Queries) ListLLMModels(ctx context.Context) ([]LlmModel, error) {
 }
 
 const listLLMModelsByIDs = `-- name: ListLLMModelsByIDs :many
-select id, provider_id, model, kind, dims, price_in, price_out, enabled, created_at, updated_at from llm_models where id = any($1::uuid[])
+select id, provider_id, model, kind, dims, price_in, price_out, enabled, created_at, updated_at from llm_models where id = any($1::text[]::uuid[])
 `
 
-func (q *Queries) ListLLMModelsByIDs(ctx context.Context, ids []uuid.UUID) ([]LlmModel, error) {
+func (q *Queries) ListLLMModelsByIDs(ctx context.Context, ids []string) ([]LlmModel, error) {
 	rows, err := q.db.Query(ctx, listLLMModelsByIDs, ids)
 	if err != nil {
 		return nil, err

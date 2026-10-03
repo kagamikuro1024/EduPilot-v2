@@ -7,12 +7,15 @@ import (
 
 const redacted = "[REDACTED]"
 
-// Secret giữ chuỗi nhạy cảm (khoá API đầu vào). Mọi cách in / ghi log / JSON đều ra [REDACTED]; không có hàm xuất giá trị —
-// chỉ gói này đọc được (để mã hoá).
+// Secret giữ chuỗi nhạy cảm (khoá API đầu vào). Mọi cách in / ghi log / JSON đều ra [REDACTED]; giá trị chỉ lấy được bằng
+// Reveal (mã hoá ở gói này; kiểm tra kết nối trước khi lưu ở tầng HTTP) — grep `Reveal(` để rà mọi chỗ dùng.
 type Secret struct{ v string }
 
 // NewSecret bọc một chuỗi nhạy cảm.
 func NewSecret(s string) Secret { return Secret{v: s} }
+
+// Reveal trả giá trị thật. Chỉ dùng để mã hoá hoặc đưa thẳng vào lời gọi nhà cung cấp; không bao giờ log / trả ra ngoài.
+func (s Secret) Reveal() string { return s.v }
 
 // IsEmpty cho biết chuỗi rỗng (sau TrimSpace không tính — người gọi quyết định).
 func (s Secret) IsEmpty() bool { return s.v == "" }

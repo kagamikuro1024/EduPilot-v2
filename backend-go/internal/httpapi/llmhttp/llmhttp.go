@@ -3,6 +3,7 @@ package llmhttp
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
@@ -44,6 +45,7 @@ func FromConfig(err error) (*apierr.Error, bool) {
 	var ri *llmconfig.ErrRouteInvalid
 	var dm *llmconfig.ErrDimsMismatch
 	var inv *llmconfig.ErrInvalid
+	var lim *llmconfig.LimitError
 	switch {
 	case errors.Is(err, llmconfig.ErrForbidden):
 		return apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "role"}), true
@@ -51,8 +53,10 @@ func FromConfig(err error) (*apierr.Error, bool) {
 		return apierr.New(http.StatusNotFound, apierr.NotFound), true
 	case errors.Is(err, llmconfig.ErrDuplicateName):
 		return apierr.New(http.StatusConflict, apierr.Conflict).WithMessage("Đã có nhà cung cấp trùng tên."), true
+	case errors.As(err, &lim):
+		return apierr.Validation(apierr.FieldError{Field: lim.Field, Code: "max", Message: fmt.Sprintf("Chỉ cấu hình tối đa %d %s.", lim.Max, lim.What)}), true
 	case errors.Is(err, llmconfig.ErrLimit):
-		return apierr.Validation(apierr.FieldError{Field: "models", Code: "max", Message: "Vượt hạn mức số lượng cho phép."}), true
+		return apierr.Validation(apierr.FieldError{Field: "body", Code: "max", Message: "Vượt hạn mức số lượng cho phép."}), true
 	case errors.As(err, &vc):
 		return apierr.New(http.StatusConflict, apierr.VersionConflict).WithDetails(map[string]int{"current_version": vc.Current}), true
 	case errors.As(err, &inUse):

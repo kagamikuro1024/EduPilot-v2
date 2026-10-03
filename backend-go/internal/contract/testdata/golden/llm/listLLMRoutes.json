@@ -1,0 +1,54 @@
+{
+  "embedding": null,
+  "items": [
+    {
+      "chain": [],
+      "lane": "INTERACTIVE",
+      "params": {},
+      "task": "CHAT",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "NEAR_REALTIME",
+      "params": {},
+      "task": "CLASSIFY",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "NEAR_REALTIME",
+      "params": {},
+      "task": "UTILITY",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "BATCH",
+      "params": {},
+      "task": "GRADING",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "BATCH",
+      "params": {},
+      "task": "QUESTION_GEN",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "BATCH",
+      "params": {},
+      "task": "INSIGHT",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "BATCH",
+      "params": {},
+      "task": "EMBEDDING",
+      "version": 0
+    }
+  ]
+}

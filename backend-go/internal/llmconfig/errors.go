@@ -16,6 +16,18 @@ var (
 	ErrKeyUnreadable = errors.New("llmconfig: không đọc được khoá của nhà cung cấp")
 )
 
+// LimitError: vượt hạn mức số lượng (422 VALIDATION_FAILED "tối đa N"); errors.Is(err, ErrLimit) đúng.
+type LimitError struct {
+	Field string
+	Max   int
+	What  string
+}
+
+func (e *LimitError) Error() string {
+	return fmt.Sprintf("%s: tối đa %d %s", ErrLimit, e.Max, e.What)
+}
+func (e *LimitError) Unwrap() error { return ErrLimit }
+
 // ErrVersionConflict: sửa với version cũ; Current là version hiện hành (409 VERSION_CONFLICT).
 type ErrVersionConflict struct{ Current int }
 

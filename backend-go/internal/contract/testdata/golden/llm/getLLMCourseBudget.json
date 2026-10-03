@@ -1,0 +1,12 @@
+{
+  "course_id": "<uuid>",
+  "daily_limit": null,
+  "monthly_limit": null,
+  "pct_month": null,
+  "pct_today": null,
+  "scope": "course",
+  "spent_month": "0.0000",
+  "spent_today": "0.0000",
+  "state": "ok",
+  "version": 0
+}

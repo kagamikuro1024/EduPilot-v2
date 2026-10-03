@@ -221,7 +221,11 @@ type chainModel struct {
 
 // checkChain áp quy tắc tuyến lên từng mô hình (loại, số chiều, nhà cung cấp bật).
 func (s *Service) checkChain(ctx context.Context, q *store.Queries, task string, chain []uuid.UUID) (map[uuid.UUID]chainModel, error) {
-	ms, err := q.ListLLMModelsByIDs(ctx, chain)
+	ids := make([]string, len(chain)) // text[]: PgBouncer (QueryExecModeExec) không mã hoá được []uuid.UUID
+	for i, c := range chain {
+		ids[i] = c.String()
+	}
+	ms, err := q.ListLLMModelsByIDs(ctx, ids)
 	if err != nil {
 		return nil, fmt.Errorf("llmconfig: đọc mô hình: %w", err)
 	}

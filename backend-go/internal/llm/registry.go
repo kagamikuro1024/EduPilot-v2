@@ -201,6 +201,25 @@ func (r *Registry) EnvActive() bool {
 	return st != nil && st.envOnly
 }
 
+// EnvProviders là tên các nhà cung cấp đang chạy từ env dự phòng (rỗng khi cấu hình đến từ DB), thứ tự ổn định.
+func (r *Registry) EnvProviders() []string {
+	st := r.cur.Load()
+	if st == nil || !st.envOnly {
+		return []string{}
+	}
+	seen := map[string]bool{}
+	out := []string{}
+	for _, t := range append(ChatTasks(), TaskEmbedding) {
+		for _, tg := range st.routes[t].Targets {
+			if !seen[tg.Type] {
+				seen[tg.Type] = true
+				out = append(out, tg.Type)
+			}
+		}
+	}
+	return out
+}
+
 func (r *Registry) build(ctx context.Context) (*regState, error) {
 	st := &regState{routes: map[Task]Route{}}
 	dbTargets := 0

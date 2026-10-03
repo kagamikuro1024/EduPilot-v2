@@ -277,21 +277,12 @@ func (m *Manager) Reconcile(ctx context.Context) error {
 	dayStart := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, m.loc)
 	monthStart := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, m.loc)
 	refs := []scopeRef{{scope: "system"}}
-	rows, err := m.pool.Query(ctx, `select distinct course_id from llm_audit where course_id is not null and created_at >= $1`, monthStart)
+	courses, err := q.LLMCoursesWithSpend(ctx, monthStart)
 	if err != nil {
 		return fmt.Errorf("liệt kê lớp có chi phí: %w", err)
 	}
-	for rows.Next() {
-		var id uuid.UUID
-		if err := rows.Scan(&id); err != nil {
-			rows.Close()
-			return err
-		}
+	for _, id := range courses {
 		refs = append(refs, scopeRef{scope: "course", course: &id, id: id.String()})
-	}
-	rows.Close()
-	if err := rows.Err(); err != nil {
-		return err
 	}
 	for _, sc := range refs {
 		for _, p := range []struct {
@@ -309,4 +300,44 @@ func (m *Manager) Reconcile(ctx context.Context) error {
 		}
 	}
 	return nil
+}
+
+// Status là mức đã chi của một phạm vi cho GET budget (SRS 6.3). Pct* nil = không có hạn mức; chỉ để hiển thị.
+type Status struct {
+	SpentToday, SpentMonth decimal.Decimal
+	PctToday, PctMonth     *decimal.Decimal
+	State                  State
+}
+
+// Status đọc chi phí ngày / tháng của một phạm vi từ Redis và so với hạn mức l. Redis lỗi → trả lỗi (người gọi quyết định hiển thị 0).
+func (m *Manager) Status(ctx context.Context, scope string, courseID *uuid.UUID, l Limit) (Status, error) {
+	id := ""
+	if courseID != nil {
+		id = courseID.String()
+	}
+	vals, err := m.rdb.MGet(ctx, m.dayKey(scope, id), m.monthKey(scope, id)).Result()
+	if err != nil {
+		return Status{}, fmt.Errorf("đọc chi phí ngân sách: %w", err)
+	}
+	day, mon := toInt(vals[0]), toInt(vals[1])
+	st := Status{SpentToday: cost.FromUnits(day), SpentMonth: cost.FromUnits(mon)}
+	for _, p := range []struct {
+		spent int64
+		lim   *decimal.Decimal
+		out   **decimal.Decimal
+	}{{day, l.Daily, &st.PctToday}, {mon, l.Monthly, &st.PctMonth}} {
+		pc, ok := pct(p.spent, p.lim)
+		if !ok {
+			continue
+		}
+		st.State = max(st.State, stateOf(pc))
+		if p.lim.IsPositive() {
+			d := decimal.NewFromInt(p.spent).Mul(decimal.NewFromInt(100)).Div(decimal.NewFromInt(cost.Units(*p.lim))).Round(1)
+			*p.out = &d
+		} else {
+			d := decimal.NewFromInt(100)
+			*p.out = &d
+		}
+	}
+	return st, nil
 }
