@@ -43,3 +43,6 @@
 
 ## Việc sau
 Dev / BA: L1 (US-P2-08/09/10 thêm route nên `TestAllCourseRoutesGuarded` bắt), L2 (hạn DB), xác nhận `student_code` chỉ SV. QC chấm lại: TC-08/10/15/16/38 khi có route lớp; TC-35 đối chiếu `audit-baseline.md`.
+
+## Chấm lại sau góp ý #7 (PM ACCEPTED, 2026-10-04)
+- TC-14/15/16 (AC5): ngoại lệ `adminOnly` đúng 2 route `llm-budget`: SV / GV `403`; route gieo không guard làm `TestAllCourseRoutesGuarded` đỏ → **PASS** theo TC mới. TC-08/10/15/16/38 trên route lớp khác vẫn **chờ** story sau (không phải vì góp ý #7).

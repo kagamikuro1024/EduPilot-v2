@@ -47,3 +47,6 @@
 
 ## Việc sau
 Dev: L3 (tuỳ chọn), L2 chỉ khi `users` lớn. BA: sửa "≥ 32" ở TC-25 hoặc dev thêm ca. QC chấm lại: TC-37 (log Caddy) và TC-41 `@real` ở cổng P2.
+
+## Chấm lại sau góp ý #5 (PM ACCEPTED, 2026-10-04)
+- TC-32 (AC10): khung mời là phần mở dần tại chỗ; 0 `dialog` mở (đếm bằng `getByRole('dialog')`/`dialog[open]`) → **PASS** theo TC mới (L đã nêu về Drawer không còn là lệch).

@@ -53,3 +53,7 @@
 
 ## Việc sau
 Dev: L2. BA: Q-QC-P202-1 (L1 chấp nhận?). QC: chạy lại TC-43 ở US-P2-08, TC-49 ở US-P2-12, TC-50/51 ở cổng P2.
+
+## Chấm lại sau góp ý #3, #4 (PM ACCEPTED, 2026-10-04; bản `bd1404a`)
+- TC-22 (AC7): `POST /auth/refresh` không `Content-Type` + `Origin` hợp lệ → `200`; `text/plain` và `form-urlencoded` → `415`; `GET`/`PUT` → `405`; refresh hợp lệ sau các thử sai vẫn `200` → **PASS**. TC-20/21/23 (chéo site) giữ nguyên: không `Origin` + `Sec-Fetch-Site: cross-site` → `403`, `Origin` evil → `403`, `Origin: null` → `403`; không Origin và không Sec-Fetch-Site → `200`.
+- TC-42 (AC13): `playwright test safe-next.spec.ts` → 42 passed (20 ca × 2 project + 2) → **PASS** theo lệnh mới.

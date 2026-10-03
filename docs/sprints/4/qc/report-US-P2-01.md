@@ -31,3 +31,7 @@
 ## Ghi chú
 - `mail_outbox.attempts` chỉ đếm lần **thất bại** (gửi thành công lần đầu: `attempts=0`) — khớp ví dụ của dev; ghi để BA đối chiếu với SRS.
 - Lần gửi giữ khoá dòng `FOR UPDATE` suốt một lần SMTP (≤ 10 s): chấp nhận cho T1 (dev ghi `ponytail:`).
+
+## Chấm lại sau góp ý #1, #2 (PM ACCEPTED, 2026-10-04)
+- TC-32 (AC12c): chấm theo TC mới — `TestOnlyAuthPackageTouchesTokenTables` ok; gieo `internal/zz/x.go` chứa `auth_tokens` → đỏ, xoá → xanh (đã làm ở lần chấm đầu) → **PASS** (bỏ chữ "có ghi chú").
+- TC-19/21/29 (#2): đã chấm bằng Mailpit riêng của QC và SMTP giả của QC → **PASS** theo TC mới.
