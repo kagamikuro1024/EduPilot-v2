@@ -42,6 +42,10 @@ jobs:
       - name: sqlc diff
         run: sqlc diff
       - name: go test -race (testroutes)
+        # internal/testutil dùng chung container (tên cố định, Reuse) giữa các gói test chạy song song. Ryuk giết container khi
+        # tiến trình ĐÃ TẠO ra nó thoát — các gói còn lại gặp "connection refused" giữa chừng (CI đỏ ngẫu nhiên). Runner dùng một lần nên tắt Ryuk.
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
         run: go test -race -tags testroutes ./...
 
   frontend:
@@ -77,7 +81,21 @@ jobs:
       - name: playwright test
         run: pnpm -C frontend exec playwright test --grep-invert @real
       - name: lighthouse ci
-        run: pnpm -C frontend exec lhci autorun
+        # lhci cần một Chrome: dùng đúng Chromium mà bước trên vừa cài cho Playwright (cùng phiên bản với bộ test).
+        run: |
+          export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
+          echo "CHROME_PATH=$CHROME_PATH"
+          pnpm -C frontend exec lhci autorun
+      - name: lighthouse benchmark (chẩn đoán máy chạy)
+        if: always()
+        run: |
+          node -e "
+          const fs=require('fs');const d='frontend/.lighthouseci';
+          if(!fs.existsSync(d))process.exit(0);
+          for(const f of fs.readdirSync(d).filter(f=>/^lhr-.*\.json$/.test(f))){
+            const r=JSON.parse(fs.readFileSync(d+'/'+f));
+            console.log(new URL(r.finalUrl).pathname.padEnd(14),'benchmarkIndex',r.environment.benchmarkIndex,'TBT',Math.round(r.audits['total-blocking-time'].numericValue),'LCP',Math.round(r.audits['largest-contentful-paint'].numericValue),'cpuSlowdown',r.configSettings.throttling.cpuSlowdownMultiplier);
+          }"
       - name: upload reports
         if: failure()
         uses: actions/upload-artifact@v5

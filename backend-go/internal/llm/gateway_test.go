@@ -6,9 +6,12 @@ import (
 	"errors"
 	"reflect"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/edupilot/backend-go/internal/llm"
@@ -361,5 +364,65 @@ func TestTraceIDPropagation(t *testing.T) {
 	}
 	if warn == nil || warn["trace_id"] != want || warn["task"] != "CLASSIFY" || warn["from"] != "A" || warn["to"] != "B" || warn["error_kind"] != "AUTH" {
 		t.Fatalf("log fallback = %v", warn)
+	}
+}
+
+// breakerGate ghi lại mọi BreakerReport (các hàm khác cho qua).
+type breakerGate struct {
+	mu      sync.Mutex
+	reports []provider.Kind
+}
+
+func (*breakerGate) Admit(context.Context, llm.Work) (llm.Permit, error) { return breakerPermit{}, nil }
+func (*breakerGate) BreakerAllow(context.Context, string) bool           { return true }
+func (g *breakerGate) BreakerReport(_ context.Context, _ string, k provider.Kind) {
+	g.mu.Lock()
+	g.reports = append(g.reports, k)
+	g.mu.Unlock()
+}
+func (*breakerGate) BudgetState(context.Context, *uuid.UUID) llm.BudgetState   { return llm.BudgetOK }
+func (*breakerGate) BudgetCharge(context.Context, *uuid.UUID, decimal.Decimal) {}
+
+type breakerPermit struct{}
+
+func (breakerPermit) Wait() time.Duration { return 0 }
+func (breakerPermit) Done(int)            {}
+
+// QC GATE-P1 TC-16: hạn của chính yêu cầu hết trong lúc nhà cung cấp còn đang trả lời KHÔNG tính vào mạch ngắt;
+// lỗi thật của nhà (503) thì vẫn tính. Hai ca cùng một cấu hình để chứng minh điều kiện là "hạn của ta", không phải "mọi lỗi TIMEOUT".
+func TestOwnDeadlineNotCountedToBreaker(t *testing.T) {
+	t.Parallel()
+	slow := &stub{name: "A", chat: func(int, provider.ChatOpts) (provider.Result, error) {
+		time.Sleep(150 * time.Millisecond) // quá hạn 50 ms của yêu cầu
+		return provider.Result{}, perr(provider.KindTimeout, 0)
+	}}
+	bg := &breakerGate{}
+	g, _ := newGatewayWithGate(t, bg, slow)
+	ctx, cancel := context.WithTimeout(t.Context(), 50*time.Millisecond)
+	defer cancel()
+	lane := llm.LaneBatch
+	_, err := g.Chat(ctx, llm.Request{Task: llm.TaskInsight, Lane: &lane, Messages: userMsg("x")})
+	if !errors.Is(err, llm.ErrDeadline) {
+		t.Fatalf("err = %v, muốn ErrDeadline", err)
+	}
+	bg.mu.Lock()
+	got := append([]provider.Kind(nil), bg.reports...)
+	bg.mu.Unlock()
+	if len(got) != 0 {
+		t.Fatalf("hạn của yêu cầu bị tính vào mạch ngắt: %v", got)
+	}
+
+	bad := &stub{name: "B", chat: func(int, provider.ChatOpts) (provider.Result, error) {
+		return provider.Result{}, perr(provider.KindServer, 503)
+	}}
+	bg2 := &breakerGate{}
+	g2, _ := newGatewayWithGate(t, bg2, bad)
+	if _, err := g2.Chat(t.Context(), llm.Request{Task: llm.TaskInsight, Lane: &lane, Messages: userMsg("x")}); err == nil {
+		t.Fatal("muốn lỗi")
+	}
+	bg2.mu.Lock()
+	defer bg2.mu.Unlock()
+	if len(bg2.reports) == 0 || bg2.reports[0] != provider.KindServer {
+		t.Fatalf("lỗi 503 thật phải tính vào mạch: %v", bg2.reports)
 	}
 }

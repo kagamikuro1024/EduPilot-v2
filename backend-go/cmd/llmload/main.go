@@ -2,6 +2,11 @@
 // KHÔNG nằm trong image (Dockerfile chỉ dựng gateway và worker). Cần gateway dựng bằng build tag testroutes và JWT ADMIN.
 //
 //	go run ./cmd/llmload --base https://localhost --secret "$JWT_SECRET_KEY" --batch 200 --chat 25
+//
+// ĐIỀU KIỆN ĐO: gateway phải chạy với LLM_DEFAULT_RPM / LLM_DEFAULT_TPM đủ lớn (≥ 6000 / ≥ 10_000_000) và nhà cung cấp không đặt rpm_limit thấp.
+// Với `fake` 5–15 s, 5 BATCH + 5 CHAT đồng thời ≈ 1 yêu cầu/giây = đúng LLM_DEFAULT_RPM=60: khi đó `queue_wait_ms` đo thời gian chờ
+// token RPM của nhà (≈ 1 s mỗi token, BATCH tranh token với CHAT), KHÔNG phải hàng đợi đồng thời — đã đo: 1.326–1.430 ms ở RPM 60,
+// 1 ms ở RPM 6000 (cùng tải). Sai điều kiện đo là lỗi của người đo, không phải của Scheduler.
 package main
 
 import (
@@ -176,6 +181,9 @@ func run(args []string, stdout, stderr io.Writer) int {
 	_, _ = fmt.Fprintln(stdout, strings.Join(lines, "\n"))
 	if p95 > *maxWait || peak.Load() > int64(*maxBatch) || chatFail.Load() > 0 {
 		_, _ = fmt.Fprintln(stderr, "KHÔNG ĐẠT: vượt ngưỡng (interactive_wait_p95_ms ≤", *maxWait, ", batch_peak ≤", *maxBatch, ", chat_fail = 0)")
+		if p95 > *maxWait {
+			_, _ = fmt.Fprintln(stderr, "Gợi ý: nếu gateway chạy với LLM_DEFAULT_RPM thấp (mặc định 60) thì thời gian chờ là chờ token RPM, không phải hàng đợi — đặt LLM_DEFAULT_RPM=6000 LLM_DEFAULT_TPM=100000000 rồi đo lại.")
+		}
 		return 1
 	}
 	return 0

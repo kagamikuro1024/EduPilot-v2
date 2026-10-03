@@ -1,5 +1,7 @@
 # SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
-Phiên bản 1.5 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+Phiên bản 1.6 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+
+**v1.6 (2026-10-03)** — góp ý #33 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: ba, QC `report-GATE-P1.md` TC-15; trích: "`FallbackIndex` = vị trí trong chuỗi đã giải (chỉ nhà / mô hình `enabled`, theo `fallback_order`), 0 = nhà dùng được đầu tiên; `≥ 1` khi một nhà dùng được đứng trước đã thử mà lỗi hoặc mạch hở. Sửa dòng `Kiểm` của AC7 và AC12: làm **nhà chính lỗi** (còn bật) → `fallback_index: 1`; **tắt** nhà chính bằng công tắc → vẫn trả lời, `fallback_index: 0`"). Không đổi số AC (72) và không đổi hành vi đã cài. Đổi: US-P1-02 AC7 (định nghĩa chỉ số + dòng `Kiểm`), US-P1-04 AC12 (kịch bản), `SRS.md` 4.1 (chú thích `FallbackIndex`). QC sửa TC-P102-19, TC-P104-46, TC-P105-22, TC-GATEP1-15.
 
 **v1.5 (2026-10-03)** — QC `docs/sprints/3/qc/report-US-P1-03.md` TC-14 và `tc-US-P1-03.md` (Q-QC-P103-1/2/3 đã trả lời ở v1.2, giữ nguyên). Trích TC-14: "AC5 định nghĩa \"hàng có 200 *đang chờ* → yêu cầu thứ 201 bị từ chối\", nhưng lệnh kiểm \"201 yêu cầu song song ⇒ đúng 1 `503`\". Với `LLM_MAX_CONCURRENCY=1`, 1 yêu cầu chạy + 200 chờ ⇒ cả 201 được nhận, 0 bị từ chối; yêu cầu **202** bị từ chối. Hành vi khớp định nghĩa, lệch lệnh kiểm." Không đổi số AC (72) và không đổi hành vi: `LLM_QUEUE_MAX` đếm **chỉ yêu cầu đang chờ** (không đếm yêu cầu đang chạy). Đổi: US-P1-03 AC5 (câu điều kiện + lệnh kiểm 201 → 202), `SRS.md` 4.3 (định nghĩa `LLM_QUEUE_MAX`).
 
@@ -129,7 +131,7 @@ type Request struct {
 }                                    // KHÔNG có UserID/CourseID: lấy từ ctx
 type Response struct {
     Text string; TokensIn, TokensOut int
-    Provider, Model string; FallbackIndex int
+    Provider, Model string; FallbackIndex int  // vị trí trong chuỗi đã giải (chỉ enabled): 0 = nhà dùng được đầu tiên; ≥ 1 khi nhà đứng trước lỗi / mạch hở (#33)
     Degraded bool; QueueWait time.Duration; CostEst decimal.Decimal
 }
 type Client interface {
