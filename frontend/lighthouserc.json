@@ -15,6 +15,7 @@
       "startServerCommand": "pnpm exec next start -p 3310",
       "startServerReadyPattern": "Ready",
       "startServerReadyTimeout": 60000,
+      "puppeteerLaunchOptions": { "args": ["--no-sandbox", "--headless=new"] },
       "settings": { "chromeFlags": "--no-sandbox --headless=new" }
     },
     "assert": {
