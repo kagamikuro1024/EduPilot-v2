@@ -2,9 +2,31 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, type CSSProperties, type ReactNode } from "react";
+import { lazy, Suspense, useRef, type CSSProperties, type ReactNode } from "react";
 import { useScrollRow } from "@/shared/lib/useScrollRow";
 import s from "./DataTable.module.css";
+
+type VirtualProps<T> = {
+  columns: Column<T>[];
+  rows: T[];
+  rowKey: (row: T) => string;
+  onRowClick?: (row: T) => void;
+  activeKey?: string;
+  caption: string;
+  height: number;
+  pagination?: Pagination;
+};
+// Nạp lười (react-virtual không vào gói của route không dùng bảng dài). lazy làm mất tham số kiểu generic → ép lại chữ ký.
+const VirtualTable = lazy(() => import("./DataTableVirtual")) as unknown as <T>(props: VirtualProps<T>) => ReactNode;
+
+/** Phân trang con trỏ cho bảng ảo hoá: `onLoadMore(nextCursor)` gọi đúng MỘT lần cho mỗi con trỏ; `nextCursor: null` = hết. */
+export type Pagination = {
+  nextCursor: string | null;
+  onLoadMore: (cursor: string) => void;
+  loading?: boolean;
+  /** lỗi tải trang kế: hiện ở đáy kèm `Thử lại`, KHÔNG xoá các dòng đã có */
+  error?: ReactNode;
+};
 
 export type Column<T> = {
   key: string;
@@ -48,6 +70,9 @@ export function DataTable<T>({
   mobileRow,
   scrollHint = "Vuốt ngang để xem thêm",
   rowAttrs,
+  virtual,
+  pagination,
+  loading,
 }: {
   columns: Column<T>[];
   rows: T[];
@@ -65,6 +90,11 @@ export function DataTable<T>({
   scrollHint?: ReactNode;
   /** móc đo dev trên `<tr>` (vd. `{ "data-part": "student-row", "data-student-id": id }`) — chỉ ở hàng bảng để không đếm đôi với chế độ danh sách */
   rowAttrs?: (row: T) => Record<string, string>;
+  /** danh sách dài: ảo hoá dòng trong khung cao `height` px (chỉ dựng dòng nhìn thấy); bỏ chế độ danh sách ở < 720px */
+  virtual?: { height: number };
+  pagination?: Pagination;
+  /** đang tải: giữ tiêu đề cột thật + từng ấy dòng khung xương cao đúng bằng dòng thật (CLS ≈ 0), aria-busy */
+  loading?: number;
 }) {
   const router = useRouter();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -87,10 +117,22 @@ export function DataTable<T>({
 
   const clickable = Boolean(onRowClick || rowHref);
 
+  if (virtual) {
+    return (
+      <div className={s.root}>
+        {/* khung chờ cao ĐÚNG bằng khung thật nên nạp xong không dịch bố cục (CLS) */}
+        <Suspense fallback={<div aria-busy="true" className={s.vscroll} style={{ "--vh": `${virtual.height}px` } as CSSProperties} />}>
+          <VirtualTable columns={columns} rows={rows} rowKey={rowKey} onRowClick={onRowClick} activeKey={activeKey} caption={caption} height={virtual.height} pagination={pagination} />
+        </Suspense>
+        {rows.length === 0 && empty && <div className={s.empty}>{empty}</div>}
+      </div>
+    );
+  }
+
   return (
     <div className={s.root}>
       {mobile === "scroll" && scrollHint && <p className={s.scrollHint}>{scrollHint}</p>}
-      <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} ref={scrollRef}>
+      <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} ref={scrollRef} aria-busy={loading ? true : undefined}>
       <table className={[s.table, dense ? s.dense : ""].join(" ")}>
         <caption className="ep-sr-only">{caption}</caption>
         <thead>
@@ -119,12 +161,24 @@ export function DataTable<T>({
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => {
+          {loading ? (
+            Array.from({ length: loading }, (_, i) => (
+              <tr key={`sk-${i}`} aria-hidden>
+                {selection && <td className={s.checkCol} />}
+                {columns.map((c) => (
+                  <td key={c.key}>
+                    <span className={s.skCell} />
+                  </td>
+                ))}
+              </tr>
+            ))
+          ) : rows.map((row) => {
             const key = rowKey(row);
             return (
               <tr
                 key={key}
                 className={[clickable ? s.clickable : "", key === activeKey || selection?.selected.has(key) ? s.active : ""].join(" ")}
+                aria-current={key === activeKey ? "true" : undefined}
                 onClick={clickable ? () => activate(row) : undefined}
                 onKeyDown={clickable ? (e) => e.key === "Enter" && activate(row) : undefined}
                 tabIndex={clickable ? 0 : undefined}
@@ -151,7 +205,7 @@ export function DataTable<T>({
         </tbody>
       </table>
       </div>
-      {mobile === "list" && (
+      {mobile === "list" && !loading && (
         <ul className={s.list} aria-label={caption}>
           {rows.map((row) => {
             const key = rowKey(row);
@@ -177,7 +231,7 @@ export function DataTable<T>({
               </>
             );
             return (
-              <li key={key} className={[s.item, selection ? s.itemSelectable : "", key === activeKey ? s.itemActive : ""].join(" ")}>
+              <li key={key} aria-current={key === activeKey ? "true" : undefined} className={[s.item, selection ? s.itemSelectable : "", key === activeKey ? s.itemActive : ""].join(" ")}>
                 {selection && (
                   <label className={s.itemCheck}>
                     <input type="checkbox" aria-label="Chọn hàng" checked={selection.selected.has(key)} onChange={() => toggle(key)} />

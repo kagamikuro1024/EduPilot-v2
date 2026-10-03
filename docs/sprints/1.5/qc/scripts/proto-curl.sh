@@ -12,7 +12,7 @@ ge(){ [ "$1" -ge "$2" ] && pass "$3 ($1 ≥ $2)" || fail "$3 — got $1 want ≥
 
 open_as() {  # $1 vai (student|ta|teacher|admin)  $2 đường dẫn  $3 người (tuỳ chọn: sv-1..sv-4)
   curl -s -b "ep_demo_role=$1; ep_demo_person=${3:-}; ep_demo_course=int1006-1" "$F$2" \
-    | grep -q 'Bạn không có quyền mở trang này' && echo "CHAN $1 $2" || echo "MO   $1 $2"; }
+    | grep -qE 'Bạn không có quyền (mở trang|xem màn) này' && echo "CHAN $1 $2" || echo "MO   $1 $2"; }  # sprint 3 (US-PU-04 AC10): lời mới "xem màn này"
 visible() {  # $1 vai $2 đường dẫn $3 người
   curl -s -b "ep_demo_role=$1; ep_demo_person=${3:-}" "$F$2" | perl -0pe 's#<script.*?</script>##gs; s#<[^>]+># #g'; }
 # want <MO|CHAN> <vai> <route> [người]  → PASS/FAIL một dòng
@@ -64,9 +64,11 @@ tc_00_06(){ for r in /chat /me /practice /library /join; do want CHAN teacher $r
 tc_00_matrix(){ matrix; }
 tc_00_static(){ cd "$(git rev-parse --show-toplevel)"; local o
   o=$(grep -rn 'fetch(' frontend/src --include=*.ts --include=*.tsx | grep -v 'src/shared/'); [ -z "$o" ] && pass "không fetch( ngoài src/shared" || { fail "fetch( ngoài shared"; echo "$o" | head -3; }
-  o=$(git diff main -- frontend/package.json | grep -E '^\+ ' | grep -v lucide-react | grep -vE '^\+\+\+'); [ -z "$o" ] && pass "package.json không thêm phụ thuộc ngoài lucide-react" || { fail "thêm phụ thuộc"; echo "$o"; }
+  # góp ý #13 (sprint 3): cho phép thư viện trong ARCHITECTURE §3 (kiểm thử / UI), không chỉ lucide-react
+  o=$(git diff main -- frontend/package.json | grep -E '^\+ ' | grep -E '"[^"]+": *"[~^]?[0-9]' | grep -vE 'lucide-react|@playwright/test|@axe-core/playwright|@lhci/cli|@tanstack/react-(query|virtual)|"recharts"|"zustand"' | grep -vE '^\+\+\+'); [ -z "$o" ] && pass "package.json không thêm phụ thuộc ngoài bảng ARCHITECTURE §3" || { fail "thêm phụ thuộc ngoài bảng §3"; echo "$o"; }
   o=$(git grep -nE "localStorage\.(setItem|getItem)\(['\"]" -- frontend/src | grep -v ep_demo_state); [ -z "$o" ] && pass "localStorage chỉ dùng khoá ep_demo_state" || { fail "localStorage khoá khác"; echo "$o" | head -3; }
-  o=$(git grep -nE "localStorage|sessionStorage" -- frontend/src | grep -iE 'token|jwt|password'); [ -z "$o" ] && pass "không lưu token ở storage" || { fail "token ở storage"; echo "$o"; }
+  # (sprint 3, US-PU-03) bỏ dòng chú thích: tokenStore.ts nói rõ "không localStorage…" ở dòng 1
+  o=$(git grep -nE "localStorage|sessionStorage" -- frontend/src | grep -vE ':[0-9]+:[[:space:]]*(//|\*|/\*)' | grep -iE 'token|jwt|password'); [ -z "$o" ] && pass "không lưu token ở storage" || { fail "token ở storage"; echo "$o"; }
   o=$(git grep -nE '#[0-9a-fA-F]{3,8}\b|rgb\(|hsl\(' -- 'frontend/src/**/*.tsx' 'frontend/src/**/*.css' ':!frontend/src/shared/styles/tokens.css' | grep -v 'ui-allow'); [ -z "$o" ] && pass "không màu viết cứng ngoài tokens.css" || { fail "màu cứng"; echo "$o" | head -3; }
 }
 

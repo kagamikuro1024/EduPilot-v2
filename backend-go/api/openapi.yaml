@@ -1,11 +1,11 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.2.0
+  version: 0.3.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
-    build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ.
+    build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ; P1 (FEAT-llm-gateway US-P1-04) thêm 13 thao tác `/admin/llm/*` và `/courses/{id}/llm-budget`.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -17,6 +17,7 @@ tags:
   - name: health
   - name: jobs
   - name: events
+  - name: llm
 paths:
   /healthz:
     get:
@@ -111,6 +112,380 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/admin/llm/providers:
+    get:
+      operationId: listLLMProviders
+      tags: [llm]
+      summary: Danh sách nhà cung cấp LLM (ADMIN, TEACHER; trần 20 nhà, không phân trang)
+      responses:
+        "200":
+          description: Nhà cung cấp + env dự phòng
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMProviderList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    post:
+      operationId: createLLMProvider
+      tags: [llm]
+      summary: Tạo nhà cung cấp (ADMIN); kiểm tra kết nối trước khi lưu, khoá sai → 422 và không lưu
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMProviderInput"
+      responses:
+        "201":
+          description: Đã tạo
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMProvider"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/llm/providers/test:
+    post:
+      operationId: testLLMCandidate
+      tags: [llm]
+      summary: Thử khoá ứng viên chưa lưu (ADMIN; 10 lần/phút/người)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMCandidateInput"
+      responses:
+        "200":
+          description: Kết quả Test (ok hoặc error_kind)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMTestResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/admin/llm/providers/{id}:
+    put:
+      operationId: updateLLMProvider
+      tags: [llm]
+      summary: Sửa nhà cung cấp (ADMIN); cần version; kiểm tra kết nối nếu đổi api_key / base_url
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMProviderInput"
+      responses:
+        "200":
+          description: Đã sửa
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMProvider"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteLLMProvider
+      tags: [llm]
+      summary: Xoá nhà cung cấp (ADMIN); đang được tuyến dùng → 409 PROVIDER_IN_USE
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/admin/llm/providers/{id}/test:
+    post:
+      operationId: testLLMProvider
+      tags: [llm]
+      summary: Thử bản ghi đã lưu (ADMIN); thân tuỳ chọn ghi đè api_key / base_url / model, không lưu
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMTestOverride"
+      responses:
+        "200":
+          description: Kết quả Test
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMTestResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/admin/llm/routes:
+    get:
+      operationId: listLLMRoutes
+      tags: [llm]
+      summary: Tuyến của 7 tác vụ + khối embedding (ADMIN, TEACHER)
+      responses:
+        "200":
+          description: Tuyến
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMRoutes"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: putLLMRoute
+      tags: [llm]
+      summary: Đặt chuỗi mô hình của MỘT tác vụ (ADMIN); hoán đổi nguyên tử và nạp lại nóng
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMRouteInput"
+      responses:
+        "200":
+          description: Tuyến mới
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMRoutePut"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/llm/usage:
+    get:
+      operationId: getLLMUsage
+      tags: [llm]
+      summary: Mức dùng gom theo tác vụ hoặc ngày (ADMIN, TEACHER); mặc định 7 ngày, tối đa 92
+      parameters:
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: group
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: course_id
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Mức dùng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMUsage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/llm/budget:
+    get:
+      operationId: getLLMBudget
+      tags: [llm]
+      summary: Ngân sách hệ thống (ADMIN, TEACHER)
+      responses:
+        "200":
+          description: Ngân sách
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMBudget"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: putLLMBudget
+      tags: [llm]
+      summary: Đặt ngân sách hệ thống (ADMIN); cần version
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMBudgetInput"
+      responses:
+        "200":
+          description: Ngân sách mới
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMBudget"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/llm-budget:
+    get:
+      operationId: getLLMCourseBudget
+      tags: [llm]
+      summary: Ngân sách theo lớp (chỉ ADMIN)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Ngân sách lớp
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMBudget"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    put:
+      operationId: putLLMCourseBudget
+      tags: [llm]
+      summary: Đặt ngân sách theo lớp (chỉ ADMIN); cần version
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMBudgetInput"
+      responses:
+        "200":
+          description: Ngân sách lớp mới
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMBudget"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -234,6 +609,396 @@ components:
         finished_at:
           type: string
           format: date-time
+    LLMModel:
+      type: object
+      required: [id, model, kind, dims, price_in, price_out, enabled]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        model:
+          type: string
+        kind:
+          type: string
+          enum: [chat, embedding]
+        dims:
+          type: [integer, "null"]
+        price_in:
+          type: string
+          pattern: "^[0-9]+\\.[0-9]{4}$"
+        price_out:
+          type: string
+          pattern: "^[0-9]+\\.[0-9]{4}$"
+        enabled:
+          type: boolean
+    LLMLastTest:
+      type: object
+      required: [ok, at, error_kind]
+      additionalProperties: false
+      properties:
+        ok:
+          type: [boolean, "null"]
+        at:
+          type: [string, "null"]
+          format: date-time
+        error_kind:
+          type: [string, "null"]
+    LLMProvider:
+      type: object
+      required: [id, type, name, base_url, enabled, has_key, key_status, rpm_limit, tpm_limit, last_test, circuit, models, version]
+      additionalProperties: false
+      description: Không có trường khoá, đuôi khoá hay api_key trong bất kỳ phản hồi nào.
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [openai, anthropic, gemini, openai_compatible, fake]
+        name:
+          type: string
+        base_url:
+          type: [string, "null"]
+        enabled:
+          type: boolean
+        has_key:
+          type: boolean
+        key_status:
+          type: string
+          enum: [ok, missing, unreadable]
+        rpm_limit:
+          type: [integer, "null"]
+        tpm_limit:
+          type: [integer, "null"]
+        last_test:
+          $ref: "#/components/schemas/LLMLastTest"
+        circuit:
+          type: string
+          enum: [closed, open, half_open]
+        models:
+          type: array
+          items:
+            $ref: "#/components/schemas/LLMModel"
+        version:
+          type: integer
+          minimum: 1
+    LLMProviderList:
+      type: object
+      required: [items, env_fallback]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/LLMProvider"
+        env_fallback:
+          type: object
+          required: [active, providers]
+          additionalProperties: false
+          properties:
+            active:
+              type: boolean
+            providers:
+              type: array
+              items:
+                type: string
+    LLMModelInput:
+      type: object
+      required: [model, kind, price_in, price_out]
+      additionalProperties: false
+      properties:
+        model:
+          type: string
+        kind:
+          type: string
+          enum: [chat, embedding]
+        dims:
+          type: integer
+        price_in:
+          type: string
+        price_out:
+          type: string
+        enabled:
+          type: boolean
+    LLMProviderInput:
+      type: object
+      required: [type, name]
+      additionalProperties: false
+      description: |
+        PUT không gửi api_key = giữ khoá; chuỗi rỗng → 422. `models` thay thế toàn bộ danh sách (không gửi = giữ).
+        `skip_verify` chỉ ADMIN, ghi audit_log. PUT cần version (thân hoặc If-Match W/"v<n>").
+      properties:
+        type:
+          type: string
+          enum: [openai, anthropic, gemini, openai_compatible, fake]
+        name:
+          type: string
+        base_url:
+          type: string
+        api_key:
+          type: string
+          writeOnly: true
+        enabled:
+          type: boolean
+        rpm_limit:
+          type: integer
+        tpm_limit:
+          type: integer
+        models:
+          type: array
+          items:
+            $ref: "#/components/schemas/LLMModelInput"
+        skip_verify:
+          type: boolean
+        version:
+          type: integer
+    LLMCandidateInput:
+      type: object
+      required: [type, model]
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum: [openai, anthropic, gemini, openai_compatible, fake]
+        base_url:
+          type: string
+        api_key:
+          type: string
+          writeOnly: true
+        model:
+          type: string
+        kind:
+          type: string
+          enum: [chat, embedding]
+    LLMTestOverride:
+      type: object
+      additionalProperties: false
+      properties:
+        api_key:
+          type: string
+          writeOnly: true
+        base_url:
+          type: string
+        model:
+          type: string
+    LLMTestResult:
+      type: object
+      required: [ok, latency_ms]
+      additionalProperties: false
+      properties:
+        ok:
+          type: boolean
+        error_kind:
+          type: string
+          enum: [AUTH, NETWORK, TIMEOUT, RATE_LIMIT, MODEL_NOT_FOUND, BAD_RESPONSE, DIMS_MISMATCH]
+        message:
+          type: string
+        latency_ms:
+          type: integer
+          minimum: 0
+    LLMRoute:
+      type: object
+      required: [task, lane, chain, params, version]
+      additionalProperties: false
+      properties:
+        task:
+          type: string
+          enum: [CHAT, CLASSIFY, UTILITY, GRADING, QUESTION_GEN, INSIGHT, EMBEDDING]
+        lane:
+          type: string
+          enum: [INTERACTIVE, NEAR_REALTIME, BATCH]
+        chain:
+          type: array
+          items:
+            type: object
+            required: [model_id, provider_id, provider_name, model]
+            additionalProperties: false
+            properties:
+              model_id:
+                type: string
+                format: uuid
+              provider_id:
+                type: string
+                format: uuid
+              provider_name:
+                type: string
+              model:
+                type: string
+        params:
+          type: object
+          additionalProperties:
+            type: number
+        version:
+          type: integer
+          minimum: 0
+    LLMRoutePut:
+      type: object
+      required: [task, lane, chain, params, version, reindex_required]
+      additionalProperties: false
+      properties:
+        task:
+          type: string
+          enum: [CHAT, CLASSIFY, UTILITY, GRADING, QUESTION_GEN, INSIGHT, EMBEDDING]
+        lane:
+          type: string
+          enum: [INTERACTIVE, NEAR_REALTIME, BATCH]
+        chain:
+          type: array
+          items:
+            type: object
+            required: [model_id, provider_id, provider_name, model]
+            additionalProperties: false
+            properties:
+              model_id:
+                type: string
+                format: uuid
+              provider_id:
+                type: string
+                format: uuid
+              provider_name:
+                type: string
+              model:
+                type: string
+        params:
+          type: object
+          additionalProperties:
+            type: number
+        version:
+          type: integer
+          minimum: 0
+        reindex_required:
+          type: boolean
+    LLMRoutes:
+      type: object
+      required: [items, embedding]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          minItems: 7
+          maxItems: 7
+          items:
+            $ref: "#/components/schemas/LLMRoute"
+        embedding:
+          type: [object, "null"]
+          required: [model_id, provider_name, model, dims, reindex_required, indexed_chunks]
+          additionalProperties: false
+          properties:
+            model_id:
+              type: string
+              format: uuid
+            provider_name:
+              type: string
+            model:
+              type: string
+            dims:
+              type: integer
+            reindex_required:
+              type: boolean
+            indexed_chunks:
+              type: [integer, "null"]
+    LLMRouteInput:
+      type: object
+      required: [task, chain, version]
+      additionalProperties: false
+      properties:
+        task:
+          type: string
+        chain:
+          type: array
+          items:
+            type: string
+            format: uuid
+        params:
+          type: object
+          additionalProperties:
+            type: number
+        version:
+          type: integer
+          minimum: 0
+    LLMUsage:
+      type: object
+      required: [from, to, group, items]
+      additionalProperties: false
+      properties:
+        from:
+          type: string
+          format: date-time
+        to:
+          type: string
+          format: date-time
+        group:
+          type: string
+          enum: [task, day]
+        items:
+          type: array
+          items:
+            type: object
+            required: [key, calls, tokens_in, tokens_out, cost_est, latency_p50_ms, latency_p95_ms, errors, degraded]
+            additionalProperties: false
+            properties:
+              key:
+                type: string
+              calls:
+                type: integer
+              tokens_in:
+                type: integer
+              tokens_out:
+                type: integer
+              cost_est:
+                type: string
+              latency_p50_ms:
+                type: integer
+              latency_p95_ms:
+                type: integer
+              errors:
+                type: integer
+              degraded:
+                type: integer
+    LLMBudget:
+      type: object
+      required: [scope, daily_limit, monthly_limit, spent_today, spent_month, pct_today, pct_month, state, version]
+      additionalProperties: false
+      description: Tiền là chuỗi thập phân VND; pct_* chỉ để hiển thị (null khi không có hạn mức).
+      properties:
+        scope:
+          type: string
+          enum: [system, course]
+        course_id:
+          type: string
+          format: uuid
+        daily_limit:
+          type: [string, "null"]
+        monthly_limit:
+          type: [string, "null"]
+        spent_today:
+          type: string
+        spent_month:
+          type: string
+        pct_today:
+          type: [number, "null"]
+        pct_month:
+          type: [number, "null"]
+        state:
+          type: string
+          enum: [ok, warn, exhausted]
+        version:
+          type: integer
+          minimum: 0
+    LLMBudgetInput:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        daily_limit:
+          type: [string, number, "null"]
+        monthly_limit:
+          type: [string, number, "null"]
+        version:
+          type: integer
+          minimum: 0
     Error:
       type: object
       required: [code, message, trace_id]
@@ -264,6 +1029,12 @@ components:
             - SERVICE_UNAVAILABLE
             - NOT_READY
             - DEADLINE_EXCEEDED
+            - OVERLOADED
+            - LLM_NOT_CONFIGURED
+            - LLM_UNAVAILABLE
+            - PROVIDER_IN_USE
+            - MODEL_DIMS_MISMATCH
+            - ROUTE_INVALID
         message:
           type: string
         trace_id:

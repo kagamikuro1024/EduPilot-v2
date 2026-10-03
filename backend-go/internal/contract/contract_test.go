@@ -62,11 +62,13 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 		}
 	}
 	if hasTestRoutes {
-		if n := len(prod.Operations()); n != 5 {
-			t.Errorf("openapi.yaml: %d thao tác (cần 5)", n)
+		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2).
+		if n := len(prod.Operations()); n != 18 {
+			t.Errorf("openapi.yaml: %d thao tác (cần 18)", n)
 		}
-		if n := len(test.Operations()); n != 15 {
-			t.Errorf("openapi.test.yaml: %d thao tác (cần 15)", n)
+		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
+		if n := len(test.Operations()); n != 18 {
+			t.Errorf("openapi.test.yaml: %d thao tác (cần 18)", n)
 		}
 	}
 }
@@ -256,6 +258,12 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 	want := map[string]bool{ // thao tác → cần bearerAuth
 		"GET /healthz": false, "GET /api/v1/healthz": false, "GET /api/v1/readyz": false,
 		"GET /api/v1/jobs/{id}": true, "GET /api/v1/events": true,
+		"GET /api/v1/admin/llm/providers": true, "POST /api/v1/admin/llm/providers": true,
+		"POST /api/v1/admin/llm/providers/test": true, "PUT /api/v1/admin/llm/providers/{id}": true,
+		"DELETE /api/v1/admin/llm/providers/{id}": true, "POST /api/v1/admin/llm/providers/{id}/test": true,
+		"GET /api/v1/admin/llm/routes": true, "PUT /api/v1/admin/llm/routes": true, "GET /api/v1/admin/llm/usage": true,
+		"GET /api/v1/admin/llm/budget": true, "PUT /api/v1/admin/llm/budget": true,
+		"GET /api/v1/courses/{id}/llm-budget": true, "PUT /api/v1/courses/{id}/llm-budget": true,
 	}
 	for _, o := range prod.Operations() {
 		need, ok := want[o.Key()]

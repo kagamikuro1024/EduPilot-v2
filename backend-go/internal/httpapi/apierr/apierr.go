@@ -34,6 +34,14 @@ const (
 	ServiceUnavailable   = "SERVICE_UNAVAILABLE"
 	NotReady             = "NOT_READY"
 	DeadlineExceeded     = "DEADLINE_EXCEEDED"
+
+	// Cổng LLM (FEAT-llm-gateway SRS 6.1): 6 mã mới, tổng 28.
+	Overloaded        = "OVERLOADED"
+	LLMNotConfigured  = "LLM_NOT_CONFIGURED"
+	LLMUnavailable    = "LLM_UNAVAILABLE"
+	ProviderInUse     = "PROVIDER_IN_USE"
+	ModelDimsMismatch = "MODEL_DIMS_MISMATCH"
+	RouteInvalid      = "ROUTE_INVALID"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -146,6 +154,18 @@ func DefaultMessage(code string) string {
 		return "Hệ thống chưa sẵn sàng."
 	case DeadlineExceeded:
 		return "Xử lý quá thời hạn."
+	case Overloaded:
+		return "Hệ thống đang rất đông. Vui lòng thử lại sau ít giây."
+	case LLMNotConfigured:
+		return "Chưa cấu hình nhà cung cấp AI. Hãy liên hệ quản trị viên."
+	case LLMUnavailable:
+		return "AI tạm thời không khả dụng. Hãy thử lại sau."
+	case ProviderInUse:
+		return "Nhà cung cấp đang được dùng cho một tác vụ. Hãy đổi tác vụ đó sang nhà khác trước."
+	case ModelDimsMismatch:
+		return "Mô hình này không dùng được cho tìm kiếm tài liệu."
+	case RouteInvalid:
+		return "Cấu hình mô hình cho tác vụ chưa hợp lệ."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

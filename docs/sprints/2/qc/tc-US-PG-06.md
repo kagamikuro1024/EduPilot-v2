@@ -94,3 +94,4 @@ AC7. Khai báo: TC-PG06-30 (`/api/v1/jobs/{id}`, `/api/v1/events` = `bearerAuth`
 
 Tổng: 38 TC (37 tự động, 1 tay).
 - 2026-10-03 · **Sửa TC-PG06-30** (spec v1.5, góp ý #12): `bearerAuth` hiệu lực (kế thừa gốc được).
+- 2026-10-03 · **TC-PG06-06/07 (sprint 3, góp ý #3, PM duyệt):** từ US-P1-02, `openapi.test.yaml` có **18** thao tác / 16 đường dẫn (thêm `_test/llm/{chat,stats,fake}`); chạy lại TC này trên nhánh có P1 phải đòi 18 (nhánh sprint 2 vẫn 15 / 13).

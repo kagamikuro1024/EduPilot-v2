@@ -32,8 +32,10 @@ export function StatusStrip({ items }: { items: Array<{ label: string; value: st
       {items.map((m) => (
         <div key={m.label} className={s.stripItem}>
           <dt className="ep-meta">{m.label}</dt>
-          <dd className="ep-data">{m.value}</dd>
-          {m.hint && <p className={s.stripHint}>{m.hint}</p>}
+          <dd>
+            <span className="ep-data">{m.value}</span>
+            {m.hint && <span className={s.stripHint}>{m.hint}</span>}
+          </dd>
         </div>
       ))}
     </dl>

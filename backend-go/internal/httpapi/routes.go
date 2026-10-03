@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/go-chi/chi/v5"
 )
@@ -17,6 +18,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		if d.Jobs != nil {
 			// US-PG-03 FR-35/36 — handler việc dài của internal/jobs (chủ job hoặc ADMIN, người khác 404).
 			r.Get("/jobs/{id}", jobs.Handler(d.Jobs))
+		}
+		if d.LLM != nil && d.Redis != nil {
+			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.
+			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).Mount(r, RequireIdempotencyKey(d))
 		}
 	})
 

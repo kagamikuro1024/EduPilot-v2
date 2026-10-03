@@ -109,6 +109,8 @@ type ProviderInput struct {
 	TPMLimit *int
 	Models   []ModelInput
 	Version  int
+	// SkipVerify: lưu không kiểm tra kết nối (chỉ ghi vào audit_log; việc kiểm do tầng HTTP làm trước khi gọi).
+	SkipVerify bool
 }
 
 // Service là dịch vụ cấu hình. Mọi hàm nhận danh tính từ ctx đã xác thực (auth.Middleware), không từ tham số.
@@ -317,22 +319,23 @@ func int32Ptr(v *int) *int32 {
 type auditProvider struct {
 	Type       string   `json:"type"`
 	Name       string   `json:"name"`
-	BaseURL    *string  `json:"base_url,omitempty"`
+	BaseHost   string   `json:"base_host,omitempty"` // chỉ host, không đường dẫn / query (US-P1-04 AC13)
 	Enabled    bool     `json:"enabled"`
 	HasKey     bool     `json:"has_key"`
 	KeyChanged bool     `json:"key_changed,omitempty"`
+	SkipVerify bool     `json:"skip_verify,omitempty"`
 	RPMLimit   *int     `json:"rpm_limit,omitempty"`
 	TPMLimit   *int     `json:"tpm_limit,omitempty"`
 	Models     []string `json:"models"`
 }
 
-func snapshot(p Provider, keyChanged bool) auditProvider {
+func snapshot(p Provider, keyChanged, skipVerify bool) auditProvider {
 	names := make([]string, 0, len(p.Models))
 	for _, m := range p.Models {
 		names = append(names, m.Model)
 	}
 	slices.Sort(names)
-	return auditProvider{Type: p.Type, Name: p.Name, BaseURL: p.BaseURL, Enabled: p.Enabled, HasKey: p.HasKey, KeyChanged: keyChanged,
+	return auditProvider{Type: p.Type, Name: p.Name, BaseHost: BaseHost(p.BaseURL), Enabled: p.Enabled, HasKey: p.HasKey, KeyChanged: keyChanged, SkipVerify: skipVerify,
 		RPMLimit: p.RPMLimit, TPMLimit: p.TPMLimit, Models: names}
 }
 
@@ -347,10 +350,9 @@ func validateProvider(in ProviderInput) error {
 	if n := len([]rune(strings.TrimSpace(in.Name))); n < 1 || n > 60 {
 		return invalid("name", "INVALID_NAME", "tên dài 1–60 ký tự")
 	}
-	if in.BaseURL != nil {
-		u, err := url.Parse(strings.TrimSpace(*in.BaseURL))
-		if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" {
-			return invalid("base_url", "INVALID_URL", "địa chỉ phải là URL http(s)")
+	if in.BaseURL != nil && strings.TrimSpace(*in.BaseURL) != "" {
+		if err := ValidateBaseURL(*in.BaseURL); err != nil {
+			return err
 		}
 	}
 	if in.Type == "openai_compatible" && (in.BaseURL == nil || strings.TrimSpace(*in.BaseURL) == "") {
@@ -367,7 +369,7 @@ func validateProvider(in ProviderInput) error {
 		return invalid("api_key", "EMPTY", "khoá API không được rỗng; bỏ trường này để giữ khoá cũ")
 	}
 	if len(in.Models) > MaxModelsPerProvider {
-		return fmt.Errorf("%w: tối đa %d mô hình mỗi nhà cung cấp", ErrLimit, MaxModelsPerProvider)
+		return &LimitError{Field: "models", Max: MaxModelsPerProvider, What: "mô hình mỗi nhà cung cấp"}
 	}
 	seen := map[string]bool{}
 	for i, m := range in.Models {
@@ -391,9 +393,50 @@ func validateProvider(in ProviderInput) error {
 		if m.PriceIn.IsNegative() || m.PriceOut.IsNegative() {
 			return invalid(f+".price", "OUT_OF_RANGE", "giá không âm")
 		}
+		if m.PriceIn.GreaterThan(maxPrice()) || m.PriceOut.GreaterThan(maxPrice()) {
+			return invalid(f+".price", "OUT_OF_RANGE", "giá vượt giới hạn cho phép (tối đa 9.999.999.999,9999 đ / 1 triệu token)") // numeric(14,4)
+		}
 	}
 	return nil
 }
+
+// maxPrice là giá lớn nhất ghi được vào cột numeric(14,4) (BUG-P104-1).
+func maxPrice() decimal.Decimal { return decimal.RequireFromString("9999999999.9999") }
+
+// MaxBaseURLLen là độ dài tối đa của base_url (SRS 5.2, US-P1-04 AC13).
+const MaxBaseURLLen = 300
+
+// ValidateBaseURL kiểm base_url (US-P1-04 AC13): scheme http|https, có host, không userinfo, không fragment, ≤ 300 ký tự.
+// KHÔNG chặn địa chỉ nội bộ (localhost, 169.254.x, tên dịch vụ compose đều hợp lệ — máy chủ trong trường; chỉ ADMIN đặt).
+func ValidateBaseURL(raw string) error {
+	raw = strings.TrimSpace(raw)
+	bad := func() error {
+		return invalid("base_url", "INVALID_BASE_URL", "Địa chỉ phải là URL http hoặc https hợp lệ, không chứa tài khoản hay đoạn #.")
+	}
+	if len(raw) > MaxBaseURLLen {
+		return invalid("base_url", "INVALID_BASE_URL", "Địa chỉ dài tối đa 300 ký tự.")
+	}
+	u, err := url.Parse(raw)
+	if err != nil || (u.Scheme != "http" && u.Scheme != "https") || u.Hostname() == "" || u.User != nil || u.Fragment != "" || strings.Contains(raw, "#") {
+		return bad()
+	}
+	return nil
+}
+
+// BaseHost là phần host[:port] của base_url để ghi audit_log (không ghi đường dẫn / query); không phân tích được → "".
+func BaseHost(raw *string) string {
+	if raw == nil {
+		return ""
+	}
+	u, err := url.Parse(strings.TrimSpace(*raw))
+	if err != nil {
+		return ""
+	}
+	return u.Host
+}
+
+// ValidateInput kiểm đầu vào tạo / sửa nhà cung cấp (không chạm DB hay mạng) để tầng HTTP báo lỗi trước khi kiểm tra kết nối.
+func ValidateInput(in ProviderInput) error { return validateProvider(in) }
 
 func isUnique(err error, constraint string) bool {
 	var pg *pgconn.PgError
@@ -420,7 +463,7 @@ func (s *Service) CreateProvider(ctx context.Context, in ProviderInput) (Provide
 			return fmt.Errorf("llmconfig: đếm nhà cung cấp: %w", err)
 		}
 		if n >= MaxProviders {
-			return fmt.Errorf("%w: tối đa %d nhà cung cấp", ErrLimit, MaxProviders)
+			return &LimitError{Field: "providers", Max: MaxProviders, What: "nhà cung cấp"}
 		}
 		arg := store.InsertLLMProviderParams{
 			ID: id, Type: in.Type, Name: strings.TrimSpace(in.Name), BaseUrl: trimPtr(in.BaseURL),
@@ -443,7 +486,7 @@ func (s *Service) CreateProvider(ctx context.Context, in ProviderInput) (Provide
 		if out, err = s.getProvider(ctx, q, id); err != nil {
 			return err
 		}
-		return s.writeAudit(ctx, q, a, "llm_provider", id.String(), "create", nil, snapshot(out, in.APIKey != nil))
+		return s.writeAudit(ctx, q, a, "llm_provider", id.String(), "create", nil, snapshot(out, in.APIKey != nil, in.SkipVerify))
 	})
 	if err != nil {
 		return Provider{}, err
@@ -530,7 +573,7 @@ func (s *Service) UpdateProvider(ctx context.Context, id uuid.UUID, in ProviderI
 		if out, err = s.getProvider(ctx, q, id); err != nil {
 			return err
 		}
-		return s.writeAudit(ctx, q, a, "llm_provider", id.String(), "update", snapshot(before, false), snapshot(out, in.APIKey != nil))
+		return s.writeAudit(ctx, q, a, "llm_provider", id.String(), "update", snapshot(before, false, false), snapshot(out, in.APIKey != nil, in.SkipVerify))
 	})
 	if err != nil {
 		return Provider{}, err
@@ -552,10 +595,10 @@ func replaceModels(ctx context.Context, q *store.Queries, providerID uuid.UUID, 
 	for _, m := range want {
 		keep[m.Model] = true
 	}
-	var drop []uuid.UUID
+	var drop []string // text[]: PgBouncer (QueryExecModeExec) không mã hoá được []uuid.UUID
 	for _, m := range existing {
 		if !keep[m.Model] {
-			drop = append(drop, m.ID)
+			drop = append(drop, m.ID.String())
 		}
 	}
 	if len(drop) > 0 {
@@ -598,7 +641,7 @@ func (s *Service) DeleteProvider(ctx context.Context, id uuid.UUID) error {
 		if _, err := q.DeleteLLMProvider(ctx, id); err != nil {
 			return fmt.Errorf("llmconfig: xoá nhà cung cấp: %w", err)
 		}
-		return s.writeAudit(ctx, q, a, "llm_provider", id.String(), "delete", snapshot(before, false), nil)
+		return s.writeAudit(ctx, q, a, "llm_provider", id.String(), "delete", snapshot(before, false, false), nil)
 	})
 	if err != nil {
 		return err
@@ -624,4 +667,24 @@ func (s *Service) RecordTest(ctx context.Context, id uuid.UUID, ok bool, errorKi
 		return fmt.Errorf("llmconfig: lưu kết quả test: %w", err)
 	}
 	return nil
+}
+
+// AuditTest ghi MỘT dòng audit_log cho mỗi lần Test kết nối (kể cả bản ghi chưa lưu, entityID = "-"): chỉ loại nhà cung cấp,
+// host, mô hình, kết quả và loại lỗi — không có khoá, đường dẫn hay thân phản hồi (US-P1-04 AC2, AC13).
+func (s *Service) AuditTest(ctx context.Context, providerID *uuid.UUID, typ, host, model string, ok bool, errorKind string) error {
+	a, err := actorFrom(ctx, true)
+	if err != nil {
+		return err
+	}
+	id := "-"
+	if providerID != nil {
+		id = providerID.String()
+	}
+	after := map[string]any{"type": typ, "host": host, "model": model, "ok": ok}
+	if errorKind != "" {
+		after["error_kind"] = errorKind
+	}
+	return s.inTx(ctx, func(q *store.Queries) error {
+		return s.writeAudit(ctx, q, a, "llm_provider", id, "test", nil, after)
+	})
 }

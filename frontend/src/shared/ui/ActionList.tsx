@@ -8,7 +8,24 @@ import s from "./ActionList.module.css";
 export type Tone = "red" | "amber" | "green" | "blue" | "neutral";
 
 /** Danh sách việc: hàng ngăn bằng đường kẻ, không card (DESIGN.md §10.3). */
-export function ActionList({ children, label }: { children: ReactNode; label?: string }) {
+export function ActionList({ children, label, loading }: { children?: ReactNode; label?: string; /** đang tải: từng ấy hàng khung xương cao đúng bằng hàng thật (tiêu đề + một dòng bối cảnh) */ loading?: number }) {
+  if (loading) {
+    return (
+      <ul className={s.list} aria-label={label} aria-busy="true">
+        {Array.from({ length: loading }, (_, i) => (
+          <li key={i} className={s.row} aria-hidden>
+            <div className={s.main}>
+              <span className={s.dot} />
+              <span className={s.text}>
+                <span className={[s.title, s.sk].join(" ")}>&nbsp;</span>
+                <span className={[s.context, s.sk].join(" ")}>&nbsp;</span>
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    );
+  }
   return (
     <ul className={s.list} aria-label={label}>
       {children}

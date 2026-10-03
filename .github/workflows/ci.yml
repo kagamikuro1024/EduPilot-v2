@@ -47,6 +47,7 @@ jobs:
   frontend:
     name: Frontend
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6
@@ -58,7 +59,32 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: lint
         run: pnpm -C frontend lint
-      - name: build
-        run: pnpm -C frontend build
       - name: ui antipatterns
         run: bash scripts/ui-antipatterns.sh
+      - name: lint selftest
+        run: bash scripts/lint-selftest.sh
+      - name: build (như production)
+        run: pnpm -C frontend build
+      - name: build (gate)
+        run: pnpm -C frontend build:gate
+      - name: cache playwright browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - name: playwright install chromium
+        run: pnpm -C frontend exec playwright install --with-deps chromium
+      - name: playwright test
+        run: pnpm -C frontend exec playwright test --grep-invert @real
+      - name: lighthouse ci
+        run: pnpm -C frontend exec lhci autorun
+      - name: upload reports
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: frontend-reports
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+            frontend/.lighthouseci
+          if-no-files-found: ignore

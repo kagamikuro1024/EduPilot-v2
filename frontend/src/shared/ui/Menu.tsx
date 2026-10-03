@@ -1,6 +1,6 @@
 "use client";
 
-import { MoreHorizontal } from "lucide-react";
+import { Check, MoreHorizontal } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import s from "./Menu.module.css";
 
@@ -14,14 +14,17 @@ export function Popover({
   align = "end",
   width,
   label,
+  defaultOpen = false,
 }: {
   trigger: (props: { open: boolean; toggle: () => void; "aria-expanded": boolean; "aria-haspopup": "true" }) => ReactNode;
   children: ReactNode | ((close: () => void) => ReactNode);
   align?: "start" | "end";
   width?: number;
   label?: string;
+  /** mở sẵn (trang mẫu /dev/ui) */
+  defaultOpen?: boolean;
 }) {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(defaultOpen);
   const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -55,7 +58,7 @@ export function Popover({
   );
 }
 
-export type MenuItem = { label: ReactNode; onSelect: () => void; danger?: boolean; icon?: ReactNode; hint?: ReactNode };
+export type MenuItem = { label: ReactNode; onSelect: () => void; danger?: boolean; icon?: ReactNode; hint?: ReactNode; disabled?: boolean; selected?: boolean };
 
 /** Menu tràn "⋯" cho hành động thứ ba trở đi (DESIGN.md §12). */
 export function OverflowMenu({ items, label = "Thêm hành động" }: { items: MenuItem[]; label?: string }) {
@@ -69,20 +72,42 @@ export function OverflowMenu({ items, label = "Thêm hành động" }: { items: 
         </button>
       )}
     >
-      {(close) => <MenuList items={items} onPicked={close} />}
+      {(close) => <MenuList items={items} onPicked={close} autoFocus />}
     </Popover>
   );
 }
 
-export function MenuList({ items, onPicked }: { items: MenuItem[]; onPicked?: () => void }) {
+/** Danh sách lệnh: mở ra là focus mục đầu; ↑ ↓ đổi mục (vòng), Home / End, Enter chọn (nút gốc). */
+export function MenuList({ items, onPicked, autoFocus }: { items: MenuItem[]; onPicked?: () => void; /** focus mục đầu khi mở (menu trong Popover); danh sách tĩnh thì không */ autoFocus?: boolean }) {
+  const ref = useRef<HTMLUListElement>(null);
+  const enabled = () => Array.from(ref.current?.querySelectorAll<HTMLElement>('[role^="menuitem"]:not(:disabled)') ?? []);
+  useEffect(() => {
+    if (autoFocus) enabled()[0]?.focus();
+  }, [autoFocus]);
+  function onKeyDown(e: React.KeyboardEvent) {
+    const list = enabled();
+    if (list.length === 0) return;
+    const i = list.indexOf(document.activeElement as HTMLElement);
+    let n = -1;
+    if (e.key === "ArrowDown") n = (i + 1) % list.length;
+    else if (e.key === "ArrowUp") n = (i - 1 + list.length) % list.length;
+    else if (e.key === "Home") n = 0;
+    else if (e.key === "End") n = list.length - 1;
+    if (n >= 0) {
+      e.preventDefault();
+      list[n].focus();
+    }
+  }
   return (
-    <ul className={s.menu} role="menu">
+    <ul className={s.menu} role="menu" ref={ref} onKeyDown={onKeyDown}>
       {items.map((it, i) => (
         <li key={i} role="none">
           <button
             type="button"
-            role="menuitem"
-            className={[s.item, it.danger ? s.danger : ""].join(" ")}
+            role={it.selected === undefined ? "menuitem" : "menuitemradio"}
+            aria-checked={it.selected}
+            disabled={it.disabled}
+            className={[s.item, it.danger ? s.danger : "", it.selected ? s.picked : ""].join(" ")}
             onClick={() => {
               it.onSelect();
               onPicked?.();
@@ -91,6 +116,7 @@ export function MenuList({ items, onPicked }: { items: MenuItem[]; onPicked?: ()
             {it.icon}
             <span className={s.itemLabel}>{it.label}</span>
             {it.hint && <span className={s.hint}>{it.hint}</span>}
+            {it.selected && <Check className={s.tick} aria-hidden />}
           </button>
         </li>
       ))}

@@ -15,6 +15,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/redis"
@@ -40,6 +41,7 @@ type Deps struct {
 	Verifier  *auth.Verifier
 	Publisher sse.Publisher
 	Jobs      *jobs.Service
+	LLM       *llmrt.Runtime
 }
 
 // now là đồng hồ của request (Clock trống → đồng hồ hệ thống).

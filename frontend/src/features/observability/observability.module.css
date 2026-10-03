@@ -12,7 +12,7 @@
 }
 .stripItem { display: grid; gap: var(--ep-space-1); padding-left: var(--ep-space-5); border-left: 1px solid var(--ep-rule); }
 .stripItem:first-child { padding-left: 0; border-left: none; }
-.stripItem dd { margin: 0; }
+.stripItem dd { margin: 0; display: grid; gap: var(--ep-space-1); }
 .stripHint { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.45; }
 
 .task { display: block; font-weight: 500; }

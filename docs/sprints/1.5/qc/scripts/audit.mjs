@@ -8,10 +8,10 @@
 // Không đọc mã dev: mọi bộ chọn là móc `data-part` ghi trong US.md ("Móc đo dev thêm") hoặc chữ hiển thị.
 import { ROUTES, VIEWPORTS } from './sweep.mjs';
 
-// NGUYÊN VĂN đoạn AUDIT của docs/sprints/1.5/spec/US.md — không sửa để kết quả so được với lệnh Console của spec.
+// NGUYÊN VĂN đoạn AUDIT của docs/sprints/1.5/spec/US.md, trừ MỘT chỗ (góp ý #13, sprint 3): bỏ qua phần tử trong `.ep-sr-only` (1×1 px cố ý, chỉ dành cho trình đọc màn hình).
 export const AUDIT_SRC = `(() => { const ox = document.documentElement.scrollWidth - innerWidth, cut = [], ell = [];
   for (const e of document.querySelectorAll('main *, header *')) {
-    if (e.children.length || !e.textContent.trim() || e.closest('[data-scroll-x]')) continue;
+    if (e.children.length || !e.textContent.trim() || e.closest('[data-scroll-x]') || e.closest('.ep-sr-only')) continue;
     if (getComputedStyle(e).textOverflow === 'ellipsis' && e.scrollWidth > e.clientWidth && !e.title) { ell.push(e.textContent.trim()); continue; }
     let p = e.parentElement; while (p && getComputedStyle(p).overflowX === 'visible') p = p.parentElement;
     if (!p) continue; const a = e.getBoundingClientRect(), b = p.getBoundingClientRect();
@@ -104,7 +104,7 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
       if ((tag === '1440' || tag === '390') && role !== '(không vai)') { const l = await page.evaluate(LEFT_SRC); const want = tag === '1440' ? 240 : 16; push(role, route, tag, `LEFT (00-AC11) = ${want}`, l === want, `left=${l}`); }
       // 00-AC12 thanh trên đặc, kể cả sau khi cuộn 200 px
       { await page.evaluate(() => window.scrollTo(0, 200)); await sleep(120); const h = await page.evaluate(() => { const e = document.querySelector('header'); if (!e) return null; const c = getComputedStyle(e); return { bg: c.backgroundColor, bf: c.backdropFilter || c.webkitBackdropFilter || 'none' }; });
-        const ok = h && /^(rgb|lab|oklab|lch|oklch|color)\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); if (h) push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); /* QC s3: /login không có header → không áp dụng, không tính FAIL */ await page.evaluate(() => window.scrollTo(0, 0)); }
+        const ok = h && /^(rgb|lab|oklab|lch|oklch|color)\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); await page.evaluate(() => window.scrollTo(0, 0)); }
     };
 
     // ---------- 1. Ma trận AUDIT: mọi route × vai × bề rộng ----------

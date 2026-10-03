@@ -129,13 +129,19 @@ func TestVector(t *testing.T) {
 func TestParseKey(t *testing.T) {
 	t.Parallel()
 	good := make([]byte, keyLen)
+	urlKey := bytes.Repeat([]byte{0xfb, 0xff}, keyLen/2) // mã hoá std có '+' '/', url có '-' '_'
+	require.NotEqual(t, base64.StdEncoding.EncodeToString(urlKey), base64.URLEncoding.EncodeToString(urlKey))
 	for _, tc := range []struct {
 		name, in string
 		ok       bool
 	}{
-		{"đủ 32 byte, std", base64.StdEncoding.EncodeToString(good), true},
-		{"đủ 32 byte, url", base64.URLEncoding.EncodeToString(good), true},
-		{"không đệm", base64.RawStdEncoding.EncodeToString(good), true},
+		{"đủ 32 byte, std có đệm", base64.StdEncoding.EncodeToString(good), true},
+		{"khoảng trắng và xuống dòng hai đầu", " \n" + base64.StdEncoding.EncodeToString(good) + "\r\n\t ", true},
+		{"base64url (có - hoặc _)", base64.URLEncoding.EncodeToString(urlKey), false},
+		{"không đệm (43 ký tự)", base64.RawStdEncoding.EncodeToString(good), false},
+		{"khoảng trắng ở giữa", base64.StdEncoding.EncodeToString(good)[:20] + " " + base64.StdEncoding.EncodeToString(good)[20:], false},
+		{"xuống dòng ở giữa", base64.StdEncoding.EncodeToString(good)[:20] + "\n" + base64.StdEncoding.EncodeToString(good)[20:], false},
+		{"tab ở giữa", base64.StdEncoding.EncodeToString(good)[:20] + "\t" + base64.StdEncoding.EncodeToString(good)[20:], false},
 		{"rỗng", "", false},
 		{"toàn khoảng trắng", "   ", false},
 		{"không phải base64", "abc$%^", false},

@@ -1,0 +1,6 @@
+{
+  "error_kind": "AUTH",
+  "latency_ms": "<ms>",
+  "message": "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.",
+  "ok": false
+}

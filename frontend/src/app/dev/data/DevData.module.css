@@ -1,0 +1,5 @@
+.wrap { margin: 0 auto; padding: var(--ep-space-6) var(--ep-space-4) var(--ep-space-20); max-width: 960px; display: grid; gap: var(--ep-space-8); }
+.block { display: grid; gap: var(--ep-space-3); min-width: 0; border-top: 1px solid var(--ep-rule); padding-top: var(--ep-space-4); }
+.row { display: flex; flex-wrap: wrap; gap: var(--ep-space-2); align-items: center; }
+.log { margin: 0; padding: 0; list-style: none; font-size: var(--ep-text-meta); color: var(--ep-ink-2); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.out { font-size: var(--ep-text-label); overflow-wrap: anywhere; }

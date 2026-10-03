@@ -1,0 +1,17 @@
+{
+  "chain": [
+    {
+      "model": "fake-chat",
+      "model_id": "<uuid>",
+      "provider_id": "<uuid>",
+      "provider_name": "G2"
+    }
+  ],
+  "lane": "INTERACTIVE",
+  "params": {
+    "temperature": 0.2
+  },
+  "reindex_required": false,
+  "task": "CHAT",
+  "version": 1
+}

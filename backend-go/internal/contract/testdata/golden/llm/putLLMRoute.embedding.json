@@ -1,0 +1,15 @@
+{
+  "chain": [
+    {
+      "model": "fake-embed",
+      "model_id": "<uuid>",
+      "provider_id": "<uuid>",
+      "provider_name": "G2"
+    }
+  ],
+  "lane": "BATCH",
+  "params": {},
+  "reindex_required": false,
+  "task": "EMBEDDING",
+  "version": 1
+}

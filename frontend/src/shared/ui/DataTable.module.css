@@ -30,8 +30,6 @@
 
 .clickable { cursor: pointer; transition: background-color var(--ep-fast) var(--ep-ease-standard); }
 .clickable:hover td, .clickable:focus-visible td { background: var(--ep-surface-subtle); }
-.clickable:focus-visible { outline: none; box-shadow: none; } /* ui-allow: hàng bảng có vòng focus riêng ở dòng trên */
-.clickable:focus-visible td:first-child { box-shadow: inset 2px 0 0 var(--ep-red); } /* ui-allow: chỉ báo focus của hàng */
 .active td { background: var(--ep-surface-subtle); }
 
 .scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-rule); }
@@ -72,3 +70,15 @@ th.frozen { z-index: 2; }
   .scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-ink-3); }
   .scroll[data-scroll-x] .table { width: auto; min-width: 100%; }
 }
+
+/* Bảng ảo hoá (US-PU-02 AC5/6): khung cuộn cao cố định, tiêu đề dính trong khung, dòng 48 px. */
+.vscroll { height: var(--vh, 60vh); overflow: auto; border-top: 1px solid var(--ep-rule); overscroll-behavior: contain; }
+.virtual tbody tr { height: 48px; }
+.virtual .spacer { padding: 0; border: 0; height: auto; }
+.footCell { height: 48px; padding: var(--ep-space-2) var(--ep-space-3); }
+.skBar, .skIdle { display: block; height: var(--ep-space-4); width: 60%; border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }
+.skIdle { visibility: hidden; }
+.retry { font: inherit; font-weight: 600; color: var(--ep-ink); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 32px; padding: 0 var(--ep-space-2); }
+.retry:hover { text-decoration-color: var(--ep-red); }
+.skCell { display: block; height: var(--ep-space-4); width: 70%; border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }
+.active td:first-child, .itemActive .itemMain { font-weight: 700; }

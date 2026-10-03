@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/shopspring/decimal"
 	"github.com/stretchr/testify/require"
@@ -42,7 +43,10 @@ func asRole(ctx context.Context, r auth.Role) context.Context {
 func newRig(t *testing.T) *rig {
 	t.Helper()
 	url := testutil.MigratedPostgresURL(t)
-	pool, err := pgxpool.New(t.Context(), url)
+	pcfg, err := pgxpool.ParseConfig(url)
+	require.NoError(t, err)
+	pcfg.ConnConfig.DefaultQueryExecMode = pgx.QueryExecModeExec // ĐÚNG như runtime (PgBouncer transaction mode)
+	pool, err := pgxpool.NewWithConfig(t.Context(), pcfg)
 	require.NoError(t, err)
 	t.Cleanup(pool.Close)
 	key := make([]byte, 32)
