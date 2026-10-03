@@ -16,8 +16,6 @@ type localBackend struct {
 	failsMax int
 	openFor  time.Duration
 	leases   map[string]map[string]time.Time // provider → member → hạn
-	lastInt  time.Time
-	waitingI int
 	buckets  map[string]*bucket
 	cb       map[string]*cbState
 }
@@ -62,25 +60,18 @@ func (l *localBackend) tryLease(_ context.Context, r leaseReq) (bool, error) {
 	if len(m) >= r.max {
 		return false, nil
 	}
-	if r.lane == laneB {
-		active := l.waitingI > 0 || now.Sub(l.lastInt) < 2*time.Second
+	if r.lane == laneB { // BATCH LUÔN ≤ batchCap chỗ, kể cả khi không có INTERACTIVE (góp ý #6)
 		b := 0
 		for k := range m {
-			switch k[:1] {
-			case laneB:
+			if k[:1] == laneB {
 				b++
-			case laneI:
-				active = true
 			}
 		}
-		if active && b >= r.batchCap {
+		if b >= r.batchCap {
 			return false, nil
 		}
 	}
 	m[r.member] = now.Add(r.lease)
-	if r.lane == laneI {
-		l.lastInt = now
-	}
 	return true, nil
 }
 
@@ -135,15 +126,6 @@ func (l *localBackend) reconcile(_ context.Context, provider string, tpm, diff i
 	defer l.mu.Unlock()
 	if b := l.buckets["tpm:"+provider]; b != nil {
 		b.tokens = math.Min(float64(burst(tpm)), b.tokens+float64(diff))
-	}
-	return nil
-}
-
-func (l *localBackend) noteWaiting(_ context.Context, lane string, delta int) error {
-	if lane == "INTERACTIVE" {
-		l.mu.Lock()
-		l.waitingI = max(0, l.waitingI+delta)
-		l.mu.Unlock()
 	}
 	return nil
 }

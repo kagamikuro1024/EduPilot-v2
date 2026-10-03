@@ -117,37 +117,42 @@ func TestBadLane(t *testing.T) {
 	}
 }
 
-func TestBatchShareCapsBatchWhenInteractiveWaits(t *testing.T) {
+// Góp ý #6: BATCH LUÔN ≤ ceil(MAX×share) chỗ — kể cả khi không có INTERACTIVE nào — nên chỗ INTERACTIVE đầu tiên luôn còn.
+func TestBatchShareAlwaysCapsBatch(t *testing.T) {
 	t.Parallel()
 	s := scheduler.New(scheduler.Config{MaxConcurrency: 10, BatchShare: 0.5}, nil, discard())
 	var held []llm.Permit
-	for range 5 { // BATCH chiếm tới trần ceil(10×0,5)=5 khi không có INTERACTIVE
+	for range 5 { // trần ceil(10×0,5)=5
 		p, err := s.Admit(t.Context(), work(llm.LaneBatch))
 		if err != nil {
 			t.Fatal(err)
 		}
 		held = append(held, p)
 	}
-	// một INTERACTIVE đang chạy → BATCH thứ 6 không được cấp (trần 5), dù còn chỗ trống
-	pi, err := s.Admit(t.Context(), work(llm.LaneInteractive))
-	if err != nil {
-		t.Fatal(err)
-	}
 	ctx, cancel := context.WithTimeout(t.Context(), 150*time.Millisecond)
 	defer cancel()
 	if _, err := s.Admit(ctx, work(llm.LaneBatch)); !errors.Is(err, llm.ErrDeadline) {
-		t.Fatalf("BATCH thứ 6 khi có INTERACTIVE chạy: err = %v, muốn bị giữ lại", err)
+		t.Fatalf("BATCH thứ 6 (không có INTERACTIVE): err = %v, muốn bị giữ lại dù còn 5 chỗ trống", err)
+	}
+	// INTERACTIVE đầu tiên vào NGAY, không chờ BATCH trả chỗ
+	ictx, icancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+	defer icancel()
+	start := time.Now()
+	pi, err := s.Admit(ictx, work(llm.LaneInteractive))
+	if err != nil {
+		t.Fatalf("INTERACTIVE đầu tiên phải có chỗ: %v", err)
+	}
+	if d := time.Since(start); d > 50*time.Millisecond {
+		t.Errorf("INTERACTIVE chờ %v", d)
 	}
 	pi.Done(-1)
-	time.Sleep(2100 * time.Millisecond) // quá cửa sổ 2 s kể từ INTERACTIVE gần nhất → BATCH được dùng hết công suất
-	ctx2, cancel2 := context.WithTimeout(t.Context(), time.Second)
-	defer cancel2()
-	p, err := s.Admit(ctx2, work(llm.LaneBatch))
+	held[0].Done(-1) // một BATCH trả chỗ → BATCH kế được cấp
+	p, err := s.Admit(t.Context(), work(llm.LaneBatch))
 	if err != nil {
-		t.Fatalf("hết INTERACTIVE: BATCH phải được cấp: %v", err)
+		t.Fatalf("sau khi BATCH trả chỗ: %v", err)
 	}
 	p.Done(-1)
-	for _, h := range held {
+	for _, h := range held[1:] {
 		h.Done(-1)
 	}
 }

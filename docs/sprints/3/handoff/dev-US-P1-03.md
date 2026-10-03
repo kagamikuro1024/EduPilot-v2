@@ -36,3 +36,12 @@ Cổng: `go vet` (cả `testroutes`, `integration`) sạch; `golangci-lint run` 
 - Trạng thái mạch ghi vào Redis có TTL 600 s: sau một đợt lỗi liên tiếp, mạch còn mở khi gateway khởi động lại — đó là hành vi mong muốn (chia sẻ), nhưng khi dev thử lại ngay có thể thấy `degraded` / `LLM_UNAVAILABLE` cho tới khi hết 30 s.
 - Ưu tiên giữa các làn chỉ chính xác trong từng tiến trình; giữa tiến trình dựa vào trần BATCH và gợi ý `ep:llm:wait:INTERACTIVE` (`ponytail:` — có thể cần hàng đợi toàn cục nếu đo thấy lệch).
 - Single-flight chỉ trong tiến trình (`ponytail:` trong `flight.go`).
+
+## Sửa lỗi QC (report-US-P1-03) và góp ý #6
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-P103-2 = góp ý #6 (PM: phương án khác) | BATCH **luôn** ≤ `ceil(MAX×share)` chỗ, kể cả khi không có INTERACTIVE; bỏ ngoại lệ "dùng hết công suất". Bỏ luôn cơ chế phụ: cửa sổ 2 s (`ep:llm:lastint`), bộ đếm INTERACTIVE đang chờ (`ep:llm:wait:*`, `noteWaiting`), `WithKeyPrefix`, và cờ `--prime` của `cmd/llmload`. Lua cấp chỗ và `localBackend.tryLease` chỉ còn đếm phần tử `B:` | `TestBatchShareAlwaysCapsBatch` (5 BATCH đầy trần → BATCH thứ 6 bị giữ dù còn 5 chỗ trống; INTERACTIVE đầu tiên vào < 50 ms; một BATCH trả chỗ → BATCH kế được cấp); `-tags integration TestBatchDoesNotStarveInteractive` và cả bộ integration của `scheduler` PASS (không còn bước "mồi") |
+| BUG-P103-1 INTERACTIVE hết hạn 30 s → client nhận kết nối đóng | Nguyên nhân: `http.Server.WriteTimeout` = 30 s (hằng) **bằng** `REQUEST_TIMEOUT` = 30 s = hạn LLM mặc định; 504 `DEADLINE_EXCEEDED` được ghi đúng lúc máy chủ đóng kết nối (log gateway ghi 504 nhưng thân không tới client). Sửa gốc ở tầng HTTP (mọi route bị, không riêng LLM): `NewServer` đặt `WriteTimeout = REQUEST_TIMEOUT + WriteMargin (5 s)`; hằng `WriteTimeout` 30 s chỉ còn cho `/healthz` của worker | `TestWriteTimeoutOutlivesRequestTimeout`. Tay qua Caddy: nhà `openai_compatible` trả chậm 45 s, `CHAT` → `504 {"code":"DEADLINE_EXCEEDED","message":"Xử lý quá thời hạn.","trace_id":…}` đúng ở **30,015 s** (trước: `Empty reply`, http=000) |
+
+Ghi chú: SRS 5.5 vẫn liệt kê khoá `ep:llm:wait:{lane}` và `ep:llm:lastint` (BA bỏ khỏi bảng khi cập nhật spec); mã không còn tạo hai khoá này.
+`cmd/llmload` qua compose (2 gateway, không `--prime`): `interactive_wait_p95_ms=0 batch_peak=3 chat_ok=25 chat_fail=0 batch_ok=188 batch_rejected=12` (hàng BATCH 100/làn/gateway đầy ⇒ `OVERLOADED`).

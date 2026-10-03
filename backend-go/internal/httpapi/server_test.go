@@ -308,3 +308,15 @@ func TestServe_PortInUse(t *testing.T) {
 		t.Fatal("Serve treo khi listener hỏng")
 	}
 }
+
+// BUG-P103-1: WriteTimeout phải DÀI HƠN REQUEST_TIMEOUT, nếu không 504 DEADLINE_EXCEEDED ghi đúng lúc kết nối bị đóng.
+func TestWriteTimeoutOutlivesRequestTimeout(t *testing.T) {
+	t.Parallel()
+	for _, rt := range []time.Duration{time.Second, 30 * time.Second, 90 * time.Second} {
+		d := Deps{Cfg: config.Config{RequestTimeout: rt}}
+		srv := NewServer(d)
+		if srv.WriteTimeout < rt+WriteMargin {
+			t.Errorf("REQUEST_TIMEOUT %v: WriteTimeout %v < %v", rt, srv.WriteTimeout, rt+WriteMargin)
+		}
+	}
+}

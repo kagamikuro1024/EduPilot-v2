@@ -55,7 +55,7 @@ func TestSchedWorker(t *testing.T) {
 	prov := os.Getenv("SCHED_PROVIDER")
 	cfg := scheduler.Config{MaxConcurrency: envInt("SCHED_MAX", 10), BatchShare: 0.5, QueueMax: 1000, QueueWaitMax: time.Minute,
 		BreakerFails: 5, BreakerOpen: time.Duration(envInt("SCHED_OPEN_MS", 30000)) * time.Millisecond}
-	s := scheduler.New(cfg, rdb, discard(), scheduler.WithKeyPrefix(os.Getenv("SCHED_PREFIX")))
+	s := scheduler.New(cfg, rdb, discard())
 
 	switch os.Getenv("SCHED_MODE") {
 	case "pump":
@@ -190,7 +190,7 @@ func (w *worker) ask(t *testing.T, cmd, prefix string) string {
 // ---- Redis và proxy ----
 
 func baseEnv(t *testing.T, mode, prov string) map[string]string {
-	return map[string]string{"REDIS_URL": testutil.RedisURL(t), "SCHED_PROVIDER": prov, "SCHED_MODE": mode, "SCHED_PREFIX": prov + ":"}
+	return map[string]string{"REDIS_URL": testutil.RedisURL(t), "SCHED_PROVIDER": prov, "SCHED_MODE": mode}
 }
 
 // ---- kiểm thử ----
@@ -271,7 +271,7 @@ func TestTwoProcessesRPM(t *testing.T) {
 func TestTPMReconcile(t *testing.T) {
 	prov := "it-" + uuid.NewString()
 	rdb := redisClient(t, testutil.RedisURL(t))
-	s := scheduler.New(baseCfg(), rdb, discard(), scheduler.WithKeyPrefix(prov+":"))
+	s := scheduler.New(baseCfg(), rdb, discard())
 	w := llm.Work{Lane: llm.LaneNearRealtime, Task: llm.TaskUtility, ProviderID: prov, RPM: 100000, TPM: 6000, EstTokens: 500} // dung lượng TPM 600
 
 	p, err := s.Admit(t.Context(), w)
@@ -297,7 +297,7 @@ func TestBatchDoesNotStarveInteractive(t *testing.T) {
 	reg.SetRoute(llm.TaskChat, rt)
 	reg.SetRoute(llm.TaskInsight, rt)
 	cfg := scheduler.Config{MaxConcurrency: 10, BatchShare: 0.5, QueueMax: 1000, QueueWaitMax: 10 * time.Second}
-	s := scheduler.New(cfg, rdb, discard(), scheduler.WithKeyPrefix(prov+":"))
+	s := scheduler.New(cfg, rdb, discard())
 	g := llm.New(llm.Options{Registry: reg, Gate: s, Log: discard(), RequestTimeout: 3 * time.Minute, BatchTimeout: 3 * time.Minute})
 
 	ttft := func(q string) (time.Duration, time.Duration) {
@@ -342,8 +342,6 @@ func TestBatchDoesNotStarveInteractive(t *testing.T) {
 	// đường cơ sở: không có BATCH
 	baseMean, baseWaits := runInteractive(15)
 
-	// mồi một INTERACTIVE để cửa sổ "vừa chạy trong 2 s" mở (xem handoff: quy tắc 2 s không bảo vệ INTERACTIVE ĐẦU TIÊN khi BATCH đã chiếm đủ 10 chỗ)
-	ttft("mồi")
 	var wg sync.WaitGroup
 	for i := range 100 { // 100 việc BATCH đang chờ
 		wg.Add(1)
@@ -487,7 +485,7 @@ func TestRedisDownFailsOpenLocal(t *testing.T) {
 	rdb := redisClient(t, "redis://"+proxy.addr+"/0")
 	buf, log := logBuf()
 	prov := "it-" + uuid.NewString()
-	s := scheduler.New(scheduler.Config{MaxConcurrency: 2, QueueMax: 100}, rdb, log, scheduler.WithKeyPrefix(prov+":"))
+	s := scheduler.New(scheduler.Config{MaxConcurrency: 2, QueueMax: 100}, rdb, log)
 	w := llm.Work{Lane: llm.LaneNearRealtime, Task: llm.TaskUtility, ProviderID: prov, RPM: 1e6, TPM: 1e9, EstTokens: 10}
 
 	p, err := s.Admit(t.Context(), w)
@@ -538,7 +536,7 @@ func TestRedisBackReconciles(t *testing.T) {
 	pfx := uuid.NewString() + ":"
 	m := budget.New(rdb, limits{"system": {Daily: dec("1000")}}, pool, clk, discard()).WithPrefix(pfx)
 	prov := "it-" + uuid.NewString()
-	s := scheduler.New(scheduler.Config{MaxConcurrency: 2}, rdb, discard(), scheduler.WithBudget(m), scheduler.WithKeyPrefix(prov+":"))
+	s := scheduler.New(scheduler.Config{MaxConcurrency: 2}, rdb, discard(), scheduler.WithBudget(m))
 	recovered := make(chan struct{}, 1)
 	s.OnRedisRecover(func(ctx context.Context) {
 		require.NoError(t, m.Reconcile(ctx))
@@ -572,7 +570,7 @@ func TestRedisBackReconciles(t *testing.T) {
 func BenchmarkSchedulerAcquire(b *testing.B) {
 	rdb := redisClient(b, testutil.RedisURL(b))
 	prov := "bench-" + uuid.NewString()
-	s := scheduler.New(scheduler.Config{MaxConcurrency: 1000, QueueMax: 100000}, rdb, discard(), scheduler.WithKeyPrefix(prov+":"))
+	s := scheduler.New(scheduler.Config{MaxConcurrency: 1000, QueueMax: 100000}, rdb, discard())
 	w := llm.Work{Lane: llm.LaneNearRealtime, Task: llm.TaskUtility, ProviderID: prov, RPM: 100_000_000, TPM: 1_000_000_000, EstTokens: 10}
 	b.ResetTimer()
 	b.RunParallel(func(pb *testing.PB) {

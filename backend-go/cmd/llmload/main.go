@@ -43,7 +43,6 @@ func run(args []string, stdout, stderr io.Writer) int {
 	conc := fs.Int("chat-concurrency", 5, "số CHAT tối đa cùng lúc (≤ 50 % công suất)")
 	gap := fs.Duration("chat-gap", 100*time.Millisecond, "khoảng cách giữa hai lần phát CHAT")
 	warm := fs.Duration("warmup", 500*time.Millisecond, "chờ sau khi bơm BATCH rồi mới phát CHAT")
-	prime := fs.Bool("prime", true, "gửi 1 CHAT trước khi bơm BATCH (chat luôn có mặt trong giờ học; xem handoff US-P1-03 về cửa sổ 2 s)")
 	maxWait := fs.Int64("max-wait-p95-ms", 500, "ngưỡng interactive_wait_p95_ms")
 	maxBatch := fs.Int("max-batch", 5, "ngưỡng batch_peak")
 	if err := fs.Parse(args); err != nil {
@@ -115,9 +114,6 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 	}()
 
-	if *prime {
-		post(ctx, "CHAT", "mồi")
-	}
 	var bwg sync.WaitGroup
 	var batchOK, batchRejected atomic.Int64
 	for i := range *batch {

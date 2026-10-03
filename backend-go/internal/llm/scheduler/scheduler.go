@@ -76,7 +76,6 @@ type Scheduler struct {
 	lat    map[string]*ring
 	provMu sync.Mutex
 	seen   map[string]struct{}
-	pfx    string
 }
 
 var _ llm.Gate = (*Scheduler)(nil)
@@ -86,9 +85,6 @@ type Option func(*Scheduler)
 
 // WithBudget gắn Manager ngân sách.
 func WithBudget(m *budget.Manager) Option { return func(s *Scheduler) { s.budget = m } }
-
-// WithKeyPrefix đặt tiền tố cho khoá Redis toàn cục (wait, lastint) — dùng trong test để các test không đạp nhau.
-func WithKeyPrefix(p string) Option { return func(s *Scheduler) { s.pfx = p } }
 
 // WithClock thay đồng hồ của backend cục bộ (test).
 func WithClock(c clock.Clock) Option { return func(s *Scheduler) { s.clk = c } }
@@ -103,7 +99,6 @@ func New(cfg Config, rdb *goredis.Client, log *slog.Logger, opts ...Option) *Sch
 	s.local = newLocalBackend(s.clk, cfg.BreakerFails, cfg.BreakerOpen)
 	if rdb != nil {
 		s.remote = newRedisBackend(rdb, cfg.BreakerFails, cfg.BreakerOpen)
-		s.remote.pfx = s.pfx
 	}
 	return s
 }
@@ -342,18 +337,7 @@ func (s *Scheduler) Admit(ctx context.Context, w llm.Work) (llm.Permit, error) {
 		return nil, &llm.ErrOverloaded{RetryAfter: RetryAfter(depth, s.cfg.MaxConcurrency, s.avgLatency(w.ProviderID))}
 	}
 	start := time.Now()
-	lane := w.Lane.String()
-	if w.Lane == llm.LaneInteractive {
-		op(ctx, s, func(b backend) (struct{}, error) { return struct{}{}, b.noteWaiting(ctx, lane, 1) })
-	}
-	defer func() {
-		s.q.remove(wt)
-		if w.Lane == llm.LaneInteractive {
-			op(context.WithoutCancel(ctx), s, func(b backend) (struct{}, error) {
-				return struct{}{}, b.noteWaiting(context.WithoutCancel(ctx), lane, -1)
-			})
-		}
-	}()
+	defer s.q.remove(wt)
 
 	member := laneCode(w.Lane) + ":" + uuid.NewString()
 	batchCap := int(math.Ceil(float64(s.cfg.MaxConcurrency) * s.cfg.BatchShare))

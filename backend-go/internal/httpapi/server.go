@@ -15,9 +15,13 @@ import (
 const (
 	ReadHeaderTimeout = 5 * time.Second
 	ReadTimeout       = 15 * time.Second
-	WriteTimeout      = 30 * time.Second
+	WriteTimeout      = 30 * time.Second // chỉ cho server phụ (worker /healthz); gateway dùng REQUEST_TIMEOUT + WriteMargin
 	IdleTimeout       = 60 * time.Second
 	MaxHeaderBytes    = 64 << 10
+
+	// WriteMargin: thời gian chừa để ghi lỗi 504 DEADLINE_EXCEEDED SAU khi REQUEST_TIMEOUT hết. Nếu WriteTimeout ≤ REQUEST_TIMEOUT
+	// thì máy chủ đóng kết nối đúng lúc đang ghi 504 và client nhận "Empty reply" (BUG-P103-1).
+	WriteMargin = 5 * time.Second
 )
 
 // depProbeInterval: nhịp thử lại phụ thuộc lúc khởi động (SRS 3.4 — mỗi giây một dòng warn).
@@ -37,7 +41,7 @@ func NewServer(d Deps) *http.Server {
 		Handler:           NewRouter(d),
 		ReadHeaderTimeout: ReadHeaderTimeout,
 		ReadTimeout:       ReadTimeout,
-		WriteTimeout:      WriteTimeout,
+		WriteTimeout:      d.Cfg.RequestTimeout + WriteMargin,
 		IdleTimeout:       IdleTimeout,
 		MaxHeaderBytes:    MaxHeaderBytes,
 	}

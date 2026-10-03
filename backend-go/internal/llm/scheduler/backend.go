@@ -37,7 +37,6 @@ type backend interface {
 	tryBucket(ctx context.Context, r bucketReq) (bool, time.Duration, error)
 	// reconcile cộng (diff > 0: hoàn) hoặc trừ (diff < 0) token TPM sau khi biết số thật.
 	reconcile(ctx context.Context, provider string, tpm, diff int) error
-	noteWaiting(ctx context.Context, lane string, delta int) error
 	cbAllow(ctx context.Context, provider string) (bool, error)
 	cbReport(ctx context.Context, provider string, failure bool) error
 	cbState(ctx context.Context, provider string) (string, error)

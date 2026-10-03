@@ -16,21 +16,15 @@ local t = redis.call('TIME')
 local now = tonumber(t[1]) * 1000 + math.floor(tonumber(t[2]) / 1000)
 redis.call('ZREMRANGEBYSCORE', KEYS[1], '-inf', now)
 if redis.call('ZCARD', KEYS[1]) >= tonumber(ARGV[1]) then return 0 end
-if ARGV[5] == 'B' then
-  local waiting = tonumber(redis.call('GET', KEYS[2]) or '0') or 0
-  local last = tonumber(redis.call('GET', KEYS[3]) or '0') or 0
-  local active = waiting > 0 or (now - last) < tonumber(ARGV[6])
+if ARGV[5] == 'B' then -- BATCH LUÔN ≤ batchCap chỗ (góp ý #6)
   local b = 0
   for _, m in ipairs(redis.call('ZRANGE', KEYS[1], 0, -1)) do
-    local c = string.sub(m, 1, 1)
-    if c == 'B' then b = b + 1 end
-    if c == 'I' then active = true end
+    if string.sub(m, 1, 1) == 'B' then b = b + 1 end
   end
-  if active and b >= tonumber(ARGV[2]) then return 0 end
+  if b >= tonumber(ARGV[2]) then return 0 end
 end
 redis.call('ZADD', KEYS[1], now + tonumber(ARGV[4]), ARGV[3])
 redis.call('PEXPIRE', KEYS[1], 300000)
-if ARGV[5] == 'I' then redis.call('SET', KEYS[3], tostring(now), 'PX', 5000) end
 return 1`
 
 const bucketLua = `
@@ -105,30 +99,27 @@ else
 end`
 
 type redisBackend struct {
-	rdb       *goredis.Client
-	lease     *goredis.Script
-	bucket    *goredis.Script
-	reconc    *goredis.Script
-	cb        *goredis.Script
-	failsMax  int
-	openFor   time.Duration
-	intWindow time.Duration
-	pfx       string // tiền tố cho khoá TOÀN CỤC (wait, lastint) — test cô lập
+	rdb      *goredis.Client
+	lease    *goredis.Script
+	bucket   *goredis.Script
+	reconc   *goredis.Script
+	cb       *goredis.Script
+	failsMax int
+	openFor  time.Duration
 }
 
 func newRedisBackend(rdb *goredis.Client, failsMax int, openFor time.Duration) *redisBackend {
 	return &redisBackend{rdb: rdb, lease: goredis.NewScript(leaseLua), bucket: goredis.NewScript(bucketLua), reconc: goredis.NewScript(reconcileLua),
-		cb: goredis.NewScript(cbLua), failsMax: failsMax, openFor: openFor, intWindow: 2 * time.Second}
+		cb: goredis.NewScript(cbLua), failsMax: failsMax, openFor: openFor}
 }
 
-func keyInflight(p string) string     { return "ep:llm:inflight:" + p }
-func keyWait(pfx, lane string) string { return pfx + "ep:llm:wait:" + lane }
-func keyRL(kind, p string) string     { return "ep:llm:rl:" + kind + ":" + p }
-func keyCB(p string) string           { return "ep:llm:cb:" + p }
+func keyInflight(p string) string { return "ep:llm:inflight:" + p }
+func keyRL(kind, p string) string { return "ep:llm:rl:" + kind + ":" + p }
+func keyCB(p string) string       { return "ep:llm:cb:" + p }
 
 func (b *redisBackend) tryLease(ctx context.Context, r leaseReq) (bool, error) {
-	n, err := b.lease.Run(ctx, b.rdb, []string{keyInflight(r.provider), keyWait(b.pfx, "INTERACTIVE"), b.pfx + "ep:llm:lastint"},
-		r.max, r.batchCap, r.member, r.lease.Milliseconds(), r.lane, b.intWindow.Milliseconds()).Int()
+	n, err := b.lease.Run(ctx, b.rdb, []string{keyInflight(r.provider)},
+		r.max, r.batchCap, r.member, r.lease.Milliseconds(), r.lane).Int()
 	return n == 1, err
 }
 
@@ -147,20 +138,6 @@ func (b *redisBackend) tryBucket(ctx context.Context, r bucketReq) (bool, time.D
 
 func (b *redisBackend) reconcile(ctx context.Context, provider string, tpm, diff int) error {
 	return b.reconc.Run(ctx, b.rdb, []string{keyRL("tpm", provider)}, diff, burst(tpm)).Err()
-}
-
-func (b *redisBackend) noteWaiting(ctx context.Context, lane string, delta int) error {
-	k := keyWait(b.pfx, lane)
-	pipe := b.rdb.Pipeline()
-	incr := pipe.IncrBy(ctx, k, int64(delta))
-	pipe.Expire(ctx, k, 60*time.Second)
-	if _, err := pipe.Exec(ctx); err != nil {
-		return err
-	}
-	if incr.Val() < 0 { // đếm gợi ý, không để âm
-		return b.rdb.Set(ctx, k, 0, 60*time.Second).Err()
-	}
-	return nil
 }
 
 func (b *redisBackend) cbAllow(ctx context.Context, provider string) (bool, error) {
