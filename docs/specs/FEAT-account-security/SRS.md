@@ -1,5 +1,7 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1.2 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.3 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.3 (2026-10-03)** — góp ý #2 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC6 ghi \"dừng / bật container Mailpit\"; container Mailpit dùng chung giữa các gói `go test`… AC10 nêu `smtpmock` (thư viện ngoài bảng ARCHITECTURE). Dùng `testutil.FakeSMTP` tự viết (~100 dòng, dừng/bật đúng cổng, trả 550/451) cho các ca lỗi; Mailpit thật cho ca gửi thành công"). Không đổi số AC. Đổi: US-P2-01 AC6 và AC10 (dòng `Kiểm`: bỏ `smtpmock`, dùng `testutil.FakeSMTP`), `SRS.md` mục 9.
 
 **v1.2 (2026-10-03)** — góp ý #1 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "Đổi cách kiểm AC12(c) thành `TestOnlyAuthPackageTouchesTokenTables` (quét mã nguồn ngoài `auth`/`store`, 0 chỗ chạm `auth_tokens|auth_sessions|AuthToken|AuthSession`). depguard chỉ chặn theo gói import; `internal/store` là gói chung"). Không đổi số AC. Đổi: US-P2-01 AC12(c) và dòng `Kiểm`.
 
@@ -540,7 +542,7 @@ Dùng sẵn: `golang-jwt/jwt` v5, `x/crypto/bcrypt`, `go-redis`, `chi`, `validat
 | Tầng | Công cụ | Nội dung |
 | --- | --- | --- |
 | Đơn vị | `go test -race ./internal/auth/... ./internal/mail/... ./internal/user/...` | phiên, xoay, dùng lại, CSRF, chờ / khoá (đồng hồ giả), chính sách mật khẩu, token một lần (đua 50 goroutine), mẫu thư, quyền (ma trận), IDOR |
-| Tích hợp (`-tags integration`, Postgres + Redis + Mailpit / smtpmock thật) | `go test -tags integration …` | gửi thư thật, thử lại / dead-letter, Redis chết, giới hạn chia sẻ giữa hai bản |
+| Tích hợp (`-tags integration`, Postgres + Redis + Mailpit thật + `testutil.FakeSMTP` tự viết) | `go test -tags integration …` | gửi thư thật, thử lại / dead-letter, Redis chết, giới hạn chia sẻ giữa hai bản |
 | Cổng P2 (lọc theo tên) | `go test -race ./internal/auth/... -run 'Refresh\|Revoke\|Lockout\|Verify\|Reset\|Invite' -v` | tên test của mục này đều chứa một trong sáu từ khoá (đã đặt tên như vậy) |
 | Contract | `go test ./internal/contract/...` | `openapi.yaml` thêm 16 đường / 18 thao tác; golden mới `auth/*.json`; golden PG không sửa |
 | Giao diện | `frontend/e2e/account.spec.ts` (+ `data-layer.spec.ts` ca `auto refresh`) | các `-g` trong US |
