@@ -80,13 +80,14 @@ func TestPublish_Validation(t *testing.T) {
 func TestConfig_SSEDefaults(t *testing.T) {
 	t.Parallel()
 	env := map[string]string{
-		"DATABASE_URL":    "postgres://u:p@127.0.0.1:5432/db",
-		"REDIS_URL":       "redis://127.0.0.1:6379/0",
-		"JWT_SECRET_KEY":  testSecret,
-		"BLOB_ENDPOINT":   "minio:9000",
-		"BLOB_BUCKET":     "edupilot",
-		"BLOB_ACCESS_KEY": "ak-dev",
-		"BLOB_SECRET_KEY": "sk-dev",
+		"DATABASE_URL":       "postgres://u:p@127.0.0.1:5432/db",
+		"REDIS_URL":          "redis://127.0.0.1:6379/0",
+		"JWT_SECRET_KEY":     testSecret,
+		"BLOB_ENDPOINT":      "minio:9000",
+		"BLOB_BUCKET":        "edupilot",
+		"BLOB_ACCESS_KEY":    "ak-dev",
+		"BLOB_SECRET_KEY":    "sk-dev",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=",
 	}
 	cfg, err := config.Load(func(k string) string { return env[k] }, config.Gateway)
 	if err != nil {

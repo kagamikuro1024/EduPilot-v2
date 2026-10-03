@@ -1,0 +1,77 @@
+{
+  "embedding": {
+    "dims": 1536,
+    "indexed_chunks": null,
+    "model": "fake-embed",
+    "model_id": "<uuid>",
+    "provider_name": "G2",
+    "reindex_required": false
+  },
+  "items": [
+    {
+      "chain": [
+        {
+          "model": "fake-chat",
+          "model_id": "<uuid>",
+          "provider_id": "<uuid>",
+          "provider_name": "G2"
+        }
+      ],
+      "lane": "INTERACTIVE",
+      "params": {
+        "temperature": 0.2
+      },
+      "task": "CHAT",
+      "version": 1
+    },
+    {
+      "chain": [],
+      "lane": "NEAR_REALTIME",
+      "params": {},
+      "task": "CLASSIFY",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "NEAR_REALTIME",
+      "params": {},
+      "task": "UTILITY",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "BATCH",
+      "params": {},
+      "task": "GRADING",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "BATCH",
+      "params": {},
+      "task": "QUESTION_GEN",
+      "version": 0
+    },
+    {
+      "chain": [],
+      "lane": "BATCH",
+      "params": {},
+      "task": "INSIGHT",
+      "version": 0
+    },
+    {
+      "chain": [
+        {
+          "model": "fake-embed",
+          "model_id": "<uuid>",
+          "provider_id": "<uuid>",
+          "provider_name": "G2"
+        }
+      ],
+      "lane": "BATCH",
+      "params": {},
+      "task": "EMBEDDING",
+      "version": 1
+    }
+  ]
+}

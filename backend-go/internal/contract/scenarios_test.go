@@ -3,6 +3,7 @@ package contract
 import (
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi"
+	"github.com/edupilot/backend-go/internal/llm/fake"
 	"github.com/google/uuid"
 )
 
@@ -273,6 +275,148 @@ func (r *runner) prodScenarios() {
 	for _, c := range closers {
 		c()
 	}
+	r.llmScenarios()
+}
+
+// llmScenarios gọi 13 thao tác cấu hình LLM (FEAT-llm-gateway US-P1-04) với mọi status đã khai báo, trên provider `fake`.
+// Dọn bảng cấu hình ở cuối để không ảnh hưởng kịch bản khác dùng chung gateway.
+func (r *runner) llmScenarios() {
+	t := r.t
+	admin := r.rig.token(t, uuid.NewString(), auth.RoleAdmin)
+	teacher := r.rig.token(t, uuid.NewString(), auth.RoleTeacher)
+	ta := r.rig.token(t, uuid.NewString(), auth.RoleTA)
+	ctl := r.rig.deps.LLM.Registry.Fake()
+	old := ctl.Get()
+	ctl.Set(fake.Settings{ValidKey: "good-key"})
+	defer func() {
+		ctl.Set(old)
+		ctx := context.Background()
+		if _, err := r.rig.deps.DB.Exec(ctx, `truncate llm_task_routes, llm_models, llm_providers; delete from llm_budgets`); err != nil {
+			t.Errorf("dọn cấu hình LLM: %v", err)
+		}
+		_ = r.rig.deps.LLM.Registry.Reload(ctx)
+	}()
+	idem := func() map[string]string { return map[string]string{"Idempotency-Key": "ct-" + uuid.NewString()} }
+	const (
+		base = "/api/v1/admin/llm"
+		prov = base + "/providers"
+	)
+	provBody := func(name, key string) string {
+		return `{"type":"fake","name":"` + name + `","api_key":"` + key + `","models":[` +
+			`{"model":"fake-chat","kind":"chat","price_in":"0","price_out":"0"},` +
+			`{"model":"fake-embed","kind":"embedding","dims":1536,"price_in":"0","price_out":"0"}]}`
+	}
+	type model struct{ ID, Kind string }
+	type provResp struct {
+		ID      string  `json:"id"`
+		Version int     `json:"version"`
+		Models  []model `json:"models"`
+	}
+	parse := func(b []byte) provResp {
+		var p provResp
+		if err := json.Unmarshal(b, &p); err != nil {
+			t.Fatalf("giải mã nhà cung cấp: %v (%s)", err, b)
+		}
+		return p
+	}
+
+	// POST providers: 201 / 401 / 403 / 409 (trùng tên) / 422 (khoá sai không lưu).
+	_, b := r.must(call{method: "POST", path: prov, token: admin, headers: idem(), body: provBody("CT-A", "good-key")}, 201)
+	a := parse(b)
+	var chatID, embID string
+	for _, m := range a.Models {
+		if m.Kind == "chat" {
+			chatID = m.ID
+		} else {
+			embID = m.ID
+		}
+	}
+	r.must(call{method: "POST", path: prov, headers: idem(), body: provBody("CT-X", "good-key")}, 401)
+	r.must(call{method: "POST", path: prov, token: teacher, headers: idem(), body: provBody("CT-X", "good-key")}, 403)
+	r.must(call{method: "POST", path: prov, token: admin, headers: idem(), body: provBody("CT-A", "good-key")}, 409)
+	r.must(call{method: "POST", path: prov, token: admin, headers: idem(), body: provBody("CT-B", "bad-key")}, 422)
+
+	// GET providers
+	r.must(call{method: "GET", path: prov, token: admin}, 200)
+	r.must(call{method: "GET", path: prov, token: teacher}, 200)
+	r.must(call{method: "GET", path: prov}, 401)
+	r.must(call{method: "GET", path: prov, token: ta}, 403)
+
+	// PUT providers/{id}: 200 / 401 / 403 / 404 / 409 / 422
+	one := prov + "/" + a.ID
+	r.must(call{method: "PUT", path: one, token: admin, body: `{"type":"fake","name":"CT-A2","version":1}`}, 200)
+	r.must(call{method: "PUT", path: one, token: admin, body: `{"type":"fake","name":"CT-A3","version":1}`}, 409)
+	r.must(call{method: "PUT", path: one, body: `{"type":"fake","name":"CT-A3","version":2}`}, 401)
+	r.must(call{method: "PUT", path: one, token: teacher, body: `{"type":"fake","name":"CT-A3","version":2}`}, 403)
+	r.must(call{method: "PUT", path: prov + "/" + uuid.NewString(), token: admin, body: `{"type":"fake","name":"CT-A3","version":1}`}, 404)
+	r.must(call{method: "PUT", path: one, token: admin, body: `{"type":"fake","name":"CT-A3","base_url":"file:///etc/passwd","version":2}`}, 422)
+
+	// POST providers/{id}/test và providers/test: 200 / 401 / 403 / 404 / 422 / 429
+	r.must(call{method: "POST", path: one + "/test", token: admin}, 200)
+	r.must(call{method: "POST", path: one + "/test", token: admin, body: `{"api_key":"wrong"}`}, 200)
+	r.must(call{method: "POST", path: one + "/test"}, 401)
+	r.must(call{method: "POST", path: one + "/test", token: teacher}, 403)
+	r.must(call{method: "POST", path: prov + "/" + uuid.NewString() + "/test", token: admin}, 404)
+	r.must(call{method: "POST", path: one + "/test", token: admin, body: `{"base_url":"http://u:p@h/"}`}, 422)
+	r.must(call{method: "POST", path: prov + "/test", token: admin, body: `{"type":"fake","api_key":"bad-key","model":"fake-chat"}`}, 200)
+	r.must(call{method: "POST", path: prov + "/test", token: admin, body: `{"type":"fake","api_key":"good-key","model":"fake-chat"}`}, 200)
+	r.must(call{method: "POST", path: prov + "/test", body: `{}`}, 401)
+	r.must(call{method: "POST", path: prov + "/test", token: teacher, body: `{}`}, 403)
+	r.must(call{method: "POST", path: prov + "/test", token: admin, body: `{"type":"openai_compatible","base_url":"file:///x","api_key":"x","model":"m"}`}, 422)
+	for _, path := range []string{prov + "/test", one + "/test"} { // giới hạn 10 lần / phút / người
+		spammer := r.rig.token(t, uuid.NewString(), auth.RoleAdmin)
+		body := `{"type":"fake","api_key":"good-key","model":"fake-chat"}`
+		if path == one+"/test" {
+			body = ""
+		}
+		for range 10 {
+			r.must(call{method: "POST", path: path, token: spammer, body: body}, 200)
+		}
+		r.must(call{method: "POST", path: path, token: spammer, body: body}, 429)
+	}
+
+	// routes: GET 200/401/403; PUT 200/401/403/409/422
+	routes := base + "/routes"
+	r.must(call{method: "GET", path: routes, token: admin}, 200)
+	r.must(call{method: "GET", path: routes}, 401)
+	r.must(call{method: "GET", path: routes, token: ta}, 403)
+	r.must(call{method: "PUT", path: routes, token: admin, body: `{"task":"CHAT","chain":["` + chatID + `"],"params":{"temperature":0.2},"version":0}`}, 200)
+	r.must(call{method: "PUT", path: routes, token: admin, body: `{"task":"EMBEDDING","chain":["` + embID + `"],"version":0}`}, 200)
+	r.must(call{method: "PUT", path: routes, token: admin, body: `{"task":"CHAT","chain":["` + chatID + `"],"version":0}`}, 409)
+	r.must(call{method: "PUT", path: routes, token: admin, body: `{"task":"CLASSIFY","chain":[],"version":0}`}, 422)
+	r.must(call{method: "PUT", path: routes, body: `{}`}, 401)
+	r.must(call{method: "PUT", path: routes, token: teacher, body: `{}`}, 403)
+
+	// usage
+	usage := base + "/usage"
+	r.must(call{method: "GET", path: usage, token: admin}, 200)
+	r.must(call{method: "GET", path: usage + "?group=day", token: teacher}, 200)
+	r.must(call{method: "GET", path: usage}, 401)
+	r.must(call{method: "GET", path: usage, token: ta}, 403)
+	r.must(call{method: "GET", path: usage + "?group=week", token: admin}, 422)
+
+	// budget hệ thống và theo lớp
+	for _, bp := range []string{base + "/budget", "/api/v1/courses/" + uuid.NewString() + "/llm-budget"} {
+		r.must(call{method: "GET", path: bp, token: admin}, 200)
+		r.must(call{method: "GET", path: bp}, 401)
+		r.must(call{method: "GET", path: bp, token: ta}, 403)
+		r.must(call{method: "PUT", path: bp, token: admin, body: `{"daily_limit":"1000","monthly_limit":"30000","version":0}`}, 200)
+		r.must(call{method: "PUT", path: bp, token: admin, body: `{"daily_limit":"1000","monthly_limit":"30000","version":0}`}, 409)
+		r.must(call{method: "PUT", path: bp, token: admin, body: `{"daily_limit":"-1","version":1}`}, 422)
+		r.must(call{method: "PUT", path: bp, body: `{"version":0}`}, 401)
+		r.must(call{method: "PUT", path: bp, token: teacher, body: `{"version":0}`}, 403)
+	}
+	r.must(call{method: "GET", path: base + "/budget", token: teacher}, 200)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/llm-budget", token: admin}, 422)
+	r.must(call{method: "GET", path: "/api/v1/courses/" + uuid.NewString() + "/llm-budget", token: teacher}, 403)
+
+	// DELETE: 409 đang dùng / 401 / 403 / 404 / 204
+	r.must(call{method: "DELETE", path: one, token: admin}, 409)
+	r.must(call{method: "DELETE", path: one}, 401)
+	r.must(call{method: "DELETE", path: one, token: teacher}, 403)
+	r.must(call{method: "DELETE", path: prov + "/" + uuid.NewString(), token: admin}, 404)
+	_, b = r.must(call{method: "POST", path: prov, token: admin, headers: idem(), body: provBody("CT-C", "good-key")}, 201)
+	r.must(call{method: "DELETE", path: prov + "/" + parse(b).ID, token: admin}, 204)
 }
 
 // testScenarios gọi thật MỌI (thao tác, status) đã khai báo trong openapi.test.yaml.
@@ -352,4 +496,23 @@ func (r *runner) testScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/_test/events", body: `{"type":"test.hello","data":{}}`}, 401)
 	r.must(call{method: "POST", path: "/api/v1/_test/events", token: tok, body: `{"type":"test.hello","data":{},"user_id":"` + uuid.NewString() + `"}`}, 403)
 	r.must(call{method: "POST", path: "/api/v1/_test/events", token: tok, body: `{"type":"SAI ĐỊNH DẠNG","data":{}}`}, 422)
+
+	// cổng LLM (fake): chỉ ADMIN.
+	chat := `{"task":"CHAT","prompt":"xin chào"}`
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: chat}, 200)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", body: chat}, 401)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: tok, body: chat}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: `{"task":"CHAT"}`}, 422)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: admin}, 200)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats?lanes=1", token: admin}, 200)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats"}, 401)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: teacher}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":1,"error_kind":"AUTH"}`}, 200)
+	// mọi nhà cung cấp lỗi: CHAT (INTERACTIVE) suy giảm 200; làn NEAR_REALTIME trả 503 LLM_UNAVAILABLE
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: chat}, 200)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: `{"task":"UTILITY","prompt":"xin chào"}`}, 503)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":0,"error_kind":"SERVER"}`}, 200)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", body: `{}`}, 401)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: tok, body: `{}`}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":2}`}, 422)
 }

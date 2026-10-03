@@ -12,7 +12,7 @@ function classes(variant: ButtonVariant, size: "md" | "sm", extra?: string) {
 /** Nút hành động. Mỗi vùng làm việc chỉ một `primary` (DESIGN.md §12). */
 export function Button({ variant = "secondary", size = "md", icon, iconEnd, loading, className, children, ...rest }: Common & ComponentProps<"button"> & { loading?: boolean }) {
   return (
-    <button type="button" className={classes(variant, size, className)} aria-busy={loading || undefined} {...rest} disabled={rest.disabled || loading}>
+    <button type="button" data-variant={variant} className={classes(variant, size, className)} aria-busy={loading || undefined} {...rest} disabled={rest.disabled || loading}>
       {loading ? <span className={s.spinner} aria-hidden /> : icon}
       {children}
       {iconEnd}
@@ -22,7 +22,7 @@ export function Button({ variant = "secondary", size = "md", icon, iconEnd, load
 
 export function ButtonLink({ variant = "secondary", size = "md", icon, iconEnd, className, children, ...rest }: Common & ComponentProps<typeof Link>) {
   return (
-    <Link className={classes(variant, size, className)} {...rest}>
+    <Link data-variant={variant} className={classes(variant, size, className)} {...rest}>
       {icon}
       {children}
       {iconEnd}

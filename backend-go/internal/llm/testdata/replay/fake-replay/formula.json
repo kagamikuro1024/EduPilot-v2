@@ -1,0 +1,1 @@
+{"components":[{"name":"Chuyên cần","weight":0.1,"source":"Điều 5, khoản 2"},{"name":"Giữa kỳ","weight":0.3,"source":"Điều 5, khoản 3"},{"name":"Cuối kỳ","weight":0.6,"source":"Điều 5, khoản 4"}],"rounding":{"mode":"half_up","digits":1},"notes":"Làm tròn một chữ số thập phân."}

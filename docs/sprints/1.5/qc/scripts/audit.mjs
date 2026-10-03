@@ -8,10 +8,10 @@
 // Không đọc mã dev: mọi bộ chọn là móc `data-part` ghi trong US.md ("Móc đo dev thêm") hoặc chữ hiển thị.
 import { ROUTES, VIEWPORTS } from './sweep.mjs';
 
-// NGUYÊN VĂN đoạn AUDIT của docs/sprints/1.5/spec/US.md — không sửa để kết quả so được với lệnh Console của spec.
+// NGUYÊN VĂN đoạn AUDIT của docs/sprints/1.5/spec/US.md, trừ MỘT chỗ (góp ý #13, sprint 3): bỏ qua phần tử trong `.ep-sr-only` (1×1 px cố ý, chỉ dành cho trình đọc màn hình).
 export const AUDIT_SRC = `(() => { const ox = document.documentElement.scrollWidth - innerWidth, cut = [], ell = [];
   for (const e of document.querySelectorAll('main *, header *')) {
-    if (e.children.length || !e.textContent.trim() || e.closest('[data-scroll-x]')) continue;
+    if (e.children.length || !e.textContent.trim() || e.closest('[data-scroll-x]') || e.closest('.ep-sr-only')) continue;
     if (getComputedStyle(e).textOverflow === 'ellipsis' && e.scrollWidth > e.clientWidth && !e.title) { ell.push(e.textContent.trim()); continue; }
     let p = e.parentElement; while (p && getComputedStyle(p).overflowX === 'visible') p = p.parentElement;
     if (!p) continue; const a = e.getBoundingClientRect(), b = p.getBoundingClientRect();
@@ -80,6 +80,7 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
     const sleep = (ms) => new Promise((s) => setTimeout(s, ms));
     const setRole = async (role, person = 'sv-2', course = 'int1006-1') => {
       await page.deleteCookie(...(await page.cookies()));
+      try { await page.evaluate(() => { localStorage.removeItem('ep:ui:sidebar'); }); } catch {} // sprint 3 (US-PU-04): sidebar nhớ trạng thái thu gọn
       for (const [n, v] of [['ep_demo_role', role], ['ep_demo_person', role === 'student' ? person : ''], ['ep_demo_course', course]]) await page.setCookie({ name: n, value: v, url: base });
     };
     const setVp = (w, h = w >= 1000 ? 900 : 844) => page.setViewport({ width: w, height: h, deviceScaleFactor: 1, isMobile: w < 500, hasTouch: w < 500 });
@@ -104,7 +105,7 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
       if ((tag === '1440' || tag === '390') && role !== '(không vai)') { const l = await page.evaluate(LEFT_SRC); const want = tag === '1440' ? 240 : 16; push(role, route, tag, `LEFT (00-AC11) = ${want}`, l === want, `left=${l}`); }
       // 00-AC12 thanh trên đặc, kể cả sau khi cuộn 200 px
       { await page.evaluate(() => window.scrollTo(0, 200)); await sleep(120); const h = await page.evaluate(() => { const e = document.querySelector('header'); if (!e) return null; const c = getComputedStyle(e); return { bg: c.backgroundColor, bf: c.backdropFilter || c.webkitBackdropFilter || 'none' }; });
-        const ok = h && /^(rgb|lab|oklab|lch|oklch|color)\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); await page.evaluate(() => window.scrollTo(0, 0)); }
+        const ok = h && /^(rgb|lab|oklab|lch|oklch|color)\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); if (h) push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); /* sprint 3: /login không có <header> → không áp dụng (xem audit-baseline.md) */ await page.evaluate(() => window.scrollTo(0, 0)); }
     };
 
     // ---------- 1. Ma trận AUDIT: mọi route × vai × bề rộng ----------
@@ -137,7 +138,8 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
     return rows;
   }, { timeout: 280000, args: [{ base, out, only, skipSpec, skipMatrix, states, routesOnly, skipScenarios, skipEdge, specWhich, ROUTES, VIEWPORTS: VIEWPORTS.map(({ w, h, tag }) => ({ w, h, tag })), BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META: SCENARIOS, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc: SPEC_CHECKS.toString(), spec51Src: SPEC_V51.toString(), scnSrc: SCN_RUNNERS.toString() }] });
   await tab.close();
-  return rows;
+  // sprint 3 (US-P1-05): các phép 04-AC7 / 04-AC11 đo bố cục MOCK của /settings/llm — màn nay là bản thật (cổng dán token), thay bằng TC-P105-*; bỏ khỏi bảng.
+  return rows.filter((r) => !(r.route === '/settings/llm' && /^04-AC(7|11)/.test(r.what)));
 }
 
 // ---- Phép đo riêng: chạy TRONG trang (Puppeteer page), nhận ctx ----
@@ -155,11 +157,11 @@ export async function SPEC_CHECKS({ page, setRole, setVp, go, reset, push, sleep
   // 00-AC7 brand
   for (const role of ['student', 'ta', 'teacher', 'admin']) {
     await setRole(role); await setVp(1440, 900); await go('/');
-    const m = await q(() => { const b = document.querySelector('[data-part=brand]'), i = document.querySelector('[data-part=brand] img'), h = document.querySelector('header'); if (!b || !i || !h) return null; const bb = b.getBoundingClientRect(), ib = i.getBoundingClientRect(), hb = h.getBoundingClientRect(); return { img: Math.round(ib.height), brandH: Math.round(bb.height), bBottom: Math.round(bb.bottom), hBottom: Math.round(hb.bottom), border: getComputedStyle(b).borderBottomWidth, ratio: +(ib.width / ib.height).toFixed(2) }; });
+    const m = await q(() => { const V = (q) => [...document.querySelectorAll(q)].find((e) => e.getBoundingClientRect().width > 0) || null; const b = V('[data-part=brand]'), i = V('[data-part=brand] img'), h = document.querySelector('header'); if (!b || !i || !h) return null; const bb = b.getBoundingClientRect(), ib = i.getBoundingClientRect(), hb = h.getBoundingClientRect(); return { img: Math.round(ib.height), brandH: Math.round(bb.height), bBottom: Math.round(bb.bottom), hBottom: Math.round(hb.bottom), border: getComputedStyle(b).borderBottomWidth, ratio: +(ib.width / ib.height).toFixed(2) }; });
     chk(role, '/', 1440, '00-AC7 brand 32/56/viền liền', m && m.img === 32 && m.brandH === 56 && m.bBottom === 56 && m.hBottom === 56 && m.border === '1px' && Math.abs(m.ratio - 188 / 40) < 0.15, JSON.stringify(m), await shot(`brand-${role}-1440`));
   }
   await setRole('teacher'); await setVp(1440, 900); await go('/'); await clickTxt(/Thu gọn/);
-  const col = await q(() => { const i = document.querySelector('[data-part=brand] img'); const b = i && i.getBoundingClientRect(); const s = document.querySelector('[data-part=brand]').getBoundingClientRect(); return b && { w: Math.round(b.width), h: Math.round(b.height), cx: Math.round(b.left + b.width / 2), colW: Math.round((document.querySelector('aside') || s).getBoundingClientRect().width), colCx: Math.round(s.left + s.width / 2) }; });
+  const col = await q(() => { const V = (q) => [...document.querySelectorAll(q)].find((e) => e.getBoundingClientRect().width > 0) || null; const i = V('[data-part=brand] img'); const b = i && i.getBoundingClientRect(); const s = V('[data-part=brand]').getBoundingClientRect(); return b && { w: Math.round(b.width), h: Math.round(b.height), cx: Math.round(b.left + b.width / 2), colW: Math.round((document.querySelector('aside') || s).getBoundingClientRect().width), colCx: Math.round(s.left + s.width / 2) }; });
   chk('teacher', '/', 1440, '00-AC7 thu gọn: mark 32×32, giữa cột 72', col && col.w === 32 && col.h === 32 && col.colW === 72 && Math.abs(col.cx - col.colCx) <= 1, JSON.stringify(col), await shot('brand-collapsed-1440'));
   for (const role of ['student', 'teacher']) {
     await setRole(role); await setVp(390, 844); await go('/');

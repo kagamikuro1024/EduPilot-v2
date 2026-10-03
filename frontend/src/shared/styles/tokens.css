@@ -9,7 +9,7 @@
   --ep-surface-subtle: oklch(97% 0.008 25);
   --ep-ink: oklch(19% 0.02 25);
   --ep-ink-2: oklch(40% 0.018 25);
-  --ep-ink-3: oklch(58% 0.014 25);
+  --ep-ink-3: oklch(53% 0.014 25); /* hạ từ 58 % xuống 53 % để đạt AA 4,5 : 1; DESIGN.md đã cập nhật (góp ý #25) */
   --ep-rule: oklch(89% 0.012 25);
 
   --ep-red: oklch(54% 0.22 27);

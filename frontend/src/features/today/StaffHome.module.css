@@ -44,3 +44,5 @@
   margin-top: var(--ep-space-2);
   font-size: var(--ep-text-label);
 }
+@media (max-width: 719px), (pointer: coarse) { .seeAll a { display: inline-flex; align-items: center; min-height: 44px; } } /* vùng chạm 44 px (US-PU-04 AC14) */
+@media (max-width: 719px), (pointer: coarse) { .steps a { display: inline-flex; align-items: center; min-height: 44px; } } /* vùng chạm 44 px (US-PU-04 AC14) */

@@ -12,6 +12,7 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appdb "github.com/edupilot/backend-go/internal/platform/db"
@@ -56,6 +57,7 @@ func buildRig(t *testing.T) (*rig, error) {
 		"BLOB_BUCKET":             "contract",
 		"BLOB_ACCESS_KEY":         "contract-dev",
 		"BLOB_SECRET_KEY":         "contract-dev-secret",
+		"APP_ENCRYPTION_KEY":      "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=",
 		"APP_ENV":                 "test",
 		"REQUEST_TIMEOUT":         "1s",
 		"MAX_BODY_BYTES":          "4096",
@@ -67,6 +69,7 @@ func buildRig(t *testing.T) (*rig, error) {
 		"INSTANCE_ID":             "contract-gw",
 		"DB_MAX_CONNS":            "8",
 		"LOG_LEVEL":               "error",
+		"LLM_PROVIDER":            "fake",
 	}
 	cfg, err := config.Load(func(k string) string { return env[k] }, config.Gateway)
 	if err != nil {
@@ -85,7 +88,11 @@ func buildRig(t *testing.T) (*rig, error) {
 	if err != nil {
 		return nil, err
 	}
-	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool)}
+	rt, err := llmrt.New(ctx, cfg, pool, rdb.Client, log)
+	if err != nil {
+		return nil, err
+	}
+	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool), LLM: rt}
 	h := httpapi.NewRouter(deps)
 	return &rig{deps: deps, handle: h, srv: httptest.NewServer(h), cfg: cfg}, nil
 }

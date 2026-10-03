@@ -9,6 +9,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/edupilot/backend-go/internal/platform/crypto"
 )
 
 // Role chọn tập biến bắt buộc (SRS 8.1 cột "Dùng bởi").
@@ -31,6 +33,8 @@ type Config struct {
 	JWTSecretKey  string
 	BlobAccessKey string
 	BlobSecretKey string
+	// AppEncryptionKey: 32 byte base64 cho AES-GCM (khoá API của nhà cung cấp LLM). Bắt buộc ở gateway; worker kiểm nếu có.
+	AppEncryptionKey string
 
 	AppEnv       string
 	HTTPAddr     string
@@ -73,6 +77,27 @@ type Config struct {
 	BlobUseSSL         bool
 	BlobPublicEndpoint string
 	BlobRegion         string
+
+	// Cổng LLM (SRS FEAT-llm-gateway 4.3, 8.1).
+	LLMMaxConcurrency int
+	LLMBatchShare     float64
+	LLMQueueMax       int
+	LLMQueueWaitMax   time.Duration
+	LLMRequestTimeout time.Duration
+	LLMBreakerFails   int
+	LLMBreakerOpen    time.Duration
+	LLMDefaultRPM     int
+	LLMDefaultTPM     int
+	LLMEmbedDims      int
+	LLMProvider       string // "" | "fake"
+	LLMReplayDir      string
+	OpenAIKey         string
+	AnthropicKey      string
+	GeminiKey         string
+	FakeLatencyMin    time.Duration
+	FakeLatencyMax    time.Duration
+	FakeErrorRate     float64
+	FakeValidKey      string
 }
 
 // ErrMissingEnv liệt kê MỌI biến bắt buộc bị thiếu (chỉ tên).
@@ -106,12 +131,20 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.BlobBucket = l.need("BLOB_BUCKET", gw)
 	c.BlobAccessKey = l.need("BLOB_ACCESS_KEY", gw)
 	c.BlobSecretKey = l.need("BLOB_SECRET_KEY", gw)
+	c.AppEncryptionKey = l.raw("APP_ENCRYPTION_KEY")
 	if len(l.missing) > 0 {
 		return Config{}, &ErrMissingEnv{Names: l.missing}
 	}
 
 	if c.JWTSecretKey != "" && len(c.JWTSecretKey) < 32 {
 		l.bad("JWT_SECRET_KEY", "cần ≥ 32 byte")
+	}
+	// Thiếu hay hỏng đều là cùng một lỗi, cùng một thông điệp (US-P1-01 AC6); không bao giờ in giá trị khoá.
+	if c.AppEncryptionKey != "" || gw {
+		if _, err := crypto.ParseKey(c.AppEncryptionKey); err != nil {
+			l.invalid = append(l.invalid, "APP_ENCRYPTION_KEY")
+			l.problems = append(l.problems, err.Error())
+		}
 	}
 
 	c.PgBouncerURL = l.str("PGBOUNCER_URL", "")
@@ -157,6 +190,28 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.BlobUseSSL = l.boolean("BLOB_USE_SSL", false)
 	c.BlobPublicEndpoint = l.str("BLOB_PUBLIC_ENDPOINT", c.BlobEndpoint)
 	c.BlobRegion = l.str("BLOB_REGION", "us-east-1")
+
+	c.LLMMaxConcurrency = l.num("LLM_MAX_CONCURRENCY", 10, 1, 1000)
+	c.LLMBatchShare = l.fraction("LLM_BATCH_SHARE", 0.5)
+	c.LLMQueueMax = l.num("LLM_QUEUE_MAX", 200, 1, 100000)
+	c.LLMQueueWaitMax = l.dur("LLM_QUEUE_WAIT_MAX", 10*time.Second)
+	c.LLMRequestTimeout = l.dur("LLM_REQUEST_TIMEOUT", 30*time.Second)
+	c.LLMBreakerFails = l.num("LLM_BREAKER_FAILS", 5, 1, 1000)
+	c.LLMBreakerOpen = l.dur("LLM_BREAKER_OPEN", 30*time.Second)
+	c.LLMDefaultRPM = l.num("LLM_DEFAULT_RPM", 60, 1, 10_000_000)
+	c.LLMDefaultTPM = l.num("LLM_DEFAULT_TPM", 100000, 1, 1_000_000_000)
+	c.LLMEmbedDims = l.num("LLM_EMBED_DIMS", 1536, 1, 100000)
+	if c.LLMEmbedDims != 1536 {
+		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
+	}
+	c.LLMProvider = l.enum("LLM_PROVIDER", "", "", "fake")
+	c.LLMReplayDir = l.str("LLM_REPLAY_DIR", "")
+	c.OpenAIKey = l.raw("OPENAI_API_KEY")
+	c.AnthropicKey = l.raw("ANTHROPIC_API_KEY")
+	c.GeminiKey = l.raw("GEMINI_API_KEY")
+	c.FakeLatencyMin, c.FakeLatencyMax = l.latencyRange("FAKE_LLM_LATENCY", "0-0")
+	c.FakeErrorRate = l.rate("FAKE_LLM_ERROR_RATE", 0)
+	c.FakeValidKey = l.raw("FAKE_LLM_VALID_KEY")
 
 	if len(l.problems) > 0 {
 		return Config{}, &ErrInvalidEnv{Names: l.invalid, Problems: l.problems}
@@ -221,6 +276,17 @@ func (c Config) LogAttrs() []any {
 		"blob_use_ssl", c.BlobUseSSL,
 		"blob_public_endpoint", c.BlobPublicEndpoint,
 		"blob_region", c.BlobRegion,
+		"llm_max_concurrency", c.LLMMaxConcurrency,
+		"llm_batch_share", c.LLMBatchShare,
+		"llm_queue_max", c.LLMQueueMax,
+		"llm_queue_wait_max", c.LLMQueueWaitMax.String(),
+		"llm_request_timeout", c.LLMRequestTimeout.String(),
+		"llm_breaker_fails", c.LLMBreakerFails,
+		"llm_breaker_open", c.LLMBreakerOpen.String(),
+		"llm_default_rpm", c.LLMDefaultRPM,
+		"llm_default_tpm", c.LLMDefaultTPM,
+		"llm_embed_dims", c.LLMEmbedDims,
+		"llm_provider", c.LLMProvider,
 		"db_via", c.DBVia(),
 		"secrets", "[redacted]",
 	}
@@ -307,6 +373,47 @@ func (l *loader) dur(name string, def time.Duration) time.Duration {
 		return def
 	}
 	return d
+}
+
+// fraction đọc số thực trong (0, 1].
+func (l *loader) fraction(name string, def float64) float64 {
+	v := l.raw(name)
+	if v == "" {
+		return def
+	}
+	f, err := strconv.ParseFloat(v, 64)
+	if err != nil || f <= 0 || f > 1 {
+		l.bad(name, "cần số thực trong (0, 1]")
+		return def
+	}
+	return f
+}
+
+// rate đọc số thực trong [0, 1].
+func (l *loader) rate(name string, def float64) float64 {
+	v := l.raw(name)
+	if v == "" {
+		return def
+	}
+	f, err := strconv.ParseFloat(v, 64)
+	if err != nil || f < 0 || f > 1 {
+		l.bad(name, "cần số thực trong [0, 1]")
+		return def
+	}
+	return f
+}
+
+// latencyRange đọc "min-max" (ms), ví dụ 0-0 hoặc 5000-15000.
+func (l *loader) latencyRange(name, def string) (time.Duration, time.Duration) {
+	v := l.str(name, def)
+	lo, hi, ok := strings.Cut(v, "-")
+	a, err1 := strconv.Atoi(lo)
+	b, err2 := strconv.Atoi(hi)
+	if !ok || err1 != nil || err2 != nil || a < 0 || b < a || b > 600_000 {
+		l.bad(name, "cần dạng min-max theo ms, ví dụ 0-0 hoặc 5000-15000")
+		return 0, 0
+	}
+	return time.Duration(a) * time.Millisecond, time.Duration(b) * time.Millisecond
 }
 
 func (l *loader) boolean(name string, def bool) bool {

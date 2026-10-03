@@ -2,7 +2,29 @@
 
 import { X } from "lucide-react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useScrollLock } from "./useScrollLock";
+import { InlineNotice } from "./Feedback";
 import s from "./Dialog.module.css";
+
+/** Bẫy Tab trong hộp: Tab ở phần tử cuối quay về đầu, Shift+Tab ở đầu nhảy về cuối (không thoát ra giao diện trình duyệt). */
+function trapTab(e: React.KeyboardEvent<HTMLDialogElement>) {
+  if (e.key !== "Tab") return;
+  const items = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')).filter((x) => x.offsetParent !== null);
+  if (items.length === 0) {
+    e.preventDefault();
+    return;
+  }
+  const first = items[0];
+  const last = items[items.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && (active === first || active === e.currentTarget)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && active === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
 
 /**
  * Lớp phủ dùng <dialog> gốc của trình duyệt: bẫy focus, Esc để đóng, trả focus về chỗ cũ.
@@ -17,6 +39,11 @@ function Overlay({
   footer,
   variant,
   wide,
+  dismissible = true,
+  loading,
+  error,
+  descriptionId,
+  sheet,
 }: {
   open: boolean;
   onClose: () => void;
@@ -26,9 +53,34 @@ function Overlay({
   footer?: ReactNode;
   variant: "dialog" | "drawer";
   wide?: boolean;
+  /** false (đang xử lý việc không đảo ngược): Esc, bấm nền và nút Đóng đều không đóng được */
+  dismissible?: boolean;
+  /** nội dung đang chờ: khung xương + aria-busy */
+  loading?: boolean;
+  /** lỗi của thao tác trong hộp: role=alert, giữ nguyên hộp */
+  error?: ReactNode;
+  /** id của đoạn mô tả (để nút bên trong trỏ `aria-describedby` tới lý do khoá) */
+  descriptionId?: string;
+  /** (Drawer) < 720 px hiện như bảng trượt từ đáy, chừa nền để bấm ngoài và vuốt xuống để đóng */
+  sheet?: boolean;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const autoDesc = useId();
+  const descId = descriptionId ?? autoDesc;
+  useScrollLock(open);
+  // Bảng trượt: kéo xuống > 64 px từ đầu nội dung thì đóng (vuốt xuống)
+  const startY = useRef<number | null>(null);
+  const swipeStart = (e: React.TouchEvent) => {
+    const body = (e.currentTarget as HTMLElement).querySelector("[data-sheet-body]");
+    startY.current = !body || (body as HTMLElement).scrollTop <= 0 ? e.touches[0].clientY : null;
+  };
+  const swipeMove = (e: React.TouchEvent) => {
+    if (startY.current !== null && dismissible && e.touches[0].clientY - startY.current > 64) {
+      startY.current = null;
+      onClose();
+    }
+  };
 
   useEffect(() => {
     const d = ref.current;
@@ -40,25 +92,48 @@ function Overlay({
   return (
     <dialog
       ref={ref}
-      className={[s.overlay, variant === "drawer" ? s.drawer : s.dialog, wide ? s.wide : ""].join(" ")}
-      onClose={onClose}
-      onClick={(e) => e.target === ref.current && onClose()}
+      className={[s.overlay, variant === "drawer" ? s.drawer : s.dialog, wide ? s.wide : "", sheet ? s.sheet : ""].join(" ")}
+      // Esc đóng qua state (không dựa sự kiện `close` — đến muộn sau khi hộp thoại đã mở lại thì đóng nhầm)
+      onCancel={(e) => {
+        e.preventDefault();
+        if (dismissible) onClose();
+      }}
+      onKeyDown={trapTab}
+      onClick={(e) => dismissible && e.target === ref.current && onClose()}
       role="dialog"
       aria-labelledby={titleId}
+      aria-describedby={description ? descId : undefined}
     >
-      <div className={s.frame}>
+      <div className={s.frame} onTouchStart={sheet ? swipeStart : undefined} onTouchMove={sheet ? swipeMove : undefined}>
         <header className={s.head}>
           <div className={s.headText}>
             <h2 id={titleId} className="ep-section-title">
               {title}
             </h2>
-            {description && <p className={s.desc}>{description}</p>}
+            {description && <p id={descId} className={s.desc}>{description}</p>}
           </div>
-          <button type="button" className={s.close} onClick={onClose} aria-label="Đóng">
+          <button type="button" className={s.close} onClick={onClose} aria-label="Đóng" disabled={!dismissible}>
             <X aria-hidden />
           </button>
         </header>
-        {children && <div className={s.body}>{children}</div>}
+        {(children || loading || error) && (
+          <div className={s.body} data-sheet-body aria-busy={loading || undefined}>
+            {error && (
+              <InlineNotice tone="danger" compact>
+                {error}
+              </InlineNotice>
+            )}
+            {loading ? (
+              <div className={s.skeleton}>
+                <span />
+                <span />
+                <span />
+              </div>
+            ) : (
+              children
+            )}
+          </div>
+        )}
         {footer && <footer className={s.foot}>{footer}</footer>}
       </div>
     </dialog>

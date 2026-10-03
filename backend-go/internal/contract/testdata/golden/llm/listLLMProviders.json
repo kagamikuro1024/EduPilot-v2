@@ -1,0 +1,48 @@
+{
+  "env_fallback": {
+    "active": true,
+    "providers": [
+      "fake"
+    ]
+  },
+  "items": [
+    {
+      "base_url": null,
+      "circuit": "closed",
+      "enabled": true,
+      "has_key": true,
+      "id": "<uuid>",
+      "key_status": "ok",
+      "last_test": {
+        "at": "<time>",
+        "error_kind": null,
+        "ok": true
+      },
+      "models": [
+        {
+          "dims": null,
+          "enabled": true,
+          "id": "<uuid>",
+          "kind": "chat",
+          "model": "fake-chat",
+          "price_in": "4000.0000",
+          "price_out": "16000.0000"
+        },
+        {
+          "dims": 1536,
+          "enabled": true,
+          "id": "<uuid>",
+          "kind": "embedding",
+          "model": "fake-embed",
+          "price_in": "20.0000",
+          "price_out": "0.0000"
+        }
+      ],
+      "name": "G",
+      "rpm_limit": null,
+      "tpm_limit": null,
+      "type": "fake",
+      "version": 1
+    }
+  ]
+}

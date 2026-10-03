@@ -1,6 +1,6 @@
 /* Nền chung sau tokens.css: vai chữ, bề mặt trình duyệt, tiện ích không có trong primitive. */
 
-html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+html { color-scheme: light; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
 body { min-height: 100dvh; caret-color: var(--ep-red); }
 
 h1, h2, h3, h4, p { margin: 0; }
@@ -9,7 +9,7 @@ p { text-wrap: pretty; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 img, svg { display: block; }
 button { cursor: pointer; }
-button:disabled { cursor: not-allowed; }
+button:disabled, input:disabled, textarea:disabled, select:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 table { border-collapse: collapse; }
 
 a { color: inherit; text-decoration: none; }

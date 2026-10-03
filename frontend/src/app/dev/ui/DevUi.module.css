@@ -1,0 +1,13 @@
+.wrap { margin: 0 auto; padding: var(--ep-space-6) var(--ep-space-4) var(--ep-space-20); max-width: var(--w, 1280px); display: grid; gap: var(--ep-space-10); }
+.bar { display: flex; flex-wrap: wrap; gap: var(--ep-space-4); align-items: center; }
+.block { display: grid; gap: var(--ep-space-3); min-width: 0; border-top: 1px solid var(--ep-rule); padding-top: var(--ep-space-4); }
+.cells { display: grid; gap: var(--ep-space-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); }
+.cell { display: grid; gap: var(--ep-space-2); min-width: 0; align-content: start; }
+.state { font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); }
+.region { min-width: 0; }
+.na { display: flex; flex-wrap: wrap; gap: var(--ep-space-1) var(--ep-space-4); margin: 0; padding: 0; list-style: none; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.na li { min-width: 0; overflow-wrap: anywhere; }
+.sub { display: grid; gap: var(--ep-space-3); min-width: 0; }
+.long { display: grid; gap: var(--ep-space-2); min-width: 0; }
+.long p { margin: 0; overflow-wrap: anywhere; }
+.layer { display: grid; gap: var(--ep-space-4); min-width: 0; }

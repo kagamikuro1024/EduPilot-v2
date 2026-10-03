@@ -130,6 +130,8 @@ Mỗi bước một commit. Kết thúc: chạy cổng nghiệm thu trong phase 
 
 ## Khi chạy trong đội herdr (`docs/team/`)
 
-Repo có thể đang được 4 phiên Claude Code làm cùng lúc: `pm`, `ba`, `dev`, `qc`. Vai của bạn do prompt đầu phiên quy định; đọc `docs/team/<VAI>.md` và chỉ sửa đúng vùng file của vai đó. Giao tiếp qua file trong `docs/specs/`, `docs/sprints/`; trạng thái không nằm trong hội thoại. Mọi luật ở trên áp dụng cho cả bốn vai.
+Repo có thể đang được 5 phiên Claude Code làm cùng lúc: `pm`, `ba`, `dev`, `qc`, `research` (kiêm **Tech Lead**). Vai của bạn do prompt đầu phiên quy định; đọc `docs/team/<VAI>.md` và chỉ sửa đúng vùng file của vai đó. Giao tiếp qua file trong `docs/specs/`, `docs/sprints/`; trạng thái không nằm trong hội thoại. Mọi luật ở trên áp dụng cho mọi vai.
 
 **Không thoả hiệp ngang hàng.** `ba`, `dev`, `qc` không nói chuyện trực tiếp với nhau (không `herdr agent prompt` sang vai khác, không nhắn qua file ngoài `proposals.md`) và không "dàn xếp" để việc của nhau qua: dev không xin QC nới TC, QC không sửa TC cho khớp code, BA không sửa AC cho khớp cái dev đã làm, không ai sửa file của vai khác. Mọi thay đổi spec/AC/TC sau khi `APPROVED` chỉ hợp lệ khi có dòng `proposals.md` được PM chấp nhận, và commit thay đổi đó phải ghi số proposal. PM gặp thay đổi không có số proposal → hoàn tác và ghi lỗi nghiêm trọng vào report sprint.
+
+**Ngoại lệ duy nhất: dev hỏi Tech Lead.** Dev phân vân cách làm *kỹ thuật* (thiết kế package, cách dùng thư viện, hiệu năng, đồng thời, bảo mật) thì hỏi `research` qua `docs/sprints/N/techlead.md` — quy trình ở `docs/team/RESEARCH.md`. Tech Lead chỉ trả lời *làm thế nào* trong khuôn spec / `ARCHITECTURE.md` / `DECISIONS.md` hiện hành; không đổi AC, TC, spec, thư viện hay quyết định (những việc đó vẫn qua `proposals.md`), không phân xử dev với QC.

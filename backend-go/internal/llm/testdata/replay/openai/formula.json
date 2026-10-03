@@ -1,0 +1,1 @@
+{"components":[{"name":"Cà phê","source":"Nhà cung cấp A","weight":0.5},{"name":"Trà","source":"Nhà cung cấp B","weight":0.3},{"name":"Siro","source":"Nhà cung cấp C","weight":0.2}],"notes":"Tỷ lệ phần trăm thành phần trong công thức pha chế.","rounding":{"digits":2,"mode":"half_up"}}

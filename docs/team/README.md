@@ -8,6 +8,7 @@ Một người (bạn) + bốn phiên Claude Code chạy trong bốn pane herdr,
 | `ba` | BA: viết US + SRS cho từng feature, làm rõ với bạn qua PM | `docs/specs/**` | `BA.md` (PM gửi) |
 | `dev` | Dev: thi công từng user story theo lát dọc | `backend-go/**`, `frontend/**`, `db/**`, `scripts/**`, `seed/**` | `DEV.md` (PM gửi) |
 | `qc` | QC: chạy cổng nghiệm thu, test theo AC, viết báo cáo lỗi; **không sửa code** | `docs/sprints/<n>/qc/**`, `frontend/e2e/**` (chỉ thêm test) | `QC.md` (PM gửi) |
+| `research` | Research + **Tech Lead**: nghiên cứu theo câu hỏi PM; trả lời dev khi phân vân kỹ thuật; **không sửa code / spec / test** | `docs/research/**`, `docs/sprints/<n>/techlead.md` | `RESEARCH.md` (PM gửi) |
 
 ## Vòng sprint
 
@@ -55,6 +56,7 @@ Sau khi script chạy xong: bấm vào pane `pm`, dán toàn bộ nội dung `do
 | `docs/sprints/N/qc/tc-<story>.md` | qc | Bảng test case viết từ AC trước khi có code: `TC-id → AC → tiền điều kiện → bước/lệnh → kết quả mong đợi`; script chạy được (nếu có) đặt ở `frontend/e2e/**` hoặc `docs/sprints/N/qc/scripts/` |
 | `docs/sprints/N/handoff/dev-<story>.md` | dev | Đã làm gì, file đổi, test chạy, lệnh để QC chạy, việc còn nợ |
 | `docs/sprints/N/qc/report-<story>.md` | qc | PASS/FAIL từng AC, lỗi kèm bước tái hiện, kết quả cổng nghiệm thu |
+| `docs/sprints/N/techlead.md` | dev hỏi, research trả lời | Câu hỏi kỹ thuật `TL-<số>` và trả lời của Tech Lead; không chứa thay đổi AC / TC / spec |
 | `docs/sprints/N/proposals.md` | ba / dev / qc viết, pm quyết | Đề xuất khi thấy spec, AC, kế hoạch, quy trình hay quyết định kỹ thuật không hợp lý: vấn đề, đề xuất, lý do + bằng chứng, ảnh hưởng; PM ghi quyết định |
 | `docs/sprints/N/report.md` | pm | Báo cáo sprint cho bạn: xong gì, chưa xong gì, rủi ro, số liệu, đề xuất sprint kế |
 | `docs/thesis-notes/sprint-N.md` | pm | Nguyên liệu luận văn: quyết định kỹ thuật, số đo, khó khăn |

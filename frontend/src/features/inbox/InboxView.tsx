@@ -232,7 +232,7 @@ export function InboxView() {
                       )}
                       {selected.status === "open" && (
                         <div className={s.claimRow}>
-                          <Button variant="primary" onClick={() => update(selected.id, { status: "claimed", claimedBy: user.name, claimedAt: fmtTime(NOW) })}>
+                          <Button variant="secondary" onClick={() => update(selected.id, { status: "claimed", claimedBy: user.name, claimedAt: fmtTime(NOW) })}>
                             Nhận
                           </Button>
                           <span className="ep-meta">Nhận để người khác biết bạn đang xử lý câu này.</span>

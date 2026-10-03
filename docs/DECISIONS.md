@@ -68,6 +68,7 @@
 | D50 | Chi phí LLM trong `/analytics` chỉ GIẢNG VIÊN và ADMIN thấy; TA không thấy (chủ dự án chốt 2026-10-01) | – |
 | D51 | **Prototype giao diện là bản mô phỏng có hạn dùng**: spec ở `docs/sprints/1.5/spec/`, dữ liệu ở `frontend/src/mock/`, trạng thái giả lập trong trình duyệt. Mỗi sprint build thật thay dần màn mock bằng màn thật; spec thật viết mới ở `docs/specs/` và thắng spec prototype. Primitive + shell ở `frontend/src/shared/` được giữ và nâng chuẩn ở PU (chủ dự án chốt 2026-10-01) | Prototype đi trước backend nên có thể lệch hợp đồng API thật; khi lệch, spec thật thắng và màn được sửa theo |
 | D52 | Thêm `getkin/kin-openapi` **chỉ cho test** `internal/contract`: kiểm response thật khớp `api/openapi.yaml` (PM chốt 2026-10-01, chủ dự án giao toàn quyền khi vắng mặt) | Tự viết validator OpenAPI là việc thừa; không vào binary gateway |
+| D53 | Frontend giữ **CSS Modules + token `--ep-*`**, không đưa Tailwind vào ở PU; lint (ESLint/stylelint) chặn hex/rgb/oklch/bóng/bo góc viết cứng (PM chốt 2026-10-02, chủ dự án giao toàn quyền khi vắng mặt) | Prototype 1.5 đã dựng `shared/` bằng CSS Modules; Tailwind = viết lại + hai quy ước song song. Đổi được |
 
 ## Mặc định theo khuyến nghị (chưa được chủ dự án xác nhận riêng, đổi được)
 

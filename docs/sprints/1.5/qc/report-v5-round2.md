@@ -2,7 +2,7 @@
 
 Bản dựng: worktree riêng @ `b15a5ba` (spec v5.2), `pnpm -C frontend build`, `next start -p 3400`, Chrome for Testing headless riêng. Đo 2026-10-03. Server đã tắt.
 
-**Kết luận: PASS có điều kiện — 1 FAIL còn lại (BUG-v5-01-6, TC-01-143, mức thấp); DEMO 15 phút PASS.**
+**Kết luận: PASS — BUG-v5-01-6 đã đóng ở lượt chạy lại cuối report; DEMO 15 phút PASS.**
 
 ## Cổng đã chạy
 | Cổng | Kết quả |
@@ -76,3 +76,16 @@ Không có lỗi sản phẩm mới. Một quan sát: TC-04-19 ban đầu tôi �
 ## Việc cho PM / dev
 - BUG-v5-01-6 (thấp): lịch Tháng 1100 px, nhãn "QUIZ01 đóng · Mật mã đối xứng" xuống 3 dòng (cột ngày 101 px); TC tối đa 2 dòng. Chọn: rút nhãn ở Tháng ("QUIZ01 đóng") hoặc đổi TC thành 3 dòng.
 - Ghi chú môi trường: ảnh chụp trong Chrome treo nếu màn hình ngủ (đã dùng `caffeinate`); tôi không chụp ảnh ở vòng này, bằng chứng là số đo và văn bản.
+
+## Chạy lại BUG-v5-01-6 (dev sửa `a4a8184`) — 2026-10-03
+Bản dựng: worktree riêng @ `a4a8184`, `next start -p 3400`, Chrome riêng. 
+
+| Phép đo | Kết quả |
+| --- | --- |
+| `audit.mjs` `/calendar` (SV, GV, TA; 1440 → 375 + biên 1100/1099/720/719) | **22 dòng, 0 FAIL** |
+| **TC-01-143** Tháng 1440 | nhãn "QUIZ01 đóng", 149 px, 1 dòng, không cắt (`overflow` clip nhưng `scrollWidth ≤ clientWidth`) — **PASS** |
+| TC-01-143 Tháng 1100 | "QUIZ01 đóng", 101 px, **1 dòng** (v5: 3 dòng) — **PASS** |
+| TC-01-143 Tháng 720 | "QUIZ01 đóng", 58 px, **2 dòng**, ngắt đúng chỗ trắng ("QUIZ01 " / "đóng"), không ngắt giữa từ — **PASS** |
+| TC-01-143 Danh sách 1440/1100/720 | "QUIZ01 đóng · Mật mã đối xứng" 247 px, 1 dòng — **PASS** |
+
+**Kết luận: BUG-v5-01-6 ĐÓNG — TC-01-143 PASS.** Lưu ý: ở chế độ Tháng nhãn đã **rút** còn "QUIZ01 đóng" (bỏ "· Mật mã đối xứng"); Danh sách vẫn đủ. Tôi đã sửa chữ TC-01-143 cho khớp. Kết luận vòng 2 cập nhật: US-PROTO-01 **PASS** hết (153/153), 1.5 vòng 2 không còn FAIL.

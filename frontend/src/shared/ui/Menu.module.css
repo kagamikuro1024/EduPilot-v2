@@ -50,3 +50,7 @@
   .item { min-height: 44px; }
   .dots { width: 44px; height: 44px; }
 }
+.item:disabled { color: var(--ep-ink-3); cursor: not-allowed; }
+.item:disabled:hover { background: transparent; }
+.picked { font-weight: 600; }
+.tick { margin-left: auto; }

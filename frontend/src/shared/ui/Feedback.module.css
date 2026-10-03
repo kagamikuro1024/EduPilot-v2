@@ -41,14 +41,26 @@
 
 .skeleton { display: grid; gap: var(--ep-space-3); }
 .skLine {
+  position: relative;
+  overflow: hidden;
   display: block;
   height: 12px;
   border-radius: var(--ep-radius-xs);
   background: linear-gradient(90deg, var(--ep-surface-subtle), var(--ep-rule), var(--ep-surface-subtle));
   background-size: 200% 100%;
+}
+/* Ánh quét chạy bằng transform (compositor), không đổi background-position: hàng chục khung xương cùng lúc (/dev/ui) từng làm TBT của
+   Lighthouse vượt 200 ms vì mỗi khung hình phải vẽ lại trên main thread. */
+.skLine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--ep-surface-subtle), var(--ep-surface), var(--ep-surface-subtle));
+  opacity: 0.7;
+  transform: translateX(-100%);
   animation: shimmer 1.4s var(--ep-ease-standard) infinite;
 }
-@keyframes shimmer { to { background-position: -200% 0; } }
+@keyframes shimmer { to { transform: translateX(100%); } }
 
 .undo {
   display: inline-flex;
@@ -88,3 +100,6 @@
 @media (max-width: 719px) {
   .status { white-space: normal; }
 }
+.tech { margin-top: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-2); }
+.tech summary { cursor: pointer; min-height: 24px; }
+.tech div { overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
