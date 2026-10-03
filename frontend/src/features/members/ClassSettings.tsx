@@ -96,6 +96,7 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
                 }}
               />
             </Section>
+            {canManage && <ShareSection courseId={courseId} />}
           </>
         )}
       </PageState>
@@ -196,5 +197,47 @@ function SettingsForm({ courseId, info, canManage, saved, onSaved, onReload }: {
         <p className={s.readonly}>Chỉ giảng viên được thay đổi.</p>
       )}
     </form>
+  );
+}
+
+type ShareSource = { id: string; class_code: string; name: string; semester: string; documents: number };
+
+/** "Dùng lại nội dung từ lớp khác": chỉ hiện khi có lớp cùng học phần mà giảng viên cũng dạy. Mỗi nguồn một nút phụ; kết quả hiện tại chỗ. */
+function ShareSection({ courseId }: { courseId: string }) {
+  const sources = useQuery({
+    queryKey: classKey(courseId, "share-sources"),
+    queryFn: async ({ signal }) => (await apiClient.get<{ items: ShareSource[] }>(`/courses/${courseId}/share-sources`, { signal })).data.items,
+  });
+  const [busy, setBusy] = useState<string | null>(null);
+  const [results, setResults] = useState<Record<string, string>>({});
+
+  async function share(src: ShareSource) {
+    setBusy(src.id);
+    try {
+      const r = await apiClient.post<{ shared: { documents: number } }>(`/courses/${courseId}/share-from`, { source_course_id: src.id, what: ["documents"] });
+      const n = r.data.shared.documents;
+      setResults((m) => ({ ...m, [src.id]: n > 0 ? `Đã dùng lại ${n} tài liệu từ lớp ${src.class_code}.` : `Lớp ${src.class_code} chưa có tài liệu để dùng lại.` }));
+    } catch (e) {
+      setResults((m) => ({ ...m, [src.id]: e instanceof ApiError ? e.userMessage : "Chưa dùng lại được. Hãy thử lại." }));
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  if (!sources.data || sources.data.length === 0) return null;
+  return (
+    <Section title="Dùng lại nội dung từ lớp khác">
+      <ul className={s.sources}>
+        {sources.data.map((src) => (
+          <li key={src.id} className={s.source}>
+            <span>
+              <b>Lớp {src.class_code}</b> · {src.name} · {src.semester} · {src.documents} tài liệu
+            </span>
+            <Button size="sm" onClick={() => void share(src)} disabled={busy === src.id}>Dùng lại tài liệu</Button>
+            {results[src.id] && <span className={s.readonly} role="status">{results[src.id]}</span>}
+          </li>
+        ))}
+      </ul>
+    </Section>
   );
 }

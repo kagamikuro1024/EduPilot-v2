@@ -552,8 +552,9 @@ test("join page: /join/<mã> gửi Referrer-Policy no-referrer và Cache-Control
 type Info = { join_code: string; join_url: string; enabled: boolean; expires_at: string | null; require_approval: boolean; allowed_email_domain: string | null; capacity: number | null; active_students: number; pending: number; version: number };
 const info = (over: Partial<Info> = {}): Info => ({ join_code: "AN7K2MQ", join_url: "https://localhost/join/AN7K2MQ", enabled: true, expires_at: null, require_approval: false, allowed_email_domain: null, capacity: null, active_students: 24, pending: 2, version: 1, ...over });
 
-async function openSettings(page: Page, role: "TEACHER" | "TA", h: { put?: (b: Json) => Handler } = {}) {
+async function openSettings(page: Page, role: "TEACHER" | "TA", h: { put?: (b: Json) => Handler; before?: () => Promise<void> } = {}) {
   await login(page, role, [item(C1, "761988", role)]);
+  await h.before?.();
   let cur = info();
   const log = { put: [] as Json[], regen: 0, gets: 0 };
   await page.route(`**/api/v1/courses/${C1}/join-code`, (r) => { log.gets++; return fulfill(r, 200, cur); });
@@ -765,8 +766,147 @@ test("class members page: sinh viên → màn chặn quyền", async ({ page }) 
   await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" })).toBeVisible();
 });
 
+const REPORT = {
+  total: 30, created_users: 28, linked_existing: 0, already_member: 0, pending_unverified: 0, skipped_removed: 0, dry_run: true,
+  errors: [
+    { row: 7, field: "email", code: "INVALID_EMAIL", message: "Email không đúng dạng." },
+    { row: 19, field: "full_name", code: "MISSING_NAME", message: "Thiếu họ và tên." },
+  ],
+};
+
+test("roster import ui: chọn tệp → xem trước đúng dòng 7 và 19 → Nhập 28 sinh viên; TA không thấy tab", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "375 px kiểm ở ca sau");
+  await openMembers(page, "TEACHER", [mem("s1", "Nguyễn Văn An")]);
+  const calls: { dry: boolean; key: string | undefined; ctype: string | undefined; invites: boolean }[] = [];
+  await page.route(`**/api/v1/courses/${C1}/roster/import**`, (r) => {
+    const req = r.request();
+    const dry = new URL(req.url()).searchParams.get("dry_run") === "true";
+    calls.push({ dry, key: req.headers()["idempotency-key"], ctype: req.headers()["content-type"], invites: (req.postData() ?? "").includes("true") });
+    return fulfill(r, 200, dry ? REPORT : { ...REPORT, dry_run: false });
+  });
+  await page.getByRole("tab", { name: "Nhập danh sách" }).click();
+  await expect(page.getByText("Thả tệp CSV hoặc XLSX vào đây.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Chọn tệp" })).toBeVisible();
+  await expect(page.getByLabel("Gửi thư mời cho sinh viên chưa có tài khoản")).toBeChecked();
+  await expect(page.getByRole("button", { name: "Xem trước" })).toHaveCount(0);
+  await page.getByLabel("Tệp danh sách lớp").setInputFiles("e2e/fixtures/roster-2-loi.csv");
+  await page.getByRole("button", { name: "Xem trước" }).click();
+  await expect(page.getByRole("cell", { name: 'Dòng 7 · Email · "Email không đúng dạng."' })).toBeVisible();
+  await expect(page.getByRole("cell", { name: 'Dòng 19 · Họ và tên · "Thiếu họ và tên."' })).toBeVisible();
+  await expect(page.getByText(/28 sẽ được nhập/)).toBeVisible();
+  const go = page.getByRole("button", { name: "Nhập 28 sinh viên" });
+  await expect(go).toBeEnabled();
+  expect(await page.getByRole("button", { name: "Xem trước" }).count()).toBe(0);
+  await go.click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã nhập 28 sinh viên · 2 dòng lỗi chưa nhập." })).toBeVisible();
+  expect(calls.map((c) => c.dry)).toEqual([true, false]);
+  expect(calls[1].key).toMatch(/^ep-/);
+  expect(calls[1].ctype).toContain("multipart/form-data; boundary=");
+  await page.getByRole("tab", { name: "Thành viên" }).click();
+  await expect(page.getByRole("tab", { name: "Nhập danh sách" })).toBeVisible();
+});
+
+test("roster import ui: TA không thấy tab", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "luồng giống nhau ở 375 px");
+  await openMembers(page, "TA", [mem("s1", "Nguyễn Văn An")]);
+  await expect(page.getByRole("tab", { name: "Nhập danh sách" })).toHaveCount(0);
+});
+
+test("roster import ui: tệp sai loại / quá lớn báo tại vùng thả; mất mạng giữ tệp và Gửi lại dùng cùng khoá", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "luồng giống nhau ở 375 px");
+  await openMembers(page, "TEACHER", [mem("s1", "Nguyễn Văn An")], "/class/members?tab=import");
+  const input = page.getByLabel("Tệp danh sách lớp");
+  await input.setInputFiles({ name: "danh-sach.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.7") });
+  await expect(page.getByText("Tệp phải là CSV hoặc XLSX.")).toBeVisible();
+  await input.setInputFiles({ name: "lon.csv", mimeType: "text/csv", buffer: Buffer.alloc(2 * 1024 * 1024 + 1, 97) });
+  await expect(page.getByText("Tệp quá lớn. Tối đa 2 MB.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Xem trước" })).toHaveCount(0);
+
+  // 422 của máy chủ: nêu tên cột thiếu.
+  await page.route(`**/api/v1/courses/${C1}/roster/import**`, (r) => fulfill(r, 422, apiErr("VALIDATION_FAILED", [{ field: "file", code: "MISSING_COLUMN", message: "Thiếu cột MSSV." }])));
+  await input.setInputFiles({ name: "thieu.csv", mimeType: "text/csv", buffer: Buffer.from("Email,Họ và tên\na@x.test,A\n") });
+  await page.getByRole("button", { name: "Xem trước" }).click();
+  await expect(page.getByText("Thiếu cột MSSV.")).toBeVisible();
+  await page.unroute(`**/api/v1/courses/${C1}/roster/import**`);
+
+  // Mất mạng khi nhập thật: giữ tệp, "Gửi lại" dùng đúng khoá cũ, thành công thì hết thông báo.
+  const keys: (string | undefined)[] = [];
+  let down = true;
+  await page.route(`**/api/v1/courses/${C1}/roster/import**`, (r) => {
+    const req = r.request();
+    if (new URL(req.url()).searchParams.get("dry_run") === "true") return fulfill(r, 200, { ...REPORT, errors: [], created_users: 2, total: 2 });
+    keys.push(req.headers()["idempotency-key"]);
+    if (down) return r.abort("internetdisconnected");
+    return fulfill(r, 200, { ...REPORT, errors: [], created_users: 2, total: 2, dry_run: false });
+  });
+  await input.setInputFiles({ name: "hai.csv", mimeType: "text/csv", buffer: Buffer.from("Email,Họ và tên,MSSV\na@x.test,A,B20DC00001\nb@x.test,B,B20DC00002\n") });
+  await page.getByRole("button", { name: "Xem trước" }).click();
+  await page.getByRole("button", { name: "Nhập 2 sinh viên" }).click();
+  await expect(page.getByText("Mất kết nối. Tệp vẫn được giữ")).toBeVisible();
+  await expect(page.getByText("hai.csv")).toBeVisible();
+  down = false;
+  await page.getByRole("button", { name: "Gửi lại" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã nhập 2 sinh viên." })).toBeVisible();
+  expect(keys.length).toBeGreaterThanOrEqual(2);
+  expect(new Set(keys).size).toBe(1);
+});
+
+test("roster import ui: 375 px không tràn ngang", async ({ page }, info) => {
+  test.skip(info.project.name !== "mobile", "chỉ dự án 375 px");
+  await openMembers(page, "TEACHER", [mem("s1", "Nguyễn Văn An")], "/class/members?tab=import");
+  await page.route(`**/api/v1/courses/${C1}/roster/import**`, (r) => fulfill(r, 200, REPORT));
+  await page.getByLabel("Tệp danh sách lớp").setInputFiles("e2e/fixtures/roster-2-loi.csv");
+  await page.getByRole("button", { name: "Xem trước" }).click();
+  await expect(page.getByRole("button", { name: "Nhập 28 sinh viên" })).toBeVisible();
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { timeout: 5000 }).toBeLessThanOrEqual(0);
+  const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
+  const a = await runAudit(page, AUDIT_SRC);
+  expect(a.ox).toBeLessThanOrEqual(0);
+  expect(a.cut).toEqual([]);
+  expect(await page.evaluate(TOUCH_SRC)).toEqual([]);
+});
+
+test("share sources section: chỉ hiện khi có nguồn đủ điều kiện; dùng lại tại chỗ, không toast; TA không thấy", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "luồng giống nhau ở 375 px");
+  let sources: Json[] = [{ id: C2, class_code: "761987", name: "An ninh mạng", semester: "2026-2027-HK1", documents: 6 }];
+  const shares: Json[] = [];
+  const mock = async () => {
+  await page.route(`**/api/v1/courses/${C1}/share-sources`, (r) => fulfill(r, 200, { items: sources }));
+  await page.route(`**/api/v1/courses/${C1}/share-from`, (r) => {
+    shares.push(JSON.parse(r.request().postData() ?? "{}") as Json);
+    return fulfill(r, 200, { shared: { documents: shares.length === 1 ? 6 : 0 }, skipped: [] });
+  });
+  };
+  await openSettings(page, "TEACHER", { before: mock });
+  await expect(page.getByRole("heading", { name: "Dùng lại nội dung từ lớp khác" })).toBeVisible();
+  await expect(page.getByText(/Lớp 761987 · An ninh mạng/)).toBeVisible();
+  await page.getByRole("button", { name: "Dùng lại tài liệu" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã dùng lại 6 tài liệu từ lớp 761987." })).toBeVisible();
+  expect(shares).toEqual([{ source_course_id: C2, what: ["documents"] }]);
+  await page.getByRole("button", { name: "Dùng lại tài liệu" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Lớp 761987 chưa có tài liệu để dùng lại." })).toBeVisible();
+  await expect(page.locator("main [role=alert]")).toHaveCount(0);
+
+  sources = [];
+  await page.reload();
+  await expect(page.getByRole("heading", { name: "Mã và cài đặt tham gia", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Dùng lại nội dung từ lớp khác" })).toHaveCount(0);
+});
+
+test("share sources section: TA không gọi share-sources và không thấy mục", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "luồng giống nhau ở 375 px");
+  let called = 0;
+  await openSettings(page, "TA", { before: async () => { await page.route(`**/api/v1/courses/${C1}/share-sources`, (r) => { called++; return fulfill(r, 200, { items: [] }); }); } });
+  await expect(page.getByRole("heading", { name: "Dùng lại nội dung từ lớp khác" })).toHaveCount(0);
+  expect(called).toBe(0);
+});
+
 test("@real course picker với seed: GV 2 lớp, SV A 2 lớp, SV B 1 lớp, SV D chưa có lớp", async () => {
   test.skip(true, "@real — cần compose + seed (US-P2-12); chạy tay theo handoff dev-US-P2-07");
+});
+
+test("@real roster import ui + share sources section (seed): GV lớp 2 nhập roster-2-loi.csv thấy dòng 7 và 19, nút Nhập 28 sinh viên; TA không thấy tab; GV khác học phần không thấy mục chia sẻ", async () => {
+  test.skip(true, "@real — cần compose + seed (US-P2-12)");
 });
 
 test("@real join flow end to end (375 × 812): D xem trước và vào lớp 2, giảng viên duyệt, tạo lại mã, 6 mã sai ⇒ 429", async () => {

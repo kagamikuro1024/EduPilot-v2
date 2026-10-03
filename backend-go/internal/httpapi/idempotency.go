@@ -7,9 +7,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"hash"
 	"io"
+	"mime"
+	"mime/multipart"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -122,6 +126,33 @@ func idemReadBody(w http.ResponseWriter, r *http.Request) ([]byte, bool) {
 	return body, true
 }
 
+// idemHashMultipart băm NỘI DUNG từng phần của thân multipart (tên trường, tên tệp, byte) thay vì thân thô: trình duyệt dựng
+// lại `boundary` ngẫu nhiên mỗi lần gửi, nên gửi lại cùng tệp với cùng `Idempotency-Key` phải ra cùng băm. false = không phải multipart / hỏng.
+func idemHashMultipart(r *http.Request, body []byte, h hash.Hash) bool {
+	mt, params, err := mime.ParseMediaType(r.Header.Get("Content-Type"))
+	if err != nil || !strings.HasPrefix(mt, "multipart/") || params["boundary"] == "" {
+		return false
+	}
+	mr := multipart.NewReader(bytes.NewReader(body), params["boundary"])
+	acc, sum := sha256.New(), sha256.New()
+	for {
+		p, err := mr.NextPart()
+		if errors.Is(err, io.EOF) {
+			h.Write(acc.Sum(nil))
+			return true
+		}
+		if err != nil {
+			return false
+		}
+		sum.Reset()
+		sum.Write([]byte(p.FormName() + "\x00" + p.FileName() + "\x00"))
+		if _, err := io.Copy(sum, p); err != nil {
+			return false
+		}
+		acc.Write(sum.Sum(nil))
+	}
+}
+
 // idemScopeOf dựng khoá logic + request_hash = sha256(thân + query đã chuẩn hoá).
 func idemScopeOf(r *http.Request, userID uuid.UUID, key string, body []byte) idemScope {
 	pattern := ""
@@ -134,7 +165,9 @@ func idemScopeOf(r *http.Request, userID uuid.UUID, key string, body []byte) ide
 	endpoint := r.Method + " " + pattern
 
 	h := sha256.New()
-	h.Write(body)
+	if !idemHashMultipart(r, body, h) {
+		h.Write(body)
+	}
 	h.Write([]byte("\n"))
 	h.Write([]byte(r.URL.Query().Encode())) // Encode() sắp xếp theo tên tham số → chuẩn hoá
 	epSum := sha256.Sum256([]byte(endpoint))

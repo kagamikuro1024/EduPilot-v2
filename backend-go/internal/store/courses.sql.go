@@ -42,6 +42,25 @@ func (q *Queries) ActivateStaffEnrollment(ctx context.Context, arg ActivateStaff
 	return id, err
 }
 
+const addTargetToSharedChunks = `-- name: AddTargetToSharedChunks :exec
+update content_chunks c
+set course_ids = array_append(c.course_ids, $1::uuid)
+from documents d
+where c.document_id = d.id and d.course_id = $2 and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+  and not ($1::uuid = any(c.course_ids))
+`
+
+type AddTargetToSharedChunksParams struct {
+	TargetID uuid.UUID
+	SourceID uuid.UUID
+}
+
+// Thêm lớp đích vào course_ids của chunk các tài liệu đó. KHÔNG nhúng lại: không đụng embedding, không đổi số dòng, không đổi audience.
+func (q *Queries) AddTargetToSharedChunks(ctx context.Context, arg AddTargetToSharedChunksParams) error {
+	_, err := q.db.Exec(ctx, addTargetToSharedChunks, arg.TargetID, arg.SourceID)
+	return err
+}
+
 const archiveCourse = `-- name: ArchiveCourse :one
 update courses
 set status = 'ARCHIVED', archived_at = now(), join_enabled = false, version = version + 1
@@ -149,6 +168,31 @@ func (q *Queries) CountCourseStudents(ctx context.Context, courseID uuid.UUID) (
 	row := q.db.QueryRow(ctx, countCourseStudents, courseID)
 	var i CountCourseStudentsRow
 	err := row.Scan(&i.Active, &i.Pending)
+	return i, err
+}
+
+const countSharedDocuments = `-- name: CountSharedDocuments :one
+select
+  (select count(*) from documents d join document_courses dc on dc.document_id = d.id and dc.course_id = $1
+    where d.course_id = $2 and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as shared,
+  (select count(*) from documents d where d.course_id = $2 and d.status = 'READY' and d.type = 'COURSE_POLICY')::int as policy
+`
+
+type CountSharedDocumentsParams struct {
+	TargetID uuid.UUID
+	SourceID uuid.UUID
+}
+
+type CountSharedDocumentsRow struct {
+	Shared int32
+	Policy int32
+}
+
+// Số tài liệu của lớp nguồn hiện đã dùng được ở lớp đích, và số tài liệu quy chế bị bỏ qua.
+func (q *Queries) CountSharedDocuments(ctx context.Context, arg CountSharedDocumentsParams) (CountSharedDocumentsRow, error) {
+	row := q.db.QueryRow(ctx, countSharedDocuments, arg.TargetID, arg.SourceID)
+	var i CountSharedDocumentsRow
+	err := row.Scan(&i.Shared, &i.Policy)
 	return i, err
 }
 
@@ -470,6 +514,85 @@ func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotification
 		return 0, err
 	}
 	return result.RowsAffected(), nil
+}
+
+const insertRosterEnrollment = `-- name: InsertRosterEnrollment :one
+insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, status_changed_at, status_changed_by)
+values ($1, $2, 'STUDENT', $3, 'ROSTER', $4, $5, $6, $7)
+returning id
+`
+
+type InsertRosterEnrollmentParams struct {
+	CourseID uuid.UUID
+	UserID   uuid.UUID
+	Status   EnrollmentStatus
+	Snapshot *string
+	Warning  *string
+	At       time.Time
+	Actor    *uuid.UUID
+}
+
+func (q *Queries) InsertRosterEnrollment(ctx context.Context, arg InsertRosterEnrollmentParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, insertRosterEnrollment,
+		arg.CourseID,
+		arg.UserID,
+		arg.Status,
+		arg.Snapshot,
+		arg.Warning,
+		arg.At,
+		arg.Actor,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const insertRosterStudent = `-- name: InsertRosterStudent :one
+
+insert into users (email, full_name, role, status, student_code)
+values ($1, $2, 'STUDENT', 'INVITED', $3)
+on conflict (email) do nothing
+returning id
+`
+
+type InsertRosterStudentParams struct {
+	Email       string
+	FullName    string
+	StudentCode *string
+}
+
+// ===== Roster, chia sẻ giữa lớp (US-P2-10) =====
+// Sinh viên chưa có tài khoản: INVITED, không mật khẩu; MSSV là thông tin khai báo (không bao giờ là khoá nối). Trùng email ⇒ không dòng.
+func (q *Queries) InsertRosterStudent(ctx context.Context, arg InsertRosterStudentParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, insertRosterStudent, arg.Email, arg.FullName, arg.StudentCode)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const latestRosterCourseForUser = `-- name: LatestRosterCourseForUser :one
+select c.name as course_name, c.class_code, coalesce(tu.full_name, '') as teacher_name
+from enrollments e
+join courses c on c.id = e.course_id
+left join enrollments t on t.course_id = c.id and t.role_in_course = 'TEACHER' and t.status = 'ACTIVE'
+left join users tu on tu.id = t.user_id
+where e.user_id = $1 and e.joined_via = 'ROSTER' and c.status = 'ACTIVE'
+order by e.created_at desc, e.id desc
+limit 1
+`
+
+type LatestRosterCourseForUserRow struct {
+	CourseName  string
+	ClassCode   string
+	TeacherName string
+}
+
+// Lớp roster gần nhất của sinh viên INVITED (để thư mời nêu lớp và giảng viên). Không có ⇒ không dòng.
+func (q *Queries) LatestRosterCourseForUser(ctx context.Context, userID uuid.UUID) (LatestRosterCourseForUserRow, error) {
+	row := q.db.QueryRow(ctx, latestRosterCourseForUser, userID)
+	var i LatestRosterCourseForUserRow
+	err := row.Scan(&i.CourseName, &i.ClassCode, &i.TeacherName)
+	return i, err
 }
 
 const listAdminCourses = `-- name: ListAdminCourses :many
@@ -865,6 +988,56 @@ func (q *Queries) ListNotifications(ctx context.Context, arg ListNotificationsPa
 	return items, nil
 }
 
+const listShareSources = `-- name: ListShareSources :many
+select c.id, c.class_code, c.name, c.semester,
+       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as documents
+from courses c
+join enrollments e on e.course_id = c.id and e.user_id = $1 and e.role_in_course = 'TEACHER' and e.status = 'ACTIVE'
+where c.subject_code = (select t.subject_code from courses t where t.id = $2)
+  and c.id <> $2 and c.status = 'ACTIVE'
+order by c.class_code, c.id
+`
+
+type ListShareSourcesParams struct {
+	UserID   uuid.UUID
+	TargetID uuid.UUID
+}
+
+type ListShareSourcesRow struct {
+	ID        uuid.UUID
+	ClassCode string
+	Name      string
+	Semester  string
+	Documents int32
+}
+
+// Lớp CÙNG học phần mà người gọi là giảng viên ACTIVE của cả hai, chưa lưu trữ, kèm số tài liệu có thể chia sẻ.
+func (q *Queries) ListShareSources(ctx context.Context, arg ListShareSourcesParams) ([]ListShareSourcesRow, error) {
+	rows, err := q.db.Query(ctx, listShareSources, arg.UserID, arg.TargetID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListShareSourcesRow{}
+	for rows.Next() {
+		var i ListShareSourcesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ClassCode,
+			&i.Name,
+			&i.Semester,
+			&i.Documents,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listStaffEnrollments = `-- name: ListStaffEnrollments :many
 select e.user_id, e.role_in_course, u.full_name
 from enrollments e join users u on u.id = e.user_id
@@ -1123,6 +1296,29 @@ func (q *Queries) SetEnrollmentStatus(ctx context.Context, arg SetEnrollmentStat
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const shareCourseDocuments = `-- name: ShareCourseDocuments :execrows
+insert into document_courses (document_id, course_id, shared_by)
+select d.id, $1, $2
+from documents d
+where d.course_id = $3 and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+on conflict (document_id, course_id) do nothing
+`
+
+type ShareCourseDocumentsParams struct {
+	TargetID uuid.UUID
+	SharedBy *uuid.UUID
+	SourceID uuid.UUID
+}
+
+// Chia sẻ MỌI tài liệu READY của lớp nguồn (trừ quy chế) sang lớp đích; số dòng = tài liệu MỚI chia sẻ (0 khi đã có: idempotent).
+func (q *Queries) ShareCourseDocuments(ctx context.Context, arg ShareCourseDocumentsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, shareCourseDocuments, arg.TargetID, arg.SharedBy, arg.SourceID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const updateCourse = `-- name: UpdateCourse :one

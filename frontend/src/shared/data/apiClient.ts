@@ -129,7 +129,7 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
   const send = async (tk: string | null): Promise<ApiResult<T>> => {
     const headers: Record<string, string> = { Accept: "application/json", "X-Request-Id": crypto.randomUUID(), ...opts.headers };
     if (tk) headers.Authorization = `Bearer ${tk}`;
-    if (hasBody) headers["Content-Type"] = "application/json";
+    if (hasBody && !(body instanceof FormData)) headers["Content-Type"] = "application/json"; // FormData: trình duyệt tự đặt boundary
     if (key) headers["Idempotency-Key"] = key;
     const cached = upper === "GET" ? etagCache.get(url) : undefined;
     if (cached) headers["If-None-Match"] = cached.etag;
@@ -138,7 +138,7 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
     const signal = opts.signal ? AbortSignal.any([opts.signal, timeout]) : timeout;
     let res: Response;
     try {
-      res = await fetch(url, { method: upper, headers, body: hasBody ? JSON.stringify(body) : undefined, credentials: "include", signal });
+      res = await fetch(url, { method: upper, headers, body: !hasBody ? undefined : body instanceof FormData ? body : JSON.stringify(body), credentials: "include", signal });
     } catch {
       if (opts.signal?.aborted) throw new ApiError({ status: 0, code: "ABORTED" });
       netStatus.reportFailure();

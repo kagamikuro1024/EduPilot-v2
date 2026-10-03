@@ -54,6 +54,9 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/reject", h.reject())
 	r.With(h.Guard(auth.Manage)).Delete("/courses/{id}/members/{uid}", h.removeMember())
 	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/undo", h.undo())
+	r.With(h.Guard(auth.Teacher), h.Idem).Post("/courses/{id}/roster/import", h.rosterImport)
+	r.With(h.Guard(auth.Teacher)).Get("/courses/{id}/share-sources", h.shareSources)
+	r.With(h.Guard(auth.Teacher), h.Idem).Post("/courses/{id}/share-from", h.shareFrom)
 	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/assistants", h.putAssistants)
 	r.With(h.Guard(auth.Manage)).Get("/courses/{id}/assistant-candidates", h.candidates)
 }

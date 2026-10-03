@@ -131,6 +131,12 @@ func TestNoUnscopedChunkQuery(t *testing.T) {
 			if strings.Contains(lower, "insert into content_chunks") || strings.Contains(lower, "delete from content_chunks") {
 				continue // ghi theo document_id (việc của nạp tài liệu), không phải đường ĐỌC
 			}
+			if strings.Contains(lower, "update content_chunks") {
+				// Ghi theo tài liệu của lớp nguồn (US-P2-10 chia sẻ: thêm lớp đích vào course_ids). Không trả dòng nào ⇒ không phải đường ĐỌC;
+				// vẫn buộc phải nêu course_ids (kiểm ngay dưới) để không có UPDATE "không lọc lớp".
+				require.Containsf(t, lower, "course_ids", "%s (%s): ghi content_chunks mà không nhắc course_ids", name, filepath.Base(f))
+				continue
+			}
 			reads++
 			require.Containsf(t, lower, "course_ids", "%s (%s): đọc content_chunks mà không lọc theo course_ids", name, filepath.Base(f))
 		}

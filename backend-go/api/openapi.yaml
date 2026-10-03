@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.11.0
+  version: 0.12.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
@@ -1583,6 +1583,130 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/roster/import:
+    post:
+      operationId: importCourseRoster
+      tags: [courses]
+      summary: Nạp danh sách lớp từ CSV / XLSX (≤ 500 dòng, ≤ 2 MiB, theo magic bytes; không lưu tệp). Nối bằng email, KHÔNG bằng MSSV. `dry_run=true` không ghi gì. Chỉ giảng viên của lớp
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: dry_run
+          in: query
+          required: false
+          schema:
+            type: boolean
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                send_invites:
+                  type: boolean
+                  default: true
+      responses:
+        "200":
+          description: Báo cáo nhập (hoặc xem trước khi dry_run)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RosterReport"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "413":
+          description: Tệp > 2 MiB (`PAYLOAD_TOO_LARGE`)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/share-sources:
+    get:
+      operationId: listShareSources
+      tags: [courses]
+      summary: Các lớp cùng học phần mà giảng viên cũng là TEACHER, chưa lưu trữ, kèm số tài liệu có thể dùng lại
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Nguồn đủ điều kiện (có thể rỗng)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareSources"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/share-from:
+    post:
+      operationId: shareCourseContent
+      tags: [courses]
+      summary: Dùng lại tài liệu của lớp nguồn (cùng học phần, giảng viên của cả hai); không nhúng lại, giữ audience; quy chế môn học không chia sẻ
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ShareFromRequest"
+      responses:
+        "200":
+          description: Số tài liệu dùng được ở lớp đích và phần bỏ qua
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -2411,6 +2535,102 @@ components:
           enum: [ACTIVE, PENDING]
         already_member:
           type: boolean
+    RosterReport:
+      type: object
+      required: [total, created_users, linked_existing, already_member, pending_unverified, skipped_removed, errors, dry_run]
+      additionalProperties: false
+      properties:
+        total:
+          type: integer
+        created_users:
+          type: integer
+        linked_existing:
+          type: integer
+        already_member:
+          type: integer
+        pending_unverified:
+          type: integer
+        skipped_removed:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            required: [row, field, code, message]
+            additionalProperties: false
+            properties:
+              row:
+                type: integer
+                description: Số dòng trong tệp (tiêu đề = 1)
+              field:
+                type: string
+              code:
+                type: string
+                enum: [INVALID_EMAIL, MISSING_NAME, INVALID_STUDENT_CODE, DUPLICATE_EMAIL_IN_FILE, STUDENT_CODE_CONFLICT, EMAIL_BELONGS_TO_STAFF, EMAIL_DISABLED, COURSE_FULL]
+              message:
+                type: string
+        dry_run:
+          type: boolean
+    ShareSources:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, class_code, name, semester, documents]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                format: uuid
+              class_code:
+                type: string
+              name:
+                type: string
+              semester:
+                type: string
+              documents:
+                type: integer
+    ShareFromRequest:
+      type: object
+      required: [source_course_id, what]
+      additionalProperties: false
+      properties:
+        source_course_id:
+          type: string
+          format: uuid
+        what:
+          type: array
+          minItems: 1
+          items:
+            type: string
+            enum: [documents, questions, grade_scheme]
+    ShareResult:
+      type: object
+      required: [shared, skipped]
+      additionalProperties: false
+      properties:
+        shared:
+          type: object
+          required: [documents]
+          additionalProperties: false
+          properties:
+            documents:
+              type: integer
+        skipped:
+          type: array
+          items:
+            type: object
+            required: [kind, reason]
+            additionalProperties: false
+            properties:
+              kind:
+                type: string
+              reason:
+                type: string
     JoinInfo:
       type: object
       required: [join_code, join_url, enabled, expires_at, require_approval, allowed_email_domain, capacity, active_students, pending, version]

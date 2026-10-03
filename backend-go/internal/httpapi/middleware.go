@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"regexp"
 	"runtime/debug"
+	"strings"
 	"time"
 
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
@@ -129,12 +130,18 @@ func timeoutMiddleware(d Deps) func(http.Handler) http.Handler {
 	}
 }
 
+// rosterBodyBytes: tệp roster ≤ 2 MiB cộng 64 KiB bọc multipart (tệp vượt 2 MiB vẫn bị handler từ chối 413).
+const rosterBodyBytes = 2<<20 + 64<<10
+
 // bodyLimitMiddleware (M5): thân > MAX_BODY_BYTES → 413 PAYLOAD_TOO_LARGE, chạy TRƯỚC kiểm
 // `Idempotency-Key` và trước handler (SRS 3.1, #Q-QC-01-7).
 func bodyLimitMiddleware(d Deps) func(http.Handler) http.Handler {
-	max := d.Cfg.MaxBodyBytes
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			max := d.Cfg.MaxBodyBytes
+			if r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/roster/import") && max < rosterBodyBytes {
+				max = rosterBodyBytes // SRS FEAT-course-foundation 4.5: riêng route nạp roster nâng lên 2 MiB (+ phần bọc multipart)
+			}
 			if r.ContentLength > max {
 				apierr.Write(w, r, apierr.New(http.StatusRequestEntityTooLarge, apierr.PayloadTooLarge).
 					WithDetails(map[string]any{"max_bytes": max}))

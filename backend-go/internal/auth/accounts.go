@@ -27,12 +27,13 @@ type MailQueue func(ctx context.Context, tx pgx.Tx, to, template string, payload
 
 // Các mẫu thư dùng ở đây (SRS 6.5).
 const (
-	tmplVerifyEmail = "verify_email"
-	tmplEmailExists = "email_exists"
-	tmplInviteStaff = "invite_staff"
-	tmplResetPass   = "reset_password"
-	tmplPassChanged = "password_changed"
-	defaultInviter  = "Quản trị viên"
+	tmplVerifyEmail   = "verify_email"
+	tmplEmailExists   = "email_exists"
+	tmplInviteStaff   = "invite_staff"
+	tmplInviteStudent = "invite_student"
+	tmplResetPass     = "reset_password"
+	tmplPassChanged   = "password_changed"
+	defaultInviter    = "Quản trị viên"
 )
 
 // Lỗi dùng chung cho handler.
@@ -212,8 +213,19 @@ func (a *Accounts) mailExisting(ctx context.Context, tx pgx.Tx, q *store.Queries
 			}
 			return a.mail(ctx, tx, u.Email, tmplInviteStaff, map[string]any{"user_id": u.ID.String(), "full_name": u.FullName, "inviter_name": inviter, "role_vn": roleVN}, "")
 		}
-		// ponytail: sinh viên INVITED (từ import roster, US-P2-10) cần tên lớp/giảng viên cho `invite_student`; US-P2-10 nối vào đây.
-		return nil
+		// Sinh viên INVITED (từ roster): gửi lại thư mời nêu lớp vừa thêm gần nhất tới CHỦ hộp thư. Chưa có lớp roster nào ⇒ không có gì để mời.
+		ctxCourse, err := q.LatestRosterCourseForUser(ctx, u.ID)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil
+		}
+		if err != nil {
+			return fmt.Errorf("auth: tra lớp roster: %w", err)
+		}
+		teacher := ctxCourse.TeacherName
+		if teacher == "" {
+			teacher = "phụ trách"
+		}
+		return a.mail(ctx, tx, u.Email, tmplInviteStudent, map[string]any{"user_id": u.ID.String(), "full_name": u.FullName, "teacher_name": teacher, "course_name": ctxCourse.CourseName, "class_code": ctxCourse.ClassCode}, "")
 	}
 	return a.mail(ctx, tx, u.Email, tmplEmailExists, map[string]any{"full_name": u.FullName}, "")
 }

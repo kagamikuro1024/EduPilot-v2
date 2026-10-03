@@ -1110,4 +1110,40 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/join-code/regenerate", token: gv}, 404)
 	r.must(call{method: "POST", path: "/api/v1/admin/courses/" + cid + "/archive", token: admin}, 200)
 	r.must(call{method: "POST", path: rg, token: gv}, 409)
+
+	// roster và chia sẻ (US-P2-10): cid đã lưu trữ; c2 là lớp sống cùng học phần, cùng giảng viên.
+	c2, _ := openCourse("")
+	multipart := func(file string) (string, string) {
+		const bd = "ctboundary7MA4YWxkTrZu0gW"
+		return "multipart/form-data; boundary=" + bd, "--" + bd + "\r\nContent-Disposition: form-data; name=\"file\"; filename=\"r.csv\"\r\nContent-Type: text/csv\r\n\r\n" + file + "\r\n--" + bd + "--\r\n"
+	}
+	rosterCSV := "Email,Họ và tên,MSSV\nct-ros-" + uuid.NewString()[:8] + "@example.test,Sinh Viên Một,B20DC00001\n"
+	up := func(path, query, file string, tok string, h map[string]string) call {
+		ct, body := multipart(file)
+		return call{method: "POST", path: "/api/v1/courses/" + path + "/roster/import" + query, token: tok, headers: h, ctype: ct, body: body}
+	}
+	r.must(up(c2, "?dry_run=true", rosterCSV, gv, idem()), 200)
+	r.must(up(c2, "", rosterCSV, gv, idem()), 200)
+	r.must(up(c2, "", rosterCSV, "", idem()), 401)
+	r.must(up(c2, "", rosterCSV, ta, idem()), 403)
+	r.must(up("khong-phai-uuid", "", rosterCSV, gv, idem()), 404)
+	r.must(up(cid, "", rosterCSV, gv, idem()), 409)
+	r.must(up(c2, "", strings.Repeat("x", 3<<20), gv, idem()), 413)
+	r.must(up(c2, "", "\x7fELF\x02\x01\x01\x00", gv, idem()), 422)
+
+	ss := "/api/v1/courses/" + c2 + "/share-sources"
+	r.must(call{method: "GET", path: ss, token: gv}, 200)
+	r.must(call{method: "GET", path: ss}, 401)
+	r.must(call{method: "GET", path: ss, token: ta}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/share-sources", token: gv}, 404)
+
+	sf := "/api/v1/courses/" + c2 + "/share-from"
+	from := func(src, what string) string { return `{"source_course_id":"` + src + `","what":["` + what + `"]}` }
+	other, _ := openCourse("")
+	r.must(call{method: "POST", path: "/api/v1/courses/" + other + "/share-from", token: gv, headers: idem(), body: from(c2, "documents")}, 200)
+	r.must(call{method: "POST", path: sf, headers: idem(), body: from(other, "documents")}, 401)
+	r.must(call{method: "POST", path: sf, token: ta, headers: idem(), body: from(other, "documents")}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/share-from", token: gv, headers: idem(), body: from(other, "documents")}, 404)
+	r.must(call{method: "POST", path: sf, token: gv, headers: idem(), body: from(cid, "documents")}, 409)
+	r.must(call{method: "POST", path: sf, token: gv, headers: idem(), body: from(other, "questions")}, 422)
 }

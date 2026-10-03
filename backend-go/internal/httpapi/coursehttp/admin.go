@@ -384,6 +384,10 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.Conflict).WithDetails(map[string]string{"reason": "not_active"}).WithMessage("Sinh viên này không còn trong lớp."))
 	case errors.Is(err, course.ErrStaffMember):
 		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "user_id", Code: "STAFF_MEMBER", Message: "Giảng viên và trợ giảng đổi bằng cách gán lớp."}))
+	case errors.Is(err, course.ErrSourceCourse):
+		apierr.Write(w, r, apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "source_course"}))
+	case errors.Is(err, course.ErrRosterRace):
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.Conflict).WithMessage("Có thay đổi đồng thời. Hãy thử lại."))
 	case errors.Is(err, course.ErrForbiddenAction):
 		apierr.Write(w, r, apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "role"}))
 	default:

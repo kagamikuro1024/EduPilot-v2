@@ -27,8 +27,9 @@ import {
 } from "@/shared/ui";
 import s from "./MembersView.module.css";
 import { classKey, useClassCourse, type Member, type MemberCounts } from "./classApi";
+import { RosterImport } from "./RosterImport";
 
-type Tab = "members" | "pending" | "staff";
+type Tab = "members" | "pending" | "staff" | "import";
 type Line = { text: string; undo?: () => void };
 type Item = Member;
 
@@ -52,7 +53,7 @@ export function MembersView() {
 function Members({ courseId, code, canManage }: { courseId: string; code: string; canManage: boolean }) {
   const qc = useQueryClient();
   const initial = useSearchParams().get("tab");
-  const [tab, setTab] = useState<Tab>(initial === "pending" ? "pending" : initial === "staff" && canManage ? "staff" : "members");
+  const [tab, setTab] = useState<Tab>(initial === "pending" ? "pending" : initial === "staff" && canManage ? "staff" : initial === "import" && canManage ? "import" : "members");
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
   const [role, setRole] = useState<"all" | "STUDENT">("all");
@@ -67,9 +68,10 @@ function Members({ courseId, code, canManage }: { courseId: string; code: string
     return () => clearTimeout(t);
   }, [query]);
 
-  const status = tab === "pending" ? "PENDING" : "ACTIVE";
-  const roleFilter = tab === "staff" ? "TA" : role === "all" ? undefined : role;
-  const list = useCursorList<Item>(classKey(courseId, "members", tab, roleFilter ?? "", q), `/courses/${courseId}/members`, {
+  const listTab = tab === "import" ? "members" : tab; // tab nhập danh sách không có danh sách riêng: dùng lại bộ nhớ đệm của "Thành viên"
+  const status = listTab === "pending" ? "PENDING" : "ACTIVE";
+  const roleFilter = listTab === "staff" ? "TA" : role === "all" ? undefined : role;
+  const list = useCursorList<Item>(classKey(courseId, "members", listTab, roleFilter ?? "", q), `/courses/${courseId}/members`, {
     limit: 30,
     query: { status, role: roleFilter, q: q || undefined },
     idOf: (m) => m.user_id,
@@ -206,11 +208,13 @@ function Members({ courseId, code, canManage }: { courseId: string; code: string
         options={[
           { value: "members", label: "Thành viên", count: counts.data?.active },
           { value: "pending", label: "Chờ duyệt", count: pendingCount },
-          ...(canManage ? [{ value: "staff" as const, label: "Trợ giảng" }] : []),
+          ...(canManage ? [{ value: "staff" as const, label: "Trợ giảng" }, { value: "import" as const, label: "Nhập danh sách" }] : []),
         ]}
       />
 
-      {tab === "staff" ? (
+      {tab === "import" ? (
+        <RosterImport courseId={courseId} />
+      ) : tab === "staff" ? (
         <Staff courseId={courseId} items={items} loading={list.isPending} onChanged={refresh} setLine={setLine} setError={setError} fail={fail} />
       ) : (
         <Toolbar
@@ -263,7 +267,7 @@ function Members({ courseId, code, canManage }: { courseId: string; code: string
         </div>
       )}
 
-      {tab !== "staff" && (
+      {tab !== "staff" && tab !== "import" && (
         <PageState query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: list.items, refetch: list.refetch }} showTechnical>
           <DataTable
             caption={tab === "pending" ? "Yêu cầu chờ duyệt" : "Thành viên lớp"}

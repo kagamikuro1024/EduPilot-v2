@@ -240,3 +240,61 @@ with cnt as (
 select cnt.active, cnt.pending, page.user_id, page.full_name, page.email, page.student_code_snapshot, page.role_in_course, page.status, page.joined_via, page.warning, page.status_changed_at
 from cnt left join page on true
 order by page.status_changed_at desc nulls last, page.user_id;
+
+-- ===== Roster, chia sẻ giữa lớp (US-P2-10) =====
+
+-- name: InsertRosterStudent :one
+-- Sinh viên chưa có tài khoản: INVITED, không mật khẩu; MSSV là thông tin khai báo (không bao giờ là khoá nối). Trùng email ⇒ không dòng.
+insert into users (email, full_name, role, status, student_code)
+values (sqlc.arg(email), sqlc.arg(full_name), 'STUDENT', 'INVITED', sqlc.narg(student_code))
+on conflict (email) do nothing
+returning id;
+
+-- name: InsertRosterEnrollment :one
+insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, status_changed_at, status_changed_by)
+values (sqlc.arg(course_id), sqlc.arg(user_id), 'STUDENT', sqlc.arg(status), 'ROSTER', sqlc.arg(snapshot), sqlc.narg(warning), sqlc.arg(at), sqlc.arg(actor))
+returning id;
+
+-- name: LatestRosterCourseForUser :one
+-- Lớp roster gần nhất của sinh viên INVITED (để thư mời nêu lớp và giảng viên). Không có ⇒ không dòng.
+select c.name as course_name, c.class_code, coalesce(tu.full_name, '') as teacher_name
+from enrollments e
+join courses c on c.id = e.course_id
+left join enrollments t on t.course_id = c.id and t.role_in_course = 'TEACHER' and t.status = 'ACTIVE'
+left join users tu on tu.id = t.user_id
+where e.user_id = sqlc.arg(user_id) and e.joined_via = 'ROSTER' and c.status = 'ACTIVE'
+order by e.created_at desc, e.id desc
+limit 1;
+
+-- name: ShareCourseDocuments :execrows
+-- Chia sẻ MỌI tài liệu READY của lớp nguồn (trừ quy chế) sang lớp đích; số dòng = tài liệu MỚI chia sẻ (0 khi đã có: idempotent).
+insert into document_courses (document_id, course_id, shared_by)
+select d.id, sqlc.arg(target_id), sqlc.arg(shared_by)
+from documents d
+where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+on conflict (document_id, course_id) do nothing;
+
+-- name: AddTargetToSharedChunks :exec
+-- Thêm lớp đích vào course_ids của chunk các tài liệu đó. KHÔNG nhúng lại: không đụng embedding, không đổi số dòng, không đổi audience.
+update content_chunks c
+set course_ids = array_append(c.course_ids, sqlc.arg(target_id)::uuid)
+from documents d
+where c.document_id = d.id and d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+  and not (sqlc.arg(target_id)::uuid = any(c.course_ids));
+
+-- name: CountSharedDocuments :one
+-- Số tài liệu của lớp nguồn hiện đã dùng được ở lớp đích, và số tài liệu quy chế bị bỏ qua.
+select
+  (select count(*) from documents d join document_courses dc on dc.document_id = d.id and dc.course_id = sqlc.arg(target_id)
+    where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as shared,
+  (select count(*) from documents d where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type = 'COURSE_POLICY')::int as policy;
+
+-- name: ListShareSources :many
+-- Lớp CÙNG học phần mà người gọi là giảng viên ACTIVE của cả hai, chưa lưu trữ, kèm số tài liệu có thể chia sẻ.
+select c.id, c.class_code, c.name, c.semester,
+       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as documents
+from courses c
+join enrollments e on e.course_id = c.id and e.user_id = sqlc.arg(user_id) and e.role_in_course = 'TEACHER' and e.status = 'ACTIVE'
+where c.subject_code = (select t.subject_code from courses t where t.id = sqlc.arg(target_id))
+  and c.id <> sqlc.arg(target_id) and c.status = 'ACTIVE'
+order by c.class_code, c.id;
