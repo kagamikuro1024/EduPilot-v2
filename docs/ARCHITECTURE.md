@@ -120,11 +120,12 @@ Mọi bảng: UUID, `created_at`, `updated_at`; bảng nghiệp vụ có `course
 | 00011 submissions_grading | P7 | `assignments(course_id, type ESSAY/QUIZ, title, due_at, reference_answer, rubric jsonb, grade_item_id, submission_code, appeal_days, allow_late, channels text[], published_at)`; `submissions(assignment_id, student_id, source, version, blob_key, extracted_text, match_status, received_at)`; `grading_results(submission_id, run_no, criteria_scores jsonb, total, feedback, confidence, flags jsonb, model, status DRAFT/REVIEWED/PUBLISHED, reviewed_by, version int)` |
 | 00012 integrations | P7 | `integration_configs(course_id, kind IMAP/SMTP/TEAMS, config_enc, enabled, last_sync_at, last_error)` |
 | 00013 calendar | P8 | `calendar_events(course_id, type, title, starts_at, ends_at, location, ref_type, ref_id)`; `reminder_log` |
-| 00014 question_bank | P9 | `question_bank(course_id, type, topic, difficulty, stem, answer_key jsonb, explanation, citations jsonb, origin EXTRACTED/GENERATED/MANUAL, review_status)`; `question_options`; `practice_exams`; `practice_attempts(student_id, mode, started_at, submitted_at, score, assignment_id NULL)`; `practice_answers` (khoá chat khi đang làm QUIZ dùng Redis, không có bảng) |
+| (kế tiếp sau P2) exams | PE (D54) | `question_bank(course_id, type MCQ_SINGLE/MCQ_MULTI/TRUE_FALSE/CODE/SHORT/ESSAY, topic, difficulty, stem, answer_key jsonb, explanation, citations jsonb, origin MANUAL/AI_DRAFT/EXTRACTED/GENERATED, review_status)`; `question_options`; `code_problems`; `code_testcases`; `exams`; `exam_items`; `exam_attempts`; `exam_answers`; `code_submissions`; `exam_events`; `similarity_reports` — chi tiết `docs/phases/PE.md` L1 và spec `FEAT-weekly-exam` |
+| 00014 practice | P9 | `practice_exams`; `practice_attempts(student_id, mode, started_at, submitted_at, score, assignment_id NULL)`; `practice_answers` (dùng `question_bank` của PE; khoá chat khi đang làm bài tính điểm dùng Redis, không có bảng) |
 | 00015 indexes_tuning | P10 | Index phức hợp bắt đầu bằng `course_id`; index HNSW cho `content_chunks.embedding`; index phục vụ báo cáo của P10 |
 | 00016 production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` |
 
-**Nguyên tắc sở hữu bảng (D45): phase đầu tiên dùng bảng là phase tạo nó, ở dạng cuối cùng.** Số migration tăng dần theo thứ tự phase chạy, bắt đầu từ `00001` — không kế thừa đánh số của Project III. Khi thi công, ghi ánh xạ số thật ↔ hạng mục ở đây vào mục "Ánh xạ migration" trong `PROGRESS.md`.
+**Nguyên tắc sở hữu bảng (D45): phase đầu tiên dùng bảng là phase tạo nó, ở dạng cuối cùng.** Số migration tăng dần theo thứ tự phase chạy, bắt đầu từ `00001` — không kế thừa đánh số của Project III; vì PE chèn sau P2 (D54), số của các phase sau lùi theo thứ tự thi công. Khi thi công, ghi ánh xạ số thật ↔ hạng mục ở đây vào mục "Ánh xạ migration" trong `PROGRESS.md`.
 
 Mã hoá: `APP_ENCRYPTION_KEY` (32 byte base64), AES-256-GCM, IV ngẫu nhiên mỗi bản ghi, cho `api_key_enc` và `config_enc`.
 
@@ -231,8 +232,10 @@ Tool agent (`internal/agent`, chỉ kênh chat riêng): `get_my_attendance`, `ge
 | `/documents` | Upload + cờ RAG/hiển thị + loại mới | TA, TEACHER | P8 |
 | `/library` | Thư viện sinh viên | Tất cả | P8 |
 | `/calendar` | Lịch + ICS | Tất cả | P8 |
-| `/questions` | Ngân hàng câu hỏi + duyệt | TA, TEACHER | P9 |
-| `/practice`, `/practice/[attemptId]`, `/practice/history` | Luyện đề, thi thử, làm bài QUIZ | STUDENT | P9 |
+| `/questions` | Ngân hàng câu hỏi (trắc nghiệm + bài code) + duyệt | TA, TEACHER | PE, P9 |
+| `/exams`, `/exams/[id]`, `/exams/[id]/results` | Bài thi hằng tuần: soạn, lên lịch, kết quả lớp, nghi chép | TA, TEACHER | PE |
+| `/exams/[id]/take` | Làm bài thi (trắc nghiệm / code C/C++), đồng hồ, xem điểm sau khi đóng | STUDENT | PE |
+| `/practice`, `/practice/[attemptId]`, `/practice/history` | Luyện đề, thi thử (không tính điểm) | STUDENT | P9 |
 | `/insights` | Báo cáo lỗ hổng kiến thức | TA, TEACHER | P10 |
 | `/observability` | Quan sát hệ thống AI (TEACHER chỉ thấy tổng hợp của lớp mình, không có nội dung prompt) | ADMIN, TEACHER | P10 |
 | `/settings/llm`, `/settings/integrations` | Provider/model; SMTP/IMAP/Teams | ADMIN | P1, P7 |
