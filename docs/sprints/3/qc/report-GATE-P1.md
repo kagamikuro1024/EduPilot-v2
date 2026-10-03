@@ -1,5 +1,5 @@
 # Báo cáo QC — GATE-P1 (cổng nghiệm thu phase P1: LLM Gateway)
-**Kết luận: FAIL** — hai lý do: (a) CI GitHub đỏ ở HEAD (TC-11, cùng BUG-PU05-1); (b) `cmd/llmload` do dev viết báo `interactive_wait_p95_ms=1430` > 500 ở lần chạy chính (TC-16) — số tự đo của QC đạt, nhưng chưa giải thích được lệch. Phần còn lại đạt; "2 nhà thật" và ghi âm thật BLOCKED (thiếu khoá).
+**Kết luận cuối (vòng sửa 1): PASS** (2 nội dung BLOCKED vì thiếu khoá thật; `gate-pg.sh` / TC-22 chưa chạy, xem bảng). Vòng 1 là FAIL vì hai lý do: (a) CI GitHub đỏ ở HEAD (TC-11, cùng BUG-PU05-1); (b) `cmd/llmload` do dev viết báo `interactive_wait_p95_ms=1430` > 500 ở lần chạy chính (TC-16) — số tự đo của QC đạt, nhưng chưa giải thích được lệch. Phần còn lại đạt; "2 nhà thật" và ghi âm thật BLOCKED (thiếu khoá).
 
 | TC | KQ | Số đo |
 | --- | --- | --- |
@@ -28,3 +28,11 @@
 
 ## Việc sau
 Dev: BUG-PU05-1; giải thích `llmload` 1430 ms (hoặc chỉnh công cụ); xác nhận hết hạn BATCH vs cầu dao. BA: lệch "tắt nhà chính ⇒ fallback_index".
+
+## Vòng sửa 1 (dev `eb563fe`; QC chấm lại trên stack riêng, worktree `eb563fe`)
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| 11 | **PASS** | CI ở HEAD `eb563fea`: run `37141391915` `success` (Go + Frontend); hai run trước cũng `success` |
+| 16 | **PASS** (có điều kiện đo nêu rõ) | (1) **Điều kiện đo của dev:** `fake` 5–15 s + `LLM_MAX_CONCURRENCY=10` + `LLM_DEFAULT_RPM=6000 LLM_DEFAULT_TPM=100000000`: `llmload -batch 200 -chat 25` → `interactive_wait_p95_ms=1`, `batch_peak=5`, chat 25/25, `batch_rejected=0`, `rc=0`. (2) **QC tái hiện giải thích của dev:** cùng lệnh với RPM mặc định 60 → `interactive_wait_p95_ms=1338`, rc=1 và công cụ **in gợi ý** "chờ token RPM, không phải hàng đợi" — số 1430 cũ là chờ **token RPM** (5 BATCH + 5 CHAT ≈ 1 yêu cầu/s = 60 RPM), không phải hàng Scheduler. (3) **Số tự đo (4 CHAT đồng thời, 200 BATCH, RPM 6000):** `queue_wait_ms` p95 **2 ms** (mốc không BATCH: 2 ms), max 2 ms; thời gian CHAT p50 10.193 ms so với 10.041 ms mốc (**+1,5 % ≤ +20 %**); 20/20 CHAT 200, 0 `degraded`. (4) **Cầu dao:** sau 188/200 BATCH hết hạn `DEADLINE_EXCEEDED`, mạch `Fake-A` vẫn `closed`; `INSIGHT`, `CHAT`, `INSIGHT` (gateway 2) kế tiếp đều `200` (trước: BATCH nhận 503). `TestOwnDeadlineNotCountedToBreaker` PASS; `go test -race ./internal/llm/...` 131 test ok. **Ghi chú thiết kế (dev đã nêu, không FAIL):** khi RPM của nhà thật cạn, INTERACTIVE vẫn chờ ≤ 1 token vì chưa giữ riêng RPM cho INTERACTIVE — đề nghị BA/PM cân nhắc (mặc định 60 RPM là thấp cho 1.000 SV) |
+| 15 (+ TC-P102-19, TC-P104-46, TC-P105-22 theo #33) | **PASS** | nghĩa mới: (a) tắt nhà chính bằng công tắc → nhà kế trả lời, `fallback_index=0`, `llm_audit fb=0`; (b) nhà chính **lỗi còn bật** (`openai_compatible` cổng đóng) → `fallback_index=1`, `llm_audit fb=1 ok`, log `WARN "chuyển nhà cung cấp dự phòng" from=Q-down to=Fake-A error_kind=NETWORK`; khớp nghĩa #33 ở cả bốn TC đã sửa |
+Chưa đổi: TC-09/22 (`gate-pg.sh`, hai lượt DB mới) vẫn không chạy vì `down -v` stack `edupilot-test-*` không phải của QC — ghi ở lượt đầu; TC-13/18 BLOCKED (thiếu khoá thật).

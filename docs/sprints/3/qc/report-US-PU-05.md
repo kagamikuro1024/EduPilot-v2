@@ -1,5 +1,5 @@
 # Báo cáo QC — US-PU-05 (cổng tự động: ảnh mốc, axe, Lighthouse, CI)
-**Kết luận: FAIL** — AC7/AC8 (CI) không đạt. Phần cổng chạy ở máy (AC1–AC6, AC9–AC13) đạt; LCP theo #26 là "PASS có điều kiện".
+**Kết luận cuối (vòng sửa 1): PASS** (vòng 1: FAIL do CI đỏ + chưa có `ci/ui-drift`; xem cuối). Vòng 1: AC7/AC8 (CI) không đạt. Phần cổng chạy ở máy (AC1–AC6, AC9–AC13) đạt; LCP theo #26 là "PASS có điều kiện".
 Bản chấm: `a363512` (commit chứa #25/#26/#28) + commit QC sau đó; `build:gate` cổng riêng 3510/3512; Apple M3 Pro 11 nhân, Chrome for Testing 150.
 
 ## Lỗi
@@ -37,3 +37,9 @@ Hệ quả: TC-PU05-28/29 FAIL (CI không xanh ở HEAD); TC-PU05-31 (artifact k
 
 ## Việc sau
 Dev: BUG-PU05-1 (ảnh mốc cho CI Linux), tạo nhánh `ci/ui-drift` với 3 run (sau khi CI xanh). Sau đó QC chấm lại AC7/AC8.
+
+## Vòng sửa 1 — chấm lại AC7 / AC8 (dev `eb563fe`, #34 ACCEPTED)
+- **BUG-PU05-1 đã sửa.** Run `37141391915` ở HEAD `eb563fea` (= `origin/sprint/3-pu-p1`): **Go success, Frontend success**; các bước `ui antipatterns`, `lint selftest`, `playwright test`, `lighthouse ci`, `lighthouse benchmark` đều `success`. Hai run kế trước (`10ecf58`, `1701731`) cũng `success`. TC-PU05-28/29 **PASS**. Ghi nhận #34: TBT `/dev/ui` ở `warn`, sáu route thật giữ `error` (đọc `lighthouserc.json`/`assertMatrix`).
+- **AC8 — nhánh `ci/ui-drift`, 3 run QC tự kiểm bằng `gh`:** (a) `37139595531` (`12638d78`) `failure`, `headBranch=ci/ui-drift`, Frontend `failure` ở bước **`ui antipatterns`** ("✗ Màu viết cứng ngoài shared/styles"), Go `success`; (b) `37140069267` (`4081b0b3`) `failure` ở **`playwright test`**: `visual.spec.ts` `gradebook @390`, `dev-ui @390` đỏ, Go `success`; (c) `37140802309` (`38073d08`) `failure` ở **`playwright test`**: `a11y.spec.ts` "axe: student" đỏ (+ `shell.spec`, `settings-llm` axe), Go `success`. Run `37140689355` là lần đẩy (c) sai, dev đã nêu và chạy lại. TC-PU05-32/33/34 **PASS**. Lưu ý trung thực: độ lệch nút 3 px chỉ làm 2/14 ảnh đỏ trên Linux (ngưỡng 0,005) — cổng ảnh vẫn bắt được, độ nhạy thấp hơn macOS (14/14).
+- TC-PU05-31: artifact `frontend-reports` có ở run (b) → **PASS**. TC-PU05-35: nhánh `ci/ui-drift` còn trên remote; QC đã chấm xong, **dev xoá được**.
+- **Verdict US-PU-05: PASS.** (LCP "PASS có điều kiện" theo #26 không đổi.)

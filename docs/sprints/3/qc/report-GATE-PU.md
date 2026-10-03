@@ -1,5 +1,5 @@
 # Báo cáo QC — GATE-PU (cổng nghiệm thu phase PU)
-**Kết luận: FAIL** — một điều kiện còn đỏ: **CI GitHub đỏ ở HEAD** (BUG-PU05-1, 14 ảnh mốc lệch trên runner Linux) và AC8 (`ci/ui-drift`) chưa có. Mọi cổng chạy ở máy đạt; LCP "PASS có điều kiện" (#26). Bản chấm `a363512`…`3b27c1d`, QC tự chạy, không dùng số của dev.
+**Kết luận cuối (vòng sửa 1): PASS** (LCP "PASS có điều kiện" theo #26/#34). Vòng 1 là FAIL vì một điều kiện đỏ: **CI GitHub đỏ ở HEAD** (BUG-PU05-1, 14 ảnh mốc lệch trên runner Linux) và AC8 (`ci/ui-drift`) chưa có. Mọi cổng chạy ở máy đạt; LCP "PASS có điều kiện" (#26). Bản chấm `a363512`…`3b27c1d`, QC tự chạy, không dùng số của dev.
 
 | TC | KQ | Số đo |
 | --- | --- | --- |
@@ -22,3 +22,11 @@ axe: 102 lượt (route × vai × bề rộng) = 0 critical / 0 serious / 0 mode
 
 ## Việc còn lại để PASS
 BUG-PU05-1 (sinh ảnh mốc trong môi trường CI hoặc ghim hậu tố nền tảng), tạo `ci/ui-drift` 3 run, rồi QC chấm lại TC-09 và AC8.
+
+## Vòng sửa 1 (dev `eb563fe`; QC chấm lại)
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| 09 | **PASS** | `gh run list --workflow ci.yml --branch sprint/3-pu-p1`: run `37141391915`, `headSha = eb563fea… = git rev-parse origin/sprint/3-pu-p1`, `conclusion=success` (Go + Frontend; `playwright test`, `lighthouse ci`, `ui antipatterns`, `lint selftest` đều success); hai run trước cũng success. Ba run `ci/ui-drift` (TC-PU05-32…34) đã chấm: đỏ đúng cổng (`ui antipatterns`, `visual.spec.ts`, `a11y.spec.ts`) — xem `report-US-PU-05.md` |
+| 06 | PASS có điều kiện | #34: TBT `/dev/ui` ở `warn`; sáu route người dùng giữ `error` (CI xanh ở `lhci`); LCP vẫn `warn` (#26), số đo QC vòng 1 không đổi (3158–3382 ms) |
+| 11–13, 16 | trả lời bằng bằng chứng đã đo | 10 câu "Final acceptance" (`AGENT_PROMPT.md`): "0 card lồng" (audit 0 `settings-section` lồng, `ui-antipatterns` 19 ✓); "đỏ có nghĩa" (`ui-antipatterns`, `/settings/llm` 0 nút primary lúc đầu); "trạng thái primitive" (`/dev/ui` 25 khối / 125 áp dụng / 75 N/A, Playwright 155 pass); "ngôn ngữ riêng tư không thuật ngữ" (sweep 0 `FORBIDDEN`, 0 từ kỹ thuật ở 7 route SV); "mọi route một sản phẩm" (audit 674/674). Các câu về chấm bài song song, điểm danh bàn phím, bảng công thức điểm dựa trên nghiệm thu v5 của sprint 1.5 và audit hiện tại (QC **không** đo tay lại); phần thẩm mỹ chủ quan và "thiết bị thật" để chủ dự án tự kiểm (Q-QC-GATEPU-1) |
+Hai việc còn mở, không chặn cổng: TC-GATEPU-05 (ca `@real`) chạy ở cổng sau; nhánh `ci/ui-drift` dev xoá.
