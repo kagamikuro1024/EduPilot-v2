@@ -73,16 +73,16 @@ function parseRetryAfter(h: string | null, body?: { retry_after?: unknown }): nu
 
 async function decodeError(res: Response): Promise<ApiError> {
   const retryHeader = res.headers.get("Retry-After");
+  const headerTrace = res.headers.get("X-Request-Id") ?? undefined; // thân thiếu trace_id thì lấy từ header
   const text = await res.text().catch(() => "");
   const isJson = (res.headers.get("Content-Type") ?? "").includes("json");
-  if (!text.trim()) return new ApiError({ status: res.status, code: "BAD_GATEWAY", retryAfter: parseRetryAfter(retryHeader) });
-  if (!isJson) return new ApiError({ status: res.status, code: "BAD_GATEWAY", retryAfter: parseRetryAfter(retryHeader) });
+  if (!text.trim() || !isJson) return new ApiError({ status: res.status, code: "BAD_GATEWAY", traceId: headerTrace, retryAfter: parseRetryAfter(retryHeader) });
   try {
     const b = JSON.parse(text) as { code?: string; message?: string; trace_id?: string; details?: unknown; retry_after?: number };
-    if (typeof b.code !== "string") return new ApiError({ status: res.status, code: "BAD_GATEWAY" });
-    return new ApiError({ status: res.status, code: b.code, message: b.message, traceId: b.trace_id, details: b.details, retryAfter: parseRetryAfter(retryHeader, b) });
+    if (typeof b.code !== "string") return new ApiError({ status: res.status, code: "BAD_GATEWAY", traceId: headerTrace });
+    return new ApiError({ status: res.status, code: b.code, message: b.message, traceId: b.trace_id || headerTrace, details: b.details, retryAfter: parseRetryAfter(retryHeader, b) });
   } catch {
-    return new ApiError({ status: res.status, code: "PARSE_ERROR" });
+    return new ApiError({ status: res.status, code: "PARSE_ERROR", traceId: headerTrace });
   }
 }
 

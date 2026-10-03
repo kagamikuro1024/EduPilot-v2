@@ -39,3 +39,8 @@ Nhánh `sprint/3-pu-p1`. Góp ý #19–#21. Chạy: `pnpm -C frontend build:gate
 ## Nợ / ghi chú
 - Các ca `@real` (6, 8, 11, 13, 16, 17) cần stack Go + bản dựng `NEXT_PUBLIC_API_URL=https://localhost`; chưa chạy (cùng nội dung đã kiểm bằng gateway giả).
 - `useSSE` chưa có ca riêng cho `503` (dùng chung đường backoff với lỗi mạng).
+
+## Sửa lỗi QC (report-US-PU-03)
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-PU03-1 `traceId` bỏ qua header `X-Request-Id` | `decodeError` (`apiClient.ts`) lấy `trace_id` ở thân, thiếu thì `X-Request-Id` của phản hồi (mọi nhánh: JSON, HTML/rỗng, JSON hỏng); máy chủ giả cho phép đọc header này (`Access-Control-Expose-Headers`) | `data-layer.spec.ts › BUG-PU03-1`: 500 / 422 / HTML 502 chỉ có header ⇒ `traceId` = header; có cả hai ⇒ thân thắng |

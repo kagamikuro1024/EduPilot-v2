@@ -22,7 +22,7 @@ const cors = (req, res) => {
     res.setHeader("Vary", "Origin");
     res.setHeader("Access-Control-Allow-Headers", "authorization,content-type,x-request-id,idempotency-key,if-none-match,if-match,last-event-id,accept");
     res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
-    res.setHeader("Access-Control-Expose-Headers", "etag,retry-after,idempotent-replayed");
+    res.setHeader("Access-Control-Expose-Headers", "etag,retry-after,idempotent-replayed,x-request-id");
   }
 };
 

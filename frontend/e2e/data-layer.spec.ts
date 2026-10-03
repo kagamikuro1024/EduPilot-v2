@@ -498,3 +498,15 @@ test("token hygiene: token không vào storage, URL hay console", async ({ page 
   expect(logs.join("\n")).not.toContain("SECRET.JWT.VALUE");
   expect((await getLog(page, "/api/v1/ping")).log[0].headers.authorization).toBe("Bearer SECRET.JWT.VALUE");
 });
+
+test("BUG-PU03-1: traceId lấy từ header X-Request-Id khi thân thiếu trace_id; thân có thì thân thắng", async ({ page }) => {
+  await open(page);
+  await script(page, { "POST /api/v1/t": [{ status: 500, body: { code: "INTERNAL", message: "m" }, headers: { "X-Request-Id": "hdr-trace-1" } }] });
+  expect((await call(page, 'ep.apiClient.post("/t", {})')).error.traceId).toBe("hdr-trace-1");
+  await script(page, { "POST /api/v1/t": [{ status: 422, body: { code: "VALIDATION_FAILED", message: "m", details: [] }, headers: { "X-Request-Id": "hdr-trace-2" } }] });
+  expect((await call(page, 'ep.apiClient.post("/t", {})')).error.traceId).toBe("hdr-trace-2");
+  await script(page, { "POST /api/v1/t": [{ status: 500, body: { code: "INTERNAL", message: "m", trace_id: "body-trace" }, headers: { "X-Request-Id": "hdr-trace-3" } }] });
+  expect((await call(page, 'ep.apiClient.post("/t", {})')).error.traceId).toBe("body-trace");
+  await script(page, { "POST /api/v1/t": [{ status: 502, headers: { "Content-Type": "text/html", "X-Request-Id": "hdr-trace-4" }, body: "<html>" }] });
+  expect((await call(page, 'ep.apiClient.post("/t", {})')).error.traceId).toBe("hdr-trace-4");
+});
