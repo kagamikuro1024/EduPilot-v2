@@ -33,6 +33,9 @@ const (
 	redisName = "edupilot-test-redis"
 	minioName = "edupilot-test-minio"
 
+	mailpitImage = "axllent/mailpit:v1.27"
+	mailpitName  = "edupilot-test-mailpit"
+
 	// MinIO credentials dùng cho container thử.
 	MinIOAccessKey = "edupilot-test"
 	MinIOSecretKey = "edupilot-test-secret"
@@ -61,6 +64,10 @@ var (
 	minioOne sync.Once
 	minioEP  string
 	minioErr error
+	mpOnce   sync.Once
+	mpSMTP   string
+	mpAPI    string
+	mpErr    error
 )
 
 // withLock chạy fn khi giữ khoá tệp toàn máy (nhiều tiến trình test không cùng tạo một container).
@@ -257,4 +264,31 @@ func TestPrefix(t testing.TB) string {
 	defer seqMu.Unlock()
 	seq++
 	return fmt.Sprintf("t%d%d%d", os.Getpid(), time.Now().UnixNano()%1e9, seq)
+}
+
+// Mailpit trả (host:port SMTP, URL gốc REST API) của container Mailpit dùng chung. Test PHẢI dùng địa chỉ người nhận
+// duy nhất (tìm bằng `to:`), không xoá hộp thư chung.
+func Mailpit(t testing.TB) (smtpAddr, apiURL string) {
+	t.Helper()
+	RequireContainers(t)
+	mpOnce.Do(func() {
+		req := testcontainers.ContainerRequest{
+			Image:        mailpitImage,
+			ExposedPorts: []string{"1025/tcp", "8025/tcp"},
+			WaitingFor:   wait.ForHTTP("/readyz").WithPort("8025/tcp").WithStartupTimeout(2 * time.Minute),
+		}
+		ready := func(string) error { return nil }
+		if mpSMTP, mpErr = ensure(mailpitName, req, "1025/tcp", ready); mpErr != nil {
+			return
+		}
+		var api string
+		if api, mpErr = ensure(mailpitName, req, "8025/tcp", ready); mpErr != nil {
+			return
+		}
+		mpAPI = "http://" + api
+	})
+	if mpErr != nil {
+		t.Fatalf("mailpit container: %v", mpErr)
+	}
+	return mpSMTP, mpAPI
 }

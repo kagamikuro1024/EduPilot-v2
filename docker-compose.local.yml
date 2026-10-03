@@ -180,6 +180,17 @@ services:
       OUTBOX_RETRY_BACKOFF: ${OUTBOX_RETRY_BACKOFF:-}
       OUTBOX_CLAIM_IDLE: ${OUTBOX_CLAIM_IDLE:-}
       OUTBOX_STALE_AFTER: ${OUTBOX_STALE_AFTER:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_TLS: ${SMTP_TLS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_SEND_TIMEOUT: ${MAIL_SEND_TIMEOUT:-}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-}
+      VERIFY_TOKEN_TTL: ${VERIFY_TOKEN_TTL:-}
+      RESET_TOKEN_TTL: ${RESET_TOKEN_TTL:-}
+      INVITE_TOKEN_TTL: ${INVITE_TOKEN_TTL:-}
     read_only: true
     tmpfs: ["/tmp"]
     restart: on-failure:3
@@ -187,6 +198,7 @@ services:
       migrate: { condition: service_completed_successfully }
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
+      mailpit: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/worker", "-healthcheck"]
       interval: 5s

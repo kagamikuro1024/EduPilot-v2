@@ -4,7 +4,9 @@ package config
 
 import (
 	"fmt"
+	"net/mail"
 	"net/netip"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -98,6 +100,19 @@ type Config struct {
 	FakeLatencyMax    time.Duration
 	FakeErrorRate     float64
 	FakeValidKey      string
+
+	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
+	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
+	SMTPHost        string
+	SMTPPort        int
+	SMTPUser        string
+	SMTPPass        string // bí mật: không log
+	SMTPTLS         string // none | starttls | tls
+	MailFrom        string
+	MailSendTimeout time.Duration
+	VerifyTokenTTL  time.Duration
+	ResetTokenTTL   time.Duration
+	InviteTokenTTL  time.Duration
 }
 
 // ErrMissingEnv liệt kê MỌI biến bắt buộc bị thiếu (chỉ tên).
@@ -213,6 +228,26 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.FakeErrorRate = l.rate("FAKE_LLM_ERROR_RATE", 0)
 	c.FakeValidKey = l.raw("FAKE_LLM_VALID_KEY")
 
+	// Thư chỉ do worker gửi: production ở worker bắt buộc APP_PUBLIC_URL https và SMTP_TLS ≠ none; gateway đọc nhẹ tay (không dùng).
+	mailStrict := role == Worker && c.AppEnv == "production"
+	c.AppPublicURL = l.publicURL("APP_PUBLIC_URL", mailStrict)
+	c.SMTPHost = l.str("SMTP_HOST", "mailpit")
+	c.SMTPPort = l.num("SMTP_PORT", 1025, 1, 65535)
+	c.SMTPUser = l.raw("SMTP_USER")
+	c.SMTPPass = l.raw("SMTP_PASS")
+	c.SMTPTLS = l.enum("SMTP_TLS", "none", "none", "starttls", "tls")
+	if mailStrict && c.SMTPTLS == "none" {
+		l.bad("SMTP_TLS", "production không được dùng none")
+	}
+	c.MailFrom = l.str("MAIL_FROM", "EduPilot <no-reply@edupilot.local>")
+	if _, err := mail.ParseAddress(c.MailFrom); err != nil {
+		l.bad("MAIL_FROM", "không phải địa chỉ thư hợp lệ")
+	}
+	c.MailSendTimeout = l.dur("MAIL_SEND_TIMEOUT", 10*time.Second)
+	c.VerifyTokenTTL = l.dur("VERIFY_TOKEN_TTL", 24*time.Hour)
+	c.ResetTokenTTL = l.dur("RESET_TOKEN_TTL", 30*time.Minute)
+	c.InviteTokenTTL = l.dur("INVITE_TOKEN_TTL", 72*time.Hour)
+
 	if len(l.problems) > 0 {
 		return Config{}, &ErrInvalidEnv{Names: l.invalid, Problems: l.problems}
 	}
@@ -287,6 +322,11 @@ func (c Config) LogAttrs() []any {
 		"llm_default_tpm", c.LLMDefaultTPM,
 		"llm_embed_dims", c.LLMEmbedDims,
 		"llm_provider", c.LLMProvider,
+		"app_public_url", c.AppPublicURL,
+		"smtp_host", c.SMTPHost,
+		"smtp_port", c.SMTPPort,
+		"smtp_tls", c.SMTPTLS,
+		"mail_send_timeout", c.MailSendTimeout.String(),
 		"db_via", c.DBVia(),
 		"secrets", "[redacted]",
 	}
@@ -319,6 +359,29 @@ type loader struct {
 func (l *loader) bad(name, reason string) {
 	l.invalid = append(l.invalid, name)
 	l.problems = append(l.problems, name+": "+reason)
+}
+
+// publicURL đọc gốc URL công khai: tuyệt đối, http(s), không đường dẫn; strict (worker production) bắt buộc có và phải https.
+// Dev/test mặc định https://localhost (Caddy). Bỏ dấu / cuối để nối `/verify-email?...` không bị đôi.
+func (l *loader) publicURL(name string, strict bool) string {
+	v := l.raw(name)
+	if v == "" {
+		if strict {
+			l.bad(name, "bắt buộc ở worker production")
+			return ""
+		}
+		return "https://localhost"
+	}
+	u, err := url.Parse(v)
+	switch {
+	case err != nil || u.Host == "" || (u.Scheme != "https" && u.Scheme != "http"):
+		l.bad(name, "cần URL tuyệt đối http(s)")
+	case strict && u.Scheme != "https":
+		l.bad(name, "production cần https")
+	case u.Path != "" && u.Path != "/", u.RawQuery != "", u.Fragment != "":
+		l.bad(name, "chỉ gốc (scheme://host[:port]), không đường dẫn")
+	}
+	return strings.TrimRight(v, "/")
 }
 
 func (l *loader) raw(name string) string { return strings.TrimSpace(l.getenv(name)) }

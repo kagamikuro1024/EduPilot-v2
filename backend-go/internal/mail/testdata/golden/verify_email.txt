@@ -1,0 +1,11 @@
+Subject: Xác minh email EduPilot của bạn
+
+Chào Nguyễn Văn An,
+
+Bạn vừa đăng ký tài khoản EduPilot bằng địa chỉ email này. Để hoàn tất, hãy xác minh email bằng liên kết dưới đây (dùng một lần, có hiệu lực 24 giờ):
+
+https://localhost/x?token=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+
+Nếu không phải bạn đăng ký, hãy bỏ qua thư này — sẽ không có tài khoản nào được kích hoạt.
+
+— EduPilot · Thư tự động từ hệ thống, vui lòng không trả lời.

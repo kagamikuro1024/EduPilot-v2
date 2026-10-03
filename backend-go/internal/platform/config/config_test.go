@@ -333,3 +333,54 @@ func TestLLMEnv(t *testing.T) {
 		t.Error("LogAttrs lộ khoá OPENAI_API_KEY")
 	}
 }
+
+// US-P2-01: cấu hình thư — mặc định dev, giá trị sai nêu tên biến, production ở worker bắt buộc https + TLS.
+func TestLoad_Mail(t *testing.T) {
+	t.Parallel()
+	c, err := config.Load(getenv(full()), config.Worker)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if c.AppPublicURL != "https://localhost" || c.SMTPHost != "mailpit" || c.SMTPPort != 1025 || c.SMTPTLS != "none" ||
+		c.VerifyTokenTTL != 24*time.Hour || c.ResetTokenTTL != 30*time.Minute || c.InviteTokenTTL != 72*time.Hour {
+		t.Fatalf("mặc định sai: %+v", c)
+	}
+
+	bad := []struct{ name, key, val string }{
+		{"URL tương đối", "APP_PUBLIC_URL", "localhost"},
+		{"URL có đường dẫn", "APP_PUBLIC_URL", "https://localhost/app"},
+		{"TLS lạ", "SMTP_TLS", "ssl"},
+		{"cổng SMTP 0", "SMTP_PORT", "0"},
+		{"MAIL_FROM sai", "MAIL_FROM", "không phải địa chỉ"},
+	}
+	for _, tc := range bad {
+		env := full()
+		env[tc.key] = tc.val
+		_, err := config.Load(getenv(env), config.Worker)
+		var ie *config.ErrInvalidEnv
+		if !errors.As(err, &ie) || !slices.Contains(ie.Names, tc.key) {
+			t.Errorf("%s: err = %v, muốn *ErrInvalidEnv nêu %s", tc.name, err, tc.key)
+		}
+	}
+
+	prod := full()
+	prod["APP_ENV"] = "production"
+	_, err = config.Load(getenv(prod), config.Worker)
+	var pe *config.ErrInvalidEnv
+	if !errors.As(err, &pe) || !slices.Contains(pe.Names, "APP_PUBLIC_URL") {
+		t.Errorf("worker production thiếu APP_PUBLIC_URL: err = %v", err)
+	}
+	prod["APP_PUBLIC_URL"] = "http://edupilot.example"
+	prod["SMTP_TLS"] = "none"
+	_, err = config.Load(getenv(prod), config.Worker)
+	var ie *config.ErrInvalidEnv
+	if !errors.As(err, &ie) || !slices.Contains(ie.Names, "APP_PUBLIC_URL") || !slices.Contains(ie.Names, "SMTP_TLS") {
+		t.Errorf("worker production http + TLS none: err = %v", err)
+	}
+	prod["APP_PUBLIC_URL"] = "https://edupilot.example/"
+	prod["SMTP_TLS"] = "starttls"
+	c, err = config.Load(getenv(prod), config.Worker)
+	if err != nil || c.AppPublicURL != "https://edupilot.example" {
+		t.Errorf("production hợp lệ: c.AppPublicURL = %q, err = %v", c.AppPublicURL, err)
+	}
+}
