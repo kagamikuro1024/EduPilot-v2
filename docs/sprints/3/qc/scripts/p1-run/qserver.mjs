@@ -12,6 +12,7 @@ function mk(port) {
       if (step.delay) await Bun.sleep(step.delay);
       if (step.hang) await Bun.sleep(step.hang);
       if (step.destroy) return new Response(new ReadableStream({ start(c) { c.error(new Error('x')); } }));
+      if (step.raw !== undefined && (!step.status || step.status === 200)) return new Response(step.raw, { status: 200, headers: { 'content-type': step.ctype || 'application/json' } });
       if (step.status && step.status !== 200) return new Response(step.raw ?? JSON.stringify(step.body ?? { error: { message: 'err ' + step.status, type: 'x', code: step.code || null } }), { status: step.status, headers: { 'content-type': step.ctype || 'application/json', ...(step.headers || {}) } });
       if (url.pathname.endsWith('/embeddings')) { const inp = [].concat(body.input); const dim = step.dim || 1536; return Response.json({ object: 'list', model: body.model, data: inp.map((_, i) => ({ object: 'embedding', index: i, embedding: Array.from({ length: dim }, (_, k) => k === 0 ? 1 : 0) })), usage: { prompt_tokens: inp.length, total_tokens: inp.length } }); }
       if (url.pathname.endsWith('/chat/completions')) {
