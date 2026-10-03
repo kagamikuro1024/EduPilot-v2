@@ -1,5 +1,5 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1 · 2026-10-03 · Trạng thái: DRAFT (chờ PM duyệt)
+Phiên bản 1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
 
 Nguồn: `docs/phases/P2.md` lát L1b (nguồn chính) và L2 (phần `internal/user` của Admin), `docs/sprints/4/plan.md`, PRD M0 + §3 + §5, FLOWS F1, `ARCHITECTURE.md` §4 (00004), §5 (Tài khoản, Quản trị lớp), §8, `PRODUCTION_READINESS.md`, `AGENTS.md` ("Cấm tuyệt đối"), `DECISIONS.md` D36, D45, D46, D51; spec nền `docs/specs/FEAT-pg-foundation/` v1.6 (mã lỗi 6.1, Redis 5.6, env 8.1, outbox 5.3, RBAC FR-37…FR-44), `docs/specs/FEAT-ui-foundation/` (`apiClient`, khung, 7.5 điều hướng), `docs/specs/FEAT-llm-gateway/`; mã hiện có: `backend-go/internal/auth/{auth,jwt,middleware,password,cli}.go`, `internal/httpapi/ratelimit.go`, `internal/platform/{outbox,clock,redis}`. Story: `US.md` (US-P2-01…06, 77 AC). Truy vết: mục 11.
 

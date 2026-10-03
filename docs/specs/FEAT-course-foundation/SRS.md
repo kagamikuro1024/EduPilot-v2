@@ -1,5 +1,5 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1 · 2026-10-03 · Trạng thái: DRAFT (chờ PM duyệt)
+Phiên bản 1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
 
 Nguồn: `docs/phases/P2.md` lát L1, L2, L2a, L2c, L3 (nguồn chính); `docs/sprints/4/plan.md`; PRD M0 + M14 + §3; FLOWS F1 ("quy tắc an toàn số 1"), F2, F14; `ARCHITECTURE.md` §4 (00003), §5, §8, §9; `design/DESIGN.md` §14.1, §10, §13; `design/INTEGRATION.md` mục 2, 4; `PRODUCTION_READINESS.md`; `AGENTS.md`; D36, D45, D51; spec nền `docs/specs/FEAT-pg-foundation/` v1.6 (RBAC FR-37…FR-44, outbox 5.3, Redis 5.6, cursor 6.4, Idempotency 6.6, env 8.1), `docs/specs/FEAT-account-security/` (SRS), `docs/specs/FEAT-llm-gateway/`, `docs/specs/FEAT-ui-foundation/`; mã hiện có: `backend-go/internal/auth/{auth,middleware}.go` (khung `CourseAccessGuard`, `CourseResolver`, `CourseAccess`), `internal/platform/{outbox,clock,redis}`, `internal/httpapi/{ratelimit,idempotency}.go`. Story: `US.md` (US-P2-07…12, 83 AC). Truy vết: mục 11.
 
