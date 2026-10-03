@@ -38,3 +38,121 @@ from content_chunks
 where course_ids @> array[sqlc.arg(course_id)::uuid]
 order by id
 limit sqlc.arg(lim);
+
+-- ===== Admin mở lớp, gán giảng viên / TA, lưu trữ (US-P2-08) =====
+
+-- name: InsertCourse :one
+-- Trùng join_code ⇒ không dòng (người gọi sinh mã khác, tối đa 5 lần); trùng class_code ⇒ 23505 courses_class_code_key.
+insert into courses (subject_code, class_code, name, semester, capacity, join_code, created_by)
+values (sqlc.arg(subject_code), sqlc.arg(class_code), sqlc.arg(name), sqlc.arg(semester), sqlc.narg(capacity), sqlc.arg(join_code), sqlc.arg(created_by))
+on conflict (join_code) do nothing
+returning *;
+
+-- name: LockCourse :one
+select * from courses where id = sqlc.arg(id) for update;
+
+-- name: GetCourse :one
+-- Đọc đầy đủ một lớp (worker, không khoá).
+select * from courses where id = sqlc.arg(id);
+
+-- name: UpdateCourse :one
+-- Khoá lạc quan theo version; không dòng ⇒ sai version (người gọi đã khoá dòng nên đọc lại bản hiện hành).
+update courses
+set subject_code = coalesce(sqlc.narg(subject_code), subject_code),
+    class_code = coalesce(sqlc.narg(class_code), class_code),
+    name = coalesce(sqlc.narg(name), name),
+    semester = coalesce(sqlc.narg(semester), semester),
+    capacity = case when sqlc.arg(set_capacity)::bool then sqlc.narg(capacity)::int else capacity end,
+    version = version + 1
+where id = sqlc.arg(id) and version = sqlc.arg(version)
+returning *;
+
+-- name: ArchiveCourse :one
+-- Lưu trữ: tắt mã tham gia NGAY; thành viên giữ nguyên. Không dòng ⇒ đã lưu trữ (idempotent ở người gọi).
+update courses
+set status = 'ARCHIVED', archived_at = now(), join_enabled = false, version = version + 1
+where id = sqlc.arg(id) and status = 'ACTIVE'
+returning *;
+
+-- name: ListAdminCourses :many
+-- MỘT truy vấn tổng hợp cho cả trang (không N+1). Không có join_code, không có sinh viên (Admin không đọc nội dung lớp).
+select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status, c.capacity, c.version, c.created_at,
+       t.user_id as teacher_id, tu.full_name as teacher_name,
+       (select count(*) from enrollments e where e.course_id = c.id and e.role_in_course = 'TA' and e.status = 'ACTIVE')::int as assistants_count,
+       (select count(*) from enrollments e where e.course_id = c.id and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE')::int as students_active,
+       (select count(*) from enrollments e where e.course_id = c.id and e.role_in_course = 'STUDENT' and e.status = 'PENDING')::int as students_pending
+from courses c
+left join enrollments t on t.course_id = c.id and t.role_in_course = 'TEACHER' and t.status = 'ACTIVE'
+left join users tu on tu.id = t.user_id
+where (sqlc.narg(id)::uuid is null or c.id = sqlc.narg(id)::uuid)
+  and (sqlc.narg(status)::course_status is null or c.status = sqlc.narg(status)::course_status)
+  and (sqlc.narg(semester)::text is null or c.semester = sqlc.narg(semester)::text)
+  and (sqlc.narg(name_like)::text is null
+       or vn_fold(c.name) like sqlc.narg(name_like)::text escape '\'
+       or lower(c.class_code) like sqlc.narg(code_like)::text escape '\')
+  and (sqlc.narg(cur_at)::timestamptz is null or (c.created_at, c.id) < (sqlc.narg(cur_at)::timestamptz, sqlc.narg(cur_id)::uuid))
+order by c.created_at desc, c.id desc
+limit sqlc.arg(lim);
+
+-- name: ListStaffEnrollments :many
+-- Giảng viên và TA ACTIVE của lớp (để so khác biệt khi gán).
+select e.user_id, e.role_in_course, u.full_name
+from enrollments e join users u on u.id = e.user_id
+where e.course_id = sqlc.arg(course_id) and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
+order by u.full_name, e.user_id;
+
+-- name: ActivateStaffEnrollment :one
+-- Gán giảng viên / TA. Người từng bị gỡ (REMOVED) ⇒ DÙNG LẠI dòng cũ (SRS 4.4). joined_via=ADMIN.
+insert into enrollments (course_id, user_id, role_in_course, status, joined_via, status_changed_by)
+values (sqlc.arg(course_id), sqlc.arg(user_id), sqlc.arg(role_in_course), 'ACTIVE', 'ADMIN', sqlc.narg(actor))
+on conflict (course_id, user_id) do update
+set role_in_course = excluded.role_in_course, status = 'ACTIVE', joined_via = 'ADMIN',
+    previous_status = enrollments.status, status_changed_at = now(), status_changed_by = excluded.status_changed_by,
+    removed_at = null, version = enrollments.version + 1
+returning id;
+
+-- name: RemoveStaffEnrollment :exec
+-- Gỡ giảng viên / TA: mất quyền ở yêu cầu kế tiếp (guard không cache).
+update enrollments
+set previous_status = status, status = 'REMOVED', status_changed_at = now(), status_changed_by = sqlc.narg(actor), removed_at = now(), version = version + 1
+where course_id = sqlc.arg(course_id) and user_id = sqlc.arg(user_id) and role_in_course in ('TEACHER', 'TA') and status <> 'REMOVED';
+
+-- name: GetUsersForAssign :many
+select id, full_name, role, status from users where id = any(sqlc.arg(ids)::text[]::uuid[]); -- ids là text[]: pgx ở chế độ simple protocol (PgBouncer) không mã hoá được []uuid.UUID
+
+-- name: ListAssistantCandidates :many
+select id, full_name, email
+from users
+where role = 'TA' and status in ('ACTIVE', 'INVITED')
+  and (sqlc.narg(name_like)::text is null
+       or vn_fold(full_name) like sqlc.narg(name_like)::text escape '\'
+       or email like sqlc.narg(email_like)::text escape '\')
+order by full_name, id
+limit 20;
+
+-- name: CountActiveStudents :one
+select count(*)::int from enrollments where course_id = sqlc.arg(course_id) and role_in_course = 'STUDENT' and status = 'ACTIVE';
+
+-- ===== Thông báo (US-P2-08) =====
+
+-- name: InsertNotification :execrows
+-- Idempotent theo (user_id, dedupe_key): giao lại cùng tin outbox không tạo dòng thứ hai.
+insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
+values (sqlc.arg(user_id), sqlc.narg(course_id), sqlc.arg(type), sqlc.arg(title), sqlc.narg(body), sqlc.narg(link), sqlc.narg(dedupe_key))
+on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing;
+
+-- name: ListNotifications :many
+select id, type, title, body, link, course_id, read_at, created_at
+from notifications
+where user_id = sqlc.arg(user_id)
+  and (not sqlc.arg(unread_only)::bool or read_at is null)
+  and (sqlc.narg(cur_at)::timestamptz is null or (created_at, id) < (sqlc.narg(cur_at)::timestamptz, sqlc.narg(cur_id)::uuid))
+order by created_at desc, id desc
+limit sqlc.arg(lim);
+
+-- name: CountUnreadNotifications :one
+select count(*)::int from notifications where user_id = sqlc.arg(user_id) and read_at is null;
+
+-- name: MarkNotificationRead :execrows
+-- Chỉ thông báo CỦA MÌNH (người khác ⇒ 0 dòng ⇒ 404). Đã đọc rồi vẫn tính là thành công (idempotent): giữ read_at đầu tiên.
+update notifications set read_at = coalesce(read_at, now()) where id = sqlc.arg(id) and user_id = sqlc.arg(user_id);

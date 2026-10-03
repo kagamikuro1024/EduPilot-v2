@@ -40,6 +40,9 @@ export const ERROR_MESSAGES: Record<string, string> = {
   SESSION_REVOKED: "Bạn đã bị đăng xuất. Hãy đăng nhập lại.",
   LINK_INVALID: "Liên kết đã hết hạn hoặc đã được dùng.",
   EMAIL_NOT_VERIFIED: "Hãy xác minh email trước khi vào lớp.",
+  JOIN_CODE_INVALID: "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.",
+  COURSE_FULL: "Lớp đã đủ sĩ số.",
+  COURSE_ARCHIVED: "Lớp này đã được lưu trữ.",
   // mã phía client
   BAD_GATEWAY: "Máy chủ chưa phản hồi đúng. Dữ liệu của bạn vẫn an toàn.",
   NETWORK: "Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.",

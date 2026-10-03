@@ -53,6 +53,7 @@ type rig struct {
 	ip   string
 	qc   *qcount
 	logs *bytes.Buffer
+	cfg  config.Config
 }
 
 func newRig(t *testing.T, opts ...func(map[string]string)) *rig {
@@ -92,7 +93,7 @@ func newRig(t *testing.T, opts ...func(map[string]string)) *rig {
 		Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clk, State: httpapi.NewState(), LLM: rt,
 	}
 	id := uuid.New()
-	return &rig{t: t, h: httpapi.NewRouter(d), pool: pool, rdb: rdb, clk: clk, qc: qc, logs: logs, ip: fmt.Sprintf("203.0.%d.%d", 1+int(id[0])%254, 1+int(id[1])%254)}
+	return &rig{t: t, cfg: cfg, h: httpapi.NewRouter(d), pool: pool, rdb: rdb, clk: clk, qc: qc, logs: logs, ip: fmt.Sprintf("203.0.%d.%d", 1+int(id[0])%254, 1+int(id[1])%254)}
 }
 
 func uniq(prefix string) string { return prefix + "." + uuid.NewString()[:8] + "@example.test" }

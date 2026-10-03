@@ -12,6 +12,71 @@ import (
 	"github.com/google/uuid"
 )
 
+const activateStaffEnrollment = `-- name: ActivateStaffEnrollment :one
+insert into enrollments (course_id, user_id, role_in_course, status, joined_via, status_changed_by)
+values ($1, $2, $3, 'ACTIVE', 'ADMIN', $4)
+on conflict (course_id, user_id) do update
+set role_in_course = excluded.role_in_course, status = 'ACTIVE', joined_via = 'ADMIN',
+    previous_status = enrollments.status, status_changed_at = now(), status_changed_by = excluded.status_changed_by,
+    removed_at = null, version = enrollments.version + 1
+returning id
+`
+
+type ActivateStaffEnrollmentParams struct {
+	CourseID     uuid.UUID
+	UserID       uuid.UUID
+	RoleInCourse EnrollmentRole
+	Actor        *uuid.UUID
+}
+
+// Gán giảng viên / TA. Người từng bị gỡ (REMOVED) ⇒ DÙNG LẠI dòng cũ (SRS 4.4). joined_via=ADMIN.
+func (q *Queries) ActivateStaffEnrollment(ctx context.Context, arg ActivateStaffEnrollmentParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, activateStaffEnrollment,
+		arg.CourseID,
+		arg.UserID,
+		arg.RoleInCourse,
+		arg.Actor,
+	)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const archiveCourse = `-- name: ArchiveCourse :one
+update courses
+set status = 'ARCHIVED', archived_at = now(), join_enabled = false, version = version + 1
+where id = $1 and status = 'ACTIVE'
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+`
+
+// Lưu trữ: tắt mã tham gia NGAY; thành viên giữ nguyên. Không dòng ⇒ đã lưu trữ (idempotent ở người gọi).
+func (q *Queries) ArchiveCourse(ctx context.Context, id uuid.UUID) (Course, error) {
+	row := q.db.QueryRow(ctx, archiveCourse, id)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const chunksForCourse = `-- name: ChunksForCourse :many
 select id, document_id, text, audience
 from content_chunks
@@ -58,6 +123,17 @@ func (q *Queries) ChunksForCourse(ctx context.Context, arg ChunksForCourseParams
 	return items, nil
 }
 
+const countActiveStudents = `-- name: CountActiveStudents :one
+select count(*)::int from enrollments where course_id = $1 and role_in_course = 'STUDENT' and status = 'ACTIVE'
+`
+
+func (q *Queries) CountActiveStudents(ctx context.Context, courseID uuid.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, countActiveStudents, courseID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const countCourseStudents = `-- name: CountCourseStudents :one
 select count(*) filter (where status = 'ACTIVE')::int as active, count(*) filter (where status = 'PENDING')::int as pending
 from enrollments
@@ -73,6 +149,49 @@ func (q *Queries) CountCourseStudents(ctx context.Context, courseID uuid.UUID) (
 	row := q.db.QueryRow(ctx, countCourseStudents, courseID)
 	var i CountCourseStudentsRow
 	err := row.Scan(&i.Active, &i.Pending)
+	return i, err
+}
+
+const countUnreadNotifications = `-- name: CountUnreadNotifications :one
+select count(*)::int from notifications where user_id = $1 and read_at is null
+`
+
+func (q *Queries) CountUnreadNotifications(ctx context.Context, userID uuid.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, countUnreadNotifications, userID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const getCourse = `-- name: GetCourse :one
+select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at from courses where id = $1
+`
+
+// Đọc đầy đủ một lớp (worker, không khoá).
+func (q *Queries) GetCourse(ctx context.Context, id uuid.UUID) (Course, error) {
+	row := q.db.QueryRow(ctx, getCourse, id)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
 	return i, err
 }
 
@@ -125,6 +244,269 @@ func (q *Queries) GetMembership(ctx context.Context, arg GetMembershipParams) (G
 	var i GetMembershipRow
 	err := row.Scan(&i.RoleInCourse, &i.Status)
 	return i, err
+}
+
+const getUsersForAssign = `-- name: GetUsersForAssign :many
+select id, full_name, role, status from users where id = any($1::text[]::uuid[])
+`
+
+type GetUsersForAssignRow struct {
+	ID       uuid.UUID
+	FullName string
+	Role     UserRole
+	Status   UserStatus
+}
+
+func (q *Queries) GetUsersForAssign(ctx context.Context, ids []string) ([]GetUsersForAssignRow, error) {
+	rows, err := q.db.Query(ctx, getUsersForAssign, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GetUsersForAssignRow{}
+	for rows.Next() {
+		var i GetUsersForAssignRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FullName,
+			&i.Role,
+			&i.Status,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const insertCourse = `-- name: InsertCourse :one
+
+insert into courses (subject_code, class_code, name, semester, capacity, join_code, created_by)
+values ($1, $2, $3, $4, $5, $6, $7)
+on conflict (join_code) do nothing
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+`
+
+type InsertCourseParams struct {
+	SubjectCode string
+	ClassCode   string
+	Name        string
+	Semester    string
+	Capacity    *int32
+	JoinCode    string
+	CreatedBy   uuid.UUID
+}
+
+// ===== Admin mở lớp, gán giảng viên / TA, lưu trữ (US-P2-08) =====
+// Trùng join_code ⇒ không dòng (người gọi sinh mã khác, tối đa 5 lần); trùng class_code ⇒ 23505 courses_class_code_key.
+func (q *Queries) InsertCourse(ctx context.Context, arg InsertCourseParams) (Course, error) {
+	row := q.db.QueryRow(ctx, insertCourse,
+		arg.SubjectCode,
+		arg.ClassCode,
+		arg.Name,
+		arg.Semester,
+		arg.Capacity,
+		arg.JoinCode,
+		arg.CreatedBy,
+	)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const insertNotification = `-- name: InsertNotification :execrows
+
+insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
+values ($1, $2, $3, $4, $5, $6, $7)
+on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
+`
+
+type InsertNotificationParams struct {
+	UserID    uuid.UUID
+	CourseID  *uuid.UUID
+	Type      string
+	Title     string
+	Body      *string
+	Link      *string
+	DedupeKey *string
+}
+
+// ===== Thông báo (US-P2-08) =====
+// Idempotent theo (user_id, dedupe_key): giao lại cùng tin outbox không tạo dòng thứ hai.
+func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotificationParams) (int64, error) {
+	result, err := q.db.Exec(ctx, insertNotification,
+		arg.UserID,
+		arg.CourseID,
+		arg.Type,
+		arg.Title,
+		arg.Body,
+		arg.Link,
+		arg.DedupeKey,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const listAdminCourses = `-- name: ListAdminCourses :many
+select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status, c.capacity, c.version, c.created_at,
+       t.user_id as teacher_id, tu.full_name as teacher_name,
+       (select count(*) from enrollments e where e.course_id = c.id and e.role_in_course = 'TA' and e.status = 'ACTIVE')::int as assistants_count,
+       (select count(*) from enrollments e where e.course_id = c.id and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE')::int as students_active,
+       (select count(*) from enrollments e where e.course_id = c.id and e.role_in_course = 'STUDENT' and e.status = 'PENDING')::int as students_pending
+from courses c
+left join enrollments t on t.course_id = c.id and t.role_in_course = 'TEACHER' and t.status = 'ACTIVE'
+left join users tu on tu.id = t.user_id
+where ($1::uuid is null or c.id = $1::uuid)
+  and ($2::course_status is null or c.status = $2::course_status)
+  and ($3::text is null or c.semester = $3::text)
+  and ($4::text is null
+       or vn_fold(c.name) like $4::text escape '\'
+       or lower(c.class_code) like $5::text escape '\')
+  and ($6::timestamptz is null or (c.created_at, c.id) < ($6::timestamptz, $7::uuid))
+order by c.created_at desc, c.id desc
+limit $8
+`
+
+type ListAdminCoursesParams struct {
+	ID       *uuid.UUID
+	Status   *CourseStatus
+	Semester *string
+	NameLike *string
+	CodeLike *string
+	CurAt    *time.Time
+	CurID    *uuid.UUID
+	Lim      int32
+}
+
+type ListAdminCoursesRow struct {
+	ID              uuid.UUID
+	ClassCode       string
+	SubjectCode     string
+	Name            string
+	Semester        string
+	Status          CourseStatus
+	Capacity        *int32
+	Version         int32
+	CreatedAt       time.Time
+	TeacherID       *uuid.UUID
+	TeacherName     *string
+	AssistantsCount int32
+	StudentsActive  int32
+	StudentsPending int32
+}
+
+// MỘT truy vấn tổng hợp cho cả trang (không N+1). Không có join_code, không có sinh viên (Admin không đọc nội dung lớp).
+func (q *Queries) ListAdminCourses(ctx context.Context, arg ListAdminCoursesParams) ([]ListAdminCoursesRow, error) {
+	rows, err := q.db.Query(ctx, listAdminCourses,
+		arg.ID,
+		arg.Status,
+		arg.Semester,
+		arg.NameLike,
+		arg.CodeLike,
+		arg.CurAt,
+		arg.CurID,
+		arg.Lim,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAdminCoursesRow{}
+	for rows.Next() {
+		var i ListAdminCoursesRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ClassCode,
+			&i.SubjectCode,
+			&i.Name,
+			&i.Semester,
+			&i.Status,
+			&i.Capacity,
+			&i.Version,
+			&i.CreatedAt,
+			&i.TeacherID,
+			&i.TeacherName,
+			&i.AssistantsCount,
+			&i.StudentsActive,
+			&i.StudentsPending,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listAssistantCandidates = `-- name: ListAssistantCandidates :many
+
+select id, full_name, email
+from users
+where role = 'TA' and status in ('ACTIVE', 'INVITED')
+  and ($1::text is null
+       or vn_fold(full_name) like $1::text escape '\'
+       or email like $2::text escape '\')
+order by full_name, id
+limit 20
+`
+
+type ListAssistantCandidatesParams struct {
+	NameLike  *string
+	EmailLike *string
+}
+
+type ListAssistantCandidatesRow struct {
+	ID       uuid.UUID
+	FullName string
+	Email    string
+}
+
+// ids là text[]: pgx ở chế độ simple protocol (PgBouncer) không mã hoá được []uuid.UUID
+func (q *Queries) ListAssistantCandidates(ctx context.Context, arg ListAssistantCandidatesParams) ([]ListAssistantCandidatesRow, error) {
+	rows, err := q.db.Query(ctx, listAssistantCandidates, arg.NameLike, arg.EmailLike)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListAssistantCandidatesRow{}
+	for rows.Next() {
+		var i ListAssistantCandidatesRow
+		if err := rows.Scan(&i.ID, &i.FullName, &i.Email); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listCourseTeacherNames = `-- name: ListCourseTeacherNames :many
@@ -222,4 +604,229 @@ func (q *Queries) ListMyCourses(ctx context.Context, arg ListMyCoursesParams) ([
 		return nil, err
 	}
 	return items, nil
+}
+
+const listNotifications = `-- name: ListNotifications :many
+select id, type, title, body, link, course_id, read_at, created_at
+from notifications
+where user_id = $1
+  and (not $2::bool or read_at is null)
+  and ($3::timestamptz is null or (created_at, id) < ($3::timestamptz, $4::uuid))
+order by created_at desc, id desc
+limit $5
+`
+
+type ListNotificationsParams struct {
+	UserID     uuid.UUID
+	UnreadOnly bool
+	CurAt      *time.Time
+	CurID      *uuid.UUID
+	Lim        int32
+}
+
+type ListNotificationsRow struct {
+	ID        uuid.UUID
+	Type      string
+	Title     string
+	Body      *string
+	Link      *string
+	CourseID  *uuid.UUID
+	ReadAt    *time.Time
+	CreatedAt time.Time
+}
+
+func (q *Queries) ListNotifications(ctx context.Context, arg ListNotificationsParams) ([]ListNotificationsRow, error) {
+	rows, err := q.db.Query(ctx, listNotifications,
+		arg.UserID,
+		arg.UnreadOnly,
+		arg.CurAt,
+		arg.CurID,
+		arg.Lim,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListNotificationsRow{}
+	for rows.Next() {
+		var i ListNotificationsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Type,
+			&i.Title,
+			&i.Body,
+			&i.Link,
+			&i.CourseID,
+			&i.ReadAt,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listStaffEnrollments = `-- name: ListStaffEnrollments :many
+select e.user_id, e.role_in_course, u.full_name
+from enrollments e join users u on u.id = e.user_id
+where e.course_id = $1 and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
+order by u.full_name, e.user_id
+`
+
+type ListStaffEnrollmentsRow struct {
+	UserID       uuid.UUID
+	RoleInCourse EnrollmentRole
+	FullName     string
+}
+
+// Giảng viên và TA ACTIVE của lớp (để so khác biệt khi gán).
+func (q *Queries) ListStaffEnrollments(ctx context.Context, courseID uuid.UUID) ([]ListStaffEnrollmentsRow, error) {
+	rows, err := q.db.Query(ctx, listStaffEnrollments, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListStaffEnrollmentsRow{}
+	for rows.Next() {
+		var i ListStaffEnrollmentsRow
+		if err := rows.Scan(&i.UserID, &i.RoleInCourse, &i.FullName); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const lockCourse = `-- name: LockCourse :one
+select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at from courses where id = $1 for update
+`
+
+func (q *Queries) LockCourse(ctx context.Context, id uuid.UUID) (Course, error) {
+	row := q.db.QueryRow(ctx, lockCourse, id)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const markNotificationRead = `-- name: MarkNotificationRead :execrows
+update notifications set read_at = coalesce(read_at, now()) where id = $1 and user_id = $2
+`
+
+type MarkNotificationReadParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+// Chỉ thông báo CỦA MÌNH (người khác ⇒ 0 dòng ⇒ 404). Đã đọc rồi vẫn tính là thành công (idempotent): giữ read_at đầu tiên.
+func (q *Queries) MarkNotificationRead(ctx context.Context, arg MarkNotificationReadParams) (int64, error) {
+	result, err := q.db.Exec(ctx, markNotificationRead, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const removeStaffEnrollment = `-- name: RemoveStaffEnrollment :exec
+update enrollments
+set previous_status = status, status = 'REMOVED', status_changed_at = now(), status_changed_by = $1, removed_at = now(), version = version + 1
+where course_id = $2 and user_id = $3 and role_in_course in ('TEACHER', 'TA') and status <> 'REMOVED'
+`
+
+type RemoveStaffEnrollmentParams struct {
+	Actor    *uuid.UUID
+	CourseID uuid.UUID
+	UserID   uuid.UUID
+}
+
+// Gỡ giảng viên / TA: mất quyền ở yêu cầu kế tiếp (guard không cache).
+func (q *Queries) RemoveStaffEnrollment(ctx context.Context, arg RemoveStaffEnrollmentParams) error {
+	_, err := q.db.Exec(ctx, removeStaffEnrollment, arg.Actor, arg.CourseID, arg.UserID)
+	return err
+}
+
+const updateCourse = `-- name: UpdateCourse :one
+update courses
+set subject_code = coalesce($1, subject_code),
+    class_code = coalesce($2, class_code),
+    name = coalesce($3, name),
+    semester = coalesce($4, semester),
+    capacity = case when $5::bool then $6::int else capacity end,
+    version = version + 1
+where id = $7 and version = $8
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+`
+
+type UpdateCourseParams struct {
+	SubjectCode *string
+	ClassCode   *string
+	Name        *string
+	Semester    *string
+	SetCapacity bool
+	Capacity    *int32
+	ID          uuid.UUID
+	Version     int32
+}
+
+// Khoá lạc quan theo version; không dòng ⇒ sai version (người gọi đã khoá dòng nên đọc lại bản hiện hành).
+func (q *Queries) UpdateCourse(ctx context.Context, arg UpdateCourseParams) (Course, error) {
+	row := q.db.QueryRow(ctx, updateCourse,
+		arg.SubjectCode,
+		arg.ClassCode,
+		arg.Name,
+		arg.Semester,
+		arg.SetCapacity,
+		arg.Capacity,
+		arg.ID,
+		arg.Version,
+	)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }

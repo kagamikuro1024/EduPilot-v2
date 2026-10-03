@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/mail"
@@ -17,6 +18,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
 	reg.Register(mail.Topic, mh.Handle)
+	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log}
+	reg.Register(course.TopicAssigned, cn.HandleAssigned)
 	registerTestKinds(runner)
 	return reg
 }

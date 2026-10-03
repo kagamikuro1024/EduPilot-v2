@@ -902,6 +902,9 @@ components:
             - SESSION_REVOKED
             - LINK_INVALID
             - EMAIL_NOT_VERIFIED
+            - JOIN_CODE_INVALID
+            - COURSE_FULL
+            - COURSE_ARCHIVED
         message:
           type: string
         trace_id:

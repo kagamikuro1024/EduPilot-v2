@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.9.0
+  version: 0.10.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
@@ -938,6 +938,303 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/courses:
+    get:
+      operationId: listAdminCourses
+      tags: [courses]
+      summary: Danh sách lớp cho Admin (con trỏ; một truy vấn tổng hợp; không mã tham gia, không sinh viên; chỉ ADMIN kể cả GET)
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACTIVE, ARCHIVED]
+        - name: semester
+          in: query
+          schema:
+            type: string
+        - name: q
+          in: query
+          description: Tên lớp (chứa, không phân biệt dấu) hoặc tiền tố mã lớp
+          schema:
+            type: string
+            maxLength: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Một trang lớp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCoursePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createAdminCourse
+      tags: [courses]
+      summary: Mở lớp (mã tham gia sinh bằng crypto/rand, không trả về); kèm teacher_id / ta_ids thì gán trong cùng giao dịch
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseCreateInput"
+      responses:
+        "201":
+          description: Lớp mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseCreated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/courses/{id}:
+    put:
+      operationId: updateAdminCourse
+      tags: [courses]
+      summary: Sửa tên, học kỳ, mã lớp, học phần, sĩ số (khoá lạc quan theo version); lớp đã lưu trữ - 409 COURSE_ARCHIVED
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseUpdateInput"
+      responses:
+        "200":
+          description: Lớp sau khi sửa
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/courses/{id}/assign:
+    post:
+      operationId: assignAdminCourse
+      tags: [courses]
+      summary: Gán giảng viên (thay người cũ ngay) và / hoặc thay toàn bộ trợ giảng; vắng khoá hoặc null - giữ nguyên; ta_ids [] - gỡ hết
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseAssignInput"
+      responses:
+        "200":
+          description: Đội ngũ sau khi gán
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseAssignResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/courses/{id}/archive:
+    post:
+      operationId: archiveAdminCourse
+      tags: [courses]
+      summary: Lưu trữ lớp (tắt mã tham gia ngay, thành viên chỉ còn đọc); lần hai - 200 không đổi
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lớp đã lưu trữ
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCourse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/assistants:
+    put:
+      operationId: putCourseAssistants
+      tags: [courses]
+      summary: Giảng viên của lớp (hoặc Admin) thay toàn bộ tập trợ giảng
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssistantsInput"
+      responses:
+        "200":
+          description: Đội ngũ sau khi đổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseAssignResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assistant-candidates:
+    get:
+      operationId: listAssistantCandidates
+      tags: [courses]
+      summary: Trợ giảng có thể thêm (vai TA đang ACTIVE / INVITED, tối đa 20; chỉ id, tên, email)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: q
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+      responses:
+        "200":
+          description: Ứng viên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssistantCandidates"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/notifications:
+    get:
+      operationId: listNotifications
+      tags: [notifications]
+      summary: Thông báo của chính mình (con trỏ mới nhất trước; kèm tổng số chưa đọc)
+      parameters:
+        - name: unread_only
+          in: query
+          schema:
+            type: boolean
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Một trang thông báo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NotificationPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/notifications/{id}/read:
+    post:
+      operationId: readNotification
+      tags: [notifications]
+      summary: Đánh dấu đã đọc thông báo của chính mình (idempotent; của người khác - 404)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã đánh dấu
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -1480,6 +1777,248 @@ components:
         version:
           type: integer
           minimum: 1
+    PersonRef:
+      type: object
+      required: [id, full_name]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+    AdminCourse:
+      type: object
+      required: [id, class_code, subject_code, name, semester, status, teacher, assistants_count, students_active, students_pending, capacity, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_code:
+          type: string
+        subject_code:
+          type: string
+        name:
+          type: string
+        semester:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+        teacher:
+          oneOf:
+            - $ref: "#/components/schemas/PersonRef"
+            - type: "null"
+        assistants_count:
+          type: integer
+        students_active:
+          type: integer
+        students_pending:
+          type: integer
+        capacity:
+          type: [integer, "null"]
+        version:
+          type: integer
+    AdminCoursePage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/AdminCourse"
+        next_cursor:
+          type: [string, "null"]
+    CourseCreateInput:
+      type: object
+      required: [subject_code, class_code, name, semester]
+      additionalProperties: false
+      properties:
+        subject_code:
+          type: string
+        class_code:
+          type: string
+          pattern: "^[A-Za-z0-9._-]{3,20}$"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        semester:
+          type: string
+          pattern: "^[0-9]{4}-[0-9]{4}-HK[123]$"
+        capacity:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        teacher_id:
+          type: string
+          format: uuid
+        ta_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+        join_code:
+          type: string
+          description: Chỉ ngoài production (seed); ở production - 422
+    CourseCreated:
+      type: object
+      required: [id, class_code, subject_code, name, semester, status, version, teacher]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_code:
+          type: string
+        subject_code:
+          type: string
+        name:
+          type: string
+        semester:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE]
+        version:
+          type: integer
+        teacher:
+          oneOf:
+            - $ref: "#/components/schemas/PersonRef"
+            - type: "null"
+    CourseUpdateInput:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        subject_code:
+          type: string
+        class_code:
+          type: string
+        name:
+          type: string
+        semester:
+          type: string
+        capacity:
+          type: [integer, "null"]
+        version:
+          type: integer
+          minimum: 1
+    CourseAssignInput:
+      type: object
+      additionalProperties: false
+      properties:
+        teacher_id:
+          type: string
+          format: uuid
+        ta_ids:
+          type: [array, "null"]
+          items:
+            type: string
+            format: uuid
+    AssistantsInput:
+      type: object
+      required: [ta_ids]
+      additionalProperties: false
+      properties:
+        ta_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+    CourseAssignResult:
+      type: object
+      required: [teacher, assistants, changed]
+      additionalProperties: false
+      properties:
+        teacher:
+          oneOf:
+            - $ref: "#/components/schemas/PersonRef"
+            - type: "null"
+        assistants:
+          type: array
+          items:
+            $ref: "#/components/schemas/PersonRef"
+        changed:
+          type: object
+          required: [teacher, added_ta, removed_ta]
+          additionalProperties: false
+          properties:
+            teacher:
+              type: boolean
+            added_ta:
+              type: array
+              items:
+                type: string
+                format: uuid
+            removed_ta:
+              type: array
+              items:
+                type: string
+                format: uuid
+    AssistantCandidates:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            required: [id, full_name, email]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                format: uuid
+              full_name:
+                type: string
+              email:
+                type: string
+    Notification:
+      type: object
+      required: [id, type, title, body, link, course_id, read_at, created_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        body:
+          type: [string, "null"]
+        link:
+          type: [string, "null"]
+          description: Luôn là đường dẫn nội bộ bắt đầu bằng /
+        course_id:
+          type: [string, "null"]
+          format: uuid
+        read_at:
+          type: [string, "null"]
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    NotificationPage:
+      type: object
+      required: [items, next_cursor, unread_count]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/Notification"
+        next_cursor:
+          type: [string, "null"]
+        unread_count:
+          type: integer
     AdminUserPage:
       type: object
       required: [items, next_cursor]
@@ -2052,6 +2591,9 @@ components:
             - SESSION_REVOKED
             - LINK_INVALID
             - EMAIL_NOT_VERIFIED
+            - JOIN_CODE_INVALID
+            - COURSE_FULL
+            - COURSE_ARCHIVED
         message:
           type: string
         trace_id:

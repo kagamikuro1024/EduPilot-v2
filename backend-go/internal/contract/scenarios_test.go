@@ -348,6 +348,7 @@ func (r *runner) authScenarios() {
 	r.passwordScenarios()
 	r.adminUserScenarios()
 	r.courseScenarios()
+	r.courseAdminScenarios()
 }
 
 // accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.
@@ -872,4 +873,106 @@ func (r *runner) courseScenarios() {
 	r.must(call{method: "PUT", path: settings, token: sv, body: `{"notify_ticket_by_mail":true,"version":1}`}, 409)
 	r.must(call{method: "PUT", path: settings, token: sv, body: `{"theme":"dark","version":2}`}, 422)
 	r.must(call{method: "PUT", path: settings, body: `{"version":2}`}, 401)
+}
+
+// courseAdminScenarios: /admin/courses (5 thao tác), assistants, assistant-candidates, notifications (US-P2-08) với mọi status đã khai báo.
+func (r *runner) courseAdminScenarios() {
+	r.freshIP()
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	mkUser := func(role, status string) uuid.UUID {
+		var id uuid.UUID
+		if err := db.QueryRow(ctx, `insert into users (email, full_name, role, status, password_hash) values ($1, 'Người Thử', $2::user_role, $3::user_status, 'x') returning id`,
+			"ct-ad-"+uuid.NewString()[:8]+"@example.test", role, status).Scan(&id); err != nil {
+			r.t.Fatalf("tạo người dùng: %v", err)
+		}
+		return id
+	}
+	adminID, gvID, gv2ID, taID, svID := mkUser("ADMIN", "ACTIVE"), mkUser("TEACHER", "ACTIVE"), mkUser("TEACHER", "ACTIVE"), mkUser("TA", "ACTIVE"), mkUser("STUDENT", "ACTIVE")
+	admin := r.rig.token(r.t, adminID.String(), auth.RoleAdmin)
+	gv := r.rig.token(r.t, gvID.String(), auth.RoleTeacher)
+	student := r.rig.token(r.t, svID.String(), auth.RoleStudent)
+	idem := func() map[string]string { return map[string]string{"Idempotency-Key": "ct-" + uuid.NewString()} }
+	const courses = "/api/v1/admin/courses"
+	code := "CT-" + uuid.NewString()[:8]
+	body := func(class string) string {
+		return `{"subject_code":"INT1006","class_code":"` + class + `","name":"An ninh mạng","semester":"2026-2027-HK1"}`
+	}
+
+	r.must(call{method: "GET", path: courses, token: admin}, 200)
+	r.must(call{method: "GET", path: courses + "?limit=0", token: admin}, 422)
+	r.must(call{method: "GET", path: courses}, 401)
+	r.must(call{method: "GET", path: courses, token: student}, 403)
+
+	_, b := r.must(call{method: "POST", path: courses, token: admin, headers: idem(), body: body(code)}, 201)
+	var created struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(b, &created); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "POST", path: courses, token: admin, headers: idem(), body: body(code)}, 409)
+	r.must(call{method: "POST", path: courses, token: admin, headers: idem(), body: `{"class_code":"x"}`}, 422)
+	r.must(call{method: "POST", path: courses, headers: idem(), body: body(code)}, 401)
+	r.must(call{method: "POST", path: courses, token: student, headers: idem(), body: body(code)}, 403)
+
+	one := courses + "/" + created.ID
+	r.must(call{method: "PUT", path: one, token: admin, body: `{"name":"Tên Đã Đổi","version":1}`}, 200)
+	r.must(call{method: "PUT", path: one, token: admin, body: `{"name":"Lỗi Phiên Bản","version":1}`}, 409)
+	r.must(call{method: "PUT", path: one, token: admin, body: `{"class_code":"x","version":2}`}, 422)
+	r.must(call{method: "PUT", path: courses + "/" + uuid.NewString(), token: admin, body: `{"name":"X","version":1}`}, 404)
+	r.must(call{method: "PUT", path: one, body: `{"name":"X","version":2}`}, 401)
+	r.must(call{method: "PUT", path: one, token: student, body: `{"name":"X","version":2}`}, 403)
+
+	assign := one + "/assign"
+	r.must(call{method: "POST", path: assign, token: admin, body: `{"teacher_id":"` + gvID.String() + `","ta_ids":["` + taID.String() + `"]}`}, 200)
+	r.must(call{method: "POST", path: assign, token: admin, body: `{"teacher_id":"` + svID.String() + `"}`}, 422)
+	r.must(call{method: "POST", path: courses + "/" + uuid.NewString() + "/assign", token: admin, body: `{}`}, 404)
+	r.must(call{method: "POST", path: assign, body: `{}`}, 401)
+	r.must(call{method: "POST", path: assign, token: student, body: `{}`}, 403)
+
+	// giảng viên của lớp tự quản lý trợ giảng
+	assistants := "/api/v1/courses/" + created.ID + "/assistants"
+	r.must(call{method: "PUT", path: assistants, token: gv, body: `{"ta_ids":["` + taID.String() + `"]}`}, 200)
+	r.must(call{method: "PUT", path: assistants, token: gv, body: `{"ta_ids":["` + svID.String() + `"]}`}, 422)
+	r.must(call{method: "PUT", path: assistants, body: `{"ta_ids":[]}`}, 401)
+	r.must(call{method: "PUT", path: assistants, token: r.rig.token(r.t, gv2ID.String(), auth.RoleTeacher), body: `{"ta_ids":[]}`}, 403)
+	r.must(call{method: "PUT", path: "/api/v1/courses/khong-phai-uuid/assistants", token: gv, body: `{"ta_ids":[]}`}, 404)
+	cands := "/api/v1/courses/" + created.ID + "/assistant-candidates"
+	r.must(call{method: "GET", path: cands + "?q=nguoi", token: gv}, 200)
+	r.must(call{method: "GET", path: cands + "?q=" + strings.Repeat("a", 101), token: gv}, 422)
+	r.must(call{method: "GET", path: cands}, 401)
+	r.must(call{method: "GET", path: cands, token: student}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/assistant-candidates", token: gv}, 404)
+
+	// lưu trữ rồi mọi thao tác ghi → 409 COURSE_ARCHIVED
+	archive := one + "/archive"
+	r.must(call{method: "POST", path: archive, token: admin}, 200)
+	r.must(call{method: "POST", path: archive, token: admin}, 200)
+	r.must(call{method: "POST", path: archive}, 401)
+	r.must(call{method: "POST", path: archive, token: student}, 403)
+	r.must(call{method: "POST", path: courses + "/" + uuid.NewString() + "/archive", token: admin}, 404)
+	r.must(call{method: "PUT", path: one, token: admin, body: `{"name":"Sau Lưu Trữ","version":3}`}, 409)
+	r.must(call{method: "POST", path: assign, token: admin, body: `{"teacher_id":"` + gv2ID.String() + `"}`}, 409)
+	r.must(call{method: "PUT", path: assistants, token: gv, body: `{"ta_ids":[]}`}, 409)
+
+	// thông báo
+	if _, err := db.Exec(ctx, `insert into notifications (user_id, type, title, link) values ($1, 'COURSE_ASSIGNED', 'Thử', '/class/members')`, gvID); err != nil {
+		r.t.Fatal(err)
+	}
+	_, b = r.must(call{method: "GET", path: "/api/v1/notifications", token: gv}, 200)
+	var page struct {
+		Items []struct {
+			ID string `json:"id"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal(b, &page); err != nil || len(page.Items) == 0 {
+		r.t.Fatalf("thông báo: %v %s", err, b)
+	}
+	r.must(call{method: "GET", path: "/api/v1/notifications?limit=0", token: gv}, 422)
+	r.must(call{method: "GET", path: "/api/v1/notifications"}, 401)
+	read := "/api/v1/notifications/" + page.Items[0].ID + "/read"
+	r.must(call{method: "POST", path: read, token: gv}, 204)
+	r.must(call{method: "POST", path: read}, 401)
+	r.must(call{method: "POST", path: read, token: student}, 404)
 }

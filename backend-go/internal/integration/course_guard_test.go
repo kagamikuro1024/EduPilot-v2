@@ -28,7 +28,10 @@ func courseRoutes(t *testing.T, h http.Handler) []courseRoute {
 	var out []courseRoute
 	require.NoError(t, chi.Walk(mux, func(method, route string, _ http.Handler, _ ...func(http.Handler) http.Handler) error {
 		route = strings.TrimPrefix(strings.ReplaceAll(route, "/*/", "/"), "/api/v1") // r.do tự thêm tiền tố
-		if strings.Contains(route, "{courseId}") || strings.Contains(route, "/courses/{id}") {
+		if strings.HasPrefix(route, "/admin/") {                                     // quản trị: RequireRole(ADMIN) và test ma trận riêng (TestAdminCoursesRBACMatrix), không phải route của một lớp
+			return nil
+		}
+		if strings.Contains(route, "{courseId}") || strings.HasPrefix(route, "/courses/{id}") {
 			out = append(out, courseRoute{method, route})
 		}
 		return nil

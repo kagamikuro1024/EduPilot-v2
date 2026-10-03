@@ -56,7 +56,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		courseGuard := func(m auth.GuardMode) func(http.Handler) http.Handler { return auth.CourseAccessGuard(resolver, m) }
 		if d.DB != nil {
 			// US-P2-07 — lớp của tôi và chi tiết lớp.
-			(&coursehttp.Handler{Courses: course.Service{Pool: d.DB}, Guard: courseGuard, Log: d.Log}).Mount(r)
+			(&coursehttp.Handler{Courses: course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production"}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
 		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.

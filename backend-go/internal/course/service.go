@@ -37,7 +37,12 @@ func (r Resolver) Resolve(ctx context.Context, p auth.Principal, courseID uuid.U
 }
 
 // Service là nghiệp vụ đọc lớp.
-type Service struct{ Pool *pgxpool.Pool }
+type Service struct {
+	Pool *pgxpool.Pool
+	// Production chặn việc đặt join_code cố định qua API (chỉ seed ở dev / test).
+	Production bool
+	genCode    func() (string, error) // thay được trong test để tiêm mã trùng; nil = NewJoinCode
+}
 
 // Brief là phần lớp trong danh sách "lớp của tôi". Không có join_code.
 type Brief struct {

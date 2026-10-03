@@ -16,17 +16,31 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 )
 
-// Handler là nhóm đường đọc lớp.
+// Handler là nhóm đường lớp học: đọc (US-P2-07), Admin mở / gán / lưu trữ và thông báo (US-P2-08).
 type Handler struct {
 	Courses course.Service
 	Guard   func(auth.GuardMode) func(http.Handler) http.Handler
+	Idem    func(http.Handler) http.Handler
 	Log     *slog.Logger
 }
 
-// Mount đăng ký trong nhóm đã qua auth.Middleware. Đường tĩnh /courses/join… (US-P2-09) PHẢI đăng ký trước `/courses/{id}`.
+// Mount đăng ký trong nhóm đã qua auth.Middleware. RBAC (ADMIN) chạy TRƯỚC Idempotency-Key (403 đến trước 422 thiếu khoá).
+// Đường tĩnh /courses/join… (US-P2-09) PHẢI đăng ký trước `/courses/{id}`.
 func (h *Handler) Mount(r chi.Router) {
+	admin := auth.RequireRole(auth.RoleAdmin)
+	r.Route("/admin/courses", func(r chi.Router) {
+		r.With(admin).Get("/", h.adminList)
+		r.With(admin, h.Idem).Post("/", h.adminCreate)
+		r.With(admin).Put("/{id}", h.adminUpdate)
+		r.With(admin).Post("/{id}/assign", h.adminAssign)
+		r.With(admin).Post("/{id}/archive", h.adminArchive)
+	})
 	r.Get("/me/courses", h.myCourses)
+	r.Get("/notifications", h.notifications)
+	r.Post("/notifications/{id}/read", h.markRead)
 	r.With(h.Guard(auth.MemberOrAdmin)).Get("/courses/{id}", h.get)
+	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/assistants", h.putAssistants)
+	r.With(h.Guard(auth.Manage)).Get("/courses/{id}/assistant-candidates", h.candidates)
 }
 
 type brief struct {

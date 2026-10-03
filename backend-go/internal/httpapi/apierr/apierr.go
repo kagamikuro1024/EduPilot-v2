@@ -50,6 +50,11 @@ const (
 	SessionRevoked     = "SESSION_REVOKED"
 	LinkInvalid        = "LINK_INVALID"
 	EmailNotVerified   = "EMAIL_NOT_VERIFIED"
+
+	// Nền lớp học (FEAT-course-foundation SRS 6.1): 3 mã mới, tổng 37.
+	JoinCodeInvalid = "JOIN_CODE_INVALID"
+	CourseFull      = "COURSE_FULL"
+	CourseArchived  = "COURSE_ARCHIVED"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -186,6 +191,12 @@ func DefaultMessage(code string) string {
 		return "Liên kết đã hết hạn hoặc đã được dùng."
 	case EmailNotVerified:
 		return "Hãy xác minh email trước khi vào lớp."
+	case JoinCodeInvalid:
+		return "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên."
+	case CourseFull:
+		return "Lớp đã đủ sĩ số."
+	case CourseArchived:
+		return "Lớp này đã được lưu trữ."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

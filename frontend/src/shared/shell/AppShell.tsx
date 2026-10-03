@@ -17,6 +17,7 @@ import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { resetDemo, useDemoSlice } from "@/shared/state/demo";
 import { ButtonLink, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
+import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, needsToken, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
 import s from "./AppShell.module.css";
@@ -195,6 +196,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     [storedNotes, role, studentId, hasCourse, bt03, schemes, viewer, noteScope],
   );
   const unread = notes.filter((n) => !n.readBy.includes(viewer)).length;
+  // Phiên thật: chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus); phiên mô phỏng giữ thông báo mô phỏng.
+  const real = useRealNotifications(source === "jwt");
   const bellItems = notes.map((n) => {
     const ago = agoLabel(n.ms, now);
     return { id: n.id, title: n.title, context: n.meta, when: n.just && ago === "vừa xong" ? n.just : ago, href: n.href, read: n.readBy.includes(viewer) };
@@ -325,7 +328,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </button>
 
-          <NotificationPopover items={bellItems} unread={unread} onRead={(id) => markNoteRead(id, viewer)} />
+          <NotificationPopover
+            items={source === "jwt" ? real.items : bellItems}
+            unread={source === "jwt" ? real.unread : unread}
+            failed={source === "jwt" && real.failed}
+            onRead={(id) => (source === "jwt" ? real.markRead(id) : markNoteRead(id, viewer))}
+          />
 
           <Popover
             width={260}

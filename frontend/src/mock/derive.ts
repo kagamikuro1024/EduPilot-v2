@@ -1,5 +1,5 @@
 // MỘT nguồn cho mỗi con số / mốc thời gian của prototype (SRS 4.8, FR-X13).
-// Màn chỉ GỌI các hàm này; cấm tự đếm lại hay viết cứng chuỗi như "12 ngày trước", "5", "4".
+// Màn chỉ GỌI các hàm này; cấm tự đếm lại hay viết cứng chuỗi thời gian tương đối hoặc số như "5", "4".
 // Mọi hàm thuần: nhận dữ liệu và "bây giờ" (ms giả lập, xem `shared/state/clock.ts`) làm tham số.
 import { bt03Submissions, type ReviewKind, type Submission } from "./assess";
 import { COURSE_1, NOW, studentsOf, type Student } from "./core";
