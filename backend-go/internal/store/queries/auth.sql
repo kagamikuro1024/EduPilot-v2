@@ -53,3 +53,45 @@ select revoked_reason from auth_sessions where id = sqlc.arg(id);
 -- name: InsertLoginAttempt :exec
 insert into login_attempts (email_hash, user_id, ip, user_agent, outcome, created_at)
 values (sqlc.arg(email_hash), sqlc.narg(user_id), sqlc.narg(ip), sqlc.narg(user_agent), sqlc.arg(outcome), sqlc.arg(now));
+
+-- Đăng ký / xác minh email (US-P2-03). MSSV chỉ được GHI (InsertPendingStudent), không bao giờ nằm trong điều kiện nối lớp (SRS 4.2.5).
+
+-- name: InsertPendingStudent :one
+-- Idempotent theo email: trùng (cả khi hai đăng ký đua nhau) ⇒ không có dòng nào trả về, không lỗi, giao dịch không bị huỷ.
+insert into users (email, full_name, role, status, password_hash, student_code)
+values (sqlc.arg(email), sqlc.arg(full_name), 'STUDENT', 'PENDING_VERIFICATION', sqlc.arg(password_hash), sqlc.narg(student_code))
+on conflict (email) do nothing
+returning *;
+
+-- name: ConsumeAuthToken :one
+-- Nguyên tử: hai yêu cầu song song cùng token ⇒ đúng một dòng trả về.
+update auth_tokens
+set used_at = sqlc.arg(now)::timestamptz
+where token_hash = sqlc.arg(token_hash)
+  and kind = sqlc.arg(kind)
+  and used_at is null
+  and revoked_at is null
+  and expires_at > sqlc.arg(now)::timestamptz
+returning user_id;
+
+-- name: MarkEmailVerified :one
+update users
+set email_verified_at = coalesce(email_verified_at, sqlc.arg(now)::timestamptz),
+    status = case when status = 'PENDING_VERIFICATION' then 'ACTIVE'::user_status else status end
+where id = sqlc.arg(id)
+returning *;
+
+-- name: PromoteUnverifiedRosterEnrollments :execrows
+-- Email đã xác minh trùng email trong danh sách lớp ⇒ đẩy các enrollment PENDING (cảnh báo EMAIL_UNVERIFIED) thành ACTIVE.
+update enrollments
+set status = 'ACTIVE', previous_status = 'PENDING', warning = null, status_changed_at = sqlc.arg(now)::timestamptz, version = version + 1
+where user_id = sqlc.arg(user_id) and status = 'PENDING' and warning = 'EMAIL_UNVERIFIED';
+
+-- name: LatestInviterName :one
+-- Tên người đã phát lời mời gần nhất cho user (để gửi lại thư mời); không có ⇒ không dòng.
+select u.full_name
+from auth_tokens t
+join users u on u.id = t.created_by
+where t.user_id = sqlc.arg(user_id) and t.kind = 'INVITE' and t.created_by is not null
+order by t.created_at desc
+limit 1;

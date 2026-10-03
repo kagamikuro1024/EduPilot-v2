@@ -316,6 +316,38 @@ func (r *runner) authScenarios() {
 	rt2 := strings.TrimPrefix(strings.SplitN(h.Get("Set-Cookie"), ";", 2)[0], "ep_rt=")
 	r.must(call{method: "POST", path: "/api/v1/auth/logout", headers: map[string]string{"Origin": "https://evil.example"}}, 403)
 	r.must(call{method: "POST", path: "/api/v1/auth/logout", headers: cookie(rt2)}, 204)
+	r.accountScenarios()
+}
+
+// accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.
+func (r *runner) accountScenarios() {
+	ctx := context.Background()
+	email := "ct-reg-" + uuid.NewString()[:8] + "@example.test"
+	body := `{"email":"` + email + `","password":"Edupilot#2026-demo","full_name":"Người Thử"}`
+	r.must(call{method: "POST", path: "/api/v1/auth/register", body: body}, 202)
+	r.must(call{method: "POST", path: "/api/v1/auth/register", body: `{"email":"a@b","password":"x","full_name":""}`}, 422)
+	r.must(call{method: "POST", path: "/api/v1/auth/register", body: `{"email":"` + email + `","password":"Edupilot#2026-demo","full_name":"` + strings.Repeat("a", 5000) + `"}`}, 413)
+
+	var uid uuid.UUID
+	if err := r.rig.deps.DB.QueryRow(ctx, `select id from users where email = $1`, email).Scan(&uid); err != nil {
+		r.t.Fatalf("tra người dùng vừa đăng ký: %v", err)
+	}
+	tx, err := r.rig.deps.DB.Begin(ctx)
+	if err != nil {
+		r.t.Fatal(err)
+	}
+	tok, err := auth.Tokens{Clock: r.rig.deps.Clock}.Issue(ctx, tx, uid, auth.TokenVerifyEmail, time.Hour, nil)
+	if err != nil || tx.Commit(ctx) != nil {
+		r.t.Fatalf("phát token xác minh: %v", err)
+	}
+	r.must(call{method: "POST", path: "/api/v1/auth/verify-email", body: `{"token":""}`}, 422)
+	r.must(call{method: "POST", path: "/api/v1/auth/verify-email", body: `{"token":"` + tok + `"}`}, 200)
+	r.must(call{method: "POST", path: "/api/v1/auth/verify-email", body: `{"token":"` + tok + `"}`}, 410)
+
+	pending := "ct-rs-" + uuid.NewString()[:8] + "@example.test"
+	r.must(call{method: "POST", path: "/api/v1/auth/resend-verification", body: `{}`}, 422)
+	r.must(call{method: "POST", path: "/api/v1/auth/resend-verification", body: `{"email":"` + pending + `"}`}, 202)
+	r.must(call{method: "POST", path: "/api/v1/auth/resend-verification", body: `{"email":"` + pending + `"}`}, 429)
 }
 
 // llmScenarios gọi 13 thao tác cấu hình LLM (FEAT-llm-gateway US-P1-04) với mọi status đã khai báo, trên provider `fake`.

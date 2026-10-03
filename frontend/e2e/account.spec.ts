@@ -238,6 +238,125 @@ test("refresh hỏng giữa chừng ⇒ /login?next=; phiên bị thu hồi ⇒ 
   await expect(page.getByText("Bạn đã bị đăng xuất vì mật khẩu của tài khoản vừa được đổi.")).toBeVisible();
 });
 
+const REGISTER_MSG = "Nếu email này dùng được, chúng tôi đã gửi thư xác nhận. Kiểm tra hộp thư của bạn.";
+
+test("register page: nhãn, chú thích, autocomplete, một nút primary, lỗi từng ô, màn Kiểm tra email + đếm ngược gửi lại", async ({ page }) => {
+  await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
+  const posts: string[] = [];
+  let resends = 0;
+  await page.route("**/api/v1/auth/register", (r) => {
+    const b = JSON.parse(r.request().postData() ?? "{}") as Record<string, string>;
+    posts.push(JSON.stringify(b));
+    if (b.full_name === "Lỗi") return json(r, 422, err("VALIDATION_FAILED", "m", { details: [{ field: "email", code: "INVALID_EMAIL", message: "Email chưa đúng dạng, ví dụ ten@truong.edu.vn." }, { field: "password", code: "PASSWORD_TOO_SHORT", message: "Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte." }] }));
+    return json(r, 202, { message: REGISTER_MSG });
+  });
+  await page.route("**/api/v1/auth/resend-verification", (r) => {
+    resends++;
+    return json(r, 202, { message: "ok" });
+  });
+  await page.goto("/register");
+  await expect(page.getByRole("heading", { name: "Tạo tài khoản EduPilot" })).toBeVisible();
+  await expect(page.getByLabel("Họ và tên")).toBeVisible();
+  await expect(page.getByLabel("Email")).toHaveAttribute("autocomplete", "username");
+  await expect(page.getByLabel("Mã số sinh viên (không bắt buộc)")).toBeVisible();
+  await expect(page.getByText("Chỉ để giảng viên đối chiếu; không dùng để vào lớp.")).toBeVisible();
+  await expect(page.getByLabel("Mật khẩu", { exact: true })).toHaveAttribute("autocomplete", "new-password");
+  await expect(page.getByText("Ít nhất 10 ký tự, không phải mật khẩu phổ biến.")).toBeVisible();
+  const submit = page.getByRole("button", { name: "Tạo tài khoản", exact: true });
+  await expect(submit).toHaveCount(1);
+  await expect(submit).toHaveAttribute("data-variant", "primary");
+
+  await page.getByLabel("Họ và tên").fill("Lỗi");
+  await page.getByLabel("Email").fill("sai");
+  await page.getByLabel("Mật khẩu", { exact: true }).fill("ngan");
+  await submit.click();
+  await expect(page.getByLabel("Email")).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByText("Email chưa đúng dạng, ví dụ ten@truong.edu.vn.")).toBeVisible();
+  await expect(page.getByLabel("Mật khẩu", { exact: true })).toHaveAttribute("aria-invalid", "true");
+  await expect(page.getByLabel("Họ và tên")).toHaveValue("Lỗi"); // không mất chữ đã gõ
+
+  await page.getByLabel("Họ và tên").fill("Trần Thu Uyên");
+  await page.getByLabel("Email").fill("uyen@sv.example");
+  await page.getByLabel("Mã số sinh viên (không bắt buộc)").fill("20229002");
+  await page.getByLabel("Mật khẩu", { exact: true }).fill("Edupilot#2026-demo");
+  await submit.click();
+  await expect(page.getByRole("heading", { name: "Kiểm tra email của bạn" })).toBeVisible();
+  await expect(page.getByText("Nếu email này dùng được, chúng tôi đã gửi thư xác nhận.")).toBeVisible();
+  expect(JSON.parse(posts.at(-1) ?? "{}")).toEqual({ email: "uyen@sv.example", password: "Edupilot#2026-demo", full_name: "Trần Thu Uyên", student_code: "20229002" });
+  const resend = page.getByRole("button", { name: /^Gửi lại thư/ });
+  await expect(resend).toBeDisabled();
+  await expect(resend).toContainText(/\(\d+ giây\)/);
+  expect(resends).toBe(0);
+  const body = (await page.locator("main").innerText()).toLowerCase();
+  for (const w of ["token", "session", "refresh", "jwt", "bcrypt"]) expect(body).not.toContain(w);
+});
+
+test("register page: 375 px không tràn ngang, vùng chạm ≥ 44 px", async ({ page }) => {
+  await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
+  await page.setViewportSize({ width: 375, height: 800 });
+  await page.goto("/register");
+  await expect(page.getByRole("heading", { name: "Tạo tài khoản EduPilot" })).toBeVisible();
+  const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
+  const a = await runAudit(page, AUDIT_SRC);
+  expect(a.ox).toBeLessThanOrEqual(0);
+  expect(a.cut).toEqual([]);
+  expect(await page.evaluate(TOUCH_SRC)).toEqual([]);
+});
+
+test("verify page: xác minh tự động đúng một lần, token rời khỏi URL; thành công / đã dùng / hết hạn + gửi lại", async ({ page, request }) => {
+  await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
+  let calls = 0;
+  let mode: "ok" | "used" | "expired" = "ok";
+  const tokens: string[] = [];
+  await page.route("**/api/v1/auth/verify-email", async (r) => {
+    calls++;
+    tokens.push((JSON.parse(r.request().postData() ?? "{}") as { token: string }).token);
+    await new Promise((res) => setTimeout(res, 150));
+    if (mode === "ok") return json(r, 200, { status: "verified" });
+    return json(r, 410, err("LINK_INVALID", "m", { details: { reason: mode } }));
+  });
+  let resent = "";
+  await page.route("**/api/v1/auth/resend-verification", (r) => {
+    resent = r.request().postData() ?? "";
+    return json(r, 202, { message: "ok" });
+  });
+  const T = "A".repeat(43);
+
+  await page.goto(`/verify-email?token=${T}`);
+  await expect(page.getByText("Đang xác minh email…")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Email đã được xác minh." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Đăng nhập" })).toHaveAttribute("href", "/login");
+  expect(page.url()).not.toContain("token");
+  expect(await page.evaluate(() => location.search)).toBe("");
+  expect(calls).toBe(1);
+  expect(tokens).toEqual([T]);
+
+  mode = "used";
+  await page.goto(`/verify-email?token=${T}`);
+  await expect(page.getByText("Liên kết này đã được dùng. Nếu bạn đã xác minh, hãy đăng nhập.")).toBeVisible();
+
+  mode = "expired";
+  await page.goto(`/verify-email?token=${T}`);
+  await expect(page.getByRole("heading", { name: "Liên kết đã hết hạn." })).toBeVisible();
+  await page.getByLabel("Email").fill("uyen@sv.example");
+  await page.getByRole("button", { name: "Gửi lại thư" }).click();
+  await expect(page.getByText("Nếu email này cần xác minh, chúng tôi đã gửi lại thư.")).toBeVisible();
+  expect(JSON.parse(resent)).toEqual({ email: "uyen@sv.example" });
+  await expect(page.getByRole("button", { name: /^Gửi lại thư/ })).toBeDisabled();
+
+  await page.goto("/verify-email"); // thiếu token ⇒ trạng thái "không dùng được", không gọi máy chủ
+  await expect(page.getByRole("heading", { name: "Liên kết không dùng được" })).toBeVisible();
+  expect(calls).toBe(3);
+
+  const res = await request.get("/verify-email");
+  expect(res.headers()["referrer-policy"]).toBe("no-referrer");
+  expect(res.headers()["cache-control"]).toContain("no-store");
+});
+
 test("@real login + refresh qua Caddy cùng origin (cần stack Go: docker-compose.test.yml)", async () => {
   test.skip(true, "@real: cần stack Go + Caddy trên https://localhost — QC chạy tay");
+});
+
+test("@real register verify login (cần stack Go + Mailpit: đăng ký → đọc Mailpit → xác minh → đăng nhập → vào /)", async () => {
+  test.skip(true, "@real: cần stack Go + Mailpit trên https://localhost — QC chạy tay");
 });

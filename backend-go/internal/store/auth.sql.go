@@ -13,6 +13,31 @@ import (
 	"github.com/google/uuid"
 )
 
+const consumeAuthToken = `-- name: ConsumeAuthToken :one
+update auth_tokens
+set used_at = $1::timestamptz
+where token_hash = $2
+  and kind = $3
+  and used_at is null
+  and revoked_at is null
+  and expires_at > $1::timestamptz
+returning user_id
+`
+
+type ConsumeAuthTokenParams struct {
+	Now       time.Time
+	TokenHash string
+	Kind      AuthTokenKind
+}
+
+// Nguyên tử: hai yêu cầu song song cùng token ⇒ đúng một dòng trả về.
+func (q *Queries) ConsumeAuthToken(ctx context.Context, arg ConsumeAuthTokenParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, consumeAuthToken, arg.Now, arg.TokenHash, arg.Kind)
+	var user_id uuid.UUID
+	err := row.Scan(&user_id)
+	return user_id, err
+}
+
 const getAuthSessionRevokedReason = `-- name: GetAuthSessionRevokedReason :one
 select revoked_reason from auth_sessions where id = $1
 `
@@ -165,6 +190,69 @@ func (q *Queries) InsertLoginAttempt(ctx context.Context, arg InsertLoginAttempt
 	return err
 }
 
+const insertPendingStudent = `-- name: InsertPendingStudent :one
+
+insert into users (email, full_name, role, status, password_hash, student_code)
+values ($1, $2, 'STUDENT', 'PENDING_VERIFICATION', $3, $4)
+on conflict (email) do nothing
+returning id, email, password_hash, full_name, role, student_code, email_verified_at, failed_logins, locked_until, status, ics_token, tracking_notice_ack_at, last_login_at, version, created_at, updated_at
+`
+
+type InsertPendingStudentParams struct {
+	Email        string
+	FullName     string
+	PasswordHash *string
+	StudentCode  *string
+}
+
+// Đăng ký / xác minh email (US-P2-03). MSSV chỉ được GHI (InsertPendingStudent), không bao giờ nằm trong điều kiện nối lớp (SRS 4.2.5).
+// Idempotent theo email: trùng (cả khi hai đăng ký đua nhau) ⇒ không có dòng nào trả về, không lỗi, giao dịch không bị huỷ.
+func (q *Queries) InsertPendingStudent(ctx context.Context, arg InsertPendingStudentParams) (User, error) {
+	row := q.db.QueryRow(ctx, insertPendingStudent,
+		arg.Email,
+		arg.FullName,
+		arg.PasswordHash,
+		arg.StudentCode,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FullName,
+		&i.Role,
+		&i.StudentCode,
+		&i.EmailVerifiedAt,
+		&i.FailedLogins,
+		&i.LockedUntil,
+		&i.Status,
+		&i.IcsToken,
+		&i.TrackingNoticeAckAt,
+		&i.LastLoginAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const latestInviterName = `-- name: LatestInviterName :one
+select u.full_name
+from auth_tokens t
+join users u on u.id = t.created_by
+where t.user_id = $1 and t.kind = 'INVITE' and t.created_by is not null
+order by t.created_at desc
+limit 1
+`
+
+// Tên người đã phát lời mời gần nhất cho user (để gửi lại thư mời); không có ⇒ không dòng.
+func (q *Queries) LatestInviterName(ctx context.Context, userID uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, latestInviterName, userID)
+	var full_name string
+	err := row.Scan(&full_name)
+	return full_name, err
+}
+
 const lockAuthSessionByRefresh = `-- name: LockAuthSessionByRefresh :one
 select id, user_id, refresh_hash, prev_refresh_hash, user_agent, device_label, ip, created_at, rotated_at, last_used_at, expires_at, absolute_expires_at, revoked_at, revoked_reason, updated_at from auth_sessions
 where refresh_hash = $1 or prev_refresh_hash = $1
@@ -193,6 +281,63 @@ func (q *Queries) LockAuthSessionByRefresh(ctx context.Context, hash string) (Au
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const markEmailVerified = `-- name: MarkEmailVerified :one
+update users
+set email_verified_at = coalesce(email_verified_at, $1::timestamptz),
+    status = case when status = 'PENDING_VERIFICATION' then 'ACTIVE'::user_status else status end
+where id = $2
+returning id, email, password_hash, full_name, role, student_code, email_verified_at, failed_logins, locked_until, status, ics_token, tracking_notice_ack_at, last_login_at, version, created_at, updated_at
+`
+
+type MarkEmailVerifiedParams struct {
+	Now time.Time
+	ID  uuid.UUID
+}
+
+func (q *Queries) MarkEmailVerified(ctx context.Context, arg MarkEmailVerifiedParams) (User, error) {
+	row := q.db.QueryRow(ctx, markEmailVerified, arg.Now, arg.ID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FullName,
+		&i.Role,
+		&i.StudentCode,
+		&i.EmailVerifiedAt,
+		&i.FailedLogins,
+		&i.LockedUntil,
+		&i.Status,
+		&i.IcsToken,
+		&i.TrackingNoticeAckAt,
+		&i.LastLoginAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const promoteUnverifiedRosterEnrollments = `-- name: PromoteUnverifiedRosterEnrollments :execrows
+update enrollments
+set status = 'ACTIVE', previous_status = 'PENDING', warning = null, status_changed_at = $1::timestamptz, version = version + 1
+where user_id = $2 and status = 'PENDING' and warning = 'EMAIL_UNVERIFIED'
+`
+
+type PromoteUnverifiedRosterEnrollmentsParams struct {
+	Now    time.Time
+	UserID uuid.UUID
+}
+
+// Email đã xác minh trùng email trong danh sách lớp ⇒ đẩy các enrollment PENDING (cảnh báo EMAIL_UNVERIFIED) thành ACTIVE.
+func (q *Queries) PromoteUnverifiedRosterEnrollments(ctx context.Context, arg PromoteUnverifiedRosterEnrollmentsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, promoteUnverifiedRosterEnrollments, arg.Now, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const revokeAuthSession = `-- name: RevokeAuthSession :execrows

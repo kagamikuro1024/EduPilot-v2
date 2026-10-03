@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
+
 	"github.com/edupilot/backend-go/internal/auth"
 )
 
@@ -62,4 +64,14 @@ func TestGolden_Auth(t *testing.T) {
 	do("/refresh", "", origin, "refresh.401", 401)
 	do("/refresh", "", map[string]string{"Origin": "https://localhost", "Cookie": "ep_rt=" + rt}, "refresh", 200)
 	do("/refresh", "", map[string]string{"Origin": "https://evil.example"}, "refresh.403", 403)
+
+	// US-P2-03: đăng ký / xác minh / gửi lại
+	regEmail := "golden.reg." + uuid.NewString()[:8] + "@example.test" // duy nhất mỗi lần chạy: khoá gửi lại ở Redis sống 60 s qua các lần chạy
+	reg := `{"email":"` + regEmail + `","password":"Edupilot#2026-demo","full_name":"Nguyễn Minh Trung"}`
+	do("/register", reg, nil, "register", 202)
+	do("/register", reg, nil, "register.existing", 202) // email đã có: cùng thân
+	do("/register", `{"email":"a@b","password":"x","full_name":""}`, nil, "register.422", 422)
+	do("/verify-email", `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}`, nil, "verify-email.410", 410)
+	do("/resend-verification", `{"email":"`+regEmail+`"}`, nil, "resend-verification", 202)
+	do("/resend-verification", `{"email":"`+regEmail+`"}`, nil, "resend-verification.429", 429)
 }

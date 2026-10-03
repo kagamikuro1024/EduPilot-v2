@@ -59,6 +59,7 @@ type Config struct {
 	RefreshTokenTTL     time.Duration
 	SessionAbsoluteTTL  time.Duration
 	CookieDomain        string
+	AuthResendWindow    time.Duration
 	BcryptCost          int
 	RateLimitIPPerMin   int
 	RateLimitUserPerMin int
@@ -190,6 +191,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 		l.bad("SESSION_ABSOLUTE_TTL", "phải ≥ REFRESH_TOKEN_TTL")
 	}
 	c.CookieDomain = l.str("COOKIE_DOMAIN", "")
+	c.AuthResendWindow = time.Duration(l.num("AUTH_RESEND_SECONDS", 60, 1, 3600)) * time.Second
 	c.BcryptCost = l.num("BCRYPT_COST", 12, 4, 14)
 	c.RateLimitIPPerMin = l.num("RATE_LIMIT_IP_PER_MIN", 300, 1, 1_000_000)
 	c.RateLimitUserPerMin = l.num("RATE_LIMIT_USER_PER_MIN", 600, 1, 1_000_000)

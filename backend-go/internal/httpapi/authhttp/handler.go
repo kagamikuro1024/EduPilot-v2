@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
@@ -26,8 +27,11 @@ const (
 // Handler là nhóm đường /auth/*.
 type Handler struct {
 	Sessions *auth.Sessions
-	Cfg      config.Config
-	Log      *slog.Logger
+	Accounts *auth.Accounts
+	// Verify kiểm Bearer tuỳ chọn (resend-verification khi đã đăng nhập, không kèm thân); nil = không hỗ trợ.
+	Verify func(raw string) (auth.Principal, error)
+	Cfg    config.Config
+	Log    *slog.Logger
 	// ClientIP trả IP đã kiểm chứng của request (theo TRUSTED_PROXY_CIDRS); nil → không ghi IP.
 	ClientIP func(*http.Request) string
 }
@@ -37,6 +41,9 @@ func (h *Handler) Mount(r chi.Router) {
 	r.Route("/auth", func(r chi.Router) {
 		r.Use(noStore)
 		r.Post("/login", h.login)
+		r.Post("/register", h.register)
+		r.Post("/verify-email", h.verifyEmail)
+		r.Post("/resend-verification", h.resendVerification)
 		r.With(h.cookieGuard).Post("/refresh", h.refresh)
 		r.With(h.cookieGuard).Post("/logout", h.logout)
 	})
@@ -184,4 +191,115 @@ func (h *Handler) cookieGuard(next http.Handler) http.Handler {
 
 func forbiddenOrigin(w http.ResponseWriter, r *http.Request) {
 	apierr.Write(w, r, apierr.New(http.StatusForbidden, apierr.Forbidden).WithDetails(map[string]string{"reason": "origin"}))
+}
+
+type registerBody struct {
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	FullName    string `json:"full_name"`
+	StudentCode string `json:"student_code"`
+}
+
+type messageBody struct {
+	Message string `json:"message"`
+}
+
+// Một câu cho MỌI kết quả hợp lệ của register (chống dò email — SRS 4.2.3).
+const registerMessage = "Nếu email này dùng được, chúng tôi đã gửi thư xác nhận. Kiểm tra hộp thư của bạn."
+
+func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
+	var b registerBody
+	if !httpx.DecodeJSON(w, r, &b) { // trường lạ (role, status, email_verified_at…) ⇒ 422, không bị bỏ qua
+		return
+	}
+	err := h.Accounts.Register(r.Context(), auth.RegisterInput{Email: b.Email, Password: b.Password, FullName: b.FullName, StudentCode: b.StudentCode})
+	if h.writeAccountErr(w, r, "register", err) {
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, messageBody{Message: registerMessage})
+}
+
+type tokenBody struct {
+	Token string `json:"token" validate:"required,max=128"`
+}
+
+func (h *Handler) verifyEmail(w http.ResponseWriter, r *http.Request) {
+	var b tokenBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	if h.writeAccountErr(w, r, "verify-email", h.Accounts.VerifyEmail(r.Context(), b.Token)) {
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "verified"})
+}
+
+type resendBody struct {
+	Email string `json:"email" validate:"max=320"`
+}
+
+func (h *Handler) resendVerification(w http.ResponseWriter, r *http.Request) {
+	var b resendBody
+	// Thân tuỳ chọn khi đã đăng nhập: chỉ đọc nếu có.
+	if r.ContentLength != 0 {
+		if !httpx.DecodeJSON(w, r, &b) {
+			return
+		}
+	}
+	email := b.Email
+	if email == "" {
+		email = h.emailFromBearer(r)
+	}
+	if strings.TrimSpace(email) == "" {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "email", Code: "INVALID_EMAIL", Message: "Cần nhập email."}))
+		return
+	}
+	if h.writeAccountErr(w, r, "resend-verification", h.Accounts.ResendVerification(r.Context(), email)) {
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, messageBody{Message: "Nếu email này cần xác minh, chúng tôi đã gửi lại thư."})
+}
+
+// emailFromBearer: email của người đang đăng nhập (Bearer hợp lệ); không hợp lệ ⇒ "". Chỉ để biết GỬI TỚI ĐÂU, không cấp quyền gì.
+func (h *Handler) emailFromBearer(r *http.Request) string {
+	hdr := r.Header.Get("Authorization")
+	const prefix = "bearer "
+	if h.Verify == nil || len(hdr) <= len(prefix) || !strings.EqualFold(hdr[:len(prefix)], prefix) {
+		return ""
+	}
+	p, err := h.Verify(strings.TrimSpace(hdr[len(prefix):]))
+	if err != nil {
+		return ""
+	}
+	id, err := uuid.Parse(p.Sub)
+	if err != nil {
+		return ""
+	}
+	email, _ := h.Accounts.UserEmail(r.Context(), id)
+	return email
+}
+
+// writeAccountErr ánh xạ lỗi nghiệp vụ của Accounts sang apierr; true = đã ghi phản hồi lỗi.
+func (h *Handler) writeAccountErr(w http.ResponseWriter, r *http.Request, op string, err error) bool {
+	if err == nil {
+		return false
+	}
+	var ve *auth.ValidationError
+	var le *auth.LinkError
+	var te *auth.ThrottledError
+	switch {
+	case errors.As(err, &ve):
+		fs := make([]apierr.FieldError, len(ve.Problems))
+		for i, p := range ve.Problems {
+			fs[i] = apierr.FieldError{Field: p.Field, Code: p.Code, Message: p.Message}
+		}
+		apierr.Write(w, r, apierr.Validation(fs...))
+	case errors.As(err, &le):
+		apierr.Write(w, r, apierr.New(http.StatusGone, apierr.LinkInvalid).WithDetails(map[string]string{"reason": le.Reason}))
+	case errors.As(err, &te):
+		apierr.Write(w, r, apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithRetryAfter(te.RetryAfter))
+	default:
+		h.internal(w, r, op, err)
+	}
+	return true
 }

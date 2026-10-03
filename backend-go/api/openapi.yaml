@@ -1,12 +1,12 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.4.0
+  version: 0.5.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
     build tag `testroutes`. Phase PG chưa có endpoint nghiệp vụ; P1 (FEAT-llm-gateway US-P1-04) thêm 13 thao tác `/admin/llm/*` và `/courses/{id}/llm-budget`.
-    P2 (FEAT-account-security US-P2-02) thêm 3 thao tác `/auth/{login,refresh,logout}`: công khai (không Bearer); `refresh`/`logout` dùng cookie `ep_rt` (HttpOnly) + kiểm Origin.
+    P2 (FEAT-account-security US-P2-02) thêm 6 thao tác `/auth/{login,refresh,logout,register,verify-email,resend-verification}`: công khai (không Bearer); `refresh`/`logout` dùng cookie `ep_rt` (HttpOnly) + kiểm Origin.
   license:
     name: Proprietary
     identifier: LicenseRef-Proprietary
@@ -425,6 +425,75 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Sinh viên tự đăng ký (công khai; CHỈ tạo STUDENT chờ xác minh). Mọi kết quả hợp lệ trả cùng một thân (chống dò email)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "202":
+          description: Đã nhận (không cho biết email có sẵn hay không)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "413":
+          $ref: "#/components/responses/ValidationFailed"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/auth/verify-email:
+    post:
+      operationId: verifyEmail
+      tags: [auth]
+      summary: Xác minh email bằng liên kết một lần (công khai); 410 LINK_INVALID kèm details.reason expired|used|invalid
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TokenRequest"
+      responses:
+        "200":
+          description: Email đã được xác minh
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusResult"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/auth/resend-verification:
+    post:
+      operationId: resendVerification
+      tags: [auth]
+      summary: Gửi lại thư xác minh (công khai kèm email, hoặc đã đăng nhập không kèm thân); 1 lần / 60 giây theo băm email
+      security: []
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendRequest"
+      responses:
+        "202":
+          description: Đã nhận (không cho biết email có cần xác minh hay không)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/auth/login:
     post:
       operationId: login
@@ -592,6 +661,12 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+    Gone:
+      description: Liên kết một lần không dùng được (`LINK_INVALID`, `details.reason` = `expired` | `used` | `invalid`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
     RateLimited:
       description: Quá hạn mức (`RATE_LIMITED`, `SSE_LIMIT_REACHED`); kèm `Retry-After`
       headers:
@@ -625,6 +700,46 @@ components:
         email:
           type: string
         password:
+          type: string
+    RegisterRequest:
+      type: object
+      required: [email, password, full_name]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+        full_name:
+          type: string
+        student_code:
+          type: string
+    TokenRequest:
+      type: object
+      required: [token]
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+    ResendRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+    Message:
+      type: object
+      required: [message]
+      additionalProperties: false
+      properties:
+        message:
+          type: string
+    StatusResult:
+      type: object
+      required: [status]
+      additionalProperties: false
+      properties:
+        status:
           type: string
     AuthUser:
       type: object

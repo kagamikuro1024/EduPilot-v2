@@ -31,3 +31,4 @@
 .links a:hover { color: var(--ep-ink); }
 .dev { margin-top: var(--ep-space-8); border-top: 1px solid var(--ep-rule); padding-top: var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-3); }
 .dev summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
+.hint { color: var(--ep-ink-2); font-size: var(--ep-text-label); }

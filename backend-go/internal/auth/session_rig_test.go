@@ -2,24 +2,30 @@ package auth_test
 
 import (
 	"bytes"
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"io"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi"
+	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 	"github.com/edupilot/backend-go/internal/testutil"
@@ -211,3 +217,67 @@ func (r *sessRig) devToken(sub string) string {
 func authHash(cost int) (string, error) { return auth.HashPassword(rigPassword, cost) }
 
 func hashOf(s string) string { return auth.HashToken(s) }
+
+// mailbox giả: nhận thư mà consumer thật (mail.Handler) dựng, không qua SMTP.
+type captureSender struct {
+	mu   sync.Mutex
+	sent []mail.Mail
+}
+
+func (c *captureSender) Send(_ context.Context, m mail.Mail) error {
+	c.mu.Lock()
+	c.sent = append(c.sent, m)
+	c.mu.Unlock()
+	return nil
+}
+
+var linkTokenRE = regexp.MustCompile(`(?:token=|/invite/)([A-Za-z0-9_-]{43})`)
+
+// deliver chạy consumer thật cho MỌI thư đang QUEUED của `to`; trả thư cuối cùng (kèm token rõ trích từ liên kết).
+func (r *sessRig) deliver(to string) (mail.Mail, string) {
+	r.t.Helper()
+	rows, err := r.pool.Query(r.t.Context(), `select id from mail_outbox where to_addr = $1 and status = 'QUEUED' order by created_at, id`, to)
+	require.NoError(r.t, err)
+	ids, err := pgx.CollectRows(rows, pgx.RowTo[uuid.UUID])
+	require.NoError(r.t, err)
+	require.NotEmpty(r.t, ids, "không có thư QUEUED cho %s", to)
+	cs := &captureSender{}
+	cfg := config.Config{
+		AppPublicURL: "https://localhost", MailFrom: "EduPilot <no-reply@edupilot.local>", MailSendTimeout: time.Second,
+		VerifyTokenTTL: 24 * time.Hour, ResetTokenTTL: 30 * time.Minute, InviteTokenTTL: 72 * time.Hour,
+		OutboxRetryBackoff: []time.Duration{time.Second, time.Second, time.Second},
+	}
+	h := &mail.Handler{Pool: r.pool, Clock: r.clk, Sender: cs, Cfg: cfg, Log: slog.New(slog.NewTextHandler(io.Discard, nil))}
+	for _, id := range ids {
+		require.NoError(r.t, h.Handle(r.t.Context(), outbox.Message{Topic: mail.Topic, Payload: []byte(`{"mail_id":"` + id.String() + `"}`)}))
+	}
+	last := cs.sent[len(cs.sent)-1]
+	if m := linkTokenRE.FindStringSubmatch(last.Text); m != nil {
+		return last, m[1]
+	}
+	return last, ""
+}
+
+// mails đếm thư theo (người nhận, mẫu) trong mail_outbox, mọi trạng thái.
+func (r *sessRig) mails(to, template string) int {
+	r.t.Helper()
+	var n int
+	require.NoError(r.t, r.pool.QueryRow(r.t.Context(), `select count(*) from mail_outbox where to_addr = $1 and ($2 = '' or template = $2)`, to, template).Scan(&n))
+	return n
+}
+
+func (r *sessRig) register(body any) resp {
+	return r.do(req{path: "/auth/register", body: body, hdr: map[string]string{"Origin": rigOrigin}})
+}
+
+func (r *sessRig) verify(token string) resp {
+	return r.do(req{path: "/auth/verify-email", body: map[string]string{"token": token}})
+}
+
+func (r *sessRig) resend(email string) resp {
+	return r.do(req{path: "/auth/resend-verification", body: map[string]string{"email": email}})
+}
+
+func regBody(email string) map[string]string {
+	return map[string]string{"email": email, "password": rigPassword, "full_name": "Nguyễn Văn An"}
+}

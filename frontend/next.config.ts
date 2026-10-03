@@ -12,6 +12,11 @@ const loginChoices = process.env.NEXT_PUBLIC_DEV_TOOLS === "1" ? "./src/app/logi
 const config = (phase: string): NextConfig => ({
   turbopack: { resolveAlias: { "@ep/login-choices": loginChoices } },
   output: "standalone",
+  // Trang nhận liên kết một lần (xác minh email, đặt lại mật khẩu, lời mời): không gửi Referer, không cache (SRS FEAT-account-security 6.3).
+  async headers() {
+    const h = [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "Cache-Control", value: "no-store" }];
+    return ["/verify-email", "/reset-password", "/invite/:path*"].map((source) => ({ source, headers: h }));
+  },
   // Không để Next tự sinh AGENTS.md / CLAUDE.md trong frontend/ (luật agent nằm ở CLAUDE.md gốc).
   agentRules: false,
   devIndicators: false,

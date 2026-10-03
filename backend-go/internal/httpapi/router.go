@@ -16,10 +16,12 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
+	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -44,6 +46,8 @@ type Deps struct {
 	LLM       *llmrt.Runtime
 	// Sessions: đăng nhập / làm mới / thu hồi (US-P2-02). Trống thì dựng từ Cfg + DB + Redis.
 	Sessions *auth.Sessions
+	// Accounts: đăng ký / xác minh email / gửi lại (US-P2-03).
+	Accounts *auth.Accounts
 }
 
 // now là đồng hồ của request (Clock trống → đồng hồ hệ thống).
@@ -113,7 +117,16 @@ func withDefaults(d Deps) Deps {
 		}
 		d.Sessions = auth.NewSessions(d.DB, d.Redis, d.Clock, auth.NewIssuer(d.Cfg.JWTSecretKey, d.Cfg.AccessTokenTTL, d.Clock), cfg, d.Log)
 	}
+	if d.Accounts == nil && d.DB != nil {
+		d.Accounts = auth.NewAccounts(d.DB, d.Redis, d.Clock, queueMail, auth.AccountsConfig{BcryptCost: d.Cfg.BcryptCost, ResendWindow: d.Cfg.AuthResendWindow, VerifyTTL: d.Cfg.VerifyTokenTTL}, d.Log)
+	}
 	return d
+}
+
+// queueMail nối auth với internal/mail (auth không import mail: consumer thư gọi auth.Tokens).
+func queueMail(ctx context.Context, tx pgx.Tx, to, template string, payload map[string]any, dedupe string) error {
+	_, _, err := mail.Enqueue(ctx, tx, mail.Message{To: to, Template: template, Payload: payload, DedupeKey: dedupe})
+	return err
 }
 
 // newRouterWith dựng router với một hàm đăng ký route của nhóm nghiệp vụ (test mount handler tạm).
