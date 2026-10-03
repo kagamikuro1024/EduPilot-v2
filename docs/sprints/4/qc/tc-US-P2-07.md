@@ -1,0 +1,68 @@
+# QC test case — US-P2-07 (lược đồ lớp `00003`, `CourseAccessGuard` thật theo `enrollments`, `/me/courses`, hồ sơ, tuỳ chọn)
+Nguồn: `docs/specs/FEAT-course-foundation/US.md` US-P2-07 AC1–AC14 + `SRS.md` 4.1 (ma trận guard), 5.2–5.9 (8 bảng), PRD §3 / M0 (cách ly lớp), `AGENTS.md` ("Cấm tuyệt đối": MSSV tự khai; ADMIN không đọc dữ liệu lớp mặc định). **Trọng tâm tấn công:** IDOR giữa lớp (sinh viên lớp 1 gọi lớp 2), PENDING / REMOVED còn truy cập, ADMIN bỏ qua guard, route quên guard, chunk không lọc lớp, đổi MSSV để chui vào dữ liệu người khác.
+
+Tiền điều kiện chung: stack test + **seed** (US-P2-12): lớp `C1` (761987), `C2` (761988); `$A` Admin, `$T` GV, `$TA_` TA, `$SVA` (lớp 1 + 2), `$SVB` (chỉ lớp 1), `$SVD` (chưa lớp), biến như `FEAT-course-foundation/US.md` "Quy ước kiểm chung". QC dựng thêm người / ghi danh bằng DB cho các trạng thái `PENDING`, `REMOVED`. Công cụ: **S** `scripts/p207.sh`, **D**, **A**, **G**. Thiếu seed / route → FAIL "KHÔNG KIỂM ĐƯỢC".
+
+| TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
+| --- | --- | --- | --- | --- |
+| TC-P207-01 | AC1 | DB mới tới `00004` | **D** `select count(*) from information_schema.tables where table_name in ('courses','enrollments','class_sessions','notifications','user_settings','documents','content_chunks','document_courses')`; dump cột / CHECK / chỉ mục và so với SRS 5.2–5.9 (QC chép bảng thành `expected-course.tsv`) | `8`; khớp từng cột (có `documents.blob_key`, `visible_to_students`, `use_for_rag`, `category`, `week_no`, `download_count`; `content_chunks.course_ids uuid[]` + GIN, `audience`, `embedding vector(1536)`); chỉ mục phức hợp bảng thuộc lớp **bắt đầu bằng `course_id`**; không bảng `00001`–`00002` bị sửa |
+| TC-P207-02 | AC1 | – | **D** `select indexdef from pg_indexes where tablename='content_chunks' and indexdef ilike '%gin%course_ids%'`; `\dx` có `vector` | đúng 1 dòng; extension `vector` bật |
+| TC-P207-03 | AC1 | – | **G** `-run TestCourseSchema -v`; `git diff --stat origin/main -- backend-go/db/migrations/0000[12]*` | `ok`; rỗng |
+| TC-P207-04 | AC2 | DB | **D** QC tự `INSERT` sai bằng `psql` cho **mọi** ca (≥ 20): `join_code` có `0`,`O`,`1`,`I`,`L` / sai độ dài; trùng `class_code`/`join_code`; `semester='2026'`; `ARCHIVED` thiếu `archived_at` và ngược lại; `ARCHIVED` có `join_enabled=true`; `capacity=0`, `1001`; `allowed_email_domain='x'`; `enrollments` trùng `(course_id,user_id)`; hai GV `ACTIVE` cùng lớp; `student_code_snapshot` ≠ NULL cho vai TA; `REMOVED` thiếu `removed_at`; `class_sessions.ends_at<=starts_at`; trùng buổi | Mỗi ca bị từ chối `23514`/`23505`; 0 dòng lọt; ca lành (`join_code='ABCDEFG'`, `semester='2026-2027-HK1'`) được chấp nhận |
+| TC-P207-05 | AC2 | – | **G** `-run TestCourseConstraints -v` | `ok`; ≥ 20 ca |
+| TC-P207-06 | AC3 | 20.000 dòng giả | **D** `EXPLAIN (FORMAT JSON)`: tra `enrollments (course_id,user_id)`, `(user_id,status)`, thành viên `(course_id,status,…)`, `join_code`, `course_ids @> ARRAY[$1]::uuid[]`, `notifications (user_id,created_at desc,id desc)` | Dùng chỉ mục; **không** `Seq Scan` ở bảng > 1.000 dòng; chunk dùng `Bitmap Index Scan` GIN |
+| TC-P207-07 | AC3 | – | **G** `-run TestCourseIndexes -v` | `ok` |
+| TC-P207-08 | AC4 (**IDOR lớp — tấn công chính**) | `$SVB` chỉ học `C1` | **S** `curl -sk -H "$SVB" -o /dev/null -w '%{http_code}\n'` tới **mọi** `…/courses/$C2/…` đã đăng ký (liệt kê bằng `openapi.yaml`): `sessions`, `members`, `join-code`, `today`, `documents`… ; đọc thân (có lộ tên lớp?) | **403 `FORBIDDEN` `details.reason="course"`** cho **mọi** route; thân không chứa dữ liệu lớp 2 (tên GV, tên lớp, số liệu); cùng mã và cùng độ dài thân với lớp **không tồn tại** là **không** yêu cầu (lớp 2 có thật → `403`; uuid không có → `403`/`404` ghi lại để so — không lộ tồn tại thì tốt hơn, ghi nhận) |
+| TC-P207-09 | AC4 (tổ hợp vai × ghi danh) | DB: người có `ACTIVE`, `PENDING`, `REMOVED`, không ghi danh × chế độ route `Member`, `Staff`, `Teacher`, `Manage` | **S** QC dựng ma trận (≥ 48 ca) bằng `INSERT enrollments` rồi gọi 1 route đại diện mỗi chế độ (đọc chế độ từ SRS 4.1 / `openapi.yaml`) | Đúng ma trận SRS 4.1: người ngoài / `PENDING` / `REMOVED` → `403 details.reason="course"`; vai trong lớp lấy từ `enrollments.role_in_course` (đổi vai DB thì kết quả đổi, **không** theo vai JWT); thành viên `ACTIVE` đúng chế độ → 2xx |
+| TC-P207-10 | AC4 (**ADMIN bị từ chối mặc định**) | `$A` | **S** Admin gọi mọi route lớp `Member`/`Staff`/`Teacher` của `C1` (`sessions`, `members`, `today`…); route `Manage` được ghi rõ (SRS 4.1) | **403** ở mọi route ngoài danh sách `Manage`/xem quản lý đã ghi (PRD §3); Admin **không** đọc được nội dung lớp |
+| TC-P207-11 | AC4 (id sai, DB lỗi, cache) | – | **S** `…/courses/abc/…`, `…/courses/00000000-0000-0000-0000-000000000000/…`; dừng Postgres 3 s khi gọi; đổi `enrollments` → gọi ngay lại | `abc` → `404`; uuid không có → `403`/`404` nhất quán; DB chết → `503` (không `200`); **không cache**: gỡ thành viên (`REMOVED`) → request kế tiếp `403` **ngay** |
+| TC-P207-12 | AC4 (token giả) | – | **S** JWT ký sai / `alg=none` / `role=TEACHER` sửa tay vào route `Teacher` | `401`; không qua guard |
+| TC-P207-13 | AC4 | – | **G** `-run 'TestGuardMatrix\|TestGuardNonUUID404\|TestGuardResolverError503\|TestGuardNoCache\|TestGuardAdminDeniedByDefault'` | `ok`; ≥ 48 ca |
+| TC-P207-14 | AC5 (không sót route) | repo | **S** liệt kê route: `grep -E '/courses/\{' backend-go/openapi.yaml` và so với `chi.Walk` (đọc `TestAllCourseRoutesGuarded`); gieo một route mới `GET /courses/{courseId}/qc-probe` **không guard** (tệp tạm, không commit) → chạy test; xoá | Mọi route có `{courseId}` mang `CourseAccessGuard`; route gieo **làm test đỏ**; xoá → xanh; `git status` sạch |
+| TC-P207-15 | AC5 (người ngoài gọi mọi route) | – | **S** `$SVB` + `$SVD` + token **không ghi danh** gọi **từng** route lớp 2 (danh sách tự sinh từ `openapi.yaml`, thay `{courseId}`), mọi phương thức (GET/POST/PUT/PATCH/DELETE) với thân `{}` | Không có phản hồi **2xx** nào; không `5xx`; mọi `POST/PUT/PATCH/DELETE` cũng `403` **trước** khi đọc thân / đổi DB (DB không đổi) |
+| TC-P207-16 | AC5 | – | **G** `go test ./internal/integration -run 'TestAllCourseRoutesGuarded\|TestCourseIsolation' -v` | `ok` (`today`, `members`, `join-code`, `sessions` 403; không dữ liệu lớp 2 trong `me/today`, `me/courses`, `notifications`) |
+| TC-P207-17 | AC6 (chunk lọc lớp) | `content_chunks`: chunk X∈`[c1]`, Y∈`[c1,c2]`, Z∈`[c3]` (INSERT bằng DB) | **S** `store.ChunksForCourse` qua test tạm Go (`internal/store/qc_probe_test.go`) hoặc truy vấn tương ứng của dev; `grep -rn 'FROM content_chunks' backend-go/internal/store/queries \| grep -vc 'course_ids'` | c2 chỉ thấy Y; c3 không thấy X, Y; c1 thấy X, Y; **0** truy vấn đọc chunk không có điều kiện `course_ids`; không hàm "đọc chunk không lọc lớp" (`grep` `0`) |
+| TC-P207-18 | AC6 | – | **G** `-run 'TestChunksForCourseIsolation\|TestNoUnscopedChunkQuery'` | `ok` |
+| TC-P207-19 | AC7 | seed | **S** `curl -sk -H "$SVA" $GW/api/v1/me/courses \| jq '[.items[].course.class_code]\|sort'`; `$SVB`; `$SVD`; `$T`; `$A`; `$TA_` | A: `["761987","761988"]`; B: `["761987"]`; D: `[]`; GV / TA: lớp được phân công; **Admin: rỗng**; mỗi mục `{course:{id,class_code,subject_code,name,semester,status}, role_in_course, enrollment_status}`; **không** `join_code` ở bất kỳ mục |
+| TC-P207-20 | AC7 (PENDING/REMOVED) | DB: B `PENDING` ở lớp 2, A `REMOVED` ở lớp 2 | **S** `me/courses` của B và A | B thấy lớp 2 với `enrollment_status=PENDING`; A **không** thấy lớp `REMOVED`; không bao giờ lớp của **người khác** |
+| TC-P207-21 | AC7 (phân trang, ETag) | – | **S** `?limit=1&cursor=…` đi hết; `limit=101`; `If-None-Match` với `ETag` trước; số truy vấn | `limit` mặc định 30, tối đa 100 (`101` → `422`); `ETag` + `304`; một truy vấn (không N+1) |
+| TC-P207-22 | AC7 | – | **G** `-run 'TestMeCoursesStudent\|TestMeCoursesStaff\|TestMeCoursesAdminEmpty\|TestMeCoursesNoJoinCode\|TestMeCoursesETag\|TestMeCoursesNoNPlusOne'` | `ok` |
+| TC-P207-23 | AC8 | – | **S** `curl -sk -H "$SVB" $GW/api/v1/courses/$C1 \| jq 'has("join_code"), has("counts"), .my_role, (.teachers\|length)'`; GV `$T`; Admin; người ngoài `$SVB` lớp 2 | SV: `false`, `false`, `STUDENT`, ≥ 1 GV chỉ `{full_name}` (**không email**); GV / TA có `counts:{students_active,students_pending}` (đối chiếu SQL); Admin xem bản cơ bản; ngoài lớp → `403` |
+| TC-P207-24 | AC8 | – | **G** `-run 'TestGetCourseStudentView\|TestGetCourseStaffView\|TestGetCourseAdminBasic\|TestGetCourseOutsider403'` | `ok` |
+| TC-P207-25 | AC9 (**đổi MSSV chui lớp**) | `$SVB` có `student_code_snapshot=X` ở lớp 1 | **S** `PUT /me/profile {"student_code":"<MSSV của A>","version":N}`; kiểm `enrollments.student_code_snapshot` của B và dữ liệu thấy được; thử `student_code` rồi gọi các route lớp | `200`; `users.student_code` đổi nhưng **mọi** `student_code_snapshot` **không đổi** (`md5` trước-sau); B **không** thấy thêm dữ liệu / lớp mới; `audit_log` +1 dòng không có mật khẩu |
+| TC-P207-26 | AC9 (trường chỉ đọc) | – | **S** `PUT /me/profile` với `role`, `email`, `id`, `status`, `student_code:"x"`, `full_name:""`, 101 ký tự, sai `version` | `role`/`email`/trường lạ → `422`; sai định dạng → `422`; sai `version` → `409 VERSION_CONFLICT` kèm bản hiện tại; `ETag` ở `GET` |
+| TC-P207-27 | AC9 | – | **G** `-run 'TestProfileGetPut\|TestProfileReadOnlyFields\|TestProfileVersionConflict\|TestProfileStudentCodeDoesNotChangeSnapshot\|TestProfileAudit'` | `ok` |
+| TC-P207-28 | AC10 | người dùng mới | **S** `GET /me/settings` lần đầu (tạo lười), lần 2; `PUT` với khoá lạ; `GET /users/<id khác>/settings` | Mặc định `{notify_ticket_by_mail:true, notify_answer_by_mail:true, remind_deadline_by_mail:true, version}`; 1 dòng `user_settings` (không trùng khi 2 yêu cầu song song: `xargs -P10` → 1 dòng); khoá lạ → `422`; không đường `user_id` |
+| TC-P207-29 | AC10 | – | **G** `-run 'TestSettingsDefaultsLazyCreate\|TestSettingsPut\|TestSettingsUnknownKey422\|TestSettingsOwnerOnly'` | `ok` |
+| TC-P207-30 | AC11 | GV `$T` 2 lớp, SV A 2 lớp, B 1, D 0 | **A** mở bộ chọn lớp ở 1440 và 390: liệt kê, "Tất cả lớp của tôi", "Quản lý lớp này", "Tham gia lớp bằng mã"; chuỗi dài | GV: 2 lớp + "Tất cả lớp của tôi" + "Quản lý lớp này"; SV A 2 lớp; B 1; D "Chưa có lớp"; SV có "Tham gia lớp bằng mã"; lớp dài `…` + `title`; **không** thêm mục sidebar; `AUDIT_SRC` `ell: []` |
+| TC-P207-31 | AC11 (**id lớp lạ**) | B không học lớp 2 | **A** mở `/?course=$C2`; `localStorage['ep:ui:course']=$C2` rồi tải lại | Vẫn **lớp 1** (id không thuộc người này bị bỏ); không gọi dữ liệu lớp 2 (đếm request `/courses/$C2/` = 0); `ep:ui:course` lưu id lớp / `all`, không bí mật |
+| TC-P207-32 | AC11 | – | **G** `$PW class-join.spec.ts -g 'course picker'` | `rc=0` |
+| TC-P207-33 | AC12 | SV D (chưa lớp) | **A** mở 7 route: `/chat`, `/threads`, `/practice`, `/library`, `/calendar`, `/me`, `/assignments/x`; đếm request `/api/v1/courses/`; `/` và `/join` | **Cùng một màn** "Bạn chưa vào lớp nào" + "Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này." + `Tham gia lớp bằng mã` (không phải màn chặn quyền); **0** request dữ liệu lớp; `/` và `/join` mở |
+| TC-P207-34 | AC12 | – | **G** `$PW class-join.spec.ts -g 'no course screen'` | `rc=0` |
+| TC-P207-35 | AC13 | build gate | **A** GV chọn 761988 → `/inbox` mock; SV chọn lớp; đếm request lớp thật từ màn mock; `audit.mjs` | Mock hiện dữ liệu `int1006-2` theo `class_code` (761987↔`int1006-1`, 761988↔`int1006-2`; lớp khác → `int1006-1`); **0** request API lớp thật từ màn mock; `audit.mjs` FAIL 0, PASS ≥ nền (`audit-baseline.md`) |
+| TC-P207-36 | AC14 | – | **S** không JWT: `GET /me/courses`, `GET/PUT /me/profile`, `GET/PUT /me/settings`, `GET /courses/{id}`; 4 vai; SV `GET /courses/{id}` lớp mình: có danh sách thành viên / mã tham gia? | `401`; mọi vai dùng được cho chính mình; không tham số `user_id` (thử `?user_id=` → bỏ qua); SV **không** thấy thành viên hay `join_code` |
+| TC-P207-37 | AC14 | – | **G** `-run 'TestMeEndpointsRequireJWT\|TestMeEndpointsNoUserIDParam'` | `ok` |
+| TC-P207-38 | tổng (IDOR theo `{id}` khác) | – | **S** lớp `C1`: SV gọi `GET /courses/$C1/members/<user_id người khác>`, `…/enrollments/<id>`; thử `user_id` của lớp khác trong thân / query | Chỉ thấy dữ liệu của mình (SV) hoặc bị `403`; không đoán được `id` người khác qua mã lỗi khác nhau |
+| TC-P207-39 | tổng | – | **S** `go vet && golangci-lint run && go test -race -count=1 ./... && go test -tags integration ./internal/integration/...` | `rc=0` |
+
+## Nhánh lỗi / biên đã phủ
+| Tình huống | TC |
+| --- | --- |
+| Sinh viên lớp này đọc / ghi lớp khác (mọi route, mọi phương thức) | 08, 15, 16 |
+| `PENDING` / `REMOVED` còn truy cập; cache quyền | 09, 11 |
+| ADMIN đọc nội dung lớp | 10 |
+| Route mới quên guard | 14 |
+| Chunk không lọc lớp rò sang lớp khác | 17 |
+| Đổi MSSV để chui vào dữ liệu | 25 |
+| Id lớp lạ trong `?course=` / localStorage | 31 |
+| Lộ `join_code`, email GV, thành viên cho SV | 19, 23, 36 |
+| Màn mock gọi API lớp thật | 35 |
+
+## Câu hỏi cho BA / PM
+- **Q-QC-P207-1** — TC-P207-08: lớp tồn tại vs không tồn tại cùng `403` (không lộ tồn tại)? US nói `id` không phải uuid → 404 nhưng không nói uuid hợp lệ không có. QC ghi hành vi thực; nếu khác nhau coi là **rủi ro lộ tồn tại lớp** (không FAIL trừ khi SRS yêu cầu). — *chờ trả lời*.
+- **Q-QC-P207-2** — TC-P207-17: gói `store` không phơi qua HTTP; QC viết test Go tạm (`qc_probe_test.go`, xoá sau) — chấp nhận? — *chờ xác nhận*.
+
+## Lịch sử sửa TC
+- 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-course-foundation, APPROVED 2026-10-03).
+
+Tổng: 39 TC.
