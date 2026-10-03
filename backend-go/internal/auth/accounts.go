@@ -112,11 +112,11 @@ type RegisterInput struct {
 func (in RegisterInput) normalize() (RegisterInput, []FieldProblem) {
 	var ps []FieldProblem
 	out := RegisterInput{Email: NormalizeEmail(in.Email), FullName: strings.TrimSpace(in.FullName), StudentCode: strings.ToUpper(strings.TrimSpace(in.StudentCode)), Password: in.Password}
-	if len(out.Email) == 0 || len(out.Email) > 254 || !emailRE.MatchString(out.Email) || strings.Count(out.Email, "@") != 1 || hasControl(out.Email) {
-		ps = append(ps, FieldProblem{"email", "INVALID_EMAIL", "Email chưa đúng dạng, ví dụ ten@truong.edu.vn."})
+	if p := ValidateEmail(out.Email); p != nil {
+		ps = append(ps, *p)
 	}
-	if n := utf8.RuneCountInString(out.FullName); n < 1 || n > 100 || hasControl(out.FullName) {
-		ps = append(ps, FieldProblem{"full_name", "INVALID_NAME", "Họ và tên cần từ 1 đến 100 ký tự."})
+	if p := ValidateName(out.FullName); p != nil {
+		ps = append(ps, *p)
 	}
 	if out.StudentCode != "" && !studentCodeRE.MatchString(out.StudentCode) {
 		ps = append(ps, FieldProblem{"student_code", "STUDENT_CODE_FORMAT", "Mã số sinh viên gồm 6–15 chữ và số."})
@@ -125,6 +125,22 @@ func (in RegisterInput) normalize() (RegisterInput, []FieldProblem) {
 		ps = append(ps, FieldProblem{"password", code, PasswordMessage(code)})
 	}
 	return out, ps
+}
+
+// ValidateEmail kiểm email ĐÃ chuẩn hoá (NormalizeEmail): ≤ 254 ký tự, đúng dạng local@domain.tld, một dấu @, không ký tự điều khiển.
+func ValidateEmail(email string) *FieldProblem {
+	if len(email) == 0 || len(email) > 254 || !emailRE.MatchString(email) || strings.Count(email, "@") != 1 || hasControl(email) {
+		return &FieldProblem{"email", "INVALID_EMAIL", "Email chưa đúng dạng, ví dụ ten@truong.edu.vn."}
+	}
+	return nil
+}
+
+// ValidateName kiểm họ tên ĐÃ cắt khoảng trắng: 1–100 ký tự, không ký tự điều khiển.
+func ValidateName(name string) *FieldProblem {
+	if n := utf8.RuneCountInString(name); n < 1 || n > 100 || hasControl(name) {
+		return &FieldProblem{"full_name", "INVALID_NAME", "Họ và tên cần từ 1 đến 100 ký tự."}
+	}
+	return nil
 }
 
 func hasControl(s string) bool {
@@ -288,7 +304,12 @@ func (a *Accounts) UserEmail(ctx context.Context, id uuid.UUID) (string, bool) {
 	return u.Email, true
 }
 
+// ThrottleResend: 1 lần / cửa sổ theo (kind, băm email) cho gửi lại thư (xác minh, mời). Vượt ⇒ *ThrottledError.
 // throttleResend: SET NX khoá `ep:auth:resend:{kind}:{emailhash32}` TTL = cửa sổ. Redis lỗi ⇒ cho qua (log).
+func (a *Accounts) ThrottleResend(ctx context.Context, kind, email string) error {
+	return a.throttleResend(ctx, kind, email)
+}
+
 func (a *Accounts) throttleResend(ctx context.Context, kind, email string) error {
 	if a.rdb == nil {
 		return nil

@@ -346,6 +346,7 @@ func (r *runner) authScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/auth/logout", headers: cookie(rt2)}, 204)
 	r.accountScenarios()
 	r.passwordScenarios()
+	r.adminUserScenarios()
 }
 
 // accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.
@@ -741,4 +742,78 @@ func (rg *rig) clearPreviewLimit(t *testing.T) {
 			t.Fatalf("xoá bộ đếm: %v", err)
 		}
 	}
+}
+
+// adminUserScenarios: /admin/users (4 thao tác) + /auth/accept-invite (US-P2-06) với mọi status đã khai báo.
+func (r *runner) adminUserScenarios() {
+	r.freshIP()
+	ctx := context.Background()
+	var adminID uuid.UUID
+	if err := r.rig.deps.DB.QueryRow(ctx,
+		`insert into users (email, full_name, role, status, password_hash) values ($1, 'Quản Trị Thử', 'ADMIN', 'ACTIVE', 'x') returning id`,
+		"ct-admin-"+uuid.NewString()[:8]+"@example.test").Scan(&adminID); err != nil {
+		r.t.Fatalf("tạo admin: %v", err)
+	}
+	admin := r.rig.token(r.t, adminID.String(), auth.RoleAdmin)
+	student := r.rig.token(r.t, uuid.NewString(), auth.RoleStudent)
+	idem := func() map[string]string { return map[string]string{"Idempotency-Key": "ct-" + uuid.NewString()} }
+	const users = "/api/v1/admin/users"
+
+	r.must(call{method: "GET", path: users, token: admin}, 200)
+	r.must(call{method: "GET", path: users + "?limit=0", token: admin}, 422)
+	r.must(call{method: "GET", path: users}, 401)
+	r.must(call{method: "GET", path: users, token: student}, 403)
+
+	email := "ct-gv-" + uuid.NewString()[:8] + "@example.test"
+	invite := `{"email":"` + email + `","full_name":"Giảng Viên Thử","role":"TEACHER"}`
+	_, b := r.must(call{method: "POST", path: users, token: admin, headers: idem(), body: invite}, 201)
+	var created struct {
+		ID      string `json:"id"`
+		Version int    `json:"version"`
+	}
+	if err := json.Unmarshal(b, &created); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "POST", path: users, token: admin, headers: idem(), body: invite}, 409)
+	r.must(call{method: "POST", path: users, token: admin, headers: idem(), body: `{"email":"x@y.zz","full_name":"X","role":"STUDENT"}`}, 422)
+	r.must(call{method: "POST", path: users, headers: idem(), body: invite}, 401)
+	r.must(call{method: "POST", path: users, token: student, headers: idem(), body: invite}, 403)
+
+	one := users + "/" + created.ID
+	r.must(call{method: "PATCH", path: one, token: admin, body: `{"full_name":"Giảng Viên Đã Đổi Tên","version":1}`}, 200)
+	r.must(call{method: "PATCH", path: one, token: admin, body: `{"full_name":"Lỗi Phiên Bản","version":1}`}, 409)                    // VERSION_CONFLICT
+	r.must(call{method: "PATCH", path: users + "/" + adminID.String(), token: admin, body: `{"status":"DISABLED","version":1}`}, 409) // CONFLICT self
+	r.must(call{method: "PATCH", path: one, token: admin, body: `{"role":"ADMIN","version":2}`}, 422)
+	r.must(call{method: "PATCH", path: users + "/" + uuid.NewString(), token: admin, body: `{"status":"DISABLED","version":1}`}, 404)
+	r.must(call{method: "PATCH", path: one, body: `{"status":"DISABLED","version":2}`}, 401)
+	r.must(call{method: "PATCH", path: one, token: student, body: `{"status":"DISABLED","version":2}`}, 403)
+
+	resend := one + "/resend-invite"
+	r.must(call{method: "POST", path: resend, token: admin}, 200)
+	r.must(call{method: "POST", path: resend, token: admin}, 429)
+	r.must(call{method: "POST", path: users + "/" + adminID.String() + "/resend-invite", token: admin}, 409) // không ở trạng thái INVITED
+	r.must(call{method: "POST", path: users + "/" + uuid.NewString() + "/resend-invite", token: admin}, 404)
+	r.must(call{method: "POST", path: resend}, 401)
+	r.must(call{method: "POST", path: resend, token: student}, 403)
+
+	// nhận lời mời: token phát trực tiếp (thư do worker gửi, ở đây chỉ cần liên kết)
+	var invitedID uuid.UUID
+	if err := r.rig.deps.DB.QueryRow(ctx, `select id from users where email = $1`, email).Scan(&invitedID); err != nil {
+		r.t.Fatal(err)
+	}
+	tx, err := r.rig.deps.DB.Begin(ctx)
+	if err != nil {
+		r.t.Fatal(err)
+	}
+	tok, err := auth.Tokens{Clock: r.rig.deps.Clock}.Issue(ctx, tx, invitedID, auth.TokenInvite, time.Hour, nil)
+	if err != nil || tx.Commit(ctx) != nil {
+		r.t.Fatalf("phát token mời: %v", err)
+	}
+	accept := func(token, pw string, want int) {
+		r.must(call{method: "POST", path: "/api/v1/auth/accept-invite", body: `{"token":"` + token + `","password":"` + pw + `"}`}, want)
+	}
+	accept(tok, "ngan", 422)
+	accept(tok, "Mat-khau-nhan-moi-2026", 200)
+	accept(tok, "Mat-khau-nhan-moi-2026", 410)
+	r.exhaust(call{method: "POST", path: "/api/v1/auth/accept-invite", body: `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","password":"Mat-khau-nhan-moi-2026"}`})
 }

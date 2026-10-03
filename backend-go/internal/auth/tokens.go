@@ -72,3 +72,11 @@ func (t Tokens) Issue(ctx context.Context, tx pgx.Tx, user uuid.UUID, kind Token
 	}
 	return plain, nil
 }
+
+// RevokeUnused thu hồi mọi token cùng loại chưa dùng của user (gửi lại lời mời: liên kết cũ chết ngay, không đợi thư mới được gửi).
+func (t Tokens) RevokeUnused(ctx context.Context, tx pgx.Tx, user uuid.UUID, kind TokenKind) error {
+	if _, err := store.New(tx).RevokeUnusedAuthTokens(ctx, store.RevokeUnusedAuthTokensParams{UserID: user, Kind: store.AuthTokenKind(kind)}); err != nil {
+		return fmt.Errorf("auth: thu hồi token: %w", err)
+	}
+	return nil
+}

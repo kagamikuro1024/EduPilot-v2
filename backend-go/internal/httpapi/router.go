@@ -20,6 +20,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/user"
 	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -52,6 +53,8 @@ type Deps struct {
 	Sessions *auth.Sessions
 	// Accounts: đăng ký / xác minh email / gửi lại (US-P2-03).
 	Accounts *auth.Accounts
+	// Users: quản trị người dùng (US-P2-06).
+	Users *user.Service
 }
 
 // now là đồng hồ của request (Clock trống → đồng hồ hệ thống).
@@ -123,6 +126,9 @@ func withDefaults(d Deps) Deps {
 	}
 	if d.Accounts == nil && d.DB != nil {
 		d.Accounts = auth.NewAccounts(d.DB, d.Redis, d.Clock, d.Sessions, queueMail, auth.AccountsConfig{BcryptCost: d.Cfg.BcryptCost, ResendWindow: d.Cfg.AuthResendWindow, VerifyTTL: d.Cfg.VerifyTokenTTL, Limits: authLimits(d.Cfg)}, d.Log)
+	}
+	if d.Users == nil && d.DB != nil && d.Sessions != nil && d.Accounts != nil {
+		d.Users = user.New(d.DB, d.Clock, queueMail, d.Sessions, d.Accounts, user.Config{InviteTTL: d.Cfg.InviteTokenTTL})
 	}
 	return d
 }

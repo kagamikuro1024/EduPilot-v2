@@ -336,7 +336,7 @@ test("no-backend: MOCK_SCREENS=0 → empty-no-backend đúng phase, 1 nút, nav 
     await context.clearCookies();
     await asDemo(context, role);
     for (const item of navFor(role, true).flatMap((g) => g.items)) {
-      if (item.href === "/settings/llm") continue;
+      if (item.href === "/settings/llm" || item.href === "/admin/users") continue; // màn thật, không còn "chưa có backend"
       await page.goto(item.href);
       const e = page.locator("[data-part=empty-no-backend]");
       await expect(e, `${role} ${item.href}`).toHaveCount(1);

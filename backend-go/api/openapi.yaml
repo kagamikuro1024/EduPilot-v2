@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.7.0
+  version: 0.8.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
@@ -571,6 +571,149 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/admin/users:
+    get:
+      operationId: listAdminUsers
+      tags: [admin]
+      summary: Danh sách người dùng cho Admin (con trỏ; dữ liệu tối thiểu; chỉ ADMIN kể cả GET)
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+            enum: [ADMIN, TEACHER, TA, STUDENT]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [PENDING_VERIFICATION, INVITED, ACTIVE, DISABLED]
+        - name: q
+          in: query
+          description: Tên (chứa, không phân biệt dấu) hoặc tiền tố email
+          schema:
+            type: string
+            maxLength: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Một trang người dùng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUserPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: inviteAdminUser
+      tags: [admin]
+      summary: Mời giảng viên / trợ giảng bằng liên kết gửi qua thư (người được mời tự đặt mật khẩu; Admin không thấy, không đặt)
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminInviteInput"
+      responses:
+        "201":
+          description: Đã tạo lời mời
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/users/{id}:
+    patch:
+      operationId: patchAdminUser
+      tags: [admin]
+      summary: Khoá / mở khoá, đổi vai giữa TEACHER và TA, đổi tên (khoá lạc quan theo version); khoá hoặc đổi vai thu hồi mọi phiên
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminUserPatch"
+      responses:
+        "200":
+          description: Bản ghi sau khi đổi
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminUser"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/users/{id}/resend-invite:
+    post:
+      operationId: resendAdminInvite
+      tags: [admin]
+      summary: Gửi lại lời mời (chỉ tài khoản INVITED; liên kết cũ chết ngay; 1 lần / 60 giây)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lời mời mới đã xếp để gửi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminInviteResent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/me/password:
     post:
       operationId: changePassword
@@ -636,6 +779,36 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/auth/accept-invite:
+    post:
+      operationId: acceptInvite
+      tags: [auth]
+      summary: Người được mời tự đặt mật khẩu bằng liên kết một lần; trả như đăng nhập (phiên mới + cookie)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AcceptInviteRequest"
+      responses:
+        "200":
+          description: Đã đặt mật khẩu và đăng nhập. Refresh CHỈ nằm ở cookie `ep_rt`
+          headers:
+            Set-Cookie:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionResponse"
+        "410":
+          $ref: "#/components/responses/Gone"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/auth/login:
     post:
       operationId: login
@@ -968,6 +1141,87 @@ components:
       properties:
         revoked:
           type: integer
+    AcceptInviteRequest:
+      type: object
+      required: [token, password]
+      additionalProperties: false
+      properties:
+        token:
+          type: string
+        password:
+          type: string
+    AdminUser:
+      type: object
+      required: [id, email, full_name, role, status, last_login_at, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, TEACHER, TA, STUDENT]
+        status:
+          type: string
+          enum: [PENDING_VERIFICATION, INVITED, ACTIVE, DISABLED]
+        last_login_at:
+          type: [string, "null"]
+          format: date-time
+        version:
+          type: integer
+          minimum: 1
+    AdminUserPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/AdminUser"
+        next_cursor:
+          type: [string, "null"]
+    AdminInviteInput:
+      type: object
+      required: [email, full_name, role]
+      additionalProperties: false
+      properties:
+        email:
+          type: string
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [TEACHER, TA]
+    AdminUserPatch:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [TEACHER, TA]
+        status:
+          type: string
+          enum: [ACTIVE, DISABLED]
+    AdminInviteResent:
+      type: object
+      required: [expires_at]
+      additionalProperties: false
+      properties:
+        expires_at:
+          type: string
+          format: date-time
     AuthUser:
       type: object
       required: [id, email, full_name, role, status, email_verified]

@@ -169,6 +169,12 @@ export JWT_SECRET_KEY="$(grep '^JWT_SECRET_KEY=' .env.local | cut -d= -f2-)"   #
 TOKEN="$(cd backend-go && go run ./cmd/gateway token --role STUDENT)" && k6 run -e BASE=https://localhost -e TOKEN="$TOKEN" benchmarks/load/smoke.js
 ```
 
+Quản trị viên đầu tiên (không có route HTTP tạo ADMIN; mật khẩu CHỈ từ biến `ADMIN_PASSWORD` hoặc stdin, không có cờ `--password`; chạy lại cùng email thì thoát 0 và không đổi gì):
+
+```bash
+ADMIN_PASSWORD='…' ./bin/gateway admin create --email admin@edupilot.local --name "Quản trị"
+```
+
 CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy job **Go** (`go vet` hai bộ tag, `golangci-lint`, `sqlc diff`, `go test -race -tags testroutes`) và **Frontend** (lint, build, `ui-antipatterns.sh`) trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật. Số đo nền của bản Go: [`benchmarks/reports/pg-baseline.md`](benchmarks/reports/pg-baseline.md).
 
 ## 7. Luật bất biến

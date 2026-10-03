@@ -256,6 +256,9 @@ func (a *Accounts) PreviewToken(ctx context.Context, kind, plain string) (TokenP
 			if err != nil {
 				return TokenPreview{}, fmt.Errorf("auth: đọc người dùng: %w", err)
 			}
+			if u.Status != store.UserStatusINVITED { // đã nhận / đã bị khoá: liên kết không còn dùng được
+				return TokenPreview{}, &LinkError{Reason: "invalid"}
+			}
 			p.FullName, p.Role = u.FullName, string(u.Role)
 		}
 		return p, nil
@@ -341,4 +344,54 @@ func (a *Accounts) RevokeOtherSessions(ctx context.Context, userID, currentSID u
 	}
 	a.markRevoked(ctx, ids)
 	return len(ids), nil
+}
+
+// AcceptInvite dùng token INVITE một lần: đặt mật khẩu (qua chính sách), ACTIVE, email đã xác minh, mở phiên mới — tất cả một giao dịch.
+// Mật khẩu yếu ⇒ ValidationError và token KHÔNG bị tiêu. Tài khoản không còn INVITED (đã khoá…) ⇒ liên kết "invalid".
+func (a *Accounts) AcceptInvite(ctx context.Context, plain, password, userAgent, ip string) (Result, error) {
+	if a.sess == nil {
+		return Result{}, errors.New("auth: thiếu dịch vụ phiên")
+	}
+	now := a.clk.Now()
+	hash := HashToken(strings.TrimSpace(plain))
+	tx, err := a.pool.Begin(ctx)
+	if err != nil {
+		return Result{}, fmt.Errorf("auth: mở transaction: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	q := store.New(tx)
+
+	uid, err := q.ConsumeAuthToken(ctx, store.ConsumeAuthTokenParams{TokenHash: hash, Kind: store.AuthTokenKindINVITE, Now: now})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Result{}, linkReason(ctx, q, hash, store.AuthTokenKindINVITE, now)
+	}
+	if err != nil {
+		return Result{}, fmt.Errorf("auth: dùng token: %w", err)
+	}
+	u, err := q.GetUser(ctx, uid)
+	if err != nil {
+		return Result{}, fmt.Errorf("auth: đọc người dùng: %w", err)
+	}
+	if code := ValidatePasswordPolicy(password, u.Email); code != "" {
+		return Result{}, &ValidationError{Problems: []FieldProblem{{"password", code, PasswordMessage(code)}}}
+	}
+	pw, err := HashPassword(password, a.cfg.BcryptCost)
+	if err != nil {
+		return Result{}, fmt.Errorf("auth: băm mật khẩu: %w", err)
+	}
+	u, err = q.ActivateInvitedUser(ctx, store.ActivateInvitedUserParams{ID: uid, PasswordHash: &pw, Now: now})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return Result{}, &LinkError{Reason: "invalid"} // không còn ở trạng thái được mời (đã khoá…): giao dịch lùi, token chưa tiêu
+	}
+	if err != nil {
+		return Result{}, fmt.Errorf("auth: kích hoạt tài khoản: %w", err)
+	}
+	res, err := a.sess.CreateSessionFor(ctx, q, u, userAgent, ip)
+	if err != nil {
+		return Result{}, err
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return Result{}, fmt.Errorf("auth: commit nhận lời mời: %w", err)
+	}
+	return res, nil
 }

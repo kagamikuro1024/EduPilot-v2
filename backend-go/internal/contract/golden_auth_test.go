@@ -82,6 +82,7 @@ func TestGolden_Auth(t *testing.T) {
 	do("/reset-password", `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","new_password":"Mat-khau-moi-2026"}`, nil, "reset-password.410", 410)
 	r.clearPreviewLimit(t)
 	do("/tokens/preview", `{"kind":"INVITE","token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"}`, nil, "tokens-preview.410", 410)
+	do("/accept-invite", `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","password":"Mat-khau-nhan-moi-2026"}`, nil, "accept-invite.410", 410)
 	do("/tokens/preview", `{"kind":"VERIFY_EMAIL","token":"x"}`, nil, "tokens-preview.422", 422)
 	do("/resend-verification", `{"email":"`+regEmail+`"}`, nil, "resend-verification.429", 429)
 }

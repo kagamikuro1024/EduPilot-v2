@@ -448,6 +448,20 @@ func (s *Sessions) Logout(ctx context.Context, refresh string) error {
 	return nil
 }
 
+// RevokeAll thu hồi mọi phiên còn sống của userID trong giao dịch của q (khoá tài khoản, đổi vai). Trả hàm PHẢI gọi sau commit:
+// nó đặt khoá thu hồi ở Redis để access token đang sống bị từ chối ≤ 1 s.
+func (s *Sessions) RevokeAll(ctx context.Context, q *store.Queries, userID uuid.UUID, reason string) (func(context.Context), error) {
+	ids, err := q.RevokeUserSessions(ctx, store.RevokeUserSessionsParams{UserID: userID, Now: s.clk.Now(), Reason: reason})
+	if err != nil {
+		return nil, fmt.Errorf("auth: thu hồi phiên: %w", err)
+	}
+	return func(c context.Context) {
+		for _, id := range ids {
+			s.markRevoked(c, id)
+		}
+	}, nil
+}
+
 // markRevoked đặt khoá thu hồi theo phiên ở Redis để access token còn hạn bị từ chối ≤ 1 s. Redis lỗi: chỉ log
 // (cơ sở dữ liệu vẫn đúng; access token tự hết hạn ≤ ACCESS_TOKEN_TTL).
 func (s *Sessions) markRevoked(ctx context.Context, sid uuid.UUID) {

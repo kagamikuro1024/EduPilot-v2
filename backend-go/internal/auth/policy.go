@@ -40,7 +40,7 @@ func PasswordMessage(code string) string {
 	return "Mật khẩu chưa đủ an toàn."
 }
 
-// commonPasswordsRaw: mỗi dòng MỘT mật khẩu phổ biến đã `fold` (chữ thường, không dấu), dài ≥ 10 ký tự, không trùng; kiểm bởi
+// commonPasswordsRaw: mỗi dòng MỘT mật khẩu phổ biến đã `Fold` (chữ thường, không dấu), dài ≥ 10 ký tự, không trùng; kiểm bởi
 // TestCommonPasswordsFileWellFormed. Tra bằng strings.Contains trên chính chuỗi nhúng nên không cần biến trạng thái.
 //
 //go:embed common_passwords.txt
@@ -86,9 +86,9 @@ func stripVietnamese(r rune) rune {
 	return r
 }
 
-// fold: chữ thường, bỏ dấu tiếng Việt (cả dạng dựng sẵn lẫn dấu kết hợp U+0300–U+036F), `đ`/`Đ` → `d`. GIỮ NGUYÊN khoảng trắng
+// Fold: chữ thường, bỏ dấu tiếng Việt (cả dạng dựng sẵn lẫn dấu kết hợp U+0300–U+036F), `đ`/`Đ` → `d`. GIỮ NGUYÊN khoảng trắng
 // và mọi ký tự khác; KHÔNG ánh xạ leetspeak (SRS 4.2.1).
-func fold(s string) string {
+func Fold(s string) string {
 	var b strings.Builder
 	b.Grow(len(s))
 	for _, r := range s {
@@ -110,12 +110,12 @@ func ValidatePasswordPolicy(password, email string) string {
 	case len(password) > MaxPasswordBytes:
 		return PasswordTooLong
 	}
-	f := fold(password)
+	f := Fold(password)
 	if isCommon(f) {
 		return PasswordCommon
 	}
 	if local, _, ok := strings.Cut(strings.ToLower(strings.TrimSpace(email)), "@"); ok && utf8.RuneCountInString(local) >= minEmailLocalForPolicy {
-		if strings.Contains(f, fold(local)) {
+		if strings.Contains(f, Fold(local)) {
 			return PasswordContainsEmail
 		}
 	}

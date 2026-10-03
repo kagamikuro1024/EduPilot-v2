@@ -580,6 +580,282 @@ test("@real reset logs out other device (hai context: máy B bị đăng xuất,
   test.skip(true, "@real: cần stack Go + Mailpit trên https://localhost — QC chạy tay");
 });
 
+type AU = { id: string; email: string; full_name: string; role: string; status: string; last_login_at: string | null; version: number };
+const ME = "00000000-0000-7000-8000-0000000000a0";
+const au = (id: string, name: string, role: string, status: string, over: Partial<AU> = {}): AU => ({ id, email: `${id}@sv.example`, full_name: name, role, status, last_login_at: status === "INVITED" ? null : "2026-10-03T02:20:00Z", version: 1, ...over });
+
+function usersFixture() {
+  return [au(ME, "Quản Trị Thử", "ADMIN", "ACTIVE", { email: "admin@ptit.edu.vn" }), au("gv1", "Lê Thu Hà", "TEACHER", "ACTIVE"), au("gv2", "Phạm Quốc Bảo", "TA", "INVITED"), au("sv1", "Trần Thu Uyên", "STUDENT", "ACTIVE")];
+}
+
+/** Mở khung mời: bấm có thể đến trước lúc trang gắn xong trình xử lý — thử lại tới khi khung hiện. */
+async function openInvite(page: Page) {
+  await expect(async () => {
+    if (!(await page.getByLabel("Họ và tên").isVisible())) await page.getByRole("button", { name: "Mời giảng viên" }).click();
+    await expect(page.getByLabel("Họ và tên")).toBeVisible({ timeout: 1000 });
+  }).toPass({ timeout: 10_000 });
+}
+
+async function openUsers(page: Page, handlers: { patch?: (id: string, body: Record<string, unknown>) => { status: number; body: unknown }; post?: (body: Record<string, string>, key: string | undefined) => { status: number; body: unknown }; resend?: (id: string) => { status: number; body: unknown } } = {}) {
+  await mockAuth(page, { role: "ADMIN", email: "admin@ptit.edu.vn", loggedIn: true });
+  let rows = usersFixture();
+  const log = { patch: [] as string[], post: [] as string[], keys: [] as Array<string | undefined>, resend: [] as string[], list: [] as string[] };
+  await page.route("**/api/v1/admin/users**", async (r) => {
+    const req = r.request();
+    const url = new URL(req.url());
+    const parts = url.pathname.replace("/api/v1/admin/users", "").split("/").filter(Boolean);
+    if (req.method() === "GET" && parts.length === 0) {
+      log.list.push(url.search);
+      const role = url.searchParams.get("role");
+      const q = (url.searchParams.get("q") ?? "").toLowerCase();
+      const items = rows.filter((u) => (!role || u.role === role) && (!q || u.full_name.toLowerCase().includes(q) || u.email.startsWith(q)));
+      return json(r, 200, { items, next_cursor: null });
+    }
+    if (req.method() === "POST" && parts.length === 0) {
+      const b = JSON.parse(req.postData() ?? "{}") as Record<string, string>;
+      log.post.push(req.postData() ?? "");
+      log.keys.push(req.headers()["idempotency-key"]);
+      const out = handlers.post?.(b, req.headers()["idempotency-key"]) ?? { status: 201, body: au("new", b.full_name, b.role, "INVITED", { email: b.email }) };
+      if (out.status === 201) rows = [...rows, out.body as AU];
+      return json(r, out.status, out.body);
+    }
+    if (req.method() === "PATCH") {
+      const id = parts[0];
+      const b = JSON.parse(req.postData() ?? "{}") as Record<string, unknown>;
+      log.patch.push(`${id} ${JSON.stringify(b)}`);
+      const out = handlers.patch?.(id, b);
+      if (out) return json(r, out.status, out.body);
+      rows = rows.map((u) => (u.id === id ? { ...u, status: String(b.status), version: u.version + 1 } : u));
+      return json(r, 200, rows.find((u) => u.id === id));
+    }
+    if (req.method() === "POST" && parts[1] === "resend-invite") {
+      log.resend.push(parts[0]);
+      const out = handlers.resend?.(parts[0]) ?? { status: 200, body: { expires_at: "2026-10-06T02:20:00Z" } };
+      return json(r, out.status, out.body);
+    }
+    return r.fallback();
+  });
+  await page.goto("/admin/users");
+  await expect(page.getByRole("heading", { name: "Người dùng", level: 1 })).toBeVisible();
+  return log;
+}
+
+test("admin users page: bảng, một nút chính, lọc theo vai, tìm, khung mời mở tại chỗ, khoá lạc quan + Hoàn tác, gửi lại lời mời", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "bảng dùng chung; 375 px kiểm trong ca riêng");
+  const log = await openUsers(page);
+  const invite = page.getByRole("button", { name: "Mời giảng viên" });
+  await expect(invite).toHaveCount(1);
+  await expect(invite).toHaveAttribute("data-variant", "primary");
+  await expect(page.locator('main [data-variant="primary"]:visible')).toHaveCount(1);
+  for (const h of ["Họ tên", "Email", "Vai trò", "Trạng thái", "Lần cuối"]) await expect(page.getByRole("columnheader", { name: h })).toBeVisible();
+  await expect(page.locator("table tbody tr")).toHaveCount(4);
+  await expect(page.locator("table").getByText("Lê Thu Hà")).toBeVisible();
+  await expect(page.locator("table").getByText("Chờ nhận lời mời")).toBeVisible();
+  await expect(page.locator("table").getByText("Chưa đăng nhập")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Tạo sinh viên/ })).toHaveCount(0);
+
+  // lọc theo vai + tìm
+  await page.getByRole("radio", { name: "Trợ giảng" }).click();
+  await expect.poll(() => log.list.at(-1)).toContain("role=TA");
+  await expect(page.locator("table").getByText("Phạm Quốc Bảo")).toBeVisible();
+  await expect(page.locator("table").getByText("Lê Thu Hà")).toHaveCount(0);
+  await page.getByRole("radio", { name: "Tất cả" }).click();
+  await page.getByLabel("Tìm người dùng").fill("uyên");
+  await expect.poll(() => log.list.at(-1)).toContain("q=uy");
+  await expect(page.locator("table").getByText("Trần Thu Uyên")).toBeVisible();
+  await page.getByLabel("Tìm người dùng").fill("");
+
+  // gửi lại lời mời chỉ ở hàng INVITED
+  const bao = page.locator("table tbody tr").filter({ hasText: "Phạm Quốc Bảo" }).first();
+  await bao.getByRole("button", { name: "Gửi lại lời mời" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã gửi lại lời mời" })).toBeVisible();
+  expect(log.resend).toEqual(["gv2"]);
+  await expect(page.getByRole("button", { name: "Gửi lại lời mời" })).toHaveCount(1);
+
+  // không có menu ở hàng của chính mình; khoá hàng khác: lạc quan ngay + Hoàn tác = mở khoá
+  const me = page.locator("table tbody tr").filter({ hasText: "Quản Trị Thử" }).first();
+  await expect(me.getByRole("button", { name: /Thao tác cho/ })).toHaveCount(0);
+  const ha = page.locator("table tbody tr").filter({ hasText: "Lê Thu Hà" }).first();
+  await ha.getByRole("button", { name: /Thao tác cho Lê Thu Hà/ }).click();
+  await page.getByRole("menuitem", { name: "Khoá tài khoản" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã khoá Lê Thu Hà" })).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0); // không hộp thoại xác nhận
+  await expect(ha.getByText("Đã khoá")).toBeVisible();
+  expect(log.patch[0]).toBe('gv1 {"status":"DISABLED","version":1}');
+  await page.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect.poll(() => log.patch.length).toBe(2);
+  expect(log.patch[1]).toBe('gv1 {"status":"ACTIVE","version":2}');
+  await expect(ha.getByText("Đang dùng")).toBeVisible();
+});
+
+test("admin users page: khung mời mở tại chỗ (không dialog), gửi xong có dòng tĩnh, không từ kỹ thuật; 375 px sạch", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "bảng dùng chung; 375 px kiểm trong ca riêng");
+  const log = await openUsers(page);
+  await openInvite(page);
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByLabel("Email", { exact: true })).toBeVisible();
+  await expect(page.getByLabel("Họ và tên")).toBeVisible();
+  await expect(page.getByLabel("Vai", { exact: true })).toBeVisible();
+  await page.getByLabel("Email", { exact: true }).fill("Gv.Moi@sv.example");
+  await page.getByLabel("Họ và tên").fill("Giảng Viên Mới");
+  await page.getByLabel("Vai", { exact: true }).selectOption("TA");
+  await page.getByRole("button", { name: "Gửi lời mời" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã gửi link mời, hạn 72 giờ." })).toBeVisible();
+  expect(JSON.parse(log.post[0])).toEqual({ email: "Gv.Moi@sv.example", full_name: "Giảng Viên Mới", role: "TA" });
+  expect(log.keys[0]).toMatch(/^ep-/);
+  const text = (await page.locator("main").innerText()).toLowerCase();
+  for (const w of ["token", "session", "jwt", "bcrypt", "password"]) expect(text).not.toContain(w);
+
+  await page.setViewportSize({ width: 375, height: 800 });
+  const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
+  const a = await runAudit(page, AUDIT_SRC);
+  expect(a.ox).toBeLessThanOrEqual(0);
+  expect(await page.evaluate(TOUCH_SRC)).toEqual([]);
+});
+
+test("admin users errors: email trùng tại ô, 422 tại ô, gửi lại cùng khoá, xung đột phiên bản, tự khoá, 403", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "bảng dùng chung; 375 px kiểm trong ca riêng");
+  let postCalls = 0;
+  const log = await openUsers(page, {
+    post: (b) => {
+      postCalls++;
+      if (b.email.startsWith("trung@")) return { status: 409, body: { code: "CONFLICT", message: "m", trace_id: "b".repeat(32), details: { field: "email" } } };
+      if (b.email.startsWith("sai@")) return { status: 422, body: { code: "VALIDATION_FAILED", message: "m", trace_id: "b".repeat(32), details: [{ field: "full_name", code: "INVALID_NAME", message: "Họ và tên cần từ 1 đến 100 ký tự." }] } };
+      if (postCalls < 5) return { status: 503, body: { code: "SERVICE_UNAVAILABLE", message: "m", trace_id: "b".repeat(32) } };
+      return { status: 201, body: au("ok1", b.full_name, b.role, "INVITED", { email: b.email }) };
+    },
+    patch: (id) => {
+      if (id === "gv1") return { status: 409, body: { code: "VERSION_CONFLICT", message: "m", trace_id: "b".repeat(32), details: { current_version: 5, current: au("gv1", "Lê Thu Hà", "TEACHER", "ACTIVE", { version: 5 }) } } };
+      if (id === "sv1") return { status: 409, body: { code: "CONFLICT", message: "m", trace_id: "b".repeat(32), details: { reason: "last_admin" } } };
+      return { status: 403, body: { code: "FORBIDDEN", message: "m", trace_id: "b".repeat(32), details: { reason: "role" } } };
+    },
+  });
+  await openInvite(page);
+  const email = page.getByLabel("Email", { exact: true });
+  const name = page.getByLabel("Họ và tên");
+  await email.fill("trung@sv.example");
+  await name.fill("Người Trùng");
+  await page.getByRole("button", { name: "Gửi lời mời" }).click();
+  await expect(page.getByText("Email này đã có tài khoản.")).toBeVisible();
+  await expect(email).toHaveAttribute("aria-invalid", "true");
+  await expect(name).toHaveValue("Người Trùng"); // nội dung khung giữ nguyên
+
+  await email.fill("sai@sv.example");
+  await page.getByRole("button", { name: "Gửi lời mời" }).click();
+  await expect(page.getByText("Họ và tên cần từ 1 đến 100 ký tự.")).toBeVisible();
+
+  // lỗi tạm thời: Gửi lại dùng CÙNG Idempotency-Key
+  await email.fill("tam@sv.example");
+  await page.getByRole("button", { name: "Gửi lời mời" }).click();
+  const retry = page.getByRole("alert").getByRole("button", { name: "Gửi lại" });
+  await expect(retry).toBeVisible();
+  const before = log.keys.length;
+  await retry.click();
+  await expect.poll(() => log.keys.length).toBe(before + 1);
+  expect(log.keys.at(-1)).toBe(log.keys.at(-2));
+  await page.getByRole("button", { name: "Huỷ" }).click();
+
+  // xung đột phiên bản
+  const ha = page.locator("table tbody tr").filter({ hasText: "Lê Thu Hà" }).first();
+  await ha.getByRole("button", { name: /Thao tác cho/ }).click();
+  await page.getByRole("menuitem", { name: "Khoá tài khoản" }).click();
+  await expect(page.getByText("Tài khoản này vừa được người khác sửa. Giữ thay đổi của bạn hay dùng bản mới?")).toBeVisible();
+  await page.getByRole("button", { name: "Giữ thay đổi của tôi" }).click();
+  await expect.poll(() => log.patch.some((p) => p.includes('"version":5'))).toBe(true);
+
+  // quản trị viên cuối cùng / thiếu quyền
+  const sv = page.locator("table tbody tr").filter({ hasText: "Trần Thu Uyên" }).first();
+  await sv.getByRole("button", { name: /Thao tác cho/ }).click();
+  await page.getByRole("menuitem", { name: "Khoá tài khoản" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: "Không thể khoá quản trị viên cuối cùng." })).toBeVisible();
+});
+
+test("admin users errors: mạng đứt khi mời ⇒ giữ chữ + banner ngoại tuyến + Gửi lại cùng khoá", async ({ page }, info) => {
+  test.skip(info.project.name !== "desktop", "bảng dùng chung; 375 px kiểm trong ca riêng");
+  const log = await openUsers(page);
+  const keys: Array<string | undefined> = [];
+  let down = true;
+  await page.route("**/api/v1/admin/users", (r) => {
+    if (r.request().method() !== "POST" || !down) return r.fallback();
+    keys.push(r.request().headers()["idempotency-key"]);
+    return r.abort("connectionfailed");
+  });
+  await openInvite(page);
+  await page.getByLabel("Email", { exact: true }).fill("mat.mang@sv.example");
+  await page.getByLabel("Họ và tên").fill("Mất Mạng");
+  await page.getByRole("button", { name: "Gửi lời mời" }).click();
+  await expect(page.locator("[data-part=offline-banner]").getByText("Mất kết nối mạng.")).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("alert").getByRole("button", { name: "Gửi lại" })).toBeVisible();
+  await expect(page.getByLabel("Họ và tên")).toHaveValue("Mất Mạng"); // giữ chữ đã gõ
+  down = false;
+  await page.getByRole("alert").getByRole("button", { name: "Gửi lại" }).click();
+  await expect(page.getByRole("status").filter({ hasText: "Đã gửi link mời, hạn 72 giờ." })).toBeVisible();
+  expect(new Set(keys).size).toBe(1); // mọi lần gửi (kể cả tự thử lại) dùng một khoá
+  expect(JSON.parse(log.post[0]).email).toBe("mat.mang@sv.example");
+});
+
+test("invite page: xem trước, token rời URL, hai ô mật khẩu, thành công vào /; liên kết hỏng", async ({ page }) => {
+  const T = "C".repeat(43);
+  let previews = 0;
+  let good = true;
+  let accepted = "";
+  const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+  await page.route("**/api/v1/auth/refresh", (r) => json(r, 401, err("UNAUTHENTICATED")));
+  await page.route("**/api/v1/auth/tokens/preview", async (r) => {
+    previews++;
+    await new Promise((res) => setTimeout(res, 500));
+    if (!good) return json(r, 410, err("LINK_INVALID", "m", { details: { reason: "used" } }));
+    return json(r, 200, { valid: true, kind: "INVITE", expires_at: "2030-01-01T00:00:00Z", full_name: "Lê Thu Hà", role: "TEACHER" });
+  });
+  await page.route("**/api/v1/auth/accept-invite", (r) => {
+    accepted = r.request().postData() ?? "";
+    const b = JSON.parse(accepted) as { password: string };
+    if (b.password.length < 10) return json(r, 422, err("VALIDATION_FAILED", "m", { details: [{ field: "password", code: "PASSWORD_TOO_SHORT", message: "Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte." }] }));
+    return r.fulfill({ status: 200, contentType: "application/json", headers: { ...cors, "Set-Cookie": "ep_rt=x; Path=/api/v1/auth; HttpOnly" }, body: JSON.stringify(sessionBody("TEACHER", { email: "teacher@ptit.edu.vn", fullName: "Lê Thu Hà" })) });
+  });
+  await page.goto(`/invite/${T}`);
+  await expect(page.getByText("Đang kiểm tra lời mời…")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Chào Lê Thu Hà, bạn được mời làm Giảng viên trên EduPilot." })).toBeVisible();
+  expect(decodeURIComponent(new URL(page.url()).pathname)).toBe("/invite/·");
+  expect(page.url()).not.toContain(T);
+  expect(previews).toBe(1);
+  const a = page.getByLabel("Mật khẩu", { exact: true });
+  const b = page.getByLabel("Nhập lại mật khẩu", { exact: true });
+  await expect(a).toHaveAttribute("autocomplete", "new-password");
+  await expect(a).toHaveAttribute("type", "password");
+  await expect(page.getByText("Ít nhất 10 ký tự, không phải mật khẩu phổ biến.")).toBeVisible();
+  const submit = page.getByRole("button", { name: "Đặt mật khẩu và vào" });
+  await expect(submit).toHaveCount(1);
+  await expect(submit).toHaveAttribute("data-variant", "primary");
+  await a.fill("ngan");
+  await b.fill("ngan");
+  await submit.click();
+  await expect(page.getByText("Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte.")).toBeVisible();
+  await a.fill("Mat-khau-nhan-moi-2026");
+  await b.fill("Mat-khau-nhan-moi-2026");
+  await submit.click();
+  await expect(page).toHaveURL(/\/$/);
+  expect(new URL(page.url()).pathname).toBe("/");
+  expect(JSON.parse(accepted)).toEqual({ token: T, password: "Mat-khau-nhan-moi-2026" });
+
+  good = false;
+  await page.goto(`/invite/${T}`);
+  await expect(page.getByText("Lời mời đã hết hạn hoặc đã được dùng. Hãy nhờ quản trị viên gửi lại.")).toBeVisible();
+  await expect(page.locator("main").getByRole("button")).toHaveCount(0); // không có nút tự gửi lại
+  await expect(page.locator("main").getByRole("link")).toHaveCount(0);
+  expect(await page.locator("body").innerText()).not.toMatch(/@/); // không lộ email
+});
+
+test("invite page: Referrer-Policy no-referrer, no-store", async ({ request }) => {
+  const res = await request.get(`/invite/${"D".repeat(43)}`);
+  expect(res.headers()["referrer-policy"]).toBe("no-referrer");
+  expect(res.headers()["cache-control"]).toContain("no-store");
+});
+
+test("@real invite flow (Admin mời → đọc Mailpit → đặt mật khẩu → khoá → bị đăng xuất → mở khoá)", async () => {
+  test.skip(true, "@real: cần stack Go + Mailpit trên https://localhost — QC chạy tay");
+});
+
 test("@real login + refresh qua Caddy cùng origin (cần stack Go: docker-compose.test.yml)", async () => {
   test.skip(true, "@real: cần stack Go + Caddy trên https://localhost — QC chạy tay");
 });

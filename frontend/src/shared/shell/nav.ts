@@ -212,6 +212,7 @@ const MOCK_BACKEND: Array<[string, Backend]> = [
 
 /** Route chưa có backend thật → phase sẽ dựng nó; `null` = backend thật (`/settings/llm`) hoặc route PU (`/dev/*`). `/` là "Hôm nay" (P2). */
 export function mockBackend(pathname: string): Backend | null {
+  if (pathname === "/admin/users" || pathname.startsWith("/admin/users/")) return null; // US-P2-06: màn thật
   if (pathname === "/") return { phase: "P2", name: "Lớp học" };
   const hit = MOCK_BACKEND.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
   return hit ? hit[1] : null;

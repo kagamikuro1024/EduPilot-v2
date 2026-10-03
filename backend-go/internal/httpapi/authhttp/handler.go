@@ -52,6 +52,7 @@ func (h *Handler) Mount(r chi.Router) {
 		r.With(h.limitIP("forgot", time.Hour, lim.ForgotIPPerHour)).Post("/forgot-password", h.forgotPassword)
 		r.With(h.limitIP("token", time.Minute, lim.TokenIPPerMin)).Post("/reset-password", h.resetPassword)
 		r.With(h.limitIP("token", time.Minute, lim.TokenIPPerMin)).Post("/tokens/preview", h.previewToken)
+		r.With(h.limitIP("token", time.Minute, lim.TokenIPPerMin)).Post("/accept-invite", h.acceptInvite)
 		r.With(h.limitIP("refresh", time.Minute, lim.RefreshIPPerMin), h.cookieGuard).Post("/refresh", h.refresh)
 		r.With(h.cookieGuard).Post("/logout", h.logout)
 	})
@@ -495,4 +496,22 @@ func (h *Handler) limitIP(action string, window time.Duration, limit int) func(h
 			next.ServeHTTP(w, r)
 		})
 	}
+}
+
+type acceptBody struct {
+	Token    string `json:"token"`
+	Password string `json:"password"`
+}
+
+// acceptInvite: người được mời tự đặt mật khẩu bằng liên kết một lần; trả như đăng nhập (phiên mới + cookie).
+func (h *Handler) acceptInvite(w http.ResponseWriter, r *http.Request) {
+	var b acceptBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	res, err := h.Accounts.AcceptInvite(r.Context(), b.Token, b.Password, r.UserAgent(), h.ip(r))
+	if h.writeAccountErr(w, r, "accept-invite", err) {
+		return
+	}
+	h.writeSession(w, res)
 }

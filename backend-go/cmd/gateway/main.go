@@ -1,4 +1,4 @@
-// Gateway EduPilot: `gateway serve` (mặc định) | `migrate` | `token` | cờ `-healthcheck`.
+// Gateway EduPilot: `gateway serve` (mặc định) | `migrate` | `token` | `admin create` | cờ `-healthcheck`.
 package main
 
 import (
@@ -18,6 +18,8 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer) in
 			return runMigrate(args[1:], getenv, stdout, stderr)
 		case "token":
 			return runToken(args[1:], getenv, stdout, stderr)
+		case "admin":
+			return runAdmin(args[1:], getenv, os.Stdin, stdout, stderr)
 		}
 	}
 	return runServe(args, getenv, stdout, stderr)
