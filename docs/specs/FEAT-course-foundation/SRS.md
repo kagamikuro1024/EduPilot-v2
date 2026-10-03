@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.6 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.7 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.7 (2026-10-04)** — góp ý #12 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-P2-10; trích: "cắt còn 100 rune. BA ghi rõ vào SRS 4.5 / AC13"). Không đổi số AC (83). Đổi: US-P2-10 AC13 (tên dài hơn 100 → cắt còn 100 rune, test), `SRS.md` 4.5 (chuẩn hoá).
 
 **v1.6 (2026-10-04)** — góp ý #11 `docs/sprints/4/proposals.md` (PM chọn **phương án thay thế**; nguồn: dev, US-P2-10; trích: "lặp MSSV trong tệp ⇒ `DUPLICATE_STUDENT_CODE_IN_FILE` (dòng sau); trùng với ghi danh có sẵn ⇒ `STUDENT_CODE_CONFLICT`. Giảng viên biết ngay lỗi nằm ở tệp hay ở lớp; không có mã chết"). Không đổi số AC (83). Đổi: US-P2-10 AC6 (lời văn và test), `SRS.md` 4.5 (mã lỗi dòng).
 
@@ -146,7 +148,7 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 
 ### 4.5 Roster và quy tắc nối (US-P2-10)
 
-**Tệp:** multipart `file`; CSV UTF-8 (BOM tuỳ chọn; dấu `,` hoặc `;` tự nhận) hoặc XLSX (sheet đầu); ≤ 500 dòng dữ liệu, ≤ 2 MiB (route nâng `MAX_BODY_BYTES` lên 2 MiB), XLSX giải nén ≤ 20 MiB; magic bytes; **tệp không được lưu** (xử lý trong bộ nhớ, không ghi đĩa hay blob). Tiêu đề (không phân biệt hoa thường, bỏ dấu): email ∈ {`email`, `e-mail`, `mail`}; tên ∈ {`full_name`, `họ và tên`, `họ tên`, `name`}; MSSV ∈ {`student_code`, `mssv`, `mã số sinh viên`}. Chuẩn hoá: email chữ thường, tên cắt khoảng trắng ≤ 100 ký tự, MSSV chữ hoa `^[A-Z0-9]{6,15}$`; giá trị bắt đầu bằng `= + - @` giữ như chữ.
+**Tệp:** multipart `file`; CSV UTF-8 (BOM tuỳ chọn; dấu `,` hoặc `;` tự nhận) hoặc XLSX (sheet đầu); ≤ 500 dòng dữ liệu, ≤ 2 MiB (route nâng `MAX_BODY_BYTES` lên 2 MiB), XLSX giải nén ≤ 20 MiB; magic bytes; **tệp không được lưu** (xử lý trong bộ nhớ, không ghi đĩa hay blob). Tiêu đề (không phân biệt hoa thường, bỏ dấu): email ∈ {`email`, `e-mail`, `mail`}; tên ∈ {`full_name`, `họ và tên`, `họ tên`, `name`}; MSSV ∈ {`student_code`, `mssv`, `mã số sinh viên`}. Chuẩn hoá: email chữ thường, tên cắt khoảng trắng đầu / cuối rồi **cắt còn tối đa 100 rune** (dài hơn không báo lỗi — bảng mã lỗi dòng đã đóng, không có `NAME_TOO_LONG`; góp ý #12), MSSV chữ hoa `^[A-Z0-9]{6,15}$`; giá trị bắt đầu bằng `= + - @` giữ như chữ.
 
 **Mã lỗi dòng:** `INVALID_EMAIL`, `MISSING_NAME`, `INVALID_STUDENT_CODE`, `DUPLICATE_EMAIL_IN_FILE`, `DUPLICATE_STUDENT_CODE_IN_FILE` (cùng MSSV, khác email, **lặp trong tệp** — báo ở dòng sau), `STUDENT_CODE_CONFLICT` (MSSV đã là snapshot của người khác `ACTIVE`/`PENDING` **có sẵn trong lớp** — góp ý #11), `EMAIL_BELONGS_TO_STAFF`, `EMAIL_DISABLED`, `COURSE_FULL` (dòng vượt sĩ số). Số dòng = số dòng trong tệp (tiêu đề = 1).
 
