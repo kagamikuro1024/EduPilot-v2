@@ -45,6 +45,7 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - 9 câu hỏi sản phẩm của kịch bản demo (`specs/FEAT-demo-script/QUESTIONS.md`) — chặn P1/P2/P4/P7.
 - `thesis-notes/legacy-perf.md` thân bài còn tiếng Anh.
 - Caddy: upstream tĩnh + `health_uri` khi số bản gateway cố định (P10/PR, sprint 2 #3).
+- **LCP Lighthouse > 2,5 s (góp ý #26, sprint 3):** sau khi bỏ phông 500 (còn 400 / 600 / 700, subset latin + vietnamese) trung vị vẫn 2,71–3,39 s trên 7 route (CLS 0, TBT ≤ 83 ms, JS ≤ 230 KB đạt). `lighthouserc.json` đang `warn` **tạm** cho LCP, ngưỡng giữ 2500. **Cổng P2 (sprint 4): đưa mock ra khỏi bundle layout rồi đổi LCP về `error` ≤ 2,5 s.**
 
 ## Ánh xạ migration
 | Số goose | Tên | Phase |

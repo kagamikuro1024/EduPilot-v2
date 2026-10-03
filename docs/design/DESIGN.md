@@ -179,7 +179,7 @@ Use OKLCH in implementation where supported. Fallback HEX values are supplied on
 | `--ep-surface-subtle` | `oklch(97% 0.008 25)` | `#f9f3f3` | Sidebar / grouped secondary region |
 | `--ep-ink` | `oklch(19% 0.02 25)` | `#251d1e` | Primary text |
 | `--ep-ink-2` | `oklch(40% 0.018 25)` | `#65595b` | Secondary text |
-| `--ep-ink-3` | `oklch(58% 0.014 25)` | `#958a8c` | Metadata / disabled labels |
+| `--ep-ink-3` | `oklch(53% 0.014 25)` | `#746968` | Metadata / disabled labels — hạ từ 58 % (`#958a8c`, 3,9 : 1) để chữ phụ đạt WCAG AA 4,5 : 1 (góp ý #25, PM ACCEPTED) |
 | `--ep-rule` | `oklch(89% 0.012 25)` | `#e8dddd` | Dividers |
 | `--ep-red` | `oklch(54% 0.22 27)` | `#c81d32` | Primary brand/action |
 | `--ep-red-hover` | `oklch(49% 0.22 27)` | `#af1729` | Primary hover |

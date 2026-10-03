@@ -17,7 +17,7 @@ Nhánh `sprint/3-pu-p1`. Góp ý #25–#28. Chạy: `pnpm -C frontend build:gate
 | 2 | `docs/sprints/3/qc/shots/before/` có 12 ảnh (QC) |
 | 3 | `keyboard-only` 3 ca pass (lặp 5× không chập chờn); 640 px `AUDIT` sạch |
 | 4 | `a11y.spec.ts`: **102 lượt quét** (route × vai × bề rộng), critical 0, serious 0, moderate 0, minor 0; `jq length e2e/axe-allow.json` = 0 |
-| 5 | `lhci autorun` rc=1. Trung vị 3 lần (mobile mặc định): LCP `/` 3473 · `/chat` 3326 · `/threads` 3546 · `/inbox` 3407 · `/gradebook` 2864 · `/settings/llm` 3320 · `/dev/ui` 3338 ms (**> 2500**); CLS 0 mọi route; TBT 17–83 ms; JS 196–228 KB (≤ 256 KB). Máy: Mac arm64, Chrome for Testing (Playwright chromium 1243), tải máy 8–10 do QC chạy song song; LCP quan sát thật 0,49 s, ước lượng mô phỏng do ~365 KB tải ở 1,47 Mbps. **Không nới ngưỡng — #26 chờ PM** |
+| 5 | (**cập nhật sau PM quyết #26**: bỏ phông 500 ⇒ LCP trung vị `/` 3249 · `/chat` 3164 · `/threads` 2709 · `/inbox` 3242 · `/gradebook` 3238 · `/settings/llm` 3390 · `/dev/ui` 3189 ms, phông truyền 64–79 KB (trước 98 KB); CLS 0, TBT 16–83 ms, JS 197–230 KB đạt. LCP vẫn > 2500 ⇒ assertion LCP chuyển `warn` TẠM (ngưỡng giữ 2500), `lhci assert` rc=0; Nợ ghi `docs/PROGRESS.md`; cổng P2 phải đưa về `error`. Cổng PU ghi "PASS có điều kiện".) — số đo trước đó: `lhci autorun` rc=1. Trung vị 3 lần (mobile mặc định): LCP `/` 3473 · `/chat` 3326 · `/threads` 3546 · `/inbox` 3407 · `/gradebook` 2864 · `/settings/llm` 3320 · `/dev/ui` 3338 ms (**> 2500**); CLS 0 mọi route; TBT 17–83 ms; JS 196–228 KB (≤ 256 KB). Máy: Mac arm64, Chrome for Testing (Playwright chromium 1243), tải máy 8–10 do QC chạy song song; LCP quan sát thật 0,49 s, ước lượng mô phỏng do ~365 KB tải ở 1,47 Mbps. **Không nới ngưỡng — #26 chờ PM** |
 | 6 | `ui-antipatterns.sh` 19 ✓; `--selftest` 19 / 19 |
 | 7 | `ci.yml` đã viết đủ bước; **chưa có lượt chạy trên GitHub** (không `gh run` ở máy này) |
 | 8 | Nhánh `ci/ui-drift`: **chưa tạo** (QC chứng minh cổng đỏ; dev chỉ xoá sau khi QC chấm) |
@@ -31,3 +31,8 @@ Nhánh `sprint/3-pu-p1`. Góp ý #25–#28. Chạy: `pnpm -C frontend build:gate
 ## Nợ
 - LCP (#26) chờ quyết định PM; CI bước `lhci` sẽ đỏ tới khi đó.
 - Ảnh mốc `settings-llm-*` cập nhật khi US-P1-05 vào (có giải thích).
+
+## Thực hiện quyết định PM (#25, #26, #28)
+- **#25:** `docs/design/DESIGN.md` bảng token: `--ep-ink-3` = `oklch(53% 0.014 25)` / `#746968` (trước `oklch(58%…)` / `#958a8c`), ghi lý do AA 4,5 : 1.
+- **#26:** `layout.tsx` chỉ nạp phông 400 / 600 / 700 (subset `vietnamese` + `latin`); chữ 500 hiển thị bằng 400 ⇒ ảnh mốc `inbox-1440`, `inbox-390`, `threads-1440` lệch quá ngưỡng và được cập nhật (`--update-snapshots`, đổi chỉ do độ đậm chữ 500 → 400). Đo lại LHCI: số ở bảng AC5 trên. LCP vẫn > 2500 ⇒ `lighthouserc.json` LCP `warn` (ngưỡng 2500 giữ nguyên), `lhci assert` rc=0; Nợ + cổng P2 ghi ở `docs/PROGRESS.md`.
+- **#28:** ảnh mốc `settings-llm-1440|390.png` đã là màn **thật** (cập nhật ở commit US-P1-05); sau thay đổi phông vẫn khớp, không đổi thêm.

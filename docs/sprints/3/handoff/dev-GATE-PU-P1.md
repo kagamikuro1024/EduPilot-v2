@@ -8,7 +8,7 @@ Máy: Mac arm64; Chrome for Testing (Playwright chromium 1243); Go test qua coli
 | `bash scripts/ui-antipatterns.sh` (+ `--selftest`) | 19 ✓, 0 ✗; `19 / 19 phép bắt được`; `lint-selftest.sh` `7 / 7` + `19 / 19 phép ui-antipatterns bắt được`; `ui-allow:` = 9 (≤ 10) |
 | `playwright test ui-foundation.spec.ts` (bản `build:gate`) | **14 passed**, 4 skipped (ca chỉ-desktop ở dự án mobile); gồm 3 ca chỉ-bàn-phím `/chat` + `/threads` + 640 px |
 | `playwright test` (cả bộ, không retry) | **155 passed, 85 skipped**; `visual` 14/14, `a11y` 102 lượt quét, critical 0 · serious 0 · moderate 0 · minor 0 |
-| `lhci autorun` | **rc=1 (LCP)**. Trung vị 3 lần, mobile mặc định: LCP `/` 2865 · `/chat` 3315 · `/threads` 2936 · `/inbox` 3388 · `/gradebook` 2866 · `/settings/llm` 3542 · `/dev/ui` 3324 ms (ngưỡng 2500); CLS = 0 mọi route (≤ 0,1); TBT 14–69 ms (≤ 200); JS truyền 197–230 KB (≤ 256.000 B). Không nới ngưỡng — góp ý #26 chờ PM |
+| `lhci autorun` | **PASS có điều kiện** (PM quyết #26): bỏ phông 500 rồi đo lại ⇒ LCP 2709–3390 ms (`/threads` 2709 · `/chat` 3164 · `/dev/ui` 3189 · `/gradebook` 3238 · `/inbox` 3242 · `/` 3249 · `/settings/llm` 3390) vẫn > 2500 ⇒ LCP `warn` tạm, `lhci assert` rc=0, Nợ ở `docs/PROGRESS.md`, cổng P2 đưa về `error`. Số đo trước khi bỏ phông 500: Trung vị 3 lần, mobile mặc định: LCP `/` 2865 · `/chat` 3315 · `/threads` 2936 · `/inbox` 3388 · `/gradebook` 2866 · `/settings/llm` 3542 · `/dev/ui` 3324 ms (ngưỡng 2500); CLS = 0 mọi route (≤ 0,1); TBT 14–69 ms (≤ 200); JS truyền 197–230 KB (≤ 256.000 B). Không nới ngưỡng — góp ý #26 chờ PM |
 | `cd backend-go && go test ./internal/contract/...` | ok (golden không đổi; không commit PU nào sửa `backend-go/`, chỉ các commit P1) |
 
 ## Cổng P1 (`docs/phases/P1.md`)
