@@ -7,7 +7,7 @@ Tiền điều kiện chung: stack test (binary `testroutes`, 2 gateway) chạy;
 | --- | --- | --- | --- | --- |
 | TC-P102-01 | AC1 | repo | **S** `grep -rn "openai\.\|anthropic\.\|genai\." backend-go --include=*.go \| grep -v "internal/llm/"; test $? -eq 1` | exit `0` (không dòng nào) |
 | TC-P102-02 | AC1 | – | **S** `grep -rnE 'api\.openai\.com\|api\.anthropic\.com\|generativelanguage\.googleapis\.com' backend-go --include=*.go \| grep -v 'internal/llm/' \| wc -l`; `grep -E 'anthropic\|generative-ai\|genai' backend-go/go.mod \| wc -l`; `grep -c 'github.com/openai/openai-go' backend-go/go.mod` | `0`; `0`; `1` (chỉ thêm `openai-go`; `git diff origin/main -- backend-go/go.mod` chỉ thêm gói này + phụ thuộc gián tiếp của nó) |
-| TC-P102-03 | AC1 | – | **S** gieo tệp tạm `internal/zz/x.go` `import "github.com/openai/openai-go"`; `make -C backend-go lint` (depguard); xoá | Lint **đỏ** nêu depguard (cổng thật sự chặn, như `lint-depguard-negative` của PG); xoá → sạch, `git status` rỗng |
+| TC-P102-03 | AC1 | – | **S** (tuỳ chọn, không chặn) gieo tệp tạm `internal/zz/x.go` import `github.com/openai/openai-go/v3`; `golangci-lint run ./internal/zz/...`; xoá | AC1 chỉ yêu cầu quét bằng grep (TC-01/02); lint chỉ là lớp phòng thủ **khuyến nghị**: ghi kết quả thực tế, không FAIL nếu chưa có depguard |
 | TC-P102-04 | AC2 | – | **G** `go test ./internal/llm/... -run TestClientSurface -v` | `ok` |
 | TC-P102-05 | AC2 | – | **S** `grep -nE 'UserID\|CourseID\|StudentCode' backend-go/internal/llm/types.go \| wc -l`; `go doc ./internal/llm Client` | `0`; chỉ 4 hàm `Chat`, `Stream`, `Structured`, `Embed` với đúng chữ ký của US; `Request` có `Task`, `Lane`, `Messages`, `Params`, `Shareable`, `PIIMaskedCount`, `Passages` |
 | TC-P102-06 | AC3 | `fake` | **G** `go test -race ./internal/llm/... -run 'TestStreamOneGeneration\|TestStreamCancel' -v` | `ok` |
@@ -79,6 +79,7 @@ Tiền điều kiện chung: stack test (binary `testroutes`, 2 gateway) chạy;
   - **Trả lời (BA, 2026-10-03):** Đã thêm (v1.2, SRS 6.4): `GET /api/v1/_test/llm/stats` trả thêm `fake_calls:{<provider>:n}` và `audit:{buffer_len,flushed,dropped}` (chỉ số đếm, không nội dung; chỉ build `testroutes`, ADMIN). TC-P102-07 / 24 đọc qua đó.
 
 ## Lịch sử sửa TC
+- 2026-10-03 — TC-P102-03: bỏ yêu cầu "lint đỏ" (QC viết thừa so với AC1); chỉ còn ghi nhận.
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).
 
 Tổng: 50 TC (có 1 BLOCKED có chủ đích: TC-P102-41; TC-P102-38 phần provider thật).

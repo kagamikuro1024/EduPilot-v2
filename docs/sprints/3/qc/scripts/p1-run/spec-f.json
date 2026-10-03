@@ -1,0 +1,2 @@
+{"providers":[{"name":"F1","type":"fake","key":"good-key","Models":[{"Model":"f-chat","Kind":"chat"},{"Model":"f-embed","Kind":"embedding","Dims":1536}]},{"name":"F2","type":"fake","key":"bad-key","Models":[{"Model":"f2-chat","Kind":"chat"}]}],
+"routes":[{"Task":"CHAT","Chain":["F2/f2-chat","F1/f-chat"]},{"Task":"CLASSIFY","Chain":["F1/f-chat"]},{"Task":"EMBEDDING","Chain":["F1/f-embed"]}]}
