@@ -30,5 +30,7 @@ for c in "${cases[@]}"; do
   rm -f "$file"
 done
 echo "$ok / ${#cases[@]} luật ESLint bắt được"
-anti=$(bash scripts/ui-antipatterns.sh --selftest); echo "$anti" | tail -3
-[ "$ok" -eq "${#cases[@]}" ] && echo "$anti" | tail -1 | grep -q '^19 / 19'
+anti=$(bash scripts/ui-antipatterns.sh --selftest); echo "$anti" | grep '^KHÔNG bắt được'
+got=$(echo "$anti" | tail -1 | sed -n 's|^\([0-9]*\) / 19 phép bắt được$|\1|p')
+echo "${got:-0} / 19 phép ui-antipatterns bắt được" # chữ của US-PU-01 AC3
+[ "$ok" -eq "${#cases[@]}" ] && [ "${got:-0}" -eq 19 ]

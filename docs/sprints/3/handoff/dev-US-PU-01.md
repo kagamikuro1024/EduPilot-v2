@@ -26,3 +26,9 @@ Nhánh `sprint/3-pu-p1`. Góp ý #11, #12 ở `docs/sprints/3/proposals.md`. Đi
 ## Nợ / ghi chú
 - `next start` in cảnh báo "does not work with output: standalone" nhưng chạy đúng (Playwright `webServer`); Dockerfile dùng `standalone/server.js`.
 - Ảnh mốc 14 cảnh (US-PU-05) chưa nộp ⇒ AC9 so mắt với `docs/sprints/3/qc/shots/before/` (Q-QC-PU01-2).
+
+## Sửa lỗi QC (report-US-PU-01)
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-PU01-1 chuỗi `lint-selftest.sh` thiếu "ui-antipatterns" (AC3) | Dòng cuối của `scripts/lint-selftest.sh` giờ in đúng chữ AC3: `7 / 7 luật ESLint bắt được` và `19 / 19 phép ui-antipatterns bắt được` (số lấy từ `ui-antipatterns.sh --selftest`, vẫn in dạng ngắn `N / 19 phép bắt được` theo SRS 4.3; phép nào không bắt được ⇒ in `KHÔNG bắt được: <tên>` và rc≠0) | `bash scripts/lint-selftest.sh` ⇒ hai dòng trên, rc=0, `git status --short frontend` rỗng |
+| Phát hiện `audit.mjs` `.ep-sr-only` (Chart) | Không đổi mã: `Chart.tsx` dùng `role=table` (góp ý #12) nên `audit.mjs` của QC 1.5 nay duyệt tới các ô 1 × 1 px; QC đã nêu "nghi lỗi công cụ", chờ PM cho phép sửa `audit.mjs` | – |
