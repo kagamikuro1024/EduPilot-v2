@@ -60,6 +60,7 @@ const jtiLogLen = 8
 type CourseAccess struct {
 	CourseID   string
 	CourseRole Role
+	Status     string // tình trạng ghi danh; rỗng khi ADMIN qua bằng JWT
 }
 
 type ctxKey int

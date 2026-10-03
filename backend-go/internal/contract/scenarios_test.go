@@ -347,6 +347,7 @@ func (r *runner) authScenarios() {
 	r.accountScenarios()
 	r.passwordScenarios()
 	r.adminUserScenarios()
+	r.courseScenarios()
 }
 
 // accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.
@@ -816,4 +817,59 @@ func (r *runner) adminUserScenarios() {
 	accept(tok, "Mat-khau-nhan-moi-2026", 200)
 	accept(tok, "Mat-khau-nhan-moi-2026", 410)
 	r.exhaust(call{method: "POST", path: "/api/v1/auth/accept-invite", body: `{"token":"AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA","password":"Mat-khau-nhan-moi-2026"}`})
+}
+
+// courseScenarios: /me/courses, /courses/{id}, /me/profile, /me/settings (US-P2-07) với mọi status đã khai báo (trừ 503 — xem exempt.go).
+func (r *runner) courseScenarios() {
+	r.freshIP()
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	mkUser := func(role string) uuid.UUID {
+		var id uuid.UUID
+		if err := db.QueryRow(ctx, `insert into users (email, full_name, role, status, password_hash) values ($1, 'Người Thử', $2::user_role, 'ACTIVE', 'x') returning id`,
+			"ct-co-"+uuid.NewString()[:8]+"@example.test", role).Scan(&id); err != nil {
+			r.t.Fatalf("tạo người dùng: %v", err)
+		}
+		return id
+	}
+	adminID, svID, outID := mkUser("ADMIN"), mkUser("STUDENT"), mkUser("STUDENT")
+	var courseID uuid.UUID
+	if err := db.QueryRow(ctx, `insert into courses (subject_code, class_code, name, semester, join_code, created_by)
+		values ('INT1006', $1, 'An ninh mạng', '2026-2027-HK1', $2, $3) returning id`, "CT-"+uuid.NewString()[:6], "CT"+strings.ToUpper(strings.NewReplacer("0", "X", "1", "Y", "O", "Z", "I", "W", "L", "V").Replace(uuid.NewString()[:5])), adminID).Scan(&courseID); err != nil {
+		r.t.Fatalf("tạo lớp: %v", err)
+	}
+	if _, err := db.Exec(ctx, `insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'STUDENT', 'ACTIVE', 'ADMIN')`, courseID, svID); err != nil {
+		r.t.Fatal(err)
+	}
+	sv := r.rig.token(r.t, svID.String(), auth.RoleStudent)
+	out := r.rig.token(r.t, outID.String(), auth.RoleStudent)
+
+	h, _ := r.must(call{method: "GET", path: "/api/v1/me/courses", token: sv}, 200)
+	r.must(call{method: "GET", path: "/api/v1/me/courses", token: sv, headers: map[string]string{"If-None-Match": h.Get("ETag")}}, 304)
+	r.must(call{method: "GET", path: "/api/v1/me/courses?limit=0", token: sv}, 422)
+	r.must(call{method: "GET", path: "/api/v1/me/courses"}, 401)
+
+	one := "/api/v1/courses/" + courseID.String()
+	r.must(call{method: "GET", path: one, token: sv}, 200)
+	r.must(call{method: "GET", path: one}, 401)
+	r.must(call{method: "GET", path: one, token: out}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid", token: sv}, 404)
+	_ = adminID
+
+	const profile, settings = "/api/v1/me/profile", "/api/v1/me/settings"
+	h, _ = r.must(call{method: "GET", path: profile, token: sv}, 200)
+	r.must(call{method: "GET", path: profile, token: sv, headers: map[string]string{"If-None-Match": h.Get("ETag")}}, 304)
+	r.must(call{method: "GET", path: profile}, 401)
+	r.must(call{method: "PUT", path: profile, token: sv, body: `{"full_name":"Tên Mới","version":1}`}, 200)
+	r.must(call{method: "PUT", path: profile, token: sv, body: `{"full_name":"Lỗi Phiên Bản","version":1}`}, 409)
+	r.must(call{method: "PUT", path: profile, token: sv, body: `{"role":"ADMIN","version":2}`}, 422)
+	r.must(call{method: "PUT", path: profile, body: `{"full_name":"X","version":2}`}, 401)
+
+	h, _ = r.must(call{method: "GET", path: settings, token: sv}, 200)
+	r.must(call{method: "GET", path: settings, token: sv, headers: map[string]string{"If-None-Match": h.Get("ETag")}}, 304)
+	r.must(call{method: "GET", path: settings}, 401)
+	r.must(call{method: "PUT", path: settings, token: sv, body: `{"notify_ticket_by_mail":false,"version":1}`}, 200)
+	r.must(call{method: "PUT", path: settings, token: sv, body: `{"notify_ticket_by_mail":true,"version":1}`}, 409)
+	r.must(call{method: "PUT", path: settings, token: sv, body: `{"theme":"dark","version":2}`}, 422)
+	r.must(call{method: "PUT", path: settings, body: `{"version":2}`}, 401)
 }

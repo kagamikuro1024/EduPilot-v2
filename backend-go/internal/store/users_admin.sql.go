@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -59,6 +60,43 @@ func (q *Queries) CountOtherActiveAdmins(ctx context.Context, id uuid.UUID) (int
 	var count int64
 	err := row.Scan(&count)
 	return count, err
+}
+
+const ensureUserSettings = `-- name: EnsureUserSettings :one
+with ins as (
+    insert into user_settings (user_id) values ($1) on conflict (user_id) do nothing returning user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at
+)
+select user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at from ins
+union all
+select user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at from user_settings where user_id = $1 and not exists (select 1 from ins)
+`
+
+type EnsureUserSettingsRow struct {
+	UserID               uuid.UUID
+	NotifyTicketByMail   bool
+	NotifyAnswerByMail   bool
+	RemindDeadlineByMail bool
+	Preferences          json.RawMessage
+	Version              int32
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+}
+
+// Tạo lười khi đọc lần đầu; luôn trả dòng hiện có.
+func (q *Queries) EnsureUserSettings(ctx context.Context, userID uuid.UUID) (EnsureUserSettingsRow, error) {
+	row := q.db.QueryRow(ctx, ensureUserSettings, userID)
+	var i EnsureUserSettingsRow
+	err := row.Scan(
+		&i.UserID,
+		&i.NotifyTicketByMail,
+		&i.NotifyAnswerByMail,
+		&i.RemindDeadlineByMail,
+		&i.Preferences,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const insertAdminUser = `-- name: InsertAdminUser :one
@@ -244,6 +282,56 @@ func (q *Queries) LockUserForUpdate(ctx context.Context, id uuid.UUID) (User, er
 	return i, err
 }
 
+const updateProfile = `-- name: UpdateProfile :one
+
+update users
+set full_name = coalesce($1, full_name),
+    student_code = case when $2::bool then $3 else student_code end,
+    version = version + 1
+where id = $4 and version = $5
+returning id, email, password_hash, full_name, role, student_code, email_verified_at, failed_logins, locked_until, status, ics_token, tracking_notice_ack_at, last_login_at, version, created_at, updated_at
+`
+
+type UpdateProfileParams struct {
+	FullName       *string
+	SetStudentCode bool
+	StudentCode    *string
+	ID             uuid.UUID
+	Version        int32
+}
+
+// Hồ sơ và tuỳ chọn của chính mình (US-P2-07). `student_code` chỉ được GHI ở đây; không điều kiện nối lớp nào dùng nó (SRS 4.2.5).
+// Khoá lạc quan theo version. Không dòng ⇒ sai version (handler đọc bản hiện hành để trả 409).
+func (q *Queries) UpdateProfile(ctx context.Context, arg UpdateProfileParams) (User, error) {
+	row := q.db.QueryRow(ctx, updateProfile,
+		arg.FullName,
+		arg.SetStudentCode,
+		arg.StudentCode,
+		arg.ID,
+		arg.Version,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FullName,
+		&i.Role,
+		&i.StudentCode,
+		&i.EmailVerifiedAt,
+		&i.FailedLogins,
+		&i.LockedUntil,
+		&i.Status,
+		&i.IcsToken,
+		&i.TrackingNoticeAckAt,
+		&i.LastLoginAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateUserAdmin = `-- name: UpdateUserAdmin :one
 update users
 set full_name = coalesce($1, full_name),
@@ -286,6 +374,46 @@ func (q *Queries) UpdateUserAdmin(ctx context.Context, arg UpdateUserAdminParams
 		&i.IcsToken,
 		&i.TrackingNoticeAckAt,
 		&i.LastLoginAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateUserSettings = `-- name: UpdateUserSettings :one
+update user_settings
+set notify_ticket_by_mail = coalesce($1, notify_ticket_by_mail),
+    notify_answer_by_mail = coalesce($2, notify_answer_by_mail),
+    remind_deadline_by_mail = coalesce($3, remind_deadline_by_mail),
+    version = version + 1
+where user_id = $4 and version = $5
+returning user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at
+`
+
+type UpdateUserSettingsParams struct {
+	NotifyTicketByMail   *bool
+	NotifyAnswerByMail   *bool
+	RemindDeadlineByMail *bool
+	UserID               uuid.UUID
+	Version              int32
+}
+
+func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) (UserSetting, error) {
+	row := q.db.QueryRow(ctx, updateUserSettings,
+		arg.NotifyTicketByMail,
+		arg.NotifyAnswerByMail,
+		arg.RemindDeadlineByMail,
+		arg.UserID,
+		arg.Version,
+	)
+	var i UserSetting
+	err := row.Scan(
+		&i.UserID,
+		&i.NotifyTicketByMail,
+		&i.NotifyAnswerByMail,
+		&i.RemindDeadlineByMail,
+		&i.Preferences,
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,

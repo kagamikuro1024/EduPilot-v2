@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: EduPilot Gateway API
-  version: 0.8.0
+  version: 0.9.0
   description: |
     Hợp đồng API của gateway Go — NGUỒN SỰ THẬT (D45). Mỗi route trong mã phải có ở đây và ngược lại
     (`internal/contract` kiểm hai chiều). Route thử nằm ở `openapi.test.yaml`, chỉ có trong binary dựng bằng
@@ -779,6 +779,165 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/me/courses:
+    get:
+      operationId: listMyCourses
+      tags: [courses]
+      summary: Lớp của chính mình (SV - ACTIVE và PENDING; GV / TA - lớp được phân công; Admin - rỗng); không có mã tham gia
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Một trang lớp (kèm ETag; 304 khi If-None-Match khớp)
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyCoursePage"
+        "304":
+          description: Không đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}:
+    get:
+      operationId: getCourse
+      tags: [courses]
+      summary: Chi tiết lớp cho thành viên ACTIVE hoặc Admin (SV không thấy mã tham gia / thành viên; GV, TA thêm số đếm sinh viên)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Chi tiết lớp
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/me/profile:
+    get:
+      operationId: getMyProfile
+      tags: [me]
+      summary: Hồ sơ của chính mình (email, vai trò chỉ đọc)
+      responses:
+        "200":
+          description: Hồ sơ
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "304":
+          description: Không đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    put:
+      operationId: putMyProfile
+      tags: [me]
+      summary: Sửa tên và mã số sinh viên khai báo (khoá lạc quan theo version; không đổi ảnh chụp MSSV ở lớp, không nối tài khoản vào lớp)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileInput"
+      responses:
+        "200":
+          description: Hồ sơ sau khi đổi
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Profile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/settings:
+    get:
+      operationId: getMySettings
+      tags: [me]
+      summary: Tuỳ chọn thông báo qua thư của chính mình (tạo lười lần đầu)
+      responses:
+        "200":
+          description: Tuỳ chọn
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+        "304":
+          description: Không đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    put:
+      operationId: putMySettings
+      tags: [me]
+      summary: Sửa tuỳ chọn (khoá lạc quan theo version; khoá lạ - 422)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SettingsInput"
+      responses:
+        "200":
+          description: Tuỳ chọn sau khi đổi
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Settings"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -1171,6 +1330,153 @@ components:
         last_login_at:
           type: [string, "null"]
           format: date-time
+        version:
+          type: integer
+          minimum: 1
+    CourseBrief:
+      type: object
+      required: [id, class_code, subject_code, name, semester, status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_code:
+          type: string
+        subject_code:
+          type: string
+        name:
+          type: string
+        semester:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+    MyCourse:
+      type: object
+      required: [course, role_in_course, enrollment_status]
+      additionalProperties: false
+      properties:
+        course:
+          $ref: "#/components/schemas/CourseBrief"
+        role_in_course:
+          type: string
+          enum: [TEACHER, TA, STUDENT]
+        enrollment_status:
+          type: string
+          enum: [ACTIVE, PENDING]
+    MyCoursePage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/MyCourse"
+        next_cursor:
+          type: [string, "null"]
+    CourseDetail:
+      type: object
+      required: [id, class_code, subject_code, name, semester, status, teachers, my_role]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_code:
+          type: string
+        subject_code:
+          type: string
+        name:
+          type: string
+        semester:
+          type: string
+        status:
+          type: string
+          enum: [ACTIVE, ARCHIVED]
+        teachers:
+          type: array
+          items:
+            type: object
+            required: [full_name]
+            additionalProperties: false
+            properties:
+              full_name:
+                type: string
+        my_role:
+          type: string
+          enum: [ADMIN, TEACHER, TA, STUDENT]
+        counts:
+          type: object
+          description: Chỉ GV / TA của lớp
+          required: [students_active, students_pending]
+          additionalProperties: false
+          properties:
+            students_active:
+              type: integer
+            students_pending:
+              type: integer
+    Profile:
+      type: object
+      required: [id, email, full_name, role, student_code, email_verified, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        full_name:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, TEACHER, TA, STUDENT]
+        student_code:
+          type: string
+        email_verified:
+          type: boolean
+        version:
+          type: integer
+    ProfileInput:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        full_name:
+          type: string
+          maxLength: 100
+        student_code:
+          type: string
+          description: 6–15 chữ và số, hoặc rỗng để xoá
+        version:
+          type: integer
+          minimum: 1
+    Settings:
+      type: object
+      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, version]
+      additionalProperties: false
+      properties:
+        notify_ticket_by_mail:
+          type: boolean
+        notify_answer_by_mail:
+          type: boolean
+        remind_deadline_by_mail:
+          type: boolean
+        version:
+          type: integer
+    SettingsInput:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        notify_ticket_by_mail:
+          type: boolean
+        notify_answer_by_mail:
+          type: boolean
+        remind_deadline_by_mail:
+          type: boolean
         version:
           type: integer
           minimum: 1

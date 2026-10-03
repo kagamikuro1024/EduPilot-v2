@@ -15,7 +15,7 @@ import { ALL_COURSES, clearDemoSession } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { resetDemo, useDemoSlice } from "@/shared/state/demo";
-import { Button, ButtonLink, Drawer, EmptyState, Field, Input, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover, Section } from "@/shared/ui";
+import { ButtonLink, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, needsToken, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
@@ -132,7 +132,7 @@ function useSidebarCollapsed(): [boolean, (v: boolean) => void] {
 const MOCK_SCREENS_OFF = process.env.NEXT_PUBLIC_MOCK_SCREENS === "0";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse, source, identity, logout } = useSession();
+  const { role, user, studentId, course, courses, isAll, hasCourse, realCourses, realCourseId, switchTo, setCourse, source, identity, logout } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const groups = useMemo(() => navFor(role, hasCourse), [role, hasCourse]);
@@ -165,7 +165,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const isActive = (href: string) => (href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`));
   const mobilePrimary = flat.filter((i) => MOBILE_PRIMARY[role].includes(i.href));
   const mobileMore = flat.filter((i) => !MOBILE_PRIMARY[role].includes(i.href));
-  const courseTitle = !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : `${course.code} · ${course.name}`;
+  // Phiên thật: bộ chọn liệt kê lớp THẬT (`/me/courses`); phiên mô phỏng giữ danh sách mô phỏng.
+  const realPicked = realCourses?.find((c) => c.id === realCourseId);
+  const courseTitle = !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : realPicked ? `${realPicked.class_code} · ${realPicked.name}` : `${course.code} · ${course.name}`;
+  const canAll = realCourses ? role !== "student" && realCourses.length > 1 : role === "teacher";
   const personName = displayName(role, user.name, user.title);
   const viewer = viewerKey(role, studentId);
   const scope = useMemo(() => (isAll ? courses.map((c) => c.id) : hasCourse ? [course.id] : []), [isAll, courses, hasCourse, course.id]);
@@ -241,9 +244,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   <span className={s.courseCode}>Tất cả lớp của tôi</span>
                 ) : (
                   <>
-                    <span className={s.courseCode}>{course.code}</span>
+                    <span className={s.courseCode}>{realPicked?.class_code ?? course.code}</span>
                     <span className={s.courseName} title={courseTitle}>
-                      · {course.name}
+                      · {realPicked?.name ?? course.name}
                     </span>
                   </>
                 )}
@@ -253,25 +256,36 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           >
             {(close) => (
               <div className={s.coursePanel}>
-                {narrow && <p className={s.courseCurrent}>{role === "student" && !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : course.label}</p>}
+                {narrow && <p className={s.courseCurrent}>{role === "student" && !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : courseTitle}</p>}
                 <p className={s.panelLabel}>{role === "student" ? "Lớp của bạn" : "Lớp bạn phụ trách"}</p>
                 <MenuList
                   onPicked={close}
                   items={[
-                    ...courses.map((c) => ({
-                      label: (
-                        <span className={s.courseOpt}>
-                          <span>{c.label}</span>
-                          <span className={s.courseOptMeta}>
-                            {c.schedule}
-                            {c.state === "new" ? " · lớp mới nhận" : ""}
-                          </span>
-                        </span>
-                      ),
-                      icon: !isAll && c.id === course.id ? <Check aria-hidden /> : <span className={s.iconGap} />,
-                      onSelect: () => setCourse(c.id),
-                    })),
-                    ...(role === "teacher"
+                    ...(realCourses
+                      ? realCourses.map((c) => ({
+                          label: (
+                            <span className={s.courseOpt} title={`${c.class_code} · ${c.name}`}>
+                              <span>{c.class_code} · {c.name}</span>
+                              <span className={s.courseOptMeta}>{c.semester}</span>
+                            </span>
+                          ),
+                          icon: !isAll && c.id === realCourseId ? <Check aria-hidden /> : <span className={s.iconGap} />,
+                          onSelect: () => setCourse(c.id),
+                        }))
+                      : courses.map((c) => ({
+                          label: (
+                            <span className={s.courseOpt}>
+                              <span>{c.label}</span>
+                              <span className={s.courseOptMeta}>
+                                {c.schedule}
+                                {c.state === "new" ? " · lớp mới nhận" : ""}
+                              </span>
+                            </span>
+                          ),
+                          icon: !isAll && c.id === course.id ? <Check aria-hidden /> : <span className={s.iconGap} />,
+                          onSelect: () => setCourse(c.id),
+                        }))),
+                    ...(canAll
                       ? [
                           {
                             label: "Tất cả lớp của tôi",
@@ -558,41 +572,13 @@ function BottomLink({ item, active, badge }: { item: NavItem; active: boolean; b
  * KHÔNG phải màn chặn quyền và không có dòng dữ liệu nào của lớp.
  */
 function NoCourse() {
-  const router = useRouter();
-  const [code, setCode] = useState("");
   return (
     <Page>
       <PageHeader
         title="Bạn chưa vào lớp nào"
-        description="Nhập mã tham gia do giảng viên cung cấp để dùng Chat riêng, Threads, Luyện đề, Thư viện và Lịch."
+        description="Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này."
+        actions={<ButtonLink href="/join" variant="primary">Tham gia lớp bằng mã</ButtonLink>}
       />
-      <Section>
-        <form
-          className={s.joinForm}
-          onSubmit={(e) => {
-            e.preventDefault();
-            if (code.trim()) router.push(`/join/${code.trim().toUpperCase()}`);
-          }}
-        >
-          <Field label="Mã tham gia" helper="Mã gồm 7 ký tự, không phân biệt chữ hoa chữ thường.">
-            {(id, describedBy) => (
-              <Input
-                id={id}
-                aria-describedby={describedBy}
-                value={code}
-                autoComplete="off"
-                spellCheck={false}
-                maxLength={12}
-                placeholder="Nhập mã tham gia"
-                onChange={(e) => setCode(e.target.value)}
-              />
-            )}
-          </Field>
-          <Button type="submit" variant="primary" disabled={!code.trim()}>
-            Tiếp tục
-          </Button>
-        </form>
-      </Section>
     </Page>
   );
 }

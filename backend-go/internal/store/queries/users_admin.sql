@@ -48,3 +48,32 @@ insert into users (email, full_name, role, status, password_hash, email_verified
 values (sqlc.arg(email), sqlc.arg(full_name), 'ADMIN', 'ACTIVE', sqlc.arg(password_hash), sqlc.arg(now)::timestamptz)
 on conflict (email) do nothing
 returning *;
+
+-- Hồ sơ và tuỳ chọn của chính mình (US-P2-07). `student_code` chỉ được GHI ở đây; không điều kiện nối lớp nào dùng nó (SRS 4.2.5).
+
+-- name: UpdateProfile :one
+-- Khoá lạc quan theo version. Không dòng ⇒ sai version (handler đọc bản hiện hành để trả 409).
+update users
+set full_name = coalesce(sqlc.narg(full_name), full_name),
+    student_code = case when sqlc.arg(set_student_code)::bool then sqlc.narg(student_code) else student_code end,
+    version = version + 1
+where id = sqlc.arg(id) and version = sqlc.arg(version)
+returning *;
+
+-- name: EnsureUserSettings :one
+-- Tạo lười khi đọc lần đầu; luôn trả dòng hiện có.
+with ins as (
+    insert into user_settings (user_id) values (sqlc.arg(user_id)) on conflict (user_id) do nothing returning *
+)
+select * from ins
+union all
+select * from user_settings where user_id = sqlc.arg(user_id) and not exists (select 1 from ins);
+
+-- name: UpdateUserSettings :one
+update user_settings
+set notify_ticket_by_mail = coalesce(sqlc.narg(notify_ticket_by_mail), notify_ticket_by_mail),
+    notify_answer_by_mail = coalesce(sqlc.narg(notify_answer_by_mail), notify_answer_by_mail),
+    remind_deadline_by_mail = coalesce(sqlc.narg(remind_deadline_by_mail), remind_deadline_by_mail),
+    version = version + 1
+where user_id = sqlc.arg(user_id) and version = sqlc.arg(version)
+returning *;

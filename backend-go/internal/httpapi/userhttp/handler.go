@@ -176,6 +176,8 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 	}
 	var inv *user.InvalidError
 	var vc *user.VersionConflictError
+	var pc *user.ProfileConflictError
+	var sc *user.SettingsConflictError
 	var th *auth.ThrottledError
 	switch {
 	case errors.As(err, &inv):
@@ -190,6 +192,10 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.Conflict).WithDetails(map[string]string{"reason": "self"}).WithMessage("Bạn không thể tự đổi hay tự khoá chính mình."))
 	case errors.Is(err, user.ErrLastAdmin):
 		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.Conflict).WithDetails(map[string]string{"reason": "last_admin"}).WithMessage("Không thể khoá quản trị viên cuối cùng."))
+	case errors.As(err, &pc):
+		httpx.WriteVersionConflict(w, r, pc.Current.Version, profileJSON(pc.Current))
+	case errors.As(err, &sc):
+		httpx.WriteVersionConflict(w, r, sc.Current.Version, settingsJSON(sc.Current))
 	case errors.As(err, &vc):
 		httpx.WriteVersionConflict(w, r, vc.Current.Version, itemOf(vc.Current))
 	case errors.As(err, &th):
@@ -203,4 +209,116 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 func (h *Handler) internal(w http.ResponseWriter, r *http.Request, op string, err error) {
 	h.Log.ErrorContext(r.Context(), "admin/users lỗi", "op", op, "error", err.Error(), "status_hint", strconv.Itoa(http.StatusInternalServerError))
 	apierr.Write(w, r, apierr.New(http.StatusInternalServerError, apierr.Internal))
+}
+
+// MountMe đăng ký `/me/profile` và `/me/settings` (US-P2-07): chỉ chính chủ, không tham số user_id. PHẢI nằm trong nhóm đã qua auth.Middleware.
+func (h *Handler) MountMe(r chi.Router) {
+	r.Get("/me/profile", h.getProfile)
+	r.Put("/me/profile", h.putProfile)
+	r.Get("/me/settings", h.getSettings)
+	r.Put("/me/settings", h.putSettings)
+}
+
+type profileOut struct {
+	ID            uuid.UUID `json:"id"`
+	Email         string    `json:"email"`
+	FullName      string    `json:"full_name"`
+	Role          string    `json:"role"`
+	StudentCode   string    `json:"student_code"`
+	EmailVerified bool      `json:"email_verified"`
+	Version       int       `json:"version"`
+}
+
+func profileJSON(p user.Profile) profileOut {
+	return profileOut{ID: p.ID, Email: p.Email, FullName: p.FullName, Role: p.Role, StudentCode: p.StudentCode, EmailVerified: p.EmailVerified, Version: p.Version}
+}
+
+func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
+	id, ok := h.actor(w, r)
+	if !ok {
+		return
+	}
+	p, err := h.Users.GetProfile(r.Context(), id)
+	if h.fail(w, r, "profile-get", err) {
+		return
+	}
+	httpx.WriteJSONETag(w, r, profileJSON(p), httpx.ETagVersion(p.Version))
+}
+
+type profileBody struct {
+	Version     *int    `json:"version"`
+	FullName    *string `json:"full_name"`
+	StudentCode *string `json:"student_code"`
+}
+
+func (h *Handler) putProfile(w http.ResponseWriter, r *http.Request) {
+	var b profileBody
+	if !httpx.DecodeJSON(w, r, &b) { // role, email, status… là trường lạ ⇒ 422
+		return
+	}
+	id, ok := h.actor(w, r)
+	if !ok {
+		return
+	}
+	version, aerr := httpx.WantedVersion(r, b.Version)
+	if aerr != nil {
+		apierr.Write(w, r, aerr)
+		return
+	}
+	p, err := h.Users.PutProfile(r.Context(), id, user.ProfileInput{Version: version, FullName: b.FullName, StudentCode: b.StudentCode})
+	if h.fail(w, r, "profile-put", err) {
+		return
+	}
+	httpx.WriteJSONETag(w, r, profileJSON(p), httpx.ETagVersion(p.Version))
+}
+
+type settingsOut struct {
+	NotifyTicketByMail   bool `json:"notify_ticket_by_mail"`
+	NotifyAnswerByMail   bool `json:"notify_answer_by_mail"`
+	RemindDeadlineByMail bool `json:"remind_deadline_by_mail"`
+	Version              int  `json:"version"`
+}
+
+func settingsJSON(s user.Settings) settingsOut {
+	return settingsOut{NotifyTicketByMail: s.NotifyTicketByMail, NotifyAnswerByMail: s.NotifyAnswerByMail, RemindDeadlineByMail: s.RemindDeadlineByMail, Version: s.Version}
+}
+
+func (h *Handler) getSettings(w http.ResponseWriter, r *http.Request) {
+	id, ok := h.actor(w, r)
+	if !ok {
+		return
+	}
+	s, err := h.Users.GetSettings(r.Context(), id)
+	if h.fail(w, r, "settings-get", err) {
+		return
+	}
+	httpx.WriteJSONETag(w, r, settingsJSON(s), httpx.ETagVersion(s.Version))
+}
+
+type settingsBody struct {
+	Version              *int  `json:"version"`
+	NotifyTicketByMail   *bool `json:"notify_ticket_by_mail"`
+	NotifyAnswerByMail   *bool `json:"notify_answer_by_mail"`
+	RemindDeadlineByMail *bool `json:"remind_deadline_by_mail"`
+}
+
+func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
+	var b settingsBody
+	if !httpx.DecodeJSON(w, r, &b) { // khoá lạ ⇒ 422
+		return
+	}
+	id, ok := h.actor(w, r)
+	if !ok {
+		return
+	}
+	version, aerr := httpx.WantedVersion(r, b.Version)
+	if aerr != nil {
+		apierr.Write(w, r, aerr)
+		return
+	}
+	s, err := h.Users.PutSettings(r.Context(), id, user.SettingsInput{Version: version, NotifyTicketByMail: b.NotifyTicketByMail, NotifyAnswerByMail: b.NotifyAnswerByMail, RemindDeadlineByMail: b.RemindDeadlineByMail})
+	if h.fail(w, r, "settings-put", err) {
+		return
+	}
+	httpx.WriteJSONETag(w, r, settingsJSON(s), httpx.ETagVersion(s.Version))
 }
