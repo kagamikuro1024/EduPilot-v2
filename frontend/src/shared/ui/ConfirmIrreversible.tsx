@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { Button } from "./Button";
 import { Dialog } from "./Dialog";
 
@@ -36,9 +36,11 @@ export function ConfirmIrreversible({
   /** thực hiện lỗi: hộp giữ nguyên, hiện lỗi (role=alert) và nút xác nhận đổi thành "Thử lại" */
   error?: ReactNode;
 }) {
+  const descId = useId();
   return (
     <Dialog
       open={open}
+      descriptionId={descId}
       onClose={onClose}
       title={title}
       description={disabledReason ?? consequence}
@@ -53,6 +55,7 @@ export function ConfirmIrreversible({
             variant="primary"
             disabled={Boolean(disabledReason)}
             loading={loading}
+            aria-describedby={disabledReason ? descId : undefined}
             onClick={() => {
               onConfirm();
               if (loading === undefined && error === undefined) onClose(); // không điều khiển trạng thái ⇒ đóng ngay như trước

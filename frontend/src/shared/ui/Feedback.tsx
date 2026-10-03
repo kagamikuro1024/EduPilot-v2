@@ -15,7 +15,7 @@ const NOTICE_ICON = {
 } as const;
 
 /** Thông báo mảnh tại chỗ, thay modal (DESIGN.md §10.5). */
-export function InlineNotice({ tone = "info", title, children, action, compact }: { tone?: NoticeTone; title?: ReactNode; children?: ReactNode; action?: ReactNode; compact?: boolean }) {
+export function InlineNotice({ tone = "info", title, children, action, compact, technical }: { tone?: NoticeTone; title?: ReactNode; children?: ReactNode; action?: ReactNode; compact?: boolean; /** "Chi tiết kỹ thuật" gấp sẵn — chỉ truyền cho TA / GV / Admin (mã lỗi, trace_id) */ technical?: ReactNode }) {
   const Icon = NOTICE_ICON[tone];
   return (
     <div className={[s.notice, s[`n_${tone}`], compact ? s.compact : ""].join(" ")} role={tone === "danger" ? "alert" : "status"}>
@@ -23,6 +23,12 @@ export function InlineNotice({ tone = "info", title, children, action, compact }
       <div className={s.noticeBody}>
         {title && <p className={s.noticeTitle}>{title}</p>}
         {children && <div className={s.noticeText}>{children}</div>}
+        {technical && (
+          <details className={s.tech}>
+            <summary>Chi tiết kỹ thuật</summary>
+            <div>{technical}</div>
+          </details>
+        )}
       </div>
       {action && <div className={s.noticeAction}>{action}</div>}
     </div>

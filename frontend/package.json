@@ -7,10 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
-    "build:gate": "NEXT_PUBLIC_DEV_TOOLS=1 next build",
+    "build:gate": "NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_API_URL=http://localhost:3311 next build",
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.104.0",
     "@tanstack/react-virtual": "^3.14.13",
     "lucide-react": "^1.49.0",
     "next": "^16.3.7",

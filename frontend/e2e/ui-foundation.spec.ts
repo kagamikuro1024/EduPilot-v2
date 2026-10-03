@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { navFor } from "../src/shared/shell/nav";
 import { asDemo, type DemoRole } from "./support/session";
@@ -37,3 +38,23 @@ for (const role of ROLES) {
     expect(audit, "tràn ngang").toEqual([]);
   });
 }
+
+test("ConfirmIrreversible: thiếu consequence ⇒ lỗi biên dịch nêu `consequence`", async ({}, info) => {
+  test.skip(info.project.name !== "desktop", "ghi tệp tạm dùng chung");
+  test.setTimeout(90_000);
+  const dir = "src/__tsc__";
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(`${dir}/bad.tsx`, 'import { ConfirmIrreversible } from "@/shared/ui";\nexport const X = () => <ConfirmIrreversible open onClose={() => {}} onConfirm={() => {}} title="x" confirmLabel="Xoá" />;\n');
+  try {
+    let out = "";
+    try {
+      execFileSync("pnpm", ["exec", "tsc", "--noEmit"], { encoding: "utf8", stdio: "pipe" });
+    } catch (e) {
+      out = String((e as { stdout?: string }).stdout ?? "");
+    }
+    expect(out).toContain("consequence");
+    expect(out).toContain("__tsc__/bad.tsx");
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});

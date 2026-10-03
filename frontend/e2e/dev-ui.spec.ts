@@ -433,3 +433,14 @@ test("one-primary: mỗi vùng làm việc ≤ 1 nút primary", async ({ page })
   );
   expect(bad).toEqual([]);
 });
+
+test("confirm: disabledReason khoá nút xác nhận và gắn aria-describedby", async ({ page }) => {
+  await page.goto("/dev/ui");
+  await cell(page, "ConfirmIrreversible", "disabled").locator("[data-open-overlay]").click();
+  const dlg = page.locator("dialog[open]");
+  const confirm = dlg.getByRole("button", { name: "Chốt điểm" });
+  await expect(confirm).toBeDisabled();
+  const id = await confirm.getAttribute("aria-describedby");
+  expect(id).toBeTruthy();
+  await expect(dlg.locator(`[id="${id}"]`)).toContainText("chưa có điểm cuối kỳ");
+});

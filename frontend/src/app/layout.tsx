@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Be_Vietnam_Pro } from "next/font/google";
 import "@/shared/styles/tokens.css";
 import "@/shared/styles/base.css";
+import { OfflineBanner } from "@/shared/data/OfflineBanner";
+import { QueryProvider } from "@/shared/data/queryClient";
 
 // next/font tự lưu font cùng máy chủ và phát @font-face "Be Vietnam Pro" (không gọi Google lúc chạy). KHÔNG đặt font-family qua
 // className: --ep-font ở tokens.css (có "Noto Sans" dự phòng) mới là chuỗi font duy nhất của trang.
@@ -20,7 +22,12 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="vi" className={beVietnamPro.variable}>
-      <body>{children}</body>
+      <body>
+        <QueryProvider>
+          <OfflineBanner />
+          {children}
+        </QueryProvider>
+      </body>
     </html>
   );
 }

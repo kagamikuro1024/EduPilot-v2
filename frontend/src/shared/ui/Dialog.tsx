@@ -41,6 +41,7 @@ function Overlay({
   dismissible = true,
   loading,
   error,
+  descriptionId,
 }: {
   open: boolean;
   onClose: () => void;
@@ -56,9 +57,13 @@ function Overlay({
   loading?: boolean;
   /** lỗi của thao tác trong hộp: role=alert, giữ nguyên hộp */
   error?: ReactNode;
+  /** id của đoạn mô tả (để nút bên trong trỏ `aria-describedby` tới lý do khoá) */
+  descriptionId?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
+  const autoDesc = useId();
+  const descId = descriptionId ?? autoDesc;
 
   useEffect(() => {
     const d = ref.current;
@@ -77,6 +82,7 @@ function Overlay({
       onClick={(e) => dismissible && e.target === ref.current && onClose()}
       role="dialog"
       aria-labelledby={titleId}
+      aria-describedby={description ? descId : undefined}
     >
       <div className={s.frame}>
         <header className={s.head}>
@@ -84,7 +90,7 @@ function Overlay({
             <h2 id={titleId} className="ep-section-title">
               {title}
             </h2>
-            {description && <p className={s.desc}>{description}</p>}
+            {description && <p id={descId} className={s.desc}>{description}</p>}
           </div>
           <button type="button" className={s.close} onClick={onClose} aria-label="Đóng" disabled={!dismissible}>
             <X aria-hidden />
