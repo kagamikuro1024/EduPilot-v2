@@ -80,6 +80,7 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
     const sleep = (ms) => new Promise((s) => setTimeout(s, ms));
     const setRole = async (role, person = 'sv-2', course = 'int1006-1') => {
       await page.deleteCookie(...(await page.cookies()));
+      try { await page.evaluate(() => { localStorage.removeItem('ep:ui:sidebar'); }); } catch {} // sprint 3 (US-PU-04): sidebar nhớ trạng thái thu gọn
       for (const [n, v] of [['ep_demo_role', role], ['ep_demo_person', role === 'student' ? person : ''], ['ep_demo_course', course]]) await page.setCookie({ name: n, value: v, url: base });
     };
     const setVp = (w, h = w >= 1000 ? 900 : 844) => page.setViewport({ width: w, height: h, deviceScaleFactor: 1, isMobile: w < 500, hasTouch: w < 500 });
@@ -137,7 +138,8 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
     return rows;
   }, { timeout: 280000, args: [{ base, out, only, skipSpec, skipMatrix, states, routesOnly, skipScenarios, skipEdge, specWhich, ROUTES, VIEWPORTS: VIEWPORTS.map(({ w, h, tag }) => ({ w, h, tag })), BLOCKED, EDGE_W, EDGE_ROUTES, SCENARIOS_META: SCENARIOS, AUDIT_SRC, TOUCH_SRC, LEFT_SRC, TOUCH_SV, specSrc: SPEC_CHECKS.toString(), spec51Src: SPEC_V51.toString(), scnSrc: SCN_RUNNERS.toString() }] });
   await tab.close();
-  return rows;
+  // sprint 3 (US-P1-05): các phép 04-AC7 / 04-AC11 đo bố cục MOCK của /settings/llm — màn nay là bản thật (cổng dán token), thay bằng TC-P105-*; bỏ khỏi bảng.
+  return rows.filter((r) => !(r.route === '/settings/llm' && /^04-AC(7|11)/.test(r.what)));
 }
 
 // ---- Phép đo riêng: chạy TRONG trang (Puppeteer page), nhận ctx ----
@@ -155,11 +157,11 @@ export async function SPEC_CHECKS({ page, setRole, setVp, go, reset, push, sleep
   // 00-AC7 brand
   for (const role of ['student', 'ta', 'teacher', 'admin']) {
     await setRole(role); await setVp(1440, 900); await go('/');
-    const m = await q(() => { const b = document.querySelector('[data-part=brand]'), i = document.querySelector('[data-part=brand] img'), h = document.querySelector('header'); if (!b || !i || !h) return null; const bb = b.getBoundingClientRect(), ib = i.getBoundingClientRect(), hb = h.getBoundingClientRect(); return { img: Math.round(ib.height), brandH: Math.round(bb.height), bBottom: Math.round(bb.bottom), hBottom: Math.round(hb.bottom), border: getComputedStyle(b).borderBottomWidth, ratio: +(ib.width / ib.height).toFixed(2) }; });
+    const m = await q(() => { const V = (q) => [...document.querySelectorAll(q)].find((e) => e.getBoundingClientRect().width > 0) || null; const b = V('[data-part=brand]'), i = V('[data-part=brand] img'), h = document.querySelector('header'); if (!b || !i || !h) return null; const bb = b.getBoundingClientRect(), ib = i.getBoundingClientRect(), hb = h.getBoundingClientRect(); return { img: Math.round(ib.height), brandH: Math.round(bb.height), bBottom: Math.round(bb.bottom), hBottom: Math.round(hb.bottom), border: getComputedStyle(b).borderBottomWidth, ratio: +(ib.width / ib.height).toFixed(2) }; });
     chk(role, '/', 1440, '00-AC7 brand 32/56/viền liền', m && m.img === 32 && m.brandH === 56 && m.bBottom === 56 && m.hBottom === 56 && m.border === '1px' && Math.abs(m.ratio - 188 / 40) < 0.15, JSON.stringify(m), await shot(`brand-${role}-1440`));
   }
   await setRole('teacher'); await setVp(1440, 900); await go('/'); await clickTxt(/Thu gọn/);
-  const col = await q(() => { const i = document.querySelector('[data-part=brand] img'); const b = i && i.getBoundingClientRect(); const s = document.querySelector('[data-part=brand]').getBoundingClientRect(); return b && { w: Math.round(b.width), h: Math.round(b.height), cx: Math.round(b.left + b.width / 2), colW: Math.round((document.querySelector('aside') || s).getBoundingClientRect().width), colCx: Math.round(s.left + s.width / 2) }; });
+  const col = await q(() => { const V = (q) => [...document.querySelectorAll(q)].find((e) => e.getBoundingClientRect().width > 0) || null; const i = V('[data-part=brand] img'); const b = i && i.getBoundingClientRect(); const s = V('[data-part=brand]').getBoundingClientRect(); return b && { w: Math.round(b.width), h: Math.round(b.height), cx: Math.round(b.left + b.width / 2), colW: Math.round((document.querySelector('aside') || s).getBoundingClientRect().width), colCx: Math.round(s.left + s.width / 2) }; });
   chk('teacher', '/', 1440, '00-AC7 thu gọn: mark 32×32, giữa cột 72', col && col.w === 32 && col.h === 32 && col.colW === 72 && Math.abs(col.cx - col.colCx) <= 1, JSON.stringify(col), await shot('brand-collapsed-1440'));
   for (const role of ['student', 'teacher']) {
     await setRole(role); await setVp(390, 844); await go('/');
