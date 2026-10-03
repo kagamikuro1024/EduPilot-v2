@@ -4,7 +4,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** sprint 1/10 xong (P0); sprint 1.5 xong (prototype giao diện bấm được toàn bộ tính năng, dữ liệu mô phỏng, 4 vai, kịch bản demo 15 phút — 449 test case PASS; xem mục 5 "Xem prototype"). Đang làm: sprint 2 (PG — Nền Go). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** đã vào `main`: sprint 1 (P0), sprint 1.5 (prototype giao diện bấm được toàn bộ tính năng — 449 test case PASS; xem mục 5 "Xem prototype") và sprint 2 (PG — nền Go không trạng thái, cổng PG PASS, 536 test case). Đang làm: sprint 3 (PU + P1 LLM Gateway), sprint 4 (P2 Lớp học). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -71,8 +71,8 @@ Phiên bản nền chốt ở D48.
 | Backend | Go 1.27 · `chi` v5 · `pgx` v5 + `sqlc` + `pgvector-go` · `goose` · `go-redis` v9 · `openai-go` · `shopspring/decimal` (điểm, cấm `float64`) · `slog` + OpenTelemetry |
 | Frontend | Next.js 16 (App Router, React Server Components, Turbopack) · React 19 · TypeScript · TanStack Query · zustand · recharts · `lucide-react` · Be Vietnam Pro |
 | Dữ liệu | PostgreSQL 18 + pgvector (HNSW) · Redis 8 · object storage tương thích S3 |
-| Hạ tầng local | Docker Compose · Mailpit (SMTP 1025, UI 8025) · `docling-serve` (từ sprint 5) · Caddy, PgBouncer (từ sprint 2) |
-| Kiểm thử | `go test -race` · testcontainers-go · Playwright · `@redocly/cli` (OpenAPI) · k6 · `golangci-lint` |
+| Hạ tầng local | Docker Compose · Caddy 2.11 (TLS nội bộ, proxy `/api` → gateway, không đệm SSE) · PgBouncer 1.26 (transaction mode) · MinIO · Mailpit (SMTP 1025, UI 8025) · `docling-serve` (từ sprint 5) |
+| Kiểm thử | `go test -race` · testcontainers-go · `kin-openapi` (contract test, chỉ trong test — D52) · Playwright · `@redocly/cli` · k6 · `golangci-lint` |
 | Công cụ | pnpm 12 · Node 24 LTS · GitHub Actions |
 
 Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi chưa có quyết định.
@@ -81,13 +81,20 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 
 ```text
 .
-├── backend-go/              # Gateway + worker Go (một go.mod)
-│   ├── cmd/gateway/         # điểm vào HTTP
+├── backend-go/              # Gateway + worker Go (một go.mod) — chi tiết: backend-go/README.md
+│   ├── cmd/gateway/         # điểm vào HTTP (+ lệnh `migrate`, `token` cho dev)
+│   ├── cmd/worker/          # consumer nền (outbox, việc dài)
 │   ├── internal/
-│   │   ├── platform/        # cấu hình env, slog, (sau) redis, blob, outbox
-│   │   └── httpapi/         # router chi, middleware, định dạng lỗi
+│   │   ├── platform/        # config, log, otel, redis, db (pgx), blob (MinIO), outbox, clock
+│   │   ├── httpapi/         # router chi, middleware, lỗi thống nhất, cursor, Idempotency-Key, ETag, SSE
+│   │   ├── auth/            # JWT, bcrypt, RBAC, khung CourseAccessGuard
+│   │   ├── jobs/            # việc dài: 202 + GET /jobs/{id}
+│   │   ├── store/           # sqlc (queries/*.sql)
+│   │   ├── contract/        # response thật khớp api/openapi.yaml
+│   │   └── testroutes/      # route chỉ cho test (build tag `testroutes`, image mặc định không có)
+│   ├── db/migrations/       # goose, từ 00001
 │   ├── api/openapi.yaml     # hợp đồng API — endpoint nào cũng phải có ở đây
-│   └── Dockerfile
+│   └── Dockerfile           # multi-stage, image < 10 MB, nonroot, không shell
 ├── frontend/                # Next.js 16
 │   ├── src/app/             # route
 │   └── src/shared/          # token, primitive, lớp dữ liệu dùng chung (PU)
@@ -95,10 +102,12 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 ├── scripts/
 │   ├── dev.mjs              # pnpm dev: dựng stack, chờ healthy
 │   ├── ui-antipatterns.sh   # chặn phản mẫu giao diện (DESIGN.md §21)
-│   └── team-up.sh           # dựng 4 pane agent trên herdr
-├── docs/                    # PRD, kiến trúc, phase, spec, sprint, quyết định
+│   └── team-up.sh           # dựng pane agent trên herdr
+├── deploy/                  # Caddyfile, cấu hình PgBouncer
+├── benchmarks/              # k6 (load/), số đo (reports/), đánh giá offline
+├── docs/                    # PRD, kiến trúc, phase, spec, sprint, quyết định, research
 ├── legacy/                  # mã Project III — CHỈ ĐỌC
-├── docker-compose.local.yml
+├── docker-compose.local.yml # stack dev; docker-compose.test.yml bật route thử
 └── .github/workflows/ci.yml
 ```
 
@@ -115,19 +124,22 @@ Quy ước Go: `internal/<module>/{handler,service,repo}.go`; handler mỏng, lo
 ### Dựng stack
 ```bash
 pnpm install
-pnpm dev            # tạo .env.local từ .env.example nếu chưa có, build, chờ mọi service healthy
+pnpm dev            # tạo .env.local từ .env.example nếu chưa có, build, chạy migration, chờ mọi service healthy
 pnpm dev:status     # trạng thái container
 pnpm dev:logs       # theo dõi log
 pnpm dev:down       # dừng (giữ volume)
+# chạy 2 bản gateway sau Caddy
+docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot up -d --scale gateway=2 --wait
 ```
 
 | Service | Địa chỉ trên máy | Ghi chú |
 | --- | --- | --- |
+| caddy | https://localhost | cửa vào duy nhất: `/api/*` → gateway, còn lại → frontend; chứng chỉ "Caddy Local Authority" |
+| gateway | https://localhost/api/v1/healthz | `{"status":"ok"}`; `/api/v1/readyz` kiểm DB + Redis. Không công bố cổng riêng (nhân bản được) |
 | frontend | http://localhost:3000 | Next.js |
-| gateway | http://localhost:8080/healthz | `{"status":"ok"}` |
 | mailpit | http://localhost:8025 | hộp thư giả; SMTP `localhost:1025` |
 | minio | http://localhost:9001 | console object storage |
-| postgres | `localhost:5433` | user/db `edupilot` |
+| postgres | `localhost:5433` | user/db `edupilot`; ứng dụng đi qua PgBouncer (trong mạng compose) |
 | redis | `localhost:6380` | |
 
 Biến môi trường: [`.env.example`](.env.example) (chỉ giá trị dev giả). Gateway thiếu biến bắt buộc (hoặc biến rỗng) thì thoát mã 1 với một dòng log nêu đủ tên biến thiếu. Danh sách đầy đủ: `docs/ARCHITECTURE.md` §8.
@@ -143,16 +155,21 @@ pnpm -C frontend build && pnpm -C frontend start     # http://localhost:3000
 ## 6. Kiểm thử và CI
 
 ```bash
-# Go
-cd backend-go && go vet ./... && golangci-lint run && go test -race ./...
+# Go (xem backend-go/README.md: testcontainers trên colima cần ~/.testcontainers.properties)
+make -C backend-go lint        # go vet + golangci-lint, cả build tag mặc định và testroutes
+make -C backend-go test        # go test -race -tags testroutes ./... (gồm contract test)
+make -C backend-go sqlc-check  # sqlc diff
 # OpenAPI
 pnpm exec redocly lint backend-go/api/openapi.yaml
 # Frontend
 pnpm -C frontend lint && pnpm -C frontend build
 bash scripts/ui-antipatterns.sh
+# Tải (stack đang chạy)
+export JWT_SECRET_KEY="$(grep '^JWT_SECRET_KEY=' .env.local | cut -d= -f2-)"   # cùng khoá với gateway đang chạy
+TOKEN="$(cd backend-go && go run ./cmd/gateway token --role STUDENT)" && k6 run -e BASE=https://localhost -e TOKEN="$TOKEN" benchmarks/load/smoke.js
 ```
 
-CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy hai job **Go** và **Frontend** trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật. Lệnh của các phase sau (sqlc, contract test, Playwright, `make eval`, k6) có trong `CLAUDE.md` mục "Lệnh" và được thêm vào CI khi phase tương ứng có mã.
+CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy job **Go** (`go vet` hai bộ tag, `golangci-lint`, `sqlc diff`, `go test -race -tags testroutes`) và **Frontend** (lint, build, `ui-antipatterns.sh`) trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật. Số đo nền của bản Go: [`benchmarks/reports/pg-baseline.md`](benchmarks/reports/pg-baseline.md).
 
 ## 7. Luật bất biến
 
@@ -176,25 +193,27 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 | [`docs/FLOWS.md`](docs/FLOWS.md) | 18 luồng end-to-end F1–F18, cả nhánh lỗi |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Thành phần, lược đồ dữ liệu, REST, provider LLM, env, kiểm thử |
 | [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Tải T1, nút cổ chai, SLO, lộ trình mở rộng |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D48 |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D52 |
 | [`docs/design/DESIGN.md`](docs/design/DESIGN.md), [`docs/UX.md`](docs/UX.md) | Hệ thiết kế "Red Thread / Academic Instrument", hợp đồng từng route, luật UX |
 | [`docs/phases/`](docs/phases/) | Backlog kỹ thuật: P0, PG, PU, P1–P10, PR — lát việc + cổng nghiệm thu |
 | [`docs/specs/`](docs/specs/) | User story + SRS theo feature (BA viết) |
 | [`docs/sprints/`](docs/sprints/) | Kế hoạch, handoff, test case, QC report, góp ý, báo cáo từng sprint |
 | [`docs/thesis-notes/`](docs/thesis-notes/) | Nguyên liệu luận văn theo sprint |
+| [`docs/research/`](docs/research/) | Báo cáo nghiên cứu công nghệ / hạ tầng có PoC (vai Research) |
 | [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | Kịch bản demo bảo vệ 15 phút |
 | [`docs/PROGRESS.md`](docs/PROGRESS.md) | Đang ở đâu, nợ gì |
 
 ## 9. Quy trình làm việc: đội agent và sprint
 
-Một người (chủ dự án) + bốn phiên Claude Code trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/)):
+Một người (chủ dự án) + năm phiên agent trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/); mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước):
 
 | Vai | Việc | Sửa được |
 | --- | --- | --- |
 | `pm` | Lập sprint, giao việc, quyết góp ý kỹ thuật, tổng hợp, dừng hỏi chủ dự án | `docs/sprints/**`, `docs/PROGRESS.md`, `docs/thesis-notes/**` |
 | `ba` | User story + SRS theo feature | `docs/specs/**` |
 | `dev` | Thi công từng story theo lát dọc | mã nguồn |
-| `qc` | Viết test case từ AC (song song với dev), chạy, báo PASS/FAIL, chạy cổng phase | `docs/sprints/N/qc/**`, test mới |
+| `qc` | Viết test case từ AC (song song với dev), kiểm thử thăm dò, chạy, báo PASS/FAIL, chạy cổng phase | `docs/sprints/N/qc/**`, test mới |
+| `research` | Kiểm chứng công nghệ, hạ tầng, rủi ro bằng nguồn chính + PoC, đề xuất cho PM | `docs/research/**` |
 
 ```mermaid
 flowchart LR
@@ -213,7 +232,8 @@ flowchart LR
 
 - Spec đã duyệt chỉ đổi qua `docs/sprints/N/proposals.md` khi PM chấp nhận; **không thoả hiệp ngang hàng** (dev không xin QC nới test, QC không sửa test cho khớp code, BA không sửa AC cho khớp code).
 - Câu hỏi đụng hành vi sản phẩm, quyền, điểm số, dữ liệu cá nhân luôn về chủ dự án.
-- Nhánh `sprint/N-<slug>` từ `main`; chủ dự án chốt báo cáo → merge `--no-ff` vào `main`.
+- Chạy cuốn chiếu: trong lúc QC kiểm sprint N, PM lập kế hoạch và BA viết spec sprint N+1; nhánh `sprint/N+1-…` xếp chồng lên nhánh N khi N chưa vào `main`. Chủ dự án chốt báo cáo → merge `--no-ff` vào `main`.
+- Không mở subagent khi PM chưa cho phép (tiết kiệm token).
 
 ## 10. Lộ trình 10 sprint
 
@@ -221,7 +241,7 @@ flowchart LR
 | --- | --- | --- |
 | 1 ✅ | P0 Chuẩn bị | Mặt bằng mới, khung Go + Next.js, stack local, CI, kịch bản demo |
 | 1.5 ✅ | Prototype giao diện (D51) | Prototype bấm được toàn bộ tính năng, đổi 4 vai, Threads mô phỏng như thật, đi trọn kịch bản demo 15 phút |
-| 2 | PG Nền Go | DB/migration/sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, nhân bản gateway |
+| 2 ✅ | PG Nền Go | DB/migration/sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, Caddy + PgBouncer, nhân bản gateway |
 | 3 | PU + P1 | Token, app shell, primitive; LLM gateway + Scheduler + cấu hình provider |
 | 4 | P2 | Tài khoản an toàn, mở lớp, phân công, mã tham gia, "Hôm nay" |
 | 5 | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
