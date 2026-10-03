@@ -21,7 +21,7 @@ Cổng: `qc/report-GATE-PU.md` (18 TC), `qc/report-GATE-P1.md` (27 TC). Spec: `d
 - Test case: **538** (PU 248 · P1 245 · GATE 45). Vòng 1 các story: 14 lỗi → sửa hết; cổng vòng 1: FAIL (CI đỏ, `llmload`) → vòng sửa 1 → PASS.
 - Playwright 155 ca, 0 đỏ, không retry; axe 0 critical / 0 serious ở 102 lượt quét; `audit.mjs` 674 PASS / 0 FAIL; `proto-curl.sh` 493 PASS.
 - Lighthouse (mobile mô phỏng): CLS 0, JS ≤ 230 KB, TBT sáu route thật ≤ 111 ms; **LCP 2,7–3,4 s** (ngưỡng 2,5 s — xem Nợ).
-- Ghi replay thật: OpenAI `gpt-4o-mini` + Gemini flash, nhúng 1536 chiều; Anthropic BLOCKED (không có khoá).
+- Nhà cung cấp thật: dev ghi replay OpenAI `gpt-4o-mini` + Gemini flash, nhúng 1536 chiều. GATE-P1 TC-13 / TC-18 (QC): hai nhà trả lời, tắt nhà chính thì nhà kia trả lời (`fallback_index: 0`), ghi / phát lại PASS; QC tốn 13 lời gọi, ≈ 1.100 token. Anthropic BLOCKED (không có khoá).
 - 95 commit, `backend-go` + `frontend` +24.680 dòng. Góp ý #1–#34, PM chấp nhận cả 34.
 
 ## Lỗi thật tìm ra và đã sửa
