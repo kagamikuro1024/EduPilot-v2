@@ -3,6 +3,7 @@ package config_test
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"log/slog"
 	"slices"
 	"strings"
@@ -282,5 +283,53 @@ func TestConfig_NoSecretInLog(t *testing.T) {
 		if !strings.Contains(line, want) {
 			t.Fatalf("dòng log thiếu %s: %s", want, line)
 		}
+	}
+}
+
+// TestLLMEnv — FEAT-llm-gateway US-P1-03 AC15 và US-P1-02 AC11: mặc định đúng SRS 8.1; giá trị sai → từ chối, nêu tên biến, không in giá trị.
+func TestLLMEnv(t *testing.T) {
+	t.Parallel()
+	c, err := config.Load(getenv(full()), config.Gateway)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if c.LLMMaxConcurrency != 10 || c.LLMBatchShare != 0.5 || c.LLMQueueMax != 200 || c.LLMQueueWaitMax != 10*time.Second ||
+		c.LLMRequestTimeout != 30*time.Second || c.LLMBreakerFails != 5 || c.LLMBreakerOpen != 30*time.Second ||
+		c.LLMDefaultRPM != 60 || c.LLMDefaultTPM != 100000 || c.LLMEmbedDims != 1536 || c.LLMProvider != "" ||
+		c.FakeLatencyMin != 0 || c.FakeLatencyMax != 0 || c.FakeErrorRate != 0 {
+		t.Fatalf("mặc định sai: %+v", c)
+	}
+
+	bad := []struct{ key, value string }{
+		{"LLM_MAX_CONCURRENCY", "0"}, {"LLM_MAX_CONCURRENCY", "-3"}, {"LLM_MAX_CONCURRENCY", "abc"},
+		{"LLM_BATCH_SHARE", "0"}, {"LLM_BATCH_SHARE", "1.5"}, {"LLM_BATCH_SHARE", "-0.1"}, {"LLM_BATCH_SHARE", "nửa"},
+		{"LLM_QUEUE_MAX", "0"}, {"LLM_QUEUE_WAIT_MAX", "-1s"}, {"LLM_QUEUE_WAIT_MAX", "mười"}, {"LLM_REQUEST_TIMEOUT", "0s"},
+		{"LLM_BREAKER_FAILS", "0"}, {"LLM_BREAKER_OPEN", "0"}, {"LLM_DEFAULT_RPM", "-1"}, {"LLM_DEFAULT_TPM", "0"},
+		{"LLM_EMBED_DIMS", "768"}, {"LLM_PROVIDER", "openai"},
+		{"FAKE_LLM_LATENCY", "5000"}, {"FAKE_LLM_LATENCY", "10-5"}, {"FAKE_LLM_ERROR_RATE", "1.2"},
+	}
+	for _, tc := range bad {
+		env := full()
+		env[tc.key] = tc.value
+		_, err := config.Load(getenv(env), config.Gateway)
+		var ie *config.ErrInvalidEnv
+		if !errors.As(err, &ie) || !slices.Contains(ie.Names, tc.key) {
+			t.Errorf("%s=%s: err = %v, muốn ErrInvalidEnv nêu %s", tc.key, tc.value, err, tc.key)
+			continue
+		}
+		if !strings.Contains(err.Error(), tc.key) {
+			t.Errorf("%s: thông điệp không nêu tên biến", tc.key)
+		}
+	}
+
+	env := full()
+	env["LLM_BATCH_SHARE"], env["LLM_PROVIDER"], env["FAKE_LLM_LATENCY"], env["FAKE_LLM_ERROR_RATE"] = "1", "fake", "5000-15000", "0.25"
+	env["OPENAI_API_KEY"] = "sk-secret-do-not-log"
+	c, err = config.Load(getenv(env), config.Gateway)
+	if err != nil || c.LLMBatchShare != 1 || c.LLMProvider != "fake" || c.FakeLatencyMin != 5*time.Second || c.FakeLatencyMax != 15*time.Second || c.FakeErrorRate != 0.25 {
+		t.Fatalf("giá trị hợp lệ: %+v err=%v", c, err)
+	}
+	if strings.Contains(fmt.Sprint(c.LogAttrs()...), "sk-secret") {
+		t.Error("LogAttrs lộ khoá OPENAI_API_KEY")
 	}
 }

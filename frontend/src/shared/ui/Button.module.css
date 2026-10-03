@@ -4,17 +4,19 @@
   justify-content: center;
   gap: var(--ep-space-2);
   min-height: 36px;
-  padding: 0 var(--ep-space-4);
+  max-width: 100%;
+  padding: var(--ep-space-2) var(--ep-space-4);
   border: 1px solid transparent;
   border-radius: var(--ep-radius-sm);
   font-size: var(--ep-text-label);
   font-weight: 600;
-  line-height: 1;
-  white-space: nowrap;
+  line-height: 1.25;
+  text-align: center;
+  overflow-wrap: anywhere; /* nhãn dài xuống dòng, không đẩy trang tràn ngang (US-PU-02 AC4) */
   transition: background-color var(--ep-fast) var(--ep-ease-standard), border-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
 }
 .btn svg { width: 16px; height: 16px; flex: none; stroke-width: 2; }
-.sm { min-height: 30px; padding: 0 var(--ep-space-3); font-size: var(--ep-text-meta); }
+.sm { min-height: 30px; padding: var(--ep-space-1) var(--ep-space-3); font-size: var(--ep-text-meta); }
 
 .primary { background: var(--ep-red); color: var(--ep-surface); }
 .primary:hover:not(:disabled) { background: var(--ep-red-hover); }
@@ -26,7 +28,7 @@
 .ghost:hover:not(:disabled) { background: var(--ep-surface-subtle); color: var(--ep-ink); }
 
 /* hành động dạng chữ đỏ ở cuối một hàng / section */
-.text { background: transparent; color: var(--ep-red); padding: 0 var(--ep-space-1); min-height: 28px; }
+.text { background: transparent; color: var(--ep-red); padding: var(--ep-space-1); min-height: 28px; }
 .text:hover:not(:disabled) { color: var(--ep-red-hover); text-decoration: underline; text-underline-offset: 3px; }
 
 .btn:disabled { opacity: 0.45; }

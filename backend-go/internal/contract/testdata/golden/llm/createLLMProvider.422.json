@@ -1,0 +1,12 @@
+{
+  "code": "VALIDATION_FAILED",
+  "details": [
+    {
+      "code": "PROVIDER_AUTH_FAILED",
+      "field": "api_key",
+      "message": "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá."
+    }
+  ],
+  "message": "Dữ liệu chưa hợp lệ.",
+  "trace_id": "<trace_id>"
+}

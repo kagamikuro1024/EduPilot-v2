@@ -1,9 +1,10 @@
 "use client";
 
-import { Bell, Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, UserPlus, Users } from "lucide-react";
+import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, RotateCcw, Search, Settings, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore, type ComponentType } from "react";
+import TokenGate from "@ep/token-gate";
 import { BT03_SEED } from "@/mock/assess";
 import { COURSE_1, COURSE_2, DEMO_STUDENT_BLURB, DEMO_STUDENT_IDS, ROLE_LABEL, STAFF, STUDENTS, SUBJECT, type Role } from "@/mock/core";
 import { ASSIGNED_AT, BT03_SUBMITTED_AT, CH5_UPLOADED_AT, agoLabel, reviewPending, ticketStats } from "@/mock/derive";
@@ -15,9 +16,10 @@ import { ALL_COURSES, clearDemoSession } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { resetDemo, useDemoSlice } from "@/shared/state/demo";
-import { Button, ButtonLink, Drawer, Field, Input, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover, Section } from "@/shared/ui";
+import { Button, ButtonLink, Drawer, EmptyState, Field, Input, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover, Section } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
-import { MOBILE_PRIMARY, canOpen, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
+import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, needsToken, whoCanOpen, type NavItem } from "./nav";
+import { NotificationPopover } from "./NotificationPopover";
 import s from "./AppShell.module.css";
 
 /** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
@@ -84,20 +86,71 @@ function displayName(role: Role, name: string, title?: string) {
 }
 
 const NARROW = "(max-width: 719px)";
-function subscribeNarrow(cb: () => void) {
-  const mql = window.matchMedia(NARROW);
-  mql.addEventListener("change", cb);
-  return () => mql.removeEventListener("change", cb);
+const MID = "(max-width: 1099px)";
+function useMedia(query: string) {
+  return useSyncExternalStore(
+    (cb) => {
+      const mql = window.matchMedia(query);
+      mql.addEventListener("change", cb);
+      return () => mql.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(query).matches,
+    () => false,
+  );
 }
 
+// Lựa chọn thu gọn thanh bên (chỉ ≥ 1100 px) nhớ ở `ep:ui:sidebar` = "collapsed" | "expanded" — không phải token (SRS 5.3).
+const SIDEBAR_KEY = "ep:ui:sidebar";
+const sidebarListeners = new Set<() => void>();
+function useSidebarCollapsed(): [boolean, (v: boolean) => void] {
+  const v = useSyncExternalStore(
+    (cb) => {
+      sidebarListeners.add(cb);
+      window.addEventListener("storage", cb);
+      return () => {
+        sidebarListeners.delete(cb);
+        window.removeEventListener("storage", cb);
+      };
+    },
+    () => {
+      try {
+        return localStorage.getItem(SIDEBAR_KEY) === "collapsed";
+      } catch {
+        return false;
+      }
+    },
+    () => false,
+  );
+  const set = (next: boolean) => {
+    try {
+      localStorage.setItem(SIDEBAR_KEY, next ? "collapsed" : "expanded");
+    } catch { /* bộ nhớ bị chặn: chỉ mất việc nhớ */ }
+    sidebarListeners.forEach((f) => f());
+  };
+  return [v, set];
+}
+
+// Cổng dán token dev: `@ep/token-gate` phân giải sang cổng thật chỉ ở build NEXT_PUBLIC_DEV_AUTH=1, còn lại là `null` (xem next.config.ts).
+const Gate: ComponentType<{ expired: boolean }> | null = TokenGate;
+const MOCK_SCREENS_OFF = process.env.NEXT_PUBLIC_MOCK_SCREENS === "0";
+
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse } = useSession();
+  const { role, user, studentId, course, courses, isAll, hasCourse, switchTo, setCourse, source, identity, logout, expired } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const groups = useMemo(() => navFor(role, hasCourse), [role, hasCourse]);
   const flat = useMemo(() => groups.flatMap((g) => g.items), [groups]);
-  const [collapsed, setCollapsed] = useState(false);
+  const [prefCollapsed, setPrefCollapsed] = useSidebarCollapsed();
+  const mid = useMedia(MID);
+  // 720–1099 px luôn thu gọn (72 px); ≥ 1100 px theo lựa chọn đã nhớ (216 px mặc định)
+  const collapsed = mid || prefCollapsed;
   const [palette, setPalette] = useState(false);
+  // mỗi lần MỞ tăng `paletteTick` để hộp thoại gốc mở lại kể cả khi sự kiện `close` của lần đóng trước chưa kịp cập nhật `palette`
+  const [paletteTick, setPaletteTick] = useState(0);
+  const openPalette = () => {
+    setPalette(true);
+    setPaletteTick((n) => n + 1);
+  };
   const [more, setMore] = useState(false);
 
   useEffect(() => {
@@ -105,7 +158,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       const typing = e.target instanceof HTMLElement && e.target.closest("input, textarea, select, [contenteditable]");
       if ((e.key === "k" && (e.metaKey || e.ctrlKey)) || (e.key === "/" && !typing)) {
         e.preventDefault();
-        setPalette(true);
+        openPalette();
       }
     };
     window.addEventListener("keydown", onKey);
@@ -116,7 +169,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mobilePrimary = flat.filter((i) => MOBILE_PRIMARY[role].includes(i.href));
   const mobileMore = flat.filter((i) => !MOBILE_PRIMARY[role].includes(i.href));
   const courseTitle = !hasCourse ? "Chưa có lớp" : isAll ? "Tất cả lớp của tôi" : `${course.code} · ${course.name}`;
-  const personName = displayName(role, user.name, user.title);
+  const personName = identity ? identity.email || ROLE_LABEL[role] : displayName(role, user.name, user.title);
   const viewer = viewerKey(role, studentId);
   const scope = useMemo(() => (isAll ? courses.map((c) => c.id) : hasCourse ? [course.id] : []), [isAll, courses, hasCourse, course.id]);
   // Chuông không theo lớp đang chọn: mục của lớp khác vẫn tới, đích mang `course=` nên mở đúng lớp (SRS 4.9)
@@ -142,9 +195,13 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     [storedNotes, role, studentId, hasCourse, bt03, schemes, viewer, noteScope],
   );
   const unread = notes.filter((n) => !n.readBy.includes(viewer)).length;
+  const bellItems = notes.map((n) => {
+    const ago = agoLabel(n.ms, now);
+    return { id: n.id, title: n.title, context: n.meta, when: n.just && ago === "vừa xong" ? n.just : ago, href: n.href, read: n.readBy.includes(viewer) };
+  });
 
   // Thanh bên và thanh dưới loại trừ nhau: chỉ gắn một bộ badge vào DOM ở mỗi bề rộng.
-  const narrow = useSyncExternalStore(subscribeNarrow, () => window.matchMedia(NARROW).matches, () => false);
+  const narrow = useMedia(NARROW);
 
   function switchRole(next: Role, person?: string) {
     switchTo(next, person);
@@ -158,40 +215,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         Bỏ qua điều hướng
       </a>
 
-      {!narrow && (
-      <aside className={s.sidebar} aria-label="Điều hướng chính">
-        <Link href="/" className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={32} className={collapsed ? s.logoMark : s.logo} />
-        </Link>
-
-        <nav className={s.nav}>
-          {groups.map((g, gi) => (
-            <div key={gi} className={s.group}>
-              {g.label && !collapsed && <p className={s.groupLabel}>{g.label}</p>}
-              <ul>
-                {g.items.map((item) => (
-                  <li key={item.href}>
-                    <NavLink item={item} active={isActive(item.href)} collapsed={collapsed} badge={item.badgeKey ? badges[item.badgeKey] : 0} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </nav>
-
-        <div className={s.sideFoot}>
-          {!collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}
-          <button type="button" className={s.collapse} onClick={() => setCollapsed((c) => !c)} aria-label={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}>
-            {collapsed ? <PanelLeft aria-hidden /> : <PanelLeftClose aria-hidden />}
-            {!collapsed && <span>Thu gọn</span>}
-          </button>
-        </div>
-      </aside>
-      )}
-
-      <header className={s.topbar}>
-        <Link href="/" className={s.mobileBrand} aria-label="EduPilot — Hôm nay">
+      <header className={s.topbar} data-part="topbar">
+        <Link href="/" className={s.mobileBrand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-edupilot-mark.svg" alt="" width={28} height={28} />
         </Link>
@@ -280,7 +305,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         )}
 
         <div className={s.topEnd}>
-          <button type="button" className={s.search} onClick={() => setPalette(true)} aria-label="Tìm nhanh hoặc đi đến">
+          <button type="button" className={s.search} onClick={openPalette} aria-label="Tìm nhanh hoặc đi đến">
             <Search aria-hidden />
             <span className={s.searchText}>Tìm nhanh hoặc đi đến…</span>
             <span className={s.searchKey}>
@@ -289,51 +314,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </span>
           </button>
 
-          <Popover
-            width={340}
-            label="Thông báo"
-            trigger={(p) => (
-              <button type="button" className={s.iconBtn} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true" aria-label={unread ? `Thông báo, ${unread} chưa đọc` : "Thông báo"}>
-                <Bell aria-hidden />
-                {unread > 0 && <span className={s.unreadDot} data-part="bell-dot" aria-hidden />}
-              </button>
-            )}
-          >
-            {(close) => (
-              <div className={s.notes}>
-                <p className={s.panelLabel}>Thông báo</p>
-                {notes.length === 0 ? (
-                  <p className={s.noteEmpty}>Chưa có thông báo nào.</p>
-                ) : (
-                  <ul>
-                    {notes.map((n) => {
-                      const ago = agoLabel(n.ms, now);
-                      return (
-                        <li key={n.id}>
-                          <Link
-                            href={n.href}
-                            className={s.note}
-                            onClick={() => {
-                              markNoteRead(n.id, viewer);
-                              close();
-                            }}
-                          >
-                            <span className={[s.noteDot, n.readBy.includes(viewer) ? "" : s.noteUnread].join(" ")} aria-hidden />
-                            <span>
-                              <span className={s.noteTitle}>{n.title}</span>
-                              <span className={s.noteMeta}>
-                                {n.meta} · {n.just && ago === "vừa xong" ? n.just : ago}
-                              </span>
-                            </span>
-                          </Link>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                )}
-              </div>
-            )}
-          </Popover>
+          <NotificationPopover items={bellItems} unread={unread} onRead={(id) => markNoteRead(id, viewer)} />
 
           <Popover
             width={260}
@@ -356,9 +337,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 <div className={s.who}>
                   <p className={s.whoName}>{personName}</p>
                   <p className={s.whoRole}>{ROLE_LABEL[role]}</p>
-                  <p className={s.whoMail}>{user.email}</p>
+                  <p className={s.whoMail}>{identity ? identity.email || identity.sub : user.email}</p>
                 </div>
                 <MenuDivider />
+                {source === "demo" && (
+                  <>
                 <p className={s.panelLabel}>Đổi vai</p>
                 <MenuList
                   onPicked={close}
@@ -393,6 +376,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   ]}
                 />
                 <MenuDivider />
+                  </>
+                )}
                 <MenuList
                   onPicked={close}
                   items={[
@@ -413,6 +398,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                       label: "Đăng xuất",
                       icon: <LogOut aria-hidden />,
                       onSelect: () => {
+                        if (source === "jwt") {
+                          logout(); // xoá token → về phiên demo (cookie ep_demo_*) hoặc cổng token
+                          return;
+                        }
                         clearDemoSession();
                         router.push("/login");
                       },
@@ -425,19 +414,63 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
+      {!narrow && (
+      <aside className={s.sidebar} data-part="sidebar" data-collapsed={collapsed || undefined}>
+        <Link href="/" className={s.brand} data-part="brand" aria-label="EduPilot — Hôm nay">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={collapsed ? "/brand/logo-edupilot-mark.svg" : "/brand/logo-edupilot.svg"} alt="" height={32} className={collapsed ? s.logoMark : s.logo} />
+        </Link>
+
+        <nav className={s.nav} id="sidebar-nav" aria-label="Điều hướng chính">
+          {groups.map((g, gi) => (
+            <div key={gi} className={s.group}>
+              {g.label && !collapsed && <p className={s.groupLabel}>{g.label}</p>}
+              <ul>
+                {g.items.map((item) => (
+                  <li key={item.href}>
+                    <NavLink item={item} active={isActive(item.href)} collapsed={collapsed} badge={item.badgeKey ? badges[item.badgeKey] : 0} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+
+        <div className={s.sideFoot}>
+          {!collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}
+          {!mid && (
+            <button type="button" className={s.collapse} onClick={() => setPrefCollapsed(!prefCollapsed)} aria-expanded={!prefCollapsed} aria-controls="sidebar-nav" aria-label={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}>
+              {collapsed ? <PanelLeft aria-hidden /> : <PanelLeftClose aria-hidden />}
+              {!collapsed && <span>Thu gọn</span>}
+            </button>
+          )}
+        </div>
+      </aside>
+      )}
+
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
 
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (
           <Page>
             <PageHeader
-              title="Bạn không có quyền mở trang này"
+              title="Bạn không có quyền xem màn này"
               description={whoCanOpen(pathname)}
               actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>}
             />
           </Page>
         ) : !hasCourse && needsCourse(role, pathname) ? (
           <NoCourse />
+        ) : needsToken(pathname) && source === "demo" ? (
+          Gate ? (
+            <Gate expired={expired} />
+          ) : (
+            <Page>
+              <PageHeader title="Cần đăng nhập" description="Màn này làm việc với máy chủ thật. Tính năng đăng nhập sẽ có ở bản sau." actions={<ButtonLink href="/">Về Hôm nay</ButtonLink>} />
+            </Page>
+          )
+        ) : MOCK_SCREENS_OFF && mockBackend(pathname) ? (
+          <NoBackend phase={mockBackend(pathname)!} />
         ) : (
           children
         )}
@@ -445,7 +478,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       {narrow && (
         <>
-          <nav className={s.bottomNav} aria-label="Điều hướng chính">
+          <nav className={s.bottomNav} data-part="bottom-nav" aria-label="Điều hướng chính">
             {mobilePrimary.map((item) => (
               <BottomLink key={item.href} item={item} active={isActive(item.href)} badge={item.badgeKey ? badges[item.badgeKey] : 0} />
             ))}
@@ -467,7 +500,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             )}
           </nav>
 
-          <Drawer open={more} onClose={() => setMore(false)} title="Thêm">
+          <Drawer open={more} onClose={() => setMore(false)} title="Thêm" sheet>
             <ul className={s.moreList}>
               {mobileMore.map((item) => (
                 <li key={item.href}>
@@ -483,7 +516,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </>
       )}
 
-      <CommandPalette open={palette} onClose={() => setPalette(false)} items={flat} />
+      <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />
     </div>
   );
 }
@@ -491,7 +524,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 function NavLink({ item, active, collapsed, badge }: { item: NavItem; active: boolean; collapsed: boolean; badge: number }) {
   const Icon = item.icon;
   return (
-    <Link href={item.href} className={s.navItem} aria-current={active ? "page" : undefined} title={collapsed ? item.label : undefined}>
+    <Link href={item.href} className={s.navItem} aria-current={active ? "page" : undefined} aria-label={collapsed ? item.label : undefined} title={collapsed ? item.label : undefined}>
       <Icon aria-hidden />
       <span className={s.navLabel}>{item.label}</span>
       {item.badgeKey && badge > 0 ? (
@@ -560,6 +593,19 @@ function NoCourse() {
           </Button>
         </form>
       </Section>
+    </Page>
+  );
+}
+
+/** Route chưa có backend (build `MOCK_SCREENS=0`): nói thật tiến độ, một nút kế tiếp; mục nav vẫn còn (US-PU-04 AC11). */
+function NoBackend({ phase }: { phase: { phase: string; name: string } }) {
+  return (
+    <Page>
+      <div data-part="empty-no-backend">
+        <EmptyState title="Màn này chưa sẵn sàng" action={<ButtonLink href="/">Về Hôm nay</ButtonLink>}>
+          Tính năng này đang được xây ở giai đoạn {phase.phase} — {phase.name}. Khi xong, bạn sẽ dùng nó ngay tại đây.
+        </EmptyState>
+      </div>
     </Page>
   );
 }

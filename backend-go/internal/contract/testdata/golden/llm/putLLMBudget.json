@@ -1,0 +1,11 @@
+{
+  "daily_limit": "100000.00",
+  "monthly_limit": "2000000.00",
+  "pct_month": 0,
+  "pct_today": 0,
+  "scope": "system",
+  "spent_month": "0.0000",
+  "spent_today": "0.0000",
+  "state": "ok",
+  "version": 1
+}

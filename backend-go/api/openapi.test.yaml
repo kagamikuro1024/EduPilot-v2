@@ -434,6 +434,78 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/_test/llm/chat:
+    post:
+      operationId: testLLMChat
+      tags: [test]
+      summary: "Gọi cổng LLM (ADMIN). `stream:true` trả `text/event-stream` (token/done/error) — không mô tả ở đây"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMChatInput"
+      responses:
+        "200":
+          description: Câu trả lời
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMChatResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/_test/llm/stats:
+    get:
+      operationId: testLLMStats
+      tags: [test]
+      summary: "Chỉ số đếm của cổng LLM (ADMIN) — không có nội dung prompt"
+      parameters:
+        - name: lanes
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Số đếm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/_test/llm/fake:
+    post:
+      operationId: testLLMFake
+      tags: [test]
+      summary: "Đặt tham số provider `fake` lúc chạy (ADMIN)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LLMFakeInput"
+      responses:
+        "200":
+          description: Tham số hiện hành
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMFakeState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -488,7 +560,7 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
     Unavailable:
-      description: Phụ thuộc hỏng (`SERVICE_UNAVAILABLE`, `NOT_READY`)
+      description: Phụ thuộc hỏng hoặc cổng LLM từ chối (`SERVICE_UNAVAILABLE`, `NOT_READY`, `OVERLOADED`, `LLM_NOT_CONFIGURED`, `LLM_UNAVAILABLE`)
       content:
         application/json:
           schema:
@@ -530,6 +602,128 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   schemas:
+    LLMChatInput:
+      type: object
+      required: [task, prompt]
+      additionalProperties: false
+      properties:
+        task:
+          type: string
+          enum: [CHAT, CLASSIFY, UTILITY, GRADING, QUESTION_GEN, INSIGHT]
+        prompt:
+          type: string
+        lane:
+          type: string
+          enum: [INTERACTIVE, NEAR_REALTIME, BATCH]
+        stream:
+          type: boolean
+        passages:
+          type: array
+          items:
+            type: object
+            additionalProperties: false
+            properties:
+              text:
+                type: string
+              source:
+                type: string
+              page:
+                type: integer
+              score:
+                type: number
+    LLMChatResult:
+      type: object
+      required: [text, degraded, provider, model, fallback_index, queue_wait_ms]
+      additionalProperties: false
+      properties:
+        text:
+          type: string
+        degraded:
+          type: boolean
+        provider:
+          type: string
+        model:
+          type: string
+        fallback_index:
+          type: integer
+          minimum: 0
+        queue_wait_ms:
+          type: integer
+          minimum: 0
+    LLMStats:
+      type: object
+      required: [queue_depth, inflight, provider_inflight, circuit, fake_calls, audit]
+      additionalProperties: false
+      properties:
+        queue_depth:
+          type: object
+          additionalProperties:
+            type: integer
+        inflight:
+          type: object
+          additionalProperties:
+            type: integer
+        inflight_batch:
+          description: Chỉ có khi gọi với `?lanes=1` (công cụ đo)
+          type: object
+          additionalProperties:
+            type: integer
+        provider_inflight:
+          type: integer
+        circuit:
+          type: object
+          additionalProperties:
+            type: string
+        fake_calls:
+          type: object
+          additionalProperties:
+            type: integer
+        audit:
+          type: object
+          required: [buffer_len, flushed, dropped]
+          additionalProperties: false
+          properties:
+            buffer_len:
+              type: integer
+            flushed:
+              type: integer
+            dropped:
+              type: integer
+    LLMFakeInput:
+      type: object
+      additionalProperties: false
+      properties:
+        latency_min_ms:
+          type: integer
+        latency_max_ms:
+          type: integer
+        error_rate:
+          type: number
+        error_kind:
+          type: string
+        valid_key:
+          type: string
+        stream_delay_ms:
+          type: integer
+        retry_after_ms:
+          type: integer
+    LLMFakeState:
+      type: object
+      required: [latency_min_ms, latency_max_ms, error_rate, error_kind, valid_key_set, stream_delay_ms]
+      additionalProperties: false
+      properties:
+        latency_min_ms:
+          type: integer
+        latency_max_ms:
+          type: integer
+        error_rate:
+          type: number
+        error_kind:
+          type: string
+        valid_key_set:
+          type: boolean
+        stream_delay_ms:
+          type: integer
     Item:
       type: object
       required: [id, name, version, created_at, updated_at]
@@ -696,6 +890,12 @@ components:
             - SERVICE_UNAVAILABLE
             - NOT_READY
             - DEADLINE_EXCEEDED
+            - OVERLOADED
+            - LLM_NOT_CONFIGURED
+            - LLM_UNAVAILABLE
+            - PROVIDER_IN_USE
+            - MODEL_DIMS_MISMATCH
+            - ROUTE_INVALID
         message:
           type: string
         trace_id:

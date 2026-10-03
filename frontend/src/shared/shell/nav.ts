@@ -181,3 +181,39 @@ export function whoCanOpen(pathname: string) {
   const names = roles.map((r) => NOUN[r]);
   return `Trang này dành cho ${names.length > 1 ? `${names.slice(0, -1).join(", ")} và ${names[names.length - 1]}` : names[0]}.`;
 }
+
+// ---- Route → backend → phase (SRS FEAT-ui-foundation 7.6): dùng cho EmptyState ở build `NEXT_PUBLIC_MOCK_SCREENS=0` ----
+export type Backend = { phase: string; name: string };
+const MOCK_BACKEND: Array<[string, Backend]> = [
+  ["/admin", { phase: "P2", name: "Lớp học" }],
+  ["/class", { phase: "P2", name: "Lớp học" }],
+  ["/join", { phase: "P2", name: "Lớp học" }],
+  ["/chat", { phase: "P3", name: "Hỏi đáp" }],
+  ["/threads", { phase: "P3", name: "Hỏi đáp" }],
+  ["/inbox", { phase: "P4", name: "Hộp thư hỗ trợ" }],
+  ["/students", { phase: "P5", name: "Sinh viên và điểm danh" }],
+  ["/attendance", { phase: "P5", name: "Sinh viên và điểm danh" }],
+  ["/gradebook", { phase: "P6", name: "Sổ điểm" }],
+  ["/me", { phase: "P6", name: "Sổ điểm" }],
+  ["/grading", { phase: "P7", name: "Chấm bài" }],
+  ["/assignments", { phase: "P7", name: "Bài tập" }],
+  ["/settings/integrations", { phase: "P7", name: "Tích hợp" }],
+  ["/documents", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
+  ["/library", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
+  ["/calendar", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
+  ["/practice", { phase: "P9", name: "Luyện đề" }],
+  ["/questions", { phase: "P9", name: "Luyện đề" }],
+  ["/insights", { phase: "P10", name: "Hiểu lớp học" }],
+  ["/analytics", { phase: "P10", name: "Hiểu lớp học" }],
+  ["/observability", { phase: "P10", name: "Hiểu lớp học" }],
+];
+
+/** Route chưa có backend thật → phase sẽ dựng nó; `null` = backend thật (`/settings/llm`) hoặc route PU (`/dev/*`). `/` là "Hôm nay" (P2). */
+export function mockBackend(pathname: string): Backend | null {
+  if (pathname === "/") return { phase: "P2", name: "Lớp học" };
+  const hit = MOCK_BACKEND.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
+  return hit ? hit[1] : null;
+}
+
+/** Route có backend thật cần JWT (US-PU-04 AC9). */
+export const needsToken = (pathname: string) => pathname === "/settings/llm" || pathname.startsWith("/settings/llm/");

@@ -87,17 +87,17 @@ export function TrendChart({
         ))}
       </svg>
       <figcaption className={s.caption}>{`Cao nhất: ${format(hi)} · Thấp nhất: ${format(lo)}`}</figcaption>
-      <table className="ep-sr-only">
-        <caption>{label}</caption>
-        <tbody>
+      {/* bảng cho trình đọc màn hình, dựng bằng vai ARIA (luật ep/no-raw-table: bảng thật chỉ nằm ở DataTable) */}
+      <div role="table" aria-label={label} className="ep-sr-only">
+        <div role="rowgroup">
           {points.map((p) => (
-            <tr key={p.x}>
-              <th scope="row">{p.full ?? p.x}</th>
-              <td>{format(p.y)}</td>
-            </tr>
+            <div role="row" key={p.x}>
+              <span role="rowheader">{p.full ?? p.x}</span>
+              <span role="cell">{format(p.y)}</span>
+            </div>
           ))}
-        </tbody>
-      </table>
+        </div>
+      </div>
     </figure>
   );
 }

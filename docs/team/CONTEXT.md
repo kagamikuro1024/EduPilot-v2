@@ -29,7 +29,7 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 - Sinh viên không bao giờ thấy: từ kỹ thuật AI (RAG, PII, provider, fallback, trace, confidence), điểm nháp, ghi chú quan sát, nhãn rủi ro của chính mình. Giảng viên không đọc chat riêng của sinh viên khi chưa escalate.
 - Chỉ TEACHER xác nhận công thức, công bố, chốt điểm. AI không tự công bố.
 - Chỉ token `--ep-*` + primitive ở `frontend/src/shared/`; `bash scripts/ui-antipatterns.sh` phải sạch.
-- Không thoả hiệp ngang hàng; góp ý qua `docs/sprints/N/proposals.md`, PM quyết.
+- Không thoả hiệp ngang hàng; góp ý qua `docs/sprints/N/proposals.md`, PM quyết. Ngoại lệ: dev hỏi Tech Lead (`research`) câu hỏi kỹ thuật qua `docs/sprints/N/techlead.md` (`docs/team/RESEARCH.md`).
 - Không mở subagent (task/agent con) trừ khi PM cho phép: mỗi subagent đọc lại bối cảnh + spec từ đầu, tốn token gấp nhiều lần. Làm tuần tự trong phiên của mình.
 
 ## 5. Mỗi vai đọc gì cho việc hiện tại

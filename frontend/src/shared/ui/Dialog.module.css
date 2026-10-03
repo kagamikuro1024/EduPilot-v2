@@ -39,6 +39,8 @@
 
 @media (max-width: 719px) {
   .drawer, .wide.drawer { width: 100vw; border-width: 0; }
+  /* bảng trượt từ đáy (menu "Thêm" của thanh dưới): không phủ kín màn để còn chỗ bấm ngoài */
+  .sheet.drawer { margin: auto auto 0; height: auto; max-height: 75dvh; border-radius: var(--ep-radius-lg) var(--ep-radius-lg) 0 0; animation: none; }
   .dialog { margin: auto auto 0; width: 100vw; max-width: 100vw; border-radius: var(--ep-radius-lg) var(--ep-radius-lg) 0 0; }
   .foot { flex-direction: column-reverse; }
   .foot > * { width: 100%; }
@@ -47,3 +49,8 @@
 @media (max-width: 719px), (pointer: coarse) {
   .close { width: 44px; height: 44px; margin: -6px -12px 0 0; }
 }
+
+.skeleton { display: grid; gap: var(--ep-space-2); padding-top: var(--ep-space-2); }
+.skeleton span { display: block; height: var(--ep-space-4); border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }
+.skeleton span:nth-child(2) { width: 80%; }
+.skeleton span:nth-child(3) { width: 55%; }
