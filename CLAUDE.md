@@ -30,7 +30,7 @@ Tài liệu nguồn (đọc khi cần, KHÔNG đọc hết mỗi phiên):
 
 Next.js (frontend) → Go gateway `backend-go` (chi + pgx + sqlc; HTTP, SSE, nghiệp vụ VÀ AI: `internal/llm`, `internal/rag`,
 `internal/privacy`, `internal/grading`, `internal/agent`). Postgres + pgvector, Redis (cache, Streams, pub/sub).
-Worker Go chạy việc nền và gọi container `docling-serve` để trích PDF/DOCX. Không có service Python (D46).
+Worker Go chạy việc nền, gọi container `docling-serve` để trích PDF/DOCX và container sandbox để chấm code C/C++ của bài thi (D55). Không có service Python (D46).
 
 ## 9 nguyên tắc bất biến
 
@@ -81,8 +81,7 @@ Thao tác đảo ngược được → cập nhật lạc quan + dòng "Hoàn t�
 - Cho TEACHER / TA đọc nội dung chat riêng của sinh viên khi chưa escalate, kể cả qua trang quan sát hay log. Nội dung prompt chỉ ADMIN xem, có ghi `audit_log`.
 - Cho sinh viên thấy điểm nháp, ghi chú quan sát, nhãn rủi ro của chính mình, hay đáp án khi bài còn mở.
 - Lưu token ở localStorage; lưu token xác minh / đặt lại / mời ở dạng rõ (phải băm).
-- Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi.
-- Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi. Thêm service mới (nhất là service Python) — D46 chốt chỉ còn Go + `docling-serve`.
+- Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi. Thêm service mới (nhất là service Python) — D46 chốt chỉ còn Go + `docling-serve`, D55 thêm đúng một sandbox chấm code (không chứa nghiệp vụ). Chạy code / binary của sinh viên ở bất cứ đâu ngoài sandbox.
 - Ghi file ra đĩa cục bộ của container; giữ trạng thái người dùng trong biến toàn cục.
 
 ## Định nghĩa "xong" ở mức luồng
