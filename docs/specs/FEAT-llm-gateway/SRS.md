@@ -1,5 +1,7 @@
 # SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
-Phiên bản 1.2 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+Phiên bản 1.3 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+
+**v1.3 (2026-10-03)** — góp ý #1 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-P1-02; trích: "Làm theo research: `github.com/openai/openai-go/v3` v3.71.1 + `WithMaxRetries(0)`; `Structured` chọn CỐ ĐỊNH theo `type` (openai/gemini `json_schema`, anthropic tool bắt buộc, openai_compatible `json_object` + schema trong lời nhắc), không thử rồi lùi (D47: một lời gọi); `MODEL_NOT_FOUND` = 404; `max_completion_tokens` cho openai/anthropic, `max_tokens` cho gemini/compat; kẹp temperature ≤ 1 cho anthropic/gemini; Gemini chuẩn hoá L2 khi nhúng; mặc định dự phòng `claude-haiku-4-5-20251001`, `gemini-3.6-flash`. Tên test theo AC giữ nguyên (`TestStructuredDowngrade` kiểm hành vi theo loại)"; lý do: "PoC trong research: SDK tự thử lại 2 lần làm mất status 429; Anthropic bỏ qua `response_format`" — `docs/research/2026-10-03-openai-go-compat.md`). Không đổi số AC (72). Đổi: `SRS.md` 4.2 (mô-đun `openai-go/v3`, bảng loại nhà cung cấp, `Structured` theo `type`, ánh xạ lỗi, thử lại, tham số gửi đi, embedding, stream, mô hình mặc định), 8.6, FR-7, FR-12; US-P1-02 AC10 (viết lại), và các chỗ hệ quả: AC1 (đường dẫn mô-đun), AC5 (`MODEL_NOT_FOUND` = 404), AC6 (SDK không tự thử lại), AC11 (Gemini), phụ thuộc US-P1-02. **Không đổi** hợp đồng API, schema, mã lỗi hay số AC.
 
 **v1.2 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/3/qc/tc-US-P1-0*.md`, `tc-GATE-P1.md`; mỗi chỗ sửa ghi "Q-QC-…"). Đổi: định dạng `APP_ENCRYPTION_KEY` (Q-QC-P101-2); quy tắc `base_url`, không chặn địa chỉ nội bộ (Q-QC-P102-1, Q-QC-P104-1; thêm US-P1-04 AC13 và câu hỏi Q15 **[CHỦ DỰ ÁN]**); bộ đếm của route thử `stats` (Q-QC-P102-2); `fake` độ trễ cố định (Q-QC-P103-1); QC viết `scenario-P1.md` (Q-QC-P104-3); định nghĩa cột "Chạy rút gọn" (Q-QC-P105-3); CORS cho cổng và không có CLI ở US-P1-01 (Q-QC-P105-1, Q-QC-P101-1). Các câu còn lại chỉ trả lời ở tệp TC.
 
@@ -138,24 +140,38 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 
 ### 4.2 Nhà cung cấp, ánh xạ lỗi, thử lại
 
-**Loại và địa chỉ gốc (D46 — mọi loại đi qua `openai-go` với `base_url` + khoá):**
+**Mô-đun và khởi tạo (D46, góp ý #1):** mọi loại đi qua **`github.com/openai/openai-go/v3`** (v3.71.1; mô-đun gốc dừng ở v1.12.0 và `/v2` ở v2.7.1) với `base_url` + khoá; mỗi client dựng bằng `openai.NewClient(option.WithBaseURL(u), option.WithAPIKey(k), option.WithMaxRetries(0))` — **`WithMaxRetries(0)` bắt buộc**: mặc định SDK tự thử lại 2 lần (408/409/429/5xx, tôn trọng `Retry-After` tới 2 phút), chồng lên thử lại của Scheduler và làm mất status 429 khi `ctx` hết hạn (xếp nhầm thành `TIMEOUT`). **Thử lại chỉ do `internal/llm` làm** (mục "Thử lại" dưới). Lỗi của SDK lấy bằng `errors.As(err, &*openai.Error)` → `StatusCode`, `Response.Header`.
+
+**Loại và địa chỉ gốc:**
 
 | `type` | `base_url` | Ghi chú |
 | --- | --- | --- |
 | `openai` | `https://api.openai.com/v1` | |
-| `anthropic` | `https://api.anthropic.com/v1/` | lớp tương thích OpenAI; `Structured` luôn dùng `json_object` + kiểm schema |
-| `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai/` | lớp tương thích OpenAI |
+| `anthropic` | `https://api.anthropic.com/v1/` | lớp tương thích OpenAI; **bỏ qua `response_format`** (kể cả `json_object`) nên `Structured` = tool bắt buộc (bên dưới); không có endpoint nhúng |
+| `gemini` | `https://generativelanguage.googleapis.com/v1beta/openai/` | lớp tương thích OpenAI (beta) |
 | `openai_compatible` | bắt buộc ở bản ghi (vLLM, LM Studio, máy chủ trường) | khoá có thể rỗng |
 | `fake` | — | provider giả (8.3); có thể tạo ở DB cho dev / test |
+
+**`Structured` — chọn CỐ ĐỊNH theo `type`, một lời gọi (D47; không thử `json_schema` rồi lùi):**
+
+| `type` | Cách gọi | Lấy kết quả |
+| --- | --- | --- |
+| `openai` | `response_format: json_schema` với `strict: true` (schema phải có `additionalProperties:false` và mọi thuộc tính `required`) | `choices[0].message.content` |
+| `gemini` | `response_format: json_schema` | `choices[0].message.content` |
+| `anthropic` | `tools` = **một** hàm có `parameters` = schema, `tool_choice` ép đúng hàm đó | `choices[0].message.tool_calls[0].function.arguments` |
+| `openai_compatible` | `response_format: json_object` + schema nhúng trong lời nhắc hệ thống | `choices[0].message.content` |
+| `fake` | sinh theo schema (8.3) | — |
+
+**Mọi** nhánh đều kiểm kết quả bằng schema phía Go (bộ kiểm **tự viết, tối giản** cho tập con JSON Schema mà schema của dự án dùng: `type`, `properties`, `required`, `enum`, `items`, `additionalProperties`, `minimum` / `maximum`, `minLength` / `maxLength`; **không thêm thư viện** — bảng `ARCHITECTURE.md` §3 không có thư viện JSON Schema và `kin-openapi` chỉ cho test, D52; cần đầy đủ hơn thì xin PM duyệt thư viện: `QUESTIONS.md` Q16); kết quả không phải JSON hoặc sai schema → coi là lỗi nhà cung cấp (`BAD_RESPONSE`, tính vào mạch, chuyển fallback theo chuỗi); **không bao giờ** thử lại cùng nhà bằng cách đổi `response_format`. Tên test `TestStructuredDowngrade` nay kiểm **hành vi theo loại** (mỗi `type` đúng một lời gọi, đúng dạng yêu cầu).
 
 **Ánh xạ lỗi (`error_kind`):**
 
 | Loại | Điều kiện | Thử lại cùng nhà | Chuyển nhà tiếp | Tính vào mạch |
 | --- | --- | --- | --- | --- |
 | `AUTH` | HTTP 401, 403 | không | có | có |
-| `MODEL_NOT_FOUND` | 404, mã `model_not_found` | không | có | không |
+| `MODEL_NOT_FOUND` | **HTTP 404** (không dựa vào mã `model_not_found`: Anthropic / Gemini để `code` rỗng) | không | có | không |
 | `RATE_LIMIT` | 429 | có (tôn trọng `Retry-After` ≤ 5 s) | có | có |
-| `SERVER` | 500, 502, 503, 504 | có | có | có |
+| `SERVER` | 500, 502, 503, 504; **lỗi giữa stream** (`*ssestream.StreamError`, không có status) | có (stream: chỉ khi **chưa phát token nào** cho client) | có (như vậy) | có |
 | `TIMEOUT` | quá hạn, `DeadlineExceeded` của lời gọi (không phải huỷ của client) | có | có | có |
 | `NETWORK` | đứt kết nối, DNS, từ chối | có | có | có |
 | `BAD_REQUEST` | 400, 422, nội dung bị lọc | không | **không** | không |
@@ -164,9 +180,15 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 
 **Quy tắc `base_url` (Q-QC-P102-1, Q-QC-P104-1):** scheme `http` | `https`; có host; không userinfo; không fragment; ≤ 300 ký tự; sai → 422 `INVALID_BASE_URL`. **Không** chặn loopback / link-local / mạng nội bộ / tên dịch vụ compose (máy chủ trong trường là trường hợp dùng thật; chỉ ADMIN đặt; Q15 **[CHỦ DỰ ÁN]**). Giảm thiểu: client không theo chuyển hướng; hạn Test 10 s; thân phản hồi nhà cung cấp không bao giờ trả ra (Test chỉ trả câu theo `error_kind`); `audit_log` ghi host.
 
-**Thử lại:** INTERACTIVE tối đa 1 lần, làn khác 2 lần (`params.retries` của tuyến, 0–5, chỉ **thu hẹp** mặc định theo làn); trễ cơ sở 500 ms × 2^(n−1), jitter đầy đủ (đều trong `[0, trễ]`), trần 4 s; không thử khi còn < 1 s tới hạn.
+**Thử lại (chỉ Scheduler / `internal/llm`; SDK đã tắt thử lại):** `Retry-After` đọc từ `ae.Response.Header`, ưu tiên `Retry-After-Ms` rồi `Retry-After` (giây hoặc ngày giờ HTTP). Test hợp đồng: máy chủ giả trả 429 → **đúng một** lần gọi tới nhà cung cấp ở tầng SDK. INTERACTIVE tối đa 1 lần, làn khác 2 lần (`params.retries` của tuyến, 0–5, chỉ **thu hẹp** mặc định theo làn); trễ cơ sở 500 ms × 2^(n−1), jitter đầy đủ (đều trong `[0, trễ]`), trần 4 s; không thử khi còn < 1 s tới hạn.
 
-**Cấu hình mặc định khi chưa có dòng DB (env dự phòng):** `LLM_PROVIDER=fake` → mọi tác vụ dùng `fake-chat` / `fake-embed`; nếu có `OPENAI_API_KEY` → `CHAT`, `CLASSIFY`, `UTILITY`, `QUESTION_GEN`, `INSIGHT`, `GRADING` = `gpt-4o-mini`, `EMBEDDING` = `text-embedding-3-small` (1536 chiều); `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` thêm vào làm dự phòng theo thứ tự OpenAI → Anthropic (`claude-3-5-haiku-latest`) → Gemini (`gemini-2.0-flash`) cho các tác vụ chat (embedding: chỉ OpenAI). Tên mô hình mặc định nằm ở hằng số trong `internal/llm/defaults.go` (đổi bằng DB, không cần sửa spec).
+**Tham số gửi đi theo `type` (góp ý #1):** giới hạn token: `max_completion_tokens` cho `openai` và `anthropic`; `max_tokens` cho `gemini` và `openai_compatible`. `temperature`: kẹp **0–1** cho `anthropic` và `gemini` (cấu hình cho phép 0–2, SRS 5.4); `openai` và `openai_compatible` giữ 0–2. `Stream`: luôn bật `stream_options.include_usage`; **bỏ qua chunk có `len(choices)==0`** (chỉ lấy `usage`, không đọc `Choices[0]` — sẽ panic); nhà cung cấp không trả usage → `tokens_out` là **ước tính** (`llm_audit` ghi cờ ước tính). `gemini` ở làn INTERACTIVE gửi `reasoning_effort: "low"` (Gemini 3.x mặc định bật suy nghĩ, tốn thời gian và token); làn khác không gửi.
+
+**Embedding theo `type`:** mặc định chỉ `openai` (`text-embedding-3-small`, `dimensions: 1536`); Anthropic không có endpoint nhúng (không cho chọn). `gemini` (nếu Admin cấu hình): gửi `dimensions: 1536`, kiểm độ dài (`DIMS_MISMATCH`), và **chuẩn hoá L2** vectơ khi mô hình là `gemini-embedding-001` (bản `-2` tự chuẩn hoá nhưng vẫn kiểm).
+
+**"Test kết nối" với `gemini`:** HTTP 400 có thông điệp về khoá API (khoá sai ở lớp tương thích Gemini có thể ra 400 thay vì 401) → ánh xạ `AUTH` **chỉ ở Test** (lời gọi thường vẫn `BAD_REQUEST`).
+
+**Cấu hình mặc định khi chưa có dòng DB (env dự phòng):** `LLM_PROVIDER=fake` → mọi tác vụ dùng `fake-chat` / `fake-embed`; nếu có `OPENAI_API_KEY` → `CHAT`, `CLASSIFY`, `UTILITY`, `QUESTION_GEN`, `INSIGHT`, `GRADING` = `gpt-4o-mini`, `EMBEDDING` = `text-embedding-3-small` (1536 chiều); `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` thêm vào làm dự phòng theo thứ tự OpenAI → Anthropic (`claude-haiku-4-5-20251001`) → Gemini (`gemini-3.6-flash`) cho các tác vụ chat (embedding: chỉ OpenAI). Tên mô hình mặc định nằm ở hằng số trong `internal/llm/defaults.go` (đổi bằng DB, không cần sửa spec). Hai mô hình cũ (`claude-3-5-haiku-*`, `gemini-2.0-flash`) đã bị nhà cung cấp gỡ; `claude-haiku-4-5-20251001` có thể bị gỡ sớm nhất từ 2026-10-15 — theo dõi ở Nợ P10.
 
 ### 4.3 Scheduler
 
@@ -224,12 +246,12 @@ Nâng làn của `GRADING`, `QUESTION_GEN`, `INSIGHT` lên INTERACTIVE → `ErrB
 | FR-4 | Khoá chỉ ghi: DB mã hoá, mọi đầu ra / log / audit redact; một đường giải mã duy nhất | 01-AC7, AC8, 04-AC4, 02-AC16 |
 | FR-5 | Dịch vụ cấu hình: version, giữ / thay khoá, xoá có kiểm tra dùng, audit_log, hạn mức | 01-AC9, AC11, AC12 |
 | FR-6 | Quy tắc tuyến bất biến (chain, kind, dims, nhà tắt, params) và cờ `reindex_required` | 01-AC10, 04-AC6 |
-| FR-7 | Cổng chặn SDK ngoài `internal/llm`; chỉ thêm `openai-go` | 02-AC1 |
+| FR-7 | Cổng chặn SDK ngoài `internal/llm`; chỉ thêm `openai-go/v3` (`WithMaxRetries(0)`) | 02-AC1, AC6 |
 | FR-8 | `Chat/Stream/Structured/Embed`; danh tính từ ctx; D47 một lần sinh văn bản | 02-AC2, AC3 |
 | FR-9 | Registry theo loại nhà cung cấp; ánh xạ lỗi 7 loại; thử lại jitter | 02-AC4, AC5, AC6 |
 | FR-10 | Fallback theo `fallback_order`; không chuyển khi `BAD_REQUEST` | 02-AC7 |
 | FR-11 | `llm_audit` một dòng mỗi lời gọi, bất đồng bộ, không nội dung; `trace_id` xuyên suốt | 02-AC8, AC9 |
-| FR-12 | `Structured` json_schema → json_object + kiểm schema; embedding khoá 1536 | 02-AC10, AC11 |
+| FR-12 | `Structured` chọn cố định theo `type` (một lời gọi) + kiểm schema Go; embedding khoá 1536 (Gemini chuẩn hoá L2) | 02-AC10, AC11 |
 | FR-13 | Provider `fake` + phát lại; `TestProviderContract` | 02-AC12, AC13 |
 | FR-14 | Nạp lại nóng nguyên tử qua Redis pub/sub + thăm dò 60 s; dự phòng env; `LLM_NOT_CONFIGURED` | 02-AC14, AC15, 04-AC9 |
 | FR-15 | Ba làn + FIFO + bảng tác vụ → làn | 03-AC1 |
@@ -568,7 +590,7 @@ Gateway không trạng thái (luật 10); trạng thái toàn cục ở Redis; `
 
 ### 8.6 Thư viện
 
-Thêm: `github.com/openai/openai-go` (đã nằm trong bảng `ARCHITECTURE.md` §3). Dùng sẵn: `pgx`, `sqlc`, `chi`, `shopspring/decimal`, `go-redis`. Không thêm `golang.org/x/sync` (single-flight tự viết nhỏ), không SDK Anthropic / Gemini (đi qua lớp tương thích OpenAI — D46).
+Thêm: `github.com/openai/openai-go/v3` (v3.71.1; `ARCHITECTURE.md` §3 ghi `openai-go` — PM cập nhật đường dẫn mô-đun; kiểm lại ngưỡng image < 40 MB khi thêm vì `go.mod` của SDK có require Azure / AWS cho gói con không import). Dùng sẵn: `pgx`, `sqlc`, `chi`, `shopspring/decimal`, `go-redis`. Không thêm `golang.org/x/sync` (single-flight tự viết nhỏ), không SDK Anthropic / Gemini (đi qua lớp tương thích OpenAI — D46).
 
 ## 9. Kiểm thử
 

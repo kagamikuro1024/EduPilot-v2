@@ -1,5 +1,5 @@
 # Câu hỏi mở — FEAT-llm-gateway (US-P1-01…05)
-Phiên bản 1.2 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`. Câu 11 là việc của chủ dự án (cần khoá thật), không phải của BA / dev.
+Phiên bản 1.3 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`. Câu 11 là việc của chủ dự án (cần khoá thật), không phải của BA / dev.
 
 | # | Câu hỏi | Phương án BA đề xuất | Trả lời của chủ dự án | Ngày |
 | --- | --- | --- | --- | --- |
@@ -18,3 +18,4 @@ Phiên bản 1.2 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng m�
 | Q13 | `GET /admin/llm/usage?course_id=` và `GET /courses/{id}/llm-budget`: GV được xem của lớp mình? | Chưa (không có `courses` / `CourseAccessGuard` trước P2): ở sprint này chỉ ADMIN; GV chỉ xem tổng hệ thống. P2 mở cho GV đúng lớp. | | |
 | Q14 | Ngân sách ≥ 80 %: chỉ ghi outbox `llm.budget.warn` (chưa có người nhận). Admin chỉ thấy trên `/settings/llm`? | Chấp nhận ở sprint này; thông báo chuông / mail ở P4. | | |
 | Q15 | **[CHỦ DỰ ÁN]** `base_url` của nhà cung cấp `openai_compatible` có bị chặn khi trỏ vào địa chỉ nội bộ (`localhost`, `169.254.*`, tên dịch vụ compose) không? Cho phép thì Admin có thể khiến gateway gọi vào mạng nội bộ (SSRF do người có quyền cao nhất). (Q-QC-P102-1, Q-QC-P104-1) | **Không chặn** (cần cho máy chủ trong trường); chỉ ADMIN đặt; kiểm scheme / host / không userinfo / không fragment; không theo chuyển hướng; không trả thân phản hồi; `audit_log` ghi host. Nếu chủ dự án muốn chặn, thêm danh sách trắng host (biến `LLM_BASE_URL_ALLOWLIST`) — chưa làm. | | |
+| Q16 | (góp ý #1) `Structured` luôn kiểm schema phía Go nhưng bảng thư viện `ARCHITECTURE.md` §3 không có thư viện JSON Schema (`kin-openapi` chỉ cho test — D52). Dùng gì? | Bộ kiểm tự viết tối giản cho tập con JSON Schema đang dùng (nêu ở `SRS.md` 4.2); schema vượt tập con đó bị từ chối lúc đăng ký schema (lỗi lập trình, không phải lúc chạy). Nếu PM muốn đầy đủ, duyệt thêm một thư viện (ví dụ `santhosh-tekuri/jsonschema/v6`) trước khi dev thi công. | | |
