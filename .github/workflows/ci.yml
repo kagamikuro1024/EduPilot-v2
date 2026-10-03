@@ -77,7 +77,11 @@ jobs:
       - name: playwright test
         run: pnpm -C frontend exec playwright test --grep-invert @real
       - name: lighthouse ci
-        run: pnpm -C frontend exec lhci autorun
+        # lhci cần một Chrome: dùng đúng Chromium mà bước trên vừa cài cho Playwright (cùng phiên bản với bộ test).
+        run: |
+          export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
+          echo "CHROME_PATH=$CHROME_PATH"
+          pnpm -C frontend exec lhci autorun
       - name: upload reports
         if: failure()
         uses: actions/upload-artifact@v5
