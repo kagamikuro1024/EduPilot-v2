@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.1 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.2 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.2 (2026-10-03)** — Q27 theo góp ý #6 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; trích: "migration PE (sprint 5) lấy số kế tiếp, không phải `00005` như `FEAT-weekly-exam` Q27" — P2 đã dùng `00005_vn_fold`). Không đổi số AC (124). Đổi: US-PE-01 AC1, US-PE-09 AC10, phần phạm vi (1), `SRS.md` 1, 4.12 (FR-1), 5, 10 (mục 3), `QUESTIONS.md` Q27: bỏ số `00005`, ghi "số kế tiếp khi thi công".
 
 **v1.1 (2026-10-03)** — PM duyệt `FEAT-weekly-exam`; chủ dự án trả lời câu hỏi mở. **Q5 đổi:** mặc định `multi_scoring = PARTIAL` (`ALL_OR_NOTHING` là tuỳ chọn từng bài). Q22 (cho điểm giảm sau công bố, có lý do) và Q28 (TA được duyệt câu hỏi) giữ mặc định; các câu còn lại PM chấp nhận mặc định của BA. Q25 theo góp ý #1 `docs/sprints/5/proposals.md` (ACCEPTED): `FEAT-ui-foundation` 7.5 + US-PU-04 AC3 sửa ở `sprint/5-pe`. Q27: dev ghi ánh xạ số migration vào `PROGRESS.md` khi thi công. Không đổi số AC (124). Đổi do Q5: US-PE-01 AC6, US-PE-04 AC1, US-PE-05 AC11 (dòng gợi ý cho câu nhiều đáp án), US-PE-09 AC3; `SRS.md` 4.1.3, 4.2.1, 5.6, 7.2; `QUESTIONS.md` Q5 và cột trả lời.
 
@@ -9,7 +11,7 @@ Nguồn: `docs/phases/PE.md`; `docs/sprints/5/plan.md`; PRD M15, G8, §3; FLOWS 
 
 Cho giảng viên giao **bài kiểm tra lấy điểm hằng tuần** ngay trên hệ thống (yêu cầu của thầy hướng dẫn): **trắc nghiệm** và **lập trình C / C++ chấm tự động bằng bộ test ẩn**; sinh viên làm trong khung giờ; máy chấm (Quiz Engine cho trắc nghiệm, sandbox `go-judge` cho code); điểm **tự công bố khi bài thi đóng với cả lớp** (D56). Điểm tính bằng **code thuần** (`shopspring/decimal`), **không LLM** (luật 5); AI chỉ **gợi ý nháp** câu trắc nghiệm / đầu vào test, giảng viên duyệt (D57).
 
-**Trong phạm vi:** migration `00005_weekly_exam` (13 bảng); gói `internal/quiz` (Quiz Engine), `internal/exam` (ngân hàng, bài thi, lượt làm, khoá chat, sự kiện, độ giống, kết quả, phúc khảo, gợi ý AI, nguồn việc "Hôm nay"), `internal/judge` (client go-judge, checker, hàng đợi), `internal/exam/similarity`; container `judge` + `deploy/judge/`; route `/questions`, `/exams`, `/exams/[id]`, `/exams/[id]/results`, `/exams/[id]/take`; seed bài thi mẫu; k6 `exam-submit.js`; cổng PE.
+**Trong phạm vi:** migration `weekly_exam` (13 bảng; số kế tiếp khi thi công — P2 đã dùng đến `00005_vn_fold`); gói `internal/quiz` (Quiz Engine), `internal/exam` (ngân hàng, bài thi, lượt làm, khoá chat, sự kiện, độ giống, kết quả, phúc khảo, gợi ý AI, nguồn việc "Hôm nay"), `internal/judge` (client go-judge, checker, hàng đợi), `internal/exam/similarity`; container `judge` + `deploy/judge/`; route `/questions`, `/exams`, `/exams/[id]`, `/exams/[id]/results`, `/exams/[id]/take`; seed bài thi mẫu; k6 `exam-submit.js`; cổng PE.
 
 **Ngoài phạm vi:** luyện đề / thi thử không tính điểm, trích câu hỏi từ đề cũ, sinh câu hỏi từ tài liệu có trích dẫn, `SHORT` / `ESSAY` (P9); nối điểm bài thi vào sổ điểm (P6); màn chat và việc từ chối câu hỏi nội dung (P3 — PE chỉ cung cấp `exam.Locker`); lịch và nhắc việc (P8); checker tuỳ chỉnh, đa luồng, nhiều tệp nguồn, ngôn ngữ ngoài C / C++; giám thị bằng camera; tách judge sang máy riêng (nợ PR); điểm "vắng = 0" vào sổ điểm (P6).
 
@@ -543,7 +545,7 @@ Cửa sổ ngắn: `docker-compose.local.yml` / `docker-compose.test-seed.yml` �
 
 | FR | Nội dung | AC |
 | --- | --- | --- |
-| FR-1 | Migration `00005` 13 bảng dạng cuối, enum, CHECK, chỉ mục (`course_id` đầu); không ALTER | 01-AC1, AC2, AC3 |
+| FR-1 | Migration `weekly_exam` 13 bảng dạng cuối, enum, CHECK, chỉ mục (`course_id` đầu); không ALTER | 01-AC1, AC2, AC3 |
 | FR-2 | Guard cho route PE: `Member` / `Staff` / `Teacher`; ADMIN bị chặn; sinh viên chỉ route của mình; cách ly lớp | 01-AC4, AC5 |
 | FR-3 | Quiz Engine (`MCQ_SINGLE`, `MCQ_MULTI` hai chế độ, `TRUE_FALSE`) bằng `decimal`, không LLM | 01-AC6, AC8 |
 | FR-4 | Công thức điểm bài thi (bước làm tròn, `void`, ví dụ 7,75 / 7,64) khớp bảng tính tay | 01-AC7 |
@@ -571,7 +573,7 @@ Cửa sổ ngắn: `docker-compose.local.yml` / `docker-compose.test-seed.yml` �
 
 ## 5. Dữ liệu
 
-Migration **`backend-go/db/migrations/00005_weekly_exam.sql`** (goose; nộp sau `00004`; số thật ghi vào `PROGRESS.md` — đề xuất đổi đánh số ở mục 10). Quy ước PG 5: `id uuid DEFAULT uuidv7()`, `timestamptz`, trigger `set_updated_at` cho bảng có `updated_at`, `snake_case`, **không ALTER** sau khi merge. Bảng thuộc lớp có `course_id uuid NOT NULL REFERENCES courses(id)` và chỉ mục phức hợp **bắt đầu bằng `course_id`**. Mọi `created_by` / `student_id` / `*_by` tham chiếu `users(id)`. Điểm: `numeric(5,2)`; trọng số: số nguyên.
+Migration **`backend-go/db/migrations/<số kế tiếp>_weekly_exam.sql`** (goose; P2 đã dùng `00003_course_foundation`, `00004_auth_hardening`, `00005_vn_fold` nên PE **không** phải `00005`; số thật xác định khi thi công, dev ghi ánh xạ vào `PROGRESS.md` — Q27). Quy ước PG 5: `id uuid DEFAULT uuidv7()`, `timestamptz`, trigger `set_updated_at` cho bảng có `updated_at`, `snake_case`, **không ALTER** sau khi merge. Bảng thuộc lớp có `course_id uuid NOT NULL REFERENCES courses(id)` và chỉ mục phức hợp **bắt đầu bằng `course_id`**. Mọi `created_by` / `student_id` / `*_by` tham chiếu `users(id)`. Điểm: `numeric(5,2)`; trọng số: số nguyên.
 
 ### 5.1 Enum
 
@@ -1165,7 +1167,7 @@ Thêm job `judge-attacks` (runner amd64): dựng `deploy/judge` với seccomp b�
 
 1. `ARCHITECTURE.md` §7 / `FEAT-ui-foundation` 7.5: thêm `/exams` cho sinh viên + mục nav "Bài thi" (Q25); đổi đếm mục 7 / 12 / 15 → 8 / 13 / 16 và `ACCESS`; test US-PU-04 AC3 cập nhật cùng commit. **Đã ACCEPTED (góp ý #1, `docs/sprints/5/proposals.md`)** và đã sửa ở `FEAT-ui-foundation` v1.3.
 2. `ARCHITECTURE.md` §5: thêm 56 thao tác ở 6.2 (nhóm mới "Bài thi" và "Ngân hàng câu hỏi"); nhóm "Luyện đề" giữ `GET/POST …/questions` nhưng **PE** sở hữu `…/questions` (P9 dùng lại, thêm `extract` / `generate`); `POST …/questions/suggest` là đường mới của PE (khác `generate` của P9: không dùng chunk / trích dẫn).
-3. `ARCHITECTURE.md` §2 (cấu trúc `backend-go`): thêm `internal/exam`, `internal/exam/similarity`, `internal/judge`; §4: đổi dòng "(kế tiếp sau P2) exams" thành `00005_weekly_exam` (13 bảng — thêm `code_drafts`, `exam_appeals`) và đẩy `00005…00016` hiện có lùi một số (hoặc ghi ánh xạ ở `PROGRESS.md` theo D45); §8: thêm biến `JUDGE_*`, `EXAM_*`, `SIMILARITY_MIN`; §9: seed thêm dữ liệu PE; §10: dòng "Sandbox" ở bảng kiểm thử.
+3. `ARCHITECTURE.md` §2 (cấu trúc `backend-go`): thêm `internal/exam`, `internal/exam/similarity`, `internal/judge`; §4: đổi dòng "(kế tiếp sau P2) exams" thành `weekly_exam` (13 bảng — thêm `code_drafts`, `exam_appeals`), số kế tiếp sau `00005_vn_fold`; các dòng sau lùi tương ứng (hoặc ghi ánh xạ ở `PROGRESS.md` theo D45); §8: thêm biến `JUDGE_*`, `EXAM_*`, `SIMILARITY_MIN`; §9: seed thêm dữ liệu PE; §10: dòng "Sandbox" ở bảng kiểm thử.
 4. `SYSTEM_DESIGN.md` §3.4: thêm Stream `judge.submit`, `judge.run` (+ `.dead`); S1 thêm container `judge` (D58).
 5. `FEAT-course-foundation` 4.7: bảng bậc "Hôm nay" thêm 10 `Kind` mới (4.10); 4.9: thêm topic outbox của PE; `notifications.type` thêm 5 giá trị.
 6. `FEAT-course-foundation` US-P2-12 AC7: ngân sách seed "≤ 3 phút" → "≤ 5 phút" khi gồm dữ liệu PE (US-PE-09 AC5).
