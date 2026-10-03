@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.2 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.3 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.3 (2026-10-03)** — góp ý #8 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC11 \"bấm mục → … `link` (nội bộ)\" và Kiểm \"bấm mục → URL = `link`\" mâu thuẫn với SRS 4.9 / liên kết sâu: `?course=<uuid>` của lớp mình được chọn rồi BỊ BỎ khỏi URL… Giữ hành vi liên kết sâu: đường dẫn đúng = `link`, tham số `course` được tiêu thụ. Test e2e khẳng định `pathname` + bộ chọn lớp hiện lớp đó"). Không đổi số AC. Đổi: US-P2-08 AC11 (câu điều hướng và dòng `Kiểm`).
 
 **v1.2 (2026-10-03)** — góp ý #7 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC5 \"mọi route có `{id}` dưới `/courses/` đều mang `CourseAccessGuard`\" mâu thuẫn với hợp đồng bất biến của sprint 3 (`GET/PUT /courses/{id}/llm-budget`)… Giữ nguyên hai route, KHÔNG gắn guard; `TestAllCourseRoutesGuarded` có danh sách đóng `adminOnly` (2 route). **ACCEPTED** — danh sách `adminOnly` đóng, chỉ 2 route này; thêm route phải có góp ý mới"). Không đổi số AC. Đổi: US-P2-07 AC5, `SRS.md` 4.1.
 
