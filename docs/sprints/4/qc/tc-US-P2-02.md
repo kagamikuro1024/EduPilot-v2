@@ -1,0 +1,84 @@
+# QC test case — US-P2-02 (đăng nhập thật: access 15 phút + refresh xoay vòng, phát hiện dùng lại, đăng xuất, CSRF, `/login`)
+Nguồn: `docs/specs/FEAT-account-security/US.md` US-P2-02 AC1–AC17 + `SRS.md` 4.1, 6.1–6.4 (hợp đồng `/auth/*`, cookie `ep_rt`), 7.4 (ánh xạ người mock). **Trọng tâm tấn công:** dùng lại refresh cũ, CSRF, liệt kê tài khoản, tính thời gian, mở chuyển hướng `next`, token ở storage, token hết hạn / thu hồi.
+
+Tiền điều kiện chung: stack test chạy; `GW=https://localhost` (cùng origin frontend + API qua Caddy, AC17); biến `j`, `login`, `bearer`, `ORIGIN`, `PW`, `PSQL`, `RDS` của `US.md`; 6 tài khoản mẫu `sv.gioi@edupilot.local`, `sv.kha@…`, `teacher@…`, `ta@…`, `admin@…` (+ SV chưa vào lớp) với `PW`. QC dùng cookie-jar riêng `/tmp/qc-jar-*` (curl `-c/-b`). Công cụ: **S** `scripts/p202.sh`, **A** = Eval trình duyệt thật (Chrome riêng, `https://localhost`, `--ignore-certificate-errors`; đọc `localStorage`, cookie, request), **G** = `go test` / `pnpm vitest` / `$PW account.spec.ts` của dev, **T** = tay. Mọi TC có ≥ 1 phép đo **S/A** của QC (không chỉ tin test dev).
+
+| TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
+| --- | --- | --- | --- | --- |
+| TC-P202-01 | AC1 | tài khoản ACTIVE | **S** `curl -sk -i -H "$ORIGIN" -H 'Content-Type: application/json' -d '{"email":"  Sv.Gioi@Edupilot.Local ","password":"'$PW'"}' $GW/api/v1/auth/login > /tmp/h`; kiểm `Set-Cookie`, thân, JWT payload (`cut -d. -f2 \| base64 -d`) | 200 `{access_token, token_type:"Bearer", expires_in:900, user:{id,email,full_name,role,status,email_verified}}`; claims `sub, role, email, jti, iat, nbf, exp, iss="edupilot", aud="edupilot-api", sid`; `exp−iat=900`; `Set-Cookie: ep_rt=<43 ký tự>; HttpOnly; Secure; SameSite=Lax; Path=/api/v1/auth; Max-Age=1209600`; thân **không** có `ep_rt`/refresh; email chuẩn hoá (hoa / khoảng trắng) |
+| TC-P202-02 | AC1 | – | **D** `select count(*) from auth_sessions where user_id=…`; `users.last_login_at` trước-sau | +1 phiên; `last_login_at` cập nhật |
+| TC-P202-03 | AC1 | – | **S** kiểm JWT: chữ ký HS256 (tính lại HMAC với `JWT_SECRET_KEY`), `alg` trong header | Chữ ký đúng; `alg=HS256` (không `none`) |
+| TC-P202-04 | AC2 (**liệt kê tài khoản**) | – | **S** `for e in sv.gioi@edupilot.local khong.co@example.test <email INVITED>; do j -X POST $GW/api/v1/auth/login -d "{\"email\":\"$e\",\"password\":\"sai-mat-khau-1\"}" \| sed 's/"trace_id":"[^"]*"//'; done \| sort \| uniq -c` | **Cả ba** y hệt: `401 INVALID_CREDENTIALS`, "Email hoặc mật khẩu không đúng.", cùng khoá JSON, không `details`; `uniq -c` cho **một** chuỗi đếm `3`; header phản hồi cũng giống (cùng `Set-Cookie`: không có) |
+| TC-P202-05 | AC2 (**thời gian**) | – | **S** đo `time_total` 40 mẫu mỗi loại (email không tồn tại / mật khẩu sai / INVITED); so trung vị | Trung vị "không tồn tại" ≥ **65 %** trung vị "mật khẩu sai" (không nhỏ hơn quá 35 %); ghi 3 trung vị; vượt → FAIL (hand-measure thắng) |
+| TC-P202-06 | AC2 | – | **G** `-run 'TestLoginUniformFailure\|TestLoginTimingEqualized' -v` | `ok` |
+| TC-P202-07 | AC3 | cookie jar | **S** refresh: `old=$(awk '/ep_rt/{print $7}' jar); curl -sk -b jar -c jar -H "$ORIGIN" -X POST $GW/api/v1/auth/refresh`; so cookie; JWT mới | 200; `sid` **giữ nguyên**, `jti` mới; `ep_rt` mới **khác** cũ; thân không có refresh |
+| TC-P202-08 | AC3 (băm) | – | **D** `select count(*) from auth_sessions where refresh_hash='<old>' or prev_refresh_hash='<old>'` và với `encode(sha256('<old>'::bytea),'hex')`; `pg_dump` + log `grep -c '<old>'` | Bản rõ **0** lần ở DB / dump / log; chỉ sha256 hex có mặt (`refresh_hash`, `prev_refresh_hash`); `rotated_at`, `last_used_at` cập nhật |
+| TC-P202-09 | AC3 (trượt/trần) | đồng hồ test | **D** refresh liên tục dịch giờ: `expires_at` trượt `REFRESH_TOKEN_TTL`; vượt `absolute_expires_at` (30 ngày) | `expires_at ≤ absolute_expires_at`; sau 30 ngày kể từ đăng nhập refresh bị từ chối `TOKEN_INVALID` |
+| TC-P202-10 | AC3 | – | **G** `-run 'TestRefreshRotates\|TestRefreshSliding\|TestRefreshAbsoluteCap\|TestRefreshStoresHashOnly'` | `ok` |
+| TC-P202-11 | AC4 (**dùng lại refresh — kẻ trộm sau**) | phiên P | **S** lưu `T1`; refresh một lần (ra `T2`, nạn nhân); rồi gọi lại bằng `T1`; rồi bằng `T2`; rồi access cũ `Authorization: Bearer $ACCESS_CU` vào `/api/v1/me/courses` | `T1` → `401 SESSION_REVOKED`; cookie bị xoá (`Max-Age=0`); **`T2` cũng 401** (cả phiên thu hồi); access cũ **401 `SESSION_REVOKED` ≤ 1 s**; `auth_sessions.revoked_at` có, `revoked_reason=REFRESH_REUSE` |
+| TC-P202-12 | AC4 (**kẻ trộm trước**) | phiên mới | **S** kẻ trộm xoay trước: nạn nhân mang `T1` cũ đã bị xoay bởi kẻ trộm | Cũng thu hồi cả phiên; hai thứ tự đều đúng |
+| TC-P202-13 | AC4 | – | **D** `select entity, action, details::text from audit_log where action='refresh_reuse'`; `grep` token | Có đúng **1** dòng (`entity=auth_session`, `action=refresh_reuse`); `details` **không** chứa token; không email người trộm |
+| TC-P202-14 | AC4 (đua) | – | **S** hai `curl` song song cùng `T1` (cùng lúc) | Một thắng (200), một `SESSION_REVOKED` hoặc cả hai nhất quán theo SRS; **không** có hai cookie hợp lệ sinh ra; nếu kết quả thành "cả phiên thu hồi", ghi lại; không 500 |
+| TC-P202-15 | AC4 | – | **G** `-run 'TestRefreshReuseRevokesSession\|TestRefreshReuseVictimFirst\|TestRefreshReuseThiefFirst\|TestRefreshReuseAudit'` | `ok` |
+| TC-P202-16 | AC5 | – | **S** refresh: không cookie; cookie lạ 43 ký tự; cookie hết hạn trượt (`age`: `update auth_sessions set expires_at=now()-'1s'`); quá hạn tuyệt đối; user bị khoá (`status=LOCKED` qua DB) | `401 UNAUTHENTICATED`; `401 TOKEN_INVALID` (**không thu hồi** phiên nào); `401 TOKEN_INVALID`; `401 TOKEN_INVALID`; `401 SESSION_REVOKED`; mọi lỗi xoá cookie; **0** phiên mới (`count(*)` không đổi) |
+| TC-P202-17 | AC5 | – | **G** `-run 'TestRefreshMissing\|TestRefreshUnknown\|TestRefreshExpired\|TestRefreshAbsoluteExpired\|TestRefreshDisabledUser'` | `ok` |
+| TC-P202-18 | AC6 | phiên A và B (2 jar) | **S** `logout` ở A hai lần; refresh ở A; access cũ của A; refresh ở B | `204`, `204` (idempotent); A refresh `401`; access cũ A `401 SESSION_REVOKED` ≤ 1 s; **B không ảnh hưởng** (refresh 200); `revoked_reason=LOGOUT` |
+| TC-P202-19 | AC6 | – | **G** `-run 'TestLogout\|TestLogoutIdempotent\|TestLogoutOtherDeviceUnaffected'` | `ok` |
+| TC-P202-20 | AC7 (**CSRF**) | jar hợp lệ | **S** `curl -sk -b jar -H 'Origin: https://evil.example' -X POST -o /dev/null -w '%{http_code}\n' $GW/api/v1/auth/refresh`; cùng với `/auth/logout`; có và không cookie; sau đó refresh hợp lệ | `403 FORBIDDEN` `details.reason="origin"`; cookie **không** bị xoay, phiên **không** bị thu hồi (refresh hợp lệ sau đó vẫn `200` với cùng cookie) |
+| TC-P202-21 | AC7 | – | **S** không `Origin` nhưng `Sec-Fetch-Site: cross-site` → ; không có cả hai (client không-trình-duyệt); `Origin` hợp lệ (`https://localhost`); `Origin: null`; `Origin` giống tiền tố (`https://localhost.evil.example`) | cross-site → `403`; không cả hai → qua; hợp lệ → qua; `Origin: null` → `403`; `https://localhost.evil.example` → `403` (khớp **chính xác**, không `startsWith`) |
+| TC-P202-22 | AC7 | – | **S** `GET /auth/refresh`, `PUT`, `POST` với `Content-Type: text/plain`, `application/x-www-form-urlencoded` | Chỉ `POST` + `application/json`: các cách khác `405`/`415`/`400` (không xoay token) |
+| TC-P202-23 | AC7 | – | **A** trang giả ở `http://localhost:9999` tự `fetch('https://localhost/api/v1/auth/refresh',{method:'POST',credentials:'include'})` trong khi trình duyệt đã đăng nhập; trang giả form `POST` ẩn | Không thành công: cookie `Lax` không gửi cross-site `POST` và/hoặc `403`; phiên nạn nhân còn nguyên |
+| TC-P202-24 | AC7 | – | **G** `-run 'TestCSRFOriginRejected\|TestCSRFSecFetchSite\|TestCSRFAllowedOrigin\|TestCookieEndpointsPostJSONOnly'` | `ok` |
+| TC-P202-25 | AC8 | phiên P | **S** đổi mật khẩu / logout / khoá (qua DB `update users set status`) / dùng lại refresh; gọi API với access cũ; đo thời gian tới 401 | `401 SESSION_REVOKED` **≤ 1 s** ở **cả hai** gateway |
+| TC-P202-26 | AC8 (Redis mất) | – | **S** `$C stop redis`; gọi API với access hợp lệ chưa thu hồi; log; `$C start redis` | Token **được chấp nhận** (hạn ≤ 15 phút); log `error` ≤ 1 lần / 30 s; hệ thống không chặn toàn bộ; sau Redis về: mốc thu hồi lại có hiệu lực |
+| TC-P202-27 | AC8 (token dev) | – | **S** `go run ./cmd/gateway token --role ADMIN` (không `sid`): gọi `/api/v1/admin/...` ở `APP_ENV=development` và `APP_ENV=production` | Dev: dùng được; **production: bị từ chối** (401) — QC chạy gateway với `APP_ENV=production` |
+| TC-P202-28 | AC8 | – | **G** `-run 'TestRevokedSidRejected\|TestUserCutoffRejected\|TestRedisDownFailsOpen\|TestDevTokenNoSid\|TestDevTokenRejectedInProduction'` | `ok` |
+| TC-P202-29 | AC8 (token giả) | – | **S** JWT ký sai secret; `alg=none`; `sid` của phiên khác người dùng; `sub` đổi; `iss`/`aud` sai; `exp` quá khứ; `nbf` tương lai | Tất cả `401` (`TOKEN_INVALID`/`TOKEN_EXPIRED`); **không** truy cập được dữ liệu; `sid` phiên khác người → không đoạt được phiên |
+| TC-P202-30 | AC9 | 2 tab cùng context | **A** hai `page` cùng `context`; ép access hết hạn (`page.clock` +16 phút / xoá token bộ nhớ); cả hai gọi API cùng lúc; ghi request `/auth/refresh` | Request refresh **tuần tự, không chồng thời gian** (`navigator.locks` `ep-refresh`), ≤ 2; sau đó `auth_sessions.revoked_at IS NULL` (không `REFRESH_REUSE`) |
+| TC-P202-31 | AC10 | `apiClient` | **A** 5 request song song nhận 401 `TOKEN_EXPIRED` (QC ép bằng `page.route` hoặc chờ hết hạn thật) | **1** `POST /auth/refresh`; 5 request phát lại **đúng 1 lần** mỗi cái, thành công; POST phát lại mang **cùng** `Idempotency-Key` (so header) |
+| TC-P202-32 | AC10 | – | **A** refresh trả 401; lần phát lại vẫn 401; `SESSION_REVOKED` | Refresh 401 → `auth:expired` → URL `/login?next=%2F<đường dẫn>`; phát lại vẫn 401 → báo lỗi, **không** làm mới nữa (không vòng lặp); `SESSION_REVOKED` → **không** làm mới, `/login` kèm "Bạn đã bị đăng xuất. Hãy đăng nhập lại." |
+| TC-P202-33 | AC10 | – | **G** `$PW data-layer.spec.ts -g 'auto refresh'` | `rc=0` |
+| TC-P202-34 | AC11 (**storage**) | đã đăng nhập, Chrome | **A** quét `localStorage`, `sessionStorage`, `document.cookie`, IndexedDB tên khoá và giá trị bằng `/eyJ[\w-]{10,}\./`, `/^[A-Za-z0-9_-]{43}$/`, tên chứa `token\|jwt\|refresh\|access`; tải lại; xem Network | **Không** token / JWT / refresh ở storage; `document.cookie` không thấy `ep_rt` (HttpOnly); sau tải lại: đúng **1** `POST /auth/refresh` rồi vào đúng trang (khung xương, không nháy `/login`) |
+| TC-P202-35 | AC11 | – | **S** `grep -rn 'DEV_AUTH\|Dán token' frontend/src \| wc -l`; `pbuild && grep -rl 'DEV_AUTH\|Dán token\|ep_demo_role' frontend/.next/static \| wc -l` | `0`; `0` (cổng dán token và mã demo bị xoá khỏi bundle; `ep_demo_role` chỉ chắc chắn `0` sau US-P2-12) |
+| TC-P202-36 | AC11 (HTML) | – | **A** mở trang, xem `outerHTML` và `window` (biến toàn cục) tìm JWT | JWT chỉ trong bộ nhớ closure; không `window.__token`, không `data-*`; URL không chứa token |
+| TC-P202-37 | AC12 | `/login` | **A** đọc thuộc tính: `Email` (`autocomplete="username"`, `inputmode="email"`), `Mật khẩu` (`autocomplete="current-password"`, nút hiện/ẩn), số nút `primary`; logo cao 40 px (1440) / 32 px (390) | Đúng thuộc tính; **một** nút chính `Đăng nhập`; liên kết `Quên mật khẩu?` và `Chưa có tài khoản? Đăng ký` |
+| TC-P202-38 | AC12 | – | **A** nhập sai; đọc lỗi; giá trị ô; bấm `Đăng nhập` hai lần nhanh; đếm request | Dòng "Email hoặc mật khẩu không đúng." `role="alert"`, không nói cái nào sai; email **giữ**, mật khẩu **xoá**; nút `loading`, **1** request |
+| TC-P202-39 | AC12 | 375 | **A** `AUDIT_SRC`, `TOUCH_SRC`; axe | `ox:0`, `[]`; 0 `serious`/`critical`; không từ kỹ thuật |
+| TC-P202-40 | AC12 | – | **G** `$PW account.spec.ts -g 'login page'` | `rc=0` |
+| TC-P202-41 | AC13 (**open redirect**) | – | **S/A** đăng nhập với `?next=` lần lượt: `//evil.example`, `https://evil.example`, `/\evil.example`, `javascript:alert(1)`, `/%2F%2Fevil.example`, `/%5Cevil.example`, `/foo%0d%0aSet-Cookie:x=1`, `/a:b`, `data:text/html,x`, `///evil.example`, ` //evil.example` (đầu khoảng trắng), `/ok?x=//evil` | Mọi giá trị độc hại → `/` (không rời origin; `location.origin` không đổi); giá trị hợp lệ (`/threads`, `/class/x?tab=a`, `/settings/llm`) → đúng đường dẫn; **không** header injection |
+| TC-P202-42 | AC13 | – | **G** `pnpm -C frontend exec vitest run src/shared/session/safeNext.test.ts` | `ok`; ≥ 12 giá trị |
+| TC-P202-43 | AC14 | 4 vai | **S** `for r in student:sv.gioi teacher:teacher ta:ta admin:admin; do h=$(bearer ${r#*:}@edupilot.local); curl -sk -H "$h" -o /dev/null -w "${r%%:*} %{http_code}\n" $GW/api/v1/admin/courses; done`; cùng với `/api/v1/admin/users` | `student 403`, `teacher 403`, `ta 403`, `admin 200`; 403 có `details.reason="role"` |
+| TC-P202-44 | AC14 | – | **A** chưa đăng nhập vào `/threads`, `/settings/llm`; sau đăng nhập mỗi vai đếm nav | `/login?next=…`; Sinh viên **7**, TA **12**, Giảng viên **15**, Admin **6** mục; **không** bộ đổi vai mô phỏng ở build thường |
+| TC-P202-45 | AC14 (IDOR chéo vai) | – | **S** STUDENT gọi `GET /api/v1/admin/llm/providers`, TEACHER `PUT /admin/llm/routes`; TA `GET /admin/users` | `403`; không dữ liệu |
+| TC-P202-46 | AC15 | binary | **S** từng biến sai: `ACCESS_TOKEN_TTL=2h` (và `30s`), `REFRESH_TOKEN_TTL=30m`, `SESSION_ABSOLUTE_TTL=1h` (< refresh), `COOKIE_DOMAIN` có khoảng trắng; `timeout 10 ./bin/gateway serve 2>&1 \| grep -c <TÊN>` | Thoát `rc=1` nêu **tên biến**; mặc định đúng 15m / 336h / 720h |
+| TC-P202-47 | AC15 | repo | **S** `grep -rn 'JWT_EXPIRATION' . --include=*.go --include=*.yml --include=.env.example --include=*.md \| grep -v 'docs/specs/FEAT-pg-foundation\|docs/sprints' \| wc -l`; `cd backend-go && go test -count=1 ./internal/contract/...`; `git diff origin/main -- backend-go/internal/contract/testdata/golden \| grep -c '^-[^-]'` | `0`; `rc=0`; golden PG **không bị sửa** (0 dòng xoá); `openapi.yaml` có các đường `/auth/*` của SRS 6.2; `gateway token --ttl` mặc định theo `ACCESS_TOKEN_TTL` |
+| TC-P202-48 | AC16 | build gate, đăng nhập thật | **A** đăng nhập `sv.kha@edupilot.local`; menu hồ sơ; `/chat`; xem cookie `ep_demo_*` | Hồ sơ hiện "Trần Thu Uyên" (người mock B), `/chat` phiên mock B; **không** đọc cookie `ep_demo_*` (đặt cookie demo khác → không đổi người); email lạ → mặc định theo vai |
+| TC-P202-49 | AC16 | – | **S** `grep -rn 'ep_demo_role\|ep_demo_person' frontend/src --include=*.ts --include=*.tsx \| grep -v NEXT_PUBLIC_DEV_TOOLS \| wc -l`; chạy `audit.mjs` bằng đăng nhập thật cho từng vai (QC sửa script nạp phiên bằng `login` thay cookie demo) | `0` (sau US-P2-12); `audit.mjs` bốn vai FAIL 0, PASS ≥ nền sprint 3 (`audit-baseline.md`: SV 165, GV 170, TA 106, Admin 54, spec 185) |
+| TC-P202-50 | AC17 | stack | **S** `curl -sk -o /dev/null -w '%{http_code}\n' https://localhost/login`; `curl -sk https://localhost/login \| grep -c 'EduPilot'`; `curl -sk https://localhost/api/v1/healthz` | `200`, `≥ 1`, `200` (Caddy chuyển `/api/*` → gateway, còn lại → frontend) |
+| TC-P202-51 | AC17 | – | **A** đăng nhập ở `https://localhost`, tải lại, quan sát `POST /auth/refresh`; thử `http://localhost:3000` | Đúng 1 refresh thành công (không 401); `README`/RUNBOOK ghi rõ `localhost:3000` không dùng cho đăng nhập (đọc tệp) |
+| TC-P202-52 | tổng | – | **S** `go vet ./... && golangci-lint run && go test -race -count=1 ./... && go test -count=1 ./internal/contract/...`; `pnpm -C frontend lint && bash scripts/ui-antipatterns.sh`; `$PW account.spec.ts` | `rc=0` |
+
+## Nhánh lỗi / biên đã phủ
+| Tình huống | TC |
+| --- | --- |
+| Dùng lại refresh cũ (kẻ trộm, nạn nhân, đua) | 11–14 |
+| Liệt kê tài khoản qua thông báo hoặc thời gian | 04, 05 |
+| Refresh rõ nằm ở DB / log | 08 |
+| CSRF `POST` cross-site, `Origin` giả tiền tố / `null` | 20–23 |
+| Token giả, `alg=none`, sửa `sid` | 29 |
+| Redis mất → chặn toàn hệ thống / chấp nhận vô hạn | 26 |
+| Token dev vào production | 27 |
+| Token ở storage / biến toàn cục | 34–36 |
+| Mở chuyển hướng `next` | 41 |
+| IDOR chéo vai | 43, 45 |
+| Đua hai tab tự thu hồi | 30 |
+
+## Câu hỏi cho BA / PM
+- **Q-QC-P202-1** — TC-P202-14 (hai refresh song song cùng `T1`): SRS 4.1 có "khoảng ân hạn" (grace) cho thử lại mạng không? Nếu có, hành vi kỳ vọng khác (không thu hồi trong N giây). QC chưa thấy ở US; chấm theo AC4 (thu hồi) trừ khi SRS nói rõ. — *chờ trả lời*.
+- **Q-QC-P202-2** — AC8 "production từ chối token dev": QC chạy một gateway thứ ba với `APP_ENV=production` trong stack test; stack chuẩn có `APP_ENV` gì? — *chờ trả lời*.
+- **Q-QC-P202-3** — TC-P202-49 cần `audit.mjs` đăng nhập thật: QC sẽ viết `docs/sprints/4/qc/scripts/audit-login.mjs` (bọc `audit.mjs`, thay phần đặt cookie demo). Chấp nhận? — *chờ trả lời*.
+
+## Lịch sử sửa TC
+- 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).
+
+Tổng: 52 TC.
