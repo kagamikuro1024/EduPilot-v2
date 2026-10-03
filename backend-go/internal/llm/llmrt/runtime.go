@@ -94,18 +94,20 @@ func (r *Runtime) Close(ctx context.Context) {
 	r.Auditor.Close(ctx)
 }
 
-// Stats trả chỉ số đếm cho route thử `_test/llm/stats`: KHÔNG có nội dung prompt hay câu trả lời.
-func (r *Runtime) Stats(ctx context.Context) map[string]any {
+// Stats trả chỉ số đếm cho route thử `_test/llm/stats` đúng SRS 6.4: KHÔNG có nội dung prompt hay câu trả lời.
+// lanes=true thêm `inflight_batch` (công cụ đo `cmd/llmload`).
+func (r *Runtime) Stats(ctx context.Context, lanes bool) map[string]any {
 	st := r.Scheduler.Stats(ctx)
-	ctl := r.Registry.Fake()
-	return map[string]any{
+	out := map[string]any{
 		"queue_depth":       st.QueueDepth,
 		"inflight":          st.Inflight,
-		"inflight_batch":    st.InflightBatch,
-		"provider_inflight": max(st.ProviderInflight, int(ctl.Active())),
-		"provider_calls":    ctl.Calls(),
-		"audit_dropped":     r.Auditor.Dropped(),
+		"provider_inflight": st.ProviderInflight,
 		"circuit":           st.Circuit,
-		"redis_down":        st.RedisDown,
+		"fake_calls":        r.Registry.Fake().CallsByProvider(),
+		"audit":             map[string]int64{"buffer_len": int64(r.Auditor.Pending()), "flushed": r.Auditor.Flushed(), "dropped": r.Auditor.Dropped()},
 	}
+	if lanes {
+		out["inflight_batch"] = st.InflightBatch
+	}
+	return out
 }

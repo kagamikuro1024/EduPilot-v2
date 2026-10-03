@@ -360,6 +360,7 @@ func (r *runner) testScenarios() {
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: tok, body: chat}, 403)
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: `{"task":"CHAT"}`}, 422)
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: admin}, 200)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats?lanes=1", token: admin}, 200)
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats"}, 401)
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: teacher}, 403)
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":1,"error_kind":"AUTH"}`}, 200)

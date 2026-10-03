@@ -131,7 +131,7 @@ func streamChat(w http.ResponseWriter, r *http.Request, d Deps, req llm.Request)
 // llmStats chỉ trả số đếm.
 func llmStats(d Deps) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		httpx.WriteJSON(w, http.StatusOK, d.LLM.Stats(r.Context()))
+		httpx.WriteJSON(w, http.StatusOK, d.LLM.Stats(r.Context(), r.URL.Query().Get("lanes") == "1"))
 	}
 }
 

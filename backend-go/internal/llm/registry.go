@@ -147,7 +147,7 @@ func (r *Registry) Fake() *fake.Controller { return r.ctl }
 func (r *Registry) defaultFactory(s ProviderSpec) (provider.Provider, error) {
 	switch s.Type {
 	case "fake":
-		return fake.New(r.ctl, s.Key), nil
+		return fake.NewNamed(r.ctl, s.ID, s.Key), nil
 	case "openai", "anthropic", "gemini", "openai_compatible":
 		return provider.NewOpenAI(provider.OpenAIConfig{Type: s.Type, BaseURL: s.BaseURL, APIKey: s.Key}), nil
 	}

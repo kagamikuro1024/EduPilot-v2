@@ -102,6 +102,9 @@ func TestAuditBatches(t *testing.T) {
 	if len(cap.rows) != 100 || len(cap.batch) != 1 {
 		t.Fatalf("rows=%d batches=%v, muốn 100 dòng trong 1 lô", len(cap.rows), cap.batch)
 	}
+	if a.Flushed() != 100 || a.Pending() != 0 || a.Dropped() != 0 {
+		t.Errorf("flushed=%d pending=%d dropped=%d, muốn 100/0/0 (nguồn của stats.audit)", a.Flushed(), a.Pending(), a.Dropped())
+	}
 	a.Close(context.Background())
 }
 

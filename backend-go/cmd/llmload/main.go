@@ -81,7 +81,7 @@ func run(args []string, stdout, stderr io.Writer) int {
 		return result{status: resp.StatusCode, waitMS: out.QueueWaitMS, elapsed: time.Since(start)}
 	}
 	stats := func(ctx context.Context) (batchInflight int) {
-		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, *base+"/api/v1/_test/llm/stats", nil)
+		req, _ := http.NewRequestWithContext(ctx, http.MethodGet, *base+"/api/v1/_test/llm/stats?lanes=1", nil)
 		req.Header.Set("Authorization", "Bearer "+tok)
 		resp, err := cl.Do(req)
 		if err != nil {

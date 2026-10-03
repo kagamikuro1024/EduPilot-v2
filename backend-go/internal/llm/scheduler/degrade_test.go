@@ -176,3 +176,34 @@ func TestStreamMidFailure(t *testing.T) {
 		t.Errorf("audit = %+v", rows)
 	}
 }
+
+// stats đếm MỌI nhà cung cấp đang chạy (không chỉ fake) — BUG-P102-3.
+func TestStatsCountsAllProviders(t *testing.T) {
+	t.Parallel()
+	release := make(chan struct{})
+	a := &stubProv{name: "OC1", chat: func(ctx context.Context, _ int) (resultT, error) {
+		select {
+		case <-release:
+		case <-ctx.Done():
+		}
+		return resultT{Text: "ok"}, nil
+	}}
+	r := stubRig(t, baseCfg(), a)
+	done := make(chan struct{})
+	go func() {
+		_, _ = r.g.Chat(t.Context(), llm.Request{Task: llm.TaskUtility, Messages: msg("x")})
+		close(done)
+	}()
+	for i := 0; i < 200 && r.s.Stats(t.Context()).ProviderInflight < 1; i++ {
+		sleepMs(5)
+	}
+	st := r.s.Stats(t.Context())
+	if st.ProviderInflight != 1 || st.Inflight["OC1"] != 1 || st.Circuit["OC1"] != "closed" {
+		t.Errorf("stats = %+v", st)
+	}
+	close(release)
+	<-done
+	if st := r.s.Stats(t.Context()); st.ProviderInflight != 0 {
+		t.Errorf("sau khi xong: %+v", st)
+	}
+}

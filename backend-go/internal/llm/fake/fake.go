@@ -36,6 +36,7 @@ type Settings struct {
 type Controller struct {
 	mu     sync.RWMutex
 	s      Settings
+	byName sync.Map     // tên provider → *atomic.Int64: số lời gọi sinh văn bản theo từng provider fake
 	calls  atomic.Int64 // số lời gọi sinh văn bản tới provider (Chat/Stream/Structured) — D47
 	embeds atomic.Int64
 	active atomic.Int64
@@ -68,6 +69,13 @@ func (c *Controller) Get() Settings { c.mu.RLock(); defer c.mu.RUnlock(); return
 // Calls là số lời gọi sinh văn bản đã tới provider.
 func (c *Controller) Calls() int64 { return c.calls.Load() }
 
+// CallsByProvider trả số lời gọi sinh văn bản theo từng provider fake (khoá = tên / id đã đặt ở NewNamed).
+func (c *Controller) CallsByProvider() map[string]int64 {
+	out := map[string]int64{}
+	c.byName.Range(func(k, v any) bool { out[k.(string)] = v.(*atomic.Int64).Load(); return true }) //nolint:forcetypeassert // sync.Map nội bộ
+	return out
+}
+
 // Embeds là số lời gọi nhúng đã tới provider.
 func (c *Controller) Embeds() int64 { return c.embeds.Load() }
 
@@ -92,12 +100,22 @@ func (c *Controller) enter() {
 
 // Provider là một provider fake gắn với khoá của bản ghi.
 type Provider struct {
-	c   *Controller
-	key string
+	c    *Controller
+	name string
+	key  string
+	n    *atomic.Int64
 }
 
-// New dựng provider fake dùng chung Controller c.
-func New(c *Controller, key string) *Provider { return &Provider{c: c, key: key} }
+// New dựng provider fake dùng chung Controller c (không đếm riêng theo tên).
+func New(c *Controller, key string) *Provider { return NewNamed(c, "fake", key) }
+
+// NewNamed như New nhưng đếm số lời gọi sinh văn bản theo `name` (hiện ở `_test/llm/stats` → fake_calls).
+func NewNamed(c *Controller, name, key string) *Provider {
+	v, _ := c.byName.LoadOrStore(name, new(atomic.Int64))
+	return &Provider{c: c, name: name, key: key, n: v.(*atomic.Int64)} //nolint:forcetypeassert // sync.Map nội bộ
+}
+
+func (p *Provider) count() { p.c.calls.Add(1); p.n.Add(1) }
 
 func sleep(ctx context.Context, d time.Duration) error {
 	if d <= 0 {
@@ -189,7 +207,7 @@ func answer(o provider.ChatOpts) string {
 
 // Chat trả văn bản xác định; có Schema → JSON sinh theo schema.
 func (p *Provider) Chat(ctx context.Context, o provider.ChatOpts) (provider.Result, error) {
-	p.c.calls.Add(1)
+	p.count()
 	p.c.enter()
 	defer p.c.active.Add(-1)
 	s, err := p.gate(ctx)
@@ -212,7 +230,7 @@ func (p *Provider) Chat(ctx context.Context, o provider.ChatOpts) (provider.Resu
 
 // Stream phát từng từ cách nhau StreamDelay; ctx huỷ → dừng ngay.
 func (p *Provider) Stream(ctx context.Context, o provider.ChatOpts) (<-chan provider.Delta, error) {
-	p.c.calls.Add(1)
+	p.count()
 	p.c.enter()
 	s, err := p.gate(ctx)
 	if err != nil {

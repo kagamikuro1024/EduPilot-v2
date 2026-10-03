@@ -465,6 +465,12 @@ paths:
       operationId: testLLMStats
       tags: [test]
       summary: "Chỉ số đếm của cổng LLM (ADMIN) — không có nội dung prompt"
+      parameters:
+        - name: lanes
+          in: query
+          required: false
+          schema:
+            type: string
       responses:
         "200":
           description: Số đếm
@@ -646,7 +652,7 @@ components:
           minimum: 0
     LLMStats:
       type: object
-      required: [queue_depth, inflight, inflight_batch, provider_inflight, provider_calls, audit_dropped, circuit, redis_down]
+      required: [queue_depth, inflight, provider_inflight, circuit, fake_calls, audit]
       additionalProperties: false
       properties:
         queue_depth:
@@ -658,21 +664,31 @@ components:
           additionalProperties:
             type: integer
         inflight_batch:
+          description: Chỉ có khi gọi với `?lanes=1` (công cụ đo)
           type: object
           additionalProperties:
             type: integer
-        redis_down:
-          type: boolean
         provider_inflight:
-          type: integer
-        provider_calls:
-          type: integer
-        audit_dropped:
           type: integer
         circuit:
           type: object
           additionalProperties:
             type: string
+        fake_calls:
+          type: object
+          additionalProperties:
+            type: integer
+        audit:
+          type: object
+          required: [buffer_len, flushed, dropped]
+          additionalProperties: false
+          properties:
+            buffer_len:
+              type: integer
+            flushed:
+              type: integer
+            dropped:
+              type: integer
     LLMFakeInput:
       type: object
       additionalProperties: false

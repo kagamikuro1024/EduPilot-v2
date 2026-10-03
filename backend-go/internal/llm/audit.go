@@ -49,6 +49,7 @@ type Auditor struct {
 	done    chan struct{}
 	once    sync.Once
 	dropped atomic.Int64
+	flushed atomic.Int64
 	lastLog atomic.Int64 // unix giây của lần log cảnh báo bỏ dòng gần nhất
 }
 
@@ -86,6 +87,9 @@ func (a *Auditor) Record(r AuditRow) {
 
 // Dropped là bộ đếm `llm_audit_dropped`.
 func (a *Auditor) Dropped() int64 { return a.dropped.Load() }
+
+// Flushed là số dòng đã ghi thành công.
+func (a *Auditor) Flushed() int64 { return a.flushed.Load() }
 
 // Pending là số dòng chưa ghi.
 func (a *Auditor) Pending() int { a.mu.Lock(); defer a.mu.Unlock(); return len(a.buf) }
@@ -125,6 +129,9 @@ func (a *Auditor) flush(ctx context.Context) {
 		wctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 5*time.Second)
 		err := a.write(wctx, rows)
 		cancel()
+		if err == nil {
+			a.flushed.Add(int64(len(rows)))
+		}
 		if err != nil {
 			a.log.Warn("không ghi được llm_audit", "rows", len(rows), "error", err.Error())
 		}

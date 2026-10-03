@@ -232,3 +232,25 @@ func TestFakeNoNetwork(t *testing.T) {
 type roundTripFn func(*http.Request) (*http.Response, error)
 
 func (f roundTripFn) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+// fake_calls của route thử stats: đếm theo từng provider fake, không lẫn nhau.
+func TestCallsByProvider(t *testing.T) {
+	t.Parallel()
+	c := fake.NewController(fake.Settings{})
+	a, b := fake.NewNamed(c, "A", ""), fake.NewNamed(c, "B", "")
+	for range 3 {
+		if _, err := a.Chat(t.Context(), opts("x")); err != nil {
+			t.Fatal(err)
+		}
+	}
+	ch, _ := b.Stream(t.Context(), opts("y"))
+	for range ch {
+	}
+	if _, _, err := b.Embed(t.Context(), provider.EmbedOpts{Inputs: []string{"z"}}); err != nil { // nhúng không tính vào lời gọi sinh văn bản
+		t.Fatal(err)
+	}
+	got := c.CallsByProvider()
+	if got["A"] != 3 || got["B"] != 1 || c.Calls() != 4 {
+		t.Errorf("CallsByProvider = %v, Calls = %d", got, c.Calls())
+	}
+}
