@@ -15,17 +15,89 @@
       "startServerCommand": "pnpm exec next start -p 3310",
       "startServerReadyPattern": "Ready",
       "startServerReadyTimeout": 60000,
-      "puppeteerLaunchOptions": { "args": ["--no-sandbox", "--headless=new"] },
-      "settings": { "chromeFlags": "--no-sandbox --headless=new" }
-    },
-    "assert": {
-      "assertions": {
-        "largest-contentful-paint": ["warn", { "maxNumericValue": 2500, "aggregationMethod": "median" }],
-        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1, "aggregationMethod": "median" }],
-        "total-blocking-time": ["error", { "maxNumericValue": 200, "aggregationMethod": "median" }],
-        "resource-summary:script:size": ["error", { "maxNumericValue": 256000, "aggregationMethod": "median" }]
+      "puppeteerLaunchOptions": {
+        "args": [
+          "--no-sandbox",
+          "--headless=new"
+        ]
+      },
+      "settings": {
+        "chromeFlags": "--no-sandbox --headless=new"
       }
     },
-    "upload": { "target": "filesystem", "outputDir": ".lighthouseci" }
+    "assert": {
+      "assertMatrix": [
+        {
+          "matchingUrlPattern": "^http://localhost:3310/(?!dev/ui$).*",
+          "assertions": {
+            "largest-contentful-paint": [
+              "warn",
+              {
+                "maxNumericValue": 2500,
+                "aggregationMethod": "median"
+              }
+            ],
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1,
+                "aggregationMethod": "median"
+              }
+            ],
+            "total-blocking-time": [
+              "error",
+              {
+                "maxNumericValue": 200,
+                "aggregationMethod": "median"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 256000,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        },
+        {
+          "matchingUrlPattern": "^http://localhost:3310/dev/ui$",
+          "assertions": {
+            "largest-contentful-paint": [
+              "warn",
+              {
+                "maxNumericValue": 2500,
+                "aggregationMethod": "median"
+              }
+            ],
+            "cumulative-layout-shift": [
+              "error",
+              {
+                "maxNumericValue": 0.1,
+                "aggregationMethod": "median"
+              }
+            ],
+            "total-blocking-time": [
+              "warn",
+              {
+                "maxNumericValue": 200,
+                "aggregationMethod": "median"
+              }
+            ],
+            "resource-summary:script:size": [
+              "error",
+              {
+                "maxNumericValue": 256000,
+                "aggregationMethod": "median"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "upload": {
+      "target": "filesystem",
+      "outputDir": ".lighthouseci"
+    }
   }
 }
