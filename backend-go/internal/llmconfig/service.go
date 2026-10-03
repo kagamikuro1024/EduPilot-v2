@@ -393,9 +393,15 @@ func validateProvider(in ProviderInput) error {
 		if m.PriceIn.IsNegative() || m.PriceOut.IsNegative() {
 			return invalid(f+".price", "OUT_OF_RANGE", "giá không âm")
 		}
+		if m.PriceIn.GreaterThan(maxPrice()) || m.PriceOut.GreaterThan(maxPrice()) {
+			return invalid(f+".price", "OUT_OF_RANGE", "giá vượt giới hạn cho phép (tối đa 9.999.999.999,9999 đ / 1 triệu token)") // numeric(14,4)
+		}
 	}
 	return nil
 }
+
+// maxPrice là giá lớn nhất ghi được vào cột numeric(14,4) (BUG-P104-1).
+func maxPrice() decimal.Decimal { return decimal.RequireFromString("9999999999.9999") }
 
 // MaxBaseURLLen là độ dài tối đa của base_url (SRS 5.2, US-P1-04 AC13).
 const MaxBaseURLLen = 300

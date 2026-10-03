@@ -533,6 +533,25 @@ func TestProviderLimit(t *testing.T) {
 	require.Equal(t, "VALIDATION_FAILED", x.code(t))
 	require.Contains(t, x.obj(t)["details"].([]any)[0].(map[string]any)["message"], "tối đa 20")
 	require.Equal(t, llmconfig.MaxProviders, count(t, r.pool, `select count(*) from llm_providers`))
+	require.Equal(t, llmconfig.MaxProviders, count(t, r.pool, `select count(*) from llm_providers`))
+}
+
+// BUG-P104-1: giá vượt độ rộng cột numeric(14,4) ⇒ 422 OUT_OF_RANGE, không lưu gì (trước đây 500).
+func TestProviderPriceOverflow(t *testing.T) {
+	r := getAPI(t)
+	adm := r.token(t, auth.RoleAdmin)
+	for _, f := range []string{"price_in", "price_out"} {
+		m := map[string]any{"model": "fake-chat", "kind": "chat", "price_in": "0", "price_out": "0"}
+		m[f] = "99999999999999999999"
+		x := r.do(t, adm, "POST", "/admin/llm/providers", map[string]any{"type": "fake", "name": "Gia", "api_key": goodKey, "models": []map[string]any{m}}, "Idempotency-Key", idem())
+		require.Equal(t, 422, x.status, f+": "+string(x.body))
+		d := x.obj(t)["details"].([]any)[0].(map[string]any)
+		require.Equal(t, "models[0].price", d["field"])
+		require.Equal(t, "OUT_OF_RANGE", d["code"])
+	}
+	require.Zero(t, count(t, r.pool, `select count(*) from llm_providers`))
+	ok := map[string]any{"model": "fake-chat", "kind": "chat", "price_in": "9999999999.9999", "price_out": "0"}
+	require.Equal(t, 201, r.do(t, adm, "POST", "/admin/llm/providers", map[string]any{"type": "fake", "name": "Gia", "api_key": goodKey, "models": []map[string]any{ok}}, "Idempotency-Key", idem()).status)
 }
 
 // ---- AC13: base_url ----
@@ -849,10 +868,17 @@ func TestBudgetPutRules(t *testing.T) {
 	require.Equal(t, `W/"v1"`, ok.hdr.Get("ETag"))
 	require.Equal(t, 422, put(map[string]any{"daily_limit": "-1", "version": 1}).status)
 	require.Equal(t, 422, put(map[string]any{"daily_limit": "3000000", "monthly_limit": "2000000", "version": 1}).status)
+	// BUG-P104-1: vượt độ rộng cột numeric(14,2) ⇒ 422 OUT_OF_RANGE (không phải 500)
+	over := put(map[string]any{"daily_limit": "99999999999999999999999", "monthly_limit": "99999999999999999999999", "version": 1})
+	require.Equal(t, 422, over.status, string(over.body))
+	require.Equal(t, "daily_limit", over.obj(t)["details"].([]any)[0].(map[string]any)["field"])
+	require.Equal(t, "OUT_OF_RANGE", over.obj(t)["details"].([]any)[0].(map[string]any)["code"])
+	require.Equal(t, 200, put(map[string]any{"daily_limit": "999999999999.99", "monthly_limit": "999999999999.99", "version": 1}).status, "đúng biên trên thì lưu được")
+	require.Equal(t, 200, put(map[string]any{"daily_limit": "100000", "monthly_limit": "2000000", "version": 2}).status)
 	st := put(map[string]any{"daily_limit": "1", "monthly_limit": "2", "version": 0})
 	require.Equal(t, 409, st.status)
 	require.Equal(t, "VERSION_CONFLICT", st.code(t))
-	nul := put(map[string]any{"daily_limit": nil, "monthly_limit": nil, "version": 1})
+	nul := put(map[string]any{"daily_limit": nil, "monthly_limit": nil, "version": 3})
 	require.Equal(t, 200, nul.status, string(nul.body))
 	require.Nil(t, nul.obj(t)["daily_limit"])
 	// course
@@ -863,6 +889,7 @@ func TestBudgetPutRules(t *testing.T) {
 	require.Equal(t, cid, c.obj(t)["course_id"])
 	g := r.do(t, adm, "GET", "/courses/"+cid+"/llm-budget", nil)
 	require.Equal(t, "5000.00", g.obj(t)["daily_limit"])
+	require.Equal(t, 422, r.do(t, adm, "PUT", "/courses/"+cid+"/llm-budget", map[string]any{"daily_limit": "99999999999999999999", "version": 1}).status, "BUG-P104-1: ngân sách lớp vượt biên")
 	require.Equal(t, 422, r.do(t, adm, "PUT", "/courses/not-a-uuid/llm-budget", map[string]any{"version": 0}).status)
 	require.Equal(t, 422, r.do(t, adm, "GET", "/courses/not-a-uuid/llm-budget", nil).status)
 }

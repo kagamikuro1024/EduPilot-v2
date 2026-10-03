@@ -18,6 +18,9 @@ const (
 	ScopeCourse = "course"
 )
 
+// maxBudgetLimit là hạn mức lớn nhất ghi được vào cột numeric(14,2); vượt ⇒ 422 (BUG-P104-1), không để Postgres báo 22003 → 500.
+func maxBudgetLimit() decimal.Decimal { return decimal.RequireFromString("999999999999.99") }
+
 // Budget là hạn mức chi phí (VND) của hệ thống hoặc một lớp; nil = không giới hạn. Version 0 = chưa từng đặt.
 type Budget struct {
 	Scope    string
@@ -78,9 +81,16 @@ func (s *Service) SetBudget(ctx context.Context, scope string, courseID *uuid.UU
 	if err := checkScope(scope, courseID); err != nil {
 		return Budget{}, err
 	}
-	for field, v := range map[string]*decimal.Decimal{"daily_limit": daily, "monthly_limit": monthly} {
-		if v != nil && v.IsNegative() {
-			return Budget{}, invalid(field, "OUT_OF_RANGE", "hạn mức không âm")
+	for _, f := range []struct {
+		field string
+		v     *decimal.Decimal
+	}{{"daily_limit", daily}, {"monthly_limit", monthly}} {
+		switch {
+		case f.v == nil:
+		case f.v.IsNegative():
+			return Budget{}, invalid(f.field, "OUT_OF_RANGE", "hạn mức không âm")
+		case f.v.GreaterThan(maxBudgetLimit()):
+			return Budget{}, invalid(f.field, "OUT_OF_RANGE", "hạn mức vượt giới hạn cho phép (tối đa 999.999.999.999,99 đ)") // cột numeric(14,2)
 		}
 	}
 	if daily != nil && monthly != nil && daily.GreaterThan(*monthly) {

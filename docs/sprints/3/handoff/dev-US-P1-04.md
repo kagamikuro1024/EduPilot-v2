@@ -39,3 +39,9 @@ Qua Caddy, 2 gateway, 100 lần mỗi route: `providers` p50 6 / **p95 8 ms**; `
 - `Test` của nhà `openai_compatible` chưa có khoá: gửi khoá `none` (SDK đòi chuỗi khác rỗng) — máy chủ trường không cần khoá vẫn chạy.
 - Một số gateway chạy sau Caddy có `fake` settings riêng (góp ý #10).
 - Cổng `golangci-lint` ×3 sạch; `go test -race -tags testroutes ./...` xanh; `sqlc diff` sạch.
+
+## Sửa lỗi QC (report-US-P1-04)
+| BUG | Đã sửa | Tự kiểm |
+| --- | --- | --- |
+| BUG-P104-1 số vượt biên cột `numeric` → 500 | Chặn ở tầng kiểm đầu vào của `llmconfig`, theo đúng độ rộng cột: `daily_limit` / `monthly_limit` ≤ `999999999999.99` (`numeric(14,2)`, `SetBudget`), `price_in` / `price_out` ≤ `9999999999.9999` (`numeric(14,4)`, `validateProvider`) ⇒ 422 `VALIDATION_FAILED` `details[].code=OUT_OF_RANGE` (`field=daily_limit` / `models[i].price`). Thứ tự báo lỗi ngân sách nay cố định (trước đây duyệt `map`) | `TestBudgetPutRules` (ca `99999999999999999999999` ⇒ 422 `daily_limit`; đúng biên trên lưu được; ngân sách lớp vượt biên ⇒ 422), `TestProviderPriceOverflow` (`price_in` / `price_out` vượt ⇒ 422, không lưu; đúng biên ⇒ 201); vet ×3, lint ×3, `go test -race` llmconfig/contract/httpapi xanh |
+Chưa xử lý (QC ghi chú, không phải lỗi): `"100.12345"` bị làm tròn im lặng thành `100.12`; `"abc"` ⇒ 400 thay vì 422 kèm `field`.
