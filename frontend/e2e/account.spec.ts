@@ -707,6 +707,8 @@ test("admin users page: khung mời mở tại chỗ (không dialog), gửi xong
   for (const w of ["token", "session", "jwt", "bcrypt", "password"]) expect(text).not.toContain(w);
 
   await page.setViewportSize({ width: 375, height: 800 });
+  // bố cục đổi sang danh sách sau khi đổi cỡ: đợi hết tràn ngang rồi mới đo (đo ngay có thể còn bố cục 1280 px)
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { timeout: 5000 }).toBeLessThanOrEqual(0);
   const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
   const a = await runAudit(page, AUDIT_SRC);
   expect(a.ox).toBeLessThanOrEqual(0);

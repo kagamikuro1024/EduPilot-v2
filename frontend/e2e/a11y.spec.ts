@@ -2,6 +2,7 @@ import AxeBuilder from "@axe-core/playwright";
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
 import { PU_ROUTES, ROLES, routesFor } from "./support/routes";
+import { settleGoto } from "./support/hydrate";
 import { asDemo, type DemoRole } from "./support/session";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
@@ -17,6 +18,10 @@ test.describe.configure({ mode: "serial" }); // một worker ⇒ một báo cáo
 test.beforeEach(async ({}, info) => {
   test.skip(info.project.name !== "desktop", "tự đặt bề rộng");
 });
+test.beforeEach(({ page }) => {
+  settleGoto(page);
+});
+
 test("axe-allow.json: tối đa 3 ngoại lệ, mỗi mục đủ luật / route / lý do / người duyệt", () => {
   expect(allow.length).toBeLessThanOrEqual(3);
   for (const a of allow) expect(a.rule && a.route && a.reason.trim() && a.approvedBy).toBeTruthy();

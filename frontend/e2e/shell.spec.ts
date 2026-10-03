@@ -3,6 +3,7 @@ import { BASE_URL } from "./support/env";
 import { expect, test, type Page } from "@playwright/test";
 import { MOBILE_PRIMARY, navFor } from "../src/shared/shell/nav";
 import { loadAudit } from "./support/audit";
+import { settleGoto } from "./support/hydrate";
 import { asDemo, asJwt, sessionBody, type DemoRole } from "./support/session";
 
 // US-PU-04: khung ứng dụng. Chỉ chạy ở dự án desktop (tự đặt bề rộng); bản dựng `build:gate` (mock bật, DEV_AUTH bật).
@@ -16,6 +17,10 @@ const mockOnly = () => test.skip(MOCK_OFF, "bản dựng MOCK_SCREENS=0");
 const ROLES: DemoRole[] = ["student", "ta", "teacher", "admin"];
 const size = (page: Page, width: number, height = 900) => page.setViewportSize({ width, height });
 const box = (page: Page, sel: string) => page.locator(sel).first().evaluate((e) => ({ w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height }));
+
+test.beforeEach(({ page }) => {
+  settleGoto(page);
+});
 
 test("metrics: sidebar 216 / 72 / ẩn; header 56; thu gọn nhớ ở ep:ui:sidebar", async ({ page, context }) => {
   mockOnly();

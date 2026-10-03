@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { settleGoto } from "./support/hydrate";
 import { asDemo } from "./support/session";
 
 // US-PU-01 (token, font, chuẩn hoá nền). Chạy trên bản build: `pnpm -C frontend build && pnpm -C frontend exec playwright test tokens.spec.ts`.
@@ -29,6 +30,10 @@ test.describe("font", () => {
     expect(src).toMatch(/display:\s*"swap"/);
     expect(src).toMatch(/subsets:\s*\[[^\]]*"vietnamese"/);
   });
+});
+
+test.beforeEach(({ page }) => {
+  settleGoto(page);
 });
 
 test("tabular: số trong bảng canh theo chữ số bằng nhau (/gradebook, giảng viên)", async ({ page, context }) => {
@@ -76,6 +81,7 @@ test("diacritics: dấu tiếng Việt không bị cắt ở h1, h2, nút, ô nh
 
 test("focus: vòng --ep-focus khi Tab, không hiện khi bấm chuột", async ({ page }) => {
   await page.goto("/login");
+  await page.getByLabel("Email").waitFor(); // form đã hydrate: Tab đầu tiên rơi đúng ô đầu
   await page.keyboard.press("Tab");
   const r = await page.evaluate(() => {
     const ring = (() => {
