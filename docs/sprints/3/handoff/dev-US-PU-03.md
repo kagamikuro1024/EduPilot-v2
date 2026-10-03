@@ -44,3 +44,4 @@ Nhánh `sprint/3-pu-p1`. Góp ý #19–#21. Chạy: `pnpm -C frontend build:gate
 | BUG | Đã sửa | Tự kiểm |
 | --- | --- | --- |
 | BUG-PU03-1 `traceId` bỏ qua header `X-Request-Id` | `decodeError` (`apiClient.ts`) lấy `trace_id` ở thân, thiếu thì `X-Request-Id` của phản hồi (mọi nhánh: JSON, HTML/rỗng, JSON hỏng); máy chủ giả cho phép đọc header này (`Access-Control-Expose-Headers`) | `data-layer.spec.ts › BUG-PU03-1`: 500 / 422 / HTML 502 chỉ có header ⇒ `traceId` = header; có cả hai ⇒ thân thắng |
+| BUG-PU03-2 `event: reconnect` tạo 2 kết nối | Không phải hai lần gọi `connect()` (đã đo: đúng 2) mà Chrome gửi lại yêu cầu khi mở yêu cầu mới NGAY lúc huỷ yêu cầu cũ (máy chủ thấy 3 GET ở 0/2/3 ms). `sse.ts`: huỷ kết nối cũ rồi nối lại sau `RECONNECT_GAP_MS = 50` ms (vẫn "ngay", không backoff, ≤ 200 ms) | `data-layer.spec.ts › BUG-PU03-2`: sau `reconnect` máy chủ thấy đúng **2** GET, **1** lần đóng, cách nhau ≈ 75 ms, trạng thái `open`; lặp 3 lần đều 2 GET |

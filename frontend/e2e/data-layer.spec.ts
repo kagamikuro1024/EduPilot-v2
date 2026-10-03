@@ -510,3 +510,17 @@ test("BUG-PU03-1: traceId lấy từ header X-Request-Id khi thân thiếu trace
   await script(page, { "POST /api/v1/t": [{ status: 502, headers: { "Content-Type": "text/html", "X-Request-Id": "hdr-trace-4" }, body: "<html>" }] });
   expect((await call(page, 'ep.apiClient.post("/t", {})')).error.traceId).toBe("hdr-trace-4");
 });
+
+test("BUG-PU03-2: event: reconnect → đúng 2 yêu cầu /events và 1 lần đóng, nối lại ≤ 200 ms", async ({ page }) => {
+  const READY2 = 'retry: 3000\n\nevent: ready\ndata: {"conn_id":"c"}\n\n';
+  await script(page, { "GET /api/v1/events": [{ sse: READY2 + 'event: reconnect\ndata: {"reason":"server_restart"}\n\n', hold: true }, { sse: READY2, hold: true }, { sse: READY2, hold: true }] });
+  await open(page);
+  await page.getByRole("button", { name: "Gắn 3 người nghe" }).click();
+  await expect.poll(async () => (await getLog(page, "/api/v1/events")).log.length).toBeGreaterThanOrEqual(2);
+  await page.waitForTimeout(1500);
+  const { log, sseClosed } = await getLog(page, "/api/v1/events");
+  expect(log).toHaveLength(2);
+  expect(sseClosed).toHaveLength(1);
+  expect(log[1].t - log[0].t).toBeLessThanOrEqual(200);
+  await expect(page.locator("[data-part=sse-status]")).toHaveText("open");
+});

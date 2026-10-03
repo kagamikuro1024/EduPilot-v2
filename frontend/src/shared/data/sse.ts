@@ -13,6 +13,7 @@ const WATCHDOG_MS = 40_000;
 const LIMIT_WAIT_MIN_S = 5;
 const LIMIT_TRIES = 3;
 const DEGRADED_RETRY_MS = 60_000;
+const RECONNECT_GAP_MS = 50;
 
 const jitter = (ms: number) => ms * (0.8 + Math.random() * 0.4);
 
@@ -247,7 +248,9 @@ class SSEManager {
           this.setStatus("closed");
           this.waitForToken();
         } else {
-          this.connect(true); // nối NGAY, không backoff
+          // nối ngay (không backoff) nhưng sau khi ổ cắm cũ đã đóng: mở yêu cầu mới ngay trong lúc huỷ yêu cầu cũ làm Chrome
+          // dùng lại ổ cắm đang đóng và gửi yêu cầu hai lần (BUG-PU03-2)
+          setTimeout(() => this.running && this.connect(true), RECONNECT_GAP_MS);
         }
         return;
       }
