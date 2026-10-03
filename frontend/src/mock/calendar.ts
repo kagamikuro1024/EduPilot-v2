@@ -14,6 +14,14 @@ export const EVENT_LABEL: Record<EventKind, string> = {
   extra: "Buổi ôn tập",
 };
 
+/**
+ * Nhãn ngắn cho ô lịch Tháng (ô hẹp ≈ 48–100 px, tối đa 2 dòng): phần trước dấu " · " và bỏ tiền tố "Hạn nộp " (loại sự kiện đã có ở
+ * màu viền) — "QUIZ01 đóng · Mật mã đối xứng" → "QUIZ01 đóng", "Hạn nộp Bài tập 02 · …" → "Bài tập 02". Tên đầy đủ ở title/aria-label.
+ */
+export function shortLabel(title: string): string {
+  return title.split(" · ")[0].replace(/^Hạn nộp /, "");
+}
+
 export type CalEvent = {
   id: string;
   kind: EventKind;

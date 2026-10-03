@@ -52,3 +52,9 @@
   .cell { min-height: 0; }
   .otherMonth { display: none; }
 }
+
+/* Ô tháng hẹp (≈ 48 px ở 720 px): bớt đệm trái để nhãn ngắn vẫn tối đa 2 dòng (BUG-v5-01-6). */
+@media (max-width: 900px) {
+  .chip { padding-left: 2px; }
+  .cell { padding-inline: 2px; }
+}
