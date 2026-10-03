@@ -62,7 +62,7 @@
 
 /* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14): ô tích đo theo nhãn bọc nó, công tắc có hộp bấm 44. */
 @media (max-width: 719px), (pointer: coarse) {
-  .control { min-height: 44px; font-size: 1rem; }
+  .control { min-height: 44px; font-size: var(--ep-text-item); }
   /* nhãn ô nhập cũng là vùng bấm (bấm nhãn → focus ô) */
   .field { gap: var(--ep-space-1); }
   .label { display: flex; align-items: center; min-height: 44px; min-width: 44px; }

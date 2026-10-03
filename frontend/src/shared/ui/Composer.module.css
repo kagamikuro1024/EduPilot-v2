@@ -54,5 +54,5 @@
 /* Vùng chạm ≥ 44 × 44 px (00-AC15 / FR-X14). */
 @media (max-width: 719px), (pointer: coarse) {
   .send, .stop { min-height: 44px; min-width: 44px; }
-  .input { font-size: 1rem; }
+  .input { font-size: var(--ep-text-item); }
 }

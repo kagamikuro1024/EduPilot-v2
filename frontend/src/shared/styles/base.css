@@ -1,6 +1,6 @@
 /* Nền chung sau tokens.css: vai chữ, bề mặt trình duyệt, tiện ích không có trong primitive. */
 
-html { -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
+html { color-scheme: light; -webkit-text-size-adjust: 100%; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; }
 body { min-height: 100dvh; caret-color: var(--ep-red); }
 
 h1, h2, h3, h4, p { margin: 0; }

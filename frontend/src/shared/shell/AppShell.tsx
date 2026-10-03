@@ -191,7 +191,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <header className={s.topbar}>
-        <Link href="/" className={s.mobileBrand} aria-label="EduPilot — Hôm nay">
+        <Link href="/" className={s.mobileBrand} data-part="brand" aria-label="EduPilot — Hôm nay">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-edupilot-mark.svg" alt="" width={28} height={28} />
         </Link>
