@@ -80,6 +80,17 @@ func newDiscardLog() *slog.Logger { return slog.New(slog.NewTextHandler(io.Disca
 
 func newGatewayLog(t *testing.T, log *slog.Logger, ps ...*stub) (*llm.Gateway, *capture) {
 	t.Helper()
+	return newGatewayFull(t, log, nil, ps...)
+}
+
+// newGatewayWithGate như newGateway nhưng gắn Gate tuỳ ý (ghi mạch ngắt, giả lập hàng đợi…).
+func newGatewayWithGate(t *testing.T, gate llm.Gate, ps ...*stub) (*llm.Gateway, *capture) {
+	t.Helper()
+	return newGatewayFull(t, newDiscardLog(), gate, ps...)
+}
+
+func newGatewayFull(t *testing.T, log *slog.Logger, gate llm.Gate, ps ...*stub) (*llm.Gateway, *capture) {
+	t.Helper()
 	cap := &capture{}
 	aud := llm.NewAuditor(context.Background(), cap.write, log)
 	t.Cleanup(func() { aud.Close(context.Background()) })
@@ -92,7 +103,7 @@ func newGatewayLog(t *testing.T, log *slog.Logger, ps ...*stub) (*llm.Gateway, *
 	for _, task := range append(llm.ChatTasks(), llm.TaskEmbedding) {
 		reg.SetRoute(task, llm.Route{Targets: targets})
 	}
-	g := llm.New(llm.Options{Registry: reg, Auditor: aud, Log: log,
+	g := llm.New(llm.Options{Registry: reg, Auditor: aud, Log: log, Gate: gate,
 		Sleep: func(ctx context.Context, d time.Duration) error { cap.sleeps = append(cap.sleeps, d); return ctx.Err() },
 		Rand:  func() float64 { return 1 }}) // jitter = đúng trần
 	return g, cap
