@@ -16,6 +16,7 @@ build:
 test:
 	DOCKER_HOST="$${DOCKER_HOST:-$(COLIMA_DOCKER_HOST)}" TESTCONTAINERS_RYUK_DISABLED=true go test -race -count=1 -tags testroutes ./...
 	DOCKER_HOST="$${DOCKER_HOST:-$(COLIMA_DOCKER_HOST)}" TESTCONTAINERS_RYUK_DISABLED=true go test -race -count=1 -tags integration ./internal/mail/...
+	-docker volume prune -f
 
 lint:
 	go vet ./...
@@ -50,4 +51,5 @@ tidy:
 
 # Dọn container test dùng chung (internal/testutil giữ chúng sống giữa các lần chạy).
 test-clean:
-	-docker rm -f edupilot-test-postgres edupilot-test-redis edupilot-test-minio edupilot-test-pgbouncer
+	-docker rm -fv edupilot-test-postgres edupilot-test-redis edupilot-test-minio edupilot-test-pgbouncer edupilot-test-mailpit
+	-docker volume prune -f
