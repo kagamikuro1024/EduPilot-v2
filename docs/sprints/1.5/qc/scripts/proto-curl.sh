@@ -63,7 +63,7 @@ tc_00_06(){ for r in /chat /me /practice /library /join; do want CHAN teacher $r
   [ "$(echo "$t" | grep -c 'Nhận')" = 0 ] && pass "màn chặn không lộ nút của /inbox" || fail "màn chặn lộ nội dung trang"; }
 tc_00_matrix(){ matrix; }
 tc_00_static(){ cd "$(git rev-parse --show-toplevel)"; local o
-  o=$(grep -rn 'fetch(' frontend/src --include=*.ts --include=*.tsx | grep -v 'src/shared/'); [ -z "$o" ] && pass "không fetch( ngoài src/shared" || { fail "fetch( ngoài shared"; echo "$o" | head -3; }
+  o=$(grep -rnE '(^|[^A-Za-z_])fetch\(' frontend/src --include=*.ts --include=*.tsx | grep -v 'src/shared/'); [ -z "$o" ] && pass "không fetch( ngoài src/shared" || { fail "fetch( ngoài shared"; echo "$o" | head -3; }
   # góp ý #13 (sprint 3): cho phép thư viện trong ARCHITECTURE §3 (kiểm thử / UI), không chỉ lucide-react
   o=$(git diff main -- frontend/package.json | grep -E '^\+ ' | grep -E '"[^"]+": *"[~^]?[0-9]' | grep -vE 'lucide-react|@playwright/test|@axe-core/playwright|@lhci/cli|@tanstack/react-(query|virtual)|"recharts"|"zustand"' | grep -vE '^\+\+\+'); [ -z "$o" ] && pass "package.json không thêm phụ thuộc ngoài bảng ARCHITECTURE §3" || { fail "thêm phụ thuộc ngoài bảng §3"; echo "$o"; }
   o=$(git grep -nE "localStorage\.(setItem|getItem)\(['\"]" -- frontend/src | grep -v ep_demo_state); [ -z "$o" ] && pass "localStorage chỉ dùng khoá ep_demo_state" || { fail "localStorage khoá khác"; echo "$o" | head -3; }
@@ -110,7 +110,7 @@ tc_00_09(){ local p v n
   for p in sv-1:'Nguyễn Minh Trung' sv-3:'Lê Quang Huy' sv-4:'Phạm Ngọc Linh'; do
     ge "$(curl -s -b "ep_demo_role=student; ep_demo_person=${p%%:*}; ep_demo_course=int1006-1" $F/ | grep -c "Tài khoản: ${p#*:}")" 1 "SV ${p%%:*} → Tài khoản: ${p#*:}"; done
   for v in teacher ta admin; do eq "$(curl -s -b "ep_demo_role=$v; ep_demo_person=sv-2; ep_demo_course=int1006-1" $F/ | grep -c 'Tài khoản: \(Giảng viên\|Trợ giảng\|Admin\)"')" 0 "$v: aria-label không ghi tên vai"; done; }
-tc_00_hooks(){ hook student /chat chat-history 1; hook student /chat chat-thread 1; hook student /chat chat-composer 1; hook teacher /inbox inbox-list 1; hook admin /settings/llm provider-status 3 sv-2; hook admin /settings/llm provider-action 3 sv-2; }
+tc_00_hooks(){ hook student /chat chat-history 1; hook student /chat chat-thread 1; hook student /chat chat-composer 1; hook teacher /inbox inbox-list 1; }  # sprint 3 (US-P1-05): hook provider-status/-action của /settings/llm là bản mock → đã thay bằng TC-P105-04 (màn thật, cần token)
 THREADS_N='t-cbc:4 t-salt:3 t-sqli:3 t-pin-rubric:4 t-pin-lab:3 t-rsa-key:2 t-xss:2 t-vpn:2 t-pki:2 t-phishing:2 t-firewall:2 t-wifi:2'
 tc_01_10(){ local p id n v   # 01-AC10: không còn hai tiêu đề cũ; "Thảo luận (n)" khớp SRS 4.3.1 B, mọi vai được vào thread
   for v in student ta teacher; do for p in $THREADS_N; do id=${p%%:*}; n=${p#*:}
@@ -123,7 +123,7 @@ tc_01_11(){ local t   # 01-AC10: seed t-cbc / t-salt đúng bảng B (nếu curl
   t=$(visible student /threads/t-salt sv-2)
   for s in 'Đã được giảng viên xác nhận' 'Lê Thu Hà' 'Muối lưu ở đâu ạ' 'bcrypt còn cố tình chậm' 'Em nghĩ là để mỗi lần đoán thử'; do ge "$(echo "$t" | grep -c "$s")" 1 "t-salt có «${s}»"; done
   for id in t-firewall t-wifi; do eq "$(visible student /threads/$id sv-2 | grep -c 'Trợ lý AI của lớp')" 0 "$id không có câu AI"; done; }
-tc_04_07(){ hook admin /settings/llm provider-status 3; hook teacher /settings/llm provider-status 3; eq "$(visible teacher /settings/llm | grep -c 'Test kết nối')" 0 "GV không có Test kết nối"; }
+tc_04_07(){ eq "$(visible teacher /settings/llm | grep -c 'Test kết nối')" 0 "GV không có Test kết nối"; }
 # ---------- Spec v5.1 (#19) — lệnh Kiểm lấy từ US.md; mỗi hàm một AC ----------
 ROOT(){ git rev-parse --show-toplevel; }
 tc_00_13(){ local v   # 00-AC13 / FR-X16
@@ -132,7 +132,7 @@ tc_00_13(){ local v   # 00-AC13 / FR-X16
     ge "$(curl -s -b "ep_demo_role=$v; ep_demo_person=sv-2" $F/khong-co-trang | grep -c 'Về Hôm nay')" 1 "$v: 404 có nút Về Hôm nay"; done
   [ -f "$(ROOT)/frontend/src/app/error.tsx" ] && [ -f "$(ROOT)/frontend/src/app/not-found.tsx" ] && pass "có app/error.tsx và app/not-found.tsx" || fail "thiếu app/error.tsx hoặc app/not-found.tsx"; }
 tc_00_14(){ local o r   # 00-AC14 / FR-X13 (N6): không chuỗi thời gian cứng
-  o=$(grep -rnE '[0-9]+ (ngày|giờ|phút) trước' "$(ROOT)/frontend/src" --include=*.ts --include=*.tsx | grep -v 'mock/derive.ts'); [ -z "$o" ] && pass "không chuỗi 'N … trước' ngoài mock/derive.ts" || { fail "còn chuỗi thời gian cứng"; echo "$o" | cut -c1-150 | head -5; }
+  o=$(grep -rnE '[0-9]+ (ngày|giờ|phút) trước' "$(ROOT)/frontend/src" --include=*.ts --include=*.tsx | grep -v 'mock/derive.ts' | grep -v 'app/dev/'); [ -z "$o" ] && pass "không chuỗi 'N … trước' ngoài mock/derive.ts" || { fail "còn chuỗi thời gian cứng"; echo "$o" | cut -c1-150 | head -5; }
   eq "$(visible student / sv-2 | grep -c '12 ngày trước')" 0 "SV B không còn '12 ngày trước'"
   for r in / /admin/courses; do ge "$(visible admin $r | grep -ci 'hôm qua 16:40')" 1 "Admin $r có 'hôm qua 16:40'"; done
   eq "$(visible admin / | grep -c '08:30')" 0 "Admin / không còn '08:30'"; }

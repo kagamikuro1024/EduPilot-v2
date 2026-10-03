@@ -105,7 +105,7 @@ export default async function audit(browser, { base = 'http://localhost:3000', o
       if ((tag === '1440' || tag === '390') && role !== '(không vai)') { const l = await page.evaluate(LEFT_SRC); const want = tag === '1440' ? 240 : 16; push(role, route, tag, `LEFT (00-AC11) = ${want}`, l === want, `left=${l}`); }
       // 00-AC12 thanh trên đặc, kể cả sau khi cuộn 200 px
       { await page.evaluate(() => window.scrollTo(0, 200)); await sleep(120); const h = await page.evaluate(() => { const e = document.querySelector('header'); if (!e) return null; const c = getComputedStyle(e); return { bg: c.backgroundColor, bf: c.backdropFilter || c.webkitBackdropFilter || 'none' }; });
-        const ok = h && /^(rgb|lab|oklab|lch|oklch|color)\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); await page.evaluate(() => window.scrollTo(0, 0)); }
+        const ok = h && /^(rgb|lab|oklab|lch|oklch|color)\(/.test(h.bg) && !/\/\s*0\.|rgba\(/.test(h.bg) && (h.bf === 'none' || h.bf === ''); if (h) push(role, route, tag, 'HEADER đặc (00-AC12)', ok, JSON.stringify(h)); /* sprint 3: /login không có <header> → không áp dụng (xem audit-baseline.md) */ await page.evaluate(() => window.scrollTo(0, 0)); }
     };
 
     // ---------- 1. Ma trận AUDIT: mọi route × vai × bề rộng ----------
