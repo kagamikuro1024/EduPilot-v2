@@ -77,6 +77,10 @@ func TestSSE_ReconnectRace(t *testing.T) {
 	uid := newUID()
 	tok := r.token(uid, time.Hour)
 
+	// Phiên đầu nối XONG rồi mới phát: kết nối không có Last-Event-ID chỉ nhận sự kiện mới (SRS 6.8), nên sự kiện phát trước khi
+	// handler chụp mốc sẽ không bao giờ tới — trước đây n = 1 luôn mất và test chỉ xanh nhờ khung `reconnect` (n = 0) bị đếm nhầm.
+	next := r.connect(tok, nil)
+
 	done := make(chan struct{})
 	go func() {
 		defer close(done)
@@ -97,7 +101,11 @@ func TestSSE_ReconnectRace(t *testing.T) {
 		if last != "" {
 			hdr["Last-Event-ID"] = last
 		}
-		s := r.connect(tok, hdr)
+		s := next
+		next = nil
+		if s == nil {
+			s = r.connect(tok, hdr)
+		}
 		cut := time.Now().Add(time.Duration(20+rand.IntN(60)) * time.Millisecond)
 		if session >= 20 { // sau 20 lần ngắt thì ở lại cho tới khi nhận đủ
 			cut = deadline
@@ -113,6 +121,12 @@ func TestSSE_ReconnectRace(t *testing.T) {
 			if f.typ == evResync {
 				t.Fatalf("phải resync ở phiên %d: %s", session, f.data)
 			}
+			if f.typ != "test.race" { // khung điều khiển (reconnect…) không phải sự kiện của bài test
+				if f.typ == evReconnect {
+					break // máy chủ xin nối lại: sang phiên mới với Last-Event-ID
+				}
+				continue
+			}
 			n := payloadN(t, f)
 			if seen[n] {
 				t.Fatalf("sự kiện n = %d nhận hai lần (id %s)", n, f.id)
@@ -127,6 +141,11 @@ func TestSSE_ReconnectRace(t *testing.T) {
 
 	if len(seen) != total {
 		t.Fatalf("nhận %d sự kiện khác nhau, muốn %d", len(seen), total)
+	}
+	for n := 1; n <= total; n++ {
+		if !seen[n] {
+			t.Fatalf("thiếu sự kiện n = %d", n)
+		}
 	}
 	for i := 1; i < len(ids); i++ {
 		if !olderThan(ids[i-1], ids[i]) {
