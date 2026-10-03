@@ -1,5 +1,7 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1.2 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+Phiên bản 1.3 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+
+**v1.3 (2026-10-03)** — góp ý #1 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: ba, Q25 của `FEAT-weekly-exam`; trích: "Sinh viên cần mục nav \"Bài thi\" để tìm bài đã lỡ trên \"Hôm nay\"; `FEAT-ui-foundation` 7.5 (APPROVED) chốt số mục nav 7 / 12 / 15 → Thêm mục \"Bài thi\" (`/exams`): nav 7 / 12 / 15 → 8 / 13 / 16; mobile nằm dưới \"Thêm\"… **ACCEPTED** — áp dụng cùng US-PE-04 trên `sprint/5-pe`, không sửa sprint 3 / 4"). Không đổi số AC (77). Đổi: `SRS.md` 7.5 (thêm `/exams` "Bài thi" vào nhóm không nhóm của Sinh viên và nhóm "Đánh giá" của TA / GV; tổng 8 / 13 / 16 / 6; `ACCESS`); US-PU-04 AC3 (số mục). Dev đổi `nav.ts` và test `shell.spec.ts -g 'nav per role'` cùng commit của US-PE-04; QC sửa `tc-US-PU-04` (AC3) ở sprint 5.
 
 **v1.2 (2026-10-03)** — góp ý #22 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-PU-04; trích: "AC5 yêu cầu thanh trên điện thoại có \"tên trang (h1)\" và \"đúng một hành động ngữ cảnh\", nhưng AC13 giữ nguyên khung 1.5 (logo mark, bộ chọn lớp, tìm, chuông, hồ sơ) và AC6 cấm lặp tiêu đề route ở thanh trên… Giữ thanh trên 1.5: không thêm tên trang (h1 nằm ngay trong trang, `LEFT=16`) và không thêm hành động ngữ cảnh. Kiểm AC5 theo phần đo được: ≤ 5 đích dưới, `Thêm` đủ mục, ≥ 44 px, không tràn ngang"; **ACCEPTED** — BA sửa AC5 theo cách đo của dev) và QC `docs/sprints/3/qc/report-US-PU-02.md` ("TC-11, TC-12 chờ BA định nghĩa"), `report-US-PU-03.md` ("lệnh Kiểm AC24 `\bfetch\(`"). Không đổi số AC (77). Đổi: US-PU-04 AC5; US-PU-02 AC3 (trỏ tới bảng mới); US-PU-03 AC24 (lệnh grep); `SRS.md` thêm **7.3a** (hợp đồng ô `empty` / `error` theo từng khối, trả lời TC-PU02-11/12), FR-33 (thanh trên điện thoại). Q-QC-PU03-2/-3, Q-QC-PU04-1/-2/-3 đã trả lời từ v1.1 (không đổi).
 
@@ -474,18 +476,18 @@ Ví dụ câu đạt cho UndoLine: "Không hoàn tác được. Thay đổi vẫ
 
 | Nhóm | Mục (href, nhãn) | Sinh viên | TA | Giảng viên | Admin |
 | --- | --- | --- | --- | --- | --- |
-| (không nhóm) SV | `/` Hôm nay · `/chat` Chat riêng · `/threads` Threads · `/practice` Luyện đề · `/library` Thư viện · `/calendar` Lịch · `/me` Kết quả của tôi | 7 | — | — | — |
+| (không nhóm) SV | `/` Hôm nay · `/chat` Chat riêng · `/threads` Threads · `/practice` Luyện đề · `/exams` Bài thi · `/library` Thư viện · `/calendar` Lịch · `/me` Kết quả của tôi | 8 | — | — | — |
 | Làm việc | `/` Hôm nay · `/inbox` Hộp thư hỗ trợ (huy hiệu `inbox`) · `/students` Sinh viên · `/attendance` Điểm danh | — | 4 | 4 | — |
-| Đánh giá | `/gradebook` Sổ điểm · `/grading` Chấm bài (huy hiệu `grading`) · `/questions` Ngân hàng câu hỏi | — | 3 | 3 | — |
+| Đánh giá | `/gradebook` Sổ điểm · `/grading` Chấm bài (huy hiệu `grading`) · `/exams` Bài thi · `/questions` Ngân hàng câu hỏi | — | 4 | 4 | — |
 | Nội dung | `/threads` Threads · `/documents` Tài liệu · `/calendar` Lịch | — | 3 | 3 | — |
 | Hiểu lớp học | `/insights` Insights · `/analytics` Analytics | — | 2 | 2 | — |
 | Hệ thống | `/observability` Quan sát AI · `/settings/llm` Cấu hình LLM · `/settings/integrations` Tích hợp | — | — | 3 | — |
 | Vận hành (Admin) | `/` Hôm nay · `/observability` Quan sát AI | — | — | — | 2 |
 | Quản trị | `/admin/courses` Lớp học · `/admin/users` Người dùng | — | — | — | 2 |
 | Cấu hình | `/settings/llm` Cấu hình LLM · `/settings/integrations` Tích hợp | — | — | — | 2 |
-| **Tổng** | | **7** (chưa vào lớp: 1) | **12** | **15** (12 + Hệ thống 3) | **6** |
+| **Tổng** | | **8** (chưa vào lớp: 1) | **13** | **16** (13 + Hệ thống 3) | **6** |
 
-Ma trận quyền mở route (tiền tố dài nhất thắng; giữ nguyên `ACCESS` của prototype): `/inbox /students /attendance /gradebook /grading /questions /documents /insights /analytics /class` → TA, GV; `/observability /settings` → GV, Admin; `/admin` → Admin; `/chat /practice /library /me /assignments /join` → Sinh viên; `/threads /calendar` → SV, TA, GV. Admin không mở route nội dung lớp (ADMIN không đọc nội dung lớp mặc định — `AGENTS.md`).
+Ma trận quyền mở route (tiền tố dài nhất thắng; giữ nguyên `ACCESS` của prototype): `/inbox /students /attendance /gradebook /grading /questions /documents /insights /analytics /class` → TA, GV; `/observability /settings` → GV, Admin; `/admin` → Admin; `/chat /practice /library /me /assignments /join` → Sinh viên; `/threads /calendar` → SV, TA, GV; `/exams` → SV, TA, GV (góp ý #1 sprint 5: phân vai **trong** màn — Sinh viên chỉ danh sách và `/exams/[id]/take`, `/exams/[id]` và `/exams/[id]/results` chỉ TA, GV; API thật trả 403 cho sai vai). Admin không mở route nội dung lớp (ADMIN không đọc nội dung lớp mặc định — `AGENTS.md`).
 
 Điều chỉnh so với 1.5 cần lưu ý: **chỉ GV có nhóm "Hệ thống" và chỉ GV, Admin mở `/settings/llm`** (TA bị chặn — PRD §3 "Cấu hình LLM: TA –"); quyền **sửa** chỉ Admin, GV chỉ xem (US-P1-05).
 
