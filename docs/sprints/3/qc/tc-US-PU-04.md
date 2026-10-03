@@ -81,8 +81,11 @@ Tiền điều kiện chung: bản `gbuild` (`/dev/*` mở, mock bật, cổng d
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-PU04-1** — AC3 "Giảng viên 12 mục + nhóm Hệ thống" nhưng bảng SRS 7.5 ghi tổng **15** (12 + 3). QC chấm theo bảng (15) — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Chấm theo bảng: Giảng viên **15 mục** (12 + 3). Đã sửa AC3 (v1.1) cho khớp bảng SRS 7.5.
 - **Q-QC-PU04-2** — AC10 yêu cầu TC-PU04-44 trên gateway thật, nhưng route `/api/v1/admin/llm/*` chỉ có sau US-P1-04: TC chạy khi story đó bàn giao, trước đó ghi N/A (không FAIL). Đồng ý? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đồng ý: TC-PU04-44 trên gateway thật chạy khi US-P1-04 bàn giao; trước đó N/A (không FAIL), dùng máy chủ giả.
 - **Q-QC-PU04-3** — AC9 "phiên Student JWT" vào màn mock `/chat`: khung dùng cookie demo hay JWT cho màn mock? QC chưa kiểm hành vi này (ngoài AC). — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đã làm rõ (v1.1, AC9): có phiên `jwt` thì màn mock dùng **người mock cùng vai** (Sinh viên → `sv-2`, Giảng viên → `teacher`, TA → `ta`, Admin → `admin`) và lớp mock đầu; **cookie `ep_demo_*` bị bỏ qua**. Việc ánh xạ theo email (bảng đầy đủ) là của sprint 4 (`FEAT-account-security` SRS 7.4).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).

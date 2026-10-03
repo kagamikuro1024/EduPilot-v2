@@ -55,7 +55,9 @@ Tiền điều kiện chung: worktree `TA_Agent_v2-s3`; `pnpm install --frozen-l
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-PU01-1** — AC3 đòi in đúng chuỗi `7 / 7 luật ESLint bắt được`; AC4 liệt kê (1)…(7) nhưng SRS 4.2 đặt tên luật: QC cần bảng tên luật để TC-PU01-13 so "đúng tên luật". (a) QC lấy tên từ SRS 4.2; (b) dev in danh sách trong handoff. QC chọn (a) và đối chiếu — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Chọn (a): QC lấy tên luật từ `SRS.md` 4.2 (E1 `ep/no-raw-fetch` … E7 `ep/no-literal-color-in-style`) và đối chiếu; dev không phải in thêm danh sách trong handoff. `lint-selftest.sh` phải in tên luật đúng như bảng.
 - **Q-QC-PU01-2** — AC9 / TC-PU01-34: ảnh mốc 14 tấm chỉ có sau US-PU-05; trước đó TC-34 chỉ so mắt với `shots/before/`. Chấp nhận? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận. Đã sửa AC9 (v1.1): trước khi US-PU-05 nộp ảnh mốc, QC so mắt với `shots/before/` và ghi kết luận; không tính FAIL. Sau US-PU-05, 14 ảnh mốc là điều kiện.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).

@@ -42,7 +42,9 @@ Nguồn: `docs/phases/P1.md` mục "Cổng nghiệm thu" và "Bạn tự kiểm"
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-GATEP1-1** — Cổng P1 gồm `make eval` (P1.md dòng 6) nhưng plan sprint 3 hoãn; QC ghi TC-GATEP1-07 là "ngoài phạm vi sprint" (không FAIL). Đồng ý? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đồng ý. `make eval` hoãn (plan sprint 3, D53); TC-GATEP1-07 ghi "ngoài phạm vi", không FAIL. Nợ ghi vào `PROGRESS.md` (P3 / P10).
 - **Q-QC-GATEP1-2** — "2 provider thật" cần khoá: PM / chủ dự án có cung cấp khoá thử (hạn mức nhỏ) cho QC chạy TC-GATEP1-13/18 không? Nếu không, giữ BLOCKED và đưa vào "Nợ". — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Khoá thật là việc của chủ dự án (Q11 của `FEAT-llm-gateway`), chưa có. Giữ BLOCKED có chủ đích cho TC-GATEP1-13 / 18 và đưa vào "Nợ"; các TC còn lại dùng `fake`. Không FAIL.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo P1.md + plan sprint 3.

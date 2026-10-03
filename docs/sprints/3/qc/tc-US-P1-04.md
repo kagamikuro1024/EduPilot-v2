@@ -72,8 +72,11 @@ Tiền điều kiện chung: stack test (2 gateway, Postgres, Redis, Caddy) ch�
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P104-1** — TC-P104-14 (SSRF): US không nói `base_url` có bị chặn địa chỉ nội bộ (`localhost`, `169.254.*`, tên dịch vụ compose) không, nhưng Admin có thể trỏ `openai_compatible` vào máy chủ trong trường (cần cho trường hợp thật). QC ghi hành vi thực và báo như **rủi ro** (không tự FAIL) trừ khi SRS yêu cầu chặn. SRS có quy định? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Spec có quy định (v1.2): US-P1-04 AC13 + SRS 4.2 — chỉ kiểm định dạng `base_url`; **không** chặn địa chỉ nội bộ; không theo chuyển hướng; không trả thân phản hồi. Ghi nhận như **rủi ro đã biết, không FAIL** (Q15 **[CHỦ DỰ ÁN]**).
 - **Q-QC-P104-2** — AC2 giới hạn tần suất của `…/test`: giá trị nằm ở phần bị cắt trong US/SRS; QC lấy từ SRS 6.2 khi chạy. Nếu SRS không nêu con số, TC-P104-09 ghi N/A. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Có con số: SRS 5.5 (khoá `ep:llm:test:{user_id}`) ghi giới hạn **10 lần / phút / người** (`ep:llm:test:{user_id}`), vượt → 429 `RATE_LIMITED`; US-P1-04 AC2 cũng ghi. TC-P104-09 không N/A.
 - **Q-QC-P104-3** — `scenario-P1.md` do dev viết hay QC? AC12 nói "Dev tự kiểm, QC lặp lại": QC dùng bản của dev nếu có, nếu không QC tự viết từ kịch bản AC12. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** **QC viết** `docs/sprints/3/qc/scenario-P1.md` (đã sửa AC12, v1.2). Dev tự kiểm theo kịch bản trong AC và ghi vào handoff; QC viết từ kịch bản AC12 + "Bạn tự kiểm" của `P1.md` rồi lặp lại.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).

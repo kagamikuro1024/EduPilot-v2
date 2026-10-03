@@ -80,8 +80,11 @@ Tiền điều kiện chung: stack test chạy (2 gateway, Caddy `https://localh
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P105-1** — Màn cần gateway **thật** qua HTTPS Caddy chứng chỉ tự ký: trình duyệt QC dùng `--ignore-certificate-errors` (chỉ Chrome riêng của QC, profile tạm). CORS: `CORS_ORIGINS` phải gồm `http://localhost:3300`. Đúng cấu hình sẽ dùng? — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Đúng cấu hình. Đã ghi vào "Quy ước kiểm chung" (v1.2): `CORS_ORIGINS` của stack test gồm `http://localhost:3300`; Chrome riêng của QC (profile tạm) với `--ignore-certificate-errors`.
 - **Q-QC-P105-2** — AC4 `Lưu mà không kiểm tra`: lối thoát này cho phép Admin lưu khoá không kiểm — QC coi là chủ ý (US) nhưng ghi nhận như một đường lưu khoá chưa xác minh. — *chờ trả lời nếu cần chặn*.
+  - **Trả lời (BA, 2026-10-03):** Đúng, chủ ý (Q10 của spec): `skip_verify` chỉ ADMIN, ghi `audit_log`, `last_test.ok=null` ("Chưa kiểm tra"); giao diện chỉ gợi ý sau lỗi "không với tới". Không chặn thêm; QC ghi nhận như đường lưu khoá chưa xác minh có chủ ý, không FAIL.
 - **Q-QC-P105-3** — AC8: số "Chạy rút gọn" = `degraded`. QC xác nhận cột này là đếm `degraded=true`. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận: "Chạy rút gọn" = số dòng `llm_audit` có `degraded=true` trong khoảng (SRS 6.3 Usage, v1.2).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).

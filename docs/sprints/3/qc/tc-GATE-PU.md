@@ -23,6 +23,7 @@ Nguồn: `docs/phases/PU.md` mục "Cổng nghiệm thu" và "Bạn tự kiểm"
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-GATEPU-1** — PU.md "dùng `/chat` trên điện thoại thật": QC chỉ có giả lập. Chấp nhận "giả lập 375 × 330" cho FAIL/PASS, còn "thiết bị thật" là phần chủ dự án tự kiểm? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận: PASS/FAIL tính trên giả lập 375 × 330 (bàn phím ảo). "Thiết bị thật" là phần chủ dự án tự kiểm (đã ghi ở "Bạn tự kiểm" của PU).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo PU.md + US.md (FEAT-ui-foundation, APPROVED 2026-10-03).

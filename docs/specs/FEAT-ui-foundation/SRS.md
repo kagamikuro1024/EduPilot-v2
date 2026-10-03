@@ -1,5 +1,7 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+Phiên bản 1.1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+
+**v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/3/qc/tc-US-PU-0*.md`, `tc-GATE-PU.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi số AC (77). Đổi: US-PU-01 AC9 (Q-QC-PU01-2), US-PU-02 AC2 (Q-QC-PU02-1), US-PU-03 AC5 (Q-QC-PU03-2), US-PU-04 AC3 (Q-QC-PU04-1) và AC9 (Q-QC-PU04-3), mục "Quy ước kiểm chung" (CORS cho cổng, Q-QC-P105-1 của `FEAT-llm-gateway`), `SRS.md` 6.3 và 8.7. Các câu còn lại chỉ trả lời ở tệp TC.
 
 Nguồn: `docs/phases/PU.md` (nguồn chính; L4 thu hẹp theo plan sprint 3), `docs/sprints/3/plan.md` (D53, token Admin dev, `make eval` hoãn), `design/DESIGN.md` §1–§2, §10, §13–§17, §19, §21–§22, `design/INTEGRATION.md`, `UX.md` mục 2–4 và 6, `ARCHITECTURE.md` §3 (thư viện được phép), §7 (cấu trúc frontend); spec nền `docs/specs/FEAT-pg-foundation/` (v1.3: mã lỗi, cursor, `Idempotency-Key`, SSE, CORS, JWT); mã hiện có: `frontend/src/shared/`, `scripts/ui-antipatterns.sh`, `docs/sprints/1.5/qc/scripts/{audit,sweep}.mjs`. Truy vết đầy đủ: mục 11. Story: `US.md` (US-PU-01…05, 77 AC).
 
@@ -337,7 +339,7 @@ Mọi mã lạ → `userMessage` chung của `INTERNAL`. Lời "Sinh viên" khô
 | Tham số | Giá trị |
 | --- | --- |
 | GET tự thử lại | 2 lần; trễ 300 ms, 900 ms; jitter ±20 % |
-| Ngưỡng tôn trọng `retry_after` | ≤ 5 s (lớn hơn: không tự thử, trả lỗi kèm `retryAfter`) |
+| Ngưỡng tôn trọng `retry_after` | ≤ 5 s: lần thử lại chờ **đúng** `retry_after` (thay trễ cơ sở, không cộng, không jitter, sai số 0…+250 ms); lớn hơn: không tự thử, trả lỗi kèm `retryAfter` |
 | Timeout request | 15 s |
 | `staleTime` / `gcTime` | 30 s / 5 phút; `refetchOnWindowFocus: true`; `retry: false` |
 | `useCursorList` | `limit` mặc định 30, kẹp ≤ 100 |
@@ -538,7 +540,7 @@ Thứ tự bước và điều kiện: US-PU-05 AC7. Cache `pnpm` store và `~/.
 
 ### 8.7 Bảo mật phía client
 
-Token chỉ ở bộ nhớ; không token trong URL, storage, console; CORS do gateway quyết định (`CORS_ORIGINS`); mọi chuỗi từ máy chủ hiển thị qua React (thoát ký tự), không dùng `dangerouslySetInnerHTML` (ESLint `react/no-danger` đã nằm trong cấu hình Next; không thêm luật `ep/*` thứ 8); không log PII; không `eval`.
+Token chỉ ở bộ nhớ; không token trong URL, storage, console; CORS do gateway quyết định bằng `CORS_ORIGINS` (stack test gồm `http://localhost:3300` cho cổng PU); mọi chuỗi từ máy chủ hiển thị qua React (thoát ký tự), không dùng `dangerouslySetInnerHTML` (ESLint `react/no-danger` đã nằm trong cấu hình Next; không thêm luật `ep/*` thứ 8); không log PII; không `eval`.
 
 ### 8.8 Thư viện
 

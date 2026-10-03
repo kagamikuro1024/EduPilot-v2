@@ -55,7 +55,9 @@ Tiền điều kiện chung: `source ~/.zprofile`; `export TESTCONTAINERS_RYUK_D
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P101-1** — AC7 / AC9 gọi qua "dịch vụ" nhưng chưa có handler (P1-04): QC chỉ tạo dữ liệu qua test Go / tệp Go tạm `internal/llmconfig/qc_probe_test.go` (xoá sau). Chấp nhận, hay dev cung cấp lệnh CLI (`gateway llmconfig …`)? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận. US-P1-01 không có handler / CLI (handler ở US-P1-04). QC dùng test Go của dev hoặc `qc_probe_test.go` tạm (xoá sau). Đã ghi vào "Quy ước kiểm chung" (spec v1.2). Không thêm CLI.
 - **Q-QC-P101-2** — TC-P101-19: SRS chưa nói rõ khoá `base64url` / có khoảng trắng: QC ghi hành vi thực và hỏi BA. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Spec đã sửa (v1.2, US-P1-01 AC6 + SRS 5.6): chỉ nhận **base64 chuẩn có đệm** (RFC 4648 §4, `+` `/`), cắt khoảng trắng / xuống dòng **hai đầu**; base64url, không đệm, khoảng trắng ở giữa → **từ chối lúc khởi động**, không tự sửa. Ca kiểm cụ thể đã thêm vào AC6.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).

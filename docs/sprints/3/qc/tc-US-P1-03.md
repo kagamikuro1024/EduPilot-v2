@@ -73,8 +73,11 @@ Tiền điều kiện chung: stack test 2 gateway (`testroutes`) + Redis + Postg
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P103-1** — AC4 đo TTFT "+20 %" cần so với một mốc: QC dùng mốc "không có BATCH" cùng cấu hình `fake`; `fake` có độ trễ ngẫu nhiên 5–15 s nên QC cần `FAKE` độ trễ cố định cho mốc. Chấp nhận đặt `fake` độ trễ cố định cho TC-P103-11? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận. `FAKE_LLM_LATENCY=min-max` với `min=max` là độ trễ cố định (v1.2, SRS 8.3), đặt lúc chạy bằng `POST /api/v1/_test/llm/fake`. Dùng độ trễ cố định cho mốc và cho phép đo TC-P103-11.
 - **Q-QC-P103-2** — AC13 Redis mất: QC dừng container Redis thật (`$C stop redis`) — có ảnh hưởng 2 gateway khác (idempotency, rate limit PG)? QC chấp nhận ghi nhận hành vi, chỉ chấm phần Scheduler. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Chấp nhận: QC chỉ chấm phần Scheduler. Khi Redis tắt, rate limit IP / idempotency của PG có hành vi riêng (rate limit mở cửa; endpoint bắt buộc idempotency → 503 theo PG) — ghi nhận, không tính vào AC13 của US-P1-03. Nên dùng stack riêng cho TC này để không ảnh hưởng TC khác.
 - **Q-QC-P103-3** — AC11 "chi phí ước tính của ngày": múi giờ chuyển ngày là UTC hay `Asia/Ho_Chi_Minh`? TC-P103-39 cần biết. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Múi giờ **`Asia/Ho_Chi_Minh`** (SRS 4.3 "Ngân sách": ngày / tháng theo múi giờ này; khoá `ep:llm:budget:…:d:{yyyymmdd}` tính theo giờ Việt Nam). TC-P103-39 chuyển ngày bằng đồng hồ giả tại 00:00 giờ Việt Nam (17:00 UTC hôm trước).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).

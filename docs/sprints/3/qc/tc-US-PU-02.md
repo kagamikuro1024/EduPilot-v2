@@ -69,7 +69,9 @@ Tiền điều kiện chung: `gbuild && $FE exec next start -p 3300` (bản gate
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-PU02-1** — AC2 "dấu hiệu không chỉ là màu" của `selected`: máy đo được `aria-*` nhưng không chứng minh "không chỉ màu"; TC-PU02-07 dùng ảnh + mắt. Chấp nhận kết luận tay cho phần này? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Không cần kết luận bằng mắt nữa: AC2 đã sửa (v1.1) thành hai phép đo — ít nhất một thuộc tính tính toán (`font-weight`, `text-decoration`, độ rộng viền / vạch, icon `svg`) khác `default`, và ảnh thang xám của `selected` khác `default` > 0,5 % điểm ảnh. Phần "mắt" chỉ bổ sung.
 - **Q-QC-PU02-2** — AC5 đo p95 khung 25 ms "CI chỉ ghi, không chặn": QC cũng chỉ ghi số (không FAIL). Đúng ý? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đúng ý: p95 khung 25 ms chỉ **ghi số** vào báo cáo, không FAIL (AC5 ghi "CI chỉ ghi, không chặn").
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).

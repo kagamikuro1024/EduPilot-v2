@@ -74,7 +74,9 @@ Tiền điều kiện chung: stack test (binary `testroutes`, 2 gateway) chạy;
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-P102-1** — Cách cho QC dựng nhà cung cấp `openai_compatible` trỏ về máy chủ giả trên host: gateway chạy trong container nên cần `host.docker.internal` (colima hỗ trợ). Nếu `base_url` bị chặn bởi quy tắc an toàn (chống SSRF vào mạng nội bộ) — SRS có quy định không? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Spec đã quy định (v1.2, US-P1-04 AC13, SRS 4.2): `base_url` chỉ cần scheme `http|https`, có host, không userinfo, không fragment, ≤ 300 ký tự; **không chặn** địa chỉ nội bộ (`host.docker.internal`, `localhost`, tên dịch vụ compose đều dùng được); không theo chuyển hướng. QC dùng `host.docker.internal` bình thường. Câu hỏi chính sách SSRF → Q15 **[CHỦ DỰ ÁN]** (mặc định: không chặn).
 - **Q-QC-P102-2** — Bộ đếm `fake.Calls` / `llm_audit_dropped` phơi ra qua đâu cho hộp đen (route thử / `/metrics`)? Nếu không có, TC-P102-07 / 24 chỉ đo gián tiếp qua `llm_audit` / log. — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đã thêm (v1.2, SRS 6.4): `GET /api/v1/_test/llm/stats` trả thêm `fake_calls:{<provider>:n}` và `audit:{buffer_len,flushed,dropped}` (chỉ số đếm, không nội dung; chỉ build `testroutes`, ADMIN). TC-P102-07 / 24 đọc qua đó.
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1.1 (FEAT-llm-gateway, APPROVED 2026-10-03).

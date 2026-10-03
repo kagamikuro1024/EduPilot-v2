@@ -1,5 +1,5 @@
 # Câu hỏi mở — FEAT-llm-gateway (US-P1-01…05)
-Phiên bản 1.1 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`. Câu 11 là việc của chủ dự án (cần khoá thật), không phải của BA / dev.
+Phiên bản 1.2 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`. Câu 11 là việc của chủ dự án (cần khoá thật), không phải của BA / dev.
 
 | # | Câu hỏi | Phương án BA đề xuất | Trả lời của chủ dự án | Ngày |
 | --- | --- | --- | --- | --- |
@@ -17,3 +17,4 @@ Phiên bản 1.1 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng m�
 | Q12 | `llm_audit` ghi bất đồng bộ (đệm 1.000, đẩy mỗi 1 s / 100 dòng; đầy thì bỏ dòng cũ nhất + bộ đếm) — chấp nhận mất vài dòng audit khi gateway chết đột ngột để chat không phụ thuộc DB? | **Chấp nhận** (audit không phải nguồn tính điểm / tiền thật; ngân sách đếm ở Redis và đối soát lại). Cần ghi đồng bộ cho việc nào thì nêu. | | |
 | Q13 | `GET /admin/llm/usage?course_id=` và `GET /courses/{id}/llm-budget`: GV được xem của lớp mình? | Chưa (không có `courses` / `CourseAccessGuard` trước P2): ở sprint này chỉ ADMIN; GV chỉ xem tổng hệ thống. P2 mở cho GV đúng lớp. | | |
 | Q14 | Ngân sách ≥ 80 %: chỉ ghi outbox `llm.budget.warn` (chưa có người nhận). Admin chỉ thấy trên `/settings/llm`? | Chấp nhận ở sprint này; thông báo chuông / mail ở P4. | | |
+| Q15 | **[CHỦ DỰ ÁN]** `base_url` của nhà cung cấp `openai_compatible` có bị chặn khi trỏ vào địa chỉ nội bộ (`localhost`, `169.254.*`, tên dịch vụ compose) không? Cho phép thì Admin có thể khiến gateway gọi vào mạng nội bộ (SSRF do người có quyền cao nhất). (Q-QC-P102-1, Q-QC-P104-1) | **Không chặn** (cần cho máy chủ trong trường); chỉ ADMIN đặt; kiểm scheme / host / không userinfo / không fragment; không theo chuyển hướng; không trả thân phản hồi; `audit_log` ghi host. Nếu chủ dự án muốn chặn, thêm danh sách trắng host (biến `LLM_BASE_URL_ALLOWLIST`) — chưa làm. | | |

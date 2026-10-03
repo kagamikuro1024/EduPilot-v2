@@ -64,7 +64,9 @@ Tiền điều kiện chung: `gbuild && $FE exec next start -p 3300`; `gh` đã 
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-PU05-1** — TC-PU05-32…34: nhánh `ci/ui-drift` chứa 3 commit / 3 run riêng, hay một nhánh một run? AC8 viết số ít. QC chờ handoff nêu 3 `<ID>` — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Nhánh `ci/ui-drift` **một nhánh, ba commit, ba run riêng** (một run mỗi lỗi a, b, c; mỗi commit đẩy riêng và QC ghi `<ID>`, `headSha`). Handoff nêu 3 `<ID>`. AC8 viết số ít vì là một nhánh.
 - **Q-QC-PU05-2** — TC-PU05-28 cần CI xanh ở HEAD: nhánh `sprint/3-pu-p1` đã có `ci.yml` chạy trên GitHub của dự án. Nếu runner `lhci` không chạy được (thiếu Chrome), QC tính FAIL, không nới — đồng ý? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đồng ý: runner không chạy được `lhci` (thiếu Chrome) thì tính **FAIL**, không nới ngưỡng; dev sửa workflow (cài Chrome / dùng `treosh/lighthouse-ci-action`).
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).

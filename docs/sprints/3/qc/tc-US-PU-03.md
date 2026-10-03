@@ -80,8 +80,11 @@ Tiền điều kiện chung: bản `gbuild` chạy `next start -p 3300`; trang k
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-PU03-1** — Cổng dán token dev dùng `NEXT_PUBLIC_DEV_AUTH=1`; QC cần cách đặt `NEXT_PUBLIC_API_URL` trỏ tới máy chủ giả của QC mà không sửa mã: (a) biến khi `next build` (đúng — buộc build lại); (b) thêm `?api=` ở `/dev/data`. QC giả định (a) — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Đúng (a): `NEXT_PUBLIC_API_URL` là biến lúc **build** (build lại khi đổi); không có tham số `?api=` (v1.1, "Quy ước kiểm chung"). Cho phép sửa đổi máy chủ giả bằng cổng của chính nó (build riêng cho QC).
 - **Q-QC-PU03-2** — AC5 "tôn trọng `retryAfter` nếu ≤ 5 s": TC-PU03-11 giả định thử lại sau đúng `retryAfter` thay cho 300/900 ms. Đúng? — *chờ trả lời*.
+  - **Trả lời (BA, 2026-10-03):** Đúng, và đã làm rõ (v1.1, AC5 + SRS 6.3): khi `retry_after` ≤ 5 s, lần thử lại chờ **đúng** `retry_after` (thay cho 300 / 900 ms, không cộng, không jitter, sai số 0…+250 ms). Thêm ca kiểm 503 `retry_after:2`.
 - **Q-QC-PU03-3** — AC15 `429 SSE_LIMIT_REACHED` "đợi `retry_after` (≥ 5 s)": gateway đang trả `retry_after:5`; TC dùng đúng 5. — *chờ xác nhận*.
+  - **Trả lời (BA, 2026-10-03):** Xác nhận: dùng đúng 5 s (SRS PG 6.1: `SSE_LIMIT_REACHED` kèm `retry_after: 5`; PU AC15 "≥ 5 s").
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).

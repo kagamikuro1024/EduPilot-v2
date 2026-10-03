@@ -1,5 +1,7 @@
 # SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
-Phiên bản 1.1 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+Phiên bản 1.2 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+
+**v1.2 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/3/qc/tc-US-P1-0*.md`, `tc-GATE-P1.md`; mỗi chỗ sửa ghi "Q-QC-…"). Đổi: định dạng `APP_ENCRYPTION_KEY` (Q-QC-P101-2); quy tắc `base_url`, không chặn địa chỉ nội bộ (Q-QC-P102-1, Q-QC-P104-1; thêm US-P1-04 AC13 và câu hỏi Q15 **[CHỦ DỰ ÁN]**); bộ đếm của route thử `stats` (Q-QC-P102-2); `fake` độ trễ cố định (Q-QC-P103-1); QC viết `scenario-P1.md` (Q-QC-P104-3); định nghĩa cột "Chạy rút gọn" (Q-QC-P105-3); CORS cho cổng và không có CLI ở US-P1-01 (Q-QC-P105-1, Q-QC-P101-1). Các câu còn lại chỉ trả lời ở tệp TC.
 
 Nguồn: `docs/phases/P1.md` (nguồn chính), `docs/sprints/3/plan.md`, PRD M12 + §3, FLOWS F15, `ARCHITECTURE.md` §4 (schema), §5 (API), §8 (env), `SYSTEM_DESIGN.md` §1.2, §3.1, §5, `DECISIONS.md` D22, D46, D47, D51–D53; spec nền `docs/specs/FEAT-pg-foundation/` v1.3 (mã lỗi 6.1, cursor 6.4, header 6.5, Idempotency 6.6, SSE 6.8, env 8.1, `testroutes`); `docs/specs/FEAT-ui-foundation/`; `design/DESIGN.md` §14.23. Story: `US.md` (US-P1-01…05). Truy vết: mục 11.
 
@@ -160,6 +162,8 @@ Lỗi gói trả: `ErrNotConfigured`, `ErrOverloaded{RetryAfter}`, `ErrUnavailab
 | `DIMS_MISMATCH` | vectơ ≠ 1536 | không | không (không có dự phòng cho embedding) | không |
 | `CANCELLED` | `ctx` huỷ bởi client | không | không | không |
 
+**Quy tắc `base_url` (Q-QC-P102-1, Q-QC-P104-1):** scheme `http` | `https`; có host; không userinfo; không fragment; ≤ 300 ký tự; sai → 422 `INVALID_BASE_URL`. **Không** chặn loopback / link-local / mạng nội bộ / tên dịch vụ compose (máy chủ trong trường là trường hợp dùng thật; chỉ ADMIN đặt; Q15 **[CHỦ DỰ ÁN]**). Giảm thiểu: client không theo chuyển hướng; hạn Test 10 s; thân phản hồi nhà cung cấp không bao giờ trả ra (Test chỉ trả câu theo `error_kind`); `audit_log` ghi host.
+
 **Thử lại:** INTERACTIVE tối đa 1 lần, làn khác 2 lần (`params.retries` của tuyến, 0–5, chỉ **thu hẹp** mặc định theo làn); trễ cơ sở 500 ms × 2^(n−1), jitter đầy đủ (đều trong `[0, trễ]`), trần 4 s; không thử khi còn < 1 s tới hạn.
 
 **Cấu hình mặc định khi chưa có dòng DB (env dự phòng):** `LLM_PROVIDER=fake` → mọi tác vụ dùng `fake-chat` / `fake-embed`; nếu có `OPENAI_API_KEY` → `CHAT`, `CLASSIFY`, `UTILITY`, `QUESTION_GEN`, `INSIGHT`, `GRADING` = `gpt-4o-mini`, `EMBEDDING` = `text-embedding-3-small` (1536 chiều); `ANTHROPIC_API_KEY` / `GEMINI_API_KEY` thêm vào làm dự phòng theo thứ tự OpenAI → Anthropic (`claude-3-5-haiku-latest`) → Gemini (`gemini-2.0-flash`) cho các tác vụ chat (embedding: chỉ OpenAI). Tên mô hình mặc định nằm ở hằng số trong `internal/llm/defaults.go` (đổi bằng DB, không cần sửa spec).
@@ -241,7 +245,7 @@ Nâng làn của `GRADING`, `QUESTION_GEN`, `INSIGHT` lên INTERACTIVE → `ErrB
 | FR-25 | Cấu hình env có kiểm tra | 03-AC15 |
 | FR-26 | Ma trận quyền API: ADMIN tất cả; GV chỉ đọc; TA / SV 403 | 04-AC1, 05-AC10 |
 | FR-27 | `…/test` (không lưu) và verify-before-save; `skip_verify` | 04-AC2, AC3, 05-AC4 |
-| FR-28 | CRUD nhà cung cấp, định tuyến, mức dùng, ngân sách; quy tắc chung PG | 04-AC5…AC8, AC11 |
+| FR-28 | CRUD nhà cung cấp, định tuyến, mức dùng, ngân sách; quy tắc chung PG, `base_url` hợp lệ | 04-AC5…AC8, AC11, AC13 |
 | FR-29 | `openapi.yaml` + golden + contract test; không sửa golden của PG | 04-AC10 |
 | FR-30 | Màn `/settings/llm` 4 phần; khoá chỉ ghi; Test phụ; nâng cao mở dần; mức dùng | 05-AC1…AC8 |
 | FR-31 | Màn xử lý lỗi, vai, mobile, bàn phím, thay mock | 05-AC9…AC14 |
@@ -383,7 +387,7 @@ Mọi khoá chỉ chứa định danh và số; **không** chứa prompt, câu t
 
 ### 5.6 Thành phần mã hoá
 
-`platform/crypto`: AES-256-GCM; khoá `APP_ENCRYPTION_KEY` (32 byte, base64); định dạng bản mã `0x01 ‖ nonce(12) ‖ ciphertext ‖ tag(16)` (byte đầu = phiên bản, chừa chỗ xoay vòng khoá — Nợ PR); AAD = `"llm_providers:" + id` (id sinh ở Go trước khi chèn); lỗi giải mã không bao giờ in bản mã / khoá.
+`platform/crypto`: AES-256-GCM; khoá `APP_ENCRYPTION_KEY` (32 byte; **base64 chuẩn có đệm** RFC 4648 §4, cắt khoảng trắng hai đầu; base64url / không đệm / khoảng trắng giữa → từ chối lúc khởi động); định dạng bản mã `0x01 ‖ nonce(12) ‖ ciphertext ‖ tag(16)` (byte đầu = phiên bản, chừa chỗ xoay vòng khoá — Nợ PR); AAD = `"llm_providers:" + id` (id sinh ở Go trước khi chèn); lỗi giải mã không bao giờ in bản mã / khoá.
 
 ## 6. API
 
@@ -400,7 +404,7 @@ Tiền tố `/api/v1`; JSON; tiếng Việt cho `message`; định dạng lỗi 
 | 422 | `MODEL_DIMS_MISMATCH` | mô hình nhúng ≠ 1536 chiều | `{"expected":1536,"actual":n}` |
 | 422 | `ROUTE_INVALID` | vi phạm quy tắc tuyến | `{"rule":"chain_empty"|"chain_too_long"|"kind_mismatch"|"embedding_single"|"provider_disabled"|"duplicate_model"|"params_out_of_range","field":…}` |
 
-Ngoài ra dùng lại mã PG: `VALIDATION_FAILED` (với `details[].code` ∈ `PROVIDER_AUTH_FAILED`, `PROVIDER_UNREACHABLE`, `MODEL_NOT_FOUND`, `DUPLICATE_NAME`…), `VERSION_CONFLICT`, `CONFLICT` (trùng tên), `FORBIDDEN`, `RATE_LIMITED` (Test), `IDEMPOTENCY_KEY_REQUIRED`, `DEADLINE_EXCEEDED`. Tổng mã của hai spec = 22 + 6 = 28.
+Ngoài ra dùng lại mã PG: `VALIDATION_FAILED` (với `details[].code` ∈ `PROVIDER_AUTH_FAILED`, `PROVIDER_UNREACHABLE`, `MODEL_NOT_FOUND`, `INVALID_BASE_URL`, `DUPLICATE_NAME`…), `VERSION_CONFLICT`, `CONFLICT` (trùng tên), `FORBIDDEN`, `RATE_LIMITED` (Test), `IDEMPOTENCY_KEY_REQUIRED`, `DEADLINE_EXCEEDED`. Tổng mã của hai spec = 22 + 6 = 28.
 
 ### 6.2 Bảng thao tác (8 đường dẫn, 13 thao tác)
 
@@ -441,7 +445,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 
 **Routes** (GET): `{"items":[{"task":"CHAT","lane":"INTERACTIVE","chain":[{"model_id":"…","provider_id":"…","provider_name":"OpenAI","model":"gpt-4o-mini"}],"params":{},"version":2}, …],"embedding":{"model_id":"…","provider_name":"OpenAI","model":"text-embedding-3-small","dims":1536,"reindex_required":false,"indexed_chunks":null}}`. `PUT` thành công trả cùng dạng một phần tử + `reindex_required` khi đổi mô hình nhúng; `ETag: W/"v<n>"`.
 
-**Usage:** `{"from":"…","to":"…","group":"task","items":[{"key":"CHAT","calls":120,"tokens_in":120000,"tokens_out":40000,"cost_est":"184000.0000","latency_p50_ms":900,"latency_p95_ms":2100,"errors":3,"degraded":1}]}`; mặc định 7 ngày, tối đa 92 ngày; truy vấn dùng `percentile_cont` trên `llm_audit` theo `created_at` / `task` (chỉ mục 5.3).
+**Usage:** `{"from":"…","to":"…","group":"task","items":[{"key":"CHAT","calls":120,"tokens_in":120000,"tokens_out":40000,"cost_est":"184000.0000","latency_p50_ms":900,"latency_p95_ms":2100,"errors":3,"degraded":1}]}`; mặc định 7 ngày, tối đa 92 ngày; truy vấn dùng `percentile_cont` trên `llm_audit` theo `created_at` / `task` (chỉ mục 5.3). `degraded` = số dòng `llm_audit` có `degraded=true` trong khoảng (cột "Chạy rút gọn" của giao diện; Q-QC-P105-3).
 
 **Budget:** `{"scope":"system","daily_limit":"100000.00","monthly_limit":"2000000.00","spent_today":"42000.0000","spent_month":"1240000.0000","pct_today":42.0,"pct_month":62.0,"state":"ok","version":1}` (`pct_*` là số phần trăm, `null` khi không có hạn mức; **số tiền là chuỗi** — `pct` chỉ để hiển thị, không dùng để tính tiền).
 
@@ -450,7 +454,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 | Route | Việc |
 | --- | --- |
 | `POST /api/v1/_test/llm/chat` | `{task, prompt, lane?, stream?, passages?[]}` → `{text, degraded, provider, model, fallback_index, queue_wait_ms}` hoặc SSE khi `stream` |
-| `GET /api/v1/_test/llm/stats` | `{queue_depth:{INTERACTIVE:n,…}, inflight:{<provider>:n}, provider_inflight:n, circuit:{<provider>:"closed"}}` — **chỉ số đếm**, không nội dung |
+| `GET /api/v1/_test/llm/stats` | `{queue_depth:{INTERACTIVE:n,…}, inflight:{<provider>:n}, provider_inflight:n, circuit:{<provider>:"closed"}, fake_calls:{<provider>:n}, audit:{buffer_len:n, flushed:n, dropped:n}}` — **chỉ số đếm**, không nội dung (Q-QC-P102-2) |
 | `POST /api/v1/_test/llm/fake` | đặt tham số `fake` lúc chạy (độ trễ, tỉ lệ lỗi, `FAKE_LLM_VALID_KEY`) |
 
 ### 6.5 Hợp đồng sự kiện / outbox
@@ -521,7 +525,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 
 ### 8.1 Biến môi trường (bổ sung vào PG 8.1; mặc định đã kiểm tra khi khởi động)
 
-`LLM_MAX_CONCURRENCY=10`, `LLM_BATCH_SHARE=0.5`, `LLM_QUEUE_MAX=200`, `LLM_QUEUE_WAIT_MAX=10s`, `LLM_REQUEST_TIMEOUT=30s`, `LLM_BREAKER_FAILS=5`, `LLM_BREAKER_OPEN=30s`, `LLM_DEFAULT_RPM=60`, `LLM_DEFAULT_TPM=100000`, `LLM_EMBED_DIMS=1536`, `LLM_PROVIDER=` (trống), `APP_ENCRYPTION_KEY` (bắt buộc, 32 byte base64), `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (tuỳ chọn, dự phòng), `FAKE_LLM_LATENCY` (`0-0`), `FAKE_LLM_ERROR_RATE` (`0`), `FAKE_LLM_VALID_KEY` (trống), `LLM_REPLAY_DIR` (`internal/llm/testdata/replay`). `.env.example` thêm các biến này (không có giá trị thật). Khoá thật chỉ ở `.env.local` (không commit; `git check-ignore .env.local` → in tên tệp).
+`LLM_MAX_CONCURRENCY=10`, `LLM_BATCH_SHARE=0.5`, `LLM_QUEUE_MAX=200`, `LLM_QUEUE_WAIT_MAX=10s`, `LLM_REQUEST_TIMEOUT=30s`, `LLM_BREAKER_FAILS=5`, `LLM_BREAKER_OPEN=30s`, `LLM_DEFAULT_RPM=60`, `LLM_DEFAULT_TPM=100000`, `LLM_EMBED_DIMS=1536`, `LLM_PROVIDER=` (trống), `APP_ENCRYPTION_KEY` (bắt buộc; 32 byte; base64 chuẩn có đệm — xem 5.6), `OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY` (tuỳ chọn, dự phòng), `FAKE_LLM_LATENCY` (`0-0`), `FAKE_LLM_ERROR_RATE` (`0`), `FAKE_LLM_VALID_KEY` (trống), `LLM_REPLAY_DIR` (`internal/llm/testdata/replay`). `.env.example` thêm các biến này (không có giá trị thật). Khoá thật chỉ ở `.env.local` (không commit; `git check-ignore .env.local` → in tên tệp).
 
 ### 8.2 Hiệu năng và SLO (`SYSTEM_DESIGN.md` §5; áp cho phần P1 kiểm được)
 
@@ -544,7 +548,7 @@ Không đo được ở sprint này (nêu rõ để không giấu): TTFT chat th
 
 | Tham số | Hành vi |
 | --- | --- |
-| `FAKE_LLM_LATENCY=min-max` ms | ngủ ngẫu nhiên đều trong khoảng (test: `0-0`; tải: `5000-15000`) |
+| `FAKE_LLM_LATENCY=min-max` ms | ngủ ngẫu nhiên đều trong khoảng (test: `0-0`; tải: `5000-15000`); **`min` = `max` → độ trễ cố định** (ví dụ `300-300`), dùng làm mốc đo so sánh như TTFT +20 % (Q-QC-P103-1); đặt lúc chạy bằng `POST /api/v1/_test/llm/fake` |
 | `FAKE_LLM_ERROR_RATE` (0–1) + `fake` API đặt `error_kind` | tỉ lệ trả lỗi theo loại (`SERVER` mặc định) |
 | `FAKE_LLM_VALID_KEY` | khác rỗng → khoá không khớp trả `AUTH`; rỗng → mọi khoá đều hợp lệ |
 | Chat | `"[fake] " + 40 ký tự đầu của tin nhắn cuối`, token đếm theo từ |
