@@ -34,6 +34,10 @@ const readyProbeTimeout = 2 * time.Second
 // Deps là mọi thứ handler cần. Không có biến toàn cục: tất cả đi qua đây.
 // Verifier / Publisher / Jobs để trống thì NewRouter tự dựng từ Cfg + DB + Redis.
 type Deps struct {
+	// rateLimitWait là thời gian request CHỜ bộ đếm Redis trước khi cho qua (fail-open); 0 = rateLimitTimeout (30 ms).
+	// Chỉ test đặt (máy bận làm Redis chậm hơn 30 ms thì test "đúng 429 ở lần thứ 6" đỏ ngẫu nhiên).
+	rateLimitWait time.Duration
+
 	Cfg       config.Config
 	Log       *slog.Logger
 	DB        *pgxpool.Pool

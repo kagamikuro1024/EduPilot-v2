@@ -56,6 +56,7 @@ func rlDeps(t *testing.T, mutate func(*config.Config)) (Deps, *coreBuf) {
 	t.Cleanup(func() { _ = rdb.Close() })
 	d.DB, d.Redis = pool, rdb
 	d.Clock = clock.NewFake(time.Date(2026, 3, 1, 10, 30, 0, 0, time.UTC))
+	d.rateLimitWait = 5 * time.Second // chờ đủ lâu để máy bận không làm request lọt (fail-open) ngoài ý muốn; test Redis chết đặt lại 30 ms
 	return withDefaults(d), buf
 }
 
@@ -291,6 +292,7 @@ func TestRateLimit_RedisDown_FailOpen(t *testing.T) {
 	t.Parallel()
 	d, buf := rlDeps(t, nil)
 	d.Cfg.RateLimitIPPerMin = 1_000_000 // đo độ trễ, không đo chặn
+	d.rateLimitWait = 0                 // ngân sách thật (30 ms): đây chính là thứ bài test này đo
 	live := rlServer(t, d)
 
 	down := d
