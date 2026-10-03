@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1 · 2026-10-03 · Trạng thái: DRAFT (chờ PM duyệt)
+Phiên bản 1.1 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.1 (2026-10-03)** — PM duyệt `FEAT-weekly-exam`; chủ dự án trả lời câu hỏi mở. **Q5 đổi:** mặc định `multi_scoring = PARTIAL` (`ALL_OR_NOTHING` là tuỳ chọn từng bài). Q22 (cho điểm giảm sau công bố, có lý do) và Q28 (TA được duyệt câu hỏi) giữ mặc định; các câu còn lại PM chấp nhận mặc định của BA. Q25 theo góp ý #1 `docs/sprints/5/proposals.md` (ACCEPTED): `FEAT-ui-foundation` 7.5 + US-PU-04 AC3 sửa ở `sprint/5-pe`. Q27: dev ghi ánh xạ số migration vào `PROGRESS.md` khi thi công. Không đổi số AC (124). Đổi do Q5: US-PE-01 AC6, US-PE-04 AC1, US-PE-05 AC11 (dòng gợi ý cho câu nhiều đáp án), US-PE-09 AC3; `SRS.md` 4.1.3, 4.2.1, 5.6, 7.2; `QUESTIONS.md` Q5 và cột trả lời.
 
 Nguồn: `docs/phases/PE.md`; `docs/sprints/5/plan.md`; PRD M15, G8, §3; FLOWS F19, F14; `ARCHITECTURE.md` §4–§9; `DECISIONS.md` D45, D46, D47, D54–D58; `AGENTS.md`; research `docs/research/2026-10-03-code-judge.md`; spec nền `FEAT-pg-foundation` (v1.7), `FEAT-ui-foundation`, `FEAT-llm-gateway`, `FEAT-account-security`, `FEAT-course-foundation`.
 
@@ -152,8 +154,8 @@ func Grade(t Type, points decimal.Decimal, key Key, a *Answer, mode Mode) (decim
 | --- | --- | --- |
 | `MCQ_SINGLE` | chọn đúng đáp án duy nhất | `points`; còn lại (sai / trống / chọn nhiều) 0 |
 | `TRUE_FALSE` | `Value` bằng `key.Value` | `points`; còn lại 0 |
-| `MCQ_MULTI` + `ALL_OR_NOTHING` | tập chọn = tập đúng (sau khử trùng) | `points`; còn lại 0 |
-| `MCQ_MULTI` + `PARTIAL` | `K` = số đáp án đúng; `TP` = chọn đúng; `FP` = chọn sai | `points × max(0, (TP − FP) ÷ K)` (`DivRound(…, 16)`) |
+| `MCQ_MULTI` + `PARTIAL` (**mặc định**, Q5) | `K` = số đáp án đúng; `TP` = chọn đúng; `FP` = chọn sai | `points × max(0, (TP − FP) ÷ K)` (`DivRound(…, 16)`) |
+| `MCQ_MULTI` + `ALL_OR_NOTHING` (tuỳ chọn) | tập chọn = tập đúng (sau khử trùng) | `points`; còn lại 0 |
 
 Không điểm âm; id không thuộc câu → `ErrInvalidOption` (API lưu: 422 `INVALID_OPTION_ID`; khi chấm lại: coi như chưa chọn). Không phụ thuộc thứ tự hiển thị.
 
@@ -169,7 +171,7 @@ Tệp zip (≤ `EXAM_TESTZIP_MAX_BYTES`, mặc định 10 MiB; ≤ `EXAM_TESTZIP
 
 #### 4.2.1 Trường và mặc định
 
-`title` 1…120; `instructions` ≤ 4.000 (Markdown, lưu nguyên văn); `opens_at` < `closes_at`; `duration_minutes` `EXAM_MIN_DURATION_MINUTES` (5) … 300 và ≤ khung giờ; `shuffle_questions`, `shuffle_options` = `true`; `max_score` 10,00 (0 < x ≤ 100); `rounding_step` 0,01; `multi_scoring` `ALL_OR_NOTHING`; `reveal_answers` `true`; `appeal_days` 7 (0…30; 0 = không nhận phúc khảo); `kind` suy ra: chỉ trắc nghiệm → `MCQ`; chỉ code → `CODE`; cả hai → `MIXED` (bài rỗng: `MCQ`).
+`title` 1…120; `instructions` ≤ 4.000 (Markdown, lưu nguyên văn); `opens_at` < `closes_at`; `duration_minutes` `EXAM_MIN_DURATION_MINUTES` (5) … 300 và ≤ khung giờ; `shuffle_questions`, `shuffle_options` = `true`; `max_score` 10,00 (0 < x ≤ 100); `rounding_step` 0,01; `multi_scoring` `PARTIAL` (Q5; `ALL_OR_NOTHING` là tuỳ chọn); `reveal_answers` `true`; `appeal_days` 7 (0…30; 0 = không nhận phúc khảo); `kind` suy ra: chỉ trắc nghiệm → `MCQ`; chỉ code → `CODE`; cả hai → `MIXED` (bài rỗng: `MCQ`).
 
 #### 4.2.2 Mục của bài
 
@@ -398,7 +400,7 @@ func Score(items []ItemResult, maxScore, step decimal.Decimal) decimal.Decimal
 
 `earned` của câu: trắc nghiệm theo 4.1.3 (đáp án đối chiếu = `override.answer_key` nếu có, nếu không `answer_key`); câu `void` = `points`; câu code = `points × Σweight(test AC) ÷ Σweight(test approved)` (`DivRound(…, 16)`); không bản nộp = 0. `Σweight = 0` không xảy ra ở bài đã lên lịch (kiểm ở `schedule`); nếu gặp → lỗi cấu hình, lượt ở `GRADING` + nhật ký, không chia cho 0. Điểm chính thức của lượt = `COALESCE(adjusted_score, auto_score)`.
 
-**Ví dụ kiểm tay (có trong `TestScoringDecimal`):** `max_score=10`; Q1 `MCQ_SINGLE` 1 đ đúng → 1; Q2 `MCQ_MULTI` 2 đ, K = 3, chọn 2 đúng 0 sai, `PARTIAL` → `2 × 2/3 = 1,3333…`; Q3 code 3 đ, trọng số `[1,1,2]`, đạt test 1 và 3 → `3 × 3/4 = 2,25`; `raw = 4,58333…`, `total = 6` → `7,63888…`; bước `0.25` → `7,75`; bước `0.01` → `7,64`; bước `1` → `8`.
+**Ví dụ kiểm tay (có trong `TestScoringDecimal`; chế độ mặc định `PARTIAL`):** `max_score=10`; Q1 `MCQ_SINGLE` 1 đ đúng → 1; Q2 `MCQ_MULTI` 2 đ, K = 3, chọn 2 đúng 0 sai, `PARTIAL` → `2 × 2/3 = 1,3333…`; Q3 code 3 đ, trọng số `[1,1,2]`, đạt test 1 và 3 → `3 × 3/4 = 2,25`; `raw = 4,58333…`, `total = 6` → `7,63888…`; bước `0.25` → `7,75`; bước `0.01` → `7,64`; bước `1` → `8`.
 
 ### 4.7 Liêm chính (US-PE-07) — D56, không phải giám thị
 
@@ -688,7 +690,7 @@ Chỉ mục: PK · `code_testcases_problem_position_key` UNIQUE (problem_id, pos
 | `shuffle_questions`, `shuffle_options` | `boolean` | NOT NULL | `true` | |
 | `max_score` | `numeric(5,2)` | NOT NULL | `10.00` | `CHECK (max_score > 0 AND max_score <= 100)` |
 | `rounding_step` | `numeric(3,2)` | NOT NULL | `0.01` | `CHECK (rounding_step IN (0.01, 0.10, 0.25, 0.50, 1.00))` |
-| `multi_scoring` | `multi_scoring` | NOT NULL | `'ALL_OR_NOTHING'` | |
+| `multi_scoring` | `multi_scoring` | NOT NULL | `'PARTIAL'` | Q5 |
 | `reveal_answers` | `boolean` | NOT NULL | `true` | |
 | `appeal_days` | `smallint` | NOT NULL | `7` | `CHECK (appeal_days BETWEEN 0 AND 30)` |
 | `publish_hold` | `boolean` | NOT NULL | `false` | |
@@ -1013,6 +1015,7 @@ Mọi màn dùng nền chung `frontend/src/shared/` (TanStack Query + `apiClient
 | Liêm chính (bắt buộc) | "Trong giờ làm bài, chat AI tạm khoá. Hệ thống ghi lại số lần bạn rời trang hoặc dán nội dung để giảng viên xem khi cần; đây không phải giám thị và không tự trừ điểm của bạn." |
 | Nút | `Bắt đầu làm bài` · `Tiếp tục làm bài` · `Câu trước` · `Câu sau` · `Danh sách câu` · `Chạy thử` · `Nộp lời giải` · `Nộp bài` · `Làm tiếp ở đây` · `Gửi yêu cầu xem lại` |
 | Lưu | "Đã lưu lúc {hh:mm:ss}" · "Chưa lưu lên máy chủ ({n} thay đổi) — đang thử lại" · "Mất mạng — bài vẫn được giữ trên máy bạn" · (khi offline) "Nếu hết giờ khi chưa có mạng, chỉ phần đã lưu lên máy chủ được tính." |
+| Câu nhiều đáp án | `PARTIAL`: "Chọn tất cả đáp án đúng. Chọn sai sẽ bị trừ vào điểm của câu này (không xuống dưới 0)." · `ALL_OR_NOTHING`: "Chỉ được điểm khi chọn đủ và đúng." |
 | Cảnh báo giờ | "Còn 5 phút." · "Còn 1 phút." (dải bình tĩnh, không chớp, không âm thanh) |
 | Xác nhận nộp | "Nộp bài thi?" · "Bạn đã trả lời {a}/{n} câu. Còn {u} câu chưa trả lời. Sau khi nộp bạn không sửa được." (+ "{c} bài lập trình chưa có lần nộp nào.") |
 | Sau nộp | "Đã nộp lúc {hh:mm:ss}. Điểm sẽ hiện khi bài thi đóng với cả lớp ({Thứ…, HH:mm dd/MM})." · hết giờ: "Hết giờ — bài của bạn đã được nộp lúc {hh:mm:ss}." · đã đóng chưa công bố: "Điểm đang được chấm." |
@@ -1160,7 +1163,7 @@ Thêm job `judge-attacks` (runner amd64): dựng `deploy/judge` với seccomp b�
 
 **Đề xuất đổi tài liệu nền (cần PM quyết; BA không sửa file ngoài `docs/specs/FEAT-weekly-exam/**`, FLOWS F19, PRD M15):**
 
-1. `ARCHITECTURE.md` §7 / `FEAT-ui-foundation` 7.5: thêm `/exams` cho sinh viên + mục nav "Bài thi" (Q25); đổi đếm mục 7 / 12 / 15 → 8 / 13 / 16 và `ACCESS`; test US-PU-04 AC3 cập nhật cùng commit.
+1. `ARCHITECTURE.md` §7 / `FEAT-ui-foundation` 7.5: thêm `/exams` cho sinh viên + mục nav "Bài thi" (Q25); đổi đếm mục 7 / 12 / 15 → 8 / 13 / 16 và `ACCESS`; test US-PU-04 AC3 cập nhật cùng commit. **Đã ACCEPTED (góp ý #1, `docs/sprints/5/proposals.md`)** và đã sửa ở `FEAT-ui-foundation` v1.3.
 2. `ARCHITECTURE.md` §5: thêm 56 thao tác ở 6.2 (nhóm mới "Bài thi" và "Ngân hàng câu hỏi"); nhóm "Luyện đề" giữ `GET/POST …/questions` nhưng **PE** sở hữu `…/questions` (P9 dùng lại, thêm `extract` / `generate`); `POST …/questions/suggest` là đường mới của PE (khác `generate` của P9: không dùng chunk / trích dẫn).
 3. `ARCHITECTURE.md` §2 (cấu trúc `backend-go`): thêm `internal/exam`, `internal/exam/similarity`, `internal/judge`; §4: đổi dòng "(kế tiếp sau P2) exams" thành `00005_weekly_exam` (13 bảng — thêm `code_drafts`, `exam_appeals`) và đẩy `00005…00016` hiện có lùi một số (hoặc ghi ánh xạ ở `PROGRESS.md` theo D45); §8: thêm biến `JUDGE_*`, `EXAM_*`, `SIMILARITY_MIN`; §9: seed thêm dữ liệu PE; §10: dòng "Sandbox" ở bảng kiểm thử.
 4. `SYSTEM_DESIGN.md` §3.4: thêm Stream `judge.submit`, `judge.run` (+ `.dead`); S1 thêm container `judge` (D58).
