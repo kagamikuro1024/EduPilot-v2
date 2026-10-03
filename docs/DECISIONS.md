@@ -67,6 +67,7 @@
 | D49 | Câu trả lời trong chat riêng dưới ngưỡng độ tin cậy **tự chuyển giảng viên** (mở ticket, idempotent); sinh viên thấy "AI chưa đủ chắc chắn về câu này · Đang chờ giảng viên". Nút `Nhờ giảng viên hỗ trợ` vẫn có ở mọi câu trả lời khác (chủ dự án chốt 2026-10-01, `FEAT-demo-script` Q3) | Thêm ticket so với để sinh viên tự quyết; đổi lại câu khó không bị bỏ rơi — đúng vấn đề gốc |
 | D50 | Chi phí LLM trong `/analytics` chỉ GIẢNG VIÊN và ADMIN thấy; TA không thấy (chủ dự án chốt 2026-10-01) | – |
 | D51 | **Prototype giao diện là bản mô phỏng có hạn dùng**: spec ở `docs/sprints/1.5/spec/`, dữ liệu ở `frontend/src/mock/`, trạng thái giả lập trong trình duyệt. Mỗi sprint build thật thay dần màn mock bằng màn thật; spec thật viết mới ở `docs/specs/` và thắng spec prototype. Primitive + shell ở `frontend/src/shared/` được giữ và nâng chuẩn ở PU (chủ dự án chốt 2026-10-01) | Prototype đi trước backend nên có thể lệch hợp đồng API thật; khi lệch, spec thật thắng và màn được sửa theo |
+| D52 | Thêm `getkin/kin-openapi` **chỉ cho test** `internal/contract`: kiểm response thật khớp `api/openapi.yaml` (PM chốt 2026-10-01, chủ dự án giao toàn quyền khi vắng mặt) | Tự viết validator OpenAPI là việc thừa; không vào binary gateway |
 
 ## Mặc định theo khuyến nghị (chưa được chủ dự án xác nhận riêng, đổi được)
 

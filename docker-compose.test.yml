@@ -1,0 +1,18 @@
+# Override của docker-compose.local.yml cho chế độ thử (SRS 8.5, US-PG-07 AC20):
+# chỉ đổi build.target + image + APP_ENV của gateway và worker sang bản dựng có tag `testroutes`.
+# Không thêm service; mạng, healthcheck, depends_on, read_only… kế thừa từ file gốc.
+# Dùng: docker compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -p edupilot up -d --build --scale gateway=2 --wait
+services:
+  gateway:
+    build:
+      target: gateway-test
+    image: edupilot-gateway-test
+    environment:
+      APP_ENV: test
+
+  worker:
+    build:
+      target: worker-test
+    image: edupilot-worker-test
+    environment:
+      APP_ENV: test

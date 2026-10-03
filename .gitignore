@@ -34,3 +34,7 @@ vibecode
 node_modules/
 frontend/.next/
 backend-go/bin/
+
+# binaries dựng tay
+backend-go/gateway
+backend-go/worker

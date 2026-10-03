@@ -1,0 +1,35 @@
+version: "2"
+
+linters:
+  # Mặc định của golangci-lint v2 (errcheck, govet, ineffassign, staticcheck, unused) + luật của AGENTS.md:
+  # ctx đi tới mọi lời gọi ra ngoài (noctx, contextcheck), không trạng thái toàn cục (gochecknoglobals),
+  # không dùng kin-openapi ngoài internal/contract (depguard).
+  enable:
+    - contextcheck
+    - depguard
+    - gochecknoglobals
+    - noctx
+
+  settings:
+    depguard:
+      rules:
+        kin-openapi:
+          files:
+            - "!**/internal/contract/**"
+            - "!$test"
+          deny:
+            - pkg: github.com/getkin/kin-openapi
+              desc: "kin-openapi chỉ dùng cho test hợp đồng (internal/contract), không đưa vào mã chạy"
+
+  exclusions:
+    rules:
+      # Test được phép có biến gói (container dùng chung, bảng ca kiểm, regexp biên dịch sẵn) và
+      # gọi mạng cục bộ không ctx (httptest, net.Dial tới server của chính test).
+      - path: _test\.go
+        linters:
+          - gochecknoglobals
+          - noctx
+      # internal/testutil giữ container dùng chung bằng sync.Once cho cả gói test.
+      - path: internal/testutil/
+        linters:
+          - gochecknoglobals

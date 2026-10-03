@@ -3,9 +3,9 @@
 Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phiên. Giữ ngắn; chi tiết nằm trong git log.
 
 ## Đang ở đâu
-- Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2` (private). Sprint 1 = `main` của repo này. Repo cũ `TA_Agent` = remote `old-origin`, không push thêm.
-- Lộ trình: **10 sprint + sprint 1.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu, nhánh xếp chồng: `sprint/2-pg` (từ `main`), `sprint/3-pu-p1` (từ 2 + 1.5), `sprint/4-p2` (từ 3).
-- Sprint gần nhất: **1.5 — prototype giao diện** — xong, PASS, `docs/sprints/1.5/report.md`, PR chờ chủ dự án chốt. Sprint 2 (PG) đang QC cổng. Sprint 3, 4: kế hoạch + spec có sẵn, tạm dừng theo lệnh chủ dự án.
+- Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2` (private). `main` = sprint 1 + 1.5 + 2 (merge 2026-10-03). Repo cũ `TA_Agent` = remote `old-origin`, không push thêm.
+- Lộ trình: **10 sprint + sprint 1.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu; `sprint/3-pu-p1` và `sprint/4-p2` xếp chồng, gộp `main` trước khi mở PR.
+- Sprint gần nhất: **2 — PG Nền Go** — xong, cổng PG PASS, `docs/sprints/2/report.md`. 1.5 — prototype — xong (`docs/sprints/1.5/report.md`). Đang làm: sprint 3 (PU + P1), sprint 4 (P2).
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
@@ -13,7 +13,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | Phase | Trạng thái | Bắt đầu | Xong | Cổng nghiệm thu | Ghi chú |
 | --- | --- | --- | --- | --- | --- |
 | P0 Chuẩn bị | Xong | 2026-10-01 | 2026-10-01 | PASS (`sprints/1/qc/gate-P0.md`) | Viết mới toàn bộ (D45), chỉ Go (D46) |
-| PG Nền Go | Chưa | | | | Viết lại theo D45/D46 |
+| PG Nền Go | Xong | 2026-10-01 | 2026-10-03 | PASS (`sprints/2/qc/report-GATE-PG.md`) | Gateway không trạng thái, `--scale gateway=2`, image 9,4 MB |
 | PU Nền giao diện | Chưa | | | | |
 | P1 LLM Gateway | Chưa | | | | |
 | P2 Lớp học | Chưa | | | | |
@@ -34,8 +34,8 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 ## Phiên gần nhất
 - Ngày: 2026-10-03
 - Đã làm: sprint 1.5 — prototype 5 story + DEMO PASS sau 2 vòng QC (spec v5.2, góp ý #15–#26). Thêm vai Research, luật cấm subagent, quy trình cuốn chiếu.
-- Đang dở: sprint 2 (QC triage + cổng PG); sprint 3/4 dừng sau khi có kế hoạch + spec.
-- Bước kế tiếp cụ thể: chủ dự án chốt PR 1.5 và PR 2 → PM merge `--no-ff` → gộp `main` vào `sprint/3-pu-p1`, gõ `tiếp` để thi công sprint 3.
+- Đang dở: sprint 3 (dev US-P1-01 dở dang), sprint 4 (spec).
+- Bước kế tiếp cụ thể: thi công sprint 3 theo `docs/sprints/3/plan.md`, BA spec sprint 4.
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
 - Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).
@@ -44,10 +44,12 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - Lịch WORKFLOW §6 chưa điều chỉnh theo D45/D46 — chủ dự án quyết.
 - 9 câu hỏi sản phẩm của kịch bản demo (`specs/FEAT-demo-script/QUESTIONS.md`) — chặn P1/P2/P4/P7.
 - `thesis-notes/legacy-perf.md` thân bài còn tiếng Anh.
+- Caddy: upstream tĩnh + `health_uri` khi số bản gateway cố định (P10/PR, sprint 2 #3).
 
 ## Ánh xạ migration
 | Số goose | Tên | Phase |
 | --- | --- | --- |
+| 00001 | pg_platform | PG |
 
 ## Việc chỉ chủ dự án làm được
 - [ ] API key ≥ 2 provider LLM (trước P1)

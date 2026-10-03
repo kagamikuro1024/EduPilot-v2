@@ -1,0 +1,11 @@
+== TC-PG05-25
+    ok   thời gian chỗ hết hạn (ms) = 148059 (≥ 140000)
+    ok   thời gian chỗ hết hạn (ms) = 148059 (≤ 160000)
+-- TC-PG05-25 PASS
+== TC-PG05-27
+    ok   số lần 'reason":"max_duration' = [1]
+    ok   ready → reconnect (ms) = 120013 (≥ 115000)
+    ok   ready → reconnect (ms) = 120013 (≤ 130000)
+    ok   reconnect → đóng kết nối (ms) = 23 (≤ 2000)
+-- TC-PG05-27 PASS
+TỔNG story 05: PASS=2 FAIL=0 MANUAL=0

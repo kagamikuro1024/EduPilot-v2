@@ -1,0 +1,707 @@
+openapi: 3.1.0
+info:
+  title: EduPilot Gateway API — route thử
+  version: 0.2.0
+  description: |
+    Route thử `/api/v1/_test/*` (SRS 6.3). CHỈ có trong binary / image dựng bằng build tag `testroutes`
+    (`gateway-test`, `worker-test`); binary mặc định trả 404 cho mọi đường dẫn ở đây.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: /
+security:
+  - bearerAuth: []
+tags:
+  - name: test
+paths:
+  /api/v1/_test/items:
+    get:
+      operationId: listTestItems
+      tags: [test]
+      summary: "Danh sách bản ghi của chính mình (phân trang con trỏ)"
+      parameters:
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang bản ghi
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ItemPage"
+        "304":
+          description: Không đổi (If-None-Match khớp)
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createTestItem
+      tags: [test]
+      summary: "Tạo bản ghi (Idempotency-Key bắt buộc)"
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+            minLength: 8
+            maxLength: 128
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemInput"
+      responses:
+        "201":
+          description: Đã tạo
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+            Location:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/_test/items/{id}:
+    get:
+      operationId: getTestItem
+      tags: [test]
+      summary: "Một bản ghi của chính mình (ETag W/\"v<version>\")"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: If-None-Match
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bản ghi
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "304":
+          description: Không đổi (If-None-Match khớp)
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: putTestItem
+      tags: [test]
+      summary: "Sửa bản ghi — khoá lạc quan theo version / If-Match"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: If-Match
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ItemInput"
+      responses:
+        "200":
+          description: Đã sửa
+          headers:
+            ETag:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Item"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/_test/slow:
+    get:
+      operationId: testSlow
+      tags: [test]
+      summary: "Ngủ ?ms rồi trả 200 (kiểm tắt êm / deadline)"
+      security: []
+      parameters:
+        - name: ms
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Xong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        "504":
+          $ref: "#/components/responses/DeadlineExceeded"
+  /api/v1/_test/db-sleep:
+    get:
+      operationId: testDbSleep
+      tags: [test]
+      summary: "pg_sleep(seconds) — deadline xuống DB"
+      security: []
+      parameters:
+        - name: seconds
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Xong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Slept"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "504":
+          $ref: "#/components/responses/DeadlineExceeded"
+  /api/v1/_test/redis-block:
+    get:
+      operationId: testRedisBlock
+      tags: [test]
+      summary: "BLPOP chặn — deadline xuống Redis"
+      security: []
+      parameters:
+        - name: seconds
+          in: query
+          required: false
+          schema:
+            type: number
+      responses:
+        "200":
+          description: Xong
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "504":
+          $ref: "#/components/responses/DeadlineExceeded"
+  /api/v1/_test/panic:
+    get:
+      operationId: testPanic
+      tags: [test]
+      summary: "Panic — kiểm recover"
+      security: []
+      responses:
+        "500":
+          $ref: "#/components/responses/Internal"
+  /api/v1/_test/error/{status}:
+    get:
+      operationId: testError
+      tags: [test]
+      summary: "Trả đúng lỗi mặc định của status (SRS 6.1)"
+      security: []
+      parameters:
+        - name: status
+          in: path
+          required: true
+          schema:
+            type: integer
+            enum: [400, 401, 403, 404, 405, 409, 413, 415, 422, 429, 500, 503, 504]
+      responses:
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "413":
+          $ref: "#/components/responses/PayloadTooLarge"
+        "415":
+          $ref: "#/components/responses/UnsupportedMediaType"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "500":
+          $ref: "#/components/responses/Internal"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+        "504":
+          $ref: "#/components/responses/DeadlineExceeded"
+  /api/v1/_test/whoami:
+    get:
+      operationId: testWhoami
+      tags: [test]
+      summary: "Danh tính lấy từ claim (không truy DB)"
+      responses:
+        "200":
+          description: Danh tính
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [sub, role, email, jti]
+                additionalProperties: false
+                properties:
+                  sub:
+                    type: string
+                  role:
+                    type: string
+                    enum: [ADMIN, TEACHER, TA, STUDENT]
+                  email:
+                    type: string
+                  jti:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/_test/rbac/admin:
+    get:
+      operationId: testRbacAdmin
+      tags: [test]
+      summary: "Chỉ ADMIN"
+      responses:
+        "200":
+          description: Được phép
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/_test/rbac/staff:
+    get:
+      operationId: testRbacStaff
+      tags: [test]
+      summary: "Chỉ TEACHER, TA"
+      responses:
+        "200":
+          description: Được phép
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Ok"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/_test/courses/{courseId}/ping:
+    get:
+      operationId: testCoursePing
+      tags: [test]
+      summary: "Qua CourseAccessGuard (mặc định từ chối tất cả — không có 200 ở PG)"
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/_test/jobs:
+    post:
+      operationId: testCreateJob
+      tags: [test]
+      summary: "Tạo việc dài thử → 202 {job_id}"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                steps:
+                  type: integer
+                  minimum: 1
+                  maximum: 100
+                kind:
+                  type: string
+                  enum: [test.progress, test.fail]
+      responses:
+        "202":
+          description: Đã nhận việc
+          headers:
+            Location:
+              required: true
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobCreated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/_test/events:
+    post:
+      operationId: testPublishEvent
+      tags: [test]
+      summary: "Phát sự kiện SSE cho chính mình (ADMIN: cho người khác)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EventInput"
+      responses:
+        "202":
+          description: Đã phát
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EventAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    Unauthorized:
+      description: Chưa đăng nhập, token hết hạn hoặc không hợp lệ (`UNAUTHENTICATED`, `TOKEN_EXPIRED`, `TOKEN_INVALID`)
+      headers:
+        WWW-Authenticate:
+          schema:
+            type: string
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Forbidden:
+      description: Sai vai trò hoặc ngoài lớp (`FORBIDDEN`, `details.reason` = `role` | `course`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Không có route / tài nguyên / không có quyền biết (`NOT_FOUND`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Conflict:
+      description: Xung đột trạng thái hoặc phiên bản (`CONFLICT`, `VERSION_CONFLICT`, `IDEMPOTENCY_IN_PROGRESS`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    ValidationFailed:
+      description: Dữ liệu không hợp lệ (`VALIDATION_FAILED`, `INVALID_CURSOR`, `IDEMPOTENCY_KEY_*`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    RateLimited:
+      description: Quá hạn mức (`RATE_LIMITED`, `SSE_LIMIT_REACHED`); kèm `Retry-After`
+      headers:
+        Retry-After:
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Unavailable:
+      description: Phụ thuộc hỏng (`SERVICE_UNAVAILABLE`, `NOT_READY`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    DeadlineExceeded:
+      description: Quá thời hạn xử lý của request (`DEADLINE_EXCEEDED`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    BadRequest:
+      description: Yêu cầu không đọc được (`BAD_REQUEST`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    MethodNotAllowed:
+      description: Sai method (`METHOD_NOT_ALLOWED`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    PayloadTooLarge:
+      description: Thân quá MAX_BODY_BYTES (`PAYLOAD_TOO_LARGE`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    UnsupportedMediaType:
+      description: Content-Type khác application/json (`UNSUPPORTED_MEDIA_TYPE`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    Internal:
+      description: Lỗi không lường / panic (`INTERNAL`)
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+  schemas:
+    Item:
+      type: object
+      required: [id, name, version, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        version:
+          type: integer
+          minimum: 1
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ItemPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Item"
+        next_cursor:
+          type: [string, "null"]
+    ItemInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          maxLength: 200
+        version:
+          type: integer
+          minimum: 1
+    Slept:
+      type: object
+      required: [slept]
+      additionalProperties: false
+      properties:
+        slept:
+          type: integer
+    Ok:
+      type: object
+      required: [status]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+    JobCreated:
+      type: object
+      required: [job_id]
+      additionalProperties: false
+      properties:
+        job_id:
+          type: string
+          format: uuid
+    EventInput:
+      type: object
+      required: [type, data]
+      properties:
+        type:
+          type: string
+        data: {}
+        user_id:
+          type: string
+          format: uuid
+    EventAccepted:
+      type: object
+      required: [event_id]
+      additionalProperties: false
+      properties:
+        event_id:
+          type: string
+    Health:
+      type: object
+      required: [status]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [ok]
+    Ready:
+      type: object
+      required: [status, db, redis]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [ready]
+        db:
+          type: string
+          enum: [up]
+        redis:
+          type: string
+          enum: [up]
+    Job:
+      type: object
+      required: [id, kind, status, progress, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+        status:
+          type: string
+          enum: [QUEUED, RUNNING, SUCCEEDED, FAILED]
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        result: {}
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        finished_at:
+          type: string
+          format: date-time
+    Error:
+      type: object
+      required: [code, message, trace_id]
+      additionalProperties: false
+      properties:
+        code:
+          type: string
+          enum:
+            - BAD_REQUEST
+            - UNAUTHENTICATED
+            - TOKEN_EXPIRED
+            - TOKEN_INVALID
+            - FORBIDDEN
+            - NOT_FOUND
+            - METHOD_NOT_ALLOWED
+            - CONFLICT
+            - VERSION_CONFLICT
+            - IDEMPOTENCY_IN_PROGRESS
+            - PAYLOAD_TOO_LARGE
+            - UNSUPPORTED_MEDIA_TYPE
+            - VALIDATION_FAILED
+            - INVALID_CURSOR
+            - IDEMPOTENCY_KEY_REUSED
+            - IDEMPOTENCY_KEY_REQUIRED
+            - RATE_LIMITED
+            - SSE_LIMIT_REACHED
+            - INTERNAL
+            - SERVICE_UNAVAILABLE
+            - NOT_READY
+            - DEADLINE_EXCEEDED
+        message:
+          type: string
+        trace_id:
+          type: string
+          pattern: "^[0-9a-f]{32}$"
+        details: {}
+        retry_after:
+          type: integer
+          minimum: 1

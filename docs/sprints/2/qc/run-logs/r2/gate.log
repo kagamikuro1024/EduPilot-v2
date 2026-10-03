@@ -1,0 +1,249 @@
+== TC-GATE-01
+    ok   go vet ./... rc = [0]
+    ok   go vet -tags testroutes ./... rc = [0]
+    ok   go vet: không in cảnh báo = [0]
+-- TC-GATE-01 PASS
+== TC-GATE-02
+    ok   golangci-lint run rc = [0]
+    ok   golangci-lint run --build-tags testroutes rc = [0]
+-- TC-GATE-02 PASS
+== TC-GATE-03
+    ok   go test -race ./... (PG.md, không tag) rc = [0]
+    ok   FAIL/SKIP trong -json = [0]
+-- TC-GATE-03 PASS
+== TC-GATE-04
+    ok   go test -race -tags testroutes ./... rc = [0]
+    ok   số test PASS = 362 (≥ 100)
+    ok   số test SKIP (Docker phải có ⇒ không được skip) = [0]
+    ok   số test/gói FAIL = [0]
+    ok   gói internal/platform/config — test PASS = 31 (≥ 1)
+    ok   gói internal/platform/log — test PASS = 2 (≥ 1)
+    ok   gói internal/platform/otel — test PASS = 2 (≥ 1)
+    ok   gói internal/platform/redis — test PASS = 4 (≥ 1)
+    ok   gói internal/platform/db — test PASS = 8 (≥ 1)
+    ok   gói internal/platform/blob — test PASS = 16 (≥ 1)
+    ok   gói internal/platform/outbox — test PASS = 9 (≥ 1)
+    ok   gói internal/store — test PASS = 19 (≥ 1)
+    ok   gói internal/httpapi — test PASS = 84 (≥ 1)
+    ok   gói internal/httpapi/sse — test PASS = 42 (≥ 1)
+    ok   gói internal/jobs — test PASS = 7 (≥ 1)
+    ok   gói internal/auth — test PASS = 98 (≥ 1)
+    ok   gói internal/contract — test PASS = 10 (≥ 1)
+    ok   gói cmd/gateway — test PASS = 26 (≥ 1)
+    ok   gói cmd/worker — test PASS = 3 (≥ 1)
+    ok   gói db (migration) — test PASS = 9 (≥ 1)
+-- TC-GATE-04 PASS
+== TC-GATE-05
+    ok   sqlc diff rc = [0]
+    ok   sqlc diff không in gì = []
+-- TC-GATE-05 PASS
+== TC-GATE-06
+    ok   contract không tag rc = [0]
+    ok   contract có tag rc = [0]
+    ok   contract không tag không 'no tests' !~ /no tests to run|no test files/
+    ok   contract có tag không 'no tests' !~ /no tests to run|no test files/
+-- TC-GATE-06 PASS
+== TC-GATE-07
+    ok   go test ./internal/httpapi -run 'TestCursor_NoSkipNoDup|TestCursor_SameTimestamp|TestCursor_InsertAndDeleteDuringScan|TestIdempotency_DoubleSend_OneRecord|TestIdempotency_ReplayIdentical|TestIdempotency_Concurrent50|TestOptimisticLock_Stale409|TestOptimisticLock_Concurrent20|TestETag_NotModified|TestETag_ChangesAfterUpdate' rc = [0]
+    ok   --- PASS: TestCursor_NoSkipNoDup
+    ok   --- PASS: TestCursor_SameTimestamp
+    ok   --- PASS: TestCursor_InsertAndDeleteDuringScan
+    ok   --- PASS: TestIdempotency_DoubleSend_OneRecord
+    ok   --- PASS: TestIdempotency_ReplayIdentical
+    ok   --- PASS: TestIdempotency_Concurrent50
+    ok   --- PASS: TestOptimisticLock_Stale409
+    ok   --- PASS: TestOptimisticLock_Concurrent20
+    ok   --- PASS: TestETag_NotModified
+    ok   --- PASS: TestETag_ChangesAfterUpdate
+    ok   go test -race ./internal/httpapi/... rc = [0]
+-- TC-GATE-07 PASS
+== TC-GATE-08
+    ok   go test ./internal/httpapi/sse/... -run 'TestSSE_Headers|TestSSE_LastEventID_NoLossNoDup|TestSSE_ReconnectRace|TestSSE_CrossInstance|TestSSE_GatewayShutdownFailover|TestSSE_MaxTwoPerUser' rc = [0]
+    ok   --- PASS: TestSSE_Headers
+    ok   --- PASS: TestSSE_LastEventID_NoLossNoDup
+    ok   --- PASS: TestSSE_ReconnectRace
+    ok   --- PASS: TestSSE_CrossInstance
+    ok   --- PASS: TestSSE_GatewayShutdownFailover
+    ok   --- PASS: TestSSE_MaxTwoPerUser
+    ok   go test ./internal/auth/... -run 'TestJWT_Claims|TestVerify_Table|TestRBAC_Matrix|TestCourseAccessGuard_DefaultDenyAll|TestBcrypt_Format' rc = [0]
+    ok   --- PASS: TestJWT_Claims
+    ok   --- PASS: TestVerify_Table
+    ok   --- PASS: TestRBAC_Matrix
+    ok   --- PASS: TestCourseAccessGuard_DefaultDenyAll
+    ok   --- PASS: TestBcrypt_Format
+    ok   go test -race sse + auth rc = [0]
+-- TC-GATE-08 PASS
+== TC-GATE-09
+    ok   pnpm -C frontend build rc = [0]
+-- TC-GATE-09 PASS
+== TC-GATE-10
+    ok   up -d --scale gateway=2 --wait rc = [0]
+    ok   số container gateway = [2]
+    ok   chế độ = [default]
+    ok   migrate = [migrate exited 0]
+-- TC-GATE-10 PASS
+== TC-GATE-11
+    ok   curl -fsSk healthz = [{"status":"ok"}]
+  20 ca3ff1c2aa30
+  20 ec974cf1d198
+    ok   số X-Instance-Id khác nhau = [2]
+    ok   mọi bản được chọn (đếm > 0) = [2]
+    ok   40 lần 200 = [40]
+-- TC-GATE-11 PASS
+== TC-GATE-12
+    ok   k6 rc = [0]
+    ok   số dòng p(95)<300 trong smoke.js = 3 (≥ 3)
+    ok   không ngưỡng lớn hơn SLO (chỉ 300 và 500) = [p(95)<300 p(95)<500]
+    ok   k6 không có ngưỡng ✗ !~ /./
+    ok   RestartCount/StartedAt gateway+worker không đổi khi chạy k6 = [/edupilot-gateway-1 0 2026-10-02T22:38:19.052915626Z
+/edupilot-gateway-2 0 2026-10-02T22:38:18.987317849Z
+/edupilot-worker-1 0 2026-10-02T22:38:18.920879914Z]
+-- TC-GATE-12 PASS
+== TC-GATE-13
+    ok   k6 -e TEST_ROUTES=1 rc = [0]
+              * write: 5.00 iterations/s for 30s (maxVUs: 5-20, exec: write, startTime: 2m0s, gracefulStop: 30s)
+write   • [   0% ] waiting    1m59.0s   
+write   • [   0% ] waiting    1m58.0s   
+    ok   k6 TEST_ROUTES=1 ở bản mặc định phải DỪNG (rc≠0) = [107] (≠ [0])
+    ok   thông báo rõ route thử vắng ~ /_test|testroutes|TEST_ROUTES|404/
+-- TC-GATE-13 PASS
+== TC-GATE-20
+    ok   volume postgres đã xoá = [0]
+    ok   readyz 200 sau pnpm dev (≤ 300 s) = [200]
+    thời gian tới readyz: 19 s
+    ok   migrate = [migrate exited 0]
+    ok   goose_db_version dòng đã áp = 2 (≥ 2)
+    ok   bảng nền = [audit_log goose_db_version idempotency_keys jobs outbox users]
+    ok   pnpm dev không hỏi/nhắc thao tác tay !~ /\[y/N\]|\(y/n\)|Press|Enter to|please run|chạy tay/
+-- TC-GATE-20 PASS
+== TC-GATE-21
+docs/sprints/2/qc/scripts/lib.sh: line 66: 96113 Terminated: 15          ( pnpm dev > $QC_OUT/g20.dev 2>&1 < /dev/null )
+    ok   DATABASE_URL: rc = [1]
+    ok   DATABASE_URL: ms tới khi thoát = 23 (≤ 1000)
+    ok   DATABASE_URL: tên có trong log = [true]
+    ok   REDIS_URL: rc = [1]
+    ok   REDIS_URL: ms tới khi thoát = 18 (≤ 1000)
+    ok   REDIS_URL: tên có trong log = [true]
+    ok   JWT_SECRET_KEY: rc = [1]
+    ok   JWT_SECRET_KEY: ms tới khi thoát = 18 (≤ 1000)
+    ok   JWT_SECRET_KEY: tên có trong log = [true]
+    ok   BLOB_ENDPOINT: rc = [1]
+    ok   BLOB_ENDPOINT: ms tới khi thoát = 18 (≤ 1000)
+    ok   BLOB_ENDPOINT: tên có trong log = [true]
+    ok   BLOB_BUCKET: rc = [1]
+    ok   BLOB_BUCKET: ms tới khi thoát = 18 (≤ 1000)
+    ok   BLOB_BUCKET: tên có trong log = [true]
+    ok   BLOB_ACCESS_KEY: rc = [1]
+    ok   BLOB_ACCESS_KEY: ms tới khi thoát = 17 (≤ 1000)
+    ok   BLOB_ACCESS_KEY: tên có trong log = [true]
+    ok   BLOB_SECRET_KEY: rc = [1]
+    ok   BLOB_SECRET_KEY: ms tới khi thoát = 17 (≤ 1000)
+    ok   BLOB_SECRET_KEY: tên có trong log = [true]
+-- TC-GATE-21 PASS
+== TC-GATE-22
+    ok   gateway thiếu JWT_SECRET_KEY: rc = [1]
+    ok   log nêu tên biến = [JWT_SECRET_KEY]
+    ok   cổng 8080 không mở / không phục vụ (readyz của bản thiếu env không tồn tại) = [0]
+    ok   bản đang phục vụ không bị ảnh hưởng (RestartCount/StartedAt) = [/edupilot-gateway-1 0 2026-10-02T22:42:45.842129838Z
+/edupilot-worker-1 0 2026-10-02T22:42:45.77637072Z]
+    ok   readyz vẫn 200 = [200]
+    ok   .env.local khôi phục = [y]
+-- TC-GATE-22 PASS
+== TC-GATE-23
+    ok   đã nhận id e5 ~ /^[0-9]+-[0-9]+$/
+    ok   đã nhận n 1..5 = [1 2 3 4 5]
+    ok   sau nối lại nhận đúng 6..12 theo thứ tự = [6 7 8 9 10 11 12]
+    ok   không nhận lại e5 = [0]
+    ok   không trùng = [0]
+    ok   không có resync = [0]
+    ok   dòng đầu stream nối lại = [retry: 3000]
+-- TC-GATE-23 PASS
+== TC-GATE-24
+    mạng đã rút 05:43:27
+    mạng đã cắm 05:43:37
+    ok   gateway nhận lại qua Caddy ≤ 40 s sau khi cắm = [200]
+    ok   đã nhận trước khi rút: 1 2 = [1 2]
+    ok   nối lại nhận 3 4 (không lặp 2) = [3 4]
+    ok   gateway/worker không restart = [0]
+-- TC-GATE-24 PASS
+== TC-GATE-25
+    MANUAL chạy: const m = await import('/Users/kuro/Documents/TA_Agent_v2-s2/docs/sprints/2/qc/scripts/sse-browser-cut.mjs'); await m.default(browser, { base: 'https://localhost', token: <tok STUDENT U1 --ttl 10m>, publishCmd: <xem tc-GATE-PG.md> }); kỳ vọng ok=true (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-GATE-25 MANUAL
+== TC-GATE-26
+    hai tab: 201 / 201
+    ok   một bản ghi duy nhất = [1]
+    ok   hai thân giống hệt (byte) = [same]
+    ok   hai status giống nhau = [201]
+    ok   đúng một response có Idempotent-Replayed: true = [1]
+    ok   hai Content-Type giống nhau = [content-type: application/json; charset=utf-8]
+-- TC-GATE-26 PASS
+== TC-GATE-27
+    MANUAL chạy: const m = await import('/Users/kuro/Documents/TA_Agent_v2-s2/docs/sprints/2/qc/scripts/idem-two-tabs.mjs'); await m.default(browser, { base: 'https://localhost', token: <tok STUDENT U1 --ttl 10m> }); kỳ vọng ok=true (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-GATE-27 MANUAL
+== TC-GATE-28
+    stream đang ở 84052f6e6c41
+    docker stop mất 3129 ms
+    ok   client nhận event: shutdown = [1]
+    ok   shutdown reason = [server_shutdown]
+    ok   đã nhận 1 2 3 trước khi tắt = [1 2 3]
+    ok   phiên kế tiếp vẫn chạy (cùng token, không 401) = [404]
+    ok   nối lại bản còn lại: nhận 4 5 6 = [4 5 6]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-28 PASS
+== TC-GATE-29
+    ok   dòng không-200 trong 200 request = 1 (≤ 4)
+    ok   60 dòng cuối 0 lỗi = [0]
+    ok   stream cũ vẫn sống và nhận n=99 = [99]
+    ok   không có event: shutdown (bản mang stream không bị tắt) = [0]
+    ok   khôi phục 2 gateway = [2]
+-- TC-GATE-29 PASS
+== TC-GATE-30
+ backend-go/internal/httpapi/testroutes_off.go      |   9 +
+ backend-go/internal/httpapi/testroutes_on.go       |  24 +
+ 39 files changed, 8566 insertions(+), 28 deletions(-)
+
+# file sản xuất (không test): 20
+
+# ứng viên (0 = sạch; >0 → đọc từng dòng)
+float64 (cấm cho điểm; auth/httpapi không cần) 1
+    +	if err := h.rdb.ZAdd(ctx, key, goredis.Z{Score: float64(exp.UnixMilli()), Member: connID}).Err(); err != nil {
+OFFSET trong SQL/Go (cấm)                  0
+fmt.Print*/log.Print* (phải slog)          2
+    +		_, _ = fmt.Fprintln(stderr, "token: "+msg)
+    +	_, _ = fmt.Fprintln(stdout, tok)
+os.Getenv ngoài config                      0
+math/rand (jti/token phải crypto/rand)     0
+InsecureSkipVerify                           0
+so sánh mật khẩu/hash bằng ==         0
+context.Background()/TODO() (mất deadline/trace) 0
+time.Sleep trong mã sản xuất            1
+    +	time.Sleep(drain)
+ghép chuỗi vào SQL                       0
+biến toàn cục có thể đổi (var tên thường ở cấp gói) 4
+    +var errRateLimitSlow = errors.New("rate limit: Redis không trả lời trong hạn cho phép")
+    +var errNoDependency = errors.New("phụ thuộc chưa được cấu hình")
+    +var eventIDRE = regexp.MustCompile(`^\d+-\d+$`)
+    +var typeRE = regexp.MustCompile(`^[a-z][a-z0-9_.]{0,63}$`)
+panic( (chỉ chấp nhận ở khởi tạo) 2
+    +		panic("auth: context không có Principal (thiếu auth.Middleware?)")
+    +		panic(rec)
+ghi file/đĩa cục bộ                    0
+log có token/password/hash/Authorization    0
+header Authorization ghi vào log/response   0
+alg không cố định (None/any method)    0
+tin X-Forwarded-For không qua CIDR          2
+    +// clientIP lấy IP để đếm: `X-Forwarded-For` CHỈ khi kết nối đến từ TRUSTED_PROXY_CIDRS (SRS 6.5).
+    +	first, _, _ := strings.Cut(r.Header.Get("X-Forwarded-For"), ",")
+định danh lấy từ body/query (student_code/user_id) 0
+
+# kiểm tay theo checklist (tc-GATE-PG.md TC-GATE-30): lỗi bọc %w; handler mỏng; CourseAccessGuard mặc định từ chối; 5xx/429 không lưu idempotency;
+#   cursor so sánh hàng (created_at,id); ETag băm; recover giữ http.ErrAbortHandler; mọi response lỗi qua một hàm viết lỗi; rate limit fail-open có log hạn chế.
+    MANUAL đọc tay diff theo checklist trong tc-GATE-PG.md (TC-GATE-30); ghi từng phát hiện BUG-n vào report (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-GATE-30 MANUAL
+== TC-GATE-99
+    ok   chế độ cuối = [default]
+    ok   2 gateway healthy = [2]
+    ok   mọi container không ở trạng thái exited bất ngờ (trừ migrate) = [0]
+-- TC-GATE-99 PASS
+TỔNG story gate: PASS=22 FAIL=0 MANUAL=3
+MANUAL: TC-GATE-25 TC-GATE-27 TC-GATE-30

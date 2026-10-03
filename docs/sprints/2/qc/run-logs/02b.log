@@ -1,0 +1,406 @@
+== TC-PG02-01
+    ok   danh sách bảng public = [audit_log goose_db_version idempotency_keys jobs outbox users]
+    ok   bảng nghiệp vụ ngoài phạm vi (courses/enrollments/documents/notifications) = [0]
+-- TC-PG02-01 PASS
+== TC-PG02-02
+    ok   danh sách enum = [job_status user_role user_status]
+    ok   user_role = [{ADMIN,TEACHER,TA,STUDENT}]
+    ok   user_status = [{PENDING_VERIFICATION,INVITED,ACTIVE,DISABLED}]
+    ok   job_status = [{QUEUED,RUNNING,SUCCEEDED,FAILED}]
+-- TC-PG02-02 PASS
+== TC-PG02-03
+    ok   extension vector = [vector]
+-- TC-PG02-03 PASS
+== TC-PG02-04
+    ok   số cột users = [16]
+    ok   16 cột users khớp SRS (tên, kiểu, nullable, mặc định)
+-- TC-PG02-04 PASS
+== TC-PG02-05
+    ok   số cột users (information_schema) = [16]
+    ok   6 cột P2/P5/P8 = [6]
+-- TC-PG02-05 PASS
+== TC-PG02-06
+    ok   go test ./internal/store -run 'TestSchema_UsersColumns' rc = [0]
+    ok   --- PASS: TestSchema_UsersColumns
+-- TC-PG02-06 PASS
+== TC-PG02-07
+    ok   email có chữ hoa 'A@X.com' → SQLSTATE 23514 ~ /23514:/
+    ok   email có chữ hoa 'A@X.com' → thông báo ~ /users_email_lower_chk/
+-- TC-PG02-07 PASS
+== TC-PG02-08
+    ok   email trùng 'qc-dup@x.com' hai lần → SQLSTATE 23505 ~ /23505:/
+    ok   email trùng 'qc-dup@x.com' hai lần → thông báo ~ /users_email_key/
+-- TC-PG02-08 PASS
+== TC-PG02-09
+    ok   role='SUPERUSER' (ngoài enum) → SQLSTATE 22P02 ~ /22P02:/
+-- TC-PG02-09 PASS
+== TC-PG02-10
+    ok   failed_logins = -1 → SQLSTATE 23514 ~ /23514:/
+    ok   failed_logins = -1 → thông báo ~ /users_failed_logins_chk/
+-- TC-PG02-10 PASS
+== TC-PG02-11
+    ok   status='ACTIVE' và password_hash = '' (rỗng) → SQLSTATE 23514 ~ /23514:/
+    ok   status='ACTIVE' và password_hash = '' (rỗng) → thông báo ~ /users_active_password_chk/
+-- TC-PG02-11 PASS
+== TC-PG02-12
+    ok   status='ACTIVE' và password_hash NULL → SQLSTATE 23514 ~ /23514:/
+    ok   status='ACTIVE' và password_hash NULL → thông báo ~ /users_active_password_chk/
+-- TC-PG02-12 PASS
+== TC-PG02-13
+    ok   student_code cho vai TEACHER → SQLSTATE 23514 ~ /23514:/
+    ok   student_code cho vai TEACHER → thông báo ~ /users_student_code_role_chk/
+-- TC-PG02-13 PASS
+== TC-PG02-14
+    ok   version = 0 (SRS 5.1 CHECK version >= 1) → SQLSTATE 23514 ~ /23514:/
+-- TC-PG02-14 PASS
+== TC-PG02-15
+    ok   status='INVITED' không mật khẩu là hợp lệ không được lỗi !~ /ERROR/
+    ok   status='INVITED' không mật khẩu là hợp lệ → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+-- TC-PG02-15 PASS
+== TC-PG02-16
+    ok   status='ACTIVE' có mật khẩu bcrypt, email chữ thường không được lỗi !~ /ERROR/
+    ok   status='ACTIVE' có mật khẩu bcrypt, email chữ thường → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+-- TC-PG02-16 PASS
+== TC-PG02-17
+    ok   student_code với role STUDENT không được lỗi !~ /ERROR/
+    ok   student_code với role STUDENT → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    ok   mặc định status|failed_logins|version ~ /^INVITED\|0\|1$/
+-- TC-PG02-17 PASS
+== TC-PG02-18
+    ok   go test ./internal/store -run 'TestSchema_UsersConstraints' rc = [0]
+    ok   --- PASS: TestSchema_UsersConstraints
+-- TC-PG02-18 PASS
+== TC-PG02-19
+    ok   số index = [17]
+    ok   danh sách index = [audit_log_actor_created_idx audit_log_course_created_idx audit_log_entity_idx audit_log_pkey idempotency_keys_created_idx idempotency_keys_pkey idempotency_keys_user_endpoint_key_key jobs_active_idx jobs_owner_created_idx jobs_pkey outbox_pending_idx outbox_pkey outbox_stale_idx users_email_key users_ics_token_key users_pkey users_student_code_idx]
+-- TC-PG02-19 PASS
+== TC-PG02-20
+    ok   users_email_key UNIQUE (email) ~ /CREATE UNIQUE INDEX.*\(email\)/
+    ok   users_email_key không partial !~ /WHERE/
+    ok   users_ics_token_key UNIQUE partial ~ /CREATE UNIQUE INDEX.*\(ics_token\) WHERE \(ics_token IS NOT NULL\)/
+    ok   users_student_code_idx partial ~ /\(student_code\) WHERE \(student_code IS NOT NULL\)/
+    ok   users_student_code_idx KHÔNG unique (Q17) !~ /UNIQUE/
+    ok   audit_log_actor_created_idx ~ /\(actor_id, created_at DESC, id DESC\) WHERE \(actor_id IS NOT NULL\)/
+    ok   audit_log_course_created_idx ~ /\(course_id, created_at DESC, id DESC\) WHERE \(course_id IS NOT NULL\)/
+    ok   audit_log_entity_idx ~ /\(entity, entity_id, created_at DESC\)/
+    ok   outbox_pending_idx khoá (next_attempt_at, id) ~ /\(next_attempt_at, id\) WHERE/
+    ok   outbox_pending_idx WHERE dispatched_at IS NULL ~ /dispatched_at IS NULL/
+    ok   outbox_pending_idx WHERE dead_at IS NULL ~ /dead_at IS NULL/
+    ok   outbox_pending_idx WHERE enqueued_at IS NULL ~ /enqueued_at IS NULL/
+    ok   outbox_stale_idx khoá (enqueued_at) ~ /\(enqueued_at\) WHERE/
+    ok   outbox_stale_idx WHERE enqueued_at IS NOT NULL ~ /enqueued_at IS NOT NULL/
+    ok   outbox_stale_idx WHERE dispatched_at IS NULL ~ /dispatched_at IS NULL/
+    ok   outbox_stale_idx WHERE dead_at IS NULL ~ /dead_at IS NULL/
+    ok   jobs_owner_created_idx ~ /\(owner_id, created_at DESC, id DESC\)/
+    ok   jobs_active_idx khoá (status, created_at) ~ /\(status, created_at\) WHERE/
+    ok   jobs_active_idx WHERE QUEUED ~ /QUEUED/
+    ok   jobs_active_idx WHERE RUNNING ~ /RUNNING/
+    ok   idempotency_keys_created_idx ~ /\(created_at\)/
+-- TC-PG02-20 PASS
+== TC-PG02-21
+    ok   cột id mặc định uuidv7() = [5]
+    ok   PK là cột id kiểu uuid (5 bảng) = [5]
+-- TC-PG02-21 PASS
+== TC-PG02-22
+    ok   số cột audit_log = [10]
+    ok   10 cột audit_log khớp SRS (tên, kiểu, nullable, mặc định)
+    ok   audit_log không có updated_at = [0]
+-- TC-PG02-22 PASS
+== TC-PG02-23
+    ok   số cột outbox = [11]
+    ok   11 cột outbox khớp SRS (tên, kiểu, nullable, mặc định)
+-- TC-PG02-23 PASS
+== TC-PG02-24
+    ok   số cột jobs = [10]
+    ok   10 cột jobs khớp SRS (tên, kiểu, nullable, mặc định)
+-- TC-PG02-24 PASS
+== TC-PG02-25
+    ok   số cột idempotency_keys = [8]
+    ok   8 cột idempotency_keys khớp SRS (tên, kiểu, nullable, mặc định)
+-- TC-PG02-25 PASS
+== TC-PG02-26
+    ok   idempotency_keys_user_endpoint_key_key UNIQUE = [t]
+    ok   khoá đúng ba cột ~ /\(user_id, endpoint, key\)/
+-- TC-PG02-26 PASS
+== TC-PG02-27
+    ok   attempts = -1 → SQLSTATE 23514 ~ /23514:/
+    ok   attempts = 5 → SQLSTATE 23514 ~ /23514:/
+    ok   attempts = 0 (biên dưới) không được lỗi !~ /ERROR/
+    ok   attempts = 0 (biên dưới) → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    ok   attempts = 4 (biên trên) không được lỗi !~ /ERROR/
+    ok   attempts = 4 (biên trên) → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+-- TC-PG02-27 PASS
+== TC-PG02-28
+    ok   dispatched_at và dead_at cùng có giá trị → SQLSTATE 23514 ~ /23514:/
+    ok   chỉ dispatched_at không được lỗi !~ /ERROR/
+    ok   chỉ dispatched_at → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    ok   chỉ dead_at không được lỗi !~ /ERROR/
+    ok   chỉ dead_at → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+-- TC-PG02-28 PASS
+== TC-PG02-29
+    ok   độ dài topic hợp lệ = [64]
+    ok   topic 64 ký tự (biên trên hợp lệ) không được lỗi !~ /ERROR/
+    ok   topic 64 ký tự (biên trên hợp lệ) → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    ok   topic 65 ký tự → SQLSTATE 23514 ~ /23514:/
+    ok   topic 65 ký tự → thông báo ~ /outbox_topic_chk/
+    ok   topic có chữ hoa 'Test.ok' → SQLSTATE 23514 ~ /23514:/
+    ok   topic có chữ hoa 'Test.ok' → thông báo ~ /outbox_topic_chk/
+    ok   topic bắt đầu bằng dấu chấm '.abc' → SQLSTATE 23514 ~ /23514:/
+    ok   topic bắt đầu bằng dấu chấm '.abc' → thông báo ~ /outbox_topic_chk/
+    ok   topic bắt đầu bằng số '1abc' → SQLSTATE 23514 ~ /23514:/
+    ok   topic bắt đầu bằng số '1abc' → thông báo ~ /outbox_topic_chk/
+    ok   topic rỗng → SQLSTATE 23514 ~ /23514:/
+    ok   topic rỗng → thông báo ~ /outbox_topic_chk/
+    ok   topic 'test.ok' không được lỗi !~ /ERROR/
+    ok   topic 'test.ok' → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+-- TC-PG02-29 PASS
+== TC-PG02-30
+    ok   SUCCEEDED mà finished_at NULL → SQLSTATE 23514 ~ /23514:/
+    ok   FAILED mà finished_at NULL → SQLSTATE 23514 ~ /23514:/
+    ok   QUEUED mà có finished_at → SQLSTATE 23514 ~ /23514:/
+    ok   RUNNING mà có finished_at → SQLSTATE 23514 ~ /23514:/
+    ok   SUCCEEDED + finished_at không được lỗi !~ /ERROR/
+    ok   SUCCEEDED + finished_at → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    ok   QUEUED + finished_at NULL không được lỗi !~ /ERROR/
+    ok   QUEUED + finished_at NULL → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+-- TC-PG02-30 PASS
+== TC-PG02-31
+    ok   progress = -1 → SQLSTATE 23514 ~ /23514:/
+    ok   progress = 101 → SQLSTATE 23514 ~ /23514:/
+    ok   progress = 0 không được lỗi !~ /ERROR/
+    ok   progress = 0 → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+    ok   progress = 100 (SUCCEEDED) không được lỗi !~ /ERROR/
+    ok   progress = 100 (SUCCEEDED) → id uuid v7 ~ /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+-- TC-PG02-31 PASS
+== TC-PG02-32
+    ok   trigger users_set_updated_at tồn tại = [1]
+    ok   hàm set_updated_at tồn tại = [1]
+    ok   users.updated_at tăng sau UPDATE ~ /^t$/
+    ok   outbox.updated_at tăng sau UPDATE ~ /^t$/
+    ok   jobs.updated_at tăng sau UPDATE ~ /^t$/
+-- TC-PG02-32 PASS
+== TC-PG02-33
+    ok   INSERT audit_log không lỗi !~ /ERROR/
+    ok   số dòng entity='qc-test' tăng 1 = [1]
+-- TC-PG02-33 PASS
+== TC-PG02-34
+    ok   UPDATE → SQLSTATE 42501 ~ /42501:/
+    ok   UPDATE → thông báo ~ /audit_log is append-only/
+-- TC-PG02-34 PASS
+== TC-PG02-35
+    ok   DELETE → SQLSTATE 42501 ~ /42501:/
+    ok   DELETE → thông báo ~ /audit_log is append-only/
+-- TC-PG02-35 PASS
+== TC-PG02-36
+    ok   TRUNCATE → SQLSTATE 42501 ~ /42501:/
+    ok   TRUNCATE → thông báo ~ /audit_log is append-only/
+    ok   audit_log vẫn còn dòng sau khi TRUNCATE bị chặn = 3 (≥ 1)
+-- TC-PG02-36 PASS
+== TC-PG02-37
+    ok   audit_log_no_update BEFORE UPDATE OR DELETE ~ /BEFORE (UPDATE OR DELETE|DELETE OR UPDATE) ON public.audit_log/
+    ok   audit_log_no_update FOR EACH ROW ~ /FOR EACH ROW/
+    ok   audit_log_no_update gọi audit_log_block_mutation ~ /audit_log_block_mutation\(\)/
+    ok   audit_log_no_truncate BEFORE TRUNCATE ~ /BEFORE TRUNCATE ON public.audit_log/
+    ok   audit_log_no_truncate FOR EACH STATEMENT ~ /FOR EACH STATEMENT/
+-- TC-PG02-37 PASS
+== TC-PG02-38
+    ok   go test ./internal/store -run 'TestSchema_AuditAppendOnly' rc = [0]
+    ok   --- PASS: TestSchema_AuditAppendOnly
+-- TC-PG02-38 PASS
+== TC-PG02-39
+    ok   migrate down rc = [0]
+    ok   migrate up rc = [0]
+    ok   lược đồ sau down+up giống hệt (diff rỗng)
+-- TC-PG02-39 PASS
+== TC-PG02-40
+    ok   migrate down rc = [0]
+    ok   số bảng của 00001 còn lại sau down = [0]
+    ok   extension vector còn sau down = [vector]
+    ok   migrate up rc (khôi phục) = [0]
+    ok   5 bảng trở lại sau up = [5]
+-- TC-PG02-40 PASS
+== TC-PG02-41
+    ok   migrate up lần hai rc = [0]
+    ok   goose_db_version không thêm dòng = [2]
+    ok   vẫn đúng 5 bảng + goose_db_version = [6]
+-- TC-PG02-41 PASS
+== TC-PG02-42
+    ok   goose_db_version.version_id mới nhất = [1]
+-- TC-PG02-42 PASS
+== TC-PG02-43
+    ok   go test ./db -run 'TestMigrations_RoundTrip' rc = [0]
+    ok   --- PASS: TestMigrations_RoundTrip
+-- TC-PG02-43 PASS
+== TC-PG02-44
+    thời gian 'pnpm dev' từ volume trống: 25 s (chứng cứ, không phải ngưỡng AC)
+    ok   pnpm dev rc = [0]
+    ok   trạng thái service migrate = [migrate exited 0]
+    ok   số lần migrate chạy (restart: no) = [1]
+    ok   dòng goose_db_version is_applied = 2 (≥ 2)
+    ok   gateway healthy = [200]
+-- TC-PG02-44 PASS
+== TC-PG02-45
+    ok   migrate có FinishedAt ~ /^[0-9]{4}-/
+    ok   StartedAt(/edupilot-gateway-1) > migrate.FinishedAt = [t]
+    ok   StartedAt(/edupilot-worker-1) > migrate.FinishedAt = [t]
+    ok   số container gateway+worker đã kiểm = 2 (≥ 2)
+    ok   nhãn depends_on của gateway ~ /migrate:service_completed_successfully/
+-- TC-PG02-45 PASS
+== TC-PG02-46
+    ok   migrate DATABASE_URL trỏ thẳng postgres ~ /@postgres(:5432)?//
+    ok   migrate không trỏ pgbouncer !~ /pgbouncer/
+    ok   migrate không có PGBOUNCER_URL có giá trị = [0]
+    ok   gateway runtime có PGBOUNCER_URL = [1]
+-- TC-PG02-46 PASS
+== TC-PG02-47
+    ok   sqlc diff rc = [0]
+    ok   sqlc diff không in gì (số dòng) = [0]
+-- TC-PG02-47 PASS
+== TC-PG02-48
+    ok   3 kiểu enum Go trong internal/store/models.go = [3]
+    FAIL không float64 trong internal/store: thực tế [2] ≠ mong đợi [0]
+    ok   timestamptz ánh xạ time.Time = 17 (≥ 1)
+-- TC-PG02-48 FAIL
+== TC-PG02-49
+    ok   OFFSET trong internal/store/queries = [0]
+    ok   số file queries/*.sql = 5 (≥ 1)
+    ok   file queries thiếu '-- name:' = [0]
+-- TC-PG02-49 PASS
+== TC-PG02-50
+    ok   sqlc diff rc (phải khác 0) = [1] (≠ [0])
+    ok   diff nêu tên file sinh ra lệch ~ /\.go/
+    ok   repo thật không bị sửa = [0]
+-- TC-PG02-50 PASS
+== TC-PG02-51
+    ok   go test ./internal/store -run 'TestVectorConventions' rc = [0]
+    ok   --- PASS: TestVectorConventions
+-- TC-PG02-51 PASS
+== TC-PG02-52
+    ok   go test ./internal/platform/db -run 'TestVector_ThroughPgBouncer' rc = [0]
+    ok   --- PASS: TestVector_ThroughPgBouncer
+-- TC-PG02-52 PASS
+== TC-PG02-53
+    ok   số dòng chứa halfvec_cosine_ops = 1 (≥ 1)
+    ok   mọi dòng halfvec_cosine_ops đều là chú thích SQL (bắt đầu bằng --) = [0]
+    ok   tham số m = 16 trong khối chú thích = 1 (≥ 1)
+    ok   tham số ef_construction = 64 trong khối chú thích = 1 (≥ 1)
+    ok   mẫu truy vấn <=> halfvec(1536) trong khối chú thích = 1 (≥ 1)
+-- TC-PG02-53 PASS
+== TC-PG02-54
+    ok   go test ./internal/platform/blob -run 'TestBlob_RoundTrip|TestBlob_Presign|TestBlob_InvalidKey|TestBlob_Cancel' rc = [0]
+    ok   --- PASS: TestBlob_RoundTrip
+    ok   --- PASS: TestBlob_Presign
+    ok   --- PASS: TestBlob_InvalidKey
+    ok   --- PASS: TestBlob_Cancel
+-- TC-PG02-54 PASS
+== TC-PG02-55
+    ok   BLOB_BUCKET trong .env.local ~ /^[a-z0-9][a-z0-9.-]{2,62}$/
+    ok   MinIO /minio/health/live = [200]
+    ok   GET ẩn danh bucket 'edupilot' không phải 404 NoSuchBucket (bucket đã được tạo) = [403] (≠ [404])
+    ok   GET ẩn danh bucket trả 403/200 (bucket có thật) ~ /^(403|200)$/
+-- TC-PG02-55 PASS
+== TC-PG02-56
+    ok   go test ./internal/platform/blob -run 'TestPresign_PublicHost|TestPresign_NoNetwork' rc = [0]
+    ok   --- PASS: TestPresign_PublicHost
+    ok   --- PASS: TestPresign_NoNetwork
+-- TC-PG02-56 PASS
+== TC-PG02-57
+    ok   BLOB_ENDPOINT của gateway = [minio:9000]
+    ok   BLOB_PUBLIC_ENDPOINT của gateway = [localhost:9000]
+    ok   host localhost:9000 dùng được từ máy (trình duyệt) = [200]
+-- TC-PG02-57 PASS
+== TC-PG02-58
+    ok   go test ./internal/platform/outbox -run 'TestOutbox_SameTransaction_Commit|TestOutbox_SameTransaction_Rollback' rc = [0]
+    ok   --- PASS: TestOutbox_SameTransaction_Commit
+    ok   --- PASS: TestOutbox_SameTransaction_Rollback
+-- TC-PG02-58 PASS
+== TC-PG02-59
+    ok   dòng outbox topic qc.rollback.test = [0]
+    ok   dòng jobs kind qc.rollback = [0]
+    ok   tin qc.rollback.test trong outbox.dispatch = [0]
+    ok   tin qc.rollback.test trong dead-letter = [0]
+-- TC-PG02-59 PASS
+== TC-PG02-60
+    ok   POST /_test/jobs trả job id ~ /^[0-9a-f-]{36}$/
+    ok   số dòng jobs = [1]
+    ok   dòng outbox job.enqueue cùng xmin với dòng jobs (cùng transaction) = 1 (≥ 1)
+-- TC-PG02-60 PASS
+== TC-PG02-61
+    ok   go test ./internal/platform/outbox -run 'TestOutbox_TwoWorkers_ExactlyOnce' rc = [0]
+    ok   --- PASS: TestOutbox_TwoWorkers_ExactlyOnce
+-- TC-PG02-61 PASS
+== TC-PG02-62
+    ok   số worker lúc chạy = [2]
+    ok   job nhận 202 = [100]
+    ok   dòng outbox job.enqueue mới = [100]
+    thời gian tới khi dispatched hết: 9s
+    ok   dòng outbox chưa dispatched = [0]
+    ok   thời gian dispatched hết (giây; ngưỡng stack compose thật ≤ 30 s — US.md 02-AC14 "Làm rõ" #Q-QC-02-2, 10 s chỉ cho test Go) = 9 (≤ 30)
+    ok   max(attempts) (0 = handler chạy đúng 1 lần mỗi dòng) = [0]
+    ok   job SUCCEEDED = [100]
+    ok   job progress=100 = [100]
+    ok   XPENDING outbox.dispatch outbox = [0]
+    ok   XLEN outbox.dispatch sau 10 s lặng (đã XACK + XDEL) = [0]
+    ok   XLEN outbox.dispatch.dead không đổi = [1]
+-- TC-PG02-62 PASS
+== TC-PG02-63
+    ok   go test ./internal/platform/outbox -run 'TestOutbox_RetryThenDead|TestOutbox_PanicIsFailure|TestOutbox_UnknownTopicDead' rc = [0]
+    ok   --- PASS: TestOutbox_RetryThenDead
+    ok   --- PASS: TestOutbox_PanicIsFailure
+    ok   --- PASS: TestOutbox_UnknownTopicDead
+-- TC-PG02-63 PASS
+== TC-PG02-64
+    ok   tạo được dòng outbox topic lạ ~ /^[0-9a-f-]{36}$/
+    ok   attempts (1 lần đầu + 3 lần thử lại) = [4]
+    ok   dead_at có giá trị = [t]
+    ok   dispatched_at vẫn NULL = [t]
+    ok   last_error khác rỗng = [t]
+    ok   XLEN outbox.dispatch.dead tăng 1 = [2]
+    ok   tin dead-letter chứa id của dòng outbox = 1 (≥ 1)
+    ok   tin dead-letter có trường outbox_id = 2 (≥ 1)
+    ok   tin dead-letter có trường topic = 6 (≥ 1)
+    ok   tin dead-letter có trường error = 2 (≥ 1)
+    ok   tin dead-letter nêu topic qc.unknown.topic = 2 (≥ 1)
+    ok   XPENDING outbox.dispatch outbox (tin gốc đã XACK) = [0]
+    ok   XLEN outbox.dispatch sau 10 s lặng (XACK rồi XDEL) = [0]
+    ok   worker vẫn sống sau topic lạ ~ /healthy/
+-- TC-PG02-64 PASS
+== TC-PG02-65
+    ok   last_error có nội dung ~ /^[1-9][0-9]*\|/
+    ok   độ dài last_error = 45 (≤ 1000)
+    ok   last_error chứa PII của payload (qc-pii-canary) = [false]
+-- TC-PG02-65 PASS
+== TC-PG02-66
+    ok   go test ./internal/platform/outbox -run 'TestOutbox_ConsumerCrash_Reclaimed|TestOutbox_StaleEnqueuedRequeued' rc = [0]
+    ok   --- PASS: TestOutbox_ConsumerCrash_Reclaimed
+    ok   --- PASS: TestOutbox_StaleEnqueuedRequeued
+-- TC-PG02-66 PASS
+== TC-PG02-67
+    ok   job nhận 202 = [30]
+    ok   dòng outbox job.enqueue mới = [30]
+    thời gian hồi phục sau khi giết worker: 51s (OUTBOX_CLAIM_IDLE mặc định 60 s)
+    ok   dòng outbox chưa dispatched (không mất tin) = [0]
+    ok   thời gian hồi phục (giây) = 51 (≤ 150)
+    ok   XPENDING outbox.dispatch outbox = [0]
+    ok   XLEN outbox.dispatch.dead không đổi = [2]
+    chứng cứ trạng thái job sau sự cố: 
+    ok   worker còn đúng 1 bản sau khôi phục = [1]
+-- TC-PG02-67 PASS
+== TC-PG02-68
+    tổng số dòng users hiện có: 0 (chứng cứ cho sức nặng của phép đo)
+    ok   dòng users có password_hash không phải bcrypt = [0]
+-- TC-PG02-68 PASS
+== TC-PG02-69
+    ok   hai người dùng khác nhau dùng cùng khoá: hợp lệ !~ /ERROR/
+    ok   chèn được 2 dòng ~ /^2$/
+    ok   cùng user + cùng endpoint + cùng key → SQLSTATE 23505 ~ /23505:/
+    ok   cùng user + cùng endpoint + cùng key → thông báo ~ /idempotency_keys_user_endpoint_key_key/
+-- TC-PG02-69 PASS
+== TC-PG02-70
+    ok   bảng thử _test_% đang tồn tại (điều kiện để phép đo có nghĩa) = 1 (≥ 1)
+    ok   bảng public sau khi loại _test_% = [audit_log goose_db_version idempotency_keys jobs outbox users]
+    ok   số index sau khi loại _test_% = [17]
+    ok   cột id mặc định uuidv7() sau khi loại _test_% = [5]
+-- TC-PG02-70 PASS
+TỔNG story 02: PASS=69 FAIL=1 MANUAL=0
+FAIL: TC-PG02-48

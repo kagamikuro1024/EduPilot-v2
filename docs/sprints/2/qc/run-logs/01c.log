@@ -1,0 +1,502 @@
+== TC-PG01-01
+    ok   rc khi thiếu DATABASE_URL = [1]
+    ok   ms khi thiếu DATABASE_URL = 33 (≤ 1000)
+    ok   missing nêu DATABASE_URL = [true]
+    ok   mức log khi thiếu DATABASE_URL = [error]
+    ok   rc khi thiếu REDIS_URL = [1]
+    ok   ms khi thiếu REDIS_URL = 33 (≤ 1000)
+    ok   missing nêu REDIS_URL = [true]
+    ok   mức log khi thiếu REDIS_URL = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu REDIS_URL = [0]
+    ok   rc khi thiếu JWT_SECRET_KEY = [1]
+    ok   ms khi thiếu JWT_SECRET_KEY = 30 (≤ 1000)
+    ok   missing nêu JWT_SECRET_KEY = [true]
+    ok   mức log khi thiếu JWT_SECRET_KEY = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu JWT_SECRET_KEY = [0]
+    ok   rc khi thiếu BLOB_ENDPOINT = [1]
+    ok   ms khi thiếu BLOB_ENDPOINT = 28 (≤ 1000)
+    ok   missing nêu BLOB_ENDPOINT = [true]
+    ok   mức log khi thiếu BLOB_ENDPOINT = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_ENDPOINT = [0]
+    ok   rc khi thiếu BLOB_BUCKET = [1]
+    ok   ms khi thiếu BLOB_BUCKET = 18 (≤ 1000)
+    ok   missing nêu BLOB_BUCKET = [true]
+    ok   mức log khi thiếu BLOB_BUCKET = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_BUCKET = [0]
+    ok   rc khi thiếu BLOB_ACCESS_KEY = [1]
+    ok   ms khi thiếu BLOB_ACCESS_KEY = 18 (≤ 1000)
+    ok   missing nêu BLOB_ACCESS_KEY = [true]
+    ok   mức log khi thiếu BLOB_ACCESS_KEY = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_ACCESS_KEY = [0]
+    ok   rc khi thiếu BLOB_SECRET_KEY = [1]
+    ok   ms khi thiếu BLOB_SECRET_KEY = 17 (≤ 1000)
+    ok   missing nêu BLOB_SECRET_KEY = [true]
+    ok   mức log khi thiếu BLOB_SECRET_KEY = [error]
+    ok   không in giá trị DATABASE_URL khi thiếu BLOB_SECRET_KEY = [0]
+-- TC-PG01-01 PASS
+== TC-PG01-02
+    ok   số lần cổng 127.0.0.1:18080 trả lời = [0]
+    ok   rc = [1]
+-- TC-PG01-02 PASS
+== TC-PG01-03
+    ok   rc = [1]
+    ok   ms = 19 (≤ 1000)
+    ok   missing (đã sắp xếp) = [["BLOB_ACCESS_KEY","BLOB_BUCKET","BLOB_ENDPOINT","BLOB_SECRET_KEY","DATABASE_URL","JWT_SECRET_KEY","REDIS_URL"]]
+    ok   số dòng stdout = [1]
+    ok   số dòng có .missing = [1]
+-- TC-PG01-03 PASS
+== TC-PG01-04
+    ok   rc = [1]
+    ok   ms = 549 (≤ 1000)
+    ok   missing của worker (nguyên văn AC1) = [["DATABASE_URL"]]
+-- TC-PG01-04 PASS
+== TC-PG01-05
+    ok   rc = [1]
+    ok   ms = 17 (≤ 1000)
+    ok   missing của worker = [["REDIS_URL"]]
+-- TC-PG01-05 PASS
+== TC-PG01-06
+    ok   rc = [1]
+    ok   ms = 17 (≤ 1000)
+    ok   missing của worker (đã sắp xếp) = [["DATABASE_URL","REDIS_URL"]]
+    ok   số dòng stdout = [1]
+-- TC-PG01-06 PASS
+== TC-PG01-07
+    ok   rc (JWT_SECRET_KEY ba dấu cách) = [1]
+    ok   missing nêu JWT_SECRET_KEY = [true]
+    ok   rc (BLOB_BUCKET tab+cách) = [1]
+    ok   missing nêu BLOB_BUCKET = [true]
+-- TC-PG01-07 PASS
+== TC-PG01-08
+    ok   go test ./internal/platform/config -run 'TestLoad_MissingEnv|TestLoad_Worker' rc = [0]
+    ok   --- PASS: TestLoad_MissingEnv
+    ok   --- PASS: TestLoad_Worker
+-- TC-PG01-08 PASS
+== TC-PG01-09
+    ok   rc khi JWT_SECRET_KEY sai = [1]
+    ok   ms khi JWT_SECRET_KEY sai = 18 (≤ 1000)
+    ok   dòng lỗi mức error nêu JWT_SECRET_KEY = 2 (≥ 1)
+    ok   log không in giá trị của JWT_SECRET_KEY = [0]
+-- TC-PG01-09 PASS
+== TC-PG01-10
+    ok   rc khi DB_MAX_CONNS sai = [1]
+    ok   ms khi DB_MAX_CONNS sai = 19 (≤ 1000)
+    ok   dòng lỗi mức error nêu DB_MAX_CONNS = 2 (≥ 1)
+-- TC-PG01-10 PASS
+== TC-PG01-11
+    ok   rc khi JWT_EXPIRATION sai = [1]
+    ok   ms khi JWT_EXPIRATION sai = 18 (≤ 1000)
+    ok   dòng lỗi mức error nêu JWT_EXPIRATION = 2 (≥ 1)
+    ok   log không in giá trị của JWT_EXPIRATION = [0]
+-- TC-PG01-11 PASS
+== TC-PG01-12
+    ok   rc khi CORS_ORIGINS sai = [1]
+    ok   ms khi CORS_ORIGINS sai = 17 (≤ 1000)
+    ok   dòng lỗi mức error nêu CORS_ORIGINS = 2 (≥ 1)
+-- TC-PG01-12 PASS
+== TC-PG01-13
+    ok   rc khi APP_ENV sai = [1]
+    ok   ms khi APP_ENV sai = 19 (≤ 1000)
+    ok   dòng lỗi mức error nêu APP_ENV = 2 (≥ 1)
+    ok   log không in giá trị của APP_ENV = [0]
+-- TC-PG01-13 PASS
+== TC-PG01-14
+    ok   độ dài khoá hợp lệ = [32]
+    ok   độ dài khoá lỗi = [31]
+    ok   32 byte: số dòng error nêu JWT_SECRET_KEY = [0]
+    ok   32 byte: đi tới bước chờ phụ thuộc (ms ≈ STARTUP_TIMEOUT 2s) = 3031 (≥ 1500)
+    ok   31 byte: rc = [1]
+    ok   31 byte: ms = 24 (≤ 1000)
+    ok   31 byte: dòng error nêu JWT_SECRET_KEY = 2 (≥ 1)
+-- TC-PG01-14 PASS
+== TC-PG01-15
+    ok   DB_MAX_CONNS=1: số dòng error nêu biến = [0]
+    ok   DB_MAX_CONNS=1: đi tới bước chờ phụ thuộc (ms) = 3036 (≥ 1500)
+    ok   DB_MAX_CONNS=100: số dòng error nêu biến = [0]
+    ok   DB_MAX_CONNS=100: đi tới bước chờ phụ thuộc (ms) = 3036 (≥ 1500)
+    ok   DB_MAX_CONNS=101: rc = [1]
+    ok   DB_MAX_CONNS=101: ms = 22 (≤ 1000)
+    ok   DB_MAX_CONNS=101: dòng error nêu biến = 2 (≥ 1)
+-- TC-PG01-15 PASS
+== TC-PG01-16
+    ok   APP_ENV=dev: số dòng error nêu APP_ENV = [0]
+    ok   APP_ENV=dev: đi tới bước chờ phụ thuộc (ms) = 3041 (≥ 1500)
+    ok   APP_ENV=test: số dòng error nêu APP_ENV = [0]
+    ok   APP_ENV=test: đi tới bước chờ phụ thuộc (ms) = 3043 (≥ 1500)
+    ok   APP_ENV=production: số dòng error nêu APP_ENV = [0]
+    ok   APP_ENV=production: đi tới bước chờ phụ thuộc (ms) = 3040 (≥ 1500)
+-- TC-PG01-16 PASS
+== TC-PG01-17
+    ok   go test ./internal/platform/config -run 'TestLoad_Invalid' rc = [0]
+    ok   --- PASS: TestLoad_Invalid
+-- TC-PG01-17 PASS
+== TC-PG01-18
+    ok   RestartCount của 363a6b896e45 (tiền điều kiện: không restart) = [0]
+    ok   số dòng 'config loaded' của 363a6b896e45 = [1]
+    ok   dòng có "secrets":"[redacted]" = 1 (≥ 1)
+    ok   RestartCount của 947e9bdefb14 (tiền điều kiện: không restart) = [0]
+    ok   số dòng 'config loaded' của 947e9bdefb14 = [1]
+    ok   dòng có "secrets":"[redacted]" = 1 (≥ 1)
+-- TC-PG01-18 PASS
+== TC-PG01-19
+    ok   số dòng 'config loaded' = [1]
+    ok   db_max_conns (kiểu JSON) = [number]
+    ok   db_max_conns (mặc định dev) = [10]
+    ok   request_timeout (chuỗi thời lượng) = [30s]
+    ok   sse_heartbeat (chuỗi thời lượng) = [25s]
+    ok   app_env (mặc định dev) = [dev]
+    ok   cors_origins (mặc định SRS 8.1) = [http://localhost:3000,https://localhost]
+    ok   db_via (không đặt PGBOUNCER_URL) = [direct]
+    ok   secrets = [[redacted]]
+    ok   số khoá bí mật bị in (database_url/redis_url/pgbouncer_url/jwt_secret_key/blob_access_key/blob_secret_key) = [0]
+    ok   dòng không chứa khoá JWT thật = [0]
+    ok   dòng không chứa mật khẩu Postgres = [0]
+-- TC-PG01-19 PASS
+== TC-PG01-20
+    ok   số dòng log chứa bí mật = [0]
+-- TC-PG01-20 PASS
+== TC-PG01-21
+    ok   go test ./internal/platform/config -run 'TestLoad_Defaults|TestConfig_NoSecretInLog' rc = [0]
+    ok   --- PASS: TestLoad_Defaults
+    ok   --- PASS: TestConfig_NoSecretInLog
+-- TC-PG01-21 PASS
+== TC-PG01-22
+    ok   mọi dòng log đạt (JSON + 6 trường + trace_id 32 hex ≠ 0) = [true]
+    ok   số dòng log đã kiểm = 91 (≥ 10)
+-- TC-PG01-22 PASS
+== TC-PG01-23
+    ok   service trong log gateway = [gateway]
+    ok   service trong log worker = [worker]
+    ok   số instance khác nhau trong log gateway = [2]
+-- TC-PG01-23 PASS
+== TC-PG01-24
+    ok   mọi dòng log quanh lúc dừng đạt = [true]
+    ok   số dòng log quanh lúc dừng = 1 (≥ 1)
+-- TC-PG01-24 PASS
+== TC-PG01-25
+    ok   số dòng log chứa email mồi = [0]
+    ok   số dòng log chứa chữ ký token = [0]
+-- TC-PG01-25 PASS
+== TC-PG01-26
+    ok   go test ./internal/platform/log ./internal/platform/otel -run 'TestHandler_AlwaysTraceID|TestStartupHasTrace' rc = [0]
+    ok   --- PASS: TestHandler_AlwaysTraceID
+    ok   --- PASS: TestStartupHasTrace
+-- TC-PG01-26 PASS
+== TC-PG01-27
+    ok   trace_id trong thân lỗi = [4bf92f3577b34da6a3ce929d0e0e4736]
+    ok   mã = [404]
+    ok   code lỗi = [NOT_FOUND]
+    ok   có header X-Request-Id ~ /.+/
+-- TC-PG01-27 PASS
+== TC-PG01-28
+    ok   số dòng log mang trace_id của request = 3 (≥ 1)
+-- TC-PG01-28 PASS
+== TC-PG01-29
+    ok   trace_id tự sinh 32 hex ~ /^[0-9a-f]{32}$/
+    ok   trace_id khác toàn 0 = [31191a921cacb46f0ffdf49ef3e2cb00] (≠ [00000000000000000000000000000000])
+    ok   trace_id khác trace của TC-27 = [31191a921cacb46f0ffdf49ef3e2cb00] (≠ [4bf92f3577b34da6a3ce929d0e0e4736])
+    ok   X-Request-Id = trace_id = [31191a921cacb46f0ffdf49ef3e2cb00]
+-- TC-PG01-29 PASS
+== TC-PG01-30
+    ok   go test ./internal/httpapi -run 'TestTraceID_InErrorBodyAndLogs' rc = [0]
+    ok   --- PASS: TestTraceID_InErrorBodyAndLogs
+-- TC-PG01-30 PASS
+== TC-PG01-31
+    ok   go test ./internal/platform/redis -run 'TestKeys|TestTTLConstants' rc = [0]
+    ok   --- PASS: TestKeys
+    ok   --- PASS: TestTTLConstants
+-- TC-PG01-31 PASS
+== TC-PG01-32
+    ok   có khoá ep:idem:* = 316 (≥ 1)
+    ok   có khoá ep:rl:* = 2 (≥ 1)
+    ok   có khoá ep:sse:conn:* = 1 (≥ 1)
+    ok   có khoá ep:sse:buf:* = 20 (≥ 1)
+    ok   số khoá ep:* không có TTL = [0]
+-- TC-PG01-32 PASS
+== TC-PG01-33
+    ok   TTL ep:idem ≤ 86400 = 85562 (≤ 86400)
+    FAIL TTL ep:idem ≥ 86300: thực tế [85562] phải ≥ 86300
+    ok   TTL ep:rl ≤ 120 = 119 (≤ 120)
+    ok   TTL ep:rl ≥ 60 = 119 (≥ 60)
+    ok   TTL ep:sse:conn ≤ 150 = 147 (≤ 150)
+    ok   TTL ep:sse:conn ≥ 100 = 147 (≥ 100)
+    ok   TTL ep:sse:buf ≤ 3600 = 1133 (≤ 3600)
+    FAIL TTL ep:sse:buf ≥ 3500: thực tế [1133] phải ≥ 3500
+-- TC-PG01-33 FAIL
+== TC-PG01-34
+    ok   số khoá Redis ngoài quy ước = [0]
+-- TC-PG01-34 PASS
+== TC-PG01-35
+    ok   mã của request chậm = [200]
+-- TC-PG01-35 PASS
+== TC-PG01-36
+    ok   mã thoát của mọi bản gateway = [0]
+    ok   thời gian tắt (ms) = 3198 (≤ 25000)
+-- TC-PG01-36 PASS
+== TC-PG01-37
+    ok   mã readyz khi đang tắt = [503]
+    ok   code = [NOT_READY]
+    ok   details.draining (SRS 6.1) = [true]
+-- TC-PG01-37 PASS
+== TC-PG01-38
+    ok   số dòng 'event: shutdown' trong stream = [1]
+    ok   thời gian đóng kết nối sau SIGTERM (ms; AC 1000 + 200 sai số đo) = 28 (≤ 1200)
+-- TC-PG01-38 PASS
+== TC-PG01-39
+    ok   kết nối mới KHÔNG được 2xx !~ /^2/
+    ok   mã của kết nối mới (503 / từ chối) ~ /^(000|502|503)$/
+-- TC-PG01-39 PASS
+== TC-PG01-40
+    ok   mã thoát khi cắt request quá hạn = [1]
+    ok   thời gian tắt (ms) ≈ SHUTDOWN_TIMEOUT 2 s = 2220 (≤ 8000)
+    ok   số dòng msg="forced shutdown" = 1 (≥ 1)
+    ok   mức log của dòng forced shutdown = [warn]
+    ok   cancelled_requests là số nguyên = [nguyên]
+    ok   cancelled_requests = 1 (≥ 1)
+-- TC-PG01-40 PASS
+== TC-PG01-41
+    ok   go test ./cmd/gateway ./internal/httpapi -run 'TestGracefulShutdown|TestShutdown_ForcedAfterTimeout' rc = [0]
+    ok   --- PASS: TestGracefulShutdown
+    ok   --- PASS: TestShutdown_ForcedAfterTimeout
+-- TC-PG01-41 PASS
+== TC-PG01-42
+    ok   mã = [413]
+    ok   code = [PAYLOAD_TOO_LARGE]
+    ok   details.max_bytes (SRS 6.1) = [1048576]
+-- TC-PG01-42 PASS
+== TC-PG01-43
+    ok   kích thước thân = [1048576]
+    ok   mã KHÔNG phải 413 (thân hợp lệ JSON nên có thể 2xx hoặc 422) !~ /^413$/
+    ok   mã nằm trong dải hợp lệ ~ /^(200|201|202|400|415|422)$/
+-- TC-PG01-43 PASS
+== TC-PG01-44
+    ok   kích thước thân = [1048577]
+    ok   mã = [413]
+    ok   code (413 thắng IDEMPOTENCY_KEY_REQUIRED — SRS 3.1) = [PAYLOAD_TOO_LARGE]
+-- TC-PG01-44 PASS
+== TC-PG01-45
+    ok   không nhận được trả lời 2xx !~ /^HTTP/1\.1 2/
+    ok   thời gian tới lúc đóng (ms) = 5103 (≥ 3000)
+    ok   thời gian tới lúc đóng (ms) = 5103 (≤ 11000)
+-- TC-PG01-45 PASS
+== TC-PG01-46
+    ok   dòng trạng thái ~ /^HTTP/1\.1 431/
+-- TC-PG01-46 PASS
+== TC-PG01-47
+    ok   không nhận được trả lời 2xx !~ /^HTTP/1\.1 2/
+    ok   thời gian tới lúc đóng (ms) = 15082 (≥ 12000)
+    ok   thời gian tới lúc đóng (ms) = 15082 (≤ 24000)
+-- TC-PG01-47 PASS
+== TC-PG01-48
+    ok   số trường hợp lệ = tổng số trường = [4]
+    ok   trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   message tiếng Việt, không lộ nội bộ ~ /.+/
+    ok   message không chứa đường dẫn/SQL !~ /(/[a-z]+/[a-z]+\.go|select |insert )/
+-- TC-PG01-48 PASS
+== TC-PG01-49
+    ok   go test ./internal/httpapi -run 'TestServerLimits|TestServerLimits_SlowHeader|TestServerLimits_HugeHeader' rc = [0]
+    ok   --- PASS: TestServerLimits
+    ok   --- PASS: TestServerLimits_SlowHeader
+    ok   --- PASS: TestServerLimits_HugeHeader
+-- TC-PG01-49 PASS
+== TC-PG01-50
+    ok   mã = [504]
+    ok   code = [DEADLINE_EXCEEDED]
+    ok   thời gian trả lời (ms) = 1048 (≤ 1600)
+-- TC-PG01-50 PASS
+== TC-PG01-51
+    ok   số truy vấn pg_sleep còn chạy = [0]
+-- TC-PG01-51 PASS
+== TC-PG01-52
+    ok   mã = [504]
+    ok   code = [DEADLINE_EXCEEDED]
+    ok   số client Redis còn blocked (cmd=blpop) = [0]
+-- TC-PG01-52 PASS
+== TC-PG01-53
+    ok   số truy vấn pg_sleep trước khi gọi = [0]
+    ok   số truy vấn pg_sleep 1,5 s sau khi client ngắt = [0]
+-- TC-PG01-53 PASS
+== TC-PG01-54
+    ok   go test ./internal/httpapi -run 'TestDeadline_DB|TestDeadline_Redis|TestDeadline_ClientCancel' rc = [0]
+    ok   --- PASS: TestDeadline_DB
+    ok   --- PASS: TestDeadline_Redis
+    ok   --- PASS: TestDeadline_ClientCancel
+-- TC-PG01-54 PASS
+== TC-PG01-55
+    ok   go test ./internal/platform/db -run 'TestPool_MaxConns|TestPool_AcquireHonorsDeadline' rc = [0]
+    ok   --- PASS: TestPool_MaxConns
+    ok   --- PASS: TestPool_AcquireHonorsDeadline
+-- TC-PG01-55 PASS
+== TC-PG01-56
+    ok   số bản gateway lúc đo = [1]
+    ok   số client PgBouncer của gateway lớn nhất (≤ DB_MAX_CONNS × số bản) = 3 (≤ 3)
+    ok   đã quan sát được ≥ 1 client của gateway (không đo rỗng) = 3 (≥ 1)
+-- TC-PG01-56 PASS
+== TC-PG01-57
+    ok   số request trả 504 = [5]
+    ok   tổng thời gian 5 request song song (ms; không treo) = 2043 (≤ 6000)
+-- TC-PG01-57 PASS
+== TC-PG01-58
+    ok   số dòng 'slow query' của request = [1]
+    ok   mức log = [warn]
+    ok   duration_ms (kiểu JSON) = [number]
+    ok   duration_ms = 254 (≥ 200)
+    ok   trace_id của dòng log = [000001a0fe89b084000000002840bb02]
+    ok   query_name (tên sqlc, chuỗi khác rỗng) = [có]
+-- TC-PG01-58 PASS
+== TC-PG01-59
+    ok   số dòng 'slow query' của truy vấn 50 ms = [0]
+-- TC-PG01-59 PASS
+== TC-PG01-60
+    ok   có dòng slow query để kiểm ~ /slow query/
+    ok   số lần xuất hiện giá trị tham số 0.37 = [0]
+-- TC-PG01-60 PASS
+== TC-PG01-61
+    ok   go test ./internal/platform/db -run 'TestSlowQueryLog|TestSlowQueryLog_NoArgs' rc = [0]
+    ok   --- PASS: TestSlowQueryLog
+    ok   --- PASS: TestSlowQueryLog_NoArgs
+-- TC-PG01-61 PASS
+== TC-PG01-62
+    ok   dòng trạng thái ~ /^HTTP/1\.1 200/
+-- TC-PG01-62 PASS
+== TC-PG01-63
+    ok   healthcheck gọi -healthcheck ~ /healthcheck/
+    ok   Health của worker = [healthy]
+    ok   FailingStreak = [0]
+-- TC-PG01-63 PASS
+== TC-PG01-64
+    ok   số dòng outbox đã được worker nhặt trong ≤ 5 s = 1 (≥ 1)
+-- TC-PG01-64 PASS
+== TC-PG01-65
+    ok   mã thoát của worker = [0]
+    ok   thời gian tắt worker (ms) = 299 (≤ 10000)
+-- TC-PG01-65 PASS
+== TC-PG01-66
+    ok   go test ./cmd/worker -run 'TestWorker_Health|TestWorker_Shutdown' rc = [0]
+    ok   --- PASS: TestWorker_Health
+    ok   --- PASS: TestWorker_Shutdown
+-- TC-PG01-66 PASS
+== TC-PG01-67
+    ok   mục tiêu Makefile thiếu = []
+-- TC-PG01-67 PASS
+== TC-PG01-68
+    ok   số lần RYUK_DISABLED=true = [1]
+    ok   có cờ -race = 1 (≥ 1)
+    ok   chạy toàn bộ gói (./...) = 1 (≥ 1)
+-- TC-PG01-68 PASS
+== TC-PG01-69
+    ok   có DOCKER_HOST = 1 (≥ 1)
+    ok   trỏ tới socket colima = 1 (≥ 1)
+-- TC-PG01-69 PASS
+== TC-PG01-70
+    ok   mã readyz = [503]
+    ok   code = [NOT_READY]
+    ok   details.redis = [down]
+    ok   số giây tới khi readyz báo down = 0 (≤ 10)
+    ok   mã healthz khi Redis chết = [200]
+-- TC-PG01-70 PASS
+== TC-PG01-71
+    ok   mã readyz sau khi Redis trở lại = [200]
+    ok   số giây tới khi readyz 200 = 0 (≤ 10)
+-- TC-PG01-71 PASS
+== TC-PG01-72
+    ok   RestartCount|StartedAt|Pid|Running trước = sau = [0|2026-10-02T21:33:45.60146561Z|1888345|true]
+    ok   tiến trình vẫn chạy ~ /true$/
+-- TC-PG01-72 PASS
+== TC-PG01-73
+    ok   mã readyz = [503]
+    ok   code = [NOT_READY]
+    ok   details.db = [down]
+    ok   số giây tới khi readyz báo down = 0 (≤ 10)
+    ok   mã healthz khi Postgres chết = [200]
+-- TC-PG01-73 PASS
+== TC-PG01-74
+    ok   mã readyz = [503]
+    ok   details.db = [down]
+    ok   details.redis = [down]
+    ok   RestartCount|Running trước = sau = [0|true]
+-- TC-PG01-74 PASS
+== TC-PG01-75
+    ok   rc = [1]
+    ok   ms ≈ STARTUP_TIMEOUT 3 s = 3051 (≥ 2500)
+    ok   ms = 3051 (≤ 9000)
+    ok   số dòng warn msg="dependency not ready" (mỗi giây một dòng) = 3 (≥ 2)
+    ok   số dòng warn msg="dependency not ready" = 3 (≤ 6)
+    ok   dependency ở các dòng warn = [db]
+    ok   số dòng error msg="dependency not ready" = 1 (≥ 1)
+    ok   dependency ở dòng error = [db]
+-- TC-PG01-75 PASS
+== TC-PG01-76
+    ok   rc = [1]
+    ok   ms ≈ STARTUP_TIMEOUT 3 s = 3055 (≥ 2500)
+    ok   ms = 3055 (≤ 9000)
+    FAIL số dòng warn msg="dependency not ready": thực tế [1] phải ≥ 2
+    ok   dependency ở các dòng warn = [redis]
+    ok   số dòng error msg="dependency not ready" = 1 (≥ 1)
+    ok   dependency ở dòng error = [redis]
+-- TC-PG01-76 FAIL
+== TC-PG01-77
+    ok   go test ./internal/httpapi -run 'TestReadyz_DependencyDown|TestStartup_WaitsForDeps' rc = [0]
+    ok   --- PASS: TestReadyz_DependencyDown
+    ok   --- PASS: TestStartup_WaitsForDeps
+-- TC-PG01-77 PASS
+== TC-PG01-78
+    ok   số dòng khớp bí mật trong repo = [0]
+-- TC-PG01-78 PASS
+== TC-PG01-79
+    ok   .env.example tồn tại
+    ok   có khai báo DATABASE_URL = 1 (≥ 1)
+    ok   có khai báo REDIS_URL = 1 (≥ 1)
+    ok   có khai báo JWT_SECRET_KEY = 1 (≥ 1)
+    ok   có khai báo BLOB_ENDPOINT = 1 (≥ 1)
+    ok   có khai báo BLOB_BUCKET = 1 (≥ 1)
+    ok   có khai báo BLOB_ACCESS_KEY = 1 (≥ 1)
+    ok   có khai báo BLOB_SECRET_KEY = 1 (≥ 1)
+    FAIL JWT_SECRET_KEY ở .env.example là giá trị dev giả (có -dev): [edupilot-dev-jwt-secret-key-change-me-0001] không khớp /--/
+    FAIL BLOB_SECRET_KEY ở .env.example là giá trị dev giả (có -dev): [edupilot-dev-secret] không khớp /--/
+    FAIL POSTGRES_PASSWORD ở .env.example là giá trị dev giả (có -dev): [edupilot-dev] không khớp /--/
+    ok   .env.local bị git bỏ qua
+-- TC-PG01-79 FAIL
+== TC-PG01-80
+    ok   số dòng log chứa giá trị JWT_SECRET_KEY = [0]
+    ok   số dòng log chứa giá trị BLOB_SECRET_KEY = [0]
+    ok   số dòng log chứa giá trị POSTGRES_PASSWORD = [0]
+    ok   số dòng log chứa giá trị PGBOUNCER_STATS_PASSWORD = [0]
+-- TC-PG01-80 PASS
+== TC-PG01-81
+    ok   worker: số dòng log có .missing (JWT/BLOB_* không bắt buộc) = [0]
+    ok   worker: đã qua kiểm cấu hình, chờ phụ thuộc tới STARTUP_TIMEOUT=2s (ms) = 2070 (≥ 1500)
+    ok   worker: rc (thoát vì phụ thuộc chưa lên, không phải vì thiếu biến) = [1]
+    ok   worker: dependency ở dòng error = [db]
+    ok   gateway: rc khi chỉ có 2 biến = [1]
+    ok   gateway: ms = 22 (≤ 1000)
+    ok   gateway: missing (vẫn đòi đủ 7 biến) = [["BLOB_ACCESS_KEY","BLOB_BUCKET","BLOB_ENDPOINT","BLOB_SECRET_KEY","JWT_SECRET_KEY"]]
+-- TC-PG01-81 PASS
+== TC-PG01-82
+    ok   rc khi BCRYPT_COST sai = [1]
+    ok   ms khi BCRYPT_COST sai = 17 (≤ 1000)
+    ok   dòng lỗi mức error nêu BCRYPT_COST = 2 (≥ 1)
+    ok   BCRYPT_COST=3: số dòng 'config loaded' (không kẹp, không chạy tiếp) = [0]
+    ok   rc khi BCRYPT_COST sai = [1]
+    ok   ms khi BCRYPT_COST sai = 17 (≤ 1000)
+    ok   dòng lỗi mức error nêu BCRYPT_COST = 2 (≥ 1)
+    ok   log không in giá trị của BCRYPT_COST = [0]
+    ok   BCRYPT_COST=abc: số dòng 'config loaded' = [0]
+-- TC-PG01-82 PASS
+== TC-PG01-83
+    ok   BCRYPT_COST=4: số dòng error nêu biến = [0]
+    ok   BCRYPT_COST=4: đi tới bước chờ phụ thuộc (ms) = 3040 (≥ 1500)
+    ok   BCRYPT_COST=14: số dòng error nêu biến = [0]
+    ok   BCRYPT_COST=14: đi tới bước chờ phụ thuộc (ms) = 3046 (≥ 1500)
+-- TC-PG01-83 PASS
+== TC-PG01-84
+    ok   kích thước thân = [1048577]
+    ok   mã = [413]
+    ok   code = [PAYLOAD_TOO_LARGE]
+-- TC-PG01-84 PASS
+== TC-PG01-85
+    ok   số lần gọi golangci-lint = [2]
+    ok   số lần golangci-lint chạy với tag testroutes = [1]
+-- TC-PG01-85 PASS
+TỔNG story 01: PASS=82 FAIL=3 MANUAL=0
+FAIL: TC-PG01-33 TC-PG01-76 TC-PG01-79
