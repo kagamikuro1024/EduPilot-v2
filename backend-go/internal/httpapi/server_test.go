@@ -98,6 +98,9 @@ func TestGracefulShutdown(t *testing.T) {
 		if resp.StatusCode != http.StatusServiceUnavailable || body["code"] != "NOT_READY" {
 			t.Errorf("request mới khi đang tắt = %d %v, muốn 503 NOT_READY", resp.StatusCode, body)
 		}
+		if resp.Header.Get(DrainingHeader) != "1" {
+			t.Errorf("503 do đang tắt phải mang %s: 1 để Caddy thử lại sang bản khác", DrainingHeader)
+		}
 	}
 	rdz, err := http.Get("http://" + addr + "/api/v1/readyz") //nolint:noctx // test cục bộ
 	if err == nil {
@@ -106,6 +109,9 @@ func TestGracefulShutdown(t *testing.T) {
 		details, _ := body["details"].(map[string]any)
 		if rdz.StatusCode != http.StatusServiceUnavailable || details["draining"] != true {
 			t.Errorf("readyz khi đang tắt = %d %v", rdz.StatusCode, body)
+		}
+		if rdz.Header.Get(DrainingHeader) != "" {
+			t.Errorf("readyz không được mang %s", DrainingHeader)
 		}
 	}
 
@@ -255,6 +261,26 @@ func TestStartup_WaitsForDeps(t *testing.T) {
 		}
 		if errs != 1 {
 			t.Errorf("số dòng error = %d, muốn 1", errs)
+		}
+	})
+
+	// BUG-PG-4: phụ thuộc treo (go-redis tự thử dial lại nhiều lần) không được làm vòng chờ giãn ra — vẫn một warn mỗi giây.
+	t.Run("ping treo vẫn mỗi giây một dòng warn", func(t *testing.T) {
+		t.Parallel()
+		d, buf := coreDeps(t, nil)
+		hang := Dep{Name: "redis", Ping: func(ctx context.Context) error { <-ctx.Done(); return ctx.Err() }}
+
+		if err := WaitForDeps(t.Context(), d.Log, 3500*time.Millisecond, hang); err == nil {
+			t.Fatal("WaitForDeps = nil, muốn lỗi khi quá STARTUP_TIMEOUT")
+		}
+		var warns int
+		for _, l := range coreLogLines(t, buf.String()) {
+			if l["msg"] == "dependency not ready" && l["level"] == "WARN" {
+				warns++
+			}
+		}
+		if warns < 3 {
+			t.Errorf("số dòng warn = %d trong 3,5 s, muốn ≥ 3", warns)
 		}
 	})
 }

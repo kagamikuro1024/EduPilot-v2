@@ -240,7 +240,8 @@ func (h *handler) readyFrame(connID string) string {
 }
 
 // startFrom quyết định điểm bắt đầu từ `Last-Event-ID` (SRS 6.8): rỗng/khoảng trắng = không có (chỉ sự kiện mới),
-// sai định dạng → resync invalid_last_event_id, cũ hơn đầu bộ đệm → resync buffer_exceeded.
+// sai định dạng → resync invalid_last_event_id; cũ hơn đầu bộ đệm HOẶC mới hơn sự kiện mới nhất (bộ đệm đã bị xoá / id từ
+// nơi khác — BUG-PG-2) → resync buffer_exceeded và bắt đầu từ sự kiện mới nhất, để sự kiện live sau đó vẫn tới client.
 func (h *handler) startFrom(ctx context.Context, uid, raw string) (last, resync string, err error) {
 	raw = strings.TrimSpace(raw)
 	switch {
@@ -252,10 +253,15 @@ func (h *handler) startFrom(ctx context.Context, uid, raw string) (last, resync 
 		if ferr != nil {
 			return "", "", ferr
 		}
-		if first == "" || !olderThan(raw, first) {
-			return raw, "", nil
+		newest, ferr := h.edgeID(ctx, uid, true)
+		if ferr != nil {
+			return "", "", ferr
 		}
-		resync = reasonBufferTooOld
+		// newest = "0-0" khi bộ đệm trống: mọi id khác "0-0" đều "mới hơn" (TTL hết / bộ đệm bị xoá → có thể đã mất sự kiện)
+		if (first != "" && olderThan(raw, first)) || olderThan(newest, raw) {
+			return newest, reasonBufferTooOld, nil
+		}
+		return raw, "", nil
 	}
 	last, err = h.edgeID(ctx, uid, true)
 	return last, resync, err

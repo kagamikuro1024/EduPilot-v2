@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net"
 	"strings"
 	"sync"
@@ -127,8 +128,17 @@ func TestServe_InvalidEnvNamesVariable(t *testing.T) {
 			if msg, _ := m["msg"].(string); !strings.Contains(msg, tc.key) {
 				t.Fatalf("msg = %q, muốn nêu %s", msg, tc.key)
 			}
-			if tc.leak != "" && strings.Contains(out, tc.leak) {
-				t.Fatalf("log lộ giá trị %q: %s", tc.leak, out)
+			// Chỉ so trong các trường do ứng dụng viết; `trace_id` / `instance` / `time` là chuỗi ngẫu nhiên và có thể
+			// tình cờ chứa "abc" (BUG-PG-3).
+			if tc.leak != "" {
+				for k, v := range m {
+					if k == "trace_id" || k == "instance" || k == "time" {
+						continue
+					}
+					if strings.Contains(fmt.Sprint(v), tc.leak) {
+						t.Fatalf("log lộ giá trị %q ở trường %s: %s", tc.leak, k, out)
+					}
+				}
 			}
 			if strings.Contains(out, "config loaded") {
 				t.Fatalf("không được chạy tiếp sau cấu hình sai: %s", out)

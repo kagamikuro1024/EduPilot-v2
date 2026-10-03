@@ -1,0 +1,442 @@
+== TC-PG05-01
+    ok   13 byte đầu (retry + dòng trống) = [retry: 3000@@]
+    ok   dòng 3 = sự kiện trạng thái đầu = [event: ready]
+    ok   dòng 4 = data JSON một dòng ~ /^data: \{.*\}$/
+    ok   dòng 5 rỗng (kết thúc khối) = []
+    ok   khối ready KHÔNG có dòng id: = [0]
+    ok   data của ready là JSON hợp lệ
+-- TC-PG05-01 PASS
+== TC-PG05-02
+    ok   mã HTTP = [200]
+    ok   Content-Type ~ /^text/event-stream/
+    ok   Cache-Control = [no-cache, no-transform]
+    ok   X-Accel-Buffering = [no]
+    ok   X-Instance-Id có mặt = [a8e61f1bbc50] (≠ [])
+    ok   không có Content-Encoding = [0]
+    FAIL Connection (HTTP/1.1): [] không khớp /keep-alive/
+-- TC-PG05-02 FAIL
+== TC-PG05-03
+    (p50=7 ms · max=33 ms · số liệu: /tmp/epqc.W4ZQDf/out/tc-pg05-03/all)
+    ok   số kết nối đo được = [50]
+    ok   p95 time_starttransfer (ms) = 20 (≤ 300)
+-- TC-PG05-03 PASS
+== TC-PG05-04
+    ok   connection_id kết nối 1 không rỗng = [c58a1d2a-7be3-4376-9a4f-92e881e7d09a] (≠ [])
+    ok   connection_id khác nhau giữa 2 kết nối = [c58a1d2a-7be3-4376-9a4f-92e881e7d09a] (≠ [1c8221a8-d727-48cc-b218-56453356af5f])
+    ok   server_time ISO-8601 UTC ~ /^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]+)?Z$/
+    ok   server_time đúng phút hiện tại (UTC) ~ /^(2026-10-02T18:31|2026-10-02T18:30)/
+-- TC-PG05-04 PASS
+== TC-PG05-05
+    FAIL số sự kiện nhận được: thực tế [5] ≠ mong đợi [20]
+    FAIL số khối đúng định dạng (id/event/data/dòng trống): thực tế [5] ≠ mong đợi [20]
+    FAIL số sự kiện type = test.frame: thực tế [5] ≠ mong đợi [20]
+    ok   số dòng data KHÔNG phải JSON = [0]
+-- TC-PG05-05 FAIL
+== TC-PG05-06
+    ok   số id sai định dạng ^\d+-\d+$ = [0]
+    ok   id tăng nghiêm ngặt = [ok]
+    ok   số id trùng = [0]
+-- TC-PG05-06 PASS
+== TC-PG05-07
+    ok   mã khi type 1 ký tự 'a' ~ /^2[0-9][0-9]$/
+    ok   mã khi type 64 ký tự ~ /^2[0-9][0-9]$/
+    ok   số sự kiện nhận được = [2]
+    ok   type 1 ký tự tới nơi = [1]
+    ok   type 64 ký tự tới nơi = [1]
+-- TC-PG05-07 PASS
+== TC-PG05-08
+    ok   type [Bad Type] → mã HTTP = [422]
+    ok   type [Bad Type] → code = [VALIDATION_FAILED]
+    ok   type [Bad Type] → details[0].field = [type]
+    ok   type [Type] → mã HTTP = [422]
+    ok   type [Type] → code = [VALIDATION_FAILED]
+    ok   type [Type] → details[0].field = [type]
+    ok   type [1abc] → mã HTTP = [422]
+    ok   type [1abc] → code = [VALIDATION_FAILED]
+    ok   type [1abc] → details[0].field = [type]
+    ok   type [] → mã HTTP = [422]
+    ok   type [] → code = [VALIDATION_FAILED]
+    ok   type [] → details[0].field = [type]
+    ok   type [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] → mã HTTP = [422]
+    ok   type [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] → code = [VALIDATION_FAILED]
+    ok   type [aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa] → details[0].field = [type]
+    ok   type [test..x#] → mã HTTP = [422]
+    ok   type [test..x#] → code = [VALIDATION_FAILED]
+    ok   type [test..x#] → details[0].field = [type]
+    ok   số sự kiện lọt vào stream = [0]
+    ok   XLEN ep:sse:buf không đổi (không vào Stream) = [0]
+-- TC-PG05-08 PASS
+== TC-PG05-09
+    ok   data 60.000 byte → chấp nhận ~ /^2[0-9][0-9]$/
+    ok   data 66.000 byte → mã HTTP = [422]
+    ok   code = [VALIDATION_FAILED]
+    ok   details[0].field = [data]
+    ok   số sự kiện nhận được (chỉ cái 60.000 byte) = [1]
+-- TC-PG05-09 PASS
+== TC-PG05-10
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_Framing|TestPublish_Validation|TestSSE_IDsMonotonic' rc = [0]
+    ok   --- PASS: TestSSE_Framing
+    ok   --- PASS: TestPublish_Validation
+    ok   --- PASS: TestSSE_IDsMonotonic
+-- TC-PG05-10 PASS
+== TC-PG05-11
+    ok   số dòng ': hb' trong 30 s (SSE_HEARTBEAT = 25 s) = [1]
+-- TC-PG05-11 PASS
+== TC-PG05-12
+    ok   số nhịp ': hb' trong 55 s = 2 (≥ 2)
+    ok   nhịp 1 sau ready (ms) = 25006 (≥ 23000)
+    ok   nhịp 1 sau ready (ms) = 25006 (≤ 27000)
+    ok   khoảng cách nhịp 1→2 (ms) = 25008 (≥ 23000)
+    ok   khoảng cách nhịp 1→2 (ms) = 25008 (≤ 27000)
+    ok   stream nhàn rỗi không có id: = [0]
+-- TC-PG05-12 PASS
+== TC-PG05-13
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_Heartbeat|TestConfig_SSEDefaults' rc = [0]
+    ok   --- PASS: TestSSE_Heartbeat
+    ok   --- PASS: TestConfig_SSEDefaults
+-- TC-PG05-13 PASS
+== TC-PG05-14
+    ok   dọn sạch trong ≤ 2 s sau chu kỳ cuối
+    ok   ZCARD ep:sse:conn:<uid> = [0]
+    ok   PUBSUB NUMSUB ep:sse:ch:<uid> = [0]
+-- TC-PG05-14 PASS
+== TC-PG05-15
+    ok   ZCARD + NUMSUB về 0 trong ≤ 2 s
+    ok   ZCARD ep:sse:conn:<uid> = [0]
+-- TC-PG05-15 PASS
+== TC-PG05-16
+    ok   số dòng log mức error trong 60 s qua = [0]
+-- TC-PG05-16 PASS
+== TC-PG05-17
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_NoLeakOnClientDisconnect' rc = [0]
+    ok   --- PASS: TestSSE_NoLeakOnClientDisconnect
+-- TC-PG05-17 PASS
+== TC-PG05-18
+    (mã thu được: 429 200 200)
+    FAIL số mã 000 (hai stream được giữ): thực tế [0] ≠ mong đợi [2]
+    ok   số mã 429 (stream thứ 3) = [1]
+-- TC-PG05-18 FAIL
+== TC-PG05-19
+    ok   mã HTTP stream thứ 3 = [429]
+    ok   code trong thân = [SSE_LIMIT_REACHED]
+    ok   trace_id 32 hex ~ /^[0-9a-f]{32}$/
+    ok   header Retry-After (giây) = [5]
+    ok   retry_after trong thân (trùng header) = [5]
+    ok   retry_after là số nguyên = [nguyên]
+    ok   Content-Type là JSON (không phải event-stream) ~ /^application/json/
+    ok   không mở stream (không có dòng retry:/event:) = [0]
+-- TC-PG05-19 PASS
+== TC-PG05-20
+    FAIL mã của U2 (đang stream → 000): thực tế [200] ≠ mong đợi [000]
+    ok   mã của U1 (stream thứ 3 → 429) = [429]
+-- TC-PG05-20 FAIL
+== TC-PG05-21
+    ok   trước khi đóng: stream thứ 3 = [429]
+    FAIL sau khi đóng 1 stream: mở được trong ≤ 2 s: thực tế [0] ≠ mong đợi [1]
+-- TC-PG05-21 FAIL
+== TC-PG05-22
+    ok   có hai bản gateway = [a8e61f1bbc50930e4d248807fee9a1e12b70921a6761d08b3e1aae76bb8352f8] (≠ [])
+    ok   ZCARD sau khi A giữ 2 kết nối = [2]
+    ok   mã của stream thứ 3 mở thẳng vào bản B = [429]
+-- TC-PG05-22 PASS
+== TC-PG05-23
+    FAIL số member (1 kết nối): thực tế [0] ≠ mong đợi [1]
+    ok   score − now (ms) ≈ SSE_CONN_TTL = 149800 (≥ 140000)
+    ok   score − now (ms) ≈ SSE_CONN_TTL = 149800 (≤ 152000)
+-- TC-PG05-23 FAIL
+== TC-PG05-24
+    ok   ZCARD khi bản A giữ 2 kết nối = [2]
+    ok   ZCARD về 0 trong ≤ 12 s với SSE_CONN_TTL=5 (1 = đúng) = [1]
+    (nếu ZCARD vẫn = 2: hoặc chỗ không hết hạn, hoặc compose không chuyển tiếp SSE_CONN_TTL — xem 'Điểm khó kiểm')
+-- TC-PG05-24 PASS
+== TC-PG05-25
+    MANUAL chờ 150 s: kill -9 một bản gateway đang giữ 2 stream, đo lúc ZCARD ep:sse:conn:<uid> về 0 (xem 'Bước tay TC-PG05-25') (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-PG05-25 MANUAL
+== TC-PG05-26
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_MaxTwoPerUser|TestSSE_LimitSharedAcrossInstances|TestSSE_SlotExpiresAfterCrash' rc = [0]
+    ok   --- PASS: TestSSE_MaxTwoPerUser
+    ok   --- PASS: TestSSE_LimitSharedAcrossInstances
+    ok   --- PASS: TestSSE_SlotExpiresAfterCrash
+-- TC-PG05-26 PASS
+== TC-PG05-27
+    MANUAL chờ 130 s theo lệnh của AC6 (xem 'Bước tay TC-PG05-27') (QC làm tay theo bước ở tc-*.md, ghi kết quả vào report)
+-- TC-PG05-27 MANUAL
+== TC-PG05-28
+    ok   reason của event: reconnect = [max_duration]
+    ok   reconnect không mang id: = [0]
+    ok   ready → reconnect (ms) = 5001 (≥ 3500)
+    ok   ready → reconnect (ms) = 5001 (≤ 9000)
+    ok   reconnect → đóng (ms) = 19 (≤ 2000)
+-- TC-PG05-28 PASS
+== TC-PG05-29
+    ok   reason = [token_expired]
+    ok   ready → reconnect (ms), exp = 8 s = 7961 (≥ 6000)
+    ok   ready → reconnect (ms), exp = 8 s + leeway 5 s = 7961 (≤ 15000)
+    ok   reconnect → đóng (ms) = 17 (≤ 2000)
+-- TC-PG05-29 PASS
+== TC-PG05-30
+    ok   mã HTTP = [401]
+    ok   code = [TOKEN_EXPIRED]
+    ok   WWW-Authenticate ~ /Bearer realm="edupilot".*error="invalid_token"/
+    ok   Content-Type không phải event-stream ~ /^application/json/
+-- TC-PG05-30 PASS
+== TC-PG05-31
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_MaxDuration|TestSSE_TokenExpiryMidStream|TestConfig_SSEDefaults' rc = [0]
+    ok   --- PASS: TestSSE_MaxDuration
+    ok   --- PASS: TestSSE_TokenExpiryMidStream
+    ok   --- PASS: TestConfig_SSEDefaults
+-- TC-PG05-31 PASS
+== TC-PG05-32
+    (phiên 1 nhận: 1 2 3 4 5 · phiên 2 nhận: 6 7 8 9 10 11 12 13 14 )
+    ok   phiên 1 nhận 5 sự kiện = [5]
+    ok   phiên 2 nhận đúng e6…e14 theo thứ tự = [6 7 8 9 10 11 12 13 14 ]
+    ok   phiên 2 KHÔNG nhận lại e5 = [0]
+    ok   tổng số id trùng giữa hai phiên = [0]
+    ok   phiên 2 không có event: resync = [0]
+-- TC-PG05-32 PASS
+== TC-PG05-33
+    FAIL số sự kiện đọc bù (phải 0): thực tế [2] ≠ mong đợi [0]
+    FAIL nhận sự kiện mới sau khi nối lại: thực tế [3] ≠ mong đợi [1]
+    ok   không resync = [0]
+-- TC-PG05-33 FAIL
+== TC-PG05-34
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_LastEventID_NoLossNoDup' rc = [0]
+    ok   --- PASS: TestSSE_LastEventID_NoLossNoDup
+-- TC-PG05-34 PASS
+== TC-PG05-35
+    FAIL số sự kiện KHÁC NHAU client nhận: thực tế [599] ≠ mong đợi [1000]
+    FAIL số id duy nhất: thực tế [599] ≠ mong đợi [1000]
+    ok   số id trùng (mỗi sự kiện đúng 1 lần) = [0]
+    ok   id tăng nghiêm ngặt theo thứ tự nhận = [ok]
+    ok   số lần phải resync = [0]
+-- TC-PG05-35 FAIL
+== TC-PG05-36
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_ReconnectRace' rc = [0]
+    ok   --- PASS: TestSSE_ReconnectRace
+-- TC-PG05-36 PASS
+== TC-PG05-37
+    ok   Last-Event-ID [abc] → không 4xx/5xx ~ /^(000|200)$/
+    ok   Last-Event-ID [abc] → sự kiện đầu sau ready là resync = [resync]
+    ok   Last-Event-ID [abc] → reason = [invalid_last_event_id]
+    ok   Last-Event-ID [1-] → không 4xx/5xx ~ /^(000|200)$/
+    ok   Last-Event-ID [1-] → sự kiện đầu sau ready là resync = [resync]
+    ok   Last-Event-ID [1-] → reason = [invalid_last_event_id]
+    ok   Last-Event-ID [-1] → không 4xx/5xx ~ /^(000|200)$/
+    ok   Last-Event-ID [-1] → sự kiện đầu sau ready là resync = [resync]
+    ok   Last-Event-ID [-1] → reason = [invalid_last_event_id]
+    ok   Last-Event-ID [1-2-3] → không 4xx/5xx ~ /^(000|200)$/
+    ok   Last-Event-ID [1-2-3] → sự kiện đầu sau ready là resync = [resync]
+    ok   Last-Event-ID [1-2-3] → reason = [invalid_last_event_id]
+    ok   Last-Event-ID [0x1-0] → không 4xx/5xx ~ /^(000|200)$/
+    ok   Last-Event-ID [0x1-0] → sự kiện đầu sau ready là resync = [resync]
+    ok   Last-Event-ID [0x1-0] → reason = [invalid_last_event_id]
+    ok   Last-Event-ID [1_0] → không 4xx/5xx ~ /^(000|200)$/
+    ok   Last-Event-ID [1_0] → sự kiện đầu sau ready là resync = [resync]
+    ok   Last-Event-ID [1_0] → reason = [invalid_last_event_id]
+-- TC-PG05-37 PASS
+== TC-PG05-38
+    ok   sự kiện đầu sau ready = [resync]
+    ok   reason = [buffer_exceeded]
+    ok   resync không mang id: = [0]
+    ok   sau resync vẫn nhận sự kiện mới = 1 (≥ 1)
+-- TC-PG05-38 PASS
+== TC-PG05-39
+    FAIL XLEN ep:sse:buf (MAXLEN ~ 1000): thực tế [600] phải ≥ 1000
+    ok   XLEN ep:sse:buf (MAXLEN ~ 1000, cho phép xấp xỉ) = 600 (≤ 1100)
+    ok   PTTL ep:sse:buf > 0 (không khoá vĩnh viễn) = 3596451 (≥ 1)
+    ok   PTTL ep:sse:buf ≤ 1 h = 3596451 (≤ 3600000)
+-- TC-PG05-39 FAIL
+== TC-PG05-40
+    ok   TTL ep:sse:conn (giây) > 0 = 150 (≥ 1)
+    ok   TTL ep:sse:conn (giây) ≤ SSE_CONN_TTL 150 = 150 (≤ 150)
+-- TC-PG05-40 PASS
+== TC-PG05-41
+    ok   không resync (id không cũ hơn bộ đệm) = [0]
+    FAIL số sự kiện đọc bù: thực tế [0] ≠ mong đợi [1]
+    FAIL sự kiện nhận được là cái mới: thực tế [] ≠ mong đợi [99]
+-- TC-PG05-41 FAIL
+== TC-PG05-42
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_ResyncWhenTooOld|TestSSE_ResyncOnMalformedLastEventID' rc = [0]
+    ok   --- PASS: TestSSE_ResyncWhenTooOld
+    ok   --- PASS: TestSSE_ResyncOnMalformedLastEventID
+-- TC-PG05-42 PASS
+== TC-PG05-43
+    ok   số 'event: test.ping' nhận được = [5]
+-- TC-PG05-43 PASS
+== TC-PG05-44
+    (stream ở bản [59d126f306cc]; POST rơi vào: 59d126f306cc d909858c3fd3 )
+    ok   X-Instance-Id của stream = [59d126f306cc] (≠ [])
+    ok   số bản gateway nhận POST (round_robin của Caddy) = 2 (≥ 2)
+    ok   số POST rơi vào bản KHÁC bản giữ stream = 3 (≥ 1)
+    ok   stream nhận đủ 5 sự kiện dù POST trúng bản nào = [5]
+-- TC-PG05-44 PASS
+== TC-PG05-45
+    ok   tìm được bản KHÁC bản giữ stream = [59d126f306cc1f87f1ec0098d5fdc51b79da0f0be3c3a3f27a927ef5639bc715] (≠ [])
+    ok   stream (ở bản A) nhận sự kiện phát từ bản B = [1]
+    ok   độ trễ chéo bản (ms) đo được = 64 (≥ 0)
+    ok   độ trễ chéo bản ≤ 1 s = 64 (≤ 1000)
+-- TC-PG05-45 PASS
+== TC-PG05-46
+    ok   kết nối ở bản A nhận = [1]
+    ok   kết nối ở bản B nhận = [1]
+-- TC-PG05-46 PASS
+== TC-PG05-47
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_CrossInstance|TestSSE_TwoConnectionsTwoInstances' rc = [0]
+    ok   --- PASS: TestSSE_CrossInstance
+    ok   --- PASS: TestSSE_TwoConnectionsTwoInstances
+-- TC-PG05-47 PASS
+== TC-PG05-48
+    ok   U1 nhận = [1]
+    ok   U2 nhận (phải 0) = [0]
+    ok   U2 không có id: nào = [0]
+-- TC-PG05-48 PASS
+== TC-PG05-49
+    ok   số sự kiện nhận được = [1]
+    ok   chỉ nhận sự kiện của chính U2 (n=2) = [2 ]
+-- TC-PG05-49 PASS
+== TC-PG05-50
+    ok   mã HTTP = [401]
+    ok   code = [UNAUTHENTICATED]
+    ok   Content-Type là JSON ~ /^application/json/
+    ok   WWW-Authenticate ~ /Bearer realm="edupilot"/
+    ok   không có header của SSE = [0]
+-- TC-PG05-50 PASS
+== TC-PG05-51
+    ok   mã HTTP = [401]
+    ok   code = [TOKEN_EXPIRED]
+-- TC-PG05-51 PASS
+== TC-PG05-52
+    ok   ?token= → mã HTTP = [401]
+    ok   ?access_token= → mã HTTP = [401]
+    ok   code = [UNAUTHENTICATED]
+-- TC-PG05-52 PASS
+== TC-PG05-53
+    ok   mã HTTP = [401]
+    ok   code = [TOKEN_INVALID]
+-- TC-PG05-53 PASS
+== TC-PG05-54
+    ok   ADMIN phát user_id=U2 → 2xx ~ /^2[0-9][0-9]$/
+    ok   U2 nhận sự kiện do ADMIN phát = [1]
+    ok   mã khi STUDENT chỉ định user_id người khác = [403]
+    ok   code = [FORBIDDEN]
+    ok   details.reason = [role]
+    ok   U2 KHÔNG nhận sự kiện STUDENT khác cố phát hộ (không phát gì) = [0]
+-- TC-PG05-54 PASS
+== TC-PG05-55
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_IsolationBetweenUsers|TestSSE_UserIDQueryIgnored|TestSSE_Unauthenticated' rc = [0]
+    ok   --- PASS: TestSSE_IsolationBetweenUsers
+    ok   --- PASS: TestSSE_UserIDQueryIgnored
+    ok   --- PASS: TestSSE_Unauthenticated
+-- TC-PG05-55 PASS
+== TC-PG05-56
+    ok   job_id là uuid ~ /^[0-9a-f-]{36}$/
+    ok   dãy progress = [25 50 75 100 ]
+    ok   status của sự kiện cuối = [SUCCEEDED]
+    ok   mọi sự kiện mang đúng job_id = [0]
+    ok   số sự kiện job.progress = [4]
+-- TC-PG05-56 PASS
+== TC-PG05-57
+    ok   số job.progress U2 nhận = [0]
+    ok   U2 không nhận sự kiện nào = [0]
+-- TC-PG05-57 PASS
+== TC-PG05-58
+    ok   dòng jobs trong DB (status|progress) = [SUCCEEDED|100]
+    ok   GET /api/v1/jobs/{id} = [SUCCEEDED|100]
+-- TC-PG05-58 PASS
+== TC-PG05-59
+    ok   go test ./internal/jobs ./internal/httpapi/sse -run 'TestJobProgress_SSE|TestJobProgress_OnlyOwner' rc = [0]
+    ok   --- PASS: TestJobProgress_SSE
+    ok   --- PASS: TestJobProgress_OnlyOwner
+    LOG  testing: warning: no tests to run
+    LOG  ok  	github.com/edupilot/backend-go/internal/httpapi/sse	1.474s [no tests to run]
+-- TC-PG05-59 FAIL
+== TC-PG05-60
+    ok   xác định được bản giữ stream = [d909858c3fd3cef9d933c82aba994d75fcd382909873f6218af131f9d7d53296] (≠ [])
+    ok   có event: shutdown = [1]
+    ok   reason = [server_shutdown]
+    ok   shutdown không mang id: = [0]
+    ok   shutdown → đóng (ms) đo được = 6 (≥ 0)
+    ok   shutdown → đóng ≤ 1 s = 6 (≤ 1000)
+-- TC-PG05-60 PASS
+== TC-PG05-61
+    FAIL mã HTTP khi nối lại bằng token cũ (000 = đang stream, không 401): thực tế [200] ≠ mong đợi [000]
+    ok   phiên 2 nhận đúng n=3,4,5 theo thứ tự = [3 4 5 ]
+    ok   không nhận lại sự kiện đã nhận (id trùng) = [0]
+    ok   phiên 2 không phải resync = [0]
+-- TC-PG05-61 FAIL
+== TC-PG05-62
+    ok   GET /api/v1/jobs/<uuid lạ> sau khi tắt một bản = [404]
+-- TC-PG05-62 PASS
+== TC-PG05-63
+    ok   tìm được bản KHÔNG giữ stream = [623e0552d965f8fdd56678dfbd3d2ee7cc6e201dce322da5e194d87222dd07ad] (≠ [])
+    ok   stream không nhận shutdown = [0]
+    ok   stream vẫn nhận sự kiện sau khi bản kia tắt = [1]
+-- TC-PG05-63 PASS
+== TC-PG05-64
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_GatewayShutdownFailover' rc = [0]
+    ok   --- PASS: TestSSE_GatewayShutdownFailover
+-- TC-PG05-64 PASS
+== TC-PG05-65
+    ok   số dòng khớp '^content-encoding|^event: ready' (chỉ còn event: ready) = [1]
+-- TC-PG05-65 PASS
+== TC-PG05-66
+    ok   ttfb (ms) khi xin gzip = 5 (≤ 300)
+    ok   dòng đầu đọc được dạng văn bản = [retry: 3000]
+    ok   có event: ready dạng văn bản = [1]
+    ok   không có byte gzip magic 1f8b = [0]
+-- TC-PG05-66 PASS
+== TC-PG05-67
+    ok   có event: reconnect = [1]
+    ok   reason = [upstream_unavailable]
+    ok   reconnect → đóng (ms) đo được = 1796 (≥ 0)
+    ok   reconnect → đóng ≤ 2 s (không treo) = 1796 (≤ 2000)
+    ok   stream không treo tới hết --max-time 45 s = 2121 (≤ 40000)
+-- TC-PG05-67 PASS
+== TC-PG05-68
+    ok   mã HTTP = [503]
+    ok   code = [SERVICE_UNAVAILABLE]
+    FAIL Content-Type là JSON (không mở stream): [] không khớp /^application/json/
+-- TC-PG05-68 FAIL
+== TC-PG05-69
+    ok   có event: ready sau khi Redis về = [1]
+    ok   nhận được sự kiện mới = [1]
+-- TC-PG05-69 PASS
+== TC-PG05-70
+    ok   go test ./internal/httpapi/sse -run 'TestSSE_RedisDownMidStream|TestSSE_RedisDownOnConnect' rc = [0]
+    ok   --- PASS: TestSSE_RedisDownMidStream
+    ok   --- PASS: TestSSE_RedisDownOnConnect
+-- TC-PG05-70 PASS
+== TC-PG05-71
+    ok   độ dài JSON gọn của data (biên dưới) = [65536]
+    ok   độ dài JSON gọn của data (biên trên) = [65537]
+    ok   data đúng 65.536 byte → chấp nhận (2xx) ~ /^2[0-9][0-9]$/
+    ok   data 65.537 byte → mã HTTP = [422]
+    ok   code = [VALIDATION_FAILED]
+    ok   details[0].field = [data]
+    ok   số sự kiện nhận được (chỉ cái 65.536 byte) = [1]
+-- TC-PG05-71 PASS
+== TC-PG05-72
+    ok   thân gửi đi (byte) > MAX_BODY_BYTES = 1100036 (≥ 1048577)
+    ok   mã HTTP = [413]
+    ok   code = [PAYLOAD_TOO_LARGE]
+    ok   details.max_bytes = [1048576]
+    ok   XLEN ep:sse:buf (không gì vào Stream) = [0]
+-- TC-PG05-72 PASS
+== TC-PG05-73
+    ok   [rong] dòng trạng thái 200 ~ /^HTTP/1\.1 200 /
+    ok   [rong] có event: ready = [1]
+    ok   [rong] không có event: resync = [0]
+    ok   [rong] không đọc bù sự kiện cũ = [0]
+    ok   [khoangtrang] dòng trạng thái 200 ~ /^HTTP/1\.1 200 /
+    ok   [khoangtrang] có event: ready = [1]
+    ok   [khoangtrang] không có event: resync = [0]
+    ok   [khoangtrang] không đọc bù sự kiện cũ = [0]
+-- TC-PG05-73 PASS
+== TC-PG05-74
+    ok   STUDENT phát user_id = chính mình → 2xx ~ /^2[0-9][0-9]$/
+    ok   nhận đúng 1 sự kiện test.self = [1]
+    ok   không có event: resync = [0]
+-- TC-PG05-74 PASS
+TỔNG story 05: PASS=59 FAIL=13 MANUAL=2
+FAIL: TC-PG05-02 TC-PG05-05 TC-PG05-18 TC-PG05-20 TC-PG05-21 TC-PG05-23 TC-PG05-33 TC-PG05-35 TC-PG05-39 TC-PG05-41 TC-PG05-59 TC-PG05-61 TC-PG05-68
+MANUAL: TC-PG05-25 TC-PG05-27

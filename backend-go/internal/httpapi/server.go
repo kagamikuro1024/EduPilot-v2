@@ -23,6 +23,10 @@ const (
 // depProbeInterval: nhịp thử lại phụ thuộc lúc khởi động (SRS 3.4 — mỗi giây một dòng warn).
 const depProbeInterval = time.Second
 
+// depProbeTimeout: mỗi lần ping chỉ chờ ngắn để cả vòng (ping + nghỉ) vẫn đúng một nhịp 1 s — go-redis tự thử dial lại
+// nhiều lần, nếu chờ trọn 1 s thì vòng giãn ra 2 s và chỉ còn nửa số dòng warn (BUG-PG-4).
+const depProbeTimeout = 400 * time.Millisecond
+
 // maxDrainWindow: giữ cổng mở tối đa ngần này sau SIGTERM trước khi Shutdown (Caddy refresh 2 s, SRS 8.2).
 const maxDrainWindow = 3 * time.Second
 
@@ -126,6 +130,7 @@ func RedisDep(d Deps) Dep {
 func WaitForDeps(ctx context.Context, log *slog.Logger, timeout time.Duration, deps ...Dep) error {
 	deadline := time.Now().Add(timeout)
 	for {
+		tick := time.Now()
 		down := probe(ctx, deps)
 		if len(down) == 0 {
 			return nil
@@ -141,7 +146,7 @@ func WaitForDeps(ctx context.Context, log *slog.Logger, timeout time.Duration, d
 		}
 		select {
 		case <-ctx.Done():
-		case <-time.After(depProbeInterval):
+		case <-time.After(depProbeInterval - time.Since(tick)):
 		}
 	}
 }
@@ -150,7 +155,7 @@ func WaitForDeps(ctx context.Context, log *slog.Logger, timeout time.Duration, d
 func probe(ctx context.Context, deps []Dep) []string {
 	var down []string
 	for _, dep := range deps {
-		pctx, cancel := context.WithTimeout(ctx, depProbeInterval)
+		pctx, cancel := context.WithTimeout(ctx, depProbeTimeout)
 		err := dep.Ping(pctx)
 		cancel()
 		if err != nil {

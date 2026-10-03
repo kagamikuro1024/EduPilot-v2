@@ -1,0 +1,10 @@
+== TC-PG01-76
+    ok   rc = [1]
+    ok   ms ≈ STARTUP_TIMEOUT 3 s = 3442 (≥ 2500)
+    ok   ms = 3442 (≤ 9000)
+    ok   số dòng warn msg="dependency not ready" = 3 (≥ 2)
+    ok   dependency ở các dòng warn = [redis]
+    ok   số dòng error msg="dependency not ready" = 1 (≥ 1)
+    ok   dependency ở dòng error = [redis]
+-- TC-PG01-76 PASS
+TỔNG story 01: PASS=1 FAIL=0 MANUAL=0

@@ -37,10 +37,26 @@ localhost {
 		# không có `encode` ở nhánh này: JSON nhỏ và text/event-stream không bị nén / đệm
 		reverse_proxy {
 			import gateway_upstream
+			# Chỉ lỗi KẾT NỐI (bản đã chết / từ chối) mới loại upstream. KHÔNG dùng `unhealthy_status 503`: mọi 503 của ứng dụng
+			# (Redis/DB tắt…) là câu trả lời hợp lệ, nếu tính là lỗi thì Caddy loại cả hai bản rồi tự trả 503 rỗng (BUG-PG-1).
 			fail_duration 10s
 			max_fails 1
-			# Gateway đang tắt trả 503 NOT_READY cho mọi đường (trừ readyz): coi là lỗi thụ động để Caddy ngừng gửi tới bản đó ngay (AC6).
-			unhealthy_status 503
+
+			# Gateway đang tắt (cửa sổ drain, cổng còn mở) trả 503 NOT_READY kèm `X-EP-Draining` cho mọi đường trừ readyz:
+			# chỉ response mang dấu này mới bị chặn lại, thử NGAY lần nữa (AC6) và lần thử đó tính 503 là lỗi để loại bản
+			# đang tắt khỏi vòng xoay. Các 503 khác của ứng dụng không đi qua đây — tới client nguyên vẹn.
+			@draining {
+				status 503
+				header X-EP-Draining 1
+			}
+			handle_response @draining {
+				reverse_proxy {
+					import gateway_upstream
+					fail_duration 10s
+					max_fails 1
+					unhealthy_status 503
+				}
+			}
 		}
 	}
 
