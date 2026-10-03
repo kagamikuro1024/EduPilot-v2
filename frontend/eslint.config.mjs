@@ -14,7 +14,7 @@ export default defineConfig([
   only("no-raw-fetch", ["src/shared/data/**"]),
   only("no-native-dialogs"),
   only("no-custom-spinner", ["src/shared/ui/**"]),
-  only("no-raw-table", ["src/shared/ui/DataTable.tsx"]),
+  only("no-raw-table", ["src/shared/ui/DataTable.tsx", "src/shared/ui/DataTableVirtual.tsx"]),
   only("no-token-in-storage"),
   only("no-tailwind"),
   only("no-literal-color-in-style", ["src/shared/styles/**"]),

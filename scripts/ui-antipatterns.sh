@@ -95,7 +95,7 @@ done
 if [ -n "$bad" ]; then echo "✗ Từ kỹ thuật trong màn sinh viên"; echo "$bad" | head -10; FAIL=1; else echo "✓ Từ kỹ thuật trong màn sinh viên"; fi
 
 # Dialog chỉ cho việc cần bảo vệ (DESIGN.md §10.11)
-out=$(grep -rl "<Dialog" "$SRC" --include=*.tsx 2>/dev/null | grep -vE "shared/ui/|ConfirmIrreversible|PIIChannelDialog|FinalizeGrades|PublishGrades|ConfirmGradeScheme|DeleteDocument|SessionSheet" || true)
+out=$(grep -rl "<Dialog" "$SRC" --include=*.tsx 2>/dev/null | grep -vE "shared/ui/|app/dev/|ConfirmIrreversible|PIIChannelDialog|FinalizeGrades|PublishGrades|ConfirmGradeScheme|DeleteDocument|SessionSheet" || true)
 if [ -n "$out" ]; then echo "✗ Dialog ngoài danh sách việc cần bảo vệ"; echo "$out"; FAIL=1; else echo "✓ Dialog ngoài danh sách việc cần bảo vệ"; fi
 
 # Emoji làm icon chức năng: U+1F300–1FAFF (F0 9F 8C–AB) và U+2600–27BF (E2 98–9E) trong .tsx

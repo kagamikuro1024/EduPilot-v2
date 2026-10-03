@@ -11,7 +11,9 @@
   box-shadow: var(--ep-shadow-composer);
   transition: border-color var(--ep-fast) var(--ep-ease-standard);
 }
+.composer:hover { border-color: var(--ep-ink-3); }
 .composer:focus-within { border-color: var(--ep-ink-3); }
+.composer:has(.input:focus-visible) { box-shadow: var(--ep-focus); }
 
 .input {
   width: 100%;
@@ -56,3 +58,8 @@
   .send, .stop { min-height: 44px; min-width: 44px; }
   .input { font-size: var(--ep-text-item); }
 }
+
+.error { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-3); font-size: var(--ep-text-label); color: var(--ep-ink); border-left: 2px solid var(--ep-red); padding: var(--ep-space-1) var(--ep-space-3); }
+.retry { font: inherit; font-weight: 600; color: var(--ep-ink); background: none; border: 0; min-height: 32px; padding: 0 var(--ep-space-1); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.retry:hover { text-decoration-color: var(--ep-red); }
+@media (max-width: 719px), (pointer: coarse) { .retry { min-height: 44px; } }

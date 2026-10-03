@@ -6,9 +6,12 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build:gate": "NEXT_PUBLIC_DEV_TOOLS=1 next build",
+    "e2e": "playwright test"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.14.13",
     "lucide-react": "^1.49.0",
     "next": "^16.3.7",
     "react": "^19.3.0",

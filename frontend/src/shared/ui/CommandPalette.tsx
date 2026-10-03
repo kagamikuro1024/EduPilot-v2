@@ -11,7 +11,7 @@ import s from "./CommandPalette.module.css";
 const fold = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").toLowerCase();
 
 /** "Tìm nhanh hoặc đi đến…" (⌘K, /): lọc theo tên route của vai trò hiện tại, Enter để đi. */
-export function CommandPalette({ open, onClose, items }: { open: boolean; onClose: () => void; items: NavItem[] }) {
+export function CommandPalette({ open, onClose, items, initialQuery = "", loading }: { open: boolean; onClose: () => void; items: NavItem[]; initialQuery?: string; loading?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [q, setQ] = useState("");
@@ -26,12 +26,12 @@ export function CommandPalette({ open, onClose, items }: { open: boolean; onClos
     const d = ref.current;
     if (!d) return;
     if (open && !d.open) {
-      setQ("");
+      setQ(initialQuery);
       setActive(0);
       d.showModal();
     }
     if (!open && d.open) d.close();
-  }, [open]);
+  }, [open, initialQuery]);
 
   function go(item: NavItem | undefined) {
     if (!item) return;
@@ -65,8 +65,13 @@ export function CommandPalette({ open, onClose, items }: { open: boolean; onClos
           }}
         />
       </div>
-      <ul className={s.list} role="listbox" aria-label="Kết quả">
-        {results.map((it, i) => {
+      <ul className={s.list} role="listbox" aria-label="Kết quả" aria-busy={loading || undefined}>
+        {loading && (
+          <li className={s.none} aria-label="Đang tải">
+            <span className={s.sk} />
+          </li>
+        )}
+        {!loading && results.map((it, i) => {
           const Icon = it.icon;
           return (
             <li key={it.href} role="option" aria-selected={i === active}>
@@ -78,7 +83,7 @@ export function CommandPalette({ open, onClose, items }: { open: boolean; onClos
             </li>
           );
         })}
-        {results.length === 0 && <li className={s.none}>Không có trang nào tên &ldquo;{q}&rdquo;. Thử từ khác, ví dụ &ldquo;điểm&rdquo;.</li>}
+        {!loading && results.length === 0 && <li className={s.none}>Không có trang nào tên &ldquo;{q}&rdquo;. Thử từ khác, ví dụ &ldquo;điểm&rdquo;.</li>}
       </ul>
     </dialog>
   );

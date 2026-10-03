@@ -22,3 +22,5 @@
 [aria-selected="true"] > .item { background: var(--ep-surface-subtle); }
 .enter { margin-left: auto; }
 .none { padding: var(--ep-space-4); color: var(--ep-ink-2); font-size: var(--ep-text-label); }
+
+.sk { display: block; height: var(--ep-space-4); width: 70%; border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }

@@ -39,3 +39,5 @@
   .row { flex-wrap: wrap; gap: 0; }
   .action { width: 100%; padding: 0 var(--ep-space-2) var(--ep-space-4) calc(7px + var(--ep-space-6)); }
 }
+.sk { display: block; width: 60%; color: transparent; user-select: none; background: var(--ep-surface-subtle); border-radius: var(--ep-radius-xs); }
+.row .text { flex: 1; }

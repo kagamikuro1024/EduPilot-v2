@@ -17,6 +17,8 @@ export function ConfirmIrreversible({
   confirmLabel,
   cancelLabel = "Để sau",
   disabledReason,
+  loading,
+  error,
 }: {
   open: boolean;
   onClose: () => void;
@@ -29,6 +31,10 @@ export function ConfirmIrreversible({
   cancelLabel?: string;
   /** có giá trị → không cho xác nhận, hiện lý do */
   disabledReason?: ReactNode;
+  /** truyền `loading`/`error` ⇒ người dùng tự đóng hộp khi xong; không truyền ⇒ đóng ngay sau khi xác nhận. Đang thực hiện: Esc / bấm nền / Đóng bị khoá, nút xác nhận hiện trạng thái chờ */
+  loading?: boolean;
+  /** thực hiện lỗi: hộp giữ nguyên, hiện lỗi (role=alert) và nút xác nhận đổi thành "Thử lại" */
+  error?: ReactNode;
 }) {
   return (
     <Dialog
@@ -36,20 +42,23 @@ export function ConfirmIrreversible({
       onClose={onClose}
       title={title}
       description={disabledReason ?? consequence}
+      dismissible={!loading}
+      error={error}
       footer={
         <>
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={loading}>
             {cancelLabel}
           </Button>
           <Button
             variant="primary"
             disabled={Boolean(disabledReason)}
+            loading={loading}
             onClick={() => {
               onConfirm();
-              onClose();
+              if (loading === undefined && error === undefined) onClose(); // không điều khiển trạng thái ⇒ đóng ngay như trước
             }}
           >
-            {confirmLabel}
+            {error ? "Thử lại" : confirmLabel}
           </Button>
         </>
       }

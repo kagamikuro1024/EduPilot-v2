@@ -84,3 +84,9 @@
   .switch[aria-checked="true"]::before { background: var(--ep-ink); }
   .knob { top: 14px; left: 6px; }
 }
+
+.check:hover:not(:has(input:disabled)) span { text-decoration: underline; text-decoration-color: var(--ep-ink-3); text-underline-offset: 3px; }
+.check:has(input:disabled) { cursor: not-allowed; color: var(--ep-ink-3); }
+.switch:hover:not(:disabled) { background: var(--ep-ink-3); }
+.switch[aria-checked="true"]:hover:not(:disabled) { background: var(--ep-ink-2); }
+.switch:disabled { cursor: not-allowed; opacity: .55; }

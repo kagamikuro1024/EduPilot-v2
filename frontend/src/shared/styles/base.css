@@ -9,7 +9,7 @@ p { text-wrap: pretty; }
 ul, ol { margin: 0; padding: 0; list-style: none; }
 img, svg { display: block; }
 button { cursor: pointer; }
-button:disabled { cursor: not-allowed; }
+button:disabled, input:disabled, textarea:disabled, select:disabled, [aria-disabled="true"] { cursor: not-allowed; }
 table { border-collapse: collapse; }
 
 a { color: inherit; text-decoration: none; }

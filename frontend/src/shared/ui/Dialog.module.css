@@ -47,3 +47,8 @@
 @media (max-width: 719px), (pointer: coarse) {
   .close { width: 44px; height: 44px; margin: -6px -12px 0 0; }
 }
+
+.skeleton { display: grid; gap: var(--ep-space-2); padding-top: var(--ep-space-2); }
+.skeleton span { display: block; height: var(--ep-space-4); border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }
+.skeleton span:nth-child(2) { width: 80%; }
+.skeleton span:nth-child(3) { width: 55%; }

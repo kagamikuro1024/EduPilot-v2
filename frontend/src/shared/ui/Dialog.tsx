@@ -2,7 +2,28 @@
 
 import { X } from "lucide-react";
 import { useEffect, useId, useRef, type ReactNode } from "react";
+import { InlineNotice } from "./Feedback";
 import s from "./Dialog.module.css";
+
+/** Bẫy Tab trong hộp: Tab ở phần tử cuối quay về đầu, Shift+Tab ở đầu nhảy về cuối (không thoát ra giao diện trình duyệt). */
+function trapTab(e: React.KeyboardEvent<HTMLDialogElement>) {
+  if (e.key !== "Tab") return;
+  const items = Array.from(e.currentTarget.querySelectorAll<HTMLElement>('a[href], button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex]:not([tabindex="-1"])')).filter((x) => x.offsetParent !== null);
+  if (items.length === 0) {
+    e.preventDefault();
+    return;
+  }
+  const first = items[0];
+  const last = items[items.length - 1];
+  const active = document.activeElement;
+  if (e.shiftKey && (active === first || active === e.currentTarget)) {
+    e.preventDefault();
+    last.focus();
+  } else if (!e.shiftKey && active === last) {
+    e.preventDefault();
+    first.focus();
+  }
+}
 
 /**
  * Lớp phủ dùng <dialog> gốc của trình duyệt: bẫy focus, Esc để đóng, trả focus về chỗ cũ.
@@ -17,6 +38,9 @@ function Overlay({
   footer,
   variant,
   wide,
+  dismissible = true,
+  loading,
+  error,
 }: {
   open: boolean;
   onClose: () => void;
@@ -26,6 +50,12 @@ function Overlay({
   footer?: ReactNode;
   variant: "dialog" | "drawer";
   wide?: boolean;
+  /** false (đang xử lý việc không đảo ngược): Esc, bấm nền và nút Đóng đều không đóng được */
+  dismissible?: boolean;
+  /** nội dung đang chờ: khung xương + aria-busy */
+  loading?: boolean;
+  /** lỗi của thao tác trong hộp: role=alert, giữ nguyên hộp */
+  error?: ReactNode;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
@@ -42,7 +72,9 @@ function Overlay({
       ref={ref}
       className={[s.overlay, variant === "drawer" ? s.drawer : s.dialog, wide ? s.wide : ""].join(" ")}
       onClose={onClose}
-      onClick={(e) => e.target === ref.current && onClose()}
+      onCancel={(e) => !dismissible && e.preventDefault()}
+      onKeyDown={trapTab}
+      onClick={(e) => dismissible && e.target === ref.current && onClose()}
       role="dialog"
       aria-labelledby={titleId}
     >
@@ -54,11 +86,28 @@ function Overlay({
             </h2>
             {description && <p className={s.desc}>{description}</p>}
           </div>
-          <button type="button" className={s.close} onClick={onClose} aria-label="Đóng">
+          <button type="button" className={s.close} onClick={onClose} aria-label="Đóng" disabled={!dismissible}>
             <X aria-hidden />
           </button>
         </header>
-        {children && <div className={s.body}>{children}</div>}
+        {(children || loading || error) && (
+          <div className={s.body} aria-busy={loading || undefined}>
+            {error && (
+              <InlineNotice tone="danger" compact>
+                {error}
+              </InlineNotice>
+            )}
+            {loading ? (
+              <div className={s.skeleton}>
+                <span />
+                <span />
+                <span />
+              </div>
+            ) : (
+              children
+            )}
+          </div>
+        )}
         {footer && <footer className={s.foot}>{footer}</footer>}
       </div>
     </dialog>
