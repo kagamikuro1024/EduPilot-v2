@@ -14,10 +14,10 @@ Tiền điều kiện chung: bản `gbuild` (`/dev/*` mở, mock bật, cổng d
 | TC-PU04-07 | AC2 | GV, từng mục đang chọn | **A** đọc `aria-current` và `borderLeftWidth` / `::before` của mục chọn; `backgroundColor` | `aria-current="page"` có đúng 1 mục; vạch **2 px** màu `--ep-red` (hoặc chữ đậm hơn); nền không đỏ |
 | TC-PU04-08 | AC2 | mọi vai | **A** đếm phần tử trong `[data-part=sidebar], header` có nền đỏ (computed `background-color` thuộc họ đỏ); đếm `bell-dot` + huy hiệu hiện; đo độ trong suốt của khung vỏ | Số phần tử nền đỏ ≤ số chấm / huy hiệu đang hiện; khung vỏ **nền đặc** (không `backdrop-filter`, `rgba` alpha < 1 ở nền header/sidebar) |
 | TC-PU04-09 | AC2 | – | **S** `bash scripts/ui-antipatterns.sh \| grep 'Khung vỏ dùng nền đặc'` | Dòng bắt đầu `✓` |
-| TC-PU04-10 | AC3 | SV B | **A** đọc `nav a` theo thứ tự: nhãn + `href` | 7 mục đúng thứ tự SRS 7.5: Hôm nay `/`, Chat riêng `/chat`, Threads `/threads`, Luyện đề `/practice`, Thư viện `/library`, Lịch `/calendar`, Kết quả của tôi `/me` |
+| TC-PU04-10 | AC3 | SV B | **A** đọc `nav a` theo thứ tự: nhãn + `href` | **8** mục (góp ý #1): 7 mục cũ theo thứ tự SRS 7.5 — Hôm nay `/`, Chat riêng `/chat`, Threads `/threads`, Luyện đề `/practice`, Thư viện `/library`, Lịch `/calendar`, Kết quả của tôi `/me` — **cộng** "Bài thi" `/exams` (vị trí theo SRS 7.5 sau khi BA sửa); ở 375 px mục "Bài thi" nằm dưới "Thêm" |
 | TC-PU04-11 | AC3 | SV D chưa vào lớp (`sv-4`, không `ep_demo_course`) | **A** đọc `nav a` | **Chỉ** `Hôm nay` (1 mục) |
-| TC-PU04-12 | AC3 | TA | **A** đọc `nav a` + tên nhóm | 12 mục theo nhóm Làm việc 4 / Đánh giá 3 / Nội dung 3 / Hiểu lớp học 2, đúng thứ tự và `href`; **không** nhóm "Hệ thống" |
-| TC-PU04-13 | AC3 | GV | **A** đọc `nav a` + nhóm | 12 mục như TA **+** nhóm "Hệ thống": Quan sát AI `/observability`, Cấu hình LLM `/settings/llm`, Tích hợp `/settings/integrations` (tổng 15) |
+| TC-PU04-12 | AC3 | TA | **A** đọc `nav a` + tên nhóm | **13** mục (góp ý #1: 12 + "Bài thi" `/exams`) theo nhóm, đúng thứ tự và `href` theo SRS 7.5 đã sửa; **không** nhóm "Hệ thống" |
+| TC-PU04-13 | AC3 | GV | **A** đọc `nav a` + nhóm | 13 mục như TA **+** nhóm "Hệ thống": Quan sát AI `/observability`, Cấu hình LLM `/settings/llm`, Tích hợp `/settings/integrations` (tổng **16**, góp ý #1) |
 | TC-PU04-14 | AC3 | Admin | **A** đọc `nav a` | 6 mục theo nhóm: Vận hành (Hôm nay, Quan sát AI), Quản trị (Lớp học `/admin/courses`, Người dùng `/admin/users`), Cấu hình (Cấu hình LLM, Tích hợp) |
 | TC-PU04-15 | AC3 | – | **S** `proto-curl.sh`-kiểu: với từng vai, `visible student / \| grep -c 'Cấu hình LLM'` = 0; TA không có "Cấu hình LLM"; `curl` các route cấm, đối chiếu `tc_00_matrix` | SV: 0 lần "Cấu hình LLM"; TA không mục Hệ thống; mục nav của từng vai ⊆ route vai đó mở được (khớp ma trận SRS 7.5); `tc_00_matrix` ≥ 128 hàng PASS |
 | TC-PU04-16 | AC3 | – | **P** `$PW shell.spec.ts -g 'nav per role'; echo rc=$?` | `rc=0` |
@@ -32,7 +32,7 @@ Tiền điều kiện chung: bản `gbuild` (`/dev/*` mở, mock bật, cổng d
 | TC-PU04-25 | AC6 | ≥ 720 | **A** `header h1` đếm; đếm nhóm điều khiển trong `header`; `aria-label` nút hồ sơ | `0` `h1` trong `header`; đúng **4** nhóm (bộ chọn lớp, ô bảng lệnh, chuông, hồ sơ); nút hồ sơ `aria-label` khớp `^Tài khoản: <tên người>` (không tên vai); dòng 1 tên, dòng 2 vai |
 | TC-PU04-26 | AC6 | – | **P** `$PW shell.spec.ts -g 'topbar'; echo rc=$?` | `rc=0` |
 | TC-PU04-27 | AC7 | GV | **A** `Ctrl K` (và `⌘K`, và bấm ô tìm nhanh); đọc focus; gõ "diem danh" | Palette mở, focus ở ô nhập, bẫy focus (Tab ×10 vẫn trong palette); mục "Điểm danh" **đứng đầu** (không phân biệt dấu/hoa thường); `↑ ↓` đổi mục (`aria-activedescendant`), `Enter` đi tới `/attendance` |
-| TC-PU04-28 | AC7 | SV B | **A** gõ "diem danh"; gõ "zzzz"; liệt kê toàn bộ mục khi ô trống | SV: không thấy "Điểm danh"; "zzzz": "Không thấy mục nào khớp." + gợi ý; danh sách trống ô = đúng 7 mục của SV (không route vai khác) |
+| TC-PU04-28 | AC7 | SV B | **A** gõ "diem danh"; gõ "zzzz"; liệt kê toàn bộ mục khi ô trống | SV: không thấy "Điểm danh"; "zzzz": "Không thấy mục nào khớp." + gợi ý; danh sách trống ô = đúng **8** mục của SV (góp ý #1; không route vai khác) |
 | TC-PU04-29 | AC7 | – | **A** `Esc`; kiểm `document.activeElement` | Palette đóng; focus trở về phần tử đã mở |
 | TC-PU04-30 | AC8 | `/dev/data` (`items` giả) | **A** `unread=2`, rồi `0`; mở popover khi `unread>0` rồi đọc chấm | `[data-part=bell-dot]` có mặt khi `unread>0`, biến khi `0`; **mở khung không xoá chấm**; bấm một mục → điều hướng + đánh dấu đã đọc; chấm biến khi hết chưa đọc |
 | TC-PU04-31 | AC8 | – | **A** `items=[]`; đọc chuỗi; mỗi hàng: tiêu đề, một dòng ngữ cảnh, thời điểm, đường kẻ ngăn | Rỗng: "Chưa có thông báo. Khi có việc cần bạn, nó sẽ hiện ở đây."; hàng đủ ba trường |
@@ -93,3 +93,6 @@ Tiền điều kiện chung: bản `gbuild` (`/dev/*` mở, mock bật, cổng d
 - 2026-10-03 — viết lần đầu theo US.md (FEAT-ui-foundation, APPROVED 2026-10-03).
 
 Tổng: 59 TC.
+
+## Lịch sử sửa TC
+- 2026-10-03 (sprint 5, góp ý #1 ACCEPTED): AC3 đổi số mục nav 7 / 12 / 15 → **8 / 13 / 16** (SV / TA / GV; Admin 6 không đổi) vì thêm mục "Bài thi" `/exams` (FEAT-weekly-exam Q25). Áp dụng trên nhánh `sprint/5-pe` cùng US-PE-04; sprint 3 / 4 giữ nguyên 7 / 12 / 15.
