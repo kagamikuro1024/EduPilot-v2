@@ -47,3 +47,27 @@ export async function run(t, { base, role, email, password, routes }) {
 
 export const summary = (rows) => `AUDIT: ${rows.filter((x) => x.pass).length}/${rows.length} PASS; FAIL ${rows.filter((x) => !x.pass).length}; FORBIDDEN=${rows.reduce((s, x) => s + (x.forb || 0), 0)}\n` +
   rows.filter((x) => !x.pass).map((x) => `  FAIL ${x.role} ${x.route} @${x.w}: ${x.err || JSON.stringify({ ox: x.ox, cut: x.cut, ell: x.ell, touch: x.touch, forb: x.forb, nf: x.notFound })}`).join('\n');
+
+// Ma trận vai × route (tương đương `tc_00_matrix` của proto-curl.sh, bản đăng nhập thật; SRS mục 2). Trả về hàng {role, route, want, got, ok}.
+const G = {
+  ALL: ['/'],
+  SV: ['/chat', '/practice', '/practice/at-symmetric', '/practice/at-quiz01', '/practice/history', '/library', '/me', '/assignments/bt03', '/join', '/join/BX4P9TW'],
+  SV_TA_GV: ['/threads', '/threads/t-cbc', '/calendar'],
+  TA_GV: ['/inbox', '/students', '/students/sv-3', '/attendance', '/class/members', '/gradebook', '/gradebook/scheme', '/grading', '/grading/sub-bt03-sv-2', '/questions', '/documents', '/insights', '/analytics'],
+  GV_AD: ['/observability', '/settings/llm', '/settings/integrations'],
+  ADMIN: ['/admin/courses', '/admin/users'],
+};
+const ALLOW = { student: ['ALL', 'SV', 'SV_TA_GV'], ta: ['ALL', 'SV_TA_GV', 'TA_GV'], teacher: ['ALL', 'SV_TA_GV', 'TA_GV', 'GV_AD'], admin: ['ALL', 'GV_AD', 'ADMIN'] };
+export async function matrix(t, { base, role, email, password }) {
+  await login(t, base, email, password);
+  const rows = [];
+  for (const [g, routes] of Object.entries(G)) for (const r of routes) {
+    const want = ALLOW[role].includes(g) ? 'MO' : 'CHAN';
+    await t.goto(base + r);
+    await sleep(1500);
+    const txt = await t.evaluate('document.body.innerText');
+    const got = /Bạn không có quyền (mở trang|xem màn) này/.test(txt) ? 'CHAN' : 'MO';
+    rows.push({ role, route: r, want, got, ok: want === got });
+  }
+  return rows;
+}
