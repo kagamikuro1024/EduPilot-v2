@@ -46,7 +46,6 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - `thesis-notes/legacy-perf.md` thân bài còn tiếng Anh.
 - **Lighthouse (PM #15 / #14):** `total-blocking-time` của 6 route người dùng đang `warn` (ngưỡng 200 giữ nguyên) vì chi phí khởi động React 19 + Next 16 với cổng đăng nhập ở client ≈ 200 ms trên runner CI. Trả về `error` cùng LCP `error` ở US-PU-06 (sprint 5): khung vẽ phía máy chủ + bớt client component ở layout. Hồ sơ đo: `docs/sprints/4/techlead.md` TL-1.
 - Caddy: upstream tĩnh + `health_uri` khi số bản gateway cố định (P10/PR, sprint 2 #3).
-- **LCP > 2,5 s và TBT > 200 ms trên Lighthouse CI (sprint 3 #26, sprint 4 #14, #15):** cả hai `warn`, ngưỡng giữ nguyên; **US-PU-06 đầu sprint 5** phải đưa về `error` (khung vẽ phía máy chủ; cách đo `sprints/4/techlead.md` TL-1).
 - **Nguồn việc của "Hôm nay" mà phase sau phải đăng ký (US-P2-11, SRS 4.7 bảng bậc):** P4 `TICKET` (10), `AI_CONFIRM` (50), thread; P5 điểm danh, `STUDENT_ATTENTION` (95) + "Lớp cần chú ý"; P6 `GRADE_SCHEME_UNCONFIRMED` (70); P7 hạn nộp, `GRADING_REVIEW` (30), `APPEAL` (20), `UNMATCHED_SUBMISSION` (60); P9 `QUESTION_REVIEW` (90), QUIZ; P10 insight. Mỗi phase gọi `today.Aggregator.Register(provider)` ở `today.NewService` và thêm Kind vào `allowed` (bộ lọc theo vai) — Provider P2 hiện chỉ có ở `internal/today/providers.go`. `continue[]` của sinh viên rỗng tới khi P3 / P9 đăng ký.
 
 ## Ánh xạ migration
