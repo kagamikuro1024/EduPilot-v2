@@ -3,7 +3,7 @@
 | Mục | Kết quả |
 | --- | --- |
 | B1 US-P2-12 | đã sửa ở `616cd98`; chờ QC chấm lại TC-08 (trên DB trống `unread_count` GV = 1 ở hai lần seed đầu) |
-| G1 Lighthouse TBT | **sửa gốc**, không đổi ngưỡng — xem dưới |
+| G1 Lighthouse TBT | giảm ≈ 45 ms (tác vụ dựng sau đăng nhập), phần còn lại là chi phí khởi động khung ⇒ **PM #15 (b): TBT 6 route ở `warn` tới US-PU-06 sprint 5** (`496e4a4`, CI xanh cả hai job); ngưỡng 200 và `cpuSlowdownMultiplier` giữ nguyên |
 | G3 stack riêng cho QC | `EP_PORT_OFFSET` — xem dưới; hai stack dựng song song cùng lúc, cả hai seed xong, không đụng nhau |
 | L6 | sửa (≈ 4 dòng): mặc định vào lớp ACTIVE đầu tiên, không phải lớp đã lưu trữ; test mới trong `class-join.spec.ts` |
 
@@ -13,7 +13,7 @@
 - Sửa: `AuthProvider` đọc `useDeferredValue(useSyncExternalStore(authStore…))` ⇒ React dựng cây sau khi có phiên **theo lát thời gian** (ngắt được) thay vì một khối. Kết quả hồ sơ: tác vụ ~170 ms **biến mất** (chỉ còn tác vụ nạp 107 ms). Token vẫn đọc đồng bộ ở `tokenStore`; đăng xuất / thu hồi chỉ trễ một lát dựng.
 - Kiểm: `lhci autorun` cục bộ với **CPU 6,7×** (mô phỏng runner chậm: 4 × 3800/2250) — TBT 6 route người dùng **41–151 ms** (trung vị mỗi route 50–97), `/dev/ui` 198–219 (route `warn`). Playwright không-visual: 322 passed (sau đổi); `class-join` + `today` 85 passed (sau L6).
 - Kèm: `upload-artifact` không tải thư mục ẩn nên báo cáo Lighthouse (`frontend/.lighthouseci`) chưa bao giờ lên artifact `frontend-reports` — thêm `include-hidden-files: true`.
-- Chưa chắc: số CI thật chỉ biết sau lần chạy này; nếu vẫn sát ngưỡng, bước kế tiếp là tách mock khỏi bundle layout (#14) — cần Tech Lead.
+- **Kết cục:** CI `da287fe` vẫn đỏ (TBT trung vị 184–239 ms). Hồ sơ 12× (≈ runner CI): tác vụ nạp ~205–316 ms có cả ở `/login` không mock; hai thử nghiệm (giữ khung xương tới khi có `/me/courses`; `useDeferredValue` cho `mine.data`) làm xấu hơn và đã hoàn lại. Tech Lead (TL-1): không hiệu chỉnh CPU, không vá Next; PM #15 (b) chọn hạ TBT về `warn` có thời hạn. Nợ ghi ở `docs/PROGRESS.md`; trả về `error` ở US-PU-06.
 
 ## G3 — dựng stack riêng
 ```bash
