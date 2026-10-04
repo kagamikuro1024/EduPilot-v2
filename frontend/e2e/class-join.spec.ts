@@ -14,8 +14,8 @@ const C1 = "00000000-0000-7000-8000-00000000c001";
 const C2 = "00000000-0000-7000-8000-00000000c002";
 const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
 
-const item = (id: string, code: string, role: "TEACHER" | "TA" | "STUDENT", status: "ACTIVE" | "PENDING" = "ACTIVE") => ({
-  course: { id, class_code: code, subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE" },
+const item = (id: string, code: string, role: "TEACHER" | "TA" | "STUDENT", status: "ACTIVE" | "PENDING" = "ACTIVE", courseStatus: "ACTIVE" | "ARCHIVED" = "ACTIVE") => ({
+  course: { id, class_code: code, subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: courseStatus },
   role_in_course: role,
   enrollment_status: status,
 });
@@ -87,6 +87,17 @@ test("course picker: ?course= của lớp thuộc người này đè lựa chọ
   expect(await page.evaluate(() => localStorage.getItem("ep:ui:course"))).toBe(C2);
   await page.reload();
   await expect(picker(page)).toContainText("761988");
+});
+
+test("course picker: mặc định bỏ qua lớp đã lưu trữ; chọn tay một lớp thì tải lại vẫn giữ", async ({ page }) => {
+  await login(page, "TEACHER", [item(C1, "900001", "TEACHER", "ACTIVE", "ARCHIVED"), item(C2, "761988", "TEACHER")]);
+  await page.goto("/");
+  await expect(picker(page)).toContainText("761988"); // lớp đầu danh sách đã lưu trữ nhưng không là mặc định
+  const panel = await options(page);
+  await panel.getByRole("menuitem", { name: /900001/ }).click();
+  await expect(picker(page)).toContainText("900001");
+  await page.reload();
+  await expect(picker(page)).toContainText("900001");
 });
 
 test("course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390", async ({ page }) => {
