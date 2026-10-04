@@ -1,10 +1,10 @@
 # EduPilot v2
 
-Nền tảng vận hành lớp học có AI cho một học phần đại học: hỏi đáp hai kênh (chat riêng tư + Threads công khai) có tường lửa dữ liệu cá nhân, escalation sang giảng viên, CRM sinh viên và điểm danh, sổ điểm tính theo quy chế môn học, chấm tự luận tự động có giảng viên duyệt, tài liệu và lịch, luyện đề, cấu hình LLM nhiều nhà cung cấp, và màn quan sát lớp học.
+Nền tảng vận hành lớp học có AI cho một học phần đại học: hỏi đáp hai kênh (chat riêng tư + Threads công khai) có tường lửa dữ liệu cá nhân, escalation sang giảng viên, CRM sinh viên và điểm danh, sổ điểm tính theo quy chế môn học, chấm tự luận tự động có giảng viên duyệt, **bài thi hằng tuần (trắc nghiệm + lập trình C/C++ chấm tự động)**, tài liệu và lịch, luyện đề, cấu hình LLM nhiều nhà cung cấp, và màn quan sát lớp học.
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** đã vào `main`: sprint 1 (P0), sprint 1.5 (prototype giao diện bấm được toàn bộ tính năng — 449 test case PASS; xem mục 5 "Xem prototype") và sprint 2 (PG — nền Go không trạng thái, cổng PG PASS, 536 test case). Đang làm: sprint 3 (PU + P1 LLM Gateway), sprint 4 (P2 Lớp học). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), **3 (PU nền giao diện + P1 LLM Gateway — 538 test case, cổng PASS)** và **4 (P2 Lớp học — tài khoản thật, mở lớp, mã tham gia, nạp danh sách lớp, "Hôm nay", seed bằng API thật — 554 test case, cổng đạt có điều kiện, 0 lỗ hổng)**. Kế tiếp: sprint 5 (PE thi hằng tuần) — spec đã duyệt, test case đã viết. Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -18,7 +18,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 7. [Luật bất biến](#7-luật-bất-biến)
 8. [Tài liệu](#8-tài-liệu)
 9. [Quy trình làm việc: đội agent và sprint](#9-quy-trình-làm-việc-đội-agent-và-sprint)
-10. [Lộ trình 10 sprint](#10-lộ-trình-10-sprint)
+10. [Lộ trình 11 sprint](#10-lộ-trình-11-sprint)
 11. [Vì sao viết mới](#11-vì-sao-viết-mới)
 
 ---
@@ -35,11 +35,11 @@ Một học phần đại cương: 1.000 sinh viên, 20 lớp, 5 trợ giảng, 
 | G5 | Điểm cuối kỳ đúng tuyệt đối | 30/30 khớp bảng tính tay; không dùng LLM để tính |
 | G6 | Hiệu năng ở T1 | Sự kiện SSE đầu ≤ 300 ms; TTFT ≤ 1,5 s (cache) / ≤ 4 s (RAG); API đọc p95 ≤ 300 ms |
 
-Đầy đủ: [`docs/PRD.md`](docs/PRD.md) (module M0–M14, tiêu chí nghiệm thu), [`docs/FLOWS.md`](docs/FLOWS.md) (luồng F1–F18).
+Đầy đủ: [`docs/PRD.md`](docs/PRD.md) (module M0–M14, tiêu chí nghiệm thu), [`docs/FLOWS.md`](docs/FLOWS.md) (luồng F1–F18; bài thi PE thêm M15 / F19 ở sprint 5).
 
 ## 2. Kiến trúc
 
-Một **modular monolith Go** không trạng thái + Postgres + Redis. Không có service Python (D46): AI (gọi LLM, RAG, che danh tính, chấm bài) chạy trong cùng tiến trình Go.
+Một **modular monolith Go** không trạng thái + Postgres + Redis. Không có service Python (D46): AI (gọi LLM, RAG, che danh tính, chấm bài) chạy trong cùng tiến trình Go. Ngoại lệ duy nhất là một container sandbox chấm code C/C++ của bài thi (D55), không chứa nghiệp vụ.
 
 ```mermaid
 flowchart LR
@@ -53,6 +53,7 @@ flowchart LR
   W --> RD
   W --> DS[docling-serve<br/>trích PDF/DOCX]
   W --> MAIL[SMTP / IMAP]
+  W --> JD[go-judge sandbox<br/>chấm C/C++ · mạng riêng]
 ```
 
 - **Gateway không trạng thái** — phiên = JWT; rate limit, idempotency, ánh xạ che danh tính = Redis; file = object storage + URL ký sẵn. Nhân bản ngang bằng `--scale gateway=N`.
@@ -71,7 +72,7 @@ Phiên bản nền chốt ở D48.
 | Backend | Go 1.27 · `chi` v5 · `pgx` v5 + `sqlc` + `pgvector-go` · `goose` · `go-redis` v9 · `openai-go` · `shopspring/decimal` (điểm, cấm `float64`) · `slog` + OpenTelemetry |
 | Frontend | Next.js 16 (App Router, React Server Components, Turbopack) · React 19 · TypeScript · TanStack Query · zustand · recharts · `lucide-react` · Be Vietnam Pro |
 | Dữ liệu | PostgreSQL 18 + pgvector (HNSW) · Redis 8 · object storage tương thích S3 |
-| Hạ tầng local | Docker Compose · Caddy 2.11 (TLS nội bộ, proxy `/api` → gateway, không đệm SSE) · PgBouncer 1.26 (transaction mode) · MinIO · Mailpit (SMTP 1025, UI 8025) · `docling-serve` (từ sprint 5) |
+| Hạ tầng local | Docker Compose · Caddy 2.11 (TLS nội bộ, proxy `/api` → gateway, không đệm SSE) · PgBouncer 1.26 (transaction mode) · MinIO · Mailpit (SMTP 1025, UI 8025) · `go-judge` (sandbox chấm code, từ sprint 5, D58) · `docling-serve` (từ sprint 6) |
 | Kiểm thử | `go test -race` · testcontainers-go · `kin-openapi` (contract test, chỉ trong test — D52) · Playwright · `@redocly/cli` · k6 · `golangci-lint` |
 | Công cụ | pnpm 12 · Node 24 LTS · GitHub Actions |
 
@@ -87,7 +88,13 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   ├── internal/
 │   │   ├── platform/        # config, log, otel, redis, db (pgx), blob (MinIO), outbox, clock
 │   │   ├── httpapi/         # router chi, middleware, lỗi thống nhất, cursor, Idempotency-Key, ETag, SSE
-│   │   ├── auth/            # JWT, bcrypt, RBAC, khung CourseAccessGuard
+│   │   ├── auth/            # JWT, refresh xoay vòng, bcrypt, RBAC, chống dò, CourseAccessGuard
+│   │   ├── user/            # tài khoản, đăng ký, xác minh email, lời mời
+│   │   ├── course/          # lớp, mã tham gia, thành viên, nạp danh sách lớp
+│   │   ├── today/           # "Hôm nay": Provider theo vai, cache Redis xoá theo sự kiện
+│   │   ├── mail/            # go-mail + mail_outbox (retry, dead-letter)
+│   │   ├── llm/             # cổng LLM (openai-go), Scheduler ba làn, cầu dao, llm_audit
+│   │   ├── llmconfig/       # API quản trị provider / tuyến / ngân sách
 │   │   ├── jobs/            # việc dài: 202 + GET /jobs/{id}
 │   │   ├── store/           # sqlc (queries/*.sql)
 │   │   ├── contract/        # response thật khớp api/openapi.yaml
@@ -116,7 +123,7 @@ Quy ước Go: `internal/<module>/{handler,service,repo}.go`; handler mỏng, lo
 ## 5. Chạy trên máy
 
 ### Yêu cầu
-- Docker (Docker Desktop, OrbStack hoặc colima) — ≥ 4 CPU, 8 GB RAM cho VM
+- Docker (Docker Desktop, OrbStack hoặc colima) — ≥ 4 CPU, 4–8 GB RAM cho VM (colima: `colima start --cpu 4 --memory 4 --disk 60`)
 - Node 24 LTS + pnpm 12 (`corepack enable` hoặc `brew install pnpm`)
 - Go 1.27 (chỉ cần khi chạy test / build ngoài Docker)
 - macOS: `brew install node@24 pnpm go colima docker docker-compose golangci-lint gh`
@@ -146,11 +153,15 @@ Biến môi trường: [`.env.example`](.env.example) (chỉ giá trị dev gi�
 
 Không ghi secret vào repo. Khoá LLM thật chỉ đặt trong `.env.local` (đã bị `.gitignore`); mọi test dùng provider `fake`.
 
-### Xem prototype (sprint 1.5)
+### Dữ liệu mẫu (sprint 4)
 ```bash
-pnpm -C frontend build && pnpm -C frontend start     # http://localhost:3000
+SEED_ON_EMPTY_DB=true pnpm dev     # DB trống: dựng 2 lớp × 30 sinh viên bằng chính API thật (≈ 40 s)
+pnpm seed                          # chạy lại seed trên stack đang chạy
 ```
-`/login` là màn đăng nhập thật (email + mật khẩu, cần stack `pnpm dev` và mở qua https://localhost). Công cụ chọn vai mô phỏng (Sinh viên A/B/C/D, `Đổi vai`, `Đặt lại dữ liệu demo`) chỉ còn ở bản dựng `NEXT_PUBLIC_DEV_TOOLS=1` (`pnpm -C frontend build:gate`), mục "Tài khoản mẫu" dưới form. Dữ liệu là mô phỏng (`frontend/src/mock/`), trạng thái lưu ở trình duyệt; màn mock được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
+Đăng nhập ở https://localhost/login bằng các tài khoản mẫu `@edupilot.local` (sinh viên, TA, giảng viên, Admin), mật khẩu là `SEED_DEFAULT_PASSWORD` trong `.env.local`. Mã tham gia lớp mẫu: `AN7K2MQ`, `BX4P9TW`. Thư xác minh / đặt lại mật khẩu xem ở Mailpit http://localhost:8025.
+
+### Prototype (sprint 1.5)
+Các màn chưa dựng thật (Threads, sổ điểm, chấm bài…) vẫn là bản mô phỏng của sprint 1.5 (`frontend/src/mock/`), được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
 
 ## 6. Kiểm thử và CI
 
@@ -175,7 +186,7 @@ Quản trị viên đầu tiên (không có route HTTP tạo ADMIN; mật khẩu
 ADMIN_PASSWORD='…' ./bin/gateway admin create --email admin@edupilot.local --name "Quản trị"
 ```
 
-CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy job **Go** (`go vet` hai bộ tag, `golangci-lint`, `sqlc diff`, `go test -race -tags testroutes`) và **Frontend** (lint, build, `ui-antipatterns.sh`) trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật. Số đo nền của bản Go: [`benchmarks/reports/pg-baseline.md`](benchmarks/reports/pg-baseline.md).
+CI (`.github/workflows/ci.yml`, runner `ubuntu-24.04`) chạy job **Go** (`go vet` hai bộ tag, `golangci-lint`, `sqlc diff`, `go test -race -tags testroutes`) và **Frontend** (lint, build, `ui-antipatterns.sh`, Playwright gồm ảnh mốc và axe, Lighthouse CI) trên mọi push và pull request; không đụng `legacy/`, không dùng secret, không gọi LLM thật (provider `fake` + bản ghi replay). Ảnh mốc Playwright sinh trong image `mcr.microsoft.com/playwright` để khớp CI. Số đo nền của bản Go: [`benchmarks/reports/pg-baseline.md`](benchmarks/reports/pg-baseline.md).
 
 ## 7. Luật bất biến
 
@@ -199,7 +210,7 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 | [`docs/FLOWS.md`](docs/FLOWS.md) | 18 luồng end-to-end F1–F18, cả nhánh lỗi |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Thành phần, lược đồ dữ liệu, REST, provider LLM, env, kiểm thử |
 | [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Tải T1, nút cổ chai, SLO, lộ trình mở rộng |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D52 |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D57 |
 | [`docs/design/DESIGN.md`](docs/design/DESIGN.md), [`docs/UX.md`](docs/UX.md) | Hệ thiết kế "Red Thread / Academic Instrument", hợp đồng từng route, luật UX |
 | [`docs/phases/`](docs/phases/) | Backlog kỹ thuật: P0, PG, PU, P1–P10, PR — lát việc + cổng nghiệm thu |
 | [`docs/specs/`](docs/specs/) | User story + SRS theo feature (BA viết) |
@@ -211,7 +222,7 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 
 ## 9. Quy trình làm việc: đội agent và sprint
 
-Một người (chủ dự án) + năm phiên agent trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/); mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước):
+Một người (chủ dự án) + năm phiên agent trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/); mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước). Sau mỗi lượt test, agent chạy `docker volume prune -f`; PM dọn sâu Docker khi đóng sprint.
 
 | Vai | Việc | Sửa được |
 | --- | --- | --- |
@@ -219,7 +230,7 @@ Một người (chủ dự án) + năm phiên agent trên [herdr](https://herdr.
 | `ba` | User story + SRS theo feature | `docs/specs/**` |
 | `dev` | Thi công từng story theo lát dọc | mã nguồn |
 | `qc` | Viết test case từ AC (song song với dev), kiểm thử thăm dò, chạy, báo PASS/FAIL, chạy cổng phase | `docs/sprints/N/qc/**`, test mới |
-| `research` | Kiểm chứng công nghệ, hạ tầng, rủi ro bằng nguồn chính + PoC, đề xuất cho PM | `docs/research/**` |
+| `research` | Kiểm chứng công nghệ, hạ tầng, rủi ro bằng nguồn chính + PoC; kiêm **Tech Lead**: trả lời dev khi phân vân kỹ thuật (`docs/sprints/N/techlead.md`) | `docs/research/**`, `docs/sprints/N/techlead.md` |
 
 ```mermaid
 flowchart LR
@@ -241,21 +252,22 @@ flowchart LR
 - Chạy cuốn chiếu: trong lúc QC kiểm sprint N, PM lập kế hoạch và BA viết spec sprint N+1; nhánh `sprint/N+1-…` xếp chồng lên nhánh N khi N chưa vào `main`. Chủ dự án chốt báo cáo → merge `--no-ff` vào `main`.
 - Không mở subagent khi PM chưa cho phép (tiết kiệm token).
 
-## 10. Lộ trình 10 sprint
+## 10. Lộ trình 11 sprint
 
 | Sprint | Phase | Kết quả chính |
 | --- | --- | --- |
 | 1 ✅ | P0 Chuẩn bị | Mặt bằng mới, khung Go + Next.js, stack local, CI, kịch bản demo |
 | 1.5 ✅ | Prototype giao diện (D51) | Prototype bấm được toàn bộ tính năng, đổi 4 vai, Threads mô phỏng như thật, đi trọn kịch bản demo 15 phút |
 | 2 ✅ | PG Nền Go | DB/migration/sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, Caddy + PgBouncer, nhân bản gateway |
-| 3 | PU + P1 | Token, app shell, primitive; LLM gateway + Scheduler + cấu hình provider |
-| 4 | P2 | Tài khoản an toàn, mở lớp, phân công, mã tham gia, "Hôm nay" |
-| 5 | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
-| 6 | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
-| 7 | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ |
-| 8 | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
-| 9 | P9 | Ngân hàng câu hỏi, luyện đề, QUIZ |
-| 10 | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
+| 3 ✅ | PU + P1 | Token, app shell, primitive, ảnh mốc + axe + Lighthouse CI; cổng LLM (openai-go) + Scheduler ba làn + cầu dao + `/settings/llm` thật |
+| 4 ✅ | P2 | Đăng nhập / đăng ký / xác minh email / đặt lại mật khẩu, chống dò, mời giảng viên / TA, mở lớp, mã tham gia, nạp danh sách lớp (nối chỉ bằng email), "Hôm nay", seed bằng API thật |
+| 5 | PE (D54–D58) | Bài thi hằng tuần: trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; trả nợ LCP / TBT (US-PU-06) |
+| 6 | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
+| 7 | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
+| 8 | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |
+| 9 | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
+| 10 | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |
+| 11 | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
 
 Chi tiết ghép phase, cổng và mục cắt được khi trễ: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
