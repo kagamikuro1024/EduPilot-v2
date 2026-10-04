@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 import { loadAudit, runAudit } from "./support/audit";
+import { settleGoto } from "./support/hydrate";
 import { REGISTRY } from "../src/shared/ui/registry";
 
 // US-PU-02: thư viện thành phần /dev/ui (chạy trên bản dựng cổng: `pnpm -C frontend build:gate`).
@@ -8,6 +9,7 @@ const INTERACTIVE = 'button:not([data-open-overlay]), a, input, textarea, select
 const cell = (page: Page, block: string, state: string) => page.locator(`[data-part=primitive][data-name="${block}"] [data-part=state-cell][data-state=${state}]:not([data-na])`);
 
 test.beforeEach(async ({ page }) => {
+  settleGoto(page);
   await page.emulateMedia({ reducedMotion: "reduce" });
 });
 

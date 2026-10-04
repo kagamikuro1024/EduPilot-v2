@@ -30,7 +30,7 @@ Tài liệu nguồn (đọc khi cần, KHÔNG đọc hết mỗi phiên):
 
 Next.js (frontend) → Go gateway `backend-go` (chi + pgx + sqlc; HTTP, SSE, nghiệp vụ VÀ AI: `internal/llm`, `internal/rag`,
 `internal/privacy`, `internal/grading`, `internal/agent`). Postgres + pgvector, Redis (cache, Streams, pub/sub).
-Worker Go chạy việc nền và gọi container `docling-serve` để trích PDF/DOCX. Không có service Python (D46).
+Worker Go chạy việc nền, gọi container `docling-serve` để trích PDF/DOCX và container sandbox để chấm code C/C++ của bài thi (D55). Không có service Python (D46).
 
 ## 9 nguyên tắc bất biến
 
@@ -81,8 +81,7 @@ Thao tác đảo ngược được → cập nhật lạc quan + dòng "Hoàn t�
 - Cho TEACHER / TA đọc nội dung chat riêng của sinh viên khi chưa escalate, kể cả qua trang quan sát hay log. Nội dung prompt chỉ ADMIN xem, có ghi `audit_log`.
 - Cho sinh viên thấy điểm nháp, ghi chú quan sát, nhãn rủi ro của chính mình, hay đáp án khi bài còn mở.
 - Lưu token ở localStorage; lưu token xác minh / đặt lại / mời ở dạng rõ (phải băm).
-- Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi.
-- Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi. Thêm service mới (nhất là service Python) — D46 chốt chỉ còn Go + `docling-serve`.
+- Thêm thư viện ngoài bảng ở `docs/ARCHITECTURE.md` mà không hỏi. Thêm service mới (nhất là service Python) — D46 chốt chỉ còn Go + `docling-serve`, D55 thêm đúng một sandbox chấm code (không chứa nghiệp vụ). Chạy code / binary của sinh viên ở bất cứ đâu ngoài sandbox.
 - Ghi file ra đĩa cục bộ của container; giữ trạng thái người dùng trong biến toàn cục.
 
 ## Định nghĩa "xong" ở mức luồng
@@ -130,6 +129,8 @@ Mỗi bước một commit. Kết thúc: chạy cổng nghiệm thu trong phase 
 
 ## Khi chạy trong đội herdr (`docs/team/`)
 
-Repo có thể đang được 4 phiên Claude Code làm cùng lúc: `pm`, `ba`, `dev`, `qc`. Vai của bạn do prompt đầu phiên quy định; đọc `docs/team/<VAI>.md` và chỉ sửa đúng vùng file của vai đó. Giao tiếp qua file trong `docs/specs/`, `docs/sprints/`; trạng thái không nằm trong hội thoại. Mọi luật ở trên áp dụng cho cả bốn vai.
+Repo có thể đang được 5 phiên Claude Code làm cùng lúc: `pm`, `ba`, `dev`, `qc`, `research` (kiêm **Tech Lead**). Vai của bạn do prompt đầu phiên quy định; đọc `docs/team/<VAI>.md` và chỉ sửa đúng vùng file của vai đó. Giao tiếp qua file trong `docs/specs/`, `docs/sprints/`; trạng thái không nằm trong hội thoại. Mọi luật ở trên áp dụng cho mọi vai.
 
 **Không thoả hiệp ngang hàng.** `ba`, `dev`, `qc` không nói chuyện trực tiếp với nhau (không `herdr agent prompt` sang vai khác, không nhắn qua file ngoài `proposals.md`) và không "dàn xếp" để việc của nhau qua: dev không xin QC nới TC, QC không sửa TC cho khớp code, BA không sửa AC cho khớp cái dev đã làm, không ai sửa file của vai khác. Mọi thay đổi spec/AC/TC sau khi `APPROVED` chỉ hợp lệ khi có dòng `proposals.md` được PM chấp nhận, và commit thay đổi đó phải ghi số proposal. PM gặp thay đổi không có số proposal → hoàn tác và ghi lỗi nghiêm trọng vào report sprint.
+
+**Ngoại lệ duy nhất: dev hỏi Tech Lead.** Dev phân vân cách làm *kỹ thuật* (thiết kế package, cách dùng thư viện, hiệu năng, đồng thời, bảo mật) thì hỏi `research` qua `docs/sprints/N/techlead.md` — quy trình ở `docs/team/RESEARCH.md`. Tech Lead chỉ trả lời *làm thế nào* trong khuôn spec / `ARCHITECTURE.md` / `DECISIONS.md` hiện hành; không đổi AC, TC, spec, thư viện hay quyết định (những việc đó vẫn qua `proposals.md`), không phân xử dev với QC.

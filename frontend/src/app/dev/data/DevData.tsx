@@ -1,5 +1,6 @@
 "use client";
 
+import { timeAgo } from "@/shared/lib/timeAgo";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -180,8 +181,10 @@ function Offline() {
   );
 }
 
+const BELL_AT = "2026-10-29T02:18:00Z";
+
 function BellDemo() {
-  const seed = (n: number): NotificationItem => ({ id: `n${n}`, title: `Thông báo số ${n}`, context: "Hộp thư hỗ trợ", when: "2 phút trước", href: "/dev/data", read: false });
+  const seed = (n: number): NotificationItem => ({ id: `n${n}`, title: `Thông báo số ${n}`, context: "Hộp thư hỗ trợ", when: timeAgo(BELL_AT, new Date(Date.parse(BELL_AT) + 2 * 60_000)), href: "/dev/data", read: false });
   const [items, setItems] = useState<NotificationItem[]>([seed(1), seed(2)]);
   const unread = items.filter((i) => !i.read).length;
   return (
@@ -215,7 +218,7 @@ function Token() {
   return (
     <section className={s.block} data-part="token" aria-label="Token">
       <h2 className="ep-section-title">Token</h2>
-      <Field label="Dán token">{(id) => <Input id={id} type="password" value={t} onChange={(e) => setT(e.target.value)} />}</Field>
+      <Field label="Token thử">{(id) => <Input id={id} type="password" value={t} onChange={(e) => setT(e.target.value)} />}</Field>
       <div className={s.row}>
         <Button onClick={() => { tokenStore.set(t); setT(""); }}>Dùng</Button>
       </div>

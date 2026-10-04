@@ -144,7 +144,6 @@
 .noteEmpty { padding: var(--ep-space-3); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 
 /* ---------- SV chưa vào lớp (SRS 4.3.2) ---------- */
-.joinForm { display: grid; gap: var(--ep-space-4); max-width: 420px; justify-items: start; }
 
 /* ---------- main ---------- */
 .main { margin-left: var(--side); min-height: calc(100dvh - var(--ep-topbar)); outline: none; transition: margin-left var(--ep-normal) var(--ep-ease-standard); }

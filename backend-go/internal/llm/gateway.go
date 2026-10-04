@@ -236,6 +236,11 @@ func (c *call) kindOf(err error) (provider.Kind, *provider.Error) {
 	return provider.KindNetwork, &provider.Error{Kind: provider.KindNetwork}
 }
 
+// ownDeadlineExpired: hạn của CHÍNH yêu cầu (BATCH 120 s, NEAR_REALTIME…) đã hết. Lỗi "quá hạn" khi đó là do ta chờ hàng quá lâu
+// hoặc cho nhà cung cấp quá ít thời gian, không phải bằng chứng nhà hỏng — không được tính vào mạch ngắt, nếu không một đợt BATCH
+// hết hạn sẽ mở mạch và chặn cả INTERACTIVE (QC GATE-P1 TC-16).
+func (c *call) ownDeadlineExpired() bool { return errors.Is(c.ctx.Err(), context.DeadlineExceeded) }
+
 func (c *call) remaining() time.Duration {
 	if d, ok := c.ctx.Deadline(); ok {
 		return d.Sub(c.g.o.Now())
@@ -330,7 +335,7 @@ func runChain[T any](c *call, est func(Target) int, op func(ctx context.Context,
 		if ar.perr != nil && ar.perr.Detail != "" {
 			c.g.o.Log.DebugContext(c.ctx, "lỗi nhà cung cấp LLM", "provider", t.ProviderName, "kind", string(ar.kind), "detail", ar.perr.Detail)
 		}
-		if ar.kind.CountsToBreaker() {
+		if ar.kind.CountsToBreaker() && !c.ownDeadlineExpired() {
 			c.g.gate.BreakerReport(c.ctx, t.ProviderID, ar.kind)
 		}
 		switch {

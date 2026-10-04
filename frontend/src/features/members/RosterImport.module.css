@@ -1,0 +1,13 @@
+.stack { display: grid; gap: var(--ep-space-5); max-width: 720px; }
+.drop { display: grid; gap: var(--ep-space-3); justify-items: start; padding: var(--ep-space-6); border: 1px dashed var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface-subtle); }
+.drop[data-over="true"] { border-color: var(--ep-red); background: var(--ep-surface); }
+.drop[data-invalid="true"] { border-color: var(--ep-red); }
+.hint { margin: 0; color: var(--ep-ink-2); font-size: var(--ep-text-meta); line-height: 1.5; }
+.file { margin: 0; font-weight: 500; overflow-wrap: anywhere; }
+.error { margin: 0; color: var(--ep-red); font-size: var(--ep-text-meta); font-weight: 500; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-3); }
+.summary { margin: 0; color: var(--ep-ink); line-height: 1.5; }
+.result { margin: 0; color: var(--ep-green); font-weight: 500; }
+.rows { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--ep-space-2); }
+.rows li { color: var(--ep-ink-2); font-size: var(--ep-text-meta); line-height: 1.5; overflow-wrap: anywhere; }
+.rows b { color: var(--ep-ink); font-weight: 600; }

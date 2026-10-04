@@ -12,7 +12,7 @@ export type NotificationItem = { id: string; title: string; context: string; whe
  * Chuông thông báo — KHUNG nhận danh sách qua props (dữ liệu thật ở P4). Chấm đỏ (`bell-dot`) chỉ khi `unread > 0`; mở khung KHÔNG
  * xoá chấm (chỉ bấm vào từng thông báo mới `onRead`). Khi `unread` tăng, vùng `aria-live=polite` đọc "Có N thông báo mới" một lần.
  */
-export function NotificationPopover({ items, unread, onRead }: { items: NotificationItem[]; unread: number; onRead?: (id: string) => void }) {
+export function NotificationPopover({ items, unread, onRead, failed }: { items: NotificationItem[]; unread: number; onRead?: (id: string) => void; failed?: boolean }) {
   const prev = useRef(unread);
   const [announce, setAnnounce] = useState("");
   useEffect(() => {
@@ -40,7 +40,9 @@ export function NotificationPopover({ items, unread, onRead }: { items: Notifica
         {(close) => (
           <div className={s.notes} data-part="notifications">
             <p className={s.panelLabel}>Thông báo</p>
-            {items.length === 0 ? (
+            {failed ? (
+              <p className={s.noteEmpty}>Chưa tải được thông báo.</p>
+            ) : items.length === 0 ? (
               <p className={s.noteEmpty}>Chưa có thông báo. Khi có việc cần bạn, nó sẽ hiện ở đây.</p>
             ) : (
               <ul>

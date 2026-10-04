@@ -26,7 +26,7 @@ Tiền điều kiện chung: stack test chạy; `GW=https://localhost` (cùng or
 | TC-P202-19 | AC6 | – | **G** `-run 'TestLogout\|TestLogoutIdempotent\|TestLogoutOtherDeviceUnaffected'` | `ok` |
 | TC-P202-20 | AC7 (**CSRF**) | jar hợp lệ | **S** `curl -sk -b jar -H 'Origin: https://evil.example' -X POST -o /dev/null -w '%{http_code}\n' $GW/api/v1/auth/refresh`; cùng với `/auth/logout`; có và không cookie; sau đó refresh hợp lệ | `403 FORBIDDEN` `details.reason="origin"`; cookie **không** bị xoay, phiên **không** bị thu hồi (refresh hợp lệ sau đó vẫn `200` với cùng cookie) |
 | TC-P202-21 | AC7 | – | **S** không `Origin` nhưng `Sec-Fetch-Site: cross-site` → ; không có cả hai (client không-trình-duyệt); `Origin` hợp lệ (`https://localhost`); `Origin: null`; `Origin` giống tiền tố (`https://localhost.evil.example`) | cross-site → `403`; không cả hai → qua; hợp lệ → qua; `Origin: null` → `403`; `https://localhost.evil.example` → `403` (khớp **chính xác**, không `startsWith`) |
-| TC-P202-22 | AC7 | – | **S** `GET /auth/refresh`, `PUT`, `POST` với `Content-Type: text/plain`, `application/x-www-form-urlencoded` | Chỉ `POST` + `application/json`: các cách khác `405`/`415`/`400` (không xoay token) |
+| TC-P202-22 | AC7 (góp ý #4) | – | **S** `GET /auth/refresh`, `PUT`; `POST` với `Content-Type: text/plain`, `application/x-www-form-urlencoded`; `POST` **không** header `Content-Type` (curl không thân, như lệnh tay AC3/AC6/AC7) | Chỉ `POST`: method khác `405`; `Content-Type` **có mà khác JSON** → `415` (không xoay token); **không có** header → qua (`200` nếu cookie hợp lệ). CSRF chéo site do `Origin`/`Sec-Fetch-Site` chặn (TC-20, 21, 23 giữ nguyên) |
 | TC-P202-23 | AC7 | – | **A** trang giả ở `http://localhost:9999` tự `fetch('https://localhost/api/v1/auth/refresh',{method:'POST',credentials:'include'})` trong khi trình duyệt đã đăng nhập; trang giả form `POST` ẩn | Không thành công: cookie `Lax` không gửi cross-site `POST` và/hoặc `403`; phiên nạn nhân còn nguyên |
 | TC-P202-24 | AC7 | – | **G** `-run 'TestCSRFOriginRejected\|TestCSRFSecFetchSite\|TestCSRFAllowedOrigin\|TestCookieEndpointsPostJSONOnly'` | `ok` |
 | TC-P202-25 | AC8 | phiên P | **S** đổi mật khẩu / logout / khoá (qua DB `update users set status`) / dùng lại refresh; gọi API với access cũ; đo thời gian tới 401 | `401 SESSION_REVOKED` **≤ 1 s** ở **cả hai** gateway |
@@ -46,7 +46,7 @@ Tiền điều kiện chung: stack test chạy; `GW=https://localhost` (cùng or
 | TC-P202-39 | AC12 | 375 | **A** `AUDIT_SRC`, `TOUCH_SRC`; axe | `ox:0`, `[]`; 0 `serious`/`critical`; không từ kỹ thuật |
 | TC-P202-40 | AC12 | – | **G** `$PW account.spec.ts -g 'login page'` | `rc=0` |
 | TC-P202-41 | AC13 (**open redirect**) | – | **S/A** đăng nhập với `?next=` lần lượt: `//evil.example`, `https://evil.example`, `/\evil.example`, `javascript:alert(1)`, `/%2F%2Fevil.example`, `/%5Cevil.example`, `/foo%0d%0aSet-Cookie:x=1`, `/a:b`, `data:text/html,x`, `///evil.example`, ` //evil.example` (đầu khoảng trắng), `/ok?x=//evil` | Mọi giá trị độc hại → `/` (không rời origin; `location.origin` không đổi); giá trị hợp lệ (`/threads`, `/class/x?tab=a`, `/settings/llm`) → đúng đường dẫn; **không** header injection |
-| TC-P202-42 | AC13 | – | **G** `pnpm -C frontend exec vitest run src/shared/session/safeNext.test.ts` | `ok`; ≥ 12 giá trị |
+| TC-P202-42 | AC13 (góp ý #3) | – | **G** `pnpm -C frontend exec playwright test safe-next.spec.ts` (không dùng `vitest`: không có trong bảng thư viện) | `rc=0`; ≥ 12 giá trị (dev: 20 ca) |
 | TC-P202-43 | AC14 | 4 vai | **S** `for r in student:sv.gioi teacher:teacher ta:ta admin:admin; do h=$(bearer ${r#*:}@edupilot.local); curl -sk -H "$h" -o /dev/null -w "${r%%:*} %{http_code}\n" $GW/api/v1/admin/courses; done`; cùng với `/api/v1/admin/users` | `student 403`, `teacher 403`, `ta 403`, `admin 200`; 403 có `details.reason="role"` |
 | TC-P202-44 | AC14 | – | **A** chưa đăng nhập vào `/threads`, `/settings/llm`; sau đăng nhập mỗi vai đếm nav | `/login?next=…`; Sinh viên **7**, TA **12**, Giảng viên **15**, Admin **6** mục; **không** bộ đổi vai mô phỏng ở build thường |
 | TC-P202-45 | AC14 (IDOR chéo vai) | – | **S** STUDENT gọi `GET /api/v1/admin/llm/providers`, TEACHER `PUT /admin/llm/routes`; TA `GET /admin/users` | `403`; không dữ liệu |
@@ -83,5 +83,6 @@ Tiền điều kiện chung: stack test chạy; `GW=https://localhost` (cùng or
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).
+- 2026-10-04 — góp ý sprint 4 #3 (AC13: lệnh kiểm sang `playwright test safe-next.spec.ts`), #4 (AC7: `Content-Type` có mà khác JSON → 415, không header → qua; giữ TC CSRF chéo site) — PM ACCEPTED.
 
 Tổng: 52 TC.

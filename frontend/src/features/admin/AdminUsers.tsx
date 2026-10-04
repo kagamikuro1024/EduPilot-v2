@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Mail, Search } from "lucide-react";
-import { COURSES, STAFF, STUDENTS } from "@/mock/core";
-import { useUndoLine } from "@/shared/lib/useUndoLine";
-import { useDemoSlice } from "@/shared/state/demo";
+import { useEffect, useRef, useState } from "react";
+import { ApiError, apiClient, useCursorList } from "@/shared/data";
+import { useAuth } from "@/shared/session/AuthProvider";
 import {
   Button,
   DataTable,
@@ -12,105 +12,124 @@ import {
   Field,
   InlineNotice,
   Input,
+  OverflowMenu,
   Page,
   PageHeader,
   PageState,
-  useRouteState,
-  Section,
   SegmentedControl,
-  Skeleton,
   StatusText,
   Toolbar,
+  UndoLine,
   type Column,
 } from "@/shared/ui";
 import s from "./admin.module.css";
+import { InvitePanel } from "./users/InvitePanel";
+import { ROLE_TEXT, STATUS_TEXT, USERS_KEY, lastSeen, type AdminUser } from "./users/api";
 
-type RoleFilter = "all" | "teacher" | "ta" | "admin" | "student";
-type Row = { id: string; name: string; email: string; role: Exclude<RoleFilter, "all">; detail: string; invited?: boolean };
+type Filter = "all" | "TEACHER" | "TA" | "ADMIN" | "STUDENT";
+type Line = { text: string; undo?: () => void };
+type Conflict = { user: AdminUser; to: "ACTIVE" | "DISABLED"; currentVersion: number };
 
-const ROLE_TEXT: Record<Exclude<RoleFilter, "all">, string> = { teacher: "Giảng viên", ta: "Trợ giảng", admin: "Quản trị viên", student: "Sinh viên" };
-
+/** Người dùng của toàn hệ thống (Admin): mời giảng viên / trợ giảng, gửi lại lời mời, khoá / mở khoá. Dữ liệu thật qua `/admin/users`. */
 export function AdminUsers() {
-  // `?state=empty` minh hoạ chưa có tài khoản: số đếm ở đầu màn khớp (04-7)
-  const emptyShown = useRouteState() === "empty";
-  const [locked, setLocked] = useDemoSlice<string[]>("admin.locked", []);
-  const [invites, setInvites] = useDemoSlice<string[]>("admin.invites", []);
-  const [filter, setFilter] = useState<RoleFilter>("all");
+  const auth = useAuth();
+  const qc = useQueryClient();
+  const me = auth.user?.id;
+  const [filter, setFilter] = useState<Filter>("all");
   const [query, setQuery] = useState("");
+  const [q, setQ] = useState(""); // đã trễ 250 ms: không bắn một truy vấn cho mỗi phím
   const [inviting, setInviting] = useState(false);
-  const [email, setEmail] = useState("");
-  const undo = useUndoLine();
+  const [line, setLine] = useState<Line | null>(null);
+  const [error, setError] = useState<{ message: string; retry?: () => void } | null>(null);
+  const [conflict, setConflict] = useState<Conflict | null>(null);
+  const [over, setOver] = useState<Record<string, AdminUser["status"]>>({}); // cập nhật lạc quan
+  const versions = useRef<Record<string, number>>({});
+  const inflight = useRef<Record<string, Promise<unknown>>>({});
 
-  const all: Row[] = [
-    { id: STAFF.teacher.id, name: `${STAFF.teacher.title} ${STAFF.teacher.name}`, email: STAFF.teacher.email, role: "teacher", detail: "Phụ trách 761987, 761988" },
-    { id: STAFF.ta.id, name: STAFF.ta.name, email: STAFF.ta.email, role: "ta", detail: `Trợ giảng lớp ${COURSES[0].code}` },
-    { id: STAFF.admin.id, name: STAFF.admin.name, email: STAFF.admin.email, role: "admin", detail: "Quản trị hệ thống" },
-    ...invites.map((e) => ({ id: `inv-${e}`, name: e.split("@")[0], email: e, role: "teacher" as const, detail: "Đã mời, chờ nhận lời mời", invited: true })),
-    ...STUDENTS.map((st) => ({
-      id: st.id,
-      name: st.name,
-      email: st.email,
-      role: "student" as const,
-      detail: st.courseIds.length > 0 ? `Lớp ${st.courseIds.join(", ")} · ${st.code}` : `Chưa vào lớp nào · ${st.code}`,
-    })),
-  ];
+  useEffect(() => {
+    const t = setTimeout(() => setQ(query.trim()), 250);
+    return () => clearTimeout(t);
+  }, [query]);
 
-  const q = query.trim().toLowerCase();
-  const rows = all.filter((r) => (filter === "all" || r.role === filter) && (q === "" || r.name.toLowerCase().includes(q) || r.email.toLowerCase().includes(q) || r.detail.toLowerCase().includes(q)));
+  const list = useCursorList<AdminUser>([...USERS_KEY, filter, q], "/admin/users", { limit: 30, query: { role: filter === "all" ? undefined : filter, q: q || undefined } });
+  const refresh = () => qc.invalidateQueries({ queryKey: USERS_KEY });
 
-  function toggleLock(row: Row) {
-    const isLocked = locked.includes(row.id);
-    setLocked((prev) => (isLocked ? prev.filter((id) => id !== row.id) : [...prev, row.id]));
-    undo.push(isLocked ? `Đã mở khoá tài khoản ${row.name}` : `Đã khoá tài khoản ${row.name}`, () =>
-      setLocked((prev) => (isLocked ? [...prev, row.id] : prev.filter((id) => id !== row.id))),
-    );
+  /** Khoá / mở khoá: lạc quan, ghi lên máy chủ, dòng tĩnh "Đã … · Hoàn tác" 5 s. Hoàn tác = thao tác ngược (đợi lần ghi trước xong để có version đúng). */
+  function setStatus(u: AdminUser, to: "ACTIVE" | "DISABLED", undoing = false) {
+    setError(null);
+    setConflict(null);
+    setOver((o) => ({ ...o, [u.id]: to }));
+    const back = to === "DISABLED" ? "ACTIVE" : "DISABLED";
+    setLine({ text: to === "DISABLED" ? `Đã khoá ${u.full_name}` : `Đã mở khoá ${u.full_name}`, undo: undoing ? undefined : () => setStatus(u, back, true) });
+    const run = (async () => {
+      await inflight.current[u.id]?.catch(() => undefined);
+      try {
+        const version = versions.current[u.id] ?? u.version;
+        const { data } = await apiClient.patch<AdminUser>(`/admin/users/${u.id}`, { status: to, version });
+        versions.current[u.id] = data.version;
+        await refresh();
+      } catch (e) {
+        setLine(null);
+        if (e instanceof ApiError && e.code === "VERSION_CONFLICT" && e.conflict) setConflict({ user: u, to, currentVersion: e.conflict.currentVersion });
+        else setError({ message: e instanceof ApiError ? errorText(e) : "Chưa lưu được. Hãy thử lại.", retry: () => setStatus(u, to) });
+      } finally {
+        setOver((o) => {
+          const n = { ...o };
+          delete n[u.id];
+          return n;
+        });
+      }
+    })();
+    inflight.current[u.id] = run;
   }
 
-  function invite() {
-    const addr = email.trim();
-    setInvites((prev) => [...prev, addr]);
-    setInviting(false);
-    setEmail("");
-    undo.push(`Đã gửi link mời tới ${addr}, hạn 72 giờ`, () => setInvites((prev) => prev.filter((e) => e !== addr)));
+  async function resend(u: AdminUser) {
+    setError(null);
+    try {
+      await apiClient.post(`/admin/users/${u.id}/resend-invite`);
+      setLine({ text: `Đã gửi lại lời mời tới ${u.email}, hạn 72 giờ.` });
+    } catch (e) {
+      setError({ message: e instanceof ApiError ? errorText(e) : "Chưa gửi được. Hãy thử lại.", retry: () => void resend(u) });
+    }
   }
 
-  const columns: Column<Row>[] = [
-    {
-      key: "name",
-      header: "Họ tên",
-      frozen: true,
-      render: (r) => (
-        <>
-          <span className={s.name}>{r.name}</span>
-          <span className={s.sub}>{r.email}</span>
-        </>
-      ),
-    },
-    { key: "role", header: "Vai trò", render: (r) => ROLE_TEXT[r.role] },
-    { key: "detail", header: "Thuộc lớp", render: (r) => <span className={s.sub}>{r.detail}</span> },
+  const columns: Column<AdminUser>[] = [
+    { key: "name", header: "Họ tên", frozen: true, render: (u) => <span className={s.name}>{u.full_name}</span> },
+    { key: "email", header: "Email", render: (u) => <span className={s.sub}>{u.email}</span> },
+    { key: "role", header: "Vai trò", render: (u) => ROLE_TEXT[u.role] },
     {
       key: "state",
       header: "Trạng thái",
-      render: (r) =>
-        r.invited ? (
-          <StatusText tone="amber">Chờ nhận lời mời</StatusText>
-        ) : locked.includes(r.id) ? (
-          <StatusText tone="red">Đã khoá</StatusText>
-        ) : (
-          <StatusText tone="green">Đang dùng</StatusText>
-        ),
+      render: (u) => {
+        const st = STATUS_TEXT[over[u.id] ?? u.status];
+        return <StatusText tone={st.tone}>{st.text}</StatusText>;
+      },
     },
+    { key: "last", header: "Lần cuối", render: (u) => <span className={s.sub}>{lastSeen(u.last_login_at)}</span> },
     {
       key: "action",
       header: "",
       align: "end",
-      width: "120px",
-      render: (r) =>
-        r.invited ? null : (
-          <Button size="sm" variant="ghost" onClick={() => toggleLock(r)}>
-            {locked.includes(r.id) ? "Mở khoá" : "Khoá"}
-          </Button>
-        ),
+      width: "220px",
+      render: (u) => {
+        const status = over[u.id] ?? u.status;
+        const self = u.id === me;
+        return (
+          <span className={s.rowActions}>
+            {status === "INVITED" && (
+              <Button size="sm" variant="ghost" onClick={() => void resend(u)}>
+                Gửi lại lời mời
+              </Button>
+            )}
+            {!self && (
+              <OverflowMenu
+                label={`Thao tác cho ${u.full_name}`}
+                items={[status === "DISABLED" ? { label: "Mở khoá", onSelect: () => setStatus(u, "ACTIVE") } : { label: "Khoá tài khoản", danger: true, onSelect: () => setStatus(u, "DISABLED") }]}
+              />
+            )}
+          </span>
+        );
+      },
     },
   ];
 
@@ -118,14 +137,7 @@ export function AdminUsers() {
     <Page width="wide">
       <PageHeader
         title="Người dùng"
-        description="Tài khoản giảng viên, trợ giảng, quản trị viên và sinh viên của toàn hệ thống."
-        meta={
-          <>
-            <span>{emptyShown ? 0 : all.length} tài khoản</span>
-            <span>{emptyShown ? 0 : STUDENTS.length} sinh viên</span>
-            {!emptyShown && locked.length > 0 && <span>{locked.length} tài khoản đang bị khoá</span>}
-          </>
-        }
+        description="Mời giảng viên và trợ giảng, khoá hoặc mở khoá tài khoản. Sinh viên tự đăng ký rồi vào lớp bằng mã tham gia."
         actions={
           inviting ? undefined : (
             <Button variant="primary" icon={<Mail aria-hidden />} onClick={() => setInviting(true)}>
@@ -135,75 +147,101 @@ export function AdminUsers() {
         }
       />
 
-      <PageState
-        loading={<Skeleton lines={8} />}
-        empty={<EmptyState title="Chưa có tài khoản nào ngoài bạn">Mời giảng viên đầu tiên bằng email của trường; sinh viên tự vào lớp bằng mã tham gia, không cần tạo tài khoản sẵn.</EmptyState>}
-        error={{ problem: "Không tải được danh sách người dùng.", recovery: "Mọi người vẫn đăng nhập bình thường. Thử lại sau ít phút." }}
-      >
-        {inviting && (
-          <Section title="Mời giảng viên" description="Người được mời nhận một link đặt mật khẩu, dùng trong 72 giờ.">
-            <div className={s.form}>
-              <Field label="Email của trường" required helper="Chỉ nhận email tên miền của trường.">
-                {(id, describedBy) => (
-                  <Input id={id} aria-describedby={describedBy} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="ten.ho@edupilot.test" autoComplete="off" />
-                )}
-              </Field>
-            </div>
-            <div className={s.formActions}>
-              <Button variant="primary" disabled={!email.includes("@") || email.trim().length < 6} onClick={invite}>
-                Gửi lời mời
-              </Button>
-              <Button variant="ghost" onClick={() => setInviting(false)}>
-                Huỷ
-              </Button>
-            </div>
-          </Section>
-        )}
+      {inviting && (
+        <InvitePanel
+          onClose={() => setInviting(false)}
+          onSent={() => {
+            setInviting(false);
+            setLine({ text: "Đã gửi link mời, hạn 72 giờ." });
+            void refresh();
+          }}
+        />
+      )}
 
-        <Toolbar
-          end={
-            <Field label="Tìm người dùng" className={s.searchField}>
-              {(id) => (
-                <span className={s.search}>
-                  <Search aria-hidden />
-                  <Input id={id} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tên, email hoặc mã sinh viên" />
-                </span>
-              )}
-            </Field>
+      <Toolbar
+        end={
+          <Field label="Tìm người dùng" className={s.searchField}>
+            {(id) => (
+              <span className={s.search}>
+                <Search aria-hidden />
+                <Input id={id} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tên hoặc đầu email" />
+              </span>
+            )}
+          </Field>
+        }
+      >
+        <SegmentedControl
+          label="Lọc theo vai trò"
+          value={filter}
+          onChange={setFilter}
+          options={[
+            { value: "all", label: "Tất cả" },
+            { value: "TEACHER", label: "Giảng viên" },
+            { value: "TA", label: "Trợ giảng" },
+            { value: "ADMIN", label: "Quản trị" },
+            { value: "STUDENT", label: "Sinh viên" },
+          ]}
+        />
+      </Toolbar>
+
+      {line && <UndoLine key={line.text} message={line.text} onUndo={line.undo} onDone={() => setLine(null)} />}
+      {error && (
+        <InlineNotice tone="danger" compact action={error.retry ? <Button size="sm" onClick={error.retry}>Thử lại</Button> : undefined}>
+          {error.message}
+        </InlineNotice>
+      )}
+      {conflict && (
+        <InlineNotice
+          tone="warning"
+          compact
+          action={
+            <>
+              <Button
+                size="sm"
+                onClick={() => {
+                  versions.current[conflict.user.id] = conflict.currentVersion;
+                  setStatus(conflict.user, conflict.to);
+                }}
+              >
+                Giữ thay đổi của tôi
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => {
+                  setConflict(null);
+                  void refresh();
+                }}
+              >
+                Dùng bản mới
+              </Button>
+            </>
           }
         >
-          <SegmentedControl
-            label="Lọc theo vai trò"
-            value={filter}
-            onChange={setFilter}
-            options={[
-              { value: "all", label: "Tất cả", count: all.length },
-              { value: "teacher", label: "Giảng viên" },
-              { value: "ta", label: "Trợ giảng" },
-              { value: "admin", label: "Quản trị" },
-              { value: "student", label: "Sinh viên", count: STUDENTS.length },
-            ]}
-          />
-        </Toolbar>
-
-        <InlineNotice tone="info" compact>
-          Không tạo tài khoản sinh viên ở đây: sinh viên tự đăng ký rồi vào lớp bằng mã tham gia, giảng viên duyệt nếu lớp bật duyệt.
+          Tài khoản này vừa được người khác sửa. Giữ thay đổi của bạn hay dùng bản mới?
         </InlineNotice>
+      )}
 
+      <PageState query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: list.items, refetch: list.refetch }} showTechnical>
         <DataTable
           caption="Danh sách người dùng"
           columns={columns}
-          rows={rows}
-          rowKey={(r) => r.id}
+          rows={list.items}
+          rowKey={(u) => u.id}
           dense
-          empty={
-            <EmptyState title="Không có ai khớp bộ lọc này">
-              Thử bỏ bớt từ khoá “{query}” hoặc chọn lại vai trò. Đang lọc: {filter === "all" ? "tất cả vai trò" : ROLE_TEXT[filter]}.
-            </EmptyState>
-          }
+          empty={<EmptyState title="Chưa có người dùng khớp bộ lọc.">Thử bỏ bớt từ khoá hoặc chọn lại vai trò.</EmptyState>}
+          pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
         />
-        {undo.node}
       </PageState>
     </Page>
   );
+}
+
+function errorText(e: ApiError): string {
+  const reason = (e.details as { reason?: string } | undefined)?.reason;
+  if (e.code === "CONFLICT" && reason === "self") return "Bạn không thể tự khoá chính mình.";
+  if (e.code === "CONFLICT" && reason === "last_admin") return "Không thể khoá quản trị viên cuối cùng.";
+  if (e.code === "CONFLICT") return "Chỉ gửi lại được lời mời cho tài khoản chưa nhận.";
+  if (e.code === "RATE_LIMITED") return e.retryAfter ? `Vừa gửi lời mời rồi. Thử lại sau ${e.retryAfter} giây.` : "Vừa gửi lời mời rồi. Thử lại sau ít phút.";
+  return e.userMessage;
 }

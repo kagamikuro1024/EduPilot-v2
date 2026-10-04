@@ -1,0 +1,9 @@
+Subject: Tài khoản EduPilot bị khoá tạm thời
+
+Chào Nguyễn Văn An,
+
+Có nhiều lần đăng nhập sai vào tài khoản EduPilot của bạn. Để an toàn, tài khoản bị khoá tạm thời 15 phút, đến 09:45 03/10/2026 (giờ Việt Nam).
+
+Nếu đó là bạn, hãy đợi hết giờ rồi đăng nhập lại, hoặc đặt lại mật khẩu tại https://localhost/forgot-password. Nếu không phải bạn, nên đặt lại mật khẩu ngay.
+
+— EduPilot · Thư tự động từ hệ thống, vui lòng không trả lời.

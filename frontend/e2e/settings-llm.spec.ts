@@ -3,8 +3,8 @@ import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
 import { BASE_URL } from "./support/env";
 import { expect, test, type Page } from "@playwright/test";
 import { loadAudit, runAudit } from "./support/audit";
-import { CHAIN3, IDS, base, budget, err, getLog, jwt, openLlm, provider, providers, reset, script, usage } from "./support/llm-fixtures";
-import { asDemo, type DemoRole } from "./support/session";
+import { CHAIN3, IDS, base, budget, err, getLog, openLlm, provider, providers, reset, script, usage } from "./support/llm-fixtures";
+import { asJwt } from "./support/session";
 
 // US-P1-05: màn /settings/llm THẬT, thử với máy chủ giả theo hợp đồng thật (e2e/support/llm-fixtures.ts). Ca @real (gateway thật) không chạy ở CI.
 const P = "/api/v1/admin/llm";
@@ -16,8 +16,8 @@ test.beforeEach(async ({}, info) => {
 });
 const putRoutes = (page: Page) => getLog(page, `${P}/routes`).then((l) => l.filter((x) => x.method === "PUT"));
 
-test("sections: 4 phần đúng thứ tự, không lồng, khoảng cách đều, 0 nút primary lúc đầu", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN");
+test("sections: 4 phần đúng thứ tự, không lồng, khoảng cách đều, 0 nút primary lúc đầu", async ({ page }) => {
+  await openLlm(page, "ADMIN");
   await expect(page.getByRole("heading", { name: "Kết nối nhà cung cấp", level: 2 })).toBeVisible();
   const heads = await page.locator("[data-part=settings-section] h2:visible").allTextContents();
   expect(heads).toEqual(["Kết nối nhà cung cấp", "Mô hình theo tác vụ", "Chuỗi dự phòng", "Mô hình tìm kiếm tài liệu"]);
@@ -28,8 +28,8 @@ test("sections: 4 phần đúng thứ tự, không lồng, khoảng cách đều
   await expect(page.getByRole("heading", { name: "Mức dùng và ngân sách" })).toBeVisible();
 });
 
-test("provider row: Test kết nối ở mỗi hàng, lỗi ngay dưới hàng, thêm nhà bấm đúp Lưu chỉ 1 POST", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN", {
+test("provider row: Test kết nối ở mỗi hàng, lỗi ngay dưới hàng, thêm nhà bấm đúp Lưu chỉ 1 POST", async ({ page }) => {
+  await openLlm(page, "ADMIN", {
     [`POST ${P}/providers/${IDS.gemini}/test`]: [{ body: { ok: false, error_kind: "AUTH", message: "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.", latency_ms: 90 } }],
     [`POST ${P}/providers/${IDS.openai}/test`]: [{ body: { ok: true, latency_ms: 420 } }],
     [`POST ${P}/providers`]: [{ status: 201, body: provider({ id: "00000000-0000-7000-8000-000000000099", name: "Máy chủ trường", type: "fake" }), delay: 400 }],
@@ -57,11 +57,11 @@ test("provider row: Test kết nối ở mỗi hàng, lỗi ngay dưới hàng, 
   expect((await getLog(page, `${P}/providers`)).filter((l) => l.method === "POST")).toHaveLength(1);
 });
 
-test("key write-only: khoá không bao giờ vào DOM / storage / console; ô khoá trống sau lưu", async ({ page, context }) => {
+test("key write-only: khoá không bao giờ vào DOM / storage / console; ô khoá trống sau lưu", async ({ page }) => {
   const CANARY = "sk-CANARY-abcd1234wxyz";
   const logs: string[] = [];
   page.on("console", (m) => logs.push(m.text()));
-  await openLlm(page, context, "ADMIN", { [`POST ${P}/providers`]: [{ status: 201, body: provider({ id: "00000000-0000-7000-8000-000000000098", name: "Mới" }) }] });
+  await openLlm(page, "ADMIN", { [`POST ${P}/providers`]: [{ status: 201, body: provider({ id: "00000000-0000-7000-8000-000000000098", name: "Mới" }) }] });
   await expect(page.locator("[data-part=provider-row]")).toHaveCount(2);
   await page.getByRole("button", { name: "Thêm nhà cung cấp" }).click();
   const form = page.locator("[data-part=provider-form]");
@@ -88,8 +88,8 @@ test("key write-only: khoá không bao giờ vào DOM / storage / console; ô kh
   await expect(page.getByText("Để trống để giữ khoá hiện tại")).toBeVisible();
 });
 
-test("wrong key: 422 PROVIDER_AUTH_FAILED ⇒ lỗi dưới ô khoá, không thêm hàng, giữ chữ đã gõ", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN", {
+test("wrong key: 422 PROVIDER_AUTH_FAILED ⇒ lỗi dưới ô khoá, không thêm hàng, giữ chữ đã gõ", async ({ page }) => {
+  await openLlm(page, "ADMIN", {
     [`POST ${P}/providers`]: [{ status: 422, body: { code: "VALIDATION_FAILED", message: "m", trace_id: "c".repeat(32), details: [{ field: "api_key", code: "PROVIDER_AUTH_FAILED", message: "Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá." }] } }],
   });
   await expect(page.locator("[data-part=provider-row]")).toHaveCount(2);
@@ -106,9 +106,9 @@ test("wrong key: 422 PROVIDER_AUTH_FAILED ⇒ lỗi dưới ô khoá, không th�
   await expect(page.locator("[data-part=provider-row]")).toHaveCount(2);
 });
 
-test("routing: đổi mô hình lạc quan ≤ 100 ms, Hoàn tác ghi ngay, Lên bằng phím Enter", async ({ page, context }) => {
+test("routing: đổi mô hình lạc quan ≤ 100 ms, Hoàn tác ghi ngay, Lên bằng phím Enter", async ({ page }) => {
   const saved = { task: "CHAT", lane: "INTERACTIVE", chain: [CHAIN3[1], CHAIN3[0], CHAIN3[2]], params: { temperature: 0.2 }, version: 4, reindex_required: false };
-  await openLlm(page, context, "ADMIN", { [`PUT ${P}/routes`]: [{ body: saved, delay: 500 }, { body: { ...saved, chain: CHAIN3, version: 5 } }, { body: { ...saved, version: 6 } }] });
+  await openLlm(page, "ADMIN", { [`PUT ${P}/routes`]: [{ body: saved, delay: 500 }, { body: { ...saved, chain: CHAIN3, version: 5 } }, { body: { ...saved, version: 6 } }] });
   const row = page.locator('[data-part=route-row][data-task=CHAT]');
   const select = row.getByLabel("Mô hình cho Trả lời chat riêng");
   await expect(select).toHaveValue(IDS.m1);
@@ -141,8 +141,8 @@ test("routing: đổi mô hình lạc quan ≤ 100 ms, Hoàn tác ghi ngay, Lên
   await expect(page.locator('[data-part=route-row][data-task=GRADING]')).toContainText("Chạy nền");
 });
 
-test("embedding: chỉ mô hình 1536 chiều, đổi cần xác nhận, Để sau không gửi, xác nhận gửi 1 PUT, 422 báo đúng câu", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN", {
+test("embedding: chỉ mô hình 1536 chiều, đổi cần xác nhận, Để sau không gửi, xác nhận gửi 1 PUT, 422 báo đúng câu", async ({ page }) => {
+  await openLlm(page, "ADMIN", {
     [`PUT ${P}/routes`]: [
       { ...err(422, "MODEL_DIMS_MISMATCH") },
       { body: { task: "EMBEDDING", lane: "BATCH", chain: [{ model_id: IDS.e2, provider_id: IDS.gemini, provider_name: "Gemini", model: "gemini-embedding" }], params: {}, version: 3, reindex_required: true } },
@@ -167,8 +167,8 @@ test("embedding: chỉ mô hình 1536 chiều, đổi cần xác nhận, Để s
   await expect(page.getByText("Cần lập chỉ mục lại", { exact: true })).toBeVisible();
 });
 
-test("advanced: ẩn lúc đầu, mở có nhãn đơn vị, ngoài khoảng ⇒ lỗi và không PUT, giữ giá trị khi đóng / mở", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN");
+test("advanced: ẩn lúc đầu, mở có nhãn đơn vị, ngoài khoảng ⇒ lỗi và không PUT, giữ giá trị khi đóng / mở", async ({ page }) => {
+  await openLlm(page, "ADMIN");
   await expect(page.getByLabel("Nhiệt độ")).toHaveCount(0);
   await expect(page.locator("[data-part=provider-row]").first()).not.toContainText("https://");
   const row = page.locator("[data-part=route-row][data-task=CHAT]");
@@ -188,8 +188,8 @@ test("advanced: ẩn lúc đầu, mở có nhãn đơn vị, ngoài khoảng ⇒
   await expect(row.getByLabel("Nhiệt độ")).toHaveValue("3");
 });
 
-test("usage|budget: 7 cột, số căn phải tabular-nums, cảnh báo 80 %, không vòng tiến độ, rỗng có câu", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN", { [`GET ${P}/budget`]: [{ body: budget({ state: "warn", pct_today: 84 }) }] });
+test("usage|budget: 7 cột, số căn phải tabular-nums, cảnh báo 80 %, không vòng tiến độ, rỗng có câu", async ({ page }) => {
+  await openLlm(page, "ADMIN", { [`GET ${P}/budget`]: [{ body: budget({ state: "warn", pct_today: 84 }) }] });
   const table = page.getByRole("table", { name: "Mức dùng theo tác vụ" });
   await expect(table).toBeVisible();
   expect(await table.locator("thead th").allTextContents()).toEqual(["Tác vụ", "Lượt gọi", "Token vào / ra", "Chi phí ước tính", "Độ trễ p95", "Lỗi", "Chạy rút gọn"]);
@@ -206,8 +206,8 @@ test("usage|budget: 7 cột, số căn phải tabular-nums, cảnh báo 80 %, kh
   await expect(page.getByText("Chưa có lượt gọi nào trong khoảng này.")).toBeVisible();
 });
 
-test("errors: tải lỗi 503 ⇒ thông báo chuẩn + Thử lại 1 request; LLM_NOT_CONFIGURED ⇒ mặc định + Thêm nhà cung cấp", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN", { [`GET ${P}/providers`]: [err(503, "NOT_READY"), err(503, "NOT_READY"), err(503, "NOT_READY"), { body: providers() }] });
+test("errors: tải lỗi 503 ⇒ thông báo chuẩn + Thử lại 1 request; LLM_NOT_CONFIGURED ⇒ mặc định + Thêm nhà cung cấp", async ({ page }) => {
+  await openLlm(page, "ADMIN", { [`GET ${P}/providers`]: [err(503, "NOT_READY"), err(503, "NOT_READY"), err(503, "NOT_READY"), { body: providers() }] });
   const alert = page.getByRole("alert").filter({ hasText: "Chưa tải được cấu hình." });
   await expect(alert).toContainText("Chưa tải được cấu hình.", { timeout: 10_000 });
   await expect(alert).toContainText("Cấu hình hiện có không bị ảnh hưởng.");
@@ -218,18 +218,15 @@ test("errors: tải lỗi 503 ⇒ thông báo chuẩn + Thử lại 1 request; L
 
   await reset(page);
   await script(page, base({ [`GET ${P}/providers`]: [{ body: { items: [], env_fallback: { active: true, providers: ["fake"] } } }] }));
-  await page.reload();
-  await expect(page.locator("main input[type=password]")).toBeVisible(); // token mất khi tải lại: đúng thiết kế
-  await page.locator("main input[type=password]").fill(jwt("ADMIN"));
-  await page.getByRole("button", { name: "Dùng token" }).click();
+  await page.reload(); // token ở bộ nhớ mất khi tải lại; phiên khôi phục bằng refresh (cookie httpOnly)
   await expect(page.getByText("Đang dùng cấu hình mặc định của máy chủ. Thêm nhà cung cấp để thay đổi.")).toBeVisible();
   await expect(page.getByRole("button", { name: "Thêm nhà cung cấp" }).first()).toBeVisible();
   await page.locator("[data-part=route-table], main").getByRole("button", { name: "Thêm nhà cung cấp" }).last().click();
   await expect(page.locator("[data-part=provider-form]")).toBeVisible();
 });
 
-test("errors: mất mạng khi Lưu ⇒ chữ giữ nguyên, Gửi lại cùng Idempotency-Key; 409 ⇒ hỏi giữ bản nào", async ({ page, context }) => {
-  await openLlm(page, context, "ADMIN", { [`POST ${P}/providers`]: [{ status: 201, body: provider({ id: "00000000-0000-7000-8000-000000000097", name: "Nhà thử" }) }] });
+test("errors: mất mạng khi Lưu ⇒ chữ giữ nguyên, Gửi lại cùng Idempotency-Key; 409 ⇒ hỏi giữ bản nào", async ({ page }) => {
+  await openLlm(page, "ADMIN", { [`POST ${P}/providers`]: [{ status: 201, body: provider({ id: "00000000-0000-7000-8000-000000000097", name: "Nhà thử" }) }] });
   await expect(page.locator("[data-part=provider-row]")).toHaveCount(2);
   await page.getByRole("button", { name: "Thêm nhà cung cấp" }).click();
   const form = page.locator("[data-part=provider-form]");
@@ -261,22 +258,20 @@ test("errors: mất mạng khi Lưu ⇒ chữ giữ nguyên, Gửi lại cùng I
   expect(JSON.parse((await putRoutes(page))[1].body).version).toBe(9);
 });
 
-test("roles: SV / TA bị chặn và 0 request admin/llm; GV chỉ xem; Admin đủ", async ({ page, context }) => {
+test("roles: SV / TA bị chặn và 0 request admin/llm; GV chỉ xem; Admin đủ", async ({ page }) => {
   const hits: string[] = [];
   page.on("request", (r) => /admin\/llm/.test(r.url()) && hits.push(r.url()));
   await reset(page);
   await script(page, base());
-  for (const role of ["student", "ta"] as DemoRole[]) {
-    await context.clearCookies();
-    await asDemo(context, role);
+  for (const role of ["STUDENT", "TA"] as const) {
+    await asJwt(page, role);
     await page.goto("/settings/llm");
     await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" })).toBeVisible();
     await expect(page.getByText("Trang này dành cho giảng viên và quản trị viên.")).toBeVisible();
   }
   expect(hits).toEqual([]);
 
-  await context.clearCookies();
-  await openLlm(page, context, "TEACHER");
+  await openLlm(page, "TEACHER");
   await expect(page.getByRole("heading", { name: "Kết nối nhà cung cấp", level: 2 })).toBeVisible();
   await expect(page.getByText("Chỉ quản trị viên được thay đổi cấu hình.")).toBeVisible();
   await expect(page.locator("main").getByRole("button", { name: /Test kết nối|Xoá|Lưu|Thêm nhà cung cấp|Đổi hạn mức/ })).toHaveCount(0);
@@ -284,17 +279,15 @@ test("roles: SV / TA bị chặn và 0 request admin/llm; GV chỉ xem; Admin đ
   for (const sel of await page.locator("main select").all()) await expect(sel).toBeDisabled();
   await expect(page.getByRole("table", { name: "Mức dùng theo tác vụ" })).toBeVisible();
 
-  await context.clearCookies();
-  await openLlm(page, context, "ADMIN");
+  await openLlm(page, "ADMIN");
   await expect(page.getByRole("button", { name: "Test kết nối" })).toHaveCount(2);
   await expect(page.locator("main [role=switch], main input[type=checkbox]").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "Đổi hạn mức" })).toBeVisible();
 });
 
-test("copy: không có từ kỹ thuật, không toast Thành công (admin và giảng viên)", async ({ page, context }) => {
+test("copy: không có từ kỹ thuật, không toast Thành công (admin và giảng viên)", async ({ page }) => {
   for (const role of ["ADMIN", "TEACHER"] as const) {
-    await context.clearCookies();
-    await openLlm(page, context, role);
+      await openLlm(page, role);
     await expect(page.getByRole("heading", { name: "Mô hình tìm kiếm tài liệu", level: 2 })).toBeVisible();
     await page.waitForTimeout(300);
     // tên mô hình là DỮ LIỆU của nhà cung cấp (vd. text-embedding-3-small), không phải lời của màn
@@ -311,7 +304,7 @@ test("mobile + keyboard + axe: 375/390 không tràn ngang, vùng chạm, thêm n
     const context = await browser.newContext({ viewport: { width: w, height: 844 }, hasTouch: true, isMobile: true, locale: "vi-VN", baseURL: BASE_URL });
     const page = await context.newPage();
     // trên điện thoại chỉ Admin có "Thêm" ở thanh dưới: vào thẳng URL
-    await openLlm(page, context, "ADMIN");
+    await openLlm(page, "ADMIN");
     await expect(page.getByRole("heading", { name: "Kết nối nhà cung cấp", level: 2 })).toBeVisible();
     await page.waitForTimeout(300);
     expect(await page.evaluate(TOUCH_SRC), `TOUCH @${w}`).toEqual([]);
@@ -321,7 +314,7 @@ test("mobile + keyboard + axe: 375/390 không tràn ngang, vùng chạm, thêm n
   // bàn phím: mở form thêm, gõ, đi tới Lưu
   const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: "vi-VN", baseURL: BASE_URL });
   const page = await ctx.newPage();
-  await openLlm(page, ctx, "ADMIN", { [`POST ${P}/providers`]: [{ status: 201, body: provider({ id: "00000000-0000-7000-8000-000000000096", name: "Bàn phím" }) }] });
+  await openLlm(page, "ADMIN", { [`POST ${P}/providers`]: [{ status: 201, body: provider({ id: "00000000-0000-7000-8000-000000000096", name: "Bàn phím" }) }] });
   const add = page.getByRole("button", { name: "Thêm nhà cung cấp" });
   await add.focus();
   await page.keyboard.press("Enter");
@@ -338,14 +331,13 @@ test("mobile + keyboard + axe: 375/390 không tràn ngang, vùng chạm, thêm n
   await ctx.close();
 });
 
-test("axe: màn thật ở Admin và Giảng viên (1440 và 390) không có lỗi critical / serious", async ({ page, context }) => {
+test("axe: màn thật ở Admin và Giảng viên (1440 và 390) không có lỗi critical / serious", async ({ page }) => {
   test.setTimeout(120_000);
   const bad: string[] = [];
   for (const role of ["ADMIN", "TEACHER"] as const) {
     for (const w of [1440, 390]) {
-      await context.clearCookies();
-      await page.setViewportSize({ width: w, height: w > 700 ? 900 : 844 });
-      await openLlm(page, context, role);
+          await page.setViewportSize({ width: w, height: w > 700 ? 900 : 844 });
+      await openLlm(page, role);
       await expect(page.getByRole("heading", { name: "Mô hình tìm kiếm tài liệu", level: 2 })).toBeVisible();
       await page.waitForTimeout(300);
       const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();

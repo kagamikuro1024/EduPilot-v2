@@ -27,7 +27,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports: ["5433:5432"]
+    ports: ["${EP_PORT_POSTGRES:-5433}:5432"]
     volumes: ["postgres_data:/var/lib/postgresql"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -57,7 +57,7 @@ services:
   redis:
     image: redis:8
     command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory-policy", "noeviction"]
-    ports: ["6380:6379"]
+    ports: ["${EP_PORT_REDIS:-6380}:6379"]
     volumes: ["redis_data:/data"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -73,7 +73,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${BLOB_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${BLOB_SECRET_KEY}
-    ports: ["9000:9000", "9001:9001"]
+    ports: ["${EP_PORT_MINIO:-9000}:9000", "${EP_PORT_MINIO_CONSOLE:-9001}:9001"]
     volumes: ["minio_data:/data"]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
@@ -83,7 +83,7 @@ services:
 
   mailpit:
     image: axllent/mailpit:v1.27
-    ports: ["1025:1025", "8025:8025"]
+    ports: ["${EP_PORT_SMTP:-1025}:1025", "${EP_PORT_MAILPIT:-8025}:8025"]
     healthcheck:
       test: ["CMD", "/mailpit", "readyz"]
       interval: 5s
@@ -120,13 +120,21 @@ services:
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
-      JWT_EXPIRATION: ${JWT_EXPIRATION:-}
+      ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-}
+      REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-}
+      SESSION_ABSOLUTE_TTL: ${SESSION_ABSOLUTE_TTL:-}
+      COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
       BCRYPT_COST: ${BCRYPT_COST:-}
       MAX_BODY_BYTES: ${MAX_BODY_BYTES:-}
       REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-}
       SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-}
       RATE_LIMIT_IP_PER_MIN: ${RATE_LIMIT_IP_PER_MIN:-}
       RATE_LIMIT_USER_PER_MIN: ${RATE_LIMIT_USER_PER_MIN:-}
+      # Giới hạn đăng nhập / đăng ký / liên kết theo IP: để trống = mặc định của gateway. `pnpm dev` nới 4 biến này (seed là MỘT IP gửi hàng nghìn
+      # yêu cầu); docker-compose.test.yml KHÔNG đặt chúng nên stack thử giữ giới hạn thật (US-P2-12 AC9).
+      AUTH_LOGIN_IP_PER_MIN: ${AUTH_LOGIN_IP_PER_MIN:-}
+      AUTH_REGISTER_IP_PER_HOUR: ${AUTH_REGISTER_IP_PER_HOUR:-}
+      AUTH_TOKEN_IP_PER_MIN: ${AUTH_TOKEN_IP_PER_MIN:-}
       TRUSTED_PROXY_CIDRS: ${TRUSTED_PROXY_CIDRS:-}
       SSE_HEARTBEAT: ${SSE_HEARTBEAT:-}
       SSE_MAX_DURATION: ${SSE_MAX_DURATION:-}
@@ -180,6 +188,17 @@ services:
       OUTBOX_RETRY_BACKOFF: ${OUTBOX_RETRY_BACKOFF:-}
       OUTBOX_CLAIM_IDLE: ${OUTBOX_CLAIM_IDLE:-}
       OUTBOX_STALE_AFTER: ${OUTBOX_STALE_AFTER:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_TLS: ${SMTP_TLS:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_SEND_TIMEOUT: ${MAIL_SEND_TIMEOUT:-}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-}
+      VERIFY_TOKEN_TTL: ${VERIFY_TOKEN_TTL:-}
+      RESET_TOKEN_TTL: ${RESET_TOKEN_TTL:-}
+      INVITE_TOKEN_TTL: ${INVITE_TOKEN_TTL:-}
     read_only: true
     tmpfs: ["/tmp"]
     restart: on-failure:3
@@ -187,6 +206,7 @@ services:
       migrate: { condition: service_completed_successfully }
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
+      mailpit: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/worker", "-healthcheck"]
       interval: 5s
@@ -195,7 +215,7 @@ services:
 
   caddy:
     image: caddy:2.11
-    ports: ["80:80", "443:443"]
+    ports: ["${EP_PORT_HTTP:-80}:80", "${EP_PORT_HTTPS:-443}:443"]
     volumes:
       - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -214,7 +234,7 @@ services:
       dockerfile: frontend/Dockerfile
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://localhost}
-    ports: ["3000:3000"]
+    ports: ["${EP_PORT_FRONTEND:-3000}:3000"]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
       interval: 5s

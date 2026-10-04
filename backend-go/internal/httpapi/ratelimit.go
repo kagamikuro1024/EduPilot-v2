@@ -88,7 +88,11 @@ func rateLimitCount(r *http.Request, d Deps) (limit, remaining int, err error) {
 		done <- rateLimitResult{counts: counts, err: err}
 	}()
 
-	timer := time.NewTimer(rateLimitTimeout)
+	wait := d.rateLimitWait
+	if wait <= 0 {
+		wait = rateLimitTimeout
+	}
+	timer := time.NewTimer(wait)
 	defer timer.Stop()
 	var counts []int64
 	select {

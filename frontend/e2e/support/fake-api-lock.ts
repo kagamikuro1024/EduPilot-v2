@@ -1,3 +1,4 @@
+import { test } from "@playwright/test";
 import { mkdirSync, rmSync, statSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,6 +10,7 @@ const STALE_MS = 150_000;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 export async function acquireFakeApi(): Promise<void> {
+  test.setTimeout(330_000); // hook beforeAll mặc định 30 s: chờ khoá khi tệp spec khác đang giữ máy chủ giả có thể lâu hơn
   const start = Date.now();
   for (;;) {
     try {

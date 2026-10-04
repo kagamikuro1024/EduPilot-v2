@@ -1,0 +1,10 @@
+.code { font-family: var(--ep-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: var(--ep-text-display, 2rem); letter-spacing: .18em; font-weight: 600; user-select: all; margin: 0; overflow-wrap: anywhere; }
+.codeRow { display: grid; gap: var(--ep-space-3); justify-items: start; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-3); }
+.form { display: grid; gap: var(--ep-space-5); max-width: 560px; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ep-space-4) var(--ep-space-6); align-items: start; }
+.readonly { margin: 0; color: var(--ep-ink-3); font-size: var(--ep-text-meta); }
+@media (max-width: 719px) { .fields { grid-template-columns: 1fr; } }
+.sources { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--ep-space-4); }
+.source { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-3); }
+.source b { font-weight: 600; }

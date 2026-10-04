@@ -36,7 +36,7 @@ Tiền điều kiện chung: stack test; biến của `US.md`; `A=$(bearer admin
 | TC-P206-29 | AC8 | – | **G** `-run 'TestAdminListCursor\|TestAdminListFilters\|TestAdminListMinimalFields\|TestAdminListNoNPlusOne\|TestAdminListLimitCap'` | `ok` |
 | TC-P206-30 | AC9 (Admin đầu tiên) | DB trống | **S** `ADMIN_PASSWORD="$PW" ./bin/gateway admin create --email admin@edupilot.local --name "Quản trị"; echo rc=$?`; lần hai; `ADMIN_PASSWORD=123 …`; mật khẩu qua tham số dòng lệnh (`--password x`); `ps` khi chạy | `rc=0`, ADMIN `ACTIVE`, đã xác minh; lần hai `rc=0` "đã tồn tại", **không đổi** mật khẩu (`md5(password_hash)` không đổi), `count(role='ADMIN')=1`; yếu → `rc=1`; **không** nhận mật khẩu từ tham số dòng lệnh (không lộ ở `ps`); không route HTTP tạo ADMIN; `audit_log` (`actor_id=NULL`, `admin_bootstrap`) |
 | TC-P206-31 | AC9 | – | **S** `grep -rn '"ADMIN"' backend-go/internal --include=*.go \| grep -v _test.go` tìm đường tạo ADMIN trừ CLI; thử `POST /auth/register` `role:ADMIN`, `POST /admin/users role:ADMIN` | Chỉ CLI tạo được ADMIN |
-| TC-P206-32 | AC10 | Admin, `/admin/users` | **A** đọc bảng: cột, chip lọc, ô tìm, số nút `primary`; mở `Mời giảng viên` (Drawer) | Cột Tên, Email, Vai trò, Trạng thái, "Lần cuối"; **một** nút chính `Mời giảng viên`; Drawer tại chỗ, **không** `role=dialog`; trường Email, Họ và tên, Vai (Giảng viên / Trợ giảng); **không có** "Tạo sinh viên" |
+| TC-P206-32 | AC10 (góp ý #5) | Admin, `/admin/users` | **A** đọc bảng: cột, chip lọc, ô tìm, số nút `primary`; mở `Mời giảng viên` (khung mở dần tại chỗ, không `Drawer`) | Cột Tên, Email, Vai trò, Trạng thái, "Lần cuối"; **một** nút chính `Mời giảng viên`; khung tại chỗ, **không** modal: đếm `getByRole('dialog')` (chỉ phần tử hiện) = `0` — **không** dùng `locator('[role=dialog]')` vì khung ứng dụng luôn có sẵn các `<dialog>` đóng; trường Email, Họ và tên, Vai (Giảng viên / Trợ giảng); **không có** "Tạo sinh viên" |
 | TC-P206-33 | AC10 | – | **A** gửi lời mời; `Gửi lại lời mời` ở hàng `INVITED`; `Khoá tài khoản` → `UndoLine` → `Hoàn tác` trong 5 s | Dòng tĩnh "Đã gửi link mời, hạn 72 giờ." tại chỗ (không toast); khoá lạc quan + "Đã khoá … · Hoàn tác" 5 s, `Hoàn tác` = `PATCH` mở khoá; rỗng "Chưa có người dùng khớp…" |
 | TC-P206-34 | AC10 | 375 | **A** `AUDIT_SRC`, `TOUCH_SRC`, axe; < 720 px thành danh sách | Sạch; 0 `serious`; không từ kỹ thuật; thay màn mock (không `useDemoSlice` ở `/admin/users`: `grep`) |
 | TC-P206-35 | AC10 | – | **G** `$PW account.spec.ts -g 'admin users page'` | `rc=0` |
@@ -70,5 +70,6 @@ Tiền điều kiện chung: stack test; biến của `US.md`; `A=$(bearer admin
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).
+- 2026-10-04 — góp ý sprint 4 #5 (AC10: khung mời là `Section` tại chỗ; kiểm bằng `getByRole('dialog')`) — PM ACCEPTED.
 
 Tổng: 43 TC.

@@ -23,9 +23,9 @@ Tiền điều kiện chung: worktree `TA_Agent_v2-s4` (`sprint/4-p2`); `source 
 | TC-P201-16 | AC4 | – | **G** `go test ./internal/mail/... -run 'TestEnqueueRollback\|TestEnqueueCommit' -v` | `ok` |
 | TC-P201-17 | AC5 | stack | **D** kích hoạt gửi `verify_email` tới `qc-a@example.test`; `mail_count`, đọc thư qua `$MP/message/<id>` | Thư đến đúng người; tiêu đề tiếng Việt; có **cả** `Text` lẫn `HTML`; `From`=`MAIL_FROM`; liên kết bắt đầu `APP_PUBLIC_URL`; `mail_outbox.status=SENT`, `sent_at` có; `grep -cE '\{\{\|<no value>\|%!'` = `0` |
 | TC-P201-18 | AC5 | – | **G** `-tags integration -run TestSendViaMailpit -v` | `ok` |
-| TC-P201-19 | AC6 | stack | **D** `docker compose stop mailpit`; kích hoạt thư; theo dõi `mail_outbox` / thời điểm thử (log worker) | Thử lại theo 1 s, 5 s, 30 s (3 lần sau lần đầu; ghi thời điểm, dung sai ±30 %); sau lần thứ 4: `status=DEAD`, `outbox.dead_at` có giá trị, tin vào `outbox.dispatch.dead` |
+| TC-P201-19 | AC6 | stack | **D** dừng Mailpit **riêng của QC** (container `qcp2-mailpit`, không dùng container chung của test Go) hoặc đổi `SMTP_HOST` sang SMTP giả của QC; kích hoạt thư; theo dõi `mail_outbox` / thời điểm thử (log worker) | Thử lại theo 1 s, 5 s, 30 s (3 lần sau lần đầu; ghi thời điểm, dung sai ±30 %); sau lần thứ 4: `status=DEAD`, `outbox.dead_at` có giá trị, tin vào `outbox.dispatch.dead` |
 | TC-P201-20 | AC6 | – | **D** `select last_error` của dòng DEAD: độ dài, chứa `@` / `token=` / nội dung thư? | `≤ 1000` ký tự; **không** email / token / nội dung; `select count(*) from mail_outbox where last_error ~* '@\|token='` = `0` |
-| TC-P201-21 | AC6 (hồi phục) | – | **D** bật Mailpit **trước** lần thử cuối | Thư đến đúng **1** lần (`mail_count`=1), `SENT` |
+| TC-P201-21 | AC6 (hồi phục) | – | **D** bật lại SMTP (Mailpit riêng của QC hoặc SMTP giả) **trước** lần thử cuối | Thư đến đúng **1** lần (`mail_count`=1), `SENT` |
 | TC-P201-22 | AC6 | – | **G** `-tags integration -run 'TestRetryThenDead\|TestRecoverMidRetry' -v` | `ok` |
 | TC-P201-23 | AC7 | 2 worker | **D** giao hai lần cùng `mail.send` (`XADD` lại cùng `mail_id` vào stream; hoặc `kill -9` worker giữa lúc rồi `XAUTOCLAIM`); đếm thư ở Mailpit | **1** thư (khoá `mail_outbox.id`, `SENT` chặn); `dedupe_key` chặn xếp hai thư cùng loại cùng sự kiện (xếp lần 2 → không thêm dòng) |
 | TC-P201-24 | AC7 | – | **G** `-tags integration -run 'TestRedeliverOnce\|TestDedupeKey' -v` | `ok` |
@@ -33,11 +33,11 @@ Tiền điều kiện chung: worktree `TA_Agent_v2-s4` (`sprint/4-p2`); `source 
 | TC-P201-26 | AC8 | – | **G** `-run 'TestTemplatesRender\|TestTemplatesEscape\|TestTemplateMissingVar' -v`; so `internal/mail/testdata/golden/*.txt` với lời văn SRS 6.5 (đọc mắt 3 mẫu) | `ok`; 7 mẫu × {HTML, chữ thuần}; mẫu thiếu biến → `DEAD` ngay, **không** thử lại |
 | TC-P201-27 | AC9 | sau các luồng PU-03/04/06 | **D** quét `mail_outbox.payload` mọi dòng: khoá `token\|password\|link\|url` ; `grep -rn 'mail_outbox' backend-go/internal --include=*.go \| grep -E 'handler\|http' \| grep -v _test.go \| wc -l` | Không có khoá bí mật trong payload (chỉ `user_id`, `course_id`, `at`…); `0` handler; không API HTTP liệt kê `mail_outbox` (gọi `GET /api/v1/mail*`, `/admin/mail*` → 404) |
 | TC-P201-28 | AC9 | – | **G** `-run TestPayloadHasNoSecrets` | `ok` |
-| TC-P201-29 | AC10 | `smtpmock` hoặc SMTP giả của QC trả 550 / 451 | **D** SMTP giả: 550; rồi 451 | 550: `DEAD` **ngay lần đầu** (không đợi 3 lần), `last_error` là loại lỗi, log `warn` không có email; 451: thử lại như AC6; mẫu không tồn tại / email không hợp lệ → `DEAD` ngay |
+| TC-P201-29 | AC10 | SMTP giả của QC (hoặc `testutil.FakeSMTP` của dev) trả 550 / 451 — không dùng `smtpmock` (góp ý #2) | **D** SMTP giả: 550; rồi 451 | 550: `DEAD` **ngay lần đầu** (không đợi 3 lần), `last_error` là loại lỗi, log `warn` không có email; 451: thử lại như AC6; mẫu không tồn tại / email không hợp lệ → `DEAD` ngay |
 | TC-P201-30 | AC10 | – | **G** `-tags integration -run 'TestPermanentFailureNoRetry\|TestTemporaryFailureRetries' -v` | `ok` |
 | TC-P201-31 | AC11 | – | **S** `cd backend-go && sqlc generate && sqlc diff; echo rc=$?`; `grep -rnE '(SELECT\|INSERT\|UPDATE\|DELETE) ' backend-go/internal/auth backend-go/internal/mail --include=*.go \| grep -v _test.go \| wc -l` | `rc=0`; `0` |
-| TC-P201-32 | AC12 | – | **S** `golangci-lint run ./...; echo rc=$?`; gieo tệp tạm `internal/zz/x.go` import truy vấn `auth_tokens` ngoài `internal/auth` → lint; xoá | `rc=0`; gieo → lint **đỏ** (depguard); xoá → sạch |
-| TC-P201-33 | AC12 | – | **G** `go test ./internal/auth/... -run TestOnlyAuthPackageTouchesTokenTables`; **S** chỉ worker đăng ký handler `mail.send` (gateway không tiêu thụ stream) | `ok`; `redis-cli XINFO GROUPS` stream `mail.send`: consumer chỉ từ container worker |
+| TC-P201-32 | AC12(c) (góp ý #1) | – | **S** `golangci-lint run ./...; echo rc=$?`; **G** `go test ./internal/auth/... -run TestOnlyAuthPackageTouchesTokenTables`; gieo tệp tạm ngoài `auth`/`store` (ví dụ `internal/zz/x.go`) có chữ `AuthToken` / `auth_tokens` → chạy lại test; xoá | lint `rc=0`; test `ok`; gieo → test **đỏ** (quét mã nguồn, không còn luật `depguard` theo bảng); xoá → xanh, `git status` sạch |
+| TC-P201-33 | AC12 | – | **S** chỉ worker đăng ký handler `mail.send` (gateway không tiêu thụ stream) | `redis-cli XINFO GROUPS` stream `mail.send`: consumer chỉ từ container worker |
 | TC-P201-34 | tổng | – | **S** `go vet ./... && golangci-lint run && go test -race -count=1 ./... && go test -count=1 ./internal/contract/...; echo rc=$?` | `rc=0`; hợp đồng PG / LLM nguyên vẹn |
 
 ## Nhánh lỗi / biên đã phủ
@@ -59,5 +59,6 @@ Tiền điều kiện chung: worktree `TA_Agent_v2-s4` (`sprint/4-p2`); `source 
 
 ## Lịch sử sửa TC
 - 2026-10-03 — viết lần đầu theo US.md v1 (FEAT-account-security, APPROVED 2026-10-03).
+- 2026-10-04 — góp ý sprint 4 #1 (AC12c: `TestOnlyAuthPackageTouchesTokenTables` thay luật `depguard`), #2 (AC6/AC10: SMTP giả / Mailpit riêng, không `smtpmock`) — PM ACCEPTED.
 
 Tổng: 34 TC.

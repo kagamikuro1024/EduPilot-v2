@@ -1,10 +1,11 @@
 import { ApiError, AUTH_CODES } from "./ApiError";
+import { dropSession, refreshSession } from "./authSession";
+import { API_BASE as BASE, API_ORIGIN } from "./endpoint";
 import { netStatus } from "./netStatus";
 import { tokenStore } from "./tokenStore";
 
 // Máy khách HTTP duy nhất của frontend (cấm fetch trần ngoài shared/data — luật ep/no-raw-fetch). SRS FEAT-ui-foundation 6.1–6.3.
-export const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL ?? "").replace(/\/$/, "");
-const BASE = `${API_ORIGIN}/api/v1`;
+export { API_ORIGIN };
 const TIMEOUT_MS = 15_000;
 const RETRY_DELAYS = [300, 900];
 const RETRY_AFTER_MAX_S = 5;
@@ -125,11 +126,10 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
   const key = opts.idempotencyKey ?? (upper === "POST" || opts.idempotent ? newIdempotencyKey() : undefined);
   const hasBody = body !== undefined;
 
-  const attempt: Attempt<T> = async () => {
+  const send = async (tk: string | null): Promise<ApiResult<T>> => {
     const headers: Record<string, string> = { Accept: "application/json", "X-Request-Id": crypto.randomUUID(), ...opts.headers };
-    const tk = tokenStore.get();
     if (tk) headers.Authorization = `Bearer ${tk}`;
-    if (hasBody) headers["Content-Type"] = "application/json";
+    if (hasBody && !(body instanceof FormData)) headers["Content-Type"] = "application/json"; // FormData: trình duyệt tự đặt boundary
     if (key) headers["Idempotency-Key"] = key;
     const cached = upper === "GET" ? etagCache.get(url) : undefined;
     if (cached) headers["If-None-Match"] = cached.etag;
@@ -138,7 +138,7 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
     const signal = opts.signal ? AbortSignal.any([opts.signal, timeout]) : timeout;
     let res: Response;
     try {
-      res = await fetch(url, { method: upper, headers, body: hasBody ? JSON.stringify(body) : undefined, credentials: "include", signal });
+      res = await fetch(url, { method: upper, headers, body: !hasBody ? undefined : body instanceof FormData ? body : JSON.stringify(body), credentials: "include", signal });
     } catch {
       if (opts.signal?.aborted) throw new ApiError({ status: 0, code: "ABORTED" });
       netStatus.reportFailure();
@@ -149,7 +149,10 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
     if (res.status === 304 && cached) return { data: cached.data as T, status: 304, etag: cached.etag };
     if (!res.ok) {
       const err = await decodeError(res);
-      if (AUTH_CODES.includes(err.code)) {
+      if (err.code === "SESSION_REVOKED") {
+        const reason = (err.details as { reason?: string } | undefined)?.reason;
+        dropSession("revoked", reason); // không làm mới: phiên đã bị thu hồi
+      } else if (err.code !== "TOKEN_EXPIRED" && AUTH_CODES.includes(err.code)) {
         tokenStore.clear();
         emitAuthExpired();
       }
@@ -166,6 +169,34 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
     }
     if (upper === "GET" && etag) etagCache.set(url, { etag, data });
     return { data, status: res.status, etag, replayed };
+  };
+
+  // Làm mới phiên tối đa MỘT lần cho mỗi attempt khi gặp 401 TOKEN_EXPIRED rồi phát lại một lần (US-P2-02 AC10).
+  // POST phát lại dùng cùng `key` (đã tính ngoài attempt): 401 nghĩa là gateway chưa xử lý gì.
+  const attempt: Attempt<T> = async () => {
+    let refreshed = false;
+    for (;;) {
+      const sent = tokenStore.get();
+      try {
+        return await send(sent);
+      } catch (e) {
+        if (!(e instanceof ApiError) || e.code !== "TOKEN_EXPIRED" || refreshed || !sent) throw e;
+        refreshed = true;
+        // Request khác trong tab đã làm mới trong lúc mình bay: chỉ cần phát lại với token mới, không làm mới lần nữa.
+        if (tokenStore.get() === sent) {
+          const r = await refreshSession();
+          if (!r.ok) {
+            if (r.code === "NETWORK") throw new ApiError({ status: 0, code: "NETWORK" });
+            if (r.code === "SESSION_REVOKED") throw new ApiError({ status: 401, code: "SESSION_REVOKED", details: r.reason ? { reason: r.reason } : undefined });
+            tokenStore.clear();
+            emitAuthExpired();
+            throw e;
+          }
+        } else if (!tokenStore.get()) {
+          throw e;
+        }
+      }
+    }
   };
 
   return withRetry(attempt, upper, Boolean(key), opts.signal);

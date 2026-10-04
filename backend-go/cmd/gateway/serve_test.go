@@ -103,7 +103,7 @@ func TestServe_InvalidEnvNamesVariable(t *testing.T) {
 	cases := []struct{ key, value, leak string }{
 		{"JWT_SECRET_KEY", "short-secret-31-bytes-xxxxxxxxx", "short-secret"},
 		{"DB_MAX_CONNS", "0", ""},
-		{"JWT_EXPIRATION", "abc", "abc"},
+		{"ACCESS_TOKEN_TTL", "2h", ""},
 		{"CORS_ORIGINS", "*", ""},
 		{"APP_ENV", "staging", "staging"},
 		{"BCRYPT_COST", "3", ""},

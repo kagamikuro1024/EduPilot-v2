@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { navFor } from "../src/shared/shell/nav";
+import { settleGoto } from "./support/hydrate";
 import { asDemo, type DemoRole } from "./support/session";
 
 // Quét mọi route × vai của bản dựng cổng (US-PU-02 AC14): một nút primary mỗi vùng làm việc, trang không cuộn ngang.
@@ -11,6 +12,10 @@ const REGION = "main section, [role=dialog], [data-part=work-region], form";
 const allow: Array<{ route: string; region: string; reason: string }> = JSON.parse(readFileSync("e2e/primary-allow.json", "utf8"));
 
 const routes = (role: DemoRole) => [...new Set(navFor(role, true).flatMap((g) => g.items.map((i) => i.href)))];
+
+test.beforeEach(({ page }) => {
+  settleGoto(page);
+});
 
 test("primary-allow.json: tối đa 5 mục, mỗi mục đủ route / vùng / lý do", () => {
   expect(allow.length).toBeLessThanOrEqual(5);

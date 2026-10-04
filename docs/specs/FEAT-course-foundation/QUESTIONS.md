@@ -1,5 +1,5 @@
 # Câu hỏi mở — FEAT-course-foundation (US-P2-07…12)
-Phiên bản 1.1 · 2026-10-03 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết theo mặc định rồi báo lại. **Mọi câu có phương án mặc định an toàn; dev thi công theo mặc định, không chờ.** Câu đánh dấu **[CHỦ DỰ ÁN]** đụng quyền, dữ liệu cá nhân hoặc chính sách — PM chốt mặc định và báo chủ dự án để họ có thể đảo. Đổi câu trả lời sau khi spec APPROVED chỉ qua `proposals.md`. Câu về tài khoản / phiên nằm ở `docs/specs/FEAT-account-security/QUESTIONS.md`.
+Phiên bản 1.7 · 2026-10-03 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết theo mặc định rồi báo lại. **Mọi câu có phương án mặc định an toàn; dev thi công theo mặc định, không chờ.** Câu đánh dấu **[CHỦ DỰ ÁN]** đụng quyền, dữ liệu cá nhân hoặc chính sách — PM chốt mặc định và báo chủ dự án để họ có thể đảo. Đổi câu trả lời sau khi spec APPROVED chỉ qua `proposals.md`. Câu về tài khoản / phiên nằm ở `docs/specs/FEAT-account-security/QUESTIONS.md`.
 
 | # | Câu hỏi | Phương án BA đề xuất | Trả lời của chủ dự án | Ngày |
 | --- | --- | --- | --- | --- |

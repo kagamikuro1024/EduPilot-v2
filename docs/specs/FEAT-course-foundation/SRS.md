@@ -1,5 +1,17 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.7 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.7 (2026-10-04)** — góp ý #12 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-P2-10; trích: "cắt còn 100 rune. BA ghi rõ vào SRS 4.5 / AC13"). Không đổi số AC (83). Đổi: US-P2-10 AC13 (tên dài hơn 100 → cắt còn 100 rune, test), `SRS.md` 4.5 (chuẩn hoá).
+
+**v1.6 (2026-10-04)** — góp ý #11 `docs/sprints/4/proposals.md` (PM chọn **phương án thay thế**; nguồn: dev, US-P2-10; trích: "lặp MSSV trong tệp ⇒ `DUPLICATE_STUDENT_CODE_IN_FILE` (dòng sau); trùng với ghi danh có sẵn ⇒ `STUDENT_CODE_CONFLICT`. Giảng viên biết ngay lỗi nằm ở tệp hay ở lớp; không có mã chết"). Không đổi số AC (83). Đổi: US-P2-10 AC6 (lời văn và test), `SRS.md` 4.5 (mã lỗi dòng).
+
+**v1.5 (2026-10-03)** — góp ý #10 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "`FEAT-course-foundation` AC13 yêu cầu `GET …/members?q=` tìm theo MSSV, nhưng `FEAT-account-security` 4.2.5 chỉ cho 3 truy vấn… Thêm đúng MỘT tên (`ListMembers`) vào danh sách trắng. **ACCEPTED có điều kiện** — `q` theo MSSV chỉ cho TEACHER / TA của lớp (sinh viên không lọc theo MSSV, không thấy MSSV người khác); có test phân quyền cho điều kiện này"). Không đổi số AC. Đổi: US-P2-09 AC13 (điều kiện quyền + test), `SRS.md` 4.3.
+
+**v1.4 (2026-10-03)** — góp ý #9 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC8 yêu cầu thông báo `JOIN_APPROVED` có `link` `/`, nhưng `CHECK notifications_link_chk` của `00003` là `^/[^/\\]`… Lưu `link` NULL cho `JOIN_APPROVED`; chuông mở `/` (\"Hôm nay\") khi `link` rỗng. **ACCEPTED** (phương án NULL, không thêm migration) — quy ước chung: `link` NULL = mở \"Hôm nay\""). Không đổi số AC. Đổi: US-P2-09 AC8 (`JOIN_APPROVED` có `link` NULL, dòng `Kiểm`), `SRS.md` 5.5 (cột `link`).
+
+**v1.3 (2026-10-03)** — góp ý #8 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC11 \"bấm mục → … `link` (nội bộ)\" và Kiểm \"bấm mục → URL = `link`\" mâu thuẫn với SRS 4.9 / liên kết sâu: `?course=<uuid>` của lớp mình được chọn rồi BỊ BỎ khỏi URL… Giữ hành vi liên kết sâu: đường dẫn đúng = `link`, tham số `course` được tiêu thụ. Test e2e khẳng định `pathname` + bộ chọn lớp hiện lớp đó"). Không đổi số AC. Đổi: US-P2-08 AC11 (câu điều hướng và dòng `Kiểm`).
+
+**v1.2 (2026-10-03)** — góp ý #7 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC5 \"mọi route có `{id}` dưới `/courses/` đều mang `CourseAccessGuard`\" mâu thuẫn với hợp đồng bất biến của sprint 3 (`GET/PUT /courses/{id}/llm-budget`)… Giữ nguyên hai route, KHÔNG gắn guard; `TestAllCourseRoutesGuarded` có danh sách đóng `adminOnly` (2 route). **ACCEPTED** — danh sách `adminOnly` đóng, chỉ 2 route này; thêm route phải có góp ý mới"). Không đổi số AC. Đổi: US-P2-07 AC5, `SRS.md` 4.1.
 
 **v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/4/qc/tc-US-P2-0*.md`, `tc-US-P2-1*.md`, `tc-GATE-P2.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi số AC (83). Đổi: US-P2-07 AC4 (lớp không tồn tại → 403, Q-QC-P207-1), US-P2-08 AC4 (`ta_ids: []`, Q-QC-P208-1), US-P2-09 AC10 (thông báo cho TA, thứ tự ngược, Q-QC-P209-2, Q-QC-P209-3) và AC14 (mã trong log, Q-QC-P209-1), US-P2-10 AC2 (`dry_run` không ghi gì kể cả `audit_log`, Q-QC-P210-1) và AC3 (ca (d) đầy đủ, Q-QC-P210-2), US-P2-11 AC3, AC9, AC11 (Q-QC-P211-1…3), US-P2-12 AC1, AC7, AC9 (Q-QC-P212-1…3), `SRS.md` 2, 4.1, 4.4, 4.5, 4.8, 4.9, 8.3. Các câu còn lại chỉ trả lời ở tệp TC.
 
@@ -107,6 +119,8 @@ Giao diện (mở rộng khung PG; thay `CourseResolver.CanAccess` trả `bool`)
 
 Bảng route → chế độ: `GET /courses/{id}` `MemberOrAdmin`; `GET …/sessions`, `GET …/today` `Member`; `POST …/sessions/generate` `Staff`; `GET …/join-code`, `GET …/members` `StaffOrAdmin`; `POST …/members/{uid}/approve|reject|undo` `StaffOrAdmin` (+ kiểm riêng `EMAIL_MISMATCH` → `Manage`); `POST …/join-code/regenerate`, `PUT …/join-settings`, `DELETE …/members/{uid}`, `PUT …/assistants`, `GET …/assistant-candidates` `Manage`; `POST …/roster/import`, `GET …/share-sources`, `POST …/share-from`, `POST …/setup/dismiss` `Teacher`. Route `/admin/*` dùng `RequireRole(ADMIN)` (không qua guard lớp).
 
+**Ngoại lệ đóng (góp ý #7):** `GET/PUT /courses/{id}/llm-budget` là hợp đồng bất biến của sprint 3 (ADMIN-only bằng `RequireRole`, 403 `reason=role` cho người khác, 422 cho `id` không phải uuid) và **không** đi qua `CourseAccessGuard`; `TestAllCourseRoutesGuarded` có danh sách `adminOnly` cố định đúng 2 route này; mọi route lớp khác phải 403 `reason=course` với người ngoài lớp.
+
 Quy tắc: một truy vấn có chỉ mục (`enrollments (course_id, user_id)`), **không cache** (mời ra → 403 ngay yêu cầu sau); `id` không phải uuid → 404; **uuid hợp lệ nhưng lớp không tồn tại → 403** (như người ngoài lớp; không lộ tồn tại; Q-QC-P207-1); lỗi DB → 503; từ chối → 403 `reason="course"` (hoặc `role`); `CourseAccess.Role` từ `enrollments`, không từ JWT; vai `ADMIN` chỉ xuất hiện ở các chế độ có "hoặc ADMIN". Lớp `ARCHIVED`: guard cho qua (đọc được); các **handler ghi** trả 409 `COURSE_ARCHIVED`.
 
 **Ma trận kiểm** (`TestGuardMatrix`): vai JWT {STUDENT, TA, TEACHER, ADMIN} × tình trạng {`ACTIVE` vai tương ứng, `ACTIVE` vai khác, `PENDING`, `REMOVED`, không có} × 6 chế độ.
@@ -126,7 +140,7 @@ Quy tắc: một truy vấn có chỉ mục (`enrollments (course_id, user_id)`)
 
 ### 4.3 Thành viên (US-P2-09)
 
-Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → REMOVED` (reject), `ACTIVE → REMOVED` (remove), `REMOVED → PENDING` (join lại), và `undo` đảo về `previous_status`. Mỗi chuyển ghi `previous_status`, `status_changed_at`, `status_changed_by`, `removed_at` (khi `REMOVED`). `undo` hợp lệ khi cùng quyền với hành động gốc và `now() − status_changed_at ≤ COURSE_UNDO_WINDOW` (60 giây). Không xoá / mời ra giảng viên hay TA bằng đường thành viên (đổi bằng `assign` / `assistants`). Thông báo: `JOIN_REQUEST` (GV + TA lớp), `JOIN_APPROVED`, `JOIN_REJECTED` (sinh viên). Mọi chuyển ghi `audit_log` (`entity=enrollment`, `before/after` không chứa email, MSSV).
+Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → REMOVED` (reject), `ACTIVE → REMOVED` (remove), `REMOVED → PENDING` (join lại), và `undo` đảo về `previous_status`. Mỗi chuyển ghi `previous_status`, `status_changed_at`, `status_changed_by`, `removed_at` (khi `REMOVED`). `undo` hợp lệ khi cùng quyền với hành động gốc và `now() − status_changed_at ≤ COURSE_UNDO_WINDOW` (60 giây). Danh sách `GET …/members`: `q` khớp tên không dấu (`vn_fold`) và tiền tố email; khớp **MSSV chỉ với TEACHER / TA của lớp** (góp ý #10) — truy vấn `ListMembers` là truy vấn thứ tư trong danh sách trắng MSSV của `FEAT-account-security` 4.2.5. Không xoá / mời ra giảng viên hay TA bằng đường thành viên (đổi bằng `assign` / `assistants`). Thông báo: `JOIN_REQUEST` (GV + TA lớp), `JOIN_APPROVED`, `JOIN_REJECTED` (sinh viên). Mọi chuyển ghi `audit_log` (`entity=enrollment`, `before/after` không chứa email, MSSV).
 
 ### 4.4 Gán giảng viên và trợ giảng (US-P2-08)
 
@@ -134,9 +148,9 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 
 ### 4.5 Roster và quy tắc nối (US-P2-10)
 
-**Tệp:** multipart `file`; CSV UTF-8 (BOM tuỳ chọn; dấu `,` hoặc `;` tự nhận) hoặc XLSX (sheet đầu); ≤ 500 dòng dữ liệu, ≤ 2 MiB (route nâng `MAX_BODY_BYTES` lên 2 MiB), XLSX giải nén ≤ 20 MiB; magic bytes; **tệp không được lưu** (xử lý trong bộ nhớ, không ghi đĩa hay blob). Tiêu đề (không phân biệt hoa thường, bỏ dấu): email ∈ {`email`, `e-mail`, `mail`}; tên ∈ {`full_name`, `họ và tên`, `họ tên`, `name`}; MSSV ∈ {`student_code`, `mssv`, `mã số sinh viên`}. Chuẩn hoá: email chữ thường, tên cắt khoảng trắng ≤ 100 ký tự, MSSV chữ hoa `^[A-Z0-9]{6,15}$`; giá trị bắt đầu bằng `= + - @` giữ như chữ.
+**Tệp:** multipart `file`; CSV UTF-8 (BOM tuỳ chọn; dấu `,` hoặc `;` tự nhận) hoặc XLSX (sheet đầu); ≤ 500 dòng dữ liệu, ≤ 2 MiB (route nâng `MAX_BODY_BYTES` lên 2 MiB), XLSX giải nén ≤ 20 MiB; magic bytes; **tệp không được lưu** (xử lý trong bộ nhớ, không ghi đĩa hay blob). Tiêu đề (không phân biệt hoa thường, bỏ dấu): email ∈ {`email`, `e-mail`, `mail`}; tên ∈ {`full_name`, `họ và tên`, `họ tên`, `name`}; MSSV ∈ {`student_code`, `mssv`, `mã số sinh viên`}. Chuẩn hoá: email chữ thường, tên cắt khoảng trắng đầu / cuối rồi **cắt còn tối đa 100 rune** (dài hơn không báo lỗi — bảng mã lỗi dòng đã đóng, không có `NAME_TOO_LONG`; góp ý #12), MSSV chữ hoa `^[A-Z0-9]{6,15}$`; giá trị bắt đầu bằng `= + - @` giữ như chữ.
 
-**Mã lỗi dòng:** `INVALID_EMAIL`, `MISSING_NAME`, `INVALID_STUDENT_CODE`, `DUPLICATE_EMAIL_IN_FILE`, `DUPLICATE_STUDENT_CODE_IN_FILE`, `STUDENT_CODE_CONFLICT` (MSSV đã là snapshot của người khác `ACTIVE`/`PENDING` trong lớp), `EMAIL_BELONGS_TO_STAFF`, `EMAIL_DISABLED`, `COURSE_FULL` (dòng vượt sĩ số). Số dòng = số dòng trong tệp (tiêu đề = 1).
+**Mã lỗi dòng:** `INVALID_EMAIL`, `MISSING_NAME`, `INVALID_STUDENT_CODE`, `DUPLICATE_EMAIL_IN_FILE`, `DUPLICATE_STUDENT_CODE_IN_FILE` (cùng MSSV, khác email, **lặp trong tệp** — báo ở dòng sau), `STUDENT_CODE_CONFLICT` (MSSV đã là snapshot của người khác `ACTIVE`/`PENDING` **có sẵn trong lớp** — góp ý #11), `EMAIL_BELONGS_TO_STAFF`, `EMAIL_DISABLED`, `COURSE_FULL` (dòng vượt sĩ số). Số dòng = số dòng trong tệp (tiêu đề = 1).
 
 **Bảng nối (mặc định `send_invites=true`):**
 
@@ -388,7 +402,7 @@ Index: PK · `class_sessions_course_no_key` UNIQUE (course_id, session_no) · `c
 | `type` | `text` | NOT NULL | — | `CHECK (type ~ '^[A-Z][A-Z0-9_]{0,39}$')`; P2: `COURSE_ASSIGNED`, `JOIN_REQUEST`, `JOIN_APPROVED`, `JOIN_REJECTED` |
 | `title` | `text` | NOT NULL | — | `CHECK (char_length(title) BETWEEN 1 AND 200)` |
 | `body` | `text` | NULL | — | `CHECK (char_length(body) <= 1000)` |
-| `link` | `text` | NULL | — | `CHECK (link IS NULL OR link ~ '^/[^/\\]')` (đường dẫn nội bộ) |
+| `link` | `text` | NULL | — | `CHECK (link IS NULL OR link ~ '^/[^/\\]')` (đường dẫn nội bộ); **`NULL` = giao diện mở `/` ("Hôm nay")** — `JOIN_APPROVED` lưu NULL (góp ý #9) |
 | `dedupe_key` | `text` | NULL | — | |
 | `read_at` | `timestamptz` | NULL | — | |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |

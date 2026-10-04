@@ -123,7 +123,7 @@ func (g *Gateway) forward(ctx context.Context, c *call, r Request, ch chosen[ope
 	case streamErr != nil:
 		kind, _ := c.kindOf(streamErr)
 		c.row.ErrorKind = string(kind)
-		if kind.CountsToBreaker() {
+		if kind.CountsToBreaker() && !c.ownDeadlineExpired() {
 			g.gate.BreakerReport(ctx, ch.target.ProviderID, kind)
 		}
 		c.settle(ctx, ch, in, outTok)

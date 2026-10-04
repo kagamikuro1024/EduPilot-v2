@@ -8,9 +8,17 @@ type Exemption struct {
 	Reason    string
 }
 
-// Exemptions: hiện KHÔNG có mục nào — mọi status khai báo đều được gọi thật bởi `scenarios_test.go`.
+// Exemptions: mọi status khai báo đều được gọi thật bởi `scenarios_test.go`, trừ các mục dưới đây.
 // Khi một phase sau khai báo status không thể sinh ra trong test (ví dụ 503 khi kéo sập hạ tầng thật), thêm vào đây kèm lý do.
-func Exemptions() []Exemption { return nil }
+func Exemptions() []Exemption {
+	return []Exemption{
+		{"GET /api/v1/me/today", 504, "Quá hạn yêu cầu chỉ sinh ra khi DB chậm thật; hành vi được `today.TestTodayDeadline504` kiểm bằng ngữ cảnh đã hết hạn."},
+		{"GET /api/v1/courses/{id}/today", 504, "Như trên: `today.TestTodayDeadline504`."},
+		{"GET /api/v1/me/today", 304, "304 không có thân; ETag / If-None-Match được `today.TestTodayETag` kiểm."},
+		{"GET /api/v1/courses/{id}/today", 304, "Như trên: `today.TestTodayETag`."},
+		{"GET /api/v1/courses/{id}", 503, "Guard trả 503 khi tra `enrollments` lỗi; không kéo sập Postgres dùng chung của bộ contract. Hành vi được `auth.TestGuardResolverError503` kiểm bằng resolver lỗi."},
+	}
+}
 
 // IsExempt cho biết (thao tác, status) có được miễn không.
 func IsExempt(operation string, status int) bool {

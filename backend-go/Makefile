@@ -15,12 +15,16 @@ build:
 
 test:
 	DOCKER_HOST="$${DOCKER_HOST:-$(COLIMA_DOCKER_HOST)}" TESTCONTAINERS_RYUK_DISABLED=true go test -race -count=1 -tags testroutes ./...
+	DOCKER_HOST="$${DOCKER_HOST:-$(COLIMA_DOCKER_HOST)}" TESTCONTAINERS_RYUK_DISABLED=true go test -race -count=1 -tags integration ./internal/mail/... ./internal/auth/...
+	-docker volume prune -f
 
 lint:
 	go vet ./...
 	go vet -tags testroutes ./...
+	go vet -tags integration ./...
 	golangci-lint run
 	golangci-lint run --build-tags testroutes
+	golangci-lint run --build-tags integration
 
 # Ca âm của depguard (US-PG-06 AC8): gói tạm import kin-openapi ngoài internal/contract phải bị chặn.
 lint-depguard-negative:
@@ -47,4 +51,5 @@ tidy:
 
 # Dọn container test dùng chung (internal/testutil giữ chúng sống giữa các lần chạy).
 test-clean:
-	-docker rm -f edupilot-test-postgres edupilot-test-redis edupilot-test-minio edupilot-test-pgbouncer
+	-docker rm -fv edupilot-test-postgres edupilot-test-redis edupilot-test-minio edupilot-test-pgbouncer edupilot-test-mailpit
+	-docker volume prune -f

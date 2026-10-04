@@ -1,5 +1,17 @@
 # SRS FEAT-account-security Tài khoản an toàn (F1): phiên, đăng ký, xác minh, quên mật khẩu, mời giảng viên, chống dò
-Phiên bản 1.1 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.7 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q19 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q2–Q8, Q17 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.7 (2026-10-03)** — góp ý #10 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "`FEAT-account-security` 4.2.5 chỉ cho 3 truy vấn sqlc nhắc `student_code` trong điều kiện… Thêm đúng MỘT tên (`ListMembers`) vào danh sách trắng trong test, kèm chú thích: truy vấn chỉ lọc hiển thị trong lớp của người xem, không nối tài khoản, không mở dữ liệu. **ACCEPTED có điều kiện** — `q` theo MSSV chỉ cho TEACHER / TA"). Không đổi số AC. Đổi: `SRS.md` 4.2.5 (danh sách trắng thành bốn truy vấn: thêm `ListMembers`).
+
+**v1.6 (2026-10-03)** — góp ý #5 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC10 nói \"mở `Drawer` tại chỗ (không modal)\" nhưng `Drawer` dùng chung (`shared/ui/Dialog.tsx`) là `<dialog>` modal… Dựng khung mời là một `Section` mở dần tại chỗ (không `Drawer`, không modal); test khẳng định bằng `getByRole('dialog')` = 0. **ACCEPTED** — mở dần tại chỗ đúng `DESIGN.md`"). Không đổi số AC. Đổi: US-P2-06 AC10 (khung mời mở tại chỗ, lệnh `Kiểm` dùng `getByRole`), `SRS.md` 7.1, 7.2.
+
+**v1.5 (2026-10-03)** — góp ý #4 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC7 \"chỉ nhận `Content-Type: application/json`\" mâu thuẫn với lệnh tay AC3/AC6/AC7 (`curl -X POST …/auth/refresh` không thân, không Content-Type)… Từ chối khi header có mà khác JSON (415); cho qua khi không có header. **ACCEPTED** — điều kiện: kiểm Origin / `Sec-Fetch-Site` là bắt buộc ở mọi endpoint dùng cookie"). Không đổi số AC. Đổi: US-P2-02 AC7, `SRS.md` 4.1 (kiểm nguồn gốc).
+
+**v1.4 (2026-10-03)** — góp ý #3 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC13 yêu cầu `vitest run src/shared/session/safeNext.test.ts`, nhưng `vitest` không có trong bảng thư viện `ARCHITECTURE.md`… Kiểm `safeNext` bằng test Playwright không cần trình duyệt (`e2e/safe-next.spec.ts`)"). Không đổi số AC. Đổi: US-P2-02 AC13 (lệnh `Kiểm`).
+
+**v1.3 (2026-10-03)** — góp ý #2 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "AC6 ghi \"dừng / bật container Mailpit\"; container Mailpit dùng chung giữa các gói `go test`… AC10 nêu `smtpmock` (thư viện ngoài bảng ARCHITECTURE). Dùng `testutil.FakeSMTP` tự viết (~100 dòng, dừng/bật đúng cổng, trả 550/451) cho các ca lỗi; Mailpit thật cho ca gửi thành công"). Không đổi số AC. Đổi: US-P2-01 AC6 và AC10 (dòng `Kiểm`: bỏ `smtpmock`, dùng `testutil.FakeSMTP`), `SRS.md` mục 9.
+
+**v1.2 (2026-10-03)** — góp ý #1 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev; trích: "Đổi cách kiểm AC12(c) thành `TestOnlyAuthPackageTouchesTokenTables` (quét mã nguồn ngoài `auth`/`store`, 0 chỗ chạm `auth_tokens|auth_sessions|AuthToken|AuthSession`). depguard chỉ chặn theo gói import; `internal/store` là gói chung"). Không đổi số AC. Đổi: US-P2-01 AC12(c) và dòng `Kiểm`.
 
 **v1.1 (2026-10-03)** — trả lời câu hỏi QC (`docs/sprints/4/qc/tc-US-P2-0*.md`, `tc-GATE-P2.md`; mỗi chỗ sửa ghi "Q-QC-…"). Không đổi hợp đồng API. Đổi: US-P2-02 AC4 (không có ân hạn khi hai refresh song song — Q-QC-P202-1), US-P2-01 AC3 (Mailpit là ngoại lệ — Q-QC-P201-1), US-P2-04 thêm AC13 (log truy cập không ghi token — Q-QC-P204-2), US-P2-05 AC7 (phép `fold` — Q-QC-P205-3), US-P2-06 AC9 (`--password` không tồn tại — Q-QC-P206-2), `SRS.md` 4.1, 4.2.1, 4.2.4, 4.2.6, 5.6, 8.1 (ghi chú cho QC: TTL rút gọn, `APP_ENV`, `SMTP_HOST`, `X-Forwarded-For`), 8.3, 8.5, FR-35. Các câu còn lại chỉ trả lời ở tệp TC.
 
@@ -121,7 +133,7 @@ stateDiagram-v2
 
 **Đăng xuất:** thu hồi phiên theo cookie; luôn 204 và xoá cookie, kể cả khi không còn phiên (idempotent).
 
-**Kiểm nguồn gốc (CSRF) cho `refresh` và `logout`:** `Origin` có mặt ⇒ phải thuộc `CORS_ORIGINS` (hoặc cùng origin với `APP_PUBLIC_URL`); không có `Origin` mà `Sec-Fetch-Site` ∈ {`cross-site`, `same-site`} ⇒ 403; không có cả hai ⇒ client không phải trình duyệt, cho qua. Chỉ nhận `POST` + `Content-Type: application/json`. Cookie `SameSite=Lax` là lớp thứ hai.
+**Kiểm nguồn gốc (CSRF) cho `refresh` và `logout`:** `Origin` có mặt ⇒ phải thuộc `CORS_ORIGINS` (hoặc cùng origin với `APP_PUBLIC_URL`); không có `Origin` mà `Sec-Fetch-Site` ∈ {`cross-site`, `same-site`} ⇒ 403; không có cả hai ⇒ client không phải trình duyệt, cho qua. Chỉ nhận `POST`; `Content-Type` có mặt mà khác `application/json` → 415, vắng mặt thì cho qua (góp ý #4); kiểm `Origin` / `Sec-Fetch-Site` ở trên là **bắt buộc ở mọi endpoint dùng cookie**. Cookie `SameSite=Lax` là lớp thứ hai.
 
 **Phía frontend:** `tokenStore` (bộ nhớ) + `AuthProvider` có bốn trạng thái: `initializing` (đang gọi `refresh` lúc tải trang) → `authenticated` | `anonymous` | `revoked` (kèm lý do). `apiClient`: 401 `TOKEN_EXPIRED` → làm mới một lần (gộp trong tab; `navigator.locks` tên `ep-refresh` giữa các tab) → phát lại mỗi request tối đa một lần (POST giữ nguyên `Idempotency-Key`); 401 `SESSION_REVOKED` → không làm mới; làm mới thất bại → `auth:expired` → `/login?next=…`. `next` qua `safeNext()` (chỉ đường dẫn nội bộ).
 
@@ -151,7 +163,7 @@ Mọi bộ đếm theo email dùng `sha256(email chữ thường)` nên **không
 
 **4.2.4 Liên kết một lần:** `Issue` phát token 32 byte (43 ký tự) và chỉ lưu `sha256`; dùng bằng `UPDATE … SET used_at = now() WHERE token_hash = $1 AND used_at IS NULL AND revoked_at IS NULL AND expires_at > now() RETURNING …` (nguyên tử; hai yêu cầu song song → một thắng). Hạn: `VERIFY_EMAIL` 24 giờ, `RESET_PASSWORD` 30 phút, `INVITE` 72 giờ. Phát token mới cùng `(user, kind)` thu hồi token cũ chưa dùng. **Không yêu cầu** cân bằng thời gian cho các endpoint nhận token (token 256 bit, tra theo băm — thời gian không lộ thông tin khai thác được; Q-QC-P204-1); QC chỉ ghi chênh lệch. Phản hồi lỗi: 410 `LINK_INVALID` + `details.reason` ∈ `expired` | `used` | `invalid` (token lạ và đã bị thay đều là `invalid`).
 
-**4.2.5 MSSV tự khai (quy tắc an toàn số 1):** `users.student_code` chỉ là thông tin khai báo. **Không truy vấn nào dùng nó để nối tài khoản vào lớp hay mở dữ liệu.** Danh sách trắng truy vấn sqlc được phép tham chiếu MSSV (so sánh để *chặn / cảnh báo*, không để *cho phép*): (a) `EnrollmentConflictByStudentCode` (`FEAT-course-foundation` US-P2-09: MSSV trùng ⇒ ghi `PENDING` + cảnh báo `EMAIL_MISMATCH`), (b) `RosterStudentCodeConflict` (US-P2-10: dòng import trùng MSSV khác email ⇒ báo lỗi dòng), (c) `UpdateProfile` (ghi). `TestNoQueryLinksByStudentCode` liệt kê tên truy vấn sqlc có `student_code` trong điều kiện và so với danh sách trên.
+**4.2.5 MSSV tự khai (quy tắc an toàn số 1):** `users.student_code` chỉ là thông tin khai báo. **Không truy vấn nào dùng nó để nối tài khoản vào lớp hay mở dữ liệu.** Danh sách trắng truy vấn sqlc được phép tham chiếu MSSV (so sánh để *chặn / cảnh báo*, không để *cho phép*): (a) `EnrollmentConflictByStudentCode` (`FEAT-course-foundation` US-P2-09: MSSV trùng ⇒ ghi `PENDING` + cảnh báo `EMAIL_MISMATCH`), (b) `RosterStudentCodeConflict` (US-P2-10: dòng import trùng MSSV khác email ⇒ báo lỗi dòng), (c) `UpdateProfile` (ghi), (d) `ListMembers` (góp ý #10: `q` lọc **hiển thị** theo MSSV trong lớp của người xem — đã qua `CourseAccessGuard`, **chỉ** TEACHER / TA của lớp; không nối tài khoản, không mở dữ liệu; `FEAT-course-foundation` US-P2-09 AC13). `TestNoQueryLinksByStudentCode` liệt kê tên truy vấn sqlc có `student_code` trong điều kiện và so với danh sách **bốn** tên trên (thêm tên thứ năm phải qua góp ý mới).
 
 **4.2.6 Khởi tạo Admin đầu tiên:** `gateway admin create --email E --name N`; mật khẩu từ biến `ADMIN_PASSWORD` hoặc stdin (không từ tham số dòng lệnh); qua chính sách; tạo `ADMIN`, `ACTIVE`, `email_verified_at = now()`; idempotent theo email (đã có → thoát 0, không đổi mật khẩu); ghi `audit_log` (`actor_id = NULL`, `admin_bootstrap`). Không có route HTTP tạo ADMIN. Lệnh **không có cờ `--password`** (cờ lạ → thoát 2, thông báo "Dùng biến ADMIN_PASSWORD hoặc stdin."; Q-QC-P206-2).
 
@@ -407,7 +419,7 @@ Quy tắc dựng: `html/template` (thoát tự động) cho HTML, `text/template
 | `/reset-password` | `AuthShell` | `Đổi mật khẩu` | đang kiểm token, form, thành công, liên kết không dùng được |
 | `/invite/[token]` | `AuthShell` | `Đặt mật khẩu và vào` | đang kiểm, form, liên kết không dùng được |
 | `/settings` | khung ứng dụng | `Đổi mật khẩu` (phần Mật khẩu) | khung xương, rỗng ("Không có thiết bị nào khác."), lỗi chuẩn |
-| `/admin/users` | khung ứng dụng | `Mời giảng viên` | khung xương, rỗng, lỗi, Drawer tạo, `UndoLine` khoá |
+| `/admin/users` | khung ứng dụng | `Mời giảng viên` | khung xương, rỗng, lỗi, khung mời mở tại chỗ, `UndoLine` khoá |
 
 `AuthShell`: nền `--ep-paper`, không sidebar, một cột, chân trang "Cần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn." Không từ kỹ thuật (`token`, `session`, `refresh`, `JWT`, `bcrypt`, `OIDC`). Nút là động từ. Lỗi nêu *vấn đề + dữ liệu có an toàn không + cách khắc phục*.
 
@@ -422,7 +434,7 @@ Quy tắc dựng: `html/template` (thoát tự động) cho HTML, `text/template
 | `/reset-password` | "Đặt mật khẩu mới"; "Mật khẩu mới", "Nhập lại mật khẩu"; nút "Đổi mật khẩu"; thành công "Mật khẩu đã được đổi. Hãy đăng nhập lại."; không dùng được "Liên kết đã hết hạn hoặc đã được dùng." + "Yêu cầu liên kết mới" |
 | `/invite/[token]` | "Chào {Họ tên}, bạn được mời làm {Giảng viên / Trợ giảng} trên EduPilot."; nút "Đặt mật khẩu và vào"; không dùng được "Lời mời đã hết hạn hoặc đã được dùng. Hãy nhờ quản trị viên gửi lại." |
 | `/settings` | "Mật khẩu" / "Thiết bị đang đăng nhập"; "Thiết bị này"; "Đăng xuất thiết bị này"; "Đăng xuất mọi thiết bị khác" → xác nhận "Đăng xuất 2 thiết bị khác. Họ sẽ phải đăng nhập lại." |
-| `/admin/users` | "Mời giảng viên"; Drawer "Email", "Họ và tên", "Vai" (Giảng viên / Trợ giảng); xong "Đã gửi link mời, hạn 72 giờ."; "Gửi lại lời mời"; "Khoá tài khoản" / "Mở khoá"; undo "Đã khoá {tên} · Hoàn tác"; rỗng "Chưa có người dùng khớp bộ lọc." |
+| `/admin/users` | "Mời giảng viên"; khung mời mở tại chỗ "Email", "Họ và tên", "Vai" (Giảng viên / Trợ giảng); xong "Đã gửi link mời, hạn 72 giờ."; "Gửi lại lời mời"; "Khoá tài khoản" / "Mở khoá"; undo "Đã khoá {tên} · Hoàn tác"; rỗng "Chưa có người dùng khớp bộ lọc." |
 
 Bảng ánh xạ `apiClient` (FEAT-ui-foundation SRS 6.2) thêm 6 mã mới: `INVALID_CREDENTIALS` → "Email hoặc mật khẩu không đúng."; `LOGIN_THROTTLED` → "Bạn đã thử quá nhiều lần. Thử lại sau {N} giây."; `ACCOUNT_DISABLED` → "Tài khoản đã bị khoá. Hãy liên hệ quản trị viên."; `SESSION_REVOKED` → "Bạn đã bị đăng xuất. Hãy đăng nhập lại."; `LINK_INVALID` → "Liên kết đã hết hạn hoặc đã được dùng."; `EMAIL_NOT_VERIFIED` → "Hãy xác minh email trước khi vào lớp."
 
@@ -538,7 +550,7 @@ Dùng sẵn: `golang-jwt/jwt` v5, `x/crypto/bcrypt`, `go-redis`, `chi`, `validat
 | Tầng | Công cụ | Nội dung |
 | --- | --- | --- |
 | Đơn vị | `go test -race ./internal/auth/... ./internal/mail/... ./internal/user/...` | phiên, xoay, dùng lại, CSRF, chờ / khoá (đồng hồ giả), chính sách mật khẩu, token một lần (đua 50 goroutine), mẫu thư, quyền (ma trận), IDOR |
-| Tích hợp (`-tags integration`, Postgres + Redis + Mailpit / smtpmock thật) | `go test -tags integration …` | gửi thư thật, thử lại / dead-letter, Redis chết, giới hạn chia sẻ giữa hai bản |
+| Tích hợp (`-tags integration`, Postgres + Redis + Mailpit thật + `testutil.FakeSMTP` tự viết) | `go test -tags integration …` | gửi thư thật, thử lại / dead-letter, Redis chết, giới hạn chia sẻ giữa hai bản |
 | Cổng P2 (lọc theo tên) | `go test -race ./internal/auth/... -run 'Refresh\|Revoke\|Lockout\|Verify\|Reset\|Invite' -v` | tên test của mục này đều chứa một trong sáu từ khoá (đã đặt tên như vậy) |
 | Contract | `go test ./internal/contract/...` | `openapi.yaml` thêm 16 đường / 18 thao tác; golden mới `auth/*.json`; golden PG không sửa |
 | Giao diện | `frontend/e2e/account.spec.ts` (+ `data-layer.spec.ts` ca `auto refresh`) | các `-g` trong US |

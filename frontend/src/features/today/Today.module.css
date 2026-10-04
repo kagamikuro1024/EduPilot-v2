@@ -1,0 +1,13 @@
+.codeBox { display: grid; gap: var(--ep-space-3); max-width: 360px; }
+.codeRow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--ep-space-3); align-items: end; }
+.codeInput { font-family: var(--ep-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); letter-spacing: .18em; text-transform: uppercase; }
+.calm { margin: 0; color: var(--ep-ink-2); }
+.hint { margin: 0; color: var(--ep-ink-3); font-size: var(--ep-text-meta); }
+.steps { display: grid; gap: var(--ep-space-1); margin: var(--ep-space-2) 0 0; padding: 0; list-style: none; }
+.steps li { display: flex; align-items: center; gap: var(--ep-space-2); font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.steps svg { width: 14px; height: 14px; color: var(--ep-green); flex: none; }
+.pending { width: 14px; height: 14px; flex: none; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-pill); }
+.done a { color: var(--ep-ink-3); text-decoration-line: line-through; }
+.rowActions { display: inline-flex; align-items: center; gap: var(--ep-space-2); flex-wrap: wrap; justify-content: flex-end; }
+.note { margin: 0; color: var(--ep-ink-3); font-size: var(--ep-text-meta); }
+@media (max-width: 719px), (pointer: coarse) { .steps a { display: inline-flex; align-items: center; min-height: 44px; } }

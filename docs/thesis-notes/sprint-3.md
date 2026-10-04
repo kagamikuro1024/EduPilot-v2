@@ -1,0 +1,8 @@
+# Ghi chú luận văn — sprint 3 (PU + P1)
+
+- **Cổng LLM một cửa (D46, luật 3, 11):** mọi lời gọi chat / stream / structured / embed đi qua `internal/llm` trên `openai-go/v3`; mỗi provider chỉ là base URL tương thích OpenAI + khoá mã hoá AES-256-GCM. Số liệu: ghi replay thật OpenAI `gpt-4o-mini` và Gemini flash, nhúng 1536 chiều, ≤ 10 lời gọi mỗi nhà.
+- **Scheduler ba làn** (`INTERACTIVE` > `NEAR_REALTIME` > `BATCH`) với giới hạn BATCH ≤ `ceil(MAX × share)` chỗ: lỗi ban đầu để BATCH chiếm cả 10 chỗ làm chat chờ ~720 ms → sửa (#6). Lỗi tinh tế: hạn của chính yêu cầu bị tính là lỗi nhà cung cấp và mở cầu dao — bài học về phân biệt lỗi phía client và phía nhà cung cấp trong circuit breaker.
+- **Định nghĩa `fallback_index`** theo chuỗi provider đang bật (#33): tắt có chủ ý của Admin không phải sự cố, nên không làm méo tỉ lệ dự phòng đo ở P10.
+- **Nền giao diện kiểm bằng máy:** ảnh mốc Playwright (sinh trong image Linux chính thức để khớp CI), axe 0 critical / serious ở 102 lượt quét, Lighthouse CI theo ngân sách `UX.md`; nhánh `ci/ui-drift` chứng minh CI bắt được 3 kiểu trôi giao diện (màu viết cứng, lệch 3 px, thiếu `aria-label`).
+- **Giới hạn đo hiệu năng mô phỏng:** LCP Lighthouse mobile 2,7–3,4 s trong khi đo thật 0,49 s; TBT của trang 125 ô dao động 125–929 ms theo CPU runner — phép đo đo máy nhiều hơn đo sản phẩm. Cách xử lý: giữ ngưỡng, hạ về `warn` có thời hạn, ghi nợ.
+- **Quy trình:** 538 test case viết trước khi có code (hộp đen từ AC); 14 lỗi thật vòng 1; 34 góp ý của đội, mọi thay đổi spec / TC sau duyệt đều có số góp ý. Thêm vai Tech Lead để dev không phải đoán khi phân vân kỹ thuật.

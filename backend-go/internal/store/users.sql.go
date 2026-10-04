@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -120,4 +121,18 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const touchLastLogin = `-- name: TouchLastLogin :exec
+update users set last_login_at = $1::timestamptz where id = $2
+`
+
+type TouchLastLoginParams struct {
+	Now time.Time
+	ID  uuid.UUID
+}
+
+func (q *Queries) TouchLastLogin(ctx context.Context, arg TouchLastLoginParams) error {
+	_, err := q.db.Exec(ctx, touchLastLogin, arg.Now, arg.ID)
+	return err
 }

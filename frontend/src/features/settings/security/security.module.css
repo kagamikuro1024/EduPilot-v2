@@ -1,0 +1,10 @@
+.form { display: grid; gap: var(--ep-space-4); max-width: 420px; }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-4); }
+.done { color: var(--ep-ink-2); font-size: var(--ep-text-label); }
+.list { border-top: 1px solid var(--ep-rule); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-4); padding: var(--ep-space-3) 0; border-bottom: 1px solid var(--ep-rule); min-height: 56px; }
+.who { display: grid; gap: var(--ep-space-1); min-width: 0; }
+.name { overflow-wrap: anywhere; }
+.here { color: var(--ep-red); font-size: var(--ep-text-label); font-weight: 500; }
+.meta { color: var(--ep-ink-3); font-size: var(--ep-text-label); }
+.empty { color: var(--ep-ink-2); font-size: var(--ep-text-label); padding: var(--ep-space-3) 0; }

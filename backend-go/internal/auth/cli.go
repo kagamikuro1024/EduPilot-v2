@@ -24,7 +24,11 @@ func RunTokenCommand(args []string, getenv func(string) string, stdout, stderr i
 	role := fs.String("role", "", "vai trò: ADMIN|TEACHER|TA|STUDENT")
 	sub := fs.String("sub", "", "uuid người dùng (bỏ trống: sinh uuid v7 ngẫu nhiên)")
 	email := fs.String("email", DevEmail, "claim email")
-	ttl := fs.String("ttl", DefaultTTL.String(), "hạn token, ví dụ 15m")
+	defTTL := DefaultTTL.String()
+	if v := strings.TrimSpace(getenv("ACCESS_TOKEN_TTL")); v != "" {
+		defTTL = v // mặc định của --ttl là ACCESS_TOKEN_TTL (US-P2-02 AC15)
+	}
+	ttl := fs.String("ttl", defTTL, "hạn token, ví dụ 15m (mặc định: ACCESS_TOKEN_TTL)")
 	if err := fs.Parse(args); err != nil {
 		return 1
 	}

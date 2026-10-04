@@ -58,6 +58,7 @@ func (a *Admin) Mount(r chi.Router, idem func(http.Handler) http.Handler) {
 		r.With(readers).Get("/budget", a.getSystemBudget)
 		r.With(admin).Put("/budget", a.putSystemBudget)
 	})
+	// Hợp đồng PG-phase (07-AC, bất biến): ADMIN-only, KHÔNG qua CourseAccessGuard — id không phải uuid → 422, không phải 404 (proposal #7).
 	r.With(admin).Get("/courses/{id}/llm-budget", a.getCourseBudget)
 	r.With(admin).Put("/courses/{id}/llm-budget", a.putCourseBudget)
 }
