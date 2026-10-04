@@ -254,20 +254,20 @@ flowchart LR
 
 ## 10. Lộ trình 11 sprint
 
-| Sprint | Phase | Kết quả chính |
-| --- | --- | --- |
-| 1 ✅ | P0 Chuẩn bị | Mặt bằng mới, khung Go + Next.js, stack local, CI, kịch bản demo |
-| 1.5 ✅ | Prototype giao diện (D51) | Prototype bấm được toàn bộ tính năng, đổi 4 vai, Threads mô phỏng như thật, đi trọn kịch bản demo 15 phút |
-| 2 ✅ | PG Nền Go | DB/migration/sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, Caddy + PgBouncer, nhân bản gateway |
-| 3 ✅ | PU + P1 | Token, app shell, primitive, ảnh mốc + axe + Lighthouse CI; cổng LLM (openai-go) + Scheduler ba làn + cầu dao + `/settings/llm` thật |
-| 4 ✅ | P2 | Đăng nhập / đăng ký / xác minh email / đặt lại mật khẩu, chống dò, mời giảng viên / TA, mở lớp, mã tham gia, nạp danh sách lớp (nối chỉ bằng email), "Hôm nay", seed bằng API thật |
-| 5 | PE (D54–D58) | Bài thi hằng tuần: trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; trả nợ LCP / TBT (US-PU-06) |
-| 6 | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
-| 7 | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
-| 8 | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |
-| 9 | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
-| 10 | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |
-| 11 | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
+| Sprint | Trạng thái | Phase | Kết quả chính |
+| :---: | :---: | --- | --- |
+| 1 | ✅ Xong | P0 | Mặt bằng mới, khung Go + Next.js, stack local, CI, kịch bản demo |
+| 1.5 | ✅ Xong | Prototype | Prototype bấm được toàn bộ tính năng (D51), đổi 4 vai, Threads mô phỏng như thật, đi trọn kịch bản demo 15 phút |
+| 2 | ✅ Xong | PG | Nền Go: DB / migration / sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, Caddy + PgBouncer, nhân bản gateway |
+| 3 | ✅ Xong | PU + P1 | Token, app shell, primitive, ảnh mốc + axe + Lighthouse CI; cổng LLM (openai-go) + Scheduler ba làn + cầu dao + `/settings/llm` thật |
+| 4 | ✅ Xong | P2 | Đăng nhập / đăng ký / xác minh email / đặt lại mật khẩu, chống dò, mời giảng viên / TA, mở lớp, mã tham gia, nạp danh sách lớp (nối chỉ bằng email), "Hôm nay", seed bằng API thật |
+| 5 | Kế tiếp | PE | Bài thi hằng tuần (D54–D58): trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; trả nợ LCP / TBT (US-PU-06) |
+| 6 | | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
+| 7 | | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
+| 8 | | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |
+| 9 | | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
+| 10 | | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |
+| 11 | | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
 
 Chi tiết ghép phase, cổng và mục cắt được khi trễ: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
