@@ -432,7 +432,14 @@ async function step9Dismiss() {
   step(9, "Giảng viên bỏ qua mục thiết lập của lớp 761987…");
   await call("POST", `/courses/${ctx.ids["761987"]}/setup/dismiss`, { token: ctx.tokens.teacher });
   // Giảng viên chỉ còn MỘT thông báo chưa đọc: nhận lớp 761988. Yêu cầu vào lớp sinh ra khi seed đọc như đã xem.
-  const n = await call("GET", "/notifications?limit=100", { token: ctx.tokens.teacher });
+  // Thông báo JOIN_REQUEST do worker tạo bất đồng bộ (outbox, relay ≈ 0,5 s) SAU bước 7 / 8: chờ đủ (3 chờ duyệt lớp 2 + 1 lệch MSSV lớp 1) rồi mới đánh dấu đọc.
+  let n;
+  for (let i = 0; i < 40; i++) {
+    n = await call("GET", "/notifications?limit=100", { token: ctx.tokens.teacher });
+    if (n.body.items.filter((x) => x.type === "JOIN_REQUEST").length >= 4) break;
+    await new Promise((r) => setTimeout(r, 500));
+  }
+  if (n.body.items.filter((x) => x.type === "JOIN_REQUEST").length < 4) throw new Error("Thông báo yêu cầu vào lớp chưa tới sau 20 s — worker có đang chạy không?");
   for (const x of n.body.items) {
     if (!x.read_at && !(x.type === "COURSE_ASSIGNED" && x.course_id === ctx.ids["761988"])) {
       await call("POST", `/notifications/${x.id}/read`, { token: ctx.tokens.teacher });

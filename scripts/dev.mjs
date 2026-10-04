@@ -50,7 +50,9 @@ console.log("[dev] Sẵn sàng — https://localhost (chứng chỉ nội bộ c
 const seedOn = (process.env.SEED_ON_EMPTY_DB ?? readEnvLocal("SEED_ON_EMPTY_DB")) === "true";
 if (seedOn) {
   console.log("[dev] SEED_ON_EMPTY_DB=true — chạy scripts/seed.mjs --if-empty sau khi gateway sẵn sàng...");
+  const t0 = Date.now();
   const seed = spawnSync("node", ["scripts/seed.mjs", "--if-empty"], { cwd: root, stdio: "inherit", env: process.env });
+  console.log(`[dev] seed mất ${Math.round((Date.now() - t0) / 1000)} s`);
   if (seed.status !== 0) console.warn("[dev] CẢNH BÁO: seed chưa xong (mã thoát " + (seed.status ?? "?") + "). Stack vẫn chạy; chạy lại bằng `pnpm seed`.");
 }
 
