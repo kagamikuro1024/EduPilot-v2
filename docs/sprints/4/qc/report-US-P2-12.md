@@ -1,4 +1,5 @@
 # Báo cáo QC — US-P2-12 (`scripts/seed.mjs` bằng API thật, `sessions/generate`, bỏ phiên mô phỏng)
+**CHẤM LẠI `616cd98`: TC-08 PASS (B1 đã sửa) → kết luận mới: PASS có điều kiện; TC-14 còn KHÔNG KIỂM ĐƯỢC (chờ stack compose của QC). Dòng kết luận bên dưới là của lần chấm đầu (`ec872dd`).**
 **Kết luận: FAIL 1 TC (TC-08, bug B1: thông báo chưa đọc của GV sau lần seed đầu là 5, không phải 1)**; TC-14 **KHÔNG KIỂM ĐƯỢC** (không có stack `pnpm dev` / compose); còn lại PASS / PASS có điều kiện. Seed chạy **thật** từ DB trống trên stack riêng của QC (Postgres, Redis, Mailpit, 2 gateway `testroutes` + worker thật; 4 giới hạn IP nới bằng biến môi trường như `docker-compose.test-seed.yml`), Node v24.21.0, bản `ec872dd`. Không có Bun trên máy QC (Q-QC-P212-3: dùng Node). `go vet` rc=0, `golangci-lint` 0 issues, `go test -race -count=1 -tags integration -p 1 -parallel 2 -v ./...` rc=0 (**732 `--- PASS`**, 0 FAIL; `TestSessionsGenerate*` ×5 và `TestSeedDefaultPasswordPassesPolicy` PASS); Playwright `account.spec.ts class-join.spec.ts today.spec.ts`: **133 pass / 39 skip** (skip = chỉ-desktop hoặc `@real`, đã đọc từng lý do), rc=0. Q-QC-P212-1/2: BA đã trả lời (seed không tính thời gian dựng stack).
 
 ## Lỗi / lệch
@@ -19,7 +20,7 @@
 | 05 | PASS | 7 tài khoản `200`; 10 SV ngẫu nhiên `200`; `sv.chuaxm` đăng nhập `200`, `join` → `403 EMAIL_NOT_VERIFIED` |
 | 06 | PASS | nav (số liên kết duy nhất ở "/"): SV `sv.gioi`/`sv.kha`/`sv.nguyco` **7**, `sv.moi` **1**, TA **12**, GV **15**, Admin **6**; `account.spec.ts -g 'seed accounts nav'` trong 133 pass |
 | 07 | PASS | `password_hash` toàn `$2a$12$`; `grep Edupilot#2026` ở `seed.mjs` = 0 (mật khẩu đọc từ `SEED_DEFAULT_PASSWORD`); `TestSeedDefaultPasswordPassesPolicy` PASS |
-| 08 | **FAIL** (B1) | `COURSE_ASSIGNED` = 2 (761987 đã đọc, 761988 chưa đọc, thân có `BX4P9TW`) ✓; `unread_count` = **5** sau lần seed đầu (kỳ vọng 1), = 1 sau lần chạy lại |
+| 08 | PASS (chấm lại `616cd98`) | seed lần đầu trên DB trống (37 s, rc=0): `COURSE_ASSIGNED` = 2 (761987 đã đọc, 761988 chưa đọc), 4 `JOIN_REQUEST` đã đọc, `unread_count` = **1**; số liệu `60/61/59/8/21/2` đúng. Trước đó FAIL (B1: 5) |
 | 09 | PASS | `POST /courses/{id}/sessions/generate`: `201` `{created:7, first_session_no:16, last_session_no:22, skipped:0}` (thứ 3 + 5, 01–28/02/2027, loại 09/02); `session_no` 1..22 liên tục, đủ 22 giá trị khác nhau; **chạy lại** (khoá khác) `created:0, skipped:7`, 0 `starts_at` trùng; ngày loại trừ 0 buổi; **> 60**: 91 ngày → `422 TOO_MANY_SESSIONS`, 60 ngày → `201 created:60`; thiếu key `422`; TA lớp `201`, SV `403`, Admin `403`, không JWT `401`; `GET sessions` SV lớp `200 {items,next_cursor}`, SV ngoài lớp `403`; (không có "GV lớp khác": seed chỉ có 1 GV) |
 | 10 | PASS | `class_sessions`: 761987 = **15**, 761988 = **6**; hôm nay (giờ `Asia/Ho_Chi_Minh`): 761987 buổi 10 **09:00–11:30 P.302**, 761988 buổi 4 **13:30–16:00 P.405**; `me/today` của `sv.gioi`: `timeline` 4 mục (≥ 2) |
 | 12 | PASS | đếm `(users, enrollments, mail_outbox, notifications, class_sessions, courses)` = `60|61|59|8|21|2` trước và sau lần seed lại: **SAME**, rc=0, 14 s; `Đã có dữ liệu, không seed.` với `--if-empty` |
@@ -41,4 +42,4 @@
 | 11 | PASS | `TestSessionsGenerate`, `…NoDuplicate`, `…Limit60`, `…ExcludeDates`, `…RBAC` PASS |
 
 ## Việc sau
-**Dev:** sửa B1 (bước 9 của seed chờ `JOIN_REQUEST`); chạy tay TC-14 (`SEED_ON_EMPTY_DB=true pnpm dev`). **QC chấm lại:** TC-08 sau khi sửa; TC-14 khi có stack compose; TC-21 phần SPEC / `proto-curl.sh` / `sweep.mjs` ở cổng P2. Đã commit: `scenario-P2.md`, `scripts/audit-login.mjs`, `shots/p212/`.
+**QC chấm lại:** TC-14 khi có stack compose; TC-21 phần SPEC / `proto-curl.sh` / `sweep.mjs` ở cổng P2.
