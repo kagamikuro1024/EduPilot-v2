@@ -1,0 +1,8 @@
+# Ghi chú luận văn — sprint 4 (P2 Lớp học)
+
+- **Danh tính chỉ từ email đã xác minh hoặc `user_id` của phiên** (AGENTS "Cấm tuyệt đối"): nạp danh sách lớp nối tài khoản bằng email, MSSV chỉ là dữ liệu hiển thị; test `TestNoQueryLinksByStudentCode` khoá danh sách truy vấn được nhắc MSSV, tìm theo MSSV chỉ cho giảng viên / TA (#10). QC tấn công mạo danh MSSV: chặn ở `PENDING | EMAIL_MISMATCH`.
+- **Phiên an toàn không cần localStorage:** access token 15 phút trong bộ nhớ, refresh xoay vòng trong cookie `httpOnly; Secure; SameSite=Lax`, phát hiện dùng lại refresh thì thu hồi cả họ phiên; CSRF chặn bằng Origin / `Sec-Fetch-Site`. Cái giá: trang chỉ vẽ nội dung sau chuỗi JS → refresh → `/me/courses`, LCP mô phỏng 3,2–4,1 s — đánh đổi bảo mật ↔ hiệu năng có số đo, hướng xử lý là khung vẽ phía máy chủ (US-PU-06).
+- **Chống dò có số liệu:** chờ tăng dần, khoá 15 phút, giới hạn theo IP và theo tài khoản dùng chung giữa hai gateway (Redis); 100 mã lớp ngẫu nhiên → 0 trúng; xác suất trúng ≈ N / 31⁷ mỗi lần; thời gian đăng nhập đúng / sai mật khẩu được cân bằng (đo xen kẽ cặp, ngưỡng 0,65).
+- **Mở cửa khi Redis lỗi (fail-open) có kiểm soát:** hạn Redis 250 ms, log ≤ 1 dòng / 30 s — bài học từ lỗi B1 (5 s chờ, log mỗi yêu cầu).
+- **Đo hiệu năng trên CI:** Tech Lead đối chiếu tài liệu hiệu chỉnh Lighthouse (4× cho benchmarkIndex 1500–2000) và tái hiện CI trên máy bằng 12×; kết luận TBT ≈ chi phí khởi động React 19 + Next, không phải lỗi đo → không hạ hệ số, đưa giải pháp kiến trúc vào sprint sau.
+- **Quy trình:** 554 test case; 15 góp ý (1 chọn phương án thay thế để báo lỗi rõ hơn cho giảng viên); vòng chạy cuốn chiếu tự động nhắn QC khi dev giao story.
