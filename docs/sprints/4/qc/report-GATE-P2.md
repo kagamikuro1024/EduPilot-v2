@@ -1,3 +1,17 @@
+# KẾT LUẬN CUỐI (chấm lại ở `04bf58e`, sau vòng sửa 1 của dev): **CỔNG P2 ĐẠT CÓ ĐIỀU KIỆN** — 0 FAIL; điều kiện: TBT Lighthouse ở `warn` tới US-PU-06 (#15), 11 ảnh `visual` không kiểm được trên macOS (CI xanh), `gate-pg.sh` chưa chạy (xem dưới). Phần bên dưới là lần chấm đầu (`c6985d8`).
+
+## Chấm lại sau vòng sửa 1 (`04bf58e`)
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| US-P2-12 TC-08 | PASS | `616cd98`: seed lần đầu DB trống `unread_count` GV = **1** (xem `report-US-P2-12.md`); trên stack compose `04bf58e` cũng **1** |
+| US-P2-12 TC-14 / GATE TC-09 | PASS | `EP_PORT_OFFSET=100 SEED_ON_EMPTY_DB=true pnpm dev` (project `edupilot100`, song song stack dev, không đụng): tổng **74 s**, rc=0; từ lúc gateway sẵn sàng tới "Seed xong" **37 s** (≤ 180 s). 7 tài khoản mẫu qua Caddy `https://localhost:543/api/v1/auth/login` đều `200` (mật khẩu `SEED_DEFAULT_PASSWORD`); số liệu `60\|61\|59\|8\|21\|2`, `mail_outbox` 0 `DEAD` |
+| GATE TC-16 | PASS có điều kiện | `pnpm -C frontend lint` rc=0; `ui-antipatterns.sh` rc=0 (19 `✓`); build + `build:gate` rc=0; Playwright `--grep-invert @real`: **327 pass**, 108 skip, 11 fail — cả 11 là `visual.spec` (ảnh mốc sinh trong container noble; CI chạy trong container và xanh); 0 fail ngoài `visual`. Gồm ca mới L6 trong `class-join.spec.ts` |
+| GATE TC-17 | PASS | `gh run list`: `headSha` `04bf58e` = `origin/sprint/4-p2` → `success`, job Frontend `success`, job Go `success` (TBT ở `warn` theo #15: ngưỡng 200 giữ, chưa trả về `error`) |
+| GATE TC-53 (phần Caddy) | PASS | log Caddy / gateway / worker của stack compose: mật khẩu, token 43 ký tự, email `@edupilot.local` = **0**; truy cập `https://localhost:543/join/AN7K2MQ` (`200`, `Referrer-Policy: no-referrer`, `Cache-Control: no-store`) → mã **không** xuất hiện trong log Caddy (0) |
+| L6 | sửa (đọc test) | không đo lại bằng tay; ca Playwright mới xanh. B27 (không giữ lớp qua tải lại): dev không tái hiện được (`localStorage ep:ui:course`); QC không đo lại — đóng |
+| GATE TC-15 | còn thiếu | `gate-pg.sh` chưa chạy trên stack compose (script hard-code project `edupilot`; cần `EP_PORT_OFFSET=100` và đổi tên — việc của QC); các bằng chứng thay thế ở bảng A giữ nguyên |
+| TC-99 dọn dẹp | PASS | `pnpm dev:down -v` (chỉ `edupilot100`), gỡ `qcp2-pg/redis/mailpit`, gateway / worker / next / Chrome, worktree `TA_Agent_qcp2`; còn 5 container `edupilot-*` là stack của dev (QC không đụng); `docker volume prune -f` đã chạy |
+
 # Báo cáo QC — GATE-P2 (cổng nghiệm thu phase P2 + "Bạn tự kiểm" + tấn công tổng hợp)
 **Kết luận: CỔNG P2 CHƯA ĐẠT — FAIL 2 TC + 3 TC "KHÔNG KIỂM ĐƯỢC"; 0 lỗ hổng bảo mật.** Bản chấm `c6985d8` (`origin/sprint/4-p2`; mã dev = `404e0ec`). Stack riêng của QC dựng lại từ DB trống trên bản này: Postgres + Redis + Mailpit + 2 gateway `testroutes` + worker thật + `next start` + Chrome for Testing; seed chạy bằng `node scripts/seed.mjs` (Node 24.21).
 
@@ -86,4 +100,4 @@
 ## Việc sau
 - **Dev:** (1) sửa B1 US-P2-12 (G2) — QC chấm lại TC-08; (2) CI Lighthouse TBT (G1) — hoặc PM chuyển TBT sang `warn` như LCP; (3) nhả stack compose `edupilot` cho QC chạy `SEED_ON_EMPTY_DB=true pnpm dev` (TC-09 / P2-12 TC-14), `gate-pg.sh`, log Caddy (G3) — hoặc cho QC project / cổng riêng; (4) báo lại nếu `docker compose up --wait` gãy "No such container" khi chạy hai lần song song thì có lỗi trong `scripts/dev.mjs`? (QC chưa phân biệt được với việc QC phá stack).
 - **PM / BA:** TC-15 "goose = 4" lệch spec (00005 `vn_fold` của P2-06; ARCHITECTURE đang dành `00005` cho P3) — quyết số migration của P3; L6 (bộ chọn lớp mặc định / không giữ qua tải lại).
-- **QC:** sau khi G1, G2, G3 xong: chấm lại US-P2-12 (TC-08, TC-14), TC-GATEP2-09 / 15 / 17 / 53, rồi dọn dẹp (TC-99). Ảnh: `shots/gate-p2/` (9), `shots/p212/` (21).
+- **QC:** chấm lại xong ở mục đầu. Còn: `gate-pg.sh` trên stack `edupilot100` (TC-15) nếu PM muốn. Ảnh: `shots/gate-p2/` (9), `shots/p212/` (21).

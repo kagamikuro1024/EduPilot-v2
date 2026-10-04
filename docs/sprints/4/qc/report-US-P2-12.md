@@ -1,4 +1,5 @@
 # Báo cáo QC — US-P2-12 (`scripts/seed.mjs` bằng API thật, `sessions/generate`, bỏ phiên mô phỏng)
+**KẾT LUẬN CUỐI (`04bf58e`): PASS có điều kiện — TC-08 và TC-14 đã PASS; còn TC-21 chỉ đo bằng `audit-login.mjs`.**
 **CHẤM LẠI `616cd98`: TC-08 PASS (B1 đã sửa) → kết luận mới: PASS có điều kiện; TC-14 còn KHÔNG KIỂM ĐƯỢC (chờ stack compose của QC). Dòng kết luận bên dưới là của lần chấm đầu (`ec872dd`).**
 **Kết luận: FAIL 1 TC (TC-08, bug B1: thông báo chưa đọc của GV sau lần seed đầu là 5, không phải 1)**; TC-14 **KHÔNG KIỂM ĐƯỢC** (không có stack `pnpm dev` / compose); còn lại PASS / PASS có điều kiện. Seed chạy **thật** từ DB trống trên stack riêng của QC (Postgres, Redis, Mailpit, 2 gateway `testroutes` + worker thật; 4 giới hạn IP nới bằng biến môi trường như `docker-compose.test-seed.yml`), Node v24.21.0, bản `ec872dd`. Không có Bun trên máy QC (Q-QC-P212-3: dùng Node). `go vet` rc=0, `golangci-lint` 0 issues, `go test -race -count=1 -tags integration -p 1 -parallel 2 -v ./...` rc=0 (**732 `--- PASS`**, 0 FAIL; `TestSessionsGenerate*` ×5 và `TestSeedDefaultPasswordPassesPolicy` PASS); Playwright `account.spec.ts class-join.spec.ts today.spec.ts`: **133 pass / 39 skip** (skip = chỉ-desktop hoặc `@real`, đã đọc từng lý do), rc=0. Q-QC-P212-1/2: BA đã trả lời (seed không tính thời gian dựng stack).
 
@@ -25,7 +26,7 @@
 | 10 | PASS | `class_sessions`: 761987 = **15**, 761988 = **6**; hôm nay (giờ `Asia/Ho_Chi_Minh`): 761987 buổi 10 **09:00–11:30 P.302**, 761988 buổi 4 **13:30–16:00 P.405**; `me/today` của `sv.gioi`: `timeline` 4 mục (≥ 2) |
 | 12 | PASS | đếm `(users, enrollments, mail_outbox, notifications, class_sessions, courses)` = `60|61|59|8|21|2` trước và sau lần seed lại: **SAME**, rc=0, 14 s; `Đã có dữ liệu, không seed.` với `--if-empty` |
 | 13 | PASS | DB trống, ngắt (SIGKILL) ở **10 s** (bước 5), **20 s** và **28 s** (bước 6; DB giữa chừng 43/33 và 52/33 người dùng / enrollment), rồi chạy lại: mỗi lần `rc=0`, `ADMIN=1,TEACHER=1,TA=1,STUDENT=57`, số liệu lớp đúng AC2, `mail_outbox` `SENT=59`, 0 `DEAD`, `60|61|59|8|21|2` |
-| 14 | **KHÔNG KIỂM ĐƯỢC** (L1) | không dựng được stack `pnpm dev`; đo thay 36 / 36 / 32 s từ `readyz` |
+| 14 | PASS (chấm lại `04bf58e`) | `EP_PORT_OFFSET=100 SEED_ON_EMPTY_DB=true pnpm dev`: tổng 74 s rc=0; `readyz` → "Seed xong" **37 s** (≤ 180 s); 7 tài khoản đăng nhập `200` qua Caddy. Trước đó KHÔNG KIỂM ĐƯỢC |
 | 15 | PASS | `APP_ENV=production node scripts/seed.mjs` → `rc=1`, "Seed bị chặn ở production.", **0 request** tới máy chủ giả (Python HTTP, đếm) |
 | 16 | PASS | `grep sk-…\|password="…"` = 0; hai lần seed trên DB trống (`SEED_RNG=20261029`): `md5(email|full_name|student_code)` **trùng** (`26045b9d…`) |
 | 17 | PASS (L2) | `TestJoinCodeFixedOnlyOutsideProduction` PASS |
