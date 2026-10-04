@@ -1,0 +1,6 @@
+{
+  "code": "RATE_LIMITED",
+  "message": "Bạn thao tác quá nhanh. Hãy thử lại sau giây lát.",
+  "retry_after": 60,
+  "trace_id": "<trace_id>"
+}

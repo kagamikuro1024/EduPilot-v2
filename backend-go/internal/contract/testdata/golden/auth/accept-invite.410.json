@@ -1,0 +1,8 @@
+{
+  "code": "LINK_INVALID",
+  "details": {
+    "reason": "invalid"
+  },
+  "message": "Liên kết đã hết hạn hoặc đã được dùng.",
+  "trace_id": "<trace_id>"
+}

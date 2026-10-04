@@ -120,11 +120,12 @@ Mọi bảng: UUID, `created_at`, `updated_at`; bảng nghiệp vụ có `course
 | 00011 submissions_grading | P7 | `assignments(course_id, type ESSAY/QUIZ, title, due_at, reference_answer, rubric jsonb, grade_item_id, submission_code, appeal_days, allow_late, channels text[], published_at)`; `submissions(assignment_id, student_id, source, version, blob_key, extracted_text, match_status, received_at)`; `grading_results(submission_id, run_no, criteria_scores jsonb, total, feedback, confidence, flags jsonb, model, status DRAFT/REVIEWED/PUBLISHED, reviewed_by, version int)` |
 | 00012 integrations | P7 | `integration_configs(course_id, kind IMAP/SMTP/TEAMS, config_enc, enabled, last_sync_at, last_error)` |
 | 00013 calendar | P8 | `calendar_events(course_id, type, title, starts_at, ends_at, location, ref_type, ref_id)`; `reminder_log` |
-| 00014 question_bank | P9 | `question_bank(course_id, type, topic, difficulty, stem, answer_key jsonb, explanation, citations jsonb, origin EXTRACTED/GENERATED/MANUAL, review_status)`; `question_options`; `practice_exams`; `practice_attempts(student_id, mode, started_at, submitted_at, score, assignment_id NULL)`; `practice_answers` (khoá chat khi đang làm QUIZ dùng Redis, không có bảng) |
+| (kế tiếp sau P2) exams | PE (D54) | `question_bank(course_id, type MCQ_SINGLE/MCQ_MULTI/TRUE_FALSE/CODE/SHORT/ESSAY, topic, difficulty, stem, answer_key jsonb, explanation, citations jsonb, origin MANUAL/AI_DRAFT/EXTRACTED/GENERATED, review_status)`; `question_options`; `code_problems`; `code_testcases`; `exams`; `exam_items`; `exam_attempts`; `exam_answers`; `code_submissions`; `exam_events`; `similarity_reports` — chi tiết `docs/phases/PE.md` L1 và spec `FEAT-weekly-exam` |
+| 00014 practice | P9 | `practice_exams`; `practice_attempts(student_id, mode, started_at, submitted_at, score, assignment_id NULL)`; `practice_answers` (dùng `question_bank` của PE; khoá chat khi đang làm bài tính điểm dùng Redis, không có bảng) |
 | 00015 indexes_tuning | P10 | Index phức hợp bắt đầu bằng `course_id`; index HNSW cho `content_chunks.embedding`; index phục vụ báo cáo của P10 |
 | 00016 production | PR | `consents`, `retention_policies`, `data_requests(user_id, kind EXPORT/DELETE, status)`, `course_features(course_id, chat, thread_auto_answer, auto_grading)` |
 
-**Nguyên tắc sở hữu bảng (D45): phase đầu tiên dùng bảng là phase tạo nó, ở dạng cuối cùng.** Số migration tăng dần theo thứ tự phase chạy, bắt đầu từ `00001` — không kế thừa đánh số của Project III. Khi thi công, ghi ánh xạ số thật ↔ hạng mục ở đây vào mục "Ánh xạ migration" trong `PROGRESS.md`.
+**Nguyên tắc sở hữu bảng (D45): phase đầu tiên dùng bảng là phase tạo nó, ở dạng cuối cùng.** Số migration tăng dần theo thứ tự phase chạy, bắt đầu từ `00001` — không kế thừa đánh số của Project III; vì PE chèn sau P2 (D54), số của các phase sau lùi theo thứ tự thi công. Khi thi công, ghi ánh xạ số thật ↔ hạng mục ở đây vào mục "Ánh xạ migration" trong `PROGRESS.md`.
 
 Mã hoá: `APP_ENCRYPTION_KEY` (32 byte base64), AES-256-GCM, IV ngẫu nhiên mỗi bản ghi, cho `api_key_enc` và `config_enc`.
 
@@ -132,11 +133,11 @@ Mã hoá: `APP_ENCRYPTION_KEY` (32 byte base64), AES-256-GCM, IV ngẫu nhiên m
 
 | Nhóm | Endpoint chính | Quyền ghi |
 | --- | --- | --- |
-| Tài khoản | `POST /auth/register` (chỉ STUDENT), `POST /auth/verify-email`, `POST /auth/resend-verification`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `POST /auth/accept-invite`, `GET/DELETE /me/sessions` | – |
-| Quản trị lớp | `GET/POST /admin/courses`, `PUT /admin/courses/{id}`, `POST /admin/courses/{id}/assign {teacher_id, ta_ids[]}`, `POST /admin/courses/{id}/archive`; `GET/POST /admin/users`, `PATCH /admin/users/{id}` (vai trò, khoá) | ADMIN |
-| Lớp | `GET /me/courses`, `GET /courses/{id}`, `GET …/sessions`, `PUT …/settings`, `POST …/roster/import`, `POST …/share-from {source_course_id, what[]}` | TEACHER |
+| Tài khoản | `POST /auth/register` (chỉ STUDENT), `POST /auth/verify-email`, `POST /auth/resend-verification`, `POST /auth/login`, `POST /auth/refresh`, `POST /auth/logout`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `POST /auth/accept-invite`, `POST /auth/tokens/preview`, `GET/DELETE /me/sessions`, `DELETE /me/sessions/{id}`, `POST /me/password`, `GET/PUT /me/settings` | – |
+| Quản trị lớp | `GET/POST /admin/courses`, `PUT /admin/courses/{id}`, `POST /admin/courses/{id}/assign {teacher_id, ta_ids[]}`, `POST /admin/courses/{id}/archive`; `GET/POST /admin/users`, `PATCH /admin/users/{id}` (vai trò, khoá), `POST /admin/users/{id}/resend-invite` | ADMIN |
+| Lớp | `GET /me/courses`, `GET /courses/{id}`, `GET …/sessions`, `PUT …/settings`, `POST …/roster/import`, `POST …/share-from {source_course_id, what[]}`, `GET …/share-sources`, `PUT …/assistants`, `GET …/assistant-candidates`, `POST …/setup/dismiss` | TEACHER |
 | Mã tham gia | `GET …/join-code`, `POST …/join-code/regenerate`, `PUT …/join-settings {enabled, expires_at, require_approval, allowed_email_domain, capacity}` | TEACHER |
-| Thành viên | `GET …/members?status=`, `POST …/members/{uid}/approve`, `POST …/members/{uid}/reject`, `DELETE …/members/{uid}` | TA duyệt; TEACHER xoá |
+| Thành viên | `GET …/members?status=`, `POST …/members/{uid}/approve`, `POST …/members/{uid}/reject`, `DELETE …/members/{uid}`, `POST …/members/{uid}/undo` | TA duyệt; TEACHER xoá |
 | Tham gia lớp | `POST /courses/join/preview {code}` → `{name, class_code, teacher, semester}`; `POST /courses/join {code}` (idempotent; 5 lần / 10 phút; lỗi đồng nhất `JOIN_CODE_INVALID`) | STUDENT |
 | Buổi học | `POST …/sessions/generate {weekdays, start_time, end_time, room, from, to, exclude_dates[]}`, `PUT/DELETE …/sessions/{sid}` | TA, TEACHER |
 | Điểm danh | `GET/PUT …/sessions/{sid}/attendance` (cả lưới), `GET …/students/{uid}/attendance` | TA, TEACHER |
@@ -231,8 +232,10 @@ Tool agent (`internal/agent`, chỉ kênh chat riêng): `get_my_attendance`, `ge
 | `/documents` | Upload + cờ RAG/hiển thị + loại mới | TA, TEACHER | P8 |
 | `/library` | Thư viện sinh viên | Tất cả | P8 |
 | `/calendar` | Lịch + ICS | Tất cả | P8 |
-| `/questions` | Ngân hàng câu hỏi + duyệt | TA, TEACHER | P9 |
-| `/practice`, `/practice/[attemptId]`, `/practice/history` | Luyện đề, thi thử, làm bài QUIZ | STUDENT | P9 |
+| `/questions` | Ngân hàng câu hỏi (trắc nghiệm + bài code) + duyệt | TA, TEACHER | PE, P9 |
+| `/exams`, `/exams/[id]`, `/exams/[id]/results` | Bài thi hằng tuần: soạn, lên lịch, kết quả lớp, nghi chép | TA, TEACHER | PE |
+| `/exams/[id]/take` | Làm bài thi (trắc nghiệm / code C/C++), đồng hồ, xem điểm sau khi đóng | STUDENT | PE |
+| `/practice`, `/practice/[attemptId]`, `/practice/history` | Luyện đề, thi thử (không tính điểm) | STUDENT | P9 |
 | `/insights` | Báo cáo lỗ hổng kiến thức | TA, TEACHER | P10 |
 | `/observability` | Quan sát hệ thống AI (TEACHER chỉ thấy tổng hợp của lớp mình, không có nội dung prompt) | ADMIN, TEACHER | P10 |
 | `/settings/llm`, `/settings/integrations` | Provider/model; SMTP/IMAP/Teams | ADMIN | P1, P7 |
@@ -261,9 +264,9 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 
 | Biến | Dùng cho |
 | --- | --- |
-| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `JWT_EXPIRATION`, `CORS_ORIGINS` | Gateway Go |
+| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET_KEY`, `CORS_ORIGINS` | Gateway Go |
 | `APP_ENCRYPTION_KEY` | AES-GCM |
-| `ACCESS_TOKEN_TTL` (15m), `REFRESH_TOKEN_TTL` (14d), `COOKIE_DOMAIN` | Phiên đăng nhập |
+| `ACCESS_TOKEN_TTL` (15m), `REFRESH_TOKEN_TTL` (14d), `SESSION_ABSOLUTE_TTL` (30d), `COOKIE_DOMAIN` | Phiên đăng nhập |
 | `SUPPORT_RESOURCES_VI` | Thông tin hỗ trợ sinh viên do trường cung cấp (F3) |
 | `OIDC_ENABLED`, `OIDC_ISSUER`, `OIDC_CLIENT_ID`, `OIDC_CLIENT_SECRET` | Đăng nhập bằng tài khoản trường, mặc định tắt (PR) |
 | `CLAMAV_URL`, `BACKUP_TARGET`, `ALERT_EMAIL` | Quét file, sao lưu, cảnh báo (PR) |
@@ -300,10 +303,12 @@ Một giảng viên phụ trách **hai lớp cùng học phần An ninh mạng**
 | --- | --- | --- | --- |
 | Admin | ADMIN | `admin@edupilot.local` | Đã mở 2 lớp và gán giảng viên; cấu hình LLM, tích hợp |
 | Giảng viên | TEACHER | `teacher@edupilot.local` | Phụ trách lớp 1 và lớp 2; có 1 thông báo nhận lớp chưa đọc |
+| Trợ giảng | TA | `ta@edupilot.local` | Lớp 1 (Phạm Quốc Bảo) |
 | Sinh viên A | STUDENT | `sv.gioi@edupilot.local` | Lớp 1 + lớp 2. Chuyên cần 100%, nhiều điểm cộng |
 | Sinh viên B | STUDENT | `sv.kha@edupilot.local` | Lớp 1. Vắng 2, có bài nộp muộn |
 | Sinh viên C | STUDENT | `sv.nguyco@edupilot.local` | Lớp 1. Vắng 5, thiếu bài, thời gian học dưới ngưỡng 3 tuần → cần chú ý |
 | Sinh viên D | STUDENT | `sv.moi@edupilot.local` | **Chưa vào lớp nào** → dùng để demo nhập mã tham gia lớp 2 |
+| Kiểm an toàn | STUDENT | `sv.chuaxm@…`, `sv.lech@…` | Chưa xác minh email; MSSV trùng Sinh viên B (kiểm quy tắc nối) — chi tiết `docs/specs/FEAT-course-foundation/SRS.md` 4.8 |
 
 Các sinh viên còn lại: tên sinh ngẫu nhiên, MSSV `2022xxxx` không trùng MSSV thật, cùng mật khẩu `SEED_DEFAULT_PASSWORD`. Mã tham gia seed cố định để viết kịch bản demo: lớp 1 `AN7K2MQ`, lớp 2 `BX4P9TW`.
 

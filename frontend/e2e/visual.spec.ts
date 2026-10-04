@@ -1,7 +1,7 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
 import { base, reset, script } from "./support/llm-fixtures";
-import { asDemo, type DemoRole } from "./support/session";
+import { asDemo, asJwt, type DemoRole } from "./support/session";
 
 // US-PU-05 AC1: 7 route đại diện × 2 bề rộng = 14 ảnh mốc (SRS 8.3). Đồng hồ đóng băng 29/10/2026 09:20 giờ VN, animation tắt,
 // font đã nạp. Cập nhật ảnh mốc CHỈ bằng `--update-snapshots` kèm giải thích trong handoff.
@@ -27,11 +27,6 @@ const ROUTES: Array<{ name: string; path: string; role?: DemoRole; admin?: boole
   { name: "dev-ui", path: "/dev/ui" },
 ];
 
-function adminToken() {
-  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
-  return `${b64({ alg: "HS256", typ: "JWT" })}.${b64({ sub: "00000000-0000-7000-8000-0000000000a0", role: "ADMIN", email: "admin@ptit.edu.vn", exp: 4102444800 })}.c2ln`;
-}
-
 async function settle(page: Page) {
   await page.evaluate(() => document.fonts.ready);
   await page.waitForLoadState("networkidle");
@@ -55,13 +50,9 @@ for (const r of ROUTES) {
         await reset(page);
         await script(page, base()); // dữ liệu cố định theo hợp đồng thật (support/llm-fixtures.ts)
       }
-      if (r.role) await asDemo(context, r.role);
+      if (r.admin) await asJwt(page, "ADMIN", { email: "admin@ptit.edu.vn", fullName: "Đỗ Hoàng Nam", expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: hạn phải dài hơn khoảng lệch với giờ thật; phiên thật giả lập (refresh → JWT ADMIN)
+      else if (r.role) await asDemo(context, r.role);
       await page.goto(r.path);
-      if (r.admin) {
-        await page.locator("main input[type=password]").fill(adminToken());
-        await page.getByRole("button", { name: "Dùng token" }).click();
-        await expect(page.locator("main input[type=password]")).toHaveCount(0);
-      }
       await page.locator("main").first().waitFor();
       await settle(page);
       await expect(page).toHaveScreenshot(`${r.name}-${w}.png`, { maxDiffPixelRatio: 0.005, threshold: 0.2, animations: "disabled", caret: "hide" });

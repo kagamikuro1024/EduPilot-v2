@@ -1,0 +1,10 @@
+Subject: Bạn đã có tài khoản EduPilot
+
+Chào Nguyễn Văn An,
+
+Có người vừa dùng địa chỉ email này để đăng ký EduPilot, nhưng email đã có tài khoản.
+
+Nếu là bạn: đăng nhập tại https://localhost/login, hoặc đặt lại mật khẩu nếu quên tại https://localhost/forgot-password.
+Nếu không phải bạn: bỏ qua thư này, tài khoản của bạn không bị ảnh hưởng.
+
+— EduPilot · Thư tự động từ hệ thống, vui lòng không trả lời.

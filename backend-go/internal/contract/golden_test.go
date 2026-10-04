@@ -43,6 +43,8 @@ func mask(k string, v any) any {
 		switch {
 		case k == "trace_id":
 			return "<trace_id>"
+		case k == "access_token":
+			return "<jwt>"
 		case reUUID.MatchString(x):
 			return "<uuid>"
 		case reTime.MatchString(x):
@@ -149,7 +151,9 @@ func TestGolden_LLM(t *testing.T) {
 	do("DELETE", "/admin/llm/providers/"+uuid.NewString(), "", "deleteLLMProvider.404", 404)
 }
 
-func checkGolden(t *testing.T, name string, body []byte) {
+func checkGolden(t *testing.T, name string, body []byte) { checkGoldenIn(t, "llm", name, body) }
+
+func checkGoldenIn(t *testing.T, dir, name string, body []byte) {
 	t.Helper()
 	var v any
 	if err := json.Unmarshal(body, &v); err != nil {
@@ -162,7 +166,7 @@ func checkGolden(t *testing.T, name string, body []byte) {
 	if err := enc.Encode(mask("", v)); err != nil { // map → khoá được sắp xếp, đầu ra ổn định
 		t.Fatal(err)
 	}
-	path := filepath.Join("testdata", "golden", "llm", name+".json")
+	path := filepath.Join("testdata", "golden", dir, name+".json")
 	if os.Getenv("UPDATE_GOLDEN") == "1" {
 		if err := os.WriteFile(path, buf.Bytes(), 0o644); err != nil { //nolint:gosec // tệp golden trong repo
 			t.Fatal(err)

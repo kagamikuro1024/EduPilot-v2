@@ -66,7 +66,7 @@ func Register(r chi.Router, d Deps) {
 			r.Get("/whoami", whoami)
 			r.With(auth.RequireRole(auth.RoleAdmin)).Get("/rbac/admin", pingHandler)
 			r.With(auth.RequireRole(auth.RoleTeacher, auth.RoleTA)).Get("/rbac/staff", pingHandler)
-			r.With(auth.CourseAccessGuard(nil)).Get("/courses/{courseId}/ping", pingHandler)
+			r.With(auth.CourseAccessGuard(nil, auth.Member)).Get("/courses/{courseId}/ping", pingHandler)
 			r.Post("/jobs", createJob(d))
 			r.Post("/events", publishEvent(d))
 			registerLLM(r, d)

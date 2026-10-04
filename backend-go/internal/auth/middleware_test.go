@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel"
 	sdktrace "go.opentelemetry.io/otel/sdk/trace"
 
@@ -36,7 +37,7 @@ func testRouter(v *Verifier, resolver CourseResolver) http.Handler {
 		r.Get("/whoami", whoami)
 		r.With(RequireRole(RoleAdmin)).Get("/rbac/admin", whoami)
 		r.With(RequireRole(RoleTeacher, RoleTA)).Get("/rbac/staff", whoami)
-		r.With(CourseAccessGuard(resolver)).Get("/courses/{courseId}/ping", func(w http.ResponseWriter, r *http.Request) {
+		r.With(CourseAccessGuard(resolver, Member)).Get("/courses/{courseId}/ping", func(w http.ResponseWriter, r *http.Request) {
 			a, ok := CourseFromContext(r.Context())
 			if !ok {
 				http.Error(w, "thiếu CourseAccess", http.StatusInternalServerError)
@@ -200,12 +201,15 @@ type fakeResolver struct {
 	calls       atomic.Int64
 }
 
-func (f *fakeResolver) CanAccess(_ context.Context, p Principal, courseID string) (bool, error) {
+func (f *fakeResolver) Resolve(_ context.Context, p Principal, courseID uuid.UUID) (Membership, error) {
 	f.calls.Add(1)
 	if f.err != nil {
-		return false, f.err
+		return Membership{}, f.err
 	}
-	return p.Sub == f.sub && courseID == f.course, nil
+	if p.Sub == f.sub && courseID.String() == f.course {
+		return Membership{Found: true, Role: p.Role, Status: "ACTIVE"}, nil
+	}
+	return Membership{}, nil
 }
 
 func guardRequest(t *testing.T, resolver CourseResolver, role Role, sub, courseID string) *httptest.ResponseRecorder {

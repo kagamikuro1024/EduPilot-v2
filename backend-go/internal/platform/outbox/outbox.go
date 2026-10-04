@@ -74,3 +74,16 @@ func Write(ctx context.Context, tx pgx.Tx, topic string, payload any) (uuid.UUID
 	}
 	return row.ID, nil
 }
+
+// Chain chạy lần lượt nhiều handler cho CÙNG một topic (outbox chỉ nhận một handler mỗi topic). Lỗi đầu tiên dừng chuỗi
+// và đưa cả thông điệp đi thử lại, nên mọi handler trong chuỗi phải idempotent.
+func Chain(hs ...Handler) Handler {
+	return func(ctx context.Context, m Message) error {
+		for _, h := range hs {
+			if err := h(ctx, m); err != nil {
+				return err
+			}
+		}
+		return nil
+	}
+}

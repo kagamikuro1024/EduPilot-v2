@@ -1,10 +1,11 @@
 import { readFileSync } from "node:fs";
+import { API_URL, BASE_URL } from "./support/env";
 import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
 import { expect, test, type Page } from "@playwright/test";
 
 // US-PU-03: lớp dữ liệu, thử trên /dev/data với gateway GIẢ (e2e/support/api-server.mjs, :3312). Chỉ chạy ở dự án desktop
 // và tuần tự (máy chủ giả dùng chung). Ca @real cần gateway thật và không chạy ở CI.
-const API = "http://localhost:3312";
+const API = API_URL;
 test.describe.configure({ mode: "serial" });
 test.beforeAll(acquireFakeApi);
 test.afterAll(releaseFakeApi);
@@ -209,6 +210,71 @@ test("auth expired: 5 request song song ⇒ đúng 1 sự kiện, không gửi l
   expect(await page.evaluate(() => (window as unknown as { __events: string[] }).__events.filter((e) => e === "auth:expired").length)).toBe(1);
   expect((await getLog(page, "/api/v1/a")).log).toHaveLength(5);
   expect(await page.evaluate(() => (window as unknown as { __ep: { tokenStore: { get: () => string | null } } }).__ep.tokenStore.get())).toBeNull();
+});
+
+const SESSION = { access_token: "n.e.w", token_type: "Bearer", expires_in: 900, user: { id: "u1", email: "a@b.example", full_name: "A", role: "STUDENT", status: "ACTIVE", email_verified: true } };
+
+/**
+ * Giả lập POST /auth/refresh ngay trong trang (máy chủ giả dùng chung bị mọi trang khác chạm vào nên không đếm được).
+ * `steps[i]` là phản hồi của lần gọi thứ i+1 (lần cuối lặp lại); lần #1 là của AuthProvider lúc tải trang.
+ */
+async function routeRefresh(page: Page, steps: Array<{ status: number; body: unknown }>) {
+  const state = { n: 0 };
+  const cors = { "Access-Control-Allow-Origin": new URL(page.url() === "about:blank" ? BASE_URL : page.url()).origin, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+  await page.route("**/api/v1/auth/refresh", (route) => {
+    const st = steps[Math.min(state.n++, steps.length - 1)];
+    return route.fulfill({ status: st.status, contentType: "application/json", headers: cors, body: JSON.stringify(st.body) });
+  });
+  return state;
+}
+
+test("auto refresh: 5 request cùng 401 TOKEN_EXPIRED ⇒ đúng 1 refresh, mỗi request phát lại 1 lần; POST giữ Idempotency-Key", async ({ page }) => {
+  const rf = await routeRefresh(page, [{ status: 401, body: { code: "UNAUTHENTICATED", message: "m", trace_id: "b" } }, { status: 200, body: SESSION }]);
+  await script(page, {
+    "GET /api/v1/a": [...Array.from({ length: 5 }, () => err(401, "TOKEN_EXPIRED")), { body: { ok: true } }],
+    "POST /api/v1/t": [err(401, "TOKEN_EXPIRED"), { body: { ok: true } }],
+  });
+  await open(page);
+  await expect.poll(() => rf.n).toBe(1); // lần của AuthProvider
+  await call(page, 'ep.tokenStore.set("old.tok.en")');
+  const r = await call(page, 'Promise.allSettled([1,2,3,4,5].map(() => ep.apiClient.get("/a"))).then(rs => rs.map(x => x.status))');
+  expect(r.data).toEqual(["fulfilled", "fulfilled", "fulfilled", "fulfilled", "fulfilled"]);
+  expect(rf.n).toBe(2);
+  const a = (await getLog(page, "/api/v1/a")).log;
+  expect(a).toHaveLength(10);
+  expect(a.slice(0, 5).every((e) => e.headers.authorization === "Bearer old.tok.en")).toBe(true);
+  expect(a.slice(5).every((e) => e.headers.authorization === "Bearer n.e.w")).toBe(true);
+  expect(await page.evaluate(() => (window as unknown as { __events: string[] }).__events.includes("auth:expired"))).toBe(false);
+
+  await call(page, 'ep.tokenStore.set("old.tok.en")');
+  expect((await call(page, 'ep.apiClient.post("/t", { x: 1 })')).ok).toBe(true);
+  const t = (await getLog(page, "/api/v1/t")).log;
+  expect(t).toHaveLength(2);
+  expect(t[0].headers["idempotency-key"]).toMatch(/^ep-/);
+  expect(t[1].headers["idempotency-key"]).toBe(t[0].headers["idempotency-key"]);
+  expect(rf.n).toBe(3);
+});
+
+test("auto refresh: refresh thất bại ⇒ auth:expired, KHÔNG phát lại; SESSION_REVOKED ⇒ không làm mới", async ({ page }) => {
+  const rf = await routeRefresh(page, [{ status: 401, body: { code: "UNAUTHENTICATED", message: "m", trace_id: "b" } }]);
+  await script(page, {
+    "GET /api/v1/a": [err(401, "TOKEN_EXPIRED")],
+    "GET /api/v1/b": [err(401, "SESSION_REVOKED", { details: { reason: "password_changed" } })],
+  });
+  await open(page);
+  await expect.poll(() => rf.n).toBe(1);
+  await call(page, 'ep.tokenStore.set("old.tok.en")');
+  const r = await call(page, 'ep.apiClient.get("/a")');
+  expect(r.error.code).toBe("TOKEN_EXPIRED");
+  expect(rf.n).toBe(2);
+  expect((await getLog(page, "/api/v1/a")).log).toHaveLength(1);
+  expect(await page.evaluate(() => (window as unknown as { __events: string[] }).__events.includes("auth:expired"))).toBe(true);
+  expect(await page.evaluate(() => (window as unknown as { __ep: { tokenStore: { get: () => string | null } } }).__ep.tokenStore.get())).toBeNull();
+
+  await call(page, 'ep.tokenStore.set("old.tok.en")');
+  const b = await call(page, 'ep.apiClient.get("/b")');
+  expect(b.error.code).toBe("SESSION_REVOKED");
+  expect(rf.n).toBe(2);
 });
 
 test("etag: lần hai gửi If-None-Match, 304 trả đúng tham chiếu cache", async ({ page }) => {
@@ -493,7 +559,7 @@ test("token hygiene: token không vào storage, URL hay console", async ({ page 
   await script(page, { "GET /api/v1/ping": [{ body: {} }] });
   await open(page);
   const box = page.locator("[data-part=token]");
-  await box.getByLabel("Dán token").fill("SECRET.JWT.VALUE");
+  await box.getByLabel("Token thử").fill("SECRET.JWT.VALUE");
   await box.getByRole("button", { name: "Dùng" }).click();
   await call(page, 'ep.apiClient.get("/ping")');
   const st = await page.evaluate(() => JSON.stringify({ ...localStorage }) + JSON.stringify({ ...sessionStorage }) + document.cookie + location.href);

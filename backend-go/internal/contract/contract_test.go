@@ -62,9 +62,9 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 		}
 	}
 	if hasTestRoutes {
-		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2).
-		if n := len(prod.Operations()); n != 18 {
-			t.Errorf("openapi.yaml: %d thao tác (cần 18)", n)
+		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
+		if n := len(prod.Operations()); n != 69 {
+			t.Errorf("openapi.yaml: %d thao tác (cần 69)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
 		if n := len(test.Operations()); n != 18 {
@@ -264,6 +264,21 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/admin/llm/routes": true, "PUT /api/v1/admin/llm/routes": true, "GET /api/v1/admin/llm/usage": true,
 		"GET /api/v1/admin/llm/budget": true, "PUT /api/v1/admin/llm/budget": true,
 		"GET /api/v1/courses/{id}/llm-budget": true, "PUT /api/v1/courses/{id}/llm-budget": true,
+		"POST /api/v1/auth/login": false, "POST /api/v1/auth/refresh": false, "POST /api/v1/auth/logout": false,
+		"POST /api/v1/auth/register": false, "POST /api/v1/auth/verify-email": false, "POST /api/v1/auth/resend-verification": false,
+		"POST /api/v1/auth/forgot-password": false, "POST /api/v1/auth/reset-password": false, "POST /api/v1/auth/tokens/preview": false,
+		"POST /api/v1/auth/accept-invite": false,
+		"GET /api/v1/admin/users":         true, "POST /api/v1/admin/users": true, "PATCH /api/v1/admin/users/{id}": true, "POST /api/v1/admin/users/{id}/resend-invite": true,
+		"POST /api/v1/me/password": true, "GET /api/v1/me/sessions": true, "DELETE /api/v1/me/sessions": true, "DELETE /api/v1/me/sessions/{id}": true,
+		"GET /api/v1/admin/courses": true, "POST /api/v1/admin/courses": true, "PUT /api/v1/admin/courses/{id}": true, "POST /api/v1/admin/courses/{id}/assign": true, "POST /api/v1/admin/courses/{id}/archive": true,
+		"PUT /api/v1/courses/{id}/assistants": true, "GET /api/v1/courses/{id}/assistant-candidates": true, "GET /api/v1/notifications": true, "POST /api/v1/notifications/{id}/read": true,
+		"POST /api/v1/courses/join/preview": true, "POST /api/v1/courses/join": true, "GET /api/v1/courses/{id}/join-code": true, "POST /api/v1/courses/{id}/join-code/regenerate": true,
+		"PUT /api/v1/courses/{id}/join-settings": true, "GET /api/v1/courses/{id}/members": true, "POST /api/v1/courses/{id}/members/{uid}/approve": true,
+		"POST /api/v1/courses/{id}/members/{uid}/reject": true, "DELETE /api/v1/courses/{id}/members/{uid}": true, "POST /api/v1/courses/{id}/members/{uid}/undo": true,
+		"POST /api/v1/courses/{id}/roster/import": true, "GET /api/v1/courses/{id}/share-sources": true, "POST /api/v1/courses/{id}/share-from": true,
+		"GET /api/v1/courses/{id}/sessions": true, "POST /api/v1/courses/{id}/sessions/generate": true,
+		"GET /api/v1/me/today": true, "GET /api/v1/courses/{id}/today": true, "POST /api/v1/courses/{id}/setup/dismiss": true,
+		"GET /api/v1/me/courses": true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {
 		need, ok := want[o.Key()]
@@ -341,6 +356,10 @@ func TestContract_UnauthenticatedMatchesSpec(t *testing.T) {
 			}
 			_ = resp.Body.Close()
 			needs := s.RequiresAuth(o)
+			if o.Key() == "POST /api/v1/auth/refresh" {
+				// Công khai (không Bearer) nhưng cần cookie `ep_rt`: thiếu cookie → 401 UNAUTHENTICATED là đúng hợp đồng (US-P2-02 AC5).
+				continue
+			}
 			switch {
 			case needs && resp.StatusCode != http.StatusUnauthorized:
 				t.Errorf("%s có bearerAuth nhưng không token → %d (cần 401)", o.Key(), resp.StatusCode)

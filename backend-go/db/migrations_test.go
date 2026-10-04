@@ -58,7 +58,7 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.NoError(t, conn.QueryRow(ctx, snapshotSQL).Scan(&before))
 	require.Contains(t, before, "col users.email")
 
-	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn là bản mới nhất (2).
+	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn là bản mới nhất (5).
 	var gooseRows, version, tables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from goose_db_version`).Scan(&gooseRows))
 	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard))
@@ -67,7 +67,7 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.Equal(t, gooseRows, gooseRows2, "up lần hai phải là no-op")
 	require.NoError(t, conn.QueryRow(ctx,
 		`select version_id from goose_db_version where is_applied order by id desc limit 1`).Scan(&version))
-	require.Equal(t, 2, version)
+	require.Equal(t, 5, version)
 
 	// down lùi về version 0: 5 bảng nền + 5 bảng llm_* biến mất, extension vector GIỮ LẠI.
 	require.NoError(t, db.Migrate(ctx, url, "down", io.Discard))
@@ -77,6 +77,14 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	var llmTables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from pg_tables where schemaname='public' and tablename like 'llm\_%'`).Scan(&llmTables))
 	require.Equal(t, 0, llmTables)
+	var laterTables int
+	require.NoError(t, conn.QueryRow(ctx, `select count(*) from pg_tables where schemaname='public' and tablename in
+		('courses','enrollments','class_sessions','notifications','user_settings','documents','content_chunks','document_courses',
+		 'auth_sessions','auth_tokens','login_attempts','mail_outbox')`).Scan(&laterTables))
+	require.Equal(t, 0, laterTables, "down phải xoá cả bảng của 00003 và 00004")
+	var fns int
+	require.NoError(t, conn.QueryRow(ctx, `select count(*) from pg_proc where proname = 'vn_fold'`).Scan(&fns))
+	require.Equal(t, 0, fns, "down của 00005 phải xoá hàm vn_fold")
 	var hasVector bool
 	require.NoError(t, conn.QueryRow(ctx, `select exists(select 1 from pg_extension where extname='vector')`).Scan(&hasVector))
 	require.True(t, hasVector, "down không được xoá extension vector")
@@ -96,4 +104,6 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.NoError(t, db.Migrate(ctx, url, "status", &out))
 	require.Contains(t, out.String(), "00001_pg_platform.sql")
 	require.Contains(t, out.String(), "00002_llm.sql")
+	require.Contains(t, out.String(), "00003_course_foundation.sql")
+	require.Contains(t, out.String(), "00004_auth_hardening.sql")
 }

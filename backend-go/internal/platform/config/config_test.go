@@ -124,7 +124,11 @@ func TestLoad_Invalid(t *testing.T) {
 		{"khoá JWT 31 byte", "JWT_SECRET_KEY", "0123456789abcdef0123456789abcde", "0123456789abcdef0123456789abcde"},
 		{"DB_MAX_CONNS=0", "DB_MAX_CONNS", "0", ""},
 		{"DB_MAX_CONNS=101", "DB_MAX_CONNS", "101", ""},
-		{"JWT_EXPIRATION không phải thời lượng", "JWT_EXPIRATION", "abc", "abc"},
+		{"ACCESS_TOKEN_TTL không phải thời lượng", "ACCESS_TOKEN_TTL", "abc", "abc"},
+		{"ACCESS_TOKEN_TTL 2 giờ", "ACCESS_TOKEN_TTL", "2h", ""},
+		{"ACCESS_TOKEN_TTL 30 giây", "ACCESS_TOKEN_TTL", "30s", ""},
+		{"REFRESH_TOKEN_TTL 10 phút", "REFRESH_TOKEN_TTL", "10m", ""},
+		{"SESSION_ABSOLUTE_TTL nhỏ hơn REFRESH_TOKEN_TTL", "SESSION_ABSOLUTE_TTL", "100h", ""},
 		{"CORS_ORIGINS có dấu sao", "CORS_ORIGINS", "*", ""},
 		{"APP_ENV lạ", "APP_ENV", "staging", "staging"},
 		{"BCRYPT_COST dưới 4", "BCRYPT_COST", "3", ""},
@@ -210,7 +214,9 @@ func TestLoad_Defaults(t *testing.T) {
 		{"WORKER_HEALTH_ADDR", cfg.WorkerHealthAddr, ":8081"},
 		{"APP_ENV", cfg.AppEnv, "dev"},
 		{"LOG_LEVEL", cfg.LogLevel, "info"},
-		{"JWT_EXPIRATION", cfg.JWTExpiration, 15 * time.Minute},
+		{"ACCESS_TOKEN_TTL", cfg.AccessTokenTTL, 15 * time.Minute},
+		{"REFRESH_TOKEN_TTL", cfg.RefreshTokenTTL, 336 * time.Hour},
+		{"SESSION_ABSOLUTE_TTL", cfg.SessionAbsoluteTTL, 720 * time.Hour},
 		{"BCRYPT_COST", cfg.BcryptCost, 12},
 		{"RATE_LIMIT_IP_PER_MIN", cfg.RateLimitIPPerMin, 300},
 		{"RATE_LIMIT_USER_PER_MIN", cfg.RateLimitUserPerMin, 600},
@@ -331,5 +337,81 @@ func TestLLMEnv(t *testing.T) {
 	}
 	if strings.Contains(fmt.Sprint(c.LogAttrs()...), "sk-secret") {
 		t.Error("LogAttrs lộ khoá OPENAI_API_KEY")
+	}
+}
+
+// US-P2-05: ngưỡng chờ / khoá / giới hạn IP — mặc định theo SRS 8.1, sai nêu tên biến, LOCKOUT_LOCK_AT phải lớn hơn LOCKOUT_BACKOFF_FROM.
+func TestLoad_AuthLimits(t *testing.T) {
+	t.Parallel()
+	c, err := config.Load(getenv(full()), config.Gateway)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if c.AuthLoginIPPerMin != 10 || c.AuthLoginIPFailPer15m != 30 || c.AuthRegisterIPPerHour != 5 || c.AuthForgotIPPerHour != 5 ||
+		c.AuthForgotEmailPerHour != 3 || c.AuthLinkIPPerMin != 20 || c.AuthRefreshIPPerMin != 60 || c.AuthChangePWFailPer10m != 5 ||
+		c.LockoutBackoffFrom != 5 || c.LockoutLockAt != 10 || c.LockoutDuration != 15*time.Minute {
+		t.Fatalf("mặc định sai: %+v", c)
+	}
+	for _, tc := range []struct{ key, val string }{
+		{"AUTH_LOGIN_IP_PER_MIN", "0"}, {"AUTH_REGISTER_IP_PER_HOUR", "x"}, {"LOCKOUT_LOCK_AT", "5"}, {"LOCKOUT_DURATION", "0s"}, {"LOCKOUT_DURATION", "abc"},
+	} {
+		env := full()
+		env[tc.key] = tc.val
+		_, err := config.Load(getenv(env), config.Gateway)
+		var ie *config.ErrInvalidEnv
+		if !errors.As(err, &ie) || !slices.Contains(ie.Names, tc.key) {
+			t.Errorf("%s=%s: err = %v, muốn *ErrInvalidEnv nêu %s", tc.key, tc.val, err, tc.key)
+		}
+	}
+}
+
+// US-P2-01: cấu hình thư — mặc định dev, giá trị sai nêu tên biến, production ở worker bắt buộc https + TLS.
+func TestLoad_Mail(t *testing.T) {
+	t.Parallel()
+	c, err := config.Load(getenv(full()), config.Worker)
+	if err != nil {
+		t.Fatalf("err = %v", err)
+	}
+	if c.AppPublicURL != "https://localhost" || c.SMTPHost != "mailpit" || c.SMTPPort != 1025 || c.SMTPTLS != "none" ||
+		c.VerifyTokenTTL != 24*time.Hour || c.ResetTokenTTL != 30*time.Minute || c.InviteTokenTTL != 72*time.Hour {
+		t.Fatalf("mặc định sai: %+v", c)
+	}
+
+	bad := []struct{ name, key, val string }{
+		{"URL tương đối", "APP_PUBLIC_URL", "localhost"},
+		{"URL có đường dẫn", "APP_PUBLIC_URL", "https://localhost/app"},
+		{"TLS lạ", "SMTP_TLS", "ssl"},
+		{"cổng SMTP 0", "SMTP_PORT", "0"},
+		{"MAIL_FROM sai", "MAIL_FROM", "không phải địa chỉ"},
+	}
+	for _, tc := range bad {
+		env := full()
+		env[tc.key] = tc.val
+		_, err := config.Load(getenv(env), config.Worker)
+		var ie *config.ErrInvalidEnv
+		if !errors.As(err, &ie) || !slices.Contains(ie.Names, tc.key) {
+			t.Errorf("%s: err = %v, muốn *ErrInvalidEnv nêu %s", tc.name, err, tc.key)
+		}
+	}
+
+	prod := full()
+	prod["APP_ENV"] = "production"
+	_, err = config.Load(getenv(prod), config.Worker)
+	var pe *config.ErrInvalidEnv
+	if !errors.As(err, &pe) || !slices.Contains(pe.Names, "APP_PUBLIC_URL") {
+		t.Errorf("worker production thiếu APP_PUBLIC_URL: err = %v", err)
+	}
+	prod["APP_PUBLIC_URL"] = "http://edupilot.example"
+	prod["SMTP_TLS"] = "none"
+	_, err = config.Load(getenv(prod), config.Worker)
+	var ie *config.ErrInvalidEnv
+	if !errors.As(err, &ie) || !slices.Contains(ie.Names, "APP_PUBLIC_URL") || !slices.Contains(ie.Names, "SMTP_TLS") {
+		t.Errorf("worker production http + TLS none: err = %v", err)
+	}
+	prod["APP_PUBLIC_URL"] = "https://edupilot.example/"
+	prod["SMTP_TLS"] = "starttls"
+	c, err = config.Load(getenv(prod), config.Worker)
+	if err != nil || c.AppPublicURL != "https://edupilot.example" {
+		t.Errorf("production hợp lệ: c.AppPublicURL = %q, err = %v", c.AppPublicURL, err)
 	}
 }

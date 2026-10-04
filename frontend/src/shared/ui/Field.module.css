@@ -90,3 +90,23 @@
 .switch:hover:not(:disabled) { background: var(--ep-ink-3); }
 .switch[aria-checked="true"]:hover:not(:disabled) { background: var(--ep-ink-2); }
 .switch:disabled { cursor: not-allowed; opacity: .55; }
+
+.pw { position: relative; display: block; }
+.pw .control { width: 100%; padding-right: 48px; }
+.pwToggle {
+  position: absolute;
+  top: 50%;
+  right: var(--ep-space-1);
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  color: var(--ep-ink-3);
+  border-radius: var(--ep-radius-sm);
+}
+.pwToggle:hover { color: var(--ep-ink); }
+.pwToggle svg { width: 18px; height: 18px; }

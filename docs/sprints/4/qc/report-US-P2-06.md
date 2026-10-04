@@ -1,0 +1,52 @@
+# Báo cáo QC — US-P2-06 (Admin mời giảng viên / TA, khoá / mở khoá, đổi vai, `/admin/users`, `/invite/[token]`, `gateway admin create`)
+**Kết luận: PASS có điều kiện** — không lỗ hổng: leo thang vai, Admin biết / đặt mật khẩu, link mời dùng hai lần / đua / đoán, phân quyền `/admin/*`, JWT giả, khoá không cắt phiên đều đạt. 4 lệch nhỏ (L1–L4). Bản chấm `f229442` (`sprint/4-p2`); stack riêng của QC (Postgres, Redis, Mailpit, 2 gateway `testroutes`, worker, Next `build` :3400, Chrome for Testing), `TRUSTED_PROXY_CIDRS=127.0.0.0/8,::1/128` để đổi IP nguồn. `go vet` rc=0, `golangci-lint` 0 issues, `go test -race -count=1 -tags integration ./internal/user/... ./internal/auth/... ./cmd/gateway/...` ok (180 `--- PASS`, 0 FAIL; cả 32 test Go tên trong TC đều PASS), `internal/contract` ok; Playwright `account.spec.ts -g 'admin users page|invite page|admin users errors|Referrer-Policy'`: 10 pass / 4 skip (`@real`). Q-QC-P206-1/2: BA đã trả lời, QC làm theo.
+
+## Lệch / ghi chú
+- **L1 (TC-25).** `TestAdminUsersRBACMatrix` của dev có 20 ca (4 thao tác × 4 vai/không JWT) so với chữ TC "≥ 32 ca"; dev đã nêu lý do ở handoff. QC tự đo ma trận 4 thao tác × 6 (ADMIN, TEACHER, TA, STUDENT, không JWT, hết hạn) = **24 ca, 0 lệch** (TC-21). Đề nghị BA sửa con số trong TC hoặc dev thêm ca "hết hạn".
+- **L2 (TC-28).** Truy vấn danh sách `ORDER BY created_at DESC, id DESC LIMIT 31` dùng **Seq Scan + top-N sort** — `users` chỉ có `pkey`, `email`, `ics_token`, `student_code`; không có chỉ mục `(created_at, id)`. Đo trong giao dịch rollback với 50.000 dòng: 8,3 ms (lọc `role=TEACHER`: 2,0 ms). Với T1 ≈ 1.000 người dùng thì không đáng kể; chữ TC "không Seq Scan trên bảng lớn" — `users` không phải bảng lớn nên **không FAIL**, ghi nhận.
+- **L3 (TC-36).** Trang `/invite/<token>`: URL đã thành `/invite/·` nhưng HTML hiển thị (`outerHTML`) **vẫn chứa token** (đến từ tham số đường dẫn trong dữ liệu render); `/verify-email?token=` thì không. Không lộ ra ngoài (header `no-referrer` + `no-store`, token đã nằm trong URL yêu cầu), nhưng nếu dev muốn "token không còn trong DOM" thì nên xoá khỏi dữ liệu trang.
+- **L4 (TC-01).** `auth_tokens.created_by` của token `INVITE` là `NULL` dù Admin là người mời (người mời có ở `audit_log.actor_id`). Không ảnh hưởng AC.
+- Không kiểm `ps` lộ mật khẩu CLI (Q-QC-P206-2); chỉ kiểm cờ `--password` bị từ chối.
+
+## Kết quả
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| 01 | PASS | `POST /admin/users` → `201` đúng 7 khoá (`email,full_name,id,last_login_at,role,status,version`), `status=INVITED`; không `token`/`password`/`hash`; DB `password_hash IS NULL`; 1 token `INVITE` hạn **72 h**; 1 thư "Lời mời tham gia EduPilot" (có liên kết `…/invite/<43>`, "giảng viên", "72 giờ", "Quản trị viên không biết và không bao giờ cần mật khẩu của bạn"); `audit_log` `user_invited` có actor, không chuỗi 43 ký tự |
+| 02 | PASS | `role` = `STUDENT`, `ADMIN`, `admin`, `Teacher`, `""`, `null`, `SUPERUSER`, `["ADMIN"]` và trường lạ `status`, `password`, `email_verified_at`: **11/11 `422`**; 0 dòng `users` mới |
+| 03 | PASS | trùng email `409` `details.field=email` (kể cả `HOA`); lặp `Idempotency-Key`: `201/201`, `Idempotent-Replayed: true`, cùng `id`, 1 user, 1 thư; thiếu key `422 IDEMPOTENCY_KEY_REQUIRED` |
+| 05 | PASS | mật khẩu yếu `422 PASSWORD_COMMON`, **token chưa tiêu**; đặt đúng → `200` `{access_token,token_type,expires_in,user}` + `Set-Cookie ep_rt`, `TEACHER`/`ACTIVE`, `email_verified_at` có, `used_at` có, 1 phiên mới |
+| 06 | PASS | dùng lại → `410 LINK_INVALID` `reason=used`; tài khoản vẫn `ACTIVE` |
+| 07 | PASS | 50 `accept-invite` song song cùng token: **1×200, 49×410**; `auth_sessions` của người đó = 1 |
+| 08 | PASS | hết hạn (chỉnh DB) → `410 expired`; 1.000 token ngẫu nhiên cùng một IP: 0 trúng, 20×`410` đầu rồi `429` từ lần **21** (980×`429`); mọi `410` cùng khoá JSON `code,details,message,trace_id` |
+| 09 | PASS | `token_hash = <bản rõ>` 0; `pg_dump` chứa token 0; log 2 gateway + worker chứa token / mật khẩu 0; `mail_outbox.payload` chứa token 0 |
+| 11 | PASS | phản hồi thật của `GET`, `POST`, `PATCH`, `resend-invite` chứa `password|hash|token`: 0; `PATCH {"password":…}` và `{"password_hash":…}` → `422`; `POST /admin/users/<id>/reset-password`, `PUT …/password` → `404`; khối `/admin/users*` trong `openapi.yaml` khớp `password|token`: 0 (đường dẫn thật `backend-go/api/openapi.yaml`); log truy cập `/admin/users` chỉ có method/path/status, không thân |
+| 13 | PASS | `resend-invite` `200` `{expires_at}` rồi `429 retry_after=60`; token cũ **thu hồi ngay** (`preview` `410 invalid`, `accept-invite` `410`); token mới hạn 72 h, thư mới, 1 token còn dùng được; người `ACTIVE` → `409 CONFLICT`; TEACHER → `403` `reason=role` |
+| 15 | PASS | khoá `200`; access cũ `401 SESSION_REVOKED` `details.reason=account_disabled` sau **7 ms**; refresh `401`; `revoked_reason=ACCOUNT_DISABLED`; GV có 1 `enrollment` (tạo tay): trước 1 → sau khoá 1 |
+| 16 | PASS | `DISABLED`: mật khẩu đúng `403 ACCOUNT_DISABLED` "Tài khoản đã bị khoá. Hãy liên hệ quản trị viên."; mật khẩu sai `401 INVALID_CREDENTIALS` (không lộ trạng thái) |
+| 17 | PASS | mở khoá → `ACTIVE`, đăng nhập lại `200`; chưa từng có mật khẩu → `INVITED`; sai `version` → `409 VERSION_CONFLICT` `current_version`; `audit_log` có `user_invited`, `invite_resent`, `user_disabled`, `user_enabled`, đều có actor |
+| 19 | PASS | TEACHER→TA và TA→TEACHER `200`; token cũ `401`, token mới mang vai mới (`role=TA`); tới/từ `ADMIN`/`STUDENT`, `admin` chữ thường → `422`; tự đổi vai và tự khoá `409` `reason=self`; khoá ADMIN ACTIVE cuối (admin1 bị đặt `DISABLED` ở DB, token còn hạn, khoá admin2) → `409` `reason=last_admin`; hạ vai ADMIN cuối `422`; `enrollments` không đổi |
+| 21 | PASS | 4 thao tác × {ADMIN, TEACHER, TA, STUDENT, không JWT, hết hạn} = **24 ca, 0 lệch**: ADMIN `200/201/409/200`; TEACHER, TA, STUDENT `403 FORBIDDEN` `reason=role` kể cả `GET`; không JWT `401 UNAUTHENTICATED`; hết hạn `401 TOKEN_EXPIRED` |
+| 22 | PASS | JWT STUDENT, DB đổi thành ADMIN → `403` (claim thắng); đăng nhập mới claim `ADMIN` → `200`; ngược lại (JWT STUDENT, DB về ADMIN) `403` |
+| 23 | PASS | `alg=none`, payload sửa `role=ADMIN` chữ ký cũ, secret sai, chuỗi rác: **4×`401`**; `users` +0 |
+| 24 | PASS | TEACHER `PATCH` ADMIN `403`; STUDENT `GET ?q=admin` `403` (thân không chứa email); `X-User-Id`/`X-Role` giả `403` |
+| 26 | PASS | 108 người dùng: mặc định 30 dòng `{items,next_cursor}`, đi 4 trang = **108 dòng, 108 khác nhau**, `select count(*)=108`; `limit=100` → 100; `101` và `0` → `422`; `cursor=rac` → `422 INVALID_CURSOR`; `role=TEACHER` 22, `status=INVITED` 17, `q=nguyen` 57 = `q=Nguyễn` 57 (DB 57), `q=sv.g` 58 (DB 58), `q=%`/`q=_` 0 (coi là chữ), `role=xx` `422` |
+| 27 | PASS | khoá đúng `{email,full_name,id,last_login_at,role,status,version}`; thân chứa `student_code|password|ics_token|failed|MSSV` 0 |
+| 28 | PASS có L2 | 1 truy vấn / yêu cầu (`TestAdminListNoNPlusOne` đếm bằng tracer: 1 câu cho 41 dòng); xem L2 |
+| 30 | PASS | DB riêng `qcp2_cli` (đã xoá sau): `ADMIN_PASSWORD=… admin create` → `rc=0`, ADMIN `ACTIVE` đã xác minh, `audit_log` `admin_bootstrap` `actor=NULL`; lần hai (mật khẩu khác) `rc=0` "đã tồn tại; không đổi gì", `md5(password_hash)` không đổi, 1 ADMIN; `ADMIN_PASSWORD=123` → `rc=1`, không tạo; `--password abc`, đối số thừa → `rc=2` "Dùng biến ADMIN_PASSWORD hoặc stdin."; lệnh con sai `rc=2`; qua stdin `rc=0` |
+| 31 | PASS | `grep '"ADMIN"'` ở `internal` + `cmd` (không test): chỉ hằng số vai, `models.go` và nhánh lọc; không có đường HTTP tạo ADMIN (`POST /admin/users role:ADMIN` → `422`, `register role:ADMIN` → `422` ở P2-03) |
+| 32 | PASS | `/admin/users`: cột Họ tên, Email, Vai trò, Trạng thái, Lần cuối; chip Tất cả / Giảng viên / Trợ giảng / Quản trị / Sinh viên; ô "Tên hoặc đầu email"; **1** nút primary `Mời giảng viên`; khung mời tại chỗ (0 `dialog` mở, 0 `[role=dialog]` hiện) với Email, Họ và tên, Vai (Giảng viên / Trợ giảng); không "Tạo sinh viên" |
+| 33 | PASS | mời → dòng tĩnh "Đã gửi link mời, hạn 72 giờ." (không toast), DB `TEACHER INVITED`, 1 thư; hàng "Chờ nhận lời mời" có `Gửi lại lời mời` → thư thứ 2; menu hàng `Khoá tài khoản`; khoá: hàng đổi "Đã khoá" ngay + "Đã khoá Giảng Viên Mới" + `Hoàn tác`, 0 hộp thoại, DB `DISABLED`; `Hoàn tác` → DB `ACTIVE`; tìm không khớp: "Chưa có người dùng khớp bộ lọc." |
+| 34 | PASS | 375 px: `AUDIT` `ox:0 cut:0 ell:0`, `TOUCH` `[]`, 0 bảng hiện, 30 mục danh sách, 0 từ kỹ thuật; axe: chỉ `moderate: region` ×1 (0 `serious`/`critical`); `useDemoSlice` chỉ còn ở `AdminCourses.tsx` (không ở users) |
+| 36 | PASS có L3 | `/invite/<token>`: "Chào Trần Thị Mời, bạn được mời làm Giảng viên trên EduPilot."; 2 ô `type=password` `autocomplete=new-password` + chính sách; **1** nút `Đặt mật khẩu và vào`; URL `/invite/·`; không email; mật khẩu yếu → lỗi tại ô, token chưa tiêu; thành công → `/` (DB `TEACHER`/`ACTIVE`) |
+| 37 | PASS | liên kết đã dùng / rác / ngắn / hết hạn: cùng "Lời mời không dùng được — Lời mời đã hết hạn hoặc đã được dùng. Hãy nhờ quản trị viên gửi lại.", 0 nút, 0 ô, 0 liên kết, không email; `Referrer-Policy: no-referrer`, `Cache-Control: no-store`. Log Caddy: chưa có Caddy trong stack QC (cấu hình bộ lọc đã kiểm ở P2-04) |
+| 39 | PASS | email trùng: "Email này đã có tài khoản." tại khung, giữ chữ đã gõ (`email|Họ tên`); các nhánh `422`, `403`, offline, `VERSION_CONFLICT` (header `Idempotency-Key` giữ khi gửi lại) chấm bằng `account.spec.ts` "admin users errors" (2 pass) |
+| 41 | PASS một phần | đã đi từng khúc trên `next start` (không Caddy): Admin mời → Mailpit → GV đặt mật khẩu → `/`; Admin khoá → tab GV tải lại → `/login?next=%2F&revoked=account_disabled` "Bạn đã bị đăng xuất."; GV đăng nhập khi khoá "Tài khoản đã bị khoá. Hãy liên hệ quản trị viên."; mở khoá → đăng nhập `/`. Ca `@real` qua `https://localhost`: `test.skip` ở bản này, chưa chạy |
+| 42 | PASS | log 2 gateway + worker chứa mật khẩu 0, token mời 0, 17 email người được mời 0 |
+| 43 | PASS | xem đầu báo cáo |
+| 04, 10, 12, 14, 18, 20, 25, 29, 35, 38, 40 | PASS | test Go / Playwright của dev đã chạy lại (xem đầu báo cáo); TC-25 xem L1 |
+
+## Việc sau
+Dev: L3 (tuỳ chọn), L2 chỉ khi `users` lớn. BA: sửa "≥ 32" ở TC-25 hoặc dev thêm ca. QC chấm lại: TC-37 (log Caddy) và TC-41 `@real` ở cổng P2.
+
+## Chấm lại sau góp ý #5 (PM ACCEPTED, 2026-10-04)
+- TC-32 (AC10): khung mời là phần mở dần tại chỗ; 0 `dialog` mở (đếm bằng `getByRole('dialog')`/`dialog[open]`) → **PASS** theo TC mới (L đã nêu về Drawer không còn là lệch).

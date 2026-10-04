@@ -1,0 +1,22 @@
+{
+  "code": "VALIDATION_FAILED",
+  "details": [
+    {
+      "code": "INVALID_EMAIL",
+      "field": "email",
+      "message": "Email chưa đúng dạng, ví dụ ten@truong.edu.vn."
+    },
+    {
+      "code": "INVALID_NAME",
+      "field": "full_name",
+      "message": "Họ và tên cần từ 1 đến 100 ký tự."
+    },
+    {
+      "code": "PASSWORD_TOO_SHORT",
+      "field": "password",
+      "message": "Mật khẩu cần ít nhất 10 ký tự và không quá 72 byte."
+    }
+  ],
+  "message": "Dữ liệu chưa hợp lệ.",
+  "trace_id": "<trace_id>"
+}

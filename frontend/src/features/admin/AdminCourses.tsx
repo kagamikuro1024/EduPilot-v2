@@ -1,101 +1,60 @@
 "use client";
 
-import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
-import { COURSES, SUBJECT } from "@/mock/core";
-import { COURSE_ADMIN_META, TEACHER_OPTIONS, courseLastActive } from "@/mock/system";
-import { useSimNow } from "@/shared/state/clock";
-import { useUndoLine } from "@/shared/lib/useUndoLine";
-import { useDemoSlice } from "@/shared/state/demo";
-import {
-  Button,
-  ConfirmIrreversible,
-  DataTable,
-  EmptyState,
-  Field,
-  Input,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  useRouteState,
-  Section,
-  Select,
-  Skeleton,
-  StatusText,
-  type Column,
-} from "@/shared/ui";
+import { useState } from "react";
+import { ApiError, apiClient, useCursorList } from "@/shared/data";
+import { Button, ConfirmIrreversible, DataTable, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, StatusText, UndoLine, type Column } from "@/shared/ui";
 import s from "./admin.module.css";
+import { CoursePanel, type PanelMode } from "./courses/CoursePanel";
+import { COURSES_KEY, sizeText, type AdminCourse } from "./courses/api";
 
-type NewCourse = { code: string; name: string; teacher: string; size: number; opened: string };
-type Row = { code: string; name: string; teacher: string; size: number; state: "active" | "new" | "archived"; opened: string; lastActive: string };
-
-const STATE_TEXT = {
-  active: { tone: "green" as const, text: "Đang học" },
-  new: { tone: "blue" as const, text: "Mới mở" },
-  archived: { tone: "neutral" as const, text: "Đã lưu trữ" },
-};
-
+/** Lớp học của toàn hệ thống (Admin): mở lớp, gán giảng viên / trợ giảng, sửa, lưu trữ. Dữ liệu thật qua `/admin/courses`; Admin không thêm được sinh viên. */
 export function AdminCourses() {
-  // `?state=empty` minh hoạ chưa có lớp: số đếm ở đầu màn khớp (04-7)
-  const emptyShown = useRouteState() === "empty";
-  const [extra, setExtra] = useDemoSlice<NewCourse[]>("admin.courses", []);
-  const [archived, setArchived] = useDemoSlice<string[]>("admin.archived", []);
-  const [opening, setOpening] = useState(false);
-  const [confirm, setConfirm] = useState<Row | null>(null);
-  const [code, setCode] = useState("761989");
-  const [teacher, setTeacher] = useState(TEACHER_OPTIONS[1]);
-  const [size, setSize] = useState("30");
-  const nowMs = useSimNow();
-  const undo = useUndoLine();
+  const qc = useQueryClient();
+  const [panel, setPanel] = useState<PanelMode | null>(null);
+  const [line, setLine] = useState<string | null>(null);
+  const [confirm, setConfirm] = useState<AdminCourse | null>(null);
+  const [archiving, setArchiving] = useState<{ loading: boolean; error?: string }>({ loading: false });
 
-  const rows: Row[] = [
-    ...COURSES.map((c) => ({
-      code: c.code,
-      name: c.name,
-      teacher: c.teacher,
-      size: c.size,
-      state: (archived.includes(c.code) ? "archived" : c.state) as Row["state"],
-      opened: COURSE_ADMIN_META[c.id]?.opened ?? "—",
-      lastActive: courseLastActive(c.id, nowMs),
-    })),
-    ...extra.map((c) => ({ ...c, state: (archived.includes(c.code) ? "archived" : "new") as Row["state"], lastActive: "Chưa có hoạt động" })),
-  ];
+  const list = useCursorList<AdminCourse>(COURSES_KEY, "/admin/courses", { limit: 30 });
+  const refresh = () => qc.invalidateQueries({ queryKey: COURSES_KEY });
+  const running = list.items.filter((c) => c.status === "ACTIVE").length;
 
-  function openCourse() {
-    const next: NewCourse = { code: code.trim(), name: SUBJECT.name, teacher, size: Number(size) || 30, opened: "29/10/2026" };
-    setExtra((prev) => [...prev, next]);
-    setOpening(false);
-    setCode(String(Number(code) + 1));
-    undo.push(`Đã mở lớp ${next.code} · Đã gửi thông báo phân công tới ${next.teacher}`, () => setExtra((prev) => prev.filter((c) => c.code !== next.code)));
+  async function archive(c: AdminCourse) {
+    setArchiving({ loading: true });
+    try {
+      await apiClient.post(`/admin/courses/${c.id}/archive`);
+      setArchiving({ loading: false });
+      setConfirm(null);
+      setLine(`Đã lưu trữ lớp ${c.class_code}.`);
+      await refresh();
+    } catch (e) {
+      setArchiving({ loading: false, error: e instanceof ApiError ? (e.code === "COURSE_ARCHIVED" ? "Lớp này đã được lưu trữ." : e.userMessage) : "Chưa lưu trữ được. Hãy thử lại." });
+    }
   }
 
-  function archive(row: Row) {
-    setArchived((prev) => [...prev, row.code]);
-    undo.push(`Đã lưu trữ lớp ${row.code}`, () => setArchived((prev) => prev.filter((c) => c !== row.code)));
-  }
-
-  const columns: Column<Row>[] = [
-    { key: "code", header: "Mã lớp", frozen: true, render: (r) => <span className="ep-num">{r.code}</span> },
+  const columns: Column<AdminCourse>[] = [
+    { key: "code", header: "Mã lớp", frozen: true, render: (c) => <span className="ep-num">{c.class_code}</span> },
     {
-      key: "name",
-      header: "Môn học",
-      render: (r) => (
+      key: "subject",
+      header: "Học phần",
+      render: (c) => (
         <>
-          <span>{r.name}</span>
-          <span className={s.sub}>Mở ngày {r.opened}</span>
+          <span>{c.subject_code}</span>
+          <span className={s.sub}>{c.name} · {c.semester}</span>
         </>
       ),
     },
-    { key: "teacher", header: "Giảng viên", render: (r) => r.teacher },
-    { key: "size", header: "Sĩ số", align: "end", render: (r) => <span className="ep-num">{r.size}</span> },
+    { key: "teacher", header: "Giảng viên", render: (c) => c.teacher?.full_name ?? <span className={s.sub}>Chưa gán</span> },
+    { key: "size", header: "Sĩ số", align: "end", render: (c) => <span className="ep-num">{sizeText(c)}</span> },
     {
       key: "state",
       header: "Trạng thái",
-      render: (r) => (
+      render: (c) => (
         <>
-          <StatusText tone={STATE_TEXT[r.state].tone}>{STATE_TEXT[r.state].text}</StatusText>
-          <span className={s.sub}>{r.lastActive}</span>
+          <StatusText tone={c.status === "ACTIVE" ? "green" : "neutral"}>{c.status === "ACTIVE" ? "Đang học" : "Đã lưu trữ"}</StatusText>
+          {c.students_pending > 0 && <span className={s.sub}>{c.students_pending} chờ duyệt</span>}
         </>
       ),
     },
@@ -104,8 +63,17 @@ export function AdminCourses() {
       header: "",
       width: "48px",
       align: "end",
-      render: (r) =>
-        r.state === "archived" ? null : <OverflowMenu items={[{ label: "Lưu trữ lớp", danger: true, onSelect: () => setConfirm(r) }]} label={`Hành động cho lớp ${r.code}`} />,
+      render: (c) =>
+        c.status === "ARCHIVED" ? null : (
+          <OverflowMenu
+            label={`Hành động cho lớp ${c.class_code}`}
+            items={[
+              { label: "Sửa", onSelect: () => { setLine(null); setPanel({ kind: "edit", course: c }); } },
+              { label: "Gán lại", onSelect: () => { setLine(null); setPanel({ kind: "assign", course: c }); } },
+              { label: "Lưu trữ lớp", danger: true, onSelect: () => { setArchiving({ loading: false }); setConfirm(c); } },
+            ]}
+          />
+        ),
     },
   ];
 
@@ -114,80 +82,57 @@ export function AdminCourses() {
       <PageHeader
         title="Lớp học"
         description="Mở lớp, phân công giảng viên và lưu trữ lớp đã kết thúc."
-        meta={<span>{emptyShown ? 0 : rows.filter((r) => r.state !== "archived").length} lớp đang chạy · học kỳ HK1 2026–2027</span>}
+        meta={list.isPending ? undefined : <span>{running} lớp đang chạy</span>}
         actions={
-          opening ? undefined : (
-            <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setOpening(true)}>
+          panel ? undefined : (
+            <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => { setLine(null); setPanel({ kind: "open" }); }}>
               Mở lớp
             </Button>
           )
         }
       />
 
-      <PageState
-        loading={<Skeleton lines={6} />}
-        empty={
-          <EmptyState
-            title="Chưa có lớp nào trong học kỳ này"
-            action={
-              <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setOpening(true)}>
-                Mở lớp
-              </Button>
-            }
-          >
-            Mở lớp đầu tiên rồi phân công giảng viên; giảng viên nhận thông báo và tự mời sinh viên bằng mã tham gia.
-          </EmptyState>
-        }
-        error={{
-          problem: "Không tải được danh sách lớp.",
-          recovery: "Các lớp vẫn chạy bình thường, chỉ danh sách này chưa đọc được. Thử lại sau ít phút.",
-        }}
-      >
-        {opening && (
-          <Section title="Mở lớp mới" description="Lớp mới nhận giảng viên ngay; sinh viên vào sau bằng mã tham gia.">
-            <div className={s.form}>
-              <Field label="Mã lớp" required>
-                {(id) => <Input id={id} value={code} onChange={(e) => setCode(e.target.value)} inputMode="numeric" />}
-              </Field>
-              <Field label="Môn học">{(id) => <Input id={id} value={SUBJECT.name} readOnly />}</Field>
-              <Field label="Giảng viên phụ trách" required helper="Người này nhận thông báo phân công ngay khi lớp được mở.">
-                {(id) => (
-                  <Select id={id} value={teacher} onChange={(e) => setTeacher(e.target.value)}>
-                    {TEACHER_OPTIONS.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-              </Field>
-              <Field label="Sĩ số dự kiến">{(id) => <Input id={id} value={size} onChange={(e) => setSize(e.target.value)} inputMode="numeric" />}</Field>
-            </div>
-            <div className={s.formActions}>
-              <Button variant="primary" disabled={code.trim().length < 4 || rows.some((r) => r.code === code.trim())} onClick={openCourse}>
-                Mở lớp
-              </Button>
-              <Button variant="ghost" onClick={() => setOpening(false)}>
-                Huỷ
-              </Button>
-              {rows.some((r) => r.code === code.trim()) && <span className={s.sub}>Mã lớp {code.trim()} đã có rồi, chọn mã khác.</span>}
-            </div>
-          </Section>
-        )}
+      {panel && (
+        <CoursePanel
+          key={panel.kind === "open" ? "open" : `${panel.kind}-${panel.course.id}`}
+          mode={panel}
+          onClose={() => setPanel(null)}
+          onDone={(text) => {
+            setPanel(null);
+            setLine(text);
+            void refresh();
+          }}
+        />
+      )}
+      {line && <UndoLine key={line} message={line} onDone={() => setLine(null)} />}
+      {list.isError && list.items.length > 0 && <InlineNotice tone="danger" compact>Chưa làm mới được danh sách lớp.</InlineNotice>}
 
+      <PageState query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: list.items, refetch: list.refetch }} showTechnical>
         <div className={s.tableBlock}>
-          <DataTable caption="Danh sách lớp học" columns={columns} rows={rows} rowKey={(r) => r.code} />
+          <DataTable
+            caption="Danh sách lớp học"
+            columns={columns}
+            rows={list.items}
+            rowKey={(c) => c.id}
+            empty={
+              <EmptyState title="Chưa có lớp nào. Mở lớp đầu tiên." action={panel ? undefined : <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setPanel({ kind: "open" })}>Mở lớp</Button>}>
+                Mở lớp rồi gán giảng viên; giảng viên nhận thông báo kèm mã tham gia và tự mời sinh viên.
+              </EmptyState>
+            }
+            pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
+          />
         </div>
-        {undo.node}
       </PageState>
 
       <ConfirmIrreversible
         open={confirm !== null}
         onClose={() => setConfirm(null)}
-        onConfirm={() => confirm && archive(confirm)}
-        title={`Lưu trữ lớp ${confirm?.code ?? ""}?`}
-        consequence={`${confirm?.size ?? 0} sinh viên vẫn xem được điểm và tài liệu, nhưng lớp thành chỉ đọc: mã tham gia tắt, việc nền dừng, không ai nộp bài hay hỏi thêm được nữa.`}
+        onConfirm={() => confirm && void archive(confirm)}
+        title={`Lưu trữ lớp ${confirm?.class_code ?? ""}?`}
+        consequence={`Lưu trữ lớp ${confirm?.class_code ?? ""}: ${confirm?.students_active ?? 0} sinh viên chỉ còn quyền đọc; mã tham gia ngừng hoạt động.`}
         confirmLabel="Lưu trữ lớp"
+        loading={archiving.loading}
+        error={archiving.error}
       />
     </Page>
   );

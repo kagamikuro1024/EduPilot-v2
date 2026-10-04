@@ -8,11 +8,359 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"net/netip"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/pgvector/pgvector-go"
 	"github.com/shopspring/decimal"
 )
+
+type AuthTokenKind string
+
+const (
+	AuthTokenKindVERIFYEMAIL   AuthTokenKind = "VERIFY_EMAIL"
+	AuthTokenKindRESETPASSWORD AuthTokenKind = "RESET_PASSWORD"
+	AuthTokenKindINVITE        AuthTokenKind = "INVITE"
+)
+
+func (e *AuthTokenKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AuthTokenKind(s)
+	case string:
+		*e = AuthTokenKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AuthTokenKind: %T", src)
+	}
+	return nil
+}
+
+type NullAuthTokenKind struct {
+	AuthTokenKind AuthTokenKind
+	Valid         bool // Valid is true if AuthTokenKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAuthTokenKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.AuthTokenKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AuthTokenKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAuthTokenKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AuthTokenKind), nil
+}
+
+type ChunkAudience string
+
+const (
+	ChunkAudienceALL     ChunkAudience = "ALL"
+	ChunkAudienceSTAFF   ChunkAudience = "STAFF"
+	ChunkAudienceGRADING ChunkAudience = "GRADING"
+)
+
+func (e *ChunkAudience) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ChunkAudience(s)
+	case string:
+		*e = ChunkAudience(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ChunkAudience: %T", src)
+	}
+	return nil
+}
+
+type NullChunkAudience struct {
+	ChunkAudience ChunkAudience
+	Valid         bool // Valid is true if ChunkAudience is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullChunkAudience) Scan(value interface{}) error {
+	if value == nil {
+		ns.ChunkAudience, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ChunkAudience.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullChunkAudience) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ChunkAudience), nil
+}
+
+type CourseStatus string
+
+const (
+	CourseStatusACTIVE   CourseStatus = "ACTIVE"
+	CourseStatusARCHIVED CourseStatus = "ARCHIVED"
+)
+
+func (e *CourseStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CourseStatus(s)
+	case string:
+		*e = CourseStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CourseStatus: %T", src)
+	}
+	return nil
+}
+
+type NullCourseStatus struct {
+	CourseStatus CourseStatus
+	Valid        bool // Valid is true if CourseStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCourseStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.CourseStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CourseStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCourseStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CourseStatus), nil
+}
+
+type DocumentStatus string
+
+const (
+	DocumentStatusQUEUED     DocumentStatus = "QUEUED"
+	DocumentStatusPROCESSING DocumentStatus = "PROCESSING"
+	DocumentStatusREADY      DocumentStatus = "READY"
+	DocumentStatusFAILED     DocumentStatus = "FAILED"
+)
+
+func (e *DocumentStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DocumentStatus(s)
+	case string:
+		*e = DocumentStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DocumentStatus: %T", src)
+	}
+	return nil
+}
+
+type NullDocumentStatus struct {
+	DocumentStatus DocumentStatus
+	Valid          bool // Valid is true if DocumentStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDocumentStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.DocumentStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DocumentStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDocumentStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DocumentStatus), nil
+}
+
+type DocumentType string
+
+const (
+	DocumentTypeLECTURE      DocumentType = "LECTURE"
+	DocumentTypeCOURSEPOLICY DocumentType = "COURSE_POLICY"
+	DocumentTypeEXAMPAPER    DocumentType = "EXAM_PAPER"
+	DocumentTypeANSWERKEY    DocumentType = "ANSWER_KEY"
+	DocumentTypeOTHER        DocumentType = "OTHER"
+)
+
+func (e *DocumentType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DocumentType(s)
+	case string:
+		*e = DocumentType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DocumentType: %T", src)
+	}
+	return nil
+}
+
+type NullDocumentType struct {
+	DocumentType DocumentType
+	Valid        bool // Valid is true if DocumentType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDocumentType) Scan(value interface{}) error {
+	if value == nil {
+		ns.DocumentType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DocumentType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDocumentType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DocumentType), nil
+}
+
+type EnrollmentJoinedVia string
+
+const (
+	EnrollmentJoinedViaADMIN  EnrollmentJoinedVia = "ADMIN"
+	EnrollmentJoinedViaROSTER EnrollmentJoinedVia = "ROSTER"
+	EnrollmentJoinedViaCODE   EnrollmentJoinedVia = "CODE"
+)
+
+func (e *EnrollmentJoinedVia) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EnrollmentJoinedVia(s)
+	case string:
+		*e = EnrollmentJoinedVia(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EnrollmentJoinedVia: %T", src)
+	}
+	return nil
+}
+
+type NullEnrollmentJoinedVia struct {
+	EnrollmentJoinedVia EnrollmentJoinedVia
+	Valid               bool // Valid is true if EnrollmentJoinedVia is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEnrollmentJoinedVia) Scan(value interface{}) error {
+	if value == nil {
+		ns.EnrollmentJoinedVia, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EnrollmentJoinedVia.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEnrollmentJoinedVia) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EnrollmentJoinedVia), nil
+}
+
+type EnrollmentRole string
+
+const (
+	EnrollmentRoleTEACHER EnrollmentRole = "TEACHER"
+	EnrollmentRoleTA      EnrollmentRole = "TA"
+	EnrollmentRoleSTUDENT EnrollmentRole = "STUDENT"
+)
+
+func (e *EnrollmentRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EnrollmentRole(s)
+	case string:
+		*e = EnrollmentRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EnrollmentRole: %T", src)
+	}
+	return nil
+}
+
+type NullEnrollmentRole struct {
+	EnrollmentRole EnrollmentRole
+	Valid          bool // Valid is true if EnrollmentRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEnrollmentRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.EnrollmentRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EnrollmentRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEnrollmentRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EnrollmentRole), nil
+}
+
+type EnrollmentStatus string
+
+const (
+	EnrollmentStatusPENDING EnrollmentStatus = "PENDING"
+	EnrollmentStatusACTIVE  EnrollmentStatus = "ACTIVE"
+	EnrollmentStatusREMOVED EnrollmentStatus = "REMOVED"
+)
+
+func (e *EnrollmentStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = EnrollmentStatus(s)
+	case string:
+		*e = EnrollmentStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for EnrollmentStatus: %T", src)
+	}
+	return nil
+}
+
+type NullEnrollmentStatus struct {
+	EnrollmentStatus EnrollmentStatus
+	Valid            bool // Valid is true if EnrollmentStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullEnrollmentStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.EnrollmentStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.EnrollmentStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullEnrollmentStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.EnrollmentStatus), nil
+}
 
 type JobStatus string
 
@@ -56,6 +404,95 @@ func (ns NullJobStatus) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.JobStatus), nil
+}
+
+type LoginOutcome string
+
+const (
+	LoginOutcomeSUCCESS      LoginOutcome = "SUCCESS"
+	LoginOutcomeBADPASSWORD  LoginOutcome = "BAD_PASSWORD"
+	LoginOutcomeUNKNOWNEMAIL LoginOutcome = "UNKNOWN_EMAIL"
+	LoginOutcomeTHROTTLED    LoginOutcome = "THROTTLED"
+	LoginOutcomeLOCKED       LoginOutcome = "LOCKED"
+	LoginOutcomeDISABLED     LoginOutcome = "DISABLED"
+)
+
+func (e *LoginOutcome) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LoginOutcome(s)
+	case string:
+		*e = LoginOutcome(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LoginOutcome: %T", src)
+	}
+	return nil
+}
+
+type NullLoginOutcome struct {
+	LoginOutcome LoginOutcome
+	Valid        bool // Valid is true if LoginOutcome is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLoginOutcome) Scan(value interface{}) error {
+	if value == nil {
+		ns.LoginOutcome, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LoginOutcome.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLoginOutcome) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LoginOutcome), nil
+}
+
+type MailStatus string
+
+const (
+	MailStatusQUEUED MailStatus = "QUEUED"
+	MailStatusSENT   MailStatus = "SENT"
+	MailStatusDEAD   MailStatus = "DEAD"
+)
+
+func (e *MailStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MailStatus(s)
+	case string:
+		*e = MailStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MailStatus: %T", src)
+	}
+	return nil
+}
+
+type NullMailStatus struct {
+	MailStatus MailStatus
+	Valid      bool // Valid is true if MailStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMailStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.MailStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MailStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMailStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MailStatus), nil
 }
 
 type UserRole string
@@ -159,6 +596,135 @@ type AuditLog struct {
 	CreatedAt time.Time
 }
 
+type AuthSession struct {
+	ID                uuid.UUID
+	UserID            uuid.UUID
+	RefreshHash       string
+	PrevRefreshHash   *string
+	UserAgent         *string
+	DeviceLabel       *string
+	Ip                *netip.Addr
+	CreatedAt         time.Time
+	RotatedAt         *time.Time
+	LastUsedAt        time.Time
+	ExpiresAt         time.Time
+	AbsoluteExpiresAt time.Time
+	RevokedAt         *time.Time
+	RevokedReason     *string
+	UpdatedAt         time.Time
+}
+
+type AuthToken struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Kind      AuthTokenKind
+	TokenHash string
+	ExpiresAt time.Time
+	UsedAt    *time.Time
+	RevokedAt *time.Time
+	CreatedBy *uuid.UUID
+	CreatedAt time.Time
+}
+
+type ClassSession struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	SessionNo int32
+	StartsAt  time.Time
+	EndsAt    time.Time
+	Room      *string
+	Topic     *string
+	Version   int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type ContentChunk struct {
+	ID         uuid.UUID
+	DocumentID uuid.UUID
+	CourseIds  []uuid.UUID
+	Audience   ChunkAudience
+	Ord        int32
+	PageNo     *int32
+	Heading    *string
+	Text       string
+	TokenCount *int32
+	Embedding  *pgvector.Vector
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+}
+
+type Course struct {
+	ID                  uuid.UUID
+	SubjectCode         string
+	ClassCode           string
+	Name                string
+	Semester            string
+	Status              CourseStatus
+	EscalationThreshold decimal.Decimal
+	Settings            json.RawMessage
+	JoinCode            string
+	JoinEnabled         bool
+	JoinExpiresAt       *time.Time
+	JoinRequireApproval bool
+	AllowedEmailDomain  *string
+	Capacity            *int32
+	CreatedBy           uuid.UUID
+	ArchivedAt          *time.Time
+	Version             int32
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
+type Document struct {
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+	Title             string
+	Type              DocumentType
+	Filename          *string
+	MimeType          *string
+	SizeBytes         *int64
+	Sha256            *string
+	BlobKey           *string
+	Status            DocumentStatus
+	Error             *string
+	PageCount         *int32
+	VisibleToStudents bool
+	UseForRag         bool
+	Category          *string
+	WeekNo            *int16
+	DownloadCount     int32
+	UploadedBy        *uuid.UUID
+	Version           int32
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type DocumentCourse struct {
+	DocumentID uuid.UUID
+	CourseID   uuid.UUID
+	SharedBy   *uuid.UUID
+	CreatedAt  time.Time
+}
+
+type Enrollment struct {
+	ID                  uuid.UUID
+	CourseID            uuid.UUID
+	UserID              uuid.UUID
+	RoleInCourse        EnrollmentRole
+	Status              EnrollmentStatus
+	JoinedVia           EnrollmentJoinedVia
+	StudentCodeSnapshot *string
+	Warning             *string
+	PreviousStatus      *EnrollmentStatus
+	StatusChangedAt     time.Time
+	StatusChangedBy     *uuid.UUID
+	RemovedAt           *time.Time
+	Version             int32
+	CreatedAt           time.Time
+	UpdatedAt           time.Time
+}
+
 type IdempotencyKey struct {
 	ID          uuid.UUID
 	UserID      uuid.UUID
@@ -258,6 +824,44 @@ type LlmTaskRoute struct {
 	UpdatedAt     time.Time
 }
 
+type LoginAttempt struct {
+	ID        uuid.UUID
+	EmailHash string
+	UserID    *uuid.UUID
+	Ip        *netip.Addr
+	UserAgent *string
+	Outcome   LoginOutcome
+	CreatedAt time.Time
+}
+
+type MailOutbox struct {
+	ID        uuid.UUID
+	ToAddr    string
+	Template  string
+	Payload   json.RawMessage
+	Status    MailStatus
+	Attempts  int32
+	LastError *string
+	DedupeKey *string
+	SentAt    *time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type Notification struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	CourseID  *uuid.UUID
+	Type      string
+	Title     string
+	Body      *string
+	Link      *string
+	DedupeKey *string
+	ReadAt    *time.Time
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type Outbox struct {
 	ID            uuid.UUID
 	Topic         string
@@ -289,4 +893,15 @@ type User struct {
 	Version             int32
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
+}
+
+type UserSetting struct {
+	UserID               uuid.UUID
+	NotifyTicketByMail   bool
+	NotifyAnswerByMail   bool
+	RemindDeadlineByMail bool
+	Preferences          json.RawMessage
+	Version              int32
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
 }

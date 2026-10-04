@@ -1,0 +1,12 @@
+.wrap {
+  min-height: 100dvh;
+  background: var(--ep-paper);
+  display: grid;
+  grid-template-rows: 1fr auto;
+  justify-items: center;
+  padding: var(--ep-space-12) var(--ep-space-6) var(--ep-space-6);
+}
+.col { width: 100%; max-width: 420px; display: grid; gap: var(--ep-space-4); align-content: start; }
+.brand { display: block; width: auto; height: 40px; margin-bottom: var(--ep-space-6); }
+@media (max-width: 719px) { .brand { height: 32px; } .wrap { padding-top: var(--ep-space-8); } }
+.foot { width: 100%; max-width: 420px; padding-top: var(--ep-space-8); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }

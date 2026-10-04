@@ -4,7 +4,9 @@ package config
 
 import (
 	"fmt"
+	"net/mail"
 	"net/netip"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -52,12 +54,28 @@ type Config struct {
 
 	WorkerHealthAddr string
 
-	CORSOrigins         []string
-	JWTExpiration       time.Duration
-	BcryptCost          int
-	RateLimitIPPerMin   int
-	RateLimitUserPerMin int
-	TrustedProxyCIDRs   []netip.Prefix
+	CORSOrigins        []string
+	AccessTokenTTL     time.Duration
+	RefreshTokenTTL    time.Duration
+	SessionAbsoluteTTL time.Duration
+	CookieDomain       string
+	AuthResendWindow   time.Duration
+	// Giới hạn đăng nhập và hành động công khai (FEAT-account-security SRS 4.2.2 / 8.1).
+	AuthLoginIPPerMin      int
+	AuthLoginIPFailPer15m  int
+	AuthRegisterIPPerHour  int
+	AuthForgotIPPerHour    int
+	AuthForgotEmailPerHour int
+	AuthLinkIPPerMin       int
+	AuthRefreshIPPerMin    int
+	AuthChangePWFailPer10m int
+	LockoutBackoffFrom     int
+	LockoutLockAt          int
+	LockoutDuration        time.Duration
+	BcryptCost             int
+	RateLimitIPPerMin      int
+	RateLimitUserPerMin    int
+	TrustedProxyCIDRs      []netip.Prefix
 
 	SSEHeartbeat    time.Duration
 	SSEMaxDuration  time.Duration
@@ -98,6 +116,19 @@ type Config struct {
 	FakeLatencyMax    time.Duration
 	FakeErrorRate     float64
 	FakeValidKey      string
+
+	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
+	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
+	SMTPHost        string
+	SMTPPort        int
+	SMTPUser        string
+	SMTPPass        string // bí mật: không log
+	SMTPTLS         string // none | starttls | tls
+	MailFrom        string
+	MailSendTimeout time.Duration
+	VerifyTokenTTL  time.Duration
+	ResetTokenTTL   time.Duration
+	InviteTokenTTL  time.Duration
 }
 
 // ErrMissingEnv liệt kê MỌI biến bắt buộc bị thiếu (chỉ tên).
@@ -165,7 +196,28 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.WorkerHealthAddr = l.str("WORKER_HEALTH_ADDR", ":8081")
 
 	c.CORSOrigins = l.origins("CORS_ORIGINS", "http://localhost:3000,https://localhost")
-	c.JWTExpiration = l.dur("JWT_EXPIRATION", 15*time.Minute)
+	c.AccessTokenTTL = l.durRange("ACCESS_TOKEN_TTL", 15*time.Minute, time.Minute, time.Hour)
+	c.RefreshTokenTTL = l.durRange("REFRESH_TOKEN_TTL", 336*time.Hour, time.Hour, 0)
+	c.SessionAbsoluteTTL = l.durRange("SESSION_ABSOLUTE_TTL", 720*time.Hour, time.Hour, 0)
+	if c.SessionAbsoluteTTL < c.RefreshTokenTTL {
+		l.bad("SESSION_ABSOLUTE_TTL", "phải ≥ REFRESH_TOKEN_TTL")
+	}
+	c.CookieDomain = l.str("COOKIE_DOMAIN", "")
+	c.AuthResendWindow = time.Duration(l.num("AUTH_RESEND_SECONDS", 60, 1, 3600)) * time.Second
+	c.AuthLoginIPPerMin = l.num("AUTH_LOGIN_IP_PER_MIN", 10, 1, 1_000_000)
+	c.AuthLoginIPFailPer15m = l.num("AUTH_LOGIN_IP_FAIL_PER_15M", 30, 1, 1_000_000)
+	c.AuthRegisterIPPerHour = l.num("AUTH_REGISTER_IP_PER_HOUR", 5, 1, 1_000_000)
+	c.AuthForgotIPPerHour = l.num("AUTH_FORGOT_IP_PER_HOUR", 5, 1, 1_000_000)
+	c.AuthForgotEmailPerHour = l.num("AUTH_FORGOT_EMAIL_PER_HOUR", 3, 1, 1_000_000)
+	c.AuthLinkIPPerMin = l.num("AUTH_TOKEN_IP_PER_MIN", 20, 1, 1_000_000)
+	c.AuthRefreshIPPerMin = l.num("AUTH_REFRESH_IP_PER_MIN", 60, 1, 1_000_000)
+	c.AuthChangePWFailPer10m = l.num("AUTH_CHANGE_PW_FAIL_PER_10M", 5, 1, 1_000)
+	c.LockoutBackoffFrom = l.num("LOCKOUT_BACKOFF_FROM", 5, 1, 1_000)
+	c.LockoutLockAt = l.num("LOCKOUT_LOCK_AT", 10, 2, 1_000)
+	if c.LockoutLockAt <= c.LockoutBackoffFrom {
+		l.bad("LOCKOUT_LOCK_AT", "phải > LOCKOUT_BACKOFF_FROM")
+	}
+	c.LockoutDuration = l.durRange("LOCKOUT_DURATION", 15*time.Minute, time.Second, 24*time.Hour)
 	c.BcryptCost = l.num("BCRYPT_COST", 12, 4, 14)
 	c.RateLimitIPPerMin = l.num("RATE_LIMIT_IP_PER_MIN", 300, 1, 1_000_000)
 	c.RateLimitUserPerMin = l.num("RATE_LIMIT_USER_PER_MIN", 600, 1, 1_000_000)
@@ -213,6 +265,26 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.FakeErrorRate = l.rate("FAKE_LLM_ERROR_RATE", 0)
 	c.FakeValidKey = l.raw("FAKE_LLM_VALID_KEY")
 
+	// Thư chỉ do worker gửi: production ở worker bắt buộc APP_PUBLIC_URL https và SMTP_TLS ≠ none; gateway đọc nhẹ tay (không dùng).
+	mailStrict := role == Worker && c.AppEnv == "production"
+	c.AppPublicURL = l.publicURL("APP_PUBLIC_URL", mailStrict)
+	c.SMTPHost = l.str("SMTP_HOST", "mailpit")
+	c.SMTPPort = l.num("SMTP_PORT", 1025, 1, 65535)
+	c.SMTPUser = l.raw("SMTP_USER")
+	c.SMTPPass = l.raw("SMTP_PASS")
+	c.SMTPTLS = l.enum("SMTP_TLS", "none", "none", "starttls", "tls")
+	if mailStrict && c.SMTPTLS == "none" {
+		l.bad("SMTP_TLS", "production không được dùng none")
+	}
+	c.MailFrom = l.str("MAIL_FROM", "EduPilot <no-reply@edupilot.local>")
+	if _, err := mail.ParseAddress(c.MailFrom); err != nil {
+		l.bad("MAIL_FROM", "không phải địa chỉ thư hợp lệ")
+	}
+	c.MailSendTimeout = l.dur("MAIL_SEND_TIMEOUT", 10*time.Second)
+	c.VerifyTokenTTL = l.dur("VERIFY_TOKEN_TTL", 24*time.Hour)
+	c.ResetTokenTTL = l.dur("RESET_TOKEN_TTL", 30*time.Minute)
+	c.InviteTokenTTL = l.dur("INVITE_TOKEN_TTL", 72*time.Hour)
+
 	if len(l.problems) > 0 {
 		return Config{}, &ErrInvalidEnv{Names: l.invalid, Problems: l.problems}
 	}
@@ -255,7 +327,9 @@ func (c Config) LogAttrs() []any {
 		"max_body_bytes", c.MaxBodyBytes,
 		"worker_health_addr", c.WorkerHealthAddr,
 		"cors_origins", strings.Join(c.CORSOrigins, ","),
-		"jwt_expiration", c.JWTExpiration.String(),
+		"access_token_ttl", c.AccessTokenTTL.String(),
+		"refresh_token_ttl", c.RefreshTokenTTL.String(),
+		"session_absolute_ttl", c.SessionAbsoluteTTL.String(),
 		"bcrypt_cost", c.BcryptCost,
 		"rate_limit_ip_per_min", c.RateLimitIPPerMin,
 		"rate_limit_user_per_min", c.RateLimitUserPerMin,
@@ -287,6 +361,11 @@ func (c Config) LogAttrs() []any {
 		"llm_default_tpm", c.LLMDefaultTPM,
 		"llm_embed_dims", c.LLMEmbedDims,
 		"llm_provider", c.LLMProvider,
+		"app_public_url", c.AppPublicURL,
+		"smtp_host", c.SMTPHost,
+		"smtp_port", c.SMTPPort,
+		"smtp_tls", c.SMTPTLS,
+		"mail_send_timeout", c.MailSendTimeout.String(),
 		"db_via", c.DBVia(),
 		"secrets", "[redacted]",
 	}
@@ -319,6 +398,29 @@ type loader struct {
 func (l *loader) bad(name, reason string) {
 	l.invalid = append(l.invalid, name)
 	l.problems = append(l.problems, name+": "+reason)
+}
+
+// publicURL đọc gốc URL công khai: tuyệt đối, http(s), không đường dẫn; strict (worker production) bắt buộc có và phải https.
+// Dev/test mặc định https://localhost (Caddy). Bỏ dấu / cuối để nối `/verify-email?...` không bị đôi.
+func (l *loader) publicURL(name string, strict bool) string {
+	v := l.raw(name)
+	if v == "" {
+		if strict {
+			l.bad(name, "bắt buộc ở worker production")
+			return ""
+		}
+		return "https://localhost"
+	}
+	u, err := url.Parse(v)
+	switch {
+	case err != nil || u.Host == "" || (u.Scheme != "https" && u.Scheme != "http"):
+		l.bad(name, "cần URL tuyệt đối http(s)")
+	case strict && u.Scheme != "https":
+		l.bad(name, "production cần https")
+	case u.Path != "" && u.Path != "/", u.RawQuery != "", u.Fragment != "":
+		l.bad(name, "chỉ gốc (scheme://host[:port]), không đường dẫn")
+	}
+	return strings.TrimRight(v, "/")
 }
 
 func (l *loader) raw(name string) string { return strings.TrimSpace(l.getenv(name)) }
@@ -370,6 +472,16 @@ func (l *loader) dur(name string, def time.Duration) time.Duration {
 	d, err := time.ParseDuration(v)
 	if err != nil || d <= 0 {
 		l.bad(name, "cần thời lượng dương kiểu Go (ví dụ 30s, 15m, 1h)")
+		return def
+	}
+	return d
+}
+
+// durRange như dur nhưng giới hạn [min, max]; max = 0 là không chặn trên.
+func (l *loader) durRange(name string, def, lo, hi time.Duration) time.Duration {
+	d := l.dur(name, def)
+	if d < lo || (hi > 0 && d > hi) {
+		l.bad(name, "ngoài khoảng cho phép")
 		return def
 	}
 	return d

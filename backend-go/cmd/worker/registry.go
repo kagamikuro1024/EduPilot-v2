@@ -1,10 +1,14 @@
 package main
 
 import (
+	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/today"
 )
 
 // newRegistry dựng bảng topic → handler của worker. Thêm việc nghiệp vụ = thêm MỘT dòng
@@ -14,6 +18,17 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg := outbox.NewRegistry()
 	runner := jobs.NewRunner(d.DB, sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL), clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
+	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
+	reg.Register(mail.Topic, mh.Handle)
+	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log}
+	// "Hôm nay": mỗi sự kiện xoá cache của người bị ảnh hưởng (US-P2-11). Ba topic đã có thông báo được nối chuỗi.
+	inv := today.Invalidator{Pool: d.DB, Redis: d.Redis, Log: d.Log}
+	reg.Register(course.TopicAssigned, outbox.Chain(cn.HandleAssigned, inv.Handle))
+	reg.Register(course.TopicJoinRequested, outbox.Chain(cn.HandleJoinRequested, inv.Handle))
+	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
+	for _, t := range []string{course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified} {
+		reg.Register(t, inv.Handle)
+	}
 	registerTestKinds(runner)
 	return reg
 }

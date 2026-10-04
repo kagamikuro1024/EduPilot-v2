@@ -14,3 +14,8 @@
   .form { grid-template-columns: 1fr; }
   .searchField { width: 100%; }
 }
+.rowActions { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--ep-space-2); }
+
+.group { border: 0; padding: 0; margin: 0; display: grid; gap: var(--ep-space-2); align-content: start; }
+.group legend { font-size: var(--ep-text-meta); font-weight: 600; padding: 0; margin-bottom: var(--ep-space-2); }
+.fieldError { font-size: var(--ep-text-meta); color: var(--ep-red); }
