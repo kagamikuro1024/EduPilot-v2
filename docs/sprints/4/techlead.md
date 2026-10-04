@@ -9,3 +9,9 @@
 2. Không dựng khung + trang cho tới khi `/me/courses` về (bỏ 1–2 lần dựng lại); rẻ, nhưng khung xương lâu hơn ≈ 1 RTT.
 3. Nới ngưỡng TBT (`warn`) — PM đã bác.
 **Nghiêng về:** 2 trước (đo), rồi 1 nếu chưa đủ. Câu hỏi: có cách nào rẻ hơn để giảm chi phí nạp của framework (ví dụ bỏ `scrollTo`/focus của app-router lúc mount, chia chunk) mà tôi bỏ sót? Có chấp nhận 1 không?
+
+**Bổ sung (sau thử nghiệm, CPU 12× ≈ runner CI):**
+- Tác vụ nạp **không do mock**: `/login` (không `AppShell`, không mock) cũng có tác vụ nạp 236–316 ms; `/inbox` 231–298 ms; `/dev/ui` 233–277 ms. Phương án 1 (tách mock) vì vậy chỉ rút được phần nhỏ (chunk mock tự thân ≈ 87/1100 ms).
+- Phương án 2 (giữ khung xương tới khi `/me/courses` về) **làm xấu hơn**: tác vụ dựng sau đó thành 260–470 ms (cập nhật của react-query là đồng bộ nên không còn lát thời gian). Thử thêm `useDeferredValue` cho `mine.data`: không cải thiện (thêm 1–2 tác vụ 60–100 ms). Đã hoàn lại cả hai; chỉ giữ `useDeferredValue` của phiên (528b9db).
+- Tính theo công thức TBT: chỉ phần vượt 50 ms của MỖI tác vụ được tính ⇒ tác vụ nạp ~205 ms (CPU 12×) đã chặn ≈ 155 ms; mọi việc sau đó chỉ cần ≥ 45 ms chặn là vượt 200. Tức ngưỡng 200 ms ở tốc độ runner này gần như bằng chi phí nền của React 19 + Next 16 + react-query trên mọi route.
+- Phương án mới 4: **hiệu chỉnh `cpuSlowdownMultiplier`** theo tốc độ runner (Lighthouse khuyến nghị hiệu chỉnh khi `benchmarkIndex` máy đo khác thiết bị tham chiếu): runner 2100–2300 so với máy dev 3700 ⇒ nhân 4 × 2200/3700 ≈ 2,4 để cùng kịch bản "Moto G4-class". Đây là đổi cấu hình đo, không đổi ngưỡng — cần Tech Lead / PM chấp nhận vì giống nới ngưỡng.
