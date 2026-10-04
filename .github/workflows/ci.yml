@@ -105,4 +105,5 @@ jobs:
             frontend/playwright-report
             frontend/test-results
             frontend/.lighthouseci
+          include-hidden-files: true # frontend/.lighthouseci là thư mục ẩn: không có cờ này báo cáo Lighthouse không được tải lên
           if-no-files-found: ignore

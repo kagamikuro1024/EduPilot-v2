@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useRef, useSyncExternalStore } from "react";
+import { createContext, useCallback, useContext, useDeferredValue, useEffect, useRef, useSyncExternalStore } from "react";
 import { apiClient } from "@/shared/data/apiClient";
 import { authStore, dropSession, refreshSession, type AuthSnapshot } from "@/shared/data/authSession";
 
@@ -17,7 +17,9 @@ const AuthContext = createContext<Auth | null>(null);
  * httpOnly (khung xương trong lúc chờ, không nháy /login); sau đó theo dõi sự kiện hết hạn / bị thu hồi từ `apiClient`.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const snap = useSyncExternalStore(authStore.subscribe, authStore.get, authStore.server);
+  // `useSyncExternalStore` luôn cập nhật ĐỒNG BỘ: khi refresh xong, cả khung + trang dựng trong MỘT tác vụ dài (TBT). Giá trị hoãn cho React
+  // dựng cây đó theo lát thời gian (ngắt được) thay vì một khối; token vẫn đọc đồng bộ ở nơi khác (`tokenStore`).
+  const snap = useDeferredValue(useSyncExternalStore(authStore.subscribe, authStore.get, authStore.server));
   const router = useRouter();
   const started = useRef(false);
 
