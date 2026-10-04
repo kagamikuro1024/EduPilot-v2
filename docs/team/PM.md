@@ -73,9 +73,10 @@ Khi mọi story PASS (hoặc dừng theo 3.4):
 2. Viết `docs/sprints/N/report.md` theo mẫu. Trung thực: story FAIL ghi FAIL, nợ ghi nợ.
 3. Viết `docs/thesis-notes/sprint-N.md`: 3–6 gạch đầu dòng về quyết định kỹ thuật, số đo, khó khăn, cách giải quyết — thứ tôi sẽ cần khi viết chương triển khai và thực nghiệm.
 4. Cập nhật `docs/PROGRESS.md` (phase, lát, luồng F đã trọn, nợ, ánh xạ migration) và tick ô trong phase file.
-5. `git commit -m "sprint N: báo cáo" -- <đường dẫn docs của PM>` trên nhánh sprint, push. Chưa merge.
-6. **DỪNG.** In cho tôi: tóm tắt ≤ 15 dòng, link các file, danh sách "bạn tự kiểm" lấy từ phase file, và câu hỏi/quyết định đang chờ tôi. Không bắt đầu sprint N+1 cho tới khi tôi gõ `tiếp`.
-7. Khi tôi **chốt** báo cáo: `git switch main && git pull && git merge --no-ff sprint/N-<slug> -m "merge sprint N" && git push origin main`. CI phải xanh trên `main` sau merge; đỏ thì báo tôi, không tự sửa trên `main`.
+5. **Cập nhật `README.md`** (chủ dự án yêu cầu 2026-10-04, bắt buộc mỗi sprint): dòng "Trạng thái", bảng lộ trình (✅ + kết quả chính), cấu trúc thư mục / package mới, cách chạy mới (seed, service, lệnh), CI, quyết định / vai mới. Không ghi tính năng chưa có trên nhánh.
+6. `git commit -m "sprint N: báo cáo" -- <đường dẫn docs của PM> README.md` trên nhánh sprint, push. Chưa merge.
+7. **DỪNG.** In cho tôi: tóm tắt ≤ 15 dòng, link các file, danh sách "bạn tự kiểm" lấy từ phase file, và câu hỏi/quyết định đang chờ tôi. Không bắt đầu sprint N+1 cho tới khi tôi gõ `tiếp`.
+8. Khi tôi **chốt** báo cáo: `git switch main && git pull && git merge --no-ff sprint/N-<slug> -m "merge sprint N" && git push origin main`. CI phải xanh trên `main` sau merge; đỏ thì báo tôi, không tự sửa trên `main`.
 
 ## 4. Điều khiển các agent qua herdr
 
