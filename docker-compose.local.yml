@@ -27,7 +27,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    ports: ["5433:5432"]
+    ports: ["${EP_PORT_POSTGRES:-5433}:5432"]
     volumes: ["postgres_data:/var/lib/postgresql"]
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
@@ -57,7 +57,7 @@ services:
   redis:
     image: redis:8
     command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec", "--maxmemory-policy", "noeviction"]
-    ports: ["6380:6379"]
+    ports: ["${EP_PORT_REDIS:-6380}:6379"]
     volumes: ["redis_data:/data"]
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
@@ -73,7 +73,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${BLOB_ACCESS_KEY}
       MINIO_ROOT_PASSWORD: ${BLOB_SECRET_KEY}
-    ports: ["9000:9000", "9001:9001"]
+    ports: ["${EP_PORT_MINIO:-9000}:9000", "${EP_PORT_MINIO_CONSOLE:-9001}:9001"]
     volumes: ["minio_data:/data"]
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://127.0.0.1:9000/minio/health/live"]
@@ -83,7 +83,7 @@ services:
 
   mailpit:
     image: axllent/mailpit:v1.27
-    ports: ["1025:1025", "8025:8025"]
+    ports: ["${EP_PORT_SMTP:-1025}:1025", "${EP_PORT_MAILPIT:-8025}:8025"]
     healthcheck:
       test: ["CMD", "/mailpit", "readyz"]
       interval: 5s
@@ -215,7 +215,7 @@ services:
 
   caddy:
     image: caddy:2.11
-    ports: ["80:80", "443:443"]
+    ports: ["${EP_PORT_HTTP:-80}:80", "${EP_PORT_HTTPS:-443}:443"]
     volumes:
       - ./deploy/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -234,7 +234,7 @@ services:
       dockerfile: frontend/Dockerfile
     environment:
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://localhost}
-    ports: ["3000:3000"]
+    ports: ["${EP_PORT_FRONTEND:-3000}:3000"]
     healthcheck:
       test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
       interval: 5s

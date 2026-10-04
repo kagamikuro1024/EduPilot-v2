@@ -216,7 +216,7 @@ async function step1Admin() {
     const args = ["--email", "admin" + DOMAIN, "--name", "Quản trị viên EduPilot"];
     const run = cmd
       ? spawnSync("sh", ["-c", `${cmd} ${args.map((a) => JSON.stringify(a)).join(" ")}`], { cwd: root, input: PASSWORD + "\n", encoding: "utf8" })
-      : spawnSync("docker", ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-p", "edupilot", "exec", "-T", "gateway", "/gateway", "admin", "create", ...args], { cwd: root, input: PASSWORD + "\n", encoding: "utf8" });
+      : spawnSync("docker", ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-p", process.env.COMPOSE_PROJECT_NAME || "edupilot", "exec", "-T", "gateway", "/gateway", "admin", "create", ...args], { cwd: root, input: PASSWORD + "\n", encoding: "utf8" });
     if (run.status !== 0) throw new Error(`Không tạo được Admin (mã ${run.status}): ${mask(run.stderr || run.error?.message || "")}`);
     s = await adminLogin();
     if (!s) throw new Error("Đã tạo Admin nhưng không đăng nhập được.");
