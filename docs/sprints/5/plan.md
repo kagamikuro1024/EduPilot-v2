@@ -9,6 +9,7 @@ Trọn `docs/phases/PE.md`: giảng viên soạn đề (ngân hàng câu hỏi +
 
 | # | Story | Lát PE | Ước lượng | Phụ thuộc |
 | --- | --- | --- | --- | --- |
+| 0 | US-PU-06 (kỹ thuật, nợ #14 sprint 4): khung trang có chữ (h1 + mô tả) vẽ từ máy chủ trước khi có phiên → Lighthouse LCP về `error` ≤ 2,5 s trên 7 route | PU | S | P2 |
 | 1 | US-PE-01 Migration bài thi + ngân hàng câu hỏi (dạng cuối) + quyền theo lớp + Quiz Engine (`internal/quiz`: một / nhiều đáp án, đúng–sai, điểm `decimal`) | L1 | M | P2 |
 | 2 | US-PE-02 Sandbox chấm code: container (theo research), `internal/judge`, hàng đợi `judge.submit`, kết quả AC/WA/TLE/MLE/RE/CE/OLE, test tấn công | L2 | L | 01, research |
 | 3 | US-PE-03 `/questions`: soạn câu trắc nghiệm + bài code (đề, giới hạn, test mẫu / ẩn, nhập zip), chạy lời giải mẫu qua sandbox, duyệt; gợi ý nháp AI (BATCH, `Structured`) | L3 | L | 01, 02, P1 |
