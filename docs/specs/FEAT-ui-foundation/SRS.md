@@ -1,5 +1,7 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1.3 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+Phiên bản 1.4 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+
+**v1.4 (2026-10-08)** — góp ý #2 (f) `docs/sprints/5/proposals.md` (PM `ACCEPTED`: "viết US-PU-06 thành story đủ AC trong `FEAT-ui-foundation` v1.4, QC đối chiếu lại `tc-US-PU-06.md`") và quyết định PM ở Q-QC-PU06-1, -2, -4, Q-QC-PE09-2 (`FEAT-weekly-exam/QUESTIONS.md`). **Thêm US-PU-06** (13 AC; tổng 77 → **90**): khung trang có chữ vẽ từ máy chủ, bớt client component ở layout, LCP ≤ 2,5 s `error` ở cả 7 URL, TBT ≤ 200 ms `error` ở 6 route người dùng (`/dev/ui` giữ `warn` — #34 sprint 3), TBT trung vị 12× ≤ 170 ms từng route, quy tắc đổi ảnh mốc, không nới cách đo. Đổi `SRS.md`: 1, 4.4 (FR-43…FR-47), 8.2, 8.5, 9, 11. Không đổi AC của US-PU-01…05.
 
 **v1.3 (2026-10-03)** — góp ý #1 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: ba, Q25 của `FEAT-weekly-exam`; trích: "Sinh viên cần mục nav \"Bài thi\" để tìm bài đã lỡ trên \"Hôm nay\"; `FEAT-ui-foundation` 7.5 (APPROVED) chốt số mục nav 7 / 12 / 15 → Thêm mục \"Bài thi\" (`/exams`): nav 7 / 12 / 15 → 8 / 13 / 16; mobile nằm dưới \"Thêm\"… **ACCEPTED** — áp dụng cùng US-PE-04 trên `sprint/5-pe`, không sửa sprint 3 / 4"). Không đổi số AC (77). Đổi: `SRS.md` 7.5 (thêm `/exams` "Bài thi" vào nhóm không nhóm của Sinh viên và nhóm "Đánh giá" của TA / GV; tổng 8 / 13 / 16 / 6; `ACCESS`); US-PU-04 AC3 (số mục). Dev đổi `nav.ts` và test `shell.spec.ts -g 'nav per role'` cùng commit của US-PE-04; QC sửa `tc-US-PU-04` (AC3) ở sprint 5.
 
@@ -13,7 +15,7 @@ Nguồn: `docs/phases/PU.md` (nguồn chính; L4 thu hẹp theo plan sprint 3), 
 
 Nâng `frontend/src/shared/` của prototype 1.5 (D51) thành **nền thật** dùng một lần cho mọi phase: token + lint chặn giá trị viết cứng, 22 primitive + 2 thành phần miền đủ trạng thái và xem được ở `/dev/ui`, lớp dữ liệu nói chuyện với gateway Go (`apiClient`, TanStack Query, `useSSE`, nháp, hoàn tác, xác nhận, báo mất mạng), shell điều hướng theo vai, và cổng tự động (Playwright, axe, Lighthouse CI, `ui-antipatterns`). **Luật của phase:** không đổi hành vi sản phẩm, không đổi hợp đồng API, không thêm tính năng; chỉ lớp trình bày và lớp dữ liệu phía client.
 
-**Trong phạm vi:** `frontend/src/shared/{styles,ui,domain,data,i18n,shell,session,lib}`, `frontend/eslint.config.mjs`, `scripts/{ui-antipatterns,lint-selftest}.sh`, `frontend/e2e/**`, `frontend/lighthouserc.json`, `frontend/playwright.config.ts`, trang `/dev/ui` và `/dev/data`, job **Frontend** của `.github/workflows/ci.yml`.
+**Trong phạm vi:** `frontend/src/shared/{styles,ui,domain,data,i18n,shell,session,lib}`, `frontend/eslint.config.mjs`, `scripts/{ui-antipatterns,lint-selftest}.sh`, `frontend/e2e/**`, `frontend/lighthouserc.json`, `frontend/playwright.config.ts`, trang `/dev/ui` và `/dev/data`, job **Frontend** của `.github/workflows/ci.yml`; (v1.4, US-PU-06) khung trang có chữ vẽ từ máy chủ ở `frontend/src/app/layout.tsx` và `frontend/src/app/(app)/layout.tsx`, và ngưỡng `error` của LCP / TBT.
 
 **Ngoài phạm vi:** màn nghiệp vụ dựng lại (PU L4 thu hẹp: `/login /register /profile` → P2; `/chat /threads` → P3; `/documents /analytics` → P8 / P10 — ghi `PROGRESS.md` mục Nợ); đăng nhập thật và cookie phiên (P2); dữ liệu thật cho chuông (P4); hàng đợi ghi cục bộ cho điểm danh (P5); Red Thread Transition, hoạt ảnh, Visual QA hai lượt (P10 L4); chế độ tối; Tailwind (D53); mọi thay đổi `backend-go/` (AC9 của US-PU-05 chặn).
 
@@ -205,6 +207,11 @@ Mỗi phép in một dòng `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi ph
 | FR-40 | `ui-antipatterns.sh` 19 phép + `--selftest` | 05-AC6 |
 | FR-41 | CI job Frontend chạy toàn bộ cổng; chứng minh đỏ khi vi phạm | 05-AC7, 05-AC8 |
 | FR-42 | PU không sửa `backend-go/`; bằng chứng "trước / sau" và báo cáo | 05-AC2, 05-AC9, 05-AC11, 05-AC12 |
+| FR-43 | Khung trang có `<h1>` + mô tả vẽ từ máy chủ, không dữ liệu người dùng, không bộ nhớ đệm chung | 06-AC1, 06-AC2 |
+| FR-44 | Bớt client component ở hai layout; JS mỗi route ≤ 256.000 byte | 06-AC3 |
+| FR-45 | Lighthouse: LCP `error` ở 7 URL; TBT `error` ở 6 route người dùng (`/dev/ui` `warn`); TBT 12× ≤ 170 ms từng route; không nới cách đo; CI xanh ổn định | 06-AC4, 06-AC5, 06-AC6, 06-AC7, 06-AC8 |
+| FR-46 | Không hồi quy: ảnh mốc (quy tắc đổi ảnh), axe, phiên, thư viện, lint | 06-AC9, 06-AC10, 06-AC11 |
+| FR-47 | Ma trận quyền không đổi; trả nợ và bàn giao | 06-AC12, 06-AC13 |
 
 Ghi chú: 01-AC10, 02-AC15, 05-AC13 là AC "không áp dụng" hoặc kiểm tay (phân quyền: ràng buộc an toàn thay thế do 01-AC4 / 03-AC23 đảm nhiệm).
 
@@ -535,7 +542,7 @@ Build "như production" (`pbuild`) không đặt hai cờ đầu: bằng chứng
 
 | Chỉ số | Ngân sách | Đo ở đâu | Ghi chú |
 | --- | --- | --- | --- |
-| LCP | ≤ 2,5 s | LHCI mobile, trung vị 3 lần | |
+| LCP | ≤ 2,5 s | LHCI mobile, trung vị 3 lần | mức `error` ở cả 7 URL từ US-PU-06 (v1.4); trước đó `warn` theo #26 sprint 3 |
 | INP | ≤ 200 ms | **không đo được trong phòng lab** → thay bằng TBT ≤ 200 ms (LHCI); INP thật xác nhận ở nghiệm thu P10 với người dùng thật | khoảng cách ghi nhận, không giấu |
 | CLS | ≤ 0,1 (trang), ≤ 0,05 (`/dev/ui` chuyển loading → tải), ≤ 0,02 (banner, tải thêm) | LHCI + `PerformanceObserver` | |
 | JS mỗi route | ≤ 250 KB nén | LHCI `resource-summary:script:size` ≤ 256000 | TanStack Query nạp ở layout; `Chart` và `react-virtual` nạp lười |
@@ -560,7 +567,7 @@ Mức: **WCAG 2.2 AA** (UX.md mục 6). `axe` tag `wcag2a`, `wcag2aa`, `wcag21aa
 
 ### 8.5 Cấu hình Lighthouse CI
 
-`lighthouserc.json`: `ci.collect.url` = 7 URL (mục 8.3, `localhost:3300`), `numberOfRuns: 3`, `settings.preset` mặc định mobile (4G chậm, CPU 4×), `puppeteerScript` đặt cookie phiên theo vai; `assert.assertions`: `largest-contentful-paint ≤ 2500`, `cumulative-layout-shift ≤ 0.1`, `total-blocking-time ≤ 200`, `resource-summary:script:size ≤ 256000`, tất cả `error`. `upload.target = filesystem` (`.lighthouseci/`, không đẩy lên máy chủ ngoài).
+`lighthouserc.json`: `ci.collect.url` = 7 URL (mục 8.3, `localhost:3300`), `numberOfRuns: 3`, `settings.preset` mặc định mobile (4G chậm, CPU 4×), `puppeteerScript` đặt cookie phiên theo vai; `assert.assertMatrix` (v1.4, US-PU-06): sáu route người dùng — `largest-contentful-paint ≤ 2500`, `cumulative-layout-shift ≤ 0.1`, `total-blocking-time ≤ 200`, `resource-summary:script:size ≤ 256000`, **tất cả `error`**; `/dev/ui` — LCP, CLS, JS `error`, **`total-blocking-time` `warn`** (góp ý #34 sprint 3); `aggregationMethod: median`; `cpuSlowdownMultiplier` giữ mặc định 4× (không hiệu chỉnh theo runner — TL-1). Đo kiểm trên máy dev dùng 12× (TL-1) với ngưỡng nội bộ TBT trung vị ≤ 170 ms mỗi route người dùng. `upload.target = filesystem` (`.lighthouseci/`, không đẩy lên máy chủ ngoài).
 
 ### 8.6 CI (job Frontend, bổ sung vào `.github/workflows/ci.yml` của sprint 2)
 
@@ -587,7 +594,8 @@ Thêm: `@tanstack/react-query`, `@tanstack/react-virtual`, `@playwright/test`, `
 | `e2e/ui-foundation.spec.ts` | bàn phím `/chat` + `/threads`, zoom 200 %, quét "một nút chính" | có | — |
 | `e2e/visual.spec.ts` | 14 ảnh | có | — |
 | `e2e/a11y.spec.ts` | axe mọi route × vai | có | — |
-| Lighthouse CI | 7 URL | có | — |
+| Lighthouse CI | 7 URL; LCP `error` cả 7, TBT `error` 6 route người dùng | có | — |
+| `e2e/server-shell.spec.ts` (tên đề xuất) | US-PU-06 AC1, AC2, AC8: HTML tĩnh không JS có `h1` + mô tả, không dữ liệu người dùng, LCP trước `refresh` | có | — |
 | QC tay | AC "kiểm bằng mắt" (02-AC15, 05-AC11) | không | — |
 | QC chạy `audit.mjs`, `sweep.mjs` | sau mỗi story (05-AC10) | không | — |
 
@@ -608,6 +616,7 @@ Ca `@real` cần gateway thật và **không chạy ở CI**; QC chạy tay bằ
 | `UX.md` §4 (mạng xấu, tự lưu, lạc quan, SSE) | F1, F3, F9 (nền) | PU L3 | US-PU-03 | FR-21…FR-31 | `data-layer.spec` |
 | `DESIGN.md` §1–§2, §10.1; PRD M14 (khung "Hôm nay") | F14 (khung) | PU L2 | US-PU-04 | FR-32…FR-37 | `shell.spec` |
 | `UX.md` §3, §6; `PU.md` cổng | mọi luồng | PU L5 | US-PU-05 | FR-38…FR-42 | `visual`, `a11y`, LHCI, CI |
+| `UX.md` §3 (LCP, TBT), D47 mục 8 (dữ liệu đầu trang phía máy chủ); nợ #14 / #15 sprint 4 | mọi luồng | PU kỹ thuật (sprint 5) | US-PU-06 | FR-43…FR-47 | `server-shell.spec`, `visual`, `a11y`, LHCI + CI |
 | PRD M12 (đứng trên nền này) | F15 | P1 L4 | `FEAT-llm-gateway` US-P1-05 | — | `FEAT-llm-gateway` SRS 9 |
 
 **Yêu cầu bắt buộc của PU (`PU.md`) → AC:** L1 token → 01-AC1; font → 01-AC5; chuẩn hoá (focus, selection, scrollbar, reduced-motion) → 01-AC7; tabular-nums → 01-AC6; Tailwind `@theme` → thay bằng D53 (01-AC4 mục 6); lint chặn → 01-AC2…AC4. L2 shell → 04-AC1, AC5, AC3, AC10, AC11. L3 primitive + 8 trạng thái + `/dev/ui` + 4 bề rộng → 02-AC1…AC4; hành vi `UX.md` mục 4 → 03-AC1…AC22. L4 (thu hẹp) → `FEAT-llm-gateway` US-P1-05 + AC "không vỡ màn mock" ở 01-AC9, 02-AC12, 03-AC24, 04-AC13, 05-AC10. L5 → 05-AC1…AC8. "Bạn tự kiểm" → 02-AC15, 05-AC11 (kiểm mắt), 05-AC3 (bàn phím), 02-AC4 (zoom / 375).
