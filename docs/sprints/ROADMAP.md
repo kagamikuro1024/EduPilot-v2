@@ -18,7 +18,7 @@ Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). 
 | 8 | P6 Sổ điểm (gồm nối điểm bài thi PE vào `grade_items`) | 1,5 | F10 | `gate P6` (+ chủ dự án tự tính tay 3 SV) | – |
 | 9 | P7 Chấm bài | 3 | F9, F11 | `gate P7` | #1 kịch bản lỗi nâng cao mock-graph; #4b mock-graph |
 | 10 | P9 Luyện đề (dùng lại ngân hàng câu hỏi + Quiz Engine của PE) | 1 | F12 | `gate P9` | #2 `GenerateQuestions` + E5; #3 import Forms |
-| 11 | P10 Đánh giá + hoàn thiện | 2,5 | F14–F17, F19; chạy lại `DEMO_SCRIPT.md` trọn 15 phút | `gate P10` → **vạch bảo vệ** | #7 xuất PDF; #8 k6 (d), chaos Redis |
+| 11 | P10 Đánh giá + hoàn thiện (gồm **thống kê điểm thi PE** trên màn quan sát lớp — chủ dự án yêu cầu 2026-10-09) | 2,5 | F14–F17, F19; chạy lại `DEMO_SCRIPT.md` trọn 15 phút | `gate P10` → **vạch bảo vệ** | #7 xuất PDF; #8 k6 (d), chaos Redis |
 
 Tổng ước lượng gốc: 23,5 tuần người. Đội agent làm nhanh hơn nhiều (P0: 0,5 tuần → 1 ngày); lịch thật đo theo sprint, không theo tuần.
 
