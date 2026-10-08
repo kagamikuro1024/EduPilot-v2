@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <sys/ptrace.h>
 #include <sys/mount.h>
