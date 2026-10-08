@@ -1477,3 +1477,13 @@ test("results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn t
   });
   await expect(row(page, "Sinh viên 0999")).toBeVisible();
 });
+
+// US-PE-09 AC4 — trạng thái trình diễn sau `node scripts/seed.mjs` (gateway + worker + judge thật, hai bài mẫu đã PUBLISHED). Không chạy ở CI:
+// bật bằng E2E_REAL_API=https://localhost/api/v1 (cùng SEED_DEFAULT_PASSWORD); kiểm từng tài khoản qua API thật bằng scripts/check-exam-seed.mjs demo.
+test("@real seed demo state (A điểm cao nhất + đáp án, C không làm, D không có bài, 1 cặp giống nhau, TA không thấy Tín hiệu, CE)", async () => {
+  test.skip(!process.env.E2E_REAL_API, "@real: cần stack seed đã chạy — đặt E2E_REAL_API");
+  test.setTimeout(6 * 60_000);
+  const { execFileSync } = await import("node:child_process");
+  const out = execFileSync("node", ["../scripts/check-exam-seed.mjs", "demo"], { env: { ...process.env, API_URL: process.env.E2E_REAL_API }, encoding: "utf8" });
+  expect(out).toContain("OK demo");
+});

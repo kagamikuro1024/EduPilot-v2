@@ -229,6 +229,8 @@ services:
       EXAM_GRACE_SECONDS: ${EXAM_GRACE_SECONDS:-}
       SIMILARITY_MIN: ${SIMILARITY_MIN:-}
       SIMILARITY_CAP: ${SIMILARITY_CAP:-}
+      # Việc `question.suggest` (US-PE-03) chạy ở worker: cần nhà cung cấp AI dự phòng theo env như gateway (dev: `fake`).
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
     networks: [default, judge_net]
     read_only: true
     tmpfs: ["/tmp"]

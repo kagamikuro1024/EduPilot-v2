@@ -1,4 +1,4 @@
-# Override CHỈ để QC chạy `scripts/seed.mjs` trên stack thử (US-P2-12 AC9, Q-QC-P212-1): nới đúng 4 giới hạn theo IP, không gì khác.
+# Override CHỈ để QC chạy `scripts/seed.mjs` trên stack thử (US-P2-12 AC9, Q-QC-P212-1): nới đúng 4 giới hạn theo IP (+ cửa sổ thi ngắn và hạn lưu theo lượt cho US-PE-09), không gì khác.
 # Dùng: docker compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -f docker-compose.test-seed.yml -p edupilot up -d gateway
 # Sau khi seed xong, tạo lại gateway bằng compose thử THUẦN để thử giới hạn thật trên dữ liệu đã seed:
 #   docker compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -p edupilot up -d --force-recreate --no-deps gateway
@@ -10,3 +10,10 @@ services:
       AUTH_LOGIN_IP_PER_MIN: "1000"
       AUTH_REGISTER_IP_PER_HOUR: "1000"
       AUTH_TOKEN_IP_PER_MIN: "1000"
+      # US-PE-09: bài thi mẫu có cửa sổ ngắn (không có ở production); k6 `autosave` dồn 300 phiên vào 30 lượt nên nới hạn lưu / lượt.
+      EXAM_MIN_DURATION_MINUTES: "1"
+      EXAM_MIN_LEAD_SECONDS: "5"
+      EXAM_SAVE_RATE_PER_MIN: "2000"
+      # k6 `chat` / `mixed`: 50 luồng chat đồng thời; hạn mức mặc định của nhà cung cấp `fake` (60 lượt / phút) sẽ chặn trước khi chạm bộ lập lịch.
+      LLM_DEFAULT_RPM: "100000"
+      LLM_DEFAULT_TPM: "100000000"

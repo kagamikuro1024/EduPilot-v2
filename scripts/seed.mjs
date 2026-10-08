@@ -10,6 +10,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -48,7 +49,7 @@ const ORIGIN = new URL(API).origin;
 
 const DOMAIN = "@edupilot.local";
 const SEMESTER = "2026-2027-HK1";
-const STEPS = 9;
+const STEPS = 10;
 
 // ---- tiện ích --------------------------------------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -447,6 +448,180 @@ async function step9Dismiss() {
   }
 }
 
+
+// ---- bước 10: ngân hàng câu hỏi + hai bài thi mẫu (US-PE-09; SRS FEAT-weekly-exam 4.11) -------------------------------------
+// Khoá tự nhiên: `title` của câu / bài trong lớp. Mọi thứ đi qua HTTP API thật (không `_test`, không ghi DB). Seed tạo bài (mở sau ~12 s, đóng sau ~150 s), cho sinh viên làm ngay rồi THOÁT:
+// bộ lập lịch của worker tự đóng, chấm và công bố. `scripts/check-exam-seed.mjs` chờ và kiểm.
+const EXAM_MCQ_TITLE = "Kiểm tra tuần 9 — Mật mã";
+const EXAM_CODE_TITLE = "Kiểm tra tuần 9 — Lập trình";
+
+async function listAll(route, token) {
+  const out = [];
+  let cursor = "";
+  for (let i = 0; i < 20; i++) {
+    const r = await call("GET", `${route}${route.includes("?") ? "&" : "?"}limit=100${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`, { token });
+    out.push(...r.body.items);
+    if (!r.body.next_cursor) break;
+    cursor = r.body.next_cursor;
+  }
+  return out;
+}
+
+async function waitJob(id, token, label, timeoutMs = 120_000) {
+  const until = Date.now() + timeoutMs;
+  for (;;) {
+    const r = await call("GET", `/jobs/${id}`, { token });
+    if (r.body.status === "SUCCEEDED") return r.body;
+    if (r.body.status === "FAILED") throw new Error(`Việc ${label} lỗi: ${JSON.stringify(r.body.error)}`);
+    if (Date.now() > until) throw new Error(`Việc ${label} quá ${timeoutMs / 1000}s (worker / máy chấm chạy chưa?)`);
+    await sleep(700);
+  }
+}
+
+async function approveQuestion(base, id, token) {
+  const cur = await call("GET", `${base}/${id}`, { token });
+  if (cur.body.review_status === "APPROVED") return;
+  await call("PUT", `${base}/${id}/review`, { token, json: { decision: "APPROVE", version: cur.body.version } });
+}
+
+async function seedBank(course, token) {
+  const base = `/courses/${course}/questions`;
+  let have = new Map((await listAll(base, token)).map((x) => [x.title, x]));
+  for (const q of QUESTIONS) {
+    let row = have.get(q.title);
+    if (!row) {
+      const body = { type: q.type, title: q.title, topic: q.topic, difficulty: q.difficulty, stem: q.stem, explanation: q.explanation };
+      if (q.type === "TRUE_FALSE") body.value = q.value;
+      else {
+        body.options = q.options.map((b) => ({ body: b }));
+        body.correct = q.correct;
+      }
+      row = (await call("POST", base, { token, key: `seed-q-${q.title}`, json: body })).body;
+    }
+    await approveQuestion(base, row.id, token);
+  }
+  // 5 câu AI_DRAFT ở PENDING (nhà cung cấp `fake` của cổng LLM): chỉ gọi khi chưa đủ (khoá mới mỗi lần để không phát lại một việc đã FAILED)
+  have = new Map((await listAll(base, token)).map((x) => [x.title, x]));
+  const drafts = [...have.values()].filter((x) => x.origin === "AI_DRAFT");
+  // nhà cung cấp `fake` trả ĐÚNG 1 câu mỗi lần gọi → mỗi câu thiếu một việc gợi ý (count: 1)
+  for (let n = drafts.length; n < 5; n++) {
+    const r = await call("POST", `${base}/suggest`, { token, key: `seed-suggest-${Date.now()}-${n}`, json: { kind: "MCQ", topic: "Mạng máy tính", difficulty: "MEDIUM", count: 1 } });
+    await waitJob(r.body.job_id, token, "gợi ý câu hỏi", 90_000);
+  }
+  // hai bài code: 2 test mẫu + 3 test ẩn, lời giải mẫu đã xác minh
+  for (const p of CODE) {
+    const title = `Bài code — ${p.title}`;
+    let row = have.get(title);
+    if (row?.review_status === "APPROVED") continue;
+    if (!row) row = (await call("POST", base, { token, key: `seed-code-${p.slug}`, json: { type: "CODE", title, topic: p.topic, stem: p.stem } })).body;
+    const cur = (await call("GET", `${base}/${row.id}`, { token })).body;
+    await call("PUT", `${base}/${row.id}/code`, {
+      token,
+      json: { languages: p.languages, time_limit_ms: 2000, memory_limit_mb: 128, checker: "EXACT", starter_code: { cpp17: "#include <bits/stdc++.h>\nusing namespace std;\nint main() {\n  return 0;\n}\n" }, reference: { language: "cpp17", source: p.reference }, version: cur.version },
+    });
+    const existing = await call("GET", `${base}/${row.id}/testcases?limit=100`, { token });
+    if (existing.body.items.length < p.tests.length) {
+      for (const [i, t] of p.tests.entries()) await call("POST", `${base}/${row.id}/testcases`, { token, json: { name: t.name, input: t.input, expected: t.expected, is_sample: t.sample, weight: p.weights[i] } });
+    }
+    const all = (await call("GET", `${base}/${row.id}/testcases?limit=100`, { token })).body.items;
+    await call("POST", `${base}/${row.id}/testcases/approve`, { token, json: { ids: all.map((t) => t.id) } });
+    const v = await call("POST", `${base}/${row.id}/reference/verify`, { token, key: `seed-verify-${p.slug}` });
+    const done = await waitJob(v.body.job_id, token, `xác minh lời giải ${p.slug}`);
+    if (done.result && done.result.ok === false) throw new Error(`Lời giải mẫu ${p.slug} không đạt: ${JSON.stringify(done.result)}`);
+    await approveQuestion(base, row.id, token);
+  }
+  return new Map((await listAll(base, token)).map((x) => [x.title, x]));
+}
+
+const tabId = () => crypto.randomUUID();
+const KEYP = "seed-exam-";
+
+async function takeAttempt(course, exam, who, plan) {
+  const token = ctx.tokens[who];
+  const tab = tabId();
+  const base = `/courses/${course}/exams/${exam}/attempts`;
+  const hdr = { "X-Exam-Tab": tab };
+  const started = await callH("POST", base, { token, key: `${KEYP}start-${exam}-${who}`, headers: hdr });
+  const attempt = started.body.attempt.id;
+  await plan(started.body, { token, base: `${base}/${attempt}`, hdr });
+  await callH("POST", `${base}/${attempt}/submit`, { token, key: `${KEYP}submit-${exam}-${who}`, headers: hdr });
+}
+
+/** như `call` nhưng có thêm header tuỳ ý (X-Exam-Tab). */
+async function callH(method, route, { token, json, key, headers = {}, ok = [200, 201, 202, 204] }) {
+  for (let attempt = 0; ; attempt++) {
+    const h = { Accept: "application/json", Origin: ORIGIN, Authorization: `Bearer ${token}`, ...headers };
+    if (key) h["Idempotency-Key"] = key.replace(/[^A-Za-z0-9._:-]/g, "-");
+    if (json !== undefined) h["Content-Type"] = "application/json";
+    const res = await fetch(API + route, { method, headers: h, body: json === undefined ? undefined : JSON.stringify(json), tls: { rejectUnauthorized: false } });
+    const body = res.status === 204 ? null : await res.json().catch(() => null);
+    if (res.status === 429 && attempt < 5) {
+      await sleep(Math.min(20, Number(body?.retry_after ?? res.headers.get("Retry-After") ?? 2)) * 1000 + 200);
+      continue;
+    }
+    if (!ok.includes(res.status)) throw new ApiFail(method, route, res.status, body);
+    return { status: res.status, body };
+  }
+}
+
+async function pool(items, n, fn) {
+  const queue = [...items];
+  await Promise.all(Array.from({ length: n }, async () => { for (let it = queue.shift(); it !== undefined; it = queue.shift()) await fn(it); }));
+}
+
+async function step10Exams() {
+  step(10, "Ngân hàng câu hỏi, hai bài thi mẫu và lượt làm (lớp 761987)…");
+  const course = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  const bank = await seedBank(course, t);
+  const exams = await listAll(`/courses/${course}/exams`, t);
+  if (exams.some((x) => x.title === EXAM_MCQ_TITLE) && exams.some((x) => x.title === EXAM_CODE_TITLE)) {
+    console.log("   Đã có hai bài thi mẫu, không tạo thêm.");
+    return;
+  }
+  const idOf = (title) => bank.get(title).id;
+  // bài trắc nghiệm: 10 câu, mỗi câu 1 điểm (thang 10) — `points` do hàm createExam đặt 5 cho bài code; ở đây ghi đè bằng items riêng
+  const mcqItems = EXAM_MCQ.map((qi) => idOf(QUESTIONS[qi].title));
+  const base = `/courses/${course}/exams`;
+  const now = Date.now();
+  const mcq = (await call("POST", base, { token: t, key: `seed-exam-${EXAM_MCQ_TITLE}`, json: { title: EXAM_MCQ_TITLE, instructions: "Bài kiểm tra mẫu: 10 câu trắc nghiệm.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 150_000).toISOString() } })).body;
+  await call("PUT", `${base}/${mcq.id}/items`, { token: t, json: { items: mcqItems.map((id) => ({ question_id: id, points: "1" })), version: mcq.version } });
+  await call("POST", `${base}/${mcq.id}/schedule`, { token: t, json: {}, ok: [200] });
+  const code = (await call("POST", base, { token: t, key: `seed-exam-${EXAM_CODE_TITLE}`, json: { title: EXAM_CODE_TITLE, instructions: "Bài kiểm tra mẫu: hai bài lập trình.", duration_minutes: 2, multi_scoring: "PARTIAL", opens_at: new Date(now + 14_000).toISOString(), closes_at: new Date(now + 160_000).toISOString() } })).body;
+  await call("PUT", `${base}/${code.id}/items`, { token: t, json: { items: CODE.map((p) => ({ question_id: idOf(`Bài code — ${p.title}`), points: "5" })), version: code.version } });
+  await call("POST", `${base}/${code.id}/schedule`, { token: t, json: {}, ok: [200] });
+  // chờ tới giờ mở
+  const wait = new Date(now + 15_500) - Date.now();
+  if (wait > 0) await sleep(wait);
+
+  // 24 lượt trắc nghiệm theo mẫu cố định
+  await pool(MCQ_STUDENTS, 6, (s) =>
+    takeAttempt(course, mcq.id, s.who, async (start, { token, base: ab, hdr }) => {
+      const answers = [];
+      for (const a of mcqAnswers(s.id)) {
+        const q = QUESTIONS[a.qi];
+        const item = start.items.find((x) => x.stem === q.stem);
+        if (!item || a.ans == null) continue;
+        answers.push({ item_id: item.item_id, answer: q.type === "TRUE_FALSE" ? { value: a.ans.value } : { option_ids: a.ans.idx.map((i) => item.options.find((o) => o.body === q.options[i]).id) } });
+      }
+      await callH("PUT", `${ab}/answers`, { token, headers: hdr, json: { items: answers } });
+    }),
+  );
+  // 6 lượt code
+  await pool(CODE_ATTEMPTS, 6, (c) =>
+    takeAttempt(course, code.id, c.who, async (start, { token, base: ab, hdr }) => {
+      for (const [i, sol] of [c.gcd, c.words].entries()) {
+        if (!sol) continue;
+        const item = start.items.find((x) => x.stem.startsWith(CODE[i].stem.slice(0, 20)));
+        await callH("POST", `${ab}/code/${item.item_id}/submit`, { token, headers: hdr, key: `${KEYP}code-${code.id}-${c.who}-${i}`, json: { language: "cpp17", source: SOLUTIONS[sol] } });
+        await sleep(i === 0 ? 15_500 : 0); // khoảng chờ giữa hai lần nộp của một sinh viên (EXAM_SUBMIT_COOLDOWN 15 s)
+      }
+    }),
+  );
+  ctx.changed = true;
+  console.log("   Đã nộp 24 lượt trắc nghiệm + 6 lượt code; bộ lập lịch sẽ đóng và công bố (≤ 3 phút).");
+}
+
 // ---- chạy ------------------------------------------------------------------------------------------------------------
 async function main() {
   const started = Date.now();
@@ -464,9 +639,12 @@ async function main() {
   await step7Class2();
   await step8Mismatch();
   await step9Dismiss();
+  await step10Exams();
   console.log(`Seed xong trong ${Math.round((Date.now() - started) / 1000)} s.`);
+  if (!ctx.changed) console.log("Seed xong (không đổi)");
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
   console.log("  60 tài khoản (1 Admin, 1 giảng viên, 1 TA, 57 sinh viên); mật khẩu = SEED_DEFAULT_PASSWORD");
+  console.log("  Lớp 761987: 20 câu trắc nghiệm APPROVED + 5 câu AI_DRAFT + 2 bài code; hai bài thi mẫu (24 lượt trắc nghiệm + 6 lượt code) tự đóng và công bố ≤ 3 phút — `node scripts/check-exam-seed.mjs bank|scores|demo`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 
