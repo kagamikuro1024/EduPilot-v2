@@ -1280,3 +1280,200 @@ test("similarity review — TA không mở được trang so độ giống", asy
   await expect(page.getByText(/Trang này dành cho/)).toBeVisible();
   await expect(page.getByText("Nguyễn Văn A")).toHaveCount(0);
 });
+
+// ---- US-PE-08: kết quả (Staff `/exams/[id]/results`, sinh viên `/exams/[id]/take` sau công bố) -----------------------------------------
+const E_R = "00000000-0000-7000-8000-0000000e0801";
+const A_1 = "00000000-0000-7000-8000-0000000a0801";
+const ST = (n: number, name: string, code: string) => ({ id: `00000000-0000-7000-8000-00000000500${n}`, full_name: name, student_code: code });
+function resultsRows(teacher: boolean): Json[] {
+  const flags = (similarity: number, tab_hidden: number) => (teacher ? { flags: { similarity, tab_hidden, paste: 0 } } : {});
+  return [
+    { attempt_id: A_1, student: ST(1, "Nguyễn Văn A", "B20DC000001"), status: "GRADED", auto_score: "7.75", score: "7.75", adjusted: false, submitted_at: "2026-12-01T02:40:00Z", submit_reason: "MANUAL", ...flags(1, 4) },
+    { attempt_id: "att-b", student: ST(2, "Trần Thị B", "B20DC000002"), status: "GRADED", auto_score: "9.00", score: "9.50", adjusted: true, submitted_at: "2026-12-01T02:59:59Z", submit_reason: "CLOSED", ...flags(0, 0) },
+    { attempt_id: "att-c", student: ST(3, "Lê Văn C", "B20DC000003"), status: "GRADING", auto_score: null, score: null, adjusted: false, submitted_at: "2026-12-01T02:50:00Z", submit_reason: "TIMEOUT", ...flags(0, 0) },
+    { attempt_id: null, student: ST(4, "Phạm Thị D", "B20DC000004"), status: "ABSENT", auto_score: null, score: null, adjusted: false, submitted_at: null, submit_reason: null, ...flags(0, 0) },
+  ];
+}
+const detailItems = (): Json[] => [
+  { item_id: "i-1", position: 1, type: "MCQ_SINGLE", stem: "2+2=?", options: [{ id: "o1", body: "3" }, { id: "o2", body: "4" }], earned: "1.00", max: "1.00", correct: true, mine: { option_ids: ["o2"] }, answer: { option_ids: ["o2"] }, explanation: "Phép cộng.", overridden: false, samples: [], hidden: null, final_submission: null, compile_log: null },
+  { item_id: "i-2", position: 2, type: "CODE", stem: "Đọc a b, in a+b.", options: [], earned: "0.75", max: "1.00", correct: null, mine: null, answer: null, explanation: null, overridden: false, samples: [{ name: "sample1", verdict: "AC", time_ms: 3, memory_kb: 1200, input: "1 2\n", expected: "3\n" }], hidden: { passed: 3, total: 4 }, final_submission: { id: "s-1", language: "cpp17", source: "int main(){}", created_at: "2026-12-01T02:30:00Z", compile_ok: true }, compile_log: null },
+];
+
+async function resultsSetup(page: Page, role: "TEACHER" | "TA") {
+  await setup(page, role);
+  const teacher = role === "TEACHER";
+  const st = { hold: true, version: 4, holds: [] as Json[], scores: [] as Json[], answers: [] as Json[], csv: 0, adjust: null as Json | null };
+  const j = (route: Route, status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+  const exam = () => ({ id: E_R, title: "Giữa kỳ", kind: "MIXED", status: "CLOSED", effective_status: "CLOSED", opens_at: "2026-12-01T01:00:00Z", closes_at: "2026-12-01T03:00:00Z", duration_minutes: 45, items_count: 2, attempts: { started: 3, graded: 2 }, published_at: null, version: st.version, created_at: "2026-11-20T00:00:00Z", instructions: null, shuffle_questions: true, shuffle_options: true, max_score: "10.00", rounding_step: "0.01", multi_scoring: "PARTIAL", reveal_answers: true, appeal_days: 7, publish_hold: st.hold, regrading: false, items: [], created_by: "u", updated_at: "2026-12-01T03:00:00Z" });
+  await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E_R}`), async (route) => {
+    const req = route.request();
+    const path = new URL(req.url()).pathname.split(E_R)[1] || "";
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+    if (req.method() === "GET" && path === "") return j(route, 200, exam());
+    if (req.method() === "GET" && path === "/results") return j(route, 200, { progress: { not_started: 0, in_progress: 0, grading: 1, graded: 2, absent: 1 }, items: resultsRows(teacher), next_cursor: null });
+    if (req.method() === "GET" && path === `/results/${A_1}`) {
+      return j(route, 200, { attempt_id: A_1, student: ST(1, "Nguyễn Văn A", "B20DC000001"), status: "GRADED", version: 3, auto_score: "7.75", score: st.adjust ? (st.adjust as { score: string }).score : "7.75", adjust: st.adjust, submitted_at: "2026-12-01T02:40:00Z", submit_reason: "MANUAL", items: detailItems(),
+        submissions: [{ id: "s-1", item_id: "i-2", status: "DONE", verdict: "WA", language: "cpp17", source: "int main(){}", created_at: "2026-12-01T02:30:00Z", compile_ok: true, compile_log: null, tests: [{ position: 1, is_sample: true, verdict: "AC", time_ms: 3, memory_kb: 1200 }, { position: 2, is_sample: false, verdict: "WA", time_ms: 4, memory_kb: 1200 }] }],
+        ...(teacher ? { integrity: { tab_hidden_count: 4, tab_hidden_ms: 61000, paste_count: 0, paste_chars: 0, offline_count: 0, takeover_count: 0, chat_blocked_count: 0 } } : {}), appeal: null });
+    }
+    if (req.method() === "PUT" && path === `/results/${A_1}/score`) { const b = req.postDataJSON() as { score: string | null }; st.scores.push(b); st.adjust = b.score ? { score: b.score, reason: "chấm tay", at: "2026-12-02T01:00:00Z" } : null; return j(route, 200, { attempt_id: A_1, auto_score: "7.75", score: b.score ?? "7.75", adjusted: b.score !== null, version: 4 }); }
+    if (req.method() === "PUT" && path === "/publish-hold") { const b = req.postDataJSON() as { hold: boolean }; st.holds.push(b); st.hold = b.hold; st.version++; return j(route, 200, exam()); }
+    if (req.method() === "GET" && path === "/events") return j(route, 200, { summary: {}, items: [{ id: "ev-1", type: "TAB_HIDDEN", occurred_at: "2026-12-01T02:10:00Z", client_at: null, meta: null }], next_cursor: null });
+    if (req.method() === "GET" && path === "/stats") return j(route, 200, { distribution: Array.from({ length: 10 }, (_, i) => ({ from: `${i}.00`, to: `${i + 1}.00`, count: i === 7 ? 1 : i === 9 ? 1 : 0 })), mean: "8.38", median: "8.38", hardest: [{ item_id: "i-1", title: "2+2", correct_rate: "0.50" }], code: [{ item_id: "i-2", title: "a+b", mean_ratio: "0.75", ce_rate: "0.00" }] });
+    if (req.method() === "GET" && path === "/results.csv") { st.csv++; return route.fulfill({ status: 200, contentType: "text/csv; charset=utf-8", headers: cors, body: "\ufeffmssv;ho_ten\nB20DC000001;Nguyễn Văn A\n" }); }
+    if (req.method() === "GET" && path === "/appeals") return j(route, 200, { items: [{ id: "ap-1", attempt_id: A_1, status: "OPEN", reason: "Câu 2 chấm thiếu test", response: null, created_at: "2026-12-02T01:00:00Z", responded_at: null, score_before: null, score_after: null, version: 1, student: { full_name: "Nguyễn Văn A", student_code: "B20DC000001" } }], next_cursor: null });
+    if (req.method() === "POST" && path === "/appeals/ap-1/answer") { st.answers.push(req.postDataJSON() as Json); return j(route, 200, { id: "ap-1", attempt_id: A_1, status: "UPHELD", reason: "x", response: "ok", created_at: "2026-12-02T01:00:00Z", responded_at: "2026-12-02T02:00:00Z", score_before: "7.75", score_after: null, version: 2 }); }
+    return j(route, 404, { code: "NOT_FOUND", message: "x", trace_id: "t" });
+  });
+  return st;
+}
+
+test("results (Giảng viên): tiến độ, bảng điểm dấu phẩy, vắng, tín hiệu; Công bố có xác nhận nêu hậu quả; Drawer chi tiết + sửa điểm có lý do", async ({ page }) => {
+  const st = await resultsSetup(page, "TEACHER");
+  await page.goto(`/exams/${E_R}/results?course=${C1}`);
+  await expect(page.getByRole("heading", { name: "Kết quả · Giữa kỳ", level: 1 })).toBeVisible();
+  await expect(page.locator("[data-part=results-progress]")).toHaveText("Đang chấm 2/3 · Vắng 1");
+  await expect(row(page, "Nguyễn Văn A")).toBeVisible();
+  await expect(row(page, "7,75")).toBeVisible();
+  await expect(row(page, "9,50 (đã sửa)")).toBeVisible();
+  await expect(row(page, "Vắng").first()).toBeVisible();
+  await expect(row(page, "Rời tab 4 · Giống nhau 1")).toBeVisible();
+  await expect(page.getByRole("tab", { name: "Nghi giống nhau" })).toBeVisible();
+  // Công bố: hộp xác nhận nêu hậu quả bằng số
+  await page.getByRole("button", { name: "Công bố điểm" }).click();
+  await expect(page.getByRole("dialog").getByText(/Công bố điểm cho 2 sinh viên\. Họ sẽ thấy điểm, đáp án và có thể gửi yêu cầu xem lại trong 7 ngày\./)).toBeVisible();
+  await page.getByRole("dialog").getByRole("button", { name: "Công bố" }).click();
+  await expect.poll(() => st.holds.length).toBe(1);
+  expect(st.holds[0]).toEqual({ hold: false, version: 4 });
+  // Drawer
+  await row(page, "Nguyễn Văn A").click();
+  const dr = page.locator("[data-part=result-drawer]");
+  await expect(dr.getByText("Điểm chính thức")).toBeVisible();
+  await expect(dr.getByText("Test ẩn: đạt 3 trên 4")).toBeVisible();
+  await expect(dr.locator("[data-part=integrity]").getByRole("term").filter({ hasText: "Rời tab" })).toBeVisible();
+  await expect(dr.getByText("Chỉ là tín hiệu để tham khảo, không phải kết luận.")).toBeVisible();
+  const save = dr.getByRole("button", { name: "Lưu điểm" });
+  await expect(save).toBeDisabled(); // cần lý do
+  await dr.getByLabel("Điểm mới (đúng bước làm tròn)").fill("8,5");
+  await dr.getByLabel("Lý do (bắt buộc, tối đa 500 ký tự)").first().fill("chấm tay câu 2");
+  await save.click();
+  await expect.poll(() => st.scores.length).toBe(1);
+  expect(st.scores[0]).toEqual({ score: "8.5", reason: "chấm tay câu 2", version: 3 });
+});
+
+test("results (TA): đọc được bảng điểm, không có Tín hiệu / Công bố / Nghi giống nhau; Drawer không có tín hiệu liêm chính và không sửa điểm", async ({ page }) => {
+  await resultsSetup(page, "TA");
+  await page.goto(`/exams/${E_R}/results?course=${C1}`);
+  await expect(row(page, "Nguyễn Văn A")).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Tín hiệu" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Công bố điểm" })).toHaveCount(0);
+  await expect(page.getByRole("tab", { name: "Nghi giống nhau" })).toHaveCount(0);
+  await row(page, "Nguyễn Văn A").click();
+  const dr = page.locator("[data-part=result-drawer]");
+  await expect(dr.getByText("Điểm chính thức")).toBeVisible();
+  await expect(dr.locator("[data-part=integrity]")).toHaveCount(0);
+  await expect(dr.getByRole("button", { name: "Lưu điểm" })).toHaveCount(0);
+  await expect(dr.locator("[data-part=override-panel]")).toHaveCount(0);
+});
+
+test("results: thống kê, xuất CSV, phúc khảo trả lời một lần", async ({ page }) => {
+  const st = await resultsSetup(page, "TEACHER");
+  await page.goto(`/exams/${E_R}/results?course=${C1}`);
+  await page.getByRole("button", { name: "Xuất CSV" }).first().click();
+  await expect.poll(() => st.csv).toBe(1);
+  await page.getByRole("tab", { name: "Thống kê" }).click();
+  await expect(page.locator("[data-part=stats]").getByText("8,38").first()).toBeVisible();
+  await expect(page.locator("[data-part=stats]").getByText("2+2")).toBeVisible();
+  await page.getByRole("tab", { name: "Xem lại điểm" }).click();
+  const ap = page.locator("[data-part=appeal]");
+  await expect(ap.getByText("Câu 2 chấm thiếu test")).toBeVisible();
+  await ap.getByLabel("Phản hồi cho sinh viên (bắt buộc, tối đa 1.000 ký tự)").fill("Đã xem lại, giữ nguyên điểm.");
+  await ap.getByRole("button", { name: "Gửi phản hồi" }).click();
+  await expect.poll(() => st.answers.length).toBe(1);
+  expect(st.answers[0]).toMatchObject({ decision: "UPHELD", response: "Đã xem lại, giữ nguyên điểm.", score: null, version: 1 });
+});
+
+function studentResultBody(appeal: Json) {
+  return {
+    exam: { id: E_R, title: "Giữa kỳ", max_score: "10.00", published_at: "2026-12-02T00:00:00Z", reveal_answers: true, appeal_days: 7, appeal_open_until: "2036-12-09T00:00:00Z" },
+    score: "7.75", score_adjusted: true, appeal, items: detailItems(),
+  };
+}
+async function studentResultSetup(page: Page, examStatus: "PUBLISHED" | "CLOSED") {
+  await studentSetup(page, []);
+  const st = { appeals: [] as Json[], appeal: { status: null, response: null } as Json };
+  const j = (route: Route, status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+  await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E_R}/`), async (route) => {
+    const req = route.request();
+    const path = new URL(req.url()).pathname.split(E_R)[1];
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+    if (path === "/attempts/mine") return j(route, 200, { attempt: { id: A_1, status: "GRADED", submitted_at: "2026-12-01T02:40:00Z", submit_reason: "MANUAL" }, exam: { id: E_R, title: "Giữa kỳ", closes_at: "2026-12-01T03:00:00Z", status: examStatus } });
+    if (path === `/attempts/${A_1}/result`) return j(route, 200, studentResultBody(st.appeal));
+    if (path === `/attempts/${A_1}/appeal` && req.method() === "POST") { st.appeals.push({ body: req.postDataJSON(), key: req.headers()["idempotency-key"] ?? null }); st.appeal = { status: "OPEN", response: null }; return j(route, 201, { id: "ap-1" }); }
+    return j(route, 404, { code: "NOT_FOUND", message: "x", trace_id: "t" });
+  });
+  return st;
+}
+
+test("student result: điểm dấu phẩy, từng câu, test ẩn chỉ số đạt, đáp án + giải thích; xin xem lại tại chỗ (không hộp thoại), chỉ một lần", async ({ page }) => {
+  const st = await studentResultSetup(page, "PUBLISHED");
+  await page.goto(`/exams/${E_R}/take?course=${C1}`);
+  const r = page.locator("[data-part=student-result]");
+  await expect(r.locator("[data-part=final-score]")).toHaveText("7,75 / 10,00");
+  await expect(r.getByText("Điểm đã được giảng viên điều chỉnh.")).toBeVisible();
+  await expect(r.getByText("Bạn chọn").first()).toBeVisible();
+  await expect(r.getByText("Đáp án đúng").first()).toBeVisible();
+  await expect(r.locator("[data-part=explanation]").getByText("Phép cộng.")).toBeVisible();
+  await expect(r.locator("[data-part=hidden-count]")).toHaveText("Test ẩn: đạt 3 trên 4");
+  await expect(r.getByText("sample1")).toBeVisible();
+  const text = await r.innerText();
+  expect(text).not.toMatch(/trọng số|weight|test ẩn \d|input|expected/i);
+  await r.getByRole("button", { name: "Gửi yêu cầu xem lại" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0); // mở dần tại chỗ
+  await r.getByLabel("Bạn muốn giảng viên xem lại điều gì? (tối đa 1.000 ký tự)").fill("Câu 2 thiếu test");
+  await r.getByRole("button", { name: "Gửi yêu cầu", exact: true }).click();
+  await expect.poll(() => st.appeals.length).toBe(1);
+  expect((st.appeals[0] as { body: Json; key: string | null }).body).toEqual({ reason: "Câu 2 thiếu test" });
+  expect((st.appeals[0] as { key: string | null }).key).toBeTruthy();
+  await expect(r.getByText("Yêu cầu xem lại của bạn đã gửi, giảng viên sẽ trả lời.")).toBeVisible();
+  await expect(r.getByRole("button", { name: "Gửi yêu cầu xem lại" })).toHaveCount(0);
+});
+
+test("student result: 375 px — phần trắc nghiệm dùng được, mã code cuộn ngang trong khối mã, trang không tràn ngang", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 800 });
+  await studentResultSetup(page, "PUBLISHED");
+  await page.goto(`/exams/${E_R}/take?course=${C1}`);
+  const r = page.locator("[data-part=student-result]");
+  await expect(r.locator("[data-part=final-score]")).toBeVisible();
+  await r.locator("details summary").first().click();
+  await expect(r.locator("pre").first()).toBeVisible();
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+test("student result: chưa công bố — 'Điểm đang được chấm.', không có điểm hay đáp án", async ({ page }) => {
+  await studentResultSetup(page, "CLOSED");
+  await page.goto(`/exams/${E_R}/take?course=${C1}`);
+  await expect(page.getByText("Điểm đang được chấm.")).toBeVisible();
+  await expect(page.locator("[data-part=student-result]")).toHaveCount(0);
+});
+
+test("results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn thấy, cuộn tới cuối vẫn thấy dòng cuối", async ({ page }) => {
+  await resultsSetup(page, "TEACHER");
+  const many = Array.from({ length: 1000 }, (_, i) => ({ attempt_id: `att-${i}`, student: { id: `00000000-0000-7000-8000-${String(i).padStart(12, "0")}`, full_name: `Sinh viên ${String(i).padStart(4, "0")}`, student_code: `B20DC${String(i).padStart(6, "0")}` }, status: "GRADED", auto_score: "5.00", score: "5.00", adjusted: false, submitted_at: "2026-12-01T02:40:00Z", submit_reason: "MANUAL", flags: { similarity: 0, tab_hidden: 0, paste: 0 } }));
+  await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E_R}/results(\\?|$)`), (route) =>
+    route.request().method() === "OPTIONS"
+      ? route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } })
+      : route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify({ progress: { not_started: 0, in_progress: 0, grading: 0, graded: 1000, absent: 0 }, items: many, next_cursor: null }) }),
+  );
+  await page.goto(`/exams/${E_R}/results?course=${C1}`);
+  await expect(row(page, "Sinh viên 0000")).toBeVisible();
+  const rendered = await page.locator("main tbody tr, main [role=row]").count();
+  expect(rendered).toBeLessThan(120);
+  await page.locator("main").getByRole("table").first().evaluate((t) => {
+    for (let el: HTMLElement | null = t as HTMLElement; el; el = el.parentElement) {
+      if (el.scrollHeight > el.clientHeight + 50 && getComputedStyle(el).overflowY !== "visible") { el.scrollTop = el.scrollHeight; break; }
+    }
+  });
+  await expect(row(page, "Sinh viên 0999")).toBeVisible();
+});

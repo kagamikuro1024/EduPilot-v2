@@ -79,7 +79,7 @@ function Board({ courseId, code }: { courseId: string; code: string }) {
                     title={e.title}
                     context={windowLine(e)}
                     meta={e.attempts.started > 0 ? `${e.attempts.started} sinh viên đã bắt đầu` : e.effective_status === "DRAFT" ? "Chưa lên lịch" : undefined}
-                    href={`/exams/${e.id}`}
+                    href={e.effective_status === "CLOSED" || e.effective_status === "PUBLISHED" ? `/exams/${e.id}/results?course=${courseId}` : `/exams/${e.id}`}
                     action={e.effective_status === "CLOSED" || e.effective_status === "PUBLISHED" ? <span className={s.rowHint}>Xem kết quả</span> : undefined}
                   />
                 ))}

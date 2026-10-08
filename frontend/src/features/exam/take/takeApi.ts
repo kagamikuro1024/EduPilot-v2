@@ -69,9 +69,6 @@ export const takeover = (clock: ExamClock, course: string, exam: string, attempt
 export const submitAttempt = (course: string, exam: string, attempt: string, tab: string, key: string) =>
   apiClient.post<SubmitSummary>(`${examBase(course, exam)}/attempts/${attempt}/submit`, undefined, { headers: tabHeader(tab), idempotencyKey: key }).then((r) => r.data);
 
-export const getResult = (course: string, exam: string, attempt: string) =>
-  apiClient.get<{ exam: { max_score: string }; score: string | null }>(`${examBase(course, exam)}/attempts/${attempt}/result`).then((r) => r.data);
-
 /** Đợi `ms` ms (dùng khi gửi lại cùng một ý định lúc mạng chập chờn). */
 export function sleep(ms: number): Promise<void> {
   const { promise, resolve } = Promise.withResolvers<void>();

@@ -2,15 +2,16 @@
 
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { ApiError, ApiErrorNotice, useIdempotentMutation, type ApiResult } from "@/shared/data";
+import { ApiError, ApiErrorNotice, useIdempotentMutation, useSSE, type ApiResult } from "@/shared/data";
 import { Markdown } from "@/shared/domain";
 import { makeExamClock } from "@/shared/lib/examClock";
 import { useSession } from "@/shared/session/session";
 import { Button, EmptyState, InlineNotice, Page, PageHeader, Skeleton } from "@/shared/ui";
 import { fmtClock, fmtWhen } from "../examApi";
+import { StudentResultView } from "../results/StudentResult";
 import { IntegrityNotice } from "./IntegrityNotice";
 import { TakeRunning } from "./TakeRunning";
-import { getMine, getResult, isNone, isRunning, newTabId, sleep, startAttempt, type Mine, type NoAttempt, type Running, type Submitted } from "./takeApi";
+import { getMine, isNone, isRunning, newTabId, sleep, startAttempt, type Mine, type NoAttempt, type Running, type Submitted } from "./takeApi";
 import { readStoredTab } from "./useWriter";
 import s from "./Take.module.css";
 
@@ -72,6 +73,11 @@ export function ExamTake({ id }: { id: string }) {
       await sleep(2000);
     }
   }
+
+  // Công bố (hoặc điểm đổi sau công bố): đọc lại trạng thái để màn đã nộp chuyển sang kết quả (SRS 4.8.2).
+  useSSE("exam.published", () => {
+    if (load.kind === "ready") void refresh(load.course, (m) => !isRunning(m));
+  });
 
   if (load.kind === "loading") return <Page><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Skeleton lines={5} /></Page>;
   if (load.kind === "error") {
@@ -140,24 +146,19 @@ function Intro({ mine, start, onStarted }: { mine: NoAttempt; start: (key: strin
 
 function Done({ course, id, mine }: { course: string; id: string; mine: Submitted }) {
   const a = mine.attempt;
-  const [score, setScore] = useState<string | null>(null);
   const published = mine.exam.status === "PUBLISHED";
-  useEffect(() => {
-    if (!published) return;
-    void getResult(course, id, a.id).then((r) => setScore(r.score ? `${r.score.replace(".", ",")} / ${r.exam.max_score.replace(".", ",")}` : null), () => undefined);
-  }, [published, course, id, a.id]);
   const when = hhmmss(a.submitted_at);
   return (
     <Page>
       <PageHeader title={mine.exam.title} back={{ href: "/exams", label: "Bài thi" }} />
       <div className={s.done} data-part="submitted">
-        <InlineNotice tone="success" title={a.submit_reason === "MANUAL" ? `Đã nộp lúc ${when}.` : `Hết giờ — bài của bạn đã được nộp lúc ${when}.`}>
-          {published
-            ? score ? `Điểm của bạn: ${score}.` : "Điểm đã được công bố."
-            : mine.exam.status === "CLOSED"
-              ? "Điểm đang được chấm."
-              : `Điểm sẽ hiện khi bài thi đóng với cả lớp${mine.exam.closes_at ? ` (${fmtWhen(mine.exam.closes_at)})` : ""}.`}
-        </InlineNotice>
+        {published ? (
+          <StudentResultView course={course} exam={id} attempt={a.id} />
+        ) : (
+          <InlineNotice tone="success" title={a.submit_reason === "MANUAL" ? `Đã nộp lúc ${when}.` : `Hết giờ — bài của bạn đã được nộp lúc ${when}.`}>
+            {mine.exam.status === "CLOSED" ? "Điểm đang được chấm." : `Điểm sẽ hiện khi bài thi đóng với cả lớp${mine.exam.closes_at ? ` (${fmtWhen(mine.exam.closes_at)})` : ""}.`}
+          </InlineNotice>
+        )}
       </div>
     </Page>
   );
