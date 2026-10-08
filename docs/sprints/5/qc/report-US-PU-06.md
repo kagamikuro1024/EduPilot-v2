@@ -1,5 +1,5 @@
 # Báo cáo QC — US-PU-06 (khung vẽ từ máy chủ, Lighthouse LCP / TBT về `error`)
-**Cập nhật 2026-10-09 (#15): TC-13 PASS. Còn FAIL 3 TC (TC-06, TC-12, TC-19); chờ dev "US-PU-06: fix B1/B2/B4".**
+**KẾT LUẬN CUỐI (chấm lại `b040014`, 2026-10-09): PASS có điều kiện.** TC-06 / 12 / 13 / 19 đã PASS. Chấm lại thêm: build:gate rc=0; `lhci autorun` (CI) rc=0; `lhci autorun --config=lighthouserc.devtools.json` rc=0 (chỉ `/dev/ui` LCP 2.923 `warn`); `lint` rc=0; `ui-antipatterns` 19 `✓`; Playwright không visual **330 pass** / 0 fail; `visual.spec` trong image Playwright **14/14 ×2** (gradebook đổi bố cục dựng nhưng ảnh không đổi). **Điều kiện còn lại:** TC-04 / 05 (CI GitHub không chạy — billing), TC-18 / 20 (chưa chạy trên stack seed); TBT `/chat`, `/gradebook` sát 170 (AC5 dev cũng thừa nhận hai đỉnh). Dòng "Cập nhật (#15)" và "Kết luận" phía dưới là các lần chấm trước.
 **Kết luận: FAIL 4 TC (TC-06, TC-12, TC-13 theo chữ AC3, TC-19), 3 TC KHÔNG KIỂM ĐƯỢC (TC-04, TC-05, TC-18/20 chưa chạy); còn lại PASS.** Bản chấm `9dca5ad` (`origin/sprint/5-pe`; mã dev = `799a236`, spec `FEAT-ui-foundation` v1.5 / PM #14). QC tự đo trên macOS arm64 (benchmarkIndex 3570–3840), Lighthouse 12.6.1 (`lhci`), Chromium headless-shell của Playwright, **không dùng số của dev**. Không có lỗ hổng bảo mật; không hồi quy ảnh mốc, axe, đăng nhập / phiên.
 
 ## Lỗi / lệch
@@ -20,20 +20,20 @@
 | 03 | PASS | `git diff 1e2083e` ở `lighthouserc.json`, `lighthouse-auth.cjs`, `lighthouse-api.mjs`, `ci.yml`: không đổi `cpuSlowdownMultiplier`, không `skipAudits` / `onlyAudits`, `numberOfRuns` 3; **thêm** bước `lighthouse ci (devtools, chỉ LCP)` và `include-hidden-files` |
 | 04 | **KHÔNG KIỂM ĐƯỢC** (L1) | billing; thay bằng chạy hai lệnh CI tại máy (rc=0) |
 | 05 | **KHÔNG KIỂM ĐƯỢC** (L1) | không có 3 lần chạy xanh |
-| 06 | **FAIL** (B1) | 12×, từng route (trung vị, 5 lượt): `/` 99, `/chat` 164, `/threads` 102, `/inbox` 132, **`/gradebook` 183**, `/settings/llm` 119; `/dev/ui` 187 (ghi) |
+| 06 | PASS (chấm lại `b040014`, sát ngưỡng) | 12×, 7 lượt, trung vị từng route: `/` 100, `/chat` **169**, `/threads` 105, `/inbox` 86, `/gradebook` **168**, `/settings/llm` 118; `/dev/ui` 178 (ghi). Phân bố hai đỉnh (≈ 85–95 / ≈ 170–185): `/chat` `86 86 86 169 170 173 173`, `/gradebook` `85 86 95 168 169 185 185` — trung vị ≤ 170 nhưng **biên rất mỏng** (đỉnh cao 173–185 ≈ ngưỡng CI 200 vẫn qua) |
 | 07 | PASS | LCP **devtools 4×** (3 lượt, trung vị): `/` 1.457, `/chat` 1.488, `/threads` 1.499, `/inbox` 1.924, `/gradebook` 1.915, `/settings/llm` 1.498 (≤ 2.500); `/dev/ui` 2.971 (`warn`). Simulate 4×: 3.380 / 3.394 / 3.462 / 4.044 / 3.962 / 3.382 / 3.242 (không chấm, #14) |
 | 08 | PASS | `font-display: block`; `next/font` tự host (preload mặc định), `subsets: ["vietnamese","latin"]`, **3 độ đậm** (400, 600, 700); FCP devtools 819–837 ms (≤ 1 s) |
 | 09 | PASS | `tokens.spec` nằm trong 330 pass (khẳng định `block`) |
 | 10 | PASS | 6 route: `<h1>` = 1 mỗi route, chữ tiếng Việt thật: "Việc cần xử lý hôm nay", "Chat riêng", "Threads", "Hộp thư hỗ trợ", "Sổ điểm", "Cấu hình LLM"; không "Đang tải…" |
 | 11 | PASS | `shell.spec` / `account.spec` pass trong lượt đầy đủ; CLS = 0 ở cả 7 URL, mọi chế độ |
-| 12 | **FAIL** (B2) | 0 khớp tên / email / MSSV / token / `Set-Cookie`; 1 khớp `s-maxage` ở **mỗi** route |
+| 12 | PASS (chấm lại `b040014`) | 0 khớp tên / email / MSSV / token / `Set-Cookie`; `Cache-Control: private, no-cache` ở 6 route + `/dev/ui` + `/login`; không `s-maxage` / `public` |
 | 13 | PASS (chấm lại theo #15) | `"use client"` 0 → 0 ở hai layout (không tăng); `h1` + mô tả có trong HTML máy chủ 6 route (TC-10); JS truyền tải `/` 252.161, `/chat` 252.161, `/threads` 252.161, `/inbox` 237.215, `/gradebook` 251.827, `/settings/llm` 248.551, `/dev/ui` 200.622 (≤ 256.000, sát) |
 | 14 | PASS | phần tử LCP ở khung máy chủ: `<p …PreShell…body>` (`/chat`), `<p …Layout…desc>` (`/threads`, `/gradebook`, `/settings/llm`, `/inbox`), `<h1 …page-title>` (`/`); `lcp.spec.ts › lcp before refresh` **12/12 pass** (2 dự án × 6 route) |
 | 15 | PASS | `visual.spec.ts` trong `mcr.microsoft.com/playwright:v1.63.0-noble` (cài + `build:gate` trong container): **14 passed**, hai lần liên tiếp, không `--update-snapshots`; 0 ảnh mốc đổi |
 | 16 | PASS | Playwright `--grep-invert "@real\|visual" --workers=2`: **330 pass**, 100 skip, 0 fail (gồm `a11y`, `account`, `class-join`, `today`, `shell`, `lcp`, `tokens`); `axe-allow.json` = 0 mục (không tăng) |
 | 17 | PASS | không phụ thuộc mới (`git diff` `package.json`, `pnpm-lock.yaml` rỗng); `pnpm lint` rc=0; `ui-antipatterns.sh` rc=0, **19** `✓`; `ui-allow:` = 9; `build:gate` rc=0 |
 | 18 | **KHÔNG KIỂM ĐƯỢC** | chưa chạy `audit-login.mjs` + `matrix()` trên stack seed (RAM / thứ tự story); `shell.spec` (`nav per role`, `route access`) pass |
-| 19 | **FAIL** (B4) | `PROGRESS.md` dòng 8 và 47 chưa trả nợ; handoff thiếu `First Load JS` / `benchmarkIndex` từng route |
+| 19 | PASS (chấm lại `b040014`) | `PROGRESS.md` dòng 8 và 47 đánh dấu **ĐÃ TRẢ (US-PU-06, #14)**; handoff có bảng `First Load JS` + `benchmarkIndex` từng route (dev tự ghi `/inbox` 173 ở lượt của dev — QC đo `/inbox` 86) |
 | 20 | KHÔNG KIỂM ĐƯỢC | chưa đi tay bằng `playwright-cli` (thăm dò + ảnh); sẽ làm khi có stack seed cho PE |
 
 ## Việc sau
