@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.5 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.6 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.6 (2026-10-08)** — góp ý #4, #5, #6, #9, #10, #11, #12, #13 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; Tech Lead TLR-2, TLR-3, TLR-4, TLR-7…TLR-11, `TL-REVIEW.md`). #4: chính sách chỗ chạy (`RUN` ≥ 1 chỗ, `SUBMIT` ≤ P − 1 khi có `RUN` chờ), **một consumer** `JUDGE_CONSUMER=true`, AC12 đo trên máy dev colima 4 CPU (SRS 4.5.8). #5: trần `memory_limit_mb` 512, worker kiểm `JUDGE_MEM_LIMIT ≥ P × 768 MiB + 512 MiB`, ca A6 chạy đồng thời P bản. #6: khoá `ep:judge:up` (SRS 5.15, 4.4.2). #9: `limit` ngoài 1…100 → 422. #10: bỏ lệnh `go list ./internal/exam`, dùng `TestOnlySuggestImportsLLM`. #11: kiểm "không ra internet" bằng `bash /dev/tcp` + ca A10 / A10b. #12: tab id sinh mỗi lần tải trang + `BroadcastChannel` / tự `takeover` (`meta.reload`) + ca E2E nhân bản tab. #13: chấm lại giữ điểm / `breakdown` cũ, `recomputeGraded`, `regrading=false` khi mọi bản nộp xong, một khoá `exam.regraded:<attempt_id>:v<attempt.version>`, `breakdown` có `code` làm nguồn trang kết quả. Không đổi số AC (124). Các góp ý gợi ý TLR-12…14 chưa được PM xử lý nên chưa sửa.
 
 **v1.5 (2026-10-08)** — **lược đồ**, góp ý #3, #7, #8 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; Tech Lead TLR-1, TLR-5, TLR-6, `TL-REVIEW.md`; sửa **trước** migration US-PE-01). #3: `code_submissions` thêm `lease_until`, `next_attempt_at`, `fail_count` và `enqueued_at` (cột thứ tư BA thêm để tick đưa lại Stream đúng mẫu `outbox.enqueued_at`, tránh `XADD` lặp) + nhận việc kiểu outbox (SRS 4.5.7 viết lại; US-PE-02 AC8; env `JUDGE_LEASE`, `JUDGE_LEASE_RENEW`, `JUDGE_CLAIM_IDLE` 60 s → 10 phút, `JUDGE_MAX_TOTAL_SECONDS`; mã `CODE_TIME_BUDGET_EXCEEDED` ở `schedule`). #7: US-PE-01 AC1 ghi danh sách ngoại lệ đóng 9 chỉ mục (8 của TLR-5 + `code_submissions_lease_idx` mới). #8: FK phức hợp `(course_id, …)` + `UNIQUE (course_id, id)` ở bảng cha (SRS 5.16), `CHECK` ngôn ngữ của `reference_language`, thêm ca vào `TestExamConstraints` (≥ 42). Không đổi số AC (124). Các góp ý #4, #5, #6, #9–#13 làm ở v1.6.
 
@@ -239,7 +241,9 @@ Chạy ở worker, mỗi `EXAM_TICK_INTERVAL` (5 s), chỉ một bản chạy nh
 
 #### 4.3.5 Một nơi được ghi (`writer_tab`)
 
-Mọi `PUT` (answers, draft) và `POST run|submit` mang `X-Exam-Tab: <uuid do tab sinh ra, giữ ở `sessionStorage`>`. `exam_attempts.writer_tab` / `writer_seen_at`. Quy tắc: nếu `writer_tab` rỗng hoặc bằng tab gọi hoặc `writer_seen_at < now − EXAM_TAB_STALE` (20 s) → tab gọi trở thành người ghi (cập nhật `writer_seen_at` **tối đa một lần / 10 s**); ngược lại 409 `ATTEMPT_OTHER_TAB` (`details.writer_seen_at`). `POST …/takeover` đặt `writer_tab = tab gọi`, ghi `TAB_TAKEOVER`. `GET …/attempts/mine` trả `writer:{is_you}` (không đổi người ghi). Tab chỉ đọc vẫn đọc được trạng thái và tự thử lại ghi sau mỗi 10 s chỉ khi người dùng bấm `Làm tiếp ở đây`.
+Mọi `PUT` (answers, draft) và `POST run|submit` mang `X-Exam-Tab: <uuid sinh **mỗi lần tải trang**, giữ trong bộ nhớ của trang — không ở `sessionStorage` vì trình duyệt sao chép nó khi nhân bản tab / `window.open` (góp ý #12)>`. `exam_attempts.writer_tab` / `writer_seen_at`. Quy tắc: nếu `writer_tab` rỗng hoặc bằng tab gọi hoặc `writer_seen_at < now − EXAM_TAB_STALE` (20 s) → tab gọi trở thành người ghi (cập nhật `writer_seen_at` **tối đa một lần / 10 s**); ngược lại 409 `ATTEMPT_OTHER_TAB` (`details.writer_seen_at`). `POST …/takeover` đặt `writer_tab = tab gọi`, ghi `TAB_TAKEOVER`. `GET …/attempts/mine` trả `writer:{is_you}` (không đổi người ghi). Tab chỉ đọc vẫn đọc được trạng thái và tự thử lại ghi sau mỗi 10 s chỉ khi người dùng bấm `Làm tiếp ở đây`.
+
+**Tải lại trang / nhân bản tab (góp ý #12 — TLR-10).** Vì tab id đổi mỗi lần tải, quyền ghi sau khi tải lại được giữ bằng `BroadcastChannel('exam-tab:<attempt_id>')` và `localStorage['exam-writer:<attempt_id>']` (= tab id lần cuối được làm người ghi **trong trình duyệt này**): khi tải, trang gửi `ping` trên kênh và chờ **300 ms**. (1) Có tab khác của cùng trình duyệt trả lời → trang vào chế độ **chỉ đọc** (không tự `takeover`) — ca nhân bản tab / `window.open`. (2) Không ai trả lời **và** `writer_tab` của máy chủ (`GET …/attempts/mine`) bằng id đã lưu ở `localStorage` → writer cũ là chính trang vừa bị tải lại (đã chết) → trang tự `POST …/takeover` với `{reload:true}` (sự kiện `TAB_TAKEOVER` mang `meta.reload=true`; giảng viên thấy như một lần tải lại, không tính là bất thường). (3) Còn lại (người ghi là thiết bị / trình duyệt khác) → chỉ đọc + `Làm tiếp ở đây` như thường (`writer_seen_at` quá 20 s thì quy tắc trên tự cho trang ghi). Mọi tab đang là người ghi trả lời `ping` ngay. Cập nhật `localStorage` mỗi khi trang trở thành người ghi.
 
 #### 4.3.6 Hàng đợi lưu phía máy khách
 
@@ -253,7 +257,7 @@ Khoá `exam:<attempt_id>` (`useAutosaveDraft`): mỗi thay đổi ghi ngay vào 
 
 #### 4.4.2 `Chạy thử`
 
-`POST …/code/{item}/run` (`Idempotency-Key` bắt buộc): kiểm lượt `IN_PROGRESS`, hạn giờ, người ghi, ngôn ngữ, `source` (≤ 64 KiB, không rỗng); hạn mức cửa sổ trượt `ep:exam:run:{user_id}` = `EXAM_RUN_LIMIT` (10) trong `EXAM_RUN_WINDOW` (10 phút) — `ZADD` / `ZREMRANGEBYSCORE` / `ZCARD` bằng Lua nguyên tử; vượt → 429 với `retry_after = giây tới khi phần tử cũ nhất hết hạn` (làm tròn lên); ghi `code_submissions` (`kind=RUN`) + outbox `judge.enqueue` (Stream `judge.run`); trả 202 `{run_id}`. Chỉ test `is_sample AND approved`. Kết quả (SSE `exam.run` + `GET …/runs/{id}`): `{status, compile_ok, compile_log?, samples:[{name,verdict,time_ms,memory_kb,input?,expected?,stdout_excerpt?}]}`; `stdout_excerpt` ≤ 2 KiB.
+`POST …/code/{item}/run` (`Idempotency-Key` bắt buộc): kiểm lượt `IN_PROGRESS`, hạn giờ, người ghi, ngôn ngữ, `source` (≤ 64 KiB, không rỗng); **trước hết** đọc `ep:judge:up`: vắng → 503 `JUDGE_UNAVAILABLE` + `retry_after` ∈ 10…30 s (≤ 3 s, không gọi judge; góp ý #6); hạn mức cửa sổ trượt `ep:exam:run:{user_id}` = `EXAM_RUN_LIMIT` (10) trong `EXAM_RUN_WINDOW` (10 phút) — `ZADD` / `ZREMRANGEBYSCORE` / `ZCARD` bằng Lua nguyên tử; vượt → 429 với `retry_after = giây tới khi phần tử cũ nhất hết hạn` (làm tròn lên); ghi `code_submissions` (`kind=RUN`) + outbox `judge.enqueue` (Stream `judge.run`); trả 202 `{run_id}`. Chỉ test `is_sample AND approved`. Kết quả (SSE `exam.run` + `GET …/runs/{id}`): `{status, compile_ok, compile_log?, samples:[{name,verdict,time_ms,memory_kb,input?,expected?,stdout_excerpt?}]}`; `stdout_excerpt` ≤ 2 KiB.
 
 #### 4.4.3 `Nộp lời giải`
 
@@ -278,7 +282,7 @@ Với mỗi câu code: `final = SUBMIT` có `created_at` lớn nhất của `(at
 | Lệnh | `deploy/judge/start.sh`: `exec /opt/go-judge -http-addr=:5050 -parallelism="$JUDGE_PARALLELISM" -auth-token="$JUDGE_TOKEN" $JUDGE_EXTRA_ARGS` |
 | seccomp | bật mặc định (amd64: CI, VPS); `JUDGE_EXTRA_ARGS=-no-seccomp` ở `.env.local` trên colima **arm64** (v1.13.0 + seccomp hỏng ở arm64: mọi `/run` trả `lstat stdout: operation not permitted`) |
 | Mạng | `judge_net` (`internal: true`) gắn `judge` + `worker`; `judge` **không** gắn mạng mặc định (không thấy DB / Redis / blob / gateway, không ra internet); không `ports`; không volume |
-| Tài nguyên | `cpus: 2.0`, `mem_limit: 2g` (chỉnh qua `JUDGE_CPUS`, `JUDGE_MEM_LIMIT`) — để judge không ăn hết máy chung |
+| Tài nguyên | `cpus: 2.0`, `mem_limit` = `JUDGE_MEM_LIMIT` (mặc định `2g` cho `JUDGE_PARALLELISM=2`; `.env.local` colima P = 4 đặt `4g`) và `cpus: 2.0` (`JUDGE_CPUS`) — để judge không ăn hết máy chung; **worker kiểm công thức bộ nhớ khi khởi động (4.5.8)** |
 | Bí mật | `JUDGE_TOKEN` từ `.env` (≥ 16 ký tự); container không nhận biến nào khác (không `DATABASE_URL`, `REDIS_URL`, `APP_ENCRYPTION_KEY`, …); `-enable-debug` tắt |
 | Cách lùi | nếu v1.13.0 + seccomp hỏng ở amd64 → PM chọn v1.12.3 (research); API phía worker không đổi |
 
@@ -320,7 +324,7 @@ POST /run
 
 *Dọn:* `DELETE /file/<file id>` sau khi chấm xong (cả khi lỗi / huỷ). *Sức khoẻ:* `GET /version` (không cần token).
 
-**Quy tắc phía worker:** biên dịch **một lần** mỗi bản nộp, chạy mọi test bằng `fileId` đã cache; mỗi lời gọi có `context` hạn = `clockLimit + JUDGE_HTTP_SLACK` (5 s); semaphore trong tiến trình = `JUDGE_PARALLELISM` (go-judge xếp hàng bên trong nhưng HTTP treo lâu — research); không ghi đĩa; tên tệp nguồn cố định `a.c` / `a.cc`; nội dung test gửi bằng `content` (đọc từ DB / blob); **không gửi danh tính sinh viên** hay bất kỳ định danh nào tới judge.
+**Quy tắc phía worker:** biên dịch **một lần** mỗi bản nộp, chạy mọi test bằng `fileId` đã cache; mỗi lời gọi có `context` hạn = `clockLimit + JUDGE_HTTP_SLACK` (5 s); semaphore trong tiến trình = `JUDGE_PARALLELISM` với chính sách chỗ ở 4.5.8 (go-judge xếp hàng bên trong nhưng HTTP treo lâu — research); không ghi đĩa; tên tệp nguồn cố định `a.c` / `a.cc`; nội dung test gửi bằng `content` (đọc từ DB / blob); **không gửi danh tính sinh viên** hay bất kỳ định danh nào tới judge.
 
 #### 4.5.3 Giới hạn mặc định (research mục 3)
 
@@ -328,7 +332,7 @@ POST /run
 | --- | --- | --- |
 | CPU | 10 s | `time_limit_ms` của bài, mặc định **1.000 ms** (100…10.000) |
 | Đồng hồ | 20 s | 3 × CPU |
-| Bộ nhớ | 512 MiB | `memory_limit_mb`, mặc định **256 MiB** (16…1.024) |
+| Bộ nhớ | 512 MiB | `memory_limit_mb`, mặc định **256 MiB** (16…512; góp ý #5) |
 | Tiến trình | 50 (cc1plus, as, ld) | **1** (không đa luồng) |
 | Đầu ra | `stdout` 4 KiB, `stderr` 8 KiB | `stdout` ≤ `output_limit_kb`, mặc định **1.024 KiB** (1…16.384); `stderr` 4 KiB |
 | Mã nguồn | ≤ `JUDGE_MAX_SOURCE_BYTES` 64 KiB | – |
@@ -373,7 +377,7 @@ Mỗi ca là một bản nộp C / C++ đi qua **đường chấm thật** (khô
 | A3 | in hữu hạn 5 MB | `OLE` (độ dài ghi nhận = giới hạn + 1) | ✓ |
 | A4 | in 1 GB hữu hạn nhanh (`fwrite` lặp) | `OLE` hoặc `TLE`; RAM / đĩa máy chủ không tăng quá 10 MiB | xác minh |
 | A5 | cấp phát dần tới 512 MiB (`malloc` + `memset` mỗi 1 MiB) | `MLE` | ✓ |
-| A6 | cấp phát 2 GB một lần + `memset` | `MLE` hoặc `RE` (`malloc` trả NULL → chương trình thoát ≠ 0); container sống | xác minh |
+| A6 | cấp phát 2 GB một lần + `memset` | `MLE` hoặc `RE` (`malloc` trả NULL → chương trình thoát ≠ 0); container sống. **Chạy đồng thời P bản A6** (P = `JUDGE_PARALLELISM`) → container không khởi động lại, `RestartCount` không đổi (góp ý #5) | xác minh |
 | A7 | truy cập con trỏ NULL | `RE` (`Signalled`) | ✓ |
 | A8 | fork bomb (`fork()` lặp, con cũng `fork()`) | không tạo được tiến trình thứ hai (`procPeak = 1`); `TLE` hoặc `RE`; không tiến trình mồ côi | ✓ |
 | A9 | `fopen` đọc `/etc/shadow`, `/etc/passwd`, `/proc/1/environ`, `/opt/go-judge`, `/root/.bashrc` | **cả 5 đường bị chặn** (chương trình in `CHAN` cho từng đường; test kiểm đầu ra = `CHAN×5`) | ✓ |
@@ -409,6 +413,13 @@ Mỗi ca là một bản nộp C / C++ đi qua **đường chấm thật** (khô
 9. **Trần tổng thời gian.** Một bản nộp chạy tối đa `20 s` biên dịch + Σ `clockLimit` của các test `approved`; **Σ `clockLimit` ≤ `JUDGE_MAX_TOTAL_SECONDS` (300 s)** được kiểm ở `schedule` (4.2.4, mã `CODE_TIME_BUDGET_EXCEEDED`) để thời gian thuê / backoff ở trên luôn đủ.
 
 Quy tắc dịch trạng thái chấm lại (đặt `QUEUED`, `fail_count=0`, `next_attempt_at=now()`, `enqueued_at=NULL`, xoá `verdict` / `results`): 4.8.4.
+
+#### 4.5.8 Chính sách chỗ chạy, một consumer, bộ nhớ (góp ý #4, #5 — TLR-2, TLR-3)
+
+- **Chỗ chạy.** `P = JUDGE_PARALLELISM`; go-judge chạy `-parallelism = P`; worker giữ semaphore P chỗ (bằng go-judge, nên không xếp hàng HTTP bên trong). `Chạy thử` (`judge.run`) dùng **bất kỳ** chỗ trống; `Nộp lời giải` (`judge.submit`) dùng tối đa `max(1, P − 1)` chỗ **khi có `Chạy thử` đang chờ**, ngược lại dùng đủ P. Hệ quả: một `Chạy thử` mới vào luôn thấy ≥ 1 chỗ sắp trống mà không bản `SUBMIT` nào bắt đầu sau nó chen trước; nó chờ tối đa tới khi một bản nộp **đang chạy** xong (không ngắt giữa chừng — thời gian chấm của một bản nộp, ≤ trần 4.5.7 bước 9).
+- **Một consumer.** Consumer judge chạy ở **đúng một** bản `worker` (`JUDGE_CONSUMER=true`; compose mặc định bật ở dịch vụ `worker` duy nhất). Vì chỉ có một container `judge` (D58), một consumer là đủ; tách máy judge / nhiều consumer cần semaphore toàn cục trên Redis — **nợ PR**, không làm ở PE. Tăng `replicas` của `worker` mà để `JUDGE_CONSUMER=true` ở nhiều bản = sai cấu hình (vẫn đúng dữ liệu nhờ thuê việc 4.5.7, nhưng vượt P chỗ).
+- **Bộ nhớ.** Mỗi chỗ chạy dùng tối đa `memory_limit_mb` (≤ 512) + tmpfs `/w` và `/tmp` (2 × 128 MiB = 256 MiB tính vào cgroup). Khi khởi động, worker (bản `JUDGE_CONSUMER=true`) kiểm `JUDGE_MEM_LIMIT ≥ P × (512 + 256) MiB + 512 MiB` (phần 512 MiB: go-judge, bản sao stdout, `shm`); sai → **thoát mã 1** với log `error` nêu tên biến (`JUDGE_MEM_LIMIT` hoặc `JUDGE_PARALLELISM`), không tự sửa giá trị. P = 2 → ≥ 2.048 MiB (`2g` đạt); P = 4 → ≥ 3.584 MiB (cần `4g`).
+- **Hiệu năng.** Ngưỡng AC12 (US-PE-02) đo trên **máy đích = máy dev colima 4 CPU, P = 4**; số đo kèm cấu hình máy ghi vào handoff. P = 2 (VPS) chỉ ghi số đo, chưa cam kết ngưỡng.
 
 ### 4.6 Tính điểm (US-PE-01, US-PE-08)
 
@@ -467,7 +478,7 @@ WHERE id=$1 AND status='CLOSED' AND NOT publish_hold AND NOT regrading
 RETURNING id
 ```
 
-(0 dòng → chưa đủ điều kiện hoặc đã công bố: không làm gì). Trúng → cùng transaction ghi outbox `exam.published`; handler: thông báo `EXAM_PUBLISHED` (khử trùng `exam.published:<exam_id>:<user_id>`) cho sinh viên **có lượt**, SSE `exam.published`, xoá cache "Hôm nay". `regrading=true` được đặt khi nhận yêu cầu chấm lại / `override` lớn và `false` khi job kết thúc (kể cả lỗi).
+(0 dòng → chưa đủ điều kiện hoặc đã công bố: không làm gì). Trúng → cùng transaction ghi outbox `exam.published`; handler: thông báo `EXAM_PUBLISHED` (khử trùng `exam.published:<exam_id>:<user_id>`) cho sinh viên **có lượt**, SSE `exam.published`, xoá cache "Hôm nay". `regrading=true` được đặt khi nhận yêu cầu chấm lại / `override` lớn và về `false` khi **mọi** bản nộp trong phạm vi đã `DONE` / `ERROR` **và** mọi lượt đã tính lại điểm (4.8.4; tick kiểm) — **không** phải khi job xếp hàng xong (góp ý #13).
 
 **4.8.3 `GET …/attempts/{aid}/result` (chỉ `PUBLISHED`).**
 
@@ -483,7 +494,7 @@ RETURNING id
    "hidden":{"passed":3,"total":4},"final_submission":{"id":"…","language":"cpp17","source":"…","created_at":"…","compile_ok":true}}]}
 ```
 
-`answer` và `explanation` chỉ có khi `reveal_answers=true`; `correct` / `earned` luôn có sau công bố; câu `void` có `overridden:true`, `correct:null`; `hidden` chỉ **số**; không trọng số, không tên / input / expected / verdict từng test ẩn; không `reference*`; nếu `override` có thì chỉ cờ `overridden`. Điểm = điểm chính thức (`adjusted_score` nếu có). `breakdown.earned` ở DB lưu **đủ chữ số** (`DivRound(…, 16)`, không làm tròn trung gian — Q6); phần hiển thị làm tròn 2 chữ số chỉ để đọc, điểm cuối làm tròn một lần từ tổng chưa làm tròn (#2 (d)).
+**Nguồn dữ liệu (góp ý #13):** `earned`, `hidden`, `compile_ok` và verdict các test mẫu đọc từ `exam_attempts.breakdown` (ảnh chụp lúc tính điểm), **không** từ bản nộp — nên không trống khi bản nộp đang bị chấm lại; `final_submission` chỉ lấy `id`, `language`, `source`, `created_at` từ bản nộp (các trường này không đổi khi chấm lại). `answer` và `explanation` chỉ có khi `reveal_answers=true`; `correct` / `earned` luôn có sau công bố; câu `void` có `overridden:true`, `correct:null`; `hidden` chỉ **số**; không trọng số, không tên / input / expected / verdict từng test ẩn; không `reference*`; nếu `override` có thì chỉ cờ `overridden`. Điểm = điểm chính thức (`adjusted_score` nếu có). `breakdown.earned` ở DB lưu **đủ chữ số** (`DivRound(…, 16)`, không làm tròn trung gian — Q6); phần hiển thị làm tròn 2 chữ số chỉ để đọc, điểm cuối làm tròn một lần từ tổng chưa làm tròn (#2 (d)).
 
 **4.8.4 Sửa điểm tay, `override`, chấm lại.**
 
@@ -491,9 +502,11 @@ RETURNING id
 | --- | --- | --- | --- |
 | `PUT …/results/{aid}/score {score,reason,version}` | `GRADED`; Giảng viên | `adjusted_score` (đúng `rounding_step`, 0…`max_score`), `adjusted_reason` 1…500, `adjusted_by/at`; `auto_score` giữ nguyên; `score:null` gỡ điều chỉnh (cần lý do) | `audit_log exam.score_adjust`; sau `PUBLISHED`: `EXAM_REGRADED` (khử trùng `exam.regraded:<attempt_id>:v<version>`) |
 | `PUT …/items/{itemId}/override {answer_key\|void,reason}` | `CLOSED` / `PUBLISHED`; câu MCQ / TRUE_FALSE; Giảng viên | `exam_items.override`; tính lại mọi lượt `GRADED` (≤ 200 lượt: đồng bộ; nhiều hơn: job 202); `void` = trọn điểm cho mọi lượt | `exam.item_override`; sau `PUBLISHED`: `EXAM_REGRADED` cho lượt đổi điểm |
-| `POST …/regrade {scope,item_id?,attempt_id?,reason}` | `CLOSED` / `PUBLISHED`; Giảng viên; `Idempotency-Key` | 202; đặt `regrading=true`; job `exam.regrade` đặt lại `status=QUEUED`, `tests_version=NULL` cho bản nộp **cuối** trong phạm vi (`all` / `item` / `attempt` / `errors`) và xếp vào `judge.submit`; khi xong tính lại điểm; `regrading=false` | `exam.regrade`; sau `PUBLISHED`: `EXAM_REGRADED`; **không** huỷ công bố |
+| `POST …/regrade {scope,item_id?,attempt_id?,reason}` | `CLOSED` / `PUBLISHED`; Giảng viên; `Idempotency-Key` | 202; đặt `regrading=true`; job `exam.regrade` đặt lại bản nộp **cuối** trong phạm vi (`all` / `item` / `attempt` / `errors`) về `QUEUED` (`fail_count=0`, `next_attempt_at=now()`, `enqueued_at=NULL`, xoá `verdict` / `results` / `tests_version` **của bản nộp đó**) để tick đưa vào `judge.submit`; **lượt không đổi trạng thái và giữ nguyên `auto_score` / `breakdown` cũ** tới khi tính lại xong; tính lại theo 4.8.4 (`recomputeGraded`); `regrading=false` khi mọi bản nộp phạm vi xong và mọi lượt đã tính lại | `exam.regrade`; sau `PUBLISHED`: `EXAM_REGRADED`; **không** huỷ công bố |
 
-Chấm lại idempotent theo `(submission_id, tests_version)`; sandbox chết trong khi chấm lại → job ở lại, tick nhặt tiếp (không mất `regrading`).
+Chấm lại idempotent theo `(submission_id, tests_version)`; sandbox chết trong khi chấm lại → thuê / tick (4.5.7) nhặt tiếp, `regrading` giữ `true` (góp ý #13).
+
+**`recomputeGraded(attempt)` (idempotent; góp ý #13 — TLR-11).** Tick (5 s) và sự kiện `exam.submission_done` gọi cho mỗi lượt `GRADED` của bài đang `regrading` mà một bản nộp **cuối** của lượt có `judged_at > graded_at`: nếu mọi bản nộp cuối của lượt đã `DONE` / `ERROR` (không còn `QUEUED` / `RUNNING`) → tính lại `Score` (4.6) rồi `UPDATE exam_attempts SET auto_score=…, breakdown=…, graded_at=now(), version=version+1 WHERE id=$1 AND status='GRADED' AND version=$v` (0 dòng → bỏ, tick làm lại). Lượt **không** quay về `GRADING` (bất biến "lượt không `GRADED` khi còn bài `QUEUED`" của US-PE-02 AC10 áp cho lượt lần đầu; trong chấm lại, trang kết quả đọc `breakdown`, không đọc bản nộp đang chấm). Lượt đang `GRADING` (bài `IE`) do `tryFinishGrading` xử lý như cũ. Khi `PUBLISHED` và điểm hiệu lực đổi → outbox `exam.regraded` với khoá khử trùng **`exam.regraded:<attempt_id>:v<attempt.version>`** (`version` sau khi ghi). `regrading` về `false` khi `NOT EXISTS` bản nộp `QUEUED` / `RUNNING` của bài **và** không còn lượt nào thoả điều kiện `judged_at > graded_at` mà chưa tính lại (bài đã đóng nên không còn bản nộp mới ngoài chấm lại).
 
 **4.8.5 Phúc khảo.** `POST …/attempts/{aid}/appeal {reason}` (`Idempotency-Key`): bài `PUBLISHED`, lượt `GRADED` của người gọi, `appeal_days > 0`, `now ≤ published_at + appeal_days`, chưa có `exam_appeals` của lượt; `reason` 1…1.000; ghi `exam_appeals` `OPEN` + outbox `exam.appeal_created` → thông báo `EXAM_APPEAL_NEW` (Giảng viên + TA) và việc `EXAM_APPEAL` (Giảng viên). `POST …/appeals/{id}/answer {decision,response,score?,version}` (Giảng viên): `UPHELD` | `ADJUSTED` (+ `score`, áp như `PUT score` trong cùng transaction); một lần; outbox `exam.appeal_answered` → `EXAM_APPEAL_REPLIED` + việc `EXAM_APPEAL_REPLY` cho sinh viên. Không route nào của phúc khảo gọi LLM. P4 có thể chuyển sang `escalation_tickets` `GRADE_APPEAL` (đề xuất ở mục 10).
 
@@ -528,7 +541,7 @@ Job `CODE_TESTS`: đầu vào cho AI: `stem` + giới hạn + (tuỳ chọn) 2 t
 
 Provider chỉ đọc bằng một truy vấn tổng hợp mỗi nguồn (ngân sách truy vấn của 4.7 P2); `Overdue` do Provider đặt (`EXAM_APPEAL` có yêu cầu chờ > 48 giờ).
 
-**Thông báo** (`notifications`, `type` mới): `EXAM_SCHEDULED`, `EXAM_PUBLISHED`, `EXAM_REGRADED`, `EXAM_APPEAL_NEW`, `EXAM_APPEAL_REPLIED` (không mail ở PE — chỉ chuông; mail do P4 nối). `dedupe_key`: `exam.scheduled:<exam_id>:<user_id>`, `exam.published:<exam_id>:<user_id>`, `exam.regraded:<attempt_id>:v<n>`, `exam.appeal_new:<appeal_id>:<user_id>`, `exam.appeal_replied:<appeal_id>`.
+**Thông báo** (`notifications`, `type` mới): `EXAM_SCHEDULED`, `EXAM_PUBLISHED`, `EXAM_REGRADED`, `EXAM_APPEAL_NEW`, `EXAM_APPEAL_REPLIED` (không mail ở PE — chỉ chuông; mail do P4 nối). `dedupe_key`: `exam.scheduled:<exam_id>:<user_id>`, `exam.published:<exam_id>:<user_id>`, `exam.regraded:<attempt_id>:v<attempt.version>`, `exam.appeal_new:<appeal_id>:<user_id>`, `exam.appeal_replied:<appeal_id>`.
 
 **Outbox** (mỗi topic cùng transaction với thay đổi; handler idempotent):
 
@@ -664,7 +677,7 @@ Chỉ mục: PK · `question_options_question_position_key` UNIQUE (question_id,
 | `course_id` | `uuid` | NOT NULL | — | |
 | `languages` | `text[]` | NOT NULL | `'{cpp17}'` | `CHECK (cardinality(languages) >= 1 AND languages <@ ARRAY['c11','cpp17'])` |
 | `time_limit_ms` | `integer` | NOT NULL | `1000` | `CHECK (time_limit_ms BETWEEN 100 AND 10000)` |
-| `memory_limit_mb` | `integer` | NOT NULL | `256` | `CHECK (memory_limit_mb BETWEEN 16 AND 1024)` |
+| `memory_limit_mb` | `integer` | NOT NULL | `256` | `CHECK (memory_limit_mb BETWEEN 16 AND 512)` (góp ý #5) |
 | `output_limit_kb` | `integer` | NOT NULL | `1024` | `CHECK (output_limit_kb BETWEEN 1 AND 16384)` |
 | `checker` | `checker_kind` | NOT NULL | `'EXACT'` | |
 | `float_eps` | `numeric(12,10)` | NULL | — | `CHECK ((checker = 'FLOAT_EPS') = (float_eps IS NOT NULL))`, `CHECK (float_eps IS NULL OR (float_eps > 0 AND float_eps <= 0.1))` |
@@ -759,7 +772,7 @@ Chỉ mục: PK · `exam_items_course_id_key` UNIQUE (course_id, id) (đích c�
 | `adjusted_reason` | `text` | NULL | — | `CHECK (char_length(adjusted_reason) BETWEEN 1 AND 500)` |
 | `adjusted_by` | `uuid` | NULL | — | |
 | `adjusted_at` | `timestamptz` | NULL | — | |
-| `breakdown` | `jsonb` | NULL | — | `[{item_id,earned,max,void?}]` |
+| `breakdown` | `jsonb` | NULL | — | `[{item_id,earned,max,void?,code?:{compile_ok,hidden:{passed,total},samples:[{name,verdict,time_ms,memory_kb}]}}]` — `code` chỉ cho câu `CODE`; ảnh chụp lúc tính điểm, là nguồn của trang kết quả (kể cả khi đang chấm lại — góp ý #13) |
 | `graded_at` | `timestamptz` | NULL | — | |
 | `version` | `integer` | NOT NULL | `1` | |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
@@ -884,6 +897,7 @@ Chỉ mục: PK · `exam_appeals_attempt_key` UNIQUE (attempt_id) · `exam_appea
 | `ep:exam:submitcd:{attempt_id}:{item_id}` | String `SET NX` | `EXAM_SUBMIT_COOLDOWN` (15 s) | giãn cách nộp |
 | `ep:rl:exam:{attempt_id}:{phút}` | String (INCR) | 120 s | giới hạn lưu `EXAM_SAVE_RATE_PER_MIN` |
 | `ep:exam:tick:leader` | String `SET NX PX` | 15 s | một bộ lập lịch |
+| `ep:judge:up` | String (`1`) | 30 s | judge sống (góp ý #6): worker đặt sau mỗi lần thăm dò `GET /version` thành công (mỗi 10 s), **xoá** khi thăm dò thất bại; gateway chỉ đọc (gateway không gắn `judge_net`) |
 | `ep:today:*` | (có sẵn) | 60 s | bị xoá theo sự kiện (4.10) |
 | `judge.submit`, `judge.run` | Stream (nhóm `judge`) | — | hàng chấm |
 | `judge.submit.dead`, `judge.run.dead` | Stream (`MAXLEN ~ 10000`) | — | dead-letter |
@@ -1103,10 +1117,12 @@ Sinh viên **không bao giờ** thấy: `sandbox`, `judge`, `verdict`, `go-judge
 | --- | --- | --- | --- |
 | `JUDGE_URL` | `http://judge:5050` | địa chỉ go-judge (mạng `judge_net`) | worker |
 | `JUDGE_TOKEN` | (bắt buộc, ≥ 16 ký tự, secret) | `-auth-token` của go-judge | worker, judge |
-| `JUDGE_PARALLELISM` | `2` (VPS) / `4` (colima 4 CPU, `.env.local`) | semaphore + `-parallelism` | worker, judge |
-| `JUDGE_WORKERS` | `4` | số goroutine consumer (≥ 1 chỉ đọc `judge.run`) | worker |
+| `JUDGE_PARALLELISM` | `2` (VPS) / `4` (colima 4 CPU, `.env.local`) | P: số chỗ chạy = semaphore + `-parallelism` (chính sách chỗ: 4.5.8) | worker, judge |
+| `JUDGE_CONSUMER` | `true` ở **đúng một** bản `worker` | bật consumer judge (đọc `judge.submit` / `judge.run`); bản khác để `false` (vẫn chạy outbox / tick) — góp ý #4 | worker |
+| `JUDGE_WORKERS` | `4` | số goroutine consumer; chỗ chạy thật do semaphore P giới hạn (4.5.8) | worker |
 | `JUDGE_EXTRA_ARGS` | trống (amd64) / `-no-seccomp` (colima arm64) | cờ thêm cho go-judge | judge (compose) |
-| `JUDGE_CPUS`, `JUDGE_MEM_LIMIT` | `2.0`, `2g` | giới hạn container judge | compose |
+| `JUDGE_CPUS` | `2.0` | giới hạn CPU container judge | compose |
+| `JUDGE_MEM_LIMIT` | `2g` (P = 2) / `4g` (colima, P = 4) | giới hạn bộ nhớ container judge; phải `≥ P × (512 + 256) MiB + 512 MiB` (4.5.8) | compose, **worker** (đọc để kiểm) |
 | `JUDGE_HTTP_SLACK` | `5s` | hạn gọi = `clockLimit` + slack | worker |
 | `JUDGE_LEASE` | `30s` | thời hạn thuê việc của bản nộp đang chấm (4.5.7) | worker |
 | `JUDGE_LEASE_RENEW` | `10s` | chu kỳ gia hạn thuê (< `JUDGE_LEASE`) | worker |
