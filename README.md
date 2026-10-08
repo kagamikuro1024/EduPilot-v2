@@ -230,14 +230,15 @@ Một người (chủ dự án) + năm phiên agent trên [herdr](https://herdr.
 | `ba` | User story + SRS theo feature | `docs/specs/**` |
 | `dev` | Thi công từng story theo lát dọc | mã nguồn |
 | `qc` | Viết test case từ AC (song song với dev), kiểm thử thăm dò, chạy, báo PASS/FAIL, chạy cổng phase | `docs/sprints/N/qc/**`, test mới |
-| `research` | Kiểm chứng công nghệ, hạ tầng, rủi ro bằng nguồn chính + PoC; kiêm **Tech Lead**: trả lời dev khi phân vân kỹ thuật (`docs/sprints/N/techlead.md`) | `docs/research/**`, `docs/sprints/N/techlead.md` |
+| `research` | Kiểm chứng công nghệ, hạ tầng, rủi ro bằng nguồn chính + PoC; kiêm **Tech Lead**: trả lời dev khi phân vân kỹ thuật (`docs/sprints/N/techlead.md`), thẩm định spec của BA trước khi duyệt (`TL-REVIEW.md`, PM quyết) | `docs/research/**`, `docs/sprints/N/techlead.md`, `docs/specs/*/TL-REVIEW.md` |
 
 ```mermaid
 flowchart LR
   O[Chủ dự án] -- "bắt đầu sprint N" --> PM
   PM -- plan.md --> O
   PM --> BA[BA: US + SRS]
-  BA --> PM
+  BA --> TL[Tech Lead: thẩm định spec]
+  TL --> PM
   PM --> DEV[Dev: code + test + handoff]
   PM --> QC1[QC: viết TC từ AC]
   DEV --> QC2[QC: chạy TC + cổng]

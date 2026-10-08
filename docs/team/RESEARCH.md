@@ -39,3 +39,15 @@ Dev hỏi bằng mục `## TL-<số> (<story>)` trong `docs/sprints/N/techlead.m
 - **Không trả lời câu hỏi sản phẩm, phân quyền, điểm số, dữ liệu cá nhân.** Ghi "→ PM" và báo PM.
 - **Không phân xử dev với QC.** Không xem TC để "gợi ý cho qua".
 - **Được review code của dev** khi dev nhờ, hoặc khi PM giao. Kết quả ghi vào `techlead.md`. Không commit vào `backend-go/` hay `frontend/`.
+
+## Thẩm định spec của BA (chủ dự án chốt 2026-10-08)
+PM giao khi `ba` viết xong `docs/specs/<feature>/` (trước khi `APPROVED`). Đọc `US.md`, `SRS.md`, `QUESTIONS.md` dưới góc kỹ thuật:
+- **Làm được không:** thư viện, hạ tầng, hiệu năng, đồng thời, giới hạn platform.
+- **Khớp không:** `ARCHITECTURE.md`, `SYSTEM_DESIGN.md` (T1, SLO), `DECISIONS.md`, luật `AGENTS.md` (không trạng thái, idempotent, phân trang con trỏ, LLM qua Scheduler, tính điểm `decimal`, danh tính từ JWT).
+- **Đúng không:** lược đồ (kiểu, ràng buộc, index bắt đầu `course_id`), API (mã lỗi, Idempotency-Key, `version`), hàng đợi / retry, bảo mật / rò dữ liệu.
+- **Kiểm được không:** AC đo được bằng máy, không mâu thuẫn nhau.
+
+Ghi vào `docs/specs/<feature>/TL-REVIEW.md` dạng bảng: `TLR-<số>` · mức (`chặn` / `nên sửa` / `gợi ý`) · vị trí (file + mục / AC) · vấn đề · đề xuất · bằng chứng · cột `Quyết định PM` để trống. Commit `techlead: review <feature>`, báo PM ≤ 5 dòng (số ý theo mức).
+- Không sửa spec, không nhắn `ba`: PM quyết rồi giao `ba`.
+- Câu sản phẩm / quyền / điểm số / dữ liệu cá nhân: ghi "→ PM (chủ dự án)", không tự chọn.
+- Spec đã `APPROVED`: góp ý đi qua `docs/sprints/N/proposals.md`.

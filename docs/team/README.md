@@ -8,7 +8,7 @@ Một người (bạn) + bốn phiên Claude Code chạy trong bốn pane herdr,
 | `ba` | BA: viết US + SRS cho từng feature, làm rõ với bạn qua PM | `docs/specs/**` | `BA.md` (PM gửi) |
 | `dev` | Dev: thi công từng user story theo lát dọc | `backend-go/**`, `frontend/**`, `db/**`, `scripts/**`, `seed/**` | `DEV.md` (PM gửi) |
 | `qc` | QC: chạy cổng nghiệm thu, test theo AC, viết báo cáo lỗi; **không sửa code** | `docs/sprints/<n>/qc/**`, `frontend/e2e/**` (chỉ thêm test) | `QC.md` (PM gửi) |
-| `research` | Research + **Tech Lead**: nghiên cứu theo câu hỏi PM; trả lời dev khi phân vân kỹ thuật; **không sửa code / spec / test** | `docs/research/**`, `docs/sprints/<n>/techlead.md` | `RESEARCH.md` (PM gửi) |
+| `research` | Research + **Tech Lead**: nghiên cứu theo câu hỏi PM; trả lời dev khi phân vân kỹ thuật; thẩm định spec của BA trước khi `APPROVED`; **không sửa code / spec / test** | `docs/research/**`, `docs/sprints/<n>/techlead.md`, `docs/specs/<feature>/TL-REVIEW.md` | `RESEARCH.md` (PM gửi) |
 
 ## Vòng sprint
 
@@ -17,6 +17,7 @@ bạn ──"bắt đầu sprint N"──▶ pm
 pm: chọn feature từ backlog phase ─▶ docs/sprints/N/plan.md ─▶ hỏi bạn duyệt
 pm ─prompt─▶ ba: viết US + SRS cho từng feature ─▶ docs/specs/<feature>/
         ba có câu hỏi ─▶ docs/specs/<feature>/QUESTIONS.md ─▶ pm hỏi BẠN ─▶ ba cập nhật
+        research thẩm định spec ─▶ docs/specs/<feature>/TL-REVIEW.md ─▶ pm quyết từng ý ─▶ ba sửa ý ACCEPTED
 pm: spec APPROVED ─▶ giao SONG SONG hai nhánh:
         ├─ dev: từng story một ─▶ code + test + commit ─▶ docs/sprints/N/handoff/dev-<story>.md
         └─ qc: viết test case từ AC (hộp đen, KHÔNG đọc code dev) ─▶ docs/sprints/N/qc/tc-<story>.md
@@ -53,6 +54,7 @@ Sau khi script chạy xong: bấm vào pane `pm`, dán toàn bộ nội dung `do
 | `docs/specs/<feature>/US.md` | ba | User story + AC dạng Given/When/Then |
 | `docs/specs/<feature>/SRS.md` | ba | Yêu cầu chức năng/phi chức năng, dữ liệu, API, màn hình, luồng, nhánh lỗi |
 | `docs/specs/<feature>/QUESTIONS.md` | ba ↔ pm | Câu hỏi mở, trả lời của bạn, ngày chốt |
+| `docs/specs/<feature>/TL-REVIEW.md` | research viết, pm quyết | Thẩm định kỹ thuật của Tech Lead: `TLR-<số>`, mức, vị trí, vấn đề, đề xuất, bằng chứng, quyết định PM |
 | `docs/sprints/N/qc/tc-<story>.md` | qc | Bảng test case viết từ AC trước khi có code: `TC-id → AC → tiền điều kiện → bước/lệnh → kết quả mong đợi`; script chạy được (nếu có) đặt ở `frontend/e2e/**` hoặc `docs/sprints/N/qc/scripts/` |
 | `docs/sprints/N/handoff/dev-<story>.md` | dev | Đã làm gì, file đổi, test chạy, lệnh để QC chạy, việc còn nợ |
 | `docs/sprints/N/qc/report-<story>.md` | qc | PASS/FAIL từng AC, lỗi kèm bước tái hiện, kết quả cổng nghiệm thu |

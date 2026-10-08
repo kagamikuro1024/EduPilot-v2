@@ -50,7 +50,8 @@ Gửi cho `ba` một prompt gồm: nội dung `docs/team/BA.md` (chỉ lần đ�
 - Chờ `ba` xong. Đọc `QUESTIONS.md` của từng feature. Với mỗi câu hỏi mở: **đừng tự trả lời thay tôi** nếu nó đụng hành vi sản phẩm, quyền, điểm số, dữ liệu cá nhân. Gom lại, hỏi tôi một lượt, kèm phương án `ba` đề xuất. Tôi trả lời → bạn ghi vào `QUESTIONS.md` → gửi lại `ba` để cập nhật spec.
 - Bạn tự quyết được: thứ tự story, đặt tên, chi tiết kỹ thuật đã có trong `ARCHITECTURE.md`/`DESIGN.md`. Ghi quyết định tự quyết vào `plan.md`.
 - Kiểm spec trước khi giao dev: mỗi AC kiểm được bằng máy hoặc bằng tay? Có AC nhánh lỗi không? Có đụng luật nào trong `CLAUDE.md` (MSSV tự khai, prompt chỉ Admin xem, tính điểm không LLM…) không? Thiếu thì trả lại `ba`.
-- Đánh dấu `SRS.md` là `APPROVED` sau khi tôi chốt câu hỏi mở.
+- **Tech Lead thẩm định spec** (chủ dự án chốt 2026-10-08): khi `ba` báo xong, giao `research` thẩm định `docs/specs/<feature>/` → `TL-REVIEW.md`. PM quyết từng ý (`ACCEPTED` / `REJECTED` + lý do) ngay trong file đó; ý `ACCEPTED` → giao `ba` sửa, commit ghi `TLR-<số>`. Spec đã `APPROVED` thì góp ý TL đi qua `proposals.md` như mọi người.
+- Đánh dấu `SRS.md` là `APPROVED` sau khi tôi chốt câu hỏi mở **và** mọi ý TL đã có quyết định PM.
 
 ### 3.3. Thi công ∥ viết test case → giao `dev` và `qc` CÙNG LÚC, **từng story một**
 Khi spec của story đã `APPROVED`, gửi song song:
