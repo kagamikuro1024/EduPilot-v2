@@ -7,6 +7,8 @@ const base = ["tsx", "ts", "jsx", "js"];
 
 const config = (phase: string): NextConfig => ({
   output: "standalone",
+  // CSS vào thẳng HTML: lần vẽ đầu không chờ 3 tệp CSS (US-PU-06: LCP / FCP).
+  experimental: { inlineCss: true },
   // Trang nhận liên kết một lần (xác minh email, đặt lại mật khẩu, lời mời): không gửi Referer, không cache (SRS FEAT-account-security 6.3).
   async headers() {
     const h = [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "Cache-Control", value: "no-store" }];

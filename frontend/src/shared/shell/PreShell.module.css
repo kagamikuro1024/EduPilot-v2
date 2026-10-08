@@ -1,0 +1,4 @@
+/* 720–1099 px thanh bên luôn thu gọn (khớp AppShell): không đổi bề rộng cột khi khung thật thay vào → không dịch bố cục. */
+@media (max-width: 1099px) {
+  .pre { --side: var(--ep-sidebar-collapsed); }
+}
