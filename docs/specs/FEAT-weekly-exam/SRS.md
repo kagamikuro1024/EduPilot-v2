@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.6 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.7 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.7 (2026-10-09)** — góp ý #16, #17 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: dev US-PE-06, US-PE-07). #16: (a) `GET …/attempts/{aid}/submissions/{sid}` (#37) có thêm `source` — chỉ khi người gọi là chủ bản nộp, sinh viên khác 404, danh sách (#36) không kèm mã, thêm `TestSubmissionSourceOwnerOnly` (US-PE-06 AC9, AC10; SRS 4.4.4); (b) AC2: `Làm tiếp ở đây` hiện khi **không** phải nơi ghi. #17: (a) thêm thao tác **#57** `GET …/exams/{eid}/similarity/{id}` (Giảng viên; hai mã + `match_lines`): 56 → **57 thao tác** (SRS 6.2, 6.x contract, mục 10); (b) trang riêng `/exams/[id]/similarity` (Giảng viên), tab `Nghi giống nhau` của kết quả chỉ là liên kết, việc `EXAM_SIMILARITY` trỏ thẳng tới trang này; (c) **PM đổi công thức ngưỡng**: `flagged = score ≥ max(SIMILARITY_MIN, min(mean + 3σ, SIMILARITY_CAP))`, `SIMILARITY_CAP` mặc định 0,9 (US-PE-07 AC8; SRS 4.7.4, env; `QUESTIONS.md` Q11), thêm `TestSimilaritySmallClassFlagsCopiers` (lớp 8 bài, 3 bài chép → 3 cặp gắn cờ). Không đổi số AC (124).
 
 **v1.6 (2026-10-08)** — góp ý #4, #5, #6, #9, #10, #11, #12, #13 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; Tech Lead TLR-2, TLR-3, TLR-4, TLR-7…TLR-11, `TL-REVIEW.md`). #4: chính sách chỗ chạy (`RUN` ≥ 1 chỗ, `SUBMIT` ≤ P − 1 khi có `RUN` chờ), **một consumer** `JUDGE_CONSUMER=true`, AC12 đo trên máy dev colima 4 CPU (SRS 4.5.8). #5: trần `memory_limit_mb` 512, worker kiểm `JUDGE_MEM_LIMIT ≥ P × 768 MiB + 512 MiB`, ca A6 chạy đồng thời P bản. #6: khoá `ep:judge:up` (SRS 5.15, 4.4.2). #9: `limit` ngoài 1…100 → 422. #10: bỏ lệnh `go list ./internal/exam`, dùng `TestOnlySuggestImportsLLM`. #11: kiểm "không ra internet" bằng `bash /dev/tcp` + ca A10 / A10b. #12: tab id sinh mỗi lần tải trang + `BroadcastChannel` / tự `takeover` (`meta.reload`) + ca E2E nhân bản tab. #13: chấm lại giữ điểm / `breakdown` cũ, `recomputeGraded`, `regrading=false` khi mọi bản nộp xong, một khoá `exam.regraded:<attempt_id>:v<attempt.version>`, `breakdown` có `code` làm nguồn trang kết quả. Không đổi số AC (124). Các góp ý gợi ý TLR-12…14 chưa được PM xử lý nên chưa sửa.
 
@@ -265,7 +267,7 @@ Khoá `exam:<attempt_id>` (`useAutosaveDraft`): mỗi thay đổi ghi ngay vào 
 
 #### 4.4.4 Sinh viên thấy gì trong giờ thi
 
-`GET …/submissions/{sid}` (và danh sách) chỉ trả `{id,status,language,created_at,is_final,compile_ok,compile_log?,samples:[{name,verdict,time_ms,memory_kb}]}` khi bài chưa `PUBLISHED`. Mọi trường khác (`results` của test ẩn, `passed_weight`, `total_weight`, `verdict` chung, `tests_version`) chỉ dành cho Staff; sau `PUBLISHED` sinh viên thấy `hidden:{passed,total}` trong `result` (4.8.3), vẫn không thấy từng test ẩn.
+`GET …/attempts/{aid}/submissions/{sid}` (#37) chỉ trả `{id,status,language,created_at,is_final,source,compile_ok,compile_log?,samples:[{name,verdict,time_ms,memory_kb}]}` khi bài chưa `PUBLISHED`; danh sách (#36) trả cùng khoá **trừ `source`**. `source` là mã của chính sinh viên gọi (không phải bí mật đối với họ; cần cho "xem lại mã" / `Dùng lại mã này` — US-PE-06 AC10) và chỉ trả khi `student_id` của bản nộp = `sub` của JWT; sinh viên khác → 404 (góp ý #16). Mọi trường khác (`results` của test ẩn, `passed_weight`, `total_weight`, `verdict` chung, `tests_version`) chỉ dành cho Staff; sau `PUBLISHED` sinh viên thấy `hidden:{passed,total}` trong `result` (4.8.3), vẫn không thấy từng test ẩn.
 
 #### 4.4.5 Chốt bản tính điểm
 
@@ -459,11 +461,13 @@ Thứ tự: Redis `GET` trúng → `true` (đọc `Until` từ TTL); trượt ho
 | Trừ khung | loại khỏi tập của mỗi bài các dấu vân tay có trong `starter_code` của bài (cùng ngôn ngữ); **không** trừ lời giải mẫu (không công khai) |
 | Bỏ qua | bản nộp < 30 token sau chuẩn hoá |
 | Độ giống | **Jaccard** `|Fa ∩ Fb| ÷ |Fa ∪ Fb|` (số thực 0…1, 3 chữ số; đây là ngoại lệ chủ ý của luật `float64`: không phải điểm); đối xứng, tất định |
-| Lưu | cặp có `score ≥ 0,40` và ≥ 10 dấu vân tay chung; tối đa 200 cặp / bài (điểm cao nhất); `flagged = score ≥ max(SIMILARITY_MIN, mean + 3·stddev)` của phân phối điểm **mọi** cặp của bài trong lớp (research: nền ≈ 0,27 do khung chung, không dùng ngưỡng cố định); cặp lưu theo thứ tự chuẩn `attempt_a < attempt_b` |
+| Lưu | cặp có `score ≥ 0,40` và ≥ 10 dấu vân tay chung; tối đa 200 cặp / bài (điểm cao nhất); `flagged = score ≥ max(SIMILARITY_MIN, min(mean + 3·stddev, SIMILARITY_CAP))` của phân phối điểm **mọi** cặp của bài trong lớp (research: nền ≈ 0,27 do khung chung, không dùng ngưỡng cố định); `SIMILARITY_CAP` mặc định **0,9** chặn trần ngưỡng tương đối để lớp nhỏ không bỏ sót ca chép bài (ví dụ lớp 8 bài, 3 bài chép nhau: 3 cặp điểm 1,0 trong 28 cặp ⇒ `mean + 3σ` ≈ 1,03 > 1 nên không cặp nào đạt; với trần thì ngưỡng = 0,9 và cả 3 cặp được gắn cờ — góp ý #17 (c)); chỉ là gợi ý, **không** tự trừ điểm (D56); cặp lưu theo thứ tự chuẩn `attempt_a < attempt_b` |
 | Quy mô | chỉ mục ngược `dấu vân tay → bản nộp`, chỉ so cặp chia sẻ ≥ 1 dấu vân tay; 1.000 bản nộp ≤ 30 s; chạy ở worker (job `exam.similarity`, 202) |
 | Riêng tư | mã **không rời hệ thống**: gói không import `net/http`, không dịch vụ ngoài (MOSS không dùng; JPlag / Dolos chỉ dùng tay ngoài hệ thống) |
 
 Kích hoạt: tự động một lần sau khi bài `CLOSED` và mọi lượt đã vào `GRADED` (outbox `exam.graded_all` → job); Giảng viên chạy lại bằng `POST …/similarity/run` (`run_id` mới, bản cũ giữ). Xử lý cặp: `NEW → CLEARED | FOLLOW_UP` (kèm ghi chú ≤ 500). Việc `EXAM_SIMILARITY` ở "Hôm nay" đếm cặp `flagged AND review_state='NEW'` của lần chạy mới nhất.
+
+**Xem một cặp (#57, góp ý #17 (a)).** `GET …/exams/{eid}/similarity/{id}` (chỉ Giảng viên `ACTIVE` của lớp qua `CourseAccessGuard`; TA / Sinh viên / Admin → 403; cặp của lớp khác hoặc bài khác → 404): `{id,run_id,exam_id,problem_id,score,flagged,review_state,review_note?,a:{attempt_id,student:{name,code},language,source},b:{…cùng dạng},match_lines:{a:[[from,to],…],b:[[from,to],…]}}`. `match_lines` = các đoạn dòng (đánh số từ 1, đóng hai đầu, đã gộp đoạn liền kề) của mỗi mã chứa ít nhất một dấu vân tay chung của cặp (bộ tách từ vựng giữ số dòng của từng token); `source` là mã `SUBMIT` cuối đã dùng để so (không phải nháp mới hơn). Phản hồi `Cache-Control: no-store`; mã không đi vào log (US-PE-02 AC13).
 
 ### 4.8 Đóng, chấm, công bố, kết quả, phúc khảo (US-PE-08)
 
@@ -536,7 +540,7 @@ Job `CODE_TESTS`: đầu vào cho AI: `stem` + giới hạn + (tuỳ chọn) 2 t
 | Giảng viên / TA | 15 | `EXAM_GRADE_ERROR` | "{N} bài code chấm lỗi hệ thống · {tên bài thi}" · "Điểm chưa công bố được. Chấm lại khi hệ thống chấm hoạt động." | `/exams/{id}/results` |
 | Giảng viên | 22 | `EXAM_APPEAL` | "{N} yêu cầu xem lại điểm · {tên bài thi}" · "Cũ nhất đã chờ {tuổi}." | `/exams/{id}/results?tab=appeals` |
 | | 32 | `EXAM_PUBLISH_HOLD` | "Bài thi {tiêu đề} đã chấm xong nhưng đang hoãn công bố" | `/exams/{id}/results` |
-| | 55 | `EXAM_SIMILARITY` | "{N} cặp bài code nghi giống nhau · {tên bài thi}" · "Chỉ là gợi ý — xem và quyết định." | `/exams/{id}/results?tab=similarity` |
+| | 55 | `EXAM_SIMILARITY` | "{N} cặp bài code nghi giống nhau · {tên bài thi}" · "Chỉ là gợi ý — xem và quyết định." | `/exams/{id}/similarity` |
 | Giảng viên / TA | 90 | `QUESTION_REVIEW` | "{N} câu hỏi chờ duyệt · lớp {mã lớp}" | `/questions?review_status=PENDING&course={id}` |
 
 Provider chỉ đọc bằng một truy vấn tổng hợp mỗi nguồn (ngân sách truy vấn của 4.7 P2); `Overdue` do Provider đặt (`EXAM_APPEAL` có yêu cầu chờ > 48 giờ).
@@ -947,7 +951,7 @@ Tiền tố `/api/v1`; JSON (riêng `testcases/import`: `multipart/form-data`; `
 
 Dùng lại: `FORBIDDEN` (`reason` ∈ `role`, `course`), `NOT_FOUND`, `VALIDATION_FAILED` với `details[].code` ∈ `OPTION_COUNT`, `NO_CORRECT_OPTION`, `SINGLE_MULTIPLE_CORRECT`, `DUPLICATE_OPTION`, `STEM_TOO_LONG`, `TYPE_NOT_SUPPORTED`, `LANGUAGE_NOT_ALLOWED`, `LIMIT_OUT_OF_RANGE`, `FLOAT_EPS_REQUIRED`, `TOO_MANY_TESTS`, `TEST_ZIP_INVALID`, `REFERENCE_REQUIRED`, `REFERENCE_NOT_VERIFIED`, `CODE_TESTS_MISSING`, `TOTAL_WEIGHT_ZERO`, `ITEM_NOT_APPROVED`, `QUESTION_NOT_IN_COURSE`, `DUPLICATE_ITEM`, `NO_ITEMS`, `OPENS_IN_PAST`, `CLOSES_BEFORE_OPENS`, `CLOSES_NOT_LATER`, `DURATION_EXCEEDS_WINDOW`, `DURATION_TOO_SHORT`, `INVALID_OPTION_ID`, `SOURCE_TOO_LARGE`, `SOURCE_EMPTY`, `EXPORT_TOO_LARGE`, `CODE_TIME_BUDGET_EXCEEDED`; `CONFLICT`, `VERSION_CONFLICT`, `RATE_LIMITED` (+ `retry_after`), `COURSE_ARCHIVED`, `IDEMPOTENCY_KEY_REQUIRED`, `IDEMPOTENCY_KEY_REUSED`, `PAYLOAD_TOO_LARGE`, `INVALID_CURSOR`, `SERVICE_UNAVAILABLE`.
 
-### 6.2 Bảng thao tác (56 thao tác + 1 route thử)
+### 6.2 Bảng thao tác (57 thao tác + 1 route thử)
 
 | # | Thao tác | Quyền (mục 2) | `Idempotency-Key` | Thành công |
 | --- | --- | --- | --- | --- |
@@ -1007,6 +1011,7 @@ Dùng lại: `FORBIDDEN` (`reason` ∈ `role`, `course`), `NOT_FOUND`, `VALIDATI
 | 54 | `PUT …/exams/{eid}/similarity/{id}/review {state,note?}` | Teacher | — | 200 |
 | 55 | `GET …/exams/{eid}/appeals?status&cursor` | Staff | — | 200 cursor |
 | 56 | `POST …/exams/{eid}/appeals/{id}/answer {decision,response,score?,version}` | Teacher | tuỳ chọn | 200 |
+| 57 | `GET …/exams/{eid}/similarity/{id}` | Teacher | — | 200 (hai mã + `match_lines`; góp ý #17) |
 | T1 | `GET /_test/chat-gate` (chỉ `testroutes`) | JWT | — | 200 `{allowed}` |
 
 Mọi thao tác trên (trừ #43, T1) đi qua `CourseAccessGuard` ở chế độ nêu; ADMIN → 403. Thao tác nhận `Idempotency-Key` theo PG 6.6 (Redis 24 h; thiếu khi bắt buộc → 422 `IDEMPOTENCY_KEY_REQUIRED`).
@@ -1051,7 +1056,7 @@ DTO của sinh viên là **struct riêng** trong `internal/exam/dto_student.go` 
 
 ### 6.6 `openapi.yaml` và contract
 
-Thêm đủ 56 thao tác (không thao tác thử), schema cho mọi DTO, 12 mã lỗi, `ETag` ở #17, #44; `TestExamContract` (kin-openapi — D52) kiểm phản hồi thật khớp schema ở trạng thái bài thi đại diện; `TestExamErrorCodes` kiểm mọi mã ở 6.1 xuất hiện đúng. Số dòng "56 thao tác" kiểm bằng `chi.Walk` so với `openapi.yaml`.
+Thêm đủ 57 thao tác (không thao tác thử; `exam.Routes()` có 57 phần tử, `TestExamRoutesTable` kiểm `Len` = 57), schema cho mọi DTO, 12 mã lỗi, `ETag` ở #17, #44; `TestExamContract` (kin-openapi — D52) kiểm phản hồi thật khớp schema ở trạng thái bài thi đại diện; `TestExamErrorCodes` kiểm mọi mã ở 6.1 xuất hiện đúng. Số dòng "56 thao tác" kiểm bằng `chi.Walk` so với `openapi.yaml`.
 
 ## 7. Giao diện
 
@@ -1065,7 +1070,8 @@ Mọi màn dùng nền chung `frontend/src/shared/` (TanStack Query + `apiClient
 | `/exams` (Staff) | TA, GV | Danh sách hàng nhóm `Đang mở` / `Sắp tới` / `Đã đóng` / `Nháp`; nút chính `Tạo bài thi` | `ActionList`, `StatusText`, `PageHeader` | rỗng = "Chưa có bài thi nào. Tạo bài thi đầu tiên từ ngân hàng câu hỏi." | danh sách dọc |
 | `/exams` (Sinh viên — Q25) | SV | Bài `Đang mở` / `Sắp tới` / `Đã có điểm`, mỗi hàng một hành động | `ActionList` | rỗng = "Lớp của bạn chưa có bài thi nào." | dùng tốt ở 375 px |
 | `/exams/[id]` | TA, GV | Soạn: `Thông tin` · `Câu hỏi` · `Xem trước`; hành động chính theo trạng thái | `Tabs`, `Field`, `ActionList`, `InlineNotice` | lỗi lên lịch = danh sách việc cần sửa có liên kết | ≥ 720 px |
-| `/exams/[id]/results` | TA, GV | Bảng kết quả + thanh tiến độ; tab `Phân bố`, `Câu sai nhiều`, `Phúc khảo`, `Nghi giống nhau` (chỉ GV); Drawer chi tiết lượt | `DataTable`, `Drawer`, `Tabs`, biểu đồ cột (recharts) | rỗng = "Chưa có sinh viên nào bắt đầu làm bài." | cuộn ngang có chủ đích, cột tên cố định |
+| `/exams/[id]/results` | TA, GV | Bảng kết quả + thanh tiến độ; tab `Phân bố`, `Câu sai nhiều`, `Phúc khảo`, `Nghi giống nhau` (chỉ GV; **liên kết tới `/exams/[id]/similarity`**, không dựng lại bảng cặp ở đây — góp ý #17 (b)); Drawer chi tiết lượt | `DataTable`, `Drawer`, `Tabs`, biểu đồ cột (recharts) | rỗng = "Chưa có sinh viên nào bắt đầu làm bài." | cuộn ngang có chủ đích, cột tên cố định |
+| `/exams/[id]/similarity` | GV | Bảng cặp nghi giống nhau của một bài (lọc `flagged`, lần chạy); mở cặp: hai mã cạnh nhau có tô dòng khớp; `Đã xem — không có vấn đề` / `Cần trao đổi` + ghi chú; dòng cố định "Độ giống chỉ là gợi ý…" (US-PE-07 AC9) | `DataTable`, `Drawer`, `StatusText`, `InlineNotice` | rỗng = "Chưa có cặp bài nào nghi giống nhau." | ≥ 1024 px (hai mã cạnh nhau) |
 | `/exams/[id]/take` | SV | theo trạng thái: **trước giờ** màn giới thiệu + `Bắt đầu làm bài`; **đang làm** màn làm bài; **đã nộp** màn xác nhận; **đã công bố** kết quả | `Field` (radio / checkbox), `ConfirmIrreversible`, `InlineNotice`, `StatusText` | tải / lỗi / vắng ("Bạn không làm bài này") | trắc nghiệm 375 px; code ≥ 1.024 px |
 
 ### 7.2 Chuỗi chính (tiếng Việt)
@@ -1105,8 +1111,8 @@ Sinh viên **không bao giờ** thấy: `sandbox`, `judge`, `verdict`, `go-judge
 
 ### 7.5 Điều hướng và khác biệt mock ↔ thật (D51: spec thật thắng)
 
-- `/questions` hết là mock (P9 trong `FEAT-ui-foundation` 7.6 → **PE**); `/exams`, `/exams/[id]`, `/exams/[id]/results`, `/exams/[id]/take` là route mới.
-- `nav.ts`: nhóm "Đánh giá" của TA / GV thêm `/exams` "Bài thi" (TA 12 → **13**, GV 15 → **16**); Sinh viên thêm `/exams` "Bài thi" (7 → **8**, dưới "Thêm" ở thanh dưới điện thoại; Q25); `ACCESS`: `/questions` → TA, GV; `/exams` → TA, GV, SV (SV chỉ danh sách và `/exams/[id]/take`; `/exams/[id]`, `/exams/[id]/results` → TA, GV); Admin: không. Các hằng số đếm mục của `FEAT-ui-foundation` 7.5 (7 / 12 / 15 / 6) và test của US-PU-04 AC3 phải cập nhật **cùng commit** với PE (đề xuất đổi — mục 10).
+- `/questions` hết là mock (P9 trong `FEAT-ui-foundation` 7.6 → **PE**); `/exams`, `/exams/[id]`, `/exams/[id]/results`, `/exams/[id]/similarity`, `/exams/[id]/take` là route mới.
+- `nav.ts`: nhóm "Đánh giá" của TA / GV thêm `/exams` "Bài thi" (TA 12 → **13**, GV 15 → **16**); Sinh viên thêm `/exams` "Bài thi" (7 → **8**, dưới "Thêm" ở thanh dưới điện thoại; Q25); `ACCESS`: `/questions` → TA, GV; `/exams` → TA, GV, SV (SV chỉ danh sách và `/exams/[id]/take`; `/exams/[id]`, `/exams/[id]/results` → TA, GV; `/exams/[id]/similarity` → GV); Admin: không. Các hằng số đếm mục của `FEAT-ui-foundation` 7.5 (7 / 12 / 15 / 6) và test của US-PU-04 AC3 phải cập nhật **cùng commit** với PE (đề xuất đổi — mục 10).
 - `/practice` vẫn là mock cho tới P9.
 
 ## 8. Phi chức năng
@@ -1140,6 +1146,7 @@ Sinh viên **không bao giờ** thấy: `sandbox`, `judge`, `verdict`, `go-judge
 | `EXAM_EVENTS_MAX` | `500` | sự kiện / lượt | gateway |
 | `EXAM_TESTZIP_MAX_BYTES`, `EXAM_TESTZIP_MAX_UNCOMPRESSED` | `10485760`, `52428800` | nhập test zip | gateway |
 | `SIMILARITY_MIN` | `0.60` | ngưỡng tối thiểu của cờ nghi giống | worker |
+| `SIMILARITY_CAP` | `0.90` | trần của ngưỡng tương đối `mean + 3σ` (ngưỡng cờ = `max(MIN, min(mean + 3σ, CAP))`; đặt `CAP < MIN` thì ngưỡng = `MIN`) — góp ý #17 | worker |
 
 Sai (không số, ngoài khoảng): thoát 1, nêu tên biến. `JUDGE_TOKEN` và mọi `JUDGE_*` có trong `.env.example` (không giá trị thật).
 
@@ -1211,7 +1218,7 @@ Thêm job `judge-attacks` (runner amd64): dựng `deploy/judge` với seccomp b�
 | | `internal/exam/similarity` | `TestWinnowing*`, `TestLexerCpp` |
 | | `internal/judge` | `TestVerdictMapping`, `TestChecker*`, `TestClient*`, `TestSubmissionResultAssembly`, `TestNoSourceInLogs` |
 | Tích hợp (`-tags integration`; Postgres + Redis + **judge thật**) | `internal/judge`, `internal/exam`, `internal/integration` | `TestSandboxAttacks` (15 ca), `TestJudgeConsumerIdempotent`, `TestJudgeKillWorkerMidRun`, `TestRunWhenJudgeDown503`, `TestPublishFlowConcurrency`, `TestNoAnswerLeak`, `TestExamLockContract`, `TestExamIsolation`, `TestAllExamRoutesGuarded`, `TestRegrade*`, `TestVerifyReference*`, `TestSuggest*` (provider `fake`) |
-| Contract | `internal/contract` | `TestExamContract`, `TestExamErrorCodes` (56 thao tác ↔ `openapi.yaml`) |
+| Contract | `internal/contract` | `TestExamContract`, `TestExamErrorCodes` (57 thao tác ↔ `openapi.yaml`) |
 | Schema | `internal/store` | `TestExamSchema`, `TestExamConstraints`, `TestExamIndexes` |
 | Frontend đơn vị | Playwright không cần trình duyệt (`vitest` không có trong bảng thư viện `ARCHITECTURE.md` §3) | `e2e/exam-clock.spec.ts`, `e2e/exam-save-queue.spec.ts`, `e2e/markdown.spec.ts` |
 | E2E | `frontend/e2e/exam.spec.ts` | 12 ca của US-PE-09 AC7 |
@@ -1230,7 +1237,7 @@ Thêm job `judge-attacks` (runner amd64): dựng `deploy/judge` với seccomp b�
 **Đề xuất đổi tài liệu nền (cần PM quyết; BA không sửa file ngoài `docs/specs/FEAT-weekly-exam/**`, FLOWS F19, PRD M15):**
 
 1. `ARCHITECTURE.md` §7 / `FEAT-ui-foundation` 7.5: thêm `/exams` cho sinh viên + mục nav "Bài thi" (Q25); đổi đếm mục 7 / 12 / 15 → 8 / 13 / 16 và `ACCESS`; test US-PU-04 AC3 cập nhật cùng commit. **Đã ACCEPTED (góp ý #1, `docs/sprints/5/proposals.md`)** và đã sửa ở `FEAT-ui-foundation` v1.3.
-2. `ARCHITECTURE.md` §5: thêm 56 thao tác ở 6.2 (nhóm mới "Bài thi" và "Ngân hàng câu hỏi"); nhóm "Luyện đề" giữ `GET/POST …/questions` nhưng **PE** sở hữu `…/questions` (P9 dùng lại, thêm `extract` / `generate`); `POST …/questions/suggest` là đường mới của PE (khác `generate` của P9: không dùng chunk / trích dẫn).
+2. `ARCHITECTURE.md` §5: thêm 57 thao tác ở 6.2 (nhóm mới "Bài thi" và "Ngân hàng câu hỏi"); nhóm "Luyện đề" giữ `GET/POST …/questions` nhưng **PE** sở hữu `…/questions` (P9 dùng lại, thêm `extract` / `generate`); `POST …/questions/suggest` là đường mới của PE (khác `generate` của P9: không dùng chunk / trích dẫn).
 3. `ARCHITECTURE.md` §2 (cấu trúc `backend-go`): thêm `internal/exam`, `internal/exam/similarity`, `internal/judge`; §4: đổi dòng "(kế tiếp sau P2) exams" thành `weekly_exam` (13 bảng — thêm `code_drafts`, `exam_appeals`), số kế tiếp sau `00005_vn_fold`; các dòng sau lùi tương ứng (hoặc ghi ánh xạ ở `PROGRESS.md` theo D45); §8: thêm biến `JUDGE_*`, `EXAM_*`, `SIMILARITY_MIN`; §9: seed thêm dữ liệu PE; §10: dòng "Sandbox" ở bảng kiểm thử.
 4. `SYSTEM_DESIGN.md` §3.4: thêm Stream `judge.submit`, `judge.run` (+ `.dead`); S1 thêm container `judge` (D58).
 5. `FEAT-course-foundation` 4.7: bảng bậc "Hôm nay" thêm 10 `Kind` mới (4.10); 4.9: thêm topic outbox của PE; `notifications.type` thêm 5 giá trị.
