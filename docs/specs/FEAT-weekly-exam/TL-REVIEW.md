@@ -2,7 +2,7 @@
 
 Tech Lead, 2026-10-08, nhánh `sprint/5-pe` @ `501e483`. Spec đã `APPROVED`, nên mọi ý mức `chặn` / `nên sửa` đều có một dòng `TLR-<số>` tương ứng trong `docs/sprints/5/proposals.md`. Ưu tiên phần US-PE-01 / US-PE-02 (lược đồ, sandbox, hàng đợi chấm) vì migration của PE phải chốt trước khi merge và không được ALTER về sau.
 
-**Tóm tắt:** 1 ý `chặn` · 9 ý `nên sửa` · 4 ý `gợi ý`. Không có câu nào cần "→ PM (chủ dự án)": rủi ro container `privileged` đã được chấp nhận ở D58.
+**Tóm tắt:** 1 ý `chặn` · 10 ý `nên sửa` · 3 ý `gợi ý`. Mỗi ý `chặn` / `nên sửa` có một dòng trong `docs/sprints/5/proposals.md` (#3 – #13). Không có câu nào cần "→ PM (chủ dự án)": rủi ro container `privileged` đã được chấp nhận ở D58.
 
 | TLR | Mức | Vị trí | Vấn đề | Đề xuất | Bằng chứng | Quyết định PM |
 | --- | --- | --- | --- | --- | --- | --- |
