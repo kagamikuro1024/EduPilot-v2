@@ -1,5 +1,7 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1.4 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+Phiên bản 1.5 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+
+**v1.5 (2026-10-08)** — góp ý #14 `docs/sprints/5/proposals.md` (PM `ACCEPTED`: "(b') như đề xuất; ngưỡng 2,5 s `error` cho 6 route người dùng ở lượt devtools. `/dev/ui` LCP `warn` … `font-display: block` được chấp nhận với điều kiện: phông tự host qua `next/font`, có preload, subset latin + vietnamese, ≤ 3 độ đậm; QC kiểm chữ hiện ≤ 1 s ở lượt devtools"). Không đổi số AC (90). Đổi: US-PU-06 AC4 (LCP assert ở lượt `lhci` `throttlingMethod: devtools`, sáu route `error`, `/dev/ui` `warn`; lượt mô phỏng mặc định chỉ ghi số LCP; điều kiện FCP ≤ 1 s), **AC5** (TBT ở lượt mô phỏng), **AC6** (hai lượt, khác biệt duy nhất là `throttlingMethod`, không đổi CPU 4×), AC13 (handoff); bảng URL; **US-PU-01 AC5** (font: `display: block`, preload, `latin` + `vietnamese`, tối đa ba độ đậm — hiện 400 / 600 / 700 theo #26 sprint 3; trước đó AC ghi bốn độ đậm và `swap`); `SRS.md` FR-5, FR-45, 8.2, 8.5, mục 9.
 
 **v1.4 (2026-10-08)** — góp ý #2 (f) `docs/sprints/5/proposals.md` (PM `ACCEPTED`: "viết US-PU-06 thành story đủ AC trong `FEAT-ui-foundation` v1.4, QC đối chiếu lại `tc-US-PU-06.md`") và quyết định PM ở Q-QC-PU06-1, -2, -4, Q-QC-PE09-2 (`FEAT-weekly-exam/QUESTIONS.md`). **Thêm US-PU-06** (13 AC; tổng 77 → **90**): khung trang có chữ vẽ từ máy chủ, bớt client component ở layout, LCP ≤ 2,5 s `error` ở cả 7 URL, TBT ≤ 200 ms `error` ở 6 route người dùng (`/dev/ui` giữ `warn` — #34 sprint 3), TBT trung vị 12× ≤ 170 ms từng route, quy tắc đổi ảnh mốc, không nới cách đo. Đổi `SRS.md`: 1, 4.4 (FR-43…FR-47), 8.2, 8.5, 9, 11. Không đổi AC của US-PU-01…05.
 
@@ -169,7 +171,7 @@ Mỗi phép in một dòng `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi ph
 | FR-2 | Chặn 7 lớp giá trị viết cứng (4.1) bằng ESLint + `ui-antipatterns.sh`; danh sách trắng `ui-allow` có kiểm soát | 01-AC2 |
 | FR-3 | Có `scripts/lint-selftest.sh` chứng minh 7 luật ESLint và 19 phép bắt được | 01-AC3, 05-AC6 |
 | FR-4 | Chặn `fetch` trần, confirm / alert, spinner riêng, `<table>` thô, token trong storage, Tailwind (4.2) | 01-AC4 |
-| FR-5 | Be Vietnam Pro qua `next/font/google` (400 / 500 / 600 / 700, `swap`, `vietnamese`), tự lưu cùng máy chủ | 01-AC5 |
+| FR-5 | Be Vietnam Pro qua `next/font/google` (tối đa ba độ đậm — hiện 400 / 600 / 700, `display: block` theo góp ý #14, preload, `latin` + `vietnamese`), tự lưu cùng máy chủ | 01-AC5 |
 | FR-6 | `tabular-nums` ở bảng; sáu vai chữ; dấu tiếng Việt không bị cắt | 01-AC6 |
 | FR-7 | Vòng focus `--ep-focus`, `::selection`, thanh cuộn, `prefers-reduced-motion`, `color-scheme: light` | 01-AC7 |
 | FR-8 | Logo / mark / favicon từ `public/brand/`, không trong ô bo góc | 01-AC8 |
@@ -209,7 +211,7 @@ Mỗi phép in một dòng `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi ph
 | FR-42 | PU không sửa `backend-go/`; bằng chứng "trước / sau" và báo cáo | 05-AC2, 05-AC9, 05-AC11, 05-AC12 |
 | FR-43 | Khung trang có `<h1>` + mô tả vẽ từ máy chủ, không dữ liệu người dùng, không bộ nhớ đệm chung | 06-AC1, 06-AC2 |
 | FR-44 | Bớt client component ở hai layout; JS mỗi route ≤ 256.000 byte | 06-AC3 |
-| FR-45 | Lighthouse: LCP `error` ở 7 URL; TBT `error` ở 6 route người dùng (`/dev/ui` `warn`); TBT 12× ≤ 170 ms từng route; không nới cách đo; CI xanh ổn định | 06-AC4, 06-AC5, 06-AC6, 06-AC7, 06-AC8 |
+| FR-45 | Lighthouse hai lượt: LCP `error` ở 6 route người dùng (lượt `devtools`, `/dev/ui` `warn`); TBT `error` ở 6 route người dùng (`/dev/ui` `warn`); TBT 12× ≤ 170 ms từng route; không nới cách đo; CI xanh ổn định | 06-AC4, 06-AC5, 06-AC6, 06-AC7, 06-AC8 |
 | FR-46 | Không hồi quy: ảnh mốc (quy tắc đổi ảnh), axe, phiên, thư viện, lint | 06-AC9, 06-AC10, 06-AC11 |
 | FR-47 | Ma trận quyền không đổi; trả nợ và bàn giao | 06-AC12, 06-AC13 |
 
@@ -542,7 +544,7 @@ Build "như production" (`pbuild`) không đặt hai cờ đầu: bằng chứng
 
 | Chỉ số | Ngân sách | Đo ở đâu | Ghi chú |
 | --- | --- | --- | --- |
-| LCP | ≤ 2,5 s | LHCI mobile, trung vị 3 lần | mức `error` ở cả 7 URL từ US-PU-06 (v1.4); trước đó `warn` theo #26 sprint 3 |
+| LCP | ≤ 2,5 s | LHCI mobile, trung vị 3 lần | mức `error` ở sáu route người dùng, **lượt `devtools`** (US-PU-06, v1.5); `/dev/ui` `warn`; lượt mô phỏng mặc định chỉ ghi số; trước đó `warn` theo #26 sprint 3 |
 | INP | ≤ 200 ms | **không đo được trong phòng lab** → thay bằng TBT ≤ 200 ms (LHCI); INP thật xác nhận ở nghiệm thu P10 với người dùng thật | khoảng cách ghi nhận, không giấu |
 | CLS | ≤ 0,1 (trang), ≤ 0,05 (`/dev/ui` chuyển loading → tải), ≤ 0,02 (banner, tải thêm) | LHCI + `PerformanceObserver` | |
 | JS mỗi route | ≤ 250 KB nén | LHCI `resource-summary:script:size` ≤ 256000 | TanStack Query nạp ở layout; `Chart` và `react-virtual` nạp lười |
@@ -567,7 +569,7 @@ Mức: **WCAG 2.2 AA** (UX.md mục 6). `axe` tag `wcag2a`, `wcag2aa`, `wcag21aa
 
 ### 8.5 Cấu hình Lighthouse CI
 
-`lighthouserc.json`: `ci.collect.url` = 7 URL (mục 8.3, `localhost:3300`), `numberOfRuns: 3`, `settings.preset` mặc định mobile (4G chậm, CPU 4×), `puppeteerScript` đặt cookie phiên theo vai; `assert.assertMatrix` (v1.4, US-PU-06): sáu route người dùng — `largest-contentful-paint ≤ 2500`, `cumulative-layout-shift ≤ 0.1`, `total-blocking-time ≤ 200`, `resource-summary:script:size ≤ 256000`, **tất cả `error`**; `/dev/ui` — LCP, CLS, JS `error`, **`total-blocking-time` `warn`** (góp ý #34 sprint 3); `aggregationMethod: median`; `cpuSlowdownMultiplier` giữ mặc định 4× (không hiệu chỉnh theo runner — TL-1). Đo kiểm trên máy dev dùng 12× (TL-1) với ngưỡng nội bộ TBT trung vị ≤ 170 ms mỗi route người dùng. `upload.target = filesystem` (`.lighthouseci/`, không đẩy lên máy chủ ngoài).
+`lighthouserc.json`: `ci.collect.url` = 7 URL (mục 8.3, `localhost:3300`), `numberOfRuns: 3`, `settings.preset` mặc định mobile (4G chậm, CPU 4×), `puppeteerScript` đặt cookie phiên theo vai; `assert.assertMatrix` (v1.5, US-PU-06) ở lượt mặc định: sáu route người dùng — `cumulative-layout-shift ≤ 0.1`, `total-blocking-time ≤ 200`, `resource-summary:script:size ≤ 256000`, **tất cả `error`**; `/dev/ui` — CLS, JS `error`, **`total-blocking-time` `warn`** (góp ý #34 sprint 3); **LCP không assert ở lượt này** (Lantern giữ sàn tải ≈ 254 KB JS ở 1,6 Mbps ⇒ 3,4–4,0 s; chỉ ghi số). **Lượt thứ hai** (cấu hình riêng, dev đặt tên, bước CI riêng): `settings.throttlingMethod: "devtools"`, cùng 7 URL, `numberOfRuns ≥ 3`, `largest-contentful-paint ≤ 2500` `error` ở sáu route người dùng và `warn` ở `/dev/ui` (góp ý #14); `aggregationMethod: median`; `cpuSlowdownMultiplier` giữ mặc định 4× (không hiệu chỉnh theo runner — TL-1). Đo kiểm trên máy dev dùng 12× (TL-1) với ngưỡng nội bộ TBT trung vị ≤ 170 ms mỗi route người dùng. `upload.target = filesystem` (`.lighthouseci/`, không đẩy lên máy chủ ngoài).
 
 ### 8.6 CI (job Frontend, bổ sung vào `.github/workflows/ci.yml` của sprint 2)
 
@@ -594,7 +596,7 @@ Thêm: `@tanstack/react-query`, `@tanstack/react-virtual`, `@playwright/test`, `
 | `e2e/ui-foundation.spec.ts` | bàn phím `/chat` + `/threads`, zoom 200 %, quét "một nút chính" | có | — |
 | `e2e/visual.spec.ts` | 14 ảnh | có | — |
 | `e2e/a11y.spec.ts` | axe mọi route × vai | có | — |
-| Lighthouse CI | 7 URL; LCP `error` cả 7, TBT `error` 6 route người dùng | có | — |
+| Lighthouse CI | 7 URL, hai lượt: mặc định (TBT / CLS / JS) và `devtools` (LCP `error` 6 route người dùng, `/dev/ui` `warn`) | có | — |
 | `e2e/server-shell.spec.ts` (tên đề xuất) | US-PU-06 AC1, AC2, AC8: HTML tĩnh không JS có `h1` + mô tả, không dữ liệu người dùng, LCP trước `refresh` | có | — |
 | QC tay | AC "kiểm bằng mắt" (02-AC15, 05-AC11) | không | — |
 | QC chạy `audit.mjs`, `sweep.mjs` | sau mỗi story (05-AC10) | không | — |
