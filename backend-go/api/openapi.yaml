@@ -3355,6 +3355,345 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/draft:
+    put:
+      operationId: saveCodeDraft
+      tags: [exam]
+      summary: "Lưu bản nháp mã (theo ngôn ngữ; base_rev khác rev hiện tại → 409 DRAFT_CONFLICT, không ghi đè)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: true
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CodeDraftRequest"
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CodeDraftSaved"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/run:
+    post:
+      operationId: runCode
+      tags: [exam]
+      summary: "Chạy thử với test mẫu (Idempotency-Key bắt buộc; 10 lần / 10 phút / sinh viên; không ảnh hưởng điểm)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: true
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CodeRunRequest"
+      responses:
+        "202":
+          description: Đã xếp hàng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RunQueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/runs/{runId}:
+    get:
+      operationId: getCodeRun
+      tags: [exam]
+      summary: "Kết quả một lần chạy thử của chính mình (chỉ test mẫu)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: runId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Kết quả
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CodeRunView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/submit:
+    post:
+      operationId: submitCode
+      tags: [exam]
+      summary: "Nộp lời giải (Idempotency-Key bắt buộc; nhiều lần, cách nhau 15 s, tối đa 30; lần cuối được tính điểm)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: true
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CodeRunRequest"
+      responses:
+        "202":
+          description: Đã xếp hàng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitQueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/submissions:
+    get:
+      operationId: listCodeSubmissions
+      tags: [exam]
+      summary: "Lịch sử nộp của chính mình ở một câu (mới nhất trước, cursor)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Danh sách
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CodeSubmissionPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/submissions/{sid}:
+    get:
+      operationId: getCodeSubmission
+      tags: [exam]
+      summary: "Một bản nộp của chính mình (kèm mã nguồn; chỉ biên dịch + test mẫu, không test ẩn / trọng số / verdict chung)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bản nộp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CodeSubmissionView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/result:
     get:
       operationId: attemptResult
@@ -5826,11 +6165,172 @@ components:
           type: string
         expected:
           type: string
-    ExamCodeItemView:
+    CodeDraftRequest:
       type: object
-      required: [languages, time_limit_ms, memory_limit_mb, starter_code, samples]
+      required: [language, source, base_rev]
       additionalProperties: false
       properties:
+        language:
+          type: string
+          enum: [c11, cpp17]
+        source:
+          type: string
+          maxLength: 65536
+        base_rev:
+          type: integer
+          minimum: 0
+    CodeDraftSaved:
+      type: object
+      required: [rev, saved_at, server_time, deadline_at]
+      additionalProperties: false
+      properties:
+        rev:
+          type: integer
+        saved_at:
+          type: string
+          format: date-time
+        server_time:
+          type: string
+          format: date-time
+        deadline_at:
+          type: string
+          format: date-time
+    CodeRunRequest:
+      type: object
+      required: [language, source]
+      additionalProperties: false
+      properties:
+        language:
+          type: string
+          enum: [c11, cpp17]
+        source:
+          type: string
+          minLength: 1
+          maxLength: 65536
+    RunQueued:
+      type: object
+      required: [run_id]
+      additionalProperties: false
+      properties:
+        run_id:
+          type: string
+          format: uuid
+    SubmitQueued:
+      type: object
+      required: [submission_id]
+      additionalProperties: false
+      properties:
+        submission_id:
+          type: string
+          format: uuid
+    CodeSampleResult:
+      type: object
+      required: [name, verdict, time_ms, memory_kb]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        verdict:
+          type: string
+          enum: [AC, WA, TLE, MLE, RE, OLE, CE, IE]
+        time_ms:
+          type: integer
+        memory_kb:
+          type: integer
+        input:
+          type: string
+        expected:
+          type: string
+        got:
+          type: string
+    CodeRunView:
+      type: object
+      required: [id, status, language, created_at, compile_ok, samples]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [QUEUED, RUNNING, DONE, ERROR, SUPERSEDED]
+        language:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        compile_ok:
+          type: [boolean, "null"]
+        compile_log:
+          type: string
+        samples:
+          type: array
+          items:
+            $ref: "#/components/schemas/CodeSampleResult"
+    CodeSubmissionView:
+      type: object
+      required: [id, status, language, created_at, compile_ok, samples, is_final]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [QUEUED, RUNNING, DONE, ERROR, SUPERSEDED]
+        language:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        compile_ok:
+          type: [boolean, "null"]
+        compile_log:
+          type: string
+        samples:
+          type: array
+          items:
+            $ref: "#/components/schemas/CodeSampleResult"
+        is_final:
+          type: boolean
+        source:
+          type: string
+    CodeSubmissionPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/CodeSubmissionView"
+        next_cursor:
+          type: [string, "null"]
+    ExamDraftView:
+      type: object
+      required: [source, rev, saved_at]
+      additionalProperties: false
+      properties:
+        source:
+          type: string
+        rev:
+          type: integer
+        saved_at:
+          type: string
+          format: date-time
+    ExamCodeItemView:
+      type: object
+      required: [languages, time_limit_ms, memory_limit_mb, starter_code, samples, language, drafts]
+      additionalProperties: false
+      properties:
+        language:
+          type: [string, "null"]
+          description: "Ngôn ngữ của bản nháp lưu gần nhất (null khi chưa có)"
+        drafts:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/ExamDraftView"
         languages:
           type: array
           items:

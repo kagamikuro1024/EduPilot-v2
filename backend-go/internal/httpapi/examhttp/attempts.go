@@ -18,7 +18,7 @@ import (
 const answersMaxBytes = 64 << 10
 
 // MountAttempts đăng ký thao tác 29, 30, 31, 39, 40, 41 của SRS 6.2 (lượt làm của sinh viên). Quyền theo `exam.Routes()`: Member + STUDENT (Staff → 403 reason=role).
-// #32–#38, #42 (bài code, sự kiện, phúc khảo) thuộc US-PE-06…08.
+// #32–#37 (bài code) ở `attempt_code.go` (US-PE-06); #38, #42 (sự kiện, phúc khảo) thuộc US-PE-07…08.
 func (h *Handler) MountAttempts(r chi.Router) {
 	student := h.Guard(auth.StudentRole)
 	const e = "/courses/{id}/exams/{eid}"

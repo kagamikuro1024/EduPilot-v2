@@ -481,7 +481,7 @@ func (q *Queue) notifyError(ctx context.Context, r store.JudgeFailRow) {
 		return
 	}
 	defer func() { _ = tx.Rollback(context.WithoutCancel(ctx)) }()
-	if _, err := outbox.Write(ctx, tx, TopicDone, map[string]any{"course_id": r.CourseID, "exam_id": r.ExamID, "attempt_id": r.AttemptID, "kind": r.Kind, "status": "ERROR"}); err == nil {
+	if _, err := outbox.Write(ctx, tx, TopicDone, map[string]any{"submission_id": r.ID, "course_id": r.CourseID, "exam_id": r.ExamID, "attempt_id": r.AttemptID, "kind": r.Kind, "status": "ERROR"}); err == nil {
 		_ = tx.Commit(ctx)
 	}
 }

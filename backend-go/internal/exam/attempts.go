@@ -256,6 +256,9 @@ func (s *Service) attemptStartView(ctx context.Context, q *store.Queries, e stor
 	if err != nil {
 		return AttemptStartView{}, err
 	}
+	if err := s.attachDrafts(ctx, q, a, items); err != nil {
+		return AttemptStartView{}, err
+	}
 	dur := 0
 	if e.DurationMinutes != nil {
 		dur = int(*e.DurationMinutes)
@@ -569,6 +572,9 @@ func (s *Service) finish(ctx context.Context, q *store.Queries, tx pgx.Tx, e sto
 	items, err := q.ExamGradeItems(ctx, store.ExamGradeItemsParams{CourseID: a.CourseID, ExamID: a.ExamID})
 	if err != nil {
 		return SubmitView{}, fmt.Errorf("exam: mục để chấm: %w", err)
+	}
+	if err := s.autoSubmitDrafts(ctx, q, tx, a, items); err != nil {
+		return SubmitView{}, err
 	}
 	arg := store.AttemptFinishParams{CourseID: a.CourseID, ID: a.ID, Status: store.AttemptStatusGRADING, SubmittedAt: &at, SubmitReason: ptrOf[store.AttemptSubmitReason](reason)}
 	if e.Kind == store.ExamKindMCQ {

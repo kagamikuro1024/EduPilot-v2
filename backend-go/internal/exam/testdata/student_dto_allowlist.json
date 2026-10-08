@@ -3,7 +3,7 @@
   "MyAttemptView": ["id", "status", "deadline_at", "submitted_at"],
   "ItemView": ["item_id", "position", "type", "points", "stem", "options", "code", "answer"],
   "OptionView": ["id", "body"],
-  "CodeItemView": ["languages", "time_limit_ms", "memory_limit_mb", "starter_code", "samples"],
+  "CodeItemView": ["languages", "time_limit_ms", "memory_limit_mb", "starter_code", "samples", "language", "drafts"],
   "SampleView": ["name", "input", "expected"],
   "PreviewView": ["preview", "exam", "items"],
   "AttemptView": ["id", "exam_id", "status", "started_at", "deadline_at", "server_time", "writer"],
@@ -17,5 +17,12 @@
   "SubmitView": ["status", "submitted_at", "answered", "total"],
   "SaveView": ["saved_at", "server_time", "deadline_at"],
   "ResultView": ["exam", "score"],
-  "ResultExamView": ["id", "title", "max_score", "published_at"]
+  "ResultExamView": ["id", "title", "max_score", "published_at"],
+  "DraftView": ["source", "rev", "saved_at"],
+  "DraftSaved": ["rev", "saved_at", "server_time", "deadline_at"],
+  "RunQueued": ["run_id"],
+  "SubmitQueued": ["submission_id"],
+  "SampleResultView": ["name", "verdict", "time_ms", "memory_kb", "input", "expected", "got"],
+  "SubmissionView": ["id", "status", "language", "created_at", "compile_ok", "compile_log", "samples", "is_final", "source"],
+  "RunView": ["id", "status", "language", "created_at", "compile_ok", "compile_log", "samples"]
 }

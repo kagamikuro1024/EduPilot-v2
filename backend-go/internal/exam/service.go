@@ -40,6 +40,7 @@ type Service struct {
 	ZipMaxUncompressed int
 	Limits             Limits           // giới hạn bài thi (US-PE-04)
 	Attempt            AttemptConfig    // lượt làm (US-PE-05)
+	Code               CodeConfig       // bài code trong lượt làm (US-PE-06)
 	Redis              *appredis.Client // giới hạn lưu theo lượt (nil = không giới hạn)
 }
 

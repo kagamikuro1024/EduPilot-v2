@@ -43,7 +43,7 @@ set fail_count = fail_count + 1,
     verdict = case when fail_count + 1 >= 4 then 'IE'::judge_verdict end,
     lease_until = null, enqueued_at = null, next_attempt_at = now() + sqlc.arg(backoff_ms)::int * interval '1 millisecond', judged_at = case when fail_count + 1 >= 4 then now() end
 where id = sqlc.arg(id) and status = 'RUNNING' and lease_until = sqlc.arg(lease_until)::timestamptz
-returning status, fail_count, kind, course_id, exam_id, attempt_id;
+returning id, status, fail_count, kind, course_id, exam_id, attempt_id;
 
 -- name: JudgeConfigError :one
 -- Lỗi cấu hình của bài (Σ weight = 0 …): IE ngay, không thử lại, không điểm 0 cho sinh viên (attempt ở lại GRADING cho tới khi sửa + chấm lại).

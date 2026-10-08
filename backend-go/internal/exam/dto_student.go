@@ -63,6 +63,9 @@ type CodeItemView struct {
 	MemoryLimitMB int               `json:"memory_limit_mb"`
 	StarterCode   map[string]string `json:"starter_code"`
 	Samples       []SampleView      `json:"samples"`
+	// Language + Drafts: bản nháp CHÍNH sinh viên đã lưu (theo ngôn ngữ) và ngôn ngữ của bản lưu gần nhất; rỗng ở xem trước.
+	Language *string              `json:"language"`
+	Drafts   map[string]DraftView `json:"drafts"`
 }
 
 // ItemView là một mục của bài như sinh viên thấy. Không có: answer_key, correct, is_correct, explanation, override, original_position, pinned_last.
@@ -181,7 +184,7 @@ func BuildStudentView(src viewSource, shuffleQ, shuffleO bool, seed Seed, saved 
 	for i, it := range order {
 		v := ItemView{ItemID: it.ItemID, Position: i + 1, Type: string(it.Type), Points: it.Points.StringFixed(2), Stem: it.Stem, Options: []OptionView{}, Answer: saved[it.ItemID]}
 		if it.Type == store.QuestionTypeCODE {
-			c := CodeItemView{Languages: it.Languages, StarterCode: map[string]string{}, Samples: src.Samples[it.QuestionID]}
+			c := CodeItemView{Languages: it.Languages, StarterCode: map[string]string{}, Samples: src.Samples[it.QuestionID], Drafts: map[string]DraftView{}}
 			if it.TimeLimitMs != nil {
 				c.TimeLimitMS = int(*it.TimeLimitMs)
 			}

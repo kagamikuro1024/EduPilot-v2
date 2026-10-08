@@ -18,7 +18,8 @@ import (
 // Loại việc dài (`kind` của bảng jobs) thì đăng ký vào runner, không phải topic mới.
 func newRegistry(d Deps) *outbox.Registry {
 	reg := outbox.NewRegistry()
-	runner := jobs.NewRunner(d.DB, sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL), clock.Real{}, d.Log)
+	pub := sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL)
+	runner := jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
 	ew.Register(runner) // code.verify_reference, question.suggest (US-PE-03)
@@ -39,6 +40,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	if d.Judge != nil {
 		reg.Register(judge.TopicEnqueue, d.Judge.HandleEnqueue) // XADD tín hiệu chấm rồi đặt enqueued_at (US-PE-02)
 	}
+	cnf := &exam.CodeNotifier{Pool: d.DB, SSE: pub, Log: d.Log}
+	reg.Register(judge.TopicDone, cnf.HandleDone) // US-PE-06: kết quả chạy thử / nộp → SSE `exam.run` / `exam.submission` tới chủ bản nộp
 	registerTestKinds(runner)
 	return reg
 }

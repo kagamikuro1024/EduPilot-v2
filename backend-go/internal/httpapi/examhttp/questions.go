@@ -52,6 +52,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff, h.Idem).Post(q+"/{qid}/reference/verify", h.verify)
 	h.MountExams(r)
 	h.MountAttempts(r)
+	h.MountAttemptCode(r)
 }
 
 type reqCtx struct {

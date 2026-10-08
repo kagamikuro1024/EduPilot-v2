@@ -188,7 +188,7 @@ set fail_count = fail_count + 1,
     verdict = case when fail_count + 1 >= 4 then 'IE'::judge_verdict end,
     lease_until = null, enqueued_at = null, next_attempt_at = now() + $1::int * interval '1 millisecond', judged_at = case when fail_count + 1 >= 4 then now() end
 where id = $2 and status = 'RUNNING' and lease_until = $3::timestamptz
-returning status, fail_count, kind, course_id, exam_id, attempt_id
+returning id, status, fail_count, kind, course_id, exam_id, attempt_id
 `
 
 type JudgeFailParams struct {
@@ -198,6 +198,7 @@ type JudgeFailParams struct {
 }
 
 type JudgeFailRow struct {
+	ID        uuid.UUID
 	Status    SubmissionStatus
 	FailCount int16
 	Kind      SubmissionKind
@@ -211,6 +212,7 @@ func (q *Queries) JudgeFail(ctx context.Context, arg JudgeFailParams) (JudgeFail
 	row := q.db.QueryRow(ctx, judgeFail, arg.BackoffMs, arg.ID, arg.LeaseUntil)
 	var i JudgeFailRow
 	err := row.Scan(
+		&i.ID,
 		&i.Status,
 		&i.FailCount,
 		&i.Kind,

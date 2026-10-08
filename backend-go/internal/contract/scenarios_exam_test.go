@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/edupilot/backend-go/internal/auth"
 )
@@ -239,6 +240,7 @@ func (r *runner) examScenarios() {
 
 	r.examExamScenarios(examRig{cid: cid, arch: arch, q1: q1.ID, gv: gv, ta: ta, sv: sv, admin: admin, idem: idem})
 	r.examAttemptScenarios(examRig{cid: cid, arch: arch, q1: q1.ID, gv: gv, ta: ta, sv: sv, admin: admin, idem: idem})
+	r.examCodeScenarios(examRig{cid: cid, arch: arch, q1: q1.ID, gv: gv, ta: ta, sv: sv, admin: admin, idem: idem}, cq.ID)
 }
 
 type examRig struct {
@@ -472,4 +474,127 @@ func (r *runner) examAttemptScenarios(x examRig) {
 		r.t.Fatal(err)
 	}
 	r.must(call{method: "GET", path: att + "/result", token: x.sv}, 200)
+}
+
+// examCodeScenarios: thao tác 32–37 (bài code trong lượt làm, US-PE-06) với mọi status đã khai báo (429 của `draft` được miễn — xem exempt.go).
+func (r *runner) examCodeScenarios(x examRig, codeQ string) {
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	ex := "/api/v1/courses/" + x.cid + "/exams"
+	for _, q := range []string{
+		`update question_bank set review_status='APPROVED', reviewed_by=created_by, reviewed_at=now() where id=$1`,
+		`update code_testcases set approved=true where problem_id=$1`,
+		`update code_problems set reference_verified_version=tests_version, reference_verified_at=now() where question_id=$1`,
+	} {
+		if _, err := db.Exec(ctx, q, codeQ); err != nil {
+			r.t.Fatal(err)
+		}
+	}
+	now := time.Now().UTC()
+	_, b := r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: `{"title":"Bài code","opens_at":"` + now.Add(2*time.Hour).Format(time.RFC3339) + `","closes_at":"` + now.Add(4*time.Hour).Format(time.RFC3339) + `","duration_minutes":45}`}, 201)
+	var e struct {
+		ID      string `json:"id"`
+		Version int    `json:"version"`
+	}
+	_ = json.Unmarshal(b, &e)
+	r.must(call{method: "PUT", path: ex + "/" + e.ID + "/items", token: x.gv, body: `{"items":[{"question_id":"` + codeQ + `","points":"3"}],"version":` + itoa(e.Version) + `}`}, 200)
+	r.must(call{method: "POST", path: ex + "/" + e.ID + "/schedule", token: x.gv}, 200)
+	if _, err := db.Exec(ctx, `update exams set status='OPEN', opens_at=now() - interval '1 minute', closes_at=now() + interval '3 hours' where id=$1`, e.ID); err != nil {
+		r.t.Fatal(err)
+	}
+	one := ex + "/" + e.ID
+	tabA, tabB := uuid.NewString(), uuid.NewString()
+	hdr := func(tab string, idem bool) map[string]string {
+		h := map[string]string{"X-Exam-Tab": tab}
+		if idem {
+			h["Idempotency-Key"] = "ct-" + uuid.NewString()
+		}
+		return h
+	}
+	_, b = r.must(call{method: "POST", path: one + "/attempts", token: x.sv, headers: hdr(tabA, true)}, 201)
+	var st struct {
+		Attempt struct {
+			ID string `json:"id"`
+		} `json:"attempt"`
+		Items []struct {
+			ItemID string `json:"item_id"`
+		} `json:"items"`
+	}
+	_ = json.Unmarshal(b, &st)
+	att := one + "/attempts/" + st.Attempt.ID
+	it := st.Items[0].ItemID
+	codeP := att + "/code/" + it
+	src := `{"language":"cpp17","source":"int main(){return 0;}"}`
+
+	// 32: bản nháp.
+	r.must(call{method: "PUT", path: codeP + "/draft", token: x.sv, headers: hdr(tabA, false), body: `{"language":"cpp17","source":"int main(){}","base_rev":0}`}, 200)
+	r.must(call{method: "PUT", path: codeP + "/draft", token: x.sv, headers: hdr(tabA, false), body: `{"language":"cpp17","source":"x","base_rev":0}`}, 409) // rev đã là 1: DRAFT_CONFLICT
+	r.must(call{method: "PUT", path: codeP + "/draft", token: x.sv, headers: hdr(tabA, false), body: `{"language":"c11","source":"x","base_rev":0}`}, 422)   // c11 không được phép
+	r.must(call{method: "PUT", path: codeP + "/draft", headers: hdr(tabA, false), body: src}, 401)
+	r.must(call{method: "PUT", path: codeP + "/draft", token: x.gv, headers: hdr(tabA, false), body: `{"language":"cpp17","source":"x","base_rev":1}`}, 403)
+	r.must(call{method: "PUT", path: att + "/code/" + uuid.NewString() + "/draft", token: x.sv, headers: hdr(tabA, false), body: `{"language":"cpp17","source":"x","base_rev":1}`}, 404)
+	r.must(call{method: "PUT", path: codeP + "/draft", token: x.sv, headers: hdr(tabB, false), body: `{"language":"cpp17","source":"x","base_rev":1}`}, 409) // tab khác đang là nơi ghi
+
+	// 33: chạy thử. Chưa có `ep:judge:up` (không có worker) → 503; đặt khoá → 202; quá 10 lần / 10 phút → 429.
+	r.must(call{method: "POST", path: codeP + "/run", token: x.sv, headers: hdr(tabA, true), body: src}, 503)
+	if err := r.rig.deps.Redis.Set(ctx, "ep:judge:up", "1", time.Minute).Err(); err != nil {
+		r.t.Fatal(err)
+	}
+	defer r.rig.deps.Redis.Del(ctx, "ep:judge:up")
+	_, b = r.must(call{method: "POST", path: codeP + "/run", token: x.sv, headers: hdr(tabA, true), body: src}, 202)
+	var run struct {
+		RunID string `json:"run_id"`
+	}
+	_ = json.Unmarshal(b, &run)
+	r.must(call{method: "POST", path: codeP + "/run", token: x.sv, headers: map[string]string{"X-Exam-Tab": tabA}, body: src}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: codeP + "/run", headers: hdr(tabA, true), body: src}, 401)
+	r.must(call{method: "POST", path: codeP + "/run", token: x.gv, headers: hdr(tabA, true), body: src}, 403)
+	r.must(call{method: "POST", path: att + "/code/" + uuid.NewString() + "/run", token: x.sv, headers: hdr(tabA, true), body: src}, 404)
+	r.must(call{method: "POST", path: codeP + "/run", token: x.sv, headers: hdr(tabA, true), body: `{"language":"c11","source":"x"}`}, 422)
+	r.must(call{method: "POST", path: codeP + "/run", token: x.sv, headers: hdr(tabB, true), body: src}, 409)
+	var uid string
+	if err := db.QueryRow(ctx, `select student_id::text from exam_attempts where id=$1`, st.Attempt.ID).Scan(&uid); err != nil {
+		r.t.Fatal(err)
+	}
+	runKey := "ep:exam:run:" + uid
+	for i := range 10 {
+		if err := r.rig.deps.Redis.ZAdd(ctx, runKey, redis.Z{Score: float64(time.Now().UnixMilli()), Member: "fill-" + itoa(i)}).Err(); err != nil {
+			r.t.Fatal(err)
+		}
+	}
+	r.must(call{method: "POST", path: codeP + "/run", token: x.sv, headers: hdr(tabA, true), body: src}, 429)
+	r.rig.deps.Redis.Del(ctx, runKey)
+
+	// 34: kết quả chạy thử.
+	rp := att + "/runs/" + run.RunID
+	r.must(call{method: "GET", path: rp, token: x.sv}, 200)
+	r.must(call{method: "GET", path: rp}, 401)
+	r.must(call{method: "GET", path: rp, token: x.gv}, 403)
+	r.must(call{method: "GET", path: att + "/runs/" + uuid.NewString(), token: x.sv}, 404)
+
+	// 35: nộp lời giải (lần hai trong 15 s → 429).
+	_, b = r.must(call{method: "POST", path: codeP + "/submit", token: x.sv, headers: hdr(tabA, true), body: src}, 202)
+	var sub struct {
+		ID string `json:"submission_id"`
+	}
+	_ = json.Unmarshal(b, &sub)
+	r.must(call{method: "POST", path: codeP + "/submit", token: x.sv, headers: hdr(tabA, true), body: src}, 429)
+	r.must(call{method: "POST", path: codeP + "/submit", token: x.sv, headers: map[string]string{"X-Exam-Tab": tabA}, body: src}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: codeP + "/submit", headers: hdr(tabA, true), body: src}, 401)
+	r.must(call{method: "POST", path: codeP + "/submit", token: x.gv, headers: hdr(tabA, true), body: src}, 403)
+	r.must(call{method: "POST", path: att + "/code/" + uuid.NewString() + "/submit", token: x.sv, headers: hdr(tabA, true), body: src}, 404)
+	r.must(call{method: "POST", path: codeP + "/submit", token: x.sv, headers: hdr(tabB, true), body: src}, 409)
+	r.must(call{method: "POST", path: codeP + "/submit", token: x.sv, headers: hdr(tabA, true), body: `{"language":"cpp17","source":""}`}, 422)
+
+	// 36, 37: lịch sử và một bản nộp.
+	r.must(call{method: "GET", path: codeP + "/submissions", token: x.sv}, 200)
+	r.must(call{method: "GET", path: codeP + "/submissions"}, 401)
+	r.must(call{method: "GET", path: codeP + "/submissions", token: x.gv}, 403)
+	r.must(call{method: "GET", path: one + "/attempts/" + uuid.NewString() + "/code/" + it + "/submissions", token: x.sv}, 404)
+	r.must(call{method: "GET", path: codeP + "/submissions?limit=0", token: x.sv}, 422)
+	sp := att + "/submissions/" + sub.ID
+	r.must(call{method: "GET", path: sp, token: x.sv}, 200)
+	r.must(call{method: "GET", path: sp}, 401)
+	r.must(call{method: "GET", path: sp, token: x.gv}, 403)
+	r.must(call{method: "GET", path: att + "/submissions/" + uuid.NewString(), token: x.sv}, 404)
 }

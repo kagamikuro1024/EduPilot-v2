@@ -107,6 +107,11 @@ type Config struct {
 	ExamGraceSeconds   int
 	ExamSaveRatePerMin int
 	ExamTabStale       time.Duration
+	// Bài code trong lượt làm (US-PE-06, SRS 4.4): Chạy thử N lần / cửa sổ / sinh viên, giãn cách giữa hai lần nộp, số lần nộp tối đa mỗi bài.
+	ExamRunLimit       int
+	ExamRunWindow      time.Duration
+	ExamSubmitCooldown time.Duration
+	ExamSubmissionCap  int
 
 	// Cổng LLM (SRS FEAT-llm-gateway 4.3, 8.1).
 	LLMMaxConcurrency int
@@ -263,6 +268,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ExamGraceSeconds = l.num("EXAM_GRACE_SECONDS", 10, 0, 300)
 	c.ExamSaveRatePerMin = l.num("EXAM_SAVE_RATE_PER_MIN", 240, 1, 100000)
 	c.ExamTabStale = l.dur("EXAM_TAB_STALE", 20*time.Second)
+	c.ExamRunLimit = l.num("EXAM_RUN_LIMIT", 10, 1, 1000)
+	c.ExamRunWindow = l.durRange("EXAM_RUN_WINDOW", 10*time.Minute, time.Minute, 24*time.Hour)
+	c.ExamSubmitCooldown = l.durRange("EXAM_SUBMIT_COOLDOWN", 15*time.Second, time.Second, time.Hour)
+	c.ExamSubmissionCap = l.num("EXAM_SUBMISSION_CAP", 30, 1, 1000)
 
 	c.LLMMaxConcurrency = l.num("LLM_MAX_CONCURRENCY", 10, 1, 1000)
 	c.LLMBatchShare = l.fraction("LLM_BATCH_SHARE", 0.5)
