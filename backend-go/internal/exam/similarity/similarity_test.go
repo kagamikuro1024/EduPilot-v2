@@ -366,3 +366,30 @@ func TestFlagRelativeThreshold(t *testing.T) {
 	require.True(t, r2.Flagged[[2]string{"p3", "p4"}])
 	require.False(t, r2.Flagged[[2]string{"p1", "p2"}], "0,50 < 0,60")
 }
+
+// TestFlagCapSmallClass — đề xuất #17(c): lớp 8 bài có 3 bài chép nhau → mean + 3σ vượt 1,0 nếu không có trần nên không cặp nào bị gắn cờ; với trần SIMILARITY_CAP = 0,90
+// cả 3 cặp (1,0) bị gắn cờ, còn cặp khác nhóm điểm thấp thì không.
+func TestFlagCapSmallClass(t *testing.T) {
+	t.Parallel()
+	common := make([]uint64, 48)
+	for i := range common {
+		common[i] = uint64(i + 1)
+	}
+	var docs []similarity.Doc
+	for i := range 5 {
+		docs = append(docs, synth(fmt.Sprintf("o%d", i), fmt.Sprintf("so%d", i), nil, 40, uint64(i+1)))
+	}
+	for i := range 3 { // ba bài cùng một lời giải
+		docs = append(docs, synth(fmt.Sprintf("k%d", i), fmt.Sprintf("sk%d", i), common, 12, 4242))
+	}
+	opts := similarity.Options{MinScore: 400, MinShared: 10, Top: 200, FlagMin: 600, FlagSigmas: 3}
+	nocap := similarity.Run(docs, opts)
+	require.Empty(t, nocap.Flagged, "không trần: mean + 3σ > 1,0 → không cặp nào đạt")
+	opts.FlagCap = 900
+	res := similarity.Run(docs, opts)
+	require.Equal(t, 900, res.Threshold)
+	require.Len(t, res.Flagged, 3)
+	for _, p := range [][2]string{{"k0", "k1"}, {"k0", "k2"}, {"k1", "k2"}} {
+		require.True(t, res.Flagged[p], p)
+	}
+}

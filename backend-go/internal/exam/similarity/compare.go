@@ -19,6 +19,7 @@ type Options struct {
 	Top        int // giữ tối đa bấy nhiêu cặp điểm cao nhất (200)
 	FlagMin    int // ‰ tối thiểu để gắn cờ (SIMILARITY_MIN = 600)
 	FlagSigmas int // hệ số độ lệch chuẩn của ngưỡng tương đối (3)
+	FlagCap    int // ‰ trần của ngưỡng tương đối (SIMILARITY_CAP = 900; 0 = không trần). Lớp nhỏ có nhiều bài chép nhau kéo mean + 3σ vượt 1,0 làm cờ không bao giờ bật (đề xuất #17c)
 }
 
 // Result là kết quả so một bài: các cặp giữ lại (điểm cao trước), thống kê phân phối điểm MỌI cặp khác nhóm và ngưỡng gắn cờ.
@@ -27,7 +28,7 @@ type Result struct {
 	Flagged   map[[2]string]bool // khoá (A, B)
 	Total     int                // số cặp khác nhóm (kể cả cặp điểm 0)
 	MeanX1000 int                // trung bình ‰ × 1000
-	Threshold int                // ‰: max(FlagMin, ⌈mean + sigmas × stddev⌉)
+	Threshold int                // ‰: max(FlagMin, min(⌈mean + sigmas × stddev⌉, FlagCap))
 }
 
 // isqrt là căn bậc hai nguyên (sàn) của số không âm.
@@ -105,8 +106,12 @@ func Run(docs []Doc, o Options) Result {
 		varN := new(big.Int).Sub(new(big.Int).Mul(bq, bn), new(big.Int).Mul(bs, bs))                   // N²·variance
 		sd := new(big.Int).Div(new(big.Int).Add(isqrt(varN), new(big.Int).Sub(bn, big.NewInt(1))), bn) // ⌈stddev⌉
 		rel := new(big.Int).Add(new(big.Int).Div(new(big.Int).Add(bs, new(big.Int).Sub(bn, big.NewInt(1))), bn), new(big.Int).Mul(big.NewInt(int64(o.FlagSigmas)), sd))
-		if int(rel.Int64()) > res.Threshold {
-			res.Threshold = int(rel.Int64())
+		r := int(rel.Int64())
+		if o.FlagCap > 0 && r > o.FlagCap {
+			r = o.FlagCap
+		}
+		if r > res.Threshold {
+			res.Threshold = r
 		}
 	}
 	for _, p := range keep {

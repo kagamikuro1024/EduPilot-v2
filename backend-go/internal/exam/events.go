@@ -25,6 +25,8 @@ const (
 type IntegrityConfig struct {
 	EventsMax             int
 	SimilarityMinPermille int
+	// SimilarityCapPermille: SIMILARITY_CAP (0,90 = 900‰) — trần của ngưỡng tương đối mean + 3σ. 0 = mặc định 900.
+	SimilarityCapPermille int
 }
 
 func (c IntegrityConfig) eventsMax() int {

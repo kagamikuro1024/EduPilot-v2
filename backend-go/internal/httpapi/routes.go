@@ -79,7 +79,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 				Limits:    exam.Limits{MinDurationMinutes: d.Cfg.ExamMinDurationMinutes, MinLeadSeconds: d.Cfg.ExamMinLeadSeconds, MaxTotalSeconds: d.Cfg.JudgeMaxTotalSeconds},
 				Attempt:   exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second, TabStale: d.Cfg.ExamTabStale, SaveRate: d.Cfg.ExamSaveRatePerMin},
 				Code:      exam.CodeConfig{RunLimit: d.Cfg.ExamRunLimit, RunWindow: d.Cfg.ExamRunWindow, SubmitCooldown: d.Cfg.ExamSubmitCooldown, SubmissionCap: d.Cfg.ExamSubmissionCap},
-				Integrity: exam.IntegrityConfig{EventsMax: d.Cfg.ExamEventsMax, SimilarityMinPermille: d.Cfg.SimilarityMinPermille}, Log: d.Log, Redis: d.Redis}
+				Integrity: exam.IntegrityConfig{EventsMax: d.Cfg.ExamEventsMax, SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}, Log: d.Log, Redis: d.Redis}
 			if d.Blob != nil {
 				svc.Blob = d.Blob
 			}

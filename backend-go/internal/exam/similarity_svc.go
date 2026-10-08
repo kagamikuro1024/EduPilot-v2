@@ -31,7 +31,7 @@ const (
 	TopicSimilarityReviewed = "exam.similarity_reviewed"
 )
 
-// Tham số so (research mục 4): giữ cặp ≥ 0,40 và ≥ 10 dấu vân tay chung; tối đa 200 cặp; cờ = max(SIMILARITY_MIN, mean + 3 × stddev).
+// Tham số so (research mục 4): giữ cặp ≥ 0,40 và ≥ 10 dấu vân tay chung; tối đa 200 cặp; cờ = max(SIMILARITY_MIN, min(mean + 3 × stddev, SIMILARITY_CAP)).
 const (
 	simMinScore  = 400
 	simMinShared = 10
@@ -50,6 +50,13 @@ func (c IntegrityConfig) similarityMin() int {
 		return 600
 	}
 	return c.SimilarityMinPermille
+}
+
+func (c IntegrityConfig) similarityCap() int {
+	if c.SimilarityCapPermille <= 0 {
+		return 900
+	}
+	return c.SimilarityCapPermille
 }
 
 // EnqueueSimilarity: `POST …/similarity/run` — Giảng viên chạy lại. Bài phải đã đóng (CLOSED / PUBLISHED) và có câu code.
@@ -157,7 +164,7 @@ func (w *Worker) similarityJob(ctx context.Context, j jobs.JobCtx) (any, error) 
 			docs = append(docs, similarity.Build(s.ID.String(), s.StudentID.String(), s.Source, starters[prob][s.Language]))
 			meta[s.ID.String()] = s
 		}
-		r := similarity.Run(docs, similarity.Options{MinScore: simMinScore, MinShared: simMinShared, Top: simTop, FlagMin: min, FlagSigmas: simSigmas})
+		r := similarity.Run(docs, similarity.Options{MinScore: simMinScore, MinShared: simMinShared, Top: simTop, FlagMin: min, FlagSigmas: simSigmas, FlagCap: w.Svc.Integrity.similarityCap()})
 		for _, pr := range r.Pairs {
 			a, b := meta[pr.A], meta[pr.B]
 			fl := r.Flagged[[2]string{pr.A, pr.B}]
