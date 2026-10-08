@@ -4008,6 +4008,501 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/exams/{eid}/publish-hold:
+    put:
+      operationId: setPublishHold
+      tags: [exam]
+      summary: "Hoãn / bỏ hoãn công bố điểm (chỉ Giảng viên; bỏ hoãn khi đã chấm xong → công bố ngay; sau công bố → 409 EXAM_LOCKED)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HoldRequest"
+      responses:
+        "200":
+          description: Bài sau khi đổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/appeal:
+    post:
+      operationId: createAppeal
+      tags: [exam]
+      summary: "Gửi yêu cầu xem lại điểm (sinh viên, một lần, trong hạn appeal_days)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppealCreateRequest"
+      responses:
+        "201":
+          description: Đã gửi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppealView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/results:
+    get:
+      operationId: listExamResults
+      tags: [exam]
+      summary: "Bảng điểm của lớp (Staff; flags chỉ với Giảng viên; ETag; con trỏ theo thứ tự sắp xếp)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ABSENT, IN_PROGRESS, GRADING, GRADED]
+        - name: sort
+          in: query
+          schema:
+            type: string
+            enum: [score, name]
+        - name: q
+          in: query
+          schema:
+            type: string
+            maxLength: 100
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Bảng điểm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultsList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "304":
+          description: Không đổi (If-None-Match khớp ETag)
+  /api/v1/courses/{id}/exams/{eid}/results.csv:
+    get:
+      operationId: exportExamResults
+      tags: [exam]
+      summary: "Xuất bảng điểm CSV (Staff; BOM UTF-8, phân cách ;, dấu phẩy thập phân, chống chèn công thức; tối đa 5.000 dòng)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Tệp CSV
+          content:
+            text/csv:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/results/{aid}:
+    get:
+      operationId: getExamResult
+      tags: [exam]
+      summary: "Chi tiết một lượt cho Staff (từng câu, mọi bản nộp kèm verdict từng test; tín hiệu liêm chính chỉ với Giảng viên)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Chi tiết
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffResultDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/exams/{eid}/results/{aid}/score:
+    put:
+      operationId: adjustExamScore
+      tags: [exam]
+      summary: "Sửa điểm tay có lý do (Giảng viên); score null = gỡ điều chỉnh; auto_score giữ nguyên"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdjustRequest"
+      responses:
+        "200":
+          description: Điểm sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdjustResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/items/{itemId}/override:
+    put:
+      operationId: overrideExamItem
+      tags: [exam]
+      summary: "Đổi đáp án đúng / huỷ một câu trắc nghiệm sau khi bài đóng rồi tính lại mọi lượt (Giảng viên); nhiều hơn 200 lượt → 202 việc nền"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OverrideRequest"
+      responses:
+        "200":
+          description: Đã tính lại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverrideResult"
+        "202":
+          description: Đang tính lại ở nền
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverrideResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/regrade:
+    post:
+      operationId: regradeExam
+      tags: [exam]
+      summary: "Chấm lại bản nộp cuối trong phạm vi (Giảng viên; lượt giữ điểm cũ tới khi tính lại xong)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegradeRequest"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/stats:
+    get:
+      operationId: getExamStats
+      tags: [exam]
+      summary: "Thống kê điểm: phân bố, trung bình, trung vị, câu sai nhiều, bài code (Staff; không định danh)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/exams/{eid}/appeals:
+    get:
+      operationId: listExamAppeals
+      tags: [exam]
+      summary: "Yêu cầu xem lại của bài (Staff; con trỏ chuẩn)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, UPHELD, ADJUSTED]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Danh sách
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppealPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/appeals/{pid}/answer:
+    post:
+      operationId: answerExamAppeal
+      tags: [exam]
+      summary: "Trả lời yêu cầu xem lại một lần (Giảng viên): UPHELD giữ điểm, ADJUSTED áp điểm mới"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AppealAnswerRequest"
+      responses:
+        "200":
+          description: Đã trả lời
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AppealView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -7038,12 +7533,12 @@ components:
           type: integer
     AttemptResult:
       type: object
-      required: [exam, score]
+      required: [exam, score, score_adjusted, appeal, items]
       additionalProperties: false
       properties:
         exam:
           type: object
-          required: [id, title, max_score, published_at]
+          required: [id, title, max_score, published_at, reveal_answers, appeal_days, appeal_open_until]
           additionalProperties: false
           properties:
             id:
@@ -7056,5 +7551,485 @@ components:
             published_at:
               type: [string, "null"]
               format: date-time
+            reveal_answers:
+              type: boolean
+            appeal_days:
+              type: integer
+            appeal_open_until:
+              type: [string, "null"]
+              format: date-time
         score:
+          type: [string, "null"]
+        score_adjusted:
+          type: boolean
+        appeal:
+          type: object
+          required: [status, response]
+          additionalProperties: false
+          properties:
+            status:
+              type: [string, "null"]
+              enum: [OPEN, UPHELD, ADJUSTED, null]
+            response:
+              type: [string, "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultItem"
+    HoldRequest:
+      type: object
+      required: [hold, version]
+      additionalProperties: false
+      properties:
+        hold:
+          type: boolean
+        version:
+          type: integer
+    AppealCreateRequest:
+      type: object
+      required: [reason]
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 1000
+    AppealAnswerRequest:
+      type: object
+      required: [decision, response, version]
+      additionalProperties: false
+      properties:
+        decision:
+          type: string
+          enum: [UPHELD, ADJUSTED]
+        response:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        score:
+          type: [string, "null"]
+        version:
+          type: integer
+    AdjustRequest:
+      type: object
+      required: [score, reason, version]
+      additionalProperties: false
+      properties:
+        score:
+          type: [string, "null"]
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+        version:
+          type: integer
+    AdjustResult:
+      type: object
+      required: [attempt_id, auto_score, score, adjusted, version]
+      additionalProperties: false
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        auto_score:
+          type: [string, "null"]
+        score:
+          type: [string, "null"]
+        adjusted:
+          type: boolean
+        version:
+          type: integer
+    OverrideRequest:
+      type: object
+      required: [reason]
+      additionalProperties: false
+      properties:
+        answer_key:
+          type: object
+        void:
+          type: boolean
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+    OverrideResult:
+      type: object
+      required: [recomputed, job_id]
+      additionalProperties: false
+      properties:
+        recomputed:
+          type: integer
+        job_id:
+          type: [string, "null"]
+          format: uuid
+    RegradeRequest:
+      type: object
+      required: [scope, reason]
+      additionalProperties: false
+      properties:
+        scope:
+          type: string
+          enum: [all, item, attempt, errors]
+        item_id:
+          type: [string, "null"]
+          format: uuid
+        attempt_id:
+          type: [string, "null"]
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+    AppealView:
+      type: object
+      required: [id, attempt_id, status, reason, response, created_at, responded_at, score_before, score_after, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        attempt_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [OPEN, UPHELD, ADJUSTED]
+        reason:
+          type: string
+        response:
+          type: [string, "null"]
+        created_at:
+          type: string
+          format: date-time
+        responded_at:
+          type: [string, "null"]
+          format: date-time
+        score_before:
+          type: [string, "null"]
+        score_after:
+          type: [string, "null"]
+        version:
+          type: integer
+        student:
+          $ref: "#/components/schemas/ResultStudent"
+    AppealPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/AppealView"
+        next_cursor:
+          type: [string, "null"]
+    ResultStudent:
+      type: object
+      required: [id, full_name, student_code]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        student_code:
+          type: string
+    ResultFlags:
+      type: object
+      required: [similarity, tab_hidden, paste]
+      additionalProperties: false
+      properties:
+        similarity:
+          type: integer
+        tab_hidden:
+          type: integer
+        paste:
+          type: integer
+    ResultRow:
+      type: object
+      required: [attempt_id, student, status, auto_score, score, adjusted, submitted_at, submit_reason]
+      additionalProperties: false
+      properties:
+        attempt_id:
+          type: [string, "null"]
+          format: uuid
+        student:
+          $ref: "#/components/schemas/ResultStudent"
+        status:
+          type: string
+          enum: [NOT_STARTED, ABSENT, IN_PROGRESS, GRADING, GRADED]
+        auto_score:
+          type: [string, "null"]
+        score:
+          type: [string, "null"]
+        adjusted:
+          type: boolean
+        submitted_at:
+          type: [string, "null"]
+          format: date-time
+        submit_reason:
+          type: [string, "null"]
+        flags:
+          $ref: "#/components/schemas/ResultFlags"
+    ResultsList:
+      type: object
+      required: [progress, items, next_cursor]
+      additionalProperties: false
+      properties:
+        progress:
+          type: object
+          required: [not_started, in_progress, grading, graded, absent]
+          additionalProperties: false
+          properties:
+            not_started:
+              type: integer
+            in_progress:
+              type: integer
+            grading:
+              type: integer
+            graded:
+              type: integer
+            absent:
+              type: integer
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultRow"
+        next_cursor:
+          type: [string, "null"]
+    StaffTestResult:
+      type: object
+      required: [position, is_sample, verdict, time_ms, memory_kb]
+      additionalProperties: false
+      properties:
+        position:
+          type: integer
+        is_sample:
+          type: boolean
+        verdict:
+          type: string
+        time_ms:
+          type: integer
+        memory_kb:
+          type: integer
+    StaffSubmission:
+      type: object
+      required: [id, item_id, status, verdict, language, source, created_at, compile_ok, compile_log, tests]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        item_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        verdict:
+          type: [string, "null"]
+        language:
+          type: string
+        source:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        compile_ok:
+          type: [boolean, "null"]
+        compile_log:
+          type: [string, "null"]
+        tests:
+          type: array
+          items:
+            $ref: "#/components/schemas/StaffTestResult"
+    StaffResultDetail:
+      type: object
+      required: [attempt_id, student, status, version, auto_score, score, adjust, submitted_at, submit_reason, items, submissions, appeal]
+      additionalProperties: false
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        student:
+          $ref: "#/components/schemas/ResultStudent"
+        status:
+          type: string
+        version:
+          type: integer
+        auto_score:
+          type: [string, "null"]
+        score:
+          type: [string, "null"]
+        adjust:
+          type: [object, "null"]
+          required: [score, reason, at]
+          additionalProperties: false
+          properties:
+            score:
+              type: string
+            reason:
+              type: string
+            at:
+              type: string
+              format: date-time
+        submitted_at:
+          type: [string, "null"]
+          format: date-time
+        submit_reason:
+          type: [string, "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultItem"
+        submissions:
+          type: array
+          items:
+            $ref: "#/components/schemas/StaffSubmission"
+        integrity:
+          $ref: "#/components/schemas/ExamIntegritySummary"
+        appeal:
+          oneOf:
+            - $ref: "#/components/schemas/AppealView"
+            - type: "null"
+    ExamStats:
+      type: object
+      required: [distribution, mean, median, hardest, code]
+      additionalProperties: false
+      properties:
+        distribution:
+          type: array
+          items:
+            type: object
+            required: [from, to, count]
+            additionalProperties: false
+            properties:
+              from:
+                type: string
+              to:
+                type: string
+              count:
+                type: integer
+        mean:
+          type: string
+        median:
+          type: string
+        hardest:
+          type: array
+          items:
+            type: object
+            required: [item_id, title, correct_rate]
+            additionalProperties: false
+            properties:
+              item_id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              correct_rate:
+                type: string
+        code:
+          type: array
+          items:
+            type: object
+            required: [item_id, title, mean_ratio, ce_rate]
+            additionalProperties: false
+            properties:
+              item_id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              mean_ratio:
+                type: string
+              ce_rate:
+                type: string
+    ResultOption:
+      type: object
+      required: [id, body]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          type: string
+    ResultItem:
+      type: object
+      required: [item_id, position, type, stem, options, earned, max, correct, mine, answer, explanation, overridden, samples, hidden, final_submission, compile_log]
+      additionalProperties: false
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+        type:
+          type: string
+        stem:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/ResultOption"
+        earned:
+          type: string
+        max:
+          type: string
+        correct:
+          type: [boolean, "null"]
+        mine:
+          type: [object, "null"]
+        answer:
+          type: [object, "null"]
+        explanation:
+          type: [string, "null"]
+        overridden:
+          type: boolean
+        samples:
+          type: array
+          items:
+            type: object
+            required: [name, verdict, time_ms, memory_kb, input, expected]
+            additionalProperties: false
+            properties:
+              name:
+                type: string
+              verdict:
+                type: string
+              time_ms:
+                type: integer
+              memory_kb:
+                type: integer
+              input:
+                type: string
+              expected:
+                type: string
+        hidden:
+          type: [object, "null"]
+          required: [passed, total]
+          additionalProperties: false
+          properties:
+            passed:
+              type: integer
+            total:
+              type: integer
+        final_submission:
+          type: [object, "null"]
+          required: [id, language, source, created_at, compile_ok]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            language:
+              type: string
+            source:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+            compile_ok:
+              type: boolean
+        compile_log:
           type: [string, "null"]

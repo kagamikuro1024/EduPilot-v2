@@ -148,8 +148,28 @@ func (p StudentProvider) examItems(ctx context.Context, v Viewer, sc Scope) ([]I
 				Reason: fmt.Sprintf("Làm trong %d phút. Chuẩn bị máy tính nếu có bài lập trình.", dur)}))
 		}
 	}
+	since := v.Now.Add(-examResultDays * 24 * time.Hour)
+	res, err := store.New(p.Pool).TodayExamResults(ctx, store.TodayExamResultsParams{UserID: v.UserID, CourseIds: ids(courses), Since: since})
+	if err != nil {
+		return nil, fmt.Errorf("today: kết quả bài thi: %w", err)
+	}
+	for _, r := range res { // US-PE-08: kết quả vừa công bố (7 ngày) và phản hồi phúc khảo
+		c := byCourse[r.CourseID]
+		href := fmt.Sprintf("/exams/%s/take", r.ExamID)
+		if r.PublishedAt != nil && r.PublishedAt.After(since) {
+			out = append(out, mk(Item{ID: "EXAM_RESULT:" + r.ExamID.String(), Kind: KindExamResult, Tier: TierExamResult, Course: courseRef(c), Href: href,
+				Title: fmt.Sprintf("Điểm bài thi %s đã công bố", r.Title), Reason: "Xem kết quả và đáp án."}))
+		}
+		if r.AppealStatus != nil && *r.AppealStatus != "OPEN" && r.RespondedAt != nil && r.RespondedAt.After(since) {
+			out = append(out, mk(Item{ID: "EXAM_APPEAL_REPLY:" + r.ExamID.String(), Kind: KindExamAppealReply, Tier: TierExamAppealReply, Course: courseRef(c), Href: href,
+				Title: "Giảng viên đã trả lời yêu cầu xem lại", Reason: fmt.Sprintf("Bài thi %s.", r.Title)}))
+		}
+	}
 	return out, nil
 }
+
+// examResultDays: EXAM_RESULT / EXAM_APPEAL_REPLY hiện 7 ngày.
+const examResultDays = 7
 
 // ----- Giảng viên / TA -----
 
@@ -184,6 +204,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 		if !ok {
 			continue
 		}
+		out = append(out, examWorkItems(c, r.ExamWork, v.Now)...)
 		if r.Questions > 0 { // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
 			age := v.Now.Sub(r.QuestionsOldest)
 			out = append(out, mk(Item{
@@ -346,4 +367,44 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 		}))
 	}
 	return out, nil
+}
+
+// examWorkItems: EXAM_GRADE_ERROR (Giảng viên + TA), EXAM_APPEAL và EXAM_PUBLISH_HOLD (chỉ Giảng viên) cho một lớp.
+type examWork struct {
+	ExamID       uuid.UUID  `json:"exam_id"`
+	Title        string     `json:"title"`
+	Hold         bool       `json:"hold"`
+	Errors       int        `json:"errors"`
+	Ungraded     int        `json:"ungraded"`
+	Appeals      int        `json:"appeals"`
+	AppealOldest *time.Time `json:"appeal_oldest"`
+}
+
+func examWorkItems(c CourseRef, raw []byte, now time.Time) []Item {
+	var rows []examWork
+	if json.Unmarshal(raw, &rows) != nil {
+		return nil
+	}
+	var out []Item
+	teacher := c.RoleInCourse == "TEACHER"
+	for _, w := range rows {
+		id := w.ExamID.String()
+		if w.Errors > 0 {
+			out = append(out, mk(Item{ID: "EXAM_GRADE_ERROR:" + id, Kind: KindExamGradeError, Tier: TierExamGradeError, Course: courseRef(c), Href: fmt.Sprintf("/exams/%s/results?course=%s", id, c.ID),
+				Title: fmt.Sprintf("%d bài code chấm lỗi hệ thống · %s", w.Errors, w.Title), Reason: "Điểm chưa công bố được. Chấm lại khi hệ thống chấm hoạt động."}))
+		}
+		if !teacher {
+			continue
+		}
+		if w.Appeals > 0 && w.AppealOldest != nil {
+			age := now.Sub(*w.AppealOldest)
+			out = append(out, mk(Item{ID: "EXAM_APPEAL:" + id, Kind: KindExamAppeal, Tier: TierExamAppeal, Course: courseRef(c), Href: fmt.Sprintf("/exams/%s/results?tab=appeals&course=%s", id, c.ID),
+				Title: fmt.Sprintf("%d yêu cầu xem lại điểm · %s", w.Appeals, w.Title), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute), Overdue: age > 48*time.Hour}))
+		}
+		if w.Hold && w.Ungraded == 0 {
+			out = append(out, mk(Item{ID: "EXAM_PUBLISH_HOLD:" + id, Kind: KindExamPublishHold, Tier: TierExamPublishHold, Course: courseRef(c), Href: fmt.Sprintf("/exams/%s/results?course=%s", id, c.ID),
+				Title: fmt.Sprintf("Bài thi %s đã chấm xong nhưng đang hoãn công bố", w.Title), Reason: "Công bố khi thầy/cô sẵn sàng."}))
+		}
+	}
+	return out
 }

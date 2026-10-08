@@ -40,7 +40,14 @@ func newRegistry(d Deps) *outbox.Registry {
 	if d.Judge != nil {
 		reg.Register(judge.TopicEnqueue, d.Judge.HandleEnqueue) // XADD tín hiệu chấm rồi đặt enqueued_at (US-PE-02)
 	}
-	cnf := &exam.CodeNotifier{Pool: d.DB, SSE: pub, Log: d.Log}
+	rn := &exam.ResultNotifier{Pool: d.DB, SSE: pub, Log: d.Log}
+	reg.Register(exam.TopicAttemptGraded, outbox.Chain(rn.HandleGraded, inv.Handle)) // US-PE-08
+	reg.Register(exam.TopicPublished, outbox.Chain(rn.HandlePublished, inv.Handle))
+	reg.Register(exam.TopicRegraded, outbox.Chain(rn.HandleRegraded, inv.Handle))
+	reg.Register(exam.TopicAppealCreated, outbox.Chain(rn.HandleAppealCreated, inv.Handle))
+	reg.Register(exam.TopicAppealAnswered, outbox.Chain(rn.HandleAppealAnswered, inv.Handle))
+	reg.Register(exam.TopicHold, inv.Handle)
+	cnf := &exam.CodeNotifier{Pool: d.DB, SSE: pub, Log: d.Log, Svc: ew.Svc}
 	reg.Register(judge.TopicDone, cnf.HandleDone) // US-PE-06: kết quả chạy thử / nộp → SSE `exam.run` / `exam.submission` tới chủ bản nộp
 	registerTestKinds(runner)
 	return reg

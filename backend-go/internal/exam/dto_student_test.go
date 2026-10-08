@@ -53,7 +53,8 @@ func TestStudentDTOAllowlist(t *testing.T) {
 		"CodeItemView": exam.CodeItemView{}, "SampleView": exam.SampleView{}, "PreviewView": exam.PreviewView{},
 		"AttemptView": exam.AttemptView{}, "WriterView": exam.WriterView{}, "ExamBlockView": exam.ExamBlockView{}, "AttemptStartView": exam.AttemptStartView{},
 		"SubmittedAttemptView": exam.SubmittedAttemptView{}, "SummaryExamView": exam.SummaryExamView{}, "AttemptSummaryView": exam.AttemptSummaryView{},
-		"NoAttemptView": exam.NoAttemptView{}, "SubmitView": exam.SubmitView{}, "SaveView": exam.SaveView{}, "ResultView": exam.ResultView{}, "ResultExamView": exam.ResultExamView{},
+		"NoAttemptView": exam.NoAttemptView{}, "SubmitView": exam.SubmitView{}, "SaveView": exam.SaveView{}, "ResultView": exam.ResultView{}, "ResultExamView": exam.ResultExamView{}, "ResultAppealView": exam.ResultAppealView{}, "ResultItemView": exam.ResultItemView{}, "ResultSampleView": exam.ResultSampleView{},
+		"ResultHiddenView": exam.ResultHiddenView{}, "ResultFinalView": exam.ResultFinalView{},
 		"DraftView": exam.DraftView{}, "DraftSaved": exam.DraftSaved{}, "RunQueued": exam.RunQueued{}, "SubmitQueued": exam.SubmitQueued{}, "SampleResultView": exam.SampleResultView{},
 		"SubmissionView": exam.SubmissionView{}, "RunView": exam.RunView{},
 	}
@@ -66,9 +67,13 @@ func TestStudentDTOAllowlist(t *testing.T) {
 		slices.Sort(got)
 		slices.Sort(want)
 		require.Equal(t, want, got, name+": thêm / bớt trường phải sửa tệp allowlist")
+		published := strings.HasPrefix(name, "Result") // kết quả ĐÃ công bố: được có `correct` / `explanation` / `hidden` (SRS 4.8.3); lớp thứ hai là TestNoAnswerLeak
 		for _, f := range got {
 			for _, bad := range forbidden {
-				require.False(t, f == bad || strings.HasPrefix(f, "hidden"), "%s có trường nhạy cảm %q", name, f)
+				if published && (bad == "correct" || bad == "explanation" || bad == "hidden") {
+					continue
+				}
+				require.False(t, f == bad || (!published && strings.HasPrefix(f, "hidden")), "%s có trường nhạy cảm %q", name, f)
 			}
 		}
 	}

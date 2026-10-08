@@ -74,4 +74,4 @@ order by position;
 
 -- name: CodeSubmissionStudent :one
 -- Chủ của bản nộp: worker dùng để phát SSE tới đúng người (không đưa danh tính vào payload outbox của máy chấm).
-select student_id, kind, status, item_id, attempt_id from code_submissions where id = sqlc.arg(id);
+select student_id, course_id, kind, status, item_id, attempt_id from code_submissions where id = sqlc.arg(id);

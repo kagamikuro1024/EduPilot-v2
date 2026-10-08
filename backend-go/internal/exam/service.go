@@ -43,6 +43,7 @@ type Service struct {
 	Attempt            AttemptConfig    // lượt làm (US-PE-05)
 	Code               CodeConfig       // bài code trong lượt làm (US-PE-06)
 	Integrity          IntegrityConfig  // liêm chính (US-PE-07)
+	Results            ResultsConfig    // kết quả / công bố (US-PE-08)
 	Log                *slog.Logger     // nil = slog.Default()
 	Redis              *appredis.Client // giới hạn lưu theo lượt (nil = không giới hạn)
 }

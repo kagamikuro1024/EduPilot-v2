@@ -34,12 +34,20 @@ const (
 	// US-PE-07: so độ giống xong / giảng viên đã xem một cặp → việc EXAM_SIMILARITY của Giảng viên đổi.
 	TopicSimilarityDone     = "exam.similarity_done"
 	TopicSimilarityReviewed = "exam.similarity_reviewed"
+	// US-PE-08: chấm xong / công bố / hoãn / chấm lại / phúc khảo — việc của sinh viên và Staff đổi.
+	TopicAttemptGraded  = "exam.attempt_graded"
+	TopicExamPublished  = "exam.published"
+	TopicExamHold       = "exam.hold"
+	TopicExamRegraded   = "exam.regraded"
+	TopicAppealCreated  = "exam.appeal_created"
+	TopicAppealAnswered = "exam.appeal_answered"
 )
 
 // Topics là mọi topic mà Invalidator phải được đăng ký.
 func Topics() []string {
 	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport,
-		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted, TopicSimilarityDone, TopicSimilarityReviewed}
+		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted, TopicSimilarityDone, TopicSimilarityReviewed,
+		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered}
 }
 
 // Invalidator xoá `ep:today:{uid}:{scope}` của những người bị một sự kiện outbox ảnh hưởng. Idempotent (DEL).
@@ -131,5 +139,5 @@ func (i Invalidator) Handle(ctx context.Context, m outbox.Message) error {
 }
 
 func isExamTopic(t string) bool {
-	return t == TopicExamScheduled || t == TopicExamUnscheduled || t == TopicExamOpened || t == TopicExamClosed
+	return t == TopicExamScheduled || t == TopicExamUnscheduled || t == TopicExamOpened || t == TopicExamClosed || t == TopicExamPublished || t == TopicExamHold
 }

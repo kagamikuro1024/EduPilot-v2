@@ -625,7 +625,7 @@ func TestEmptyDraftNoSubmit(t *testing.T) {
 	c.finishManual()
 	require.Empty(t, c.subs("SUBMIT"))
 	st, _, _, _ := r.attemptRow(c.v.Attempt.ID)
-	require.Equal(t, "GRADING", st, "không có bản nộp không phải lỗi; điểm 0 do PE-08 tính")
+	require.Equal(t, "GRADED", st, "không có bản nộp không phải lỗi: earned = 0, chấm xong ngay (US-PE-08 AC2)")
 }
 
 // TestAutoSubmitUsesLatestDraftOnly — AC11: nhiều ngôn ngữ có nháp → dùng ĐÚNG bản có updated_at lớn nhất.

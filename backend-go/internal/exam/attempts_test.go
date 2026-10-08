@@ -768,7 +768,7 @@ func TestAutoSubmitGradesMCQ(t *testing.T) {
 	require.NoError(t, r.pool.QueryRow(t.Context(), `select breakdown from exam_attempts where id=$1`, v.Attempt.ID).Scan(&raw))
 	require.NoError(t, json.Unmarshal(raw, &bd))
 	require.Len(t, bd, 4)
-	// bài có câu code: nộp xong ở GRADING (hoàn tất ở US-PE-06), không có điểm
+	// bài có câu code mà sinh viên không nộp / không nháp gì: earned = 0 cho câu code (không phải lỗi) → chấm xong ngay (US-PE-08 AC2)
 	cq := r.approvedCode("code")
 	mixed := r.openExam("hỗn hợp", false, r.approvedMCQ("m"), cq)
 	sv2 := r.student("ACTIVE")
@@ -776,8 +776,8 @@ func TestAutoSubmitGradesMCQ(t *testing.T) {
 	_, err = r.svc.SubmitAttempt(t.Context(), sv2, r.course, mixed.ID, v2.Attempt.ID, tab)
 	require.NoError(t, err)
 	st, _, sc2, _ := r.attemptRow(v2.Attempt.ID)
-	require.Equal(t, "GRADING", st)
-	require.Nil(t, sc2)
+	require.Equal(t, "GRADED", st)
+	require.Equal(t, "0.00", *sc2)
 }
 
 // ---- AC8: nộp tay ----------------------------------------------------------------------------------------------------------------

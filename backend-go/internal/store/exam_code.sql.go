@@ -344,11 +344,12 @@ func (q *Queries) CodeSubmissionInsert(ctx context.Context, arg CodeSubmissionIn
 }
 
 const codeSubmissionStudent = `-- name: CodeSubmissionStudent :one
-select student_id, kind, status, item_id, attempt_id from code_submissions where id = $1
+select student_id, course_id, kind, status, item_id, attempt_id from code_submissions where id = $1
 `
 
 type CodeSubmissionStudentRow struct {
 	StudentID uuid.UUID
+	CourseID  uuid.UUID
 	Kind      SubmissionKind
 	Status    SubmissionStatus
 	ItemID    uuid.UUID
@@ -361,6 +362,7 @@ func (q *Queries) CodeSubmissionStudent(ctx context.Context, id uuid.UUID) (Code
 	var i CodeSubmissionStudentRow
 	err := row.Scan(
 		&i.StudentID,
+		&i.CourseID,
 		&i.Kind,
 		&i.Status,
 		&i.ItemID,

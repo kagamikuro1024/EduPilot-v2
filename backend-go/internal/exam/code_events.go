@@ -27,6 +27,8 @@ type CodeNotifier struct {
 	Pool *pgxpool.Pool
 	SSE  sse.Publisher
 	Log  *slog.Logger
+	// Svc: hoàn tất chấm lượt (US-PE-08) khi một bản SUBMIT xong; nil ⇒ chỉ phát SSE.
+	Svc *Service
 }
 
 // HandleDone idempotent: phát lại chỉ làm máy khách nhận thêm một sự kiện cùng id (máy khách khử trùng theo id).
@@ -43,6 +45,11 @@ func (n *CodeNotifier) HandleDone(ctx context.Context, m outbox.Message) error {
 	}
 	if err != nil {
 		return fmt.Errorf("exam: tra chủ bản nộp: %w", err)
+	}
+	if row.Kind == store.SubmissionKindSUBMIT && n.Svc != nil { // chấm xong lượt TRƯỚC khi báo: kết quả đã nhất quán khi máy khách đọc
+		if err := n.Svc.OnSubmissionDone(ctx, row.CourseID, row.AttemptID); err != nil {
+			return fmt.Errorf("exam: hoàn tất chấm: %w", err)
+		}
 	}
 	typ, key := EventSubmission, "submission_id"
 	if row.Kind == store.SubmissionKindRUN {

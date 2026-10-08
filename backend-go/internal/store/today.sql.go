@@ -438,7 +438,8 @@ select c.course_id::uuid as course_id,
        coalesce(e.mismatch_oldest, 'epoch'::timestamptz)::timestamptz as mismatch_oldest,
        coalesce(q.pending, 0)::int as questions,
        coalesce(q.oldest, 'epoch'::timestamptz)::timestamptz as questions_oldest,
-       coalesce(s.exams, '[]'::jsonb)::jsonb as similarity
+       coalesce(s.exams, '[]'::jsonb)::jsonb as similarity,
+       coalesce(w.exams, '[]'::jsonb)::jsonb as exam_work
 from unnest($1::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -469,6 +470,18 @@ left join (
     join exams ex on ex.course_id = r.course_id and ex.id = r.exam_id
     group by r.course_id
 ) s on s.course_id = c.course_id
+left join (
+    -- US-PE-08: việc của Staff về bài đã đóng / công bố (lượt chấm lỗi, hoãn công bố, phúc khảo chờ); bài cũ hơn 120 ngày thôi làm việc của hôm nay.
+    select e.course_id, jsonb_agg(jsonb_build_object('exam_id', e.id, 'title', e.title, 'hold', e.publish_hold,
+        'errors', (select count(distinct a.id) from exam_attempts a join code_submissions cs on cs.course_id = a.course_id and cs.attempt_id = a.id and cs.kind = 'SUBMIT' and cs.status = 'ERROR'
+                    where a.course_id = e.course_id and a.exam_id = e.id),
+        'ungraded', (select count(*) from exam_attempts a where a.course_id = e.course_id and a.exam_id = e.id and a.status <> 'GRADED'),
+        'appeals', (select count(*) from exam_appeals p where p.course_id = e.course_id and p.exam_id = e.id and p.status = 'OPEN'),
+        'appeal_oldest', (select min(p.created_at) from exam_appeals p where p.course_id = e.course_id and p.exam_id = e.id and p.status = 'OPEN'))) as exams
+    from exams e
+    where e.course_id = any($1::text[]::uuid[]) and e.status in ('CLOSED', 'PUBLISHED') and e.closes_at > now() - interval '120 days'
+    group by e.course_id
+) w on w.course_id = c.course_id
 `
 
 type TodayStaffPendingRow struct {
@@ -480,6 +493,7 @@ type TodayStaffPendingRow struct {
 	Questions       int32
 	QuestionsOldest time.Time
 	Similarity      json.RawMessage
+	ExamWork        json.RawMessage
 }
 
 // (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
@@ -502,6 +516,7 @@ func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]
 			&i.Questions,
 			&i.QuestionsOldest,
 			&i.Similarity,
+			&i.ExamWork,
 		); err != nil {
 			return nil, err
 		}

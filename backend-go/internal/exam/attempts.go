@@ -583,13 +583,11 @@ func (s *Service) finish(ctx context.Context, q *store.Queries, tx pgx.Tx, e sto
 		return SubmitView{}, err
 	}
 	arg := store.AttemptFinishParams{CourseID: a.CourseID, ID: a.ID, Status: store.AttemptStatusGRADING, SubmittedAt: &at, SubmitReason: ptrOf[store.AttemptSubmitReason](reason)}
-	if e.Kind == store.ExamKindMCQ {
-		score, breakdown, err := s.gradeMCQ(ctx, q, e, a, items)
-		if err != nil {
-			return SubmitView{}, err
-		}
+	if gr, err := s.computeGrade(ctx, q, e, a, items); err != nil {
+		return SubmitView{}, err
+	} else if gr.Complete { // MCQ-only, hoặc câu code không có bản nộp: chấm xong ngay; còn bản nộp QUEUED → GRADING, hoàn tất ở TryFinishGrading (SRS 4.8.1)
 		now := s.now()
-		arg.Status, arg.AutoScore, arg.GradedAt, arg.Breakdown = store.AttemptStatusGRADED, decimal.NullDecimal{Decimal: score, Valid: true}, &now, breakdown
+		arg.Status, arg.AutoScore, arg.GradedAt, arg.Breakdown = store.AttemptStatusGRADED, decimal.NullDecimal{Decimal: gr.Score, Valid: true}, &now, gr.Breakdown
 	}
 	row, err := q.AttemptFinish(ctx, arg)
 	if errors.Is(err, pgx.ErrNoRows) { // đã nộp (tick và nộp tay chạm nhau): idempotent
@@ -602,65 +600,6 @@ func (s *Service) finish(ctx context.Context, q *store.Queries, tx pgx.Tx, e sto
 		return SubmitView{}, fmt.Errorf("exam: outbox: %w", err)
 	}
 	return SubmitView{Status: string(row.Status), SubmittedAt: at, Answered: int(answered), Total: len(items)}, nil
-}
-
-// breakdownRow là một dòng `exam_attempts.breakdown` (ảnh chụp lúc tính điểm; `earned` lưu ĐỦ chữ số — SRS 4.8.3).
-type breakdownRow struct {
-	ItemID uuid.UUID `json:"item_id"`
-	Points string    `json:"points"`
-	Earned string    `json:"earned"`
-	Void   bool      `json:"void,omitempty"`
-}
-
-// gradeMCQ chấm các câu trắc nghiệm bằng Quiz Engine (code thuần, decimal) rồi quy về thang `max_score` qua Score. Chấm theo ID đáp án nên không phụ thuộc xáo trộn.
-func (s *Service) gradeMCQ(ctx context.Context, q *store.Queries, e store.Exam, a store.ExamAttempt, items []store.ExamGradeItemsRow) (decimal.Decimal, json.RawMessage, error) {
-	saved, err := q.AnswersList(ctx, store.AnswersListParams{CourseID: a.CourseID, AttemptID: a.ID})
-	if err != nil {
-		return decimal.Zero, nil, fmt.Errorf("exam: câu trả lời đã lưu: %w", err)
-	}
-	byItem := make(map[uuid.UUID]json.RawMessage, len(saved))
-	for _, r := range saved {
-		byItem[r.ItemID] = r.Answer
-	}
-	opts, err := q.ExamPreviewOptions(ctx, store.ExamPreviewOptionsParams{CourseID: a.CourseID, ExamID: a.ExamID})
-	if err != nil {
-		return decimal.Zero, nil, fmt.Errorf("exam: đáp án của các câu: %w", err)
-	}
-	optIDs := map[uuid.UUID][]string{}
-	for _, o := range opts {
-		optIDs[o.QuestionID] = append(optIDs[o.QuestionID], o.ID.String())
-	}
-	mode := quiz.Mode(e.MultiScoring)
-	scored := make([]ScoreItem, len(items))
-	rows := make([]breakdownRow, len(items))
-	for i, it := range items {
-		var ov struct {
-			AnswerKey json.RawMessage `json:"answer_key"`
-			Void      bool            `json:"void"`
-		}
-		if len(it.Override) > 0 {
-			_ = json.Unmarshal(it.Override, &ov)
-		}
-		key := it.AnswerKey
-		if len(ov.AnswerKey) > 0 {
-			key = ov.AnswerKey
-		}
-		earned, err := gradeOne(quiz.Type(it.Type), it.Points, key, byItem[it.ItemID], mode, optIDs[it.QuestionID])
-		if err != nil {
-			return decimal.Zero, nil, fmt.Errorf("exam: chấm câu %s: %w", it.ItemID, err)
-		}
-		scored[i] = ScoreItem{Points: it.Points, Earned: earned, Void: ov.Void}
-		rows[i] = breakdownRow{ItemID: it.ItemID, Points: it.Points.StringFixed(2), Earned: earned.String(), Void: ov.Void}
-	}
-	score, err := Score(scored, e.MaxScore, e.RoundingStep)
-	if err != nil {
-		return decimal.Zero, nil, fmt.Errorf("exam: tính điểm: %w", err)
-	}
-	raw, err := json.Marshal(rows)
-	if err != nil {
-		return decimal.Zero, nil, fmt.Errorf("exam: mã hoá breakdown: %w", err)
-	}
-	return score, raw, nil
 }
 
 // gradeOne chấm một câu từ đáp án đúng và câu trả lời ở dạng JSON thô; câu trả lời chọn id lạ hoặc sai dạng coi như chưa trả lời.
@@ -732,49 +671,4 @@ func (s *Service) AutoSubmitDue(ctx context.Context) (int, error) {
 		n++
 	}
 	return n, firstErr
-}
-
-// ---- kết quả (chỉ khi đã công bố) ---------------------------------------------------------------------------------------------
-
-// ResultView là kết quả của sinh viên SAU khi công bố. US-PE-08 bổ sung từng câu / đáp án / phúc khảo; ở đây là phần điểm.
-type ResultView struct {
-	Exam  ResultExamView `json:"exam"`
-	Score *string        `json:"score"`
-}
-
-// ResultExamView là khối `exam` của kết quả.
-type ResultExamView struct {
-	ID          uuid.UUID  `json:"id"`
-	Title       string     `json:"title"`
-	MaxScore    string     `json:"max_score"`
-	PublishedAt *time.Time `json:"published_at"`
-}
-
-// AttemptResult: `GET …/result`. Chưa PUBLISHED → 409 RESULT_NOT_PUBLISHED, thân KHÔNG chứa dữ liệu; lượt của người khác → 404.
-func (s *Service) AttemptResult(ctx context.Context, userID, courseID, examID, attemptID uuid.UUID) (ResultView, error) {
-	q := store.New(s.Pool)
-	a, err := q.AttemptOwn(ctx, store.AttemptOwnParams{CourseID: courseID, ExamID: examID, ID: attemptID, StudentID: userID})
-	if errors.Is(err, pgx.ErrNoRows) {
-		return ResultView{}, notFound()
-	}
-	if err != nil {
-		return ResultView{}, fmt.Errorf("exam: đọc lượt làm: %w", err)
-	}
-	e, err := q.ExamGet(ctx, store.ExamGetParams{CourseID: courseID, ID: examID})
-	if err != nil {
-		return ResultView{}, fmt.Errorf("exam: đọc bài thi: %w", err)
-	}
-	if e.Status != store.ExamStatusPUBLISHED {
-		return ResultView{}, apierr.New(http.StatusConflict, apierr.ResultNotPublished)
-	}
-	v := ResultView{Exam: ResultExamView{ID: e.ID, Title: e.Title, MaxScore: e.MaxScore.StringFixed(2), PublishedAt: e.PublishedAt}}
-	score := a.AdjustedScore
-	if !score.Valid {
-		score = a.AutoScore
-	}
-	if score.Valid {
-		sc := score.Decimal.StringFixed(2)
-		v.Score = &sc
-	}
-	return v, nil
 }

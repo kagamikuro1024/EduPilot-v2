@@ -177,7 +177,9 @@ func (r *runner) record(c call, status int, h http.Header, body []byte, skipBody
 	}
 	o.Op = op.Key()
 	o.Declared = op.Declared(status)
-	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody})
+	// `text/csv` (US-PE-08 `results.csv`, phân cách `;`): bộ giải mã CSV của kin-openapi chỉ biết dấu phẩy nên không kiểm thân bằng schema; nội dung do `exam.TestResultsCSV` kiểm.
+	csv := strings.HasPrefix(h.Get("Content-Type"), "text/csv")
+	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv})
 	r.add(o)
 }
 

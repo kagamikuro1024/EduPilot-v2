@@ -45,6 +45,11 @@ const (
 	KindExamOpen         Kind = "EXAM_OPEN"
 	KindExamUpcoming     Kind = "EXAM_UPCOMING"
 	KindExamSimilarity   Kind = "EXAM_SIMILARITY" // US-PE-07 (chỉ Giảng viên)
+	KindExamResult       Kind = "EXAM_RESULT"     // US-PE-08: sinh viên, 7 ngày kể từ công bố
+	KindExamAppealReply  Kind = "EXAM_APPEAL_REPLY"
+	KindExamGradeError   Kind = "EXAM_GRADE_ERROR" // Giảng viên + TA
+	KindExamAppeal       Kind = "EXAM_APPEAL"      // chỉ Giảng viên
+	KindExamPublishHold  Kind = "EXAM_PUBLISH_HOLD"
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -65,17 +70,22 @@ const (
 	TierExamOpen         = 8
 	TierExamUpcoming     = 42
 	TierExamSimilarity   = 55
+	TierExamGradeError   = 15
+	TierExamAppeal       = 22
+	TierExamPublishHold  = 32
+	TierExamResult       = 44
+	TierExamAppealReply  = 46
 )
 
 // allowed: Kind nào được phép trong phản hồi của vai nào. Bộ gộp LỌC theo bảng này nên một Provider lỡ trả nhầm
 // (hoặc một phase sau đăng ký sai) cũng không làm lộ việc dành cho staff ra cho sinh viên.
 func allowed(role Role, k Kind) bool {
 	switch k {
-	case KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming:
+	case KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply:
 		return role == RoleStudent
-	case KindJoinRequest, KindQuestionReview:
+	case KindJoinRequest, KindQuestionReview, KindExamGradeError:
 		return role == RoleTeacher || role == RoleTA
-	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity:
+	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher
 	case KindLLMProviderError, KindLLMBudgetOut, KindLLMBudgetWarn, KindCourseNoTeacher, KindInviteExpired:
 		return role == RoleAdmin

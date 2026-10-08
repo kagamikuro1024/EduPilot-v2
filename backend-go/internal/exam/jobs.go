@@ -23,7 +23,7 @@ type Sandbox interface {
 	DeleteFile(ctx context.Context, id string) error
 }
 
-// Worker là phía worker của gói: các việc `code.verify_reference` và `question.suggest`.
+// Worker là phía worker của gói: các việc `code.verify_reference`, `question.suggest`, `exam.similarity`, `exam.regrade`.
 type Worker struct {
 	Pool    *pgxpool.Pool
 	Svc     *Service   // đọc nội dung test lớn
@@ -34,11 +34,12 @@ type Worker struct {
 	RetryWait []time.Duration
 }
 
-// Register gắn hai loại việc vào `jobs.Runner`.
+// Register gắn các loại việc vào `jobs.Runner`.
 func (w *Worker) Register(r *jobs.Runner) {
 	r.Register(KindVerifyReference, w.verify)
 	r.Register(KindSuggest, w.suggest)
 	r.Register(KindSimilarity, w.similarityJob)
+	r.Register(KindRegrade, w.regradeJob)
 }
 
 func errNoJudge() error {

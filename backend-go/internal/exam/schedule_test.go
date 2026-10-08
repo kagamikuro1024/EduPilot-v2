@@ -386,6 +386,7 @@ func TestExamStateMachine(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	d := r.scheduled("giờ giấc")
+	r.exec(`update exams set publish_hold = true where id=$1`, d.ID) // US-PE-08: không hoãn thì tick đóng xong công bố luôn (bài không có lượt)
 	clk := clock.NewFake(time.Now().UTC())
 	tk := r.ticker(clk)
 	require.NoError(t, tk.Tick(t.Context()))
@@ -438,6 +439,7 @@ func TestTickSkipsToClosed(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	d := r.scheduled("tắt lâu")
+	r.exec(`update exams set publish_hold = true where id=$1`, d.ID) // US-PE-08: giữ ở CLOSED để kiểm bước đóng
 	clk := clock.NewFake(time.Now().UTC().Add(48 * time.Hour))
 	require.NoError(t, r.ticker(clk).Tick(t.Context()))
 	require.Equal(t, "CLOSED", r.status(d.ID))
