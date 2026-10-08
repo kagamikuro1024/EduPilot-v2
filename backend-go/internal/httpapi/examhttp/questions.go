@@ -51,6 +51,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Delete(q+"/{qid}/testcases/{tid}", h.deleteTest)
 	r.With(staff, h.Idem).Post(q+"/{qid}/reference/verify", h.verify)
 	h.MountExams(r)
+	h.MountAttempts(r)
 }
 
 type reqCtx struct {

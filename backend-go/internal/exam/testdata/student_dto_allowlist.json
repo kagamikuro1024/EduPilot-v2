@@ -1,9 +1,21 @@
 {
   "ExamStudentView": ["id", "title", "instructions", "kind", "opens_at", "closes_at", "duration_minutes", "max_score", "status", "my_attempt", "my_score"],
   "MyAttemptView": ["id", "status", "deadline_at", "submitted_at"],
-  "ItemView": ["item_id", "position", "type", "points", "stem", "options", "code"],
+  "ItemView": ["item_id", "position", "type", "points", "stem", "options", "code", "answer"],
   "OptionView": ["id", "body"],
   "CodeItemView": ["languages", "time_limit_ms", "memory_limit_mb", "starter_code", "samples"],
   "SampleView": ["name", "input", "expected"],
-  "PreviewView": ["preview", "exam", "items"]
+  "PreviewView": ["preview", "exam", "items"],
+  "AttemptView": ["id", "exam_id", "status", "started_at", "deadline_at", "server_time", "writer"],
+  "WriterView": ["is_you"],
+  "ExamBlockView": ["id", "title", "instructions", "kind", "duration_minutes", "closes_at", "multi_scoring"],
+  "AttemptStartView": ["attempt", "exam", "items"],
+  "SubmittedAttemptView": ["id", "status", "submitted_at", "submit_reason"],
+  "SummaryExamView": ["id", "title", "closes_at", "status"],
+  "AttemptSummaryView": ["attempt", "exam"],
+  "NoAttemptView": ["attempt", "exam"],
+  "SubmitView": ["status", "submitted_at", "answered", "total"],
+  "SaveView": ["saved_at", "server_time", "deadline_at"],
+  "ResultView": ["exam", "score"],
+  "ResultExamView": ["id", "title", "max_score", "published_at"]
 }

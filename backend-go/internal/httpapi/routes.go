@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
@@ -71,7 +72,8 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		if d.DB != nil && d.Jobs != nil {
 			// US-PE-03 / PE-04 — ngân hàng câu hỏi và bài thi (thao tác 1–25, 27, 28 của SRS FEAT-weekly-exam 6.2).
 			svc := &exam.Service{Pool: d.DB, Clock: d.Clock, Jobs: d.Jobs, ZipMaxUncompressed: d.Cfg.ExamTestZipMaxUncompressed,
-				Limits: exam.Limits{MinDurationMinutes: d.Cfg.ExamMinDurationMinutes, MinLeadSeconds: d.Cfg.ExamMinLeadSeconds, MaxTotalSeconds: d.Cfg.JudgeMaxTotalSeconds}}
+				Limits:  exam.Limits{MinDurationMinutes: d.Cfg.ExamMinDurationMinutes, MinLeadSeconds: d.Cfg.ExamMinLeadSeconds, MaxTotalSeconds: d.Cfg.JudgeMaxTotalSeconds},
+				Attempt: exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second, TabStale: d.Cfg.ExamTabStale, SaveRate: d.Cfg.ExamSaveRatePerMin}, Redis: d.Redis}
 			if d.Blob != nil {
 				svc.Blob = d.Blob
 			}

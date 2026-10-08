@@ -51,6 +51,9 @@ func TestStudentDTOAllowlist(t *testing.T) {
 	types := map[string]any{
 		"ExamStudentView": exam.ExamStudentView{}, "MyAttemptView": exam.MyAttemptView{}, "ItemView": exam.ItemView{}, "OptionView": exam.OptionView{},
 		"CodeItemView": exam.CodeItemView{}, "SampleView": exam.SampleView{}, "PreviewView": exam.PreviewView{},
+		"AttemptView": exam.AttemptView{}, "WriterView": exam.WriterView{}, "ExamBlockView": exam.ExamBlockView{}, "AttemptStartView": exam.AttemptStartView{},
+		"SubmittedAttemptView": exam.SubmittedAttemptView{}, "SummaryExamView": exam.SummaryExamView{}, "AttemptSummaryView": exam.AttemptSummaryView{},
+		"NoAttemptView": exam.NoAttemptView{}, "SubmitView": exam.SubmitView{}, "SaveView": exam.SaveView{}, "ResultView": exam.ResultView{}, "ResultExamView": exam.ResultExamView{},
 	}
 	require.Len(t, allow, len(types), "mỗi DTO có một dòng trong tệp")
 	forbidden := []string{"answer_key", "correct", "is_correct", "explanation", "override", "original_position", "pinned_last", "hidden", "weight", "tests_version", "reference", "items_count", "attempts", "created_by"}

@@ -550,7 +550,7 @@ func TestScheduleRaceWithQuestionReject(t *testing.T) {
 	e := r.mustItems(r.newExam(goodIn("đua")), q)
 	tx, err := r.pool.Begin(t.Context())
 	require.NoError(t, err)
-	t.Cleanup(func() { _ = tx.Rollback(context.WithoutCancel(t.Context())) }) // chạy trước pool.Close; Rollback sau Commit chỉ trả ErrTxClosed
+	t.Cleanup(func() { _ = tx.Rollback(context.WithoutCancel(t.Context())) })              // chạy trước pool.Close; Rollback sau Commit chỉ trả ErrTxClosed
 	_, err = tx.Exec(t.Context(), `select 1 from question_bank where id=$1 for update`, q) // như Review đang chạy
 	require.NoError(t, err)
 	done := make(chan error, 1)

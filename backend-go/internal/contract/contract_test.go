@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 96 { // 69 (P2) + 16 thao tác ngân hàng câu hỏi (US-PE-03) + 11 thao tác bài thi (US-PE-04); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 96)", n)
+		if n := len(prod.Operations()); n != 102 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 102)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
 		if n := len(test.Operations()); n != 18 {
@@ -279,34 +279,40 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/courses/{id}/sessions": true, "POST /api/v1/courses/{id}/sessions/generate": true,
 		"GET /api/v1/me/today": true, "GET /api/v1/courses/{id}/today": true, "POST /api/v1/courses/{id}/setup/dismiss": true,
 		// US-PE-03 — ngân hàng câu hỏi (thao tác 1–16 của SRS FEAT-weekly-exam 6.2)
-		"GET /api/v1/courses/{id}/questions":                          true,
-		"POST /api/v1/courses/{id}/questions":                         true,
-		"POST /api/v1/courses/{id}/questions/suggest":                 true,
-		"GET /api/v1/courses/{id}/questions/{qid}":                    true,
-		"PUT /api/v1/courses/{id}/questions/{qid}":                    true,
-		"POST /api/v1/courses/{id}/questions/{qid}/archive":           true,
-		"POST /api/v1/courses/{id}/questions/{qid}/duplicate":         true,
-		"PUT /api/v1/courses/{id}/questions/{qid}/review":             true,
-		"PUT /api/v1/courses/{id}/questions/{qid}/code":               true,
-		"GET /api/v1/courses/{id}/questions/{qid}/testcases":          true,
-		"POST /api/v1/courses/{id}/questions/{qid}/testcases":         true,
-		"POST /api/v1/courses/{id}/questions/{qid}/testcases/import":  true,
-		"POST /api/v1/courses/{id}/questions/{qid}/testcases/approve": true,
-		"PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid}":    true,
-		"DELETE /api/v1/courses/{id}/questions/{qid}/testcases/{tid}": true,
-		"POST /api/v1/courses/{id}/questions/{qid}/reference/verify":  true,
-		"GET /api/v1/courses/{id}/exams":                              true,
-		"POST /api/v1/courses/{id}/exams":                             true,
-		"GET /api/v1/courses/{id}/exams/{eid}":                        true,
-		"PUT /api/v1/courses/{id}/exams/{eid}":                        true,
-		"DELETE /api/v1/courses/{id}/exams/{eid}":                     true,
-		"PUT /api/v1/courses/{id}/exams/{eid}/items":                  true,
-		"GET /api/v1/courses/{id}/exams/{eid}/preview":                true,
-		"POST /api/v1/courses/{id}/exams/{eid}/schedule":              true,
-		"POST /api/v1/courses/{id}/exams/{eid}/unschedule":            true,
-		"POST /api/v1/courses/{id}/exams/{eid}/extend":                true,
-		"POST /api/v1/courses/{id}/exams/{eid}/clone":                 true,
-		"GET /api/v1/me/courses":                                      true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
+		"GET /api/v1/courses/{id}/questions":                            true,
+		"POST /api/v1/courses/{id}/questions":                           true,
+		"POST /api/v1/courses/{id}/questions/suggest":                   true,
+		"GET /api/v1/courses/{id}/questions/{qid}":                      true,
+		"PUT /api/v1/courses/{id}/questions/{qid}":                      true,
+		"POST /api/v1/courses/{id}/questions/{qid}/archive":             true,
+		"POST /api/v1/courses/{id}/questions/{qid}/duplicate":           true,
+		"PUT /api/v1/courses/{id}/questions/{qid}/review":               true,
+		"PUT /api/v1/courses/{id}/questions/{qid}/code":                 true,
+		"GET /api/v1/courses/{id}/questions/{qid}/testcases":            true,
+		"POST /api/v1/courses/{id}/questions/{qid}/testcases":           true,
+		"POST /api/v1/courses/{id}/questions/{qid}/testcases/import":    true,
+		"POST /api/v1/courses/{id}/questions/{qid}/testcases/approve":   true,
+		"PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid}":      true,
+		"DELETE /api/v1/courses/{id}/questions/{qid}/testcases/{tid}":   true,
+		"POST /api/v1/courses/{id}/questions/{qid}/reference/verify":    true,
+		"GET /api/v1/courses/{id}/exams":                                true,
+		"POST /api/v1/courses/{id}/exams":                               true,
+		"GET /api/v1/courses/{id}/exams/{eid}":                          true,
+		"PUT /api/v1/courses/{id}/exams/{eid}":                          true,
+		"DELETE /api/v1/courses/{id}/exams/{eid}":                       true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/items":                    true,
+		"GET /api/v1/courses/{id}/exams/{eid}/preview":                  true,
+		"POST /api/v1/courses/{id}/exams/{eid}/schedule":                true,
+		"POST /api/v1/courses/{id}/exams/{eid}/unschedule":              true,
+		"POST /api/v1/courses/{id}/exams/{eid}/extend":                  true,
+		"POST /api/v1/courses/{id}/exams/{eid}/clone":                   true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts":                true,
+		"GET /api/v1/courses/{id}/exams/{eid}/attempts/mine":            true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/answers":   true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/takeover": true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/submit":   true,
+		"GET /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/result":    true,
+		"GET /api/v1/me/courses":                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {
 		need, ok := want[o.Key()]

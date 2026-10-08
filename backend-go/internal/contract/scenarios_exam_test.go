@@ -238,6 +238,7 @@ func (r *runner) examScenarios() {
 	r.must(call{method: "POST", path: sg, token: gv, headers: idem(), body: `{"kind":"MCQ","topic":"x","count":99}`}, 422)
 
 	r.examExamScenarios(examRig{cid: cid, arch: arch, q1: q1.ID, gv: gv, ta: ta, sv: sv, admin: admin, idem: idem})
+	r.examAttemptScenarios(examRig{cid: cid, arch: arch, q1: q1.ID, gv: gv, ta: ta, sv: sv, admin: admin, idem: idem})
 }
 
 type examRig struct {
@@ -370,4 +371,105 @@ func (r *runner) examExamScenarios(x examRig) {
 	r.must(call{method: "DELETE", path: ex + "/" + uuid.NewString(), token: x.gv}, 404)
 	r.must(call{method: "DELETE", path: archEx + "/" + uuid.NewString(), token: x.gv}, 409)
 	r.must(call{method: "DELETE", path: ex + "/" + clone.ID, token: x.gv}, 204)
+}
+
+// examAttemptScenarios: thao tác 29, 30, 31, 39, 40, 41 (lượt làm của sinh viên, US-PE-05) với mọi status đã khai báo.
+func (r *runner) examAttemptScenarios(x examRig) {
+	db := r.rig.deps.DB
+	ex := "/api/v1/courses/" + x.cid + "/exams"
+	archEx := "/api/v1/courses/" + x.arch + "/exams"
+	now := time.Now().UTC()
+	create := `{"title":"Bài làm","opens_at":"` + now.Add(2*time.Hour).Format(time.RFC3339) + `","closes_at":"` + now.Add(4*time.Hour).Format(time.RFC3339) + `","duration_minutes":45}`
+	_, b := r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: create}, 201)
+	var e struct {
+		ID      string `json:"id"`
+		Version int    `json:"version"`
+	}
+	_ = json.Unmarshal(b, &e)
+	r.must(call{method: "PUT", path: ex + "/" + e.ID + "/items", token: x.gv, body: `{"items":[{"question_id":"` + x.q1 + `","points":"2"}],"version":` + itoa(e.Version) + `}`}, 200)
+	r.must(call{method: "POST", path: ex + "/" + e.ID + "/schedule", token: x.gv}, 200)
+	if _, err := db.Exec(context.Background(), `update exams set status='OPEN', opens_at=now() - interval '1 minute', closes_at=now() + interval '3 hours' where id=$1`, e.ID); err != nil {
+		r.t.Fatal(err)
+	}
+	one := ex + "/" + e.ID
+	tabA, tabB := uuid.NewString(), uuid.NewString()
+	hdr := func(tab string, idem bool) map[string]string {
+		h := map[string]string{"X-Exam-Tab": tab}
+		if idem {
+			h["Idempotency-Key"] = "ct-" + uuid.NewString()
+		}
+		return h
+	}
+
+	// 29: bắt đầu.
+	r.must(call{method: "POST", path: one + "/attempts", token: x.sv, headers: map[string]string{"X-Exam-Tab": tabA}}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: one + "/attempts", headers: hdr(tabA, true)}, 401)
+	r.must(call{method: "POST", path: one + "/attempts", token: x.gv, headers: hdr(tabA, true)}, 403)
+	r.must(call{method: "POST", path: one + "/attempts", token: x.ta, headers: hdr(tabA, true)}, 403)
+	r.must(call{method: "POST", path: one + "/attempts", token: x.admin, headers: hdr(tabA, true)}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/exams/" + e.ID + "/attempts", token: x.sv, headers: hdr(tabA, true)}, 404)
+	r.must(call{method: "POST", path: ex + "/" + uuid.NewString() + "/attempts", token: x.sv, headers: hdr(tabA, true)}, 404)
+	r.must(call{method: "POST", path: archEx + "/" + uuid.NewString() + "/attempts", token: x.sv, headers: hdr(tabA, true)}, 409)
+	_, b = r.must(call{method: "POST", path: one + "/attempts", token: x.sv, headers: hdr(tabA, true)}, 201)
+	var st struct {
+		Attempt struct {
+			ID string `json:"id"`
+		} `json:"attempt"`
+		Items []struct {
+			ItemID  string `json:"item_id"`
+			Options []struct {
+				ID string `json:"id"`
+			} `json:"options"`
+		} `json:"items"`
+	}
+	_ = json.Unmarshal(b, &st)
+	r.must(call{method: "POST", path: one + "/attempts", token: x.sv, headers: hdr(tabA, true)}, 200) // làm tiếp cùng lượt
+	att := one + "/attempts/" + st.Attempt.ID
+
+	// 30: lượt của tôi.
+	r.must(call{method: "GET", path: one + "/attempts/mine", token: x.sv}, 200)
+	r.must(call{method: "GET", path: one + "/attempts/mine"}, 401)
+	r.must(call{method: "GET", path: one + "/attempts/mine", token: x.gv}, 403)
+	r.must(call{method: "GET", path: ex + "/" + uuid.NewString() + "/attempts/mine", token: x.sv}, 404)
+
+	// 31: lưu câu trả lời (một nơi được ghi).
+	ans := `{"items":[{"item_id":"` + st.Items[0].ItemID + `","answer":{"option_ids":["` + st.Items[0].Options[0].ID + `"]}}]}`
+	r.must(call{method: "PUT", path: att + "/answers", token: x.sv, headers: hdr(tabA, false), body: ans}, 200)
+	r.must(call{method: "PUT", path: att + "/answers", token: x.sv, body: ans}, 422) // thiếu X-Exam-Tab
+	r.must(call{method: "PUT", path: att + "/answers", headers: hdr(tabA, false), body: ans}, 401)
+	r.must(call{method: "PUT", path: att + "/answers", token: x.gv, headers: hdr(tabA, false), body: ans}, 403)
+	r.must(call{method: "PUT", path: one + "/attempts/" + uuid.NewString() + "/answers", token: x.sv, headers: hdr(tabA, false), body: ans}, 404)
+	r.must(call{method: "PUT", path: att + "/answers", token: x.sv, headers: hdr(tabB, false), body: ans}, 409) // tab khác khi tab A vừa ghi
+	r.must(call{method: "PUT", path: att + "/answers", token: x.sv, headers: hdr(tabA, false), body: `{"items":[{"item_id":"` + st.Items[0].ItemID + `","answer":{"option_ids":["` + uuid.NewString() + `"]}}]}`}, 422)
+
+	// 39: takeover.
+	r.must(call{method: "POST", path: att + "/takeover", token: x.sv, headers: hdr(tabB, false), body: `{"reload":false}`}, 200)
+	r.must(call{method: "POST", path: att + "/takeover", headers: hdr(tabB, false)}, 401)
+	r.must(call{method: "POST", path: att + "/takeover", token: x.gv, headers: hdr(tabB, false)}, 403)
+	r.must(call{method: "POST", path: one + "/attempts/" + uuid.NewString() + "/takeover", token: x.sv, headers: hdr(tabB, false)}, 404)
+	r.must(call{method: "POST", path: att + "/takeover", token: x.sv}, 422) // thiếu X-Exam-Tab
+
+	// 41: kết quả khi chưa công bố → 409 (thân không chứa dữ liệu).
+	r.must(call{method: "GET", path: att + "/result", token: x.sv}, 409)
+	r.must(call{method: "GET", path: att + "/result"}, 401)
+	r.must(call{method: "GET", path: att + "/result", token: x.gv}, 403)
+	r.must(call{method: "GET", path: one + "/attempts/" + uuid.NewString() + "/result", token: x.sv}, 404)
+
+	// 40: nộp bài.
+	r.must(call{method: "POST", path: att + "/submit", token: x.sv, headers: map[string]string{"X-Exam-Tab": tabB}}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: att + "/submit", headers: hdr(tabB, true)}, 401)
+	r.must(call{method: "POST", path: att + "/submit", token: x.gv, headers: hdr(tabB, true)}, 403)
+	r.must(call{method: "POST", path: one + "/attempts/" + uuid.NewString() + "/submit", token: x.sv, headers: hdr(tabB, true)}, 404)
+	r.must(call{method: "POST", path: att + "/submit", token: x.sv, headers: hdr(tabB, true)}, 200)
+	r.must(call{method: "POST", path: att + "/submit", token: x.sv, headers: hdr(tabB, true)}, 409) // khoá khác: đã nộp
+	r.must(call{method: "POST", path: att + "/takeover", token: x.sv, headers: hdr(tabB, false)}, 409)
+	r.must(call{method: "PUT", path: att + "/answers", token: x.sv, headers: hdr(tabB, false), body: ans}, 409)
+	r.must(call{method: "POST", path: one + "/attempts", token: x.sv, headers: hdr(tabB, true)}, 409) // đã nộp
+	r.must(call{method: "GET", path: one + "/attempts/mine", token: x.sv}, 200)                       // tóm tắt, không đề
+
+	// 41: sau công bố.
+	if _, err := db.Exec(context.Background(), `update exams set status='PUBLISHED', published_at=now() where id=$1`, e.ID); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "GET", path: att + "/result", token: x.sv}, 200)
 }

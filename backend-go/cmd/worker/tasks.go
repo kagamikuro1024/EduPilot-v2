@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/judge"
@@ -25,7 +26,7 @@ func newTasks(d Deps) []Task {
 	if d.Judge != nil {
 		name = d.Judge.Name // cùng tên với bộ lập lịch của hàng chấm: hai bộ cùng tiến trình chung một khoá leader
 	}
-	tasks = append(tasks, examTickTask{&exam.Ticker{Svc: &exam.Service{Pool: d.DB, Clock: clock.Real{}}, Redis: d.Redis, Log: d.Log, Name: name, Every: d.Cfg.ExamTickInterval}})
+	tasks = append(tasks, examTickTask{&exam.Ticker{Svc: &exam.Service{Pool: d.DB, Clock: clock.Real{}, Attempt: exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second}}, Redis: d.Redis, Log: d.Log, Name: name, Every: d.Cfg.ExamTickInterval}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
 	}

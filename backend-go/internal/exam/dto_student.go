@@ -2,6 +2,8 @@ package exam
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/binary"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -72,6 +74,8 @@ type ItemView struct {
 	Stem     string        `json:"stem"`
 	Options  []OptionView  `json:"options"`
 	Code     *CodeItemView `json:"code"`
+	// Answer là phần CHÍNH sinh viên này đã lưu (`{"option_ids":[…]}` / `{"value":true}`); null khi chưa trả lời hoặc ở xem trước.
+	Answer json.RawMessage `json:"answer"`
 }
 
 // PreviewView là phản hồi của "xem trước": cùng DTO của lượt làm sinh viên, `preview:true`, không lượt làm, không đáp án đã chọn.
@@ -141,17 +145,41 @@ type viewSource struct {
 	Samples map[uuid.UUID][]SampleView
 }
 
-// BuildStudentView dựng danh sách mục theo DTO sinh viên với hạt giống `seed`: xáo thứ tự câu (nếu `shuffleQ`), xáo đáp án (nếu `shuffleO`; đáp án ghim đứng cuối).
-// Hàm thuần theo (nguồn, hạt giống): cùng hạt giống → cùng kết quả.
-func BuildStudentView(src viewSource, shuffleQ, shuffleO bool, seed uint64) ([]ItemView, error) {
-	rng := rand.New(rand.NewPCG(seed, seed^0x9E3779B97F4A7C15)) //nolint:gosec // xáo trộn đề, không phải mật mã
+// Seed là cặp hạt giống của bộ xáo trộn (SRS 4.3.2): `h1`, `h2` là hai nửa đầu của SHA-256(attempt_id), đọc big-endian.
+type Seed struct{ H1, H2 uint64 }
+
+// AttemptSeed là hạt giống tất định của một lượt làm: cùng lượt luôn cùng thứ tự (tải lại, đổi thiết bị), không lưu thứ tự.
+func AttemptSeed(attemptID uuid.UUID) Seed {
+	sum := sha256.Sum256(attemptID[:])
+	return Seed{H1: binary.BigEndian.Uint64(sum[0:8]), H2: binary.BigEndian.Uint64(sum[8:16])}
+}
+
+// permute xáo `n` phần tử bằng Fisher–Yates ĐÚNG như đặc tả (`for i := n-1; i > 0; i-- { j := r.IntN(i+1); swap }`), không dùng rand.Shuffle: thứ tự gọi bộ sinh là
+// một phần của hợp đồng (luồng PCG được đặc tả ổn định) nên đổi thư viện cũng không đổi đề của sinh viên đã làm dở.
+func permute[T any](r *rand.Rand, xs []T) {
+	for i := len(xs) - 1; i > 0; i-- {
+		j := r.IntN(i + 1)
+		xs[i], xs[j] = xs[j], xs[i]
+	}
+}
+
+const goldenGamma = 0x9E3779B97F4A7C15
+
+// BuildStudentView dựng danh sách mục theo DTO sinh viên: thứ tự câu (nếu `shuffleQ`) và đáp án (nếu `shuffleO`; đáp án ghim đứng cuối, giữ thứ tự gốc) là hàm
+// THUẦN của (nguồn, hạt giống). Thứ tự đáp án của câu thứ k (theo vị trí gốc, từ 0) dùng luồng PCG(h1 ^ (k+1)·γ, h2) riêng nên không phụ thuộc thứ tự câu. `saved` là
+// câu trả lời đã lưu của CHÍNH sinh viên theo item_id (nil ở xem trước). Nhãn A, B, C… gán ở frontend theo thứ tự hiển thị.
+func BuildStudentView(src viewSource, shuffleQ, shuffleO bool, seed Seed, saved map[uuid.UUID]json.RawMessage) ([]ItemView, error) {
 	order := slices.Clone(src.Items)
+	origin := make(map[uuid.UUID]int, len(order))
+	for k, it := range order {
+		origin[it.ItemID] = k
+	}
 	if shuffleQ {
-		rng.Shuffle(len(order), func(i, j int) { order[i], order[j] = order[j], order[i] })
+		permute(rand.New(rand.NewPCG(seed.H1, seed.H2)), order)
 	}
 	out := make([]ItemView, len(order))
 	for i, it := range order {
-		v := ItemView{ItemID: it.ItemID, Position: i + 1, Type: string(it.Type), Points: it.Points.StringFixed(2), Stem: it.Stem, Options: []OptionView{}}
+		v := ItemView{ItemID: it.ItemID, Position: i + 1, Type: string(it.Type), Points: it.Points.StringFixed(2), Stem: it.Stem, Options: []OptionView{}, Answer: saved[it.ItemID]}
 		if it.Type == store.QuestionTypeCODE {
 			c := CodeItemView{Languages: it.Languages, StarterCode: map[string]string{}, Samples: src.Samples[it.QuestionID]}
 			if it.TimeLimitMs != nil {
@@ -180,7 +208,8 @@ func BuildStudentView(src viewSource, shuffleQ, shuffleO bool, seed uint64) ([]I
 						free = append(free, o)
 					}
 				}
-				rng.Shuffle(len(free), func(a, b int) { free[a], free[b] = free[b], free[a] })
+				k := uint64(origin[it.ItemID]) //nolint:gosec // chỉ số ≥ 0
+				permute(rand.New(rand.NewPCG(seed.H1^((k+1)*goldenGamma), seed.H2)), free)
 				opts = append(free, pinned...)
 			}
 			for _, o := range opts {
@@ -236,7 +265,7 @@ func (s *Service) PreviewExam(ctx context.Context, courseID, examID uuid.UUID) (
 	if err != nil {
 		return PreviewView{}, err
 	}
-	items, err := BuildStudentView(src, e.ShuffleQuestions, e.ShuffleOptions, rand.Uint64()) //nolint:gosec // hạt giống xem trước
+	items, err := BuildStudentView(src, e.ShuffleQuestions, e.ShuffleOptions, Seed{H1: rand.Uint64(), H2: rand.Uint64()}, nil) //nolint:gosec // hạt giống xem trước: ngẫu nhiên mỗi lần xem
 	if err != nil {
 		return PreviewView{}, err
 	}

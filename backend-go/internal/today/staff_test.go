@@ -555,7 +555,7 @@ func TestTodayInvalidatedByOutbox(t *testing.T) {
 			require.True(t, exists(u, "all"), "%s: khoá của người không liên quan phải còn", tc.topic)
 		}
 	}
-	require.Equal(t, 11, len(today.Topics()), "7 topic của P2 + 4 topic bài thi (US-PE-04: exam.scheduled / unscheduled / opened / closed)")
+	require.Equal(t, 13, len(today.Topics()), "7 topic của P2 + 4 topic bài thi (US-PE-04) + 2 topic lượt làm (US-PE-05: exam.attempt_started / attempt_submitted)")
 	// user.verified xoá cả khoá theo từng lớp của người đó.
 	warm()
 	inv := today.Invalidator{Pool: r.pool, Redis: r.rdb}

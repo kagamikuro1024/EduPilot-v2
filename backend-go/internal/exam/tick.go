@@ -51,8 +51,8 @@ func (t *Ticker) Run(ctx context.Context) error {
 	}
 }
 
-// Tick chạy MỘT vòng: (1) mở bài đến giờ; (2) đóng bài đến hạn (kể cả SCHEDULED đã quá giờ đóng — chuyển thẳng CLOSED). Mỗi bước idempotent nhờ `UPDATE … WHERE status = <cũ>`
-// và ghi outbox cùng transaction nên hai bản chạy cùng lúc cũng chỉ chuyển một lần, một sự kiện.
+// Tick chạy MỘT vòng: (1) mở bài đến giờ; (2) đóng bài đến hạn (kể cả SCHEDULED đã quá giờ đóng — chuyển thẳng CLOSED); (3) tự nộp lượt quá hạn (US-PE-05). Mỗi bước idempotent nhờ
+// `UPDATE … WHERE status = <cũ>` và ghi outbox cùng transaction nên hai bản chạy cùng lúc cũng chỉ chuyển một lần, một sự kiện. Bước hoàn tất chấm / công bố: US-PE-06, 08.
 func (t *Ticker) Tick(ctx context.Context) error {
 	return errors.Join(
 		t.step(ctx, TopicExamOpened, func(q *store.Queries, now time.Time) ([]store.ExamTickOpenRow, error) {
@@ -66,6 +66,7 @@ func (t *Ticker) Tick(ctx context.Context) error {
 			}
 			return out, err
 		}),
+		func() error { _, err := t.Svc.AutoSubmitDue(ctx); return err }(),
 	)
 }
 

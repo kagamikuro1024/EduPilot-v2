@@ -28,12 +28,15 @@ const (
 	TopicExamUnscheduled = "exam.unscheduled"
 	TopicExamOpened      = "exam.opened"
 	TopicExamClosed      = "exam.closed"
+	// Lượt làm (US-PE-05): chỉ đổi việc của người làm (payload có user_id).
+	TopicAttemptStarted   = "exam.attempt_started"
+	TopicAttemptSubmitted = "exam.attempt_submitted"
 )
 
 // Topics là mọi topic mà Invalidator phải được đăng ký.
 func Topics() []string {
 	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport,
-		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed}
+		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted}
 }
 
 // Invalidator xoá `ep:today:{uid}:{scope}` của những người bị một sự kiện outbox ảnh hưởng. Idempotent (DEL).

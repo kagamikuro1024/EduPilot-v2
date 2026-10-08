@@ -17,6 +17,7 @@ func Exemptions() []Exemption {
 		{"GET /api/v1/me/today", 304, "304 không có thân; ETag / If-None-Match được `today.TestTodayETag` kiểm."},
 		{"GET /api/v1/courses/{id}/today", 304, "Như trên: `today.TestTodayETag`."},
 		{"GET /api/v1/courses/{id}", 503, "Guard trả 503 khi tra `enrollments` lỗi; không kéo sập Postgres dùng chung của bộ contract. Hành vi được `auth.TestGuardResolverError503` kiểm bằng resolver lỗi."},
+		{"PUT /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/answers", 429, "Giới hạn 240 lần lưu / phút / lượt: không gọi 240 lần trong kịch bản hợp đồng; hành vi được `exam.TestSaveRateLimit` kiểm (cấu hình nhỏ)."},
 	}
 }
 

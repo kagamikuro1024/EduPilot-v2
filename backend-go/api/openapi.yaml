@@ -3101,6 +3101,299 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/exams/{eid}/attempts:
+    post:
+      operationId: startAttempt
+      tags: [exam]
+      summary: "Bắt đầu làm bài (sinh viên; Idempotency-Key bắt buộc). Chưa có lượt → 201; đã có lượt đang làm → 200 làm tiếp cùng lượt"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "201":
+          description: Lượt làm mới (đề xáo theo attempt_id)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttemptStartView"
+        "200":
+          description: Làm tiếp cùng lượt (đồng hồ không reset)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttemptStartView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/attempts/mine:
+    get:
+      operationId: myAttempt
+      tags: [exam]
+      summary: "Lượt của tôi: chưa bắt đầu / đang làm (kèm đề) / đã nộp (chỉ tóm tắt, không đề)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Một trong ba dạng theo trạng thái
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyAttemptView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/answers:
+    put:
+      operationId: saveAnswers
+      tags: [exam]
+      summary: "Lưu câu trả lời (chỉ các câu đổi; mảng option_ids rỗng = xoá lựa chọn; một nơi được ghi; không trả đúng sai)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: true
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswersRequest"
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SaveView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/takeover:
+    post:
+      operationId: takeoverAttempt
+      tags: [exam]
+      summary: "Chuyển quyền ghi cho tab gọi (ghi sự kiện TAB_TAKEOVER)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: true
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TakeoverRequest"
+      responses:
+        "200":
+          description: Tab gọi là người ghi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttemptView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/submit:
+    post:
+      operationId: submitAttempt
+      tags: [exam]
+      summary: "Nộp bài (Idempotency-Key bắt buộc; trắc nghiệm chấm ngay; chỉ trả tóm tắt, không điểm)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Exam-Tab
+          in: header
+          required: true
+          description: "Mã tab (uuid) sinh mỗi lần tải trang; giữ trong bộ nhớ của trang, không ở sessionStorage."
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Đã nộp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/result:
+    get:
+      operationId: attemptResult
+      tags: [exam]
+      summary: "Kết quả của tôi (chỉ khi bài đã công bố; chưa công bố → 409, thân không chứa dữ liệu)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Kết quả
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttemptResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
 components:
   securitySchemes:
     bearerAuth:
@@ -5556,7 +5849,7 @@ components:
             $ref: "#/components/schemas/ExamSampleView"
     ExamItemView:
       type: object
-      required: [item_id, position, type, points, stem, options, code]
+      required: [item_id, position, type, points, stem, options, code, answer]
       additionalProperties: false
       properties:
         item_id:
@@ -5578,6 +5871,18 @@ components:
           oneOf:
             - $ref: "#/components/schemas/ExamCodeItemView"
             - type: "null"
+        answer:
+          description: "Phần CHÍNH sinh viên này đã lưu; null khi chưa trả lời hoặc ở xem trước."
+          type: [object, "null"]
+          additionalProperties: false
+          properties:
+            option_ids:
+              type: array
+              items:
+                type: string
+                format: uuid
+            value:
+              type: boolean
     ExamPreview:
       type: object
       required: [preview, exam, items]
@@ -5591,3 +5896,212 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ExamItemView"
+    AttemptWriter:
+      type: object
+      required: [is_you]
+      additionalProperties: false
+      properties:
+        is_you:
+          type: boolean
+    AttemptView:
+      type: object
+      required: [id, exam_id, status, started_at, deadline_at, server_time, writer]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        exam_id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [IN_PROGRESS, GRADING, GRADED]
+        started_at:
+          type: string
+          format: date-time
+        deadline_at:
+          type: string
+          format: date-time
+        server_time:
+          type: string
+          format: date-time
+        writer:
+          $ref: "#/components/schemas/AttemptWriter"
+    AttemptExamBlock:
+      type: object
+      required: [id, title, instructions, kind, duration_minutes, closes_at, multi_scoring]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        instructions:
+          type: [string, "null"]
+        kind:
+          type: string
+          enum: [MCQ, CODE, MIXED]
+        duration_minutes:
+          type: integer
+        closes_at:
+          type: string
+          format: date-time
+        multi_scoring:
+          type: string
+          enum: [PARTIAL, ALL_OR_NOTHING]
+    AttemptStartView:
+      type: object
+      required: [attempt, exam, items]
+      additionalProperties: false
+      properties:
+        attempt:
+          $ref: "#/components/schemas/AttemptView"
+        exam:
+          $ref: "#/components/schemas/AttemptExamBlock"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExamItemView"
+    SubmittedAttempt:
+      type: object
+      required: [id, status, submitted_at, submit_reason]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [GRADING, GRADED]
+        submitted_at:
+          type: string
+          format: date-time
+        submit_reason:
+          type: string
+          enum: [MANUAL, TIMEOUT, CLOSED]
+    AttemptSummaryExam:
+      type: object
+      required: [id, title, closes_at, status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        closes_at:
+          type: [string, "null"]
+          format: date-time
+        status:
+          type: string
+          enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+    AttemptSummaryView:
+      type: object
+      required: [attempt, exam]
+      additionalProperties: false
+      properties:
+        attempt:
+          $ref: "#/components/schemas/SubmittedAttempt"
+        exam:
+          $ref: "#/components/schemas/AttemptSummaryExam"
+    NoAttemptView:
+      type: object
+      required: [attempt, exam]
+      additionalProperties: false
+      properties:
+        attempt:
+          type: "null"
+        exam:
+          $ref: "#/components/schemas/ExamStudentView"
+    MyAttemptView:
+      anyOf:
+        - $ref: "#/components/schemas/AttemptStartView"
+        - $ref: "#/components/schemas/AttemptSummaryView"
+        - $ref: "#/components/schemas/NoAttemptView"
+    AnswersRequest:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items:
+            type: object
+            required: [item_id, answer]
+            additionalProperties: false
+            properties:
+              item_id:
+                type: string
+                format: uuid
+              answer:
+                type: object
+                additionalProperties: false
+                properties:
+                  option_ids:
+                    type: array
+                    items:
+                      type: string
+                      format: uuid
+                  value:
+                    type: boolean
+    SaveView:
+      type: object
+      required: [saved_at, server_time, deadline_at]
+      additionalProperties: false
+      properties:
+        saved_at:
+          type: string
+          format: date-time
+        server_time:
+          type: string
+          format: date-time
+        deadline_at:
+          type: string
+          format: date-time
+    TakeoverRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        reload:
+          type: boolean
+    SubmitView:
+      type: object
+      required: [status, submitted_at, answered, total]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [GRADING, GRADED]
+        submitted_at:
+          type: string
+          format: date-time
+        answered:
+          type: integer
+        total:
+          type: integer
+    AttemptResult:
+      type: object
+      required: [exam, score]
+      additionalProperties: false
+      properties:
+        exam:
+          type: object
+          required: [id, title, max_score, published_at]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            title:
+              type: string
+            max_score:
+              type: string
+            published_at:
+              type: [string, "null"]
+              format: date-time
+        score:
+          type: [string, "null"]

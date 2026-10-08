@@ -1021,6 +1021,47 @@ func (q *Queries) ExamSetStatus(ctx context.Context, arg ExamSetStatusParams) (E
 	return i, err
 }
 
+const examShare = `-- name: ExamShare :one
+select id, course_id, title, instructions, kind, status, opens_at, closes_at, duration_minutes, shuffle_questions, shuffle_options, max_score, rounding_step, multi_scoring, reveal_answers, appeal_days, publish_hold, regrading, published_at, created_by, version, created_at, updated_at from exams where course_id = $1 and id = $2 for share
+`
+
+type ExamShareParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+// Bắt đầu làm bài: khoá chia sẻ hàng bài để `unschedule` / `extend` (FOR UPDATE) chờ — không có lượt nào chen vào giữa lúc kiểm trạng thái và INSERT (SRS 4.3.1).
+func (q *Queries) ExamShare(ctx context.Context, arg ExamShareParams) (Exam, error) {
+	row := q.db.QueryRow(ctx, examShare, arg.CourseID, arg.ID)
+	var i Exam
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Title,
+		&i.Instructions,
+		&i.Kind,
+		&i.Status,
+		&i.OpensAt,
+		&i.ClosesAt,
+		&i.DurationMinutes,
+		&i.ShuffleQuestions,
+		&i.ShuffleOptions,
+		&i.MaxScore,
+		&i.RoundingStep,
+		&i.MultiScoring,
+		&i.RevealAnswers,
+		&i.AppealDays,
+		&i.PublishHold,
+		&i.Regrading,
+		&i.PublishedAt,
+		&i.CreatedBy,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const examTickClose = `-- name: ExamTickClose :many
 update exams set status = 'CLOSED', version = version + 1
 where status in ('SCHEDULED', 'OPEN') and closes_at <= $1::timestamptz

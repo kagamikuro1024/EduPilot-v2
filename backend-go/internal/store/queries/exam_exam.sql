@@ -15,6 +15,10 @@ select * from exams where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
 -- name: ExamLock :one
 select * from exams where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) for update;
 
+-- name: ExamShare :one
+-- Bắt đầu làm bài: khoá chia sẻ hàng bài để `unschedule` / `extend` (FOR UPDATE) chờ — không có lượt nào chen vào giữa lúc kiểm trạng thái và INSERT (SRS 4.3.1).
+select * from exams where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) for share;
+
 -- name: ExamUpdate :one
 -- Ghi mọi trường người dùng sửa được; `expected_version` là khoá lạc quan (0 dòng = sai version). Service đã quyết trường nào được đổi theo trạng thái.
 update exams

@@ -19,6 +19,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -37,7 +38,9 @@ type Service struct {
 	Jobs  *jobs.Service
 	// ZipMaxUncompressed: EXAM_TESTZIP_MAX_UNCOMPRESSED (0 = mặc định 50 MiB).
 	ZipMaxUncompressed int
-	Limits             Limits // giới hạn bài thi (US-PE-04)
+	Limits             Limits           // giới hạn bài thi (US-PE-04)
+	Attempt            AttemptConfig    // lượt làm (US-PE-05)
+	Redis              *appredis.Client // giới hạn lưu theo lượt (nil = không giới hạn)
 }
 
 func (s *Service) now() time.Time {
