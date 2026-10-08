@@ -2,6 +2,7 @@ package today
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -190,6 +191,23 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 				Href:  fmt.Sprintf("/questions?review_status=PENDING&course=%s", c.ID),
 				Title: fmt.Sprintf("%d câu hỏi chờ duyệt · lớp %s", r.Questions, c.ClassCode), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
 			}))
+		}
+		if c.RoleInCourse == "TEACHER" { // US-PE-07 (bậc 55, chỉ Giảng viên): cặp bài code nghi giống nhau còn NEW; biến mất khi đã xem hết
+			var sim []struct {
+				ExamID uuid.UUID `json:"exam_id"`
+				Title  string    `json:"title"`
+				N      int       `json:"n"`
+				Oldest time.Time `json:"oldest"`
+			}
+			if json.Unmarshal(r.Similarity, &sim) == nil {
+				for _, x := range sim {
+					out = append(out, mk(Item{
+						ID: "EXAM_SIMILARITY:" + x.ExamID.String(), Kind: KindExamSimilarity, Tier: TierExamSimilarity, Course: courseRef(c),
+						Href:  fmt.Sprintf("/exams/%s/similarity?course=%s", x.ExamID, c.ID),
+						Title: fmt.Sprintf("%d cặp bài code nghi giống nhau · %s", x.N, x.Title), Reason: "Độ giống chỉ là gợi ý để thầy/cô xem lại.", AgeMinutes: int(v.Now.Sub(x.Oldest) / time.Minute),
+					}))
+				}
+			}
 		}
 		href := fmt.Sprintf("/class/members?course=%s&tab=pending", c.ID)
 		if r.Pending > 0 {

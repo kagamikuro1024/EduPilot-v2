@@ -67,6 +67,14 @@ func (t *Ticker) Tick(ctx context.Context) error {
 			return out, err
 		}),
 		func() error { _, err := t.Svc.AutoSubmitDue(ctx); return err }(),
+		func() error { _, err := t.Svc.locker().Sweep(ctx, 500); return err }(),
+		func() error {
+			if t.Svc.Jobs == nil {
+				return nil
+			}
+			_, err := t.Svc.EnqueueDueSimilarity(ctx)
+			return err
+		}(), // gỡ khoá chat mồ côi (US-PE-07 AC1: ≤ 10 s sau khi hết lượt)
 	)
 }
 

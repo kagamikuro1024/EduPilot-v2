@@ -150,11 +150,11 @@ func TestExamStudentRouteRoleOnly(t *testing.T) {
 	}
 }
 
-// TestExamRoutesTable — 56 thao tác, số thứ tự 1…56 liền nhau, không trùng (method, path).
+// TestExamRoutesTable — 57 thao tác (56 của SRS + #57 chi tiết cặp độ giống, đề xuất #17), số thứ tự 1…57 liền nhau, không trùng (method, path).
 func TestExamRoutesTable(t *testing.T) {
 	t.Parallel()
 	rs := exam.Routes()
-	require.Len(t, rs, 56)
+	require.Len(t, rs, 57)
 	seen := map[string]bool{}
 	for i, rt := range rs {
 		require.Equal(t, i+1, rt.No)

@@ -70,6 +70,7 @@ func Register(r chi.Router, d Deps) {
 			r.Post("/jobs", createJob(d))
 			r.Post("/events", publishEvent(d))
 			registerLLM(r, d)
+			r.Get("/chat-gate", chatGate(d))
 		})
 	})
 }

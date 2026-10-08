@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -436,7 +437,8 @@ select c.course_id::uuid as course_id,
        coalesce(e.mismatch, 0)::int as mismatch,
        coalesce(e.mismatch_oldest, 'epoch'::timestamptz)::timestamptz as mismatch_oldest,
        coalesce(q.pending, 0)::int as questions,
-       coalesce(q.oldest, 'epoch'::timestamptz)::timestamptz as questions_oldest
+       coalesce(q.oldest, 'epoch'::timestamptz)::timestamptz as questions_oldest,
+       coalesce(s.exams, '[]'::jsonb)::jsonb as similarity
 from unnest($1::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -454,6 +456,19 @@ left join (
     where course_id = any($1::text[]::uuid[]) and review_status = 'PENDING' and archived_at is null
     group by course_id
 ) q on q.course_id = c.course_id
+left join (
+    -- US-PE-07: mỗi bài thi có cặp độ giống gắn cờ còn NEW ở bản chạy MỚI NHẤT (chỉ Giảng viên dùng); GỘP vào cùng truy vấn
+    select r.course_id, jsonb_agg(jsonb_build_object('exam_id', r.exam_id, 'title', ex.title, 'n', r.n, 'oldest', r.oldest) order by r.oldest) as exams
+    from (
+        select sr.course_id, sr.exam_id, count(*) as n, min(sr.created_at) as oldest
+        from similarity_reports sr
+        where sr.course_id = any($1::text[]::uuid[]) and sr.flagged and sr.review_state = 'NEW'
+          and sr.run_id = (select l.run_id from similarity_reports l where l.course_id = sr.course_id and l.exam_id = sr.exam_id order by l.created_at desc, l.id desc limit 1)
+        group by sr.course_id, sr.exam_id
+    ) r
+    join exams ex on ex.course_id = r.course_id and ex.id = r.exam_id
+    group by r.course_id
+) s on s.course_id = c.course_id
 `
 
 type TodayStaffPendingRow struct {
@@ -464,6 +479,7 @@ type TodayStaffPendingRow struct {
 	MismatchOldest  time.Time
 	Questions       int32
 	QuestionsOldest time.Time
+	Similarity      json.RawMessage
 }
 
 // (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
@@ -485,6 +501,7 @@ func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]
 			&i.MismatchOldest,
 			&i.Questions,
 			&i.QuestionsOldest,
+			&i.Similarity,
 		); err != nil {
 			return nil, err
 		}

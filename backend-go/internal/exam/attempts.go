@@ -235,6 +235,9 @@ func (s *Service) StartAttempt(ctx context.Context, userID, courseID, examID uui
 		out, err = s.attemptStartView(ctx, q, e, a, tab, now)
 		return err
 	})
+	if err == nil {
+		s.refreshLock(ctx, userID) // bắt đầu / làm tiếp: chat AI khoá tới hạn + grace (US-PE-07 AC1)
+	}
 	return out, created, err
 }
 
@@ -559,6 +562,9 @@ func (s *Service) SubmitAttempt(ctx context.Context, userID, courseID, examID, a
 		out = fin
 		return nil
 	})
+	if err == nil {
+		s.refreshLock(ctx, userID) // không còn lượt IN_PROGRESS nào → gỡ khoá chat
+	}
 	return out, err
 }
 
@@ -722,6 +728,7 @@ func (s *Service) AutoSubmitDue(ctx context.Context) (int, error) {
 			}
 			continue
 		}
+		s.refreshLock(ctx, d.StudentID)
 		n++
 	}
 	return n, firstErr

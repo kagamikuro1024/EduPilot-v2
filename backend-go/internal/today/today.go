@@ -44,6 +44,7 @@ const (
 	KindExamInProgress   Kind = "EXAM_IN_PROGRESS" // US-PE-04
 	KindExamOpen         Kind = "EXAM_OPEN"
 	KindExamUpcoming     Kind = "EXAM_UPCOMING"
+	KindExamSimilarity   Kind = "EXAM_SIMILARITY" // US-PE-07 (chỉ Giảng viên)
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -63,6 +64,7 @@ const (
 	TierExamInProgress   = 5
 	TierExamOpen         = 8
 	TierExamUpcoming     = 42
+	TierExamSimilarity   = 55
 )
 
 // allowed: Kind nào được phép trong phản hồi của vai nào. Bộ gộp LỌC theo bảng này nên một Provider lỡ trả nhầm
@@ -73,7 +75,7 @@ func allowed(role Role, k Kind) bool {
 		return role == RoleStudent
 	case KindJoinRequest, KindQuestionReview:
 		return role == RoleTeacher || role == RoleTA
-	case KindEmailMismatch, KindCourseSetup:
+	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity:
 		return role == RoleTeacher
 	case KindLLMProviderError, KindLLMBudgetOut, KindLLMBudgetWarn, KindCourseNoTeacher, KindInviteExpired:
 		return role == RoleAdmin

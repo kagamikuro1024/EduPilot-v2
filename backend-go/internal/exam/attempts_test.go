@@ -376,7 +376,14 @@ func TestAttemptPayloadNoAnswerCanary(t *testing.T) {
 	got, err := r.svc.MyAttempt(t.Context(), sv, r.course, e.ID, tab)
 	require.NoError(t, err)
 	scan("làm tiếp", got)
-	save, err := r.save(v, sv, tab, answerCorrect(v.Items[0]))
+	mcqIdx := 0
+	for i, it := range v.Items { // đề xáo: câu đầu có thể là câu code (không lưu bằng câu trả lời) — chọn câu trắc nghiệm đầu tiên
+		if it.Type != "CODE" {
+			mcqIdx = i
+			break
+		}
+	}
+	save, err := r.save(v, sv, tab, answerCorrect(v.Items[mcqIdx]))
 	require.NoError(t, err)
 	scan("lưu", save)
 	sub, err := r.svc.SubmitAttempt(t.Context(), sv, r.course, e.ID, v.Attempt.ID, tab)

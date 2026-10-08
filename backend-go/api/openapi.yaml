@@ -893,6 +893,22 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/exam-lock:
+    get:
+      operationId: getMyExamLock
+      tags: [me]
+      summary: "Chat AI có đang bị khoá vì lượt làm bài không (chỉ chính mình; không lộ tên bài thi / lớp)"
+      responses:
+        "200":
+          description: Trạng thái khoá
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamLock"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/Unavailable"
   /api/v1/me/settings:
     get:
       operationId: getMySettings
@@ -3694,6 +3710,265 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/events:
+    post:
+      operationId: postExamEvents
+      tags: [exam]
+      summary: "Gửi sự kiện rời tab / dán (không nội dung; lô tối đa 50, phần dư bị bỏ; không bao giờ làm hỏng việc lưu bài)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamEventsRequest"
+      responses:
+        "204":
+          description: Đã nhận (hoặc bỏ qua khi lượt không còn làm dở)
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/events:
+    get:
+      operationId: listExamEvents
+      tags: [exam]
+      summary: "Log rời tab / dán của một lượt — CHỈ Giảng viên (TA, sinh viên kể cả của chính mình, Admin → 403)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: attempt
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Tóm tắt + sự kiện (mới nhất trước)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamEventsPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/similarity:
+    get:
+      operationId: listSimilarity
+      tags: [exam]
+      summary: "Cặp bài code nghi giống nhau (điểm cao trước; mặc định bản chạy mới nhất) — chỉ Giảng viên; tín hiệu để tham khảo"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: run
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: flagged
+          in: query
+          schema:
+            type: boolean
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: Danh sách
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimilarityPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/similarity/run:
+    post:
+      operationId: runSimilarity
+      tags: [exam]
+      summary: "Chạy lại so độ giống (bài đã đóng; việc nền)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/similarity/{sid}:
+    get:
+      operationId: getSimilarity
+      tags: [exam]
+      summary: "Một cặp kèm hai mã cạnh nhau và các dòng khớp"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Cặp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimilarityDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/exams/{eid}/similarity/{sid}/review:
+    put:
+      operationId: reviewSimilarity
+      tags: [exam]
+      summary: "Đánh dấu Đã xem — không có vấn đề (CLEARED) hoặc Cần trao đổi (FOLLOW_UP); không có hành động trừ điểm"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SimilarityReviewRequest"
+      responses:
+        "200":
+          description: Đã đánh dấu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimilarityView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/result:
     get:
       operationId: attemptResult
@@ -6165,6 +6440,184 @@ components:
           type: string
         expected:
           type: string
+    ExamEventsRequest:
+      type: object
+      required: [events]
+      additionalProperties: false
+      properties:
+        events:
+          type: array
+          items:
+            type: object
+            required: [type]
+            additionalProperties: false
+            properties:
+              type:
+                type: string
+                description: "TAB_HIDDEN | TAB_VISIBLE | PASTE | OFFLINE | ONLINE (loại khác bị bỏ)"
+              client_at:
+                type: [string, "null"]
+                format: date-time
+              meta:
+                type: object
+                description: "Chỉ giữ duration_ms, chars (số nguyên), item_id (uuid); khoá khác bị bỏ; tối đa 300 byte"
+    ExamIntegritySummary:
+      type: object
+      required: [tab_hidden_count, tab_hidden_ms, paste_count, paste_chars, offline_count, takeover_count, chat_blocked_count]
+      additionalProperties: false
+      properties:
+        tab_hidden_count:
+          type: integer
+        tab_hidden_ms:
+          type: integer
+        paste_count:
+          type: integer
+        paste_chars:
+          type: integer
+        offline_count:
+          type: integer
+        takeover_count:
+          type: integer
+        chat_blocked_count:
+          type: integer
+    ExamEventView:
+      type: object
+      required: [id, type, occurred_at, client_at, meta]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [TAB_HIDDEN, TAB_VISIBLE, PASTE, OFFLINE, ONLINE, TAB_TAKEOVER, CHAT_BLOCKED]
+        occurred_at:
+          type: string
+          format: date-time
+        client_at:
+          type: [string, "null"]
+          format: date-time
+        meta:
+          type: object
+    ExamEventsPage:
+      type: object
+      required: [summary, items, next_cursor]
+      additionalProperties: false
+      properties:
+        summary:
+          $ref: "#/components/schemas/ExamIntegritySummary"
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/ExamEventView"
+        next_cursor:
+          type: [string, "null"]
+    ExamLock:
+      type: object
+      required: [locked]
+      additionalProperties: false
+      properties:
+        locked:
+          type: boolean
+        until:
+          type: string
+          format: date-time
+    SimilarityStudent:
+      type: object
+      required: [attempt_id, name]
+      additionalProperties: false
+      properties:
+        attempt_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    SimilarityView:
+      type: object
+      required: [id, problem_id, problem_title, run_id, a, b, score, shared_fingerprints, flagged, review_state, note, reviewed_at, created_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        problem_id:
+          type: string
+          format: uuid
+        problem_title:
+          type: string
+        run_id:
+          type: string
+          format: uuid
+        a:
+          $ref: "#/components/schemas/SimilarityStudent"
+        b:
+          $ref: "#/components/schemas/SimilarityStudent"
+        score:
+          type: string
+          description: "Jaccard dạng thập phân 0.000–1.000"
+        shared_fingerprints:
+          type: integer
+        flagged:
+          type: boolean
+        review_state:
+          type: string
+          enum: [NEW, CLEARED, FOLLOW_UP]
+        note:
+          type: [string, "null"]
+        reviewed_at:
+          type: [string, "null"]
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+    SimilarityPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/SimilarityView"
+        next_cursor:
+          type: [string, "null"]
+    SimilaritySide:
+      type: object
+      required: [language, source, match_lines]
+      additionalProperties: false
+      properties:
+        language:
+          type: string
+        source:
+          type: string
+        match_lines:
+          type: array
+          items:
+            type: integer
+    SimilarityDetail:
+      type: object
+      required: [pair, a, b]
+      additionalProperties: false
+      properties:
+        pair:
+          $ref: "#/components/schemas/SimilarityView"
+        a:
+          $ref: "#/components/schemas/SimilaritySide"
+        b:
+          $ref: "#/components/schemas/SimilaritySide"
+    SimilarityReviewRequest:
+      type: object
+      required: [state]
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum: [CLEARED, FOLLOW_UP]
+        note:
+          type: [string, "null"]
+          maxLength: 500
     CodeDraftRequest:
       type: object
       required: [language, source, base_rev]

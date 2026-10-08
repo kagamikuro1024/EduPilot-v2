@@ -4,6 +4,7 @@ package config
 
 import (
 	"fmt"
+	"math"
 	"net/mail"
 	"net/netip"
 	"net/url"
@@ -112,6 +113,9 @@ type Config struct {
 	ExamRunWindow      time.Duration
 	ExamSubmitCooldown time.Duration
 	ExamSubmissionCap  int
+	// Liêm chính (US-PE-07): sự kiện tối đa mỗi lượt; ngưỡng độ giống tối thiểu (‰, từ SIMILARITY_MIN = 0,60).
+	ExamEventsMax         int
+	SimilarityMinPermille int
 
 	// Cổng LLM (SRS FEAT-llm-gateway 4.3, 8.1).
 	LLMMaxConcurrency int
@@ -272,6 +276,8 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ExamRunWindow = l.durRange("EXAM_RUN_WINDOW", 10*time.Minute, time.Minute, 24*time.Hour)
 	c.ExamSubmitCooldown = l.durRange("EXAM_SUBMIT_COOLDOWN", 15*time.Second, time.Second, time.Hour)
 	c.ExamSubmissionCap = l.num("EXAM_SUBMISSION_CAP", 30, 1, 1000)
+	c.ExamEventsMax = l.num("EXAM_EVENTS_MAX", 500, 1, 100000)
+	c.SimilarityMinPermille = int(math.Round(l.fraction("SIMILARITY_MIN", 0.60) * 1000))
 
 	c.LLMMaxConcurrency = l.num("LLM_MAX_CONCURRENCY", 10, 1, 1000)
 	c.LLMBatchShare = l.fraction("LLM_BATCH_SHARE", 0.5)

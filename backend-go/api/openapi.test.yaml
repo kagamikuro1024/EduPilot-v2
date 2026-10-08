@@ -325,6 +325,25 @@ paths:
                     type: string
         "401":
           $ref: "#/components/responses/Unauthorized"
+  /api/v1/_test/chat-gate:
+    get:
+      operationId: testChatGate
+      tags: [test]
+      summary: "Mẫu cổng chat cho P3 (US-PE-07 AC2): gọi exam.Locker, trả allowed = !locked"
+      responses:
+        "200":
+          description: Cho phép chat hay không
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [allowed]
+                additionalProperties: false
+                properties:
+                  allowed:
+                    type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /api/v1/_test/rbac/admin:
     get:
       operationId: testRbacAdmin

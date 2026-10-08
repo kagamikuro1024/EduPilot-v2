@@ -53,6 +53,7 @@ func (h *Handler) Mount(r chi.Router) {
 	h.MountExams(r)
 	h.MountAttempts(r)
 	h.MountAttemptCode(r)
+	h.MountIntegrity(r)
 }
 
 type reqCtx struct {

@@ -25,7 +25,7 @@ type Route struct {
 // MeExamLockNo là số thao tác của `GET /me/exam-lock` (không thuộc lớp, không qua CourseAccessGuard).
 const MeExamLockNo = 43
 
-// Routes trả 56 thao tác của SRS 6.2 (không gồm route thử T1). ADMIN bị chặn ở mọi route có Mode (MemberRole / StaffRole / TeacherRole / StudentRole).
+// Routes trả 56 thao tác của SRS 6.2 + #57 (chi tiết một cặp độ giống — đề xuất #17) (không gồm route thử T1). ADMIN bị chặn ở mọi route có Mode (MemberRole / StaffRole / TeacherRole / StudentRole).
 func Routes() []Route {
 	const (
 		q  = "/questions"
@@ -92,5 +92,6 @@ func Routes() []Route {
 		{54, "PUT", ei + "/similarity/{id}/review", teacher, IdemNone},
 		{55, "GET", ei + "/appeals", staff, IdemNone},
 		{56, "POST", ei + "/appeals/{id}/answer", teacher, IdemOptional},
+		{57, "GET", ei + "/similarity/{id}", teacher, IdemNone}, // thêm: hai mã cạnh nhau của một cặp (đề xuất #17)
 	}
 }

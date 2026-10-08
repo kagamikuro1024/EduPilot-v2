@@ -585,6 +585,8 @@ func (r *runner) testScenarios() {
 	// danh tính và phân quyền.
 	r.must(call{method: "GET", path: "/api/v1/_test/whoami", token: tok}, 200)
 	r.must(call{method: "GET", path: "/api/v1/_test/whoami"}, 401)
+	r.must(call{method: "GET", path: "/api/v1/_test/chat-gate", token: tok}, 200)
+	r.must(call{method: "GET", path: "/api/v1/_test/chat-gate"}, 401)
 	r.must(call{method: "GET", path: "/api/v1/_test/rbac/admin", token: admin}, 200)
 	r.must(call{method: "GET", path: "/api/v1/_test/rbac/admin"}, 401)
 	r.must(call{method: "GET", path: "/api/v1/_test/rbac/admin", token: tok}, 403)

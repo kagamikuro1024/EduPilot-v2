@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -41,6 +42,8 @@ type Service struct {
 	Limits             Limits           // giới hạn bài thi (US-PE-04)
 	Attempt            AttemptConfig    // lượt làm (US-PE-05)
 	Code               CodeConfig       // bài code trong lượt làm (US-PE-06)
+	Integrity          IntegrityConfig  // liêm chính (US-PE-07)
+	Log                *slog.Logger     // nil = slog.Default()
 	Redis              *appredis.Client // giới hạn lưu theo lượt (nil = không giới hạn)
 }
 

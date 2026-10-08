@@ -31,12 +31,15 @@ const (
 	// Lượt làm (US-PE-05): chỉ đổi việc của người làm (payload có user_id).
 	TopicAttemptStarted   = "exam.attempt_started"
 	TopicAttemptSubmitted = "exam.attempt_submitted"
+	// US-PE-07: so độ giống xong / giảng viên đã xem một cặp → việc EXAM_SIMILARITY của Giảng viên đổi.
+	TopicSimilarityDone     = "exam.similarity_done"
+	TopicSimilarityReviewed = "exam.similarity_reviewed"
 )
 
 // Topics là mọi topic mà Invalidator phải được đăng ký.
 func Topics() []string {
 	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport,
-		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted}
+		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted, TopicSimilarityDone, TopicSimilarityReviewed}
 }
 
 // Invalidator xoá `ep:today:{uid}:{scope}` của những người bị một sự kiện outbox ảnh hưởng. Idempotent (DEL).

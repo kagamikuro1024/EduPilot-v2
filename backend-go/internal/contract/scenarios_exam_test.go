@@ -597,4 +597,77 @@ func (r *runner) examCodeScenarios(x examRig, codeQ string) {
 	r.must(call{method: "GET", path: sp}, 401)
 	r.must(call{method: "GET", path: sp, token: x.gv}, 403)
 	r.must(call{method: "GET", path: att + "/submissions/" + uuid.NewString(), token: x.sv}, 404)
+
+	// ---- US-PE-07: sự kiện liêm chính (38, 51), khoá chat (43), so độ giống (52–54 + chi tiết) ----
+	aid := st.Attempt.ID
+	evBody := `{"events":[{"type":"PASTE","client_at":"` + time.Now().UTC().Format(time.RFC3339) + `","meta":{"chars":812,"clipboard":"SECRET"}},{"type":"TAB_HIDDEN","meta":{"duration_ms":4000}}]}`
+	r.must(call{method: "POST", path: att + "/events", token: x.sv, body: evBody}, 204)
+	r.must(call{method: "POST", path: att + "/events", body: evBody}, 401)
+	r.must(call{method: "POST", path: att + "/events", token: x.gv, body: evBody}, 403)
+	r.must(call{method: "POST", path: one + "/attempts/" + uuid.NewString() + "/events", token: x.sv, body: evBody}, 404)
+	r.must(call{method: "POST", path: att + "/events", token: x.sv, body: `{}`}, 422)
+	evs := one + "/events"
+	r.must(call{method: "GET", path: evs + "?attempt=" + aid, token: x.gv}, 200)
+	r.must(call{method: "GET", path: evs + "?attempt=" + aid}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "GET", path: evs + "?attempt=" + aid, token: who}, 403) // TA, sinh viên (kể cả của chính mình), Admin
+	}
+	r.must(call{method: "GET", path: evs + "?attempt=" + uuid.NewString(), token: x.gv}, 404)
+	r.must(call{method: "GET", path: evs, token: x.gv}, 422)
+	r.must(call{method: "GET", path: "/api/v1/me/exam-lock", token: x.sv}, 200)
+	r.must(call{method: "GET", path: "/api/v1/me/exam-lock"}, 401)
+
+	sim := one + "/similarity"
+	_, mb := r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: `{"title":"Bài không có câu code"}`}, 201)
+	var mcq struct {
+		ID string `json:"id"`
+	}
+	_ = json.Unmarshal(mb, &mcq)
+	r.must(call{method: "POST", path: ex + "/" + mcq.ID + "/similarity/run", token: x.gv}, 422) // không có câu lập trình
+	r.must(call{method: "POST", path: sim + "/run", token: x.gv}, 409)                          // bài chưa đóng
+	if _, err := db.Exec(ctx, `update exams set status='CLOSED', opens_at=now() - interval '4 hours', closes_at=now() - interval '1 minute' where id=$1`, e.ID); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "POST", path: sim + "/run", token: x.gv}, 202)
+	r.must(call{method: "POST", path: sim + "/run"}, 401)
+	r.must(call{method: "POST", path: sim + "/run", token: x.ta}, 403)
+	r.must(call{method: "POST", path: ex + "/" + uuid.NewString() + "/similarity/run", token: x.gv}, 404)
+	// hai bên của cặp phải là hai lượt khác nhau (`attempt_a < attempt_b`): dựng lượt thứ hai cho một người dùng khác và một bản nộp của lượt đó
+	var att2, sub2, other string
+	if err := db.QueryRow(ctx, `select id::text from users where role = 'TEACHER' limit 1`).Scan(&other); err != nil {
+		r.t.Fatal(err)
+	}
+	if err := db.QueryRow(ctx, `insert into exam_attempts (course_id, exam_id, student_id, started_at, deadline_at, status, submitted_at, submit_reason) values ($1, $2, $3, now() - interval '1 hour', now() - interval '10 minutes', 'GRADING', now() - interval '20 minutes', 'MANUAL') returning id::text`, x.cid, e.ID, other).Scan(&att2); err != nil {
+		r.t.Fatal(err)
+	}
+	if err := db.QueryRow(ctx, `insert into code_submissions (course_id, exam_id, attempt_id, item_id, problem_id, student_id, kind, language, source, source_sha256)
+		select course_id, exam_id, $2::uuid, item_id, problem_id, $3::uuid, kind, language, source || ' /* bản 2 */', source_sha256 from code_submissions where id=$1 returning id::text`, sub.ID, att2, other).Scan(&sub2); err != nil {
+		r.t.Fatal(err)
+	}
+	lo, hi := aid, att2
+	sa, sb := sub.ID, sub2
+	if lo > hi {
+		lo, hi, sa, sb = hi, lo, sb, sa
+	}
+	var pairID string
+	if err := db.QueryRow(ctx, `insert into similarity_reports (course_id, exam_id, problem_id, run_id, submission_a, submission_b, attempt_a, attempt_b, score, shared_fingerprints, flagged)
+		values ($1, $2, $3, $4, $5, $6, $7, $8, 0.873, 40, true) returning id::text`, x.cid, e.ID, codeQ, uuid.NewString(), sa, sb, lo, hi).Scan(&pairID); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "GET", path: sim, token: x.gv}, 200)
+	r.must(call{method: "GET", path: sim + "?flagged=true&limit=1", token: x.gv}, 200)
+	r.must(call{method: "GET", path: sim}, 401)
+	r.must(call{method: "GET", path: sim, token: x.ta}, 403)
+	r.must(call{method: "GET", path: ex + "/" + uuid.NewString() + "/similarity", token: x.gv}, 404)
+	r.must(call{method: "GET", path: sim + "?limit=0", token: x.gv}, 422)
+	sp1 := sim + "/" + pairID
+	r.must(call{method: "GET", path: sp1, token: x.gv}, 200)
+	r.must(call{method: "GET", path: sp1}, 401)
+	r.must(call{method: "GET", path: sp1, token: x.sv}, 403)
+	r.must(call{method: "GET", path: sim + "/" + uuid.NewString(), token: x.gv}, 404)
+	r.must(call{method: "PUT", path: sp1 + "/review", token: x.gv, body: `{"state":"CLEARED","note":"Cùng cách làm tự nhiên"}`}, 200)
+	r.must(call{method: "PUT", path: sp1 + "/review", body: `{"state":"CLEARED"}`}, 401)
+	r.must(call{method: "PUT", path: sp1 + "/review", token: x.ta, body: `{"state":"CLEARED"}`}, 403)
+	r.must(call{method: "PUT", path: sim + "/" + uuid.NewString() + "/review", token: x.gv, body: `{"state":"CLEARED"}`}, 404)
+	r.must(call{method: "PUT", path: sp1 + "/review", token: x.gv, body: `{"state":"CHEAT"}`}, 422)
 }

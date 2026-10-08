@@ -38,6 +38,7 @@ type Worker struct {
 func (w *Worker) Register(r *jobs.Runner) {
 	r.Register(KindVerifyReference, w.verify)
 	r.Register(KindSuggest, w.suggest)
+	r.Register(KindSimilarity, w.similarityJob)
 }
 
 func errNoJudge() error {

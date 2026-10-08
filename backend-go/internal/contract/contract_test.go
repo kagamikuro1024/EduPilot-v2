@@ -63,12 +63,12 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 108 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 108)", n)
+		if n := len(prod.Operations()); n != 115 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 115)", n)
 		}
-		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
-		if n := len(test.Operations()); n != 18 {
-			t.Errorf("openapi.test.yaml: %d thao tác (cần 18)", n)
+		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
+		if n := len(test.Operations()); n != 19 {
+			t.Errorf("openapi.test.yaml: %d thao tác (cần 19)", n)
 		}
 	}
 }
@@ -318,6 +318,13 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/submit":     true,
 		"GET /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/submissions": true,
 		"GET /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/submissions/{sid}":         true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/events":                   true,
+		"GET /api/v1/courses/{id}/exams/{eid}/events":                                   true,
+		"GET /api/v1/courses/{id}/exams/{eid}/similarity":                               true,
+		"POST /api/v1/courses/{id}/exams/{eid}/similarity/run":                          true,
+		"GET /api/v1/courses/{id}/exams/{eid}/similarity/{sid}":                         true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/similarity/{sid}/review":                  true,
+		"GET /api/v1/me/exam-lock":                                                      true,
 		"GET /api/v1/me/courses":                                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {

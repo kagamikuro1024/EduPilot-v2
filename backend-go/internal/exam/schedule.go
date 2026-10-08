@@ -179,5 +179,13 @@ func (s *Service) ExtendExam(ctx context.Context, actor, courseID, examID uuid.U
 		out, err = s.examDetail(ctx, q, row)
 		return err
 	})
+	if err == nil && s.Redis != nil {
+		// hạn các lượt đang làm đã dài ra: TTL của khoá chat theo hạn mới (≤ 10 s lệch — AC1, AC11)
+		if ids, qerr := store.New(s.Pool).LockRunningStudents(ctx, store.LockRunningStudentsParams{CourseID: courseID, ExamID: examID}); qerr == nil {
+			for _, id := range ids {
+				s.refreshLock(ctx, id)
+			}
+		}
+	}
 	return out, err
 }
