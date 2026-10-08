@@ -607,3 +607,208 @@ test("exam route access: sinh viên không mở được trang soạn bài; Staf
   await page.goto("/exams/e-1/take");
   await expect(page.getByText("Trang này dành cho sinh viên.")).toBeVisible();
 });
+
+// ───────── US-PE-05 — làm bài trắc nghiệm `/exams/[id]/take` (gateway giả; trạng thái dùng chung giữa các tab của một test) ─────────
+const E1 = "e-take";
+const OPT = (q: string, n: number) => Array.from({ length: n }, (_, i) => ({ id: `${q}-o${i + 1}`, body: `Đáp án ${"ABCD"[i]} của ${q}` }));
+const TAKE_ITEMS = [
+  { item_id: "q1", position: 1, type: "MCQ_SINGLE", points: "4.00", stem: "Câu hỏi một", options: OPT("q1", 3), code: null, answer: null as Json | null },
+  { item_id: "q2", position: 2, type: "MCQ_MULTI", points: "4.00", stem: "Câu hỏi hai", options: OPT("q2", 4), code: null, answer: null as Json | null },
+  { item_id: "q3", position: 3, type: "TRUE_FALSE", points: "2.00", stem: "Câu hỏi ba", options: [], code: null, answer: null as Json | null },
+];
+
+type TakeState = { started: boolean; submitted: null | { at: string; reason: string }; writer: string | null; answers: Record<string, Json>; skewMs: number; durationMs: number; deadline: number; calls: Array<{ m: string; url: string; tab: string | null; key: string | null; body: unknown }>; offlineSave: boolean };
+function fakeTake(over: Partial<TakeState> = {}) {
+  const st: TakeState = { started: false, submitted: null, writer: null, answers: {}, skewMs: 0, durationMs: 45 * 60_000, deadline: 0, calls: [], offlineSave: false, ...over };
+  const srvNow = () => Date.now() + st.skewMs;
+  const runningView = (tab: string | null) => ({
+    attempt: { id: "a-take", exam_id: E1, status: "IN_PROGRESS", started_at: new Date(st.deadline - st.durationMs).toISOString(), deadline_at: new Date(st.deadline).toISOString(), server_time: new Date(srvNow()).toISOString(), writer: { is_you: !!tab && tab === st.writer } },
+    exam: { id: E1, title: "Tuần 9", instructions: null, kind: "MCQ", duration_minutes: 45, closes_at: "2036-12-01T03:00:00Z", multi_scoring: "PARTIAL" },
+    items: TAKE_ITEMS.map((it) => ({ ...it, answer: st.answers[it.item_id] ?? null })),
+  });
+  const expireIfDue = () => {
+    if (st.started && !st.submitted && srvNow() >= st.deadline) st.submitted = { at: new Date(st.deadline).toISOString(), reason: "TIMEOUT" };
+  };
+  const json = (route: Route, status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+  const err = (route: Route, status: number, code: string, details: Json = {}) => json(route, status, { error: { code, message: code, details, trace_id: "t" } });
+  async function install(page: Page) {
+    await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E1}/attempts`), async (route) => {
+      const req = route.request();
+      if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+      const h = req.headers();
+      const tab = h["x-exam-tab"] ?? null;
+      const path = new URL(req.url()).pathname.split("/attempts")[1] || "";
+      st.calls.push({ m: req.method(), url: path, tab, key: h["idempotency-key"] ?? null, body: req.postDataJSON?.() ?? null });
+      expireIfDue();
+      if (req.method() === "GET" && path === "/mine") {
+        if (!st.started) return json(route, 200, { attempt: null, exam: { id: E1, title: "Tuần 9", instructions: null, kind: "MCQ", duration_minutes: 45, max_score: "10.00", status: "OPEN", opens_at: "2026-12-01T01:00:00Z", closes_at: "2036-12-01T03:00:00Z", my_attempt: null, my_score: null } });
+        if (st.submitted) return json(route, 200, { attempt: { id: "a-take", status: "GRADED", submitted_at: st.submitted.at, submit_reason: st.submitted.reason }, exam: { id: E1, title: "Tuần 9", closes_at: "2036-12-01T03:00:00Z", status: "OPEN" } });
+        return json(route, 200, runningView(tab));
+      }
+      if (req.method() === "POST" && path === "") {
+        st.started = true;
+        st.writer = tab;
+        st.deadline ||= srvNow() + st.durationMs;
+        return json(route, 201, runningView(tab));
+      }
+      if (req.method() === "PUT" && path.endsWith("/answers")) {
+        if (st.offlineSave) return route.abort("failed");
+        if (st.submitted) return err(route, 409, "ATTEMPT_CLOSED");
+        if (tab !== st.writer) return err(route, 409, "ATTEMPT_OTHER_TAB", { writer_seen_at: new Date().toISOString() });
+        for (const it of (req.postDataJSON() as { items: Array<{ item_id: string; answer: Json }> }).items) st.answers[it.item_id] = it.answer;
+        return json(route, 200, { saved_at: new Date().toISOString(), server_time: new Date(srvNow()).toISOString(), deadline_at: new Date(st.deadline).toISOString() });
+      }
+      if (req.method() === "POST" && path.endsWith("/takeover")) {
+        st.writer = tab;
+        return json(route, 200, runningView(tab).attempt);
+      }
+      if (req.method() === "POST" && path.endsWith("/submit")) {
+        st.submitted = { at: new Date().toISOString(), reason: "MANUAL" };
+        return json(route, 200, { status: "GRADED", submitted_at: st.submitted.at, answered: Object.keys(st.answers).length, total: 3 });
+      }
+      return err(route, 404, "NOT_FOUND");
+    });
+  }
+  return { st, install };
+}
+async function takeSetup(page: Page, f: ReturnType<typeof fakeTake>) {
+  await studentSetup(page, []);
+  await f.install(page); // đăng ký SAU studentSetup: route đăng ký sau được khớp trước
+}
+const confirmBox = (page: Page) => page.getByRole("dialog");
+const timer = (page: Page) => page.getByRole("timer");
+const startExam = async (page: Page) => {
+  await page.goto(`/exams/${E1}/take?course=${C1}`);
+  await expect(page.getByText("Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.")).toBeVisible();
+  await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
+  await expect(page.getByText("Câu 1/3")).toBeVisible();
+};
+
+test("take: clock skew — máy lệch 5 phút vẫn hiện đúng thời gian còn lại", async ({ page }) => {
+  const f = fakeTake({ skewMs: 5 * 60_000 }); // máy chủ nhanh hơn máy khách 5 phút
+  await takeSetup(page, f);
+  await startExam(page);
+  await expect(timer(page)).toHaveText(/^(45:00|44:5\d)$/);
+});
+
+test("take: timeout autosubmit — hết giờ máy chủ đã nộp, màn hình báo 'Hết giờ'", async ({ page }) => {
+  const f = fakeTake({ durationMs: 3000 });
+  await takeSetup(page, f);
+  await startExam(page);
+  await page.getByLabel("Đáp án A của q1").check();
+  await expect(page.getByText(/^Hết giờ — bài của bạn đã được nộp lúc \d\d:\d\d:\d\d\.$/)).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText(/Điểm sẽ hiện khi bài thi đóng với cả lớp/)).toBeVisible();
+  expect(await page.locator("#main").innerText()).not.toMatch(/đúng|sai|\d+,\d+ \/ /i); // không lộ điểm hay đúng / sai
+});
+
+test("take: submit confirm and after — hộp xác nhận nêu số câu; nộp xong chỉ còn tóm tắt", async ({ page }) => {
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await page.getByLabel("Đáp án B của q1").check();
+  await page.getByRole("button", { name: "Nộp bài" }).first().click();
+  await expect(confirmBox(page).getByText("Bạn đã trả lời 1/3 câu. Còn 2 câu chưa trả lời. Sau khi nộp bạn không sửa được.")).toBeVisible();
+  await confirmBox(page).getByRole("button", { name: "Làm tiếp" }).click();
+  await expect(confirmBox(page)).toBeHidden();
+  await page.getByRole("button", { name: "Nộp bài" }).first().click();
+  await confirmBox(page).getByRole("button", { name: "Nộp bài" }).click();
+  await expect(page.getByText(/^Đã nộp lúc \d\d:\d\d:\d\d\.$/)).toBeVisible();
+  await expect(page.getByText(/Điểm sẽ hiện khi bài thi đóng với cả lớp/)).toBeVisible();
+  await expect(page.getByRole("radio")).toHaveCount(0); // đề không còn hiện
+  const submit = f.st.calls.find((c) => c.url.endsWith("/submit"));
+  expect(submit?.key).toMatch(/^[0-9a-f-]{36}$/);
+  expect(submit?.tab).toBeTruthy();
+  expect(f.st.answers.q1).toEqual({ option_ids: ["q1-o2"] }); // bản cuối đã lên máy chủ trước khi nộp
+});
+
+test("take: two tabs — tab thứ hai chỉ đọc, 'Làm tiếp ở đây' giành quyền ghi, tab đầu thành chỉ đọc", async ({ context, page }) => {
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await page.getByLabel("Đáp án A của q1").check();
+  await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o1"] });
+  const b = await context.newPage();
+  await takeSetup(b, f);
+  await b.goto(`/exams/${E1}/take?course=${C1}`);
+  await expect(b.getByText("Bài đang mở ở nơi khác")).toBeVisible();
+  await expect(b.getByRole("radio").first()).toBeDisabled();
+  await b.getByRole("button", { name: "Làm tiếp ở đây" }).click();
+  await expect(b.getByText("Bài đang mở ở nơi khác")).toBeHidden();
+  await expect(page.getByText("Bài đang mở ở nơi khác")).toBeVisible(); // tab đầu nhận tin qua BroadcastChannel
+  await expect(page.getByRole("radio").first()).toBeDisabled();
+  await b.getByLabel("Đáp án C của q1").check();
+  await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o3"] });
+});
+
+test("take: duplicate tab — bản sao tab không bao giờ thành người ghi thứ hai", async ({ context, page }) => {
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  const writerTab = f.st.writer;
+  const b = await context.newPage();
+  await takeSetup(b, f);
+  await b.goto(`/exams/${E1}/take?course=${C1}`);
+  await expect(b.getByText("Bài đang mở ở nơi khác")).toBeVisible();
+  await b.waitForTimeout(800);
+  expect(f.st.calls.some((c) => c.url.endsWith("/takeover"))).toBe(false); // không tự takeover
+  expect(f.st.writer).toBe(writerTab);
+  await page.getByLabel("Đáp án A của q1").check();
+  await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o1"] }); // tab đầu vẫn ghi được
+});
+
+test("take: reload writer — tải lại trang giữ quyền ghi bằng takeover({reload:true}), không hiện chỉ-đọc", async ({ page }) => {
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await page.getByLabel("Đáp án B của q1").check();
+  await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o2"] });
+  const oldTab = f.st.writer;
+  await page.reload();
+  await expect(page.getByText("Câu 1/3")).toBeVisible();
+  await expect.poll(() => f.st.calls.find((c) => c.url.endsWith("/takeover"))?.body).toEqual({ reload: true });
+  expect(f.st.writer).not.toBe(oldTab);
+  await expect(page.getByText("Bài đang mở ở nơi khác")).toBeHidden();
+  await expect(page.getByLabel("Đáp án B của q1")).toBeChecked(); // đáp án đã lưu hiện lại
+  await page.getByLabel("Đáp án C của q1").check();
+  await expect.poll(() => f.st.answers.q1).toEqual({ option_ids: ["q1-o3"] });
+});
+
+test("take: offline mid exam — mất mạng vẫn chọn được; có mạng lại thì tự lưu", async ({ context, page }) => {
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await context.setOffline(true);
+  await page.getByLabel("Đáp án C của q1").check();
+  await expect(page.getByText("Mất mạng — bài vẫn được giữ trên máy bạn").first()).toBeVisible();
+  await expect(page.getByLabel("Đáp án C của q1")).toBeChecked();
+  expect(f.st.answers.q1).toBeUndefined();
+  await context.setOffline(false);
+  await expect(page.locator("[data-part=save-status]")).toHaveText(/^Đã lưu lúc \d\d:\d\d:\d\d$/, { timeout: 20_000 });
+  expect(f.st.answers.q1).toEqual({ option_ids: ["q1-o3"] });
+});
+
+test("take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng chạm ≥ 44 px, không tràn ngang", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 760 });
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await expect(page.getByText("Câu hỏi một")).toBeVisible();
+  await expect(page.getByText("Câu hỏi hai")).toHaveCount(0); // một câu mỗi lần
+  await page.keyboard.press("b");
+  await expect(page.getByLabel("Đáp án B của q1")).toBeChecked();
+  await page.keyboard.press("ArrowRight");
+  await expect(page.getByText("Câu 2/3")).toBeVisible();
+  await page.keyboard.press("1");
+  await page.keyboard.press("3");
+  await expect(page.getByLabel("Đáp án A của q2")).toBeChecked();
+  await expect(page.getByLabel("Đáp án C của q2")).toBeChecked();
+  await page.getByRole("button", { name: "Danh sách câu" }).click();
+  await expect(page.getByRole("dialog").getByText("Đã làm 2/3 câu.")).toBeVisible();
+  await page.getByRole("dialog").getByRole("button", { name: /Câu 3/ }).click();
+  await expect(page.getByText("Câu 3/3")).toBeVisible();
+  expect(await page.locator("#main").innerText()).not.toMatch(/judge|sandbox|verdict|RAG|PII/i);
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth), { timeout: 5000 }).toBeLessThanOrEqual(0);
+  const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
+  expect(await runAudit(page, AUDIT_SRC)).toEqual({ ox: 0, cut: [], ell: [] });
+  expect(await page.evaluate(TOUCH_SRC)).toEqual([]);
+});

@@ -1,0 +1,2 @@
+.time { display: inline-block; min-width: 8ch; text-align: end; font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; font-weight: 600; font-size: var(--ep-text-item); letter-spacing: 0.02em; }
+.low { color: var(--ep-red); }
