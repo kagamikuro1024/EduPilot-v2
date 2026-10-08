@@ -17,7 +17,7 @@ Tiền điều kiện chung: worktree riêng từ `origin/sprint/5-pe`; `source 
 | TC-PU06-10 | AC1 (HTML máy chủ có `h1`) | **S** `for p in / /chat /threads /inbox /gradebook /settings/llm; do curl -s http://localhost:3310$p \| grep -c '<h1'; done`; Chrome `javaScriptEnabled=false` `page.content()` | mỗi route ≥ 1 `<h1>` và đoạn mô tả tiếng Việt ngay sau; `h1` không phải "Đang tải…" |
 | TC-PU06-11 | AC1 (không nhảy chữ, không flash vai) | **D** `shell.spec.ts account.spec.ts --grep-invert @real --workers=2`; tay (`playwright-cli`, `seed`): đăng nhập `sv.gioi`, `teacher`, `admin`, đo CLS (`PerformanceObserver layout-shift`) | pass; `h1` máy khách trùng `h1` máy chủ (với `/` Sinh viên: `h1` khung dài hơn "Chào {tên}" — ghi, chấm theo AC: "trùng chữ" → **ghi lệch nếu `h1` thật khác**); CLS ≤ 0,1; không thoáng "Không có quyền" |
 | TC-PU06-12 | AC2 (không dữ liệu người dùng) | **S** `for p in …; do curl -s -D - http://localhost:3310$p \| grep -ciE 'edupilot\.local\|Bearer\|eyJ\|ep_rt\|sv\.gioi\|2022[0-9]{4}\|set-cookie\|s-maxage\|cache-control: public'; done` | mỗi dòng `0` |
-| TC-PU06-13 | AC3 (bớt client component) | **S** `git show <commit-trước-story>:frontend/src/app/layout.tsx \| grep -c '"use client"'` (cả `(app)/layout.tsx`) so với hiện tại; `pnpm -C frontend build` — bảng `First Load JS` 7 route | tổng sau **<** tổng trước (AC: "giảm"; nếu bằng nhau ghi lệch: dev dùng `AuthGate`/`PreShell` thay vì bỏ khai báo); mỗi route JS ≤ 256000 (dev: ≈ 252 KB — **sát**, ghi số thực) |
+| TC-PU06-13 | AC3 (#15: không tăng `"use client"`, `h1` + mô tả vẽ từ máy chủ) | **S** `git show <commit-trước-story>:frontend/src/app/layout.tsx \| grep -c '"use client"'` (cả `(app)/layout.tsx`) so với hiện tại; `pnpm -C frontend build` — bảng `First Load JS` 7 route; HTML máy chủ có `h1` + mô tả (TC-10) | tổng sau **≤** tổng trước (không tăng; **không** đòi giảm khi trước đã 0 — #15); `h1` + đoạn mô tả có trong HTML máy chủ của 6 route (TC-10); mỗi route JS ≤ 256000 (dev: ≈ 252 KB — **sát**, ghi số thực) |
 | TC-PU06-14 | AC8 (phần tử LCP + trước `refresh`) | **D** `jq -r '.audits["largest-contentful-paint-element"].details.items[0].items[0].node.snippet' lhr-*.json` 7 URL; `$PW shell.spec.ts -g 'lcp before refresh'` (dev: `lcp.spec.ts`) + QC tự trễ `/auth/refresh` 1 s (`playwright-cli route`) | phần tử LCP bắt đầu `<h1` hoặc `<p` của khung máy chủ; LCP **trước** thời điểm `refresh` trả về; không ứng viên LCP mới sau phiên |
 | TC-PU06-15 | AC9 (ảnh mốc) | **D** `docker run --rm --ipc=host -v $PWD:/work -w /work/frontend mcr.microsoft.com/playwright:v1.63.0-noble pnpm exec playwright test visual.spec.ts --workers=2` **hai lần**; `git diff --stat <commit-trước-story> -- frontend/e2e/visual.spec.ts-snapshots` | `14 passed` cả hai lần, không `--update-snapshots`; ảnh đổi (nếu có) được liệt kê từng ảnh + lý do + trước / sau ở handoff, sinh trong đúng image; QC xem diff thị giác (cùng chữ) — dev nói **không đổi ảnh**: kiểm 0 tệp |
 | TC-PU06-16 | AC10 (axe, phiên, màn cũ) | **D** `pnpm exec playwright test a11y.spec.ts account.spec.ts class-join.spec.ts today.spec.ts shell.spec.ts --grep-invert @real --workers=2`; `jq 'length' frontend/e2e/axe-allow.json`; tay: F5 khi đăng nhập, xoá `ep_rt`, `refresh` giả `401`, phiên thu hồi | pass, 0 FAIL mới (ghi pass / skip); `axe-allow` không tăng; diff `e2e/*.spec.ts` chỉ thêm ca / đổi theo cấu trúc khung có lý do; hết phiên → `/login?next=…`; `401` → `/login`; thu hồi → `revoked` đúng lời |
@@ -28,11 +28,12 @@ Tiền điều kiện chung: worktree riêng từ `origin/sprint/5-pe`; `source 
 
 ## Câu hỏi cho BA / PM
 - **Q-QC-PU06-5** — AC1 "`h1` máy khách **trùng chữ** với `h1` máy chủ" vs handoff: `/` dùng tiêu đề khung dài hơn "Chào {tên}" (đổi chữ sau phiên). Chấm theo chữ AC (ghi lệch nếu khác) hay chấp nhận ngoại lệ cho `/`? — *chờ BA*.
-- **Q-QC-PU06-6** — AC3 "giảm" số `"use client"` ở hai layout: nếu dev dùng `PreShell` mới (máy chủ) nhưng số khai báo bằng nhau, chấm FAIL theo chữ? — *chờ BA*.
+- **Q-QC-PU06-6** — *đã quyết (PM #15, 2026-10-09):* AC3 = không tăng `"use client"` ở hai layout + `h1` / mô tả vẽ từ máy chủ; không đòi giảm.
 - Các Q-QC-PU06-1, -2, -4 đã được PM quyết (AC của spec v1.4); -3 (bằng chứng chính LCP: CI xanh) đã vào AC7.
 
 ## Lịch sử sửa TC
 - 2026-10-04 — viết lần đầu theo dòng plan + TL-1.
 - 2026-10-08 — #14: viết lại theo AC1–AC13 của `FEAT-ui-foundation` v1.4 và quyết định PM #14 (lượt devtools, `/dev/ui` LCP `warn`, `font-display: block`, chữ hiện ≤ 1 s).
+- 2026-10-09 — #15: TC-13 theo AC3 mới (không tăng, không đòi giảm); Q-QC-PU06-6 đóng.
 
 Tổng: 20 TC.
