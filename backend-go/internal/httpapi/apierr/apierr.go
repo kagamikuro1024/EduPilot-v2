@@ -55,6 +55,20 @@ const (
 	JoinCodeInvalid = "JOIN_CODE_INVALID"
 	CourseFull      = "COURSE_FULL"
 	CourseArchived  = "COURSE_ARCHIVED"
+
+	// Thi hằng tuần (FEAT-weekly-exam SRS 6.1): 12 mã mới.
+	ExamNotOpen            = "EXAM_NOT_OPEN"
+	AttemptAlreadySubmit   = "ATTEMPT_ALREADY_SUBMITTED"
+	AttemptClosed          = "ATTEMPT_CLOSED"
+	AttemptOtherTab        = "ATTEMPT_OTHER_TAB"
+	DraftConflict          = "DRAFT_CONFLICT"
+	ExamLocked             = "EXAM_LOCKED"
+	QuestionInUse          = "QUESTION_IN_USE"
+	ResultNotPublished     = "RESULT_NOT_PUBLISHED"
+	SubmissionLimitReached = "SUBMISSION_LIMIT_REACHED"
+	JudgeUnavailable       = "JUDGE_UNAVAILABLE"
+	AppealWindowClosed     = "APPEAL_WINDOW_CLOSED"
+	AppealExists           = "APPEAL_EXISTS"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -197,6 +211,30 @@ func DefaultMessage(code string) string {
 		return "Lớp đã đủ sĩ số."
 	case CourseArchived:
 		return "Lớp này đã được lưu trữ."
+	case ExamNotOpen:
+		return "Bài thi hiện chưa mở hoặc đã đóng."
+	case AttemptAlreadySubmit:
+		return "Bạn đã nộp bài này rồi."
+	case AttemptClosed:
+		return "Đã hết thời gian làm bài."
+	case AttemptOtherTab:
+		return "Bài này đang được làm ở một tab khác."
+	case DraftConflict:
+		return "Bản nháp mã đã được lưu ở nơi khác. Hãy tải lại bản mới nhất."
+	case ExamLocked:
+		return "Bài thi đang bị khoá, chưa sửa được."
+	case QuestionInUse:
+		return "Câu hỏi đang được dùng trong bài thi nên chưa sửa được."
+	case ResultNotPublished:
+		return "Kết quả chưa được công bố."
+	case SubmissionLimitReached:
+		return "Bạn đã dùng hết số lần nộp cho bài này."
+	case JudgeUnavailable:
+		return "Máy chấm tạm thời chưa phản hồi. Hãy thử lại sau ít giây."
+	case AppealWindowClosed:
+		return "Đã hết hạn phúc khảo."
+	case AppealExists:
+		return "Bạn đã gửi yêu cầu phúc khảo cho bài này."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

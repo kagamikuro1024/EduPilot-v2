@@ -16,6 +16,135 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type AppealStatus string
+
+const (
+	AppealStatusOPEN     AppealStatus = "OPEN"
+	AppealStatusUPHELD   AppealStatus = "UPHELD"
+	AppealStatusADJUSTED AppealStatus = "ADJUSTED"
+)
+
+func (e *AppealStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AppealStatus(s)
+	case string:
+		*e = AppealStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AppealStatus: %T", src)
+	}
+	return nil
+}
+
+type NullAppealStatus struct {
+	AppealStatus AppealStatus
+	Valid        bool // Valid is true if AppealStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAppealStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.AppealStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AppealStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAppealStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AppealStatus), nil
+}
+
+type AttemptStatus string
+
+const (
+	AttemptStatusINPROGRESS AttemptStatus = "IN_PROGRESS"
+	AttemptStatusGRADING    AttemptStatus = "GRADING"
+	AttemptStatusGRADED     AttemptStatus = "GRADED"
+)
+
+func (e *AttemptStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AttemptStatus(s)
+	case string:
+		*e = AttemptStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AttemptStatus: %T", src)
+	}
+	return nil
+}
+
+type NullAttemptStatus struct {
+	AttemptStatus AttemptStatus
+	Valid         bool // Valid is true if AttemptStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAttemptStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.AttemptStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AttemptStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAttemptStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AttemptStatus), nil
+}
+
+type AttemptSubmitReason string
+
+const (
+	AttemptSubmitReasonMANUAL  AttemptSubmitReason = "MANUAL"
+	AttemptSubmitReasonTIMEOUT AttemptSubmitReason = "TIMEOUT"
+	AttemptSubmitReasonCLOSED  AttemptSubmitReason = "CLOSED"
+)
+
+func (e *AttemptSubmitReason) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AttemptSubmitReason(s)
+	case string:
+		*e = AttemptSubmitReason(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AttemptSubmitReason: %T", src)
+	}
+	return nil
+}
+
+type NullAttemptSubmitReason struct {
+	AttemptSubmitReason AttemptSubmitReason
+	Valid               bool // Valid is true if AttemptSubmitReason is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAttemptSubmitReason) Scan(value interface{}) error {
+	if value == nil {
+		ns.AttemptSubmitReason, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AttemptSubmitReason.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAttemptSubmitReason) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AttemptSubmitReason), nil
+}
+
 type AuthTokenKind string
 
 const (
@@ -57,6 +186,49 @@ func (ns NullAuthTokenKind) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.AuthTokenKind), nil
+}
+
+type CheckerKind string
+
+const (
+	CheckerKindEXACT    CheckerKind = "EXACT"
+	CheckerKindTOKENS   CheckerKind = "TOKENS"
+	CheckerKindFLOATEPS CheckerKind = "FLOAT_EPS"
+)
+
+func (e *CheckerKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CheckerKind(s)
+	case string:
+		*e = CheckerKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CheckerKind: %T", src)
+	}
+	return nil
+}
+
+type NullCheckerKind struct {
+	CheckerKind CheckerKind
+	Valid       bool // Valid is true if CheckerKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCheckerKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.CheckerKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CheckerKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCheckerKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CheckerKind), nil
 }
 
 type ChunkAudience string
@@ -362,6 +534,141 @@ func (ns NullEnrollmentStatus) Value() (driver.Value, error) {
 	return string(ns.EnrollmentStatus), nil
 }
 
+type ExamEventType string
+
+const (
+	ExamEventTypeTABHIDDEN   ExamEventType = "TAB_HIDDEN"
+	ExamEventTypeTABVISIBLE  ExamEventType = "TAB_VISIBLE"
+	ExamEventTypePASTE       ExamEventType = "PASTE"
+	ExamEventTypeOFFLINE     ExamEventType = "OFFLINE"
+	ExamEventTypeONLINE      ExamEventType = "ONLINE"
+	ExamEventTypeTABTAKEOVER ExamEventType = "TAB_TAKEOVER"
+	ExamEventTypeCHATBLOCKED ExamEventType = "CHAT_BLOCKED"
+)
+
+func (e *ExamEventType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ExamEventType(s)
+	case string:
+		*e = ExamEventType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ExamEventType: %T", src)
+	}
+	return nil
+}
+
+type NullExamEventType struct {
+	ExamEventType ExamEventType
+	Valid         bool // Valid is true if ExamEventType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullExamEventType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ExamEventType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ExamEventType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullExamEventType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ExamEventType), nil
+}
+
+type ExamKind string
+
+const (
+	ExamKindMCQ   ExamKind = "MCQ"
+	ExamKindCODE  ExamKind = "CODE"
+	ExamKindMIXED ExamKind = "MIXED"
+)
+
+func (e *ExamKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ExamKind(s)
+	case string:
+		*e = ExamKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ExamKind: %T", src)
+	}
+	return nil
+}
+
+type NullExamKind struct {
+	ExamKind ExamKind
+	Valid    bool // Valid is true if ExamKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullExamKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.ExamKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ExamKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullExamKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ExamKind), nil
+}
+
+type ExamStatus string
+
+const (
+	ExamStatusDRAFT     ExamStatus = "DRAFT"
+	ExamStatusSCHEDULED ExamStatus = "SCHEDULED"
+	ExamStatusOPEN      ExamStatus = "OPEN"
+	ExamStatusCLOSED    ExamStatus = "CLOSED"
+	ExamStatusPUBLISHED ExamStatus = "PUBLISHED"
+)
+
+func (e *ExamStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ExamStatus(s)
+	case string:
+		*e = ExamStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ExamStatus: %T", src)
+	}
+	return nil
+}
+
+type NullExamStatus struct {
+	ExamStatus ExamStatus
+	Valid      bool // Valid is true if ExamStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullExamStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.ExamStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ExamStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullExamStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ExamStatus), nil
+}
+
 type JobStatus string
 
 const (
@@ -404,6 +711,54 @@ func (ns NullJobStatus) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.JobStatus), nil
+}
+
+type JudgeVerdict string
+
+const (
+	JudgeVerdictAC  JudgeVerdict = "AC"
+	JudgeVerdictWA  JudgeVerdict = "WA"
+	JudgeVerdictTLE JudgeVerdict = "TLE"
+	JudgeVerdictMLE JudgeVerdict = "MLE"
+	JudgeVerdictRE  JudgeVerdict = "RE"
+	JudgeVerdictCE  JudgeVerdict = "CE"
+	JudgeVerdictOLE JudgeVerdict = "OLE"
+	JudgeVerdictIE  JudgeVerdict = "IE"
+)
+
+func (e *JudgeVerdict) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = JudgeVerdict(s)
+	case string:
+		*e = JudgeVerdict(s)
+	default:
+		return fmt.Errorf("unsupported scan type for JudgeVerdict: %T", src)
+	}
+	return nil
+}
+
+type NullJudgeVerdict struct {
+	JudgeVerdict JudgeVerdict
+	Valid        bool // Valid is true if JudgeVerdict is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullJudgeVerdict) Scan(value interface{}) error {
+	if value == nil {
+		ns.JudgeVerdict, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.JudgeVerdict.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullJudgeVerdict) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.JudgeVerdict), nil
 }
 
 type LoginOutcome string
@@ -493,6 +848,355 @@ func (ns NullMailStatus) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.MailStatus), nil
+}
+
+type MultiScoring string
+
+const (
+	MultiScoringALLORNOTHING MultiScoring = "ALL_OR_NOTHING"
+	MultiScoringPARTIAL      MultiScoring = "PARTIAL"
+)
+
+func (e *MultiScoring) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = MultiScoring(s)
+	case string:
+		*e = MultiScoring(s)
+	default:
+		return fmt.Errorf("unsupported scan type for MultiScoring: %T", src)
+	}
+	return nil
+}
+
+type NullMultiScoring struct {
+	MultiScoring MultiScoring
+	Valid        bool // Valid is true if MultiScoring is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullMultiScoring) Scan(value interface{}) error {
+	if value == nil {
+		ns.MultiScoring, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.MultiScoring.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullMultiScoring) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.MultiScoring), nil
+}
+
+type QuestionDifficulty string
+
+const (
+	QuestionDifficultyEASY   QuestionDifficulty = "EASY"
+	QuestionDifficultyMEDIUM QuestionDifficulty = "MEDIUM"
+	QuestionDifficultyHARD   QuestionDifficulty = "HARD"
+)
+
+func (e *QuestionDifficulty) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = QuestionDifficulty(s)
+	case string:
+		*e = QuestionDifficulty(s)
+	default:
+		return fmt.Errorf("unsupported scan type for QuestionDifficulty: %T", src)
+	}
+	return nil
+}
+
+type NullQuestionDifficulty struct {
+	QuestionDifficulty QuestionDifficulty
+	Valid              bool // Valid is true if QuestionDifficulty is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullQuestionDifficulty) Scan(value interface{}) error {
+	if value == nil {
+		ns.QuestionDifficulty, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.QuestionDifficulty.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullQuestionDifficulty) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.QuestionDifficulty), nil
+}
+
+type QuestionOrigin string
+
+const (
+	QuestionOriginMANUAL    QuestionOrigin = "MANUAL"
+	QuestionOriginAIDRAFT   QuestionOrigin = "AI_DRAFT"
+	QuestionOriginEXTRACTED QuestionOrigin = "EXTRACTED"
+	QuestionOriginGENERATED QuestionOrigin = "GENERATED"
+)
+
+func (e *QuestionOrigin) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = QuestionOrigin(s)
+	case string:
+		*e = QuestionOrigin(s)
+	default:
+		return fmt.Errorf("unsupported scan type for QuestionOrigin: %T", src)
+	}
+	return nil
+}
+
+type NullQuestionOrigin struct {
+	QuestionOrigin QuestionOrigin
+	Valid          bool // Valid is true if QuestionOrigin is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullQuestionOrigin) Scan(value interface{}) error {
+	if value == nil {
+		ns.QuestionOrigin, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.QuestionOrigin.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullQuestionOrigin) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.QuestionOrigin), nil
+}
+
+type QuestionReviewStatus string
+
+const (
+	QuestionReviewStatusDRAFT    QuestionReviewStatus = "DRAFT"
+	QuestionReviewStatusPENDING  QuestionReviewStatus = "PENDING"
+	QuestionReviewStatusAPPROVED QuestionReviewStatus = "APPROVED"
+	QuestionReviewStatusREJECTED QuestionReviewStatus = "REJECTED"
+)
+
+func (e *QuestionReviewStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = QuestionReviewStatus(s)
+	case string:
+		*e = QuestionReviewStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for QuestionReviewStatus: %T", src)
+	}
+	return nil
+}
+
+type NullQuestionReviewStatus struct {
+	QuestionReviewStatus QuestionReviewStatus
+	Valid                bool // Valid is true if QuestionReviewStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullQuestionReviewStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.QuestionReviewStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.QuestionReviewStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullQuestionReviewStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.QuestionReviewStatus), nil
+}
+
+type QuestionType string
+
+const (
+	QuestionTypeMCQSINGLE QuestionType = "MCQ_SINGLE"
+	QuestionTypeMCQMULTI  QuestionType = "MCQ_MULTI"
+	QuestionTypeTRUEFALSE QuestionType = "TRUE_FALSE"
+	QuestionTypeCODE      QuestionType = "CODE"
+	QuestionTypeSHORT     QuestionType = "SHORT"
+	QuestionTypeESSAY     QuestionType = "ESSAY"
+)
+
+func (e *QuestionType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = QuestionType(s)
+	case string:
+		*e = QuestionType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for QuestionType: %T", src)
+	}
+	return nil
+}
+
+type NullQuestionType struct {
+	QuestionType QuestionType
+	Valid        bool // Valid is true if QuestionType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullQuestionType) Scan(value interface{}) error {
+	if value == nil {
+		ns.QuestionType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.QuestionType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullQuestionType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.QuestionType), nil
+}
+
+type SimilarityReviewState string
+
+const (
+	SimilarityReviewStateNEW      SimilarityReviewState = "NEW"
+	SimilarityReviewStateCLEARED  SimilarityReviewState = "CLEARED"
+	SimilarityReviewStateFOLLOWUP SimilarityReviewState = "FOLLOW_UP"
+)
+
+func (e *SimilarityReviewState) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = SimilarityReviewState(s)
+	case string:
+		*e = SimilarityReviewState(s)
+	default:
+		return fmt.Errorf("unsupported scan type for SimilarityReviewState: %T", src)
+	}
+	return nil
+}
+
+type NullSimilarityReviewState struct {
+	SimilarityReviewState SimilarityReviewState
+	Valid                 bool // Valid is true if SimilarityReviewState is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullSimilarityReviewState) Scan(value interface{}) error {
+	if value == nil {
+		ns.SimilarityReviewState, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.SimilarityReviewState.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullSimilarityReviewState) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.SimilarityReviewState), nil
+}
+
+type SubmissionKind string
+
+const (
+	SubmissionKindRUN    SubmissionKind = "RUN"
+	SubmissionKindSUBMIT SubmissionKind = "SUBMIT"
+)
+
+func (e *SubmissionKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = SubmissionKind(s)
+	case string:
+		*e = SubmissionKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for SubmissionKind: %T", src)
+	}
+	return nil
+}
+
+type NullSubmissionKind struct {
+	SubmissionKind SubmissionKind
+	Valid          bool // Valid is true if SubmissionKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullSubmissionKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.SubmissionKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.SubmissionKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullSubmissionKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.SubmissionKind), nil
+}
+
+type SubmissionStatus string
+
+const (
+	SubmissionStatusQUEUED     SubmissionStatus = "QUEUED"
+	SubmissionStatusRUNNING    SubmissionStatus = "RUNNING"
+	SubmissionStatusDONE       SubmissionStatus = "DONE"
+	SubmissionStatusSUPERSEDED SubmissionStatus = "SUPERSEDED"
+	SubmissionStatusERROR      SubmissionStatus = "ERROR"
+)
+
+func (e *SubmissionStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = SubmissionStatus(s)
+	case string:
+		*e = SubmissionStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for SubmissionStatus: %T", src)
+	}
+	return nil
+}
+
+type NullSubmissionStatus struct {
+	SubmissionStatus SubmissionStatus
+	Valid            bool // Valid is true if SubmissionStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullSubmissionStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.SubmissionStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.SubmissionStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullSubmissionStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.SubmissionStatus), nil
 }
 
 type UserRole string
@@ -639,6 +1343,88 @@ type ClassSession struct {
 	UpdatedAt time.Time
 }
 
+type CodeDraft struct {
+	AttemptID uuid.UUID
+	ItemID    uuid.UUID
+	CourseID  uuid.UUID
+	Language  string
+	Source    string
+	Rev       int32
+	UpdatedAt time.Time
+}
+
+type CodeProblem struct {
+	QuestionID               uuid.UUID
+	CourseID                 uuid.UUID
+	Languages                []string
+	TimeLimitMs              int32
+	MemoryLimitMb            int32
+	OutputLimitKb            int32
+	Checker                  CheckerKind
+	FloatEps                 decimal.NullDecimal
+	StarterCode              json.RawMessage
+	ReferenceLanguage        *string
+	ReferenceSource          *string
+	ReferenceVerifiedVersion *int32
+	ReferenceVerifiedAt      *time.Time
+	TestsVersion             int32
+	CreatedAt                time.Time
+	UpdatedAt                time.Time
+}
+
+type CodeSubmission struct {
+	ID            uuid.UUID
+	CourseID      uuid.UUID
+	ExamID        uuid.UUID
+	AttemptID     uuid.UUID
+	ItemID        uuid.UUID
+	ProblemID     uuid.UUID
+	StudentID     uuid.UUID
+	Kind          SubmissionKind
+	Language      string
+	Source        string
+	SourceSha256  string
+	Auto          bool
+	Status        SubmissionStatus
+	Verdict       *JudgeVerdict
+	TestsVersion  *int32
+	CompileOk     *bool
+	CompileLog    *string
+	Results       json.RawMessage
+	PassedWeight  *int32
+	TotalWeight   *int32
+	TimeMsMax     *int32
+	MemoryKbMax   *int32
+	Attempts      int16
+	LeaseUntil    *time.Time
+	NextAttemptAt time.Time
+	FailCount     int16
+	EnqueuedAt    *time.Time
+	JudgedAt      *time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
+type CodeTestcase struct {
+	ID              uuid.UUID
+	CourseID        uuid.UUID
+	ProblemID       uuid.UUID
+	Position        int32
+	Name            string
+	IsSample        bool
+	Weight          int16
+	Input           *string
+	InputBlobKey    *string
+	Expected        *string
+	ExpectedBlobKey *string
+	InputBytes      int32
+	ExpectedBytes   int32
+	Source          string
+	Approved        bool
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
 type ContentChunk struct {
 	ID         uuid.UUID
 	DocumentID uuid.UUID
@@ -723,6 +1509,106 @@ type Enrollment struct {
 	Version             int32
 	CreatedAt           time.Time
 	UpdatedAt           time.Time
+}
+
+type Exam struct {
+	ID               uuid.UUID
+	CourseID         uuid.UUID
+	Title            string
+	Instructions     *string
+	Kind             ExamKind
+	Status           ExamStatus
+	OpensAt          *time.Time
+	ClosesAt         *time.Time
+	DurationMinutes  *int16
+	ShuffleQuestions bool
+	ShuffleOptions   bool
+	MaxScore         decimal.Decimal
+	RoundingStep     decimal.Decimal
+	MultiScoring     MultiScoring
+	RevealAnswers    bool
+	AppealDays       int16
+	PublishHold      bool
+	Regrading        bool
+	PublishedAt      *time.Time
+	CreatedBy        uuid.UUID
+	Version          int32
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type ExamAnswer struct {
+	AttemptID uuid.UUID
+	ItemID    uuid.UUID
+	CourseID  uuid.UUID
+	Answer    json.RawMessage
+	SavedAt   time.Time
+}
+
+type ExamAppeal struct {
+	ID          uuid.UUID
+	CourseID    uuid.UUID
+	ExamID      uuid.UUID
+	AttemptID   uuid.UUID
+	StudentID   uuid.UUID
+	Reason      string
+	Status      AppealStatus
+	Response    *string
+	RespondedBy *uuid.UUID
+	RespondedAt *time.Time
+	ScoreBefore decimal.NullDecimal
+	ScoreAfter  decimal.NullDecimal
+	Version     int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type ExamAttempt struct {
+	ID             uuid.UUID
+	CourseID       uuid.UUID
+	ExamID         uuid.UUID
+	StudentID      uuid.UUID
+	Status         AttemptStatus
+	StartedAt      time.Time
+	DeadlineAt     time.Time
+	SubmittedAt    *time.Time
+	SubmitReason   *AttemptSubmitReason
+	WriterTab      *uuid.UUID
+	WriterSeenAt   *time.Time
+	AutoScore      decimal.NullDecimal
+	AdjustedScore  decimal.NullDecimal
+	AdjustedReason *string
+	AdjustedBy     *uuid.UUID
+	AdjustedAt     *time.Time
+	Breakdown      json.RawMessage
+	GradedAt       *time.Time
+	Version        int32
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type ExamEvent struct {
+	ID         uuid.UUID
+	CourseID   uuid.UUID
+	ExamID     uuid.UUID
+	AttemptID  uuid.UUID
+	StudentID  uuid.UUID
+	Type       ExamEventType
+	OccurredAt time.Time
+	ClientAt   *time.Time
+	Meta       json.RawMessage
+}
+
+type ExamItem struct {
+	ID         uuid.UUID
+	CourseID   uuid.UUID
+	ExamID     uuid.UUID
+	QuestionID uuid.UUID
+	Position   int16
+	Points     decimal.Decimal
+	Override   json.RawMessage
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type IdempotencyKey struct {
@@ -874,6 +1760,59 @@ type Outbox struct {
 	LastError     *string
 	DeadAt        *time.Time
 	UpdatedAt     time.Time
+}
+
+type QuestionBank struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	Type         QuestionType
+	Title        string
+	Topic        string
+	Difficulty   QuestionDifficulty
+	Stem         string
+	AnswerKey    json.RawMessage
+	Explanation  *string
+	Citations    json.RawMessage
+	Origin       QuestionOrigin
+	ReviewStatus QuestionReviewStatus
+	CreatedBy    uuid.UUID
+	ReviewedBy   *uuid.UUID
+	ReviewedAt   *time.Time
+	AiJobID      *uuid.UUID
+	ArchivedAt   *time.Time
+	Version      int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type QuestionOption struct {
+	ID         uuid.UUID
+	CourseID   uuid.UUID
+	QuestionID uuid.UUID
+	Position   int16
+	Body       string
+	PinnedLast bool
+}
+
+type SimilarityReport struct {
+	ID                 uuid.UUID
+	CourseID           uuid.UUID
+	ExamID             uuid.UUID
+	ProblemID          uuid.UUID
+	RunID              uuid.UUID
+	SubmissionA        uuid.UUID
+	SubmissionB        uuid.UUID
+	AttemptA           uuid.UUID
+	AttemptB           uuid.UUID
+	Score              decimal.Decimal
+	SharedFingerprints int32
+	Flagged            bool
+	Algorithm          string
+	ReviewState        SimilarityReviewState
+	ReviewedBy         *uuid.UUID
+	ReviewedAt         *time.Time
+	Note               *string
+	CreatedAt          time.Time
 }
 
 type User struct {

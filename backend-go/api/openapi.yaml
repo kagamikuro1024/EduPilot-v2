@@ -3708,6 +3708,18 @@ components:
             - JOIN_CODE_INVALID
             - COURSE_FULL
             - COURSE_ARCHIVED
+            - EXAM_NOT_OPEN
+            - ATTEMPT_ALREADY_SUBMITTED
+            - ATTEMPT_CLOSED
+            - ATTEMPT_OTHER_TAB
+            - DRAFT_CONFLICT
+            - EXAM_LOCKED
+            - QUESTION_IN_USE
+            - RESULT_NOT_PUBLISHED
+            - SUBMISSION_LIMIT_REACHED
+            - JUDGE_UNAVAILABLE
+            - APPEAL_WINDOW_CLOSED
+            - APPEAL_EXISTS
         message:
           type: string
         trace_id:

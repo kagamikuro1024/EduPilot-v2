@@ -58,7 +58,7 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.NoError(t, conn.QueryRow(ctx, snapshotSQL).Scan(&before))
 	require.Contains(t, before, "col users.email")
 
-	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn là bản mới nhất (5).
+	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn là bản mới nhất (6).
 	var gooseRows, version, tables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from goose_db_version`).Scan(&gooseRows))
 	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard))
@@ -67,7 +67,7 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.Equal(t, gooseRows, gooseRows2, "up lần hai phải là no-op")
 	require.NoError(t, conn.QueryRow(ctx,
 		`select version_id from goose_db_version where is_applied order by id desc limit 1`).Scan(&version))
-	require.Equal(t, 5, version)
+	require.Equal(t, 6, version)
 
 	// down lùi về version 0: 5 bảng nền + 5 bảng llm_* biến mất, extension vector GIỮ LẠI.
 	require.NoError(t, db.Migrate(ctx, url, "down", io.Discard))

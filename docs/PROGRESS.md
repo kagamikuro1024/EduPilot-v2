@@ -56,6 +56,7 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 | 00003 | course_foundation | P2 |
 | 00004 | auth_hardening | P2 |
 | 00005 | vn_fold | P2 |
+| 00006 | weekly_exam | PE (US-PE-01) |
 
 ## Việc chỉ chủ dự án làm được
 - [x] API key ≥ 2 provider LLM (OpenAI + Gemini, 2026-10-03; nên xoay khoá vì đã dán trong chat, đặt trần chi phí)
