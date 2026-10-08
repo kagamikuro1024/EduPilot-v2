@@ -30,7 +30,10 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(course.TopicAssigned, outbox.Chain(cn.HandleAssigned, inv.Handle))
 	reg.Register(course.TopicJoinRequested, outbox.Chain(cn.HandleJoinRequested, inv.Handle))
 	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
-	for _, t := range []string{exam.TopicQuestionReviewed, course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified} {
+	en := &exam.Notifier{Pool: d.DB, Log: d.Log}
+	reg.Register(exam.TopicExamScheduled, outbox.Chain(en.HandleScheduled, inv.Handle)) // US-PE-04: thông báo lịch + xoá cache "Hôm nay"
+	reg.Register(exam.TopicExamUnscheduled, outbox.Chain(en.HandleUnscheduled, inv.Handle))
+	for _, t := range []string{exam.TopicExamOpened, exam.TopicExamClosed, exam.TopicQuestionReviewed, course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified} {
 		reg.Register(t, inv.Handle)
 	}
 	if d.Judge != nil {

@@ -215,7 +215,8 @@ func (r *rig) worker() *sync.Map {
 	}, inv.Handle))
 	reg.Register(course.TopicJoinRequested, outbox.Chain(n.HandleJoinRequested, inv.Handle))
 	reg.Register(course.TopicJoinDecided, outbox.Chain(n.HandleJoinDecided, inv.Handle))
-	for _, t := range []string{course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified, exam.TopicQuestionReviewed} {
+	for _, t := range []string{course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified, exam.TopicQuestionReviewed,
+		exam.TopicExamScheduled, exam.TopicExamUnscheduled, exam.TopicExamOpened, exam.TopicExamClosed} {
 		reg.Register(t, inv.Handle)
 	}
 	ctx, cancel := context.WithCancel(context.Background())

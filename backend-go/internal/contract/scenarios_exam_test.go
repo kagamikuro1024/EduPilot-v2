@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"math/rand/v2"
 	"mime/multipart"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -235,4 +236,138 @@ func (r *runner) examScenarios() {
 	r.must(call{method: "POST", path: base("khong-phai-uuid") + "/suggest", token: gv, headers: idem(), body: `{"kind":"MCQ","topic":"x","count":1}`}, 404)
 	r.must(call{method: "POST", path: base(arch) + "/suggest", token: gv, headers: idem(), body: `{"kind":"MCQ","topic":"x","count":1}`}, 409)
 	r.must(call{method: "POST", path: sg, token: gv, headers: idem(), body: `{"kind":"MCQ","topic":"x","count":99}`}, 422)
+
+	r.examExamScenarios(examRig{cid: cid, arch: arch, q1: q1.ID, gv: gv, ta: ta, sv: sv, admin: admin, idem: idem})
+}
+
+type examRig struct {
+	cid, arch, q1, gv, ta, sv, admin string
+	idem                             func() map[string]string
+}
+
+// examExamScenarios: thao tác 17–25, 27, 28 (bài thi, US-PE-04) với mọi status đã khai báo. q1 là một câu MCQ đã duyệt của lớp `cid`; `arch` là lớp đã lưu trữ.
+func (r *runner) examExamScenarios(x examRig) {
+	ex := "/api/v1/courses/" + x.cid + "/exams"
+	archEx := "/api/v1/courses/" + x.arch + "/exams"
+	now := time.Now().UTC()
+	opens, closes := now.Add(2*time.Hour).Format(time.RFC3339), now.Add(4*time.Hour).Format(time.RFC3339)
+	create := `{"title":"Kiểm tra tuần 9","opens_at":"` + opens + `","closes_at":"` + closes + `","duration_minutes":45}`
+	type exm struct {
+		ID      string `json:"id"`
+		Version int    `json:"version"`
+	}
+	parse := func(b []byte) exm {
+		var e exm
+		_ = json.Unmarshal(b, &e)
+		return e
+	}
+
+	// 18: tạo.
+	_, b := r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: create}, 201)
+	e := parse(b)
+	r.must(call{method: "POST", path: ex, headers: x.idem(), body: create}, 401)
+	r.must(call{method: "POST", path: ex, token: x.sv, headers: x.idem(), body: create}, 403)
+	r.must(call{method: "POST", path: ex, token: x.admin, headers: x.idem(), body: create}, 403)
+	r.must(call{method: "POST", path: ex, token: x.gv, body: create}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: `{"title":"","duration_minutes":1}`}, 422)
+	r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: `{"title":"kind do client","kind":"CODE"}`}, 422) // `kind` suy ra từ mục, không nhận từ client
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/exams", token: x.gv, headers: x.idem(), body: create}, 404)
+	r.must(call{method: "POST", path: archEx, token: x.gv, headers: x.idem(), body: create}, 409)
+	_, b = r.must(call{method: "POST", path: ex, token: x.ta, headers: x.idem(), body: `{"title":"Bản nháp của TA"}`}, 201) // TA tạo / sửa nháp được
+	spare := parse(b)
+
+	// 17: danh sách.
+	r.must(call{method: "GET", path: ex, token: x.gv}, 200)
+	r.must(call{method: "GET", path: ex + "?status=DRAFT&limit=1", token: x.ta}, 200)
+	r.must(call{method: "GET", path: ex, token: x.sv}, 200) // sinh viên: bản giới hạn, không DRAFT
+	r.must(call{method: "GET", path: ex}, 401)
+	r.must(call{method: "GET", path: ex, token: x.admin}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/exams", token: x.gv}, 404)
+	r.must(call{method: "GET", path: ex + "?status=BAN", token: x.gv}, 422)
+
+	// 19: chi tiết.
+	one := ex + "/" + e.ID
+	r.must(call{method: "GET", path: one, token: x.gv}, 200)
+	r.must(call{method: "GET", path: one}, 401)
+	r.must(call{method: "GET", path: one, token: x.admin}, 403)
+	r.must(call{method: "GET", path: one, token: x.sv}, 404) // DRAFT: sinh viên không thấy
+	r.must(call{method: "GET", path: ex + "/" + uuid.NewString(), token: x.gv}, 404)
+
+	// 20: sửa (khoá lạc quan).
+	upd := `{"title":"Kiểm tra tuần 9 (sửa)","version":` + itoa(e.Version) + `}`
+	_, b = r.must(call{method: "PUT", path: one, token: x.gv, body: upd}, 200)
+	e = parse(b)
+	r.must(call{method: "PUT", path: one, token: x.gv, body: upd}, 409)
+	r.must(call{method: "PUT", path: one, body: upd}, 401)
+	r.must(call{method: "PUT", path: one, token: x.sv, body: upd}, 403)
+	r.must(call{method: "PUT", path: ex + "/" + uuid.NewString(), token: x.gv, body: upd}, 404)
+	r.must(call{method: "PUT", path: archEx + "/" + uuid.NewString(), token: x.gv, body: upd}, 409)
+	r.must(call{method: "PUT", path: one, token: x.gv, body: `{"duration_minutes":1,"version":` + itoa(e.Version) + `}`}, 422)
+
+	// 21: mục của bài.
+	it := one + "/items"
+	r.must(call{method: "PUT", path: it, token: x.gv, body: `{"items":[],"version":` + itoa(e.Version) + `}`}, 422)
+	_, b = r.must(call{method: "PUT", path: it, token: x.gv, body: `{"items":[{"question_id":"` + x.q1 + `","points":"2.50"}],"version":` + itoa(e.Version) + `}`}, 200)
+	stale := e.Version
+	e = parse(b)
+	r.must(call{method: "PUT", path: it, token: x.gv, body: `{"items":[{"question_id":"` + x.q1 + `","points":"2.50"}],"version":` + itoa(stale) + `}`}, 409)
+	r.must(call{method: "PUT", path: it, body: `{"items":[],"version":1}`}, 401)
+	r.must(call{method: "PUT", path: it, token: x.sv, body: `{"items":[],"version":1}`}, 403)
+	r.must(call{method: "PUT", path: ex + "/" + uuid.NewString() + "/items", token: x.gv, body: `{"items":[],"version":1}`}, 404)
+	r.must(call{method: "PUT", path: archEx + "/" + uuid.NewString() + "/items", token: x.gv, body: `{"items":[],"version":1}`}, 409)
+
+	// 22: xem trước.
+	r.must(call{method: "GET", path: one + "/preview", token: x.gv}, 200)
+	r.must(call{method: "GET", path: one + "/preview", token: x.ta}, 200)
+	r.must(call{method: "GET", path: one + "/preview"}, 401)
+	r.must(call{method: "GET", path: one + "/preview", token: x.sv}, 403)
+	r.must(call{method: "GET", path: ex + "/" + uuid.NewString() + "/preview", token: x.gv}, 404)
+
+	// 28: nhân bản (bản sao không có giờ, không có mục → lên lịch lỗi 422 đủ danh sách).
+	_, b = r.must(call{method: "POST", path: one + "/clone", token: x.ta}, 201)
+	clone := parse(b)
+	r.must(call{method: "POST", path: one + "/clone"}, 401)
+	r.must(call{method: "POST", path: one + "/clone", token: x.sv}, 403)
+	r.must(call{method: "POST", path: ex + "/" + uuid.NewString() + "/clone", token: x.gv}, 404)
+	r.must(call{method: "POST", path: archEx + "/" + uuid.NewString() + "/clone", token: x.gv}, 409)
+
+	// 23: lên lịch (chỉ Giảng viên).
+	sch := one + "/schedule"
+	r.must(call{method: "POST", path: ex + "/" + spare.ID + "/schedule", token: x.gv}, 422) // nháp của TA: không giờ, không mục
+	r.must(call{method: "POST", path: sch, token: x.ta}, 403)
+	r.must(call{method: "POST", path: sch, token: x.sv}, 403)
+	r.must(call{method: "POST", path: sch}, 401)
+	r.must(call{method: "POST", path: ex + "/" + uuid.NewString() + "/schedule", token: x.gv}, 404)
+	r.must(call{method: "POST", path: archEx + "/" + uuid.NewString() + "/schedule", token: x.gv}, 409)
+	r.must(call{method: "POST", path: sch, token: x.gv}, 200)
+	r.must(call{method: "POST", path: sch, token: x.gv}, 200) // gọi lại: idempotent
+	r.must(call{method: "GET", path: one, token: x.sv}, 200)  // đã lên lịch: sinh viên thấy bản giới hạn
+	r.must(call{method: "GET", path: ex, token: x.sv}, 200)
+	r.must(call{method: "DELETE", path: one, token: x.gv}, 409) // không phải DRAFT
+	r.must(call{method: "PUT", path: it, token: x.gv, body: `{"items":[{"question_id":"` + x.q1 + `","points":"1"}],"version":` + itoa(e.Version+1) + `}`}, 409)
+
+	// 25: gia hạn.
+	ext := one + "/extend"
+	r.must(call{method: "POST", path: ext, token: x.gv, body: `{"closes_at":"` + now.Add(5*time.Hour).Format(time.RFC3339) + `"}`}, 200)
+	r.must(call{method: "POST", path: ext, token: x.gv, body: `{"closes_at":"` + now.Add(time.Hour).Format(time.RFC3339) + `"}`}, 422)
+	r.must(call{method: "POST", path: ext, body: `{"closes_at":"` + closes + `"}`}, 401)
+	r.must(call{method: "POST", path: ext, token: x.ta, body: `{"closes_at":"` + closes + `"}`}, 403)
+	r.must(call{method: "POST", path: ex + "/" + uuid.NewString() + "/extend", token: x.gv, body: `{"closes_at":"` + closes + `"}`}, 404)
+	r.must(call{method: "POST", path: ex + "/" + clone.ID + "/extend", token: x.gv, body: `{"closes_at":"` + closes + `"}`}, 409) // nháp
+	r.must(call{method: "POST", path: archEx + "/" + uuid.NewString() + "/extend", token: x.gv, body: `{"closes_at":"` + closes + `"}`}, 409)
+
+	// 24: bỏ lịch.
+	un := one + "/unschedule"
+	r.must(call{method: "POST", path: un, token: x.gv}, 200)
+	r.must(call{method: "POST", path: un, token: x.gv}, 409) // đã về DRAFT
+	r.must(call{method: "POST", path: un}, 401)
+	r.must(call{method: "POST", path: un, token: x.ta}, 403)
+	r.must(call{method: "POST", path: ex + "/" + uuid.NewString() + "/unschedule", token: x.gv}, 404)
+
+	// 27: xoá (chỉ nháp, chỉ Giảng viên).
+	r.must(call{method: "DELETE", path: ex + "/" + clone.ID}, 401)
+	r.must(call{method: "DELETE", path: ex + "/" + clone.ID, token: x.ta}, 403)
+	r.must(call{method: "DELETE", path: ex + "/" + uuid.NewString(), token: x.gv}, 404)
+	r.must(call{method: "DELETE", path: archEx + "/" + uuid.NewString(), token: x.gv}, 409)
+	r.must(call{method: "DELETE", path: ex + "/" + clone.ID, token: x.gv}, 204)
 }

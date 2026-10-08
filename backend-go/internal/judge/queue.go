@@ -505,20 +505,11 @@ func (q *Queue) tickLoop(ctx context.Context) {
 
 // leader giữ khoá `ep:exam:tick:leader` (SET NX PX 15 s): một bộ lập lịch (SRS 4.2.6).
 func (q *Queue) leader(ctx context.Context) bool {
-	key := appredis.Key("exam", "tick", "leader")
-	ok, err := q.Redis.SetNX(ctx, key, q.Name, 15*time.Second).Result()
-	if err != nil {
-		return false
-	}
-	if ok {
-		return true
-	}
-	if v, err := q.Redis.Get(ctx, key).Result(); err == nil && v == q.Name {
-		_ = q.Redis.PExpire(ctx, key, 15*time.Second).Err()
-		return true
-	}
-	return false
+	return q.Redis.Leader(ctx, LeaderKey(), q.Name, 15*time.Second)
 }
+
+// LeaderKey là khoá leader chung của mọi bộ lập lịch nền của thi hằng tuần (`ep:exam:tick:leader`).
+func LeaderKey() string { return appredis.Key("exam", "tick", "leader") }
 
 // Tick chạy MỘT vòng tick (xuất ra để test gọi trực tiếp, không chờ nhịp 5 s): đưa lại Stream các dòng đến hạn / hết thuê / mất tín hiệu.
 func (q *Queue) Tick(ctx context.Context) { q.defaults(); q.tick(ctx) }

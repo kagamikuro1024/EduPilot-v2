@@ -1,4 +1,4 @@
-// Package exam: ngân hàng câu hỏi, bài code và test, duyệt, khoá sửa (US-PE-03); lên lịch, lượt làm… ở các story sau.
+// Package exam: ngân hàng câu hỏi, bài code và test, duyệt, khoá sửa (US-PE-03); bài thi, lên lịch, bộ lập lịch (US-PE-04); lượt làm… ở các story sau.
 // Lỗi nghiệp vụ trả `*apierr.Error` (handler ghi nguyên văn); sai `version` trả `*VersionConflict`.
 package exam
 
@@ -37,6 +37,7 @@ type Service struct {
 	Jobs  *jobs.Service
 	// ZipMaxUncompressed: EXAM_TESTZIP_MAX_UNCOMPRESSED (0 = mặc định 50 MiB).
 	ZipMaxUncompressed int
+	Limits             Limits // giới hạn bài thi (US-PE-04)
 }
 
 func (s *Service) now() time.Time {

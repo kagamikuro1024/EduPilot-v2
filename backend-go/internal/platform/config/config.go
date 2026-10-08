@@ -98,6 +98,11 @@ type Config struct {
 	// Nhập test zip (US-PE-03, SRS 4.1.5): giới hạn nén / giải nén (đếm khi đọc).
 	ExamTestZipMaxBytes        int
 	ExamTestZipMaxUncompressed int
+	// Bài thi (US-PE-04, SRS 4.2): thời lượng tối thiểu, độ trễ tối thiểu khi lên lịch, nhịp bộ lập lịch, tổng thời gian chấm một bài code.
+	ExamMinDurationMinutes int
+	ExamMinLeadSeconds     int
+	ExamTickInterval       time.Duration
+	JudgeMaxTotalSeconds   int // JUDGE_MAX_TOTAL_SECONDS; worker đọc riêng cùng biến này ở judge.Settings
 
 	// Cổng LLM (SRS FEAT-llm-gateway 4.3, 8.1).
 	LLMMaxConcurrency int
@@ -247,6 +252,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.BlobRegion = l.str("BLOB_REGION", "us-east-1")
 	c.ExamTestZipMaxBytes = l.num("EXAM_TESTZIP_MAX_BYTES", 10<<20, 1024, 100<<20)
 	c.ExamTestZipMaxUncompressed = l.num("EXAM_TESTZIP_MAX_UNCOMPRESSED", 50<<20, 1024, 500<<20)
+	c.ExamMinDurationMinutes = l.num("EXAM_MIN_DURATION_MINUTES", 5, 1, 300)
+	c.ExamMinLeadSeconds = l.num("EXAM_MIN_LEAD_SECONDS", 60, 0, 86400)
+	c.ExamTickInterval = l.dur("EXAM_TICK_INTERVAL", 5*time.Second)
+	c.JudgeMaxTotalSeconds = l.num("JUDGE_MAX_TOTAL_SECONDS", 300, 20, 100000)
 
 	c.LLMMaxConcurrency = l.num("LLM_MAX_CONCURRENCY", 10, 1, 1000)
 	c.LLMBatchShare = l.fraction("LLM_BATCH_SHARE", 0.5)

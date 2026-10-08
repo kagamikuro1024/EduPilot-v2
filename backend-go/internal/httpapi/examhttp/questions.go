@@ -30,7 +30,7 @@ type Handler struct {
 	Log         *slog.Logger
 }
 
-// Mount đăng ký trong nhóm đã qua auth.Middleware. Đường tĩnh `/questions/suggest` đứng trước `/questions/{qid}`.
+// Mount đăng ký trong nhóm đã qua auth.Middleware (cả bài thi, MountExams). Đường tĩnh `/questions/suggest` đứng trước `/questions/{qid}`.
 func (h *Handler) Mount(r chi.Router) {
 	staff := h.Guard(auth.StaffRole)
 	const q = "/courses/{id}/questions"
@@ -50,6 +50,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Put(q+"/{qid}/testcases/{tid}", h.updateTest)
 	r.With(staff).Delete(q+"/{qid}/testcases/{tid}", h.deleteTest)
 	r.With(staff, h.Idem).Post(q+"/{qid}/reference/verify", h.verify)
+	h.MountExams(r)
 }
 
 type reqCtx struct {

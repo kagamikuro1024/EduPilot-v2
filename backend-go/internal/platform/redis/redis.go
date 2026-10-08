@@ -58,3 +58,20 @@ type slogLogger struct{ l *slog.Logger }
 func (s slogLogger) Printf(ctx context.Context, format string, v ...any) {
 	s.l.WarnContext(ctx, "redis client: "+fmt.Sprintf(format, v...))
 }
+
+// Leader giữ khoá `key` cho `name` (SET NX PX ttl) hoặc gia hạn nếu khoá đang là của chính `name`; true = người gọi là leader trong ttl tới.
+// Các bộ lập lịch cùng một tiến trình dùng chung một `name` nên cùng nhận ra mình (SRS FEAT-weekly-exam 4.2.6).
+func (c *Client) Leader(ctx context.Context, key, name string, ttl time.Duration) bool {
+	ok, err := c.SetNX(ctx, key, name, ttl).Result()
+	if err != nil {
+		return false
+	}
+	if ok {
+		return true
+	}
+	if v, err := c.Get(ctx, key).Result(); err == nil && v == name {
+		_ = c.PExpire(ctx, key, ttl).Err()
+		return true
+	}
+	return false
+}

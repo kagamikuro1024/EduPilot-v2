@@ -69,8 +69,9 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
-			// US-PE-03 — ngân hàng câu hỏi (thao tác 1–16 của SRS FEAT-weekly-exam 6.2).
-			svc := &exam.Service{Pool: d.DB, Clock: d.Clock, Jobs: d.Jobs, ZipMaxUncompressed: d.Cfg.ExamTestZipMaxUncompressed}
+			// US-PE-03 / PE-04 — ngân hàng câu hỏi và bài thi (thao tác 1–25, 27, 28 của SRS FEAT-weekly-exam 6.2).
+			svc := &exam.Service{Pool: d.DB, Clock: d.Clock, Jobs: d.Jobs, ZipMaxUncompressed: d.Cfg.ExamTestZipMaxUncompressed,
+				Limits: exam.Limits{MinDurationMinutes: d.Cfg.ExamMinDurationMinutes, MinLeadSeconds: d.Cfg.ExamMinLeadSeconds, MaxTotalSeconds: d.Cfg.JudgeMaxTotalSeconds}}
 			if d.Blob != nil {
 				svc.Blob = d.Blob
 			}

@@ -2701,6 +2701,406 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams:
+    get:
+      operationId: listExams
+      tags: [exam]
+      summary: "Danh sách bài thi của lớp (Staff: mọi bài; Sinh viên: bản giới hạn, không DRAFT; lọc theo trạng thái hiệu lực, con trỏ, ETag)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Trang bài thi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamListPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createExam
+      tags: [exam]
+      summary: "Tạo bài thi nháp (Staff; Idempotency-Key bắt buộc; `kind` suy ra từ mục)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamInput"
+      responses:
+        "201":
+          description: Bài nháp vừa tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}:
+    get:
+      operationId: getExam
+      tags: [exam]
+      summary: "Chi tiết bài thi (Staff: đầy đủ kèm mục; Sinh viên: bản giới hạn, DRAFT → 404)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bài thi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetailOrStudent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateExam
+      tags: [exam]
+      summary: "Sửa bài thi (khoá lạc quan `version`; ngoài DRAFT chỉ title / instructions / reveal_answers / appeal_days)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamInput"
+      responses:
+        "200":
+          description: Bài sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteExam
+      tags: [exam]
+      summary: "Xoá bài thi nháp (Giảng viên; cascade mục)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/exams/{eid}/items:
+    put:
+      operationId: putExamItems
+      tags: [exam]
+      summary: "Thay toàn bộ danh sách câu của bài DRAFT (1…100 câu đã duyệt, cùng lớp, không trùng)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExamItemsRequest"
+      responses:
+        "200":
+          description: Bài sau khi đổi mục
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/preview:
+    get:
+      operationId: previewExam
+      tags: [exam]
+      summary: "Xem trước như sinh viên (Staff; không ghi gì; hạt giống mới mỗi lần)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bài như sinh viên thấy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamPreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/exams/{eid}/schedule:
+    post:
+      operationId: scheduleExam
+      tags: [exam]
+      summary: "Lên lịch (chỉ Giảng viên; trả toàn bộ lỗi một lần; gọi lại khi đã SCHEDULED → 200)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Bài đã lên lịch
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/unschedule:
+    post:
+      operationId: unscheduleExam
+      tags: [exam]
+      summary: "Bỏ lịch (chỉ khi chưa mở và chưa có lượt làm)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bài về DRAFT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/exams/{eid}/extend:
+    post:
+      operationId: extendExam
+      tags: [exam]
+      summary: "Gia hạn giờ đóng (chỉ lùi muộn hơn, tối đa 24 giờ)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtendRequest"
+      responses:
+        "200":
+          description: Bài sau gia hạn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/exams/{eid}/clone:
+    post:
+      operationId: cloneExam
+      tags: [exam]
+      summary: "Nhân bản thành bài nháp mới (cùng mục / điểm / cài đặt, không giờ)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: eid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "201":
+          description: Bản sao DRAFT
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ExamDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
 components:
   securitySchemes:
     bearerAuth:
@@ -4824,3 +5224,370 @@ components:
         question_id:
           type: string
           format: uuid
+    ExamInput:
+      type: object
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        instructions:
+          type: string
+        opens_at:
+          type: string
+          format: date-time
+        closes_at:
+          type: string
+          format: date-time
+        duration_minutes:
+          type: integer
+        shuffle_questions:
+          type: boolean
+        shuffle_options:
+          type: boolean
+        max_score:
+          type: string
+        rounding_step:
+          type: string
+        multi_scoring:
+          type: string
+          enum: [PARTIAL, ALL_OR_NOTHING]
+        reveal_answers:
+          type: boolean
+        appeal_days:
+          type: integer
+        version:
+          type: integer
+    ExamItemsRequest:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [question_id, points]
+            additionalProperties: false
+            properties:
+              question_id:
+                type: string
+                format: uuid
+              points:
+                type: string
+        version:
+          type: integer
+    ExtendRequest:
+      type: object
+      required: [closes_at]
+      additionalProperties: false
+      properties:
+        closes_at:
+          type: string
+          format: date-time
+    ExamAttempts:
+      type: object
+      required: [started, graded]
+      additionalProperties: false
+      properties:
+        started:
+          type: integer
+        graded:
+          type: integer
+    ExamListItem:
+      type: object
+      required: [id, title, kind, status, effective_status, opens_at, closes_at, duration_minutes, items_count, attempts, published_at, version, created_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        kind:
+          type: string
+          enum: [MCQ, CODE, MIXED]
+        status:
+          type: string
+          enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+        effective_status:
+          type: string
+          enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+        opens_at:
+          type: [string, "null"]
+          format: date-time
+        closes_at:
+          type: [string, "null"]
+          format: date-time
+        duration_minutes:
+          type: [integer, "null"]
+        items_count:
+          type: integer
+        attempts:
+          $ref: "#/components/schemas/ExamAttempts"
+        published_at:
+          type: [string, "null"]
+          format: date-time
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+    ExamItem:
+      type: object
+      required: [id, question_id, position, points, type, title, topic, difficulty, review_status, archived]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        question_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+        points:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        topic:
+          type: string
+        difficulty:
+          type: string
+        review_status:
+          type: string
+        archived:
+          type: boolean
+    ExamDetail:
+      type: object
+      required: [id, title, kind, status, effective_status, opens_at, closes_at, duration_minutes, items_count, attempts, published_at, version, created_at,
+                 instructions, shuffle_questions, shuffle_options, max_score, rounding_step, multi_scoring, reveal_answers, appeal_days, publish_hold, regrading, items, created_by, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        kind:
+          type: string
+          enum: [MCQ, CODE, MIXED]
+        status:
+          type: string
+          enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+        effective_status:
+          type: string
+          enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+        opens_at:
+          type: [string, "null"]
+          format: date-time
+        closes_at:
+          type: [string, "null"]
+          format: date-time
+        duration_minutes:
+          type: [integer, "null"]
+        items_count:
+          type: integer
+        attempts:
+          $ref: "#/components/schemas/ExamAttempts"
+        published_at:
+          type: [string, "null"]
+          format: date-time
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        instructions:
+          type: [string, "null"]
+        shuffle_questions:
+          type: boolean
+        shuffle_options:
+          type: boolean
+        max_score:
+          type: string
+        rounding_step:
+          type: string
+        multi_scoring:
+          type: string
+        reveal_answers:
+          type: boolean
+        appeal_days:
+          type: integer
+        publish_hold:
+          type: boolean
+        regrading:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExamItem"
+        created_by:
+          type: string
+          format: uuid
+        updated_at:
+          type: string
+          format: date-time
+    MyAttempt:
+      type: object
+      required: [id, status, deadline_at, submitted_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+        deadline_at:
+          type: string
+          format: date-time
+        submitted_at:
+          type: [string, "null"]
+          format: date-time
+    ExamStudentView:
+      type: object
+      required: [id, title, instructions, kind, opens_at, closes_at, duration_minutes, max_score, status, my_attempt, my_score]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        instructions:
+          type: [string, "null"]
+        kind:
+          type: string
+          enum: [MCQ, CODE, MIXED]
+        opens_at:
+          type: [string, "null"]
+          format: date-time
+        closes_at:
+          type: [string, "null"]
+          format: date-time
+        duration_minutes:
+          type: [integer, "null"]
+        max_score:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+        my_attempt:
+          oneOf:
+            - $ref: "#/components/schemas/MyAttempt"
+            - type: "null"
+        my_score:
+          type: [string, "null"]
+    ExamDetailOrStudent:
+      oneOf:
+        - $ref: "#/components/schemas/ExamDetail"
+        - $ref: "#/components/schemas/ExamStudentView"
+    ExamListPage:
+      anyOf: # danh sách rỗng khớp cả hai dạng
+        - $ref: "#/components/schemas/ExamStaffPage"
+        - $ref: "#/components/schemas/ExamStudentPage"
+    ExamStaffPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/ExamListItem"
+        next_cursor:
+          type: [string, "null"]
+    ExamStudentPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/ExamStudentView"
+        next_cursor:
+          type: [string, "null"]
+    ExamOptionView:
+      type: object
+      required: [id, body]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        body:
+          type: string
+    ExamSampleView:
+      type: object
+      required: [name, input, expected]
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        input:
+          type: string
+        expected:
+          type: string
+    ExamCodeItemView:
+      type: object
+      required: [languages, time_limit_ms, memory_limit_mb, starter_code, samples]
+      additionalProperties: false
+      properties:
+        languages:
+          type: array
+          items:
+            type: string
+        time_limit_ms:
+          type: integer
+        memory_limit_mb:
+          type: integer
+        starter_code:
+          type: object
+          additionalProperties:
+            type: string
+        samples:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExamSampleView"
+    ExamItemView:
+      type: object
+      required: [item_id, position, type, points, stem, options, code]
+      additionalProperties: false
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+        type:
+          type: string
+        points:
+          type: string
+        stem:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExamOptionView"
+        code:
+          oneOf:
+            - $ref: "#/components/schemas/ExamCodeItemView"
+            - type: "null"
+    ExamPreview:
+      type: object
+      required: [preview, exam, items]
+      additionalProperties: false
+      properties:
+        preview:
+          type: boolean
+        exam:
+          $ref: "#/components/schemas/ExamStudentView"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExamItemView"

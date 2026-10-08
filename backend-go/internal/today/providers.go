@@ -58,14 +58,15 @@ func ids(cs []CourseRef) []string {
 
 // ----- Sinh viên -----
 
-// StudentProvider: VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING. Không truy vấn DB: dùng ảnh chụp Viewer đã nạp.
-type StudentProvider struct{}
+// StudentProvider: VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING dùng ảnh chụp Viewer đã nạp (không truy vấn); bài thi (US-PE-04) dùng MỘT truy vấn cho mọi lớp trong phạm vi.
+// Pool nil ⇒ không có việc bài thi.
+type StudentProvider struct{ Pool *pgxpool.Pool }
 
 // Name implements Provider.
 func (StudentProvider) Name() string { return "student" }
 
 // Items implements Provider.
-func (StudentProvider) Items(_ context.Context, v Viewer, sc Scope) ([]Item, error) {
+func (p StudentProvider) Items(ctx context.Context, v Viewer, sc Scope) ([]Item, error) {
 	if v.Role != RoleStudent {
 		return nil, nil
 	}
@@ -84,6 +85,11 @@ func (StudentProvider) Items(_ context.Context, v Viewer, sc Scope) ([]Item, err
 			Reason: "Bạn chưa vào lớp nào. Nhập mã do giảng viên cung cấp để bắt đầu.",
 		}))
 	}
+	exams, err := p.examItems(ctx, v, sc)
+	if err != nil {
+		return nil, err
+	}
+	out = append(out, exams...)
 	if !sc.All() { // "một lớp" = lớp ACTIVE; yêu cầu chờ duyệt của lớp khác chỉ hiện ở "tất cả lớp của tôi"
 		return out, nil
 	}
@@ -94,6 +100,52 @@ func (StudentProvider) Items(_ context.Context, v Viewer, sc Scope) ([]Item, err
 			Title:  "Chờ giảng viên duyệt",
 			Reason: fmt.Sprintf("Yêu cầu vào lớp %s đã gửi %s trước.", p.Course.ClassCode, Age(age)), AgeMinutes: int(age / time.Minute),
 		}))
+	}
+	return out, nil
+}
+
+// examHorizon: bài sắp mở trong khoảng này mới thành việc EXAM_UPCOMING.
+const examHorizon = 48 * time.Hour
+
+// examItems: EXAM_IN_PROGRESS (đang làm dở), EXAM_OPEN (đang mở, chưa làm), EXAM_UPCOMING (mở trong 48 giờ) — SRS FEAT-weekly-exam 4.10.
+func (p StudentProvider) examItems(ctx context.Context, v Viewer, sc Scope) ([]Item, error) {
+	courses := v.Scoped(sc, "STUDENT")
+	if p.Pool == nil || len(courses) == 0 {
+		return nil, nil
+	}
+	rows, err := store.New(p.Pool).TodayStudentExams(ctx, store.TodayStudentExamsParams{UserID: v.UserID, CourseIds: ids(courses), Now: v.Now, Horizon: v.Now.Add(examHorizon)})
+	if err != nil {
+		return nil, fmt.Errorf("today: bài thi: %w", err)
+	}
+	byCourse := map[uuid.UUID]CourseRef{}
+	for _, c := range courses {
+		byCourse[c.ID] = c
+	}
+	zone := ictZone()
+	var out []Item
+	for _, r := range rows {
+		if r.OpensAt == nil || r.ClosesAt == nil || r.DurationMinutes == nil {
+			continue
+		}
+		c := byCourse[r.CourseID]
+		href := fmt.Sprintf("/exams/%s/take", r.ID)
+		dur := int(*r.DurationMinutes)
+		switch {
+		case r.AttemptStatus != nil && r.AttemptDeadline != nil: // lượt đang làm (truy vấn đã lọc IN_PROGRESS còn hạn)
+			left := max(1, int((r.AttemptDeadline.Sub(v.Now)+time.Minute-1)/time.Minute))
+			out = append(out, mk(Item{ID: "EXAM_IN_PROGRESS:" + r.ID.String(), Kind: KindExamInProgress, Tier: TierExamInProgress, Course: courseRef(c), Href: href, EstimateMinutes: left,
+				Title: fmt.Sprintf("Bài thi %s đang làm dở", r.Title), Reason: fmt.Sprintf("Còn %d phút. Làm tiếp.", left)}))
+		case !r.OpensAt.After(v.Now):
+			out = append(out, mk(Item{ID: "EXAM_OPEN:" + r.ID.String(), Kind: KindExamOpen, Tier: TierExamOpen, Course: courseRef(c), Href: href, EstimateMinutes: dur,
+				Title:  fmt.Sprintf("Bài thi %s đang mở", r.Title),
+				Reason: fmt.Sprintf("Mở đến %s. Bạn có %d phút để làm.", r.ClosesAt.In(zone).Format("15:04 02/01"), dur)}))
+		default:
+			weekday := [...]string{"Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"}
+			t := r.OpensAt.In(zone)
+			out = append(out, mk(Item{ID: "EXAM_UPCOMING:" + r.ID.String(), Kind: KindExamUpcoming, Tier: TierExamUpcoming, Course: courseRef(c), Href: href, EstimateMinutes: dur,
+				Title:  fmt.Sprintf("%s · %s, %s", r.Title, weekday[t.Weekday()], t.Format("15:04")),
+				Reason: fmt.Sprintf("Làm trong %d phút. Chuẩn bị máy tính nếu có bài lập trình.", dur)}))
+		}
 	}
 	return out, nil
 }

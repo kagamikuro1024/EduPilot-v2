@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
@@ -20,11 +21,22 @@ type Task interface {
 func newTasks(d Deps) []Task {
 	od := outbox.Deps{Pool: d.DB, Redis: d.Redis, Log: d.Log, Clock: clock.Real{}, Cfg: d.Cfg}
 	tasks := []Task{outbox.NewRelay(od), outbox.NewConsumer(od, newRegistry(d))}
+	name := "worker"
+	if d.Judge != nil {
+		name = d.Judge.Name // cùng tên với bộ lập lịch của hàng chấm: hai bộ cùng tiến trình chung một khoá leader
+	}
+	tasks = append(tasks, examTickTask{&exam.Ticker{Svc: &exam.Service{Pool: d.DB, Clock: clock.Real{}}, Redis: d.Redis, Log: d.Log, Name: name, Every: d.Cfg.ExamTickInterval}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
 	}
 	return tasks
 }
+
+// examTickTask chạy bộ lập lịch bài thi (mở / đóng đúng giờ, US-PE-04) — một bản nhờ khoá leader Redis.
+type examTickTask struct{ t *exam.Ticker }
+
+func (examTickTask) Name() string                    { return "exam.tick" }
+func (t examTickTask) Run(ctx context.Context) error { return t.t.Run(ctx) }
 
 // judgeTask chạy consumer chấm code (chỉ ở bản worker JUDGE_CONSUMER=true).
 type judgeTask struct{ q *judge.Queue }

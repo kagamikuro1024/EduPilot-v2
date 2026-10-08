@@ -1,0 +1,9 @@
+{
+  "ExamStudentView": ["id", "title", "instructions", "kind", "opens_at", "closes_at", "duration_minutes", "max_score", "status", "my_attempt", "my_score"],
+  "MyAttemptView": ["id", "status", "deadline_at", "submitted_at"],
+  "ItemView": ["item_id", "position", "type", "points", "stem", "options", "code"],
+  "OptionView": ["id", "body"],
+  "CodeItemView": ["languages", "time_limit_ms", "memory_limit_mb", "starter_code", "samples"],
+  "SampleView": ["name", "input", "expected"],
+  "PreviewView": ["preview", "exam", "items"]
+}
