@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.4 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.5 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.5 (2026-10-08)** — **lược đồ**, góp ý #3, #7, #8 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; Tech Lead TLR-1, TLR-5, TLR-6, `TL-REVIEW.md`; sửa **trước** migration US-PE-01). #3: `code_submissions` thêm `lease_until`, `next_attempt_at`, `fail_count` và `enqueued_at` (cột thứ tư BA thêm để tick đưa lại Stream đúng mẫu `outbox.enqueued_at`, tránh `XADD` lặp) + nhận việc kiểu outbox (SRS 4.5.7 viết lại; US-PE-02 AC8; env `JUDGE_LEASE`, `JUDGE_LEASE_RENEW`, `JUDGE_CLAIM_IDLE` 60 s → 10 phút, `JUDGE_MAX_TOTAL_SECONDS`; mã `CODE_TIME_BUDGET_EXCEEDED` ở `schedule`). #7: US-PE-01 AC1 ghi danh sách ngoại lệ đóng 9 chỉ mục (8 của TLR-5 + `code_submissions_lease_idx` mới). #8: FK phức hợp `(course_id, …)` + `UNIQUE (course_id, id)` ở bảng cha (SRS 5.16), `CHECK` ngôn ngữ của `reference_language`, thêm ca vào `TestExamConstraints` (≥ 42). Không đổi số AC (124). Các góp ý #4, #5, #6, #9–#13 làm ở v1.6.
 
 **v1.4 (2026-10-08)** — góp ý #2 `docs/sprints/5/proposals.md` (PM `ACCEPTED cả (a)–(f)`; nguồn: ba, Q-QC sprint 5; trích: "(a) `starter_code` không tăng `tests_version`; (b) bản nháp có `updated_at` lớn nhất, rỗng thì không tạo bản nộp tự động; (c) > 50 sự kiện → nhận 50 đầu, bỏ phần dư, 204, `warn` một dòng; (d) `breakdown.earned` lưu đủ chữ số; (e) vượt 5.000 dòng → 422 `EXPORT_TOO_LARGE`; (f) viết US-PU-06 đủ AC trong `FEAT-ui-foundation` v1.4"). Không đổi số AC (124). Đổi: US-PE-03 AC3, US-PE-06 AC11, US-PE-07 AC3, US-PE-08 AC3 và AC12, US-PE-09 AC9 (điều kiện chấm LCP theo US-PU-06 — PM, Q-QC-PE09-2) và Phụ thuộc; `SRS.md` 4.4.5, 4.7.3, 4.8.3, 4.8.6, 5.4 (`tests_version`), 6.1 (`details.code`).
 
@@ -196,6 +198,7 @@ Dùng đúng DTO và hàm dựng của lượt làm sinh viên (`BuildStudentVie
 | `CODE_TESTS_MISSING` | câu code không có test ẩn `approved` hoặc không có test mẫu |
 | `TOTAL_WEIGHT_ZERO` | `Σweight` test `approved` bằng 0 |
 | `REFERENCE_NOT_VERIFIED` | `reference_verified_version ≠ tests_version` |
+| `CODE_TIME_BUDGET_EXCEEDED` | Σ `clockLimit` (= 3 × `time_limit_ms`) của test `approved` của một câu code > `JUDGE_MAX_TOTAL_SECONDS` (300 s) — góp ý #3 |
 | `OPENS_IN_PAST` | `opens_at < now + EXAM_MIN_LEAD_SECONDS` (60 s) |
 | `CLOSES_BEFORE_OPENS`, `DURATION_EXCEEDS_WINDOW`, `DURATION_TOO_SHORT` | khung giờ / thời lượng |
 | `COURSE_ARCHIVED` (409) | lớp lưu trữ |
@@ -384,14 +387,28 @@ Mỗi ca là một bản nộp C / C++ đi qua **đường chấm thật** (khô
 
 Điều kiện chung mọi ca: (a) trong lúc chạy ca tấn công, một bản nộp đúng của sinh viên khác vẫn `AC` trong ≤ 20 s; (b) `docker inspect … RestartCount` giữ nguyên; (c) bộ nhớ container `judge` về mức nền (≤ 100 MiB, PoC 35,6 MiB lúc rảnh) trong 30 s; (d) đĩa máy chủ đổi ≤ 10 MiB; (e) mọi `fileId` được xoá (`GET /file` không liệt kê gì còn lại sau 60 s — nếu go-judge hỗ trợ liệt kê; nếu không, bộ nhớ `/dev/shm` của container về mức nền).
 
-#### 4.5.7 Hàng đợi và consumer
+#### 4.5.7 Hàng đợi, thuê việc và consumer (góp ý #3 — TLR-1)
 
-| Stream | Nhà sản xuất | Khoá idempotent | Ghi chú |
-| --- | --- | --- | --- |
-| `judge.submit` | outbox `judge.enqueue` (bản nộp `SUBMIT`, chấm lại) | `(submission_id, tests_version)` | consumer group `judge`; dead-letter `judge.submit.dead` |
-| `judge.run` | outbox `judge.enqueue` (`Chạy thử`) | `submission_id` | cùng nhóm; **ít nhất 1** goroutine chỉ đọc `judge.run` (không chờ sau hàng nộp) |
+**Nguyên tắc (đúng mẫu outbox, `FEAT-pg-foundation` 3.2):** trạng thái **nhận việc / thuê / thử lại nằm ở DB** (`code_submissions`, 5.11); Redis Stream chỉ là **tín hiệu đánh thức** — tin chỉ có `submission_id` (không `source`, không `input`). Streams không giao trễ và `XAUTOCLAIM` theo thời gian không phân biệt "đang chấm lâu" với "worker chết", nên không dùng chúng làm nguồn sự thật.
 
-Consumer (mỗi goroutine, `JUDGE_WORKERS` = 4): `XREADGROUP` chặn 2 s (goroutine chung ưu tiên `judge.run`) → nạp `code_submissions`; nếu `status ∈ {DONE, SUPERSEDED}` ở đúng `tests_version` → `XACK`; nếu `kind=SUBMIT`, đang `QUEUED` và tồn tại `SUBMIT` mới hơn của `(attempt, item)` → `status=SUPERSEDED`, `XACK`, **không** chạy sandbox; `UPDATE … SET status='RUNNING', attempts=attempts+1 WHERE id=$1 AND status IN ('QUEUED','RUNNING')`; đọc `code_problems.tests_version` và test `approved`; chấm (4.5.2–4.5.5) trong semaphore; ghi kết quả bằng `UPDATE … WHERE id=$1` (idempotent: cùng đầu vào cho cùng kết quả; ghi lại `tests_version` đã dùng); `XACK`; outbox `exam.submission_done` (SSE cho chủ + kiểm hoàn tất lượt 4.8.1). Lỗi → không `XACK`; thử lại 3 lần backoff 1 s / 5 s / 30 s (`attempts`); lần thứ 4 → `status=ERROR`, `verdict=IE`, `XADD judge.submit.dead`, `XACK`; tin treo quá `JUDGE_CLAIM_IDLE` (60 s) được `XAUTOCLAIM`. Không lưu `source` / `input` trong tin của Stream (chỉ `submission_id`).
+| Stream | Nhà sản xuất | Ghi chú |
+| --- | --- | --- |
+| `judge.submit` | handler outbox `judge.enqueue` (bản nộp `SUBMIT`); tick (bên dưới) | consumer group `judge`; dead-letter `judge.submit.dead` |
+| `judge.run` | handler outbox `judge.enqueue` (`Chạy thử`); tick | cùng nhóm (chính sách chỗ giữa hai Stream: góp ý #4 — SRS 4.5.8) |
+
+**Vòng đời một bản nộp (mọi bước idempotent; mọi `UPDATE` chỉ ảnh hưởng đúng dòng nếu điều kiện còn đúng):**
+
+1. **Xếp hàng.** Handler `judge.enqueue` `XADD` tín hiệu rồi `UPDATE … SET enqueued_at = now()`.
+2. **Đọc.** Consumer `XREADGROUP COUNT 1` **chỉ khi đã có chỗ chạy** (semaphore, 4.5.2) — không đọc trước rồi để tin treo trong lúc chờ chỗ.
+3. **Thay bản cũ.** Nếu `kind=SUBMIT`, dòng đang `QUEUED` và tồn tại `SUBMIT` mới hơn của `(attempt, item)` → `status=SUPERSEDED`, `XACK`, **không** chạy sandbox.
+4. **Nhận việc (thuê).** `UPDATE code_submissions SET status='RUNNING', lease_until = now() + JUDGE_LEASE (30 s), attempts = attempts + 1 WHERE id = $1 AND ((status='QUEUED' AND next_attempt_at <= now()) OR (status='RUNNING' AND lease_until < now())) RETURNING …`. **0 dòng** (nơi khác đang chấm, đã xong, bị thay, chưa đến hạn thử lại) → `XACK` và bỏ qua; tick sẽ đưa lại nếu cần.
+5. **Gia hạn thuê.** Trong lúc chấm, mỗi `JUDGE_LEASE_RENEW` (10 s): `UPDATE … SET lease_until = now() + 30 s WHERE id = $1 AND status='RUNNING' AND lease_until = <giá trị thuê hiện tại của mình>`; 0 dòng (đã bị nhận lại) → **dừng chấm, bỏ kết quả**.
+6. **Ghi kết quả (rào chắn bằng thuê).** `UPDATE … SET status='DONE', verdict, results, …, lease_until = NULL WHERE id = $1 AND status='RUNNING' AND lease_until = <thuê của mình>`; 0 dòng → bỏ (bản khác sở hữu). Ghi lại `tests_version` đã dùng. Sau đó `XACK`, outbox `exam.submission_done`.
+7. **Lỗi thật** (sandbox lỗi, HTTP 5xx, mất kết nối, `IE`): `fail_count = fail_count + 1`; nếu `fail_count < 4` → `status='QUEUED'`, `lease_until = NULL`, `enqueued_at = NULL`, `next_attempt_at = now() + backoff` với backoff **1 s, 5 s, 30 s** theo `fail_count` (1 lần đầu + 3 lần thử lại, như outbox), `XACK`; nếu `fail_count = 4` → `status='ERROR'`, `verdict='IE'`, `XADD judge.submit.dead`, `XACK`. **Chạy lâu không phải lỗi**: một bản nộp chấm quá 60 s mà còn gia hạn thuê thì không bị nhận lại và không tăng `fail_count`.
+8. **Tick** (worker giữ khoá leader `ep:exam:tick:leader`, 5 s — 4.2.6): với các dòng `status='QUEUED' AND enqueued_at IS NULL AND next_attempt_at <= now()` và `status='RUNNING' AND lease_until < now()` (thuê hết hạn ⇒ worker chết hoặc treo): `UPDATE … SET status='QUEUED', lease_until=NULL, enqueued_at=NULL` (với `RUNNING` hết thuê, **không** tăng `fail_count` — chưa chắc là lỗi của bản nộp) rồi `XADD` tín hiệu mới và đặt `enqueued_at = now()` (như `requeueStale` của outbox). Dòng `QUEUED` đã có `enqueued_at` quá `JUDGE_CLAIM_IDLE` (10 phút) mà chưa ai nhận (Stream mất tin) cũng được đưa lại. `XAUTOCLAIM` chỉ là lưới an toàn cho tin trong PEL với idle ≥ `JUDGE_CLAIM_IDLE`; nhận lại tin ≠ chấm lại (bước 4 chặn).
+9. **Trần tổng thời gian.** Một bản nộp chạy tối đa `20 s` biên dịch + Σ `clockLimit` của các test `approved`; **Σ `clockLimit` ≤ `JUDGE_MAX_TOTAL_SECONDS` (300 s)** được kiểm ở `schedule` (4.2.4, mã `CODE_TIME_BUDGET_EXCEEDED`) để thời gian thuê / backoff ở trên luôn đủ.
+
+Quy tắc dịch trạng thái chấm lại (đặt `QUEUED`, `fail_count=0`, `next_attempt_at=now()`, `enqueued_at=NULL`, xoá `verdict` / `results`): 4.8.4.
 
 ### 4.6 Tính điểm (US-PE-01, US-PE-08)
 
@@ -577,7 +594,7 @@ Cửa sổ ngắn: `docker-compose.local.yml` / `docker-compose.test-seed.yml` �
 
 ## 5. Dữ liệu
 
-Migration **`backend-go/db/migrations/<số kế tiếp>_weekly_exam.sql`** (goose; P2 đã dùng `00003_course_foundation`, `00004_auth_hardening`, `00005_vn_fold` nên PE **không** phải `00005`; số thật xác định khi thi công, dev ghi ánh xạ vào `PROGRESS.md` — Q27). Quy ước PG 5: `id uuid DEFAULT uuidv7()`, `timestamptz`, trigger `set_updated_at` cho bảng có `updated_at`, `snake_case`, **không ALTER** sau khi merge. Bảng thuộc lớp có `course_id uuid NOT NULL REFERENCES courses(id)` và chỉ mục phức hợp **bắt đầu bằng `course_id`**. Mọi `created_by` / `student_id` / `*_by` tham chiếu `users(id)`. Điểm: `numeric(5,2)`; trọng số: số nguyên.
+Migration **`backend-go/db/migrations/<số kế tiếp>_weekly_exam.sql`** (goose; P2 đã dùng `00003_course_foundation`, `00004_auth_hardening`, `00005_vn_fold` nên PE **không** phải `00005`; số thật xác định khi thi công, dev ghi ánh xạ vào `PROGRESS.md` — Q27). Quy ước PG 5: `id uuid DEFAULT uuidv7()`, `timestamptz`, trigger `set_updated_at` cho bảng có `updated_at`, `snake_case`, **không ALTER** sau khi merge. Bảng thuộc lớp có `course_id uuid NOT NULL REFERENCES courses(id)`; **chỉ mục phục vụ danh sách theo lớp bắt đầu bằng `course_id`**, trừ danh sách ngoại lệ đóng 9 chỉ mục quét toàn cục ở US-PE-01 AC1 (góp ý #7; PK / UNIQUE không thuộc quy tắc). **Khoá ngoại:** mọi cột tham chiếu bảng khác có FK; FK tới bảng thuộc lớp là **FK phức hợp `(course_id, …)`** trỏ vào `UNIQUE (course_id, id)` của bảng cha (5.16, góp ý #8). Mọi `created_by` / `student_id` / `*_by` tham chiếu `users(id)`. Điểm: `numeric(5,2)`; trọng số: số nguyên.
 
 ### 5.1 Enum
 
@@ -624,7 +641,7 @@ Migration **`backend-go/db/migrations/<số kế tiếp>_weekly_exam.sql`** (goo
 | `version` | `integer` | NOT NULL | `1` | |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
 
-Chỉ mục: PK · `question_bank_course_review_idx` (course_id, review_status, created_at DESC, id DESC) WHERE archived_at IS NULL · `question_bank_course_topic_idx` (course_id, topic, difficulty, type) WHERE archived_at IS NULL · `question_bank_course_created_idx` (course_id, created_at DESC, id DESC).
+Chỉ mục: PK · `question_bank_course_id_key` UNIQUE (course_id, id) (đích của FK phức hợp, 5.16) · `question_bank_course_review_idx` (course_id, review_status, created_at DESC, id DESC) WHERE archived_at IS NULL · `question_bank_course_topic_idx` (course_id, topic, difficulty, type) WHERE archived_at IS NULL · `question_bank_course_created_idx` (course_id, created_at DESC, id DESC).
 
 ### 5.3 `question_options`
 
@@ -632,7 +649,7 @@ Chỉ mục: PK · `question_bank_course_review_idx` (course_id, review_status, 
 | --- | --- | --- | --- | --- |
 | `id` | `uuid` | NOT NULL | `uuidv7()` | PK; là id đáp án dùng trong `answer_key` |
 | `course_id` | `uuid` | NOT NULL | — | |
-| `question_id` | `uuid` | NOT NULL | — | `REFERENCES question_bank(id) ON DELETE CASCADE` |
+| `question_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, question_id) → question_bank(course_id, id) ON DELETE CASCADE` (5.16) |
 | `position` | `smallint` | NOT NULL | — | `CHECK (position BETWEEN 1 AND 8)` |
 | `body` | `text` | NOT NULL | — | `CHECK (char_length(body) BETWEEN 1 AND 1000)` |
 | `pinned_last` | `boolean` | NOT NULL | `false` | giữ cuối khi xáo |
@@ -643,7 +660,7 @@ Chỉ mục: PK · `question_options_question_position_key` UNIQUE (question_id,
 
 | Cột | Kiểu | Null | Mặc định | Ghi chú |
 | --- | --- | --- | --- | --- |
-| `question_id` | `uuid` | NOT NULL | — | PK; `REFERENCES question_bank(id) ON DELETE CASCADE`; câu phải là `CODE` (service) |
+| `question_id` | `uuid` | NOT NULL | — | PK; FK phức hợp `(course_id, question_id) → question_bank(course_id, id) ON DELETE CASCADE` (5.16); câu phải là `CODE` (service) |
 | `course_id` | `uuid` | NOT NULL | — | |
 | `languages` | `text[]` | NOT NULL | `'{cpp17}'` | `CHECK (cardinality(languages) >= 1 AND languages <@ ARRAY['c11','cpp17'])` |
 | `time_limit_ms` | `integer` | NOT NULL | `1000` | `CHECK (time_limit_ms BETWEEN 100 AND 10000)` |
@@ -652,14 +669,14 @@ Chỉ mục: PK · `question_options_question_position_key` UNIQUE (question_id,
 | `checker` | `checker_kind` | NOT NULL | `'EXACT'` | |
 | `float_eps` | `numeric(12,10)` | NULL | — | `CHECK ((checker = 'FLOAT_EPS') = (float_eps IS NOT NULL))`, `CHECK (float_eps IS NULL OR (float_eps > 0 AND float_eps <= 0.1))` |
 | `starter_code` | `jsonb` | NOT NULL | `'{}'` | `{"c11":"…","cpp17":"…"}`, mỗi giá trị ≤ 16 KiB (service) |
-| `reference_language` | `text` | NULL | — | `CHECK ((reference_language IS NULL) = (reference_source IS NULL))` |
+| `reference_language` | `text` | NULL | — | `CHECK (reference_language IN ('c11','cpp17'))`; `CHECK ((reference_language IS NULL) = (reference_source IS NULL))` (góp ý #8) |
 | `reference_source` | `text` | NULL | — | ≤ 64 KiB; **không bao giờ** ra khỏi đường Staff |
 | `reference_verified_version` | `integer` | NULL | — | = `tests_version` lúc xác minh |
 | `reference_verified_at` | `timestamptz` | NULL | — | |
 | `tests_version` | `integer` | NOT NULL | `1` | tăng khi đổi test, giới hạn, checker, ngôn ngữ; **không** tăng khi đổi `starter_code` (#2 (a)) |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
 
-Chỉ mục: PK · `code_problems_course_idx` (course_id).
+Chỉ mục: PK · `code_problems_course_question_key` UNIQUE (course_id, question_id) (đích của FK phức hợp, 5.16) · `code_problems_course_idx` (course_id).
 
 ### 5.5 `code_testcases`
 
@@ -667,7 +684,7 @@ Chỉ mục: PK · `code_problems_course_idx` (course_id).
 | --- | --- | --- | --- | --- |
 | `id` | `uuid` | NOT NULL | `uuidv7()` | PK |
 | `course_id` | `uuid` | NOT NULL | — | |
-| `problem_id` | `uuid` | NOT NULL | — | `REFERENCES code_problems(question_id) ON DELETE CASCADE` |
+| `problem_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, problem_id) → code_problems(course_id, question_id) ON DELETE CASCADE` (5.16) |
 | `position` | `integer` | NOT NULL | — | `CHECK (position >= 1)` |
 | `name` | `text` | NOT NULL | — | `CHECK (name ~ '^[A-Za-z0-9_-]{1,60}$')` |
 | `is_sample` | `boolean` | NOT NULL | `false` | |
@@ -706,7 +723,7 @@ Chỉ mục: PK · `code_testcases_problem_position_key` UNIQUE (problem_id, pos
 | `version` | `integer` | NOT NULL | `1` | |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
 
-Chỉ mục: PK · `exams_course_status_idx` (course_id, status, opens_at DESC, id DESC) · `exams_course_created_idx` (course_id, created_at DESC, id DESC) · `exams_due_open_idx` (opens_at) WHERE status = 'SCHEDULED' · `exams_due_close_idx` (closes_at) WHERE status IN ('SCHEDULED','OPEN') · `exams_closed_idx` (course_id, id) WHERE status = 'CLOSED'.
+Chỉ mục: PK · `exams_course_id_key` UNIQUE (course_id, id) (đích của FK phức hợp, 5.16) · `exams_course_status_idx` (course_id, status, opens_at DESC, id DESC) · `exams_course_created_idx` (course_id, created_at DESC, id DESC) · `exams_due_open_idx` (opens_at) WHERE status = 'SCHEDULED' · `exams_due_close_idx` (closes_at) WHERE status IN ('SCHEDULED','OPEN') · `exams_closed_idx` (course_id, id) WHERE status = 'CLOSED'.
 
 ### 5.7 `exam_items`
 
@@ -714,14 +731,14 @@ Chỉ mục: PK · `exams_course_status_idx` (course_id, status, opens_at DESC, 
 | --- | --- | --- | --- | --- |
 | `id` | `uuid` | NOT NULL | `uuidv7()` | PK |
 | `course_id` | `uuid` | NOT NULL | — | |
-| `exam_id` | `uuid` | NOT NULL | — | `REFERENCES exams(id) ON DELETE CASCADE` |
-| `question_id` | `uuid` | NOT NULL | — | `REFERENCES question_bank(id)` |
+| `exam_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, exam_id) → exams(course_id, id) ON DELETE CASCADE` (5.16) |
+| `question_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, question_id) → question_bank(course_id, id)` (5.16; không `CASCADE` — câu đang dùng không xoá được) |
 | `position` | `smallint` | NOT NULL | — | `CHECK (position >= 1)` |
 | `points` | `numeric(5,2)` | NOT NULL | `1.00` | `CHECK (points > 0 AND points <= 100)` |
 | `override` | `jsonb` | NULL | — | `{"answer_key":{…}}` hoặc `{"void":true}` + `{"reason","by","at"}` |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
 
-Chỉ mục: PK · `exam_items_exam_position_key` UNIQUE (exam_id, position) DEFERRABLE INITIALLY DEFERRED · `exam_items_exam_question_key` UNIQUE (exam_id, question_id) · `exam_items_course_exam_idx` (course_id, exam_id, position) · `exam_items_question_idx` (question_id, exam_id) (tra "đang dùng").
+Chỉ mục: PK · `exam_items_course_id_key` UNIQUE (course_id, id) (đích của FK phức hợp, 5.16) · `exam_items_exam_position_key` UNIQUE (exam_id, position) DEFERRABLE INITIALLY DEFERRED · `exam_items_exam_question_key` UNIQUE (exam_id, question_id) · `exam_items_course_exam_idx` (course_id, exam_id, position) · `exam_items_question_idx` (question_id, exam_id) (tra "đang dùng").
 
 ### 5.8 `exam_attempts`
 
@@ -747,14 +764,14 @@ Chỉ mục: PK · `exam_items_exam_position_key` UNIQUE (exam_id, position) DEF
 | `version` | `integer` | NOT NULL | `1` | |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
 
-Chỉ mục: PK · `exam_attempts_exam_student_key` UNIQUE (exam_id, student_id) · `exam_attempts_course_exam_idx` (course_id, exam_id, status, student_id) · `exam_attempts_running_idx` (student_id, deadline_at) WHERE status = 'IN_PROGRESS' · `exam_attempts_due_idx` (deadline_at) WHERE status = 'IN_PROGRESS' · `exam_attempts_student_idx` (course_id, student_id, started_at DESC).
+Chỉ mục: PK · `exam_attempts_course_id_key` UNIQUE (course_id, id) (đích của FK phức hợp, 5.16) · `exam_attempts_exam_student_key` UNIQUE (exam_id, student_id) · `exam_attempts_course_exam_idx` (course_id, exam_id, status, student_id) · `exam_attempts_running_idx` (student_id, deadline_at) WHERE status = 'IN_PROGRESS' · `exam_attempts_due_idx` (deadline_at) WHERE status = 'IN_PROGRESS' · `exam_attempts_student_idx` (course_id, student_id, started_at DESC).
 
 ### 5.9 `exam_answers`
 
 | Cột | Kiểu | Null | Mặc định | Ghi chú |
 | --- | --- | --- | --- | --- |
-| `attempt_id` | `uuid` | NOT NULL | — | `REFERENCES exam_attempts(id) ON DELETE CASCADE` |
-| `item_id` | `uuid` | NOT NULL | — | `REFERENCES exam_items(id) ON DELETE CASCADE` |
+| `attempt_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, attempt_id) → exam_attempts(course_id, id) ON DELETE CASCADE` (5.16) |
+| `item_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, item_id) → exam_items(course_id, id) ON DELETE CASCADE` (5.16) |
 | `course_id` | `uuid` | NOT NULL | — | |
 | `answer` | `jsonb` | NOT NULL | — | `{"option_ids":[…]}` hoặc `{"value":bool}`; `CHECK (octet_length(answer::text) <= 4096)` |
 | `saved_at` | `timestamptz` | NOT NULL | `now()` | |
@@ -793,11 +810,15 @@ PK `(attempt_id, item_id, language)`; chỉ mục `code_drafts_course_attempt_id
 | `results` | `jsonb` | NULL | — | `[{test_id,position,is_sample,verdict,time_ms,memory_kb,weight,stdout_excerpt?}]` |
 | `passed_weight`, `total_weight` | `integer` | NULL | — | `CHECK (passed_weight <= total_weight)` |
 | `time_ms_max`, `memory_kb_max` | `integer` | NULL | — | |
-| `attempts` | `smallint` | NOT NULL | `0` | số lần consumer đã chạy |
+| `attempts` | `smallint` | NOT NULL | `0` | số lần consumer **nhận việc** (thông tin; **không** quyết định `ERROR` — chỉ `fail_count` quyết định) |
+| `lease_until` | `timestamptz` | NULL | — | thuê việc của consumer đang chấm (4.5.7); `CHECK ((status = 'RUNNING') = (lease_until IS NOT NULL))` (góp ý #3) |
+| `next_attempt_at` | `timestamptz` | NOT NULL | `now()` | thời điểm sớm nhất được nhận việc (backoff lỗi thật; mẫu `outbox.next_attempt_at`) |
+| `fail_count` | `smallint` | NOT NULL | `0` | số lần chấm **lỗi thật** (sandbox lỗi / `IE`); `CHECK (fail_count BETWEEN 0 AND 4)`; = 4 ⇒ `ERROR` |
+| `enqueued_at` | `timestamptz` | NULL | — | đã `XADD` tín hiệu vào Stream; NULL = chưa xếp / đã đặt lại để đưa lại (mẫu `outbox.enqueued_at`) |
 | `judged_at` | `timestamptz` | NULL | — | |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
 
-Chỉ mục: PK · `code_submissions_attempt_item_idx` (course_id, attempt_id, item_id, created_at DESC, id DESC) WHERE kind = 'SUBMIT' · `code_submissions_runs_idx` (attempt_id, created_at DESC) WHERE kind = 'RUN' · `code_submissions_queue_idx` (status, created_at) WHERE status IN ('QUEUED','RUNNING') · `code_submissions_exam_problem_idx` (course_id, exam_id, problem_id) WHERE kind = 'SUBMIT' (so độ giống, chấm lại). Bản `RUN` xoá sau 30 ngày kể từ `PUBLISHED` (job dọn — nợ PR).
+Chỉ mục: PK · `code_submissions_course_id_key` UNIQUE (course_id, id) (đích của FK phức hợp, 5.16) · `code_submissions_attempt_item_idx` (course_id, attempt_id, item_id, created_at DESC, id DESC) WHERE kind = 'SUBMIT' · `code_submissions_runs_idx` (attempt_id, created_at DESC) WHERE kind = 'RUN' · `code_submissions_queue_idx` (next_attempt_at, id) WHERE status = 'QUEUED' AND enqueued_at IS NULL (tick đưa lại Stream) · `code_submissions_lease_idx` (lease_until) WHERE status = 'RUNNING' (tick tìm thuê hết hạn) · `code_submissions_exam_problem_idx` (course_id, exam_id, problem_id) WHERE kind = 'SUBMIT' (so độ giống, chấm lại). Bản `RUN` xoá sau 30 ngày kể từ `PUBLISHED` (job dọn — nợ PR).
 
 ### 5.12 `exam_events`
 
@@ -805,7 +826,7 @@ Chỉ mục: PK · `code_submissions_attempt_item_idx` (course_id, attempt_id, i
 | --- | --- | --- | --- | --- |
 | `id` | `uuid` | NOT NULL | `uuidv7()` | PK |
 | `course_id`, `exam_id` | `uuid` | NOT NULL | — | |
-| `attempt_id` | `uuid` | NOT NULL | — | `REFERENCES exam_attempts(id) ON DELETE CASCADE` |
+| `attempt_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, attempt_id) → exam_attempts(course_id, id) ON DELETE CASCADE` (5.16) |
 | `student_id` | `uuid` | NOT NULL | — | |
 | `type` | `exam_event_type` | NOT NULL | — | |
 | `occurred_at` | `timestamptz` | NOT NULL | `now()` | giờ máy chủ |
@@ -821,7 +842,7 @@ Chỉ mục: PK · `exam_events_attempt_idx` (course_id, exam_id, attempt_id, oc
 | `id` | `uuid` | NOT NULL | `uuidv7()` | PK |
 | `course_id`, `exam_id`, `problem_id` | `uuid` | NOT NULL | — | |
 | `run_id` | `uuid` | NOT NULL | — | một lần chạy |
-| `submission_a`, `submission_b` | `uuid` | NOT NULL | — | `REFERENCES code_submissions(id) ON DELETE CASCADE` |
+| `submission_a`, `submission_b` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, submission_a|b) → code_submissions(course_id, id) ON DELETE CASCADE` (5.16) |
 | `attempt_a`, `attempt_b` | `uuid` | NOT NULL | — | `CHECK (attempt_a < attempt_b)` |
 | `score` | `numeric(4,3)` | NOT NULL | — | `CHECK (score BETWEEN 0 AND 1)` |
 | `shared_fingerprints` | `integer` | NOT NULL | — | |
@@ -841,7 +862,7 @@ Chỉ mục: PK · `similarity_reports_run_pair_key` UNIQUE (run_id, submission_
 | --- | --- | --- | --- | --- |
 | `id` | `uuid` | NOT NULL | `uuidv7()` | PK |
 | `course_id`, `exam_id` | `uuid` | NOT NULL | — | |
-| `attempt_id` | `uuid` | NOT NULL | — | `REFERENCES exam_attempts(id) ON DELETE CASCADE`; UNIQUE |
+| `attempt_id` | `uuid` | NOT NULL | — | FK phức hợp `(course_id, attempt_id) → exam_attempts(course_id, id) ON DELETE CASCADE` (5.16); UNIQUE |
 | `student_id` | `uuid` | NOT NULL | — | |
 | `reason` | `text` | NOT NULL | — | `CHECK (char_length(reason) BETWEEN 1 AND 1000)` |
 | `status` | `appeal_status` | NOT NULL | `'OPEN'` | |
@@ -869,6 +890,26 @@ Chỉ mục: PK · `exam_appeals_attempt_key` UNIQUE (attempt_id) · `exam_appea
 
 Không cache điểm / kết quả ở phía máy chủ (luật 15).
 
+### 5.16 Khoá ngoại phức hợp — DB chặn trộn dữ liệu giữa các lớp (góp ý #8)
+
+Mỗi bảng cha dùng làm đích có `UNIQUE (course_id, id)` (`question_bank`, `exams`, `exam_items`, `exam_attempts`, `code_submissions`; riêng `code_problems`: `UNIQUE (course_id, question_id)`). Dòng con khai báo `course_id` riêng và FK phức hợp với **cùng** `course_id` — nên chèn / sửa một dòng con có `course_id` khác cha bị DB từ chối (`23503`), không chỉ dựa vào service (US-PE-01 AC5). Mọi FK dưới đây dùng `MATCH SIMPLE` mặc định; cột `course_id` đứng đầu FK nên chỉ mục `course_id`-đầu của từng bảng phục vụ luôn kiểm tra FK.
+
+| Bảng con | Cột (FK phức hợp, bắt đầu bằng `course_id`) | Bảng cha | Khi xoá cha |
+| --- | --- | --- | --- |
+| `question_options` | `(course_id, question_id)` | `question_bank(course_id, id)` | CASCADE |
+| `code_problems` | `(course_id, question_id)` | `question_bank(course_id, id)` | CASCADE |
+| `code_testcases` | `(course_id, problem_id)` | `code_problems(course_id, question_id)` | CASCADE |
+| `exam_items` | `(course_id, exam_id)` · `(course_id, question_id)` | `exams(course_id, id)` · `question_bank(course_id, id)` | CASCADE · RESTRICT |
+| `exam_attempts` | `(course_id, exam_id)` | `exams(course_id, id)` | RESTRICT |
+| `exam_answers` | `(course_id, attempt_id)` · `(course_id, item_id)` | `exam_attempts(course_id, id)` · `exam_items(course_id, id)` | CASCADE |
+| `code_drafts` | `(course_id, attempt_id)` · `(course_id, item_id)` | như trên | CASCADE |
+| `code_submissions` | `(course_id, exam_id)` · `(course_id, attempt_id)` · `(course_id, item_id)` · `(course_id, problem_id)` | `exams` · `exam_attempts` · `exam_items` · `code_problems(course_id, question_id)` | RESTRICT |
+| `exam_events` | `(course_id, exam_id)` · `(course_id, attempt_id)` | `exams` · `exam_attempts` | RESTRICT · CASCADE |
+| `similarity_reports` | `(course_id, exam_id)` · `(course_id, problem_id)` · `(course_id, submission_a)` · `(course_id, submission_b)` · `(course_id, attempt_a)` · `(course_id, attempt_b)` | `exams` · `code_problems(course_id, question_id)` · `code_submissions` · `exam_attempts` | RESTRICT · RESTRICT · CASCADE · CASCADE |
+| `exam_appeals` | `(course_id, exam_id)` · `(course_id, attempt_id)` | `exams` · `exam_attempts` | RESTRICT · CASCADE |
+
+Cột người (`student_id`, `created_by`, `reviewed_by`, `adjusted_by`, `responded_by`) tham chiếu `users(id)` (không phức hợp — người dùng không thuộc lớp). Bài thi, lượt làm, bản nộp không bị xoá cứng qua API (chỉ `DELETE` bài thi `DRAFT` — AC8 của US-PE-04, nên `exam_items` CASCADE); `RESTRICT` chặn xoá nhầm khi đã có dữ liệu con.
+
 ## 6. API
 
 Tiền tố `/api/v1`; JSON (riêng `testcases/import`: `multipart/form-data`; `results.csv`: `text/csv`); `message` tiếng Việt; lỗi PG `{code,message,trace_id,details?,retry_after?}`; danh sách phân trang con trỏ `{items,next_cursor}` (30 mặc định, ≤ 100). Trong bảng, `…` = `/courses/{courseId}`; `…/attempts/{aid}` = `…/exams/{eid}/attempts/{aid}`. Thời gian RFC 3339 UTC; điểm là chuỗi thập phân.
@@ -890,7 +931,7 @@ Tiền tố `/api/v1`; JSON (riêng `testcases/import`: `multipart/form-data`; `
 | 409 | `APPEAL_WINDOW_CLOSED` | phúc khảo hết hạn / `appeal_days = 0` | `{closed_at}` |
 | 409 | `APPEAL_EXISTS` | lượt đã có yêu cầu phúc khảo | — |
 
-Dùng lại: `FORBIDDEN` (`reason` ∈ `role`, `course`), `NOT_FOUND`, `VALIDATION_FAILED` với `details[].code` ∈ `OPTION_COUNT`, `NO_CORRECT_OPTION`, `SINGLE_MULTIPLE_CORRECT`, `DUPLICATE_OPTION`, `STEM_TOO_LONG`, `TYPE_NOT_SUPPORTED`, `LANGUAGE_NOT_ALLOWED`, `LIMIT_OUT_OF_RANGE`, `FLOAT_EPS_REQUIRED`, `TOO_MANY_TESTS`, `TEST_ZIP_INVALID`, `REFERENCE_REQUIRED`, `REFERENCE_NOT_VERIFIED`, `CODE_TESTS_MISSING`, `TOTAL_WEIGHT_ZERO`, `ITEM_NOT_APPROVED`, `QUESTION_NOT_IN_COURSE`, `DUPLICATE_ITEM`, `NO_ITEMS`, `OPENS_IN_PAST`, `CLOSES_BEFORE_OPENS`, `CLOSES_NOT_LATER`, `DURATION_EXCEEDS_WINDOW`, `DURATION_TOO_SHORT`, `INVALID_OPTION_ID`, `SOURCE_TOO_LARGE`, `SOURCE_EMPTY`, `EXPORT_TOO_LARGE`; `CONFLICT`, `VERSION_CONFLICT`, `RATE_LIMITED` (+ `retry_after`), `COURSE_ARCHIVED`, `IDEMPOTENCY_KEY_REQUIRED`, `IDEMPOTENCY_KEY_REUSED`, `PAYLOAD_TOO_LARGE`, `INVALID_CURSOR`, `SERVICE_UNAVAILABLE`.
+Dùng lại: `FORBIDDEN` (`reason` ∈ `role`, `course`), `NOT_FOUND`, `VALIDATION_FAILED` với `details[].code` ∈ `OPTION_COUNT`, `NO_CORRECT_OPTION`, `SINGLE_MULTIPLE_CORRECT`, `DUPLICATE_OPTION`, `STEM_TOO_LONG`, `TYPE_NOT_SUPPORTED`, `LANGUAGE_NOT_ALLOWED`, `LIMIT_OUT_OF_RANGE`, `FLOAT_EPS_REQUIRED`, `TOO_MANY_TESTS`, `TEST_ZIP_INVALID`, `REFERENCE_REQUIRED`, `REFERENCE_NOT_VERIFIED`, `CODE_TESTS_MISSING`, `TOTAL_WEIGHT_ZERO`, `ITEM_NOT_APPROVED`, `QUESTION_NOT_IN_COURSE`, `DUPLICATE_ITEM`, `NO_ITEMS`, `OPENS_IN_PAST`, `CLOSES_BEFORE_OPENS`, `CLOSES_NOT_LATER`, `DURATION_EXCEEDS_WINDOW`, `DURATION_TOO_SHORT`, `INVALID_OPTION_ID`, `SOURCE_TOO_LARGE`, `SOURCE_EMPTY`, `EXPORT_TOO_LARGE`, `CODE_TIME_BUDGET_EXCEEDED`; `CONFLICT`, `VERSION_CONFLICT`, `RATE_LIMITED` (+ `retry_after`), `COURSE_ARCHIVED`, `IDEMPOTENCY_KEY_REQUIRED`, `IDEMPOTENCY_KEY_REUSED`, `PAYLOAD_TOO_LARGE`, `INVALID_CURSOR`, `SERVICE_UNAVAILABLE`.
 
 ### 6.2 Bảng thao tác (56 thao tác + 1 route thử)
 
@@ -1067,7 +1108,10 @@ Sinh viên **không bao giờ** thấy: `sandbox`, `judge`, `verdict`, `go-judge
 | `JUDGE_EXTRA_ARGS` | trống (amd64) / `-no-seccomp` (colima arm64) | cờ thêm cho go-judge | judge (compose) |
 | `JUDGE_CPUS`, `JUDGE_MEM_LIMIT` | `2.0`, `2g` | giới hạn container judge | compose |
 | `JUDGE_HTTP_SLACK` | `5s` | hạn gọi = `clockLimit` + slack | worker |
-| `JUDGE_CLAIM_IDLE` | `60s` | `XAUTOCLAIM` tin treo | worker |
+| `JUDGE_LEASE` | `30s` | thời hạn thuê việc của bản nộp đang chấm (4.5.7) | worker |
+| `JUDGE_LEASE_RENEW` | `10s` | chu kỳ gia hạn thuê (< `JUDGE_LEASE`) | worker |
+| `JUDGE_CLAIM_IDLE` | `10m` | **lưới an toàn**: `XAUTOCLAIM` tin PEL idle và đưa lại dòng `QUEUED` đã `enqueued_at` mà chưa ai nhận | worker |
+| `JUDGE_MAX_TOTAL_SECONDS` | `300` | trần Σ `clockLimit` của test `approved` mỗi bài code (kiểm ở `schedule`) | gateway |
 | `JUDGE_MAX_SOURCE_BYTES` | `65536` | mã nguồn tối đa | gateway, worker |
 | `EXAM_GRACE_SECONDS` | `10` | độ trễ chấp nhận ghi sau `deadline_at` | gateway, worker |
 | `EXAM_MIN_DURATION_MINUTES` | `5` (`1` ở seed / local) | thời lượng tối thiểu | gateway |
