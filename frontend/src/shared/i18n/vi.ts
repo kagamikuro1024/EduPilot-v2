@@ -43,6 +43,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   JOIN_CODE_INVALID: "Mã không hợp lệ hoặc đã hết hạn. Kiểm tra lại với giảng viên.",
   COURSE_FULL: "Lớp đã đủ sĩ số.",
   COURSE_ARCHIVED: "Lớp này đã được lưu trữ.",
+  EXAM_LOCKED: "Bài thi đã lên lịch nên phần này không sửa được.",
+  QUESTION_IN_USE: "Câu hỏi đang được dùng trong bài thi nên không sửa được. Nhân bản câu để sửa.",
   // mã phía client
   BAD_GATEWAY: "Máy chủ chưa phản hồi đúng. Dữ liệu của bạn vẫn an toàn.",
   NETWORK: "Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.",

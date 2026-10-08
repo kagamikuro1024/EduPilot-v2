@@ -116,9 +116,9 @@ test("active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền �
 
 type Row = [string, string];
 const NAV: Record<string, Row[]> = {
-  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Threads", "/threads"], ["Luyện đề", "/practice"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
+  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Threads", "/threads"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
   "student-no-course": [["Hôm nay", "/"]],
-  ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Threads", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Insights", "/insights"], ["Analytics", "/analytics"]],
+  ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Threads", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Insights", "/insights"], ["Analytics", "/analytics"]],
   teacher: [],
   admin: [["Hôm nay", "/"], ["Quan sát AI", "/observability"], ["Lớp học", "/admin/courses"], ["Người dùng", "/admin/users"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]],
 };
@@ -141,7 +141,7 @@ test("nav per role: nhãn + href + thứ tự khớp SRS 7.5", async ({ page, co
     }
     if (ctx === "ta") expect(await page.locator("[data-part=sidebar] nav p").allTextContents()).not.toContain("Hệ thống");
   }
-  expect(navFor("teacher").flatMap((g) => g.items)).toHaveLength(15);
+  expect(navFor("teacher").flatMap((g) => g.items)).toHaveLength(16);
 });
 
 test("badges: chỉ inbox / grading; không viết cứng số trong nav.ts", async ({ page, context }) => {
@@ -238,7 +238,7 @@ test("palette: Ctrl K, bỏ dấu, activedescendant, Esc trả focus, vai SV kh�
   await page.getByRole("combobox").fill("zzzz");
   await expect(page.getByText("Không thấy mục nào khớp.")).toBeVisible();
   await page.getByRole("combobox").fill("");
-  await expect(page.getByRole("option")).toHaveCount(7);
+  await expect(page.getByRole("option")).toHaveCount(8);
 });
 
 test("notifications: chấm theo unread, mở không xoá chấm, rỗng, thông báo đọc một lần", async ({ page }) => {
@@ -337,12 +337,12 @@ test("forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1", async ({ p
 
 test("no-backend: MOCK_SCREENS=0 → empty-no-backend đúng phase, 1 nút, nav còn", async ({ page, context }) => {
   test.skip(!MOCK_OFF, "chỉ ở bản dựng NEXT_PUBLIC_MOCK_SCREENS=0");
-  const PHASE: Record<string, string> = { "/": "P2", "/admin/courses": "P2", "/admin/users": "P2", "/chat": "P3", "/threads": "P3", "/inbox": "P4", "/students": "P5", "/attendance": "P5", "/gradebook": "P6", "/me": "P6", "/grading": "P7", "/settings/integrations": "P7", "/documents": "P8", "/library": "P8", "/calendar": "P8", "/practice": "P9", "/questions": "P9", "/insights": "P10", "/analytics": "P10", "/observability": "P10" };
+  const PHASE: Record<string, string> = { "/": "P2", "/admin/courses": "P2", "/admin/users": "P2", "/chat": "P3", "/threads": "P3", "/inbox": "P4", "/students": "P5", "/attendance": "P5", "/gradebook": "P6", "/me": "P6", "/grading": "P7", "/settings/integrations": "P7", "/documents": "P8", "/library": "P8", "/calendar": "P8", "/practice": "P9", "/insights": "P10", "/analytics": "P10", "/observability": "P10" };
   for (const role of ROLES) {
     await context.clearCookies();
     await asDemo(context, role);
     for (const item of navFor(role, true).flatMap((g) => g.items)) {
-      if (item.href === "/settings/llm" || item.href === "/admin/users" || item.href === "/admin/courses") continue; // màn thật, không còn "chưa có backend"
+      if (item.href === "/settings/llm" || item.href === "/admin/users" || item.href === "/admin/courses" || item.href === "/questions" || item.href === "/exams") continue; // màn thật, không còn "chưa có backend"
       await page.goto(item.href);
       const e = page.locator("[data-part=empty-no-backend]");
       await expect(e, `${role} ${item.href}`).toHaveCount(1);
