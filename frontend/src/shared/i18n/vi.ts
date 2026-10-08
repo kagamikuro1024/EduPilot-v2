@@ -44,6 +44,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   COURSE_FULL: "Lớp đã đủ sĩ số.",
   COURSE_ARCHIVED: "Lớp này đã được lưu trữ.",
   EXAM_LOCKED: "Bài thi đã lên lịch nên phần này không sửa được.",
+  JUDGE_UNAVAILABLE: "Hệ thống chấm bài chưa sẵn sàng. Thử lại sau {n}. Mã của bạn vẫn được lưu.",
+  SUBMISSION_LIMIT_REACHED: "Bạn đã nộp đủ số lần cho bài này. Lần nộp mới nhất vẫn được tính.",
   QUESTION_IN_USE: "Câu hỏi đang được dùng trong bài thi nên không sửa được. Nhân bản câu để sửa.",
   // mã phía client
   BAD_GATEWAY: "Máy chủ chưa phản hồi đúng. Dữ liệu của bạn vẫn an toàn.",

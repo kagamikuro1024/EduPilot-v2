@@ -130,13 +130,16 @@ func redisSvc(t *testing.T, r *rig, cfg exam.CodeConfig) *exam.Service {
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = rdb.Close() })
 	svc := *r.svc
+	if cfg.JudgeUpKey == "" {
+		cfg.JudgeUpKey = appredis.Key("judge", "up", "test", uuid.NewString()) // khoá riêng mỗi test: các test chạy song song không bật / tắt "máy chấm" của nhau
+	}
 	svc.Redis, svc.Code = rdb, cfg
 	return &svc
 }
 
 func judgeUp(t *testing.T, svc *exam.Service) {
 	t.Helper()
-	require.NoError(t, svc.Redis.Set(t.Context(), appredis.Key("judge", "up"), "1", time.Minute).Err())
+	require.NoError(t, svc.Redis.Set(t.Context(), svc.Code.JudgeUpKey, "1", time.Minute).Err())
 }
 
 // ---- AC1: đề bài code phía sinh viên -------------------------------------------------------------------------------------------
@@ -315,7 +318,6 @@ func TestRunJudgeDown503(t *testing.T) {
 	r := newRig(t)
 	c := r.codeAttempt("{c11,cpp17}")
 	c.svc = redisSvc(t, r, exam.CodeConfig{})
-	require.NoError(t, c.svc.Redis.Del(t.Context(), appredis.Key("judge", "up")).Err())
 	_, err := c.run("cpp17", "int main(){}")
 	st, code := apiStatus(t, err)
 	require.Equal(t, 503, st)

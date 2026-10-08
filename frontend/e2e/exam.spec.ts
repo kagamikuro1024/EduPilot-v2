@@ -1,5 +1,6 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
 import { settleGoto } from "./support/hydrate";
+import AxeBuilder from "@axe-core/playwright";
 import { loadAudit, runAudit } from "./support/audit";
 import { BASE_URL } from "./support/env";
 import { asJwt } from "./support/session";
@@ -617,20 +618,42 @@ const TAKE_ITEMS = [
   { item_id: "q3", position: 3, type: "TRUE_FALSE", points: "2.00", stem: "Câu hỏi ba", options: [], code: null, answer: null as Json | null },
 ];
 
-type TakeState = { started: boolean; submitted: null | { at: string; reason: string }; writer: string | null; answers: Record<string, Json>; skewMs: number; durationMs: number; deadline: number; calls: Array<{ m: string; url: string; tab: string | null; key: string | null; body: unknown }>; offlineSave: boolean };
+type CodeSample = { name: string; verdict: string; time_ms: number; memory_kb: number; input?: string; expected?: string; got?: string };
+type CodeOut = { compile_ok: boolean; compile_log?: string; samples: CodeSample[] };
+type CodeSub = { id: string; language: string; source: string; created_at: string; polls: number };
+type CodeState = { drafts: Record<string, { source: string; rev: number; at: string }>; runs: Record<string, { language: string; polls: number }>; subs: CodeSub[]; runOut: CodeOut; subOut: CodeOut; pollsBeforeDone: number; runStatus: number; submitStatus: number };
+type TakeState = { code: CodeState | null; started: boolean; submitted: null | { at: string; reason: string }; writer: string | null; answers: Record<string, Json>; skewMs: number; durationMs: number; deadline: number; calls: Array<{ m: string; url: string; tab: string | null; key: string | null; body: unknown }>; offlineSave: boolean; graceMs: number };
+function codeItem(c: CodeState) {
+  const langs = Object.keys(c.drafts);
+  const latest = langs.sort((a, b) => c.drafts[b].at.localeCompare(c.drafts[a].at))[0] ?? null;
+  return {
+    item_id: "c1", position: 1, type: "CODE", points: "10.00", stem: "Đọc hai số **a**, **b** và in tổng.", options: [], answer: null,
+    code: {
+      languages: ["c11", "cpp17"], time_limit_ms: 1000, memory_limit_mb: 256, starter_code: { cpp17: "// khởi đầu\n" },
+      samples: [{ name: "sample1", input: "1 2\n", expected: "3\n" }], language: latest,
+      drafts: Object.fromEntries(Object.entries(c.drafts).map(([l, d]) => [l, { source: d.source, rev: d.rev, saved_at: d.at }])),
+    },
+  };
+}
+const newCode = (): CodeState => ({
+  drafts: {}, runs: {}, subs: [], pollsBeforeDone: 1, runStatus: 202, submitStatus: 202,
+  runOut: { compile_ok: true, samples: [{ name: "sample1", verdict: "AC", time_ms: 3, memory_kb: 1024 }] },
+  subOut: { compile_ok: true, samples: [{ name: "sample1", verdict: "AC", time_ms: 3, memory_kb: 1024 }] },
+});
+
 function fakeTake(over: Partial<TakeState> = {}) {
-  const st: TakeState = { started: false, submitted: null, writer: null, answers: {}, skewMs: 0, durationMs: 45 * 60_000, deadline: 0, calls: [], offlineSave: false, ...over };
+  const st: TakeState = { code: null, started: false, submitted: null, writer: null, answers: {}, skewMs: 0, durationMs: 45 * 60_000, deadline: 0, calls: [], offlineSave: false, graceMs: 0, ...over };
   const srvNow = () => Date.now() + st.skewMs;
   const runningView = (tab: string | null) => ({
     attempt: { id: "a-take", exam_id: E1, status: "IN_PROGRESS", started_at: new Date(st.deadline - st.durationMs).toISOString(), deadline_at: new Date(st.deadline).toISOString(), server_time: new Date(srvNow()).toISOString(), writer: { is_you: !!tab && tab === st.writer } },
-    exam: { id: E1, title: "Tuần 9", instructions: null, kind: "MCQ", duration_minutes: 45, closes_at: "2036-12-01T03:00:00Z", multi_scoring: "PARTIAL" },
-    items: TAKE_ITEMS.map((it) => ({ ...it, answer: st.answers[it.item_id] ?? null })),
+    exam: { id: E1, title: "Tuần 9", instructions: null, kind: st.code ? "CODE" : "MCQ", duration_minutes: 45, closes_at: "2036-12-01T03:00:00Z", multi_scoring: "PARTIAL" },
+    items: st.code ? [codeItem(st.code)] : TAKE_ITEMS.map((it) => ({ ...it, answer: st.answers[it.item_id] ?? null })),
   });
   const expireIfDue = () => {
-    if (st.started && !st.submitted && srvNow() >= st.deadline) st.submitted = { at: new Date(st.deadline).toISOString(), reason: "TIMEOUT" };
+    if (st.started && !st.submitted && srvNow() >= st.deadline + st.graceMs) st.submitted = { at: new Date(st.deadline).toISOString(), reason: "TIMEOUT" };
   };
   const json = (route: Route, status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
-  const err = (route: Route, status: number, code: string, details: Json = {}) => json(route, status, { error: { code, message: code, details, trace_id: "t" } });
+  const err = (route: Route, status: number, code: string, details: Json = {}) => json(route, status, { code, message: code, details, trace_id: "t" });
   async function install(page: Page) {
     await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${E1}/attempts`), async (route) => {
       const req = route.request();
@@ -640,8 +663,9 @@ function fakeTake(over: Partial<TakeState> = {}) {
       const path = new URL(req.url()).pathname.split("/attempts")[1] || "";
       st.calls.push({ m: req.method(), url: path, tab, key: h["idempotency-key"] ?? null, body: req.postDataJSON?.() ?? null });
       expireIfDue();
+      if (st.code && /\/(code|runs|submissions)(\/|$)/.test(path) && (await codeRoutes(route, req, path, tab))) return;
       if (req.method() === "GET" && path === "/mine") {
-        if (!st.started) return json(route, 200, { attempt: null, exam: { id: E1, title: "Tuần 9", instructions: null, kind: "MCQ", duration_minutes: 45, max_score: "10.00", status: "OPEN", opens_at: "2026-12-01T01:00:00Z", closes_at: "2036-12-01T03:00:00Z", my_attempt: null, my_score: null } });
+        if (!st.started) return json(route, 200, { attempt: null, exam: { id: E1, title: "Tuần 9", instructions: null, kind: st.code ? "CODE" : "MCQ", duration_minutes: 45, max_score: "10.00", status: "OPEN", opens_at: "2026-12-01T01:00:00Z", closes_at: "2036-12-01T03:00:00Z", my_attempt: null, my_score: null } });
         if (st.submitted) return json(route, 200, { attempt: { id: "a-take", status: "GRADED", submitted_at: st.submitted.at, submit_reason: st.submitted.reason }, exam: { id: E1, title: "Tuần 9", closes_at: "2036-12-01T03:00:00Z", status: "OPEN" } });
         return json(route, 200, runningView(tab));
       }
@@ -668,6 +692,69 @@ function fakeTake(over: Partial<TakeState> = {}) {
       }
       return err(route, 404, "NOT_FOUND");
     });
+  }
+  async function codeRoutes(route: Route, req: ReturnType<Route["request"]>, path: string, tab: string | null): Promise<boolean> {
+    const c = st.code!;
+    const m = req.method();
+    const view = (id: string, status: string, language: string, at: string, out: CodeOut) => ({ id, status, language, created_at: at, compile_ok: status === "DONE" ? out.compile_ok : null, ...(status === "DONE" && out.compile_log ? { compile_log: out.compile_log } : {}), samples: status === "DONE" && out.compile_ok ? out.samples : [] });
+    const writeGuard = () => (st.submitted ? err(route, 409, "ATTEMPT_CLOSED") : tab !== st.writer ? err(route, 409, "ATTEMPT_OTHER_TAB", { writer_seen_at: new Date().toISOString() }) : null);
+    if (m === "PUT" && path.endsWith("/draft")) {
+      const g = writeGuard();
+      if (g) return void (await g), true;
+      const b = req.postDataJSON() as { language: string; source: string; base_rev: number };
+      const cur = c.drafts[b.language];
+      if ((cur?.rev ?? 0) !== b.base_rev) return void (await err(route, 409, "DRAFT_CONFLICT", { current_rev: cur?.rev ?? 0, updated_at: cur?.at ?? null })), true;
+      const at = new Date().toISOString();
+      c.drafts[b.language] = { source: b.source, rev: (cur?.rev ?? 0) + 1, at };
+      await json(route, 200, { rev: c.drafts[b.language].rev, saved_at: at, server_time: new Date(srvNow()).toISOString(), deadline_at: new Date(st.deadline).toISOString() });
+      return true;
+    }
+    if (m === "POST" && path.endsWith("/run")) {
+      const g = writeGuard();
+      if (g) return void (await g), true;
+      if (c.runStatus !== 202) return void (await err(route, c.runStatus, c.runStatus === 429 ? "RATE_LIMITED" : "JUDGE_UNAVAILABLE", {})), true;
+      const b = req.postDataJSON() as { language: string };
+      const id = `run-${Object.keys(c.runs).length + 1}`;
+      c.runs[id] = { language: b.language, polls: 0 };
+      await json(route, 202, { run_id: id });
+      return true;
+    }
+    const runM = /\/runs\/([^/]+)$/.exec(path);
+    if (m === "GET" && runM) {
+      const r = c.runs[runM[1]];
+      if (!r) return void (await err(route, 404, "NOT_FOUND")), true;
+      r.polls++;
+      await json(route, 200, view(runM[1], r.polls > c.pollsBeforeDone ? "DONE" : "RUNNING", r.language, new Date().toISOString(), c.runOut));
+      return true;
+    }
+    if (m === "POST" && path.endsWith("/submit")) {
+      const g = writeGuard();
+      if (g) return void (await g), true;
+      if (c.submitStatus !== 202) return void (await err(route, c.submitStatus, c.submitStatus === 429 ? "RATE_LIMITED" : "SUBMISSION_LIMIT_REACHED", {})), true;
+      const b = req.postDataJSON() as { language: string; source: string };
+      const sub = { id: `sub-${c.subs.length + 1}`, language: b.language, source: b.source, created_at: new Date().toISOString(), polls: 0 };
+      c.subs.push(sub);
+      await json(route, 202, { submission_id: sub.id });
+      return true;
+    }
+    const subView = (x: CodeSub, full: boolean) => {
+      const done = x.polls > c.pollsBeforeDone;
+      return { ...view(x.id, done ? "DONE" : "RUNNING", x.language, x.created_at, c.subOut), is_final: x === c.subs[c.subs.length - 1], ...(full ? { source: x.source } : {}) };
+    };
+    if (m === "GET" && path.endsWith("/submissions")) {
+      c.subs.forEach((x) => x.polls++);
+      await json(route, 200, { items: [...c.subs].reverse().map((x) => subView(x, false)), next_cursor: null });
+      return true;
+    }
+    const subM = /\/submissions\/([^/]+)$/.exec(path);
+    if (m === "GET" && subM) {
+      const x = c.subs.find((y) => y.id === subM[1]);
+      if (!x) return void (await err(route, 404, "NOT_FOUND")), true;
+      x.polls++;
+      await json(route, 200, subView(x, true));
+      return true;
+    }
+    return false;
   }
   return { st, install };
 }
@@ -811,4 +898,245 @@ test("take: mcq 375 — mỗi lần một câu, chọn bằng bàn phím, vùng 
   const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
   expect(await runAudit(page, AUDIT_SRC)).toEqual({ ox: 0, cut: [], ell: [] });
   expect(await page.evaluate(TOUCH_SRC)).toEqual([]);
+});
+
+// ───────── US-PE-06 — làm bài lập trình (gateway giả cùng trạng thái dùng chung) ─────────
+const codeSetup = async (page: Page, over: Partial<TakeState> = {}) => {
+  const f = fakeTake({ code: newCode(), ...over });
+  await takeSetup(page, f);
+  return f;
+};
+const startCode = async (page: Page, width = 1280) => {
+  await page.setViewportSize({ width, height: 900 });
+  await page.goto(`/exams/${E1}/take?course=${C1}`);
+  await expect(page.getByText("Bài này có phần lập trình, cần màn hình ≥ 1024 px.")).toBeVisible();
+  await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
+  await expect(page.getByText("Câu 1/1")).toBeVisible();
+};
+const editor = (page: Page) => page.getByRole("textbox", { name: "Mã nguồn bài 1" });
+
+test("take: code viewport gate — < 1024 px đọc được đề nhưng không có ô soạn mã; ≥ 1024 px có hai cột", async ({ page }) => {
+  await codeSetup(page);
+  await startCode(page, 1440);
+  const strip = page.getByText("Bài lập trình cần màn hình rộng hơn (từ 1.024 px). Hãy mở bài thi này trên máy tính — bài của bạn vẫn là một lượt duy nhất và tự đồng bộ.");
+  for (const w of [390, 1023, 1024, 1440]) {
+    await page.setViewportSize({ width: w, height: 900 });
+    await expect(page.getByText("Đọc hai số")).toBeVisible();
+    await expect(page.getByLabel("Test mẫu")).toContainText("sample1");
+    if (w < 1024) {
+      await expect(strip).toBeVisible();
+      await expect(page.locator("textarea")).toHaveCount(0);
+    } else {
+      await expect(strip).toBeHidden();
+      await expect(editor(page)).toBeVisible();
+      const { AUDIT_SRC } = await loadAudit();
+      expect(await runAudit(page, AUDIT_SRC)).toEqual({ ox: 0, cut: [], ell: [] });
+    }
+  }
+});
+
+test("take: code editor — Tab / Shift+Tab / Esc rồi Tab, dán nhiều dòng, 64 KiB, vượt giới hạn, INP, axe", async ({ page }) => {
+  await codeSetup(page);
+  await startCode(page);
+  const ed = editor(page);
+  await expect(ed).toHaveAttribute("spellcheck", "false");
+  await expect(ed).toHaveAttribute("autocapitalize", "off");
+  // Tab thụt 4 dấu cách tại con trỏ
+  await ed.fill("");
+  await ed.press("Tab");
+  await ed.pressSequentially("x");
+  await expect(ed).toHaveValue("    x");
+  // nhiều dòng: Tab thụt cả khối, Shift+Tab bỏ thụt
+  await ed.fill("a\nb");
+  await ed.press("ControlOrMeta+A");
+  await ed.press("Tab");
+  await expect(ed).toHaveValue("    a\n    b");
+  await ed.press("Shift+Tab");
+  await expect(ed).toHaveValue("a\nb");
+  // Esc rồi Tab rời ô (không bẫy bàn phím) và không đổi chữ
+  await ed.press("Escape");
+  await ed.press("Tab");
+  expect(await page.evaluate(() => document.activeElement?.tagName)).not.toBe("TEXTAREA");
+  await expect(ed).toHaveValue("a\nb");
+  // dán nhiều dòng giữ nguyên, tiếng Việt không vỡ
+  const multi = "// chú thích tiếng Việt: Đặng Thị Ngọc\nint main(){\n\treturn 0;\n}";
+  await ed.fill(multi);
+  await expect(ed).toHaveValue(multi);
+  // 64 KiB vừa đủ; gõ thêm bị chặn kèm lời
+  await ed.fill("a".repeat(65536));
+  await expect(page.getByText(/65\.536\/65\.536/)).toBeVisible();
+  await ed.press("Control+End");
+  await ed.pressSequentially("bcd");
+  expect((await ed.inputValue()).length).toBe(65536);
+  await expect(page.getByText(/Đã đủ 65\.536 byte/)).toBeVisible();
+  // dán vượt giới hạn: bị cắt đúng 65.536 byte
+  await ed.fill("é".repeat(40000)); // 2 byte mỗi ký tự
+  expect(new TextEncoder().encode(await ed.inputValue()).length).toBeLessThanOrEqual(65536);
+  // dòng rất dài cuộn ngang TRONG ô, không làm trang tràn ngang
+  await ed.fill("x".repeat(5000));
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+  // INP: gõ liên tục trên ô gần đầy
+  // dán một lần ~56 KiB / 8.000 dòng (một sự kiện input, như người dùng dán thật; `fill` của công cụ chậm với nhiều dòng)
+  const big = "int x;\n".repeat(8000);
+  await ed.evaluate((el, v) => {
+    Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, "value")!.set!.call(el, v);
+    el.dispatchEvent(new Event("input", { bubbles: true }));
+  }, big);
+  await expect(ed).toHaveValue(big);
+  await page.evaluate(() => {
+    const w = window as unknown as { __inp: number[] };
+    w.__inp = [];
+    new PerformanceObserver((l) => l.getEntries().forEach((e) => w.__inp.push(e.duration))).observe({ type: "event", durationThreshold: 16, buffered: false } as PerformanceObserverInit);
+  });
+  await ed.press("Control+End");
+  await ed.pressSequentially("int y = 1;", { delay: 10 });
+  const worst = await page.evaluate(() => Math.max(0, ...(window as unknown as { __inp: number[] }).__inp));
+  expect(worst).toBeLessThanOrEqual(200);
+  await ed.fill("int main(){}");
+  const a = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+  expect(a.violations.filter((v) => v.impact === "critical" || v.impact === "serious")).toEqual([]);
+});
+
+test("take: language switch keeps drafts — mỗi ngôn ngữ một bản nháp, đổi qua lại không mất chữ, tải lại nhớ ngôn ngữ gần nhất", async ({ page }) => {
+  const f = await codeSetup(page);
+  await startCode(page);
+  const ed = editor(page);
+  await page.getByLabel("Ngôn ngữ").selectOption("cpp17");
+  await expect(ed).toHaveValue("// khởi đầu\n"); // lần đầu nạp mã khởi đầu của ngôn ngữ đó
+  await ed.fill("// bản C++");
+  await page.getByLabel("Ngôn ngữ").selectOption("c11");
+  await expect(ed).toHaveValue("");
+  await ed.fill("/* bản C */");
+  await page.getByLabel("Ngôn ngữ").selectOption("cpp17");
+  await expect(ed).toHaveValue("// bản C++");
+  await page.getByLabel("Ngôn ngữ").selectOption("c11");
+  await expect(ed).toHaveValue("/* bản C */");
+  await expect.poll(() => [f.st.code!.drafts.cpp17?.source, f.st.code!.drafts.c11?.source], { timeout: 8000 }).toEqual(["// bản C++", "/* bản C */"]);
+  await page.reload();
+  await expect(page.getByText("Câu 1/1")).toBeVisible();
+  await expect(page.getByLabel("Ngôn ngữ")).toHaveValue("c11"); // bản lưu gần nhất
+  await expect(editor(page)).toHaveValue("/* bản C */");
+  await page.getByLabel("Ngôn ngữ").selectOption("cpp17");
+  await expect(editor(page)).toHaveValue("// bản C++");
+});
+
+test("take: draft conflict resolution — bản máy chủ mới hơn: hai nút, không mất chữ, không ghi đè lặng lẽ", async ({ page }) => {
+  const f = await codeSetup(page);
+  await startCode(page);
+  const ed = editor(page);
+  await page.getByLabel("Ngôn ngữ").selectOption("cpp17");
+  await ed.fill("// của tôi 1");
+  await expect.poll(() => f.st.code!.drafts.cpp17?.rev, { timeout: 8000 }).toBe(1);
+  // tab khác đã lưu bản mới hơn
+  f.st.code!.drafts.cpp17 = { source: "// bản của tab khác", rev: 2, at: new Date().toISOString() };
+  await ed.fill("// của tôi 2");
+  await expect(page.getByText(/^Bản trên máy chủ mới hơn \(lưu lúc \d\d:\d\d:\d\d\)\.$/)).toBeVisible({ timeout: 8000 });
+  await expect(page.getByRole("button", { name: "Dùng bản trên máy này" })).toBeVisible();
+  await expect(ed).toHaveValue("// của tôi 2"); // chữ đang gõ giữ nguyên
+  expect(f.st.code!.drafts.cpp17.source).toBe("// bản của tab khác"); // máy chủ không bị ghi đè
+  await page.getByRole("button", { name: "Dùng bản đã lưu" }).click();
+  await expect(ed).toHaveValue("// bản của tab khác");
+  await expect(page.getByRole("button", { name: "Dùng bản đã lưu" })).toBeHidden();
+  // lần nữa: chọn bản trên máy
+  f.st.code!.drafts.cpp17 = { source: "// tab khác lần ba", rev: 3, at: new Date().toISOString() };
+  await ed.fill("// của tôi 3");
+  await expect(page.getByRole("button", { name: "Dùng bản trên máy này" })).toBeVisible({ timeout: 8000 });
+  await page.getByRole("button", { name: "Dùng bản trên máy này" }).click();
+  await expect.poll(() => f.st.code!.drafts.cpp17.source, { timeout: 8000 }).toBe("// của tôi 3");
+  expect(f.st.code!.drafts.cpp17.rev).toBe(4);
+});
+
+test("take: run result display — AC / WA / CE / TLE có nhãn tiếng Việt, WA hiện đầu vào / mong đợi / của bạn, không từ kỹ thuật", async ({ page }) => {
+  const f = await codeSetup(page, {});
+  await startCode(page);
+  await editor(page).fill("int main(){}");
+  const click = async () => page.getByRole("button", { name: "Chạy thử" }).click();
+  const main = page.locator("#main");
+  // AC
+  await click();
+  await expect(main.getByText("Đúng 1/1 test mẫu.")).toBeVisible();
+  await expect(main.getByText("sample1")).toHaveCount(2); // đề (test mẫu) + kết quả
+  // WA
+  f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "WA", time_ms: 4, memory_kb: 2048, input: "1 2\n", expected: "3\n", got: "4 " }] };
+  await click();
+  await expect(main.getByText("Sai kết quả")).toBeVisible();
+  await expect(main.getByText("Đầu vào")).toBeVisible();
+  await expect(main.getByText("Kết quả mong đợi")).toBeVisible();
+  await expect(main.getByText("Kết quả của bạn")).toBeVisible();
+  await expect(main.locator("pre", { hasText: "4·" })).toBeVisible(); // khoảng trắng hiện bằng ký hiệu
+  // CE
+  f.st.code!.runOut = { compile_ok: false, compile_log: "main.cpp:1:12: error: expected '}' at end of input", samples: [] };
+  await click();
+  await expect(main.getByText("Lỗi biên dịch")).toBeVisible();
+  await expect(main.getByText("main.cpp:1:12: error")).toBeVisible();
+  // TLE
+  f.st.code!.runOut = { compile_ok: true, samples: [{ name: "sample1", verdict: "TLE", time_ms: 1000, memory_kb: 900 }] };
+  await click();
+  await expect(main.getByText("Quá thời gian")).toBeVisible();
+  // lỗi hạn mức / máy chấm tắt có câu tiếng Việt
+  f.st.code!.runStatus = 429;
+  await click();
+  await expect(page.getByText(/Bạn thao tác hơi nhanh/)).toBeVisible();
+  f.st.code!.runStatus = 503;
+  await click();
+  await expect(page.getByText(/Hệ thống chấm bài chưa sẵn sàng/)).toBeVisible();
+  expect(await main.innerText()).not.toMatch(/sandbox|judge|verdict|go-judge|\bTLE\b|\bWA\b|\bCE\b|stderr/i);
+});
+
+test("take: submission history — Đang chấm → kết quả, nhãn Lần nộp tính điểm, xem mã và Dùng lại mã này", async ({ page }) => {
+  const f = await codeSetup(page, {});
+  await startCode(page);
+  await editor(page).fill("int main(){return 1;}");
+  await page.getByRole("button", { name: "Nộp lời giải" }).click();
+  const row = (n: number) => page.locator("[data-part=submission]").nth(n);
+  await expect(row(0)).toContainText("Đang chấm");
+  await expect(row(0)).toContainText("Biên dịch được · 1/1 test mẫu đúng", { timeout: 10_000 });
+  await editor(page).fill("int main(){return 2;}");
+  await page.getByRole("button", { name: "Nộp lời giải" }).click();
+  await expect(page.locator("[data-part=submission]")).toHaveCount(2);
+  await expect(page.getByText("Lần nộp tính điểm")).toHaveCount(1); // chỉ bản mới nhất
+  await expect(row(0)).toContainText("Lần nộp tính điểm"); // mới nhất trước
+  expect(f.st.code!.subs.map((x) => x.source)).toEqual(["int main(){return 1;}", "int main(){return 2;}"]);
+  await row(1).getByRole("button", { name: "Xem mã" }).click();
+  await expect(row(1).locator("pre").first()).toHaveText("int main(){return 1;}");
+  await row(1).getByRole("button", { name: "Dùng lại mã này" }).click();
+  await expect(editor(page)).toHaveValue("int main(){return 1;}");
+  // giãn cách / giới hạn có lời
+  f.st.code!.submitStatus = 429;
+  await page.getByRole("button", { name: "Nộp lời giải" }).click();
+  await expect(page.getByText(/Bạn thao tác hơi nhanh/)).toBeVisible();
+  f.st.code!.submitStatus = 409;
+  await page.getByRole("button", { name: "Nộp lời giải" }).click();
+  await expect(page.getByText(/Bạn đã nộp đủ số lần cho bài này/)).toBeVisible();
+});
+
+test("take: timeout while typing — hết giờ khi đang gõ: gửi ngay bản nháp, ô chỉ đọc còn nguyên chữ", async ({ page }) => {
+  const f = await codeSetup(page, { durationMs: 7000, graceMs: 10_000 }); // như máy chủ thật: nhận bản lưu tới hạn + 10 s
+  await startCode(page);
+  const ed = editor(page);
+  await ed.click();
+  await page.keyboard.type("x".repeat(60), { delay: 200 }); // gõ vượt qua giờ chót (≈ 7 s)
+  await expect(page.getByText(/Hết giờ — phần bạn gõ sau giờ không được tính/).first()).toBeVisible();
+  await expect(ed).toHaveAttribute("readonly", "");
+  const text = await ed.inputValue();
+  expect(text.length).toBeGreaterThan(10);
+  expect(text.length).toBeLessThan(60); // ký tự gõ sau giờ bị bỏ
+  await expect.poll(() => f.st.code!.drafts.c11?.source, { timeout: 8000 }).toBe(text); // bản cuối lên máy chủ NGAY khi hết giờ
+  await expect(page.getByRole("button", { name: "Nộp lời giải" })).toBeDisabled();
+});
+
+test("take: sse drop during judge — không có kênh sự kiện vẫn nhận kết quả đúng một lần", async ({ page }) => {
+  await page.route("**/api/v1/events**", (r) => r.abort());
+  const f = await codeSetup(page, {});
+  f.st.code!.pollsBeforeDone = 2;
+  await startCode(page);
+  await editor(page).fill("int main(){}");
+  await page.getByRole("button", { name: "Chạy thử" }).click();
+  await expect(page.getByText("Đang chạy thử…")).toBeVisible();
+  await expect(page.getByText("Đúng 1/1 test mẫu.")).toBeVisible({ timeout: 12_000 });
+  await expect(page.locator("[data-part=code-wide] li", { hasText: "Đúng" })).toHaveCount(1);
+  const polls = f.st.code!.runs["run-1"].polls;
+  expect(polls).toBeGreaterThanOrEqual(3);
+  await page.waitForTimeout(2600);
+  expect(f.st.code!.runs["run-1"].polls).toBe(polls); // xong thì thôi thăm dò
 });

@@ -120,6 +120,7 @@ function Intro({ mine, start, onStarted }: { mine: NoAttempt; start: (key: strin
         {e.status === "OPEN" && (
           <>
             <p className={s.introNote}>Bạn có {e.duration_minutes} phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.</p>
+            {e.kind !== "MCQ" && <p className={s.introNote}>Bài này có phần lập trình, cần màn hình ≥ 1024 px.</p>}
             {short && e.closes_at && <p className={s.introNote}>Bài thi đóng lúc {fmtClock(e.closes_at).slice(0, 5)}, bạn chỉ còn {minutesLeft} phút.</p>}
             {run.error && <ApiErrorNotice error={run.error} onRetry={() => void run.retry().then((r) => r && onStarted(r.data), () => undefined)} />}
             <div>

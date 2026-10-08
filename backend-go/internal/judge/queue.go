@@ -352,8 +352,12 @@ func (q *Queue) grade(ctx context.Context, s *store.Queries, row store.JudgeClai
 	if err != nil {
 		return Result{}, fmt.Errorf("%w: đọc test: %v", ErrSandbox, err)
 	}
+	run := row.Kind == store.SubmissionKindRUN
 	tests := make([]Test, 0, len(rows))
 	for _, r := range rows {
+		if run && !r.IsSample {
+			continue // `Chạy thử` CHỈ chạy test mẫu (SRS 4.4.2): test ẩn không bao giờ chạy, không lộ kết quả, không tốn thời gian chấm
+		}
 		in, err := q.text(ctx, r.Input, r.InputBlobKey)
 		if err != nil {
 			return Result{}, err
@@ -362,7 +366,11 @@ func (q *Queue) grade(ctx context.Context, s *store.Queries, row store.JudgeClai
 		if err != nil {
 			return Result{}, err
 		}
-		tests = append(tests, Test{ID: r.ID.String(), Position: int(r.Position), IsSample: r.IsSample, Weight: int(r.Weight), Input: in, Expected: exp, Approved: true})
+		w := int(r.Weight)
+		if run {
+			w = 1 // trọng số không dùng khi chạy thử; tránh "tổng trọng số bằng 0" khi giảng viên đặt test mẫu trọng số 0
+		}
+		tests = append(tests, Test{ID: r.ID.String(), Position: int(r.Position), IsSample: r.IsSample, Weight: w, Input: in, Expected: exp, Approved: true})
 	}
 	eps := 0.0
 	if p.FloatEps.Valid {

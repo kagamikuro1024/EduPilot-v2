@@ -37,6 +37,15 @@ type CodeConfig struct {
 	RunWindow      time.Duration // EXAM_RUN_WINDOW (10 phút)
 	SubmitCooldown time.Duration // EXAM_SUBMIT_COOLDOWN (15 s)
 	SubmissionCap  int           // EXAM_SUBMISSION_CAP (30)
+	// JudgeUpKey: khoá Redis "máy chấm đang chạy". Mặc định `ep:judge:up`; test dùng khoá riêng để chạy song song không giẫm nhau.
+	JudgeUpKey string
+}
+
+func (c CodeConfig) judgeUpKey() string {
+	if c.JudgeUpKey == "" {
+		return appredis.Key("judge", "up")
+	}
+	return c.JudgeUpKey
 }
 
 func (c CodeConfig) runLimit() int {
@@ -232,7 +241,7 @@ func (s *Service) judgeUp(ctx context.Context) bool {
 	if s.Redis == nil {
 		return true
 	}
-	n, err := s.Redis.Exists(ctx, appredis.Key("judge", "up")).Result()
+	n, err := s.Redis.Exists(ctx, s.Code.judgeUpKey()).Result()
 	return err != nil || n > 0
 }
 

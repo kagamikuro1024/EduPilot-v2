@@ -175,6 +175,48 @@ func TestJudgeConsumerIdempotent(t *testing.T) {
 	r.fake.mu.Unlock()
 }
 
+// TestRunSamplesOnly — `Chạy thử` chỉ chạy test MẪU (SRS 4.4.2): đề có 3 test (1 mẫu, 2 ẩn) → RUN chạy đúng 1 test và `results` không có test ẩn; SUBMIT cùng đề chạy đủ 3.
+func TestRunSamplesOnly(t *testing.T) {
+	r := newQRig(t)
+	q, _ := r.queue("c1")
+	r.start(q)
+	run := r.sub("RUN", "int main(){}")
+	r.fake.runs = []string{okRun("3\n")}
+	r.enqueue(q, run, "RUN")
+	r.waitStatus(run, "DONE", 10*time.Second)
+	r.fake.mu.Lock()
+	ran := r.fake.runIdx
+	r.fake.mu.Unlock()
+	require.Equal(t, 1, ran, "chỉ test mẫu được chạy")
+	var n, hidden int
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select jsonb_array_length(results), (select count(*) from jsonb_array_elements(results) e where not (e->>'is_sample')::boolean) from code_submissions where id=$1`, run).Scan(&n, &hidden))
+	require.Equal(t, 1, n)
+	require.Zero(t, hidden)
+	require.Equal(t, "AC", r.row(run).Verdict)
+	// cùng đề, bản SUBMIT chạy đủ ba test
+	sub := r.sub("SUBMIT", "int main(){}")
+	r.fake.mu.Lock()
+	r.fake.runs, r.fake.runIdx = []string{okRun("3\n"), okRun("4\n"), okRun("10\n")}, 0
+	r.fake.mu.Unlock()
+	r.enqueue(q, sub, "SUBMIT")
+	r.waitStatus(sub, "DONE", 10*time.Second)
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select jsonb_array_length(results) from code_submissions where id=$1`, sub).Scan(&n))
+	require.Equal(t, 3, n)
+}
+
+// TestRunZeroWeightSample — test mẫu trọng số 0 vẫn chạy thử được (không bị coi là "tổng trọng số bằng 0").
+func TestRunZeroWeightSample(t *testing.T) {
+	r := newQRig(t)
+	_, err := r.pool.Exec(t.Context(), `update code_testcases set weight = 0 where problem_id=$1 and is_sample`, r.prob)
+	require.NoError(t, err)
+	q, _ := r.queue("c1")
+	r.start(q)
+	run := r.sub("RUN", "int main(){}")
+	r.fake.runs = []string{okRun("3\n")}
+	r.enqueue(q, run, "RUN")
+	require.Equal(t, "AC", r.waitStatus(run, "DONE", 10*time.Second).Verdict)
+}
+
 // TestJudgeLeaseNoDoubleRun — hai consumer cùng nhận một tín hiệu: đúng một bên chạy sandbox.
 func TestJudgeLeaseNoDoubleRun(t *testing.T) {
 	r := newQRig(t)

@@ -42,3 +42,4 @@
   .foot { bottom: calc(56px + env(safe-area-inset-bottom)); } /* trên thanh điều hướng dưới của khung app */
   .foot > * { min-height: 44px; }
 }
+.takeWide { max-width: 1440px; }

@@ -7,6 +7,7 @@ import { ExamTimer, Markdown } from "@/shared/domain";
 import type { ExamClock } from "@/shared/lib/examClock";
 import type { Answer } from "@/shared/lib/saveQueue";
 import { Button, ConfirmIrreversible, Drawer, InlineNotice, StatusText } from "@/shared/ui";
+import { CodeQuestion } from "./CodeQuestion";
 import { useAnswers } from "./useAnswers";
 import { saveAnswers, sleep, submitAttempt, takeover, type Running, type SubmitSummary, type TakeItem } from "./takeApi";
 import { useWriter } from "./useWriter";
@@ -15,7 +16,8 @@ import s from "./Take.module.css";
 const LETTERS = "ABCDEFGH";
 const hhmmss = (ms: number) => new Date(ms + 7 * 3600_000).toISOString().slice(11, 19);
 
-const answeredOf = (it: TakeItem, a: Answer | undefined): boolean => {
+const answeredOf = (it: TakeItem, a: Answer | undefined, code: Record<string, boolean>): boolean => {
+  if (it.type === "CODE") return code[it.item_id] ?? false;
   const v = a ?? (it.answer as Answer | null);
   if (!v) return false;
   return "value" in v ? typeof v.value === "boolean" : v.option_ids.length > 0;
@@ -48,6 +50,18 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
   const [warn, setWarn] = useState<1 | 5 | null>(null);
   const [expired, setExpired] = useState(false);
   const submitKey = useRef<string | null>(null);
+  // câu code: "đã làm" khi có nháp không rỗng hoặc đã nộp (do CodeQuestion báo); nháp máy chủ trả lúc mở lượt tính ngay từ đầu
+  const [codeAnswered, setCodeAnswered] = useState<Record<string, boolean>>(() =>
+    Object.fromEntries(items.filter((it) => it.type === "CODE").map((it) => [it.item_id, Object.values((it.code as { drafts?: Record<string, { source: string }> } | null)?.drafts ?? {}).some((d) => d.source.trim() !== "")])),
+  );
+  const onAnswered = useCallback((id: string, v: boolean) => setCodeAnswered((p) => (p[id] === v ? p : { ...p, [id]: v })), []);
+  // hàm gửi NGAY bản nháp của từng câu code: gọi trước khi nộp cả bài thi
+  const flushers = useRef(new Set<() => Promise<void>>());
+  const registerFlush = useCallback((fn: () => Promise<void>) => {
+    flushers.current.add(fn);
+    return () => void flushers.current.delete(fn);
+  }, []);
+  const hasCode = items.some((it) => it.type === "CODE");
 
   // quyền ghi
   const writer = useWriter({
@@ -107,7 +121,7 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
   }, [queue]);
 
   const item = items[index];
-  const answeredCount = items.filter((it) => answeredOf(it, answers[it.item_id])).length;
+  const answeredCount = items.filter((it) => answeredOf(it, answers[it.item_id], codeAnswered)).length;
   const go = useCallback((i: number) => setIndex(Math.max(0, Math.min(items.length - 1, i))), [items.length]);
 
   // bàn phím: ← → đổi câu; 1…8 / A…H chọn đáp án
@@ -134,7 +148,7 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
     const delays = [1000, 2000, 4000, 8000, 15000];
     for (let n = 0; ; n++) {
       try {
-        await queue.flush(); // bản cuối lên máy chủ trước khi nộp (chấm theo phần đã lưu)
+        await Promise.all([queue.flush(), ...[...flushers.current].map((f) => f())]); // bản cuối lên máy chủ trước khi nộp (chấm theo phần đã lưu)
         if (queue.state.pending > 0) throw new ApiError({ status: 0, code: "NETWORK" });
         const r = await submitAttempt(courseId, examId, attempt.id, tab, submitKey.current);
         queue.clear();
@@ -168,16 +182,17 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
         : "Mọi thay đổi sẽ tự lưu";
 
   return (
-    <div className={s.take} data-part="take">
+    <div className={[s.take, item.type === "CODE" ? s.takeWide : ""].join(" ")} data-part="take">
       <header className={s.bar}>
         <span className={s.barQ}>Câu {index + 1}/{items.length}</span>
-        <ExamTimer deadlineMs={deadlineMs} clock={clock} onWarn={setWarn} onExpire={() => { setExpired(true); onExpired(); }} />
+        <ExamTimer deadlineMs={deadlineMs} clock={clock} onWarn={setWarn} onExpire={() => { setExpired(true); if (!hasCode) onExpired(); }} />
         <span className={s.save} role="status" aria-live="off" data-part="save-status">{status}</span>
         <Button size="sm" onClick={() => setConfirm(true)} disabled={!canWrite || expired}>Nộp bài</Button>
       </header>
 
       <p className={s.warn} role="status" aria-live="polite">{warn === 5 ? "Còn 5 phút." : warn === 1 ? "Còn 1 phút." : ""}</p>
-      {expired && <InlineNotice compact>Hết giờ — đang nộp bài của bạn…</InlineNotice>}
+      {expired && !hasCode && <InlineNotice compact>Hết giờ — đang nộp bài của bạn…</InlineNotice>}
+      {expired && hasCode && <InlineNotice compact action={<Button size="sm" onClick={onExpired}>Xem tóm tắt</Button>}>Hết giờ — bài của bạn đang được nộp. Phần bạn gõ sau giờ không được tính.</InlineNotice>}
       {offline && <InlineNotice tone="warning" compact>Mất mạng — bài vẫn được giữ trên máy bạn. Nếu hết giờ khi chưa có mạng, chỉ phần đã lưu lên máy chủ được tính.</InlineNotice>}
       {writer.state === "other" && (
         <InlineNotice tone="warning" compact title="Bài đang mở ở nơi khác" action={<Button size="sm" onClick={() => void writer.claim()}>Làm tiếp ở đây</Button>}>
@@ -187,10 +202,28 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
 
       <div className={s.layout}>
         <aside className={s.side} aria-label="Danh sách câu">
-          <Navigator items={items} answers={answers} index={index} onGo={go} />
+          <Navigator items={items} answers={answers} code={codeAnswered} index={index} onGo={go} />
         </aside>
         <section className={s.question} aria-label="Câu hỏi" data-part="question">
-          <Question item={item} number={index + 1} mode={exam.multi_scoring} value={answers[item.item_id]} disabled={!canWrite || expired} onChoose={(id) => choose(item, id)} />
+          {item.type === "CODE" ? (
+            <CodeQuestion
+              key={item.item_id}
+              item={item}
+              number={index + 1}
+              courseId={courseId}
+              examId={examId}
+              attemptId={attempt.id}
+              tab={tab}
+              clock={clock}
+              canWrite={canWrite}
+              expired={expired}
+              onFatal={(why) => (why === "other" ? writer.lose() : onExpired())}
+              registerFlush={registerFlush}
+              onAnswered={onAnswered}
+            />
+          ) : (
+            <Question item={item} number={index + 1} mode={exam.multi_scoring} value={answers[item.item_id]} disabled={!canWrite || expired} onChoose={(id) => choose(item, id)} />
+          )}
         </section>
       </div>
 
@@ -201,7 +234,7 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
       </nav>
 
       <Drawer open={listOpen} onClose={() => setListOpen(false)} title="Danh sách câu" description={`Đã làm ${answeredCount}/${items.length} câu.`}>
-        <Navigator items={items} answers={answers} index={index} onGo={(i) => { go(i); setListOpen(false); }} />
+        <Navigator items={items} answers={answers} code={codeAnswered} index={index} onGo={(i) => { go(i); setListOpen(false); }} />
       </Drawer>
 
       <ConfirmIrreversible
@@ -219,11 +252,11 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
   );
 }
 
-function Navigator({ items, answers, index, onGo }: { items: TakeItem[]; answers: Record<string, Answer | undefined>; index: number; onGo: (i: number) => void }) {
+function Navigator({ items, answers, code, index, onGo }: { items: TakeItem[]; answers: Record<string, Answer | undefined>; code: Record<string, boolean>; index: number; onGo: (i: number) => void }) {
   return (
     <ol className={s.nav}>
       {items.map((it, i) => {
-        const done = answeredOf(it, answers[it.item_id]);
+        const done = answeredOf(it, answers[it.item_id], code);
         return (
           <li key={it.item_id}>
             <button type="button" className={[s.navBtn, i === index ? s.navCurrent : ""].join(" ")} aria-current={i === index ? "step" : undefined} onClick={() => onGo(i)}>
