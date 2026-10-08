@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 
+	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 )
@@ -18,5 +19,15 @@ type Task interface {
 // `outbox.dispatch`, consumer chạy handler đăng ký trong newRegistry.
 func newTasks(d Deps) []Task {
 	od := outbox.Deps{Pool: d.DB, Redis: d.Redis, Log: d.Log, Clock: clock.Real{}, Cfg: d.Cfg}
-	return []Task{outbox.NewRelay(od), outbox.NewConsumer(od, newRegistry(d))}
+	tasks := []Task{outbox.NewRelay(od), outbox.NewConsumer(od, newRegistry(d))}
+	if d.JudgeConsumer {
+		tasks = append(tasks, judgeTask{d.Judge})
+	}
+	return tasks
 }
+
+// judgeTask chạy consumer chấm code (chỉ ở bản worker JUDGE_CONSUMER=true).
+type judgeTask struct{ q *judge.Queue }
+
+func (judgeTask) Name() string                    { return "judge.consumer" }
+func (t judgeTask) Run(ctx context.Context) error { return t.q.Run(ctx) }

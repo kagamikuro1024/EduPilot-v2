@@ -199,6 +199,17 @@ services:
       VERIFY_TOKEN_TTL: ${VERIFY_TOKEN_TTL:-}
       RESET_TOKEN_TTL: ${RESET_TOKEN_TTL:-}
       INVITE_TOKEN_TTL: ${INVITE_TOKEN_TTL:-}
+      # Máy chấm code (US-PE-02): đúng MỘT bản worker có JUDGE_CONSUMER=true.
+      JUDGE_CONSUMER: ${JUDGE_CONSUMER:-true}
+      JUDGE_URL: ${JUDGE_URL:-http://judge:5050}
+      JUDGE_TOKEN: ${JUDGE_TOKEN:-}
+      JUDGE_PARALLELISM: ${JUDGE_PARALLELISM:-}
+      JUDGE_MEM_LIMIT: ${JUDGE_MEM_LIMIT:-2g}
+      JUDGE_LEASE: ${JUDGE_LEASE:-}
+      JUDGE_LEASE_RENEW: ${JUDGE_LEASE_RENEW:-}
+      JUDGE_CLAIM_IDLE: ${JUDGE_CLAIM_IDLE:-}
+      JUDGE_HTTP_SLACK: ${JUDGE_HTTP_SLACK:-}
+    networks: [default, judge_net]
     read_only: true
     tmpfs: ["/tmp"]
     restart: on-failure:3
@@ -207,8 +218,33 @@ services:
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
       mailpit: { condition: service_healthy }
+      judge: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/worker", "-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Máy chấm code (go-judge, D58). Không `ports`, không volume, chỉ ở mạng nội bộ `judge_net` (không đường ra Internet / Postgres / Redis / MinIO).
+  # `privileged` + `cgroup: host` là điều kiện của go-judge để dựng sandbox; container KHÔNG nhận bí mật nào ngoài JUDGE_*.
+  # Colima arm64 (dev): đặt JUDGE_EXTRA_ARGS=-no-seccomp trong .env.local. KHÔNG đặt trên amd64.
+  judge:
+    build:
+      context: ./deploy/judge
+    image: edupilot-judge:dev
+    environment:
+      JUDGE_TOKEN: ${JUDGE_TOKEN:-}
+      JUDGE_PARALLELISM: ${JUDGE_PARALLELISM:-2}
+      JUDGE_EXTRA_ARGS: ${JUDGE_EXTRA_ARGS:-}
+    privileged: true
+    cgroup: host
+    shm_size: 256m
+    cpus: ${JUDGE_CPUS:-2}
+    mem_limit: ${JUDGE_MEM_LIMIT:-2g}
+    networks: [judge_net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/5050 && printf \"GET /version HTTP/1.0\\r\\n\\r\\n\" >&3 && grep -q 200 <&3'"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -247,3 +283,7 @@ volumes:
   minio_data:
   caddy_data:
   caddy_config:
+
+networks:
+  judge_net:
+    internal: true

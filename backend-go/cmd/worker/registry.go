@@ -5,6 +5,7 @@ import (
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
@@ -28,6 +29,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
 	for _, t := range []string{course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified} {
 		reg.Register(t, inv.Handle)
+	}
+	if d.Judge != nil {
+		reg.Register(judge.TopicEnqueue, d.Judge.HandleEnqueue) // XADD tín hiệu chấm rồi đặt enqueued_at (US-PE-02)
 	}
 	registerTestKinds(runner)
 	return reg

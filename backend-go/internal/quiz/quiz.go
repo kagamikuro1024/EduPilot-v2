@@ -1,5 +1,5 @@
 // Package quiz là Quiz Engine của bài thi (SRS FEAT-weekly-exam 4.1.3): chấm trắc nghiệm bằng CODE THUẦN. Không import `internal/llm`,
-// không `float64` cho điểm (AGENTS luật 5) — mọi phép tính là `shopspring/decimal`.
+// không dùng số thực nhị phân cho điểm (AGENTS luật 5) — mọi phép tính là `shopspring/decimal`.
 package quiz
 
 import (

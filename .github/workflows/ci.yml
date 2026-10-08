@@ -48,6 +48,24 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
         run: go test -race -tags testroutes ./...
 
+  judge-attacks:
+    name: Judge attacks (amd64, seccomp bật)
+    # US-PE-02 AC3/AC5: 15 đòn tấn công (A1–A15) trên go-judge thật, KHÔNG -no-seccomp. runner ubuntu-24.04 là amd64.
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: backend-go
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
+      - name: go test -tags integration ./internal/judge
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: go test -race -tags integration ./internal/judge -timeout 15m
+
   frontend:
     name: Frontend
     runs-on: ubuntu-24.04
