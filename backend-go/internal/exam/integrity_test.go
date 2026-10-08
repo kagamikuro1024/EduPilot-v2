@@ -274,9 +274,8 @@ func TestLockSurvivesRedisRestart(t *testing.T) {
 	require.NotEmpty(t, got, "nạp lại khi có yêu cầu kế tiếp")
 }
 
-// TestLockerHitLatencyP95 — AC2: trúng cache p95 ≤ 5 ms.
+// TestLockerHitLatencyP95 — AC2: trúng cache p95 ≤ 5 ms (bản `-race`: ≤ 40 ms). Không chạy song song với test khác của gói để số đo không bị nhiễu.
 func TestLockerHitLatencyP95(t *testing.T) {
-	t.Parallel()
 	r := newRig(t)
 	svc := lockSvc(t, r)
 	sv := r.student("ACTIVE")
@@ -292,7 +291,11 @@ func TestLockerHitLatencyP95(t *testing.T) {
 		d = append(d, time.Since(t0))
 	}
 	slices.Sort(d)
-	require.LessOrEqual(t, d[len(d)*95/100], 5*time.Millisecond, "p95 = %s", d[len(d)*95/100])
+	limit := 5 * time.Millisecond
+	if raceBuild {
+		limit = 40 * time.Millisecond
+	}
+	require.LessOrEqual(t, d[len(d)*95/100], limit, "p95 = %s", d[len(d)*95/100])
 }
 
 // TestLockSweepRemovesOrphans — AC1 (≤ 10 s): khoá của lượt đã kết thúc mà `DEL` không tới được Redis bị tick quét gỡ; khoá của lượt đang làm giữ nguyên.

@@ -226,6 +226,7 @@ services:
       JUDGE_MAX_TOTAL_SECONDS: ${JUDGE_MAX_TOTAL_SECONDS:-}
       EXAM_TICK_INTERVAL: ${EXAM_TICK_INTERVAL:-}
       EXAM_GRACE_SECONDS: ${EXAM_GRACE_SECONDS:-}
+      SIMILARITY_MIN: ${SIMILARITY_MIN:-}
     networks: [default, judge_net]
     read_only: true
     tmpfs: ["/tmp"]

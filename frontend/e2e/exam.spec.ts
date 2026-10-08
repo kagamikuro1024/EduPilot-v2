@@ -622,7 +622,7 @@ type CodeSample = { name: string; verdict: string; time_ms: number; memory_kb: n
 type CodeOut = { compile_ok: boolean; compile_log?: string; samples: CodeSample[] };
 type CodeSub = { id: string; language: string; source: string; created_at: string; polls: number };
 type CodeState = { drafts: Record<string, { source: string; rev: number; at: string }>; runs: Record<string, { language: string; polls: number }>; subs: CodeSub[]; runOut: CodeOut; subOut: CodeOut; pollsBeforeDone: number; runStatus: number; submitStatus: number };
-type TakeState = { code: CodeState | null; started: boolean; submitted: null | { at: string; reason: string }; writer: string | null; answers: Record<string, Json>; skewMs: number; durationMs: number; deadline: number; calls: Array<{ m: string; url: string; tab: string | null; key: string | null; body: unknown }>; offlineSave: boolean; graceMs: number };
+type TakeState = { code: CodeState | null; started: boolean; submitted: null | { at: string; reason: string }; writer: string | null; answers: Record<string, Json>; skewMs: number; durationMs: number; deadline: number; calls: Array<{ m: string; url: string; tab: string | null; key: string | null; body: unknown }>; offlineSave: boolean; graceMs: number; events: Json[]; instructions: string | null };
 function codeItem(c: CodeState) {
   const langs = Object.keys(c.drafts);
   const latest = langs.sort((a, b) => c.drafts[b].at.localeCompare(c.drafts[a].at))[0] ?? null;
@@ -642,7 +642,7 @@ const newCode = (): CodeState => ({
 });
 
 function fakeTake(over: Partial<TakeState> = {}) {
-  const st: TakeState = { code: null, started: false, submitted: null, writer: null, answers: {}, skewMs: 0, durationMs: 45 * 60_000, deadline: 0, calls: [], offlineSave: false, graceMs: 0, ...over };
+  const st: TakeState = { code: null, started: false, submitted: null, writer: null, answers: {}, skewMs: 0, durationMs: 45 * 60_000, deadline: 0, calls: [], offlineSave: false, graceMs: 0, events: [], instructions: null, ...over };
   const srvNow = () => Date.now() + st.skewMs;
   const runningView = (tab: string | null) => ({
     attempt: { id: "a-take", exam_id: E1, status: "IN_PROGRESS", started_at: new Date(st.deadline - st.durationMs).toISOString(), deadline_at: new Date(st.deadline).toISOString(), server_time: new Date(srvNow()).toISOString(), writer: { is_you: !!tab && tab === st.writer } },
@@ -663,9 +663,14 @@ function fakeTake(over: Partial<TakeState> = {}) {
       const path = new URL(req.url()).pathname.split("/attempts")[1] || "";
       st.calls.push({ m: req.method(), url: path, tab, key: h["idempotency-key"] ?? null, body: req.postDataJSON?.() ?? null });
       expireIfDue();
+      if (req.method() === "POST" && path.endsWith("/events")) {
+        st.events.push(...((req.postDataJSON() as { events: Json[] }).events ?? []));
+        st.calls.push({ m: "EVENTS", url: path, tab, key: null, body: req.postData() });
+        return route.fulfill({ status: 204, headers: cors });
+      }
       if (st.code && /\/(code|runs|submissions)(\/|$)/.test(path) && (await codeRoutes(route, req, path, tab))) return;
       if (req.method() === "GET" && path === "/mine") {
-        if (!st.started) return json(route, 200, { attempt: null, exam: { id: E1, title: "Tuần 9", instructions: null, kind: st.code ? "CODE" : "MCQ", duration_minutes: 45, max_score: "10.00", status: "OPEN", opens_at: "2026-12-01T01:00:00Z", closes_at: "2036-12-01T03:00:00Z", my_attempt: null, my_score: null } });
+        if (!st.started) return json(route, 200, { attempt: null, exam: { id: E1, title: "Tuần 9", instructions: st.instructions, kind: st.code ? "CODE" : "MCQ", duration_minutes: 45, max_score: "10.00", status: "OPEN", opens_at: "2026-12-01T01:00:00Z", closes_at: "2036-12-01T03:00:00Z", my_attempt: null, my_score: null } });
         if (st.submitted) return json(route, 200, { attempt: { id: "a-take", status: "GRADED", submitted_at: st.submitted.at, submit_reason: st.submitted.reason }, exam: { id: E1, title: "Tuần 9", closes_at: "2036-12-01T03:00:00Z", status: "OPEN" } });
         return json(route, 200, runningView(tab));
       }
@@ -767,6 +772,7 @@ const timer = (page: Page) => page.getByRole("timer");
 const startExam = async (page: Page) => {
   await page.goto(`/exams/${E1}/take?course=${C1}`);
   await expect(page.getByText("Bạn có 45 phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.")).toBeVisible();
+  await page.locator("[data-part=integrity-notice]").scrollIntoViewIfNeeded(); // câu minh bạch phải hiện trước khi Bắt đầu bấm được
   await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
   await expect(page.getByText("Câu 1/3")).toBeVisible();
 };
@@ -910,6 +916,7 @@ const startCode = async (page: Page, width = 1280) => {
   await page.setViewportSize({ width, height: 900 });
   await page.goto(`/exams/${E1}/take?course=${C1}`);
   await expect(page.getByText("Bài này có phần lập trình, cần màn hình ≥ 1024 px.")).toBeVisible();
+  await page.locator("[data-part=integrity-notice]").scrollIntoViewIfNeeded();
   await page.getByRole("button", { name: "Bắt đầu làm bài" }).click();
   await expect(page.getByText("Câu 1/1")).toBeVisible();
 };
@@ -1139,4 +1146,137 @@ test("take: sse drop during judge — không có kênh sự kiện vẫn nhận 
   expect(polls).toBeGreaterThanOrEqual(3);
   await page.waitForTimeout(2600);
   expect(f.st.code!.runs["run-1"].polls).toBe(polls); // xong thì thôi thăm dò
+});
+
+// ───────── US-PE-07 — liêm chính: câu minh bạch, ghi tín hiệu, so độ giống ─────────
+const INTEGRITY = "Trong giờ làm bài, chat AI tạm khoá. Hệ thống ghi lại số lần bạn rời trang hoặc dán nội dung để giảng viên xem khi cần; đây không phải giám thị và không tự trừ điểm của bạn.";
+
+test("take: integrity notice — đúng chữ ở màn bắt đầu và dải cố định trong giờ; Bắt đầu chỉ bấm được sau khi thấy câu này; không từ kỹ thuật", async ({ page }) => {
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await page.goto(`/exams/${E1}/take?course=${C1}`);
+  const start = page.getByRole("button", { name: "Bắt đầu làm bài" });
+  const notice = page.locator("[data-part=integrity-notice]");
+  await expect(notice.getByText(INTEGRITY, { exact: true })).toBeVisible();
+  await expect(start).toBeEnabled(); // câu đã nằm trong khung nhìn → đã "thấy"
+  await notice.getByText("Tìm hiểu thêm").click();
+  await expect(notice.getByText("Không ghi nội dung bạn dán, không dùng camera, không ghi màn hình.")).toBeVisible();
+  expect(await page.locator("#main").innerText()).not.toMatch(/RAG|PII|provider|trace|gian lận|vi phạm/i);
+  await start.click();
+  await expect(page.getByText("Câu 1/3")).toBeVisible();
+  await expect(page.locator("[data-part=integrity-notice]").getByText(INTEGRITY, { exact: true })).toBeVisible(); // dải cố định trong giờ
+});
+
+test("take: integrity notice gating — ở 375 px câu nằm dưới màn hình thì nút Bắt đầu bị khoá tới khi cuộn tới câu", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 420 });
+  const f = fakeTake({ instructions: Array.from({ length: 40 }, (_, i) => `Dòng hướng dẫn số ${i + 1}.`).join("\n\n") }); // đẩy câu minh bạch xuống dưới màn hình
+  await takeSetup(page, f);
+  await page.goto(`/exams/${E1}/take?course=${C1}`);
+  const start = page.getByRole("button", { name: "Bắt đầu làm bài" });
+  await expect(start).toBeDisabled();
+  await page.locator("[data-part=integrity-notice]").scrollIntoViewIfNeeded();
+  await expect(start).toBeEnabled();
+});
+
+test("take: integrity events — rời tab / dán / mất mạng được ghi gộp; chỉ độ dài đoạn dán, không bao giờ nội dung", async ({ page }) => {
+  const f = fakeTake();
+  await takeSetup(page, f);
+  await startExam(page);
+  await page.evaluate(() => {
+    const hide = (v: "hidden" | "visible") => {
+      Object.defineProperty(document, "visibilityState", { value: v, configurable: true });
+      document.dispatchEvent(new Event("visibilitychange"));
+    };
+    hide("hidden");
+    return new Promise<void>((res) => setTimeout(() => { hide("visible"); res(); }, 300));
+  });
+  await page.evaluate(() => {
+    const dt = new DataTransfer();
+    dt.setData("text", "SECRET-PASTE-CONTENT");
+    document.body.dispatchEvent(new ClipboardEvent("paste", { clipboardData: dt, bubbles: true }));
+    window.dispatchEvent(new Event("offline"));
+    window.dispatchEvent(new Event("online"));
+    window.dispatchEvent(new Event("pagehide")); // gửi lô ngay thay vì chờ 15 s
+  });
+  await expect.poll(() => f.st.events.length, { timeout: 8000 }).toBeGreaterThanOrEqual(5);
+  const types = f.st.events.map((e) => (e as { type: string }).type);
+  expect(types).toEqual(expect.arrayContaining(["TAB_HIDDEN", "TAB_VISIBLE", "PASTE", "OFFLINE", "ONLINE"]));
+  const hidden = f.st.events.find((e) => (e as { type: string }).type === "TAB_HIDDEN") as { meta: { duration_ms: number } };
+  expect(hidden.meta.duration_ms).toBeGreaterThanOrEqual(250);
+  const paste = f.st.events.find((e) => (e as { type: string }).type === "PASTE") as { meta: { chars: number } };
+  expect(paste.meta.chars).toBe("SECRET-PASTE-CONTENT".length);
+  const wire = f.st.calls.filter((c) => c.m === "EVENTS").map((c) => c.body).join("");
+  expect(wire).not.toContain("SECRET");
+});
+
+const SIM_C = "e-sim";
+function simPair(over: Json = {}) {
+  return {
+    id: "p-1", problem_id: "q-1", problem_title: "Tính tổng", run_id: "r-1", a: { attempt_id: "at-1", name: "Nguyễn Văn A" }, b: { attempt_id: "at-2", name: "Trần Thị B" },
+    score: "0.873", shared_fingerprints: 40, flagged: true, review_state: "NEW", note: null, reviewed_at: null, created_at: "2026-12-01T05:00:00Z", ...over,
+  };
+}
+async function simSetup(page: Page, role: "TEACHER" | "TA" = "TEACHER") {
+  await setup(page, role);
+  const st = { pair: simPair() as Json, reviews: [] as Json[], runs: 0, jobPolls: 0 };
+  const j = (route: Route, status: number, body: unknown) => route.fulfill({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+  await page.route(new RegExp(`/api/v1/courses/${C1}/exams/${SIM_C}/similarity`), async (route) => {
+    const req = route.request();
+    const path = new URL(req.url()).pathname.split("/similarity")[1] || "";
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+    if (req.method() === "GET" && path === "") return j(route, 200, { items: [st.pair], next_cursor: null });
+    if (req.method() === "POST" && path === "/run") { st.runs++; return j(route, 202, { job_id: "job-sim" }); }
+    if (req.method() === "GET" && path === "/p-1") {
+      return j(route, 200, {
+        pair: st.pair,
+        a: { language: "cpp17", source: "int main(){\n  int n;\n  scanf(\"%d\", &n);\n  return 0;\n}", match_lines: [2, 3] },
+        b: { language: "cpp17", source: "int main(){\n  int count;\n  scanf(\"%d\", &count);\n  puts(\"x\");\n}", match_lines: [2, 3] },
+      });
+    }
+    if (req.method() === "PUT" && path === "/p-1/review") {
+      const b = req.postDataJSON() as { state: string; note: string | null };
+      st.reviews.push(b);
+      st.pair = { ...st.pair, review_state: b.state, note: b.note, reviewed_at: "2026-12-01T06:00:00Z" };
+      return j(route, 200, st.pair);
+    }
+    return j(route, 404, { code: "NOT_FOUND", message: "x", trace_id: "t" });
+  });
+  await page.route("**/api/v1/jobs/job-sim", (route) => { st.jobPolls++; return j(route, 200, { id: "job-sim", kind: "exam.similarity", status: st.jobPolls > 1 ? "SUCCEEDED" : "RUNNING", progress: 50, result: null }); });
+  return st;
+}
+
+test("similarity review — cặp hiện, hai mã cạnh nhau có tô phần khớp, đánh dấu Đã xem; không có hành động trừ điểm", async ({ page }) => {
+  const st = await simSetup(page);
+  await page.goto(`/exams/${SIM_C}/similarity?course=${C1}`);
+  await expect(page.getByRole("heading", { name: "Nghi giống nhau", level: 1 })).toBeVisible();
+  await expect(page.getByText("Độ giống chỉ là gợi ý — nhiều bài đúng cùng một cách làm tự nhiên giống nhau. Quyết định là của thầy/cô.")).toBeVisible();
+  const pairRow = row(page, "Nguyễn Văn A · Trần Thị B");
+  await expect(pairRow).toBeVisible();
+  await expect(row(page, "87 %")).toBeVisible();
+  await expect(row(page, "Nên xem")).toBeVisible();
+  await pairRow.click();
+  const pv = page.locator("[data-part=pair-view]");
+  await expect(pv.getByText("Nguyễn Văn A")).toBeVisible();
+  await expect(pv.getByText("Trần Thị B")).toBeVisible();
+  await expect(pv.locator("[data-hit]")).toHaveCount(4); // 2 dòng khớp mỗi bên, tô sáng
+  await pv.getByLabel("Ghi chú (tối đa 500 ký tự)").fill("Cùng cách đọc dữ liệu");
+  await pv.getByRole("button", { name: "Đã xem — không có vấn đề" }).click();
+  await expect.poll(() => st.reviews.length).toBe(1);
+  expect(st.reviews[0]).toEqual({ state: "CLEARED", note: "Cùng cách đọc dữ liệu" });
+  await expect(pv.getByText(/^Đã xem — không có vấn đề · /)).toBeVisible();
+  await pv.getByRole("button", { name: "Cần trao đổi" }).click();
+  await expect.poll(() => st.reviews.length).toBe(2);
+  const text = await page.locator("#main").innerText();
+  expect(text).not.toMatch(/trừ điểm|gian lận|vi phạm|nghi gian/i);
+  await expect(page.getByRole("button", { name: /trừ điểm/i })).toHaveCount(0);
+  // chạy lại: việc nền, tiến độ rồi danh sách làm mới
+  await page.getByRole("button", { name: "Chạy lại so sánh" }).click();
+  await expect.poll(() => st.runs).toBe(1);
+});
+
+test("similarity review — TA không mở được trang so độ giống", async ({ page }) => {
+  await simSetup(page, "TA");
+  await page.goto(`/exams/${SIM_C}/similarity?course=${C1}`);
+  await expect(page.getByText(/Trang này dành cho/)).toBeVisible();
+  await expect(page.getByText("Nguyễn Văn A")).toHaveCount(0);
 });

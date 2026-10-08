@@ -168,6 +168,7 @@ const ACCESS: Array<[string, Role[]]> = [
 const EXAM_DYNAMIC: Array<[RegExp, Role[]]> = [
   [/^\/exams\/[^/]+(\/results)?$/, ["ta", "teacher"]],
   [/^\/exams\/[^/]+\/take$/, ["student"]],
+  [/^\/exams\/[^/]+\/similarity$/, ["teacher"]], // US-PE-07: chỉ Giảng viên
 ];
 
 function ruleFor(pathname: string) {

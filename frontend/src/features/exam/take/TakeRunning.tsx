@@ -8,7 +8,9 @@ import type { ExamClock } from "@/shared/lib/examClock";
 import type { Answer } from "@/shared/lib/saveQueue";
 import { Button, ConfirmIrreversible, Drawer, InlineNotice, StatusText } from "@/shared/ui";
 import { CodeQuestion } from "./CodeQuestion";
+import { IntegrityNotice } from "./IntegrityNotice";
 import { useAnswers } from "./useAnswers";
+import { useIntegrityEvents } from "./useIntegrityEvents";
 import { saveAnswers, sleep, submitAttempt, takeover, type Running, type SubmitSummary, type TakeItem } from "./takeApi";
 import { useWriter } from "./useWriter";
 import s from "./Take.module.css";
@@ -121,6 +123,7 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
   }, [queue]);
 
   const item = items[index];
+  useIntegrityEvents({ courseId, examId, attemptId: attempt.id, tab, currentItemId: item?.item_id, active: !expired });
   const answeredCount = items.filter((it) => answeredOf(it, answers[it.item_id], codeAnswered)).length;
   const go = useCallback((i: number) => setIndex(Math.max(0, Math.min(items.length - 1, i))), [items.length]);
 
@@ -226,6 +229,8 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
           )}
         </section>
       </div>
+
+      <IntegrityNotice compact />
 
       <nav className={s.foot} aria-label="Chuyển câu">
         <Button onClick={() => go(index - 1)} disabled={index === 0}>Câu trước</Button>

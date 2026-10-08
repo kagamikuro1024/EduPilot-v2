@@ -43,3 +43,10 @@
   .foot > * { min-height: 44px; }
 }
 .takeWide { max-width: 1440px; }
+.integrity { display: grid; gap: var(--ep-space-2); padding: var(--ep-space-3) 0; border-top: 1px solid var(--ep-rule); border-bottom: 1px solid var(--ep-rule); }
+.integrityText { margin: 0; line-height: 1.6; color: var(--ep-ink-2); }
+.integrityMore { font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.integrityMore summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+.integrityMore p { margin: 0; line-height: 1.6; }
+.integrityCompact { padding: var(--ep-space-2) 0; }
+.integrityCompact .integrityText { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }

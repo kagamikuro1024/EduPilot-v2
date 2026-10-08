@@ -8,6 +8,7 @@ import { makeExamClock } from "@/shared/lib/examClock";
 import { useSession } from "@/shared/session/session";
 import { Button, EmptyState, InlineNotice, Page, PageHeader, Skeleton } from "@/shared/ui";
 import { fmtClock, fmtWhen } from "../examApi";
+import { IntegrityNotice } from "./IntegrityNotice";
 import { TakeRunning } from "./TakeRunning";
 import { getMine, getResult, isNone, isRunning, newTabId, sleep, startAttempt, type Mine, type NoAttempt, type Running, type Submitted } from "./takeApi";
 import { readStoredTab } from "./useWriter";
@@ -110,6 +111,7 @@ function Intro({ mine, start, onStarted }: { mine: NoAttempt; start: (key: strin
   const e = mine.exam;
   const run = useIdempotentMutation<void, Running>((_v, key) => start(key));
   const [nowMs] = useState(() => Date.now()); // một lần khi mở màn giới thiệu
+  const [seen, setSeen] = useState(false); // đã thấy câu minh bạch (AC6): nút Bắt đầu chỉ bấm được sau đó
   const minutesLeft = e.closes_at ? Math.max(0, Math.floor((Date.parse(e.closes_at) - nowMs) / 60_000)) : null;
   const short = e.status === "OPEN" && e.duration_minutes && minutesLeft !== null && minutesLeft < e.duration_minutes;
   return (
@@ -122,9 +124,10 @@ function Intro({ mine, start, onStarted }: { mine: NoAttempt; start: (key: strin
             <p className={s.introNote}>Bạn có {e.duration_minutes} phút. Đồng hồ chạy ngay khi bạn bấm Bắt đầu và không dừng lại nếu bạn thoát.</p>
             {e.kind !== "MCQ" && <p className={s.introNote}>Bài này có phần lập trình, cần màn hình ≥ 1024 px.</p>}
             {short && e.closes_at && <p className={s.introNote}>Bài thi đóng lúc {fmtClock(e.closes_at).slice(0, 5)}, bạn chỉ còn {minutesLeft} phút.</p>}
+            <IntegrityNotice onSeen={() => setSeen(true)} />
             {run.error && <ApiErrorNotice error={run.error} onRetry={() => void run.retry().then((r) => r && onStarted(r.data), () => undefined)} />}
             <div>
-              <Button variant="primary" loading={run.pending} onClick={() => void run.mutate().then((r) => onStarted(r.data), () => undefined)}>Bắt đầu làm bài</Button>
+              <Button variant="primary" loading={run.pending} disabled={!seen} onClick={() => void run.mutate().then((r) => onStarted(r.data), () => undefined)}>Bắt đầu làm bài</Button>
             </div>
           </>
         )}
