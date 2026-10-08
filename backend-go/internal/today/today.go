@@ -40,6 +40,7 @@ const (
 	KindLLMBudgetWarn    Kind = "LLM_BUDGET_WARN"
 	KindCourseNoTeacher  Kind = "COURSE_NO_TEACHER"
 	KindInviteExpired    Kind = "INVITE_EXPIRED"
+	KindQuestionReview   Kind = "QUESTION_REVIEW" // US-PE-03
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -55,6 +56,7 @@ const (
 	TierLLMBudgetWarn    = 30
 	TierCourseNoTeacher  = 40
 	TierInviteExpired    = 50
+	TierQuestionReview   = 90
 )
 
 // allowed: Kind nào được phép trong phản hồi của vai nào. Bộ gộp LỌC theo bảng này nên một Provider lỡ trả nhầm
@@ -63,7 +65,7 @@ func allowed(role Role, k Kind) bool {
 	switch k {
 	case KindVerifyEmail, KindJoinCode, KindJoinPending:
 		return role == RoleStudent
-	case KindJoinRequest:
+	case KindJoinRequest, KindQuestionReview:
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup:
 		return role == RoleTeacher

@@ -350,6 +350,7 @@ func (r *runner) authScenarios() {
 	r.courseScenarios()
 	r.courseAdminScenarios()
 	r.courseJoinScenarios()
+	r.examScenarios()
 }
 
 // accountScenarios: register / verify-email / resend-verification (US-P2-03) với mọi status đã khai báo.

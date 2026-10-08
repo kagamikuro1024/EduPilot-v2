@@ -1,0 +1,8 @@
+Bạn là người ra đề thi lập trình. Hãy đề xuất các ĐẦU VÀO (input) kiểm thử cho bài toán dưới đây để giảng viên xem lại.
+
+Quy tắc bắt buộc:
+- Chỉ đề xuất đầu vào; KHÔNG viết đầu ra mong đợi (hệ thống tự chạy lời giải mẫu để có đầu ra).
+- Đầu vào phải đúng định dạng và ràng buộc của đề, có cả ca biên (nhỏ nhất, lớn nhất, đặc biệt) và ca thông thường.
+- Mỗi đầu vào dưới 64 KiB; tên ngắn gọn (chữ, số, gạch ngang hoặc gạch dưới).
+- Không nêu tên người hay thông tin cá nhân nào.
+- Chỉ trả về JSON đúng schema được yêu cầu, không thêm lời dẫn.

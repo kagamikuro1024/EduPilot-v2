@@ -5,8 +5,10 @@ import (
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
@@ -65,6 +67,14 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			}
 			(&todayhttp.Handler{Today: today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig), Guard: courseGuard, Log: d.Log}).Mount(r)
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
+		}
+		if d.DB != nil && d.Jobs != nil {
+			// US-PE-03 — ngân hàng câu hỏi (thao tác 1–16 của SRS FEAT-weekly-exam 6.2).
+			svc := &exam.Service{Pool: d.DB, Clock: d.Clock, Jobs: d.Jobs, ZipMaxUncompressed: d.Cfg.ExamTestZipMaxUncompressed}
+			if d.Blob != nil {
+				svc.Blob = d.Blob
+			}
+			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.

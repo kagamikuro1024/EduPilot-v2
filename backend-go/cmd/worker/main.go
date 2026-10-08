@@ -15,8 +15,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/db"
 	applog "github.com/edupilot/backend-go/internal/platform/log"
@@ -107,6 +110,8 @@ func serve(ctx context.Context, cfg config.Config, jset judge.Settings, log *slo
 	}
 	deps.Judge = jq
 	deps.JudgeConsumer = jset.Consumer
+	deps.attachExamDeps(startCtx, jset)
+	defer deps.closeExamDeps(ctx)
 	if err := httpapi.WaitForDeps(startCtx, log, cfg.StartupTimeout, dbDep(deps), redisDep(deps)); err != nil {
 		startSpan.End()
 		return 1
@@ -294,4 +299,9 @@ type Deps struct {
 	Judge *judge.Queue
 	// JudgeConsumer: bản worker này có chấm bài không.
 	JudgeConsumer bool
+	// Việc nền của thi hằng tuần (US-PE-03): chạy lời giải mẫu (Sandbox), gợi ý AI (LLM), đọc test lớn (Blob). nil = chưa có → việc FAILED với câu tiếng Việt.
+	Sandbox exam.Sandbox
+	LLM     llm.Client
+	Blob    exam.Blob
+	llmRT   *llmrt.Runtime
 }

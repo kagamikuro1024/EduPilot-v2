@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
@@ -19,6 +20,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg := outbox.NewRegistry()
 	runner := jobs.NewRunner(d.DB, sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL), clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
+	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
+	ew.Register(runner) // code.verify_reference, question.suggest (US-PE-03)
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
 	reg.Register(mail.Topic, mh.Handle)
 	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log}
@@ -27,7 +30,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(course.TopicAssigned, outbox.Chain(cn.HandleAssigned, inv.Handle))
 	reg.Register(course.TopicJoinRequested, outbox.Chain(cn.HandleJoinRequested, inv.Handle))
 	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
-	for _, t := range []string{course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified} {
+	for _, t := range []string{exam.TopicQuestionReviewed, course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified} {
 		reg.Register(t, inv.Handle)
 	}
 	if d.Judge != nil {

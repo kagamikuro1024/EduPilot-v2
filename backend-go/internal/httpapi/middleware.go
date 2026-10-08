@@ -142,6 +142,15 @@ func bodyLimitMiddleware(d Deps) func(http.Handler) http.Handler {
 			if r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/roster/import") && max < rosterBodyBytes {
 				max = rosterBodyBytes // SRS FEAT-course-foundation 4.5: riêng route nạp roster nâng lên 2 MiB (+ phần bọc multipart)
 			}
+			if r.Method == http.MethodPost && strings.HasSuffix(r.URL.Path, "/testcases/import") {
+				zb := int64(d.Cfg.ExamTestZipMaxBytes)
+				if zb <= 0 {
+					zb = 10 << 20
+				}
+				if z := zb + 1<<20; max < z {
+					max = z // US-PE-03: nhập test zip ≤ EXAM_TESTZIP_MAX_BYTES (+ 1 MiB bọc multipart); vượt → handler trả 413 có max_bytes
+				}
+			}
 			if r.ContentLength > max {
 				apierr.Write(w, r, apierr.New(http.StatusRequestEntityTooLarge, apierr.PayloadTooLarge).
 					WithDetails(map[string]any{"max_bytes": max}))

@@ -95,6 +95,9 @@ type Config struct {
 	BlobUseSSL         bool
 	BlobPublicEndpoint string
 	BlobRegion         string
+	// Nhập test zip (US-PE-03, SRS 4.1.5): giới hạn nén / giải nén (đếm khi đọc).
+	ExamTestZipMaxBytes        int
+	ExamTestZipMaxUncompressed int
 
 	// Cổng LLM (SRS FEAT-llm-gateway 4.3, 8.1).
 	LLMMaxConcurrency int
@@ -242,6 +245,8 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.BlobUseSSL = l.boolean("BLOB_USE_SSL", false)
 	c.BlobPublicEndpoint = l.str("BLOB_PUBLIC_ENDPOINT", c.BlobEndpoint)
 	c.BlobRegion = l.str("BLOB_REGION", "us-east-1")
+	c.ExamTestZipMaxBytes = l.num("EXAM_TESTZIP_MAX_BYTES", 10<<20, 1024, 100<<20)
+	c.ExamTestZipMaxUncompressed = l.num("EXAM_TESTZIP_MAX_UNCOMPRESSED", 50<<20, 1024, 500<<20)
 
 	c.LLMMaxConcurrency = l.num("LLM_MAX_CONCURRENCY", 10, 1, 1000)
 	c.LLMBatchShare = l.fraction("LLM_BATCH_SHARE", 0.5)

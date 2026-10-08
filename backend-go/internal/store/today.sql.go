@@ -430,25 +430,44 @@ func (q *Queries) TodaySetup(ctx context.Context, courseIds []string) ([]TodaySe
 }
 
 const todayStaffPending = `-- name: TodayStaffPending :many
-select e.course_id,
-       (count(*) filter (where e.warning is null))::int as pending,
-       coalesce(min(e.status_changed_at) filter (where e.warning is null), 'epoch'::timestamptz)::timestamptz as oldest,
-       (count(*) filter (where e.warning = 'EMAIL_MISMATCH'))::int as mismatch,
-       coalesce(min(e.status_changed_at) filter (where e.warning = 'EMAIL_MISMATCH'), 'epoch'::timestamptz)::timestamptz as mismatch_oldest
-from enrollments e
-where e.course_id = any($1::text[]::uuid[]) and e.role_in_course = 'STUDENT' and e.status = 'PENDING'
-group by e.course_id
+select c.course_id::uuid as course_id,
+       coalesce(e.pending, 0)::int as pending,
+       coalesce(e.oldest, 'epoch'::timestamptz)::timestamptz as oldest,
+       coalesce(e.mismatch, 0)::int as mismatch,
+       coalesce(e.mismatch_oldest, 'epoch'::timestamptz)::timestamptz as mismatch_oldest,
+       coalesce(q.pending, 0)::int as questions,
+       coalesce(q.oldest, 'epoch'::timestamptz)::timestamptz as questions_oldest
+from unnest($1::text[]::uuid[]) as c(course_id)
+left join (
+    select course_id,
+           (count(*) filter (where warning is null)) as pending,
+           min(status_changed_at) filter (where warning is null) as oldest,
+           (count(*) filter (where warning = 'EMAIL_MISMATCH')) as mismatch,
+           min(status_changed_at) filter (where warning = 'EMAIL_MISMATCH') as mismatch_oldest
+    from enrollments
+    where course_id = any($1::text[]::uuid[]) and role_in_course = 'STUDENT' and status = 'PENDING'
+    group by course_id
+) e on e.course_id = c.course_id
+left join (
+    select course_id, count(*) as pending, min(created_at) as oldest
+    from question_bank
+    where course_id = any($1::text[]::uuid[]) and review_status = 'PENDING' and archived_at is null
+    group by course_id
+) q on q.course_id = c.course_id
 `
 
 type TodayStaffPendingRow struct {
-	CourseID       uuid.UUID
-	Pending        int32
-	Oldest         time.Time
-	Mismatch       int32
-	MismatchOldest time.Time
+	CourseID        uuid.UUID
+	Pending         int32
+	Oldest          time.Time
+	Mismatch        int32
+	MismatchOldest  time.Time
+	Questions       int32
+	QuestionsOldest time.Time
 }
 
-// (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, và số hàng email chưa khớp MSSV.
+// (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
+// và (US-PE-03) số câu hỏi PENDING chưa lưu trữ cùng câu cũ nhất — GỘP vào MỘT truy vấn để Hôm nay của Staff giữ ngân sách ≤ 5 truy vấn.
 func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]TodayStaffPendingRow, error) {
 	rows, err := q.db.Query(ctx, todayStaffPending, courseIds)
 	if err != nil {
@@ -464,6 +483,8 @@ func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]
 			&i.Oldest,
 			&i.Mismatch,
 			&i.MismatchOldest,
+			&i.Questions,
+			&i.QuestionsOldest,
 		); err != nil {
 			return nil, err
 		}

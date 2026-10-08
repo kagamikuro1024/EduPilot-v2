@@ -14,6 +14,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
+	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/db"
@@ -104,6 +105,14 @@ func runServe(args []string, getenv func(string) string, stdout, stderr io.Write
 		llmRT.Close(cctx) // đẩy hết llm_audit còn đệm trước khi đóng pool
 	}()
 	deps.LLM = llmRT
+	bl, err := blob.New(startCtx, blob.Config{Endpoint: cfg.BlobEndpoint, PublicEndpoint: cfg.BlobPublicEndpoint, Bucket: cfg.BlobBucket, AccessKey: cfg.BlobAccessKey, SecretKey: cfg.BlobSecretKey,
+		Region: cfg.BlobRegion, UseSSL: cfg.BlobUseSSL, EnsureBucket: cfg.AppEnv != "production"})
+	if err != nil {
+		// Không có kho đối tượng chỉ làm test > 64 KiB của bài code bị từ chối (503); phần còn lại của gateway chạy bình thường.
+		log.WarnContext(startCtx, "chưa dùng được kho đối tượng", "error", err.Error())
+	} else {
+		deps.Blob = bl
+	}
 
 	srv := httpapi.NewServer(deps)
 	var lc net.ListenConfig

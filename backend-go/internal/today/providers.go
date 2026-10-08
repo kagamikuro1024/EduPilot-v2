@@ -131,6 +131,14 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 		if !ok {
 			continue
 		}
+		if r.Questions > 0 { // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
+			age := v.Now.Sub(r.QuestionsOldest)
+			out = append(out, mk(Item{
+				ID: "QUESTION_REVIEW:" + c.ID.String(), Kind: KindQuestionReview, Tier: TierQuestionReview, Course: courseRef(c),
+				Href:  fmt.Sprintf("/questions?review_status=PENDING&course=%s", c.ID),
+				Title: fmt.Sprintf("%d câu hỏi chờ duyệt · lớp %s", r.Questions, c.ClassCode), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
+			}))
+		}
 		href := fmt.Sprintf("/class/members?course=%s&tab=pending", c.ID)
 		if r.Pending > 0 {
 			age := v.Now.Sub(r.Oldest)

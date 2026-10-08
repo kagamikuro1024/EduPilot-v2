@@ -21,6 +21,7 @@ tags:
   - name: llm
   - name: auth
   - name: today
+  - name: exam
 paths:
   /healthz:
     get:
@@ -2028,6 +2029,678 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions:
+    get:
+      operationId: listQuestions
+      tags: [exam]
+      summary: Danh sách câu hỏi của lớp (Giảng viên / TA; lọc, phân trang con trỏ)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: review_status
+          in: query
+          schema:
+            type: string
+        - name: topic
+          in: query
+          schema:
+            type: string
+        - name: difficulty
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: origin
+          in: query
+          schema:
+            type: string
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: archived
+          in: query
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Trang câu hỏi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createQuestion
+      tags: [exam]
+      summary: Tạo câu hỏi (DRAFT; MCQ_SINGLE, MCQ_MULTI, TRUE_FALSE, CODE)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+      responses:
+        "201":
+          description: Câu đã tạo (kèm details.warnings nếu có)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/suggest:
+    post:
+      operationId: suggestQuestions
+      tags: [exam]
+      summary: AI gợi ý nháp câu trắc nghiệm hoặc đầu vào test (việc nền, làn BATCH)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SuggestRequest"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/{qid}:
+    get:
+      operationId: getQuestion
+      tags: [exam]
+      summary: Chi tiết câu hỏi đầy đủ cho Staff (đáp án, giải thích, bộ test, lời giải mẫu)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Câu hỏi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateQuestion
+      tags: [exam]
+      summary: Sửa câu hỏi (khoá lạc quan theo version; câu đang dùng chỉ sửa chủ đề / độ khó / giải thích)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/QuestionInput"
+      responses:
+        "200":
+          description: Câu sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/{qid}/archive:
+    post:
+      operationId: archiveQuestion
+      tags: [exam]
+      summary: Lưu trữ câu hỏi (không xoá cứng)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Câu đã lưu trữ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/questions/{qid}/duplicate:
+    post:
+      operationId: duplicateQuestion
+      tags: [exam]
+      summary: Nhân bản câu hỏi thành bản DRAFT (kể cả test và lời giải mẫu)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "201":
+          description: Bản sao
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/questions/{qid}/review:
+    put:
+      operationId: reviewQuestion
+      tags: [exam]
+      summary: Gửi duyệt / duyệt / từ chối câu hỏi (REQUEST | APPROVE | REJECT)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewRequest"
+      responses:
+        "200":
+          description: Câu sau khi đổi trạng thái
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/{qid}/code:
+    put:
+      operationId: putQuestionCode
+      tags: [exam]
+      summary: "Cấu hình bài lập trình: ngôn ngữ, giới hạn, checker, mã khởi tạo, lời giải mẫu"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CodeConfigRequest"
+      responses:
+        "200":
+          description: Câu sau khi đổi cấu hình
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuestionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/{qid}/testcases:
+    get:
+      operationId: listTestcases
+      tags: [exam]
+      summary: Danh sách test của bài (cả test ẩn, cả test AI chưa duyệt)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+      responses:
+        "200":
+          description: Trang test
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TestcasePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createTestcase
+      tags: [exam]
+      summary: "Thêm một test (tạo tay: đã duyệt, tăng tests_version)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestcaseRequest"
+      responses:
+        "201":
+          description: Test đã thêm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Testcase"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/{qid}/testcases/import:
+    post:
+      operationId: importTestcases
+      tags: [exam]
+      summary: Nhập test bằng zip (multipart, trường file; ?dry_run, ?mode=append|replace; all-or-nothing)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: dry_run
+          in: query
+          schema:
+            type: boolean
+        - name: mode
+          in: query
+          schema:
+            type: string
+            enum: [append, replace]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "200":
+          description: Báo cáo thử (dry_run)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ZipImportReport"
+        "201":
+          description: Đã nhập
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ZipImportReport"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "413":
+          $ref: "#/components/responses/ValidationFailed"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/{qid}/testcases/approve:
+    post:
+      operationId: approveTestcases
+      tags: [exam]
+      summary: Duyệt hàng loạt test AI gợi ý (tăng tests_version, gỡ cờ lời giải mẫu đã kiểm)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ApproveTestsRequest"
+      responses:
+        "200":
+          description: Số test đã duyệt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApproveTestsResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/{qid}/testcases/{tid}:
+    put:
+      operationId: updateTestcase
+      tags: [exam]
+      summary: Sửa một test (trường vắng giữ nguyên; đổi position chèn và đánh số lại)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TestcaseRequest"
+      responses:
+        "200":
+          description: Test sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Testcase"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteTestcase
+      tags: [exam]
+      summary: Xoá một test
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/questions/{qid}/reference/verify:
+    post:
+      operationId: verifyReference
+      tags: [exam]
+      summary: Chạy lời giải mẫu qua mọi test đã duyệt (việc nền; kết quả ở jobs.result)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: qid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -3729,3 +4402,425 @@ components:
         retry_after:
           type: integer
           minimum: 1
+    JobAccepted:
+      type: object
+      required: [job_id]
+      additionalProperties: false
+      properties:
+        job_id:
+          type: string
+          format: uuid
+    QuestionOption:
+      type: object
+      required: [id, position, body, pinned_last]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+        body:
+          type: string
+        pinned_last:
+          type: boolean
+    OptionInput:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        pinned_last:
+          type: boolean
+    QuestionInput:
+      type: object
+      required: [type, title, topic, stem]
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum: [MCQ_SINGLE, MCQ_MULTI, TRUE_FALSE, CODE, SHORT, ESSAY]
+        title:
+          type: string
+        topic:
+          type: string
+        difficulty:
+          type: string
+          enum: [EASY, MEDIUM, HARD]
+        stem:
+          type: string
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/OptionInput"
+        correct:
+          type: array
+          items:
+            type: integer
+        value:
+          type: [boolean, "null"]
+        explanation:
+          type: [string, "null"]
+        version:
+          type: integer
+    ExamRef:
+      type: object
+      required: [id, title, status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        status:
+          type: string
+          enum: [DRAFT, SCHEDULED, OPEN, CLOSED, PUBLISHED]
+    TestStats:
+      type: object
+      required: [total, samples, hidden, total_weight]
+      additionalProperties: false
+      properties:
+        total:
+          type: integer
+        samples:
+          type: integer
+        hidden:
+          type: integer
+        total_weight:
+          type: integer
+    CodeDetail:
+      type: object
+      required: [languages, time_limit_ms, memory_limit_mb, output_limit_kb, checker, float_eps, starter_code, reference, reference_verified_version, reference_verified_at, tests_version, tests]
+      additionalProperties: false
+      properties:
+        languages:
+          type: array
+          items:
+            type: string
+            enum: [c11, cpp17]
+        time_limit_ms:
+          type: integer
+        memory_limit_mb:
+          type: integer
+        output_limit_kb:
+          type: integer
+        checker:
+          type: string
+          enum: [EXACT, TOKENS, FLOAT_EPS]
+        float_eps:
+          type: [string, "null"]
+        starter_code:
+          type: object
+          additionalProperties:
+            type: string
+        reference:
+          type: [object, "null"]
+          required: [language, source]
+          additionalProperties: false
+          properties:
+            language:
+              type: string
+            source:
+              type: string
+        reference_verified_version:
+          type: [integer, "null"]
+        reference_verified_at:
+          type: [string, "null"]
+          format: date-time
+        tests_version:
+          type: integer
+        tests:
+          $ref: "#/components/schemas/TestStats"
+    QuestionDetail:
+      type: object
+      required: [id, type, title, topic, difficulty, stem, explanation, origin, review_status, options, answer_key, used_in_exams, reviewed_by, reviewed_at, archived_at, ai_job_id, version, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [MCQ_SINGLE, MCQ_MULTI, TRUE_FALSE, CODE, SHORT, ESSAY]
+        title:
+          type: string
+        topic:
+          type: string
+        difficulty:
+          type: string
+          enum: [EASY, MEDIUM, HARD]
+        stem:
+          type: string
+        explanation:
+          type: [string, "null"]
+        origin:
+          type: string
+          enum: [MANUAL, AI_DRAFT, EXTRACTED, GENERATED]
+        review_status:
+          type: string
+          enum: [DRAFT, PENDING, APPROVED, REJECTED]
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/QuestionOption"
+        answer_key:
+          type: [object, "null"]
+        code:
+          $ref: "#/components/schemas/CodeDetail"
+        used_in_exams:
+          type: array
+          items:
+            $ref: "#/components/schemas/ExamRef"
+        reviewed_by:
+          type: [string, "null"]
+          format: uuid
+        reviewed_at:
+          type: [string, "null"]
+          format: date-time
+        archived_at:
+          type: [string, "null"]
+          format: date-time
+        ai_job_id:
+          type: [string, "null"]
+          format: uuid
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        details:
+          type: object
+          required: [warnings]
+          additionalProperties: false
+          properties:
+            warnings:
+              type: array
+              items:
+                $ref: "#/components/schemas/FieldIssue"
+    FieldIssue:
+      type: object
+      required: [field, code, message]
+      additionalProperties: false
+      properties:
+        field:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+    QuestionListItem:
+      type: object
+      required: [id, type, title, topic, difficulty, review_status, origin, used_in_exams, version, archived_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        topic:
+          type: string
+        difficulty:
+          type: string
+        review_status:
+          type: string
+        origin:
+          type: string
+        used_in_exams:
+          type: integer
+        version:
+          type: integer
+        archived_at:
+          type: [string, "null"]
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    QuestionPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/QuestionListItem"
+        next_cursor:
+          type: [string, "null"]
+    ReviewRequest:
+      type: object
+      required: [decision]
+      additionalProperties: false
+      properties:
+        decision:
+          type: string
+          enum: [REQUEST, APPROVE, REJECT]
+        version:
+          type: integer
+    CodeConfigRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        languages:
+          type: array
+          items:
+            type: string
+        time_limit_ms:
+          type: integer
+        memory_limit_mb:
+          type: integer
+        output_limit_kb:
+          type: integer
+        checker:
+          type: string
+        float_eps:
+          type: [string, number, "null"]
+        starter_code:
+          type: object
+          additionalProperties:
+            type: string
+        reference:
+          type: [object, "null"]
+          required: [language, source]
+          additionalProperties: false
+          properties:
+            language:
+              type: string
+            source:
+              type: string
+        version:
+          type: integer
+    TestcaseRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name:
+          type: string
+        input:
+          type: string
+        expected:
+          type: string
+        is_sample:
+          type: boolean
+        weight:
+          type: integer
+        position:
+          type: integer
+    Testcase:
+      type: object
+      required: [id, position, name, is_sample, weight, input, input_truncated, expected, expected_truncated, input_bytes, expected_bytes, source, approved]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        position:
+          type: integer
+        name:
+          type: string
+        is_sample:
+          type: boolean
+        weight:
+          type: integer
+        input:
+          type: string
+        input_truncated:
+          type: boolean
+        expected:
+          type: string
+        expected_truncated:
+          type: boolean
+        input_bytes:
+          type: integer
+        expected_bytes:
+          type: integer
+        source:
+          type: string
+          enum: [MANUAL, IMPORT, AI_DRAFT]
+        approved:
+          type: boolean
+    TestcasePage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          items:
+            $ref: "#/components/schemas/Testcase"
+        next_cursor:
+          type: [string, "null"]
+    ApproveTestsRequest:
+      type: object
+      required: [ids]
+      additionalProperties: false
+      properties:
+        ids:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            type: string
+            format: uuid
+    ApproveTestsResult:
+      type: object
+      required: [approved]
+      additionalProperties: false
+      properties:
+        approved:
+          type: integer
+    ZipImportError:
+      type: object
+      required: [file, code, message]
+      additionalProperties: false
+      properties:
+        file:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+    ZipImportReport:
+      type: object
+      required: [would_create, created, errors]
+      additionalProperties: false
+      properties:
+        would_create:
+          type: integer
+        created:
+          type: integer
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ZipImportError"
+    SuggestRequest:
+      type: object
+      required: [kind, count]
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [MCQ, CODE_TESTS]
+        topic:
+          type: string
+        difficulty:
+          type: string
+          enum: [EASY, MEDIUM, HARD]
+        count:
+          type: integer
+          minimum: 1
+          maximum: 10
+        source_text:
+          type: string
+        question_id:
+          type: string
+          format: uuid
