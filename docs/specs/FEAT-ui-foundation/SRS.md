@@ -1,5 +1,7 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1.5 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+Phiên bản 1.6 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+
+**v1.6 (2026-10-09)** — góp ý #15 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: QC Q-QC-PU06-6, báo cáo B3: trước story số `"use client"` ở hai layout đã `0` nên "sau < trước" không thể thoả). Không đổi số AC (90). Đổi: **US-PU-06 AC3** thành "không tăng số khai báo `\"use client\"` ở hai layout và nội dung trên màn đầu vẽ từ máy chủ (`PreShell`)"; `SRS.md` FR-44.
 
 **v1.5 (2026-10-08)** — góp ý #14 `docs/sprints/5/proposals.md` (PM `ACCEPTED`: "(b') như đề xuất; ngưỡng 2,5 s `error` cho 6 route người dùng ở lượt devtools. `/dev/ui` LCP `warn` … `font-display: block` được chấp nhận với điều kiện: phông tự host qua `next/font`, có preload, subset latin + vietnamese, ≤ 3 độ đậm; QC kiểm chữ hiện ≤ 1 s ở lượt devtools"). Không đổi số AC (90). Đổi: US-PU-06 AC4 (LCP assert ở lượt `lhci` `throttlingMethod: devtools`, sáu route `error`, `/dev/ui` `warn`; lượt mô phỏng mặc định chỉ ghi số LCP; điều kiện FCP ≤ 1 s), **AC5** (TBT ở lượt mô phỏng), **AC6** (hai lượt, khác biệt duy nhất là `throttlingMethod`, không đổi CPU 4×), AC13 (handoff); bảng URL; **US-PU-01 AC5** (font: `display: block`, preload, `latin` + `vietnamese`, tối đa ba độ đậm — hiện 400 / 600 / 700 theo #26 sprint 3; trước đó AC ghi bốn độ đậm và `swap`); `SRS.md` FR-5, FR-45, 8.2, 8.5, mục 9.
 
@@ -210,7 +212,7 @@ Mỗi phép in một dòng `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi ph
 | FR-41 | CI job Frontend chạy toàn bộ cổng; chứng minh đỏ khi vi phạm | 05-AC7, 05-AC8 |
 | FR-42 | PU không sửa `backend-go/`; bằng chứng "trước / sau" và báo cáo | 05-AC2, 05-AC9, 05-AC11, 05-AC12 |
 | FR-43 | Khung trang có `<h1>` + mô tả vẽ từ máy chủ, không dữ liệu người dùng, không bộ nhớ đệm chung | 06-AC1, 06-AC2 |
-| FR-44 | Bớt client component ở hai layout; JS mỗi route ≤ 256.000 byte | 06-AC3 |
+| FR-44 | Không thêm `"use client"` ở hai layout; nội dung màn đầu vẽ từ máy chủ (`PreShell`); JS mỗi route ≤ 256.000 byte | 06-AC3 |
 | FR-45 | Lighthouse hai lượt: LCP `error` ở 6 route người dùng (lượt `devtools`, `/dev/ui` `warn`); TBT `error` ở 6 route người dùng (`/dev/ui` `warn`); TBT 12× ≤ 170 ms từng route; không nới cách đo; CI xanh ổn định | 06-AC4, 06-AC5, 06-AC6, 06-AC7, 06-AC8 |
 | FR-46 | Không hồi quy: ảnh mốc (quy tắc đổi ảnh), axe, phiên, thư viện, lint | 06-AC9, 06-AC10, 06-AC11 |
 | FR-47 | Ma trận quyền không đổi; trả nợ và bàn giao | 06-AC12, 06-AC13 |
