@@ -1,6 +1,8 @@
 # Prompt cho `qc` — Chạy test sprint 5 (US-PU-06 + PE)
 
 **Worktree riêng của QC** từ `origin/sprint/5-pe` (như các sprint trước; không dùng worktree của dev).
+**Công cụ nghiệm thu bằng tay:** `playwright-cli` (chủ dự án yêu cầu 2026-10-08) — cài toàn cục `npm i -g @playwright/cli@latest`, xem `playwright-cli --help` / https://playwright.dev/agent-cli/. Dùng cho kiểm thử thăm dò, đi luồng F19, chụp ảnh bằng chứng, xem snapshot DOM. Không chạy `playwright-cli install` trong repo (nó tạo `.playwright/` và sửa `.gitignore`); trình duyệt tự tải lần đầu. Đặt `PLAYWRIGHT_CLI_SESSION=qc`, đóng phiên trình duyệt sau mỗi lượt. Không thay test tự động: TC có lệnh Playwright / Go vẫn chạy như cũ.
+
 
 ## Việc
 1. **Trước khi dev giao story đầu:**
