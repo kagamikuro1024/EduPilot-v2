@@ -22,7 +22,11 @@
         ]
       },
       "settings": {
-        "chromeFlags": "--no-sandbox --headless=new"
+        "chromeFlags": "--no-sandbox --headless=new",
+        "throttlingMethod": "devtools",
+        "onlyCategories": [
+          "performance"
+        ]
       }
     },
     "assert": {
@@ -30,25 +34,10 @@
         {
           "matchingUrlPattern": "^http://localhost:3310/(?!dev/ui$).*",
           "assertions": {
-            "largest-contentful-paint": "off",
-            "cumulative-layout-shift": [
+            "largest-contentful-paint": [
               "error",
               {
-                "maxNumericValue": 0.1,
-                "aggregationMethod": "median"
-              }
-            ],
-            "total-blocking-time": [
-              "error",
-              {
-                "maxNumericValue": 200,
-                "aggregationMethod": "median"
-              }
-            ],
-            "resource-summary:script:size": [
-              "error",
-              {
-                "maxNumericValue": 256000,
+                "maxNumericValue": 2500,
                 "aggregationMethod": "median"
               }
             ]
@@ -57,25 +46,10 @@
         {
           "matchingUrlPattern": "^http://localhost:3310/dev/ui$",
           "assertions": {
-            "largest-contentful-paint": "off",
-            "cumulative-layout-shift": [
-              "error",
-              {
-                "maxNumericValue": 0.1,
-                "aggregationMethod": "median"
-              }
-            ],
-            "total-blocking-time": [
+            "largest-contentful-paint": [
               "warn",
               {
-                "maxNumericValue": 200,
-                "aggregationMethod": "median"
-              }
-            ],
-            "resource-summary:script:size": [
-              "error",
-              {
-                "maxNumericValue": 256000,
+                "maxNumericValue": 2500,
                 "aggregationMethod": "median"
               }
             ]
@@ -85,7 +59,7 @@
     },
     "upload": {
       "target": "filesystem",
-      "outputDir": ".lighthouseci"
+      "outputDir": ".lighthouseci-devtools"
     }
   }
 }

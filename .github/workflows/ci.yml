@@ -86,6 +86,12 @@ jobs:
           export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
           echo "CHROME_PATH=$CHROME_PATH"
           pnpm -C frontend exec lhci autorun
+      - name: lighthouse ci (devtools, chỉ LCP)
+        # US-PU-06 / góp ý #14 (b'): LCP đo bằng throttle THẬT (devtools), vì mô phỏng (simulate) tính cả ~254 KB JS vào đồ thị LCP kể cả khi chữ đã có trong HTML.
+        # Lượt simulate ở trên giữ TBT / CLS / dung lượng JS (4× và ngưỡng không đổi); LCP ở đó không chấm.
+        run: |
+          export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
+          pnpm -C frontend exec lhci autorun --config=lighthouserc.devtools.json
       - name: lighthouse benchmark (chẩn đoán máy chạy)
         if: always()
         run: |
@@ -105,5 +111,6 @@ jobs:
             frontend/playwright-report
             frontend/test-results
             frontend/.lighthouseci
+            frontend/.lighthouseci-devtools
           include-hidden-files: true # frontend/.lighthouseci là thư mục ẩn: không có cờ này báo cáo Lighthouse không được tải lên
           if-no-files-found: ignore

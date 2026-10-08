@@ -21,13 +21,13 @@ Nhánh `sprint/5-pe`. AC chính thức của story viết ở `FEAT-ui-foundatio
 | `/dev/ui` | 184 | 2.919 | 3.2–3,5 s | 1,66 s | 0 |
 Trước story (bản `1229114` sprint 4): TBT 12× 195–239, LCP 3,4–4,2 s ở cả hai cách.
 - **TBT:** đạt ≤ 170 ở 6 route người dùng (`/chat` sát: 162; `/dev/ui` giữ `warn`).
-- **LCP:** ssửa lỗi thật (devtools 3,5–4,3 s → 1,4–1,9 s). **Simulate vẫn > 2,5 s** — sàn tải ≈ 254 KB JS ở 1,6 Mbps (cả `/login` 3,3 s), TL-2 mục 3. Góp ý **#14** (b'): thêm lượt `lhci` devtools chỉ cho LCP. **Chưa đổi `lighthouserc.json`** (TL-2: dev không tự đổi); TBT chưa trả về `error` ở file cấu hình vì chờ PM chốt cùng #14.
+- **LCP:** ssửa lỗi thật (devtools 3,5–4,3 s → 1,4–1,9 s). **Simulate vẫn > 2,5 s** — sàn tải ≈ 254 KB JS ở 1,6 Mbps (cả `/login` 3,3 s), TL-2 mục 3. Góp ý **#14** (b'): thêm lượt `lhci` devtools chỉ cho LCP. Góp ý **#14 ACCEPTED**: `lighthouserc.json` (simulate) trả TBT 6 route về `error` (ngưỡng 200, 4× không đổi), LCP không chấm ở lượt này; thêm `lighthouserc.devtools.json` + bước CI `lighthouse ci (devtools, chỉ LCP)` — LCP ≤ 2.500 ms `error` cho 6 route, `/dev/ui` `warn`.
 - `/dev/ui` (devtools 2,9 s với `block`; 0,76 s khi còn `swap`): chỉ có ở bản dev, giữ `warn`.
 
 ## Gate
 `pnpm -C frontend lint` sạch; `tsc` sạch; `ui-antipatterns` 0 ✗; Playwright không visual + `lcp.spec.ts`: xem commit. Ảnh visual chưa sinh lại (không đổi giao diện sau phiên); CI sẽ báo nếu lệch.
 
 ## Nợ
-- `lighthouserc.json` (TBT `error`, thêm lượt devtools LCP) chờ PM #14 → BA sửa `FEAT-ui-foundation` v1.4.
+- BA sửa `FEAT-ui-foundation` AC4 / AC5 / AC6 (v1.5), QC sửa `tc-US-PU-06` + `tokens.spec` theo #14 (dev đã sửa `tokens.spec.ts` sang `block`; QC có thể viết lại).
 - `/` cho vai GV / TA / Admin: sau phiên có đoạn trống "Khi có yêu cầu vào lớp…" lớn hơn chữ khung (chỉ khi không có dữ liệu); gate dùng sinh viên nên không thấy.
 - `intro.ts` giữ chữ khung riêng — đổi chữ màn thật thì phải đổi ở đây (e2e `lcp before refresh` bắt hồi quy với dữ liệu giả).
