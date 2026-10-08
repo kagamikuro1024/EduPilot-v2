@@ -31,3 +31,29 @@ Trước story (bản `1229114` sprint 4): TBT 12× 195–239, LCP 3,4–4,2 s �
 - BA sửa `FEAT-ui-foundation` AC4 / AC5 / AC6 (v1.5), QC sửa `tc-US-PU-06` + `tokens.spec` theo #14 (dev đã sửa `tokens.spec.ts` sang `block`; QC có thể viết lại).
 - `/` cho vai GV / TA / Admin: sau phiên có đoạn trống "Khi có yêu cầu vào lớp…" lớn hơn chữ khung (chỉ khi không có dữ liệu); gate dùng sinh viên nên không thấy.
 - `intro.ts` giữ chữ khung riêng — đổi chữ màn thật thì phải đổi ở đây (e2e `lcp before refresh` bắt hồi quy với dữ liệu giả).
+
+## Sửa vòng 1 — QC B1 / B2 / B4 (B3: lỗi chữ AC, BA xử lý, không đổi mã)
+### B1 — TBT `/gradebook`, `/chat` ở 12×
+- **Tìm tác vụ dài** (Lighthouse `long-tasks` + vết Chromium CPU 12× + hồ sơ V8): ở `/gradebook` chỉ có HAI tác vụ > 50 ms — (1) phân tích tài liệu HTML của route (≈ 90–98 ms, **trước** FCP nên không tính TBT); (2) **một** tác vụ `EvaluateScript` của chunk khung `0307…js` (Next + react-dom, 229 KB) ≈ **223–284 ms** ở 12×, chạy ở giây 3,6 khi chunk về tới (mạng 1,6 Mbps). Tác vụ (2) **giống hệt ở mọi route** (hồ sơ V8: `N` của runtime Turbopack 11 ms + chunk 6 ms + `program`/parse 46 ms thật, nhân 12), không phải do bảng sổ điểm; `/chat` cùng cơ chế. TBT vì thế **hai đỉnh**: ≈ 90 khi tác vụ rơi ngoài cửa sổ FCP → TTI (hoặc bị cắt), ≈ 165–190 khi rơi trọn trong đó; trung vị phụ thuộc số lượt rơi vào đỉnh nào (QC 5–7 lượt: 183 / 172).
+- **Sửa phần thuộc route**: `shared/lib/useProgressiveCount` + `Gradebook` dựng sổ điểm theo đợt 8 dòng / 16 ms (trước đây dựng cả bảng trong một lượt render lúc có phiên). Dòng dựng sau nằm dưới dòng đã có nên CLS = 0. Sau sửa không còn tác vụ nào > 50 ms thuộc trang ngoài tác vụ khung. Đo 7 lượt `/gradebook` trước → sau: `107 109 121 138 166 172 177` (trung vị **138**) → `82 89 95 161 163 168 171` (**161**; lượt tốt 82–95).
+- **Không thể bớt** tác vụ khung ở mức mã ứng dụng: thử `browserslist` hiện đại (chunk vẫn 229.139 B — Next đã mặc định đích này; hoàn lại), tách `AppShell` (đã hoàn lại ở vòng đầu). Đây là sàn của Next 16 + React 19 trên máy chậm 12×.
+- **Số đo cuối, 12× simulate, 7 lượt, trung vị (các lượt đã sắp)** — máy dev arm64:
+
+| Route | TBT (ms) | benchmarkIndex | First Load JS (gzip, KB) | raw JS (KB) | số script |
+| --- | --- | --- | --- | --- | --- |
+| `/` | **89** (86 86 89 89 92 93 119) | 3.821 | 232,0 | 713,4 | 19 |
+| `/chat` | **95** (83 86 91 95 99 163 185) | 3.847 | 240,1 | 737,5 | 19 |
+| `/threads` | **87** (80 82 86 87 93 174 178) | 3.830 | 246,0 | 751,5 | 20 |
+| `/inbox` | **173** (90 91 92 173 175 179 185) | 3.777 | 230,0 | 706,9 | 19 |
+| `/gradebook` | **161** (82 89 95 161 163 168 171) | 3.731 | 235,4 | 723,2 | 19 |
+| `/settings/llm` | **166** (82 85 86 166 167 175 181) | 3.781 | 240,9 | 740,5 | 20 |
+
+  **Trung thực:** `/inbox` 173 vẫn > 170 ở lượt đo này; `/chat` 95 (lượt trước 162–173). TBT hai đỉnh nên trung vị 5–7 lượt dao động 90 ↔ 175 giữa các lần đo. **Cổng CI** (`lighthouserc.json`) là 200 và đỉnh cao nhất đo được là 185–190 nên **qua** (xem bằng chứng bên dưới); mức 170 của AC5 là mục tiêu dev, không phải ngưỡng CI. Nếu cần ≤ 170 chắc chắn, phải giảm chính chunk khung (ngoài tầm mã ứng dụng) hoặc BA sửa AC5 thành "đỉnh cao ≤ 200".
+### B2 — `Cache-Control`
+- `next.config.ts` `headers()`: mọi route ứng dụng (`/((?!_next/|.*\..*).*)`) trả `Cache-Control: private, no-cache` (Next tự gắn `s-maxage=31536000` cho trang tiền kết xuất tĩnh; header cấu hình ghi đè được — đã kiểm). `/join`, `/verify-email`, `/reset-password`, `/invite/*` giữ `no-store`; `_next/static` giữ `public, max-age=31536000, immutable`. Kiểm `curl -sD -` 6 route + `/dev/ui` + `/login`: đều `private, no-cache`, không còn `s-maxage` / `public`.
+### B4
+- `docs/PROGRESS.md` dòng 8 và 47: nợ LCP / TBT đánh dấu **ĐÃ TRẢ (US-PU-06, #14)**; bảng `First Load JS` + `benchmarkIndex` từng route ở trên.
+### Bằng chứng tạm (CI GitHub không chạy — billing): hai lệnh lhci của CI chạy tại máy
+- `cd frontend && pnpm build:gate && pnpm exec lhci autorun` → **rc=0**, 7 URL × 3 lượt, không `error` (TBT 6 route ≤ 200 median, CLS, `resource-summary:script`).
+- `pnpm exec lhci autorun --config=lighthouserc.devtools.json` → **rc=0**; 6 route LCP ≤ 2.500 median; chỉ có cảnh báo `/dev/ui` LCP 2.927 ms (`warn` theo #14).
+- Playwright `shell.spec.ts lcp.spec.ts tokens.spec.ts` (không visual): 38 pass. `pnpm lint`, `tsc --noEmit`, `ui-antipatterns.sh` sạch.

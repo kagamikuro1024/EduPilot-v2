@@ -12,7 +12,12 @@ const config = (phase: string): NextConfig => ({
   // Trang nhận liên kết một lần (xác minh email, đặt lại mật khẩu, lời mời): không gửi Referer, không cache (SRS FEAT-account-security 6.3).
   async headers() {
     const h = [{ key: "Referrer-Policy", value: "no-referrer" }, { key: "Cache-Control", value: "no-store" }];
-    return ["/verify-email", "/reset-password", "/invite/:path*", "/join", "/join/:path*"].map((source) => ({ source, headers: h }));
+    return [
+      // Trang ứng dụng (US-PU-06 AC2): Next tiền kết xuất tĩnh nên tự gắn `s-maxage=31536000` (cache chung). HTML chỉ là khung chưa có dữ liệu người dùng,
+      // nhưng ứng dụng đăng nhập không được để CDN / proxy giữ bản nào: `private, no-cache`. Tệp tĩnh `_next/` và tệp có đuôi giữ cache dài của Next.
+      { source: "/((?!_next/|.*\\..*).*)", headers: [{ key: "Cache-Control", value: "private, no-cache" }] },
+      ...["/verify-email", "/reset-password", "/invite/:path*", "/join", "/join/:path*"].map((source) => ({ source, headers: h })),
+    ];
   },
   // Không để Next tự sinh AGENTS.md / CLAUDE.md trong frontend/ (luật agent nằm ở CLAUDE.md gốc).
   agentRules: false,
