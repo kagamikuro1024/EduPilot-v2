@@ -1,6 +1,5 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ButtonLink, Button, Kbd, PageHeader, PrivateMark, Section, SegmentedControl, Drawer, ActionList, ActionRow, DataTable, type Column } from "@/shared/ui";
 import { TrendChart } from "@/shared/ui/Chart";
@@ -8,6 +7,7 @@ import { VerificationState } from "@/shared/domain";
 import { NA_REASONS, REGISTRY, STATES } from "@/shared/ui/registry";
 import { CELLS } from "./cells";
 import { FIX } from "./fixtures";
+import { useQueryParam } from "./useQueryParam";
 import s from "./DevUi.module.css";
 
 const WIDTHS = ["375", "900", "1280", "1440"] as const;
@@ -52,7 +52,7 @@ function CursorDemo() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const failed = useRef(false);
-  const failTwo = useSearchParams().get("fail2") === "1";
+  const failTwo = useQueryParam("fail2") === "1";
   const log = useRef<string[]>([]);
   useEffect(() => {
     (window as unknown as { __cursorCalls: string[] }).__cursorCalls = log.current;
@@ -114,8 +114,7 @@ function ClsDemo() {
 }
 
 export default function DevUi() {
-  const q = useSearchParams();
-  const role = q.get("as") ?? "teacher";
+  const role = useQueryParam("as") ?? "teacher";
   const [w, setW] = useState<(typeof WIDTHS)[number]>("1440");
   const long = [FIX.title120, FIX.nameLong, FIX.diacritics, FIX.urlLong, FIX.bigNumber];
   return (

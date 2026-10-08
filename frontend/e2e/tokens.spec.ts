@@ -27,7 +27,7 @@ test.describe("font", () => {
     const lines = src.split("\n").filter((l) => l.includes("weight: ["));
     expect(lines).toHaveLength(1);
     expect(lines[0].match(/"(\d+)"/g)).toEqual(['"400"', '"600"', '"700"']);
-    expect(src).toMatch(/display:\s*"swap"/);
+    expect(src).toMatch(/display:\s*"block"/); // đề xuất #14 (US-PU-06): đổi từ swap để chữ máy chủ không bị ứng viên LCP muộn thay
     expect(src).toMatch(/subsets:\s*\[[^\]]*"vietnamese"/);
   });
 });

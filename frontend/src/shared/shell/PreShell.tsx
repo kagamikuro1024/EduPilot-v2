@@ -32,6 +32,7 @@ export function PreShell({ intro }: { intro: RouteIntro }) {
               </div>
             </div>
           </div>
+          {intro.body && <p className={pre.body}>{intro.body}</p>}
         </div>
       </main>
     </div>
