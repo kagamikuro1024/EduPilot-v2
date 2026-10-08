@@ -9,7 +9,7 @@ import (
 )
 
 // examResultScenarios: thao tác 26, 42, 44–50, 55, 56 (công bố, kết quả cho Staff, sửa điểm, chấm lại, phúc khảo — US-PE-08) với mọi status đã khai báo.
-// 47 trả 202 chỉ với > 200 lượt GRADED: được miễn ở exempt.go (service `exam.TestOverrideRecomputes` + `TestOverrideLargeEnqueues`).
+// 47 trả 202 chỉ với > 200 lượt GRADED: được miễn ở exempt.go (service `exam.TestOverrideAnswerKeyRecomputes` + `TestOverrideLargeUsesJob`).
 func (r *runner) examResultScenarios(x examRig) {
 	db := r.rig.deps.DB
 	ctx := context.Background()
@@ -107,7 +107,7 @@ func (r *runner) examResultScenarios(x examRig) {
 	r.must(call{method: "GET", path: csv}, 401)
 	r.must(call{method: "GET", path: csv, token: x.sv}, 403)
 	r.must(call{method: "GET", path: ex + "/" + uuid.NewString() + "/results.csv", token: x.gv}, 404)
-	// 422 EXPORT_TOO_LARGE cần > 5.000 sinh viên: được miễn (exam.TestResultsCSV + hằng `csvMaxRows`).
+	// 422 EXPORT_TOO_LARGE cần > 5.000 sinh viên: được miễn (`exam.TestCSVOver5000Rejected`).
 
 	// 46: sửa điểm tay.
 	var cur struct {

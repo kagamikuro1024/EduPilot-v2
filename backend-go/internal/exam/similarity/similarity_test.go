@@ -331,9 +331,9 @@ func synth(id, group string, common []uint64, own int, salt uint64) similarity.D
 	return similarity.Doc{ID: id, Group: group, Tokens: 100, FP: fp}
 }
 
-// TestFlagRelativeThreshold — AC8: cờ = max(SIMILARITY_MIN, mean + 3 × stddev của lớp). Lớp có mức nền cao (mọi cặp ~0,67 do khung chung): cặp 0,67 không bị gắn cờ dù ≥ SIMILARITY_MIN = 0,60; cặp trùng hẳn (1,0) bị gắn cờ.
+// TestSimilarityFlagRelativeThreshold — AC8: cờ = max(SIMILARITY_MIN, mean + 3 × stddev của lớp). Lớp có mức nền cao (mọi cặp ~0,67 do khung chung): cặp 0,67 không bị gắn cờ dù ≥ SIMILARITY_MIN = 0,60; cặp trùng hẳn (1,0) bị gắn cờ.
 // Lớp sạch (nền ~0): cặp 0,67 vượt SIMILARITY_MIN = 0,60 → gắn cờ.
-func TestFlagRelativeThreshold(t *testing.T) {
+func TestSimilarityFlagRelativeThreshold(t *testing.T) {
 	t.Parallel()
 	opts := similarity.Options{MinScore: 400, MinShared: 10, Top: 200, FlagMin: 600, FlagSigmas: 3}
 	common := make([]uint64, 48)
@@ -367,9 +367,9 @@ func TestFlagRelativeThreshold(t *testing.T) {
 	require.False(t, r2.Flagged[[2]string{"p1", "p2"}], "0,50 < 0,60")
 }
 
-// TestFlagCapSmallClass — đề xuất #17(c): lớp 8 bài có 3 bài chép nhau → mean + 3σ vượt 1,0 nếu không có trần nên không cặp nào bị gắn cờ; với trần SIMILARITY_CAP = 0,90
+// TestSimilaritySmallClassFlagsCopiers — đề xuất #17(c): lớp 8 bài có 3 bài chép nhau → mean + 3σ vượt 1,0 nếu không có trần nên không cặp nào bị gắn cờ; với trần SIMILARITY_CAP = 0,90
 // cả 3 cặp (1,0) bị gắn cờ, còn cặp khác nhóm điểm thấp thì không.
-func TestFlagCapSmallClass(t *testing.T) {
+func TestSimilaritySmallClassFlagsCopiers(t *testing.T) {
 	t.Parallel()
 	common := make([]uint64, 48)
 	for i := range common {
@@ -392,4 +392,30 @@ func TestFlagCapSmallClass(t *testing.T) {
 	for _, p := range [][2]string{{"k0", "k1"}, {"k0", "k2"}, {"k1", "k2"}} {
 		require.True(t, res.Flagged[p], p)
 	}
+}
+
+// TestFlagSmallClassCap — đề xuất #17(c): ngưỡng tương đối bị chặn bởi SIMILARITY_CAP; không trần thì mean + 3σ vượt 1,0 ở lớp nhỏ có bài chép.
+func TestFlagSmallClassCap(t *testing.T) {
+	t.Parallel()
+	common := make([]uint64, 48)
+	for i := range common {
+		common[i] = uint64(i + 1)
+	}
+	var docs []similarity.Doc
+	for i := range 5 {
+		docs = append(docs, synth(fmt.Sprintf("o%d", i), fmt.Sprintf("so%d", i), nil, 40, uint64(i+1)))
+	}
+	for i := range 3 {
+		docs = append(docs, synth(fmt.Sprintf("k%d", i), fmt.Sprintf("sk%d", i), common, 12, 4242))
+	}
+	base := similarity.Options{MinScore: 400, MinShared: 10, Top: 200, FlagMin: 600, FlagSigmas: 3}
+	require.Greater(t, similarity.Run(docs, base).Threshold, 1000, "không trần: ngưỡng vượt 1,0")
+	for _, cap := range []int{900, 800} {
+		o := base
+		o.FlagCap = cap
+		require.Equal(t, cap, similarity.Run(docs, o).Threshold)
+	}
+	o := base
+	o.FlagCap = 400 // trần thấp hơn SIMILARITY_MIN: SIMILARITY_MIN thắng (max)
+	require.Equal(t, 600, similarity.Run(docs, o).Threshold)
 }

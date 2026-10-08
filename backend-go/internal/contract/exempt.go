@@ -20,8 +20,8 @@ func Exemptions() []Exemption {
 		{"PUT /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/answers", 429, "Giới hạn 240 lần lưu / phút / lượt: không gọi 240 lần trong kịch bản hợp đồng; hành vi được `exam.TestSaveRateLimit` kiểm (cấu hình nhỏ)."},
 		{"PUT /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/draft", 429, "Bản nháp dùng chung hạn mức 240 lần / phút / lượt với câu trả lời: không gọi 240 lần trong kịch bản hợp đồng; hành vi được `exam.TestSaveRateLimit` kiểm."},
 		{"GET /api/v1/me/exam-lock", 503, "503 chỉ khi Redis và Postgres cùng lỗi (người gọi coi như bị khoá); hành vi được `exam.TestLockerBothDownDeniesChat` kiểm."},
-		{"PUT /api/v1/courses/{id}/exams/{eid}/items/{itemId}/override", 202, "202 chỉ khi bài có > 200 lượt GRADED (tính lại ở việc nền); đường 200 được kịch bản gọi, đường 202 do `exam.TestOverrideLargeEnqueues` kiểm."},
-		{"GET /api/v1/courses/{id}/exams/{eid}/results.csv", 422, "EXPORT_TOO_LARGE chỉ khi lớp > 5.000 sinh viên (thực tế sĩ số ≤ 1.000); `exam.TestResultsCSVTooLarge` kiểm bằng hạ trần."},
+		{"PUT /api/v1/courses/{id}/exams/{eid}/items/{itemId}/override", 202, "202 chỉ khi bài có > 200 lượt GRADED (tính lại ở việc nền); đường 200 được kịch bản gọi, đường 202 do `exam.TestOverrideLargeUsesJob` kiểm."},
+		{"GET /api/v1/courses/{id}/exams/{eid}/results.csv", 422, "EXPORT_TOO_LARGE chỉ khi lớp > 5.000 sinh viên (thực tế sĩ số ≤ 1.000); `exam.TestCSVOver5000Rejected` kiểm bằng hạ trần."},
 	}
 }
 

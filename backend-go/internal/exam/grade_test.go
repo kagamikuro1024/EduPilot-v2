@@ -134,8 +134,8 @@ func TestGradeCompletesWhenSubmissionDone(t *testing.T) {
 	require.Equal(t, 1, r.count(`select count(*) from outbox where topic='exam.attempt_graded' and payload->>'attempt_id'=$1`, m.v.Attempt.ID.String()))
 }
 
-// TestGradeErrorKeepsGrading — AC2: bản nộp ERROR (sau dead-letter) → lượt Ở LẠI GRADING, không điểm 0; chấm lại xong thì hoàn tất.
-func TestGradeErrorKeepsGrading(t *testing.T) {
+// TestIEKeepsGrading — AC2: bản nộp ERROR (sau dead-letter) → lượt Ở LẠI GRADING, không điểm 0; chấm lại xong thì hoàn tất.
+func TestIEKeepsGrading(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	m := r.mixExam()
@@ -153,8 +153,8 @@ func TestGradeErrorKeepsGrading(t *testing.T) {
 	require.Zero(t, n, "còn lượt chưa GRADED thì không công bố")
 }
 
-// TestPublishConditions — AC4: công bố chỉ khi mọi lượt GRADED, không hoãn, không đang chấm lại; chạy song song / chạy lại → đúng MỘT lần, một sự kiện.
-func TestPublishConditions(t *testing.T) {
+// TestAutoPublishOnce — AC4: công bố chỉ khi mọi lượt GRADED, không hoãn, không đang chấm lại; chạy song song / chạy lại → đúng MỘT lần, một sự kiện.
+func TestAutoPublishOnce(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	m := r.mixExam()
@@ -190,8 +190,8 @@ func TestPublishConditions(t *testing.T) {
 	require.Zero(t, n)
 }
 
-// TestPublishNotifiesAttemptedOnly — AC4: EXAM_PUBLISHED chỉ cho sinh viên CÓ lượt, khử trùng khi xử lý lại.
-func TestPublishNotifiesAttemptedOnly(t *testing.T) {
+// TestPublishNotificationsOnce — AC4: EXAM_PUBLISHED chỉ cho sinh viên CÓ lượt, khử trùng khi xử lý lại.
+func TestPublishNotificationsOnce(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	m := r.mixExam()
@@ -610,8 +610,8 @@ func TestGradeDueSafetyNet(t *testing.T) {
 	require.Equal(t, "5.00", *sc)
 }
 
-// TestOverrideLargeEnqueues — AC14: nhiều hơn ngưỡng đồng bộ → 202 + việc nền `exam.regrade` (scope recompute) giữ `regrading`; chạy việc xong thì mọi lượt được tính lại.
-func TestOverrideLargeEnqueues(t *testing.T) {
+// TestOverrideLargeUsesJob — AC14: nhiều hơn ngưỡng đồng bộ → 202 + việc nền `exam.regrade` (scope recompute) giữ `regrading`; chạy việc xong thì mọi lượt được tính lại.
+func TestOverrideLargeUsesJob(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	m := r.mixExam()
@@ -631,8 +631,8 @@ func TestOverrideLargeEnqueues(t *testing.T) {
 	require.Equal(t, "SUCCEEDED", runJob(t, r, run, *out.JobID).Status)
 }
 
-// TestResultsCSVTooLarge — SRS 4.8.6: vượt trần dòng → 422 EXPORT_TOO_LARGE, KHÔNG cắt im lặng, chưa ghi byte nào.
-func TestResultsCSVTooLarge(t *testing.T) {
+// TestCSVOver5000Rejected — SRS 4.8.6: vượt trần dòng → 422 EXPORT_TOO_LARGE, KHÔNG cắt im lặng, chưa ghi byte nào.
+func TestCSVOver5000Rejected(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	m := r.mixExam()
