@@ -35,3 +35,40 @@ Phiên bản 1.3 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; cột 
 | Q30 | Hàng chấm quá tải (20 lớp × 60 bài dồn 5 phút vượt ≈ 190 bài/phút)? | Chấp nhận hàng dài ≤ 8 phút (thay bản cũ đang xếp hàng giúp giảm tải); tăng `JUDGE_PARALLELISM` hoặc tách máy judge (nợ PR, D58) khi dùng thật; đo ở k6 `judge_burst` | PM chấp nhận mặc định 2026-10-03 | 2026-10-03 |
 | Q31 | Bản `go-judge` và seccomp? | Ghim **v1.13.0**; seccomp **bật** ở amd64 (CI + VPS), **tắt** ở colima arm64 (`JUDGE_EXTRA_ARGS=-no-seccomp`) — D58; nếu seccomp v1.13.0 hỏng ở amd64 → PM chọn lùi v1.12.3 qua `proposals.md` (dev **không** tự tắt seccomp ở amd64) | PM chấp nhận mặc định 2026-10-03 | 2026-10-03 |
 
+
+## Q-QC sprint 5 (QC, 2026-10-04) — trả lời vào cuối mỗi dòng; mỗi câu có nguồn ở `docs/sprints/5/qc/tc-US-PE-NN.md` / `tc-US-PU-06.md`
+Quy ước: QC chấm theo chữ của AC cho tới khi có trả lời; câu "chờ BA" không chặn thi công.
+
+- **Q-QC-PE01-1** — AC4: "uuid hợp lệ nhưng lớp không tồn tại → 403" trong khi AC5 dùng 404 cho đối tượng của lớp khác; QC chấm đúng chữ (403 cho lớp không tồn tại, 404 cho id đối tượng chéo lớp). Đúng? — *chờ BA*.
+- **Q-QC-PE01-2** — AC3 "bảng > 1.000 dòng" với dữ liệu giả 20.000 câu: QC sinh dữ liệu bằng SQL trực tiếp (bỏ qua API) để `EXPLAIN`; chấp nhận? — *chờ BA*.
+- **Q-QC-PE01-3** — TC-PE01-21: QC cần gọi `quiz.Grade` bằng mã của QC. Chấp nhận QC viết một tệp test ngoài `internal/exam` (ví dụ `docs/sprints/5/qc/scripts/quizcheck_test.go` chép vào gói tạm khi chạy, không commit vào `backend-go/`)? — *chờ BA*.
+- **Q-QC-PE02-1** — AC11 A9 chỉ đòi chặn 5 đường; QC thử thêm `/proc/self/environ`, `/etc/hostname`, `/proc/mounts`. Nếu đọc được những tệp này nhưng không có bí mật, QC ghi cảnh báo (không FAIL)? — *chờ BA*.
+- **Q-QC-PE02-2** — AC12 "240 bài / 5 phút hết trong ≤ 8 phút" trên máy dev 11 nhân Apple M3: QC đo trên cấu hình `JUDGE_PARALLELISM=2` và `4` và ghi cấu hình máy; chấp nhận số đo trên colima làm chuẩn (CI amd64 không kiểm)? — *chờ BA*.
+- **Q-QC-PE02-3** — TC-PE02-56: QC không có runner amd64; "đọc cấu hình CI + `gh run` xanh" có đủ cho AC15? — *chờ BA*.
+- **Q-QC-PE03-1** — AC3: chỉ đổi `starter_code` có tăng `tests_version` / xoá cờ verify không? AC chỉ nêu "giới hạn / checker / ngôn ngữ"; QC chấm theo chữ (không tăng). — *chờ BA*.
+- **Q-QC-PE03-2** — AC1 nêu `vitest run src/shared/lib/markdown.test.ts` nhưng `vitest` không có trong bảng thư viện (sprint 4 dev thay bằng Playwright); QC chấm "đề hiện thành chữ" bằng Playwright / CDP (TC-PE03-04). Chấp nhận? — *chờ BA*.
+- **Q-QC-PE03-3** — AC9 "prompt chỉ chứa chủ đề / độ khó / `source_text`": `llm_audit` không lưu prompt (PG); QC chặn bằng máy chủ OpenAI giả (`qserver.mjs`) để đọc thân yêu cầu — chấp nhận làm bằng chứng? — *chờ BA*.
+- **Q-QC-PE04-1** — AC6 đo "≤ 10 s" từ `opens_at`; QC đo bằng poll DB mỗi 500 ms trên máy dev; chấp nhận độ trễ đo ≤ 1 s? — *chờ BA*.
+- **Q-QC-PE04-2** — AC4 "thông báo `EXAM_SCHEDULED` cho mọi SV `ACTIVE`": nơi hiển thị thông báo (chuông / `GET /me/notifications`) — QC sẽ đọc API thông báo của P2; nếu chưa có API đọc, QC chấm ở bảng `notifications`. Đúng? — *chờ BA*.
+- **Q-QC-PE04-3** — AC13 và TC-PU04: mục "Bài thi" vị trí cụ thể trong thứ tự nav (SV: sau "Luyện đề"? sau "Lịch"?) chưa nêu ở AC; QC chấm theo SRS 7.5 sau khi BA sửa — *chờ BA*.
+- **Q-QC-PE05-1** — AC3 / AC10 nêu `vitest` (`clock.test.ts`, `saveQueue.test.ts`) nhưng `vitest` không có trong bảng thư viện; QC chấm bằng Playwright / CDP (TC-PE05-11, 40–43). Chấp nhận? — *chờ BA*.
+- **Q-QC-PE05-2** — AC7: `EXAM_GRACE_SECONDS` mặc định 10 và "hết giờ tự nộp ≤ 10 s" — QC đo từ `deadline_at + grace` hay từ `deadline_at`? QC chấm "tự nộp ≤ 10 s sau `deadline_at + grace`" (đúng chữ AC). — *chờ BA*.
+- **Q-QC-PE05-3** — AC11 "hiện danh sách câu bên cạnh ≥ 1100 px": QC chấm ở 1100 / 1099 / 1440 (ba bề rộng). — *chờ BA*.
+- **Q-QC-PE05-4** — AC14 "email chưa xác minh (không có lớp)": QC dùng tài khoản `PENDING_VERIFICATION` do P2 tạo; nếu seed không có, dựng bằng SQL. Đúng? — *chờ BA*.
+- **Q-QC-PE06-1** — AC6 "hạn mức tính trên mọi bài thi đang mở của người đó": QC kiểm bằng 2 bài thi mở cùng lúc; nếu seed chỉ có 1 bài, QC tự tạo bài thứ hai. Chấp nhận? — *chờ BA*.
+- **Q-QC-PE06-2** — AC3 "INP ≤ 200 ms khi gõ 64 KiB": QC đo bằng `PerformanceObserver` `event` entries trong Chrome headless trên máy dev; chấp nhận làm bằng chứng? — *chờ BA*.
+- **Q-QC-PE06-3** — AC11: "ngôn ngữ cập nhật gần nhất" khi hai ngôn ngữ cùng nháp: QC chấm theo `updated_at` lớn nhất. Đúng? — *chờ BA*.
+- **Q-QC-PE07-1** — AC3: 51 sự kiện / yêu cầu — cắt còn 50 hay `422`? AC chỉ nói "≤ 50"; QC ghi lại hành vi và chấm theo SRS 4.7.3 nếu có câu rõ. — *chờ BA*.
+- **Q-QC-PE07-2** — AC7: định nghĩa số token của QC (bỏ `#include`, giữ `#define`) có thể lệch ≤ 0,02 so với hệ thống; chấp nhận ngưỡng lệch 0,02 khi đối chiếu độc lập (TC-PE07-31)? — *chờ BA*.
+- **Q-QC-PE07-3** — AC2 "p95 ≤ 5 ms khi trúng cache": QC đo qua `chat-gate` (có chi phí HTTP); QC viết test Go riêng đo `IsLocked` trực tiếp? Chấp nhận đo qua HTTP trừ 1 ms nền? — *chờ BA*.
+- **Q-QC-PE08-1** — AC3: `breakdown.earned` lưu số thập phân đủ (1,3333…) hay đã làm tròn? Điểm cuối làm tròn **một lần**; QC kiểm điểm cuối và ghi cách lưu `earned`. — *chờ BA*.
+- **Q-QC-PE08-2** — AC4: "≤ 10 s" từ lúc nào — từ lúc lượt cuối `GRADED` hay từ `closes_at`? QC đo từ lúc mọi lượt `GRADED`. — *chờ BA*.
+- **Q-QC-PE08-3** — AC12: dòng thứ 5.001 — cắt im lặng hay báo? QC ghi hành vi; đề nghị BA nêu. — *chờ BA*.
+- **Q-QC-PE08-4** — AC15: "Điểm có thể tăng hoặc giảm" sau chấm lại khi đã công bố: thông báo nêu rõ chiều giảm? QC chấm theo chữ AC (nêu "đã được cập nhật"). — *chờ BA*.
+- **Q-QC-PE09-1** — AC3 do dev tự tính `expected_exam_scores.csv`; QC tự tính độc lập (TC-PE09-08) từ mẫu đáp án thực tế của seed. Nếu hai bảng lệch, QC coi là FAIL và nêu dòng lệch. Đúng? — *chờ BA*.
+- **Q-QC-PE09-2** — AC9 LCP ≤ 2,5 s: dự án đang áp dụng quyết định #26 ("PASS có điều kiện", LCP > 2,5 s trên máy dev). Với `/exams/[id]/take` QC chấm theo cùng quy tắc (ghi số, không FAIL riêng)? — *chờ PM*.
+- **Q-QC-PE09-3** — AC6 `mixed` "TTFT INTERACTIVE +20 %": QC đo TTFT bằng thời gian tới byte đầu của `_test/llm/chat` (không streaming); chấp nhận? — *chờ BA*.
+- **Q-QC-PU06-1** — "7 route" ở `plan.md` dòng US-PU-06: `lighthouserc.json` hiện có 7 URL (`/`, `/chat`, `/threads`, `/inbox`, `/gradebook`, `/settings/llm`, `/dev/ui`) nhưng `/dev/ui` đang ở cấu hình riêng (`warn`). "7 route về `error`" gồm cả `/dev/ui` (route công cụ dev, chỉ có ở bản `build:gate`)? QC chấm theo chữ: **cả 7**, LCP và TBT đều `error`. — *chờ BA/PM*.
+- **Q-QC-PU06-2** — "TBT trung vị 12× ≤ 170 ms" đo bằng lệnh `lhci collect … --settings.throttling.cpuSlowdownMultiplier=12` (TL-1 mục 2), 5 lần mỗi route: ngưỡng áp cho **từng** route (trung vị của 5 lần) hay trung bình 7 route? QC chấm **từng route**. — *chờ BA*.
+- **Q-QC-PU06-3** — LCP ≤ 2,5 s ở mức `error` trên CI: đo trên runner `benchmarkIndex` ≈ 2100–2300 với 3 lần chạy / URL, tổng hợp `median`. Máy QC (macOS, Docker colima) không phải runner CI; QC lấy **CI xanh ở HEAD** làm bằng chứng chính và số 12× trên máy QC làm bằng chứng phụ (không tin số dev). Đúng? — *chờ BA*.
+- **Q-QC-PU06-4** — "không hồi quy ảnh mốc": ảnh mốc `visual.spec` sinh trong image `mcr.microsoft.com/playwright:v1.63.0-noble`; nếu dev đổi bố cục khung (h1 + mô tả vẽ từ máy chủ) làm ảnh đổi, ai được `--update-snapshots` và QC chấm "đổi có chủ đích" thế nào? QC đề nghị: ảnh đổi chỉ hợp lệ khi có nêu trong handoff và diff thị giác nhỏ (cùng chữ, vị trí). — *chờ PM*.
