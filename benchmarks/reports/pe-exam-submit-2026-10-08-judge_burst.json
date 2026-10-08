@@ -1,0 +1,118 @@
+{
+  "scenario": "judge_burst",
+  "date": "2026-10-08",
+  "base": "https://localhost:773",
+  "metrics": {
+    "http_req_duration{expected_response:true}": {
+      "p(50)": 4.3580000000000005,
+      "p(95)": 223.84275,
+      "max": 245.551,
+      "avg": 29.76238079470198
+    },
+    "data_received": {
+      "count": 289248,
+      "rate": 913.199077670447
+    },
+    "http_req_connecting": {
+      "avg": 0.030238410596026496,
+      "p(50)": 0,
+      "p(95)": 0.26164999999999994,
+      "max": 0.848
+    },
+    "http_req_blocked": {
+      "p(50)": 0,
+      "p(95)": 2.1762499999999996,
+      "max": 9.336,
+      "avg": 0.29968874172185506
+    },
+    "http_req_tls_handshaking": {
+      "avg": 0.24397019867549669,
+      "p(50)": 0,
+      "p(95)": 1.8488499999999999,
+      "max": 8.886
+    },
+    "http_req_receiving": {
+      "avg": 0.06517218543046358,
+      "p(50)": 0.042,
+      "p(95)": 0.1726499999999999,
+      "max": 0.835
+    },
+    "iteration_duration": {
+      "avg": 1967.2376264000004,
+      "p(50)": 2022.6044785,
+      "p(95)": 2057.0854249999998,
+      "max": 2167.9785
+    },
+    "iterations": {
+      "count": 60,
+      "rate": 0.18942894906871205
+    },
+    "http_req_duration": {
+      "avg": 29.76238079470198,
+      "p(50)": 4.3580000000000005,
+      "p(95)": 223.84275,
+      "max": 245.551
+    },
+    "http_reqs": {
+      "count": 302,
+      "rate": 0.9534590436458507
+    },
+    "judge_ie": {
+      "count": 0,
+      "rate": 0
+    },
+    "http_req_waiting": {
+      "avg": 29.633367549668836,
+      "p(50)": 4.211,
+      "p(95)": 223.7559,
+      "max": 245.064
+    },
+    "vus_max": {
+      "value": 30,
+      "min": 30,
+      "max": 30
+    },
+    "data_sent": {
+      "count": 124237,
+      "rate": 392.2347390908263
+    },
+    "http_req_failed": {
+      "passes": 0,
+      "fails": 302,
+      "rate": 0
+    },
+    "vus": {
+      "value": 0,
+      "min": 0,
+      "max": 1
+    },
+    "http_req_sending": {
+      "avg": 0.063841059602649,
+      "p(50)": 0.054,
+      "p(95)": 0.14279999999999993,
+      "max": 0.35
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 60,
+      "fails": 0
+    },
+    "judge_done_ms": {
+      "avg": 1967.2333333333333,
+      "p(50)": 2023,
+      "p(95)": 2057.35,
+      "max": 2168
+    }
+  },
+  "thresholds": {
+    "judge_ie": {
+      "count==0": true
+    },
+    "http_req_failed": {
+      "rate<0.005": true
+    },
+    "judge_done_ms": {
+      "p(95)<60000": true
+    }
+  }
+}
