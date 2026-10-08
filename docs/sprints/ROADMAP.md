@@ -12,6 +12,7 @@ Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). 
 | 3 | PU Nền giao diện + P1 LLM Gateway | 1,5 + 1,5 | Đổi provider trên UI; Scheduler + trần ngân sách | `gate PU`, `gate P1` | #0 chuyển động trang trí, bố cục ≥ 1440 px |
 | 4 | P2 Lớp học | 2,5 | F1, F2 | `gate P2` | #4a tuỳ chọn nâng cao mã tham gia; #6 CommandPalette |
 | 5 | **PE Thi hằng tuần: trắc nghiệm + C/C++** (D54–D57) | 2,5 | F19 (giao bài thi → làm → chấm → công bố) | `gate PE` | so độ giống mã (giữ log rời tab); gợi ý nháp đề bằng AI |
+| 5.5 | **UI panel nổi** — chen giữa theo góp ý chủ dự án 2026-10-08 (đổi hướng thị giác, cần D59) | ≈ 1 | Mọi vùng làm việc nằm trên panel; chủ dự án duyệt ảnh trước / sau | cổng UI (`docs/sprints/5.5/plan.md`) | chế độ tối |
 | 6 | P3 Hai kênh + PII · P8 Tài liệu + Lịch | 2 + 1 | F3, F6, F13 | `gate P3`, `gate P8` | (#4 NER đã cắt bởi D46) |
 | 7 | P4 Escalation + Mail · P5 CRM + 360 | 1,5 + 1,5 | F4, F5, F7, F8 | `gate P4`, `gate P5` | #5 hàng đợi ghi cục bộ điểm danh; #6 phím tắt `/inbox` |
 | 8 | P6 Sổ điểm (gồm nối điểm bài thi PE vào `grade_items`) | 1,5 | F10 | `gate P6` (+ chủ dự án tự tính tay 3 SV) | – |
