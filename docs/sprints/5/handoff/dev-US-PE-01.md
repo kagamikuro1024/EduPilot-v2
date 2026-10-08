@@ -25,6 +25,11 @@ Nhánh `sprint/5-pe`, spec `FEAT-weekly-exam` v1.6 (lược đồ v1.5). Migrati
 ## Lệnh tự kiểm
 `cd backend-go && make lint sqlc-check` (0 issues ×3); `make test` (race + testroutes + integration mail / auth) xanh trừ **`internal/today TestTodayQueryBudget` đỏ một lần khi chạy cả bộ** (7 > 5 truy vấn; chạy riêng PASS — lỗi chập chờn đã có từ sprint 4, không liên quan PE; `db/migrations_test.go` đổi version mong đợi 5 → 6 vì thêm `00006`); `go test ./internal/store -run 'TestExam' -v`, `go test ./internal/exam ./internal/quiz ./internal/auth ./internal/contract -run 'Exam|Quiz|Scoring' -v`.
 
+## Sửa vòng 1 — QC B1 (làm tròn điểm)
+- **Lỗi:** `exam.Score` chia `raw ÷ total` (cắt 16 chữ số) **rồi** nhân `max_score`; khi `max_score` không nguyên và điểm nằm đúng giữa hai bước (max 4.5 / 7.5 / 99.99…) số bị cắt rơi dưới điểm giữa → làm tròn xuống (QC: 166 / 20.000 ca lệch).
+- **Sửa:** `Score` nhân tử số `raw × max_score` trước, chia THẲNG cho `total × step` bằng `DivRound(…, 0)` (đúng MỘT lần làm tròn, nửa lên); không bước thì `DivRound(num, total, 16)`. `RoundToStep` dùng `DivRound(step, 0)` (bỏ `DivRound 16` + `Round 0` hai lần).
+- **Test mới:** `TestScoringCSV` (`internal/exam/testdata/exam_scoring.csv`, 560 ca: 16 tỉ lệ × 7 `max_score` gồm 1.5 / 4.5 / 7.5 / 99.99 × 5 bước; kỳ vọng do oracle `big.Rat` sinh) và `TestScoringDifferential` (20.000 ca ngẫu nhiên seed 20261009, 1–5 mục, có `void`, earned không chia hết, 9 giá trị `max_score`, 5 bước; so `big.Rat`). Cả hai **đỏ trên bản cũ** (`raw=1 total=3 max=4.5 step=1: got 1 want 2.00`; `ca 694: max=4.5 step=0.5 … got 3.5 want 4.00`) và **xanh** sau sửa; `TestScoringDecimal` 45/45 giữ nguyên. `make lint`: 0 issues.
+
 ## Nợ / ghi chú
 - **CI GitHub không chạy được**: job báo "recent account payments have failed or your spending limit needs to be increased" (4 s, cả Go và Frontend, mọi commit sprint 5). Chỉ có kết quả chạy local; chủ dự án cần xử lý billing.
 - AC5 (HTTP), AC9–AC12 và phần còn lại của AC13 như bảng trên.

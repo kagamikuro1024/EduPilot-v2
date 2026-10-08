@@ -1,8 +1,11 @@
 package exam_test
 
 import (
+	"encoding/csv"
 	"fmt"
 	"math/big"
+	"math/rand/v2"
+	"os"
 	"testing"
 
 	"github.com/shopspring/decimal"
@@ -88,4 +91,57 @@ func TestScoringErrors(t *testing.T) {
 	require.True(t, exam.CodeEarned(d("3"), 0, 4).IsZero())
 	require.True(t, exam.CodeEarned(d("3"), 4, 0).IsZero())
 	require.True(t, exam.CodeEarned(d("3"), 9, 4).Equal(d("3"))) // đạt không vượt tổng
+}
+
+// TestScoringCSV — US-PE-01 AC7 (L1): bảng `testdata/exam_scoring.csv` (560 ca: raw × total × max_score gồm số không nguyên 1.5 / 4.5 / 7.5 / 99.99 × 5 bước);
+// kỳ vọng do oracle `big.Rat` sinh, không phải do chính `Score`.
+func TestScoringCSV(t *testing.T) {
+	t.Parallel()
+	f, err := os.Open("testdata/exam_scoring.csv")
+	require.NoError(t, err)
+	defer func() { _ = f.Close() }()
+	r := csv.NewReader(f)
+	r.Comment = '#'
+	rows, err := r.ReadAll()
+	require.NoError(t, err)
+	require.Equal(t, []string{"raw", "total", "max_score", "step", "expected"}, rows[0])
+	rows = rows[1:]
+	require.GreaterOrEqual(t, len(rows), 500)
+	for _, c := range rows {
+		got, err := exam.Score([]exam.ScoreItem{{Points: d(c[1]), Earned: d(c[0])}}, d(c[2]), d(c[3]))
+		require.NoError(t, err)
+		require.Truef(t, got.Equal(d(c[4])), "raw=%s total=%s max=%s step=%s: got %s want %s", c[0], c[1], c[2], c[3], got, c[4])
+	}
+}
+
+// TestScoringDifferential — 20.000 ca ngẫu nhiên có seed (20261009), nhiều mục (cả void, earned không chia hết), `max_score` không nguyên, đủ 5 bước:
+// `exam.Score` phải TRÙNG oracle `big.Rat`. Bắt lỗi làm tròn trung gian (`DivRound(raw, total, 16)` trước khi nhân `max_score`, QC B1).
+func TestScoringDifferential(t *testing.T) {
+	t.Parallel()
+	rng := rand.New(rand.NewPCG(20261009, 1))
+	maxes := []string{"10", "20", "100", "1.5", "4.5", "7.5", "99.99", "3.3", "0.75"}
+	steps := []string{"0.01", "0.1", "0.25", "0.5", "1"}
+	for i := 0; i < 20000; i++ {
+		n := 1 + rng.IntN(5)
+		items := make([]exam.ScoreItem, n)
+		raw, total := new(big.Rat), new(big.Rat)
+		for k := range items {
+			pts := decimal.New(int64(1+rng.IntN(20)), -1) // 0.1 … 2.0
+			den := int64(1 + rng.IntN(9))
+			earned := pts.Mul(decimal.NewFromInt(rng.Int64N(den+1))).DivRound(decimal.NewFromInt(den), 16)
+			void := rng.IntN(10) == 0
+			items[k] = exam.ScoreItem{Points: pts, Earned: earned, Void: void}
+			total.Add(total, rat(pts.String()))
+			if void {
+				raw.Add(raw, rat(pts.String()))
+			} else {
+				raw.Add(raw, rat(earned.String()))
+			}
+		}
+		mx, st := maxes[rng.IntN(len(maxes))], steps[rng.IntN(len(steps))]
+		got, err := exam.Score(items, d(mx), d(st))
+		require.NoError(t, err)
+		want := oracle(raw, total, rat(mx), rat(st))
+		require.Equalf(t, 0, rat(got.String()).Cmp(want), "ca %d: max=%s step=%s raw=%s total=%s: got %s want %s", i, mx, st, raw.FloatString(18), total.FloatString(18), got, want.FloatString(2))
+	}
 }
