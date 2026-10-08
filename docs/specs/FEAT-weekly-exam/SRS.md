@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.3 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.4 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.4 (2026-10-08)** — góp ý #2 `docs/sprints/5/proposals.md` (PM `ACCEPTED cả (a)–(f)`; nguồn: ba, Q-QC sprint 5; trích: "(a) `starter_code` không tăng `tests_version`; (b) bản nháp có `updated_at` lớn nhất, rỗng thì không tạo bản nộp tự động; (c) > 50 sự kiện → nhận 50 đầu, bỏ phần dư, 204, `warn` một dòng; (d) `breakdown.earned` lưu đủ chữ số; (e) vượt 5.000 dòng → 422 `EXPORT_TOO_LARGE`; (f) viết US-PU-06 đủ AC trong `FEAT-ui-foundation` v1.4"). Không đổi số AC (124). Đổi: US-PE-03 AC3, US-PE-06 AC11, US-PE-07 AC3, US-PE-08 AC3 và AC12, US-PE-09 AC9 (điều kiện chấm LCP theo US-PU-06 — PM, Q-QC-PE09-2) và Phụ thuộc; `SRS.md` 4.4.5, 4.7.3, 4.8.3, 4.8.6, 5.4 (`tests_version`), 6.1 (`details.code`).
 
 **v1.3 (2026-10-03)** — theo góp ý #3 `docs/sprints/4/proposals.md` (PM `ACCEPTED`: "`vitest` không có trong bảng thư viện `ARCHITECTURE.md` §3 (chỉ Playwright) … Kiểm bằng test Playwright không cần trình duyệt"): bỏ `vitest` khỏi spec này. Không đổi số AC (124). Đổi: US-PE-03 AC1, US-PE-05 AC3 và AC10 (dòng `Kiểm`), `SRS.md` 9.
 
@@ -260,7 +262,7 @@ Khoá `exam:<attempt_id>` (`useAutosaveDraft`): mỗi thay đổi ghi ngay vào 
 
 #### 4.4.5 Chốt bản tính điểm
 
-Với mỗi câu code: `final = SUBMIT` có `created_at` lớn nhất của `(attempt, item)` (không `SUPERSEDED`). Nếu **không có `SUBMIT`** và bản nháp (ngôn ngữ cập nhật gần nhất) không rỗng → tạo `SUBMIT` `auto=true` từ nháp, đưa vào hàng chấm; nếu đã có `SUBMIT` → **không** dùng nháp. Không có gì → `earned = 0` (không phải `IE`).
+Với mỗi câu code: `final = SUBMIT` có `created_at` lớn nhất của `(attempt, item)` (không `SUPERSEDED`). Nếu **không có `SUBMIT`** và bản nháp có `updated_at` **lớn nhất** của câu đó (một bản duy nhất) không rỗng → tạo `SUBMIT` `auto=true` từ nháp (nếu bản đó rỗng thì không tạo và **không** quay sang ngôn ngữ khác — #2 (b)), đưa vào hàng chấm; nếu đã có `SUBMIT` → **không** dùng nháp. Không có gì → `earned = 0` (không phải `IE`).
 
 ### 4.5 Sandbox `go-judge` và `internal/judge` (US-PE-02) — D55, D58
 
@@ -417,7 +419,7 @@ type Locker interface { IsLocked(ctx context.Context, userID uuid.UUID) (Lock, b
 
 Thứ tự: Redis `GET` trúng → `true` (đọc `Until` từ TTL); trượt hoặc Redis lỗi → truy vấn `SELECT … FROM exam_attempts WHERE student_id=$1 AND status='IN_PROGRESS' AND deadline_at + grace > now() ORDER BY deadline_at DESC LIMIT 1` (chỉ mục từng phần `exam_attempts_running_idx`) rồi nạp lại Redis nếu sống; DB cũng lỗi → trả `error` — **người gọi (chat, P3) phải từ chối** (an toàn khi nghi ngờ). `GET /me/exam-lock` → `{locked,until?}`; route thử `GET /_test/chat-gate` → `{allowed: !locked}`.
 
-**4.7.3 Sự kiện.** `POST …/attempts/{aid}/events {events:[{type,client_at,meta}]}` (≤ 50 / yêu cầu, máy khách gửi gộp ~15 s và khi `pagehide` bằng `navigator.sendBeacon`/`fetch keepalive`): loại `TAB_HIDDEN` (`meta.duration_ms` khi quay lại có ở `TAB_VISIBLE`), `TAB_VISIBLE` (`duration_ms` = thời gian ẩn), `PASTE` (`chars`, `item_id`), `OFFLINE`, `ONLINE`; máy chủ tự ghi `TAB_TAKEOVER`; P3 ghi `CHAT_BLOCKED`. Khoá `meta` cho phép: `duration_ms`, `chars`, `item_id` (khoá khác bị bỏ); `occurred_at` = giờ máy chủ; tối đa 500 / lượt (dư bị bỏ, 204). Không nhận / không lưu nội dung clipboard, mã, IP, user-agent. Lỗi ghi sự kiện không bao giờ làm hỏng lưu bài. Chỉ `TEACHER` đọc (`GET …/exams/{eid}/events`, tóm tắt trong chi tiết lượt). Máy khách gắn `paste` ở ô soạn mã và các `textarea` của bài; `visibilitychange` / `blur` cho rời tab. **Không có điểm trừ**: `score*.go` không đọc `exam_events` / `similarity_reports` (kiểm bằng `go/parser`).
+**4.7.3 Sự kiện.** `POST …/attempts/{aid}/events {events:[{type,client_at,meta}]}` (≤ 50 / yêu cầu, máy khách gửi gộp ~15 s và khi `pagehide` bằng `navigator.sendBeacon`/`fetch keepalive`; **> 50**: nhận 50 sự kiện đầu, bỏ phần dư, trả 204 và ghi `warn` một dòng không nội dung — #2 (c)): loại `TAB_HIDDEN` (`meta.duration_ms` khi quay lại có ở `TAB_VISIBLE`), `TAB_VISIBLE` (`duration_ms` = thời gian ẩn), `PASTE` (`chars`, `item_id`), `OFFLINE`, `ONLINE`; máy chủ tự ghi `TAB_TAKEOVER`; P3 ghi `CHAT_BLOCKED`. Khoá `meta` cho phép: `duration_ms`, `chars`, `item_id` (khoá khác bị bỏ); `occurred_at` = giờ máy chủ; tối đa 500 / lượt (dư bị bỏ, 204). Không nhận / không lưu nội dung clipboard, mã, IP, user-agent. Lỗi ghi sự kiện không bao giờ làm hỏng lưu bài. Chỉ `TEACHER` đọc (`GET …/exams/{eid}/events`, tóm tắt trong chi tiết lượt). Máy khách gắn `paste` ở ô soạn mã và các `textarea` của bài; `visibilitychange` / `blur` cho rời tab. **Không có điểm trừ**: `score*.go` không đọc `exam_events` / `similarity_reports` (kiểm bằng `go/parser`).
 
 **4.7.4 So độ giống mã (`internal/exam/similarity`).**
 
@@ -464,7 +466,7 @@ RETURNING id
    "hidden":{"passed":3,"total":4},"final_submission":{"id":"…","language":"cpp17","source":"…","created_at":"…","compile_ok":true}}]}
 ```
 
-`answer` và `explanation` chỉ có khi `reveal_answers=true`; `correct` / `earned` luôn có sau công bố; câu `void` có `overridden:true`, `correct:null`; `hidden` chỉ **số**; không trọng số, không tên / input / expected / verdict từng test ẩn; không `reference*`; nếu `override` có thì chỉ cờ `overridden`. Điểm = điểm chính thức (`adjusted_score` nếu có).
+`answer` và `explanation` chỉ có khi `reveal_answers=true`; `correct` / `earned` luôn có sau công bố; câu `void` có `overridden:true`, `correct:null`; `hidden` chỉ **số**; không trọng số, không tên / input / expected / verdict từng test ẩn; không `reference*`; nếu `override` có thì chỉ cờ `overridden`. Điểm = điểm chính thức (`adjusted_score` nếu có). `breakdown.earned` ở DB lưu **đủ chữ số** (`DivRound(…, 16)`, không làm tròn trung gian — Q6); phần hiển thị làm tròn 2 chữ số chỉ để đọc, điểm cuối làm tròn một lần từ tổng chưa làm tròn (#2 (d)).
 
 **4.8.4 Sửa điểm tay, `override`, chấm lại.**
 
@@ -478,7 +480,7 @@ Chấm lại idempotent theo `(submission_id, tests_version)`; sandbox chết tr
 
 **4.8.5 Phúc khảo.** `POST …/attempts/{aid}/appeal {reason}` (`Idempotency-Key`): bài `PUBLISHED`, lượt `GRADED` của người gọi, `appeal_days > 0`, `now ≤ published_at + appeal_days`, chưa có `exam_appeals` của lượt; `reason` 1…1.000; ghi `exam_appeals` `OPEN` + outbox `exam.appeal_created` → thông báo `EXAM_APPEAL_NEW` (Giảng viên + TA) và việc `EXAM_APPEAL` (Giảng viên). `POST …/appeals/{id}/answer {decision,response,score?,version}` (Giảng viên): `UPHELD` | `ADJUSTED` (+ `score`, áp như `PUT score` trong cùng transaction); một lần; outbox `exam.appeal_answered` → `EXAM_APPEAL_REPLIED` + việc `EXAM_APPEAL_REPLY` cho sinh viên. Không route nào của phúc khảo gọi LLM. P4 có thể chuyển sang `escalation_tickets` `GRADE_APPEAL` (đề xuất ở mục 10).
 
-**4.8.6 CSV.** Streaming; BOM; `;`; số thập phân dấu phẩy; cột: `mssv;ho_ten;trang_thai;diem_tu_dong;diem_chinh_thuc;nop_luc;ly_do_nop` + `cau_<position>` (điểm từng câu); `trang_thai` ∈ `ABSENT|IN_PROGRESS|GRADING|GRADED`; ô bắt đầu bằng `= + - @` thêm `'` phía trước; tối đa 5.000 dòng; không cột liêm chính.
+**4.8.6 CSV.** Streaming; BOM; `;`; số thập phân dấu phẩy; cột: `mssv;ho_ten;trang_thai;diem_tu_dong;diem_chinh_thuc;nop_luc;ly_do_nop` + `cau_<position>` (điểm từng câu); `trang_thai` ∈ `ABSENT|IN_PROGRESS|GRADING|GRADED`; ô bắt đầu bằng `= + - @` thêm `'` phía trước; tối đa 5.000 dòng — **vượt thì báo lỗi, không cắt im lặng**: 422 `VALIDATION_FAILED` `details[].code="EXPORT_TOO_LARGE"` (thực tế không chạm vì sĩ số ≤ 1.000; #2 (e)); không cột liêm chính.
 
 **4.8.7 Thống kê.** `distribution`: các khoảng độ rộng `max_score ÷ 10` (thang 10 → khoảng 1 điểm), nửa mở `[a,b)` trừ khoảng cuối đóng; `mean`, `median` (decimal, 2 chữ số); `hardest`: 5 câu trắc nghiệm có tỉ lệ đúng thấp nhất (loại câu `void`); `code`: điểm trung bình theo tỉ lệ và tỉ lệ `CE` mỗi bài code; chỉ từ lượt `GRADED`; không định danh.
 
@@ -654,7 +656,7 @@ Chỉ mục: PK · `question_options_question_position_key` UNIQUE (question_id,
 | `reference_source` | `text` | NULL | — | ≤ 64 KiB; **không bao giờ** ra khỏi đường Staff |
 | `reference_verified_version` | `integer` | NULL | — | = `tests_version` lúc xác minh |
 | `reference_verified_at` | `timestamptz` | NULL | — | |
-| `tests_version` | `integer` | NOT NULL | `1` | tăng khi đổi test, giới hạn, checker, ngôn ngữ |
+| `tests_version` | `integer` | NOT NULL | `1` | tăng khi đổi test, giới hạn, checker, ngôn ngữ; **không** tăng khi đổi `starter_code` (#2 (a)) |
 | `created_at`, `updated_at` | `timestamptz` | NOT NULL | `now()` | trigger |
 
 Chỉ mục: PK · `code_problems_course_idx` (course_id).
@@ -888,7 +890,7 @@ Tiền tố `/api/v1`; JSON (riêng `testcases/import`: `multipart/form-data`; `
 | 409 | `APPEAL_WINDOW_CLOSED` | phúc khảo hết hạn / `appeal_days = 0` | `{closed_at}` |
 | 409 | `APPEAL_EXISTS` | lượt đã có yêu cầu phúc khảo | — |
 
-Dùng lại: `FORBIDDEN` (`reason` ∈ `role`, `course`), `NOT_FOUND`, `VALIDATION_FAILED` với `details[].code` ∈ `OPTION_COUNT`, `NO_CORRECT_OPTION`, `SINGLE_MULTIPLE_CORRECT`, `DUPLICATE_OPTION`, `STEM_TOO_LONG`, `TYPE_NOT_SUPPORTED`, `LANGUAGE_NOT_ALLOWED`, `LIMIT_OUT_OF_RANGE`, `FLOAT_EPS_REQUIRED`, `TOO_MANY_TESTS`, `TEST_ZIP_INVALID`, `REFERENCE_REQUIRED`, `REFERENCE_NOT_VERIFIED`, `CODE_TESTS_MISSING`, `TOTAL_WEIGHT_ZERO`, `ITEM_NOT_APPROVED`, `QUESTION_NOT_IN_COURSE`, `DUPLICATE_ITEM`, `NO_ITEMS`, `OPENS_IN_PAST`, `CLOSES_BEFORE_OPENS`, `CLOSES_NOT_LATER`, `DURATION_EXCEEDS_WINDOW`, `DURATION_TOO_SHORT`, `INVALID_OPTION_ID`, `SOURCE_TOO_LARGE`, `SOURCE_EMPTY`; `CONFLICT`, `VERSION_CONFLICT`, `RATE_LIMITED` (+ `retry_after`), `COURSE_ARCHIVED`, `IDEMPOTENCY_KEY_REQUIRED`, `IDEMPOTENCY_KEY_REUSED`, `PAYLOAD_TOO_LARGE`, `INVALID_CURSOR`, `SERVICE_UNAVAILABLE`.
+Dùng lại: `FORBIDDEN` (`reason` ∈ `role`, `course`), `NOT_FOUND`, `VALIDATION_FAILED` với `details[].code` ∈ `OPTION_COUNT`, `NO_CORRECT_OPTION`, `SINGLE_MULTIPLE_CORRECT`, `DUPLICATE_OPTION`, `STEM_TOO_LONG`, `TYPE_NOT_SUPPORTED`, `LANGUAGE_NOT_ALLOWED`, `LIMIT_OUT_OF_RANGE`, `FLOAT_EPS_REQUIRED`, `TOO_MANY_TESTS`, `TEST_ZIP_INVALID`, `REFERENCE_REQUIRED`, `REFERENCE_NOT_VERIFIED`, `CODE_TESTS_MISSING`, `TOTAL_WEIGHT_ZERO`, `ITEM_NOT_APPROVED`, `QUESTION_NOT_IN_COURSE`, `DUPLICATE_ITEM`, `NO_ITEMS`, `OPENS_IN_PAST`, `CLOSES_BEFORE_OPENS`, `CLOSES_NOT_LATER`, `DURATION_EXCEEDS_WINDOW`, `DURATION_TOO_SHORT`, `INVALID_OPTION_ID`, `SOURCE_TOO_LARGE`, `SOURCE_EMPTY`, `EXPORT_TOO_LARGE`; `CONFLICT`, `VERSION_CONFLICT`, `RATE_LIMITED` (+ `retry_after`), `COURSE_ARCHIVED`, `IDEMPOTENCY_KEY_REQUIRED`, `IDEMPOTENCY_KEY_REUSED`, `PAYLOAD_TOO_LARGE`, `INVALID_CURSOR`, `SERVICE_UNAVAILABLE`.
 
 ### 6.2 Bảng thao tác (56 thao tác + 1 route thử)
 
