@@ -2,6 +2,7 @@
 // Sao chép vào frontend/e2e khi chạy, xoá sau (không commit ở frontend). Không dùng mã đo của dev; chỉ dùng `asDemo` để vào phiên giả.
 import { test } from "@playwright/test";
 import { writeFileSync, mkdirSync } from "node:fs";
+import AxeBuilder from "@axe-core/playwright";
 import { asDemo, type DemoRole } from "./support/session";
 
 const ROUTES: Array<[string, string]> = JSON.parse(process.env.QC_ROUTES ?? "[]");
@@ -62,9 +63,11 @@ for (const [url, role] of ROUTES) for (const w of WIDTHS) {
         h1: q("h1").length, buttonsPrimary: q('button[class*="primary" i],a[class*="primary" i]').length,
       };
     });
+    let axe: unknown = null;
+    if (process.env.QC_AXE === "1") { const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze(); const by: Record<string, number> = {}; for (const v of r.violations) by[v.impact ?? "?"] = (by[v.impact ?? "?"] ?? 0) + 1; axe = { violations: by, contrast: r.violations.filter((v) => v.id === "color-contrast").length, incompleteContrast: r.incomplete.filter((v) => v.id === "color-contrast").reduce((a, v) => a + v.nodes.length, 0), ids: r.violations.map((v) => v.id) }; }
     if (SHOTS) { mkdirSync(`${OUT}/shots/${TAG}`, { recursive: true }); await page.screenshot({ path: `${OUT}/shots/${TAG}/${url.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "")}-${role}-${w}.png`, fullPage: false }); }
     const jsKB = Math.round(Array.from(js.values()).reduce((a, b) => a + b, 0) / 102.4) / 10;
-    results.push({ url, role, w, jsKB, ...m });
+    results.push({ url, role, w, jsKB, axe, ...m });
     await ctx.close();
   });
 }

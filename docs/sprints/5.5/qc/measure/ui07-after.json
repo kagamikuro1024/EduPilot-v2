@@ -1,0 +1,2922 @@
+[
+ {
+  "url": "/",
+  "role": "real:sv.gioi",
+  "w": 1440,
+  "jsKB": 271.1,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 960,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 2,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 240,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "real:sv.gioi",
+  "w": 1024,
+  "jsKB": 271.1,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 2,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "real:sv.gioi",
+  "w": 375,
+  "jsKB": 259.4,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 2,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/exams",
+  "role": "real:sv.gioi",
+  "w": 1440,
+  "jsKB": 271.1,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 960,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 240,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/exams",
+  "role": "real:sv.gioi",
+  "w": 1024,
+  "jsKB": 271,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/exams",
+  "role": "real:sv.gioi",
+  "w": 375,
+  "jsKB": 253.6,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/exams/01a12245-8123-7616-9bd0-3dc13ab41326/take?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:sv.kha",
+  "w": 1440,
+  "jsKB": 291.6,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 960,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 240,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/exams/01a12245-8123-7616-9bd0-3dc13ab41326/take?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:sv.kha",
+  "w": 1024,
+  "jsKB": 291.6,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/exams/01a12245-8123-7616-9bd0-3dc13ab41326/take?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:sv.kha",
+  "w": 375,
+  "jsKB": 274.2,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/",
+  "role": "real:teacher",
+  "w": 1440,
+  "jsKB": 347.1,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 960,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 2,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 240,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "real:teacher",
+  "w": 1024,
+  "jsKB": 347,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 2,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "real:teacher",
+  "w": 375,
+  "jsKB": 254.1,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 2,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/class/members?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1440,
+  "jsKB": 347,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 2,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 1176,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/class/members?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1024,
+  "jsKB": 347,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/class/members?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 375,
+  "jsKB": 244.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 2,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/questions?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1440,
+  "jsKB": 337.6,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 6,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 1176,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Ngân hàng câu hỏi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/questions?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1024,
+  "jsKB": 337.6,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 5,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Ngân hàng câu hỏi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/questions?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 375,
+  "jsKB": 250.2,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 5,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/exams/01a12245-8137-7cc6-a239-805b9e8a2e6f?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1440,
+  "jsKB": 349.1,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 3,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 1176,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/exams/01a12245-8137-7cc6-a239-805b9e8a2e6f?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1024,
+  "jsKB": 349.2,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 2,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/exams/01a12245-8137-7cc6-a239-805b9e8a2e6f?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 375,
+  "jsKB": 250.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 2,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 2
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 4,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40",
+   "input[] 20x20",
+   "input[] 20x20",
+   "input[] 19x20"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/exams/01a12242-b28a-78c1-be6b-1b40887fa018/results?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1440,
+  "jsKB": 358.1,
+  "axe": {
+   "violations": {
+    "critical": 2
+   },
+   "contrast": 0,
+   "incompleteContrast": 46,
+   "ids": [
+    "aria-allowed-attr",
+    "aria-valid-attr-value"
+   ]
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 1176,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 1,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/exams/01a12242-b28a-78c1-be6b-1b40887fa018/results?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 1024,
+  "jsKB": 358.2,
+  "axe": {
+   "violations": {
+    "critical": 2
+   },
+   "contrast": 0,
+   "incompleteContrast": 45,
+   "ids": [
+    "aria-allowed-attr",
+    "aria-valid-attr-value"
+   ]
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Bài thi"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 1,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/exams/01a12242-b28a-78c1-be6b-1b40887fa018/results?course=01a12242-1b8f-749d-b0ab-39966f105e5b",
+  "role": "real:teacher",
+  "w": 375,
+  "jsKB": 259.5,
+  "axe": {
+   "violations": {
+    "critical": 2
+   },
+   "contrast": 0,
+   "incompleteContrast": 73,
+   "ids": [
+    "aria-allowed-attr",
+    "aria-valid-attr-value"
+   ]
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 1,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/admin/users",
+  "role": "real:admin",
+  "w": 1440,
+  "jsKB": 254.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 1176,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Người dùng"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/admin/users",
+  "role": "real:admin",
+  "w": 1024,
+  "jsKB": 254.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 1
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Người dùng"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/admin/users",
+  "role": "real:admin",
+  "w": 375,
+  "jsKB": 250.4,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 60
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/admin/courses",
+  "role": "real:admin",
+  "w": 1440,
+  "jsKB": 254.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 1176,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Lớp học"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/admin/courses",
+  "role": "real:admin",
+  "w": 1024,
+  "jsKB": 254.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Lớp học"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/admin/courses",
+  "role": "real:admin",
+  "w": 375,
+  "jsKB": 246.4,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 60
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Lớp học"
+   }
+  ],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/settings/llm",
+  "role": "real:admin",
+  "w": 1440,
+  "jsKB": 254.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 1176,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Cấu hình LLM"
+   }
+  ],
+  "panels": 5,
+  "nest": 0,
+  "title": 2,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/settings/llm",
+  "role": "real:admin",
+  "w": 1024,
+  "jsKB": 254.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": {
+    "bg": "lab(100 0 0)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 904,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "text": "Cấu hình LLM"
+   }
+  ],
+  "panels": 5,
+  "nest": 0,
+  "title": 2,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 24,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/settings/llm",
+  "role": "real:admin",
+  "w": 375,
+  "jsKB": 246.5,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 1,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 60
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 2
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Cấu hình LLM"
+   }
+  ],
+  "panels": 5,
+  "nest": 0,
+  "title": 2,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 2
+ },
+ {
+  "url": "/login",
+  "role": "none",
+  "w": 1440,
+  "jsKB": 182.9,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(94.1856 1.34394 2.65995)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 440,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 500,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/login",
+  "role": "none",
+  "w": 1024,
+  "jsKB": 182.9,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(94.1856 1.34394 2.65995)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 440,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 292,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/login",
+  "role": "none",
+  "w": 375,
+  "jsKB": 182.8,
+  "axe": {
+   "violations": {},
+   "contrast": 0,
+   "incompleteContrast": 0,
+   "ids": []
+  },
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(94.1856 1.34394 2.65995)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": true,
+   "panelW": 351,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 1,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": 12,
+  "ox": 0,
+  "touchBad": 0,
+  "touchEls": [],
+  "bodyBg": "lab(94.1856 1.34394 2.65995)",
+  "panelBg": "lab(100 0 0)",
+  "panelRadius": "14px",
+  "panelShadow": "rgba(71, 32, 37, 0.05) 0px 1px 2px 0px, rgba(71, 32, 37, 0.07) 0px 6px 18px 0px",
+  "panelBorder": "1px solid lab(87.1298 3.66905 1.97326)",
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(243, 237, 233)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(250, 239, 238)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(227, 216, 215)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "14px",
+   "--ep-elevation-1": "0 1px 2px #4720250d, 0 6px 18px #47202512",
+   "--ep-panel-border": "lab(87.1298% 3.66905 1.97326)"
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ }
+]
