@@ -3,7 +3,7 @@
 Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phiên. Giữ ngắn; chi tiết nằm trong git log.
 
 ## Đang ở đâu
-- Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2` (private). `main` = sprint 1 + 1.5 + 2 + 3 + 4 (merge 2026-10-04). Repo cũ `TA_Agent` = remote `old-origin`, không push thêm.
+- Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
 - Lộ trình: **11 sprint + sprint 1.5 chen giữa** (`docs/sprints/ROADMAP.md`; PE thi hằng tuần = sprint 5, D54). Chạy cuốn chiếu; `sprint/4-p2` và `sprint/5-pe` xếp chồng, gộp `main` trước khi mở PR.
 - Sprint gần nhất: **4 — P2 Lớp học** — xong, cổng P2 ĐẠT CÓ ĐIỀU KIỆN (LCP + TBT `warn` — **đã trả ở US-PU-06** theo #14: TBT `error` ở `lighthouserc.json`, LCP `error` ở lượt devtools), `docs/sprints/4/report.md`. Kế tiếp: sprint 5 (PE + US-PU-06): dev xong 9 story + US-PU-06, `GATE PE: PASS` (dev), chờ QC chấm cổng PE.
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).

@@ -41,7 +41,7 @@ Tôi gõ `bắt đầu sprint N` (hoặc `tiếp`). Nếu `docs/PROGRESS.md` cho
 ### 3.1. Lập kế hoạch sprint → `docs/sprints/N/plan.md`
 - Lấy phase của sprint N trong `docs/sprints/ROADMAP.md` (10 sprint, chủ dự án chốt 2026-10-01). Cắt **toàn bộ** lát việc của các phase đó thành story; story nhỏ (`dev` ≤ 1 ngày), xếp theo thứ tự phụ thuộc.
 - Với mỗi story: ID, feature, truy vết, AC tóm tắt, lát dọc gồm những gì, phụ thuộc, rủi ro.
-- `git fetch origin && git switch -c sprint/N-<slug> origin/main` (`origin` = `github.com/kagamikuro1024/TA_Agent_v2`). Mọi agent làm trên nhánh này; push nhánh lên `origin`.
+- `git fetch origin && git switch -c sprint/N-<slug> origin/main` (`origin` = `github.com/kagamikuro1024/EduPilot-v2`). Mọi agent làm trên nhánh này; push nhánh lên `origin`.
 - **DỪNG. In plan ra cho tôi và hỏi: "Duyệt kế hoạch sprint N?"** Tôi có thể sửa. Chưa có chữ "duyệt" thì không giao việc cho ai.
 
 ### 3.2. Spec → giao `ba`

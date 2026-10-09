@@ -28,7 +28,7 @@ pm: docs/sprints/N/report.md + cập nhật PROGRESS + thesis-notes ─▶ DỪN
 bạn: đọc, bấm thử, "chốt" ──▶ pm merge --no-ff vào main, push ──▶ "tiếp" ──▶ sprint N+1
 ```
 
-Toàn dự án = **10 sprint**, mỗi sprint 1–2 phase: xem `docs/sprints/ROADMAP.md`. Story trong sprint vẫn nhỏ (dev ≤ 1 ngày) và là **lát dọc**: migration → API → giao diện → test → seed, chạy được từ đầu đến cuối trước khi sang story kế. Không có sprint "chỉ backend" (ngoại lệ: PG — nền Go). Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2`; nhánh `sprint/N-<slug>` từ `main`.
+Toàn dự án = **10 sprint**, mỗi sprint 1–2 phase: xem `docs/sprints/ROADMAP.md`. Story trong sprint vẫn nhỏ (dev ≤ 1 ngày) và là **lát dọc**: migration → API → giao diện → test → seed, chạy được từ đầu đến cuối trước khi sang story kế. Không có sprint "chỉ backend" (ngoại lệ: PG — nền Go). Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (public từ 2026-10-09; trước đó `TA_Agent_v2`); nhánh `sprint/N-<slug>` từ `main`.
 
 ## Dựng đội
 

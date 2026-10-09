@@ -1,6 +1,6 @@
 # Lộ trình 11 sprint
 
-Chủ dự án chốt 2026-10-01: toàn dự án = **10 sprint**; 2026-10-03 chèn **sprint 5 — PE Thi hằng tuần** (yêu cầu của thầy hướng dẫn, D54), các sprint sau lùi 1 → **11 sprint**. Sprint 1 đã xong và là `main` của repo mới `kagamikuro1024/TA_Agent_v2`. Mỗi sprint rộng hơn trước (1–2 phase), nhưng giữ nguyên thứ tự phụ thuộc của phase và cổng nghiệm thu của từng phase.
+Chủ dự án chốt 2026-10-01: toàn dự án = **10 sprint**; 2026-10-03 chèn **sprint 5 — PE Thi hằng tuần** (yêu cầu của thầy hướng dẫn, D54), các sprint sau lùi 1 → **11 sprint**. Sprint 1 đã xong và là `main` của repo mới `kagamikuro1024/EduPilot-v2` (public từ 2026-10-09; trước đó `TA_Agent_v2`). Mỗi sprint rộng hơn trước (1–2 phase), nhưng giữ nguyên thứ tự phụ thuộc của phase và cổng nghiệm thu của từng phase.
 
 Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). Không cắt tính năng nào khi lập lộ trình; nếu một sprint trễ thì cắt theo "Thứ tự cắt khi trễ" ở `WORKFLOW.md` §6, cột "Cắt được nếu trễ" bên dưới chỉ ra mục nào thuộc sprint đó. Danh sách "KHÔNG BAO GIỜ cắt" vẫn giữ.
 
