@@ -6,6 +6,7 @@ import { panelViolations as violations } from "./support/panels";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
 import { asDemo, type DemoRole } from "./support/session";
+import { mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 import { mockTake, TAKE_COURSE, TAKE_EXAM, type TakeKind } from "./support/takeMock";
 
 // "Panel có kỷ luật" (D59, FEAT-ui-panels). Chạy trên bản build có /dev/*: `pnpm build:gate` rồi `playwright test panels.spec.ts`.
@@ -380,4 +381,188 @@ test.describe("mobile gutter", () => {
       expect(bad).toEqual([]);
     });
   }
+});
+
+// ───────── US-UI-05 — Giảng viên / TA ─────────
+const STAFF_ROLES = ["teacher", "ta"] as const;
+const STAFF_ROUTES = (role: (typeof STAFF_ROLES)[number]) => [...new Set([...routesFor(role), "/students/sv-1", "/grading/s-1", "/settings", "/class/settings", `/exams/${STAFF_EXAM}`, `/exams/${STAFF_EXAM}/results`, ...(role === "teacher" ? [`/exams/${STAFF_EXAM}/similarity`, "/gradebook/scheme"] : [])])];
+const okCors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+
+async function staffToday(page: Page) {
+  const course = { id: "00000000-0000-7000-8000-00000000c001", class_code: "761987" };
+  const body = {
+    count: 2,
+    actions: [
+      { id: "a1", kind: "COURSE_SETUP", title: "Thiết lập lớp mới · 761987", reason: "1/4 bước xong: chia sẻ mã lớp → tải quy chế → tạo lịch → tải tài liệu.", urgency: "high", href: "/class/settings", course, steps: [] },
+      { id: "a2", kind: "JOIN_REQUESTS", title: "3 yêu cầu vào lớp", reason: "Sinh viên chờ duyệt.", urgency: "normal", href: "/class/members", course },
+    ],
+    attention: [],
+    upcoming: [{ at: "2026-10-15T02:00:00Z", title: "Buổi 10 · An ninh mạng", place: "P.302", course }],
+  };
+  for (const url of ["**/api/v1/me/today**", "**/api/v1/courses/*/today**"]) await page.route(url, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: okCors, body: JSON.stringify(body) }));
+}
+
+test.describe("staff home", () => {
+  for (const role of STAFF_ROLES) {
+    for (const w of [1440, 1024]) {
+      test(`/ ${role} @${w}: Panel "Việc cần xử lý" + "Sắp tới", NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu`, async ({ page, context }, info) => {
+        test.skip(info.project.name !== "desktop", "đo cả hai bề rộng trong một ca");
+        await asDemo(context, role);
+        await staffToday(page);
+        await page.setViewportSize({ width: w, height: 900 });
+        await page.goto("/");
+        await page.getByRole("heading", { name: "Sắp tới", level: 2 }).waitFor();
+        const v = await violations(page);
+        expect(v).toMatchObject({ nest: 0, title: 0, wall: 0, strongNested: 0, panels: 2 });
+        expect(v.strongMax).toBeLessThanOrEqual(1);
+        expect(v.h2).toEqual(["Việc cần xử lý", "Sắp tới"]);
+        expect(await page.locator("main [data-part=kpi]").count()).toBe(0);
+      });
+    }
+  }
+});
+
+test.describe("members", () => {
+  test("/class/members: Tabs ngoài panel; mỗi tab đúng 1 Panel; STRONG ≤ 3; NEST = 0", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "teacher");
+    await mockStaffApi(page);
+    await page.goto("/class/members");
+    for (const tab of ["Thành viên", "Chờ duyệt", "Trợ giảng", "Nhập danh sách"]) {
+      await page.getByRole("tab", { name: new RegExp(`^${tab}`) }).click();
+      await page.locator("main [data-ep-panel]:visible").first().waitFor();
+      const v = await violations(page);
+      expect(v, tab).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
+      expect(v.strongMax).toBeLessThanOrEqual(3);
+      expect(await page.getByRole("tablist").evaluate((e) => !!e.closest("[data-ep-panel]")), `${tab}: Tabs ngoài panel`).toBe(false);
+    }
+    expect(await page.locator("main [data-ep-panel-section]").count(), "nạp danh sách: PanelSection").toBeGreaterThanOrEqual(1);
+  });
+});
+
+test.describe("exams staff", () => {
+  test("/exams Staff: số Panel = số nhóm có dữ liệu; một nút chính; h2 ngoài panel; rỗng = 1 Panel", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "teacher");
+    await mockStaffApi(page);
+    await page.goto("/exams");
+    await page.getByRole("heading", { name: "Đang mở", level: 2 }).waitFor();
+    const v = await violations(page);
+    expect(v).toMatchObject({ nest: 0, title: 0, wall: 0 });
+    expect(v.panels).toBe(v.h2.length);
+    expect(v.panels).toBeGreaterThanOrEqual(3);
+    expect(await page.locator("main [data-ep-panel] li [data-ep-panel]").count()).toBe(0);
+    expect(await page.locator("main [data-variant=primary]").count(), "một nút chính").toBe(1);
+  });
+});
+
+test.describe("exam editor", () => {
+  test("/exams/[id]: Tabs ngoài; mỗi tab 1 Panel; NEST = 0 kể cả khi mở Drawer; tổng điểm là 1 ô nhấn; Panel không là hậu duệ của Drawer", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "teacher");
+    await mockStaffApi(page);
+    await page.goto(`/exams/${STAFF_DRAFT}`);
+    for (const [tab, strong] of [["Thông tin", 0], ["Câu hỏi", 1], ["Xem trước", 0]] as const) {
+      await page.getByRole("tab", { name: new RegExp(`^${tab}`) }).click();
+      await page.locator("main [data-ep-panel]:visible").first().waitFor();
+      const v = await violations(page);
+      expect(v, tab).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0, strongMax: strong });
+      expect(await page.getByRole("tablist").evaluate((e) => !!e.closest("[data-ep-panel]")), `${tab}: Tabs ngoài panel`).toBe(false);
+    }
+    await page.getByRole("tab", { name: /^Thông tin/ }).click();
+    expect(await page.locator("main [data-ep-panel-section]").count(), "Thông tin: PanelSection").toBeGreaterThanOrEqual(4);
+    await page.getByRole("tab", { name: /^Câu hỏi/ }).click();
+    await page.getByRole("button", { name: "Thêm câu từ ngân hàng" }).click();
+    await page.getByRole("dialog").waitFor();
+    const inDrawer = await page.evaluate(() => document.querySelectorAll('[role="dialog"] [data-ep-panel]').length);
+    expect(inDrawer, "Drawer không chứa Panel").toBe(0);
+    expect((await violations(page)).nest).toBe(0);
+  });
+});
+
+test.describe("questions", () => {
+  test("/questions: Toolbar + bảng trong 1 Panel, 1 nút chính; hàng mở Drawer không chứa Panel", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "teacher");
+    await mockStaffApi(page);
+    await page.goto("/questions");
+    await page.getByRole("table").first().waitFor();
+    const v = await violations(page);
+    expect(v).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
+    expect(await page.getByRole("table").first().evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+    expect(await page.getByRole("searchbox").first().evaluate((e) => !!e.closest("[data-ep-panel]")), "Toolbar trong panel").toBe(true);
+    expect(await page.locator("main [data-variant=primary]").count()).toBe(1);
+  });
+});
+
+test.describe("exam results|similarity", () => {
+  test("results: 1 Panel, Tabs ngoài, tab Nghi giống nhau chỉ Giảng viên; similarity: bảng cặp 1 Panel, hai khối mã là 2 ô strong ≥ 1024", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "teacher");
+    await mockStaffApi(page);
+    await page.goto(`/exams/${STAFF_EXAM}/results`);
+    await page.getByRole("table").first().waitFor();
+    expect(await violations(page)).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
+    expect(await page.getByRole("tablist").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(false);
+    await expect(page.getByRole("tab", { name: "Nghi giống nhau" })).toBeVisible();
+    await page.goto(`/exams/${STAFF_EXAM}/similarity`);
+    await page.getByRole("table").first().waitFor();
+    expect(await violations(page)).toMatchObject({ panels: 1, nest: 0, title: 0, strongMax: 0 });
+    await page.getByRole("row", { name: /Tính tổng|Sinh viên 1/ }).first().click();
+    await page.locator("[data-part=pair-view]").waitFor();
+    const v = await violations(page);
+    expect(v).toMatchObject({ panels: 1, nest: 0, strongMax: 2, strongNested: 0 });
+    expect(await page.locator("[data-part=similarity-note]").innerText()).toMatch(/Độ giống chỉ là gợi ý/);
+    // TA: không có tab Nghi giống nhau
+    const ta = await context.browser()!.newContext({ baseURL: BASE_URL });
+    const tp = await ta.newPage();
+    await asDemo(ta, "ta");
+    await mockStaffApi(tp);
+    await tp.goto(`/exams/${STAFF_EXAM}/results`);
+    await tp.getByRole("table").first().waitFor();
+    await expect(tp.getByRole("tab", { name: "Nghi giống nhau" })).toHaveCount(0);
+    await ta.close();
+  });
+});
+
+test.describe("staff routes", () => {
+  for (const role of STAFF_ROLES) {
+    test(`bảng 7.2 × vai ${role}: main ≥ 1 Panel, h1/h2 ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024`, async ({ page, context }, info) => {
+      test.skip(info.project.name !== "desktop", "đo một lần");
+      test.setTimeout(240_000);
+      await asDemo(context, role);
+      await mockStaffApi(page);
+      await mockLlmApi(page);
+      await staffToday(page);
+      const bad: string[] = [];
+      for (const w of [1440, 1024]) {
+        await page.setViewportSize({ width: w, height: 900 });
+        for (const route of STAFF_ROUTES(role)) {
+          await page.goto(route);
+          await page.locator("main").first().waitFor();
+          await page.waitForTimeout(250);
+          const v = await violations(page);
+          const allowNone = route === `/exams/${STAFF_EXAM}/similarity` && role === "ta"; // TA: màn chặn quyền, không có panel
+          if ((v.panels < 1 && !allowNone) || v.nest || v.title || v.wall || v.strongOver || v.sw > v.vw) bad.push(`${role} ${route}@${w}: ${JSON.stringify({ ...v, left: undefined, right: undefined })}`);
+        }
+      }
+      expect(bad).toEqual([]);
+    });
+  }
+  test("/attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "teacher");
+    await page.setViewportSize({ width: 375, height: 812 });
+    const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
+    for (const route of ["/attendance", "/inbox"]) {
+      await page.goto(route);
+      await page.locator("main [data-ep-panel]:visible").first().waitFor();
+      const a = await runAudit(page, AUDIT_SRC);
+      expect({ ox: a.ox, cut: a.cut }, `AUDIT ${route}`).toEqual({ ox: 0, cut: [] });
+      const t = await page.evaluate(TOUCH_SRC);
+      expect(Array.isArray(t) ? t.filter((x: { text?: string }) => !String(x?.text ?? JSON.stringify(x)).includes("Bỏ qua điều hướng")) : t, `TOUCH ${route}`).toEqual([]);
+      const v = await violations(page);
+      expect(v.left.concat(v.right).filter((x) => Math.abs(x - 12) > 0.5), `lề ${route}`).toEqual([]);
+    }
+  });
 });
