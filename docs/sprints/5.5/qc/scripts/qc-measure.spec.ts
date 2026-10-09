@@ -14,13 +14,15 @@ const results: unknown[] = [];
 test.describe.configure({ mode: "serial" });
 for (const [url, role] of ROUTES) for (const w of WIDTHS) {
   test(`${TAG} ${url} ${role} ${w}`, async ({ browser }) => {
+    const real = role.startsWith("real:");
     const ctx = await browser.newContext({ viewport: { width: w, height: w <= 480 ? 812 : 900 }, ignoreHTTPSErrors: true });
-    if (role !== "none") await asDemo(ctx, role as DemoRole);
+    if (role !== "none" && !real) await asDemo(ctx, role as DemoRole);
     const page = await ctx.newPage();
     const cdp = await ctx.newCDPSession(page); await cdp.send('Network.enable'); const js = new Map<string, number>(); const typ = new Map<string, string>();
     cdp.on('Network.responseReceived', (e: any) => typ.set(e.requestId, e.type)); cdp.on('Network.loadingFinished', (e: any) => { if (typ.get(e.requestId) === 'Script') js.set(e.requestId, e.encodedDataLength); });
-    await page.clock.install({ time: new Date("2026-10-29T09:20:00+07:00") });
-    await page.goto(process.env.QC_BASE + url, { waitUntil: "networkidle" });
+    if (!real) await page.clock.install({ time: new Date("2026-10-29T09:20:00+07:00") });
+    if (real) { await page.goto(process.env.QC_BASE + "/login", { waitUntil: "networkidle" }); await page.getByLabel("Email").fill(role.slice(5) + "@edupilot.local"); await page.getByLabel("Mật khẩu", { exact: true }).fill("Edupilot#Seed-2026"); await page.getByRole("button", { name: "Đăng nhập", exact: true }).click(); await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 15000 }); }
+    await page.goto(process.env.QC_BASE + url, { waitUntil: real ? "domcontentloaded" : "networkidle" }); if (real) await page.waitForTimeout(3500);
     await page.waitForTimeout(600);
     const m = await page.evaluate(() => {
       const q = (s: string) => Array.from(document.querySelectorAll<HTMLElement>(s));
