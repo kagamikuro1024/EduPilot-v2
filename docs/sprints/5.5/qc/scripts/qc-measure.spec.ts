@@ -15,7 +15,7 @@ test.describe.configure({ mode: "serial" });
 for (const [url, role] of ROUTES) for (const w of WIDTHS) {
   test(`${TAG} ${url} ${role} ${w}`, async ({ browser }) => {
     const ctx = await browser.newContext({ viewport: { width: w, height: w <= 480 ? 812 : 900 }, ignoreHTTPSErrors: true });
-    await asDemo(ctx, role as DemoRole);
+    if (role !== "none") await asDemo(ctx, role as DemoRole);
     const page = await ctx.newPage();
     const cdp = await ctx.newCDPSession(page); await cdp.send('Network.enable'); const js = new Map<string, number>(); const typ = new Map<string, string>();
     cdp.on('Network.responseReceived', (e: any) => typ.set(e.requestId, e.type)); cdp.on('Network.loadingFinished', (e: any) => { if (typ.get(e.requestId) === 'Script') js.set(e.requestId, e.encodedDataLength); });
@@ -44,7 +44,15 @@ for (const [url, role] of ROUTES) for (const w of WIDTHS) {
       const tokens: Record<string, string> = {}; for (const v of ["--ep-canvas", "--ep-surface", "--ep-surface-strong", "--ep-surface-subtle", "--ep-red-soft", "--ep-ink", "--ep-ink-2", "--ep-ink-3", "--ep-red", "--ep-green", "--ep-blue", "--ep-panel-border", "--ep-radius-panel", "--ep-elevation-1"]) { try { tokens[v] = probe(v); } catch { tokens[v] = "?"; } }
       const raw = (v: string) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
       const rawTok: Record<string, string> = {}; for (const v of ["--ep-radius-panel", "--ep-elevation-1", "--ep-panel-border"]) rawTok[v] = raw(v);
+      const part = (n: string) => document.querySelector<HTMLElement>(`[data-part="${n}"]`);
+      const sty = (e: HTMLElement | null) => e ? { bg: getComputedStyle(e).backgroundColor, bR: getComputedStyle(e).borderRightWidth + ' ' + getComputedStyle(e).borderRightColor, bB: getComputedStyle(e).borderBottomWidth, bT: getComputedStyle(e).borderTopWidth, bf: getComputedStyle(e).backdropFilter, w: Math.round(e.getBoundingClientRect().width), h: Math.round(e.getBoundingClientRect().height) } : null;
+      const mainEl = document.querySelector<HTMLElement>('main');
+      const frame = { sidebar: sty(part('sidebar')), topbar: sty(part('topbar')), main: mainEl ? getComputedStyle(mainEl).backgroundColor : null, bottomnav: sty(document.querySelector<HTMLElement>('nav[class*="bottom" i], [data-part="bottomnav"]')) };
+      const h1 = document.querySelector('h1'); const pn = panels[0];
+      const authInfo = { h1BeforePanel: h1 && pn ? !!(h1.compareDocumentPosition(pn) & Node.DOCUMENT_POSITION_FOLLOWING) : null, panelW: pn ? Math.round(pn.getBoundingClientRect().width) : null, primary: q('button[class*="primary" i],button[data-variant="primary"]').length };
+      const navItems = q('nav a[aria-current="page"], nav a[aria-current]').slice(0, 1).map((e) => ({ bg: getComputedStyle(e).backgroundColor, text: e.textContent?.trim().slice(0, 20) }));
       return {
+        frame, authInfo, navItems,
         panels: panels.length, nest, title, strongBad, wall, edge: edge === null ? null : Math.round(edge * 100) / 100,
         ox: document.documentElement.scrollWidth > innerWidth + 1 ? 1 : 0, touchBad, touchEls,
         bodyBg: cs(document.body).backgroundColor, panelBg: c0?.backgroundColor ?? null, panelRadius: c0?.borderTopLeftRadius ?? null, panelShadow: c0?.boxShadow ?? null, panelBorder: c0 ? `${c0.borderTopWidth} ${c0.borderTopStyle} ${c0.borderTopColor}` : null,
