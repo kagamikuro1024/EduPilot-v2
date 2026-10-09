@@ -53,7 +53,12 @@ jobs:
         # tiến trình ĐÃ TẠO ra nó thoát — các gói còn lại gặp "connection refused" giữa chừng (CI đỏ ngẫu nhiên). Runner dùng một lần nên tắt Ryuk.
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
-        run: go test -race -tags testroutes ./...
+        run: go test -race -short -tags testroutes ./...
+      - name: go test (đo thời gian, tuần tự, không -race)
+        # Các test `*TimingEqualized` bị `-short` bỏ qua ở bước trên (đo mili-giây không ổn định khi nhiều gói chạy song song). Chạy riêng, một gói một lúc, ngưỡng giữ nguyên (TL-3).
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: go test -p 1 -count=3 -tags testroutes -run 'TimingEqualized$' ./internal/auth/ ./internal/course/
 
   judge-attacks:
     name: Judge attacks (amd64, seccomp bật)
