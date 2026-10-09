@@ -8,10 +8,10 @@ Mọi agent (`pm`, `ba`, `dev`, `qc`) đọc file này ở đầu mỗi phiên v
 Người dùng: sinh viên (chủ yếu điện thoại), trợ giảng và giảng viên (desktop, điểm danh trên điện thoại), admin. Sự thật sản phẩm cho thiết kế: `frontend/PRODUCT.md`. Yêu cầu đầy đủ: `docs/PRD.md` (M0–M14), luồng: `docs/FLOWS.md` (F1–F18).
 
 ## 2. Đang ở đâu
-- Repo: `github.com/kagamikuro1024/TA_Agent_v2`. `main` = sprint 1 (P0: mã cũ dời vào `legacy/`, khung Go + Next.js, stack local, CI).
-- Lộ trình 10 sprint: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
-- **Việc hiện tại — SPRINT 1.5: PROTOTYPE GIAO DIỆN** (`docs/sprints/1.5/plan.md`, nhánh `sprint/1.5-mock-ui`). Chủ dự án thuyết trình với thầy hướng dẫn **cuối tuần này**: cần một prototype bấm được, đẹp, phủ TOÀN BỘ tính năng dự định, dữ liệu mô phỏng, đổi được vai trò, đi trọn `docs/DEMO_SCRIPT.md`. Không backend; nhưng primitive dựng đúng chuẩn ở `frontend/src/shared/` để phase PU dùng lại.
-- **Prototype là MOCK có hạn dùng (D51):** spec của nó ở `docs/sprints/1.5/spec/`, KHÔNG phải `docs/specs/`. Từ sprint 2, mỗi sprint build thật thay dần màn mock; spec thật viết mới ở `docs/specs/<FEAT>/` và thắng spec prototype. Đừng coi spec prototype là yêu cầu thật khi build thật — đọc nó chỉ để biết màn đã dựng trông thế nào.
+- Repo: `github.com/kagamikuro1024/EduPilot-v2` (public, 2026-10-09). Repo cũ `TA_Agent_v2` đã bỏ: **không push lên đó, không push nhánh có lịch sử cũ** (lịch sử cũ chứa secret của Project III).
+- Lộ trình 11 sprint + 1.5 + 5.5: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
+- **Việc hiện tại:** sprint 5 (PE thi hằng tuần, nhánh `sprint/5-pe`) đang nghiệm thu; tiếp theo sprint 5.5 (UI panel nổi, `docs/sprints/5.5/plan.md`).
+- Prototype sprint 1.5 là MOCK (D51): màn mock được thay dần bằng màn thật; spec thật ở `docs/specs/<FEAT>/` thắng spec prototype `docs/sprints/1.5/spec/`.
 
 ## 3. Đã chốt — không mở lại
 | Mã | Chốt |

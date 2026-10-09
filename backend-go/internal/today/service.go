@@ -47,7 +47,7 @@ type Service struct {
 // NewService dựng Service với bộ gộp mặc định: Provider sinh viên, staff và admin của P2. llm có thể nil.
 func NewService(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, log *slog.Logger, llm LLMSignals) *Service {
 	agg := &Aggregator{Log: log}
-	agg.Register(StudentProvider{})
+	agg.Register(StudentProvider{Pool: pool})
 	agg.Register(StaffProvider{Pool: pool})
 	agg.Register(AdminProvider{Pool: pool, LLM: llm})
 	return &Service{Pool: pool, Redis: rdb, Clock: clk, Log: log, Agg: agg, TTL: DefaultTTL, warned: new(atomic.Int64)}

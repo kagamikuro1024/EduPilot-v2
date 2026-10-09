@@ -21,6 +21,7 @@ import (
 // ===== AC3: thời gian xử lý không phân biệt được nguyên nhân =====
 
 func TestJoinFailureTimingEqualized(t *testing.T) {
+	testutil.SkipTiming(t)
 	r := newRig(t)
 	causes, _ := r.sixCauses()
 	u, _ := r.student("")

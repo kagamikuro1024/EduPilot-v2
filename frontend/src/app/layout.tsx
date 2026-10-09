@@ -11,7 +11,7 @@ import { AuthProvider } from "@/shared/session/AuthProvider";
 const beVietnamPro = Be_Vietnam_Pro({
   weight: ["400", "600", "700"], // bỏ 500 để nhẹ ~25 KB phông (góp ý #26): chữ 500 hiển thị bằng 400
   subsets: ["vietnamese", "latin"],
-  display: "swap",
+  display: "block", // US-PU-06 (đề xuất #14): swap làm chữ rộng ra sau khi phông về ⇒ ứng viên LCP mới
   variable: "--font-be-vietnam-pro",
 });
 

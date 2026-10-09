@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/testutil"
 )
 
 const (
@@ -86,9 +87,7 @@ func TestForgotMailOnlyEligible(t *testing.T) {
 }
 
 func TestForgotTimingEqualized(t *testing.T) {
-	if testing.Short() {
-		t.Skip("đo thời gian")
-	}
+	testutil.SkipTiming(t)
 	r := newSessRig(t)
 	median := func(eligible bool) time.Duration {
 		ds := make([]time.Duration, 15)

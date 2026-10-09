@@ -12,6 +12,7 @@ import (
 	"math/rand/v2"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -372,17 +373,18 @@ func Record(dir string, o provider.ChatOpts, r provider.Result) error {
 
 // ---- sinh JSON theo schema ----
 
-// Generate sinh một giá trị JSON xác định thoả schema (tập con: type, properties, required, items, enum, const, min/max, minItems).
+// Generate sinh một giá trị JSON xác định thoả schema (tập con: type [kể cả mảng kiểu nullable], properties, required, items, enum, const, min/max, minItems).
 func Generate(schema json.RawMessage) (json.RawMessage, error) {
 	var s map[string]any
 	if err := json.Unmarshal(schema, &s); err != nil {
 		return nil, err
 	}
-	v := gen(s, 0)
+	v := gen(s, 0, 0)
 	return json.Marshal(v)
 }
 
-func gen(s map[string]any, depth int) any {
+// gen sinh giá trị; idx là vị trí của phần tử trong mảng cha (boolean: phần tử đầu `true`, các phần tử sau `false` — để danh sách đáp án có đúng một đáp án đúng).
+func gen(s map[string]any, depth, idx int) any {
 	if depth > 8 {
 		return nil
 	}
@@ -393,6 +395,14 @@ func gen(s map[string]any, depth int) any {
 		return e[0]
 	}
 	typ, _ := s["type"].(string)
+	if ts, ok := s["type"].([]any); ok { // ["boolean","null"]: lấy kiểu không-null đầu tiên
+		for _, t := range ts {
+			if n, _ := t.(string); n != "null" {
+				typ = n
+				break
+			}
+		}
+	}
 	if typ == "" {
 		if _, ok := s["properties"]; ok {
 			typ = "object"
@@ -404,7 +414,7 @@ func gen(s map[string]any, depth int) any {
 		props, _ := s["properties"].(map[string]any)
 		for k, v := range props {
 			if sub, ok := v.(map[string]any); ok {
-				out[k] = gen(sub, depth+1)
+				out[k] = gen(sub, depth+1, idx)
 			}
 		}
 		return out
@@ -414,9 +424,12 @@ func gen(s map[string]any, depth int) any {
 		if m, ok := s["minItems"].(float64); ok && int(m) > n {
 			n = int(m)
 		}
+		if props, _ := items["properties"].(map[string]any); n < 2 && props["body"] != nil && props["correct"] != nil {
+			n = 2 // danh sách đáp án {body, correct}: hai phần tử (đúng, sai) để câu trắc nghiệm sinh ra hợp lệ
+		}
 		arr := make([]any, 0, n)
-		for range n {
-			arr = append(arr, gen(items, depth+1))
+		for i := range n {
+			arr = append(arr, gen(items, depth+1, i))
 		}
 		return arr
 	case "integer":
@@ -430,11 +443,14 @@ func gen(s map[string]any, depth int) any {
 		}
 		return 1
 	case "boolean":
-		return true
+		return idx == 0
 	case "null":
 		return nil
 	default:
 		str := "mẫu"
+		if idx > 0 {
+			str += " " + strconv.Itoa(idx+1) // phần tử thứ hai trở đi khác phần tử đầu (đáp án không được trùng nhau)
+		}
 		if m, ok := s["minLength"].(float64); ok && int(m) > len([]rune(str)) {
 			str = strings.Repeat("a", int(m))
 		}

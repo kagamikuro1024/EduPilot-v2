@@ -15,7 +15,11 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi"
+	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/db"
 	applog "github.com/edupilot/backend-go/internal/platform/log"
@@ -55,15 +59,20 @@ func run(args []string, getenv func(string) string, stdout, stderr io.Writer) in
 		return probe(httpURL(cfg.WorkerHealthAddr) + "/healthz")
 	}
 	appredis.SetLogger(log) // go-redis cũng phải ghi JSON (AC4)
+	jset, err := judge.SettingsFromEnv(getenv)
+	if err != nil {
+		log.Error("cấu hình máy chấm không hợp lệ", "error", err.Error()) // nêu tên biến (JUDGE_TOKEN / JUDGE_MEM_LIMIT / JUDGE_PARALLELISM …); không tự sửa
+		return 1
+	}
 	log.Info("config loaded", cfg.LogAttrs()...)
 
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT)
 	defer stop()
-	return serve(ctx, cfg, log)
+	return serve(ctx, cfg, jset, log)
 }
 
 // serve dựng phụ thuộc rồi chạy vòng lặp nền tới khi ctx huỷ.
-func serve(ctx context.Context, cfg config.Config, log *slog.Logger) int {
+func serve(ctx context.Context, cfg config.Config, jset judge.Settings, log *slog.Logger) int {
 	shutdownOtel, err := appotel.Setup(ctx, cfg)
 	if err != nil {
 		log.Error("không dựng được trace", "error", err.Error())
@@ -93,6 +102,16 @@ func serve(ctx context.Context, cfg config.Config, log *slog.Logger) int {
 	defer func() { _ = rdb.Close() }()
 
 	deps := Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb}
+	jq, err := newJudgeQueue(deps, jset)
+	if err != nil {
+		log.ErrorContext(startCtx, "không dựng được máy chấm", "error", err.Error())
+		startSpan.End()
+		return 1
+	}
+	deps.Judge = jq
+	deps.JudgeConsumer = jset.Consumer
+	deps.attachExamDeps(startCtx, jset)
+	defer deps.closeExamDeps(ctx)
 	if err := httpapi.WaitForDeps(startCtx, log, cfg.StartupTimeout, dbDep(deps), redisDep(deps)); err != nil {
 		startSpan.End()
 		return 1
@@ -193,6 +212,18 @@ func (h *heartbeat) fresh() bool {
 // healthHandler: 200 khi vòng lặp còn nhịp và DB + Redis ping được (US-PG-01 AC12).
 func healthHandler(d Deps, hb *heartbeat) http.Handler {
 	mux := http.NewServeMux()
+	// `/readyz`: chỉ THÔNG TIN về máy chấm (`judge` ∈ up | down | off); không bao giờ làm readyz 503 (worker vẫn sống khi judge chết).
+	mux.HandleFunc("GET /readyz", func(w http.ResponseWriter, _ *http.Request) {
+		state := "off"
+		if d.JudgeConsumer && d.Judge != nil {
+			state = "down"
+			if d.Judge.Up() {
+				state = "up"
+			}
+		}
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_, _ = w.Write([]byte(`{"status":"ok","judge":"` + state + `"}` + "\n"))
+	})
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		ctx, cancel := context.WithTimeout(r.Context(), probeTimeout)
 		defer cancel()
@@ -264,4 +295,13 @@ type Deps struct {
 	Log   *slog.Logger
 	DB    *pgxpool.Pool
 	Redis *appredis.Client
+	// Judge: hàng chấm code (US-PE-02). Mọi worker có (để xử lý outbox `judge.enqueue`); chỉ bản `JUDGE_CONSUMER=true` chạy consumer.
+	Judge *judge.Queue
+	// JudgeConsumer: bản worker này có chấm bài không.
+	JudgeConsumer bool
+	// Việc nền của thi hằng tuần (US-PE-03): chạy lời giải mẫu (Sandbox), gợi ý AI (LLM), đọc test lớn (Blob). nil = chưa có → việc FAILED với câu tiếng Việt.
+	Sandbox exam.Sandbox
+	LLM     llm.Client
+	Blob    exam.Blob
+	llmRT   *llmrt.Runtime
 }

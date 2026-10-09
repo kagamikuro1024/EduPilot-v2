@@ -63,12 +63,12 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 69 {
-			t.Errorf("openapi.yaml: %d thao tác (cần 69)", n)
+		if n := len(prod.Operations()); n != 126 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 126)", n)
 		}
-		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake).
-		if n := len(test.Operations()); n != 18 {
-			t.Errorf("openapi.test.yaml: %d thao tác (cần 18)", n)
+		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
+		if n := len(test.Operations()); n != 19 {
+			t.Errorf("openapi.test.yaml: %d thao tác (cần 19)", n)
 		}
 	}
 }
@@ -278,7 +278,65 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"POST /api/v1/courses/{id}/roster/import": true, "GET /api/v1/courses/{id}/share-sources": true, "POST /api/v1/courses/{id}/share-from": true,
 		"GET /api/v1/courses/{id}/sessions": true, "POST /api/v1/courses/{id}/sessions/generate": true,
 		"GET /api/v1/me/today": true, "GET /api/v1/courses/{id}/today": true, "POST /api/v1/courses/{id}/setup/dismiss": true,
-		"GET /api/v1/me/courses": true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
+		// US-PE-03 — ngân hàng câu hỏi (thao tác 1–16 của SRS FEAT-weekly-exam 6.2)
+		"GET /api/v1/courses/{id}/questions":                                            true,
+		"POST /api/v1/courses/{id}/questions":                                           true,
+		"POST /api/v1/courses/{id}/questions/suggest":                                   true,
+		"GET /api/v1/courses/{id}/questions/{qid}":                                      true,
+		"PUT /api/v1/courses/{id}/questions/{qid}":                                      true,
+		"POST /api/v1/courses/{id}/questions/{qid}/archive":                             true,
+		"POST /api/v1/courses/{id}/questions/{qid}/duplicate":                           true,
+		"PUT /api/v1/courses/{id}/questions/{qid}/review":                               true,
+		"PUT /api/v1/courses/{id}/questions/{qid}/code":                                 true,
+		"GET /api/v1/courses/{id}/questions/{qid}/testcases":                            true,
+		"POST /api/v1/courses/{id}/questions/{qid}/testcases":                           true,
+		"POST /api/v1/courses/{id}/questions/{qid}/testcases/import":                    true,
+		"POST /api/v1/courses/{id}/questions/{qid}/testcases/approve":                   true,
+		"PUT /api/v1/courses/{id}/questions/{qid}/testcases/{tid}":                      true,
+		"DELETE /api/v1/courses/{id}/questions/{qid}/testcases/{tid}":                   true,
+		"POST /api/v1/courses/{id}/questions/{qid}/reference/verify":                    true,
+		"GET /api/v1/courses/{id}/exams":                                                true,
+		"POST /api/v1/courses/{id}/exams":                                               true,
+		"GET /api/v1/courses/{id}/exams/{eid}":                                          true,
+		"PUT /api/v1/courses/{id}/exams/{eid}":                                          true,
+		"DELETE /api/v1/courses/{id}/exams/{eid}":                                       true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/items":                                    true,
+		"GET /api/v1/courses/{id}/exams/{eid}/preview":                                  true,
+		"POST /api/v1/courses/{id}/exams/{eid}/schedule":                                true,
+		"POST /api/v1/courses/{id}/exams/{eid}/unschedule":                              true,
+		"POST /api/v1/courses/{id}/exams/{eid}/extend":                                  true,
+		"POST /api/v1/courses/{id}/exams/{eid}/clone":                                   true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts":                                true,
+		"GET /api/v1/courses/{id}/exams/{eid}/attempts/mine":                            true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/answers":                   true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/takeover":                 true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/submit":                   true,
+		"GET /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/result":                    true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/draft":       true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/run":        true,
+		"GET /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/runs/{runId}":              true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/submit":     true,
+		"GET /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/code/{itemId}/submissions": true,
+		"GET /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/submissions/{sid}":         true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/events":                   true,
+		"GET /api/v1/courses/{id}/exams/{eid}/events":                                   true,
+		"GET /api/v1/courses/{id}/exams/{eid}/similarity":                               true,
+		"POST /api/v1/courses/{id}/exams/{eid}/similarity/run":                          true,
+		"GET /api/v1/courses/{id}/exams/{eid}/similarity/{sid}":                         true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/similarity/{sid}/review":                  true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/publish-hold":                             true,
+		"POST /api/v1/courses/{id}/exams/{eid}/attempts/{aid}/appeal":                   true,
+		"GET /api/v1/courses/{id}/exams/{eid}/results":                                  true,
+		"GET /api/v1/courses/{id}/exams/{eid}/results.csv":                              true,
+		"GET /api/v1/courses/{id}/exams/{eid}/results/{aid}":                            true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/results/{aid}/score":                      true,
+		"PUT /api/v1/courses/{id}/exams/{eid}/items/{itemId}/override":                  true,
+		"POST /api/v1/courses/{id}/exams/{eid}/regrade":                                 true,
+		"GET /api/v1/courses/{id}/exams/{eid}/stats":                                    true,
+		"GET /api/v1/courses/{id}/exams/{eid}/appeals":                                  true,
+		"POST /api/v1/courses/{id}/exams/{eid}/appeals/{pid}/answer":                    true,
+		"GET /api/v1/me/exam-lock":                                                      true,
+		"GET /api/v1/me/courses":                                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {
 		need, ok := want[o.Key()]

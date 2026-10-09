@@ -1,0 +1,8 @@
+.wrap { display: grid; gap: var(--ep-space-1); min-width: 0; }
+.frame { display: grid; grid-template-columns: auto 1fr; min-height: 320px; max-height: 60dvh; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface); overflow: hidden; }
+.frame:focus-within { outline: 2px solid var(--ep-focus); outline-offset: 2px; }
+.gutter, .area { margin: 0; padding: var(--ep-space-3); font-family: var(--ep-font-mono, ui-monospace, monospace); font-size: var(--ep-text-label); line-height: 1.6; tab-size: 4; }
+.gutter { min-width: 4ch; padding-inline: var(--ep-space-2); text-align: end; color: var(--ep-ink-3); background: var(--ep-surface-subtle); border-inline-end: 1px solid var(--ep-rule); overflow: hidden; user-select: none; }
+.area { min-width: 0; width: 100%; border: 0; resize: none; background: transparent; color: var(--ep-ink); white-space: pre; overflow: auto; outline: none; }
+.hint { display: flex; justify-content: space-between; gap: var(--ep-space-3); margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
+.full { color: var(--ep-red); }

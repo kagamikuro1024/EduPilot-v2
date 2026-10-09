@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 // errorRetryAfter là `retry_after` cố định của `GET /_test/error/429|503` (SRS 6.1).
@@ -90,4 +92,19 @@ func whoami(w http.ResponseWriter, r *http.Request) {
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{
 		"sub": p.Sub, "role": string(p.Role), "email": p.Email, "jti": p.JTI,
 	})
+}
+
+// chatGate (US-PE-07 AC2): mẫu cổng chat cho P3 — gọi `exam.Locker` và trả `{allowed: !locked}`; lỗi cả Redis lẫn DB → `allowed:false` (từ chối khi nghi ngờ).
+func chatGate(d Deps) http.HandlerFunc {
+	lk := &exam.Locker{Pool: d.DB, Redis: d.Redis, Clock: d.Clock}
+	return func(w http.ResponseWriter, r *http.Request) {
+		p := auth.MustFromContext(r.Context())
+		uid, err := uuid.Parse(p.Sub)
+		if err != nil {
+			apierr.Write(w, r, apierr.New(http.StatusUnauthorized, apierr.Unauthenticated))
+			return
+		}
+		_, locked, err := lk.IsLocked(r.Context(), uid)
+		httpx.WriteJSON(w, http.StatusOK, map[string]bool{"allowed": err == nil && !locked})
+	}
 }

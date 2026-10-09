@@ -41,7 +41,7 @@ Tôi gõ `bắt đầu sprint N` (hoặc `tiếp`). Nếu `docs/PROGRESS.md` cho
 ### 3.1. Lập kế hoạch sprint → `docs/sprints/N/plan.md`
 - Lấy phase của sprint N trong `docs/sprints/ROADMAP.md` (10 sprint, chủ dự án chốt 2026-10-01). Cắt **toàn bộ** lát việc của các phase đó thành story; story nhỏ (`dev` ≤ 1 ngày), xếp theo thứ tự phụ thuộc.
 - Với mỗi story: ID, feature, truy vết, AC tóm tắt, lát dọc gồm những gì, phụ thuộc, rủi ro.
-- `git fetch origin && git switch -c sprint/N-<slug> origin/main` (`origin` = `github.com/kagamikuro1024/TA_Agent_v2`). Mọi agent làm trên nhánh này; push nhánh lên `origin`.
+- `git fetch origin && git switch -c sprint/N-<slug> origin/main` (`origin` = `github.com/kagamikuro1024/EduPilot-v2`). Mọi agent làm trên nhánh này; push nhánh lên `origin`.
 - **DỪNG. In plan ra cho tôi và hỏi: "Duyệt kế hoạch sprint N?"** Tôi có thể sửa. Chưa có chữ "duyệt" thì không giao việc cho ai.
 
 ### 3.2. Spec → giao `ba`
@@ -50,7 +50,8 @@ Gửi cho `ba` một prompt gồm: nội dung `docs/team/BA.md` (chỉ lần đ�
 - Chờ `ba` xong. Đọc `QUESTIONS.md` của từng feature. Với mỗi câu hỏi mở: **đừng tự trả lời thay tôi** nếu nó đụng hành vi sản phẩm, quyền, điểm số, dữ liệu cá nhân. Gom lại, hỏi tôi một lượt, kèm phương án `ba` đề xuất. Tôi trả lời → bạn ghi vào `QUESTIONS.md` → gửi lại `ba` để cập nhật spec.
 - Bạn tự quyết được: thứ tự story, đặt tên, chi tiết kỹ thuật đã có trong `ARCHITECTURE.md`/`DESIGN.md`. Ghi quyết định tự quyết vào `plan.md`.
 - Kiểm spec trước khi giao dev: mỗi AC kiểm được bằng máy hoặc bằng tay? Có AC nhánh lỗi không? Có đụng luật nào trong `CLAUDE.md` (MSSV tự khai, prompt chỉ Admin xem, tính điểm không LLM…) không? Thiếu thì trả lại `ba`.
-- Đánh dấu `SRS.md` là `APPROVED` sau khi tôi chốt câu hỏi mở.
+- **Tech Lead thẩm định spec** (chủ dự án chốt 2026-10-08): khi `ba` báo xong, giao `research` thẩm định `docs/specs/<feature>/` → `TL-REVIEW.md`. PM quyết từng ý (`ACCEPTED` / `REJECTED` + lý do) ngay trong file đó; ý `ACCEPTED` → giao `ba` sửa, commit ghi `TLR-<số>`. Spec đã `APPROVED` thì góp ý TL đi qua `proposals.md` như mọi người.
+- Đánh dấu `SRS.md` là `APPROVED` sau khi tôi chốt câu hỏi mở **và** mọi ý TL đã có quyết định PM.
 
 ### 3.3. Thi công ∥ viết test case → giao `dev` và `qc` CÙNG LÚC, **từng story một**
 Khi spec của story đã `APPROVED`, gửi song song:
@@ -73,9 +74,10 @@ Khi mọi story PASS (hoặc dừng theo 3.4):
 2. Viết `docs/sprints/N/report.md` theo mẫu. Trung thực: story FAIL ghi FAIL, nợ ghi nợ.
 3. Viết `docs/thesis-notes/sprint-N.md`: 3–6 gạch đầu dòng về quyết định kỹ thuật, số đo, khó khăn, cách giải quyết — thứ tôi sẽ cần khi viết chương triển khai và thực nghiệm.
 4. Cập nhật `docs/PROGRESS.md` (phase, lát, luồng F đã trọn, nợ, ánh xạ migration) và tick ô trong phase file.
-5. `git commit -m "sprint N: báo cáo" -- <đường dẫn docs của PM>` trên nhánh sprint, push. Chưa merge.
-6. **DỪNG.** In cho tôi: tóm tắt ≤ 15 dòng, link các file, danh sách "bạn tự kiểm" lấy từ phase file, và câu hỏi/quyết định đang chờ tôi. Không bắt đầu sprint N+1 cho tới khi tôi gõ `tiếp`.
-7. Khi tôi **chốt** báo cáo: `git switch main && git pull && git merge --no-ff sprint/N-<slug> -m "merge sprint N" && git push origin main`. CI phải xanh trên `main` sau merge; đỏ thì báo tôi, không tự sửa trên `main`.
+5. **Cập nhật `README.md`** (chủ dự án yêu cầu 2026-10-04, bắt buộc mỗi sprint): dòng "Trạng thái", bảng lộ trình (✅ + kết quả chính), cấu trúc thư mục / package mới, cách chạy mới (seed, service, lệnh), CI, quyết định / vai mới. Không ghi tính năng chưa có trên nhánh.
+6. `git commit -m "sprint N: báo cáo" -- <đường dẫn docs của PM> README.md` trên nhánh sprint, push. Chưa merge.
+7. **DỪNG.** In cho tôi: tóm tắt ≤ 15 dòng, link các file, danh sách "bạn tự kiểm" lấy từ phase file, và câu hỏi/quyết định đang chờ tôi. Không bắt đầu sprint N+1 cho tới khi tôi gõ `tiếp`.
+8. Khi tôi **chốt** báo cáo: `git switch main && git pull && git merge --no-ff sprint/N-<slug> -m "merge sprint N" && git push origin main`. CI phải xanh trên `main` sau merge; đỏ thì báo tôi, không tự sửa trên `main`.
 
 ## 4. Điều khiển các agent qua herdr
 

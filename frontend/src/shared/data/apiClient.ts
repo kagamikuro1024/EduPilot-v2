@@ -20,6 +20,8 @@ export type RequestOpts = {
   idempotent?: boolean;
   /** ép khoá (gửi lại cùng ý định). */
   idempotencyKey?: string;
+  /** thân không phải JSON (tệp CSV tải về): trả `Blob`. */
+  blob?: boolean;
 };
 
 const KEY_RE = /^[A-Za-z0-9._:-]{8,128}$/;
@@ -127,7 +129,7 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
   const hasBody = body !== undefined;
 
   const send = async (tk: string | null): Promise<ApiResult<T>> => {
-    const headers: Record<string, string> = { Accept: "application/json", "X-Request-Id": crypto.randomUUID(), ...opts.headers };
+    const headers: Record<string, string> = { Accept: opts.blob ? "*/*" : "application/json", "X-Request-Id": crypto.randomUUID(), ...opts.headers };
     if (tk) headers.Authorization = `Bearer ${tk}`;
     if (hasBody && !(body instanceof FormData)) headers["Content-Type"] = "application/json"; // FormData: trình duyệt tự đặt boundary
     if (key) headers["Idempotency-Key"] = key;
@@ -161,6 +163,7 @@ async function request<T>(method: string, path: string, body: unknown, opts: Req
     const replayed = res.headers.get("Idempotent-Replayed") === "true" || undefined;
     const etag = res.headers.get("ETag") ?? undefined;
     if (res.status === 204) return { data: undefined as T, status: 204, replayed };
+    if (opts.blob) return { data: (await res.blob()) as T, status: res.status, replayed };
     let data: T;
     try {
       data = (await res.json()) as T;

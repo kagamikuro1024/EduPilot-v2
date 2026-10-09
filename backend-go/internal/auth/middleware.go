@@ -164,6 +164,12 @@ const (
 	StaffOrAdmin                   // Staff hoặc JWT ADMIN
 	Manage                         // Teacher hoặc JWT ADMIN
 	MemberOrAdmin                  // Member hoặc JWT ADMIN
+	// Chế độ của thi hằng tuần (SRS FEAT-weekly-exam 2, 6.2): như Staff / Teacher nhưng thành viên ACTIVE sai vai → 403 reason="role"
+	// (người ngoài lớp / PENDING / REMOVED / ADMIN vẫn "course"); ADMIN không bao giờ qua (không đọc nội dung bài thi).
+	MemberRole  // ghi danh ACTIVE, vai bất kỳ, nhưng KHÔNG ADMIN
+	StaffRole   // TEACHER hoặc TA của lớp
+	TeacherRole // TEACHER của lớp
+	StudentRole // STUDENT của lớp (route của sinh viên: giảng viên / TA không làm bài thay)
 )
 
 const statusActive = "ACTIVE"
@@ -183,8 +189,24 @@ func (m GuardMode) allows(ms Membership, jwtRole Role) bool {
 		return (active && ms.Role == RoleTeacher) || jwtRole == RoleAdmin
 	case MemberOrAdmin:
 		return active || jwtRole == RoleAdmin
+	case MemberRole:
+		return active && jwtRole != RoleAdmin
+	case StaffRole:
+		return active && (ms.Role == RoleTeacher || ms.Role == RoleTA) && jwtRole != RoleAdmin
+	case TeacherRole:
+		return active && ms.Role == RoleTeacher && jwtRole != RoleAdmin
+	case StudentRole:
+		return active && ms.Role == RoleStudent && jwtRole != RoleAdmin
 	}
 	return false
+}
+
+// denyReason: "role" chỉ cho thành viên ACTIVE (không phải ADMIN) bị chặn bởi chế độ của thi hằng tuần; còn lại "course".
+func (m GuardMode) denyReason(ms Membership, jwtRole Role) string {
+	if (m == StaffRole || m == TeacherRole || m == StudentRole) && ms.Found && ms.Status == statusActive && jwtRole != RoleAdmin {
+		return "role"
+	}
+	return "course"
 }
 
 // CourseAccessGuard chặn route có `{courseId}` (hoặc `{id}` dưới /courses/): id không phải uuid → 404; resolver lỗi → 503;
@@ -216,7 +238,7 @@ func CourseAccessGuard(resolver CourseResolver, mode GuardMode) func(http.Handle
 				return
 			}
 			if !mode.allows(ms, p.Role) {
-				writeForbidden(w, r, "course")
+				writeForbidden(w, r, mode.denyReason(ms, p.Role))
 				return
 			}
 			role := ms.Role

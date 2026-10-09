@@ -61,6 +61,7 @@ func buildRig(t *testing.T) (*rig, error) {
 		"APP_ENV":                 "test",
 		"REQUEST_TIMEOUT":         "1s",
 		"MAX_BODY_BYTES":          "4096",
+		"EXAM_TESTZIP_MAX_BYTES":  "65536", // US-PE-03: zip lớn hơn 64 KiB → 413 (kịch bản hợp đồng không phải gửi 10 MiB)
 		"RATE_LIMIT_IP_PER_MIN":   "1000000",
 		"RATE_LIMIT_USER_PER_MIN": "1000000",
 		"SSE_MAX_PER_USER":        "2",

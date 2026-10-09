@@ -2,11 +2,14 @@ package httpapi
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
@@ -44,6 +47,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			// US-PG-03 FR-35/36 — handler việc dài của internal/jobs (chủ job hoặc ADMIN, người khác 404).
 			r.Get("/jobs/{id}", jobs.Handler(d.Jobs))
 		}
+		if d.DB != nil {
+			// US-PE-07 — GET /me/exam-lock (thao tác 43): chat AI có đang bị khoá vì lượt làm bài không (chỉ chính mình, không lộ tên bài).
+			r.Get("/me/exam-lock", examhttp.MyLock(&exam.Locker{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second}))
+		}
 		if d.Users != nil {
 			// US-P2-06 — /admin/users: chỉ ADMIN, POST cần Idempotency-Key.
 			uh := &userhttp.Handler{Users: d.Users, Log: d.Log}
@@ -65,6 +72,18 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			}
 			(&todayhttp.Handler{Today: today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig), Guard: courseGuard, Log: d.Log}).Mount(r)
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
+		}
+		if d.DB != nil && d.Jobs != nil {
+			// US-PE-03 / PE-04 — ngân hàng câu hỏi và bài thi (thao tác 1–25, 27, 28 của SRS FEAT-weekly-exam 6.2).
+			svc := &exam.Service{Pool: d.DB, Clock: d.Clock, Jobs: d.Jobs, ZipMaxUncompressed: d.Cfg.ExamTestZipMaxUncompressed,
+				Limits:    exam.Limits{MinDurationMinutes: d.Cfg.ExamMinDurationMinutes, MinLeadSeconds: d.Cfg.ExamMinLeadSeconds, MaxTotalSeconds: d.Cfg.JudgeMaxTotalSeconds},
+				Attempt:   exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second, TabStale: d.Cfg.ExamTabStale, SaveRate: d.Cfg.ExamSaveRatePerMin},
+				Code:      exam.CodeConfig{RunLimit: d.Cfg.ExamRunLimit, RunWindow: d.Cfg.ExamRunWindow, SubmitCooldown: d.Cfg.ExamSubmitCooldown, SubmissionCap: d.Cfg.ExamSubmissionCap},
+				Integrity: exam.IntegrityConfig{EventsMax: d.Cfg.ExamEventsMax, SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}, Log: d.Log, Redis: d.Redis}
+			if d.Blob != nil {
+				svc.Blob = d.Blob
+			}
+			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.

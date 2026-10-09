@@ -17,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
 	"github.com/edupilot/backend-go/internal/mail"
+	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/redis"
@@ -49,6 +50,8 @@ type Deps struct {
 	Publisher sse.Publisher
 	Jobs      *jobs.Service
 	LLM       *llmrt.Runtime
+	// Blob: kho đối tượng (test lớn của bài code, US-PE-03). nil → test > 64 KiB bị từ chối (503).
+	Blob *blob.Store
 	// Sessions: đăng nhập / làm mới / thu hồi (US-P2-02). Trống thì dựng từ Cfg + DB + Redis.
 	Sessions *auth.Sessions
 	// Accounts: đăng ký / xác minh email / gửi lại (US-P2-03).

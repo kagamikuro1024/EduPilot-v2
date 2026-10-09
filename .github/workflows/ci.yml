@@ -2,7 +2,14 @@ name: CI
 
 on:
   push:
+    paths-ignore: ["docs/**"]
   pull_request:
+    paths-ignore: ["docs/**"]
+
+# Một lượt chạy mỗi nhánh: push mới huỷ lượt cũ đang chạy của cùng nhánh.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -46,7 +53,31 @@ jobs:
         # tiến trình ĐÃ TẠO ra nó thoát — các gói còn lại gặp "connection refused" giữa chừng (CI đỏ ngẫu nhiên). Runner dùng một lần nên tắt Ryuk.
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
+          EP_SKIP_TIMING: "1"
         run: go test -race -tags testroutes ./...
+      - name: go test (đo thời gian, tuần tự, không -race)
+        # Các test `*TimingEqualized` bị bỏ qua ở bước trên bằng EP_SKIP_TIMING=1 (không dùng -short: cờ đó bỏ qua mọi test cần container) (đo mili-giây không ổn định khi nhiều gói chạy song song). Chạy riêng, một gói một lúc, ngưỡng giữ nguyên (TL-3).
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: go test -p 1 -count=3 -tags testroutes -run 'TimingEqualized$' ./internal/auth/ ./internal/course/
+
+  judge-attacks:
+    name: Judge attacks (amd64, seccomp bật)
+    # US-PE-02 AC3/AC5: 15 đòn tấn công (A1–A15) trên go-judge thật, KHÔNG -no-seccomp. runner ubuntu-24.04 là amd64.
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: backend-go
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-go@v7
+        with:
+          go-version-file: backend-go/go.mod
+          cache-dependency-path: backend-go/go.sum
+      - name: go test -tags integration ./internal/judge
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+        run: go test -race -tags integration ./internal/judge -timeout 15m
 
   frontend:
     name: Frontend
@@ -86,6 +117,12 @@ jobs:
           export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
           echo "CHROME_PATH=$CHROME_PATH"
           pnpm -C frontend exec lhci autorun
+      - name: lighthouse ci (devtools, chỉ LCP)
+        # US-PU-06 / góp ý #14 (b'): LCP đo bằng throttle THẬT (devtools), vì mô phỏng (simulate) tính cả ~254 KB JS vào đồ thị LCP kể cả khi chữ đã có trong HTML.
+        # Lượt simulate ở trên giữ TBT / CLS / dung lượng JS (4× và ngưỡng không đổi); LCP ở đó không chấm.
+        run: |
+          export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
+          pnpm -C frontend exec lhci autorun --config=lighthouserc.devtools.json
       - name: lighthouse benchmark (chẩn đoán máy chạy)
         if: always()
         run: |
@@ -105,5 +142,6 @@ jobs:
             frontend/playwright-report
             frontend/test-results
             frontend/.lighthouseci
+            frontend/.lighthouseci-devtools
           include-hidden-files: true # frontend/.lighthouseci là thư mục ẩn: không có cờ này báo cáo Lighthouse không được tải lên
           if-no-files-found: ignore

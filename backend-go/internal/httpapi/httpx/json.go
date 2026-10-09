@@ -13,6 +13,8 @@ import (
 	"mime"
 	"net/http"
 	"reflect"
+	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
@@ -67,6 +69,7 @@ func decodeJSON(r *http.Request, dst any) *apierr.Error {
 		return apierr.New(http.StatusBadRequest, apierr.BadRequest)
 	}
 	fields := append(validateStruct(dst), unknownFields(body, dst)...)
+	fields = append(fields, nulFields(body)...)
 	if len(fields) > 0 {
 		return apierr.Validation(fields...)
 	}
@@ -168,4 +171,50 @@ func topLevelKeys(body []byte) []string {
 		}
 	}
 	return keys
+}
+
+// nulFields báo mọi chuỗi (giá trị hoặc khoá) chứa NUL: Postgres không lưu được U+0000 trong text / jsonb (SQLSTATE 22021 → 500),
+// nên bị chặn ở đây cho MỌI endpoint thay vì ở từng handler (QC US-PE-03 B1). Đường nhanh: thân không có chuỗi `\u0000` thì khỏi duyệt.
+// Dấu `\\u0000` (gạch chéo ngược thật + "u0000") khớp đường nhanh nhưng không phải NUL: bước duyệt cây loại ca đó.
+func nulFields(body []byte) []apierr.FieldError {
+	if !bytes.Contains(body, []byte(`\u0000`)) { // cách DUY NHẤT JSON hợp lệ biểu diễn U+0000
+		return nil
+	}
+	var root any
+	if json.Unmarshal(body, &root) != nil {
+		return nil
+	}
+	var out []apierr.FieldError
+	var walk func(path string, v any)
+	walk = func(path string, v any) {
+		switch x := v.(type) {
+		case string:
+			if strings.ContainsRune(x, 0) {
+				out = append(out, apierr.FieldError{Field: path, Code: "invalid_text", Message: "Văn bản không được chứa ký tự NUL (U+0000)."})
+			}
+		case []any:
+			for i, e := range x {
+				walk(path+"["+strconv.Itoa(i)+"]", e)
+			}
+		case map[string]any:
+			keys := make([]string, 0, len(x))
+			for k := range x {
+				keys = append(keys, k)
+			}
+			slices.Sort(keys)
+			for _, k := range keys {
+				if strings.ContainsRune(k, 0) {
+					out = append(out, apierr.FieldError{Field: path, Code: "invalid_text", Message: "Tên trường không được chứa ký tự NUL (U+0000)."})
+					continue
+				}
+				child := k
+				if path != "" {
+					child = path + "." + k
+				}
+				walk(child, x[k])
+			}
+		}
+	}
+	walk("", root)
+	return out
 }

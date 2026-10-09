@@ -23,11 +23,31 @@ const (
 	TopicChanged       = "course.changed"
 	TopicUserVerified  = "user.verified"
 	TopicRosterImport  = "roster.imported"
+	// Bài thi (US-PE-04): mốc lịch đổi việc của CẢ lớp (sinh viên và Staff).
+	TopicExamScheduled   = "exam.scheduled"
+	TopicExamUnscheduled = "exam.unscheduled"
+	TopicExamOpened      = "exam.opened"
+	TopicExamClosed      = "exam.closed"
+	// Lượt làm (US-PE-05): chỉ đổi việc của người làm (payload có user_id).
+	TopicAttemptStarted   = "exam.attempt_started"
+	TopicAttemptSubmitted = "exam.attempt_submitted"
+	// US-PE-07: so độ giống xong / giảng viên đã xem một cặp → việc EXAM_SIMILARITY của Giảng viên đổi.
+	TopicSimilarityDone     = "exam.similarity_done"
+	TopicSimilarityReviewed = "exam.similarity_reviewed"
+	// US-PE-08: chấm xong / công bố / hoãn / chấm lại / phúc khảo — việc của sinh viên và Staff đổi.
+	TopicAttemptGraded  = "exam.attempt_graded"
+	TopicExamPublished  = "exam.published"
+	TopicExamHold       = "exam.hold"
+	TopicExamRegraded   = "exam.regraded"
+	TopicAppealCreated  = "exam.appeal_created"
+	TopicAppealAnswered = "exam.appeal_answered"
 )
 
 // Topics là mọi topic mà Invalidator phải được đăng ký.
 func Topics() []string {
-	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport}
+	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport,
+		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted, TopicSimilarityDone, TopicSimilarityReviewed,
+		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered}
 }
 
 // Invalidator xoá `ep:today:{uid}:{scope}` của những người bị một sự kiện outbox ảnh hưởng. Idempotent (DEL).
@@ -69,7 +89,7 @@ func (i Invalidator) Handle(ctx context.Context, m outbox.Message) error {
 		// Giảng viên + TA của lớp luôn bị ảnh hưởng (hàng chờ, thiết lập). course.changed ảnh hưởng cả người học.
 		var uids []uuid.UUID
 		var err error
-		if m.Topic == TopicChanged {
+		if m.Topic == TopicChanged || isExamTopic(m.Topic) { // sự kiện của bài thi ảnh hưởng cả người học
 			uids, err = q.TodayCourseMembers(ctx, c)
 		} else {
 			uids, err = q.TodayCourseStaff(ctx, c)
@@ -116,4 +136,8 @@ func (i Invalidator) Handle(ctx context.Context, m outbox.Message) error {
 		keys = keys[n:]
 	}
 	return nil
+}
+
+func isExamTopic(t string) bool {
+	return t == TopicExamScheduled || t == TopicExamUnscheduled || t == TopicExamOpened || t == TopicExamClosed || t == TopicExamPublished || t == TopicExamHold
 }

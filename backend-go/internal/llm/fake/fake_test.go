@@ -254,3 +254,23 @@ func TestCallsByProvider(t *testing.T) {
 		t.Errorf("CallsByProvider = %v, Calls = %d", got, c.Calls())
 	}
 }
+
+// Schema kiểu nullable và danh sách đáp án {body, correct}: câu trắc nghiệm sinh ra có đúng một đáp án đúng (US-PE-09: seed 5 câu AI_DRAFT bằng provider fake).
+func TestGenerateNullableAndOptions(t *testing.T) {
+	raw, err := fake.Generate(json.RawMessage(`{"type":"object","properties":{"value":{"type":["boolean","null"]},"options":{"type":"array","items":{"type":"object","properties":{"body":{"type":"string"},"correct":{"type":"boolean"}}}}}}`))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got struct {
+		Value   *bool `json:"value"`
+		Options []struct {
+			Correct bool `json:"correct"`
+		} `json:"options"`
+	}
+	if err := json.Unmarshal(raw, &got); err != nil {
+		t.Fatal(err)
+	}
+	if got.Value == nil || len(got.Options) != 2 || !got.Options[0].Correct || got.Options[1].Correct {
+		t.Fatalf("sinh sai: %s", raw)
+	}
+}

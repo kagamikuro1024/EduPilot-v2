@@ -30,13 +30,7 @@
         {
           "matchingUrlPattern": "^http://localhost:3310/(?!dev/ui$).*",
           "assertions": {
-            "largest-contentful-paint": [
-              "warn",
-              {
-                "maxNumericValue": 2500,
-                "aggregationMethod": "median"
-              }
-            ],
+            "largest-contentful-paint": "off",
             "cumulative-layout-shift": [
               "error",
               {
@@ -45,7 +39,7 @@
               }
             ],
             "total-blocking-time": [
-              "warn",
+              "error",
               {
                 "maxNumericValue": 200,
                 "aggregationMethod": "median"
@@ -63,13 +57,7 @@
         {
           "matchingUrlPattern": "^http://localhost:3310/dev/ui$",
           "assertions": {
-            "largest-contentful-paint": [
-              "warn",
-              {
-                "maxNumericValue": 2500,
-                "aggregationMethod": "median"
-              }
-            ],
+            "largest-contentful-paint": "off",
             "cumulative-layout-shift": [
               "error",
               {

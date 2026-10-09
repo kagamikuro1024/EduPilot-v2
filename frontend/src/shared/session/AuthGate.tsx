@@ -2,12 +2,16 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect } from "react";
+import { PreShell } from "@/shared/shell/PreShell";
+import { introFor } from "@/shared/shell/intro";
 import { Skeleton } from "@/shared/ui";
 import { useAuth } from "./AuthProvider";
 import { SessionProvider } from "./session";
 
 /** Khung xương toàn trang trong lúc xác định phiên (không nháy /login). */
 export function AuthSkeleton() {
+  const intro = introFor(usePathname());
+  if (intro) return <PreShell intro={intro} />; // chữ của route vẽ từ máy chủ ngay lần đầu (US-PU-06)
   return (
     <div style={{ padding: "var(--ep-space-12) var(--ep-space-6)", maxWidth: 960, margin: "0 auto" }}>
       <Skeleton lines={5} />

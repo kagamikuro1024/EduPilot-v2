@@ -126,6 +126,21 @@ services:
       COOKIE_DOMAIN: ${COOKIE_DOMAIN:-}
       BCRYPT_COST: ${BCRYPT_COST:-}
       MAX_BODY_BYTES: ${MAX_BODY_BYTES:-}
+      EXAM_TESTZIP_MAX_BYTES: ${EXAM_TESTZIP_MAX_BYTES:-}
+      EXAM_TESTZIP_MAX_UNCOMPRESSED: ${EXAM_TESTZIP_MAX_UNCOMPRESSED:-}
+      EXAM_MIN_DURATION_MINUTES: ${EXAM_MIN_DURATION_MINUTES:-}
+      EXAM_MIN_LEAD_SECONDS: ${EXAM_MIN_LEAD_SECONDS:-}
+      EXAM_GRACE_SECONDS: ${EXAM_GRACE_SECONDS:-}
+      EXAM_SAVE_RATE_PER_MIN: ${EXAM_SAVE_RATE_PER_MIN:-}
+      EXAM_TAB_STALE: ${EXAM_TAB_STALE:-}
+      EXAM_RUN_LIMIT: ${EXAM_RUN_LIMIT:-}
+      EXAM_RUN_WINDOW: ${EXAM_RUN_WINDOW:-}
+      EXAM_SUBMIT_COOLDOWN: ${EXAM_SUBMIT_COOLDOWN:-}
+      EXAM_SUBMISSION_CAP: ${EXAM_SUBMISSION_CAP:-}
+      EXAM_EVENTS_MAX: ${EXAM_EVENTS_MAX:-}
+      SIMILARITY_MIN: ${SIMILARITY_MIN:-}
+      SIMILARITY_CAP: ${SIMILARITY_CAP:-}
+      JUDGE_MAX_TOTAL_SECONDS: ${JUDGE_MAX_TOTAL_SECONDS:-}
       REQUEST_TIMEOUT: ${REQUEST_TIMEOUT:-}
       SHUTDOWN_TIMEOUT: ${SHUTDOWN_TIMEOUT:-}
       RATE_LIMIT_IP_PER_MIN: ${RATE_LIMIT_IP_PER_MIN:-}
@@ -199,6 +214,24 @@ services:
       VERIFY_TOKEN_TTL: ${VERIFY_TOKEN_TTL:-}
       RESET_TOKEN_TTL: ${RESET_TOKEN_TTL:-}
       INVITE_TOKEN_TTL: ${INVITE_TOKEN_TTL:-}
+      # Máy chấm code (US-PE-02): đúng MỘT bản worker có JUDGE_CONSUMER=true.
+      JUDGE_CONSUMER: ${JUDGE_CONSUMER:-true}
+      JUDGE_URL: ${JUDGE_URL:-http://judge:5050}
+      JUDGE_TOKEN: ${JUDGE_TOKEN:-}
+      JUDGE_PARALLELISM: ${JUDGE_PARALLELISM:-}
+      JUDGE_MEM_LIMIT: ${JUDGE_MEM_LIMIT:-2g}
+      JUDGE_LEASE: ${JUDGE_LEASE:-}
+      JUDGE_LEASE_RENEW: ${JUDGE_LEASE_RENEW:-}
+      JUDGE_CLAIM_IDLE: ${JUDGE_CLAIM_IDLE:-}
+      JUDGE_HTTP_SLACK: ${JUDGE_HTTP_SLACK:-}
+      JUDGE_MAX_TOTAL_SECONDS: ${JUDGE_MAX_TOTAL_SECONDS:-}
+      EXAM_TICK_INTERVAL: ${EXAM_TICK_INTERVAL:-}
+      EXAM_GRACE_SECONDS: ${EXAM_GRACE_SECONDS:-}
+      SIMILARITY_MIN: ${SIMILARITY_MIN:-}
+      SIMILARITY_CAP: ${SIMILARITY_CAP:-}
+      # Việc `question.suggest` (US-PE-03) chạy ở worker: cần nhà cung cấp AI dự phòng theo env như gateway (dev: `fake`).
+      LLM_PROVIDER: ${LLM_PROVIDER:-}
+    networks: [default, judge_net]
     read_only: true
     tmpfs: ["/tmp"]
     restart: on-failure:3
@@ -207,8 +240,33 @@ services:
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
       mailpit: { condition: service_healthy }
+      judge: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/worker", "-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Máy chấm code (go-judge, D58). Không `ports`, không volume, chỉ ở mạng nội bộ `judge_net` (không đường ra Internet / Postgres / Redis / MinIO).
+  # `privileged` + `cgroup: host` là điều kiện của go-judge để dựng sandbox; container KHÔNG nhận bí mật nào ngoài JUDGE_*.
+  # Colima arm64 (dev): đặt JUDGE_EXTRA_ARGS=-no-seccomp trong .env.local. KHÔNG đặt trên amd64.
+  judge:
+    build:
+      context: ./deploy/judge
+    image: edupilot-judge:dev
+    environment:
+      JUDGE_TOKEN: ${JUDGE_TOKEN:-}
+      JUDGE_PARALLELISM: ${JUDGE_PARALLELISM:-2}
+      JUDGE_EXTRA_ARGS: ${JUDGE_EXTRA_ARGS:-}
+    privileged: true
+    cgroup: host
+    shm_size: 256m
+    cpus: ${JUDGE_CPUS:-2}
+    mem_limit: ${JUDGE_MEM_LIMIT:-2g}
+    networks: [judge_net]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/5050 && printf \"GET /version HTTP/1.0\\r\\n\\r\\n\" >&3 && grep -q 200 <&3'"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -247,3 +305,7 @@ volumes:
   minio_data:
   caddy_data:
   caddy_config:
+
+networks:
+  judge_net:
+    internal: true

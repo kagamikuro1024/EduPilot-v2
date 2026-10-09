@@ -4,6 +4,7 @@ package config
 
 import (
 	"fmt"
+	"math"
 	"net/mail"
 	"net/netip"
 	"net/url"
@@ -95,6 +96,27 @@ type Config struct {
 	BlobUseSSL         bool
 	BlobPublicEndpoint string
 	BlobRegion         string
+	// Nhập test zip (US-PE-03, SRS 4.1.5): giới hạn nén / giải nén (đếm khi đọc).
+	ExamTestZipMaxBytes        int
+	ExamTestZipMaxUncompressed int
+	// Bài thi (US-PE-04, SRS 4.2): thời lượng tối thiểu, độ trễ tối thiểu khi lên lịch, nhịp bộ lập lịch, tổng thời gian chấm một bài code.
+	ExamMinDurationMinutes int
+	ExamMinLeadSeconds     int
+	ExamTickInterval       time.Duration
+	JudgeMaxTotalSeconds   int // JUDGE_MAX_TOTAL_SECONDS; worker đọc riêng cùng biến này ở judge.Settings
+	// Lượt làm (US-PE-05, SRS 4.3): độ trễ chấp nhận ghi sau hạn, giới hạn lưu theo lượt, thời gian một tab ghi bị coi là bỏ.
+	ExamGraceSeconds   int
+	ExamSaveRatePerMin int
+	ExamTabStale       time.Duration
+	// Bài code trong lượt làm (US-PE-06, SRS 4.4): Chạy thử N lần / cửa sổ / sinh viên, giãn cách giữa hai lần nộp, số lần nộp tối đa mỗi bài.
+	ExamRunLimit       int
+	ExamRunWindow      time.Duration
+	ExamSubmitCooldown time.Duration
+	ExamSubmissionCap  int
+	// Liêm chính (US-PE-07): sự kiện tối đa mỗi lượt; ngưỡng độ giống tối thiểu (‰, từ SIMILARITY_MIN = 0,60).
+	ExamEventsMax         int
+	SimilarityMinPermille int
+	SimilarityCapPermille int // SIMILARITY_CAP = 0,90 → 900‰: trần của ngưỡng tương đối
 
 	// Cổng LLM (SRS FEAT-llm-gateway 4.3, 8.1).
 	LLMMaxConcurrency int
@@ -242,6 +264,22 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.BlobUseSSL = l.boolean("BLOB_USE_SSL", false)
 	c.BlobPublicEndpoint = l.str("BLOB_PUBLIC_ENDPOINT", c.BlobEndpoint)
 	c.BlobRegion = l.str("BLOB_REGION", "us-east-1")
+	c.ExamTestZipMaxBytes = l.num("EXAM_TESTZIP_MAX_BYTES", 10<<20, 1024, 100<<20)
+	c.ExamTestZipMaxUncompressed = l.num("EXAM_TESTZIP_MAX_UNCOMPRESSED", 50<<20, 1024, 500<<20)
+	c.ExamMinDurationMinutes = l.num("EXAM_MIN_DURATION_MINUTES", 5, 1, 300)
+	c.ExamMinLeadSeconds = l.num("EXAM_MIN_LEAD_SECONDS", 60, 0, 86400)
+	c.ExamTickInterval = l.dur("EXAM_TICK_INTERVAL", 5*time.Second)
+	c.JudgeMaxTotalSeconds = l.num("JUDGE_MAX_TOTAL_SECONDS", 300, 20, 100000)
+	c.ExamGraceSeconds = l.num("EXAM_GRACE_SECONDS", 10, 0, 300)
+	c.ExamSaveRatePerMin = l.num("EXAM_SAVE_RATE_PER_MIN", 240, 1, 100000)
+	c.ExamTabStale = l.dur("EXAM_TAB_STALE", 20*time.Second)
+	c.ExamRunLimit = l.num("EXAM_RUN_LIMIT", 10, 1, 1000)
+	c.ExamRunWindow = l.durRange("EXAM_RUN_WINDOW", 10*time.Minute, time.Minute, 24*time.Hour)
+	c.ExamSubmitCooldown = l.durRange("EXAM_SUBMIT_COOLDOWN", 15*time.Second, time.Second, time.Hour)
+	c.ExamSubmissionCap = l.num("EXAM_SUBMISSION_CAP", 30, 1, 1000)
+	c.ExamEventsMax = l.num("EXAM_EVENTS_MAX", 500, 1, 100000)
+	c.SimilarityMinPermille = int(math.Round(l.fraction("SIMILARITY_MIN", 0.60) * 1000))
+	c.SimilarityCapPermille = int(math.Round(l.fraction("SIMILARITY_CAP", 0.90) * 1000))
 
 	c.LLMMaxConcurrency = l.num("LLM_MAX_CONCURRENCY", 10, 1, 1000)
 	c.LLMBatchShare = l.fraction("LLM_BATCH_SHARE", 0.5)

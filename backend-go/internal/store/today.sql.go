@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -430,25 +431,73 @@ func (q *Queries) TodaySetup(ctx context.Context, courseIds []string) ([]TodaySe
 }
 
 const todayStaffPending = `-- name: TodayStaffPending :many
-select e.course_id,
-       (count(*) filter (where e.warning is null))::int as pending,
-       coalesce(min(e.status_changed_at) filter (where e.warning is null), 'epoch'::timestamptz)::timestamptz as oldest,
-       (count(*) filter (where e.warning = 'EMAIL_MISMATCH'))::int as mismatch,
-       coalesce(min(e.status_changed_at) filter (where e.warning = 'EMAIL_MISMATCH'), 'epoch'::timestamptz)::timestamptz as mismatch_oldest
-from enrollments e
-where e.course_id = any($1::text[]::uuid[]) and e.role_in_course = 'STUDENT' and e.status = 'PENDING'
-group by e.course_id
+select c.course_id::uuid as course_id,
+       coalesce(e.pending, 0)::int as pending,
+       coalesce(e.oldest, 'epoch'::timestamptz)::timestamptz as oldest,
+       coalesce(e.mismatch, 0)::int as mismatch,
+       coalesce(e.mismatch_oldest, 'epoch'::timestamptz)::timestamptz as mismatch_oldest,
+       coalesce(q.pending, 0)::int as questions,
+       coalesce(q.oldest, 'epoch'::timestamptz)::timestamptz as questions_oldest,
+       coalesce(s.exams, '[]'::jsonb)::jsonb as similarity,
+       coalesce(w.exams, '[]'::jsonb)::jsonb as exam_work
+from unnest($1::text[]::uuid[]) as c(course_id)
+left join (
+    select course_id,
+           (count(*) filter (where warning is null)) as pending,
+           min(status_changed_at) filter (where warning is null) as oldest,
+           (count(*) filter (where warning = 'EMAIL_MISMATCH')) as mismatch,
+           min(status_changed_at) filter (where warning = 'EMAIL_MISMATCH') as mismatch_oldest
+    from enrollments
+    where course_id = any($1::text[]::uuid[]) and role_in_course = 'STUDENT' and status = 'PENDING'
+    group by course_id
+) e on e.course_id = c.course_id
+left join (
+    select course_id, count(*) as pending, min(created_at) as oldest
+    from question_bank
+    where course_id = any($1::text[]::uuid[]) and review_status = 'PENDING' and archived_at is null
+    group by course_id
+) q on q.course_id = c.course_id
+left join (
+    -- US-PE-07: mỗi bài thi có cặp độ giống gắn cờ còn NEW ở bản chạy MỚI NHẤT (chỉ Giảng viên dùng); GỘP vào cùng truy vấn
+    select r.course_id, jsonb_agg(jsonb_build_object('exam_id', r.exam_id, 'title', ex.title, 'n', r.n, 'oldest', r.oldest) order by r.oldest) as exams
+    from (
+        select sr.course_id, sr.exam_id, count(*) as n, min(sr.created_at) as oldest
+        from similarity_reports sr
+        where sr.course_id = any($1::text[]::uuid[]) and sr.flagged and sr.review_state = 'NEW'
+          and sr.run_id = (select l.run_id from similarity_reports l where l.course_id = sr.course_id and l.exam_id = sr.exam_id order by l.created_at desc, l.id desc limit 1)
+        group by sr.course_id, sr.exam_id
+    ) r
+    join exams ex on ex.course_id = r.course_id and ex.id = r.exam_id
+    group by r.course_id
+) s on s.course_id = c.course_id
+left join (
+    -- US-PE-08: việc của Staff về bài đã đóng / công bố (lượt chấm lỗi, hoãn công bố, phúc khảo chờ); bài cũ hơn 120 ngày thôi làm việc của hôm nay.
+    select e.course_id, jsonb_agg(jsonb_build_object('exam_id', e.id, 'title', e.title, 'hold', e.publish_hold,
+        'errors', (select count(distinct a.id) from exam_attempts a join code_submissions cs on cs.course_id = a.course_id and cs.attempt_id = a.id and cs.kind = 'SUBMIT' and cs.status = 'ERROR'
+                    where a.course_id = e.course_id and a.exam_id = e.id),
+        'ungraded', (select count(*) from exam_attempts a where a.course_id = e.course_id and a.exam_id = e.id and a.status <> 'GRADED'),
+        'appeals', (select count(*) from exam_appeals p where p.course_id = e.course_id and p.exam_id = e.id and p.status = 'OPEN'),
+        'appeal_oldest', (select min(p.created_at) from exam_appeals p where p.course_id = e.course_id and p.exam_id = e.id and p.status = 'OPEN'))) as exams
+    from exams e
+    where e.course_id = any($1::text[]::uuid[]) and e.status in ('CLOSED', 'PUBLISHED') and e.closes_at > now() - interval '120 days'
+    group by e.course_id
+) w on w.course_id = c.course_id
 `
 
 type TodayStaffPendingRow struct {
-	CourseID       uuid.UUID
-	Pending        int32
-	Oldest         time.Time
-	Mismatch       int32
-	MismatchOldest time.Time
+	CourseID        uuid.UUID
+	Pending         int32
+	Oldest          time.Time
+	Mismatch        int32
+	MismatchOldest  time.Time
+	Questions       int32
+	QuestionsOldest time.Time
+	Similarity      json.RawMessage
+	ExamWork        json.RawMessage
 }
 
-// (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, và số hàng email chưa khớp MSSV.
+// (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
+// và (US-PE-03) số câu hỏi PENDING chưa lưu trữ cùng câu cũ nhất — GỘP vào MỘT truy vấn để Hôm nay của Staff giữ ngân sách ≤ 5 truy vấn.
 func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]TodayStaffPendingRow, error) {
 	rows, err := q.db.Query(ctx, todayStaffPending, courseIds)
 	if err != nil {
@@ -464,6 +513,10 @@ func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]
 			&i.Oldest,
 			&i.Mismatch,
 			&i.MismatchOldest,
+			&i.Questions,
+			&i.QuestionsOldest,
+			&i.Similarity,
+			&i.ExamWork,
 		); err != nil {
 			return nil, err
 		}

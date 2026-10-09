@@ -6,12 +6,14 @@ import (
 	"encoding/json"
 	"net"
 	"net/http"
+	"net/http/httptest"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appdb "github.com/edupilot/backend-go/internal/platform/db"
 	applog "github.com/edupilot/backend-go/internal/platform/log"
@@ -225,4 +227,51 @@ func TestWorker_MissingEnv(t *testing.T) {
 	if m["level"] != "ERROR" || len(missing) != 2 {
 		t.Fatalf("dòng log = %v, muốn error + missing [DATABASE_URL REDIS_URL]", m)
 	}
+}
+
+// TestReadyzJudgeInfoOnly — `/readyz` chỉ THÔNG TIN về máy chấm: `judge` ∈ up | down | off và LUÔN 200 (kể cả judge chết hay DB chết);
+// `/healthz` không phụ thuộc judge (US-PE-02 AC14).
+func TestReadyzJudgeInfoOnly(t *testing.T) {
+	t.Parallel()
+	d, _ := workerDeps(t)
+	var down atomic.Bool
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		if down.Load() {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			return
+		}
+		_, _ = w.Write([]byte(`{"buildVersion":"v1.13.0"}`))
+	}))
+	defer srv.Close()
+	c, err := judge.NewClient(judge.Config{URL: srv.URL, Token: "0123456789abcdef", Slack: time.Second})
+	if err != nil {
+		t.Fatal(err)
+	}
+	d.Judge = &judge.Queue{Pool: d.DB, Redis: d.Redis, Judge: c, Log: d.Log}
+	d.JudgeConsumer = true
+	h := healthHandler(d, newHeartbeat())
+	get := func() (int, string) {
+		rec := httptest.NewRecorder()
+		h.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/readyz", nil))
+		var body map[string]string
+		_ = json.NewDecoder(rec.Body).Decode(&body)
+		return rec.Code, body["judge"]
+	}
+	want := func(state string) {
+		t.Helper()
+		if code, got := get(); code != http.StatusOK || got != state {
+			t.Fatalf("/readyz = %d judge=%q, muốn 200 %q", code, got, state)
+		}
+	}
+	want("down") // chưa thăm dò lần nào
+	d.Judge.ProbeNow(t.Context())
+	want("up")
+	down.Store(true)
+	d.Judge.ProbeNow(t.Context())
+	want("down")
+	d.DB.Close() // readyz của judge không phụ thuộc DB
+	want("down")
+	d.JudgeConsumer = false // bản worker không chấm bài
+	h = healthHandler(d, newHeartbeat())
+	want("off")
 }

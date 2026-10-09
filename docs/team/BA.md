@@ -17,4 +17,5 @@ PM (`pm`) giao cho bạn các feature của sprint hiện tại. Việc của b�
 - Spec là tài liệu sẽ vào báo cáo đồ án: viết tiếng Việt rõ, ngắn, có bảng; không chép nguyên văn PRD.
 - Thấy spec, AC, kế hoạch, quy trình hay quyết định kỹ thuật không hợp lý → ghi một dòng vào `docs/sprints/N/proposals.md` (vấn đề, đề xuất, lý do + bằng chứng, ảnh hưởng) và báo PM. PM quyết định. Trong lúc chờ vẫn viết theo spec hiện hành, trừ khi việc đó gây hỏng hoặc vi phạm `CLAUDE.md`.
 - **Không thoả hiệp ngang hàng** (`CLAUDE.md`, mục đội herdr): không sửa AC/spec đã `APPROVED` cho khớp code dev đã viết hay theo lời nhờ của `dev`/`qc`; chỉ sửa khi PM chấp nhận một dòng `proposals.md`, và ghi số proposal trong commit + tăng phiên bản SRS.
+- **Tech Lead thẩm định spec** (chủ dự án chốt 2026-10-08): khi bạn xong, PM giao `research` thẩm định → `docs/specs/<feature>/TL-REVIEW.md`. Chỉ sửa theo ý mà PM đã ghi `ACCEPTED`, commit ghi `TLR-<số>`; không trao đổi trực tiếp với `research`.
 - Khi xong: tóm tắt cho PM (≤ 10 dòng): feature nào xong, số US, số câu hỏi mở. Dừng và chờ.

@@ -1,6 +1,6 @@
 # Lộ trình 11 sprint
 
-Chủ dự án chốt 2026-10-01: toàn dự án = **10 sprint**; 2026-10-03 chèn **sprint 5 — PE Thi hằng tuần** (yêu cầu của thầy hướng dẫn, D54), các sprint sau lùi 1 → **11 sprint**. Sprint 1 đã xong và là `main` của repo mới `kagamikuro1024/TA_Agent_v2`. Mỗi sprint rộng hơn trước (1–2 phase), nhưng giữ nguyên thứ tự phụ thuộc của phase và cổng nghiệm thu của từng phase.
+Chủ dự án chốt 2026-10-01: toàn dự án = **10 sprint**; 2026-10-03 chèn **sprint 5 — PE Thi hằng tuần** (yêu cầu của thầy hướng dẫn, D54), các sprint sau lùi 1 → **11 sprint**. Sprint 1 đã xong và là `main` của repo mới `kagamikuro1024/EduPilot-v2` (public từ 2026-10-09; trước đó `TA_Agent_v2`). Mỗi sprint rộng hơn trước (1–2 phase), nhưng giữ nguyên thứ tự phụ thuộc của phase và cổng nghiệm thu của từng phase.
 
 Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). Không cắt tính năng nào khi lập lộ trình; nếu một sprint trễ thì cắt theo "Thứ tự cắt khi trễ" ở `WORKFLOW.md` §6, cột "Cắt được nếu trễ" bên dưới chỉ ra mục nào thuộc sprint đó. Danh sách "KHÔNG BAO GIỜ cắt" vẫn giữ.
 
@@ -12,12 +12,13 @@ Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). 
 | 3 | PU Nền giao diện + P1 LLM Gateway | 1,5 + 1,5 | Đổi provider trên UI; Scheduler + trần ngân sách | `gate PU`, `gate P1` | #0 chuyển động trang trí, bố cục ≥ 1440 px |
 | 4 | P2 Lớp học | 2,5 | F1, F2 | `gate P2` | #4a tuỳ chọn nâng cao mã tham gia; #6 CommandPalette |
 | 5 | **PE Thi hằng tuần: trắc nghiệm + C/C++** (D54–D57) | 2,5 | F19 (giao bài thi → làm → chấm → công bố) | `gate PE` | so độ giống mã (giữ log rời tab); gợi ý nháp đề bằng AI |
+| 5.5 | **UI panel nổi** — chen giữa theo góp ý chủ dự án 2026-10-08 (đổi hướng thị giác, cần D59) | ≈ 1 | Mọi vùng làm việc nằm trên panel; chủ dự án duyệt ảnh trước / sau | cổng UI (`docs/sprints/5.5/plan.md`) | chế độ tối |
 | 6 | P3 Hai kênh + PII · P8 Tài liệu + Lịch | 2 + 1 | F3, F6, F13 | `gate P3`, `gate P8` | (#4 NER đã cắt bởi D46) |
 | 7 | P4 Escalation + Mail · P5 CRM + 360 | 1,5 + 1,5 | F4, F5, F7, F8 | `gate P4`, `gate P5` | #5 hàng đợi ghi cục bộ điểm danh; #6 phím tắt `/inbox` |
 | 8 | P6 Sổ điểm (gồm nối điểm bài thi PE vào `grade_items`) | 1,5 | F10 | `gate P6` (+ chủ dự án tự tính tay 3 SV) | – |
 | 9 | P7 Chấm bài | 3 | F9, F11 | `gate P7` | #1 kịch bản lỗi nâng cao mock-graph; #4b mock-graph |
 | 10 | P9 Luyện đề (dùng lại ngân hàng câu hỏi + Quiz Engine của PE) | 1 | F12 | `gate P9` | #2 `GenerateQuestions` + E5; #3 import Forms |
-| 11 | P10 Đánh giá + hoàn thiện | 2,5 | F14–F17, F19; chạy lại `DEMO_SCRIPT.md` trọn 15 phút | `gate P10` → **vạch bảo vệ** | #7 xuất PDF; #8 k6 (d), chaos Redis |
+| 11 | P10 Đánh giá + hoàn thiện (gồm **thống kê điểm thi PE** trên màn quan sát lớp — chủ dự án yêu cầu 2026-10-09) | 2,5 | F14–F17, F19; chạy lại `DEMO_SCRIPT.md` trọn 15 phút | `gate P10` → **vạch bảo vệ** | #7 xuất PDF; #8 k6 (d), chaos Redis |
 
 Tổng ước lượng gốc: 23,5 tuần người. Đội agent làm nhanh hơn nhiều (P0: 0,5 tuần → 1 ngày); lịch thật đo theo sprint, không theo tuần.
 

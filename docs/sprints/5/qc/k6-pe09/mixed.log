@@ -1,0 +1,14 @@
+
+=== pe-exam-submit · mixed ===
+judge_done_ms: p(50)=2059 p(95)=2133 max=3154 avg=2028.951
+judge_ie: count=0 rate=0
+run_ms: avg=1813.097 p(50)=1582 p(95)=2624 max=2769
+chat_ttft_ms: p(50)=4.748 p(95)=12.444 max=174.37 avg=5.671
+http_req_failed: rate=0 passes=0 fails=1914000
+ngưỡng judge_ie: count==0 PASS
+ngưỡng run_ms: p(95)<5000 PASS
+ngưỡng judge_done_ms: p(95)<60000 PASS
+ngưỡng chat_ttft_ms: p(95)<12.143999999999998 FAIL
+ngưỡng http_req_failed: rate<0.005 PASS
+time="2026-10-09T07:37:54+07:00" level=error msg="thresholds on metrics 'chat_ttft_ms' have been crossed"
+rc=99

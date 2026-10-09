@@ -101,8 +101,12 @@ func (r *Runner) HandleMessage(ctx context.Context, m outbox.Message) error {
 	dur := r.clk.Now().Sub(start).Milliseconds()
 	if err != nil {
 		code, msg := codeFailed, "Việc chạy thất bại."
-		if errors.Is(err, errPanic) {
+		var ue *UserError
+		switch {
+		case errors.Is(err, errPanic):
 			code, msg = codePanic, "Việc dừng do lỗi không mong đợi."
+		case errors.As(err, &ue):
+			code, msg = ue.Code, ue.Message
 		}
 		r.log.ErrorContext(ctx, "job thất bại", "job_id", j.ID.String(), "kind", j.Kind, "duration_ms", dur, "error", err.Error())
 		return r.fail(ctx, j, code, msg)
@@ -123,6 +127,12 @@ func (r *Runner) HandleMessage(ctx context.Context, m outbox.Message) error {
 	r.publish(ctx, done)
 	return nil
 }
+
+// UserError là lỗi của việc kèm mã và câu tiếng Việt hiển thị được cho chủ việc (không PII, không chi tiết nội bộ).
+// Lỗi khác UserError chỉ ra "Việc chạy thất bại." chung.
+type UserError struct{ Code, Message string }
+
+func (e *UserError) Error() string { return e.Code + ": " + e.Message }
 
 // errPanic đánh dấu việc chết vì panic (phân biệt mã lỗi ghi vào jobs.error).
 var errPanic = errors.New("panic trong job")

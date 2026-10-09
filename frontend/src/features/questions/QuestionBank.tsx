@@ -1,383 +1,186 @@
 "use client";
 
+import { CircleHelp, Plus } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
-import { Check, CircleHelp, Pencil, SlidersHorizontal, Sparkles, X } from "lucide-react";
-import {
-  Button,
-  type Column,
-  DataTable,
-  Drawer,
-  EmptyState,
-  Field,
-  FilterChips,
-  InlineNotice,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  Popover,
-  Select,
-  Skeleton,
-  StatusText,
-  Textarea,
-  Toolbar,
-} from "@/shared/ui";
-import {
-  DIFFICULTY_LABEL,
-  GENERATED_QUESTIONS,
-  KIND_LABEL,
-  QUESTIONS,
-  SOURCE_LABEL,
-  STATUS_LABEL,
-  TOPICS,
-  type QDifficulty,
-  type QKind,
-  type QSource,
-  type QStatus,
-  type Question,
-} from "@/mock/questions";
-import { useDemoSlice } from "@/shared/state/demo";
+import { useCursorList } from "@/shared/data";
+import { useClassCourse } from "@/features/members/classApi";
+import { useSession } from "@/shared/session/session";
+import { Button, Drawer, EmptyState, Field, InlineNotice, Input, MenuList, Page, PageHeader, PageState, Popover, Select, Skeleton, StatusText, Toolbar, DataTable, type Column } from "@/shared/ui";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
+import { QuestionForm } from "./QuestionForm";
+import { QuestionReview } from "./QuestionReview";
+import { SuggestPanel } from "./SuggestPanel";
+import { DIFF_LABEL, ORIGIN_LABEL, qKey, qPath, REVIEW_LABEL, REVIEW_TONE, TYPE_LABEL, type Difficulty, type QType, type QuestionRow, type Review } from "./questionsApi";
 import s from "./Questions.module.css";
 
-const STATUS_TONE: Record<QStatus, "amber" | "green" | "neutral"> = { pending: "amber", approved: "green", rejected: "neutral" };
-
+/** Ngân hàng câu hỏi thật (US-PE-03): bảng có bộ lọc, nút chính `Tạo câu hỏi`, hàng mở Drawer `QuestionReview`. Chỉ Giảng viên / TA; sinh viên không có đường vào. */
 export function QuestionBank() {
-  const [overrides, setOverrides] = useDemoSlice<Record<string, QStatus>>("questions.status", {});
-  const [edits, setEdits] = useDemoSlice<Record<string, string>>("questions.edits", {});
-  const [generated, setGenerated] = useDemoSlice<string[]>("questions.generated", []);
-  const [states, setStates] = useState<QStatus[]>([]);
-  const [topic, setTopic] = useState("");
+  const cc = useClassCourse();
+  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Ngân hàng câu hỏi" /><Skeleton lines={8} /></Page>;
+  if (cc.state === "none")
+    return (
+      <Page width="wide">
+        <PageHeader title="Ngân hàng câu hỏi" />
+        <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem ngân hàng câu hỏi của lớp.</EmptyState>
+      </Page>
+    );
+  return <Bank courseId={cc.course.id} code={cc.course.class_code} isTeacher={cc.canManage} />;
+}
+
+type Creating = null | "MCQ" | "CODE" | "AI";
+
+function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; isTeacher: boolean }) {
+  const params = useSearchParams();
+  const { identity } = useSession();
+  const [status, setStatus] = useState(params.get("review_status") ?? "");
+  const [type, setType] = useState("");
   const [difficulty, setDifficulty] = useState("");
-  const [kind, setKind] = useState("");
-  const [source, setSource] = useState("");
+  const [origin, setOrigin] = useState("");
+  const [topic, setTopic] = useState("");
+  const [text, setText] = useState("");
+  const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
-  const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState("");
-  const [genTopic, setGenTopic] = useState(TOPICS[0]);
-  const [generating, setGenerating] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [genOpen, setGenOpen] = useState(false);
+  const [creating, setCreating] = useState<Creating>(null);
   const undo = useUndoLine();
 
-  const items = useMemo<Question[]>(
-    () =>
-      [...GENERATED_QUESTIONS.filter((q) => generated.includes(q.id)), ...QUESTIONS].map((q) => ({
-        ...q,
-        text: edits[q.id] ?? q.text,
-        status: overrides[q.id] ?? q.status,
-      })),
-    [overrides, edits, generated],
-  );
-
-  const rows = items.filter(
-    (q) =>
-      (states.length === 0 || states.includes(q.status)) &&
-      (topic === "" || q.topic === topic) &&
-      (difficulty === "" || q.difficulty === difficulty) &&
-      (kind === "" || q.kind === kind) &&
-      (source === "" || q.source === source),
-  );
-  const open = items.find((q) => q.id === openId) ?? null;
-  const pending = items.filter((q) => q.status === "pending").length;
-  const filtered = states.length > 0 || topic || difficulty || kind || source;
-
   useEffect(() => {
-    if (!generating) return;
-    const t = window.setInterval(() => setProgress((p) => Math.min(100, p + 9)), 120);
-    return () => window.clearInterval(t);
-  }, [generating]);
+    const t = setTimeout(() => setQ(text.trim()), 250);
+    return () => clearTimeout(t);
+  }, [text]);
 
-  function generate() {
-    setProgress(0);
-    setGenerating(true);
-    window.setTimeout(() => {
-      setGenerating(false);
-      setGenOpen(false);
-      const ids = GENERATED_QUESTIONS.map((q) => q.id);
-      setGenerated(ids);
-      undo.push(`Đã thêm ${ids.length} câu hỏi nháp về ${genTopic} · đang chờ bạn duyệt`, () => setGenerated([]));
-    }, 1500);
-  }
+  const list = useCursorList<QuestionRow>(qKey(courseId, "list", status, type, difficulty, origin, topic, q), qPath(courseId), {
+    limit: 30,
+    query: { review_status: status || undefined, type: type || undefined, difficulty: difficulty || undefined, origin: origin || undefined, topic: topic || undefined, q: q || undefined },
+  });
+  const topics = useMemo(() => [...new Set(list.items.map((r) => r.topic))].sort((a, b) => a.localeCompare(b, "vi")), [list.items]);
+  const filtered = Boolean(status || type || difficulty || origin || topic || q);
 
-  function setStatus(q: Question, next: QStatus, label: string) {
-    const before = overrides[q.id] ?? q.status;
-    setOverrides((prev) => ({ ...prev, [q.id]: next }));
-    undo.push(label, () => setOverrides((prev) => ({ ...prev, [q.id]: before })));
-  }
-
-  const columns: Column<Question>[] = [
-    { key: "text", header: "Câu hỏi", render: (q) => <span className={s.text}>{q.text}</span> },
-    { key: "topic", header: "Chủ đề", width: "200px", render: (q) => <span className={s.meta}>{q.topic}</span> },
-    { key: "difficulty", header: "Độ khó", width: "110px", render: (q) => <span className={s.meta}>{DIFFICULTY_LABEL[q.difficulty]}</span> },
-    { key: "kind", header: "Loại", width: "130px", render: (q) => <span className={s.meta}>{KIND_LABEL[q.kind]}</span> },
-    { key: "source", header: "Nguồn", width: "180px", render: (q) => <span className={s.meta}>{SOURCE_LABEL[q.source]}</span> },
-    { key: "status", header: "Trạng thái", width: "130px", render: (q) => <StatusText tone={STATUS_TONE[q.status]}>{STATUS_LABEL[q.status]}</StatusText> },
+  const columns: Column<QuestionRow>[] = [
+    {
+      key: "title",
+      header: "Câu hỏi",
+      primary: true,
+      render: (r) => (
+        <span className={s.titleCell}>
+          <span className={s.text}>{r.title}</span>
+          <span className={s.meta}>{r.topic}</span>
+        </span>
+      ),
+    },
+    { key: "type", header: "Loại", width: "120px", render: (r) => <span className={s.meta}>{TYPE_LABEL[r.type]}</span> },
+    { key: "difficulty", header: "Độ khó", width: "90px", render: (r) => <span className={s.meta}>{DIFF_LABEL[r.difficulty]}</span> },
+    { key: "status", header: "Trạng thái", width: "130px", render: (r) => <StatusText tone={REVIEW_TONE[r.review_status]}>{REVIEW_LABEL[r.review_status]}</StatusText> },
+    { key: "origin", header: "Nguồn", width: "100px", render: (r) => <span className={s.meta}>{ORIGIN_LABEL[r.origin]}</span> },
+    { key: "used", header: "Dùng trong", width: "110px", align: "end", render: (r) => <span className={s.meta}>{r.used_in_exams > 0 ? `${r.used_in_exams} bài thi` : "—"}</span> },
   ];
+
+  const pending = list.items.filter((r) => r.review_status === "PENDING").length;
+  const createMenu = (close: () => void) => (
+    <MenuList
+      autoFocus
+      onPicked={close}
+      items={[
+        { label: "Câu trắc nghiệm", onSelect: () => setCreating("MCQ") },
+        { label: "Bài lập trình", onSelect: () => setCreating("CODE") },
+        { label: "Gợi ý từ AI", hint: "Soạn nháp, bạn duyệt", onSelect: () => setCreating("AI") },
+      ]}
+    />
+  );
 
   return (
     <Page width="wide">
       <PageHeader
         title="Ngân hàng câu hỏi"
-        description="Câu hỏi dùng cho luyện đề và đề kiểm tra của học phần An ninh mạng."
-        meta={
-          <>
-            <span>{items.length} câu</span>
-            <span>{pending} câu chờ duyệt</span>
-            <span>AI chỉ soạn nháp — câu hỏi vào đề khi giảng viên duyệt</span>
-          </>
-        }
+        description={`Câu hỏi dùng cho bài thi và luyện đề của lớp ${code}. Chỉ giảng viên và trợ giảng thấy.`}
+        meta={pending > 0 ? <span>{pending} câu chờ duyệt</span> : undefined}
         actions={
-          <Button variant="primary" icon={<Sparkles aria-hidden />} onClick={() => setGenOpen(true)} disabled={genOpen}>
-            Tạo câu hỏi
-          </Button>
+          <Popover
+            label="Tạo câu hỏi"
+            width={240}
+            trigger={(p) => (
+              <Button variant="primary" icon={<Plus aria-hidden />} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
+                Tạo câu hỏi
+              </Button>
+            )}
+          >
+            {createMenu}
+          </Popover>
         }
       />
+      {undo.node}
+      {creating === "AI" && <SuggestPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { setCreating(null); undo.push(n > 0 ? `AI đã soạn ${n} câu nháp · đang chờ bạn duyệt` : "AI chưa có câu nào hợp lệ — thử đổi chủ đề hoặc thêm văn bản nguồn"); }} />}
+
+      <Toolbar>
+        <Field label="Tìm câu hỏi" className={s.search}>{(id) => <Input id={id} type="search" placeholder="Tiêu đề…" value={text} maxLength={100} onChange={(e) => setText(e.target.value)} />}</Field>
+        <Field label="Trạng thái">{(id) => <Select id={id} value={status} onChange={(e) => setStatus(e.target.value)}><option value="">Tất cả</option>{(Object.keys(REVIEW_LABEL) as Review[]).map((k) => <option key={k} value={k}>{REVIEW_LABEL[k]}</option>)}</Select>}</Field>
+        <Field label="Chủ đề">{(id) => <Select id={id} value={topic} onChange={(e) => setTopic(e.target.value)}><option value="">Tất cả</option>{topics.map((t) => <option key={t} value={t}>{t}</option>)}</Select>}</Field>
+        <Field label="Độ khó">{(id) => <Select id={id} value={difficulty} onChange={(e) => setDifficulty(e.target.value)}><option value="">Tất cả</option>{(Object.keys(DIFF_LABEL) as Difficulty[]).map((k) => <option key={k} value={k}>{DIFF_LABEL[k]}</option>)}</Select>}</Field>
+        <Field label="Loại">{(id) => <Select id={id} value={type} onChange={(e) => setType(e.target.value)}><option value="">Tất cả</option>{(Object.keys(TYPE_LABEL) as QType[]).map((k) => <option key={k} value={k}>{TYPE_LABEL[k]}</option>)}</Select>}</Field>
+        <Field label="Nguồn">{(id) => <Select id={id} value={origin} onChange={(e) => setOrigin(e.target.value)}><option value="">Tất cả</option><option value="MANUAL">Soạn tay</option><option value="AI_DRAFT">AI</option></Select>}</Field>
+      </Toolbar>
 
       <PageState
-        loading={<Skeleton lines={12} />}
+        query={list}
+        isEmpty={() => list.items.length === 0}
+        loading={<Skeleton lines={10} />}
         empty={
-          <EmptyState title="Ngân hàng câu hỏi còn trống" icon={<CircleHelp aria-hidden />} action={<Button variant="primary" onClick={() => setGenOpen(true)}>Tạo câu hỏi</Button>}>
-            Chưa có câu hỏi nào cho học phần này. Tạo câu hỏi từ bài giảng đã tải lên, rồi duyệt những câu bạn muốn dùng.
-          </EmptyState>
-        }
-        error={{ problem: "Không tải được ngân hàng câu hỏi.", recovery: "Các câu đã duyệt vẫn được giữ. Thử lại sau ít phút." }}
-      >
-        {genOpen && (
-          <div className={s.gen}>
-            <div className={s.genRow}>
-              <Field className={s.genField} label="Tạo câu hỏi từ bài giảng của chủ đề" helper="Câu hỏi sinh ra luôn ở trạng thái chờ duyệt.">
-                {(id) => (
-                  <Select id={id} value={genTopic} disabled={generating} onChange={(e) => setGenTopic(e.target.value as (typeof TOPICS)[number])}>
-                    {TOPICS.map((t) => (
-                      <option key={t} value={t}>
-                        {t}
-                      </option>
-                    ))}
-                  </Select>
-                )}
-              </Field>
-              <Button
-                variant="primary"
-                loading={generating}
-                onClick={generate}
-              >
-                Tạo 5 câu nháp
-              </Button>
-              <Button variant="ghost" onClick={() => setGenOpen(false)} disabled={generating}>
-                Để sau
-              </Button>
-            </div>
-            {generating && (
-              <>
-                <span className={s.bar}>
-                  <span className={s.barFill} style={{ width: `${progress}%` }} />
-                </span>
-                <p className={s.genText}>Đang đọc bài giảng và soạn câu hỏi nháp…</p>
-              </>
-            )}
-          </div>
-        )}
-
-        <Toolbar
-          end={
-            <Popover
-              label="Bộ lọc câu hỏi"
-              width={280}
-              trigger={(p) => (
-                <Button icon={<SlidersHorizontal aria-hidden />} onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">
-                  Bộ lọc
-                </Button>
-              )}
-            >
-              <div className={s.filterPanel}>
-                <Field label="Chủ đề">
-                  {(id) => (
-                    <Select id={id} value={topic} onChange={(e) => setTopic(e.target.value)}>
-                      <option value="">Tất cả chủ đề</option>
-                      {TOPICS.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </Select>
-                  )}
-                </Field>
-                <Field label="Độ khó">
-                  {(id) => (
-                    <Select id={id} value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
-                      <option value="">Mọi độ khó</option>
-                      {(Object.keys(DIFFICULTY_LABEL) as QDifficulty[]).map((d) => (
-                        <option key={d} value={d}>
-                          {DIFFICULTY_LABEL[d]}
-                        </option>
-                      ))}
-                    </Select>
-                  )}
-                </Field>
-                <Field label="Loại câu hỏi">
-                  {(id) => (
-                    <Select id={id} value={kind} onChange={(e) => setKind(e.target.value)}>
-                      <option value="">Mọi loại</option>
-                      {(Object.keys(KIND_LABEL) as QKind[]).map((k) => (
-                        <option key={k} value={k}>
-                          {KIND_LABEL[k]}
-                        </option>
-                      ))}
-                    </Select>
-                  )}
-                </Field>
-                <Field label="Nguồn">
-                  {(id) => (
-                    <Select id={id} value={source} onChange={(e) => setSource(e.target.value)}>
-                      <option value="">Mọi nguồn</option>
-                      {(Object.keys(SOURCE_LABEL) as QSource[]).map((k) => (
-                        <option key={k} value={k}>
-                          {SOURCE_LABEL[k]}
-                        </option>
-                      ))}
-                    </Select>
-                  )}
-                </Field>
-              </div>
-            </Popover>
-          }
-        >
-          <FilterChips
-            label="Lọc theo trạng thái"
-            value={states}
-            onChange={setStates}
-            options={[
-              { value: "pending", label: "Chờ duyệt", count: items.filter((q) => q.status === "pending").length },
-              { value: "approved", label: "Đã duyệt", count: items.filter((q) => q.status === "approved").length },
-              { value: "rejected", label: "Đã loại", count: items.filter((q) => q.status === "rejected").length },
-            ]}
-          />
-        </Toolbar>
-
-        {undo.node}
-
-        <DataTable
-          caption="Ngân hàng câu hỏi"
-          columns={columns}
-          rows={rows}
-          rowKey={(q) => q.id}
-          onRowClick={(q) => {
-            setOpenId(q.id);
-            setEditing(false);
-          }}
-          activeKey={openId ?? undefined}
-          empty={
-            <EmptyState
-              title="Không có câu hỏi nào khớp bộ lọc"
-              action={
-                <Button
-                  onClick={() => {
-                    setStates([]);
-                    setTopic("");
-                    setDifficulty("");
-                    setKind("");
-                    setSource("");
-                  }}
-                >
-                  Bỏ bộ lọc
-                </Button>
-              }
-            >
-              Bộ lọc hiện tại không còn câu hỏi nào. Bỏ bớt điều kiện để xem lại toàn bộ {items.length} câu.
+          filtered ? (
+            <EmptyState title="Không có câu hỏi nào khớp bộ lọc" icon={<CircleHelp aria-hidden />}>Bỏ bớt bộ lọc để xem thêm.</EmptyState>
+          ) : (
+            <EmptyState title="Chưa có câu hỏi nào" icon={<CircleHelp aria-hidden />} action={<Popover label="Tạo câu hỏi" width={240} trigger={(p) => <Button variant="primary" onClick={p.toggle} aria-expanded={p["aria-expanded"]} aria-haspopup="true">Tạo câu hỏi</Button>}>{createMenu}</Popover>}>
+              Chưa có câu hỏi nào. Tạo câu đầu tiên hoặc nhờ AI gợi ý nháp.
             </EmptyState>
-          }
-        />
-        {filtered && <p className={s.meta}>Đang xem {rows.length} trong {items.length} câu.</p>}
-      </PageState>
-
-      <Drawer
-        open={Boolean(open)}
-        onClose={() => setOpenId(null)}
-        wide
-        title={open ? `${KIND_LABEL[open.kind]} · ${open.topic}` : ""}
-        description={open ? `${DIFFICULTY_LABEL[open.difficulty]} · ${SOURCE_LABEL[open.source]} · ${STATUS_LABEL[open.status]}` : undefined}
-        footer={
-          open && (
-            <div className={s.detailActions}>
-              <OverflowMenu
-                label="Thêm hành động với câu hỏi"
-                items={[
-                  {
-                    label: "Loại khỏi ngân hàng",
-                    icon: <X aria-hidden />,
-                    danger: true,
-                    onSelect: () => {
-                      setStatus(open, "rejected", "Đã loại câu hỏi khỏi ngân hàng");
-                      setOpenId(null);
-                    },
-                  },
-                ]}
-              />
-              <Button
-                icon={<Pencil aria-hidden />}
-                onClick={() => {
-                  setDraft(open.text);
-                  setEditing(true);
-                }}
-                disabled={editing}
-              >
-                Chỉnh sửa
-              </Button>
-              {editing ? (
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    setEdits((prev) => ({ ...prev, [open.id]: draft }));
-                    setEditing(false);
-                    undo.push("Đã sửa nội dung câu hỏi", () => setEdits((prev) => ({ ...prev, [open.id]: open.text })));
-                  }}
-                >
-                  Lưu câu hỏi
-                </Button>
-              ) : (
-                <Button
-                  variant="primary"
-                  icon={<Check aria-hidden />}
-                  disabled={open.status === "approved"}
-                  onClick={() => {
-                    setStatus(open, "approved", "Đã duyệt câu hỏi vào ngân hàng");
-                    setOpenId(null);
-                  }}
-                >
-                  {open.status === "approved" ? "Đã duyệt" : "Duyệt"}
-                </Button>
-              )}
-            </div>
           )
         }
+        showTechnical
       >
-        {open && (
-          <div className={s.detail}>
-            {open.status === "pending" && (
-              <InlineNotice tone="info" compact>
-                Câu hỏi này do AI soạn nháp từ bài giảng. Đọc lại nội dung và đáp án trước khi duyệt.
-              </InlineNotice>
-            )}
-            {editing ? (
-              <Field label="Nội dung câu hỏi">{(id) => <Textarea id={id} rows={3} value={draft} onChange={(e) => setDraft(e.target.value)} />}</Field>
-            ) : (
-              <p className={s.question}>{open.text}</p>
-            )}
-            {open.options && (
-              <ul className={s.options}>
-                {open.options.map((o) => (
-                  <li key={o} className={[s.option, open.answer.startsWith(o) ? s.optionRight : ""].join(" ")}>
-                    {open.answer.startsWith(o) && <span className={s.optionMark}>Đáp án</span>}
-                    <span>{o}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            <p className={s.answer}>{open.options ? open.answer : `Gợi ý chấm: ${open.answer}`}</p>
-          </div>
+        <DataTable
+          caption={`Ngân hàng câu hỏi lớp ${code}`}
+          columns={columns}
+          rows={list.items}
+          rowKey={(r) => r.id}
+          onRowClick={(r) => setOpenId(r.id)}
+          activeKey={openId ?? undefined}
+          mobile="list"
+          pagination={undefined}
+        />
+        {list.hasNextPage && <div className={s.more}><Button onClick={() => void list.fetchNextPage()} loading={list.isFetchingNextPage}>Xem thêm</Button></div>}
+      </PageState>
+
+      <Drawer open={creating === "MCQ" || creating === "CODE"} wide onClose={() => setCreating(null)} title={creating === "CODE" ? "Bài lập trình mới" : "Câu trắc nghiệm mới"}>
+        {(creating === "MCQ" || creating === "CODE") && (
+          <QuestionForm
+            courseId={courseId}
+            userId={identity?.sub}
+            createType={creating === "CODE" ? "CODE" : "MCQ_SINGLE"}
+            onCancel={() => setCreating(null)}
+            onSaved={(d) => {
+              setCreating(null);
+              void list.refetch();
+              setOpenId(d.id);
+              undo.push(`Đã tạo câu hỏi "${d.title}" ở trạng thái Nháp`);
+            }}
+          />
         )}
       </Drawer>
+
+      {openId && (
+        <QuestionReview
+          key={openId}
+          courseId={courseId}
+          id={openId}
+          userId={identity?.sub}
+          canEditTests={isTeacher}
+          onClose={() => setOpenId(null)}
+          onOpen={setOpenId}
+          onChanged={(note) => {
+            void list.refetch();
+            if (note) undo.push(note);
+          }}
+        />
+      )}
+      {list.isError && list.items.length > 0 && <InlineNotice tone="warning">Không tải thêm được. Danh sách đang hiện là dữ liệu đã có.</InlineNotice>}
     </Page>
   );
 }

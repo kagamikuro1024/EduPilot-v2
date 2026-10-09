@@ -29,6 +29,7 @@ import { CELL_HISTORY, CONFLICT_CELL, OFFICIAL_GRADE_NOTE } from "@/mock/gradebo
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
+import { useProgressiveCount } from "@/shared/lib/useProgressiveCount";
 import s from "./Gradebook.module.css";
 
 const EDITABLE = ["bt01", "bt02", "ck"] as const;
@@ -97,6 +98,7 @@ export function Gradebook() {
     [course.id, members, bt03, attendance, edits, scheme],
   );
 
+  const shown = useProgressiveCount(rows.length);
   const missingCk = rows.filter((r) => r.ck === null).length;
   const explainRow = rows.find((r) => r.st.id === explain);
   const historyStudent = rows.find((r) => r.st.id === historyOf);
@@ -384,7 +386,7 @@ export function Gradebook() {
         <DataTable
           caption={`Sổ điểm ${course.label}`}
           columns={columns}
-          rows={rows}
+          rows={rows.slice(0, shown)}
           rowKey={(r) => r.st.id}
           rowAttrs={(r) => ({ "data-part": "student-row", "data-student-id": r.st.id })}
           mobile="scroll"

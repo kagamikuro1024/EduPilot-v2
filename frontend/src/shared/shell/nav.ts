@@ -5,6 +5,7 @@ import {
   ChartColumn,
   CircleHelp,
   ClipboardCheck,
+  ClipboardList,
   FileText,
   House,
   Inbox,
@@ -36,6 +37,7 @@ const STUDENT: NavGroup[] = [
       { href: "/chat", label: "Chat riêng", icon: MessageSquare },
       { href: "/threads", label: "Threads", icon: MessagesSquare },
       { href: "/practice", label: "Luyện đề", icon: CircleHelp },
+      { href: "/exams", label: "Bài thi", icon: ClipboardList },
       { href: "/library", label: "Thư viện", icon: Library },
       { href: "/calendar", label: "Lịch", icon: CalendarDays },
       { href: "/me", label: "Kết quả của tôi", icon: ChartColumn },
@@ -60,6 +62,7 @@ function staff(role: "ta" | "teacher"): NavGroup[] {
         { href: "/gradebook", label: "Sổ điểm", icon: NotebookPen },
         { href: "/grading", label: "Chấm bài", icon: ListChecks, badgeKey: "grading" },
         { href: "/questions", label: "Ngân hàng câu hỏi", icon: CircleHelp },
+        { href: "/exams", label: "Bài thi", icon: ClipboardList },
       ],
     },
     {
@@ -141,6 +144,7 @@ const ACCESS: Array<[string, Role[]]> = [
   ["/gradebook", ["ta", "teacher"]],
   ["/grading", ["ta", "teacher"]],
   ["/questions", ["ta", "teacher"]],
+  ["/exams", ["student", "ta", "teacher"]],
   ["/documents", ["ta", "teacher"]],
   ["/insights", ["ta", "teacher"]],
   ["/analytics", ["ta", "teacher"]],
@@ -160,7 +164,16 @@ const ACCESS: Array<[string, Role[]]> = [
   ["/calendar", ["student", "ta", "teacher"]],
 ];
 
+// Route động của bài thi (SRS FEAT-weekly-exam 7.5): soạn và kết quả chỉ Staff; làm bài chỉ sinh viên; danh sách `/exams` theo ACCESS ở trên.
+const EXAM_DYNAMIC: Array<[RegExp, Role[]]> = [
+  [/^\/exams\/[^/]+(\/results)?$/, ["ta", "teacher"]],
+  [/^\/exams\/[^/]+\/take$/, ["student"]],
+  [/^\/exams\/[^/]+\/similarity$/, ["teacher"]], // US-PE-07: chỉ Giảng viên
+];
+
 function ruleFor(pathname: string) {
+  const dyn = EXAM_DYNAMIC.find(([re]) => re.test(pathname));
+  if (dyn) return dyn;
   return ACCESS.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
 }
 
@@ -204,7 +217,6 @@ const MOCK_BACKEND: Array<[string, Backend]> = [
   ["/library", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
   ["/calendar", { phase: "P8", name: "Tài liệu, thư viện, lịch" }],
   ["/practice", { phase: "P9", name: "Luyện đề" }],
-  ["/questions", { phase: "P9", name: "Luyện đề" }],
   ["/insights", { phase: "P10", name: "Hiểu lớp học" }],
   ["/analytics", { phase: "P10", name: "Hiểu lớp học" }],
   ["/observability", { phase: "P10", name: "Hiểu lớp học" }],
@@ -216,6 +228,7 @@ export function mockBackend(pathname: string): Backend | null {
   if (pathname === "/admin/courses" || pathname.startsWith("/admin/courses/")) return null; // US-P2-08: màn thật
   if (pathname === "/join" || pathname.startsWith("/join/") || pathname.startsWith("/class/")) return null; // US-P2-09: màn thật
   if (pathname === "/") return null; // US-P2-11: "Hôm nay" thật
+  if (pathname === "/questions" || pathname === "/exams" || pathname.startsWith("/exams/")) return null; // US-PE-03 / PE-04: màn thật
   const hit = MOCK_BACKEND.filter(([p]) => pathname === p || pathname.startsWith(`${p}/`)).sort((a, b) => b[0].length - a[0].length)[0];
   return hit ? hit[1] : null;
 }

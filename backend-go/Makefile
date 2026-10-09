@@ -1,5 +1,5 @@
 # Makefile của backend-go (SRS 9.4). Chạy: make -C backend-go <mục tiêu>
-.PHONY: run run-worker build test lint lint-depguard-negative sqlc sqlc-check migrate tidy test-clean
+.PHONY: run run-worker build test test-judge lint lint-depguard-negative sqlc sqlc-check migrate tidy test-clean
 
 # Docker của dev chạy qua colima; chỉ đặt khi môi trường chưa có (SRS 9.1).
 COLIMA_DOCKER_HOST := unix://$(HOME)/.colima/default/docker.sock
@@ -16,6 +16,12 @@ build:
 test:
 	DOCKER_HOST="$${DOCKER_HOST:-$(COLIMA_DOCKER_HOST)}" TESTCONTAINERS_RYUK_DISABLED=true go test -race -count=1 -tags testroutes ./...
 	DOCKER_HOST="$${DOCKER_HOST:-$(COLIMA_DOCKER_HOST)}" TESTCONTAINERS_RYUK_DISABLED=true go test -race -count=1 -tags integration ./internal/mail/... ./internal/auth/...
+	-docker volume prune -f
+
+# Máy chấm thật (go-judge trong container privileged, US-PE-02): 15 ca tấn công + hàng đợi + độ trễ. Chậm (dựng image, ~2 phút) nên không nằm trong `make test`.
+# Colima arm64: `JUDGE_EXTRA_ARGS=-no-seccomp make test-judge` (D58); amd64 để trống.
+test-judge:
+	DOCKER_HOST="$${DOCKER_HOST:-$(COLIMA_DOCKER_HOST)}" TESTCONTAINERS_RYUK_DISABLED=true go test -race -count=1 -tags integration ./internal/judge -timeout 15m -v
 	-docker volume prune -f
 
 lint:
