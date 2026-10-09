@@ -82,7 +82,7 @@ async function bank() {
   must(count((q) => q.type === "MCQ_MULTI" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 4, "MCQ_MULTI APPROVED ≠ 4");
   must(count((q) => q.type === "TRUE_FALSE" && q.review_status === "APPROVED" && q.origin === "MANUAL") === 4, "TRUE_FALSE APPROVED ≠ 4");
   must(count((q) => q.origin === "AI_DRAFT" && q.review_status === "PENDING") === 5, `AI_DRAFT PENDING ≠ 5 (có ${count((q) => q.origin === "AI_DRAFT")})`);
-  const codes = qs.filter((q) => q.type === "CODE" && q.review_status === "APPROVED");
+  const codes = qs.filter((q) => q.type === "CODE" && q.review_status === "APPROVED" && q.title.startsWith("Bài code — ")); // bỏ câu "Tải k6 …" do kịch bản tải tạo thêm
   must(codes.length === 2, `bài code APPROVED ≠ 2 (có ${codes.length})`);
   const wantWeights = { "Bài code — Ước chung lớn nhất": [1, 1, 2, 2, 2], "Bài code — Đếm từ": [1, 1, 1, 1, 1] };
   for (const c of codes) {

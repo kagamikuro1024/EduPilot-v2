@@ -501,8 +501,9 @@ async function seedBank(course, token) {
     await approveQuestion(base, row.id, token);
   }
   // 5 câu AI_DRAFT ở PENDING (nhà cung cấp `fake` của cổng LLM): chỉ gọi khi chưa đủ (khoá mới mỗi lần để không phát lại một việc đã FAILED)
-  have = new Map((await listAll(base, token)).map((x) => [x.title, x]));
-  const drafts = [...have.values()].filter((x) => x.origin === "AI_DRAFT");
+  const all = await listAll(base, token);
+  have = new Map(all.map((x) => [x.title, x]));
+  const drafts = all.filter((x) => x.origin === "AI_DRAFT"); // theo danh sách, KHÔNG theo Map: `fake` đặt cùng một tiêu đề cho mọi câu
   // nhà cung cấp `fake` trả ĐÚNG 1 câu mỗi lần gọi → mỗi câu thiếu một việc gợi ý (count: 1)
   for (let n = drafts.length; n < 5; n++) {
     const r = await call("POST", `${base}/suggest`, { token, key: `seed-suggest-${Date.now()}-${n}`, json: { kind: "MCQ", topic: "Mạng máy tính", difficulty: "MEDIUM", count: 1 } });

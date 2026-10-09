@@ -8,10 +8,11 @@ cd "$(dirname "$0")/.."
 export DOCKER_HOST="${DOCKER_HOST:-unix://$HOME/.colima/default/docker.sock}" TESTCONTAINERS_RYUK_DISABLED=true
 RESULTS=()
 FAILED=0
-run() { # run "tên" lệnh...
-  local name="$1"; shift
+run() { # run "tên" lệnh... — dừng ở lỗi đầu (các bước sau không chạy)
+  [ "$FAILED" = 1 ] && return
+  local name="$1" t0=$SECONDS; shift
   echo "▶ $name"
-  if "$@"; then RESULTS+=("PASS|$name"); else RESULTS+=("FAIL|$name"); FAILED=1; fi
+  if "$@"; then RESULTS+=("PASS|$name|$((SECONDS - t0))"); else RESULTS+=("FAIL|$name|$((SECONDS - t0))"); FAILED=1; fi
 }
 go_in() { (cd backend-go && "$@"); }
 fe() { (cd frontend && "$@"); }
@@ -39,7 +40,7 @@ if [ "${GATE_K6:-}" = "1" ]; then
   run "k6 exam-submit mixed (TTFT ≤ cơ sở +20 %, p95 Chạy thử ≤ 5 s)" k6run mixed "$BASE_P95"
 fi
 
-echo; echo "| Kết quả | Bước |"; echo "|---|---|"
-for r in "${RESULTS[@]}"; do echo "| ${r%%|*} | ${r#*|} |"; done
+echo; echo "| Kết quả | Bước | Giây |"; echo "|---|---|---|"
+for r in "${RESULTS[@]}"; do IFS="|" read -r st nm sec <<<"$r"; echo "| $st | $nm | $sec |"; done
 echo
 if [ "$FAILED" = 0 ]; then echo "GATE PE: PASS"; else echo "GATE PE: FAIL"; exit 1; fi
