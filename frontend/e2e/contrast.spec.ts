@@ -43,3 +43,22 @@ test("sidebar: chữ nav và nhãn nhóm ≥ 4,5 : 1 trên nền của chính ch
   console.log(rows.map((r) => `${r.name}: ${r.ratio.toFixed(2)}`).join(" · "));
   for (const r of rows) expect(r.ratio, r.name).toBeGreaterThanOrEqual(4.5);
 });
+
+// US-UI-06 AC5 — chữ của `StatusText` (xanh / hổ phách / đỏ / trung tính) ≥ 4,5 : 1 trên nền panel THẬT của bảng Admin có dữ liệu.
+test("status text trên panel: ≥ 4,5 : 1 ở /admin/users (đang dùng, chờ nhận lời mời, đã khoá)", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  const { asDemo } = await import("./support/session");
+  const { mockAdminApi } = await import("./support/staffMock");
+  await asDemo(context, "admin");
+  await mockAdminApi(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/admin/users");
+  await page.locator("main [data-ep-panel] table").first().waitFor();
+  const rows = (await page.evaluate(`(() => { const t = ${COLOR_TOOLS}; const out = [];
+    const ground = t.rgb(getComputedStyle(document.querySelector("main [data-ep-panel]")).backgroundColor);
+    for (const el of document.querySelectorAll("main [data-ep-panel] table [class*=status]:not([class*=statusDot])")) out.push({ text: el.textContent.trim(), ratio: t.ratio(t.rgb(getComputedStyle(el).color), ground) });
+    t.done(); return out; })()`)) as Array<{ text: string; ratio: number }>;
+  console.log(rows.map((r) => `${r.text}: ${r.ratio.toFixed(2)}`).join(" · "));
+  expect(rows.length, "có chữ trạng thái để đo").toBeGreaterThanOrEqual(3);
+  for (const r of rows) expect(r.ratio, r.text).toBeGreaterThanOrEqual(4.5);
+});

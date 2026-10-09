@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { PU_ROUTES, ROLES, routesFor } from "./support/routes";
 import { settleGoto } from "./support/hydrate";
 import { asDemo, type DemoRole } from "./support/session";
+import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
 // `moderate` / `minor` ghi vào báo cáo (test-results/axe-report.json). Ngoại lệ ở axe-allow.json (≤ 3).
@@ -53,6 +54,27 @@ for (const role of ROLES) {
     expect(bad).toEqual([]);
   });
 }
+
+// US-UI-05 / US-UI-06: các màn dùng API thật ở trạng thái CÓ DỮ LIỆU (ca ở trên chạy khi gateway không có nên chỉ thấy trạng thái lỗi).
+test("axe: admin có dữ liệu (/admin/users, /admin/courses, /settings/llm)", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await asDemo(context, "admin");
+  await mockAdminApi(page);
+  await mockLlmApi(page);
+  const bad: string[] = [];
+  for (const route of ["/admin/users", "/admin/courses", "/settings/llm"]) for (const w of WIDTHS) for (const b of await scan(page, "admin+data", route, w)) bad.push(`${route} @${w}: ${b}`);
+  expect(bad).toEqual([]);
+});
+
+test("axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống nhau, câu hỏi, thành viên, cài đặt lớp)", async ({ page, context }) => {
+  test.setTimeout(180_000);
+  await asDemo(context, "teacher");
+  await mockStaffApi(page);
+  const bad: string[] = [];
+  const routes = ["/exams", `/exams/${STAFF_DRAFT}`, `/exams/${STAFF_EXAM}/results`, `/exams/${STAFF_EXAM}/similarity`, "/questions", "/class/members", "/class/settings"];
+  for (const route of routes) for (const w of WIDTHS) for (const b of await scan(page, "teacher+data", route, w)) bad.push(`${route} @${w}: ${b}`);
+  expect(bad).toEqual([]);
+});
 
 test("axe: route PU không cần vai (/login, /dev/ui, /dev/data)", async ({ page }) => {
   test.setTimeout(120_000);
