@@ -25,3 +25,21 @@ Tech Lead, 2026-10-09, nhánh `sprint/5.5-ui-panels` @ `6913b06`. Spec còn `DRA
 - **LCP:** `PreShell` không import `Panel`. Chữ trong panel bị thu hẹp bề ngang (padding panel), nên khó vượt diện tích `h1` / mô tả máy chủ ở ngoài panel. AC6 của US-UI-03 + `lcp.spec` + lượt `lhci` devtools (đã `error` từ #14 sprint 5) là đủ để bắt hồi quy kiểu TL-2.
 - **Bảng thay chữ 4.1 khớp nguyên văn:** đã `grep -cF` từng đoạn cũ ở `DESIGN.md` và hai dòng ở `AGENTS.md` → mỗi đoạn đúng `1`.
 - **Phiên bản image ảnh mốc:** `pnpm-lock.yaml` khoá `@playwright/test@1.63.0`, khớp `mcr.microsoft.com/playwright:v1.63.0-noble` ở US-UI-07 AC2.
+
+## Quyết định PM (2026-10-09)
+
+| TLR | Quyết định |
+| --- | --- |
+| TLR-1 | **ACCEPTED** — sửa phép bóng của `ui-antipatterns.sh` cho phép `var(--ep-elevation-1)` chỉ trong `shared/ui/Panel.module.css`; thêm ca tự kiểm để phép vẫn bắt bóng lạ ở nơi khác |
+| TLR-2 | **ACCEPTED** — bỏ lớp `PanelContext`; chặn `Panel` lồng `Panel` bằng phép tĩnh trong `ui-antipatterns.sh` + kiểm DOM trong e2e (`.panel .panel` = 0). `Panel` giữ là Server Component |
+| TLR-3 | **ACCEPTED** — ảnh mốc sinh lại ở **từng story** làm đổi giao diện (trong image Playwright, handoff liệt kê ảnh + lý do + trước / sau); CI phải xanh sau mỗi story |
+| TLR-4 | **ACCEPTED** — một quy tắc lề mobile duy nhất: panel cách mép màn đúng 12 px (`--ep-space-3`), không cộng dồn với lề `Page`; AC đo bằng `getBoundingClientRect` |
+| TLR-5 | **ACCEPTED** — kích thước JS đo bằng `resource-summary:script` của Lighthouse (như `dev-US-PU-06.md`), không dựa vào bảng của `next build` |
+| TLR-6 | **ACCEPTED** — Kiểm bằng so khớp nguyên dòng / đoạn mới có mặt + đoạn cũ không còn đứng một mình (không `grep -c` chuỗi con) |
+| TLR-7 | **ACCEPTED** — thêm `docs/design/DESIGN_TOKENS.css` vào danh sách tệp phải đổi |
+| TLR-8 | **ACCEPTED** — dev chỉ được chỉnh `L` của canvas theo chiều làm tương phản tăng; mọi cặp chữ / nền ≥ 4,5 : 1 sau chỉnh, có bảng số trong handoff |
+| TLR-9 | **ACCEPTED** — quy tắc máy cho "điểm ảnh đỏ thương hiệu" như đề xuất (ΔE2000 ≤ 10 so với `--ep-red`) |
+| TLR-10 | **ACCEPTED** — kiểm thứ tự bằng quan hệ tổ tiên commit |
+| TLR-11 | **ACCEPTED** — `panels.spec.ts` chỉ chạy trạng thái "có dữ liệu" cho mọi route × vai; tải / rỗng / lỗi kiểm ở `/dev/ui` (ma trận primitive) |
+
+Câu **[CHỦ DỰ ÁN]** (Q1–Q4, Q11): chủ dự án vắng và đã giao PM quyết để làm xong trong đêm → PM chọn **mặc định của BA** (Q1 chỉ chế độ sáng; Q3 14 px; Q4 sidebar / thanh trên trắng; Q11 giữ bán kính, cách mép 12 px). Q2 (độ nổi) PM chọn sau khi xem 18 ảnh của US-UI-01; mặc định (a). Báo chủ dự án buổi sáng, đổi được qua `proposals.md`.
