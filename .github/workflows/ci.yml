@@ -2,7 +2,14 @@ name: CI
 
 on:
   push:
+    paths-ignore: ["docs/**"]
   pull_request:
+    paths-ignore: ["docs/**"]
+
+# Một lượt chạy mỗi nhánh: push mới huỷ lượt cũ đang chạy của cùng nhánh.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
