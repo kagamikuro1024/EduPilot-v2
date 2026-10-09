@@ -4,12 +4,14 @@
 //
 //   k6 run benchmarks/load/exam-submit.js -e BASE=https://localhost:773 -e SCENARIO=judge_burst
 //   SCENARIO ∈ judge_burst | autosave | chat | mixed        (xem bảng ngưỡng ở dưới)
-//   mixed so TTFT chat với chạy riêng: đặt -e CHAT_BASE_P95=<p95 ms của SCENARIO=chat> để áp ngưỡng +20 %.
+//   Chạy cặp chat / mixed 3 lần với -e RUN=1|2|3 rồi `node scripts/ttft-ratio.mjs` (hoặc scripts/gate-pe.sh với GATE_K6=1).
 //
 //   judge_burst : 60 lần nộp code (<bits/stdc++.h>, 10 test) rải 5 phút từ 30 sinh viên      → judge_done_ms p95 < 60 000, judge_ie == 0, lỗi HTTP < 0,5 %
 //   autosave    : 300 phiên đồng thời lưu câu trả lời mỗi 2 s trong 3 phút (10 phiên / lượt)  → autosave_ms p95 < 150, lỗi < 0,5 %
 //   chat        : 50 luồng chat giả `POST /_test/llm/chat` (INTERACTIVE, stream) 5 phút       → đo chat_ttft_ms (đường cơ sở cho mixed)
-//   mixed       : judge_burst + chat + `Chạy thử` rải đều                                      → chat_ttft_ms p95 ≤ CHAT_BASE_P95 × 1,2; run_ms p95 ≤ 5 000
+//   mixed       : judge_burst + chat + `Chạy thử` rải đều                                      → chat_ttft_ms p95 < 1500 (SLO TTFT), run_ms p95 ≤ 5 000; TỈ LỆ so với `chat` riêng do scripts/gate-pe.sh tính (#18)
+// Góp ý #18: TTFT phải đo với provider `fake` có trễ THẬT. Stack test-seed đặt FAKE_LLM_LATENCY=300-300 (trễ trước token đầu = TTFT) và LLM_MAX_CONCURRENCY=100 (50 luồng không xếp hàng).
+// Mỗi kịch bản chạy 3 cặp (`-e RUN=1|2|3`, báo cáo `...-<kịch bản>-<RUN>.json`); cổng lấy TRUNG VỊ của 3 tỉ lệ p95(mixed)/p95(chat) ≤ 1,2.
 import http from 'k6/http';
 import { check, sleep, fail } from 'k6';
 import exec from 'k6/execution';
@@ -19,6 +21,7 @@ const BASE = (__ENV.BASE || 'https://localhost:773').replace(/\/$/, '');
 const API = `${BASE}/api/v1`;
 const PASSWORD = __ENV.SEED_DEFAULT_PASSWORD || 'Edupilot#Seed-2026';
 const SCENARIO = __ENV.SCENARIO || 'judge_burst';
+const RUN = __ENV.RUN ? `-${__ENV.RUN}` : '';
 const DOMAIN = '@edupilot.local';
 const STUDENTS = ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: 27 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
 
@@ -62,7 +65,7 @@ if (SCENARIO === 'judge_burst' || SCENARIO === 'mixed') {
 if (SCENARIO === 'autosave') thresholds.autosave_ms = ['p(95)<150'];
 if (SCENARIO === 'mixed') {
   thresholds.run_ms = ['p(95)<5000'];
-  if (__ENV.CHAT_BASE_P95) thresholds.chat_ttft_ms = [`p(95)<${Number(__ENV.CHAT_BASE_P95) * 1.2}`];
+  thresholds.chat_ttft_ms = ['p(95)<1500'];
 }
 
 export const options = { insecureSkipTLSVerify: true, scenarios, thresholds, setupTimeout: '10m', summaryTrendStats: ['avg', 'p(50)', 'p(95)', 'max'] };
@@ -221,7 +224,7 @@ export function handleSummary(data) {
     slim.metrics[name] = m.values;
     if (m.thresholds) slim.thresholds[name] = Object.fromEntries(Object.entries(m.thresholds).map(([k, v]) => [k, v.ok]));
   }
-  return { [`benchmarks/reports/pe-exam-submit-${day}-${SCENARIO}.json`]: JSON.stringify(slim, null, 2), stdout: textSummary(slim) };
+  return { [`benchmarks/reports/pe-exam-submit-${day}-${SCENARIO}${RUN}.json`]: JSON.stringify(slim, null, 2), stdout: textSummary(slim) };
 }
 
 function textSummary(slim) {
