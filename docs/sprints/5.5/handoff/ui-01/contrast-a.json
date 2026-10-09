@@ -1,0 +1,96 @@
+{
+ "surface": "a",
+ "dL": 5.03,
+ "pairs": [
+  {
+   "text": "--ep-ink",
+   "ground": "--ep-canvas",
+   "ratio": 16.01
+  },
+  {
+   "text": "--ep-ink-2",
+   "ground": "--ep-canvas",
+   "ratio": 8.02
+  },
+  {
+   "text": "--ep-ink-3",
+   "ground": "--ep-canvas",
+   "ratio": 4.57
+  },
+  {
+   "text": "--ep-red",
+   "ground": "--ep-canvas",
+   "ratio": 4.9
+  },
+  {
+   "text": "--ep-green",
+   "ground": "--ep-canvas",
+   "ratio": 5.08
+  },
+  {
+   "text": "--ep-blue",
+   "ground": "--ep-canvas",
+   "ratio": 4.91
+  },
+  {
+   "text": "--ep-ink",
+   "ground": "--ep-surface",
+   "ratio": 18.58
+  },
+  {
+   "text": "--ep-ink-2",
+   "ground": "--ep-surface",
+   "ratio": 9.3
+  },
+  {
+   "text": "--ep-ink-3",
+   "ground": "--ep-surface",
+   "ratio": 5.3
+  },
+  {
+   "text": "--ep-red",
+   "ground": "--ep-surface",
+   "ratio": 5.69
+  },
+  {
+   "text": "--ep-green",
+   "ground": "--ep-surface",
+   "ratio": 5.89
+  },
+  {
+   "text": "--ep-blue",
+   "ground": "--ep-surface",
+   "ratio": 5.7
+  },
+  {
+   "text": "--ep-ink",
+   "ground": "--ep-surface-strong",
+   "ratio": 16.5
+  },
+  {
+   "text": "--ep-ink-2",
+   "ground": "--ep-surface-strong",
+   "ratio": 8.26
+  },
+  {
+   "text": "--ep-ink-3",
+   "ground": "--ep-surface-strong",
+   "ratio": 4.7
+  },
+  {
+   "text": "--ep-red",
+   "ground": "--ep-surface-strong",
+   "ratio": 5.05
+  },
+  {
+   "text": "--ep-green",
+   "ground": "--ep-surface-strong",
+   "ratio": 5.23
+  },
+  {
+   "text": "--ep-blue",
+   "ground": "--ep-surface-strong",
+   "ratio": 5.06
+  }
+ ]
+}
