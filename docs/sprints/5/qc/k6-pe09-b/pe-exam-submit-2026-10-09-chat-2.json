@@ -1,0 +1,108 @@
+{
+  "scenario": "chat",
+  "date": "2026-10-09",
+  "base": "https://localhost:543",
+  "metrics": {
+    "http_req_connecting": {
+      "p(50)": 0,
+      "p(95)": 0,
+      "max": 1.849,
+      "avg": 0.0008128941836019623
+    },
+    "data_received": {
+      "count": 17334776,
+      "rate": 54658.23763004722
+    },
+    "iteration_duration": {
+      "max": 353.5075,
+      "avg": 309.7789529168236,
+      "p(50)": 309.029708,
+      "p(95)": 318.345458
+    },
+    "http_reqs": {
+      "count": 48518,
+      "rate": 152.98198103826846
+    },
+    "http_req_tls_handshaking": {
+      "avg": 0.010702584607774434,
+      "p(50)": 0,
+      "p(95)": 0,
+      "max": 17.245
+    },
+    "checks": {
+      "rate": 1,
+      "passes": 48451,
+      "fails": 0
+    },
+    "http_req_receiving": {
+      "p(50)": 0.107,
+      "p(95)": 2.338149999999998,
+      "max": 13.067,
+      "avg": 0.5213574137433473
+    },
+    "iterations": {
+      "count": 48451,
+      "rate": 152.77072351055577
+    },
+    "http_req_duration{expected_response:true}": {
+      "p(95)": 318.19545,
+      "max": 353.451,
+      "avg": 309.3814932808446,
+      "p(50)": 308.911
+    },
+    "http_req_failed": {
+      "rate": 0,
+      "passes": 0,
+      "fails": 48518
+    },
+    "http_req_duration": {
+      "p(50)": 308.911,
+      "p(95)": 318.19545,
+      "max": 353.451,
+      "avg": 309.3814932808446
+    },
+    "http_req_sending": {
+      "p(95)": 0.066,
+      "max": 1.759,
+      "avg": 0.03427400140153986,
+      "p(50)": 0.029
+    },
+    "http_req_waiting": {
+      "avg": 308.82586186570336,
+      "p(50)": 308.427,
+      "p(95)": 316.9463,
+      "max": 351.616
+    },
+    "http_req_blocked": {
+      "avg": 0.011959994228938904,
+      "p(50)": 0,
+      "p(95)": 0.001,
+      "max": 17.915
+    },
+    "vus": {
+      "max": 50,
+      "value": 50,
+      "min": 0
+    },
+    "data_sent": {
+      "count": 8735383,
+      "rate": 27543.5136746777
+    },
+    "vus_max": {
+      "min": 50,
+      "max": 50,
+      "value": 50
+    },
+    "chat_ttft_ms": {
+      "max": 351.616,
+      "avg": 309.0996293574993,
+      "p(50)": 308.435,
+      "p(95)": 316.9575
+    }
+  },
+  "thresholds": {
+    "http_req_failed": {
+      "rate<0.005": true
+    }
+  }
+}

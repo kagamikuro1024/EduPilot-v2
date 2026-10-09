@@ -1,15 +1,15 @@
 # Báo cáo cổng nghiệm thu phase PE (thi hằng tuần: trắc nghiệm + lập trình C/C++)
-**Kết luận: CHƯA ĐẠT — 2 điều kiện chặn** (còn lại ĐẠT). Bản chấm `origin/sprint/5-pe` = `2e65d0a` → `e1e3ebe` (CI), QC chạy lại mọi lệnh ở máy QC (colima arm64, `-no-seccomp`) + CI GitHub thật (job `Judge attacks (amd64, seccomp bật)`).
+**Kết luận: ĐẠT CÓ ĐIỀU KIỆN** (chấm lại ở `bc09dd2`; hai điều kiện chặn trước đó đã gỡ). A10: CI GitHub ở HEAD `sprint/5-pe` **xanh** (run `37955084757`: `Go`, `Frontend`, `Judge attacks (amd64, seccomp bật)` đều `success`); A7: TC-17 PASS theo #18 (trung vị 0,998); A2/A8: ca A8 `TLE` + `procPeak=1` (#19). Điều kiện còn lại (không chặn): A9 (`audit.mjs`, `sweep.mjs`, `proto-curl.sh`) chưa chạy ở lượt này; TC-19 `results` 1.000 dòng + 240 bài; `lhci` có đăng nhập / 3G chậm; điện thoại thật (chủ dự án tự kiểm); C3 chat thật chờ P3.
 
-## Chặn
-1. **B1 — US-PE-09 TC-17 / A7 (`mixed`)**: TTFT chat khi có `judge_burst` vượt +20 % ở **2 / 3** lần đo (cơ sở 10,1 / 10,6 / 11,7 ms → 12,4 / 13,3 / 11,7 ms; p50 không đổi). Nghi nhiễu do provider `fake` (~5 ms) — cần PM/BA chốt: ngưỡng tuyệt đối hay đo bằng provider có trễ thật (**Q-QC-GATEPE-3**). Không nới ngưỡng.
-2. **A10 — CI Go đỏ ở HEAD**: run `37935921572` (`e1e3ebe`): job `Go` thất bại ở bước `go test -race (testroutes)` (dev / tech lead đang xử lý TL-3: `TestJoinFailureTimingEqualized` và nhóm đo thời gian); `Frontend` đang chạy; `Judge attacks (amd64, seccomp bật)` **xanh**. Cần CI xanh toàn bộ ở HEAD cuối.
+## Chặn (đã gỡ)
+1. ~~TC-17 `mixed`~~ → PASS theo #18: tỉ lệ p95 TTFT `mixed` / `chat` 1,008 / 0,998 / 0,989, trung vị **0,998** ≤ 1,2; p95 `mixed` 313–317 ms ≤ 1,5 s.
+2. ~~CI Go đỏ~~ → run `37955084757` (`bc09dd2`): `Go`, `Frontend`, `Judge attacks (amd64, seccomp bật)` **xanh**. Lưu ý: các số k6 lượt đầu của QC không dùng được (429 / 404 bị tính thành công); đã đo lại bằng script mới.
 
 ## A. Lệnh tự động
 | # | KQ | Bằng chứng |
 | --- | --- | --- |
 | A1 | PASS | `gate-pe.sh`: `go test -race exam + judge + quiz` PASS; `go test -race -tags integration ./internal/exam/... ./internal/judge/... ./internal/contract/...` rc=0 (lượt đầu của bộ đầy đủ đỏ 3 ca vì container Postgres thử chết giữa chừng — `connection refused` ×169, hạ tầng; chạy lại các gói: `ok` exam 59 s, judge 68 s, contract 31 s) |
-| A2 | PASS | `TestSandboxAttacks` (có `-tags integration`, judge thật): **15 ca `A1…A15` PASS** (8,9 s); 20 chương trình tấn công của QC (`scripts/attacks`) đã chấm ở `report-US-PE-02.md` (RAM `judge` rảnh 54 MiB ≤ 100). **seccomp bật trên amd64: job CI `Judge attacks` xanh** (đóng Q-QC-GATEPE-1 và L1 của PE-02) |
+| A2 | PASS | `TestSandboxAttacks` (có `-tags integration`, judge thật): 15 ca `A1…A15` PASS (10,2 s); **A8** `TLE`, `procPeak = 1`, 55.924 KiB (bất biến #19: `procPeak == 1` + 0 tiến trình mồ côi; verdict `TLE`/`RE`/`MLE` đều chấp nhận); A14 `procPeak = 1`; 20 chương trình tấn công của QC (`scripts/attacks`) ở `report-US-PE-02.md` (RAM `judge` rảnh 54 MiB ≤ 100). **seccomp bật trên amd64: job CI `Judge attacks` xanh** |
 | A3 | PASS | `TestScoringDecimal` `matched 45/45`; QC tự chấm 24 lượt seed bằng `fractions` (`p509-score.py`) và 12 lượt tổ hợp (TP, FP) ở PE-08: 0 lệch |
 | A4 | PASS | `TestNoAnswerLeak` `leak_matrix 20x6 clean (221 lời gọi)`; QC quét tay ở PE-05/06/08: 0 canary |
 | A5 | PASS | `go test ./internal/contract/...` PASS; `git diff origin/sprint/4-p2...HEAD -- '*golden*' '*testdata*'`: **0** dòng bị xoá |
@@ -17,7 +17,7 @@
 | A7 | **FAIL (1/4 kịch bản)** | `judge_burst` p95 **1.040 ms** (< 60.000), `judge_ie` 0; `autosave` p95 **67 ms** (< 150), 0 lỗi; `mixed` `Chạy thử` p95 2,1–2,6 s (≤ 5 s); **`mixed` TTFT +23 % / +26 % / −1 %**: FAIL (B1) |
 | A8 | PASS | `go vet`, `golangci-lint` 0 issues, `sqlc diff`, `pnpm lint`, `build:gate`, `ui-antipatterns.sh`, `lint-selftest.sh` rc=0; **gate-pe.sh `GATE PE: PASS` rc=0; gieo lỗi → `FAIL` rc=1 dừng ở bước đầu** |
 | A9 | KHÔNG KIỂM ĐƯỢC | `audit.mjs` bốn vai / `sweep.mjs` / `proto-curl.sh` chưa chạy ở lượt này; nav 8 / 13 / 16 đã chấm ở PE-04 và Playwright (`seed accounts nav`) PASS |
-| A10 | **CHƯA ĐẠT** | xem Chặn 2 |
+| A10 | PASS | `gh run list --branch sprint/5-pe`: run `37955084757` @ `bc09dd2` `success` — `Go`, `Frontend`, `Judge attacks (amd64, seccomp bật)` xanh |
 | A11 | PASS | `goose` up → `down-to 00004` → up trên Postgres mới (pgvector pg18): `00006_weekly_exam` áp rồi gỡ rồi áp lại, 9 bảng PE trở về; không bảng mồ côi |
 
 ## B. Nhóm TC bắt buộc (chứng cứ ở báo cáo từng story, chạy lại số liệu trên HEAD)
@@ -45,18 +45,18 @@
 GV xem ngân hàng + bài thi → SV (iPhone 375 px): màn bắt đầu có câu minh bạch, làm đúng / sai + nhiều đáp án, offline 30 s → tự lưu → SV (1440): "Bài đang mở ở nơi khác" → `Làm tiếp ở đây`, soạn C, `Chạy thử` 2/2, `Nộp lời giải`, `Nộp bài` (hộp xác nhận có số) → đóng lúc 13:02:46 → **`PUBLISHED` 13:02:50,8** → SV `9,00 / 10,00` + giải thích + test ẩn đếm → `Gửi yêu cầu xem lại` → GV "Xem lại điểm" `Sửa điểm` `9,5` + phản hồi → DB `ADJUSTED 9.00 → 9.50` → SV `9,50 / 10,00` "Điểm đã được giảng viên điều chỉnh.". Nhánh lỗi (chưa mở, TA không lên lịch, hết giờ, phúc khảo hết hạn, chat khoá): chấm bằng API ở PE-04…08. Soạn câu qua UI (zip + verify + AI gợi ý): dựng bằng API ở QC; giao diện soạn câu chấm bằng e2e của dev.
 
 ## E. Điều kiện PASS cổng
-Chưa đủ: A7 FAIL (TC-17), A10 chưa xanh, A9 chưa chạy. Không có đỏ nào được "giải quyết" bằng nới ngưỡng.
+A và B PASS trừ A9 (chưa chạy, nav 8 / 13 / 16 đã chấm ở PE-04 và Playwright); C đủ ảnh / số; D đi hết; không đỏ nào được giải quyết bằng nới ngưỡng (TC-17 đổi cách đo theo #18 do PM quyết, ngưỡng ×1,2 giữ nguyên).
 
 ## F. Số liệu cho luận văn
-- Chấm code: `judge_done` p95 **1,0 s** (60 bài / 5 phút, `JUDGE_PARALLELISM=2`), **2,1 s** khi chạy chung với chat; `Chạy thử` p95 2,1–2,6 s; 240 bài trộn 111,9 s; RAM `judge` rảnh 54 MiB.
+- Chấm code: `judge_done` p95 **2,0 s** (60 bài / 5 phút, `JUDGE_PARALLELISM=2`), 1,0–2,0 s khi chạy chung với chat; `Chạy thử` p95 1,0–2,0 s; TTFT chat với trễ nhà cung cấp 300 ms: p95 314–317 ms có / không có tải chấm (tỉ lệ 0,998); 240 bài trộn 111,9 s; RAM `judge` rảnh 54 MiB.
 - Điểm: 24 + 12 + 30 lượt khớp tay; độ giống A~B 1,000 / A~C 0,051 / A~A' 0,947 (hệ thống 0,986); công bố +4,5 s sau đóng.
-- Tự lưu 300 VU: p95 67 ms, 0 lỗi / 27.066 yêu cầu; bắt đầu làm bài @17/s: p95 12 ms.
+- Tự lưu 300 VU: p95 35,7 ms, 0 lỗi / 27.066 yêu cầu; bắt đầu làm bài @17/s: p95 12 ms.
 - Điểm thi không qua LLM: `llm_audit` = 0 sau phúc khảo / chấm.
 
 ## G. Dọn dẹp
 `down -v` stack QC, container `judge`/`qcpg`, Chrome / phiên `playwright-cli`, `docker volume prune -f` (làm ở cuối lượt).
 
 ## Câu hỏi cho BA / PM
-- **Q-QC-GATEPE-1** — seccomp amd64: đã có bằng chứng CI (job `Judge attacks` xanh) — *đề nghị đóng*.
+- **Q-QC-GATEPE-1** — seccomp amd64: bằng chứng CI (job `Judge attacks` xanh) — *đóng*.
 - **Q-QC-GATEPE-2** — điện thoại thật: chủ dự án tự kiểm — *chờ PM*.
-- **Q-QC-GATEPE-3** — TC-17 ngưỡng +20 % trên provider `fake`: đổi sang ngưỡng tuyệt đối / đo bằng provider trễ thật? — *chờ BA / PM*.
+- **Q-QC-GATEPE-3** — TC-17: PM #18 ACCEPTED, đo lại PASS — *đóng*.
