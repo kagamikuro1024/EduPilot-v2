@@ -359,10 +359,12 @@ test("admin courses errors: mã lớp trùng tại ô, 422 theo ô giữ chữ, 
 });
 
 test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm mục đánh dấu đã đọc và đi tới link, làm mới 30 s", async ({ page }) => {
-  await page.clock.install();
+  // đồng hồ cố định giữa ngày: "5 phút trước" không đổi thành "hôm qua 23:55" khi chạy trong 5 phút đầu sau nửa đêm (CI 00:02 giờ VN từng đỏ)
+  const noon = new Date("2026-10-29T10:00:00+07:00");
+  await page.clock.install({ time: noon });
   await asJwt(page, "TEACHER");
   await page.route("**/api/v1/me/courses**", (r) => fulfill(r, 200, { items: [item(C1, "761987", "TEACHER")], next_cursor: null }));
-  const now = new Date();
+  const now = noon;
   const mk = (id: string, title: string, read: boolean, ageMin = 1) => ({
     id, type: "COURSE_ASSIGNED", title, body: "b", link: `/class/settings?course=${C1}`, course_id: C1, read_at: read ? now.toISOString() : null, created_at: new Date(now.getTime() - ageMin * 60_000).toISOString(),
   });
