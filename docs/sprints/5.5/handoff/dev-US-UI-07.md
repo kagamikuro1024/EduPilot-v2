@@ -1,5 +1,5 @@
 # DEV handoff — US-UI-07 (cổng UI cuối sprint 5.5)
-`BASE55` = `dfe05f0` (cha của `dd3a003`, commit đầu tiên chạm `frontend/` của sprint 5.5). HEAD tại thời điểm chụp: xem `git log` nhánh `sprint/5.5-ui-panels`.
+`BASE55` = `dfe05f0` (cha của `dd3a003`, commit đầu tiên chạm `frontend/` của sprint 5.5). HEAD khi đo: `c920b6c` (CI xanh). Sau `UI-05: fix B1` không còn thay đổi mã.
 
 ## AC1 — 78 ảnh trước / sau
 `docs/sprints/5.5/handoff/ui-07/{before,after}/<màn>-<1440|1024|375>.png`: **39 + 39**. Chụp bằng `SHOTS=ui07 SHOT_SIDE=before|after pnpm exec playwright test shots.spec.ts` (Playwright, không `playwright-cli`): cùng đồng hồ đóng băng 29/10/2026 09:20 giờ VN, cùng dữ liệu giả (`e2e/support/screens.ts`, `staffMock.ts`, `takeMock.ts`), cùng bản `build:gate`; "trước" dựng từ worktree `BASE55` (thư mục `e2e/support` và `shots.spec.ts` chép từ HEAD vào — chỉ hạ tầng test, mã `src/` là của `BASE55`), "sau" từ HEAD. Viewport 1440 × 900, 1024 × 900, 375 × 812 (không cuộn trang).
@@ -30,10 +30,26 @@
 `panels.spec.ts`: **58 pass** (+58 skip ở dự án `mobile`), **44 s** với 2 worker (≤ 180 s). Vòng bảng 7.2: Sinh viên 16 route (+ `/settings`, `/join/ABC123`) × 1440 / 1024; Staff `teacher` và `ta` mỗi vai ~24 route × 1440 / 1024; Admin 7 route × 1440 / 1024; mọi route có `main` ≥ 1 Panel (trạng thái có dữ liệu), NEST = TITLE (chỉ tiêu đề đang hiển thị) = WALL = 0, STRONG ≤ 3. `ui-antipatterns.sh` 22 ✓ / 0 ✗, `--selftest` 22 / 22.
 
 ## AC5 — Lighthouse
-LHCI_PLACEHOLDER
+**CI xanh ở HEAD `c920b6c`** (`gh run` 37978244983: Frontend, Go, Judge đều `success`): `lhci autorun` (mặc định) pass; `lhci autorun --config=lighthouserc.devtools.json` pass, chỉ cảnh báo `/dev/ui` LCP 3.084 ms (`warn` theo #14, như sprint 5). `git diff dfe05f0 -- frontend/lighthouserc.json frontend/lighthouserc.devtools.json` không có thay đổi; `.github/workflows/ci.yml` chỉ đổi `timeout-minutes` của job Frontend 25 → 40 (không đổi ngưỡng / `numberOfRuns` / `cpuSlowdownMultiplier` / `skipAudits`).
+
+Số CI (runner Linux, 3 lượt/route, trung vị): LCP lượt `devtools` — `/` 1.518, `/chat` 1.535, `/threads` 1.548, `/inbox` 1.930, `/gradebook` 1.960, `/settings/llm` 1.529 ms (≤ 2.500); TBT — 132, 138, 137, 159, 150, 159 ms (≤ 200). CLS 0.
+
+Đo trên máy dev (arm64, benchmarkIndex ≈ 3.700), **cùng máy, trước (`BASE55`) / sau (HEAD)**, `lhci autorun` mặc định, 3 lượt, trung vị; JS truyền = `resource-summary` loại `script` (gzip):
+| Route | TBT trước | TBT sau | Δ | JS trước (KB) | JS sau (KB) | Δ JS |
+| --- | --- | --- | --- | --- | --- | --- |
+| `/` | 22 | 24 | +2 | 226,9 | 227,7 | +0,8 |
+| `/chat` | 21 | 27 | +6 | 234,9 | 235,6 | +0,7 |
+| `/threads` | 27 | 25 | −2 | 240,6 | 241,4 | +0,8 |
+| `/inbox` | 25 | 26 | +1 | 225,0 | 225,8 | +0,8 |
+| `/gradebook` | 18 | 12 | −6 | 230,3 | 231,0 | +0,7 |
+| `/settings/llm` | 22 | 23 | +1 | 237,2 | 237,9 | +0,7 |
+| `/dev/ui` | 22 | 23 | +1 | 197,8 | 199,2 | +1,4 |
+Δ JS ≤ 2 KB ở mọi route (đạt); TBT tăng ≤ 6 ms (≤ 30). CLS 0 ở cả hai.
+- Số JS của `/` ở lần đo 3 lượt đầu ra 247 KB (ngoại lệ một lượt); lần đo 5 lượt sau đó 227,7 KB — dùng số sau.
+- **Không đạt đủ yêu cầu AC5:** (1) "TBT 12× trung vị ≤ 170 ms từng route": lần đo 12× (5 lượt, `--collect.settings.throttling.cpuSlowdownMultiplier=12`) dừng sau 3 route vì Chrome báo `CHROME_INTERSTITIAL_ERROR` (máy dev, rc = 1): `/` 134, `/chat` 168, `/threads` 172 ms (trung vị; ngoài lệ cổ điển hai đỉnh của PU-06). `/threads` 172 > 170 — trong dao động ±30 ms đã nêu ở TL-1, nhưng **chưa đo 12× cho `/inbox`, `/gradebook`, `/settings/llm`**. (2) "LCP devtools tăng ≤ 150 ms so với số cuối sprint 5": số CI (Linux) so với bảng PU-06 (máy dev arm64) khác máy nên chỉ tham khảo: tăng 17–75 ms; cùng máy chưa đo lượt `devtools`.
 
 ## AC6 — không hồi quy
-Toàn bộ Playwright (`--grep-invert "@real|visual"`, 2 worker): **BASE55: 443 pass / 103 skip / 0 fail** (worktree `BASE55`, bộ e2e của chính nó) → **HEAD: FULL_PLACEHOLDER**. Số pass chỉ tăng (ca mới của `panels.spec`, `contrast.spec`, `a11y.spec`, `shell.spec` không đổi số ca). `nav.ts`: `git diff dfe05f0 -- frontend/src/shared/shell/nav.ts` = 0 dòng. `git diff dfe05f0 -- frontend/package.json pnpm-lock.yaml`: không dòng `+` (không thêm thư viện). `pnpm lint` rc 0; `build` và `build:gate` không cảnh báo; `ui-allow:` = 9 (không tăng).
+Toàn bộ Playwright (`--grep-invert "@real|visual"`, 2 worker): **BASE55: 443 pass / 103 skip / 0 fail** (worktree `BASE55`, bộ e2e của chính nó) → **HEAD: **513 pass / 173 skip / 0 fail** (+70 / +70: ca mới desktop / mobile skip)**. Số pass chỉ tăng (ca mới của `panels.spec`, `contrast.spec`, `a11y.spec`, `shell.spec` không đổi số ca). `nav.ts`: `git diff dfe05f0 -- frontend/src/shared/shell/nav.ts` = 0 dòng. `git diff dfe05f0 -- frontend/package.json pnpm-lock.yaml`: không dòng `+` (không thêm thư viện). `pnpm lint` rc 0; `build` và `build:gate` không cảnh báo; `ui-allow:` = 9 (không tăng).
 
 ## AC7 — phân quyền
 `shell.spec.ts -g 'nav per role|route access'` pass (8 / 13 / 16 / 6 mục; chặn quyền như cũ). Không endpoint mới.
