@@ -1,0 +1,22 @@
+# Báo cáo QC — US-UI-02 (token mới + primitive `Panel` / `PanelSection`)
+**Kết luận: PASS có điều kiện** — AC1…AC11 đạt; điều kiện: `lhci` không chạy được ở máy QC (Chrome cho `puppeteerScript` thiếu `executablePath`) nên AC10 (JS) đo bằng CDP thay `resource-summary:script` — chờ CI GitHub làm bằng chứng `lhci`. Bản chấm `3f83d84` (handoff UI-02), so với trước `1abe61e` (D59 xong, chưa token). Cách đo: `pnpm build:gate` + `next start`, **QC tự đo** bằng `scripts/qc-measure.spec.ts` (NEST / TITLE / STRONG / WALL, token đọc qua canvas sRGB, JS truyền qua CDP `Network.loadingFinished` loại `Script`) và `scripts/contrast.py` (WCAG 2.x / OKLab tự cài); chạy thêm `panels.spec.ts` + `contrast.spec.ts` của dev (12 pass, dự án desktop). Ảnh trước / sau: `docs/sprints/5.5/qc/shots/ui02-before|ui02-after/` (7 route × 1440 / 1024 / 375, thời gian đóng băng 2026-10-29T09:20+07:00); số đo: `measure/ui02-*.json`.
+
+## Lỗi / lệch
+- **L1 (AC6).** `grep -rnE 'color:[^;]*var\(--ep-amber\)' frontend/src --include=*.css` không ra 0 nếu bỏ mỗi `noticeIcon|aiIcon`: 5 dòng — 3 dòng là **viền** (`Calendar` `.event.deadline`, `.chip.deadline`, `Feedback` `.n_warning`: `border-left-color` / `border-color`, khớp mẫu vì có chuỗi `color:`), 2 dòng là biểu tượng (`OfflineBanner` `.banner svg`, `VerificationState` `.dot, .icon`). Dev đã liệt kê đúng các chỗ ngoại lệ trong handoff; không có **chữ** màu amber. Ghi nhận, không FAIL.
+- **L2 (đo màn thật).** Ở stack không gateway, các màn dữ liệu (`/exams`, `/gradebook`, `/chat`) hiện khung tải (skeleton) — chưa có `Panel` nào ở màn thật (UI-04…06 làm); phép NEST / TITLE / WALL ở màn thật hiện đạt hiển nhiên (0 panel). Giá trị kiểm là ở `/dev/ui#panel` (15 panel).
+- Không có bug.
+
+## Kết quả
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| TC-UI02-01 (AC1) | PASS | `git grep ep-paper -- frontend/src frontend/e2e docs/design` = **0**; 5 token ở `tokens.css` = **5**; QC đọc: `--ep-canvas` = `rgb(243,237,233)` (`oklch(95% .008 60)`), `--ep-surface-strong` `rgb(250,239,238)`, `--ep-radius-panel` `14px`, `--ep-elevation-1` `0 1px 2px #4720250d, 0 6px 18px #47202512` (cột (a)), `--ep-panel-border` = `--ep-rule`; nền `html` / `body` = canvas |
+| TC-UI02-02 (AC2) | PASS | `radius-panel` / `elevation-1` chỉ ở `shared/ui/Panel.module.css` (ngoài `shared/styles/`); `filter:` / `backdrop-filter` trong `frontend/src` = **0**; `ui-antipatterns.sh` phép "Bóng elevation ngoài Panel", "Bo góc panel ngoài Panel" `✓` |
+| TC-UI02-03 (AC3) | PASS | `/dev/ui`: 15 panel — nền surface trắng, bán kính 14 px, bóng hai lớp, viền 1 px; `Panel.tsx` không `"use client"` (0); dev `dom contract` pass; `PanelSection` tiêu đề `h3` |
+| TC-UI02-04 (AC4) | PASS | `Panel.tsx`: `use client\|createContext` = **0**; `ui-antipatterns.sh` 22 `✓`, `--selftest` **22 / 22** (đo ở HEAD — cùng script); NEST = 0 ở `/dev/ui` (15 panel) và mọi route đo (7 route × 1440 / 375); dev `nest` pass |
+| TC-UI02-05 (AC5) | PASS | `/dev/ui`: STRONG 0, WALL 0 ở số đo của QC; ca gieo `?fixture=strong4` / `?fixture=wall` bị bắt bởi `panels.spec.ts -g 'strong cap\|kpi wall'` (dev, pass); QC chưa tự chạy bộ đo trên hai fixture |
+| TC-UI02-06 (AC6) | PASS (L1) | QC tự tính: nhỏ nhất **4,57** (`ink-3` / canvas); mọi cặp {ink, ink-2, ink-3, red, green, blue} × {canvas, panel, ô nhấn, `surface-subtle`, `red-soft`} ≥ 4,5 (trùng bảng dev); `contrast.spec.ts` pass; amber ≥ 3 (3,59) chỉ ở biểu tượng / viền |
+| TC-UI02-07 (AC7) | PASS | dev `primitives in panel` pass; `/dev/ui` 1440 / 375: `ox = 0`, 0 ô tràn; số đo QC: `scrollWidth ≤ innerWidth` |
+| TC-UI02-08 (AC8) | PASS | `prefers-color-scheme\|data-theme` trong `frontend/src` = **0**; dev `token only` pass |
+| TC-UI02-09 (AC9) | PASS | `ui-allow:` ở `frontend/src`: **9 → 9**; `package.json` / `pnpm-lock.yaml` diff `1abe61e..3f83d84` = **0** dòng thêm; `ui-antipatterns.sh` 22 `✓` |
+| TC-UI02-10 (AC10) | PASS (một phần) | JS truyền (CDP, cùng máy, trước → sau): `/`, `/exams`, `/chat`: 268,9 → 269,1 KB (+0,2) ở 1440; 246,6 → 246,9 (+0,3) ở 375; `/gradebook` 277,8 → 278,0; `/dev/ui` 197,8 → 199,1 (+1,3) — mọi route ≤ +2 KB. `PreShell.tsx` không `Panel`. `lhci` `resource-summary:script`: không chạy được (không có Chrome cho puppeteer) |
+| TC-UI02-11 (AC11) | PASS | `DESIGN.md` §10.14 + §19 có `Panel` / `ui/Panel.tsx`; `visual.spec.ts` trong image `mcr.microsoft.com/playwright:v1.63.0-noble` ở `3f83d84`: **14 passed** hai lần liên tiếp (QC tự chạy, `--workers=2`) |
