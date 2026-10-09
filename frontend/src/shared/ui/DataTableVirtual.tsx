@@ -56,8 +56,10 @@ export default function VirtualTable<T>({
   }, [last, count, next, pagination]);
 
   const activeIdx = activeKey !== undefined ? rows.findIndex((r) => rowKey(r) === activeKey) : cursorIdx;
+  // aria-activedescendant chỉ được trỏ tới dòng ĐANG có trong DOM: dòng ngoài cửa sổ ảo thì bỏ thuộc tính (scrollToIndex dựng dòng đó ngay sau phím).
+  const activeRendered = activeIdx >= 0 && items.some((it) => it.index === activeIdx);
 
-  function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
+  function onKeyDown(e: KeyboardEvent<HTMLTableElement>) {
     if (e.target !== e.currentTarget) return;
     const move = (i: number) => {
       const n = Math.max(0, Math.min(count - 1, i));
@@ -87,21 +89,19 @@ export default function VirtualTable<T>({
     ) : null;
 
   return (
-    <div
-      ref={parentRef}
-      className={s.vscroll}
-      style={{ "--vh": `${height}px` } as CSSProperties}
-      tabIndex={0}
-      role="region"
-      aria-label={caption}
-      aria-activedescendant={activeIdx >= 0 && rows[activeIdx] ? `vt-${rowKey(rows[activeIdx])}` : undefined}
-      onKeyDown={onKeyDown}
-      data-part="virtual-scroll"
-    >
-      <table className={[s.table, s.virtual].join(" ")}>
+    // Vùng cuộn là div thường; phần tử lấy focus là chính <table role="grid"> (grid cho phép aria-activedescendant và sở hữu các dòng của nó).
+    <div ref={parentRef} className={s.vscroll} style={{ "--vh": `${height}px` } as CSSProperties} data-part="virtual-scroll">
+      <table
+        className={[s.table, s.virtual].join(" ")}
+        role="grid"
+        tabIndex={0}
+        aria-rowcount={count + 1 + (footer ? 1 : 0)}
+        aria-activedescendant={activeRendered ? `vt-${rowKey(rows[activeIdx])}` : undefined}
+        onKeyDown={onKeyDown}
+      >
         <caption className="ep-sr-only">{caption}</caption>
         <thead>
-          <tr>
+          <tr aria-rowindex={1}>
             {columns.map((c) => (
               <th key={c.key} scope="col" style={{ "--w": c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties} className={s.th}>
                 {c.header}
@@ -120,6 +120,7 @@ export default function VirtualTable<T>({
                 key={key}
                 id={`vt-${key}`}
                 data-index={it.index}
+                aria-rowindex={it.index + 2}
                 className={[onRowClick ? s.clickable : "", on ? s.active : ""].join(" ")}
                 aria-current={on ? "true" : undefined}
                 onClick={onRowClick ? () => { setCursorIdx(it.index); onRowClick(row); } : undefined}
@@ -134,7 +135,7 @@ export default function VirtualTable<T>({
           })}
           {spacer(padBottom, "pb")}
           {footer && (
-            <tr data-part="load-more" aria-busy={pagination?.loading || undefined}>
+            <tr data-part="load-more" aria-rowindex={count + 2} aria-busy={pagination?.loading || undefined}>
               <td colSpan={span} className={s.footCell}>
                 {pagination?.error ? (
                   <InlineNotice

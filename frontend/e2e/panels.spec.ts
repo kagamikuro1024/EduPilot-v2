@@ -525,7 +525,7 @@ test.describe("exam results|similarity", () => {
     await asDemo(context, "teacher");
     await mockStaffApi(page);
     await page.goto(`/exams/${STAFF_EXAM}/results`);
-    await page.getByRole("table").first().waitFor();
+    await page.getByRole("grid").first().waitFor(); // bảng kết quả ảo hoá = role=grid
     expect(await violations(page)).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
     expect(await page.getByRole("tablist").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(false);
     await expect(page.getByRole("tab", { name: "Nghi giống nhau" })).toBeVisible();
@@ -543,7 +543,7 @@ test.describe("exam results|similarity", () => {
     await asDemo(ta, "ta");
     await mockStaffApi(tp);
     await tp.goto(`/exams/${STAFF_EXAM}/results`);
-    await tp.getByRole("table").first().waitFor();
+    await tp.getByRole("grid").first().waitFor();
     await expect(tp.getByRole("tab", { name: "Nghi giống nhau" })).toHaveCount(0);
     await ta.close();
   });

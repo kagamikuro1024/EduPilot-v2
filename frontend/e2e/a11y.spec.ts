@@ -6,6 +6,7 @@ import { settleGoto } from "./support/hydrate";
 import { asDemo, type DemoRole } from "./support/session";
 import { mockStudentExams, mockStudentToday } from "./support/screens";
 import { mockTake, TAKE_COURSE, TAKE_EXAM } from "./support/takeMock";
+import { BASE_URL } from "./support/env";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
@@ -93,6 +94,41 @@ test("axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước gi
     await mockTake(page, kind);
     for (const w of WIDTHS) for (const b of await scan(page, `student+take-${kind}`, `/exams/${TAKE_EXAM}/take?course=${TAKE_COURSE}`, w)) bad.push(`take-${kind} @${w}: ${b}`);
   }
+  expect(bad).toEqual([]);
+});
+
+// QC US-UI-07 B1: bảng ảo hoá có nhiều dòng hơn cửa sổ — aria-activedescendant phải ở phần tử có role hợp lệ và chỉ trỏ tới dòng đang render.
+test("axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): không critical, activedescendant hợp lệ khi dòng ở trong / ngoài cửa sổ", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await asDemo(context, "teacher");
+  await mockStaffApi(page);
+  const many = Array.from({ length: 1000 }, (_, i) => ({ attempt_id: `att-${i}`, student: { id: `s-${i}`, full_name: `Sinh viên ${String(i).padStart(4, "0")}`, student_code: `B20DC${String(i).padStart(4, "0")}` }, status: "GRADED", auto_score: "7.50", score: "7.50", adjusted: false, submitted_at: "2026-12-01T01:00:00Z", submit_reason: "MANUAL", flags: { similarity: 0, tab_hidden: 0, paste: 0 } }));
+  const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+  await page.route(/\/api\/v1\/courses\/[^/]+\/exams\/[^/]+\/results(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify({ progress: { not_started: 0, in_progress: 0, grading: 0, graded: 1000, absent: 0 }, items: many, next_cursor: null }) }));
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`/exams/${STAFF_EXAM}/results`);
+  const table = page.locator("[data-part=virtual-scroll] table");
+  await table.waitFor();
+  expect(await table.locator("tbody tr[data-index]").count(), "chỉ dựng dòng trong cửa sổ ảo").toBeLessThan(120);
+  const problems = async (label: string) => {
+    const res = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+    const dangling = await page.evaluate(() => [...document.querySelectorAll("[aria-activedescendant]")].filter((e) => !document.getElementById(e.getAttribute("aria-activedescendant")!)).length);
+    return [...res.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => `${label}: ${v.id} (${v.impact})`), ...(dangling ? [`${label}: aria-activedescendant trỏ tới id không tồn tại ×${dangling}`] : [])];
+  };
+  const bad = await problems("ban đầu");
+  await table.focus();
+  for (let i = 0; i < 3; i++) await page.keyboard.press("ArrowDown");
+  await expect(table.locator('tr[aria-current="true"]')).toHaveAttribute("data-index", "2");
+  expect(await table.getAttribute("aria-activedescendant"), "dòng đang chọn đang render ⇒ có activedescendant").toMatch(/^vt-/);
+  bad.push(...(await problems("dòng chọn trong cửa sổ")));
+  await page.locator("[data-part=virtual-scroll]").evaluate((e) => { e.scrollTop = e.scrollHeight; }); // dòng chọn bị đẩy ra ngoài cửa sổ ảo
+  await expect(table.locator('tbody tr[data-index="999"]')).toBeVisible();
+  expect(await table.locator('tr[aria-current="true"]').count()).toBe(0);
+  expect(await table.getAttribute("aria-activedescendant"), "dòng chọn ngoài cửa sổ ⇒ không đặt activedescendant").toBeNull();
+  bad.push(...(await problems("dòng chọn ngoài cửa sổ")));
+  await page.keyboard.press("End");
+  await expect(table.locator('tr[aria-current="true"]')).toHaveAttribute("data-index", "999");
+  bad.push(...(await problems("sau End")));
   expect(bad).toEqual([]);
 });
 

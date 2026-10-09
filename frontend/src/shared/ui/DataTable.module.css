@@ -74,6 +74,7 @@ th.frozen { z-index: 2; background: var(--ep-surface-subtle); }
 /* Bảng ảo hoá (US-PU-02 AC5/6): khung cuộn cao cố định, tiêu đề dính trong khung, dòng 48 px. */
 .vscroll { height: var(--vh, 60vh); overflow: auto; overscroll-behavior: contain; }
 .virtual tbody tr { height: 48px; }
+.virtual:focus-visible { outline-offset: -2px; }
 .virtual .spacer { padding: 0; border: 0; height: auto; }
 .footCell { height: 48px; padding: var(--ep-space-2) var(--ep-space-3); }
 .skBar, .skIdle { display: block; height: var(--ep-space-4); width: 60%; border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }

@@ -180,7 +180,7 @@ test.describe("datatable 1.000 dòng", () => {
 
     // bàn phím
     await box.evaluate((e) => { e.scrollTop = 0; });
-    await box.focus();
+    await box.locator("table").focus(); // phần tử lấy focus là <table role=grid> (aria-activedescendant hợp lệ)
     for (let i = 0; i < 3; i++) await page.keyboard.press("ArrowDown");
     await expect(box.locator('tr[aria-current="true"]')).toHaveAttribute("data-index", "2");
     await page.keyboard.press("ArrowUp");
