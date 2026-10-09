@@ -6,7 +6,7 @@ import { ApiError, ApiErrorNotice, useIdempotentMutation, useSSE, type ApiResult
 import { Markdown } from "@/shared/domain";
 import { makeExamClock } from "@/shared/lib/examClock";
 import { useSession } from "@/shared/session/session";
-import { Button, EmptyState, InlineNotice, Page, PageHeader, Skeleton } from "@/shared/ui";
+import { Button, EmptyState, InlineNotice, Page, PageHeader, Panel, Skeleton } from "@/shared/ui";
 import { fmtClock, fmtWhen } from "../examApi";
 import { StudentResultView } from "../results/StudentResult";
 import { IntegrityNotice } from "./IntegrityNotice";
@@ -79,13 +79,13 @@ export function ExamTake({ id }: { id: string }) {
     if (load.kind === "ready") void refresh(load.course, (m) => !isRunning(m));
   });
 
-  if (load.kind === "loading") return <Page><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Skeleton lines={5} /></Page>;
+  if (load.kind === "loading") return <Page><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={5} /></Panel></Page>;
   if (load.kind === "error") {
     const gone = load.error instanceof ApiError && (load.error.status === 404 || load.error.status === 403);
     return (
       <Page>
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
-        {gone ? <EmptyState title="Không tìm thấy bài thi">Bài thi không có hoặc không thuộc lớp của bạn.</EmptyState> : <ApiErrorNotice error={load.error} onRetry={() => setLoad({ kind: "loading" })} />}
+        {gone ? <Panel><EmptyState title="Không tìm thấy bài thi">Bài thi không có hoặc không thuộc lớp của bạn.</EmptyState></Panel> : <ApiErrorNotice error={load.error} onRetry={() => setLoad({ kind: "loading" })} />}
       </Page>
     );
   }
@@ -123,6 +123,7 @@ function Intro({ mine, start, onStarted }: { mine: NoAttempt; start: (key: strin
   return (
     <Page>
       <PageHeader title={e.title} back={{ href: "/exams", label: "Bài thi" }} />
+      <Panel>
       <div className={s.intro}>
         {e.instructions && <Markdown source={e.instructions} />}
         {e.status === "OPEN" && (
@@ -140,6 +141,7 @@ function Intro({ mine, start, onStarted }: { mine: NoAttempt; start: (key: strin
         {e.status === "SCHEDULED" && <InlineNotice>Bài thi mở lúc {e.opens_at ? fmtWhen(e.opens_at) : "—"}. Bạn có {e.duration_minutes} phút để làm.</InlineNotice>}
         {(e.status === "CLOSED" || e.status === "PUBLISHED") && <InlineNotice>Bạn không làm bài này.</InlineNotice>}
       </div>
+      </Panel>
     </Page>
   );
 }
@@ -152,6 +154,7 @@ function Done({ course, id, mine }: { course: string; id: string; mine: Submitte
     <Page>
       <PageHeader title={mine.exam.title} back={{ href: "/exams", label: "Bài thi" }} />
       <div className={s.done} data-part="submitted">
+        <Panel>
         {published ? (
           <StudentResultView course={course} exam={id} attempt={a.id} />
         ) : (
@@ -159,6 +162,7 @@ function Done({ course, id, mine }: { course: string; id: string; mine: Submitte
             {mine.exam.status === "CLOSED" ? "Điểm đang được chấm." : `Điểm sẽ hiện khi bài thi đóng với cả lớp${mine.exam.closes_at ? ` (${fmtWhen(mine.exam.closes_at)})` : ""}.`}
           </InlineNotice>
         )}
+        </Panel>
       </div>
     </Page>
   );

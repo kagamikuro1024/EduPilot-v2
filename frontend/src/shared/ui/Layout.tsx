@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { useEffect, useRef, type ReactNode } from "react";
 import { consumeRedThread } from "@/shared/motion/redThread";
+import { Panel } from "./Panel";
 import s from "./Layout.module.css";
 
 /** Khung nội dung của một route. `reading` 960px cho đọc/form; `wide` cho bảng; `full` cho màn chia đôi. */
@@ -64,6 +65,7 @@ export function Section({
   className,
   id,
   part,
+  panel,
 }: {
   title?: ReactNode;
   description?: ReactNode;
@@ -71,6 +73,8 @@ export function Section({
   children: ReactNode;
   className?: string;
   id?: string;
+  /** D59: đặt `children` trong MỘT `Panel` (tiêu đề vùng vẫn ngoài panel). `true` = padding md; `"none"` cho bảng sát mép. */
+  panel?: boolean | "lg" | "none";
   /** móc đo dev: `data-part` của phần (vd. `settings-section`) */
   part?: string;
 }) {
@@ -89,7 +93,7 @@ export function Section({
           {action && <div className={s.sectionAction}>{action}</div>}
         </div>
       )}
-      {children}
+      {panel ? <Panel padding={panel === true ? "md" : panel}>{children}</Panel> : children}
     </section>
   );
 }

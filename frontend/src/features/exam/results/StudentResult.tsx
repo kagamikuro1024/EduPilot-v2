@@ -3,7 +3,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { ApiErrorNotice, apiClient, useIdempotentMutation } from "@/shared/data";
-import { Button, Field, InlineNotice, Skeleton, Textarea } from "@/shared/ui";
+import { Button, Field, InlineNotice, PanelSection, Skeleton, Textarea } from "@/shared/ui";
 import { fmtWhen } from "../examApi";
 import { ResultItems } from "./ResultItems";
 import { resPath, vnum, type StudentResult } from "./resultsApi";
@@ -21,10 +21,12 @@ export function StudentResultView({ course, exam, attempt }: { course: string; e
   const canAppeal = res.appeal.status === null && e.appeal_open_until !== null && Date.parse(e.appeal_open_until) >= nowMs;
   return (
     <div className={s.drawer} data-part="student-result">
-      <section aria-label="Điểm">
-        <p className={s.big} data-part="final-score">{vnum(res.score)} / {vnum(e.max_score)}</p>
-        {res.score_adjusted && <p className={s.muted}>Điểm đã được giảng viên điều chỉnh.</p>}
-      </section>
+      <PanelSection tone="strong">
+        <section aria-label="Điểm">
+          <p className={s.big} data-part="final-score">{vnum(res.score)} / {vnum(e.max_score)}</p>
+          {res.score_adjusted && <p className={s.muted}>Điểm đã được giảng viên điều chỉnh.</p>}
+        </section>
+      </PanelSection>
       {!asking && <Appeal res={res} canAppeal={canAppeal} onAsk={() => setAsking(true)} />}
       <ResultItems items={res.items} />
       {asking && <AppealForm course={course} exam={exam} attempt={attempt} onClose={() => setAsking(false)} onSent={() => { setAsking(false); void q.refetch(); }} />}

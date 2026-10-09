@@ -21,7 +21,7 @@ import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { simNowMs, useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import { Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Section, Skeleton, Textarea } from "@/shared/ui";
+import { Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Panel, PanelSection, Section, Skeleton, Textarea } from "@/shared/ui";
 import { PIIChannelDialog } from "./PIIChannelDialog";
 import { AiBlock, EditInline, PostActions, QuoteBlock, ReportButton, RoleChip } from "./ThreadParts";
 import {
@@ -112,9 +112,11 @@ export function ThreadDetail({ id }: { id: string }) {
     return (
       <Page>
         <PageHeader title="Thread" back={{ href: "/threads", label: "Threads" }} />
-        <EmptyState title="Không tìm thấy thread này" action={<ButtonLink href="/threads" variant="primary">Về Threads</ButtonLink>}>
-          Thread có thể đã bị xoá, hoặc thuộc lớp khác lớp bạn đang xem.
-        </EmptyState>
+        <Panel>
+          <EmptyState title="Không tìm thấy thread này" action={<ButtonLink href="/threads" variant="primary">Về Threads</ButtonLink>}>
+            Thread có thể đã bị xoá, hoặc thuộc lớp khác lớp bạn đang xem.
+          </EmptyState>
+        </Panel>
       </Page>
     );
   }
@@ -213,7 +215,9 @@ export function ThreadDetail({ id }: { id: string }) {
 
       <PageState loading={<Skeleton lines={8} />} empty={<EmptyState title="Thread này chưa có nội dung">Nội dung sẽ hiện khi người đăng gửi câu hỏi.</EmptyState>}>
         <div className={s.detailContainer}>
+          <Panel>
           {/* 1. Câu hỏi gốc */}
+          <PanelSection>
           <div className={s.questionPanel} data-part="thread-question" id={`post-${view.question.id}`}>
             <div className={s.postHead}>
               <span className={s.author}>
@@ -262,9 +266,11 @@ export function ThreadDetail({ id }: { id: string }) {
               </PostActions>
             )}
           </div>
+          </PanelSection>
 
           {/* 2. Câu trả lời AI chính */}
           {view.mainAi && (
+            <PanelSection>
             <AiBlock
               panel
               post={view.mainAi}
@@ -276,10 +282,12 @@ export function ThreadDetail({ id }: { id: string }) {
               onSaveEdit={(t) => saveAiEdit(view.mainAi!, t)}
               onRemove={() => moderate(view.mainAi!, "removed")}
             />
+            </PanelSection>
           )}
+          </Panel>
 
           {/* 3. MỘT vùng thảo luận, ô soạn ở cuối chính vùng này */}
-          <Section title={`Thảo luận (${view.discussion.length})`} id="discussion">
+          <Section title={`Thảo luận (${view.discussion.length})`} id="discussion" panel>
             {view.discussion.length > 0 && (
               <ol className={s.posts}>
                 {view.discussion.map((p) => (

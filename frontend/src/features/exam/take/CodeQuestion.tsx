@@ -5,7 +5,7 @@ import { ApiError, ApiErrorNotice, useSSE } from "@/shared/data";
 import { Markdown } from "@/shared/domain";
 import type { ExamClock } from "@/shared/lib/examClock";
 import { useMinWidth } from "@/shared/lib/useMinWidth";
-import { Button, InlineNotice, Select, Tabs } from "@/shared/ui";
+import { Button, InlineNotice, Panel, Select, Tabs } from "@/shared/ui";
 import { CodeEditor } from "./CodeEditor";
 import { getRun, getSubmission, listSubmissions, runCode, submitCode, type Lang, type RunView, type SubmissionView } from "./codeApi";
 import { RunResult, SubmissionList, visible } from "./CodeResults";
@@ -49,7 +49,8 @@ export function CodeQuestion(p: Props) {
   const code = p.item.code as unknown as CodeItem;
   return (
     <div className={[s.cols, wide ? "" : s.narrow].join(" ")} data-part="code-question">
-      <section className={s.left} aria-label="Đề bài">
+      <Panel as="section" aria-label="Đề bài">
+      <div className={s.left}>
         <p className={s.meta}>Câu {p.number} · {p.item.points.replace(".", ",")} điểm · {code.time_limit_ms} ms · {code.memory_limit_mb} MB</p>
         <Markdown source={p.item.stem} />
         {code.samples.length > 0 && (
@@ -62,14 +63,14 @@ export function CodeQuestion(p: Props) {
             ))}
           </ul>
         )}
-      </section>
-      {wide ? (
-        <WideEditor {...p} code={code} />
-      ) : (
+      {!wide && (
         <InlineNotice tone="warning" compact>
           Bài lập trình cần màn hình rộng hơn (từ 1.024 px). Hãy mở bài thi này trên máy tính — bài của bạn vẫn là một lượt duy nhất và tự đồng bộ.
         </InlineNotice>
       )}
+      </div>
+      </Panel>
+      {wide && <WideEditor {...p} code={code} />}
     </div>
   );
 }
@@ -215,7 +216,8 @@ function WideEditor({ item, number, courseId, examId, attemptId, tab, clock, can
     : draft.savedAt ? `Bản nháp đã lưu lúc ${hhmmss(draft.savedAt)}` : "Bản nháp tự lưu khi bạn ngừng gõ";
 
   return (
-    <section className={s.right} aria-label="Soạn mã" data-part="code-wide">
+    <Panel as="section" aria-label="Soạn mã">
+    <div className={s.right} data-part="code-wide">
       {expired && <InlineNotice tone="warning" compact>Hết giờ — phần bạn gõ sau giờ không được tính. Mã vẫn còn trong ô để bạn chép ra.</InlineNotice>}
       {draft.conflict && (
         <InlineNotice
@@ -289,6 +291,7 @@ function WideEditor({ item, number, courseId, examId, attemptId, tab, clock, can
           }}
         />
       )}
-    </section>
+    </div>
+    </Panel>
   );
 }

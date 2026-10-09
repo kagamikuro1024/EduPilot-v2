@@ -9,23 +9,7 @@ import { ATTENDANCE_SEED, committedOf, CURRENT_SESSION, KEYS, SCHEMES_SEED, type
 import { ASSIGNMENTS, B_ABSENT_DATES, MIDTERM, sessionDate, until } from "@/mock/student";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  ActionList,
-  ActionRow,
-  ButtonLink,
-  DefinitionList,
-  EmptyState,
-  Field,
-  InlineNotice,
-  Input,
-  Page,
-  PageHeader,
-  PageState,
-  Section,
-  Skeleton,
-  StatusText,
-  TrendChart,
-} from "@/shared/ui";
+import { ActionList, ActionRow, ButtonLink, DefinitionList, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, TrendChart } from "@/shared/ui";
 import s from "./Me.module.css";
 
 const STUDY_WEEKS = [
@@ -66,9 +50,9 @@ export function MeScreen() {
           </>
         }
         empty={
-          <EmptyState title="Chưa có dữ liệu điểm cho lớp này" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
+          <Panel><EmptyState title="Chưa có dữ liệu điểm cho lớp này" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
             Khi có bài tập được công bố hoặc buổi điểm danh đầu tiên, kết quả của bạn sẽ hiện ở đây.
-          </EmptyState>
+          </EmptyState></Panel>
         }
       >
         {!schemeReady ? (
@@ -77,12 +61,12 @@ export function MeScreen() {
             học của lớp vẫn xem được ở Lịch và Thư viện.
           </InlineNotice>
         ) : g.qt === null ? (
-          <EmptyState title="Chưa có điểm quá trình" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
+          <Panel><EmptyState title="Chưa có điểm quá trình" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
             Lớp chưa công bố bài tập nào của bạn. Khi có bài được công bố hoặc buổi điểm danh đầu tiên, phần giải trình điểm sẽ hiện ở đây.
-          </EmptyState>
+          </EmptyState></Panel>
         ) : (
           <>
-            <Section title="Điểm quá trình">
+            <Section panel title="Điểm quá trình">
               <p className={s.headline}>
                 Điểm quá trình hiện tại <strong>{fmtScore(g.qt)}</strong> (tạm tính)
               </p>
@@ -129,7 +113,7 @@ export function MeScreen() {
               <p className={s.official}>Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.</p>
             </Section>
 
-            <Section title="Chuyên cần và phát biểu">
+            <Section panel title="Chuyên cần và phát biểu">
               <DefinitionList
                 items={[
                   { term: "Buổi đã ghi", value: `${g.recorded} buổi` },
@@ -147,7 +131,7 @@ export function MeScreen() {
 
         {course.id === COURSE_1 && g.qt !== null && (
           <>
-            <Section title="Bài sắp tới">
+            <Section panel title="Bài sắp tới">
               <ActionList label="Bài sắp tới">
                 <ActionRow
                   tone="amber"
@@ -173,7 +157,7 @@ export function MeScreen() {
               </ActionList>
             </Section>
 
-            <Section title="Thời gian học mỗi tuần" description="Chỉ để bạn tự theo dõi nhịp học, không tính vào điểm.">
+            <Section panel title="Thời gian học mỗi tuần" description="Chỉ để bạn tự theo dõi nhịp học, không tính vào điểm.">
               <div className={s.trend}>
                 <TrendChart points={STUDY_WEEKS} label="Thời gian học theo tuần (phút)" height={96} format={(v) => `${v} phút`} />
               </div>

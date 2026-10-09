@@ -47,24 +47,24 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
         </InlineNotice>
       )}
       {rowRec && (
-        <Section title="Việc nên làm bây giờ">
+        <Section title="Việc nên làm tiếp" panel>
           <ActionList label="Việc nên làm">
             <Recommended item={rowRec} />
           </ActionList>
         </Section>
       )}
       {d.no_course && (
-        <Section title={rowRec ? "Vào lớp bằng mã" : "Nhập mã tham gia lớp"} description={rowRec ? undefined : "Bạn chưa vào lớp nào. Nhập mã do giảng viên cung cấp để bắt đầu."}>
+        <Section panel title={rowRec ? "Vào lớp bằng mã" : "Nhập mã tham gia lớp"} description={rowRec ? undefined : "Bạn chưa vào lớp nào. Nhập mã do giảng viên cung cấp để bắt đầu."}>
           <JoinCodeBox primary={!rowRec?.href} />
         </Section>
       )}
       {calm && (
-        <Section title="Việc nên làm bây giờ">
+        <Section title="Việc nên làm tiếp" panel>
           <p className={s.calm}>Hôm nay bạn không có việc gấp.</p>
         </Section>
       )}
       {d.timeline.length > 0 && (
-        <Section title="Hôm nay">
+        <Section title="Hôm nay" panel>
           <ActionList label="Lịch hôm nay">
             {d.timeline.map((t) => (
               <ActionRow

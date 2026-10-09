@@ -12,22 +12,7 @@ import { BT03_SUBMISSION, assignmentById, until } from "@/mock/student";
 import { useSession } from "@/shared/session/session";
 import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  Button,
-  ButtonLink,
-  Checkbox,
-  DefinitionList,
-  EmptyState,
-  Field,
-  InlineNotice,
-  Page,
-  PageHeader,
-  PageState,
-  Section,
-  Skeleton,
-  StatusText,
-  Textarea,
-} from "@/shared/ui";
+import { Button, ButtonLink, Checkbox, DefinitionList, EmptyState, Field, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import s from "./Assignment.module.css";
 
 /** Bài tập của sinh viên: đã nộp gì, chấm tới đâu, nhận xét ra sao (INTEGRATION mục 2). */
@@ -44,9 +29,9 @@ export function AssignmentScreen({ id }: { id: string }) {
     return (
       <Page>
         <PageHeader title="Bài tập" back={{ href: "/me", label: "Kết quả của tôi" }} />
-        <EmptyState title="Không tìm thấy bài tập này" action={<ButtonLink href="/me" variant="primary">Về Kết quả của tôi</ButtonLink>}>
+        <Panel><EmptyState title="Không tìm thấy bài tập này" action={<ButtonLink href="/me" variant="primary">Về Kết quả của tôi</ButtonLink>}>
           Bài có thể đã bị gỡ, hoặc thuộc lớp khác lớp bạn đang xem.
-        </EmptyState>
+        </EmptyState></Panel>
       </Page>
     );
   }
@@ -82,13 +67,13 @@ export function AssignmentScreen({ id }: { id: string }) {
       <PageState
         loading={<Skeleton lines={7} />}
         empty={
-          <EmptyState title="Bài này chưa mở cho lớp của bạn" action={<ButtonLink href="/calendar" variant="primary">Xem lịch</ButtonLink>}>
+          <Panel><EmptyState title="Bài này chưa mở cho lớp của bạn" action={<ButtonLink href="/calendar" variant="primary">Xem lịch</ButtonLink>}>
             Khi giảng viên mở bài, bạn sẽ thấy đề bài và nút nộp ở đây.
-          </EmptyState>
+          </EmptyState></Panel>
         }
       >
         {assignment.kind === "quiz" ? (
-          <Section title="Bài kiểm tra trên lớp">
+          <Section panel title="Bài kiểm tra trên lớp">
             <DefinitionList
               items={[
                 { term: "Hình thức", value: `Trắc nghiệm · ${assignment.minutes} phút · tính điểm` },
@@ -100,7 +85,7 @@ export function AssignmentScreen({ id }: { id: string }) {
           </Section>
         ) : (
           <>
-            <Section title="Bài nộp của bạn">
+            <Section panel title="Bài nộp của bạn">
               {mineBt03 ? (
                 <>
                   <p className={s.file}>
@@ -126,7 +111,7 @@ export function AssignmentScreen({ id }: { id: string }) {
               )}
             </Section>
 
-            <Section title="Kết quả">
+            <Section panel title="Kết quả">
               {mineBt03 && !published ? (
                 <InlineNotice title="Đang chấm">
                   Giảng viên đang xem lại bài của bạn. Điểm và nhận xét sẽ hiện ở đây ngay khi được công bố — thường trong vài ngày

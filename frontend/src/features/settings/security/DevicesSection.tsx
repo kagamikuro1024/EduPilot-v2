@@ -42,7 +42,7 @@ export function DevicesSection() {
   }
 
   return (
-    <Section title="Thiết bị đang đăng nhập">
+    <Section title="Thiết bị đang đăng nhập" panel>
       <PageState query={q}>
         {failed != null && <ApiErrorNotice error={failed} />}
         <ul className={s.list}>

@@ -6,7 +6,7 @@ import { useState } from "react";
 import { ApiErrorNotice, apiClient, fieldErrors, useCursorList, useIdempotentMutation } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
-import { ActionList, ActionRow, Button, ButtonLink, EmptyState, Field, Input, Page, PageHeader, PageState, Section, Skeleton, type Tone } from "@/shared/ui";
+import { ActionList, ActionRow, Button, ButtonLink, EmptyState, Field, Input, Page, PageHeader, PageState, Panel, Section, Skeleton, type Tone } from "@/shared/ui";
 import { eKey, ePath, fmtClock, STATUS_LABEL, windowLine, type ExamDetail, type ExamRow, type ExamStatus, type StudentExam } from "./examApi";
 import s from "./Exam.module.css";
 
@@ -70,7 +70,7 @@ function Board({ courseId, code }: { courseId: string; code: string }) {
           const rows = list.items.filter(g.of).sort(g.order);
           if (rows.length === 0) return null;
           return (
-            <Section key={g.title} title={g.title}>
+            <Section key={g.title} title={g.title} panel>
               <ActionList label={g.title}>
                 {rows.map((e) => (
                   <ActionRow
@@ -130,7 +130,9 @@ function StudentExams() {
     return (
       <Page>
         <PageHeader title="Bài thi" />
-        <EmptyState title="Chưa có bài thi">Lớp của bạn chưa có bài thi nào.</EmptyState>
+        <Panel>
+          <EmptyState title="Chưa có bài thi">Lớp của bạn chưa có bài thi nào.</EmptyState>
+        </Panel>
       </Page>
     );
   return (
@@ -172,14 +174,14 @@ function CourseExams({ courseId, code }: { courseId: string; code?: string }) {
     <PageState
       query={list}
       isEmpty={() => list.items.length === 0}
-      loading={<ActionList loading={3} label="Đang tải bài thi" />}
-      empty={<EmptyState title={code ? `Lớp ${code}` : "Chưa có bài thi"}>Lớp của bạn chưa có bài thi nào.</EmptyState>}
+      loading={<Panel><ActionList loading={3} label="Đang tải bài thi" /></Panel>}
+      empty={<Panel><EmptyState title={code ? `Lớp ${code}` : "Chưa có bài thi"}>Lớp của bạn chưa có bài thi nào.</EmptyState></Panel>}
     >
       {STUDENT_GROUPS.map((g) => {
         const rows = list.items.filter(g.of).sort(g.order);
         if (rows.length === 0) return null;
         return (
-          <Section key={g.title} title={code ? `${g.title} · lớp ${code}` : g.title}>
+          <Section key={g.title} title={code ? `${g.title} · lớp ${code}` : g.title} panel>
             <ActionList label={g.title}>
               {rows.map((e) => {
                 const act = actionFor(e);

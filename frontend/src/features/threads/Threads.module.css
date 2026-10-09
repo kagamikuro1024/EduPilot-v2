@@ -12,10 +12,6 @@
 
 /* Form đặt câu hỏi: mở tại chỗ, một khung làm việc (FR-X11) */
 .createPanel {
-  background: var(--ep-surface);
-  border: 1px solid var(--ep-rule);
-  border-radius: var(--ep-radius-md);
-  padding: var(--ep-space-5);
   display: grid;
   gap: var(--ep-space-4);
 }
@@ -33,34 +29,29 @@
 .hint { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-2); }
 .notice { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-2); }
 
-/* Chi tiết thread: các khối cách nhau đều, mỗi khối là một panel riêng */
+/* Chi tiết thread (D59): hai Panel — bài (câu hỏi + trả lời AI chính, tách bằng PanelSection) và thảo luận; bên trong KHÔNG khung riêng. */
 .detailContainer { display: grid; gap: var(--ep-space-6); }
 
 .questionPanel,
 .aiPanel,
 .replyComposerPanel {
-  background: var(--ep-surface);
-  border: 1px solid var(--ep-rule);
-  border-radius: var(--ep-radius-md);
-  padding: var(--ep-space-5);
   display: grid;
   gap: var(--ep-space-3);
 }
-.aiPanel { border-left: 3px solid var(--ep-amber); }
+.aiPanel { border-left: 2px solid var(--ep-amber); padding-left: var(--ep-space-4); }
 .aiPanelVerified { border-left-color: var(--ep-green); }
 
-.posts { list-style: none; margin: 0 0 var(--ep-space-4); padding: 0; display: grid; gap: var(--ep-space-3); }
+.posts { list-style: none; margin: 0 0 var(--ep-space-4); padding: 0; display: grid; }
 .replyPanel,
 .aiPost {
-  background: var(--ep-surface);
-  border: 1px solid var(--ep-rule);
-  border-radius: var(--ep-radius-md);
-  padding: var(--ep-space-4) var(--ep-space-5);
   display: grid;
   gap: var(--ep-space-2);
+  padding: var(--ep-space-4) 0;
+  border-top: 1px solid var(--ep-rule);
   scroll-margin-top: calc(var(--ep-topbar) + var(--ep-space-4));
 }
-.aiPost { border-left: 3px solid var(--ep-amber); }
+.posts > li:first-child > .replyPanel, .posts > li:first-child > .aiPost { border-top: 0; padding-top: 0; }
+.aiPost { border-left: 2px solid var(--ep-amber); padding-left: var(--ep-space-4); }
 .aiPost.aiPanelVerified { border-left-color: var(--ep-green); }
 .aiPanel, .questionPanel { scroll-margin-top: calc(var(--ep-topbar) + var(--ep-space-4)); }
 
@@ -179,7 +170,7 @@
   .createActions { flex-direction: column; align-items: stretch; }
   .composerBar { justify-content: stretch; }
   .composerBar > button { flex: 1 1 140px; }
-  .replyPanel, .aiPost { padding: var(--ep-space-3) var(--ep-space-4); }
+  .replyPanel, .aiPost { padding-block: var(--ep-space-3); }
   .cites li { min-height: 44px; display: flex; align-items: center; flex-wrap: wrap; }
   .sourcesToggle { min-height: 44px; }
 }

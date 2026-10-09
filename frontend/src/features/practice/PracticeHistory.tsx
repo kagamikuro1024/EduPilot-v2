@@ -5,19 +5,7 @@ import { agoLabel } from "@/mock/derive";
 import { useSession } from "@/shared/session/session";
 import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  ActionList,
-  ActionRow,
-  BarList,
-  ButtonLink,
-  EmptyState,
-  Page,
-  PageHeader,
-  PageState,
-  Section,
-  Skeleton,
-  StatusText,
-} from "@/shared/ui";
+import { ActionList, ActionRow, BarList, ButtonLink, EmptyState, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText } from "@/shared/ui";
 import s from "./Practice.module.css";
 
 /** Lịch sử luyện tập: nhìn ra chủ đề cần luyện tiếp (DESIGN §14.20). */
@@ -38,12 +26,12 @@ export function PracticeHistory() {
         state={rows.length === 0 ? "empty" : undefined}
         loading={<Skeleton lines={6} />}
         empty={
-          <EmptyState title="Chưa có lượt luyện nào" action={<ButtonLink href="/practice/at-symmetric" variant="primary">Luyện 10 câu</ButtonLink>}>
+          <Panel><EmptyState title="Chưa có lượt luyện nào" action={<ButtonLink href="/practice/at-symmetric" variant="primary">Luyện 10 câu</ButtonLink>}>
             Sau lượt đầu tiên, bạn sẽ thấy ở đây mình hay sai chủ đề nào.
-          </EmptyState>
+          </EmptyState></Panel>
         }
       >
-        <Section title="Các lượt đã làm">
+        <Section panel title="Các lượt đã làm">
           <ActionList label="Lượt luyện tập">
             {rows.map((r) => {
               const share = r.score / r.total;
@@ -68,7 +56,7 @@ export function PracticeHistory() {
         </Section>
 
         {weak.length > 0 && (
-          <Section title="Chủ đề bạn hay sai" description="Tính trên các câu đã làm trong các lượt gần nhất.">
+          <Section panel title="Chủ đề bạn hay sai" description="Tính trên các câu đã làm trong các lượt gần nhất.">
             <div className={s.weak}>
               <BarList
                 items={weak.map((w) => ({ label: w.topic, value: Math.round((w.wrong / w.total) * 100), tone: w.wrong / w.total >= 0.5 ? "red" : "ink" }))}
