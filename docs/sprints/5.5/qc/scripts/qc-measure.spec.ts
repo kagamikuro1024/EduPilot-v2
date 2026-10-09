@@ -17,6 +17,8 @@ for (const [url, role] of ROUTES) for (const w of WIDTHS) {
     const ctx = await browser.newContext({ viewport: { width: w, height: w <= 480 ? 812 : 900 }, ignoreHTTPSErrors: true });
     await asDemo(ctx, role as DemoRole);
     const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page); await cdp.send('Network.enable'); const js = new Map<string, number>(); const typ = new Map<string, string>();
+    cdp.on('Network.responseReceived', (e: any) => typ.set(e.requestId, e.type)); cdp.on('Network.loadingFinished', (e: any) => { if (typ.get(e.requestId) === 'Script') js.set(e.requestId, e.encodedDataLength); });
     await page.clock.install({ time: new Date("2026-10-29T09:20:00+07:00") });
     await page.goto(process.env.QC_BASE + url, { waitUntil: "networkidle" });
     await page.waitForTimeout(600);
@@ -51,7 +53,8 @@ for (const [url, role] of ROUTES) for (const w of WIDTHS) {
       };
     });
     if (SHOTS) { mkdirSync(`${OUT}/shots/${TAG}`, { recursive: true }); await page.screenshot({ path: `${OUT}/shots/${TAG}/${url.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "")}-${role}-${w}.png`, fullPage: false }); }
-    results.push({ url, role, w, ...m });
+    const jsKB = Math.round(Array.from(js.values()).reduce((a, b) => a + b, 0) / 102.4) / 10;
+    results.push({ url, role, w, jsKB, ...m });
     await ctx.close();
   });
 }
