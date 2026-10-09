@@ -3,9 +3,9 @@
 Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phiên. Giữ ngắn; chi tiết nằm trong git log.
 
 ## Đang ở đâu
-- Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
-- Lộ trình: **11 sprint + sprint 1.5 chen giữa** (`docs/sprints/ROADMAP.md`; PE thi hằng tuần = sprint 5, D54). Chạy cuốn chiếu; `sprint/4-p2` và `sprint/5-pe` xếp chồng, gộp `main` trước khi mở PR.
-- Sprint gần nhất: **4 — P2 Lớp học** — xong, cổng P2 ĐẠT CÓ ĐIỀU KIỆN (LCP + TBT `warn` — **đã trả ở US-PU-06** theo #14: TBT `error` ở `lighthouserc.json`, LCP `error` ở lượt devtools), `docs/sprints/4/report.md`. Kế tiếp: sprint 5 (PE + US-PU-06): dev xong 9 story + US-PU-06, `GATE PE: PASS` (dev), chờ QC chấm cổng PE.
+- Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4 + 5. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
+- Lộ trình: **11 sprint + 1.5 + 5.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu; `sprint/5.5-ui-panels` xếp chồng trên `sprint/5-pe`.
+- Sprint gần nhất: **5 — PE Thi hằng tuần + US-PU-06** — xong, cổng PE ĐẠT CÓ ĐIỀU KIỆN, `docs/sprints/5/report.md`. Đang làm: sprint 5.5 (UI panel nổi, D59 phương án (a)).
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
@@ -17,7 +17,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | PU Nền giao diện | Xong | 2026-10-02 | 2026-10-03 | PASS, LCP có điều kiện (`sprints/3/qc/report-GATE-PU.md`) | Ảnh mốc, axe, Lighthouse CI, `ci/ui-drift` |
 | P1 LLM Gateway | Xong | 2026-10-02 | 2026-10-03 | PASS (`sprints/3/qc/report-GATE-P1.md`) | openai-go/v3, Scheduler ba làn, cầu dao; Anthropic chưa ghi replay |
 | P2 Lớp học | Xong | 2026-10-03 | 2026-10-04 | ĐẠT CÓ ĐIỀU KIỆN (`sprints/4/qc/report-GATE-P2.md`) | Phiên cookie xoay vòng, nối chỉ bằng email, "Hôm nay", seed API thật; 0 lỗ hổng |
-| PE Thi hằng tuần | Dev xong, chờ QC | 2026-10-08 | | Cổng PE: `GATE PE: PASS` (`scripts/gate-pe.sh`, `docs/sprints/5/handoff/dev-US-PE-09.md`); QC chấm `sprints/5/qc/gate-PE.md` | Migration `00006_weekly_exam`; seed bài mẫu + k6 `exam-submit` |
+| PE Thi hằng tuần | Xong | 2026-10-08 | 2026-10-10 | ĐẠT CÓ ĐIỀU KIỆN (`sprints/5/qc/report-GATE-PE.md`) | Migration `00006_weekly_exam`; sandbox `go-judge`, hàng chấm kiểu outbox; tự công bố khi đóng; `TestNoAnswerLeak` |
 | P3 Hai kênh + PII | Chưa | | | | |
 | P4 Escalation + Mail | Chưa | | | | |
 | P5 CRM + 360 | Chưa | | | | |
@@ -30,13 +30,13 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 
 ## Luồng end-to-end (tick khi có spec E2E xanh cho đường chính + một nhánh lỗi)
 
-F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · F9 ☐ · F10 ☐ · F11 ☐ · F12 ☐ · F13 ☐ · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐
+F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · F9 ☐ · F10 ☐ · F11 ☐ · F12 ☐ · F13 ☐ · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐ · F19 ☑ (sprint 5, `playwright-cli` + e2e)
 
 ## Phiên gần nhất
-- Ngày: 2026-10-03
-- Đã làm: sprint 4 — P2, 12 story PASS, cổng P2 đạt có điều kiện sau 1 vòng sửa (góp ý #1–#15, TL-1). Sprint 3 đã merge `main` (PR #3).
-- Đang dở: không. Đội dừng tuần này (chủ dự án yêu cầu 2026-10-04).
-- Bước kế tiếp cụ thể: tuần sau bật colima (giảm còn 4 GiB), tạo lại worktree `sprint/5-pe`, dev thi công sprint 5 theo `docs/sprints/5/prompts/dev.md` bắt đầu bằng US-PU-06.
+- Ngày: 2026-10-10
+- Đã làm: sprint 5 — 10 story PASS (có điều kiện), cổng PE đạt có điều kiện (góp ý #1–#19, TL-1…4, TL review spec). Repo chuyển sang `EduPilot-v2` public. Sprint 5.5: spec + TL review + D59 (a), dev đang làm UI-02…07.
+- Đang dở: sprint 5.5.
+- Bước kế tiếp cụ thể: QC chạy TC US-UI-01…07 + cổng UI; báo cáo 5.5, README, merge `main`; dọn máy.
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
 - Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).

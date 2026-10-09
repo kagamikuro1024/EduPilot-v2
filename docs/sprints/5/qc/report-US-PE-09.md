@@ -1,8 +1,9 @@
 # Báo cáo QC — US-PE-09 (seed bài thi mẫu, k6, cổng PE)
-**Kết luận: FAIL — 1 TC (TC-17, B1).** Mọi TC còn lại PASS hoặc PASS (một phần, ghi rõ). Bản chấm `2e65d0a` (mã dev = `8d83087` trên lịch sử cũ). Stack thật `EP_PORT_OFFSET=100` + seed tự động (76 s); `.env.local` của QC đặt `EXAM_MIN_DURATION_MINUTES=1`, `EXAM_MIN_LEAD_SECONDS=5`, `EXAM_SAVE_RATE_PER_MIN=2000`, `LLM_DEFAULT_RPM/TPM` cao (như `docker-compose.test-seed.yml`). Bằng chứng: `k6-pe09/*.log`, `shots/pe09/*.png` (24 ảnh), `scripts/p509-score.py`, `p509-start.py`.
+**Kết luận: PASS có điều kiện** (chấm lại ở `bc09dd2`, góp ý #18 / #19 ACCEPTED). TC-17 **PASS** khi đo theo #18 (trễ thật 300 ms, 3 cặp, trung vị): tỉ lệ p95 `mixed` / `chat` **1,008 / 0,998 / 0,989 → trung vị 0,998** (≤ 1,2); p95 `mixed` 313–317 ms (≤ 1,5 s); `Chạy thử` p95 1,03 / 1,53 / 2,05 s (≤ 5 s). Lần chấm đầu (FAIL) đo với `fake` không trễ (nhiễu) và **bị sai vì 429 / 404 được tính là thành công** trong k6 cũ (dev đã sửa script); toàn bộ số k6 cũ của QC (judge_burst 1.040 ms, autosave 67 ms, chat ~5 ms) **bỏ**. Điều kiện còn lại: TC-19 `GET …/results` 1.000 dòng + 240 bài; `lhci` có đăng nhập, 3G chậm (TC-26/27).
 
 ## Lỗi / lệch
-- **B1 (TC-17, AC6).** `mixed`: TTFT chat không được chậm hơn +20 % so với `chat` riêng. QC chạy 3 cặp (`chat` rồi `mixed`, cùng stack): cơ sở p95 **10,12 / 10,59 / 11,73 ms** → khi có judge **12,44 / 13,32 / 11,67 ms** = **+23 % / +26 % / −1 %** → 2 / 3 lần vượt ngưỡng (`rc=99`, `chat_ttft_ms` threshold crossed). p50 gần như không đổi (4,1–4,7 → 4,7–5,0 ms). Provider `fake` ~5 ms nên p95 dao động ±1,6 ms giữa hai lần `chat` liên tiếp — ngưỡng tương đối +20 % gần như là nhiễu. Chấm theo chữ AC: **FAIL**, không nới ngưỡng; **Q-QC**: đổi sang ngưỡng tuyệt đối (ví dụ p95 ≤ 50 ms) hoặc đo bằng nhà cung cấp có độ trễ thật — chờ BA/PM. Repro: `k6 run -q --insecure-skip-tls-verify -e BASE=https://localhost:543 -e SCENARIO=chat benchmarks/load/exam-submit.js` rồi `-e SCENARIO=mixed -e CHAT_BASE_P95=<p95>`.
+- **B1 (đã đóng, TC-17).** Lần đầu FAIL (+23 / +26 / −1 %) vì đo với `fake` ~5 ms; PM #18 chuyển sang `FAKE_LLM_LATENCY=300-300` + ngưỡng ×1,2 và ≤ 1,5 s + trung vị 3 cặp. Chấm lại: xem Kết luận.
+- **L0.** k6 cũ cho 4xx qua `expectedStatuses` (429 / 404 coi là OK) nên số đo chat / autosave của QC lượt đầu không dùng được; chạy lại bằng script mới (2xx / 3xx mới là thành công) trên stack thử có `testroutes` (`docker-compose.test.yml` + `test-seed`): chat trên stack dev thường trả 404 (`http_req_failed` 99,6 %), đúng với mô tả của dev.
 - **L1 (TC-27).** `lhci` cho `/exams/<id>/take` không chạy được (cần đăng nhập); thay bằng quan sát trong trang (`PerformanceObserver`) ở 375 px: LCP **72 ms** (`/exams`) và **92 ms** (`/take`) không throttle. Chưa có LCP 3G chậm.
 - **L2.** Lần đo đầu (trước khi PM chuyển repo) cũng vượt (+23 %); log `k6-pe09/mixed.log`.
 - **L3.** Cổng `gate-pe.sh` chạy `TestSandboxAttacks` **không** có `-tags integration` (≈ 2 s) — QC chạy lại với tag: 15 ca `A1…` PASS (8,9 s) trong bộ integration.
@@ -20,9 +21,9 @@
 | 11 | PASS (một phần) | `@real` không chạy; QC tự đăng nhập bằng `playwright-cli` (GV, SV 375 / 1440) — `shots/pe09` |
 | 12, 13 | PASS | seed lần hai **12 s**; đếm trước / sau y hệt (2 bài thi, 27 câu, 30 lượt, 60 users, 61 enrollments, 11 bản nộp; Mailpit 59 → 59); lần đầu 76 s (≤ 5 phút) |
 | 14 | PASS | `APP_ENV=production node scripts/seed.mjs` → `rc=1`, "Seed bị chặn ở production." |
-| 15 | PASS | k6 `judge_burst`: `judge_done_ms` p95 **1.040 ms** (< 60.000), `judge_ie` 0, `http_req_failed` 0 % (269 request) |
-| 16 | PASS | k6 `autosave`: p95 **67 ms** (< 150), max 220, 0 lỗi / 27.066 request |
-| 17 | **FAIL (B1)** | xem B1: 2 / 3 cặp đo vượt +20 %; `run_ms` p95 2.624 / 2.392 / 2.087 ms (≤ 5.000 đạt); `judge_done` p95 ≈ 2,1 s; `judge_ie` 0 |
+| 15 | PASS | k6 `judge_burst` (script mới): `judge_done_ms` p95 **2.030 ms** (< 60.000), `judge_ie` 0, `http_req_failed` 0 % (315 yêu cầu) |
+| 16 | PASS | k6 `autosave` (script mới, chỉ 2xx): p95 **35,7 ms** (< 150), max 291 ms, 0 lỗi / 27.066 yêu cầu |
+| 17 | PASS (chấm lại, #18) | 3 cặp `chat` → `mixed` (stack thử `testroutes`, `FAKE_LLM_LATENCY=300-300`, `LLM_MAX_CONCURRENCY=100`, ~49.000 yêu cầu / lượt, 0 lỗi): chat p95 314,1 / 317,0 / 316,4 ms; mixed p95 316,7 / 316,5 / 313,0 ms → tỉ lệ **1,008 / 0,998 / 0,989**, **trung vị 0,998** (`scripts/ttft-ratio.mjs` rc=0); p95 `mixed` ≤ 317 ms (≤ 1,5 s); `run_ms` p95 1,03 / 1,53 / 2,05 s (≤ 5 s); `judge_done` p95 1,0–2,0 s, `judge_ie` 0. Log: `k6-pe09-b/` |
 | 18 | PASS | `benchmarks/reports/pe-exam-submit-*.json` có ba kịch bản (dev); QC lưu `.log` |
 | 19 | PASS | `Bắt đầu làm bài`: 27 lượt mới @17/s: p95 **12 ms**; 510 lần làm tiếp @17/s: p95 **12 ms** (≤ 300); `docker stats judge` rảnh **54 MiB** (≤ 100). `GET …/results` 1.000 dòng và thông lượng 240 bài: KHÔNG KIỂM ĐƯỢC (stack seed chỉ 60 tài khoản) |
 | 20 | PASS | `exam.spec.ts` + toàn bộ Playwright: **443 pass, 0 fail** (không `@real`, `visual`); các ca dev phủ 12 ý AC7 |
@@ -39,5 +40,4 @@
 | 31 | PASS | **F19 chạy tay bằng `playwright-cli`** (ảnh `shots/pe09/01…24`): GV xem `/questions`, `/exams`, chi tiết; SV `sv.gioi` điện thoại 375 px (màn bắt đầu có câu minh bạch, làm câu đúng / sai + nhiều đáp án, **offline 30 s → online tự lưu**); máy tính 1440: "Bài đang mở ở nơi khác" → `Làm tiếp ở đây`, soạn mã C, `Chạy thử` "Đúng 2/2 test mẫu", `Nộp lời giải` "Lần nộp tính điểm", `Nộp bài` hộp xác nhận "Bạn đã trả lời 3/4 câu. Còn 1 câu chưa trả lời…"; đóng bài lúc 13:02:46 → **`PUBLISHED` lúc 13:02:50,8 (+4,5 s)**; SV thấy `9,00 / 10,00` + giải thích + "Test ẩn: đạt 2 trên 2"; SV gửi `Gửi yêu cầu xem lại`; GV tab "Xem lại điểm" chọn `Sửa điểm`, nhập `9,5` (dấu phẩy nhận 9.50), phản hồi → DB `ADJUSTED 9.00 → 9.50`; SV tải lại thấy `9,50 / 10,00` + "Điểm đã được giảng viên điều chỉnh." + phản hồi. Nhánh lỗi: bài chưa mở / TA không lên lịch / chat khoá / hết giờ / phúc khảo hết hạn: đã chấm ở PE-04…08 bằng API |
 
 ## Việc sau
-- **PM / BA:** Q-QC về TC-17 (ngưỡng tương đối trên provider `fake`).
 - **QC:** TC-19 `GET …/results` 1.000 dòng + 240 bài (cần stack có nhiều tài khoản), `lhci` có đăng nhập, 3G chậm.
