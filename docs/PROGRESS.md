@@ -5,7 +5,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 ## Đang ở đâu
 - Repo: `origin` = `github.com/kagamikuro1024/TA_Agent_v2` (private). `main` = sprint 1 + 1.5 + 2 + 3 + 4 (merge 2026-10-04). Repo cũ `TA_Agent` = remote `old-origin`, không push thêm.
 - Lộ trình: **11 sprint + sprint 1.5 chen giữa** (`docs/sprints/ROADMAP.md`; PE thi hằng tuần = sprint 5, D54). Chạy cuốn chiếu; `sprint/4-p2` và `sprint/5-pe` xếp chồng, gộp `main` trước khi mở PR.
-- Sprint gần nhất: **4 — P2 Lớp học** — xong, cổng P2 ĐẠT CÓ ĐIỀU KIỆN (LCP + TBT `warn` — **đã trả ở US-PU-06** theo #14: TBT `error` ở `lighthouserc.json`, LCP `error` ở lượt devtools), `docs/sprints/4/report.md`. Kế tiếp: sprint 5 (PE + US-PU-06): spec APPROVED + TC xong, chờ thi công.
+- Sprint gần nhất: **4 — P2 Lớp học** — xong, cổng P2 ĐẠT CÓ ĐIỀU KIỆN (LCP + TBT `warn` — **đã trả ở US-PU-06** theo #14: TBT `error` ở `lighthouserc.json`, LCP `error` ở lượt devtools), `docs/sprints/4/report.md`. Kế tiếp: sprint 5 (PE + US-PU-06): dev xong 9 story + US-PU-06, `GATE PE: PASS` (dev), chờ QC chấm cổng PE.
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
@@ -17,6 +17,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | PU Nền giao diện | Xong | 2026-10-02 | 2026-10-03 | PASS, LCP có điều kiện (`sprints/3/qc/report-GATE-PU.md`) | Ảnh mốc, axe, Lighthouse CI, `ci/ui-drift` |
 | P1 LLM Gateway | Xong | 2026-10-02 | 2026-10-03 | PASS (`sprints/3/qc/report-GATE-P1.md`) | openai-go/v3, Scheduler ba làn, cầu dao; Anthropic chưa ghi replay |
 | P2 Lớp học | Xong | 2026-10-03 | 2026-10-04 | ĐẠT CÓ ĐIỀU KIỆN (`sprints/4/qc/report-GATE-P2.md`) | Phiên cookie xoay vòng, nối chỉ bằng email, "Hôm nay", seed API thật; 0 lỗ hổng |
+| PE Thi hằng tuần | Dev xong, chờ QC | 2026-10-08 | | Cổng PE: `GATE PE: PASS` (`scripts/gate-pe.sh`, `docs/sprints/5/handoff/dev-US-PE-09.md`); QC chấm `sprints/5/qc/gate-PE.md` | Migration `00006_weekly_exam`; seed bài mẫu + k6 `exam-submit` |
 | P3 Hai kênh + PII | Chưa | | | | |
 | P4 Escalation + Mail | Chưa | | | | |
 | P5 CRM + 360 | Chưa | | | | |
@@ -45,6 +46,7 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 - 9 câu hỏi sản phẩm của kịch bản demo (`specs/FEAT-demo-script/QUESTIONS.md`) — chặn P1/P2/P4/P7.
 - `thesis-notes/legacy-perf.md` thân bài còn tiếng Anh.
 - ~~**Lighthouse (PM #15 / #14):** `total-blocking-time` của 6 route người dùng đang `warn`…~~ **ĐÃ TRẢ (US-PU-06, sprint 5, #14):** TBT 6 route `error` ở `lighthouserc.json` (mô phỏng, ngưỡng 200 giữ nguyên); LCP `error` 2.500 ms ở `lighthouserc.devtools.json` (throttle thật; mô phỏng không chấm LCP vì sàn ≈ 254 KB JS ở 1,6 Mbps). Hồ sơ: `docs/sprints/5/handoff/dev-US-PU-06.md`, `docs/sprints/5/techlead.md` TL-1 / TL-2. Còn lại: `/dev/ui` giữ `warn`; TBT hai đỉnh (≈ 90 / ≈ 175) do một tác vụ chạy mã khung (`EvaluateScript` ≈ 230 ms ở 12×) rơi trong hay ngoài cửa sổ FCP → TTI.
+- **Nợ của PE (US-PE-09, AC10):** (1) máy chấm code dùng chung host với gateway/worker → tách máy sandbox — PR; (2) precompiled header cho `<bits/stdc++.h>` (cắt thời gian biên dịch ~1 s/lần) — chưa làm; (3) checker tuỳ chỉnh (hiện chỉ `EXACT` / `TOKENS` / `FLOAT_EPS`) — chưa làm; (4) xoá lần `RUN` cũ và `exam_events` theo hạn giữ — PR (retention); (5) nối điểm bài thi vào sổ điểm — P6; (6) chat riêng tôn trọng khoá trong giờ thi (PE mới có cổng thử `/_test/exam/chat-gate`; chat riêng thật chưa có) — P3; (7) amd64 seccomp của judge chưa thử (dev chạy `-no-seccomp` trên Colima arm64); (8) `BlobReader` của judge chưa nối (test lớn > 64 KiB đọc qua worker); (9) đo p95 cuộn 1.000 dòng ở bảng điểm và `docker compose logs | grep CANARY` chưa chạy; (10) ảnh mốc `visual` chưa tái tạo cho màn PE; (11) `@real` e2e chỉ chạy qua `check-exam-seed.mjs demo` (không có lượt UI thật).
 - Caddy: upstream tĩnh + `health_uri` khi số bản gateway cố định (P10/PR, sprint 2 #3).
 - **Nguồn việc của "Hôm nay" mà phase sau phải đăng ký (US-P2-11, SRS 4.7 bảng bậc):** P4 `TICKET` (10), `AI_CONFIRM` (50), thread; P5 điểm danh, `STUDENT_ATTENTION` (95) + "Lớp cần chú ý"; P6 `GRADE_SCHEME_UNCONFIRMED` (70); P7 hạn nộp, `GRADING_REVIEW` (30), `APPEAL` (20), `UNMATCHED_SUBMISSION` (60); P9 `QUESTION_REVIEW` (90), QUIZ; P10 insight. Mỗi phase gọi `today.Aggregator.Register(provider)` ở `today.NewService` và thêm Kind vào `allowed` (bộ lọc theo vai) — Provider P2 hiện chỉ có ở `internal/today/providers.go`. `continue[]` của sinh viên rỗng tới khi P3 / P9 đăng ký.
 
