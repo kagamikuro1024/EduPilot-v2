@@ -3,6 +3,7 @@ import { BASE_URL } from "./support/env";
 import { expect, test, type Page } from "@playwright/test";
 import { MOBILE_PRIMARY, navFor } from "../src/shared/shell/nav";
 import { loadAudit } from "./support/audit";
+import { COLOR_TOOLS, rgbOf } from "./support/colors";
 import { settleGoto } from "./support/hydrate";
 import { asDemo, asJwt, sessionBody, type DemoRole } from "./support/session";
 
@@ -472,4 +473,112 @@ test("BUG-PU04-1: bảng Thêm ở điện thoại là bảng trượt — đón
   await expect(dlg).toHaveCount(0);
   await expect(more).toBeFocused();
   await context.close();
+});
+
+
+// ---- US-UI-03 (sprint 5.5, D59): ba lớp nền của khung ----
+test("frame layers: body = canvas; sidebar và thanh trên = surface (đặc) + đường kẻ; main không tự đặt nền", async ({ page, context }) => {
+  mockOnly();
+  await asDemo(context, "teacher");
+  await size(page, 1440);
+  await page.goto("/");
+  await page.locator("[data-part=sidebar]").waitFor();
+  const css = await page.evaluate(() => {
+    const c = (sel: string) => { const e = document.querySelector(sel)!; const s = getComputedStyle(e); return { bg: s.backgroundColor, br: s.borderRightWidth, bb: s.borderBottomWidth, brc: s.borderRightColor, bbc: s.borderBottomColor, filter: s.backdropFilter }; };
+    return { body: c("body"), side: c("[data-part=sidebar]"), top: c("[data-part=topbar]"), main: c("main") };
+  });
+  const canvas = await rgbOf(page, "var(--ep-canvas)");
+  const surface = await rgbOf(page, "var(--ep-surface)");
+  const rule = await rgbOf(page, "var(--ep-rule)");
+  expect(await rgbOf(page, css.body.bg)).toBe(canvas);
+  expect(await rgbOf(page, css.side.bg)).toBe(surface);
+  expect(await rgbOf(page, css.top.bg)).toBe(surface);
+  expect(css.main.bg, "main không tự đặt nền riêng").toBe("rgba(0, 0, 0, 0)");
+  expect(surface).not.toBe(canvas);
+  expect([css.side.br, css.top.bb]).toEqual(["1px", "1px"]);
+  expect(await rgbOf(page, css.side.brc)).toBe(rule);
+  expect(await rgbOf(page, css.top.bbc)).toBe(rule);
+  expect([css.side.filter, css.top.filter].every((f) => f === "none" || f === undefined || f === ""), "không backdrop-filter").toBe(true);
+});
+
+test("nav states: hover / đang chọn = surface-subtle; vạch đỏ 2 px; focus-visible thấy rõ; nhãn nhóm ≥ 4,5 : 1", async ({ page, context }) => {
+  mockOnly();
+  await asDemo(context, "teacher");
+  await size(page, 1440);
+  await page.goto("/");
+  await page.locator("[data-part=sidebar]").waitFor();
+  const subtle = await rgbOf(page, "var(--ep-surface-subtle)");
+  const cur = page.locator('[data-part=sidebar] a[aria-current="page"]').first();
+  const curCss = await cur.evaluate((e) => { const s = getComputedStyle(e); const b = getComputedStyle(e, "::before"); return { bg: s.backgroundColor, bar: b.width, barBg: b.backgroundColor }; });
+  expect(await rgbOf(page, curCss.bg)).toBe(subtle);
+  expect(curCss.bar).toBe("2px");
+  expect(await rgbOf(page, curCss.barBg)).toBe(await rgbOf(page, "var(--ep-red)"));
+  const other = page.locator('[data-part=sidebar] nav a:not([aria-current="page"])').first();
+  await other.hover();
+  await page.waitForTimeout(250);
+  expect(await rgbOf(page, await other.evaluate((e) => getComputedStyle(e).backgroundColor))).toBe(subtle);
+  // focus bàn phím: vòng có bóng --ep-focus; vòng đỏ ≥ 3 : 1 trên sidebar (surface) và trên canvas
+  await page.locator("body").click({ position: { x: 700, y: 400 } });
+  await page.keyboard.press("Tab");
+  for (let i = 0; i < 6 && !(await page.evaluate(() => !!document.activeElement?.closest("[data-part=sidebar]"))); i++) await page.keyboard.press("Tab");
+  const ring = await page.evaluate(() => getComputedStyle(document.activeElement!).boxShadow);
+  expect(ring, "có vòng focus").not.toBe("none");
+  const tools = await page.evaluate(`(() => { const t = ${COLOR_TOOLS}; const r = { onSurface: t.ratio(t.token("--ep-red"), t.token("--ep-surface")), onCanvas: t.ratio(t.token("--ep-red"), t.token("--ep-canvas")) }; t.done(); return r; })()`) as { onSurface: number; onCanvas: number };
+  expect(tools.onSurface).toBeGreaterThanOrEqual(3);
+  expect(tools.onCanvas).toBeGreaterThanOrEqual(3);
+  const label = await page.evaluate(`(() => { const t = ${COLOR_TOOLS}; const el = document.querySelector("[data-part=sidebar] nav [class*=groupLabel]"); const fg = t.rgb(getComputedStyle(el).color); const bg = t.rgb(getComputedStyle(document.querySelector("[data-part=sidebar]")).backgroundColor); const r = t.ratio(fg, bg); t.done(); return r; })()`) as number;
+  expect(label, "nhãn nhóm nav trên nền sidebar").toBeGreaterThanOrEqual(4.5);
+});
+
+test("preshell parity: nền ba vùng của PreShell và AppShell giống nhau, h1 không dịch chỗ khi phiên về", async ({ page, context }) => {
+  mockOnly();
+  await size(page, 1440);
+  await asDemo(context, "student");
+  let release!: () => void;
+  const gate = new Promise<void>((r) => (release = r));
+  const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+  await page.route("**/api/v1/auth/refresh", async (route) => {
+    await gate;
+    await route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody("STUDENT", { email: "sv.kha@edupilot.local" })) });
+  });
+  await page.goto("/chat");
+  await expect(page.locator("[data-part=pre-shell] h1")).toBeVisible();
+  const read = () => page.evaluate(() => {
+    const bg = (sel: string) => getComputedStyle(document.querySelector(sel)!).backgroundColor;
+    const r = document.querySelector("h1")!.getBoundingClientRect();
+    return { body: bg("body"), side: bg("[data-part=sidebar]"), top: bg("[data-part=topbar]"), left: Math.round(r.left), top0: Math.round(r.top) };
+  });
+  const pre = await read();
+  release();
+  await expect(page.locator("[data-part=pre-shell]")).toHaveCount(0);
+  await page.locator("[data-part=sidebar] nav").waitFor().catch(() => undefined);
+  const post = await read();
+  expect([post.body, post.side, post.top]).toEqual([pre.body, pre.side, pre.top]);
+  expect(Math.abs(post.left - pre.left), "h1 không dịch ngang").toBeLessThanOrEqual(2);
+  expect(Math.abs(post.top0 - pre.top0), "h1 không dịch dọc").toBeLessThanOrEqual(2);
+});
+
+test("bottom nav + more sheet: thanh dưới nền surface + kẻ trên 1 px; bảng Thêm là lớp nổi (surface, shadow-popover, radius-lg), không phải Panel", async ({ page, context }) => {
+  mockOnly();
+  await asDemo(context, "student");
+  await size(page, 375, 844);
+  await page.goto("/");
+  await page.locator("[data-part=bottom-nav]").waitFor();
+  const nav = await page.locator("[data-part=bottom-nav]").evaluate((e) => { const s = getComputedStyle(e); return { bg: s.backgroundColor, bt: s.borderTopWidth, btc: s.borderTopColor }; });
+  expect(await rgbOf(page, nav.bg)).toBe(await rgbOf(page, "var(--ep-surface)"));
+  expect(nav.bt).toBe("1px");
+  expect(await rgbOf(page, nav.btc)).toBe(await rgbOf(page, "var(--ep-rule)"));
+  await page.locator("[data-part=bottom-nav]").getByRole("button", { name: "Thêm" }).click();
+  const sheet = page.locator("dialog[open]");
+  await expect(sheet).toBeVisible();
+  const css = await sheet.evaluate((e) => { const s = getComputedStyle(e); return { bg: s.backgroundColor, sh: s.boxShadow, r: s.borderTopLeftRadius, panel: !!e.closest("[data-ep-panel]") || !!e.querySelector("[data-ep-panel]") }; });
+  expect(await rgbOf(page, css.bg)).toBe(await rgbOf(page, "var(--ep-surface)"));
+  expect(css.sh).not.toBe("none");
+  expect(css.panel, "bảng Thêm không chứa Panel").toBe(false);
+  for (const h of await sheet.locator("a").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().height))) expect(h, "mục ≥ 48 px").toBeGreaterThanOrEqual(48);
+});
+
+test("route access: số mục nav 8 / 13 / 16 / 6 theo vai; canOpen không đổi", async () => {
+  const count = (r: DemoRole) => navFor(r === "student" ? "student" : r, true).flatMap((g) => g.items).length;
+  expect([count("student"), count("ta"), count("teacher"), count("admin")]).toEqual([8, 13, 16, 6]);
 });

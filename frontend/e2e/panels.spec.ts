@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { loadAudit, runAudit } from "./support/audit";
+import { rgbOf } from "./support/colors";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
 import { asDemo, type DemoRole } from "./support/session";
@@ -11,11 +12,6 @@ test.beforeEach(({ page }) => settleGoto(page));
 /** Màu đã giải của một biểu thức CSS (var(...), oklch(...)) ở trang hiện tại, dạng chuỗi `rgb()` của computed style. */
 async function resolved(page: Page, prop: "color" | "boxShadow", expr: string) {
   return page.evaluate(([p, e]) => { const s = document.createElement("span"); document.body.appendChild(s); (s.style as unknown as Record<string, string>)[p] = e; const v = getComputedStyle(s)[p as "color"]; s.remove(); return v; }, [prop, expr] as const);
-}
-
-/** Màu → sRGB 8 bit (qua canvas): so được giữa `oklch(...)` viết tay và token đã giải (Chrome tuần tự hoá hai đường khác nhau). */
-async function rgbOf(page: Page, expr: string) {
-  return page.evaluate((e) => { const s = document.createElement("span"); document.body.appendChild(s); s.style.color = e; const css = getComputedStyle(s).color; s.remove(); const c = document.createElement("canvas"); c.width = c.height = 1; const x = c.getContext("2d", { willReadFrequently: true })!; x.fillStyle = "#000"; x.fillStyle = css; x.fillRect(0, 0, 1, 1); return Array.from(x.getImageData(0, 0, 1, 1).data.slice(0, 3)).join(","); }, expr);
 }
 
 const cell = (page: Page, name: string) => page.locator(`[data-cell="${name}"]`);
@@ -177,4 +173,46 @@ test.describe("token only", () => {
     expect(p.sh).toContain("rgb(13, 14, 15)");
     expect(await cell(page, "1 ô nhấn").locator('[data-tone="strong"]').first().evaluate((el) => getComputedStyle(el).backgroundColor)).toBe("rgb(7, 8, 9)");
   });
+});
+
+// US-UI-03 AC5 — khung đăng nhập: nền canvas, MỘT Panel ≤ 440 px giữa trang, h1 NGOÀI panel ngay trên nó; ở 375 px panel cách mép 12 px.
+const AUTH_ROUTES = ["/login", "/register", "/forgot-password", "/reset-password?token=x", "/verify-email?token=x", "/invite/x"];
+test.describe("auth shell", () => {
+  for (const route of AUTH_ROUTES) {
+    test(`${route}: một Panel, h1 ngoài panel, NEST = 0, TITLE = 0`, async ({ page }, info) => {
+      test.skip(info.project.name !== "desktop", "tự đặt bề rộng");
+      const { AUDIT_SRC } = await loadAudit();
+      for (const w of [1440, 1024, 375]) {
+        await page.setViewportSize({ width: w, height: 900 });
+        await page.goto(route);
+        await page.locator("[data-ep-panel]").first().waitFor();
+        const m = await page.evaluate(() => {
+          const panels = [...document.querySelectorAll<HTMLElement>("[data-ep-panel]")];
+          const r = panels[0].getBoundingClientRect();
+          const h1 = document.querySelector("h1");
+          return {
+            panels: panels.length,
+            nested: document.querySelectorAll("[data-ep-panel] [data-ep-panel]").length,
+            inside: document.querySelectorAll("[data-ep-panel] h1, [data-ep-panel] h2").length,
+            h1Before: !!h1 && h1.nextElementSibling === panels[0],
+            width: r.width,
+            left: r.left,
+            right: window.innerWidth - r.right,
+            primary: document.querySelectorAll("[data-variant=primary]").length,
+            bg: getComputedStyle(document.querySelector("main")!).backgroundColor,
+          };
+        });
+        expect(m, `${route}@${w}`).toMatchObject({ panels: 1, nested: 0, inside: 0, h1Before: true });
+        expect(m.width).toBeLessThanOrEqual(440);
+        expect(m.primary).toBeLessThanOrEqual(1);
+        expect(await rgbOf(page, m.bg)).toBe(await rgbOf(page, "var(--ep-canvas)"));
+        if (w === 375) {
+          expect(m.left).toBeCloseTo(12, 0);
+          expect(m.right).toBeCloseTo(12, 0);
+        }
+        const a = await runAudit(page, AUDIT_SRC);
+        expect({ ox: a.ox, cut: a.cut }, `AUDIT ${route}@${w}`).toEqual({ ox: 0, cut: [] });
+      }
+    });
+  }
 });

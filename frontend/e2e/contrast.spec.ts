@@ -23,3 +23,23 @@ test("ma trận chữ × nền ≥ 4,5 : 1; amber ≥ 3 : 1 trên panel", async 
   expect(m.pairs.filter((p) => p.ratio < 4.5), "ô chữ dưới 4,5 : 1").toEqual([]);
   expect(m.amber, "amber ≥ 3 : 1 trên panel").toBeGreaterThanOrEqual(3);
 });
+
+// US-UI-03 AC2 — chữ trong sidebar / thanh trên (nền --ep-surface): nhãn nhóm (--ep-ink-3), mục nav (--ep-ink-2), mục đang chọn (--ep-ink) trên nền surface-subtle.
+test("sidebar: chữ nav và nhãn nhóm ≥ 4,5 : 1 trên nền của chính chúng", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "desktop", "đo một lần");
+  const { asDemo } = await import("./support/session");
+  await asDemo(context, "teacher");
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await page.locator("[data-part=sidebar] nav").waitFor();
+  const rows = (await page.evaluate(`(() => { const t = ${COLOR_TOOLS}; const out = [];
+    const side = getComputedStyle(document.querySelector("[data-part=sidebar]")).backgroundColor;
+    const pick = (el, ground, name) => { const g = getComputedStyle(el).backgroundColor; out.push({ name, ratio: t.ratio(t.rgb(getComputedStyle(el).color), t.rgb(g === "rgba(0, 0, 0, 0)" ? ground : g)) }); };
+    const nav = document.querySelector("[data-part=sidebar] nav");
+    pick(nav.querySelector("[class*=groupLabel]"), side, "nhãn nhóm");
+    pick(nav.querySelector("a:not([aria-current])"), side, "mục nav");
+    pick(nav.querySelector("a[aria-current=page]"), side, "mục đang chọn");
+    t.done(); return out; })()`)) as Array<{ name: string; ratio: number }>;
+  console.log(rows.map((r) => `${r.name}: ${r.ratio.toFixed(2)}`).join(" · "));
+  for (const r of rows) expect(r.ratio, r.name).toBeGreaterThanOrEqual(4.5);
+});
