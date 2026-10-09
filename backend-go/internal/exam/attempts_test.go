@@ -800,7 +800,7 @@ func TestSubmitManual(t *testing.T) {
 	require.Equal(t, "GRADED", st)
 	require.Equal(t, "MANUAL", *reason)
 	require.Equal(t, "4.00", *sc, "2/5 câu đúng, thang 10")
-	require.WithinDuration(t, sub.SubmittedAt, at, time.Millisecond)
+	require.WithinDuration(t, sub.SubmittedAt, *at, time.Millisecond)
 	_, err = r.save(v, sv, tab, pick(v.Items[2], 0))
 	s, code := apiStatus(t, err)
 	require.Equal(t, 409, s)
