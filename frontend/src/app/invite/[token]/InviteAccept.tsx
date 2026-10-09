@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthPanel } from "@/shared/shell/AuthShell";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, acceptSession, apiClient, fieldErrors, type SessionPayload } from "@/shared/data";
@@ -70,25 +71,20 @@ export function InviteAccept() {
 
   if (state === "checking") {
     return (
-      <>
-        <h1 className="ep-page-title">Đang kiểm tra lời mời…</h1>
+      <AuthPanel title="Đang kiểm tra lời mời…">
         <Skeleton lines={3} />
-      </>
+      </AuthPanel>
     );
   }
   if (state === "invalid") {
     return (
-      <>
-        <h1 className="ep-page-title">Lời mời không dùng được</h1>
+      <AuthPanel title="Lời mời không dùng được">
         <p>{problem ?? "Lời mời đã hết hạn hoặc đã được dùng. Hãy nhờ quản trị viên gửi lại."}</p>
-      </>
+      </AuthPanel>
     );
   }
   return (
-    <>
-      <h1 className="ep-page-title">
-        Chào {who.full_name}, bạn được mời làm {ROLE_VN[who.role ?? ""] ?? "thành viên"} trên EduPilot.
-      </h1>
+    <AuthPanel title={`Chào ${who.full_name}, bạn được mời làm ${ROLE_VN[who.role ?? ""] ?? "thành viên"} trên EduPilot.`}>
       {problem && <InlineNotice tone="danger" compact>{problem}</InlineNotice>}
       <form onSubmit={submit} className={s.form} noValidate>
         <Field label="Mật khẩu" helper="Ít nhất 10 ký tự, không phải mật khẩu phổ biến." error={errors.password}>
@@ -101,6 +97,6 @@ export function InviteAccept() {
           Đặt mật khẩu và vào
         </Button>
       </form>
-    </>
+    </AuthPanel>
   );
 }

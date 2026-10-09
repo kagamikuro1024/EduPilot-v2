@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthPanel } from "@/shared/shell/AuthShell";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { apiClient, ApiError } from "@/shared/data";
@@ -32,36 +33,32 @@ export function VerifyEmail() {
 
   if (state === "checking") {
     return (
-      <>
-        <h1 className="ep-page-title">Đang xác minh email…</h1>
+      <AuthPanel title="Đang xác minh email…">
         <Skeleton lines={3} />
-      </>
+      </AuthPanel>
     );
   }
   if (state === "ok") {
     return (
-      <>
-        <h1 className="ep-page-title">Email đã được xác minh.</h1>
+      <AuthPanel title="Email đã được xác minh.">
         <p>Bạn có thể đăng nhập và tham gia lớp.</p>
         <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
-      </>
+      </AuthPanel>
     );
   }
   if (state === "used") {
     return (
-      <>
-        <h1 className="ep-page-title">Liên kết đã được dùng</h1>
+      <AuthPanel title="Liên kết đã được dùng">
         <p>Liên kết này đã được dùng. Nếu bạn đã xác minh, hãy đăng nhập.</p>
         <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
-      </>
+      </AuthPanel>
     );
   }
   if (state === "error") {
     return (
-      <>
-        <h1 className="ep-page-title">Chưa xác minh được</h1>
+      <AuthPanel title="Chưa xác minh được">
         <p>Có lỗi xảy ra. Liên kết của bạn chưa bị dùng. Hãy mở lại liên kết trong thư sau ít phút.</p>
-      </>
+      </AuthPanel>
     );
   }
   return <Expired expired={state === "expired"} />;
@@ -97,8 +94,7 @@ function Expired({ expired }: { expired: boolean }) {
   }
 
   return (
-    <>
-      <h1 className="ep-page-title">{expired ? "Liên kết đã hết hạn." : "Liên kết không dùng được"}</h1>
+    <AuthPanel title={expired ? "Liên kết đã hết hạn." : "Liên kết không dùng được"}>
       <p>Nhập email để nhận thư xác minh mới.</p>
       <form onSubmit={resend} className={s.form} noValidate>
         <Field label="Email">
@@ -109,6 +105,6 @@ function Expired({ expired }: { expired: boolean }) {
         </Button>
       </form>
       {note && <p role="status" className={s.hint}>{note}</p>}
-    </>
+    </AuthPanel>
   );
 }

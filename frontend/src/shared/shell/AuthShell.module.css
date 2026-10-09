@@ -6,7 +6,9 @@
   justify-items: center;
   padding: var(--ep-space-12) var(--ep-space-6) var(--ep-space-6);
 }
-.col { width: 100%; max-width: 420px; display: grid; gap: var(--ep-space-4); align-content: start; }
+.col { width: 100%; max-width: 440px; display: grid; gap: var(--ep-space-4); align-content: start; }
 .brand { display: block; width: auto; height: 40px; margin-bottom: var(--ep-space-6); }
 @media (max-width: 719px) { .brand { height: 32px; } .wrap { padding-top: var(--ep-space-8); } }
-.foot { width: 100%; max-width: 420px; padding-top: var(--ep-space-8); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.foot { width: 100%; max-width: 440px; padding-top: var(--ep-space-8); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.stack { display: grid; gap: var(--ep-space-4); }
+@media (max-width: 719px) { .wrap { padding-inline: var(--ep-space-3); } } /* 12 px tới mép viewport (SRS FEAT-ui-panels 4.2 điều 8) */

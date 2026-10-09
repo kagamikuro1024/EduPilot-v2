@@ -77,7 +77,7 @@
 
 * { box-sizing: border-box; }
 html { font-family: var(--ep-font); background: var(--ep-canvas); color: var(--ep-ink); }
-body { margin: 0; font-size: var(--ep-text-body); line-height: 1.6; }
+body { margin: 0; background: var(--ep-canvas); font-size: var(--ep-text-body); line-height: 1.6; }
 ::selection { background: var(--ep-red-soft); color: var(--ep-ink); }
 :focus-visible { outline: none; box-shadow: var(--ep-focus); } /* ui-allow: vòng focus là token, không phải bóng trang trí */
 button, input, select, textarea { font: inherit; }

@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthPanel } from "@/shared/shell/AuthShell";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -67,8 +68,7 @@ export function LoginForm() {
   }
 
   return (
-    <>
-      <h1 className="ep-page-title">Đăng nhập EduPilot</h1>
+    <AuthPanel title="Đăng nhập EduPilot">
       {revoked && (
         <InlineNotice tone="warning" compact>
           {REVOKED_COPY[revoked] ?? REVOKED_DEFAULT}
@@ -103,6 +103,6 @@ export function LoginForm() {
         <Link href="/forgot-password">Quên mật khẩu?</Link>
         <Link href="/register">Chưa có tài khoản? Đăng ký</Link>
       </p>
-    </>
+    </AuthPanel>
   );
 }

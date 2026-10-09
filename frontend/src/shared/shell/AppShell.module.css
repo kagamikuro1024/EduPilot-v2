@@ -12,7 +12,7 @@
   width: var(--side);
   display: flex;
   flex-direction: column;
-  background: var(--ep-surface-subtle);
+  background: var(--ep-surface);
   border-right: 1px solid var(--ep-rule);
   transition: width var(--ep-normal) var(--ep-ease-standard);
 }
@@ -40,8 +40,8 @@
   transition: background-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
 }
 .navItem svg { width: 18px; height: 18px; stroke-width: 1.8; flex: none; }
-.navItem:hover { background: var(--ep-surface); color: var(--ep-ink); }
-.navItem[aria-current="page"] { color: var(--ep-ink); font-weight: 600; background: var(--ep-surface); }
+.navItem:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+.navItem[aria-current="page"] { color: var(--ep-ink); font-weight: 600; background: var(--ep-surface-subtle); }
 .navItem[aria-current="page"]::before {
   content: "";
   position: absolute;
