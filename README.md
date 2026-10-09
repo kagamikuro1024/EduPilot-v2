@@ -4,7 +4,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), **3 (PU nền giao diện + P1 LLM Gateway — 538 test case, cổng PASS)** và **4 (P2 Lớp học — tài khoản thật, mở lớp, mã tham gia, nạp danh sách lớp, "Hôm nay", seed bằng API thật — 554 test case, cổng đạt có điều kiện, 0 lỗ hổng)**. Kế tiếp: sprint 5 (PE thi hằng tuần) — spec đã duyệt, test case đã viết. Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), 3 (PU + P1 LLM Gateway), 4 (P2 Lớp học) và **5 (PE thi hằng tuần — ngân hàng câu hỏi, bài thi trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; 510 test case, cổng đạt có điều kiện)**. Đang làm: sprint 5.5 (giao diện panel nổi). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -35,7 +35,7 @@ Một học phần đại cương: 1.000 sinh viên, 20 lớp, 5 trợ giảng, 
 | G5 | Điểm cuối kỳ đúng tuyệt đối | 30/30 khớp bảng tính tay; không dùng LLM để tính |
 | G6 | Hiệu năng ở T1 | Sự kiện SSE đầu ≤ 300 ms; TTFT ≤ 1,5 s (cache) / ≤ 4 s (RAG); API đọc p95 ≤ 300 ms |
 
-Đầy đủ: [`docs/PRD.md`](docs/PRD.md) (module M0–M14, tiêu chí nghiệm thu), [`docs/FLOWS.md`](docs/FLOWS.md) (luồng F1–F18; bài thi PE thêm M15 / F19 ở sprint 5).
+Đầy đủ: [`docs/PRD.md`](docs/PRD.md) (module M0–M15, tiêu chí nghiệm thu), [`docs/FLOWS.md`](docs/FLOWS.md) (luồng F1–F19).
 
 ## 2. Kiến trúc
 
@@ -92,6 +92,9 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   │   ├── user/            # tài khoản, đăng ký, xác minh email, lời mời
 │   │   ├── course/          # lớp, mã tham gia, thành viên, nạp danh sách lớp
 │   │   ├── today/           # "Hôm nay": Provider theo vai, cache Redis xoá theo sự kiện
+│   │   ├── exam/            # bài thi: lượt làm, tự lưu, nộp, công bố, kết quả, phúc khảo, liêm chính
+│   │   ├── quiz/            # Quiz Engine: chấm trắc nghiệm (decimal, từng phần)
+│   │   ├── judge/           # client go-judge + hàng chấm code (thuê việc kiểu outbox)
 │   │   ├── mail/            # go-mail + mail_outbox (retry, dead-letter)
 │   │   ├── llm/             # cổng LLM (openai-go), Scheduler ba làn, cầu dao, llm_audit
 │   │   ├── llmconfig/       # API quản trị provider / tuyến / ngân sách
@@ -153,12 +156,12 @@ Biến môi trường: [`.env.example`](.env.example) (chỉ giá trị dev gi�
 
 Không ghi secret vào repo. Khoá LLM thật chỉ đặt trong `.env.local` (đã bị `.gitignore`); mọi test dùng provider `fake`.
 
-### Dữ liệu mẫu (sprint 4)
+### Dữ liệu mẫu (sprint 4–5)
 ```bash
-SEED_ON_EMPTY_DB=true pnpm dev     # DB trống: dựng 2 lớp × 30 sinh viên bằng chính API thật (≈ 40 s)
+SEED_ON_EMPTY_DB=true pnpm dev     # DB trống: 2 lớp × 30 sinh viên + ngân hàng câu hỏi + 2 bài thi mẫu, đi bằng chính API thật
 pnpm seed                          # chạy lại seed trên stack đang chạy
 ```
-Đăng nhập ở https://localhost/login bằng các tài khoản mẫu `@edupilot.local` (sinh viên, TA, giảng viên, Admin), mật khẩu là `SEED_DEFAULT_PASSWORD` trong `.env.local`. Mã tham gia lớp mẫu: `AN7K2MQ`, `BX4P9TW`. Thư xác minh / đặt lại mật khẩu xem ở Mailpit http://localhost:8025.
+Đăng nhập ở https://localhost/login bằng các tài khoản mẫu `@edupilot.local` (sinh viên, TA, giảng viên, Admin), mật khẩu là `SEED_DEFAULT_PASSWORD` trong `.env.local`. Mã tham gia lớp mẫu: `AN7K2MQ`, `BX4P9TW`. Thư xác minh / đặt lại mật khẩu xem ở Mailpit http://localhost:8025. Bài thi: giảng viên ở `/exams`, sinh viên ở `/exams/[id]/take`. Sandbox chấm code là service `judge` (`go-judge`) trong compose, ở mạng riêng; trên colima arm64 chạy với `JUDGE_EXTRA_ARGS=-no-seccomp` (D58), trên amd64 bật seccomp.
 
 ### Prototype (sprint 1.5)
 Các màn chưa dựng thật (Threads, sổ điểm, chấm bài…) vẫn là bản mô phỏng của sprint 1.5 (`frontend/src/mock/`), được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
@@ -206,11 +209,11 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 
 | File | Nội dung |
 | --- | --- |
-| [`docs/PRD.md`](docs/PRD.md) | Yêu cầu, module M0–M14, tiêu chí nghiệm thu, mục tiêu G1–G7 |
-| [`docs/FLOWS.md`](docs/FLOWS.md) | 18 luồng end-to-end F1–F18, cả nhánh lỗi |
+| [`docs/PRD.md`](docs/PRD.md) | Yêu cầu, module M0–M15, tiêu chí nghiệm thu, mục tiêu G1–G8 |
+| [`docs/FLOWS.md`](docs/FLOWS.md) | 19 luồng end-to-end F1–F19, cả nhánh lỗi |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Thành phần, lược đồ dữ liệu, REST, provider LLM, env, kiểm thử |
 | [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Tải T1, nút cổ chai, SLO, lộ trình mở rộng |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D57 |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D58 |
 | [`docs/design/DESIGN.md`](docs/design/DESIGN.md), [`docs/UX.md`](docs/UX.md) | Hệ thiết kế "Red Thread / Academic Instrument", hợp đồng từng route, luật UX |
 | [`docs/phases/`](docs/phases/) | Backlog kỹ thuật: P0, PG, PU, P1–P10, PR — lát việc + cổng nghiệm thu |
 | [`docs/specs/`](docs/specs/) | User story + SRS theo feature (BA viết) |
@@ -262,7 +265,8 @@ flowchart LR
 | 2 | ✅ Xong | PG | Nền Go: DB / migration / sqlc, Redis, blob, outbox, chuẩn API, SSE, contract test, Caddy + PgBouncer, nhân bản gateway |
 | 3 | ✅ Xong | PU + P1 | Token, app shell, primitive, ảnh mốc + axe + Lighthouse CI; cổng LLM (openai-go) + Scheduler ba làn + cầu dao + `/settings/llm` thật |
 | 4 | ✅ Xong | P2 | Đăng nhập / đăng ký / xác minh email / đặt lại mật khẩu, chống dò, mời giảng viên / TA, mở lớp, mã tham gia, nạp danh sách lớp (nối chỉ bằng email), "Hôm nay", seed bằng API thật |
-| 5 | Kế tiếp | PE | Bài thi hằng tuần (D54–D58): trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; trả nợ LCP / TBT (US-PU-06) |
+| 5 | ✅ Xong | PE | Bài thi hằng tuần (D54–D58): ngân hàng câu hỏi, trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính (khoá chat, log rời tab, so độ giống); trả nợ LCP / TBT (US-PU-06) |
+| 5.5 | Đang làm | UI | Giao diện panel nổi (D59): nền canvas, mỗi vùng làm việc trên một panel |
 | 6 | | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
 | 7 | | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
 | 8 | | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |
