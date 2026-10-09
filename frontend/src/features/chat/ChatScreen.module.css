@@ -90,7 +90,7 @@
 .teacherWho svg { width: 15px; height: 15px; }
 
 .sessionNote { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
-.composer { display: grid; gap: var(--ep-space-3); position: sticky; bottom: 0; padding-bottom: var(--ep-space-2); background: var(--ep-paper); }
+.composer { display: grid; gap: var(--ep-space-3); position: sticky; bottom: 0; padding-bottom: var(--ep-space-2); background: var(--ep-surface); }
 .shield { display: inline-flex; align-items: center; gap: var(--ep-space-2); }
 .shield svg { width: 14px; height: 14px; color: var(--ep-green); flex: none; }
 

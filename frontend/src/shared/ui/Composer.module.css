@@ -12,6 +12,10 @@
   transition: border-color var(--ep-fast) var(--ep-ease-standard);
 }
 .composer:hover { border-color: var(--ep-ink-3); }
+/* Trong Panel (D59): ngăn bằng đường kẻ 1 px phía trên, không khung / bóng riêng (không --ep-shadow-composer). */
+:global([data-ep-panel]) .composer { border: 0; border-top: 1px solid var(--ep-rule); border-radius: 0; box-shadow: none; padding-inline: 0; }
+:global([data-ep-panel]) .composer:hover, :global([data-ep-panel]) .composer:focus-within { border-top-color: var(--ep-rule); }
+:global([data-ep-panel]) .composer:has(.input:focus-visible) { box-shadow: var(--ep-focus); }
 .composer:focus-within { border-color: var(--ep-ink-3); }
 .composer:has(.input:focus-visible) { box-shadow: var(--ep-focus); }
 

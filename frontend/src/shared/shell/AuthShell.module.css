@@ -1,6 +1,6 @@
 .wrap {
   min-height: 100dvh;
-  background: var(--ep-paper);
+  background: var(--ep-canvas);
   display: grid;
   grid-template-rows: 1fr auto;
   justify-items: center;

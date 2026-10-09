@@ -7,6 +7,7 @@ import { VerificationState } from "@/shared/domain";
 import { NA_REASONS, REGISTRY, STATES } from "@/shared/ui/registry";
 import { CELLS } from "./cells";
 import { FIX } from "./fixtures";
+import { PanelFixture, PanelMatrix } from "./PanelMatrix";
 import { useQueryParam } from "./useQueryParam";
 import s from "./DevUi.module.css";
 
@@ -115,8 +116,16 @@ function ClsDemo() {
 
 export default function DevUi() {
   const role = useQueryParam("as") ?? "teacher";
+  const fixture = useQueryParam("fixture");
   const [w, setW] = useState<(typeof WIDTHS)[number]>("1440");
   const long = [FIX.title120, FIX.nameLong, FIX.diacritics, FIX.urlLong, FIX.bigNumber];
+  if (fixture === "strong4" || fixture === "wall") {
+    return (
+      <main className={s.wrap}>
+        <PanelFixture kind={fixture} />
+      </main>
+    );
+  }
   return (
     <div className={s.wrap} style={{ "--w": `${w}px` } as React.CSSProperties}>
       <PageHeader
@@ -144,6 +153,8 @@ export default function DevUi() {
           </section>
         ))}
       </main>
+
+      <PanelMatrix />
 
       <section className={s.sub} aria-label="Phụ">
         <h2 className="ep-section-title">Phụ</h2>

@@ -43,7 +43,7 @@ a.ep-link:hover, .ep-link:hover { text-decoration-color: var(--ep-red); }
 /* Thanh cuộn theo bảng màu */
 * { scrollbar-width: thin; scrollbar-color: var(--ep-rule) transparent; }
 ::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { background: var(--ep-rule); border-radius: var(--ep-radius-pill); border: 3px solid var(--ep-paper); }
+::-webkit-scrollbar-thumb { background: var(--ep-rule); border-radius: var(--ep-radius-pill); border: 3px solid var(--ep-canvas); }
 ::-webkit-scrollbar-track { background: transparent; }
 
 ::placeholder { color: var(--ep-ink-3); opacity: 1; }

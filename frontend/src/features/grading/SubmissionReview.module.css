@@ -181,7 +181,7 @@
   gap: var(--ep-space-4);
   flex-wrap: wrap;
   padding: var(--ep-space-4) 0;
-  background: var(--ep-paper);
+  background: var(--ep-canvas);
   border-top: 1px solid var(--ep-rule);
   margin-top: var(--ep-space-6);
 }

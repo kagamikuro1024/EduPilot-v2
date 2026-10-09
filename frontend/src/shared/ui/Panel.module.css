@@ -1,0 +1,30 @@
+/* Panel (D59, phương án (a)): nền --ep-surface trên canvas, viền 1 px, bóng tĩnh một bậc. Bán kính và bóng CHỈ ở tệp này (phép 20–21 của ui-antipatterns). */
+.panel {
+  background: var(--ep-surface);
+  border: 1px solid var(--ep-panel-border);
+  border-radius: var(--ep-radius-panel);
+  box-shadow: var(--ep-elevation-1);
+  padding: var(--ep-space-6);
+  min-width: 0;
+}
+.lg { padding: var(--ep-space-8); }
+.none { padding: 0; }
+
+.section { display: grid; gap: var(--ep-space-4); min-width: 0; }
+.section + .section { border-top: 1px solid var(--ep-rule); margin-top: var(--ep-space-6); padding-top: var(--ep-space-6); }
+.head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--ep-space-3); flex-wrap: wrap; }
+.action { flex: none; }
+
+/* Ô nhấn: nền --ep-surface-strong, bán kính md, không viền, không bóng. Số liệu dùng thang chữ ep-section-title (không cỡ chữ mới). */
+.section.strong { background: var(--ep-surface-strong); border-radius: var(--ep-radius-md); padding: var(--ep-space-4); }
+.section.strong + .section, .section + .section.strong { border-top: 0; margin-top: var(--ep-space-3); padding-top: var(--ep-space-4); }
+.section.strong + .section:not(.strong) { padding-top: var(--ep-space-6); border-top: 0; }
+
+/* Mobile < 720 px: không margin; lề 12 px tới mép viewport do .page; padding trong panel ≥ --ep-space-4. */
+@media (max-width: 719px) {
+  .panel, .lg { padding: var(--ep-space-4); }
+  .none { padding: 0; }
+}
+@media (forced-colors: active) {
+  .panel { border-color: CanvasText; }
+}
