@@ -8,11 +8,7 @@
 .doc {
   display: grid;
   gap: var(--ep-space-4);
-  background: var(--ep-surface);
-  border: 1px solid var(--ep-rule);
-  border-radius: var(--ep-radius-md);
-  padding: var(--ep-space-6) var(--ep-space-8);
-  max-height: calc(100vh - var(--ep-topbar) - 130px);
+  max-height: calc(100vh - var(--ep-topbar) - 130px - var(--ep-space-12));
   overflow-y: auto;
 }
 
@@ -59,11 +55,7 @@
 .panel {
   display: grid;
   gap: var(--ep-space-5);
-  background: var(--ep-surface);
-  border: 1px solid var(--ep-rule);
-  border-radius: var(--ep-radius-md);
-  padding: var(--ep-space-6);
-  max-height: calc(100vh - var(--ep-topbar) - 130px);
+  max-height: calc(100vh - var(--ep-topbar) - 130px - var(--ep-space-12));
   overflow-y: auto;
 }
 
@@ -181,7 +173,7 @@
   gap: var(--ep-space-4);
   flex-wrap: wrap;
   padding: var(--ep-space-4) 0;
-  background: var(--ep-canvas);
+  background: var(--ep-surface);
   border-top: 1px solid var(--ep-rule);
   margin-top: var(--ep-space-6);
 }

@@ -3,7 +3,7 @@
 import { Plus } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient, useCursorList } from "@/shared/data";
-import { Button, Checkbox, Drawer, EmptyState, Field, InlineNotice, Input, Skeleton, StatusText } from "@/shared/ui";
+import { Button, Checkbox, Drawer, EmptyState, Field, InlineNotice, Input, PanelSection, Skeleton, StatusText } from "@/shared/ui";
 import { DIFF_LABEL, qKey, qPath, TYPE_LABEL, type QuestionRow } from "@/features/questions/questionsApi";
 import { ePath, type ExamDetail, type ExamItem } from "./examApi";
 import s from "./Exam.module.css";
@@ -89,7 +89,9 @@ export function ExamItems({ courseId, detail, onSaved }: { courseId: string; det
               );
             })}
           </ol>
-          <p className={s.sum}>Tổng điểm các câu: <strong>{fmt(total)}</strong> · điểm tối đa của bài: <strong>{detail.max_score.replace(".", ",")}</strong> (điểm các câu được quy về thang này)</p>
+          <PanelSection tone="strong">
+            <p className={s.sum}>Tổng điểm các câu: <strong>{fmt(total)}</strong> · điểm tối đa của bài: <strong>{detail.max_score.replace(".", ",")}</strong> (điểm các câu được quy về thang này)</p>
+          </PanelSection>
         </>
       )}
       <p className={s.srOnly} role="status" aria-live="polite">{liveMsg}</p>

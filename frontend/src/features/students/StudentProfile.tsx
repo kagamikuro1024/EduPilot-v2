@@ -18,25 +18,7 @@ import {
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  Button,
-  ButtonLink,
-  DataTable,
-  DefinitionList,
-  EmptyState,
-  InlineNotice,
-  Page,
-  PageHeader,
-  PageState,
-  PrivateMark,
-  Section,
-  Skeleton,
-  StatusText,
-  Tabs,
-  Textarea,
-  TrendChart,
-  useRouteState,
-} from "@/shared/ui";
+import { Button, ButtonLink, DataTable, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, PrivateMark, Section, Skeleton, StatusText, Tabs, Textarea, TrendChart, useRouteState } from "@/shared/ui";
 import s from "./StudentProfile.module.css";
 
 type TabId = "overview" | "attendance" | "grades" | "activity" | "notes";
@@ -69,9 +51,9 @@ export function StudentProfile({ id }: { id: string }) {
     return (
       <Page>
         <PageHeader title="Hồ sơ sinh viên" back={{ href: "/students", label: "Sinh viên" }} />
-        <EmptyState title="Sinh viên này không thuộc lớp đang chọn" action={<ButtonLink href="/students">Về danh sách sinh viên</ButtonLink>}>
+        <Panel><EmptyState title="Sinh viên này không thuộc lớp đang chọn" action={<ButtonLink href="/students">Về danh sách sinh viên</ButtonLink>}>
           Đổi lớp ở bộ chọn phía trên, hoặc mở lại từ danh sách sinh viên của lớp.
-        </EmptyState>
+        </EmptyState></Panel>
       </Page>
     );
   }
@@ -121,7 +103,7 @@ export function StudentProfile({ id }: { id: string }) {
       <PageState
         state={routeState}
         loading={<Skeleton lines={8} />}
-        empty={<EmptyState title="Chưa có dữ liệu học tập của sinh viên này">Dữ liệu xuất hiện sau buổi học hoặc bài nộp đầu tiên.</EmptyState>}
+        empty={<Panel><EmptyState title="Chưa có dữ liệu học tập của sinh viên này">Dữ liệu xuất hiện sau buổi học hoặc bài nộp đầu tiên.</EmptyState></Panel>}
         error={{ problem: "Không tải được hồ sơ sinh viên.", recovery: "Ghi chú bạn đang gõ vẫn được giữ. Thử lại, hoặc mở lại sau ít phút." }}
       >
         {risk && (
@@ -134,7 +116,7 @@ export function StudentProfile({ id }: { id: string }) {
         <Tabs label="Phần hồ sơ" value={tab} onChange={setTab} options={TABS} />
 
         {tab === "overview" && (
-          <Section title="Tổng quan">
+          <Section panel title="Tổng quan">
             <p className={s.narrative}>
               {student.name} dự {stats.recorded - stats.absences}/{stats.recorded} buổi đã ghi, phát biểu {stats.speaks} lần
               {grade.qt === null ? " và chưa có điểm quá trình" : `, điểm quá trình hiện tại ${fmtScore(grade.qt)} (tạm tính)`}. Thời gian học trung bình{" "}
@@ -152,7 +134,7 @@ export function StudentProfile({ id }: { id: string }) {
         )}
 
         {tab === "attendance" && (
-          <Section title="Chuyên cần" description={`Vắng ${stats.absences}/${stats.recorded} buổi đã ghi · từ buổi vắng thứ 3 trừ 0,5 điểm mỗi buổi`}>
+          <Section panel title="Chuyên cần" description={`Vắng ${stats.absences}/${stats.recorded} buổi đã ghi · từ buổi vắng thứ 3 trừ 0,5 điểm mỗi buổi`}>
             <DataTable
               caption={`Chuyên cần của ${student.name}`}
               dense
@@ -183,7 +165,7 @@ export function StudentProfile({ id }: { id: string }) {
         )}
 
         {tab === "grades" && (
-          <Section title="Điểm" description="Điểm quá trình tạm tính theo công thức đã xác nhận của lớp.">
+          <Section panel title="Điểm" description="Điểm quá trình tạm tính theo công thức đã xác nhận của lớp.">
             <DefinitionList
               items={[
                 { term: "Bài tập 01", value: grade.bt01 === null ? "Chưa nộp" : fmtScore(grade.bt01) },
@@ -202,13 +184,13 @@ export function StudentProfile({ id }: { id: string }) {
         )}
 
         {tab === "activity" && (
-          <Section title="Hoạt động học" description="Phút học mỗi tuần — chỉ để tham khảo, không dùng để chấm điểm.">
+          <Section panel title="Hoạt động học" description="Phút học mỗi tuần — chỉ để tham khảo, không dùng để chấm điểm.">
             <TrendChart label={`Phút học mỗi tuần của ${student.name}`} points={activity} tone={student.activityMin < 45 ? "red" : "ink"} format={(v) => `${v} phút`} />
           </Section>
         )}
 
         {tab === "notes" && (
-          <Section title="Ghi chú" action={<PrivateMark />}>
+          <Section panel title="Ghi chú" action={<PrivateMark />}>
             {adding && (
               <div className={s.compose}>
                 <Textarea

@@ -21,6 +21,7 @@ import {
   EmptyState,
   InlineNotice,
   Page,
+  Panel,
   PageHeader,
   PageState,
   SegmentedControl,
@@ -116,17 +117,21 @@ export function InboxView() {
       />
       <PageState
         state={routeState ?? (tickets.length === 0 ? "empty" : null)}
-        loading={<Skeleton lines={10} />}
+        loading={<Panel><Skeleton lines={10} /></Panel>}
         empty={
-          <EmptyState title="Không còn câu hỏi đang chờ">
-            Khi AI không đủ chắc chắn hoặc sinh viên bấm “Nhờ giảng viên hỗ trợ”, câu hỏi sẽ xuất hiện ở đây.
-          </EmptyState>
+          <Panel>
+            <EmptyState title="Không còn câu hỏi đang chờ">
+              Khi AI không đủ chắc chắn hoặc sinh viên bấm “Nhờ giảng viên hỗ trợ”, câu hỏi sẽ xuất hiện ở đây.
+            </EmptyState>
+          </Panel>
         }
         error={{
           problem: "Không tải được hộp thư hỗ trợ.",
           recovery: "Câu trả lời bạn đang soạn vẫn được giữ. Thử lại, hoặc mở lại sau ít phút.",
         }}
       >
+        <div className={s.work}>
+        <Panel padding="none">
         <div className={[s.split, picked ? s.showDetail : ""].join(" ")}>
           <section className={s.list} data-part="inbox-list" aria-label="Danh sách câu hỏi" ref={listRef}>
             <SegmentedControl
@@ -180,7 +185,7 @@ export function InboxView() {
                   Hộp thư
                 </Button>
                 <header className={s.detailHead}>
-                  <h2 className="ep-section-title">{student.name}</h2>
+                  <h3 className="ep-section-title">{student.name}</h3>
                   <p className="ep-meta">
                     {student.code} · {courseById(selected.courseId).label}
                   </p>
@@ -259,6 +264,8 @@ export function InboxView() {
               <EmptyState title="Chọn một câu hỏi để xem">Danh sách bên trái xếp theo thời gian chờ.</EmptyState>
             )}
           </section>
+        </div>
+        </Panel>
         </div>
       </PageState>
     </Page>

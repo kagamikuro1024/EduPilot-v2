@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiErrorNotice, apiClient, useCursorList } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
-import { Button, ConfirmIrreversible, DataTable, EmptyState, Field, Input, InlineNotice, Page, PageHeader, SegmentedControl, Select, Skeleton, StatusText, Tabs, Textarea, type Column } from "@/shared/ui";
+import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, InlineNotice, Input, Page, PageHeader, Panel, SegmentedControl, Select, Skeleton, StatusText, Tabs, Textarea } from "@/shared/ui";
 import { eKey, fmtClock, type ExamDetail } from "../examApi";
 import { AppealsPanel } from "./AppealsPanel";
 import { ResultDrawer } from "./ResultDrawer";
@@ -28,14 +28,14 @@ export function ResultsPage({ id }: { id: string }) {
     return (
       <Page width="wide">
         <PageHeader title="Kết quả bài thi" back={back} />
-        <EmptyState title="Chỉ dành cho giảng viên và TA">Trang này dành cho giảng viên và TA của lớp.</EmptyState>
+        <Panel><EmptyState title="Chỉ dành cho giảng viên và TA">Trang này dành cho giảng viên và TA của lớp.</EmptyState></Panel>
       </Page>
     );
   if (!course)
     return (
       <Page width="wide">
         <PageHeader title="Kết quả bài thi" back={back} />
-        {cc.state === "loading" ? <Skeleton lines={6} /> : <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem kết quả.</EmptyState>}
+        {cc.state === "loading" ? <Panel><Skeleton lines={6} /></Panel> : <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem kết quả.</EmptyState></Panel>}
       </Page>
     );
   return <Board course={course} exam={id} teacher={role === "teacher"} />;
@@ -68,9 +68,11 @@ function Board({ course, exam, teacher }: { course: string; exam: string; teache
       {detail.isError && <ApiErrorNotice error={detail.error} onRetry={() => void detail.refetch()} />}
       {e && e.status !== "CLOSED" && e.status !== "PUBLISHED" && e.status !== "OPEN" && <InlineNotice>Bài thi chưa mở nên chưa có kết quả.</InlineNotice>}
       <Tabs label="Phần của kết quả" value={tab} onChange={pick} options={tabs} />
-      {tab === "results" && <Table course={course} exam={exam} teacher={teacher} e={e} onChanged={() => void qc.invalidateQueries({ queryKey: eKey(course, "detail", exam) })} />}
-      {tab === "appeals" && <AppealsPanel course={course} exam={exam} teacher={teacher} />}
-      {tab === "stats" && <StatsPanel course={course} exam={exam} />}
+      <Panel>
+        {tab === "results" && <Table course={course} exam={exam} teacher={teacher} e={e} onChanged={() => void qc.invalidateQueries({ queryKey: eKey(course, "detail", exam) })} />}
+        {tab === "appeals" && <AppealsPanel course={course} exam={exam} teacher={teacher} />}
+        {tab === "stats" && <StatsPanel course={course} exam={exam} />}
+      </Panel>
     </Page>
   );
 }

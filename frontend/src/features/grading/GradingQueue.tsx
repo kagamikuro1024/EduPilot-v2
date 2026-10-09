@@ -2,28 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ListChecks, Plus, Send } from "lucide-react";
-import {
-  ActionList,
-  ActionRow,
-  Button,
-  ConfirmIrreversible,
-  type Column,
-  DataTable,
-  EmptyState,
-  Field,
-  FilterChips,
-  InlineNotice,
-  Input,
-  Page,
-  PageHeader,
-  PageState,
-  Select,
-  Skeleton,
-  StatusText,
-  Tabs,
-  Textarea,
-  Toolbar,
-} from "@/shared/ui";
+import { ActionList, ActionRow, Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, Input, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Tabs, Textarea, Toolbar } from "@/shared/ui";
 import { COURSE_2, fmtScore, fmtShortDate, fmtTime, studentById, studentsOf } from "@/mock/core";
 import { ASSIGNMENTS, BT03, BT03_SEED, bt03Submissions, type Assignment, type Submission } from "@/mock/assess";
 import { isSubmissionApproved, studentNo } from "@/mock/derive";
@@ -204,17 +183,17 @@ export function GradingQueue() {
       </div>
 
       <PageState
-        loading={<Skeleton lines={10} />}
+        loading={<Panel><Skeleton lines={10} /></Panel>}
         empty={
-          <EmptyState title="Chưa có bài nào cần chấm" icon={<ListChecks aria-hidden />}>
+          <Panel><EmptyState title="Chưa có bài nào cần chấm" icon={<ListChecks aria-hidden />}>
             Lớp này chưa có bài tập nào đang mở. Khi sinh viên nộp bài, AI chấm nháp trước rồi bài sẽ xuất hiện ở đây để bạn duyệt.
-          </EmptyState>
+          </EmptyState></Panel>
         }
         error={{ problem: "Không tải được hàng chờ chấm bài.", recovery: "Các bài đã duyệt vẫn được giữ. Thử lại sau ít phút." }}
         state={hasQueue ? undefined : "empty"}
       >
         {tab === "queue" ? (
-          <>
+          <Panel>
             {role === "ta" && (
               <InlineNotice tone="info" title="Chỉ giảng viên công bố điểm">
                 Trợ giảng duyệt bài để chốt điểm nháp của AI. Việc công bố điểm cho sinh viên do giảng viên thực hiện.
@@ -264,9 +243,9 @@ export function GradingQueue() {
                 </EmptyState>
               }
             />
-          </>
+          </Panel>
         ) : (
-          <>
+          <Panel>
             {creating && (
               <div className={s.form}>
                 <Field label="Tên bài tập" required>
@@ -320,7 +299,7 @@ export function GradingQueue() {
                 />
               ))}
             </ActionList>
-          </>
+          </Panel>
         )}
       </PageState>
 

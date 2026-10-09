@@ -1,19 +1,17 @@
-/* Hộp thư hỗ trợ: hai panel độc lập (FR-X11) — danh sách 380px + chi tiết; dưới 1100px là hai bước (02-AC9). */
+/* Hộp thư hỗ trợ (D59): MỘT Panel chứa danh sách 380px | chi tiết, ngăn bằng đường kẻ dọc; dưới 1100px là hai bước (02-AC9). */
+.work { min-height: 0; }
 .split {
   display: grid;
   grid-template-columns: 380px minmax(0, 1fr);
-  gap: var(--ep-space-6);
   align-items: start;
 }
 
 .list,
 .detail {
   min-width: 0;
-  background: var(--ep-surface);
-  border: 1px solid var(--ep-rule);
-  border-radius: var(--ep-radius-md);
   overflow-y: auto;
 }
+.detail { border-left: 1px solid var(--ep-rule); }
 
 /* ≥ 1100px: không gian làm việc vừa đúng màn — tiêu đề ở trên, hai panel chiếm phần còn lại và cuộn riêng. */
 @media (min-width: 1100px) {
@@ -23,6 +21,8 @@
     height: calc(100dvh - var(--ep-topbar));
     padding-bottom: var(--ep-space-6);
   }
+  .work { height: 100%; }
+  .work > :global([data-ep-panel]) { height: 100%; overflow: hidden; }
   .split {
     min-height: 0;
     height: 100%;
@@ -159,6 +159,7 @@
   }
   .detail {
     display: none;
+    border-left: 0;
   }
   .showDetail .list {
     display: none;

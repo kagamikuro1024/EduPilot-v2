@@ -2,7 +2,7 @@
 
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useSession } from "@/shared/session/session";
-import { ActionList, ActionRow, Button, EmptyState, InlineNotice, Page, PageHeader, Section } from "@/shared/ui";
+import { ActionList, ActionRow, Button, EmptyState, InlineNotice, Page, PageHeader, Panel, Section } from "@/shared/ui";
 import s from "./Today.module.css";
 import { TodayActions } from "./TodayActions";
 import { classLabel, hhmm, longDate, shortDay } from "./format";
@@ -21,7 +21,7 @@ export function StaffToday() {
         q.isError ? (
           <ApiErrorNotice error={q.error} showTechnical onRetry={() => void q.refetch()} title="Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng." />
         ) : (
-          <ActionList loading={3} label="Đang tải việc" />
+          <Panel><ActionList loading={3} label="Đang tải việc" /></Panel>
         )
       ) : (
         <>
@@ -31,15 +31,17 @@ export function StaffToday() {
             </InlineNotice>
           )}
           {d.actions.length > 0 ? (
-            <Section title="Việc cần xử lý">
+            <Section title="Việc cần xử lý" panel>
               <TodayActions actions={d.actions} showClass={q.isAll} canDismiss={role === "teacher"} />
               {d.count > d.actions.length && <p className={s.note}>Đang hiện {d.actions.length} việc đầu tiên.</p>}
             </Section>
           ) : (
-            <EmptyState title="Bạn đã xử lý hết việc.">Khi có yêu cầu vào lớp hoặc việc mới, chúng sẽ hiện ở đây.</EmptyState>
+            <Panel>
+              <EmptyState title="Bạn đã xử lý hết việc.">Khi có yêu cầu vào lớp hoặc việc mới, chúng sẽ hiện ở đây.</EmptyState>
+            </Panel>
           )}
           {d.upcoming.length > 0 && (
-            <Section title="Sắp tới">
+            <Section title="Sắp tới" panel>
               <ActionList label="Buổi học sắp tới">
                 {d.upcoming.map((u) => (
                   <ActionRow key={`${u.course.id}-${u.at}`} title={u.title} context={`${shortDay(u.at)} · ${hhmm(u.at)}${u.place ? ` · ${u.place}` : ""}`} meta={q.isAll ? classLabel(u.course) : undefined} href="/calendar" />

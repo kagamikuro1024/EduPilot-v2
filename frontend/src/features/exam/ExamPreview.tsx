@@ -28,7 +28,7 @@ export function ExamPreview({ courseId, examId, version }: { courseId: string; e
     <div className={s.preview}>
       <InlineNotice compact>Chỉ xem: bài như sinh viên sẽ thấy. Không có lượt làm nào được tạo và đáp án không hiện.</InlineNotice>
       <div className={s.previewHead}>
-        <h2 className={s.previewTitle}>{exam.title}</h2>
+        <h3 className={s.previewTitle}>{exam.title}</h3>
         <p className={s.meta}>{exam.duration_minutes ? `${exam.duration_minutes} phút` : "Chưa đặt thời lượng"}{exam.closes_at ? ` · đóng lúc ${fmtClock(exam.closes_at)}` : ""}</p>
         {exam.instructions && <Markdown source={exam.instructions} />}
         <Button size="sm" icon={<RefreshCw aria-hidden />} onClick={() => setSeed((n) => n + 1)} loading={q.isFetching}>Xáo lại</Button>

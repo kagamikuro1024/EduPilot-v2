@@ -3,21 +3,7 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Check, FileSearch, Minus, Plus } from "lucide-react";
-import {
-  Button,
-  ButtonLink,
-  EmptyState,
-  Field,
-  IconButton,
-  InlineNotice,
-  Page,
-  PageHeader,
-  PageState,
-  Skeleton,
-  
-  StatusText,
-  Textarea,
-} from "@/shared/ui";
+import { Button, ButtonLink, EmptyState, Field, IconButton, InlineNotice, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import { fmtScore, fmtShortDate, fmtTime, studentById, studentsOf } from "@/mock/core";
 import {
   BT03,
@@ -58,9 +44,9 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
     return (
       <Page>
         <PageHeader title="Duyệt bài" back={{ href: "/grading", label: "Hàng chờ chấm" }} />
-        <EmptyState title="Không tìm thấy bài nộp này" icon={<FileSearch aria-hidden />} action={<ButtonLink href="/grading">Về hàng chờ chấm</ButtonLink>}>
+        <Panel><EmptyState title="Không tìm thấy bài nộp này" icon={<FileSearch aria-hidden />} action={<ButtonLink href="/grading">Về hàng chờ chấm</ButtonLink>}>
           Bài nộp có thể đã bị gỡ, hoặc đường dẫn không đúng. Mở lại từ hàng chờ chấm để chọn bài cần duyệt.
-        </EmptyState>
+        </EmptyState></Panel>
       </Page>
     );
   }
@@ -152,15 +138,16 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
       />
 
       <PageState
-        loading={<Skeleton lines={14} />}
+        loading={<Panel><Skeleton lines={14} /></Panel>}
         empty={
-          <EmptyState title="Không tìm thấy bài nộp này" action={<ButtonLink href="/grading">Về hàng chờ chấm</ButtonLink>}>
+          <Panel><EmptyState title="Không tìm thấy bài nộp này" action={<ButtonLink href="/grading">Về hàng chờ chấm</ButtonLink>}>
             Bài nộp có thể đã bị gỡ. Mở lại từ hàng chờ chấm để chọn bài cần duyệt.
-          </EmptyState>
+          </EmptyState></Panel>
         }
         error={{ problem: "Không tải được bài nộp.", recovery: "Điểm và nhận xét bạn đã sửa vẫn được giữ. Thử lại sau ít phút." }}
       >
         <div className={s.reviewGrid}>
+          <Panel>
             <div className={s.doc}>
             <p className={s.docTitle}>{title}</p>
               <div className={s.docMeta}>
@@ -177,6 +164,8 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
                 </div>
               ))}
             </div>
+          </Panel>
+          <Panel>
           <div className={s.panel}>
             <div className={s.total}>
                 <span className={s.totalLabel}>
@@ -248,6 +237,7 @@ export function SubmissionReview({ submissionId }: { submissionId: string }) {
                 </Button>
               </div>
             </div>
+          </Panel>
         </div>
       </PageState>
     </Page>

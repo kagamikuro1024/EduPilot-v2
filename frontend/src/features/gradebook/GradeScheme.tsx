@@ -2,22 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { FileText, Upload } from "lucide-react";
-import {
-  Button,
-  ButtonLink,
-  ConfirmIrreversible,
-  Drawer,
-  EmptyState,
-  Field,
-  InlineNotice,
-  Input,
-  Page,
-  PageHeader,
-  PageState,
-  Skeleton,
-  Split,
-  StatusText,
-} from "@/shared/ui";
+import { Button, ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, Split, StatusText } from "@/shared/ui";
 import { COURSE_2 } from "@/mock/core";
 import { SCHEME_DOC_1, SCHEME_DOC_2, type SchemeRule } from "@/mock/gradebook";
 import { KEYS, SCHEMES_SEED, type SchemesState } from "@/mock/state";
@@ -84,9 +69,9 @@ export function GradeScheme() {
       />
 
       <PageState
-        loading={<Skeleton lines={10} />}
+        loading={<Panel><Skeleton lines={10} /></Panel>}
         empty={
-          <EmptyState
+          <Panel><EmptyState
             title="Chưa có quy chế điểm cho lớp này"
             icon={<FileText aria-hidden />}
             action={
@@ -114,7 +99,7 @@ export function GradeScheme() {
             ) : (
               "Tải tệp quy chế của lớp (PDF) để EduPilot rút ra các mục công thức điểm. Bản rút ra chỉ là nháp — bạn xem lại từng mục rồi mới xác nhận."
             )}
-          </EmptyState>
+          </EmptyState></Panel>
         }
         error={{
           problem: "Không đọc được tệp quy chế.",
@@ -124,7 +109,7 @@ export function GradeScheme() {
       >
         <Split
           main={
-            <>
+            <Panel>
               {state === "draft" && (
                 <InlineNotice tone="info" title="Đây là bản nháp do AI rút ra từ quy chế">
                   Mỗi mục đều kèm đoạn trích và số trang trong {doc.file}. Giảng viên đọc lại, điền mục còn thiếu rồi xác nhận — điểm chỉ tính theo công thức đã xác nhận.
@@ -140,7 +125,7 @@ export function GradeScheme() {
 
               <div className={s.rules}>
                 {rules.map((r) => (
-                  <section key={r.id} className={s.rule}>
+                  <PanelSection key={r.id}>
                     <div className={s.ruleHead}>
                       <span className={s.ruleLabel}>{r.label}</span>
                       <button type="button" className={s.cite} onClick={() => setCite(r)}>
@@ -174,7 +159,7 @@ export function GradeScheme() {
                       <p className={s.ruleValue}>{r.value}</p>
                     )}
                     <blockquote className={s.quote}>{r.quote}</blockquote>
-                  </section>
+                  </PanelSection>
                 ))}
               </div>
 
@@ -201,9 +186,10 @@ export function GradeScheme() {
                   )}
                 </div>
               )}
-            </>
+            </Panel>
           }
           aside={
+            <Panel>
             <div className={s.sourcePanel}>
               <div>
                 <p className={s.sourceHead}>Nguồn dùng để rút công thức</p>
@@ -220,6 +206,7 @@ export function GradeScheme() {
                 </div>
               ))}
             </div>
+            </Panel>
           }
         />
       </PageState>

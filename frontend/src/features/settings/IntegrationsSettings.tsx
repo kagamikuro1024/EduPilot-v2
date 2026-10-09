@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { INTEGRATIONS } from "@/mock/system";
 import { useSession } from "@/shared/session/session";
-import { Button, ButtonLink, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, PageState, Skeleton, StatusText } from "@/shared/ui";
+import { Button, ButtonLink, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText } from "@/shared/ui";
 import s from "./settings.module.css";
 
 export function IntegrationsSettings() {
@@ -21,15 +21,17 @@ export function IntegrationsSettings() {
 
       <PageState
         loading={
-          <div className={s.loading}>
-            <Skeleton lines={4} />
-            <Skeleton lines={4} />
-          </div>
+          <Panel>
+            <div className={s.loading}>
+              <Skeleton lines={4} />
+              <Skeleton lines={4} />
+            </div>
+          </Panel>
         }
         empty={
-          <EmptyState title="Chưa có đường tích hợp nào" action={<ButtonLink href="/settings/integrations">Xem ba đường mặc định</ButtonLink>}>
+          <Panel><EmptyState title="Chưa có đường tích hợp nào" action={<ButtonLink href="/settings/integrations">Xem ba đường mặc định</ButtonLink>}>
             Thư đi, thư đến và Teams sẽ hiện ở đây khi được nối. Bắt đầu từ thư đi để sinh viên và giảng viên nhận được thông báo.
-          </EmptyState>
+          </EmptyState></Panel>
         }
         error={{
           problem: "Không đọc được trạng thái tích hợp.",
@@ -43,15 +45,13 @@ export function IntegrationsSettings() {
         )}
 
         {INTEGRATIONS.map((it) => (
-          <section key={it.id} className={s.integration}>
-            <div className={s.integrationHead}>
-              <div>
-                <h2 className="ep-section-title">{it.name}</h2>
-                <p className={s.integrationPurpose}>{it.purpose}</p>
-              </div>
-              <StatusText tone={it.state === "connected" ? "green" : it.state === "waiting" ? "amber" : "neutral"}>{it.stateText}</StatusText>
-            </div>
-
+          <Section
+            key={it.id}
+            panel
+            title={it.name}
+            description={it.purpose}
+            action={<StatusText tone={it.state === "connected" ? "green" : it.state === "waiting" ? "amber" : "neutral"}>{it.stateText}</StatusText>}
+          >
             <DefinitionList items={it.fields.map((f) => ({ term: f.term, value: f.value }))} />
 
             {canEdit && (
@@ -70,7 +70,7 @@ export function IntegrationsSettings() {
                   {it.result.text}
                 </InlineNotice>
               ))}
-          </section>
+          </Section>
         ))}
       </PageState>
     </Page>
