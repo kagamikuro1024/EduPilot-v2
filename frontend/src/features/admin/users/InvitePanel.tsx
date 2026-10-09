@@ -31,7 +31,7 @@ export function InvitePanel({ onSent, onClose }: { onSent: (u: AdminUser) => voi
   }
 
   return (
-    <Section title="Mời giảng viên" description="Người được mời nhận một liên kết đặt mật khẩu, dùng trong 72 giờ. Quản trị viên không biết và không đặt mật khẩu của ai.">
+    <Section panel title="Mời giảng viên" description="Người được mời nhận một liên kết đặt mật khẩu, dùng trong 72 giờ. Quản trị viên không biết và không đặt mật khẩu của ai.">
       <form onSubmit={submit} className={s.form} noValidate>
         <Field label="Email" error={dup ? "Email này đã có tài khoản." : fe.email}>
           {(id, d) => (
