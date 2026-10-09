@@ -461,6 +461,19 @@ Chat/thread composer is a distinct working surface.
 
 Use shape-matched skeletons, not centered spinners.
 
+### 10.14 Panel / PanelSection
+
+`frontend/src/shared/ui/Panel.tsx` (D59 "disciplined panels"; a Server Component, pure CSS, 0 bytes of JS).
+
+- One working region = ONE `Panel` on `--ep-canvas`. The region title (`h2.ep-section-title`) and the page `h1` sit OUTSIDE the panel.
+- `Panel`: `as` `div | section`, `padding` `md | lg | none` (`--ep-space-6` / `--ep-space-8` / 0), `aria-label?`; `className` is not accepted. Surface `--ep-surface`, 1 px `--ep-panel-border`, `--ep-radius-panel`, static `--ep-elevation-1`. Radius and shadow live ONLY in `Panel.module.css`.
+- `PanelSection` (`title?` → `h3`, `action?`, `tone`): groups inside a panel. Two adjacent sections are separated by one 1 px `--ep-rule` plus `--ep-space-6` of whitespace; no border, shadow or radius of its own.
+- `tone="strong"` is an emphasis cell (`--ep-surface-strong`, `--ep-radius-md`, no border, no shadow): only for key numbers or states, at most 3 per panel, never containing a `Panel` or `PanelSection`. 4+ side by side is a KPI wall.
+- No `Panel` inside `Panel`, and none inside `Dialog` / `Drawer` / `Popover` (use `PanelSection`). Enforced by `ui-antipatterns.sh` check 22 (same file) and the DOM assertion `[data-ep-panel] [data-ep-panel]` = 0 in `e2e/panels.spec.ts` (across components).
+- Inside a panel the roots of `DataTable`, `ActionList`, `Tabs` and `DefinitionList` have no border-top, shadow or radius (rows are separated by rules; the table header uses `--ep-surface-subtle`); `Composer` is separated by a 1 px rule above and drops `--ep-shadow-composer`; `InlineNotice` keeps its light border (a warning, not a region frame).
+- Mobile (< 720 px): the page padding is 12 px (`--ep-space-3`); the panel has no margin and 16 px padding.
+- Dark mode is not built (D59); every colour goes through the tokens so it can be added later.
+
 ---
 
 ## 11. Motion
@@ -1095,6 +1108,7 @@ AppShell
 Page primitives
 ├── PageHeader
 ├── Section
+├── ui/Panel.tsx (Panel, PanelSection)
 ├── ActionList
 ├── Toolbar
 ├── DataTable
