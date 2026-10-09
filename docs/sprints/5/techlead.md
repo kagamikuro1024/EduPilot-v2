@@ -43,3 +43,56 @@
 5. **Gợi ý về `inlineCss`.** Chính dev đã đo: HTML 387 KB và lần vẽ đầu muộn hơn. Ở devtools, FCP 827–840 ms là số **có** `inlineCss`; tôi chưa đo bản không có. Đo một lượt devtools không `inlineCss`; nếu FCP / LCP không tệ hơn thì gỡ (HTML nhỏ hơn có lợi cho người dùng 4G thật).
 
 Lệnh tái hiện (trên bản chép, không đụng cổng 3310 / 3312 của dev): `E2E_API_PORT=3412 pnpm build:gate`; `lhci collect` với `url` → `localhost:3410`, `startServerCommand` = `LH_API_PORT=3412 LH_ORIGIN=http://localhost:3410 node lighthouse-api.mjs & exec pnpm exec next start -p 3410`, `puppeteerScript` với `ORIGIN` 3410; chạy lần hai thêm `settings.throttlingMethod: "devtools"`. Phần tử LCP: `jq '.audits["largest-contentful-paint-element"].details.items[0].items[0].node | {nodeLabel, selector, boundingRect}'`.
+
+## TL-3 (CI: `TestJoinFailureTimingEqualized` đỏ ổn định trên GitHub Actions — nên đổi cách đo hay đổi mã?)
+
+**Bối cảnh.** CI mới trên `EduPilot-v2`, nhánh `sprint/5-pe` (`go test -race ./...` trong job `Go`). Hai lượt liên tiếp (một lượt chạy lại) cùng đỏ ở `internal/course/join_limit_test.go:58` (P2, không liên quan PE):
+`require.LessOrEqual(hi-lo / lo, 0.35)` — lượt 1: **0,403**; lượt 2: **1,375** với trung vị mỗi nguyên nhân (20 mẫu, xen kẽ): `lớp lưu trữ 1,147 ms · sai tên miền 0,924 ms · mã tắt 0,748 ms · mã hết hạn 0,694 ms · sai mã 0,626 ms · mã cũ 0,483 ms`. Cục bộ (macOS arm64) test xanh, ngưỡng 0,35 vượt dễ.
+Hai lỗi thật khác của cùng lượt CI đã sửa riêng (so thời điểm µs/ns trong `attempts_test.go`; `settleGoto` chưa đợi hydrate) — không thuộc câu hỏi này.
+
+**Quan sát.** `lookupByCode` (`internal/course/join.go`) đã làm đúng một truy vấn + một phép so sánh hằng thời gian + một quyết định gộp cho mọi nguyên nhân; chênh lệch thời gian đo được là chênh lệch **một truy vấn có / không trả dòng** (giải mã `Course`) cộng nhiễu: `go test ./...` chạy nhiều gói song song trên runner 4 vCPU (gói `course` mất 156–278 s), và các trung vị chỉ 0,5–1,1 ms nên 0,2–0,6 ms nhiễu đã vượt 35 %.
+
+**Câu hỏi.** Test này là phép đo thống kê vi mô (sub-ms) trên máy dùng chung; không thể ổn định bằng cách nới ngưỡng mà vẫn giữ ý nghĩa, và AGENTS cấm nới assertion để xanh. Chọn:
+- (a) giữ ý nghĩa, đổi **cách đo**: so sánh theo **số truy vấn / số lần cấp phát** (đếm câu SQL qua `pgx` tracer: mọi nguyên nhân đúng 1 truy vấn, cùng số vòng quyết định) thay vì mili-giây — tất định, chạy được trên CI;
+- (b) giữ phép đo thời gian nhưng chuyển sang job riêng chạy tuần tự (`-p 1`, `-run TestJoinFailureTimingEqualized -count=1`) với cờ build / env `TIMING_TESTS=1` (không chạy trong `go test ./...` thường), ngưỡng 0,35 giữ nguyên;
+- (c) khuyên cái khác (ví dụ chuẩn hoá thật bằng cách luôn `SELECT` cùng số cột / dòng cho cả nhánh không tìm thấy).
+Dev nghiêng về (a) (bằng chứng tất định), có thể kèm (b) cho phần "thời gian thật". Đây là test hợp đồng P2 nên cần ý kiến TL trước khi sửa; dev không nới ngưỡng.
+
+**TL trả lời (2026-10-09):**
+
+**Kết luận.** Làm **(b)** theo quy ước đã có trong repo, **không** đổi ngưỡng, không đổi chữ AC. Không cần (c). (a) chỉ là phần thêm tuỳ chọn, không được thay cho phép đo thời gian.
+
+1. **Đỏ vì nhiễu, không vì mã.** Ngay trong số của lượt 2: bốn nguyên nhân **cùng đường mã và cùng hình dạng dòng** (tìm thấy dòng rồi quyết định gộp: `lớp lưu trữ` 1,147 · `sai tên miền` 0,924 · `mã tắt` 0,748 · `mã hết hạn` 0,694 ms) đã lệch nhau 65 %. Chênh lệch "có dòng / không dòng" (`mã cũ` 0,483, `sai mã` 0,626) còn **nhỏ hơn** mức nhiễu đó. Hai yếu tố làm phép đo vô nghĩa: `go test -race ./...` chạy nhiều gói song song trên 4 vCPU, và `-race` làm việc giải mã dòng (`Scan` khoảng 20 trường) chậm đi nhiều lần, nên phóng to đúng phần chênh "có dòng" [SUY LUẬN: hệ số chậm của race detector theo tài liệu Go là 2–20×, chưa đo riêng cho trường hợp này].
+2. **(b), dùng lại quy ước sẵn có:** ba test thời gian của `auth` (`TestLoginTimingEqualized`, `TestRegisterTimingEqualized`, `TestForgotTimingEqualized`) đã `if testing.Short() { t.Skip("đo thời gian") }`, và đó là ba chỗ duy nhất trong repo dùng `testing.Short()`. Vậy:
+   - Thêm đúng khối đó vào đầu `TestJoinFailureTimingEqualized`.
+   - `ci.yml` job `Go`: bước test đổi thành `go test -race -short -tags testroutes ./...`.
+   - Thêm một bước ngay sau, cùng job: `go test -tags testroutes -p 1 -count=3 -run 'TimingEqualized$' ./internal/auth/ ./internal/course/`. Bước này **không** `-race`, chạy tuần tự, mỗi test 3 lần và cả 3 phải xanh; ngưỡng 0,35 và 20 mẫu giữ nguyên.
+   - Không cần biến môi trường hay build tag mới. Lệnh "Kiểm" của AC3 (`go test ./internal/course/... -run '…TestJoinFailureTimingEqualized…'`, không `-short`) vẫn chạy test như cũ, nên **không phải sửa spec** và không cần dòng proposals.
+   - Bằng chứng nghiệm thu: 3 lượt CI liên tiếp xanh ở bước mới; dán 4 bộ trung vị vào handoff.
+3. **(c) không cần.** Phần chênh còn lại chỉ là giải mã một dòng so với không có dòng, ngoài `-race` ở mức µs [SUY LUẬN, chưa đo]. Rate limit AC4 (5 lần / 10 phút / người, 20 / IP) không cho đủ mẫu để tách µs qua mạng. Đổi truy vấn sang `LEFT JOIN` từ `VALUES` sẽ làm sqlc sinh kiểu toàn cột nullable, thêm mã ánh xạ mà không có lợi đo được.
+4. **(a): làm thêm thì được, nhưng không thay.** Thay phép đo thời gian bằng đếm truy vấn là đổi cách kiểm của AC3 (APPROVED), nên cần dòng proposals và PM quyết. Nếu muốn có bằng chứng tất định *bổ sung* thì giữ thật nhỏ: một `pgx.QueryTracer` trên pool riêng của test, mỗi nguyên nhân đúng 1 lần `GetCourseByJoinCode` trong `lookupByCode`. Không bắt buộc, vì `lookupByCode` hiện đã một truy vấn + một quyết định gộp.
+5. **Nếu bước tuần tự vẫn đỏ ≥ 1 / 3 lượt** (runner quá nhiễu ngay cả khi chạy một mình): dừng, ghi số đo vào đây, và để PM chọn (a) qua proposals. Không nới 0,35, không tăng số mẫu khi chưa có quyết định.
+
+## TL-4 (CI: `TestSandboxAttacks` A8 fork bomb ra `MLE` một lần — spec chỉ cho `TLE` / `RE`)
+
+**Bằng chứng.** Job `Judge attacks (amd64, seccomp bật)`, run của `81e1a11`: A8 (`for(;;) fork();`) → verdict **`MLE`**, test đòi `TLE` hoặc `RE` (`attacks_integration_test.go:108`; SRS 4.x bảng A1–A15: "`procPeak = 1`; `TLE` hoặc `RE`; không tiến trình mồ côi"). Chạy lại đúng job (cùng commit): **xanh**. Các lượt CI trước (3 lượt) và 15 ca ở máy dev / QC: A8 luôn `TLE` / `RE`. Tỉ lệ quan sát: 1 / ≥ 5 lượt.
+**Suy đoán (chưa kiểm).** Khi fork bị chặn (`EAGAIN`) vòng lặp quay đến hạn CPU → `TLE`; `MLE` có thể là cgroup bộ nhớ của go-judge kịp ghi nhận trước hạn CPU trên runner chậm. Nếu đúng thì sandbox vẫn chặn được (không AC, không mồ côi), chỉ nhãn verdict dao động.
+**Câu hỏi.** (a) Mở `want` của A8 thành `{TLE, RE, MLE}` (đổi chữ SRS bảng A8 → cần proposal), hay (b) giữ và coi là flake hạ tầng, hay (c) có cách đo phân biệt "fork bị chặn" với "fork thành công rồi hết bộ nhớ" (ví dụ in `procPeak` từ go-judge)? Dev **chưa** đổi gì.
+
+**TL trả lời (2026-10-09):**
+
+**Kết luận.** Làm (c) + (a). Thêm khẳng định `procPeak == 1` cho A8. Đây chính là bất biến SRS ghi ("không tạo được tiến trình thứ hai") mà test **chưa** kiểm. Sau đó mở tập verdict thành `{TLE, RE, MLE}` qua proposal. Không làm (b): `MLE` không phải flake hạ tầng; nó tái hiện được tất định và là hành vi đúng của go-judge.
+
+1. **Đo (PoC):** container riêng từ image `edupilot-judge:test` (go-judge v1.13.0, colima arm64, `-no-seccomp`, `--privileged --cgroupns=host -m 2g --cpus=2`), gọi `/run` đúng tham số của `Client.Run` (`cpuLimit` 1 s, `clockLimit` 3 s, `procLimit` 1). Kết quả:
+
+   | Bài | `memoryLimit` | Lượt | `status` | `memory` (MiB) | `procPeak` |
+   |---|---|---|---|---|---|
+   | `for(;;) fork();` | 256 MiB | 10, tuần tự | TLE × 10 | **54–73** | 1 |
+   | `for(;;);` (đối chứng) | 256 MiB | 1 | TLE | 0 | 1 |
+   | `for(;;) fork();` | **32 MiB** | 5 | **MLE × 5** (sau 20–30 ms) | 32 | **1** |
+   | `for(;;) fork();`, máy bận (8 vòng CPU ở container khác, 2 bài song song) | 256 MiB | 16 | TLE × 16 | 20–30 | 1 |
+
+   ⇒ Mỗi lần `fork()` bị chặn vẫn bị tính bộ nhớ vào cgroup của bài. Đỉnh 54–73 MiB với một tiến trình duy nhất, trong khi vòng lặp rỗng là 0. Khi giới hạn thấp hơn đỉnh đó, verdict **luôn** là `MLE` dù `procPeak = 1`. Vì vậy `MLE` ở CI là cùng cơ chế, chỉ khác là đỉnh vượt 256 MiB. go-judge xếp `MLE` khi `memory > memoryLimit` (cả khi đã `TLE`): `envexec/run_single.go` v1.13.0, `if result.Memory > c.MemoryLimit { result.Status = StatusMemoryLimitExceeded }`, kiểm **sau** `TLE`. [SUY LUẬN, chưa đọc mã nhân: `copy_process` cấp `task_struct`, ngăn xếp nhân, bản sao `mm` / bảng trang **trước** khi kiểm `pids.max`, rồi giải phóng chậm qua RCU. Nên đỉnh phụ thuộc tốc độ fork và độ trễ RCU của máy; amd64 / runner CI có thể cao hơn arm64.]
+2. **Sửa test (c), không cần proposal:** `judge.Result` không mang `procPeak`. Trong `TestSandboxAttacks`, riêng A8 (và A14 `system()`), sau `c.Judge` gọi thêm `c.Compile` + `c.Run` cùng mã và khẳng định `rr.ProcPeak == 1`. Ghi `rr.MemoryKB` vào dòng log để CI có số đo. Không đổi API / JSON (`TestResult` giữ nguyên).
+3. **Mở tập verdict (a), cần proposal:** SRS bảng A1–A15 dòng A8 đổi `TLE hoặc RE` → `TLE, RE hoặc MLE`, giữ `procPeak = 1` và "không tiến trình mồ côi". Đây không phải nới kiểm: bất biến bảo mật (không tiến trình thứ hai) được kiểm **chặt hơn** trước, chỉ cái nhãn phụ thuộc nhân được nới. Dev ghi dòng `proposals.md`, PM quyết; dev chưa đổi `want` khi chưa có số proposal.
+4. **Sinh viên không bị ảnh hưởng:** bài bình thường không gọi `fork()`. Bài cố tình fork nhận `TLE` hoặc `MLE`, đều trượt.

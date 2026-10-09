@@ -52,6 +52,15 @@ func RequireContainers(t testing.TB) {
 	}
 }
 
+// SkipTiming bỏ qua test đo thời gian (so trung vị mili-giây giữa các nhánh) khi EP_SKIP_TIMING=1. CI đặt biến này ở bước `go test ./...` (nhiều gói chạy song song
+// nên nhiễu vượt ngưỡng) và chạy riêng các test đó, tuần tự, ở bước kế tiếp (TL-3). Không dùng `-short`: cờ đó bỏ qua MỌI test cần container.
+func SkipTiming(t testing.TB) {
+	t.Helper()
+	if os.Getenv("EP_SKIP_TIMING") == "1" {
+		t.Skip("đo thời gian: chạy riêng, tuần tự (EP_SKIP_TIMING=1)")
+	}
+}
+
 var (
 	pgOnce   sync.Once
 	pgHost   string // host:port trực tiếp tới Postgres

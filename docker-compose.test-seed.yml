@@ -6,7 +6,8 @@
 services:
   gateway:
     environment:
-      RATE_LIMIT_IP_PER_MIN: "5000"
+      RATE_LIMIT_IP_PER_MIN: "300000" # k6 (US-PE-09): ~25.000 yêu cầu / phút từ một IP; 5.000 làm 429 chiếm phần lớn lượt đo
+      RATE_LIMIT_USER_PER_MIN: "100000" # k6 `chat`: 50 luồng từ MỘT tài khoản Admin (~3 yêu cầu / giây mỗi luồng); mặc định 600 / phút
       AUTH_LOGIN_IP_PER_MIN: "1000"
       AUTH_REGISTER_IP_PER_HOUR: "1000"
       AUTH_TOKEN_IP_PER_MIN: "1000"
@@ -15,5 +16,8 @@ services:
       EXAM_MIN_LEAD_SECONDS: "5"
       EXAM_SAVE_RATE_PER_MIN: "2000"
       # k6 `chat` / `mixed`: 50 luồng chat đồng thời; hạn mức mặc định của nhà cung cấp `fake` (60 lượt / phút) sẽ chặn trước khi chạm bộ lập lịch.
+      # Góp ý #18: TTFT đo với provider `fake` có trễ thật (≈ thực tế): FAKE_LLM_LATENCY là độ trễ TRƯỚC token đầu. 100 chỗ để 50 luồng không xếp hàng.
+      FAKE_LLM_LATENCY: "300-300"
+      LLM_MAX_CONCURRENCY: "100"
       LLM_DEFAULT_RPM: "100000"
       LLM_DEFAULT_TPM: "100000000"

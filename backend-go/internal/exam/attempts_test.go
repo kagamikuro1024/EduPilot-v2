@@ -184,13 +184,13 @@ func TestStartAttemptDeadlineMin(t *testing.T) {
 	r.exec(`update exams set opens_at = $2, closes_at = $3 where id=$1`, e.ID, clk.Now().Add(-50*time.Minute), clk.Now().Add(10*time.Minute)) // khung 60 phút ≥ thời lượng 45
 	v, _, err := r.at(clk).StartAttempt(t.Context(), sv, r.course, e.ID, uuid.New())
 	require.NoError(t, err)
-	require.True(t, v.Attempt.DeadlineAt.Equal(clk.Now().Add(10*time.Minute)), "deadline = closes_at, có %s", v.Attempt.DeadlineAt)
+	require.WithinDuration(t, clk.Now().Add(10*time.Minute), v.Attempt.DeadlineAt, time.Millisecond, "deadline = closes_at (Postgres lưu µs, Linux đồng hồ có ns)")
 	// khi còn dư giờ: deadline = started + 45
 	sv2 := r.student("ACTIVE")
 	r.exec(`update exams set closes_at = $2 where id=$1`, e.ID, clk.Now().Add(3*time.Hour))
 	v2, _, err := r.at(clk).StartAttempt(t.Context(), sv2, r.course, e.ID, uuid.New())
 	require.NoError(t, err)
-	require.True(t, v2.Attempt.DeadlineAt.Equal(clk.Now().Add(45*time.Minute)))
+	require.WithinDuration(t, clk.Now().Add(45*time.Minute), v2.Attempt.DeadlineAt, time.Millisecond)
 }
 
 // ---- AC2: làm tiếp ---------------------------------------------------------------------------------------------------------
@@ -800,7 +800,7 @@ func TestSubmitManual(t *testing.T) {
 	require.Equal(t, "GRADED", st)
 	require.Equal(t, "MANUAL", *reason)
 	require.Equal(t, "4.00", *sc, "2/5 câu đúng, thang 10")
-	require.True(t, at.Equal(sub.SubmittedAt))
+	require.WithinDuration(t, sub.SubmittedAt, *at, time.Millisecond)
 	_, err = r.save(v, sv, tab, pick(v.Items[2], 0))
 	s, code := apiStatus(t, err)
 	require.Equal(t, 409, s)

@@ -32,12 +32,15 @@ if [ "${GATE_SEED:-}" = "1" ]; then
   for m in bank scores demo; do run "check-exam-seed.mjs $m" node scripts/check-exam-seed.mjs "$m"; done
 fi
 if [ "${GATE_K6:-}" = "1" ]; then
-  k6run() { k6 run -q -e BASE="${K6_BASE:-https://localhost}" -e SCENARIO="$1" ${2:+-e CHAT_BASE_P95="$2"} benchmarks/load/exam-submit.js; }
+  k6run() { k6 run -q -e BASE="${K6_BASE:-https://localhost}" -e SCENARIO="$1" ${2:+-e RUN="$2"} benchmarks/load/exam-submit.js; }
   run "k6 exam-submit judge_burst" k6run judge_burst
   run "k6 exam-submit autosave" k6run autosave
-  run "k6 exam-submit chat (đường cơ sở TTFT)" k6run chat
-  BASE_P95=$(node -e 'const fs=require("fs");const f=fs.readdirSync("benchmarks/reports").filter(n=>/^pe-exam-submit-.*-chat\.json$/.test(n)).sort().pop();console.log(JSON.parse(fs.readFileSync("benchmarks/reports/"+f)).metrics.chat_ttft_ms["p(95)"])')
-  run "k6 exam-submit mixed (TTFT ≤ cơ sở +20 %, p95 Chạy thử ≤ 5 s)" k6run mixed "$BASE_P95"
+  # góp ý #18: TTFT với provider có trễ thật (stack test-seed: FAKE_LLM_LATENCY=300-300); 3 cặp chat / mixed, trung vị của 3 tỉ lệ p95 ≤ 1,2
+  for i in 1 2 3; do
+    run "k6 exam-submit chat #$i (cơ sở TTFT)" k6run chat "$i"
+    run "k6 exam-submit mixed #$i (p95 TTFT < 1,5 s; Chạy thử p95 ≤ 5 s)" k6run mixed "$i"
+  done
+  run "TTFT mixed / chat: trung vị 3 tỉ lệ p95 ≤ 1,2" node scripts/ttft-ratio.mjs
 fi
 
 echo; echo "| Kết quả | Bước | Giây |"; echo "|---|---|---|"

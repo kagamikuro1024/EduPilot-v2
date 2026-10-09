@@ -1,0 +1,12 @@
+
+=== pe-exam-submit · mixed ===
+judge_done_ms: avg=2037.311 p(50)=2053 p(95)=2073 max=2077
+judge_ie: count=0 rate=0
+run_ms: avg=1880.806 p(50)=2069 p(95)=2087 max=2109
+chat_ttft_ms: max=47.863 avg=5.469 p(50)=4.688 p(95)=11.665
+http_req_failed: rate=0 passes=0 fails=2006751
+ngưỡng run_ms: p(95)<5000 PASS
+ngưỡng judge_ie: count==0 PASS
+ngưỡng http_req_failed: rate<0.005 PASS
+ngưỡng judge_done_ms: p(95)<60000 PASS
+rc=0

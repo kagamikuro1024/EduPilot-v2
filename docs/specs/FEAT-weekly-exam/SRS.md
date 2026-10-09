@@ -1,5 +1,9 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.7 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.9 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.9 (2026-10-09)** — góp ý #19 `docs/sprints/5/proposals.md` (PM `ACCEPTED`: "bất biến bảo mật là `procPeak == 1` + không tiến trình mồ côi, không phải nhãn verdict"; nguồn: dev, TL-4, CI `TestSandboxAttacks` A8). Không đổi số AC (124). Đổi: `SRS.md` 4.5.6 bảng ca tấn công, dòng **A8**: verdict `TLE` hoặc `RE` → `TLE`, `RE` **hoặc `MLE`**; **giữ** `procPeak = 1` và "không tiến trình mồ côi". US-PE-02 AC11 ("đúng verdict / dấu hiệu của bảng") áp theo bảng mới; `TestSandboxAttacks` khẳng định `procPeak == 1` cho A8 và A14.
+
+**v1.8 (2026-10-09)** — góp ý #18 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: Q-QC-GATEPE-3, cổng PE B1; trích: "Đo `chat` và `mixed` với provider `fake` có **trễ thật** (`FAKE_LLM_TTFT_MS=300`…); p95 TTFT `mixed` ≤ p95 `chat` × 1,2 **và** p95 `mixed` ≤ 1,5 s; mỗi kịch bản chạy 3 cặp, lấy trung vị của 3 tỉ lệ. Ngưỡng 20 % giữ nguyên"). Không đổi số AC (124). Đổi: **US-PE-09 AC6** (kịch bản `mixed` đo với `FAKE_LLM_TTFT_MS=300`, 3 cặp `chat` / `mixed`, trung vị tỉ lệ ≤ 1,2 và p95 `mixed` ≤ 1,5 s; thêm kịch bản `SCENARIO=chat`); `SRS.md` 8 (bảng hiệu năng), 9 (kịch bản k6), 8.1 (biến `FAKE_LLM_TTFT_MS`); `QUESTIONS.md` Q-QC-GATEPE-3.
 
 **v1.7 (2026-10-09)** — góp ý #16, #17 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: dev US-PE-06, US-PE-07). #16: (a) `GET …/attempts/{aid}/submissions/{sid}` (#37) có thêm `source` — chỉ khi người gọi là chủ bản nộp, sinh viên khác 404, danh sách (#36) không kèm mã, thêm `TestSubmissionSourceOwnerOnly` (US-PE-06 AC9, AC10; SRS 4.4.4); (b) AC2: `Làm tiếp ở đây` hiện khi **không** phải nơi ghi. #17: (a) thêm thao tác **#57** `GET …/exams/{eid}/similarity/{id}` (Giảng viên; hai mã + `match_lines`): 56 → **57 thao tác** (SRS 6.2, 6.x contract, mục 10); (b) trang riêng `/exams/[id]/similarity` (Giảng viên), tab `Nghi giống nhau` của kết quả chỉ là liên kết, việc `EXAM_SIMILARITY` trỏ thẳng tới trang này; (c) **PM đổi công thức ngưỡng**: `flagged = score ≥ max(SIMILARITY_MIN, min(mean + 3σ, SIMILARITY_CAP))`, `SIMILARITY_CAP` mặc định 0,9 (US-PE-07 AC8; SRS 4.7.4, env; `QUESTIONS.md` Q11), thêm `TestSimilaritySmallClassFlagsCopiers` (lớp 8 bài, 3 bài chép → 3 cặp gắn cờ). Không đổi số AC (124).
 
@@ -381,7 +385,7 @@ Mỗi ca là một bản nộp C / C++ đi qua **đường chấm thật** (khô
 | A5 | cấp phát dần tới 512 MiB (`malloc` + `memset` mỗi 1 MiB) | `MLE` | ✓ |
 | A6 | cấp phát 2 GB một lần + `memset` | `MLE` hoặc `RE` (`malloc` trả NULL → chương trình thoát ≠ 0); container sống. **Chạy đồng thời P bản A6** (P = `JUDGE_PARALLELISM`) → container không khởi động lại, `RestartCount` không đổi (góp ý #5) | xác minh |
 | A7 | truy cập con trỏ NULL | `RE` (`Signalled`) | ✓ |
-| A8 | fork bomb (`fork()` lặp, con cũng `fork()`) | không tạo được tiến trình thứ hai (`procPeak = 1`); `TLE` hoặc `RE`; không tiến trình mồ côi | ✓ |
+| A8 | fork bomb (`fork()` lặp, con cũng `fork()`) | không tạo được tiến trình thứ hai (`procPeak = 1`); verdict `TLE`, `RE` **hoặc `MLE`** (bất biến bảo mật là `procPeak = 1` + không tiến trình mồ côi, **không** phải nhãn verdict — `fork()` bị chặn vẫn tính bộ nhớ vào cgroup, đỉnh ≈ 54–73 MiB; giới hạn thấp hơn đỉnh → `MLE`, go-judge xếp `MLE` sau `TLE`; trên CI amd64 seccomp bật có lượt ra `MLE` — góp ý #19); không tiến trình mồ côi | ✓ |
 | A9 | `fopen` đọc `/etc/shadow`, `/etc/passwd`, `/proc/1/environ`, `/opt/go-judge`, `/root/.bashrc` | **cả 5 đường bị chặn** (chương trình in `CHAN` cho từng đường; test kiểm đầu ra = `CHAN×5`) | ✓ |
 | A10 | `socket` + `connect` tới `1.1.1.1:53` | `socket` được, `connect = -1` (không ra mạng) | ✓ |
 | A10b | `connect` tới `postgres:5432` và `redis:6379` (tên dịch vụ compose) và địa chỉ IP của chúng | `connect = -1` (mạng riêng không thấy) | xác minh |
@@ -1146,6 +1150,7 @@ Sinh viên **không bao giờ** thấy: `sandbox`, `judge`, `verdict`, `go-judge
 | `EXAM_EVENTS_MAX` | `500` | sự kiện / lượt | gateway |
 | `EXAM_TESTZIP_MAX_BYTES`, `EXAM_TESTZIP_MAX_UNCOMPRESSED` | `10485760`, `52428800` | nhập test zip | gateway |
 | `SIMILARITY_MIN` | `0.60` | ngưỡng tối thiểu của cờ nghi giống | worker |
+| `FAKE_LLM_TTFT_MS` | `0` (test thường); `300` ở kịch bản k6 `chat` / `mixed` | trễ cố định tới sự kiện nội dung đầu tiên của luồng `fake` (`_test/llm/chat`, `stream:true`) = TTFT; **thêm ở PE nếu `fake` chưa có** (`FAKE_LLM_LATENCY` của `FEAT-llm-gateway` 8.3 giữ nguyên cho phần sinh còn lại) — góp ý #18 | gateway (chỉ test) |
 | `SIMILARITY_CAP` | `0.90` | trần của ngưỡng tương đối `mean + 3σ` (ngưỡng cờ = `max(MIN, min(mean + 3σ, CAP))`; đặt `CAP < MIN` thì ngưỡng = `MIN`) — góp ý #17 | worker |
 
 Sai (không số, ngoài khoảng): thoát 1, nêu tên biến. `JUDGE_TOKEN` và mọi `JUDGE_*` có trong `.env.example` (không giá trị thật).
@@ -1185,7 +1190,7 @@ networks:
 | `Chạy thử` lúc rảnh | p95 ≤ 5 s | `TestRunLatencyIdle` |
 | Thông lượng chấm | ≈ 190 bài/phút (4 CPU); 240 bài/5 phút (20 lớp × 60) hết trong ≤ 8 phút | research; k6 |
 | Mở / đóng / tự nộp / công bố đúng giờ | ≤ 10 s sau mốc | `TestExamStateMachine`, E2E |
-| Chat INTERACTIVE khi chấm dồn | TTFT không chậm hơn +20 % | k6 `mixed` (SYSTEM_DESIGN §5) |
+| Chat INTERACTIVE khi chấm dồn | `FAKE_LLM_TTFT_MS=300`; 3 cặp `chat` / `mixed`: trung vị tỉ lệ p95 TTFT `mixed` ÷ `chat` ≤ 1,2 và p95 `mixed` ≤ 1,5 s mỗi cặp (góp ý #18) | k6 `mixed` (SYSTEM_DESIGN §5) |
 | Kết quả `GET …/results` (1.000 dòng) | p95 ≤ 300 ms; cuộn 60 fps | k6 / Playwright |
 | Container `judge` lúc rảnh | ≤ 100 MiB RAM (PoC 35,6 MiB) | `docker stats` |
 
@@ -1222,7 +1227,7 @@ Thêm job `judge-attacks` (runner amd64): dựng `deploy/judge` với seccomp b�
 | Schema | `internal/store` | `TestExamSchema`, `TestExamConstraints`, `TestExamIndexes` |
 | Frontend đơn vị | Playwright không cần trình duyệt (`vitest` không có trong bảng thư viện `ARCHITECTURE.md` §3) | `e2e/exam-clock.spec.ts`, `e2e/exam-save-queue.spec.ts`, `e2e/markdown.spec.ts` |
 | E2E | `frontend/e2e/exam.spec.ts` | 12 ca của US-PE-09 AC7 |
-| Tải | `benchmarks/load/exam-submit.js` | `judge_burst`, `autosave`, `mixed` |
+| Tải | `benchmarks/load/exam-submit.js` | `judge_burst`, `autosave`, `chat` (đường cơ sở), `mixed` (3 cặp `chat` / `mixed`, `FAKE_LLM_TTFT_MS=300`) |
 | Seed | `scripts/check-exam-seed.mjs` | `bank`, `scores`, `demo` |
 | Cổng | `scripts/gate-pe.sh` | toàn bộ trên |
 

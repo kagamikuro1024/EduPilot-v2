@@ -15,6 +15,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/testutil"
 )
 
 const registerMsg = "Nếu email này dùng được, chúng tôi đã gửi thư xác nhận. Kiểm tra hộp thư của bạn."
@@ -140,9 +141,7 @@ func TestRegisterDisabledSendsNothing(t *testing.T) {
 }
 
 func TestRegisterTimingEqualized(t *testing.T) {
-	if testing.Short() {
-		t.Skip("đo thời gian")
-	}
+	testutil.SkipTiming(t)
 	r := newSessRig(t, func(e map[string]string) { e["BCRYPT_COST"] = "10" })
 	exist := uniq("tm")
 	r.user(exist, store.UserRoleSTUDENT, store.UserStatusACTIVE)
