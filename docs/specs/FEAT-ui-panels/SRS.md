@@ -1,5 +1,7 @@
 # SRS FEAT-ui-panels Panel nổi có kỷ luật: tách lớp giao diện (canvas → panel), token, primitive, đổi mọi màn
-Phiên bản 1.1 · 2026-10-09 · Trạng thái: **APPROVED** (PM 2026-10-09: cả 11 TLR ACCEPTED; Q1–Q4, Q11 theo mặc định của BA vì chủ dự án vắng, đổi được qua `proposals.md`; **US-UI-01 chờ chọn phương án độ nổi — Q2**)
+Phiên bản 1.2 · 2026-10-09 · Trạng thái: **APPROVED** (PM 2026-10-09: cả 11 TLR ACCEPTED; Q1–Q4, Q11 theo mặc định của BA vì chủ dự án vắng, đổi được qua `proposals.md`; **US-UI-01 chờ chọn phương án độ nổi — Q2**)
+
+**v1.2 (2026-10-10)** — góp ý #1, #2 `docs/sprints/5.5/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-UI-06 AC3, US-UI-05 AC1, US-UI-04 AC1). Không đổi số AC (58). #1: US-UI-06 AC3 và `SRS.md` 7.2 (`/settings/llm`): **mỗi vùng một Panel**, giữ **năm** vùng của `FEAT-llm-gateway` US-P1-05 thay cho "hai vùng" (đúng cái màn đang chạy và `settings-llm.spec.ts` ghim). #2: US-UI-04 AC1 vùng "Tiếp tục học" và US-UI-05 AC1 vùng "Lớp cần chú ý" ghi **"khi có dữ liệu"** (hình dữ liệu do P3 / P9 và P5 định nghĩa; không bịa); `SRS.md` 7.2 hai dòng `/`. Góp ý #3 sửa ở `FEAT-ui-foundation` v1.7; #4 (ảnh mốc cũ chụp trang chặn quyền) PM ghi nhận ở báo cáo 5.5, không đổi spec.
 
 **v1.1 (2026-10-09)** — theo `TL-REVIEW.md` (PM `ACCEPTED` TLR-1…TLR-11; chi tiết ở `US.md` v1.1). Đổi ở SRS: 4.2 điều 2 và 8, 4.3 (ba phép mới, phép bóng cũ sửa, không ESLint — TLR-1, TLR-2), 4.4 FR-UI-3 / FR-UI-5, 5.1 (thêm `DESIGN_TOKENS.css` — TLR-7), 5.2 / 5.3 (chỉ chỉnh theo chiều tăng tương phản, thêm nền `--ep-surface-subtle` / `--ep-red-soft` — TLR-8), 5.4 (`Panel` không `margin`, không `PanelContext`), 7.1 (`Page` lề mobile 12 px — TLR-4), 7.4 (chỉ trạng thái có dữ liệu — TLR-11), 8.1 (đo JS — TLR-5), 8.2 (ảnh mốc ở từng story — TLR-3), 8.2 (quy tắc máy diện tích đỏ — TLR-9), 9, 10.
 
@@ -203,7 +205,7 @@ Quy ước cột: **Vùng → Panel** = mỗi vùng một `Panel`; "ngoài panel
 
 | Route | Khung nhìn đầu (theo `DESIGN.md`) | Vùng → Panel | Ghi chú |
 | --- | --- | --- | --- |
-| `/` | §14.1 Student: lời chào + ngày, **một** hành động nên làm, dòng thời gian | "Việc nên làm tiếp" (1 hành động chính + lý do + thời gian ước lượng) · "Hôm nay" (timeline) · "Tiếp tục học" | ≤ 1 ô nhấn; chưa vào lớp: một panel + `EmptyState` + `Vào lớp bằng mã`; 375 |
+| `/` | §14.1 Student: lời chào + ngày, **một** hành động nên làm, dòng thời gian | "Việc nên làm tiếp" (1 hành động chính + lý do + thời gian ước lượng) · "Hôm nay" (timeline) · "Tiếp tục học" **chỉ khi có dữ liệu** (hợp đồng do P3 / P9 định nghĩa — góp ý #2) | ≤ 1 ô nhấn; chưa vào lớp: một panel + `EmptyState` + `Vào lớp bằng mã`; 375 |
 | `/exams` | nhóm `Đang mở` / `Sắp tới` / `Đã có điểm` | mỗi nhóm có dữ liệu một panel, hàng ngăn đường kẻ, mỗi hàng 1 hành động | 375; rỗng = một panel + `EmptyState` |
 | `/exams/[id]/take` | trước giờ / đang làm (trắc nghiệm, code) / đã nộp / đã công bố | trước giờ: 1 panel · trắc nghiệm: panel câu hiện tại (+ danh sách câu: cột ≥ 1100 px hoặc bảng trượt) · code ≥ 1024 px: 2 panel (đề + test mẫu \| soạn mã + kết quả) · đã công bố: 1 panel (≤ 3 ô nhấn: điểm, số đúng, trạng thái) | thanh trên cố định (`Câu i/n`, đồng hồ, lưu) là **thanh nền `--ep-surface`**, không `Panel`; 375 |
 | `/join`, `/join/[code]` | nhập mã / xác nhận | 1 panel, 1 nút chính | 375 |
@@ -219,7 +221,7 @@ Quy ước cột: **Vùng → Panel** = mỗi vùng một `Panel`; "ngoài panel
 
 | Route | Khung nhìn đầu | Vùng → Panel | Ghi chú |
 | --- | --- | --- | --- |
-| `/` | §14.1 Teacher / TA | "{N} việc cần xử lý hôm nay" (`ActionList`, 1 nút chính) · "Lớp cần chú ý" · "Sắp tới" | không hero metrics; ≤ 1 ô nhấn |
+| `/` | §14.1 Teacher / TA | "{N} việc cần xử lý hôm nay" (`ActionList`, 1 nút chính) · "Sắp tới" · "Lớp cần chú ý" **chỉ khi có dữ liệu** (hợp đồng do P5 định nghĩa — góp ý #2) | không hero metrics; ≤ 1 ô nhấn |
 | `/class/members` | bảng thành viên | `Tabs` ngoài panel; mỗi tab 1 panel; tab "Nạp danh sách" = 1 panel với `PanelSection` (chọn tệp → xem trước → kết quả), ≤ 3 ô nhấn (thêm / bỏ qua / lỗi) | TA: quyền như cũ |
 | `/class/settings` | cài đặt lớp | mỗi mục 1 panel | |
 | `/exams` | nhóm `Đang mở` / `Sắp tới` / `Đã đóng` / `Nháp` | mỗi nhóm 1 panel; nút chính `Tạo bài thi` | |
@@ -243,7 +245,7 @@ Quy ước cột: **Vùng → Panel** = mỗi vùng một `Panel`; "ngoài panel
 | `/` | Hôm nay — Admin | vùng vận hành = 1 panel | |
 | `/admin/users` | danh sách người dùng | toolbar + bảng trong 1 panel; nút chính `Mời người dùng`; `Dialog` giữ | |
 | `/admin/courses` | danh sách lớp | 1 panel (mã, tên, giảng viên, trạng thái, số thành viên; **không** nội dung lớp); nút chính `Tạo lớp` | |
-| `/settings/llm` | §14.23 | "Nhà cung cấp" 1 panel (mỗi nhà một **hàng**, không ba thẻ) · "Gán theo tác vụ" 1 panel (`LLMRouteTable`) | khoá che |
+| `/settings/llm` | §14.23 | **năm vùng của US-P1-05, mỗi vùng 1 panel** (góp ý #1): "Kết nối nhà cung cấp" (mỗi nhà một **hàng**, không ba thẻ) · "Mô hình theo tác vụ" (`LLMRouteTable`) · "Chuỗi dự phòng" · "Mô hình tìm kiếm tài liệu" · "Mức dùng và ngân sách" (≤ 3 ô nhấn) | khoá che; `data-part` / tiêu đề giữ nguyên (`settings-llm.spec.ts`) |
 | `/observability` | §14.22 | dải trạng thái gọn trong 1 panel | prompt chỉ ADMIN + `audit_log` |
 | `/settings/integrations`, `/settings` | §14.24 | mỗi mục 1 panel | |
 
