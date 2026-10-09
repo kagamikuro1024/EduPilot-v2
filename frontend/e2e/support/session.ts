@@ -22,13 +22,13 @@ const mineItem = (code: keyof typeof COURSE_ID, role: "TEACHER" | "TA" | "STUDEN
  * Đăng nhập GIẢ bằng JWT cho màn mô phỏng (thay bộ đổi vai bằng cookie đã bị xoá — US-P2-12 AC10): `POST /auth/refresh` trả phiên của
  * tài khoản seed tương ứng vai / người, `GET /me/courses` trả lớp thật tương ứng. Gateway không chạy: mọi lời gọi khác bị bỏ qua.
  */
-export async function asDemo(context: BrowserContext, role: DemoRole, opts: { person?: string } = {}) {
+export async function asDemo(context: BrowserContext, role: DemoRole, opts: { person?: string; expIn?: number } = {}) {
   const person = role === "student" ? (opts.person ?? "sv-2") : role;
   const email = SEED_EMAIL[person];
   const jwtRole: JwtRole = role === "student" ? "STUDENT" : (role.toUpperCase() as JwtRole);
   const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
   const json = (body: unknown) => ({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
-  await context.route("**/api/v1/auth/refresh", (r) => r.fulfill(json(sessionBody(jwtRole, { email }))));
+  await context.route("**/api/v1/auth/refresh", (r) => r.fulfill(json(sessionBody(jwtRole, { email, expIn: opts.expIn }))));
   await context.route("**/api/v1/auth/logout", (r) => r.fulfill({ status: 204, headers: cors }));
   const items =
     role === "student" ? (STUDENT_CLASSES[person] ?? []).map((c) => mineItem(c, "STUDENT"))
