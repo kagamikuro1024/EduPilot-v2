@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/testutil"
 )
 
 func (r *sessRig) scalar(sql string, args ...any) string {
@@ -119,9 +120,7 @@ func TestLoginDisabledAccount(t *testing.T) {
 
 // US-P2-02 AC2: email không tồn tại không nhanh hơn mật khẩu sai quá 35% (luôn một phép bcrypt).
 func TestLoginTimingEqualized(t *testing.T) {
-	if testing.Short() {
-		t.Skip("đo thời gian")
-	}
+	testutil.SkipTiming(t)
 	r := newSessRig(t, func(e map[string]string) {
 		e["BCRYPT_COST"] = "10"
 		e["LOCKOUT_BACKOFF_FROM"], e["LOCKOUT_LOCK_AT"] = "999", "1000" // phép đo 20 lần sai liên tiếp: tắt chờ / khoá (US-P2-05 có test riêng)
