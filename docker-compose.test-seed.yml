@@ -6,7 +6,8 @@
 services:
   gateway:
     environment:
-      RATE_LIMIT_IP_PER_MIN: "5000"
+      RATE_LIMIT_IP_PER_MIN: "300000" # k6 (US-PE-09): ~25.000 yêu cầu / phút từ một IP; 5.000 làm 429 chiếm phần lớn lượt đo
+      RATE_LIMIT_USER_PER_MIN: "100000" # k6 `chat`: 50 luồng từ MỘT tài khoản Admin (~3 yêu cầu / giây mỗi luồng); mặc định 600 / phút
       AUTH_LOGIN_IP_PER_MIN: "1000"
       AUTH_REGISTER_IP_PER_HOUR: "1000"
       AUTH_TOKEN_IP_PER_MIN: "1000"

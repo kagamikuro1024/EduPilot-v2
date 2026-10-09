@@ -54,7 +54,7 @@ func attacks() []attack {
 		{"A5", judge.C11, cHeader + `int main(){for(int i=0;i<512;i++){char*p=malloc(1<<20); if(!p) return 3; memset(p,1,1<<20);} return 0;}`, "", []judge.Verdict{judge.MLE}, "cấp phát dần tới 512 MiB"},
 		{"A6", judge.C11, cHeader + `int main(){size_t n=2UL<<30; volatile char*p=malloc(n); if(!p) return 3; for(size_t i=0;i<n;i+=4096) p[i]=1; printf("%d\n",p[n-4096]); return 0;}`, "", []judge.Verdict{judge.MLE, judge.RE}, "cấp phát 2 GB một lần"},
 		{"A7", judge.C11, cHeader + `int main(){volatile int*p=0; *p=1; return 0;}`, "", []judge.Verdict{judge.RE}, "con trỏ NULL"},
-		{"A8", judge.C11, cHeader + `int main(){for(;;) fork();}`, "", []judge.Verdict{judge.TLE, judge.RE}, "fork bomb"},
+		{"A8", judge.C11, cHeader + `int main(){for(;;) fork();}`, "", []judge.Verdict{judge.TLE, judge.RE, judge.MLE}, "fork bomb (bất biến thật: procPeak == 1, kiểm bên dưới; #19)"},
 		{"A9", judge.C11, cHeader + `int main(){const char*p[]={"/etc/shadow","/etc/passwd","/proc/1/environ","/opt/go-judge","/root/.bashrc"}; for(int i=0;i<5;i++){FILE*f=fopen(p[i],"r"); if(f){puts("OPEN");fclose(f);} else puts("CHAN");} return 0;}`, chan5, []judge.Verdict{judge.AC}, "5 đường tệp hệ thống bị chặn"},
 		{"A10", judge.C11, netHeader + `int main(){printf("connect=%d\n",tryc("1.1.1.1",53)); return 0;}`, "connect=-1\n", []judge.Verdict{judge.AC}, "connect 1.1.1.1:53"},
 		{"A10b", judge.C11, netHeader + `int main(){printf("%d %d %d %d\n",tryc("127.0.0.1",5050),tryc("172.17.0.1",5432),tryc("172.17.0.2",6379),tryc("10.0.0.1",5432)); return 0;}`, "-1 -1 -1 -1\n", []judge.Verdict{judge.AC}, "connect tới cổng nội bộ / IP dịch vụ"},

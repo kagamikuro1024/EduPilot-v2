@@ -8,9 +8,10 @@
 //
 //   judge_burst : 60 lần nộp code (<bits/stdc++.h>, 10 test) rải 5 phút từ 30 sinh viên      → judge_done_ms p95 < 60 000, judge_ie == 0, lỗi HTTP < 0,5 %
 //   autosave    : 300 phiên đồng thời lưu câu trả lời mỗi 2 s trong 3 phút (10 phiên / lượt)  → autosave_ms p95 < 150, lỗi < 0,5 %
-//   chat        : 50 luồng chat giả `POST /_test/llm/chat` (INTERACTIVE, stream) 5 phút       → đo chat_ttft_ms (đường cơ sở cho mixed)
+//   chat        : 50 luồng chat giả `POST /_test/llm/chat` (INTERACTIVE, KHÔNG stream) 5 phút → đo chat_ttft_ms = thời gian tới byte đầu của câu trả lời (đường cơ sở cho mixed)
 //   mixed       : judge_burst + chat + `Chạy thử` rải đều                                      → chat_ttft_ms p95 < 1500 (SLO TTFT), run_ms p95 ≤ 5 000; TỈ LỆ so với `chat` riêng do scripts/gate-pe.sh tính (#18)
 // Góp ý #18: TTFT phải đo với provider `fake` có trễ THẬT. Stack test-seed đặt FAKE_LLM_LATENCY=300-300 (trễ trước token đầu = TTFT) và LLM_MAX_CONCURRENCY=100 (50 luồng không xếp hàng).
+// Vì sao không stream: route `_test` ghi header SSE ngay, trước token đầu → `waiting` của k6 chỉ đo header (13 ms dù trễ 300 ms). Không stream thì thân trả sau đúng độ trễ của provider + hàng đợi `INTERACTIVE`.
 // Mỗi kịch bản chạy 3 cặp (`-e RUN=1|2|3`, báo cáo `...-<kịch bản>-<RUN>.json`); cổng lấy TRUNG VỊ của 3 tỉ lệ p95(mixed)/p95(chat) ≤ 1,2.
 import http from 'k6/http';
 import { check, sleep, fail } from 'k6';
@@ -31,8 +32,8 @@ const autosave = new Trend('autosave_ms', true);
 const runMs = new Trend('run_ms', true);
 const chatTTFT = new Trend('chat_ttft_ms', true);
 
-// 4xx là phản hồi đúng của gateway (hạn mức, 409…); chỉ 5xx và lỗi kết nối tính vào http_req_failed.
-http.setResponseCallback(http.expectedStatuses({ min: 200, max: 499 }));
+// Chỉ 2xx / 3xx là thành công: 429 (hạn mức) hay 4xx khác tính vào http_req_failed. (Bản đầu cho 4xx qua → 429 trả nhanh làm số đo đẹp giả.)
+http.setResponseCallback(http.expectedStatuses({ min: 200, max: 399 }));
 
 const SRC = `#include <bits/stdc++.h>
 using namespace std;
@@ -189,15 +190,14 @@ export function judgeBurst(d) {
 export function autosaveVU(d) {
   const s = d.students[(exec.vu.idInTest - 1) % d.students.length];
   const r = call('PUT', `${base(d, s)}/answers`, { items: [{ item_id: s.mcqItem, answer: { option_ids: [s.option] } }] }, s.token, { headers: hdr(d, s, false), tags: { name: 'autosave' } });
-  check(r, { 'lưu 200': (x) => x.status === 200 });
-  autosave.add(r.timings.duration);
+  if (check(r, { 'lưu 200': (x) => x.status === 200 })) autosave.add(r.timings.duration);
   sleep(2);
 }
 
 export function chatVU(d) {
-  const r = http.post(`${API}/_test/llm/chat`, JSON.stringify({ task: 'CHAT', prompt: 'Giải thích ngắn gọn về hàm băm.', lane: 'INTERACTIVE', stream: true }), { headers: auth(d.admin), tags: { name: 'chat' }, timeout: '60s' });
-  check(r, { 'chat 200': (x) => x.status === 200 });
-  chatTTFT.add(r.timings.waiting);
+  const r = http.post(`${API}/_test/llm/chat`, JSON.stringify({ task: 'CHAT', prompt: 'Giải thích ngắn gọn về hàm băm.', lane: 'INTERACTIVE', stream: false }), { headers: auth(d.admin), tags: { name: 'chat' }, timeout: '60s' });
+  if (check(r, { 'chat 200': (x) => x.status === 200 })) chatTTFT.add(r.timings.waiting);
+  else sleep(1); // lỗi: không quay vòng nóng
 }
 
 export function runProbe(d) {
