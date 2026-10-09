@@ -78,3 +78,21 @@ Dev nghiêng về (a) (bằng chứng tất định), có thể kèm (b) cho ph�
 **Bằng chứng.** Job `Judge attacks (amd64, seccomp bật)`, run của `81e1a11`: A8 (`for(;;) fork();`) → verdict **`MLE`**, test đòi `TLE` hoặc `RE` (`attacks_integration_test.go:108`; SRS 4.x bảng A1–A15: "`procPeak = 1`; `TLE` hoặc `RE`; không tiến trình mồ côi"). Chạy lại đúng job (cùng commit): **xanh**. Các lượt CI trước (3 lượt) và 15 ca ở máy dev / QC: A8 luôn `TLE` / `RE`. Tỉ lệ quan sát: 1 / ≥ 5 lượt.
 **Suy đoán (chưa kiểm).** Khi fork bị chặn (`EAGAIN`) vòng lặp quay đến hạn CPU → `TLE`; `MLE` có thể là cgroup bộ nhớ của go-judge kịp ghi nhận trước hạn CPU trên runner chậm. Nếu đúng thì sandbox vẫn chặn được (không AC, không mồ côi), chỉ nhãn verdict dao động.
 **Câu hỏi.** (a) Mở `want` của A8 thành `{TLE, RE, MLE}` (đổi chữ SRS bảng A8 → cần proposal), hay (b) giữ và coi là flake hạ tầng, hay (c) có cách đo phân biệt "fork bị chặn" với "fork thành công rồi hết bộ nhớ" (ví dụ in `procPeak` từ go-judge)? Dev **chưa** đổi gì.
+
+**TL trả lời (2026-10-09):**
+
+**Kết luận.** Làm (c) + (a). Thêm khẳng định `procPeak == 1` cho A8. Đây chính là bất biến SRS ghi ("không tạo được tiến trình thứ hai") mà test **chưa** kiểm. Sau đó mở tập verdict thành `{TLE, RE, MLE}` qua proposal. Không làm (b): `MLE` không phải flake hạ tầng; nó tái hiện được tất định và là hành vi đúng của go-judge.
+
+1. **Đo (PoC):** container riêng từ image `edupilot-judge:test` (go-judge v1.13.0, colima arm64, `-no-seccomp`, `--privileged --cgroupns=host -m 2g --cpus=2`), gọi `/run` đúng tham số của `Client.Run` (`cpuLimit` 1 s, `clockLimit` 3 s, `procLimit` 1). Kết quả:
+
+   | Bài | `memoryLimit` | Lượt | `status` | `memory` (MiB) | `procPeak` |
+   |---|---|---|---|---|---|
+   | `for(;;) fork();` | 256 MiB | 10, tuần tự | TLE × 10 | **54–73** | 1 |
+   | `for(;;);` (đối chứng) | 256 MiB | 1 | TLE | 0 | 1 |
+   | `for(;;) fork();` | **32 MiB** | 5 | **MLE × 5** (sau 20–30 ms) | 32 | **1** |
+   | `for(;;) fork();`, máy bận (8 vòng CPU ở container khác, 2 bài song song) | 256 MiB | 16 | TLE × 16 | 20–30 | 1 |
+
+   ⇒ Mỗi lần `fork()` bị chặn vẫn bị tính bộ nhớ vào cgroup của bài. Đỉnh 54–73 MiB với một tiến trình duy nhất, trong khi vòng lặp rỗng là 0. Khi giới hạn thấp hơn đỉnh đó, verdict **luôn** là `MLE` dù `procPeak = 1`. Vì vậy `MLE` ở CI là cùng cơ chế, chỉ khác là đỉnh vượt 256 MiB. go-judge xếp `MLE` khi `memory > memoryLimit` (cả khi đã `TLE`): `envexec/run_single.go` v1.13.0, `if result.Memory > c.MemoryLimit { result.Status = StatusMemoryLimitExceeded }`, kiểm **sau** `TLE`. [SUY LUẬN, chưa đọc mã nhân: `copy_process` cấp `task_struct`, ngăn xếp nhân, bản sao `mm` / bảng trang **trước** khi kiểm `pids.max`, rồi giải phóng chậm qua RCU. Nên đỉnh phụ thuộc tốc độ fork và độ trễ RCU của máy; amd64 / runner CI có thể cao hơn arm64.]
+2. **Sửa test (c), không cần proposal:** `judge.Result` không mang `procPeak`. Trong `TestSandboxAttacks`, riêng A8 (và A14 `system()`), sau `c.Judge` gọi thêm `c.Compile` + `c.Run` cùng mã và khẳng định `rr.ProcPeak == 1`. Ghi `rr.MemoryKB` vào dòng log để CI có số đo. Không đổi API / JSON (`TestResult` giữ nguyên).
+3. **Mở tập verdict (a), cần proposal:** SRS bảng A1–A15 dòng A8 đổi `TLE hoặc RE` → `TLE, RE hoặc MLE`, giữ `procPeak = 1` và "không tiến trình mồ côi". Đây không phải nới kiểm: bất biến bảo mật (không tiến trình thứ hai) được kiểm **chặt hơn** trước, chỉ cái nhãn phụ thuộc nhân được nới. Dev ghi dòng `proposals.md`, PM quyết; dev chưa đổi `want` khi chưa có số proposal.
+4. **Sinh viên không bị ảnh hưởng:** bài bình thường không gọi `fork()`. Bài cố tình fork nhận `TLE` hoặc `MLE`, đều trượt.
