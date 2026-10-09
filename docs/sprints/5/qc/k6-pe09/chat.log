@@ -1,0 +1,6 @@
+
+=== pe-exam-submit · chat ===
+chat_ttft_ms: avg=4.778 p(50)=4.11 p(95)=10.12 max=86.234
+http_req_failed: rate=0 passes=0 fails=2296248
+ngưỡng http_req_failed: rate<0.005 PASS
+rc=0

@@ -1,0 +1,7 @@
+
+=== pe-exam-submit · autosave ===
+autosave_ms: p(95)=66.994 max=220.351 avg=19.946 p(50)=10.84
+http_req_failed: rate=0 passes=0 fails=27066
+ngưỡng http_req_failed: rate<0.005 PASS
+ngưỡng autosave_ms: p(95)<150 PASS
+rc=0

@@ -1,0 +1,9 @@
+
+=== pe-exam-submit · judge_burst ===
+judge_done_ms: avg=1030.443 p(50)=1032 p(95)=1040 max=1042
+judge_ie: count=0 rate=0
+http_req_failed: rate=0 passes=0 fails=269
+ngưỡng judge_ie: count==0 PASS
+ngưỡng http_req_failed: rate<0.005 PASS
+ngưỡng judge_done_ms: p(95)<60000 PASS
+rc=0
