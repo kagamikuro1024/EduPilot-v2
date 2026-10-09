@@ -43,3 +43,17 @@
 5. **Gợi ý về `inlineCss`.** Chính dev đã đo: HTML 387 KB và lần vẽ đầu muộn hơn. Ở devtools, FCP 827–840 ms là số **có** `inlineCss`; tôi chưa đo bản không có. Đo một lượt devtools không `inlineCss`; nếu FCP / LCP không tệ hơn thì gỡ (HTML nhỏ hơn có lợi cho người dùng 4G thật).
 
 Lệnh tái hiện (trên bản chép, không đụng cổng 3310 / 3312 của dev): `E2E_API_PORT=3412 pnpm build:gate`; `lhci collect` với `url` → `localhost:3410`, `startServerCommand` = `LH_API_PORT=3412 LH_ORIGIN=http://localhost:3410 node lighthouse-api.mjs & exec pnpm exec next start -p 3410`, `puppeteerScript` với `ORIGIN` 3410; chạy lần hai thêm `settings.throttlingMethod: "devtools"`. Phần tử LCP: `jq '.audits["largest-contentful-paint-element"].details.items[0].items[0].node | {nodeLabel, selector, boundingRect}'`.
+
+## TL-3 (CI: `TestJoinFailureTimingEqualized` đỏ ổn định trên GitHub Actions — nên đổi cách đo hay đổi mã?)
+
+**Bối cảnh.** CI mới trên `EduPilot-v2`, nhánh `sprint/5-pe` (`go test -race ./...` trong job `Go`). Hai lượt liên tiếp (một lượt chạy lại) cùng đỏ ở `internal/course/join_limit_test.go:58` (P2, không liên quan PE):
+`require.LessOrEqual(hi-lo / lo, 0.35)` — lượt 1: **0,403**; lượt 2: **1,375** với trung vị mỗi nguyên nhân (20 mẫu, xen kẽ): `lớp lưu trữ 1,147 ms · sai tên miền 0,924 ms · mã tắt 0,748 ms · mã hết hạn 0,694 ms · sai mã 0,626 ms · mã cũ 0,483 ms`. Cục bộ (macOS arm64) test xanh, ngưỡng 0,35 vượt dễ.
+Hai lỗi thật khác của cùng lượt CI đã sửa riêng (so thời điểm µs/ns trong `attempts_test.go`; `settleGoto` chưa đợi hydrate) — không thuộc câu hỏi này.
+
+**Quan sát.** `lookupByCode` (`internal/course/join.go`) đã làm đúng một truy vấn + một phép so sánh hằng thời gian + một quyết định gộp cho mọi nguyên nhân; chênh lệch thời gian đo được là chênh lệch **một truy vấn có / không trả dòng** (giải mã `Course`) cộng nhiễu: `go test ./...` chạy nhiều gói song song trên runner 4 vCPU (gói `course` mất 156–278 s), và các trung vị chỉ 0,5–1,1 ms nên 0,2–0,6 ms nhiễu đã vượt 35 %.
+
+**Câu hỏi.** Test này là phép đo thống kê vi mô (sub-ms) trên máy dùng chung; không thể ổn định bằng cách nới ngưỡng mà vẫn giữ ý nghĩa, và AGENTS cấm nới assertion để xanh. Chọn:
+- (a) giữ ý nghĩa, đổi **cách đo**: so sánh theo **số truy vấn / số lần cấp phát** (đếm câu SQL qua `pgx` tracer: mọi nguyên nhân đúng 1 truy vấn, cùng số vòng quyết định) thay vì mili-giây — tất định, chạy được trên CI;
+- (b) giữ phép đo thời gian nhưng chuyển sang job riêng chạy tuần tự (`-p 1`, `-run TestJoinFailureTimingEqualized -count=1`) với cờ build / env `TIMING_TESTS=1` (không chạy trong `go test ./...` thường), ngưỡng 0,35 giữ nguyên;
+- (c) khuyên cái khác (ví dụ chuẩn hoá thật bằng cách luôn `SELECT` cùng số cột / dòng cho cả nhánh không tìm thấy).
+Dev nghiêng về (a) (bằng chứng tất định), có thể kèm (b) cho phần "thời gian thật". Đây là test hợp đồng P2 nên cần ý kiến TL trước khi sửa; dev không nới ngưỡng.
