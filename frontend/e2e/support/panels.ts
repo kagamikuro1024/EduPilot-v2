@@ -21,7 +21,7 @@ export async function panelViolations(page: Page) {
       strongMax: Math.max(0, ...all.map((e) => e.querySelectorAll('[data-tone="strong"]').length)),
       strongNested: document.querySelectorAll('[data-tone="strong"] [data-ep-panel], [data-tone="strong"] [data-ep-panel-section]').length,
       wall: wall >= 3 ? wall : 0,
-      h2: [...scope.querySelectorAll("h2")].map((h) => (h.textContent ?? "").trim()),
+      h2: [...scope.querySelectorAll<HTMLElement>("h2")].filter(vis).map((h) => (h.textContent ?? "").trim()),
       left: rects.map((r) => Math.round(r.left * 100) / 100),
       right: rects.map((r) => Math.round((window.innerWidth - r.right) * 100) / 100),
       sw: document.documentElement.scrollWidth,

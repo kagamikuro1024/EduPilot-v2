@@ -6,7 +6,7 @@ import { panelViolations as violations } from "./support/panels";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
 import { asDemo, type DemoRole } from "./support/session";
-import { mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
+import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 import { mockTake, TAKE_COURSE, TAKE_EXAM, type TakeKind } from "./support/takeMock";
 
 // "Panel có kỷ luật" (D59, FEAT-ui-panels). Chạy trên bản build có /dev/*: `pnpm build:gate` rồi `playwright test panels.spec.ts`.
@@ -349,7 +349,7 @@ test.describe("join|settings", () => {
       const v = await violations(page);
       expect(v).toMatchObject({ nest: 0, title: 0, wall: 0 });
       expect(v.panels).toBeGreaterThanOrEqual(1);
-      expect(await page.locator("main [data-variant=primary]").count()).toBeLessThanOrEqual(route === "/settings" ? 3 : 1);
+      expect(await page.locator("main [data-variant=primary]:visible").count()).toBeLessThanOrEqual(route === "/settings" ? 3 : 1);
       expect(await page.locator("main form, main input").first().evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
     });
   }
@@ -452,7 +452,7 @@ test.describe("exams staff", () => {
     expect(v.panels).toBe(v.h2.length);
     expect(v.panels).toBeGreaterThanOrEqual(3);
     expect(await page.locator("main [data-ep-panel] li [data-ep-panel]").count()).toBe(0);
-    expect(await page.locator("main [data-variant=primary]").count(), "một nút chính").toBe(1);
+    expect(await page.locator("main [data-variant=primary]:visible").count(), "một nút chính").toBe(1);
   });
 });
 
@@ -491,7 +491,7 @@ test.describe("questions", () => {
     expect(v).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
     expect(await page.getByRole("table").first().evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
     expect(await page.getByRole("searchbox").first().evaluate((e) => !!e.closest("[data-ep-panel]")), "Toolbar trong panel").toBe(true);
-    expect(await page.locator("main [data-variant=primary]").count()).toBe(1);
+    expect(await page.locator("main [data-variant=primary]:visible").count()).toBe(1);
   });
 });
 
@@ -579,5 +579,89 @@ test.describe("staff routes", () => {
       const v = await violations(page);
       expect(v.left.concat(v.right).filter((x) => Math.abs(x - 12) > 0.5), `lề ${route}`).toEqual([]);
     }
+  });
+});
+
+// ───────── US-UI-06 — Admin ─────────
+async function adminSetup(page: Page, context: Parameters<typeof asDemo>[0]) {
+  await asDemo(context, "admin");
+  await mockAdminApi(page);
+  await mockLlmApi(page);
+}
+
+test.describe("admin users", () => {
+  test("/admin/users: 1 Panel (Toolbar + bảng), 1 nút chính, NEST / TITLE / WALL = 0, AUDIT sạch ở 1440 / 1024 / 375", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo cả ba bề rộng trong một ca");
+    await adminSetup(page, context);
+    const { AUDIT_SRC } = await loadAudit();
+    for (const w of [1440, 1024, 375]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/admin/users");
+      await page.locator("main [data-ep-panel]:visible").first().waitFor();
+      expect(await violations(page), `@${w}`).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0, strongMax: 0 });
+      expect(await page.locator("main table").first().evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+      expect(await page.getByRole("searchbox").or(page.getByLabel("Tìm người dùng")).first().evaluate((e) => !!e.closest("[data-ep-panel]")), "Toolbar trong panel").toBe(true);
+      expect(await page.locator("main [data-variant=primary]:visible").count()).toBe(1);
+      const a = await runAudit(page, AUDIT_SRC);
+      expect({ ox: a.ox, cut: a.cut }, `AUDIT @${w}`).toEqual({ ox: 0, cut: [] });
+    }
+  });
+});
+
+test.describe("admin courses", () => {
+  test("/admin/courses: 1 Panel, 1 nút chính, không nội dung lớp; AUDIT sạch ở 1440 / 1024 / 375", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo cả ba bề rộng trong một ca");
+    await adminSetup(page, context);
+    const { AUDIT_SRC } = await loadAudit();
+    for (const w of [1440, 1024, 375]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/admin/courses");
+      await page.locator("main [data-ep-panel]:visible").first().waitFor();
+      expect(await violations(page), `@${w}`).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0, strongMax: 0 });
+      expect(await page.locator("main [data-variant=primary]:visible").count()).toBe(1);
+      const a = await runAudit(page, AUDIT_SRC);
+      expect({ ox: a.ox, cut: a.cut }, `AUDIT @${w}`).toEqual({ ox: 0, cut: [] });
+    }
+    expect(await page.locator("main").innerText()).not.toMatch(/mã tham gia|AN7K2MQ|bài thi|chat riêng/i);
+  });
+});
+
+test.describe("settings llm", () => {
+  test("/settings/llm: mỗi vùng tiêu đề ngoài + 1 Panel, khoá API che, AUDIT sạch ở 1440 / 1024 / 375", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo cả ba bề rộng trong một ca");
+    await adminSetup(page, context);
+    const { AUDIT_SRC } = await loadAudit();
+    for (const w of [1440, 1024, 375]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      await page.goto("/settings/llm");
+      await page.getByRole("heading", { name: "Kết nối nhà cung cấp", level: 2 }).waitFor();
+      const v = await violations(page);
+      expect(v, `@${w}`).toMatchObject({ nest: 0, title: 0, wall: 0 });
+      expect(v.panels, "mỗi vùng một Panel").toBe(v.h2.length);
+      expect(v.strongMax).toBeLessThanOrEqual(3);
+      const a = await runAudit(page, AUDIT_SRC);
+      expect({ ox: a.ox, cut: a.cut }, `AUDIT @${w}`).toEqual({ ox: 0, cut: [] });
+    }
+    expect(await page.locator("main").innerText()).not.toMatch(/sk-[A-Za-z0-9]|api_key/i);
+  });
+});
+
+test.describe("admin routes", () => {
+  test("bảng 7.2 × vai admin: main ≥ 1 Panel, TITLE / NEST / WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    test.setTimeout(180_000);
+    await adminSetup(page, context);
+    const bad: string[] = [];
+    for (const w of [1440, 1024]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      for (const route of routesFor("admin")) {
+        await page.goto(route);
+        await page.locator("main").first().waitFor();
+        await page.waitForTimeout(250);
+        const v = await violations(page);
+        if (v.panels < 1 || v.nest || v.title || v.wall || v.strongOver || v.sw > v.vw) bad.push(`admin ${route}@${w}: ${JSON.stringify({ ...v, left: undefined, right: undefined })}`);
+      }
+    }
+    expect(bad).toEqual([]);
   });
 });

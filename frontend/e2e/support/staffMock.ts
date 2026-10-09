@@ -88,3 +88,23 @@ export async function mockLlmApi(page: Page) {
     return j(route, { code: "NOT_FOUND", message: "x", trace_id: "t" }, 404);
   });
 }
+
+const USERS = [
+  { id: "u1", email: "ha.lt@edupilot.test", full_name: "Lê Thu Hà", role: "TEACHER", status: "ACTIVE", last_login_at: "2026-10-09T02:00:00Z", version: 1 },
+  { id: "u2", email: "bao.pq@edupilot.test", full_name: "Phạm Quốc Bảo", role: "TA", status: "INVITED", last_login_at: null, version: 1 },
+  { id: "u3", email: "kh@edupilot.test", full_name: "Người bị khoá", role: "STUDENT", status: "DISABLED", last_login_at: "2026-09-01T02:00:00Z", version: 2 },
+];
+const COURSES = [
+  { id: "c1", class_code: "761987", subject_code: "INT1006", name: "An ninh mạng", semester: "2026-2027-HK1", status: "ACTIVE", teacher: { id: "u1", full_name: "Lê Thu Hà" }, assistants_count: 1, students_active: 30, students_pending: 2, capacity: 40, version: 1 },
+  { id: "c2", class_code: "761988", subject_code: "INT1007", name: "Mật mã học", semester: "2026-2027-HK1", status: "ARCHIVED", teacher: null, assistants_count: 0, students_active: 0, students_pending: 0, capacity: null, version: 1 },
+];
+
+/** `/admin/users` và `/admin/courses` (chỉ đọc). */
+export async function mockAdminApi(page: Page) {
+  await page.route(/\/api\/v1\/admin\/(users|courses)/, async (route) => {
+    const req = route.request();
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+    const p = new URL(req.url()).pathname;
+    return j(route, { items: p.endsWith("/users") ? USERS : COURSES, next_cursor: null });
+  });
+}
