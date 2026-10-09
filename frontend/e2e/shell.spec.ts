@@ -392,7 +392,7 @@ test("keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự he
   await expect(prof).toBeFocused();
 });
 
-test("regression-1.5: LEFT page-title 240 / 16, brand 56, logo 32, mark 28", async ({ page, context }) => {
+test("regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28", async ({ page, context }) => {
   mockOnly();
   const { LEFT_SRC } = await loadAudit();
   await asDemo(context, "teacher");
@@ -403,7 +403,7 @@ test("regression-1.5: LEFT page-title 240 / 16, brand 56, logo 32, mark 28", asy
   expect((await box(page, "[data-part=sidebar] [data-part=brand] img")).h).toBe(32);
   await size(page, 390, 844);
   await page.goto("/gradebook");
-  expect(await page.evaluate(LEFT_SRC)).toBe(16);
+  expect(await page.evaluate(LEFT_SRC)).toBe(12); // US-UI-04 AC7 / TLR-4: lề ngang mobile 12 px (trước 16) để Panel cách mép đúng --ep-space-3
   expect(await box(page, "header [data-part=brand] img")).toMatchObject({ w: 28, h: 28 });
 });
 

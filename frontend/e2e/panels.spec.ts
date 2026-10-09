@@ -1,9 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 import { loadAudit, runAudit } from "./support/audit";
+import { BASE_URL } from "./support/env";
 import { rgbOf } from "./support/colors";
+import { panelViolations as violations } from "./support/panels";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
 import { asDemo, type DemoRole } from "./support/session";
+import { mockTake, TAKE_COURSE, TAKE_EXAM, type TakeKind } from "./support/takeMock";
 
 // "Panel có kỷ luật" (D59, FEAT-ui-panels). Chạy trên bản build có /dev/*: `pnpm build:gate` rồi `playwright test panels.spec.ts`.
 // US-UI-02 AC1–AC5, AC7, AC8: token, hợp đồng DOM, NEST = 0, STRONG ≤ 3, WALL = 0, primitive trong panel, "chỉ qua token".
@@ -15,27 +18,6 @@ async function resolved(page: Page, prop: "color" | "boxShadow", expr: string) {
 }
 
 const cell = (page: Page, name: string) => page.locator(`[data-cell="${name}"]`);
-
-/** Phép đo luật (NEST, TITLE, STRONG, WALL) trên trang hiện tại — dùng cho route thật và cho ca gieo vi phạm. */
-async function violations(page: Page) {
-  return page.evaluate(() => {
-    const panels = [...document.querySelectorAll<HTMLElement>("[data-ep-panel]")];
-    const rects = panels.map((e) => e.getBoundingClientRect());
-    let wall = 0;
-    for (const r of rects) {
-      if (r.top > 800) continue;
-      wall = Math.max(wall, rects.filter((q) => q.top <= 800 && Math.abs(q.top - r.top) < 8 && Math.abs(q.width - r.width) < 4).length);
-    }
-    return {
-      panels: panels.length,
-      nest: document.querySelectorAll("[data-ep-panel] [data-ep-panel]").length,
-      title: document.querySelectorAll("[data-ep-panel] h1, [data-ep-panel] h2").length,
-      strongOver: panels.filter((e) => e.querySelectorAll('[data-tone="strong"]').length > 3).length,
-      strongNested: document.querySelectorAll('[data-tone="strong"] [data-ep-panel], [data-tone="strong"] [data-ep-panel-section]').length,
-      wall: wall >= 3 ? wall : 0,
-    };
-  });
-}
 
 test.describe("tokens", () => {
   test("năm token đúng giá trị phương án (a); token nền cũ đã bị xoá", async ({ page }, info) => {
@@ -213,6 +195,189 @@ test.describe("auth shell", () => {
         const a = await runAudit(page, AUDIT_SRC);
         expect({ ox: a.ox, cut: a.cut }, `AUDIT ${route}@${w}`).toEqual({ ox: 0, cut: [] });
       }
+    });
+  }
+});
+
+// ───────── US-UI-04 — Sinh viên ─────────
+const STUDENT_ROUTES = [...new Set([...routesFor("student"), "/settings", "/join/ABC123"])];
+const WIDTHS = [1440, 1024, 375] as const;
+const heightFor = (w: number) => (w === 375 ? 812 : 900);
+
+test.describe("student home", () => {
+  for (const w of WIDTHS) {
+    test(`/ @${w}: 2 Panel vùng (Việc nên làm tiếp, Hôm nay), NEST/TITLE/WALL = 0, STRONG ≤ 1, một cột ở 375`, async ({ page, context }, info) => {
+      test.skip(info.project.name !== "desktop", "đo cả ba bề rộng trong một ca");
+      await asDemo(context, "student");
+      const course = { id: "00000000-0000-7000-8000-00000000c001", class_code: "761987" };
+      const today = {
+        no_course: false, email_verified: true, continue: [],
+        recommended: { id: "r1", kind: "EXAM_OPEN", title: "Làm bài thi Tuần 9", reason: "Bài thi đóng lúc 21:00 hôm nay.", urgency: "high", href: "/exams", course: null, estimate_minutes: 45 },
+        timeline: [{ at: "2026-10-15T02:00:00Z", ends_at: "2026-10-15T04:30:00Z", title: "Buổi 10 · An ninh mạng", place: "P.302", state: "NOW", course }],
+      };
+      for (const url of ["**/api/v1/me/today**", "**/api/v1/courses/*/today**"]) await page.route(url, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify(today) }));
+      await page.setViewportSize({ width: w, height: heightFor(w) });
+      await page.goto("/");
+      await page.getByRole("heading", { name: "Hôm nay", level: 2 }).waitFor();
+      const v = await violations(page);
+      expect(v).toMatchObject({ nest: 0, title: 0, wall: 0, strongNested: 0 });
+      expect(v.strongMax).toBeLessThanOrEqual(1);
+      expect(v.panels, "đúng 2 Panel vùng").toBe(2);
+      expect(v.h2).toEqual(["Việc nên làm tiếp", "Hôm nay"]);
+      const kpi = await page.locator("main [data-part=kpi], main [data-tone=strong]").count();
+      expect(kpi, "không ô số liệu ở đầu trang").toBeLessThanOrEqual(1);
+      if (w === 375) {
+        const lefts = await page.locator("main > div > [data-ep-panel], main [data-ep-panel]").evaluateAll((els) => els.map((e) => Math.round(e.getBoundingClientRect().left)));
+        expect(new Set(lefts).size, "một cột ở 375 px").toBe(1);
+      }
+    });
+  }
+});
+
+test.describe("student routes", () => {
+  test("16 route Sinh viên: main có ≥ 1 Panel, tiêu đề vùng ngoài panel, NEST/WALL = 0, STRONG ≤ 3, không tràn ngang ở 1440 và 1024", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    test.setTimeout(180_000);
+    await asDemo(context, "student");
+    await page.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ items: [], next_cursor: null }) }));
+    const bad: string[] = [];
+    for (const w of [1440, 1024]) {
+      await page.setViewportSize({ width: w, height: 900 });
+      for (const route of STUDENT_ROUTES) {
+        await page.goto(route);
+        await page.locator("main").first().waitFor();
+        const v = await violations(page);
+        if (v.panels < 1 || v.nest || v.title || v.wall || v.strongOver || v.sw > v.vw) bad.push(`${route}@${w}: ${JSON.stringify({ ...v, left: undefined, right: undefined })}`);
+      }
+    }
+    expect(bad).toEqual([]);
+  });
+});
+
+test.describe("student mock routes", () => {
+  test("/chat, /threads, /threads/[id], /practice/[id], /me, /calendar: panel đúng chỗ; Composer trong panel; bộ lọc ngoài panel", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    test.setTimeout(120_000);
+    await asDemo(context, "student");
+    await page.goto("/chat");
+    await page.locator("[data-part=chat-thread]").waitFor();
+    expect(await page.locator("[data-part=chat-thread]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+    expect(await page.locator("main textarea").first().evaluate((e) => !!e.closest("[data-ep-panel]")), "Composer trong panel").toBe(true);
+    expect(await page.locator("main [data-ep-panel] [data-ep-panel]").count()).toBe(0);
+    await page.goto("/threads");
+    await page.getByRole("list", { name: "Thread của lớp" }).waitFor();
+    expect(await page.getByRole("list", { name: "Thread của lớp" }).evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+    expect(await page.getByRole("searchbox", { name: "Tìm thread" }).evaluate((e) => !!e.closest("[data-ep-panel]")), "bộ lọc ngoài panel").toBe(false);
+    await page.goto("/threads/t-cbc");
+    await page.locator("[data-part=thread-question]").waitFor();
+    expect(await page.locator("[data-part=thread-question]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+    await page.goto("/practice/at-symmetric");
+    await page.locator("main [data-ep-panel]:visible").first().waitFor();
+    expect((await violations(page)).panels).toBeGreaterThanOrEqual(1);
+    await page.goto("/me");
+    await page.locator("main [data-ep-panel]:visible").first().waitFor();
+    const me = await violations(page);
+    expect(me.strongMax).toBeLessThanOrEqual(3);
+    expect(me.wall).toBe(0);
+    await page.goto("/calendar");
+    await page.locator("main [data-ep-panel]:visible").first().waitFor();
+    expect((await violations(page)).panels).toBeGreaterThanOrEqual(1);
+  });
+});
+
+test.describe("exams student", () => {
+  test("/exams: số Panel = số nhóm có dữ liệu; hàng không có Panel; tiêu đề nhóm ngoài panel; rỗng = một Panel", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "student");
+    const row = (id: string, title: string, status: string, my: unknown, score: string | null) => ({ id, title, status, my_attempt: my, my_score: score, instructions: null, kind: "MCQ", duration_minutes: 45, max_score: "10.00", opens_at: "2026-12-01T01:00:00Z", closes_at: "2026-12-01T03:00:00Z" });
+    const rows = [
+      row("s-1", "Tuần 9", "OPEN", null, null),
+      row("s-3", "Tuần 10", "SCHEDULED", null, null),
+      row("s-4", "Tuần 8", "PUBLISHED", { id: "a-2", status: "GRADED", deadline_at: "2026-11-24T02:00:00Z", submitted_at: "2026-11-24T01:50:00Z" }, "8.50"),
+    ];
+    let body = rows;
+    await page.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ items: body, next_cursor: null }) }));
+    await page.goto("/exams");
+    await page.getByRole("heading", { name: "Đang mở", level: 2 }).waitFor();
+    const v = await violations(page);
+    expect(v.panels).toBe(3);
+    expect(v).toMatchObject({ nest: 0, title: 0, wall: 0 });
+    expect(await page.locator("main [data-ep-panel] li [data-ep-panel]").count()).toBe(0);
+    for (const g of ["Đang mở", "Sắp tới", "Đã có điểm"]) expect(v.h2).toContain(g);
+    body = [];
+    await page.goto("/exams");
+    await page.getByText("Lớp của bạn chưa có bài thi nào.").waitFor();
+    expect((await violations(page)).panels).toBe(1);
+  });
+});
+
+test.describe("take states", () => {
+  const STATES: Array<[TakeKind, string]> = [["intro", "Bắt đầu làm bài"], ["running", "Câu 1/3"], ["submitted", "Điểm sẽ hiện khi bài thi đóng với cả lớp"], ["published", "7,75 / 10,00"]];
+  for (const [kind, marker] of STATES) {
+    for (const w of WIDTHS) {
+      test(`${kind} @${w}: Panel đúng chỗ, NEST/TITLE = 0, thanh trên không phải Panel, AUDIT sạch`, async ({ page }, info) => {
+        test.skip(info.project.name !== "desktop", "đo cả ba bề rộng trong một ca");
+        await mockTake(page, kind);
+        await page.setViewportSize({ width: w, height: heightFor(w) });
+        await page.goto(`/exams/${TAKE_EXAM}/take?course=${TAKE_COURSE}`);
+        await page.getByText(marker, { exact: false }).first().waitFor();
+        const v = await violations(page);
+        expect(v, `${kind}@${w}`).toMatchObject({ nest: 0, title: 0, wall: 0, strongNested: 0 });
+        expect(v.panels).toBeGreaterThanOrEqual(1);
+        expect(v.strongMax).toBeLessThanOrEqual(3);
+        if (kind === "running") {
+          const bar = await page.locator("[data-part=take-bar], header").filter({ has: page.getByRole("timer") }).first().evaluate((e) => ({ panel: !!e.closest("[data-ep-panel]") || e.hasAttribute("data-ep-panel") }));
+          expect(bar.panel, "thanh trên cố định không phải Panel").toBe(false);
+          expect(await page.getByRole("radio").first().evaluate((e) => !!e.closest("[data-ep-panel]")), "câu hỏi trong Panel").toBe(true);
+        }
+        const { AUDIT_SRC } = await loadAudit();
+        const a = await runAudit(page, AUDIT_SRC);
+        expect({ ox: a.ox, cut: a.cut }, `AUDIT ${kind}@${w}`).toEqual({ ox: 0, cut: [] });
+      });
+    }
+  }
+});
+
+test.describe("join|settings", () => {
+  for (const route of ["/join", "/join/ABC123", "/settings"]) {
+    test(`${route}: Panel chứa biểu mẫu, một nút chính, NEST/TITLE = 0`, async ({ page, context }, info) => {
+      test.skip(info.project.name !== "desktop", "đo một lần");
+      await asDemo(context, "student");
+      await page.goto(route);
+      await page.locator("main [data-ep-panel]:visible").first().waitFor();
+      const v = await violations(page);
+      expect(v).toMatchObject({ nest: 0, title: 0, wall: 0 });
+      expect(v.panels).toBeGreaterThanOrEqual(1);
+      expect(await page.locator("main [data-variant=primary]").count()).toBeLessThanOrEqual(route === "/settings" ? 3 : 1);
+      expect(await page.locator("main form, main input").first().evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+    });
+  }
+});
+
+test.describe("mobile gutter", () => {
+  for (const w of [375, 390]) {
+    test(`mọi Panel con của main cách mép viewport đúng 12 px @${w}; AUDIT + vùng chạm sạch`, async ({ page, context }, info) => {
+      test.skip(info.project.name !== "desktop", "đo cả hai bề rộng");
+      test.setTimeout(180_000);
+      await asDemo(context, "student");
+      await page.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ items: [], next_cursor: null }) }));
+      await page.setViewportSize({ width: w, height: 844 });
+      const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
+      const bad: string[] = [];
+      for (const route of STUDENT_ROUTES) {
+        await page.goto(route);
+        await page.locator("main [data-ep-panel]:visible").first().waitFor();
+        const v = await violations(page);
+        const off = v.left.concat(v.right).filter((x) => Math.abs(x - 12) > 0.5);
+        if (off.length) bad.push(`${route}@${w} lề: ${JSON.stringify({ left: v.left, right: v.right })}`);
+        const a = await runAudit(page, AUDIT_SRC);
+        if (a.ox || a.cut.length) bad.push(`${route}@${w} AUDIT ${JSON.stringify({ ox: a.ox, cut: a.cut })}`);
+        if (w === 375) {
+          const t = await page.evaluate(TOUCH_SRC);
+          if (Array.isArray(t) && t.length) bad.push(`${route}@${w} TOUCH ${JSON.stringify(t).slice(0, 200)}`);
+        }
+      }
+      expect(bad).toEqual([]);
     });
   }
 });
