@@ -4,6 +4,8 @@ import { expect, test, type Page } from "@playwright/test";
 import { PU_ROUTES, ROLES, routesFor } from "./support/routes";
 import { settleGoto } from "./support/hydrate";
 import { asDemo, type DemoRole } from "./support/session";
+import { mockStudentExams, mockStudentToday } from "./support/screens";
+import { mockTake, TAKE_COURSE, TAKE_EXAM } from "./support/takeMock";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
@@ -14,6 +16,7 @@ const TAGS = ["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"];
 const WIDTHS = [1440, 390];
 const report: Array<{ role: string; route: string; width: number; rule: string; impact: string; nodes: number; allowed: boolean }> = [];
 let scanned = 0;
+const incompleteContrast: Array<{ route: string; width: number; nodes: string[] }> = []; // US-UI-07 AC3: mục `incomplete` của color-contrast để QC xem tay
 
 test.describe.configure({ mode: "serial" }); // một worker ⇒ một báo cáo tổng
 test.beforeEach(async ({}, info) => {
@@ -37,10 +40,12 @@ async function scan(page: Page, role: string, route: string, width: number) {
   const res = await new AxeBuilder({ page }).withTags(TAGS).analyze();
   scanned++;
   const bad: string[] = [];
+  for (const v of res.incomplete) if (v.id === "color-contrast") incompleteContrast.push({ route, width, nodes: v.nodes.slice(0, 5).map((n) => n.target.join(" ")) });
   for (const v of res.violations) {
     const allowed = allow.some((a) => a.rule === v.id && a.route === route);
     report.push({ role, route, width, rule: v.id, impact: v.impact ?? "minor", nodes: v.nodes.length, allowed });
-    if ((v.impact === "critical" || v.impact === "serious") && !allowed) bad.push(`${v.id} (${v.impact}) ×${v.nodes.length}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`);
+    if (v.id === "color-contrast" && !allowed) bad.push(`color-contrast phải 0 vi phạm: ×${v.nodes.length} ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`);
+    else if ((v.impact === "critical" || v.impact === "serious") && !allowed) bad.push(`${v.id} (${v.impact}) ×${v.nodes.length}: ${v.nodes.slice(0, 2).map((n) => n.target.join(" ")).join(" | ")}`);
   }
   return bad;
 }
@@ -76,6 +81,21 @@ test("axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống
   expect(bad).toEqual([]);
 });
 
+test("axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước giờ / đang làm / đã công bố)", async ({ page, context }) => {
+  test.setTimeout(180_000);
+  await asDemo(context, "student");
+  await mockStudentToday(page);
+  await mockStudentExams(page);
+  const bad: string[] = [];
+  for (const route of ["/", "/exams"]) for (const w of WIDTHS) for (const b of await scan(page, "student+data", route, w)) bad.push(`${route} @${w}: ${b}`);
+  for (const kind of ["intro", "running", "published"] as const) {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    await mockTake(page, kind);
+    for (const w of WIDTHS) for (const b of await scan(page, `student+take-${kind}`, `/exams/${TAKE_EXAM}/take?course=${TAKE_COURSE}`, w)) bad.push(`take-${kind} @${w}: ${b}`);
+  }
+  expect(bad).toEqual([]);
+});
+
 test("axe: route PU không cần vai (/login, /dev/ui, /dev/data)", async ({ page }) => {
   test.setTimeout(120_000);
   const bad: string[] = [];
@@ -86,6 +106,8 @@ test("axe: route PU không cần vai (/login, /dev/ui, /dev/data)", async ({ pag
 test.afterAll(() => {
   mkdirSync("test-results", { recursive: true });
   writeFileSync("test-results/axe-report.json", JSON.stringify({ scanned, routes: ROLES.reduce((n, r) => n + routesFor(r).length, 0) + PU_ROUTES.length, violations: report }, null, 1));
+  writeFileSync("test-results/axe-incomplete-contrast.json", JSON.stringify(incompleteContrast, null, 1));
+  console.log(`AXE incomplete color-contrast: ${incompleteContrast.length} lượt có mục cần xem tay (chi tiết test-results/axe-incomplete-contrast.json)`);
   const by = (imp: string) => report.filter((r) => r.impact === imp).length;
   console.log(`AXE: ${scanned} lượt quét (route × vai × bề rộng); critical ${by("critical")}, serious ${by("serious")}, moderate ${by("moderate")}, minor ${by("minor")}`);
 });

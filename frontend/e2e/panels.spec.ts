@@ -6,6 +6,8 @@ import { panelViolations as violations } from "./support/panels";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
 import { asDemo, type DemoRole } from "./support/session";
+import { redAreaPct } from "./support/redArea";
+import { openScreen, SCREENS } from "./support/screens";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 import { mockTake, TAKE_COURSE, TAKE_EXAM, type TakeKind } from "./support/takeMock";
 
@@ -662,6 +664,29 @@ test.describe("admin routes", () => {
         if (v.panels < 1 || v.nest || v.title || v.wall || v.strongOver || v.sw > v.vw) bad.push(`admin ${route}@${w}: ${JSON.stringify({ ...v, left: undefined, right: undefined })}`);
       }
     }
+    expect(bad).toEqual([]);
+  });
+});
+
+// ───────── US-UI-07 AC8 — đỏ chỉ là tín hiệu ─────────
+test.describe("red area", () => {
+  test("13 màn chính ở 1440 px: diện tích đỏ (ΔE2000 ≤ 10 so với --ep-red, không tính --ep-red-soft) < 8 % toàn ảnh; WALL = 0", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    test.setTimeout(240_000);
+    const rows: string[] = [];
+    const bad: string[] = [];
+    for (const sc of SCREENS) {
+      await openScreen(page, context, sc, 1440);
+      const pct = await redAreaPct(page);
+      const v = await violations(page);
+      rows.push(`| ${sc.name} | ${pct.toFixed(2)} % | ${v.panels} | ${v.wall} |`);
+      if (pct >= 8 || v.wall) bad.push(`${sc.name}: đỏ ${pct.toFixed(2)} %, WALL ${v.wall}`);
+      await page.unrouteAll({ behavior: "ignoreErrors" });
+      await context.unrouteAll({ behavior: "ignoreErrors" });
+    }
+    const table = ["| Màn | Diện tích đỏ | Panel | WALL |", "|---|---|---|---|", ...rows].join("\n");
+    await info.attach("red-area.md", { body: table, contentType: "text/markdown" });
+    console.log(table);
     expect(bad).toEqual([]);
   });
 });
