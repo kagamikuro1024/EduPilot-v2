@@ -1,5 +1,7 @@
 # SRS FEAT-weekly-exam Thi hằng tuần: ngân hàng câu hỏi, bài thi, sandbox chấm code, làm bài, liêm chính, công bố, phúc khảo
-Phiên bản 1.8 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+Phiên bản 1.9 · 2026-10-03 · Trạng thái: APPROVED (PM 2026-10-03; chủ dự án: Q5 đổi sang `PARTIAL`, Q22 / Q28 giữ mặc định; các câu còn lại PM chấp nhận mặc định BA)
+
+**v1.9 (2026-10-09)** — góp ý #19 `docs/sprints/5/proposals.md` (PM `ACCEPTED`: "bất biến bảo mật là `procPeak == 1` + không tiến trình mồ côi, không phải nhãn verdict"; nguồn: dev, TL-4, CI `TestSandboxAttacks` A8). Không đổi số AC (124). Đổi: `SRS.md` 4.5.6 bảng ca tấn công, dòng **A8**: verdict `TLE` hoặc `RE` → `TLE`, `RE` **hoặc `MLE`**; **giữ** `procPeak = 1` và "không tiến trình mồ côi". US-PE-02 AC11 ("đúng verdict / dấu hiệu của bảng") áp theo bảng mới; `TestSandboxAttacks` khẳng định `procPeak == 1` cho A8 và A14.
 
 **v1.8 (2026-10-09)** — góp ý #18 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: Q-QC-GATEPE-3, cổng PE B1; trích: "Đo `chat` và `mixed` với provider `fake` có **trễ thật** (`FAKE_LLM_TTFT_MS=300`…); p95 TTFT `mixed` ≤ p95 `chat` × 1,2 **và** p95 `mixed` ≤ 1,5 s; mỗi kịch bản chạy 3 cặp, lấy trung vị của 3 tỉ lệ. Ngưỡng 20 % giữ nguyên"). Không đổi số AC (124). Đổi: **US-PE-09 AC6** (kịch bản `mixed` đo với `FAKE_LLM_TTFT_MS=300`, 3 cặp `chat` / `mixed`, trung vị tỉ lệ ≤ 1,2 và p95 `mixed` ≤ 1,5 s; thêm kịch bản `SCENARIO=chat`); `SRS.md` 8 (bảng hiệu năng), 9 (kịch bản k6), 8.1 (biến `FAKE_LLM_TTFT_MS`); `QUESTIONS.md` Q-QC-GATEPE-3.
 
@@ -383,7 +385,7 @@ Mỗi ca là một bản nộp C / C++ đi qua **đường chấm thật** (khô
 | A5 | cấp phát dần tới 512 MiB (`malloc` + `memset` mỗi 1 MiB) | `MLE` | ✓ |
 | A6 | cấp phát 2 GB một lần + `memset` | `MLE` hoặc `RE` (`malloc` trả NULL → chương trình thoát ≠ 0); container sống. **Chạy đồng thời P bản A6** (P = `JUDGE_PARALLELISM`) → container không khởi động lại, `RestartCount` không đổi (góp ý #5) | xác minh |
 | A7 | truy cập con trỏ NULL | `RE` (`Signalled`) | ✓ |
-| A8 | fork bomb (`fork()` lặp, con cũng `fork()`) | không tạo được tiến trình thứ hai (`procPeak = 1`); `TLE` hoặc `RE`; không tiến trình mồ côi | ✓ |
+| A8 | fork bomb (`fork()` lặp, con cũng `fork()`) | không tạo được tiến trình thứ hai (`procPeak = 1`); verdict `TLE`, `RE` **hoặc `MLE`** (bất biến bảo mật là `procPeak = 1` + không tiến trình mồ côi, **không** phải nhãn verdict — `fork()` bị chặn vẫn tính bộ nhớ vào cgroup, đỉnh ≈ 54–73 MiB; giới hạn thấp hơn đỉnh → `MLE`, go-judge xếp `MLE` sau `TLE`; trên CI amd64 seccomp bật có lượt ra `MLE` — góp ý #19); không tiến trình mồ côi | ✓ |
 | A9 | `fopen` đọc `/etc/shadow`, `/etc/passwd`, `/proc/1/environ`, `/opt/go-judge`, `/root/.bashrc` | **cả 5 đường bị chặn** (chương trình in `CHAN` cho từng đường; test kiểm đầu ra = `CHAN×5`) | ✓ |
 | A10 | `socket` + `connect` tới `1.1.1.1:53` | `socket` được, `connect = -1` (không ra mạng) | ✓ |
 | A10b | `connect` tới `postgres:5432` và `redis:6379` (tên dịch vụ compose) và địa chỉ IP của chúng | `connect = -1` (mạng riêng không thấy) | xác minh |
