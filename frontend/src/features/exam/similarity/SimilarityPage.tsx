@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ApiErrorNotice, apiClient, useCursorList, useJob } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
-import { Button, DataTable, EmptyState, Field, InlineNotice, Page, PageHeader, SegmentedControl, Skeleton, StatusText, Textarea, type Column } from "@/shared/ui";
+import { Button, type Column, DataTable, EmptyState, Field, InlineNotice, Page, PageHeader, Panel, PanelSection, SegmentedControl, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import { fmtWhen } from "../examApi";
 import { percent, simPath, STATE_LABEL, type Pair, type PairDetail } from "./similarityApi";
 import s from "./Similarity.module.css";
@@ -25,14 +25,14 @@ export function SimilarityPage({ id }: { id: string }) {
     return (
       <Page width="wide">
         <PageHeader title="Nghi giống nhau" back={back} />
-        <EmptyState title="Chỉ dành cho giảng viên">Trang này dành cho giảng viên của lớp.</EmptyState>
+        <Panel><EmptyState title="Chỉ dành cho giảng viên">Trang này dành cho giảng viên của lớp.</EmptyState></Panel>
       </Page>
     );
   if (!course)
     return (
       <Page width="wide">
         <PageHeader title="Nghi giống nhau" back={back} />
-        {cc.state === "loading" ? <Skeleton lines={6} /> : <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem các cặp bài.</EmptyState>}
+        {cc.state === "loading" ? <Panel><Skeleton lines={6} /></Panel> : <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem các cặp bài.</EmptyState></Panel>}
       </Page>
     );
   return <Board course={course} exam={id} />;
@@ -75,6 +75,7 @@ function Board({ course, exam }: { course: string; exam: string }) {
   return (
     <Page width="wide">
       <PageHeader title="Nghi giống nhau" back={{ href: "/exams", label: "Bài thi" }} />
+      <Panel>
       <p className={s.note} data-part="similarity-note">{FIXED_NOTE}</p>
       <div className={s.bar}>
         <SegmentedControl label="Lọc cặp" value={flagged} onChange={setFlagged} options={[{ value: "flagged", label: "Nên xem" }, { value: "all", label: "Tất cả" }]} />
@@ -102,6 +103,7 @@ function Board({ course, exam }: { course: string; exam: string }) {
         </>
       )}
       {open && <PairView key={open} course={course} exam={exam} id={open} onReviewed={() => void qc.invalidateQueries({ queryKey: ["exam-similarity", course, exam] })} />}
+      </Panel>
     </Page>
   );
 }
@@ -164,8 +166,8 @@ function PairView({ course, exam, id, onReviewed }: { course: string; exam: stri
       <p className={s.title}>{p.problem_title} · {percent(p.score)} · {p.shared_fingerprints} đoạn trùng</p>
       <p className={s.meta}>{STATE_LABEL[p.review_state]}{p.reviewed_at ? ` · ${fmtWhen(p.reviewed_at)}` : ""}</p>
       <div className={s.side}>
-        <div><p className={s.title}>{p.a.name}</p><Code source={d.a.source} hits={d.a.match_lines} /></div>
-        <div><p className={s.title}>{p.b.name}</p><Code source={d.b.source} hits={d.b.match_lines} /></div>
+        <div><PanelSection tone="strong"><p className={s.title}>{p.a.name}</p><Code source={d.a.source} hits={d.a.match_lines} /></PanelSection></div>
+        <div><PanelSection tone="strong"><p className={s.title}>{p.b.name}</p><Code source={d.b.source} hits={d.b.match_lines} /></PanelSection></div>
       </div>
       <div className={s.actions}>
         <Field label="Ghi chú (tối đa 500 ký tự)">{(id, by) => <Textarea id={id} aria-describedby={by} rows={2} maxLength={500} value={note} onChange={(e) => setNote(e.target.value)} />}</Field>

@@ -2,23 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { FileDown, History, Lock, NotebookPen, Scale, SquareCheckBig } from "lucide-react";
-import {
-  Button,
-  ButtonLink,
-  ConfirmIrreversible,
-  type Column,
-  DataTable,
-  Drawer,
-  EmptyState,
-  InlineNotice,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  Skeleton,
-  StatusText,
-  Toolbar,
-} from "@/shared/ui";
+import { Button, ButtonLink, type Column, ConfirmIrreversible, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { COURSE_2, fmtScore, type Student } from "@/mock/core";
 import { GRADE_AUDIT_KEY, fmtAuditAt, gradeAuditOf, logGrade, type GradeAudit } from "@/mock/audit";
 import { rosterOf } from "@/mock/roster";
@@ -315,11 +299,11 @@ export function Gradebook() {
       )}
 
       <PageState
-        loading={<Skeleton lines={12} />}
+        loading={<Panel><Skeleton lines={12} /></Panel>}
         empty={
-          <EmptyState title="Lớp chưa có điểm" icon={<NotebookPen aria-hidden />} action={<ButtonLink href="/grading">Mở hàng chờ chấm bài</ButtonLink>}>
+          <Panel><EmptyState title="Lớp chưa có điểm" icon={<NotebookPen aria-hidden />} action={<ButtonLink href="/grading">Mở hàng chờ chấm bài</ButtonLink>}>
             Lớp này chưa có bài tập nào được công bố điểm. Khi bạn công bố điểm một bài tập, cột điểm và điểm quá trình tạm tính sẽ xuất hiện ở đây.
-          </EmptyState>
+          </EmptyState></Panel>
         }
         error={{
           problem: "Không tải được sổ điểm của lớp này.",
@@ -327,7 +311,7 @@ export function Gradebook() {
         }}
         state={hasGrades ? undefined : "empty"}
       >
-
+        <Panel>
         <Toolbar
           end={
             <OverflowMenu
@@ -394,6 +378,7 @@ export function Gradebook() {
           empty={<EmptyState title="Lớp chưa có điểm">Chưa có sinh viên nào trong lớp này.</EmptyState>}
         />
         <p className={s.note}>{OFFICIAL_GRADE_NOTE}</p>
+        </Panel>
       </PageState>
 
       <Drawer

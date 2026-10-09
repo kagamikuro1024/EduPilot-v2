@@ -6,7 +6,7 @@ import { ApiError } from "@/shared/data";
 import { ExamTimer, Markdown } from "@/shared/domain";
 import type { ExamClock } from "@/shared/lib/examClock";
 import type { Answer } from "@/shared/lib/saveQueue";
-import { Button, ConfirmIrreversible, Drawer, InlineNotice, StatusText } from "@/shared/ui";
+import { Button, ConfirmIrreversible, Drawer, InlineNotice, Panel, StatusText } from "@/shared/ui";
 import { CodeQuestion } from "./CodeQuestion";
 import { IntegrityNotice } from "./IntegrityNotice";
 import { useAnswers } from "./useAnswers";
@@ -205,7 +205,9 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
 
       <div className={s.layout}>
         <aside className={s.side} aria-label="Danh sách câu">
-          <Navigator items={items} answers={answers} code={codeAnswered} index={index} onGo={go} />
+          <Panel>
+            <Navigator items={items} answers={answers} code={codeAnswered} index={index} onGo={go} />
+          </Panel>
         </aside>
         <section className={s.question} aria-label="Câu hỏi" data-part="question">
           {item.type === "CODE" ? (
@@ -225,7 +227,9 @@ export function TakeRunning({ courseId, examId, initial, tab, clock, userId, pre
               onAnswered={onAnswered}
             />
           ) : (
-            <Question item={item} number={index + 1} mode={exam.multi_scoring} value={answers[item.item_id]} disabled={!canWrite || expired} onChoose={(id) => choose(item, id)} />
+            <Panel>
+              <Question item={item} number={index + 1} mode={exam.multi_scoring} value={answers[item.item_id]} disabled={!canWrite || expired} onChoose={(id) => choose(item, id)} />
+            </Panel>
           )}
         </section>
       </div>

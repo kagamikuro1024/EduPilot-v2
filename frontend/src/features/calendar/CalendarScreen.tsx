@@ -9,21 +9,7 @@ import { KEYS, type CalendarExtra } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  ActionList,
-  ActionRow,
-  Button,
-  ButtonLink,
-  EmptyState,
-  IconButton,
-  Page,
-  PageHeader,
-  PageState,
-  SegmentedControl,
-  Skeleton,
-  StatusText,
-  Toolbar,
-} from "@/shared/ui";
+import { ActionList, ActionRow, Button, ButtonLink, EmptyState, IconButton, Page, PageHeader, PageState, Panel, SegmentedControl, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import s from "./Calendar.module.css";
 
 type View = "week" | "month" | "list";
@@ -109,9 +95,9 @@ export function CalendarScreen() {
       <PageState
         loading={<Skeleton lines={8} />}
         empty={
-          <EmptyState title="Lớp này chưa có sự kiện nào" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>}>
+          <Panel><EmptyState title="Lớp này chưa có sự kiện nào" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>}>
             Buổi học, hạn nộp và lịch thi sẽ hiện ở đây khi giảng viên tạo.
-          </EmptyState>
+          </EmptyState></Panel>
         }
       >
         {view === "week" && <WeekView start={weekStart} events={inWeek} isStudent={isStudent} />}
@@ -137,12 +123,13 @@ function WeekView({ start, events, isStudent }: { start: Date; events: CalEvent[
   const days = Array.from({ length: 7 }, (_, i) => new Date(start.getTime() + i * DAY));
   if (events.length === 0) {
     return (
-      <EmptyState title="Tuần này không có sự kiện nào" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
+      <Panel><EmptyState title="Tuần này không có sự kiện nào" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
         Không có buổi học hay hạn nộp trong tuần. Dùng thời gian trống để ôn chủ đề bạn hay sai.
-      </EmptyState>
+      </EmptyState></Panel>
     );
   }
   return (
+    <Panel>
     <div className={s.week}>
       {days.map((d, i) => {
         const items = events.filter((e) => e.start.toDateString() === d.toDateString());
@@ -162,6 +149,7 @@ function WeekView({ start, events, isStudent }: { start: Date; events: CalEvent[
         );
       })}
     </div>
+    </Panel>
   );
 }
 
@@ -169,6 +157,7 @@ function MonthView({ anchor, events }: { anchor: Date; events: CalEvent[] }) {
   const first = startOfWeek(new Date(anchor));
   const cells = Array.from({ length: 42 }, (_, i) => new Date(first.getTime() + i * DAY));
   return (
+    <Panel>
     <div className={s.month}>
       {WEEK_DAY_SHORT.map((d) => (
         <p key={d} className={s.monthHead}>
@@ -191,18 +180,20 @@ function MonthView({ anchor, events }: { anchor: Date; events: CalEvent[] }) {
         );
       })}
     </div>
+    </Panel>
   );
 }
 
 function ListView({ events, isStudent }: { events: CalEvent[]; isStudent: boolean }) {
   if (events.length === 0) {
     return (
-      <EmptyState title="Không còn sự kiện nào sắp tới" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
+      <Panel><EmptyState title="Không còn sự kiện nào sắp tới" action={<ButtonLink href="/practice" variant="primary">Luyện đề</ButtonLink>}>
         Học kỳ đã hết lịch. Bạn vẫn luyện đề được bất cứ lúc nào.
-      </EmptyState>
+      </EmptyState></Panel>
     );
   }
   return (
+    <Panel>
     <ActionList label="Sự kiện sắp tới">
       {events.map((e) => (
         <ActionRow
@@ -226,5 +217,6 @@ function ListView({ events, isStudent }: { events: CalEvent[]; isStudent: boolea
         />
       ))}
     </ActionList>
+    </Panel>
   );
 }

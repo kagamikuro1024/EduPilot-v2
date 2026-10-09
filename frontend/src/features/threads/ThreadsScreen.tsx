@@ -37,6 +37,7 @@ import {
   Page,
   PageHeader,
   PageState,
+  Panel,
   Section,
   Select,
   Skeleton,
@@ -167,7 +168,7 @@ export function ThreadsScreen() {
       />
 
       {canPost && open && (
-        <Section title="Đặt câu hỏi" description="Hỏi về nội dung môn học. Đừng ghi mã số sinh viên, số điện thoại hay điểm cá nhân — chuyện riêng hỏi ở Chat riêng." action={<Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Thu gọn</Button>}>
+        <Section title="Đặt câu hỏi" description="Hỏi về nội dung môn học. Đừng ghi mã số sinh viên, số điện thoại hay điểm cá nhân — chuyện riêng hỏi ở Chat riêng." panel action={<Button variant="ghost" size="sm" onClick={() => setOpen(false)}>Thu gọn</Button>}>
           <form
             className={s.createPanel}
             data-part="thread-form"
@@ -232,6 +233,7 @@ export function ThreadsScreen() {
           <Input className={s.search} type="search" value={query} placeholder="Tìm trong tiêu đề thread" aria-label="Tìm thread" onChange={(e) => setQuery(e.target.value)} />
         </Toolbar>
 
+        <Panel>
         <PageState
           loading={<Skeleton lines={6} />}
           empty={
@@ -258,6 +260,7 @@ export function ThreadsScreen() {
             </ActionList>
           )}
         </PageState>
+        </Panel>
       </Section>
 
       <PIIChannelDialog

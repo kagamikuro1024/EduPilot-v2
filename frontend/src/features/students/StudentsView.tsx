@@ -19,23 +19,7 @@ import {
 } from "@/mock/state";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  Button,
-  DataTable,
-  EmptyState,
-  FilterChips,
-  InlineNotice,
-  Input,
-  Page,
-  PageHeader,
-  PageState,
-  PrivateMark,
-  Skeleton,
-  StatusText,
-  Toolbar,
-  useRouteState,
-  type Column,
-} from "@/shared/ui";
+import { Button, type Column, DataTable, EmptyState, FilterChips, InlineNotice, Input, Page, PageHeader, PageState, Panel, PrivateMark, Skeleton, StatusText, Toolbar, useRouteState } from "@/shared/ui";
 import s from "./StudentsView.module.css";
 
 type Row = { student: Student; stats: AttendanceStats; qt: number | null };
@@ -114,10 +98,11 @@ export function StudentsView() {
       />
       <PageState
         state={routeState}
-        loading={<Skeleton lines={10} />}
-        empty={<EmptyState title="Lớp này chưa có sinh viên nào">Chia sẻ mã tham gia để sinh viên vào lớp, danh sách sẽ hiện ở đây.</EmptyState>}
+        loading={<Panel><Skeleton lines={10} /></Panel>}
+        empty={<Panel><EmptyState title="Lớp này chưa có sinh viên nào">Chia sẻ mã tham gia để sinh viên vào lớp, danh sách sẽ hiện ở đây.</EmptyState></Panel>}
         error={{ problem: "Không tải được danh sách sinh viên.", recovery: "Dữ liệu lớp vẫn an toàn. Thử lại, hoặc mở lại sau ít phút." }}
       >
+        <Panel>
         <Toolbar
           end={
             <FilterChips
@@ -164,6 +149,7 @@ export function StudentsView() {
             </EmptyState>
           }
         />
+        </Panel>
       </PageState>
     </Page>
   );

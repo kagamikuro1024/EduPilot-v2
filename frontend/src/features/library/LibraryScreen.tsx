@@ -9,23 +9,7 @@ import { DOC_KIND_LABEL, docById, libraryDocs, uploadedAt, type DocKind } from "
 import { useSession } from "@/shared/session/session";
 import { useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  ActionList,
-  ActionRow,
-  Button,
-  ButtonLink,
-  DefinitionList,
-  Drawer,
-  EmptyState,
-  Input,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  SegmentedControl,
-  Skeleton,
-  Toolbar,
-} from "@/shared/ui";
+import { ActionList, ActionRow, Button, ButtonLink, DefinitionList, Drawer, EmptyState, Input, OverflowMenu, Page, PageHeader, PageState, Panel, SegmentedControl, Skeleton, Toolbar } from "@/shared/ui";
 import s from "./Library.module.css";
 
 type Filter = "all" | DocKind;
@@ -82,18 +66,19 @@ export function LibraryScreen() {
       </Toolbar>
 
       <PageState
-        loading={<Skeleton lines={7} />}
+        loading={<Panel><Skeleton lines={7} /></Panel>}
         empty={
-          <EmptyState title="Chưa có tài liệu nào được chia sẻ" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>}>
+          <Panel><EmptyState title="Chưa có tài liệu nào được chia sẻ" action={<ButtonLink href="/" variant="primary">Về Hôm nay</ButtonLink>}>
             Khi giảng viên đăng bài giảng hoặc quy chế, tài liệu sẽ hiện ở đây.
-          </EmptyState>
+          </EmptyState></Panel>
         }
       >
         {rows.length === 0 ? (
-          <EmptyState title={`Không có tài liệu nào khớp “${query}”`} action={<Button variant="primary" onClick={() => { setQuery(""); setKind("all"); }}>Xoá bộ lọc</Button>}>
+          <Panel><EmptyState title={`Không có tài liệu nào khớp “${query}”`} action={<Button variant="primary" onClick={() => { setQuery(""); setKind("all"); }}>Xoá bộ lọc</Button>}>
             Thử từ khoá ngắn hơn, ví dụ “AES” hoặc “quy chế”.
-          </EmptyState>
+          </EmptyState></Panel>
         ) : (
+          <Panel>
           <ActionList label="Tài liệu của lớp">
             {rows.map((d) => (
               <ActionRow
@@ -117,6 +102,7 @@ export function LibraryScreen() {
               />
             ))}
           </ActionList>
+          </Panel>
         )}
       </PageState>
 

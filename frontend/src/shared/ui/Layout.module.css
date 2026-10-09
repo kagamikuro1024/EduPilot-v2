@@ -50,7 +50,7 @@
 }
 
 @media (max-width: 719px) {
-  .page { padding: var(--ep-space-6) var(--ep-space-4) calc(var(--ep-space-20) + 64px); }
+  .page { padding: var(--ep-space-6) var(--ep-space-3) calc(var(--ep-space-20) + 64px); } /* 12 px tới mép viewport: MỘT quy tắc lề cho Panel (FEAT-ui-panels SRS 4.2 điều 8) */
   .header { margin-bottom: var(--ep-space-8); }
   .headRow { align-items: flex-start; }
   .dlRow { grid-template-columns: 1fr; gap: var(--ep-space-1); }

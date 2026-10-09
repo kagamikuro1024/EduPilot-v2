@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# Kiểm phản mẫu giao diện: docs/design/DESIGN.md §21, docs/design/INTEGRATION.md mục 5, docs/specs/FEAT-ui-foundation/SRS.md 4.1 + 4.3.
-# 19 phép; mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
+# Kiểm phản mẫu giao diện: docs/design/DESIGN.md §21, docs/design/INTEGRATION.md mục 5, docs/specs/FEAT-ui-foundation/SRS.md 4.1 + 4.3, docs/specs/FEAT-ui-panels/SRS.md 4.3.
+# 22 phép (D59: 20–22 là luật của Panel); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
 # Danh sách trắng: thêm chú thích `ui-allow: <lý do>` trên CÙNG dòng (trần 10 chỗ — QC đếm).
-# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 19 phép bắt được`.
+# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 22 phép bắt được`.
 # Chạy ở gốc repo. UI_SRC đổi thư mục nguồn (dùng cho --selftest).
 set -uo pipefail
 export LC_ALL=C
@@ -32,18 +32,26 @@ if [ "${1:-}" = "--selftest" ]; then
     "Emoji làm icon chức năng|features/_selftest/q.tsx|export const Q = () => <button>🚀</button>;"
     "Token / bí mật ghi vào storage|features/_selftest/r.ts|export const r = () => localStorage.setItem(\"access_token\", \"x\");"
     "Tailwind / @theme|features/_selftest/s.css|@theme { --x: 1; }"
+    "Bóng elevation ngoài Panel|features/_selftest/f.module.css|.e { box-shadow: var(--ep-elevation-1); }"
+    "Bóng elevation ngoài Panel|shared/ui/Panel.module.css|.h { box-shadow: 0 2px 4px #000; }"
+    "Bo góc panel ngoài Panel|features/_selftest/g.module.css|.g { border-radius: var(--ep-radius-panel); }"
+    "Panel lồng Panel (cùng tệp)|features/_selftest/nest.tsx|export const N = () => (<Panel"$'\n'"  aria-label=\"a\">"$'\n'"<Panel>x</Panel></Panel>);"
   )
-  ok=0
+  miss=0; names=""
   for s in "${seeds[@]}"; do
-    IFS='|' read -r name path body <<<"$s"
+    IFS='|' read -r -d '' name path body <<<"$s" || true
+    case "$names" in *"|$name|"*) ;; *) names+="|$name|" ;; esac
     mkdir -p "$tmp/src/$(dirname "$path")"
-    printf '%s\n' "$body" >"$tmp/src/$path"
+    [ -f "$tmp/src/$path" ] && cp "$tmp/src/$path" "$tmp/bak"
+    printf '%s' "$body" >"$tmp/src/$path"
     res=$(UI_SRC="$tmp/src" bash "$self" 2>&1 || true)
-    if grep -qF "✗ $name" <<<"$res"; then ok=$((ok + 1)); else echo "KHÔNG bắt được: $name"; fi
-    rm -f "$tmp/src/$path"
+    if ! grep -qF "✗ $name" <<<"$res"; then echo "KHÔNG bắt được: $name ($path)"; miss=$((miss + 1)); fi
+    if [ -f "$tmp/bak" ]; then mv "$tmp/bak" "$tmp/src/$path"; else rm -f "$tmp/src/$path"; fi
   done
-  echo "$ok / ${#seeds[@]} phép bắt được"
-  [ "$ok" -eq "${#seeds[@]}" ]; exit $?
+  # một phép có thể có nhiều hạt giống (phép 20: (i) ngoài Panel, (ii) bóng lạ trong Panel.module.css)
+  total=$(grep -o '||' <<<"$names" | wc -l | tr -d ' '); total=$((total + 1))
+  echo "$((total - miss)) / $total phép bắt được"
+  [ "$miss" -eq 0 ]; exit $?
 fi
 
 SRC="${UI_SRC:-frontend/src}"; FAIL=0
@@ -67,7 +75,7 @@ out=$( { grep -rnE 'border-radius[[:space:]]*:' "$SRC" --include=*.css --include
           | grep -vE "border-radius[[:space:]]*:[[:space:]]*$TOK_RADIUS([[:space:]/]+$TOK_RADIUS)*[[:space:]]*(!important)?[[:space:]]*[;,}\"']" || true
         grep -rnE 'rounded-(2xl|3xl)|rounded-\[(1[6-9]|2[0-9])px\]' "$SRC" --include=*.ts --include=*.tsx --include=*.css 2>/dev/null | grep -v "ui-allow:" || true; } )
 if [ -n "$out" ]; then echo "✗ Bo góc kiểu SaaS / số cứng"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ Bo góc kiểu SaaS / số cứng"; fi
-check "Bóng ngoài Popover/Dialog/Menu/Drawer/Composer" '\bshadow-(sm|md|lg|xl|2xl)\b|box-shadow[[:space:]]*:|drop-shadow\(' 'shared/ui/(Popover|Dialog|Menu|Drawer|Composer)' 'box-shadow[[:space:]]*:[[:space:]]*(var\(--ep-shadow-[a-z-]+\)|var\(--ep-focus\)|none)[[:space:]]*;'
+check "Bóng ngoài Popover/Dialog/Menu/Drawer/Composer" '\bshadow-(sm|md|lg|xl|2xl)\b|box-shadow[[:space:]]*:|drop-shadow\(' 'shared/ui/(Popover|Dialog|Menu|Drawer|Composer)|shared/ui/Panel\.module\.css' 'box-shadow[[:space:]]*:[[:space:]]*(var\(--ep-shadow-[a-z-]+\)|var\(--ep-focus\)|none)[[:space:]]*;'
 check "Cỡ chữ tuỳ ý ngoài thang vai trò"           'font-size[[:space:]]*:[[:space:]]*[0-9.]+(px|rem|em)|text-\[[0-9.]+(px|rem)\]' 'shared/styles/' 'font-size[[:space:]]*:[[:space:]]*1em[[:space:]]*;'
 check "z-index số cứng"                            'z-index[[:space:]]*:[[:space:]]*-?[0-9]{2,}'
 check "fetch / XMLHttpRequest / axios ngoài shared/data" '\bfetch\(|XMLHttpRequest|from ["'"'"']axios["'"'"']|window\.fetch' 'src/shared/data/'
@@ -105,4 +113,27 @@ if [ -n "$out" ]; then echo "✗ Emoji làm icon chức năng"; echo "$out" | he
 check "Token / bí mật ghi vào storage"             '(localStorage|sessionStorage)\.setItem\([[:space:]]*["'"'"'`][^"'"'"'`]*(token|jwt|access|refresh|secret|password)|document\.cookie[[:space:]]*=[[:space:]]*["'"'"'`][^"'"'"'`]*(token|jwt|access|refresh|secret|password)'
 check "Tailwind / @theme"                          '@tailwind|@theme\b|from ["'"'"']@?tailwindcss|import ["'"'"']tailwindcss'
 if grep -q tailwind "$(dirname "$SRC")/package.json" 2>/dev/null; then echo "✗ Tailwind / @theme (package.json có tailwind)"; FAIL=1; fi
+
+# ---- D59 "panel có kỷ luật" (FEAT-ui-panels SRS 4.3): phép 20–22 -------------------------------------------------------------
+# 20: `--ep-elevation-1` chỉ ở shared/styles/ và shared/ui/Panel.module.css; trong Panel.module.css mọi box-shadow khác var(--ep-elevation-1) / none là vi phạm.
+out=$(grep -rnE -e '--ep-elevation-1' "$SRC" --include=*.ts --include=*.tsx --include=*.css 2>/dev/null | grep -v "ui-allow:" | grep -vE 'shared/styles/|shared/ui/Panel\.module\.css' || true)
+pm="$SRC/shared/ui/Panel.module.css"
+if [ -f "$pm" ]; then
+  out+=$(grep -nE 'box-shadow[[:space:]]*:' "$pm" | grep -v "ui-allow:" | grep -vE 'box-shadow[[:space:]]*:[[:space:]]*(var\(--ep-elevation-1\)|none)[[:space:]]*;' | sed "s|^|$pm:|" || true)
+fi
+if [ -n "$out" ]; then echo "✗ Bóng elevation ngoài Panel"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ Bóng elevation ngoài Panel"; fi
+# 21: `--ep-radius-panel` chỉ ở shared/styles/ và shared/ui/Panel.module.css
+check "Bo góc panel ngoài Panel"                   '[-][-]ep-radius-panel' 'shared/styles/|shared/ui/Panel\.module\.css'
+# 22: `<Panel>` nằm giữa một `<Panel>` và `</Panel>` của nó trong CÙNG tệp .tsx (đếm độ sâu; `<Panel … />` không tăng độ sâu; thẻ mở nhiều dòng).
+# Trần: không thấy lồng qua ranh giới thành phần — phần đó do kiểm DOM `NEST = 0` ở panels.spec.ts.
+out=$(find "$SRC" -name '*.tsx' ! -path '*/shared/ui/Panel.tsx' -print0 2>/dev/null | xargs -0 perl -0777 -ne '
+  my $d = 0;
+  while (/<Panel(?=[\s>\/])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{[^{}]*\})*\})*)>|<\/Panel>/g) {
+    if (defined $1) {
+      if ($d > 0) { my $l = 1 + (substr($_, 0, $-[0]) =~ tr/\n//); print "$ARGV:$l: <Panel> lồng trong <Panel>\n"; }
+      $d++ unless $1 =~ /\/\s*$/;
+    } else { $d-- if $d > 0; }
+  } continue { close ARGV if eof }
+' 2>/dev/null | grep -v "ui-allow:" || true)
+if [ -n "$out" ]; then echo "✗ Panel lồng Panel (cùng tệp)"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ Panel lồng Panel (cùng tệp)"; fi
 exit $FAIL

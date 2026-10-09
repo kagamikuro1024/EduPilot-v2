@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useCursorList } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
-import { Button, Drawer, EmptyState, Field, InlineNotice, Input, MenuList, Page, PageHeader, PageState, Popover, Select, Skeleton, StatusText, Toolbar, DataTable, type Column } from "@/shared/ui";
+import { Button, type Column, DataTable, Drawer, EmptyState, Field, InlineNotice, Input, MenuList, Page, PageHeader, PageState, Panel, Popover, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { QuestionForm } from "./QuestionForm";
 import { QuestionReview } from "./QuestionReview";
@@ -17,12 +17,12 @@ import s from "./Questions.module.css";
 /** Ngân hàng câu hỏi thật (US-PE-03): bảng có bộ lọc, nút chính `Tạo câu hỏi`, hàng mở Drawer `QuestionReview`. Chỉ Giảng viên / TA; sinh viên không có đường vào. */
 export function QuestionBank() {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Ngân hàng câu hỏi" /><Skeleton lines={8} /></Page>;
+  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Ngân hàng câu hỏi" /><Panel><Skeleton lines={8} /></Panel></Page>;
   if (cc.state === "none")
     return (
       <Page width="wide">
         <PageHeader title="Ngân hàng câu hỏi" />
-        <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem ngân hàng câu hỏi của lớp.</EmptyState>
+        <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem ngân hàng câu hỏi của lớp.</EmptyState></Panel>
       </Page>
     );
   return <Bank courseId={cc.course.id} code={cc.course.class_code} isTeacher={cc.canManage} />;
@@ -111,6 +111,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
       {undo.node}
       {creating === "AI" && <SuggestPanel courseId={courseId} onCancel={() => setCreating(null)} onDone={(n) => { setCreating(null); undo.push(n > 0 ? `AI đã soạn ${n} câu nháp · đang chờ bạn duyệt` : "AI chưa có câu nào hợp lệ — thử đổi chủ đề hoặc thêm văn bản nguồn"); }} />}
 
+      <Panel>
       <Toolbar>
         <Field label="Tìm câu hỏi" className={s.search}>{(id) => <Input id={id} type="search" placeholder="Tiêu đề…" value={text} maxLength={100} onChange={(e) => setText(e.target.value)} />}</Field>
         <Field label="Trạng thái">{(id) => <Select id={id} value={status} onChange={(e) => setStatus(e.target.value)}><option value="">Tất cả</option>{(Object.keys(REVIEW_LABEL) as Review[]).map((k) => <option key={k} value={k}>{REVIEW_LABEL[k]}</option>)}</Select>}</Field>
@@ -147,6 +148,7 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
         />
         {list.hasNextPage && <div className={s.more}><Button onClick={() => void list.fetchNextPage()} loading={list.isFetchingNextPage}>Xem thêm</Button></div>}
       </PageState>
+      </Panel>
 
       <Drawer open={creating === "MCQ" || creating === "CODE"} wide onClose={() => setCreating(null)} title={creating === "CODE" ? "Bài lập trình mới" : "Câu trắc nghiệm mới"}>
         {(creating === "MCQ" || creating === "CODE") && (

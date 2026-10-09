@@ -8,7 +8,7 @@ import { ApiError, ApiErrorNotice, apiClient } from "@/shared/data";
 import { useClassCourse } from "@/features/members/classApi";
 import { useSession } from "@/shared/session/session";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
-import { Button, ButtonLink, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, OverflowMenu, Page, PageHeader, PageState, Skeleton, StatusText, Tabs, type MenuItem } from "@/shared/ui";
+import { Button, ButtonLink, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, type MenuItem, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Tabs } from "@/shared/ui";
 import { eKey, ePath, fmtClock, fmtWhen, fromInput, KIND_LABEL, STATUS_LABEL, STATUS_TONE, toInput, type ExamDetail, type Problem } from "./examApi";
 import { ExamInfo } from "./ExamInfo";
 import { ExamItems } from "./ExamItems";
@@ -20,12 +20,12 @@ type Tab = "info" | "items" | "preview";
 /** `/exams/[id]` (Giảng viên / TA): soạn bài thi nháp, lên lịch, gia hạn khi đang mở (US-PE-04 AC12). */
 export function ExamEditor({ id }: { id: string }) {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Skeleton lines={8} /></Page>;
+  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} /><Panel><Skeleton lines={8} /></Panel></Page>;
   if (cc.state === "none")
     return (
       <Page width="wide">
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
-        <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để mở bài thi.</EmptyState>
+        <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để mở bài thi.</EmptyState></Panel>
       </Page>
     );
   return <Editor courseId={cc.course.id} id={id} isTeacher={cc.canManage} />;
@@ -112,8 +112,8 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
     return (
       <Page width="wide">
         <PageHeader title="Bài thi" back={{ href: "/exams", label: "Bài thi" }} />
-        <PageState query={q} showTechnical loading={<Skeleton lines={8} />}>
-          <Skeleton lines={8} />
+        <PageState query={q} showTechnical loading={<Panel><Skeleton lines={8} /></Panel>}>
+          <Panel><Skeleton lines={8} /></Panel>
         </PageState>
       </Page>
     );
@@ -160,23 +160,8 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
         }
       />
       {undo.node}
-      {problems && (
-        <InlineNotice tone="danger" title={`Cần sửa ${problems.length} việc trước khi lên lịch`}>
-          <ul className={s.problemList} aria-label="Việc cần sửa">
-            {problems.map((p, i) => {
-              const t = targetOf(p);
-              return (
-                <li key={i}>
-                  <span>{p.message}</span>{" "}
-                  {t.tab ? <button type="button" className={s.fix} onClick={() => setTab(t.tab!)}>{t.label}</button> : <Link className={s.fix} href="/questions">{t.label}</Link>}
-                </li>
-              );
-            })}
-          </ul>
-        </InlineNotice>
-      )}
       {err !== null && <ApiErrorNotice error={err} showTechnical onRetry={undefined} />}
-      {extending && <Extend base={base} detail={d} onDone={(r) => { put(r); setExtending(false); undo.push(`Đã gia hạn đến ${r.closes_at ? fmtClock(r.closes_at) : ""}`); }} onCancel={() => setExtending(false)} />}
+      {extending && <Panel><Extend base={base} detail={d} onDone={(r) => { put(r); setExtending(false); undo.push(`Đã gia hạn đến ${r.closes_at ? fmtClock(r.closes_at) : ""}`); }} onCancel={() => setExtending(false)} /></Panel>}
 
       <Tabs<Tab>
         label="Phần của bài thi"
@@ -185,9 +170,26 @@ function Editor({ courseId, id, isTeacher }: { courseId: string; id: string; isT
         options={[{ value: "info", label: "Thông tin" }, { value: "items", label: "Câu hỏi", count: d.items_count }, { value: "preview", label: "Xem trước" }]}
       />
       <div className={s.tabBody}>
+        <Panel>
+          {problems && (
+            <InlineNotice tone="danger" title={`Cần sửa ${problems.length} việc trước khi lên lịch`}>
+              <ul className={s.problemList} aria-label="Việc cần sửa">
+                {problems.map((p, i) => {
+                  const t = targetOf(p);
+                  return (
+                    <li key={i}>
+                      <span>{p.message}</span>{" "}
+                      {t.tab ? <button type="button" className={s.fix} onClick={() => setTab(t.tab!)}>{t.label}</button> : <Link className={s.fix} href="/questions">{t.label}</Link>}
+                    </li>
+                  );
+                })}
+              </ul>
+            </InlineNotice>
+          )}
         {tab === "info" && <ExamInfo key={d.id} courseId={courseId} userId={identity?.sub} detail={d} onSaved={(r, note) => { put(r); if (note) undo.push(note); }} />}
         {tab === "items" && <ExamItems courseId={courseId} detail={d} onSaved={(r, note) => { put(r); setProblems(null); if (note) undo.push(note); }} />}
         {tab === "preview" && <ExamPreview courseId={courseId} examId={id} version={d.version} />}
+        </Panel>
       </div>
 
       <ConfirmIrreversible

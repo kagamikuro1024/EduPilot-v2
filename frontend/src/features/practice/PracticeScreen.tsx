@@ -25,20 +25,7 @@ import { DOCS } from "@/mock/library";
 import { useSession } from "@/shared/session/session";
 import { simNowMs, useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  ActionList,
-  ActionRow,
-  Button,
-  ButtonLink,
-  EmptyState,
-  Page,
-  PageHeader,
-  PageState,
-  Section,
-  Skeleton,
-  StatusText,
-  Tabs,
-} from "@/shared/ui";
+import { ActionList, ActionRow, Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, Tabs } from "@/shared/ui";
 import s from "./Practice.module.css";
 
 // Prototype: mọi chủ đề đều mở lượt luyện Mật mã đối xứng (chỉ chủ đề này có ngân hàng câu đầy đủ).
@@ -90,13 +77,13 @@ export function PracticeScreen() {
       <PageState
         loading={<Skeleton lines={6} />}
         empty={
-          <EmptyState title="Bạn chưa luyện lần nào" action={<ButtonLink href="/practice/at-symmetric" variant="primary">Luyện 10 câu đầu tiên</ButtonLink>}>
+          <Panel><EmptyState title="Bạn chưa luyện lần nào" action={<ButtonLink href="/practice/at-symmetric" variant="primary">Luyện 10 câu đầu tiên</ButtonLink>}>
             Mỗi lượt khoảng 15 phút. Sau lượt đầu, hệ thống sẽ gợi ý chủ đề bạn cần ôn thêm.
-          </EmptyState>
+          </EmptyState></Panel>
         }
       >
         {weakest && (
-          <Section title="Nên luyện ngay">
+          <Section panel title="Nên luyện ngay">
             <ActionList label="Khuyến nghị luyện tập">
               <ActionRow
                 tone="red"
@@ -115,7 +102,7 @@ export function PracticeScreen() {
           </Section>
         )}
 
-        <Section title="Chọn cách luyện">
+        <Section panel title="Chọn cách luyện">
           <Tabs
             label="Cách luyện"
             value={mode}
@@ -158,7 +145,7 @@ export function PracticeScreen() {
         </Section>
 
         {(pending || rows.length > 0) && (
-          <Section title={pending ? "Lượt đang dở" : "Lượt gần đây"}>
+          <Section panel title={pending ? "Lượt đang dở" : "Lượt gần đây"}>
             <ActionList label={pending ? "Lượt đang dở" : "Lượt gần đây"}>
               {pending && (
                 <ActionRow

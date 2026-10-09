@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthPanel } from "@/shared/shell/AuthShell";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiClient, ApiError, fieldErrors } from "@/shared/data";
@@ -48,8 +49,7 @@ export function ForgotForm() {
   }
 
   return (
-    <>
-      <h1 className="ep-page-title">Quên mật khẩu</h1>
+    <AuthPanel title="Quên mật khẩu">
       {sent ? (
         <p role="status">{SENT}</p>
       ) : (
@@ -69,6 +69,6 @@ export function ForgotForm() {
       <p className={s.links}>
         <Link href="/login">Quay lại đăng nhập</Link>
       </p>
-    </>
+    </AuthPanel>
   );
 }

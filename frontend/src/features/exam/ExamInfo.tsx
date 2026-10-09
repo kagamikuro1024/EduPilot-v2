@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient, fieldErrors, useAutosaveDraft } from "@/shared/data";
-import { Button, Checkbox, Field, InlineNotice, Input, Select, Textarea } from "@/shared/ui";
+import { Button, Checkbox, Field, InlineNotice, Input, PanelSection, Select, Textarea } from "@/shared/ui";
 import { ePath, fromInput, toInput, type ExamDetail } from "./examApi";
 import s from "./Exam.module.css";
 
@@ -105,6 +105,7 @@ export function ExamInfo({ courseId, userId, detail, onSaved }: { courseId: stri
   const lockNote = draft ? undefined : "Bài đã lên lịch nên phần này không sửa được. Đổi giờ đóng bằng Gia hạn.";
   return (
     <form className={s.form} onSubmit={submit} noValidate aria-label="Thông tin bài thi">
+      <PanelSection>
       {restored && <InlineNotice compact>Đã khôi phục phần bạn đang sửa dở.</InlineNotice>}
       {!draft && <InlineNotice compact>Bài đã lên lịch: chỉ tiêu đề, hướng dẫn, hiện đáp án và hạn xem lại điểm còn sửa được.</InlineNotice>}
       <Field label="Tiêu đề" required error={fe.title}>
@@ -113,6 +114,8 @@ export function ExamInfo({ courseId, userId, detail, onSaved }: { courseId: stri
       <Field label="Hướng dẫn cho sinh viên" helper="Hỗ trợ Markdown cơ bản. Sinh viên đọc ở màn giới thiệu trước khi bấm Bắt đầu làm bài." error={fe.instructions}>
         {(id, by) => <Textarea id={id} aria-describedby={by} invalid={Boolean(fe.instructions)} rows={4} value={f.instructions} maxLength={4000} onChange={(e) => patch({ instructions: e.target.value })} />}
       </Field>
+      </PanelSection>
+      <PanelSection title="Thời gian">
       <div className={s.formRow}>
         <Field label="Mở lúc" helper={lockNote ?? "Giờ Việt Nam. Phải sau bây giờ ít nhất 1 phút khi lên lịch."} error={fe.opens} className={s.grow}>
           {(id, by) => <Input id={id} aria-describedby={by} type="datetime-local" invalid={Boolean(fe.opens)} disabled={!draft} value={f.opens} onChange={(e) => patch({ opens: e.target.value })} />}
@@ -124,11 +127,15 @@ export function ExamInfo({ courseId, userId, detail, onSaved }: { courseId: stri
           {(id, by) => <Input id={id} aria-describedby={by} type="number" inputMode="numeric" min={5} max={300} invalid={Boolean(fe.duration)} disabled={!draft} value={f.duration} onChange={(e) => patch({ duration: e.target.value })} />}
         </Field>
       </div>
+      </PanelSection>
+      <PanelSection>
       <fieldset className={s.group} disabled={!draft}>
         <legend className={s.legend}>Xáo trộn</legend>
         <Checkbox label="Xáo thứ tự câu hỏi cho từng sinh viên" checked={f.shuffleQ} onChange={(e) => patch({ shuffleQ: e.target.checked })} />
         <Checkbox label="Xáo thứ tự đáp án" checked={f.shuffleO} onChange={(e) => patch({ shuffleO: e.target.checked })} />
       </fieldset>
+      </PanelSection>
+      <PanelSection title="Chấm điểm">
       <div className={s.formRow}>
         <Field label="Điểm tối đa" error={fe.maxScore} helper="Điểm các câu được quy về thang này.">
           {(id, by) => <Input id={id} aria-describedby={by} inputMode="decimal" invalid={Boolean(fe.maxScore)} disabled={!draft} value={f.maxScore} onChange={(e) => patch({ maxScore: e.target.value })} />}
@@ -149,6 +156,8 @@ export function ExamInfo({ courseId, userId, detail, onSaved }: { courseId: stri
           )}
         </Field>
       </div>
+      </PanelSection>
+      <PanelSection>
       <fieldset className={s.group}>
         <legend className={s.legend}>Sau khi công bố điểm</legend>
         <Checkbox label="Cho sinh viên xem đáp án đúng và giải thích" checked={f.reveal} onChange={(e) => patch({ reveal: e.target.checked })} />
@@ -156,6 +165,8 @@ export function ExamInfo({ courseId, userId, detail, onSaved }: { courseId: stri
           {(id, by) => <Input id={id} aria-describedby={by} type="number" inputMode="numeric" min={0} max={30} invalid={Boolean(fe.appealDays)} value={f.appealDays} onChange={(e) => patch({ appealDays: e.target.value })} />}
         </Field>
       </fieldset>
+      </PanelSection>
+      <PanelSection>
       {conflict ? (
         <InlineNotice tone="warning" title="Có người vừa sửa bài thi này" action={<Button size="sm" onClick={() => onSaved((err as ApiError).conflict!.current as ExamDetail, "")}>Xem bản mới</Button>}>
           Chữ bạn đã gõ vẫn được giữ. Xem bản mới nhất rồi lưu lại.
@@ -167,6 +178,7 @@ export function ExamInfo({ courseId, userId, detail, onSaved }: { courseId: stri
         <Button type="submit" loading={pending} disabled={!dirty}>Lưu thông tin</Button>
         {saved.status === "saved" && dirty && <span className={s.draftNote}>Bản nháp đã lưu trên máy này</span>}
       </div>
+      </PanelSection>
     </form>
   );
 }

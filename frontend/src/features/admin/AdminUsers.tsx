@@ -5,23 +5,7 @@ import { Mail, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, apiClient, useCursorList } from "@/shared/data";
 import { useAuth } from "@/shared/session/AuthProvider";
-import {
-  Button,
-  DataTable,
-  EmptyState,
-  Field,
-  InlineNotice,
-  Input,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  SegmentedControl,
-  StatusText,
-  Toolbar,
-  UndoLine,
-  type Column,
-} from "@/shared/ui";
+import { Button, type Column, DataTable, EmptyState, Field, InlineNotice, Input, OverflowMenu, Page, PageHeader, PageState, Panel, SegmentedControl, StatusText, Toolbar, UndoLine } from "@/shared/ui";
 import s from "./admin.module.css";
 import { InvitePanel } from "./users/InvitePanel";
 import { ROLE_TEXT, STATUS_TEXT, USERS_KEY, lastSeen, type AdminUser } from "./users/api";
@@ -158,31 +142,6 @@ export function AdminUsers() {
         />
       )}
 
-      <Toolbar
-        end={
-          <Field label="Tìm người dùng" className={s.searchField}>
-            {(id) => (
-              <span className={s.search}>
-                <Search aria-hidden />
-                <Input id={id} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tên hoặc đầu email" />
-              </span>
-            )}
-          </Field>
-        }
-      >
-        <SegmentedControl
-          label="Lọc theo vai trò"
-          value={filter}
-          onChange={setFilter}
-          options={[
-            { value: "all", label: "Tất cả" },
-            { value: "TEACHER", label: "Giảng viên" },
-            { value: "TA", label: "Trợ giảng" },
-            { value: "ADMIN", label: "Quản trị" },
-            { value: "STUDENT", label: "Sinh viên" },
-          ]}
-        />
-      </Toolbar>
 
       {line && <UndoLine key={line.text} message={line.text} onUndo={line.undo} onDone={() => setLine(null)} />}
       {error && (
@@ -222,6 +181,32 @@ export function AdminUsers() {
         </InlineNotice>
       )}
 
+      <Panel>
+        <Toolbar
+          end={
+            <Field label="Tìm người dùng" className={s.searchField}>
+              {(id) => (
+                <span className={s.search}>
+                  <Search aria-hidden />
+                  <Input id={id} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tên hoặc đầu email" />
+                </span>
+              )}
+            </Field>
+          }
+        >
+          <SegmentedControl
+            label="Lọc theo vai trò"
+            value={filter}
+            onChange={setFilter}
+            options={[
+              { value: "all", label: "Tất cả" },
+              { value: "TEACHER", label: "Giảng viên" },
+              { value: "TA", label: "Trợ giảng" },
+              { value: "ADMIN", label: "Quản trị" },
+              { value: "STUDENT", label: "Sinh viên" },
+            ]}
+          />
+        </Toolbar>
       <PageState query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: list.items, refetch: list.refetch }} showTechnical>
         <DataTable
           caption="Danh sách người dùng"
@@ -233,6 +218,7 @@ export function AdminUsers() {
           pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
         />
       </PageState>
+      </Panel>
     </Page>
   );
 }

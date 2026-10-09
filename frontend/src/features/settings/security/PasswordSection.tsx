@@ -44,7 +44,7 @@ export function PasswordSection() {
   }
 
   return (
-    <Section title="Mật khẩu" description="Đổi mật khẩu sẽ đăng xuất mọi thiết bị khác; thiết bị này vẫn đăng nhập.">
+    <Section title="Mật khẩu" description="Đổi mật khẩu sẽ đăng xuất mọi thiết bị khác; thiết bị này vẫn đăng nhập." panel>
       <form onSubmit={submit} className={s.form} noValidate>
         {problem && <InlineNotice tone="danger" compact>{problem}</InlineNotice>}
         <Field label="Mật khẩu hiện tại" error={errors.cur}>

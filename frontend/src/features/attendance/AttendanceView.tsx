@@ -21,24 +21,7 @@ import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { simNowMs } from "@/shared/state/clock";
 import { useDemoSlice, writeSlice } from "@/shared/state/demo";
-import {
-  Button,
-  ButtonLink,
-  DataTable,
-  EmptyState,
-  InlineNotice,
-  Kbd,
-  Page,
-  PageHeader,
-  PageState,
-  Select,
-  Skeleton,
-  StatusText,
-  Switch,
-  Toolbar,
-  useRouteState,
-  type Column,
-} from "@/shared/ui";
+import { Button, ButtonLink, type Column, DataTable, EmptyState, InlineNotice, Kbd, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Switch, Toolbar, useRouteState } from "@/shared/ui";
 import s from "./AttendanceView.module.css";
 
 const MARKS: Array<{ value: Mark; label: string; key: string; verb: string }> = [
@@ -238,16 +221,16 @@ export function AttendanceView() {
       />
       <PageState
         state={routeState}
-        loading={<Skeleton lines={10} />}
-        empty={<EmptyState title="Lớp này chưa có lịch buổi học">Tạo lịch buổi học ở bước thiết lập lớp, rồi quay lại điểm danh.</EmptyState>}
+        loading={<Panel><Skeleton lines={10} /></Panel>}
+        empty={<Panel><EmptyState title="Lớp này chưa có lịch buổi học">Tạo lịch buổi học ở bước thiết lập lớp, rồi quay lại điểm danh.</EmptyState></Panel>}
         error={{ problem: "Không lưu được điểm danh lên máy chủ.", recovery: "Các ô bạn đã đánh vẫn nằm trên máy và sẽ được gửi lại. Thử lại, hoặc tiếp tục đánh rồi lưu sau." }}
       >
         {sessions.length === 0 ? (
-          <EmptyState title={`Lớp ${course.code} chưa có lịch buổi học`} action={<ButtonLink href="/">Mở việc thiết lập lớp</ButtonLink>}>
+          <Panel><EmptyState title={`Lớp ${course.code} chưa có lịch buổi học`} action={<ButtonLink href="/">Mở việc thiết lập lớp</ButtonLink>}>
             Buổi học được tạo ở bước “Thiết lập lớp mới”. Sau khi có lịch, màn điểm danh sẽ mở đúng buổi đang diễn ra.
-          </EmptyState>
+          </EmptyState></Panel>
         ) : (
-          <>
+          <Panel>
             <Toolbar
               end={
                 <>
@@ -351,7 +334,7 @@ export function AttendanceView() {
               </div>
             )}
             {undo.node}
-          </>
+          </Panel>
         )}
       </PageState>
     </Page>

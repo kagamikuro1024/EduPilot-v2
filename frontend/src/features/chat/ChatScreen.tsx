@@ -29,7 +29,7 @@ import { useStreamedText } from "@/shared/lib/useStreamedText";
 import { useSession } from "@/shared/session/session";
 import { simNowMs, useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import { Button, Composer, DefinitionList, InlineNotice, Page, PageHeader, PageState, Skeleton, StatusText } from "@/shared/ui";
+import { Button, Composer, DefinitionList, InlineNotice, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
 import { SessionSheet, sessionMeta } from "./SessionSheet";
 import s from "./ChatScreen.module.css";
 
@@ -128,6 +128,7 @@ export function ChatScreen() {
 
       <div className={s.layout}>
         <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
+          <Panel>
           <p className={s.historyLabel}>Phiên trước</p>
           {sessions.length === 0 ? (
             <p className={s.historyEmpty}>Chưa có phiên nào</p>
@@ -148,6 +149,7 @@ export function ChatScreen() {
               ))}
             </ul>
           )}
+          </Panel>
         </nav>
 
         <div className={s.column}>
@@ -161,6 +163,8 @@ export function ChatScreen() {
             Phiên trước ({sessions.length})
           </button>
 
+          <Panel>
+          <div className={s.inner}>
           <PageState
             loading={
               <div className={s.thread} data-part="chat-thread">
@@ -239,6 +243,8 @@ export function ChatScreen() {
               }
             />
           </div>
+          </div>
+          </Panel>
         </div>
       </div>
 

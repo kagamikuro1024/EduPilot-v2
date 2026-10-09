@@ -5,26 +5,7 @@ import { Search } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ApiError, apiClient, useCursorList } from "@/shared/data";
-import {
-  Button,
-  ButtonLink,
-  DataTable,
-  EmptyState,
-  Field,
-  InlineNotice,
-  Input,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  SegmentedControl,
-  Select,
-  Skeleton,
-  Tabs,
-  Toolbar,
-  UndoLine,
-  type Column,
-} from "@/shared/ui";
+import { Button, ButtonLink, type Column, DataTable, EmptyState, Field, InlineNotice, Input, OverflowMenu, Page, PageHeader, PageState, Panel, SegmentedControl, Select, Skeleton, Tabs, Toolbar, UndoLine } from "@/shared/ui";
 import s from "./MembersView.module.css";
 import { classKey, useClassCourse, type Member, type MemberCounts } from "./classApi";
 import { TODAY_KEY } from "@/features/today/todayApi";
@@ -39,12 +20,12 @@ const MISMATCH = "Email chưa khớp MSSV";
 /** Thành viên lớp, hàng chờ duyệt và trợ giảng (dữ liệu thật). TA xem và duyệt; chỉ giảng viên mời ra, đổi trợ giảng và duyệt hàng "email chưa khớp MSSV". */
 export function MembersView() {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page><PageHeader title="Thành viên lớp" /><Skeleton lines={5} /></Page>;
+  if (cc.state === "loading") return <Page><PageHeader title="Thành viên lớp" /><Panel><Skeleton lines={5} /></Panel></Page>;
   if (cc.state === "none") {
     return (
       <Page>
         <PageHeader title="Thành viên lớp" />
-        <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên. Quản trị viên mở lớp ở mục Lớp học.</EmptyState>
+        <Panel><EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên. Quản trị viên mở lớp ở mục Lớp học.</EmptyState></Panel>
       </Page>
     );
   }
@@ -221,32 +202,7 @@ function Members({ courseId, code, canManage }: { courseId: string; code: string
         <RosterImport courseId={courseId} />
       ) : tab === "staff" ? (
         <Staff courseId={courseId} items={items} loading={list.isPending} onChanged={refresh} setLine={setLine} setError={setError} fail={fail} />
-      ) : (
-        <Toolbar
-          end={
-            <Field label="Tìm thành viên" className={s.searchField}>
-              {(id) => (
-                <span className={s.search}>
-                  <Search aria-hidden />
-                  <Input id={id} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tên, MSSV hoặc đầu email" />
-                </span>
-              )}
-            </Field>
-          }
-        >
-          {tab === "members" && (
-            <SegmentedControl
-              label="Lọc theo vai"
-              value={role}
-              onChange={setRole}
-              options={[
-                { value: "all", label: "Tất cả" },
-                { value: "STUDENT", label: "Sinh viên" },
-              ]}
-            />
-          )}
-        </Toolbar>
-      )}
+      ) : null}
 
       {line && <UndoLine key={line.text} message={line.text} onUndo={line.undo} onDone={() => setLine(null)} />}
       {error && <InlineNotice tone="danger" compact>{error}</InlineNotice>}
@@ -273,24 +229,50 @@ function Members({ courseId, code, canManage }: { courseId: string; code: string
       )}
 
       {tab !== "staff" && tab !== "import" && (
-        <PageState query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: list.items, refetch: list.refetch }} showTechnical>
-          <DataTable
-            caption={tab === "pending" ? "Yêu cầu chờ duyệt" : "Thành viên lớp"}
-            columns={cols}
-            rows={items}
-            rowKey={(m) => m.user_id}
-            dense
-            selection={tab === "pending" ? { selected, onChange: (next) => setSelected(new Set([...next].filter((id) => items.find((m) => m.user_id === id)?.warning !== "EMAIL_MISMATCH"))) } : undefined}
-            empty={
-              tab === "pending" ? (
-                <EmptyState title="Chưa có yêu cầu nào chờ duyệt.">Khi sinh viên vào lớp bằng mã mà lớp cần duyệt, yêu cầu sẽ hiện ở đây.</EmptyState>
-              ) : (
-                <EmptyState title="Chưa có thành viên khớp.">Chia sẻ mã tham gia ở “Mã và cài đặt tham gia” để sinh viên vào lớp.</EmptyState>
-              )
+        <Panel>
+          <Toolbar
+            end={
+              <Field label="Tìm thành viên" className={s.searchField}>
+                {(id) => (
+                  <span className={s.search}>
+                    <Search aria-hidden />
+                    <Input id={id} value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Tên, MSSV hoặc đầu email" />
+                  </span>
+                )}
+              </Field>
             }
-            pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
-          />
-        </PageState>
+          >
+            {tab === "members" && (
+              <SegmentedControl
+                label="Lọc theo vai"
+                value={role}
+                onChange={setRole}
+                options={[
+                  { value: "all", label: "Tất cả" },
+                  { value: "STUDENT", label: "Sinh viên" },
+                ]}
+              />
+            )}
+          </Toolbar>
+          <PageState query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: list.items, refetch: list.refetch }} showTechnical>
+            <DataTable
+              caption={tab === "pending" ? "Yêu cầu chờ duyệt" : "Thành viên lớp"}
+              columns={cols}
+              rows={items}
+              rowKey={(m) => m.user_id}
+              dense
+              selection={tab === "pending" ? { selected, onChange: (next) => setSelected(new Set([...next].filter((id) => items.find((m) => m.user_id === id)?.warning !== "EMAIL_MISMATCH"))) } : undefined}
+              empty={
+                tab === "pending" ? (
+                  <EmptyState title="Chưa có yêu cầu nào chờ duyệt.">Khi sinh viên vào lớp bằng mã mà lớp cần duyệt, yêu cầu sẽ hiện ở đây.</EmptyState>
+                ) : (
+                  <EmptyState title="Chưa có thành viên khớp.">Chia sẻ mã tham gia ở “Mã và cài đặt tham gia” để sinh viên vào lớp.</EmptyState>
+                )
+              }
+              pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
+            />
+          </PageState>
+        </Panel>
       )}
     </Page>
   );
@@ -338,6 +320,7 @@ function Staff({
 
   const current = items.map((m) => m.user_id);
   return (
+    <Panel>
     <div className={s.stack}>
       <div className={s.add}>
         <Field label="Thêm trợ giảng">
@@ -380,5 +363,6 @@ function Staff({
         />
       )}
     </div>
+    </Panel>
   );
 }

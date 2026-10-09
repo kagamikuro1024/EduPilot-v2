@@ -2,10 +2,11 @@ import type { RouteIntro } from "./intro";
 import shell from "./AppShell.module.css";
 import pre from "./PreShell.module.css";
 import ls from "@/shared/ui/Layout.module.css";
+import { Panel } from "@/shared/ui";
 
 /**
  * Khung trước phiên (US-PU-06): cùng hình học với AppShell (thanh trên, cột bên, vùng chính) và cùng lớp CSS của PageHeader,
- * nên khi khung thật thay vào, tiêu đề / câu phụ KHÔNG dịch chỗ. Không có nút, liên kết hay dữ liệu người dùng; chỉ là chữ tĩnh.
+ * nên khi khung thật thay vào, tiêu đề / câu phụ KHÔNG dịch chỗ. Đoạn `body` nằm trong `Panel` như màn thật (cùng bề rộng chữ → cùng số dòng → không ứng viên LCP mới). Không có nút, liên kết hay dữ liệu người dùng; chỉ là chữ tĩnh.
  */
 export function PreShell({ intro }: { intro: RouteIntro }) {
   return (
@@ -32,7 +33,11 @@ export function PreShell({ intro }: { intro: RouteIntro }) {
               </div>
             </div>
           </div>
-          {intro.body && <p className={pre.body}>{intro.body}</p>}
+          {intro.body && (
+            <Panel>
+              <p className={pre.body}>{intro.body}</p>
+            </Panel>
+          )}
         </div>
       </main>
     </div>

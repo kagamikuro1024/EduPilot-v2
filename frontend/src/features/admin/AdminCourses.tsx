@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 import { ApiError, apiClient, useCursorList } from "@/shared/data";
-import { Button, ConfirmIrreversible, DataTable, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, StatusText, UndoLine, type Column } from "@/shared/ui";
+import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, StatusText, UndoLine } from "@/shared/ui";
 import s from "./admin.module.css";
 import { CoursePanel, type PanelMode } from "./courses/CoursePanel";
 import { COURSES_KEY, sizeText, type AdminCourse } from "./courses/api";
@@ -108,7 +108,7 @@ export function AdminCourses() {
       {list.isError && list.items.length > 0 && <InlineNotice tone="danger" compact>Chưa làm mới được danh sách lớp.</InlineNotice>}
 
       <PageState query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: list.items, refetch: list.refetch }} showTechnical>
-        <div className={s.tableBlock}>
+        <Panel>
           <DataTable
             caption="Danh sách lớp học"
             columns={columns}
@@ -121,7 +121,7 @@ export function AdminCourses() {
             }
             pagination={{ nextCursor: list.hasNextPage ? "next" : null, onLoadMore: () => void list.fetchNextPage(), loading: list.isFetchingNextPage }}
           />
-        </div>
+        </Panel>
       </PageState>
 
       <ConfirmIrreversible

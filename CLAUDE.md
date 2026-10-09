@@ -57,8 +57,8 @@ Worker Go chạy việc nền, gọi container `docling-serve` để trích PDF/
 ## Luật giao diện — hướng "Red Thread / Academic Instrument" (chi tiết ở `docs/design/DESIGN.md`)
 
 - Đỏ + trắng là thương hiệu, nhưng **đỏ là tín hiệu, không phải nền**. Đỏ chỉ mang ba nghĩa: đang ở đâu / cần hành động / đã sửa-xác nhận. Không có nghĩa thì bỏ.
-- Không tường thẻ KPI, không card lồng card, không bọc mọi mục trong khung bo góc. Dùng khoảng trắng, độ gần, chữ và đường kẻ 1 px trước khi dùng khung chứa.
-- Bo góc nhỏ (6–12 px), gần như không bóng (chỉ menu / popover / dialog). Một họ chữ: Be Vietnam Pro. Không chữ gradient, không glass, không neon AI.
+- Không tường thẻ KPI, không card lồng card. Mỗi vùng làm việc nằm trên **đúng một** `Panel` (nền trang `--ep-canvas`, tiêu đề vùng nằm ngoài panel, không `Panel` lồng `Panel`); trong panel dùng khoảng trắng, độ gần, chữ và đường kẻ 1 px trước khi dùng khung chứa.
+- Bo góc nhỏ (6–12 px; riêng `Panel` dùng `--ep-radius-panel`), không bóng ngoài menu / popover / dialog và `Panel` (`--ep-elevation-1`). Một họ chữ: Be Vietnam Pro. Không chữ gradient, không glass, không neon AI.
 - Một hành động chính cho mỗi vùng làm việc; tối đa 2 hành động phụ hiện ra; còn lại vào menu. Sửa tại chỗ và mở dần trước khi dùng modal. Dialog chỉ cho việc cần bảo vệ.
 - Điều hướng chính trên desktop luôn có nhãn chữ. Sinh viên không bao giờ thấy từ kỹ thuật AI (RAG, PII, fallback, trace, provider…); dùng bảng dịch ở `DESIGN.md` §13. Nút là động từ.
 - Chỉ dùng token `--ep-*` và primitive ở `frontend/src/shared/`. Cấm màu / bo góc / bóng / cỡ chữ viết cứng trong trang. Cấm tạo bản sao riêng của nút, trường nhập, chip, dialog, tab, bảng, thông báo cho từng route.

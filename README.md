@@ -4,7 +4,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), 3 (PU + P1 LLM Gateway), 4 (P2 Lớp học) và **5 (PE thi hằng tuần — ngân hàng câu hỏi, bài thi trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; 510 test case, cổng đạt có điều kiện)**. Đang làm: sprint 5.5 (giao diện panel nổi). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), 3 (PU + P1 LLM Gateway), 4 (P2 Lớp học), **5 (PE thi hằng tuần — ngân hàng câu hỏi, bài thi trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; 510 test case, cổng đạt có điều kiện)** và **5.5 (giao diện panel nổi, D59 — nền canvas xám ấm, mỗi vùng làm việc trên một panel trắng; 58 test case, cổng đạt có điều kiện)**. Kế tiếp: sprint 6 (P3 + P8). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -213,8 +213,8 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 | [`docs/FLOWS.md`](docs/FLOWS.md) | 19 luồng end-to-end F1–F19, cả nhánh lỗi |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | Thành phần, lược đồ dữ liệu, REST, provider LLM, env, kiểm thử |
 | [`docs/SYSTEM_DESIGN.md`](docs/SYSTEM_DESIGN.md) | Tải T1, nút cổ chai, SLO, lộ trình mở rộng |
-| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D58 |
-| [`docs/design/DESIGN.md`](docs/design/DESIGN.md), [`docs/UX.md`](docs/UX.md) | Hệ thiết kế "Red Thread / Academic Instrument", hợp đồng từng route, luật UX |
+| [`docs/DECISIONS.md`](docs/DECISIONS.md) | Nhật ký quyết định D1–D59 |
+| [`docs/design/DESIGN.md`](docs/design/DESIGN.md), [`docs/UX.md`](docs/UX.md) | Hệ thiết kế "Red Thread / Academic Instrument" + panel có kỷ luật (D59), hợp đồng từng route, luật UX |
 | [`docs/phases/`](docs/phases/) | Backlog kỹ thuật: P0, PG, PU, P1–P10, PR — lát việc + cổng nghiệm thu |
 | [`docs/specs/`](docs/specs/) | User story + SRS theo feature (BA viết) |
 | [`docs/sprints/`](docs/sprints/) | Kế hoạch, handoff, test case, QC report, góp ý, báo cáo từng sprint |
@@ -266,7 +266,7 @@ flowchart LR
 | 3 | ✅ Xong | PU + P1 | Token, app shell, primitive, ảnh mốc + axe + Lighthouse CI; cổng LLM (openai-go) + Scheduler ba làn + cầu dao + `/settings/llm` thật |
 | 4 | ✅ Xong | P2 | Đăng nhập / đăng ký / xác minh email / đặt lại mật khẩu, chống dò, mời giảng viên / TA, mở lớp, mã tham gia, nạp danh sách lớp (nối chỉ bằng email), "Hôm nay", seed bằng API thật |
 | 5 | ✅ Xong | PE | Bài thi hằng tuần (D54–D58): ngân hàng câu hỏi, trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính (khoá chat, log rời tab, so độ giống); trả nợ LCP / TBT (US-PU-06) |
-| 5.5 | Đang làm | UI | Giao diện panel nổi (D59): nền canvas, mỗi vùng làm việc trên một panel |
+| 5.5 | ✅ Xong | UI | Giao diện panel nổi (D59): nền canvas xám ấm, mỗi vùng làm việc trên một `Panel`; khung, màn sinh viên / Staff / Admin; ảnh trước / sau, axe, Lighthouse |
 | 6 | | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
 | 7 | | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
 | 8 | | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |

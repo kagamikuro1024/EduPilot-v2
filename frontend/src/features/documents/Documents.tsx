@@ -2,23 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FileText, Trash2, Upload } from "lucide-react";
-import {
-  Button,
-  ConfirmIrreversible,
-  type Column,
-  DataTable,
-  DefinitionList,
-  Drawer,
-  EmptyState,
-  InlineNotice,
-  OverflowMenu,
-  Page,
-  PageHeader,
-  PageState,
-  useRouteState,
-  Skeleton,
-  StatusText,
-} from "@/shared/ui";
+import { Button, type Column, ConfirmIrreversible, DataTable, DefinitionList, Drawer, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, useRouteState } from "@/shared/ui";
 import { isDocOfCourse } from "@/mock/docs";
 import { ANSWER_KEY_NOTE, DOCUMENTS, DOC_KIND_LABEL, FAILING_UPLOAD, titleFromFile, type DocRow, type DocStatus } from "@/mock/documents";
 import { fmtShortDate } from "@/mock/core";
@@ -251,9 +235,9 @@ export function Documents() {
       )}
 
       <PageState
-        loading={<Skeleton lines={10} />}
+        loading={<Panel><Skeleton lines={10} /></Panel>}
         empty={
-          <EmptyState
+          <Panel><EmptyState
             title="Chưa có tài liệu"
             icon={<FileText aria-hidden />}
             action={
@@ -265,10 +249,11 @@ export function Documents() {
             }
           >
             Tải bài giảng, quy chế môn học và đề cũ lên để AI trả lời sinh viên theo đúng nội dung lớp bạn dạy. Đáp án tải lên vẫn được giữ kín với sinh viên.
-          </EmptyState>
+          </EmptyState></Panel>
         }
         error={{ problem: "Không tải được danh sách tài liệu.", recovery: "Tệp đã tải lên vẫn được giữ. Thử lại sau ít phút." }}
       >
+        <Panel>
         {failedDocs.map((d) => (
           <InlineNotice key={d.id} tone="danger" title={`${d.title}: ${d.failReason}`}>
             {d.failFix}
@@ -288,6 +273,7 @@ export function Documents() {
           rowKey={(d) => d.id}
           empty={<EmptyState title="Chưa có tài liệu">Tải tài liệu đầu tiên lên để bắt đầu.</EmptyState>}
         />
+        </Panel>
       </PageState>
 
       <Drawer open={Boolean(detail)} onClose={() => setDetail(null)} title={detail?.title ?? ""} description={detail ? DOC_KIND_LABEL[detail.kind] : undefined}>

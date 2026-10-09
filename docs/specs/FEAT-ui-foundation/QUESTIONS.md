@@ -1,5 +1,5 @@
 # Câu hỏi mở — FEAT-ui-foundation (US-PU-01…06)
-Phiên bản 1.6 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`.
+Phiên bản 1.7 · 2026-10-02 · Trạng thái: DRAFT. Chủ dự án vắng mặt; PM quyết. Mỗi câu có phương án mặc định an toàn để dev **không bị chặn**; nếu câu trả lời khác mặc định, BA cập nhật spec qua `proposals.md`.
 
 | # | Câu hỏi | Phương án BA đề xuất | Trả lời của chủ dự án | Ngày |
 | --- | --- | --- | --- | --- |

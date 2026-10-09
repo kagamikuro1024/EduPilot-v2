@@ -51,7 +51,7 @@ for (const r of ROUTES) {
         await script(page, base()); // dữ liệu cố định theo hợp đồng thật (support/llm-fixtures.ts)
       }
       if (r.admin) await asJwt(page, "ADMIN", { email: "admin@ptit.edu.vn", fullName: "Đỗ Hoàng Nam", expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: hạn phải dài hơn khoảng lệch với giờ thật; phiên thật giả lập (refresh → JWT ADMIN)
-      else if (r.role) await asDemo(context, r.role);
+      else if (r.role) await asDemo(context, r.role, { expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: token mặc định (15 phút) đã hết hạn nên phiên rơi về Sinh viên — ảnh inbox / gradebook từng là trang chặn quyền
       await page.goto(r.path);
       await page.locator("main").first().waitFor();
       await settle(page);

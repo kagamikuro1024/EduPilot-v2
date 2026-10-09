@@ -1,0 +1,8 @@
+.root { display: grid; gap: var(--ep-space-3); min-width: 0; }
+.cells { display: grid; gap: var(--ep-space-6); grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); }
+.cell { display: grid; gap: var(--ep-space-2); min-width: 0; align-content: start; }
+.label { font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); }
+.text { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.padText { margin: 0; padding: var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.strongRow { display: flex; flex-wrap: wrap; gap: var(--ep-space-3); }
+.wall { display: grid; gap: var(--ep-space-4); grid-template-columns: repeat(3, minmax(0, 1fr)); }

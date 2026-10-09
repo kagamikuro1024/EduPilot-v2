@@ -1,0 +1,74 @@
+// QC tự đo (sprint 5.5): chạy bằng `QC_ROUTES='[["/dev/panels?surface=a&role=teacher","teacher"]]' QC_TAG=ui01 pnpm exec playwright test qc-measure.spec.ts`
+// Sao chép vào frontend/e2e khi chạy, xoá sau (không commit ở frontend). Không dùng mã đo của dev; chỉ dùng `asDemo` để vào phiên giả.
+import { test } from "@playwright/test";
+import { writeFileSync, mkdirSync } from "node:fs";
+import AxeBuilder from "@axe-core/playwright";
+import { asDemo, type DemoRole } from "./support/session";
+
+const ROUTES: Array<[string, string]> = JSON.parse(process.env.QC_ROUTES ?? "[]");
+const TAG = process.env.QC_TAG ?? "x";
+const WIDTHS = (process.env.QC_WIDTHS ?? "1440,1024,375").split(",").map(Number);
+const OUT = process.env.QC_OUT ?? "../docs/sprints/5.5/qc";
+const SHOTS = process.env.QC_SHOTS === "1";
+const results: unknown[] = [];
+
+test.describe.configure({ mode: "serial" });
+for (const [url, role] of ROUTES) for (const w of WIDTHS) {
+  test(`${TAG} ${url} ${role} ${w}`, async ({ browser }) => {
+    const real = role.startsWith("real:");
+    const ctx = await browser.newContext({ viewport: { width: w, height: w <= 480 ? 812 : 900 }, ignoreHTTPSErrors: true });
+    if (role !== "none" && !real) await asDemo(ctx, role as DemoRole);
+    const page = await ctx.newPage();
+    const cdp = await ctx.newCDPSession(page); await cdp.send('Network.enable'); const js = new Map<string, number>(); const typ = new Map<string, string>();
+    cdp.on('Network.responseReceived', (e: any) => typ.set(e.requestId, e.type)); cdp.on('Network.loadingFinished', (e: any) => { if (typ.get(e.requestId) === 'Script') js.set(e.requestId, e.encodedDataLength); });
+    if (!real) await page.clock.install({ time: new Date("2026-10-29T09:20:00+07:00") });
+    if (real) { await page.goto(process.env.QC_BASE + "/login", { waitUntil: "networkidle" }); await page.getByLabel("Email").fill(role.slice(5) + "@edupilot.local"); await page.getByLabel("Mật khẩu", { exact: true }).fill("Edupilot#Seed-2026"); await page.getByRole("button", { name: "Đăng nhập", exact: true }).click(); await page.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 15000 }); }
+    await page.goto(process.env.QC_BASE + url, { waitUntil: real ? "domcontentloaded" : "networkidle" }); if (real) await page.waitForTimeout(3500);
+    await page.waitForTimeout(600);
+    const m = await page.evaluate(() => {
+      const q = (s: string) => Array.from(document.querySelectorAll<HTMLElement>(s));
+      const panels = q("[data-ep-panel]");
+      const nest = document.querySelectorAll("[data-ep-panel] [data-ep-panel]").length;
+      const title = document.querySelectorAll("[data-ep-panel] h1, [data-ep-panel] h2.ep-section-title").length;
+      let strongBad = 0;
+      for (const p of panels) { const s = p.querySelectorAll('[data-tone="strong"]'); if (s.length > 3) strongBad++; s.forEach((e) => { if (e.querySelector("[data-ep-panel],[data-ep-panel-section]")) strongBad++; }); }
+      // WALL
+      let wall = 0; const parents = new Map<Element, HTMLElement[]>();
+      for (const p of panels) { const par = p.parentElement!; parents.set(par, [...(parents.get(par) ?? []), p]); }
+      for (const [, kids] of parents) for (const a of kids) { const ra = a.getBoundingClientRect(); if (ra.top > 800) continue;
+        const same = kids.filter((b) => { const rb = b.getBoundingClientRect(); return Math.abs(rb.top - ra.top) <= 2 && Math.abs(rb.width - ra.width) <= 2 && rb.top <= 800; }); if (same.length >= 3) { wall++; break; } }
+      const cs = (e: Element) => getComputedStyle(e);
+      const p0 = panels[0]; const c0 = p0 ? cs(p0) : null;
+      const rects = panels.map((p) => p.getBoundingClientRect());
+      const edge = rects.length ? Math.min(...rects.map((r) => Math.min(r.left, innerWidth - r.right))) : null;
+      const touchEls = innerWidth <= 480 ? q('a,button,input,select,textarea,[role="button"],[role="tab"],[role="radio"],[role="checkbox"]').filter((e) => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && getComputedStyle(e).visibility !== "hidden" && (r.height < 44 || r.width < 44) && !e.closest("[hidden]"); }).map((e) => `${e.tagName.toLowerCase()}[${(e.getAttribute('aria-label') ?? e.textContent ?? '').trim().slice(0, 30)}] ${Math.round(e.getBoundingClientRect().width)}x${Math.round(e.getBoundingClientRect().height)}`) : null;
+      const touchBad = touchEls ? touchEls.length : null;
+      const probe = (v: string) => { const d = document.createElement("div"); d.style.cssText = `position:absolute;background:var(${v});color:var(${v})`; document.body.appendChild(d); const bg = getComputedStyle(d).backgroundColor; d.remove(); const cv = document.createElement('canvas'); cv.width = cv.height = 1; const x = cv.getContext('2d', { colorSpace: 'srgb', willReadFrequently: true })!; x.clearRect(0, 0, 1, 1); x.fillStyle = '#000'; x.fillStyle = bg; x.fillRect(0, 0, 1, 1); const p = x.getImageData(0, 0, 1, 1).data; return `rgb(${p[0]}, ${p[1]}, ${p[2]})`; };
+      const tokens: Record<string, string> = {}; for (const v of ["--ep-canvas", "--ep-surface", "--ep-surface-strong", "--ep-surface-subtle", "--ep-red-soft", "--ep-ink", "--ep-ink-2", "--ep-ink-3", "--ep-red", "--ep-green", "--ep-blue", "--ep-panel-border", "--ep-radius-panel", "--ep-elevation-1"]) { try { tokens[v] = probe(v); } catch { tokens[v] = "?"; } }
+      const raw = (v: string) => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+      const rawTok: Record<string, string> = {}; for (const v of ["--ep-radius-panel", "--ep-elevation-1", "--ep-panel-border"]) rawTok[v] = raw(v);
+      const part = (n: string) => document.querySelector<HTMLElement>(`[data-part="${n}"]`);
+      const sty = (e: HTMLElement | null) => e ? { bg: getComputedStyle(e).backgroundColor, bR: getComputedStyle(e).borderRightWidth + ' ' + getComputedStyle(e).borderRightColor, bB: getComputedStyle(e).borderBottomWidth, bT: getComputedStyle(e).borderTopWidth, bf: getComputedStyle(e).backdropFilter, w: Math.round(e.getBoundingClientRect().width), h: Math.round(e.getBoundingClientRect().height) } : null;
+      const mainEl = document.querySelector<HTMLElement>('main');
+      const frame = { sidebar: sty(part('sidebar')), topbar: sty(part('topbar')), main: mainEl ? getComputedStyle(mainEl).backgroundColor : null, bottomnav: sty(document.querySelector<HTMLElement>('nav[class*="bottom" i], [data-part="bottomnav"]')) };
+      const h1 = document.querySelector('h1'); const pn = panels[0];
+      const authInfo = { h1BeforePanel: h1 && pn ? !!(h1.compareDocumentPosition(pn) & Node.DOCUMENT_POSITION_FOLLOWING) : null, panelW: pn ? Math.round(pn.getBoundingClientRect().width) : null, primary: q('button[class*="primary" i],button[data-variant="primary"]').length };
+      const navItems = q('nav a[aria-current="page"], nav a[aria-current]').slice(0, 1).map((e) => ({ bg: getComputedStyle(e).backgroundColor, text: e.textContent?.trim().slice(0, 20) }));
+      return {
+        frame, authInfo, navItems,
+        panels: panels.length, nest, title, strongBad, wall, edge: edge === null ? null : Math.round(edge * 100) / 100,
+        ox: document.documentElement.scrollWidth > innerWidth + 1 ? 1 : 0, touchBad, touchEls,
+        bodyBg: cs(document.body).backgroundColor, panelBg: c0?.backgroundColor ?? null, panelRadius: c0?.borderTopLeftRadius ?? null, panelShadow: c0?.boxShadow ?? null, panelBorder: c0 ? `${c0.borderTopWidth} ${c0.borderTopStyle} ${c0.borderTopColor}` : null,
+        dataSurface: document.documentElement.getAttribute("data-surface"), tokens, rawTok,
+        h1: q("h1").length, buttonsPrimary: q('button[class*="primary" i],a[class*="primary" i]').length,
+      };
+    });
+    let axe: unknown = null;
+    if (process.env.QC_AXE === "1") { const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]).analyze(); const by: Record<string, number> = {}; for (const v of r.violations) by[v.impact ?? "?"] = (by[v.impact ?? "?"] ?? 0) + 1; axe = { violations: by, contrast: r.violations.filter((v) => v.id === "color-contrast").length, incompleteContrast: r.incomplete.filter((v) => v.id === "color-contrast").reduce((a, v) => a + v.nodes.length, 0), ids: r.violations.map((v) => v.id) }; }
+    if (SHOTS) { mkdirSync(`${OUT}/shots/${TAG}`, { recursive: true }); await page.screenshot({ path: `${OUT}/shots/${TAG}/${url.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "")}-${role}-${w}.png`, fullPage: false }); }
+    const jsKB = Math.round(Array.from(js.values()).reduce((a, b) => a + b, 0) / 102.4) / 10;
+    results.push({ url, role, w, jsKB, axe, ...m });
+    await ctx.close();
+  });
+}
+test.afterAll(() => { mkdirSync(`${OUT}/measure`, { recursive: true }); writeFileSync(`${OUT}/measure/${TAG}.json`, JSON.stringify(results, null, 1)); });

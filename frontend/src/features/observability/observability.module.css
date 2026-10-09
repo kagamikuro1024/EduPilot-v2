@@ -5,10 +5,7 @@
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: var(--ep-space-6);
-  margin: 0 0 var(--ep-space-10);
-  padding: var(--ep-space-4) 0;
-  border-top: 1px solid var(--ep-rule);
-  border-bottom: 1px solid var(--ep-rule);
+  margin: 0;
 }
 .stripItem { display: grid; gap: var(--ep-space-1); padding-left: var(--ep-space-5); border-left: 1px solid var(--ep-rule); }
 .stripItem:first-child { padding-left: 0; border-left: none; }

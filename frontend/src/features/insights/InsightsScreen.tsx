@@ -8,7 +8,7 @@ import { KEYS, type CalendarExtra, type InsightThread } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Section, Skeleton, StatusText, useRouteState } from "@/shared/ui";
+import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, useRouteState } from "@/shared/ui";
 import s from "./insights.module.css";
 
 const STEPS = ["Gom câu hỏi của lớp và bỏ tên, mã số sinh viên", "Nhóm câu hỏi theo chủ đề", "Xếp hạng chủ đề và soạn gợi ý dạy lại"];
@@ -84,20 +84,22 @@ export function InsightsScreen() {
 
       <PageState
         loading={
-          <div className={s.loading}>
-            <Skeleton lines={2} />
-            <Skeleton lines={5} />
-            <Skeleton lines={5} />
-          </div>
+          <Panel>
+            <div className={s.loading}>
+              <Skeleton lines={2} />
+              <Skeleton lines={5} />
+              <Skeleton lines={5} />
+            </div>
+          </Panel>
         }
         empty={
-          <EmptyState
+          <Panel><EmptyState
             title={`Chưa có báo cáo lỗ hổng kiến thức cho lớp ${course.code}`}
             action={canWrite ? createButton : undefined}
             icon={<Sparkles aria-hidden />}
           >
             Lớp đã có đủ câu hỏi để nhóm chủ đề. Tạo báo cáo đầu tiên để xem sinh viên đang vướng ở đâu; báo cáo chỉ dùng câu hỏi đã ẩn danh của lớp này.
-          </EmptyState>
+          </EmptyState></Panel>
         }
         error={{
           problem: "Không tạo được báo cáo lỗ hổng kiến thức.",
@@ -105,7 +107,7 @@ export function InsightsScreen() {
         }}
       >
         {step !== null ? (
-          <Section title="Đang tạo báo cáo" description="Việc chạy nền, bạn đi làm việc khác được; báo cáo sẽ hiện ở đây khi xong.">
+          <Section panel title="Đang tạo báo cáo" description="Việc chạy nền, bạn đi làm việc khác được; báo cáo sẽ hiện ở đây khi xong.">
             <ol className={s.steps} aria-live="polite">
               {STEPS.map((text, i) => (
                 <li key={text} className={s.step}>
@@ -123,7 +125,7 @@ export function InsightsScreen() {
               </InlineNotice>
             </div>
 
-            <Section title="Chủ đề nên dạy lại" description={`${report.window} · xếp theo mức độ cả lớp đang vướng`}>
+            <Section panel title="Chủ đề nên dạy lại" description={`${report.window} · xếp theo mức độ cả lớp đang vướng`}>
               <ol className={s.topics}>
                 {report.topics.map((t, i) => (
                   <li key={t.id} className={s.topic}>
@@ -192,7 +194,7 @@ export function InsightsScreen() {
               {undo.node}
             </Section>
 
-            <Section title="Tài liệu chưa đề cập" description="Sinh viên hỏi nhưng không tài liệu nào của lớp trả lời được — AI phải chuyển sang bạn.">
+            <Section panel title="Tài liệu chưa đề cập" description="Sinh viên hỏi nhưng không tài liệu nào của lớp trả lời được — AI phải chuyển sang bạn.">
               <ul className={s.gaps}>
                 {report.uncovered.map((g) => (
                   <li key={g.title} className={s.gap}>
@@ -207,7 +209,7 @@ export function InsightsScreen() {
             </Section>
 
             {report.comparison && (
-              <Section title="So với báo cáo trước" description="Bản trước tạo ngày 22/10; chỉ liệt kê thay đổi đáng kể.">
+              <Section panel title="So với báo cáo trước" description="Bản trước tạo ngày 22/10; chỉ liệt kê thay đổi đáng kể.">
                 <ul className={s.compare}>
                   {report.comparison.map((line) => (
                     <li key={line}>{line}</li>

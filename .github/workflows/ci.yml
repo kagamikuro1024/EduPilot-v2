@@ -82,7 +82,7 @@ jobs:
   frontend:
     name: Frontend
     runs-on: ubuntu-24.04
-    timeout-minutes: 25
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v7
       - uses: pnpm/action-setup@v6

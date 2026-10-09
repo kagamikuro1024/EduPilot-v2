@@ -1470,7 +1470,7 @@ test("results: 1.000 dòng được ảo hoá — DOM chỉ dựng dòng nhìn t
   await expect(row(page, "Sinh viên 0000")).toBeVisible();
   const rendered = await page.locator("main tbody tr, main [role=row]").count();
   expect(rendered).toBeLessThan(120);
-  await page.locator("main").getByRole("table").first().evaluate((t) => {
+  await page.locator("main").getByRole("grid").first().evaluate((t) => { // bảng ảo hoá là role=grid (aria-activedescendant hợp lệ) — US-UI-07 B1
     for (let el: HTMLElement | null = t as HTMLElement; el; el = el.parentElement) {
       if (el.scrollHeight > el.clientHeight + 50 && getComputedStyle(el).overflowY !== "visible") { el.scrollTop = el.scrollHeight; break; }
     }

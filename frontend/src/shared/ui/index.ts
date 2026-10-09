@@ -11,3 +11,4 @@ export { Composer } from "./Composer";
 export { TrendChart, BarList } from "./Chart";
 export { PageState, useRouteState, type RouteState } from "./PageState";
 export { ConfirmIrreversible } from "./ConfirmIrreversible";
+export { Panel, PanelSection } from "./Panel";

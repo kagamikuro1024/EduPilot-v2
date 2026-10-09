@@ -1,7 +1,7 @@
 "use client";
 
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
-import { ActionList, Button, EmptyState, InlineNotice, Page, PageHeader, Section } from "@/shared/ui";
+import { ActionList, Button, EmptyState, InlineNotice, Page, PageHeader, Panel, Section } from "@/shared/ui";
 import { TodayActions } from "./TodayActions";
 import { longDate } from "./format";
 import { useToday, type AdminToday as Data } from "./todayApi";
@@ -17,7 +17,7 @@ export function AdminToday() {
         q.isError ? (
           <ApiErrorNotice error={q.error} showTechnical onRetry={() => void q.refetch()} title="Chưa tải được việc hôm nay. Dữ liệu của bạn không bị ảnh hưởng." />
         ) : (
-          <ActionList loading={3} label="Đang tải việc" />
+          <Panel><ActionList loading={3} label="Đang tải việc" /></Panel>
         )
       ) : (
         <>
@@ -27,11 +27,11 @@ export function AdminToday() {
             </InlineNotice>
           )}
           {d.actions.length > 0 ? (
-            <Section title="Việc cần bạn xử lý">
+            <Section title="Việc cần bạn xử lý" panel>
               <TodayActions actions={d.actions} showClass={false} canDismiss={false} />
             </Section>
           ) : (
-            <EmptyState title="Hệ thống đang vận hành bình thường">Khi một nhà cung cấp AI lỗi, ngân sách sắp chạm trần hoặc một lớp không có giảng viên, việc sẽ xuất hiện ở đây.</EmptyState>
+            <Panel><EmptyState title="Hệ thống đang vận hành bình thường">Khi một nhà cung cấp AI lỗi, ngân sách sắp chạm trần hoặc một lớp không có giảng viên, việc sẽ xuất hiện ở đây.</EmptyState></Panel>
           )}
         </>
       )}

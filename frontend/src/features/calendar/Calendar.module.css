@@ -33,7 +33,7 @@
 .month { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 1px; background: var(--ep-rule); border: 1px solid var(--ep-rule); }
 .monthHead { margin: 0; padding: var(--ep-space-2); background: var(--ep-surface-subtle); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); text-align: center; }
 .cell { display: grid; gap: var(--ep-space-1); align-content: start; min-height: 96px; padding: var(--ep-space-2); background: var(--ep-surface); }
-.otherMonth { background: var(--ep-paper); }
+.otherMonth { background: var(--ep-surface-subtle); }
 .otherMonth .cellNum { color: var(--ep-ink-3); }
 .cellNum { font-size: var(--ep-text-meta); font-weight: 600; }
 .chip { font-size: var(--ep-text-meta); line-height: 1.3; padding-left: var(--ep-space-2); border-left: 2px solid var(--ep-ink-3); overflow-wrap: anywhere; } /* tối đa hai dòng thật sự cần, không cắt bằng … (01-6) */

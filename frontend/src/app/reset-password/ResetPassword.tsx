@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthPanel } from "@/shared/shell/AuthShell";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -67,32 +68,28 @@ export function ResetPassword() {
 
   if (state === "checking") {
     return (
-      <>
-        <h1 className="ep-page-title">Đang kiểm tra liên kết…</h1>
+      <AuthPanel title="Đang kiểm tra liên kết…">
         <Skeleton lines={3} />
-      </>
+      </AuthPanel>
     );
   }
   if (state === "done") {
     return (
-      <>
-        <h1 className="ep-page-title">Mật khẩu đã được đổi. Hãy đăng nhập lại.</h1>
+      <AuthPanel title="Mật khẩu đã được đổi. Hãy đăng nhập lại.">
         <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
-      </>
+      </AuthPanel>
     );
   }
   if (state === "invalid") {
     return (
-      <>
-        <h1 className="ep-page-title">Liên kết không dùng được</h1>
+      <AuthPanel title="Liên kết không dùng được">
         <p>{problem ?? "Liên kết đã hết hạn hoặc đã được dùng."}</p>
         <ButtonLink href="/forgot-password" variant="primary">Yêu cầu liên kết mới</ButtonLink>
-      </>
+      </AuthPanel>
     );
   }
   return (
-    <>
-      <h1 className="ep-page-title">Đặt mật khẩu mới</h1>
+    <AuthPanel title="Đặt mật khẩu mới">
       {problem && <InlineNotice tone="danger" compact>{problem}</InlineNotice>}
       <form onSubmit={submit} className={s.form} noValidate>
         <Field label="Mật khẩu mới" helper="Ít nhất 10 ký tự, không phải mật khẩu phổ biến." error={errors.password}>
@@ -108,6 +105,6 @@ export function ResetPassword() {
       <p className={s.links}>
         <Link href="/login">Quay lại đăng nhập</Link>
       </p>
-    </>
+    </AuthPanel>
   );
 }

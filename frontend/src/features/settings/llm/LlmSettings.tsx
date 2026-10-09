@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ApiError, ApiErrorNotice } from "@/shared/data";
-import { InlineNotice, Page, PageHeader, Section, Skeleton } from "@/shared/ui";
+import { InlineNotice, Page, PageHeader, Panel, Section, Skeleton } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import { EmbeddingSection } from "./EmbeddingSection";
 import { ProviderSection } from "./ProviderSection";
@@ -31,24 +31,26 @@ export function LlmSettings() {
       <PageHeader title="Cấu hình LLM" description="Tác vụ nào chạy bằng mô hình nào, hỏng thì chuyển sang đâu, và tiêu bao nhiêu tiền." />
       {!canEdit && <InlineNotice tone="info">Chỉ quản trị viên được thay đổi cấu hình.</InlineNotice>}
       {pending ? (
-        <Skeleton lines={8} />
+        <Panel>
+          <Skeleton lines={8} />
+        </Panel>
       ) : failed ? (
         <ApiErrorNotice error={failed.error} title="Chưa tải được cấu hình." context="Cấu hình hiện có không bị ảnh hưởng." showTechnical onRetry={() => void failed.refetch()} />
       ) : (
         <>
-          <Section part="settings-section" title="Kết nối nhà cung cấp" description="Khoá API chỉ ghi được: lưu xong không đọc lại được." className={s.section}>
+          <Section panel part="settings-section" title="Kết nối nhà cung cấp" description="Khoá API chỉ ghi được: lưu xong không đọc lại được." className={s.section}>
             <ProviderSection key={adding} initialAdd={adding > 0} providers={providers.data?.items ?? []} canEdit={canEdit} envFallback={providers.data?.env_fallback ?? { active: true, providers: [] }} />
           </Section>
-          <Section part="settings-section" title="Mô hình theo tác vụ" description="Đổi ở đây có hiệu lực cho yêu cầu tiếp theo; yêu cầu đang chạy vẫn dùng mô hình cũ." className={s.section}>
+          <Section panel part="settings-section" title="Mô hình theo tác vụ" description="Đổi ở đây có hiệu lực cho yêu cầu tiếp theo; yêu cầu đang chạy vẫn dùng mô hình cũ." className={s.section}>
             <RouteTableSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} onAddProvider={() => setAdding((n) => n + 1)} />
           </Section>
-          <Section part="settings-section" title="Chuỗi dự phòng" description="Khi mô hình chính hỏng, yêu cầu tự chuyển xuống mô hình kế tiếp, không báo lỗi cho người dùng." className={s.section}>
+          <Section panel part="settings-section" title="Chuỗi dự phòng" description="Khi mô hình chính hỏng, yêu cầu tự chuyển xuống mô hình kế tiếp, không báo lỗi cho người dùng." className={s.section}>
             <FallbackSection routes={routes.data?.items ?? []} providers={providers.data?.items ?? []} canEdit={canEdit} />
           </Section>
-          <Section part="settings-section" title="Mô hình tìm kiếm tài liệu" className={`${s.section} ${s.embed}`}>
+          <Section panel part="settings-section" title="Mô hình tìm kiếm tài liệu" className={`${s.section} ${s.embed}`}>
             {routes.data ? <EmbeddingSection routes={routes.data} providers={providers.data?.items ?? []} canEdit={canEdit} /> : <Skeleton lines={2} />}
           </Section>
-          <Section part="usage-section" title="Mức dùng và ngân sách" description="Chi phí ước tính từ số token đã dùng; con số chính thức theo hoá đơn của nhà cung cấp." className={s.section}>
+          <Section panel part="usage-section" title="Mức dùng và ngân sách" description="Chi phí ước tính từ số token đã dùng; con số chính thức theo hoá đơn của nhà cung cấp." className={s.section}>
             <UsageSection canEdit={canEdit} />
           </Section>
         </>

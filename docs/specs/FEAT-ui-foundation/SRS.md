@@ -1,5 +1,7 @@
 # SRS FEAT-ui-foundation Nền giao diện thật (PU): token, primitive, lớp dữ liệu, shell, cổng tự động
-Phiên bản 1.6 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+Phiên bản 1.7 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q10 theo mặc định của BA; PM đã sửa `PU.md` L1 theo D53)
+
+**v1.7 (2026-10-10)** — góp ý #3 `docs/sprints/5.5/proposals.md` (PM `ACCEPTED`: "BA thêm `Panel` / `PanelSection` vào `FEAT-ui-foundation` 7.2 + AC"; nguồn: dev, `FEAT-ui-panels` US-UI-02). Không đổi số AC (90). Đổi: `SRS.md` **thêm 7.2a** (khối `Panel` D L E R, `PanelSection` D; mục `/dev/ui#panel`, kiểm tải / rỗng / lỗi một lần), FR-10; **US-PU-02 AC1** thêm câu và lệnh Kiểm cho mục `#panel`. Số khối / số ô của ma trận 7.2 **không đổi** (hai khối kiểm riêng ở `#panel`, đúng cách dev dựng ở US-UI-02).
 
 **v1.6 (2026-10-09)** — góp ý #15 `docs/sprints/5/proposals.md` (PM `ACCEPTED`; nguồn: QC Q-QC-PU06-6, báo cáo B3: trước story số `"use client"` ở hai layout đã `0` nên "sau < trước" không thể thoả). Không đổi số AC (90). Đổi: **US-PU-06 AC3** thành "không tăng số khai báo `\"use client\"` ở hai layout và nội dung trên màn đầu vẽ từ máy chủ (`PreShell`)"; `SRS.md` FR-44.
 
@@ -178,7 +180,7 @@ Mỗi phép in một dòng `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi ph
 | FR-7 | Vòng focus `--ep-focus`, `::selection`, thanh cuộn, `prefers-reduced-motion`, `color-scheme: light` | 01-AC7 |
 | FR-8 | Logo / mark / favicon từ `public/brand/`, không trong ô bo góc | 01-AC8 |
 | FR-9 | Không phá màn mock: `audit.mjs` `FAIL 0` sau mỗi story PU | 01-AC9, 02-AC12, 03-AC24, 04-AC13, 05-AC10 |
-| FR-10 | `/dev/ui` có 24 khối primitive và 117 ô trạng thái (75 ô N/A có lý do, 7.2) | 02-AC1 |
+| FR-10 | `/dev/ui` có 24 khối primitive và 117 ô trạng thái (75 ô N/A có lý do, 7.2) + mục `#panel` cho `Panel` / `PanelSection` (7.2a, góp ý #3) | 02-AC1 |
 | FR-11 | Mỗi trạng thái tương tác đúng quy ước 7.3 (hover, focus, selected, disabled, loading, empty, error) | 02-AC2, 02-AC3 |
 | FR-12 | Chữ Việt dài không vỡ ở 375 / 900 / 1280 / 1440 và 640 (zoom 200 %); `AUDIT` sạch; `TOUCH` ở 375 sạch | 02-AC4 |
 | FR-13 | `DataTable`: ảo hoá (`@tanstack/react-virtual`), tiêu đề dính, 44–52 px, bàn phím, giữ cuộn, phân trang con trỏ | 02-AC5, 02-AC6 |
@@ -436,6 +438,17 @@ Ký hiệu: D = default, H = hover, F = focus bàn phím, S = selected, X = disa
 | | **Tổng** | | **117** | **192 − 117 = 75 ô N/A** |
 
 Mã lý do N/A: `A` thành phần không có khái niệm "được chọn"; `B` thành phần không có khái niệm "rỗng" riêng (nơi dùng quyết định); `C` lỗi do nơi dùng báo qua `InlineNotice` / `Field`; `D` thành phần không có chờ tải riêng; `E` không rê chuột (không có vùng hover, hoặc hover thuộc phần tử con đã được kiểm); `F` khoá được ở mức phần tử con; `G` thành phần không tương tác; `H` biến thể ngữ nghĩa nằm trong trạng thái D (bốn lời ở 7.7). Chart, Kbd, PrivateMark, ButtonLink hiển thị ở phần "Phụ" của `/dev/ui` và **không** nằm trong 24 khối.
+
+### 7.2a Khối `Panel` / `PanelSection` (góp ý #3 `docs/sprints/5.5/proposals.md`; nguồn: `FEAT-ui-panels` US-UI-02)
+
+Hai khối này **không** nằm trong ma trận `[data-part=primitive]` / `[data-part=state-cell]` của 7.2 (số khối và số ô của 7.2 **không đổi**); chúng có **mục riêng `/dev/ui#panel`** (`data-part="panel-matrix"`), kiểm **một lần cho mỗi khối** (tải / rỗng / lỗi của `PageState` đặt **trong** `Panel`, không lặp ở từng route).
+
+| # | `data-name` | Ô áp dụng | N | Ô N/A và lý do |
+| --- | --- | --- | --- | --- |
+| P1 | Panel | D L E R | 4 | H, F, S, X (thành phần không tương tác — `G`) |
+| P2 | PanelSection | D (mặc định và `tone="strong"`) | 1 | H, F, S, X (`G`); L, E, R (do `Panel` chứa nó báo — `C`) |
+
+Cách đo: D = ba độ đệm `md` / `lg` / `none` và hai `PanelSection` ngăn bằng đường kẻ 1 px, ô nhấn `tone="strong"`; L / E / R = `PageState` tải (`aria-busy="true"`, khung xương), rỗng (nói vì sao + đúng 1 hành động), lỗi (`role="alert"`, có `Thử lại`) bên trong `Panel`. Mục `#panel` có ≥ 8 ô, mỗi ô đạt `AUDIT` sạch ở 1440 và 390 px (`FEAT-ui-panels` US-UI-02 AC7). Hợp đồng DOM / CSS của khối: `FEAT-ui-panels/SRS.md` 5.4.
 
 ### 7.3 Quy ước chung cho từng trạng thái (đo được)
 

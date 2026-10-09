@@ -5,24 +5,7 @@ import { ExternalLink } from "lucide-react";
 import { NOW, fmtScore, fmtTime } from "@/mock/core";
 import { COURSE_SUMMARY, REQUESTS, STATUS_LABEL, STATUS_STRIP, type LlmRequest } from "@/mock/system";
 import { useSession } from "@/shared/session/session";
-import {
-  Button,
-  DataTable,
-  DefinitionList,
-  Drawer,
-  EmptyState,
-  Field,
-  InlineNotice,
-  Page,
-  PageHeader,
-  PageState,
-  Section,
-  SegmentedControl,
-  Skeleton,
-  StatusText,
-  Textarea,
-  type Column,
-} from "@/shared/ui";
+import { Button, type Column, DataTable, DefinitionList, Drawer, EmptyState, Field, InlineNotice, Page, PageHeader, PageState, Panel, Section, SegmentedControl, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import s from "./observability.module.css";
 
 /** Dải trạng thái gọn: nhãn nhỏ, số lớn, ngăn bằng đường kẻ dọc — không phải thẻ số liệu. */
@@ -122,26 +105,30 @@ export function ObservabilityScreen() {
 
       <PageState
         loading={
-          <div className={s.loading}>
-            <Skeleton lines={2} />
-            <Skeleton lines={8} />
-          </div>
+          <Panel>
+            <div className={s.loading}>
+              <Skeleton lines={2} />
+              <Skeleton lines={8} />
+            </div>
+          </Panel>
         }
-        empty={<EmptyState title="Chưa có yêu cầu nào trong hôm nay">Khi sinh viên hỏi hoặc việc nền chạy, mỗi yêu cầu gửi tới model sẽ xuất hiện ở đây kèm độ trễ và kết quả.</EmptyState>}
+        empty={<Panel><EmptyState title="Chưa có yêu cầu nào trong hôm nay">Khi sinh viên hỏi hoặc việc nền chạy, mỗi yêu cầu gửi tới model sẽ xuất hiện ở đây kèm độ trễ và kết quả.</EmptyState></Panel>}
         error={{
           problem: "Không đọc được số liệu quan sát trong 5 phút gần nhất.",
           recovery: "Việc ghi nhật ký vẫn chạy, không mất dữ liệu. Thử lại; nếu vẫn lỗi, xem hàng chờ xử lý lỗi trước khi đổi cấu hình.",
         }}
       >
-        <StatusStrip items={STATUS_STRIP} />
+        <Panel>
+          <StatusStrip items={STATUS_STRIP} />
+        </Panel>
 
         {!isAdmin && (
-          <Section title={`Lớp ${course.code} trong 7 ngày`} description="Số tổng hợp của lớp bạn phụ trách.">
+          <Section panel title={`Lớp ${course.code} trong 7 ngày`} description="Số tổng hợp của lớp bạn phụ trách.">
             <DefinitionList items={(COURSE_SUMMARY[course.id] ?? []).map((m) => ({ term: m.label, value: m.hint ? `${m.value} · ${m.hint}` : m.value }))} />
           </Section>
         )}
 
-        <Section
+        <Section panel
           title={`${rows.length} yêu cầu gần nhất`}
           description={isAdmin ? "Chọn một hàng để xem nội dung đã che, công cụ đã gọi và độ tin cậy." : "Giảng viên xem được số liệu; nội dung yêu cầu không mở được từ đây."}
           action={

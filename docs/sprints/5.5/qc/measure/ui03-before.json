@@ -1,0 +1,1942 @@
+[
+ {
+  "url": "/",
+  "role": "student",
+  "w": 1440,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "student",
+  "w": 1024,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "student",
+  "w": 375,
+  "jsKB": 246.6,
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "ta",
+  "w": 1440,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "ta",
+  "w": 1024,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "ta",
+  "w": 375,
+  "jsKB": 246.6,
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "teacher",
+  "w": 1440,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "teacher",
+  "w": 1024,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "teacher",
+  "w": 375,
+  "jsKB": 246.6,
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "admin",
+  "w": 1440,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 216,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 1224,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "admin",
+  "w": 1024,
+  "jsKB": 268.9,
+  "frame": {
+   "sidebar": {
+    "bg": "lab(96.4467 2.44418 1.31345)",
+    "bR": "1px lab(87.1298 3.66905 1.97326)",
+    "bB": "0px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 72,
+    "h": 900
+   },
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 952,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "lab(100 0 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/",
+  "role": "admin",
+  "w": 375,
+  "jsKB": 246.6,
+  "frame": {
+   "sidebar": null,
+   "topbar": {
+    "bg": "lab(98.785 1.83249 0.984478)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "1px",
+    "bT": "0px",
+    "bf": "none",
+    "w": 375,
+    "h": 56
+   },
+   "main": "rgba(0, 0, 0, 0)",
+   "bottomnav": {
+    "bg": "lab(100 0 0)",
+    "bR": "0px lab(6.03762 5.47587 2.56723)",
+    "bB": "0px",
+    "bT": "1px",
+    "bf": "none",
+    "w": 375,
+    "h": 57
+   }
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [
+   {
+    "bg": "rgba(0, 0, 0, 0)",
+    "text": "Hôm nay"
+   }
+  ],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 1,
+  "touchEls": [
+   "a[Bỏ qua điều hướng] 159x40"
+  ],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/login",
+  "role": "none",
+  "w": 1440,
+  "jsKB": 186.8,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/login",
+  "role": "none",
+  "w": 1024,
+  "jsKB": 186.8,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/login",
+  "role": "none",
+  "w": 375,
+  "jsKB": 186.8,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 0,
+  "touchEls": [],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/register",
+  "role": "none",
+  "w": 1440,
+  "jsKB": 185,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/register",
+  "role": "none",
+  "w": 1024,
+  "jsKB": 185,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/register",
+  "role": "none",
+  "w": 375,
+  "jsKB": 185,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 0,
+  "touchEls": [],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/forgot-password",
+  "role": "none",
+  "w": 1440,
+  "jsKB": 184.5,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/forgot-password",
+  "role": "none",
+  "w": 1024,
+  "jsKB": 184.5,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/forgot-password",
+  "role": "none",
+  "w": 375,
+  "jsKB": 184.5,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 1
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 0,
+  "touchEls": [],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/reset-password?token=qc",
+  "role": "none",
+  "w": 1440,
+  "jsKB": 184.3,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/reset-password?token=qc",
+  "role": "none",
+  "w": 1024,
+  "jsKB": 184.3,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/reset-password?token=qc",
+  "role": "none",
+  "w": 375,
+  "jsKB": 184.3,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 0,
+  "touchEls": [],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 1
+ },
+ {
+  "url": "/verify-email?token=qc",
+  "role": "none",
+  "w": 1440,
+  "jsKB": 182.7,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/verify-email?token=qc",
+  "role": "none",
+  "w": 1024,
+  "jsKB": 182.7,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/verify-email?token=qc",
+  "role": "none",
+  "w": 375,
+  "jsKB": 182.7,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 0,
+  "touchEls": [],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/invite/qc",
+  "role": "none",
+  "w": 1440,
+  "jsKB": 182.6,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/invite/qc",
+  "role": "none",
+  "w": 1024,
+  "jsKB": 182.6,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": null,
+  "touchEls": null,
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ },
+ {
+  "url": "/invite/qc",
+  "role": "none",
+  "w": 375,
+  "jsKB": 182.6,
+  "frame": {
+   "sidebar": null,
+   "topbar": null,
+   "main": "lab(98.785 1.83249 0.984478)",
+   "bottomnav": null
+  },
+  "authInfo": {
+   "h1BeforePanel": null,
+   "panelW": null,
+   "primary": 0
+  },
+  "navItems": [],
+  "panels": 0,
+  "nest": 0,
+  "title": 0,
+  "strongBad": 0,
+  "wall": 0,
+  "edge": null,
+  "ox": 0,
+  "touchBad": 0,
+  "touchEls": [],
+  "bodyBg": "rgba(0, 0, 0, 0)",
+  "panelBg": null,
+  "panelRadius": null,
+  "panelShadow": null,
+  "panelBorder": null,
+  "dataSurface": null,
+  "tokens": {
+   "--ep-canvas": "rgb(0, 0, 0)",
+   "--ep-surface": "rgb(255, 255, 255)",
+   "--ep-surface-strong": "rgb(0, 0, 0)",
+   "--ep-surface-subtle": "rgb(250, 243, 242)",
+   "--ep-red-soft": "rgb(255, 236, 233)",
+   "--ep-ink": "rgb(28, 16, 15)",
+   "--ep-ink-2": "rgb(81, 68, 67)",
+   "--ep-ink-3": "rgb(116, 105, 104)",
+   "--ep-red": "rgb(208, 0, 22)",
+   "--ep-green": "rgb(36, 115, 44)",
+   "--ep-blue": "rgb(21, 107, 166)",
+   "--ep-panel-border": "rgb(0, 0, 0)",
+   "--ep-radius-panel": "rgb(0, 0, 0)",
+   "--ep-elevation-1": "rgb(0, 0, 0)"
+  },
+  "rawTok": {
+   "--ep-radius-panel": "",
+   "--ep-elevation-1": "",
+   "--ep-panel-border": ""
+  },
+  "h1": 1,
+  "buttonsPrimary": 0
+ }
+]

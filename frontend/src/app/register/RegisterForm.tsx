@@ -1,5 +1,6 @@
 "use client";
 
+import { AuthPanel } from "@/shared/shell/AuthShell";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { apiClient, ApiError, fieldErrors } from "@/shared/data";
@@ -62,8 +63,7 @@ export function RegisterForm() {
 
   if (sent) {
     return (
-      <>
-        <h1 className="ep-page-title">Kiểm tra email của bạn</h1>
+      <AuthPanel title="Kiểm tra email của bạn">
         <p>{SENT}</p>
         <p className={s.hint}>Thư có thể nằm trong mục thư rác. Liên kết dùng một lần và có hiệu lực 24 giờ.</p>
         <Button variant="secondary" onClick={resend} disabled={wait > 0}>
@@ -73,13 +73,12 @@ export function RegisterForm() {
         <p className={s.links}>
           <Link href="/login">Đã xác minh? Đăng nhập</Link>
         </p>
-      </>
+      </AuthPanel>
     );
   }
 
   return (
-    <>
-      <h1 className="ep-page-title">Tạo tài khoản EduPilot</h1>
+    <AuthPanel title="Tạo tài khoản EduPilot">
       {problem && <InlineNotice tone="danger" compact>{problem}</InlineNotice>}
       <form onSubmit={submit} className={s.form} noValidate>
         <Field label="Họ và tên" error={errors.full_name}>
@@ -103,6 +102,6 @@ export function RegisterForm() {
       <p className={s.links}>
         <Link href="/login">Đã có tài khoản? Đăng nhập</Link>
       </p>
-    </>
+    </AuthPanel>
   );
 }

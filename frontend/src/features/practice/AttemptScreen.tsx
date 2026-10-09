@@ -27,20 +27,7 @@ import { agoLabel } from "@/mock/derive";
 import { simNowMs, useSimNow } from "@/shared/state/clock";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import {
-  Button,
-  ButtonLink,
-  ConfirmIrreversible,
-  EmptyState,
-  InlineNotice,
-  Page,
-  PageHeader,
-  PageState,
-  Section,
-  Skeleton,
-  StatusText,
-  Textarea,
-} from "@/shared/ui";
+import { Button, ButtonLink, ConfirmIrreversible, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import s from "./Practice.module.css";
 
 /** Làm bài: luyện theo chủ đề (có phản hồi ngay) hoặc bài tính điểm (có giờ) — DESIGN §14.19. */
@@ -57,9 +44,9 @@ export function AttemptScreen({ attemptId }: { attemptId: string }) {
     return (
       <Page>
         <PageHeader title="Làm bài" back={{ href: "/practice", label: "Luyện đề" }} />
-        <EmptyState title="Không tìm thấy lượt luyện này" action={<ButtonLink href="/practice" variant="primary">Về Luyện đề</ButtonLink>}>
+        <Panel><EmptyState title="Không tìm thấy lượt luyện này" action={<ButtonLink href="/practice" variant="primary">Về Luyện đề</ButtonLink>}>
           Lượt có thể đã kết thúc. Bạn có thể bắt đầu một lượt mới theo chủ đề.
-        </EmptyState>
+        </EmptyState></Panel>
       </Page>
     );
   }
@@ -128,7 +115,7 @@ function TopicRun({ attempt }: { attempt: Attempt }) {
           description={`${run.topic} · ${total} câu · ${agoLabel(run.finishedMs, now)}`}
         />
         {wrong.length > 0 && (
-          <Section title={`Câu cần ôn (${wrong.length})`}>
+          <Section panel title={`Câu cần ôn (${wrong.length})`}>
             <ol className={s.review}>
               {wrong.map(({ item, i }) => (
                 <li key={item.id} className={s.reviewItem}>
@@ -153,7 +140,7 @@ function TopicRun({ attempt }: { attempt: Attempt }) {
             </ol>
           </Section>
         )}
-        <Section>
+        <Section panel>
           <div className={s.rowActions}>
             {wrong.length > 0 ? (
               <>
@@ -194,9 +181,9 @@ function TopicRun({ attempt }: { attempt: Attempt }) {
           </>
         }
       />
-      <PageState loading={<Skeleton lines={6} />} empty={<EmptyState title="Lượt này chưa có câu hỏi">Chọn một chủ đề khác ở màn Luyện đề.</EmptyState>}>
+      <PageState loading={<Skeleton lines={6} />} empty={<Panel><EmptyState title="Lượt này chưa có câu hỏi">Chọn một chủ đề khác ở màn Luyện đề.</EmptyState></Panel>}>
         {!q ? (
-          <Section title="Bạn đã trả lời hết các câu">
+          <Section panel title="Bạn đã trả lời hết các câu">
             <p className={s.result}>Xem kết quả để biết mình cần ôn lại câu nào.</p>
             <div className={s.rowActions}>
               <Button variant="primary" onClick={finish}>
@@ -205,7 +192,7 @@ function TopicRun({ attempt }: { attempt: Attempt }) {
             </div>
           </Section>
         ) : (
-          <Section>
+          <Section panel>
             <div className={s.progress} aria-hidden>
               <span className={s.progressFill} style={{ width: `${(index / questions.length) * 100}%` }} />
             </div>
@@ -338,7 +325,7 @@ function QuizRun({ title, questions, minutes }: { title: string; questions: Ques
     return (
       <Page>
         <PageHeader title={title} back={{ href: "/practice", label: "Luyện đề" }} />
-        <Section title="Đã nộp bài">
+        <Section panel title="Đã nộp bài">
           {timedOut && (
             <InlineNotice tone="warning" title="Hết giờ — bài đã được nộp tự động">
               Bài nộp lúc {fmtTime(NOW)}. Các câu chưa trả lời được tính là bỏ trống.
@@ -375,8 +362,8 @@ function QuizRun({ title, questions, minutes }: { title: string; questions: Ques
           </>
         }
       />
-      <PageState loading={<Skeleton lines={6} />} empty={<EmptyState title="Bài này chưa có câu hỏi">Liên hệ giảng viên nếu bạn thấy màn hình này.</EmptyState>}>
-        <Section>
+      <PageState loading={<Skeleton lines={6} />} empty={<Panel><EmptyState title="Bài này chưa có câu hỏi">Liên hệ giảng viên nếu bạn thấy màn hình này.</EmptyState></Panel>}>
+        <Section panel>
           <InlineNotice compact>Trong lúc làm bài, Chat riêng chỉ trả lời câu hỏi thủ tục. Bài không chấm từng câu cho tới khi bạn nộp.</InlineNotice>
           <div className={s.progress} aria-hidden>
             <span className={s.progressFill} style={{ width: `${(answered / questions.length) * 100}%` }} />
@@ -443,7 +430,7 @@ function ReviewRun({ title, questions, answers }: { title: string; questions: Qu
           </ButtonLink>
         }
       />
-      <PageState loading={<Skeleton lines={8} />} empty={<EmptyState title="Lượt này không còn dữ liệu">Chọn một lượt khác trong lịch sử luyện tập.</EmptyState>}>
+      <PageState loading={<Skeleton lines={8} />} empty={<Panel><EmptyState title="Lượt này không còn dữ liệu">Chọn một lượt khác trong lịch sử luyện tập.</EmptyState></Panel>}>
         <ol className={s.review}>
           {questions.map((q, i) => {
             const ok = isCorrect(q, answers[i]);
