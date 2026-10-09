@@ -41,3 +41,6 @@
 - **BA:** AC3 ("giảm" khi trước đã 0, Q-QC-PU06-6) và AC2 (`s-maxage` của trang tiền kết xuất); Q-QC-PU06-5 (`h1` của `/` khung dài hơn "Chào {tên}").
 - **PM / chủ dự án:** billing GitHub Actions (CI không chạy từ `9bb8eef`).
 - **QC:** chấm lại TC-06 / 12 / 13 / 19 khi dev / BA xử lý; TC-04 / 05 khi CI chạy lại; TC-18 / 20 cùng stack seed của PE.
+
+## Chấm lại phần ảnh mốc (PM #4 sprint 5.5, 2026-10-09)
+Ảnh mốc `inbox-*`, `gradebook-*`, `home-*` ở sprint 3–5 chụp trang "Bạn không có quyền xem màn này" / phiên hết hạn (token `asDemo` sống 15 phút, đồng hồ đóng băng) — **không dùng làm bằng chứng**. QC chấm lại trên ảnh **sinh lại ở UI-05** (`sprint/5.5-ui-panels`, `1d6caea`): `visual.spec.ts` trong image `mcr.microsoft.com/playwright:v1.63.0-noble` → **14 passed** hai lần liên tiếp (QC tự chạy); QC mở `inbox-1440.png` (Hộp thư hỗ trợ thật: danh sách | chi tiết trong một panel) và `gradebook-1440.png` (Sổ điểm thật: bảng 30 sinh viên) — là màn Staff đúng, không phải trang chặn quyền. Phần ảnh mốc của TC-PU05 / TC-PU06 coi **PASS trên ảnh mới**; ảnh cũ bị loại khỏi bằng chứng.
