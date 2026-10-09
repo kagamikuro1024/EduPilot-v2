@@ -71,6 +71,21 @@ const netHeader = cHeader + `#include <sys/socket.h>
 static int tryc(const char*ip,int port){int s=socket(AF_INET,SOCK_STREAM,0); if(s<0) return -2; struct sockaddr_in a; memset(&a,0,sizeof a); a.sin_family=AF_INET; a.sin_port=htons(port); inet_pton(AF_INET,ip,&a.sin_addr); int r=connect(s,(struct sockaddr*)&a,sizeof a); close(s); return r<0?-1:r;}
 `
 
+// procPeakOf biên dịch + chạy một lần mã tấn công với giới hạn của abProblem rồi trả đỉnh số tiến trình và bộ nhớ (KiB) go-judge ghi nhận.
+func procPeakOf(t *testing.T, c *judge.Client, a attack) (peak, memKB int) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Minute)
+	defer cancel()
+	cp, err := c.Compile(ctx, a.lang, a.src)
+	require.NoErrorf(t, err, "%s: biên dịch lại", a.id)
+	require.Truef(t, cp.OK, "%s: biên dịch lại: %s", a.id, cp.Log)
+	defer func() { _ = c.DeleteFile(ctx, cp.FileID) }()
+	lim := abProblem().Limits
+	rr, err := c.Run(ctx, cp.FileID, "", lim)
+	require.NoErrorf(t, err, "%s: chạy lại", a.id)
+	return rr.ProcPeak, rr.MemoryKB
+}
+
 // TestSandboxAttacks — US-PE-02 AC11: 15 ca tấn công đi qua ĐƯỜNG CHẤM THẬT (Client.Judge → go-judge thật trong container privileged);
 // mỗi ca ra đúng verdict / dấu hiệu, và TRONG LÚC chạy một bài đúng của sinh viên khác vẫn AC ≤ 20 s; container không khởi động lại.
 func TestSandboxAttacks(t *testing.T) {
@@ -116,6 +131,11 @@ func TestSandboxAttacks(t *testing.T) {
 		require.Equalf(t, judge.AC, gRes.Verdict, "%s: bài đúng của sinh viên khác phải vẫn AC", a.id)
 		require.Lessf(t, gDur, 20*time.Second, "%s: bài đúng chấm quá chậm trong lúc bị tấn công", a.id)
 		line := fmt.Sprintf("%s %s %s (%.1fs; bài khác AC trong %.1fs)", a.id, r.Verdict, a.note, time.Since(start).Seconds(), gDur.Seconds())
+		if a.id == "A8" || a.id == "A14" { // bất biến thật của "không fork được": đỉnh tiến trình = 1 (Result không mang procPeak → chạy lại qua Compile + Run); TL-4
+			peak, memKB := procPeakOf(t, c, a)
+			require.Equalf(t, 1, peak, "%s: sandbox để bài tạo tiến trình thứ hai", a.id)
+			line += fmt.Sprintf(" · procPeak=%d, bộ nhớ %d KiB", peak, memKB)
+		}
 		fmt.Println(line)
 		t.Log(line)
 	}
