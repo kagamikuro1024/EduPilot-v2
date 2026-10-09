@@ -57,3 +57,18 @@ Hai lỗi thật khác của cùng lượt CI đã sửa riêng (so thời đi�
 - (b) giữ phép đo thời gian nhưng chuyển sang job riêng chạy tuần tự (`-p 1`, `-run TestJoinFailureTimingEqualized -count=1`) với cờ build / env `TIMING_TESTS=1` (không chạy trong `go test ./...` thường), ngưỡng 0,35 giữ nguyên;
 - (c) khuyên cái khác (ví dụ chuẩn hoá thật bằng cách luôn `SELECT` cùng số cột / dòng cho cả nhánh không tìm thấy).
 Dev nghiêng về (a) (bằng chứng tất định), có thể kèm (b) cho phần "thời gian thật". Đây là test hợp đồng P2 nên cần ý kiến TL trước khi sửa; dev không nới ngưỡng.
+
+**TL trả lời (2026-10-09):**
+
+**Kết luận.** Làm **(b)** theo quy ước đã có trong repo, **không** đổi ngưỡng, không đổi chữ AC. Không cần (c). (a) chỉ là phần thêm tuỳ chọn, không được thay cho phép đo thời gian.
+
+1. **Đỏ vì nhiễu, không vì mã.** Ngay trong số của lượt 2: bốn nguyên nhân **cùng đường mã và cùng hình dạng dòng** (tìm thấy dòng rồi quyết định gộp: `lớp lưu trữ` 1,147 · `sai tên miền` 0,924 · `mã tắt` 0,748 · `mã hết hạn` 0,694 ms) đã lệch nhau 65 %. Chênh lệch "có dòng / không dòng" (`mã cũ` 0,483, `sai mã` 0,626) còn **nhỏ hơn** mức nhiễu đó. Hai yếu tố làm phép đo vô nghĩa: `go test -race ./...` chạy nhiều gói song song trên 4 vCPU, và `-race` làm việc giải mã dòng (`Scan` khoảng 20 trường) chậm đi nhiều lần, nên phóng to đúng phần chênh "có dòng" [SUY LUẬN: hệ số chậm của race detector theo tài liệu Go là 2–20×, chưa đo riêng cho trường hợp này].
+2. **(b), dùng lại quy ước sẵn có:** ba test thời gian của `auth` (`TestLoginTimingEqualized`, `TestRegisterTimingEqualized`, `TestForgotTimingEqualized`) đã `if testing.Short() { t.Skip("đo thời gian") }`, và đó là ba chỗ duy nhất trong repo dùng `testing.Short()`. Vậy:
+   - Thêm đúng khối đó vào đầu `TestJoinFailureTimingEqualized`.
+   - `ci.yml` job `Go`: bước test đổi thành `go test -race -short -tags testroutes ./...`.
+   - Thêm một bước ngay sau, cùng job: `go test -tags testroutes -p 1 -count=3 -run 'TimingEqualized$' ./internal/auth/ ./internal/course/`. Bước này **không** `-race`, chạy tuần tự, mỗi test 3 lần và cả 3 phải xanh; ngưỡng 0,35 và 20 mẫu giữ nguyên.
+   - Không cần biến môi trường hay build tag mới. Lệnh "Kiểm" của AC3 (`go test ./internal/course/... -run '…TestJoinFailureTimingEqualized…'`, không `-short`) vẫn chạy test như cũ, nên **không phải sửa spec** và không cần dòng proposals.
+   - Bằng chứng nghiệm thu: 3 lượt CI liên tiếp xanh ở bước mới; dán 4 bộ trung vị vào handoff.
+3. **(c) không cần.** Phần chênh còn lại chỉ là giải mã một dòng so với không có dòng, ngoài `-race` ở mức µs [SUY LUẬN, chưa đo]. Rate limit AC4 (5 lần / 10 phút / người, 20 / IP) không cho đủ mẫu để tách µs qua mạng. Đổi truy vấn sang `LEFT JOIN` từ `VALUES` sẽ làm sqlc sinh kiểu toàn cột nullable, thêm mã ánh xạ mà không có lợi đo được.
+4. **(a): làm thêm thì được, nhưng không thay.** Thay phép đo thời gian bằng đếm truy vấn là đổi cách kiểm của AC3 (APPROVED), nên cần dòng proposals và PM quyết. Nếu muốn có bằng chứng tất định *bổ sung* thì giữ thật nhỏ: một `pgx.QueryTracer` trên pool riêng của test, mỗi nguyên nhân đúng 1 lần `GetCourseByJoinCode` trong `lookupByCode`. Không bắt buộc, vì `lookupByCode` hiện đã một truy vấn + một quyết định gộp.
+5. **Nếu bước tuần tự vẫn đỏ ≥ 1 / 3 lượt** (runner quá nhiễu ngay cả khi chạy một mình): dừng, ghi số đo vào đây, và để PM chọn (a) qua proposals. Không nới 0,35, không tăng số mẫu khi chưa có quyết định.
