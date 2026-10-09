@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Tự kiểm lớp lint (US-PU-01 AC3): gieo TỪNG vi phạm của 7 luật ESLint `ep/*` vào frontend/src/__selftest__/, chạy eslint,
-# mong thất bại và nêu đúng tên luật; rồi chạy `scripts/ui-antipatterns.sh --selftest` (19 phép). Luôn dọn tệp tạm.
+# mong thất bại và nêu đúng tên luật; rồi chạy `scripts/ui-antipatterns.sh --selftest` (22 phép). Luôn dọn tệp tạm.
 # Chạy ở gốc repo: bash scripts/lint-selftest.sh
 set -uo pipefail
 cd "$(dirname "$0")/.."
@@ -31,6 +31,6 @@ for c in "${cases[@]}"; do
 done
 echo "$ok / ${#cases[@]} luật ESLint bắt được"
 anti=$(bash scripts/ui-antipatterns.sh --selftest); echo "$anti" | grep '^KHÔNG bắt được'
-got=$(echo "$anti" | tail -1 | sed -n 's|^\([0-9]*\) / 19 phép bắt được$|\1|p')
-echo "${got:-0} / 19 phép ui-antipatterns bắt được" # chữ của US-PU-01 AC3
-[ "$ok" -eq "${#cases[@]}" ] && [ "${got:-0}" -eq 19 ]
+got=$(echo "$anti" | tail -1 | sed -n 's|^\([0-9]*\) / 22 phép bắt được$|\1|p')
+echo "${got:-0} / 22 phép ui-antipatterns bắt được" # chữ của US-PU-01 AC3; 19 → 22 theo D59 (FEAT-ui-panels SRS 4.3)
+[ "$ok" -eq "${#cases[@]}" ] && [ "${got:-0}" -eq 22 ]
