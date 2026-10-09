@@ -28,7 +28,7 @@ The interface should feel like a precise academic instrument with a human red-pe
 - No decorative AI neon.
 - No icon-only navigation for primary desktop tasks.
 - No giant rounded rectangles everywhere.
-- No decorative shadows on ordinary surfaces.
+- No decorative shadows. Panels may carry one static elevation (`--ep-elevation-1`, variant (a) only); floating layers keep `--ep-shadow-*`.
 - No badges for information that can be plain text.
 - No showing every filter/action/state at once.
 
@@ -159,8 +159,8 @@ If a red element does not express one of these, remove it.
 - High contrast text.
 - Thin rules.
 - Small radii.
-- No floating-card aesthetic.
-- Use whitespace before containers.
+- Disciplined panels: each working region is ONE Panel on `--ep-canvas` (1 px `--ep-panel-border` border and static `--ep-elevation-1`); the region title sits outside the panel; no Panel inside Panel; no KPI wall.
+- Inside a Panel, use whitespace and 1 px rules before any further container.
 - Use proximity before borders.
 - Use hierarchy before color.
 
@@ -174,9 +174,11 @@ Use OKLCH in implementation where supported. Fallback HEX values are supplied on
 
 | Token | OKLCH intent | Fallback | Use |
 |---|---:|---:|---|
-| `--ep-paper` | `oklch(99% 0.006 25)` | `#fffafa` | Main canvas |
-| `--ep-surface` | `oklch(100% 0 0)` | `#ffffff` | Inputs, elevated focus surfaces |
-| `--ep-surface-subtle` | `oklch(97% 0.008 25)` | `#f9f3f3` | Sidebar / grouped secondary region |
+| `--ep-canvas` | `oklch(95% 0.008 60)` | `#f3ede9` | Page background (darker than panels) |
+| `--ep-surface` | `oklch(100% 0 0)` | `#ffffff` | Panels, inputs, sidebar, top bar |
+| `--ep-surface-subtle` | `oklch(97% 0.008 25)` | `#f9f3f3` | Row hover, table header, grouped secondary region inside a Panel |
+| `--ep-surface-strong` | `oklch(96% 0.012 25)` | `#faefee` | Emphasis cell inside a Panel: 1–3 key numbers/states |
+| `--ep-panel-border` | `var(--ep-rule)` (`oklch(89% 0.012 25)`) | `#e8dddd` | Panel edge |
 | `--ep-ink` | `oklch(19% 0.02 25)` | `#251d1e` | Primary text |
 | `--ep-ink-2` | `oklch(40% 0.018 25)` | `#65595b` | Secondary text |
 | `--ep-ink-3` | `oklch(53% 0.014 25)` | `#746968` | Metadata / disabled labels — hạ từ 58 % (`#958a8c`, 3,9 : 1) để chữ phụ đạt WCAG AA 4,5 : 1 (góp ý #25, PM ACCEPTED) |
@@ -276,16 +278,16 @@ Rules:
 
 Usage:
 - Buttons / inputs: 6–8px.
-- Panels: 8–12px only where a true contained surface is necessary.
+- Panels: `--ep-radius-panel` (14 px; 12–16 px allowed) — one Panel per working region.
 - Tags/status chips: pill allowed.
-- Avoid 16–24px generic SaaS rounding.
+- Outside Panels avoid 16–24px generic SaaS rounding.
 
 ### Shadow
 
-Default: none.
+Default: none. Exception: `--ep-elevation-1` on Panel when the chosen variant is (a).
 
 Allowed:
-- Menus/popovers/dialogs only.
+- Menus/popovers/dialogs, and Panel via `--ep-elevation-1` (variant (a) only).
 - Sticky floating composer only if separation from scrolling content is otherwise unclear.
 
 Shadow must have offset + soft blur, e.g.:
@@ -1061,11 +1063,12 @@ Coding Agent must create semantic tokens, not scatter literal values.
 Minimum token categories:
 
 ```text
-color.background.*
+color.background.*  (canvas, surface, surface-subtle, surface-strong)
 color.text.*
 color.action.*
 color.state.*
 color.rule.*
+elevation.*
 space.*
 radius.*
 type.*
@@ -1153,7 +1156,7 @@ Reject or refactor when any of these appears without a task-specific reason:
 
 - 3+ same-size KPI cards at page top.
 - A card containing multiple smaller cards.
-- Every section wrapped in a bordered rounded rectangle.
+- More than one Panel per working region, a Panel around decoration or a single KPI, a Panel inside a Panel, or 3+ same-size Panels in a row at page top.
 - More than one primary filled-red button in the same working region.
 - Icon-only desktop primary navigation.
 - A modal for a simple edit form.
@@ -1180,6 +1183,6 @@ A route is not done because it “looks clean.” It is done when:
 6. Narrow and wide layouts are structurally sound.
 7. Long Vietnamese text does not break layout.
 8. The screen uses the same tokens/primitives as the rest of EduPilot.
-9. There is no unnecessary card/container/badge.
+9. There is no container beyond the one Panel per working region, and no unnecessary badge.
 10. Red has a semantic reason everywhere it appears.
 
