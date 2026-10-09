@@ -1,14 +1,14 @@
 # Báo cáo cổng nghiệm thu sprint 5.5 (UI panel nổi, FEAT-ui-panels v1.2)
-**Kết luận: CHƯA ĐẠT — 1 điều kiện chặn (B1: axe `critical` ở `/exams/[id]/results`).** Còn lại ĐẠT. Bản chấm `c920b6c` (HEAD `sprint/5.5-ui-panels`, CI `success`); QC chạy lại mọi lệnh ở máy QC trên bản build, hai commit (`dfe05f0` trước, `c920b6c` sau).
+**Kết luận: ĐẠT CÓ ĐIỀU KIỆN** (chấm lại ở `a06e153`, CI `success`). Điều kiện chặn B1 đã gỡ: axe 0 vi phạm ở 39 lượt thật (3 bề rộng, gồm bảng điểm ảo hoá). Điều kiện còn lại không chặn: `audit-login.mjs` bốn vai chưa chạy; `incomplete` `color-contrast` của bảng ảo hoá xem tay; duyệt thị giác của chủ dự án + `PROGRESS.md` (AC9, PM); chữ nút chính Admin (Q-QC-UI06-1, BA); `Dialog` đóng trong Panel (Q-QC-UI04-2); `/exams` khi chưa vào lớp nào nằm ngoài Panel.
 
-## Chặn
-1. **B1 — US-UI-07 AC3:** axe `aria-allowed-attr` + `aria-valid-attr-value` (critical) trên vùng cuộn bảng điểm ảo hoá (`aria-activedescendant` trên `role=region`, trỏ id không tồn tại) ở `/exams/[id]/results` với dữ liệu thật; có từ trước 5.5 (cùng lỗi ở `dfe05f0`), `a11y.spec.ts` không bắt vì dữ liệu giả. Chi tiết ở `report-US-UI-07.md`.
+## Chặn (đã gỡ)
+1. ~~B1 — US-UI-07 AC3~~ → sửa ở `a06e153` (`aria-activedescendant` chuyển sang phần tử `role=grid`, chỉ khi dòng đang render): QC chạy lại axe 39 lượt ở stack thật: **0 vi phạm**, `critical` 0 ở `/exams/[id]/results` (GV và TA × 1440 / 1024 / 375).
 
 ## Điều kiện vào cổng
 | Điều kiện | KQ | Bằng chứng |
 | --- | --- | --- |
-| 7 story có báo cáo | PASS | UI-01 PASS; UI-02, 03, 04, 06 PASS có điều kiện; UI-05 PASS có điều kiện (chấm lại B1 `c920b6c`); UI-07 FAIL (B1) |
-| CI GitHub xanh ở HEAD | PASS | run `c920b6c` `success` (`Go`, `Frontend`, `Judge attacks`) |
+| 7 story có báo cáo | PASS | UI-01 PASS; UI-02, 03, 04, 06 PASS có điều kiện; UI-05 PASS có điều kiện (chấm lại B1 `c920b6c`); UI-07 PASS có điều kiện (chấm lại B1 `a06e153`) |
+| CI GitHub xanh ở HEAD | PASS | run `a06e153` `success` (`Go`, `Frontend`, `Judge attacks`) |
 | D59 ghi, kiểm tổ tiên | PASS | `0c3110b` trước các commit sửa `DESIGN.md` / `AGENTS.md` / `ui-antipatterns.sh` |
 | US-UI-01 AC6 có quyết định | PASS | D59 phương án (a) — PM chọn thay chủ dự án (`proposals.md`) |
 
@@ -17,7 +17,7 @@
 | --- | --- | --- |
 | G1 | PASS | 39 + 39 ảnh của dev; QC 72 ảnh thật trước / sau (`shots/ui07-*`) |
 | G2 | PASS | `visual.spec.ts` 14 / 14 hai lần (image `v1.63.0-noble`); 14 tệp ảnh đổi = hợp handoff UI-02…05 |
-| G3 | **FAIL** | B1; `color-contrast` 0 vi phạm ở 36 lượt; `axe-allow.json` 0 |
+| G3 | PASS (chấm lại) | axe QC 39 lượt: 0 vi phạm mọi mức, `color-contrast` 0; `axe-allow.json` 0 |
 | G4 | PASS | NEST / WALL / STRONG 0 ở mọi màn đo; `ui-antipatterns` 22 `✓`, selftest 22 / 22 |
 | G5 | PASS | `lhci` QC trước → sau: LCP devtools ≤ 1.945 ms, TBT ≤ 26 ms, CLS 0, JS Δ ≤ +0,5 KB (`/dev/ui` +1,3); CI xanh |
 | G6 | PASS | Playwright 513 pass / 173 skip / 0 fail (≥ 443); lint, build rc 0; không thêm thư viện |
