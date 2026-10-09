@@ -458,6 +458,28 @@ test.describe("exams staff", () => {
   });
 });
 
+test.describe("exams empty", () => {
+  test("QC B1: /exams rỗng (Giảng viên và Sinh viên) = đúng 1 Panel + EmptyState; Staff có nút `Tạo bài thi`", async ({ page, context }, info) => {
+    test.skip(info.project.name !== "desktop", "đo một lần");
+    await asDemo(context, "teacher");
+    await mockStaffApi(page, { emptyExams: true });
+    await page.goto("/exams");
+    await page.getByText("Chưa có bài thi nào").first().waitFor();
+    expect(await violations(page)).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
+    expect(await page.getByText("Chưa có bài thi nào").first().evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+    expect(await page.getByRole("button", { name: "Tạo bài thi" }).last().evaluate((e) => !!e.closest("[data-ep-panel]")), "nút của EmptyState trong panel").toBe(true);
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    const sv = await context.browser()!.newContext({ baseURL: BASE_URL });
+    const sp = await sv.newPage();
+    await asDemo(sv, "student");
+    await sp.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: okCors, body: JSON.stringify({ items: [], next_cursor: null }) }));
+    await sp.goto("/exams");
+    await sp.getByText("Lớp của bạn chưa có bài thi nào.").waitFor();
+    expect(await violations(sp)).toMatchObject({ panels: 1, nest: 0, title: 0, wall: 0 });
+    await sv.close();
+  });
+});
+
 test.describe("exam editor", () => {
   test("/exams/[id]: Tabs ngoài; mỗi tab 1 Panel; NEST = 0 kể cả khi mở Drawer; tổng điểm là 1 ô nhấn; Panel không là hậu duệ của Drawer", async ({ page, context }, info) => {
     test.skip(info.project.name !== "desktop", "đo một lần");

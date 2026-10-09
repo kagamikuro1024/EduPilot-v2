@@ -48,3 +48,10 @@ Giữ nguyên 6 ảnh: `chat-*`, `threads-*` (đã đổi ở UI-04), `dev-ui-*`
 - Thống kê (`StatsPanel`) và Phúc khảo (`AppealsPanel`) của kết quả bài thi: bọc Panel nhưng không có ca `panels.spec` riêng (mock chưa dựng dữ liệu thống kê).
 - Lighthouse (`lhci`) chưa chạy; `@real` chưa chạy; đo cuộn 1.000 dòng chỉ trên máy dev.
 - Ảnh mốc Sprint 5 `inbox-*` / `gradebook-*` sai vai (xem trên) — báo PM / QC vì bằng chứng UI-02 / UI-03 cho hai ảnh này không phản ánh màn Staff.
+
+## Sửa lỗi QC — B1 (AC3, `/exams` rỗng; QC FAIL TC-UI5-03)
+- Nguyên nhân: ở `ExamsHome` (Staff) trạng thái **rỗng** (`PageState empty`), **tải** (`loading`) và "Chưa chọn lớp" đặt `EmptyState` / `Skeleton` trơn trên canvas; test của tôi chỉ chạy mock có dữ liệu. Phía Sinh viên rỗng / tải đã trong Panel từ UI-04 (xem dưới).
+- Sửa (`features/exam/ExamsHome.tsx`): rỗng, tải, "Chưa chọn lớp" của Staff và tải của Sinh viên (hai chỗ `Skeleton` đầu hàm) đều bọc trong **một** `Panel`. Chữ không đổi.
+- Test mới `panels.spec.ts -g 'exams empty'` (`mockStaffApi(page, { emptyExams: true })`): Giảng viên `/exams` rỗng = đúng 1 Panel, `EmptyState` và nút `Tạo bài thi` của nó nằm trong Panel, NEST / TITLE / WALL = 0; Sinh viên `/exams` rỗng = 1 Panel. Pass.
+- L1 (TITLE với `Dialog` đóng nằm trong DOM của Panel): phép đo TITLE trong `e2e/support/panels.ts` chỉ đếm `h1` / `h2` **đang hiển thị** (hộp thoại đóng không tính) — chờ BA chốt định nghĩa (Q-QC-UI04-2); chưa đổi cấu trúc `Dialog`.
+- Các màn Staff / Admin khác đã kiểm trạng thái rỗng bằng đọc mã: bảng rỗng của `DataTable` nằm trong Panel (`members`, `questions`, `results`, `similarity`, `admin/*`); chưa thêm ca mock rỗng riêng cho từng màn.

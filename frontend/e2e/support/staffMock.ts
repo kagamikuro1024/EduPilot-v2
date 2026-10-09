@@ -42,7 +42,7 @@ const MEMBERS = [
   { user_id: "m2", full_name: "Trần Thị B", email: "b@x.edu.vn", student_code: "B20DC002", role_in_course: "STUDENT", status: "ACTIVE", joined_via: "CODE", warning: null, status_changed_at: "2026-10-02T00:00:00Z" },
 ];
 
-export async function mockStaffApi(page: Page) {
+export async function mockStaffApi(page: Page, opts: { emptyExams?: boolean } = {}) {
   await page.route(/\/api\/v1\/courses\/[^/]+\/(exams|questions|members|join-code|share-sources)/, async (route) => {
     const req = route.request();
     if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
@@ -53,7 +53,7 @@ export async function mockStaffApi(page: Page) {
     if (p.startsWith("/share-sources")) return list([]);
     if (p.startsWith("/members")) return j(route, { items: u.searchParams.get("status") === "PENDING" ? [] : MEMBERS, next_cursor: null, counts: { active: MEMBERS.length, pending: 0 } });
     if (p.startsWith("/questions")) return list(QUESTIONS);
-    if (p === "/exams") return list(EXAMS);
+    if (p === "/exams") return list(opts.emptyExams ? [] : EXAMS);
     const m = /^\/exams\/([^/]+)(\/.*)?$/.exec(p);
     if (!m) return j(route, { code: "NOT_FOUND", message: "x", trace_id: "t" }, 404);
     const e = EXAMS.find((x) => x.id === m[1]);

@@ -22,12 +22,14 @@ export function ExamsHome() {
 
 function StaffExams() {
   const cc = useClassCourse();
-  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Bài thi" /><Skeleton lines={6} /></Page>;
+  if (cc.state === "loading") return <Page width="wide"><PageHeader title="Bài thi" /><Panel><Skeleton lines={6} /></Panel></Page>;
   if (cc.state === "none")
     return (
       <Page width="wide">
         <PageHeader title="Bài thi" />
-        <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem bài thi của lớp.</EmptyState>
+        <Panel>
+          <EmptyState title="Chưa chọn lớp">Chọn một lớp ở thanh trên để xem bài thi của lớp.</EmptyState>
+        </Panel>
       </Page>
     );
   return <Board courseId={cc.course.id} code={cc.course.class_code} />;
@@ -58,11 +60,13 @@ function Board({ courseId, code }: { courseId: string; code: string }) {
       <PageState
         query={list}
         isEmpty={() => list.items.length === 0}
-        loading={<ActionList loading={5} label="Đang tải bài thi" />}
+        loading={<Panel><ActionList loading={5} label="Đang tải bài thi" /></Panel>}
         empty={
-          <EmptyState title="Chưa có bài thi nào" icon={<ClipboardList aria-hidden />} action={creating ? undefined : <Button variant="primary" onClick={() => setCreating(true)}>Tạo bài thi</Button>}>
-            Chưa có bài thi nào. Tạo bài thi đầu tiên từ ngân hàng câu hỏi.
-          </EmptyState>
+          <Panel>
+            <EmptyState title="Chưa có bài thi nào" icon={<ClipboardList aria-hidden />} action={creating ? undefined : <Button variant="primary" onClick={() => setCreating(true)}>Tạo bài thi</Button>}>
+              Chưa có bài thi nào. Tạo bài thi đầu tiên từ ngân hàng câu hỏi.
+            </EmptyState>
+          </Panel>
         }
         showTechnical
       >
@@ -124,7 +128,7 @@ function NewExam({ courseId, onCancel }: { courseId: string; onCancel: () => voi
 
 function StudentExams() {
   const { realCourses, realCourseId } = useSession();
-  if (!realCourses) return <Page><PageHeader title="Bài thi" /><Skeleton lines={5} /></Page>;
+  if (!realCourses) return <Page><PageHeader title="Bài thi" /><Panel><Skeleton lines={5} /></Panel></Page>;
   const mine = realCourses.filter((c) => c.role_in_course === "STUDENT" && (realCourseId === "all" || realCourseId === c.id || !realCourseId));
   if (mine.length === 0)
     return (
