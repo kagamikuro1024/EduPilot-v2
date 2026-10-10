@@ -1,5 +1,7 @@
 # SRS FEAT-private-chat-pii Hai kênh hỏi–đáp, tường lửa PII, che danh tính trước LLM
-Phiên bản 1.4 · 2026-10-10 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+Phiên bản 1.5 · 2026-10-11 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+
+**v1.5 (2026-10-11)** — góp ý `#14` và `D3` `docs/sprints/6/proposals.md` (PM `ACCEPTED`). **`#14`**: 4.5 ghi dấu hiệu `WHAT_IF_GRADE` và `SMALLTALK` (khớp code đã sửa). **`D3`**: `chat_sessions.title` (60 ký tự đầu của tin đầu) là ngoại lệ có tên của phép quét "nội dung chỉ ở `chat_messages`" (4.7.1 bước 7, US-P3-01 AC9). Không đổi số AC (110). Trạng thái **APPROVED**.
 
 **v1.4 (2026-10-10)** — góp ý `#13` (PM quyết): số migration của `FEAT-docs-calendar` đổi `00009_calendar` → `00011_calendar` (1, 10, 11). Không đổi số AC (110). Trạng thái **APPROVED**.
 
@@ -208,13 +210,13 @@ Phải tuyến tính theo độ dài (RE2 của Go; thêm cắt cứng 20.000 k�
 | `PERSONAL_ATTENDANCE` | vắng / nghỉ / điểm danh / chuyên cần của em | `get_my_attendance()` | 1 (có dữ liệu) / 0 (NoData) |
 | `PERSONAL_PARTICIPATION` | điểm cộng / phát biểu | `get_my_participation()` | 1 / 0 |
 | `PERSONAL_GRADE` | điểm giữa kỳ / cuối kỳ / quá trình / tổng kết của em | `get_my_grade_summary()` | 1 / 0 |
-| `WHAT_IF_GRADE` | "nếu … được 8 thì …" | `what_if_final_grade({giả định})` — Go phân tích số, không LLM | 1 / 0 |
+| `WHAT_IF_GRADE` | từ giả định (`nếu`, `giả sử`, `giả dụ`, `giả định`, `giả như`, `thử`) + thành phần điểm + `được` / `đạt` / `có` + số 0–10 (dấu phẩy hoặc chấm), `thì` tuỳ chọn, có dấu và không dấu (ví dụ "nếu … được 8 thì …", "giả sử giữa kỳ em được 9 thì sao"); thắng `PERSONAL_*` theo thứ tự ưu tiên (`#14`) | `what_if_final_grade({giả định})` — Go phân tích số, không LLM | 1 / 0 |
 | `GRADE_FORMULA` | cách tính điểm, trọng số, công thức | `GradeSchemeSource` (P6); chưa có / chưa xác nhận → "Lớp chưa có công thức điểm chính thức do giảng viên xác nhận." | 0 (chưa nối) |
 | `EXAM_SCHEDULE` | lịch thi, khi nào thi | `get_exam_schedule()` | 1 / 0 |
 | `UPCOMING_EVENTS` | sắp tới, tuần này, hạn nộp, lịch học | `get_upcoming_events({days})` | 1 / 0 |
 | `LIBRARY_SEARCH` | tìm tài liệu / slide | `search_library({query})` | 1 / 0 |
 | `COURSE_QA` | mặc định | `rag.SearchStudent` → (cache) → sinh | 1 (có ngữ cảnh) / 0 |
-| `SMALLTALK` | chào, cảm ơn, ≤ 12 ký tự không từ khoá | không truy xuất | 1 |
+| `SMALLTALK` | tin khớp từ xã giao (`chào`, `xin chào`, `cảm ơn`, `cám ơn`, `thanks`, `ok`, `vâng`, `dạ`, `tạm biệt`) mà mọi từ còn lại là từ đệm (`bạn`, `thầy`, `cô`, `em`, `mình`, `nhé`, `nha`, `ạ`, `nhiều`, `quá`) — ví dụ "cảm ơn bạn nhé"; **hoặc** tin ≤ 12 ký tự không khớp từ khoá intent nào. 12 ký tự chỉ áp cho nhánh sau; câu có thêm nội dung ("cảm ơn, quy chế thi thế nào") đi `COURSE_QA`. Xét trước `COURSE_QA` (mặc định) (`#14`) | không truy xuất | 1 |
 
 Khi luật không phân biệt được hai intent cá nhân, dùng độ tương đồng embedding với mẫu từng intent (cùng vectơ đã nhúng).
 
@@ -249,7 +251,7 @@ Câu mẫu (0 lời gọi LLM) nằm ở `internal/agent/replies_vi.go`: từ ch
 4. Giới hạn tốc độ (429 `RATE_LIMITED` kèm `retry_after` = số giây còn lại tới hết phút hiện tại, 4.1).
 5. Tra `(session_id, client_msg_id)`: **có** → bỏ qua 6–7, phát lại (4.7.3).
 6. Khoá `CHAT_BUSY`: `SET ep:chat:active:{uid} <client_msg_id> NX EX 130`; đang có giá trị **khác** → 409 `CHAT_BUSY`; giá trị bằng `client_msg_id` (gửi lặp khi bản đầu còn chạy) → phát lại.
-7. Một giao dịch: chèn tin `USER` (`DONE`) + tin `ASSISTANT` (`STREAMING`, `reply_to`, `attempt=1`); cập nhật `last_message_at`; đặt `title` = 60 ký tự đầu của tin đầu tiên (nếu chưa có). Vi phạm `23505` (cuộc đua cùng khoá: bản thứ 2…n) → rollback, phát lại bản đã commit; lỗi giao dịch khác → nhả khoá và trả 5xx.
+7. Một giao dịch: chèn tin `USER` (`DONE`) + tin `ASSISTANT` (`STREAMING`, `reply_to`, `attempt=1`); cập nhật `last_message_at`; đặt `title` = 60 ký tự đầu của tin đầu tiên (nếu chưa có); `chat_sessions.title` là dữ liệu riêng của chủ phiên, cùng quyền đọc với tin nhắn và không ra kênh nào khác (ngoại lệ có tên của phép quét ở US-P3-01 AC9, `D3`). Vi phạm `23505` (cuộc đua cùng khoá: bản thứ 2…n) → rollback, phát lại bản đã commit; lỗi giao dịch khác → nhả khoá và trả 5xx.
 8. Đăng ký (a) kênh huỷ `ep:chat:cancel:{mid}` và (b) bộ đệm Stream `ep:chat:buf:{mid}:{attempt}` **trước** khi phát `status{received}` (nhờ vậy "PUBLISH huỷ = 0 người nghe" nghĩa là không có `G`, TLR-4); mở SSE; **sau đó** khởi động goroutine sinh `G` với ctx = `context.WithoutCancel(request ctx)` + hạn `CHAT_STREAM_MAX_SECONDS`, gắn **rõ ràng** `llm.WithIdentity{UserID, CourseID của phiên}` (route chat không có `{cid}` nên `Identity` không tự có — TLR-8), `trace_id`, `privacy.Session`.
 9. `G`: `Classify` (nhúng tối đa 1) → `Route` → (a) nhánh mẫu: một `token` đủ câu; (b) tool: `block` rồi sinh; (c) `COURSE_QA`: tra cache → trượt thì `rag.SearchStudent` (phiên có `document_id` thì giới hạn tài liệu) rồi `status{searching}`. Một lần `llm.Stream`; **đường suy giảm:** nếu kết quả có `Response.Degraded=true`, chat **bỏ chữ do gói `llm` sinh** (câu sẵn của `internal/llm/degrade.go` hứa "giảng viên sẽ xem" — việc không xảy ra ở sprint 6) và tự dựng câu: dòng `notice` "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." + đoạn trích / trích dẫn lấy từ các `Hit`: tối đa `CHAT_EXTRACT_HITS` đoạn đầu theo thứ hạng, mỗi đoạn ≤ `CHAT_EXTRACT_CHARS` ký tự cắt ở ranh giới câu, kèm `[n]` khớp `citations`; không có `Hit` → "AI đang gián đoạn. Thử lại sau." (TLR-7). Chat chỉ chuyển tiếp chữ khi lượt sinh không `Degraded`. Mỗi lô token: nối vào bộ đệm, `XADD ep:chat:buf:{mid}:{attempt} MAXLEN ~ 4096 * off <n> t <…>` (+ `EXPIRE` 10 phút) rồi `PUBLISH ep:chat:stream:{mid}` đánh thức; mỗi `CHAT_FLUSH_INTERVAL` ghi `partial_content`.
 10. Kết thúc: trích `[n]` → `citations`; tính `ResponseMetadata` (4.8); giao dịch cuối: `content`, `citations`, `blocks`, `confidence`, `low_confidence`, `no_context`, `degraded`, `masked_count` (= `Response.MaskedCurrent`, 4.3), `intent`, `stream_status=DONE`, `completed_at`, `partial_content=NULL`; ghi `pii_events` `MASKED` theo loại (một dòng / loại khi `n>0`); đẩy sự kiện `done`. **Mọi lệnh ghi `partial_content` và mọi lệnh ghi cuối của `G`, của `cancel` và của reaper đều thêm `WHERE stream_status = 'STREAMING'`**; `G` thấy 0 dòng thì dừng lặng lẽ và huỷ ctx provider (TLR-4). **Nhả khoá `CHAT_BUSY` ở mọi trạng thái cuối** (`DONE`, `FAILED`, `CANCELLED`, reaper, giao dịch lỗi ở bước 7) bằng so-rồi-xoá (Lua: `GET == client_msg_id → DEL`), không `DEL` trần.
