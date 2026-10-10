@@ -1,4 +1,4 @@
-# QC report — US-P3-06 (Threads `/threads` + tường lửa PII)  · Kết luận: FAIL (3 lỗi, không có lỗi chặn rò PII)
+# QC report — US-P3-06 (Threads `/threads` + tường lửa PII)  · Kết luận: FAIL (vòng 2: còn BUG-1b `thread.post_decided` chưa có handler)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-06.md`. Bộ TC: `tc-US-P3-06.md` (49 TC).
 **Môi trường:** như P3-05 (gateway + worker build từ HEAD `af83a54`, DB riêng `qc_p801`, Redis db 9, docling thật, frontend `next build` + `next start :3410` trỏ gateway QC; không đụng stack s55). Nhà cung cấp `fake` (xem hạn chế embedding ở report P3-05): bài AI chỉ có khi nội dung thread trùng một đoạn tài liệu. Bài thi dựng bằng API (`EXAM_MIN_LEAD_SECONDS=5`).
@@ -69,3 +69,27 @@ AC1–AC17, AC19, AC20 PASS ở phần kiểm được; AC18 PASS một phần (
 
 ## Đề nghị
 FAIL vì BUG-1/2 (dev sửa trong vòng sửa 1). Phần PII (44, 45, 15–18, 13–14, 40–41) PASS đầy đủ. QC chạy lại sau fix: TC-20, 22, 29 (REPLY), 34, 36, 37, 42 (giao diện), 43.
+
+
+## Chấm lại sau fix `23c1587` (2026-10-11)
+Stack QC dựng lại (DB mới, seed, docling, tài liệu `Quy chế đào tạo` + `ANSWER_KEY` canary, frontend build lại từ HEAD). Nhắc: nhà cung cấp `fake` trong **gateway** và trong **worker** là hai tiến trình độc lập, `POST /_test/llm/fake` chỉ chỉnh gateway.
+
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1 (`thread.created` chưa có handler) | **PASS cho `thread.created`** | 5 thread tạo → 5 hàng `outbox thread.created`, 0 `dead_at`, `attempts=0`, không còn dòng `chưa đăng ký handler` cho topic này |
+| **BUG-1b (mới, Trung bình)** | **FAIL** | topic `thread.post_decided` (phát khi Staff `verify` / `correct` / `reject`) cũng chưa có handler: worker log `topic "thread.post_decided" chưa đăng ký handler` mỗi 1–2 s, hàng `outbox` `attempts=3` đang tới ngưỡng dead-letter. Tái hiện: tạo thread có bài AI → `POST /posts/{pid}/verify` → xem log worker. Thông báo `THREAD_VERIFIED` vẫn tạo (không qua topic) nên người dùng không thấy lỗi, nhưng sự kiện sẽ mất khi P4 cần |
+| BUG-2 (`TestRosterInvalidateNotBlockedByLongJob` panic) | **PASS** | `go test -count=1 -race ./cmd/worker -run 'TestRosterInvalidateNotBlockedByLongJob|TestRosterInvalidateRegistered'` xanh (0,45 s / 0,70 s); `internal/thread`, `internal/chat`, `cmd/worker`, `internal/privacy`: 158 test xanh; contract 19 xanh |
+| BUG-3 (nhãn MSSV) | **PASS** | UI 375 px (bản dựng từ HEAD): "…Chúng tôi tìm thấy: 1 email, 1 MSSV." |
+
+TC AI trả lời thread:
+| TC | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| 19 | PASS | thread khớp tài liệu → `ANSWERED`, đúng 1 bài `AI` `PENDING` (Staff thấy `confidence 1,000`, 1 trích dẫn), 1 lời gọi `CHAT` làn `NEAR_REALTIME`, nhúng ≤ 1 lần |
+| 20 | PASS (một phần) | bình luận thêm của SV khác → `201`, vẫn đúng 1 bài AI, 1 bài `HUMAN`; giao lại `outbox` chưa ép được (cột `processed_at` không tồn tại, QC không sửa DB) |
+| 21 | KHÔNG KIỂM ĐƯỢC | `error_rate=1` đặt ở gateway không áp dụng cho worker (thread vẫn `ANSWERED`); cần công tắc cho worker (Q-QC) |
+| 22 | PASS (một phần) | `GET /me/today` (Teacher) `200`, nhưng chưa có thread `SKIPPED` nào để thấy mục `AI_CONFIRM` (US-P3-08) |
+| 23 | PASS | SV không có trường `confidence`; nhãn "Chờ xác nhận" (`PENDING`) |
+| 29 | PASS | `THREAD_ANSWERED` (1 mỗi thread, `dedupe_key` riêng), `THREAD_REPLY` 1 khi có bình luận, `THREAD_VERIFIED` 1 sau hai lần `verify` (không nhân đôi) |
+| 30 | KHÔNG KIỂM ĐƯỢC | embedding giả không có độ tương đồng gần; "thread tương tự" luôn rỗng; bài bị loại không xuất hiện (đúng) |
+
+**Kết luận:** FAIL còn BUG-1b. Đề nghị dev đăng ký handler (hoặc bỏ phát sự kiện) cho `thread.post_decided`; sau đó chấm lại TC-24–28 chỉ cần kiểm log worker không còn dead-letter.

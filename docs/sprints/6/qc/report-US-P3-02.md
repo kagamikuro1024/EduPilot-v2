@@ -1,4 +1,4 @@
-# QC report — US-P3-02 (`internal/privacy`)  · Kết luận: FAIL (còn 1 TC: AC3 `NotBlockedByLongJob`, chờ P3-06; phần còn lại PASS)
+# QC report — US-P3-02 (`internal/privacy`)  · Kết luận: PASS (AC3 đóng 2026-10-11: `TestRosterInvalidateNotBlockedByLongJob` chạy xanh)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-02.md` (commit `db7c187`). Bộ TC: `tc-US-P3-02.md` (61 TC, không sửa).
 **Giới hạn bề mặt:** story chỉ giao gói Go (không handler, không service chat). 29 TC viết theo API (`precheck`, `/chat/sessions`, SSE, provider giả) **chưa có bề mặt** → QC kiểm cùng nội dung ở **tầng gói** bằng test hộp đen mới `backend-go/internal/privacy/qc_p302_test.go` (`package privacy_test`, chỉ gọi hàm export, ca tấn công do QC soạn từ US/SRS, Redis dùng stack dev cổng 6380, khoá thử xoá sau). Ghi rõ từng TC "mức gói" vs "chưa kiểm được".
@@ -94,3 +94,7 @@ Không `fetch`, không thư viện mới, không `float64`; không log PII (dòn
 
 ## Đề nghị
 FAIL tới khi: (a) bổ sung `TestRosterInvalidateNotBlockedByLongJob` (US-P3-06) ; (b) PM chuyển TC cần bề mặt API (19–23, 36, 43, 47, 49–52, 58–61) sang report của US-P3-03/05/06 qua `proposals.md`.
+
+
+## Cập nhật AC3 (2026-10-11, sau fix P3-06 `23c1587`)
+`go test -count=1 -race ./cmd/worker -run 'TestRosterInvalidateNotBlockedByLongJob|TestRosterInvalidateRegistered'` → **PASS** (0,45 s; 0,70 s). TC-23 / TC-25 chuyển FAIL → **PASS** (mức test Go); đo trên stack với thành viên thật chưa chạy. AC3 đóng; story đóng khi các TC chuyển (Q1) PASS ở P3-03/05/06.
