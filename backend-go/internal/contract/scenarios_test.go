@@ -28,6 +28,8 @@ type Observation struct {
 	Status    int
 	Declared  bool
 	Err       error
+	// Leak: khoá số độ tin cậy lọt vào phản hồi của SINH VIÊN ở chat / Threads (US-P3-07 AC3); rỗng = sạch.
+	Leak string
 }
 
 // call mô tả một request thử.
@@ -157,7 +159,7 @@ func (r *runner) doHandler(h http.Handler, c call) int {
 
 func (r *runner) record(c call, status int, h http.Header, body []byte, skipBody bool) {
 	spec, name := r.specFor(c.path)
-	o := Observation{Spec: name, Requested: c.method + " " + c.path, Status: status}
+	o := Observation{Spec: name, Requested: c.method + " " + c.path, Status: status, Leak: studentLeak(c, body)}
 	if spec == nil {
 		o.Err = fmt.Errorf("không nạp được spec %q", name)
 		r.add(o)
@@ -1206,4 +1208,34 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "POST", path: dm, token: admin}, 403)
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/setup/dismiss", token: gv}, 404)
 	r.must(call{method: "POST", path: "/api/v1/courses/" + cid + "/setup/dismiss", token: gv}, 409)
+}
+
+var leakKeys = []string{`"confidence"`, `"retrieval_score"`, `"groundedness"`}
+
+// studentLeak: phản hồi (JSON hoặc khung SSE) của một token SINH VIÊN tới route chat / Threads mà chứa khoá số độ tin cậy.
+func studentLeak(c call, body []byte) string {
+	chatOrThreads := strings.Contains(c.path, "/chat/") || strings.Contains(c.path, "/threads") || strings.Contains(c.path, "/posts/")
+	if c.token == "" || !chatOrThreads {
+		return ""
+	}
+	parts := strings.Split(c.token, ".")
+	if len(parts) < 2 {
+		return ""
+	}
+	raw, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return ""
+	}
+	var claims struct {
+		Role string `json:"role"`
+	}
+	if json.Unmarshal(raw, &claims) != nil || claims.Role != "STUDENT" {
+		return ""
+	}
+	for _, k := range leakKeys {
+		if strings.Contains(string(body), k) {
+			return k + " ở " + c.method + " " + c.path
+		}
+	}
+	return ""
 }

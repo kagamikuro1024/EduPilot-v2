@@ -449,7 +449,7 @@ func TestStaffProjectionHasConfidence(t *testing.T) {
 	st, err := r.svc.Get(t.Context(), r.ta, r.course, id, pg(30))
 	require.NoError(t, err)
 	raw, _ := json.Marshal(st)
-	require.Contains(t, string(raw), `"confidence":"0.800"`)
+	require.Contains(t, string(raw), `"confidence":"1.000"`)
 	require.Contains(t, string(raw), `"ai_state"`)
 }
 
@@ -787,4 +787,41 @@ func TestSwitchedEvent(t *testing.T) {
 	r.svc.RecordSwitched(t.Context(), r.sv.UserID, r.course, "Hỏi", "MSSV "+svCode+" và mail "+svEmail)
 	require.Equal(t, 1, r.count(`select count(*) from pii_events where user_id=$1 and action='SWITCHED' and pii_type='MSSV' and channel='PUBLIC'`, r.sv.UserID))
 	require.Equal(t, 1, r.count(`select count(*) from pii_events where user_id=$1 and action='SWITCHED' and pii_type='EMAIL'`, r.sv.UserID))
+}
+
+// TestStudentNeverSeesConfidence — US-P3-07 AC3: mọi đường đọc / ghi của Threads cho sinh viên (danh sách, chi tiết, tương tự, bình luận) không có khoá confidence / retrieval_score / groundedness.
+func TestStudentNeverSeesConfidence(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	id := r.answered()
+	l, err := r.svc.List(t.Context(), r.other, r.course, thread.Filter{}, pg(10))
+	require.NoError(t, err)
+	v, err := r.svc.Get(t.Context(), r.other, r.course, id, pg(30))
+	require.NoError(t, err)
+	sim, err := r.svc.Similar(t.Context(), r.course, id)
+	require.NoError(t, err)
+	c, err := r.svc.Comment(t.Context(), r.other, r.course, id, thread.CommentIn{Body: "Mình cũng hỏi"})
+	require.NoError(t, err)
+	raw, _ := json.Marshal([]any{l, v, sim, c})
+	for _, k := range []string{"confidence", "retrieval_score", "groundedness"} {
+		require.NotContains(t, string(raw), `"`+k+`"`)
+	}
+}
+
+// TestStaffConfidenceThreadsOnly — US-P3-07 AC5: TA và TEACHER thấy "Độ tin cậy" của bài AI ở Threads, tính bằng công thức SRS 4.8 (ở đây retr 1,000 và mọi nhận định có căn cứ → 1.000;
+// khi truy xuất chỉ vừa trên sàn thì thấp hơn); sinh viên không thấy.
+func TestStaffConfidenceThreadsOnly(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.rag.hits = []rag.Hit{hit(0.45)} // retr 0,5; câu trả lời có căn cứ → 0,6·0,5 + 0,4·1 = 0,700
+	id := r.mustCreate(r.sv, "Thi lại", clean)
+	require.NoError(t, r.answer(id))
+	for _, a := range []thread.Actor{r.ta, r.teacher} {
+		v, err := r.svc.Get(t.Context(), a, r.course, id, pg(30))
+		require.NoError(t, err)
+		require.Equal(t, "0.700", *v.Posts[0].Confidence)
+	}
+	v, err := r.svc.Get(t.Context(), r.sv, r.course, id, pg(30))
+	require.NoError(t, err)
+	require.Nil(t, v.Posts[0].Confidence)
 }

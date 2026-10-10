@@ -52,7 +52,10 @@ var (
 	reMSSV8     = regexp.MustCompile(`\b20\d{6}\b`)
 	reMSSVAlpha = regexp.MustCompile(`\b[A-Za-z]\d{2}[A-Za-z]{4}\d{3}\b`)
 	// Sau cụm "MSSV" / "mã số sinh viên": một mã 6–15 ký tự chữ-số có ít nhất một chữ số (lọc ở Go vì RE2 không có lookahead).
-	reMSSVCue = regexp.MustCompile(`(?i)(?:mssv|mã số sinh viên)\s*[:\-]?\s*([A-Za-z0-9]{6,15})\b`)
+	// Mã có thể gõ tách giữa ("2022 4786", "2022.4786").
+	reMSSVCue = regexp.MustCompile(`(?i)(?:mssv|msv|ms\s?sv|mã sv|mã số sinh viên)\s*[:\-]?\s*(\d{4}[ .]\d{4}|[A-Za-z0-9]{6,15})\b`)
+	// Mã gõ tách giữa nhưng không có từ khoá: chỉ tính khi chuẩn hoá trùng MSSV của roster (không thì "2022 2023" bị chặn nhầm).
+	reMSSVSplit = regexp.MustCompile(`\b\d{4}[ .]\d{4}\b`)
 )
 
 // Detector nhận diện PII. Roster nil = chỉ regex.
@@ -181,6 +184,13 @@ func scan(text string, idx *rosterIndex) []match {
 	}
 	if idx != nil {
 		out = append(out, idx.find(text)...)
+		if hasDigit(text) {
+			for _, loc := range reMSSVSplit.FindAllStringIndex(text, -1) {
+				if k := digitsOnly(text[loc[0]:loc[1]]); idx.hasCode(k) {
+					out = append(out, toRunes(text, []match{{Finding: Finding{Kind: KindMSSV, Start: loc[0], End: loc[1]}, key: k}})...)
+				}
+			}
+		}
 	}
 	return out
 }

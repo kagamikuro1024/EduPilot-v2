@@ -272,6 +272,7 @@ function Row({ m, fb, onVote, onRetry, disabled }: { m: ChatMessage; fb: Feedbac
       {m.stream_status === "DONE" ? <Markdown source={m.content} /> : m.content && <p className={r.plain}>{m.content}</p>}
       <Blocks blocks={m.blocks} />
       <Citations items={m.citations} />
+      {m.low_confidence && m.stream_status === "DONE" && <Unsure />}
       {(failed || cancelled) && (
         <div className={r.actions}>
           <span>{cancelled ? "Đã dừng." : errorLine(m.error_code)}</span>
@@ -305,6 +306,7 @@ function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
         <Blocks blocks={live.blocks} />
         {live.text ? done ? <Markdown source={live.text} /> : <p className={r.plain}>{live.text}{live.status === "streaming" && <span className={s.caret} aria-hidden />}</p> : live.status === "streaming" && <p className={s.who}>{live.stage === "searching" ? "Đang tìm trong tài liệu…" : "Đang trả lời…"}</p>}
         {done && <Citations items={live.citations} />}
+        {done && live.low && <Unsure />}
         {live.status === "cancelled" && <div className={r.actions}><span>Đã dừng.</span></div>}
         {live.status === "failed" && (
           <div className={r.actions} role="alert">
@@ -315,6 +317,11 @@ function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
       </div>
     </>
   );
+}
+
+/** Dưới ngưỡng tự tin: chỉ một câu nhạt, không nút, không biểu tượng cảnh báo (nút nhờ giảng viên ẩn tới sprint 7). */
+function Unsure() {
+  return <p className={s.who} data-part="unsure">AI chưa đủ chắc chắn về câu này</p>;
 }
 
 function Masked({ n }: { n: number }) {

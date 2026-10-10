@@ -54,6 +54,26 @@ test("send: token chạy ra, trích nguồn mở tại chỗ, phản hồi có H
   await expect(composer(page)).toHaveValue("");
 });
 
+test("low confidence sentence only: một câu nhạt, không nút Nhờ giảng viên, không gọi /escalate", async ({ page, context }) => {
+  let sent = false;
+  const calls = await open(page, context, {
+    "POST /chat/sessions": json(session(), 201),
+    [`POST /chat/sessions/${SID}/messages`]: (r) => {
+      sent = true;
+      return r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("token", { off: 0, t: "Theo tài liệu thì chưa rõ." }, "1:2-0"),
+        frame("done", { message_id: MID, citations: [], low_confidence: true, degraded: false }, "1:3-0")));
+    },
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: sent ? [msg({ content: "Theo tài liệu thì chưa rõ.", citations: [], low_confidence: true }), msg({ id: "u1", role: "USER", content: "Hỏi khó?", citations: [] })] : [], next_cursor: null })),
+  });
+  await composer(page).fill("Hỏi khó?");
+  await composer(page).press("Enter");
+  await expect(page.getByText("AI chưa đủ chắc chắn về câu này")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Nhờ giảng viên/ })).toHaveCount(0);
+  await expect(page.locator("[data-part=unsure] svg")).toHaveCount(0);
+  expect(calls.some((c) => /escalate/.test(c.path))).toBe(false);
+  expect(await page.locator("body").innerText()).not.toMatch(/\b0[,.]\d{2,3}\b.*(tin cậy|chắc)/i); // không có con số
+});
+
 test("overloaded retry: có dòng thời gian chờ + Thử lại, không thêm bong bóng người dùng, không nút nhờ giảng viên", async ({ page, context }) => {
   let retried = false;
   await open(page, context, {

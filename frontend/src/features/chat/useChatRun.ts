@@ -13,6 +13,7 @@ export type Live = {
   blocks: ChatBlock[];
   masked: number;
   degraded: boolean;
+  low: boolean;
   citations: ChatCitation[];
   status: "streaming" | "done" | "failed" | "cancelled";
   error?: { code: string; retryAfter?: number };
@@ -68,7 +69,7 @@ export function useChatRun(onSettled: () => Promise<unknown>) {
       let mid = st.kind === "send" ? null : st.mid;
       let terminal = false;
       let opened = false;
-      cur.current = { mid, userText: st.kind === "send" ? st.text : null, text: "", stage: "received", blocks: [], masked: 0, degraded: false, citations: [], status: "streaming" };
+      cur.current = { mid, userText: st.kind === "send" ? st.text : null, text: "", stage: "received", blocks: [], masked: 0, degraded: false, low: false, citations: [], status: "streaming" };
       setLive({ ...cur.current });
 
       const on = (f: ChatFrame) => {
@@ -120,6 +121,7 @@ export function useChatRun(onSettled: () => Promise<unknown>) {
             l.status = "done";
             l.citations = (d.citations as ChatCitation[]) ?? [];
             l.degraded = Boolean(d.degraded);
+            l.low = d.low_confidence === true;
             if (typeof d.content === "string") l.text = d.content;
             break;
           case "error":

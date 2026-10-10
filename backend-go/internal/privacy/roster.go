@@ -132,7 +132,11 @@ func buildIndex(ms []Member) *rosterIndex {
 		full := strings.Join(toks, " ")
 		first, last := toks[0], toks[len(toks)-1]
 		rev := last + " " + strings.Join(toks[:len(toks)-1], " ")
-		for _, v := range []string{full, rev, last + " " + first, first + " " + last} {
+		variants := []string{full, rev, last + " " + first, first + " " + last}
+		if len(toks) >= 3 && len(toks) <= 4 { // mọi thứ tự của 3–4 âm tiết (người gõ đảo tuỳ ý: "Giang Ngọc Bùi"); 2 âm tiết đã đủ hai chiều ở trên
+			variants = append(variants, permutations(toks)...)
+		}
+		for _, v := range variants {
 			if _, taken := idx.names[v]; !taken {
 				idx.names[v] = full
 			}
@@ -140,6 +144,24 @@ func buildIndex(ms []Member) *rosterIndex {
 		}
 	}
 	return idx
+}
+
+// permutations trả mọi hoán vị (nối bằng dấu cách) của toks; ≤ 24 phần tử cho 4 âm tiết.
+func permutations(toks []string) []string {
+	var out []string
+	var rec func(cur []string, rest []string)
+	rec = func(cur, rest []string) {
+		if len(rest) == 0 {
+			out = append(out, strings.Join(cur, " "))
+			return
+		}
+		for i := range rest {
+			next := append(append([]string{}, rest[:i]...), rest[i+1:]...)
+			rec(append(cur, rest[i]), next)
+		}
+	}
+	rec(nil, toks)
+	return out
 }
 
 type word struct {

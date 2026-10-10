@@ -113,7 +113,7 @@ func (s *Service) Answer(ctx context.Context, jobID, owner, threadID uuid.UUID) 
 		cites = []agent.Citation{agent.CitationOf(1, hits[0])}
 	}
 	craw, _ := json.Marshal(cites)
-	conf := decimal.NewFromFloat(max(0, min(1, hits[0].Cosine))).Round(3)
+	conf := agent.Score(agent.Retrieval(agent.BestCosine(hits)), agent.Groundedness(body, hits)) // cùng công thức với chat (SRS 4.8), không LLM
 
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {

@@ -440,3 +440,19 @@ func TestContract_UnauthenticatedMatchesSpec(t *testing.T) {
 }
 
 func itoa(n int) string { return strconv.Itoa(n) }
+
+// TestStudentNeverSeesConfidence — US-P3-07 AC3: trong MỌI lời gọi chat / Threads bằng token sinh viên của bộ kịch bản, không có khoá confidence / retrieval_score / groundedness (chỉ `low_confidence`).
+func TestStudentNeverSeesConfidence(t *testing.T) {
+	seen := 0
+	for _, o := range observations(t) {
+		if o.Leak != "" {
+			t.Errorf("sinh viên thấy số độ tin cậy: %s", o.Leak)
+		}
+		if strings.Contains(o.Requested, "/chat/") || strings.Contains(o.Requested, "/threads") {
+			seen++
+		}
+	}
+	if seen < 10 {
+		t.Fatalf("kịch bản chỉ có %d lời gọi chat / Threads — kiểm không đủ", seen)
+	}
+}

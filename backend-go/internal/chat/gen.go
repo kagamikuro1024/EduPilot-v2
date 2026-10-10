@@ -10,6 +10,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/google/uuid"
 	goredis "github.com/redis/go-redis/v9"
 	"github.com/shopspring/decimal"
 
@@ -161,7 +162,8 @@ func (s *Service) generate(ctx context.Context, a Actor, r *run) {
 
 	fctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
 	defer cancel()
-	ok, err := s.finish(fctx, a, r, intent, text, cites, out.Blocks, out.NoContext, res.degraded, masked)
+	meta := out.Metadata(text, s.threshold(fctx, r.sess.CourseID), res.degraded, masked)
+	ok, err := s.finish(fctx, a, r, intent, text, cites, out.Blocks, meta)
 	if err != nil {
 		s.fail(fctx, a, r, intent, res, err)
 		return
@@ -169,14 +171,14 @@ func (s *Service) generate(ctx context.Context, a Actor, r *run) {
 	if !ok { // bị Dừng / reaper đóng trước: im lặng
 		return
 	}
-	if !res.degraded && out.CacheKey != "" {
+	if !res.degraded && !meta.LowConfidence && out.CacheKey != "" { // câu "chưa chắc" không được cache để người sau khỏi nhận lại
 		if st, ok := s.Agent.(interface {
 			StoreAnswer(ctx context.Context, key, text string)
 		}); ok {
 			st.StoreAnswer(fctx, out.CacheKey, text)
 		}
 	}
-	d := map[string]any{"message_id": mid, "citations": cites, "low_confidence": false, "degraded": res.degraded}
+	d := map[string]any{"message_id": mid, "citations": cites, "low_confidence": meta.LowConfidence, "degraded": res.degraded}
 	if text != res.text {
 		d["content"] = text // đã bỏ [n] không có trong danh sách / thay bằng câu trích
 	}
@@ -242,8 +244,17 @@ func (s *Service) pump(ctx context.Context, r *run, ch <-chan llm.Chunk) result 
 	}
 }
 
+// threshold là courses.escalation_threshold của lớp (đổi có hiệu lực ở tin kế tiếp: đọc mỗi lần). Lỗi đọc → 0,80 (mặc định SRS) thay vì bỏ cả câu trả lời.
+func (s *Service) threshold(ctx context.Context, course uuid.UUID) decimal.Decimal {
+	c, err := store.New(s.Pool).GetCourse(ctx, course)
+	if err != nil {
+		return decimal.RequireFromString("0.80")
+	}
+	return c.EscalationThreshold
+}
+
 // finish: một giao dịch — ghi cuối (có điều kiện STREAMING + đúng lượt) + pii_events. 0 hàng → false.
-func (s *Service) finish(ctx context.Context, a Actor, r *run, intent, text string, cites []Citation, blocks []agent.Block, noCtx, degraded bool, masked int) (bool, error) {
+func (s *Service) finish(ctx context.Context, a Actor, r *run, intent, text string, cites []Citation, blocks []agent.Block, meta agent.ResponseMetadata) (bool, error) {
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
 		return false, err
@@ -256,8 +267,8 @@ func (s *Service) finish(ctx context.Context, a Actor, r *run, intent, text stri
 		bj = []byte("[]")
 	}
 	n, err := q.FinishChatMessage(ctx, store.FinishChatMessageParams{
-		ID: r.asst.ID, Attempt: r.asst.Attempt, Content: text, Citations: cj, Blocks: bj, Confidence: decimal.NullDecimal{},
-		NoContext: noCtx, Degraded: degraded, MaskedCount: int32(masked), Intent: nonEmpty(intent), TraceID: nonEmpty(r.trace), //nolint:gosec // đếm nhỏ
+		ID: r.asst.ID, Attempt: r.asst.Attempt, Content: text, Citations: cj, Blocks: bj, Confidence: meta.Confidence, LowConfidence: meta.LowConfidence,
+		NoContext: meta.NoContext, Degraded: meta.Degraded, MaskedCount: int32(meta.MaskedCount), Intent: nonEmpty(intent), TraceID: nonEmpty(r.trace), //nolint:gosec // đếm nhỏ
 	})
 	if err != nil {
 		return false, err
@@ -268,7 +279,7 @@ func (s *Service) finish(ctx context.Context, a Actor, r *run, intent, text stri
 	if err := q.TouchChatSession(ctx, r.sess.ID); err != nil {
 		return false, err
 	}
-	if masked > 0 {
+	if meta.MaskedCount > 0 {
 		s.piiEvents(ctx, q, a, r)
 	}
 	return true, tx.Commit(ctx)

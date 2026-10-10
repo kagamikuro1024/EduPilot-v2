@@ -70,12 +70,19 @@ var (
 	rePers5 = regexp.MustCompile(`\bquy che\b.{0,50}\b(ap|danh) (vao|cho) (em|minh|toi)\b`)
 	rePers6 = regexp.MustCompile(`\b(phuc khao|khieu nai)\b.{0,50}\bdiem (cua )?(em|minh|toi)\b`)
 	rePers7 = regexp.MustCompile(`\b(bai|diem|ket qua)\b.{0,30}\bcua (em|minh|toi)\b`)
+	// lịch thi hỏi về chính mình ("em thi phòng nào", "mình thi lúc mấy giờ", "em có phải thi lại"); cụm "thi" cần đứng sau ngôi thứ nhất để câu hỏi chung ("khi nào thi?") không dính.
+	rePers8 = regexp.MustCompile(`\b(em|minh|toi)\b.{0,25}\bthi\b.{0,25}\b(phong|luc|khi nao|bao gio|may gio|ngay nao|o dau|lai)\b`)
+	// điểm cộng / điều kiện áp vào mình ("em phát biểu 3 lần được cộng bao nhiêu", "em có đủ điều kiện dự thi không", "em đi học đủ chưa", "trường hợp của em").
+	rePers9 = regexp.MustCompile(`\b(em|minh|toi)\b.{0,40}\bcong\b.{0,12}\b(bao nhieu|may|chua|khong)\b|\b(em|minh|toi) (co )?(du dieu kien|di hoc du|du buoi|du chuyen can)\b|\btruong hop (cua )?(em|minh|toi)\b`)
 )
+
+// noiseToi: "tối" / "tới" (có dấu) bỏ dấu thành "toi" trùng đại từ "tôi" ("đặc quyền tối thiểu" → "toi thieu"); gõ không dấu "toi" vẫn là đại từ.
+var noiseToi = strings.NewReplacer("tối", "tzi", "tới", "tzi", "tỏi", "tzi", "tơi", "tzi", "tọi", "tzi") //nolint:gochecknoglobals // bảng thay thế bất biến
 
 // IsPersonalPattern cho biết văn bản khớp mẫu câu cá nhân (dùng cả ở agent để chọn "ý định cá nhân").
 func IsPersonalPattern(text string) bool {
-	f := auth.Fold(text)
-	for _, re := range []*regexp.Regexp{rePers0, rePers1, rePers2, rePers3, rePers4, rePers5, rePers6, rePers7} {
+	f := auth.Fold(noiseToi.Replace(strings.ToLower(text)))
+	for _, re := range []*regexp.Regexp{rePers0, rePers1, rePers2, rePers3, rePers4, rePers5, rePers6, rePers7, rePers8, rePers9} {
 		if re.MatchString(f) {
 			return true
 		}
