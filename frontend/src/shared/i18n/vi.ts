@@ -47,6 +47,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   CHAT_BUSY: "AI đang trả lời câu trước.",
   MESSAGE_TOO_LONG: "Tin nhắn dài quá 4.000 ký tự.",
   CHAT_UNAVAILABLE: "Chat tạm thời chưa dùng được. Thử lại sau.",
+  PII_DETECTED: "Bài viết có thông tin cá nhân.",
+  POST_STATE_CONFLICT: "Câu trả lời đã được xử lý theo cách khác. Tải lại để xem.",
   MESSAGE_NOT_RETRYABLE: "Câu trả lời này không thử lại được.",
   EXAM_LOCKED: "Bài thi đã lên lịch nên phần này không sửa được.",
   JUDGE_UNAVAILABLE: "Hệ thống chấm bài chưa sẵn sàng. Thử lại sau {n}. Mã của bạn vẫn được lưu.",

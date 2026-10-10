@@ -1,4 +1,5 @@
 import { BASE_URL } from "./env";
+import { TID as THREAD_ID, row as threadRow, view as threadView } from "./thread-fixtures";
 import type { BrowserContext, Page } from "@playwright/test";
 
 export type DemoRole = "student" | "ta" | "teacher" | "admin";
@@ -44,6 +45,14 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
   // chat riêng THẬT (US-P3-05): phiên đăng nhập thật có lớp → /chat gọi API; mặc định chưa có phiên, không bị khoá giờ thi
   await context.route("**/api/v1/chat/sessions?**", (r) => r.fulfill(json({ items: [], next_cursor: null })));
   await context.route("**/api/v1/me/exam-lock", (r) => r.fulfill(json({ locked: false })));
+  // Threads THẬT (US-P3-06): danh sách một thread + chi tiết `TID`; các lời gọi khác (POST…) do từng spec tự giả (`threadApi`, page-level thắng)
+  await context.route("**/api/v1/courses/*/threads**", (r) => {
+    const u = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") return r.fallback();
+    if (u.endsWith(`/threads/${THREAD_ID}`)) return r.fulfill(json(threadView()));
+    if (u.endsWith("/similar")) return r.fulfill(json({ items: [] }));
+    return r.fulfill(json({ items: [threadRow()], next_cursor: null }));
+  });
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }
 

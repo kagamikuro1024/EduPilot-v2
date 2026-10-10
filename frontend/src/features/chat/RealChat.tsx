@@ -3,6 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { ShieldCheck, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft, useUndoableAction } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
@@ -43,7 +44,8 @@ function errorLine(code: string | null, retryAfter?: number): string {
 export function RealChat({ courseId }: { courseId: string }) {
   const qc = useQueryClient();
   const { identity } = useSession();
-  const [sid, setSid] = useState<string | null>(null);
+  const params = useSearchParams();
+  const [sid, setSid] = useState<string | null>(() => params.get("session")); // `/chat?session=…`: phiên mở từ "Chuyển sang chat riêng" (nháp đã đặt sẵn)
   const [sheet, setSheet] = useState(false);
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [fb, setFb] = useState<Record<string, Feedback>>({});

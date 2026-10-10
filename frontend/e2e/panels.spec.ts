@@ -1,3 +1,4 @@
+import { COURSE, TID, json, row as threadRow, threadApi, view as threadView } from "./support/thread-fixtures";
 import { expect, test, type Page } from "@playwright/test";
 import { loadAudit, runAudit } from "./support/audit";
 import { BASE_URL } from "./support/env";
@@ -267,11 +268,13 @@ test.describe("student mock routes", () => {
     expect(await page.locator("[data-part=chat-thread]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
     expect(await page.locator("main textarea").first().evaluate((e) => !!e.closest("[data-ep-panel]")), "Composer trong panel").toBe(true);
     expect(await page.locator("main [data-ep-panel] [data-ep-panel]").count()).toBe(0);
+    const T = `/courses/${COURSE}/threads`;
+    await threadApi(page, { [`GET ${T}`]: json({ items: [threadRow()], next_cursor: null }), [`GET ${T}/${TID}`]: json(threadView()), [`GET ${T}/${TID}/similar`]: json({ items: [] }) });
     await page.goto("/threads");
-    await page.getByRole("list", { name: "Thread của lớp" }).waitFor();
-    expect(await page.getByRole("list", { name: "Thread của lớp" }).evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
-    expect(await page.getByRole("searchbox", { name: "Tìm thread" }).evaluate((e) => !!e.closest("[data-ep-panel]")), "bộ lọc ngoài panel").toBe(false);
-    await page.goto("/threads/t-cbc");
+    await page.locator("[data-part=thread-list]").waitFor();
+    expect(await page.locator("[data-part=thread-list]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
+    expect(await page.getByRole("search").evaluate((e) => !!e.closest("[data-ep-panel]")), "bộ lọc ngoài panel").toBe(false);
+    await page.goto(`/threads/${TID}`);
     await page.locator("[data-part=thread-question]").waitFor();
     expect(await page.locator("[data-part=thread-question]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
     await page.goto("/practice/at-symmetric");
