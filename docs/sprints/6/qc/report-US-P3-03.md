@@ -1,4 +1,4 @@
-# QC report — US-P3-03 (che / khôi phục ở một chỗ trong `internal/llm`)  · Kết luận: FAIL
+# QC report — US-P3-03 (che / khôi phục ở một chỗ trong `internal/llm`)  · Kết luận: PASS (chấm lại vòng 1, 2026-10-11; TC cần chat/Threads chuyển P3-05/06)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-03.md`. Bộ TC: `tc-US-P3-03.md` (36 TC, spec v1.3 #9 đã thêm route `_test/llm/payloads` nên QC có đường đọc payload thật).
 **Môi trường:** gateway + worker build `-tags testroutes` từ HEAD nhánh, chạy cục bộ (`:18080`) với DB riêng `qc_p303` trên Postgres chung của stack dev, Redis db 9; seed `scripts/seed.mjs` (tới bước 10, dừng ở `JUDGE_UNAVAILABLE`, không liên quan). Chưa có `internal/chat` / `internal/thread` nên kịch bản đi qua **route thử** `POST /_test/llm/chat` (có `course_id`, `session_id`) + `GET /_test/llm/payloads`. Không UI.
@@ -63,3 +63,11 @@ Handoff: `docs/sprints/6/handoff/dev-US-P3-03.md`. Bộ TC: `tc-US-P3-03.md` (36
 
 ## Đề nghị
 FAIL tới khi BUG-1/2 xử lý. Kiểm tiếp: TC-07, 08, 10, 12, 13, 16, 22, 24, 34–36 ở report P3-05/06.
+
+## Chấm lại vòng 1 (2026-10-11)
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1 / TC-33 `BenchmarkGatewayMask` | **PASS** | `-benchtime=300x`: baseline 2.169 ns/op; masked **2.414.157 ns/op ≈ 2,41 ms** (≤ 5 ms) |
+| BUG-2 / TC-32 `TestUsageNoContent` | **PASS** | `ok` (1,55 s) |
+| TC-31 | CHỜ BA | TEACHER đọc `/admin/llm/usage` `200` theo `FEAT-llm-gateway`; AC9 viết 403 — dev đã nêu lệch spec, chờ BA |
+| Cổng | PASS | 24 test `internal/llm` xanh `-race`; `TestNoPayloadLeak`: **146** payload, 404 phần nội dung, 1.042 placeholder, 0 rò |

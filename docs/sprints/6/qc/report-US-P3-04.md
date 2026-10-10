@@ -1,4 +1,4 @@
-# QC report — US-P3-04 (`privacy.Classifier`, `internal/agent`)  · Kết luận: FAIL
+# QC report — US-P3-04 (`privacy.Classifier`, `internal/agent`)  · Kết luận: PASS mức gói (chấm lại vòng 1, 2026-10-11; TC cần chat API → P3-05)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-04.md`. Bộ TC: `tc-US-P3-04.md` (55 TC). Story giao **gói Go** (không HTTP, chưa có `internal/chat`/`thread`): TC theo API chuyển sang P3-05/06 (Q1), phần còn lại QC kiểm bằng test hộp đen mới `backend-go/internal/agent/qc_p304_test.go` (chỉ dùng hàm export, câu do QC soạn từ SRS 4.4–4.6; lint sạch).
 
@@ -54,3 +54,12 @@ FAIL tới khi BUG-1 sửa và BA trả lời BUG-2/3. TC cần API chuyển san
 
 ## Trạng thái QC (tạm dừng theo lệnh chủ dự án)
 Đã xong: report P3-01…P3-04, P8-01. Việc dở khi dừng: (1) cập nhật TC theo spec v1.3/v1.4 (#8–#13) chưa làm; (2) TC chuyển sang P3-05/06, P8-02/03 chờ handoff; (3) chưa chạy P8-01 TC-26/27/44/55. Stack QC cục bộ đã dừng (DB `qc_*` đã xoá), stack dev không đụng.
+
+## Chấm lại vòng 1 (2026-10-11)
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1 "Khi nào em thi cuối kỳ?" → `EXAM_SCHEDULE` | **PASS** | `TestQCRouteTable` xanh (39/39 câu QC, 12 intent) |
+| BUG-2 "giả sử giữa kỳ em được 9 thì sao" → `WHAT_IF_GRADE` | **PASS** | theo trả lời BA |
+| BUG-3 "cảm ơn bạn nhé" → `SMALLTALK` | **PASS** | theo trả lời BA |
+| Cổng | PASS | `go test -race ./internal/agent ./internal/privacy` 75 test xanh; `TestQCPriorityAndSelf`, `TestQCCrisisSet` xanh |
+| Lint | 1 cảnh báo `staticcheck` ở mã dev (`internal/agent`, `strings.FieldsFunc` dùng `!(…)`), không chặn |
