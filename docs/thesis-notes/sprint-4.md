@@ -5,4 +5,4 @@
 - **Chống dò có số liệu:** chờ tăng dần, khoá 15 phút, giới hạn theo IP và theo tài khoản dùng chung giữa hai gateway (Redis); 100 mã lớp ngẫu nhiên → 0 trúng; xác suất trúng ≈ N / 31⁷ mỗi lần; thời gian đăng nhập đúng / sai mật khẩu được cân bằng (đo xen kẽ cặp, ngưỡng 0,65).
 - **Mở cửa khi Redis lỗi (fail-open) có kiểm soát:** hạn Redis 250 ms, log ≤ 1 dòng / 30 s — bài học từ lỗi B1 (5 s chờ, log mỗi yêu cầu).
 - **Đo hiệu năng trên CI:** Tech Lead đối chiếu tài liệu hiệu chỉnh Lighthouse (4× cho benchmarkIndex 1500–2000) và tái hiện CI trên máy bằng 12×; kết luận TBT ≈ chi phí khởi động React 19 + Next, không phải lỗi đo → không hạ hệ số, đưa giải pháp kiến trúc vào sprint sau.
-- **Quy trình:** 554 test case; 15 góp ý (1 chọn phương án thay thế để báo lỗi rõ hơn cho giảng viên); vòng chạy cuốn chiếu tự động nhắn QC khi dev giao story.
+- **Quy trình:** 538 test case; 15 góp ý (1 chọn phương án thay thế để báo lỗi rõ hơn cho giảng viên); vòng chạy cuốn chiếu tự động nhắn QC khi dev giao story.

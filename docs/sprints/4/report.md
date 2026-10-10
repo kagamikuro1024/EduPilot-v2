@@ -20,7 +20,7 @@ Mục tiêu: trọn `docs/phases/P2.md` — tài khoản thật (đăng nhập, 
 "Có điều kiện" = không lỗi chức năng; còn lệch nhỏ đã ghi hoặc TC phụ thuộc hạ tầng khác. Cổng: `qc/report-GATE-P2.md` (48 TC). Spec: `FEAT-account-security` v1.7, `FEAT-course-foundation` v1.7.
 
 ## Số liệu
-- Test case: **554** (story 506 · GATE 48). Cổng vòng 1: CHƯA ĐẠT (CI Lighthouse TBT, seed B1) → vòng sửa 1 → ĐẠT CÓ ĐIỀU KIỆN, 0 FAIL.
+- Test case: **538** (story 494 · GATE 44). Cổng vòng 1: CHƯA ĐẠT (CI Lighthouse TBT, seed B1) → vòng sửa 1 → ĐẠT CÓ ĐIỀU KIỆN, 0 FAIL. (Sửa 2026-10-10: bản trước ghi 554 vì đếm cả dòng tiêu đề bảng `TC-id`; số TC từng story trong bảng trên cũng thừa 1.)
 - **0 lỗ hổng bảo mật** qua các đợt tấn công của QC: leo thang vai, mạo danh MSSV (chặn ở `PENDING | EMAIL_MISMATCH`), đoán mã lớp (100 mã ngẫu nhiên: 5 × `404`, 95 × `429`, 0 trúng), so thời gian đăng nhập, CSRF chéo site, rò mật khẩu / token / email trong log (0).
 - `go test -race -tags integration`: 733 PASS, 0 FAIL; `golangci-lint` 0 issues; `sqlc diff` sạch. Playwright 327 pass (ngoài ảnh mốc). CI xanh ở HEAD.
 - Seed từ DB trống: 37 s (ngưỡng 180 s).

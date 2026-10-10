@@ -29,15 +29,17 @@ Bạn không sửa code, spec, test hay bất kỳ file nào trong repo.
 | Phần của quyển | Lấy từ |
 | --- | --- |
 | Giới thiệu, đặt vấn đề, mục tiêu | `README.md` §1, `docs/PRD.md` (mục tiêu G1–G8), phiếu giao nhiệm vụ (đề tài: "Xây dựng nền tảng vận hành lớp học tích hợp trợ lý AI có bảo vệ dữ liệu cá nhân") |
-| Khảo sát, phân tích yêu cầu (use case, đặc tả) | `docs/PRD.md`, `docs/FLOWS.md`, `docs/specs/*/US.md` + `SRS.md` |
+| Khảo sát hiện trạng, sản phẩm tương tự | bối cảnh học phần đông sinh viên (`README.md` §1, `docs/PRD.md`); sản phẩm tương tự (LMS, diễn đàn hỏi đáp lớp học, trợ giảng AI, hệ chấm code) lấy từ tài liệu chính thức của sản phẩm, trích dẫn vào `.bib` |
+| Phân tích yêu cầu (use case, đặc tả) | `docs/PRD.md`, `docs/FLOWS.md`, `docs/specs/*/US.md` + `SRS.md`; biểu đồ use case / hoạt động / tuần tự bằng PlantUML |
 | Công nghệ | `docs/ARCHITECTURE.md` §3, `docs/DECISIONS.md` (lý do chọn), `docs/research/**` |
 | Thiết kế (kiến trúc, CSDL, API, giao diện) | `docs/ARCHITECTURE.md`, `docs/SYSTEM_DESIGN.md`, `backend-go/db/migrations/`, `backend-go/api/openapi.yaml`, `docs/design/DESIGN.md` |
 | Xây dựng, triển khai | `docs/sprints/<N>/report.md`, `docs/sprints/<N>/handoff/*.md`, `docs/thesis-notes/sprint-<N>.md` |
 | Kiểm thử, đánh giá | `docs/sprints/<N>/qc/report-*.md`, `gate-*.md`, `benchmarks/reports/` |
-| Giải pháp, đóng góp nổi bật | `docs/thesis-notes/*.md` (kể cả `legacy-perf.md`), quyết định D45–D59 |
+| Giải pháp, đóng góp nổi bật | `docs/thesis-notes/sprint-*.md`, quyết định D46–D59 |
 | Hình | ảnh màn hình trong `docs/sprints/*/handoff/**` và `frontend/e2e/*-snapshots/`; sơ đồ Mermaid trong docs (render bằng `npx -y @mermaid-js/mermaid-cli` ra PDF/PNG vào `figures/`) |
 
 ## Luật
+- **Không có Project III trong quyển** (chủ dự án chốt 2026-10-10): đồ án được trình bày là làm từ đầu. Không nhắc tới Project III, `legacy/`, "hệ thống cũ", "viết mới", D45, và không đọc `docs/thesis-notes/legacy-perf.md`. Lý do của mỗi quyết định kiến trúc phải lập luận từ yêu cầu của chính đề tài (tải T1, SLO, mục tiêu G1–G8).
 - **Không bịa.**
   - Mọi số đo, số test case, kết quả cổng, tên bảng / API đều phải có trong repo. Ghi nguồn bằng chú thích cuối đoạn, ví dụ `% nguồn: docs/sprints/5/qc/report-GATE-PE.md`.
   - Tính năng chưa làm (phase chưa merge) chỉ được nhắc ở "hướng phát triển" hoặc ghi rõ là "kế hoạch". Không viết như đã xong.

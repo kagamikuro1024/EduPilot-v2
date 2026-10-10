@@ -15,7 +15,7 @@ Mục tiêu: trọn `docs/phases/PG.md` L1–L7 — gateway Go không trạng th
 Cổng: `qc/report-GATE-PG.md` — 25/25 PASS (gồm rút mạng SSE 10 s trên Chrome thật, tắt gateway giữa stream, gửi đôi Idempotency-Key hai tab, `down -v` rồi `up`). Spec: `docs/specs/FEAT-pg-foundation/` v1.6.
 
 ## Số liệu
-- Test case: **536** (01: 86 · 02: 71 · 03: 109 · 04: 59 · 05: 75 · 06: 39 · 07: 70 · GATE: 27). Vòng 1: 8 FAIL → vòng sửa 1 → 0 FAIL.
+- Test case: **527** (01: 85 · 02: 70 · 03: 108 · 04: 58 · 05: 74 · 06: 38 · 07: 69 · GATE: 25). Vòng 1: 8 FAIL → vòng sửa 1 → 0 FAIL. (Sửa 2026-10-10: bản trước ghi 536 vì đếm cả dòng tiêu đề bảng `TC-id`.)
 - `go test -race` ≥ 356 test, 15 gói, 0 skip; `golangci-lint` 0 issues; `sqlc diff` sạch; CI xanh.
 - Số nền (`benchmarks/reports/pg-baseline.md`): RAM nghỉ gateway ≈ 4 MiB; image gateway 9,4 MB / worker 8,9 MB; k6 smoke p95 `healthz` 5,75 ms, `jobs/{id}` qua PgBouncer 8,57 ms, 0 % lỗi; tắt một gateway giữa 200 request: 1 lỗi.
 - 42 commit, `backend-go` +19.531 dòng. Góp ý #1–#13, PM chấp nhận 13.

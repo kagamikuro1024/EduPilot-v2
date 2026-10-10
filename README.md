@@ -4,7 +4,7 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), 3 (PU + P1 LLM Gateway), 4 (P2 Lớp học), **5 (PE thi hằng tuần — ngân hàng câu hỏi, bài thi trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; 510 test case, cổng đạt có điều kiện)** và **5.5 (giao diện panel nổi, D59 — nền canvas xám ấm, mỗi vùng làm việc trên một panel trắng; 58 test case, cổng đạt có điều kiện)**. Kế tiếp: sprint 6 (P3 + P8). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), 3 (PU + P1 LLM Gateway), 4 (P2 Lớp học), **5 (PE thi hằng tuần — ngân hàng câu hỏi, bài thi trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; 500 test case, cổng đạt có điều kiện)** và **5.5 (giao diện panel nổi, D59 — nền canvas xám ấm, mỗi vùng làm việc trên một panel trắng; 58 test case, cổng đạt có điều kiện)**. Kế tiếp: sprint 6 (P3 + P8). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 

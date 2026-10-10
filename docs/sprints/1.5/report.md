@@ -19,7 +19,7 @@ Mục tiêu: prototype bấm được, đủ mọi route dự định, đổi 4 
 5. **QC vòng 2**: mọi lỗi mức cao PASS; còn 1 lỗi thấp (nhãn lịch tháng 3 dòng) → dev sửa vòng 2.
 
 ## Số liệu
-- Test case: **449** (00: 70 · 01: 154 · 02: 92 · 03: 42 · 04: 51 · DEMO: 40).
+- Test case: **443** (00: 69 · 01: 153 · 02: 91 · 03: 41 · 04: 50 · DEMO: 39). (Sửa 2026-10-10: bản trước ghi 449 vì đếm cả dòng tiêu đề bảng `TC-id`.)
 - Tự động vòng 2: `proto-curl.sh` 497/0 · `audit.mjs` 495 dòng (4 vai × 1440/390/375 + bề rộng biên) 0 FAIL · `regress-v24` 30/30 · `pii-matrix` 48/48 · `threads-timeline` 0 FAIL · `demo-run` 22/22.
 - Lint, build, `ui-antipatterns.sh` sạch. 27 nhóm route, `frontend/src` +19.008 dòng, 90 commit trên nhánh.
 - Góp ý của đội: #15–#26 (12), PM chấp nhận 12 (1 theo phương án khác: #21).

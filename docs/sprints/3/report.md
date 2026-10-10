@@ -18,7 +18,7 @@ Mục tiêu: trọn `docs/phases/PU.md` (nền frontend dùng chung cho mọi m�
 Cổng: `qc/report-GATE-PU.md` (18 TC), `qc/report-GATE-P1.md` (27 TC). Spec: `docs/specs/FEAT-ui-foundation/` v1.3, `docs/specs/FEAT-llm-gateway/` v1.6.
 
 ## Số liệu
-- Test case: **538** (PU 248 · P1 245 · GATE 45). Vòng 1 các story: 14 lỗi → sửa hết; cổng vòng 1: FAIL (CI đỏ, `llmload`) → vòng sửa 1 → PASS.
+- Test case: **523** (PU 243 · P1 240 · GATE 40). Vòng 1 các story: 14 lỗi → sửa hết; cổng vòng 1: FAIL (CI đỏ, `llmload`) → vòng sửa 1 → PASS. (Sửa 2026-10-10: bản trước ghi 538 vì đếm cả dòng tiêu đề bảng `TC-id`; số TC từng story trong bảng trên cũng thừa 1.)
 - Playwright 155 ca, 0 đỏ, không retry; axe 0 critical / 0 serious ở 102 lượt quét; `audit.mjs` 674 PASS / 0 FAIL; `proto-curl.sh` 493 PASS.
 - Lighthouse (mobile mô phỏng): CLS 0, JS ≤ 230 KB, TBT sáu route thật ≤ 111 ms; **LCP 2,7–3,4 s** (ngưỡng 2,5 s — xem Nợ).
 - Nhà cung cấp thật: dev ghi replay OpenAI `gpt-4o-mini` + Gemini flash, nhúng 1536 chiều. GATE-P1 TC-13 / TC-18 (QC): hai nhà trả lời, tắt nhà chính thì nhà kia trả lời (`fallback_index: 0`), ghi / phát lại PASS; QC tốn 13 lời gọi, ≈ 1.100 token. Anthropic BLOCKED (không có khoá).

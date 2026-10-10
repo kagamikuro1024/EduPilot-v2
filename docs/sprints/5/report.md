@@ -6,16 +6,16 @@ Mục tiêu: trọn `docs/phases/PE.md`. Giảng viên soạn ngân hàng câu h
 
 | Story | QC (TC) | Kết quả |
 | --- | --- | --- |
-| US-PU-06 Khung trang vẽ từ máy chủ; LCP (lượt devtools) và TBT về `error` | `qc/report-US-PU-06.md` (21) | PASS có điều kiện, sau sửa |
-| US-PE-01 Migration `00006_weekly_exam` (13 bảng, FK phức hợp), Quiz Engine, chấm điểm `decimal` | `qc/report-US-PE-01.md` (41) | PASS sau sửa |
-| US-PE-02 Sandbox `go-judge`, hàng chấm kiểu outbox (thuê / thử lại), 15 ca tấn công | `qc/report-US-PE-02.md` (58) | PASS có điều kiện |
-| US-PE-03 Ngân hàng câu hỏi: soạn, nhập test / zip, chạy lời giải mẫu, duyệt, gợi ý AI nháp | `qc/report-US-PE-03.md` (56) | PASS sau sửa |
-| US-PE-04 Bài thi: tạo, lên lịch, gia hạn, xem trước, nav "Bài thi" | `qc/report-US-PE-04.md` (51) | PASS có điều kiện |
-| US-PE-05 Làm bài trắc nghiệm: đồng hồ máy chủ, xáo trộn, tự lưu, một nơi ghi, tự nộp | `qc/report-US-PE-05.md` (61) | PASS có điều kiện |
-| US-PE-06 Làm bài code: nháp, chạy thử test mẫu, nộp, lịch sử, SSE | `qc/report-US-PE-06.md` (48) | PASS có điều kiện |
-| US-PE-07 Liêm chính: khoá chat, log rời tab / dán, so độ giống (winnowing) | `qc/report-US-PE-07.md` (49) | PASS có điều kiện, sau sửa |
-| US-PE-08 Chấm xong → tự công bố, kết quả, sửa điểm, chấm lại, phúc khảo, `TestNoAnswerLeak` | `qc/report-US-PE-08.md` (69) | PASS có điều kiện |
-| US-PE-09 Seed bài mẫu, bảng điểm tính tay, k6 `exam-submit`, `gate-pe.sh` | `qc/report-US-PE-09.md` (32) | PASS có điều kiện, sau sửa |
+| US-PU-06 Khung trang vẽ từ máy chủ; LCP (lượt devtools) và TBT về `error` | `qc/report-US-PU-06.md` (20) | PASS có điều kiện, sau sửa |
+| US-PE-01 Migration `00006_weekly_exam` (13 bảng, FK phức hợp), Quiz Engine, chấm điểm `decimal` | `qc/report-US-PE-01.md` (40) | PASS sau sửa |
+| US-PE-02 Sandbox `go-judge`, hàng chấm kiểu outbox (thuê / thử lại), 15 ca tấn công | `qc/report-US-PE-02.md` (57) | PASS có điều kiện |
+| US-PE-03 Ngân hàng câu hỏi: soạn, nhập test / zip, chạy lời giải mẫu, duyệt, gợi ý AI nháp | `qc/report-US-PE-03.md` (55) | PASS sau sửa |
+| US-PE-04 Bài thi: tạo, lên lịch, gia hạn, xem trước, nav "Bài thi" | `qc/report-US-PE-04.md` (50) | PASS có điều kiện |
+| US-PE-05 Làm bài trắc nghiệm: đồng hồ máy chủ, xáo trộn, tự lưu, một nơi ghi, tự nộp | `qc/report-US-PE-05.md` (60) | PASS có điều kiện |
+| US-PE-06 Làm bài code: nháp, chạy thử test mẫu, nộp, lịch sử, SSE | `qc/report-US-PE-06.md` (47) | PASS có điều kiện |
+| US-PE-07 Liêm chính: khoá chat, log rời tab / dán, so độ giống (winnowing) | `qc/report-US-PE-07.md` (48) | PASS có điều kiện, sau sửa |
+| US-PE-08 Chấm xong → tự công bố, kết quả, sửa điểm, chấm lại, phúc khảo, `TestNoAnswerLeak` | `qc/report-US-PE-08.md` (68) | PASS có điều kiện |
+| US-PE-09 Seed bài mẫu, bảng điểm tính tay, k6 `exam-submit`, `gate-pe.sh` | `qc/report-US-PE-09.md` (31) | PASS có điều kiện, sau sửa |
 
 - Cổng: `qc/report-GATE-PE.md` (24 mục).
 - CI xanh ở HEAD (`bc09dd2`): Go, Frontend, Judge attacks (amd64, seccomp bật).
@@ -24,7 +24,7 @@ Mục tiêu: trọn `docs/phases/PE.md`. Giảng viên soạn ngân hàng câu h
 "Có điều kiện" nghĩa là không có lỗi chức năng; còn mục chưa kiểm được trên máy QC hoặc chờ phase sau (xem Nợ).
 
 ## Số liệu
-- **Test case:** 510 (story 486, cổng 24). Lỗi thật vòng 1: 7, đã sửa hết.
+- **Test case:** 500 (story 476, cổng 24). Lỗi thật vòng 1: 7, đã sửa hết. (Sửa 2026-10-10: bản trước ghi 510 vì đếm cả dòng tiêu đề bảng `TC-id`.)
 - **Tấn công:**
   - 15 ca A1–A15 trong `TestSandboxAttacks` cộng 20 chương trình tấn công QC tự viết;
   - fork bomb không tạo được tiến trình thứ hai (`procPeak = 1`);

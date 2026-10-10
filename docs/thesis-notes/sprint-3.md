@@ -5,4 +5,4 @@
 - **Định nghĩa `fallback_index`** theo chuỗi provider đang bật (#33): tắt có chủ ý của Admin không phải sự cố, nên không làm méo tỉ lệ dự phòng đo ở P10.
 - **Nền giao diện kiểm bằng máy:** ảnh mốc Playwright (sinh trong image Linux chính thức để khớp CI), axe 0 critical / serious ở 102 lượt quét, Lighthouse CI theo ngân sách `UX.md`; nhánh `ci/ui-drift` chứng minh CI bắt được 3 kiểu trôi giao diện (màu viết cứng, lệch 3 px, thiếu `aria-label`).
 - **Giới hạn đo hiệu năng mô phỏng:** LCP Lighthouse mobile 2,7–3,4 s trong khi đo thật 0,49 s; TBT của trang 125 ô dao động 125–929 ms theo CPU runner — phép đo đo máy nhiều hơn đo sản phẩm. Cách xử lý: giữ ngưỡng, hạ về `warn` có thời hạn, ghi nợ.
-- **Quy trình:** 538 test case viết trước khi có code (hộp đen từ AC); 14 lỗi thật vòng 1; 34 góp ý của đội, mọi thay đổi spec / TC sau duyệt đều có số góp ý. Thêm vai Tech Lead để dev không phải đoán khi phân vân kỹ thuật.
+- **Quy trình:** 523 test case viết trước khi có code (hộp đen từ AC); 14 lỗi thật vòng 1; 34 góp ý của đội, mọi thay đổi spec / TC sau duyệt đều có số góp ý. Thêm vai Tech Lead để dev không phải đoán khi phân vân kỹ thuật.

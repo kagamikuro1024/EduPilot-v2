@@ -6,4 +6,4 @@
 - **Chống rò đáp án nhiều lớp:** bảng phương án không có cờ đúng / sai, DTO riêng cho sinh viên, `TestNoAnswerLeak` gieo chuỗi canary vào đáp án / giải thích / test ẩn rồi quét mọi endpoint sinh viên trước và sau công bố.
 - **Liêm chính có số đo:** winnowing (k = 5, w = 4, Jaccard) trừ mã khung; ngưỡng `max(MIN, min(mean + 3σ, 0,9))` — công thức thuần thống kê bỏ sót lớp nhỏ có bài chép, phải có trần. Chỉ gợi ý, không tự trừ điểm.
 - **Đo hiệu năng đúng cách:** ngưỡng tương đối +20 % đo với provider giả 5 ms là đo nhiễu; đổi sang provider có trễ 300 ms và trung vị của 3 cặp → kết luận đúng "hàng chấm không làm chat chậm" (tỉ lệ 0,998). LCP: lượt Lighthouse devtools bắt đúng lỗi "chữ client lớn hơn chữ máy chủ" mà mô phỏng Lantern không phân biệt được.
-- **Quy trình:** 510 test case, 19 góp ý, 4 câu Tech Lead; repo chuyển public sau khi làm sạch secret khỏi lịch sử git (phát hiện mật khẩu thật của hệ thống cũ khi quét trước công khai).
+- **Quy trình:** 500 test case, 19 góp ý, 4 câu Tech Lead.
