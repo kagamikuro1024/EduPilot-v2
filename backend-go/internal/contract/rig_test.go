@@ -13,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
+	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appdb "github.com/edupilot/backend-go/internal/platform/db"
@@ -94,7 +95,12 @@ func buildRig(t *testing.T) (*rig, error) {
 	if err != nil {
 		return nil, err
 	}
-	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool), LLM: rt}
+	// Kho đối tượng thật (MinIO dùng chung) cho tải tài liệu lên bằng URL ký sẵn (US-P8-01).
+	store, err := blob.New(ctx, blob.Config{Endpoint: testutil.MinIOEndpoint(t), Bucket: "contract", AccessKey: testutil.MinIOAccessKey, SecretKey: testutil.MinIOSecretKey, EnsureBucket: true})
+	if err != nil {
+		return nil, err
+	}
+	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool), LLM: rt, Blob: store}
 	h := httpapi.NewRouter(deps)
 	return &rig{deps: deps, handle: h, srv: httptest.NewServer(h), cfg: cfg}, nil
 }

@@ -99,6 +99,9 @@ func (r *Runner) HandleMessage(ctx context.Context, m outbox.Message) error {
 	tr := &progressTracker{runner: r, job: j.ID, owner: j.OwnerID, last: int(j.Progress)}
 	result, err := r.runKind(ctx, fn, JobCtx{ID: j.ID, OwnerID: j.OwnerID, Payload: p.Payload, ctx: ctx, tr: tr})
 	dur := r.clk.Now().Sub(start).Milliseconds()
+	if errors.Is(err, ErrDeferred) {
+		return nil // việc dài do consumer riêng kết thúc (Report / Complete / Abort), không chặn consumer outbox
+	}
 	if err != nil {
 		code, msg := codeFailed, "Việc chạy thất bại."
 		var ue *UserError
@@ -126,6 +129,52 @@ func (r *Runner) HandleMessage(ctx context.Context, m outbox.Message) error {
 	r.log.InfoContext(ctx, "job xong", "job_id", j.ID.String(), "kind", j.Kind, "duration_ms", dur)
 	r.publish(ctx, done)
 	return nil
+}
+
+// ErrDeferred: hàm của loại việc trả lỗi này khi chỉ chuyển việc cho một consumer riêng (vd. hàng `ep:ingest`): Runner không đánh dấu
+// xong; consumer đó gọi Report / Complete / Abort. Dùng cho việc chạy lâu để không chặn consumer outbox tuần tự (SRS FEAT-docs-calendar 4.2).
+var ErrDeferred = errors.New("jobs: việc được chuyển cho consumer riêng")
+
+// Report ghi tiến độ (chỉ tăng) của việc do consumer riêng chạy và phát SSE cho chủ việc.
+func (r *Runner) Report(ctx context.Context, jobID uuid.UUID, pct int) {
+	pct = max(0, min(pct, 99))                                                                                         // 100 % chỉ do Complete
+	row, err := store.New(r.db).UpdateJobProgress(ctx, store.UpdateJobProgressParams{ID: jobID, Progress: int16(pct)}) //nolint:gosec // 0–99
+	if err != nil {
+		if !errors.Is(err, pgx.ErrNoRows) {
+			r.log.WarnContext(ctx, "không ghi được tiến độ việc", "job_id", jobID.String(), "error", err.Error())
+		}
+		return
+	}
+	r.publish(ctx, row)
+}
+
+// Complete đánh dấu việc SUCCEEDED với kết quả; idempotent (đã xong thì không làm gì).
+func (r *Runner) Complete(ctx context.Context, jobID uuid.UUID, result any) error {
+	raw, err := json.Marshal(result)
+	if err != nil {
+		return fmt.Errorf("jobs: kết quả việc không mã hoá được: %w", err)
+	}
+	done, err := store.New(r.db).MarkJobSucceeded(ctx, store.MarkJobSucceededParams{ID: jobID, Result: raw})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("jobs: ghi kết quả: %w", err)
+	}
+	r.publish(ctx, done)
+	return nil
+}
+
+// Abort đánh dấu việc FAILED với {code, message}; idempotent.
+func (r *Runner) Abort(ctx context.Context, jobID uuid.UUID, code, msg string) error {
+	j, err := store.New(r.db).GetJob(ctx, jobID)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
+		return fmt.Errorf("jobs: đọc việc: %w", err)
+	}
+	return r.fail(ctx, j, code, msg)
 }
 
 // UserError là lỗi của việc kèm mã và câu tiếng Việt hiển thị được cho chủ việc (không PII, không chi tiết nội bộ).

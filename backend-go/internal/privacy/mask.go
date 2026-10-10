@@ -22,7 +22,7 @@ import (
 const (
 	MaskTTL        = 24 * time.Hour        // tính từ lần dùng gần nhất
 	MaskTimeout    = 50 * time.Millisecond // quá hạn → ErrMaskFailed (không gọi provider)
-	redisOpTimeout = 15 * time.Millisecond // Redis chậm / hỏng → dùng ánh xạ trong bộ nhớ
+	redisOpTimeout = 30 * time.Millisecond // Redis chậm / hỏng → dùng ánh xạ trong bộ nhớ (kết nối lạnh có thể mất > 15 ms — QC US-P3-02 ghi chú 1)
 	rosterLoadCap  = 2 * time.Second       // nạp roster khi trượt cache (một truy vấn); không tính vào MaskTimeout
 )
 

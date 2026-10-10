@@ -5,12 +5,14 @@ import (
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
+	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/privacy"
+	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/today"
 )
 
@@ -23,7 +25,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	runner := jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
-	ew.Register(runner) // code.verify_reference, question.suggest (US-PE-03)
+	ew.Register(runner)                   // code.verify_reference, question.suggest (US-PE-03)
+	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
 	reg.Register(mail.Topic, mh.Handle)
 	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log}
@@ -43,6 +46,10 @@ func newRegistry(d Deps) *outbox.Registry {
 	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {
 		reg.Register(t, outbox.Chain(inv.Handle, roster.Invalidate))
 	}
+	// Tài liệu (US-P8-01): đổi / xoá → tăng ep:rag:ver:{course}; việc đọc dài chạy ở consumer ep:ingest riêng nên không làm trễ việc này.
+	bump := rag.BumpVersion(d.Redis)
+	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump))
+	reg.Register("document.deleted", bump)
 	if d.Judge != nil {
 		reg.Register(judge.TopicEnqueue, d.Judge.HandleEnqueue) // XADD tín hiệu chấm rồi đặt enqueued_at (US-PE-02)
 	}

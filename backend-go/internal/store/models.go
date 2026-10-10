@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/pgvector/pgvector-go"
+	pgvector "github.com/pgvector/pgvector-go"
 	"github.com/shopspring/decimal"
 )
 
@@ -1912,6 +1912,7 @@ type ContentChunk struct {
 	Embedding  *pgvector.Vector
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+	Tsv        interface{}
 }
 
 type Course struct {

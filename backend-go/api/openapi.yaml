@@ -22,6 +22,7 @@ tags:
   - name: auth
   - name: today
   - name: exam
+  - name: document
 paths:
   /healthz:
     get:
@@ -4503,6 +4504,141 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/uploads/presign:
+    post:
+      operationId: presignUpload
+      tags: [document]
+      summary: "Xin URL PUT ký sẵn để tải tài liệu lên (Staff; URL hết hạn 10 phút, ký kèm Content-Length; tệp không đi qua gateway)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PresignInput"
+      responses:
+        "200":
+          description: URL tải lên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/uploads/complete:
+    post:
+      operationId: completeUpload
+      tags: [document]
+      summary: "Hoàn tất tải lên: kiểm tệp có thật, chèn tài liệu QUEUED + việc đọc nền trong một giao dịch (Staff; Idempotency-Key bắt buộc)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteUploadInput"
+      responses:
+        "202":
+          description: Đã nhận; việc đọc tài liệu chạy nền (theo dõi qua GET /jobs/{id} hoặc SSE job.progress)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteUploadOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/documents/reindex:
+    post:
+      operationId: reindexCourseDocuments
+      tags: [document]
+      summary: "Lập chỉ mục lại mọi tài liệu READY dùng cho AI của lớp (chỉ Giảng viên)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents/{docId}/retry:
+    post:
+      operationId: retryDocument
+      tags: [document]
+      summary: "Đọc lại tài liệu FAILED (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents/{docId}/reindex:
+    post:
+      operationId: reindexDocument
+      tags: [document]
+      summary: "Lập chỉ mục lại một tài liệu READY từ chữ đã lưu (Staff; không gọi docling)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
 components:
   securitySchemes:
     bearerAuth:
@@ -4574,6 +4710,21 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+  parameters:
+    CourseId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DocumentId:
+      name: docId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     LoginRequest:
       type: object
@@ -6195,6 +6346,16 @@ components:
             - JUDGE_UNAVAILABLE
             - APPEAL_WINDOW_CLOSED
             - APPEAL_EXISTS
+            - FILE_TYPE_NOT_ALLOWED
+            - FILE_TOO_LARGE
+            - FILE_TYPE_MISMATCH
+            - UPLOAD_INCOMPLETE
+            - UPLOAD_NOT_FOUND
+            - DOCUMENT_DUPLICATE
+            - DOCUMENT_DUPLICATE_ELSEWHERE
+            - DOCUMENT_NOT_FAILED
+            - DOCUMENT_NOT_READY
+            - DOCUMENT_SHARED_READONLY
         message:
           type: string
         trace_id:
@@ -6204,6 +6365,128 @@ components:
         retry_after:
           type: integer
           minimum: 1
+    PresignInput:
+      type: object
+      required: [purpose, filename, mime_type, size_bytes, sha256]
+      additionalProperties: false
+      properties:
+        purpose:
+          type: string
+          enum: [document]
+        filename:
+          type: string
+          maxLength: 255
+        mime_type:
+          type: string
+        size_bytes:
+          type: integer
+          format: int64
+        sha256:
+          type: string
+          pattern: "^[0-9a-fA-F]{64}$"
+    PresignOutput:
+      type: object
+      required: [upload_id, method, url, headers, blob_key, expires_in]
+      additionalProperties: false
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum: [PUT]
+        url:
+          type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        blob_key:
+          type: string
+        expires_in:
+          type: integer
+    CompleteUploadInput:
+      type: object
+      required: [upload_id, title, type]
+      additionalProperties: false
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, ANSWER_KEY, OTHER]
+        use_for_rag:
+          type: [boolean, "null"]
+        visible_to_students:
+          type: [boolean, "null"]
+        category:
+          type: [string, "null"]
+          maxLength: 40
+        week_no:
+          type: [integer, "null"]
+          minimum: 1
+          maximum: 20
+    Document:
+      type: object
+      required: [id, course_id, title, type, status, visible_to_students, use_for_rag, version, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, ANSWER_KEY, OTHER]
+        filename:
+          type: [string, "null"]
+        mime_type:
+          type: [string, "null"]
+        size_bytes:
+          type: [integer, "null"]
+          format: int64
+        status:
+          type: string
+          enum: [QUEUED, PROCESSING, READY, FAILED]
+        error:
+          type: [string, "null"]
+        page_count:
+          type: [integer, "null"]
+        visible_to_students:
+          type: boolean
+        use_for_rag:
+          type: boolean
+        category:
+          type: [string, "null"]
+        week_no:
+          type: [integer, "null"]
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    CompleteUploadOutput:
+      type: object
+      required: [job_id, document]
+      additionalProperties: false
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        document:
+          $ref: "#/components/schemas/Document"
     JobAccepted:
       type: object
       required: [job_id]

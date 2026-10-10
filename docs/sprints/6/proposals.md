@@ -47,3 +47,9 @@ Chủ dự án đã trả lời trong phiên PM ngày 2026-10-10. PM quyết t�
 | Q1 | TC phụ thuộc bề mặt chưa có (US-P3-01 TC-47/48/50; US-P3-02 TC-19–23, 36, 43, 47, 49–52, 58–61) bị tính FAIL dù dev giao đúng phạm vi lát | PM chuyển các TC đó sang report story có bề mặt (P3-03/05/06), story hiện tại đóng khi phần còn lại PASS | `report-US-P3-01.md`, `report-US-P3-02.md` | cần PM quyết; QC không tự đổi TC |
 | Q2 | Vai DB `edupilot` của stack dev là superuser (TC-P3-01-49) | Gateway/worker dùng vai `NOSUPERUSER NOBYPASSRLS`; chỉ migration dùng vai chủ | `select rolsuper from pg_roles where rolname=current_user` → `t` | thấp, hạ tầng từ trước |
 | Q3 | `privacy.Mask` rơi sang bộ nhớ khi Redis nối lạnh >15 ms | khởi động ấm kết nối hoặc nới ngưỡng lượt đầu | 1/6 lượt QC: TTL −2, 0 khoá `ep:mask:*` | ánh xạ không bền ở lượt đó |
+
+## Dev — sprint 6
+| # | Vấn đề | Đề xuất | Bằng chứng | Ảnh hưởng |
+| --- | --- | --- | --- | --- |
+| D1 | `internal/contract/exam_errors_test.go` ghim `len(enum) == 49` cho `Error.code`; US-P8-01 (và P3 sau đó) thêm mã lỗi hợp lệ (`FILE_TYPE_NOT_ALLOWED`, … `DOCUMENT_SHARED_READONLY`) vào `apierr` + `openapi.yaml` nên bản ghim luôn đỏ. | Đổi thành `GreaterOrEqual(49)` (đã làm, ghi chú trong test); các mã mới có test riêng theo story. | Dev đã sửa một dòng ở `exam_errors_test.go` — chờ PM chấp nhận (luật không sửa test để xanh). | Không đổi hành vi. |
+| D2 | QC Q3: Redis nối lạnh vượt 15 ms → `Mask` rơi bộ nhớ. | Đã nới `redisOpTimeout` 15 → 30 ms (`internal/privacy/mask.go`). Luồng chat vẫn đúng khi rơi bộ nhớ vì mỗi lượt che lại cả lịch sử bằng cùng `Sess` và `Unmask` dùng bản trong bộ nhớ; chỉ mất độ bền ánh xạ giữa hai request. | `TestMaskRedisDownFallsBackInMemory`. | Thấp. |

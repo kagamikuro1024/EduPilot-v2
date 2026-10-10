@@ -215,6 +215,9 @@ services:
       RESET_TOKEN_TTL: ${RESET_TOKEN_TTL:-}
       INVITE_TOKEN_TTL: ${INVITE_TOKEN_TTL:-}
       # Máy chấm code (US-PE-02): đúng MỘT bản worker có JUDGE_CONSUMER=true.
+      # Đọc tài liệu (US-P8-01): docling chỉ chạy khi bật profile `ingest`; không có thì tài liệu nằm QUEUED / FAILED EXTRACT_UNAVAILABLE.
+      DOCLING_URL: ${DOCLING_URL:-http://docling:5001}
+      INGEST_WORKERS: ${INGEST_WORKERS:-1}
       JUDGE_CONSUMER: ${JUDGE_CONSUMER:-true}
       JUDGE_URL: ${JUDGE_URL:-http://judge:5050}
       JUDGE_TOKEN: ${JUDGE_TOKEN:-}
@@ -250,6 +253,26 @@ services:
   # Máy chấm code (go-judge, D58). Không `ports`, không volume, chỉ ở mạng nội bộ `judge_net` (không đường ra Internet / Postgres / Redis / MinIO).
   # `privileged` + `cgroup: host` là điều kiện của go-judge để dựng sandbox; container KHÔNG nhận bí mật nào ngoài JUDGE_*.
   # Colima arm64 (dev): đặt JUDGE_EXTRA_ARGS=-no-seccomp trong .env.local. KHÔNG đặt trên amd64.
+  # Đọc tài liệu (US-P8-01): chỉ dựng khi cần — `docker compose --profile ingest up -d docling`. Đỉnh RAM đo được 1,74 GiB (PoC), trần 3 GiB.
+  docling:
+    profiles: [ingest]
+    build:
+      context: ./infra/docling
+    image: edupilot-docling
+    environment:
+      DOCLING_SERVE_ENG_LOC_NUM_WORKERS: "1"
+      DOCLING_SERVE_LOAD_MODELS_AT_BOOT: "false"
+      DOCLING_SERVE_MAX_NUM_PAGES: "400"
+      DOCLING_SERVE_MAX_FILE_SIZE: "52428800"
+    mem_limit: 3g
+    restart: unless-stopped # docling_parse / OOM làm chết tiến trình; việc đang chạy mất → worker thử lại (EXTRACT_UNAVAILABLE)
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5001/ready"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 30s
+
   judge:
     build:
       context: ./deploy/judge

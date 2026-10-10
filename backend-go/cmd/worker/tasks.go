@@ -2,9 +2,12 @@ package main
 
 import (
 	"context"
+	"os"
 	"time"
 
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/httpapi/sse"
+	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/platform/clock"
@@ -31,8 +34,21 @@ func newTasks(d Deps) []Task {
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
 	}
+	if d.LLM != nil && d.Blob != nil {
+		set := ingest.LoadSettings(os.Getenv)
+		pub := sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL)
+		proc := &ingest.Processor{Pool: d.DB, Blob: d.Blob, Docling: &ingest.Docling{BaseURL: set.DoclingURL, Poll: set.PollInterval}, LLM: d.LLM,
+			Jobs: jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log), Log: d.Log, Set: set}
+		tasks = append(tasks, ingestTask{&ingest.Queue{P: proc, Redis: d.Redis, Consumer: d.Cfg.InstanceID, Log: d.Log}})
+	}
 	return tasks
 }
+
+// ingestTask chạy consumer hàng ep:ingest (đọc tài liệu, lập chỉ mục lại) — tách khỏi consumer outbox để việc dài không chặn việc ngắn.
+type ingestTask struct{ q *ingest.Queue }
+
+func (ingestTask) Name() string                    { return "ingest.consumer" }
+func (t ingestTask) Run(ctx context.Context) error { return t.q.Run(ctx) }
 
 // examTickTask chạy bộ lập lịch bài thi (mở / đóng đúng giờ, US-PE-04) — một bản nhờ khoá leader Redis.
 type examTickTask struct{ t *exam.Ticker }

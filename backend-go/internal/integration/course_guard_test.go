@@ -117,7 +117,7 @@ func TestNoUnscopedChunkQuery(t *testing.T) {
 	files, err := filepath.Glob("../store/queries/*.sql")
 	require.NoError(t, err)
 	require.NotEmpty(t, files)
-	reads := 0
+	var reads []string
 	for _, f := range files {
 		raw, err := os.ReadFile(f)
 		require.NoError(t, err)
@@ -137,9 +137,11 @@ func TestNoUnscopedChunkQuery(t *testing.T) {
 				require.Containsf(t, lower, "course_ids", "%s (%s): ghi content_chunks mà không nhắc course_ids", name, filepath.Base(f))
 				continue
 			}
-			reads++
+			reads = append(reads, name)
 			require.Containsf(t, lower, "course_ids", "%s (%s): đọc content_chunks mà không lọc theo course_ids", name, filepath.Base(f))
 		}
 	}
-	require.Equal(t, 1, reads, "P2 chỉ có MỘT đường đọc chunk: ChunksForCourse")
+	// P8 thêm các đường đọc hợp lệ (US-P8-01, TLR-2): rag vectơ + từ khoá (một câu), đọc chữ để lập chỉ mục lại. Mỗi đường vẫn bắt buộc có course_ids (kiểm ở trên).
+	// P8-02 thêm tên của thư viện và danh sách đoạn của Staff vào danh sách này.
+	require.ElementsMatch(t, []string{"ChunksForCourse", "RagSearch", "ListChunkTexts"}, reads, "danh sách đường ĐỌC content_chunks được phép")
 }

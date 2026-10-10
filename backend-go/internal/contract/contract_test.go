@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 126 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 126)", n)
+		if n := len(prod.Operations()); n != 131 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 131)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
 		if n := len(test.Operations()); n != 19 {
@@ -336,6 +336,11 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/courses/{id}/exams/{eid}/appeals":                                  true,
 		"POST /api/v1/courses/{id}/exams/{eid}/appeals/{pid}/answer":                    true,
 		"GET /api/v1/me/exam-lock":                                                      true,
+		"POST /api/v1/courses/{id}/uploads/presign":                                     true,
+		"POST /api/v1/courses/{id}/uploads/complete":                                    true,
+		"POST /api/v1/courses/{id}/documents/reindex":                                   true,
+		"POST /api/v1/courses/{id}/documents/{docId}/retry":                             true,
+		"POST /api/v1/courses/{id}/documents/{docId}/reindex":                           true,
 		"GET /api/v1/me/courses":                                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {

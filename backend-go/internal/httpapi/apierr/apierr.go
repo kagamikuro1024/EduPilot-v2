@@ -69,6 +69,18 @@ const (
 	JudgeUnavailable       = "JUDGE_UNAVAILABLE"
 	AppealWindowClosed     = "APPEAL_WINDOW_CLOSED"
 	AppealExists           = "APPEAL_EXISTS"
+
+	// Tài liệu (FEAT-docs-calendar SRS 6.1, US-P8-01): tải lên và nạp nền.
+	FileTypeNotAllowed         = "FILE_TYPE_NOT_ALLOWED"
+	FileTooLarge               = "FILE_TOO_LARGE"
+	FileTypeMismatch           = "FILE_TYPE_MISMATCH"
+	UploadIncomplete           = "UPLOAD_INCOMPLETE"
+	UploadNotFound             = "UPLOAD_NOT_FOUND"
+	DocumentDuplicate          = "DOCUMENT_DUPLICATE"
+	DocumentDuplicateElsewhere = "DOCUMENT_DUPLICATE_ELSEWHERE"
+	DocumentNotFailed          = "DOCUMENT_NOT_FAILED"
+	DocumentNotReady           = "DOCUMENT_NOT_READY"
+	DocumentSharedReadonly     = "DOCUMENT_SHARED_READONLY"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -235,6 +247,26 @@ func DefaultMessage(code string) string {
 		return "Đã hết hạn phúc khảo."
 	case AppealExists:
 		return "Bạn đã gửi yêu cầu phúc khảo cho bài này."
+	case FileTypeNotAllowed:
+		return "Chỉ nhận tệp PDF, DOCX hoặc PPTX."
+	case FileTooLarge:
+		return "Tệp quá lớn (tối đa 50 MB)."
+	case FileTypeMismatch:
+		return "Nội dung tệp không đúng với loại tệp."
+	case UploadIncomplete:
+		return "Tệp chưa tải lên đủ. Hãy tải lại."
+	case UploadNotFound:
+		return "Không tìm thấy lượt tải lên. Hãy tải lại."
+	case DocumentDuplicate:
+		return "Tệp này đã có trong lớp."
+	case DocumentDuplicateElsewhere:
+		return "Tệp này đã có ở một lớp khác của bạn."
+	case DocumentNotFailed:
+		return "Chỉ thử lại được tài liệu bị lỗi."
+	case DocumentNotReady:
+		return "Tài liệu chưa sẵn sàng."
+	case DocumentSharedReadonly:
+		return "Tài liệu này được chia sẻ từ lớp khác nên chỉ lớp gốc mới sửa được."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}
