@@ -1,5 +1,7 @@
 # SRS FEAT-private-chat-pii Hai kênh hỏi–đáp, tường lửa PII, che danh tính trước LLM
-Phiên bản 1.5 · 2026-10-11 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+Phiên bản 1.6 · 2026-10-11 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+
+**v1.6 (2026-10-11)** — góp ý `#15` `docs/sprints/6/proposals.md` (PM quyết, từ `report-US-P8-03.md` BUG-1): 4.5 thêm dấu hiệu `UPCOMING_EVENTS` cho cách hỏi tự nhiên ("tuần tới", "N ngày tới", "sắp tới có gì", "… có gì không"), ánh xạ `days`, ranh giới với `COURSE_QA` và `EXAM_SCHEDULE`. Không đổi số AC (110). Trạng thái **APPROVED**.
 
 **v1.5 (2026-10-11)** — góp ý `#14` và `D3` `docs/sprints/6/proposals.md` (PM `ACCEPTED`). **`#14`**: 4.5 ghi dấu hiệu `WHAT_IF_GRADE` và `SMALLTALK` (khớp code đã sửa). **`D3`**: `chat_sessions.title` (60 ký tự đầu của tin đầu) là ngoại lệ có tên của phép quét "nội dung chỉ ở `chat_messages`" (4.7.1 bước 7, US-P3-01 AC9). Không đổi số AC (110). Trạng thái **APPROVED**.
 
@@ -213,7 +215,7 @@ Phải tuyến tính theo độ dài (RE2 của Go; thêm cắt cứng 20.000 k�
 | `WHAT_IF_GRADE` | từ giả định (`nếu`, `giả sử`, `giả dụ`, `giả định`, `giả như`, `thử`) + thành phần điểm + `được` / `đạt` / `có` + số 0–10 (dấu phẩy hoặc chấm), `thì` tuỳ chọn, có dấu và không dấu (ví dụ "nếu … được 8 thì …", "giả sử giữa kỳ em được 9 thì sao"); thắng `PERSONAL_*` theo thứ tự ưu tiên (`#14`) | `what_if_final_grade({giả định})` — Go phân tích số, không LLM | 1 / 0 |
 | `GRADE_FORMULA` | cách tính điểm, trọng số, công thức | `GradeSchemeSource` (P6); chưa có / chưa xác nhận → "Lớp chưa có công thức điểm chính thức do giảng viên xác nhận." | 0 (chưa nối) |
 | `EXAM_SCHEDULE` | lịch thi, khi nào thi | `get_exam_schedule()` | 1 / 0 |
-| `UPCOMING_EVENTS` | sắp tới, tuần này, hạn nộp, lịch học | `get_upcoming_events({days})` | 1 / 0 |
+| `UPCOMING_EVENTS` | sắp tới, tuần này, hạn nộp, lịch học; cách hỏi tự nhiên về thời gian (`#15`): "tuần tới" / "tuần sau", "N ngày tới" (`days` = N, kẹp 1–30), "sắp tới có gì", "… có gì không" (câu **chỉ** hỏi "có gì" trong một mốc thời gian, mọi từ còn lại là từ thời gian / hỏi / đệm); "tuần tới" / "tuần sau" → `days` = 14, còn lại mặc định 7; câu có từ nội dung môn học ("tuần tới học AES có gì") vẫn `COURSE_QA`; `EXAM_SCHEDULE` vẫn đứng trước ("tuần tới có thi không") | `get_upcoming_events({days})` | 1 / 0 |
 | `LIBRARY_SEARCH` | tìm tài liệu / slide | `search_library({query})` | 1 / 0 |
 | `COURSE_QA` | mặc định | `rag.SearchStudent` → (cache) → sinh | 1 (có ngữ cảnh) / 0 |
 | `SMALLTALK` | tin khớp từ xã giao (`chào`, `xin chào`, `cảm ơn`, `cám ơn`, `thanks`, `ok`, `vâng`, `dạ`, `tạm biệt`) mà mọi từ còn lại là từ đệm (`bạn`, `thầy`, `cô`, `em`, `mình`, `nhé`, `nha`, `ạ`, `nhiều`, `quá`) — ví dụ "cảm ơn bạn nhé"; **hoặc** tin ≤ 12 ký tự không khớp từ khoá intent nào. 12 ký tự chỉ áp cho nhánh sau; câu có thêm nội dung ("cảm ơn, quy chế thi thế nào") đi `COURSE_QA`. Xét trước `COURSE_QA` (mặc định) (`#14`) | không truy xuất | 1 |
