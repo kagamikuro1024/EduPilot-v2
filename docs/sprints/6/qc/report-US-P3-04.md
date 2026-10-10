@@ -51,3 +51,6 @@ Handoff: `docs/sprints/6/handoff/dev-US-P3-04.md`. Bộ TC: `tc-US-P3-04.md` (55
 
 ## Đề nghị
 FAIL tới khi BUG-1 sửa và BA trả lời BUG-2/3. TC cần API chuyển sang P3-05 / P3-06 theo Q1.
+
+## Trạng thái QC (tạm dừng theo lệnh chủ dự án)
+Đã xong: report P3-01…P3-04, P8-01. Việc dở khi dừng: (1) cập nhật TC theo spec v1.3/v1.4 (#8–#13) chưa làm; (2) TC chuyển sang P3-05/06, P8-02/03 chờ handoff; (3) chưa chạy P8-01 TC-26/27/44/55. Stack QC cục bộ đã dừng (DB `qc_*` đã xoá), stack dev không đụng.
