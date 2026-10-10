@@ -188,6 +188,176 @@ func (ns NullAuthTokenKind) Value() (driver.Value, error) {
 	return string(ns.AuthTokenKind), nil
 }
 
+type ChatChannel string
+
+const (
+	ChatChannelPRIVATE ChatChannel = "PRIVATE"
+	ChatChannelPUBLIC  ChatChannel = "PUBLIC"
+)
+
+func (e *ChatChannel) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ChatChannel(s)
+	case string:
+		*e = ChatChannel(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ChatChannel: %T", src)
+	}
+	return nil
+}
+
+type NullChatChannel struct {
+	ChatChannel ChatChannel
+	Valid       bool // Valid is true if ChatChannel is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullChatChannel) Scan(value interface{}) error {
+	if value == nil {
+		ns.ChatChannel, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ChatChannel.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullChatChannel) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ChatChannel), nil
+}
+
+type ChatFeedback string
+
+const (
+	ChatFeedbackHELPFUL    ChatFeedback = "HELPFUL"
+	ChatFeedbackNOTHELPFUL ChatFeedback = "NOT_HELPFUL"
+)
+
+func (e *ChatFeedback) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ChatFeedback(s)
+	case string:
+		*e = ChatFeedback(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ChatFeedback: %T", src)
+	}
+	return nil
+}
+
+type NullChatFeedback struct {
+	ChatFeedback ChatFeedback
+	Valid        bool // Valid is true if ChatFeedback is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullChatFeedback) Scan(value interface{}) error {
+	if value == nil {
+		ns.ChatFeedback, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ChatFeedback.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullChatFeedback) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ChatFeedback), nil
+}
+
+type ChatRole string
+
+const (
+	ChatRoleUSER      ChatRole = "USER"
+	ChatRoleASSISTANT ChatRole = "ASSISTANT"
+)
+
+func (e *ChatRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ChatRole(s)
+	case string:
+		*e = ChatRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ChatRole: %T", src)
+	}
+	return nil
+}
+
+type NullChatRole struct {
+	ChatRole ChatRole
+	Valid    bool // Valid is true if ChatRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullChatRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.ChatRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ChatRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullChatRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ChatRole), nil
+}
+
+type ChatStreamStatus string
+
+const (
+	ChatStreamStatusSTREAMING ChatStreamStatus = "STREAMING"
+	ChatStreamStatusDONE      ChatStreamStatus = "DONE"
+	ChatStreamStatusFAILED    ChatStreamStatus = "FAILED"
+	ChatStreamStatusCANCELLED ChatStreamStatus = "CANCELLED"
+)
+
+func (e *ChatStreamStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ChatStreamStatus(s)
+	case string:
+		*e = ChatStreamStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ChatStreamStatus: %T", src)
+	}
+	return nil
+}
+
+type NullChatStreamStatus struct {
+	ChatStreamStatus ChatStreamStatus
+	Valid            bool // Valid is true if ChatStreamStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullChatStreamStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.ChatStreamStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ChatStreamStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullChatStreamStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ChatStreamStatus), nil
+}
+
 type CheckerKind string
 
 const (
@@ -892,6 +1062,184 @@ func (ns NullMultiScoring) Value() (driver.Value, error) {
 	return string(ns.MultiScoring), nil
 }
 
+type PiiAction string
+
+const (
+	PiiActionBLOCKED  PiiAction = "BLOCKED"
+	PiiActionREDACTED PiiAction = "REDACTED"
+	PiiActionSWITCHED PiiAction = "SWITCHED"
+	PiiActionMASKED   PiiAction = "MASKED"
+)
+
+func (e *PiiAction) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PiiAction(s)
+	case string:
+		*e = PiiAction(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PiiAction: %T", src)
+	}
+	return nil
+}
+
+type NullPiiAction struct {
+	PiiAction PiiAction
+	Valid     bool // Valid is true if PiiAction is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPiiAction) Scan(value interface{}) error {
+	if value == nil {
+		ns.PiiAction, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PiiAction.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPiiAction) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PiiAction), nil
+}
+
+type PiiKind string
+
+const (
+	PiiKindMSSV             PiiKind = "MSSV"
+	PiiKindEMAIL            PiiKind = "EMAIL"
+	PiiKindPHONE            PiiKind = "PHONE"
+	PiiKindCCCD             PiiKind = "CCCD"
+	PiiKindNAME             PiiKind = "NAME"
+	PiiKindPERSONALQUESTION PiiKind = "PERSONAL_QUESTION"
+	PiiKindOTHERPERSON      PiiKind = "OTHER_PERSON"
+)
+
+func (e *PiiKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PiiKind(s)
+	case string:
+		*e = PiiKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PiiKind: %T", src)
+	}
+	return nil
+}
+
+type NullPiiKind struct {
+	PiiKind PiiKind
+	Valid   bool // Valid is true if PiiKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPiiKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.PiiKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PiiKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPiiKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PiiKind), nil
+}
+
+type PostKind string
+
+const (
+	PostKindAI    PostKind = "AI"
+	PostKindHUMAN PostKind = "HUMAN"
+)
+
+func (e *PostKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PostKind(s)
+	case string:
+		*e = PostKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PostKind: %T", src)
+	}
+	return nil
+}
+
+type NullPostKind struct {
+	PostKind PostKind
+	Valid    bool // Valid is true if PostKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPostKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.PostKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PostKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPostKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PostKind), nil
+}
+
+type PostVerification string
+
+const (
+	PostVerificationNONE      PostVerification = "NONE"
+	PostVerificationPENDING   PostVerification = "PENDING"
+	PostVerificationVERIFIED  PostVerification = "VERIFIED"
+	PostVerificationCORRECTED PostVerification = "CORRECTED"
+	PostVerificationREJECTED  PostVerification = "REJECTED"
+)
+
+func (e *PostVerification) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PostVerification(s)
+	case string:
+		*e = PostVerification(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PostVerification: %T", src)
+	}
+	return nil
+}
+
+type NullPostVerification struct {
+	PostVerification PostVerification
+	Valid            bool // Valid is true if PostVerification is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPostVerification) Scan(value interface{}) error {
+	if value == nil {
+		ns.PostVerification, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PostVerification.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPostVerification) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PostVerification), nil
+}
+
 type QuestionDifficulty string
 
 const (
@@ -1199,6 +1547,91 @@ func (ns NullSubmissionStatus) Value() (driver.Value, error) {
 	return string(ns.SubmissionStatus), nil
 }
 
+type ThreadAiState string
+
+const (
+	ThreadAiStatePENDING  ThreadAiState = "PENDING"
+	ThreadAiStateANSWERED ThreadAiState = "ANSWERED"
+	ThreadAiStateSKIPPED  ThreadAiState = "SKIPPED"
+)
+
+func (e *ThreadAiState) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ThreadAiState(s)
+	case string:
+		*e = ThreadAiState(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ThreadAiState: %T", src)
+	}
+	return nil
+}
+
+type NullThreadAiState struct {
+	ThreadAiState ThreadAiState
+	Valid         bool // Valid is true if ThreadAiState is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullThreadAiState) Scan(value interface{}) error {
+	if value == nil {
+		ns.ThreadAiState, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ThreadAiState.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullThreadAiState) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ThreadAiState), nil
+}
+
+type ThreadState string
+
+const (
+	ThreadStateOPEN   ThreadState = "OPEN"
+	ThreadStateCLOSED ThreadState = "CLOSED"
+)
+
+func (e *ThreadState) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ThreadState(s)
+	case string:
+		*e = ThreadState(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ThreadState: %T", src)
+	}
+	return nil
+}
+
+type NullThreadState struct {
+	ThreadState ThreadState
+	Valid       bool // Valid is true if ThreadState is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullThreadState) Scan(value interface{}) error {
+	if value == nil {
+		ns.ThreadState, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ThreadState.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullThreadState) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ThreadState), nil
+}
+
 type UserRole string
 
 const (
@@ -1328,6 +1761,47 @@ type AuthToken struct {
 	RevokedAt *time.Time
 	CreatedBy *uuid.UUID
 	CreatedAt time.Time
+}
+
+type ChatMessage struct {
+	ID             uuid.UUID
+	CourseID       uuid.UUID
+	SessionID      uuid.UUID
+	UserID         uuid.UUID
+	Role           ChatRole
+	Content        string
+	PartialContent *string
+	StreamStatus   ChatStreamStatus
+	ClientMsgID    *uuid.UUID
+	ReplyTo        *uuid.UUID
+	Attempt        int16
+	Intent         *string
+	Citations      json.RawMessage
+	Blocks         json.RawMessage
+	Confidence     decimal.NullDecimal
+	LowConfidence  bool
+	NoContext      bool
+	Degraded       bool
+	MaskedCount    int32
+	Feedback       *ChatFeedback
+	ErrorCode      *string
+	TraceID        *string
+	CompletedAt    *time.Time
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
+type ChatSession struct {
+	ID            uuid.UUID
+	CourseID      uuid.UUID
+	UserID        uuid.UUID
+	Channel       ChatChannel
+	Title         *string
+	DocumentID    *uuid.UUID
+	LastMessageAt time.Time
+	DeletedAt     *time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type ClassSession struct {
@@ -1611,6 +2085,51 @@ type ExamItem struct {
 	UpdatedAt  time.Time
 }
 
+type ForumPost struct {
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+	ThreadID          uuid.UUID
+	AuthorID          *uuid.UUID
+	Kind              PostKind
+	Body              string
+	VerificationState PostVerification
+	Citations         json.RawMessage
+	Confidence        decimal.NullDecimal
+	AiBody            *string
+	VerifiedBy        *uuid.UUID
+	VerifiedAt        *time.Time
+	HiddenAt          *time.Time
+	HiddenReason      *string
+	HiddenBy          *uuid.UUID
+	DeletedAt         *time.Time
+	Embedding         *pgvector.Vector
+	Version           int32
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
+type ForumThread struct {
+	ID             uuid.UUID
+	CourseID       uuid.UUID
+	AuthorID       uuid.UUID
+	Title          string
+	Body           string
+	Tags           []string
+	WeekNo         *int16
+	State          ThreadState
+	AiState        ThreadAiState
+	AiSkipReason   *string
+	SimilarOf      *uuid.UUID
+	PinnedAt       *time.Time
+	ReplyCount     int32
+	LastActivityAt time.Time
+	Embedding      *pgvector.Vector
+	DeletedAt      *time.Time
+	Version        int32
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+}
+
 type IdempotencyKey struct {
 	ID          uuid.UUID
 	UserID      uuid.UUID
@@ -1760,6 +2279,18 @@ type Outbox struct {
 	LastError     *string
 	DeadAt        *time.Time
 	UpdatedAt     time.Time
+}
+
+type PiiEvent struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	SessionID *uuid.UUID
+	UserID    uuid.UUID
+	Channel   ChatChannel
+	PiiType   PiiKind
+	Count     int32
+	Action    PiiAction
+	CreatedAt time.Time
 }
 
 type QuestionBank struct {
