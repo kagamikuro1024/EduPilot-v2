@@ -35,6 +35,11 @@ Chủ dự án đã trả lời trong phiên PM ngày 2026-10-10. PM quyết t�
 | 10 | **ACCEPTED.** Chỉ được `SKIP` bước k6 và bước cần docling thật. `TestNoPayloadLeak`, `TestAnswerKeyNeverRetrieved` thiếu stack → `FAIL`. Commit ghi `#10` |
 | 11 | **ACCEPTED.** Hằng số là giá trị khởi điểm, chỉnh trên dữ liệu seed, không chỉnh trên tập `test` của E1. Commit ghi `#11` |
 | 12 | **ACCEPTED.** Commit ghi `#12` |
+| Q1 | **ACCEPTED.** TC nào cần bề mặt chưa có trong lát của story hiện tại thì chuyển sang report của story giao bề mặt đó: US-P3-01 TC-47 / 48 / 50; US-P3-02 TC-19–23, 36, 43, 47, 49–52, 58–61, chuyển sang P3-03 / P3-05 / P3-06 tuỳ bề mặt. QC ghi rõ đích chuyển trong report. Story hiện tại đóng khi phần còn lại PASS. TC không bị xoá, chỉ chạy muộn hơn |
+| Q2 | **Ghi nợ (PR / P10), sprint 6 không làm.** Gateway / worker dùng vai DB `NOSUPERUSER NOBYPASSRLS`, chỉ migration dùng vai chủ. Hạ tầng có từ trước, không phải lỗi của sprint này. PM ghi vào `PROGRESS.md` |
+| Q3 + D2 | **ACCEPTED (D2).** `redisOpTimeout` 30 ms. Rơi về bộ nhớ chỉ làm mất độ bền ánh xạ giữa hai request; không để lộ dữ liệu |
+| D1 | **ACCEPTED.** Test vẫn kiểm từng mã PE có mặt (vòng `for _, c := range codes`), chỉ bỏ ghim tổng số mã. Dev sửa chú thích trong test cho đúng: trỏ "proposals.md sprint 6 D1", không phải "#8" |
+| 13 | **PM quyết: số migration lịch.** `00010_chunk_search` đã vào nhánh trước lịch. Nếu thêm `00009` sau `00010`, goose sẽ từ chối trên DB nào đã lên `00010`. Vì vậy lịch lấy **số kế tiếp còn trống tại lúc viết** (`00011_calendar` nếu không có migration nào khác chen vào). CHECK `ics_token` (#6) nằm trong migration lịch đó. BA sửa số trong US-P8-03 AC1 / SRS P8; commit ghi `#13` |
 
 **Câu [CHỦ DỰ ÁN] trong hai `QUESTIONS.md`:**
 - **Q3 (P3), tên người đăng thread:** **công khai với cả lớp**. Chủ dự án: "đã có chat riêng để hỏi riêng tư rồi thì cái này cho mặc định công khai". BA đổi spec theo hướng này.
