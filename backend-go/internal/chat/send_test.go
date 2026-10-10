@@ -318,28 +318,68 @@ func TestSessionsList(t *testing.T) {
 	require.Nil(t, p2.NextCursor)
 }
 
-func TestSessionDocumentScope(t *testing.T) {
+// docIn chèn một tài liệu cho test "Hỏi AI về tài liệu": mặc định READY, hiện, dùng cho AI, có một đoạn đã nhúng.
+func (r *rig) docIn(course uuid.UUID, status string, visible, useRAG bool, typ string, embedded bool) uuid.UUID {
+	r.t.Helper()
+	var id uuid.UUID
+	require.NoError(r.t, r.pool.QueryRow(r.t.Context(), `insert into documents (course_id, title, type, status, visible_to_students, use_for_rag) values ($1, 'T', $2::document_type, $3::document_status, $4, $5) returning id`, course, typ, status, visible, useRAG).Scan(&id))
+	var emb any
+	if embedded {
+		emb = "[" + strings.Repeat("0,", 1535) + "1]"
+	}
+	_, err := r.pool.Exec(r.t.Context(), `insert into content_chunks (document_id, course_ids, ord, text, embedding) values ($1, array[$2::uuid], 0, 'nội dung', $3::vector)`, id, course, emb)
+	require.NoError(r.t, err)
+	return id
+}
+
+// TestDocScopedChatOnlyThatDoc — US-P8-02 AC11: phiên có document_id truyền ĐÚNG tài liệu đó cho agent (rag.Query.DocumentIDs); tài liệu chia sẻ vào lớp cũng hỏi được.
+func TestDocScopedChatOnlyThatDoc(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
-	doc := func(status string, visible bool, typ string) uuid.UUID {
-		var id uuid.UUID
-		require.NoError(t, r.pool.QueryRow(t.Context(), `insert into documents (course_id, title, type, status, visible_to_students) values ($1, 'T', $2::document_type, $3::document_status, $4) returning id`, r.course, typ, status, visible).Scan(&id))
-		return id
-	}
-	ok := doc("READY", true, "LECTURE")
-	s, err := r.svc.CreateSession(t.Context(), r.student, chat.CreateSessionIn{CourseID: r.course, DocumentID: &ok})
+	ok := r.docIn(r.course, "READY", true, true, "LECTURE", true)
+	other := r.newCourse(r.user("GV2", "TEACHER"), "ACTIVE")
+	shared := r.docIn(other, "READY", true, true, "LECTURE", true)
+	_, err := r.pool.Exec(t.Context(), `insert into document_courses (document_id, course_id) values ($1, $2)`, shared, r.course)
 	require.NoError(t, err)
-	require.Equal(t, ok, *s.DocumentID)
-	for name, id := range map[string]uuid.UUID{"chưa READY": doc("QUEUED", true, "LECTURE"), "ẩn với sinh viên": doc("READY", false, "LECTURE"), "đáp án": doc("READY", false, "ANSWER_KEY"), "không tồn tại": uuid.New()} {
+	_, err = r.pool.Exec(t.Context(), `update content_chunks set course_ids = course_ids || $2::uuid where document_id = $1`, shared, r.course)
+	require.NoError(t, err)
+	got := make(chan *uuid.UUID, 2)
+	r.ag.fn = func(_ context.Context, _ agent.TrustedContext, in agent.Input) (agent.Outcome, error) {
+		got <- in.DocumentID
+		return agent.Outcome{Plan: agent.IntentSmalltalk, Canned: "ok"}, nil
+	}
+	for _, d := range []uuid.UUID{ok, shared} {
+		s, err := r.svc.CreateSession(t.Context(), r.student, chat.CreateSessionIn{CourseID: r.course, DocumentID: &d})
+		require.NoError(t, err)
+		require.Equal(t, d, *s.DocumentID)
+		_, _, err = r.send(r.student, s.ID, "Tài liệu này nói gì?")
+		require.NoError(t, err)
+		r.svc.Wait()
+		require.Equal(t, d, *<-got)
+	}
+}
+
+// TestDocScopedForbiddenDoc404 — AC11: tài liệu ẩn, đáp án, không tồn tại, của lớp khác → 404 (như không có).
+func TestDocScopedForbiddenDoc404(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	other := r.newCourse(r.user("GV2", "TEACHER"), "ACTIVE")
+	for name, id := range map[string]uuid.UUID{"ẩn với sinh viên": r.docIn(r.course, "READY", false, true, "LECTURE", true), "đáp án": r.docIn(r.course, "READY", false, true, "ANSWER_KEY", true),
+		"không tồn tại": uuid.New(), "lớp khác": r.docIn(other, "READY", true, true, "LECTURE", true)} {
 		_, err := r.svc.CreateSession(t.Context(), r.student, chat.CreateSessionIn{CourseID: r.course, DocumentID: &id})
 		require.Equal(t, 404, httpStatus(err), name)
 	}
-	// tài liệu của lớp khác
-	other := r.newCourse(r.user("GV2", "TEACHER"), "ACTIVE")
-	var foreign uuid.UUID
-	require.NoError(t, r.pool.QueryRow(t.Context(), `insert into documents (course_id, title, status) values ($1, 'T', 'READY') returning id`, other).Scan(&foreign))
-	_, err = r.svc.CreateSession(t.Context(), r.student, chat.CreateSessionIn{CourseID: r.course, DocumentID: &foreign})
-	require.Equal(t, 404, httpStatus(err))
+}
+
+// TestDocScopedNotAskable404 — AC11: chưa READY, không dùng cho AI, hoặc chưa nhúng đoạn nào (`can_ask_ai` sai) → 404.
+func TestDocScopedNotAskable404(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	for name, id := range map[string]uuid.UUID{"chưa READY": r.docIn(r.course, "QUEUED", true, true, "LECTURE", true), "không dùng cho AI": r.docIn(r.course, "READY", true, false, "LECTURE", true),
+		"chưa nhúng": r.docIn(r.course, "READY", true, true, "LECTURE", false)} {
+		_, err := r.svc.CreateSession(t.Context(), r.student, chat.CreateSessionIn{CourseID: r.course, DocumentID: &id})
+		require.Equal(t, 404, httpStatus(err), name)
+	}
 }
 
 func TestSessionSoftDeleteRestore(t *testing.T) {

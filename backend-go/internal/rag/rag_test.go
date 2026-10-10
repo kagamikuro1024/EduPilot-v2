@@ -285,3 +285,21 @@ func TestNoPublicGradingSearch(t *testing.T) {
 		})
 	}
 }
+
+// TestDocScopedChatOnlyThatDoc — US-P8-02 AC11: truy xuất của phiên "Hỏi AI về tài liệu" (Query.DocumentIDs) chỉ trả đoạn của tài liệu đó, dù đoạn của tài liệu khác khớp hơn.
+func TestDocScopedChatOnlyThatDoc(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	a := f.doc(t, f.c1, "A", docOpt{visible: true, rag: true})
+	b := f.doc(t, f.c1, "B", docOpt{visible: true, rag: true})
+	ca := f.chunk(t, a, []uuid.UUID{f.c1}, 0, "ALL", "nội dung A xa", axis(1, nil))
+	f.chunk(t, b, []uuid.UUID{f.c1}, 0, "ALL", "nội dung B khớp hơn", axis(0, nil))
+	q := rag.Query{CourseID: f.c1, Vec: axis(0, nil), Text: "nội dung", K: 8}
+	all, err := f.svc.SearchStudent(t.Context(), q)
+	require.NoError(t, err)
+	require.Len(t, all, 2)
+	q.DocumentIDs = []uuid.UUID{a}
+	only, err := f.svc.SearchStudent(t.Context(), q)
+	require.NoError(t, err)
+	require.Equal(t, []uuid.UUID{ca}, ids(only))
+}

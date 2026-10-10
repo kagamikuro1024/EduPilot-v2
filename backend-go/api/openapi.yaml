@@ -25,6 +25,7 @@ tags:
   - name: document
   - name: chat
   - name: threads
+  - name: library
 paths:
   /healthz:
     get:
@@ -4656,6 +4657,324 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents:
+    get:
+      operationId: listDocuments
+      tags: [document]
+      summary: "Danh sách tài liệu của lớp và được chia sẻ vào lớp (Staff; lọc loại / trạng thái / tên không dấu; phân trang con trỏ)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang tài liệu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/documents/stats:
+    get:
+      operationId: getDocumentStats
+      tags: [document]
+      summary: "Thống kê tài liệu của lớp (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/courses/{id}/documents/{docId}:
+    get:
+      operationId: getDocument
+      tags: [document]
+      summary: "Một tài liệu (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Tài liệu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: patchDocument
+      tags: [document]
+      summary: "Đổi tên / loại / chủ đề / tuần / cờ (Staff; khoá lạc quan `version`; đáp án không hiện cho sinh viên; chia sẻ từ lớp khác chỉ đọc)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentPatch"
+      responses:
+        "200":
+          description: Tài liệu sau khi đổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteDocument
+      tags: [document]
+      summary: "Xoá tài liệu (Giảng viên; không đảo ngược)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents/{docId}/impact:
+    get:
+      operationId: getDocumentImpact
+      tags: [document]
+      summary: "Số đoạn và số lớp đang dùng tài liệu — cho hộp xác nhận xoá (Giảng viên)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Ảnh hưởng của việc xoá
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentImpact"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/documents/{docId}/chunks:
+    get:
+      operationId: listDocumentChunks
+      tags: [document]
+      summary: "Các đoạn của tài liệu theo thứ tự (Staff; con trỏ = ord của đoạn cuối trang trước)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang đoạn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChunkPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/documents/{docId}/chunks/{chunkId}:
+    patch:
+      operationId: editDocumentChunk
+      tags: [document]
+      summary: "Sửa văn bản một đoạn (Staff): nhúng lại một lần, lưu + audit trong một giao dịch"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - $ref: "#/components/parameters/ChunkId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChunkEdit"
+      responses:
+        "200":
+          description: Đoạn sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chunk"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/library:
+    get:
+      operationId: listLibrary
+      tags: [library]
+      summary: "Thư viện của sinh viên: tìm tên / tệp / chủ đề không dấu và nội dung đoạn (chỉ tài liệu READY, hiện với sinh viên, không đáp án); ETag"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: week
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang tài liệu (kèm ETag; 304 khi If-None-Match khớp)
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryPage"
+        "304":
+          description: Không đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/library/{docId}:
+    get:
+      operationId: getLibraryDocument
+      tags: [library]
+      summary: "Chi tiết một tài liệu của thư viện (sinh viên): metadata, preview_url (PDF, ký sẵn 5 phút), can_ask_ai"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Chi tiết
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/library/{docId}/download:
+    get:
+      operationId: downloadLibraryDocument
+      tags: [library]
+      summary: "URL tải xuống ký sẵn 5 phút; tăng download_count (sinh viên)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: URL ký sẵn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadUrl"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/chat/sessions:
     get:
       operationId: listChatSessions
@@ -5380,6 +5699,13 @@ components:
         format: uuid
     DocumentId:
       name: docId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ChunkId:
+      name: chunkId
       in: path
       required: true
       schema:
@@ -7016,6 +7342,8 @@ components:
             - DOCUMENT_NOT_FAILED
             - DOCUMENT_NOT_READY
             - DOCUMENT_SHARED_READONLY
+            - ANSWER_KEY_NOT_VISIBLE
+            - FILE_GONE
             - EXAM_IN_PROGRESS
             - CHAT_BUSY
             - MESSAGE_TOO_LONG
@@ -7144,6 +7472,163 @@ components:
         updated_at:
           type: string
           format: date-time
+        shared_from:
+          type: string
+          description: Mã lớp gốc khi tài liệu được chia sẻ vào lớp (chỉ đọc); rỗng nếu của chính lớp
+    DocumentPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Document"
+        next_cursor:
+          type: [string, "null"]
+    DocumentPatch:
+      type: object
+      required: [version]
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, ANSWER_KEY, OTHER]
+        category:
+          type: string
+        week_no:
+          type: integer
+        use_for_rag:
+          type: boolean
+        visible_to_students:
+          type: boolean
+        version:
+          type: integer
+    DocumentStats:
+      type: object
+      required: [total, by_type, by_status, chunks, embedded_chunks, pages, bytes, has_course_policy, last_upload_at]
+      properties:
+        total:
+          type: integer
+        by_type:
+          type: object
+          additionalProperties:
+            type: integer
+        by_status:
+          type: object
+          additionalProperties:
+            type: integer
+        chunks:
+          type: integer
+        embedded_chunks:
+          type: integer
+        pages:
+          type: integer
+        bytes:
+          type: integer
+        has_course_policy:
+          type: boolean
+        last_upload_at:
+          type: [string, "null"]
+          format: date-time
+    DocumentImpact:
+      type: object
+      required: [chunks, courses]
+      properties:
+        chunks:
+          type: integer
+        courses:
+          type: integer
+    Chunk:
+      type: object
+      required: [id, ord, page_no, heading, text, audience]
+      properties:
+        id:
+          type: string
+          format: uuid
+        ord:
+          type: integer
+        page_no:
+          type: [integer, "null"]
+        heading:
+          type: [string, "null"]
+        text:
+          type: string
+        audience:
+          type: string
+          enum: [ALL, STAFF, GRADING]
+    ChunkPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Chunk"
+        next_cursor:
+          type: [string, "null"]
+    ChunkEdit:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+    LibraryItem:
+      type: object
+      required: [id, title, type, file_kind, category, week_no, updated_at, snippet, can_ask_ai]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, OTHER]
+        file_kind:
+          type: string
+          enum: ["", PDF, DOCX, PPTX]
+        category:
+          type: [string, "null"]
+        week_no:
+          type: [integer, "null"]
+        updated_at:
+          type: string
+          format: date-time
+        snippet:
+          type: string
+        can_ask_ai:
+          type: boolean
+    LibraryPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LibraryItem"
+        next_cursor:
+          type: [string, "null"]
+    LibraryDetail:
+      allOf:
+        - $ref: "#/components/schemas/LibraryItem"
+        - type: object
+          required: [size_bytes, page_count, preview_url]
+          properties:
+            size_bytes:
+              type: [integer, "null"]
+            page_count:
+              type: [integer, "null"]
+            preview_url:
+              type: [string, "null"]
+    DownloadUrl:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
     CompleteUploadOutput:
       type: object
       required: [job_id, document]

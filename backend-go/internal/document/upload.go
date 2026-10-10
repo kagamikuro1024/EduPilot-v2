@@ -56,7 +56,9 @@ type Service struct {
 	Clock         clock.Clock
 	MaxBytes      int64
 	PresignPerMin int
-	Log           *slog.Logger
+	// Embed nhúng một chuỗi (sửa đoạn); nil = sửa đoạn trả 503.
+	Embed func(ctx context.Context, text string) ([]float32, error)
+	Log   *slog.Logger
 }
 
 type fileKind struct {

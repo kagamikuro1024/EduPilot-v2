@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/document"
@@ -13,11 +14,13 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
@@ -93,7 +96,14 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 				clk = clock.Real{}
 			}
 			ds := &document.Service{Pool: d.DB, Redis: d.Redis, Blob: d.Blob, Jobs: d.Jobs, Clock: clk, Log: d.Log}
-			(&documenthttp.Handler{Svc: ds, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)
+			if d.LLM != nil && d.LLM.Gateway != nil {
+				ds.Embed = agent.NewEmbedder(d.LLM.Gateway, d.Redis)
+			}
+			dh := &documenthttp.Handler{Svc: ds, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}
+			dh.Mount(r)
+			dh.MountManage(r) // US-P8-02 — danh sách, sửa, xoá, đoạn, thống kê (#3–#8, #12)
+			// US-P8-02 — thư viện của sinh viên (#13–#15).
+			(&libraryhttp.Handler{Svc: &library.Service{Pool: d.DB, Blob: d.Blob, Log: d.Log}, Guard: courseGuard, Log: d.Log}).Mount(r)
 		}
 		if d.Thread != nil {
 			// US-P3-06 — Threads: đọc / precheck / đăng / bình luận / quyết định của Staff / thread tương tự (SRS FEAT-private-chat-pii 6, #12–#20).

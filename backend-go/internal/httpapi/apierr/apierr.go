@@ -81,6 +81,8 @@ const (
 	DocumentNotFailed          = "DOCUMENT_NOT_FAILED"
 	DocumentNotReady           = "DOCUMENT_NOT_READY"
 	DocumentSharedReadonly     = "DOCUMENT_SHARED_READONLY"
+	AnswerKeyNotVisible        = "ANSWER_KEY_NOT_VISIBLE"
+	FileGone                   = "FILE_GONE"
 
 	// Chat riêng (FEAT-private-chat-pii SRS 6.1, US-P3-05).
 	ExamInProgress      = "EXAM_IN_PROGRESS"
@@ -276,6 +278,10 @@ func DefaultMessage(code string) string {
 		return "Tài liệu chưa sẵn sàng."
 	case DocumentSharedReadonly:
 		return "Tài liệu này được chia sẻ từ lớp khác nên chỉ lớp gốc mới sửa được."
+	case AnswerKeyNotVisible:
+		return "Đáp án không được hiện cho sinh viên."
+	case FileGone:
+		return "Tệp này không còn nữa."
 	case ExamInProgress:
 		return "Chat tạm khóa trong lúc bạn làm bài thi."
 	case ChatBusy:

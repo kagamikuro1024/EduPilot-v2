@@ -7,9 +7,139 @@ package store
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
+	pgvector "github.com/pgvector/pgvector-go"
 )
+
+const docChunkLock = `-- name: DocChunkLock :one
+select c.id, c.document_id, c.text, c.audience from content_chunks c where c.id = $1 and c.document_id = $2 and c.course_ids @> array[$3::uuid] for update
+`
+
+type DocChunkLockParams struct {
+	ID       uuid.UUID
+	DocID    uuid.UUID
+	CourseID uuid.UUID
+}
+
+type DocChunkLockRow struct {
+	ID         uuid.UUID
+	DocumentID uuid.UUID
+	Text       string
+	Audience   ChunkAudience
+}
+
+func (q *Queries) DocChunkLock(ctx context.Context, arg DocChunkLockParams) (DocChunkLockRow, error) {
+	row := q.db.QueryRow(ctx, docChunkLock, arg.ID, arg.DocID, arg.CourseID)
+	var i DocChunkLockRow
+	err := row.Scan(
+		&i.ID,
+		&i.DocumentID,
+		&i.Text,
+		&i.Audience,
+	)
+	return i, err
+}
+
+const docChunkSetText = `-- name: DocChunkSetText :one
+update content_chunks c set text = $1, embedding = $2, token_count = null
+where c.id = $3 and c.document_id = $4 and c.course_ids @> array[$5::uuid]
+returning id, ord, page_no, heading, text, audience
+`
+
+type DocChunkSetTextParams struct {
+	NewText      string
+	NewEmbedding *pgvector.Vector
+	ID           uuid.UUID
+	DocID        uuid.UUID
+	CourseID     uuid.UUID
+}
+
+type DocChunkSetTextRow struct {
+	ID       uuid.UUID
+	Ord      int32
+	PageNo   *int32
+	Heading  *string
+	Text     string
+	Audience ChunkAudience
+}
+
+func (q *Queries) DocChunkSetText(ctx context.Context, arg DocChunkSetTextParams) (DocChunkSetTextRow, error) {
+	row := q.db.QueryRow(ctx, docChunkSetText,
+		arg.NewText,
+		arg.NewEmbedding,
+		arg.ID,
+		arg.DocID,
+		arg.CourseID,
+	)
+	var i DocChunkSetTextRow
+	err := row.Scan(
+		&i.ID,
+		&i.Ord,
+		&i.PageNo,
+		&i.Heading,
+		&i.Text,
+		&i.Audience,
+	)
+	return i, err
+}
+
+const docChunks = `-- name: DocChunks :many
+select c.id, c.ord, c.page_no, c.heading, c.text, c.audience, (c.embedding is not null)::bool as embedded from content_chunks c
+where c.document_id = $1 and c.course_ids @> array[$2::uuid] and c.ord > $3
+order by c.ord limit $4
+`
+
+type DocChunksParams struct {
+	DocID     uuid.UUID
+	CourseID  uuid.UUID
+	AfterOrd  int32
+	PageLimit int32
+}
+
+type DocChunksRow struct {
+	ID       uuid.UUID
+	Ord      int32
+	PageNo   *int32
+	Heading  *string
+	Text     string
+	Audience ChunkAudience
+	Embedded bool
+}
+
+func (q *Queries) DocChunks(ctx context.Context, arg DocChunksParams) ([]DocChunksRow, error) {
+	rows, err := q.db.Query(ctx, docChunks,
+		arg.DocID,
+		arg.CourseID,
+		arg.AfterOrd,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DocChunksRow{}
+	for rows.Next() {
+		var i DocChunksRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Ord,
+			&i.PageNo,
+			&i.Heading,
+			&i.Text,
+			&i.Audience,
+			&i.Embedded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const docCourseStatus = `-- name: DocCourseStatus :one
 
@@ -22,6 +152,46 @@ func (q *Queries) DocCourseStatus(ctx context.Context, id uuid.UUID) (CourseStat
 	var status CourseStatus
 	err := row.Scan(&status)
 	return status, err
+}
+
+const docDelete = `-- name: DocDelete :execrows
+delete from documents where id = $1 and course_id = $2
+`
+
+type DocDeleteParams struct {
+	ID       uuid.UUID
+	CourseID uuid.UUID
+}
+
+func (q *Queries) DocDelete(ctx context.Context, arg DocDeleteParams) (int64, error) {
+	result, err := q.db.Exec(ctx, docDelete, arg.ID, arg.CourseID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const docDeleteImpact = `-- name: DocDeleteImpact :one
+select (select count(*) from content_chunks c where c.document_id = $1::uuid and c.course_ids @> array[$2::uuid])::bigint as chunks,
+       (select count(*) from document_courses dc where dc.document_id = $1::uuid)::bigint as courses
+`
+
+type DocDeleteImpactParams struct {
+	ID       uuid.UUID
+	CourseID uuid.UUID
+}
+
+type DocDeleteImpactRow struct {
+	Chunks  int64
+	Courses int64
+}
+
+// Số đoạn và số lớp khác đang dùng tài liệu (chia sẻ) — cho câu xác nhận xoá.
+func (q *Queries) DocDeleteImpact(ctx context.Context, arg DocDeleteImpactParams) (DocDeleteImpactRow, error) {
+	row := q.db.QueryRow(ctx, docDeleteImpact, arg.ID, arg.CourseID)
+	var i DocDeleteImpactRow
+	err := row.Scan(&i.Chunks, &i.Courses)
+	return i, err
 }
 
 const docFindDuplicateElsewhere = `-- name: DocFindDuplicateElsewhere :one
@@ -70,6 +240,45 @@ func (q *Queries) DocFindDuplicateInCourse(ctx context.Context, arg DocFindDupli
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const docGetForUpdate = `-- name: DocGetForUpdate :one
+select id, course_id, title, type, filename, mime_type, size_bytes, sha256, blob_key, status, error, page_count, visible_to_students, use_for_rag, category, week_no, download_count, uploaded_by, version, created_at, updated_at from documents where id = $1 and course_id = $2 for update
+`
+
+type DocGetForUpdateParams struct {
+	ID       uuid.UUID
+	CourseID uuid.UUID
+}
+
+// Khoá hàng để PATCH / xoá: chỉ tài liệu của CHÍNH lớp (chia sẻ vào → không thấy ở đây; người gọi tự phân biệt bằng DocGetInCourse).
+func (q *Queries) DocGetForUpdate(ctx context.Context, arg DocGetForUpdateParams) (Document, error) {
+	row := q.db.QueryRow(ctx, docGetForUpdate, arg.ID, arg.CourseID)
+	var i Document
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Title,
+		&i.Type,
+		&i.Filename,
+		&i.MimeType,
+		&i.SizeBytes,
+		&i.Sha256,
+		&i.BlobKey,
+		&i.Status,
+		&i.Error,
+		&i.PageCount,
+		&i.VisibleToStudents,
+		&i.UseForRag,
+		&i.Category,
+		&i.WeekNo,
+		&i.DownloadCount,
+		&i.UploadedBy,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const docGetInCourse = `-- name: DocGetInCourse :one
@@ -179,6 +388,101 @@ func (q *Queries) DocInsert(ctx context.Context, arg DocInsertParams) (Document,
 	return i, err
 }
 
+const docList = `-- name: DocList :many
+
+select d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.size_bytes, d.status, d.error, d.page_count, d.visible_to_students, d.use_for_rag,
+       d.category, d.week_no, d.version, d.created_at, d.updated_at,
+       case when d.course_id = $1 then '' else c.class_code end::text as shared_from
+from documents d join courses c on c.id = d.course_id
+where (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
+  and ($2::text is null or d.type::text = $2::text)
+  and ($3::text is null or d.status::text = $3::text)
+  and ($4::text is null or vn_fold(d.title) like '%' || vn_fold($4::text) || '%' escape '\' or vn_fold(coalesce(d.filename, '')) like '%' || vn_fold($4::text) || '%' escape '\')
+  and ($5::timestamptz is null or (d.updated_at, d.id) < ($5::timestamptz, $6::uuid))
+order by d.updated_at desc, d.id desc
+limit $7
+`
+
+type DocListParams struct {
+	CourseID  uuid.UUID
+	Type      *string
+	Status    *string
+	Q         *string
+	CursorAt  *time.Time
+	CursorID  *uuid.UUID
+	PageLimit int32
+}
+
+type DocListRow struct {
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+	Title             string
+	Type              DocumentType
+	Filename          *string
+	MimeType          *string
+	SizeBytes         *int64
+	Status            DocumentStatus
+	Error             *string
+	PageCount         *int32
+	VisibleToStudents bool
+	UseForRag         bool
+	Category          *string
+	WeekNo            *int16
+	Version           int32
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	SharedFrom        string
+}
+
+// US-P8-02 — quản lý tài liệu của Staff.
+// Tài liệu của lớp + được chia sẻ vào lớp (shared_from = mã lớp gốc, chỉ đọc). Lọc type / status / q (vn_fold) ; keyset (updated_at, id).
+func (q *Queries) DocList(ctx context.Context, arg DocListParams) ([]DocListRow, error) {
+	rows, err := q.db.Query(ctx, docList,
+		arg.CourseID,
+		arg.Type,
+		arg.Status,
+		arg.Q,
+		arg.CursorAt,
+		arg.CursorID,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DocListRow{}
+	for rows.Next() {
+		var i DocListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CourseID,
+			&i.Title,
+			&i.Type,
+			&i.Filename,
+			&i.MimeType,
+			&i.SizeBytes,
+			&i.Status,
+			&i.Error,
+			&i.PageCount,
+			&i.VisibleToStudents,
+			&i.UseForRag,
+			&i.Category,
+			&i.WeekNo,
+			&i.Version,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.SharedFrom,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const docLockHash = `-- name: DocLockHash :exec
 select pg_advisory_xact_lock(hashtextextended($1::text || $2::text, 0))
 `
@@ -208,6 +512,200 @@ type DocRetryParams struct {
 // FAILED → QUEUED (chỉ tài liệu của chính lớp này).
 func (q *Queries) DocRetry(ctx context.Context, arg DocRetryParams) (Document, error) {
 	row := q.db.QueryRow(ctx, docRetry, arg.ID, arg.CourseID)
+	var i Document
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Title,
+		&i.Type,
+		&i.Filename,
+		&i.MimeType,
+		&i.SizeBytes,
+		&i.Sha256,
+		&i.BlobKey,
+		&i.Status,
+		&i.Error,
+		&i.PageCount,
+		&i.VisibleToStudents,
+		&i.UseForRag,
+		&i.Category,
+		&i.WeekNo,
+		&i.DownloadCount,
+		&i.UploadedBy,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const docSetChunkAudience = `-- name: DocSetChunkAudience :execrows
+update content_chunks c set audience = $1 where c.document_id = $2 and c.course_ids @> array[$3::uuid] and c.audience is distinct from $1
+`
+
+type DocSetChunkAudienceParams struct {
+	NewAudience ChunkAudience
+	DocID       uuid.UUID
+	CourseID    uuid.UUID
+}
+
+func (q *Queries) DocSetChunkAudience(ctx context.Context, arg DocSetChunkAudienceParams) (int64, error) {
+	result, err := q.db.Exec(ctx, docSetChunkAudience, arg.NewAudience, arg.DocID, arg.CourseID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const docStats = `-- name: DocStats :one
+with docs as (
+  select d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.size_bytes, d.sha256, d.blob_key, d.status, d.error, d.page_count, d.visible_to_students, d.use_for_rag, d.category, d.week_no, d.download_count, d.uploaded_by, d.version, d.created_at, d.updated_at from documents d
+  where d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1)
+), ch as (
+  select count(*) as chunks, count(embedding) as embedded from content_chunks c join docs on docs.id = c.document_id where c.course_ids @> array[$1::uuid]
+)
+select (select count(*) from docs)::bigint as total,
+       (select count(*) from docs where status in ('QUEUED', 'PROCESSING'))::bigint as processing,
+       (select count(*) from docs where status = 'FAILED')::bigint as failed,
+       (select count(*) from docs where status = 'READY')::bigint as ready,
+       (select count(*) from docs where status = 'READY' and type = 'COURSE_POLICY')::bigint as policy_ready,
+       (select chunks from ch)::bigint as chunks, (select embedded from ch)::bigint as embedded_chunks,
+       coalesce((select sum(page_count) from docs), 0)::bigint as pages, coalesce((select sum(size_bytes) from docs), 0)::bigint as bytes,
+       coalesce((select max(created_at) from docs), 'epoch'::timestamptz)::timestamptz as last_upload_at
+`
+
+type DocStatsRow struct {
+	Total          int64
+	Processing     int64
+	Failed         int64
+	Ready          int64
+	PolicyReady    int64
+	Chunks         int64
+	EmbeddedChunks int64
+	Pages          int64
+	Bytes          int64
+	LastUploadAt   time.Time
+}
+
+// Một truy vấn tổng hợp (tài liệu của lớp + chia sẻ vào).
+func (q *Queries) DocStats(ctx context.Context, courseID uuid.UUID) (DocStatsRow, error) {
+	row := q.db.QueryRow(ctx, docStats, courseID)
+	var i DocStatsRow
+	err := row.Scan(
+		&i.Total,
+		&i.Processing,
+		&i.Failed,
+		&i.Ready,
+		&i.PolicyReady,
+		&i.Chunks,
+		&i.EmbeddedChunks,
+		&i.Pages,
+		&i.Bytes,
+		&i.LastUploadAt,
+	)
+	return i, err
+}
+
+const docStatsByStatus = `-- name: DocStatsByStatus :many
+select d.status::text as k, count(*)::bigint as n from documents d
+where d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1)
+group by d.status
+`
+
+type DocStatsByStatusRow struct {
+	K string
+	N int64
+}
+
+func (q *Queries) DocStatsByStatus(ctx context.Context, courseID uuid.UUID) ([]DocStatsByStatusRow, error) {
+	rows, err := q.db.Query(ctx, docStatsByStatus, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DocStatsByStatusRow{}
+	for rows.Next() {
+		var i DocStatsByStatusRow
+		if err := rows.Scan(&i.K, &i.N); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const docStatsByType = `-- name: DocStatsByType :many
+select d.type::text as k, count(*)::bigint as n from documents d
+where d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1)
+group by d.type
+`
+
+type DocStatsByTypeRow struct {
+	K string
+	N int64
+}
+
+func (q *Queries) DocStatsByType(ctx context.Context, courseID uuid.UUID) ([]DocStatsByTypeRow, error) {
+	rows, err := q.db.Query(ctx, docStatsByType, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []DocStatsByTypeRow{}
+	for rows.Next() {
+		var i DocStatsByTypeRow
+		if err := rows.Scan(&i.K, &i.N); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const docTouch = `-- name: DocTouch :exec
+update documents set updated_at = now(), version = version + 1 where id = $1
+`
+
+func (q *Queries) DocTouch(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, docTouch, id)
+	return err
+}
+
+const docUpdate = `-- name: DocUpdate :one
+update documents set title = $1, type = $2, category = $3, week_no = $4,
+       use_for_rag = $5, visible_to_students = $6, version = version + 1
+where id = $7 and course_id = $8
+returning id, course_id, title, type, filename, mime_type, size_bytes, sha256, blob_key, status, error, page_count, visible_to_students, use_for_rag, category, week_no, download_count, uploaded_by, version, created_at, updated_at
+`
+
+type DocUpdateParams struct {
+	Title             string
+	Type              DocumentType
+	Category          *string
+	WeekNo            *int16
+	UseForRag         bool
+	VisibleToStudents bool
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+}
+
+func (q *Queries) DocUpdate(ctx context.Context, arg DocUpdateParams) (Document, error) {
+	row := q.db.QueryRow(ctx, docUpdate,
+		arg.Title,
+		arg.Type,
+		arg.Category,
+		arg.WeekNo,
+		arg.UseForRag,
+		arg.VisibleToStudents,
+		arg.ID,
+		arg.CourseID,
+	)
 	var i Document
 	err := row.Scan(
 		&i.ID,

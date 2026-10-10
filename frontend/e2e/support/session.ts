@@ -1,4 +1,5 @@
 import { BASE_URL } from "./env";
+import { doc as docRow, libDetail, libItem, stats as docStats } from "./doc-fixtures";
 import { TID as THREAD_ID, row as threadRow, view as threadView } from "./thread-fixtures";
 import type { BrowserContext, Page } from "@playwright/test";
 
@@ -52,6 +53,21 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
     if (u.endsWith(`/threads/${THREAD_ID}`)) return r.fulfill(json(threadView()));
     if (u.endsWith("/similar")) return r.fulfill(json({ items: [] }));
     return r.fulfill(json({ items: [threadRow()], next_cursor: null }));
+  });
+  // Tài liệu / thư viện THẬT (US-P8-02): một tài liệu mặc định; spec cần hành vi khác thì tự giả bằng `docApi` (page-level thắng).
+  await context.route("**/api/v1/courses/*/documents**", (r) => {
+    const u = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") return r.fallback();
+    if (u.endsWith("/stats")) return r.fulfill(json(docStats()));
+    if (u.endsWith("/chunks")) return r.fulfill(json({ items: [], next_cursor: null }));
+    return r.fulfill(json({ items: [docRow()], next_cursor: null }));
+  });
+  await context.route("**/api/v1/courses/*/library**", (r) => {
+    const u = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") return r.fallback();
+    if (u.endsWith("/download")) return r.fulfill(json({ url: "http://localhost:9/f.pdf" }));
+    if (/\/library\/[^/]+$/.test(u)) return r.fulfill(json(libDetail()));
+    return r.fulfill(json({ items: [libItem()], next_cursor: null }));
   });
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }

@@ -47,18 +47,20 @@ func (q *Queries) ChatCourseStatus(ctx context.Context, id uuid.UUID) (CourseSta
 }
 
 const chatDocumentUsable = `-- name: ChatDocumentUsable :one
-select id from documents
-where course_id = $1 and id = $2 and status = 'READY' and visible_to_students and use_for_rag and type <> 'ANSWER_KEY'
+select d.id from documents d
+where d.id = $1 and d.status = 'READY' and d.visible_to_students and d.use_for_rag and d.type <> 'ANSWER_KEY'
+  and (d.course_id = $2 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $2))
+  and exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[$2::uuid] and c.embedding is not null)
 `
 
 type ChatDocumentUsableParams struct {
-	CourseID uuid.UUID
 	ID       uuid.UUID
+	CourseID uuid.UUID
 }
 
 // "Hỏi AI về tài liệu này": tài liệu READY, dùng cho RAG, sinh viên được thấy, thuộc lớp.
 func (q *Queries) ChatDocumentUsable(ctx context.Context, arg ChatDocumentUsableParams) (uuid.UUID, error) {
-	row := q.db.QueryRow(ctx, chatDocumentUsable, arg.CourseID, arg.ID)
+	row := q.db.QueryRow(ctx, chatDocumentUsable, arg.ID, arg.CourseID)
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err

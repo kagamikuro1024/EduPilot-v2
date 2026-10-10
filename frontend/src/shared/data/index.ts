@@ -13,3 +13,4 @@ export { useAutosaveDraft, seedDraft, type DraftStatus } from "./useAutosaveDraf
 export { useUndoableAction } from "./useUndoableAction";
 export { OfflineBanner } from "./OfflineBanner";
 export { ApiErrorNotice } from "./ApiErrorNotice";
+export { uploadDocumentFile, checkDocumentFile, DOC_MAX_BYTES } from "./uploadFile";

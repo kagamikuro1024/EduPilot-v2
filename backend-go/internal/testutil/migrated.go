@@ -28,7 +28,13 @@ func MigratedPostgresURL(t testing.TB) string {
 // test dùng pool mặc định của pgx che mất lỗi mã hoá tham số (vd. `[]uuid.UUID` rỗng → "unable to encode … OID 0"; QC BUG-1 của US-P3-05).
 func RuntimePool(t testing.TB) *pgxpool.Pool {
 	t.Helper()
-	cfg, err := pgxpool.ParseConfig(MigratedPostgresURL(t))
+	return RuntimePoolAt(t, MigratedPostgresURL(t))
+}
+
+// RuntimePoolAt như RuntimePool nhưng cho URL đã có (test cần dùng chung một CSDL với router).
+func RuntimePoolAt(t testing.TB, url string) *pgxpool.Pool {
+	t.Helper()
+	cfg, err := pgxpool.ParseConfig(url)
 	if err != nil {
 		t.Fatalf("parse url: %v", err)
 	}

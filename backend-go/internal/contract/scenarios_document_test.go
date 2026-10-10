@@ -6,8 +6,10 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -151,4 +153,115 @@ func (r *runner) documentScenarios(x examRig) {
 	if !got429 {
 		r.t.Fatal("presign: không thấy 429 sau 30 lượt")
 	}
+}
+
+// docMgmtScenarios: thao tác 3–8, 12–15 của SRS FEAT-docs-calendar 6 (quản lý tài liệu của Staff + thư viện của sinh viên — US-P8-02) với mọi status đã khai báo.
+// Tài liệu / đoạn chèn thẳng vào DB; tệp thật được PUT lên MinIO để kiểm xem trước / tải xuống.
+func (r *runner) docMgmtScenarios(x examRig) {
+	db := r.rig.deps.DB
+	ctx := context.Background()
+	base := "/api/v1/courses/" + x.cid
+	D, L := base+"/documents", base+"/library"
+	vec := "[" + strings.Repeat("0,", 1535) + "1]"
+	mk := func(title, typ string, visible bool, file bool) (string, string) {
+		key := "courses/" + x.cid + "/documents/" + uuid.NewString() + "/x.pdf"
+		if file {
+			if err := r.rig.deps.Blob.Put(ctx, key, strings.NewReader("%PDF-1.4 x"), 10, "application/pdf"); err != nil {
+				r.t.Fatal(err)
+			}
+		}
+		var id, chunk string
+		if err := db.QueryRow(ctx, `insert into documents (course_id, title, type, filename, mime_type, sha256, blob_key, status, visible_to_students, use_for_rag, page_count) values ($1, $2, $3::document_type, 'x.pdf', 'application/pdf', $4, $5, 'READY', $6, true, 2) returning id`,
+			x.cid, title, typ, hex.EncodeToString(sha256.New().Sum([]byte(uuid.NewString())))[:64], key, visible).Scan(&id); err != nil {
+			r.t.Fatal(err)
+		}
+		if err := db.QueryRow(ctx, `insert into content_chunks (document_id, course_ids, ord, page_no, text, embedding) values ($1, array[$2::uuid], 0, 1, 'Cảnh báo học vụ khi điểm dưới 1,2', $3::vector) returning id`, id, x.cid, vec).Scan(&chunk); err != nil {
+			r.t.Fatal(err)
+		}
+		return id, chunk
+	}
+	doc, chunk := mk("Quy chế học vụ", "LECTURE", true, true)
+	gone, _ := mk("Mất tệp", "LECTURE", true, false)
+	key, _ := mk("Đáp án tuần 1", "ANSWER_KEY", false, true)
+
+	// 3: danh sách (Staff).
+	r.must(call{method: "GET", path: D + "?type=LECTURE&status=READY&q=quy%20che&limit=5", token: x.ta}, 200)
+	r.must(call{method: "GET", path: D, token: x.gv}, 200)
+	r.must(call{method: "GET", path: D}, 401)
+	r.must(call{method: "GET", path: D, token: x.sv}, 403)
+	r.must(call{method: "GET", path: D, token: x.admin}, 403)
+	r.must(call{method: "GET", path: D + "?limit=500", token: x.ta}, 422)
+	// 12: thống kê.
+	r.must(call{method: "GET", path: D + "/stats", token: x.ta}, 200)
+	r.must(call{method: "GET", path: D + "/stats"}, 401)
+	r.must(call{method: "GET", path: D + "/stats", token: x.sv}, 403)
+	// 4: chi tiết.
+	r.must(call{method: "GET", path: D + "/" + doc, token: x.ta}, 200)
+	r.must(call{method: "GET", path: D + "/" + doc}, 401)
+	r.must(call{method: "GET", path: D + "/" + doc, token: x.sv}, 403)
+	r.must(call{method: "GET", path: D + "/" + uuid.NewString(), token: x.ta}, 404)
+	// 7: đoạn.
+	r.must(call{method: "GET", path: D + "/" + doc + "/chunks?limit=10", token: x.ta}, 200)
+	r.must(call{method: "GET", path: D + "/" + doc + "/chunks"}, 401)
+	r.must(call{method: "GET", path: D + "/" + doc + "/chunks", token: x.sv}, 403)
+	r.must(call{method: "GET", path: D + "/" + uuid.NewString() + "/chunks", token: x.ta}, 404)
+	r.must(call{method: "GET", path: D + "/" + doc + "/chunks?cursor=x", token: x.ta}, 422)
+	// 8: sửa đoạn (nhà cung cấp `fake` nhúng được; 503 khi nhúng lỗi nằm ở exempt.go).
+	C := D + "/" + doc + "/chunks/" + chunk
+	r.must(call{method: "PATCH", path: C, token: x.ta, body: `{"text":"Chữ mới"}`}, 200)
+	r.must(call{method: "PATCH", path: C, body: `{"text":"x"}`}, 401)
+	r.must(call{method: "PATCH", path: C, token: x.sv, body: `{"text":"x"}`}, 403)
+	r.must(call{method: "PATCH", path: D + "/" + doc + "/chunks/" + uuid.NewString(), token: x.ta, body: `{"text":"x"}`}, 404)
+	r.must(call{method: "PATCH", path: C, token: x.ta, body: `{"text":""}`}, 422)
+	var ver int
+	if err := db.QueryRow(ctx, `select version from documents where id=$1`, doc).Scan(&ver); err != nil {
+		r.t.Fatal(err)
+	}
+	// 5: sửa tài liệu.
+	r.must(call{method: "PATCH", path: D + "/" + doc, token: x.ta, body: fmt.Sprintf(`{"title":"Quy chế mới","version":%d}`, ver)}, 200)
+	r.must(call{method: "PATCH", path: D + "/" + doc, token: x.ta, body: fmt.Sprintf(`{"title":"Cũ","version":%d}`, ver)}, 409) // VERSION_CONFLICT
+	r.must(call{method: "PATCH", path: D + "/" + doc, body: `{"title":"x","version":1}`}, 401)
+	r.must(call{method: "PATCH", path: D + "/" + doc, token: x.sv, body: `{"title":"x","version":1}`}, 403)
+	r.must(call{method: "PATCH", path: D + "/" + uuid.NewString(), token: x.ta, body: `{"title":"x","version":1}`}, 404)
+	r.must(call{method: "PATCH", path: D + "/" + key, token: x.ta, body: `{"visible_to_students":true,"version":1}`}, 422) // ANSWER_KEY_NOT_VISIBLE
+	r.must(call{method: "PATCH", path: "/api/v1/courses/" + x.arch + "/documents/" + uuid.NewString(), token: x.gv, body: `{"title":"x","version":1}`}, 409)
+	// 13–15: thư viện của sinh viên.
+	h, _ := r.must(call{method: "GET", path: L + "?q=quy%20che&limit=5", token: x.sv}, 200)
+	if tag := h.Get("ETag"); tag != "" {
+		r.must(call{method: "GET", path: L + "?q=quy%20che&limit=5", token: x.sv, headers: map[string]string{"If-None-Match": tag}}, 304)
+	}
+	r.must(call{method: "GET", path: L}, 401)
+	r.must(call{method: "GET", path: L, token: x.ta}, 403)
+	r.must(call{method: "GET", path: L + "?week=99", token: x.sv}, 422)
+	r.must(call{method: "GET", path: L + "/" + doc, token: x.sv}, 200)
+	r.must(call{method: "GET", path: L + "/" + doc}, 401)
+	r.must(call{method: "GET", path: L + "/" + doc, token: x.gv}, 403)
+	r.must(call{method: "GET", path: L + "/" + key, token: x.sv}, 404) // ANSWER_KEY không bao giờ tới sinh viên
+	r.must(call{method: "GET", path: L + "/" + doc + "/download", token: x.sv}, 200)
+	r.must(call{method: "GET", path: L + "/" + doc + "/download"}, 401)
+	r.must(call{method: "GET", path: L + "/" + doc + "/download", token: x.ta}, 403)
+	r.must(call{method: "GET", path: L + "/" + key + "/download", token: x.sv}, 404)
+	r.must(call{method: "GET", path: L + "/" + gone + "/download", token: x.sv}, 404) // FILE_GONE
+	// 6 + impact: xoá (Giảng viên).
+	r.must(call{method: "GET", path: D + "/" + gone + "/impact", token: x.gv}, 200)
+	r.must(call{method: "GET", path: D + "/" + gone + "/impact"}, 401)
+	r.must(call{method: "GET", path: D + "/" + gone + "/impact", token: x.ta}, 403)
+	r.must(call{method: "GET", path: D + "/" + uuid.NewString() + "/impact", token: x.gv}, 404)
+	r.must(call{method: "DELETE", path: D + "/" + gone}, 401)
+	r.must(call{method: "DELETE", path: D + "/" + gone, token: x.ta}, 403)
+	r.must(call{method: "DELETE", path: D + "/" + gone, token: x.gv}, 204)
+	r.must(call{method: "DELETE", path: D + "/" + gone, token: x.gv}, 404)
+	// tài liệu chia sẻ từ lớp khác (chỉ đọc): sửa đoạn / xoá → 409 DOCUMENT_SHARED_READONLY.
+	var shared, sharedChunk string
+	if err := db.QueryRow(ctx, `insert into documents (course_id, title, type, status, sha256) values ($1, 'Chia sẻ', 'LECTURE', 'READY', $2) returning id`, x.arch, hex.EncodeToString(sha256.New().Sum([]byte(uuid.NewString())))[:64]).Scan(&shared); err != nil {
+		r.t.Fatal(err)
+	}
+	if err := db.QueryRow(ctx, `insert into content_chunks (document_id, course_ids, ord, text) values ($1, array[$2::uuid, $3::uuid], 0, 'nội dung') returning id`, shared, x.arch, x.cid).Scan(&sharedChunk); err != nil {
+		r.t.Fatal(err)
+	}
+	if _, err := db.Exec(ctx, `insert into document_courses (document_id, course_id) values ($1, $2)`, shared, x.cid); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "PATCH", path: D + "/" + shared + "/chunks/" + sharedChunk, token: x.ta, body: `{"text":"x"}`}, 409)
+	r.must(call{method: "DELETE", path: D + "/" + shared, token: x.gv}, 409)
 }

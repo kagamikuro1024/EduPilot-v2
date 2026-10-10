@@ -104,8 +104,10 @@ limit sqlc.arg(page_limit);
 
 -- name: ChatDocumentUsable :one
 -- "Hỏi AI về tài liệu này": tài liệu READY, dùng cho RAG, sinh viên được thấy, thuộc lớp.
-select id from documents
-where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'READY' and visible_to_students and use_for_rag and type <> 'ANSWER_KEY';
+select d.id from documents d
+where d.id = sqlc.arg(id) and d.status = 'READY' and d.visible_to_students and d.use_for_rag and d.type <> 'ANSWER_KEY'
+  and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
+  and exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.embedding is not null);
 
 -- name: ChatCourseStatus :one
 select status from courses where id = sqlc.arg(id);
