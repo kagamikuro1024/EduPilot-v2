@@ -8,7 +8,8 @@ export const sha = (buf) => createHash("sha256").update(buf).digest("hex");
 export const psql = (sql) => spawnSync("docker", ["exec", "edupilot-postgres-1", "psql", "-U", "edupilot", "-d", process.env.QC_DB ?? "qc_p801", "-At", "-F|", "-c", sql], { encoding: "utf8" }).stdout.trim();
 export const rds = (...a) => spawnSync("docker", ["exec", "edupilot-redis-1", "redis-cli", "-n", process.env.QC_REDIS_DB ?? "9", ...a], { encoding: "utf8" }).stdout.trim();
 let n = 0;
-export const idem = () => `qc-${Date.now()}-${++n}`;
+import { randomUUID } from "node:crypto";
+export const idem = () => randomUUID();
 export async function call(method, path, { token, body, key, headers = {} } = {}) {
   const h = { "Content-Type": "application/json", ...headers };
   if (token) h.Authorization = `Bearer ${token}`;
@@ -38,3 +39,13 @@ export async function upload(c, token, file, buf, { title, type = "LECTURE", ext
 export const waitDoc = async (id, want = ["READY", "FAILED"], ms = 600000) => { const t0 = Date.now(); for (;;) { const s = psql(`select status from documents where id='${id}'`); if (want.includes(s)) return s; if (Date.now() - t0 > ms) return "TIMEOUT:" + s; await new Promise((r) => setTimeout(r, 3000)); } };
 export const rd = (p) => readFileSync(p);
 export const out = (tc, ok, note = "") => console.log(`${ok ? "PASS" : "FAIL"} ${tc} ${note}`);
+// ---- SSE chat (US-P3-05) ----
+export async function sse(method, path, { token, body, key, headers = {}, onEvent, abortAfter } = {}) {
+  const t0 = Date.now(); const h = { "Content-Type": "application/json", Authorization: "Bearer " + token, ...headers }; if (key) h["Idempotency-Key"] = key;
+  const ac = new AbortController(); const r = await fetch(GW + path, { method, headers: h, body: body === undefined ? undefined : JSON.stringify(body), signal: ac.signal });
+  const ct = r.headers.get("content-type") ?? ""; if (!ct.includes("event-stream")) { const t = await r.text(); let j; try { j = JSON.parse(t); } catch { j = t; } return { status: r.status, body: j, events: [] }; }
+  const events = []; let buf = ""; const dec = new TextDecoder(); let first = null;
+  try { for await (const ch of r.body) { buf += dec.decode(ch, { stream: true }); let i; while ((i = buf.indexOf("\n\n")) >= 0) { const raw = buf.slice(0, i); buf = buf.slice(i + 2); const ev = { t: Date.now() - t0, raw }; for (const l of raw.split("\n")) { if (l.startsWith("event: ")) ev.event = l.slice(7); else if (l.startsWith("data: ")) ev.data = l.slice(6); else if (l.startsWith("id: ")) ev.id = l.slice(4); } try { ev.json = JSON.parse(ev.data); } catch {} events.push(ev); first ??= ev.t; if (onEvent?.(ev, ac, events) === "stop") { ac.abort(); } } } } catch (e) { if (e.name !== "AbortError") { events.push({ event: "client-error", data: String(e) }); } }
+  return { status: r.status, events, first, text: events.filter((e) => e.event === "token").map((e) => e.json?.t ?? "").join("") };
+}
+export const PH = /\[\[\s*(SV|MSSV|EMAIL|SDT|CCCD)(_\d*)?/i;
