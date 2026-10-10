@@ -1,4 +1,4 @@
-# QC report — US-P3-05 (chat riêng `/chat`)  · Kết luận: FAIL (chặn bởi BUG-1)
+# QC report — US-P3-05 (chat riêng `/chat`)  · Kết luận: PASS phần đã kiểm sau fix `ecd8393` (chấm lại 2026-10-11); còn TC không kiểm được ghi ở dưới
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-05.md` ("giao đủ backend + UI"). Bộ TC: `tc-US-P3-05.md` (57 TC).
 **Môi trường:** không đụng stack s55 của chủ dự án. QC chạy gateway + worker (`-tags testroutes`) build từ HEAD `b305515` ở `:18080` trên DB riêng `qc_p801` (Postgres chung của stack dev), Redis db 9, bucket `qc-p801`; docling thật; frontend `next build` + `next start -p 3410` trỏ `NEXT_PUBLIC_API_URL=http://localhost:18080`; `playwright-cli --browser=chromium` (Chrome không cài). Tài liệu nạp: `QMB12ch6b.pdf` (LECTURE), `Quyche.pdf` (COURSE_POLICY), PDF canary `CANARY-7Q2X` (ANSWER_KEY). Seed dừng ở bước 10 (`JUDGE_UNAVAILABLE`) nên **không có bài thi mẫu** → các TC khoá giờ thi chưa chạy được. Script: `scripts/p801-lib.mjs` (`sse()`, `call()`).
@@ -57,3 +57,32 @@ Handoff: `docs/sprints/6/handoff/dev-US-P3-05.md` ("giao đủ backend + UI"). B
 
 ## Đề nghị
 FAIL tới khi sửa BUG-1 (chặn merge) và BUG-2. Sau khi sửa: QC chạy lại TC-20, 35–39, 56, 57 (PII + RAG + ANSWER_KEY), 36, và dựng bài thi để chạy TC-22–27. Chuyển các TC của P3-02 (30–36, 43, 47, 49–52, 55, 56, 61) và P3-03 (07, 10, 16, 22, 24, 34–36) vào lượt chạy lại này (chúng cần cùng đường COURSE_QA). Chưa có dòng "→ PM" về stack: QC không dùng stack s55.
+
+
+## Chấm lại sau fix `ecd8393` (B1 rag trên pool runtime, B2 luật EXAM_SCHEDULE) — 2026-10-11
+Môi trường như trên, gateway/worker build lại từ HEAD; thêm `EXAM_MIN_LEAD_SECONDS=5`, `EXAM_MIN_DURATION_MINUTES=1`, `EXAM_GRACE_SECONDS=10` (như compose dev) để dựng bài thi trắc nghiệm bằng API. **Hạn chế của nhà cung cấp `fake`:** vectơ nhúng là băm theo chuỗi, chỉ cùng chuỗi mới có cos ≈ 1; sàn `RAG_SIM_FLOOR = 0,25` nên QC hỏi bằng **đúng `heading\ntext` của một đoạn** để có ngữ cảnh (câu hỏi tự nhiên cho "chưa tìm thấy"). Cần embedding thật để đo chất lượng truy xuất.
+
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1 (`PROVIDER_ERROR` mọi COURSE_QA) | **PASS** | câu hỏi có ngữ cảnh → `status > token > done`, `citations` 1 mục `{n, document_id, title, page_no, snippet}`; câu không ngữ cảnh → "Mình chưa tìm thấy nội dung này trong tài liệu của lớp." (0 lời gọi sinh); log không còn lỗi mã hoá |
+| BUG-2 (`"Quy chế thi cuối kỳ… phòng thi?"` → EXAM_SCHEDULE) | **PASS** | định tuyến lại `COURSE_QA` |
+
+| TC | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| 20 | PASS | mọi provider lỗi + có ngữ cảnh → `status > notice{degraded:true} > token > done`; chữ "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." + trích «…» từ đoạn; **không** có "giảng viên sẽ xem" |
+| 35, 37, 38 | PASS | tài liệu lớp chứa 2 họ tên, 2 MSSV, email, SĐT; hỏi bằng đúng đoạn đó → `notice{masked:12}`, `chat_messages.masked_count=12`; trên SSE 0 khung chứa placeholder; trong DB 0 hàng chứa `[[SV…`; văn bản trả về đã khôi phục; `pii_events` có `PHONE/MASKED` và các dòng `OTHER_PERSON/BLOCKED` của câu hỏi hộ |
+| 39 | PASS | quét mọi payload `GET /_test/llm/payloads` (tên có dấu / không dấu / HOA / đảo, MSSV, email, SĐT, CCCD của cả roster 30): **0 rò**, 13–19 placeholder (`[[SV_1]] [[MSSV_1]] [[SV_2]] [[MSSV_2]] [[EMAIL_1]] [[SDT_1]]`) cả ở tin nhắn và khối `<ngữ_cảnh>` |
+| 36, 56 | KHÔNG KIỂM ĐƯỢC (một phần) | fake echo lại `<ngữ_cảnh>`; câu hỏi chứa `[[ -f … ]]` làm đổi vectơ nên không có ngữ cảnh; cắt token ở mọi vị trí đã kiểm ở mức gói (P3-02 TC-41) |
+| 57 | PASS | tài liệu `ANSWER_KEY` chứa `CANARY-7Q2X` đã `READY` + nhúng, `audience=GRADING`: hỏi đúng văn bản đoạn đó → 0 trích dẫn, canary **không** có trong khối ngữ cảnh gửi provider; 3 câu hỏi đáp án → 0 trích dẫn (canary chỉ xuất hiện khi chính người hỏi gõ nó) |
+| 22, 23, 24, 25, 27 | PASS | bài thi trắc nghiệm dựng bằng API (2 câu, mở sau 8 s); SV bắt đầu lượt thi → `POST …/messages` `409 EXAM_IN_PROGRESS` `details.until`; `GET /me/exam-lock` `locked:true`; 0 hàng chat mới; 6 lần gửi trong một phút → **1** `exam_events CHAT_BLOCKED`; `retry` tin cũ cũng `409`; tạo phiên mới vẫn `201` (khoá chỉ chặn gửi); nộp bài (`GRADED`) → gửi lại thành công sau **209 ms** (≤ 10 s); SV khác (`sv.kha`) không bị khoá; UI 375 px: ô soạn `disabled`, chữ "Chat tạm khóa" hiện, không cuộn ngang |
+| 26 | KHÔNG KIỂM ĐƯỢC | cần dừng Redis và chặn `exam_attempts` trên stack dùng chung — không làm |
+| 49, 50 (P3-02) | KHÔNG KIỂM ĐƯỢC | `PRIVACY_MASK_TIMEOUT_MS=1` không làm `MASK_FAILED` (bước che chỉ tốn µs, hạn chỉ tính CPU theo ghi chú của dev) → QC không có công tắc ép lỗi che từ ngoài (Q-QC mới). `TestMaskFailsClosed` của dev xanh |
+| 30–34 (P3-02), 07/10/16/22/24 (P3-03) | PASS (đoạn có thể kiểm) | placeholder ổn định `[[SV_1]]` cho 3 biến thể tên trong cùng phiên; chủ phiên cũng bị che (`Vu Hoang Giang` → `[[SV_1]]`); khối ngữ cảnh đã che |
+
+**Lỗi còn lại / ghi chú:**
+- Câu trả lời trích nguyên văn (đường suy giảm) và `citations[].snippet` hiển thị MSSV / email có trong **tài liệu lớp** cho sinh viên — đúng thiết kế (tài liệu `visible_to_students`) nhưng nếu tài liệu chứa PII của người khác thì sinh viên thấy; ghi để PM cân nhắc (không phải lỗi mask).
+- `snippet` của tài liệu scan còn nhiễu OCR ("..L89.. /QĐ-TQT").
+- TC-17/18/19 (`OVERLOADED`, "AI đang bận", `Thử lại`) vẫn không kiểm được: `RATE_LIMIT` của provider giả cho nhánh suy giảm, không phải quá tải scheduler; cần cách ép `ErrOverloaded`.
+- TC-02, 06(k6), 09 (3G chậm), 50, 51, 52 (1440 px) chưa chạy.
+
+**Kết luận:** các lỗi chặn đã sửa; AC1–AC13, AC16–AC18 kiểm được đều PASS. Chờ cách ép `OVERLOADED` và công tắc ép lỗi che để đóng AC7 và AC12 (ghi Q-QC), cùng k6 / 3G ở US-P3-08.
