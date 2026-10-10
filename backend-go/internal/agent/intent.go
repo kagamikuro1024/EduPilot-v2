@@ -2,6 +2,7 @@ package agent
 
 import (
 	"regexp"
+	"strconv"
 	"strings"
 	"unicode/utf8"
 
@@ -21,6 +22,11 @@ var (
 	reGrade    = regexp.MustCompile(`\b(diem|ket qua|bang diem|xep loai|qua mon|truot mon|tong ket)\b`)
 	reExam     = regexp.MustCompile(`\b(lich thi|lich kiem tra|(cho hoi |xem )(ngay|gio|phong) thi|(ngay|gio|phong) thi ((cuoi ky|giua ky|mon nay|lan 2|lan 1) )*((la|o|vao) )*(khi nao|bao gio|luc nao|ngay nao|o dau|phong nao|may gio|nao)|(khi nao|bao gio|luc nao|ngay nao) ((em|minh|toi|lop|se|co|duoc|phai|nhom) )*(thi|kiem tra)|(thi|kiem tra) ((cuoi ky|giua ky|mon nay|hoc ky|lan 2|lan 1|bai 1|bai 2|lai) )*(khi nao|bao gio|luc nao|ngay nao))\b`)
 	reUpcoming = regexp.MustCompile(`\b(sap toi|tuan nay|tuan sau|han nop|lich hoc|ngay mai|hom nay co|co gi trong tuan|su kien)\b`)
+	// #15 (proposals.md, BUG-1 US-P8-03): cách hỏi tự nhiên "Tuần tới có gì không?", "30 ngày tới có gì?" — khung thời gian + "có gì" và KHÔNG có từ nội dung môn.
+	reWindow   = regexp.MustCompile(`\b(tuan toi|tuan sau|sap toi|\d+ (ngay|tuan) (toi|sap toi))\b`)
+	reHasGi    = regexp.MustCompile(`\bco (gi|viec gi|su kien gi|lich gi)\b`)
+	reContent  = regexp.MustCompile(`\b(chuong|bai giang|slide|tai lieu|giao trinh|giao thuc|thuat toan|quy che|mat ma|dinh nghia|giai thich|vi du|cong thuc|la gi|nhu the nao|tai sao|on tap|hoc gi|noi dung)\b`)
+	reDays     = regexp.MustCompile(`\b(\d+) (ngay|tuan) (toi|sap toi)\b`)
 	reLibrary  = regexp.MustCompile(`\b(tim tai lieu|tai lieu ve|tim slide|slide|giao trinh|tai lieu nao|co tai lieu|tim file|bai giang ve)\b`)
 	reGreet    = regexp.MustCompile(`\b(chao|xin chao|hello|hi|cam on|cam on|thanks|thank you|ok|oke|vang|da|tam biet|bye)\b`)
 	reQuestion = regexp.MustCompile(`\b(gi|sao|nao|dau|ai|bao nhieu|the nao|nhu the nao|tai sao|co phai|la)\b`)
@@ -63,7 +69,7 @@ func DetectIntent(text string) Intent {
 	switch {
 	case reExam.MatchString(f):
 		return IntentExamSchedule
-	case reUpcoming.MatchString(f):
+	case reUpcoming.MatchString(f), reWindow.MatchString(f) && reHasGi.MatchString(f) && !reContent.MatchString(f):
 		return IntentUpcoming
 	case reLibrary.MatchString(f):
 		return IntentLibrary
@@ -109,4 +115,20 @@ func smalltalk(text, folded string) bool {
 		}
 	}
 	return true
+}
+
+// UpcomingDays là khoảng ngày của câu hỏi lịch: "N ngày tới" → N, "N tuần tới" → 7N, còn lại 7 (tool kẹp 1–30).
+func UpcomingDays(text string) int {
+	m := reDays.FindStringSubmatch(auth.Fold(text))
+	if m == nil {
+		return 7
+	}
+	n, err := strconv.Atoi(m[1])
+	if err != nil || n <= 0 {
+		return 7
+	}
+	if m[2] == "tuan" {
+		n *= 7
+	}
+	return n
 }

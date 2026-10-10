@@ -99,7 +99,7 @@ func (a *Agent) Respond(ctx context.Context, tc TrustedContext, in Input) (Outco
 	case IntentExamSchedule:
 		return a.tool(ctx, tc, in, out, "get_exam_schedule", nil, "lịch")
 	case IntentUpcoming:
-		return a.tool(ctx, tc, in, out, "get_upcoming_events", json.RawMessage(`{"days":7}`), "lịch")
+		return a.tool(ctx, tc, in, out, "get_upcoming_events", json.RawMessage(fmt.Sprintf(`{"days":%d}`, UpcomingDays(in.Text))), "lịch")
 	case IntentLibrary:
 		args, _ := json.Marshal(LibraryArgs{Query: in.Text})
 		return a.tool(ctx, tc, in, out, "search_library", args, "tài liệu")
