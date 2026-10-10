@@ -112,9 +112,14 @@ export function ttftVU(d) {
   const cached = exec.scenario.iterationInInstance % 2 === 0;
   const q = cached ? WARM[exec.vu.idInTest % WARM.length] : `${FRESH[exec.vu.idInTest % FRESH.length]} ${crypto.randomUUID().slice(0, 8)}?`;
   const r = send(s.token, s.sid, q);
-  if (!check(r, { 'chat 200': (x) => x.status === 200 })) return;
-  const status = msOf(r.body, 'status'), token = msOf(r.body, 'token');
-  if (status === null || token === null) return; // câu trả lời mẫu (không sinh chữ): không có khung token
-  (cached ? ttftCache : ttftRag).add(r.timings.waiting + (token - status));
-  (cached ? nCache : nRag).add(1);
+  if (check(r, { 'chat 200': (x) => x.status === 200 })) {
+    const status = msOf(r.body, 'status'), token = msOf(r.body, 'token');
+    if (status !== null && token !== null) { // câu trả lời mẫu (không sinh chữ) không có khung token
+      (cached ? ttftCache : ttftRag).add(r.timings.waiting + (token - status));
+      (cached ? nCache : nRag).add(1);
+    }
+  } else {
+    console.error(`chat → ${r.status} ${String(r.body).slice(0, 120)}`); // lỗi thật KHÔNG bị che: vẫn tính vào http_req_failed
+  }
+  sleep(3.5); // mỗi người ≤ ~17 tin / phút: dưới CHAT_RATE_PER_MIN mặc định (20) — đo TTFT dưới hạn mức THẬT, không nới hạn mức
 }

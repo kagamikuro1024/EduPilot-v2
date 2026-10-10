@@ -1,6 +1,6 @@
 // Kiểm dữ liệu mẫu tài liệu + lịch của US-P8-03 AC17 / US-P8-01 AC17 bằng API thật.
 //   node scripts/check-docs-seed.mjs            docs=… READY answer_key=1 shared=… reembedded=0 events=2/1 idempotent=ok   (--no-rerun bỏ chạy lại seed)
-//   node scripts/check-docs-seed.mjs timing     giây / trang của từng tệp: ≤ 1 (PDF có chữ), ≤ 4 (bản scan `Quyche`)
+//   node scripts/check-docs-seed.mjs timing     giây / trang của từng tệp ≥ 5 trang (updated_at − created_at, seed chờ từng tệp xong): ≤ 1 (PDF có chữ), ≤ 4 (bản scan `Quyche`)
 import { call, courses, finish, listAll, must, reseed, tok } from "./seed-check-lib.mjs";
 
 const mode = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "all";
@@ -20,7 +20,7 @@ const snap = async () => ({
 
 const docs = await listAll(`/courses/${c1}/documents`, t);
 if (mode === "timing") {
-  for (const d of docs.filter((x) => TITLES.includes(x.title) && x.page_count)) {
+  for (const d of docs.filter((x) => TITLES.includes(x.title) && x.page_count >= 5)) { // PDF một trang do script sinh: thời gian cố định mỗi việc (khởi động docling + nhúng) lấn át, không phải số đo giây / trang
     const secs = (new Date(d.updated_at) - new Date(d.created_at)) / 1000;
     const perPage = secs / d.page_count;
     const limit = d.title === "Quy chế học vụ" ? 4 : 1; // bản scan đi lượt OCR

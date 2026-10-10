@@ -3,6 +3,7 @@ package contract
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand/v2"
 	"net/url"
 	"strings"
 	"time"
@@ -77,16 +78,18 @@ func (r *runner) calendarScenarios(x examRig) {
 		r.t.Fatal(err)
 	}
 	F := "/api/v1/calendar/feed.ics?token=" + u.Query().Get("token")
-	fh, _ := r.must(call{method: "GET", path: F}, 200)
+	// Bộ đếm hạn mức feed (`ep:rl:ics:{ip}:{phút}`) nằm ở Redis dùng chung giữa các lần chạy: mỗi lần dùng một IP riêng (X-Forwarded-For từ proxy tin cậy) để lần chạy trước không làm lần sau 429.
+	ip := map[string]string{"X-Forwarded-For": fmt.Sprintf("10.%d.%d.%d", rand.IntN(256), rand.IntN(256), rand.IntN(254)+1)}
+	fh, _ := r.must(call{method: "GET", path: F, headers: ip}, 200)
 	if tag := fh.Get("ETag"); tag != "" {
-		r.must(call{method: "GET", path: F, headers: map[string]string{"If-None-Match": tag}}, 304)
+		r.must(call{method: "GET", path: F, headers: map[string]string{"If-None-Match": tag, "X-Forwarded-For": ip["X-Forwarded-For"]}}, 304)
 	}
-	r.must(call{method: "GET", path: "/api/v1/calendar/feed.ics?token=" + strings.Repeat("a", 43)}, 404)
+	r.must(call{method: "GET", path: "/api/v1/calendar/feed.ics?token=" + strings.Repeat("a", 43), headers: ip}, 404)
 	r.must(call{method: "DELETE", path: T, token: x.sv}, 204)
-	r.must(call{method: "GET", path: F}, 404) // đã thu hồi
+	r.must(call{method: "GET", path: F, headers: ip}, 404) // đã thu hồi
 	got429 := false
 	for range 80 {
-		if st, _, _ := r.do(call{method: "GET", path: "/api/v1/calendar/feed.ics?token=" + strings.Repeat("b", 43)}); st == 429 {
+		if st, _, _ := r.do(call{method: "GET", path: "/api/v1/calendar/feed.ics?token=" + strings.Repeat("b", 43), headers: ip}); st == 429 {
 			got429 = true
 			break
 		}
