@@ -51,3 +51,19 @@ func TestTrustedContextOnlyIdentitySource(t *testing.T) {
 		})
 	}
 }
+
+// TestSmalltalkGuards — Q-QC-P3-04-8: từ xã giao + toàn từ đệm là SMALLTALK (không giới hạn độ dài); thêm nội dung thì đi truy xuất; câu hỏi ngắn không bị nuốt.
+func TestSmalltalkGuards(t *testing.T) {
+	t.Parallel()
+	for s, want := range map[string]Intent{
+		"Cảm ơn thầy nhiều ạ nhé":                 IntentSmalltalk,
+		"cảm ơn bạn nhé":                          IntentSmalltalk,
+		"Xin chào":                                IntentSmalltalk,
+		"cảm ơn, quy chế thi thế nào":             IntentCourseQA,
+		"TCP là gì ạ":                             IntentCourseQA,
+		"Giả sử giữa kỳ em được 9 thì sao":        IntentWhatIf,
+		"gia su cuoi ky em duoc 7,5 thi tong ket": IntentWhatIf,
+	} {
+		require.Equal(t, want, DetectIntent(s), s)
+	}
+}
