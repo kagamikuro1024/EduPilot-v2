@@ -580,7 +580,7 @@ func TestIngestDoclingDownKeepsQueued(t *testing.T) {
 	var during []string
 	f.proc.Sleep = func(_ context.Context, d time.Duration) {
 		waits = append(waits, d)
-		st, _, _ := f.status(t, doc)
+		st, _, _ := f.status(t, doc) //nolint:contextcheck // trạng thái ghi lại lúc chờ; ctx của test, không phải của lần thử
 		during = append(during, st)
 	}
 	f.run(t, doc, job)

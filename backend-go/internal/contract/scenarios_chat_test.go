@@ -102,7 +102,7 @@ func (r *runner) chatScenarios(x examRig) {
 	send(sa, archSess.String(), "x", 409)
 	rs := create(sr, x.cid)
 	got429 := false
-	for range 25 {
+	for range 45 { // cửa sổ phút cố định: 45 > 2×20 nên luôn có một cửa sổ đủ 20 tin kể cả khi qua ranh giới phút lúc máy tải nặng
 		st, _, _ := r.do(call{method: "POST", path: S + "/" + rs + "/messages", token: sr, headers: map[string]string{"Idempotency-Key": uuid.NewString()}, body: `{"content":"nhanh"}`})
 		if st == 429 {
 			got429 = true
@@ -110,7 +110,7 @@ func (r *runner) chatScenarios(x examRig) {
 		}
 	}
 	if !got429 {
-		r.t.Fatal("không gặp 429 sau 25 tin")
+		r.t.Fatal("không gặp 429 sau 45 tin")
 	}
 
 	// 5: lịch sử.

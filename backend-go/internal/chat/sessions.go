@@ -253,3 +253,44 @@ func title60(s string) string {
 	}
 	return string([]rune(s)[:60])
 }
+
+// FromDraftIn là thân POST /chat/sessions/from-draft.
+type FromDraftIn struct {
+	CourseID uuid.UUID `json:"course_id" validate:"required"`
+	Title    string    `json:"title"`
+	Body     string    `json:"body" validate:"required"`
+}
+
+// FromDraftOut trả lại bản nháp NGUYÊN VĂN (đúng từng byte): máy chủ không lưu nháp, chỉ phản hồi.
+type FromDraftOut struct {
+	SessionID uuid.UUID `json:"session_id"`
+	Draft     struct {
+		Title string `json:"title"`
+		Body  string `json:"body"`
+	} `json:"draft"`
+}
+
+// FromDraft: "Chuyển sang chat riêng" từ hộp thoại của Threads — tạo phiên PRIVATE KHÔNG có tin nhắn, ghi SWITCHED (số Finding tính lại phía máy chủ).
+// Trong giờ thi vẫn tạo được (chỉ việc gửi bị khoá, US-P3-05 AC9).
+func (s *Service) FromDraft(ctx context.Context, a Actor, in FromDraftIn) (FromDraftOut, error) {
+	if err := s.requireStudent(ctx, a, in.CourseID); err != nil {
+		return FromDraftOut{}, err
+	}
+	if err := s.archived(ctx, in.CourseID); err != nil {
+		return FromDraftOut{}, err
+	}
+	if strings.TrimSpace(in.Body) == "" || utf8.RuneCountInString(in.Body) > 20000 || utf8.RuneCountInString(in.Title) > 200 {
+		return FromDraftOut{}, apierr.Validation(apierr.FieldError{Field: "body", Code: "invalid", Message: "Nội dung từ 1 đến 20.000 ký tự."})
+	}
+	row, err := store.New(s.Pool).InsertChatSession(ctx, store.InsertChatSessionParams{CourseID: in.CourseID, UserID: a.UserID})
+	if err != nil {
+		return FromDraftOut{}, fmt.Errorf("chat: tạo phiên từ nháp: %w", err)
+	}
+	if s.OnSwitched != nil {
+		s.OnSwitched(ctx, a.UserID, in.CourseID, in.Title, in.Body)
+	}
+	var out FromDraftOut
+	out.SessionID = row.ID
+	out.Draft.Title, out.Draft.Body = in.Title, in.Body
+	return out, nil
+}

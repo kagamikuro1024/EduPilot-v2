@@ -84,6 +84,8 @@ type Service struct {
 	Clock clock.Clock
 	Log   *slog.Logger
 	Cfg   Config
+	// OnSwitched (tuỳ chọn) ghi pii_events SWITCHED khi người dùng chuyển một bản nháp Threads sang chat riêng.
+	OnSwitched func(ctx context.Context, userID, courseID uuid.UUID, title, body string)
 	// Drain đóng khi gateway bắt đầu tắt: mọi lượt sinh còn sống ghi FAILED INTERRUPTED và nhả CHAT_BUSY ngay.
 	Drain <-chan struct{}
 

@@ -14,6 +14,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
@@ -93,6 +94,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			}
 			ds := &document.Service{Pool: d.DB, Redis: d.Redis, Blob: d.Blob, Jobs: d.Jobs, Clock: clk, Log: d.Log}
 			(&documenthttp.Handler{Svc: ds, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)
+		}
+		if d.Thread != nil {
+			// US-P3-06 — Threads: đọc / precheck / đăng / bình luận / quyết định của Staff / thread tương tự (SRS FEAT-private-chat-pii 6, #12–#20).
+			(&threadhttp.Handler{Svc: d.Thread, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
 		}
 		if d.Chat != nil {
 			// US-P3-05 — chat riêng: 7 route JSON ở đây; 3 route SSE nằm ngoài nhóm này (newRouterWith, SRS 4.7.0).

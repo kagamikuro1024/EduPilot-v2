@@ -76,6 +76,8 @@ type Queue struct {
 	Redis    *appredis.Client
 	Consumer string
 	Log      *slog.Logger
+	// Extra: các loại việc do gói khác định nghĩa (vd. `thread.answer` — AI trả lời Threads). Trả error = lỗi hạ tầng, giữ tin để giao lại.
+	Extra map[string]func(ctx context.Context, jobID, owner, id uuid.UUID) error
 
 	mu       sync.Mutex
 	inflight map[string]bool
@@ -174,7 +176,11 @@ func (q *Queue) handle(ctx context.Context, m goredis.XMessage) {
 	case KindReindexAll:
 		perr = q.P.ReindexAll(ctx, jobID, id, owner)
 	default:
-		q.Log.WarnContext(ctx, "ingest: loại việc lạ, bỏ", "msg", m.ID, "kind", field("kind"))
+		if h := q.Extra[field("kind")]; h != nil {
+			perr = h(ctx, jobID, owner, id)
+		} else {
+			q.Log.WarnContext(ctx, "ingest: loại việc lạ, bỏ", "msg", m.ID, "kind", field("kind"))
+		}
 	}
 	switch {
 	case perr != nil:

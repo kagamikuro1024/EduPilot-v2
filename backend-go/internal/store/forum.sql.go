@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	pgvector "github.com/pgvector/pgvector-go"
 	"github.com/shopspring/decimal"
 )
 
@@ -273,6 +274,549 @@ func (q *Queries) ListForumThreads(ctx context.Context, arg ListForumThreadsPara
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const postDecide = `-- name: PostDecide :one
+update forum_posts
+set verification_state = $1::post_verification,
+    body = coalesce($2::text, body),
+    ai_body = case when $2::text is not null then coalesce(ai_body, body) else ai_body end,
+    verified_by = $3, verified_at = now(), version = version + 1
+where course_id = $4 and id = $5 and kind = 'AI'
+returning id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, hidden_at, version, verified_at, created_at
+`
+
+type PostDecideParams struct {
+	State    PostVerification
+	NewBody  *string
+	Actor    *uuid.UUID
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type PostDecideRow struct {
+	ID                uuid.UUID
+	ThreadID          uuid.UUID
+	AuthorID          *uuid.UUID
+	Kind              PostKind
+	Body              string
+	VerificationState PostVerification
+	Citations         json.RawMessage
+	Confidence        decimal.NullDecimal
+	AiBody            *string
+	HiddenAt          *time.Time
+	Version           int32
+	VerifiedAt        *time.Time
+	CreatedAt         time.Time
+}
+
+// Chuyển trạng thái bài AI (đã khoá hàng): verify / correct / reject. `ai_body` giữ bản AI gốc ở lần sửa đầu.
+func (q *Queries) PostDecide(ctx context.Context, arg PostDecideParams) (PostDecideRow, error) {
+	row := q.db.QueryRow(ctx, postDecide,
+		arg.State,
+		arg.NewBody,
+		arg.Actor,
+		arg.CourseID,
+		arg.ID,
+	)
+	var i PostDecideRow
+	err := row.Scan(
+		&i.ID,
+		&i.ThreadID,
+		&i.AuthorID,
+		&i.Kind,
+		&i.Body,
+		&i.VerificationState,
+		&i.Citations,
+		&i.Confidence,
+		&i.AiBody,
+		&i.HiddenAt,
+		&i.Version,
+		&i.VerifiedAt,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const postGet = `-- name: PostGet :one
+select p.id, p.course_id, p.thread_id, p.author_id, p.kind, p.body, p.verification_state, p.ai_body, p.version, t.author_id as thread_author_id
+from forum_posts p join forum_threads t on t.course_id = p.course_id and t.id = p.thread_id
+where p.course_id = $1 and p.id = $2 and p.deleted_at is null and t.deleted_at is null
+for update of p
+`
+
+type PostGetParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type PostGetRow struct {
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+	ThreadID          uuid.UUID
+	AuthorID          *uuid.UUID
+	Kind              PostKind
+	Body              string
+	VerificationState PostVerification
+	AiBody            *string
+	Version           int32
+	ThreadAuthorID    uuid.UUID
+}
+
+func (q *Queries) PostGet(ctx context.Context, arg PostGetParams) (PostGetRow, error) {
+	row := q.db.QueryRow(ctx, postGet, arg.CourseID, arg.ID)
+	var i PostGetRow
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.ThreadID,
+		&i.AuthorID,
+		&i.Kind,
+		&i.Body,
+		&i.VerificationState,
+		&i.AiBody,
+		&i.Version,
+		&i.ThreadAuthorID,
+	)
+	return i, err
+}
+
+const threadAnswerLoad = `-- name: ThreadAnswerLoad :one
+select id, course_id, author_id, title, body, ai_state, embedding from forum_threads where id = $1 and deleted_at is null
+`
+
+type ThreadAnswerLoadRow struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	AuthorID  uuid.UUID
+	Title     string
+	Body      string
+	AiState   ThreadAiState
+	Embedding *pgvector.Vector
+}
+
+// Việc AI trả lời: nạp thread (không lọc lớp: id đến từ hàng đợi nội bộ), kèm vectơ đã có.
+func (q *Queries) ThreadAnswerLoad(ctx context.Context, id uuid.UUID) (ThreadAnswerLoadRow, error) {
+	row := q.db.QueryRow(ctx, threadAnswerLoad, id)
+	var i ThreadAnswerLoadRow
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.AuthorID,
+		&i.Title,
+		&i.Body,
+		&i.AiState,
+		&i.Embedding,
+	)
+	return i, err
+}
+
+const threadDetail = `-- name: ThreadDetail :one
+select t.id, t.course_id, t.author_id, t.title, t.body, t.tags, t.week_no, t.state, t.ai_state, t.ai_skip_reason, t.similar_of, t.reply_count, t.last_activity_at, t.created_at, t.version,
+       u.full_name as author_name, u.role as author_role
+from forum_threads t join users u on u.id = t.author_id
+where t.course_id = $1 and t.id = $2 and t.deleted_at is null
+`
+
+type ThreadDetailParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type ThreadDetailRow struct {
+	ID             uuid.UUID
+	CourseID       uuid.UUID
+	AuthorID       uuid.UUID
+	Title          string
+	Body           string
+	Tags           []string
+	WeekNo         *int16
+	State          ThreadState
+	AiState        ThreadAiState
+	AiSkipReason   *string
+	SimilarOf      *uuid.UUID
+	ReplyCount     int32
+	LastActivityAt time.Time
+	CreatedAt      time.Time
+	Version        int32
+	AuthorName     string
+	AuthorRole     UserRole
+}
+
+func (q *Queries) ThreadDetail(ctx context.Context, arg ThreadDetailParams) (ThreadDetailRow, error) {
+	row := q.db.QueryRow(ctx, threadDetail, arg.CourseID, arg.ID)
+	var i ThreadDetailRow
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.AuthorID,
+		&i.Title,
+		&i.Body,
+		&i.Tags,
+		&i.WeekNo,
+		&i.State,
+		&i.AiState,
+		&i.AiSkipReason,
+		&i.SimilarOf,
+		&i.ReplyCount,
+		&i.LastActivityAt,
+		&i.CreatedAt,
+		&i.Version,
+		&i.AuthorName,
+		&i.AuthorRole,
+	)
+	return i, err
+}
+
+const threadGetAuthor = `-- name: ThreadGetAuthor :one
+select author_id, course_id from forum_threads where id = $1 and deleted_at is null
+`
+
+type ThreadGetAuthorRow struct {
+	AuthorID uuid.UUID
+	CourseID uuid.UUID
+}
+
+func (q *Queries) ThreadGetAuthor(ctx context.Context, id uuid.UUID) (ThreadGetAuthorRow, error) {
+	row := q.db.QueryRow(ctx, threadGetAuthor, id)
+	var i ThreadGetAuthorRow
+	err := row.Scan(&i.AuthorID, &i.CourseID)
+	return i, err
+}
+
+const threadInsert = `-- name: ThreadInsert :one
+insert into forum_threads (course_id, author_id, title, body, tags, week_no, embedding)
+values ($1, $2, $3, $4, $5, $6, $7)
+returning id, created_at
+`
+
+type ThreadInsertParams struct {
+	CourseID  uuid.UUID
+	AuthorID  uuid.UUID
+	Title     string
+	Body      string
+	Tags      []string
+	WeekNo    *int16
+	Embedding *pgvector.Vector
+}
+
+type ThreadInsertRow struct {
+	ID        uuid.UUID
+	CreatedAt time.Time
+}
+
+func (q *Queries) ThreadInsert(ctx context.Context, arg ThreadInsertParams) (ThreadInsertRow, error) {
+	row := q.db.QueryRow(ctx, threadInsert,
+		arg.CourseID,
+		arg.AuthorID,
+		arg.Title,
+		arg.Body,
+		arg.Tags,
+		arg.WeekNo,
+		arg.Embedding,
+	)
+	var i ThreadInsertRow
+	err := row.Scan(&i.ID, &i.CreatedAt)
+	return i, err
+}
+
+const threadList = `-- name: ThreadList :many
+
+select t.id, t.title, left(t.body, 160)::text as preview, t.tags, t.week_no, t.state, t.ai_state, t.reply_count, t.last_activity_at, t.created_at, t.author_id,
+       u.full_name as author_name, u.role as author_role,
+       coalesce((select p.verification_state::text from forum_posts p
+         where p.thread_id = t.id and p.course_id = t.course_id and p.kind = 'AI' and p.deleted_at is null
+           and ($1::bool or (p.hidden_at is null and p.verification_state <> 'REJECTED')) limit 1), '')::text as ai_verification
+from forum_threads t
+join users u on u.id = t.author_id
+where t.course_id = $2 and t.deleted_at is null
+  and ($3::int is null or t.week_no = $3::int)
+  and ($4::text is null or $4::text = any(t.tags))
+  and ($5::text is null or vn_fold(t.title) like '%' || vn_fold($5::text) || '%' escape '\')
+  and ($6::text is null
+       or ($6::text = 'pending' and exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state = 'PENDING' and p.deleted_at is null and p.hidden_at is null))
+       or ($6::text = 'verified' and exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state in ('VERIFIED', 'CORRECTED') and p.deleted_at is null and p.hidden_at is null))
+       or ($6::text = 'none' and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state <> 'REJECTED' and p.deleted_at is null and p.hidden_at is null)))
+  and ($7::timestamptz is null or (t.last_activity_at, t.id) < ($7::timestamptz, $8::uuid))
+order by t.last_activity_at desc, t.id desc
+limit $9
+`
+
+type ThreadListParams struct {
+	IsStaff   bool
+	CourseID  uuid.UUID
+	WeekNo    *int32
+	Tag       *string
+	Q         *string
+	State     *string
+	CursorAt  *time.Time
+	CursorID  *uuid.UUID
+	PageLimit int32
+}
+
+type ThreadListRow struct {
+	ID             uuid.UUID
+	Title          string
+	Preview        string
+	Tags           []string
+	WeekNo         *int16
+	State          ThreadState
+	AiState        ThreadAiState
+	ReplyCount     int32
+	LastActivityAt time.Time
+	CreatedAt      time.Time
+	AuthorID       uuid.UUID
+	AuthorName     string
+	AuthorRole     UserRole
+	AiVerification string
+}
+
+// ===== US-P3-06: service Threads =====
+// Một hàng gọn mỗi thread. Sinh viên không thấy bài AI REJECTED / ẩn (thread vẫn hiện); Staff thấy hết. `state`: pending | verified | none.
+func (q *Queries) ThreadList(ctx context.Context, arg ThreadListParams) ([]ThreadListRow, error) {
+	rows, err := q.db.Query(ctx, threadList,
+		arg.IsStaff,
+		arg.CourseID,
+		arg.WeekNo,
+		arg.Tag,
+		arg.Q,
+		arg.State,
+		arg.CursorAt,
+		arg.CursorID,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ThreadListRow{}
+	for rows.Next() {
+		var i ThreadListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Preview,
+			&i.Tags,
+			&i.WeekNo,
+			&i.State,
+			&i.AiState,
+			&i.ReplyCount,
+			&i.LastActivityAt,
+			&i.CreatedAt,
+			&i.AuthorID,
+			&i.AuthorName,
+			&i.AuthorRole,
+			&i.AiVerification,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const threadMarkAnswered = `-- name: ThreadMarkAnswered :execrows
+update forum_threads set ai_state = 'ANSWERED', reply_count = reply_count + 1, last_activity_at = now()
+where id = $1 and ai_state = 'PENDING'
+`
+
+func (q *Queries) ThreadMarkAnswered(ctx context.Context, id uuid.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, threadMarkAnswered, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const threadMarkSkipped = `-- name: ThreadMarkSkipped :execrows
+update forum_threads set ai_state = 'SKIPPED', ai_skip_reason = $1
+where id = $2 and ai_state = 'PENDING'
+`
+
+type ThreadMarkSkippedParams struct {
+	Reason *string
+	ID     uuid.UUID
+}
+
+func (q *Queries) ThreadMarkSkipped(ctx context.Context, arg ThreadMarkSkippedParams) (int64, error) {
+	result, err := q.db.Exec(ctx, threadMarkSkipped, arg.Reason, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const threadPosts = `-- name: ThreadPosts :many
+select p.id, p.thread_id, p.author_id, p.kind, p.body, p.verification_state, p.citations, p.confidence, p.ai_body, p.hidden_at, p.version, p.verified_at, p.created_at,
+       u.full_name as author_name, u.role as author_role
+from forum_posts p left join users u on u.id = p.author_id
+where p.course_id = $1 and p.thread_id = $2 and p.deleted_at is null
+  and ($3::bool or (p.hidden_at is null and p.verification_state <> 'REJECTED'))
+  and ($4::timestamptz is null or (p.created_at, p.id) > ($4::timestamptz, $5::uuid))
+order by p.created_at, p.id
+limit $6
+`
+
+type ThreadPostsParams struct {
+	CourseID  uuid.UUID
+	ThreadID  uuid.UUID
+	IsStaff   bool
+	CursorAt  *time.Time
+	CursorID  *uuid.UUID
+	PageLimit int32
+}
+
+type ThreadPostsRow struct {
+	ID                uuid.UUID
+	ThreadID          uuid.UUID
+	AuthorID          *uuid.UUID
+	Kind              PostKind
+	Body              string
+	VerificationState PostVerification
+	Citations         json.RawMessage
+	Confidence        decimal.NullDecimal
+	AiBody            *string
+	HiddenAt          *time.Time
+	Version           int32
+	VerifiedAt        *time.Time
+	CreatedAt         time.Time
+	AuthorName        *string
+	AuthorRole        *UserRole
+}
+
+// Sinh viên: bỏ bài REJECTED / ẩn / xoá. Staff: thấy cả bài REJECTED (hiện dòng thu gọn "Đã loại").
+func (q *Queries) ThreadPosts(ctx context.Context, arg ThreadPostsParams) ([]ThreadPostsRow, error) {
+	rows, err := q.db.Query(ctx, threadPosts,
+		arg.CourseID,
+		arg.ThreadID,
+		arg.IsStaff,
+		arg.CursorAt,
+		arg.CursorID,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ThreadPostsRow{}
+	for rows.Next() {
+		var i ThreadPostsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ThreadID,
+			&i.AuthorID,
+			&i.Kind,
+			&i.Body,
+			&i.VerificationState,
+			&i.Citations,
+			&i.Confidence,
+			&i.AiBody,
+			&i.HiddenAt,
+			&i.Version,
+			&i.VerifiedAt,
+			&i.CreatedAt,
+			&i.AuthorName,
+			&i.AuthorRole,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const threadSetEmbedding = `-- name: ThreadSetEmbedding :exec
+update forum_threads set embedding = $1 where id = $2 and embedding is null
+`
+
+type ThreadSetEmbeddingParams struct {
+	Embedding *pgvector.Vector
+	ID        uuid.UUID
+}
+
+func (q *Queries) ThreadSetEmbedding(ctx context.Context, arg ThreadSetEmbeddingParams) error {
+	_, err := q.db.Exec(ctx, threadSetEmbedding, arg.Embedding, arg.ID)
+	return err
+}
+
+const threadSetSimilarOf = `-- name: ThreadSetSimilarOf :exec
+update forum_threads t set similar_of = (
+  select o.id from forum_threads o
+  where o.course_id = t.course_id and o.id <> t.id and o.deleted_at is null and o.embedding is not null and t.embedding is not null
+    and 1 - (o.embedding <=> t.embedding) >= $1::float8
+  order by o.embedding <=> t.embedding limit 1)
+where t.id = $2 and t.similar_of is null
+`
+
+type ThreadSetSimilarOfParams struct {
+	MinCosine float64
+	ID        uuid.UUID
+}
+
+func (q *Queries) ThreadSetSimilarOf(ctx context.Context, arg ThreadSetSimilarOfParams) error {
+	_, err := q.db.Exec(ctx, threadSetSimilarOf, arg.MinCosine, arg.ID)
+	return err
+}
+
+const threadSimilar = `-- name: ThreadSimilar :many
+select t.id, t.title, left(t.body, 160)::text as preview, (1 - (t.embedding <=> src.embedding))::float8 as cosine
+from forum_threads t, forum_threads src
+where src.course_id = $1 and src.id = $2 and t.course_id = src.course_id and t.id <> src.id
+  and t.deleted_at is null and t.embedding is not null and src.embedding is not null
+  and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and (p.verification_state = 'REJECTED' or p.hidden_at is not null))
+  and 1 - (t.embedding <=> src.embedding) >= $3::float8
+order by t.embedding <=> src.embedding
+limit $4
+`
+
+type ThreadSimilarParams struct {
+	CourseID  uuid.UUID
+	ID        uuid.UUID
+	MinCosine float64
+	Lim       int32
+}
+
+type ThreadSimilarRow struct {
+	ID      uuid.UUID
+	Title   string
+	Preview string
+	Cosine  float64
+}
+
+func (q *Queries) ThreadSimilar(ctx context.Context, arg ThreadSimilarParams) ([]ThreadSimilarRow, error) {
+	rows, err := q.db.Query(ctx, threadSimilar,
+		arg.CourseID,
+		arg.ID,
+		arg.MinCosine,
+		arg.Lim,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ThreadSimilarRow{}
+	for rows.Next() {
+		var i ThreadSimilarRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.Preview,
+			&i.Cosine,
 		); err != nil {
 			return nil, err
 		}

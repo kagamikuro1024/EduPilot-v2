@@ -37,3 +37,6 @@ AC1 ✓ (22 mẫu dương, 21 âm) · AC2 ✓ · AC3 ✓ một phần (xem nợ 
 2. Các test Redis / Postgres của `internal/privacy` chạy mặc định (không cần `-tags integration`), theo thói quen của repo (container dùng chung).
 3. Người đang chat được che nhờ có mặt trong roster (ACTIVE). SRS 4.2.5 còn nhắc thêm `users.full_name` / `student_code` của chính người đó; không làm riêng vì chủ phiên luôn là sinh viên ACTIVE của lớp (CourseAccess). Nếu muốn che cả khi chưa ACTIVE: báo.
 4. Placeholder số `0` hoặc có số 0 đầu (`[[SV_01]]`) được chuẩn hoá bỏ số 0 đầu; `[[SV_0]]` → coi là sót.
+
+## Cập nhật (US-P3-06) — nợ 1 đã đóng
+`TestRosterInvalidateNotBlockedByLongJob` (`cmd/worker/thread_job_test.go`): việc AI của Threads treo ở LLM chạy ở consumer `ep:ingest`; `course.member_changed` vẫn xoá `ep:roster:{course}` trong ≤ 5 s. AC3 ✓ đầy đủ.

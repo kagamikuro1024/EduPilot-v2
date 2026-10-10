@@ -24,6 +24,7 @@ tags:
   - name: exam
   - name: document
   - name: chat
+  - name: threads
 paths:
   /healthz:
     get:
@@ -4957,6 +4958,347 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads:
+    get:
+      operationId: listThreads
+      tags: [threads]
+      summary: "Danh sách thread của lớp (Member không gồm ADMIN; lọc tuần / thẻ / trạng thái / tìm theo tiêu đề không dấu; phân trang con trỏ)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: week
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: tag
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang thread
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createThread
+      tags: [threads]
+      summary: "Đăng thread: tường lửa PII chạy lại ở máy chủ (422 PII_DETECTED; redact:true lưu bản đã ẩn); khoá giờ thi → 409 EXAM_IN_PROGRESS"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateThreadInput"
+      responses:
+        "201":
+          description: Thread mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads/precheck:
+    post:
+      operationId: precheckThread
+      tags: [threads]
+      summary: "Kiểm tường lửa khi đang gõ: không ghi gì; 60 yêu cầu / phút / người"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrecheckInput"
+      responses:
+        "200":
+          description: Kết quả kiểm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrecheckOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/threads/{tid}:
+    get:
+      operationId: getThread
+      tags: [threads]
+      summary: "Thread + bài theo projection vai (sinh viên không thấy bài AI bị loại, độ tin cậy, bản AI gốc)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thread và bài
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/threads/{tid}/similar:
+    get:
+      operationId: similarThreads
+      tags: [threads]
+      summary: "Tối đa 3 thread tương tự (cosine ≥ 0,75; không gồm thread có bài AI bị loại)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Thread tương tự
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimilarThreads"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/threads/{tid}/posts:
+    post:
+      operationId: commentThread
+      tags: [threads]
+      summary: "Bình luận (HUMAN) qua cùng tường lửa; AI không trả lời bình luận"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        "201":
+          description: Bình luận mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/posts/{pid}/verify:
+    post:
+      operationId: verifyThreadPost
+      tags: [threads]
+      summary: "Xác nhận câu trả lời AI (Staff; lặp lại cùng quyết định = 200 không đổi)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bài đã xác nhận
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/correct:
+    put:
+      operationId: correctThreadPost
+      tags: [threads]
+      summary: "Sửa câu trả lời AI (Staff; kèm version; bản AI gốc giữ ở ai_body)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CorrectInput"
+      responses:
+        "200":
+          description: Bài đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/posts/{pid}/reject:
+    post:
+      operationId: rejectThreadPost
+      tags: [threads]
+      summary: "Loại câu trả lời AI (Staff): biến mất khỏi mọi đường đọc của sinh viên"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bài đã loại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/sessions/from-draft:
+    post:
+      operationId: chatFromDraft
+      tags: [chat]
+      summary: "Chuyển bản nháp Threads sang chat riêng: phiên PRIVATE không có tin nhắn, trả bản nháp nguyên văn (không lưu nháp ở máy chủ), ghi SWITCHED"
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FromDraftInput"
+      responses:
+        "201":
+          description: Phiên mới và bản nháp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FromDraftOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -6679,6 +7021,8 @@ components:
             - MESSAGE_TOO_LONG
             - CHAT_UNAVAILABLE
             - MESSAGE_NOT_RETRYABLE
+            - PII_DETECTED
+            - POST_STATE_CONFLICT
         message:
           type: string
         trace_id:
@@ -8743,3 +9087,243 @@ components:
             $ref: "#/components/schemas/ChatMessage"
         next_cursor:
           type: [string, "null"]
+    ThreadAuthor:
+      type: object
+      required: [full_name, role, is_me]
+      properties:
+        full_name:
+          type: string
+        role:
+          type: string
+        is_me:
+          type: boolean
+    ThreadRow:
+      type: object
+      required: [id, title, preview, tags, week_no, author, answer_state, reply_count, last_activity_at, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        preview:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        author:
+          $ref: "#/components/schemas/ThreadAuthor"
+        answer_state:
+          type: [string, "null"]
+        reply_count:
+          type: integer
+        last_activity_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        ai_state:
+          type: string
+    ThreadPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ThreadRow"
+        next_cursor:
+          type: [string, "null"]
+    ThreadPost:
+      type: object
+      required: [id, kind, author, body, verification_state, citations, version, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum: [AI, HUMAN]
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadAuthor"
+            - type: "null"
+        body:
+          type: string
+        verification_state:
+          type: [string, "null"]
+        citations:
+          type: array
+          items:
+            type: object
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        confidence:
+          type: string
+        ai_body:
+          type: string
+        rejected:
+          type: boolean
+    ThreadDetail:
+      type: object
+      required: [id, title, body, tags, week_no, author, reply_count, created_at, last_activity_at, similar_of]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        body:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        author:
+          $ref: "#/components/schemas/ThreadAuthor"
+        reply_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        last_activity_at:
+          type: string
+          format: date-time
+        similar_of:
+          type: [string, "null"]
+          format: uuid
+        ai_state:
+          type: string
+        ai_skip_reason:
+          type: string
+    ThreadView:
+      type: object
+      required: [thread, posts, next_cursor]
+      properties:
+        thread:
+          $ref: "#/components/schemas/ThreadDetail"
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ThreadPost"
+        next_cursor:
+          type: [string, "null"]
+    CreateThreadInput:
+      type: object
+      required: [title, body]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        redact:
+          type: boolean
+    CommentInput:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        redact:
+          type: boolean
+    CorrectInput:
+      type: object
+      required: [body, version]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        version:
+          type: integer
+    PrecheckInput:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+    PrecheckOutput:
+      type: object
+      required: [allowed, reasons, redacted_text, redacted_title, personal_question]
+      properties:
+        allowed:
+          type: boolean
+        reasons:
+          type: array
+          items:
+            type: object
+            required: [type, count]
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+        redacted_text:
+          type: string
+        redacted_title:
+          type: string
+        personal_question:
+          type: boolean
+    SimilarThreads:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, title, preview]
+            properties:
+              id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              preview:
+                type: string
+    FromDraftInput:
+      type: object
+      required: [course_id, body]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        body:
+          type: string
+    FromDraftOutput:
+      type: object
+      required: [session_id, draft]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        draft:
+          type: object
+          required: [title, body]
+          properties:
+            title:
+              type: string
+            body:
+              type: string

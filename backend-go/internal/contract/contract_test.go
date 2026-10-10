@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 141 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 141)", n)
+		if n := len(prod.Operations()); n != 151 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 151)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
 		if n := len(test.Operations()); n != 21 {
@@ -280,6 +280,9 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/chat/sessions": true, "POST /api/v1/chat/sessions": true, "DELETE /api/v1/chat/sessions/{sid}": true, "POST /api/v1/chat/sessions/{sid}/restore": true,
 		"GET /api/v1/chat/sessions/{sid}/messages": true, "POST /api/v1/chat/sessions/{sid}/messages": true, "GET /api/v1/chat/messages/{mid}/stream": true,
 		"POST /api/v1/chat/messages/{mid}/cancel": true, "POST /api/v1/chat/messages/{mid}/retry": true, "PUT /api/v1/chat/messages/{mid}/feedback": true,
+		"GET /api/v1/courses/{id}/threads": true, "POST /api/v1/courses/{id}/threads": true, "POST /api/v1/courses/{id}/threads/precheck": true, "GET /api/v1/courses/{id}/threads/{tid}": true,
+		"GET /api/v1/courses/{id}/threads/{tid}/similar": true, "POST /api/v1/courses/{id}/threads/{tid}/posts": true, "POST /api/v1/courses/{id}/posts/{pid}/verify": true,
+		"PUT /api/v1/courses/{id}/posts/{pid}/correct": true, "POST /api/v1/courses/{id}/posts/{pid}/reject": true, "POST /api/v1/chat/sessions/from-draft": true,
 		"GET /api/v1/me/today": true, "GET /api/v1/courses/{id}/today": true, "POST /api/v1/courses/{id}/setup/dismiss": true,
 		// US-PE-03 — ngân hàng câu hỏi (thao tác 1–16 của SRS FEAT-weekly-exam 6.2)
 		"GET /api/v1/courses/{id}/questions":                                            true,

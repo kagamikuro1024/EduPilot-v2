@@ -88,6 +88,8 @@ const (
 	MessageTooLong      = "MESSAGE_TOO_LONG"
 	ChatUnavailable     = "CHAT_UNAVAILABLE"
 	MessageNotRetryable = "MESSAGE_NOT_RETRYABLE"
+	PIIDetected         = "PII_DETECTED"
+	PostStateConflict   = "POST_STATE_CONFLICT"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -282,6 +284,10 @@ func DefaultMessage(code string) string {
 		return "Tin nhắn quá dài."
 	case ChatUnavailable:
 		return "Chat tạm thời không khả dụng. Hãy thử lại sau."
+	case PIIDetected:
+		return "Bài viết có thông tin cá nhân. Chuyển sang chat riêng hoặc ẩn thông tin rồi đăng."
+	case PostStateConflict:
+		return "Câu trả lời đã được xử lý theo cách khác. Hãy tải lại."
 	case MessageNotRetryable:
 		return "Chỉ thử lại được câu trả lời bị lỗi hoặc đã dừng."
 	default:

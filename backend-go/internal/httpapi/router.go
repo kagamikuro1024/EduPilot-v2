@@ -6,6 +6,7 @@ import (
 	"errors"
 	"github.com/edupilot/backend-go/internal/chat"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
+	"github.com/edupilot/backend-go/internal/thread"
 	"log/slog"
 	"net/http"
 	"sync"
@@ -62,6 +63,8 @@ type Deps struct {
 	Users *user.Service
 	// Chat: chat riêng của sinh viên (US-P3-05). Trống thì dựng từ DB + Redis + LLM; thiếu một trong ba → không có route chat.
 	Chat *chat.Service
+	// Thread: Threads (US-P3-06). Dựng cùng điều kiện với Chat (+ Jobs).
+	Thread *thread.Service
 }
 
 // now là đồng hồ của request (Clock trống → đồng hồ hệ thống).
@@ -137,8 +140,17 @@ func withDefaults(d Deps) Deps {
 	if d.Users == nil && d.DB != nil && d.Sessions != nil && d.Accounts != nil {
 		d.Users = user.New(d.DB, d.Clock, queueMail, d.Sessions, d.Accounts, user.Config{InviteTTL: d.Cfg.InviteTokenTTL})
 	}
-	if d.Chat == nil {
-		d.Chat = chatService(d)
+	if d.Chat == nil || d.Thread == nil {
+		ai := newAI(d)
+		if d.Thread == nil {
+			d.Thread = threadService(d, ai)
+		}
+		if d.Chat == nil {
+			d.Chat = chatService(d, ai)
+			if d.Chat != nil && d.Thread != nil {
+				d.Chat.OnSwitched = d.Thread.RecordSwitched
+			}
+		}
 	}
 	return d
 }

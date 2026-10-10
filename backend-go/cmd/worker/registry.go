@@ -13,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
+	"github.com/edupilot/backend-go/internal/thread"
 	"github.com/edupilot/backend-go/internal/today"
 )
 
@@ -26,6 +27,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
 	ew.Register(runner)                   // code.verify_reference, question.suggest (US-PE-03)
+	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
 	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
 	reg.Register(mail.Topic, mh.Handle)

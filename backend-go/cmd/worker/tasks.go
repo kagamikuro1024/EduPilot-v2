@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/chat"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
@@ -13,6 +14,9 @@ import (
 	"github.com/edupilot/backend-go/internal/judge"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/rag"
+	"github.com/edupilot/backend-go/internal/thread"
+	"github.com/google/uuid"
 )
 
 // Task là một việc nền chạy tới khi ctx bị huỷ (relay outbox, consumer Stream…).
@@ -41,7 +45,8 @@ func newTasks(d Deps) []Task {
 		pub := sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL)
 		proc := &ingest.Processor{Pool: d.DB, Blob: d.Blob, Docling: &ingest.Docling{BaseURL: set.DoclingURL, Poll: set.PollInterval}, LLM: d.LLM,
 			Jobs: jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log), Log: d.Log, Set: set}
-		tasks = append(tasks, ingestTask{&ingest.Queue{P: proc, Redis: d.Redis, Consumer: d.Cfg.InstanceID, Log: d.Log}})
+		ts := &thread.Service{Pool: d.DB, Redis: d.Redis, Rag: &rag.Service{DB: d.DB}, LLM: d.LLM, Embed: agent.NewEmbedder(d.LLM, d.Redis), Run: proc.Jobs, Clock: clock.Real{}, Log: d.Log}
+		tasks = append(tasks, ingestTask{&ingest.Queue{P: proc, Redis: d.Redis, Consumer: d.Cfg.InstanceID, Log: d.Log, Extra: map[string]func(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) error{thread.KindAnswer: ts.AnswerHandler}}})
 	}
 	return tasks
 }

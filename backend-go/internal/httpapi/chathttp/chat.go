@@ -42,6 +42,7 @@ type Handler struct {
 func (h *Handler) Mount(r chi.Router) {
 	r.Get("/chat/sessions", h.list)
 	r.With(h.Idem).Post("/chat/sessions", h.create)
+	r.With(h.Idem).Post("/chat/sessions/from-draft", h.fromDraft)
 	r.Delete("/chat/sessions/{sid}", h.del)
 	r.Post("/chat/sessions/{sid}/restore", h.restore)
 	r.Get("/chat/sessions/{sid}/messages", h.messages)
@@ -329,4 +330,21 @@ func (s *sseWriter) Frame(id, event string, data []byte) error {
 	}
 	fmt.Fprintf(&b, "event: %s\ndata: %s\n\n", event, data)
 	return s.raw(b.String())
+}
+
+func (h *Handler) fromDraft(w http.ResponseWriter, r *http.Request) {
+	a, _, ok := h.ids(w, r, "")
+	if !ok {
+		return
+	}
+	var in chat.FromDraftIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Svc.FromDraft(r.Context(), a, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusCreated, out)
 }

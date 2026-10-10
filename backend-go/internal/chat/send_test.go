@@ -397,3 +397,41 @@ func TestChatRoleMatrix(t *testing.T) {
 	}
 	require.Zero(t, r.ag.calls.Load()-1, "mọi lời gọi trái phép không tới agent")
 }
+
+// TestFromDraftNoMessageStored — US-P3-06 AC5: phiên mới không có tin nhắn; nháp không được lưu ở bất kỳ đâu phía máy chủ (không forum_*, chat_messages, tiêu đề phiên, outbox, jobs).
+func TestFromDraftNoMessageStored(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	body := "MSSV 20229001 chữ-nháp-duy-nhất-9f3"
+	out, err := r.svc.FromDraft(t.Context(), r.student, chat.FromDraftIn{CourseID: r.course, Title: "tiêu-đề-nháp-9f3", Body: body})
+	require.NoError(t, err)
+	require.Zero(t, r.count(`select count(*) from chat_messages where session_id=$1`, out.SessionID))
+	require.Zero(t, r.count(`select count(*) from forum_threads`)+r.count(`select count(*) from forum_posts`))
+	for _, tbl := range []string{"chat_sessions", "outbox", "jobs", "audit_log", "pii_events"} {
+		require.Zero(t, r.count(`select count(*) from `+tbl+` t where t::text like '%9f3%'`), tbl)
+	}
+}
+
+// TestFromDraftKeepsText / OnSwitched — US-P3-06 AC5: phiên PRIVATE không có tin nhắn; bản nháp trả lại ĐÚNG TỪNG BYTE (kể cả xuống dòng); không lưu nháp ở máy chủ; hook SWITCHED được gọi một lần.
+func TestFromDraftKeepsText(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	var got []string
+	r.svc.OnSwitched = func(_ context.Context, uid, cid uuid.UUID, title, body string) {
+		require.Equal(t, r.student.UserID, uid)
+		require.Equal(t, r.course, cid)
+		got = append(got, title, body)
+	}
+	body := "Dòng một có MSSV 20229001\r\n\r\n  Dòng ba, thụt lề\t và ký tự lạ: ủ̉ ☃ [[x]] \n"
+	out, err := r.svc.FromDraft(t.Context(), r.student, chat.FromDraftIn{CourseID: r.course, Title: " Tiêu đề  ", Body: body})
+	require.NoError(t, err)
+	require.Equal(t, body, out.Draft.Body, "đúng từng byte")
+	require.Equal(t, " Tiêu đề  ", out.Draft.Title)
+	require.Equal(t, 1, r.count(`select count(*) from chat_sessions where id=$1 and user_id=$2 and channel='PRIVATE'`, out.SessionID, r.student.UserID))
+	require.Equal(t, []string{" Tiêu đề  ", body}, got)
+	// phân quyền: người ngoài lớp / vai sai
+	_, err = r.svc.FromDraft(t.Context(), chat.Actor{UserID: r.user("X", "STUDENT"), Role: auth.RoleStudent}, chat.FromDraftIn{CourseID: r.course, Body: "x"})
+	require.Equal(t, 403, httpStatus(err))
+	_, err = r.svc.FromDraft(t.Context(), r.student, chat.FromDraftIn{CourseID: r.course, Body: "   "})
+	require.Equal(t, 422, httpStatus(err))
+}
