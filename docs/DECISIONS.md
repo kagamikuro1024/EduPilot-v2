@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | D1 | Bài nộp: Mail IMAP thật + upload ZIP; Teams là adapter sau cờ, mặc định tắt | Quyền Graph `EduAssignments.*` cần admin consent của tenant trường; không hỗ trợ tài khoản Microsoft cá nhân |
 | D2 | Hai kênh: chat riêng cho thông tin cá nhân, Threads cho hỏi bài; PII = tường lửa chặn câu hỏi riêng tư lọt ra Threads | Đúng mô hình Project III, mở rộng thêm chuyển kênh một chạm |
-| D3 | Chấm: tự luận dạng văn bản + form trắc nghiệm; không chấm mã nguồn | Sandbox chạy code rủi ro cao, lệch trọng tâm |
+| D3 | ~~Chấm: tự luận dạng văn bản + form trắc nghiệm; không chấm mã nguồn~~ **thay bởi D55** (bài thi hằng tuần chấm mã C / C++ bằng sandbox; bài tập tự luận vẫn không chấm mã nguồn) | Sandbox chạy code rủi ro cao, lệch trọng tâm |
 | D6 | Giảng viên nhận chuông, trả lời trong app; thư bắn qua mail cho sinh viên; không nhận reply từ hộp thư | Đơn giản, đủ dùng |
 | D9 | Công thức điểm trích từ file quy chế môn học (`COURSE_POLICY`), giảng viên xác nhận; hệ thống nhắc khi thiếu hoặc không rõ | Mỗi môn chấm/cộng điểm khác nhau |
 | D12 | Observation = ghi chú quan sát sinh viên (M6) + quan sát hệ thống AI + báo cáo lỗ hổng kiến thức + thời gian học on-screen (M13) | Yêu cầu của chủ dự án |
