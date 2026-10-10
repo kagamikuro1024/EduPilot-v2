@@ -1,5 +1,7 @@
 # SRS FEAT-private-chat-pii Hai kênh hỏi–đáp, tường lửa PII, che danh tính trước LLM
-Phiên bản 1.0 · 2026-10-10 · Trạng thái: DRAFT (chờ Tech Lead thẩm định `TL-REVIEW.md`, rồi PM duyệt)
+Phiên bản 1.1 · 2026-10-10 · Trạng thái: DRAFT (chờ Tech Lead thẩm định `TL-REVIEW.md`, rồi PM duyệt)
+
+**v1.1 (2026-10-10)** — chủ dự án trả lời các câu [CHỦ DỰ ÁN] (`docs/sprints/6/proposals.md`). **Q3:** tên người đăng thread công khai với cả lớp (2, 4.9.7, 6, US-P3-06 AC16). **Q2:** khoá giờ thi chặn chat riêng **và đăng thread mới** (thread cũ vẫn đọc; bình luận, `precheck`, `from-draft` không bị chặn) — thêm bước khoá ở 4.9.3, bỏ việc "AI hoãn khi người đăng đang thi" ở 4.9.5, thêm dòng ở 3.3, 6 (#15), 7, FR-13, US-P3-06 AC20. `RAG_TOP_K` 6 → 8 và chỉ mục GIN `tsv` theo `proposals.md` #7 (`FEAT-docs-calendar`). Không đổi số AC (110).
 
 Nguồn: `docs/phases/P3.md`; `docs/sprints/6/plan.md`; PRD M1, M2, G1, §3, §5, §6 E1; FLOWS F3, F4, F12 (khoá giờ thi), F14; `ARCHITECTURE.md` §1, §4–§8; `SYSTEM_DESIGN.md` 3.2, 5; `DECISIONS.md` D15, D44, D46, D47, D56, D59; `DESIGN.md` §13, §14.2–§14.4; `UX.md` quy tắc 1–7, mục 6; spec nền `FEAT-llm-gateway`, `FEAT-course-foundation`, `FEAT-weekly-exam` (`ep:exam_lock`, `exam.Locker`), `FEAT-ui-foundation`, `FEAT-ui-panels`.
 
@@ -27,7 +29,7 @@ Chế độ guard dùng đúng tên ở `FEAT-course-foundation` 4.1. Các route
 | `precheck` Threads | ✓ | ✓ | ✓ | ✗ | `Member` |
 | Xác nhận / Sửa / Loại bài AI | ✗ | ✓ | ✓ | ✗ | `Staff` |
 | Thấy độ tin cậy (số) của bài AI ở Threads | ✗ | ✓ | ✓ | ✗ | `Staff` (chỉ trong projection Staff) |
-| Thấy tên người đăng thread (sinh viên) | chỉ của mình | ✓ | ✓ | ✗ | projection theo vai (Q3) |
+| Thấy tên người đăng thread | ✓ | ✓ | ✓ | ✗ | `Member` — công khai với cả lớp (Q3) |
 | `GET /me/exam-lock` | ✓ | ✓ | ✓ | ✓ | JWT, chỉ chính mình (PE) |
 
 Quy tắc: danh tính (`user_id`, `student_id`, `author_id`) **luôn từ JWT**; sinh viên đọc / ghi chỉ dữ liệu có `user_id = sub`, phiên của người khác trả **404** (không lộ tồn tại); ADMIN **không** có route chat / threads (nav chỉ cho `student`/`ta`/`teacher` — `frontend/src/shared/shell/nav.ts`; lệch với bảng PRD §3 ghi ở Q1); lớp `ARCHIVED` đọc được, ghi trả 409 `COURSE_ARCHIVED`. Nội dung prompt chỉ ADMIN xem qua `/observability` (P10) và mỗi lần mở ghi `audit_log` (không đổi ở sprint này; `llm_audit` không có nội dung).
@@ -90,6 +92,7 @@ flowchart TD
 | Tình huống | Hệ thống phản ứng | Người dùng thấy |
 | --- | --- | --- |
 | Đang làm bài thi (`Locker` true) | 409 `EXAM_IN_PROGRESS` `{until}`; ghi `CHAT_BLOCKED`; 0 lời gọi provider | "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 10:45." |
+| Đăng thread mới khi đang làm bài thi | 409 `EXAM_IN_PROGRESS` `{until}`; ghi `CHAT_BLOCKED`; không lưu | "Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 10:45." |
 | `Locker` lỗi (Redis và DB) | 503 `CHAT_UNAVAILABLE` + `retry_after` (an toàn khi nghi ngờ) | "Chat chưa dùng được lúc này. Thử lại sau ít phút." |
 | Quá tải (`ErrOverloaded`) | SSE `error{OVERLOADED, retry_after}`; tin `FAILED` | "AI đang bận. Thử lại sau khoảng 20 giây." + `Thử lại` |
 | Mọi provider chết | trả lời trích xuất từ đoạn truy xuất, `degraded` | "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." |
@@ -122,7 +125,7 @@ flowchart TD
 | `CHAT_HISTORY_TURNS` | 6 | số lượt gần nhất đưa vào lời nhắc |
 | `PRECHECK_RATE_PER_MIN` | 60 | `precheck` / phút / người |
 | `THREAD_BODY_MAX_CHARS` | 8000 | nội dung thread / bình luận |
-| `RAG_TOP_K` | 6 | đoạn đưa vào lời nhắc |
+| `RAG_TOP_K` | 8 | đoạn đưa vào lời nhắc |
 | `RAG_SIM_FLOOR` / `RAG_SIM_CEIL` | 0,25 / 0,65 | chuẩn hoá điểm truy xuất (cosine); dưới sàn = không có ngữ cảnh. **Bản tạm, hiệu chỉnh ở E2** |
 | `PII_PERSONAL_SIM_HIGH` / `LOW` | 0,78 / 0,55 | ngưỡng tương đồng với mẫu cá nhân. **Khởi điểm; chỉnh trên tập `dev` của E1, không trên `test`** |
 | `SUPPORT_RESOURCES_VI` | (rỗng) | thông tin hỗ trợ sinh viên của trường (`ARCHITECTURE.md` §8) |
@@ -270,15 +273,15 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 
 **4.9.2 `precheck`** không ghi gì (không `forum_*`, không `pii_events`); rate limit; trả `{allowed, reasons, redacted_text, personal_question}`.
 
-**4.9.3 Đăng** (`POST …/threads`, `Idempotency-Key` bắt buộc): luôn chạy lại `CheckPost`; `Allowed` → lưu; không → nếu `redact:true` **và** `!Personal` → lưu bản `Redacted` **sau khi kiểm lại** bản đó sạch (nếu còn PII → 422), ghi `REDACTED`; còn lại 422 `PII_DETECTED` (kèm `reasons`, `redacted_text`, `personal_question`), ghi `BLOCKED` một dòng mỗi loại. Giao dịch: `forum_threads` + outbox `thread.created`.
+**4.9.3 Đăng** (`POST …/threads`, `Idempotency-Key` bắt buộc): **trước hết** kiểm khoá giờ thi (`exam.Locker.IsLocked`, Q2): khoá → ghi `exam_events` `CHAT_BLOCKED` + 409 `EXAM_IN_PROGRESS {until}`, lỗi → 503 `CHAT_UNAVAILABLE`; sau đó luôn chạy lại `CheckPost`; `Allowed` → lưu; không → nếu `redact:true` **và** `!Personal` → lưu bản `Redacted` **sau khi kiểm lại** bản đó sạch (nếu còn PII → 422), ghi `REDACTED`; còn lại 422 `PII_DETECTED` (kèm `reasons`, `redacted_text`, `personal_question`), ghi `BLOCKED` một dòng mỗi loại. Giao dịch: `forum_threads` + outbox `thread.created`.
 
 **4.9.4 `from-draft`** (`POST /chat/sessions/from-draft {course_id, title?, body}`, `Idempotency-Key`): guard `Member` + STUDENT của `course_id`; tạo phiên `PRIVATE`, trả `{session_id, draft:{title, body}}` — **bản nháp không được lưu ở máy chủ** (chỉ phản hồi); ghi `SWITCHED` (số `Finding` tính lại phía máy chủ).
 
-**4.9.5 Việc AI trả lời** (worker, topic `thread.created`, idempotent): `ai_state != PENDING` → bỏ; người đăng đang có khoá giờ thi (`exam.Locker.IsLocked`, Q2) → giữ `PENDING`, trả lỗi cho outbox thử lại sau 60 s (không sinh bài AI, không gọi provider); nhúng `title + body` **một** lần (lưu `forum_threads.embedding`; tính `similar_of`); `rag.Search` (`audience='ALL'`, tài liệu `visible_to_students`, lớp); không đoạn trên sàn → `SKIPPED/NO_CONTEXT`; một `llm.Chat` (task `CHAT`, **làn `NEAR_REALTIME`** — hạ làn hợp lệ theo `ResolveLane`) với lời nhắc Socratic + trích nguồn `[n]`; `ErrOverloaded` → trả lỗi cho outbox thử lại (tối đa 4 lần, lùi dần); `ErrNotConfigured` / `ErrAllProvidersFailed` / hết lần thử → `SKIPPED/LLM_UNAVAILABLE`; thành công: một giao dịch tạo bài `AI` (`verification_state=PENDING`, `citations`, `confidence`), `ai_state=ANSWERED`, `notifications` `THREAD_ANSWERED` cho người đăng (dedupe), outbox `thread.ai_answered` (vô hiệu cache "Hôm nay" của Staff). Ràng buộc DB `UNIQUE (thread_id) WHERE kind='AI'` đảm bảo không có bài AI thứ hai.
+**4.9.5 Việc AI trả lời** (worker, topic `thread.created`, idempotent): `ai_state != PENDING` → bỏ; nhúng `title + body` **một** lần (lưu `forum_threads.embedding`; tính `similar_of`); `rag.Search` (`audience='ALL'`, tài liệu `visible_to_students`, lớp); không đoạn trên sàn → `SKIPPED/NO_CONTEXT`; một `llm.Chat` (task `CHAT`, **làn `NEAR_REALTIME`** — hạ làn hợp lệ theo `ResolveLane`) với lời nhắc Socratic + trích nguồn `[n]`; `ErrOverloaded` → trả lỗi cho outbox thử lại (tối đa 4 lần, lùi dần); `ErrNotConfigured` / `ErrAllProvidersFailed` / hết lần thử → `SKIPPED/LLM_UNAVAILABLE`; thành công: một giao dịch tạo bài `AI` (`verification_state=PENDING`, `citations`, `confidence`), `ai_state=ANSWERED`, `notifications` `THREAD_ANSWERED` cho người đăng (dedupe), outbox `thread.ai_answered` (vô hiệu cache "Hôm nay" của Staff). Ràng buộc DB `UNIQUE (thread_id) WHERE kind='AI'` đảm bảo không có bài AI thứ hai.
 
 **4.9.6 Quyết định của Staff.** `verify`: `PENDING|CORRECTED → VERIFIED`; `correct {body, version}`: `PENDING|VERIFIED → CORRECTED`, `ai_body` giữ bản AI; `reject`: `→ REJECTED`; mỗi quyết định: cập nhật + `audit_log` + outbox `thread.post_decided` + chuông cho người đăng (`THREAD_VERIFIED` khi `VERIFIED` / `CORRECTED`); lặp lại cùng quyết định → 200 không đổi; quyết định mâu thuẫn với trạng thái cuối → 409. Đường đọc của sinh viên luôn thêm `verification_state <> 'REJECTED' AND hidden_at IS NULL AND deleted_at IS NULL`.
 
-**4.9.7 Tên người đăng** (Q3): projection theo vai — Staff thấy `author.full_name`; sinh viên khác thấy `author: null` ("Một bạn trong lớp"); chủ bài thấy `is_me: true`.
+**4.9.7 Tên người đăng** (Q3, chủ dự án 2026-10-10): **công khai với mọi thành viên lớp** — mỗi thread / bài có `author:{full_name, role, is_me}` (bài AI: `author:null`, nhãn `AI`). Không bao giờ kèm email, MSSV, `user_id` (chỉ `is_me` cho chủ bài). Lý do chủ dự án: đã có chat riêng cho câu hỏi riêng tư nên Threads để công khai mặc định. Tường lửa vẫn chặn tên **trong nội dung**.
 
 ### 4.10 Danh sách FR
 
@@ -296,12 +299,12 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 | FR-10 | Gửi tin, SSE ≤ 300 ms, thứ tự sự kiện, `partial_content`, idempotent, kiểm đầu vào | 05-AC1…AC3, AC11, AC12 |
 | FR-11 | Nối lại, không huỷ khi rớt mạng, Dừng tới provider, reaper | 05-AC4…AC6, AC19 |
 | FR-12 | Quá tải, suy giảm, câu mẫu cùng khuôn | 05-AC7, AC8, AC21 |
-| FR-13 | Khoá giờ thi (D56) và giao diện khoá | 05-AC9, AC10 |
+| FR-13 | Khoá giờ thi (D56): chat riêng và đăng thread mới; giao diện khoá | 05-AC9, AC10, 06-AC20 |
 | FR-14 | Dòng "Đã ẩn N…", không lộ placeholder, khối tool, trích nguồn, phản hồi, không nút escalate | 05-AC13…AC16 |
 | FR-15 | Phiên, lịch sử, xoá mềm; phân quyền chat; giao diện `/chat` | 05-AC17, AC18, AC20 |
 | FR-16 | Threads: danh sách, `precheck`, dòng báo, chặn khi đăng, hộp thoại hai lối | 06-AC1…AC4, AC8 |
 | FR-17 | Chuyển kênh giữ chữ; ẩn rồi đăng; không lưu thô; cưỡng chế phía máy chủ | 06-AC5…AC7, AC19 |
-| FR-18 | AI trả lời một lần, bỏ qua khi không đủ tin cậy, hoãn khi người đăng đang thi, hiển thị | 06-AC9…AC11, AC20 |
+| FR-18 | AI trả lời một lần, bỏ qua khi không đủ tin cậy, hiển thị | 06-AC9…AC11 |
 | FR-19 | Xác nhận / Sửa / Loại, đồng thời, thông báo, thread tương tự | 06-AC12…AC15 |
 | FR-20 | Phân quyền Threads, mạng xấu, giao diện `/threads` | 06-AC16…AC18 |
 | FR-21 | Confidence tất định, ngưỡng lớp, sinh viên không thấy số, dưới ngưỡng chỉ lời | 07-AC1…AC6 |
@@ -370,7 +373,7 @@ Thêm `CHECK (role <> 'USER' OR (stream_status='DONE' AND confidence IS NULL))`.
 
 ### 5.6 Chỉ mục
 
-`chat_sessions_user_idx (course_id, user_id, last_message_at DESC, id DESC) WHERE deleted_at IS NULL`; `chat_messages_session_idx (session_id, created_at DESC, id DESC)`; `chat_messages_streaming_idx (updated_at) WHERE stream_status='STREAMING'`; `chat_messages_idem_key` (UNIQUE ở 5.3); `forum_threads_course_idx (course_id, last_activity_at DESC, id DESC) WHERE deleted_at IS NULL`; `forum_threads_week_idx (course_id, week_no)`; `forum_threads_skipped_idx (course_id, created_at) WHERE ai_state='SKIPPED' AND deleted_at IS NULL` (nguồn việc Staff); `forum_posts_thread_idx (thread_id, created_at, id)`; `forum_posts_pending_idx (course_id, created_at) WHERE kind='AI' AND verification_state='PENDING' AND hidden_at IS NULL AND deleted_at IS NULL`; `pii_events_course_idx (course_id, created_at DESC)`; `pii_events_user_idx (user_id, created_at DESC)`. Chỉ mục HNSW cho `embedding` và GIN tsvector: P10 (`00015`), `ponytail:` quét tuần tự ở quy mô seed.
+`chat_sessions_user_idx (course_id, user_id, last_message_at DESC, id DESC) WHERE deleted_at IS NULL`; `chat_messages_session_idx (session_id, created_at DESC, id DESC)`; `chat_messages_streaming_idx (updated_at) WHERE stream_status='STREAMING'`; `chat_messages_idem_key` (UNIQUE ở 5.3); `forum_threads_course_idx (course_id, last_activity_at DESC, id DESC) WHERE deleted_at IS NULL`; `forum_threads_week_idx (course_id, week_no)`; `forum_threads_skipped_idx (course_id, created_at) WHERE ai_state='SKIPPED' AND deleted_at IS NULL` (nguồn việc Staff); `forum_posts_thread_idx (thread_id, created_at, id)`; `forum_posts_pending_idx (course_id, created_at) WHERE kind='AI' AND verification_state='PENDING' AND hidden_at IS NULL AND deleted_at IS NULL`; `pii_events_course_idx (course_id, created_at DESC)`; `pii_events_user_idx (user_id, created_at DESC)`. HNSW cho `embedding`: P10 (`00015`); GIN `content_chunks.tsv`: `00010_chunk_search` (`FEAT-docs-calendar`); `ponytail:` quét chính xác theo lớp ở quy mô seed (2,7–4,1 ms đo ở PoC).
 
 ### 5.7 Khoá Redis (tiền tố `ep:`)
 
@@ -413,14 +416,14 @@ Tiền tố `/api/v1`. Lỗi `{code, message, details?, retry_after?}`. Phân tr
 | 12 | `GET /courses/{cid}/threads` | `Member` | lọc `week`, `tag`, `state` (`pending`/`verified`/`none`), `q`; `{items:[hàng],next_cursor}` | 403 |
 | 13 | `GET /courses/{cid}/threads/{id}` | `Member` | thread + bài (`cursor`) theo projection vai | 403, 404 |
 | 14 | `POST /courses/{cid}/threads/precheck` | `Member` | `{title?, body}` → `{allowed, reasons[], redacted_text, personal_question}` | 403, 422, 429 |
-| 15 | `POST /courses/{cid}/threads` **[K]** | `Member` | `{title, body, tags?, week_no?, redact?}` → 201 thread | 403, 409 `COURSE_ARCHIVED`, 422 `PII_DETECTED` |
+| 15 | `POST /courses/{cid}/threads` **[K]** | `Member` | `{title, body, tags?, week_no?, redact?}` → 201 thread | 403, 409 `COURSE_ARCHIVED` / `EXAM_IN_PROGRESS`, 422 `PII_DETECTED`, 503 `CHAT_UNAVAILABLE` |
 | 16 | `POST /courses/{cid}/threads/{id}/posts` **[K]** | `Member` | `{body, redact?}` → 201 bài `HUMAN` | 403, 404, 422 `PII_DETECTED` |
 | 17 | `POST /courses/{cid}/posts/{id}/verify` | `Staff` | 200 bài | 403, 404, 409 `POST_STATE_CONFLICT` |
 | 18 | `PUT /courses/{cid}/posts/{id}/correct` | `Staff` | `{body, version}` → 200 | 409 `VERSION_CONFLICT` / `POST_STATE_CONFLICT`, 422 |
 | 19 | `POST /courses/{cid}/posts/{id}/reject` | `Staff` | 200 | 409 `POST_STATE_CONFLICT` |
 | 20 | `GET /courses/{cid}/threads/{id}/similar` | `Member` | `{items:[≤3 thread]}` | 403, 404 |
 
-**Projection sinh viên (mọi route trên):** không có khoá `confidence`, `retrieval_score`, `groundedness`, `ai_body`, `hidden_reason`, `verified_by`; chỉ có `low_confidence` (tin chat). Tin chat: `{id, role, content, streaming, citations, blocks, low_confidence, no_context, degraded, masked_count, feedback, error_code?, created_at}`.
+**Projection sinh viên (mọi route trên):** không có khoá `confidence`, `retrieval_score`, `groundedness`, `ai_body`, `hidden_reason`, `verified_by`; chỉ có `low_confidence` (tin chat). Thread / bài có `author:{full_name, role, is_me}` công khai với cả lớp (không email, MSSV, `user_id`; Q3). Tin chat: `{id, role, content, streaming, citations, blocks, low_confidence, no_context, degraded, masked_count, feedback, error_code?, created_at}`.
 
 **Tái dùng của PE:** `GET /me/exam-lock` → `{locked, until?}`.
 
@@ -441,6 +444,7 @@ Bám `DESIGN.md` §13, §14.2–§14.4, D59 (mỗi vùng làm việc một Panel
 | Dòng che | "Đã ẩn {n} thông tin cá nhân trước khi gửi cho AI" + `Tìm hiểu` (mở: "Tên, mã số sinh viên, email và số điện thoại được thay bằng ký hiệu trước khi gửi cho AI, rồi hiện lại cho bạn.") |
 | Dưới ngưỡng | "AI chưa đủ chắc chắn về câu này" |
 | Khoá thi | "Chat tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau {HH:mm}." |
+| Khoá đăng thread | "Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau {HH:mm}." |
 | Quá tải | "AI đang bận. Thử lại sau khoảng {n} giây." |
 | Dừng | "Đã dừng." |
 | Gián đoạn | "Câu trả lời bị gián đoạn." |
@@ -521,7 +525,7 @@ Mục tiêu: đo G1 ("recall ≥ 0,95, chặn nhầm ≤ 0,05") trên **dữ li�
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 
-**Câu hỏi mở:** `QUESTIONS.md` — Q1…Q22 (chín câu **[CHỦ DỰ ÁN]**: Q1…Q8, Q22). Mặc định BA áp dụng khi chưa có trả lời.
+**Câu hỏi mở:** `QUESTIONS.md` — Q1…Q22; chín câu **[CHỦ DỰ ÁN]** (Q1…Q8, Q22) đã được chủ dự án trả lời 2026-10-10 (Q2 và Q3 đổi so với mặc định BA bản 1.0); câu kỹ thuật theo `proposals.md` hoặc mặc định BA.
 
 **Đã chốt (không mở lại):** nút `Nhờ giảng viên hỗ trợ` ẩn tới sprint 7 (chủ dự án 2026-10-10); không làm đường nạp tạm của P3 L0 — dùng ingest nền của P8; migration `00007`/`00008`/`00009`; E1 soạn từ dữ liệu mô phỏng (D44); NER đã cắt (D46); D47 (một lần sinh, một phân loại).
 
@@ -530,7 +534,7 @@ Mục tiêu: đo G1 ("recall ≥ 0,95, chặn nhầm ≤ 0,05") trên **dữ li�
 2. §5: thêm route `DELETE /chat/sessions/{sid}`, `POST …/restore`, `GET …/messages`, `POST /chat/sessions/{sid}/messages`, `GET /chat/messages/{mid}/stream`, `POST …/cancel`, `POST …/retry`, `PUT …/feedback`, `GET …/threads`, `GET …/threads/{id}`, `POST …/threads`, `POST …/threads/{id}/posts`, `POST …/posts/{id}/verify|correct|reject`, `GET …/threads/{id}/similar`.
 3. §1/quy ước API: câu "client huỷ thì huỷ luôn lời gọi LLM" **không áp** cho stream chat — rớt kết nối không huỷ, chỉ nút Dừng (P3 L3b yêu cầu tải lại không mất; đề nghị `proposals.md` #2).
 4. `FEAT-course-foundation` 4.7: `AI_CONFIRM` đăng ký ở P3 (bảng ghi P4) vì P3 tạo bài AI chờ xác nhận; P4 chỉ thêm thông báo gộp / mail.
-5. PRD M1: bỏ "LLM phân loại kênh khi mơ hồ" (D47), đổi "Che thông tin rồi đăng" → "Ẩn thông tin rồi đăng" (`DESIGN.md` §14.3); PRD §3: khớp quyền ADMIN với `nav.ts` (Q1).
+5. PRD M1: bỏ "LLM phân loại kênh khi mơ hồ" (D47), đổi "Che thông tin rồi đăng" → "Ẩn thông tin rồi đăng" (`DESIGN.md` §14.3); PRD §3: khớp quyền ADMIN với `nav.ts` (Q1) — **BA đã vá** ở commit `4c46d8d` (`proposals.md` #3).
 6. `PROGRESS.md`: ánh xạ `00007`, `00008`, `00009`.
 
 ## 11. Truy vết

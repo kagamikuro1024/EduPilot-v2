@@ -1,19 +1,21 @@
 # SRS FEAT-docs-calendar Tài liệu, thư viện, lịch
-Phiên bản 1.0 · 2026-10-10 · Trạng thái: DRAFT (chờ Tech Lead thẩm định `TL-REVIEW.md`, rồi PM duyệt)
+Phiên bản 1.1 · 2026-10-10 · Trạng thái: DRAFT (chờ Tech Lead thẩm định `TL-REVIEW.md`, rồi PM duyệt)
 
-Nguồn: `docs/phases/P8.md`; `docs/sprints/6/plan.md` (story 0, 2, 9, 10); PRD M9, M10, M11, G6; FLOWS F6, F13, F14; `ARCHITECTURE.md` §1, §4–§6, §8; `SYSTEM_DESIGN.md` 3.4, 5; `DECISIONS.md` D44, D46, D47; `DESIGN.md` §13, §14.14–§14.16, D59; `UX.md` quy tắc 2, 4, 5, 9, 10, mục 6; spec nền `FEAT-llm-gateway`, `FEAT-course-foundation`, `FEAT-weekly-exam`; schema thật `backend-go/db/migrations/00001`…`00006`; PoC `docs/research/2026-10-10-docling-arm64.md` (đang làm — các hằng số đánh dấu "tạm" chốt theo PoC).
+**v1.1 (2026-10-10)** — PM quyết `docs/sprints/6/proposals.md` #6, #7 (chủ dự án chốt). **#7 (phương án B):** `docling-serve` gọi async một lần bằng multipart (4.2), `pypdfium2`, OCR Tesseract `vie` (image dẫn xuất), ngưỡng ≤ 1 s / trang; chunk 800 rune không gối, nhúng `heading + text`; RRF k = 60, mỗi nhánh 40, top 8; migration `00010_chunk_search` (`content_chunks.tsv` + GIN + `vn_bigram_query`) — 4.3, 5.7, US-P8-01 AC18 (thêm 1 AC, tổng 51). **#6:** `CHECK` băm cho `users.ics_token` ở `00009` (5.7). Chuyển hằng số "tạm" thành đã chốt; `DOC_MAX_PAGES` giữ 400 (chủ dự án theo mặc định BA; timeout 25 phút phủ 400 trang OCR).
+
+Nguồn: `docs/phases/P8.md`; `docs/sprints/6/plan.md` (story 0, 2, 9, 10); PRD M9, M10, M11, G6; FLOWS F6, F13, F14; `ARCHITECTURE.md` §1, §4–§6, §8; `SYSTEM_DESIGN.md` 3.4, 5; `DECISIONS.md` D44, D46, D47; `DESIGN.md` §13, §14.14–§14.16, D59; `UX.md` quy tắc 2, 4, 5, 9, 10, mục 6; spec nền `FEAT-llm-gateway`, `FEAT-course-foundation`, `FEAT-weekly-exam`; schema thật `backend-go/db/migrations/00001`…`00006`; PoC `docs/research/2026-10-10-docling-arm64.md` (đã chốt ở `proposals.md` #7).
 
 ## 1. Mục đích và phạm vi
 
 Giảng viên tải tài liệu (PDF, DOCX, PPTX) lên; việc nền trích văn bản bằng `docling-serve`, chia đoạn, nhúng và lưu để AI hỏi–đáp có nguồn (F3, F6) — **ANSWER_KEY không bao giờ tới AI của sinh viên**. Sinh viên tìm, xem, tải tài liệu ở `/library` và hỏi AI giới hạn trong một tài liệu. Lịch gộp buổi học, bài thi PE và sự kiện giảng viên tạo, có feed ICS ký bằng token băm và nhắc 24 giờ không gửi trùng (F13).
 
-**Trong phạm vi:** `internal/ingest`, `internal/rag`, `internal/document`, `internal/library`, `internal/calendar`; migration `00009_calendar`; route `/documents`, `/library`, `/library/[id]`, `/calendar`; tool `search_library`, `get_exam_schedule`, `get_upcoming_events` (nối vào khung của `FEAT-private-chat-pii`); seed tài liệu và lịch; `gate-p8.sh`.
+**Trong phạm vi:** `internal/ingest`, `internal/rag`, `internal/document`, `internal/library`, `internal/calendar`; migration `00009_calendar`, `00010_chunk_search`; route `/documents`, `/library`, `/library/[id]`, `/calendar`; tool `search_library`, `get_exam_schedule`, `get_upcoming_events` (nối vào khung của `FEAT-private-chat-pii`); seed tài liệu và lịch; `gate-p8.sh`.
 
 **Ngoài phạm vi:** xem đầu `US.md`.
 
-**Đánh số migration.** `P8.md` ghi `00013 calendar` và nói "không có migration tài liệu"; số `00013` đã bị chiếm (thực tế `00005_vn_fold`, `00006_weekly_exam` đã dùng). Sprint 6 dùng **`00009_calendar`** (sau `00007_chat_threads`, `00008_privacy` của `FEAT-private-chat-pii`). Tài liệu **không** có migration: dùng đúng `documents`, `content_chunks`, `document_courses` của `00003`.
+**Đánh số migration.** `P8.md` ghi `00013 calendar` và nói "không có migration tài liệu"; số `00013` đã bị chiếm (thực tế `00005_vn_fold`, `00006_weekly_exam` đã dùng). Sprint 6 dùng **`00009_calendar`** (sau `00007_chat_threads`, `00008_privacy` của `FEAT-private-chat-pii`; kèm `CHECK` băm của `users.ics_token`, #6) và **`00010_chunk_search`** (cột `content_chunks.tsv` + GIN + hàm `vn_bigram_query`, #7; chủ dự án đồng ý `ALTER`). Tài liệu **không** thêm bảng: dùng `documents`, `content_chunks`, `document_courses` của `00003`.
 
-**Thứ tự thi công (plan):** PoC (story 0) ∥ `FEAT-private-chat-pii` US-P3-01 → US-P8-01 → (P3 tiếp) → US-P8-02 → US-P8-03 (chỉ cần US-P3-01; chen được khi dev chờ).
+**Thứ tự thi công (plan):** PoC (story 0) ∥ `FEAT-private-chat-pii` US-P3-01 → **dựng `00009_calendar` (US-P8-03 AC1) ngay sau US-P3-01 để `00010` đứng sau trong dãy số** → US-P8-01 → (P3 tiếp) → US-P8-02 → US-P8-03 (chỉ cần US-P3-01; chen được khi dev chờ).
 
 ## 2. Người dùng và quyền
 
@@ -53,9 +55,10 @@ sequenceDiagram
   GW->>DB: TX: documents(QUEUED) + jobs + outbox document.uploaded
   GW-->>T: 202 {job_id}
   WK->>DB: nhận việc (QUEUED → PROCESSING, thuê 10 phút)
-  WK->>OS: URL ký sẵn GET
-  WK->>DC: POST /v1/convert/source
-  DC-->>WK: Markdown + trang
+  WK->>OS: đọc object (stream)
+  WK->>DC: POST /v1/convert/file/async (multipart)
+  WK->>DC: poll status, rồi GET result
+  DC-->>WK: Markdown + dấu ngắt trang
   WK->>LLM: Embed theo lô ≤ 100 (nếu use_for_rag)
   WK->>DB: TX: xoá đoạn cũ + chèn đoạn + status=READY + outbox document.changed
   WK-->>T: SSE job.progress → 100
@@ -82,7 +85,7 @@ flowchart LR
 | Tệp đổi đuôi, không đúng loại thật | 422 `FILE_TYPE_MISMATCH`, xoá object | "Tệp không đọc được. Dùng PDF, DOCX hoặc PPTX." |
 | Trùng nội dung cùng lớp / lớp khác của mình | 409 `DOCUMENT_DUPLICATE` / `…_ELSEWHERE` | "Tài liệu này đã có." / "Đã có ở lớp 761987. Chia sẻ sang lớp này?" |
 | `docling` chết / quá hạn | thử lại ≤ 3 lần rồi `FAILED EXTRACT_UNAVAILABLE`; tài liệu `QUEUED` khi dịch vụ tắt | "Chưa đọc được tài liệu lúc này. Thử lại sau." + `Thử lại` |
-| Tệp scan không có chữ | `FAILED NO_TEXT` ngay | "Không đọc được chữ trong tệp (có thể là bản quét). Hãy tải bản có chữ." |
+| Tệp scan mà lượt OCR vẫn không ra chữ | `FAILED NO_TEXT` ngay | "Không đọc được chữ trong tệp (có thể là bản quét). Hãy tải bản có chữ." |
 | > 400 trang | `FAILED TOO_MANY_PAGES` | "Tệp dài hơn 400 trang. Hãy tách nhỏ." |
 | Băm không khớp | `FAILED HASH_MISMATCH` | "Tệp bị lỗi khi tải lên. Tải lại." |
 | Nhúng lỗi / sai chiều | `FAILED EMBED_FAILED` | "Chưa lập chỉ mục được tài liệu. Thử lại sau." |
@@ -124,11 +127,11 @@ flowchart LR
 
 **Tiến độ.** Dùng `jobs.Runner` có sẵn; `job.progress` (SSE) với `progress` theo giai đoạn: 5 (đã nhận) → 10–45 (đọc, theo trạng thái `docling`) → 50 (chia đoạn) → 55–95 (nhúng, tỉ lệ theo lô) → 100 (ghi, `READY`); chỉ tăng. `result = {document_id}`; lỗi → `error = {code, message}`.
 
-**`docling-serve` (hợp đồng ở `ARCHITECTURE.md` §6; mặc định tạm, chốt theo PoC).** `POST {DOCLING_URL}/v1/convert/source` với nguồn là URL ký sẵn GET (hạn 15 phút) → Markdown + cấu trúc trang; `GET {DOCLING_URL}/health` — đỏ thì worker báo `degraded` và việc nằm lại hàng đợi; hạn mỗi lần gọi `INGEST_EXTRACT_TIMEOUT` (120 s); thử lại 3 lần (lùi 5 s / 30 s / 2 phút) cho lỗi tạm thời (5xx, quá hạn, kết nối); lỗi không thử lại: loại không hỗ trợ, `NO_TEXT` (văn bản sau làm sạch < 50 ký tự), `TOO_MANY_PAGES`, `HASH_MISMATCH`. Bật / tắt OCR theo `DOCLING_OCR` (PoC: tắt nếu RAM / thời gian vượt ngưỡng; khi tắt, tệp scan → `NO_TEXT`; Q7). Compose: dịch vụ `docling` thuộc profile `ingest`; tắt profile thì tải lên vẫn 202 và tài liệu ở `QUEUED`.
+**`docling-serve` (hợp đồng chốt theo PoC, `proposals.md` #7).** Image dẫn xuất (`infra/docling/Dockerfile`): `FROM ghcr.io/docling-project/docling-serve-cpu:v1.36.0@sha256:225c8586…b58f` + `vie.traineddata` (tessdata_fast, 519 KB, Apache-2.0) ở `/usr/share/tesseract/tessdata/`; env `DOCLING_SERVE_ENG_LOC_NUM_WORKERS=1`, `DOCLING_SERVE_LOAD_MODELS_AT_BOOT=false`, `DOCLING_SERVE_MAX_NUM_PAGES=400`, `DOCLING_SERVE_MAX_FILE_SIZE=52428800` (= giới hạn của spec); `mem_limit: 3g`; `restart: unless-stopped` (backend mặc định `docling_parse` làm chết tiến trình — tránh bằng `pypdfium2` — nhưng OOM vẫn có thể; server giữ hàng việc trong bộ nhớ nên chết là mất việc đang chạy); healthcheck `GET /ready`; thuộc profile compose `ingest`. **Gọi bất đồng bộ, một lần cho cả tệp:** (1) worker đọc object từ `platform/blob` và **stream** vào thân multipart (`io.Pipe`, không ghi đĩa; không dùng `source` + URL ký sẵn vì docling chặn SSRF tới IP riêng của MinIO) tới `POST /v1/convert/file/async` kèm các trường `pdf_backend=pypdfium2`, `do_ocr=false`, `do_table_structure=true`, `table_mode=fast`, `include_images=false`, `image_export_mode=placeholder`, `to_formats=["md"]`, `md_page_break_placeholder=<!-- page -->` (gửi dạng chuỗi, không để curl / client hiểu `<` là đọc tệp); (2) poll `GET /v1/status/poll/{task_id}` mỗi 2 s tới `task_status ∈ {success, failure}`; (3) `GET /v1/result/{task_id}` và **kiểm `status` trong thân kết quả** (`success` / `partial_success` → tiếp tục; khác → `FAILED` kèm `errors[].error_message` cắt ≤ 1.000 ký tự — `documents_error_chk`) vì `task_status=success` vẫn có thể đi với kết quả `failure`. **Lượt OCR:** lượt 1 `do_ocr=false`; nếu văn bản ra < 100 ký tự / trang (bản scan; ngưỡng là suy luận của Tech Lead) thì lượt 2 `do_ocr=true`, `ocr_preset=tesseract`, `ocr_lang=["vie"]` (**không** `vi`; RapidOCR mặc định mất dấu tiếng Việt, EasyOCR tốn 4,3 GiB RAM); sau lượt 2 vẫn < 50 ký tự → `NO_TEXT` (Q7). `page_count` = số dấu `<!-- page -->` + 1 (có thể thấp hơn số trang thật khi có trang trống). **Hạn:** `options.document_timeout` ở server = `INGEST_EXTRACT_TIMEOUT` − 30 s; hạn phía worker `INGEST_EXTRACT_TIMEOUT` = 25 phút (400 trang × 3,1 s OCR ≈ 21 phút); lấy kết quả ngay khi `success` (docling xoá sau 300 s). **Lỗi:** 5xx, kết nối đứt, task 404 (server chết), quá hạn → lỗi tạm: thử lại 3 lần (lùi 5 s / 30 s / 2 phút) rồi `EXTRACT_UNAVAILABLE`; loại không hỗ trợ, `NO_TEXT`, `TOO_MANY_PAGES`, `HASH_MISMATCH` → không thử lại. Tắt profile `ingest` thì tải lên vẫn 202 và tài liệu ở `QUEUED`. **Ngưỡng chấp nhận (thay "≤ 60 s mỗi tệp"; PM + chủ dự án, #7):** RAM ≤ 3 GiB; PDF có chữ ≤ 1 s / trang (đo 0,67–0,79); bản scan OCR ≤ 4 s / trang (đo 3,1 — làm rõ của BA, vì 1 s / trang chỉ đo được cho PDF có chữ).
 
-**Làm sạch và chia đoạn (mặc định tạm, chốt theo PoC).** Bỏ ký tự điều khiển, gộp khoảng trắng, bỏ đầu / chân trang lặp (dòng xuất hiện ở ≥ 40 % số trang); chia theo tiêu đề rồi đoạn văn; gộp tới `CHUNK_CHARS` = 1.800 ký tự, gối `CHUNK_OVERLAP` = 200; đoạn < 100 ký tự gộp vào đoạn kề; bỏ đoạn trùng văn bản; mỗi đoạn mang `ord` (từ 0), `page_no`, `heading` (≤ 200), `token_count` ≈ `len(rune)/4`. Chiều dài tính bằng ký tự (rune), không tách giữa dấu tiếng Việt.
+**Làm sạch và chia đoạn (chốt theo PoC).** Bỏ ký tự điều khiển, chuẩn hoá Unicode về NFC, gộp khoảng trắng; **đếm theo rune** (`utf8.RuneCountInString`; bảng thư viện không có tokenizer cl100k); đoạn ≤ `CHUNK_CHARS` = **800** rune, **không gối** (overlap 0); ranh giới theo thứ tự: tiêu đề Markdown `#…` → đoạn `\n\n` → câu (`. ? ! ;` + khoảng trắng) → khoảng trắng, không cắt giữa một rune; mẩu < 200 rune gộp vào mẩu kề; bỏ đoạn trùng văn bản. Mỗi đoạn: `ord` (từ 0), `page_no` = trang chứa ký tự đầu (đếm theo `<!-- page -->`), `heading` = tiêu đề gần nhất (≤ 200), `token_count` = NULL (không có tokenizer; chi phí thật ở `llm_audit`). **Chuỗi gửi đi nhúng = `heading + "\n" + text`**; cột `text` lưu nguyên văn. Ước lượng: `Mordern` ≈ 61 đoạn, `QMB12ch6b` ≈ 11, `Quyche` ≈ 10. 800 rune ≈ 360–404 token tiếng Việt / 170–196 token tiếng Anh (độ chắc chắn trung bình: số liệu gốc từ nghiên cứu tiếng Anh; E-eval của P8 nên đo lại trên tiếng Việt).
 
-**Nhúng.** `llm.Embed` làn **BATCH**, lô `llm.EmbedBatch` (100), 1536 chiều (sai → `ErrDimsMismatch` → `EMBED_FAILED`); chỉ khi `use_for_rag`. Hook che (FEAT-private-chat-pii 4.3) áp cho đầu vào nhúng; văn bản đoạn lưu **không** đổi.
+**Nhúng.** `llm.Embed` làn **BATCH**, lô `llm.EmbedBatch` (100), 1536 chiều (sai → `ErrDimsMismatch` → `EMBED_FAILED`); chuỗi nhúng là `heading + "\n" + text`; chỉ khi `use_for_rag`. Hook che (FEAT-private-chat-pii 4.3) áp cho đầu vào nhúng; văn bản đoạn lưu **không** đổi.
 
 **Ghi.** Một giao dịch: `DELETE FROM content_chunks WHERE document_id=$1`, chèn đoạn, cập nhật `status=READY`, `page_count`, `error=NULL` **chỉ khi** `status` vẫn `PROCESSING` và `sha256` không đổi; outbox `document.changed`. Đoạn của tài liệu chưa `READY` không bao giờ được truy xuất (mọi truy vấn nối `documents.status='READY'`).
 
@@ -155,7 +158,9 @@ func (s *Service) Search(ctx context.Context, q Query) ([]Hit, error)
 Một câu SQL (hợp đồng; mọi điều kiện nằm **trong** từng nhánh, trước `ORDER BY … LIMIT` — D47 mục 7; `ORDER BY` nhánh vectơ chỉ theo khoảng cách để HNSW của P10 dùng được):
 
 ```sql
-WITH q AS (SELECT $1::vector AS v, plainto_tsquery('simple', vn_fold($2)) AS t),
+WITH q AS (SELECT $1::vector AS v,
+                  CASE WHEN $2 LIKE '%"%' THEN websearch_to_tsquery('simple', vn_fold(normalize($2, NFC)))
+                       ELSE vn_bigram_query($2) END AS t),
 vec AS (
   SELECT c.id, ROW_NUMBER() OVER (ORDER BY c.embedding <=> q.v) AS r
   FROM content_chunks c JOIN documents d ON d.id = c.document_id, q
@@ -164,25 +169,25 @@ vec AS (
     AND ($4 = false OR d.visible_to_students)
     AND c.audience = ANY($5::chunk_audience[]) AND c.embedding IS NOT NULL
     AND (cardinality($6::uuid[]) = 0 OR c.document_id = ANY($6))
-  ORDER BY c.embedding <=> q.v LIMIT 30),
-kw AS ( /* cùng bộ điều kiện */
-  SELECT c.id, ROW_NUMBER() OVER (ORDER BY ts_rank_cd(to_tsvector('simple', vn_fold(c.text)), q.t) DESC) AS r
+  ORDER BY c.embedding <=> q.v LIMIT 40),
+kw AS ( /* cùng bộ điều kiện, bỏ `embedding IS NOT NULL` */
+  SELECT c.id, ROW_NUMBER() OVER (ORDER BY ts_rank_cd(c.tsv, q.t) DESC) AS r
   FROM content_chunks c JOIN documents d ON d.id = c.document_id, q
-  WHERE <điều kiện như trên> AND to_tsvector('simple', vn_fold(c.text)) @@ q.t
-  ORDER BY ts_rank_cd(to_tsvector('simple', vn_fold(c.text)), q.t) DESC LIMIT 30),
+  WHERE <điều kiện như trên> AND c.tsv @@ q.t
+  ORDER BY ts_rank_cd(c.tsv, q.t) DESC LIMIT 40),
 fused AS (SELECT id, SUM(1.0 / (60 + r)) AS s FROM (SELECT id, r FROM vec UNION ALL SELECT id, r FROM kw) x GROUP BY id ORDER BY s DESC LIMIT $7)
 SELECT c.id, c.document_id, d.title, c.page_no, c.heading, c.text, 1 - (c.embedding <=> (SELECT v FROM q)) AS cosine, f.s
 FROM fused f JOIN content_chunks c ON c.id = f.id JOIN documents d ON d.id = c.document_id ORDER BY f.s DESC;
 ```
 
 - `$5` = `{ALL}` cho `ForStudent`, `{ALL, STAFF}` cho `ForStaff`; **không** có `Audience` nào cho `GRADING`: gói `rag` không xuất hàm tìm đoạn `GRADING` (P7 tạo `internal/rag/grading`, chỉ `internal/grading` được nhập — `TestNoPublicGradingSearch`). `d.type <> 'ANSWER_KEY'` là chốt thứ hai khi `audience` bị gán sai.
-- Trộn RRF (hằng 60) — mặc định tạm, chốt theo PoC; chỉ mục HNSW và GIN biểu thức ở P10 (`00015`); `ponytail:` quét tuần tự ở quy mô seed.
+- Trộn RRF k = 60, mỗi nhánh 40, lấy `RAG_TOP_K` = 8 (PoC: 2,4–2,8 ms ở 20.000 đoạn). Từ khoá dùng cột `tsv` lưu sẵn + GIN của `00010` (1,3–3,1 ms; chỉ mục biểu thức phải tính lại `to_tsvector` mất 0,2–4 s). Câu tự nhiên dựng bằng `vn_bigram_query` (OR các cặp âm tiết liền nhau — đúng đoạn ở hạng 1, trong khi AND 0 kết quả, OR từng âm tiết hạng 106); câu có ngoặc kép dùng `websearch_to_tsquery`. HNSW ở P10 (`00015`, đặt `hnsw.iterative_scan = relaxed_order`); ở T1 tìm chính xác theo lớp 2,7–4,1 ms.
 - Phiên bản tri thức cho cache: `ep:rag:ver:{course_id}` tăng bởi `document.changed` (tạo / xoá / đổi cờ / đổi loại / chia sẻ / sửa đoạn).
 - Tài liệu chia sẻ (`share-from`, P2) nằm ở `course_ids` của đoạn → truy xuất được ở cả hai lớp, không nhúng lại.
 
 ### 4.4 `internal/library` (sinh viên)
 
-- **Danh sách / tìm** (`GET …/library?q=&type=&week=&category=&cursor=&limit=`): tài liệu `READY` + `visible_to_students` + `type <> 'ANSWER_KEY'` của lớp (`d.course_id = $c` hoặc có `document_courses` tới lớp); `q` (≥ 2 ký tự) khớp `vn_fold(title)`, `vn_fold(filename)`, `vn_fold(category)` bằng `LIKE` **hoặc** từ khoá trên đoạn (`to_tsvector('simple', vn_fold(text))`, cả đoạn không nhúng); nhóm theo tài liệu, kèm đoạn trích 1 dòng (`ts_headline`); sắp theo độ khớp rồi `(updated_at DESC, id DESC)`; phân trang con trỏ; `ETag` theo `max(updated_at)` + số dòng.
+- **Danh sách / tìm** (`GET …/library?q=&type=&week=&category=&cursor=&limit=`): tài liệu `READY` + `visible_to_students` + `type <> 'ANSWER_KEY'` của lớp (`d.course_id = $c` hoặc có `document_courses` tới lớp); `q` (≥ 2 ký tự) khớp `vn_fold(title)`, `vn_fold(filename)`, `vn_fold(category)` bằng `LIKE` **hoặc** từ khoá trên đoạn (`tsv @@ vn_bigram_query(q)`, cả đoạn không nhúng); nhóm theo tài liệu, kèm đoạn trích 1 dòng (`ts_headline`); sắp theo độ khớp rồi `(updated_at DESC, id DESC)`; phân trang con trỏ; `ETag` theo `max(updated_at)` + số dòng.
 - **Chi tiết** (`GET …/library/{id}`): metadata + `preview_url` (chỉ PDF; URL ký sẵn GET 5 phút, `Content-Disposition: inline`) + `can_ask_ai` (= `use_for_rag` và đã nhúng). DOCX / PPTX: chỉ tải.
 - **Tải** (`GET …/library/{id}/download`): kiểm quyền → `{url}` ký sẵn 5 phút (attachment) → `UPDATE documents SET download_count = download_count + 1` (một câu, nguyên tử). Không được phép / không có → 404; object mất → 404 `FILE_GONE`.
 - **Hỏi AI về tài liệu**: tạo phiên chat có `document_id` (FEAT-private-chat-pii US-P3-05 AC17) chỉ khi `can_ask_ai`; truy xuất của phiên dùng `Query.DocumentIDs = {id}`.
@@ -232,7 +237,7 @@ Phản hồi mỗi dòng: `{id:"<source>:<uuid>", source:"class_session|weekly_e
 | FR-2 | Việc nền: trích (docling), chia đoạn, nhúng BATCH, tiến độ SSE, audience | 01-AC5…AC8 |
 | FR-3 | Idempotent, chịu worker chết, lỗi đọc hiểu được, thử lại | 01-AC9, AC10 |
 | FR-4 | `rag.Search` lọc trong SQL; `TestAnswerKeyNeverRetrieved`; cách ly lớp; chia sẻ không nhúng lại | 01-AC11…AC13 |
-| FR-5 | Vô hiệu cache theo sự kiện; lập chỉ mục lại; phân quyền ingest; docling dev; ingest không làm chat chậm | 01-AC14…AC18 |
+| FR-5 | Vô hiệu cache theo sự kiện; lập chỉ mục lại; phân quyền ingest; docling dev; migration `tsv` + GIN; ingest không làm chat chậm | 01-AC14…AC19 |
 | FR-6 | `/documents`: bảng, tải tại chỗ, `ANSWER_KEY`, đổi cờ, nhắc `COURSE_POLICY`, sửa đoạn, thống kê, xoá | 02-AC1…AC8 |
 | FR-7 | `/library`: tìm, chi tiết, xem trước, tải, đếm lượt | 02-AC9, AC10 |
 | FR-8 | Hỏi AI về tài liệu; `search_library`; giao diện thư viện | 02-AC11…AC13 |
@@ -280,9 +285,9 @@ Chỉ mục: `calendar_events_course_starts_idx (course_id, starts_at, id)`.
 
 `UNIQUE (user_id, source_type, source_id, starts_at, kind)`; chỉ mục `(starts_at)` cho dọn dẹp (nợ PR: xoá dòng cũ hơn 30 ngày).
 
-### 5.3 Dùng lại, không đổi lược đồ
+### 5.3 Dùng lại các bảng có sẵn
 
-`documents` (`sha256` là khoá nội dung — phase file / plan gọi "`content_hash`"), `content_chunks` (`audience`, `course_ids`, `embedding NULL` khi không nhúng), `document_courses`, `class_sessions`, `notifications` (`dedupe_key`), `user_settings` (`remind_deadline_by_mail`, `preferences` jsonb), `mail_outbox`, `jobs`, `outbox`. **`users.ics_token`**: cột `text` có chỉ mục duy nhất từng phần; ở P8 nội dung của nó là **SHA-256 hex (64 ký tự)**, không còn là token thô (mục 10).
+`documents` (`sha256` là khoá nội dung — phase file / plan gọi "`content_hash`"), `content_chunks` (`audience`, `course_ids`, `embedding NULL` khi không nhúng), `document_courses`, `class_sessions`, `notifications` (`dedupe_key`), `user_settings` (`remind_deadline_by_mail`, `preferences` jsonb), `mail_outbox`, `jobs`, `outbox`. **`users.ics_token`**: cột `text` có chỉ mục duy nhất từng phần; ở P8 nội dung của nó là **SHA-256 hex (64 ký tự)**, ép bằng `CHECK` ở `00009` (5.7).
 
 ### 5.4 Khoá Redis (tiền tố `ep:`)
 
@@ -301,7 +306,21 @@ Chỉ mục: `calendar_events_course_starts_idx (course_id, starts_at, id)`.
 
 ### 5.6 Biến môi trường
 
-`DOCLING_URL` (có sẵn), `DOCLING_OCR` (`on`/`off`, theo PoC), `DOC_MAX_BYTES` (52428800), `DOC_MAX_PAGES` (400), `CHUNK_CHARS` (1800), `CHUNK_OVERLAP` (200), `INGEST_EXTRACT_TIMEOUT` (120s), `INGEST_WORKERS` (có sẵn), `REMINDER_TICK` (5m), `REMINDER_LEAD` (24h), `APP_PUBLIC_URL` (có sẵn).
+`DOCLING_URL` (có sẵn), `DOC_MAX_BYTES` (52428800), `DOC_MAX_PAGES` (400), `CHUNK_CHARS` (800), `INGEST_EXTRACT_TIMEOUT` (25m), `RAG_TOP_K` (8), `INGEST_WORKERS` (có sẵn), `REMINDER_TICK` (5m), `REMINDER_LEAD` (24h), `APP_PUBLIC_URL` (có sẵn).
+
+### 5.7 Đổi lược đồ có sẵn (chủ dự án đồng ý, `proposals.md` #6, #7)
+
+```sql
+-- 00009_calendar.sql (cùng hai bảng ở 5.1, 5.2)
+ALTER TABLE users ADD CONSTRAINT users_ics_token_hash_chk CHECK (ics_token IS NULL OR ics_token ~ '^[0-9a-f]{64}$');
+
+-- 00010_chunk_search.sql
+CREATE FUNCTION vn_bigram_query(q text) RETURNS tsquery /* IMMUTABLE; vn_fold(normalize(q, NFC)) → 'a <-> b | c <-> d'; 1 âm tiết → chính nó */;
+ALTER TABLE content_chunks ADD COLUMN tsv tsvector GENERATED ALWAYS AS (to_tsvector('simple', vn_fold(normalize(text, NFC)))) STORED;
+CREATE INDEX content_chunks_tsv_gin ON content_chunks USING gin (tsv);
+```
+
+`normalize(…, NFC)` là bắt buộc: `vn_fold` trên chữ tổ hợp NFD để lọt dấu. Hai `ALTER` trái nguyên tắc "tạo một lần ở dạng cuối" của D45 nên cần sự đồng ý đã có; không sửa tệp migration đã merge (luật 6). `down` của `00010` xoá chỉ mục, cột, hàm; của `00009` xoá constraint rồi hai bảng.
 
 ## 6. API
 
@@ -354,9 +373,9 @@ Bám `DESIGN.md` §13, §14.14–§14.16, D59 (một Panel mỗi vùng), `shared
 
 | Hạng mục | Yêu cầu | Đo |
 | --- | --- | --- |
-| docling trên máy dev | RAM ≤ 3 GiB; mỗi PDF seed ≤ 60 s (PoC) | `docker stats`, thời gian job |
+| docling trên máy dev | RAM ≤ 3 GiB; PDF có chữ ≤ 1 s / trang, scan OCR ≤ 4 s / trang (#7) | `docker stats`, `check-docs-seed.mjs timing` |
 | Việc nặng ngoài request (luật 12) | tải lên 202 + job + SSE; consumer idempotent; thử lại ≤ 3 + dead-letter | `TestIngestRedeliveryNoDuplicateChunks`, `TestIngestKillWorkerMidRun` |
-| Truy xuất tất định (D47) | không LLM; một câu SQL; `Search` p95 ≤ 100 ms ở seed (≈ 1.000 đoạn), ≤ 400 ms với 100.000 đoạn khi có HNSW (P10) | benchmark `rag` |
+| Truy xuất tất định (D47) | không LLM; một câu SQL; `Search` p95 ≤ 100 ms ở 20.000 đoạn (PoC đo 2,4–2,8 ms thuần SQL; chưa tính nhúng câu hỏi) | benchmark `rag` |
 | Ingest không làm chat chậm | TTFT `mixed` ≤ `chat` × 1,2 và ≤ 1,5 s | `chat.js mixed` |
 | Riêng tư / quyền | `ANSWER_KEY` không tới sinh viên; ADMIN không đọc nội dung; token ICS băm, không log; feed chỉ dữ liệu chủ token | `TestAnswerKeyNeverRetrieved`, `TestICSTokenStoredHashed` |
 | Phân trang (luật 13) | mọi danh sách `cursor`, `limit ≤ 100`, không OFFSET, không N+1 | test `Cursor`, `EXPLAIN` |
@@ -382,23 +401,24 @@ Bám `DESIGN.md` §13, §14.14–§14.16, D59 (một Panel mỗi vùng), `shared
 | Tải | `benchmarks/load/chat.js` `mixed` | ingest không làm chat chậm |
 | Cổng | `scripts/gate-p8.sh` | tổng hợp |
 
-**9.3 Dữ liệu seed cần (lớp 1 `761987`, lớp 2 `761988`).** Ba tệp `seed/documents/*.pdf` hiện có: `Quyche.pdf` → `COURSE_POLICY` ("Quy chế học phần", tuần —), `Mordern_Network_Security_Threats.pdf` → `LECTURE` (tuần 3), `QMB12ch6b.pdf` → `LECTURE` (tuần 6, chủ đề tham khảo); cộng hai PDF tối giản sinh bằng script không thêm thư viện (`seed/documents/generated/`): `de-giuaky.pdf` (`EXAM_PAPER`) và `dapan-giuaky.pdf` (`ANSWER_KEY`, chứa canary `CANARY-7Q2X`); sự kiện lịch: lớp 1 "Thi giữa kỳ" và "Thi cuối kỳ" (`EXAM`, tương lai), lớp 2 một sự kiện `OTHER`; chia sẻ bài giảng sang lớp 2 (không nhúng lại; "quy chế môn học chưa tải" ở lớp 2 — dữ liệu ARCH §9). Nguồn: `ARCHITECTURE.md` §9 (6 bài giảng, 1 quy chế trường, 1 quy chế môn học, 2 đề cũ, 2 đáp án) được **rút gọn** cho đủ chạy trên PDF hiện có; PM duyệt (Q13).
+**9.3 Dữ liệu seed cần (lớp 1 `761987`, lớp 2 `761988`).** Ba tệp `seed/documents/*.pdf` hiện có: `Quyche.pdf` (bản scan: đi lượt OCR) → `COURSE_POLICY` ("Quy chế học phần", tuần —), `Mordern_Network_Security_Threats.pdf` → `LECTURE` (tuần 3), `QMB12ch6b.pdf` → `LECTURE` (tuần 6, chủ đề tham khảo); cộng hai PDF tối giản sinh bằng script không thêm thư viện (`seed/documents/generated/`): `de-giuaky.pdf` (`EXAM_PAPER`) và `dapan-giuaky.pdf` (`ANSWER_KEY`, chứa canary `CANARY-7Q2X`); sự kiện lịch: lớp 1 "Thi giữa kỳ" và "Thi cuối kỳ" (`EXAM`, tương lai), lớp 2 một sự kiện `OTHER`; chia sẻ bài giảng sang lớp 2 (không nhúng lại; "quy chế môn học chưa tải" ở lớp 2 — dữ liệu ARCH §9). Nguồn: `ARCHITECTURE.md` §9 (6 bài giảng, 1 quy chế trường, 1 quy chế môn học, 2 đề cũ, 2 đáp án) được **rút gọn** cho đủ chạy trên PDF hiện có; PM duyệt (Q13).
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 
-**Câu hỏi mở:** `QUESTIONS.md` (Q1…Q14; sáu câu **[CHỦ DỰ ÁN]**: Q2…Q7; tám câu **[PM]**: Q1, Q8…Q14). Mặc định BA áp dụng khi chưa có trả lời.
+**Câu hỏi mở:** `QUESTIONS.md` (Q1…Q14): sáu câu **[CHỦ DỰ ÁN]** (Q2…Q7) đã được chủ dự án trả lời 2026-10-10 (theo mặc định BA; Q7 theo #7); các câu **[PM]** theo `proposals.md` #3, #4, #6, #7 hoặc mặc định BA.
 
 **Quyết định cần PM (theo yêu cầu của prompt BA):** **token ICS.** Kiểm trên mã thật: `users.ics_token` (`00001`) là `text` có chỉ mục duy nhất từng phần (`users_ics_token_key WHERE ics_token IS NOT NULL`), **không CHECK**; không có mã ứng dụng nào ghi hay đọc giá trị (chỉ `SELECT *` do sqlc sinh, test `schema_test` ghim sự tồn tại cột, test che trường trong `user/list_test.go`, `course/members_test.go`). Cột vì vậy **không bảo đảm** lưu rõ hay băm; luật "token ở dạng băm" (`AGENTS.md`) bắt buộc băm. **Đề xuất:** (a) không đổi lược đồ — P8 ghi `hex(sha256(token))` (64 ký tự) vào cột này; token thô chỉ hiện một lần lúc tạo / xoay; mất thì đặt lại; (b) tuỳ chọn thêm `CHECK (ics_token IS NULL OR ics_token ~ '^[0-9a-f]{64}$')` ở `00009` bằng `ALTER TABLE users ADD CONSTRAINT` (không đổi cột; vẫn là ALTER nên cần PM duyệt vì D45). BA mặc định (a); nếu PM chọn (b) thì thêm vào AC1 của US-P8-03. Hệ quả của (a): người dùng không xem lại được link, phải bấm `Đặt lại liên kết` và đăng ký lại trong ứng dụng lịch.
 
-**Đã chốt:** số migration `00009`; không migration tài liệu; lịch gộp bằng UNION (không nhân bản); hạn bài tập ở P7; `Luyện đề này` ở P9; không làm đường nạp tạm của P3 L0 (plan).
+**Đã chốt:** số migration `00009` (lịch + `CHECK` băm token) và `00010` (`tsv` + GIN); không thêm bảng tài liệu; lịch gộp bằng UNION (không nhân bản); hạn bài tập ở P7; `Luyện đề này` ở P9; không làm đường nạp tạm của P3 L0 (plan).
 
 **Đề xuất đổi tài liệu nền (PM quyết; xem `docs/sprints/6/proposals.md`):**
 1. `ARCHITECTURE.md` §4: `00013 calendar` → `00009 calendar` (số thật); thêm cột `calendar_events(description, created_by, version)`, bảng `reminder_log` (cột ở 5.2).
 2. `ARCHITECTURE.md` §5: thêm route `uploads/presign|complete` (nhóm Tài liệu), `documents/{id}/chunks`, `retry`, `reindex`, `stats`, `library/{id}`, `/me/calendar/ics-token`; sửa nhóm "Thư viện" ghi `PATCH documents` là Staff.
 3. `ARCHITECTURE.md` §7: thêm route `/library/[id]`.
 4. PRD M9: bảng loại tài liệu khớp enum `document_type` (mục 4.1) — `COURSE_MATERIAL`, `REGULATION`, `GRADE_REPORT` không có.
-5. PRD §2 "Ngoài phạm vi" còn ghi "chạy code sinh viên trong sandbox" và `DECISIONS.md` D3 "không chấm mã nguồn" mâu thuẫn D54 / D55 / M15 — xem `docs/sprints/6/proposals.md` #1 (nợ PROGRESS).
+5. PRD §2 "Ngoài phạm vi" còn ghi "chạy code sinh viên trong sandbox" và `DECISIONS.md` D3 "không chấm mã nguồn" mâu thuẫn D54 / D55 / M15 — xem `docs/sprints/6/proposals.md` #1 (nợ PROGRESS) — **BA đã vá** ở commit `4c46d8d` (#1, #3).
 6. `FEAT-llm-gateway` US-P1-01 mục "Ngoài phạm vi" ghi việc lập chỉ mục lại "chạy ở P8": US-P8-01 AC15 nhận việc này (cần PM xác nhận không phải Could).
+7. `ARCHITECTURE.md` §6 bảng `docling-serve`: "Trích văn bản" = `POST /v1/convert/file/async` + poll + result (multipart, không `source` + URL ký sẵn), "Sức khoẻ" = `/ready`, thêm danh sách tuỳ chọn ở 4.2; §4 thêm dòng `00010 chunk_search` và ghi `users.ics_token` có `CHECK` ở `00009` (PM sửa khi merge, #4 / #7).
 
 ## 11. Truy vết
 
