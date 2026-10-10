@@ -211,7 +211,7 @@ var routeCases = map[Intent][]string{
 	IntentExamSchedule:  {"Lịch thi khi nào vậy ạ", "Khi nào thi cuối kỳ", "phòng thi cuối kỳ ở đâu", "cho hỏi ngày thi giữa kỳ", "Khi nào em thi cuối kỳ?", "Bao giờ mình thi giữa kỳ vậy ạ", "Thi cuối kỳ khi nào ạ", "Mình thi môn này lúc nào"},
 	IntentUpcoming:      {"Tuần này có gì sắp tới không", "hạn nộp bài tập tuần này là khi nào", "ngày mai có lịch học không", "sắp tới có sự kiện gì"},
 	IntentLibrary:       {"Tìm tài liệu về mạng máy tính giúp mình", "có slide chương 3 không ạ", "cho mình giáo trình môn này", "tìm tài liệu về TCP"},
-	IntentCourseQA:      {"Giao thức TCP hoạt động như thế nào", "Quy chế cảnh báo học vụ quy định ra sao", "Giải thích thuật toán Dijkstra giúp mình", "Điều kiện dự thi cuối kỳ là gì"},
+	IntentCourseQA:      {"Giao thức TCP hoạt động như thế nào", "Quy chế cảnh báo học vụ quy định ra sao", "Giải thích thuật toán Dijkstra giúp mình", "Điều kiện dự thi cuối kỳ là gì", "Quy chế thi cuối kỳ nói gì về tài liệu được mang vào phòng thi?", "Quy chế thi cuối kỳ nói gì về tài liệu?", "Thi lại được mấy lần theo quy chế", "Trong phòng thi có được dùng máy tính không"},
 	IntentSmalltalk:     {"chào", "xin chào", "cảm ơn nhé", "ok"},
 }
 

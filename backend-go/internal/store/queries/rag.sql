@@ -15,7 +15,7 @@ vec AS (
       AND d.status = 'READY' AND d.use_for_rag AND d.type <> 'ANSWER_KEY'
       AND (sqlc.arg(student_only)::bool = false OR d.visible_to_students)
       AND c.audience::text = ANY(sqlc.arg(audiences)::text[]) AND c.embedding IS NOT NULL
-      AND (cardinality(sqlc.arg(document_ids)::uuid[]) = 0 OR c.document_id = ANY(sqlc.arg(document_ids)::uuid[]))
+      AND (cardinality(sqlc.arg(document_ids)::text[]::uuid[]) = 0 OR c.document_id = ANY(sqlc.arg(document_ids)::text[]::uuid[]))
     ORDER BY c.embedding <=> q.v
     LIMIT 40
 ),
@@ -26,7 +26,7 @@ kw AS (
       AND d.status = 'READY' AND d.use_for_rag AND d.type <> 'ANSWER_KEY'
       AND (sqlc.arg(student_only)::bool = false OR d.visible_to_students)
       AND c.audience::text = ANY(sqlc.arg(audiences)::text[]) AND c.embedding IS NOT NULL
-      AND (cardinality(sqlc.arg(document_ids)::uuid[]) = 0 OR c.document_id = ANY(sqlc.arg(document_ids)::uuid[]))
+      AND (cardinality(sqlc.arg(document_ids)::text[]::uuid[]) = 0 OR c.document_id = ANY(sqlc.arg(document_ids)::text[]::uuid[]))
       AND c.tsv @@ q.t
     ORDER BY ts_rank_cd(c.tsv, q.t) DESC
     LIMIT 40

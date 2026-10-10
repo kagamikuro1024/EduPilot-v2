@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/agent"
@@ -59,9 +58,8 @@ func TestNoPayloadLeak(t *testing.T) {
 	t.Parallel()
 	testutil.RequireContainers(t)
 	ctx := t.Context()
-	pool, err := pgxpool.New(ctx, testutil.MigratedPostgresURL(t))
-	require.NoError(t, err)
-	t.Cleanup(pool.Close)
+	pool := testutil.RuntimePool(t) // đúng cấu hình runtime (QueryExecModeExec): bắt được lỗi mã hoá tham số của truy xuất (QC BUG-1 US-P3-05)
+	var err error
 	rdb, err := appredis.New(ctx, testutil.RedisURL(t))
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = rdb.Close() })
@@ -150,6 +148,7 @@ func TestNoPayloadLeak(t *testing.T) {
 			sk := &sink{}
 			require.NoError(t, svc.Tail(ctx, sk, m, ""))
 			require.Contains(t, sk.evs[len(sk.evs)-1], "done:", sk.evs)
+			require.Contains(t, strings.Join(sk.evs, "\n"), `"stage":"generating"`, "COURSE_QA phải đi tới sinh chữ (có ngữ cảnh từ truy xuất thật)")
 			for _, e := range sk.evs {
 				require.NotRegexp(t, `(?i)\[\[\s*(SV|MSSV|EMAIL|SDT|PHONE|CCCD)`, e, "placeholder lộ ra khung SSE")
 			}

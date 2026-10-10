@@ -5,14 +5,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"regexp"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
 	"unicode/utf8"
 
-	"github.com/google/uuid"
 	goredis "github.com/redis/go-redis/v9"
 	"github.com/shopspring/decimal"
 
@@ -383,53 +380,14 @@ func (s *Service) history(ctx context.Context, r *run) []llm.Message {
 	return out
 }
 
-// Citation là một nguồn được trích [n] trong câu trả lời.
-type Citation struct {
-	N          int       `json:"n"`
-	DocumentID uuid.UUID `json:"document_id"`
-	Title      string    `json:"title"`
-	PageNo     *int      `json:"page_no"`
-	Snippet    string    `json:"snippet"`
-}
+// Citation là một nguồn được trích [n] trong câu trả lời (định nghĩa chung ở agent: Threads dùng lại).
+type Citation = agent.Citation
 
-var reMarker = regexp.MustCompile(`\s?\[(\d{1,3})\]`)
-
-// citationsFrom giữ các [n] có trong danh sách hits (n = vị trí + 1), bỏ [n] lạ khỏi văn bản; citations theo thứ tự xuất hiện, không trùng.
 func citationsFrom(text string, hits []rag.Hit) (string, []Citation) {
-	cites := []Citation{}
-	seen := map[int]bool{}
-	out := reMarker.ReplaceAllStringFunc(text, func(m string) string {
-		sub := reMarker.FindStringSubmatch(m)
-		n, _ := strconv.Atoi(sub[1])
-		if n < 1 || n > len(hits) {
-			return ""
-		}
-		if !seen[n] {
-			seen[n] = true
-			h := hits[n-1]
-			cites = append(cites, Citation{N: n, DocumentID: h.DocumentID, Title: h.Title, PageNo: h.PageNo, Snippet: cut(h.Text, 200)})
-		}
-		return m
-	})
-	return out, cites
+	return agent.ExtractCitations(text, hits)
 }
 
-// cut cắt tối đa n rune ở ranh giới câu / từ gần nhất.
-func cut(s string, n int) string {
-	s = strings.Join(strings.Fields(s), " ")
-	r := []rune(s)
-	if len(r) <= n {
-		return s
-	}
-	head := string(r[:n])
-	if i := strings.LastIndexAny(head, ".!?"); i > n/3 {
-		return head[:i+1]
-	}
-	if i := strings.LastIndex(head, " "); i > 0 {
-		return head[:i]
-	}
-	return head
-}
+func cut(s string, n int) string { return agent.Cut(s, n) }
 
 // extractive dựng câu trả lời suy giảm: ≤ ExtractHits đoạn đầu, mỗi đoạn ≤ ExtractChars ký tự cắt ở ranh giới câu, kèm [n]; không có ngữ cảnh → câu xin lỗi (không bịa).
 func (s *Service) extractive(hits []rag.Hit) (string, []Citation) {

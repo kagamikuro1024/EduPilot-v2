@@ -63,9 +63,10 @@ func (s *Service) search(ctx context.Context, q Query, studentOnly bool, audienc
 	if k <= 0 {
 		k = DefaultTopK
 	}
-	docs := q.DocumentIDs
-	if docs == nil {
-		docs = []uuid.UUID{}
+	// text[] rồi ép ::uuid[] ở SQL: pool chạy QueryExecModeExec (PgBouncer) không mã hoá được []uuid.UUID (OID 0) — QC BUG-1 của US-P3-05
+	docs := make([]string, len(q.DocumentIDs))
+	for i, d := range q.DocumentIDs {
+		docs[i] = d.String()
 	}
 	rows, err := store.New(s.DB).RagSearch(ctx, store.RagSearchParams{
 		CourseID: q.CourseID, Vec: pgvector.NewVector(q.Vec), QueryText: q.Text, StudentOnly: studentOnly,

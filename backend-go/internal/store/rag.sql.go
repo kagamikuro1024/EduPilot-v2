@@ -26,7 +26,7 @@ vec AS (
       AND d.status = 'READY' AND d.use_for_rag AND d.type <> 'ANSWER_KEY'
       AND ($4::bool = false OR d.visible_to_students)
       AND c.audience::text = ANY($5::text[]) AND c.embedding IS NOT NULL
-      AND (cardinality($6::uuid[]) = 0 OR c.document_id = ANY($6::uuid[]))
+      AND (cardinality($6::text[]::uuid[]) = 0 OR c.document_id = ANY($6::text[]::uuid[]))
     ORDER BY c.embedding <=> q.v
     LIMIT 40
 ),
@@ -37,7 +37,7 @@ kw AS (
       AND d.status = 'READY' AND d.use_for_rag AND d.type <> 'ANSWER_KEY'
       AND ($4::bool = false OR d.visible_to_students)
       AND c.audience::text = ANY($5::text[]) AND c.embedding IS NOT NULL
-      AND (cardinality($6::uuid[]) = 0 OR c.document_id = ANY($6::uuid[]))
+      AND (cardinality($6::text[]::uuid[]) = 0 OR c.document_id = ANY($6::text[]::uuid[]))
       AND c.tsv @@ q.t
     ORDER BY ts_rank_cd(c.tsv, q.t) DESC
     LIMIT 40
@@ -60,7 +60,7 @@ type RagSearchParams struct {
 	QueryText   string
 	StudentOnly bool
 	Audiences   []string
-	DocumentIds []uuid.UUID
+	DocumentIds []string
 	K           int32
 }
 
