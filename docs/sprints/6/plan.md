@@ -1,6 +1,6 @@
 # Sprint 6: P3 Hai kênh + PII, P8 Tài liệu + Lịch
 
-**Trạng thái:** KẾ HOẠCH, chờ chủ dự án duyệt.
+**Trạng thái:** **chủ dự án duyệt 2026-10-10**; nút "Nhờ giảng viên" ẩn tới sprint 7 (chủ dự án chốt).
 **Nhánh và nơi làm:** `sprint/6-p3-p8` tách từ `main` (`48315e1`), worktree `../TA_Agent_v2-s6`.
 
 ## Mục tiêu
