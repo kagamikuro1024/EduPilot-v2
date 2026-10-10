@@ -1,4 +1,4 @@
-# QC report — US-P3-07 (độ tin cậy + E1)  · Kết luận: FAIL (1 lỗi Thấp; TC-07/08/18/27 chưa kiểm được)
+# QC report — US-P3-07 (độ tin cậy + E1)  · Kết luận: PASS (vòng 2, 2026-10-11; BUG-1 đã sửa; TC-07/08/18 chưa kiểm được, TC-27 → P3-08)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-07.md`. Bộ TC: `tc-US-P3-07.md` (27 TC).
 **Môi trường:** gateway + worker + frontend build từ HEAD `5a9a741`+, DB riêng `qc_p801`, nhà cung cấp `fake` (nhúng băm → bước tương đồng không đóng góp, đúng như handoff ghi). `eval_pii.py` chạy thật trên stack này bằng token `sv.gioi`. Không đụng stack s55.
@@ -43,7 +43,7 @@ Lưu ý trung thực: bộ dữ liệu và luật do cùng một người viết
 | 22 | PASS | trùng `id` / nhãn `maybe` / ô `{{SV99.mssv}}` không có trong roster → rc=2, nêu rõ lỗi |
 | 23 | PASS | token Giảng viên → rc=2 "từ chối"; `--strict-synthetic` → OK |
 | 24 | PASS | số `forum_threads / forum_posts / pii_events` = 5/6/4 trước và sau các lượt `eval_pii.py` (chỉ gọi `precheck`, chỉ đọc) |
-| 25 | **FAIL (Thấp)** | chèn mẫu có tên `Trần Quang Vinh` (không thuộc roster seed, không thuộc `outside_roster_names.json`, không dùng ô `{{…}}`) → `--strict-synthetic` vẫn `OK 200 items` (rc=0); script chỉ kiểm ô điền, không phát hiện tên tự do |
+| 25 | PASS (vòng 2) — vòng 1 FAIL: | chèn mẫu có tên `Trần Quang Vinh` (không thuộc roster seed, không thuộc `outside_roster_names.json`, không dùng ô `{{…}}`) → `--strict-synthetic` vẫn `OK 200 items` (rc=0); script chỉ kiểm ô điền, không phát hiện tên tự do |
 | 26 | PASS | `e1.md` có "## Giới hạn đã biết" nêu S7; `by_stratum.S7` riêng |
 | 27 | CHUYỂN → US-P3-08 | `scripts/gate-p3.sh` chưa tồn tại |
 
@@ -56,3 +56,10 @@ AC1–AC7, AC9–AC12: PASS (AC4/TC-07, 08 chưa kiểm được trên stack, te
 
 ## Đề nghị
 FAIL chỉ vì BUG-1 (Thấp) và TC chưa kiểm được. PM có thể chấp nhận có điều kiện vì cổng E1 đạt. Chuyển TC-27 sang P3-08.
+
+
+## Chấm lại vòng 2 sau fix `60b2ad8` (2026-10-11)
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1 / TC-25 (`--strict-synthetic` không bắt tên tự do) | **PASS** | chèn mẫu có `Trần Quang Vinh` (ngoài roster seed và danh sách bịa) → `LỖI: bộ dữ liệu sai: S1-01: cụm viết hoa 'Trần Quang Vinh' không thuộc roster seed / danh sách bịa / danh sách từ thường viết hoa`, rc=2; bộ dữ liệu thật vẫn `OK 200 items … strata=S1=12,…` rc=0 (không chặn nhầm) |
+**Kết luận:** PASS. Còn chuyển: TC-27 (`gate-p3.sh`) sang P3-08; TC-05/07/08/18 cần embedding thật hoặc công tắc ép `low_confidence`.

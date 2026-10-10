@@ -1,4 +1,4 @@
-# QC report — US-P3-06 (Threads `/threads` + tường lửa PII)  · Kết luận: FAIL (vòng 2: còn BUG-1b `thread.post_decided` chưa có handler)
+# QC report — US-P3-06 (Threads `/threads` + tường lửa PII)  · Kết luận: PASS (vòng 3, 2026-10-11; BUG-1b đã sửa)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-06.md`. Bộ TC: `tc-US-P3-06.md` (49 TC).
 **Môi trường:** như P3-05 (gateway + worker build từ HEAD `af83a54`, DB riêng `qc_p801`, Redis db 9, docling thật, frontend `next build` + `next start :3410` trỏ gateway QC; không đụng stack s55). Nhà cung cấp `fake` (xem hạn chế embedding ở report P3-05): bài AI chỉ có khi nội dung thread trùng một đoạn tài liệu. Bài thi dựng bằng API (`EXAM_MIN_LEAD_SECONDS=5`).
@@ -93,3 +93,10 @@ TC AI trả lời thread:
 | 30 | KHÔNG KIỂM ĐƯỢC | embedding giả không có độ tương đồng gần; "thread tương tự" luôn rỗng; bài bị loại không xuất hiện (đúng) |
 
 **Kết luận:** FAIL còn BUG-1b. Đề nghị dev đăng ký handler (hoặc bỏ phát sự kiện) cho `thread.post_decided`; sau đó chấm lại TC-24–28 chỉ cần kiểm log worker không còn dead-letter.
+
+
+## Chấm lại vòng 3 sau fix `78e8a11` (2026-10-11)
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1b (`thread.post_decided` chưa có handler) | **PASS (mức test)** | `go test -count=1 ./cmd/worker -run TestEveryEmittedTopicHasHandler` → PASS (0,22 s): test quét mọi topic outbox được phát ra và buộc có handler đăng ký (chặn cả loại lỗi này ở các topic sau, ví dụ `llm.budget.warn` dev thêm); `go test -race ./cmd/worker ./internal/thread` 69 test xanh. Chưa lặp lại ca `verify` trên stack runtime (stack QC đã dọn); nếu PM muốn xác nhận runtime, QC dựng lại ở lượt P3-08 |
+Các TC khác của P3-06 không đổi. **Kết luận:** PASS; TC-21, 30 (cần embedding thật / công tắc worker) và 34, 36, 37, 43 vẫn chưa kiểm được, chuyển P3-08 / gate.
