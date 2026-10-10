@@ -1,5 +1,7 @@
 # SRS FEAT-private-chat-pii Hai kênh hỏi–đáp, tường lửa PII, che danh tính trước LLM
-Phiên bản 1.1 · 2026-10-10 · Trạng thái: DRAFT (chờ Tech Lead thẩm định `TL-REVIEW.md`, rồi PM duyệt)
+Phiên bản 1.2 · 2026-10-10 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+
+**v1.2 (2026-10-10)** — Tech Lead thẩm định `TL-REVIEW.md` (PM chấp nhận cả 16 TLR; TLR-7 phương án (a), TLR-11 `ON DELETE SET NULL`). Sửa theo từng TLR: **TLR-1** route SSE ngoài nhóm nghiệp vụ, không `RequireIdempotencyKey` (4.7.0, 6); **TLR-2** quy tắc khoá idempotency phía máy khách (4.9.3); **TLR-3** thứ tự bước và khoá `CHAT_BUSY` giá trị `client_msg_id`, nhả ở mọi trạng thái cuối (4.7.1); **TLR-4** mọi lệnh ghi cuối có điều kiện `STREAMING`, `retry` đặt lại đủ cột, trigger `set_updated_at` (4.7.1, 4.7.4, 5.3, 5.4); **TLR-5** nối lại bằng Redis Stream `ep:chat:buf` + `Last-Event-ID`, `attempt` (4.7.2–4.7.3, 5.3, 5.7); **TLR-6** `unmask_stream` theo tiền tố, bộ quét chỉ áp dạng placeholder (4.2.6); **TLR-7** chat bỏ chữ suy giảm của `llm`, tự dựng câu, bỏ `Passages` khỏi danh sách che (4.3, 4.7.1 bước 9); **TLR-8** `CourseID==nil` → `MASK_FAILED`, gắn `WithIdentity` (4.3, 4.7.1, 4.9.5); **TLR-9** `thread.created` chỉ xếp hàng, `outbox.Chain`, lần thử cuối ghi `SKIPPED` (4.2.3, 4.9.5); **TLR-10** `exam.RecordChatBlocked` khử trùng (4.7.1 bước 3, 5.7, 10); **TLR-11** FK/ràng buộc `chat_sessions`/`chat_messages` (5.2, 5.3); TLR-12…16 như đề xuất (7, 4.4, 4.7.1, 4.3, 4.9.5). Thêm 1 dòng khoá Redis, 3 hàm test; **không đổi số AC (110)**. Trạng thái **APPROVED**.
 
 **v1.1 (2026-10-10)** — chủ dự án trả lời các câu [CHỦ DỰ ÁN] (`docs/sprints/6/proposals.md`). **Q3:** tên người đăng thread công khai với cả lớp (2, 4.9.7, 6, US-P3-06 AC16). **Q2:** khoá giờ thi chặn chat riêng **và đăng thread mới** (thread cũ vẫn đọc; bình luận, `precheck`, `from-draft` không bị chặn) — thêm bước khoá ở 4.9.3, bỏ việc "AI hoãn khi người đăng đang thi" ở 4.9.5, thêm dòng ở 3.3, 6 (#15), 7, FR-13, US-P3-06 AC20. `RAG_TOP_K` 6 → 8 và chỉ mục GIN `tsv` theo `proposals.md` #7 (`FEAT-docs-calendar`). Không đổi số AC (110).
 
@@ -60,7 +62,7 @@ sequenceDiagram
     AG->>AG: tool Go (trusted_context) hoặc rag.Search (SQL, lọc audience)
     G->>LLM: Stream (đúng 1 lần sinh chữ)
     LLM-->>G: token đã unmask
-    G->>R: PUBLISH ep:chat:stream:{mid} {off,t}
+    G->>R: XADD ep:chat:buf (token) + PUBLISH đánh thức
     R-->>GW: token
     GW-->>S: SSE token / block / notice
     G->>DB: partial_content mỗi ≈1 s; cuối: content, citations, confidence, DONE
@@ -95,11 +97,11 @@ flowchart TD
 | Đăng thread mới khi đang làm bài thi | 409 `EXAM_IN_PROGRESS` `{until}`; ghi `CHAT_BLOCKED`; không lưu | "Đăng bài tạm khóa trong lúc bạn làm bài thi. Dùng lại được sau 10:45." |
 | `Locker` lỗi (Redis và DB) | 503 `CHAT_UNAVAILABLE` + `retry_after` (an toàn khi nghi ngờ) | "Chat chưa dùng được lúc này. Thử lại sau ít phút." |
 | Quá tải (`ErrOverloaded`) | SSE `error{OVERLOADED, retry_after}`; tin `FAILED` | "AI đang bận. Thử lại sau khoảng 20 giây." + `Thử lại` |
-| Mọi provider chết | trả lời trích xuất từ đoạn truy xuất, `degraded` | "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." |
+| Mọi provider chết | chat bỏ chữ sẵn của gói `llm`, tự dựng câu từ các `Hit` (TLR-7), `degraded` | "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." |
 | Chưa cấu hình LLM (`ErrNotConfigured`) | SSE `error{NOT_CONFIGURED}` | "Hỏi đáp chưa sẵn sàng. Thử lại sau." |
 | Mất mạng giữa chừng | server vẫn sinh tới `DONE`; máy khách nối lại bằng `…/stream` | phần đã sinh vẫn hiện; hết mạng thì dải báo ngoại tuyến |
-| Gateway chết giữa lúc sinh | reaper → `FAILED INTERRUPTED` sau 150 s | "Câu trả lời bị gián đoạn." + `Thử lại` |
-| Che lỗi / quá 50 ms | không gọi provider; `MASK_FAILED` | "Chưa gửi được tin nhắn. Thử lại." (giữ nguyên chữ) |
+| Gateway chết giữa lúc sinh | reaper → `FAILED INTERRUPTED` sau 150 s; tắt gateway có chủ đích → `G` tự ghi `INTERRUPTED` ngay (TLR-14) | "Câu trả lời bị gián đoạn." + `Thử lại` |
+| Che lỗi / quá 50 ms | không gọi provider; `MASK_FAILED` (ghi `llm_audit` `status='error'`, `error_kind='MASK_FAILED'`; ctx thiếu `CourseID` cũng vào nhánh này — TLR-8, TLR-15) | "Chưa gửi được tin nhắn. Thử lại." (giữ nguyên chữ) |
 | Redis lỗi khi che | ánh xạ trong bộ nhớ của yêu cầu; payload vẫn đã che | không thấy |
 | Hỏi về người khác | câu mẫu từ chối, 0 LLM, `pii_events BLOCKED OTHER_PERSON` | "Mình chỉ xem được dữ liệu của chính bạn." |
 | Tool P5 / P6 chưa nối | `NoData`, câu mẫu, 0 LLM | "Hệ thống chưa có dữ liệu điểm danh của bạn." |
@@ -158,31 +160,31 @@ func (m *Masker) NewStreamUnmasker(ctx context.Context, s Session) *StreamUnmask
 
 Phải tuyến tính theo độ dài (RE2 của Go; thêm cắt cứng 20.000 ký tự đầu cho `Detect`, phần còn lại quét bằng cửa sổ trượt).
 
-**4.2.3 Từ điển roster.** Nguồn: `enrollments` `ACTIVE` có `role_in_course='STUDENT'` của **một** lớp (`full_name` từ `users`, `student_code_snapshot`). Giảng viên / TA **không** vào từ điển (Q8). Khoá chuẩn hoá: `vn_fold(lower)` + gộp khoảng trắng. Mỗi tên sinh các biến thể: nguyên (có dấu), không dấu, **đảo** (tên trước họ: `An Nguyễn Văn`, `An Nguyễn`), **rút** (`Nguyễn An`). Chỉ khớp theo ranh giới từ và ≥ 2 âm tiết (không khớp tên đơn). Cache Redis `ep:roster:{course_id}` (JSON, TTL 1 giờ); vô hiệu bằng outbox `course.member_changed`, `roster.imported` (≤ 5 s; handler đăng ký ở `Invalidator`). Tự động dựng lại khi trượt cache (một truy vấn).
+**4.2.3 Từ điển roster.** Nguồn: `enrollments` `ACTIVE` có `role_in_course='STUDENT'` của **một** lớp (`full_name` từ `users`, `student_code_snapshot`). Giảng viên / TA **không** vào từ điển (Q8). Khoá chuẩn hoá: `vn_fold(lower)` + gộp khoảng trắng. Mỗi tên sinh các biến thể: nguyên (có dấu), không dấu, **đảo** (tên trước họ: `An Nguyễn Văn`, `An Nguyễn`), **rút** (`Nguyễn An`). Chỉ khớp theo ranh giới từ và ≥ 2 âm tiết (không khớp tên đơn). Cache Redis `ep:roster:{course_id}` (JSON, TTL 1 giờ); vô hiệu bằng outbox `course.member_changed`, `roster.imported` (≤ 5 s; nối bằng `outbox.Chain(inv.Handle, roster.Invalidate)` ở dòng đăng ký sẵn có — đăng ký trùng topic sẽ `panic`; việc AI dài chạy ở hàng riêng nên không chặn việc vô hiệu — TLR-9). Tự động dựng lại khi trượt cache (một truy vấn).
 
 **4.2.4 `Redact`.** Thay mỗi `Finding` bằng `[đã ẩn]`; gộp hai khoảng sát nhau; idempotent; không có `Finding` → trả **cùng** chuỗi.
 
 **4.2.5 `Mask`.** Placeholder: `[[SV_n]]` (họ tên), `[[MSSV_n]]`, `[[EMAIL_n]]`, `[[SDT_n]]`, `[[CCCD_n]]`; `n` đếm theo từng loại từ 1, ổn định theo **phiên** nhờ ánh xạ. Khoá thực thể = chuẩn hoá (`vn_fold(lower)` cho tên; chữ thường cho MSSV / email; chữ số cho SĐT / CCCD). Giá trị "bản gốc" lưu là lần thấy đầu tiên. **Người đang chat cũng bị che** (từ `users.full_name`, `student_code` của người đó, cộng roster). Ánh xạ ở Redis (5.7): `HASH ep:mask:{sid}` gồm `p:[[SV_1]]` → bản gốc, `r:<sha256(khoá)>` → placeholder, `n:SV` → bộ đếm; TTL 24 giờ **kể từ lần dùng gần nhất**. Không có phiên (`Session.ID()==""`): ánh xạ trong bộ nhớ của yêu cầu, không tạo khoá Redis. **Không bao giờ log** bản gốc hay ánh xạ.
 
-**4.2.6 `Unmask` và `StreamUnmasker`.** `Unmask` thay mọi placeholder bằng bản gốc, chịu khoảng trắng / hoa-thường (`\[\[\s*(SV|MSSV|EMAIL|SDT|CCCD)_(\d+)\s*\]\]` không phân biệt hoa-thường). `StreamUnmasker.Write(chunk)`: máy trạng thái hai pha — (a) không giữ gì tới khi gặp `[`; (b) từ `[` giữ tối đa **32 rune** chờ khép `]]`; hết giữ mà chưa thành placeholder → phát nguyên chữ; ký tự sau `[` không thuộc `[A-Za-z0-9_ ]` → phát ngay. `Flush()` ở cuối luồng: phần giữ lại không hoàn chỉnh → qua bộ quét. **Bộ quét sót** (`Scan`): placeholder không có trong ánh xạ, hoặc mở dở ở cuối → `bạn`, `slog.Warn("placeholder sót", "count", n)` (không kèm ánh xạ). Bất biến: chuỗi người dùng nhìn thấy không bao giờ khớp `\[\[`.
+**4.2.6 `Unmask` và `StreamUnmasker`.** `Unmask` thay mọi placeholder bằng bản gốc, chịu khoảng trắng / hoa-thường (`(?i)\[\[\s*(SV|MSSV|EMAIL|SDT|CCCD)_(\d+)\s*\]\]`). `StreamUnmasker.Write(chunk)` là máy trạng thái **theo tiền tố** (TLR-6): không giữ gì tới khi gặp `[`; `[` → chờ `[` thứ hai; `[[` → khớp dần `\s*(?i)(SV|MSSV|EMAIL|SDT|CCCD)_\d+\s*]]` (loại placeholder rồi số, rồi `]]`); ký tự nào làm hỏng tiền tố → **phát ra toàn bộ phần đã giữ** (kể cả `[[`) rồi xử lý ký tự đó như thường; tối đa **32 rune** giữ lại. Nhờ vậy `[[ -f "$f" ]]`, `a[[i]]` (nội dung hợp lệ của môn An ninh mạng) đi qua **nguyên vẹn**. `Flush()` ở cuối luồng: phần giữ lại là tiền tố dở dạng placeholder (`[[SV`, `[[MSSV_`…) → qua bộ quét. **Bộ quét sót** (`Scan`) chỉ áp cho chuỗi **có dạng placeholder** `(?i)\[\[\s*(SV|MSSV|EMAIL|SDT|CCCD)(_\d*)?` (kể cả mở dở ở cuối): không có trong ánh xạ → `bạn`, `slog.Warn("placeholder sót", "count", n)` (không kèm ánh xạ). Bất biến: chuỗi người dùng nhìn thấy không bao giờ khớp dạng placeholder đó; `[[` không phải placeholder không bị đụng tới.
 
 ### 4.3 Hook che trong `internal/llm` (một chỗ duy nhất)
 
 - `llm.Client` được dựng với `Masker` (giao diện `llm.Masker` định nghĩa trong `internal/llm`; `internal/privacy` cài đặt — không import vòng). `cmd/gateway` và `cmd/worker` bắt buộc cấp; thiếu → không khởi động. `NoMask` chỉ cho `POST /admin/llm/providers/test`, ping và test.
-- Hook chạy **một lần** ở đầu `Chat`, `Stream`, `Structured`, `Embed`, **trước** vòng lặp fallback của registry; mọi nhà cung cấp trong chuỗi nhận cùng payload đã che. Che: mọi `Message.Content` (system, history, user, kết quả tool), `Passages[].Text`, `EmbedRequest.Inputs`, lời nhắc của `Structured`. Phạm vi roster = `CourseID` trong `Identity` của ctx; phiên = `privacy.SessionFrom(ctx)` (gắn bởi `internal/chat`); không có phiên → phạm vi yêu cầu.
-- Đầu ra: `Stream` bọc kênh `Chunk` bằng `StreamUnmasker` — người gọi chỉ nhận chữ đã khôi phục; `Chunk.Done` đi sau `Flush()`; `Chat` khôi phục `Response.Text`; `Structured` kiểm schema trên bản thô **rồi** khôi phục chuỗi giá trị. Đường suy giảm (`Passages`) trả đoạn gốc (người dùng đã được phép thấy), không đi qua mô hình.
+- Hook chạy **một lần** ở đầu `Chat`, `Stream`, `Structured`, `Embed`, **trước** vòng lặp fallback của registry; mọi nhà cung cấp trong chuỗi nhận cùng payload đã che. Che: mọi `Message.Content` (system, history, user, kết quả tool), `EmbedRequest.Inputs`, lời nhắc của `Structured` (`Passages` **không** phải payload gửi provider nên không nằm trong danh sách che — TLR-7). Phạm vi roster = `CourseID` trong `Identity` của ctx; phiên = `privacy.SessionFrom(ctx)` (gắn bởi `internal/chat`); không có phiên → phạm vi yêu cầu. **`CourseID == nil` ở lời gọi có nội dung người dùng → hỏng an toàn:** `MASK_FAILED`, không gọi provider (nếu che chỉ bằng regex, họ tên lọt qua mà không báo lỗi); chỉ `NoMask` được bỏ qua. Chat, worker AI Threads và ingest đều phải gắn `llm.WithIdentity` với lớp của phiên / thread / tài liệu (TLR-8).
+- Đầu ra: `Stream` bọc kênh `Chunk` bằng `StreamUnmasker` — người gọi chỉ nhận chữ đã khôi phục; `Chunk.Done` đi sau `Flush()`; `Chat` khôi phục `Response.Text`; `Structured` kiểm schema trên bản thô **rồi** khôi phục chuỗi giá trị. Đường suy giảm có sẵn của `llm.Stream` (mọi nhà cung cấp lỗi trước token đầu) trả `Response.Degraded=true`; **chat bỏ chữ do gói `llm` sinh** và tự dựng câu theo 4.7.1 bước 9 — không sửa `degrade.go` (PM chọn phương án (a), TLR-7).
 - `llm_audit.pii_masked_count` = `n` (tổng lần thay); `Request.PIIMaskedCount` được điền. `llm_audit` không có nội dung.
-- Không thêm lời gọi LLM; chi phí ≤ 5 ms p95; che quá 50 ms → huỷ, `MASK_FAILED` (không gọi provider).
+- Không thêm lời gọi LLM; chi phí ≤ 5 ms p95; che quá 50 ms → huỷ, `MASK_FAILED` (không gọi provider), ghi `llm_audit` một dòng `status='error'`, `error_kind='MASK_FAILED'` (không đổi lược đồ — TLR-15).
 - `internal/agent`, `internal/chat`, `internal/thread`, `internal/ingest`, `internal/rag` **không** import `privacy.Mask*` (kiểm `TestMaskOnlyInLLMGateway`). `internal/agent` chỉ dùng `privacy.Classify` / `privacy.Detect` cho phân loại và tường lửa — hai việc đó **đọc** văn bản, không gửi đi.
 
 ### 4.4 Phân loại kênh (D47 mục 2)
 
-`privacy.Classify(ctx, courseID, text, vec []float32) Result{Channel PRIVATE|PUBLIC, Personal bool, Reasons []Reason, UsedEmbedding bool}`; chạy **đúng một lần** mỗi yêu cầu.
+`privacy.Classify(ctx, courseID, text, embed func(ctx) ([]float32, error)) (Result{Channel PRIVATE|PUBLIC, Personal bool, Reasons []Reason, UsedEmbedding bool}, vec []float32)`; chạy **đúng một lần** mỗi yêu cầu. Chỉ gọi `embed` khi luật chưa quyết; `vec` (nil nếu chưa nhúng) trả ra cho `rag.SearchStudent` dùng lại (TLR-13).
 
 1. **Luật:** `Detect` (có PII → `Personal`, lý do theo loại); mẫu câu cá nhân tiếng Việt (`điểm của (em|mình|tôi)`, `em (vắng|nghỉ|được) …`, `lịch thi của em`, `điểm cộng của em`, `quy chế … áp (vào|cho) (em|mình)`, `phúc khảo|khiếu nại … điểm của em`; có dấu và không dấu). Luật quyết định rõ → **không nhúng**.
-2. **Độ tương đồng embedding:** với văn bản dài ≥ 20 ký tự mà luật chưa quyết định: nhúng **một** lần (làn INTERACTIVE; đầu vào qua hook che; cache `ep:emb:{sha256(chuẩn hoá)}` TTL 10 phút); so cosine với tập ≥ 40 mẫu câu hỏi cá nhân (`seed/privacy/personal-exemplars.txt`, nhúng sẵn lúc khởi động, cache `ep:cls:proto:{model}`): ≥ `PII_PERSONAL_SIM_HIGH` → `Personal`; ≤ `LOW` → công khai; ở giữa → **không** coi là cá nhân.
+2. **Độ tương đồng embedding:** với văn bản dài ≥ 20 ký tự mà luật chưa quyết định: nhúng **một** lần (làn INTERACTIVE; đầu vào qua hook che; cache `ep:emb:{sha256(chuẩn hoá(chữ thô))}` TTL 10 phút — khoá tính từ chữ thô ở tầng phân loại, giá trị là vectơ nên **không chứa chữ**; cache nằm ở tầng phân loại vì khoá của `internal/llm` chỉ tính được sau hook); so cosine với tập ≥ 40 mẫu câu hỏi cá nhân (`seed/privacy/personal-exemplars.txt`, nhúng sẵn lúc khởi động, cache `ep:cls:proto:{model}`): ≥ `PII_PERSONAL_SIM_HIGH` → `Personal`; ≤ `LOW` → công khai; ở giữa → **không** coi là cá nhân.
 3. **Hạ cấp:** nhúng lỗi / quá tải → chỉ luật, ghi `warn`, `Result.UsedEmbedding=false` (precheck vẫn trả 200). **Không** có bước LLM sinh chữ ("LLM phân loại khi mơ hồ" của PRD M1 bị D47 thay — đề nghị vá PRD, `proposals.md` #3).
-4. Vectơ đã nhúng được trả về cho `rag.Search` dùng lại (một nhúng / tin nhắn).
+4. Vectơ đã nhúng được trả về cho `rag.SearchStudent` dùng lại (một nhúng / tin nhắn). Đăng thread: nếu đã nhúng ở đây thì lưu luôn `forum_threads.embedding` trong giao dịch đăng; worker AI dùng chung khoá `ep:emb` (TTL 10 phút) để không nhúng lần hai (TLR-16).
 
 ### 4.5 `internal/agent` — định tuyến tất định và tool
 
@@ -229,43 +231,47 @@ Câu mẫu (0 lời gọi LLM) nằm ở `internal/agent/replies_vi.go`: từ ch
 
 ### 4.7 `internal/chat`
 
-**4.7.1 Gửi tin** (`POST /chat/sessions/{sid}/messages`, `Idempotency-Key` = `client_msg_id`):
-1. Nạp phiên (`user_id=sub`, chưa xoá) else 404 → guard (`Member` + STUDENT, `course_id` của phiên) → lớp `ARCHIVED` → 409.
-2. Kiểm nội dung: rỗng / toàn trắng 422; > `CHAT_MAX_INPUT_CHARS` 422 `MESSAGE_TOO_LONG`; thân có trường lạ (`user_id`, `student_code`, …) 422.
-3. **Khoá giờ thi** (`exam.Locker.IsLocked(sub)`) — **trước** giới hạn tốc độ, phân loại, nhúng, provider: khoá → ghi `exam_events` `CHAT_BLOCKED` (lượt `AttemptID`) + 409 `EXAM_IN_PROGRESS {until}`; lỗi → 503 `CHAT_UNAVAILABLE`.
-4. Giới hạn tốc độ (429) và `CHAT_BUSY` (`SET ep:chat:active:{uid} <mid> NX EX 130`; đang có khoá mà khoá idempotency khác → 409).
-5. Idempotency: có `(session_id, client_msg_id)` → bỏ qua bước 6, đi thẳng vào phát lại (4.7.3).
-6. Một giao dịch: chèn tin `USER` (`DONE`) + tin `ASSISTANT` (`STREAMING`, `reply_to`); cập nhật `last_message_at`; đặt `title` = 60 ký tự đầu của tin đầu tiên (nếu chưa có).
-7. Mở SSE, đăng ký kênh Redis `ep:chat:stream:{mid}`, phát `status{received}`; **sau đó** khởi động goroutine sinh `G` (ctx = `context.WithoutCancel(request ctx)` + hạn `CHAT_STREAM_MAX_SECONDS`, giữ `Identity`, `trace_id`, `privacy.Session`).
-8. `G`: `Classify` (nhúng tối đa 1) → `Route` → (a) nhánh mẫu: một `token` đủ câu; (b) tool: `block` rồi sinh; (c) `COURSE_QA`: tra cache → trượt thì `rag.Search` (phiên có `document_id` thì giới hạn tài liệu) rồi `status{searching}`. Một lần `llm.Stream`; mỗi lô token: nối vào bộ đệm, `PUBLISH {off, t}`; mỗi `CHAT_FLUSH_INTERVAL` ghi `partial_content`.
-9. Kết thúc: trích `[n]` → `citations`; tính `ResponseMetadata` (4.8); giao dịch cuối: `content`, `citations`, `blocks`, `confidence`, `low_confidence`, `no_context`, `degraded`, `masked_count`, `intent`, `stream_status=DONE`, `completed_at`, `partial_content=NULL`; ghi `pii_events` `MASKED` theo loại (một dòng / loại khi `n>0`); `PUBLISH done`; `DEL ep:chat:active:{uid}`.
-10. Lỗi → `FAILED` + `error_code` (`OVERLOADED`, `NOT_CONFIGURED`, `PROVIDER_ERROR`, `MASK_FAILED`, `INTERRUPTED`); `ErrOverloaded` kèm `retry_after`.
+**4.7.0 Chain của route SSE (TLR-1).** #6, #7, #9 gắn **ngoài** nhóm nghiệp vụ của router (cùng chỗ với `GET /api/v1/events`), không qua `timeoutMiddleware`, `bodyLimitMiddleware` chung và **không** qua `RequireIdempotencyKey` (middleware này đệm cả phản hồi rồi mới `flush`, nên byte đầu chỉ tới khi lượt sinh đã xong, và lưu cả phản hồi 4xx). Chain riêng: auth (Bearer), giới hạn thân nhỏ, guard của phiên, nghe `DrainC`. Header vẫn tên `Idempotency-Key` cho đồng bộ phía client nhưng chống trùng **chỉ** bằng `UNIQUE (session_id, client_msg_id)` ở DB (`client_msg_id` = giá trị header, phải là UUID). Test chạy qua router thật: `TestChatSSENotBuffered`.
 
-**4.7.2 Giao thức SSE** (`Content-Type: text/event-stream`; heartbeat comment mỗi 25 s; mỗi sự kiện `id: <mid>:<seq>`):
+**4.7.1 Gửi tin** (`POST /chat/sessions/{sid}/messages`; header `Idempotency-Key` = `client_msg_id`). Thứ tự (TLR-3):
+1. Nạp phiên (`user_id=sub`, chưa xoá) else 404 → guard (`Member` + STUDENT, `course_id` của phiên) → lớp `ARCHIVED` → 409.
+2. Kiểm nội dung: rỗng / toàn trắng 422; > `CHAT_MAX_INPUT_CHARS` 422 `MESSAGE_TOO_LONG`; thân có trường lạ (`user_id`, `student_code`, …) 422; `Idempotency-Key` không phải UUID 422.
+3. **Khoá giờ thi** (`exam.Locker.IsLocked(sub)`) — **trước** giới hạn tốc độ, phân loại, nhúng, provider: khoá → gọi `exam.RecordChatBlocked(ctx, userID, lock.AttemptID)` (hàm PE mới, TLR-10: `INSERT INTO exam_events … SELECT course_id, exam_id … FROM exam_attempts WHERE id=$1 AND student_id=$2 AND status='IN_PROGRESS'`, loại `CHAT_BLOCKED`, `meta` `{}`; khử trùng ≤ 1 dòng / lượt / phút bằng `SET ep:chat_blocked:{attempt} NX EX 60`; **không** tính vào hạn mức sự kiện của máy khách; P3 không import `store` của exam) rồi 409 `EXAM_IN_PROGRESS {until}`; `IsLocked` lỗi → 503 `CHAT_UNAVAILABLE`.
+4. Giới hạn tốc độ (429).
+5. Tra `(session_id, client_msg_id)`: **có** → bỏ qua 6–7, phát lại (4.7.3).
+6. Khoá `CHAT_BUSY`: `SET ep:chat:active:{uid} <client_msg_id> NX EX 130`; đang có giá trị **khác** → 409 `CHAT_BUSY`; giá trị bằng `client_msg_id` (gửi lặp khi bản đầu còn chạy) → phát lại.
+7. Một giao dịch: chèn tin `USER` (`DONE`) + tin `ASSISTANT` (`STREAMING`, `reply_to`, `attempt=1`); cập nhật `last_message_at`; đặt `title` = 60 ký tự đầu của tin đầu tiên (nếu chưa có). Vi phạm `23505` (cuộc đua cùng khoá: bản thứ 2…n) → rollback, phát lại bản đã commit; lỗi giao dịch khác → nhả khoá và trả 5xx.
+8. Đăng ký (a) kênh huỷ `ep:chat:cancel:{mid}` và (b) bộ đệm Stream `ep:chat:buf:{mid}:{attempt}` **trước** khi phát `status{received}` (nhờ vậy "PUBLISH huỷ = 0 người nghe" nghĩa là không có `G`, TLR-4); mở SSE; **sau đó** khởi động goroutine sinh `G` với ctx = `context.WithoutCancel(request ctx)` + hạn `CHAT_STREAM_MAX_SECONDS`, gắn **rõ ràng** `llm.WithIdentity{UserID, CourseID của phiên}` (route chat không có `{cid}` nên `Identity` không tự có — TLR-8), `trace_id`, `privacy.Session`.
+9. `G`: `Classify` (nhúng tối đa 1) → `Route` → (a) nhánh mẫu: một `token` đủ câu; (b) tool: `block` rồi sinh; (c) `COURSE_QA`: tra cache → trượt thì `rag.SearchStudent` (phiên có `document_id` thì giới hạn tài liệu) rồi `status{searching}`. Một lần `llm.Stream`; **đường suy giảm:** nếu kết quả có `Response.Degraded=true`, chat **bỏ chữ do gói `llm` sinh** (câu sẵn của `internal/llm/degrade.go` hứa "giảng viên sẽ xem" — việc không xảy ra ở sprint 6) và tự dựng câu: dòng `notice` "Trả lời tạm thời, trích nguyên văn từ tài liệu của lớp." + đoạn trích / trích dẫn lấy từ các `Hit`; không có `Hit` → "AI đang gián đoạn. Thử lại sau." (TLR-7). Chat chỉ chuyển tiếp chữ khi lượt sinh không `Degraded`. Mỗi lô token: nối vào bộ đệm, `XADD ep:chat:buf:{mid}:{attempt} MAXLEN ~ 4096 * off <n> t <…>` (+ `EXPIRE` 10 phút) rồi `PUBLISH ep:chat:stream:{mid}` đánh thức; mỗi `CHAT_FLUSH_INTERVAL` ghi `partial_content`.
+10. Kết thúc: trích `[n]` → `citations`; tính `ResponseMetadata` (4.8); giao dịch cuối: `content`, `citations`, `blocks`, `confidence`, `low_confidence`, `no_context`, `degraded`, `masked_count`, `intent`, `stream_status=DONE`, `completed_at`, `partial_content=NULL`; ghi `pii_events` `MASKED` theo loại (một dòng / loại khi `n>0`); đẩy sự kiện `done`. **Mọi lệnh ghi `partial_content` và mọi lệnh ghi cuối của `G`, của `cancel` và của reaper đều thêm `WHERE stream_status = 'STREAMING'`**; `G` thấy 0 dòng thì dừng lặng lẽ và huỷ ctx provider (TLR-4). **Nhả khoá `CHAT_BUSY` ở mọi trạng thái cuối** (`DONE`, `FAILED`, `CANCELLED`, reaper, giao dịch lỗi ở bước 7) bằng so-rồi-xoá (Lua: `GET == client_msg_id → DEL`), không `DEL` trần.
+11. Lỗi → `FAILED` + `error_code` (`OVERLOADED`, `NOT_CONFIGURED`, `PROVIDER_ERROR`, `MASK_FAILED`, `INTERRUPTED`); `ErrOverloaded` kèm `retry_after`; che hỏng (`MASK_FAILED`) ghi `llm_audit` một dòng `status='error'`, `error_kind='MASK_FAILED'` (không đổi lược đồ — TLR-15).
+12. **Tắt gateway (`DrainC`, TLR-14):** `G` còn sống ghi `FAILED INTERRUPTED` (có điều kiện `STREAMING`) cho tin của mình và nhả `CHAT_BUSY`; không chờ 120 s (`SHUTDOWN_TIMEOUT` 25 s).
+
+**4.7.2 Giao thức SSE** (`Content-Type: text/event-stream`; heartbeat comment mỗi 25 s). Mỗi sự kiện có `id: <attempt>:<id của Redis Stream>` (`attempt` tăng mỗi lần `retry` cùng hàng, nên `Last-Event-ID` của lượt trước không bị hiểu nhầm):
 
 | `event` | `data` |
 | --- | --- |
 | `status` | `{"message_id":"…","stage":"received\|searching\|generating"}` |
-| `snapshot` | `{"off":0,"t":"<phần đã có>"}` (chỉ khi nối lại) |
+| `snapshot` | `{"off":0,"t":"<phần đã có>"}` (chỉ khi nối lại mà bộ đệm Stream đã hết hạn / mất) |
 | `token` | `{"off":123,"t":"…"}` (`off` = vị trí rune đầu của `t` trong văn bản đã khôi phục) |
 | `block` | `{"kind":"upcoming_events\|exam_schedule\|library_results\|…","data":{…}}` |
-| `notice` | `{"masked":2}` |
+| `notice` | `{"masked":2}` hoặc `{"degraded":true}` |
 | `done` | `{"message_id":"…","citations":[…],"low_confidence":false,"degraded":false}` |
 | `error` | `{"code":"OVERLOADED","message":"…","retry_after":20}` |
 
-Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo mỗi người"; tối đa 1 lượt sinh đang chạy mỗi người (`CHAT_BUSY`).
+Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo mỗi người"; tối đa 1 lượt sinh đang chạy mỗi người (`CHAT_BUSY`). Dùng lại mẫu của hạ tầng `internal/httpapi/sse` (Redis Stream đệm + pub/sub đánh thức + phát lại theo `Last-Event-ID`) — **không** tạo quy ước SSE thứ hai; một kết nối pub/sub cho mỗi tiến trình (gom kênh), không mở hai kết nối Redis cho mỗi tin (TLR-5).
 
-**4.7.3 Nối lại.** `GET /chat/messages/{mid}/stream` (chủ tin; `Last-Event-ID` tuỳ chọn): đăng ký kênh Redis **trước**, đọc `partial_content` / `content` từ DB, gửi `snapshot`, rồi chuyển tiếp `token` có `off ≥ độ dài snapshot`, bỏ phần trùng; phát hiện hở (`off` > độ dài đã nhận) → gửi lại `snapshot`; tin đã `DONE` / `FAILED` / `CANCELLED` → gửi `snapshot` + sự kiện cuối rồi đóng. Redis pub/sub lỗi → thăm dò DB mỗi 500 ms.
+**4.7.3 Nối lại.** `GET /chat/messages/{mid}/stream` (chủ tin; `Last-Event-ID` tuỳ chọn): `XRANGE ep:chat:buf:{mid}:{attempt}` từ id sau `Last-Event-ID` (hoặc từ đầu) rồi `XREAD BLOCK` / chờ đánh thức — **không có khe** giữa phần đã gửi và phần đang sinh. Bộ đệm hết hạn hoặc Redis mất: gửi `snapshot` từ `partial_content` / `content` (bản bền trong DB) rồi, nếu tin còn `STREAMING`, thăm dò DB mỗi 500 ms; tin đã `DONE` / `FAILED` / `CANCELLED` → `snapshot` + sự kiện cuối rồi đóng.
 
-**4.7.4 Dừng / thử lại / phản hồi.** `cancel`: `PUBLISH ep:chat:cancel:{mid}`; `G` (ở bất kỳ bản nào) huỷ ctx của `llm.Stream` → provider; ghi `CANCELLED` + giữ `partial_content`; không có `G` sống (chết) mà DB còn `STREAMING` → cập nhật thẳng `CANCELLED`; idempotent. `retry` (chỉ tin `ASSISTANT` `FAILED`/`CANCELLED` của mình): đặt lại **cùng hàng** (`content=''`, `partial_content=NULL`, `STREAMING`, `error_code=NULL`), chạy lại 4.7.1 từ bước 3 với tin `USER` cũ. `feedback`: `HELPFUL` | `NOT_HELPFUL` | `null`.
+**4.7.4 Dừng / thử lại / phản hồi.** `cancel`: `PUBLISH ep:chat:cancel:{mid}`; `G` (ở bất kỳ bản nào) huỷ ctx của `llm.Stream` → provider; ghi `CANCELLED` + giữ `partial_content` (`WHERE stream_status='STREAMING'`); số người nghe = 0 (không có `G` sống) mà DB còn `STREAMING` → cập nhật thẳng `CANCELLED` cũng với điều kiện đó; idempotent. `retry` (chỉ tin `ASSISTANT` `FAILED`/`CANCELLED` của mình): đặt lại **cùng hàng** mọi cột của lượt trước — `content=''`, `partial_content=NULL`, `stream_status='STREAMING'`, `completed_at=NULL`, `error_code=NULL`, `citations='[]'`, `blocks='[]'`, `confidence=NULL`, `low_confidence=false`, `no_context=false`, `degraded=false`, `masked_count=0`, `intent=NULL`, `feedback=NULL`, `attempt=attempt+1` — rồi chạy lại 4.7.1 từ bước 3 với tin `USER` cũ. `feedback`: `HELPFUL` | `NOT_HELPFUL` | `null`.
 
-**4.7.5 Reaper.** Worker cron mỗi 30 s: `UPDATE chat_messages SET stream_status='FAILED', error_code='INTERRUPTED', completed_at=now() WHERE stream_status='STREAMING' AND updated_at < now() - 150 s` (chỉ mục từng phần `chat_messages_streaming_idx`).
+**4.7.5 Reaper.** Worker cron mỗi 30 s: `UPDATE chat_messages SET stream_status='FAILED', error_code='INTERRUPTED', completed_at=now() WHERE stream_status='STREAMING' AND updated_at < now() - 150 s` (chỉ mục từng phần `chat_messages_streaming_idx`; `updated_at` do trigger `set_updated_at`, 5.3); `G` còn sống mà bị reaper ghi trước sẽ thấy 0 dòng ở lệnh ghi cuối và dừng (4.7.1 bước 10).
 
 **4.7.6 Cache câu trả lời (D47 mục 5).** Khoá `ep:ans:{course_id}:{ver}:{sha256(chuẩn hoá(câu hỏi) + document_id)}`, TTL 1 giờ (lưới an toàn), chỉ cho `COURSE_QA` / `LIBRARY_SEARCH` **không** PII và không phiên giới hạn tài liệu của người khác; `ver` = `GET ep:rag:ver:{course_id}`, tăng bởi outbox `document.changed` (US-P8). Trúng cache → phát lại theo cùng giao thức (token theo lô nhỏ), `masked_count=0`. Intent cá nhân và tin có PII **không bao giờ** đọc / ghi cache. Khoá cache theo khớp chuẩn hoá chính xác (không "ngữ nghĩa" bằng vectơ: `ponytail:` đủ cho T1, nâng cấp khi đo thấy tỷ lệ trúng thấp).
 
 ### 4.8 `ResponseMetadata` và độ tin cậy (US-P3-07)
 
-`retr = clamp((cos_top1 − RAG_SIM_FLOOR) / (RAG_SIM_CEIL − RAG_SIM_FLOOR), 0, 1)`; `ground` = tỷ lệ câu của câu trả lời (≥ 4 từ nội dung sau `vn_fold`, bỏ stop-words) có ≥ 40 % từ xuất hiện trong hợp các đoạn đưa vào lời nhắc; `confidence = 0,6·retr + 0,4·ground` làm tròn 3 chữ số (`shopspring/decimal`); intent có tool trả dữ liệu: `1,000`; `low_confidence = confidence < courses.escalation_threshold`. Không lời gọi LLM nào. Công thức và hằng số là **bản tạm** (Q9); sinh viên chỉ nhận `low_confidence`.
+`cos_top1` = **max(cosine)** của các `Hit` (không theo thứ hạng RRF; đoạn chỉ khớp từ khoá không có cosine vì `rag` yêu cầu `embedding IS NOT NULL` ở cả hai nhánh — `FEAT-docs-calendar` TLR-3); `no_context` = không có `Hit` hoặc max(cosine) < `RAG_SIM_FLOOR`; `retr = clamp((cos_top1 − RAG_SIM_FLOOR) / (RAG_SIM_CEIL − RAG_SIM_FLOOR), 0, 1)`; `ground` = tỷ lệ câu của câu trả lời (≥ 4 từ nội dung sau `vn_fold`, bỏ stop-words) có ≥ 40 % từ xuất hiện trong hợp các đoạn đưa vào lời nhắc; `confidence = 0,6·retr + 0,4·ground` làm tròn 3 chữ số (`shopspring/decimal`); intent có tool trả dữ liệu: `1,000`; `low_confidence = confidence < courses.escalation_threshold`. Không lời gọi LLM nào. Công thức và hằng số là **bản tạm** (Q9); sinh viên chỉ nhận `low_confidence`.
 
 ### 4.9 `internal/thread`
 
@@ -273,11 +279,11 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 
 **4.9.2 `precheck`** không ghi gì (không `forum_*`, không `pii_events`); rate limit; trả `{allowed, reasons, redacted_text, personal_question}`.
 
-**4.9.3 Đăng** (`POST …/threads`, `Idempotency-Key` bắt buộc): **trước hết** kiểm khoá giờ thi (`exam.Locker.IsLocked`, Q2): khoá → ghi `exam_events` `CHAT_BLOCKED` + 409 `EXAM_IN_PROGRESS {until}`, lỗi → 503 `CHAT_UNAVAILABLE`; sau đó luôn chạy lại `CheckPost`; `Allowed` → lưu; không → nếu `redact:true` **và** `!Personal` → lưu bản `Redacted` **sau khi kiểm lại** bản đó sạch (nếu còn PII → 422), ghi `REDACTED`; còn lại 422 `PII_DETECTED` (kèm `reasons`, `redacted_text`, `personal_question`), ghi `BLOCKED` một dòng mỗi loại. Giao dịch: `forum_threads` + outbox `thread.created`.
+**4.9.3 Đăng** (`POST …/threads`, `Idempotency-Key` bắt buộc): **trước hết** kiểm khoá giờ thi (`exam.Locker.IsLocked`, Q2): khoá → ghi `exam_events` `CHAT_BLOCKED` + 409 `EXAM_IN_PROGRESS {until}`, lỗi → 503 `CHAT_UNAVAILABLE`; sau đó luôn chạy lại `CheckPost`; `Allowed` → lưu; không → nếu `redact:true` **và** `!Personal` → lưu bản `Redacted` **sau khi kiểm lại** bản đó sạch (nếu còn PII → 422), ghi `REDACTED`; còn lại 422 `PII_DETECTED` (kèm `reasons`, `redacted_text`, `personal_question`), ghi `BLOCKED` một dòng mỗi loại. Giao dịch: `forum_threads` (kèm `embedding` nếu đã có, 4.4) + outbox `thread.created`. **Quy tắc `Idempotency-Key` phía máy khách (TLR-2):** middleware idempotency của router lưu cả phản hồi 4xx và so băm thân, nên máy khách **giữ khoá** khi lỗi mạng hoặc 5xx, và **sinh khoá mới** sau mọi phản hồi 4xx cũng như mỗi khi thân đổi (lối `redact:true`, sửa chữ, hết khoá giờ thi); nếu không, `Ẩn thông tin rồi đăng` nhận 422 `IDEMPOTENCY_KEY_REUSED` và đăng sau giờ thi nhận lại 409 cũ.
 
 **4.9.4 `from-draft`** (`POST /chat/sessions/from-draft {course_id, title?, body}`, `Idempotency-Key`): guard `Member` + STUDENT của `course_id`; tạo phiên `PRIVATE`, trả `{session_id, draft:{title, body}}` — **bản nháp không được lưu ở máy chủ** (chỉ phản hồi); ghi `SWITCHED` (số `Finding` tính lại phía máy chủ).
 
-**4.9.5 Việc AI trả lời** (worker, topic `thread.created`, idempotent): `ai_state != PENDING` → bỏ; nhúng `title + body` **một** lần (lưu `forum_threads.embedding`; tính `similar_of`); `rag.Search` (`audience='ALL'`, tài liệu `visible_to_students`, lớp); không đoạn trên sàn → `SKIPPED/NO_CONTEXT`; một `llm.Chat` (task `CHAT`, **làn `NEAR_REALTIME`** — hạ làn hợp lệ theo `ResolveLane`) với lời nhắc Socratic + trích nguồn `[n]`; `ErrOverloaded` → trả lỗi cho outbox thử lại (tối đa 4 lần, lùi dần); `ErrNotConfigured` / `ErrAllProvidersFailed` / hết lần thử → `SKIPPED/LLM_UNAVAILABLE`; thành công: một giao dịch tạo bài `AI` (`verification_state=PENDING`, `citations`, `confidence`), `ai_state=ANSWERED`, `notifications` `THREAD_ANSWERED` cho người đăng (dedupe), outbox `thread.ai_answered` (vô hiệu cache "Hôm nay" của Staff). Ràng buộc DB `UNIQUE (thread_id) WHERE kind='AI'` đảm bảo không có bài AI thứ hai.
+**4.9.5 Việc AI trả lời** (TLR-9, TLR-16). Handler outbox `thread.created` **chỉ xếp hàng**: `XADD` vào hàng việc dài dùng chung với ingest (`ep:ingest`, `FEAT-docs-calendar` 4.2) rồi trả về ngay — consumer outbox của worker chạy tuần tự một goroutine, nên nếu `llm.Chat` (kèm thử lại, chờ hàng NEAR_REALTIME) chạy trong đó thì việc xoá cache roster (riêng tư) có thể trễ quá 5 s và sinh viên vừa được duyệt không bị che. Consumer hàng dài, idempotent: `ai_state != PENDING` → bỏ; gắn `llm.WithIdentity{CourseID của thread}` (TLR-8); nhúng `title + body` **một** lần (dùng lại `forum_threads.embedding` hoặc khoá `ep:emb` nếu đã có; lưu `forum_threads.embedding`; tính `similar_of`); `rag.SearchStudent` (tài liệu `visible_to_students`, lớp); không đoạn trên sàn → `SKIPPED/NO_CONTEXT`; một `llm.Chat` (task `CHAT`, **làn `NEAR_REALTIME`** — hạ làn hợp lệ theo `ResolveLane`) với lời nhắc Socratic + trích nguồn `[n]`; `ErrOverloaded` → trả lỗi để thử lại (tối đa 4 lần, lùi dần); `ErrNotConfigured` / `ErrAllProvidersFailed` **hoặc lần thử cuối** (consumer dead-letter ở lần thứ 4, `maxAttempts = 4`; handler đọc số lần thử, `Attempts == 3` là lần cuối) → ghi `SKIPPED/LLM_UNAVAILABLE` rồi trả `nil` (nếu không thread kẹt `PENDING`); thành công: một giao dịch tạo bài `AI` (`verification_state=PENDING`, `citations`, `confidence`), `ai_state=ANSWERED`, `notifications` `THREAD_ANSWERED` cho người đăng (dedupe), outbox `thread.ai_answered` (vô hiệu cache "Hôm nay" của Staff). Ràng buộc DB `UNIQUE (thread_id) WHERE kind='AI'` đảm bảo không có bài AI thứ hai.
 
 **4.9.6 Quyết định của Staff.** `verify`: `PENDING|CORRECTED → VERIFIED`; `correct {body, version}`: `PENDING|VERIFIED → CORRECTED`, `ai_body` giữ bản AI; `reject`: `→ REJECTED`; mỗi quyết định: cập nhật + `audit_log` + outbox `thread.post_decided` + chuông cho người đăng (`THREAD_VERIFIED` khi `VERIFIED` / `CORRECTED`); lặp lại cùng quyết định → 200 không đổi; quyết định mâu thuẫn với trạng thái cuối → 409. Đường đọc của sinh viên luôn thêm `verification_state <> 'REJECTED' AND hidden_at IS NULL AND deleted_at IS NULL`.
 
@@ -322,12 +328,12 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 | Cột | Kiểu | Null | Mặc định | Ràng buộc |
 | --- | --- | --- | --- | --- |
 | `id` | uuid | NOT NULL | `uuidv7()` | PK |
-| `course_id` | uuid | NOT NULL | | FK `courses`; `UNIQUE (course_id, id)` |
+| `course_id` | uuid | NOT NULL | | FK `courses`; `UNIQUE (course_id, id)`; `UNIQUE (id, user_id)` (cho FK của `chat_messages`) |
 | `user_id` | uuid | NOT NULL | | FK `users` |
 | `channel` | `chat_channel` | NOT NULL | `PRIVATE` | P3 chỉ tạo `PRIVATE` (Q11) |
 | `title` | text | NULL | | `CHECK (char_length(title) <= 120)` |
-| `document_id` | uuid | NULL | | FK `documents (id)` — "Hỏi AI về tài liệu này" (US-P8-02) |
-| `last_message_at` | timestamptz | NULL | | |
+| `document_id` | uuid | NULL | | FK `documents (id)` **`ON DELETE SET NULL`** — "Hỏi AI về tài liệu này" (US-P8-02); tài liệu bị gỡ thì phiên tìm trong cả lớp, câu trả lời cũ giữ trích dẫn "nguồn đã gỡ" (TLR-11) |
+| `last_message_at` | timestamptz | NOT NULL | `now()` | khoá con trỏ của `chat_sessions_user_idx` (không NULL — TLR-11) |
 | `deleted_at` | timestamptz | NULL | | xoá mềm (F3) |
 | `created_at`, `updated_at` | timestamptz | NOT NULL | `now()` | trigger `set_updated_at` |
 
@@ -337,14 +343,15 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 | --- | --- | --- | --- | --- |
 | `id` | uuid | NOT NULL | `uuidv7()` | PK; `UNIQUE (course_id, id)` |
 | `course_id` | uuid | NOT NULL | | FK phức hợp `(course_id, session_id)` → `chat_sessions` |
-| `session_id` | uuid | NOT NULL | | `ON DELETE CASCADE` |
-| `user_id` | uuid | NOT NULL | | chủ phiên (cả tin ASSISTANT) |
+| `session_id` | uuid | NOT NULL | | `ON DELETE CASCADE`; FK phức hợp `(session_id, user_id)` → `chat_sessions (id, user_id)` |
+| `user_id` | uuid | NOT NULL | | chủ phiên (cả tin ASSISTANT); FK ở dòng `session_id` **ép** bằng chủ phiên (TLR-11) |
 | `role` | `chat_role` | NOT NULL | | |
 | `content` | text | NOT NULL | `''` | `CHECK (char_length(content) <= 20000)` |
 | `partial_content` | text | NULL | | `CHECK (stream_status <> 'DONE' OR partial_content IS NULL)` |
 | `stream_status` | `chat_stream_status` | NOT NULL | `DONE` | tin `USER` luôn `DONE` |
 | `client_msg_id` | uuid | NULL | | `UNIQUE (session_id, client_msg_id) WHERE client_msg_id IS NOT NULL` |
-| `reply_to` | uuid | NULL | | tin ASSISTANT → tin USER |
+| `reply_to` | uuid | NULL | | tin ASSISTANT → tin USER; FK `(course_id, reply_to)` → `chat_messages (course_id, id)` |
+| `attempt` | smallint | NOT NULL | `1` | `CHECK (attempt >= 1)`; tăng mỗi `retry` (id SSE, 4.7.2) |
 | `intent` | text | NULL | | `CHECK (intent ~ '^[A-Z_]{3,40}$')` |
 | `citations` | jsonb | NOT NULL | `'[]'` | `jsonb_typeof = 'array'` |
 | `blocks` | jsonb | NOT NULL | `'[]'` | `jsonb_typeof = 'array'` |
@@ -359,13 +366,13 @@ Số kết nối SSE chat không tính vào hạn "2 kết nối thông báo m�
 | `completed_at` | timestamptz | NULL | | `CHECK (stream_status <> 'STREAMING' OR completed_at IS NULL)` |
 | `created_at`, `updated_at` | timestamptz | NOT NULL | `now()` | |
 
-Thêm `CHECK (role <> 'USER' OR (stream_status='DONE' AND confidence IS NULL))`.
+Thêm `CHECK (role <> 'USER' OR (stream_status='DONE' AND confidence IS NULL))`. Trigger `set_updated_at` cho `chat_messages` (reaper dựa vào `updated_at`; `chat_sessions` đã có, 5.2) — TLR-4.
 
 ### 5.4 `forum_threads`, `forum_posts`
 
 `forum_threads`: `id`, `course_id` (FK; `UNIQUE (course_id,id)`), `author_id` (FK `users`, NOT NULL), `title` (1–200), `body` (1–8000), `tags text[]` (≤ 5 phần tử, mỗi ≤ 30), `week_no smallint` (NULL; 1–20), `state thread_state` (`OPEN`), `ai_state thread_ai_state` (`PENDING`), `ai_skip_reason text` (`NO_CONTEXT`/`LOW_SCORE`/`LLM_UNAVAILABLE`; có chỉ khi `SKIPPED`), `similar_of uuid` (FK tự tham chiếu), `pinned_at` (cho P4), `reply_count int ≥ 0`, `last_activity_at` (`now()`), `embedding vector(1536)`, `deleted_at`, `version int ≥ 1`, `created_at`, `updated_at`.
 
-`forum_posts`: `id`, `course_id`, `thread_id` (FK phức hợp `(course_id, thread_id)`, `ON DELETE CASCADE`), `author_id` (NULL khi `AI`; `CHECK ((kind='AI') = (author_id IS NULL))`), `kind post_kind`, `body` (1–8000), `verification_state post_verification` (`NONE`; `CHECK ((kind='HUMAN') = (verification_state='NONE'))`), `citations jsonb '[]'`, `confidence numeric(4,3)` (chỉ `AI`), `ai_body text` (bản AI gốc khi `CORRECTED`), `verified_by`, `verified_at` (cùng có hoặc cùng không), `hidden_at`, `hidden_reason` (≤ 200; `CHECK ((hidden_at IS NULL) = (hidden_reason IS NULL))`), `hidden_by` (P4), `deleted_at` (P4), `embedding vector(1536)` (P4 đọc; P3 chỉ tạo cột), `version int ≥ 1`, `created_at`, `updated_at`; `UNIQUE (thread_id) WHERE kind='AI'`.
+`forum_posts`: `id`, `course_id`, `thread_id` (FK phức hợp `(course_id, thread_id)`, `ON DELETE CASCADE`), `author_id` (NULL khi `AI`; `CHECK ((kind='AI') = (author_id IS NULL))`), `kind post_kind`, `body` (1–8000), `verification_state post_verification` (`NONE`; `CHECK ((kind='HUMAN') = (verification_state='NONE'))`), `citations jsonb '[]'`, `confidence numeric(4,3)` (chỉ `AI`), `ai_body text` (bản AI gốc khi `CORRECTED`), `verified_by`, `verified_at` (cùng có hoặc cùng không), `hidden_at`, `hidden_reason` (≤ 200; `CHECK ((hidden_at IS NULL) = (hidden_reason IS NULL))`), `hidden_by` (P4), `deleted_at` (P4), `embedding vector(1536)` (P4 đọc; P3 chỉ tạo cột), `version int ≥ 1`, `created_at`, `updated_at`; `UNIQUE (thread_id) WHERE kind='AI'`. Trigger `set_updated_at` cho `forum_threads`, `forum_posts` (TLR-4).
 
 ### 5.5 `pii_events` (`00008`)
 
@@ -381,9 +388,11 @@ Thêm `CHECK (role <> 'USER' OR (stream_status='DONE' AND confidence IS NULL))`.
 | --- | --- | --- | --- |
 | `ep:mask:{session_id}` | HASH | 24 h kể từ lần dùng cuối | ánh xạ placeholder (không log) |
 | `ep:roster:{course_id}` | String JSON | 1 h; DEL theo sự kiện | từ điển roster |
-| `ep:emb:{sha256}` | String (vectơ nén) | 10 phút | cache nhúng của văn bản **đã che** |
+| `ep:emb:{sha256}` | String (vectơ nén; không chứa chữ) | 10 phút | cache nhúng, khoá = `sha256(chuẩn hoá(chữ thô))` |
 | `ep:cls:proto:{model}` | String | 24 h | vectơ mẫu cá nhân |
-| `ep:chat:stream:{mid}` | pub/sub | — | token `{off,t}` |
+| `ep:chat:stream:{mid}` | pub/sub | — | đánh thức người nối lại (gom kênh mỗi tiến trình) |
+| `ep:chat:buf:{mid}:{attempt}` | Stream (`MAXLEN ~ 4096`) | 10 phút | bộ đệm token `{off,t}` để nối lại không khe |
+| `ep:chat_blocked:{attempt}` | String `NX` | 60 s | khử trùng ghi `CHAT_BLOCKED` |
 | `ep:chat:cancel:{mid}` | pub/sub | — | lệnh Dừng |
 | `ep:chat:active:{uid}` | String (`mid`) | 130 s | một lượt sinh mỗi người |
 | `ep:rl:chat:{uid}:{phút}` | String (INCR) | 120 s | giới hạn tin |
@@ -398,7 +407,7 @@ Thêm `CHECK (role <> 'USER' OR (stream_status='DONE' AND confidence IS NULL))`.
 
 ## 6. API
 
-Tiền tố `/api/v1`. Lỗi `{code, message, details?, retry_after?}`. Phân trang con trỏ `?cursor=&limit=` (mặc định 30, tối đa 100; ngoài khoảng → 422). `Idempotency-Key` bắt buộc ở các thao tác ghi đánh dấu **[K]**. Mọi route ghi mới có trong `openapi.yaml` và contract test.
+Tiền tố `/api/v1`. Lỗi `{code, message, details?, retry_after?}`. Phân trang con trỏ `?cursor=&limit=` (mặc định 30, tối đa 100; ngoài khoảng → 422). `Idempotency-Key` bắt buộc ở các thao tác ghi đánh dấu **[K]** (middleware chung; #6 là ngoại lệ có chủ đích, 4.7.0). Mọi route ghi mới có trong `openapi.yaml` và contract test.
 
 | # | Route | Chế độ / vai | Thân → phản hồi | Mã lỗi chính |
 | --- | --- | --- | --- | --- |
@@ -407,10 +416,10 @@ Tiền tố `/api/v1`. Lỗi `{code, message, details?, retry_after?}`. Phân tr
 | 3 | `DELETE /chat/sessions/{sid}` | chủ phiên | 204 (xoá mềm) | 404 |
 | 4 | `POST /chat/sessions/{sid}/restore` | chủ phiên | 200 | 404 |
 | 5 | `GET /chat/sessions/{sid}/messages` | chủ phiên | `{items:[tin],next_cursor}` (tin `STREAMING` có `content` = phần đã có, `streaming:true`) | 404 |
-| 6 | `POST /chat/sessions/{sid}/messages` **[K]** | chủ phiên + STUDENT | `{content}` → SSE (4.7.2) | 404, 409 `EXAM_IN_PROGRESS` / `CHAT_BUSY` / `COURSE_ARCHIVED`, 422, 429, 503 `CHAT_UNAVAILABLE` |
-| 7 | `GET /chat/messages/{mid}/stream` | chủ tin | SSE nối lại (4.7.3) | 404 |
+| 6 | `POST /chat/sessions/{sid}/messages` (ngoài nhóm nghiệp vụ, 4.7.0; idempotent theo `client_msg_id` ở DB) | chủ phiên + STUDENT | `{content}` + header `Idempotency-Key` (UUID) → SSE (4.7.2) | 404, 409 `EXAM_IN_PROGRESS` / `CHAT_BUSY` / `COURSE_ARCHIVED`, 422, 429, 503 `CHAT_UNAVAILABLE` |
+| 7 | `GET /chat/messages/{mid}/stream` (ngoài nhóm nghiệp vụ, 4.7.0) | chủ tin | SSE nối lại (4.7.3) | 404 |
 | 8 | `POST /chat/messages/{mid}/cancel` | chủ tin | 204 (idempotent) | 404 |
-| 9 | `POST /chat/messages/{mid}/retry` | chủ tin | SSE | 404, 409 `EXAM_IN_PROGRESS` / `CHAT_BUSY` / `MESSAGE_NOT_RETRYABLE` |
+| 9 | `POST /chat/messages/{mid}/retry` (ngoài nhóm nghiệp vụ, 4.7.0) | chủ tin | SSE | 404, 409 `EXAM_IN_PROGRESS` / `CHAT_BUSY` / `MESSAGE_NOT_RETRYABLE` |
 | 10 | `PUT /chat/messages/{mid}/feedback` | chủ tin | `{value:"HELPFUL"\|"NOT_HELPFUL"\|null}` → 204 | 404, 422 |
 | 11 | `POST /chat/sessions/from-draft` **[K]** | `Member` + STUDENT | `{course_id, title?, body}` → 201 `{session_id, draft:{title,body}}` | 403, 409 `COURSE_ARCHIVED`, 422 |
 | 12 | `GET /courses/{cid}/threads` | `Member` | lọc `week`, `tag`, `state` (`pending`/`verified`/`none`), `q`; `{items:[hàng],next_cursor}` | 403 |
@@ -429,7 +438,7 @@ Tiền tố `/api/v1`. Lỗi `{code, message, details?, retry_after?}`. Phân tr
 
 ## 7. Giao diện
 
-Bám `DESIGN.md` §13, §14.2–§14.4, D59 (mỗi vùng làm việc một Panel), primitive ở `frontend/src/shared/`; không card lồng card, không thẻ KPI, đỏ chỉ là tín hiệu. Mọi trạng thái dùng `<PageState>`; mọi gọi mạng qua `apiClient` / `useSSE` (không `fetch` trần).
+Bám `DESIGN.md` §13, §14.2–§14.4, D59 (mỗi vùng làm việc một Panel), primitive ở `frontend/src/shared/`; không card lồng card, không thẻ KPI, đỏ chỉ là tín hiệu. Mọi trạng thái dùng `<PageState>`; mọi gọi mạng qua `apiClient` / `useSSE` (không `fetch` trần). `useSSE` là một kết nối dùng chung của cả tab tới `/api/v1/events`, **không** nhận được stream của `POST …/messages`: spec thêm primitive `shared/data/streamRequest.ts` (fetch + `ReadableStream`, dùng lại bộ tách khung của `sse.ts`, Bearer qua header, `AbortController`) và hook `useChatStream(mid)` (TLR-12).
 
 | Route | Khung nhìn đầu | Primitive | Tải / rỗng / lỗi | Mobile |
 | --- | --- | --- | --- | --- |
@@ -469,7 +478,7 @@ Không viết thêm câu giải thích dưới tiêu đề khối hay dưới t�
 | Gateway không trạng thái (luật 10) | không giữ phiên / ánh xạ trong bộ nhớ ngoài phạm vi yêu cầu; goroutine sinh chỉ giữ trạng thái của một tin và ghi DB / Redis | `TestResumeOtherInstance` (nối lại ở bản gateway khác) |
 | Việc nặng ngoài request (luật 12) | AI trả lời Threads, nhúng thread, reaper ở worker; consumer idempotent, thử lại ≤ 4 lần | `TestAIAnswerRedeliveryIdempotent` |
 | Phân trang (luật 13) | mọi danh sách có `cursor`, `limit ≤ 100`, không OFFSET, không N+1 (một truy vấn danh sách + một truy vấn tổng hợp) | `TestListCursor`, `EXPLAIN` |
-| Idempotency (luật 14) | **[K]** ở 6, 2, 11, 15, 16; khoá lạc quan `version` ở `correct` | các test 05-AC11, 06-AC13 |
+| Idempotency (luật 14) | **[K]** ở 2, 11, 15, 16 (#6 theo `client_msg_id` ở DB); khoá lạc quan `version` ở `correct` | các test 05-AC11, 06-AC13 |
 | Cache (luật 15) | cache câu trả lời vô hiệu theo sự kiện; dữ liệu cá nhân không cache | `TestPersonalNeverCached` |
 | Giữ dữ liệu | chat / thread giữ đến khi PR định chính sách; xoá phiên là xoá mềm (Q22) | — |
 
@@ -536,6 +545,8 @@ Mục tiêu: đo G1 ("recall ≥ 0,95, chặn nhầm ≤ 0,05") trên **dữ li�
 4. `FEAT-course-foundation` 4.7: `AI_CONFIRM` đăng ký ở P3 (bảng ghi P4) vì P3 tạo bài AI chờ xác nhận; P4 chỉ thêm thông báo gộp / mail.
 5. PRD M1: bỏ "LLM phân loại kênh khi mơ hồ" (D47), đổi "Che thông tin rồi đăng" → "Ẩn thông tin rồi đăng" (`DESIGN.md` §14.3); PRD §3: khớp quyền ADMIN với `nav.ts` (Q1) — **BA đã vá** ở commit `4c46d8d` (`proposals.md` #3).
 6. `PROGRESS.md`: ánh xạ `00007`, `00008`, `00009`.
+7. `FEAT-weekly-exam` (PE): thêm hàm `exam.RecordChatBlocked(ctx, userID, attemptID)` (4.7.1 bước 3; TLR-10).
+8. Hàng việc dài dùng chung với ingest (`FEAT-docs-calendar` 4.2, TLR-1) cho việc AI trả lời Threads (TLR-9).
 
 ## 11. Truy vết
 
