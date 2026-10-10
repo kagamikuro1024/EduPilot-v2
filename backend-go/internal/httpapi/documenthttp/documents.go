@@ -20,7 +20,9 @@ type Handler struct {
 	Svc   *document.Service
 	Guard func(auth.GuardMode) func(http.Handler) http.Handler
 	Idem  func(http.Handler) http.Handler
-	Log   *slog.Logger
+	// OptIdem: Idempotency-Key tuỳ chọn — có thì cùng khoá = cùng phản hồi, không tạo việc thứ hai (retry / reindex, luật 14).
+	OptIdem func(http.Handler) http.Handler
+	Log     *slog.Logger
 }
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware.
@@ -29,9 +31,9 @@ func (h *Handler) Mount(r chi.Router) {
 	const c = "/courses/{id}"
 	r.With(staff).Post(c+"/uploads/presign", h.presign)
 	r.With(staff, h.Idem).Post(c+"/uploads/complete", h.complete)
-	r.With(teacher).Post(c+"/documents/reindex", h.reindexAll)
-	r.With(staff).Post(c+"/documents/{docId}/retry", h.retry)
-	r.With(staff).Post(c+"/documents/{docId}/reindex", h.reindex)
+	r.With(teacher, h.OptIdem).Post(c+"/documents/reindex", h.reindexAll)
+	r.With(staff, h.OptIdem).Post(c+"/documents/{docId}/retry", h.retry)
+	r.With(staff, h.OptIdem).Post(c+"/documents/{docId}/reindex", h.reindex)
 }
 
 type ids struct{ actor, course, doc uuid.UUID }

@@ -40,7 +40,8 @@ type fakeDocling struct {
 	failMode     string // "", "down", "status_failure", "pagelimit", "task_failure", "lost"
 	pass1, pass2 string
 	submitDelay  time.Duration
-	downFor      atomic.Int32 // số lần submit đầu trả 503
+	submitGate   chan struct{} // nếu có: submit chờ tới khi đóng (test tất định, không dựa vào thời gian)
+	downFor      atomic.Int32  // số lần submit đầu trả 503
 }
 
 type url2fields map[string]string
@@ -72,6 +73,9 @@ func newDocling(t *testing.T) *fakeDocling {
 			_, _ = io.Copy(io.Discard, file)
 		}
 		time.Sleep(f.submitDelay)
+		if f.submitGate != nil {
+			<-f.submitGate
+		}
 		f.mu.Lock()
 		id := fmt.Sprintf("task-%d", len(f.submits)+1)
 		f.submits = append(f.submits, fields)
@@ -551,18 +555,53 @@ func TestIngestLeaseRenewed(t *testing.T) {
 	t.Parallel()
 	f := newFx(t)
 	f.proc.Set.LeaseRenew = 30 * time.Millisecond
-	f.dl.submitDelay = 400 * time.Millisecond
+	f.dl.submitGate = make(chan struct{}) // docling "đọc" tới khi test nhả: không phụ thuộc tốc độ máy
 	doc, job := f.upload(t, docSpec{visible: true, useRAG: true})
 	done := make(chan struct{})
 	go func() { defer close(done); _, _ = f.proc.Ingest(context.Background(), job, doc) }()
-	time.Sleep(150 * time.Millisecond)
-	var first time.Time
-	require.NoError(t, f.pool.QueryRow(t.Context(), `select updated_at from documents where id=$1`, doc).Scan(&first))
-	time.Sleep(150 * time.Millisecond)
-	var second time.Time
-	require.NoError(t, f.pool.QueryRow(t.Context(), `select updated_at from documents where id=$1`, doc).Scan(&second))
-	require.True(t, second.After(first), "nhịp gia hạn đẩy updated_at lên khi đang đọc")
+	updated := func() (st string, at time.Time) {
+		require.NoError(t, f.pool.QueryRow(t.Context(), `select status::text, updated_at from documents where id=$1`, doc).Scan(&st, &at))
+		return
+	}
+	require.Eventually(t, func() bool { st, _ := updated(); return st == "PROCESSING" }, 10*time.Second, 5*time.Millisecond)
+	_, first := updated()
+	require.Eventually(t, func() bool { _, at := updated(); return at.After(first) }, 10*time.Second, 5*time.Millisecond, "nhịp gia hạn đẩy updated_at lên khi đang đọc")
+	close(f.dl.submitGate)
 	<-done
+}
+
+// TestIngestDoclingDownKeepsQueued — SRS 3.3 / AC10 / AC17: docling tắt → trong lúc chờ tài liệu ở QUEUED (không PROCESSING, không FAILED), chờ đúng 5 s, 30 s, 2 phút; hết lượt mới FAILED.
+func TestIngestDoclingDownKeepsQueued(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	f.dl.failMode = "down"
+	doc, job := f.upload(t, docSpec{visible: true, useRAG: true})
+	var waits []time.Duration
+	var during []string
+	f.proc.Sleep = func(_ context.Context, d time.Duration) {
+		waits = append(waits, d)
+		st, _, _ := f.status(t, doc)
+		during = append(during, st)
+	}
+	f.run(t, doc, job)
+	require.Equal(t, []time.Duration{5 * time.Second, 30 * time.Second, 2 * time.Minute}, waits)
+	require.Equal(t, []string{"QUEUED", "QUEUED", "QUEUED"}, during)
+	st, _, _ := f.status(t, doc)
+	require.Equal(t, "FAILED", st)
+	require.Len(t, f.dl.submits, 0)
+}
+
+// TestIngestDoclingRecoversWhileQueued: docling về lại ở lần thử thứ ba → READY, không FAILED.
+func TestIngestDoclingRecoversWhileQueued(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	f.dl.downFor.Store(2)
+	doc, job := f.upload(t, docSpec{visible: true, useRAG: true})
+	f.run(t, doc, job)
+	st, _, _ := f.status(t, doc)
+	require.Equal(t, "READY", st)
+	js, _, _ := f.jobState(t, job)
+	require.Equal(t, "SUCCEEDED", js)
 }
 
 // TestNotRetrievableBeforeReady — AC9: đoạn của tài liệu chưa READY không bao giờ ra ở truy xuất.
@@ -638,7 +677,7 @@ func TestIngestServerLostTaskIsTransient(t *testing.T) {
 	st, msg, _ := f.status(t, doc)
 	require.Equal(t, "FAILED", st)
 	require.Contains(t, *msg, "Thử lại sau")
-	require.Len(t, f.dl.submits, 3, "thử lại 3 lần")
+	require.Len(t, f.dl.submits, 4, "một lần đầu + thử lại 3 lần (5 s, 30 s, 2 phút)")
 }
 
 // TestIngestStatusFailureInBody — AC5/AC10: task_status=success nhưng status trong thân là failure → FAILED.
@@ -691,7 +730,7 @@ func TestIngestTooManyPages(t *testing.T) {
 	f.run(t, doc, job)
 	st, msg, _ := f.status(t, doc)
 	require.Equal(t, "FAILED", st)
-	require.Contains(t, *msg, "quá dài")
+	require.Contains(t, *msg, "Tệp dài hơn 3 trang. Hãy tách nhỏ.") // SRS 3.3: số trang = DOC_MAX_PAGES (test đặt 3)
 	_, _, e := f.jobState(t, job)
 	require.Contains(t, e, ingest.CodeTooManyPages)
 }

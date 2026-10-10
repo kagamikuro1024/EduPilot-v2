@@ -17,7 +17,7 @@ var (
 	reAtt      = regexp.MustCompile(`\b(vang|nghi|diem danh|chuyen can)\b`)
 	rePart     = regexp.MustCompile(`\b(diem cong|phat bieu|diem phat bieu)\b`)
 	reGrade    = regexp.MustCompile(`\b(diem|ket qua|bang diem|xep loai|qua mon|truot mon|tong ket)\b`)
-	reExam     = regexp.MustCompile(`\b(lich thi|khi nao thi|thi khi nao|thi ngay nao|ngay thi|phong thi|gio thi|lich kiem tra)\b`)
+	reExam     = regexp.MustCompile(`\b(lich thi|ngay thi|phong thi|gio thi|lich kiem tra|(khi nao|bao gio|luc nao|ngay nao) ((em|minh|toi|lop|se|co|duoc|phai|nhom) )*(thi|kiem tra)|(thi|kiem tra) ((cuoi ky|giua ky|mon nay|hoc ky|lan 2|lan 1|bai 1|bai 2|lai) )*(khi nao|bao gio|luc nao|ngay nao))\b`)
 	reUpcoming = regexp.MustCompile(`\b(sap toi|tuan nay|tuan sau|han nop|lich hoc|ngay mai|hom nay co|co gi trong tuan|su kien)\b`)
 	reLibrary  = regexp.MustCompile(`\b(tim tai lieu|tai lieu ve|tim slide|slide|giao trinh|tai lieu nao|co tai lieu|tim file|bai giang ve)\b`)
 	reGreet    = regexp.MustCompile(`\b(chao|xin chao|hello|hi|cam on|thanks|thank you|ok|oke|tam biet|bye)\b`)

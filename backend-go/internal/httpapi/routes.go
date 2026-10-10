@@ -92,7 +92,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 				clk = clock.Real{}
 			}
 			ds := &document.Service{Pool: d.DB, Redis: d.Redis, Blob: d.Blob, Jobs: d.Jobs, Clock: clk, Log: d.Log}
-			(&documenthttp.Handler{Svc: ds, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+			(&documenthttp.Handler{Svc: ds, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)
 		}
 		if d.Chat != nil {
 			// US-P3-05 — chat riêng: 7 route JSON ở đây; 3 route SSE nằm ngoài nhóm này (newRouterWith, SRS 4.7.0).

@@ -34,3 +34,7 @@ AC1 ✓ ở `agent` (`TestClassifyOncePerMessage`; chat / thread thêm ở P3-05
 2. Phát hiện "hỏi hộ" chỉ thấy tên có trong roster của lớp (không NER, D46): tên người ngoài lớp lọt qua — ghi trung thực ở E1.
 3. `what_if` tự phân tích số theo từ khoá "giữa kỳ / cuối kỳ / quá trình / bài tập" (id thành phần `midterm|final|process|assignment`); P6 ánh xạ sang thành phần thật khi nối `GradeSource`.
 4. Thư viện (`search_library`) là giao diện `LibrarySource`; `LIBRARY_SEARCH` ở chat riêng dùng tool này, không phải truy xuất RAG.
+
+## Vòng sửa 1 (PM, theo `qc/report-US-P3-04.md`)
+- **BUG-1 — "Khi nào em thi cuối kỳ?" → `EXAM_SCHEDULE`.** Luật `reExam` (`internal/agent/intent.go`) không còn đòi các từ liền kề: cho phép đại từ / trợ từ chen giữa (`khi nào|bao giờ|lúc nào|ngày nào` + `em|mình|tôi|lớp|sẽ|có|được|phải|nhóm`* + `thi|kiểm tra`) và dạng đảo (`thi|kiểm tra` + `cuối kỳ|giữa kỳ|môn này|lần 2…`* + `khi nào|bao giờ|lúc nào|ngày nào`). `routeCases` thêm 4 câu tự nhiên ("Khi nào em thi cuối kỳ?", "Bao giờ mình thi giữa kỳ vậy ạ", "Thi cuối kỳ khi nào ạ", "Mình thi môn này lúc nào"); `TestQCRouteTable` hết báo câu này.
+- **BUG-2 / BUG-3: chờ BA** — dev không đổi luật. Hệ quả: `TestQCRouteTable` (file của QC) còn đỏ đúng 2 câu ("giả sử giữa kỳ em được 9 thì sao", "cảm ơn bạn nhé") cho tới khi BA chốt; nếu BA chọn "chấp nhận cả hai" dev chỉ cần thêm `gia su` vào `reWhatIf` và nới ngưỡng 12 ký tự của `reGreet`.

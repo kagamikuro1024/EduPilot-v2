@@ -13,6 +13,10 @@ returning d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.blob_ke
 -- name: IngestRenewLease :execrows
 update documents set updated_at = now() where id = sqlc.arg(id) and status = 'PROCESSING';
 
+-- name: IngestRelease :execrows
+-- Trả tài liệu về QUEUED khi docling tạm không dùng được (chờ thử lại 5 s / 30 s / 2 phút): không còn PROCESSING nên lớp không bị chặn và UI thấy "đang chờ".
+update documents set status = 'QUEUED' where id = sqlc.arg(id) and status = 'PROCESSING';
+
 -- name: IngestDocumentState :one
 select id, course_id, status, error, sha256, use_for_rag, uploaded_by from documents where id = sqlc.arg(id);
 

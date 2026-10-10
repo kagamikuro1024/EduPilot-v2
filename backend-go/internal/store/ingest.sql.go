@@ -179,6 +179,19 @@ func (q *Queries) IngestMarkReady(ctx context.Context, arg IngestMarkReadyParams
 	return result.RowsAffected(), nil
 }
 
+const ingestRelease = `-- name: IngestRelease :execrows
+update documents set status = 'QUEUED' where id = $1 and status = 'PROCESSING'
+`
+
+// Trả tài liệu về QUEUED khi docling tạm không dùng được (chờ thử lại 5 s / 30 s / 2 phút): không còn PROCESSING nên lớp không bị chặn và UI thấy "đang chờ".
+func (q *Queries) IngestRelease(ctx context.Context, id uuid.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, ingestRelease, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const ingestRenewLease = `-- name: IngestRenewLease :execrows
 update documents set updated_at = now() where id = $1 and status = 'PROCESSING'
 `

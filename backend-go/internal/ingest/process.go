@@ -47,7 +47,7 @@ func message(code string, maxPages int) string {
 	case CodeNoText:
 		return "Không đọc được chữ trong tệp (có thể là bản quét). Hãy tải bản có chữ."
 	case CodeTooManyPages:
-		return fmt.Sprintf("Tài liệu quá dài (tối đa %d trang). Hãy tách nhỏ rồi tải lại.", maxPages)
+		return fmt.Sprintf("Tệp dài hơn %d trang. Hãy tách nhỏ.", maxPages)
 	case CodeHashMismatch:
 		return "Tệp bị lỗi khi tải lên. Tải lại."
 	case CodeNotReady:
@@ -133,6 +133,9 @@ func (p *Processor) Ingest(ctx context.Context, jobID, docID uuid.UUID) (outcome
 			}
 			return outDone, p.Jobs.Complete(ctx, jobID, map[string]string{"document_id": docID.String()})
 		}
+	}
+	if errors.Is(ferr, errLostClaim) {
+		return outBusy, nil
 	}
 	var f *failure
 	if !errors.As(ferr, &f) {
@@ -233,10 +236,19 @@ func extOf(name string) string {
 	return ""
 }
 
-// convert đọc object, gửi docling, so băm; lỗi tạm thời thử lại ≤ Retries lần.
+// retryDelays: chờ trước mỗi lần thử lại khi docling tạm không dùng được (SRS 3.3): 5 s, 30 s, 2 phút → tối đa 1 + 3 lần gọi.
+func retryDelays() [3]time.Duration {
+	return [3]time.Duration{5 * time.Second, 30 * time.Second, 2 * time.Minute}
+}
+
+// errLostClaim: sau lúc chờ không nhận lại được tài liệu (lớp đang bận / tắt máy): để tin được giao lại, không ghi FAILED.
+var errLostClaim = errors.New("ingest: không nhận lại được tài liệu")
+
+// convert đọc object, gửi docling, so băm. Docling tắt / chết: tài liệu QUAY VỀ QUEUED trong lúc chờ rồi thử lại sau 5 s, 30 s, 2 phút; hết 3 lần chờ mới FAILED.
 func (p *Processor) convert(ctx context.Context, doc store.IngestClaimRow, o ConvertOptions, progress func()) (string, error) {
+	delays := retryDelays()
 	var lastErr error
-	for attempt := 1; attempt <= p.Set.Retries; attempt++ {
+	for attempt := 0; ; attempt++ {
 		md, err := p.convertOnce(ctx, doc, o, progress)
 		if err == nil {
 			return md, nil
@@ -252,14 +264,29 @@ func (p *Processor) convert(ctx context.Context, doc store.IngestClaimRow, o Con
 				return "", &failure{code: CodeTooManyPages, cause: err}
 			}
 			return "", &failure{code: CodeExtractUnavailable, cause: err}
-		case !errors.Is(err, ErrExtractUnavailable) || ctx.Err() != nil:
+		case ctx.Err() != nil:
+			return "", errLostClaim // tắt máy giữa chừng: tin còn nguyên trong hàng
+		case !errors.Is(err, ErrExtractUnavailable):
 			return "", &failure{code: CodeExtractUnavailable, cause: err}
 		}
-		if attempt < p.Set.Retries {
-			p.sleep(ctx, time.Duration(attempt)*5*time.Second)
+		if attempt >= len(delays) {
+			return "", &failure{code: CodeExtractUnavailable, cause: lastErr}
+		}
+		q := store.New(p.Pool)
+		if _, err := q.IngestRelease(ctx, doc.ID); err != nil {
+			return "", fmt.Errorf("ingest: trả tài liệu về hàng chờ: %w", err)
+		}
+		p.sleep(ctx, delays[attempt])
+		if ctx.Err() != nil {
+			return "", errLostClaim
+		}
+		if _, err := q.IngestClaim(ctx, store.IngestClaimParams{ID: doc.ID, IdleSecs: p.Set.ClaimIdle.Seconds()}); err != nil {
+			if errors.Is(err, pgx.ErrNoRows) {
+				return "", errLostClaim
+			}
+			return "", fmt.Errorf("ingest: nhận lại tài liệu: %w", err)
 		}
 	}
-	return "", &failure{code: CodeExtractUnavailable, cause: lastErr}
 }
 
 func (p *Processor) convertOnce(ctx context.Context, doc store.IngestClaimRow, o ConvertOptions, progress func()) (string, error) {

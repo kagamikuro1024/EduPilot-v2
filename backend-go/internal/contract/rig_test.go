@@ -72,7 +72,8 @@ func buildRig(t *testing.T) (*rig, error) {
 		"DB_MAX_CONNS":            "8",
 		"LOG_LEVEL":               "error",
 		"LLM_PROVIDER":            "fake",
-		"BCRYPT_COST":             "4", // REQUEST_TIMEOUT=1s: bcrypt cost 12 dưới -race vượt hạn
+		"PRIVACY_MASK_TIMEOUT_MS": "1000", // máy bận (nhiều gói song song, -race) không được làm hụt hạn 50 ms của sản xuất; hạn 50 ms có test riêng
+		"BCRYPT_COST":             "4",    // REQUEST_TIMEOUT=1s: bcrypt cost 12 dưới -race vượt hạn
 	}
 	cfg, err := config.Load(func(k string) string { return env[k] }, config.Gateway)
 	if err != nil {

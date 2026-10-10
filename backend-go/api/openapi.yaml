@@ -4579,6 +4579,11 @@ paths:
       summary: "Lập chỉ mục lại mọi tài liệu READY dùng cho AI của lớp (chỉ Giảng viên)"
       parameters:
         - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         "202":
           description: Đã xếp việc
@@ -4602,6 +4607,11 @@ paths:
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - $ref: "#/components/parameters/DocumentId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         "202":
           description: Đã xếp việc
@@ -4625,6 +4635,11 @@ paths:
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - $ref: "#/components/parameters/DocumentId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
       responses:
         "202":
           description: Đã xếp việc

@@ -259,7 +259,7 @@ func DefaultMessage(code string) string {
 	case FileTooLarge:
 		return "Tệp quá lớn (tối đa 50 MB)."
 	case FileTypeMismatch:
-		return "Nội dung tệp không đúng với loại tệp."
+		return "Tệp không đọc được. Dùng PDF, DOCX hoặc PPTX."
 	case UploadIncomplete:
 		return "Tệp chưa tải lên đủ. Hãy tải lại."
 	case UploadNotFound:

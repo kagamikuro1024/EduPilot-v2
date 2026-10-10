@@ -35,7 +35,7 @@ func (rosterSrc) Members(context.Context, uuid.UUID) ([]privacy.Member, error) {
 }
 
 func realMasker(log *slog.Logger) *privacy.Masker {
-	return &privacy.Masker{Detector: &privacy.Detector{Roster: &privacy.Roster{Src: rosterSrc{}}}, Log: log}
+	return &privacy.Masker{Detector: &privacy.Detector{Roster: &privacy.Roster{Src: rosterSrc{}}}, Log: log, Timeout: time.Second} // hạn sản xuất 50 ms có test riêng; ở đây không để máy bận làm hụt
 }
 
 // maskGateway dựng Gateway có Masker thật (roster tĩnh, ánh xạ trong bộ nhớ) trên các provider stub.
@@ -339,3 +339,50 @@ func TestMaskOnlyInLLMGateway(t *testing.T) {
 }
 
 var _ = errors.New
+
+// BenchmarkGatewayMask — US-P3-03 AC10: payload 6 tin × 1.500 ký tự (tên, MSSV, email) qua Gateway.Chat trên provider stub, có che và không che.
+// Chi phí thêm = ns/op(masked) − ns/op(baseline); ngưỡng ≤ 5 ms/op (số đo ghi ở handoff). Che là một lượt cho cả hai nửa (lịch sử + tin hiện tại), một lần khôi phục.
+func BenchmarkGatewayMask(b *testing.B) {
+	log := slog.New(slog.NewTextHandler(bytes.NewBuffer(nil), nil))
+	chunk := "Em là Nguyễn Văn An, mssv 20201234, mail an@sv.edu.vn, hỏi Lê Thị Bình về chương 3 và cổng 8080 lúc 14:30. "
+	var msgs []llm.Message
+	for i := range 6 {
+		role := "user"
+		if i%2 == 1 {
+			role = "assistant"
+		}
+		msgs = append(msgs, llm.Message{Role: role, Content: strings.Repeat(chunk, 15)[:1500]})
+	}
+	build := func(masked bool) (*llm.Gateway, *stub) {
+		p := &stub{name: "p1"}
+		tg := llm.Target{ProviderID: "p1", ProviderName: "p1", Type: "fake", Model: "m", PriceIn: decimal.RequireFromString("1"), PriceOut: decimal.RequireFromString("1"), RPM: 1 << 30, TPM: 1 << 30, P: p}
+		reg := llm.NewStaticRegistry(map[llm.Task]llm.Route{})
+		reg.SetRoute(llm.TaskChat, llm.Route{Targets: []llm.Target{tg}})
+		o := llm.Options{Registry: reg, Log: log, Sleep: func(ctx context.Context, d time.Duration) error { return ctx.Err() }, Rand: func() float64 { return 1 }}
+		if masked {
+			o.Masker = realMasker(log)
+		} else {
+			o.NoMask = true
+		}
+		return llm.New(o), p
+	}
+	for _, c := range []struct {
+		name   string
+		masked bool
+	}{{"baseline", false}, {"masked", true}} {
+		b.Run(c.name, func(b *testing.B) {
+			g, p := build(c.masked)
+			ctx := withCourse(context.Background())
+			b.ResetTimer()
+			for range b.N {
+				sess := privacy.WithSession(ctx, privacy.NewSession("bench"))
+				if _, err := g.Chat(sess, llm.Request{Task: llm.TaskChat, Messages: msgs}); err != nil {
+					b.Fatal(err)
+				}
+				p.mu.Lock()
+				p.seen = nil
+				p.mu.Unlock()
+			}
+		})
+	}
+}

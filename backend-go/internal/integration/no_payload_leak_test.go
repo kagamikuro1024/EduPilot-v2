@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -89,7 +90,7 @@ func TestNoPayloadLeak(t *testing.T) {
 	reg := llm.NewRegistry(nil, llm.EnvConfig{Provider: "fake", Fake: fake.Settings{StreamDelay: 1}}, nil, log)
 	require.NoError(t, reg.Load(ctx))
 	rc := &appredis.Client{Client: rdb.Client}
-	masker := &privacy.Masker{Detector: &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: pool}, Redis: rc, Log: log}}, Redis: rc, Log: log}
+	masker := &privacy.Masker{Detector: &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: pool}, Redis: rc, Log: log}}, Redis: rc, Log: log, Timeout: time.Second}
 	g := llm.New(llm.Options{Registry: reg, Log: log, Masker: masker})
 
 	ictx := llm.WithIdentity(ctx, llm.Identity{CourseID: &course})

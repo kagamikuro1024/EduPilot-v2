@@ -2,6 +2,7 @@ package privacy
 
 import (
 	"context"
+	"github.com/edupilot/backend-go/internal/testutil"
 	"strings"
 	"testing"
 	"time"
@@ -197,6 +198,7 @@ func TestRedactIdentityWhenClean(t *testing.T) {
 
 // TestDetectLinearTime — AC14: không backtracking mũ; 100.000 ký tự lặp xử lý ≤ 50 ms.
 func TestDetectLinearTime(t *testing.T) {
+	testutil.SkipTiming(t) // đo thời gian: chạy riêng, tuần tự (EP_SKIP_TIMING=1 ở bước song song)
 	t.Parallel()
 	d, _ := newDetector(map[uuid.UUID][]Member{courseA: {{Name: "Nguyễn Văn An"}}})
 	for name, text := range map[string]string{

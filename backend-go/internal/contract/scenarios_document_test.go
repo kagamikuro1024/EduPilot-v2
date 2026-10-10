@@ -99,7 +99,13 @@ func (r *runner) documentScenarios(x examRig) {
 	if _, err := db.Exec(ctx, `update documents set status='FAILED', error='x' where id=$1`, out.Document.ID); err != nil {
 		r.t.Fatal(err)
 	}
-	r.must(call{method: "POST", path: doc + "/retry", token: x.ta}, 202)
+	// cùng Idempotency-Key → cùng phản hồi, không tạo việc thứ hai (luật 14; QC BUG-2)
+	rk := x.idem()
+	_, rb1 := r.must(call{method: "POST", path: doc + "/retry", token: x.ta, headers: rk}, 202)
+	h2, rb2 := r.must(call{method: "POST", path: doc + "/retry", token: x.ta, headers: rk}, 202)
+	if string(rb1) != string(rb2) || h2.Get("Idempotent-Replayed") != "true" {
+		r.t.Fatalf("retry cùng khoá: %s ≠ %s (replayed=%q)", rb1, rb2, h2.Get("Idempotent-Replayed"))
+	}
 	r.must(call{method: "POST", path: doc + "/retry"}, 401)
 	for _, who := range []string{x.sv, x.admin} {
 		r.must(call{method: "POST", path: doc + "/retry", token: who}, 403)
@@ -118,7 +124,15 @@ func (r *runner) documentScenarios(x examRig) {
 
 	// 11: lập chỉ mục lại cả lớp (chỉ Giảng viên).
 	all := base + "/documents/reindex"
-	r.must(call{method: "POST", path: all, token: x.gv}, 202)
+	ak := x.idem()
+	var before, after int
+	_ = db.QueryRow(ctx, `select count(*) from jobs where kind='document.reindex_all'`).Scan(&before)
+	_, ab1 := r.must(call{method: "POST", path: all, token: x.gv, headers: ak}, 202)
+	_, ab2 := r.must(call{method: "POST", path: all, token: x.gv, headers: ak}, 202)
+	_ = db.QueryRow(ctx, `select count(*) from jobs where kind='document.reindex_all'`).Scan(&after)
+	if string(ab1) != string(ab2) || after != before+1 {
+		r.t.Fatalf("reindex cả lớp cùng khoá: %s ≠ %s, jobs %d → %d (cần +1)", ab1, ab2, before, after)
+	}
 	r.must(call{method: "POST", path: all}, 401)
 	for _, who := range []string{x.ta, x.sv, x.admin} {
 		r.must(call{method: "POST", path: all, token: who}, 403)
