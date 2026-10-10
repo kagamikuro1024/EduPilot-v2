@@ -4,6 +4,8 @@ package httpapi
 import (
 	"context"
 	"errors"
+	"github.com/edupilot/backend-go/internal/chat"
+	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"log/slog"
 	"net/http"
 	"sync"
@@ -58,6 +60,8 @@ type Deps struct {
 	Accounts *auth.Accounts
 	// Users: quản trị người dùng (US-P2-06).
 	Users *user.Service
+	// Chat: chat riêng của sinh viên (US-P3-05). Trống thì dựng từ DB + Redis + LLM; thiếu một trong ba → không có route chat.
+	Chat *chat.Service
 }
 
 // now là đồng hồ của request (Clock trống → đồng hồ hệ thống).
@@ -133,6 +137,9 @@ func withDefaults(d Deps) Deps {
 	if d.Users == nil && d.DB != nil && d.Sessions != nil && d.Accounts != nil {
 		d.Users = user.New(d.DB, d.Clock, queueMail, d.Sessions, d.Accounts, user.Config{InviteTTL: d.Cfg.InviteTokenTTL})
 	}
+	if d.Chat == nil {
+		d.Chat = chatService(d)
+	}
 	return d
 }
 
@@ -169,6 +176,14 @@ func newRouterWith(d Deps, mount func(chi.Router)) http.Handler {
 		r.Method(http.MethodGet, "/events", sse.NewHandler(sse.HandlerDeps{
 			Cfg: d.Cfg, Log: d.Log, Redis: d.Redis, Verifier: d.Verifier, Clock: d.Clock, Drain: drainC(d),
 		}))
+
+		// Chat SSE (#6, #7, #9): cũng NGOÀI nhóm nghiệp vụ — không timeout chung, không RequireIdempotencyKey (đệm cả phản hồi), tự có auth (SRS 4.7.0).
+		if d.Chat != nil {
+			r.Group(func(r chi.Router) {
+				r.Use(auth.Middleware(d.Verifier, authOptions(d)...))
+				(&chathttp.Handler{Svc: d.Chat, Drain: drainC(d), Log: d.Log}).MountSSE(r)
+			})
+		}
 
 		// Nhóm nghiệp vụ: deadline mỗi request + giới hạn thân, rồi rate limit → auth → Idempotency-Key
 		// (SRS 3.1: 413 chạy trước kiểm Idempotency-Key, xác thực chạy trước RBAC/guard).

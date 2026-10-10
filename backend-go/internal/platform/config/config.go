@@ -131,15 +131,19 @@ type Config struct {
 	LLMEmbedDims      int
 	// PrivacyMaskTimeout: quá hạn che → MASK_FAILED, không gọi provider (PRIVACY_MASK_TIMEOUT_MS, mặc định 50; QC hạ thấp để ép lỗi).
 	PrivacyMaskTimeout time.Duration
-	LLMProvider        string // "" | "fake"
-	LLMReplayDir       string
-	OpenAIKey          string
-	AnthropicKey       string
-	GeminiKey          string
-	FakeLatencyMin     time.Duration
-	FakeLatencyMax     time.Duration
-	FakeErrorRate      float64
-	FakeValidKey       string
+	// Chat riêng (SRS FEAT-private-chat-pii 8.1): CHAT_MAX_INPUT_CHARS, CHAT_RATE_PER_MIN, CHAT_STREAM_MAX_SECONDS.
+	ChatMaxInputChars int
+	ChatRatePerMin    int
+	ChatStreamMax     time.Duration
+	LLMProvider       string // "" | "fake"
+	LLMReplayDir      string
+	OpenAIKey         string
+	AnthropicKey      string
+	GeminiKey         string
+	FakeLatencyMin    time.Duration
+	FakeLatencyMax    time.Duration
+	FakeErrorRate     float64
+	FakeValidKey      string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -294,6 +298,9 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.LLMDefaultTPM = l.num("LLM_DEFAULT_TPM", 100000, 1, 1_000_000_000)
 	c.LLMEmbedDims = l.num("LLM_EMBED_DIMS", 1536, 1, 100000)
 	c.PrivacyMaskTimeout = time.Duration(l.num("PRIVACY_MASK_TIMEOUT_MS", 50, 1, 60000)) * time.Millisecond
+	c.ChatMaxInputChars = l.num("CHAT_MAX_INPUT_CHARS", 4000, 100, 20000)
+	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
+	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
 	if c.LLMEmbedDims != 1536 {
 		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
 	}

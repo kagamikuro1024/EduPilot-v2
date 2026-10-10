@@ -23,6 +23,7 @@ tags:
   - name: today
   - name: exam
   - name: document
+  - name: chat
 paths:
   /healthz:
     get:
@@ -4639,6 +4640,308 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/chat/sessions:
+    get:
+      operationId: listChatSessions
+      tags: [chat]
+      summary: "Phiên chat riêng của chính mình trong một lớp (sinh viên ACTIVE; mới nhất trước, phân trang con trỏ)"
+      parameters:
+        - name: course_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang phiên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatSessionPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createChatSession
+      tags: [chat]
+      summary: "Tạo phiên chat (sinh viên ACTIVE; document_id phải là tài liệu READY, sinh viên thấy được, thuộc lớp)"
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateChatSessionInput"
+      responses:
+        "201":
+          description: Phiên mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/chat/sessions/{sid}:
+    delete:
+      operationId: deleteChatSession
+      tags: [chat]
+      summary: "Xoá mềm phiên của chính mình (hoàn tác bằng POST …/restore)"
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá mềm
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/sessions/{sid}/restore:
+    post:
+      operationId: restoreChatSession
+      tags: [chat]
+      summary: "Khôi phục phiên đã xoá mềm của chính mình"
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Phiên đã khôi phục
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/sessions/{sid}/messages:
+    get:
+      operationId: listChatMessages
+      tags: [chat]
+      summary: "Lịch sử tin của phiên (mới nhất trước); tin đang sinh có content = phần đã có và streaming=true"
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang tin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessagePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: "Gửi tin và nhận câu trả lời qua SSE (ngoài nhóm nghiệp vụ; chống trùng bằng UNIQUE (session_id, client_msg_id): Idempotency-Key là UUID)"
+      description: |
+        `text/event-stream`: `status` → `token`* / `block`* → `notice` → `done` | `error`. Mỗi khung có `id: <attempt>:<id Redis Stream>`.
+        Không tra được khoá giờ thi → 503 `CHAT_UNAVAILABLE` (không khai báo ở đây vì không dựng được trong hợp đồng). Rớt kết nối không huỷ lượt sinh; nối lại bằng GET /chat/messages/{mid}/stream.
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendChatMessageInput"
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/chat/messages/{mid}/stream:
+    get:
+      operationId: resumeChatStream
+      tags: [chat]
+      summary: "Nối lại luồng SSE của một tin (chủ tin; Last-Event-ID tuỳ chọn)"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Last-Event-ID
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/messages/{mid}/cancel:
+    post:
+      operationId: cancelChatMessage
+      tags: [chat]
+      summary: "Dừng lượt sinh (idempotent; tới tận provider qua Redis pub/sub)"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã dừng (hoặc đã kết thúc)
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/messages/{mid}/retry:
+    post:
+      operationId: retryChatMessage
+      tags: [chat]
+      summary: "Sinh lại CÙNG hàng ASSISTANT đã FAILED / CANCELLED; trả SSE như gửi tin"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/chat/messages/{mid}/feedback:
+    put:
+      operationId: setChatFeedback
+      tags: [chat]
+      summary: "Hữu ích / Không hữu ích (chỉ chủ tin; bấm lại cùng giá trị = bỏ; null = bỏ)"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatFeedbackInput"
+      responses:
+        "204":
+          description: Đã lưu
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -6356,6 +6659,11 @@ components:
             - DOCUMENT_NOT_FAILED
             - DOCUMENT_NOT_READY
             - DOCUMENT_SHARED_READONLY
+            - EXAM_IN_PROGRESS
+            - CHAT_BUSY
+            - MESSAGE_TOO_LONG
+            - CHAT_UNAVAILABLE
+            - MESSAGE_NOT_RETRYABLE
         message:
           type: string
         trace_id:
@@ -8315,4 +8623,108 @@ components:
             compile_ok:
               type: boolean
         compile_log:
+          type: [string, "null"]
+    ChatSession:
+      type: object
+      required: [id, title, last_message_at, document_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: [string, "null"]
+        last_message_at:
+          type: string
+          format: date-time
+        document_id:
+          type: [string, "null"]
+          format: uuid
+    ChatSessionPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatSession"
+        next_cursor:
+          type: [string, "null"]
+    CreateChatSessionInput:
+      type: object
+      required: [course_id]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: [string, "null"]
+          maxLength: 120
+        document_id:
+          type: [string, "null"]
+          format: uuid
+    SendChatMessageInput:
+      type: object
+      required: [content]
+      additionalProperties: false
+      properties:
+        content:
+          type: string
+    ChatFeedbackInput:
+      type: object
+      required: [value]
+      additionalProperties: false
+      properties:
+        value:
+          type: [string, "null"]
+          enum: [HELPFUL, NOT_HELPFUL, null]
+    ChatMessage:
+      type: object
+      required: [id, role, content, streaming, stream_status, attempt, citations, blocks, low_confidence, degraded, masked_count, feedback, error_code, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [USER, ASSISTANT]
+        content:
+          type: string
+        streaming:
+          type: boolean
+        stream_status:
+          type: string
+          enum: [STREAMING, DONE, FAILED, CANCELLED]
+        attempt:
+          type: integer
+        citations:
+          type: array
+          items:
+            type: object
+        blocks:
+          type: array
+          items:
+            type: object
+        low_confidence:
+          type: boolean
+        degraded:
+          type: boolean
+        masked_count:
+          type: integer
+        feedback:
+          type: [string, "null"]
+        error_code:
+          type: [string, "null"]
+        created_at:
+          type: string
+          format: date-time
+    ChatMessagePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        next_cursor:
           type: [string, "null"]

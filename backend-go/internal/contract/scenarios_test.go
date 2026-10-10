@@ -179,7 +179,9 @@ func (r *runner) record(c call, status int, h http.Header, body []byte, skipBody
 	o.Declared = op.Declared(status)
 	// `text/csv` (US-PE-08 `results.csv`, phân cách `;`): bộ giải mã CSV của kin-openapi chỉ biết dấu phẩy nên không kiểm thân bằng schema; nội dung do `exam.TestResultsCSV` kiểm.
 	csv := strings.HasPrefix(h.Get("Content-Type"), "text/csv")
-	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv})
+	// `text/event-stream` (chat riêng, US-P3-05): kin-openapi không có bộ giải mã SSE; khung SSE do `internal/chat` kiểm (TestStreamEventOrder, TestChatSSENotBuffered).
+	sse := strings.HasPrefix(h.Get("Content-Type"), "text/event-stream")
+	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv || sse})
 	r.add(o)
 }
 

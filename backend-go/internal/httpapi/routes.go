@@ -9,6 +9,7 @@ import (
 	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
@@ -27,7 +28,7 @@ import (
 func registerAPIRoutes(r chi.Router, d Deps) {
 	r.Use(rateLimitMiddleware(d))
 
-	mw := []auth.MiddlewareOption{}
+	mw := authOptions(d)
 	var authAPI *authhttp.Handler
 	if d.Sessions != nil {
 		// US-P2-02: các đường /auth/* công khai (không Bearer) và kiểm thu hồi cho mọi API có Bearer.
@@ -35,10 +36,6 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			Sessions: d.Sessions, Accounts: d.Accounts, Verify: d.Verifier.Verify, Limiter: auth.NewLimiter(d.Redis, d.now, d.Log), Limits: authLimits(d.Cfg), Cfg: d.Cfg, Log: d.Log, ClientIP: func(r *http.Request) string { return clientIP(r, d) },
 		}
 		authAPI.Mount(r)
-		mw = append(mw, auth.WithRevocation(d.Sessions))
-	}
-	if d.Cfg.AppEnv == "production" {
-		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
 	}
 
 	r.Group(func(r chi.Router) {
@@ -97,6 +94,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			ds := &document.Service{Pool: d.DB, Redis: d.Redis, Blob: d.Blob, Jobs: d.Jobs, Clock: clk, Log: d.Log}
 			(&documenthttp.Handler{Svc: ds, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
 		}
+		if d.Chat != nil {
+			// US-P3-05 — chat riêng: 7 route JSON ở đây; 3 route SSE nằm ngoài nhóm này (newRouterWith, SRS 4.7.0).
+			(&chathttp.Handler{Svc: d.Chat, Idem: RequireIdempotencyKey(d), Drain: drainC(d), Log: d.Log}).Mount(r)
+		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.
 			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).Mount(r, RequireIdempotencyKey(d))
@@ -104,4 +105,16 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 	})
 
 	registerTestRoutes(r, d)
+}
+
+// authOptions là tuỳ chọn của auth.Middleware dùng chung cho nhóm nghiệp vụ và các route SSE nằm ngoài nhóm.
+func authOptions(d Deps) []auth.MiddlewareOption {
+	mw := []auth.MiddlewareOption{}
+	if d.Sessions != nil {
+		mw = append(mw, auth.WithRevocation(d.Sessions))
+	}
+	if d.Cfg.AppEnv == "production" {
+		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
+	}
+	return mw
 }

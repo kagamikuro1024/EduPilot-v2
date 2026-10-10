@@ -51,6 +51,8 @@ type Input struct {
 	Text       string
 	History    []llm.Message
 	DocumentID *uuid.UUID // phiên "Hỏi AI về tài liệu này": giới hạn truy xuất
+	// OnStage (tuỳ chọn) được gọi khi bắt đầu một giai đoạn người dùng thấy được: "searching" trước truy xuất.
+	OnStage func(stage string)
 }
 
 // Outcome là kết quả định tuyến. Đúng một trong: Canned (câu mẫu, 0 lời gọi LLM) hoặc Stream (một lần sinh chữ).
@@ -177,6 +179,9 @@ func (a *Agent) courseQA(ctx context.Context, tc TrustedContext, in Input, out O
 			out.Canned, out.Cached, out.CacheKey = c.Text, true, ""
 			return out, nil
 		}
+	}
+	if in.OnStage != nil {
+		in.OnStage("searching")
 	}
 	q := rag.Query{CourseID: tc.CourseID, Vec: out.Class.Vec, Text: in.Text, K: a.TopK}
 	if in.DocumentID != nil {
@@ -318,4 +323,14 @@ func (c *AnswerCache) Put(ctx context.Context, key string, v CachedAnswer) error
 		ttl = 3600
 	}
 	return c.Redis.SetString(ctx, key, string(raw), ttl)
+}
+
+// StoreAnswer ghi câu trả lời đã sinh xong vào cache (key = Outcome.CacheKey). Không cache → bỏ qua.
+func (a *Agent) StoreAnswer(ctx context.Context, key, text string) {
+	if a.Cache == nil || key == "" {
+		return
+	}
+	if err := a.Cache.Put(ctx, key, CachedAnswer{Text: text}); err != nil && a.Log != nil {
+		a.Log.WarnContext(ctx, "agent: ghi cache câu trả lời lỗi", "error", err)
+	}
 }

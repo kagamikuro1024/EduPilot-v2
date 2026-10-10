@@ -62,7 +62,7 @@ func (g *Gateway) Stream(ctx context.Context, r Request) (<-chan Chunk, error) {
 			resp := degraded(r)
 			c.finish(&resp, nil)
 			out := make(chan Chunk, 2)
-			out <- Chunk{Text: resp.Text}
+			out <- Chunk{Text: resp.Text, Degraded: true}
 			out <- Chunk{Done: true, Response: &resp}
 			close(out)
 			return out, nil
@@ -154,6 +154,7 @@ func (g *Gateway) forward(ctx context.Context, c *call, r Request, mk *masked, c
 		c.finish(nil, err)
 	default:
 		resp := c.response(ch.target, ch.idx, mk.unmask(text.String()), in, outTok, ch.permit)
+		resp.MaskedCurrent = mk.current
 		if un != nil { // Chunk.Done đi sau Flush()
 			if t := un.Flush(); t != "" {
 				emit(Chunk{Text: t})

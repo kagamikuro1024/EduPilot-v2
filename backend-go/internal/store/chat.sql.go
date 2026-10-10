@@ -14,44 +14,290 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-const finishChatMessage = `-- name: FinishChatMessage :one
+const cancelChatMessage = `-- name: CancelChatMessage :execrows
 update chat_messages
-set content = $1, partial_content = null, stream_status = $2, completed_at = now(),
-    citations = $3, blocks = $4, confidence = $5, low_confidence = $6,
-    no_context = $7, degraded = $8, error_code = $9, trace_id = $10
-where id = $11 and stream_status = 'STREAMING'
-returning id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at
+set stream_status = 'CANCELLED', completed_at = now(), partial_content = coalesce($1, partial_content)
+where id = $2 and attempt = $3 and stream_status = 'STREAMING'
+`
+
+type CancelChatMessageParams struct {
+	PartialContent *string
+	ID             uuid.UUID
+	Attempt        int16
+}
+
+// Dừng: giữ nguyên partial_content (nếu G còn sống truyền phần mới nhất thì ghi kèm).
+func (q *Queries) CancelChatMessage(ctx context.Context, arg CancelChatMessageParams) (int64, error) {
+	result, err := q.db.Exec(ctx, cancelChatMessage, arg.PartialContent, arg.ID, arg.Attempt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const chatCourseStatus = `-- name: ChatCourseStatus :one
+select status from courses where id = $1
+`
+
+func (q *Queries) ChatCourseStatus(ctx context.Context, id uuid.UUID) (CourseStatus, error) {
+	row := q.db.QueryRow(ctx, chatCourseStatus, id)
+	var status CourseStatus
+	err := row.Scan(&status)
+	return status, err
+}
+
+const chatDocumentUsable = `-- name: ChatDocumentUsable :one
+select id from documents
+where course_id = $1 and id = $2 and status = 'READY' and visible_to_students and use_for_rag and type <> 'ANSWER_KEY'
+`
+
+type ChatDocumentUsableParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+// "Hỏi AI về tài liệu này": tài liệu READY, dùng cho RAG, sinh viên được thấy, thuộc lớp.
+func (q *Queries) ChatDocumentUsable(ctx context.Context, arg ChatDocumentUsableParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, chatDocumentUsable, arg.CourseID, arg.ID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
+const chatHistory = `-- name: ChatHistory :many
+select role, content from chat_messages
+where session_id = $1 and stream_status = 'DONE' and (created_at, id) < ($2::timestamptz, $3::uuid)
+order by created_at desc, id desc
+limit $4
+`
+
+type ChatHistoryParams struct {
+	SessionID uuid.UUID
+	BeforeAt  time.Time
+	BeforeID  uuid.UUID
+	PageLimit int32
+}
+
+type ChatHistoryRow struct {
+	Role    ChatRole
+	Content string
+}
+
+// Các lượt gần nhất ĐÃ XONG trước tin hiện tại (mới nhất trước; người gọi đảo lại).
+func (q *Queries) ChatHistory(ctx context.Context, arg ChatHistoryParams) ([]ChatHistoryRow, error) {
+	rows, err := q.db.Query(ctx, chatHistory,
+		arg.SessionID,
+		arg.BeforeAt,
+		arg.BeforeID,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ChatHistoryRow{}
+	for rows.Next() {
+		var i ChatHistoryRow
+		if err := rows.Scan(&i.Role, &i.Content); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const examChatBlockedInsert = `-- name: ExamChatBlockedInsert :exec
+insert into exam_events (course_id, exam_id, attempt_id, student_id, type, occurred_at, meta)
+select a.course_id, a.exam_id, a.id, a.student_id, 'CHAT_BLOCKED', $1, '{}'::jsonb
+from exam_attempts a where a.id = $2 and a.student_id = $3 and a.status = 'IN_PROGRESS'
+`
+
+type ExamChatBlockedInsertParams struct {
+	At        time.Time
+	AttemptID uuid.UUID
+	StudentID uuid.UUID
+}
+
+// exam.RecordChatBlocked: một dòng CHAT_BLOCKED cho lượt đang IN_PROGRESS của đúng sinh viên (không nội dung).
+func (q *Queries) ExamChatBlockedInsert(ctx context.Context, arg ExamChatBlockedInsertParams) error {
+	_, err := q.db.Exec(ctx, examChatBlockedInsert, arg.At, arg.AttemptID, arg.StudentID)
+	return err
+}
+
+const failChatMessage = `-- name: FailChatMessage :execrows
+update chat_messages
+set stream_status = 'FAILED', error_code = $1, completed_at = now(), partial_content = coalesce($2, partial_content),
+    masked_count = $3, intent = coalesce($4, intent), trace_id = coalesce($5, trace_id)
+where id = $6 and attempt = $7 and stream_status = 'STREAMING'
+`
+
+type FailChatMessageParams struct {
+	ErrorCode      *string
+	PartialContent *string
+	MaskedCount    int32
+	Intent         *string
+	TraceID        *string
+	ID             uuid.UUID
+	Attempt        int16
+}
+
+// Lỗi / gián đoạn: giữ partial_content; có điều kiện STREAMING và đúng lượt (attempt).
+func (q *Queries) FailChatMessage(ctx context.Context, arg FailChatMessageParams) (int64, error) {
+	result, err := q.db.Exec(ctx, failChatMessage,
+		arg.ErrorCode,
+		arg.PartialContent,
+		arg.MaskedCount,
+		arg.Intent,
+		arg.TraceID,
+		arg.ID,
+		arg.Attempt,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const finishChatMessage = `-- name: FinishChatMessage :execrows
+update chat_messages
+set content = $1, partial_content = null, stream_status = 'DONE', completed_at = now(),
+    citations = $2, blocks = $3, confidence = $4, low_confidence = $5,
+    no_context = $6, degraded = $7, masked_count = $8, intent = $9,
+    trace_id = $10
+where id = $11 and attempt = $12 and stream_status = 'STREAMING'
 `
 
 type FinishChatMessageParams struct {
 	Content       string
-	StreamStatus  ChatStreamStatus
 	Citations     json.RawMessage
 	Blocks        json.RawMessage
 	Confidence    decimal.NullDecimal
 	LowConfidence bool
 	NoContext     bool
 	Degraded      bool
-	ErrorCode     *string
+	MaskedCount   int32
+	Intent        *string
 	TraceID       *string
 	ID            uuid.UUID
+	Attempt       int16
 }
 
-// Ghi có điều kiện: chỉ tin còn STREAMING mới được đóng (tin đã bị Dừng / reaper đóng thì 0 hàng → pgx.ErrNoRows).
-func (q *Queries) FinishChatMessage(ctx context.Context, arg FinishChatMessageParams) (ChatMessage, error) {
-	row := q.db.QueryRow(ctx, finishChatMessage,
+// Ghi cuối của G: chỉ tin còn STREAMING mới được đóng (đã bị Dừng / reaper đóng thì 0 hàng — G dừng lặng lẽ).
+func (q *Queries) FinishChatMessage(ctx context.Context, arg FinishChatMessageParams) (int64, error) {
+	result, err := q.db.Exec(ctx, finishChatMessage,
 		arg.Content,
-		arg.StreamStatus,
 		arg.Citations,
 		arg.Blocks,
 		arg.Confidence,
 		arg.LowConfidence,
 		arg.NoContext,
 		arg.Degraded,
-		arg.ErrorCode,
+		arg.MaskedCount,
+		arg.Intent,
 		arg.TraceID,
 		arg.ID,
+		arg.Attempt,
 	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const getChatAssistantFor = `-- name: GetChatAssistantFor :one
+select id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at from chat_messages where session_id = $1 and reply_to = $2 and role = 'ASSISTANT'
+`
+
+type GetChatAssistantForParams struct {
+	SessionID uuid.UUID
+	ReplyTo   *uuid.UUID
+}
+
+func (q *Queries) GetChatAssistantFor(ctx context.Context, arg GetChatAssistantForParams) (ChatMessage, error) {
+	row := q.db.QueryRow(ctx, getChatAssistantFor, arg.SessionID, arg.ReplyTo)
+	var i ChatMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionID,
+		&i.UserID,
+		&i.Role,
+		&i.Content,
+		&i.PartialContent,
+		&i.StreamStatus,
+		&i.ClientMsgID,
+		&i.ReplyTo,
+		&i.Attempt,
+		&i.Intent,
+		&i.Citations,
+		&i.Blocks,
+		&i.Confidence,
+		&i.LowConfidence,
+		&i.NoContext,
+		&i.Degraded,
+		&i.MaskedCount,
+		&i.Feedback,
+		&i.ErrorCode,
+		&i.TraceID,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getChatMessageByID = `-- name: GetChatMessageByID :one
+select id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at from chat_messages where id = $1
+`
+
+// Chỉ dùng nội bộ sau khi đã kiểm chủ tin (người xem SSE đã qua s.message).
+func (q *Queries) GetChatMessageByID(ctx context.Context, id uuid.UUID) (ChatMessage, error) {
+	row := q.db.QueryRow(ctx, getChatMessageByID, id)
+	var i ChatMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionID,
+		&i.UserID,
+		&i.Role,
+		&i.Content,
+		&i.PartialContent,
+		&i.StreamStatus,
+		&i.ClientMsgID,
+		&i.ReplyTo,
+		&i.Attempt,
+		&i.Intent,
+		&i.Citations,
+		&i.Blocks,
+		&i.Confidence,
+		&i.LowConfidence,
+		&i.NoContext,
+		&i.Degraded,
+		&i.MaskedCount,
+		&i.Feedback,
+		&i.ErrorCode,
+		&i.TraceID,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getChatMessageOwned = `-- name: GetChatMessageOwned :one
+select id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at from chat_messages where id = $1 and user_id = $2
+`
+
+type GetChatMessageOwnedParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+func (q *Queries) GetChatMessageOwned(ctx context.Context, arg GetChatMessageOwnedParams) (ChatMessage, error) {
+	row := q.db.QueryRow(ctx, getChatMessageOwned, arg.ID, arg.UserID)
 	var i ChatMessage
 	err := row.Scan(
 		&i.ID,
@@ -105,6 +351,85 @@ func (q *Queries) GetChatSession(ctx context.Context, arg GetChatSessionParams) 
 		&i.DocumentID,
 		&i.LastMessageAt,
 		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getChatUserMessageByClientID = `-- name: GetChatUserMessageByClientID :one
+select id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at from chat_messages where session_id = $1 and client_msg_id = $2 and role = 'USER'
+`
+
+type GetChatUserMessageByClientIDParams struct {
+	SessionID   uuid.UUID
+	ClientMsgID *uuid.UUID
+}
+
+func (q *Queries) GetChatUserMessageByClientID(ctx context.Context, arg GetChatUserMessageByClientIDParams) (ChatMessage, error) {
+	row := q.db.QueryRow(ctx, getChatUserMessageByClientID, arg.SessionID, arg.ClientMsgID)
+	var i ChatMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionID,
+		&i.UserID,
+		&i.Role,
+		&i.Content,
+		&i.PartialContent,
+		&i.StreamStatus,
+		&i.ClientMsgID,
+		&i.ReplyTo,
+		&i.Attempt,
+		&i.Intent,
+		&i.Citations,
+		&i.Blocks,
+		&i.Confidence,
+		&i.LowConfidence,
+		&i.NoContext,
+		&i.Degraded,
+		&i.MaskedCount,
+		&i.Feedback,
+		&i.ErrorCode,
+		&i.TraceID,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getChatUserMessageOf = `-- name: GetChatUserMessageOf :one
+select id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at from chat_messages where id = $1 and role = 'USER'
+`
+
+func (q *Queries) GetChatUserMessageOf(ctx context.Context, id uuid.UUID) (ChatMessage, error) {
+	row := q.db.QueryRow(ctx, getChatUserMessageOf, id)
+	var i ChatMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionID,
+		&i.UserID,
+		&i.Role,
+		&i.Content,
+		&i.PartialContent,
+		&i.StreamStatus,
+		&i.ClientMsgID,
+		&i.ReplyTo,
+		&i.Attempt,
+		&i.Intent,
+		&i.Citations,
+		&i.Blocks,
+		&i.Confidence,
+		&i.LowConfidence,
+		&i.NoContext,
+		&i.Degraded,
+		&i.MaskedCount,
+		&i.Feedback,
+		&i.ErrorCode,
+		&i.TraceID,
+		&i.CompletedAt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
@@ -334,18 +659,18 @@ func (q *Queries) ListChatSessions(ctx context.Context, arg ListChatSessionsPara
 
 const reapStaleChatMessages = `-- name: ReapStaleChatMessages :many
 update chat_messages
-set stream_status = 'FAILED', content = coalesce(partial_content, ''), partial_content = null, completed_at = now(), error_code = 'STALE'
+set stream_status = 'FAILED', error_code = 'INTERRUPTED', completed_at = now()
 where stream_status = 'STREAMING' and updated_at < $1
-returning id, course_id, session_id
+returning id, user_id, attempt
 `
 
 type ReapStaleChatMessagesRow struct {
-	ID        uuid.UUID
-	CourseID  uuid.UUID
-	SessionID uuid.UUID
+	ID      uuid.UUID
+	UserID  uuid.UUID
+	Attempt int16
 }
 
-// Reaper: tin STREAMING quá hạn → FAILED, giữ phần đã có.
+// Reaper: tin STREAMING quá hạn → FAILED INTERRUPTED, giữ partial_content. `updated_at` do trigger.
 func (q *Queries) ReapStaleChatMessages(ctx context.Context, before time.Time) ([]ReapStaleChatMessagesRow, error) {
 	rows, err := q.db.Query(ctx, reapStaleChatMessages, before)
 	if err != nil {
@@ -355,7 +680,7 @@ func (q *Queries) ReapStaleChatMessages(ctx context.Context, before time.Time) (
 	items := []ReapStaleChatMessagesRow{}
 	for rows.Next() {
 		var i ReapStaleChatMessagesRow
-		if err := rows.Scan(&i.ID, &i.CourseID, &i.SessionID); err != nil {
+		if err := rows.Scan(&i.ID, &i.UserID, &i.Attempt); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -383,18 +708,104 @@ func (q *Queries) RestoreChatSession(ctx context.Context, arg RestoreChatSession
 	return result.RowsAffected(), nil
 }
 
-const setChatPartial = `-- name: SetChatPartial :exec
+const retryChatMessage = `-- name: RetryChatMessage :one
+update chat_messages
+set content = '', partial_content = null, stream_status = 'STREAMING', completed_at = null, error_code = null, citations = '[]', blocks = '[]',
+    confidence = null, low_confidence = false, no_context = false, degraded = false, masked_count = 0, intent = null, trace_id = null,
+    feedback = null, attempt = attempt + 1
+where id = $1 and user_id = $2 and role = 'ASSISTANT' and stream_status in ('FAILED', 'CANCELLED')
+returning id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at
+`
+
+type RetryChatMessageParams struct {
+	ID     uuid.UUID
+	UserID uuid.UUID
+}
+
+// Đặt lại MỌI cột của lượt trước ở CÙNG hàng (kể cả completed_at); chỉ ASSISTANT FAILED / CANCELLED của chính mình.
+func (q *Queries) RetryChatMessage(ctx context.Context, arg RetryChatMessageParams) (ChatMessage, error) {
+	row := q.db.QueryRow(ctx, retryChatMessage, arg.ID, arg.UserID)
+	var i ChatMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionID,
+		&i.UserID,
+		&i.Role,
+		&i.Content,
+		&i.PartialContent,
+		&i.StreamStatus,
+		&i.ClientMsgID,
+		&i.ReplyTo,
+		&i.Attempt,
+		&i.Intent,
+		&i.Citations,
+		&i.Blocks,
+		&i.Confidence,
+		&i.LowConfidence,
+		&i.NoContext,
+		&i.Degraded,
+		&i.MaskedCount,
+		&i.Feedback,
+		&i.ErrorCode,
+		&i.TraceID,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const setChatFeedback = `-- name: SetChatFeedback :execrows
+update chat_messages set feedback = $1
+where id = $2 and user_id = $3 and role = 'ASSISTANT' and stream_status = 'DONE'
+`
+
+type SetChatFeedbackParams struct {
+	Feedback *ChatFeedback
+	ID       uuid.UUID
+	UserID   uuid.UUID
+}
+
+func (q *Queries) SetChatFeedback(ctx context.Context, arg SetChatFeedbackParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setChatFeedback, arg.Feedback, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const setChatPartial = `-- name: SetChatPartial :execrows
 update chat_messages set partial_content = $1
-where id = $2 and stream_status = 'STREAMING'
+where id = $2 and attempt = $3 and stream_status = 'STREAMING'
 `
 
 type SetChatPartialParams struct {
 	PartialContent *string
 	ID             uuid.UUID
+	Attempt        int16
 }
 
-func (q *Queries) SetChatPartial(ctx context.Context, arg SetChatPartialParams) error {
-	_, err := q.db.Exec(ctx, setChatPartial, arg.PartialContent, arg.ID)
+// 0 hàng = tin đã bị Dừng / reaper / retry đóng: G phải dừng.
+func (q *Queries) SetChatPartial(ctx context.Context, arg SetChatPartialParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setChatPartial, arg.PartialContent, arg.ID, arg.Attempt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const setChatTitle = `-- name: SetChatTitle :exec
+update chat_sessions set title = $1 where id = $2 and title is null
+`
+
+type SetChatTitleParams struct {
+	Title *string
+	ID    uuid.UUID
+}
+
+func (q *Queries) SetChatTitle(ctx context.Context, arg SetChatTitleParams) error {
+	_, err := q.db.Exec(ctx, setChatTitle, arg.Title, arg.ID)
 	return err
 }
 

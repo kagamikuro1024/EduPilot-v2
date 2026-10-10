@@ -81,6 +81,13 @@ const (
 	DocumentNotFailed          = "DOCUMENT_NOT_FAILED"
 	DocumentNotReady           = "DOCUMENT_NOT_READY"
 	DocumentSharedReadonly     = "DOCUMENT_SHARED_READONLY"
+
+	// Chat riêng (FEAT-private-chat-pii SRS 6.1, US-P3-05).
+	ExamInProgress      = "EXAM_IN_PROGRESS"
+	ChatBusy            = "CHAT_BUSY"
+	MessageTooLong      = "MESSAGE_TOO_LONG"
+	ChatUnavailable     = "CHAT_UNAVAILABLE"
+	MessageNotRetryable = "MESSAGE_NOT_RETRYABLE"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -267,6 +274,16 @@ func DefaultMessage(code string) string {
 		return "Tài liệu chưa sẵn sàng."
 	case DocumentSharedReadonly:
 		return "Tài liệu này được chia sẻ từ lớp khác nên chỉ lớp gốc mới sửa được."
+	case ExamInProgress:
+		return "Chat tạm khóa trong lúc bạn làm bài thi."
+	case ChatBusy:
+		return "AI đang trả lời câu trước. Chờ một chút rồi gửi tiếp."
+	case MessageTooLong:
+		return "Tin nhắn quá dài."
+	case ChatUnavailable:
+		return "Chat tạm thời không khả dụng. Hãy thử lại sau."
+	case MessageNotRetryable:
+		return "Chỉ thử lại được câu trả lời bị lỗi hoặc đã dừng."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

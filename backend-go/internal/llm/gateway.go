@@ -512,6 +512,7 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 	}
 	if err == nil {
 		resp.Text = mk.unmask(resp.Text)
+		resp.MaskedCurrent = mk.current
 	}
 	c.finish(optional(resp, err), err)
 	return resp, err
@@ -611,11 +612,13 @@ func (g *Gateway) Embed(ctx context.Context, r EmbedRequest) ([][]float32, error
 		vecs   [][]float32
 		tokens int
 	}
-	inputs, _, merr := g.maskTexts(c, r.Inputs)
-	if merr != nil {
-		return nil, merr
+	if !r.System { // chữ tĩnh của hệ thống (không có dữ liệu người dùng) thì không cần danh tính lớp để che
+		inputs, _, merr := g.maskTexts(c, r.Inputs)
+		if merr != nil {
+			return nil, merr
+		}
+		r.Inputs = inputs
 	}
-	r.Inputs = inputs
 	ch, err := runChain(c,
 		func(Target) int {
 			n := 0

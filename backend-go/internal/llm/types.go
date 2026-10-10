@@ -107,6 +107,8 @@ type Response struct {
 	Model         string
 	FallbackIndex int
 	Degraded      bool
+	// MaskedCurrent: số lần thay trong tin hiện tại + kết quả tool của lượt (tin cuối của Request); KHÔNG tính lịch sử đã báo ở lượt trước (proposals #11d).
+	MaskedCurrent int
 	QueueWait     time.Duration
 	CostEst       decimal.Decimal
 }
@@ -115,6 +117,7 @@ type Response struct {
 type Chunk struct {
 	Text     string
 	Done     bool
+	Degraded bool // chunk chữ là câu suy giảm của gói llm: người gọi có thể bỏ và tự dựng câu (chat)
 	Err      error
 	Response *Response
 }
@@ -124,6 +127,8 @@ type EmbedRequest struct {
 	Inputs         []string
 	Lane           *Lane
 	PIIMaskedCount int
+	// System: chữ tĩnh của hệ thống (vd mẫu câu cá nhân của bộ phân loại), KHÔNG có dữ liệu người dùng → bỏ qua bước che. Không dùng cho chữ người dùng nhập.
+	System bool
 }
 
 // Client là cổng LLM: đúng bốn hàm.

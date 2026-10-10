@@ -9,6 +9,7 @@ import (
 	"math"
 	"regexp"
 	"strings"
+	"sync/atomic"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
@@ -146,8 +147,9 @@ func cosine(a, b []float32) float64 {
 // KHÔNG có bước LLM sinh chữ (D47 mục 2). Chạy đúng MỘT lần mỗi tin nhắn / yêu cầu; vectơ đã nhúng trả ra cho rag dùng lại.
 type Classifier struct {
 	Detector *Detector
-	Protos   *Prototypes // nil = chỉ luật
-	High     float64     // 0 = PersonalSimHigh; ≤ ngưỡng thấp (PersonalSimLow, khởi điểm 0,55) và vùng giữa đều KHÔNG coi là cá nhân
+	Protos   *Prototypes // nil = chỉ luật (hoặc dùng SetPrototypes khi nạp muộn)
+	lazy     atomic.Pointer[Prototypes]
+	High     float64 // 0 = PersonalSimHigh; ≤ ngưỡng thấp (PersonalSimLow, khởi điểm 0,55) và vùng giữa đều KHÔNG coi là cá nhân
 	Log      *slog.Logger
 }
 
@@ -168,7 +170,7 @@ func (c *Classifier) Classify(ctx context.Context, courseID uuid.UUID, text stri
 		res.Personal, res.Channel = true, ChannelPrivate
 		return res, nil, nil
 	}
-	if embed == nil || c.Protos == nil || utf8.RuneCountInString(strings.TrimSpace(text)) < minEmbedChars {
+	if embed == nil || c.protos() == nil || utf8.RuneCountInString(strings.TrimSpace(text)) < minEmbedChars {
 		return res, nil, nil
 	}
 	v, err := embed(ctx)
@@ -179,7 +181,7 @@ func (c *Classifier) Classify(ctx context.Context, courseID uuid.UUID, text stri
 		return res, nil, nil
 	}
 	res.UsedEmbedding = true
-	res.Similarity = c.Protos.maxCosine(v)
+	res.Similarity = c.protos().maxCosine(v)
 	hi := c.High
 	if hi == 0 {
 		hi = PersonalSimHigh
@@ -199,3 +201,16 @@ func appendReason(rs []Reason, r Reason) []Reason {
 	}
 	return append(rs, r)
 }
+
+// SetPrototypes đặt mẫu cá nhân nạp muộn (gateway khởi động trước khi nhà cung cấp nhúng được cấu hình); an toàn khi đang phân loại.
+func (c *Classifier) SetPrototypes(p *Prototypes) { c.lazy.Store(p) }
+
+func (c *Classifier) protos() *Prototypes {
+	if c.Protos != nil {
+		return c.Protos
+	}
+	return c.lazy.Load()
+}
+
+// HasPrototypes cho biết đã có mẫu câu cá nhân để so nhúng.
+func (c *Classifier) HasPrototypes() bool { return c.protos() != nil }
