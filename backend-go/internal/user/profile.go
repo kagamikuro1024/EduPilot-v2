@@ -123,11 +123,45 @@ type Settings struct {
 	NotifyTicketByMail   bool
 	NotifyAnswerByMail   bool
 	RemindDeadlineByMail bool
+	Reminders            Reminders
 	Version              int
 }
 
+// Reminders: bật / tắt nhắc 24 giờ theo loại (US-P8-03). Mặc định bài thi + sự kiện khác bật, buổi học tắt.
+type Reminders struct{ Exam, ClassSession, Other bool }
+
+// RemindersPatch: nil = giữ nguyên.
+type RemindersPatch struct{ Exam, ClassSession, Other *bool }
+
+func remindersOf(prefs []byte) Reminders {
+	var p struct {
+		Reminders map[string]bool `json:"reminders"`
+	}
+	_ = json.Unmarshal(prefs, &p)
+	get := func(k string, def bool) bool {
+		if v, ok := p.Reminders[k]; ok {
+			return v
+		}
+		return def
+	}
+	return Reminders{Exam: get("exam", true), ClassSession: get("class_session", false), Other: get("other", true)}
+}
+
+func (r RemindersPatch) json() ([]byte, error) {
+	m := map[string]bool{}
+	for k, v := range map[string]*bool{"exam": r.Exam, "class_session": r.ClassSession, "other": r.Other} {
+		if v != nil {
+			m[k] = *v
+		}
+	}
+	if len(m) == 0 {
+		return nil, nil
+	}
+	return json.Marshal(m)
+}
+
 func settingsOf(r store.UserSetting) Settings {
-	return Settings{NotifyTicketByMail: r.NotifyTicketByMail, NotifyAnswerByMail: r.NotifyAnswerByMail, RemindDeadlineByMail: r.RemindDeadlineByMail, Version: int(r.Version)}
+	return Settings{NotifyTicketByMail: r.NotifyTicketByMail, NotifyAnswerByMail: r.NotifyAnswerByMail, RemindDeadlineByMail: r.RemindDeadlineByMail, Reminders: remindersOf(r.Preferences), Version: int(r.Version)}
 }
 
 // GetSettings đọc tuỳ chọn; tạo lười dòng mặc định ở lần đọc đầu (INSERT … ON CONFLICT DO NOTHING).
@@ -145,6 +179,7 @@ type SettingsInput struct {
 	NotifyTicketByMail   *bool
 	NotifyAnswerByMail   *bool
 	RemindDeadlineByMail *bool
+	Reminders            RemindersPatch
 }
 
 // SettingsConflictError: sai version; Current là bản hiện hành.
@@ -158,8 +193,12 @@ func (s *Service) PutSettings(ctx context.Context, id uuid.UUID, in SettingsInpu
 	if _, err := q.EnsureUserSettings(ctx, id); err != nil {
 		return Settings{}, fmt.Errorf("user: tạo tuỳ chọn: %w", err)
 	}
+	rem, err := in.Reminders.json()
+	if err != nil {
+		return Settings{}, fmt.Errorf("user: nhắc: %w", err)
+	}
 	r, err := q.UpdateUserSettings(ctx, store.UpdateUserSettingsParams{
-		UserID: id, Version: int32(in.Version), NotifyTicketByMail: in.NotifyTicketByMail, NotifyAnswerByMail: in.NotifyAnswerByMail, RemindDeadlineByMail: in.RemindDeadlineByMail,
+		UserID: id, Version: int32(in.Version), NotifyTicketByMail: in.NotifyTicketByMail, NotifyAnswerByMail: in.NotifyAnswerByMail, RemindDeadlineByMail: in.RemindDeadlineByMail, Reminders: rem,
 	})
 	if errors.Is(err, pgx.ErrNoRows) {
 		cur, gerr := q.EnsureUserSettings(ctx, id)

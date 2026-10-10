@@ -6,10 +6,12 @@ import (
 
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
@@ -42,6 +44,13 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		authAPI.Mount(r)
 	}
 
+	var calH *calendarhttp.Handler
+	if d.DB != nil {
+		// US-P8-03 — lịch gộp, sự kiện của Staff, token + feed ICS (SRS FEAT-docs-calendar 6, #16–#23). Feed (#20) công khai: danh tính là token.
+		calH = &calendarhttp.Handler{Svc: calendarService(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}
+		calH.MountPublic(r)
+	}
+
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Middleware(d.Verifier, mw...))
 		if authAPI != nil {
@@ -67,6 +76,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			resolver = course.Resolver{Pool: d.DB}
 		}
 		courseGuard := func(m auth.GuardMode) func(http.Handler) http.Handler { return auth.CourseAccessGuard(resolver, m) }
+		if calH != nil {
+			calH.Guard = courseGuard
+			calH.Mount(r)
+		}
 		if d.DB != nil {
 			// US-P2-07 — lớp của tôi và chi tiết lớp.
 			svc := course.NewService(course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production", Clock: d.Clock, Redis: d.Redis, Log: d.Log, PublicURL: d.Cfg.AppPublicURL})
@@ -132,4 +145,12 @@ func authOptions(d Deps) []auth.MiddlewareOption {
 		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
 	}
 	return mw
+}
+
+func calendarService(d Deps) *calendar.Service {
+	clk := d.Clock
+	if clk == nil {
+		clk = clock.Real{}
+	}
+	return &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clk, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}
 }

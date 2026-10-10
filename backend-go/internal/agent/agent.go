@@ -153,6 +153,9 @@ func (a *Agent) tool(ctx context.Context, tc TrustedContext, in Input, out Outco
 	}
 	if res.NoData {
 		out.Canned = ReplyNoData(what)
+		if res.Message != "" {
+			out.Canned = res.Message
+		}
 		return out, nil
 	}
 	if res.Block != nil {

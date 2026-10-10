@@ -103,7 +103,9 @@ type Config struct {
 	ExamMinDurationMinutes int
 	ExamMinLeadSeconds     int
 	ExamTickInterval       time.Duration
-	JudgeMaxTotalSeconds   int // JUDGE_MAX_TOTAL_SECONDS; worker đọc riêng cùng biến này ở judge.Settings
+	ReminderTick           time.Duration // REMINDER_TICK (US-P8-03)
+	ReminderLead           time.Duration // REMINDER_LEAD
+	JudgeMaxTotalSeconds   int           // JUDGE_MAX_TOTAL_SECONDS; worker đọc riêng cùng biến này ở judge.Settings
 	// Lượt làm (US-PE-05, SRS 4.3): độ trễ chấp nhận ghi sau hạn, giới hạn lưu theo lượt, thời gian một tab ghi bị coi là bỏ.
 	ExamGraceSeconds   int
 	ExamSaveRatePerMin int
@@ -275,6 +277,8 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ExamMinDurationMinutes = l.num("EXAM_MIN_DURATION_MINUTES", 5, 1, 300)
 	c.ExamMinLeadSeconds = l.num("EXAM_MIN_LEAD_SECONDS", 60, 0, 86400)
 	c.ExamTickInterval = l.dur("EXAM_TICK_INTERVAL", 5*time.Second)
+	c.ReminderTick = l.dur("REMINDER_TICK", 5*time.Minute)
+	c.ReminderLead = l.dur("REMINDER_LEAD", 24*time.Hour)
 	c.JudgeMaxTotalSeconds = l.num("JUDGE_MAX_TOTAL_SECONDS", 300, 20, 100000)
 	c.ExamGraceSeconds = l.num("EXAM_GRACE_SECONDS", 10, 0, 300)
 	c.ExamSaveRatePerMin = l.num("EXAM_SAVE_RATE_PER_MIN", 240, 1, 100000)

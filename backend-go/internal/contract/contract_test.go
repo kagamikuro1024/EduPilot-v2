@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 162 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06) + 11 quản lý tài liệu / thư viện (US-P8-02); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 162)", n)
+		if n := len(prod.Operations()); n != 170 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06) + 11 quản lý tài liệu / thư viện (US-P8-02) + 8 lịch / ICS (US-P8-03); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 170)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
 		if n := len(test.Operations()); n != 21 {
@@ -351,6 +351,14 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"POST /api/v1/courses/{id}/documents/reindex":                                   true,
 		"POST /api/v1/courses/{id}/documents/{docId}/retry":                             true,
 		"POST /api/v1/courses/{id}/documents/{docId}/reindex":                           true,
+		"GET /api/v1/courses/{id}/calendar":                                             true,
+		"POST /api/v1/courses/{id}/calendar/events":                                     true,
+		"PUT /api/v1/courses/{id}/calendar/events/{eventId}":                            true,
+		"DELETE /api/v1/courses/{id}/calendar/events/{eventId}":                         true,
+		"GET /api/v1/calendar/feed.ics":                                                 false,
+		"POST /api/v1/me/calendar/ics-token":                                            true,
+		"DELETE /api/v1/me/calendar/ics-token":                                          true,
+		"GET /api/v1/me/calendar/ics-token":                                             true,
 		"GET /api/v1/me/courses":                                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {

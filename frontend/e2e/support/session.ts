@@ -1,5 +1,6 @@
 import { BASE_URL } from "./env";
 import { doc as docRow, libDetail, libItem, stats as docStats } from "./doc-fixtures";
+import { exam as calExam, item as calItem, session as calSession } from "./cal-fixtures";
 import { TID as THREAD_ID, row as threadRow, view as threadView } from "./thread-fixtures";
 import type { BrowserContext, Page } from "@playwright/test";
 
@@ -69,6 +70,8 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
     if (/\/library\/[^/]+$/.test(u)) return r.fulfill(json(libDetail()));
     return r.fulfill(json({ items: [libItem()], next_cursor: null }));
   });
+  // Lịch THẬT (US-P8-03): vài dòng mặc định; spec cần hành vi khác thì tự giả bằng `calApi` (page-level thắng).
+  await context.route("**/api/v1/courses/*/calendar**", (r) => (r.request().method() === "GET" ? r.fulfill(json({ items: [calExam(), calItem(), calSession()], next_cursor: null })) : r.fallback()));
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }
 

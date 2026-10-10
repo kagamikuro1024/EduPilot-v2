@@ -183,7 +183,9 @@ func (r *runner) record(c call, status int, h http.Header, body []byte, skipBody
 	csv := strings.HasPrefix(h.Get("Content-Type"), "text/csv")
 	// `text/event-stream` (chat riêng, US-P3-05): kin-openapi không có bộ giải mã SSE; khung SSE do `internal/chat` kiểm (TestStreamEventOrder, TestChatSSENotBuffered).
 	sse := strings.HasPrefix(h.Get("Content-Type"), "text/event-stream")
-	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv || sse})
+	// `text/calendar` (US-P8-03 feed.ics): không có bộ giải mã ICS; định dạng do `calendar.TestICS*` kiểm.
+	ics := strings.HasPrefix(h.Get("Content-Type"), "text/calendar")
+	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv || sse || ics})
 	r.add(o)
 }
 

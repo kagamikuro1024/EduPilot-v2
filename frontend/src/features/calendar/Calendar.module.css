@@ -58,3 +58,11 @@
   .chip { padding-left: 2px; }
   .cell { padding-inline: 2px; }
 }
+
+/* Lịch thật (US-P8-03) */
+.eventLink { display: grid; gap: var(--ep-space-0_5); color: inherit; text-decoration: none; }
+.eventLink:hover .eventTitle { text-decoration: underline; }
+.form { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--ep-space-3); align-items: end; }
+.formActions { display: flex; gap: var(--ep-space-2); }
+.ics { display: flex; flex-wrap: wrap; gap: var(--ep-space-3); align-items: end; }
+.ics > :first-child { flex: 1 1 320px; }

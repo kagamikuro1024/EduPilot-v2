@@ -386,8 +386,11 @@ update user_settings
 set notify_ticket_by_mail = coalesce($1, notify_ticket_by_mail),
     notify_answer_by_mail = coalesce($2, notify_answer_by_mail),
     remind_deadline_by_mail = coalesce($3, remind_deadline_by_mail),
+    -- US-P8-03: gộp từng khoá của preferences.reminders (khoá vắng = giữ nguyên)
+    preferences = case when $4::jsonb is null then preferences
+                  else jsonb_set(preferences, '{reminders}', coalesce(preferences->'reminders', '{}'::jsonb) || $4::jsonb) end,
     version = version + 1
-where user_id = $4 and version = $5
+where user_id = $5 and version = $6
 returning user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at
 `
 
@@ -395,6 +398,7 @@ type UpdateUserSettingsParams struct {
 	NotifyTicketByMail   *bool
 	NotifyAnswerByMail   *bool
 	RemindDeadlineByMail *bool
+	Reminders            json.RawMessage
 	UserID               uuid.UUID
 	Version              int32
 }
@@ -404,6 +408,7 @@ func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettings
 		arg.NotifyTicketByMail,
 		arg.NotifyAnswerByMail,
 		arg.RemindDeadlineByMail,
+		arg.Reminders,
 		arg.UserID,
 		arg.Version,
 	)

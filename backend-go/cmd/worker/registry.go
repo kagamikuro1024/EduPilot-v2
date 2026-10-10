@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/edupilot/backend-go/internal/calendar"
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
@@ -48,7 +49,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	en := &exam.Notifier{Pool: d.DB, Log: d.Log}
 	reg.Register(exam.TopicExamScheduled, outbox.Chain(en.HandleScheduled, inv.Handle)) // US-PE-04: thông báo lịch + xoá cache "Hôm nay"
 	reg.Register(exam.TopicExamUnscheduled, outbox.Chain(en.HandleUnscheduled, inv.Handle))
-	for _, t := range []string{exam.TopicExamOpened, exam.TopicExamClosed, exam.TopicAttemptStarted, exam.TopicAttemptSubmitted, exam.TopicSimilarityDone, exam.TopicSimilarityReviewed, exam.TopicQuestionReviewed, course.TopicChanged, auth.TopicUserVerified} {
+	for _, t := range []string{exam.TopicExamOpened, exam.TopicExamClosed, exam.TopicAttemptStarted, exam.TopicAttemptSubmitted, exam.TopicSimilarityDone, exam.TopicSimilarityReviewed, exam.TopicQuestionReviewed, course.TopicChanged, auth.TopicUserVerified, calendar.TopicChanged} {
 		reg.Register(t, inv.Handle)
 	}
 	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.

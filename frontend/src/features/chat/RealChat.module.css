@@ -12,3 +12,6 @@
 .rowMain { flex: 1; min-width: 0; }
 .rowDel { min-width: 44px; min-height: 44px; }
 @media (max-width: 1099px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+.events { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--ep-space-1); font-size: var(--ep-text-label); }
+.when { color: var(--ep-ink-3); }

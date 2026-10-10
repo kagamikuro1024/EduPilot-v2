@@ -83,6 +83,8 @@ const (
 	DocumentSharedReadonly     = "DOCUMENT_SHARED_READONLY"
 	AnswerKeyNotVisible        = "ANSWER_KEY_NOT_VISIBLE"
 	FileGone                   = "FILE_GONE"
+	RangeTooLarge              = "RANGE_TOO_LARGE"
+	EventTimeInvalid           = "EVENT_TIME_INVALID"
 
 	// Chat riêng (FEAT-private-chat-pii SRS 6.1, US-P3-05).
 	ExamInProgress      = "EXAM_IN_PROGRESS"
@@ -282,6 +284,10 @@ func DefaultMessage(code string) string {
 		return "Đáp án không được hiện cho sinh viên."
 	case FileGone:
 		return "Tệp này không còn nữa."
+	case RangeTooLarge:
+		return "Khoảng thời gian tối đa 62 ngày."
+	case EventTimeInvalid:
+		return "Giờ sự kiện không hợp lệ: giờ kết thúc phải sau giờ bắt đầu, giờ bắt đầu trong vòng 2 năm."
 	case ExamInProgress:
 		return "Chat tạm khóa trong lúc bạn làm bài thi."
 	case ChatBusy:

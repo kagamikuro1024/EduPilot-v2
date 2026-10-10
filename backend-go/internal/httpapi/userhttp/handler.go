@@ -273,14 +273,22 @@ func (h *Handler) putProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 type settingsOut struct {
-	NotifyTicketByMail   bool `json:"notify_ticket_by_mail"`
-	NotifyAnswerByMail   bool `json:"notify_answer_by_mail"`
-	RemindDeadlineByMail bool `json:"remind_deadline_by_mail"`
-	Version              int  `json:"version"`
+	NotifyTicketByMail   bool         `json:"notify_ticket_by_mail"`
+	NotifyAnswerByMail   bool         `json:"notify_answer_by_mail"`
+	RemindDeadlineByMail bool         `json:"remind_deadline_by_mail"`
+	Reminders            remindersOut `json:"reminders"`
+	Version              int          `json:"version"`
+}
+
+type remindersOut struct {
+	Exam         bool `json:"exam"`
+	ClassSession bool `json:"class_session"`
+	Other        bool `json:"other"`
 }
 
 func settingsJSON(s user.Settings) settingsOut {
-	return settingsOut{NotifyTicketByMail: s.NotifyTicketByMail, NotifyAnswerByMail: s.NotifyAnswerByMail, RemindDeadlineByMail: s.RemindDeadlineByMail, Version: s.Version}
+	return settingsOut{NotifyTicketByMail: s.NotifyTicketByMail, NotifyAnswerByMail: s.NotifyAnswerByMail, RemindDeadlineByMail: s.RemindDeadlineByMail,
+		Reminders: remindersOut{Exam: s.Reminders.Exam, ClassSession: s.Reminders.ClassSession, Other: s.Reminders.Other}, Version: s.Version}
 }
 
 func (h *Handler) getSettings(w http.ResponseWriter, r *http.Request) {
@@ -296,10 +304,11 @@ func (h *Handler) getSettings(w http.ResponseWriter, r *http.Request) {
 }
 
 type settingsBody struct {
-	Version              *int  `json:"version"`
-	NotifyTicketByMail   *bool `json:"notify_ticket_by_mail"`
-	NotifyAnswerByMail   *bool `json:"notify_answer_by_mail"`
-	RemindDeadlineByMail *bool `json:"remind_deadline_by_mail"`
+	Version              *int            `json:"version"`
+	NotifyTicketByMail   *bool           `json:"notify_ticket_by_mail"`
+	NotifyAnswerByMail   *bool           `json:"notify_answer_by_mail"`
+	RemindDeadlineByMail *bool           `json:"remind_deadline_by_mail"`
+	Reminders            map[string]bool `json:"reminders"` // khoá: exam | class_session | other (kiểm trong putSettings)
 }
 
 func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
@@ -316,7 +325,21 @@ func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, aerr)
 		return
 	}
-	s, err := h.Users.PutSettings(r.Context(), id, user.SettingsInput{Version: version, NotifyTicketByMail: b.NotifyTicketByMail, NotifyAnswerByMail: b.NotifyAnswerByMail, RemindDeadlineByMail: b.RemindDeadlineByMail})
+	in := user.SettingsInput{Version: version, NotifyTicketByMail: b.NotifyTicketByMail, NotifyAnswerByMail: b.NotifyAnswerByMail, RemindDeadlineByMail: b.RemindDeadlineByMail}
+	for k, v := range b.Reminders {
+		switch k {
+		case "exam":
+			in.Reminders.Exam = &v
+		case "class_session":
+			in.Reminders.ClassSession = &v
+		case "other":
+			in.Reminders.Other = &v
+		default: // bộ giải mã chỉ bắt khoá lạ ở cấp trên cùng
+			apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "reminders." + k, Code: "unknown", Message: "Trường không được hỗ trợ."}))
+			return
+		}
+	}
+	s, err := h.Users.PutSettings(r.Context(), id, in)
 	if h.fail(w, r, "settings-put", err) {
 		return
 	}

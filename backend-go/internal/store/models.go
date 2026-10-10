@@ -188,6 +188,48 @@ func (ns NullAuthTokenKind) Value() (driver.Value, error) {
 	return string(ns.AuthTokenKind), nil
 }
 
+type CalendarEventType string
+
+const (
+	CalendarEventTypeEXAM  CalendarEventType = "EXAM"
+	CalendarEventTypeOTHER CalendarEventType = "OTHER"
+)
+
+func (e *CalendarEventType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = CalendarEventType(s)
+	case string:
+		*e = CalendarEventType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for CalendarEventType: %T", src)
+	}
+	return nil
+}
+
+type NullCalendarEventType struct {
+	CalendarEventType CalendarEventType
+	Valid             bool // Valid is true if CalendarEventType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullCalendarEventType) Scan(value interface{}) error {
+	if value == nil {
+		ns.CalendarEventType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.CalendarEventType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullCalendarEventType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.CalendarEventType), nil
+}
+
 type ChatChannel string
 
 const (
@@ -1417,6 +1459,49 @@ func (ns NullQuestionType) Value() (driver.Value, error) {
 	return string(ns.QuestionType), nil
 }
 
+type ReminderSource string
+
+const (
+	ReminderSourceCLASSSESSION  ReminderSource = "CLASS_SESSION"
+	ReminderSourceWEEKLYEXAM    ReminderSource = "WEEKLY_EXAM"
+	ReminderSourceCALENDAREVENT ReminderSource = "CALENDAR_EVENT"
+)
+
+func (e *ReminderSource) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ReminderSource(s)
+	case string:
+		*e = ReminderSource(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ReminderSource: %T", src)
+	}
+	return nil
+}
+
+type NullReminderSource struct {
+	ReminderSource ReminderSource
+	Valid          bool // Valid is true if ReminderSource is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullReminderSource) Scan(value interface{}) error {
+	if value == nil {
+		ns.ReminderSource, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ReminderSource.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullReminderSource) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ReminderSource), nil
+}
+
 type SimilarityReviewState string
 
 const (
@@ -1761,6 +1846,23 @@ type AuthToken struct {
 	RevokedAt *time.Time
 	CreatedBy *uuid.UUID
 	CreatedAt time.Time
+}
+
+type CalendarEvent struct {
+	ID          uuid.UUID
+	CourseID    uuid.UUID
+	Type        CalendarEventType
+	Title       string
+	StartsAt    time.Time
+	EndsAt      *time.Time
+	Location    *string
+	Description *string
+	RefType     *string
+	RefID       *uuid.UUID
+	CreatedBy   uuid.UUID
+	Version     int32
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 }
 
 type ChatMessage struct {
@@ -2324,6 +2426,17 @@ type QuestionOption struct {
 	Position   int16
 	Body       string
 	PinnedLast bool
+}
+
+type ReminderLog struct {
+	ID         uuid.UUID
+	UserID     uuid.UUID
+	CourseID   uuid.UUID
+	SourceType ReminderSource
+	SourceID   uuid.UUID
+	StartsAt   time.Time
+	Kind       string
+	CreatedAt  time.Time
 }
 
 type SimilarityReport struct {

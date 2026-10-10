@@ -26,6 +26,7 @@ tags:
   - name: chat
   - name: threads
   - name: library
+  - name: calendar
 paths:
   /healthz:
     get:
@@ -960,6 +961,220 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/calendar:
+    get:
+      operationId: listCalendar
+      tags: [calendar]
+      summary: "Lịch gộp lúc đọc của một lớp: buổi học, bài thi (không DRAFT) và sự kiện của Giảng viên; khoảng from..to tối đa 62 ngày; ETag"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang lịch (kèm ETag; 304 khi If-None-Match khớp)
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarPage"
+        "304":
+          description: Không đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/calendar/events:
+    post:
+      operationId: createCalendarEvent
+      tags: [calendar]
+      summary: "Thêm sự kiện của lớp (Giảng viên / Trợ giảng); lớp lưu trữ - 409"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarEventInput"
+      responses:
+        "201":
+          description: Sự kiện đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/calendar/events/{eventId}:
+    put:
+      operationId: updateCalendarEvent
+      tags: [calendar]
+      summary: "Sửa sự kiện (khoá lạc quan theo version; sự kiện lớp khác - 404)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarEventInput"
+      responses:
+        "200":
+          description: Sự kiện sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteCalendarEvent
+      tags: [calendar]
+      summary: "Xoá sự kiện của lớp"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/calendar/feed.ics:
+    get:
+      operationId: getCalendarFeed
+      tags: [calendar]
+      summary: "Feed ICS của chủ token (không JWT): mọi lớp ACTIVE, now-30 ngày .. now+365 ngày, tối đa 2.000 sự kiện; token sai / xoay / thu hồi - cùng một 404; 60 lượt / phút / IP"
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lịch iCalendar (ETag; Cache-Control private, max-age=300)
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            text/calendar:
+              schema:
+                type: string
+        "304":
+          description: Không đổi
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/me/calendar/ics-token:
+    post:
+      operationId: issueIcsToken
+      tags: [calendar]
+      summary: "Tạo hoặc xoay token ICS của chính mình; URL chỉ hiện một lần (chỉ lưu băm)"
+      responses:
+        "201":
+          description: URL feed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                additionalProperties: false
+                properties:
+                  url:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    delete:
+      operationId: revokeIcsToken
+      tags: [calendar]
+      summary: "Thu hồi token ICS của chính mình (idempotent)"
+      responses:
+        "204":
+          description: Đã thu hồi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    get:
+      operationId: getIcsTokenState
+      tags: [calendar]
+      summary: "Đã có token ICS chưa (không trả token)"
+      responses:
+        "200":
+          description: Trạng thái
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [exists]
+                additionalProperties: false
+                properties:
+                  exists:
+                    type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /api/v1/admin/courses:
     get:
       operationId: listAdminCourses
@@ -5997,7 +6212,7 @@ components:
           minimum: 1
     Settings:
       type: object
-      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, version]
+      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, reminders, version]
       additionalProperties: false
       properties:
         notify_ticket_by_mail:
@@ -6006,6 +6221,17 @@ components:
           type: boolean
         remind_deadline_by_mail:
           type: boolean
+        reminders:
+          type: object
+          required: [exam, class_session, other]
+          additionalProperties: false
+          properties:
+            exam:
+              type: boolean
+            class_session:
+              type: boolean
+            other:
+              type: boolean
         version:
           type: integer
     SettingsInput:
@@ -6019,6 +6245,16 @@ components:
           type: boolean
         remind_deadline_by_mail:
           type: boolean
+        reminders:
+          type: object
+          additionalProperties: false
+          properties:
+            exam:
+              type: boolean
+            class_session:
+              type: boolean
+            other:
+              type: boolean
         version:
           type: integer
           minimum: 1
@@ -7344,6 +7580,8 @@ components:
             - DOCUMENT_SHARED_READONLY
             - ANSWER_KEY_NOT_VISIBLE
             - FILE_GONE
+            - RANGE_TOO_LARGE
+            - EVENT_TIME_INVALID
             - EXAM_IN_PROGRESS
             - CHAT_BUSY
             - MESSAGE_TOO_LONG
@@ -7601,6 +7839,102 @@ components:
           type: string
         can_ask_ai:
           type: boolean
+    CalendarItem:
+      type: object
+      required: [id, source, type, title, starts_at, ends_at, location, href, editable, personal_state, status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+          enum: [class_session, weekly_exam, calendar_event]
+        type:
+          type: string
+          enum: [CLASS_SESSION, EXAM, OTHER]
+        title:
+          type: string
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: [string, "null"]
+          format: date-time
+        location:
+          type: [string, "null"]
+        href:
+          type: [string, "null"]
+        editable:
+          type: boolean
+        personal_state:
+          type: [string, "null"]
+          enum: [NOT_STARTED, IN_PROGRESS, SUBMITTED, null]
+        status:
+          type: [string, "null"]
+        version:
+          type: integer
+    CalendarPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CalendarItem"
+        next_cursor:
+          type: [string, "null"]
+    CalendarEventInput:
+      type: object
+      required: [type, title, starts_at]
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum: [EXAM, OTHER]
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: [string, "null"]
+          format: date-time
+        location:
+          type: [string, "null"]
+          maxLength: 80
+        description:
+          type: [string, "null"]
+          maxLength: 1000
+        version:
+          type: integer
+          minimum: 1
+    CalendarEvent:
+      type: object
+      required: [id, type, title, starts_at, ends_at, location, description, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: [string, "null"]
+          format: date-time
+        location:
+          type: [string, "null"]
+        description:
+          type: [string, "null"]
+        version:
+          type: integer
     LibraryPage:
       type: object
       required: [items, next_cursor]

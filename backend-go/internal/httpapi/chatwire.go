@@ -76,7 +76,7 @@ func chatService(d Deps, a *aiStack) *chat.Service {
 	}
 	an := &agent.Analyzer{Classifier: a.cl, Detector: a.det, Self: agent.StoreSelf{Pool: d.DB}, Log: d.Log, Embed: a.embed}
 	ag := &agent.Agent{
-		An: an, Private: agent.DefaultPrivateRegistry(nil, nil, nil, nil, &library.Service{Pool: d.DB, Log: d.Log}), Rag: &rag.Service{DB: d.DB}, Gen: a.gw, Events: agent.StoreEvents{Pool: d.DB}, Log: d.Log,
+		An: an, Private: agent.DefaultPrivateRegistry(nil, nil, nil, calendarService(d), &library.Service{Pool: d.DB, Log: d.Log}), Rag: &rag.Service{DB: d.DB}, Gen: a.gw, Events: agent.StoreEvents{Pool: d.DB}, Log: d.Log,
 		Cache: &agent.AnswerCache{Redis: agent.NewRedisKV(d.Redis), Version: func(ctx context.Context, c uuid.UUID) (int64, error) { return rag.Version(ctx, d.Redis, c) }},
 	}
 	return &chat.Service{

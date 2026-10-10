@@ -348,6 +348,22 @@ function Blocks({ blocks }: { blocks: ChatBlock[] }) {
         const data = b.data && typeof b.data === "object" ? (b.data as Record<string, unknown>) : {};
         const rows = Object.entries(data);
         if (rows.length === 0) return null;
+        if ((b.kind === "exam_schedule" || b.kind === "upcoming_events") && Array.isArray(data.events)) {
+          // Lịch (US-P8-03): mỗi sự kiện một dòng "Thứ Hai, 21/09 · 14:00 · Tên · Địa điểm" (giờ đã định dạng ở máy chủ).
+          const evs = data.events as { title: string; starts: string; location?: string }[];
+          return (
+            <section key={i} className={s.block} aria-label={BLOCK_TITLE[b.kind]} data-part="calendar-block">
+              <h3 className={r.blockTitle}>{BLOCK_TITLE[b.kind]}</h3>
+              <ul className={r.events}>
+                {evs.map((e, j) => (
+                  <li key={j}>
+                    <span className={r.when}>{e.starts}</span> {e.title}{e.location ? ` · ${e.location}` : ""}
+                  </li>
+                ))}
+              </ul>
+            </section>
+          );
+        }
         return (
           <section key={i} className={s.block} aria-label={BLOCK_TITLE[b.kind] ?? "Kết quả"}>
             <h3 className={r.blockTitle}>{BLOCK_TITLE[b.kind] ?? "Kết quả"}</h3>

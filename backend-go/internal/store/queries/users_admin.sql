@@ -74,6 +74,9 @@ update user_settings
 set notify_ticket_by_mail = coalesce(sqlc.narg(notify_ticket_by_mail), notify_ticket_by_mail),
     notify_answer_by_mail = coalesce(sqlc.narg(notify_answer_by_mail), notify_answer_by_mail),
     remind_deadline_by_mail = coalesce(sqlc.narg(remind_deadline_by_mail), remind_deadline_by_mail),
+    -- US-P8-03: gộp từng khoá của preferences.reminders (khoá vắng = giữ nguyên)
+    preferences = case when sqlc.narg(reminders)::jsonb is null then preferences
+                  else jsonb_set(preferences, '{reminders}', coalesce(preferences->'reminders', '{}'::jsonb) || sqlc.narg(reminders)::jsonb) end,
     version = version + 1
 where user_id = sqlc.arg(user_id) and version = sqlc.arg(version)
 returning *;

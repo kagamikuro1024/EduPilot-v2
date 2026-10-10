@@ -139,6 +139,24 @@ test("reload mid-stream: tin đang sinh được nối lại bằng Last-Event-I
   expect(calls.some((c) => c.path === `/chat/messages/${MID}/stream`)).toBe(true);
 });
 
+test("calendar tool block: lịch hiện thành danh sách dòng, không JSON thô", async ({ page, context }) => {
+  const ev = [{ title: "Thi giữa kỳ", type: "EXAM", starts: "Chủ Nhật, 20/12 · 14:00", location: "P.301" }, { title: "Nộp báo cáo", type: "OTHER", starts: "Thứ Ba, 22/12 · 09:00" }];
+  let sent = false;
+  await open(page, context, {
+    "POST /chat/sessions": json(session(), 201),
+    [`POST /chat/sessions/${SID}/messages`]: (r) => { sent = true; return r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("block", { kind: "exam_schedule", data: { events: ev } }, "1:2-0"), frame("token", { off: 0, t: "Lịch thi của bạn:" }, "1:3-0"), frame("done", { message_id: MID, citations: [], low_confidence: false, degraded: false }, "1:4-0"))); },
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: sent ? [msg({ citations: [], content: "Lịch thi của bạn:", blocks: [{ kind: "exam_schedule", data: { events: ev } }] }), msg({ id: "u1", role: "USER", content: "Khi nào thi?", citations: [] })] : [], next_cursor: null })),
+  });
+  await composer(page).fill("Khi nào thi?");
+  await composer(page).press("Enter");
+  const block = page.locator("[data-part=calendar-block]").first();
+  await expect(block).toBeVisible();
+  await expect(block.getByRole("heading", { name: "Lịch thi" })).toBeVisible();
+  await expect(block.getByRole("listitem")).toHaveCount(2);
+  await expect(block).toContainText("Chủ Nhật, 20/12 · 14:00 Thi giữa kỳ · P.301");
+  expect(await block.innerText()).not.toMatch(/[{}\[\]"]|events/);
+});
+
 test("375: không tràn ngang, vùng chạm ≥ 44 px", async ({ page, context }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page, context);

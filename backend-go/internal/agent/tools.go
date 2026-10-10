@@ -31,9 +31,11 @@ type Source struct {
 
 // Result là kết quả một tool. NoData: nguồn chưa nối / không có dữ liệu → trả câu mẫu, 0 lời gọi LLM, không bịa số.
 type Result struct {
-	Facts   Facts
-	Block   *Block
-	NoData  bool
+	Facts  Facts
+	Block  *Block
+	NoData bool
+	// Message: câu mẫu riêng khi NoData (rỗng = ReplyNoData(what)); lịch dùng để nói rõ "chưa có lịch thi" / "không có sự kiện nào trong n ngày".
+	Message string
 	Sources []Source
 }
 
@@ -289,7 +291,11 @@ func (t examTool) Run(ctx context.Context, tc TrustedContext, _ json.RawMessage)
 		return Result{NoData: true}, nil
 	}
 	f, ok, err := t.Src.ExamSchedule(ctx, tc)
-	return result("exam_schedule", f, ok, err)
+	r, err := result("exam_schedule", f, ok, err)
+	if r.NoData {
+		r.Message = ReplyNoExam
+	}
+	return r, err
 }
 
 // UpcomingArgs là tham số của get_upcoming_events: số ngày (1–30; ≤ 0 → 7, kẹp 30 — US-P8-03).
@@ -319,7 +325,11 @@ func (t upcomingTool) Run(ctx context.Context, tc TrustedContext, raw json.RawMe
 		return Result{NoData: true}, nil
 	}
 	f, ok, err := t.Src.Upcoming(ctx, tc, a.Days)
-	return result("upcoming_events", f, ok, err)
+	r, err := result("upcoming_events", f, ok, err)
+	if r.NoData {
+		r.Message = ReplyNoEvents(a.Days)
+	}
+	return r, err
 }
 
 // LibraryArgs là tham số của search_library.
