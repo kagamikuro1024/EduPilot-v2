@@ -59,7 +59,7 @@ sequenceDiagram
     GW-->>S: SSE status{received} (≤ 300 ms)
     GW->>G: bắt đầu (ctx giữ danh tính + trace, hạn 120 s)
     G->>AG: Classify (luật + 1 embed) → route
-    AG->>AG: tool Go (trusted_context) hoặc rag.Search (SQL, lọc audience)
+    AG->>AG: tool Go (trusted_context) hoặc rag.SearchStudent (SQL, lọc audience)
     G->>LLM: Stream (đúng 1 lần sinh chữ)
     LLM-->>G: token đã unmask
     G->>R: XADD ep:chat:buf (token) + PUBLISH đánh thức
@@ -83,7 +83,7 @@ flowchart TD
   F -->|Chuyển sang chat riêng| G[POST /chat/sessions/from-draft → /chat, ô soạn giữ chữ]
   F -->|Ẩn thông tin rồi đăng| H[POST threads redact:true → lưu bản [đã ẩn]]
   H --> E
-  E --> W[Worker: nhúng 1 lần → rag.Search → 1 lần Chat NEAR_REALTIME]
+  E --> W[Worker: nhúng 1 lần → rag.SearchStudent → 1 lần Chat NEAR_REALTIME]
   W -->|có ngữ cảnh| P[Bài AI PENDING + citations]
   W -->|không| K[ai_state=SKIPPED]
   P --> V[TA/GV: Xác nhận / Sửa / Loại]
@@ -204,7 +204,7 @@ Phải tuyến tính theo độ dài (RE2 của Go; thêm cắt cứng 20.000 k�
 | `EXAM_SCHEDULE` | lịch thi, khi nào thi | `get_exam_schedule()` | 1 / 0 |
 | `UPCOMING_EVENTS` | sắp tới, tuần này, hạn nộp, lịch học | `get_upcoming_events({days})` | 1 / 0 |
 | `LIBRARY_SEARCH` | tìm tài liệu / slide | `search_library({query})` | 1 / 0 |
-| `COURSE_QA` | mặc định | `rag.Search` → (cache) → sinh | 1 (có ngữ cảnh) / 0 |
+| `COURSE_QA` | mặc định | `rag.SearchStudent` → (cache) → sinh | 1 (có ngữ cảnh) / 0 |
 | `SMALLTALK` | chào, cảm ơn, ≤ 12 ký tự không từ khoá | không truy xuất | 1 |
 
 Khi luật không phân biệt được hai intent cá nhân, dùng độ tương đồng embedding với mẫu từng intent (cùng vectơ đã nhúng).

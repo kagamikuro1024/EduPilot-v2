@@ -163,7 +163,7 @@ Truy vết: PRD M1 (tool, AC "hỏi điểm MSSV khác bị từ chối + log");
 - Liêm chính học thuật với bài tập đang mở và khoá QUIZ tính điểm của luyện đề (P7, P9); khoá giờ thi (US-P3-05); đo hiệu chỉnh ngưỡng tương đồng (E1, US-P3-07).
 
 ### Phụ thuộc
-- US-P3-02, US-P3-03, US-P8-01 (`rag.Search`), `FEAT-course-foundation` (guard, `enrollments`).
+- US-P3-02, US-P3-03, US-P8-01 (`rag.SearchStudent`), `FEAT-course-foundation` (guard, `enrollments`).
 
 ---
 
