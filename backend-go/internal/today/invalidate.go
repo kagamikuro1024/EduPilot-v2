@@ -43,13 +43,16 @@ const (
 	TopicAppealAnswered = "exam.appeal_answered"
 	// US-P8-03: Staff đổi sự kiện lịch → mọi thành viên lớp (lịch hiện ở "Hôm nay").
 	TopicCalendarChanged = "calendar.changed"
+	// US-P3-08: thread mới / quyết định về bài AI → việc AI_CONFIRM của Staff đổi.
+	TopicThreadCreated     = "thread.created"
+	TopicThreadPostDecided = "thread.post_decided"
 )
 
 // Topics là mọi topic mà Invalidator phải được đăng ký.
 func Topics() []string {
 	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport,
 		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted, TopicSimilarityDone, TopicSimilarityReviewed,
-		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered, TopicCalendarChanged}
+		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered, TopicCalendarChanged, TopicThreadCreated, TopicThreadPostDecided}
 }
 
 // Invalidator xoá `ep:today:{uid}:{scope}` của những người bị một sự kiện outbox ảnh hưởng. Idempotent (DEL).

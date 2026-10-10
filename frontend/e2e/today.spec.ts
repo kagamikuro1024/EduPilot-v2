@@ -113,6 +113,15 @@ test("student today: có lớp, không việc gấp ⇒ 'Hôm nay bạn không c
   await expect(page.getByLabel("Mã tham gia lớp")).toHaveCount(0);
 });
 
+test("student today: continue learning — tối đa 3 phiên chat, mở đúng /chat?session=, có mã lớp; rỗng thì không có vùng", async ({ page }) => {
+  const chat = (n: number) => ({ kind: "CHAT", id: `00000000-0000-7000-8000-0000000000d${n}`, title: `Phiên ${n}`, href: `/chat?session=00000000-0000-7000-8000-0000000000d${n}`, course: c1, at: `2026-10-1${n}T02:00:00Z` });
+  await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () => student({ continue: [chat(3), chat(2), chat(1)] }));
+  await expect(page.getByRole("heading", { name: "Tiếp tục học" })).toBeVisible();
+  await expect(main(page).getByRole("link", { name: /Phiên \d/ })).toHaveCount(3);
+  await expect(main(page).getByRole("link", { name: /Phiên 3/ })).toHaveAttribute("href", "/chat?session=00000000-0000-7000-8000-0000000000d3");
+  await expect(main(page)).toContainText("Lớp 761988");
+});
+
 test("student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today", async ({ page }) => {
   const st = await open(page, "STUDENT", [mine(C1, "761988", "STUDENT"), mine(C2, "761987", "STUDENT")], () => student());
   await expect(page.getByText("Hôm nay bạn không có việc gấp.")).toBeVisible();

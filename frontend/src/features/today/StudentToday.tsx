@@ -63,6 +63,15 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
           <p className={s.calm}>Hôm nay bạn không có việc gấp.</p>
         </Section>
       )}
+      {d.continue.length > 0 && (
+        <Section title="Tiếp tục học" panel>
+          <ActionList label="Tiếp tục học">
+            {d.continue.map((c) => (
+              <ActionRow key={c.id} title={c.title} context={`Lớp ${c.course.class_code} · ${shortDay(c.at)} · ${hhmm(c.at)}`} href={c.href} />
+            ))}
+          </ActionList>
+        </Section>
+      )}
       {d.timeline.length > 0 && (
         <Section title="Hôm nay" panel>
           <ActionList label="Lịch hôm nay">

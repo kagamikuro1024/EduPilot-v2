@@ -6731,7 +6731,27 @@ components:
                 $ref: "#/components/schemas/TodayCourse"
         continue:
           type: array
-          items: {}
+          maxItems: 3
+          items:
+            type: object
+            required: [kind, id, title, href, course, at]
+            additionalProperties: false
+            properties:
+              kind:
+                type: string
+                enum: [CHAT]
+              id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              href:
+                type: string
+              course:
+                $ref: "#/components/schemas/TodayCourse"
+              at:
+                type: string
+                format: date-time
     TodayStaff:
       type: object
       required: [count, actions, attention, upcoming]

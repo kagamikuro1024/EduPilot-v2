@@ -37,8 +37,9 @@ const (
 	// KindAnswer là loại việc của hàng ep:ingest: AI trả lời một thread.
 	KindAnswer = "thread.answer"
 	// TopicCreated là sự kiện outbox cho các bên nghe khác (P4, P10).
-	TopicCreated   = "thread.created"
-	maxAnswerTries = 3
+	TopicCreated     = "thread.created"
+	TopicPostDecided = "thread.post_decided"
+	maxAnswerTries   = 3
 )
 
 // Locker là exam.Locker: khoá đăng thread trong giờ thi (Q2) và dấu vết CHAT_BLOCKED.
@@ -638,7 +639,7 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &courseID, ActorID: &a.UserID, Entity: "forum_post", EntityID: postID.String(), Action: "thread.post." + string(d), Before: before, After: after, TraceID: nonEmptyPtr(a.TraceID)}); err != nil {
 		return PostOut{}, fmt.Errorf("thread: audit: %w", err)
 	}
-	if _, err := outbox.Write(ctx, tx, "thread.post_decided", map[string]any{"post_id": postID, "thread_id": p.ThreadID, "course_id": courseID, "decision": d}); err != nil {
+	if _, err := outbox.Write(ctx, tx, TopicPostDecided, map[string]any{"post_id": postID, "thread_id": p.ThreadID, "course_id": courseID, "decision": d}); err != nil {
 		return PostOut{}, fmt.Errorf("thread: outbox: %w", err)
 	}
 	if target != store.PostVerificationREJECTED && p.ThreadAuthorID != a.UserID {

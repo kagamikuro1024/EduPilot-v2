@@ -30,11 +30,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	runner := jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
-	ew.Register(runner)                                 // code.verify_reference, question.suggest (US-PE-03)
-	reg.Register(thread.TopicCreated, thread.OnCreated) // sự kiện cho P4 / P10; việc AI trả lời đi bằng `job.enqueue` → ep:ingest (không chạy trong consumer outbox này)
+	ew.Register(runner) // code.verify_reference, question.suggest (US-PE-03)
 	// Sự kiện chưa có bên tiêu thụ ở sprint 6 (P4 thông báo gộp, P10 cảnh báo ngân sách): vẫn PHẢI có handler ghi nhận — thiếu thì tin dead-letter sau 4 lần (TestEveryEmittedTopicHasHandler).
 	ack := func(context.Context, outbox.Message) error { return nil }
-	reg.Register("thread.post_decided", ack)
 	reg.Register(budget.TopicWarn, ack)
 	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
 	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
@@ -52,6 +50,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	for _, t := range []string{exam.TopicExamOpened, exam.TopicExamClosed, exam.TopicAttemptStarted, exam.TopicAttemptSubmitted, exam.TopicSimilarityDone, exam.TopicSimilarityReviewed, exam.TopicQuestionReviewed, course.TopicChanged, auth.TopicUserVerified, calendar.TopicChanged} {
 		reg.Register(t, inv.Handle)
 	}
+	// Threads (US-P3-08): thread mới / quyết định về bài AI đổi việc AI_CONFIRM của Staff → xoá cache "Hôm nay". Việc AI trả lời đi bằng `job.enqueue` → ep:ingest (không chạy trong consumer outbox này).
+	reg.Register(thread.TopicCreated, outbox.Chain(thread.OnCreated, inv.Handle))
+	reg.Register(thread.TopicPostDecided, inv.Handle)
 	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.
 	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
 	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {

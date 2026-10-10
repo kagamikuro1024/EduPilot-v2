@@ -10,6 +10,8 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
+import { createHash } from "node:crypto";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -49,7 +51,7 @@ const ORIGIN = new URL(API).origin;
 
 const DOMAIN = "@edupilot.local";
 const SEMESTER = "2026-2027-HK1";
-const STEPS = 10;
+const STEPS = 13;
 
 // ---- tiện ích --------------------------------------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -623,6 +625,185 @@ async function step10Exams() {
   console.log("   Đã nộp 24 lượt trắc nghiệm + 6 lượt code; bộ lập lịch sẽ đóng và công bố (≤ 3 phút).");
 }
 
+// ---- bước 11: tài liệu + lịch (US-P8-03 AC17) ------------------------------------------------------------------------------
+// Khoá tự nhiên: `title` của tài liệu / sự kiện trong lớp. Đi qua presign → PUT thẳng kho tệp → complete → việc nền (docling thật).
+const DOCS = [
+  { file: "Mordern_Network_Security_Threats.pdf", title: "Network Security Threats", type: "LECTURE", week: 3 },
+  { file: "QMB12ch6b.pdf", title: "Forecasting (QMB ch. 6b)", type: "LECTURE", week: 6 },
+  { file: "Quyche.pdf", title: "Quy chế học vụ", type: "COURSE_POLICY", week: null },
+  { gen: EXAM_PAPER_LINES, title: "Đề tham khảo tuần 5", type: "EXAM_PAPER", week: 5, name: "de-tham-khao-tuan-5.pdf" },
+  { gen: ANSWER_KEY_LINES, title: "Đáp án đề tham khảo tuần 5", type: "ANSWER_KEY", week: 5, name: "dap-an-tuan-5.pdf" },
+];
+
+async function uploadDoc(course, token, d) {
+  const bytes = d.gen ? miniPdf(d.gen) : readFileSync(path.join(root, "seed", "documents", d.file));
+  const sha = createHash("sha256").update(bytes).digest("hex");
+  const filename = d.name ?? d.file;
+  const pre = await call("POST", `/courses/${course}/uploads/presign`, { token, json: { purpose: "document", filename, mime_type: "application/pdf", size_bytes: bytes.length, sha256: sha } });
+  const put = await fetch(pre.body.url, { method: pre.body.method, headers: pre.body.headers, body: bytes });
+  if (!put.ok) throw new Error(`PUT tệp ${filename} → ${put.status}`);
+  const json = { upload_id: pre.body.upload_id, title: d.title, type: d.type, ...(d.week ? { week_no: d.week } : {}) };
+  const done = await call("POST", `/courses/${course}/uploads/complete`, { token, json, key: `seed-doc-${sha.slice(0, 16)}`, ok: [200, 202, 409] });
+  return done.status === 409 ? null : done.body.job_id;
+}
+
+async function step11DocsEvents() {
+  step(11, "Tài liệu (docling thật) và sự kiện lịch…");
+  const c1 = ctx.ids["761987"], c2 = ctx.ids["761988"];
+  const t = ctx.tokens.teacher;
+  const have = new Map((await listAll(`/courses/${c1}/documents`, t)).map((d) => [d.title, d]));
+  const todo = DOCS.filter((d) => !have.has(d.title));
+  const jobs = [];
+  await pool(todo, 1, async (d) => { // lần lượt: docling một luồng, nên đo được giây / trang từng tệp (`check-docs-seed.mjs timing`)
+    const job = await uploadDoc(c1, t, d);
+    if (job) jobs.push([job, d.title]);
+    ctx.changed = true;
+  });
+  for (const [job, title] of jobs) await waitJob(job, t, `đọc tài liệu "${title}"`, 360_000);
+  const docs = await listAll(`/courses/${c1}/documents`, t);
+  const notReady = DOCS.filter((d) => docs.find((x) => x.title === d.title)?.status !== "READY");
+  if (notReady.length > 0) throw new Error(`Tài liệu chưa READY: ${notReady.map((d) => d.title).join(", ")} (docling chạy chưa? \`docker compose --profile ingest up\`)`);
+  const shared = await listAll(`/courses/${c2}/documents`, t);
+  if (!shared.some((d) => d.title === DOCS[0].title)) {
+    await call("POST", `/courses/${c2}/share-from`, { token: t, json: { source_course_id: c1, what: ["documents"] }, key: "seed-share-docs-761987-761988" });
+    ctx.changed = true;
+  }
+  const base = baseDate();
+  for (const [code, list] of Object.entries(EVENTS)) {
+    const course = ctx.ids[code];
+    const from = new Date(Date.now() - 86_400_000).toISOString();
+    const to = new Date(Date.now() + 61 * 86_400_000).toISOString();
+    const exist = new Set((await listAll(`/courses/${course}/calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, t)).map((e) => e.title));
+    for (const e of list) {
+      if (exist.has(e.title)) continue;
+      const startsAt = new Date(`${addDays(base, e.days)}T${e.at}:00+07:00`).toISOString();
+      await call("POST", `/courses/${course}/calendar/events`, { token: t, json: { type: e.type, title: e.title, starts_at: startsAt, location: e.location } });
+      ctx.changed = true;
+    }
+  }
+}
+
+// ---- bước 12: ≈ 150 câu hỏi chat riêng bằng đúng luồng chat (US-P3-08 AC1) --------------------------------------------------
+// Mỗi sinh viên của lớp 761987 một phiên (sv.gioi: 4 phiên, để "Tiếp tục học" có > 3 mục); chạy lại chỉ bổ sung phần thiếu.
+const uuidOf = (s) => {
+  const h = createHash("sha1").update(s).digest("hex");
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
+};
+
+/** Gửi một tin và đọc SSE tới hết (done | error). 409 EXAM_IN_PROGRESS (đang có lượt thi): đợi tối đa 4 phút. */
+async function sendChat(token, sid, content, key) {
+  for (let attempt = 0; ; attempt++) {
+    const res = await fetch(`${API}/chat/sessions/${sid}/messages`, {
+      method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", Accept: "text/event-stream", Origin: ORIGIN, "Idempotency-Key": uuidOf(key) },
+      body: JSON.stringify({ content }), tls: { rejectUnauthorized: false },
+    });
+    if (res.status === 429 && attempt < 8) {
+      await sleep(3000);
+      continue;
+    }
+    if (res.status === 409 && attempt < 50) {
+      await sleep(5000);
+      continue;
+    }
+    if (!res.ok) throw new Error(`POST messages → ${res.status} ${(await res.text()).slice(0, 120)}`);
+    const text = await res.text();
+    if (/event: error/.test(text)) throw new Error(`Chat báo lỗi: ${text.slice(text.indexOf("event: error"), text.indexOf("event: error") + 160)}`);
+    return;
+  }
+}
+
+async function userMessageCount(token, sid) {
+  const items = await listAll(`/chat/sessions/${sid}/messages`, token);
+  return items.filter((m) => m.role === "USER").length;
+}
+
+async function step12Chat() {
+  step(12, "Câu hỏi chat riêng của sinh viên lớp 761987 (≈ 150, bằng luồng chat thật)…");
+  const course = ctx.ids["761987"];
+  const questions = chatQuestions(mulberry32(RNG_SEED ^ 0x5eed));
+  const students = roster1;
+  // kế hoạch: sv.gioi 4 phiên × 2 tin, mỗi người còn lại 1 phiên × 5 tin → 8 + 145 = 153
+  const plan = students.map((k) => ({ k, sessions: k === "sv.gioi" ? [2, 2, 2, 2] : [5] }));
+  let n = 0;
+  const jobs = plan.map((p) => ({ ...p, from: (n += p.sessions.reduce((a, b) => a + b, 0)) - p.sessions.reduce((a, b) => a + b, 0) }));
+  await pool(jobs, 4, async (j) => {
+    const token = (await login(accounts.get(j.k).email)).access_token;
+    const existing = (await listAll(`/chat/sessions?course_id=${course}`, token)).sort((a, b) => (a.id < b.id ? -1 : 1));
+    let q = j.from;
+    for (const [si, quota] of j.sessions.entries()) {
+      let sess = existing[si];
+      const had = sess ? await userMessageCount(token, sess.id) : 0;
+      if (had >= quota) {
+        q += quota;
+        continue;
+      }
+      if (!sess) {
+        sess = (await call("POST", "/chat/sessions", { token, json: { course_id: course }, key: `seed-chat-session-${j.k}-${si}` })).body;
+        ctx.changed = true;
+      }
+      for (let m = had; m < quota; m++) {
+        await sendChat(token, sess.id, questions[(q + m) % questions.length], `seed-chat-${j.k}-${si}-${m}`);
+        ctx.changed = true;
+      }
+      q += quota;
+    }
+  });
+}
+
+// ---- bước 13: thread lớp (12 + 3) với đủ trạng thái bài AI (US-P3-08 AC2) ---------------------------------------------------
+async function waitThreadAI(course, tid, token) {
+  const until = Date.now() + 120_000;
+  for (;;) {
+    const v = (await call("GET", `/courses/${course}/threads/${tid}`, { token })).body;
+    const ai = v.posts.find((p) => p.kind === "AI");
+    if (ai || v.thread.ai_state === "SKIPPED") return { thread: v.thread, ai };
+    if (Date.now() > until) throw new Error(`AI chưa trả lời thread ${tid} sau 120 s (consumer ep:ingest / worker chạy chưa?)`);
+    await sleep(1500);
+  }
+}
+
+async function seedThreads(course, plan, token) {
+  const have = new Map((await listAll(`/courses/${course}/threads`, token)).map((t) => [t.title, t]));
+  const out = [];
+  for (const th of plan) {
+    let row = have.get(th.title);
+    if (!row) {
+      const author = (await login(accounts.get(th.k).email)).access_token;
+      row = (await call("POST", `/courses/${course}/threads`, { token: author, json: { title: th.title, body: th.body, week_no: th.week ?? null, tags: [] }, key: `seed-thread-${course}-${th.title}` })).body;
+      ctx.changed = true;
+    }
+    out.push({ th, id: row.id });
+  }
+  return out;
+}
+
+async function step13Threads() {
+  step(13, "Thread lớp 761987 (12) và 761988 (3), đủ trạng thái bài AI…");
+  const t = ctx.tokens.teacher;
+  const c1 = ctx.ids["761987"], c2 = ctx.ids["761988"];
+  const made1 = await seedThreads(c1, THREADS_1, t);
+  await seedThreads(c2, THREADS_2, t);
+  const warn = [];
+  for (const { th, id } of made1) {
+    const { thread, ai } = await waitThreadAI(c1, id, t);
+    if (th.want === "skip") {
+      if (thread.ai_state !== "SKIPPED") warn.push(`"${th.title}" đáng lẽ AI bỏ qua nhưng đã trả lời`);
+      continue;
+    }
+    if (!ai) {
+      warn.push(`"${th.title}": AI bỏ qua (${thread.ai_state}) — không áp được quyết định ${th.want}`);
+      continue;
+    }
+    if (ai.verification_state !== "PENDING" || th.want === "pending") continue; // đã quyết ở lần chạy trước, hoặc để chờ
+    const base = `/courses/${c1}/posts/${ai.id}`;
+    if (th.want === "verify") await call("POST", `${base}/verify`, { token: t });
+    if (th.want === "correct") await call("POST", `${base}/correct`, { token: t, json: { body: `${ai.body}\n\nBổ sung của giảng viên: xem lại tài liệu tuần ${th.week}.`, version: ai.version } });
+    if (th.want === "reject") await call("POST", `${base}/reject`, { token: t });
+    ctx.changed = true;
+  }
+  for (const w of warn) console.log(`   CẢNH BÁO seed thread: ${w}`);
+}
+
 // ---- chạy ------------------------------------------------------------------------------------------------------------
 async function main() {
   const started = Date.now();
@@ -641,11 +822,16 @@ async function main() {
   await step8Mismatch();
   await step9Dismiss();
   await step10Exams();
+  await step11DocsEvents();
+  await step12Chat();
+  await step13Threads();
   console.log(`Seed xong trong ${Math.round((Date.now() - started) / 1000)} s.`);
   if (!ctx.changed) console.log("Seed xong (không đổi)");
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
   console.log("  60 tài khoản (1 Admin, 1 giảng viên, 1 TA, 57 sinh viên); mật khẩu = SEED_DEFAULT_PASSWORD");
   console.log("  Lớp 761987: 20 câu trắc nghiệm APPROVED + 5 câu AI_DRAFT + 2 bài code; hai bài thi mẫu (24 lượt trắc nghiệm + 6 lượt code) tự đóng và công bố ≤ 3 phút — `node scripts/check-exam-seed.mjs bank|scores|demo`");
+  console.log("  Lớp 761987: 5 tài liệu READY (1 quy chế scan, 2 bài giảng, 1 đề tham khảo, 1 đáp án canary) + 2 sự kiện thi; lớp 761988: bài giảng dùng chung + 1 sự kiện — `node scripts/check-docs-seed.mjs`");
+  console.log("  ≈ 150 câu hỏi chat riêng (sinh viên lớp 761987), 12 thread lớp 761987 + 3 thread lớp 761988 — `node scripts/check-chat-seed.mjs [threads]`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 

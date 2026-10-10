@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -211,6 +212,21 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 				ID: "QUESTION_REVIEW:" + c.ID.String(), Kind: KindQuestionReview, Tier: TierQuestionReview, Course: courseRef(c),
 				Href:  fmt.Sprintf("/questions?review_status=PENDING&course=%s", c.ID),
 				Title: fmt.Sprintf("%d câu hỏi chờ duyệt · lớp %s", r.Questions, c.ClassCode), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
+			}))
+		}
+		if r.AiPending > 0 || r.AiSkipped > 0 { // US-P3-08 (bậc 50, Giảng viên + TA): bài AI chờ xác nhận / câu hỏi AI chưa trả lời được; chỉ nêu số khác 0
+			var parts []string
+			if r.AiPending > 0 {
+				parts = append(parts, fmt.Sprintf("%d câu trả lời AI chờ xác nhận", r.AiPending))
+			}
+			if r.AiSkipped > 0 {
+				parts = append(parts, fmt.Sprintf("%d câu hỏi AI chưa trả lời được", r.AiSkipped))
+			}
+			age := v.Now.Sub(r.AiOldest)
+			out = append(out, mk(Item{
+				ID: "AI_CONFIRM:" + c.ID.String(), Kind: KindAIConfirm, Tier: TierAIConfirm, Course: courseRef(c),
+				Href:  fmt.Sprintf("/threads?state=pending&course=%s", c.ID),
+				Title: strings.Join(parts, " · ") + " · lớp " + c.ClassCode, Reason: fmt.Sprintf("Thread cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
 			}))
 		}
 		if c.RoleInCourse == "TEACHER" { // US-PE-07 (bậc 55, chỉ Giảng viên): cặp bài code nghi giống nhau còn NEW; biến mất khi đã xem hết
