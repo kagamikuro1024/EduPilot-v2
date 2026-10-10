@@ -1,5 +1,7 @@
 # SRS FEAT-docs-calendar Tài liệu, thư viện, lịch
-Phiên bản 1.4 · 2026-10-10 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+Phiên bản 1.5 · 2026-10-11 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+
+**v1.5 (2026-10-11)** — `#8` (chữ), PM: US-P8-01 AC19 ghi `FAKE_LLM_LATENCY=300-300` thay `FAKE_LLM_TTFT_MS` (đúng như code). Không đổi hành vi, không đổi số AC (51). Trạng thái **APPROVED**.
 
 **v1.4 (2026-10-10)** — góp ý `#13` `docs/sprints/6/proposals.md` (PM quyết: `00010_chunk_search` đã vào nhánh trước lịch). Migration lịch đổi `00009_calendar` → **`00011_calendar`** (số kế tiếp còn trống tại lúc viết): 1, 5.1, 5.2, 5.3, 5.7, 10, 11, FR-10; thứ tự thi công ở mục 1 không còn buộc dựng lịch trước. Các dòng changelog cũ giữ nguyên số khi ấy. Không đổi số AC (51). Trạng thái **APPROVED**.
 

@@ -1,5 +1,7 @@
 # SRS FEAT-private-chat-pii Hai kênh hỏi–đáp, tường lửa PII, che danh tính trước LLM
-Phiên bản 1.6 · 2026-10-11 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+Phiên bản 1.7 · 2026-10-11 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+
+**v1.7 (2026-10-11)** — `#8` (chữ), PM: biến môi trường của provider giả là `FAKE_LLM_LATENCY=300-300` (đúng như code và `FEAT-llm-gateway` 8.3), không phải `FAKE_LLM_TTFT_MS` (8). Không đổi hành vi, không đổi số AC (110). Trạng thái **APPROVED**.
 
 **v1.6 (2026-10-11)** — góp ý `#15` `docs/sprints/6/proposals.md` (PM quyết, từ `report-US-P8-03.md` BUG-1): 4.5 thêm dấu hiệu `UPCOMING_EVENTS` cho cách hỏi tự nhiên ("tuần tới", "N ngày tới", "sắp tới có gì", "… có gì không"), ánh xạ `days`, ranh giới với `COURSE_QA` và `EXAM_SCHEDULE`. Không đổi số AC (110). Trạng thái **APPROVED**.
 
@@ -484,7 +486,7 @@ Không viết thêm câu giải thích dưới tiêu đề khối hay dưới t�
 | Hạng mục | Yêu cầu | Đo |
 | --- | --- | --- |
 | Sự kiện SSE đầu | p95 ≤ 300 ms ở 100 người dùng đồng thời, provider trễ 5–15 s (D47 mục 4, SLO) | k6 `chat.js first_event` |
-| TTFT chat | p95 ≤ 1,5 s cache trúng; ≤ 4 s có truy xuất (provider giả `FAKE_LLM_TTFT_MS=300`) | k6 `chat.js ttft` (`ttft_cache_ms`, `ttft_rag_ms`) |
+| TTFT chat | p95 ≤ 1,5 s cache trúng; ≤ 4 s có truy xuất (provider giả `FAKE_LLM_LATENCY=300-300`: độ trễ cố định trước token đầu = TTFT) | k6 `chat.js ttft` (`ttft_cache_ms`, `ttft_rag_ms`) |
 | Che | ≤ 5 ms p95 mỗi lời gọi; `precheck` p95 ≤ 150 ms khi luật quyết định, ≤ 600 ms khi cần nhúng (provider giả) | `BenchmarkMask4k`, `BenchmarkGatewayMask`, k6 |
 | Riêng tư | 0 MSSV / họ tên roster trong payload tới provider; không log ánh xạ; chat riêng chỉ chủ phiên đọc; `pii_events` không nội dung | `TestNoPayloadLeak`, `TestMaskingNeverLogged`, `TestChatMatrix` |
 | Một lời gọi sinh chữ | ≤ 1 `Chat`/`Stream` mỗi tin; ≤ 1 nhúng mỗi tin | `TestOneGenerationPerMessage`, `TestOneEmbedPerMessage` |
