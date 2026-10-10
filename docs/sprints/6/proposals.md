@@ -35,3 +35,10 @@ Chủ dự án đã trả lời trong phiên PM ngày 2026-10-10. PM quyết t�
 - **Q3 (P3), tên người đăng thread:** **công khai với cả lớp**. Chủ dự án: "đã có chat riêng để hỏi riêng tư rồi thì cái này cho mặc định công khai". BA đổi spec theo hướng này.
 - **Q2 (P3), khoá giờ thi:** khoá chat riêng **và** khoá đăng thread mới; thread cũ vẫn đọc được. Đây là mặc định BA.
 - **Mọi câu [CHỦ DỰ ÁN] còn lại** (P3 Q1, Q4–Q8, Q22; P8 Q2–Q7): theo mặc định BA. P8 Q7 (OCR) thực hiện theo #7.
+
+## QC — sprint 6 (pha 2, 2026-10-10)
+| # | Vấn đề | Đề xuất | Bằng chứng | Ảnh hưởng |
+| --- | --- | --- | --- | --- |
+| Q1 | TC phụ thuộc bề mặt chưa có (US-P3-01 TC-47/48/50; US-P3-02 TC-19–23, 36, 43, 47, 49–52, 58–61) bị tính FAIL dù dev giao đúng phạm vi lát | PM chuyển các TC đó sang report story có bề mặt (P3-03/05/06), story hiện tại đóng khi phần còn lại PASS | `report-US-P3-01.md`, `report-US-P3-02.md` | cần PM quyết; QC không tự đổi TC |
+| Q2 | Vai DB `edupilot` của stack dev là superuser (TC-P3-01-49) | Gateway/worker dùng vai `NOSUPERUSER NOBYPASSRLS`; chỉ migration dùng vai chủ | `select rolsuper from pg_roles where rolname=current_user` → `t` | thấp, hạ tầng từ trước |
+| Q3 | `privacy.Mask` rơi sang bộ nhớ khi Redis nối lạnh >15 ms | khởi động ấm kết nối hoặc nới ngưỡng lượt đầu | 1/6 lượt QC: TTL −2, 0 khoá `ep:mask:*` | ánh xạ không bền ở lượt đó |
