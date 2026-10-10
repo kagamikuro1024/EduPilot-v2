@@ -78,9 +78,18 @@ type Queue struct {
 	Log      *slog.Logger
 	// Extra: các loại việc do gói khác định nghĩa (vd. `thread.answer` — AI trả lời Threads). Trả error = lỗi hạ tầng, giữ tin để giao lại.
 	Extra map[string]func(ctx context.Context, jobID, owner, id uuid.UUID) error
+	// Group: tên nhóm tiêu thụ; rỗng = GroupName. Test dùng nhóm riêng để không nuốt tin tồn của gói khác trên Redis dùng chung.
+	Group string
 
 	mu       sync.Mutex
 	inflight map[string]bool
+}
+
+func (q *Queue) group() string {
+	if q.Group != "" {
+		return q.Group
+	}
+	return GroupName
 }
 
 func (q *Queue) tryLock(id string) bool {
@@ -104,7 +113,7 @@ func (q *Queue) unlock(id string) {
 
 // Run chạy tới khi ctx huỷ.
 func (q *Queue) Run(ctx context.Context) error {
-	if err := q.Redis.XGroupCreateMkStream(ctx, StreamName, GroupName, "0").Err(); err != nil && !strings.HasPrefix(err.Error(), "BUSYGROUP") {
+	if err := q.Redis.XGroupCreateMkStream(ctx, StreamName, q.group(), "0").Err(); err != nil && !strings.HasPrefix(err.Error(), "BUSYGROUP") {
 		return fmt.Errorf("ingest: tạo nhóm %s: %w", StreamName, err)
 	}
 	n := max(1, q.P.Set.Workers)
@@ -136,11 +145,11 @@ func (q *Queue) loop(ctx context.Context, consumer string) {
 
 // next: ưu tiên tin treo quá Reclaim (bận / consumer chết), rồi tin mới (chặn tối đa 2 s).
 func (q *Queue) next(ctx context.Context, consumer string) (goredis.XMessage, bool) {
-	msgs, _, err := q.Redis.XAutoClaim(ctx, &goredis.XAutoClaimArgs{Stream: StreamName, Group: GroupName, Consumer: consumer, MinIdle: q.P.Set.Reclaim, Start: "0-0", Count: 1}).Result()
+	msgs, _, err := q.Redis.XAutoClaim(ctx, &goredis.XAutoClaimArgs{Stream: StreamName, Group: q.group(), Consumer: consumer, MinIdle: q.P.Set.Reclaim, Start: "0-0", Count: 1}).Result()
 	if err == nil && len(msgs) > 0 {
 		return msgs[0], true
 	}
-	res, err := q.Redis.XReadGroup(ctx, &goredis.XReadGroupArgs{Group: GroupName, Consumer: consumer, Streams: []string{StreamName, ">"}, Count: 1, Block: 2 * time.Second}).Result()
+	res, err := q.Redis.XReadGroup(ctx, &goredis.XReadGroupArgs{Group: q.group(), Consumer: consumer, Streams: []string{StreamName, ">"}, Count: 1, Block: 2 * time.Second}).Result()
 	if err != nil || len(res) == 0 || len(res[0].Messages) == 0 {
 		if err != nil && !errors.Is(err, goredis.Nil) && ctx.Err() == nil {
 			q.Log.WarnContext(ctx, "ingest: không đọc được hàng", "error", err.Error())
@@ -194,7 +203,7 @@ func (q *Queue) handle(ctx context.Context, m goredis.XMessage) {
 }
 
 func (q *Queue) ack(ctx context.Context, id string) {
-	if err := q.Redis.XAck(ctx, StreamName, GroupName, id).Err(); err != nil {
+	if err := q.Redis.XAck(ctx, StreamName, q.group(), id).Err(); err != nil {
 		q.Log.WarnContext(ctx, "ingest: không ACK được", "msg", id, "error", err.Error())
 	}
 }

@@ -3,15 +3,19 @@ package main
 import (
 	"context"
 	"encoding/json"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
@@ -23,10 +27,11 @@ type blockingLLM struct {
 	llm.Client
 	started chan struct{}
 	release chan struct{}
+	once    *sync.Once
 }
 
 func (b blockingLLM) Chat(ctx context.Context, _ llm.Request) (llm.Response, error) {
-	close(b.started)
+	b.once.Do(func() { close(b.started) })
 	select {
 	case <-b.release:
 	case <-ctx.Done():
@@ -85,9 +90,13 @@ func TestRosterInvalidateNotBlockedByLongJob(t *testing.T) {
 	}
 
 	// consumer ep:ingest với LLM treo
-	bl := blockingLLM{started: make(chan struct{}), release: make(chan struct{})}
+	bl := blockingLLM{started: make(chan struct{}), release: make(chan struct{}), once: new(sync.Once)}
 	ts := &thread.Service{Pool: pool, Redis: d.Redis, Rag: oneHit{}, LLM: bl, Embed: func(context.Context, string) ([]float32, error) { return make([]float32, llm.EmbedDims), nil }, Log: d.Log}
-	q := &ingest.Queue{P: &ingest.Processor{Set: ingest.Settings{Workers: 1, Reclaim: time.Second}, Log: d.Log}, Redis: d.Redis, Consumer: "t", Log: d.Log,
+	group := "t-" + uuid.NewString() // nhóm riêng, đọc từ cuối: không nuốt tin tồn của gói khác trên Redis dùng chung
+	if err := d.Redis.XGroupCreateMkStream(ctx, ingest.StreamName, group, "$").Err(); err != nil {
+		t.Fatal(err)
+	}
+	q := &ingest.Queue{P: &ingest.Processor{Pool: pool, Set: ingest.Settings{Workers: 1, Reclaim: time.Second}, Log: d.Log}, Redis: d.Redis, Consumer: "t", Log: d.Log, Group: group,
 		Extra: map[string]func(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) error{thread.KindAnswer: ts.AnswerHandler}}
 	qctx, stop := context.WithCancel(ctx)
 	done := make(chan struct{})
@@ -130,4 +139,109 @@ func TestRosterInvalidateNotBlockedByLongJob(t *testing.T) {
 	if time.Since(start) > 5*time.Second {
 		t.Fatalf("vô hiệu roster mất %v > 5 s khi hàng AI đang bận", time.Since(start))
 	}
+}
+
+type noLock struct{}
+
+func (noLock) IsLocked(context.Context, uuid.UUID) (exam.Lock, bool, error) {
+	return exam.Lock{}, false, nil
+}
+func (noLock) RecordChatBlocked(context.Context, uuid.UUID, uuid.UUID) error { return nil }
+
+// TestThreadPostToAIAnswer — QC BUG-1 của US-P3-06: đi từ POST thread (thread.Service.Create) tới bài AI qua ĐÚNG bảng handler của worker:
+// mọi topic outbox mà đăng thread sinh ra đều có handler (không dead-letter), handler chỉ xếp hàng, consumer ep:ingest tạo đúng một bài AI.
+func TestThreadPostToAIAnswer(t *testing.T) {
+	testutil.RequireContainers(t)
+	d, _ := workerDeps(t)
+	d.Cfg.DatabaseURL = testutil.MigratedPostgresURL(t)
+	pool, err := pgxpool.New(t.Context(), d.Cfg.DatabaseURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(pool.Close)
+	d.DB = pool
+	ctx := t.Context()
+	var teacher, course, author uuid.UUID
+	scan := func(dst *uuid.UUID, q string, args ...any) {
+		t.Helper()
+		if err := pool.QueryRow(ctx, q, args...).Scan(dst); err != nil {
+			t.Fatal(err)
+		}
+	}
+	scan(&teacher, `insert into users (email, full_name, role) values ($1, 'GV', 'TEACHER') returning id`, uuid.NewString()+"@example.test")
+	scan(&author, `insert into users (email, full_name, role) values ($1, 'SV', 'STUDENT') returning id`, uuid.NewString()+"@example.test")
+	id := uuid.New()
+	scan(&course, `insert into courses (subject_code, class_code, name, semester, join_code, created_by) values ('INT1006', $1, 'Lớp', '2026-2027-HK1', $2, $3) returning id`, "WP"+id.String()[:8], "ABCDEFG", teacher)
+
+	det := &privacy.Detector{}
+	ts := &thread.Service{Pool: pool, Redis: d.Redis, FW: &thread.Firewall{Detector: det, Classifier: &privacy.Classifier{Detector: det}}, Lock: noLock{}, Jobs: jobs.NewService(pool),
+		Rag: oneHit{}, LLM: fakeAnswerLLM{}, Embed: func(context.Context, string) ([]float32, error) { return make([]float32, llm.EmbedDims), nil }, Clock: clock.Real{}, Log: d.Log}
+	v, err := ts.Create(ctx, thread.Actor{UserID: author, Role: auth.RoleStudent}, course, thread.CreateIn{Title: "Điều 5", Body: "Quy chế thi lại ở Điều 5 nói gì về số lần thi?"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	group := "t-" + uuid.NewString()
+	if err := d.Redis.XGroupCreateMkStream(ctx, ingest.StreamName, group, "$").Err(); err != nil {
+		t.Fatal(err)
+	}
+	q := &ingest.Queue{P: &ingest.Processor{Pool: pool, Set: ingest.Settings{Workers: 1, Reclaim: time.Second}, Log: d.Log}, Redis: d.Redis, Consumer: "t", Log: d.Log, Group: group,
+		Extra: map[string]func(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) error{thread.KindAnswer: ts.AnswerHandler}}
+	qctx, stop := context.WithCancel(ctx)
+	done := make(chan struct{})
+	go func() { defer close(done); _ = q.Run(qctx) }()
+	t.Cleanup(func() { stop(); <-done })
+
+	// giao mọi tin outbox của đăng thread qua bảng handler THẬT của worker
+	reg := newRegistry(d)
+	rows, err := pool.Query(ctx, `select id, topic, payload from outbox where payload::text like '%'||$1||'%' or topic=$2 order by created_at`, v.Thread.ID.String(), jobs.TopicEnqueue)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var msgs []outbox.Message
+	for rows.Next() {
+		var m outbox.Message
+		if err := rows.Scan(&m.ID, &m.Topic, &m.Payload); err != nil {
+			t.Fatal(err)
+		}
+		msgs = append(msgs, m)
+	}
+	rows.Close()
+	topics := map[string]bool{}
+	for _, m := range msgs {
+		topics[m.Topic] = true
+		h, ok := reg.Lookup(m.Topic)
+		if !ok {
+			t.Fatalf("topic %q chưa có handler ở worker (sẽ dead-letter sau 4 lần)", m.Topic)
+		}
+		if err := h(ctx, m); err != nil {
+			t.Fatalf("handler %s: %v", m.Topic, err)
+		}
+	}
+	if !topics[thread.TopicCreated] || !topics[jobs.TopicEnqueue] {
+		t.Fatalf("đăng thread phải sinh %s và %s, có %v", thread.TopicCreated, jobs.TopicEnqueue, topics)
+	}
+	deadline := time.Now().Add(20 * time.Second)
+	for {
+		var n int
+		_ = pool.QueryRow(ctx, `select count(*) from forum_posts where thread_id=$1 and kind='AI' and verification_state='PENDING'`, v.Thread.ID).Scan(&n)
+		if n == 1 {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("không có bài AI sau 20 s")
+		}
+		time.Sleep(200 * time.Millisecond)
+	}
+	var state string
+	_ = pool.QueryRow(ctx, `select ai_state::text from forum_threads where id=$1`, v.Thread.ID).Scan(&state)
+	if state != "ANSWERED" {
+		t.Fatalf("ai_state = %s", state)
+	}
+}
+
+type fakeAnswerLLM struct{ llm.Client }
+
+func (fakeAnswerLLM) Chat(context.Context, llm.Request) (llm.Response, error) {
+	return llm.Response{Text: "Theo quy chế [1], sinh viên được thi lại một lần."}, nil
 }

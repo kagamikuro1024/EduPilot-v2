@@ -17,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/store"
@@ -46,6 +47,10 @@ func RegisterKind(r *jobs.Runner, rdb *appredis.Client) {
 		return nil, jobs.ErrDeferred
 	})
 }
+
+// OnCreated là handler outbox `thread.created`: ghi nhận và trả ngay (idempotent). Việc AI trả lời KHÔNG chạy ở đây (consumer outbox tuần tự một goroutine, TLR-9);
+// nó đi bằng việc `thread.answer` (`job.enqueue` → XADD ep:ingest). Topic phải có handler: không có thì tin rơi vào dead-letter sau 4 lần.
+func OnCreated(context.Context, outbox.Message) error { return nil }
 
 // AnswerHandler là hàm xử lý của consumer ep:ingest cho loại `thread.answer` (cắm vào ingest.Queue.Extra).
 func (s *Service) AnswerHandler(ctx context.Context, jobID, owner, threadID uuid.UUID) error {

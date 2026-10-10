@@ -24,7 +24,9 @@ export type Precheck = { allowed: boolean; reasons: Reason[]; redacted_text: str
 
 export const REASON_LABEL: Record<string, string> = { MSSV: "MSSV", EMAIL: "Email", PHONE: "Số điện thoại", CCCD: "CCCD", NAME: "Họ tên", PERSONAL_QUESTION: "Câu hỏi riêng tư" };
 export const describeReasons = (rs: Reason[]) => rs.map((r) => REASON_LABEL[r.type] ?? r.type).join(", ");
-export const countReasons = (rs: Reason[]) => rs.filter((r) => r.type !== "PERSONAL_QUESTION").map((r) => `${r.count} ${(REASON_LABEL[r.type] ?? r.type).toLowerCase()}`).join(", ");
+const ACRONYM = new Set(["MSSV", "CCCD"]); // viết hoa giữa câu; các loại còn lại viết thường ("1 email, 1 số điện thoại")
+export const countReasons = (rs: Reason[]) =>
+  rs.filter((r) => r.type !== "PERSONAL_QUESTION").map((r) => `${r.count} ${ACRONYM.has(r.type) ? r.type : (REASON_LABEL[r.type] ?? r.type).toLowerCase()}`).join(", ");
 
 export const ANSWER_LABEL: Record<string, { tone: "amber" | "green" | "neutral"; text: string }> = {
   PENDING: { tone: "amber", text: "Chờ xác nhận" },

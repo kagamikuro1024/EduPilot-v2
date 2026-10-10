@@ -61,6 +61,7 @@ test("dialog two paths: chặn 422 → đúng hai nút hành động; ghi pii BL
   await page.locator("[data-part=thread-form]").getByRole("button", { name: "Đăng" }).click();
   const dlg = page.getByRole("dialog");
   await expect(dlg).toBeVisible();
+  await expect(dlg).toContainText("Chúng tôi tìm thấy: 1 MSSV."); // viết hoa đúng nhãn (QC BUG-3)
   const names = await dlg.getByRole("button").allTextContents();
   expect(names.filter((n) => /Chuyển sang chat riêng|Ẩn thông tin rồi đăng/.test(n))).toHaveLength(2);
   expect(names.map((n) => n.trim()).filter((n) => n && !/Chuyển sang chat riêng|Ẩn thông tin rồi đăng/.test(n))).toEqual([]);
