@@ -1,0 +1,15 @@
+# Override CHỈ cho `chat.js` (US-P3-08 AC5): nới hạn mức theo IP / người và cho provider `fake` trễ đúng như từng kịch bản. Chỉ gateway; không dùng ở production.
+#   K6_LAT=5000-15000 (first_event) | K6_LAT=300-300 (ttft)
+# gate-p3.sh (GATE_K6=1) tự tạo lại gateway bằng tệp này cho từng kịch bản rồi trả về cấu hình dev thường.
+services:
+  gateway:
+    environment:
+      RATE_LIMIT_IP_PER_MIN: "300000"
+      RATE_LIMIT_USER_PER_MIN: "100000"
+      AUTH_LOGIN_IP_PER_MIN: "1000"
+      AUTH_REGISTER_IP_PER_HOUR: "1000"
+      AUTH_TOKEN_IP_PER_MIN: "1000"
+      LLM_MAX_CONCURRENCY: "100"
+      LLM_DEFAULT_RPM: "100000"
+      LLM_DEFAULT_TPM: "100000000"
+      FAKE_LLM_LATENCY: "${K6_LAT:-300-300}"

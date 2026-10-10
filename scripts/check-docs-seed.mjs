@@ -9,7 +9,10 @@ const TITLES = ["Network Security Threats", "Forecasting (QMB ch. 6b)", "Quy ch�
 
 const { c1, c2 } = await courses();
 const t = await tok("teacher");
-const events = async (c) => (await listAll(`/courses/${c}/calendar?from=${encodeURIComponent(new Date(Date.now() - 864e5).toISOString())}&to=${encodeURIComponent(new Date(Date.now() + 61 * 864e5).toISOString())}`, t)).filter((e) => e.source === "calendar_event");
+const events = async (c) => {
+  const t0 = Date.now(); // đúng 62 ngày: GET calendar từ chối khoảng dài hơn
+  return (await listAll(`/courses/${c}/calendar?from=${encodeURIComponent(new Date(t0 - 864e5).toISOString())}&to=${encodeURIComponent(new Date(t0 + 61 * 864e5).toISOString())}`, t)).filter((e) => e.source === "calendar_event");
+};
 const snap = async () => ({
   docs: (await listAll(`/courses/${c1}/documents`, t)).length, shared: (await listAll(`/courses/${c2}/documents`, t)).length,
   ev1: (await events(c1)).length, ev2: (await events(c2)).length, chunks: (await call("GET", `/courses/${c1}/documents/stats`, { token: t })).body.chunks,

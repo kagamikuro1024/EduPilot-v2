@@ -653,13 +653,11 @@ async function step11DocsEvents() {
   const t = ctx.tokens.teacher;
   const have = new Map((await listAll(`/courses/${c1}/documents`, t)).map((d) => [d.title, d]));
   const todo = DOCS.filter((d) => !have.has(d.title));
-  const jobs = [];
   await pool(todo, 1, async (d) => { // lần lượt: docling một luồng, nên đo được giây / trang từng tệp (`check-docs-seed.mjs timing`)
     const job = await uploadDoc(c1, t, d);
-    if (job) jobs.push([job, d.title]);
     ctx.changed = true;
+    if (job) await waitJob(job, t, `đọc tài liệu "${d.title}"`, 360_000); // chờ ngay: updated_at − created_at của tài liệu = thời gian đọc thật (`check-docs-seed.mjs timing`)
   });
-  for (const [job, title] of jobs) await waitJob(job, t, `đọc tài liệu "${title}"`, 360_000);
   const docs = await listAll(`/courses/${c1}/documents`, t);
   const notReady = DOCS.filter((d) => docs.find((x) => x.title === d.title)?.status !== "READY");
   if (notReady.length > 0) throw new Error(`Tài liệu chưa READY: ${notReady.map((d) => d.title).join(", ")} (docling chạy chưa? \`docker compose --profile ingest up\`)`);
@@ -671,8 +669,9 @@ async function step11DocsEvents() {
   const base = baseDate();
   for (const [code, list] of Object.entries(EVENTS)) {
     const course = ctx.ids[code];
-    const from = new Date(Date.now() - 86_400_000).toISOString();
-    const to = new Date(Date.now() + 61 * 86_400_000).toISOString();
+    const t0 = Date.now(); // khoảng đúng 62 ngày (GET calendar từ chối > 62)
+    const from = new Date(t0 - 86_400_000).toISOString();
+    const to = new Date(t0 + 61 * 86_400_000).toISOString();
     const exist = new Set((await listAll(`/courses/${course}/calendar?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}`, t)).map((e) => e.title));
     for (const e of list) {
       if (exist.has(e.title)) continue;
@@ -722,8 +721,8 @@ async function step12Chat() {
   const course = ctx.ids["761987"];
   const questions = chatQuestions(mulberry32(RNG_SEED ^ 0x5eed));
   const students = roster1;
-  // kế hoạch: sv.gioi 4 phiên × 2 tin, mỗi người còn lại 1 phiên × 5 tin → 8 + 145 = 153
-  const plan = students.map((k) => ({ k, sessions: k === "sv.gioi" ? [2, 2, 2, 2] : [5] }));
+  // kế hoạch: sv.gioi 4 phiên (2+1+1+1 tin), mỗi người còn lại 1 phiên × 5 tin → 5 + 145 = 150
+  const plan = students.map((k) => ({ k, sessions: k === "sv.gioi" ? [2, 1, 1, 1] : [5] }));
   let n = 0;
   const jobs = plan.map((p) => ({ ...p, from: (n += p.sessions.reduce((a, b) => a + b, 0)) - p.sessions.reduce((a, b) => a + b, 0) }));
   await pool(jobs, 4, async (j) => {
@@ -762,14 +761,40 @@ async function waitThreadAI(course, tid, token) {
   }
 }
 
+/** Chọn đoạn tài liệu làm thread (xem THREADS_1): đoạn kế tiếp chưa dùng có ≥ 2 dòng, dòng đầu 15–180 ký tự, tổng ≤ 3000, không có chuỗi 8 chữ số, qua precheck PII của chính tác giả. */
+async function threadFromChunk(course, docTitle, week, authorToken, token, taken) {
+  const docs = await listAll(`/courses/${course}/documents`, token);
+  const doc = docs.find((d) => d.title === docTitle);
+  if (!doc) throw new Error(`Không thấy tài liệu "${docTitle}" ở lớp ${course}`);
+  const ok = [];
+  // Chuỗi nhúng của đoạn là `heading + "\n" + text` (ingest.EmbedInput) và của thread là `title + "\n" + body` ⇒ title = heading, body = text (đoạn không có tiêu đề: dòng đầu / phần còn lại).
+  for (const c of await listAll(`/courses/${course}/documents/${doc.id}/chunks`, token)) {
+    let title, body;
+    if (c.heading && /\p{L}{3}/u.test(c.heading) && !c.heading.startsWith("<!--")) [title, body] = [c.heading, c.text];
+    else [title, ...body] = c.text.split("\n"), (body = body.join("\n"));
+    if (!body || title.length < 8 || title.length > 180 || body.length < 40 || body.length > 3000 || /\d{8}/.test(`${title}${body}`) || taken.has(title)) continue;
+    const pre = await call("POST", `/courses/${course}/threads/precheck`, { token: authorToken, json: { title, body }, ok: [200, 422] });
+    if (pre.status === 200 && pre.body.allowed) ok.push({ title, body, week });
+    if (ok.length > 0) break;
+  }
+  if (ok.length === 0) throw new Error(`Tài liệu "${docTitle}" hết đoạn hợp lệ làm thread (≥ 2 dòng, qua tường lửa PII, chưa dùng)`);
+  return ok[0];
+}
+
 async function seedThreads(course, plan, token) {
   const have = new Map((await listAll(`/courses/${course}/threads`, token)).map((t) => [t.title, t]));
   const out = [];
-  for (const th of plan) {
+  const taken = new Set();
+  for (const th0 of plan) {
+    const author = (await login(accounts.get(th0.k).email)).access_token;
+    const th = { ...th0, ...(th0.doc ? await threadFromChunk(course, th0.doc, th0.week, author, token, taken) : {}) };
+    taken.add(th.title);
     let row = have.get(th.title);
     if (!row) {
-      const author = (await login(accounts.get(th.k).email)).access_token;
-      row = (await call("POST", `/courses/${course}/threads`, { token: author, json: { title: th.title, body: th.body, week_no: th.week ?? null, tags: [] }, key: `seed-thread-${course}-${th.title}` })).body;
+      // Tường lửa PII là luật, không phải lỗi của seed: kiểm trước và báo ĐÚNG thread nào, vì sao (chữ chung, không định danh, không "em … của em").
+      const pre = await call("POST", `/courses/${course}/threads/precheck`, { token: author, json: { title: th.title, body: th.body }, ok: [200, 422] });
+      if (pre.status !== 200 || !pre.body.allowed) throw new Error(`Thread mẫu "${th.title}" (${th.k}) bị tường lửa PII chặn: ${JSON.stringify(pre.body?.reasons ?? pre.body)} — đổi nội dung trong scripts/chat-seed-data.mjs thành câu hỏi chung`);
+      row = (await call("POST", `/courses/${course}/threads`, { token: author, json: { title: th.title, body: th.body, week_no: th.week ?? null, tags: [] }, key: `seed-thread-${course}-${createHash("sha1").update(th.title + th.body).digest("hex").slice(0, 16)}` })).body.thread;
       ctx.changed = true;
     }
     out.push({ th, id: row.id });
@@ -797,7 +822,7 @@ async function step13Threads() {
     if (ai.verification_state !== "PENDING" || th.want === "pending") continue; // đã quyết ở lần chạy trước, hoặc để chờ
     const base = `/courses/${c1}/posts/${ai.id}`;
     if (th.want === "verify") await call("POST", `${base}/verify`, { token: t });
-    if (th.want === "correct") await call("POST", `${base}/correct`, { token: t, json: { body: `${ai.body}\n\nBổ sung của giảng viên: xem lại tài liệu tuần ${th.week}.`, version: ai.version } });
+    if (th.want === "correct") await call("PUT", `${base}/correct`, { token: t, json: { body: `${ai.body}\n\nBổ sung của giảng viên: xem lại tài liệu tuần ${th.week}.`, version: ai.version } });
     if (th.want === "reject") await call("POST", `${base}/reject`, { token: t });
     ctx.changed = true;
   }

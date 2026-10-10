@@ -94,27 +94,32 @@ export function chatQuestions(rand) {
   return out;
 }
 
-/** Thread lớp 1: `want` là quyết định của Staff mong muốn trên bài AI (pending = để chờ; skip = câu ngoài tài liệu, AI không trả lời được). */
+/**
+ * Thread lớp 1: `want` là quyết định của Staff mong muốn trên bài AI (pending = để chờ; skip = câu ngoài tài liệu, AI không trả lời được).
+ * Vì sao thread "có tài liệu" lấy chữ từ đoạn tài liệu (`doc`): ở `LLM_PROVIDER=fake` vectơ nhúng là băm của chuỗi (không có ngữ nghĩa), nên câu hỏi
+ * tự nhiên LUÔN cho cosine < RAG_SIM_FLOOR (0,25) → AI bỏ qua. Thread có `title\nbody` đúng bằng chữ của một đoạn thì cosine = 1 → AI trả lời (xác định, tái lập được).
+ * Seed chọn lần lượt các đoạn chưa dùng (theo thứ tự) có ≥ 2 dòng và qua tường lửa PII; tiêu đề = dòng đầu, nội dung = phần còn lại.
+ */
 export const THREADS_1 = [
-  { k: "sv.gioi", title: "Phishing khác spear phishing ở điểm nào?", body: "Em đọc tài liệu tuần 3 nhưng chưa phân biệt được hai loại này.", week: 3, want: "pending" },
-  { k: "sv.kha", title: "Ransomware lây lan qua đường nào là chính?", body: "Slide nói có nhiều đường, em muốn biết đường phổ biến nhất.", week: 3, want: "pending" },
-  { k: "sv04", title: "DDoS và botnet liên quan nhau thế nào?", body: "Botnet có phải điều kiện bắt buộc của DDoS không ạ?", week: 3, want: "pending" },
-  { k: "sv05", title: "Man-in-the-middle có chặn được bằng HTTPS không?", body: "HTTPS có đủ để chống tấn công chen giữa không?", week: 4, want: "pending" },
-  { k: "sv06", title: "Điều kiện dự thi cuối kỳ theo quy chế", body: "Em vắng 3 buổi thì còn được dự thi cuối kỳ không?", week: 5, want: "verify" },
-  { k: "sv07", title: "Thời hạn phúc khảo điểm thi", body: "Em cần nộp đơn phúc khảo trong bao lâu kể từ khi có điểm?", week: 5, want: "verify" },
-  { k: "sv08", title: "Cảnh báo học vụ tính như thế nào?", body: "Điểm trung bình học kỳ dưới mức nào thì bị cảnh báo?", week: 5, want: "verify" },
-  { k: "sv09", title: "Dự báo trung bình trượt chọn số kỳ bao nhiêu?", body: "Bài tập dự báo cho chọn n kỳ, em chưa biết chọn thế nào.", week: 6, want: "correct" },
-  { k: "sv10", title: "Làm trơn mũ chọn alpha ra sao?", body: "Alpha lớn hay nhỏ thì dự báo phản ứng nhanh hơn?", week: 6, want: "correct" },
-  { k: "sv11", title: "Sai số MAD và MSE khác nhau thế nào?", body: "Khi nào nên dùng MAD, khi nào dùng MSE?", week: 6, want: "reject" },
+  { k: "sv.gioi", doc: "Network Security Threats", week: 3, want: "pending" },
+  { k: "sv.kha", doc: "Network Security Threats", week: 3, want: "pending" },
+  { k: "sv04", doc: "Network Security Threats", week: 3, want: "pending" },
+  { k: "sv05", doc: "Network Security Threats", week: 4, want: "pending" },
+  { k: "sv06", doc: "Quy chế học vụ", week: 5, want: "verify" },
+  { k: "sv07", doc: "Quy chế học vụ", week: 5, want: "verify" },
+  { k: "sv08", doc: "Quy chế học vụ", week: 5, want: "verify" },
+  { k: "sv09", doc: "Forecasting (QMB ch. 6b)", week: 6, want: "correct" },
+  { k: "sv10", doc: "Forecasting (QMB ch. 6b)", week: 6, want: "correct" },
+  { k: "sv11", doc: "Forecasting (QMB ch. 6b)", week: 6, want: "reject" },
   { k: "sv12", title: "Cách pha cà phê muối ngon nhất?", body: "Câu này không liên quan môn học, em hỏi cho vui.", week: null, want: "skip" },
   { k: "sv13", title: "Lịch thi đấu giải bóng đá cuối tuần này", body: "Ai biết lịch thi đấu thì chia sẻ giúp em.", week: null, want: "skip" },
 ];
 
-/** Thread lớp 2 (ba thread, không ép trạng thái). */
+/** Thread lớp 2 (ba thread, không ép trạng thái; tài liệu dùng chung từ lớp 1). */
 export const THREADS_2 = [
-  { k: "sv31", title: "Zero-day exploit là gì?", body: "Em nghe thuật ngữ này trong buổi học nhưng chưa rõ.", week: 3 },
-  { k: "sv32", title: "Quy định vắng mặt tối đa", body: "Vắng bao nhiêu buổi thì không được dự thi?", week: 5 },
-  { k: "sv33", title: "Hồi quy tuyến tính đơn dùng khi nào?", body: "Khi nào chọn hồi quy thay cho trung bình trượt?", week: 6 },
+  { k: "sv31", doc: "Network Security Threats", week: 3 },
+  { k: "sv32", doc: "Network Security Threats", week: 3 },
+  { k: "sv33", doc: "Forecasting (QMB ch. 6b)", week: 6 },
 ];
 
 /** Hai sự kiện của lớp 1 (tương lai) và một của lớp 2 (SRS FEAT-docs-calendar 4.10 / US-P8-03 AC17); `days` = số ngày kể từ hôm nay, giờ Việt Nam. */

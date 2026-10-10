@@ -31,6 +31,9 @@ const (
 	StreamOutboxDead     = "outbox.dispatch.dead"
 )
 
+// DefaultPoolSize là trần kết nối của client: lớn hơn số luồng SSE đồng thời mỗi bản gateway (SYSTEM_DESIGN T1: 1.000 sinh viên / ≥ 3 bản).
+const DefaultPoolSize = 500
+
 // Client bọc go-redis để mọi gói dùng chung một kiểu.
 type Client struct{ *goredis.Client }
 
@@ -43,6 +46,11 @@ func New(_ context.Context, url string) (*Client, error) {
 	}
 	// Mọi lệnh (kể cả lệnh chặn như BLPOP) phải huỷ theo ctx của request — SRS 4.1 FR-9, AC9.
 	opt.ContextTimeoutEnabled = true
+	// Mỗi luồng SSE (chat, sự kiện) giữ MỘT kết nối của pool trong lúc XREAD BLOCK; pool mặc định của go-redis (10 × GOMAXPROCS) cạn ở ~40 luồng và mọi lệnh khác
+	// (CHAT_BUSY, hạn mức, idempotency) xếp hàng → sự kiện SSE đầu trễ ≥ 1 s (k6 `chat.js first_event`, 100 người dùng). Kết nối nhàn rỗi không tốn gì; URL có `?pool_size=` vẫn thắng.
+	if !strings.Contains(url, "pool_size=") {
+		opt.PoolSize = DefaultPoolSize
+	}
 	return &Client{Client: goredis.NewClient(opt)}, nil
 }
 
