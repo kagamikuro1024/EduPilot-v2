@@ -1,0 +1,1 @@
+- 2026-10-10 research: TL-REVIEW hai feature sprint 6 xong, đã push (`215f6c7` P3, `1fe12f5` P8) và báo PM; việc dở: không có. Chờ PM quyết các TLR (P3 TLR-7, TLR-11; P8 TLR-5) hoặc câu TL của dev.
