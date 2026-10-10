@@ -61,7 +61,37 @@ def load_dataset(path):
     return items, hashlib.sha256(raw).hexdigest()
 
 
-def validate(items, roster, outside, strict):
+def cap_runs(text):
+    """Các cụm ≥ 2 từ viết hoa chữ đầu liền nhau (tên riêng khả dĩ) trong văn bản đã điền ô."""
+    import unicodedata
+    cur = []
+    for w in re.findall(r"[^\W\d_]+|[^\w\s]", unicodedata.normalize("NFC", text)):
+        if len(w) > 1 and w[0].isalpha() and w[0].isupper() and w[1:].islower():
+            cur.append(w)
+            continue
+        if len(cur) >= 2:
+            yield cur
+        cur = []
+    if len(cur) >= 2:
+        yield cur
+
+
+def free_names(text, roster, names, benign):
+    """Cụm viết hoa không thuộc roster seed / danh sách bịa / danh sách từ thường viết hoa (Hà Nội, Hoa Kỳ…): tên tự do ngoài dữ liệu mô phỏng (D44).
+    Tên được coi là có mặt khi một đoạn cuối của cụm (bỏ từ đầu câu viết hoa như "Bạn") có mọi âm tiết nằm trong cùng một tên đã biết, không phân biệt dấu / thứ tự."""
+    sets = [set(fold(n).lower().split()) for n in names]
+    bad = []
+    for run in cap_runs(fill(text, roster)):
+        phrase = " ".join(run)
+        if phrase in benign:
+            continue
+        toks = [fold(w).lower() for w in run]
+        if not any(len(toks[i:]) >= 2 and any(set(toks[i:]) <= st for st in sets) for i in range(len(toks) - 1)):
+            bad.append(phrase)
+    return bad
+
+
+def validate(items, roster, outside, strict, benign=frozenset()):
     errs = []
     ids = Counter(i.get("id") for i in items)
     errs += [f"trùng id: {k}" for k, v in ids.items() if v > 1]
@@ -98,6 +128,8 @@ def validate(items, roster, outside, strict):
                     errs.append(f"{i}: tên {n!r} không nằm trong roster seed hoặc danh sách bịa outside_roster_names")
                 if n not in it.get("text", ""):
                     errs.append(f"{i}: outside_names {n!r} không xuất hiện trong text")
+            for phrase in free_names(it.get("text", ""), roster, outside, benign):
+                errs.append(f"{i}: cụm viết hoa {phrase!r} không thuộc roster seed / danh sách bịa / danh sách từ thường viết hoa (tên tự do ngoài dữ liệu mô phỏng)")
             if it.get("stratum") == "S7" and not it.get("outside_names"):
                 errs.append(f"{i}: mẫu S7 phải khai outside_names")
     cnt = Counter(i.get("stratum") for i in items)
@@ -286,6 +318,7 @@ def main():
     ap.add_argument("--dataset", default=str(PII_DIR / "e1_dataset.jsonl"))
     ap.add_argument("--roster", default=str(PII_DIR / "roster_seed.json"))
     ap.add_argument("--outside", default=str(PII_DIR / "outside_roster_names.json"))
+    ap.add_argument("--benign", default=str(PII_DIR / "benign_capitalized.json"), help="cụm viết hoa không phải tên người (Hà Nội, Hoa Kỳ…)")
     ap.add_argument("--out-dir", default=str(HERE / "reports"))
     ap.add_argument("--validate", action="store_true", help="chỉ kiểm bộ dữ liệu, không gọi API")
     ap.add_argument("--strict-synthetic", action="store_true", help="từ chối tên không thuộc roster seed / danh sách bịa")
@@ -298,7 +331,8 @@ def main():
         roster = {r["n"]: r for r in json.loads(Path(args.roster).read_text(encoding="utf-8"))}
         outside = set(json.loads(Path(args.outside).read_text(encoding="utf-8")))
         outside |= {r["name"] for r in roster.values()}
-        pos, neg, dev, test = validate(items, roster, outside, args.strict_synthetic)
+        benign = frozenset(json.loads(Path(args.benign).read_text(encoding="utf-8"))) if args.strict_synthetic else frozenset()
+        pos, neg, dev, test = validate(items, roster, outside, args.strict_synthetic, benign)
         strata = ",".join(f"{s}={n}" for s, n in EXPECTED_COUNTS.items())
         if args.validate:
             print(f"OK {len(items)} items; positives={pos} negatives={neg}; dev={dev} test={test}; strata={strata}")

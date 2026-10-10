@@ -10,3 +10,6 @@ QC soát ≥ 50 mẫu (≥ 25 dương, ≥ 25 âm); bất đồng nhãn → BA p
 
 | id | nhãn Dev | nhãn QC | BA phán | ghi chú |
 | --- | --- | --- | --- | --- |
+
+## `--strict-synthetic`
+Ngoài ô điền và `outside_names`, script quét mọi cụm ≥ 2 từ viết hoa chữ đầu trong văn bản (đã điền ô) và từ chối cụm không thuộc roster seed (`roster_seed.json`), danh sách bịa (`outside_roster_names.json`) hay danh sách từ thường viết hoa (`benign_capitalized.json`: Hà Nội, Hoa Kỳ…). So khớp không phân biệt dấu / thứ tự âm tiết, bỏ từ đầu câu viết hoa ("Bạn Trần Khánh Ly" khớp "Trần Khánh Ly"). Muốn thêm tên bịa: ghi vào `outside_roster_names.json`.

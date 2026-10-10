@@ -34,3 +34,6 @@ AC1 ✓ · AC2 ✓ (ngưỡng mặc định lệch spec: đề xuất #15) · AC
 1. `eval_pii.py` chạy thật trên stack seed + `e1.json` / `e1.md`: làm ở `gate-p3.sh` (US-P3-08, cần compose; chưa xin dừng stack s55).
 2. Đề xuất #15: `escalation_threshold` mặc định 0,60 ở DB (migration `00003` đã merge) lệch 0,80 của spec.
 3. `confidence` chỉ được ghi cho COURSE_QA có đoạn và tool có dữ liệu; câu mẫu / chào hỏi để NULL (không phải "chưa chắc").
+
+## Vòng sửa 1 (PM) — BUG-1 `--strict-synthetic` (TC-25)
+Trước: chỉ kiểm ô điền và trường `outside_names`, nên tên tự do viết thẳng vào `text` lọt. Sau: `eval_pii.py --strict-synthetic` quét mọi cụm ≥ 2 từ viết hoa chữ đầu (NFC, tách theo chữ cái) trong văn bản đã điền ô và từ chối cụm không thuộc roster seed + `outside_roster_names.json` + `benign_capitalized.json` (mới: Hà Nội, Hoa Kỳ, Đà Nẵng, Content Security Policy — các cụm hợp lệ của nhóm N); khớp không phân biệt dấu / thứ tự, bỏ từ đầu câu viết hoa. Đã chạy: bộ 200 mẫu → `OK`; thêm một mẫu "Lê Quốc Zeta" → `rc=2` kèm id mẫu và cụm; không `--strict-synthetic` thì không kiểm (như trước). Ghi ở `benchmarks/pii/LABELING.md`.
