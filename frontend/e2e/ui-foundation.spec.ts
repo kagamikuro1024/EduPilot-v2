@@ -3,6 +3,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { navFor } from "../src/shared/shell/nav";
 import { settleGoto } from "./support/hydrate";
+import { MID, SID, chatApi, frame, json, msg, noContent, session, sse } from "./support/chat-fixtures";
 import { asDemo, type DemoRole } from "./support/session";
 
 // Quét mọi route × vai của bản dựng cổng (US-PU-02 AC14): một nút primary mỗi vùng làm việc, trang không cuộn ngang.
@@ -98,6 +99,26 @@ test.describe("keyboard-only", () => {
   test("/chat: gõ, gửi bằng Enter, Dừng, mở nguồn, lịch sử phiên, quay lại composer", async ({ page, context }) => {
     test.setTimeout(90_000);
     await asDemo(context, "student");
+    // chat THẬT (US-P3-05) với gateway giả: lượt đầu treo tới khi bấm Dừng; lượt hai trả lời có nguồn
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((r) => (release = r));
+    let turn = 0;
+    let sent = 0;
+    await chatApi(page, {
+      "POST /chat/sessions": json(session(), 201),
+      [`GET /chat/sessions`]: json({ items: [session()], next_cursor: null }),
+      [`POST /chat/sessions/${SID}/messages`]: async (r) => {
+        turn++;
+        sent++;
+        if (turn === 1) {
+          await held;
+          return r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("error", { code: "CANCELLED", message: "Đã dừng." }, "1:2-0")));
+        }
+        return r.fulfill(sse(frame("status", { message_id: "m2", stage: "received" }, "1:1-0"), frame("token", { off: 0, t: "Theo quy chế [1]." }, "1:2-0"), frame("done", { message_id: "m2", citations: msg().citations, low_confidence: false, degraded: false }, "1:3-0")));
+      },
+      [`POST /chat/messages/${MID}/cancel`]: (r) => { release(); return r.fulfill(noContent); },
+      [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: sent >= 2 ? [msg({ id: "m2", content: "Theo quy chế [1]." }), msg({ id: "u2", role: "USER", content: "Tôi được cộng bao nhiêu điểm phát biểu?", citations: [] })] : [], next_cursor: null })),
+    });
     await page.goto("/chat");
     const composer = page.getByLabel("Câu hỏi của bạn");
     await test.step("gõ câu hỏi và gửi bằng Enter", async () => {
@@ -119,17 +140,16 @@ test.describe("keyboard-only", () => {
       await tabTo(page, composer);
       await page.keyboard.type("Tôi được cộng bao nhiêu điểm phát biểu?");
       await page.keyboard.press("Enter");
-      const src = page.getByRole("button", { name: /^Nguồn tham khảo/ });
+      const src = page.getByRole("button", { name: /Quy chế học vụ/ }); // mỗi nguồn là một nút mở đoạn trích tại chỗ
       await expect(src.last()).toBeVisible({ timeout: 15_000 });
-      await page.waitForTimeout(800); // chờ câu trả lời dựng xong (không còn đang phát) trước khi thao tác
       await tabTo(page, src.last());
       expect(await ringVisible(page)).toBe(true);
-      await expect(src.last()).toHaveAttribute("aria-expanded", "true"); // nguồn mở sẵn
+      const open = await src.last().getAttribute("aria-expanded");
       await page.keyboard.press("Enter");
-      await expect(src.last()).toHaveAttribute("aria-expanded", "false"); // Enter đóng lại
+      await expect(src.last()).toHaveAttribute("aria-expanded", open === "true" ? "false" : "true"); // Enter bật / tắt
     });
     await test.step("mở một phiên trong lịch sử rồi quay lại composer", async () => {
-      const item = page.locator("[data-part=chat-history] li button, [data-part=chat-history] li a").first();
+      const item = page.locator("[data-part=chat-history] li button[aria-pressed]").first();
       await tabTo(page, item);
       expect(await ringVisible(page)).toBe(true);
       await page.keyboard.press("Enter");

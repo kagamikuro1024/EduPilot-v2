@@ -1,0 +1,14 @@
+.aiMeta { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-3); }
+.actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-4); min-height: 44px; }
+.list { margin: 0; padding: 0; display: grid; gap: var(--ep-space-1); font-size: var(--ep-text-label); }
+.list div { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr); gap: var(--ep-space-3); }
+.list dt { color: var(--ep-ink-3); }
+.list dd { margin: 0; color: var(--ep-ink); overflow-wrap: anywhere; }
+.blockTitle { margin: 0 0 var(--ep-space-2); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); }
+.plain { margin: 0; white-space: pre-wrap; line-height: 1.65; color: var(--ep-ink); overflow-wrap: anywhere; }
+.lock { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.sheetList { list-style: none; margin: 0; padding: 0; display: grid; }
+.rowActions { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-2); }
+.rowMain { flex: 1; min-width: 0; }
+.rowDel { min-width: 44px; min-height: 44px; }
+@media (max-width: 1099px) { .layout { grid-template-columns: minmax(0, 1fr); } }

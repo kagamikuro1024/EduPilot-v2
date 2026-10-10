@@ -41,6 +41,9 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
     : { count: 0, actions: [], attention: [], upcoming: [] };
   await context.route("**/api/v1/me/today**", (r) => r.fulfill(json(today)));
   await context.route("**/api/v1/courses/*/today**", (r) => r.fulfill(json(today)));
+  // chat riêng THẬT (US-P3-05): phiên đăng nhập thật có lớp → /chat gọi API; mặc định chưa có phiên, không bị khoá giờ thi
+  await context.route("**/api/v1/chat/sessions?**", (r) => r.fulfill(json({ items: [], next_cursor: null })));
+  await context.route("**/api/v1/me/exam-lock", (r) => r.fulfill(json({ locked: false })));
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }
 
