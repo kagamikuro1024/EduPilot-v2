@@ -29,7 +29,7 @@ Câu đánh **[CHỦ DỰ ÁN]** đụng hành vi sản phẩm, quyền hoặc d
 
 ## Trả lời Q-QC (2026-10-10)
 
-Trả lời 47 câu Q-QC (45 từ `tc-US-P3-*.md`, 2 từ `report-US-P3-04.md` BUG-2, BUG-3) của `docs/sprints/6/qc/tc-US-P3-*.md`. Đây là làm rõ theo spec đã APPROVED, không sửa AC/SRS; chỗ cần đổi chữ AC/SRS ghi `→ #n` ở `docs/sprints/6/proposals.md` (#8 #9 #10 #11) và chờ PM. Dev và QC cùng áp dụng.
+Trả lời 47 câu Q-QC (45 từ `tc-US-P3-*.md`, 2 từ `report-US-P3-04.md` BUG-2, BUG-3) của `docs/sprints/6/qc/tc-US-P3-*.md`. Đây là làm rõ theo spec đã APPROVED, không sửa AC/SRS; chỗ cần đổi chữ AC/SRS ghi `→ #n` ở `docs/sprints/6/proposals.md` (#8 #9 #10 #11 #14) và chờ PM. Dev và QC cùng áp dụng.
 
 | Q-QC | Trả lời | Nguồn spec |
 | --- | --- | --- |
