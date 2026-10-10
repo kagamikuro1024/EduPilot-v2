@@ -1,0 +1,12 @@
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 0 |
+| PASS | go test -race rag + library + calendar + document + ingest | 38 |
+| PASS | TestAnswerKeyNeverRetrieved | 4 |
+| PASS | go test ./internal/contract/... | 42 |
+| PASS | feed ICS: curl feed.ics?token=  |  head -1 = BEGIN:VCALENDAR|0 |
+| PASS | Playwright documents + library + calendar | 18 |
+| PASS | ui-antipatterns.sh | 1 |
+| FAIL | check-docs-seed.mjs (docling thật) | 1 |
+GATE P8: FAIL
+rc=1
