@@ -21,7 +21,7 @@ import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_SRS = os.path.normpath(os.path.join(HERE, "../../../specs/FEAT-private-chat-pii/SRS.md"))
+DEFAULT_SRS = os.path.normpath(os.path.join(HERE, "../../../../specs/FEAT-private-chat-pii/SRS.md"))
 
 TY = {
     "uuid": "uuid", "text": "text", "integer": "integer", "boolean": "boolean",
@@ -88,7 +88,7 @@ def check_table_md(table, body, q):
         fail(f"thiếu bảng {table}")
         return 0
     seen, n = set(), 0
-    for m in re.finditer(r"^\| ((?:`\w+`(?:, )?)+) \| `([^`|]+)` \| (NOT NULL|NULL) \|", body, re.M):
+    for m in re.finditer(r"^\| ((?:`\w+`(?:, )?)+) \| `?([^`|]+?)`? \| (NOT NULL|NULL) \|", body, re.M):
         typ, nul = m.group(2), m.group(3)
         for name in re.findall(r"`(\w+)`", m.group(1)):
             seen.add(name)
