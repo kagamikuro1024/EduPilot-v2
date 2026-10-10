@@ -42,6 +42,8 @@ Chủ dự án đã trả lời trong phiên PM ngày 2026-10-10. PM quyết t�
 | Q3 + D2 | **ACCEPTED (D2).** `redisOpTimeout` 30 ms. Rơi về bộ nhớ chỉ làm mất độ bền ánh xạ giữa hai request; không để lộ dữ liệu |
 | D1 | **ACCEPTED.** Test vẫn kiểm từng mã PE có mặt (vòng `for _, c := range codes`), chỉ bỏ ghim tổng số mã. Dev sửa chú thích trong test cho đúng: trỏ "proposals.md sprint 6 D1", không phải "#8" |
 | 13 | **PM quyết: số migration lịch.** `00010_chunk_search` đã vào nhánh trước lịch. Nếu thêm `00009` sau `00010`, goose sẽ từ chối trên DB nào đã lên `00010`. Vì vậy lịch lấy **số kế tiếp còn trống tại lúc viết** (`00011_calendar` nếu không có migration nào khác chen vào). CHECK `ics_token` (#6) nằm trong migration lịch đó. BA sửa số trong US-P8-03 AC1 / SRS P8; commit ghi `#13` |
+| 14 | **ACCEPTED.** BA ghi dấu hiệu của `WHAT_IF_GRADE` / `SMALLTALK` vào SRS 4.5, khớp với code đã sửa ở `e2542ea`. Commit ghi `#14` |
+| D3 | **ACCEPTED, theo phương án ngoại lệ có tên.** Giữ tiêu đề phiên lấy từ 60 ký tự đầu. Tiêu đề cũng là dữ liệu riêng của sinh viên chủ phiên, có cùng quyền đọc với tin nhắn và không ra kênh nào khác. Phép quét AC9 / TC-47 bỏ qua `chat_sessions.title`. BA thêm câu này vào AC9; QC sửa TC-47. Commit ghi `D3` |
 
 **Câu [CHỦ DỰ ÁN] trong hai `QUESTIONS.md`:**
 - **Q3 (P3), tên người đăng thread:** **công khai với cả lớp**. Chủ dự án: "đã có chat riêng để hỏi riêng tư rồi thì cái này cho mặc định công khai". BA đổi spec theo hướng này.
