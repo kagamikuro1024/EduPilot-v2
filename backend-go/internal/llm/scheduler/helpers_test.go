@@ -64,7 +64,7 @@ func finish(t *testing.T, reg *llm.Registry, s *scheduler.Scheduler, gwOpts func
 	cap := &capture{}
 	aud := llm.NewAuditor(context.Background(), cap.write, discard())
 	t.Cleanup(func() { aud.Close(context.Background()) })
-	o := llm.Options{Registry: reg, Gate: s, Auditor: aud, Log: discard()}
+	o := llm.Options{NoMask: true, Registry: reg, Gate: s, Auditor: aud, Log: discard()}
 	if gwOpts != nil {
 		gwOpts(&o)
 	}

@@ -90,6 +90,14 @@ type Masker struct {
 	Detector *Detector
 	Redis    *appredis.Client
 	Log      *slog.Logger
+	Timeout  time.Duration // hạn che; 0 = MaskTimeout (PRIVACY_MASK_TIMEOUT_MS)
+}
+
+func (m *Masker) timeout() time.Duration {
+	if m.Timeout > 0 {
+		return m.Timeout
+	}
+	return MaskTimeout
 }
 
 const maskScript = `
@@ -131,7 +139,7 @@ func (m *Masker) Mask(ctx context.Context, courseID uuid.UUID, s Session, texts 
 			return nil, 0, fmt.Errorf("%w: %w", ErrMaskFailed, ierr)
 		}
 	}
-	deadline := time.Now().Add(MaskTimeout)
+	deadline := time.Now().Add(m.timeout())
 
 	type found struct{ ms []match }
 	per := make([]found, len(texts))

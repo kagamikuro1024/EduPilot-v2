@@ -3,11 +3,13 @@
 package testroutes
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"time"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
@@ -16,6 +18,7 @@ import (
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/llm/fake"
 	"github.com/edupilot/backend-go/internal/llm/provider"
+	"github.com/edupilot/backend-go/internal/privacy"
 )
 
 // registerLLM đăng ký 3 route thử của cổng LLM (SRS FEAT-llm-gateway 6.4). Chỉ ADMIN; chỉ số đếm, không nội dung prompt.
@@ -25,6 +28,8 @@ func registerLLM(r chi.Router, d Deps) {
 		r.Post("/llm/chat", llmChat(d))
 		r.Get("/llm/stats", llmStats(d))
 		r.Post("/llm/fake", llmFake(d))
+		r.Get("/llm/payloads", llmPayloads(d))
+		r.Post("/llm/payloads/reset", llmPayloadsReset(d))
 	})
 }
 
@@ -56,11 +61,14 @@ func parseLane(s string) (*llm.Lane, bool) {
 func llmChat(d Deps) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var in struct {
-			Task     string `json:"task" validate:"required,oneof=CHAT CLASSIFY UTILITY GRADING QUESTION_GEN INSIGHT"`
-			Prompt   string `json:"prompt" validate:"required"`
-			Lane     string `json:"lane"`
-			Stream   bool   `json:"stream"`
-			Passages []struct {
+			Task   string `json:"task" validate:"required,oneof=CHAT CLASSIFY UTILITY GRADING QUESTION_GEN INSIGHT"`
+			Prompt string `json:"prompt" validate:"required"`
+			Lane   string `json:"lane"`
+			Stream bool   `json:"stream"`
+			// CourseID, SessionID: gắn lớp / phiên để cổng CHE (roster của lớp, ánh xạ theo phiên). Không có CourseID → bản thử chạy không che (hành vi cũ của route).
+			CourseID  string `json:"course_id"`
+			SessionID string `json:"session_id"`
+			Passages  []struct {
 				Text   string  `json:"text"`
 				Source string  `json:"source"`
 				Page   int     `json:"page"`
@@ -75,15 +83,27 @@ func llmChat(d Deps) http.HandlerFunc {
 			apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "lane", Code: "invalid", Message: "lane không hợp lệ."}))
 			return
 		}
+		ctx := r.Context()
+		if in.CourseID == "" {
+			ctx = llm.WithNoMask(ctx)
+		} else {
+			cid, err := uuid.Parse(in.CourseID)
+			if err != nil {
+				apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "course_id", Code: "invalid", Message: "course_id không hợp lệ."}))
+				return
+			}
+			ctx = llm.WithIdentity(ctx, llm.Identity{CourseID: &cid})
+			ctx = privacy.WithSession(ctx, privacy.NewSession(in.SessionID))
+		}
 		req := llm.Request{Task: llm.Task(in.Task), Lane: lane, Messages: []llm.Message{{Role: "user", Content: in.Prompt}}}
 		for _, p := range in.Passages {
 			req.Passages = append(req.Passages, llm.Passage{Text: p.Text, Source: p.Source, Page: p.Page, Score: p.Score})
 		}
 		if in.Stream {
-			streamChat(w, r, d, req)
+			streamChat(ctx, w, r, d, req)
 			return
 		}
-		resp, err := d.LLM.Gateway.Chat(r.Context(), req)
+		resp, err := d.LLM.Gateway.Chat(ctx, req)
 		if err != nil {
 			writeLLMErr(w, r, err)
 			return
@@ -96,8 +116,8 @@ func llmChat(d Deps) http.HandlerFunc {
 }
 
 // streamChat phát SSE: `event: token`, rồi `event: done` hoặc `event: error {code}` (SRS FEAT-llm-gateway 3.4, US-P1-03 AC12).
-func streamChat(w http.ResponseWriter, r *http.Request, d Deps, req llm.Request) {
-	ch, err := d.LLM.Gateway.Stream(r.Context(), req)
+func streamChat(ctx context.Context, w http.ResponseWriter, r *http.Request, d Deps, req llm.Request) {
+	ch, err := d.LLM.Gateway.Stream(ctx, req)
 	if err != nil {
 		writeLLMErr(w, r, err)
 		return
@@ -125,6 +145,24 @@ func streamChat(w http.ResponseWriter, r *http.Request, d Deps, req llm.Request)
 		default:
 			send("token", map[string]string{"text": c.Text})
 		}
+	}
+}
+
+// llmPayloads trả vòng đệm ≤ 200 lời gọi gần nhất mà provider giả NHẬN, SAU khi cổng đã che (US-P3-03, proposals #9). Chỉ ADMIN, chỉ bản dựng testroutes.
+func llmPayloads(d Deps) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		items := d.LLM.Registry.Fake().Payloads()
+		if items == nil {
+			items = []fake.Payload{}
+		}
+		httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+	}
+}
+
+func llmPayloadsReset(d Deps) http.HandlerFunc {
+	return func(w http.ResponseWriter, _ *http.Request) {
+		d.LLM.Registry.Fake().ResetPayloads()
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
 

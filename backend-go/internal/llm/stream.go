@@ -26,11 +26,15 @@ func (g *Gateway) Stream(ctx context.Context, r Request) (<-chan Chunk, error) {
 		c.finish(nil, err)
 		return nil, err
 	}
+	rm, mk, err := g.maskRequest(c, r)
+	if err != nil {
+		return nil, err
+	}
 	ch, err := runChain(c,
-		func(t Target) int { return estTokens(c.opts(t, r, nil)) },
+		func(t Target) int { return estTokens(c.opts(t, rm, nil)) },
 		func(ctx context.Context, t Target) (opened, int, error) {
 			sctx, cancel := context.WithCancel(ctx)
-			d, err := t.P.Stream(sctx, c.opts(t, r, nil))
+			d, err := t.P.Stream(sctx, c.opts(t, rm, nil))
 			if err != nil {
 				cancel()
 				return opened{}, 0, err
@@ -69,16 +73,17 @@ func (g *Gateway) Stream(ctx context.Context, r Request) (<-chan Chunk, error) {
 		return nil, err
 	}
 	out := make(chan Chunk, 16)
-	go g.forward(c.ctx, c, r, ch, out) //nolint:contextcheck // c.ctx là con của ctx người gọi (begin: WithDeadline)
+	go g.forward(c.ctx, c, rm, mk, ch, out) //nolint:contextcheck // c.ctx là con của ctx người gọi (begin: WithDeadline)
 	return out, nil
 }
 
-func (g *Gateway) forward(ctx context.Context, c *call, r Request, ch chosen[opened], out chan<- Chunk) {
+func (g *Gateway) forward(ctx context.Context, c *call, r Request, mk *masked, ch chosen[opened], out chan<- Chunk) {
 	defer close(out)
 	defer ch.val.cancel()
 	var text strings.Builder
 	var usage *provider.Result
 	var streamErr error
+	un := mk.stream() // nil khi không che
 
 	emit := func(x Chunk) bool {
 		select {
@@ -97,7 +102,13 @@ func (g *Gateway) forward(ctx context.Context, c *call, r Request, ch chosen[ope
 			usage = d.Usage
 		case d.Text != "":
 			text.WriteString(d.Text)
-			return emit(Chunk{Text: d.Text})
+			if un == nil {
+				return emit(Chunk{Text: d.Text})
+			}
+			if t := un.Write(d.Text); t != "" { // người gọi chỉ nhận chữ đã khôi phục; phần có thể là nửa placeholder được giữ lại
+				return emit(Chunk{Text: t})
+			}
+			return true
 		}
 		return true
 	}
@@ -127,6 +138,11 @@ func (g *Gateway) forward(ctx context.Context, c *call, r Request, ch chosen[ope
 			g.gate.BreakerReport(ctx, ch.target.ProviderID, kind)
 		}
 		c.settle(ctx, ch, in, outTok)
+		if un != nil {
+			if t := un.Flush(); t != "" {
+				emitFinal(out, Chunk{Text: t})
+			}
+		}
 		emitFinal(out, Chunk{Err: ErrStream})
 		c.finish(nil, ErrStream)
 	case c.ctx.Err() != nil:
@@ -137,7 +153,12 @@ func (g *Gateway) forward(ctx context.Context, c *call, r Request, ch chosen[ope
 		}
 		c.finish(nil, err)
 	default:
-		resp := c.response(ch.target, ch.idx, text.String(), in, outTok, ch.permit)
+		resp := c.response(ch.target, ch.idx, mk.unmask(text.String()), in, outTok, ch.permit)
+		if un != nil { // Chunk.Done đi sau Flush()
+			if t := un.Flush(); t != "" {
+				emit(Chunk{Text: t})
+			}
+		}
 		emitFinal(out, Chunk{Done: true, Response: &resp})
 		c.finish(&resp, nil)
 	}

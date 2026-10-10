@@ -501,6 +501,34 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "403":
           $ref: "#/components/responses/Forbidden"
+  /api/v1/_test/llm/payloads:
+    get:
+      operationId: testLLMPayloads
+      tags: [test]
+      summary: "Vòng đệm ≤ 200 lời gọi gần nhất mà provider giả nhận, SAU khi đã che (ADMIN) — để QC kiểm 0 họ tên / MSSV rời hệ thống"
+      responses:
+        "200":
+          description: Payload đã che
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LLMPayloads"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/_test/llm/payloads/reset:
+    post:
+      operationId: testLLMPayloadsReset
+      tags: [test]
+      summary: "Xoá vòng đệm payload (ADMIN)"
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
   /api/v1/_test/llm/fake:
     post:
       operationId: testLLMFake
@@ -636,6 +664,13 @@ components:
           enum: [INTERACTIVE, NEAR_REALTIME, BATCH]
         stream:
           type: boolean
+        course_id:
+          type: string
+          format: uuid
+          description: "Gắn lớp để cổng che roster của lớp; không có thì chạy không che (hành vi cũ)."
+        session_id:
+          type: string
+          description: "Khoá phiên của ánh xạ placeholder; rỗng = phạm vi yêu cầu."
         passages:
           type: array
           items:
@@ -650,6 +685,28 @@ components:
                 type: integer
               score:
                 type: number
+    LLMPayloads:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [task, messages, inputs]
+            additionalProperties: false
+            properties:
+              task:
+                type: string
+              messages:
+                type: array
+                items:
+                  type: string
+              inputs:
+                type: array
+                items:
+                  type: string
     LLMChatResult:
       type: object
       required: [text, degraded, provider, model, fallback_index, queue_wait_ms]

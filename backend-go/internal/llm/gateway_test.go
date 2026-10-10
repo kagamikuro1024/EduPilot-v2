@@ -259,7 +259,7 @@ func TestNotConfigured(t *testing.T) {
 	if err := reg.Load(t.Context()); err != nil {
 		t.Fatal(err)
 	}
-	g := llm.New(llm.Options{Registry: reg})
+	g := llm.New(llm.Options{NoMask: true, Registry: reg})
 	for _, call := range []func() error{
 		func() error {
 			_, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskChat, Messages: userMsg("x")})
@@ -289,7 +289,7 @@ func TestEnvFallback(t *testing.T) {
 		if err := reg.Load(t.Context()); err != nil {
 			t.Fatal(err)
 		}
-		g := llm.New(llm.Options{Registry: reg, Log: log})
+		g := llm.New(llm.Options{NoMask: true, Registry: reg, Log: log})
 		r, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskUtility, Messages: userMsg("tóm tắt giúp")})
 		if err != nil || r.Model != llm.FakeChatModel || !strings.Contains(r.Text, "tóm tắt giúp") {
 			t.Fatalf("r=%+v err=%v", r, err)

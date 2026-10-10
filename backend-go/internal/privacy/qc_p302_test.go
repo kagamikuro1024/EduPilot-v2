@@ -13,8 +13,8 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/edupilot/backend-go/internal/privacy"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/google/uuid"
 )
 

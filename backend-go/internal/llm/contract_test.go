@@ -160,7 +160,7 @@ func TestRecordReplay(t *testing.T) {
 		if err := reg.Load(ctx); err != nil {
 			t.Fatal(err)
 		}
-		gw := llm.New(llm.Options{Registry: reg, Auditor: aud, Log: newDiscardLog()})
+		gw := llm.New(llm.Options{NoMask: true, Registry: reg, Auditor: aud, Log: newDiscardLog()})
 		dir := filepath.Join("testdata", "replay", prov)
 		if err := os.MkdirAll(dir, 0o750); err != nil {
 			t.Fatal(err)

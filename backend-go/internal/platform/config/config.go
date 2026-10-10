@@ -129,15 +129,17 @@ type Config struct {
 	LLMDefaultRPM     int
 	LLMDefaultTPM     int
 	LLMEmbedDims      int
-	LLMProvider       string // "" | "fake"
-	LLMReplayDir      string
-	OpenAIKey         string
-	AnthropicKey      string
-	GeminiKey         string
-	FakeLatencyMin    time.Duration
-	FakeLatencyMax    time.Duration
-	FakeErrorRate     float64
-	FakeValidKey      string
+	// PrivacyMaskTimeout: quá hạn che → MASK_FAILED, không gọi provider (PRIVACY_MASK_TIMEOUT_MS, mặc định 50; QC hạ thấp để ép lỗi).
+	PrivacyMaskTimeout time.Duration
+	LLMProvider        string // "" | "fake"
+	LLMReplayDir       string
+	OpenAIKey          string
+	AnthropicKey       string
+	GeminiKey          string
+	FakeLatencyMin     time.Duration
+	FakeLatencyMax     time.Duration
+	FakeErrorRate      float64
+	FakeValidKey       string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -291,6 +293,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.LLMDefaultRPM = l.num("LLM_DEFAULT_RPM", 60, 1, 10_000_000)
 	c.LLMDefaultTPM = l.num("LLM_DEFAULT_TPM", 100000, 1, 1_000_000_000)
 	c.LLMEmbedDims = l.num("LLM_EMBED_DIMS", 1536, 1, 100000)
+	c.PrivacyMaskTimeout = time.Duration(l.num("PRIVACY_MASK_TIMEOUT_MS", 50, 1, 60000)) * time.Millisecond
 	if c.LLMEmbedDims != 1536 {
 		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
 	}

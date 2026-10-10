@@ -35,13 +35,15 @@ type Settings struct {
 
 // Controller chia sẻ Settings và bộ đếm giữa mọi provider fake của một Registry.
 type Controller struct {
-	mu     sync.RWMutex
-	s      Settings
-	byName sync.Map     // tên provider → *atomic.Int64: số lời gọi sinh văn bản theo từng provider fake
-	calls  atomic.Int64 // số lời gọi sinh văn bản tới provider (Chat/Stream/Structured) — D47
-	embeds atomic.Int64
-	active atomic.Int64
-	peak   atomic.Int64
+	mu       sync.RWMutex
+	s        Settings
+	byName   sync.Map     // tên provider → *atomic.Int64: số lời gọi sinh văn bản theo từng provider fake
+	calls    atomic.Int64 // số lời gọi sinh văn bản tới provider (Chat/Stream/Structured) — D47
+	embeds   atomic.Int64
+	active   atomic.Int64
+	peak     atomic.Int64
+	pmu      sync.Mutex
+	payloads []Payload
 }
 
 // NewController dựng Controller với Settings ban đầu.
@@ -75,6 +77,41 @@ func (c *Controller) CallsByProvider() map[string]int64 {
 	out := map[string]int64{}
 	c.byName.Range(func(k, v any) bool { out[k.(string)] = v.(*atomic.Int64).Load(); return true }) //nolint:forcetypeassert // sync.Map nội bộ
 	return out
+}
+
+// PayloadCap là số lời gọi gần nhất mà provider giả nhớ để QC kiểm "payload gửi provider đã che" (route thử `_test/llm/payloads`).
+const PayloadCap = 200
+
+// Payload là nội dung provider giả NHẬN (sau khi cổng đã che): đúng thứ sẽ rời hệ thống tới provider thật.
+type Payload struct {
+	Task     string   `json:"task"`
+	Messages []string `json:"messages"`
+	Inputs   []string `json:"inputs"`
+}
+
+// Payloads trả vòng đệm ≤ PayloadCap lời gọi gần nhất, cũ → mới.
+func (c *Controller) Payloads() []Payload {
+	c.pmu.Lock()
+	defer c.pmu.Unlock()
+	return append([]Payload(nil), c.payloads...)
+}
+
+// ResetPayloads xoá vòng đệm.
+func (c *Controller) ResetPayloads() { c.pmu.Lock(); c.payloads = nil; c.pmu.Unlock() }
+
+func (c *Controller) record(p Payload) {
+	if p.Messages == nil {
+		p.Messages = []string{}
+	}
+	if p.Inputs == nil {
+		p.Inputs = []string{}
+	}
+	c.pmu.Lock()
+	defer c.pmu.Unlock()
+	c.payloads = append(c.payloads, p)
+	if len(c.payloads) > PayloadCap {
+		c.payloads = c.payloads[len(c.payloads)-PayloadCap:]
+	}
 }
 
 // Embeds là số lời gọi nhúng đã tới provider.
@@ -114,6 +151,14 @@ func New(c *Controller, key string) *Provider { return NewNamed(c, "fake", key) 
 func NewNamed(c *Controller, name, key string) *Provider {
 	v, _ := c.byName.LoadOrStore(name, new(atomic.Int64))
 	return &Provider{c: c, name: name, key: key, n: v.(*atomic.Int64)} //nolint:forcetypeassert // sync.Map nội bộ
+}
+
+func (p *Provider) recordChat(o provider.ChatOpts) {
+	msgs := make([]string, len(o.Messages))
+	for i, m := range o.Messages {
+		msgs[i] = m.Content
+	}
+	p.c.record(Payload{Task: o.Task, Messages: msgs})
 }
 
 func (p *Provider) count() { p.c.calls.Add(1); p.n.Add(1) }
@@ -208,6 +253,7 @@ func answer(o provider.ChatOpts) string {
 
 // Chat trả văn bản xác định; có Schema → JSON sinh theo schema.
 func (p *Provider) Chat(ctx context.Context, o provider.ChatOpts) (provider.Result, error) {
+	p.recordChat(o)
 	p.count()
 	p.c.enter()
 	defer p.c.active.Add(-1)
@@ -231,6 +277,7 @@ func (p *Provider) Chat(ctx context.Context, o provider.ChatOpts) (provider.Resu
 
 // Stream phát từng từ cách nhau StreamDelay; ctx huỷ → dừng ngay.
 func (p *Provider) Stream(ctx context.Context, o provider.ChatOpts) (<-chan provider.Delta, error) {
+	p.recordChat(o)
 	p.count()
 	p.c.enter()
 	s, err := p.gate(ctx)
@@ -274,6 +321,7 @@ func (p *Provider) Stream(ctx context.Context, o provider.ChatOpts) (<-chan prov
 
 // Embed trả vectơ chuẩn hoá L2, xác định theo chuỗi vào, đúng Dims chiều (mặc định 1536).
 func (p *Provider) Embed(ctx context.Context, o provider.EmbedOpts) ([][]float32, int, error) {
+	p.c.record(Payload{Task: "EMBEDDING", Inputs: append([]string(nil), o.Inputs...)})
 	p.c.embeds.Add(1)
 	p.c.enter()
 	defer p.c.active.Add(-1)

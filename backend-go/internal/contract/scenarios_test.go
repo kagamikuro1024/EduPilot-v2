@@ -618,6 +618,12 @@ func (r *runner) testScenarios() {
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats?lanes=1", token: admin}, 200)
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats"}, 401)
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: teacher}, 403)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/payloads", token: admin}, 200)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/payloads"}, 401)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/payloads", token: teacher}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/payloads/reset", token: admin}, 204)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/payloads/reset"}, 401)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/payloads/reset", token: teacher}, 403)
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":1,"error_kind":"AUTH"}`}, 200)
 	// mọi nhà cung cấp lỗi: CHAT (INTERACTIVE) suy giảm 200; làn NEAR_REALTIME trả 503 LLM_UNAVAILABLE
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: chat}, 200)

@@ -30,7 +30,11 @@ type Options struct {
 	Registry *Registry
 	Gate     Gate     // nil = không giới hạn (nopGate)
 	Auditor  *Auditor // nil = không ghi llm_audit
-	Log      *slog.Logger
+	// Masker che / khôi phục danh tính quanh MỌI lời gọi có nội dung người dùng (US-P3-03). Bắt buộc, trừ NoMask.
+	Masker Masker
+	// NoMask: không che. Chỉ cho test và tác vụ không có nội dung người dùng (ping). Gateway / worker thật không đặt.
+	NoMask bool
+	Log    *slog.Logger
 
 	Now   func() time.Time
 	Sleep func(ctx context.Context, d time.Duration) error
@@ -189,7 +193,7 @@ func paramFloat(p llmconfig.Params, k string) *float64 {
 
 // opts hợp nhất tham số: Request ghi đè tuyến.
 func (c *call) opts(t Target, r Request, schema json.RawMessage) provider.ChatOpts {
-	o := provider.ChatOpts{Model: t.Model, Schema: schema, Fast: c.lane == LaneInteractive}
+	o := provider.ChatOpts{Model: t.Model, Schema: schema, Fast: c.lane == LaneInteractive, Task: string(c.task)}
 	for _, m := range r.Messages {
 		o.Messages = append(o.Messages, provider.Message{Role: m.Role, Content: m.Content})
 	}
@@ -493,7 +497,11 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 		c.finish(nil, err)
 		return Response{}, err
 	}
-	resp, err := g.chat(c, r, nil)
+	rm, mk, err := g.maskRequest(c, r)
+	if err != nil {
+		return Response{}, err
+	}
+	resp, err := g.chat(c, rm, nil)
 	if errors.Is(err, ErrAllProvidersFailed) {
 		if c.lane == LaneInteractive { // suy giảm có kiểm soát: trích nguyên văn, không sinh (SRS 4.3)
 			resp = degraded(r)
@@ -501,6 +509,9 @@ func (g *Gateway) chat1(ctx context.Context, r Request) (Response, error) {
 			return resp, nil
 		}
 		err = &ErrUnavailable{Reason: ReasonAllFailed}
+	}
+	if err == nil {
+		resp.Text = mk.unmask(resp.Text)
 	}
 	c.finish(optional(resp, err), err)
 	return resp, err
@@ -560,15 +571,25 @@ func (g *Gateway) Structured(ctx context.Context, r Request, schema json.RawMess
 		c.finish(nil, ErrBadRequest)
 		return nil, ErrBadRequest
 	}
-	resp, err := g.chat(c, r, schema)
+	rm, mk, err := g.maskRequest(c, r)
+	if err != nil {
+		return nil, err
+	}
+	resp, err := g.chat(c, rm, schema)
 	if errors.Is(err, ErrAllProvidersFailed) {
 		err = &ErrUnavailable{Reason: ReasonAllFailed}
+	}
+	var out json.RawMessage
+	if err == nil { // schema đã được kiểm trên đầu ra thô (trong g.chat); chỉ khi đó mới khôi phục chuỗi giá trị
+		if out, err = mk.unmaskJSON(json.RawMessage(resp.Text)); err == nil {
+			resp.Text = string(out)
+		}
 	}
 	c.finish(optional(resp, err), err)
 	if err != nil {
 		return nil, err
 	}
-	return json.RawMessage(resp.Text), nil
+	return out, nil
 }
 
 // Embed nhúng các chuỗi; chia lô 100; vectơ ≠ 1536 chiều → ErrDimsMismatch (không thử lại, không trả vectơ).
@@ -590,6 +611,11 @@ func (g *Gateway) Embed(ctx context.Context, r EmbedRequest) ([][]float32, error
 		vecs   [][]float32
 		tokens int
 	}
+	inputs, _, merr := g.maskTexts(c, r.Inputs)
+	if merr != nil {
+		return nil, merr
+	}
+	r.Inputs = inputs
 	ch, err := runChain(c,
 		func(Target) int {
 			n := 0
