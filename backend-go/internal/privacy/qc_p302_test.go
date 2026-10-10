@@ -258,3 +258,16 @@ func TestQCLongInput(t *testing.T) { // TC-56, 57
 		t.Errorf("TC-57: %v", fs)
 	}
 }
+
+func TestQCNoDoubleCount(t *testing.T) { // TC-08: một khoảng không vừa PHONE vừa CCCD
+	d := qcDet()
+	for _, in := range []string{"CCCD của tôi 0912345678901 và 0912345678", "0912345678901"} {
+		fs, _ := d.Detect(context.Background(), qcCourse, in)
+		for i := 1; i < len(fs); i++ {
+			if fs[i].Start < fs[i-1].End {
+				t.Errorf("TC-08 chồng lấn %q: %v", in, fs)
+			}
+		}
+		t.Logf("TC-08 %q → %v", in, fs)
+	}
+}

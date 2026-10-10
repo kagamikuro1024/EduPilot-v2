@@ -1,9 +1,19 @@
-# QC report — US-P3-01 (migration `00007_chat_threads`, `00008_privacy`, sqlc)  · Kết luận: FAIL
+# QC report — US-P3-01 (migration `00007_chat_threads`, `00008_privacy`, sqlc)  · Kết luận: PASS (sau quyết định PM Q1–Q3, 2026-10-10)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-01.md` (commit `f1a5b9c`, kiểm trên `31fe6f0`). Bộ TC: `tc-US-P3-01.md` (50 TC, không sửa).
 Môi trường: DB trống `qc_p301` / `qc_p301b` tạo **trong** Postgres 18 của stack dev đang chạy (cổng 5433), không down stack, đã `DROP` sau khi chạy. `goose v3.28.0` build ngoài repo (`/tmp/goose`). Không có UI → không cần `playwright-cli`; `ui-antipatterns.sh` không áp dụng.
 
-**Lý do FAIL:** AC9 chưa giao (dev ghi trong handoff, hoãn sang US-P3-05; spec vẫn là AC của story này) → theo luật QC, TC không chạy được tính FAIL. Ngoài ra TC-49 FAIL (vai DB siêu quyền), AC7/AC8 chờ BA. Toàn bộ **DDL / ràng buộc / chỉ mục / sqlc (AC1–AC6) PASS**.
+**Cập nhật theo PM (Q1–Q3, `proposals.md`):**
+- **Q1:** TC thiếu bề mặt chuyển sang story giao bề mặt; story này đóng khi phần còn lại PASS.
+- **Q2:** TC-49 (vai DB siêu quyền) ghi nợ PR, không tính vào story này.
+- **#8 (spec v1.3):** AC7 "năm bảng" → TC-42 PASS (`chat_schema_test.go` ghim đủ 5 bảng); AC8 tách hai ca → TC-43 PASS (`up` lần hai `rc=0`, "no migrations to run", DB không đổi).
+
+| TC chuyển | Đích |
+| --- | --- |
+| TC-47, 48, 50 (AC9 nội dung chat chỉ ở `chat_messages`, đọc chéo) | `report-US-P3-05` (AC9 của US-P3-01 kiểm cùng `TestChatContentOnlyInMessages`) |
+| TC-49 | nợ PR (Q2) |
+
+Kết quả còn lại: **PASS 46 / 46** (TC-01…46 trừ không có TC FAIL). AC1–AC8 PASS; AC9 chờ P3-05 (không phải FAIL của story này theo Q1).
 
 ## Cổng đã chạy
 | Lệnh | Kết quả |
@@ -32,16 +42,16 @@ Môi trường: DB trống `qc_p301` / `qc_p301b` tạo **trong** Postgres 18 c�
 | 32–37 | PASS | `pii_events` đúng 9 cột, 0 cột text; `UPDATE`/`DELETE` → `42501` (kể cả khi vai là superuser); `count` 0 / −1 → `23514`; enum đúng |
 | 38–40 | PASS | 10 chỉ mục có tên + `chat_messages_idem_key` = 11; `EXPLAIN` xem trên; `TestChatForumIndexesUsed` ok (chạy không kèm `-tags integration`) |
 | 41 | PASS | sqlc sạch |
-| 42 | **CHỜ BA** | `queries/{chat,forum,privacy}.sql` có; `TestSchema*` ok; "sáu bảng" ↔ 5 bảng (Q-QC-P3-01-2) |
-| 43 | **CHỜ BA** | `goose up` lần hai: `rc=0`, "no migrations to run. current version: 8", DB không đổi. AC8 viết "mã khác 0" (Q-QC-P3-01-1) |
+| 42 | PASS (v1.3 #8) | `queries/{chat,forum,privacy}.sql` có; `TestSchema*` ok; "sáu bảng" ↔ 5 bảng (Q-QC-P3-01-2) |
+| 43 | PASS (v1.3 #8) | `goose up` lần hai: `rc=0`, "no migrations to run. current version: 8", DB không đổi. AC8 viết "mã khác 0" (Q-QC-P3-01-1) |
 | 44 | PASS | tệp 00008 hỏng giữa `CREATE TABLE`: `rc=1`, thông điệp có tên tệp + SQL; 0 bảng `pii_events`, 0 enum `pii_*`; `goose status` ghi `00008 Pending` |
 | 45–46 | PASS | `22P02` cho enum lạ; test ok |
-| 47 | KHÔNG KIỂM ĐƯỢC | chưa có đường chat (US-P3-05) |
-| 48 | KHÔNG KIỂM ĐƯỢC | `internal/chat` chưa tồn tại; dev xác nhận hoãn `TestChatContentOnlyInMessages` |
-| 49 | **FAIL** | xem BUG-1. Phần trigger: PASS |
-| 50 | KHÔNG KIỂM ĐƯỢC | chưa có route đọc tin (US-P3-05) |
+| 47 | CHUYỂN → P3-05 | chưa có đường chat (US-P3-05) |
+| 48 | CHUYỂN → P3-05 | `internal/chat` chưa tồn tại; dev xác nhận hoãn `TestChatContentOnlyInMessages` |
+| 49 | NỢ PR (Q2) | xem BUG-1. Phần trigger: PASS |
+| 50 | CHUYỂN → P3-05 | chưa có route đọc tin (US-P3-05) |
 
-Tổng: PASS 44 · FAIL 1 · CHỜ BA 2 · KHÔNG KIỂM ĐƯỢC 3 (tính FAIL theo luật).
+Tổng (sau Q1–Q3): PASS 46 · FAIL 0 · chuyển P3-05: 3 · nợ PR: 1.
 
 ## AC
 | AC | Kết quả |
@@ -52,9 +62,9 @@ Tổng: PASS 44 · FAIL 1 · CHỜ BA 2 · KHÔNG KIỂM ĐƯỢC 3 (tính FAIL 
 | AC4 FK phức hợp, `SET NULL`, trigger | PASS |
 | AC5 `pii_events` append-only, không văn bản | PASS |
 | AC6 chỉ mục + `EXPLAIN` | PASS |
-| AC7 sqlc + `schema_test.go` ghim cột | CHỜ BA (sqlc PASS; "sáu bảng" mơ hồ) |
-| AC8 migration lỗi / chạy lại | PASS nhánh lỗi (TC-44, 45); "mã khác 0" CHỜ BA |
-| AC9 nội dung chat chỉ ở `chat_messages` | **KHÔNG KIỂM ĐƯỢC → FAIL** |
+| AC7 sqlc + `schema_test.go` ghim cột | PASS (năm bảng, v1.3) |
+| AC8 migration lỗi / chạy lại | PASS |
+| AC9 nội dung chat chỉ ở `chat_messages` | chuyển P3-05 |
 
 ## Lỗi
 - **BUG-1 (Thấp, hạ tầng có từ trước, không do story này)** — TC-49. Vai DB của stack dev (`edupilot`) có `rolsuper=t`. Tái hiện: `docker exec edupilot-postgres-1 psql -U edupilot -d qc_p301 -c "select rolsuper,rolbypassrls from pg_roles where rolname=current_user"` → `t | t`. Kỳ vọng: vai ứng dụng không siêu quyền. Chuỗi kết nối của gateway (qua pgbouncer) không đọc được từ container (env rỗng) nên chưa xác nhận gateway dùng vai này. Trigger append-only vẫn chặn cả superuser (`42501`). Đề nghị PM quyết (đã ghi `proposals.md`).
@@ -64,4 +74,4 @@ Tổng: PASS 44 · FAIL 1 · CHỜ BA 2 · KHÔNG KIỂM ĐƯỢC 3 (tính FAIL 
 Luật 6 (không sửa migration cũ): PASS. Luật 13 (chỉ mục bắt đầu `course_id`, cursor `id DESC`): PASS. Phân quyền đọc chéo (TC-50) chờ P3-05. Không `fetch`, không thư viện mới (story chỉ đụng SQL/sqlc/test).
 
 ## Đề nghị
-Giữ FAIL tới khi (a) BA trả lời Q-QC-P3-01-1/2/3/4; (b) AC9 + TC-47/48/50 chạy được ở US-P3-05 (đề nghị PM chuyển ba TC này sang report US-P3-05 qua `proposals.md` để story này có thể đóng).
+Đóng story. BUG-1 (vai DB siêu quyền) thành nợ PR; AC9 kiểm ở P3-05.
