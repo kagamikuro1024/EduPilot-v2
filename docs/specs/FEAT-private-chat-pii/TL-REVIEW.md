@@ -31,3 +31,10 @@ Tech Lead, 2026-10-10, nhánh `sprint/6-p3-p8` @ `038c94d`. Spec còn `DRAFT` n�
 - **Khoá giờ thi:** `exam.Locker` đã có đúng ngữ nghĩa cần dùng (Redis → DB → lỗi thì từ chối), và enum `exam_event_type` đã có `CHAT_BLOCKED`. Chỉ thiếu hàm ghi sự kiện (TLR-10).
 - **Lược đồ:** FK phức hợp `(course_id, session_id)` / `(course_id, thread_id)`, `UNIQUE (thread_id) WHERE kind='AI'`, `pii_events` chỉ thêm (dùng lại `audit_log_block_mutation`, mã `42501`) đều đúng tiền lệ `00006`. Chỉ mục không bắt đầu bằng `course_id` (`chat_messages_session_idx`, `forum_posts_thread_idx`, `chat_messages_streaming_idx`, `pii_events_user_idx`) phù hợp ngoại lệ đã chấp nhận ở PE TLR-5, vì AC6 đã liệt kê. `notifications.type` là regex nên `THREAD_*` không cần migration. Không thấy `ALTER` bảng cũ.
 - **Làn Threads:** `ResolveLane(CHAT, NEAR_REALTIME)` hợp lệ (chỉ được hạ làn). `ErrAllProvidersFailed` ở làn khác INTERACTIVE trả `ErrUnavailable`, không suy giảm, nên khớp `SKIPPED/LLM_UNAVAILABLE` (`stream.go:54-57`).
+
+## Quyết định PM (2026-10-10)
+
+PM chấp nhận cả 16 TLR (TLR-1…16, mức nào cũng sửa). BA sửa spec theo đề xuất của Tech Lead, commit ghi `TLR-<số>`. Hai TLR có lựa chọn, PM chọn như sau:
+
+- **TLR-7, phương án (a).** Khi chat nhận `Response.Degraded=true`, bỏ chữ do gói `llm` sinh và tự dựng câu theo spec: một dòng `notice` + trích dẫn lấy từ `Hit`. Không sửa `internal/llm/degrade.go`. Câu "giảng viên sẽ xem" không bao giờ tới sinh viên ở sprint 6. Bỏ `Passages` khỏi danh sách che.
+- **TLR-11 (1): `ON DELETE SET NULL`.** Tài liệu bị gỡ thì phiên chat đó tìm trong toàn bộ tài liệu của lớp. Câu trả lời cũ vẫn giữ trích dẫn, đánh dấu "nguồn đã gỡ" (F6). Các mục (2)–(4) làm đủ trong `CREATE TABLE` của `00007`.

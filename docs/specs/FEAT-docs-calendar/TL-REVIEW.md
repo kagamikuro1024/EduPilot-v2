@@ -28,3 +28,11 @@ Tech Lead, 2026-10-10, nhánh `sprint/6-p3-p8` @ `038c94d`. Spec còn `DRAFT`, n
 - **Idempotent của nhắc:** `UNIQUE (user_id, source_type, source_id, starts_at, kind)` + `ON CONFLICT DO NOTHING RETURNING` + chỉ tạo chuông / mail khi chèn được là đúng mẫu "khoá DB thay cho khoá phân tán"; khoá leader chỉ để tiết kiệm.
 - **Chia sẻ và nạp lại:** `share-from` chỉ chia sẻ tài liệu `READY` (`courses.sql:270-283`), mà ingest chỉ xoá-chèn đoạn của tài liệu `QUEUED` / `PROCESSING`, nên không có cuộc đua làm mất `course_ids` của lớp được chia sẻ.
 - **Liên quan `FEAT-private-chat-pii` TLR-11:** `chat_sessions.document_id` cần `ON DELETE SET NULL`, nếu không thì US-P8-02 AC8 (xoá tài liệu) sẽ lỗi `23503` khi đã có phiên "Hỏi AI về tài liệu này".
+
+## Quyết định PM (2026-10-10)
+
+PM chấp nhận cả 12 TLR (TLR-1…12). BA sửa spec theo đề xuất của Tech Lead, commit ghi `TLR-<số>`. Lựa chọn của PM:
+
+- **TLR-1:** consumer ingest riêng, có gia hạn thuê. Chỉ một lối kích hoạt, theo đề xuất của Tech Lead.
+- **TLR-5, phương án (a):** bỏ vế "thu hồi chia sẻ" khỏi AC13, vì plan không có thao tác này. Thu hồi chia sẻ ghi nợ cho phase sau.
+- **TLR-12:** dùng hai hàm `SearchStudent` / `SearchStaff`.
