@@ -29,7 +29,7 @@ func TestExamErrorCodes(t *testing.T) {
 		seen[msg] = true
 		require.NotContains(t, msg, "SQL")
 	}
-	require.GreaterOrEqual(t, len(enum), 49, "37 mã trước PE + 12 mã mới (SRS 6.1); các sprint sau thêm mã nên chỉ còn đòi tối thiểu (proposals.md sprint 6 #8)")
+	require.GreaterOrEqual(t, len(enum), 49, "37 mã trước PE + 12 mã mới (SRS 6.1); các sprint sau thêm mã nên chỉ còn đòi tối thiểu (proposals.md sprint 6 D1)")
 }
 
 // TestExamRoutesNotAheadOfSpec — mọi thao tác PE trong openapi.yaml phải có trong bảng `exam.Routes()` (nguồn quyền duy nhất):

@@ -64,8 +64,8 @@ F1 ☐ · F2 ☐ · F3 ☐ · F4 ☐ · F5 ☐ · F6 ☐ · F7 ☐ · F8 ☐ · 
 | 00006 | weekly_exam | PE (US-PE-01) |
 | 00007 | chat_threads | P3 (US-P3-01) |
 | 00008 | privacy | P3 (US-P3-01) |
-| 00009 | calendar | P8 (US-P8-03) |
 | 00010 | chunk_search | P8 (US-P8-01, cột `content_chunks.tsv`) |
+| 00011 | calendar | P8 (US-P8-03; số 00009 bỏ trống, proposals #13) |
 
 ## Việc chỉ chủ dự án làm được
 - [x] API key ≥ 2 provider LLM (OpenAI + Gemini, 2026-10-03; nên xoay khoá vì đã dán trong chat, đặt trần chi phí)

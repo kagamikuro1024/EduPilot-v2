@@ -12,6 +12,31 @@ import (
 	"github.com/google/uuid"
 )
 
+const agentSelf = `-- name: AgentSelf :one
+select u.full_name, u.email, e.student_code_snapshot
+from users u join enrollments e on e.user_id = u.id and e.course_id = $1
+where u.id = $2
+`
+
+type AgentSelfParams struct {
+	CourseID uuid.UUID
+	UserID   uuid.UUID
+}
+
+type AgentSelfRow struct {
+	FullName            string
+	Email               string
+	StudentCodeSnapshot *string
+}
+
+// Danh tính CỦA CHÍNH người đang chat (từ trusted_context) để phân biệt "nhắc chính mình" với "hỏi hộ người khác".
+func (q *Queries) AgentSelf(ctx context.Context, arg AgentSelfParams) (AgentSelfRow, error) {
+	row := q.db.QueryRow(ctx, agentSelf, arg.CourseID, arg.UserID)
+	var i AgentSelfRow
+	err := row.Scan(&i.FullName, &i.Email, &i.StudentCodeSnapshot)
+	return i, err
+}
+
 const countPIIEventsByCourse = `-- name: CountPIIEventsByCourse :many
 select pii_type, action, sum(count)::bigint as total
 from pii_events

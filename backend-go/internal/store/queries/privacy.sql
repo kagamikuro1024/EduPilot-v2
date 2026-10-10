@@ -16,3 +16,9 @@ order by pii_type, action;
 select u.full_name, e.student_code_snapshot
 from enrollments e join users u on u.id = e.user_id
 where e.course_id = sqlc.arg(course_id) and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE';
+
+-- name: AgentSelf :one
+-- Danh tính CỦA CHÍNH người đang chat (từ trusted_context) để phân biệt "nhắc chính mình" với "hỏi hộ người khác".
+select u.full_name, u.email, e.student_code_snapshot
+from users u join enrollments e on e.user_id = u.id and e.course_id = sqlc.arg(course_id)
+where u.id = sqlc.arg(user_id);

@@ -58,7 +58,7 @@ func TestMigrations_RoundTrip(t *testing.T) {
 	require.NoError(t, conn.QueryRow(ctx, snapshotSQL).Scan(&before))
 	require.Contains(t, before, "col users.email")
 
-	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn là bản mới nhất (10: P3 thêm 00007 / 00008, P8 thêm 00010; 00009 calendar do US-P8-03 — cập nhật số này khi thêm).
+	// `up` lần hai là no-op: không thêm dòng goose_db_version, version vẫn là bản mới nhất (10: P3 thêm 00007 / 00008, P8 thêm 00010; US-P8-03 thêm 00011_calendar theo proposals #13 — cập nhật số này khi thêm).
 	var gooseRows, version, tables int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from goose_db_version`).Scan(&gooseRows))
 	require.NoError(t, db.Migrate(ctx, url, "up", io.Discard))

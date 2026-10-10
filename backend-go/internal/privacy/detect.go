@@ -74,6 +74,31 @@ func (d *Detector) Detect(ctx context.Context, courseID uuid.UUID, text string) 
 	return fs, nil
 }
 
+// Entity là một khoảng PII kèm khoá thực thể chuẩn hoá (họ tên đầy đủ không dấu / MSSV chữ thường / email chữ thường / số) và việc nó có thuộc roster của lớp không.
+// Dùng cho phân loại "hỏi hộ người khác" (internal/agent): so khoá với danh tính của người đang chat.
+type Entity struct {
+	Finding
+	Key      string
+	InRoster bool
+}
+
+// Entities như Detect nhưng trả khoá thực thể và cờ roster.
+func (d *Detector) Entities(ctx context.Context, courseID uuid.UUID, text string) ([]Entity, error) {
+	var idx *rosterIndex
+	if d != nil && d.Roster != nil && courseID != uuid.Nil {
+		var err error
+		if idx, err = d.Roster.index(ctx, courseID); err != nil {
+			return nil, err
+		}
+	}
+	ms := detectIn(text, idx)
+	out := make([]Entity, len(ms))
+	for i, m := range ms {
+		out[i] = Entity{Finding: m.Finding, Key: m.key, InRoster: m.Kind == KindName || (m.Kind == KindMSSV && idx != nil && idx.hasCode(m.key))}
+	}
+	return out, nil
+}
+
 func (d *Detector) detect(ctx context.Context, courseID uuid.UUID, text string) ([]match, error) {
 	if text == "" {
 		return nil, nil

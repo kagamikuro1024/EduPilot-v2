@@ -147,6 +147,8 @@ type word struct {
 	folded     string
 }
 
+func (idx *rosterIndex) hasCode(k string) bool { _, ok := idx.codes[k]; return ok }
+
 // find tìm tên và mã sinh viên của roster theo ranh giới từ, không phân biệt hoa-thường / dấu; ưu tiên cụm dài nhất.
 func (idx *rosterIndex) find(text string) []match {
 	if len(idx.names) == 0 && len(idx.codes) == 0 {
