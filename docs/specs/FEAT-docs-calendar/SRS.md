@@ -1,5 +1,7 @@
 # SRS FEAT-docs-calendar Tài liệu, thư viện, lịch
-Phiên bản 1.3 · 2026-10-10 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+Phiên bản 1.4 · 2026-10-10 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+
+**v1.4 (2026-10-10)** — góp ý `#13` `docs/sprints/6/proposals.md` (PM quyết: `00010_chunk_search` đã vào nhánh trước lịch). Migration lịch đổi `00009_calendar` → **`00011_calendar`** (số kế tiếp còn trống tại lúc viết): 1, 5.1, 5.2, 5.3, 5.7, 10, 11, FR-10; thứ tự thi công ở mục 1 không còn buộc dựng lịch trước. Các dòng changelog cũ giữ nguyên số khi ấy. Không đổi số AC (51). Trạng thái **APPROVED**.
 
 **v1.3 (2026-10-10)** — góp ý QC `#9`–`#12` `docs/sprints/6/proposals.md` (PM `ACCEPTED`; nguồn: ba, trả lời Q-QC). **`#12`**: trần 800 thắng sàn 200 khi gộp mẩu cuối (4.2); `q` dưới 2 ký tự bị bỏ qua và `ETag` của `/library` = băm thân phản hồi (4.4); `days` kẹp 1–30 (4.7); tiền tố `SUMMARY` `{mã lớp} · ` (4.8); nhãn công tắc nhắc (7). **`#10`**: `TestAnswerKeyNeverRetrieved` thiếu stack → `FAIL`, chỉ docling thật được `SKIP` (US-P8-03 AC16). **`#9`** chỉ ở `FEAT-private-chat-pii` 4.3 (không đổi spec này). Không đổi số AC (51). Trạng thái **APPROVED**.
 
@@ -13,13 +15,13 @@ Nguồn: `docs/phases/P8.md`; `docs/sprints/6/plan.md` (story 0, 2, 9, 10); PRD 
 
 Giảng viên tải tài liệu (PDF, DOCX, PPTX) lên; việc nền trích văn bản bằng `docling-serve`, chia đoạn, nhúng và lưu để AI hỏi–đáp có nguồn (F3, F6) — **ANSWER_KEY không bao giờ tới AI của sinh viên**. Sinh viên tìm, xem, tải tài liệu ở `/library` và hỏi AI giới hạn trong một tài liệu. Lịch gộp buổi học, bài thi PE và sự kiện giảng viên tạo, có feed ICS ký bằng token băm và nhắc 24 giờ không gửi trùng (F13).
 
-**Trong phạm vi:** `internal/ingest`, `internal/rag`, `internal/document`, `internal/library`, `internal/calendar`; migration `00009_calendar`, `00010_chunk_search`; route `/documents`, `/library`, `/library/[id]`, `/calendar`; tool `search_library`, `get_exam_schedule`, `get_upcoming_events` (nối vào khung của `FEAT-private-chat-pii`); seed tài liệu và lịch; `gate-p8.sh`.
+**Trong phạm vi:** `internal/ingest`, `internal/rag`, `internal/document`, `internal/library`, `internal/calendar`; migration `00010_chunk_search`, `00011_calendar`; route `/documents`, `/library`, `/library/[id]`, `/calendar`; tool `search_library`, `get_exam_schedule`, `get_upcoming_events` (nối vào khung của `FEAT-private-chat-pii`); seed tài liệu và lịch; `gate-p8.sh`.
 
 **Ngoài phạm vi:** xem đầu `US.md`.
 
-**Đánh số migration.** `P8.md` ghi `00013 calendar` và nói "không có migration tài liệu"; số `00013` đã bị chiếm (thực tế `00005_vn_fold`, `00006_weekly_exam` đã dùng). Sprint 6 dùng **`00009_calendar`** (sau `00007_chat_threads`, `00008_privacy` của `FEAT-private-chat-pii`; kèm `CHECK` băm của `users.ics_token`, #6) và **`00010_chunk_search`** (cột `content_chunks.tsv` + GIN + hàm `vn_bigram_query`, #7; chủ dự án đồng ý `ALTER`). Tài liệu **không** thêm bảng: dùng `documents`, `content_chunks`, `document_courses` của `00003`.
+**Đánh số migration.** `P8.md` ghi `00013 calendar` và nói "không có migration tài liệu"; số `00013` đã bị chiếm (thực tế `00005_vn_fold`, `00006_weekly_exam` đã dùng). Sprint 6 dùng **`00010_chunk_search`** (cột `content_chunks.tsv` + GIN + hàm `vn_bigram_query`, #7; chủ dự án đồng ý `ALTER`; sau `00007_chat_threads`, `00008_privacy` của `FEAT-private-chat-pii`) và **`00011_calendar`** (kèm `CHECK` băm của `users.ics_token`, #6): `00010` đã vào nhánh trước lịch, thêm `00009` sau `00010` thì goose từ chối trên DB đã lên `00010`, nên lịch lấy số kế tiếp còn trống tại lúc viết (`#13`). Tài liệu **không** thêm bảng: dùng `documents`, `content_chunks`, `document_courses` của `00003`.
 
-**Thứ tự thi công (plan):** PoC (story 0) ∥ `FEAT-private-chat-pii` US-P3-01 → **dựng `00009_calendar` (US-P8-03 AC1) ngay sau US-P3-01 để `00010` đứng sau trong dãy số** → US-P8-01 → (P3 tiếp) → US-P8-02 → US-P8-03 (chỉ cần US-P3-01; chen được khi dev chờ).
+**Thứ tự thi công (plan):** PoC (story 0) ∥ `FEAT-private-chat-pii` US-P3-01 → US-P8-01 (`00010_chunk_search`) → ... → `00011_calendar` (US-P8-03 AC1) dựng bằng số kế tiếp còn trống lúc viết (`#13`) → US-P8-01 → (P3 tiếp) → US-P8-02 → US-P8-03 (chỉ cần US-P3-01; chen được khi dev chờ).
 
 ## 2. Người dùng và quyền
 
@@ -248,7 +250,7 @@ Phản hồi mỗi dòng: `{id:"<source>:<uuid>", source:"class_session|weekly_e
 | FR-7 | `/library`: tìm, chi tiết, xem trước, tải, đếm lượt | 02-AC9, AC10 |
 | FR-8 | Hỏi AI về tài liệu; `search_library`; giao diện thư viện | 02-AC11…AC13 |
 | FR-9 | Phân quyền và nhánh lỗi mạng của tài liệu / thư viện | 02-AC14, AC15 |
-| FR-10 | `00009_calendar`; UNION; sự kiện; ETag; trạng thái cá nhân | 03-AC1…AC5 |
+| FR-10 | `00011_calendar`; UNION; sự kiện; ETag; trạng thái cá nhân | 03-AC1…AC5 |
 | FR-11 | Đổi giờ → lịch, "Hôm nay", AI đổi ngay; tool lịch | 03-AC6, AC10 |
 | FR-12 | Token ICS băm, feed đúng chuẩn, chống dò | 03-AC7…AC9 |
 | FR-13 | Nhắc 24 giờ, không trùng, tắt theo loại, lỗi mail, quy mô | 03-AC11…AC13 |
@@ -256,7 +258,7 @@ Phản hồi mỗi dòng: `{id:"<source>:<uuid>", source:"class_session|weekly_e
 
 ## 5. Dữ liệu
 
-### 5.1 `calendar_events` (`00009`)
+### 5.1 `calendar_events` (`00011`)
 
 | Cột | Kiểu | Null | Mặc định | Ràng buộc |
 | --- | --- | --- | --- | --- |
@@ -276,7 +278,7 @@ Phản hồi mỗi dòng: `{id:"<source>:<uuid>", source:"class_session|weekly_e
 
 Chỉ mục: `calendar_events_course_starts_idx (course_id, starts_at, id)`.
 
-### 5.2 `reminder_log` (`00009`)
+### 5.2 `reminder_log` (`00011`)
 
 | Cột | Kiểu | Null | Mặc định | Ràng buộc |
 | --- | --- | --- | --- | --- |
@@ -293,7 +295,7 @@ Chỉ mục: `calendar_events_course_starts_idx (course_id, starts_at, id)`.
 
 ### 5.3 Dùng lại các bảng có sẵn
 
-`documents` (`sha256` là khoá nội dung — phase file / plan gọi "`content_hash`"), `content_chunks` (`audience`, `course_ids`, `embedding NULL` khi không nhúng), `document_courses`, `class_sessions`, `notifications` (`dedupe_key`), `user_settings` (`remind_deadline_by_mail`, `preferences` jsonb), `mail_outbox`, `jobs`, `outbox`. **`users.ics_token`**: cột `text` có chỉ mục duy nhất từng phần; ở P8 nội dung của nó là **SHA-256 hex (64 ký tự)**, ép bằng `CHECK` ở `00009` (5.7).
+`documents` (`sha256` là khoá nội dung — phase file / plan gọi "`content_hash`"), `content_chunks` (`audience`, `course_ids`, `embedding NULL` khi không nhúng), `document_courses`, `class_sessions`, `notifications` (`dedupe_key`), `user_settings` (`remind_deadline_by_mail`, `preferences` jsonb), `mail_outbox`, `jobs`, `outbox`. **`users.ics_token`**: cột `text` có chỉ mục duy nhất từng phần; ở P8 nội dung của nó là **SHA-256 hex (64 ký tự)**, ép bằng `CHECK` ở `00011` (5.7).
 
 ### 5.4 Khoá Redis (tiền tố `ep:`)
 
@@ -318,7 +320,7 @@ Chỉ mục: `calendar_events_course_starts_idx (course_id, starts_at, id)`.
 ### 5.7 Đổi lược đồ có sẵn (chủ dự án đồng ý, `proposals.md` #6, #7)
 
 ```sql
--- 00009_calendar.sql (cùng hai bảng ở 5.1, 5.2)
+-- 00011_calendar.sql (cùng hai bảng ở 5.1, 5.2)
 ALTER TABLE users ADD CONSTRAINT users_ics_token_hash_chk CHECK (ics_token IS NULL OR ics_token ~ '^[0-9a-f]{64}$');
 
 -- 00010_chunk_search.sql
@@ -327,7 +329,7 @@ ALTER TABLE content_chunks ADD COLUMN tsv tsvector GENERATED ALWAYS AS (to_tsvec
 CREATE INDEX content_chunks_tsv_gin ON content_chunks USING gin (tsv);
 ```
 
-`normalize(…, NFC)` là bắt buộc: `vn_fold` trên chữ tổ hợp NFD để lọt dấu. Hai `ALTER` trái nguyên tắc "tạo một lần ở dạng cuối" của D45 nên cần sự đồng ý đã có; không sửa tệp migration đã merge (luật 6). `down` của `00010` xoá chỉ mục, cột, hàm; của `00009` xoá constraint rồi hai bảng.
+`normalize(…, NFC)` là bắt buộc: `vn_fold` trên chữ tổ hợp NFD để lọt dấu. Hai `ALTER` trái nguyên tắc "tạo một lần ở dạng cuối" của D45 nên cần sự đồng ý đã có; không sửa tệp migration đã merge (luật 6). `down` của `00010` xoá chỉ mục, cột, hàm; của `00011` xoá constraint rồi hai bảng.
 
 ## 6. API
 
@@ -414,20 +416,20 @@ Bám `DESIGN.md` §13, §14.14–§14.16, D59 (một Panel mỗi vùng), `shared
 
 **Câu hỏi mở:** `QUESTIONS.md` (Q1…Q14): sáu câu **[CHỦ DỰ ÁN]** (Q2…Q7) đã được chủ dự án trả lời 2026-10-10 (theo mặc định BA; Q7 theo #7); các câu **[PM]** theo `proposals.md` #3, #4, #6, #7 hoặc mặc định BA.
 
-**Quyết định cần PM (theo yêu cầu của prompt BA):** **token ICS.** Kiểm trên mã thật: `users.ics_token` (`00001`) là `text` có chỉ mục duy nhất từng phần (`users_ics_token_key WHERE ics_token IS NOT NULL`), **không CHECK**; không có mã ứng dụng nào ghi hay đọc giá trị (chỉ `SELECT *` do sqlc sinh, test `schema_test` ghim sự tồn tại cột, test che trường trong `user/list_test.go`, `course/members_test.go`). Cột vì vậy **không bảo đảm** lưu rõ hay băm; luật "token ở dạng băm" (`AGENTS.md`) bắt buộc băm. **Đề xuất:** (a) không đổi lược đồ — P8 ghi `hex(sha256(token))` (64 ký tự) vào cột này; token thô chỉ hiện một lần lúc tạo / xoay; mất thì đặt lại; (b) tuỳ chọn thêm `CHECK (ics_token IS NULL OR ics_token ~ '^[0-9a-f]{64}$')` ở `00009` bằng `ALTER TABLE users ADD CONSTRAINT` (không đổi cột; vẫn là ALTER nên cần PM duyệt vì D45). BA mặc định (a); nếu PM chọn (b) thì thêm vào AC1 của US-P8-03. Hệ quả của (a): người dùng không xem lại được link, phải bấm `Đặt lại liên kết` và đăng ký lại trong ứng dụng lịch.
+**Quyết định cần PM (theo yêu cầu của prompt BA):** **token ICS.** Kiểm trên mã thật: `users.ics_token` (`00001`) là `text` có chỉ mục duy nhất từng phần (`users_ics_token_key WHERE ics_token IS NOT NULL`), **không CHECK**; không có mã ứng dụng nào ghi hay đọc giá trị (chỉ `SELECT *` do sqlc sinh, test `schema_test` ghim sự tồn tại cột, test che trường trong `user/list_test.go`, `course/members_test.go`). Cột vì vậy **không bảo đảm** lưu rõ hay băm; luật "token ở dạng băm" (`AGENTS.md`) bắt buộc băm. **Đề xuất:** (a) không đổi lược đồ — P8 ghi `hex(sha256(token))` (64 ký tự) vào cột này; token thô chỉ hiện một lần lúc tạo / xoay; mất thì đặt lại; (b) tuỳ chọn thêm `CHECK (ics_token IS NULL OR ics_token ~ '^[0-9a-f]{64}$')` ở `00011` (đổi từ `00009`, `#13`) bằng `ALTER TABLE users ADD CONSTRAINT` (không đổi cột; vẫn là ALTER nên cần PM duyệt vì D45). BA mặc định (a); nếu PM chọn (b) thì thêm vào AC1 của US-P8-03. Hệ quả của (a): người dùng không xem lại được link, phải bấm `Đặt lại liên kết` và đăng ký lại trong ứng dụng lịch.
 
-**Đã chốt:** số migration `00009` (lịch + `CHECK` băm token) và `00010` (`tsv` + GIN); không thêm bảng tài liệu; lịch gộp bằng UNION (không nhân bản); hạn bài tập ở P7; `Luyện đề này` ở P9; không làm đường nạp tạm của P3 L0 (plan).
+**Đã chốt:** số migration `00010` (`tsv` + GIN) và `00011` (lịch + `CHECK` băm token; `#13`); không thêm bảng tài liệu; lịch gộp bằng UNION (không nhân bản); hạn bài tập ở P7; `Luyện đề này` ở P9; không làm đường nạp tạm của P3 L0 (plan).
 
 **Nợ ghi nhận (`PROGRESS.md`):** (a) thu hồi chia sẻ tài liệu — P2 chỉ có `share-from` (TLR-5); (b) dọn object mồ côi `courses/*/documents/{upload_id}/` không có dòng `documents` sau 24 giờ — PR (TLR-8).
 
 **Đề xuất đổi tài liệu nền (PM quyết; xem `docs/sprints/6/proposals.md`):**
-1. `ARCHITECTURE.md` §4: `00013 calendar` → `00009 calendar` (số thật); thêm cột `calendar_events(description, created_by, version)`, bảng `reminder_log` (cột ở 5.2).
+1. `ARCHITECTURE.md` §4: `00013 calendar` → `00011 calendar` (số thật); thêm cột `calendar_events(description, created_by, version)`, bảng `reminder_log` (cột ở 5.2).
 2. `ARCHITECTURE.md` §5: thêm route `uploads/presign|complete` (nhóm Tài liệu), `documents/{id}/chunks`, `retry`, `reindex`, `stats`, `library/{id}`, `/me/calendar/ics-token`; sửa nhóm "Thư viện" ghi `PATCH documents` là Staff.
 3. `ARCHITECTURE.md` §7: thêm route `/library/[id]`.
 4. PRD M9: bảng loại tài liệu khớp enum `document_type` (mục 4.1) — `COURSE_MATERIAL`, `REGULATION`, `GRADE_REPORT` không có.
 5. PRD §2 "Ngoài phạm vi" còn ghi "chạy code sinh viên trong sandbox" và `DECISIONS.md` D3 "không chấm mã nguồn" mâu thuẫn D54 / D55 / M15 — xem `docs/sprints/6/proposals.md` #1 (nợ PROGRESS) — **BA đã vá** ở commit `4c46d8d` (#1, #3).
 6. `FEAT-llm-gateway` US-P1-01 mục "Ngoài phạm vi" ghi việc lập chỉ mục lại "chạy ở P8": US-P8-01 AC15 nhận việc này (cần PM xác nhận không phải Could).
-7. `ARCHITECTURE.md` §6 bảng `docling-serve`: "Trích văn bản" = `POST /v1/convert/file/async` + poll + result (multipart, không `source` + URL ký sẵn), "Sức khoẻ" = `/ready`, thêm danh sách tuỳ chọn ở 4.2; §4 thêm dòng `00010 chunk_search` và ghi `users.ics_token` có `CHECK` ở `00009` (PM sửa khi merge, #4 / #7).
+7. `ARCHITECTURE.md` §6 bảng `docling-serve`: "Trích văn bản" = `POST /v1/convert/file/async` + poll + result (multipart, không `source` + URL ký sẵn), "Sức khoẻ" = `/ready`, thêm danh sách tuỳ chọn ở 4.2; §4 thêm dòng `00010 chunk_search` và ghi `users.ics_token` có `CHECK` ở `00011` (PM sửa khi merge, #4 / #7).
 
 ## 11. Truy vết
 

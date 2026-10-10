@@ -1,5 +1,7 @@
 # SRS FEAT-private-chat-pii Hai kênh hỏi–đáp, tường lửa PII, che danh tính trước LLM
-Phiên bản 1.3 · 2026-10-10 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+Phiên bản 1.4 · 2026-10-10 · Trạng thái: APPROVED (PM 2026-10-10, sau Tech Lead thẩm định `TL-REVIEW.md`)
+
+**v1.4 (2026-10-10)** — góp ý `#13` (PM quyết): số migration của `FEAT-docs-calendar` đổi `00009_calendar` → `00011_calendar` (1, 10, 11). Không đổi số AC (110). Trạng thái **APPROVED**.
 
 **v1.3 (2026-10-10)** — góp ý QC `#8`–`#12` `docs/sprints/6/proposals.md` (PM `ACCEPTED`; nguồn: ba, trả lời Q-QC). **`#8`** sửa chữ, không đổi hành vi: 4.9.3 gọi `exam.RecordChatBlocked` (sót khi áp TLR-10). **`#9`** route thử `_test/llm/payloads` + `…/reset` và `PRIVACY_MASK_TIMEOUT_MS` (4.1, 4.3). **`#11`** hằng số `THREAD_SIMILAR_MIN`, `THREAD_SIMILAR_OF_MIN`, `CHAT_EXTRACT_HITS`, `CHAT_EXTRACT_CHARS` (4.1, 4.7.1 bước 9, 4.9.5); `ground = 0` khi không câu nào đủ 4 từ (4.8); `notice{masked}` / `masked_count` chỉ đếm tin hiện tại (`Response.MaskedCurrent`, 4.3, 4.7.1); `OTHER_PERSON` so với câu tự khai (4.5); `retry_after` của 429 (4.1, 4.7.1). **`#10`** chỉ ở `US.md`. Không đổi số AC (110). Trạng thái **APPROVED**.
 
@@ -17,7 +19,7 @@ Sinh viên hỏi riêng AI về thông tin cá nhân và nội dung lớp ở `/
 
 **Ngoài phạm vi:** xem đầu `US.md`.
 
-**Đánh số migration.** `P3.md` ghi `00005` / `00006` và `ARCHITECTURE.md` §4 ghi `00005 chat_threads`, `00006 privacy` — các số đó **đã bị dùng** (`00005_vn_fold` của P2, `00006_weekly_exam` của PE). Sprint 6 dùng **`00007_chat_threads`**, **`00008_privacy`**, và `00009_calendar` (của `FEAT-docs-calendar`). Dev ghi ánh xạ vào `PROGRESS.md` mục "Ánh xạ migration" (D45).
+**Đánh số migration.** `P3.md` ghi `00005` / `00006` và `ARCHITECTURE.md` §4 ghi `00005 chat_threads`, `00006 privacy` — các số đó **đã bị dùng** (`00005_vn_fold` của P2, `00006_weekly_exam` của PE). Sprint 6 dùng **`00007_chat_threads`**, **`00008_privacy`**, và `00010_chunk_search`, `00011_calendar` (của `FEAT-docs-calendar`, `#13`). Dev ghi ánh xạ vào `PROGRESS.md` mục "Ánh xạ migration" (D45).
 
 **Thứ tự thi công (plan):** US-P3-01 ∥ US-P8-01 → US-P3-02 → US-P3-03 → US-P3-04 → US-P3-05 → US-P3-06 → US-P3-07 → US-P3-08. Chat cần `rag.Search` của US-P8-01 (plan: không làm đường nạp tối thiểu tạm).
 
@@ -543,7 +545,7 @@ Mục tiêu: đo G1 ("recall ≥ 0,95, chặn nhầm ≤ 0,05") trên **dữ li�
 
 **Câu hỏi mở:** `QUESTIONS.md` — Q1…Q22; chín câu **[CHỦ DỰ ÁN]** (Q1…Q8, Q22) đã được chủ dự án trả lời 2026-10-10 (Q2 và Q3 đổi so với mặc định BA bản 1.0); câu kỹ thuật theo `proposals.md` hoặc mặc định BA.
 
-**Đã chốt (không mở lại):** nút `Nhờ giảng viên hỗ trợ` ẩn tới sprint 7 (chủ dự án 2026-10-10); không làm đường nạp tạm của P3 L0 — dùng ingest nền của P8; migration `00007`/`00008`/`00009`; E1 soạn từ dữ liệu mô phỏng (D44); NER đã cắt (D46); D47 (một lần sinh, một phân loại).
+**Đã chốt (không mở lại):** nút `Nhờ giảng viên hỗ trợ` ẩn tới sprint 7 (chủ dự án 2026-10-10); không làm đường nạp tạm của P3 L0 — dùng ingest nền của P8; migration `00007`/`00008` (và `00010`/`00011` của P8); E1 soạn từ dữ liệu mô phỏng (D44); NER đã cắt (D46); D47 (một lần sinh, một phân loại).
 
 **Đề xuất đổi `ARCHITECTURE.md` / PRD (PM quyết; xem `docs/sprints/6/proposals.md`):**
 1. §4 `00007`: thêm cột so với bảng liệt kê — `chat_sessions(document_id, deleted_at, last_message_at)`; `chat_messages(course_id, user_id, client_msg_id, reply_to, intent, blocks, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at)`; `forum_threads(body, ai_state, ai_skip_reason, week_no, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version)`; `forum_posts(citations, confidence, ai_body, verified_by, verified_at, hidden_by, deleted_at, embedding, version)`; `pii_events` bỏ `updated_at` (append-only). Lý do: luật "không ALTER cho cột đã biết" (D45) — các story sau (P4, P8, P10) cần chúng.
@@ -551,7 +553,7 @@ Mục tiêu: đo G1 ("recall ≥ 0,95, chặn nhầm ≤ 0,05") trên **dữ li�
 3. §1/quy ước API: câu "client huỷ thì huỷ luôn lời gọi LLM" **không áp** cho stream chat — rớt kết nối không huỷ, chỉ nút Dừng (P3 L3b yêu cầu tải lại không mất; đề nghị `proposals.md` #2).
 4. `FEAT-course-foundation` 4.7: `AI_CONFIRM` đăng ký ở P3 (bảng ghi P4) vì P3 tạo bài AI chờ xác nhận; P4 chỉ thêm thông báo gộp / mail.
 5. PRD M1: bỏ "LLM phân loại kênh khi mơ hồ" (D47), đổi "Che thông tin rồi đăng" → "Ẩn thông tin rồi đăng" (`DESIGN.md` §14.3); PRD §3: khớp quyền ADMIN với `nav.ts` (Q1) — **BA đã vá** ở commit `4c46d8d` (`proposals.md` #3).
-6. `PROGRESS.md`: ánh xạ `00007`, `00008`, `00009`.
+6. `PROGRESS.md`: ánh xạ `00007`, `00008`, `00010`, `00011`.
 7. `FEAT-weekly-exam` (PE): thêm hàm `exam.RecordChatBlocked(ctx, userID, attemptID)` (4.7.1 bước 3; TLR-10).
 8. Hàng việc dài dùng chung với ingest (`FEAT-docs-calendar` 4.2, TLR-1) cho việc AI trả lời Threads (TLR-9).
 
