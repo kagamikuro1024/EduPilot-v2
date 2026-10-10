@@ -1,4 +1,4 @@
-# QC report — US-P8-01 (ingest nền + `internal/rag`)  · Kết luận: FAIL
+# QC report — US-P8-01 (ingest nền + `internal/rag`)  · Kết luận: PASS phần đã kiểm (chấm lại sau fix `6b61556`, 2026-10-11); TC cần UI/PATCH/chat chuyển theo Q1
 
 Handoff: `docs/sprints/6/handoff/dev-US-P8-01.md` (commit `287e8bb`). Bộ TC: `tc-US-P8-01.md` (62 TC; spec đã lên v1.3 — TC chưa cập nhật, đối chiếu v1.3 khi khác).
 **Môi trường:** stack đang chạy của dev là bản sprint 5.5 (chưa có route tài liệu), nên QC chạy gateway + worker build từ `287e8bb` (`-tags testroutes`) làm tiến trình cục bộ (`:18080`), trỏ vào Postgres / Redis / MinIO dùng chung của stack dev nhưng **DB riêng `qc_p801`, Redis db 9, bucket `qc-p801`**; docling thật = container `qc-docling` (image `edupilot-docling`, 3 GiB, `DOCLING_SERVE_MAX_NUM_PAGES=400`). Seed `scripts/seed.mjs` chạy tới bước 10/10 (dừng ở `JUDGE_UNAVAILABLE`, không liên quan). Provider LLM là `fake` trong tiến trình → **không quét được payload** (xem TC-21). Script: `scripts/p801-lib.mjs`.
@@ -84,3 +84,18 @@ Không `fetch` trần phía frontend (story không đụng UI). Luật 12: việ
 
 ## Đề nghị
 FAIL tới khi sửa BUG-1 (chặn merge), BUG-2 (chờ quyết định `[K]`), BUG-3. Chuyển các TC cần UI / PATCH / chat sang report P8-02 / P3-05 (Q1). Câu hỏi: Q-QC-P801-9 (TC-05 giá trị đếm 11), Q-QC-P801-10 (TC-16 tên sự kiện cuối `job.progress`, không `job.result`).
+
+## Chấm lại sau fix `6b61556` (2026-10-11)
+Môi trường như trên (gateway/worker build từ HEAD, DB `qc_p801`, docling thật `qc-docling` có `MAX_NUM_PAGES=400`).
+
+| Lỗi | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1 (docling tắt → `FAILED`; TC-43, 51) | **PASS** | `docker stop qc-docling`, tải tệp: tài liệu ở `QUEUED` suốt 143 s (job `RUNNING`, thử lại), không `FAILED`; `docker start` → `READY` sau 184 s tổng, 14 đoạn, một bộ đoạn |
+| BUG-2 (Idempotency-Key `retry`/`reindex`; TC-57, 40) | **PASS** | `retry` cùng khoá: `202`/`202`, cùng `job_id`; `reindex` cả lớp và `reindex` tài liệu cùng khoá: cùng `job_id`; không gửi khoá vẫn `202` |
+| BUG-3 (thông điệp; TC-48, 53) | **PASS** | `FILE_TYPE_MISMATCH`: "Tệp không đọc được. Dùng PDF, DOCX hoặc PPTX."; 401 trang: "Tệp dài hơn 400 trang. Hãy tách nhỏ." (khớp SRS 3.3) |
+| BUG-5 (`TestIngestLeaseRenewed` nhạy thời gian) | **PASS** | 3 lượt `go test -race` 5 gói song song xanh, test chạy riêng xanh |
+| Cổng | **PASS** | `go test -count=1 -race ./internal/{ingest,rag,document,contract,store}` xanh; `sqlc diff` rc=0 |
+
+BUG-4 (thông điệp `size_bytes` 0 / −1) chưa sửa (Thấp, không chặn).
+
+**Kết luận story:** các TC kiểm được ở tầng API đều PASS; AC10, AC17 nay PASS. TC chưa kiểm được (UI `/documents`, `PATCH`, chat / `search_library`, k6, kill tiến trình, provider 512 chiều: 10, 13, 17, 20, 24, 26–36, 38, 41, 42, 44, 47, 55) chuyển sang `report-US-P8-02` / `report-US-P3-05` theo Q1.
