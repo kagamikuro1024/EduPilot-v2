@@ -37,7 +37,7 @@ type FinishChatMessageParams struct {
 	ID            uuid.UUID
 }
 
-// Ghi có điều kiện: chỉ tin còn STREAMING mới được đóng (tin đã bị Dừng / reaper đóng thì 0 hàng → sql.ErrNoRows).
+// Ghi có điều kiện: chỉ tin còn STREAMING mới được đóng (tin đã bị Dừng / reaper đóng thì 0 hàng → pgx.ErrNoRows).
 func (q *Queries) FinishChatMessage(ctx context.Context, arg FinishChatMessageParams) (ChatMessage, error) {
 	row := q.db.QueryRow(ctx, finishChatMessage,
 		arg.Content,

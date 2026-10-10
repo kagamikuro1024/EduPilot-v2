@@ -80,3 +80,35 @@ func (q *Queries) InsertPIIEvent(ctx context.Context, arg InsertPIIEventParams) 
 	)
 	return err
 }
+
+const privacyRoster = `-- name: PrivacyRoster :many
+select u.full_name, e.student_code_snapshot
+from enrollments e join users u on u.id = e.user_id
+where e.course_id = $1 and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE'
+`
+
+type PrivacyRosterRow struct {
+	FullName            string
+	StudentCodeSnapshot *string
+}
+
+// Từ điển PII của một lớp: chỉ sinh viên ACTIVE (giảng viên / TA không vào từ điển — Q8).
+func (q *Queries) PrivacyRoster(ctx context.Context, courseID uuid.UUID) ([]PrivacyRosterRow, error) {
+	rows, err := q.db.Query(ctx, privacyRoster, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PrivacyRosterRow{}
+	for rows.Next() {
+		var i PrivacyRosterRow
+		if err := rows.Scan(&i.FullName, &i.StudentCodeSnapshot); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

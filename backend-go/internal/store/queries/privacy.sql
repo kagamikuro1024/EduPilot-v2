@@ -10,3 +10,9 @@ from pii_events
 where course_id = sqlc.arg(course_id) and created_at >= sqlc.arg(since)
 group by pii_type, action
 order by pii_type, action;
+
+-- name: PrivacyRoster :many
+-- Từ điển PII của một lớp: chỉ sinh viên ACTIVE (giảng viên / TA không vào từ điển — Q8).
+select u.full_name, e.student_code_snapshot
+from enrollments e join users u on u.id = e.user_id
+where e.course_id = sqlc.arg(course_id) and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE';
