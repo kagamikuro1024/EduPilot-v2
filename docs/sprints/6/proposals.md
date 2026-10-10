@@ -30,6 +30,11 @@ Chủ dự án đã trả lời trong phiên PM ngày 2026-10-10. PM quyết t�
 | 5 | **ACCEPTED.** PM sửa `FEAT-course-foundation/SRS.md` 4.7 (`AI_CONFIRM` → P3) khi merge |
 | 6 | **ACCEPTED, gồm cả CHECK.** Chủ dự án đồng ý đổi lược đồ bằng migration mới: lưu `hex(sha256(token))` và `ALTER TABLE users ADD CONSTRAINT … CHECK (ics_token ~ '^[0-9a-f]{64}$')` trong `00009` |
 | 7 | **ACCEPTED, phương án B.** Một lần gọi async cho cả tệp. Ngưỡng đổi thành **≤ 1 s / trang** (đo được 0,67–0,79 s / trang). Ingest là việc nền nên sinh viên không phải chờ; ngưỡng 60 s cũ do PM tự đặt, không phải yêu cầu sản phẩm. Thêm:<br>• `pdf_backend=pypdfium2`; OCR Tesseract + `vie.traineddata` (519 KB, Apache-2.0) cho bản scan, dựng bằng image dẫn xuất `FROM docling-serve-cpu`;<br>• gọi `/v1/convert/file/async` + poll + kiểm `status` trong thân kết quả; healthcheck `/ready`; `LOAD_MODELS_AT_BOOT=false`;<br>• chunk 800 rune, overlap 0, cắt theo tiêu đề → đoạn → câu, nhúng `heading + text`;<br>• tìm lai RRF k = 60, `to_tsvector('simple', vn_fold(normalize(text, NFC)))`;<br>• **cột `content_chunks.tsv` lưu sẵn + GIN** bằng migration mới (chủ dự án đồng ý); chưa thêm HNSW ở T1.<br>Không mở lại D46. Nợ: báo upstream lỗi `docling_parse` trên arm64 |
+| 8 | **ACCEPTED.** Chỉ sửa chữ, không đổi hành vi. BA sửa AC / SRS và tăng phiên bản; commit ghi `#8` |
+| 9 | **ACCEPTED.** `GET /api/v1/_test/llm/payloads` (vòng đệm ≤ 200 lời gọi **sau khi che**) và `POST …/reset` chỉ có trong build `testroutes`, chỉ ADMIN, image mặc định trả 404. Thêm `PRIVACY_MASK_TIMEOUT_MS` (mặc định 50). Ghi vào SRS P3 4.3; `FEAT-llm-gateway` 6.4 ghi tham chiếu sang. Commit ghi `#9` |
+| 10 | **ACCEPTED.** Chỉ được `SKIP` bước k6 và bước cần docling thật. `TestNoPayloadLeak`, `TestAnswerKeyNeverRetrieved` thiếu stack → `FAIL`. Commit ghi `#10` |
+| 11 | **ACCEPTED.** Hằng số là giá trị khởi điểm, chỉnh trên dữ liệu seed, không chỉnh trên tập `test` của E1. Commit ghi `#11` |
+| 12 | **ACCEPTED.** Commit ghi `#12` |
 
 **Câu [CHỦ DỰ ÁN] trong hai `QUESTIONS.md`:**
 - **Q3 (P3), tên người đăng thread:** **công khai với cả lớp**. Chủ dự án: "đã có chat riêng để hỏi riêng tư rồi thì cái này cho mặc định công khai". BA đổi spec theo hướng này.
