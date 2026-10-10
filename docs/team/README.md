@@ -1,6 +1,6 @@
-# Đội agent 4 pane trên herdr
+# Đội agent trên herdr
 
-Một người (bạn) + bốn phiên Claude Code chạy trong bốn pane herdr, cùng một repo, cùng một nhánh sprint. Giao tiếp giữa các agent đi qua **file trong repo**, không qua trí nhớ hội thoại; herdr chỉ dùng để đánh thức nhau và chờ nhau.
+Một người (bạn) và sáu phiên agent chạy trong các pane herdr, cùng một repo, cùng một nhánh sprint. Các agent giao tiếp với nhau qua **file trong repo**, không dựa vào trí nhớ hội thoại; riêng `writer` giao tiếp qua thư mục quyển đồ án. herdr chỉ dùng để đánh thức nhau và chờ nhau.
 
 | Pane (tên agent) | Vai | Được sửa gì | Prompt |
 | --- | --- | --- | --- |
@@ -9,6 +9,7 @@ Một người (bạn) + bốn phiên Claude Code chạy trong bốn pane herdr,
 | `dev` | Dev: thi công từng user story theo lát dọc | `backend-go/**`, `frontend/**`, `db/**`, `scripts/**`, `seed/**` | `DEV.md` (PM gửi) |
 | `qc` | QC: chạy cổng nghiệm thu, test theo AC, viết báo cáo lỗi; **không sửa code** | `docs/sprints/<n>/qc/**`, `frontend/e2e/**` (chỉ thêm test) | `QC.md` (PM gửi) |
 | `research` | Research + **Tech Lead**: nghiên cứu theo câu hỏi PM; trả lời dev khi phân vân kỹ thuật; thẩm định spec của BA trước khi `APPROVED`; **không sửa code / spec / test** | `docs/research/**`, `docs/sprints/<n>/techlead.md`, `docs/specs/<feature>/TL-REVIEW.md` | `RESEARCH.md` (PM gửi) |
+| `writer` | Viết quyển đồ án (LaTeX, tiếng Việt, template "Định hướng ứng dụng"): sprint nào xong viết phần sprint đó; PM + BA review. **Không sửa repo** | `~/Documents/EduPilot-thesis/**` (ngoài repo, không git; bản lưu theo sprint ở `~/Documents/EduPilot-thesis-snapshots/`) | `WRITER.md` (PM gửi) |
 
 ## Vòng sprint
 
@@ -26,6 +27,7 @@ hợp lại khi có handoff ─▶ qc chạy đúng bộ TC đã viết + kiểm
         FAIL ─▶ pm ─▶ dev sửa (tối đa 2 vòng) ─▶ qc kiểm lại
 pm: docs/sprints/N/report.md + cập nhật PROGRESS + thesis-notes ─▶ DỪNG, báo cáo bạn
 bạn: đọc, bấm thử, "chốt" ──▶ pm merge --no-ff vào main, push ──▶ "tiếp" ──▶ sprint N+1
+pm: sau merge ─▶ writer viết phần sprint N vào ~/Documents/EduPilot-thesis/ ─▶ pm + ba review (review/sprint-N.md) ─▶ writer sửa ≤ 2 vòng
 ```
 
 Toàn dự án = **10 sprint**, mỗi sprint 1–2 phase: xem `docs/sprints/ROADMAP.md`. Story trong sprint vẫn nhỏ (dev ≤ 1 ngày) và là **lát dọc**: migration → API → giao diện → test → seed, chạy được từ đầu đến cuối trước khi sang story kế. Không có sprint "chỉ backend" (ngoại lệ: PG — nền Go). Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (public từ 2026-10-09; trước đó `TA_Agent_v2`); nhánh `sprint/N-<slug>` từ `main`.

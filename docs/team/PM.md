@@ -78,10 +78,14 @@ Khi mọi story PASS (hoặc dừng theo 3.4):
 6. `git commit -m "sprint N: báo cáo" -- <đường dẫn docs của PM> README.md` trên nhánh sprint, push. Chưa merge.
 7. **DỪNG.** In cho tôi: tóm tắt ≤ 15 dòng, link các file, danh sách "bạn tự kiểm" lấy từ phase file, và câu hỏi/quyết định đang chờ tôi. Không bắt đầu sprint N+1 cho tới khi tôi gõ `tiếp`.
 8. Khi tôi **chốt** báo cáo: `git switch main && git pull && git merge --no-ff sprint/N-<slug> -m "merge sprint N" && git push origin main`. CI phải xanh trên `main` sau merge; đỏ thì báo tôi, không tự sửa trên `main`.
+9. **Quyển đồ án** (chủ dự án yêu cầu 2026-10-10): sau khi merge, giao `writer` viết phần của sprint N theo `docs/team/WRITER.md`, quyển nằm ở `~/Documents/EduPilot-thesis/`, ngoài repo.
+   - Writer báo xong thì PM review phần số liệu, quy cách và mạch văn: đối chiếu với `report.md`, QC report, `DECISIONS.md` và template. Cùng lúc giao `ba` review các chương phân tích / đặc tả xem có khớp US / SRS không, và lời văn.
+   - Cả hai ghi góp ý vào `review/sprint-N.md`. Writer sửa, tối đa 2 vòng; PM ghi `ĐẠT`.
+   - Việc này không chặn sprint N+1.
 
 ## 4. Điều khiển các agent qua herdr
 
-Bạn đang chạy trong herdr; biến `HERDR_ENV=1` có sẵn. Dùng skill `herdr` (đã cài) hoặc CLI trực tiếp. Các agent tên `ba`, `dev`, `qc` đã được khởi động bởi `scripts/team-up.sh`; kiểm tra bằng:
+Bạn đang chạy trong herdr; biến `HERDR_ENV=1` có sẵn. Dùng skill `herdr` (đã cài) hoặc CLI trực tiếp. Các agent tên `ba`, `dev`, `qc` được khởi động bởi `scripts/team-up.sh`; `research` và `writer` được mở thêm bằng `herdr pane split` + `herdr agent start <tên> --kind omp --pane <id>`. Kiểm tra bằng:
 
 ```bash
 herdr agent list

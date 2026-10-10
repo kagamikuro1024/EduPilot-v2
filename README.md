@@ -225,7 +225,7 @@ Tóm tắt; bản đầy đủ và có hiệu lực là [`CLAUDE.md`](CLAUDE.md)
 
 ## 9. Quy trình làm việc: đội agent và sprint
 
-Một người (chủ dự án) + năm phiên agent trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/); mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước). Sau mỗi lượt test, agent chạy `docker volume prune -f`; PM dọn sâu Docker khi đóng sprint.
+Một người (chủ dự án) và sáu phiên agent trên [herdr](https://herdr.dev), giao tiếp qua file trong repo ([`docs/team/`](docs/team/)). Mọi vai đọc [`docs/team/CONTEXT.md`](docs/team/CONTEXT.md) trước khi làm. Sau mỗi lượt test, agent chạy `docker volume prune -f`; PM dọn sâu Docker khi đóng sprint.
 
 | Vai | Việc | Sửa được |
 | --- | --- | --- |
@@ -234,6 +234,7 @@ Một người (chủ dự án) + năm phiên agent trên [herdr](https://herdr.
 | `dev` | Thi công từng story theo lát dọc | mã nguồn |
 | `qc` | Viết test case từ AC (song song với dev), kiểm thử thăm dò, chạy, báo PASS/FAIL, chạy cổng phase | `docs/sprints/N/qc/**`, test mới |
 | `research` | Kiểm chứng công nghệ, hạ tầng, rủi ro bằng nguồn chính + PoC; kiêm **Tech Lead**: trả lời dev khi phân vân kỹ thuật (`docs/sprints/N/techlead.md`), thẩm định spec của BA trước khi duyệt (`TL-REVIEW.md`, PM quyết) | `docs/research/**`, `docs/sprints/N/techlead.md`, `docs/specs/*/TL-REVIEW.md` |
+| `writer` | Viết quyển đồ án tốt nghiệp (LaTeX, tiếng Việt, template SoICT "Định hướng ứng dụng"): sprint nào merge xong thì viết phần sprint đó; PM và BA review | thư mục quyển ngoài repo (`docs/team/WRITER.md`) |
 
 ```mermaid
 flowchart LR
@@ -249,6 +250,8 @@ flowchart LR
   QC2 --> PM
   PM -- report.md --> O
   O -- "chốt" --> M[PM merge vào main]
+  M --> W[Writer: viết phần sprint N]
+  W --> RV[PM + BA review quyển]
 ```
 
 - Spec đã duyệt chỉ đổi qua `docs/sprints/N/proposals.md` khi PM chấp nhận; **không thoả hiệp ngang hàng** (dev không xin QC nới test, QC không sửa test cho khớp code, BA không sửa AC cho khớp code).
