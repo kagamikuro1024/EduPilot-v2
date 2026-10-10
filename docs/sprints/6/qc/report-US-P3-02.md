@@ -1,10 +1,19 @@
-# QC report — US-P3-02 (`internal/privacy`)  · Kết luận: FAIL
+# QC report — US-P3-02 (`internal/privacy`)  · Kết luận: FAIL (còn 1 TC: AC3 `NotBlockedByLongJob`, chờ P3-06; phần còn lại PASS)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-02.md` (commit `db7c187`). Bộ TC: `tc-US-P3-02.md` (61 TC, không sửa).
 **Giới hạn bề mặt:** story chỉ giao gói Go (không handler, không service chat). 29 TC viết theo API (`precheck`, `/chat/sessions`, SSE, provider giả) **chưa có bề mặt** → QC kiểm cùng nội dung ở **tầng gói** bằng test hộp đen mới `backend-go/internal/privacy/qc_p302_test.go` (`package privacy_test`, chỉ gọi hàm export, ca tấn công do QC soạn từ US/SRS, Redis dùng stack dev cổng 6380, khoá thử xoá sau). Ghi rõ từng TC "mức gói" vs "chưa kiểm được".
 Không UI → không `playwright-cli`.
 
-**Lý do FAIL:** AC3 thiếu `TestRosterInvalidateNotBlockedByLongJob` (dev xác nhận chưa có) → TC-23/25 FAIL (vấn đề riêng tư theo TC-23: vô hiệu roster có bị việc AI dài chặn hay không chưa chứng minh). Các TC cần API tính FAIL theo luật "KHÔNG KIỂM ĐƯỢC".
+**Cập nhật theo PM (Q1, Q3):** TC thiếu bề mặt chuyển sang story giao bề mặt; Q3 (Redis nối lạnh) = D2 (ngưỡng 30 ms, dev xử lý, QC kiểm lại ở lượt sau). Lint `qc_p302_test.go` đã sạch.
+
+| TC chuyển | Đích |
+| --- | --- |
+| 49, 50 (Redis hỏng / che lỗi qua `PRIVACY_MASK_TIMEOUT_MS`, `llm_audit MASK_FAILED`) | `report-US-P3-03` (hook `internal/llm` + route `_test/llm/payloads`, #9) |
+| 19–22, 24 (roster qua API duyệt/mời + `precheck`), 58–60 (`precheck` phân quyền) | `report-US-P3-06` |
+| 23, 25 (`TestRosterInvalidateNotBlockedByLongJob`, vô hiệu ≤ 5 s khi hàng AI bận) | `report-US-P3-06` — **còn FAIL tới khi dev thêm test** |
+| 30–34 (payload), 36 (log), 43, 47, 52, 55 (p95 API), 56 (API), 61 | `report-US-P3-05` / `report-US-P3-03` (quét payload provider giả) |
+
+**Kết luận story:** các TC thuộc bề mặt gói `internal/privacy` (01–18, 26–29, 35, 37–42, 44–46, 48, 51, 53–57 và TC-08) PASS; riêng AC3 còn treo vì thiếu `TestRosterInvalidateNotBlockedByLongJob` (dev đã ghi nợ, hạn US-P3-06). Theo Q1 story đóng khi phần còn lại PASS → đề nghị PM coi **AC3 là điều kiện chuyển tiếp ở P3-06**.
 
 ## Cổng đã chạy
 | Lệnh | Kết quả |
@@ -21,7 +30,7 @@ Không UI → không `playwright-cli`.
 | --- | --- | --- |
 | 01–06 | PASS (mức gói) | 14 mẫu MSSV/email/SĐT/CCCD bị bắt đúng loại (`TestQCPositive`) |
 | 07 | PASS (mức gói) | 8 mẫu âm số (cổng, năm, IP, CVE, hex, RSA 2048…) không bị bắt |
-| 08 | KHÔNG KIỂM ĐƯỢC | chưa chạy ca "11 số + SĐT cùng câu"; chỉ test dev |
+| 08 | PASS (mức gói) | `TestQCNoDoubleCount`: không khoảng nào chồng PHONE/CCCD (13 chữ số liền không bị bắt: ngoài quy tắc CCCD 12 số) |
 | 09 | PASS (mức gói) | `0241234567` không bị bắt (theo cách đọc Q-QC-P3-02-1) |
 | 10 | PASS | dev khai 22 dương / 21 âm; tên test chạy ok |
 | 11–16 | PASS (mức gói) | có dấu / không dấu / HOA / đảo / rút bắt đúng; 7 mẫu âm tên (`Khải`, `An`, `anh…`, `Hoa Kỳ`, `MIT`, `Mai…`) không bị bắt |

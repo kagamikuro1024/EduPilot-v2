@@ -121,7 +121,7 @@ func TestQCMask(t *testing.T) { // TC-30..34, 38, 39, 53
 			t.Errorf("TC-30/32 [%d] %q", i, x)
 		}
 	}
-	o, n, _ = m.Mask(ctx, qcCourse, privacy.NewSession("qc-s2"), []string{"Bùi Thanh Khải 20229002, Ngô Ngọc Cẩm, a@b.vn, 0912345678, 001203004567"})
+	o, _, _ = m.Mask(ctx, qcCourse, privacy.NewSession("qc-s2"), []string{"Bùi Thanh Khải 20229002, Ngô Ngọc Cẩm, a@b.vn, 0912345678, 001203004567"})
 	for _, w := range []string{"[[SV_1]]", "[[SV_2]]", "[[MSSV_1]]", "[[EMAIL_1]]", "[[SDT_1]]", "[[CCCD_1]]"} {
 		if !strings.Contains(o[0], w) {
 			t.Errorf("TC-31 thiếu %s trong %q", w, o[0])
@@ -137,7 +137,7 @@ func TestQCMask(t *testing.T) { // TC-30..34, 38, 39, 53
 	}
 	// TC-38/39: khôi phục bản gốc lần thấy đầu tiên, dạng lỏng
 	s5 := privacy.NewSession("qc-s5")
-	m.Mask(ctx, qcCourse, s5, []string{"bui thanh khai"})
+	_, _, _ = m.Mask(ctx, qcCourse, s5, []string{"bui thanh khai"})
 	if got := m.Unmask(ctx, s5, "Chào [[SV_1]] và [[ SV_1 ]] và [[sv_1]]"); got != "Chào bui thanh khai và bui thanh khai và bui thanh khai" {
 		t.Errorf("TC-38/39: %q", got)
 	}
@@ -151,7 +151,7 @@ func TestQCUnmaskEdges(t *testing.T) { // TC-42, 44, 46, 47
 	m := qcMasker(nil)
 	ctx := context.Background()
 	s := privacy.NewSession("qc-e1")
-	m.Mask(ctx, qcCourse, s, []string{"Bùi Thanh Khải"})
+	_, _, _ = m.Mask(ctx, qcCourse, s, []string{"Bùi Thanh Khải"})
 	bash := "Dùng `[[ -f \"$f\" ]]` để kiểm tệp, và a[[i]] là chỉ mục lồng"
 	if got := m.Unmask(ctx, s, bash); got != bash {
 		t.Errorf("TC-42: %q", got)
@@ -171,7 +171,7 @@ func TestQCStreamCutEverywhere(t *testing.T) { // TC-41 (đối chiếu Unmask(t
 	m := qcMasker(nil)
 	ctx := context.Background()
 	s := privacy.NewSession("qc-c1")
-	m.Mask(ctx, qcCourse, s, []string{"Bùi Thanh Khải, 20229002, Ngô Ngọc Cẩm"})
+	_, _, _ = m.Mask(ctx, qcCourse, s, []string{"Bùi Thanh Khải, 20229002, Ngô Ngọc Cẩm"})
 	full := "Xin chào [[SV_1]], MSSV [[MSSV_1]] 🙂 và [[SV_2]][[SV_2]] ở đây [ [[ [[x]] ✓"
 	want := m.Unmask(ctx, s, full)
 	rs := []rune(full)
@@ -223,7 +223,7 @@ func TestQCRedisMapping(t *testing.T) { // TC-35, 45, 37
 	sid := "qc-redis-" + uuid.NewString()
 	s := privacy.NewSession(sid)
 	defer rd.Del(ctx, privacy.MaskKey(sid))
-	m.Mask(ctx, qcCourse, s, []string{"Bùi Thanh Khải"})
+	_, _, _ = m.Mask(ctx, qcCourse, s, []string{"Bùi Thanh Khải"})
 	ttl := rd.TTL(ctx, privacy.MaskKey(sid)).Val()
 	if ttl <= 0 || ttl > 24*time.Hour {
 		t.Errorf("TC-35 TTL %v", ttl)
@@ -237,7 +237,7 @@ func TestQCRedisMapping(t *testing.T) { // TC-35, 45, 37
 		t.Errorf("TC-45: %q", got)
 	}
 	n0 := len(rd.Keys(ctx, "ep:mask:*").Val())
-	m.Mask(ctx, qcCourse, privacy.NewSession(""), []string{"Bùi Thanh Khải"})
+	_, _, _ = m.Mask(ctx, qcCourse, privacy.NewSession(""), []string{"Bùi Thanh Khải"})
 	if n1 := len(rd.Keys(ctx, "ep:mask:*").Val()); n1 != n0 {
 		t.Errorf("TC-37: %d → %d", n0, n1)
 	}
@@ -249,12 +249,25 @@ func TestQCLongInput(t *testing.T) { // TC-56, 57
 		for _, pat := range []string{"a1", "((("} {
 			s := strings.Repeat(pat, n/len(pat))
 			t0 := time.Now()
-			d.Detect(context.Background(), qcCourse, s)
+			_, _ = d.Detect(context.Background(), qcCourse, s)
 			t.Logf("n=%d %q: %v", n, pat, time.Since(t0))
 		}
 	}
 	long := strings.Repeat("x ", 12500) + "liên hệ 0912345678 nhé"
 	if fs, _ := d.Detect(context.Background(), qcCourse, long); len(fs) != 1 || fs[0].Kind != privacy.KindPhone {
 		t.Errorf("TC-57: %v", fs)
+	}
+}
+
+func TestQCNoDoubleCount(t *testing.T) { // TC-08: một khoảng không vừa PHONE vừa CCCD
+	d := qcDet()
+	for _, in := range []string{"CCCD của tôi 0912345678901 và 0912345678", "0912345678901"} {
+		fs, _ := d.Detect(context.Background(), qcCourse, in)
+		for i := 1; i < len(fs); i++ {
+			if fs[i].Start < fs[i-1].End {
+				t.Errorf("TC-08 chồng lấn %q: %v", in, fs)
+			}
+		}
+		t.Logf("TC-08 %q → %v", in, fs)
 	}
 }
