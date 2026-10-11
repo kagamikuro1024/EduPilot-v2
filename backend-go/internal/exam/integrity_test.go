@@ -584,3 +584,33 @@ func TestNoAccusatoryCopy(t *testing.T) {
 		}))
 	}
 }
+
+// TestRecordChatBlocked — US-P3-05 AC9: một CHAT_BLOCKED (meta `{}`) cho lượt đang IN_PROGRESS của đúng sinh viên; khử trùng ≤ 1 dòng / lượt / phút; không ghi cho lượt của người khác / lượt đã nộp.
+func TestRecordChatBlocked(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	svc := lockSvc(t, r)
+	lk := r.locker(svc)
+	sv, other := r.student("ACTIVE"), r.student("ACTIVE")
+	e := r.openExam("chặn chat", true, r.mcqSet(1)...)
+	v := r.startVia(svc, e, sv)
+	att := v.Attempt.ID
+	count := func() (n int, meta string) {
+		require.NoError(t, r.pool.QueryRow(t.Context(), `select count(*), coalesce(max(meta::text), '') from exam_events where attempt_id=$1 and type='CHAT_BLOCKED'`, att).Scan(&n, &meta))
+		return
+	}
+	for range 3 {
+		require.NoError(t, lk.RecordChatBlocked(t.Context(), sv, att))
+	}
+	n, meta := count()
+	require.Equal(t, 1, n, "khử trùng trong 1 phút")
+	require.JSONEq(t, `{}`, meta)
+	ttl, err := svc.Redis.TTL(t.Context(), "ep:chat_blocked:"+att.String()).Result()
+	require.NoError(t, err)
+	require.Positive(t, ttl)
+	// lượt của người khác: không ghi (điều kiện student_id)
+	require.NoError(t, svc.Redis.Del(t.Context(), "ep:chat_blocked:"+att.String()).Err())
+	require.NoError(t, lk.RecordChatBlocked(t.Context(), other, att))
+	n, _ = count()
+	require.Equal(t, 1, n)
+}

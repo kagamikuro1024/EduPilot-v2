@@ -152,7 +152,7 @@ func TestReloadAtomic(t *testing.T) {
 	stubs := map[string]*stub{"A": a, "B": b}
 	reg := llm.NewRegistry(r.res, llm.EnvConfig{}, func(s llm.ProviderSpec) (provider.Provider, error) { return stubs[s.Name], nil }, newDiscardLog())
 	require.NoError(t, reg.Load(t.Context()))
-	g := llm.New(llm.Options{Registry: reg, Log: newDiscardLog()})
+	g := llm.New(llm.Options{NoMask: true, Registry: reg, Log: newDiscardLog()})
 
 	old := make(chan string, 1)
 	go func() {
@@ -220,7 +220,7 @@ func TestKeyNeverLeaksViaErrors(t *testing.T) {
 	cap := &capture{}
 	aud := llm.NewAuditor(context.Background(), cap.write, log)
 	defer aud.Close(context.Background())
-	g := llm.New(llm.Options{Registry: reg, Auditor: aud, Log: log})
+	g := llm.New(llm.Options{NoMask: true, Registry: reg, Auditor: aud, Log: log})
 	_, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskClassify, Messages: userMsg("x")})
 	require.ErrorIs(t, err, llm.ErrAllProvidersFailed)
 	require.NotContains(t, err.Error(), canary)

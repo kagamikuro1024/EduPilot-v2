@@ -1,10 +1,11 @@
 import { navFor } from "../../src/shared/shell/nav";
 import type { DemoRole } from "./session";
+import { TID } from "./thread-fixtures";
 
 // Danh sách route để quét (axe, một-nút-chính): mọi đích điều hướng của vai (khớp ma trận quyền SRS 7.5) + vài route chi tiết đại diện.
 // Route thuộc PU không cần vai: /login, /dev/ui, /dev/data.
 const DETAIL: Record<DemoRole, string[]> = {
-  student: ["/threads/t-cbc", "/practice/at-symmetric", "/practice/history", "/assignments/bt03", "/join"],
+  student: [`/threads/${TID}`, "/practice/at-symmetric", "/practice/history", "/assignments/bt03", "/join"],
   ta: ["/class/members"],
   teacher: ["/class/members", "/gradebook/scheme"],
   admin: [],

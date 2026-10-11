@@ -167,6 +167,38 @@ func TestBlob_Presign(t *testing.T) {
 	require.Equal(t, int64(len(up)), info.Size)
 }
 
+// TestBlob_PresignPutSizedRejectsWrongSize — URL ký kèm Content-Length: PUT đúng kích thước được, sai kích thước bị MinIO từ chối.
+func TestBlob_PresignPutSizedRejectsWrongSize(t *testing.T) {
+	t.Parallel()
+	testutil.RequireContainers(t)
+	ctx := t.Context()
+	s, err := blob.New(ctx, blob.Config{Endpoint: testutil.MinIOEndpoint(t), Bucket: "qc-" + strings.ToLower(testutil.TestPrefix(t)), AccessKey: testutil.MinIOAccessKey, SecretKey: testutil.MinIOSecretKey, EnsureBucket: true})
+	require.NoError(t, err)
+	body := []byte("%PDF-1.4 nội dung đúng 40 byte......")
+	pu, err := s.PresignPutSized(ctx, "sized/ok.pdf", "application/pdf", int64(len(body)))
+	require.NoError(t, err)
+	put := func(u string, payload []byte) int {
+		req, err := http.NewRequestWithContext(ctx, http.MethodPut, u, bytes.NewReader(payload))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "application/pdf")
+		resp, err := http.DefaultClient.Do(req)
+		require.NoError(t, err)
+		_, _ = io.Copy(io.Discard, resp.Body)
+		require.NoError(t, resp.Body.Close())
+		return resp.StatusCode
+	}
+	require.Equal(t, http.StatusOK, put(pu, body))
+	pu2, err := s.PresignPutSized(ctx, "sized/bad.pdf", "application/pdf", int64(len(body)))
+	require.NoError(t, err)
+	require.GreaterOrEqual(t, put(pu2, append(body, "thừa"...)), 400, "sai kích thước phải bị từ chối")
+	_, err = s.Stat(ctx, "sized/bad.pdf")
+	require.ErrorIs(t, err, blob.ErrNotFound)
+
+	iu, err := s.PresignGetInline(ctx, "sized/ok.pdf")
+	require.NoError(t, err)
+	require.Contains(t, iu, "response-content-disposition=inline")
+}
+
 func TestBlob_InvalidKey(t *testing.T) {
 	t.Parallel()
 	// Endpoint là cổng đóng: mọi lời gọi mạng sẽ hỏng ⇒ test chứng minh khoá sai bị chặn TRƯỚC khi gọi mạng.

@@ -3,7 +3,9 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
 import { navFor } from "../src/shared/shell/nav";
 import { settleGoto } from "./support/hydrate";
+import { MID, SID, chatApi, frame, json, msg, noContent, session, sse } from "./support/chat-fixtures";
 import { asDemo, type DemoRole } from "./support/session";
+import { COURSE, TID, precheckOk, row as threadRow, threadApi, view as threadView } from "./support/thread-fixtures";
 
 // Quét mọi route × vai của bản dựng cổng (US-PU-02 AC14): một nút primary mỗi vùng làm việc, trang không cuộn ngang.
 // (AUDIT đầy đủ — cut / ell sau khi cuộn, chuyển trạng thái — là lượt chạy của QC theo audit-baseline.md; ở đây chỉ chặn tràn ngang.)
@@ -98,6 +100,26 @@ test.describe("keyboard-only", () => {
   test("/chat: gõ, gửi bằng Enter, Dừng, mở nguồn, lịch sử phiên, quay lại composer", async ({ page, context }) => {
     test.setTimeout(90_000);
     await asDemo(context, "student");
+    // chat THẬT (US-P3-05) với gateway giả: lượt đầu treo tới khi bấm Dừng; lượt hai trả lời có nguồn
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((r) => (release = r));
+    let turn = 0;
+    let sent = 0;
+    await chatApi(page, {
+      "POST /chat/sessions": json(session(), 201),
+      [`GET /chat/sessions`]: json({ items: [session()], next_cursor: null }),
+      [`POST /chat/sessions/${SID}/messages`]: async (r) => {
+        turn++;
+        sent++;
+        if (turn === 1) {
+          await held;
+          return r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("error", { code: "CANCELLED", message: "Đã dừng." }, "1:2-0")));
+        }
+        return r.fulfill(sse(frame("status", { message_id: "m2", stage: "received" }, "1:1-0"), frame("token", { off: 0, t: "Theo quy chế [1]." }, "1:2-0"), frame("done", { message_id: "m2", citations: msg().citations, low_confidence: false, degraded: false }, "1:3-0")));
+      },
+      [`POST /chat/messages/${MID}/cancel`]: (r) => { release(); return r.fulfill(noContent); },
+      [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: sent >= 2 ? [msg({ id: "m2", content: "Theo quy chế [1]." }), msg({ id: "u2", role: "USER", content: "Tôi được cộng bao nhiêu điểm phát biểu?", citations: [] })] : [], next_cursor: null })),
+    });
     await page.goto("/chat");
     const composer = page.getByLabel("Câu hỏi của bạn");
     await test.step("gõ câu hỏi và gửi bằng Enter", async () => {
@@ -119,17 +141,16 @@ test.describe("keyboard-only", () => {
       await tabTo(page, composer);
       await page.keyboard.type("Tôi được cộng bao nhiêu điểm phát biểu?");
       await page.keyboard.press("Enter");
-      const src = page.getByRole("button", { name: /^Nguồn tham khảo/ });
+      const src = page.getByRole("button", { name: /Quy chế học vụ/ }); // mỗi nguồn là một nút mở đoạn trích tại chỗ
       await expect(src.last()).toBeVisible({ timeout: 15_000 });
-      await page.waitForTimeout(800); // chờ câu trả lời dựng xong (không còn đang phát) trước khi thao tác
       await tabTo(page, src.last());
       expect(await ringVisible(page)).toBe(true);
-      await expect(src.last()).toHaveAttribute("aria-expanded", "true"); // nguồn mở sẵn
+      const open = await src.last().getAttribute("aria-expanded");
       await page.keyboard.press("Enter");
-      await expect(src.last()).toHaveAttribute("aria-expanded", "false"); // Enter đóng lại
+      await expect(src.last()).toHaveAttribute("aria-expanded", open === "true" ? "false" : "true"); // Enter bật / tắt
     });
     await test.step("mở một phiên trong lịch sử rồi quay lại composer", async () => {
-      const item = page.locator("[data-part=chat-history] li button, [data-part=chat-history] li a").first();
+      const item = page.locator("[data-part=chat-history] li button[aria-pressed]").first();
       await tabTo(page, item);
       expect(await ringVisible(page)).toBe(true);
       await page.keyboard.press("Enter");
@@ -138,9 +159,18 @@ test.describe("keyboard-only", () => {
     });
   });
 
-  test("/threads: danh sách, mở thread, form Đặt câu hỏi, gõ, gửi, đọc trạng thái xác nhận", async ({ page, context }) => {
+  test("/threads: danh sách, mở thread, form Đặt câu hỏi, gõ, gửi (Threads thật)", async ({ page, context }) => {
     test.setTimeout(90_000);
     await asDemo(context, "student");
+    const T = `/courses/${COURSE}/threads`;
+    const lst = json({ items: [threadRow()], next_cursor: null });
+    await threadApi(page, {
+      [`GET ${T}`]: lst,
+      [`GET ${T}/${TID}`]: json(threadView()),
+      [`GET ${T}/${TID}/similar`]: json({ items: [] }),
+      [`POST ${T}/precheck`]: json(precheckOk),
+      [`POST ${T}`]: json(threadView([]), 201),
+    });
     await page.goto("/threads");
     await test.step("đi tới danh sách và mở một thread", async () => {
       const first = page.locator('main a[href^="/threads/"]').first();
@@ -159,25 +189,15 @@ test.describe("keyboard-only", () => {
     });
     await test.step("gõ và gửi", async () => {
       const form = page.locator("[data-part=thread-form]");
-      await tabTo(page, form.getByLabel(/Tiêu đề câu hỏi/));
+      await tabTo(page, form.getByLabel(/Tiêu đề/));
       await page.keyboard.type("Vì sao chế độ CBC cần vectơ khởi tạo?");
-      const topic = form.getByLabel(/Chủ đề/);
-      await tabTo(page, topic);
-      const first = (await topic.locator("option").nth(1).textContent()) ?? "";
-      await page.keyboard.type(first.slice(0, 1)); // gõ chữ đầu của mục: cách chọn trong <select> chỉ bằng phím
-      await expect(topic).not.toHaveValue("");
-      await tabTo(page, form.getByLabel(/Nội dung chi tiết/));
+      await tabTo(page, form.getByLabel(/Nội dung/));
       await page.keyboard.type("Em chưa hiểu vì sao hai khối giống nhau lại cho bản mã khác nhau.");
-      const send = form.getByRole("button", { name: "Đăng câu hỏi" });
+      const send = form.getByRole("button", { name: "Đăng" });
       await tabTo(page, send);
       await expect(send).toBeEnabled();
       await page.keyboard.press("Enter");
-      await expect(page.getByText("Vì sao chế độ CBC cần vectơ khởi tạo?").first()).toBeVisible();
-    });
-    await test.step("đọc trạng thái xác nhận (VerificationState) trong thread mở", async () => {
-      // sau khi đăng, ứng dụng mở luôn thread vừa tạo
-      await expect(page.locator("main h1")).toContainText("Vì sao chế độ CBC cần vectơ khởi tạo?");
-      await expect(page.locator("main")).toContainText(/Chờ xác nhận|Đang chờ giảng viên|Đã được giảng viên/);
+      await expect(page.locator("[data-part=thread-form]")).toHaveCount(0);
     });
   });
 

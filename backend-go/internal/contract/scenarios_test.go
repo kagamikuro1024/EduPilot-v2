@@ -28,6 +28,8 @@ type Observation struct {
 	Status    int
 	Declared  bool
 	Err       error
+	// Leak: khoá số độ tin cậy lọt vào phản hồi của SINH VIÊN ở chat / Threads (US-P3-07 AC3); rỗng = sạch.
+	Leak string
 }
 
 // call mô tả một request thử.
@@ -157,7 +159,7 @@ func (r *runner) doHandler(h http.Handler, c call) int {
 
 func (r *runner) record(c call, status int, h http.Header, body []byte, skipBody bool) {
 	spec, name := r.specFor(c.path)
-	o := Observation{Spec: name, Requested: c.method + " " + c.path, Status: status}
+	o := Observation{Spec: name, Requested: c.method + " " + c.path, Status: status, Leak: studentLeak(c, body)}
 	if spec == nil {
 		o.Err = fmt.Errorf("không nạp được spec %q", name)
 		r.add(o)
@@ -179,7 +181,11 @@ func (r *runner) record(c call, status int, h http.Header, body []byte, skipBody
 	o.Declared = op.Declared(status)
 	// `text/csv` (US-PE-08 `results.csv`, phân cách `;`): bộ giải mã CSV của kin-openapi chỉ biết dấu phẩy nên không kiểm thân bằng schema; nội dung do `exam.TestResultsCSV` kiểm.
 	csv := strings.HasPrefix(h.Get("Content-Type"), "text/csv")
-	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv})
+	// `text/event-stream` (chat riêng, US-P3-05): kin-openapi không có bộ giải mã SSE; khung SSE do `internal/chat` kiểm (TestStreamEventOrder, TestChatSSENotBuffered).
+	sse := strings.HasPrefix(h.Get("Content-Type"), "text/event-stream")
+	// `text/calendar` (US-P8-03 feed.ics): không có bộ giải mã ICS; định dạng do `calendar.TestICS*` kiểm.
+	ics := strings.HasPrefix(h.Get("Content-Type"), "text/calendar")
+	o.Err = spec.ValidateResponse(context.Background(), req, status, h, body, ValidateOpts{SkipBody: skipBody || csv || sse || ics})
 	r.add(o)
 }
 
@@ -618,6 +624,12 @@ func (r *runner) testScenarios() {
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats?lanes=1", token: admin}, 200)
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats"}, 401)
 	r.must(call{method: "GET", path: "/api/v1/_test/llm/stats", token: teacher}, 403)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/payloads", token: admin}, 200)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/payloads"}, 401)
+	r.must(call{method: "GET", path: "/api/v1/_test/llm/payloads", token: teacher}, 403)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/payloads/reset", token: admin}, 204)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/payloads/reset"}, 401)
+	r.must(call{method: "POST", path: "/api/v1/_test/llm/payloads/reset", token: teacher}, 403)
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/fake", token: admin, body: `{"error_rate":1,"error_kind":"AUTH"}`}, 200)
 	// mọi nhà cung cấp lỗi: CHAT (INTERACTIVE) suy giảm 200; làn NEAR_REALTIME trả 503 LLM_UNAVAILABLE
 	r.must(call{method: "POST", path: "/api/v1/_test/llm/chat", token: admin, body: chat}, 200)
@@ -1198,4 +1210,34 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "POST", path: dm, token: admin}, 403)
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/setup/dismiss", token: gv}, 404)
 	r.must(call{method: "POST", path: "/api/v1/courses/" + cid + "/setup/dismiss", token: gv}, 409)
+}
+
+var leakKeys = []string{`"confidence"`, `"retrieval_score"`, `"groundedness"`}
+
+// studentLeak: phản hồi (JSON hoặc khung SSE) của một token SINH VIÊN tới route chat / Threads mà chứa khoá số độ tin cậy.
+func studentLeak(c call, body []byte) string {
+	chatOrThreads := strings.Contains(c.path, "/chat/") || strings.Contains(c.path, "/threads") || strings.Contains(c.path, "/posts/")
+	if c.token == "" || !chatOrThreads {
+		return ""
+	}
+	parts := strings.Split(c.token, ".")
+	if len(parts) < 2 {
+		return ""
+	}
+	raw, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return ""
+	}
+	var claims struct {
+		Role string `json:"role"`
+	}
+	if json.Unmarshal(raw, &claims) != nil || claims.Role != "STUDENT" {
+		return ""
+	}
+	for _, k := range leakKeys {
+		if strings.Contains(string(body), k) {
+			return k + " ở " + c.method + " " + c.path
+		}
+	}
+	return ""
 }

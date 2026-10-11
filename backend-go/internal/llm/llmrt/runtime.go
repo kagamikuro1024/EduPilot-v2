@@ -16,6 +16,8 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/crypto"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/privacy"
 )
 
 // Runtime gom mọi thành phần cổng LLM của một tiến trình.
@@ -49,6 +51,24 @@ func SchedulerFrom(cfg config.Config) scheduler.Config {
 // New dựng và chạy cổng LLM: nạp cấu hình, nghe thông báo nạp lại (pub/sub + thăm dò 60 s), ghi llm_audit bất đồng bộ.
 // Nạp lần đầu lỗi → log error và chạy tiếp với cấu hình rỗng (mọi lời gọi trả ErrNotConfigured tới khi nạp lại thành công).
 func New(ctx context.Context, cfg config.Config, pool *pgxpool.Pool, rdb *goredis.Client, log *slog.Logger) (*Runtime, error) {
+	return NewWithMasker(ctx, cfg, pool, rdb, log, DefaultMasker(cfg, pool, rdb, log))
+}
+
+// DefaultMasker dựng privacy.Masker thật: roster từ Postgres (cache Redis), ánh xạ ở Redis, hạn PRIVACY_MASK_TIMEOUT_MS.
+func DefaultMasker(cfg config.Config, pool *pgxpool.Pool, rdb *goredis.Client, log *slog.Logger) llm.Masker {
+	var rc *appredis.Client
+	if rdb != nil {
+		rc = &appredis.Client{Client: rdb}
+	}
+	det := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: pool}, Redis: rc, Log: log}}
+	return &privacy.Masker{Detector: det, Redis: rc, Log: log, Timeout: cfg.PrivacyMaskTimeout}
+}
+
+// NewWithMasker như New nhưng nhận Masker tường minh. Masker nil → lỗi cấu hình, tiến trình không khởi động (US-P3-03 AC7).
+func NewWithMasker(ctx context.Context, cfg config.Config, pool *pgxpool.Pool, rdb *goredis.Client, log *slog.Logger, masker llm.Masker) (*Runtime, error) {
+	if masker == nil {
+		return nil, llm.Options{}.Validate()
+	}
 	cipher, err := crypto.ParseKey(cfg.AppEncryptionKey)
 	if err != nil {
 		return nil, err
@@ -78,7 +98,7 @@ func New(ctx context.Context, cfg config.Config, pool *pgxpool.Pool, rdb *goredi
 		}
 	})
 	rt.Auditor = llm.NewAuditor(ctx, llm.PGWriter(pool), log)
-	rt.Gateway = llm.New(llm.Options{Registry: rt.Registry, Gate: rt.Scheduler, Auditor: rt.Auditor, Log: log, RequestTimeout: cfg.LLMRequestTimeout})
+	rt.Gateway = llm.New(llm.Options{Registry: rt.Registry, Gate: rt.Scheduler, Auditor: rt.Auditor, Log: log, RequestTimeout: cfg.LLMRequestTimeout, Masker: masker})
 	wctx, cancel := context.WithCancel(context.WithoutCancel(ctx))
 	rt.cancel = cancel
 	go rt.Registry.Watch(wctx, rdb)

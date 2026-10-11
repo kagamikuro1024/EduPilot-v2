@@ -10,6 +10,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -236,6 +237,41 @@ func (s *Store) PresignPut(ctx context.Context, key, contentType string) (string
 	}
 	if err != nil {
 		return "", fmt.Errorf("blob: ký URL tải lên: %w", err)
+	}
+	return u.String(), nil
+}
+
+// PresignPutSized như PresignPut nhưng ký kèm header Content-Length = size: MinIO từ chối PUT sai kích thước (SRS FEAT-docs-calendar 4.1, TLR-8).
+func (s *Store) PresignPutSized(ctx context.Context, key, contentType string, size int64) (string, error) {
+	if err := validateKey(key); err != nil {
+		return "", err
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	h := http.Header{}
+	if contentType != "" {
+		h.Set("Content-Type", contentType)
+	}
+	h.Set("Content-Length", strconv.FormatInt(size, 10))
+	u, err := s.signer.PresignHeader(ctx, http.MethodPut, s.bucket, key, s.putTTL, nil, h)
+	if err != nil {
+		return "", fmt.Errorf("blob: ký URL tải lên: %w", err)
+	}
+	return u.String(), nil
+}
+
+// PresignGetInline trả URL xem trước (Content-Disposition: inline) — dùng cho PDF trong trình duyệt; TTL mặc định 5 phút.
+func (s *Store) PresignGetInline(ctx context.Context, key string) (string, error) {
+	if err := validateKey(key); err != nil {
+		return "", err
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	u, err := s.signer.PresignedGetObject(ctx, s.bucket, key, s.getTTL, url.Values{"response-content-disposition": []string{"inline"}})
+	if err != nil {
+		return "", fmt.Errorf("blob: ký URL xem trước: %w", err)
 	}
 	return u.String(), nil
 }

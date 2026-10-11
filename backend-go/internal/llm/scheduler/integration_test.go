@@ -62,7 +62,7 @@ func TestSchedWorker(t *testing.T) {
 		ctl := fake.NewController(fake.Settings{LatencyMin: 200 * time.Millisecond, LatencyMax: 400 * time.Millisecond})
 		reg := llm.NewStaticRegistry(map[llm.Task]llm.Route{})
 		reg.SetRoute(llm.TaskUtility, llm.Route{Targets: []llm.Target{{ProviderID: prov, ProviderName: "F", Model: "m", RPM: 1e6, TPM: 1e9, P: fake.New(ctl, "")}}})
-		g := llm.New(llm.Options{Registry: reg, Gate: s, Log: discard(), RequestTimeout: 2 * time.Minute})
+		g := llm.New(llm.Options{NoMask: true, Registry: reg, Gate: s, Log: discard(), RequestTimeout: 2 * time.Minute})
 		var done atomic.Int64
 		var wg sync.WaitGroup
 		for i := range envInt("SCHED_N", 200) {
@@ -298,7 +298,7 @@ func TestBatchDoesNotStarveInteractive(t *testing.T) {
 	reg.SetRoute(llm.TaskInsight, rt)
 	cfg := scheduler.Config{MaxConcurrency: 10, BatchShare: 0.5, QueueMax: 1000, QueueWaitMax: 10 * time.Second}
 	s := scheduler.New(cfg, rdb, discard())
-	g := llm.New(llm.Options{Registry: reg, Gate: s, Log: discard(), RequestTimeout: 3 * time.Minute, BatchTimeout: 3 * time.Minute})
+	g := llm.New(llm.Options{NoMask: true, Registry: reg, Gate: s, Log: discard(), RequestTimeout: 3 * time.Minute, BatchTimeout: 3 * time.Minute})
 
 	ttft := func(q string) (time.Duration, time.Duration) {
 		start := time.Now()

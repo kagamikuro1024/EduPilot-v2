@@ -12,6 +12,7 @@ export function PIIChannelDialog({
   onClose,
   onPrivateChat,
   onRedactedPost,
+  redactDisabled,
 }: {
   open: boolean;
   /** "1 địa chỉ email, 1 số điện thoại" */
@@ -20,6 +21,8 @@ export function PIIChannelDialog({
   /** có = vai Sinh viên; không có = GV / TA */
   onPrivateChat?: () => void;
   onRedactedPost: () => void;
+  /** lý do khoá lối "Ẩn rồi đăng" (câu hỏi riêng tư không có gì để ẩn) — hiện khi đưa chuột / focus */
+  redactDisabled?: string;
 }) {
   return (
     <Dialog
@@ -36,7 +39,7 @@ export function PIIChannelDialog({
               Quay lại sửa
             </Button>
           )}
-          <Button variant="primary" onClick={onRedactedPost}>
+          <Button variant="primary" onClick={onRedactedPost} disabled={Boolean(redactDisabled)} title={redactDisabled}>
             Ẩn thông tin rồi đăng
           </Button>
         </>

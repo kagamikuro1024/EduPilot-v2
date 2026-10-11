@@ -1,5 +1,7 @@
 # SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
-Phiên bản 1.6 · 2026-10-02 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+Phiên bản 1.7 · 2026-10-10 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+
+**v1.7 (2026-10-10)** — góp ý #9 `docs/sprints/6/proposals.md` (PM `ACCEPTED`; nguồn: ba, QC sprint 6): 6.4 thêm tham chiếu hai route thử `_test/llm/payloads` / `…/payloads/reset` do `FEAT-private-chat-pii` 4.3 định nghĩa. Không đổi số AC (72) và không đổi hành vi đã cài của spec này.
 
 **v1.6 (2026-10-03)** — góp ý #33 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: ba, QC `report-GATE-P1.md` TC-15; trích: "`FallbackIndex` = vị trí trong chuỗi đã giải (chỉ nhà / mô hình `enabled`, theo `fallback_order`), 0 = nhà dùng được đầu tiên; `≥ 1` khi một nhà dùng được đứng trước đã thử mà lỗi hoặc mạch hở. Sửa dòng `Kiểm` của AC7 và AC12: làm **nhà chính lỗi** (còn bật) → `fallback_index: 1`; **tắt** nhà chính bằng công tắc → vẫn trả lời, `fallback_index: 0`"). Không đổi số AC (72) và không đổi hành vi đã cài. Đổi: US-P1-02 AC7 (định nghĩa chỉ số + dòng `Kiểm`), US-P1-04 AC12 (kịch bản), `SRS.md` 4.1 (chú thích `FallbackIndex`). QC sửa TC-P102-19, TC-P104-46, TC-P105-22, TC-GATEP1-15.
 
@@ -489,6 +491,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 | `POST /api/v1/_test/llm/chat` | `{task, prompt, lane?, stream?, passages?[]}` → `{text, degraded, provider, model, fallback_index, queue_wait_ms}` hoặc SSE khi `stream` |
 | `GET /api/v1/_test/llm/stats` | `{queue_depth:{INTERACTIVE:n,…}, inflight:{<provider>:n}, provider_inflight:n, circuit:{<provider>:"closed"}, fake_calls:{<provider>:n}, audit:{buffer_len:n, flushed:n, dropped:n}}` — **chỉ số đếm**, không nội dung (Q-QC-P102-2) |
 | `POST /api/v1/_test/llm/fake` | đặt tham số `fake` lúc chạy (độ trễ, tỉ lệ lỗi, `FAKE_LLM_VALID_KEY`) |
+| `GET /api/v1/_test/llm/payloads`, `POST …/payloads/reset` | vòng đệm ≤ 200 lời gọi gần nhất **sau khi che** (do `FEAT-private-chat-pii` thêm, `proposals.md` #9; hợp đồng ở `FEAT-private-chat-pii` SRS 4.3; cùng quy tắc: chỉ build `testroutes`, ADMIN, image mặc định → 404) |
 
 ### 6.5 Hợp đồng sự kiện / outbox
 

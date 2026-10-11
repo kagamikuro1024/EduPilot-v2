@@ -27,6 +27,8 @@ type Session = {
   hasCourse: boolean;
   /** lớp THẬT (`GET /me/courses`, chỉ ACTIVE) của phiên `jwt`; null khi phiên mô phỏng hoặc chưa tải được — khi đó dùng `courses` mô phỏng */
   realCourses: RealCourse[] | null;
+  /** phiên thật đang tải `GET /me/courses` (chưa lỗi): màn có hai bản (thật / mô phỏng) chưa dựng bản nào — không nháy dữ liệu mô phỏng, không nạp cả hai bản (ngân sách JS mỗi route). Lỗi tải → false → bản mô phỏng như đã mô tả ở `realCourses` */
+  realPending: boolean;
   /** id lớp thật đang chọn, hoặc "all"; null khi `realCourses` là null */
   realCourseId: string | null;
   setCourse: (id: string) => void;
@@ -107,10 +109,10 @@ export function SessionProvider({
       course = courses.find((c) => c.id === courseId) ?? courses[0] ?? COURSES[0];
     }
     return {
-      role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, realCourses: identity ? real : null, realCourseId,
+      role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, realCourses: identity ? real : null, realPending: !!identity && role !== "admin" && mine.isPending, realCourseId,
       setCourse, identity, logout,
     };
-  }, [identity, fullName, pickedCourseId, real, members, setCourse, logout]);
+  }, [identity, fullName, pickedCourseId, real, mine.isPending, members, setCourse, logout]);
 
   // phiên thật chưa tải xong lớp thật (đang tải / lỗi) → chưa xử lý tham số, tránh bỏ nhầm một id hợp lệ
   useCourseDeepLink(value.realCourses ? value.realCourses.map((c) => c.id) : identity && value.role !== "admin" ? null : value.courses.map((c) => c.id), setCourse);

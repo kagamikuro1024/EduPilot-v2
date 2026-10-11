@@ -144,7 +144,7 @@ func TestSettingsDefaultsLazyCreate(t *testing.T) {
 	require.Equal(t, "0", r.scalar(`select count(*)::text from user_settings where user_id = $1`, u.ID))
 	res := r.getSettings(s)
 	require.Equal(t, http.StatusOK, res.code, string(res.body))
-	require.Equal(t, map[string]any{"notify_ticket_by_mail": true, "notify_answer_by_mail": true, "remind_deadline_by_mail": true, "version": float64(1)}, res.json())
+	require.Equal(t, map[string]any{"notify_ticket_by_mail": true, "notify_answer_by_mail": true, "remind_deadline_by_mail": true, "reminders": map[string]any{"exam": true, "class_session": false, "other": true}, "version": float64(1)}, res.json())
 	require.Equal(t, "1", r.scalar(`select count(*)::text from user_settings where user_id = $1`, u.ID))
 	require.Equal(t, http.StatusOK, r.getSettings(s).code)
 	require.Equal(t, "1", r.scalar(`select count(*)::text from user_settings where user_id = $1`, u.ID), "đọc lần hai không tạo thêm")
@@ -171,6 +171,27 @@ func TestSettingsPut(t *testing.T) {
 	require.Equal(t, false, g["notify_ticket_by_mail"])
 	require.Equal(t, false, g["notify_answer_by_mail"])
 	require.Equal(t, false, g["remind_deadline_by_mail"])
+}
+
+// TestSettingsReminders — US-P8-03 AC12: preferences.reminders gộp từng khoá, mặc định bật / tắt / bật, khoá lạ → 422.
+func TestSettingsReminders(t *testing.T) {
+	r := newRig(t)
+	u := r.addUser(uniq("rm"), store.UserRoleSTUDENT, store.UserStatusACTIVE)
+	s := r.mustLogin(u.Email)
+	put := func(body map[string]any) resp {
+		return r.do(req{method: http.MethodPut, path: "/me/settings", bearer: s.access, body: body})
+	}
+	res := put(map[string]any{"reminders": map[string]any{"exam": false}, "version": 1})
+	require.Equal(t, http.StatusOK, res.code, string(res.body))
+	require.Equal(t, map[string]any{"exam": false, "class_session": false, "other": true}, res.json()["reminders"])
+	res = put(map[string]any{"reminders": map[string]any{"class_session": true}, "version": 2})
+	require.Equal(t, map[string]any{"exam": false, "class_session": true, "other": true}, res.json()["reminders"], "khoá không gửi ⇒ giữ nguyên")
+	res = put(map[string]any{"notify_ticket_by_mail": false, "version": 3})
+	require.Equal(t, map[string]any{"exam": false, "class_session": true, "other": true}, res.json()["reminders"], "PUT không có reminders không đụng tới")
+	for _, body := range []map[string]any{{"reminders": map[string]any{"homework": true}, "version": 4}, {"reminders": map[string]any{"exam": "yes"}, "version": 4}, {"reminders": "all", "version": 4}} {
+		require.Equal(t, http.StatusUnprocessableEntity, put(body).code, "%v", body)
+	}
+	require.Equal(t, map[string]any{"exam": false, "class_session": true, "other": true}, r.getSettings(s).json()["reminders"])
 }
 
 func TestSettingsUnknownKey422(t *testing.T) {

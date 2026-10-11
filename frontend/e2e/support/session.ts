@@ -1,4 +1,7 @@
 import { BASE_URL } from "./env";
+import { doc as docRow, libDetail, libItem, stats as docStats } from "./doc-fixtures";
+import { exam as calExam, item as calItem, session as calSession } from "./cal-fixtures";
+import { TID as THREAD_ID, row as threadRow, view as threadView } from "./thread-fixtures";
 import type { BrowserContext, Page } from "@playwright/test";
 
 export type DemoRole = "student" | "ta" | "teacher" | "admin";
@@ -41,6 +44,34 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
     : { count: 0, actions: [], attention: [], upcoming: [] };
   await context.route("**/api/v1/me/today**", (r) => r.fulfill(json(today)));
   await context.route("**/api/v1/courses/*/today**", (r) => r.fulfill(json(today)));
+  // chat riêng THẬT (US-P3-05): phiên đăng nhập thật có lớp → /chat gọi API; mặc định chưa có phiên, không bị khoá giờ thi
+  await context.route("**/api/v1/chat/sessions?**", (r) => r.fulfill(json({ items: [], next_cursor: null })));
+  await context.route("**/api/v1/me/exam-lock", (r) => r.fulfill(json({ locked: false })));
+  // Threads THẬT (US-P3-06): danh sách một thread + chi tiết `TID`; các lời gọi khác (POST…) do từng spec tự giả (`threadApi`, page-level thắng)
+  await context.route("**/api/v1/courses/*/threads**", (r) => {
+    const u = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") return r.fallback();
+    if (u.endsWith(`/threads/${THREAD_ID}`)) return r.fulfill(json(threadView()));
+    if (u.endsWith("/similar")) return r.fulfill(json({ items: [] }));
+    return r.fulfill(json({ items: [threadRow()], next_cursor: null }));
+  });
+  // Tài liệu / thư viện THẬT (US-P8-02): một tài liệu mặc định; spec cần hành vi khác thì tự giả bằng `docApi` (page-level thắng).
+  await context.route("**/api/v1/courses/*/documents**", (r) => {
+    const u = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") return r.fallback();
+    if (u.endsWith("/stats")) return r.fulfill(json(docStats()));
+    if (u.endsWith("/chunks")) return r.fulfill(json({ items: [], next_cursor: null }));
+    return r.fulfill(json({ items: [docRow()], next_cursor: null }));
+  });
+  await context.route("**/api/v1/courses/*/library**", (r) => {
+    const u = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") return r.fallback();
+    if (u.endsWith("/download")) return r.fulfill(json({ url: "http://localhost:9/f.pdf" }));
+    if (/\/library\/[^/]+$/.test(u)) return r.fulfill(json(libDetail()));
+    return r.fulfill(json({ items: [libItem()], next_cursor: null }));
+  });
+  // Lịch THẬT (US-P8-03): vài dòng mặc định; spec cần hành vi khác thì tự giả bằng `calApi` (page-level thắng).
+  await context.route("**/api/v1/courses/*/calendar**", (r) => (r.request().method() === "GET" ? r.fulfill(json({ items: [calExam(), calItem(), calSession()], next_cursor: null })) : r.fallback()));
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }
 

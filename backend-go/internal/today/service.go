@@ -197,13 +197,23 @@ type SessionOut struct {
 	Course CourseRef `json:"course"`
 }
 
+// ContinueOut là một mục "Tiếp tục học" (US-P3-08 AC3): phiên chat RIÊNG của chính sinh viên.
+type ContinueOut struct {
+	Kind   string    `json:"kind"`
+	ID     uuid.UUID `json:"id"`
+	Title  string    `json:"title"`
+	Href   string    `json:"href"`
+	Course CourseRef `json:"course"`
+	At     time.Time `json:"at"`
+}
+
 // StudentView là phản hồi cho Sinh viên.
 type StudentView struct {
-	NoCourse      bool         `json:"no_course"`
-	EmailVerified bool         `json:"email_verified"`
-	Recommended   *Item        `json:"recommended"`
-	Timeline      []SessionOut `json:"timeline"`
-	Continue      []any        `json:"continue"`
+	NoCourse      bool          `json:"no_course"`
+	EmailVerified bool          `json:"email_verified"`
+	Recommended   *Item         `json:"recommended"`
+	Timeline      []SessionOut  `json:"timeline"`
+	Continue      []ContinueOut `json:"continue"`
 }
 
 // UpcomingOut là một buổi học sắp tới của giảng viên / TA.
@@ -229,7 +239,7 @@ type AdminView struct {
 }
 
 func (s *Service) student(ctx context.Context, v Viewer, scope Scope, items []Item) (StudentView, error) {
-	out := StudentView{NoCourse: len(v.Courses) == 0, EmailVerified: v.EmailVerified, Timeline: []SessionOut{}, Continue: []any{}}
+	out := StudentView{NoCourse: len(v.Courses) == 0, EmailVerified: v.EmailVerified, Timeline: []SessionOut{}, Continue: []ContinueOut{}}
 	if len(items) > 0 {
 		first := items[0]
 		out.Recommended = &first
@@ -239,13 +249,21 @@ func (s *Service) student(ctx context.Context, v Viewer, scope Scope, items []It
 		return out, nil
 	}
 	day := startOfDay(v.Now)
-	rows, err := store.New(s.Pool).TodaySessions(ctx, store.TodaySessionsParams{CourseIds: ids(courses), FromAt: day, ToAt: day.AddDate(0, 0, 8)})
+	rows, err := store.New(s.Pool).TodayStudentFeed(ctx, store.TodayStudentFeedParams{UserID: v.UserID, CourseIds: ids(courses), FromAt: day, ToAt: day.AddDate(0, 0, 8), Since: v.Now.AddDate(0, 0, -7)})
 	if err != nil {
-		return StudentView{}, fmt.Errorf("today: buổi học: %w", err)
+		return StudentView{}, fmt.Errorf("today: buổi học và tiếp tục học: %w", err)
 	}
 	for _, r := range rows {
+		if r.Kind == "C" {
+			title := r.ChatTitle
+			if title == "" {
+				title = "Cuộc trò chuyện với trợ lý"
+			}
+			out.Continue = append(out.Continue, ContinueOut{Kind: "CHAT", ID: *r.ChatID, Title: title, Href: "/chat?session=" + r.ChatID.String(), Course: CourseRef{ID: r.CourseID, ClassCode: r.ClassCode}, At: r.StartsAt})
+			continue
+		}
 		if len(out.Timeline) == 8 {
-			break
+			continue
 		}
 		state := "NEXT"
 		switch {

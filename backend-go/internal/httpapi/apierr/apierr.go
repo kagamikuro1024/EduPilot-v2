@@ -69,6 +69,31 @@ const (
 	JudgeUnavailable       = "JUDGE_UNAVAILABLE"
 	AppealWindowClosed     = "APPEAL_WINDOW_CLOSED"
 	AppealExists           = "APPEAL_EXISTS"
+
+	// Tài liệu (FEAT-docs-calendar SRS 6.1, US-P8-01): tải lên và nạp nền.
+	FileTypeNotAllowed         = "FILE_TYPE_NOT_ALLOWED"
+	FileTooLarge               = "FILE_TOO_LARGE"
+	FileTypeMismatch           = "FILE_TYPE_MISMATCH"
+	UploadIncomplete           = "UPLOAD_INCOMPLETE"
+	UploadNotFound             = "UPLOAD_NOT_FOUND"
+	DocumentDuplicate          = "DOCUMENT_DUPLICATE"
+	DocumentDuplicateElsewhere = "DOCUMENT_DUPLICATE_ELSEWHERE"
+	DocumentNotFailed          = "DOCUMENT_NOT_FAILED"
+	DocumentNotReady           = "DOCUMENT_NOT_READY"
+	DocumentSharedReadonly     = "DOCUMENT_SHARED_READONLY"
+	AnswerKeyNotVisible        = "ANSWER_KEY_NOT_VISIBLE"
+	FileGone                   = "FILE_GONE"
+	RangeTooLarge              = "RANGE_TOO_LARGE"
+	EventTimeInvalid           = "EVENT_TIME_INVALID"
+
+	// Chat riêng (FEAT-private-chat-pii SRS 6.1, US-P3-05).
+	ExamInProgress      = "EXAM_IN_PROGRESS"
+	ChatBusy            = "CHAT_BUSY"
+	MessageTooLong      = "MESSAGE_TOO_LONG"
+	ChatUnavailable     = "CHAT_UNAVAILABLE"
+	MessageNotRetryable = "MESSAGE_NOT_RETRYABLE"
+	PIIDetected         = "PII_DETECTED"
+	PostStateConflict   = "POST_STATE_CONFLICT"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -235,6 +260,48 @@ func DefaultMessage(code string) string {
 		return "Đã hết hạn phúc khảo."
 	case AppealExists:
 		return "Bạn đã gửi yêu cầu phúc khảo cho bài này."
+	case FileTypeNotAllowed:
+		return "Chỉ nhận tệp PDF, DOCX hoặc PPTX."
+	case FileTooLarge:
+		return "Tệp quá lớn (tối đa 50 MB)."
+	case FileTypeMismatch:
+		return "Tệp không đọc được. Dùng PDF, DOCX hoặc PPTX."
+	case UploadIncomplete:
+		return "Tệp chưa tải lên đủ. Hãy tải lại."
+	case UploadNotFound:
+		return "Không tìm thấy lượt tải lên. Hãy tải lại."
+	case DocumentDuplicate:
+		return "Tệp này đã có trong lớp."
+	case DocumentDuplicateElsewhere:
+		return "Tệp này đã có ở một lớp khác của bạn."
+	case DocumentNotFailed:
+		return "Chỉ thử lại được tài liệu bị lỗi."
+	case DocumentNotReady:
+		return "Tài liệu chưa sẵn sàng."
+	case DocumentSharedReadonly:
+		return "Tài liệu này được chia sẻ từ lớp khác nên chỉ lớp gốc mới sửa được."
+	case AnswerKeyNotVisible:
+		return "Đáp án không được hiện cho sinh viên."
+	case FileGone:
+		return "Tệp này không còn nữa."
+	case RangeTooLarge:
+		return "Khoảng thời gian tối đa 62 ngày."
+	case EventTimeInvalid:
+		return "Giờ sự kiện không hợp lệ: giờ kết thúc phải sau giờ bắt đầu, giờ bắt đầu trong vòng 2 năm."
+	case ExamInProgress:
+		return "Chat tạm khóa trong lúc bạn làm bài thi."
+	case ChatBusy:
+		return "AI đang trả lời câu trước. Chờ một chút rồi gửi tiếp."
+	case MessageTooLong:
+		return "Tin nhắn quá dài."
+	case ChatUnavailable:
+		return "Chat tạm thời không khả dụng. Hãy thử lại sau."
+	case PIIDetected:
+		return "Bài viết có thông tin cá nhân. Chuyển sang chat riêng hoặc ẩn thông tin rồi đăng."
+	case PostStateConflict:
+		return "Câu trả lời đã được xử lý theo cách khác. Hãy tải lại."
+	case MessageNotRetryable:
+		return "Chỉ thử lại được câu trả lời bị lỗi hoặc đã dừng."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

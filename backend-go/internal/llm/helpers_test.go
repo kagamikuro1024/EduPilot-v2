@@ -103,7 +103,7 @@ func newGatewayFull(t *testing.T, log *slog.Logger, gate llm.Gate, ps ...*stub) 
 	for _, task := range append(llm.ChatTasks(), llm.TaskEmbedding) {
 		reg.SetRoute(task, llm.Route{Targets: targets})
 	}
-	g := llm.New(llm.Options{Registry: reg, Auditor: aud, Log: log, Gate: gate,
+	g := llm.New(llm.Options{NoMask: true, Registry: reg, Auditor: aud, Log: log, Gate: gate,
 		Sleep: func(ctx context.Context, d time.Duration) error { cap.sleeps = append(cap.sleeps, d); return ctx.Err() },
 		Rand:  func() float64 { return 1 }}) // jitter = đúng trần
 	return g, cap

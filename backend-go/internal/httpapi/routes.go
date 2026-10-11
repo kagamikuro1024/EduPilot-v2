@@ -4,16 +4,26 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/library"
+	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
 )
@@ -24,7 +34,7 @@ import (
 func registerAPIRoutes(r chi.Router, d Deps) {
 	r.Use(rateLimitMiddleware(d))
 
-	mw := []auth.MiddlewareOption{}
+	mw := authOptions(d)
 	var authAPI *authhttp.Handler
 	if d.Sessions != nil {
 		// US-P2-02: các đường /auth/* công khai (không Bearer) và kiểm thu hồi cho mọi API có Bearer.
@@ -32,10 +42,13 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			Sessions: d.Sessions, Accounts: d.Accounts, Verify: d.Verifier.Verify, Limiter: auth.NewLimiter(d.Redis, d.now, d.Log), Limits: authLimits(d.Cfg), Cfg: d.Cfg, Log: d.Log, ClientIP: func(r *http.Request) string { return clientIP(r, d) },
 		}
 		authAPI.Mount(r)
-		mw = append(mw, auth.WithRevocation(d.Sessions))
 	}
-	if d.Cfg.AppEnv == "production" {
-		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
+
+	var calH *calendarhttp.Handler
+	if d.DB != nil {
+		// US-P8-03 — lịch gộp, sự kiện của Staff, token + feed ICS (SRS FEAT-docs-calendar 6, #16–#23). Feed (#20) công khai: danh tính là token.
+		calH = &calendarhttp.Handler{Svc: calendarService(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}
+		calH.MountPublic(r)
 	}
 
 	r.Group(func(r chi.Router) {
@@ -63,6 +76,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			resolver = course.Resolver{Pool: d.DB}
 		}
 		courseGuard := func(m auth.GuardMode) func(http.Handler) http.Handler { return auth.CourseAccessGuard(resolver, m) }
+		if calH != nil {
+			calH.Guard = courseGuard
+			calH.Mount(r)
+		}
 		if d.DB != nil {
 			// US-P2-07 — lớp của tôi và chi tiết lớp.
 			svc := course.NewService(course.Service{Pool: d.DB, Production: d.Cfg.AppEnv == "production", Clock: d.Clock, Redis: d.Redis, Log: d.Log, PublicURL: d.Cfg.AppPublicURL})
@@ -85,6 +102,30 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			}
 			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 		}
+		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
+			// US-P8-01 — tải tài liệu lên (URL ký sẵn), hoàn tất → 202 + việc nền, thử lại, lập chỉ mục lại (SRS FEAT-docs-calendar 6, #1–#2, #9–#11).
+			clk := d.Clock
+			if clk == nil {
+				clk = clock.Real{}
+			}
+			ds := &document.Service{Pool: d.DB, Redis: d.Redis, Blob: d.Blob, Jobs: d.Jobs, Clock: clk, Log: d.Log}
+			if d.LLM != nil && d.LLM.Gateway != nil {
+				ds.Embed = agent.NewEmbedder(d.LLM.Gateway, d.Redis)
+			}
+			dh := &documenthttp.Handler{Svc: ds, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}
+			dh.Mount(r)
+			dh.MountManage(r) // US-P8-02 — danh sách, sửa, xoá, đoạn, thống kê (#3–#8, #12)
+			// US-P8-02 — thư viện của sinh viên (#13–#15).
+			(&libraryhttp.Handler{Svc: &library.Service{Pool: d.DB, Blob: d.Blob, Log: d.Log}, Guard: courseGuard, Log: d.Log}).Mount(r)
+		}
+		if d.Thread != nil {
+			// US-P3-06 — Threads: đọc / precheck / đăng / bình luận / quyết định của Staff / thread tương tự (SRS FEAT-private-chat-pii 6, #12–#20).
+			(&threadhttp.Handler{Svc: d.Thread, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+		}
+		if d.Chat != nil {
+			// US-P3-05 — chat riêng: 7 route JSON ở đây; 3 route SSE nằm ngoài nhóm này (newRouterWith, SRS 4.7.0).
+			(&chathttp.Handler{Svc: d.Chat, Idem: RequireIdempotencyKey(d), Drain: drainC(d), Log: d.Log}).Mount(r)
+		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.
 			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).Mount(r, RequireIdempotencyKey(d))
@@ -92,4 +133,24 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 	})
 
 	registerTestRoutes(r, d)
+}
+
+// authOptions là tuỳ chọn của auth.Middleware dùng chung cho nhóm nghiệp vụ và các route SSE nằm ngoài nhóm.
+func authOptions(d Deps) []auth.MiddlewareOption {
+	mw := []auth.MiddlewareOption{}
+	if d.Sessions != nil {
+		mw = append(mw, auth.WithRevocation(d.Sessions))
+	}
+	if d.Cfg.AppEnv == "production" {
+		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
+	}
+	return mw
+}
+
+func calendarService(d Deps) *calendar.Service {
+	clk := d.Clock
+	if clk == nil {
+		clk = clock.Real{}
+	}
+	return &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clk, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}
 }

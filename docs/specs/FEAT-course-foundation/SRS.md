@@ -1,5 +1,7 @@
 # SRS FEAT-course-foundation Nền lớp học (F2, M0, M14): lược đồ, quyền theo lớp, mở lớp, mã tham gia, roster, "Hôm nay", seed
-Phiên bản 1.7 · 2026-10-03 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+Phiên bản 1.8 · 2026-10-11 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q20 theo mặc định của BA; câu [CHỦ DỰ ÁN] Q3–Q8, Q16, Q20 chốt theo mặc định và báo chủ dự án trong báo cáo sprint 4; PM đã cập nhật `ARCHITECTURE.md` §5, §9)
+
+**v1.8 (2026-10-11)** — góp ý #5 `docs/sprints/6/proposals.md` (PM `ACCEPTED` và ủy quyền BA sửa; nguồn: ba, `FEAT-private-chat-pii` Q21): 4.7 bảng bậc đổi cột "Phase đăng ký" của `AI_CONFIRM` từ P4 sang **P3** (P3 là phase tạo bài AI chờ xác nhận; P4 chỉ thêm thông báo gộp / mail); mục 7.6 dòng 2 (GV) ghi thread chờ xác nhận do P3 đăng ký. Không đổi hành vi của P2 và không đổi số AC (83).
 
 **v1.7 (2026-10-04)** — góp ý #12 `docs/sprints/4/proposals.md` (PM `ACCEPTED`; nguồn: dev, US-P2-10; trích: "cắt còn 100 rune. BA ghi rõ vào SRS 4.5 / AC13"). Không đổi số AC (83). Đổi: US-P2-10 AC13 (tên dài hơn 100 → cắt còn 100 rune, test), `SRS.md` 4.5 (chuẩn hoá).
 
@@ -188,7 +190,7 @@ Chuyển trạng thái hợp lệ: `PENDING → ACTIVE` (approve), `PENDING → 
 | | 30 | `GRADING_REVIEW` | P7 | — |
 | | 40 | `EMAIL_MISMATCH` (chỉ GV) | **P2** | ✓ |
 | | 45 | `JOIN_REQUEST` | **P2** | ✓ |
-| | 50 | `AI_CONFIRM` | P4 | — |
+| | 50 | `AI_CONFIRM` | **P3** (sprint 6, `FEAT-private-chat-pii` US-P3-08 AC4; P4 chỉ thêm thông báo gộp / mail) | — |
 | | 60 | `UNMATCHED_SUBMISSION` | P7 | — |
 | | 70 | `GRADE_SCHEME_UNCONFIRMED` | P6 | — |
 | | 80 | `COURSE_SETUP` (chỉ GV) | **P2** | ✓ |
@@ -587,7 +589,7 @@ Tính theo **ngày lịch** (`Asia/Ho_Chi_Minh`) từ đồng hồ thật: cùng
 | # | Mock 1.5 | Bản thật ở P2 |
 | --- | --- | --- |
 | 1 | SV: "Ôn lại Mật mã đối xứng — bạn sai 4/7 câu" (luyện đề), "QUIZ01 đóng sau 18 giờ" | **không có** (P9 / P7 đăng ký Provider); SV thấy xác minh email / nhập mã / chờ duyệt / buổi học; còn lại "Hôm nay bạn không có việc gấp." |
-| 2 | GV: phiếu hỗ trợ, bài chấm, thread chờ xác nhận, điểm danh đang diễn ra, câu hỏi mới | **không có** (P4 / P5 / P7); GV thấy yêu cầu vào lớp, email lệch MSSV, thiết lập lớp mới, buổi sắp tới |
+| 2 | GV: phiếu hỗ trợ, bài chấm, thread chờ xác nhận, điểm danh đang diễn ra, câu hỏi mới | **không có** (P3 thread chờ xác nhận — đăng ký ở sprint 6; P4 / P5 / P7); GV thấy yêu cầu vào lớp, email lệch MSSV, thiết lập lớp mới, buổi sắp tới |
 | 3 | Đếm "7 việc cần xử lý" từ dữ liệu mock | `count` từ Provider thật; giảm khi xử lý (≤ 60 s) |
 | 4 | "Lớp cần chú ý" (8 sinh viên) | ẩn khi rỗng (P5 / P10) |
 | 5 | Admin: dữ liệu mock | việc thật: nhà cung cấp AI lỗi, ngân sách, lớp không giảng viên, lời mời hết hạn |

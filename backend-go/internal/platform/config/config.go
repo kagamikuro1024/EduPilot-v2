@@ -103,7 +103,9 @@ type Config struct {
 	ExamMinDurationMinutes int
 	ExamMinLeadSeconds     int
 	ExamTickInterval       time.Duration
-	JudgeMaxTotalSeconds   int // JUDGE_MAX_TOTAL_SECONDS; worker đọc riêng cùng biến này ở judge.Settings
+	ReminderTick           time.Duration // REMINDER_TICK (US-P8-03)
+	ReminderLead           time.Duration // REMINDER_LEAD
+	JudgeMaxTotalSeconds   int           // JUDGE_MAX_TOTAL_SECONDS; worker đọc riêng cùng biến này ở judge.Settings
 	// Lượt làm (US-PE-05, SRS 4.3): độ trễ chấp nhận ghi sau hạn, giới hạn lưu theo lượt, thời gian một tab ghi bị coi là bỏ.
 	ExamGraceSeconds   int
 	ExamSaveRatePerMin int
@@ -129,6 +131,12 @@ type Config struct {
 	LLMDefaultRPM     int
 	LLMDefaultTPM     int
 	LLMEmbedDims      int
+	// PrivacyMaskTimeout: quá hạn che → MASK_FAILED, không gọi provider (PRIVACY_MASK_TIMEOUT_MS, mặc định 50; QC hạ thấp để ép lỗi).
+	PrivacyMaskTimeout time.Duration
+	// Chat riêng (SRS FEAT-private-chat-pii 8.1): CHAT_MAX_INPUT_CHARS, CHAT_RATE_PER_MIN, CHAT_STREAM_MAX_SECONDS.
+	ChatMaxInputChars int
+	ChatRatePerMin    int
+	ChatStreamMax     time.Duration
 	LLMProvider       string // "" | "fake"
 	LLMReplayDir      string
 	OpenAIKey         string
@@ -269,6 +277,8 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ExamMinDurationMinutes = l.num("EXAM_MIN_DURATION_MINUTES", 5, 1, 300)
 	c.ExamMinLeadSeconds = l.num("EXAM_MIN_LEAD_SECONDS", 60, 0, 86400)
 	c.ExamTickInterval = l.dur("EXAM_TICK_INTERVAL", 5*time.Second)
+	c.ReminderTick = l.dur("REMINDER_TICK", 5*time.Minute)
+	c.ReminderLead = l.dur("REMINDER_LEAD", 24*time.Hour)
 	c.JudgeMaxTotalSeconds = l.num("JUDGE_MAX_TOTAL_SECONDS", 300, 20, 100000)
 	c.ExamGraceSeconds = l.num("EXAM_GRACE_SECONDS", 10, 0, 300)
 	c.ExamSaveRatePerMin = l.num("EXAM_SAVE_RATE_PER_MIN", 240, 1, 100000)
@@ -291,6 +301,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.LLMDefaultRPM = l.num("LLM_DEFAULT_RPM", 60, 1, 10_000_000)
 	c.LLMDefaultTPM = l.num("LLM_DEFAULT_TPM", 100000, 1, 1_000_000_000)
 	c.LLMEmbedDims = l.num("LLM_EMBED_DIMS", 1536, 1, 100000)
+	c.PrivacyMaskTimeout = time.Duration(l.num("PRIVACY_MASK_TIMEOUT_MS", 50, 1, 60000)) * time.Millisecond
+	c.ChatMaxInputChars = l.num("CHAT_MAX_INPUT_CHARS", 4000, 100, 20000)
+	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
+	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
 	if c.LLMEmbedDims != 1536 {
 		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
 	}

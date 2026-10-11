@@ -439,7 +439,10 @@ select c.course_id::uuid as course_id,
        coalesce(q.pending, 0)::int as questions,
        coalesce(q.oldest, 'epoch'::timestamptz)::timestamptz as questions_oldest,
        coalesce(s.exams, '[]'::jsonb)::jsonb as similarity,
-       coalesce(w.exams, '[]'::jsonb)::jsonb as exam_work
+       coalesce(w.exams, '[]'::jsonb)::jsonb as exam_work,
+       coalesce(f.ai_pending, 0)::int as ai_pending,
+       coalesce(f.ai_skipped, 0)::int as ai_skipped,
+       coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest
 from unnest($1::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -482,6 +485,23 @@ left join (
     where e.course_id = any($1::text[]::uuid[]) and e.status in ('CLOSED', 'PUBLISHED') and e.closes_at > now() - interval '120 days'
     group by e.course_id
 ) w on w.course_id = c.course_id
+left join (
+    -- US-P3-08 AI_CONFIRM: bài AI PENDING chưa ẩn / chưa xoá (đếm bài) + thread ai_state=SKIPPED chưa có bình luận nào của Staff (đếm thread); ` + "`" + `oldest` + "`" + ` = thread cũ nhất của hai nhóm.
+    select t.course_id,
+           coalesce(sum(ap.n), 0)::int as ai_pending,
+           count(*) filter (where t.ai_state = 'SKIPPED' and not exists (
+               select 1 from forum_posts hp join enrollments se on se.course_id = hp.course_id and se.user_id = hp.author_id and se.status = 'ACTIVE' and se.role_in_course in ('TEACHER', 'TA')
+               where hp.course_id = t.course_id and hp.thread_id = t.id and hp.kind = 'HUMAN' and hp.deleted_at is null))::int as ai_skipped,
+           min(t.created_at) as oldest
+    from forum_threads t
+    left join lateral (
+        select count(*) as n from forum_posts p
+        where p.course_id = t.course_id and p.thread_id = t.id and p.kind = 'AI' and p.verification_state = 'PENDING' and p.deleted_at is null and p.hidden_at is null
+    ) ap on true
+    where t.course_id = any($1::text[]::uuid[]) and t.deleted_at is null
+      and (ap.n > 0 or t.ai_state = 'SKIPPED')
+    group by t.course_id
+) f on f.course_id = c.course_id
 `
 
 type TodayStaffPendingRow struct {
@@ -494,6 +514,9 @@ type TodayStaffPendingRow struct {
 	QuestionsOldest time.Time
 	Similarity      json.RawMessage
 	ExamWork        json.RawMessage
+	AiPending       int32
+	AiSkipped       int32
+	AiOldest        time.Time
 }
 
 // (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
@@ -517,6 +540,85 @@ func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]
 			&i.QuestionsOldest,
 			&i.Similarity,
 			&i.ExamWork,
+			&i.AiPending,
+			&i.AiSkipped,
+			&i.AiOldest,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const todayStudentFeed = `-- name: TodayStudentFeed :many
+select kind, course_id, class_code, course_name, session_no, starts_at, ends_at, room, chat_id, chat_title from (
+  (select 'S'::text as kind, s.course_id, c.class_code, c.name as course_name, s.session_no, s.starts_at, s.ends_at, s.room, null::uuid as chat_id, ''::text as chat_title
+   from class_sessions s join courses c on c.id = s.course_id
+   where s.course_id = any($1::text[]::uuid[]) and s.ends_at > $2::timestamptz and s.starts_at < $3::timestamptz
+   order by s.starts_at, s.id limit 60)
+  union all
+  (select 'C'::text, ch.course_id, c.class_code, ''::text, 0, ch.last_message_at, ch.last_message_at, null::text, ch.id, coalesce(ch.title, '')::text
+   from chat_sessions ch join courses c on c.id = ch.course_id
+   where ch.user_id = $4 and ch.course_id = any($1::text[]::uuid[]) and ch.channel = 'PRIVATE' and ch.deleted_at is null
+     and ch.last_message_at >= $5::timestamptz
+     and exists (select 1 from chat_messages m where m.session_id = ch.id and m.course_id = ch.course_id)
+   order by ch.last_message_at desc, ch.id desc limit 3)
+) f order by f.kind, case when f.kind = 'S' then f.starts_at end, f.starts_at desc
+`
+
+type TodayStudentFeedParams struct {
+	CourseIds []string
+	FromAt    time.Time
+	ToAt      time.Time
+	UserID    uuid.UUID
+	Since     time.Time
+}
+
+type TodayStudentFeedRow struct {
+	Kind       string
+	CourseID   uuid.UUID
+	ClassCode  string
+	CourseName string
+	SessionNo  int32
+	StartsAt   time.Time
+	EndsAt     time.Time
+	Room       *string
+	ChatID     *uuid.UUID
+	ChatTitle  string
+}
+
+// Sinh viên: buổi học (như TodaySessions) VÀ tối đa 3 phiên chat RIÊNG của CHÍNH người xem có ≥ 1 tin trong 7 ngày, chưa xoá, mới nhất trước
+// (US-P3-08 AC3) trong MỘT truy vấn để giữ ngân sách ≤ 5 truy vấn. `kind` = 'S' (buổi học) | 'C' (phiên chat).
+func (q *Queries) TodayStudentFeed(ctx context.Context, arg TodayStudentFeedParams) ([]TodayStudentFeedRow, error) {
+	rows, err := q.db.Query(ctx, todayStudentFeed,
+		arg.CourseIds,
+		arg.FromAt,
+		arg.ToAt,
+		arg.UserID,
+		arg.Since,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TodayStudentFeedRow{}
+	for rows.Next() {
+		var i TodayStudentFeedRow
+		if err := rows.Scan(
+			&i.Kind,
+			&i.CourseID,
+			&i.ClassCode,
+			&i.CourseName,
+			&i.SessionNo,
+			&i.StartsAt,
+			&i.EndsAt,
+			&i.Room,
+			&i.ChatID,
+			&i.ChatTitle,
 		); err != nil {
 			return nil, err
 		}

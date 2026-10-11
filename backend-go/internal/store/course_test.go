@@ -29,7 +29,7 @@ func TestCourseSchema(t *testing.T) {
 		"notifications":    {"id", "user_id", "course_id", "type", "title", "body", "link", "dedupe_key", "read_at", "created_at", "updated_at"},
 		"user_settings":    {"user_id", "notify_ticket_by_mail", "notify_answer_by_mail", "remind_deadline_by_mail", "preferences", "version", "created_at", "updated_at"},
 		"documents":        {"id", "course_id", "title", "type", "filename", "mime_type", "size_bytes", "sha256", "blob_key", "status", "error", "page_count", "visible_to_students", "use_for_rag", "category", "week_no", "download_count", "uploaded_by", "version", "created_at", "updated_at"},
-		"content_chunks":   {"id", "document_id", "course_ids", "audience", "ord", "page_no", "heading", "text", "token_count", "embedding", "created_at", "updated_at"},
+		"content_chunks":   {"id", "document_id", "course_ids", "audience", "ord", "page_no", "heading", "text", "token_count", "embedding", "created_at", "updated_at", "tsv"},
 		"document_courses": {"document_id", "course_id", "shared_by", "created_at"},
 	}
 	for table, want := range wantCols {

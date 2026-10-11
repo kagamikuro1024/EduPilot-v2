@@ -65,6 +65,22 @@ func (s *Service) Enqueue(ctx context.Context, ownerID uuid.UUID, kind string, p
 	return j, nil
 }
 
+// EnqueueTx như Enqueue nhưng ghi trong giao dịch của người gọi (vd. chèn `documents` + việc ingest cùng commit — luật 14).
+func (s *Service) EnqueueTx(ctx context.Context, tx pgx.Tx, ownerID uuid.UUID, kind string, payload any) (store.Job, error) {
+	raw, err := json.Marshal(payload)
+	if err != nil {
+		return store.Job{}, fmt.Errorf("jobs enqueue: marshal payload: %w", err)
+	}
+	j, err := store.New(tx).InsertJob(ctx, store.InsertJobParams{Kind: kind, OwnerID: ownerID})
+	if err != nil {
+		return store.Job{}, fmt.Errorf("jobs enqueue: insert job: %w", err)
+	}
+	if _, err := outbox.Write(ctx, tx, TopicEnqueue, enqueuePayload{JobID: j.ID, Kind: kind, Payload: raw}); err != nil {
+		return store.Job{}, fmt.Errorf("jobs enqueue: %w", err)
+	}
+	return j, nil
+}
+
 // Get trả việc nếu người gọi được xem (chủ việc hoặc ADMIN). Mọi trường hợp khác — id sai, việc không có,
 // việc của người khác — trả pgx.ErrNoRows để người gọi trả 404 (không lộ sự tồn tại; US-PG-03 AC18).
 func (s *Service) Get(ctx context.Context, p auth.Principal, id string) (store.Job, error) {

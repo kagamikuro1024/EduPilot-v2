@@ -13,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm/llmrt"
+	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appdb "github.com/edupilot/backend-go/internal/platform/db"
@@ -71,7 +72,8 @@ func buildRig(t *testing.T) (*rig, error) {
 		"DB_MAX_CONNS":            "8",
 		"LOG_LEVEL":               "error",
 		"LLM_PROVIDER":            "fake",
-		"BCRYPT_COST":             "4", // REQUEST_TIMEOUT=1s: bcrypt cost 12 dưới -race vượt hạn
+		"PRIVACY_MASK_TIMEOUT_MS": "1000", // máy bận (nhiều gói song song, -race) không được làm hụt hạn 50 ms của sản xuất; hạn 50 ms có test riêng
+		"BCRYPT_COST":             "4",    // REQUEST_TIMEOUT=1s: bcrypt cost 12 dưới -race vượt hạn
 	}
 	cfg, err := config.Load(func(k string) string { return env[k] }, config.Gateway)
 	if err != nil {
@@ -94,7 +96,12 @@ func buildRig(t *testing.T) (*rig, error) {
 	if err != nil {
 		return nil, err
 	}
-	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool), LLM: rt}
+	// Kho đối tượng thật (MinIO dùng chung) cho tải tài liệu lên bằng URL ký sẵn (US-P8-01).
+	store, err := blob.New(ctx, blob.Config{Endpoint: testutil.MinIOEndpoint(t), Bucket: "contract", AccessKey: testutil.MinIOAccessKey, SecretKey: testutil.MinIOSecretKey, EnsureBucket: true})
+	if err != nil {
+		return nil, err
+	}
+	deps := httpapi.Deps{Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(), Jobs: jobs.NewService(pool), LLM: rt, Blob: store}
 	h := httpapi.NewRouter(deps)
 	return &rig{deps: deps, handle: h, srv: httptest.NewServer(h), cfg: cfg}, nil
 }

@@ -134,7 +134,7 @@ func TestEveryRejectionHasCode(t *testing.T) {
 	}
 	// chưa cấu hình
 	empty := llm.NewStaticRegistry(map[llm.Task]llm.Route{})
-	g := llm.New(llm.Options{Registry: empty, Log: discard()})
+	g := llm.New(llm.Options{NoMask: true, Registry: empty, Log: discard()})
 	if _, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskChat, Messages: msg("x")}); !errors.Is(err, llm.ErrNotConfigured) {
 		t.Errorf("chưa cấu hình: %v", err)
 	}

@@ -113,7 +113,7 @@ func TestAdminListMinimalFields(t *testing.T) {
 	r := newRig(t)
 	_, a := r.admin()
 	sv := r.addUser(uniq("sv"), store.UserRoleSTUDENT, store.UserStatusACTIVE)
-	_, err := r.pool.Exec(t.Context(), `update users set student_code = 'B20DCCN001', ics_token = 'tok-ics', failed_logins = 3 where id = $1`, sv.ID)
+	_, err := r.pool.Exec(t.Context(), `update users set student_code = 'B20DCCN001', ics_token = repeat('a', 64), failed_logins = 3 where id = $1`, sv.ID)
 	require.NoError(t, err)
 	res := r.list(a, "")
 	for _, it := range items(res) {

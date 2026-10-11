@@ -61,7 +61,7 @@ test("metrics: thanh dưới không che nút cuối nội dung (375)", async ({ 
   await asDemo(context, "student");
   await size(page, 375, 800);
   await page.goto("/threads");
-  await page.locator("main").waitFor();
+  await page.locator("main:not([aria-busy]) h1").first().waitFor(); // màn nạp lười (next/dynamic): chờ tiêu đề của chính màn, không chỉ khung main
   await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
   await page.waitForTimeout(200);
   const r = await page.evaluate(() => {
@@ -552,6 +552,7 @@ test("preshell parity: nền ba vùng của PreShell và AppShell giống nhau, 
   release();
   await expect(page.locator("[data-part=pre-shell]")).toHaveCount(0);
   await page.locator("[data-part=sidebar] nav").waitFor().catch(() => undefined);
+  await page.locator("main:not([aria-busy]) h1").first().waitFor(); // màn nạp lười (next/dynamic): chờ tiêu đề của chính màn, không chỉ khung main
   const post = await read();
   expect([post.body, post.side, post.top]).toEqual([pre.body, pre.side, pre.top]);
   expect(Math.abs(post.left - pre.left), "h1 không dịch ngang").toBeLessThanOrEqual(2);

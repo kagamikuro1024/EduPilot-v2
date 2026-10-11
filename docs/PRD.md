@@ -38,19 +38,20 @@ kết hợp tường lửa PII hai kênh; (3) LLM Gateway đa provider. Về k�
 
 Hệ thống đã thiết kế sẵn cho ngày được cấp quyền: che tên và MSSV trước mọi lời gọi LLM, provider tự host, adapter Teams kiểm thử với `mock-graph` và bật bằng cấu hình, phase PR cho đồng ý / xuất / xoá dữ liệu và vận hành. Dữ liệu mô phỏng còn giúp thí nghiệm tái lập được. Chi tiết: `PRODUCTION_READINESS.md`, quyết định D44.
 
-Ngoài phạm vi: đồng bộ hai chiều LMS/SIS, ghi điểm về Teams; chạy code sinh viên trong sandbox; đạo văn, proctoring; mobile native; đa trường;
+Ngoài phạm vi: đồng bộ hai chiều LMS/SIS, ghi điểm về Teams; chạy code sinh viên ngoài sandbox cách ly của bài thi hằng tuần (M15, D55); đạo văn, proctoring; mobile native; đa trường;
 AI tự công bố điểm; nhận reply mail từ hộp thư giảng viên; quy thời gian học on-screen ra điểm.
 
 ## 3. Vai trò và quyền
 
 | Chức năng | STUDENT | TA | TEACHER | ADMIN |
 | --- | --- | --- | --- | --- |
-| Chat riêng, luyện đề, lịch, thư viện | Có | Có | Có | Có |
+| Chat riêng, luyện đề, thư viện | Có | – | – | – |
+| Lịch | Có | Có | Có | – |
 | Xem điểm, chuyên cần, điểm cộng, thời gian học | Của mình | Cả lớp | Cả lớp | Cả lớp |
-| Threads: đăng, trả lời | Có | Có | Có | Có |
-| Threads: Verify / Correct / Reject | – | Có | Có | Có |
+| Threads: đăng, trả lời | Có | Có | Có | – |
+| Threads: Verify / Correct / Reject | – | Có | Có | – |
 | Nhận và trả lời escalation | – | Có | Có | – |
-| Upload tài liệu, đề, ngân hàng câu hỏi | – | Có | Có | Có |
+| Upload tài liệu, đề, ngân hàng câu hỏi | – | Có | Có | – |
 | Điểm danh, ghi phát biểu, observation | – | Có | Có | – |
 | Duyệt điểm AI chấm / Công bố | – | Duyệt nháp | Công bố | – |
 | Xác nhận công thức điểm, chốt điểm cuối kỳ | – | – | Có | – |
@@ -99,8 +100,8 @@ sequenceDiagram
 
 ### M1. Chat riêng tư, tường lửa PII hai kênh, che danh tính trước LLM
 - Hai kênh: **chat riêng** cho thông tin cá nhân (điểm, quy chế áp vào mình, lịch thi, chuyên cần, điểm cộng); **Threads công khai** cho hỏi bài.
-- Tường lửa trên Threads (tiêu đề, nội dung, bình luận) trước khi lưu. Bốn tầng: regex (MSSV, email, SĐT, CCCD), từ điển roster lớp, mẫu câu hỏi cá nhân tiếng Việt, LLM phân loại kênh khi mơ hồ.
-- Khi chặn: hộp thoại có hai lối — "Chuyển sang chat riêng" (mở phiên mới mang theo bản nháp) và "Che thông tin rồi đăng".
+- Tường lửa trên Threads (tiêu đề, nội dung, bình luận) trước khi lưu. Bốn tầng: regex (MSSV, email, SĐT, CCCD), từ điển roster lớp, mẫu câu hỏi cá nhân tiếng Việt, độ tương đồng embedding. Phân loại bằng luật + embedding, tối đa một lần mỗi tin nhắn, không dùng LLM sinh chữ (D47).
+- Khi chặn: hộp thoại có hai lối — "Chuyển sang chat riêng" (mở phiên mới mang theo bản nháp) và "Ẩn thông tin rồi đăng".
 - Tool cá nhân chỉ có ở kênh riêng: `get_my_attendance`, `get_my_participation`, `get_my_grade_summary`, `get_exam_schedule`, `get_upcoming_events`, `what_if_final_grade`. Không tham số danh tính; đọc `trusted_context`.
 - Che danh tính hai chiều quanh mọi lời gọi LLM: placeholder ổn định theo phiên (`[[SV_1]]`, `[[MSSV_1]]`, `[[EMAIL_1]]`), ánh xạ trong Redis có TTL, không log. Kết quả tool quay lại LLM cũng được che tên. Khôi phục khi stream có buffer biên placeholder; bộ quét cuối thay placeholder sót bằng "bạn".
 - UI: dòng "Đã ẩn N thông tin cá nhân trước khi gửi cho AI" + `Tìm hiểu`; dưới ngưỡng tự tin sinh viên thấy "AI chưa đủ chắc chắn về câu này" + `Nhờ giảng viên hỗ trợ` (không hiện con số); mọi lần chặn/che/chuyển kênh ghi `pii_events`.
@@ -161,7 +162,7 @@ AC: mọi số khớp M5/M7; trang ≤ 3 s.
 - **Phúc khảo (F11):** sinh viên `Yêu cầu xem lại` trong hạn (mặc định 7 ngày), chọn tiêu chí + lý do → ticket `GRADE_APPEAL` → giảng viên giữ hoặc sửa, bắt buộc phản hồi → sinh viên được báo. Mỗi bài một lần; AI không tham gia quyết định; tỷ lệ phúc khảo là chỉ số chất lượng chấm.
 
 ### M9. Upload tài liệu (giảng viên)
-Loại: `COURSE_MATERIAL`, `REGULATION`, `COURSE_POLICY`, `EXAM_PAPER`, `ANSWER_KEY`, `GRADE_REPORT` (cũ). Hỗ trợ PDF/DOCX/PPTX. Hai cờ `use_for_rag`, `visible_to_students`. `ANSWER_KEY` không bao giờ hiện/không vào RAG của sinh viên. Nhắc nếu lớp chưa có `COURSE_POLICY`.
+Loại (enum `document_type`): `LECTURE` (bài giảng), `COURSE_POLICY`, `EXAM_PAPER`, `ANSWER_KEY`, `OTHER` (kể cả quy chế trường, ghi ở `category`). Hỗ trợ PDF/DOCX/PPTX. Hai cờ `use_for_rag`, `visible_to_students`. `ANSWER_KEY` không bao giờ hiện/không vào RAG của sinh viên. Nhắc nếu lớp chưa có `COURSE_POLICY`.
 AC: RAG từ phiên sinh viên không trả chunk `ANSWER_KEY` (lọc ngay trong truy vấn vector).
 
 ### M10. Thư viện chia sẻ (sinh viên)

@@ -25,6 +25,18 @@ sql:
           - db_type: "pg_catalog.numeric"
             nullable: true
             go_type: github.com/shopspring/decimal.NullDecimal
+          - db_type: vector
+            go_type:
+              import: github.com/pgvector/pgvector-go
+              package: pgvector
+              type: Vector
+          - db_type: vector
+            nullable: true
+            go_type:
+              import: github.com/pgvector/pgvector-go
+              package: pgvector
+              type: Vector
+              pointer: true
           - db_type: timestamptz
             go_type: time.Time
           - db_type: timestamptz

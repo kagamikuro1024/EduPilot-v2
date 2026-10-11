@@ -2,9 +2,13 @@ package redis_test
 
 import (
 	"context"
+	"runtime"
 	"strings"
+	"sync"
 	"testing"
 	"time"
+
+	goredis "github.com/redis/go-redis/v9"
 
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/testutil"
@@ -93,4 +97,33 @@ func TestNew_InvalidURL(t *testing.T) {
 	if _, err := appredis.New(context.Background(), "không-phải-url"); err == nil {
 		t.Fatal("muốn lỗi với REDIS_URL sai")
 	}
+}
+
+// TestBlockingReadsDoNotStarvePool — US-P3-08 AC5 (k6 first_event): mỗi luồng SSE giữ MỘT kết nối của pool trong lúc XREAD BLOCK; nếu pool nhỏ hơn số luồng đồng thời
+// thì mọi lệnh Redis khác (khoá CHAT_BUSY, đếm hạn mức…) xếp hàng sau chúng và sự kiện SSE đầu trễ cả giây (đo được 1,1 s ở 100 người dùng). Pool phải đủ lớn cho số luồng.
+func TestBlockingReadsDoNotStarvePool(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	c, err := appredis.New(ctx, testutil.RedisURL(t))
+	if err != nil {
+		t.Fatalf("New: %v", err)
+	}
+	t.Cleanup(func() { _ = c.Close() })
+	key := appredis.Key("test", "starve", testutil.TestPrefix(t))
+	n := 10*runtime.GOMAXPROCS(0) + 60 // vượt pool mặc định của go-redis (10 × GOMAXPROCS)
+	var wg sync.WaitGroup
+	for range n {
+		wg.Go(func() {
+			_ = c.XRead(ctx, &goredis.XReadArgs{Streams: []string{key, "$"}, Block: 2 * time.Second}).Err()
+		})
+	}
+	time.Sleep(300 * time.Millisecond) // để mọi XREAD đã giữ kết nối
+	start := time.Now()
+	if err := c.Set(ctx, key+":x", "v", time.Minute).Err(); err != nil {
+		t.Fatalf("Set: %v", err)
+	}
+	if d := time.Since(start); d > 300*time.Millisecond {
+		t.Fatalf("%d XREAD BLOCK đang chạy: một lệnh Set phải xong ngay nhưng mất %v (pool cạn)", n, d)
+	}
+	wg.Wait()
 }

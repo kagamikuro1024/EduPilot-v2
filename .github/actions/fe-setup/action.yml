@@ -1,0 +1,27 @@
+name: fe-setup
+description: pnpm + Node + cài phụ thuộc (và Chromium của Playwright khi cần). Dùng chung cho các job frontend của CI.
+inputs:
+  browsers:
+    description: "'true' = cache + cài Chromium của Playwright"
+    default: "false"
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
+    - uses: actions/setup-node@v7
+      with:
+        node-version: 24
+        cache: pnpm
+    - name: pnpm install
+      shell: bash
+      run: pnpm install --frozen-lockfile
+    - name: cache playwright browsers
+      if: inputs.browsers == 'true'
+      uses: actions/cache@v5
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+    - name: playwright install chromium
+      if: inputs.browsers == 'true'
+      shell: bash
+      run: pnpm -C frontend exec playwright install --with-deps chromium

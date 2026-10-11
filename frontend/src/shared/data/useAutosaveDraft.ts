@@ -113,3 +113,10 @@ export function useAutosaveDraft(key: string, opts: { userId?: string } = {}) {
 
   return { value, setValue, status, clear };
 }
+
+/** Đặt sẵn bản nháp cho một khoá (vd. chuyển nháp Threads sang ô soạn chat riêng): trang đích mở ra sẽ khôi phục ĐÚNG từng byte. */
+export function seedDraft(key: string, text: string, userId?: string) {
+  try {
+    localStorage.setItem(`${PREFIX}${userId ?? "anon"}:${key}`, JSON.stringify({ v: 1, text, savedAt: Date.now() }));
+  } catch { /* bộ nhớ đầy / bị chặn: bỏ qua */ }
+}

@@ -21,7 +21,7 @@ func fakeGateway(t *testing.T, s fake.Settings) (*llm.Gateway, *fake.Controller,
 	cap := &capture{}
 	aud := llm.NewAuditor(context.Background(), cap.write, newDiscardLog())
 	t.Cleanup(func() { aud.Close(context.Background()) })
-	return llm.New(llm.Options{Registry: reg, Auditor: aud, Log: newDiscardLog()}), reg.Fake(), cap
+	return llm.New(llm.Options{NoMask: true, Registry: reg, Auditor: aud, Log: newDiscardLog()}), reg.Fake(), cap
 }
 
 func drain(t *testing.T, ch <-chan llm.Chunk) (string, *llm.Response, error) {

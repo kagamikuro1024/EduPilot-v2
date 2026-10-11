@@ -63,12 +63,12 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 126 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 126)", n)
+		if n := len(prod.Operations()); n != 170 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06) + 11 quản lý tài liệu / thư viện (US-P8-02) + 8 lịch / ICS (US-P8-03); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 170)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
-		if n := len(test.Operations()); n != 19 {
-			t.Errorf("openapi.test.yaml: %d thao tác (cần 19)", n)
+		if n := len(test.Operations()); n != 21 {
+			t.Errorf("openapi.test.yaml: %d thao tác (cần 21)", n)
 		}
 	}
 }
@@ -277,7 +277,17 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"POST /api/v1/courses/{id}/members/{uid}/reject": true, "DELETE /api/v1/courses/{id}/members/{uid}": true, "POST /api/v1/courses/{id}/members/{uid}/undo": true,
 		"POST /api/v1/courses/{id}/roster/import": true, "GET /api/v1/courses/{id}/share-sources": true, "POST /api/v1/courses/{id}/share-from": true,
 		"GET /api/v1/courses/{id}/sessions": true, "POST /api/v1/courses/{id}/sessions/generate": true,
-		"GET /api/v1/me/today": true, "GET /api/v1/courses/{id}/today": true, "POST /api/v1/courses/{id}/setup/dismiss": true,
+		"GET /api/v1/chat/sessions": true, "POST /api/v1/chat/sessions": true, "DELETE /api/v1/chat/sessions/{sid}": true, "POST /api/v1/chat/sessions/{sid}/restore": true,
+		"GET /api/v1/chat/sessions/{sid}/messages": true, "POST /api/v1/chat/sessions/{sid}/messages": true, "GET /api/v1/chat/messages/{mid}/stream": true,
+		"POST /api/v1/chat/messages/{mid}/cancel": true, "POST /api/v1/chat/messages/{mid}/retry": true, "PUT /api/v1/chat/messages/{mid}/feedback": true,
+		"GET /api/v1/courses/{id}/threads": true, "POST /api/v1/courses/{id}/threads": true, "POST /api/v1/courses/{id}/threads/precheck": true, "GET /api/v1/courses/{id}/threads/{tid}": true,
+		"GET /api/v1/courses/{id}/threads/{tid}/similar": true, "POST /api/v1/courses/{id}/threads/{tid}/posts": true, "POST /api/v1/courses/{id}/posts/{pid}/verify": true,
+		"PUT /api/v1/courses/{id}/posts/{pid}/correct": true, "POST /api/v1/courses/{id}/posts/{pid}/reject": true, "POST /api/v1/chat/sessions/from-draft": true,
+		"GET /api/v1/courses/{id}/documents": true, "GET /api/v1/courses/{id}/documents/stats": true, "GET /api/v1/courses/{id}/documents/{docId}": true, "PATCH /api/v1/courses/{id}/documents/{docId}": true,
+		"DELETE /api/v1/courses/{id}/documents/{docId}": true, "GET /api/v1/courses/{id}/documents/{docId}/impact": true, "GET /api/v1/courses/{id}/documents/{docId}/chunks": true,
+		"PATCH /api/v1/courses/{id}/documents/{docId}/chunks/{chunkId}": true, "GET /api/v1/courses/{id}/library": true, "GET /api/v1/courses/{id}/library/{docId}": true,
+		"GET /api/v1/courses/{id}/library/{docId}/download": true,
+		"GET /api/v1/me/today":                              true, "GET /api/v1/courses/{id}/today": true, "POST /api/v1/courses/{id}/setup/dismiss": true,
 		// US-PE-03 — ngân hàng câu hỏi (thao tác 1–16 của SRS FEAT-weekly-exam 6.2)
 		"GET /api/v1/courses/{id}/questions":                                            true,
 		"POST /api/v1/courses/{id}/questions":                                           true,
@@ -336,6 +346,19 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/courses/{id}/exams/{eid}/appeals":                                  true,
 		"POST /api/v1/courses/{id}/exams/{eid}/appeals/{pid}/answer":                    true,
 		"GET /api/v1/me/exam-lock":                                                      true,
+		"POST /api/v1/courses/{id}/uploads/presign":                                     true,
+		"POST /api/v1/courses/{id}/uploads/complete":                                    true,
+		"POST /api/v1/courses/{id}/documents/reindex":                                   true,
+		"POST /api/v1/courses/{id}/documents/{docId}/retry":                             true,
+		"POST /api/v1/courses/{id}/documents/{docId}/reindex":                           true,
+		"GET /api/v1/courses/{id}/calendar":                                             true,
+		"POST /api/v1/courses/{id}/calendar/events":                                     true,
+		"PUT /api/v1/courses/{id}/calendar/events/{eventId}":                            true,
+		"DELETE /api/v1/courses/{id}/calendar/events/{eventId}":                         true,
+		"GET /api/v1/calendar/feed.ics":                                                 false,
+		"POST /api/v1/me/calendar/ics-token":                                            true,
+		"DELETE /api/v1/me/calendar/ics-token":                                          true,
+		"GET /api/v1/me/calendar/ics-token":                                             true,
 		"GET /api/v1/me/courses":                                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {
@@ -429,3 +452,19 @@ func TestContract_UnauthenticatedMatchesSpec(t *testing.T) {
 }
 
 func itoa(n int) string { return strconv.Itoa(n) }
+
+// TestStudentNeverSeesConfidence — US-P3-07 AC3: trong MỌI lời gọi chat / Threads bằng token sinh viên của bộ kịch bản, không có khoá confidence / retrieval_score / groundedness (chỉ `low_confidence`).
+func TestStudentNeverSeesConfidence(t *testing.T) {
+	seen := 0
+	for _, o := range observations(t) {
+		if o.Leak != "" {
+			t.Errorf("sinh viên thấy số độ tin cậy: %s", o.Leak)
+		}
+		if strings.Contains(o.Requested, "/chat/") || strings.Contains(o.Requested, "/threads") {
+			seen++
+		}
+	}
+	if seen < 10 {
+		t.Fatalf("kịch bản chỉ có %d lời gọi chat / Threads — kiểm không đủ", seen)
+	}
+}

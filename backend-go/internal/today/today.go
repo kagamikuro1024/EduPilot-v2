@@ -50,6 +50,7 @@ const (
 	KindExamGradeError   Kind = "EXAM_GRADE_ERROR" // Giảng viên + TA
 	KindExamAppeal       Kind = "EXAM_APPEAL"      // chỉ Giảng viên
 	KindExamPublishHold  Kind = "EXAM_PUBLISH_HOLD"
+	KindAIConfirm        Kind = "AI_CONFIRM" // US-P3-08: Giảng viên + TA
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -75,6 +76,7 @@ const (
 	TierExamPublishHold  = 32
 	TierExamResult       = 44
 	TierExamAppealReply  = 46
+	TierAIConfirm        = 50
 )
 
 // allowed: Kind nào được phép trong phản hồi của vai nào. Bộ gộp LỌC theo bảng này nên một Provider lỡ trả nhầm
@@ -83,7 +85,7 @@ func allowed(role Role, k Kind) bool {
 	switch k {
 	case KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply:
 		return role == RoleStudent
-	case KindJoinRequest, KindQuestionReview, KindExamGradeError:
+	case KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm:
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher

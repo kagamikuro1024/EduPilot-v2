@@ -93,6 +93,13 @@ func specs() map[string]spec {
 				"Nếu bạn không học lớp này, hãy bỏ qua thư.",
 			},
 		},
+		"reminder": {
+			subject: "Sắp đến giờ: sự kiện trong 24 giờ tới", vars: []string{"EventTitle", "At", "CalendarURL"},
+			paras: []string{
+				"{{.EventTitle}} bắt đầu lúc {{.At}} (giờ Việt Nam).",
+				"Xem lịch: {{.CalendarURL}}",
+			},
+		},
 		"account_locked": {
 			subject: "Tài khoản EduPilot bị khoá tạm thời", vars: []string{"FullName", "Until", "ForgotURL"},
 			paras: []string{

@@ -40,3 +40,24 @@ func TestAuditPGWriter(t *testing.T) {
 		`select count(*) from information_schema.columns where table_name='llm_audit' and column_name ~* 'prompt|content|message|text|response'`).Scan(&content))
 	require.Zero(t, content, "llm_audit không được có cột nội dung")
 }
+
+// TestAuditPIIMaskedCountPG — US-P3-03 AC5: gateway có Masker ghi pii_masked_count thật vào llm_audit (PG); không cột nội dung.
+func TestAuditPIIMaskedCountPG(t *testing.T) {
+	t.Parallel()
+	r := newCfgRig(t)
+	aud := llm.NewAuditor(context.Background(), llm.PGWriter(r.pool), newDiscardLog())
+	defer aud.Close(context.Background())
+	p := &stub{name: "p"}
+	reg := llm.NewStaticRegistry(map[llm.Task]llm.Route{})
+	reg.SetRoute(llm.TaskChat, llm.Route{Targets: []llm.Target{{ProviderID: "p", ProviderName: "p", Type: "fake", Model: "m", RPM: 60, TPM: 100000, P: p}}})
+	g := llm.New(llm.Options{Registry: reg, Auditor: aud, Log: newDiscardLog(), Masker: realMasker(newDiscardLog())})
+	_, err := g.Chat(withCourse(t.Context()), llm.Request{Task: llm.TaskChat, Messages: userMsg("Em " + leakName + " mssv " + leakMSSV + " mail " + leakEmail)})
+	require.NoError(t, err)
+	g.FlushAudit(context.Background())
+	var n int
+	var course *uuid.UUID
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select pii_masked_count, course_id from llm_audit order by created_at desc limit 1`).Scan(&n, &course))
+	require.Equal(t, 3, n)
+	require.NotNil(t, course)
+	require.Equal(t, maskCourse, *course)
+}

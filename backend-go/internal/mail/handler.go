@@ -131,12 +131,13 @@ func (h *Handler) build(ctx context.Context, tx pgx.Tx, row store.MailOutbox) (M
 		return Mail{}, &permanentErr{"payload_invalid"}
 	}
 	data := map[string]string{
-		"LoginURL":  h.Cfg.AppPublicURL + "/login",
-		"ForgotURL": h.Cfg.AppPublicURL + "/forgot-password",
+		"LoginURL":    h.Cfg.AppPublicURL + "/login",
+		"ForgotURL":   h.Cfg.AppPublicURL + "/forgot-password",
+		"CalendarURL": h.Cfg.AppPublicURL + "/calendar",
 	}
 	for key, v := range map[string]string{
 		"full_name": "FullName", "inviter_name": "InviterName", "role_vn": "RoleVN",
-		"teacher_name": "TeacherName", "course_name": "CourseName", "class_code": "ClassCode",
+		"teacher_name": "TeacherName", "event_title": "EventTitle", "course_name": "CourseName", "class_code": "ClassCode",
 	} {
 		if s, ok := payload[key].(string); ok {
 			data[v] = s

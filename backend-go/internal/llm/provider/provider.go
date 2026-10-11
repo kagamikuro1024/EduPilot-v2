@@ -85,6 +85,8 @@ type ChatOpts struct {
 	Schema json.RawMessage
 	// Fast: làn INTERACTIVE — bật chế độ suy nghĩ nhẹ cho nhà cung cấp có "thinking" mặc định (Gemini 3.x).
 	Fast bool
+	// Task là tác vụ LLM của lời gọi (CHAT, CLASSIFY…); chỉ để provider giả ghi lại cho route thử `_test/llm/payloads`.
+	Task string
 }
 
 // Result là kết quả một lời gọi sinh văn bản.

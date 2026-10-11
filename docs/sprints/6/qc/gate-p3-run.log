@@ -1,0 +1,16 @@
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 4 |
+| PASS | go test -race privacy + agent + chat + thread (gồm TestChatMatrix, TestThreadsMatrix) | 52 |
+| PASS | TestChatMatrix | 11 |
+| PASS | TestThreadsMatrix | 3 |
+| PASS | TestUnmaskStream | 2 |
+| PASS | TestNoPayloadLeak | 4 |
+| PASS | TestThreadsAgentHasNoPersonalTools | 2 |
+| PASS | TestStudentNeverSeesConfidence | 25 |
+| PASS | go test ./internal/contract/... | 49 |
+| PASS | E1: eval_pii.py --min-recall 0.95 --max-false-block 0.05 | 215 |
+| PASS | Playwright privacy + private-chat + threads | 17 |
+| PASS | ui-antipatterns.sh | 1 |
+GATE P3: PASS
+rc=0

@@ -1,15 +1,23 @@
 package main
 
 import (
+	"context"
+	"github.com/edupilot/backend-go/internal/calendar"
+
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
+	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/llm/budget"
 	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/privacy"
+	"github.com/edupilot/backend-go/internal/rag"
+	"github.com/edupilot/backend-go/internal/thread"
 	"github.com/edupilot/backend-go/internal/today"
 )
 
@@ -23,6 +31,11 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
 	ew.Register(runner) // code.verify_reference, question.suggest (US-PE-03)
+	// Sự kiện chưa có bên tiêu thụ ở sprint 6 (P4 thông báo gộp, P10 cảnh báo ngân sách): vẫn PHẢI có handler ghi nhận — thiếu thì tin dead-letter sau 4 lần (TestEveryEmittedTopicHasHandler).
+	ack := func(context.Context, outbox.Message) error { return nil }
+	reg.Register(budget.TopicWarn, ack)
+	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
+	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
 	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
 	reg.Register(mail.Topic, mh.Handle)
 	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log}
@@ -34,9 +47,21 @@ func newRegistry(d Deps) *outbox.Registry {
 	en := &exam.Notifier{Pool: d.DB, Log: d.Log}
 	reg.Register(exam.TopicExamScheduled, outbox.Chain(en.HandleScheduled, inv.Handle)) // US-PE-04: thông báo lịch + xoá cache "Hôm nay"
 	reg.Register(exam.TopicExamUnscheduled, outbox.Chain(en.HandleUnscheduled, inv.Handle))
-	for _, t := range []string{exam.TopicExamOpened, exam.TopicExamClosed, exam.TopicAttemptStarted, exam.TopicAttemptSubmitted, exam.TopicSimilarityDone, exam.TopicSimilarityReviewed, exam.TopicQuestionReviewed, course.TopicMemberChanged, course.TopicChanged, course.TopicRosterImport, auth.TopicUserVerified} {
+	for _, t := range []string{exam.TopicExamOpened, exam.TopicExamClosed, exam.TopicAttemptStarted, exam.TopicAttemptSubmitted, exam.TopicSimilarityDone, exam.TopicSimilarityReviewed, exam.TopicQuestionReviewed, course.TopicChanged, auth.TopicUserVerified, calendar.TopicChanged} {
 		reg.Register(t, inv.Handle)
 	}
+	// Threads (US-P3-08): thread mới / quyết định về bài AI đổi việc AI_CONFIRM của Staff → xoá cache "Hôm nay". Việc AI trả lời đi bằng `job.enqueue` → ep:ingest (không chạy trong consumer outbox này).
+	reg.Register(thread.TopicCreated, outbox.Chain(thread.OnCreated, inv.Handle))
+	reg.Register(thread.TopicPostDecided, inv.Handle)
+	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.
+	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
+	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {
+		reg.Register(t, outbox.Chain(inv.Handle, roster.Invalidate))
+	}
+	// Tài liệu (US-P8-01): đổi / xoá → tăng ep:rag:ver:{course}; việc đọc dài chạy ở consumer ep:ingest riêng nên không làm trễ việc này.
+	bump := rag.BumpVersion(d.Redis)
+	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump))
+	reg.Register("document.deleted", bump)
 	if d.Judge != nil {
 		reg.Register(judge.TopicEnqueue, d.Judge.HandleEnqueue) // XADD tín hiệu chấm rồi đặt enqueued_at (US-PE-02)
 	}

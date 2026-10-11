@@ -22,6 +22,11 @@ tags:
   - name: auth
   - name: today
   - name: exam
+  - name: document
+  - name: chat
+  - name: threads
+  - name: library
+  - name: calendar
 paths:
   /healthz:
     get:
@@ -956,6 +961,220 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/calendar:
+    get:
+      operationId: listCalendar
+      tags: [calendar]
+      summary: "Lịch gộp lúc đọc của một lớp: buổi học, bài thi (không DRAFT) và sự kiện của Giảng viên; khoảng from..to tối đa 62 ngày; ETag"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: from
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang lịch (kèm ETag; 304 khi If-None-Match khớp)
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarPage"
+        "304":
+          description: Không đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/calendar/events:
+    post:
+      operationId: createCalendarEvent
+      tags: [calendar]
+      summary: "Thêm sự kiện của lớp (Giảng viên / Trợ giảng); lớp lưu trữ - 409"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarEventInput"
+      responses:
+        "201":
+          description: Sự kiện đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/calendar/events/{eventId}:
+    put:
+      operationId: updateCalendarEvent
+      tags: [calendar]
+      summary: "Sửa sự kiện (khoá lạc quan theo version; sự kiện lớp khác - 404)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CalendarEventInput"
+      responses:
+        "200":
+          description: Sự kiện sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CalendarEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteCalendarEvent
+      tags: [calendar]
+      summary: "Xoá sự kiện của lớp"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: eventId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/calendar/feed.ics:
+    get:
+      operationId: getCalendarFeed
+      tags: [calendar]
+      summary: "Feed ICS của chủ token (không JWT): mọi lớp ACTIVE, now-30 ngày .. now+365 ngày, tối đa 2.000 sự kiện; token sai / xoay / thu hồi - cùng một 404; 60 lượt / phút / IP"
+      security: []
+      parameters:
+        - name: token
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lịch iCalendar (ETag; Cache-Control private, max-age=300)
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            text/calendar:
+              schema:
+                type: string
+        "304":
+          description: Không đổi
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/me/calendar/ics-token:
+    post:
+      operationId: issueIcsToken
+      tags: [calendar]
+      summary: "Tạo hoặc xoay token ICS của chính mình; URL chỉ hiện một lần (chỉ lưu băm)"
+      responses:
+        "201":
+          description: URL feed
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [url]
+                additionalProperties: false
+                properties:
+                  url:
+                    type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    delete:
+      operationId: revokeIcsToken
+      tags: [calendar]
+      summary: "Thu hồi token ICS của chính mình (idempotent)"
+      responses:
+        "204":
+          description: Đã thu hồi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+    get:
+      operationId: getIcsTokenState
+      tags: [calendar]
+      summary: "Đã có token ICS chưa (không trả token)"
+      responses:
+        "200":
+          description: Trạng thái
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [exists]
+                additionalProperties: false
+                properties:
+                  exists:
+                    type: boolean
+        "401":
+          $ref: "#/components/responses/Unauthorized"
   /api/v1/admin/courses:
     get:
       operationId: listAdminCourses
@@ -4503,6 +4722,1117 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/uploads/presign:
+    post:
+      operationId: presignUpload
+      tags: [document]
+      summary: "Xin URL PUT ký sẵn để tải tài liệu lên (Staff; URL hết hạn 10 phút, ký kèm Content-Length; tệp không đi qua gateway)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PresignInput"
+      responses:
+        "200":
+          description: URL tải lên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PresignOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/uploads/complete:
+    post:
+      operationId: completeUpload
+      tags: [document]
+      summary: "Hoàn tất tải lên: kiểm tệp có thật, chèn tài liệu QUEUED + việc đọc nền trong một giao dịch (Staff; Idempotency-Key bắt buộc)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteUploadInput"
+      responses:
+        "202":
+          description: Đã nhận; việc đọc tài liệu chạy nền (theo dõi qua GET /jobs/{id} hoặc SSE job.progress)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CompleteUploadOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/documents/reindex:
+    post:
+      operationId: reindexCourseDocuments
+      tags: [document]
+      summary: "Lập chỉ mục lại mọi tài liệu READY dùng cho AI của lớp (chỉ Giảng viên)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents/{docId}/retry:
+    post:
+      operationId: retryDocument
+      tags: [document]
+      summary: "Đọc lại tài liệu FAILED (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents/{docId}/reindex:
+    post:
+      operationId: reindexDocument
+      tags: [document]
+      summary: "Lập chỉ mục lại một tài liệu READY từ chữ đã lưu (Staff; không gọi docling)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents:
+    get:
+      operationId: listDocuments
+      tags: [document]
+      summary: "Danh sách tài liệu của lớp và được chia sẻ vào lớp (Staff; lọc loại / trạng thái / tên không dấu; phân trang con trỏ)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang tài liệu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/documents/stats:
+    get:
+      operationId: getDocumentStats
+      tags: [document]
+      summary: "Thống kê tài liệu của lớp (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Thống kê
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/courses/{id}/documents/{docId}:
+    get:
+      operationId: getDocument
+      tags: [document]
+      summary: "Một tài liệu (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Tài liệu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: patchDocument
+      tags: [document]
+      summary: "Đổi tên / loại / chủ đề / tuần / cờ (Staff; khoá lạc quan `version`; đáp án không hiện cho sinh viên; chia sẻ từ lớp khác chỉ đọc)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DocumentPatch"
+      responses:
+        "200":
+          description: Tài liệu sau khi đổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Document"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteDocument
+      tags: [document]
+      summary: "Xoá tài liệu (Giảng viên; không đảo ngược)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/documents/{docId}/impact:
+    get:
+      operationId: getDocumentImpact
+      tags: [document]
+      summary: "Số đoạn và số lớp đang dùng tài liệu — cho hộp xác nhận xoá (Giảng viên)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Ảnh hưởng của việc xoá
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DocumentImpact"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/documents/{docId}/chunks:
+    get:
+      operationId: listDocumentChunks
+      tags: [document]
+      summary: "Các đoạn của tài liệu theo thứ tự (Staff; con trỏ = ord của đoạn cuối trang trước)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang đoạn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChunkPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/documents/{docId}/chunks/{chunkId}:
+    patch:
+      operationId: editDocumentChunk
+      tags: [document]
+      summary: "Sửa văn bản một đoạn (Staff): nhúng lại một lần, lưu + audit trong một giao dịch"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+        - $ref: "#/components/parameters/ChunkId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChunkEdit"
+      responses:
+        "200":
+          description: Đoạn sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Chunk"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/library:
+    get:
+      operationId: listLibrary
+      tags: [library]
+      summary: "Thư viện của sinh viên: tìm tên / tệp / chủ đề không dấu và nội dung đoạn (chỉ tài liệu READY, hiện với sinh viên, không đáp án); ETag"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: week
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang tài liệu (kèm ETag; 304 khi If-None-Match khớp)
+          headers:
+            ETag:
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryPage"
+        "304":
+          description: Không đổi
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/library/{docId}:
+    get:
+      operationId: getLibraryDocument
+      tags: [library]
+      summary: "Chi tiết một tài liệu của thư viện (sinh viên): metadata, preview_url (PDF, ký sẵn 5 phút), can_ask_ai"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: Chi tiết
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LibraryDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/library/{docId}/download:
+    get:
+      operationId: downloadLibraryDocument
+      tags: [library]
+      summary: "URL tải xuống ký sẵn 5 phút; tăng download_count (sinh viên)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/DocumentId"
+      responses:
+        "200":
+          description: URL ký sẵn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DownloadUrl"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/sessions:
+    get:
+      operationId: listChatSessions
+      tags: [chat]
+      summary: "Phiên chat riêng của chính mình trong một lớp (sinh viên ACTIVE; mới nhất trước, phân trang con trỏ)"
+      parameters:
+        - name: course_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang phiên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatSessionPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createChatSession
+      tags: [chat]
+      summary: "Tạo phiên chat (sinh viên ACTIVE; document_id phải là tài liệu READY, sinh viên thấy được, thuộc lớp)"
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateChatSessionInput"
+      responses:
+        "201":
+          description: Phiên mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/chat/sessions/{sid}:
+    delete:
+      operationId: deleteChatSession
+      tags: [chat]
+      summary: "Xoá mềm phiên của chính mình (hoàn tác bằng POST …/restore)"
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá mềm
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/sessions/{sid}/restore:
+    post:
+      operationId: restoreChatSession
+      tags: [chat]
+      summary: "Khôi phục phiên đã xoá mềm của chính mình"
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Phiên đã khôi phục
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/sessions/{sid}/messages:
+    get:
+      operationId: listChatMessages
+      tags: [chat]
+      summary: "Lịch sử tin của phiên (mới nhất trước); tin đang sinh có content = phần đã có và streaming=true"
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang tin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatMessagePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    post:
+      operationId: sendChatMessage
+      tags: [chat]
+      summary: "Gửi tin và nhận câu trả lời qua SSE (ngoài nhóm nghiệp vụ; chống trùng bằng UNIQUE (session_id, client_msg_id): Idempotency-Key là UUID)"
+      description: |
+        `text/event-stream`: `status` → `token`* / `block`* → `notice` → `done` | `error`. Mỗi khung có `id: <attempt>:<id Redis Stream>`.
+        Không tra được khoá giờ thi → 503 `CHAT_UNAVAILABLE` (không khai báo ở đây vì không dựng được trong hợp đồng). Rớt kết nối không huỷ lượt sinh; nối lại bằng GET /chat/messages/{mid}/stream.
+      parameters:
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SendChatMessageInput"
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/chat/messages/{mid}/stream:
+    get:
+      operationId: resumeChatStream
+      tags: [chat]
+      summary: "Nối lại luồng SSE của một tin (chủ tin; Last-Event-ID tuỳ chọn)"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Last-Event-ID
+          in: header
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/messages/{mid}/cancel:
+    post:
+      operationId: cancelChatMessage
+      tags: [chat]
+      summary: "Dừng lượt sinh (idempotent; tới tận provider qua Redis pub/sub)"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã dừng (hoặc đã kết thúc)
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/messages/{mid}/retry:
+    post:
+      operationId: retryChatMessage
+      tags: [chat]
+      summary: "Sinh lại CÙNG hàng ASSISTANT đã FAILED / CANCELLED; trả SSE như gửi tin"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/chat/messages/{mid}/feedback:
+    put:
+      operationId: setChatFeedback
+      tags: [chat]
+      summary: "Hữu ích / Không hữu ích (chỉ chủ tin; bấm lại cùng giá trị = bỏ; null = bỏ)"
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatFeedbackInput"
+      responses:
+        "204":
+          description: Đã lưu
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads:
+    get:
+      operationId: listThreads
+      tags: [threads]
+      summary: "Danh sách thread của lớp (Member không gồm ADMIN; lọc tuần / thẻ / trạng thái / tìm theo tiêu đề không dấu; phân trang con trỏ)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: week
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: tag
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang thread
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createThread
+      tags: [threads]
+      summary: "Đăng thread: tường lửa PII chạy lại ở máy chủ (422 PII_DETECTED; redact:true lưu bản đã ẩn); khoá giờ thi → 409 EXAM_IN_PROGRESS"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateThreadInput"
+      responses:
+        "201":
+          description: Thread mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads/precheck:
+    post:
+      operationId: precheckThread
+      tags: [threads]
+      summary: "Kiểm tường lửa khi đang gõ: không ghi gì; 60 yêu cầu / phút / người"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PrecheckInput"
+      responses:
+        "200":
+          description: Kết quả kiểm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PrecheckOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/threads/{tid}:
+    get:
+      operationId: getThread
+      tags: [threads]
+      summary: "Thread + bài theo projection vai (sinh viên không thấy bài AI bị loại, độ tin cậy, bản AI gốc)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Thread và bài
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/threads/{tid}/similar:
+    get:
+      operationId: similarThreads
+      tags: [threads]
+      summary: "Tối đa 3 thread tương tự (cosine ≥ 0,75; không gồm thread có bài AI bị loại)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Thread tương tự
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SimilarThreads"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/threads/{tid}/posts:
+    post:
+      operationId: commentThread
+      tags: [threads]
+      summary: "Bình luận (HUMAN) qua cùng tường lửa; AI không trả lời bình luận"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CommentInput"
+      responses:
+        "201":
+          description: Bình luận mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/posts/{pid}/verify:
+    post:
+      operationId: verifyThreadPost
+      tags: [threads]
+      summary: "Xác nhận câu trả lời AI (Staff; lặp lại cùng quyết định = 200 không đổi)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bài đã xác nhận
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/correct:
+    put:
+      operationId: correctThreadPost
+      tags: [threads]
+      summary: "Sửa câu trả lời AI (Staff; kèm version; bản AI gốc giữ ở ai_body)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CorrectInput"
+      responses:
+        "200":
+          description: Bài đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/posts/{pid}/reject:
+    post:
+      operationId: rejectThreadPost
+      tags: [threads]
+      summary: "Loại câu trả lời AI (Staff): biến mất khỏi mọi đường đọc của sinh viên"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Bài đã loại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/chat/sessions/from-draft:
+    post:
+      operationId: chatFromDraft
+      tags: [chat]
+      summary: "Chuyển bản nháp Threads sang chat riêng: phiên PRIVATE không có tin nhắn, trả bản nháp nguyên văn (không lưu nháp ở máy chủ), ghi SWITCHED"
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FromDraftInput"
+      responses:
+        "201":
+          description: Phiên mới và bản nháp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FromDraftOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -4574,6 +5904,28 @@ components:
         application/json:
           schema:
             $ref: "#/components/schemas/Error"
+  parameters:
+    CourseId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    DocumentId:
+      name: docId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ChunkId:
+      name: chunkId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
   schemas:
     LoginRequest:
       type: object
@@ -4860,7 +6212,7 @@ components:
           minimum: 1
     Settings:
       type: object
-      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, version]
+      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, reminders, version]
       additionalProperties: false
       properties:
         notify_ticket_by_mail:
@@ -4869,6 +6221,17 @@ components:
           type: boolean
         remind_deadline_by_mail:
           type: boolean
+        reminders:
+          type: object
+          required: [exam, class_session, other]
+          additionalProperties: false
+          properties:
+            exam:
+              type: boolean
+            class_session:
+              type: boolean
+            other:
+              type: boolean
         version:
           type: integer
     SettingsInput:
@@ -4882,6 +6245,16 @@ components:
           type: boolean
         remind_deadline_by_mail:
           type: boolean
+        reminders:
+          type: object
+          additionalProperties: false
+          properties:
+            exam:
+              type: boolean
+            class_session:
+              type: boolean
+            other:
+              type: boolean
         version:
           type: integer
           minimum: 1
@@ -5358,7 +6731,27 @@ components:
                 $ref: "#/components/schemas/TodayCourse"
         continue:
           type: array
-          items: {}
+          maxItems: 3
+          items:
+            type: object
+            required: [kind, id, title, href, course, at]
+            additionalProperties: false
+            properties:
+              kind:
+                type: string
+                enum: [CHAT]
+              id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              href:
+                type: string
+              course:
+                $ref: "#/components/schemas/TodayCourse"
+              at:
+                type: string
+                format: date-time
     TodayStaff:
       type: object
       required: [count, actions, attention, upcoming]
@@ -6195,6 +7588,27 @@ components:
             - JUDGE_UNAVAILABLE
             - APPEAL_WINDOW_CLOSED
             - APPEAL_EXISTS
+            - FILE_TYPE_NOT_ALLOWED
+            - FILE_TOO_LARGE
+            - FILE_TYPE_MISMATCH
+            - UPLOAD_INCOMPLETE
+            - UPLOAD_NOT_FOUND
+            - DOCUMENT_DUPLICATE
+            - DOCUMENT_DUPLICATE_ELSEWHERE
+            - DOCUMENT_NOT_FAILED
+            - DOCUMENT_NOT_READY
+            - DOCUMENT_SHARED_READONLY
+            - ANSWER_KEY_NOT_VISIBLE
+            - FILE_GONE
+            - RANGE_TOO_LARGE
+            - EVENT_TIME_INVALID
+            - EXAM_IN_PROGRESS
+            - CHAT_BUSY
+            - MESSAGE_TOO_LONG
+            - CHAT_UNAVAILABLE
+            - MESSAGE_NOT_RETRYABLE
+            - PII_DETECTED
+            - POST_STATE_CONFLICT
         message:
           type: string
         trace_id:
@@ -6204,6 +7618,381 @@ components:
         retry_after:
           type: integer
           minimum: 1
+    PresignInput:
+      type: object
+      required: [purpose, filename, mime_type, size_bytes, sha256]
+      additionalProperties: false
+      properties:
+        purpose:
+          type: string
+          enum: [document]
+        filename:
+          type: string
+          maxLength: 255
+        mime_type:
+          type: string
+        size_bytes:
+          type: integer
+          format: int64
+        sha256:
+          type: string
+          pattern: "^[0-9a-fA-F]{64}$"
+    PresignOutput:
+      type: object
+      required: [upload_id, method, url, headers, blob_key, expires_in]
+      additionalProperties: false
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        method:
+          type: string
+          enum: [PUT]
+        url:
+          type: string
+        headers:
+          type: object
+          additionalProperties:
+            type: string
+        blob_key:
+          type: string
+        expires_in:
+          type: integer
+    CompleteUploadInput:
+      type: object
+      required: [upload_id, title, type]
+      additionalProperties: false
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+          minLength: 1
+          maxLength: 200
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, ANSWER_KEY, OTHER]
+        use_for_rag:
+          type: [boolean, "null"]
+        visible_to_students:
+          type: [boolean, "null"]
+        category:
+          type: [string, "null"]
+          maxLength: 40
+        week_no:
+          type: [integer, "null"]
+          minimum: 1
+          maximum: 20
+    Document:
+      type: object
+      required: [id, course_id, title, type, status, visible_to_students, use_for_rag, version, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, ANSWER_KEY, OTHER]
+        filename:
+          type: [string, "null"]
+        mime_type:
+          type: [string, "null"]
+        size_bytes:
+          type: [integer, "null"]
+          format: int64
+        status:
+          type: string
+          enum: [QUEUED, PROCESSING, READY, FAILED]
+        error:
+          type: [string, "null"]
+        page_count:
+          type: [integer, "null"]
+        visible_to_students:
+          type: boolean
+        use_for_rag:
+          type: boolean
+        category:
+          type: [string, "null"]
+        week_no:
+          type: [integer, "null"]
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        shared_from:
+          type: string
+          description: Mã lớp gốc khi tài liệu được chia sẻ vào lớp (chỉ đọc); rỗng nếu của chính lớp
+    DocumentPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Document"
+        next_cursor:
+          type: [string, "null"]
+    DocumentPatch:
+      type: object
+      required: [version]
+      properties:
+        title:
+          type: string
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, ANSWER_KEY, OTHER]
+        category:
+          type: string
+        week_no:
+          type: integer
+        use_for_rag:
+          type: boolean
+        visible_to_students:
+          type: boolean
+        version:
+          type: integer
+    DocumentStats:
+      type: object
+      required: [total, by_type, by_status, chunks, embedded_chunks, pages, bytes, has_course_policy, last_upload_at]
+      properties:
+        total:
+          type: integer
+        by_type:
+          type: object
+          additionalProperties:
+            type: integer
+        by_status:
+          type: object
+          additionalProperties:
+            type: integer
+        chunks:
+          type: integer
+        embedded_chunks:
+          type: integer
+        pages:
+          type: integer
+        bytes:
+          type: integer
+        has_course_policy:
+          type: boolean
+        last_upload_at:
+          type: [string, "null"]
+          format: date-time
+    DocumentImpact:
+      type: object
+      required: [chunks, courses]
+      properties:
+        chunks:
+          type: integer
+        courses:
+          type: integer
+    Chunk:
+      type: object
+      required: [id, ord, page_no, heading, text, audience]
+      properties:
+        id:
+          type: string
+          format: uuid
+        ord:
+          type: integer
+        page_no:
+          type: [integer, "null"]
+        heading:
+          type: [string, "null"]
+        text:
+          type: string
+        audience:
+          type: string
+          enum: [ALL, STAFF, GRADING]
+    ChunkPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Chunk"
+        next_cursor:
+          type: [string, "null"]
+    ChunkEdit:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 4000
+    LibraryItem:
+      type: object
+      required: [id, title, type, file_kind, category, week_no, updated_at, snippet, can_ask_ai]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        type:
+          type: string
+          enum: [LECTURE, COURSE_POLICY, EXAM_PAPER, OTHER]
+        file_kind:
+          type: string
+          enum: ["", PDF, DOCX, PPTX]
+        category:
+          type: [string, "null"]
+        week_no:
+          type: [integer, "null"]
+        updated_at:
+          type: string
+          format: date-time
+        snippet:
+          type: string
+        can_ask_ai:
+          type: boolean
+    CalendarItem:
+      type: object
+      required: [id, source, type, title, starts_at, ends_at, location, href, editable, personal_state, status]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+          enum: [class_session, weekly_exam, calendar_event]
+        type:
+          type: string
+          enum: [CLASS_SESSION, EXAM, OTHER]
+        title:
+          type: string
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: [string, "null"]
+          format: date-time
+        location:
+          type: [string, "null"]
+        href:
+          type: [string, "null"]
+        editable:
+          type: boolean
+        personal_state:
+          type: [string, "null"]
+          enum: [NOT_STARTED, IN_PROGRESS, SUBMITTED, null]
+        status:
+          type: [string, "null"]
+        version:
+          type: integer
+    CalendarPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CalendarItem"
+        next_cursor:
+          type: [string, "null"]
+    CalendarEventInput:
+      type: object
+      required: [type, title, starts_at]
+      additionalProperties: false
+      properties:
+        type:
+          type: string
+          enum: [EXAM, OTHER]
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: [string, "null"]
+          format: date-time
+        location:
+          type: [string, "null"]
+          maxLength: 80
+        description:
+          type: [string, "null"]
+          maxLength: 1000
+        version:
+          type: integer
+          minimum: 1
+    CalendarEvent:
+      type: object
+      required: [id, type, title, starts_at, ends_at, location, description, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        title:
+          type: string
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: [string, "null"]
+          format: date-time
+        location:
+          type: [string, "null"]
+        description:
+          type: [string, "null"]
+        version:
+          type: integer
+    LibraryPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/LibraryItem"
+        next_cursor:
+          type: [string, "null"]
+    LibraryDetail:
+      allOf:
+        - $ref: "#/components/schemas/LibraryItem"
+        - type: object
+          required: [size_bytes, page_count, preview_url]
+          properties:
+            size_bytes:
+              type: [integer, "null"]
+            page_count:
+              type: [integer, "null"]
+            preview_url:
+              type: [string, "null"]
+    DownloadUrl:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+    CompleteUploadOutput:
+      type: object
+      required: [job_id, document]
+      additionalProperties: false
+      properties:
+        job_id:
+          type: string
+          format: uuid
+        document:
+          $ref: "#/components/schemas/Document"
     JobAccepted:
       type: object
       required: [job_id]
@@ -8033,3 +9822,347 @@ components:
               type: boolean
         compile_log:
           type: [string, "null"]
+    ChatSession:
+      type: object
+      required: [id, title, last_message_at, document_id]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: [string, "null"]
+        last_message_at:
+          type: string
+          format: date-time
+        document_id:
+          type: [string, "null"]
+          format: uuid
+    ChatSessionPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatSession"
+        next_cursor:
+          type: [string, "null"]
+    CreateChatSessionInput:
+      type: object
+      required: [course_id]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: [string, "null"]
+          maxLength: 120
+        document_id:
+          type: [string, "null"]
+          format: uuid
+    SendChatMessageInput:
+      type: object
+      required: [content]
+      additionalProperties: false
+      properties:
+        content:
+          type: string
+    ChatFeedbackInput:
+      type: object
+      required: [value]
+      additionalProperties: false
+      properties:
+        value:
+          type: [string, "null"]
+          enum: [HELPFUL, NOT_HELPFUL, null]
+    ChatMessage:
+      type: object
+      required: [id, role, content, streaming, stream_status, attempt, citations, blocks, low_confidence, degraded, masked_count, feedback, error_code, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+          enum: [USER, ASSISTANT]
+        content:
+          type: string
+        streaming:
+          type: boolean
+        stream_status:
+          type: string
+          enum: [STREAMING, DONE, FAILED, CANCELLED]
+        attempt:
+          type: integer
+        citations:
+          type: array
+          items:
+            type: object
+        blocks:
+          type: array
+          items:
+            type: object
+        low_confidence:
+          type: boolean
+        degraded:
+          type: boolean
+        masked_count:
+          type: integer
+        feedback:
+          type: [string, "null"]
+        error_code:
+          type: [string, "null"]
+        created_at:
+          type: string
+          format: date-time
+    ChatMessagePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ChatMessage"
+        next_cursor:
+          type: [string, "null"]
+    ThreadAuthor:
+      type: object
+      required: [full_name, role, is_me]
+      properties:
+        full_name:
+          type: string
+        role:
+          type: string
+        is_me:
+          type: boolean
+    ThreadRow:
+      type: object
+      required: [id, title, preview, tags, week_no, author, answer_state, reply_count, last_activity_at, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        preview:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        author:
+          $ref: "#/components/schemas/ThreadAuthor"
+        answer_state:
+          type: [string, "null"]
+        reply_count:
+          type: integer
+        last_activity_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        ai_state:
+          type: string
+    ThreadPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ThreadRow"
+        next_cursor:
+          type: [string, "null"]
+    ThreadPost:
+      type: object
+      required: [id, kind, author, body, verification_state, citations, version, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+          enum: [AI, HUMAN]
+        author:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadAuthor"
+            - type: "null"
+        body:
+          type: string
+        verification_state:
+          type: [string, "null"]
+        citations:
+          type: array
+          items:
+            type: object
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        confidence:
+          type: string
+        ai_body:
+          type: string
+        rejected:
+          type: boolean
+    ThreadDetail:
+      type: object
+      required: [id, title, body, tags, week_no, author, reply_count, created_at, last_activity_at, similar_of]
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        body:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        author:
+          $ref: "#/components/schemas/ThreadAuthor"
+        reply_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        last_activity_at:
+          type: string
+          format: date-time
+        similar_of:
+          type: [string, "null"]
+          format: uuid
+        ai_state:
+          type: string
+        ai_skip_reason:
+          type: string
+    ThreadView:
+      type: object
+      required: [thread, posts, next_cursor]
+      properties:
+        thread:
+          $ref: "#/components/schemas/ThreadDetail"
+        posts:
+          type: array
+          items:
+            $ref: "#/components/schemas/ThreadPost"
+        next_cursor:
+          type: [string, "null"]
+    CreateThreadInput:
+      type: object
+      required: [title, body]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        redact:
+          type: boolean
+    CommentInput:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        redact:
+          type: boolean
+    CorrectInput:
+      type: object
+      required: [body, version]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        version:
+          type: integer
+    PrecheckInput:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+    PrecheckOutput:
+      type: object
+      required: [allowed, reasons, redacted_text, redacted_title, personal_question]
+      properties:
+        allowed:
+          type: boolean
+        reasons:
+          type: array
+          items:
+            type: object
+            required: [type, count]
+            properties:
+              type:
+                type: string
+              count:
+                type: integer
+        redacted_text:
+          type: string
+        redacted_title:
+          type: string
+        personal_question:
+          type: boolean
+    SimilarThreads:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, title, preview]
+            properties:
+              id:
+                type: string
+                format: uuid
+              title:
+                type: string
+              preview:
+                type: string
+    FromDraftInput:
+      type: object
+      required: [course_id, body]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        body:
+          type: string
+    FromDraftOutput:
+      type: object
+      required: [session_id, draft]
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        draft:
+          type: object
+          required: [title, body]
+          properties:
+            title:
+              type: string
+            body:
+              type: string
