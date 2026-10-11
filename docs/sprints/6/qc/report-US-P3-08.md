@@ -72,3 +72,5 @@ FAIL tới khi dev sửa BUG-1, 2 (seed), 3 (check-docs-seed), 4 (k6). Phần "H
 | TC-03,05,06 (lần 1 chưa kiểm) | TC-05 PASS (SV thấy 12 thread lớp 1: danh sách phân trang 3 trang × 5 → 13 gồm 1 thread QC đã xoá), TC-06 xem `report-GATE-P3.md` mục F1 |
 AC1, AC2, AC5, AC6 PASS. **Lệch AC5 (dev báo):** AC ghi 100 người dùng; k6 chạy **50** tài khoản (mỗi luồng một SV, một lượt sinh chữ/người). Cần BA sửa AC hoặc seed thêm tài khoản — QC không tự nới.
 Chưa kiểm: TC-16, TC-18 (phá cố ý `TestNoPayloadLeak`), TC-25/26 (gỡ k6 / dừng stack) — phá cổng trên stack dùng chung nên bỏ; nhánh `skip()` có trong `gate-lib.sh` nhưng QC chưa chạy. **Kết luận vòng 2: PASS (trừ ghi chú trên).**
+
+**Kết luận cuối US-P3-08: PASS (đóng).** CI xanh ở `cc44964`; AC5 lệch 100→50 người dùng vẫn chờ BA (không chặn). Cổng P3/P8: ĐẠT.
