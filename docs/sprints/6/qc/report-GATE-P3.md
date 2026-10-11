@@ -1,6 +1,6 @@
-# Báo cáo cổng P3 (pha 2) — **ĐẠT CÓ ĐIỀU KIỆN**
+# Báo cáo cổng P3 (pha 2) — **ĐẠT** (chốt tại `cc44964`)
 HEAD `4418da3`. Stack dev `edupilot` (s6) dùng chung, không down (gate k6 tạo lại gateway rồi trả cấu hình thường). `LLM_PROVIDER=fake`. Log: `gate-p3-final-run.log`, `e1/e1-gate-final.{json,md}`.
-**Điều kiện đóng:** CI ở HEAD đang đỏ (mục CI). Chưa phát hiện lỗi chức năng P3 nào còn mở.
+**Chốt:** điều kiện CI đã gỡ — CI xanh ở `cc44964` (Go + Frontend + Judge success, PM xác nhận). Không còn lỗi chức năng P3 mở. Số liệu E1/k6/TTFT đo ở `4418da3`; dev sửa sau đó chỉ là CI (fixture calendar + ảnh mốc chat/threads), QC không chạy lại gate.
 
 ## Số chính
 | Chỉ số | Giá trị | Ngưỡng |
@@ -9,7 +9,7 @@ HEAD `4418da3`. Stack dev `edupilot` (s6) dùng chung, không down (gate k6 tạ
 | `first_event_ms` p95 (k6, 50 SV, trễ provider 5–15 s) | **85,1 ms**, 0/441 lỗi, 291 mẫu | < 300 ms — PASS |
 | TTFT cache p95 / truy xuất p95 (trễ 300 ms) | **44,3 ms** / **342,6 ms**, 0/404 lỗi | < 1500 / < 4000 — PASS |
 | `TestNoPayloadLeak` | 146 payload, 0 rò (lượt gate trước: 1.042 placeholder) | 0 — PASS |
-| CI ở HEAD (run 38095815031) | **ĐỎ**: Go `TestICSTokenOnlySelf`, `TestCalendarUnionSources` (401 `TOKEN_INVALID` từ `fixture_test.go`; local PASS); Frontend `visual.spec` chat/threads @1440/@390 lệch 15.156 px (0,02) | xanh — **CHƯA ĐẠT**; job Judge xanh |
+| CI (run 38095815031 @`4418da3`, đỏ → xanh @`cc44964`) | **ĐỎ lúc đo**: Go `TestICSTokenOnlySelf`, `TestCalendarUnionSources` (401 `TOKEN_INVALID` từ `fixture_test.go`; local PASS); Frontend `visual.spec` chat/threads @1440/@390 lệch 15.156 px (0,02) | xanh — **ĐẠT** sau sửa (`cc44964`) |
 
 ## Bảng lệnh (gate-P3.md)
 | Mục | Kết quả |
@@ -42,7 +42,7 @@ HEAD `4418da3`. Stack dev `edupilot` (s6) dùng chung, không down (gate k6 tạ
 | H (tay) | chủ dự án tự làm |
 
 ## Lỗi / nợ còn lại
-1. **CI đỏ ở HEAD** (Cao với cổng): visual baseline chat/threads lệch (chạy Ubuntu; dev chụp baseline trên macOS? cần cập nhật baseline đúng quy trình) và `internal/calendar` 401 trong CI (local xanh; nghi hạn dùng token/giờ trong fixture) — dev sửa, QC chấm lại.
+1. ~~**CI đỏ ở HEAD**~~ (ĐÃ ĐÓNG ở `cc44964`) (Cao với cổng): visual baseline chat/threads lệch (chạy Ubuntu; dev chụp baseline trên macOS? cần cập nhật baseline đúng quy trình) và `internal/calendar` 401 trong CI (local xanh; nghi hạn dùng token/giờ trong fixture) — dev sửa, QC chấm lại.
 2. AC5 US-P3-08 (100 → 50 người dùng) cần BA quyết.
 3. Nợ cũ: TC-31 (TEACHER 200 `/admin/llm/usage`, chờ BA), mask-timeout/OVERLOADED không ép được (TC-49/50 P3-02, TC-26 P3-05), E1 dataset do dev soạn.
 Dọn dữ liệu QC: đã xoá 1 thread + 1 phiên chat QC tạo trong DB dev để số seed còn 12/150.
