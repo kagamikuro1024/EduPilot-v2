@@ -57,7 +57,9 @@ func newFx(t *testing.T) *fx {
 	rdb, err := appredis.New(ctx, testutil.RedisURL(t))
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = rdb.Close() })
-	f := &fx{t: t, pool: pool, rdb: rdb, clk: clock.NewFake(time.Now()), iss: auth.NewIssuer(jwtSecret, time.Hour, clock.Real{}), logs: &bytes.Buffer{}, ip: fmt.Sprintf("10.%d.%d.%d", rand.IntN(256), rand.IntN(256), rand.IntN(254)+1)}
+	// Token phải do CHÍNH đồng hồ giả phát: router xác minh iat / exp bằng d.Clock (leeway 5 s); phát bằng đồng hồ thật thì máy chậm (CI -race: dựng container > 5 s) làm iat vượt leeway → 401 TOKEN_INVALID.
+	fk := clock.NewFake(time.Now())
+	f := &fx{t: t, pool: pool, rdb: rdb, clk: fk, iss: auth.NewIssuer(jwtSecret, time.Hour, fk), logs: &bytes.Buffer{}, ip: fmt.Sprintf("10.%d.%d.%d", rand.IntN(256), rand.IntN(256), rand.IntN(254)+1)}
 	f.svc = &calendar.Service{Pool: pool, Redis: rdb, Clock: f.clk, PublicURL: "http://app.test"}
 	f.teacher = f.user("GV", "TEACHER", "ACTIVE")
 	f.ta = f.user("TA", "TA", "ACTIVE")

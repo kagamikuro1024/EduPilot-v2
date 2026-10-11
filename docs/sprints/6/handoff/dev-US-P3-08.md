@@ -48,6 +48,14 @@ Hai lần gate đầu đỏ do nhiễu ngoài lỗi mã: `TestDetectLinearTime` 
 2. Thread mẫu có tiêu đề là tiêu đề mục của tài liệu (vd "Linear Trend Projection", "Modern Network Security Threats") chứ không phải câu hỏi tự nhiên — đánh đổi để provider `fake` trả lời được (xem BUG-2); với provider thật có thể đổi lại câu hỏi tự nhiên.
 3. SRS ghi `FAKE_LLM_TTFT_MS`; mã chỉ có `FAKE_LLM_LATENCY` (PM giao BA sửa SRS).
 
+## Vòng sửa CI (`US-P3-08: fix CI`, CI run 38095815031 đỏ ở 4418da3)
+1. **`TestICSTokenOnlySelf`, `TestCalendarUnionSources` → 401 TOKEN_INVALID chỉ trên CI.** Nguyên nhân gốc: `internal/calendar/fixture_test.go` phát JWT bằng `clock.Real{}` nhưng router xác minh bằng đồng hồ GIẢ (`clock.NewFake(time.Now())` dựng TRƯỚC khi chờ container). `auth.Verify` có leeway 5 s; trên CI `-race` dựng container Postgres + Redis + MinIO mất > 5 s (test fail sau 9 s), nên `iat` thật > đồng hồ giả + 5 s → `iat` "ở tương lai" → TOKEN_INVALID. Máy dev dựng container nhanh hơn nên không thấy. Tái hiện cục bộ (đỏ): test tạm `newFx` rồi `time.Sleep(7s)` → 401; sửa: bộ phát token dùng chính đồng hồ giả (`auth.NewIssuer(jwtSecret, time.Hour, fk)`), không đụng assertion / leeway. Sau sửa test tạm xanh, `go test -race ./internal/calendar` xanh; test tạm đã xoá.
+2. **`visual.spec` chat / threads @1440 / @390.** Bốn ảnh mốc cũ là của màn mô phỏng trước P3; CI đỏ đúng 4 ca này (10 ca còn lại xanh). Sinh lại trong `mcr.microsoft.com/playwright:v1.63.0-noble` (= `@playwright/test` 1.63.0 của CI) trên bản `pnpm build:gate` chạy bằng server standalone (host darwin không có SWC linux nên không `next start` được trong image): chạy trước = đúng 4 đỏ / 10 xanh như CI (tái hiện), `-g "(chat|threads) @" --update-snapshots=changed` rồi chạy lại cả file = **14 passed**. Đã xem mắt từng ảnh sinh ra: màn Chat riêng (danh sách phiên + gợi ý + ô nhập) và Threads (danh sách, bộ lọc, "Đặt câu hỏi").
+| Ảnh | Lý do |
+| --- | --- |
+| `chat-1440.png`, `chat-390.png` | `/chat` nay là `RealChat` (US-P3-02/03: danh sách phiên, câu gợi ý, ô nhập) |
+| `threads-1440.png`, `threads-390.png` | `/threads` nay là màn thật (US-P3-04/05: bộ lọc, thẻ thread, trạng thái) |
+
 ## Lệnh QC
 ```bash
 cd backend-go && export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock TESTCONTAINERS_RYUK_DISABLED=true
