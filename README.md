@@ -4,7 +4,13 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 
 Đồ án tốt nghiệp — viết mới hoàn toàn (D45) từ ý tưởng của Project III. Mã Project III nằm ở [`legacy/`](legacy/) **chỉ để tham khảo**: không build, không chạy, không import.
 
-> **Trạng thái:** đã vào `main`: sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), 3 (PU + P1 LLM Gateway), 4 (P2 Lớp học), **5 (PE thi hằng tuần — ngân hàng câu hỏi, bài thi trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính; 500 test case, cổng đạt có điều kiện)** và **5.5 (giao diện panel nổi, D59 — nền canvas xám ấm, mỗi vùng làm việc trên một panel trắng; 58 test case, cổng đạt có điều kiện)**. Kế tiếp: sprint 6 (P3 + P8). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> **Trạng thái:** đã vào `main`:
+> - sprint 1 (P0), 1.5 (prototype giao diện), 2 (PG — nền Go), 3 (PU + P1 LLM Gateway), 4 (P2 Lớp học);
+> - 5 (PE thi hằng tuần, chấm C/C++ bằng sandbox `go-judge`);
+> - 5.5 (giao diện panel nổi, D59);
+> - **6 (P3 + P8):** chat riêng và Threads có tường lửa dữ liệu cá nhân, che tên / MSSV trước mọi lời gọi LLM; tài liệu trích bằng `docling-serve` + tìm lai; thư viện, lịch, feed ICS; 535 test case, cổng P3 và P8 đạt.
+>
+> Kế tiếp: sprint 7 (P4 + P5). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -95,6 +101,15 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   │   ├── exam/            # bài thi: lượt làm, tự lưu, nộp, công bố, kết quả, phúc khảo, liêm chính
 │   │   ├── quiz/            # Quiz Engine: chấm trắc nghiệm (decimal, từng phần)
 │   │   ├── judge/           # client go-judge + hàng chấm code (thuê việc kiểu outbox)
+│   │   ├── privacy/         # phát hiện / ẩn / che / khôi phục danh tính (roster theo lớp, unmask_stream)
+│   │   ├── agent/           # định tuyến tất định, tool theo kênh (danh tính từ trusted_context)
+│   │   ├── chat/            # chat riêng: SSE, nối lại, Dừng, khoá giờ thi
+│   │   ├── thread/          # Threads: tường lửa PII, AI trả lời nền, xác nhận của giảng viên
+│   │   ├── rag/             # tìm lai vector + từ khoá (RRF), lọc audience trong SQL
+│   │   ├── ingest/          # worker gọi docling-serve, chunk, nhúng
+│   │   ├── document/        # tài liệu: tải lên, cờ, đoạn, thống kê
+│   │   ├── library/         # thư viện cho sinh viên
+│   │   ├── calendar/        # lịch gộp, feed ICS, nhắc 24 h
 │   │   ├── mail/            # go-mail + mail_outbox (retry, dead-letter)
 │   │   ├── llm/             # cổng LLM (openai-go), Scheduler ba làn, cầu dao, llm_audit
 │   │   ├── llmconfig/       # API quản trị provider / tuyến / ngân sách
@@ -156,12 +171,13 @@ Biến môi trường: [`.env.example`](.env.example) (chỉ giá trị dev gi�
 
 Không ghi secret vào repo. Khoá LLM thật chỉ đặt trong `.env.local` (đã bị `.gitignore`); mọi test dùng provider `fake`.
 
-### Dữ liệu mẫu (sprint 4–5)
+### Dữ liệu mẫu (sprint 4–6)
 ```bash
-SEED_ON_EMPTY_DB=true pnpm dev     # DB trống: 2 lớp × 30 sinh viên + ngân hàng câu hỏi + 2 bài thi mẫu, đi bằng chính API thật
+SEED_ON_EMPTY_DB=true pnpm dev     # DB trống: 2 lớp × 30 sinh viên, ngân hàng câu hỏi, 2 bài thi, tài liệu đã nhúng, hội thoại + thread mẫu, lịch, đi bằng chính API thật
 pnpm seed                          # chạy lại seed trên stack đang chạy
+docker compose --env-file .env.local -f docker-compose.local.yml -p edupilot --profile ingest up -d docling   # bật đọc tài liệu khi cần (~1,8 GiB RAM)
 ```
-Đăng nhập ở https://localhost/login bằng các tài khoản mẫu `@edupilot.local` (sinh viên, TA, giảng viên, Admin), mật khẩu là `SEED_DEFAULT_PASSWORD` trong `.env.local`. Mã tham gia lớp mẫu: `AN7K2MQ`, `BX4P9TW`. Thư xác minh / đặt lại mật khẩu xem ở Mailpit http://localhost:8025. Bài thi: giảng viên ở `/exams`, sinh viên ở `/exams/[id]/take`. Sandbox chấm code là service `judge` (`go-judge`) trong compose, ở mạng riêng; trên colima arm64 chạy với `JUDGE_EXTRA_ARGS=-no-seccomp` (D58), trên amd64 bật seccomp.
+Đăng nhập ở https://localhost/login bằng các tài khoản mẫu `@edupilot.local` (sinh viên, TA, giảng viên, Admin), mật khẩu là `SEED_DEFAULT_PASSWORD` trong `.env.local`. Mã tham gia lớp mẫu: `AN7K2MQ`, `BX4P9TW`. Thư xác minh / đặt lại mật khẩu xem ở Mailpit http://localhost:8025. Bài thi: giảng viên ở `/exams`, sinh viên ở `/exams/[id]/take`. Chat riêng `/chat`, Threads `/threads`, tài liệu `/documents`, thư viện `/library`, lịch `/calendar`. Sandbox chấm code là service `judge` (`go-judge`) trong compose, ở mạng riêng; trên colima arm64 chạy với `JUDGE_EXTRA_ARGS=-no-seccomp` (D58), trên amd64 bật seccomp. Mặc định LLM là provider giả; thêm khoá thật ở `/settings/llm`.
 
 ### Prototype (sprint 1.5)
 Các màn chưa dựng thật (Threads, sổ điểm, chấm bài…) vẫn là bản mô phỏng của sprint 1.5 (`frontend/src/mock/`), được thay dần bằng màn thật theo từng sprint (D51). Kịch bản đi trọn: [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md).
@@ -270,7 +286,7 @@ flowchart LR
 | 4 | ✅ Xong | P2 | Đăng nhập / đăng ký / xác minh email / đặt lại mật khẩu, chống dò, mời giảng viên / TA, mở lớp, mã tham gia, nạp danh sách lớp (nối chỉ bằng email), "Hôm nay", seed bằng API thật |
 | 5 | ✅ Xong | PE | Bài thi hằng tuần (D54–D58): ngân hàng câu hỏi, trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính (khoá chat, log rời tab, so độ giống); trả nợ LCP / TBT (US-PU-06) |
 | 5.5 | ✅ Xong | UI | Giao diện panel nổi (D59): nền canvas xám ấm, mỗi vùng làm việc trên một `Panel`; khung, màn sinh viên / Staff / Admin; ảnh trước / sau, axe, Lighthouse |
-| 6 | | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính; tài liệu, thư viện, lịch |
+| 6 | ✅ Xong | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính trước LLM (E1 recall 0,960); tài liệu (`docling-serve`), thư viện, lịch + ICS |
 | 7 | | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
 | 8 | | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |
 | 9 | | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
