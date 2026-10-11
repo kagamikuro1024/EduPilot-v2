@@ -1,0 +1,29 @@
+E1 PASS recall=0.960 false_block=0.000
+    checks_failed......: 0.00%   0 out of 291
+    first_event_ms.................: avg=17.58ms med=7.74ms p(90)=52.48ms p(95)=85.1ms max=101.9ms
+    first_event_samples............: 291    3.209521/s
+    http_req_failed................: 0.00%  0 out of 441
+    checks_failed......: 0.00%   0 out of 339
+    ttft_cache_ms..................: avg=18.51ms  med=16.05ms  p(90)=30ms     p(95)=44.28ms  max=51.34ms 
+    ttft_cache_samples.............: 170    2.44489/s
+    ttft_rag_ms....................: avg=321.71ms med=319.74ms p(90)=332.76ms p(95)=342.6ms  max=359.51ms
+    ttft_rag_samples...............: 169    2.430508/s
+    http_req_failed................: 0.00%  0 out of 404
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 5 |
+| PASS | go test -race privacy + agent + chat + thread (gồm TestChatMatrix, TestThreadsMatrix) | 25 |
+| PASS | TestChatMatrix | 5 |
+| PASS | TestThreadsMatrix | 3 |
+| PASS | TestUnmaskStream | 1 |
+| PASS | TestNoPayloadLeak | 4 |
+| PASS | TestThreadsAgentHasNoPersonalTools | 2 |
+| PASS | TestStudentNeverSeesConfidence | 24 |
+| PASS | go test ./internal/contract/... | 57 |
+| PASS | E1: eval_pii.py --min-recall 0.95 --max-false-block 0.05 | 215 |
+| PASS | Playwright privacy + private-chat + threads | 15 |
+| PASS | ui-antipatterns.sh | 1 |
+| PASS | k6 chat.js first_event (p95 < 300 ms; provider giả trễ 5–15 s) | 106 |
+| PASS | k6 chat.js ttft (cache p95 < 1,5 s; truy xuất p95 < 4 s; provider giả trễ 300 ms) | 84 |
+GATE P3: PASS
+rc=0

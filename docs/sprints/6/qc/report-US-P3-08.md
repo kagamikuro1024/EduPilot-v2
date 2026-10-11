@@ -1,3 +1,5 @@
+# QC report — US-P3-08 · VÒNG 2: **PASS** (BUG-1…4 đã đóng, xem cuối file) — vòng 1 bên dưới giữ nguyên làm lịch sử
+
 # QC report — US-P3-08 (seed, "Hôm nay", k6, `gate-p3.sh`, `gate-p8.sh`)  · Kết luận: FAIL (3 lỗi: seed, k6, gate P8)
 
 Handoff: `docs/sprints/6/handoff/dev-US-P3-08.md` (HEAD `fd0ff79`). Bộ TC: `tc-US-P3-08.md` (29 TC).
@@ -55,3 +57,18 @@ AC1 **FAIL**, AC2 **FAIL**, AC3 PASS, AC4 PASS (nhánh `SKIPPED`; nhánh `PENDIN
 
 ## Đề nghị
 FAIL tới khi dev sửa BUG-1, 2 (seed), 3 (check-docs-seed), 4 (k6). Phần "Hôm nay" (`continue[]`, `AI_CONFIRM`) và gate P3 (không k6) PASS. Sau khi sửa: QC chạy lại `seed.mjs` trên DB trống, `check-*-seed.mjs`, `gate-p3.sh` có `GATE_K6=1`, `gate-p8.sh` có `GATE_DOCLING=1`.
+
+
+---
+## Vòng 2 (HEAD `4418da3`, stack dev `edupilot` từ s6, DB trống đã seed, `LLM_PROVIDER=fake`, docling thật)
+| Mục | Kết quả | Chứng cứ |
+| --- | --- | --- |
+| BUG-1 seed không dừng | PASS | seed dev xong 13 bước; `check-chat-seed --no-rerun` → `chat=150 sessions=33 outside=10 threads=12/3 states={REJECTED:1,CORRECTED:2,VERIFIED:3,SKIPPED:2,PENDING:4}` (TC-01, 04 đạt) |
+| BUG-2 thread có bài AI | PASS | 10 thread `ANSWERED` + 2 `SKIPPED` lớp 1 đúng 4/3/2/1/2; tiêu đề thread = tiêu đề mục tài liệu (đánh đổi dev đã ghi, chấp nhận với `fake`) |
+| BUG-3 `check-docs-seed` | PASS | `docs=5 READY=5 answer_key=1 shared=4 reembedded=0 events=2/1`; bước "docling thật" trong gate PASS 19 s |
+| BUG-4 k6 | PASS | `first_event` p95 **85,1 ms** (291 mẫu, `http_req_failed` 0/441); `ttft_cache` p95 44,3 ms, `ttft_rag` p95 342,6 ms (169 mẫu, 0/404 lỗi) |
+| TC-17/19 gate-p3 + `GATE_K6=1` | PASS | 14 bước, `GATE P3: PASS`, rc=0 |
+| TC-20 Playwright | PASS | privacy + private-chat + threads, 15 s |
+| TC-03,05,06 (lần 1 chưa kiểm) | TC-05 PASS (SV thấy 12 thread lớp 1: danh sách phân trang 3 trang × 5 → 13 gồm 1 thread QC đã xoá), TC-06 xem `report-GATE-P3.md` mục F1 |
+AC1, AC2, AC5, AC6 PASS. **Lệch AC5 (dev báo):** AC ghi 100 người dùng; k6 chạy **50** tài khoản (mỗi luồng một SV, một lượt sinh chữ/người). Cần BA sửa AC hoặc seed thêm tài khoản — QC không tự nới.
+Chưa kiểm: TC-16, TC-18 (phá cố ý `TestNoPayloadLeak`), TC-25/26 (gỡ k6 / dừng stack) — phá cổng trên stack dùng chung nên bỏ; nhánh `skip()` có trong `gate-lib.sh` nhưng QC chưa chạy. **Kết luận vòng 2: PASS (trừ ghi chú trên).**

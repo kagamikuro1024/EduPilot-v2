@@ -1,0 +1,195 @@
+{
+  "by_pii_type": {
+    "CCCD": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 6
+    },
+    "EMAIL": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 11
+    },
+    "MSSV": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 16
+    },
+    "NAME": {
+      "fn": 4,
+      "fp": 0,
+      "recall": 0.8571,
+      "tn": 0,
+      "tp": 24
+    },
+    "PERSONAL_QUESTION": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 38
+    },
+    "PHONE": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 9
+    }
+  },
+  "by_split": {
+    "dev": {
+      "f1": 0.9831,
+      "false_block": 0.0,
+      "fn": 1,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.9667,
+      "tn": 30,
+      "tp": 29
+    },
+    "test": {
+      "f1": 0.9781,
+      "false_block": 0.0,
+      "fn": 3,
+      "fp": 0,
+      "precision": 1.0,
+      "recall": 0.9571,
+      "tn": 70,
+      "tp": 67
+    }
+  },
+  "by_stratum": {
+    "N1": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 50,
+      "tp": 0
+    },
+    "N2": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 15,
+      "tp": 0
+    },
+    "N3": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 15,
+      "tp": 0
+    },
+    "N4": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 10,
+      "tp": 0
+    },
+    "N5": {
+      "false_block": 0.0,
+      "fn": 0,
+      "fp": 0,
+      "tn": 10,
+      "tp": 0
+    },
+    "S1": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 12
+    },
+    "S2": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 8
+    },
+    "S3": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 8
+    },
+    "S4": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 6
+    },
+    "S5": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 20
+    },
+    "S6": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 38
+    },
+    "S7": {
+      "fn": 4,
+      "fp": 0,
+      "recall": 0.0,
+      "tn": 0,
+      "tp": 0
+    },
+    "S8": {
+      "fn": 0,
+      "fp": 0,
+      "recall": 1.0,
+      "tn": 0,
+      "tp": 4
+    }
+  },
+  "channel_confusion": {
+    "PRIVATE->PRIVATE": 96,
+    "PRIVATE->PUBLIC": 4,
+    "PUBLIC->PUBLIC": 100
+  },
+  "constants": {
+    "PII_PERSONAL_SIM_HIGH": 0.78,
+    "PII_PERSONAL_SIM_LOW": 0.55,
+    "RAG_SIM_CEIL": 0.65,
+    "RAG_SIM_FLOOR": 0.25,
+    "THREAD_SIMILAR_MIN": 0.75
+  },
+  "counts": {
+    "fn": 4,
+    "fp": 0,
+    "tn": 100,
+    "tp": 96
+  },
+  "dataset_sha256": "da27354ae47b0e9cd51b4e0613e604f8cf639e3bedb8c0857fcaa37d441cf77a",
+  "dev_misses": [
+    "S7-01"
+  ],
+  "gate": {
+    "max_false_block": 0.05,
+    "min_recall": 0.95
+  },
+  "metrics": {
+    "f1": 0.9796,
+    "false_block": 0.0,
+    "precision": 1.0,
+    "recall": 0.96
+  },
+  "pass": true,
+  "s7_leaked": 4
+}

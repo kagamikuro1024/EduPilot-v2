@@ -1,0 +1,17 @@
+▶ check-docs-seed.mjs timing (≤ 1 s/trang; scan ≤ 4 s/trang)
+Quy chế học vụ: 5 trang, 23 s, 4.52 s/trang (≤ 4)
+Forecasting (QMB ch. 6b): 24 trang, 20 s, 0.84 s/trang (≤ 1)
+Network Security Threats: 141 trang, 109 s, 0.78 s/trang (≤ 1)
+  ✗ Quy chế học vụ: 4.52 s/trang > 4
+| Kết quả | Bước | Giây |
+|---|---|---|
+| PASS | go vet ./... | 1 |
+| PASS | go test -race rag + library + calendar + document + ingest | 38 |
+| PASS | TestAnswerKeyNeverRetrieved | 4 |
+| PASS | go test ./internal/contract/... | 54 |
+| PASS | feed ICS: curl feed.ics?token=  |  head -1 = BEGIN:VCALENDAR|0 |
+| PASS | Playwright documents + library + calendar | 16 |
+| PASS | ui-antipatterns.sh | 1 |
+| PASS | check-docs-seed.mjs (docling thật) | 19 |
+| FAIL | check-docs-seed.mjs timing (≤ 1 s/trang; scan ≤ 4 s/trang) | 0 |
+GATE P8: FAIL
