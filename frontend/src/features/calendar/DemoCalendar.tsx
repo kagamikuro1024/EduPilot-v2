@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useMemo, useState, useSyncExternalStore } from "react";
 import { EVENT_LABEL, WEEK_DAY_SHORT, eventsFor, isNow, shortLabel, startOfWeek, type CalEvent } from "@/mock/calendar";
 import { NOW, fmtLongDate, fmtShortDate, fmtTime } from "@/mock/core";
-import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
+import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/quizState";
 import { KEYS, type CalendarExtra } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";

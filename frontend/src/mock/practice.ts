@@ -420,7 +420,4 @@ export function historyRows(done: RunRecord[], seeded: boolean): HistoryRow[] {
   ];
 }
 
-/** Lát trạng thái bài QUIZ01, tách theo sinh viên (FR-X18): chat chỉ trả lời thủ tục khi người đó đang làm. */
-export const quizKey = (studentId?: string) => `practice.quiz01.${studentId ?? "khach"}`;
-export type QuizState = { status: "idle" | "doing" | "submitted"; answers: Record<string, number>; score?: number };
-export const QUIZ_SEED: QuizState = { status: "idle", answers: {} };
+export { quizKey, QUIZ_SEED, type QuizState } from "./quizState";

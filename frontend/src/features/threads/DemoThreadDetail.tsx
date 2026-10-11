@@ -3,7 +3,7 @@
 import { MessageSquare, Pin, Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CHAT_DRAFT_KEY } from "@/features/chat/ChatScreen";
+import { CHAT_DRAFT_KEY } from "@/features/chat/draftKey";
 import { describePii, findPii, redactPii } from "@/mock/pii";
 import { KEYS, type InsightThread } from "@/mock/state";
 import {

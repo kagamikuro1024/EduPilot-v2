@@ -3,7 +3,7 @@
 import { Pin } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { CHAT_DRAFT_KEY } from "@/features/chat/ChatScreen";
+import { CHAT_DRAFT_KEY } from "@/features/chat/draftKey";
 import { agoLabel } from "@/mock/derive";
 import { pushNote } from "@/mock/notes";
 import { describePii, findPii, redactPii } from "@/mock/pii";

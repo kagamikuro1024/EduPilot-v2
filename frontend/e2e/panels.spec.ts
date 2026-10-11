@@ -250,6 +250,7 @@ test.describe("student routes", () => {
       for (const route of STUDENT_ROUTES) {
         await page.goto(route);
         await page.locator("main").first().waitFor();
+        await page.locator("main:not([aria-busy]) h1").first().waitFor(); // màn nạp lười (next/dynamic): chờ tiêu đề của chính màn, không chỉ khung main
         const v = await violations(page);
         if (v.panels < 1 || v.nest || v.title || v.wall || v.strongOver || v.sw > v.vw) bad.push(`${route}@${w}: ${JSON.stringify({ ...v, left: undefined, right: undefined })}`);
       }
@@ -567,6 +568,7 @@ test.describe("staff routes", () => {
         for (const route of STAFF_ROUTES(role)) {
           await page.goto(route);
           await page.locator("main").first().waitFor();
+          await page.locator("main:not([aria-busy]) h1").first().waitFor(); // màn nạp lười (next/dynamic): chờ tiêu đề của chính màn, không chỉ khung main
           await page.waitForTimeout(250);
           const v = await violations(page);
           const allowNone = route === `/exams/${STAFF_EXAM}/similarity` && role === "ta"; // TA: màn chặn quyền, không có panel

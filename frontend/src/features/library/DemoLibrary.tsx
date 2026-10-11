@@ -3,7 +3,7 @@
 import { FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { CHAT_DRAFT_KEY } from "@/features/chat/ChatScreen";
+import { CHAT_DRAFT_KEY } from "@/features/chat/draftKey";
 import { agoLabel } from "@/mock/derive";
 import { DOC_KIND_LABEL, docById, libraryDocs, uploadedAt, type DocKind } from "@/mock/library";
 import { useSession } from "@/shared/session/session";

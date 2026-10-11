@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log/slog"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
@@ -37,6 +38,7 @@ func newFx(t *testing.T) *fx {
 	rdb, err := appredis.New(ctx, testutil.RedisURL(t))
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = rdb.Close() })
+	warmRedis(t, rdb)
 	f := &fx{pool: pool, rdb: rdb, logs: &bytes.Buffer{}}
 	f.log = slog.New(slog.NewJSONHandler(f.logs, &slog.HandlerOptions{Level: slog.LevelDebug}))
 
@@ -53,6 +55,17 @@ func newFx(t *testing.T) *fx {
 		"PV-"+strings.ToUpper(id), string(jc), teacher).Scan(&f.course))
 	f.enroll(t, teacher, "TEACHER", "ACTIVE", "", "Giảng Viên Thử")
 	return f
+}
+
+// warmRedis mở sẵn 8 kết nối: mã chạy thật chỉ cho Redis 30 ms mỗi lệnh (redisOpTimeout, rơi về bộ nhớ khi quá hạn), nhưng kết nối LẠNH dưới -race + CI tải nặng
+// (container Redis vừa dựng, nhiều gói test chạy song song) có thể mất hơn thế → test khẳng định trạng thái Redis thấy ánh xạ bộ nhớ / khoá chưa ghi.
+func warmRedis(t *testing.T, rdb *appredis.Client) {
+	t.Helper()
+	var wg sync.WaitGroup
+	for range 8 {
+		wg.Go(func() { _ = rdb.Ping(t.Context()).Err() })
+	}
+	wg.Wait()
 }
 
 func (f *fx) enroll(t *testing.T, user uuid.UUID, role, status, code, _ string) {

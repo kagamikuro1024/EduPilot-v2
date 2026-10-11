@@ -7,7 +7,7 @@ import { STUDENT_B, fmtLongDate, fmtScore, fmtTime, studentById } from "@/mock/c
 import { agoLabel } from "@/mock/derive";
 import { baseBtScores, bt03Total } from "@/mock/grades";
 import { KEYS, type Bt03State } from "@/mock/state";
-import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
+import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/quizState";
 import { BT03_SUBMISSION, assignmentById, until } from "@/mock/student";
 import { useSession } from "@/shared/session/session";
 import { useSimNow } from "@/shared/state/clock";

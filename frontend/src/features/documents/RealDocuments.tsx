@@ -2,7 +2,8 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ApiError, apiClient, checkDocumentFile, newIdempotencyKey, uploadDocumentFile, useJob } from "@/shared/data";
+import { ApiError, apiClient, newIdempotencyKey, useJob } from "@/shared/data";
+import { checkDocumentFile, uploadDocumentFile } from "@/shared/data/uploadFile";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import {
   Button, ConfirmIrreversible, DataTable, Drawer, EmptyState, Field, InlineNotice, Input, OverflowMenu, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Switch, Textarea, type Column,

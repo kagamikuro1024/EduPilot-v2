@@ -1,5 +1,6 @@
 "use client";
 
+import { CHAT_DRAFT_KEY } from "./draftKey";
 import { Check, ShieldCheck, ThumbsDown, ThumbsUp } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -18,7 +19,7 @@ import {
 } from "@/mock/chat";
 import { COURSE_1, NOW, STAFF, STUDENT_B, fmtScore, fmtTime } from "@/mock/core";
 import { qtOf } from "@/mock/grades";
-import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/practice";
+import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/quizState";
 import { BT03_SEED } from "@/mock/assess";
 import { ATTENDANCE_SEED, committedOf, KEYS, type AttendanceState, type Bt03State, type Ticket } from "@/mock/state";
 import { B_ABSENT_DATES } from "@/mock/student";
@@ -37,7 +38,6 @@ import s from "./ChatScreen.module.css";
 type Msg = { id: string; from: "sv" | "ai"; text: string; script?: Script; hidden?: number; stats?: { absences: number; speaks: number; bonus: number } };
 
 const MSG_KEY = "chat.messages";
-export const CHAT_DRAFT_KEY = "chat.draft";
 
 /** Chat riêng của sinh viên (DESIGN §14.2): hỏi về chính mình, ẩn thông tin cá nhân trước khi gửi. */
 export function DemoChatScreen() {

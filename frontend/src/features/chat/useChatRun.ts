@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ApiError, apiClient, openChatStream, type ChatFrame } from "@/shared/data";
+import { ApiError, apiClient } from "@/shared/data";
+import { openChatStream, type ChatFrame } from "@/shared/data/chatStream"; // không qua barrel: chỉ chat thật cần (ngân sách JS mỗi route)
 import type { ChatBlock, ChatCitation } from "./chatApi";
 
 /** Một lượt đang chạy (hoặc vừa kết thúc, chờ lịch sử tải lại). `text` là văn bản đã khôi phục từ máy chủ. */
