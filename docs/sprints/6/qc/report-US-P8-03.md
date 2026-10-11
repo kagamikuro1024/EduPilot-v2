@@ -71,3 +71,16 @@ AC1–AC13, AC15 PASS ở phần kiểm được; AC14 PASS một phần (375 px
 
 ## Đề nghị
 PASS phần kiểm được. Chuyển TC nặng (10, 11, 14, 17, 42, 46–48, 55, 28) và AC16/17 sang lượt gate P8 / US-P3-08. BUG-1 chờ BA.
+
+---
+## Chấm lại BUG-1 sau #15 (`c5d42d3`, stack dev, HEAD `743de90`) — **BUG-1 ĐÓNG, US-P8-03 PASS**
+Chat riêng, `sv.gioi`/lớp 761987, `fake`: mọi câu đi đúng `intent=UPCOMING_EVENTS` (cột `chat_messages.intent`), ngữ cảnh mang đúng cửa sổ ngày.
+| Câu hỏi | Intent | `days` |
+| --- | --- | --- |
+| Tuần tới có gì không? | UPCOMING_EVENTS | 7 |
+| Tuần sau có lịch gì? | UPCOMING_EVENTS | 7 |
+| 7 ngày tới có gì không? | UPCOMING_EVENTS | 7 |
+| 30 ngày tới có gì? | UPCOMING_EVENTS | **30** |
+| Sắp tới có lịch gì? | UPCOMING_EVENTS | 7 |
+| Hôm nay có gì? | UPCOMING_EVENTS | 7 (ghi chú: cửa sổ 7 ngày chứ không 1 ngày; không vi phạm AC đã ghi) |
+Phiên thử đã xoá khỏi DB dev.
