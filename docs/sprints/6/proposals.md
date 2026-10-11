@@ -45,6 +45,7 @@ Chủ dự án đã trả lời trong phiên PM ngày 2026-10-10. PM quyết t�
 | 14 | **ACCEPTED.** BA ghi dấu hiệu của `WHAT_IF_GRADE` / `SMALLTALK` vào SRS 4.5, khớp với code đã sửa ở `e2542ea`. Commit ghi `#14` |
 | D3 | **ACCEPTED, theo phương án ngoại lệ có tên.** Giữ tiêu đề phiên lấy từ 60 ký tự đầu. Tiêu đề cũng là dữ liệu riêng của sinh viên chủ phiên, có cùng quyền đọc với tin nhắn và không ra kênh nào khác. Phép quét AC9 / TC-47 bỏ qua `chat_sessions.title`. BA thêm câu này vào AC9; QC sửa TC-47. Commit ghi `D3` |
 | 15 | **PM quyết (từ `report-US-P8-03.md` BUG-1).** Thêm dấu hiệu `UPCOMING_EVENTS` cho cách hỏi tự nhiên: "tuần tới", "N ngày tới", "sắp tới có gì", "… có gì không". Câu hỏi thời gian, tức chỉ hỏi "có gì", vào lịch. Câu có từ nội dung môn vẫn vào `COURSE_QA`. BA sửa SRS P3 4.5, dev sửa luật kèm ca test, QC chấm lại. Commit ghi `#15` |
+| 16 | **PM quyết (cổng P8, điều kiện (a)).** Ngưỡng trích **bản scan (OCR) đổi thành ≤ 6 s / trang**; ngưỡng bản có lớp chữ giữ ≤ 1 s / trang. Lý do: ingest là việc nền, sinh viên không phải chờ. Ngưỡng 4 s lấy từ PoC 3,1 s trên một lượt đo, còn máy đo cổng cho 4,52 s / trang. OCR Tesseract tốn CPU và đổi theo máy. BA sửa US-P8-01 AC17 / SRS P8; QC chấm theo ngưỡng mới. Commit ghi `#16` |
 
 **Câu [CHỦ DỰ ÁN] trong hai `QUESTIONS.md`:**
 - **Q3 (P3), tên người đăng thread:** **công khai với cả lớp**. Chủ dự án: "đã có chat riêng để hỏi riêng tư rồi thì cái này cho mặc định công khai". BA đổi spec theo hướng này.
