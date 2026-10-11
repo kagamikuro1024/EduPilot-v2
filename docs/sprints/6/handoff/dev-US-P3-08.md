@@ -73,6 +73,22 @@ Kết quả cục bộ: `go test -race ./internal/privacy ./internal/calendar` x
 ## CI
 **Xanh ở `cc44964`** (`gh run` 38106540620: Go, Frontend, Judge đều success). Các lần đỏ trước: 38095815031 (4418da3: lịch + ảnh mốc), 38100278570 (fc8e0a7: privacy + Lighthouse), 38104867232 (c056bf7: `TestPrecheckRateLimit`).
 
+## CI nhanh hơn (`ci: TL-CI #1 #2 #4`, commit `ab13a56`, #17 `proposals.md`)
+- **#1 lọc đường dẫn:** job `Changes` (8 s) chạy `scripts/ci-changes.sh` (có `--selftest` 8 ca, chạy ở đầu job) → cờ `fe` / `go`. PR, push vào `main`, nhánh mới (`before` = 000…0) và force-push (`before` không còn trong lịch sử) luôn chạy đủ; đổi `.github/**` bật cả hai. Cờ `go` còn tính các tệp mà test Go đọc bằng đường dẫn tương đối (`.env.example`, `benchmarks/pii/`, `frontend/src/features/exam/`, `frontend/src/shared/i18n/vi.ts`) và `deploy/**` — danh sách TL-CI chưa có các tệp này (tôi tìm bằng `grep "../../../"` trong test Go). Kiểm thật: push chỉ đổi `docs/` (run 38109865587) → `Changes` xanh, năm job còn lại `skipped`.
+- **#2 tách Frontend:** ba job `Frontend (lint + build)`, `Frontend e2e (Playwright)`, `Frontend Lighthouse`, dùng chung composite action `.github/actions/fe-setup` (pnpm + Node + install; Chromium khi `browsers: "true"`). `upload reports` có ở `e2e` (`e2e-reports`) và `lhci` (`lhci-reports`). **Tên check đổi:** `Frontend` → ba tên trên; nếu `main` có branch protection theo tên check thì phải đổi (`Go`, `Judge attacks (amd64, seccomp bật)` giữ nguyên).
+- **#4 cache Go:** `setup-go` đặt `cache: false` ở cả hai job; job `Go` tự quản `actions/cache` — `go-mod-<go.sum>` (module) và `go-build-<go.sum>-<run_id>` + `restore-keys` (biên dịch, ghi lại MỖI lượt); `Judge attacks` chỉ `cache/restore`. Mỗi lượt ghi thêm ≈ 453 MB `go-build` (tổng ≈ 616 MB mỗi lượt; giới hạn repo 10 GB, GitHub xoá bản cũ nhất).
+- **Thời gian** (run 38109612581, cùng SHA `c117168`, cả hai lượt đổi cả hai phía; số là wall từ `Changes` bắt đầu đến job cuối kết thúc):
+| | Trước (run 38106540620) | Lượt cache Go nguội (attempt 2) | Lượt cache Go ấm (attempt 3) |
+| --- | --- | --- | --- |
+| Cả lượt | 27 m 22 s | 14 m 40 s | **13 m 43 s** |
+| Go | 8 m 35 s | 14 m 13 s (tải 37 module + biên dịch `-race` từ đầu) | **5 m 20 s** (`go vet` hết bước tải, `go test -race` 6 m → 3 m 48 s) |
+| Playwright | 12 m 12 s | 12 m 57 s | 12 m 52 s |
+| Lighthouse (simulate + devtools) | 4 m 11 s + 9 m 14 s | 13 m 56 s | 13 m 33 s |
+| Judge attacks | 2 m 35 s | — | 2 m 53 s |
+| Lint + build | (nối tiếp trong Frontend) | — | 1 m 1 s |
+  Đường găng nay là `Lighthouse` (simulate 4 m + devtools 9 m nối tiếp) và `Playwright` (≈ 13 m) — chính là **#3** (shard Playwright, chia Lighthouse), để sprint 7. Lượt chỉ đổi `docs/` hoặc chỉ đổi một phía sẽ còn ngắn hơn (job phía kia bỏ qua).
+- Lượt `ab13a56` ban đầu bị huỷ (push của PM đè lên, `concurrency`), nên chạy lại cùng SHA bằng `gh run rerun`; hai lượt chạy lại đều **success**.
+
 ## Lệnh QC
 ```bash
 cd backend-go && export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock TESTCONTAINERS_RYUK_DISABLED=true
