@@ -76,7 +76,7 @@ func (r *runner) threadScenarios(x examRig) {
 	r.must(call{method: "POST", path: P, token: tsv, body: `{"body":5}`}, 422)
 	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/threads/precheck", token: tsv, body: `{"body":"x"}`}, 404)
 	got429 := false
-	for range 70 {
+	for range 125 { // cửa sổ phút cố định: 125 > 2×60 nên luôn có một cửa sổ đủ 60 lượt kể cả khi qua ranh giới phút
 		if st, _, _ := r.do(call{method: "POST", path: P, token: tsv, body: `{"body":"Giải thích Điều 5"}`}); st == http.StatusTooManyRequests {
 			got429 = true
 			break

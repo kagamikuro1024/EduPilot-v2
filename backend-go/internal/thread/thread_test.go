@@ -70,6 +70,7 @@ func TestPrecheckNoWrites(t *testing.T) {
 func TestPrecheckRateLimit(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
+	r.svc.Clock = clock.NewFake(time.Date(2026, 10, 10, 12, 0, 30, 0, time.UTC)) // giữa phút: cửa sổ cố định theo phút không bị cắt đôi khi máy chạy chậm
 	var last error
 	for range thread.PrecheckPerMin + 1 {
 		_, last = r.svc.Precheck(t.Context(), r.sv, r.course, "", clean)

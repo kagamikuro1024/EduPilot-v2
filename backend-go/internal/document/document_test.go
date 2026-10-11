@@ -193,14 +193,13 @@ func TestPresignRateLimit(t *testing.T) {
 	t.Parallel()
 	f := newFx(t)
 	f.svc.PresignPerMin = 10
+	f.svc.Clock = clock.NewFake(time.Date(2026, 10, 10, 12, 0, 30, 0, time.UTC)) // giữa phút: cửa sổ cố định theo phút không bị cắt đôi khi máy chạy chậm
 	b := pdf()
 	var got429 bool
 	for i := range 11 {
 		_, err := f.svc.Presign(t.Context(), f.teacher, f.course, in("bai.pdf", pdfMime, b))
 		if i < 10 {
-			if err != nil { // rơi sang phút kế tiếp giữa chừng thì bộ đếm đã đổi: chấp nhận chạy lại
-				t.Skip("qua ranh giới phút giữa lúc đếm")
-			}
+			require.NoError(t, err)
 			continue
 		}
 		st, code := apiCode(t, err)

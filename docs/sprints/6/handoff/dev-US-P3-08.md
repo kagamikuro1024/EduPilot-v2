@@ -64,6 +64,12 @@ Hai lần gate đầu đỏ do nhiễu ngoài lỗi mã: `TestDetectLinearTime` 
 4. Ảnh mốc `visual.spec` sinh ở vòng CI 1 vẫn khớp sau thay đổi này (image Playwright v1.63.0-noble, `14 passed`).
 Kết quả cục bộ: `go test -race ./internal/privacy ./internal/calendar` xanh; `pnpm lint`, `tsc --noEmit`, `ui-antipatterns.sh` rc=0; Playwright toàn bộ (`--grep-invert "@real|visual"`, 2 worker, retries=1) **568 passed / 0 failed**; `lhci autorun` rc=0.
 
+## Vòng sửa CI 3 (`US-P3-08: fix CI (3)`, CI run 38104867232 đỏ ở c056bf7: `TestPrecheckRateLimit` 429 ≠ 0)
+- **Gốc:** `status(err)` = 0 khi lượt 61 trả `nil`, tức bộ đếm CHƯA vượt 60. Hạn mức `thread.rate` (cũng `chat.rate`, `document.rate`, `calendar.RateOK`, `httpapi/ratelimit`) là cửa sổ cố định theo phút, khoá `ep:rl:…:{unix/60}` lấy từ đồng hồ. Test lặp 61 lượt `Precheck` bằng `clock.Real{}` mà mỗi lượt chạy tường lửa (DB + phân loại) — 4,24 s trên runner CI chậm; vòng lặp bắc qua ranh giới phút thì 61 lượt chia vào hai khoá (vd 40 + 21) và không khoá nào vượt 60. Không phải timeout client (không có client HTTP ở test này) và không phải Redis nối lạnh (lệnh `INCR` không đặt hạn ngắn; lỗi Redis mới fail-open, nhưng đó là lỗi khác). Xác suất ≈ thời gian vòng lặp / 60 s, nên chỉ lộ trên runner chậm.
+- **Sửa (tất định, giữ assertion 429):** test đặt `Clock = clock.NewFake(2026-10-10 12:00:30 UTC)` (giữa phút, không tiến) — `TestPrecheckRateLimit`, `TestSendRateLimit`, `TestPresignRateLimit`. `TestPresignRateLimit` trước đó dùng `t.Skip` khi qua ranh giới phút (do tôi viết ở US-P8-01): bỏ skip, nay `require.NoError` ở 10 lượt đầu.
+- **Rà test cùng kiểu của sprint 6:** `TestICSRateLimitPerIP` (đã dùng đồng hồ giả `f.clk`, không tiến trong vòng lặp) — giữ. Kịch bản hợp đồng đi qua router thật (đồng hồ thật) nên không đặt được đồng hồ giả: dùng số lượt > 2 × hạn mức để luôn có một cửa sổ đủ hạn mức dù cắt đôi — chat 45 > 2×20, presign 30 > 2×10 (đã đúng), **precheck 70 → 125 (> 2×60) và feed.ics 80 → 125** (hai cái này chưa đủ: 70 hoặc 80 lượt cắt đôi có thể không vượt 60).
+- Cục bộ: `go test -race -tags testroutes` các gói contract / thread / chat / document / calendar / privacy = 259 pass; ba test hạn mức × 2 lượt xanh. Không tái hiện đỏ cục bộ (cần đúng lúc qua ranh giới phút); bằng chứng là cơ chế khoá + thời lượng 4,24 s.
+
 ## Lệnh QC
 ```bash
 cd backend-go && export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock TESTCONTAINERS_RYUK_DISABLED=true

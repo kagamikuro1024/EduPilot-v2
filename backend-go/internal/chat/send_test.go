@@ -17,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/platform/clock"
 )
 
 // TestChatLockedDuringExam / TestLockCheckBeforeAnything / TestLockedWritesChatBlockedEvent / TestLockerErrorDeniesChat / TestUnlockedAfterSubmit — AC9.
@@ -193,6 +194,7 @@ func TestSendValidation(t *testing.T) {
 func TestSendRateLimit(t *testing.T) {
 	t.Parallel()
 	r := newRig(t, func(c *chat.Config) { c.RatePerMin = 3 })
+	r.svc.Clock = clock.NewFake(time.Date(2026, 10, 10, 12, 0, 30, 0, time.UTC)) // giữa phút: cửa sổ cố định theo phút không bị cắt đôi khi máy chạy chậm
 	for range 3 {
 		_, _, err := r.send(r.student, r.sess, "x")
 		require.NoError(t, err)

@@ -88,14 +88,14 @@ func (r *runner) calendarScenarios(x examRig) {
 	r.must(call{method: "DELETE", path: T, token: x.sv}, 204)
 	r.must(call{method: "GET", path: F, headers: ip}, 404) // đã thu hồi
 	got429 := false
-	for range 80 {
+	for range 125 { // cửa sổ phút cố định: 125 > 2×60 nên luôn có một cửa sổ đủ 60 lượt kể cả khi qua ranh giới phút
 		if st, _, _ := r.do(call{method: "GET", path: "/api/v1/calendar/feed.ics?token=" + strings.Repeat("b", 43), headers: ip}); st == 429 {
 			got429 = true
 			break
 		}
 	}
 	if !got429 {
-		r.t.Fatal("feed.ics: không thấy 429 sau 80 lượt")
+		r.t.Fatal("feed.ics: không thấy 429 sau 125 lượt")
 	}
 
 	// 19: xoá.
