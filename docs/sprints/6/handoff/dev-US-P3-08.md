@@ -70,6 +70,9 @@ Kết quả cục bộ: `go test -race ./internal/privacy ./internal/calendar` x
 - **Rà test cùng kiểu của sprint 6:** `TestICSRateLimitPerIP` (đã dùng đồng hồ giả `f.clk`, không tiến trong vòng lặp) — giữ. Kịch bản hợp đồng đi qua router thật (đồng hồ thật) nên không đặt được đồng hồ giả: dùng số lượt > 2 × hạn mức để luôn có một cửa sổ đủ hạn mức dù cắt đôi — chat 45 > 2×20, presign 30 > 2×10 (đã đúng), **precheck 70 → 125 (> 2×60) và feed.ics 80 → 125** (hai cái này chưa đủ: 70 hoặc 80 lượt cắt đôi có thể không vượt 60).
 - Cục bộ: `go test -race -tags testroutes` các gói contract / thread / chat / document / calendar / privacy = 259 pass; ba test hạn mức × 2 lượt xanh. Không tái hiện đỏ cục bộ (cần đúng lúc qua ranh giới phút); bằng chứng là cơ chế khoá + thời lượng 4,24 s.
 
+## CI
+**Xanh ở `cc44964`** (`gh run` 38106540620: Go, Frontend, Judge đều success). Các lần đỏ trước: 38095815031 (4418da3: lịch + ảnh mốc), 38100278570 (fc8e0a7: privacy + Lighthouse), 38104867232 (c056bf7: `TestPrecheckRateLimit`).
+
 ## Lệnh QC
 ```bash
 cd backend-go && export DOCKER_HOST=unix://$HOME/.colima/default/docker.sock TESTCONTAINERS_RYUK_DISABLED=true
