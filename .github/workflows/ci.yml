@@ -15,8 +15,31 @@ permissions:
   contents: read
 
 jobs:
+  changes:
+    name: Changes
+    # TL-CI #1: lọc theo đường dẫn ở mức job. PR và push vào main, nhánh mới / force-push (before không còn trong lịch sử) LUÔN chạy đủ.
+    runs-on: ubuntu-24.04
+    outputs:
+      fe: ${{ steps.f.outputs.fe }}
+      go: ${{ steps.f.outputs.go }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: selftest bộ lọc
+        run: bash scripts/ci-changes.sh --selftest
+      - id: f
+        env:
+          EVENT: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          BEFORE: ${{ github.event.before }}
+          SHA: ${{ github.sha }}
+        run: bash scripts/ci-changes.sh >> "$GITHUB_OUTPUT"
+
   go:
     name: Go
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
     runs-on: ubuntu-24.04
     defaults:
       run:
@@ -26,7 +49,24 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: backend-go/go.mod
-          cache-dependency-path: backend-go/go.sum
+          cache: false # TL-CI #4: cache do job này tự quản (setup-go ghi khoá chung với Judge: bản ghi sớm của Judge thiếu module và không bao giờ được ghi lại)
+      - name: go cache paths
+        id: gopath
+        run: |
+          echo "mod=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+      - name: cache module Go
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.gopath.outputs.mod }}
+          key: go-mod-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}
+      - name: cache biên dịch Go
+        # Khoá có run_id nên mỗi lượt GHI lại; restore-keys khôi phục bản gần nhất của cùng go.sum.
+        uses: actions/cache@v5
+        with:
+          path: ${{ steps.gopath.outputs.build }}
+          key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-${{ github.run_id }}
+          restore-keys: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-
       - name: go vet
         run: go vet ./...
       - name: go vet (testroutes)
@@ -63,6 +103,8 @@ jobs:
 
   judge-attacks:
     name: Judge attacks (amd64, seccomp bật)
+    needs: changes
+    if: needs.changes.outputs.go == 'true'
     # US-PE-02 AC3/AC5: 15 đòn tấn công (A1–A15) trên go-judge thật, KHÔNG -no-seccomp. runner ubuntu-24.04 là amd64.
     runs-on: ubuntu-24.04
     defaults:
@@ -73,25 +115,35 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: backend-go/go.mod
-          cache-dependency-path: backend-go/go.sum
+          cache: false # chỉ khôi phục (bên dưới); job Go ghi cache, để bản ghi thiếu module của Judge không chiếm khoá
+      - name: go cache paths
+        id: gopath
+        run: |
+          echo "mod=$(go env GOMODCACHE)" >> "$GITHUB_OUTPUT"
+          echo "build=$(go env GOCACHE)" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache/restore@v5
+        with:
+          path: ${{ steps.gopath.outputs.mod }}
+          key: go-mod-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}
+      - uses: actions/cache/restore@v5
+        with:
+          path: ${{ steps.gopath.outputs.build }}
+          key: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-none
+          restore-keys: go-build-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}-
       - name: go test -tags integration ./internal/judge
         env:
           TESTCONTAINERS_RYUK_DISABLED: "true"
         run: go test -race -tags integration ./internal/judge -timeout 15m
 
-  frontend:
-    name: Frontend
+  fe-check:
+    name: Frontend (lint + build)
+    needs: changes
+    if: needs.changes.outputs.fe == 'true'
     runs-on: ubuntu-24.04
-    timeout-minutes: 40
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 24
-          cache: pnpm
-      - name: pnpm install
-        run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/fe-setup
       - name: lint
         run: pnpm -C frontend lint
       - name: ui antipatterns
@@ -100,19 +152,47 @@ jobs:
         run: bash scripts/lint-selftest.sh
       - name: build (như production)
         run: pnpm -C frontend build
+
+  e2e:
+    name: Frontend e2e (Playwright)
+    needs: changes
+    if: needs.changes.outputs.fe == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/fe-setup
+        with:
+          browsers: "true"
       - name: build (gate)
         run: pnpm -C frontend build:gate
-      - name: cache playwright browsers
-        uses: actions/cache@v5
-        with:
-          path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-      - name: playwright install chromium
-        run: pnpm -C frontend exec playwright install --with-deps chromium
       - name: playwright test
         run: pnpm -C frontend exec playwright test --grep-invert @real
+      - name: upload reports
+        if: failure()
+        uses: actions/upload-artifact@v5
+        with:
+          name: e2e-reports
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          if-no-files-found: ignore
+
+  lhci:
+    name: Frontend Lighthouse
+    needs: changes
+    if: needs.changes.outputs.fe == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/fe-setup
+        with:
+          browsers: "true"
+      - name: build (gate)
+        run: pnpm -C frontend build:gate
       - name: lighthouse ci
-        # lhci cần một Chrome: dùng đúng Chromium mà bước trên vừa cài cho Playwright (cùng phiên bản với bộ test).
+        # lhci cần một Chrome: dùng đúng Chromium của Playwright (cùng phiên bản với bộ test).
         run: |
           export CHROME_PATH="$(pnpm -C frontend exec node -p "require('@playwright/test').chromium.executablePath()")"
           echo "CHROME_PATH=$CHROME_PATH"
@@ -137,10 +217,8 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v5
         with:
-          name: frontend-reports
+          name: lhci-reports
           path: |
-            frontend/playwright-report
-            frontend/test-results
             frontend/.lighthouseci
             frontend/.lighthouseci-devtools
           include-hidden-files: true # frontend/.lighthouseci là thư mục ẩn: không có cờ này báo cáo Lighthouse không được tải lên
