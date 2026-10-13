@@ -43,7 +43,7 @@ func openBell(t *testing.T, baseURL, token string) *bell {
 	b := &bell{frames: make(chan notify.Frame, 16), cancel: cancel}
 	ready := make(chan struct{})
 	go func() {
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 		sc := bufio.NewScanner(resp.Body)
 		ev, once := "", false
 		for sc.Scan() {

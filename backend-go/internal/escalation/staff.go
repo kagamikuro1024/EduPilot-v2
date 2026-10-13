@@ -36,7 +36,6 @@ const (
 )
 
 // Lý do đóng không trả lời (`dismiss_reason`).
-var dismissReasons = map[string]bool{"OUT_OF_SCOPE": true, "DUPLICATE": true, "NEED_MORE_INFO": true}
 
 // Person là người (sinh viên / nhân viên) ở khung của nhân viên.
 type Person struct {
@@ -377,7 +376,7 @@ func (s *Service) Release(ctx context.Context, a Actor, courseID, ticketID uuid.
 
 // Dismiss là `Đóng không trả lời`: → CLOSED (STAFF_DISMISSED) kèm tin ngắn theo lý do vào chat của sinh viên.
 func (s *Service) Dismiss(ctx context.Context, a Actor, courseID, ticketID uuid.UUID, reason string, version *int32) (StaffTicket, error) {
-	if !dismissReasons[reason] {
+	if dismissText(reason) == "" {
 		return StaffTicket{}, apierr.Validation(apierr.FieldError{Field: "reason", Code: "invalid", Message: "Lý do phải là OUT_OF_SCOPE, DUPLICATE hoặc NEED_MORE_INFO."})
 	}
 	tx, err := s.Pool.Begin(ctx)
@@ -404,7 +403,7 @@ func (s *Service) Dismiss(ctx context.Context, a Actor, courseID, ticketID uuid.
 	if err != nil {
 		return StaffTicket{}, unavailable()
 	}
-	if _, err := s.postStaffMessage(ctx, q, t, brief, dismissText[reason]); err != nil {
+	if _, err := s.postStaffMessage(ctx, q, t, brief, dismissText(reason)); err != nil {
 		return StaffTicket{}, err
 	}
 	if err := s.audit(ctx, q, courseID, a.UserID, t.ID, "escalation_ticket.dismissed", before.Status, store.TicketStatusCLOSED); err != nil {
@@ -423,10 +422,17 @@ func (s *Service) Dismiss(ctx context.Context, a Actor, courseID, ticketID uuid.
 	return out, nil
 }
 
-var dismissText = map[string]string{
-	"OUT_OF_SCOPE":   "Câu hỏi này nằm ngoài phạm vi học phần nên giảng viên không trả lời.",
-	"DUPLICATE":      "Câu hỏi này đã được trả lời ở nơi khác của lớp.",
-	"NEED_MORE_INFO": "Giảng viên cần thêm thông tin để trả lời. Bạn hãy đặt lại câu hỏi rõ hơn.",
+// dismissText là tin ngắn gửi sinh viên theo lý do đóng; "" = lý do không hợp lệ.
+func dismissText(reason string) string {
+	switch reason {
+	case "OUT_OF_SCOPE":
+		return "Câu hỏi này nằm ngoài phạm vi học phần nên giảng viên không trả lời."
+	case "DUPLICATE":
+		return "Câu hỏi này đã được trả lời ở nơi khác của lớp."
+	case "NEED_MORE_INFO":
+		return "Giảng viên cần thêm thông tin để trả lời. Bạn hãy đặt lại câu hỏi rõ hơn."
+	}
+	return ""
 }
 
 // ensureStaffSession lấy hoặc tạo phiên "Tin nhắn từ giảng viên" của sinh viên (SRS 4.2.7). Chạy trong giao dịch của người gọi.

@@ -442,7 +442,10 @@ select c.course_id::uuid as course_id,
        coalesce(w.exams, '[]'::jsonb)::jsonb as exam_work,
        coalesce(f.ai_pending, 0)::int as ai_pending,
        coalesce(f.ai_skipped, 0)::int as ai_skipped,
-       coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest
+       coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest,
+       coalesce(k.n_open, 0)::int as tk_open,
+       coalesce(k.n_mine, 0)::int as tk_mine,
+       coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest
 from unnest($1::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -474,6 +477,16 @@ left join (
     group by r.course_id
 ) s on s.course_id = c.course_id
 left join (
+    -- US-P4-03 TICKET: ticket OPEN của lớp, số ticket MÌNH đã nhận, và ` + "`" + `waiting_since` + "`" + ` cũ nhất của OPEN — GỘP vào cùng truy vấn.
+    select course_id,
+           count(*) filter (where status = 'OPEN') as n_open,
+           count(*) filter (where status = 'CLAIMED' and claimed_by = $2) as n_mine,
+           min(waiting_since) filter (where status = 'OPEN') as oldest
+    from escalation_tickets
+    where course_id = any($1::text[]::uuid[]) and status in ('OPEN', 'CLAIMED')
+    group by course_id
+) k on k.course_id = c.course_id
+left join (
     -- US-PE-08: việc của Staff về bài đã đóng / công bố (lượt chấm lỗi, hoãn công bố, phúc khảo chờ); bài cũ hơn 120 ngày thôi làm việc của hôm nay.
     select e.course_id, jsonb_agg(jsonb_build_object('exam_id', e.id, 'title', e.title, 'hold', e.publish_hold,
         'errors', (select count(distinct a.id) from exam_attempts a join code_submissions cs on cs.course_id = a.course_id and cs.attempt_id = a.id and cs.kind = 'SUBMIT' and cs.status = 'ERROR'
@@ -504,6 +517,11 @@ left join (
 ) f on f.course_id = c.course_id
 `
 
+type TodayStaffPendingParams struct {
+	CourseIds []string
+	UserID    *uuid.UUID
+}
+
 type TodayStaffPendingRow struct {
 	CourseID        uuid.UUID
 	Pending         int32
@@ -517,12 +535,15 @@ type TodayStaffPendingRow struct {
 	AiPending       int32
 	AiSkipped       int32
 	AiOldest        time.Time
+	TkOpen          int32
+	TkMine          int32
+	TkOldest        time.Time
 }
 
 // (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
 // và (US-PE-03) số câu hỏi PENDING chưa lưu trữ cùng câu cũ nhất — GỘP vào MỘT truy vấn để Hôm nay của Staff giữ ngân sách ≤ 5 truy vấn.
-func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]TodayStaffPendingRow, error) {
-	rows, err := q.db.Query(ctx, todayStaffPending, courseIds)
+func (q *Queries) TodayStaffPending(ctx context.Context, arg TodayStaffPendingParams) ([]TodayStaffPendingRow, error) {
+	rows, err := q.db.Query(ctx, todayStaffPending, arg.CourseIds, arg.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -543,6 +564,9 @@ func (q *Queries) TodayStaffPending(ctx context.Context, courseIds []string) ([]
 			&i.AiPending,
 			&i.AiSkipped,
 			&i.AiOldest,
+			&i.TkOpen,
+			&i.TkMine,
+			&i.TkOldest,
 		); err != nil {
 			return nil, err
 		}
@@ -657,10 +681,16 @@ func (q *Queries) TodayUserCourses(ctx context.Context, userID uuid.UUID) ([]uui
 const todayViewer = `-- name: TodayViewer :many
 
 select u.email, (u.email_verified_at is not null)::boolean as verified,
-       e.course_id, c.class_code, e.role_in_course, e.status, e.status_changed_at
+       e.course_id, c.class_code, e.role_in_course, e.status, e.status_changed_at,
+       coalesce(n.n, 0)::int as unread_n, coalesce(n.newest, 'epoch'::timestamptz)::timestamptz as unread_newest, coalesce(n.link, '')::text as unread_link
 from users u
 left join enrollments e on e.user_id = u.id and e.status in ('ACTIVE', 'PENDING')
 left join courses c on c.id = e.course_id and c.status = 'ACTIVE'
+left join lateral (
+    -- US-P4-03 STAFF_ANSWER_UNREAD (TLR-14): thông báo TICKET_ANSWERED CHƯA đọc của chính người xem trong lớp; GỘP vào đây để sinh viên giữ ngân sách ≤ 5 truy vấn.
+    select count(*) as n, max(created_at) as newest, (array_agg(link order by created_at desc))[1] as link
+    from notifications where user_id = u.id and course_id = e.course_id and type = 'TICKET_ANSWERED' and read_at is null
+) n on e.status = 'ACTIVE'
 where u.id = $1
 `
 
@@ -672,6 +702,9 @@ type TodayViewerRow struct {
 	RoleInCourse    *EnrollmentRole
 	Status          *EnrollmentStatus
 	StatusChangedAt *time.Time
+	UnreadN         int32
+	UnreadNewest    time.Time
+	UnreadLink      string
 }
 
 // "Hôm nay" (US-P2-11, SRS 4.7). Mỗi truy vấn là TỔNG HỢP cho cả tập lớp của người xem (không N+1).
@@ -694,6 +727,9 @@ func (q *Queries) TodayViewer(ctx context.Context, userID uuid.UUID) ([]TodayVie
 			&i.RoleInCourse,
 			&i.Status,
 			&i.StatusChangedAt,
+			&i.UnreadN,
+			&i.UnreadNewest,
+			&i.UnreadLink,
 		); err != nil {
 			return nil, err
 		}

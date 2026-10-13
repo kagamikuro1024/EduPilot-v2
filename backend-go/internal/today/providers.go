@@ -125,6 +125,14 @@ func (p StudentProvider) examItems(ctx context.Context, v Viewer, sc Scope) ([]I
 	}
 	zone := ictZone()
 	var out []Item
+	for _, u := range v.unread { // US-P4-03 (bậc 40): thông báo TICKET_ANSWERED chưa đọc; biến mất khi /chat đánh dấu đã đọc
+		if _, ok := byCourse[u.Course.ID]; !ok {
+			continue
+		}
+		age := v.Now.Sub(u.Newest)
+		out = append(out, mk(Item{ID: "STAFF_ANSWER_UNREAD:" + u.Course.ID.String(), Kind: KindStaffAnswerUnread, Tier: TierStaffAnswerUnread, Course: courseRef(u.Course), Href: u.Link,
+			Title: "Giảng viên đã trả lời câu hỏi của bạn", Reason: fmt.Sprintf("Lớp %s · %s trước", u.Course.ClassCode, Age(age)), AgeMinutes: int(age / time.Minute)}))
+	}
 	for _, r := range rows {
 		if r.OpensAt == nil || r.ClosesAt == nil || r.DurationMinutes == nil {
 			continue
@@ -187,7 +195,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 		return nil, nil // không tốn truy vấn cho vai khác
 	}
 	q := store.New(p.Pool)
-	pend, err := q.TodayStaffPending(ctx, ids(courses))
+	pend, err := q.TodayStaffPending(ctx, store.TodayStaffPendingParams{CourseIds: ids(courses), UserID: &v.UserID})
 	if err != nil {
 		return nil, fmt.Errorf("today: yêu cầu chờ duyệt: %w", err)
 	}
@@ -206,6 +214,19 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			continue
 		}
 		out = append(out, examWorkItems(c, r.ExamWork, v.Now)...)
+		if r.TkOpen > 0 || r.TkMine > 0 { // US-P4-03 (bậc 10): ticket chờ + ticket mình đã nhận; "quá hạn" thêm ở US-P4-05
+			age := v.Now.Sub(r.TkOldest)
+			reason := fmt.Sprintf("%d câu hỏi đang chờ · %d câu bạn đã nhận", r.TkOpen, r.TkMine)
+			if r.TkOpen > 0 {
+				reason += " · lâu nhất " + Age(age)
+			}
+			it := Item{ID: "TICKET:" + c.ID.String(), Kind: KindTicket, Tier: TierTicket, Course: courseRef(c), Href: "/inbox?course=" + c.ID.String(),
+				Title: fmt.Sprintf("Câu hỏi chờ giảng viên · lớp %s", c.ClassCode), Reason: reason}
+			if r.TkOpen > 0 {
+				it.AgeMinutes = int(age / time.Minute)
+			}
+			out = append(out, mk(it))
+		}
 		if r.Questions > 0 { // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
 			age := v.Now.Sub(r.QuestionsOldest)
 			out = append(out, mk(Item{

@@ -29,63 +29,67 @@ type Kind string
 
 // Kind có ở P2.
 const (
-	KindVerifyEmail      Kind = "VERIFY_EMAIL"
-	KindJoinCode         Kind = "JOIN_CODE"
-	KindJoinPending      Kind = "JOIN_PENDING"
-	KindJoinRequest      Kind = "JOIN_REQUEST"
-	KindEmailMismatch    Kind = "EMAIL_MISMATCH"
-	KindCourseSetup      Kind = "COURSE_SETUP"
-	KindLLMProviderError Kind = "LLM_PROVIDER_ERROR"
-	KindLLMBudgetOut     Kind = "LLM_BUDGET_EXHAUSTED"
-	KindLLMBudgetWarn    Kind = "LLM_BUDGET_WARN"
-	KindCourseNoTeacher  Kind = "COURSE_NO_TEACHER"
-	KindInviteExpired    Kind = "INVITE_EXPIRED"
-	KindQuestionReview   Kind = "QUESTION_REVIEW"  // US-PE-03
-	KindExamInProgress   Kind = "EXAM_IN_PROGRESS" // US-PE-04
-	KindExamOpen         Kind = "EXAM_OPEN"
-	KindExamUpcoming     Kind = "EXAM_UPCOMING"
-	KindExamSimilarity   Kind = "EXAM_SIMILARITY" // US-PE-07 (chỉ Giảng viên)
-	KindExamResult       Kind = "EXAM_RESULT"     // US-PE-08: sinh viên, 7 ngày kể từ công bố
-	KindExamAppealReply  Kind = "EXAM_APPEAL_REPLY"
-	KindExamGradeError   Kind = "EXAM_GRADE_ERROR" // Giảng viên + TA
-	KindExamAppeal       Kind = "EXAM_APPEAL"      // chỉ Giảng viên
-	KindExamPublishHold  Kind = "EXAM_PUBLISH_HOLD"
-	KindAIConfirm        Kind = "AI_CONFIRM" // US-P3-08: Giảng viên + TA
+	KindVerifyEmail       Kind = "VERIFY_EMAIL"
+	KindJoinCode          Kind = "JOIN_CODE"
+	KindJoinPending       Kind = "JOIN_PENDING"
+	KindJoinRequest       Kind = "JOIN_REQUEST"
+	KindEmailMismatch     Kind = "EMAIL_MISMATCH"
+	KindCourseSetup       Kind = "COURSE_SETUP"
+	KindLLMProviderError  Kind = "LLM_PROVIDER_ERROR"
+	KindLLMBudgetOut      Kind = "LLM_BUDGET_EXHAUSTED"
+	KindLLMBudgetWarn     Kind = "LLM_BUDGET_WARN"
+	KindCourseNoTeacher   Kind = "COURSE_NO_TEACHER"
+	KindInviteExpired     Kind = "INVITE_EXPIRED"
+	KindQuestionReview    Kind = "QUESTION_REVIEW"  // US-PE-03
+	KindExamInProgress    Kind = "EXAM_IN_PROGRESS" // US-PE-04
+	KindExamOpen          Kind = "EXAM_OPEN"
+	KindExamUpcoming      Kind = "EXAM_UPCOMING"
+	KindExamSimilarity    Kind = "EXAM_SIMILARITY" // US-PE-07 (chỉ Giảng viên)
+	KindExamResult        Kind = "EXAM_RESULT"     // US-PE-08: sinh viên, 7 ngày kể từ công bố
+	KindExamAppealReply   Kind = "EXAM_APPEAL_REPLY"
+	KindExamGradeError    Kind = "EXAM_GRADE_ERROR" // Giảng viên + TA
+	KindExamAppeal        Kind = "EXAM_APPEAL"      // chỉ Giảng viên
+	KindExamPublishHold   Kind = "EXAM_PUBLISH_HOLD"
+	KindAIConfirm         Kind = "AI_CONFIRM"          // US-P3-08: Giảng viên + TA
+	KindTicket            Kind = "TICKET"              // US-P4-03: câu hỏi chờ giảng viên (Giảng viên + TA)
+	KindStaffAnswerUnread Kind = "STAFF_ANSWER_UNREAD" // US-P4-03: sinh viên có trả lời của giảng viên chưa đọc
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
 const (
-	TierVerifyEmail      = 10
-	TierJoinCode         = 20
-	TierJoinPending      = 30
-	TierEmailMismatch    = 40
-	TierJoinRequest      = 45
-	TierCourseSetup      = 80
-	TierLLMProviderError = 10
-	TierLLMBudgetOut     = 20
-	TierLLMBudgetWarn    = 30
-	TierCourseNoTeacher  = 40
-	TierInviteExpired    = 50
-	TierQuestionReview   = 90
-	TierExamInProgress   = 5
-	TierExamOpen         = 8
-	TierExamUpcoming     = 42
-	TierExamSimilarity   = 55
-	TierExamGradeError   = 15
-	TierExamAppeal       = 22
-	TierExamPublishHold  = 32
-	TierExamResult       = 44
-	TierExamAppealReply  = 46
-	TierAIConfirm        = 50
+	TierVerifyEmail       = 10
+	TierJoinCode          = 20
+	TierJoinPending       = 30
+	TierEmailMismatch     = 40
+	TierJoinRequest       = 45
+	TierCourseSetup       = 80
+	TierLLMProviderError  = 10
+	TierLLMBudgetOut      = 20
+	TierLLMBudgetWarn     = 30
+	TierCourseNoTeacher   = 40
+	TierInviteExpired     = 50
+	TierQuestionReview    = 90
+	TierExamInProgress    = 5
+	TierExamOpen          = 8
+	TierExamUpcoming      = 42
+	TierExamSimilarity    = 55
+	TierExamGradeError    = 15
+	TierExamAppeal        = 22
+	TierExamPublishHold   = 32
+	TierExamResult        = 44
+	TierExamAppealReply   = 46
+	TierAIConfirm         = 50
+	TierTicket            = 10
+	TierStaffAnswerUnread = 40
 )
 
 // allowed: Kind nào được phép trong phản hồi của vai nào. Bộ gộp LỌC theo bảng này nên một Provider lỡ trả nhầm
 // (hoặc một phase sau đăng ký sai) cũng không làm lộ việc dành cho staff ra cho sinh viên.
 func allowed(role Role, k Kind) bool {
 	switch k {
-	case KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply:
+	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply:
 		return role == RoleStudent
-	case KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm:
+	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm:
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher
@@ -117,6 +121,15 @@ type Viewer struct {
 	Courses       []CourseRef
 	Now           time.Time
 	pending       []pendingRef
+	unread        []unreadRef
+}
+
+// unreadRef là thông báo TICKET_ANSWERED chưa đọc của CHÍNH người xem trong một lớp (STAFF_ANSWER_UNREAD).
+type unreadRef struct {
+	Course CourseRef
+	N      int
+	Newest time.Time
+	Link   string
 }
 
 // Scope là một lớp hoặc tất cả lớp của người xem.

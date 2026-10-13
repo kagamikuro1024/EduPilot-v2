@@ -55,3 +55,29 @@ func TestNotificationNoPrivateText(t *testing.T) {
 	}
 	_ = c
 }
+
+// TestAnswerNotifiesStudentOnce: `escalation.answered` → đúng MỘT thông báo cho sinh viên chủ ticket (giao lại không nhân đôi), liên kết tới phiên chứa tin trả lời,
+// không chứa nội dung trả lời; dòng gộp TICKET_NEW của nhân viên được đếm lại (hết OPEN → đã đọc).
+func TestAnswerNotifiesStudentOnce(t *testing.T) {
+	r := newRig(t, escalation.Config{})
+	id := r.ticket("Hỏi")
+	cap := &capture{}
+	n := &escalation.Notifier{Pool: r.pool, Notify: notify.New(r.pool, cap, nil)}
+	var created []byte
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select payload from outbox where topic = 'escalation.created'`).Scan(&created))
+	require.NoError(t, n.HandleCreated(t.Context(), outbox.Message{Topic: escalation.TopicCreated, Payload: created}))
+	require.Equal(t, 2, r.count(`select count(*) from notifications where type = 'TICKET_NEW'`))
+
+	_, msg, err := r.svc.Answer(t.Context(), r.gv(), r.course, id, "BÍ-MẬT-TRẢ-LỜI cho em", nil)
+	require.NoError(t, err)
+	var payload []byte
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select payload from outbox where topic = 'escalation.answered'`).Scan(&payload))
+	require.NotContains(t, string(payload), "BÍ-MẬT")
+	for range 2 {
+		require.NoError(t, n.HandleAnswered(t.Context(), outbox.Message{Topic: escalation.TopicAnswered, Payload: payload}))
+	}
+	require.Equal(t, 1, r.count(`select count(*) from notifications where type = 'TICKET_ANSWERED' and user_id = $1 and link = '/chat?session=' || $2::text`, r.a.UserID, r.sessA))
+	require.Zero(t, r.count(`select count(*) from notifications where type = 'TICKET_ANSWERED' and (coalesce(title,'') || coalesce(body,'')) like '%BÍ-MẬT%'`))
+	require.Equal(t, 0, r.count(`select count(*) from notifications where type = 'TICKET_NEW' and user_id = $1 and read_at is null`, r.teacher), "hết ticket OPEN: dòng gộp thành đã đọc")
+	_ = msg
+}

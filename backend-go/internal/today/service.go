@@ -164,6 +164,9 @@ func (s *Service) viewer(ctx context.Context, userID uuid.UUID, role Role) (View
 			continue
 		}
 		ref := CourseRef{ID: *r.CourseID, ClassCode: *r.ClassCode, RoleInCourse: string(*r.RoleInCourse)}
+		if r.UnreadN > 0 {
+			v.unread = append(v.unread, unreadRef{Course: ref, N: int(r.UnreadN), Newest: r.UnreadNewest, Link: r.UnreadLink})
+		}
 		switch *r.Status {
 		case store.EnrollmentStatusACTIVE:
 			v.Courses = append(v.Courses, ref)

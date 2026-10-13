@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/agent"
@@ -125,4 +126,39 @@ func TestAutoTicketSuppressedAtCap(t *testing.T) {
 	require.Equal(t, true, c.last().D["low_confidence"])
 	require.Equal(t, 5, r.count(`select count(*) from escalation_tickets`))
 	require.EqualValues(t, 1, r.svc.Tickets.Suppressed.Load())
+}
+
+// staffMsg chèn tin của giảng viên (STAFF_ANSWER) vào phiên của sinh viên.
+func (r *rig) staffMsg(content string) uuid.UUID {
+	var id uuid.UUID
+	require.NoError(r.t, r.pool.QueryRow(r.t.Context(), `insert into chat_messages (course_id, session_id, user_id, role, content, stream_status, intent)
+		values ($1, $2, $3, 'ASSISTANT', $4, 'DONE', 'STAFF_ANSWER') returning id`, r.course, r.sess, r.student.UserID, content).Scan(&id))
+	return id
+}
+
+func TestChatHistoryExcludesStaffMessages(t *testing.T) {
+	r := newRig(t)
+	_, _, err := r.send(r.student, r.sess, "câu một")
+	require.NoError(t, err)
+	r.svc.Wait()
+	r.staffMsg("Em xem bài 3 nhé — lời của giảng viên")
+	var got []llm.Message
+	r.ag.fn = func(_ context.Context, _ agent.TrustedContext, in agent.Input) (agent.Outcome, error) {
+		got = in.History
+		return agent.Outcome{Plan: agent.IntentSmalltalk, Canned: "ok"}, nil
+	}
+	_, _, err = r.send(r.student, r.sess, "câu hai")
+	require.NoError(t, err)
+	require.Equal(t, []llm.Message{{Role: "user", Content: "câu một"}, {Role: "assistant", Content: "Xin chào bạn."}}, got, "lời giảng viên không vào ngữ cảnh LLM")
+}
+
+func TestStaffMessageNotRateableNotRetryable(t *testing.T) {
+	r := newRig(t)
+	mid := r.staffMsg("Trả lời của giảng viên")
+	v := "HELPFUL"
+	err := r.svc.Feedback(t.Context(), r.student, mid, &v)
+	require.Equal(t, 422, httpStatus(err))
+	require.Equal(t, 0, r.count(`select count(*) from chat_messages where id = $1 and feedback is not null`, mid))
+	_, err = r.svc.Retry(t.Context(), r.student, mid)
+	require.Equal(t, 422, httpStatus(err))
 }

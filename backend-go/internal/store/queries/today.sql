@@ -4,10 +4,16 @@
 -- Người xem và ghi danh ACTIVE / PENDING của chính họ trong lớp còn mở: MỘT truy vấn dựng Viewer (SRS 4.7 "ngân sách truy vấn").
 -- Người chưa có lớp ⇒ đúng một dòng với course_id NULL.
 select u.email, (u.email_verified_at is not null)::boolean as verified,
-       e.course_id, c.class_code, e.role_in_course, e.status, e.status_changed_at
+       e.course_id, c.class_code, e.role_in_course, e.status, e.status_changed_at,
+       coalesce(n.n, 0)::int as unread_n, coalesce(n.newest, 'epoch'::timestamptz)::timestamptz as unread_newest, coalesce(n.link, '')::text as unread_link
 from users u
 left join enrollments e on e.user_id = u.id and e.status in ('ACTIVE', 'PENDING')
 left join courses c on c.id = e.course_id and c.status = 'ACTIVE'
+left join lateral (
+    -- US-P4-03 STAFF_ANSWER_UNREAD (TLR-14): thông báo TICKET_ANSWERED CHƯA đọc của chính người xem trong lớp; GỘP vào đây để sinh viên giữ ngân sách ≤ 5 truy vấn.
+    select count(*) as n, max(created_at) as newest, (array_agg(link order by created_at desc))[1] as link
+    from notifications where user_id = u.id and course_id = e.course_id and type = 'TICKET_ANSWERED' and read_at is null
+) n on e.status = 'ACTIVE'
 where u.id = sqlc.arg(user_id);
 
 -- name: TodayStaffPending :many
@@ -24,7 +30,10 @@ select c.course_id::uuid as course_id,
        coalesce(w.exams, '[]'::jsonb)::jsonb as exam_work,
        coalesce(f.ai_pending, 0)::int as ai_pending,
        coalesce(f.ai_skipped, 0)::int as ai_skipped,
-       coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest
+       coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest,
+       coalesce(k.n_open, 0)::int as tk_open,
+       coalesce(k.n_mine, 0)::int as tk_mine,
+       coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest
 from unnest(sqlc.arg(course_ids)::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -55,6 +64,16 @@ left join (
     join exams ex on ex.course_id = r.course_id and ex.id = r.exam_id
     group by r.course_id
 ) s on s.course_id = c.course_id
+left join (
+    -- US-P4-03 TICKET: ticket OPEN của lớp, số ticket MÌNH đã nhận, và `waiting_since` cũ nhất của OPEN — GỘP vào cùng truy vấn.
+    select course_id,
+           count(*) filter (where status = 'OPEN') as n_open,
+           count(*) filter (where status = 'CLAIMED' and claimed_by = sqlc.arg(user_id)) as n_mine,
+           min(waiting_since) filter (where status = 'OPEN') as oldest
+    from escalation_tickets
+    where course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and status in ('OPEN', 'CLAIMED')
+    group by course_id
+) k on k.course_id = c.course_id
 left join (
     -- US-PE-08: việc của Staff về bài đã đóng / công bố (lượt chấm lỗi, hoãn công bố, phúc khảo chờ); bài cũ hơn 120 ngày thôi làm việc của hôm nay.
     select e.course_id, jsonb_agg(jsonb_build_object('exam_id', e.id, 'title', e.title, 'hold', e.publish_hold,
