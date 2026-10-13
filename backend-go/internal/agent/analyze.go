@@ -35,6 +35,8 @@ type Classification struct {
 	OtherPerson bool
 	// HasPII: tin nhắn có PII (khác mẫu câu cá nhân) — bị che quanh LLM nên KHÔNG bao giờ vào cache câu trả lời.
 	HasPII bool
+	// Extra: ý định cá nhân còn lại của câu ghép (xem extraPersonal); rỗng với câu một ý.
+	Extra []Intent
 }
 
 // Analyzer chạy phân loại kênh (luật + embedding) và quyết intent. Chạy đúng một lần mỗi tin nhắn.
@@ -84,6 +86,7 @@ func (a *Analyzer) Analyze(ctx context.Context, tc TrustedContext, text string) 
 			out.Intent = pi
 		}
 	}
+	out.Extra = extraPersonal(text, out.Intent)
 	return out, nil
 }
 

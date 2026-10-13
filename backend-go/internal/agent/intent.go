@@ -51,6 +51,30 @@ func PersonalIntent(text string) Intent {
 	return ""
 }
 
+var rePersonalPhrase = regexp.MustCompile(`\b(diem danh|diem cong|diem phat bieu|diem chuyen can|chuyen can|phat bieu)\b`)
+
+// extraPersonal trả các ý định cá nhân CÒN LẠI trong cùng một câu ghép ("nghỉ mấy buổi, được cộng bao nhiêu điểm phát biểu"): chỉ trong ba loại
+// điểm danh / điểm cộng / điểm, theo thứ tự cố định, không gồm `primary`. Phân loại vẫn MỘT lần (D47); mỗi ý chạy đúng một tool SQL.
+func extraPersonal(text string, primary Intent) []Intent {
+	switch primary {
+	case IntentAttendance, IntentParticipation, IntentGrade:
+	default:
+		return nil
+	}
+	f := auth.Fold(text)
+	self := reSelf.MatchString(f)
+	var out []Intent
+	add := func(i Intent, ok bool) {
+		if ok && i != primary {
+			out = append(out, i)
+		}
+	}
+	add(IntentAttendance, reAtt.MatchString(f) && self)
+	add(IntentParticipation, rePart.MatchString(f) && (self || reGrade.MatchString(f)))
+	add(IntentGrade, self && reGrade.MatchString(rePersonalPhrase.ReplaceAllString(f, " ")))
+	return out
+}
+
 // DetectIntent phân loại ý định bằng luật. Thứ tự: CRISIS > WHAT_IF > GRADE_FORMULA > PERSONAL_* > EXAM_SCHEDULE > UPCOMING_EVENTS > LIBRARY_SEARCH > COURSE_QA > SMALLTALK.
 // OTHER_PERSON không ở đây: cần danh tính (roster) nên do Analyzer quyết rồi đè lên.
 func DetectIntent(text string) Intent {

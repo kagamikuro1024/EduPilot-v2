@@ -1,7 +1,7 @@
 # SRS FEAT-crm-360 Lịch buổi học, điểm danh, phát biểu, thời gian học, hồ sơ 360, at-risk, `/me`, seed sprint 7
 Phiên bản 1.1 · 2026-10-13 · Trạng thái: **APPROVED** (PM, 2026-10-13; thay đổi sau mốc này chỉ qua `proposals.md`) (đã sửa theo `TL-REVIEW.md` TLR-1…14, trả lời chủ dự án Q1–Q12 và Q1 cập nhật, quyết định PM Q13–Q24, `proposals.md` #5 #6 #7; chờ PM đánh APPROVED).
 
-Nguồn: `docs/phases/P5.md` (L1, L2, L3); `docs/sprints/7/plan.md` story 8–14; PRD M5, M6, M13-C, M14, §3, §5; FLOWS F7, F8, F14; `ARCHITECTURE.md` §4 (`00013`, `00014`), §5 (Điểm danh, Tham gia, Observation SV, Hồ sơ, Thời gian học), §7 (route), §9 (Seed); `SYSTEM_DESIGN.md` 3.3 (heartbeat write-behind), §5 (SLO); `DECISIONS.md` D17, D44, D45, D51, D59; `design/DESIGN.md` §13, §14.6–14.9; `UX.md` mục 1, 2, 5, 6; `CLAUDE.md` (luật chữ UI; luật cứng thời gian học); spec đã có `FEAT-course-foundation` v1.8 (`class_sessions`, `sessions/generate` tối thiểu, Guard, "Hôm nay" 4.7), `FEAT-private-chat-pii` v1.7 (tool seam `AttendanceSource` / `ParticipationSource`, chat, Threads), `FEAT-docs-calendar` (`/calendar`), `FEAT-escalation-notify` v1.0 (`CreateOutreach`, `notify`, mail); mã `backend-go/internal/{agent,course,today,thread,chat,httpapi/*}` và `frontend/src/features/{attendance,students,me,calendar}` (mock) ở `main` + `sprint/7-p4-p5` (đọc để biết cái đã làm, không sửa).
+Nguồn: `docs/phases/P5.md` (L1, L2, L3); `docs/sprints/7/plan.md` story 8–14; PRD M5, M6, M13-C, M14, §3, §5; FLOWS F7, F8, F14; `ARCHITECTURE.md` §4 (`00013`, `00015`), §5 (Điểm danh, Tham gia, Observation SV, Hồ sơ, Thời gian học), §7 (route), §9 (Seed); `SYSTEM_DESIGN.md` 3.3 (heartbeat write-behind), §5 (SLO); `DECISIONS.md` D17, D44, D45, D51, D59; `design/DESIGN.md` §13, §14.6–14.9; `UX.md` mục 1, 2, 5, 6; `CLAUDE.md` (luật chữ UI; luật cứng thời gian học); spec đã có `FEAT-course-foundation` v1.8 (`class_sessions`, `sessions/generate` tối thiểu, Guard, "Hôm nay" 4.7), `FEAT-private-chat-pii` v1.7 (tool seam `AttendanceSource` / `ParticipationSource`, chat, Threads), `FEAT-docs-calendar` (`/calendar`), `FEAT-escalation-notify` v1.0 (`CreateOutreach`, `notify`, mail); mã `backend-go/internal/{agent,course,today,thread,chat,httpapi/*}` và `frontend/src/features/{attendance,students,me,calendar}` (mock) ở `main` + `sprint/7-p4-p5` (đọc để biết cái đã làm, không sửa).
 
 ## 1. Mục đích và phạm vi
 
@@ -15,12 +15,12 @@ Giảng viên điểm danh 30 sinh viên ≤ 60 s trên điện thoại và ghi 
 | Tool AI | `get_my_attendance`, `get_my_participation` + seam `AttendanceSource` / `ParticipationSource` (`internal/agent/tools.go`), hiện **nil → "chưa có dữ liệu"** | cài đặt nguồn thật trong `internal/crm` |
 | Giao diện | mock `features/{attendance,students,me}` + `frontend/src/mock/*` | thay bằng API thật, xoá mock (D51) |
 | "Hôm nay" nhân viên | `attention: []`; không nguồn điểm danh / chú ý | `SESSION_UNMARKED` (**12**), `STUDENT_ATTENTION` (95), khối "Lớp cần chú ý" |
-| Heartbeat / thời gian học | chỉ có cột `users.tracking_notice_ack_at` (`00001`) | toàn bộ `internal/activity`, hook, hộp thoại, `00014` |
+| Heartbeat / thời gian học | chỉ có cột `users.tracking_notice_ack_at` (`00001`) | toàn bộ `internal/activity`, hook, hộp thoại, `00015` |
 | `internal/grade` | **chưa có** (P6) | test kiến trúc phải xanh khi gói chưa tồn tại |
 | `PUT …/settings` của lớp | **chưa có** (US-P4-05 AC12 tạo cho ngưỡng escalation) | mở rộng thân nhận `risk` |
 | Điểm / công thức | chưa có (P6) | tín hiệu "điểm", cột / chip điểm **không** làm; giữ chỗ `signals.grade = null` |
 
-**Ngoài phạm vi:** xem `US.md` (đầu tệp). **Migration:** `00013_crm`, `00014_observation` (số `00008` / `00009` trong `P5.md` đã bị dùng / bỏ trống — `plan.md`; `00009` **không** tái sử dụng).
+**Ngoài phạm vi:** xem `US.md` (đầu tệp). **Migration:** `00013_crm`, `00015_observation` (số `00008` / `00009` trong `P5.md` đã bị dùng / bỏ trống — `plan.md`; `00009` **không** tái sử dụng; **`00014` thuộc `FEAT-escalation-notify`** — `00014_forum_ai_regen`, US-P4-06 — nên migration quan sát là `00015`, `proposals.md` #25).
 
 ## 2. Người dùng và quyền
 
@@ -215,7 +215,7 @@ Không có `note`, `marked_by`, tên người khác. Một lượt sinh chữ nh
 
 ### 4.8 Hồ sơ 360, ghi chú, nhận xét AI, nhắn sinh viên
 
-**4.8.1 Views (`00013`; `00014` thay một view — `proposals.md` #20).** `v_attendance_summary(course_id, student_id, recorded, present, late, excused, absent, last_marked_at)` = `GROUP BY course_id, student_id` trên `attendance_records`. `v_student_360(course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at)` = `enrollments` (`role=STUDENT`, `status=ACTIVE`) ⋈ `users` ⟕ `v_attendance_summary` ⟕ tổng `participation_events` theo `(course_id, student_id)` ⟕ `study_time_daily` 7 ngày gần nhất ⟕ `student_risk`. **Vì `study_time_daily` chỉ tồn tại từ `00014`:** ở `00013` view dựng với `0::bigint AS study_seconds_7d` (không join bảng đó); `00014` chạy `CREATE OR REPLACE VIEW v_student_360` thay bằng bản join (cùng tên, thứ tự và kiểu cột nên không phải `DROP`), và `Down` của `00014` trả lại bản `0`. Mọi nhóm gộp có `course_id` ở khoá nhóm để vị từ `course_id = $1` được đẩy xuống (không quét cả bảng); hai view **không** có `chat_messages` (đếm hoạt động đã vật chất hoá vào `student_risk`).
+**4.8.1 Views (`00013`; `00015` thay một view — `proposals.md` #20).** `v_attendance_summary(course_id, student_id, recorded, present, late, excused, absent, last_marked_at)` = `GROUP BY course_id, student_id` trên `attendance_records`. `v_student_360(course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at)` = `enrollments` (`role=STUDENT`, `status=ACTIVE`) ⋈ `users` ⟕ `v_attendance_summary` ⟕ tổng `participation_events` theo `(course_id, student_id)` ⟕ `study_time_daily` 7 ngày gần nhất ⟕ `student_risk`. **Vì `study_time_daily` chỉ tồn tại từ `00015`:** ở `00013` view dựng với `0::bigint AS study_seconds_7d` (không join bảng đó); `00015` chạy `CREATE OR REPLACE VIEW v_student_360` thay bằng bản join (cùng tên, thứ tự và kiểu cột nên không phải `DROP`), và `Down` của `00015` trả lại bản `0`. Mọi nhóm gộp có `course_id` ở khoá nhóm để vị từ `course_id = $1` được đẩy xuống (không quét cả bảng); hai view **không** có `chat_messages` (đếm hoạt động đã vật chất hoá vào `student_risk`).
 
 **4.8.2 `GET …/students`** (`Staff`): `v_student_360` + lọc / tìm / sắp xếp ở 4.8.6; phân trang con trỏ bằng khoá `(risk_rank, vn_fold(full_name), student_id)` (mã hoá base64, `INVALID_CURSOR` khi sai).
 
@@ -319,7 +319,7 @@ Mọi handler idempotent; lỗi → thử lại 1 s / 5 s / 30 s rồi dead-lett
 | FR-20 | Hàng đợi ghi (`SaveQueue` dùng lại, khoá có `userId`, xoá khi đăng xuất, hỏi trước khi đăng xuất nếu còn thay đổi chờ; chỉ gửi hàng đã chạm; `409` là `fatal` → luồng xung đột AC3) / phương án cắt không mất dữ liệu | P5-02-AC13, AC13b |
 | FR-21 | Nối dây thật `get_my_attendance`, `get_my_participation` | P5-02-AC14 |
 | FR-22 | RBAC CRM; trạng thái tải / rỗng / lỗi; thay mock `/attendance` | P5-02-AC15, AC16 |
-| FR-23 | `00014`: `study_time_daily`, `insight_reports`, hai `ALTER` (`user_settings.track_study_time`, `courses.allow_study_time_opt_out`) | P5-03-AC1 |
+| FR-23 | `00015`: `study_time_daily`, `insight_reports`, hai `ALTER` (`user_settings.track_study_time`, `courses.allow_study_time_opt_out`) | P5-03-AC1 |
 | FR-24 | Heartbeat chỉ ghi Redis; lỗi Redis / lớp / lạm dụng; trần ngày bằng khoá tổng; ack chỉ từ `ep:trk` | P5-03-AC2, AC10 |
 | FR-25 | Chống đếm đôi hai tab | P5-03-AC3 |
 | FR-26 | Hook: Page Visibility, idle 2 phút, đo đúng, chỉ khu vực | P5-03-AC4, AC5 |
@@ -394,21 +394,21 @@ Chỉ mục: PK · `UNIQUE (course_id, session_id, student_id)` (**có `course_i
 
 ### 5.6 Views (cột ghim ở test lược đồ)
 
-`v_attendance_summary`: `course_id, student_id, recorded, present, late, excused, absent, last_marked_at`. `v_student_360`: `course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at` (4.8.1). Cả hai chỉ chứa sinh viên `ACTIVE` (view thứ hai) / theo dòng điểm danh (view thứ nhất). Ở `00013`, `study_seconds_7d` là `0::bigint`; `00014` thay view bằng bản join `study_time_daily` (`proposals.md` #20).
+`v_attendance_summary`: `course_id, student_id, recorded, present, late, excused, absent, last_marked_at`. `v_student_360`: `course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at` (4.8.1). Cả hai chỉ chứa sinh viên `ACTIVE` (view thứ hai) / theo dòng điểm danh (view thứ nhất). Ở `00013`, `study_seconds_7d` là `0::bigint`; `00015` thay view bằng bản join `study_time_daily` (`proposals.md` #20).
 
-### 5.7 Migration `00014_observation.sql` — `study_time_daily` và cấu hình đo thời gian học
+### 5.7 Migration `00015_observation.sql` — `study_time_daily` và cấu hình đo thời gian học
 
 `id uuid PK`; `course_id`; `student_id` (FK phức hợp → `enrollments`); `date date NOT NULL`; `area text NOT NULL CHECK (area IN ('CHAT','THREADS','PRACTICE','LIBRARY','CALENDAR'))`; `active_seconds integer NOT NULL CHECK (active_seconds BETWEEN 0 AND 86400)`; `created_at`, `updated_at`. `UNIQUE (course_id, student_id, date, area)` (**có `course_id`** — `ARCHITECTURE.md` ghi `UNIQUE(student, date, area)` làm sinh viên học hai lớp xung đột); `study_time_course_date_idx (course_id, date, student_id)`; `study_time_student_idx (course_id, student_id, date DESC)`.
 
-**Hai `ALTER` có chủ ý ở `00014` (Q1 cập nhật; `proposals.md` #5 ACCEPTED, chủ dự án duyệt schema):**
+**Hai `ALTER` có chủ ý ở `00015` (Q1 cập nhật; `proposals.md` #5 ACCEPTED, chủ dự án duyệt schema):**
 ```sql
 ALTER TABLE user_settings ADD COLUMN track_study_time boolean NOT NULL DEFAULT true;
 ALTER TABLE courses ADD COLUMN allow_study_time_opt_out boolean NOT NULL DEFAULT true;
 ```
-`track_study_time`: công tắc của sinh viên, toàn tài khoản (4.6.7). `allow_study_time_opt_out`: TEACHER chọn tới khi lớp có sinh viên ghi danh đầu tiên rồi khoá (Q25); mặc định `true` (cho phép tắt — an toàn cho dữ liệu cá nhân). Cũng ở `00014`: `CREATE OR REPLACE VIEW v_student_360` thay `study_seconds_7d = 0` bằng tổng `active_seconds` 7 ngày gần nhất (4.8.1; **không** phải `ALTER TABLE`, nên số `ALTER` vẫn là hai). `Down` trả lại view bản `0`, bỏ hai cột trước, rồi `DROP` bảng.
+`track_study_time`: công tắc của sinh viên, toàn tài khoản (4.6.7). `allow_study_time_opt_out`: TEACHER chọn tới khi lớp có sinh viên ghi danh đầu tiên rồi khoá (Q25); mặc định `true` (cho phép tắt — an toàn cho dữ liệu cá nhân). Cũng ở `00015`: `CREATE OR REPLACE VIEW v_student_360` thay `study_seconds_7d = 0` bằng tổng `active_seconds` 7 ngày gần nhất (4.8.1; **không** phải `ALTER TABLE`, nên số `ALTER` vẫn là hai). `Down` trả lại view bản `0`, bỏ hai cột trước, rồi `DROP` bảng.
 ### 5.8 `insight_reports` (P10 chỉ đọc / ghi)
 
-`id uuid PK`; `course_id`; `kind text NOT NULL CHECK (kind IN ('KNOWLEDGE_GAP'))`; `period_from date`, `period_to date`; `payload jsonb NOT NULL` (`jsonb_typeof='object'`); `data_watermark timestamptz NOT NULL`; `generated_by uuid NOT NULL` FK `users`; `version integer NOT NULL DEFAULT 1`; `created_at`, `updated_at`. Chỉ mục `insight_reports_course_kind_idx (course_id, kind, created_at DESC)`. `ALTER` bảng cũ ở `00014` chỉ có hai câu ở 5.7.
+`id uuid PK`; `course_id`; `kind text NOT NULL CHECK (kind IN ('KNOWLEDGE_GAP'))`; `period_from date`, `period_to date`; `payload jsonb NOT NULL` (`jsonb_typeof='object'`); `data_watermark timestamptz NOT NULL`; `generated_by uuid NOT NULL` FK `users`; `version integer NOT NULL DEFAULT 1`; `created_at`, `updated_at`. Chỉ mục `insight_reports_course_kind_idx (course_id, kind, created_at DESC)`. `ALTER` bảng cũ ở `00015` chỉ có hai câu ở 5.7.
 
 ### 5.9 Redis
 
@@ -549,7 +549,7 @@ Năm dòng nhãn + điều khiển + giá trị: Tỷ lệ có mặt tối thi�
 | Tích hợp | `internal/course` | `generate` `dry_run` / một giao dịch / song song, `PUT` / `DELETE` buổi, settings `risk`, `allow_study_time_opt_out` (TEACHER-only, khoá `409 COURSE_HAS_STUDENTS` sau sinh viên đầu tiên, đua với ghi danh) |
 | Tích hợp | `internal/today` | `SESSION_UNMARKED`, `STUDENT_ATTENTION`, khối `attention` |
 | Agent | `internal/agent` | `TestToolMyAttendance`, `TestToolMyParticipation` (gate), `TestPersonalToolsHaveNoIdentityParam` (giữ xanh) |
-| Lược đồ | `internal/store` | `TestSchemaAttendance`, `TestSchemaParticipation`, `TestSchemaObservations`, `TestSchemaStudentRisk`, `TestSchemaStudyTimeDaily`, `TestSchemaInsightReports`, `TestViewsColumns`, `TestIndexesStartWithCourseID` (chỉ mục **phức hợp** trên bảng **có** `course_id` — không áp cho `UNIQUE (client_event_id)` một cột), `TestMigration00013SingleAlter`, `TestMigration00014TwoAlters` |
+| Lược đồ | `internal/store` | `TestSchemaAttendance`, `TestSchemaParticipation`, `TestSchemaObservations`, `TestSchemaStudentRisk`, `TestSchemaStudyTimeDaily`, `TestSchemaInsightReports`, `TestViewsColumns`, `TestIndexesStartWithCourseID` (chỉ mục **phức hợp** trên bảng **có** `course_id` — không áp cho `UNIQUE (client_event_id)` một cột), `TestMigration00013SingleAlter`, `TestMigration00015TwoAlters` |
 | Hợp đồng | `internal/contract` | route mới; projection sinh viên không có `risk*` / `observation*` |
 | Tích hợp | `internal/integration` | `TestSeedCRMExpected`, `TestSeedIsolation`, `TestSeedAdminForbidden` |
 | E2E | `frontend/e2e/attendance.spec.ts` (mới, **có bước ngắt mạng**), `activity.spec.ts` (mới), `students.spec.ts` (mới), `me.spec.ts` (mới); mở rộng `calendar.spec.ts`, `class-join.spec.ts`, `today.spec.ts`, `a11y.spec.ts` | F7, F8, 375 px, mạng 3G + ngắt mạng, hai ngữ cảnh trình duyệt |
@@ -585,15 +585,15 @@ Thêm vào 9.2: `TestRiskJobRunsOncePerDay` (`ep:crm.risk:done` — chạy bù k
 
 **Câu hỏi mở:** `QUESTIONS.md` — Q1…Q25. Chủ dự án đã trả lời Q1–Q12 (**Q1 cập nhật:** có cờ cấp lớp `courses.allow_study_time_opt_out` — mặc định cho phép; lớp không cho thì luôn đo, công tắc khoá; lớp cho thì sinh viên tự chỉnh — `user_settings.track_study_time`); PM chốt TLR-1…14, Q13–Q24 và **Q25** (Admin không chọn; TEACHER chọn tới khi có sinh viên ghi danh đầu tiên rồi khoá; cờ sinh viên toàn tài khoản). Góp ý kiến trúc: `docs/sprints/7/proposals.md` #5 (schema), #6 (route), #7 (seed) — **cả ba ACCEPTED**.
 
-**Đã chốt (không mở lại):** D17 (thời gian học chỉ tham khảo + tín hiệu at-risk, không tính điểm); D44 (dữ liệu mô phỏng); D45 (không ALTER cho cột đã biết — nên mọi cột nằm trong `CREATE`; ngoại lệ có chủ ý ghi ở 5.1); D51 (xoá mock khi thay); luật cứng `CLAUDE.md` (sinh viên không thấy ghi chú / nhãn; `internal/grade` không dùng thời gian học; điểm = code thuần, `decimal`); mặc định điểm danh "Có mặt" và nút chính `Lưu điểm danh` (`DESIGN.md` §14.8, `INTEGRATION.md` mục 2); heartbeat write-behind (`SYSTEM_DESIGN.md` 3.3); số migration `00013` / `00014` (`plan.md`); `mail_inbound` không ở sprint này.
+**Đã chốt (không mở lại):** D17 (thời gian học chỉ tham khảo + tín hiệu at-risk, không tính điểm); D44 (dữ liệu mô phỏng); D45 (không ALTER cho cột đã biết — nên mọi cột nằm trong `CREATE`; ngoại lệ có chủ ý ghi ở 5.1); D51 (xoá mock khi thay); luật cứng `CLAUDE.md` (sinh viên không thấy ghi chú / nhãn; `internal/grade` không dùng thời gian học; điểm = code thuần, `decimal`); mặc định điểm danh "Có mặt" và nút chính `Lưu điểm danh` (`DESIGN.md` §14.8, `INTEGRATION.md` mục 2); heartbeat write-behind (`SYSTEM_DESIGN.md` 3.3); số migration `00013` / `00015` (`plan.md`); `mail_inbound` không ở sprint này.
 
-**Đề xuất đổi tài liệu nền (đã chấp nhận). BA sửa `ARCHITECTURE.md` §4 (`00013`, `00014`), §5, §9 cùng đợt với phiên bản này (#5, #6, #7); các mục còn lại do PM / dev sửa khi thi công:**
-1. `ARCHITECTURE.md` §4: dòng `00013` — thêm `attendance_records.course_id`, `participation_events.client_event_id`, `student_observations.kind` + `ai_edited`, bảng mới `student_risk`, một `ALTER class_sessions`, `UNIQUE (course_id, session_id, student_id)`; dòng `00014` — `study_time_daily` khoá duy nhất có `course_id`, hai `ALTER` (`user_settings.track_study_time`, `courses.allow_study_time_opt_out`); ghi ánh xạ số migration (`proposals.md` #5, Q1) — **đã sửa**.
+**Đề xuất đổi tài liệu nền (đã chấp nhận). BA sửa `ARCHITECTURE.md` §4 (`00013`, `00015`), §5, §9 cùng đợt với phiên bản này (#5, #6, #7); các mục còn lại do PM / dev sửa khi thi công:**
+1. `ARCHITECTURE.md` §4: dòng `00013` — thêm `attendance_records.course_id`, `participation_events.client_event_id`, `student_observations.kind` + `ai_edited`, bảng mới `student_risk`, một `ALTER class_sessions`, `UNIQUE (course_id, session_id, student_id)`; dòng `00015` — `study_time_daily` khoá duy nhất có `course_id`, hai `ALTER` (`user_settings.track_study_time`, `courses.allow_study_time_opt_out`); ghi ánh xạ số migration (`proposals.md` #5, Q1) — **đã sửa**.
 2. `ARCHITECTURE.md` §5: thêm / đổi các route ở đầu mục 6 (`proposals.md` #6); `POST /activity/heartbeat` thêm `course_id` — **đã sửa**.
 3. `ARCHITECTURE.md` §9 (Seed): "10 đã diễn ra / 300 bản ghi điểm danh" → 9 buổi đã điểm danh = 270 + buổi hôm nay chưa điểm danh; "3 ticket ở ba trạng thái" → 5 ticket đủ trạng thái (`proposals.md` #7) — **đã sửa**.
 4. `FEAT-course-foundation` SRS 4.7 bảng bậc: thêm `SESSION_UNMARKED` **12** và `STUDENT_ATTENTION` 95; dựng lại bảng từ hằng `Tier*` (TLR-10); cập nhật phần "Lớp cần chú ý". **`/class/settings` thêm nhóm "Đo thời gian học"** (Q25) và `PUT /courses/{id}/settings` nhận `allow_study_time_opt_out` (khoá khi có sinh viên đầu tiên); form `Mở lớp` của Admin **không** đổi; `/settings` thêm nhóm "Thời gian học" (7.8).
 5. `FEAT-docs-calendar` / `/calendar`: Staff có nút `Tạo lịch buổi học` (ngăn kéo — Q16 PM chốt).
-6. `P5.md`: số `00008` / `00009` → `00013` / `00014`; "Provider 'sinh viên mới vào diện cần chú ý'" nằm ở US-P5-04.
+6. `P5.md`: số `00008` / `00009` → `00013` / `00015`; "Provider 'sinh viên mới vào diện cần chú ý'" nằm ở US-P5-04.
 7. `FEAT-escalation-notify` SRS 6.4 / 4.2.8: thân `PUT …/settings` nhận cả `risk` (trong spec này, 4.7.3).
 8. `frontend/src/shared/lib/saveQueue.ts` (US-PE-05): tổng quát kiểu `Dirty` thành generic cho điểm danh; lỗi `409` là `fatal` (TLR-5).
 
