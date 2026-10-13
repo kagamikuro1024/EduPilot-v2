@@ -253,6 +253,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             items={real.items}
             unread={real.unread}
             failed={real.failed}
+            stale={real.stale}
             onRead={(id) => real.markRead(id)}
           />
 

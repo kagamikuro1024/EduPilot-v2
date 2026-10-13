@@ -174,25 +174,15 @@ update exams set status = 'CLOSED', version = version + 1
 where status in ('SCHEDULED', 'OPEN') and closes_at <= sqlc.arg(now)::timestamptz
 returning id, course_id;
 
--- name: ExamNotifyScheduled :execrows
--- Thông báo EXAM_SCHEDULED cho mọi sinh viên ACTIVE; khử trùng theo (bài, người).
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-select e.user_id, e.course_id, 'EXAM_SCHEDULED', sqlc.arg(title), sqlc.arg(body), sqlc.arg(link), 'exam.scheduled:' || sqlc.arg(exam_id)::text || ':' || e.user_id::text
-from enrollments e
-where e.course_id = sqlc.arg(course_id) and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE'
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing;
+-- name: ExamActiveStudentIDs :many
+-- Người nhận thông báo lịch thi: mọi sinh viên ACTIVE của lớp (ghi bằng notify.SendMany — MỘT câu INSERT cho cả lớp).
+select user_id from enrollments where course_id = sqlc.arg(course_id) and role_in_course = 'STUDENT' and status = 'ACTIVE';
 
 -- name: ExamRecallScheduled :many
 -- Thu hồi thông báo lịch của một bài (khi bỏ lịch): trả người đã nhận để báo "hoãn". Xoá cả dấu khử trùng nên lần lên lịch sau báo lại được.
 delete from notifications
 where course_id = sqlc.arg(course_id) and type = 'EXAM_SCHEDULED' and dedupe_key like 'exam.scheduled:' || sqlc.arg(exam_id)::text || ':%'
 returning user_id;
-
--- name: ExamNotifyUnscheduled :execrows
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-select u, sqlc.arg(course_id), 'EXAM_UNSCHEDULED', sqlc.arg(title), sqlc.arg(body), sqlc.arg(link), 'exam.unscheduled:' || sqlc.arg(outbox_id)::text || ':' || u::text
-from unnest(sqlc.arg(user_ids)::text[]::uuid[]) as u
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing;
 
 -- name: TodayStudentExams :many
 -- "Hôm nay" của sinh viên: bài SCHEDULED / OPEN còn hạn, mở trong `horizon`, chưa có lượt làm hoặc lượt còn đang làm — MỘT truy vấn cho mọi lớp.

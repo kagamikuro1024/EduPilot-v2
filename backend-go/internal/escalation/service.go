@@ -154,7 +154,7 @@ func (s *Service) CreateTx(ctx context.Context, tx pgx.Tx, in CreateInput) (Crea
 	if err != nil {
 		return Created{}, fmt.Errorf("escalation: ghi ticket: %w", err)
 	}
-	if _, err := outbox.Write(ctx, tx, TopicCreated, map[string]any{"ticket_id": t.ID, "course_id": t.CourseID}); err != nil {
+	if _, err := outbox.Write(ctx, tx, TopicCreated, map[string]any{"ticket_id": t.ID, "course_id": t.CourseID, "kind": t.Kind}); err != nil {
 		return Created{}, fmt.Errorf("escalation: outbox: %w", err)
 	}
 	var actor *uuid.UUID

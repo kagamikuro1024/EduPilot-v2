@@ -13,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/rag"
@@ -32,12 +33,13 @@ type Task interface {
 func newTasks(d Deps) []Task {
 	od := outbox.Deps{Pool: d.DB, Redis: d.Redis, Log: d.Log, Clock: clock.Real{}, Cfg: d.Cfg}
 	tasks := []Task{outbox.NewRelay(od), outbox.NewConsumer(od, newRegistry(d))}
+	nt := notify.New(d.DB, sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL), d.Log) // một cửa thông báo: ghi + đẩy SSE
 	name := "worker"
 	if d.Judge != nil {
 		name = d.Judge.Name // cùng tên với bộ lập lịch của hàng chấm: hai bộ cùng tiến trình chung một khoá leader
 	}
 	tasks = append(tasks, examTickTask{&exam.Ticker{Svc: &exam.Service{Pool: d.DB, Clock: clock.Real{}, Jobs: jobs.NewService(d.DB), Attempt: exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second}, Redis: d.Redis}, Redis: d.Redis, Log: d.Log, Name: name, Every: d.Cfg.ExamTickInterval}})
-	tasks = append(tasks, reminderTask{&calendar.Reminder{Svc: &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}, Name: name, Every: d.Cfg.ReminderTick, Lead: d.Cfg.ReminderLead, Log: d.Log}})
+	tasks = append(tasks, reminderTask{&calendar.Reminder{Svc: &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}, Name: name, Every: d.Cfg.ReminderTick, Lead: d.Cfg.ReminderLead, Log: d.Log, Notify: nt}})
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
@@ -47,7 +49,7 @@ func newTasks(d Deps) []Task {
 		pub := sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL)
 		proc := &ingest.Processor{Pool: d.DB, Blob: d.Blob, Docling: &ingest.Docling{BaseURL: set.DoclingURL, Poll: set.PollInterval}, LLM: d.LLM,
 			Jobs: jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log), Log: d.Log, Set: set}
-		ts := &thread.Service{Pool: d.DB, Redis: d.Redis, Rag: &rag.Service{DB: d.DB}, LLM: d.LLM, Embed: agent.NewEmbedder(d.LLM, d.Redis), Run: proc.Jobs, Clock: clock.Real{}, Log: d.Log}
+		ts := &thread.Service{Pool: d.DB, Redis: d.Redis, Rag: &rag.Service{DB: d.DB}, LLM: d.LLM, Embed: agent.NewEmbedder(d.LLM, d.Redis), Run: proc.Jobs, Clock: clock.Real{}, Log: d.Log, Notify: nt}
 		tasks = append(tasks, ingestTask{&ingest.Queue{P: proc, Redis: d.Redis, Consumer: d.Cfg.InstanceID, Log: d.Log, Extra: map[string]func(context.Context, uuid.UUID, uuid.UUID, uuid.UUID) error{thread.KindAnswer: ts.AnswerHandler}}})
 	}
 	return tasks

@@ -23,6 +23,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
@@ -65,6 +66,8 @@ type Service struct {
 	Embed func(ctx context.Context, text string) ([]float32, error)
 	Clock clock.Clock
 	Log   *slog.Logger
+	// Notify: một cửa tạo thông báo — thread ghi dòng trong giao dịch của mình (notify.SendTx) rồi Announce sau commit; nil → chỉ ghi, chuông làm mới 30 s.
+	Notify *notify.Service
 }
 
 // Actor là người gọi: danh tính từ JWT, vai TRONG LỚP từ CourseAccessGuard.
@@ -539,6 +542,7 @@ func (s *Service) Comment(ctx context.Context, a Actor, courseID, threadID uuid.
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	tq := store.New(tx)
+	var pending []notify.Row // thông báo ghi trong giao dịch, Announce sau commit
 	row, err := tq.InsertForumPost(ctx, store.InsertForumPostParams{CourseID: courseID, ThreadID: threadID, AuthorID: &a.UserID, Kind: store.PostKindHUMAN, Body: body, VerificationState: store.PostVerificationNONE, Citations: json.RawMessage("[]")})
 	if err != nil {
 		return PostOut{}, fmt.Errorf("thread: lưu bình luận: %w", err)
@@ -547,22 +551,28 @@ func (s *Service) Comment(ctx context.Context, a Actor, courseID, threadID uuid.
 		return PostOut{}, fmt.Errorf("thread: cập nhật thread: %w", err)
 	}
 	if owner, err := tq.ThreadGetAuthor(ctx, threadID); err == nil && owner.AuthorID != a.UserID {
-		s.notify(ctx, tq, owner.AuthorID, courseID, threadID, "THREAD_REPLY", "Có bình luận mới trong câu hỏi của bạn", "reply:"+row.ID.String())
+		if nr, ok := s.notify(ctx, tq, owner.AuthorID, courseID, threadID, "THREAD_REPLY", "Có bình luận mới trong câu hỏi của bạn", "reply:"+row.ID.String()); ok {
+			pending = append(pending, nr)
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return PostOut{}, fmt.Errorf("thread: commit: %w", err)
 	}
+	s.Notify.Announce(ctx, pending...)
 	name := ""
 	_ = s.Pool.QueryRow(ctx, `select full_name from users where id=$1`, a.UserID).Scan(&name)
 	return PostOut{ID: row.ID, Kind: "HUMAN", Author: &Author{FullName: name, Role: string(a.Role), IsMe: true}, Body: body, Citations: json.RawMessage("[]"), Version: row.Version, CreatedAt: row.CreatedAt}, nil
 }
 
-// notify tạo chuông cho `to` (idempotent theo dedupe_key). Lỗi chỉ log: không làm hỏng việc chính.
-func (s *Service) notify(ctx context.Context, q *store.Queries, to, courseID, threadID uuid.UUID, typ, title, dedupe string) {
+// notify ghi chuông cho `to` trong giao dịch của người gọi qua một cửa `notify` (idempotent theo dedupe_key); người gọi Announce sau commit.
+// Lỗi chỉ log: không làm hỏng việc chính.
+func (s *Service) notify(ctx context.Context, q *store.Queries, to, courseID, threadID uuid.UUID, typ, title, dedupe string) (notify.Row, bool) {
 	link := "/threads/" + threadID.String()
-	if _, err := q.InsertNotification(ctx, store.InsertNotificationParams{UserID: to, CourseID: &courseID, Type: typ, Title: title, Link: &link, DedupeKey: &dedupe}); err != nil && s.Log != nil {
+	row, created, err := notify.SendTx(ctx, q, notify.Spec{UserID: to, CourseID: &courseID, Type: typ, Title: title, Link: &link, DedupeKey: dedupe})
+	if err != nil && s.Log != nil {
 		s.Log.WarnContext(ctx, "thread: tạo thông báo lỗi", "error", err)
 	}
+	return row, created && err == nil
 }
 
 // ---- quyết định của Staff ----------------------------------------------------------------------------------------------------------
@@ -586,6 +596,7 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	q := store.New(tx)
+	var pending []notify.Row // thông báo ghi trong giao dịch, Announce sau commit
 	p, err := q.PostGet(ctx, store.PostGetParams{CourseID: courseID, ID: postID})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return PostOut{}, notFound()
@@ -647,13 +658,19 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 		if target == store.PostVerificationCORRECTED {
 			title = "Giảng viên đã sửa câu trả lời cho câu hỏi của bạn"
 		}
-		s.notify(ctx, q, p.ThreadAuthorID, courseID, p.ThreadID, "THREAD_VERIFIED", title, fmt.Sprintf("decided:%s:%s:%d", postID, target, row.Version))
+		if nr, ok := s.notify(ctx, q, p.ThreadAuthorID, courseID, p.ThreadID, "THREAD_VERIFIED", title, fmt.Sprintf("decided:%s:%s:%d", postID, target, row.Version)); ok {
+			pending = append(pending, nr)
+		}
 	}
 	out, err := s.postView(ctx, q, courseID, postID, a)
 	if err != nil {
 		return PostOut{}, err
 	}
-	return out, tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return PostOut{}, err
+	}
+	s.Notify.Announce(ctx, pending...)
+	return out, nil
 }
 
 func nonEmptyPtr(s string) *string {

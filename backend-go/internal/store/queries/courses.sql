@@ -135,12 +135,6 @@ select count(*)::int from enrollments where course_id = sqlc.arg(course_id) and 
 
 -- ===== Thông báo (US-P2-08) =====
 
--- name: InsertNotification :execrows
--- Idempotent theo (user_id, dedupe_key): giao lại cùng tin outbox không tạo dòng thứ hai.
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-values (sqlc.arg(user_id), sqlc.narg(course_id), sqlc.arg(type), sqlc.arg(title), sqlc.narg(body), sqlc.narg(link), sqlc.narg(dedupe_key))
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing;
-
 -- name: ListNotifications :many
 select id, type, title, body, link, course_id, read_at, created_at
 from notifications

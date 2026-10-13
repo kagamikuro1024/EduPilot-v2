@@ -1,16 +1,17 @@
 import { expect, test } from "@playwright/test";
+import type { BrowserContext, Page, Route } from "@playwright/test";
 import { asDemo } from "./support/session";
 import { MID, SID, chatApi, frame, json, msg, noContent, session, sse } from "./support/chat-fixtures";
 
 // US-P3-05: /chat THẬT (gateway giả theo hợp đồng thật, support/chat-fixtures.ts).
-const open = async (page: import("@playwright/test").Page, context: import("@playwright/test").BrowserContext, h: Parameters<typeof chatApi>[1] = {}) => {
+const open = async (page: Page, context: BrowserContext, h: Parameters<typeof chatApi>[1] = {}) => {
   await asDemo(context, "student", { person: "sv-2" });
   const calls = await chatApi(page, h);
   await page.goto("/chat");
   await page.locator("[data-part=chat-thread]").waitFor();
   return calls;
 };
-const composer = (page: import("@playwright/test").Page) => page.getByRole("textbox", { name: "Câu hỏi của bạn" });
+const composer = (page: Page) => page.getByRole("textbox", { name: "Câu hỏi của bạn" });
 const sentStream = (...extra: string[]) =>
   sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("status", { message_id: MID, stage: "searching" }, "1:2-0"),
     frame("token", { off: 0, t: "Theo quy chế [1], " }, "1:3-0"), frame("token", { off: 18, t: "không được." }, "1:4-0"), ...extra,
@@ -160,9 +161,9 @@ test("calendar tool block: lịch hiện thành danh sách dòng, không JSON th
 // US-P4-01: nút "Nhờ giảng viên hỗ trợ" (AC7, AC8, AC9) — máy chủ giả theo hợp đồng: `can_escalate`, `ticket`, `open_tickets`.
 const ESC = `/chat/messages/${MID}/escalate`;
 const ticket = (status = "OPEN", created_at = new Date().toISOString()) => ({ id: "00000000-0000-7000-8000-0000000000a1", status, created_at });
-async function openAsked(page: import("@playwright/test").Page, context: import("@playwright/test").BrowserContext, opts: { onEscalate?: (r: import("@playwright/test").Route) => Promise<void> | void; asst?: Record<string, unknown>; open?: number } = {}) {
+async function openAsked(page: Page, context: BrowserContext, opts: { onEscalate?: (r: Route) => Promise<void> | void; asst?: Record<string, unknown>; open?: number } = {}) {
   let asked = false;
-  const fulfillAsked = (r: import("@playwright/test").Route) => { asked = true; return r.fulfill(json({ ticket: ticket(), already: false }, 201)); };
+  const fulfillAsked = (r: Route) => { asked = true; return r.fulfill(json({ ticket: ticket(), already: false }, 201)); };
   const onEscalate = opts.onEscalate ?? fulfillAsked;
   const calls = await open(page, context, {
     "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
@@ -174,7 +175,7 @@ async function openAsked(page: import("@playwright/test").Page, context: import(
   await page.locator("[data-part=ask-staff], [data-part=ticket-status]").first().waitFor();
   return calls;
 }
-const askBtn = (page: import("@playwright/test").Page) => page.getByRole("button", { name: "Nhờ giảng viên hỗ trợ" });
+const askBtn = (page: Page) => page.getByRole("button", { name: "Nhờ giảng viên hỗ trợ" });
 
 test("escalate button: có ở câu thường, một tooltip duy nhất, bấm đổi thành dòng trạng thái", async ({ page, context }) => {
   const calls = await openAsked(page, context);
@@ -206,7 +207,7 @@ test("escalate double click: bấm đúp chỉ phát một request", async ({ pa
 test("escalate error: 500 hoàn lại nút kèm Thử lại, bấm lại thành công", async ({ page, context }) => {
   let n = 0;
   await openAsked(page, context, {
-    onEscalate: (r: import("@playwright/test").Route) => (++n === 1 ? r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500)) : r.fulfill(json({ ticket: ticket(), already: false }, 201))),
+    onEscalate: (r: Route) => (++n === 1 ? r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500)) : r.fulfill(json({ ticket: ticket(), already: false }, 201))),
   });
   await askBtn(page).click();
   await expect(page.getByText("Chưa gửi được. Thử lại")).toBeVisible();

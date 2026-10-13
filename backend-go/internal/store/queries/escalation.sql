@@ -67,3 +67,11 @@ select * from escalation_tickets
 where status = 'OPEN' and sla_stage = sqlc.arg(stage)::smallint and waiting_since < sqlc.arg(before)::timestamptz
 order by waiting_since, id
 limit sqlc.arg(page_limit);
+
+-- name: TicketCountOpenInCourse :one
+-- Số ticket đang chờ (OPEN) của lớp: nguồn đếm của thông báo gộp TICKET_NEW.
+select count(*)::int from escalation_tickets where course_id = sqlc.arg(course_id) and status = 'OPEN';
+
+-- name: TicketStaffIDs :many
+-- Người nhận thông báo ticket: TA + TEACHER ACTIVE của lớp.
+select user_id from enrollments where course_id = sqlc.arg(course_id) and role_in_course in ('TEACHER', 'TA') and status = 'ACTIVE';

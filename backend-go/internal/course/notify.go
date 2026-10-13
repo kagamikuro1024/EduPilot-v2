@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -23,6 +24,15 @@ type Notifier struct {
 	Pool         *pgxpool.Pool
 	AppPublicURL string
 	Log          *slog.Logger
+	// Notify là một cửa tạo thông báo (ghi + đẩy SSE); nil → chỉ ghi, không đẩy (test cũ dựng Notifier chỉ với Pool).
+	Notify *notify.Service
+}
+
+func (n *Notifier) svc() *notify.Service {
+	if n.Notify != nil {
+		return n.Notify
+	}
+	return &notify.Service{Pool: n.Pool, Log: n.Log}
 }
 
 // HandleAssigned (`course.assigned`): tạo ĐÚNG MỘT dòng `notifications` cho người mới được gán (dedupe `course.assigned:<outbox_id>`).
@@ -81,7 +91,7 @@ func (n *Notifier) HandleAssigned(ctx context.Context, m outbox.Message) error {
 		body = fmt.Sprintf("Mã tham gia: %s. Chia sẻ mã hoặc đường dẫn %s/join/%s cho sinh viên.", c.JoinCode, n.AppPublicURL, c.JoinCode)
 	}
 	key := TopicAssigned + ":" + m.ID.String()
-	if _, err := q.InsertNotification(ctx, store.InsertNotificationParams{UserID: p.UserID, CourseID: &c.ID, Type: TypeAssigned, Title: title, Body: &body, Link: &link, DedupeKey: &key}); err != nil {
+	if _, err := n.svc().Send(ctx, notify.Spec{UserID: p.UserID, CourseID: &c.ID, Type: TypeAssigned, Title: title, Body: &body, Link: &link, DedupeKey: key}); err != nil {
 		return fmt.Errorf("ghi thông báo: %w", err)
 	}
 	return nil
@@ -94,8 +104,8 @@ const (
 	TypeJoinRejected = "JOIN_REJECTED"
 )
 
-func (n *Notifier) put(ctx context.Context, q *store.Queries, user uuid.UUID, courseID uuid.UUID, typ, title string, body, link *string, key string) error {
-	if _, err := q.InsertNotification(ctx, store.InsertNotificationParams{UserID: user, CourseID: &courseID, Type: typ, Title: title, Body: body, Link: link, DedupeKey: &key}); err != nil {
+func (n *Notifier) put(ctx context.Context, _ *store.Queries, user uuid.UUID, courseID uuid.UUID, typ, title string, body, link *string, key string) error {
+	if _, err := n.svc().Send(ctx, notify.Spec{UserID: user, CourseID: &courseID, Type: typ, Title: title, Body: body, Link: link, DedupeKey: key}); err != nil {
 		return fmt.Errorf("ghi thông báo: %w", err)
 	}
 	return nil

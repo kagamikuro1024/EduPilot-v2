@@ -134,9 +134,12 @@ func (s *Service) Answer(ctx context.Context, jobID, owner, threadID uuid.UUID) 
 		}
 		return fmt.Errorf("thread: lưu bài AI: %w", err)
 	}
-	s.notify(ctx, tq, t.AuthorID, t.CourseID, threadID, "THREAD_ANSWERED", "AI đã trả lời câu hỏi của bạn", "answered:"+threadID.String())
+	nr, notified := s.notify(ctx, tq, t.AuthorID, t.CourseID, threadID, "THREAD_ANSWERED", "AI đã trả lời câu hỏi của bạn", "answered:"+threadID.String())
 	if err := tx.Commit(ctx); err != nil {
 		return fmt.Errorf("thread: commit: %w", err)
+	}
+	if notified {
+		s.Notify.Announce(ctx, nr)
 	}
 	return s.finish(ctx, jobID, map[string]any{"thread_id": threadID, "ai_state": "ANSWERED"})
 }

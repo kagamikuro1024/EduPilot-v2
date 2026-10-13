@@ -14,6 +14,7 @@ import (
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/thread"
@@ -67,7 +68,7 @@ func threadService(d Deps, a *aiStack) *thread.Service {
 		return nil
 	}
 	return &thread.Service{Pool: d.DB, Redis: d.Redis, FW: &thread.Firewall{Detector: a.det, Classifier: a.cl, Embed: a.embed}, Lock: a.locker(d), Jobs: d.Jobs,
-		Rag: &rag.Service{DB: d.DB}, LLM: a.gw, Embed: a.raw, Clock: d.Clock, Log: d.Log}
+		Rag: &rag.Service{DB: d.DB}, LLM: a.gw, Embed: a.raw, Clock: d.Clock, Log: d.Log, Notify: notify.New(d.DB, d.Publisher, d.Log)}
 }
 
 // chatService dựng chat.Service thật từ Deps (nil nếu thiếu DB / Redis / LLM → route chat không được gắn).

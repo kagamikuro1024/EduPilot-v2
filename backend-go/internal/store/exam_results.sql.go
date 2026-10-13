@@ -876,38 +876,6 @@ func (q *Queries) ExamItemsMeta(ctx context.Context, arg ExamItemsMetaParams) ([
 	return items, nil
 }
 
-const examNotifyUsers = `-- name: ExamNotifyUsers :execrows
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-select u, $1, $2, $3, null, $4, $5::text || ':' || u::text
-from unnest($6::text[]::uuid[]) as u
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
-`
-
-type ExamNotifyUsersParams struct {
-	CourseID     *uuid.UUID
-	Type         string
-	Title        string
-	Link         *string
-	DedupePrefix string
-	UserIds      []string
-}
-
-// Thông báo của bài thi (EXAM_PUBLISHED / EXAM_REGRADED / EXAM_APPEAL_*) cho danh sách người; khử trùng `<dedupe_prefix>:<user_id>`.
-func (q *Queries) ExamNotifyUsers(ctx context.Context, arg ExamNotifyUsersParams) (int64, error) {
-	result, err := q.db.Exec(ctx, examNotifyUsers,
-		arg.CourseID,
-		arg.Type,
-		arg.Title,
-		arg.Link,
-		arg.DedupePrefix,
-		arg.UserIds,
-	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const examPublishDue = `-- name: ExamPublishDue :many
 update exams x set status = 'PUBLISHED', published_at = $1, version = version + 1, updated_at = now()
 where x.status = 'CLOSED' and not x.publish_hold and not x.regrading

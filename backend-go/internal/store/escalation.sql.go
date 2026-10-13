@@ -194,6 +194,18 @@ func (q *Queries) TicketCountOpen(ctx context.Context, arg TicketCountOpenParams
 	return column_1, err
 }
 
+const ticketCountOpenInCourse = `-- name: TicketCountOpenInCourse :one
+select count(*)::int from escalation_tickets where course_id = $1 and status = 'OPEN'
+`
+
+// Số ticket đang chờ (OPEN) của lớp: nguồn đếm của thông báo gộp TICKET_NEW.
+func (q *Queries) TicketCountOpenInCourse(ctx context.Context, courseID uuid.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, ticketCountOpenInCourse, courseID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const ticketGet = `-- name: TicketGet :one
 
 select id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at from escalation_tickets where course_id = $1 and id = $2
@@ -519,6 +531,31 @@ func (q *Queries) TicketSLACandidates(ctx context.Context, arg TicketSLACandidat
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ticketStaffIDs = `-- name: TicketStaffIDs :many
+select user_id from enrollments where course_id = $1 and role_in_course in ('TEACHER', 'TA') and status = 'ACTIVE'
+`
+
+// Người nhận thông báo ticket: TA + TEACHER ACTIVE của lớp.
+func (q *Queries) TicketStaffIDs(ctx context.Context, courseID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, ticketStaffIDs, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []uuid.UUID{}
+	for rows.Next() {
+		var user_id uuid.UUID
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

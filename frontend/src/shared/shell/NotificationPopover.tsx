@@ -3,7 +3,7 @@
 import { Bell } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Popover } from "@/shared/ui";
+import { Popover, StatusText } from "@/shared/ui";
 import s from "./AppShell.module.css";
 
 export type NotificationItem = { id: string; title: string; context: string; when: string; href: string; read: boolean };
@@ -12,7 +12,7 @@ export type NotificationItem = { id: string; title: string; context: string; whe
  * Chuông thông báo — KHUNG nhận danh sách qua props (dữ liệu thật ở P4). Chấm đỏ (`bell-dot`) chỉ khi `unread > 0`; mở khung KHÔNG
  * xoá chấm (chỉ bấm vào từng thông báo mới `onRead`). Khi `unread` tăng, vùng `aria-live=polite` đọc "Có N thông báo mới" một lần.
  */
-export function NotificationPopover({ items, unread, onRead, failed }: { items: NotificationItem[]; unread: number; onRead?: (id: string) => void; failed?: boolean }) {
+export function NotificationPopover({ items, unread, onRead, failed, stale }: { items: NotificationItem[]; unread: number; onRead?: (id: string) => void; failed?: boolean; stale?: boolean }) {
   const prev = useRef(unread);
   const [announce, setAnnounce] = useState("");
   useEffect(() => {
@@ -40,6 +40,7 @@ export function NotificationPopover({ items, unread, onRead, failed }: { items: 
         {(close) => (
           <div className={s.notes} data-part="notifications">
             <p className={s.panelLabel}>Thông báo</p>
+            {stale && <StatusText>Chưa cập nhật được</StatusText>}
             {failed ? (
               <p className={s.noteEmpty}>Chưa tải được thông báo.</p>
             ) : items.length === 0 ? (

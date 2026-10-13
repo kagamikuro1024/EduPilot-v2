@@ -14,6 +14,31 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const examActiveStudentIDs = `-- name: ExamActiveStudentIDs :many
+select user_id from enrollments where course_id = $1 and role_in_course = 'STUDENT' and status = 'ACTIVE'
+`
+
+// Người nhận thông báo lịch thi: mọi sinh viên ACTIVE của lớp (ghi bằng notify.SendMany — MỘT câu INSERT cho cả lớp).
+func (q *Queries) ExamActiveStudentIDs(ctx context.Context, courseID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, examActiveStudentIDs, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []uuid.UUID{}
+	for rows.Next() {
+		var user_id uuid.UUID
+		if err := rows.Scan(&user_id); err != nil {
+			return nil, err
+		}
+		items = append(items, user_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const examAttemptCounts = `-- name: ExamAttemptCounts :one
 select count(*)::int as started, (count(*) filter (where status = 'GRADED'))::int as graded
 from exam_attempts where course_id = $1 and exam_id = $2
@@ -664,68 +689,6 @@ func (q *Queries) ExamLock(ctx context.Context, arg ExamLockParams) (Exam, error
 		&i.UpdatedAt,
 	)
 	return i, err
-}
-
-const examNotifyScheduled = `-- name: ExamNotifyScheduled :execrows
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-select e.user_id, e.course_id, 'EXAM_SCHEDULED', $1, $2, $3, 'exam.scheduled:' || $4::text || ':' || e.user_id::text
-from enrollments e
-where e.course_id = $5 and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE'
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
-`
-
-type ExamNotifyScheduledParams struct {
-	Title    string
-	Body     *string
-	Link     *string
-	ExamID   string
-	CourseID uuid.UUID
-}
-
-// Thông báo EXAM_SCHEDULED cho mọi sinh viên ACTIVE; khử trùng theo (bài, người).
-func (q *Queries) ExamNotifyScheduled(ctx context.Context, arg ExamNotifyScheduledParams) (int64, error) {
-	result, err := q.db.Exec(ctx, examNotifyScheduled,
-		arg.Title,
-		arg.Body,
-		arg.Link,
-		arg.ExamID,
-		arg.CourseID,
-	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
-const examNotifyUnscheduled = `-- name: ExamNotifyUnscheduled :execrows
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-select u, $1, 'EXAM_UNSCHEDULED', $2, $3, $4, 'exam.unscheduled:' || $5::text || ':' || u::text
-from unnest($6::text[]::uuid[]) as u
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
-`
-
-type ExamNotifyUnscheduledParams struct {
-	CourseID *uuid.UUID
-	Title    string
-	Body     *string
-	Link     *string
-	OutboxID string
-	UserIds  []string
-}
-
-func (q *Queries) ExamNotifyUnscheduled(ctx context.Context, arg ExamNotifyUnscheduledParams) (int64, error) {
-	result, err := q.db.Exec(ctx, examNotifyUnscheduled,
-		arg.CourseID,
-		arg.Title,
-		arg.Body,
-		arg.Link,
-		arg.OutboxID,
-		arg.UserIds,
-	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
 }
 
 const examPreviewItems = `-- name: ExamPreviewItems :many

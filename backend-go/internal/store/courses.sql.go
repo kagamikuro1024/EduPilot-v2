@@ -481,41 +481,6 @@ func (q *Queries) InsertCourse(ctx context.Context, arg InsertCourseParams) (Cou
 	return i, err
 }
 
-const insertNotification = `-- name: InsertNotification :execrows
-
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-values ($1, $2, $3, $4, $5, $6, $7)
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing
-`
-
-type InsertNotificationParams struct {
-	UserID    uuid.UUID
-	CourseID  *uuid.UUID
-	Type      string
-	Title     string
-	Body      *string
-	Link      *string
-	DedupeKey *string
-}
-
-// ===== Thông báo (US-P2-08) =====
-// Idempotent theo (user_id, dedupe_key): giao lại cùng tin outbox không tạo dòng thứ hai.
-func (q *Queries) InsertNotification(ctx context.Context, arg InsertNotificationParams) (int64, error) {
-	result, err := q.db.Exec(ctx, insertNotification,
-		arg.UserID,
-		arg.CourseID,
-		arg.Type,
-		arg.Title,
-		arg.Body,
-		arg.Link,
-		arg.DedupeKey,
-	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const insertRosterEnrollment = `-- name: InsertRosterEnrollment :one
 insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot, warning, status_changed_at, status_changed_by)
 values ($1, $2, 'STUDENT', $3, 'ROSTER', $4, $5, $6, $7)
@@ -925,6 +890,7 @@ func (q *Queries) ListMyCourses(ctx context.Context, arg ListMyCoursesParams) ([
 }
 
 const listNotifications = `-- name: ListNotifications :many
+
 select id, type, title, body, link, course_id, read_at, created_at
 from notifications
 where user_id = $1
@@ -953,6 +919,7 @@ type ListNotificationsRow struct {
 	CreatedAt time.Time
 }
 
+// ===== Thông báo (US-P2-08) =====
 func (q *Queries) ListNotifications(ctx context.Context, arg ListNotificationsParams) ([]ListNotificationsRow, error) {
 	rows, err := q.db.Query(ctx, listNotifications,
 		arg.UserID,
