@@ -76,6 +76,15 @@ export function RealChat({ courseId }: { courseId: string }) {
   }, [until?.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const list = messages.data?.items ?? [];
+
+  // phiên có tin của giảng viên đang hiện → đánh dấu đã đọc thông báo "đã trả lời" (một lần mỗi phiên; GET không ghi, SRS 6.3 #15a)
+  const readFor = useRef<string | null>(null);
+  const hasStaff = list.some((m) => staffOf(m) !== null);
+  useEffect(() => {
+    if (!sid || !hasStaff || readFor.current === sid) return;
+    readFor.current = sid;
+    void apiClient.post("/notifications/read", { link: `/chat?session=${sid}` }).catch(() => undefined);
+  }, [sid, hasStaff]);
   const openTickets = messages.data?.openTickets ?? 0;
   // mở lại giữa lúc đang sinh: nối lại luồng của tin STREAMING (không mất, không lặp)
   const streamingRow = list.find((m) => m.role === "ASSISTANT" && m.stream_status === "STREAMING");
@@ -265,6 +274,8 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
 
 function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket }: { m: ChatMessage; fb: Feedback; onVote: (v: Feedback) => void; onRetry: () => void; disabled: boolean; openTickets: number; onTicket: () => void }) {
   if (m.role === "USER") return <div className={s.fromSv}><p className={s.who}>Bạn</p><p className={s.text}>{m.content}</p></div>;
+  const staff = staffOf(m);
+  if (staff) return <div className={s.fromAi} data-part="staff-answer"><p className={s.who}>{staff.role === "TEACHER" ? "Giảng viên" : "Trợ giảng"} · {staff.full_name}</p><p className={r.plain}>{m.content}</p></div>;
   const failed = m.stream_status === "FAILED";
   const cancelled = m.stream_status === "CANCELLED";
   return (
@@ -296,6 +307,15 @@ function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket }: { m: C
       )}
     </div>
   );
+}
+
+/** Tin do giảng viên / trợ giảng viết (khối `ticket` có `answered_by`): không phải AI nên không có "Hữu ích" và không trích dẫn. */
+function staffOf(m: ChatMessage): { full_name: string; role: string } | null {
+  for (const b of m.blocks) {
+    const d = b.data as { answered_by?: { full_name?: string; role?: string } } | null;
+    if (b.kind === "ticket" && d?.answered_by?.full_name) return { full_name: d.answered_by.full_name, role: d.answered_by.role ?? "" };
+  }
+  return null;
 }
 
 function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {

@@ -72,6 +72,19 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
   });
   // Lịch THẬT (US-P8-03): vài dòng mặc định; spec cần hành vi khác thì tự giả bằng `calApi` (page-level thắng).
   await context.route("**/api/v1/courses/*/calendar**", (r) => (r.request().method() === "GET" ? r.fulfill(json({ items: [calExam(), calItem(), calSession()], next_cursor: null })) : r.fallback()));
+  // Hộp thư hỗ trợ THẬT (US-P4-03): một ticket mặc định; spec cần hành vi khác thì tự giả bằng `inboxApi` (page-level thắng).
+  const tk = { id: "00000000-0000-7000-8000-0000000000f7", status: "OPEN", kind: "QUESTION", student: { id: "00000000-0000-7000-8000-0000000000a1", full_name: "Sinh Viên Thử" }, question_preview: "Điểm chuyên cần tính thế nào?", age_minutes: 95, claimed_by: null, sla_stage: 0, course: { id: COURSE_ID["761987"], class_code: "761987" } };
+  await context.route("**/api/v1/me/tickets**", (r) => r.fulfill(json({ items: [tk], next_cursor: null })));
+  await context.route("**/api/v1/courses/*/tickets**", (r) => {
+    if (r.request().method() !== "GET") return r.fallback();
+    if (new URL(r.request().url()).pathname.endsWith("/tickets")) return r.fulfill(json({ items: [tk], next_cursor: null }));
+    return r.fulfill(json({
+      ticket: { ...tk, answered_by: null, reopened_count: 0, save_as_knowledge: false, version: 1, created_at: "2026-10-11T02:00:00Z" },
+      question: { id: "q1", content: "Điểm chuyên cần tính thế nào?", created_at: "2026-10-11T02:00:00Z" },
+      ai_answer: { id: "a1", content: "Mình chưa tìm thấy quy định này.", created_at: "2026-10-11T02:00:01Z", confidence: "0.42" },
+      transcript: [],
+    }));
+  });
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }
 
