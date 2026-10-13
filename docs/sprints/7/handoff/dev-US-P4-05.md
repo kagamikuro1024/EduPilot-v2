@@ -37,3 +37,6 @@ AC1 ✓ · AC2 ✓ · AC3 ✓ · AC4 ✓ (hàm thuần, bảng + thuộc tính) 
 4. Ba lệnh seed (`seed-age`, `seed-study-time`, `crm-risk-run`) thuộc US-S7-SEED, chưa làm; ca "quá hạn" thử bằng `run-job ticket.sla --now` (đồng hồ giả) thay vì lùi dữ liệu.
 5. `visual.spec` `inbox-1440/390` sinh lại trong `mcr.microsoft.com/playwright:v1.63.0-noble` (#14b); 14/14 xanh trong image, không đổi ngưỡng.
 6. Test #14(a): hai ca `mock course mapping` đổi màn mẫu `/inbox` → `/students` (còn mô phỏng tới US-P5-04).
+
+## CI
+Run `38440886368` @ `e5f6390` (`sprint/7-p4-p5`): **mọi job xanh** — Go (static), Go test (rest / auth / course), Judge attacks, Frontend (lint + build), Playwright 1/3 2/3 3/3, Lighthouse ×3. Các run đỏ trước đó: `38435024792` (`TestNoUnscopedChunkQuery` + `data-layer` + `private-chat`), nay đã sửa ở gốc (xem `dev-US-CI-02.md` vòng 3, `dev-US-P4-02.md` vòng 3, `dev-US-P4-03.md` vòng 2).

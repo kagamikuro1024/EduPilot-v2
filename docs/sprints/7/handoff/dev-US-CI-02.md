@@ -111,3 +111,5 @@ Lưu ý TC-07 ("ở CI không có `-v`"): bản này có `-v` ở bước `go te
 Mặc định sản phẩm giữ nguyên (30 ms / 50 ms / 150 ms); chỉ test tiêm hạn dài qua trường cấu hình. Hai test đo thời gian thuần (`TestDetectLinearTime`, nhóm `*TimingEqualized`) đã chạy riêng, tuần tự (`EP_SKIP_TIMING=1` ở bước chung) — không đổi.
 
 **Đo (cold, không `-p 1`, `Go test (rest)` = `-race -tags testroutes -v`)**: vòng 1 (trước sửa Masker) 5/6 xanh (đỏ 1: `TestMaskConcurrentSameSession`); vòng 2 (sau mọi sửa) **6/6 xanh**, mỗi lượt 5,8–8,2 phút: runs `38435086769`, `38435093256`, `38435101291`, `38435108199`, `38435117559`, `38435123057` (nhánh tạm `tmp/p19b-*`, đã xoá). Máy dev (11 nhân, 24 vòng lặp bận chạy nền): 20 lượt các test trên đều xanh (`TestJobs_Lifecycle` đỏ trên mã cũ đúng như CI).
+
+**CI nhánh sau sửa:** run `38440886368` @ `e5f6390` xanh toàn bộ (kể cả `Go test (rest)` không `-p 1`).
