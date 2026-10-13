@@ -16,7 +16,6 @@ import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import { unsavedCount } from "@/shared/lib/unsavedWork";
 import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
-import { CommandPalette } from "@/shared/ui/CommandPalette";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
@@ -28,7 +27,10 @@ function displayName(role: Role, name: string, title?: string) {
   return role === "teacher" && title ? `${title} ${name}` : name;
 }
 
-// Chỉ sinh viên có lớp thật cần hộp thoại + nhịp thời gian học: tách gói để các vai khác (và ngân sách script của mọi trang) không trả giá.
+// Hai khối không cần cho lần vẽ đầu nên tách gói (ngân sách script của mọi trang): bảng lệnh chỉ nạp khi mở lần đầu; hộp thoại + nhịp thời gian học chỉ nạp cho
+// sinh viên có lớp thật và trễ 10 s sau khi vào trang (nhịp đầu vốn có pha ngẫu nhiên 0–30 s; chưa ack thì chưa đo gì nên hộp thoại trễ không gây hại).
+const CommandPalette = dynamic(() => import("@/shared/ui/CommandPalette").then((m) => m.CommandPalette), { ssr: false, loading: () => null });
+const TRACKER_DELAY_MS = 10_000;
 const StudyTimeTracker = dynamic(() => import("./TrackingNotice").then((m) => m.StudyTimeTracker), { ssr: false, loading: () => null });
 
 const NARROW = "(max-width: 719px)";
@@ -88,6 +90,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mid = useMedia(MID);
   // 720–1099 px luôn thu gọn (72 px); ≥ 1100 px theo lựa chọn đã nhớ (216 px mặc định)
   const collapsed = mid || prefCollapsed;
+  const [trackerReady, setTrackerReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setTrackerReady(true), TRACKER_DELAY_MS);
+    return () => clearTimeout(t);
+  }, []);
   const [palette, setPalette] = useState(false);
   // mỗi lần MỞ tăng `paletteTick` để hộp thoại gốc mở lại kể cả khi sự kiện `close` của lần đóng trước chưa kịp cập nhật `palette`
   const [paletteTick, setPaletteTick] = useState(0);
@@ -346,7 +353,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
-      {role === "student" && realCourseId && <StudyTimeTracker />}
+      {trackerReady && role === "student" && realCourseId && <StudyTimeTracker />}
 
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (
@@ -418,7 +425,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         confirmLabel="Đăng xuất"
         cancelLabel="Ở lại"
       />
-      <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />
+      {paletteTick > 0 && <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />}
     </div>
   );
 }

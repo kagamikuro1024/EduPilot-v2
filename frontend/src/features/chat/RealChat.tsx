@@ -440,6 +440,11 @@ function Citations({ items }: { items: ChatCitation[] }) {
                 Xem tài liệu
               </Link>
             )}
+            {c.knowledge && c.thread_id && (
+              <Link href={`/threads/${c.thread_id}`} className={s.linkBtn}>
+                Xem hỏi đáp
+              </Link>
+            )}
           </>
         ),
       }))}

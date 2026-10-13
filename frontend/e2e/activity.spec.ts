@@ -36,7 +36,8 @@ async function open(page: Page, context: BrowserContext, path: string, o: { acke
   const loaded = page.waitForResponse((r) => r.url().includes("/me/courses"));
   await page.goto(path);
   await loaded;
-  await page.waitForTimeout(300); // thời gian THẬT để React dựng lại hook sau khi lớp / cờ đã về; đồng hồ giả chỉ chạy khi test ra lệnh
+  await page.clock.runFor(10_000); // gói theo dõi nạp trễ 10 s sau khi vào trang (ngân sách script Lighthouse)
+  await page.waitForTimeout(500); // thời gian THẬT để gói nạp và React dựng lại hook; đồng hồ giả chỉ chạy khi test ra lệnh
   return beats;
 }
 

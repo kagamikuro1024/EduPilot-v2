@@ -37,10 +37,12 @@ type Hit struct {
 	ChunkID, DocumentID uuid.UUID
 	Title               string
 	Knowledge           bool // đoạn của kho tri thức (không có trang tài liệu để liên kết tới)
-	PageNo              *int
-	Heading             *string
-	Text                string
-	Cosine, Score       float64
+	// ThreadID: thread nguồn của đoạn tri thức POST — giao diện liên kết `/threads/{id}` (US-P4-06 AC12); nil với tài liệu / ticket.
+	ThreadID      *uuid.UUID
+	PageNo        *int
+	Heading       *string
+	Text          string
+	Cosine, Score float64
 }
 
 // Service truy xuất đoạn tài liệu.
@@ -79,6 +81,10 @@ func (s *Service) search(ctx context.Context, q Query, studentOnly bool, audienc
 	hits := make([]Hit, len(rows))
 	for i, r := range rows {
 		hits[i] = Hit{ChunkID: r.ChunkID, DocumentID: r.DocumentID, Title: r.Title, Knowledge: r.Knowledge, Heading: r.Heading, Text: r.Text, Cosine: r.Cosine, Score: r.Score}
+		if r.ThreadID != uuid.Nil {
+			t := r.ThreadID
+			hits[i].ThreadID = &t
+		}
 		if r.PageNo != nil {
 			p := int(*r.PageNo)
 			hits[i].PageNo = &p

@@ -147,3 +147,14 @@ test("375: menu và biểu mẫu báo cáo không tràn ngang", async ({ page, c
   await expect(page.getByLabel("Lý do báo cáo")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 });
+
+test("knowledge citation links the confirmed thread", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  const src = "00000000-0000-7000-8000-0000000000e1";
+  const cite = { n: 1, document_id: "00000000-0000-7000-8000-0000000000f2", title: "Hỏi đáp đã được giảng viên xác nhận", page_no: null, snippet: "Câu hỏi: … Trả lời: …", knowledge: true, thread_id: src };
+  await threadApi(page, { [`GET ${T}/${TID}`]: json(withThread({}, [aiPost({ citations: [cite] })])), [`GET ${T}/${TID}/similar`]: json({ items: [] }) });
+  await page.goto(`/threads/${TID}`);
+  await page.getByRole("button", { name: /Hỏi đáp đã được giảng viên xác nhận/ }).click();
+  await expect(page.getByRole("link", { name: "Xem hỏi đáp" })).toHaveAttribute("href", `/threads/${src}`);
+  await expect(page.getByRole("link", { name: "Xem tài liệu" })).toHaveCount(0);
+});

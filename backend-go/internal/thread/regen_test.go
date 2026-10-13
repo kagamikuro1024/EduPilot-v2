@@ -1,11 +1,13 @@
 package thread_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/thread"
 )
@@ -37,4 +39,40 @@ func TestEditRegeneratesAIAnswer(t *testing.T) {
 	_, err = r.svc.Decide(t.Context(), r.ta, r.course, fresh, thread.Verify, "", 0)
 	require.NoError(t, err)
 	require.Equal(t, 1, r.count(`select count(*) from knowledge_items where source_type='POST' and source_id=$1`, fresh))
+}
+
+// TestKnowledgeCitationLinksThread — US-P4-06 AC12 / QC TC-42: đoạn tri thức nguồn POST trả kèm `thread_id` để giao diện liên kết `/threads/{id}`; tài liệu thường thì không.
+func TestKnowledgeCitationLinksThread(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	id := r.answered()
+	_, err := r.svc.Decide(t.Context(), r.ta, r.course, r.aiPost(id), thread.Verify, "", 0)
+	require.NoError(t, err)
+	r.syncKnowledge()
+	vec := make([]float32, rag.Dims)
+	vec[0] = 1
+	_, err = r.pool.Exec(t.Context(), `update content_chunks set embedding = $1::vector where id in (select chunk_id from knowledge_items where source_type = 'POST')`, vecLit(vec))
+	require.NoError(t, err)
+	hits, err := (&rag.Service{DB: r.pool}).SearchStudent(t.Context(), rag.Query{CourseID: r.course, Vec: vec, Text: "Câu hỏi", K: 5})
+	require.NoError(t, err)
+	var seen int
+	for _, h := range hits {
+		if h.Knowledge {
+			seen++
+			require.NotNil(t, h.ThreadID)
+			require.Equal(t, id, *h.ThreadID)
+			c := agent.CitationOf(1, h)
+			raw, _ := json.Marshal(c)
+			require.Contains(t, string(raw), `"thread_id":"`+id.String()+`"`)
+		}
+	}
+	require.Equal(t, 1, seen, "đoạn tri thức có mặt trong kết quả tìm")
+	// bài bị ẩn: tri thức gỡ, không còn liên kết nào
+	_, err = r.svc.Hide(t.Context(), r.teacher, r.course, thread.KindThread, id, "Lạc đề", int32(r.count(`select version from forum_threads where id=$1`, id)))
+	require.NoError(t, err)
+	hits, err = (&rag.Service{DB: r.pool}).SearchStudent(t.Context(), rag.Query{CourseID: r.course, Vec: vec, Text: "Câu hỏi", K: 5})
+	require.NoError(t, err)
+	for _, h := range hits {
+		require.False(t, h.Knowledge)
+	}
 }
