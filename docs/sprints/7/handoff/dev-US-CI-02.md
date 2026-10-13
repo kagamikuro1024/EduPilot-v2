@@ -61,3 +61,8 @@ Lưu ý TC-07 ("ở CI không có `-v`"): bản này có `-v` ở bước `go te
 2. Shard Playwright lệch (1,3 → 6,5 phút). Đường găng hiện là `Playwright 1/3` và `lhci devtools A`; muốn cân thì thử `--shard=i/4`.
 3. Cache Go ghi 2 × 452 MiB mỗi lượt (≈ 0,9 GB); 10 GB repo giữ khoảng 8–9 lượt gần nhất.
 4. TL-CI #6 (kéo trước image testcontainers) chưa làm; ≤ 0,5 phút, không đo được.
+
+## Proposals #4 (race `judge.Queue.defaults`) — đã sửa
+- Gốc: `defaults()` ghi lười từ `Run` / `HandleEnqueue` / `Tick` / `ProbeNow`. Nay `judge.NewQueue(q)` gọi `defaults()` đúng một lần khi dựng (không `sync.Once`); bốn hàm trên chỉ đọc. Đã chuyển 3 nơi dựng qua `NewQueue`: `cmd/worker/judge.go`, `cmd/worker/worker_test.go`, rig `internal/judge/queue_integration_test.go`.
+- Test mới `TestQueueDefaultsNoRace` (`-race -tags integration`): `Run` + 8 `HandleEnqueue` song song trên Queue chỉ có trường bắt buộc. Trên mã cũ (worktree tạm) báo `WARNING: DATA RACE` tại `queue.go:81–125`; trên mã mới PASS.
+- Chạy: `go test -race -tags 'integration testroutes' ./internal/judge -run 'TestJudge|TestQueue'` (11 pass, gồm `TestJudgeRetryThenDead`), `go test -race -tags testroutes ./internal/judge ./cmd/worker` (35 pass). Commit `fix(judge): race defaults (#4)`.

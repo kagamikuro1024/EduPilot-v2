@@ -18,14 +18,14 @@ func newJudgeQueue(d Deps, s judge.Settings) (*judge.Queue, error) {
 	q := &judge.Queue{Pool: d.DB, Redis: d.Redis, Log: d.Log, Clock: clock.Real{}, P: s.Parallelism, Name: "judge-" + host,
 		Lease: s.Lease, Renew: s.LeaseRenew, Idle: s.ClaimIdle, TickEvery: 5 * time.Second, Probe: 10 * time.Second}
 	if !s.Consumer {
-		return q, nil
+		return judge.NewQueue(q), nil
 	}
 	c, err := judge.NewClient(judge.Config{URL: s.URL, Token: s.Token, Slack: s.HTTPSlack})
 	if err != nil {
 		return nil, fmt.Errorf("JUDGE_TOKEN / JUDGE_URL: %w", err)
 	}
 	q.Judge = c
-	return q, nil
+	return judge.NewQueue(q), nil
 }
 
 // attachExamDeps nối các phụ thuộc của việc nền thi hằng tuần. Thiếu một phần (không token judge, không khoá AI, không kho đối tượng) KHÔNG làm worker thoát:

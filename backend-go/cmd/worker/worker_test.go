@@ -247,7 +247,7 @@ func TestReadyzJudgeInfoOnly(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	d.Judge = &judge.Queue{Pool: d.DB, Redis: d.Redis, Judge: c, Log: d.Log}
+	d.Judge = judge.NewQueue(&judge.Queue{Pool: d.DB, Redis: d.Redis, Judge: c, Log: d.Log})
 	d.JudgeConsumer = true
 	h := healthHandler(d, newHeartbeat())
 	get := func() (int, string) {

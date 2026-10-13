@@ -105,11 +105,38 @@ func (r *qrig) queue(name string) (*judge.Queue, *syncBuf) {
 			r.t.Logf("log của consumer %s:\n%s", name, buf.String())
 		}
 	})
-	return &judge.Queue{
+	return judge.NewQueue(&judge.Queue{
 		Pool: r.pool, Redis: r.rdb, Judge: c, Log: slog.New(slog.NewJSONHandler(buf, nil)), P: 2, Prefix: r.prefix, Name: name,
 		Lease: 600 * time.Millisecond, Renew: 150 * time.Millisecond, Idle: time.Minute, TickEvery: 100 * time.Millisecond, Probe: 100 * time.Millisecond, Poll: 50 * time.Millisecond,
 		Backoff: []time.Duration{100 * time.Millisecond, 200 * time.Millisecond, 300 * time.Millisecond},
-	}, buf
+	}), buf
+}
+
+// TestQueueDefaultsNoRace — Run và HandleEnqueue chạy đồng thời trên Queue chỉ điền trường bắt buộc (mọi mặc định do NewQueue đặt): `-race` không được báo (proposals #4).
+func TestQueueDefaultsNoRace(t *testing.T) {
+	r := newQRig(t)
+	c, err := judge.NewClient(judge.Config{URL: r.fake.srv.URL, Token: testutil.JudgeToken, Slack: time.Second})
+	require.NoError(t, err)
+	q := judge.NewQueue(&judge.Queue{Pool: r.pool, Redis: r.rdb, Judge: c, Log: slog.New(slog.NewJSONHandler(&syncBuf{}, nil)), Prefix: r.prefix})
+	ids := make([]uuid.UUID, 8)
+	for i := range ids {
+		ids[i] = r.sub("SUBMIT", "x")
+	}
+	r.start(q)
+	errs := make(chan error, len(ids))
+	var wg sync.WaitGroup
+	for _, id := range ids {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			errs <- q.HandleEnqueue(t.Context(), outbox.Message{ID: uuid.New(), Topic: judge.TopicEnqueue, Payload: []byte(`{"submission_id":"` + id.String() + `","kind":"SUBMIT"}`)})
+		}()
+	}
+	wg.Wait()
+	close(errs)
+	for err := range errs {
+		require.NoError(t, err)
+	}
 }
 
 // start chạy queue ở nền; trả hàm dừng.
