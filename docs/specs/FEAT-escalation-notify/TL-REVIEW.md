@@ -64,3 +64,22 @@ Tech Lead, 2026-10-13, nhánh `sprint/7-p4-p5` @ `49ccddb`. Spec còn `DRAFT` n�
 - **Ticket và xoá cứng sau này (PR):** FK của `escalation_tickets` tới `chat_messages` / `chat_sessions` để mặc định `NO ACTION`, nên xoá cứng phiên sẽ bị chặn. Ở sprint 7 chỉ có xoá mềm nên không vướng. PR phải quyết `ON DELETE` cùng chính sách giữ dữ liệu.
 - **Không trạng thái / idempotent:** chuyển trạng thái bằng `UPDATE … WHERE status … RETURNING` + `version`. `answer` dùng `Idempotency-Key` qua middleware sẵn có (`httpapi/idempotency.go`). Job dùng khoá leader `redis.Leader` (`platform/redis/redis.go:72`) và cập nhật có điều kiện. Cả ba đúng luật 10, 14.
 - **D47:** không có lời gọi LLM sinh chữ. `Embed` của tri thức đi qua `agent.NewEmbedder(d.LLM, …)` sẵn có ở worker (`cmd/worker/tasks.go:50`), tức là qua Scheduler.
+
+## Quyết định PM (2026-10-13)
+
+**TLR-1 … TLR-22: ACCEPTED hết**, theo đúng cột "Đề xuất", với các chốt sau:
+- **TLR-1:** SMTP "ít nhất một lần" + khử trùng phía nhận theo `Message-ID` tất định; Mailpit bật `MP_IGNORE_DUPLICATE_IDS`. Ghi giới hạn với SMTP thật vào SRS. AC3 đổi thành "Mailpit có đúng 1 thư mang `Message-ID` của dòng".
+- **TLR-2:** hai tầng khớp (có dấu; không dấu chỉ khi có ngôi thứ nhất). Thêm cả 7 câu âm ở trên vào bộ test; 20 câu dương vẫn phải bắt được ≥ 19/20. Sửa luôn lỗi `tu tu` / `tu hai` đã có từ sprint 6.
+- **TLR-3:** cột `waiting_since` trong `CREATE`; SLA đếm từ `waiting_since`, đặt lại khi sinh viên `Hỏi tiếp`. Khung giờ theo chủ dự án chốt Q4 (cả ngày T2–T6; 24 h nhắc, 72 h lên đầu "Hôm nay"), nên lọc rẻ phải dùng hàm giờ làm việc, không ghi cứng giờ lịch.
+- **TLR-4:** làm cả (a) và (b). STUDENT gửi `notify_ticket_by_mail` vẫn `200`, giao diện ẩn công tắc. Các test đổi có chủ đích đi qua `proposals.md` **#8**.
+- **TLR-11:** xác nhận cùng Q7: phiên đã xoá thì câu trả lời vào phiên "Tin nhắn từ giảng viên".
+- **TLR-15:** `UPDATE courses … WHERE escalation_threshold = 0.60` và `UPDATE user_settings SET notify_ticket_by_mail = false` cho mọi dòng.
+- **TLR-22 (2):** sửa câu hỏi khi câu trả lời AI còn `PENDING` → bài AI cũ sang `REJECTED` (tự động, không báo ai), đặt lại `ai_state='PENDING'` để sinh lại. Câu đã `VERIFIED` thì khoá sửa như cũ.
+
+**proposals #1, #2, #3: ACCEPTED** (chủ dự án duyệt thay đổi schema #2 ngày 2026-10-13), kèm điều kiện của Tech Lead ở bảng trên.
+
+**Q12–Q23:** theo ý kiến Tech Lead. Riêng:
+- **Q20:** không dựng cache theo độ tương đồng. BA sửa chữ "semantic cache" ở `PRD.md` M3 thành "vô hiệu cache theo `ep:rag:ver`", commit ghi `#9`.
+- **Q21:** chặn cứng (`422 PII_IN_ANSWER`, không ghi đè), phát hiện theo TLR-10. Đây là phương án bảo vệ dữ liệu chặt hơn; báo chủ dự án ở report.
+- **Q22:** trần 5 ticket mở / sinh viên / lớp.
+- **Q23:** hiện tên người trả lời, theo tiền lệ `FEAT-private-chat-pii` Q8 chủ dự án đã chốt; báo chủ dự án ở report.
