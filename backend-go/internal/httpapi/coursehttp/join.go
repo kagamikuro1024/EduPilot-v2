@@ -337,3 +337,44 @@ func courseIDOf(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {
 	}
 	return id, true
 }
+
+type thresholdBody struct {
+	Version             *int    `json:"version"`
+	EscalationThreshold *string `json:"escalation_threshold"`
+}
+
+// putSettings là `PUT /courses/{id}/settings {escalation_threshold?, version}` (chỉ giảng viên của lớp; TA / sinh viên / Admin → 403 ở guard).
+func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
+	id, ok := courseIDOf(w, r)
+	if !ok {
+		return
+	}
+	var b thresholdBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	version, aerr := httpx.WantedVersion(r, b.Version)
+	if aerr != nil {
+		apierr.Write(w, r, aerr)
+		return
+	}
+	if b.EscalationThreshold == nil {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "escalation_threshold", Code: "required", Message: "Thiếu ngưỡng."}))
+		return
+	}
+	d, err := h.Courses.PutEscalationThreshold(r.Context(), actor, id, version, *b.EscalationThreshold)
+	var tc *course.ThresholdConflictError
+	if errors.As(err, &tc) {
+		httpx.WriteVersionConflict(w, r, int(tc.Current.Settings.Version), detailOf(tc.Current))
+		return
+	}
+	if h.fail(w, r, "settings", err) {
+		return
+	}
+	w.Header().Set("ETag", httpx.ETagVersion(int(d.Settings.Version)))
+	httpx.WriteJSON(w, http.StatusOK, detailOf(d))
+}

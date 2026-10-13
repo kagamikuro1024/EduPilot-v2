@@ -132,6 +132,14 @@ type Detail struct {
 	Teachers []string
 	MyRole   string
 	Counts   *Counts // chỉ TA / Giảng viên
+	// Settings: ngưỡng chuyển cho giảng viên + version (chỉ TA / Giảng viên; TA chỉ đọc).
+	Settings *Settings
+}
+
+// Settings là cài đặt lớp mà giảng viên chỉnh (US-P4-05).
+type Settings struct {
+	EscalationThreshold string
+	Version             int32
 }
 
 // Counts là số sinh viên của lớp.
@@ -161,6 +169,11 @@ func (s Service) Get(ctx context.Context, id uuid.UUID, myRole string, staff boo
 			return Detail{}, fmt.Errorf("course: đếm sinh viên: %w", err)
 		}
 		d.Counts = &Counts{Active: int(n.Active), Pending: int(n.Pending)}
+		full, err := q.GetCourse(ctx, id)
+		if err != nil {
+			return Detail{}, fmt.Errorf("course: đọc cài đặt lớp: %w", err)
+		}
+		d.Settings = &Settings{EscalationThreshold: full.EscalationThreshold.StringFixed(2), Version: full.Version}
 	}
 	return d, nil
 }

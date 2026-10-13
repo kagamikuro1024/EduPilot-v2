@@ -6248,6 +6248,34 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/settings:
+    put:
+      operationId: putCourseSettings
+      tags: [escalation]
+      summary: "Đặt ngưỡng chuyển cho giảng viên (0,50–0,95, bước 0,05); chỉ giảng viên của lớp (TA / sinh viên / Admin 403); sai version 409"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseSettingsInput"
+      responses:
+        "200":
+          description: Lớp sau khi đặt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -6580,6 +6608,17 @@ components:
         my_role:
           type: string
           enum: [ADMIN, TEACHER, TA, STUDENT]
+        settings:
+          type: object
+          description: Chỉ GV / TA của lớp (TA chỉ đọc)
+          required: [escalation_threshold, version]
+          additionalProperties: false
+          properties:
+            escalation_threshold:
+              type: string
+              description: "Số thập phân hai chữ số, ví dụ 0.80"
+            version:
+              type: integer
         counts:
           type: object
           description: Chỉ GV / TA của lớp
@@ -10605,6 +10644,14 @@ components:
             $ref: "#/components/schemas/FailedMail"
         next_cursor:
           type: [string, "null"]
+    CourseSettingsInput:
+      type: object
+      required: [escalation_threshold, version]
+      properties:
+        escalation_threshold:
+          type: string
+        version:
+          type: integer
     FollowupInput:
       type: object
       required: [content, client_msg_id]

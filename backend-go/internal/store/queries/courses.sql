@@ -292,3 +292,7 @@ join enrollments e on e.course_id = c.id and e.user_id = sqlc.arg(user_id) and e
 where c.subject_code = (select t.subject_code from courses t where t.id = sqlc.arg(target_id))
   and c.id <> sqlc.arg(target_id) and c.status = 'ACTIVE'
 order by c.class_code, c.id;
+
+-- name: UpdateCourseThreshold :one
+-- Ngưỡng chuyển cho giảng viên (US-P4-05 AC12); người gọi đã khoá dòng và kiểm version.
+update courses set escalation_threshold = sqlc.arg(threshold), version = version + 1 where id = sqlc.arg(id) returning *;

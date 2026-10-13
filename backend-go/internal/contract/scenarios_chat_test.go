@@ -3,6 +3,7 @@ package contract
 import (
 	"context"
 	"encoding/json"
+	"strconv"
 	"strings"
 
 	"github.com/google/uuid"
@@ -290,7 +291,9 @@ func (r *runner) chatScenarios(x examRig) {
 	}
 	CT := "/api/v1/chat/tickets/"
 	t4 := mkAnswered()
-	fu := func(tok, id, body string) call { return call{method: "POST", path: CT + id + "/followup", token: tok, body: body} }
+	fu := func(tok, id, body string) call {
+		return call{method: "POST", path: CT + id + "/followup", token: tok, body: body}
+	}
 	r.must(fu(sa, t4, `{"content":"Em vẫn chưa hiểu","client_msg_id":"`+uuid.NewString()+`"}`), 200)
 	r.must(fu("", t4, `{"content":"x","client_msg_id":"`+uuid.NewString()+`"}`), 401)
 	r.must(fu(x.gv, t4, `{"content":"x","client_msg_id":"`+uuid.NewString()+`"}`), 403)
@@ -309,4 +312,20 @@ func (r *runner) chatScenarios(x examRig) {
 	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: x.gv}, 403)
 	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: sb}, 404)
 	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: sa}, 409) // đã hoàn tác (ANSWERED)
+
+	// US-P4-05 — ngưỡng chuyển cho giảng viên.
+	CS := "/api/v1/courses/" + x.cid + "/settings"
+	var cur struct {
+		Settings struct{ Version int } `json:"settings"`
+	}
+	_, curBody := r.must(call{method: "GET", path: "/api/v1/courses/" + x.cid, token: x.gv}, 200)
+	_ = json.Unmarshal(curBody, &cur)
+	vs := strconv.Itoa(cur.Settings.Version)
+	r.must(call{method: "PUT", path: CS, token: x.gv, body: `{"escalation_threshold":"0.70","version":` + vs + `}`}, 200)
+	r.must(call{method: "PUT", path: CS, body: `{"escalation_threshold":"0.70","version":1}`}, 401)
+	for _, who := range []string{x.ta, sa, x.admin} {
+		r.must(call{method: "PUT", path: CS, token: who, body: `{"escalation_threshold":"0.70","version":1}`}, 403)
+	}
+	r.must(call{method: "PUT", path: CS, token: x.gv, body: `{"escalation_threshold":"0.70","version":` + vs + `}`}, 409) // version cũ
+	r.must(call{method: "PUT", path: CS, token: x.gv, body: `{"escalation_threshold":"0.97","version":` + strconv.Itoa(cur.Settings.Version+1) + `}`}, 422)
 }

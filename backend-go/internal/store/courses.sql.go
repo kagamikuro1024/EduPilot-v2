@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 const activateStaffEnrollment = `-- name: ActivateStaffEnrollment :one
@@ -1323,6 +1324,43 @@ func (q *Queries) UpdateCourse(ctx context.Context, arg UpdateCourseParams) (Cou
 		arg.ID,
 		arg.Version,
 	)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const updateCourseThreshold = `-- name: UpdateCourseThreshold :one
+update courses set escalation_threshold = $1, version = version + 1 where id = $2 returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+`
+
+type UpdateCourseThresholdParams struct {
+	Threshold decimal.Decimal
+	ID        uuid.UUID
+}
+
+// Ngưỡng chuyển cho giảng viên (US-P4-05 AC12); người gọi đã khoá dòng và kiểm version.
+func (q *Queries) UpdateCourseThreshold(ctx context.Context, arg UpdateCourseThresholdParams) (Course, error) {
+	row := q.db.QueryRow(ctx, updateCourseThreshold, arg.Threshold, arg.ID)
 	var i Course
 	err := row.Scan(
 		&i.ID,

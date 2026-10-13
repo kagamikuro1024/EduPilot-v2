@@ -15,6 +15,7 @@ import (
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/rag"
 )
 
 // withTickets nối escalation.Service vào chat (như chatService ở gateway).
@@ -166,4 +167,27 @@ func TestRegenerateStaffAnswerRejected(t *testing.T) {
 	_, err := r.svc.Retry(t.Context(), r.student, mid)
 	require.Equal(t, 422, httpStatus(err))
 	require.Equal(t, 1, r.count(`select count(*) from chat_messages where session_id = $1 and role = 'ASSISTANT'`, r.sess), "không sinh thêm tin nào")
+}
+
+// TestThresholdTakesEffectNextMessage — US-P4-05 AC12: ngưỡng đọc MỖI LẦN khi trả lời; đổi ngưỡng có hiệu lực ở tin kế tiếp của sinh viên.
+// Cùng một câu trả lời (cosine cao, không nhận định nào đủ căn cứ ⇒ độ tin cậy 0,600): ngưỡng 0,55 → không chuyển; nâng lên 0,65 → tin kế tiếp tự chuyển.
+func TestThresholdTakesEffectNextMessage(t *testing.T) {
+	r := newRig(t)
+	r.withTickets()
+	r.ag.fn = func(ctx context.Context, _ agent.TrustedContext, _ agent.Input) (agent.Outcome, error) {
+		return agent.Outcome{Plan: agent.IntentCourseQA, Hits: []rag.Hit{{Cosine: 0.75, Text: "Quy chế thi cuối kỳ"}}, Stream: r.ag.stream(ctx, nil, time.Millisecond, llm.Response{}, "Có.")}, nil
+	}
+	set := func(v string) {
+		_, err := r.pool.Exec(t.Context(), `update courses set escalation_threshold = $1 where id = $2`, v, r.course)
+		require.NoError(t, err)
+	}
+	set("0.55")
+	_, m1, err := r.send(r.student, r.sess, "Câu một")
+	require.NoError(t, err)
+	require.Equal(t, 1, r.count(`select count(*) from chat_messages where id = $1 and confidence = 0.600 and not low_confidence`, m1))
+	require.Zero(t, r.count(`select count(*) from escalation_tickets where message_id = $1`, m1), "ngưỡng 0,55 ≤ độ tin cậy 0,60: không chuyển")
+	set("0.65")
+	_, m2, err := r.send(r.student, r.sess, "Câu hai")
+	require.NoError(t, err)
+	require.Equal(t, 1, r.count(`select count(*) from escalation_tickets where message_id = $1 and origin = 'AUTO_LOW_CONFIDENCE'`, m2), "ngưỡng mới 0,65 > 0,60: chuyển ngay ở tin kế tiếp")
 }

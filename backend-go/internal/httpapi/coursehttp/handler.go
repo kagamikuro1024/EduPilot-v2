@@ -49,6 +49,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(h.Guard(auth.StaffOrAdmin)).Get("/courses/{id}/join-code", h.joinCode)
 	r.With(h.Guard(auth.Manage)).Post("/courses/{id}/join-code/regenerate", h.regenerate)
 	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/join-settings", h.putJoinSettings)
+	r.With(h.Guard(auth.Teacher)).Put("/courses/{id}/settings", h.putSettings) // US-P4-05: ngưỡng chuyển cho giảng viên
 	r.With(h.Guard(auth.StaffOrAdmin)).Get("/courses/{id}/members", h.members)
 	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/approve", h.approve())
 	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/reject", h.reject())
@@ -124,6 +125,12 @@ type detail struct {
 	Teachers []teacher `json:"teachers"`
 	MyRole   string    `json:"my_role"`
 	Counts   *counts   `json:"counts,omitempty"`
+	Settings *settings `json:"settings,omitempty"`
+}
+
+type settings struct {
+	EscalationThreshold string `json:"escalation_threshold"`
+	Version             int32  `json:"version"`
 }
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
@@ -145,6 +152,12 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, apierr.New(http.StatusInternalServerError, apierr.Internal))
 		return
 	}
+	out := detailOf(d)
+	httpx.WriteJSONETag(w, r, out, "")
+}
+
+// detailOf dựng JSON chi tiết lớp (dùng chung `GET /courses/{id}` và `PUT /courses/{id}/settings`).
+func detailOf(d course.Detail) detail {
 	out := detail{brief: brief{ID: d.ID, ClassCode: d.ClassCode, SubjectCode: d.SubjectCode, Name: d.Name, Semester: d.Semester, Status: d.Status}, MyRole: d.MyRole, Teachers: make([]teacher, len(d.Teachers))}
 	for i, n := range d.Teachers {
 		out.Teachers[i] = teacher{FullName: n}
@@ -152,5 +165,8 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 	if d.Counts != nil {
 		out.Counts = &counts{StudentsActive: d.Counts.Active, StudentsPending: d.Counts.Pending}
 	}
-	httpx.WriteJSONETag(w, r, out, "")
+	if d.Settings != nil {
+		out.Settings = &settings{EscalationThreshold: d.Settings.EscalationThreshold, Version: d.Settings.Version}
+	}
+	return out
 }
