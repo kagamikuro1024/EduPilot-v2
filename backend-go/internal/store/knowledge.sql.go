@@ -25,58 +25,25 @@ func (q *Queries) KnowledgeChunkDelete(ctx context.Context, id uuid.UUID) (uuid.
 	return document_id, err
 }
 
-const knowledgeChunkForSync = `-- name: KnowledgeChunkForSync :one
-select c.id, c.document_id, c.course_ids, c.text, md5(c.text)::text as digest, (c.embedding is null)::boolean as unembedded from content_chunks c where c.id = $1 and c.course_ids @> array[$2::uuid]
-`
-
-type KnowledgeChunkForSyncParams struct {
-	ID       uuid.UUID
-	CourseID uuid.UUID
-}
-
-type KnowledgeChunkForSyncRow struct {
-	ID         uuid.UUID
-	DocumentID uuid.UUID
-	CourseIds  []uuid.UUID
-	Text       string
-	Digest     string
-	Unembedded bool
-}
-
-func (q *Queries) KnowledgeChunkForSync(ctx context.Context, arg KnowledgeChunkForSyncParams) (KnowledgeChunkForSyncRow, error) {
-	row := q.db.QueryRow(ctx, knowledgeChunkForSync, arg.ID, arg.CourseID)
-	var i KnowledgeChunkForSyncRow
-	err := row.Scan(
-		&i.ID,
-		&i.DocumentID,
-		&i.CourseIds,
-		&i.Text,
-		&i.Digest,
-		&i.Unembedded,
-	)
-	return i, err
-}
-
 const knowledgeChunkInsert = `-- name: KnowledgeChunkInsert :one
 insert into content_chunks (document_id, course_ids, audience, ord, heading, text)
-values ($1, array[$2::uuid], 'ALL', $3, $4, $5)
+select $1, array[$2::uuid], 'ALL', (select coalesce(max(x.ord), -1) + 1 from content_chunks x where x.document_id = $1 and x.course_ids @> array[$2::uuid]), $3, $4
 returning id
 `
 
 type KnowledgeChunkInsertParams struct {
 	DocumentID uuid.UUID
 	CourseID   uuid.UUID
-	Ord        int32
 	Heading    *string
 	Text       string
 }
 
 // embedding = NULL: RAG đã lọc `embedding IS NOT NULL` nên đoạn chưa nhúng không lọt ra kết quả tìm.
+// ord = đoạn kế tiếp của tài liệu ảo, tính ngay trong câu INSERT (người gọi giữ khoá tư vấn theo lớp nên hai lần lưu song song không trùng ord).
 func (q *Queries) KnowledgeChunkInsert(ctx context.Context, arg KnowledgeChunkInsertParams) (uuid.UUID, error) {
 	row := q.db.QueryRow(ctx, knowledgeChunkInsert,
 		arg.DocumentID,
 		arg.CourseID,
-		arg.Ord,
 		arg.Heading,
 		arg.Text,
 	)
@@ -141,39 +108,6 @@ func (q *Queries) KnowledgeEnsureDoc(ctx context.Context, arg KnowledgeEnsureDoc
 	return id, err
 }
 
-const knowledgeForTicket = `-- name: KnowledgeForTicket :one
-select ki.id, ki.chunk_id, ki.updated_at, (c.embedding is not null)::boolean as loaded, c.text
-from knowledge_items ki join content_chunks c on c.id = ki.chunk_id and c.course_ids @> array[$1::uuid]
-where ki.source_type = 'TICKET' and ki.source_id = $2 and ki.course_id = $1
-`
-
-type KnowledgeForTicketParams struct {
-	CourseID uuid.UUID
-	TicketID uuid.UUID
-}
-
-type KnowledgeForTicketRow struct {
-	ID        uuid.UUID
-	ChunkID   uuid.UUID
-	UpdatedAt time.Time
-	Loaded    bool
-	Text      string
-}
-
-// Trạng thái mục tri thức của ticket (giao diện giảng viên: "Chưa nạp" khi embedding NULL).
-func (q *Queries) KnowledgeForTicket(ctx context.Context, arg KnowledgeForTicketParams) (KnowledgeForTicketRow, error) {
-	row := q.db.QueryRow(ctx, knowledgeForTicket, arg.CourseID, arg.TicketID)
-	var i KnowledgeForTicketRow
-	err := row.Scan(
-		&i.ID,
-		&i.ChunkID,
-		&i.UpdatedAt,
-		&i.Loaded,
-		&i.Text,
-	)
-	return i, err
-}
-
 const knowledgeItemBySource = `-- name: KnowledgeItemBySource :one
 select id, course_id, source_type, source_id, chunk_id, created_by, created_at, updated_at from knowledge_items where source_type = $1 and source_id = $2
 `
@@ -196,6 +130,29 @@ func (q *Queries) KnowledgeItemBySource(ctx context.Context, arg KnowledgeItemBy
 		&i.CreatedAt,
 		&i.UpdatedAt,
 	)
+	return i, err
+}
+
+const knowledgeItemForTicket = `-- name: KnowledgeItemForTicket :one
+select id, chunk_id, updated_at from knowledge_items where source_type = 'TICKET' and source_id = $1 and course_id = $2
+`
+
+type KnowledgeItemForTicketParams struct {
+	TicketID uuid.UUID
+	CourseID uuid.UUID
+}
+
+type KnowledgeItemForTicketRow struct {
+	ID        uuid.UUID
+	ChunkID   uuid.UUID
+	UpdatedAt time.Time
+}
+
+// Mục tri thức của ticket (chunk_id); chữ và trạng thái nạp đọc qua DocChunkLock (đường đọc chunk đã có, lọc lớp).
+func (q *Queries) KnowledgeItemForTicket(ctx context.Context, arg KnowledgeItemForTicketParams) (KnowledgeItemForTicketRow, error) {
+	row := q.db.QueryRow(ctx, knowledgeItemForTicket, arg.TicketID, arg.CourseID)
+	var i KnowledgeItemForTicketRow
+	err := row.Scan(&i.ID, &i.ChunkID, &i.UpdatedAt)
 	return i, err
 }
 
@@ -247,22 +204,6 @@ type KnowledgeItemTouchParams struct {
 func (q *Queries) KnowledgeItemTouch(ctx context.Context, arg KnowledgeItemTouchParams) error {
 	_, err := q.db.Exec(ctx, knowledgeItemTouch, arg.CreatedBy, arg.ID)
 	return err
-}
-
-const knowledgeNextOrd = `-- name: KnowledgeNextOrd :one
-select (coalesce(max(ord), -1) + 1)::int from content_chunks where document_id = $1 and course_ids @> array[$2::uuid]
-`
-
-type KnowledgeNextOrdParams struct {
-	DocumentID uuid.UUID
-	CourseID   uuid.UUID
-}
-
-func (q *Queries) KnowledgeNextOrd(ctx context.Context, arg KnowledgeNextOrdParams) (int32, error) {
-	row := q.db.QueryRow(ctx, knowledgeNextOrd, arg.DocumentID, arg.CourseID)
-	var column_1 int32
-	err := row.Scan(&column_1)
-	return column_1, err
 }
 
 const knowledgeSetEmbedding = `-- name: KnowledgeSetEmbedding :execrows

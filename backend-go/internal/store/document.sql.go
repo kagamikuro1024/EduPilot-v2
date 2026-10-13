@@ -14,7 +14,7 @@ import (
 )
 
 const docChunkLock = `-- name: DocChunkLock :one
-select c.id, c.document_id, c.text, c.audience from content_chunks c where c.id = $1 and c.document_id = $2 and c.course_ids @> array[$3::uuid] for update
+select c.id, c.document_id, c.text, c.audience, (c.embedding is not null)::bool as embedded from content_chunks c where c.id = $1 and c.document_id = $2 and c.course_ids @> array[$3::uuid] for update
 `
 
 type DocChunkLockParams struct {
@@ -28,6 +28,7 @@ type DocChunkLockRow struct {
 	DocumentID uuid.UUID
 	Text       string
 	Audience   ChunkAudience
+	Embedded   bool
 }
 
 func (q *Queries) DocChunkLock(ctx context.Context, arg DocChunkLockParams) (DocChunkLockRow, error) {
@@ -38,6 +39,7 @@ func (q *Queries) DocChunkLock(ctx context.Context, arg DocChunkLockParams) (Doc
 		&i.DocumentID,
 		&i.Text,
 		&i.Audience,
+		&i.Embedded,
 	)
 	return i, err
 }

@@ -84,7 +84,7 @@ where c.document_id = sqlc.arg(doc_id) and c.course_ids @> array[sqlc.arg(course
 order by c.ord limit sqlc.arg(page_limit);
 
 -- name: DocChunkLock :one
-select c.id, c.document_id, c.text, c.audience from content_chunks c where c.id = sqlc.arg(id) and c.document_id = sqlc.arg(doc_id) and c.course_ids @> array[sqlc.arg(course_id)::uuid] for update;
+select c.id, c.document_id, c.text, c.audience, (c.embedding is not null)::bool as embedded from content_chunks c where c.id = sqlc.arg(id) and c.document_id = sqlc.arg(doc_id) and c.course_ids @> array[sqlc.arg(course_id)::uuid] for update;
 
 -- name: DocChunkSetText :one
 update content_chunks c set text = sqlc.arg(new_text), embedding = sqlc.narg(new_embedding), token_count = null

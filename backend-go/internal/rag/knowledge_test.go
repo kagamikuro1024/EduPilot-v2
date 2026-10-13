@@ -40,7 +40,11 @@ func (f *fx) sync(t *testing.T, course, chunk uuid.UUID, vec []float32, embedded
 		}
 		return vec, nil
 	}}
-	p, _ := json.Marshal(map[string]any{"chunk_id": chunk, "course_id": course})
+	var doc uuid.UUID
+	if err := f.pool.QueryRow(t.Context(), `select document_id from content_chunks where id = $1`, chunk).Scan(&doc); err != nil {
+		doc = uuid.New() // đoạn đã gỡ: handler phải bỏ qua, không lỗi
+	}
+	p, _ := json.Marshal(map[string]any{"chunk_id": chunk, "course_id": course, "document_id": doc})
 	return s.Handle(t.Context(), outbox.Message{Topic: knowledge.TopicSync, Payload: p})
 }
 

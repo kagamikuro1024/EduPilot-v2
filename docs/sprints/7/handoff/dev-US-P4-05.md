@@ -31,7 +31,7 @@ Xem tri thức đã lưu: `select ki.source_id, c.text, c.embedding is not null 
 AC1 ✓ · AC2 ✓ · AC3 ✓ · AC4 ✓ (hàm thuần, bảng + thuộc tính) · AC5 ✓ · AC6 ✓ (báo Admin không kèm nội dung ticket) · AC7 ✓ (`student sees ticket status`: 4 trạng thái; không có chữ "ticket" / "SLA" / số tin cậy; `TestStudentStatusLabels`: sinh viên chỉ thấy 4 trường) · AC8 ✓ · AC9 ✓ (đã làm ở US-P4-03) · AC10 ✓ · AC11 ✓ (đo "≤ 10 s" bằng một lần chạy handler trong test, không bằng đồng hồ tường thật; `≤ 5 s` sau khi gỡ đo bằng truy vấn ngay sau commit) · AC12 ✓ · AC13 ✓.
 
 ## Nợ / cần PM
-1. **Đề xuất #20 chờ ACCEPTED**: `TestNoUnscopedChunkQuery` ghim danh sách đường đọc `content_chunks`; kho tri thức thêm đúng ba tên (`KnowledgeNextOrd`, `KnowledgeChunkForSync`, `KnowledgeForTicket`, đều lọc `course_ids`). Test đang đỏ **đúng ba tên đó**; dev chưa sửa test.
+1. `TestNoUnscopedChunkQuery` (ghim danh sách đường đọc `content_chunks`, sprint 2): kho tri thức **không thêm đường đọc nào** — đọc chữ / trạng thái nạp qua `DocChunkLock` (đã có, thêm cột `embedded`), thứ tự đoạn tính trong chính câu `INSERT` (khoá tư vấn theo lớp chống trùng `ord`); test giữ nguyên, không cần đề xuất.
 2. Nguồn POST của tri thức (nhãn có liên kết `/threads/{id}`): thuộc US-P4-06 (AC12); `knowledge.Upsert` đã nhận `source_type='POST'`, UI hiện chỉ xử lý `knowledge:true` (không liên kết).
 3. `Hỏi tiếp` ở ticket `CLOSED` quá 30 ngày: nút vẫn hiện, bấm nhận `409 TICKET_REOPEN_EXPIRED` và nút biến mất (StudentView giữ bốn trường theo SRS nên giao diện không biết `closed_at`).
 4. Ba lệnh seed (`seed-age`, `seed-study-time`, `crm-risk-run`) thuộc US-S7-SEED, chưa làm; ca "quá hạn" thử bằng `run-job ticket.sla --now` (đồng hồ giả) thay vì lùi dữ liệu.

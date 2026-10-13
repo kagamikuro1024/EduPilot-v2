@@ -2,7 +2,6 @@ package escalation_test
 
 import (
 	"context"
-	"encoding/json"
 	"strings"
 	"testing"
 
@@ -144,7 +143,9 @@ func TestKnowledgeEditedTextIsWhatIsEmbedded(t *testing.T) {
 		embedded = append(embedded, text)
 		return make([]float32, 1536), nil
 	}}
-	p, _ := json.Marshal(map[string]any{"chunk_id": chunk, "course_id": r.course})
+	var payload []byte
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select payload from outbox where topic = 'knowledge.sync' and payload->>'chunk_id' = $1 order by created_at desc limit 1`, chunk.String()).Scan(&payload))
+	p := payload
 	require.NoError(t, s.Handle(t.Context(), outbox.Message{Topic: knowledge.TopicSync, Payload: p}))
 	require.Len(t, embedded, 1)
 	require.Contains(t, embedded[0], "Hạn nộp bài 3 là khi nào?")

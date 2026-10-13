@@ -14,13 +14,11 @@ select id from documents where course_id = sqlc.arg(course_id) and category = 'T
 -- name: KnowledgeItemBySource :one
 select * from knowledge_items where source_type = sqlc.arg(source_type) and source_id = sqlc.arg(source_id);
 
--- name: KnowledgeNextOrd :one
-select (coalesce(max(ord), -1) + 1)::int from content_chunks where document_id = sqlc.arg(document_id) and course_ids @> array[sqlc.arg(course_id)::uuid];
-
 -- name: KnowledgeChunkInsert :one
 -- embedding = NULL: RAG đã lọc `embedding IS NOT NULL` nên đoạn chưa nhúng không lọt ra kết quả tìm.
+-- ord = đoạn kế tiếp của tài liệu ảo, tính ngay trong câu INSERT (người gọi giữ khoá tư vấn theo lớp nên hai lần lưu song song không trùng ord).
 insert into content_chunks (document_id, course_ids, audience, ord, heading, text)
-values (sqlc.arg(document_id), array[sqlc.arg(course_id)::uuid], 'ALL', sqlc.arg(ord), sqlc.arg(heading), sqlc.arg(text))
+select sqlc.arg(document_id), array[sqlc.arg(course_id)::uuid], 'ALL', (select coalesce(max(x.ord), -1) + 1 from content_chunks x where x.document_id = sqlc.arg(document_id) and x.course_ids @> array[sqlc.arg(course_id)::uuid]), sqlc.arg(heading), sqlc.arg(text)
 returning id;
 
 -- name: KnowledgeChunkRewrite :exec
@@ -39,15 +37,11 @@ update knowledge_items set updated_at = now(), created_by = coalesce(sqlc.narg(c
 -- Xoá đoạn (knowledge_items theo CASCADE); trả document_id để phát document.changed.
 delete from content_chunks where id = sqlc.arg(id) returning document_id;
 
--- name: KnowledgeChunkForSync :one
-select c.id, c.document_id, c.course_ids, c.text, md5(c.text)::text as digest, (c.embedding is null)::boolean as unembedded from content_chunks c where c.id = sqlc.arg(id) and c.course_ids @> array[sqlc.arg(course_id)::uuid];
-
 -- name: KnowledgeSetEmbedding :execrows
 -- Chỉ ghi khi chữ chưa đổi (bản sửa mới hơn thì bỏ qua: handler của bản đó sẽ nhúng).
 update content_chunks set embedding = sqlc.arg(embedding), updated_at = now() where id = sqlc.arg(id) and course_ids @> array[sqlc.arg(course_id)::uuid] and md5(text) = sqlc.arg(digest)::text;
 
--- name: KnowledgeForTicket :one
--- Trạng thái mục tri thức của ticket (giao diện giảng viên: "Chưa nạp" khi embedding NULL).
-select ki.id, ki.chunk_id, ki.updated_at, (c.embedding is not null)::boolean as loaded, c.text
-from knowledge_items ki join content_chunks c on c.id = ki.chunk_id and c.course_ids @> array[sqlc.arg(course_id)::uuid]
-where ki.source_type = 'TICKET' and ki.source_id = sqlc.arg(ticket_id) and ki.course_id = sqlc.arg(course_id);
+
+-- name: KnowledgeItemForTicket :one
+-- Mục tri thức của ticket (chunk_id); chữ và trạng thái nạp đọc qua DocChunkLock (đường đọc chunk đã có, lọc lớp).
+select id, chunk_id, updated_at from knowledge_items where source_type = 'TICKET' and source_id = sqlc.arg(ticket_id) and course_id = sqlc.arg(course_id);

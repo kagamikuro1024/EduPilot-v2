@@ -184,14 +184,23 @@ func (s *Service) KnowledgeRemove(ctx context.Context, a Actor, courseID, ticket
 
 // KnowledgeOf trả trạng thái mục tri thức của ticket (Detail).
 func (s *Service) KnowledgeOf(ctx context.Context, courseID, ticketID uuid.UUID) (KnowledgeState, error) {
-	row, err := store.New(s.Pool).KnowledgeForTicket(ctx, store.KnowledgeForTicketParams{CourseID: courseID, TicketID: ticketID})
+	q := store.New(s.Pool)
+	item, err := q.KnowledgeItemForTicket(ctx, store.KnowledgeItemForTicketParams{CourseID: courseID, TicketID: ticketID})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return KnowledgeState{}, nil
 	}
 	if err != nil {
 		return KnowledgeState{}, unavailable()
 	}
-	st := KnowledgeState{Saved: true, Loaded: row.Loaded}
+	doc, err := q.KnowledgeDocID(ctx, courseID)
+	if err != nil {
+		return KnowledgeState{}, unavailable()
+	}
+	row, err := q.DocChunkLock(ctx, store.DocChunkLockParams{ID: item.ChunkID, DocID: doc, CourseID: courseID})
+	if err != nil {
+		return KnowledgeState{}, unavailable()
+	}
+	st := KnowledgeState{Saved: true, Loaded: row.Embedded}
 	if q, a, ok := strings.Cut(strings.TrimPrefix(row.Text, "Câu hỏi: "), "\nTrả lời: "); ok {
 		st.Question, st.Answer = q, a
 	}

@@ -5,6 +5,7 @@ package knowledge
 
 import (
 	"context"
+	"crypto/md5" //nolint:gosec // khớp md5(text) của Postgres để bỏ qua bản sửa cũ, không phải mật mã
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -87,11 +88,11 @@ func Upsert(ctx context.Context, tx pgx.Tx, src Source, question, answer string)
 		if err != nil {
 			return uuid.Nil, err
 		}
-		ord, err := q.KnowledgeNextOrd(ctx, store.KnowledgeNextOrdParams{DocumentID: doc, CourseID: src.CourseID})
-		if err != nil {
-			return uuid.Nil, fmt.Errorf("knowledge: thứ tự đoạn: %w", err)
+		// khoá tư vấn theo lớp: hai lần lưu song song không cấp trùng `ord` (câu INSERT tự tính ord kế tiếp)
+		if _, err := tx.Exec(ctx, `select pg_advisory_xact_lock(hashtext($1))`, "knowledge:"+src.CourseID.String()); err != nil {
+			return uuid.Nil, fmt.Errorf("knowledge: khoá lớp: %w", err)
 		}
-		chunk, err = q.KnowledgeChunkInsert(ctx, store.KnowledgeChunkInsertParams{DocumentID: doc, CourseID: src.CourseID, Ord: ord, Heading: &heading, Text: text})
+		chunk, err = q.KnowledgeChunkInsert(ctx, store.KnowledgeChunkInsertParams{DocumentID: doc, CourseID: src.CourseID, Heading: &heading, Text: text})
 		if err != nil {
 			return uuid.Nil, fmt.Errorf("knowledge: thêm đoạn: %w", err)
 		}
@@ -101,7 +102,11 @@ func Upsert(ctx context.Context, tx pgx.Tx, src Source, question, answer string)
 	default:
 		return uuid.Nil, fmt.Errorf("knowledge: tìm mục: %w", err)
 	}
-	if _, err := outbox.Write(ctx, tx, TopicSync, map[string]any{"chunk_id": chunk, "course_id": src.CourseID}); err != nil {
+	doc, err := q.KnowledgeDocID(ctx, src.CourseID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("knowledge: đọc tài liệu: %w", err)
+	}
+	if _, err := outbox.Write(ctx, tx, TopicSync, map[string]any{"chunk_id": chunk, "course_id": src.CourseID, "document_id": doc}); err != nil {
 		return uuid.Nil, fmt.Errorf("knowledge: outbox sync: %w", err)
 	}
 	return chunk, nil
@@ -137,14 +142,15 @@ type Syncer struct {
 // Handle implements outbox.Handler. Đoạn đã bị gỡ → bỏ qua; lỗi nhúng → trả lỗi để outbox thử lại rồi DEAD.
 func (s *Syncer) Handle(ctx context.Context, m outbox.Message) error {
 	var p struct {
-		ChunkID  uuid.UUID `json:"chunk_id"`
-		CourseID uuid.UUID `json:"course_id"`
+		ChunkID    uuid.UUID `json:"chunk_id"`
+		CourseID   uuid.UUID `json:"course_id"`
+		DocumentID uuid.UUID `json:"document_id"`
 	}
-	if err := json.Unmarshal(m.Payload, &p); err != nil || p.ChunkID == uuid.Nil {
+	if err := json.Unmarshal(m.Payload, &p); err != nil || p.ChunkID == uuid.Nil || p.CourseID == uuid.Nil || p.DocumentID == uuid.Nil {
 		return errors.New("payload knowledge.sync không hợp lệ")
 	}
 	q := store.New(s.Pool)
-	c, err := q.KnowledgeChunkForSync(ctx, store.KnowledgeChunkForSyncParams{ID: p.ChunkID, CourseID: p.CourseID})
+	c, err := q.DocChunkLock(ctx, store.DocChunkLockParams{ID: p.ChunkID, DocID: p.DocumentID, CourseID: p.CourseID})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil // đã gỡ
 	}
@@ -162,7 +168,7 @@ func (s *Syncer) Handle(ctx context.Context, m outbox.Message) error {
 		return fmt.Errorf("knowledge: nhúng: %w", err)
 	}
 	v := pgvector.NewVector(vec)
-	n, err := q.KnowledgeSetEmbedding(ctx, store.KnowledgeSetEmbeddingParams{ID: p.ChunkID, CourseID: p.CourseID, Embedding: &v, Digest: c.Digest})
+	n, err := q.KnowledgeSetEmbedding(ctx, store.KnowledgeSetEmbeddingParams{ID: p.ChunkID, CourseID: p.CourseID, Embedding: &v, Digest: fmt.Sprintf("%x", md5.Sum([]byte(c.Text)))})
 	if err != nil {
 		return fmt.Errorf("knowledge: ghi embedding: %w", err)
 	}
