@@ -23,7 +23,7 @@ const TopicAttendanceSaved = "crm.attendance_saved"
 const maxNote = 200
 
 // Trạng thái điểm danh (khớp enum `attendance_status`).
-var statuses = []string{"PRESENT", "LATE", "EXCUSED", "ABSENT"}
+var statuses = []string{"PRESENT", "LATE", "EXCUSED", "ABSENT"} //nolint:gochecknoglobals // bảng tra cứu bất biến
 
 // GridSession là buổi của lưới.
 type GridSession struct {

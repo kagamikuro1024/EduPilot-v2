@@ -8,7 +8,7 @@ import (
 	"github.com/edupilot/backend-go/internal/store"
 )
 
-var ict = time.FixedZone("Asia/Ho_Chi_Minh", 7*3600)
+var ict = time.FixedZone("Asia/Ho_Chi_Minh", 7*3600) //nolint:gochecknoglobals // múi giờ cố định, bất biến
 
 // Attendance cài agent.AttendanceSource (SRS 4.5): đọc CHỈ theo (tc.CourseID, tc.UserID); không `note`, không `marked_by`, không tên ai.
 // Không có dòng điểm danh nào ⇒ (nil, false) để tool trả "chưa có dữ liệu" mà không gọi LLM.

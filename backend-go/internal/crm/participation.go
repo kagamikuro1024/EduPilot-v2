@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	minPoints = decimal.NewFromInt(-5)
-	maxPoints = decimal.NewFromInt(5)
+	minPoints = decimal.NewFromInt(-5) //nolint:gochecknoglobals // hằng số tra cứu bất biến
+	maxPoints = decimal.NewFromInt(5)  //nolint:gochecknoglobals
 )
 
 // ParticipationIn là thân `POST …/participation`. Points nil ⇒ SPEAK dùng điểm mặc định. ClientEventID bắt buộc (khử trùng khi thử lại).
