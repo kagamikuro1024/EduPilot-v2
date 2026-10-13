@@ -612,7 +612,7 @@ Nhận khung SSE `notification` qua `useSSE` (một kết nối dùng chung cả
 | `EscalateAt` | T2 08:00 | T4 (tuần sau) 17:00 (72 giờ = 8 ngày làm việc: T2→T6 = 45 giờ, T2 + T3 + T4 tuần sau = 27 giờ) |
 | `from > to` | – | `0` |
 
-**9.4 Dữ liệu seed cần** (do `FEAT-crm-360` US-S7-SEED dựng bằng API thật): lớp 1 có (a) 1 ticket `OPEN` mới (sinh viên B, câu "D3" của kịch bản demo), 1 `OPEN` quá `ReminderAt` (đồng hồ `SEED_BASE_DATE` lùi), 1 `CLAIMED` (teacher), 1 `ANSWERED` (thư trong Mailpit), 1 `CLOSED`; (b) 1 thread bị 2 báo cáo `OPEN` (một báo cáo nữa = tự ẩn), 1 thread tự ẩn chờ duyệt, 1 bài Staff đã `Ẩn bài` có lý do, 1 thread ghim; (c) 1 mục tri thức từ ticket; (d) `SUPPORT_RESOURCES_VI` mô phỏng ở compose; lớp 2 rỗng ticket. Dữ liệu mô phỏng hoàn toàn (D44).
+**9.4 Dữ liệu seed cần** (do `FEAT-crm-360` US-S7-SEED dựng — luồng thật qua API, riêng ca "quá hạn" dùng lệnh `gateway admin seed-age` ngoài production, `proposals.md` #7): lớp 1 có (a) ticket của các sinh viên **khác Sinh viên B** (để câu "D3" của kịch bản demo tự tạo ticket mới): 1 `OPEN` mới, 1 `OPEN` quá `EscalateAt`, 1 `CLAIMED` (teacher), 1 `ANSWERED` (thư trong Mailpit), 1 `CLOSED`; (b) 1 thread bị 2 báo cáo `OPEN` (một báo cáo nữa = tự ẩn), 1 thread tự ẩn chờ duyệt, 1 bình luận đã `Ẩn bài` có lý do, 1 thread ghim; (c) 1 mục tri thức từ ticket; (d) `SUPPORT_RESOURCES_VI` mô phỏng ở compose; lớp 2 rỗng ticket. Dữ liệu mô phỏng hoàn toàn (D44).
 
 **9.5 Bộ mẫu khủng hoảng** (`internal/agent/testdata/crisis_20.json`, `crisis_neg_10.json`; toàn bộ **bịa**, D44; test khẳng định kết quả của `DetectIntent`, không gọi LLM).
 
