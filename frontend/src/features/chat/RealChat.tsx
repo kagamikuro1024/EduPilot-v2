@@ -77,7 +77,7 @@ export function RealChat({ courseId }: { courseId: string }) {
 
   const list = messages.data?.items ?? [];
 
-  // phiên có tin của giảng viên đang hiện → đánh dấu đã đọc thông báo "đã trả lời" (một lần mỗi phiên; GET không ghi, SRS 6.3 #15a)
+  // phiên có tin của giảng viên đang hiện → đánh dấu đã đọc thông báo "đã trả lời" (một lần mỗi phiên; GET không ghi, SRS 6.3 mục 15a)
   const readFor = useRef<string | null>(null);
   const hasStaff = list.some((m) => staffOf(m) !== null);
   useEffect(() => {
