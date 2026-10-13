@@ -91,6 +91,15 @@ type Masker struct {
 	Redis    *appredis.Client
 	Log      *slog.Logger
 	Timeout  time.Duration // hạn che; 0 = MaskTimeout (PRIVACY_MASK_TIMEOUT_MS)
+	// RedisOpTimeout: hạn mỗi lệnh Redis; 0 = redisOpTimeout (30 ms, quá hạn thì dùng ánh xạ bộ nhớ). Test đặt dài để kết quả không phụ thuộc tải máy (#19).
+	RedisOpTimeout time.Duration
+}
+
+func (m *Masker) redisTimeout() time.Duration {
+	if m.RedisOpTimeout > 0 {
+		return m.RedisOpTimeout
+	}
+	return redisOpTimeout
 }
 
 func (m *Masker) timeout() time.Duration {
@@ -195,7 +204,7 @@ func (m *Masker) resolve(ctx context.Context, s Session, ents []entity) []string
 		for _, e := range ents {
 			args = append(args, e.kind, e.hash, e.orig)
 		}
-		rctx, cancel := context.WithTimeout(ctx, redisOpTimeout)
+		rctx, cancel := context.WithTimeout(ctx, m.redisTimeout())
 		res, err := redis.NewScript(maskScript).Run(rctx, m.Redis, []string{MaskKey(s.ID())}, args...).StringSlice()
 		cancel()
 		if err == nil && len(res) == len(ents) {
@@ -232,7 +241,7 @@ func (m *Masker) original(ctx context.Context, s Session, ph string) (string, bo
 	if s.ID() == "" || m.Redis == nil {
 		return "", false
 	}
-	rctx, cancel := context.WithTimeout(ctx, redisOpTimeout)
+	rctx, cancel := context.WithTimeout(ctx, m.redisTimeout())
 	defer cancel()
 	v, err := m.Redis.HGet(rctx, MaskKey(s.ID()), "p:"+ph).Result()
 	if err != nil {

@@ -96,7 +96,7 @@ func TestNotifyAcrossTwoGateways(t *testing.T) {
 		t.Cleanup(func() { _ = rdb.Close() })
 		d := httpapi.Deps{Cfg: base.cfg, Log: nil, DB: base.pool, Redis: rdb, Clock: clock.Real{}, State: httpapi.NewState(),
 			Escalation: &escalation.Service{Pool: base.pool, Members: members, Log: nil}}
-		return httpapi.NewRouter(d), rdb
+		return httpapi.NewRouter(d), rdb //nolint:contextcheck // NewRouter không nhận ctx (router sống cả đời test)
 	}
 	hA, _ := newGateway()
 	hB, _ := newGateway()

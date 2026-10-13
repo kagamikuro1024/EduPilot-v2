@@ -87,7 +87,7 @@ func (f *fx) user(t *testing.T, name, role string) uuid.UUID {
 
 func (f *fx) masker() *privacy.Masker {
 	d := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: f.pool}, Redis: f.rdb, Log: f.log, OpTimeout: 10 * time.Second}}
-	return &privacy.Masker{Detector: d, Redis: f.rdb, Log: f.log}
+	return &privacy.Masker{Detector: d, Redis: f.rdb, Log: f.log, Timeout: 30 * time.Second, RedisOpTimeout: 10 * time.Second}
 }
 
 func (f *fx) members(t *testing.T) []string {
