@@ -99,6 +99,7 @@ async function inboxApi(page: Page, opts: { answer?: (route: Parameters<Paramete
     if (req.method() === "GET") return r.fulfill(json(path.endsWith("/tickets") ? { items: [row(state.t)], next_cursor: null } : detail(state.t)));
     calls.push({ method: req.method(), path, body: req.postData() ?? "", headers: req.headers() });
     if (path.endsWith("/claim")) {
+      if (opts.claim) state.t = ticket({ status: "CLAIMED", claimed_by: { id: "other", full_name: "Cô Hoa" }, version: 2 }); // người kia nhận trước
       if (opts.claim) return r.fulfill(json({ code: "TICKET_ALREADY_CLAIMED", message: "m", trace_id: "b".repeat(32), details: { claimed_by: { id: "x", full_name: "Cô Hoa" } } }, opts.claim));
       state.t = ticket({ status: "CLAIMED", claimed_by: { id: SUB, full_name: "Giảng Viên Thử" }, version: 2 });
       return r.fulfill(json({ ticket: state.t }));
@@ -155,10 +156,9 @@ test("inbox: thông tin của sinh viên khác (422 PII_IN_ANSWER) giữ nguyên
 
 test("inbox: người khác đã nhận (409) → làm tươi, không có ô soạn, thấy tên người nhận", async ({ page, context }) => {
   await asDemo(context, "teacher");
-  const api = await inboxApi(page, { claim: 409 });
+  await inboxApi(page, { claim: 409 });
   await page.goto("/inbox");
   const pane = page.locator("[data-part=inbox-detail]");
-  api.state.t = ticket({ status: "CLAIMED", claimed_by: { id: "other", full_name: "Cô Hoa" }, version: 2 });
   await pane.getByRole("button", { name: "Nhận", exact: true }).click();
   await expect(pane.getByText("Cô Hoa đã nhận.")).toBeVisible();
   await expect(pane.getByRole("textbox")).toHaveCount(0);
