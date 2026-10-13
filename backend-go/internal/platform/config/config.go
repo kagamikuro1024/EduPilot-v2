@@ -144,6 +144,9 @@ type Config struct {
 	AttendanceMaxRows int
 	// Kiểm duyệt Threads (SRS FEAT-escalation-notify 4.10): REPORT_RATE_PER_HOUR (báo cáo / giờ / người), REPORT_AUTOHIDE_THRESHOLD (số người khác nhau để tự ẩn), THREAD_PIN_MAX (ghim / lớp).
 	ReportRatePerHour int
+	// Đo thời gian học (US-P5-03, SRS FEAT-crm-360 4.1).
+	HeartbeatMaxPerMinute, StudyDailyCap int
+	HeartbeatCounterTTL, RollupTick      time.Duration
 	// SupportResourcesVI: thông tin hỗ trợ trong câu mẫu khủng hoảng (≤ 300 ký tự; rỗng → câu mặc định). Không đi qua Mask.
 	SupportResourcesVI         string
 	ReportAutoHideThreshold    int
@@ -332,6 +335,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
 	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
 	c.AttendanceMaxRows = l.num("ATTENDANCE_MAX_ROWS", 1000, 100, 5000)
+	c.HeartbeatMaxPerMinute = l.num("HEARTBEAT_MAX_PER_MINUTE", 4, 2, 10)
+	c.StudyDailyCap = l.num("STUDY_DAILY_CAP", 43200, 3600, 86400)
+	c.HeartbeatCounterTTL = l.durRange("HEARTBEAT_COUNTER_TTL", 192*time.Hour, 48*time.Hour, 30*24*time.Hour)
+	c.RollupTick = l.durRange("ROLLUP_TICK", time.Minute, 10*time.Second, 5*time.Minute)
 	c.SupportResourcesVI = l.str("SUPPORT_RESOURCES_VI", "")
 	if utf8.RuneCountInString(c.SupportResourcesVI) > 300 {
 		l.bad("SUPPORT_RESOURCES_VI", "tối đa 300 ký tự")

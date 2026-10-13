@@ -961,6 +961,100 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/activity/heartbeat:
+    post:
+      operationId: activityHeartbeat
+      tags: [crm]
+      summary: "Nhịp 30 giây của sinh viên (chỉ khu vực, không nội dung). 204 kể cả khi bị bỏ (chưa ack, tắt đo, cùng khung 30 s, vượt tốc độ / trần ngày, Redis lỗi); CHỈ ghi Redis, không bao giờ Postgres"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HeartbeatInput"
+      responses:
+        "204":
+          description: Đã nhận (có thể không tính)
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/tracking-notice/ack:
+    post:
+      operationId: ackTrackingNotice
+      tags: [me]
+      summary: "Sinh viên bấm `Đã hiểu` hộp thoại thời gian học (idempotent, giữ lần đầu); sau đó nhịp kế tiếp được đo ngay"
+      responses:
+        "204":
+          description: Đã ghi nhận
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/courses/{id}/me/study-time:
+    get:
+      operationId: getMyStudyTime
+      tags: [crm]
+      summary: "Thời gian học của CHÍNH sinh viên (theo user_id JWT), `weeks` 1–20 mặc định 8; kèm `tracking {enabled, locked}`"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: weeks
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+      responses:
+        "200":
+          description: Tuần có dữ liệu, tăng dần (rỗng khi chưa có)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyTime"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/study-time:
+    get:
+      operationId: getStudentStudyTime
+      tags: [crm]
+      summary: "Thời gian học của một sinh viên ACTIVE (giảng viên / TA); kèm `tracked`"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: weeks
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+      responses:
+        "200":
+          description: Tuần có dữ liệu, tăng dần
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyTime"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/calendar:
     get:
       operationId: listCalendar
@@ -7424,9 +7518,16 @@ components:
           enum: [ACTIVE, PENDING]
     MyCoursePage:
       type: object
-      required: [items, next_cursor]
+      required: [items, next_cursor, tracking_notice_acked, study_time_opt_out_available]
       additionalProperties: false
       properties:
+        tracking_notice_acked:
+          type: boolean
+          description: Đã bấm `Đã hiểu` hộp thoại thời gian học (US-P5-03 AC7)
+        study_time_opt_out_available:
+          type: boolean
+          description: Có lớp ACTIVE nào cho sinh viên tắt đo thời gian học
+
         items:
           type: array
           maxItems: 100
@@ -7436,7 +7537,7 @@ components:
           type: [string, "null"]
     CourseDetail:
       type: object
-      required: [id, class_code, subject_code, name, semester, status, teachers, my_role]
+      required: [id, class_code, subject_code, name, semester, status, teachers, my_role, allow_study_time_opt_out]
       additionalProperties: false
       properties:
         id:
@@ -7453,6 +7554,8 @@ components:
         status:
           type: string
           enum: [ACTIVE, ARCHIVED]
+        allow_study_time_opt_out:
+          type: boolean
         teachers:
           type: array
           items:
@@ -7523,7 +7626,7 @@ components:
           minimum: 1
     Settings:
       type: object
-      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, reminders, version]
+      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, track_study_time, reminders, version]
       additionalProperties: false
       properties:
         notify_ticket_by_mail:
@@ -7543,6 +7646,33 @@ components:
               type: boolean
             other:
               type: boolean
+        track_study_time:
+          type: boolean
+          description: Công tắc đo thời gian học, một cờ toàn tài khoản; chỉ STUDENT có tác dụng, lớp không cho tắt thì bỏ qua
+        study_time:
+          type: object
+          description: Chỉ ở GET. `acked` = đã bấm "Đã hiểu"; `courses` = lớp đang ACTIVE của sinh viên (rỗng khi không phải sinh viên)
+          required: [acked, courses]
+          additionalProperties: false
+          properties:
+            acked:
+              type: boolean
+            courses:
+              type: array
+              items:
+                type: object
+                required: [course_id, class_code, name, locked]
+                additionalProperties: false
+                properties:
+                  course_id:
+                    type: string
+                    format: uuid
+                  class_code:
+                    type: string
+                  name:
+                    type: string
+                  locked:
+                    type: boolean
         version:
           type: integer
     SettingsInput:
@@ -7555,6 +7685,8 @@ components:
         notify_answer_by_mail:
           type: boolean
         remind_deadline_by_mail:
+          type: boolean
+        track_study_time:
           type: boolean
         reminders:
           type: object
@@ -7569,6 +7701,56 @@ components:
         version:
           type: integer
           minimum: 1
+    HeartbeatInput:
+      type: object
+      required: [course_id, area, tab_id]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        area:
+          type: string
+          enum: [CHAT, THREADS, PRACTICE, LIBRARY, CALENDAR]
+        tab_id:
+          type: string
+          format: uuid
+    StudyTime:
+      type: object
+      required: [weeks, this_week_minutes]
+      additionalProperties: false
+      properties:
+        weeks:
+          type: array
+          items:
+            type: object
+            required: [week_start, minutes, by_area]
+            additionalProperties: false
+            properties:
+              week_start:
+                type: string
+                format: date
+              minutes:
+                type: integer
+              by_area:
+                type: object
+                additionalProperties:
+                  type: integer
+        this_week_minutes:
+          type: integer
+        tracking:
+          type: object
+          description: Chỉ ở bản của sinh viên
+          required: [enabled, locked]
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+            locked:
+              type: boolean
+        tracked:
+          type: boolean
+          description: Chỉ ở bản của nhân viên
     PersonRef:
       type: object
       required: [id, full_name]
@@ -9218,6 +9400,7 @@ components:
             - SESSION_DUPLICATE
             - SESSION_HAS_ATTENDANCE
             - STUDENT_NOT_IN_COURSE
+            - COURSE_HAS_STUDENTS
         message:
           type: string
         trace_id:
@@ -11820,10 +12003,13 @@ components:
           type: [string, "null"]
     CourseSettingsInput:
       type: object
-      required: [escalation_threshold, version]
+      required: [version]
       properties:
         escalation_threshold:
           type: string
+        allow_study_time_opt_out:
+          type: boolean
+          description: Chỉ đổi được khi lớp chưa có sinh viên ghi danh (mọi trạng thái); đã có → 409 COURSE_HAS_STUDENTS
         version:
           type: integer
     FollowupInput:

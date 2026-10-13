@@ -1292,6 +1292,33 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: gv}, 404)
 	r.must(call{method: "DELETE", path: "/api/v1/courses/" + cid + "/participation/" + uuid.NewString(), token: gv}, 409) // lớp đã lưu trữ
 
+	// thời gian học (US-P5-03): heartbeat 204 (kể cả bị bỏ), ack, hai route đọc
+	hbp := "/api/v1/activity/heartbeat"
+	hb := func(course, area string) string {
+		return fmt.Sprintf(`{"course_id":%q,"area":%q,"tab_id":%q}`, course, area, uuid.NewString())
+	}
+	r.must(call{method: "POST", path: "/api/v1/me/tracking-notice/ack", token: svIn}, 204)
+	r.must(call{method: "POST", path: "/api/v1/me/tracking-notice/ack"}, 401)
+	r.must(call{method: "POST", path: hbp, token: svIn, body: hb(c2, "CHAT")}, 204)
+	r.must(call{method: "POST", path: hbp, token: gv, body: hb(c2, "CHAT")}, 204) // giảng viên không bị đo: 204 im lặng
+	r.must(call{method: "POST", path: hbp, body: hb(c2, "CHAT")}, 401)
+	r.must(call{method: "POST", path: hbp, token: svIn, body: hb(uuid.NewString(), "CHAT")}, 403)
+	r.must(call{method: "POST", path: hbp, token: svIn, body: hb(c2, "EXAM")}, 422)
+	mine := "/api/v1/courses/" + c2 + "/me/study-time"
+	r.must(call{method: "GET", path: mine, token: svIn}, 200)
+	r.must(call{method: "GET", path: mine + "?weeks=20", token: svIn}, 200)
+	r.must(call{method: "GET", path: mine}, 401)
+	r.must(call{method: "GET", path: mine, token: gv}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/me/study-time", token: svIn}, 404)
+	r.must(call{method: "GET", path: mine + "?weeks=0", token: svIn}, 422)
+	of := "/api/v1/courses/" + c2 + "/students/" + studentID + "/study-time"
+	r.must(call{method: "GET", path: of, token: gv}, 200)
+	r.must(call{method: "GET", path: of + "?weeks=4", token: ta}, 200)
+	r.must(call{method: "GET", path: of}, 401)
+	r.must(call{method: "GET", path: of, token: svIn}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/" + c2 + "/students/" + uuid.NewString() + "/study-time", token: gv}, 404)
+	r.must(call{method: "GET", path: of + "?weeks=21", token: gv}, 422)
+
 	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"
 	r.must(call{method: "POST", path: dm, token: gv}, 204)
 	r.must(call{method: "POST", path: dm, token: gv}, 204)

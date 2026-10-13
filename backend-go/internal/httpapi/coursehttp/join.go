@@ -339,11 +339,12 @@ func courseIDOf(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {
 }
 
 type thresholdBody struct {
-	Version             *int    `json:"version"`
-	EscalationThreshold *string `json:"escalation_threshold"`
+	Version              *int    `json:"version"`
+	EscalationThreshold  *string `json:"escalation_threshold"`
+	AllowStudyTimeOptOut *bool   `json:"allow_study_time_opt_out"`
 }
 
-// putSettings là `PUT /courses/{id}/settings {escalation_threshold?, version}` (chỉ giảng viên của lớp; TA / sinh viên / Admin → 403 ở guard).
+// putSettings là `PUT /courses/{id}/settings {escalation_threshold?, allow_study_time_opt_out?, version}` (chỉ giảng viên của lớp; TA / sinh viên / Admin → 403 ở guard).
 func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
 	id, ok := courseIDOf(w, r)
 	if !ok {
@@ -362,11 +363,15 @@ func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, aerr)
 		return
 	}
-	if b.EscalationThreshold == nil {
+	if b.EscalationThreshold == nil && b.AllowStudyTimeOptOut == nil {
 		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "escalation_threshold", Code: "required", Message: "Thiếu ngưỡng."}))
 		return
 	}
-	d, err := h.Courses.PutEscalationThreshold(r.Context(), actor, id, version, *b.EscalationThreshold)
+	d, err := h.Courses.PutSettings(r.Context(), actor, id, version, course.SettingsIn{EscalationThreshold: b.EscalationThreshold, AllowStudyTimeOptOut: b.AllowStudyTimeOptOut})
+	if errors.Is(err, course.ErrHasStudents) {
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.CourseHasStudents))
+		return
+	}
 	var tc *course.ThresholdConflictError
 	if errors.As(err, &tc) {
 		httpx.WriteVersionConflict(w, r, int(tc.Current.Settings.Version), detailOf(tc.Current))

@@ -5,6 +5,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/chat"
@@ -42,6 +43,7 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks, examTickTask{&exam.Ticker{Svc: &exam.Service{Pool: d.DB, Clock: clock.Real{}, Jobs: jobs.NewService(d.DB), Attempt: exam.AttemptConfig{Grace: time.Duration(d.Cfg.ExamGraceSeconds) * time.Second}, Redis: d.Redis}, Redis: d.Redis, Log: d.Log, Name: name, Every: d.Cfg.ExamTickInterval}})
 	tasks = append(tasks, reminderTask{&calendar.Reminder{Svc: &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}, Name: name, Every: d.Cfg.ReminderTick, Lead: d.Cfg.ReminderLead, Log: d.Log, Notify: nt}})
 	tasks = append(tasks, slaTask{&escalation.SLAJob{Svc: &escalation.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt, Cfg: escalation.ConfigFrom(d.Cfg)}, Redis: d.Redis, Name: name, Every: d.Cfg.TicketSLATick, Log: d.Log}})
+	tasks = append(tasks, rollupTask{&activity.RollupJob{Svc: &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: d.Cfg.RollupTick, Log: d.Log}})
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
@@ -80,6 +82,12 @@ type slaTask struct{ j *escalation.SLAJob }
 
 func (slaTask) Name() string                    { return "ticket.sla" }
 func (t slaTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// rollupTask chạy `heartbeat.rollup` (US-P5-03) — một bản nhờ khoá leader Redis.
+type rollupTask struct{ j *activity.RollupJob }
+
+func (rollupTask) Name() string                    { return "heartbeat.rollup" }
+func (t rollupTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // judgeTask chạy consumer chấm code (chỉ ở bản worker JUDGE_CONSUMER=true).
 type judgeTask struct{ q *judge.Queue }

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	pgvector "github.com/pgvector/pgvector-go"
 	"github.com/shopspring/decimal"
 )
@@ -2426,25 +2427,26 @@ type ContentChunk struct {
 }
 
 type Course struct {
-	ID                  uuid.UUID
-	SubjectCode         string
-	ClassCode           string
-	Name                string
-	Semester            string
-	Status              CourseStatus
-	EscalationThreshold decimal.Decimal
-	Settings            json.RawMessage
-	JoinCode            string
-	JoinEnabled         bool
-	JoinExpiresAt       *time.Time
-	JoinRequireApproval bool
-	AllowedEmailDomain  *string
-	Capacity            *int32
-	CreatedBy           uuid.UUID
-	ArchivedAt          *time.Time
-	Version             int32
-	CreatedAt           time.Time
-	UpdatedAt           time.Time
+	ID                   uuid.UUID
+	SubjectCode          string
+	ClassCode            string
+	Name                 string
+	Semester             string
+	Status               CourseStatus
+	EscalationThreshold  decimal.Decimal
+	Settings             json.RawMessage
+	JoinCode             string
+	JoinEnabled          bool
+	JoinExpiresAt        *time.Time
+	JoinRequireApproval  bool
+	AllowedEmailDomain   *string
+	Capacity             *int32
+	CreatedBy            uuid.UUID
+	ArchivedAt           *time.Time
+	Version              int32
+	CreatedAt            time.Time
+	UpdatedAt            time.Time
+	AllowStudyTimeOptOut bool
 }
 
 type Document struct {
@@ -2686,6 +2688,20 @@ type IdempotencyKey struct {
 	StatusCode  int16
 	Response    json.RawMessage
 	CreatedAt   time.Time
+}
+
+type InsightReport struct {
+	ID            uuid.UUID
+	CourseID      uuid.UUID
+	Kind          string
+	PeriodFrom    pgtype.Date
+	PeriodTo      pgtype.Date
+	Payload       json.RawMessage
+	DataWatermark time.Time
+	GeneratedBy   uuid.UUID
+	Version       int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
 }
 
 type Job struct {
@@ -2973,6 +2989,17 @@ type StudentRisk struct {
 	UpdatedAt     time.Time
 }
 
+type StudyTimeDaily struct {
+	ID            uuid.UUID
+	CourseID      uuid.UUID
+	StudentID     uuid.UUID
+	Date          pgtype.Date
+	Area          string
+	ActiveSeconds int32
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type User struct {
 	ID                  uuid.UUID
 	Email               string
@@ -3001,6 +3028,7 @@ type UserSetting struct {
 	Version              int32
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+	TrackStudyTime       bool
 }
 
 type VAttendanceSummary struct {

@@ -7,9 +7,14 @@ select role_in_course, status from enrollments where course_id = sqlc.arg(course
 -- name: ListMyCourses :many
 -- Sinh viên: lớp ACTIVE và PENDING của chính mình; Giảng viên / TA: lớp được phân công (ACTIVE). Một truy vấn, không N+1.
 select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status as course_status,
-       e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id
+       e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id,
+       -- hộp thoại thời gian học (US-P5-03 AC7) đi cùng trang này để khỏi thêm câu SQL / yêu cầu: đã "Đã hiểu" chưa; có lớp ACTIVE nào cho tắt đo không
+       (u.tracking_notice_ack_at is not null)::bool as notice_acked,
+       exists (select 1 from enrollments x join courses y on y.id = x.course_id
+               where x.user_id = e.user_id and x.role_in_course = 'STUDENT' and x.status = 'ACTIVE' and y.status = 'ACTIVE' and y.allow_study_time_opt_out)::bool as opt_out_available
 from enrollments e
 join courses c on c.id = e.course_id
+join users u on u.id = e.user_id
 where e.user_id = sqlc.arg(user_id)
   and (e.status = 'ACTIVE' or (e.status = 'PENDING' and e.role_in_course = 'STUDENT'))
   and (sqlc.narg(cur_at)::timestamptz is null or (e.created_at, e.id) < (sqlc.narg(cur_at)::timestamptz, sqlc.narg(cur_id)::uuid))
@@ -17,7 +22,7 @@ order by e.created_at desc, e.id desc
 limit sqlc.arg(lim);
 
 -- name: GetCourseBasic :one
-select id, class_code, subject_code, name, semester, status from courses where id = sqlc.arg(id);
+select id, class_code, subject_code, name, semester, status, allow_study_time_opt_out from courses where id = sqlc.arg(id);
 
 -- name: ListCourseTeacherNames :many
 select u.full_name
@@ -296,3 +301,11 @@ order by c.class_code, c.id;
 -- name: UpdateCourseThreshold :one
 -- Ngưỡng chuyển cho giảng viên (US-P4-05 AC12); người gọi đã khoá dòng và kiểm version.
 update courses set escalation_threshold = sqlc.arg(threshold), version = version + 1 where id = sqlc.arg(id) returning *;
+
+-- name: CourseHasStudentEnrollment :one
+-- Q25: có ghi danh SINH VIÊN nào không (mọi trạng thái, kể cả PENDING / REMOVED) — điều kiện khoá cờ allow_study_time_opt_out.
+select exists (select 1 from enrollments where course_id = sqlc.arg(course_id) and role_in_course = 'STUDENT')::bool;
+
+-- name: UpdateCourseOptOut :one
+-- Người gọi đã khoá dòng (LockCourse), kiểm version và kiểm chưa có sinh viên.
+update courses set allow_study_time_opt_out = sqlc.arg(allow), version = version + 1 where id = sqlc.arg(id) returning *;

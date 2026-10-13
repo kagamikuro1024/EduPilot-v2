@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
@@ -12,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/httpapi/activityhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
@@ -72,7 +74,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.Users != nil {
 			// US-P2-06 — /admin/users: chỉ ADMIN, POST cần Idempotency-Key.
-			uh := &userhttp.Handler{Users: d.Users, Log: d.Log}
+			uh := &userhttp.Handler{Users: d.Users, Study: activityService(d), Log: d.Log}
 			uh.Mount(r, RequireIdempotencyKey(d))
 			uh.MountMe(r) // US-P2-07: /me/profile, /me/settings
 		}
@@ -96,7 +98,8 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
-			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Log: d.Log}).Mount(r) // US-P5-02: điểm danh, phát biểu
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Log: d.Log}).Mount(r)           // US-P5-02: điểm danh, phát biểu
+			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r) // US-P5-03: heartbeat, ack, đọc thời gian học
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
@@ -163,6 +166,11 @@ func authOptions(d Deps) []auth.MiddlewareOption {
 		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
 	}
 	return mw
+}
+
+func activityService(d Deps) *activity.Service {
+	return &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log,
+		Cfg: activity.Config{MaxPerMinute: d.Cfg.HeartbeatMaxPerMinute, DailyCap: d.Cfg.StudyDailyCap, CounterTTL: d.Cfg.HeartbeatCounterTTL}}
 }
 
 func crmService(d Deps) *crm.Service {

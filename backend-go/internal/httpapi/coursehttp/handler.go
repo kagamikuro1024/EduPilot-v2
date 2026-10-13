@@ -110,7 +110,18 @@ func (h *Handler) myCourses(w http.ResponseWriter, r *http.Request) {
 		b := m.Course
 		items[i] = myCourseItem{Course: brief{ID: b.ID, ClassCode: b.ClassCode, SubjectCode: b.SubjectCode, Name: b.Name, Semester: b.Semester, Status: b.Status}, RoleInCourse: m.RoleInCourse, EnrollmentStatus: m.EnrollmentStatus}
 	}
-	httpx.WriteJSONETag(w, r, httpx.Page[myCourseItem]{Items: items, NextCursor: page.NextCursor}, "")
+	acked, optOut := true, false // chưa có lớp nào: chưa có gì để đo, không hộp thoại
+	if len(rows) > 0 {
+		acked, optOut = rows[0].NoticeAcked, rows[0].OptOutAvailable
+	}
+	httpx.WriteJSONETag(w, r, myCoursesOut{Page: httpx.Page[myCourseItem]{Items: items, NextCursor: page.NextCursor}, TrackingNoticeAcked: acked, StudyTimeOptOutAvailable: optOut}, "")
+}
+
+// myCoursesOut: trang lớp của tôi + hai cờ của hộp thoại thời gian học (US-P5-03 AC7) để màn hình khỏi gọi thêm API.
+type myCoursesOut struct {
+	httpx.Page[myCourseItem]
+	TrackingNoticeAcked      bool `json:"tracking_notice_acked"`
+	StudyTimeOptOutAvailable bool `json:"study_time_opt_out_available"`
 }
 
 type teacher struct {
@@ -126,8 +137,10 @@ type detail struct {
 	brief
 	Teachers []teacher `json:"teachers"`
 	MyRole   string    `json:"my_role"`
-	Counts   *counts   `json:"counts,omitempty"`
-	Settings *settings `json:"settings,omitempty"`
+	// AllowStudyTimeOptOut: mọi thành viên đọc được (Q25).
+	AllowStudyTimeOptOut bool      `json:"allow_study_time_opt_out"`
+	Counts               *counts   `json:"counts,omitempty"`
+	Settings             *settings `json:"settings,omitempty"`
 }
 
 type settings struct {
@@ -160,7 +173,7 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 
 // detailOf dựng JSON chi tiết lớp (dùng chung `GET /courses/{id}` và `PUT /courses/{id}/settings`).
 func detailOf(d course.Detail) detail {
-	out := detail{brief: brief{ID: d.ID, ClassCode: d.ClassCode, SubjectCode: d.SubjectCode, Name: d.Name, Semester: d.Semester, Status: d.Status}, MyRole: d.MyRole, Teachers: make([]teacher, len(d.Teachers))}
+	out := detail{brief: brief{ID: d.ID, ClassCode: d.ClassCode, SubjectCode: d.SubjectCode, Name: d.Name, Semester: d.Semester, Status: d.Status}, MyRole: d.MyRole, AllowStudyTimeOptOut: d.AllowStudyTimeOptOut, Teachers: make([]teacher, len(d.Teachers))}
 	for i, n := range d.Teachers {
 		out.Teachers[i] = teacher{FullName: n}
 	}

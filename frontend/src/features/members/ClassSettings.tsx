@@ -6,6 +6,7 @@ import { ApiError, apiClient, fieldErrors } from "@/shared/data";
 import { Button, ButtonLink, ConfirmIrreversible, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, Section, Skeleton, Switch } from "@/shared/ui";
 import s from "./ClassSettings.module.css";
 import { classKey, useClassCourse, type JoinInfo } from "./classApi";
+import { StudyTimeSetting } from "./StudyTimeSetting";
 import { ThresholdSection } from "./ThresholdSection";
 
 const ICT_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" });
@@ -98,6 +99,7 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
               />
             </Section>
             <ThresholdSection courseId={courseId} canManage={canManage} />
+            <StudyTimeSetting courseId={courseId} canManage={canManage} />
             {canManage && <ShareSection courseId={courseId} />}
           </>
         )}

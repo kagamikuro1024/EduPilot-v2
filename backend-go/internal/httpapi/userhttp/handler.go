@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 
+	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
@@ -20,6 +21,8 @@ import (
 // Handler là nhóm /admin/users.
 type Handler struct {
 	Users *user.Service
+	// Study: đệm `ep:trk` (xoá khi đổi cờ) và danh sách lớp của nhóm "Thời gian học"; nil ở test không cần.
+	Study *activity.Service
 	Log   *slog.Logger
 }
 
@@ -276,8 +279,11 @@ type settingsOut struct {
 	NotifyTicketByMail   bool         `json:"notify_ticket_by_mail"`
 	NotifyAnswerByMail   bool         `json:"notify_answer_by_mail"`
 	RemindDeadlineByMail bool         `json:"remind_deadline_by_mail"`
+	TrackStudyTime       bool         `json:"track_study_time"`
 	Reminders            remindersOut `json:"reminders"`
 	Version              int          `json:"version"`
+	// StudyTime: lớp đang ACTIVE kèm cờ khoá (chỉ GET; rỗng khi chưa "Đã hiểu" hoặc không phải sinh viên).
+	StudyTime *activity.StudySettings `json:"study_time,omitempty"`
 }
 
 type remindersOut struct {
@@ -287,7 +293,7 @@ type remindersOut struct {
 }
 
 func settingsJSON(s user.Settings) settingsOut {
-	return settingsOut{NotifyTicketByMail: s.NotifyTicketByMail, NotifyAnswerByMail: s.NotifyAnswerByMail, RemindDeadlineByMail: s.RemindDeadlineByMail,
+	return settingsOut{NotifyTicketByMail: s.NotifyTicketByMail, NotifyAnswerByMail: s.NotifyAnswerByMail, RemindDeadlineByMail: s.RemindDeadlineByMail, TrackStudyTime: s.TrackStudyTime,
 		Reminders: remindersOut{Exam: s.Reminders.Exam, ClassSession: s.Reminders.ClassSession, Other: s.Reminders.Other}, Version: s.Version}
 }
 
@@ -300,7 +306,15 @@ func (h *Handler) getSettings(w http.ResponseWriter, r *http.Request) {
 	if h.fail(w, r, "settings-get", err) {
 		return
 	}
-	httpx.WriteJSONETag(w, r, settingsJSON(s), httpx.ETagVersion(s.Version))
+	out := settingsJSON(s)
+	if h.Study != nil {
+		st, err := h.Study.Settings(r.Context(), id)
+		if h.fail(w, r, "settings-study", err) {
+			return
+		}
+		out.StudyTime = &st
+	}
+	httpx.WriteJSONETag(w, r, out, httpx.ETagVersion(s.Version))
 }
 
 type settingsBody struct {
@@ -308,6 +322,7 @@ type settingsBody struct {
 	NotifyTicketByMail   *bool           `json:"notify_ticket_by_mail"`
 	NotifyAnswerByMail   *bool           `json:"notify_answer_by_mail"`
 	RemindDeadlineByMail *bool           `json:"remind_deadline_by_mail"`
+	TrackStudyTime       *bool           `json:"track_study_time"`
 	Reminders            map[string]bool `json:"reminders"` // khoá: exam | class_session | other (kiểm trong putSettings)
 }
 
@@ -325,7 +340,7 @@ func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, aerr)
 		return
 	}
-	in := user.SettingsInput{Version: version, NotifyTicketByMail: b.NotifyTicketByMail, NotifyAnswerByMail: b.NotifyAnswerByMail, RemindDeadlineByMail: b.RemindDeadlineByMail}
+	in := user.SettingsInput{Version: version, NotifyTicketByMail: b.NotifyTicketByMail, NotifyAnswerByMail: b.NotifyAnswerByMail, RemindDeadlineByMail: b.RemindDeadlineByMail, TrackStudyTime: b.TrackStudyTime}
 	for k, v := range b.Reminders {
 		switch k {
 		case "exam":
@@ -342,6 +357,9 @@ func (h *Handler) putSettings(w http.ResponseWriter, r *http.Request) {
 	s, err := h.Users.PutSettings(r.Context(), id, in)
 	if h.fail(w, r, "settings-put", err) {
 		return
+	}
+	if in.TrackStudyTime != nil && h.Study != nil {
+		h.Study.InvalidateTracking(r.Context(), id) // nhịp kế tiếp có hiệu lực ngay, không đợi đệm 60 s
 	}
 	httpx.WriteJSONETag(w, r, settingsJSON(s), httpx.ETagVersion(s.Version))
 }

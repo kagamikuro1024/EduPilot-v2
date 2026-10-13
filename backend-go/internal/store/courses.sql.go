@@ -66,7 +66,7 @@ const archiveCourse = `-- name: ArchiveCourse :one
 update courses
 set status = 'ARCHIVED', archived_at = now(), join_enabled = false, version = version + 1
 where id = $1 and status = 'ACTIVE'
-returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
 `
 
 // Lưu trữ: tắt mã tham gia NGAY; thành viên giữ nguyên. Không dòng ⇒ đã lưu trữ (idempotent ở người gọi).
@@ -93,6 +93,7 @@ func (q *Queries) ArchiveCourse(ctx context.Context, id uuid.UUID) (Course, erro
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
@@ -208,6 +209,18 @@ func (q *Queries) CountUnreadNotifications(ctx context.Context, userID uuid.UUID
 	return column_1, err
 }
 
+const courseHasStudentEnrollment = `-- name: CourseHasStudentEnrollment :one
+select exists (select 1 from enrollments where course_id = $1 and role_in_course = 'STUDENT')::bool
+`
+
+// Q25: có ghi danh SINH VIÊN nào không (mọi trạng thái, kể cả PENDING / REMOVED) — điều kiện khoá cờ allow_study_time_opt_out.
+func (q *Queries) CourseHasStudentEnrollment(ctx context.Context, courseID uuid.UUID) (bool, error) {
+	row := q.db.QueryRow(ctx, courseHasStudentEnrollment, courseID)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const enrollmentConflictByStudentCode = `-- name: EnrollmentConflictByStudentCode :one
 select exists (
     select 1 from enrollments
@@ -230,7 +243,7 @@ func (q *Queries) EnrollmentConflictByStudentCode(ctx context.Context, arg Enrol
 }
 
 const getCourse = `-- name: GetCourse :one
-select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at from courses where id = $1
+select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out from courses where id = $1
 `
 
 // Đọc đầy đủ một lớp (worker, không khoá).
@@ -257,21 +270,23 @@ func (q *Queries) GetCourse(ctx context.Context, id uuid.UUID) (Course, error) {
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
 
 const getCourseBasic = `-- name: GetCourseBasic :one
-select id, class_code, subject_code, name, semester, status from courses where id = $1
+select id, class_code, subject_code, name, semester, status, allow_study_time_opt_out from courses where id = $1
 `
 
 type GetCourseBasicRow struct {
-	ID          uuid.UUID
-	ClassCode   string
-	SubjectCode string
-	Name        string
-	Semester    string
-	Status      CourseStatus
+	ID                   uuid.UUID
+	ClassCode            string
+	SubjectCode          string
+	Name                 string
+	Semester             string
+	Status               CourseStatus
+	AllowStudyTimeOptOut bool
 }
 
 func (q *Queries) GetCourseBasic(ctx context.Context, id uuid.UUID) (GetCourseBasicRow, error) {
@@ -284,13 +299,14 @@ func (q *Queries) GetCourseBasic(ctx context.Context, id uuid.UUID) (GetCourseBa
 		&i.Name,
 		&i.Semester,
 		&i.Status,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
 
 const getCourseByJoinCode = `-- name: GetCourseByJoinCode :one
 
-select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at from courses where join_code = $1
+select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out from courses where join_code = $1
 `
 
 // ===== Vào lớp bằng mã, cài đặt tham gia, thành viên (US-P2-09) =====
@@ -318,6 +334,7 @@ func (q *Queries) GetCourseByJoinCode(ctx context.Context, joinCode string) (Cou
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
@@ -432,7 +449,7 @@ const insertCourse = `-- name: InsertCourse :one
 insert into courses (subject_code, class_code, name, semester, capacity, join_code, created_by)
 values ($1, $2, $3, $4, $5, $6, $7)
 on conflict (join_code) do nothing
-returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
 `
 
 type InsertCourseParams struct {
@@ -478,6 +495,7 @@ func (q *Queries) InsertCourse(ctx context.Context, arg InsertCourseParams) (Cou
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
@@ -823,9 +841,14 @@ func (q *Queries) ListMembers(ctx context.Context, arg ListMembersParams) ([]Lis
 
 const listMyCourses = `-- name: ListMyCourses :many
 select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status as course_status,
-       e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id
+       e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id,
+       -- hộp thoại thời gian học (US-P5-03 AC7) đi cùng trang này để khỏi thêm câu SQL / yêu cầu: đã "Đã hiểu" chưa; có lớp ACTIVE nào cho tắt đo không
+       (u.tracking_notice_ack_at is not null)::bool as notice_acked,
+       exists (select 1 from enrollments x join courses y on y.id = x.course_id
+               where x.user_id = e.user_id and x.role_in_course = 'STUDENT' and x.status = 'ACTIVE' and y.status = 'ACTIVE' and y.allow_study_time_opt_out)::bool as opt_out_available
 from enrollments e
 join courses c on c.id = e.course_id
+join users u on u.id = e.user_id
 where e.user_id = $1
   and (e.status = 'ACTIVE' or (e.status = 'PENDING' and e.role_in_course = 'STUDENT'))
   and ($2::timestamptz is null or (e.created_at, e.id) < ($2::timestamptz, $3::uuid))
@@ -851,6 +874,8 @@ type ListMyCoursesRow struct {
 	EnrollmentStatus EnrollmentStatus
 	EnrolledAt       time.Time
 	EnrollmentID     uuid.UUID
+	NoticeAcked      bool
+	OptOutAvailable  bool
 }
 
 // Sinh viên: lớp ACTIVE và PENDING của chính mình; Giảng viên / TA: lớp được phân công (ACTIVE). Một truy vấn, không N+1.
@@ -879,6 +904,8 @@ func (q *Queries) ListMyCourses(ctx context.Context, arg ListMyCoursesParams) ([
 			&i.EnrollmentStatus,
 			&i.EnrolledAt,
 			&i.EnrollmentID,
+			&i.NoticeAcked,
+			&i.OptOutAvailable,
 		); err != nil {
 			return nil, err
 		}
@@ -1041,7 +1068,7 @@ func (q *Queries) ListStaffEnrollments(ctx context.Context, courseID uuid.UUID) 
 }
 
 const lockCourse = `-- name: LockCourse :one
-select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at from courses where id = $1 for update
+select id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out from courses where id = $1 for update
 `
 
 func (q *Queries) LockCourse(ctx context.Context, id uuid.UUID) (Course, error) {
@@ -1067,6 +1094,7 @@ func (q *Queries) LockCourse(ctx context.Context, id uuid.UUID) (Course, error) 
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
@@ -1125,7 +1153,7 @@ const regenerateJoinCode = `-- name: RegenerateJoinCode :one
 update courses
 set join_code = $1, version = version + 1
 where courses.id = $2 and courses.status = 'ACTIVE' and not exists (select 1 from courses o where o.join_code = $1)
-returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
 `
 
 type RegenerateJoinCodeParams struct {
@@ -1157,6 +1185,7 @@ func (q *Queries) RegenerateJoinCode(ctx context.Context, arg RegenerateJoinCode
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
@@ -1298,7 +1327,7 @@ set subject_code = coalesce($1, subject_code),
     capacity = case when $5::bool then $6::int else capacity end,
     version = version + 1
 where id = $7 and version = $8
-returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
 `
 
 type UpdateCourseParams struct {
@@ -1345,12 +1374,51 @@ func (q *Queries) UpdateCourse(ctx context.Context, arg UpdateCourseParams) (Cou
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
+	)
+	return i, err
+}
+
+const updateCourseOptOut = `-- name: UpdateCourseOptOut :one
+update courses set allow_study_time_opt_out = $1, version = version + 1 where id = $2 returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
+`
+
+type UpdateCourseOptOutParams struct {
+	Allow bool
+	ID    uuid.UUID
+}
+
+// Người gọi đã khoá dòng (LockCourse), kiểm version và kiểm chưa có sinh viên.
+func (q *Queries) UpdateCourseOptOut(ctx context.Context, arg UpdateCourseOptOutParams) (Course, error) {
+	row := q.db.QueryRow(ctx, updateCourseOptOut, arg.Allow, arg.ID)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
 
 const updateCourseThreshold = `-- name: UpdateCourseThreshold :one
-update courses set escalation_threshold = $1, version = version + 1 where id = $2 returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+update courses set escalation_threshold = $1, version = version + 1 where id = $2 returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
 `
 
 type UpdateCourseThresholdParams struct {
@@ -1382,6 +1450,7 @@ func (q *Queries) UpdateCourseThreshold(ctx context.Context, arg UpdateCourseThr
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }
@@ -1395,7 +1464,7 @@ set join_enabled = coalesce($1, join_enabled),
     capacity = case when $7::bool then $8::int else capacity end,
     version = version + 1
 where id = $9 and version = $10
-returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at
+returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
 `
 
 type UpdateJoinSettingsParams struct {
@@ -1445,6 +1514,7 @@ func (q *Queries) UpdateJoinSettings(ctx context.Context, arg UpdateJoinSettings
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
 	)
 	return i, err
 }

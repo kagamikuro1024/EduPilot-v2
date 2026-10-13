@@ -109,6 +109,7 @@ const (
 	EditLockedVerified    = "EDIT_LOCKED_VERIFIED"
 	PinLimit              = "PIN_LIMIT"
 	CrisisSupport         = "CRISIS_SUPPORT"
+	CourseHasStudents     = "COURSE_HAS_STUDENTS"
 
 	// Lịch buổi học, điểm danh (FEAT-crm-360 SRS 6.5).
 	SessionDuplicate     = "SESSION_DUPLICATE"
@@ -348,6 +349,8 @@ func DefaultMessage(code string) string {
 		return "Lớp đã ghim đủ số bài tối đa."
 	case CrisisSupport:
 		return "Bạn không phải đi qua chuyện này một mình."
+	case CourseHasStudents:
+		return "Lớp đã có sinh viên."
 	case SessionDuplicate:
 		return "Lớp đã có một buổi bắt đầu đúng giờ này."
 	case SessionHasAttendance:

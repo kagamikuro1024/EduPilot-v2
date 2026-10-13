@@ -19,6 +19,7 @@ import { CommandPalette } from "@/shared/ui/CommandPalette";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
+import { StudyTimeTracker } from "./TrackingNotice";
 import s from "./AppShell.module.css";
 
 /** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
@@ -342,6 +343,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
+      <StudyTimeTracker />
 
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (

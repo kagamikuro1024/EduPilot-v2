@@ -64,11 +64,11 @@ func (q *Queries) CountOtherActiveAdmins(ctx context.Context, id uuid.UUID) (int
 
 const ensureUserSettings = `-- name: EnsureUserSettings :one
 with ins as (
-    insert into user_settings (user_id) values ($1) on conflict (user_id) do nothing returning user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at
+    insert into user_settings (user_id) values ($1) on conflict (user_id) do nothing returning user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at, track_study_time
 )
-select user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at from ins
+select user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at, track_study_time from ins
 union all
-select user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at from user_settings where user_id = $1 and not exists (select 1 from ins)
+select user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at, track_study_time from user_settings where user_id = $1 and not exists (select 1 from ins)
 `
 
 type EnsureUserSettingsRow struct {
@@ -80,6 +80,7 @@ type EnsureUserSettingsRow struct {
 	Version              int32
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+	TrackStudyTime       bool
 }
 
 // Tạo lười khi đọc lần đầu; luôn trả dòng hiện có.
@@ -95,6 +96,7 @@ func (q *Queries) EnsureUserSettings(ctx context.Context, userID uuid.UUID) (Ens
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.TrackStudyTime,
 	)
 	return i, err
 }
@@ -386,18 +388,20 @@ update user_settings
 set notify_ticket_by_mail = coalesce($1, notify_ticket_by_mail),
     notify_answer_by_mail = coalesce($2, notify_answer_by_mail),
     remind_deadline_by_mail = coalesce($3, remind_deadline_by_mail),
+    track_study_time = coalesce($4, track_study_time),
     -- US-P8-03: gộp từng khoá của preferences.reminders (khoá vắng = giữ nguyên)
-    preferences = case when $4::jsonb is null then preferences
-                  else jsonb_set(preferences, '{reminders}', coalesce(preferences->'reminders', '{}'::jsonb) || $4::jsonb) end,
+    preferences = case when $5::jsonb is null then preferences
+                  else jsonb_set(preferences, '{reminders}', coalesce(preferences->'reminders', '{}'::jsonb) || $5::jsonb) end,
     version = version + 1
-where user_id = $5 and version = $6
-returning user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at
+where user_id = $6 and version = $7
+returning user_id, notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, preferences, version, created_at, updated_at, track_study_time
 `
 
 type UpdateUserSettingsParams struct {
 	NotifyTicketByMail   *bool
 	NotifyAnswerByMail   *bool
 	RemindDeadlineByMail *bool
+	TrackStudyTime       *bool
 	Reminders            json.RawMessage
 	UserID               uuid.UUID
 	Version              int32
@@ -408,6 +412,7 @@ func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettings
 		arg.NotifyTicketByMail,
 		arg.NotifyAnswerByMail,
 		arg.RemindDeadlineByMail,
+		arg.TrackStudyTime,
 		arg.Reminders,
 		arg.UserID,
 		arg.Version,
@@ -422,6 +427,7 @@ func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettings
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.TrackStudyTime,
 	)
 	return i, err
 }

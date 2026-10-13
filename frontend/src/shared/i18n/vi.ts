@@ -70,6 +70,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   CANNOT_REPORT_OWN: "Không báo cáo được bài của chính mình.",
   EDIT_LOCKED_VERIFIED: "Bài đã được xác nhận nên không sửa được.",
   PIN_LIMIT: "Lớp đã ghim đủ số bài.",
+  COURSE_HAS_STUDENTS: "Lớp đã có sinh viên.",
   CRISIS_SUPPORT: "Bạn không phải đi qua chuyện này một mình.",
   SESSION_DUPLICATE: "Lớp đã có một buổi bắt đầu đúng giờ này.",
   SESSION_HAS_ATTENDANCE: "Buổi này đã có điểm danh nên không xoá được.",

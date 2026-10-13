@@ -144,7 +144,7 @@ func TestSettingsDefaultsLazyCreate(t *testing.T) {
 	require.Equal(t, "0", r.scalar(`select count(*)::text from user_settings where user_id = $1`, u.ID))
 	res := r.getSettings(s)
 	require.Equal(t, http.StatusOK, res.code, string(res.body))
-	require.Equal(t, map[string]any{"notify_ticket_by_mail": false, "notify_answer_by_mail": true, "remind_deadline_by_mail": true, "reminders": map[string]any{"exam": true, "class_session": false, "other": true}, "version": float64(1)}, res.json())
+	require.Equal(t, map[string]any{"notify_ticket_by_mail": false, "notify_answer_by_mail": true, "remind_deadline_by_mail": true, "reminders": map[string]any{"exam": true, "class_session": false, "other": true}, "track_study_time": true, "study_time": map[string]any{"acked": false, "courses": []any{}}, "version": float64(1)}, res.json()) // #27
 	require.Equal(t, "1", r.scalar(`select count(*)::text from user_settings where user_id = $1`, u.ID))
 	require.Equal(t, http.StatusOK, r.getSettings(s).code)
 	require.Equal(t, "1", r.scalar(`select count(*)::text from user_settings where user_id = $1`, u.ID), "đọc lần hai không tạo thêm")
