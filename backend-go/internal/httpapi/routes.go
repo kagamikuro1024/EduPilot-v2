@@ -91,7 +91,9 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			if d.LLM != nil {
 				sig = todayLLM{rt: d.LLM}
 			}
-			(&todayhttp.Handler{Today: today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA)), Guard: courseGuard, Log: d.Log}).Mount(r)
+			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA))
+			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
+			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {

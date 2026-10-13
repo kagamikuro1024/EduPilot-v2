@@ -213,9 +213,11 @@ func TestJobs_Lifecycle(t *testing.T) {
 	owner := uuid.New()
 
 	gate := make(chan struct{})
+	reported := make(chan struct{}) // đóng khi mốc 25 % ĐÃ ghi xong (Progress ghi đồng bộ): RUNNING chưa đủ để đọc progress
 	r := e.runner(e.publisher())
 	r.Register("test.progress", func(ctx context.Context, j JobCtx) (any, error) {
 		j.Progress(25)
+		close(reported)
 		<-gate
 		j.Progress(100)
 		return map[string]any{"ok": true}, nil
@@ -234,6 +236,11 @@ func TestJobs_Lifecycle(t *testing.T) {
 	j, err := e.svc.Enqueue(t.Context(), owner, "test.progress", map[string]any{"steps": 4})
 	if err != nil {
 		t.Fatalf("Enqueue: %v", err)
+	}
+	select {
+	case <-reported:
+	case <-time.After(30 * time.Second):
+		t.Fatal("việc không báo tiến độ 25 %")
 	}
 	waitStatus(t, e, j.ID, store.JobStatusRUNNING, 30*time.Second)
 	if got := e.job(t, j.ID); got.Progress != 25 || got.FinishedAt != nil {

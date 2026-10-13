@@ -271,6 +271,8 @@ func TestOutbox_RetryThenDead(t *testing.T) {
 	require.NotNil(t, row.LastError)
 	require.NotEmpty(t, *row.LastError)
 
+	// dead_at ghi TRƯỚC khi XADD dead-letter (hai hệ lưu trữ): chờ điều kiện, không đọc ngay sau waitDead.
+	require.Eventually(t, func() bool { return e.xlen(e.names.Dead) == 1 }, wait, beat, "dead-letter phải có đúng 1 tin")
 	msgs, err := e.rdb.XRange(e.ctx, e.names.Dead, "-", "+").Result()
 	require.NoError(t, err)
 	require.Len(t, msgs, 1)
@@ -329,6 +331,8 @@ func TestOutbox_UnknownTopicDead(t *testing.T) {
 	require.NotContains(t, *row.LastError, "pii-canary", "last_error không được chứa payload")
 	require.Contains(t, *row.LastError, "test.unknown")
 
+	// dead_at ghi TRƯỚC khi XADD dead-letter (hai hệ lưu trữ): chờ điều kiện, không đọc ngay sau waitDead.
+	require.Eventually(t, func() bool { return e.xlen(e.names.Dead) == 1 }, wait, beat, "dead-letter phải có đúng 1 tin")
 	msgs, err := e.rdb.XRange(e.ctx, e.names.Dead, "-", "+").Result()
 	require.NoError(t, err)
 	require.Len(t, msgs, 1)
