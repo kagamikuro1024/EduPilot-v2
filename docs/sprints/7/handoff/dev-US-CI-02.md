@@ -90,3 +90,24 @@ Lưu ý TC-07 ("ở CI không có `-v`"): bản này có `-v` ở bước `go te
 **Còn nợ (không chặn)**: các test chờ theo thời gian vẫn mong manh khi máy quá tải (ví dụ `TestCancelReachesProvider`: luồng giả tự xong sau 20 ms nên `provAbort` có thể không bao giờ bật nếu `Cancel` tới trễ). Đã có bản sửa xác định (luồng giả chờ tới khi `ctx` huỷ) nhưng chưa áp vì sửa test cũ phải qua proposal; với `-p 1` không còn lượt đỏ nào nên không đề xuất lúc này.
 
 **QC chạy lại**: tạo nhánh mới từ `sprint/7-p4-p5` (cache nguội), đổi một tệp Go, push ≥ 5 lần / mở PR; dòng `Go test (rest)` phải xanh cả 5.
+
+## Vòng 3 (#19: bỏ `-p 1`, sửa test chờ theo đồng hồ thật ở gốc)
+`-p 1` chỉ che triệu chứng và đẩy `Go test (rest)` lên 10–12 phút (vượt ngưỡng TC-20). Đã **bỏ `-p 1`** (`ci.yml`) và sửa từng test đã thấy đỏ trên lượt nguội, không nới assertion, không retry, không bỏ test (commit ghi `#19`):
+
+| Test | Nguyên nhân (đã thấy trong log CI) | Sửa |
+| --- | --- | --- |
+| `TestCancelReachesProvider` (`chat`) | luồng giả tự xong sau ~30 ms; `Cancel` tới trễ → trạng thái `DONE`, `provAbort` không bật | luồng giả `hold` (chờ tới khi `ctx` huỷ) + chờ sự kiện `aborted` (kênh đóng một lần) thay cho đọc cờ |
+| `TestStreamEventOrder` (`chat`) | kiểm "đang STREAMING" sau `Send`, nhưng luồng 15 ms đã xong dưới tải | `gate` giữ luồng tới khi kiểm xong trạng thái |
+| `TestStreamMaxDuration` (`chat`) | đọc `provAbort` ngay khi `send` trả về, trước khi goroutine giả thấy `ctx` huỷ | chờ `aborted` |
+| `TestJobs_Lifecycle` (`jobs`) | thấy `RUNNING` rồi đọc `progress` trước khi mốc 25 % ghi xong | handler đóng kênh `reported` sau `Progress(25)`; test chờ kênh |
+| `TestShutdown_ForcedAfterTimeout` (`httpapi`) | handler "chậm" chờ `time.After`/`ctx` của request; dưới tải request kết thúc trước hạn → `Serve = nil` | handler chặn trên kênh (không theo đồng hồ / `ctx`), `entered` báo request đã vào |
+| `TestOutbox_RetryThenDead`, `TestOutbox_UnknownTopicDead` | `dead_at` ghi **trước** `XADD` dead-letter (hai hệ lưu trữ); test đọc stream ngay sau `waitDead` → 0 tin | chờ `XLEN(dead) == 1` rồi mới đọc |
+| `TestRosterInvalidatedOnMemberChange` (`privacy`) | Redis chỉ có 30 ms/lệnh (`redisOpTimeout`); quá hạn → dựng lại từ DB → "cache cũ" biến mất | `Roster.OpTimeout` (0 = 30 ms như cũ); test đặt 10 s |
+| `TestMaskConcurrentSameSession` (`privacy`) | cùng cơ chế: lệnh Redis quá 30 ms → ánh xạ bộ nhớ cho một số lệnh → hai email cùng `[[EMAIL_1]]` | `Masker.RedisOpTimeout` (0 = 30 ms); test đặt 10 s |
+| `TestAIConfirmInvalidatedOnDecision` (`today`) | mỗi Provider của Hôm nay có hạn 150 ms (đúng SRS) → dưới tải Provider bị bỏ → danh sách rỗng | `TODAY_PROVIDER_TIMEOUT` (mặc định 150 ms); rig test đặt 30 s |
+| `private-chat.spec` "auto ticket" (e2e) | "3 giờ trước" tính theo ngày lịch giờ VN → "hôm qua 21:18" trong 3 giờ đầu sau nửa đêm | đồng hồ cố định giữa ngày |
+| `data-layer.spec` "sse parse + singleton" (e2e) | **lỗi thật**: chuông mở `/events` cả khi chưa có phiên | `useSSE({enabled})`, chuông chỉ nghe khi có phiên; `asDemo`/`asJwt` giả `/events` |
+
+Mặc định sản phẩm giữ nguyên (30 ms / 50 ms / 150 ms); chỉ test tiêm hạn dài qua trường cấu hình. Hai test đo thời gian thuần (`TestDetectLinearTime`, nhóm `*TimingEqualized`) đã chạy riêng, tuần tự (`EP_SKIP_TIMING=1` ở bước chung) — không đổi.
+
+**Đo (cold, không `-p 1`, `Go test (rest)` = `-race -tags testroutes -v`)**: vòng 1 (trước sửa Masker) 5/6 xanh (đỏ 1: `TestMaskConcurrentSameSession`); vòng 2 (sau mọi sửa) **6/6 xanh**, mỗi lượt 5,8–8,2 phút: runs `38435086769`, `38435093256`, `38435101291`, `38435108199`, `38435117559`, `38435123057` (nhánh tạm `tmp/p19b-*`, đã xoá). Máy dev (11 nhân, 24 vòng lặp bận chạy nền): 20 lượt các test trên đều xanh (`TestJobs_Lifecycle` đỏ trên mã cũ đúng như CI).
