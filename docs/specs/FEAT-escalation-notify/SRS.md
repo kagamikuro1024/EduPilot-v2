@@ -113,6 +113,7 @@ sequenceDiagram
 | SMTP lỗi vĩnh viễn | `DEAD` ngay | như trên |
 | Worker chết giữa chừng | outbox giao lại; SMTP **ít nhất một lần**, khử trùng ở người nhận theo `Message-ID` tất định `<mail_outbox.id@domain>` (TLR-1, 4.5.4) | Mailpit có đúng 1 thư mang `Message-ID` của dòng |
 | Redis phát SSE lỗi | dòng `notifications` vẫn có; chuông rơi về làm mới 30 s | trễ ≤ 30 s |
+| Redis chết lúc lưu tri thức (`POST …/tickets/{tid}/knowledge`; `proposals.md` #20) | vẫn `201` / `200`: chunk, `knowledge_items`, outbox `knowledge.sync` cùng giao dịch Postgres; chỉ Postgres lỗi mới `503` | đoạn hiện "Chưa nạp vào tri thức" tới khi Redis lên lại và `knowledge.sync` chạy |
 | Tab thứ 3 mở SSE | `429 SSE_LIMIT_REACHED` | chuông làm mới 30 s, không báo lỗi |
 | Ticket quá 24 giờ chờ (T2–T6, cả ngày, giờ VN; tính từ `waiting_since`) | nhắc cả nhóm một lần (`sla_stage=1`) | chuông + thư cho giảng viên / TA |
 | Ticket quá 72 giờ chờ (như trên) | `Overdue` ở `Hôm nay`; Admin nhận **một** thông báo mỗi ngày nếu lớp không ai hoạt động (4.6.2) | mục lên đầu, ghi số giờ chờ |
@@ -260,7 +261,7 @@ Không có truy vấn liệt kê phiên / tin của sinh viên cho `Staff`. Test
 - `knowledge.Upsert(source)` / `knowledge.Remove(source)`: đường duy nhất ghi `content_chunks` của tài liệu này; idempotent theo `(source_type, source_id)`.
 - Nguồn **POST**: câu trả lời AI `VERIFIED` / `CORRECTED` (nội dung đã sửa nếu `CORRECTED`) + câu hỏi thread; gỡ khi `REJECT`, ẩn, xoá (bài hoặc thread), hoặc `Loại` sau khi đã xác nhận. Nguồn **TICKET**: giảng viên bấm `Lưu thành tri thức`.
 - **Che thông tin cá nhân:** văn bản đi vào chunk luôn qua `privacy.Redact` rồi `Detect` lại; còn khoảng khớp → từ chối (`PII_DETECTED`). Ticket: câu hỏi bị phân loại `PERSONAL_QUESTION` → `422 KNOWLEDGE_PERSONAL`; giảng viên xem trước và sửa bản đã che; `POST …/knowledge {question, answer}` nhận **bản đã sửa** và ghi thẳng vào `content_chunks` (không đọc lại `chat_messages`).
-- Việc nạp: handler outbox `knowledge.sync` chỉ **`Embed` một lần** (≤ `KNOWLEDGE_EMBED_TIMEOUT`, qua Scheduler) rồi `UPDATE content_chunks SET embedding = … WHERE id = $1 AND md5(text) = $2` (bỏ qua nếu đã có bản sửa mới hơn), sau đó phát `document.changed`. Lỗi → thử lại theo outbox rồi `DEAD`. "Chưa nạp" = `embedding IS NULL` (hiển thị cho giảng viên); nút `Thử lại` ghi lại outbox `knowledge.sync`.
+- Việc nạp: handler outbox `knowledge.sync` chỉ **`Embed` một lần** (≤ `KNOWLEDGE_EMBED_TIMEOUT`, qua Scheduler) rồi `UPDATE content_chunks SET embedding = … WHERE id = $1 AND md5(text) = $2` (bỏ qua nếu đã có bản sửa mới hơn), sau đó phát `document.changed`. Lỗi → thử lại theo outbox rồi `DEAD`. "Chưa nạp" = `embedding IS NULL` (hiển thị cho giảng viên); nút `Thử lại` ghi lại outbox `knowledge.sync`. **Redis chết lúc lưu (`proposals.md` #20):** route vẫn `201` / `200` vì chunk, `knowledge_items` và dòng outbox cùng một giao dịch Postgres (đúng tinh thần #16); Redis không nằm trên đường ghi; `knowledge.sync` chạy khi Redis và worker lên lại; chỉ Postgres lỗi mới `503`.
 - **Trích nguồn của đoạn tri thức (TLR-12):** nguồn POST → liên kết `/threads/{id}`; nguồn TICKET → nhãn "Hỏi đáp đã được giảng viên xác nhận", **không** liên kết (tài liệu ảo không có tệp).
 
 ### 4.8 `Hôm nay` — nguồn việc mới (bảng bậc; số nhỏ = gấp hơn)
@@ -361,7 +362,7 @@ Nguồn `STAFF_ANSWER_UNREAD` (TLR-14) = `notifications` của chính sinh viên
 | FR-28 | `WorkingElapsed` (khung tham số; mặc định cả ngày T2–T6); mốc `waiting_since`; job SLA 24 / 72 giờ làm việc; báo Admin mỗi ngày khi không ai hoạt động; crash-safe | P4-05-AC1, AC4, AC5, AC6, AC13 |
 | FR-29 | Sinh viên thấy trạng thái và thời gian đã chờ bằng lời | P4-05-AC7 |
 | FR-30 | `Đóng không trả lời` | P4-05-AC9 |
-| FR-31 | Lưu thành tri thức: xem trước đã che, PII / câu hỏi cá nhân bị từ chối, ghi chunk trong giao dịch + nạp sau, dùng được ≤ 10 s, gỡ / sửa được, không lọt thư viện (mọi `from/join documents`) | P4-05-AC10, AC11 |
+| FR-31 | Lưu thành tri thức: xem trước đã che, PII / câu hỏi cá nhân bị từ chối, ghi chunk trong giao dịch + nạp sau, dùng được ≤ 10 s, gỡ / sửa được, không lọt thư viện (mọi `from/join documents`); Redis chết vẫn lưu được, chỉ Postgres lỗi mới 503 (#20) | P4-05-AC10, AC11, AC14 |
 | FR-32 | Thanh trượt ngưỡng + `PUT …/settings` | P4-05-AC12 |
 | FR-33 | Báo cáo (lý do chọn sẵn, một lần mỗi bài, tự ẩn ở 3 người khác nhau, cuộc đua) | P4-06-AC1, AC2, AC15 |
 | FR-34 | Hàng chờ, `Ẩn bài` có lý do, `Bỏ ẩn`, `Giữ bài`, người đăng được báo và thấy lý do | P4-06-AC3, AC4 |
@@ -489,7 +490,7 @@ Thân lỗi `{code, message, details?, retry_after?}` (`ARCHITECTURE.md` §5). M
 | 9 | `POST …/tickets/{tid}/answer {body, version?}` | `Staff` | **bắt buộc** | `200 {ticket, message}` | `409`, `422 PII_IN_ANSWER`, `422` (độ dài) |
 | 10 | `POST …/tickets/{tid}/dismiss {reason, version?}` | `Staff` | – | `200 {ticket}` | `409`, `422` |
 | 11 | `GET …/tickets/{tid}/knowledge-preview` | `Staff` | – | `200 {question, answer}` (đã `Redact`) | `409`, `422 KNOWLEDGE_PERSONAL` |
-| 12 | `POST …/tickets/{tid}/knowledge {question, answer}` · `DELETE …/knowledge` | `Staff` | – | `201`/`200` · `204` | `422 PII_DETECTED`, `422 KNOWLEDGE_PERSONAL`, `409` |
+| 12 | `POST …/tickets/{tid}/knowledge {question, answer}` · `DELETE …/knowledge` | `Staff` | – | `201`/`200` · `204` | `422 PII_DETECTED`, `422 KNOWLEDGE_PERSONAL`, `409`, `503` (chỉ khi Postgres lỗi; Redis lỗi vẫn `201`/`200` — #20) |
 | 13 | `PUT /courses/{id}/settings {escalation_threshold?, version}` | `Teacher` | – | `200 {course}` | `409 VERSION_CONFLICT`, `422` |
 
 `ticket` (nhân viên) = `{id, kind, status, student{id,full_name}, claimed_by?, answered_by?, age_minutes, sla_stage, reopened_count, save_as_knowledge, course{id,class_code}, version, created_at}`. `ai_answer` = `{content, citations, blocks, confidence}`; `transcript` = `[{id, role, author:{full_name,role}|"student", content, created_at}]`.
