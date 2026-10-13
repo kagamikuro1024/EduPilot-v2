@@ -31,7 +31,7 @@ func (q *Queries) BumpForumThread(ctx context.Context, arg BumpForumThreadParams
 }
 
 const getForumThread = `-- name: GetForumThread :one
-select id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at from forum_threads where course_id = $1 and id = $2 and deleted_at is null
+select id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at, hidden_at, hidden_reason, hidden_by, edited_at from forum_threads where course_id = $1 and id = $2 and deleted_at is null
 `
 
 type GetForumThreadParams struct {
@@ -62,6 +62,10 @@ func (q *Queries) GetForumThread(ctx context.Context, arg GetForumThreadParams) 
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.HiddenAt,
+		&i.HiddenReason,
+		&i.HiddenBy,
+		&i.EditedAt,
 	)
 	return i, err
 }
@@ -70,7 +74,7 @@ const insertForumPost = `-- name: InsertForumPost :one
 insert into forum_posts (course_id, thread_id, author_id, kind, body, verification_state, citations, confidence)
 values ($1, $2, $3, $4, $5, $6,
         $7, $8)
-returning id, course_id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, verified_by, verified_at, hidden_at, hidden_reason, hidden_by, deleted_at, embedding, version, created_at, updated_at
+returning id, course_id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, verified_by, verified_at, hidden_at, hidden_reason, hidden_by, deleted_at, embedding, version, created_at, updated_at, edited_at
 `
 
 type InsertForumPostParams struct {
@@ -117,6 +121,7 @@ func (q *Queries) InsertForumPost(ctx context.Context, arg InsertForumPostParams
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EditedAt,
 	)
 	return i, err
 }
@@ -125,7 +130,7 @@ const insertForumThread = `-- name: InsertForumThread :one
 
 insert into forum_threads (course_id, author_id, title, body, tags, week_no)
 values ($1, $2, $3, $4, $5, $6)
-returning id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at
+returning id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at, hidden_at, hidden_reason, hidden_by, edited_at
 `
 
 type InsertForumThreadParams struct {
@@ -168,12 +173,16 @@ func (q *Queries) InsertForumThread(ctx context.Context, arg InsertForumThreadPa
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.HiddenAt,
+		&i.HiddenReason,
+		&i.HiddenBy,
+		&i.EditedAt,
 	)
 	return i, err
 }
 
 const listForumPosts = `-- name: ListForumPosts :many
-select id, course_id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, verified_by, verified_at, hidden_at, hidden_reason, hidden_by, deleted_at, embedding, version, created_at, updated_at from forum_posts
+select id, course_id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, verified_by, verified_at, hidden_at, hidden_reason, hidden_by, deleted_at, embedding, version, created_at, updated_at, edited_at from forum_posts
 where thread_id = $1 and deleted_at is null
 order by created_at, id
 limit $2
@@ -214,6 +223,7 @@ func (q *Queries) ListForumPosts(ctx context.Context, arg ListForumPostsParams) 
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.EditedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -226,7 +236,7 @@ func (q *Queries) ListForumPosts(ctx context.Context, arg ListForumPostsParams) 
 }
 
 const listForumThreads = `-- name: ListForumThreads :many
-select id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at from forum_threads
+select id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at, hidden_at, hidden_reason, hidden_by, edited_at from forum_threads
 where course_id = $1 and deleted_at is null
   and ($2::timestamptz is null or (last_activity_at, id) < ($2::timestamptz, $3::uuid))
 order by last_activity_at desc, id desc
@@ -274,6 +284,10 @@ func (q *Queries) ListForumThreads(ctx context.Context, arg ListForumThreadsPara
 			&i.Version,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.HiddenAt,
+			&i.HiddenReason,
+			&i.HiddenBy,
+			&i.EditedAt,
 		); err != nil {
 			return nil, err
 		}

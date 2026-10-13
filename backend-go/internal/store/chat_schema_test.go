@@ -75,9 +75,9 @@ func TestSchemaChat(t *testing.T) {
 		"chat_messages": {"id", "course_id", "session_id", "user_id", "role", "content", "partial_content", "stream_status", "client_msg_id", "reply_to", "attempt", "intent",
 			"citations", "blocks", "confidence", "low_confidence", "no_context", "degraded", "masked_count", "feedback", "error_code", "trace_id", "completed_at", "created_at", "updated_at"},
 		"forum_threads": {"id", "course_id", "author_id", "title", "body", "tags", "week_no", "state", "ai_state", "ai_skip_reason", "similar_of", "pinned_at", "reply_count",
-			"last_activity_at", "embedding", "deleted_at", "version", "created_at", "updated_at"},
+			"last_activity_at", "embedding", "deleted_at", "version", "created_at", "updated_at", "hidden_at", "hidden_reason", "hidden_by", "edited_at"}, // #8: 00012 thêm hidden_*, edited_at
 		"forum_posts": {"id", "course_id", "thread_id", "author_id", "kind", "body", "verification_state", "citations", "confidence", "ai_body", "verified_by", "verified_at",
-			"hidden_at", "hidden_reason", "hidden_by", "deleted_at", "embedding", "version", "created_at", "updated_at"},
+			"hidden_at", "hidden_reason", "hidden_by", "deleted_at", "embedding", "version", "created_at", "updated_at", "edited_at"}, // #8: 00012 thêm edited_at
 		"pii_events": {"id", "course_id", "session_id", "user_id", "channel", "pii_type", "count", "action", "created_at"},
 	}
 	for table, cols := range want {

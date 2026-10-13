@@ -1237,6 +1237,95 @@ func (ns NullPostKind) Value() (driver.Value, error) {
 	return string(ns.PostKind), nil
 }
 
+type PostReportReason string
+
+const (
+	PostReportReasonSPAM         PostReportReason = "SPAM"
+	PostReportReasonOFFTOPIC     PostReportReason = "OFF_TOPIC"
+	PostReportReasonPERSONALINFO PostReportReason = "PERSONAL_INFO"
+	PostReportReasonOFFENSIVE    PostReportReason = "OFFENSIVE"
+	PostReportReasonWRONGANSWER  PostReportReason = "WRONG_ANSWER"
+	PostReportReasonOTHER        PostReportReason = "OTHER"
+)
+
+func (e *PostReportReason) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PostReportReason(s)
+	case string:
+		*e = PostReportReason(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PostReportReason: %T", src)
+	}
+	return nil
+}
+
+type NullPostReportReason struct {
+	PostReportReason PostReportReason
+	Valid            bool // Valid is true if PostReportReason is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPostReportReason) Scan(value interface{}) error {
+	if value == nil {
+		ns.PostReportReason, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PostReportReason.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPostReportReason) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PostReportReason), nil
+}
+
+type PostReportStatus string
+
+const (
+	PostReportStatusOPEN      PostReportStatus = "OPEN"
+	PostReportStatusDISMISSED PostReportStatus = "DISMISSED"
+	PostReportStatusACTIONED  PostReportStatus = "ACTIONED"
+)
+
+func (e *PostReportStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = PostReportStatus(s)
+	case string:
+		*e = PostReportStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for PostReportStatus: %T", src)
+	}
+	return nil
+}
+
+type NullPostReportStatus struct {
+	PostReportStatus PostReportStatus
+	Valid            bool // Valid is true if PostReportStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullPostReportStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.PostReportStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.PostReportStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullPostReportStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.PostReportStatus), nil
+}
+
 type PostVerification string
 
 const (
@@ -1717,6 +1806,138 @@ func (ns NullThreadState) Value() (driver.Value, error) {
 	return string(ns.ThreadState), nil
 }
 
+type TicketKind string
+
+const (
+	TicketKindQUESTION        TicketKind = "QUESTION"
+	TicketKindGRADEAPPEAL     TicketKind = "GRADE_APPEAL"
+	TicketKindTEACHEROUTREACH TicketKind = "TEACHER_OUTREACH"
+)
+
+func (e *TicketKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TicketKind(s)
+	case string:
+		*e = TicketKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TicketKind: %T", src)
+	}
+	return nil
+}
+
+type NullTicketKind struct {
+	TicketKind TicketKind
+	Valid      bool // Valid is true if TicketKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTicketKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.TicketKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TicketKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTicketKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TicketKind), nil
+}
+
+type TicketOrigin string
+
+const (
+	TicketOriginAUTOLOWCONFIDENCE TicketOrigin = "AUTO_LOW_CONFIDENCE"
+	TicketOriginAUTONOFORMULA     TicketOrigin = "AUTO_NO_FORMULA"
+	TicketOriginSTUDENTREQUEST    TicketOrigin = "STUDENT_REQUEST"
+	TicketOriginSTAFFOUTREACH     TicketOrigin = "STAFF_OUTREACH"
+	TicketOriginSTUDENTAPPEAL     TicketOrigin = "STUDENT_APPEAL"
+)
+
+func (e *TicketOrigin) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TicketOrigin(s)
+	case string:
+		*e = TicketOrigin(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TicketOrigin: %T", src)
+	}
+	return nil
+}
+
+type NullTicketOrigin struct {
+	TicketOrigin TicketOrigin
+	Valid        bool // Valid is true if TicketOrigin is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTicketOrigin) Scan(value interface{}) error {
+	if value == nil {
+		ns.TicketOrigin, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TicketOrigin.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTicketOrigin) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TicketOrigin), nil
+}
+
+type TicketStatus string
+
+const (
+	TicketStatusOPEN     TicketStatus = "OPEN"
+	TicketStatusCLAIMED  TicketStatus = "CLAIMED"
+	TicketStatusANSWERED TicketStatus = "ANSWERED"
+	TicketStatusCLOSED   TicketStatus = "CLOSED"
+)
+
+func (e *TicketStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TicketStatus(s)
+	case string:
+		*e = TicketStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TicketStatus: %T", src)
+	}
+	return nil
+}
+
+type NullTicketStatus struct {
+	TicketStatus TicketStatus
+	Valid        bool // Valid is true if TicketStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTicketStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.TicketStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TicketStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTicketStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TicketStatus), nil
+}
+
 type UserRole string
 
 const (
@@ -2088,6 +2309,37 @@ type Enrollment struct {
 	UpdatedAt           time.Time
 }
 
+type EscalationTicket struct {
+	ID              uuid.UUID
+	CourseID        uuid.UUID
+	Kind            TicketKind
+	Origin          TicketOrigin
+	Status          TicketStatus
+	SourceType      string
+	SourceID        uuid.UUID
+	MessageID       *uuid.UUID
+	SessionID       *uuid.UUID
+	StudentID       uuid.UUID
+	Confidence      decimal.NullDecimal
+	AppealPayload   json.RawMessage
+	ClaimedBy       *uuid.UUID
+	ClaimedAt       *time.Time
+	Answer          *string
+	AnsweredBy      *uuid.UUID
+	AnsweredAt      *time.Time
+	ClosedAt        *time.Time
+	ClosedReason    *string
+	DismissReason   *string
+	ReopenedCount   int16
+	SlaStage        int16
+	SlaStageAt      *time.Time
+	WaitingSince    time.Time
+	SaveAsKnowledge bool
+	Version         int32
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+}
+
 type Exam struct {
 	ID               uuid.UUID
 	CourseID         uuid.UUID
@@ -2209,6 +2461,7 @@ type ForumPost struct {
 	Version           int32
 	CreatedAt         time.Time
 	UpdatedAt         time.Time
+	EditedAt          *time.Time
 }
 
 type ForumThread struct {
@@ -2231,6 +2484,10 @@ type ForumThread struct {
 	Version        int32
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
+	HiddenAt       *time.Time
+	HiddenReason   *string
+	HiddenBy       *uuid.UUID
+	EditedAt       *time.Time
 }
 
 type IdempotencyKey struct {
@@ -2255,6 +2512,17 @@ type Job struct {
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	FinishedAt *time.Time
+}
+
+type KnowledgeItem struct {
+	ID         uuid.UUID
+	CourseID   uuid.UUID
+	SourceType string
+	SourceID   uuid.UUID
+	ChunkID    uuid.UUID
+	CreatedBy  *uuid.UUID
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type LlmAudit struct {
@@ -2394,6 +2662,22 @@ type PiiEvent struct {
 	Count     int32
 	Action    PiiAction
 	CreatedAt time.Time
+}
+
+type PostReport struct {
+	ID         uuid.UUID
+	CourseID   uuid.UUID
+	ThreadID   *uuid.UUID
+	PostID     *uuid.UUID
+	TargetID   *uuid.UUID
+	ReporterID uuid.UUID
+	Reason     PostReportReason
+	Note       *string
+	Status     PostReportStatus
+	HandledBy  *uuid.UUID
+	HandledAt  *time.Time
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
 }
 
 type QuestionBank struct {
