@@ -2180,6 +2180,172 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/sessions/{sid}/attendance:
+    get:
+      operationId: getSessionAttendance
+      tags: [crm]
+      summary: "Lưới điểm danh của một buổi (giảng viên / TA): mọi sinh viên ACTIVE; `record: null` = chưa có dòng (giao diện hiện mặc định Có mặt, chưa lưu). Không cache"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lưới của buổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceGrid"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: putSessionAttendance
+      tags: [crm]
+      summary: "Ghi cả lưới bằng MỘT giao dịch (giảng viên / TA). Hàng giống hệt DB bỏ qua; hàng đổi cần `version` đúng, sai → 409 VERSION_CONFLICT kèm `details.conflicts` và KHÔNG ghi gì. `complete:true` điền Có mặt cho sinh viên còn thiếu và đặt đã hoàn tất. Gửi lại cùng nội dung → 200, không audit mới"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendancePutRequest"
+      responses:
+        "200":
+          description: Các hàng đã ghi / giữ nguyên kèm version, và mốc hoàn tất
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendancePutResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/participation:
+    get:
+      operationId: listParticipation
+      tags: [crm]
+      summary: "Sự kiện tham gia của lớp, mới nhất trước (giảng viên / TA); lọc `student_id`, `session_id`; cursor, tối đa 100"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: student_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: session_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang sự kiện
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipationList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: addParticipation
+      tags: [crm]
+      summary: "Ghi một sự kiện tham gia (giảng viên / TA). Idempotent theo `client_event_id`: gửi lại của chính mình trả sự kiện cũ (200), của lớp / người khác 409 IDEMPOTENCY_KEY_REUSED. `points` bỏ trống ⇒ phát biểu dùng điểm mặc định"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParticipationRequest"
+      responses:
+        "200":
+          description: Đã có (gửi lại cùng client_event_id)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipationEvent"
+        "201":
+          description: Đã ghi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipationEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/participation/{pid}:
+    delete:
+      operationId: deleteParticipation
+      tags: [crm]
+      summary: "Xoá một sự kiện tham gia: người tạo hoặc giảng viên của lớp (TA xoá của người khác → 403)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -7465,6 +7631,219 @@ components:
           type: [integer, "null"]
         skipped:
           type: integer
+    AttendanceGrid:
+      type: object
+      required: [session, students]
+      additionalProperties: false
+      properties:
+        session:
+          type: object
+          required: [id, session_no, starts_at, ends_at, room, topic, attendance_done_at]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            session_no:
+              type: integer
+            starts_at:
+              type: string
+              format: date-time
+            ends_at:
+              type: string
+              format: date-time
+            room:
+              type: [string, "null"]
+            topic:
+              type: [string, "null"]
+            attendance_done_at:
+              type: [string, "null"]
+              format: date-time
+        students:
+          type: array
+          items:
+            type: object
+            required: [id, full_name, student_code, record, speak_count]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                format: uuid
+              full_name:
+                type: string
+              student_code:
+                type: [string, "null"]
+              speak_count:
+                type: integer
+              record:
+                type: [object, "null"]
+                required: [status, note, version, marked_by, marked_at]
+                additionalProperties: false
+                properties:
+                  status:
+                    $ref: "#/components/schemas/AttendanceStatus"
+                  note:
+                    type: [string, "null"]
+                  version:
+                    type: integer
+                  marked_by:
+                    type: object
+                    required: [full_name]
+                    additionalProperties: false
+                    properties:
+                      full_name:
+                        type: string
+                  marked_at:
+                    type: string
+                    format: date-time
+    AttendanceStatus:
+      type: string
+      enum: [PRESENT, LATE, EXCUSED, ABSENT]
+    AttendancePutRequest:
+      type: object
+      required: [records]
+      additionalProperties: false
+      properties:
+        records:
+          type: array
+          maxItems: 5000
+          items:
+            type: object
+            required: [student_id, status]
+            additionalProperties: false
+            properties:
+              student_id:
+                type: string
+                format: uuid
+              status:
+                $ref: "#/components/schemas/AttendanceStatus"
+              note:
+                type: [string, "null"]
+                maxLength: 200
+              version:
+                type: [integer, "null"]
+                minimum: 1
+        complete:
+          type: boolean
+    AttendancePutResult:
+      type: object
+      required: [records, done_at]
+      additionalProperties: false
+      properties:
+        records:
+          type: array
+          items:
+            type: object
+            required: [student_id, status, version]
+            additionalProperties: false
+            properties:
+              student_id:
+                type: string
+                format: uuid
+              status:
+                $ref: "#/components/schemas/AttendanceStatus"
+              version:
+                type: integer
+        done_at:
+          type: [string, "null"]
+          format: date-time
+    ParticipationRequest:
+      type: object
+      required: [student_id, type, client_event_id]
+      additionalProperties: false
+      properties:
+        student_id:
+          type: string
+          format: uuid
+        session_id:
+          type: [string, "null"]
+          format: uuid
+        type:
+          type: string
+          enum: [SPEAK, BONUS, PENALTY]
+        points:
+          description: Thập phân dạng chuỗi hoặc số, [-5, 5], bước 0,01; bỏ trống = điểm mặc định của phát biểu
+          type: [string, number, "null"]
+        note:
+          type: [string, "null"]
+          maxLength: 200
+        client_event_id:
+          type: string
+          format: uuid
+    ParticipationEvent:
+      type: object
+      required: [id, student_id, session_id, type, points, note, client_event_id, created_by, created_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        session_id:
+          type: [string, "null"]
+          format: uuid
+        type:
+          type: string
+          enum: [SPEAK, BONUS, PENALTY]
+        points:
+          type: string
+          pattern: "^-?[0-9]+\\.[0-9]{2}$"
+        note:
+          type: [string, "null"]
+        client_event_id:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+    ParticipationList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, student, session_id, type, points, note, created_by, created_at]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                format: uuid
+              student:
+                type: object
+                required: [id, full_name]
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  full_name:
+                    type: string
+              session_id:
+                type: [string, "null"]
+                format: uuid
+              type:
+                type: string
+                enum: [SPEAK, BONUS, PENALTY]
+              points:
+                type: string
+              note:
+                type: [string, "null"]
+              created_by:
+                type: string
+                format: uuid
+              created_at:
+                type: string
+                format: date-time
+        next_cursor:
+          type: [string, "null"]
     SessionGeneratePreview:
       type: object
       required: [would_create, skipped]
@@ -8314,6 +8693,7 @@ components:
             - CRISIS_SUPPORT
             - SESSION_DUPLICATE
             - SESSION_HAS_ATTENDANCE
+            - STUDENT_NOT_IN_COURSE
         message:
           type: string
         trace_id:

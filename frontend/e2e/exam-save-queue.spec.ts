@@ -178,3 +178,32 @@ test("kho hỏng hoặc rỗng: bắt đầu trống, không ném lỗi", async 
   const q = new SaveQueue(bad, s.send, s.clock, () => s.clock.t);
   expect(q.state).toMatchObject({ status: "saved", pending: 0 });
 });
+
+// US-P5-02 AC13: hàng đợi tổng quát (kiểu giá trị riêng), `discard` bỏ thay đổi chưa gửi, `fatal` (409) dừng và giữ nguyên chữ, `restart` gửi lại phần còn giữ.
+test("saveQueue generic: discard bỏ một mục chưa gửi; fatal dừng giữ chữ; restart gửi lại đúng phần còn lại", async () => {
+  type V = { status: string };
+  const clock = new Clock();
+  const store = memoryStore();
+  const sent: Array<Array<{ item_id: string; answer: V }>> = [];
+  let mode: "fatal" | "ok" = "fatal";
+  const q = new SaveQueue<V>(store, async (b) => { sent.push(b); return mode === "fatal" ? { ok: false, fatal: true } : { ok: true }; }, clock, () => clock.t);
+  q.set("a", { status: "ABSENT" });
+  q.set("b", { status: "LATE" });
+  q.set("c", { status: "ABSENT" });
+  q.discard("c"); // hoàn tác trước khi gửi
+  expect(Object.keys(q.pending()).sort()).toEqual(["a", "b"]);
+  await clock.advance(DEBOUNCE_MS);
+  expect(sent).toHaveLength(1);
+  expect(q.state.status).toBe("stopped");
+  expect(Object.keys(JSON.parse(store.raw() ?? "{}").dirty).sort()).toEqual(["a", "b"]); // 409: chữ còn nguyên ở máy
+  await clock.advance(60_000);
+  expect(sent).toHaveLength(1); // đã dừng: không tự thử lại
+  q.discard("a"); // "Lấy của người kia"
+  mode = "ok";
+  q.restart();
+  await clock.advance(1);
+  expect(sent).toHaveLength(2);
+  expect(sent[1].map((x) => x.item_id)).toEqual(["b"]);
+  expect(q.state.status).toBe("saved");
+  expect(Object.keys(JSON.parse(store.raw() ?? "{\"dirty\":{}}").dirty)).toEqual([]);
+});

@@ -1,0 +1,6 @@
+.picker { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-1) var(--ep-space-2); }
+.picker select { min-width: 190px; }
+@media (max-width: 719px) {
+  .picker { flex: 1; }
+  .picker select { flex: 1; }
+}

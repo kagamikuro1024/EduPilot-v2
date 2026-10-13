@@ -4,12 +4,13 @@
 // trở lại / tab hiện lại; thành công xoá phần đã gửi (chỉ khi câu đó không đổi trong lúc gửi); thất bại giữ nguyên và thử lại sau 1 → 2 → 4 → 8 → 15 s.
 
 export type Answer = { option_ids: string[] } | { value: boolean };
-export type Dirty = Record<string, Answer>;
+/** Giá trị đang chờ gửi theo khoá. Mặc định là câu trả lời bài thi; điểm danh (US-P5-02) dùng kiểu riêng. */
+export type Dirty<V = Answer> = Record<string, V>;
 
 export type Store = { read(): string | null; write(v: string): void; remove(): void };
 export type Timers = { set(fn: () => void, ms: number): unknown; clear(h: unknown): void };
 /** Gửi một lô; trả `ok` khi máy chủ nhận. Lỗi KHÔNG thử lại được (vd. 409 hết hạn / người ghi khác) báo qua `fatal` để hàng đợi dừng và giữ nguyên chữ. */
-export type Sender = (items: Array<{ item_id: string; answer: Answer }>) => Promise<{ ok: true } | { ok: false; fatal?: boolean }>;
+export type Sender<V = Answer> = (items: Array<{ item_id: string; answer: V }>) => Promise<{ ok: true } | { ok: false; fatal?: boolean }>;
 
 export type QueueState = { status: "saved" | "pending" | "offline" | "stopped"; pending: number; savedAt: number | null; retryInMs: number | null };
 
@@ -18,10 +19,10 @@ export const BACKOFF_MS = [1000, 2000, 4000, 8000, 15000] as const;
 const MAX_BYTES = 64 * 1024;
 
 /** `savedAt` giữ cho bộ dọn nháp cũ của `useAutosaveDraft` (xoá khoá `ep:draft:*` thiếu `savedAt` hoặc quá 30 ngày) không xoá nhầm hàng đợi. */
-type Persisted = { rev_local: number; dirty: Dirty; saved_at: number | null; savedAt: number };
+type Persisted<V> = { rev_local: number; dirty: Dirty<V>; saved_at: number | null; savedAt: number };
 
-export class SaveQueue {
-  private dirty: Dirty = {};
+export class SaveQueue<V = Answer> {
+  private dirty: Dirty<V> = {};
   private rev = 0;
   private savedAt: number | null = null;
   private timer: unknown = null;
@@ -33,14 +34,14 @@ export class SaveQueue {
 
   constructor(
     private store: Store,
-    private send: Sender,
+    private send: Sender<V>,
     private timers: Timers,
     private now: () => number,
   ) {
     try {
       const raw = store.read();
       if (raw) {
-        const p = JSON.parse(raw) as Persisted;
+        const p = JSON.parse(raw) as Persisted<V>;
         this.dirty = p.dirty ?? {};
         this.rev = p.rev_local ?? 0;
         this.savedAt = p.saved_at ?? null;
@@ -51,12 +52,12 @@ export class SaveQueue {
   }
 
   /** Đổi hàm gửi (đóng gói ngữ cảnh mới của màn hình: tab, lượt…) mà không tạo lại hàng đợi. */
-  setSender(send: Sender) {
+  setSender(send: Sender<V>) {
     this.send = send;
   }
 
   /** Phần chưa lên máy chủ (đã đọc lại từ kho khi khởi tạo): áp lên đề đã tải để giữ chữ của người làm bài. */
-  pending(): Dirty {
+  pending(): Dirty<V> {
     return { ...this.dirty };
   }
 
@@ -77,18 +78,27 @@ export class SaveQueue {
   }
 
   private persist() {
-    const body = JSON.stringify({ rev_local: this.rev, dirty: this.dirty, saved_at: this.savedAt, savedAt: this.now() } satisfies Persisted);
+    const body = JSON.stringify({ rev_local: this.rev, dirty: this.dirty, saved_at: this.savedAt, savedAt: this.now() } satisfies Persisted<V>);
     if (body.length <= MAX_BYTES) this.store.write(body);
     // vượt 64 KiB: giữ trong bộ nhớ (vẫn gửi được); mỗi câu tối đa 4 KiB nên bài thật không bao giờ tới mức này
   }
 
   /** Ghi một thay đổi: vào kho ngay, hẹn gửi sau DEBOUNCE_MS. */
-  set(itemId: string, answer: Answer) {
+  set(itemId: string, answer: V) {
     if (this.stopped) return;
     this.dirty[itemId] = answer;
     this.rev++;
     this.persist();
     this.schedule(DEBOUNCE_MS);
+    this.emit();
+  }
+
+  /** Bỏ một thay đổi chưa gửi (người dùng chọn "lấy bản của người khác" / hoàn tác trước khi gửi). Hết thay đổi thì xoá kho. */
+  discard(itemId: string) {
+    if (!(itemId in this.dirty)) return;
+    delete this.dirty[itemId];
+    if (Object.keys(this.dirty).length === 0) this.store.remove();
+    else this.persist();
     this.emit();
   }
 
@@ -142,8 +152,8 @@ export class SaveQueue {
     const keys = Object.keys(this.dirty);
     if (keys.length === 0) return;
     this.inflight = true;
-    const sent: Dirty = { ...this.dirty };
-    let res: Awaited<ReturnType<Sender>>;
+    const sent: Dirty<V> = { ...this.dirty };
+    let res: Awaited<ReturnType<Sender<V>>>;
     try {
       res = await this.send(keys.map((k) => ({ item_id: k, answer: sent[k] })));
     } catch {

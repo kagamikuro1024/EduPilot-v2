@@ -1,6 +1,7 @@
 import { BASE_URL } from "./env";
 import { doc as docRow, libDetail, libItem, stats as docStats } from "./doc-fixtures";
 import { exam as calExam, item as calItem, session as calSession } from "./cal-fixtures";
+import { gridBody as attGrid, sessionRow as attSession } from "./att-fixtures";
 import { TID as THREAD_ID, row as threadRow, view as threadView } from "./thread-fixtures";
 import type { BrowserContext, Page } from "@playwright/test";
 
@@ -75,6 +76,13 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
   });
   // Lịch THẬT (US-P8-03): vài dòng mặc định; spec cần hành vi khác thì tự giả bằng `calApi` (page-level thắng).
   await context.route("**/api/v1/courses/*/calendar**", (r) => (r.request().method() === "GET" ? r.fulfill(json({ items: [calExam(), calItem(), calSession()], next_cursor: null })) : r.fallback()));
+  // Điểm danh THẬT (US-P5-02): hai buổi và một lưới mặc định; spec cần hành vi khác thì tự giả bằng `attApi` (page-level thắng).
+  await context.route("**/api/v1/courses/*/sessions**", (r) => {
+    const u = new URL(r.request().url()).pathname;
+    if (r.request().method() !== "GET") return r.fallback();
+    if (u.endsWith("/attendance")) return r.fulfill(json(attGrid(2)));
+    return r.fulfill(json({ items: [attSession(2), attSession(1)], next_cursor: null }));
+  });
   // Hộp thư hỗ trợ THẬT (US-P4-03): một ticket mặc định; spec cần hành vi khác thì tự giả bằng `inboxApi` (page-level thắng).
   const tk = { id: "00000000-0000-7000-8000-0000000000f7", status: "OPEN", kind: "QUESTION", student: { id: "00000000-0000-7000-8000-0000000000a1", full_name: "Sinh Viên Thử" }, question_preview: "Điểm chuyên cần tính thế nào?", age_minutes: 95, claimed_by: null, sla_stage: 0, course: { id: COURSE_ID["761987"], class_code: "761987" } };
   await context.route("**/api/v1/me/tickets**", (r) => r.fulfill(json({ items: [tk], next_cursor: null })));

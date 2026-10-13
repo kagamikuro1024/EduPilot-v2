@@ -13,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/shopspring/decimal"
+
 	"github.com/edupilot/backend-go/internal/platform/crypto"
 )
 
@@ -137,6 +139,9 @@ type Config struct {
 	ChatMaxInputChars int
 	ChatRatePerMin    int
 	ChatStreamMax     time.Duration
+	// Điểm danh / tham gia (SRS FEAT-crm-360 4.1): ATTENDANCE_MAX_ROWS (số dòng tối đa mỗi lần lưu lưới), PARTICIPATION_DEFAULT_POINTS (điểm một lần phát biểu, decimal).
+	AttendanceMaxRows          int
+	ParticipationDefaultPoints decimal.Decimal
 	// Escalation (SRS FEAT-escalation-notify 4.1): TICKET_OPEN_CAP.
 	TicketOpenCap int
 	// MailTicketNewCoalesce: tối đa một thư `ticket_new` mỗi (người, lớp) trong khoảng này (cửa sổ trượt, SRS escalation 4.5.3).
@@ -319,6 +324,8 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ChatMaxInputChars = l.num("CHAT_MAX_INPUT_CHARS", 4000, 100, 20000)
 	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
 	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
+	c.AttendanceMaxRows = l.num("ATTENDANCE_MAX_ROWS", 1000, 100, 5000)
+	c.ParticipationDefaultPoints = l.points("PARTICIPATION_DEFAULT_POINTS", "0.25", -5, 5)
 	c.TicketOpenCap = l.num("TICKET_OPEN_CAP", 5, 1, 50)
 	c.MailTicketNewCoalesce = l.durRange("MAIL_TICKET_NEW_COALESCE", 15*time.Minute, time.Minute, 6*time.Hour)
 	c.TicketReopenDays = l.num("TICKET_REOPEN_DAYS", 30, 1, 365)
@@ -624,6 +631,20 @@ func (l *loader) fraction(name string, def float64) float64 {
 		return def
 	}
 	return f
+}
+
+// points đọc điểm (decimal, bước 0,01) trong [lo, hi]; không bao giờ qua float64 (luật 5).
+func (l *loader) points(name, def string, lo, hi int64) decimal.Decimal {
+	v := l.raw(name)
+	if v == "" {
+		v = def
+	}
+	d, err := decimal.NewFromString(v)
+	if err != nil || d.LessThan(decimal.NewFromInt(lo)) || d.GreaterThan(decimal.NewFromInt(hi)) || !d.Equal(d.Round(2)) {
+		l.bad(name, fmt.Sprintf("cần số thập phân trong [%d, %d], bước 0,01", lo, hi))
+		return decimal.RequireFromString(def)
+	}
+	return d
 }
 
 // rate đọc số thực trong [0, 1].

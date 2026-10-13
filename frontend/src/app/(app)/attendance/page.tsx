@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { AttendanceView } from "@/features/attendance/AttendanceView";
+import { AttendanceScreen } from "@/features/attendance/AttendanceScreen";
 
 export const metadata: Metadata = { title: "Điểm danh" };
 
 export default function Page() {
-  return <AttendanceView />;
+  return <AttendanceScreen />;
 }

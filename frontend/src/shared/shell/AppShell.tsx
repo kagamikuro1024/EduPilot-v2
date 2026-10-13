@@ -13,7 +13,8 @@ import { ALL_COURSES } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { useEnsureClock, useSimNow } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
-import { ButtonLink, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
+import { unsavedCount } from "@/shared/lib/unsavedWork";
+import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { CommandPalette } from "@/shared/ui/CommandPalette";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
@@ -91,6 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setPaletteTick((n) => n + 1);
   };
   const [more, setMore] = useState(false);
+  const [askLogout, setAskLogout] = useState(0); // số thay đổi chưa lưu khi bấm Đăng xuất (0 = không hỏi)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -291,7 +293,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     {
                       label: "Đăng xuất",
                       icon: <LogOut aria-hidden />,
-                      onSelect: () => logout(), // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
+                      onSelect: () => {
+                        const n = unsavedCount();
+                        if (n > 0) setAskLogout(n);
+                        else logout(); // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
+                      },
                     },
                   ]}
                 />
@@ -395,6 +401,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </>
       )}
 
+      <ConfirmIrreversible
+        open={askLogout > 0}
+        onClose={() => setAskLogout(0)}
+        onConfirm={() => {
+          setAskLogout(0);
+          logout();
+        }}
+        title="Còn điểm danh chưa lưu"
+        consequence={`${askLogout} thay đổi chưa lên máy chủ sẽ bị xoá khỏi máy này.`}
+        confirmLabel="Đăng xuất"
+        cancelLabel="Ở lại"
+      />
       <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />
     </div>
   );

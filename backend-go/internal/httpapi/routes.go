@@ -8,6 +8,7 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
@@ -15,6 +16,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/crmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
@@ -94,6 +96,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Log: d.Log}).Mount(r) // US-P5-02: điểm danh, phát biểu
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
@@ -160,6 +163,10 @@ func authOptions(d Deps) []auth.MiddlewareOption {
 		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
 	}
 	return mw
+}
+
+func crmService(d Deps) *crm.Service {
+	return &crm.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, MaxRows: d.Cfg.AttendanceMaxRows, DefaultSpeakPoints: d.Cfg.ParticipationDefaultPoints}
 }
 
 func calendarService(d Deps) *calendar.Service {

@@ -1241,6 +1241,57 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "DELETE", path: s3, token: svIn}, 403)
 	r.must(call{method: "DELETE", path: s3, token: gv}, 404) // đã xoá
 
+	// điểm danh + sự kiện tham gia (US-P5-02)
+	att := s1 + "/attendance"
+	r.must(call{method: "GET", path: att, token: gv}, 200)
+	r.must(call{method: "GET", path: att, token: ta}, 200)
+	r.must(call{method: "GET", path: att}, 401)
+	r.must(call{method: "GET", path: att, token: svIn}, 403)
+	r.must(call{method: "GET", path: att, token: admin}, 403)
+	r.must(call{method: "GET", path: ls + "/" + uuid.NewString() + "/attendance", token: gv}, 404)
+	save := func(status string, extra string) string {
+		return fmt.Sprintf(`{"records":[{"student_id":%q,"status":%q%s}],"complete":false}`, studentID, status, extra)
+	}
+	r.must(call{method: "PUT", path: att, token: gv, body: save("ABSENT", "")}, 200)
+	r.must(call{method: "PUT", path: att, token: gv, body: save("ABSENT", "")}, 200) // gửi lại cùng nội dung
+	r.must(call{method: "PUT", path: att, token: ta, body: save("LATE", "")}, 409)   // đổi mà thiếu version = xung đột
+	r.must(call{method: "PUT", path: att, token: ta, body: save("LATE", `,"version":1`)}, 200)
+	r.must(call{method: "PUT", path: att, token: gv, body: save("BAY_GIO", "")}, 422)
+	r.must(call{method: "PUT", path: att, body: save("ABSENT", "")}, 401)
+	r.must(call{method: "PUT", path: att, token: svIn, body: save("ABSENT", "")}, 403)
+	r.must(call{method: "PUT", path: ls + "/" + uuid.NewString() + "/attendance", token: gv, body: `{"records":[]}`}, 404)
+	r.must(call{method: "PUT", path: "/api/v1/courses/" + cid + "/sessions/" + uuid.NewString() + "/attendance", token: gv, body: `{"records":[]}`}, 409) // lớp đã lưu trữ
+	r.must(call{method: "PUT", path: att, token: gv, body: `{"records":[],"complete":true}`}, 200)
+
+	pp := "/api/v1/courses/" + c2 + "/participation"
+	ev := uuid.NewString()
+	spk := fmt.Sprintf(`{"student_id":%q,"type":"SPEAK","client_event_id":%q}`, studentID, ev)
+	_, pb := r.must(call{method: "POST", path: pp, token: gv, body: spk}, 201)
+	r.must(call{method: "POST", path: pp, token: gv, body: spk}, 200)
+	r.must(call{method: "POST", path: pp, token: ta, body: spk}, 409) // client_event_id của người khác
+	r.must(call{method: "POST", path: pp, body: spk}, 401)
+	r.must(call{method: "POST", path: pp, token: svIn, body: spk}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/participation", token: gv, body: spk}, 404)
+	r.must(call{method: "POST", path: pp, token: gv, body: fmt.Sprintf(`{"student_id":%q,"type":"LAC","client_event_id":%q}`, studentID, uuid.NewString())}, 422)
+	r.must(call{method: "GET", path: pp + "?student_id=" + studentID, token: gv}, 200)
+	r.must(call{method: "GET", path: pp, token: ta}, 200)
+	r.must(call{method: "GET", path: pp}, 401)
+	r.must(call{method: "GET", path: pp, token: svIn}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/participation", token: gv}, 404)
+	r.must(call{method: "GET", path: pp + "?student_id=khong-phai-uuid", token: gv}, 422)
+	var made struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(pb, &made); err != nil || made.ID == "" {
+		r.t.Fatalf("sự kiện tham gia: %v %s", err, pb)
+	}
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: ta}, 403) // TA xoá sự kiện của người khác
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID}, 401)
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: svIn}, 403)
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: gv}, 204)
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: gv}, 404)
+	r.must(call{method: "DELETE", path: "/api/v1/courses/" + cid + "/participation/" + uuid.NewString(), token: gv}, 409) // lớp đã lưu trữ
+
 	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"
 	r.must(call{method: "POST", path: dm, token: gv}, 204)
 	r.must(call{method: "POST", path: dm, token: gv}, 204)
