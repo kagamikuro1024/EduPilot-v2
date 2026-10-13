@@ -826,3 +826,31 @@ func TestStaffConfidenceThreadsOnly(t *testing.T) {
 	require.NoError(t, err)
 	require.Nil(t, v.Posts[0].Confidence)
 }
+
+// TestThreadReplyMail — US-P4-04 AC4/AC6: bình luận và quyết định về bài AI xếp thư `thread_reply` cho NGƯỜI ĐĂNG (email đã xác minh, `notify_answer_by_mail` bật), trong cùng giao dịch;
+// payload chỉ có định danh; người đăng tắt cờ thì không thư; tự bình luận bài của mình không thư.
+func TestThreadReplyMail(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	id := r.mustCreate(r.sv, "Quy chế thi lại", clean)
+	_, err := r.svc.Comment(t.Context(), r.other, r.course, id, thread.CommentIn{Body: "Mình cũng thắc mắc CANARY-BL"})
+	require.NoError(t, err)
+	require.Zero(t, r.count(`select count(*) from mail_outbox where template = 'thread_reply'`), "email chưa xác minh")
+
+	_, err = r.pool.Exec(t.Context(), `update users set email_verified_at = now() where id = $1`, r.sv.UserID)
+	require.NoError(t, err)
+	_, err = r.svc.Comment(t.Context(), r.other, r.course, id, thread.CommentIn{Body: "Bình luận thứ hai"})
+	require.NoError(t, err)
+	require.Equal(t, 1, r.count(`select count(*) from mail_outbox where template = 'thread_reply' and payload ? 'thread_id' and payload->>'event' = 'REPLY'`))
+	require.Zero(t, r.count(`select count(*) from mail_outbox where payload::text like '%CANARY%' or payload::text like '%Bình luận%'`), "payload không có nội dung")
+
+	_, err = r.svc.Comment(t.Context(), r.sv, r.course, id, thread.CommentIn{Body: "Tự trả lời"})
+	require.NoError(t, err)
+	require.Equal(t, 1, r.count(`select count(*) from mail_outbox where template = 'thread_reply'`), "tự bình luận không gửi thư cho chính mình")
+
+	_, err = r.pool.Exec(t.Context(), `insert into user_settings (user_id, notify_answer_by_mail) values ($1, false)`, r.sv.UserID)
+	require.NoError(t, err)
+	_, err = r.svc.Comment(t.Context(), r.other, r.course, id, thread.CommentIn{Body: "Lại bình luận"})
+	require.NoError(t, err)
+	require.Equal(t, 1, r.count(`select count(*) from mail_outbox where template = 'thread_reply'`), "notify_answer_by_mail=false")
+}
