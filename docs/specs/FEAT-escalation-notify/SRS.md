@@ -103,7 +103,7 @@ sequenceDiagram
 | Bấm `Nhờ giảng viên` hai lần / hai tab | khử trùng `message_id`; 1 ticket | một dòng trạng thái |
 | Mất mạng khi bấm | gửi lại khi có mạng (cùng `message_id`) | "Đang gửi…" → trạng thái |
 | 5 ticket đang mở | `409 TICKET_LIMIT_REACHED`; tự mở bị chặn, đếm `chat_tickets_suppressed_total` | nút khoá + tooltip; câu "AI chưa đủ chắc chắn về câu này" |
-| Đang bị khoá giờ thi | `EXAM_LOCKED` | như chat riêng khi đang thi |
+| Đang bị khoá giờ thi | `409 EXAM_IN_PROGRESS {until}` (mã của chat riêng — `proposals.md` #17) | như chat riêng khi đang thi |
 | Lớp đã lưu trữ | `409 COURSE_ARCHIVED` | thông báo lớp chỉ đọc |
 | Hai người cùng `Nhận` | người sau `409 TICKET_ALREADY_CLAIMED` + `claimed_by` | "Cô Lê Thu Hà đã nhận câu này lúc 14:02" |
 | Trả lời chứa tên / MSSV sinh viên khác | `422 PII_IN_ANSWER` + vị trí | vùng cần sửa được tô |
@@ -471,7 +471,7 @@ Thân lỗi `{code, message, details?, retry_after?}` (`ARCHITECTURE.md` §5). M
 
 | # | Route | Quyền | `Idempotency-Key` | Thành công | Lỗi chính |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `POST /chat/messages/{mid}/escalate` | STUDENT chủ | không bắt buộc | `201 {ticket,already:false}` / `200 {…,already:true}` | `404`, `403`, `409 TICKET_LIMIT_REACHED`, `409 COURSE_ARCHIVED`, `EXAM_LOCKED`, `422 MESSAGE_NOT_ESCALATABLE`, `503` |
+| 1 | `POST /chat/messages/{mid}/escalate` | STUDENT chủ | không bắt buộc | `201 {ticket,already:false}` / `200 {…,already:true}` | `404` (kể cả `PENDING` / ngoài lớp), `403` (`REMOVED`, vai khác), `409 TICKET_LIMIT_REACHED`, `409 COURSE_ARCHIVED`, `409 EXAM_IN_PROGRESS`, `422 MESSAGE_NOT_ESCALATABLE`, `503` (chỉ khi Postgres lỗi) |
 | 2 | `POST /chat/tickets/{id}/followup {content, client_msg_id}` | STUDENT chủ | `client_msg_id` (DB) | `200 {ticket, message}` | `404`, `409 TICKET_STATE_INVALID`, `409 TICKET_REOPEN_EXPIRED`, `422` |
 | 3 | `POST /chat/tickets/{id}/confirm` · `/confirm/undo` | STUDENT chủ | – | `200 {ticket}` | `404`, `409 TICKET_STATE_INVALID` |
 
@@ -519,7 +519,7 @@ Thân lỗi `{code, message, details?, retry_after?}` (`ARCHITECTURE.md` §5). M
 
 ### 6.5 Mã lỗi mới (thêm vào `apierr`)
 
-`TICKET_ALREADY_CLAIMED` (409), `TICKET_STATE_INVALID` (409), `TICKET_LIMIT_REACHED` (409), `TICKET_REOPEN_EXPIRED` (409), `MESSAGE_NOT_ESCALATABLE` (422), `MESSAGE_NOT_RATEABLE` (422), `PII_IN_ANSWER` (422), `KNOWLEDGE_PERSONAL` (422), `ALREADY_REPORTED` (409), `CANNOT_REPORT_OWN` (422), `EDIT_LOCKED_VERIFIED` (409), `PIN_LIMIT` (409), `CRISIS_SUPPORT` (422). Dùng lại: `VERSION_CONFLICT`, `PII_DETECTED`, `COURSE_ARCHIVED`, `EXAM_LOCKED`, `RATE_LIMITED`, `SSE_LIMIT_REACHED`.
+`TICKET_ALREADY_CLAIMED` (409), `TICKET_STATE_INVALID` (409), `TICKET_LIMIT_REACHED` (409), `TICKET_REOPEN_EXPIRED` (409), `MESSAGE_NOT_ESCALATABLE` (422), `MESSAGE_NOT_RATEABLE` (422), `PII_IN_ANSWER` (422), `KNOWLEDGE_PERSONAL` (422), `ALREADY_REPORTED` (409), `CANNOT_REPORT_OWN` (422), `EDIT_LOCKED_VERIFIED` (409), `PIN_LIMIT` (409), `CRISIS_SUPPORT` (422). Dùng lại: `VERSION_CONFLICT`, `PII_DETECTED`, `COURSE_ARCHIVED`, `EXAM_IN_PROGRESS` (409; của chat riêng), `RATE_LIMITED`, `SSE_LIMIT_REACHED`.
 
 ## 7. Giao diện
 
