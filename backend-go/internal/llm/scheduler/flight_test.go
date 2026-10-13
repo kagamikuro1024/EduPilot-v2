@@ -10,6 +10,16 @@ import (
 	"github.com/edupilot/backend-go/internal/llm/fake"
 )
 
+func waitActive(t *testing.T, c *fake.Controller, n int64) {
+	t.Helper()
+	for i := 0; i < 3000 && c.Active() != n; i++ {
+		time.Sleep(10 * time.Millisecond)
+	}
+	if c.Active() != n {
+		t.Fatalf("fake.Active = %d, muốn %d", c.Active(), n)
+	}
+}
+
 func sleepMs(n int) { time.Sleep(time.Duration(n) * time.Millisecond) }
 
 func shareable(task llm.Task, lane llm.Lane) llm.Request {
@@ -97,8 +107,8 @@ func TestSingleFlightCancelOneWaiter(t *testing.T) {
 			_ = i
 		}()
 	}
-	time.Sleep(100 * time.Millisecond)
-	cancelA() // một người chờ huỷ
+	waitActive(t, r.ctl, 1) // lời gọi đã vào nhà cung cấp (không đoán bằng Sleep)
+	cancelA()               // một người chờ huỷ
 	var canceled, ok int
 	for range 3 {
 		if err := <-results; err == nil {
@@ -119,7 +129,7 @@ func TestSingleFlightCancelOneWaiter(t *testing.T) {
 	for _, ctx := range []context.Context{ctx1, ctx2} {
 		go func() { _, _ = r2.g.Chat(ctx, shareable(llm.TaskUtility, llm.LaneNearRealtime)); done <- struct{}{} }()
 	}
-	time.Sleep(100 * time.Millisecond)
+	waitActive(t, r2.ctl, 1)
 	c1()
 	c2()
 	<-done

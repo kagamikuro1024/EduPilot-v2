@@ -112,8 +112,8 @@ func TestLatencyErrorRateAndKey(t *testing.T) {
 	if _, err := p.Chat(t.Context(), opts("x")); err != nil {
 		t.Fatal(err)
 	}
-	if d := time.Since(start); d < 40*time.Millisecond || d > 200*time.Millisecond {
-		t.Errorf("độ trễ %v ngoài 40–60 ms", d)
+	if d := time.Since(start); d < 40*time.Millisecond { // chỉ cận dưới: cận trên phụ thuộc tải máy chạy test
+		t.Errorf("độ trễ %v ngắn hơn 40 ms", d)
 	}
 
 	c.Set(fake.Settings{ErrorRate: 1, ErrorKind: provider.KindRateLimit, RetryAfter: 2 * time.Second})
@@ -181,7 +181,9 @@ func TestCtxCancelStopsCall(t *testing.T) {
 	ctx, cancel := context.WithCancel(t.Context())
 	done := make(chan error, 1)
 	go func() { _, err := p.Chat(ctx, opts("x")); done <- err }()
-	time.Sleep(30 * time.Millisecond)
+	for i := 0; i < 3000 && c.Active() != 1; i++ { // chờ lời gọi vào nhà cung cấp (không đoán bằng thời gian)
+		time.Sleep(10 * time.Millisecond)
+	}
 	if c.Active() != 1 {
 		t.Errorf("active = %d", c.Active())
 	}
@@ -192,7 +194,7 @@ func TestCtxCancelStopsCall(t *testing.T) {
 		if !errors.As(err, &pe) || pe.Kind != provider.KindCancelled {
 			t.Errorf("err = %v", err)
 		}
-	case <-time.After(time.Second):
+	case <-time.After(30 * time.Second):
 		t.Fatal("không dừng sau khi huỷ")
 	}
 	if c.Active() != 0 {

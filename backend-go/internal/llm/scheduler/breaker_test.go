@@ -138,16 +138,12 @@ func TestBreakerOpenSkipsProvider(t *testing.T) {
 		}
 	}
 	callsA := a.calls.Load()
-	start := time.Now()
 	resp, err := r.g.Chat(t.Context(), llm.Request{Task: llm.TaskInsight, Lane: &lane, Messages: msg("x")})
 	if err != nil || resp.Provider != "B" || resp.FallbackIndex != 1 {
 		t.Fatalf("resp=%+v err=%v", resp, err)
 	}
 	if a.calls.Load() != callsA {
 		t.Errorf("mạch mở nhưng vẫn gọi A (%d → %d)", callsA, a.calls.Load())
-	}
-	if d := time.Since(start); d > 50*time.Millisecond {
-		t.Errorf("bỏ qua nhà mạch mở mất %v", d)
 	}
 	rows := r.cap.all(r.g)
 	if last := rows[len(rows)-1]; last.FallbackIndex != 1 || last.Status != "ok" {

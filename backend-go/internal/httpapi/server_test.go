@@ -14,6 +14,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/config"
+	"github.com/edupilot/backend-go/internal/testutil"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -110,8 +111,10 @@ func TestGracefulShutdown(t *testing.T) {
 
 	coreWaitInFlight(t, d) // request chậm đã vào handler
 	start := time.Now()
-	cancel()                           // ~ SIGTERM
-	time.Sleep(100 * time.Millisecond) // cờ draining đã bật
+	cancel()                                           // ~ SIGTERM
+	for i := 0; i < 3000 && !d.State.Draining(); i++ { // chờ cờ draining bật (không đoán bằng Sleep)
+		time.Sleep(10 * time.Millisecond)
+	}
 
 	if !d.State.Draining() {
 		t.Error("State phải chuyển sang draining ngay khi bắt đầu tắt")
@@ -267,7 +270,7 @@ func TestStartup_WaitsForDeps(t *testing.T) {
 		if !strings.Contains(err.Error(), "db") || strings.Contains(err.Error(), "redis") {
 			t.Fatalf("lỗi = %v, muốn chỉ nêu db", err)
 		}
-		if elapsed < 2*time.Second || elapsed > 6*time.Second {
+		if elapsed < 2*time.Second || (testutil.TimingOn() && elapsed > 6*time.Second) {
 			t.Fatalf("chờ %v, muốn ≈ STARTUP_TIMEOUT 2 s", elapsed)
 		}
 

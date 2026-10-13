@@ -64,12 +64,18 @@ func TestAuditAsync(t *testing.T) {
 	}, newDiscardLog())
 	defer func() { close(block); a.Close(context.Background()) }()
 
-	start := time.Now()
-	for range 250 {
-		a.Record(llm.AuditRow{Task: "CHAT", Lane: "INTERACTIVE", Status: "ok", TraceID: "t"})
-	}
-	if d := time.Since(start); d > 100*time.Millisecond {
-		t.Errorf("Record chặn %v dù writer bị treo — phải bất đồng bộ", d)
+	// Record phải bất đồng bộ: writer bị treo ở `block` nên nếu Record đợi writer thì vòng này không bao giờ xong (không đo thời gian).
+	recorded := make(chan struct{})
+	go func() {
+		for range 250 {
+			a.Record(llm.AuditRow{Task: "CHAT", Lane: "INTERACTIVE", Status: "ok", TraceID: "t"})
+		}
+		close(recorded)
+	}()
+	select {
+	case <-recorded:
+	case <-time.After(30 * time.Second):
+		t.Fatal("Record chặn khi writer bị treo — phải bất đồng bộ")
 	}
 	// lỗi ghi không làm hỏng người gọi: Gateway vẫn trả kết quả khi writer lỗi
 	p := &stub{name: "A"}
@@ -87,16 +93,8 @@ func TestAuditBatches(t *testing.T) {
 	for range 100 { // đủ 100 dòng → đẩy ngay, không đợi 1 s
 		a.Record(llm.AuditRow{Task: "CHAT", Lane: "BATCH", Status: "ok", TraceID: "t"})
 	}
-	deadline := time.Now().Add(500 * time.Millisecond)
-	for time.Now().Before(deadline) {
-		cap.mu.Lock()
-		n := len(cap.rows)
-		cap.mu.Unlock()
-		if n == 100 {
-			break
-		}
-		time.Sleep(5 * time.Millisecond)
-	}
+	// Close chờ vòng nền xong rồi đẩy nốt: sau đó mọi bộ đếm đã chốt (đọc `flushed` ngay khi writer vừa trả về là đua với bộ ghi nền).
+	a.Close(context.Background())
 	cap.mu.Lock()
 	defer cap.mu.Unlock()
 	if len(cap.rows) != 100 || len(cap.batch) != 1 {
@@ -105,7 +103,6 @@ func TestAuditBatches(t *testing.T) {
 	if a.Flushed() != 100 || a.Pending() != 0 || a.Dropped() != 0 {
 		t.Errorf("flushed=%d pending=%d dropped=%d, muốn 100/0/0 (nguồn của stats.audit)", a.Flushed(), a.Pending(), a.Dropped())
 	}
-	a.Close(context.Background())
 }
 
 func TestAuditDropOldest(t *testing.T) {

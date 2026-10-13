@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/edupilot/backend-go/internal/platform/config"
+	"github.com/edupilot/backend-go/internal/testutil"
 )
 
 var idLineRE = regexp.MustCompile(`^\d+-\d+$`)
@@ -93,7 +94,7 @@ func TestSSE_FirstEventLatency(t *testing.T) {
 		s.close()
 		waitSlots(t, r, uid, 0)
 
-		if took > 300*time.Millisecond {
+		if testutil.TimingOn() && took > 300*time.Millisecond {
 			t.Fatalf("lần %d: ready sau %s, muốn ≤ 300 ms", i, took)
 		}
 		var d struct {

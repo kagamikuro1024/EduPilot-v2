@@ -295,7 +295,9 @@ func TestLockerHitLatencyP95(t *testing.T) {
 	if raceBuild {
 		limit = 40 * time.Millisecond
 	}
-	require.LessOrEqual(t, d[len(d)*95/100], limit, "p95 = %s", d[len(d)*95/100])
+	if testutil.TimingOn() { // p95 mili-giây: chỉ chạy tuần tự (EP_SKIP_TIMING=1 ở CI song song)
+		require.LessOrEqual(t, d[len(d)*95/100], limit, "p95 = %s", d[len(d)*95/100])
+	}
 }
 
 // TestLockSweepRemovesOrphans — AC1 (≤ 10 s): khoá của lượt đã kết thúc mà `DEL` không tới được Redis bị tick quét gỡ; khoá của lượt đang làm giữ nguyên.

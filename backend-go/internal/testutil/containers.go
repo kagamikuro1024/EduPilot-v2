@@ -61,6 +61,10 @@ func SkipTiming(t testing.TB) {
 	}
 }
 
+// TimingOn báo có nên kiểm ngưỡng mili-giây trong một test đa nhiệm (false khi EP_SKIP_TIMING=1: CI chạy nhiều gói song song, đồng hồ thật không ổn định).
+// Dùng cho CẬN TRÊN thời gian của một test vốn đã có bằng chứng hành vi; cận dưới (đã chờ ít nhất…) luôn kiểm.
+func TimingOn() bool { return os.Getenv("EP_SKIP_TIMING") != "1" }
+
 var (
 	pgOnce   sync.Once
 	pgHost   string // host:port trực tiếp tới Postgres

@@ -13,7 +13,7 @@ Nhánh: `sprint/7-p4-p5`. Commit: `US-P5-01: …` (một commit). CI: xem cuối
 Backend: `db/migrations/00013_crm.sql`, `db/migrations_test.go`, `api/openapi.yaml`, `internal/store/queries/today.sql` (+ `today.sql.go`, `models.go` sinh lại), `internal/course/{admin,sessions}.go`, `internal/httpapi/apierr/apierr.go`, `internal/httpapi/coursehttp/{admin,handler,sessions}.go`, `internal/today/{today,providers}.go`.
 Test: `internal/store/crm_schema_test.go` (mới), `internal/store/course_test.go` (dòng 28), `internal/course/sessions_crm_test.go` (mới), `internal/today/session_unmarked_test.go` (mới), `internal/contract/{contract_test,scenarios_test}.go`.
 Frontend: `features/calendar/{SessionsDrawer,sessionsApi}.tsx|ts` (mới), `RealCalendar.tsx`, `Calendar.module.css`, `calendarApi.ts` (`export WD`), `shared/data/ApiError.ts`, `shared/i18n/vi.ts`, `e2e/calendar.spec.ts`, `e2e/support/cal-fixtures.ts` (thêm route `…/sessions**`, ghi `Idempotency-Key`).
-Tài liệu: `docs/PROGRESS.md` (ánh xạ `00013 crm`), `docs/sprints/7/proposals.md` (#20).
+Tài liệu: `docs/PROGRESS.md` (ánh xạ `00013 crm`), `docs/sprints/7/proposals.md` (#22; lúc commit gọi là #20, #23 = "#21").
 
 ## Test cũ phải đổi (đúng theo proposal ACCEPTED)
 | Test | Đổi | Căn cứ |

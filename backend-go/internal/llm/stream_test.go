@@ -83,27 +83,24 @@ func TestStreamOneGeneration(t *testing.T) {
 
 func TestStreamCancel(t *testing.T) {
 	t.Parallel()
-	g, ctl, cap := fakeGateway(t, fake.Settings{StreamDelay: 50 * time.Millisecond})
+	// Cách nhau 1 phút giữa các từ: kênh chỉ đóng nhanh được nếu huỷ ctx cắt ngang lúc chờ (không cần đo thời gian).
+	g, ctl, cap := fakeGateway(t, fake.Settings{StreamDelay: time.Minute})
 	ctx, cancel := context.WithCancel(t.Context())
 	ch, err := g.Stream(ctx, llm.Request{Task: llm.TaskChat, Messages: userMsg("một câu hỏi khá dài để có nhiều từ phát ra lần lượt")})
 	if err != nil {
 		t.Fatal(err)
 	}
 	<-ch // nhận mẩu đầu
-	start := time.Now()
 	cancel()
-	deadline := time.After(time.Second)
+	deadline := time.After(30 * time.Second)
 	for open := true; open; {
 		select {
 		case _, open = <-ch:
 		case <-deadline:
-			t.Fatal("kênh không đóng sau khi huỷ")
+			t.Fatal("kênh không đóng sau khi huỷ (đang chờ từ kế 1 phút)")
 		}
 	}
-	if d := time.Since(start); d > 200*time.Millisecond {
-		t.Errorf("đóng sau %v, muốn ≤ 200 ms", d)
-	}
-	for i := 0; i < 50 && ctl.Active() != 0; i++ {
+	for i := 0; i < 3000 && ctl.Active() != 0; i++ {
 		time.Sleep(10 * time.Millisecond)
 	}
 	if ctl.Active() != 0 {

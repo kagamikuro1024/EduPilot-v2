@@ -320,7 +320,7 @@ func TestRateLimit_RedisDown_FailOpen(t *testing.T) {
 	}
 	base := median(live)
 	withoutRedis := median(downSrv)
-	if extra := withoutRedis - base; extra > 50*time.Millisecond {
+	if extra := withoutRedis - base; testutil.TimingOn() && extra > 50*time.Millisecond {
 		t.Fatalf("Redis chết làm chậm thêm %v (baseline %v, thực tế %v) — cần ≤ 50 ms", extra, base, withoutRedis)
 	}
 

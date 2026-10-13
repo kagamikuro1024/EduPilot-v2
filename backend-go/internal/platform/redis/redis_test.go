@@ -111,19 +111,22 @@ func TestBlockingReadsDoNotStarvePool(t *testing.T) {
 	t.Cleanup(func() { _ = c.Close() })
 	key := appredis.Key("test", "starve", testutil.TestPrefix(t))
 	n := 10*runtime.GOMAXPROCS(0) + 60 // vượt pool mặc định của go-redis (10 × GOMAXPROCS)
+	rctx, stop := context.WithCancel(ctx)
 	var wg sync.WaitGroup
 	for range n {
 		wg.Go(func() {
-			_ = c.XRead(ctx, &goredis.XReadArgs{Streams: []string{key, "$"}, Block: 2 * time.Second}).Err()
+			_ = c.XRead(rctx, &goredis.XReadArgs{Streams: []string{key, "$"}, Block: 30 * time.Second}).Err()
 		})
 	}
-	time.Sleep(300 * time.Millisecond) // để mọi XREAD đã giữ kết nối
-	start := time.Now()
-	if err := c.Set(ctx, key+":x", "v", time.Minute).Err(); err != nil {
-		t.Fatalf("Set: %v", err)
+	for i := 0; i < 3000 && int(c.PoolStats().TotalConns) < n; i++ { // chờ mọi XREAD đã giữ kết nối (không đoán bằng Sleep)
+		time.Sleep(10 * time.Millisecond)
 	}
-	if d := time.Since(start); d > 300*time.Millisecond {
-		t.Fatalf("%d XREAD BLOCK đang chạy: một lệnh Set phải xong ngay nhưng mất %v (pool cạn)", n, d)
+	// Pool cạn ⇒ Set xếp hàng sau các XREAD (chặn 30 s) và hết hạn 10 s ở đây; không đo mili-giây.
+	sctx, scancel := context.WithTimeout(ctx, 10*time.Second)
+	defer scancel()
+	if err := c.Set(sctx, key+":x", "v", time.Minute).Err(); err != nil {
+		t.Fatalf("%d XREAD BLOCK đang chạy: Set phải xong ngay nhưng lỗi %v (pool cạn)", n, err)
 	}
+	stop()
 	wg.Wait()
 }
