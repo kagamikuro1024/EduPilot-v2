@@ -1,10 +1,21 @@
-# QC report — US-P4-07 (khủng hoảng: bộ luật hai tầng, câu mẫu ân cần, Threads không lưu, giờ thi không khoá, cấu hình hỗ trợ) — vòng 1
-Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `ac187744` (US-P4-07: `1d841b1`; CI của nhánh xanh từ `ca9314b`, PM). Bộ TC: `tc-US-P4-07.md` (không sửa chữ TC). Handoff: `dev-US-P4-07.md`. Stack `edupilot100` dựng lại từ code mới (DB trống, migration `15`, `--scale gateway=2`, provider `fake`, `SUPPORT_RESOURCES_VI` mặc định "Phòng Công tác sinh viên, phòng 101 nhà A1, giờ hành chính"). Tập câu: SRS 9.5 (`scripts/crisis-sets.json`), chạy bằng `scripts/crisis-run.sh pos|neg` (viết lại ở vòng này: đọc `intent` từ `chat_messages`).
+# QC report — US-P4-07 (khủng hoảng: bộ luật hai tầng, câu mẫu ân cần, Threads không lưu, giờ thi không khoá, cấu hình hỗ trợ) — **vòng 2**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `30f81cae` (tài liệu: `30f81ca` SRS 4.9.7, `d9cd37f` thesis-notes). Bộ TC: `tc-US-P4-07.md` (không sửa chữ TC). Chỉ chạy lại TC-24 (diff vòng 2 chỉ chạm tài liệu).
 
-## Kết luận: **FAIL** (1 lỗi mức THẤP, việc tài liệu của BA: TC-24; 1 TC BLOCKED)
+## Kết luận: **PASS** (BUG-1 vòng 1 đã sửa; không FAIL; TC-21 vẫn BLOCKED)
+## 1. Kết quả vòng 2
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| 24 giới hạn ghi thẳng | **PASS** | `SRS.md` 4.9 mục 7 ("đủ ba ý — US-P4-07 AC7"): (1) luật từ khoá **bỏ sót** cách nói gián tiếp ("mệt quá rồi, muốn ngủ mãi"); (2) **bắt nhầm** lời nói quá ("deadline này làm em muốn chết" vẫn trả câu hỗ trợ; `Q10`, `Q-crisis-hyperbole`); (3) công cụ hỗ trợ, **không thay chuyên gia**. `docs/thesis-notes/sprint-7.md` dòng 7–9 nêu cả ba ý. `QUESTIONS.md` dòng 30 có `Q-crisis-hyperbole` |
+| 21 rỗng → mặc định | BLOCKED (như vòng 1) | `docker-compose.local.yml` dùng `${…:-mẫu}` nên không dựng được giá trị rỗng |
+| Các TC còn lại | PASS (giữ từ vòng 1) | diff vòng 2 chỉ là tài liệu |
+
+Tổng 29 TC + nhánh: PASS 28, BLOCKED 1 (TC-21), FAIL 0.
+
+## 2. Phụ lục: vòng 1 (đã đóng)
+### Kết luận: **FAIL** (1 lỗi mức THẤP, việc tài liệu của BA: TC-24; 1 TC BLOCKED)
 Phát hiện, câu mẫu, không tác dụng phụ, Threads, giờ thi, cấu hình đạt toàn bộ. Còn thiếu phần tài liệu của AC7.
 
-## 1. Kết quả TC
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | 01 recall | PASS | **20/20** `CRISIS`. Lượt chạy liên tục báo 19/20: câu thứ 20 ("em nghĩ nếu em chết đi thì sẽ nhẹ nhõm hơn") không lưu vì giới hạn tốc độ chat (tin thứ 20 trong một phút); gửi riêng → `CRISIS` |
@@ -38,10 +49,10 @@ Phát hiện, câu mẫu, không tác dụng phụ, Threads, giờ thi, cấu h�
 
 Tổng 27 TC + 2 nhánh = 29: PASS 27, FAIL 1 (TC-24), BLOCKED 1 (TC-21).
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (THẤP; BA) TC-24 / AC7:** thiếu phần tài liệu: (a) `SRS.md` 4.9 chưa nêu ý "không thay chuyên gia" (hai ý kia có); (b) `docs/thesis-notes/` chưa có ghi chú; (c) `QUESTIONS.md` chưa có `Q-crisis-hyperbole`. Không đụng mã.
 
-## 3. Lệnh của handoff
+### 3. Lệnh của handoff
 | Lệnh | Kết quả |
 | --- | --- |
 | `go test -race -tags testroutes ./internal/agent -run Crisis` | ok |
@@ -50,6 +61,6 @@ Tổng 27 TC + 2 nhánh = 29: PASS 27, FAIL 1 (TC-24), BLOCKED 1 (TC-21).
 | `playwright threads-crisis.spec.ts` (desktop + mobile) | xanh (24 passed) |
 | `ui-antipatterns.sh` | rc=0 |
 
-## 4. Ghi nhận
+### 4. Ghi nhận
 - Giới hạn tốc độ chat riêng khiến lượt gửi liên tục 20 tin / phút bỏ tin thứ 20 (không phải lỗi khủng hoảng; ghi lại để lần chạy sau chia lượt).
 - Mục "tin khủng hoảng không đặt tiêu đề phiên" đã đạt (`chat_sessions.title` rỗng).
