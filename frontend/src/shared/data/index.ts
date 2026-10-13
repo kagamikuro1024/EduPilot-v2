@@ -10,6 +10,5 @@ export { useJob, type JobState } from "./useJob";
 export { useSSE, useSSEStatus, type SSEEvent, type SSEStatus } from "./useSSE";
 export { useAutosaveDraft, seedDraft, type DraftStatus } from "./useAutosaveDraft";
 export { useUndoableAction } from "./useUndoableAction";
-export { useActivityHeartbeat, areaOf } from "./useActivityHeartbeat";
 export { OfflineBanner } from "./OfflineBanner";
 export { ApiErrorNotice } from "./ApiErrorNotice";

@@ -1,10 +1,9 @@
 "use client";
 
 import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { BT03_SEED } from "@/mock/assess";
 import { COURSE_1, ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
 import { reviewPending, ticketStats } from "@/mock/derive";
@@ -19,7 +18,6 @@ import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, 
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
-import { StudyTimeTracker } from "./TrackingNotice";
 import s from "./AppShell.module.css";
 
 /** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
@@ -28,9 +26,12 @@ function displayName(role: Role, name: string, title?: string) {
   return role === "teacher" && title ? `${title} ${name}` : name;
 }
 
-// Bảng lệnh không cần cho lần vẽ đầu nên nạp lười (chỉ khi mở lần đầu): tiết kiệm ~3 KB script mỗi trang (ngân sách Lighthouse 256 KB). Đo trên build thật: nạp lười thêm cả
-// hộp thoại + nhịp thời gian học lại TĂNG tổng (mỗi gói riêng nén kém hơn), nên khối đó nhập thẳng.
-const CommandPalette = dynamic(() => import("@/shared/ui/CommandPalette").then((m) => m.CommandPalette), { ssr: false, loading: () => null });
+// Bảng lệnh không cần cho lần vẽ đầu nên nạp lười khi mở lần đầu (ngân sách script Lighthouse 256 KB). `React.lazy` chứ không `next/dynamic`: đo trên build thật,
+// `next/dynamic` kéo thêm mã nạp lười vào gói chung và làm tổng script TĂNG.
+const CommandPalette = lazy(() => import("@/shared/ui/CommandPalette").then((m) => ({ default: m.CommandPalette })));
+
+// Cùng lý do: hộp thoại + nhịp thời gian học chỉ cần cho sinh viên có lớp thật.
+const StudyTimeTracker = lazy(() => import("./TrackingNotice").then((m) => ({ default: m.StudyTimeTracker })));
 
 const NARROW = "(max-width: 719px)";
 const MID = "(max-width: 1099px)";
@@ -347,7 +348,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
-      {role === "student" && realCourseId && <StudyTimeTracker />}
+      {role === "student" && realCourseId && (
+        <Suspense fallback={null}>
+          <StudyTimeTracker />
+        </Suspense>
+      )}
 
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (
@@ -419,7 +424,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         confirmLabel="Đăng xuất"
         cancelLabel="Ở lại"
       />
-      {paletteTick > 0 && <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />}
+      {paletteTick > 0 && (
+        <Suspense fallback={null}>
+          <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />
+        </Suspense>
+      )}
     </div>
   );
 }

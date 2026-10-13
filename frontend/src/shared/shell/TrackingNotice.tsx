@@ -3,7 +3,9 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { ApiError, apiClient, areaOf, useActivityHeartbeat } from "@/shared/data";
+import { ApiError, apiClient } from "@/shared/data";
+// nhập thẳng, không qua `@/shared/data`: qua thùng chứa thì mã nhịp nằm lại trong gói chung dù chỉ gói lười dùng (ngân sách script Lighthouse)
+import { areaOf, useActivityHeartbeat } from "@/shared/data/useActivityHeartbeat";
 import { ALL_COURSES } from "@/shared/session/cookies";
 import { useTrackingNotice } from "@/shared/session/myCourses";
 import { useSession } from "@/shared/session/session";

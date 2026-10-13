@@ -35,3 +35,9 @@ bash ../scripts/ui-antipatterns.sh                              # rc=0
 2. `docs/ARCHITECTURE.md`: bảng env thêm bốn biến mới; §5 thêm hai cờ của `GET /me/courses` (BA).
 3. Spec AC8 ví dụ (1) dùng `today` làm gói trung gian import `crm` — thực tế không có đường đó; test vẫn bắt đúng mọi gói trung gian (BA sửa ví dụ).
 4. `k6 run benchmarks/load/heartbeat.js` chưa chạy trên stack (QC / PM chạy cùng seed của US-S7-SEED).
+
+## Vòng CI — ngân sách script Lighthouse (`/settings/llm` 256910 B > 256000 B ở `f45454c`)
+- Đo cục bộ bằng chính `lhci collect` + `lighthouserc.json` (admin, `/settings/llm`): nền `fa7caf3` 247008 B; `f45454c` 248161 B (+1153); nay 247233 B (+225). Ngưỡng `lighthouserc.json` **không** đổi.
+- Cách làm: `CommandPalette` và `StudyTimeTracker` nạp bằng `React.lazy` (chỉ khi mở bảng lệnh / chỉ sinh viên có lớp thật); mã nhịp `useActivityHeartbeat` không còn xuất qua thùng `@/shared/data` (qua thùng thì mã nằm lại gói chung).
+- Bài học đã đo: `next/dynamic` làm tổng script TĂNG (kéo thêm mã nạp lười vào gói chung) — hai lần thử trước (`e98866c`, `843b49c`) đỏ vì thế.
+- Flake `TestJudgeRetryThenDead` ở `1d841b1` (P4-07) không liên quan thay đổi; các lần chạy sau xanh.
