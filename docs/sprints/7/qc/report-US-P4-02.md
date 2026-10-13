@@ -39,7 +39,7 @@ AC10 (chuông trên giao diện) chưa làm đủ: không hiện số chưa đ�
 | E1 `POST /notifications/read` | KHÔNG KIỂM ĐƯỢC | route thuộc US-P4-05 (`/notifications/read {link}`) |
 | P1 quyền chuông | PASS | sinh viên không có `TICKET_NEW`; ADMIN không nhận khung `TICKET_NEW` (0 khung) |
 
-Đối chiếu AC: AC1, AC2, AC3, AC4, AC6 (phần có thể), AC7, AC8, AC11 PASS; AC5 PASS một phần (TC-15, 16, 18 BLOCKED); AC9 PASS một phần (TC-24 BLOCKED); **AC10 FAIL**. Tổng 29 TC chính + 2 nhánh: PASS 21, FAIL 2 (25, 27), BLOCKED 4 (15, 16, 18, 24), KHÔNG KIỂM ĐƯỢC 1 (E1), 1 PASS có điều kiện diễn giải (14).
+Đối chiếu AC: AC1, AC2, AC3, AC4, AC6 (phần có thể), AC7, AC8, AC11 PASS; AC5 PASS một phần (TC-15, 16, 18 BLOCKED); AC9 PASS một phần (TC-24 BLOCKED); **AC10 FAIL**. Tổng 29 TC chính + 2 nhánh = 31: PASS 24 (gồm TC-14 theo diễn giải SRS), FAIL 2 (25, 27), BLOCKED 4 (15, 16, 18, 24), KHÔNG KIỂM ĐƯỢC 1 (E1).
 
 ## 2. Lỗi
 **BUG-1 (TRUNG BÌNH): AC10 chưa đủ** — thiếu số chưa đọc (tối đa "9+") hiển thị trên chuông và chống nhảy vị trí khi chèn mục mới lúc danh sách đang mở. Tái hiện: `node ../docs/sprints/7/qc/scripts/p4-02-ui.mjs` (từ `frontend`, cần stack). Handoff đã nêu "chưa làm (cần chốt chấm hay số)". Spec chốt: số tối đa "9+" và không nhảy → cần làm.
