@@ -136,7 +136,7 @@ func TestRawPIINeverStored(t *testing.T) {
 	require.Positive(t, r.count(`select count(*) from pii_events where user_id=$1 and action='REDACTED'`, r.sv.UserID))
 	_, err = r.svc.Comment(t.Context(), r.sv, r.course, v.Thread.ID, thread.CommentIn{Body: "Em là " + svName + " " + svCode, Redact: true})
 	require.NoError(t, err)
-	rows, err := r.pool.Query(t.Context(), `select table_name, column_name from information_schema.columns where table_schema='public' and data_type in ('text','character varying','jsonb','json','ARRAY') and table_name not in ('users','enrollments')`)
+	rows, err := r.pool.Query(t.Context(), `select table_name, column_name from information_schema.columns where table_schema='public' and data_type in ('text','character varying','jsonb','json','ARRAY') and table_name not in ('users','enrollments','v_student_360')`) // #21: v_student_360 là phép chiếu của users + enrollments (SRS crm-360 5.6)
 	require.NoError(t, err)
 	type col struct{ t, c string }
 	var cols []col

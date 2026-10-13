@@ -86,8 +86,8 @@ func TestGeneratePreviewEqualsCreate(t *testing.T) {
 	for i, it := range got {
 		w := pv[i].(map[string]any)
 		require.Equal(t, w["session_no"], it["session_no"], i)
-		require.Equal(t, w["starts_at"], it["starts_at"], i)
-		require.Equal(t, w["ends_at"], it["ends_at"], i)
+		require.Equal(t, utc(t, w["starts_at"]), utc(t, it["starts_at"]), i) // cùng thời điểm (múi giờ hiển thị phụ thuộc phiên DB)
+		require.Equal(t, utc(t, w["ends_at"]), utc(t, it["ends_at"]), i)
 	}
 }
 
