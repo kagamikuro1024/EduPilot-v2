@@ -28,3 +28,10 @@ Câu đánh **[CHỦ DỰ ÁN]** đụng hành vi sản phẩm, quyền, điểm
 | Q22 | Ai bị đo thời gian học và ở đâu? PRD: "khu vực (Chat, Threads, Luyện đề, Thư viện, Lịch)". | Chỉ **STUDENT**; năm khu vực đó; **không** đo `/`, `/me`, `/exams/**` (giờ thi không bị theo dõi thêm), trang giảng viên; TA / TEACHER / ADMIN không bị đo. | | |
 | Q23 | Khối "Lớp cần chú ý" ở `Hôm nay` (nợ 5.5 #2): liệt kê tối đa bao nhiêu và gồm gì? | Tối đa **5** sinh viên `AT_RISK` (tên, mã lớp, một cụm lý do ngắn) + "Xem tất cả (n)"; không có thì **ẩn khối**; nằm **dưới** danh sách việc (`DESIGN.md` §14.1). Tên sinh viên hiện trên "Hôm nay" cho nhân viên (đã là thông tin lớp họ phụ trách). | | |
 | Q24 | Đếm "hoạt động" (câu hỏi chat riêng + thread + bình luận) mỗi tuần quét `chat_messages` theo lớp mỗi đêm — `chat_messages` không có chỉ mục `(course_id, user_id, created_at)`. | Chấp nhận quét theo `course_id` (chỉ mục `UNIQUE (course_id, id)` có sẵn) trong job đêm (≈ vài nghìn tin mỗi lớp); thêm chỉ mục chuyên dụng khi một lớp vượt ≈ 50.000 tin (`ponytail:` ghi trong mã). Danh sách `/students` **không** chạm `chat_messages` (đọc `student_risk`). | | |
+
+**Q1 cập nhật (chủ dự án, 2026-10-13), thay câu trả lời Q1 ở bảng:**
+- Giảng viên chọn **lúc tạo lớp**: "Cho sinh viên tắt đo thời gian học" (cột `courses.allow_study_time_opt_out boolean NOT NULL DEFAULT true`; PM chọn mặc định cho phép vì an toàn cho dữ liệu cá nhân). Sau khi tạo, `/class/settings` chỉ hiện giá trị, không sửa (theo đúng lời chủ dự án "lúc khởi tạo lớp").
+- Lớp **không cho tắt** → luôn đo (sau khi sinh viên bấm "Đã hiểu" ở hộp thoại minh bạch); công tắc của lớp đó ở `/settings` hiện bật và bị khoá, kèm tooltip lý do trên chính công tắc.
+- Lớp **cho tắt** → sinh viên tự bật / tắt ở `/settings` (`user_settings.track_study_time`, mặc định bật).
+- Sinh viên học nhiều lớp: đo ở lớp X khi `NOT courses.allow_study_time_opt_out OR user_settings.track_study_time`. Máy chủ kiểm ở heartbeat (cache cùng `ep:trk`), hook chỉ là tối ưu.
+- Schema: thêm `ALTER courses ADD allow_study_time_opt_out` vào `00014` (cùng đợt duyệt #5). Form tạo lớp (`FEAT-course-foundation`) thêm một trường; ghi vào SRS mục "spec cũ cần sửa".
