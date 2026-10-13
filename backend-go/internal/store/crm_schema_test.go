@@ -67,7 +67,8 @@ func TestSchemaAttendance(t *testing.T) {
 		"version ≥ 1":          {check, f.att(fmt.Sprintf(`, version) values (%s, 'ABSENT', '%s', 0)`, base, f.teacher))},
 		"thiếu người điểm":     {"23502", f.att(fmt.Sprintf(`) values (%s, 'ABSENT', NULL)`, base))},
 		"người điểm lạ":        {"23503", f.att(fmt.Sprintf(`) values (%s, 'ABSENT', '%s')`, base, uuid.New()))},
-		"note đúng 200 hợp lệ": {"", f.att(fmt.Sprintf(`, note) values (%s, 'EXCUSED', '%s', repeat('x', 200))`, base, f.teacher))},
+		// bộ ba RIÊNG (sess1, s2): `expect` chạy các ca theo thứ tự ngẫu nhiên của map, ca hợp lệ không được chiếm bộ ba của ca "người điểm lạ" (UNIQUE kiểm trước khoá ngoại)
+		"note đúng 200 hợp lệ": {"", f.att(fmt.Sprintf(`, note) values ('%s', '%s', '%s', 'EXCUSED', '%s', repeat('x', 200))`, f.c1, f.sess1, f.s2, f.teacher))},
 	})
 	var idx int
 	require.NoError(t, conn.QueryRow(ctx, `select count(*) from pg_indexes where tablename = 'attendance_records'
