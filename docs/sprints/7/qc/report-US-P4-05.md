@@ -62,11 +62,11 @@ Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d`. Bộ TC: `tc-US-P
 | 48 version, vai | PASS | `version` cũ → `409 VERSION_CONFLICT` kèm `current_version` và `settings`; TA / SV / ADM `403` |
 | 49 audit, UI | PASS | audit `course_threshold_updated` `{"escalation_threshold":"0.80"} → "0.85"`; thanh trượt "Ít chuyển / Chuyển nhiều" qua e2e `threshold slider` xanh |
 | 50 worker chết giữa `ticket.sla` | **BLOCKED** | không dừng được đúng giữa job trên stack thật; `TestSLAJobCrashSafe` (dev) xanh; TC-20 (3 bản song song) cho thấy ghi có điều kiện |
-| E1 Redis chết lúc `confirm` | ghi nhận (ngoài chấm) | `confirm` vẫn `200` (không `503` như TC viết); SRS không nêu — nhờ PM chốt như #16 |
+| E1 Redis chết lúc `confirm` | PASS (theo #22) | `confirm` vẫn `200`; PM đã quyết #22: Redis chết lúc `confirm` → 200 |
 | E2 autoclose không đóng nhầm `OPEN` | PASS | TC-13: `OPEN` 9 ngày giữ `OPEN` |
 | P1 | PASS | TA lớp 1 gọi `knowledge` ticket lớp 2 → 403; `COURSE_TICKETS_STALLED` chỉ ADMIN |
 
-Tổng 50 TC: PASS 40 (gồm 4 PASS một phần: 26, 43, 46, E-ngoài), FAIL 6 (21, 28, 32, 40, 41, 42), BLOCKED 3 (17, 45, 50), 1 ca ghi nhận (E1).
+Tổng 50 TC: PASS 40 (gồm 4 PASS một phần: 26, 43, 46, E-ngoài), FAIL 6 (21, 28, 32, 40, 41, 42), BLOCKED 3 (17, 45, 50); E1 PASS theo #22.
 
 ## 2. Lỗi
 **BUG-1 (CAO) — kho tri thức không nạp được ở stack thật.** Tái hiện: ticket `ANSWERED`, giảng viên `POST …/tickets/{id}/knowledge {question, answer}` → `201 {"loaded":false}`; đợi 60 s: `select attempts,last_error from outbox where topic='knowledge.sync'` → `3 | knowledge: nhúng: agent: nhúng: MASK_FAILED: lời gọi không gắn lớp (llm.WithIdentity)`. `EXPLAIN`: không liên quan. Nguyên nhân quan sát: lời gọi `Embed` của handler `knowledge.sync` không gắn danh tính (`llm.WithIdentity`) nên tường lửa PII từ chối. Các test Go của dev (`TestKnowledge*`) xanh vì không đi qua đường này ở worker thật. Hệ quả: AC10/AC11 không đạt đầu-cuối ("Dùng được ngay").
@@ -85,5 +85,5 @@ Tổng 50 TC: PASS 40 (gồm 4 PASS một phần: 26, 43, 46, E-ngoài), FAIL 6 
 
 ## 4. Ghi chú về TC (không sửa; xin PM nếu muốn đổi)
 - `client_msg_id` là UUID (TC-01…05 dùng `"c1"`), `escalation_threshold` là chuỗi (TC-46…48 dùng số): lệch chữ TC, không phải lỗi sản phẩm.
-- TC-E1 (Redis chết lúc `confirm` → 503): sản phẩm trả `200`.
+- TC-E1 (Redis chết lúc `confirm`): PM quyết #22 → `200`; TC viết `503` là chữ cũ.
 - `--now` của `run-job` không đổi ngày dùng trong `dedupe_key` của `COURSE_TICKETS_STALLED`; TC-26 qua ngày cần cách khác.

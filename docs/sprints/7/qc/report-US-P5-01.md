@@ -1,7 +1,7 @@
 # QC report — US-P5-01 (migration `00013_crm`, lịch buổi học: xem trước, sửa, huỷ, buổi bù, "buổi chưa điểm danh") — vòng 1
 Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `c9a2daa` (US-P5-01 vòng 2). CI của `c9a2daa`: run `38448247169` **xanh** (8 m 29 s). Bộ TC: `tc-US-P5-01.md` (không sửa chữ TC). Handoff: `dev-US-P5-01.md`. Stack `edupilot100` dựng lại từ code mới (DB trống, migration `13`, `--scale gateway=2`, provider `fake`). Lớp thử riêng: `900001` / `900002` / `900003` (tạo bằng `POST /admin/courses` + `assign`), không đụng seed.
 
-## Kết luận: **PASS** (32 TC + 3 nhánh; 2 TC BLOCKED chờ PM: TC-10, phần số `skipped` của TC-12 — proposals #20 b, c)
+## Kết luận: **PASS** (34 TC + 2 nhánh, không FAIL, không BLOCKED; PM đã nhận dev #20 b, c: giữ hợp đồng P2)
 ## 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
@@ -14,9 +14,9 @@ Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `c9a2daa` (US-P5-01 vòng 2)
 | 07 tạo thật = xem trước | PASS | `201 {created:11,first_session_no:1,last_session_no:11}`; số buổi và giờ khớp `would_create` (09:00 các thứ Hai trừ 02/11) |
 | 08 `DUPLICATE` | PASS | dry_run lại: `would_create` 0, `skipped` = 11 `DUPLICATE` + 1 `EXCLUDED` |
 | 09 tham số sai | PASS | `from>to` (`to`), `end<=start` (`end_time`), `weekdays` `[]` / `[0]` / `[8]` (`weekdays`), `room` 41 ký tự (`room`), `from:"2026-02-30"` (`from`) → `422` + `details[].field` |
-| 10 > 60 buổi | **BLOCKED** | `422 VALIDATION_FAILED`, `details:[{"field":"to","code":"TOO_MANY_SESSIONS","message":"Khoảng ngày này có 90 buổi, mỗi lần tạo tối đa 60…"}]`: số 90 / 60 nằm trong `message`. TC mong `422 TOO_MANY_SESSIONS`; dev xin PM giữ hợp đồng P2 (proposals #20 c). Chờ PM |
+| 10 > 60 buổi | PASS (theo #20 c) | `422 VALIDATION_FAILED`, `details:[{"field":"to","code":"TOO_MANY_SESSIONS","message":"Khoảng ngày này có 90 buổi, mỗi lần tạo tối đa 60…"}]`: nêu số buổi (90) và giới hạn 60. PM giữ hợp đồng P2 (mã ở `details[].code`) |
 | 11 tạo hàng loạt | PASS | `201`; `audit_log` `class_sessions`/`generate` `{"first":1,"last":11,"created":11}`; 1 dòng outbox `course.changed` |
-| 12 idempotent | PASS (một phần) / BLOCKED một phần | cùng khoá: phản hồi giống hệt, 11 buổi; khác khoá cùng tham số → `created:0`, `skipped:11` (số, không phải mảng như TC "mọi buổi ở `skipped` `DUPLICATE`") — BLOCKED chờ PM #20 b |
+| 12 idempotent | PASS (theo #20 b) | cùng khoá: phản hồi giống hệt, 11 buổi; khác khoá cùng tham số → `created:0`, `skipped:11` (số, theo hợp đồng P2 đã giữ) |
 | 13 không có khoá | PASS | `422 IDEMPOTENCY_KEY_REQUIRED`, không tạo (trả lời Q-QC-P5-01) |
 | 14 lỗi giữa chừng | PASS | trigger tạm `RAISE` ở buổi thứ 5: `500`, `class_sessions` = 0, `audit_log` `generate` = 0; gỡ trigger, thử lại cùng khoá → `201 created 11` |
 | 15 sửa | PASS | `PUT` → `200`, `version` 1 → 2, `session_no=3` giữ, `room`/`topic` ghi; `audit_log` `update` |
@@ -42,7 +42,7 @@ Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `c9a2daa` (US-P5-01 vòng 2)
 | E1 `dry_run` lớp lưu trữ | PASS | `409 COURSE_ARCHIVED` (SRS 6.1) |
 | E2 DB / Redis chết | PASS | PgBouncer dừng → `503 SERVICE_UNAVAILABLE`, 0 buổi mới; Redis dừng → `503`, 0 buổi mới |
 
-Tổng: 34 TC + 2 nhánh = 36: PASS 34 (gồm TC-12 một phần, TC-30 một phần), BLOCKED 2 (TC-10, phần số `skipped` của TC-12).
+Tổng: 34 TC + 2 nhánh = 36: PASS 36 (TC-30 chỉ kiểm một phần: không có `EXAM_GRADE_ERROR` để đối chiếu bậc 15, và `Lưu điểm danh` của US-P5-02 chưa có).
 
 ## 2. Lệnh của handoff
 | Lệnh | Kết quả |
