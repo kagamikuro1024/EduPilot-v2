@@ -311,8 +311,8 @@ test.describe("session", () => {
 
 test("forbidden: màn chặn, nút Về Hôm nay, 0 request /api/v1", async ({ page, context }) => {
   const api: string[] = [];
-  // phiên giả (asDemo) gọi refresh / lớp của tôi / thông báo ở MỌI trang; màn bị chặn không được gọi thêm API nào khác
-  page.on("request", (r) => /\/api\/v1\//.test(r.url()) && !/\/api\/v1\/(auth\/refresh|me\/courses|notifications)/.test(r.url()) && api.push(r.url()));
+  // phiên giả (asDemo) gọi refresh / lớp của tôi / thông báo + SSE của chuông ở MỌI trang; màn bị chặn không được gọi thêm API nào khác
+  page.on("request", (r) => /\/api\/v1\//.test(r.url()) && !/\/api\/v1\/(auth\/refresh|me\/courses|notifications|events)/.test(r.url()) && api.push(r.url()));
   const cases: Array<[DemoRole, string[]]> = [["student", ["/settings/llm", "/observability", "/admin/users"]], ["ta", ["/settings/llm", "/observability", "/admin/users"]], ["teacher", ["/admin/courses"]]];
   for (const [role, routes] of cases) {
     await context.clearCookies();
