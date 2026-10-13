@@ -1,8 +1,22 @@
-# QC report — US-P4-03 (hộp thư giảng viên `/inbox`) — **vòng 2**
-Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d` (code vòng 2: `e017337`, `a606a29`, `4a7bae0`, `04a1bfb`, `5795075`). Bộ TC: `tc-US-P4-03.md` (không sửa chữ TC). Handoff: `dev-US-P4-03.md` mục "Vòng 2". Stack `edupilot100` dựng lại từ code mới (như `report-US-P4-02.md`).
+# QC report — US-P4-03 (hộp thư giảng viên `/inbox`) — **vòng 3 (cuối)**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `94fbb02` (sửa vòng 3 ở `escalation.Service.conflict`). Bộ TC: `tc-US-P4-03.md` (không sửa chữ TC). Handoff: `dev-US-P4-03.md` mục "Vòng 3". Stack `edupilot100` dựng lại từ code mới (`docker-compose.test.yml`, `--scale gateway=2`, provider `fake`, DB trống).
 
-## Kết luận: **FAIL** (1 lỗi: TC-16, mức THẤP–TRUNG BÌNH). BUG-2, BUG-3 vòng 1 đã sửa.
-## 1. Kết quả vòng 2
+## Kết luận: **PASS** (45/45; BUG-1 vòng 2 đã sửa)
+## 1. Kết quả vòng 3
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| 16 người thua lượt nhận | **PASS** | Teacher và TA bấm `Nhận` cùng lúc bằng trình duyệt (gửi kèm `version` như thật), 3/3 vòng: một `200`, một `409 TICKET_ALREADY_CLAIMED`. Người thua thấy đúng một dòng **"Phạm Quốc Bảo đã nhận lúc 03:05."** (giờ Việt Nam), **không** còn khung "Có người vừa sửa mục này… Chi tiết kỹ thuật"; người thắng có ô soạn ngay (`textarea: 1`) |
+| 13, 15 nhận / nhận lặp | PASS | `200`, lặp `200` |
+| 25 người thua ở API | PASS | TA trả lời phiếu giảng viên đã nhận → `409 TICKET_ALREADY_CLAIMED`; nhả bởi người không sở hữu `409`, bởi chủ `200`; `version` cũ trên phiếu `OPEN` → `409 VERSION_CONFLICT` (giữ nguyên) |
+| 31, 32, 35, 36, 38 (UI chạy lại) | PASS | nháp theo phiếu và sau tải lại; gửi lỗi giữ nháp / thành công xoá; cột danh sách 380 px; J/K, R, Ctrl+Enter và tooltip "⌘↵ · Ctrl+↵"; khung xương / lỗi + "Thử lại" |
+| 42 cổng | PASS | `ui-antipatterns.sh` rc=0; e2e desktop `private-chat, escalation, inbox, class-join, shell`: 103 passed, 5 skipped, 0 failed; `go test -race -tags testroutes ./internal/escalation ./cmd/...` ok; `./internal/contract/... ./internal/today` ok |
+| Còn lại | PASS (giữ) | không đổi mã ngoài `Service.conflict` |
+
+Tổng 45 TC (42 + 3 nhánh): PASS 45.
+
+## 2. Phụ lục: vòng 1 và 2 (đã đóng)
+### Kết luận: **FAIL** (1 lỗi: TC-16, mức THẤP–TRUNG BÌNH). BUG-2, BUG-3 vòng 1 đã sửa.
+### 1. Kết quả vòng 2
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | 16 người thua lượt nhận | **FAIL** (còn một phần) | Teacher và TA bấm `Nhận` cùng lúc (Playwright, `B:200 A:409`). Bên `409` nay có InlineNotice, nhưng chữ là **"Phạm Quốc Bảo đã nhận."** — thiếu "lúc HH:MM" dù body `409` có `details.claimed_at` (`2026-10-13T18:02:27Z`, `curl` xác nhận). Đồng thời hiện thêm một dòng chung **"Có người vừa sửa mục này. Chọn giữ bản nào. Chi tiết kỹ thuật"** (chữ kỹ thuật của khung xung đột chung, trùng nghĩa với thông báo đúng). Bên thắng: ô soạn hiện ngay (`textarea: 1`) — phần UX "phiếu không biến mất" đạt. AC4 / TC-16 đòi "đã nhận câu này lúc HH:MM" |
@@ -13,10 +27,10 @@ Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d` (code vòng 2: `e0
 
 Tổng: 45 TC (42 + 3 nhánh): PASS 44, FAIL 1 (TC-16).
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (THẤP–TRUNG BÌNH) TC-16:** `InlineNotice` của người thua thiếu giờ nhận và đi kèm khung "Có người vừa sửa mục này… Chi tiết kỹ thuật". Tái hiện: hai tài khoản (teacher, ta) mở cùng phiếu `OPEN`, bấm `Nhận` cùng lúc; đọc `main`. Mong đợi: một dòng "{tên} đã nhận câu này lúc HH:MM" (giờ Việt Nam), không khung chung. Dev nói giờ lấy từ `details.claimed_at` — test mô phỏng của dev có trường đó nhưng chữ thật không có giờ; cần kiểm cách đọc `details` của `apiClient`.
 
-## 3. Phụ lục: vòng 1 (đã đóng)
+### 3. Phụ lục: vòng 1 (đã đóng)
 ### Kết luận: **FAIL** (3 lỗi: TC-16, TC-36, TC-42)
 Backend (danh sách, chi tiết, nhận, trả lời, đóng, PII, audit, idempotency, quyền) đạt toàn bộ. Hỏng ở giao diện: người thua lượt nhận không thấy thông báo, thiếu gợi ý phím trên nút Gửi, và cổng antipatterns / e2e đỏ.
 

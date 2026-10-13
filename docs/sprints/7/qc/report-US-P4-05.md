@@ -1,7 +1,36 @@
-# QC report — US-P4-05 (vòng đời phía sinh viên, SLA, tri thức, ngưỡng) — vòng 1
-Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d`. Bộ TC: `tc-US-P4-05.md` (không sửa chữ TC; hai chỗ TC viết chưa đúng hợp đồng ghi ở mục 4). Handoff: `dev-US-P4-05.md`, `dev-QC-answers.md` (`gateway admin run-job ticket.sla|ticket.autoclose [--now]`). Stack `edupilot100` dựng lại từ code mới (`docker-compose.test.yml`, `--scale gateway=2`, provider `fake`; seed dừng ở bước 11 vì thiếu docling, nên không có tài liệu). Đồng hồ giả: `--now` (chỉ ảnh hưởng một lần chạy) và UPDATE `waiting_since` / `answered_at` trên DB test. `audit_log` bất biến (trigger chặn UPDATE).
+# QC report — US-P4-05 (vòng đời phía sinh viên, SLA, tri thức, ngưỡng) — **vòng 2**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `94fbb02` (sửa vòng 2: `8823fb3`). Bộ TC: `tc-US-P4-05.md` (không sửa chữ TC). Handoff: `dev-US-P4-05.md` mục "Vòng 2". Stack `edupilot100` dựng lại từ code mới (DB trống, provider `fake`, không có tài liệu seed). #22 ACCEPTED: Redis chết lúc `confirm` → `200`.
 
-## Kết luận: **FAIL** (6 TC FAIL từ 4 lỗi; 3 TC BLOCKED)
+## Kết luận: **PASS** (không FAIL; 4 TC BLOCKED vì stack / công cụ — xem mục 2)
+Bốn lỗi vòng 1 đã sửa: BUG-1 `knowledge.sync` (CAO), BUG-2 nhắc `CLAIMED`, BUG-3 chữ và chuông `dismiss`, BUG-4 "đã chờ N phút".
+## 1. Kết quả chạy lại ở vòng 2
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| 41 dùng được ngay ≤ 10 s | **PASS** | `POST …/knowledge` → `201 {"saved":true,"loaded":false}`; `embedding` có sau **1 s**, `outbox knowledge.sync` `attempts=0`, không còn `MASK_FAILED`; `ep:rag:ver:<lớp>` = 1. Sinh viên khác hỏi đúng chuỗi đoạn tri thức: intent `COURSE_QA`, trích dẫn `{"title":"Hỏi đáp đã được giảng viên xác nhận","knowledge":true,"snippet":"Câu hỏi: … QCMAT7."}` (nguồn TICKET: không liên kết) |
+| 40 embed bản đã sửa | **PASS** (bằng hành vi) | lưu bản sửa "Chương hai nói về chủ đề gì? / …QCMAT7": chuỗi truy vấn đúng bản sửa khớp đoạn (có `QCMAT7` trong ngữ cảnh) trong khi câu hỏi gốc của ticket không khớp. Vòng đệm `_test/llm/payloads` ở gateway không thấy lời gọi `Embed` của worker (tiến trình khác) nên không đọc được chuỗi trực tiếp |
+| 43 gỡ | PASS | `DELETE` `204`, chunk bị xoá; ≤ 2 s sau: cùng truy vấn không còn trích dẫn `knowledge`; lưu lại thay đoạn cũ (`knowledge_items` vẫn 1); lặp lại `DELETE` `204` |
+| 45 cô lập lớp | **PASS** | sinh viên lớp 2 (`sv31`) hỏi đúng chuỗi: 0 trích dẫn `knowledge`, 0 `QCMAT7`; đối chứng lớp 1: 1 trích dẫn |
+| 21 `CLAIMED` quá hạn | **PASS** | TA nhận, `claimed_at` lùi 30 giờ, `gateway admin run-job ticket.sla`: một `TICKET_STALE` cá nhân "Có câu hỏi bạn đã nhận chưa trả lời" tới **TA** (`dedupe_key ticket_stale:<ticket>:<unix(claimed_at)>`), không thư, không gửi cho giảng viên; chạy lại không thêm; `Bỏ nhận` rồi nhận lại + lùi `claimed_at` → nhắc lại (2 dòng) |
+| 32 `Đóng không trả lời` | **PASS** | chữ tin: "Giảng viên đã đóng câu hỏi này: ngoài phạm vi môn học." / "…trùng với câu hỏi khác." / "…cần bạn nói rõ hơn."; chuông cho sinh viên (+1) "Giảng viên đã đóng câu hỏi của bạn" |
+| 28 cập nhật mỗi phút | **PASS** | trang mở: "Giảng viên đã nhận · đã chờ 0 phút" → sau 130 s "… 2 phút"; vị trí và chiều cao trang không đổi (Δ 0 px) |
+| 42 chưa nạp | **BLOCKED** | không tạo được lỗi `Embed` thật: `POST /_test/llm/fake {"error_rate":1}` không ảnh hưởng `Embed` (đoạn vẫn nạp sau 1 s). Q-QC-P4-15 (cờ ép lỗi embedding) chưa có trả lời; giao diện "Chưa nạp vào tri thức" + `Thử lại` đã thấy ở vòng 1 |
+| 17, 50 | BLOCKED (như vòng 1) | không có API trả `WorkingElapsed` / không dừng được giữa `ticket.sla` |
+| 26 qua ngày | BLOCKED một phần | `--now` không đổi ngày của `dedupe_key` `COURSE_TICKETS_STALLED`; ca cùng ngày PASS |
+| E1 Redis chết lúc `confirm` | PASS (#22) | `200` |
+| Các TC còn lại (01–16, 18–20, 22–25, 27, 29–31, 33–39, 44, 46–49, E2, P1) | PASS (giữ từ vòng 1) | không chạy lại ở vòng 2: diff vòng 2 chỉ chạm `knowledge.Syncer`, `cmd/gateway/runjob.go` (gắn `Notify`), `dismissText` / `HandleClosed`, `TicketAction.tsx`; bộ test Go của gói `escalation` (mục 2) xanh |
+
+## 2. Lệnh của handoff
+| Lệnh | Kết quả |
+| --- | --- |
+| `go test -race -tags testroutes ./internal/escalation ./cmd/...` | ok (escalation 52,5 s, gateway, worker) |
+| `go test -race -tags testroutes ./internal/contract/... ./internal/today` | ok |
+| `playwright private-chat.spec.ts escalation.spec.ts inbox.spec.ts class-join.spec.ts shell.spec.ts` (desktop) | 103 passed, 5 skipped, 0 failed |
+| `ui-antipatterns.sh` | rc=0 |
+
+Tổng 50 TC: PASS 46, BLOCKED 4 (17, 26 một phần, 42, 50), FAIL 0.
+
+## 3. Phụ lục: vòng 1 (đã đóng)
+### Kết luận: **FAIL** (6 TC FAIL từ 4 lỗi; 3 TC BLOCKED)
 | Lỗi | Mức | TC |
 | --- | --- | --- |
 | BUG-1 `knowledge.sync` thất bại thật ở worker: `MASK_FAILED: lời gọi không gắn lớp (llm.WithIdentity)` → tri thức không bao giờ được nạp | **CAO** | 40, 41, 42 |
@@ -9,7 +38,7 @@ Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d`. Bộ TC: `tc-US-P
 | BUG-3 `Đóng không trả lời`: chữ tin khác AC9 và không có chuông cho sinh viên | TRUNG BÌNH | 32 |
 | BUG-4 dòng "Giảng viên đã nhận · đã chờ N phút" không tự cập nhật theo phút | THẤP | 28 |
 
-## 1. Kết quả TC
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | 01 hỏi tiếp mở lại | PASS | `200`; `OPEN`, `claimed_by` rỗng, `reopened_count=1`, `sla_stage=0`, `waiting_since≈now`; tin `USER` / `ESCALATION_FOLLOWUP`, `blocks` có `kind:"ticket"`. `client_msg_id` phải là UUID (TC ghi `"c1"`: `422 required`) |
@@ -68,13 +97,13 @@ Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d`. Bộ TC: `tc-US-P
 
 Tổng 50 TC: PASS 40 (gồm 4 PASS một phần: 26, 43, 46, E-ngoài), FAIL 6 (21, 28, 32, 40, 41, 42), BLOCKED 3 (17, 45, 50); E1 PASS theo #22.
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (CAO) — kho tri thức không nạp được ở stack thật.** Tái hiện: ticket `ANSWERED`, giảng viên `POST …/tickets/{id}/knowledge {question, answer}` → `201 {"loaded":false}`; đợi 60 s: `select attempts,last_error from outbox where topic='knowledge.sync'` → `3 | knowledge: nhúng: agent: nhúng: MASK_FAILED: lời gọi không gắn lớp (llm.WithIdentity)`. `EXPLAIN`: không liên quan. Nguyên nhân quan sát: lời gọi `Embed` của handler `knowledge.sync` không gắn danh tính (`llm.WithIdentity`) nên tường lửa PII từ chối. Các test Go của dev (`TestKnowledge*`) xanh vì không đi qua đường này ở worker thật. Hệ quả: AC10/AC11 không đạt đầu-cuối ("Dùng được ngay").
 **BUG-2 (TRUNG BÌNH):** AC5 — `CLAIMED` quá hạn không có `TICKET_STALE` cá nhân. Tái hiện: nhận ticket, `update escalation_tickets set claimed_at=now()-'30 hours', waiting_since=now()-'30 hours'`, `gateway admin run-job ticket.sla`.
 **BUG-3 (TRUNG BÌNH):** AC9 — ba chữ tin và chuông (xem TC-32).
 **BUG-4 (THẤP):** TC-28 — chữ "đã chờ N phút" không tăng khi để trang mở.
 
-## 3. Lệnh của handoff
+### 3. Lệnh của handoff
 | Lệnh | Kết quả |
 | --- | --- |
 | `go test -count=1 -race -tags testroutes ./internal/escalation -run 'TestFollowup\|…\|TestKnowledge'` | `ok` (14,8 s) |
@@ -83,7 +112,7 @@ Tổng 50 TC: PASS 40 (gồm 4 PASS một phần: 26, 43, 46, E-ngoài), FAIL 6 
 | e2e `student sees ticket status \| student followup \| student confirm \| knowledge save \| threshold slider` | xanh trong lượt desktop 141 passed / 0 failed |
 | `run-job ticket.sla --now …` | chạy; kết quả ở TC-16…26 |
 
-## 4. Ghi chú về TC (không sửa; xin PM nếu muốn đổi)
+### 4. Ghi chú về TC (không sửa; xin PM nếu muốn đổi)
 - `client_msg_id` là UUID (TC-01…05 dùng `"c1"`), `escalation_threshold` là chuỗi (TC-46…48 dùng số): lệch chữ TC, không phải lỗi sản phẩm.
 - TC-E1 (Redis chết lúc `confirm`): PM quyết #22 → `200`; TC viết `503` là chữ cũ.
 - `--now` của `run-job` không đổi ngày dùng trong `dedupe_key` của `COURSE_TICKETS_STALLED`; TC-26 qua ngày cần cách khác.
