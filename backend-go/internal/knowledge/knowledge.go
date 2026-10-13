@@ -18,6 +18,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/pgvector/pgvector-go"
 
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -163,6 +164,8 @@ func (s *Syncer) Handle(ctx context.Context, m outbox.Message) error {
 	}
 	ectx, cancel := context.WithTimeout(ctx, to)
 	defer cancel()
+	// Việc nền không có Principal: thiếu lớp thì tường lửa PII của llm từ chối (MASK_FAILED) và tri thức không bao giờ được nạp (QC US-P4-05 BUG-1).
+	ectx = llm.WithIdentity(ectx, llm.Identity{CourseID: &p.CourseID})
 	vec, err := s.Embed(ectx, c.Text)
 	if err != nil {
 		return fmt.Errorf("knowledge: nhúng: %w", err)

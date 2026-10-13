@@ -81,3 +81,25 @@ func TestAnswerNotifiesStudentOnce(t *testing.T) {
 	require.Equal(t, 0, r.count(`select count(*) from notifications where type = 'TICKET_NEW' and user_id = $1 and read_at is null`, r.teacher), "hết ticket OPEN: dòng gộp thành đã đọc")
 	_ = msg
 }
+
+// QC US-P4-05 BUG-3 (AC9): `Đóng không trả lời` → tin đúng chữ AC9 trong chat riêng VÀ một chuông cho sinh viên chủ ticket (idempotent theo tin).
+func TestDismissTextAndBell(t *testing.T) {
+	for reason, want := range map[string]string{
+		"OUT_OF_SCOPE":   "Giảng viên đã đóng câu hỏi này: ngoài phạm vi môn học.",
+		"DUPLICATE":      "Giảng viên đã đóng câu hỏi này: trùng với câu hỏi khác.",
+		"NEED_MORE_INFO": "Giảng viên đã đóng câu hỏi này: cần bạn nói rõ hơn.",
+	} {
+		r := newRig(t, escalation.Config{})
+		id := r.ticket("Hỏi")
+		_, err := r.svc.Dismiss(t.Context(), r.gv(), r.course, id, reason, nil)
+		require.NoError(t, err)
+		require.Equal(t, 1, r.count(`select count(*) from chat_messages where intent = 'STAFF_ANSWER' and content = $1`, want), reason)
+		var payload []byte
+		require.NoError(t, r.pool.QueryRow(t.Context(), `select payload from outbox where topic = 'escalation.closed'`).Scan(&payload))
+		n := &escalation.Notifier{Pool: r.pool, Notify: notify.New(r.pool, &capture{}, nil)}
+		for range 2 {
+			require.NoError(t, n.HandleClosed(t.Context(), outbox.Message{Topic: escalation.TopicClosed, Payload: payload}))
+		}
+		require.Equal(t, 1, r.count(`select count(*) from notifications where type = 'TICKET_ANSWERED' and user_id = $1 and title = 'Giảng viên đã đóng câu hỏi của bạn'`, r.a.UserID), reason)
+	}
+}

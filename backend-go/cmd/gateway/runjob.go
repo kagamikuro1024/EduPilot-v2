@@ -13,6 +13,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/escalation"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/config"
 )
@@ -64,7 +65,9 @@ func runJob(args []string, getenv func(string) string, stdout, stderr io.Writer)
 		return 1
 	}
 	defer pool.Close()
-	svc := &escalation.Service{Pool: pool, Members: course.Resolver{Pool: pool}, Log: slog.New(slog.NewTextHandler(io.Discard, nil)), Cfg: escalation.ConfigFrom(cfg), Clock: clk}
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	// Notify bắt buộc: thiếu nó `remindClaimed` bỏ qua im lặng (TC-21). Không đẩy SSE (không Redis): chuông nhận qua đọc bù.
+	svc := &escalation.Service{Pool: pool, Members: course.Resolver{Pool: pool}, Log: log, Cfg: escalation.ConfigFrom(cfg), Clock: clk, Notify: notify.New(pool, nil, log)}
 	switch name {
 	case "ticket.sla":
 		if err := svc.SLATick(ctx); err != nil {

@@ -63,9 +63,10 @@ func newRegistry(d Deps) *outbox.Registry {
 	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
 	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log, Gate: escalation.MailGate{Redis: d.Redis, Clock: clock.Real{}, Window: d.Cfg.MailTicketNewCoalesce}, Clock: clock.Real{}}
 	reg.Register(escalation.TopicCreated, outbox.Chain(esc.HandleCreated, inv.Handle))
-	for _, t := range []string{escalation.TopicClaimed, escalation.TopicReleased, escalation.TopicClosed, escalation.TopicFollowup} {
+	for _, t := range []string{escalation.TopicClaimed, escalation.TopicReleased, escalation.TopicFollowup} {
 		reg.Register(t, outbox.Chain(esc.HandleRecount, inv.Handle))
 	}
+	reg.Register(escalation.TopicClosed, outbox.Chain(esc.HandleClosed, inv.Handle))
 	reg.Register(escalation.TopicAnswered, outbox.Chain(esc.HandleAnswered, inv.Handle))
 	reg.Register(escalation.TopicSLAReminder, outbox.Chain(esc.HandleSLAReminder, inv.Handle))
 	reg.Register(escalation.TopicSLAEscalated, outbox.Chain(esc.HandleSLAEscalated, inv.Handle))

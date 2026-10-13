@@ -17,6 +17,16 @@ function waited(iso: string, now = new Date()): string {
   return `${Math.floor(min / (24 * 60))} ngày`;
 }
 
+/** Giờ thật, cập nhật mỗi phút: "đã chờ N phút" tự đổi khi để trang mở (chữ cùng độ dài nên không nhảy layout). */
+function useMinute(): Date {
+  const [now, setNow] = useState(() => new Date());
+  useEffect(() => {
+    const t = window.setInterval(() => setNow(new Date()), 60_000);
+    return () => window.clearInterval(t);
+  }, []);
+  return now;
+}
+
 /** Ba trạng thái của sinh viên (SRS FEAT-escalation-notify 7.2): chỉ lời, không số, không thuật ngữ kỹ thuật. */
 export function ticketLine(t: StudentTicket, now = new Date()): string {
   switch (t.status) {
@@ -41,6 +51,7 @@ export function TicketAction({ m, openTickets, onChanged, locked }: { m: ChatMes
   const [local, setLocal] = useState<StudentTicket | null>(null);
   const [phase, setPhase] = useState<"idle" | "sending" | "offline" | "error">("idle");
   const flight = useRef(false);
+  const now = useMinute();
 
   const ticket = m.ticket ?? local;
 
@@ -83,7 +94,7 @@ export function TicketAction({ m, openTickets, onChanged, locked }: { m: ChatMes
   if (ticket) {
     return (
       <span className={s.who} data-part="ticket-status" role="status">
-        {phase === "offline" ? "Đang gửi…" : ticketLine(ticket)}
+        {phase === "offline" ? "Đang gửi…" : ticketLine(ticket, now)}
       </span>
     );
   }

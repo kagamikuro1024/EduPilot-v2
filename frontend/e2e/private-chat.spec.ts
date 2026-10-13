@@ -243,6 +243,15 @@ test("auto ticket: dưới ngưỡng đã tự mở → câu nhạt + dòng tr�
   expect(await page.locator("main").innerText()).not.toMatch(/confidence|độ tin cậy/i);
 });
 
+test("claimed: 'đã chờ N phút' tự tăng mỗi phút khi để trang mở (QC US-P4-05 TC-28)", async ({ page, context }) => {
+  const noon = new Date("2026-10-29T10:00:00+07:00");
+  await page.clock.install({ time: noon });
+  await openAsked(page, context, { asst: { ticket: ticket("CLAIMED", new Date(noon.getTime() - 13 * 60_000).toISOString()) } });
+  await expect(page.getByText("Giảng viên đã nhận · đã chờ 13 phút")).toBeVisible();
+  await page.clock.fastForward(2 * 60_000);
+  await expect(page.getByText("Giảng viên đã nhận · đã chờ 15 phút")).toBeVisible();
+});
+
 test("375: không tràn ngang, vùng chạm ≥ 44 px", async ({ page, context }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page, context);

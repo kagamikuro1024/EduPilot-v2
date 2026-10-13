@@ -410,13 +410,14 @@ func (s *Service) Dismiss(ctx context.Context, a Actor, courseID, ticketID uuid.
 	if err != nil {
 		return StaffTicket{}, unavailable()
 	}
-	if _, err := s.postStaffMessage(ctx, q, t, brief, dismissText(reason)); err != nil {
+	msg, err := s.postStaffMessage(ctx, q, t, brief, dismissText(reason))
+	if err != nil {
 		return StaffTicket{}, err
 	}
 	if err := s.audit(ctx, q, courseID, a.UserID, t.ID, "escalation_ticket.dismissed", before.Status, store.TicketStatusCLOSED); err != nil {
 		return StaffTicket{}, err
 	}
-	if _, err := outbox.Write(ctx, tx, TopicClosed, map[string]any{"ticket_id": t.ID, "course_id": courseID}); err != nil {
+	if _, err := outbox.Write(ctx, tx, TopicClosed, map[string]any{"ticket_id": t.ID, "course_id": courseID, "dismiss_message_id": msg.ID}); err != nil {
 		return StaffTicket{}, unavailable()
 	}
 	out, err := s.view(ctx, q, courseID, ticketID)
@@ -433,11 +434,11 @@ func (s *Service) Dismiss(ctx context.Context, a Actor, courseID, ticketID uuid.
 func dismissText(reason string) string {
 	switch reason {
 	case "OUT_OF_SCOPE":
-		return "Câu hỏi này nằm ngoài phạm vi học phần nên giảng viên không trả lời."
+		return "Giảng viên đã đóng câu hỏi này: ngoài phạm vi môn học."
 	case "DUPLICATE":
-		return "Câu hỏi này đã được trả lời ở nơi khác của lớp."
+		return "Giảng viên đã đóng câu hỏi này: trùng với câu hỏi khác."
 	case "NEED_MORE_INFO":
-		return "Giảng viên cần thêm thông tin để trả lời. Bạn hãy đặt lại câu hỏi rõ hơn."
+		return "Giảng viên đã đóng câu hỏi này: cần bạn nói rõ hơn."
 	}
 	return ""
 }

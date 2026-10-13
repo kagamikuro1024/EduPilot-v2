@@ -10,6 +10,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/knowledge"
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/privacy"
 )
@@ -153,4 +154,24 @@ func TestKnowledgeEditedTextIsWhatIsEmbedded(t *testing.T) {
 	d, err := r.svc.KnowledgeOf(t.Context(), r.course, id)
 	require.NoError(t, err)
 	require.True(t, d.Loaded, "đã nạp")
+}
+
+// QC US-P4-05 BUG-1: handler `knowledge.sync` chạy ở worker không có Principal, nên ctx của lời gọi Embed phải mang lớp (llm.WithIdentity) — nếu không tường lửa PII trả MASK_FAILED.
+func TestKnowledgeSyncEmbedCarriesCourseIdentity(t *testing.T) {
+	r := piiRig(t)
+	id := r.kAnswered("Hạn nộp bài 3?")
+	_, err := r.svc.KnowledgeSave(t.Context(), r.gv(), r.course, id, "Hạn nộp bài 3 là khi nào?", "Hết thứ Sáu tuần 5.")
+	require.NoError(t, err)
+	var chunk uuid.UUID
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select chunk_id from knowledge_items where source_id = $1`, id).Scan(&chunk))
+	var got *uuid.UUID
+	s := &knowledge.Syncer{Pool: r.pool, Embed: func(ctx context.Context, _ string) ([]float32, error) {
+		got = llm.IdentityFrom(ctx).CourseID
+		return make([]float32, 1536), nil
+	}}
+	var payload []byte
+	require.NoError(t, r.pool.QueryRow(t.Context(), `select payload from outbox where topic = 'knowledge.sync' and payload->>'chunk_id' = $1 order by created_at desc limit 1`, chunk.String()).Scan(&payload))
+	require.NoError(t, s.Handle(t.Context(), outbox.Message{Topic: knowledge.TopicSync, Payload: payload}))
+	require.NotNil(t, got, "ctx của Embed không có lớp")
+	require.Equal(t, r.course, *got)
 }
