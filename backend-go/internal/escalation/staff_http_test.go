@@ -3,6 +3,7 @@ package escalation_test
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -115,6 +116,34 @@ func TestTicketRoutesRBAC(t *testing.T) {
 	require.Equal(t, 200, code)
 	code, _ = call(h, ta, "POST", base+"/"+id.String()+"/answer", `{"body":"x"}`)
 	require.Equal(t, 422, code, "answer bắt buộc Idempotency-Key")
+}
+
+// TC-16 qua HTTP như trình duyệt gửi: cả hai người bấm `Nhận` với version đã thấy; người thua nhận body 409 TICKET_ALREADY_CLAIMED có details.claimed_by.full_name + claimed_at.
+func TestClaimLoserBodyCarriesOwnerAndTime(t *testing.T) {
+	r := newRig(t, escalation.Config{})
+	id := r.ticket("Hỏi")
+	h := r.api(t)
+	path := "/courses/" + r.course.String() + "/tickets/" + id.String() + "/claim"
+	d, err := r.svc.GetDetail(t.Context(), r.course, id)
+	require.NoError(t, err)
+	body := fmt.Sprintf(`{"version":%d}`, d.Ticket.Version)
+	code, _ := call(h, r.whoAll()["gv"], "POST", path, body)
+	require.Equal(t, 200, code)
+	code, raw := call(h, r.whoAll()["ta"], "POST", path, body)
+	require.Equal(t, 409, code, raw)
+	var out struct {
+		Code    string `json:"code"`
+		Details struct {
+			ClaimedBy struct {
+				FullName string `json:"full_name"`
+			} `json:"claimed_by"`
+			ClaimedAt string `json:"claimed_at"`
+		} `json:"details"`
+	}
+	require.NoError(t, json.Unmarshal([]byte(raw), &out))
+	require.Equal(t, "TICKET_ALREADY_CLAIMED", out.Code)
+	require.NotEmpty(t, out.Details.ClaimedBy.FullName)
+	require.NotEmpty(t, out.Details.ClaimedAt)
 }
 
 func TestMyTicketsAdminForbidden(t *testing.T) {

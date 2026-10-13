@@ -275,15 +275,16 @@ func (s *Service) conflict(ctx context.Context, q *store.Queries, courseID, tick
 	if err != nil {
 		return unavailable()
 	}
-	if version != nil && *version != v.Version {
-		return apierr.New(http.StatusConflict, apierr.VersionConflict).WithDetails(map[string]any{"current_version": v.Version})
-	}
+	// Người thua lượt nhận phải thấy ai đã nhận và lúc nào, kể cả khi bản của họ đã cũ (người kia nhận xong thì version đã đổi) — nên kiểm trước version.
 	if v.Status == store.TicketStatusCLAIMED && v.ClaimedBy != nil && *v.ClaimedBy != user {
 		d := map[string]any{"claimed_at": v.ClaimedAt}
 		if b, err := q.TicketUserBrief(ctx, store.TicketUserBriefParams{CourseID: courseID, UserID: *v.ClaimedBy}); err == nil {
 			d["claimed_by"] = Person{ID: b.ID, FullName: b.FullName, Role: b.Role}
 		}
 		return apierr.New(http.StatusConflict, apierr.TicketAlreadyClaimed).WithDetails(d)
+	}
+	if version != nil && *version != v.Version {
+		return apierr.New(http.StatusConflict, apierr.VersionConflict).WithDetails(map[string]any{"current_version": v.Version})
 	}
 	if v.Status == store.TicketStatusANSWERED && v.AnsweredBy != nil && *v.AnsweredBy != user {
 		return apierr.New(http.StatusConflict, apierr.TicketAlreadyClaimed).WithDetails(map[string]any{"claimed_by": Person{ID: *v.AnsweredBy, FullName: deref(v.AnsweredName)}})

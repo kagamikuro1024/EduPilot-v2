@@ -296,6 +296,23 @@ func TestDismissAndClosedAreFinal(t *testing.T) {
 	require.Equal(t, apierr.TicketStateInvalid, code(err))
 }
 
+// TC-16 (QC vòng 3): người thua gửi kèm version cũ (phiếu vừa được nhận nên version đã đổi) vẫn nhận TICKET_ALREADY_CLAIMED kèm claimed_by + claimed_at, không phải VERSION_CONFLICT.
+func TestClaimLoserWithStaleVersionSeesOwnerAndTime(t *testing.T) {
+	r := newRig(t, escalation.Config{})
+	id := r.ticket("Hỏi")
+	d, err := r.svc.GetDetail(t.Context(), r.course, id)
+	require.NoError(t, err)
+	seen := d.Ticket.Version
+	_, err = r.svc.Claim(t.Context(), r.gv(), r.course, id, &seen)
+	require.NoError(t, err)
+	_, err = r.svc.Claim(t.Context(), r.taA(), r.course, id, &seen) // bản cũ
+	require.Equal(t, apierr.TicketAlreadyClaimed, code(err))
+	var ae *apierr.Error
+	require.ErrorAs(t, err, &ae)
+	require.Contains(t, ae.Details, "claimed_by")
+	require.NotNil(t, ae.Details.(map[string]any)["claimed_at"])
+}
+
 func TestVersionConflict(t *testing.T) {
 	r := newRig(t, escalation.Config{})
 	id := r.ticket("Hỏi")
