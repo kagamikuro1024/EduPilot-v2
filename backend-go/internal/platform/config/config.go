@@ -12,6 +12,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/shopspring/decimal"
 
@@ -142,7 +143,9 @@ type Config struct {
 	// Điểm danh / tham gia (SRS FEAT-crm-360 4.1): ATTENDANCE_MAX_ROWS (số dòng tối đa mỗi lần lưu lưới), PARTICIPATION_DEFAULT_POINTS (điểm một lần phát biểu, decimal).
 	AttendanceMaxRows int
 	// Kiểm duyệt Threads (SRS FEAT-escalation-notify 4.10): REPORT_RATE_PER_HOUR (báo cáo / giờ / người), REPORT_AUTOHIDE_THRESHOLD (số người khác nhau để tự ẩn), THREAD_PIN_MAX (ghim / lớp).
-	ReportRatePerHour          int
+	ReportRatePerHour int
+	// SupportResourcesVI: thông tin hỗ trợ trong câu mẫu khủng hoảng (≤ 300 ký tự; rỗng → câu mặc định). Không đi qua Mask.
+	SupportResourcesVI         string
 	ReportAutoHideThreshold    int
 	ThreadPinMax               int
 	ParticipationDefaultPoints decimal.Decimal
@@ -329,6 +332,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
 	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
 	c.AttendanceMaxRows = l.num("ATTENDANCE_MAX_ROWS", 1000, 100, 5000)
+	c.SupportResourcesVI = l.str("SUPPORT_RESOURCES_VI", "")
+	if utf8.RuneCountInString(c.SupportResourcesVI) > 300 {
+		l.bad("SUPPORT_RESOURCES_VI", "tối đa 300 ký tự")
+	}
 	c.ReportRatePerHour = l.num("REPORT_RATE_PER_HOUR", 20, 1, 1000)
 	c.ReportAutoHideThreshold = l.num("REPORT_AUTOHIDE_THRESHOLD", 3, 2, 20)
 	c.ThreadPinMax = l.num("THREAD_PIN_MAX", 3, 1, 10)

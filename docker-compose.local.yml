@@ -123,6 +123,8 @@ services:
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
+      # Thông tin hỗ trợ trong câu mẫu khủng hoảng (giá trị MÔ PHỎNG, D44); ≤ 300 ký tự, rỗng → câu mặc định.
+      SUPPORT_RESOURCES_VI: ${SUPPORT_RESOURCES_VI:-Phòng Công tác sinh viên, phòng 101 nhà A1, giờ hành chính}
       ACCESS_TOKEN_TTL: ${ACCESS_TOKEN_TTL:-}
       REFRESH_TOKEN_TTL: ${REFRESH_TOKEN_TTL:-}
       SESSION_ABSOLUTE_TTL: ${SESSION_ABSOLUTE_TTL:-}

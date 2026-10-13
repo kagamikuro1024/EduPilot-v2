@@ -68,6 +68,8 @@ type Service struct {
 	Log   *slog.Logger
 	// Limits: ngưỡng kiểm duyệt (REPORT_RATE_PER_HOUR, REPORT_AUTOHIDE_THRESHOLD, THREAD_PIN_MAX); không đặt = mặc định.
 	Limits Limits
+	// Support là SUPPORT_RESOURCES_VI (rỗng → câu mặc định) — lời hỗ trợ khi bài đăng có tín hiệu khủng hoảng.
+	Support string
 	// Notify: một cửa tạo thông báo — thread ghi dòng trong giao dịch của mình (notify.SendTx) rồi Announce sau commit; nil → chỉ ghi, chuông làm mới 30 s.
 	Notify *notify.Service
 }
@@ -406,6 +408,10 @@ func (s *Service) rate(ctx context.Context, name string, uid uuid.UUID, limit in
 // gate là phần chung của mọi đường ghi bài công khai: chạy `CheckPost`; không sạch thì (có redact và !Personal) lưu bản đã ẩn SAU KHI kiểm lại bản đó sạch,
 // còn lại 422 PII_DETECTED kèm ghi BLOCKED. Trả tiêu đề / nội dung được phép lưu, hành động đã ghi, và vectơ (chỉ khi văn bản không đổi).
 func (s *Service) gate(ctx context.Context, a Actor, courseID uuid.UUID, title, body string, redact bool) (string, string, []float32, error) {
+	// Khủng hoảng chạy TRƯỚC tường lửa PII (SRS 4.9.4): không lưu gì, không pii_events, không AI; chỉ đường tới chat riêng. `precheck` không bao giờ trả mã này.
+	if agent.DetectIntent(title+"\n"+body) == agent.IntentCrisis {
+		return "", "", nil, apierr.New(http.StatusUnprocessableEntity, apierr.CrisisSupport).WithMessage(agent.CrisisText(s.Support)).WithDetails(map[string]any{"actions": []string{"OPEN_PRIVATE_CHAT"}})
+	}
 	v, err := s.FW.CheckPost(ctx, courseID, title, body)
 	if err != nil {
 		return "", "", nil, unavailableErr()

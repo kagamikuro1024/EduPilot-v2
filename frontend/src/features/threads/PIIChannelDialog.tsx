@@ -49,3 +49,30 @@ export function PIIChannelDialog({
     />
   );
 }
+
+/**
+ * Hộp hỗ trợ khi bài có tín hiệu khó khăn (SRS escalation-notify 4.9.4): không lưu bài, không báo ai. Lối chính `Mở chat riêng` mang nháp theo
+ * (chỉ vai Sinh viên có chat riêng), lối phụ `Quay lại sửa` giữ nguyên chữ trong ô soạn.
+ */
+export function CrisisSupportDialog({ open, message, onClose, onPrivateChat }: { open: boolean; message: string; onClose: () => void; onPrivateChat?: () => void }) {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title="Bạn không phải đi qua chuyện này một mình"
+      description={message}
+      footer={
+        <>
+          <Button variant={onPrivateChat ? "ghost" : "primary"} onClick={onClose}>
+            Quay lại sửa
+          </Button>
+          {onPrivateChat && (
+            <Button variant="primary" onClick={onPrivateChat}>
+              Mở chat riêng
+            </Button>
+          )}
+        </>
+      }
+    />
+  );
+}

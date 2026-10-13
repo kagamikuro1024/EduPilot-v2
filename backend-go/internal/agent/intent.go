@@ -11,7 +11,13 @@ import (
 
 // Luật theo thứ tự ưu tiên của SRS 4.5; khớp trên văn bản đã bỏ dấu + chữ thường nên phủ cả có dấu lẫn không dấu.
 var (
-	reCrisis = regexp.MustCompile(`\b(tu tu|tu sat|tu hai|tu lam dau|khong muon song|muon chet|ket thuc cuoc song|ket lieu|chan doi muon chet|khong muon ton tai)\b`)
+	// Khủng hoảng, HAI TẦNG (SRS FEAT-escalation-notify 4.9, TLR-2). Tầng 1: cụm không mơ hồ, khớp không cần ngôi (chữ bỏ dấu phủ cả có dấu lẫn không dấu; `tự tử` / `tự hại` / `tự làm đau`
+	// chỉ khớp trên chữ CÓ DẤU vì bỏ dấu thành `tu tu` = "từ từ"). Tầng 2: cụm mơ hồ chỉ khi có ngôi thứ nhất đứng ngay trước (kèm một trợ từ tuỳ chọn).
+	reCrisisFolded  = regexp.MustCompile(`\b(tu sat|ket lieu|muon chet|khong (con )?muon song|khong muon ton tai|chan doi muon chet|ket thuc (cuoc song|moi thu)|bien mat khoi the gioi|tha chet|nhay lau|uong thuoc ngu qua lieu|(chang|khong) con ly do de song|song (chang|khong) con y nghia|(moi nguoi|ai do) (se )?tot hon neu khong co (em|minh|toi)|neu (em|minh|toi) chet|(k|ko|hok) muon song)\b`)
+	reCrisisTone    = regexp.MustCompile(`(?:^|[^\p{L}])(?:tự tử|tự hại|tự làm đau)(?:$|[^\p{L}])`)
+	reCrisisFirst   = regexp.MustCompile(`(?:^|[^\p{L}])(?:em|mình|tôi|tao|tớ)(?: (?:muốn|định|sẽ|đang|hay|đã|bị))? (?:tự tử|tự hại|tự làm đau|chết đi|cắt tay|treo cổ|kết thúc tất cả|chán sống)(?:$|[^\p{L}])`)
+	reCrisisFirstFd = regexp.MustCompile(`\b(em|minh|toi|tao|to)( (muon|dinh|se|dang|hay|da|bi))? (tu tu|tu hai|tu lam dau|chet di|cat tay|treo co|ket thuc tat ca|chan song)\b`)
+	reCrisisLoose   = regexp.MustCompile(`\b(tu tu|tu hai|tu lam dau)\b`)
 	// Giả định (neu, gia su, gia du, gia dinh, gia nhu, thu) + thành phần điểm + được/đạt/có + số 0–10 (QUESTIONS Q-QC-P3-04-7); "thì" tuỳ chọn.
 	reWhatIf   = regexp.MustCompile(`\b(neu|gia su|gia du|gia dinh|gia nhu|thu)\b.{0,40}\b(duoc|dat|co)\b.{0,20}\b(10|[0-9])([.,][0-9]+)?\b`)
 	reComp     = regexp.MustCompile(`\b(diem|giua ky|cuoi ky|qua trinh|bai tap|thuc hanh|chuyen can|tong ket|ket qua)\b`)
@@ -33,6 +39,27 @@ var (
 	// Từ đệm: tin chỉ gồm từ xã giao + từ đệm mới là SMALLTALK (Q-QC-P3-04-8); thêm nội dung thì đi COURSE_QA.
 	reFiller = regexp.MustCompile(`^(chao|xin|hello|hi|cam|on|thanks|thank|you|ok|oke|vang|da|tam|biet|bye|ban|thay|co|em|minh|nhe|nha|a|nhieu|qua|la|vay|roi|day|ha|nhi|rat|that|oi|cac|anh|chi)$`)
 )
+
+// isCrisis: tín hiệu khủng hoảng (SRS 4.9). `folded` = auth.Fold(text). Chữ có dấu so khớp trên NFC + chữ thường; chuỗi gõ ở dạng NFD (dấu kết hợp) không so được dấu
+// nên rơi về luật cũ của sprint 6 (`tu tu` / `tu hai` / `tu lam dau` khớp không cần ngôi): thà bắt nhầm còn hơn bỏ sót.
+func isCrisis(text, folded string) bool {
+	if reCrisisFolded.MatchString(folded) || reCrisisFirstFd.MatchString(folded) {
+		return true
+	}
+	lower := strings.ToLower(text)
+	if reCrisisTone.MatchString(lower) || reCrisisFirst.MatchString(lower) {
+		return true
+	}
+	return strings.IndexFunc(text, func(r rune) bool { return r >= 0x0300 && r <= 0x036F }) >= 0 && reCrisisLoose.MatchString(folded)
+}
+
+// CrisisText là câu mẫu khủng hoảng: lời ân cần + thông tin hỗ trợ (SUPPORT_RESOURCES_VI; rỗng → DefaultSupport). Dùng chung chat riêng và Threads.
+func CrisisText(support string) string {
+	if s := strings.TrimSpace(support); s != "" {
+		return ReplyCrisis + " " + s
+	}
+	return ReplyCrisis + " " + DefaultSupport
+}
 
 // PersonalIntent là ý định cá nhân (đọc dữ liệu của chính người hỏi) suy từ luật; "" nếu không có. Dùng cả để chọn tool lẫn để quyết "hỏi hộ".
 func PersonalIntent(text string) Intent {
@@ -80,7 +107,7 @@ func extraPersonal(text string, primary Intent) []Intent {
 func DetectIntent(text string) Intent {
 	f := auth.Fold(text)
 	switch {
-	case reCrisis.MatchString(f):
+	case isCrisis(text, f):
 		return IntentCrisis
 	case reWhatIf.MatchString(f) && reComp.MatchString(f):
 		return IntentWhatIf

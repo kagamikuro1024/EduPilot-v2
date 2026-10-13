@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ApiError, apiClient, newIdempotencyKey, seedDraft } from "@/shared/data";
 import { useSession } from "@/shared/session/session";
-import { PIIChannelDialog } from "./PIIChannelDialog";
+import { CrisisSupportDialog, PIIChannelDialog } from "./PIIChannelDialog";
 import { countReasons, type Precheck, type Reason } from "./threadsApi";
 
 type Blocked = { reasons: Reason[]; personal_question: boolean };
@@ -34,6 +34,7 @@ export function usePostGate<T>(o: {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<ApiError | null>(null);
   const [blocked, setBlocked] = useState<Blocked | null>(null);
+  const [crisis, setCrisis] = useState<string | null>(null);
   const key = useRef<{ sig: string; key: string } | null>(null);
   const title = o.title ?? "";
 
@@ -65,7 +66,9 @@ export function usePostGate<T>(o: {
     } catch (e) {
       const err = e instanceof ApiError ? e : new ApiError({ status: 0, code: "NETWORK" });
       if (err.status >= 400 && err.status < 500) key.current = null; // khoá mới sau mọi 4xx; NETWORK / 5xx giữ khoá để gửi lại chỉ tạo một bài
-      if (err.code === "PII_DETECTED") {
+      if (err.code === "CRISIS_SUPPORT") {
+        setCrisis(err.message); // lời hỗ trợ do máy chủ soạn; không lưu gì, chữ trong ô soạn giữ nguyên
+      } else if (err.code === "PII_DETECTED") {
         const d = (err.details ?? {}) as Partial<Blocked>;
         setBlocked({ reasons: d.reasons ?? [], personal_question: Boolean(d.personal_question) });
       } else {
@@ -78,6 +81,7 @@ export function usePostGate<T>(o: {
 
   async function toPrivateChat() {
     setBlocked(null);
+    setCrisis(null);
     try {
       const r = await apiClient.post<{ session_id: string; draft: { title: string; body: string } }>("/chat/sessions/from-draft", { course_id: o.courseId, title, body: o.body });
       seedDraft(`chat:${o.courseId}:${r.data.session_id}`, r.data.draft.body, identity?.sub);
@@ -89,6 +93,8 @@ export function usePostGate<T>(o: {
   }
 
   const dialog = (
+    <>
+    <CrisisSupportDialog open={crisis !== null} message={crisis ?? ""} onClose={() => setCrisis(null)} onPrivateChat={o.canChat ? () => void toPrivateChat() : undefined} />
     <PIIChannelDialog
       open={blocked !== null}
       summary={blocked ? countReasons(blocked.reasons) || "câu hỏi riêng tư" : ""}
@@ -101,6 +107,7 @@ export function usePostGate<T>(o: {
       redactLabel={o.redactLabel}
       redactDisabled={blocked?.personal_question ? "Câu hỏi về điểm của riêng bạn không đăng công khai được." : undefined}
     />
+    </>
   );
   return { check, submit, pending, error, dialog };
 }

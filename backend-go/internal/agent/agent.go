@@ -108,13 +108,7 @@ func (a *Agent) Respond(ctx context.Context, tc TrustedContext, in Input) (Outco
 	return a.courseQA(ctx, tc, in, out)
 }
 
-func (a *Agent) crisisReply() string {
-	sup := strings.TrimSpace(a.SupportResources)
-	if sup == "" {
-		sup = DefaultSupport
-	}
-	return ReplyCrisis + " " + sup
-}
+func (a *Agent) crisisReply() string { return CrisisText(a.SupportResources) }
 
 // recordBlocked ghi pii_events BLOCKED / OTHER_PERSON (không nội dung) và một dòng log không kèm tên.
 func (a *Agent) recordBlocked(ctx context.Context, tc TrustedContext) {
