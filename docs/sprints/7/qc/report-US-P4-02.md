@@ -1,10 +1,54 @@
-# QC report — US-P4-02 (chuông tức thời, gộp, hai bản gateway, một cửa)
-Ngày 2026-10-13. Commit kiểm: `sprint/7-p4-p5` @ `24ef239` (mã `e2a7e68`; handoff `dev-US-P4-02.md`). Bộ TC: `tc-US-P4-02.md` (không sửa chữ TC). Stack như `report-US-P4-01.md` (`edupilot100`, gateway ×2 khi cần). **#12 ACCEPTED:** AC1 chấm theo thứ tự đã quyết (Threads giữ ghi đồng bộ qua `notify.SendTx`, chuyển outbox ở US-P4-06), không tính 5 assertion `thread_test.go` là lỗi.
+# QC report — US-P4-02 (chuông tức thời, gộp, hai bản gateway, một cửa) — **vòng 2**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `438c649`. Bộ TC: `tc-US-P4-02.md` (không sửa chữ TC). Handoff: `dev-US-P4-02.md` mục "Vòng 2", `dev-QC-answers.md`. Stack như `report-US-P4-01.md` (dựng lại từ code mới, `--scale gateway=2`). **#12 ACCEPTED:** AC1 chấm theo thứ tự đã quyết.
 
-## Kết luận: **FAIL**
-AC10 (chuông trên giao diện) chưa làm đủ: không hiện số chưa đọc, không "9+", không chống nhảy vị trí khi chèn mục mới. Dev đã tự ghi là nợ #3 trong handoff; theo luật QC vẫn FAIL. Phần hạ tầng (một cửa, SSE tức thì, hai gateway, đọc bù, gộp, cô lập, giới hạn kết nối) PASS.
+## Kết luận: **FAIL** (1 lỗi thấp: TC-29)
+AC10 (chuông) nay đủ: số chưa đọc "9+", chống nhảy vị trí. Còn một lỗi: `bash scripts/ui-antipatterns.sh` đỏ (rc=1) vì huy hiệu số của chuông đặt `font-size: 10px` ngoài thang vai trò (`AppShell.module.css:124`). Luật `CLAUDE.md`: script phải sạch trước khi báo xong. Ba TC vẫn BLOCKED (TC-18 phần Threads, TC-24; xem dưới) nhưng không tính FAIL theo yêu cầu PM nếu handoff chưa cho đường kiểm.
 
 ## 1. Kết quả TC
+| TC | Kết quả | Bằng chứng vòng 2 |
+| --- | --- | --- |
+| 01 một cửa | PASS (#12) | không còn `InsertNotification` / `insert into notifications` ngoài `internal/notify` và `store/queries/notify.sql` trong mã không phải test |
+| 02 `SendMany` | PASS (N=30) | `log_statement='mod'`: lập lịch bài thi (lớp 30 SV) → +30 dòng bằng 1 câu `insert into notifications`; chưa đo N=1.000 |
+| 03 test cũ không sửa | PASS | vòng 1: 540 test pass; `git diff 1518f83..HEAD` không sửa test của course/exam/thread/calendar. Vòng 2 chạy lại `./cmd/worker ./db ./internal/contract` = 42 pass |
+| 04–06 tức thì, p95, UI | PASS | khung `notification` tới sau 93–535 ms; UI không reload (vòng 1; code SSE không đổi, kiểm lại tới khung ở TC-13/17: tới ≤ 1 s) |
+| 07 hai gateway | PASS | `--scale gateway=2` (vòng 2 dựng lại): nối A / sinh ở B và ngược lại, mỗi hướng 1 khung, 473–507 ms (`scripts/two-gateways.mjs`) |
+| 08 dừng một bản | PASS | nối `LAST`; dừng gateway-1; sinh 2 ticket; nối lại `Last-Event-ID=LAST` qua bản còn lại → đúng 2 khung thiếu, tăng dần, không trùng |
+| 09–11 đọc bù | PASS (vòng 1) | 4 khung đúng thứ tự không trùng; `resync buffer_exceeded` khi xoá bộ đệm; `resync invalid_last_event_id` khi id sai |
+| 12 UI offline | PASS (vòng 1) | online lại chuông đủ số = số `OPEN` |
+| 13 gộp 5 ticket | PASS | 1 dòng `TICKET_NEW`, `id` giữ nguyên, số = số `OPEN` thật (3 → 18 → 227 trong các lượt); TA và lớp 2 có dòng riêng |
+| 14 đọc xong, ticket mới | PASS (diễn giải SRS 4.4.3) | cùng dòng, `read_at=NULL` khi số tăng; AC5 chữ "dòng mới" lệch SRS — PM ghi BA sửa chữ (BUG-2 vòng 1) |
+| 15 số = 0 tự đọc | **PASS** (mới) | đóng hết (`dismiss`) → dòng `TICKET_NEW` `read_at` đặt, dòng không bị xoá (1 dòng cho teacher/lớp); `OPEN`=0 |
+| 16 số giảm giữ `read_at` | **PASS** (mới) | 3 `OPEN`, giảng viên đọc (`read_at` có), `claim` → tiêu đề "2 câu hỏi…", `dismiss` → "1 câu hỏi…", `read_at` giữ nguyên cả hai lần |
+| 17 song song | PASS | 13 `escalate` đồng thời; số cuối = số `OPEN` |
+| 18 loại khác / cá nhân | PASS một phần / BLOCKED một phần | `TICKET_ANSWERED` là dòng riêng mỗi lần trả lời (sv04: 2 lần `answer` → 2 dòng, không gộp, link `/chat?session=…`). `AI_PENDING`, `POST_REPORTED` thuộc US-P4-06 (chưa thi công) → BLOCKED |
+| 19 không lộ nội dung | PASS | `TICKET_NEW`, `TICKET_ANSWERED` (title "Giảng viên đã trả lời câu hỏi của bạn", không nội dung); `outbox.payload` chỉ `{kind,course_id,ticket_id}`; audit không chứa canary. `TICKET_STALE` thuộc US-P4-05 |
+| 20 giao lại outbox | PASS (vòng 1) | không thêm thông báo, không khung SSE mới |
+| 21 chỉ của mình | PASS | A và ADMIN 0 khung; đọc / đánh dấu thông báo người khác → 404 |
+| 22 tab thứ ba | PASS | `429 SSE_LIMIT_REACHED` |
+| 23 rơi về làm mới | PASS (một phần) | chặn `/events`: chuông tự làm mới, không lỗi |
+| 24 Redis chết | BLOCKED | dev đề nghị PM chấp nhận (`dev-US-P4-02.md`: không có khoảnh khắc "chỉ `Publish` lỗi" khi Redis dừng hẳn; `TestPublishFailureKeepsRow` phủ). Hành vi quan sát vẫn như vòng 1: không mất, cập nhật khi Redis lên lại. PM quyết |
+| 25 chuông UI | **PASS** (mới) | `scripts/p4-02-ui.mjs`: giảng viên 14 chưa đọc → chữ hiển thị **"9+"**; `aria-label="Thông báo, 14 chưa đọc"`; `aria-live="polite"` "Có N thông báo mới"; bấm mục → mở đúng `link` (`/class/members`), đánh dấu đã đọc lạc quan (14 → 13), không toast |
+| 26 375 px | PASS | chuông 44×44; mục 330×65; không tràn ngang; hiện "9+" ở 375 px |
+| 27 không nhảy khi chèn | **PASS** (mới) | `scripts/p4-02-nojump.mjs`: danh sách mở, ticket mới → dòng gộp lên đầu; mục "QC thông báo 6" lệch y = 1,5 px (< 2) |
+| 28 làm mới lỗi | PASS | danh sách cũ còn, dòng "Chưa cập nhật được", tự thử lại |
+| 29 antipatterns | **FAIL** | `bash scripts/ui-antipatterns.sh` → `rc=1`: `✗ Cỡ chữ tuỳ ý ngoài thang vai trò` tại `frontend/src/shared/shell/AppShell.module.css:124` (`.unreadDot … font-size: 10px`). Vòng 1 `rc=0`; do thay đổi chuông vòng 2. (Vi phạm thứ hai `RealChat.tsx:80` thuộc US-P4-03) |
+| E1 `POST /notifications/read` | PASS | route của US-P4-03: `{link}` rỗng → 422; link của người khác → không đổi dòng người kia |
+| P1 | PASS | sinh viên không có `TICKET_NEW`; ADMIN không nhận khung ticket |
+
+Tổng: 29 TC chính + 2 TC nhánh / quyền = 31: PASS 28 (gồm TC-14, 15, 16, 25, 27 mới đạt), FAIL 1 (TC-29), BLOCKED 2 (TC-18 phần Threads, TC-24).
+
+## 2. Lỗi
+**BUG-1 (THẤP): `ui-antipatterns.sh` đỏ ở `AppShell.module.css:124`** — `font-size: 10px` của `.unreadDot`. Tái hiện: `bash scripts/ui-antipatterns.sh; echo $?` → `1`. Sửa: dùng token cỡ chữ trong thang vai trò (`--ep-text-*`). Không đụng hành vi.
+
+## 3. Ghi chú
+- Kiểm giao diện chuông ở stack có số thật: hai người đọc cùng dòng, số "9+" ở 375 px, khung chèn không nhảy — xem script trong `docs/sprints/7/qc/scripts/` (`p4-02-ui.mjs`, `p4-02-nojump.mjs`, `sse.mjs`, `two-gateways.mjs`).
+- `shell.spec.ts:312` "forbidden… 0 request /api/v1" vẫn đỏ vì chuông mở SSE `/api/v1/events` (proposals #18 ACCEPTED, dev chưa áp dụng ở `HEAD`): ghi ở `report-US-P4-03.md` (cổng G4-05).
+
+## 4. Phụ lục: vòng 1 (đã đóng)
+### Kết luận: **FAIL**
+AC10 (chuông trên giao diện) chưa làm đủ: không hiện số chưa đọc, không "9+", không chống nhảy vị trí khi chèn mục mới. Dev đã tự ghi là nợ #3 trong handoff; theo luật QC vẫn FAIL. Phần hạ tầng (một cửa, SSE tức thì, hai gateway, đọc bù, gộp, cô lập, giới hạn kết nối) PASS.
+
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | 01 một cửa | PASS (#12) | `grep -rn 'InsertNotification\|insert into notifications' backend-go --include=*.go --include=*.sql` loại `internal/notify` và `store/queries/notify.sql` (và `*.sql.go` sinh): 0 dòng trong mã không phải test; chỉ còn các tệp `_test.go` chèn dữ liệu mồi (không phải lời gọi sản xuất) |
@@ -41,11 +85,11 @@ AC10 (chuông trên giao diện) chưa làm đủ: không hiện số chưa đ�
 
 Đối chiếu AC: AC1, AC2, AC3, AC4, AC6 (phần có thể), AC7, AC8, AC11 PASS; AC5 PASS một phần (TC-15, 16, 18 BLOCKED); AC9 PASS một phần (TC-24 BLOCKED); **AC10 FAIL**. Tổng 29 TC chính + 2 nhánh = 31: PASS 24 (gồm TC-14 theo diễn giải SRS), FAIL 2 (25, 27), BLOCKED 4 (15, 16, 18, 24), KHÔNG KIỂM ĐƯỢC 1 (E1).
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (TRUNG BÌNH): AC10 chưa đủ** — thiếu số chưa đọc (tối đa "9+") hiển thị trên chuông và chống nhảy vị trí khi chèn mục mới lúc danh sách đang mở. Tái hiện: `node ../docs/sprints/7/qc/scripts/p4-02-ui.mjs` (từ `frontend`, cần stack). Handoff đã nêu "chưa làm (cần chốt chấm hay số)". Spec chốt: số tối đa "9+" và không nhảy → cần làm.
 **BUG-2 (THẤP, chữ spec): AC5 "dòng mới" so với SRS 4.4.3 "cùng dòng, `read_at=NULL` khi số tăng"** (TC-14). Hành vi hiện tại đúng SRS; đề nghị BA sửa AC5 cho khớp.
 
-## 3. Ghi chú
+### 3. Ghi chú
 - Tên tệp kiểm dùng lại: `scripts/sse.mjs` (ghi khung SSE có dấu thời gian), `scripts/two-gateways.mjs` (chạy trong mạng compose, cần `docker run … edupilot-frontend`), `scripts/p4-02-ui.mjs`.
 - Handoff nợ 2 (AC4/AC8 không có test mới trong `notify`): QC đã kiểm hộp đen cả hai (TC-09…11, 21) nên không cần thêm test.
 - Handoff nợ 4 (`SendMany` phát tuần tự): trên 30 người không đo được khác biệt.

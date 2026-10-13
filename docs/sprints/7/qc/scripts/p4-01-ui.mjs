@@ -15,14 +15,16 @@ const out = (id, ok, note) => console.log(`${ok ? "PASS" : "FAIL"} ${id} ${note 
 const which = process.argv[2] ?? "all";
 
 if (which === "all" || which === "18") { // nút hiện / không hiện
-  const { ctx, p } = await login("sv.nguyco@edupilot.local");
-  await openSession(p, "Tuần này em có lịch gì?");
+  const { ctx, p } = await login("sv07@edupilot.local");
+  await openSession(p, "QC07 một");
   const n = await p.getByRole("button", { name: BTN }).count();
   const txt = await p.locator("main").innerText();
   out("TC-P4-01-18", n === 2 && !/CRISIS|SMALLTALK/.test(txt), `nút=${n} (kỳ vọng 2: chỉ hai câu lịch thường; không có ở khủng hoảng / từ chối / chào)`);
-  await openSession(p, "Lịch bảo vệ đồ án thế nào?");
-  const nf = await p.getByRole("button", { name: BTN }).count(); out("TC-P4-01-18 (FAILED)", nf === 0, `nút=${nf}`);
   await ctx.close();
+  const c = await login("sv.nguyco@edupilot.local"); // phiên có tin FAILED (trigger tạm làm outbox lỗi)
+  await openSession(c.p, "Lịch bảo vệ đồ án thế nào?");
+  const nf = await c.p.getByRole("button", { name: BTN }).count(); out("TC-P4-01-18 (FAILED)", nf === 0, `nút=${nf}`);
+  await c.ctx.close();
 }
 if (which === "all" || which === "19" || which === "20") {
   const { ctx, p } = await login("sv.kha@edupilot.local");
@@ -32,8 +34,8 @@ if (which === "all" || which === "19" || which === "20") {
   await ctx.close();
 }
 if (which === "all" || which === "20") {
-  const { ctx, p } = await login("sv.nguyco@edupilot.local");
-  await openSession(p, "Tuần này em có lịch gì?");
+  const { ctx, p } = await login("sv07@edupilot.local");
+  await openSession(p, "QC07 một");
   const btn = p.getByRole("button", { name: BTN }).first(); await btn.hover(); await p.waitForTimeout(800);
   const tip = (await btn.getAttribute("title")) ?? (await p.locator('[role=tooltip]').allInnerTexts()).join("|");
   out("TC-P4-01-20", /Giảng viên sẽ đọc câu hỏi này và câu trả lời của AI/.test(tip ?? ""), `tooltip="${tip}"`);
@@ -48,9 +50,9 @@ if (which === "all" || which === "21") {
   await ctx.close();
 }
 if (which === "all" || which === "22") { // bấm đúp
-  const { ctx, p } = await login("sv04@edupilot.local"); const reqs = [];
+  const { ctx, p } = await login("sv24@edupilot.local"); const reqs = [];
   p.on("request", (r) => { if (r.method() === "POST" && /\/escalate$/.test(r.url())) reqs.push(Date.now()); });
-  await openSession(p, "Tuần này em có lịch gì?");
+  await openSession(p, "QCU");
   const btn = p.getByRole("button", { name: BTN }).first();
   const t0 = await p.evaluate(() => performance.now());
   await btn.dblclick(); const t1 = Date.now();
@@ -59,9 +61,9 @@ if (which === "all" || which === "22") { // bấm đúp
   await ctx.close();
 }
 if (which === "all" || which === "23") { // offline
-  const { ctx, p } = await login("sv05@edupilot.local"); const reqs = [];
+  const { ctx, p } = await login("sv25@edupilot.local"); const reqs = [];
   p.on("request", (r) => { if (r.method() === "POST" && /\/escalate$/.test(r.url())) reqs.push(r.url()); });
-  await openSession(p, "Tuần này em có lịch gì?");
+  await openSession(p, "QCU");
   await ctx.setOffline(true); await p.getByRole("button", { name: BTN }).first().click(); await p.waitForTimeout(1500);
   const mid = (await p.locator("main").innerText()).match(/Đang gửi…|Đang chờ giảng viên[^\n]*/)?.[0];
   await ctx.setOffline(false); await p.waitForTimeout(6000);
@@ -70,8 +72,8 @@ if (which === "all" || which === "23") { // offline
   await ctx.close();
 }
 if (which === "all" || which === "24") { // 5xx
-  const { ctx, p } = await login("sv06@edupilot.local");
-  await openSession(p, "Tuần này em có lịch gì?");
+  const { ctx, p } = await login("sv26@edupilot.local");
+  await openSession(p, "QCU");
   await p.route("**/escalate", (r) => r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "x" }) }));
   await p.getByRole("button", { name: BTN }).first().click(); await p.waitForTimeout(1500);
   const txt = await p.locator("main").innerText();
