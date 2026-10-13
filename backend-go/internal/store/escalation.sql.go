@@ -14,6 +14,33 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const answerMailTarget = `-- name: AnswerMailTarget :one
+select u.email, (u.email_verified_at is not null)::boolean as verified, u.full_name,
+       coalesce(us.notify_answer_by_mail, true)::boolean as wants_mail
+from users u left join user_settings us on us.user_id = u.id
+where u.id = $1
+`
+
+type AnswerMailTargetRow struct {
+	Email     string
+	Verified  bool
+	FullName  string
+	WantsMail bool
+}
+
+// Người nhận thư trả lời: CHÍNH chủ ticket, email đã xác minh; cờ thiếu hàng settings = mặc định (bật).
+func (q *Queries) AnswerMailTarget(ctx context.Context, userID uuid.UUID) (AnswerMailTargetRow, error) {
+	row := q.db.QueryRow(ctx, answerMailTarget, userID)
+	var i AnswerMailTargetRow
+	err := row.Scan(
+		&i.Email,
+		&i.Verified,
+		&i.FullName,
+		&i.WantsMail,
+	)
+	return i, err
+}
+
 const getEscalatedExchange = `-- name: GetEscalatedExchange :many
 select m.id, m.course_id, m.session_id, m.user_id, m.role, m.content, m.partial_content, m.stream_status, m.client_msg_id, m.reply_to, m.attempt, m.intent, m.citations, m.blocks, m.confidence, m.low_confidence, m.no_context, m.degraded, m.masked_count, m.feedback, m.error_code, m.trace_id, m.completed_at, m.created_at, m.updated_at from chat_messages m
 where m.course_id = $1
@@ -160,6 +187,47 @@ func (q *Queries) TicketAnswer(ctx context.Context, arg TicketAnswerParams) (Esc
 		arg.ID,
 		arg.Version,
 	)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const ticketByID = `-- name: TicketByID :one
+select id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at from escalation_tickets where id = $1
+`
+
+// Thư (resolver) chỉ có ticket_id trong payload; course_id lấy từ chính dòng ticket.
+func (q *Queries) TicketByID(ctx context.Context, id uuid.UUID) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketByID, id)
 	var i EscalationTicket
 	err := row.Scan(
 		&i.ID,
@@ -737,6 +805,18 @@ func (q *Queries) TicketLockStudentCap(ctx context.Context, arg TicketLockStuden
 	return err
 }
 
+const ticketMailQueued = `-- name: TicketMailQueued :one
+select exists (select 1 from mail_outbox where dedupe_key = $1)::boolean as queued
+`
+
+// Đã xếp thư với dedupe_key này chưa (giao lại outbox không được tiêu mốc cửa sổ gộp một lần nữa).
+func (q *Queries) TicketMailQueued(ctx context.Context, dedupeKey *string) (bool, error) {
+	row := q.db.QueryRow(ctx, ticketMailQueued, dedupeKey)
+	var queued bool
+	err := row.Scan(&queued)
+	return queued, err
+}
+
 const ticketOtherStudentEmails = `-- name: TicketOtherStudentEmails :many
 select lower(u.email)::text from users u join enrollments e on e.user_id = u.id
 where e.course_id = $1 and e.role_in_course = 'STUDENT' and e.user_id <> $2 and lower(u.email) = any($3::text[])
@@ -930,6 +1010,73 @@ func (q *Queries) TicketStaffIDs(ctx context.Context, courseID uuid.UUID) ([]uui
 			return nil, err
 		}
 		items = append(items, user_id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ticketStaffMailTargets = `-- name: TicketStaffMailTargets :many
+select u.id, u.email
+from enrollments e
+join users u on u.id = e.user_id
+left join user_settings us on us.user_id = u.id
+where e.course_id = $1 and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
+  and u.email_verified_at is not null and u.status = 'ACTIVE' and coalesce(us.notify_ticket_by_mail, false)
+`
+
+type TicketStaffMailTargetsRow struct {
+	ID    uuid.UUID
+	Email string
+}
+
+// Người nhận thư "ticket mới": TA + TEACHER ACTIVE của lớp, email đã xác minh, ĐÃ bật cờ (mặc định tắt).
+func (q *Queries) TicketStaffMailTargets(ctx context.Context, courseID uuid.UUID) ([]TicketStaffMailTargetsRow, error) {
+	rows, err := q.db.Query(ctx, ticketStaffMailTargets, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TicketStaffMailTargetsRow{}
+	for rows.Next() {
+		var i TicketStaffMailTargetsRow
+		if err := rows.Scan(&i.ID, &i.Email); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ticketStaffRemindTargets = `-- name: TicketStaffRemindTargets :many
+select u.id, u.email
+from enrollments e join users u on u.id = e.user_id
+where e.course_id = $1 and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE' and u.email_verified_at is not null and u.status = 'ACTIVE'
+`
+
+type TicketStaffRemindTargetsRow struct {
+	ID    uuid.UUID
+	Email string
+}
+
+// Người nhận thư nhắc quá hạn: TA + TEACHER ACTIVE của lớp (không ADMIN), email đã xác minh; không phụ thuộc cờ cá nhân.
+func (q *Queries) TicketStaffRemindTargets(ctx context.Context, courseID uuid.UUID) ([]TicketStaffRemindTargetsRow, error) {
+	rows, err := q.db.Query(ctx, ticketStaffRemindTargets, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TicketStaffRemindTargetsRow{}
+	for rows.Next() {
+		var i TicketStaffRemindTargetsRow
+		if err := rows.Scan(&i.ID, &i.Email); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

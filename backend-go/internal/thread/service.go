@@ -554,6 +554,9 @@ func (s *Service) Comment(ctx context.Context, a Actor, courseID, threadID uuid.
 		if nr, ok := s.notify(ctx, tq, owner.AuthorID, courseID, threadID, "THREAD_REPLY", "Có bình luận mới trong câu hỏi của bạn", "reply:"+row.ID.String()); ok {
 			pending = append(pending, nr)
 		}
+		if err := enqueueMail(ctx, tx, owner.AuthorID, threadID, &row.ID, "REPLY"); err != nil {
+			return PostOut{}, err
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return PostOut{}, fmt.Errorf("thread: commit: %w", err)
@@ -660,6 +663,9 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 		}
 		if nr, ok := s.notify(ctx, q, p.ThreadAuthorID, courseID, p.ThreadID, "THREAD_VERIFIED", title, fmt.Sprintf("decided:%s:%s:%d", postID, target, row.Version)); ok {
 			pending = append(pending, nr)
+		}
+		if err := enqueueMail(ctx, tx, p.ThreadAuthorID, p.ThreadID, &postID, string(target)); err != nil {
+			return PostOut{}, err
 		}
 	}
 	out, err := s.postView(ctx, q, courseID, postID, a)

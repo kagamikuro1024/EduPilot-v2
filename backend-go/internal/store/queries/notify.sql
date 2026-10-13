@@ -49,3 +49,11 @@ select id, type, title, body, link, course_id, created_at from notifications whe
 -- name: NotifyMarkReadByLink :execrows
 -- Đánh dấu đã đọc mọi thông báo CHƯA đọc CỦA CHÍNH MÌNH có `link` trùng (chat gọi khi mở phiên có tin của giảng viên).
 update notifications set read_at = now() where user_id = sqlc.arg(user_id) and link = sqlc.arg(link) and read_at is null;
+
+-- name: MailFailedPage :many
+-- US-P4-04 AC9: thư DEAD, trang đầu = chỉ mục mail_outbox_dead_idx (updated_at DESC, id DESC) WHERE status = 'DEAD'. Không thân thư, không payload.
+select id, template, to_addr, attempts, last_error, updated_at
+from mail_outbox
+where status = 'DEAD' and (sqlc.narg(cursor_at)::timestamptz is null or (updated_at, id) < (sqlc.narg(cursor_at)::timestamptz, sqlc.narg(cursor_id)::uuid))
+order by updated_at desc, id desc
+limit sqlc.arg(page_limit);

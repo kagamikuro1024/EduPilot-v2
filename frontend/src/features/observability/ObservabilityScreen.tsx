@@ -6,6 +6,7 @@ import { NOW, fmtScore, fmtTime } from "@/mock/core";
 import { COURSE_SUMMARY, REQUESTS, STATUS_LABEL, STATUS_STRIP, type LlmRequest } from "@/mock/system";
 import { useSession } from "@/shared/session/session";
 import { Button, type Column, DataTable, DefinitionList, Drawer, EmptyState, Field, InlineNotice, Page, PageHeader, PageState, Panel, Section, SegmentedControl, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { FailedMail } from "./FailedMail";
 import s from "./observability.module.css";
 
 /** Dải trạng thái gọn: nhãn nhỏ, số lớn, ngăn bằng đường kẻ dọc — không phải thẻ số liệu. */
@@ -102,6 +103,8 @@ export function ObservabilityScreen() {
           </>
         }
       />
+
+      {isAdmin && <FailedMail />}
 
       <PageState
         loading={

@@ -26,11 +26,30 @@ var vietnam = time.FixedZone("ICT", 7*60*60) //nolint:gochecknoglobals // hằng
 // Handler là consumer của topic `mail.send` (đăng ký ở worker). Idempotent theo mail_outbox.id: khoá dòng
 // FOR UPDATE, dòng đã SENT/DEAD thì bỏ qua — hai lần giao cùng tin chỉ gửi một thư.
 type Handler struct {
-	Pool   *pgxpool.Pool
-	Clock  clock.Clock
-	Sender Sender
-	Cfg    config.Config
-	Log    *slog.Logger
+	// Resolvers nạp biến hiển thị của từng mẫu LÚC GỬI (payload chỉ có định danh, SRS escalation 4.5.1); mẫu không có resolver dùng đường cũ (payload).
+	Resolvers map[string]Resolver
+	Pool      *pgxpool.Pool
+	Clock     clock.Clock
+	Sender    Sender
+	Cfg       config.Config
+	Log       *slog.Logger
+}
+
+// Resolver dựng biến hiển thị của một mẫu từ dòng `mail_outbox` (đọc dữ liệu nghiệp vụ trong tx của lúc gửi). Lỗi do `Permanent` → DEAD ngay.
+type Resolver interface {
+	Resolve(ctx context.Context, tx pgx.Tx, row store.MailOutbox) (map[string]string, error)
+}
+
+// Permanent là lỗi không thể khắc phục bằng thử lại (`class` thành `mail_outbox.last_error`): ví dụ ticket_missing, payload_invalid.
+func Permanent(class string) error { return &permanentErr{class} }
+
+// Clip cắt `s` còn tối đa n ký tự (rune); bị cắt thì thêm suffix.
+func Clip(s string, n int, suffix string) string {
+	r := []rune(strings.TrimSpace(s))
+	if len(r) <= n {
+		return string(r)
+	}
+	return strings.TrimSpace(string(r[:n])) + suffix
 }
 
 // permanentErr đánh dấu lỗi không thể khắc phục bằng thử lại.
@@ -135,6 +154,23 @@ func (h *Handler) build(ctx context.Context, tx pgx.Tx, row store.MailOutbox) (M
 		"ForgotURL":   h.Cfg.AppPublicURL + "/forgot-password",
 		"CalendarURL": h.Cfg.AppPublicURL + "/calendar",
 	}
+	if rs, ok := h.Resolvers[row.Template]; ok {
+		vars, err := rs.Resolve(ctx, tx, row)
+		if err != nil {
+			return Mail{}, err
+		}
+		for k, v := range vars {
+			data[k] = v
+		}
+		r, err := Render(row.Template, data)
+		if err != nil {
+			if errors.Is(err, ErrMissingVar) {
+				return Mail{}, &permanentErr{"template_missing_var"}
+			}
+			return Mail{}, &permanentErr{"template_render"}
+		}
+		return Mail{ID: row.ID, To: strings.ToLower(row.ToAddr), Subject: r.Subject, Text: r.Text, HTML: r.HTML}, nil
+	}
 	for key, v := range map[string]string{
 		"full_name": "FullName", "inviter_name": "InviterName", "role_vn": "RoleVN",
 		"teacher_name": "TeacherName", "event_title": "EventTitle", "course_name": "CourseName", "class_code": "ClassCode",
@@ -177,7 +213,7 @@ func (h *Handler) build(ctx context.Context, tx pgx.Tx, row store.MailOutbox) (M
 		}
 		return Mail{}, &permanentErr{"template_render"}
 	}
-	return Mail{To: strings.ToLower(row.ToAddr), Subject: r.Subject, Text: r.Text, HTML: r.HTML}, nil
+	return Mail{ID: row.ID, To: strings.ToLower(row.ToAddr), Subject: r.Subject, Text: r.Text, HTML: r.HTML}, nil
 }
 
 func (h *Handler) ttl(k auth.TokenKind) time.Duration {

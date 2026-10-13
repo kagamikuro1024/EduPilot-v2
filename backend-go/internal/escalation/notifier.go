@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
@@ -21,6 +22,7 @@ type Notifier struct {
 	Pool   *pgxpool.Pool
 	Notify *notify.Service
 	Log    *slog.Logger
+	Gate   MailGate // thư `ticket_new`: cửa sổ trượt (Redis nil = không gộp)
 }
 
 type courseEvent struct {
@@ -33,7 +35,52 @@ func (n *Notifier) HandleCreated(ctx context.Context, m outbox.Message) error {
 	if err := json.Unmarshal(m.Payload, &p); err != nil || p.CourseID == uuid.Nil {
 		return errors.New("payload escalation.created không hợp lệ")
 	}
-	return n.RecountTicketNew(ctx, p.CourseID)
+	if err := n.RecountTicketNew(ctx, p.CourseID); err != nil {
+		return err
+	}
+	return n.mailTicketNew(ctx, m.ID, p.CourseID)
+}
+
+// mailTicketNew xếp thư `ticket_new` cho TA / TEACHER ĐÃ bật `notify_ticket_by_mail` (mặc định tắt), gộp theo cửa sổ trượt mỗi (người, lớp).
+// Giao lại tin outbox: `dedupe_key = ticket_new:<outbox_message_id>:<user_id>` chặn thư thứ hai; thư không chứa nội dung (chỉ số lượng lúc gửi + liên kết).
+func (n *Notifier) mailTicketNew(ctx context.Context, outboxID, courseID uuid.UUID) error {
+	targets, err := store.New(n.Pool).TicketStaffMailTargets(ctx, courseID)
+	if err != nil {
+		return fmt.Errorf("escalation: người nhận thư: %w", err)
+	}
+	for _, t := range targets {
+		key := "ticket_new:" + outboxID.String() + ":" + t.ID.String()
+		if done, err := n.mailQueued(ctx, key); err != nil {
+			return err
+		} else if done {
+			continue // giao lại: đã xếp thư cho người này
+		}
+		if !n.Gate.Allow(ctx, t.ID, courseID) {
+			continue
+		}
+		tx, err := n.Pool.Begin(ctx)
+		if err != nil {
+			return fmt.Errorf("escalation: mở giao dịch: %w", err)
+		}
+		_, _, err = mail.Enqueue(ctx, tx, mail.Message{To: t.Email, Template: MailNew, Payload: map[string]any{"course_id": courseID}, DedupeKey: key})
+		if err != nil {
+			_ = tx.Rollback(ctx)
+			return fmt.Errorf("escalation: xếp thư: %w", err)
+		}
+		if err := tx.Commit(ctx); err != nil {
+			return fmt.Errorf("escalation: commit thư: %w", err)
+		}
+	}
+	return nil
+}
+
+// mailQueued: đã có dòng mail_outbox với dedupe_key này chưa (giao lại outbox không được tiêu mốc cửa sổ gộp một lần nữa).
+func (n *Notifier) mailQueued(ctx context.Context, key string) (bool, error) {
+	done, err := store.New(n.Pool).TicketMailQueued(ctx, &key)
+	if err != nil {
+		return false, fmt.Errorf("escalation: kiểm thư đã xếp: %w", err)
+	}
+	return done, nil
 }
 
 // RecountTicketNew cập nhật dòng gộp TICKET_NEW theo số ticket OPEN HIỆN TẠI của lớp (không đếm theo sự kiện).

@@ -127,3 +127,7 @@ where id = sqlc.arg(id) and ai_state = 'PENDING';
 -- name: ThreadMarkSkipped :execrows
 update forum_threads set ai_state = 'SKIPPED', ai_skip_reason = sqlc.arg(reason)
 where id = sqlc.arg(id) and ai_state = 'PENDING';
+
+-- name: ThreadMailInfo :one
+-- Thư `thread_reply`: tiêu đề thread (công khai trong lớp) và lớp, theo id trong payload.
+select id, course_id, title from forum_threads where id = sqlc.arg(id) and deleted_at is null;

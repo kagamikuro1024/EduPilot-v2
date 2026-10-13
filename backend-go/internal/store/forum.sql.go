@@ -641,6 +641,24 @@ func (q *Queries) ThreadList(ctx context.Context, arg ThreadListParams) ([]Threa
 	return items, nil
 }
 
+const threadMailInfo = `-- name: ThreadMailInfo :one
+select id, course_id, title from forum_threads where id = $1 and deleted_at is null
+`
+
+type ThreadMailInfoRow struct {
+	ID       uuid.UUID
+	CourseID uuid.UUID
+	Title    string
+}
+
+// Thư `thread_reply`: tiêu đề thread (công khai trong lớp) và lớp, theo id trong payload.
+func (q *Queries) ThreadMailInfo(ctx context.Context, id uuid.UUID) (ThreadMailInfoRow, error) {
+	row := q.db.QueryRow(ctx, threadMailInfo, id)
+	var i ThreadMailInfoRow
+	err := row.Scan(&i.ID, &i.CourseID, &i.Title)
+	return i, err
+}
+
 const threadMarkAnswered = `-- name: ThreadMarkAnswered :execrows
 update forum_threads set ai_state = 'ANSWERED', reply_count = reply_count + 1, last_activity_at = now()
 where id = $1 and ai_state = 'PENDING'

@@ -12,6 +12,57 @@ import (
 	"github.com/google/uuid"
 )
 
+const mailFailedPage = `-- name: MailFailedPage :many
+select id, template, to_addr, attempts, last_error, updated_at
+from mail_outbox
+where status = 'DEAD' and ($1::timestamptz is null or (updated_at, id) < ($1::timestamptz, $2::uuid))
+order by updated_at desc, id desc
+limit $3
+`
+
+type MailFailedPageParams struct {
+	CursorAt  *time.Time
+	CursorID  *uuid.UUID
+	PageLimit int32
+}
+
+type MailFailedPageRow struct {
+	ID        uuid.UUID
+	Template  string
+	ToAddr    string
+	Attempts  int32
+	LastError *string
+	UpdatedAt time.Time
+}
+
+// US-P4-04 AC9: thư DEAD, trang đầu = chỉ mục mail_outbox_dead_idx (updated_at DESC, id DESC) WHERE status = 'DEAD'. Không thân thư, không payload.
+func (q *Queries) MailFailedPage(ctx context.Context, arg MailFailedPageParams) ([]MailFailedPageRow, error) {
+	rows, err := q.db.Query(ctx, mailFailedPage, arg.CursorAt, arg.CursorID, arg.PageLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []MailFailedPageRow{}
+	for rows.Next() {
+		var i MailFailedPageRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Template,
+			&i.ToAddr,
+			&i.Attempts,
+			&i.LastError,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const notifyAggGet = `-- name: NotifyAggGet :one
 select id, title, read_at from notifications where user_id = $1 and dedupe_key = $2 for update
 `

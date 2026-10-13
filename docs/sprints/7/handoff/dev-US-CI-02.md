@@ -67,3 +67,26 @@ Lưu ý TC-07 ("ở CI không có `-v`"): bản này có `-v` ở bước `go te
 - Test mới `TestQueueDefaultsNoRace` (`-race -tags integration`): `Run` + 8 `HandleEnqueue` song song trên Queue chỉ có trường bắt buộc. Trên mã cũ (worktree tạm) báo `WARNING: DATA RACE` tại `queue.go:81–125`; trên mã mới PASS.
 - Chạy: `go test -race -tags 'integration testroutes' ./internal/judge -run 'TestJudge|TestQueue'` (11 pass, gồm `TestJudgeRetryThenDead`), `go test -race -tags testroutes ./internal/judge ./cmd/worker` (35 pass). Commit `fix(judge): race defaults (#4)`.
 - Shard lệch: đã thử `--shard=i/4` (run `38407209313`, nhánh tạm đã xoá): `Playwright 1/4` 398 s (so 3 shard: 426–470 s), 4/4 116 s; đường găng chuyển sang `lhci devtools A` (365 s) và `Go test (rest)` 407 s (một lượt). Lợi < 1 phút, không đủ để đổi → giữ 3 shard.
+
+## Vòng 2 (sau QC FAIL vòng 1, BUG-1: `Go test (rest)` đỏ ngẫu nhiên trên lượt nguội)
+**Nguyên nhân gốc (đo, không suy đoán).** `go test ./...` mặc định `-p` = số CPU (4): bốn gói chạy cùng lúc, mỗi gói dựng container Postgres / Redis và chạy `-race` (chậm 5–10×) trên runner 4 nhân; lượt nguội còn biên dịch `-race` chồng lên. Máy quá tải làm lộ các test có chờ theo thời gian (đỏ tại: `TestCancelReachesProvider`, `TestStreamEventOrder`, `TestStreamMaxDuration`, `TestOutbox_RetryThenDead`, `TestJobs_Lifecycle`, `TestRosterInvalidatedOnMemberChange`, `TestShutdown_ForcedAfterTimeout`). Không phải một lỗi của gói nào; cũng không do chia dòng `course` / `auth`. Workflow cũ "2/2 xanh" là mẫu quá nhỏ.
+
+**Phép đo**: cùng mã, dòng `rest` (`-race -tags testroutes -v`), mỗi cấu hình chạy song song N lượt trên runner mới, cache chỉ lấy từ `main` (nguội). Nhánh thử đã xoá.
+
+| Cấu hình | Số lượt | Xanh | Đỏ | Thời gian một lượt |
+| --- | --- | --- | --- | --- |
+| `-p` mặc định (hiện trạng) | 6 | 3 | 3 | 7–8 phút |
+| biên dịch trước (`-exec /bin/true`) rồi chạy | 6 | 4 | 2 | 8–9 phút |
+| `-p 2` (4 mẫu) | 30 | 24 | 6 | 7–9 phút |
+| `-p 2 -parallel 2` | 8 | 7 | 1 | 8–9 phút |
+| **`-p 1`** | 8 | **8** | 0 | 10–12 phút |
+| `-p 1 -parallel 2` | 8 | 8 | 0 | 10–13 phút |
+| **`-p 1` đúng `ci.yml` đã sửa (xác nhận)** | 8 | **8** | 0 | 10–12,5 phút |
+
+→ Tổng `-p 1`: **16/16 lượt nguội xanh** (yêu cầu ≥ 5 liên tiếp). Không thêm retry, không bỏ / sửa test nào.
+
+**Sửa**: `.github/workflows/ci.yml` dòng `go test`: thêm `-p 1` (kèm chú thích số đo). Thời gian dòng `rest` tăng ~3–4 phút (7–8 → 10–12,5); vẫn là hai dòng song song với Playwright (≈ 9 phút) nên tổng CI tăng ~2–3 phút. Nếu cần rút lại: tách `rest` làm hai dòng (hai runner, mỗi dòng `-p 1`) — chưa làm vì chưa cần.
+
+**Còn nợ (không chặn)**: các test chờ theo thời gian vẫn mong manh khi máy quá tải (ví dụ `TestCancelReachesProvider`: luồng giả tự xong sau 20 ms nên `provAbort` có thể không bao giờ bật nếu `Cancel` tới trễ). Đã có bản sửa xác định (luồng giả chờ tới khi `ctx` huỷ) nhưng chưa áp vì sửa test cũ phải qua proposal; với `-p 1` không còn lượt đỏ nào nên không đề xuất lúc này.
+
+**QC chạy lại**: tạo nhánh mới từ `sprint/7-p4-p5` (cache nguội), đổi một tệp Go, push ≥ 5 lần / mở PR; dòng `Go test (rest)` phải xanh cả 5.

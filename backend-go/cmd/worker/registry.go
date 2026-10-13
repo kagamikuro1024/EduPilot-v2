@@ -39,7 +39,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(budget.TopicWarn, ack)
 	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
 	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
-	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
+	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log, Resolvers: map[string]mail.Resolver{}}
+	thread.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers)
+	escalation.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers) // nội dung thư ticket đọc lúc gửi, payload chỉ có định danh
 	reg.Register(mail.Topic, mh.Handle)
 	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log, Notify: nt}
 	// "Hôm nay": mỗi sự kiện xoá cache của người bị ảnh hưởng (US-P2-11). Ba topic đã có thông báo được nối chuỗi.
@@ -57,7 +59,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicCreated, outbox.Chain(thread.OnCreated, inv.Handle))
 	reg.Register(thread.TopicPostDecided, inv.Handle)
 	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
-	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log}
+	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log, Gate: escalation.MailGate{Redis: d.Redis, Clock: clock.Real{}, Window: d.Cfg.MailTicketNewCoalesce}}
 	reg.Register(escalation.TopicCreated, outbox.Chain(esc.HandleCreated, inv.Handle))
 	for _, t := range []string{escalation.TopicClaimed, escalation.TopicReleased, escalation.TopicClosed} {
 		reg.Register(t, outbox.Chain(esc.HandleRecount, inv.Handle))

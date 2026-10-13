@@ -591,6 +591,9 @@ func (s *Service) Answer(ctx context.Context, a Actor, courseID, ticketID uuid.U
 	if err != nil {
 		return StaffTicket{}, Message{}, err
 	}
+	if err := enqueueAnswerMail(ctx, tx, MailAnswered, t, msg.ID); err != nil {
+		return StaffTicket{}, Message{}, err
+	}
 	if err := s.audit(ctx, q, courseID, a.UserID, t.ID, "escalation_ticket.answered", cur.Status, store.TicketStatusANSWERED); err != nil {
 		return StaffTicket{}, Message{}, err
 	}

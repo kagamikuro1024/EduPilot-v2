@@ -4,14 +4,21 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	netmail "net/mail"
+	"strings"
 
+	"github.com/google/uuid"
 	gomail "github.com/wneessen/go-mail"
 
 	"github.com/edupilot/backend-go/internal/platform/config"
 )
 
 // Mail là một thư đã dựng, sẵn sàng gửi.
-type Mail struct{ To, Subject, Text, HTML string }
+// ID là mail_outbox.id: đặt Message-ID tất định `<id@domain MAIL_FROM>` để người nhận (Mailpit `MP_IGNORE_DUPLICATE_IDS`) gộp thư giao lại sau khi worker chết giữa lúc gửi và ghi SENT (SRS 4.5.4).
+type Mail struct {
+	ID                      uuid.UUID
+	To, Subject, Text, HTML string
+}
 
 // Sender gửi một thư. Lỗi trả về PHẢI là *SendFailure (đã phân loại, không chứa địa chỉ/nội dung).
 type Sender interface {
@@ -37,6 +44,9 @@ func (s SMTP) Send(ctx context.Context, m Mail) error {
 	}
 	if err := msg.To(m.To); err != nil {
 		return &SendFailure{Permanent: true, Class: "bad_recipient"}
+	}
+	if m.ID != uuid.Nil {
+		msg.SetMessageIDWithValue(MessageID(m.ID, s.Cfg.MailFrom))
 	}
 	msg.Subject(m.Subject)
 	msg.SetBodyString(gomail.TypeTextPlain, m.Text)
@@ -77,4 +87,15 @@ func classify(err error) *SendFailure {
 		return &SendFailure{Class: "smtp_timeout"}
 	}
 	return &SendFailure{Class: "smtp_unavailable"}
+}
+
+// MessageID là giá trị Message-ID (không có dấu ngoặc nhọn): `<mail_id>@<domain của MAIL_FROM>`.
+func MessageID(id uuid.UUID, from string) string {
+	domain := "edupilot.local"
+	if a, err := netmail.ParseAddress(from); err == nil {
+		if i := strings.LastIndex(a.Address, "@"); i >= 0 {
+			domain = a.Address[i+1:]
+		}
+	}
+	return id.String() + "@" + domain
 }

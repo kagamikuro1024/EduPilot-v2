@@ -285,6 +285,7 @@ func Mailpit(t testing.TB) (smtpAddr, apiURL string) {
 		req := testcontainers.ContainerRequest{
 			Image:        mailpitImage,
 			ExposedPorts: []string{"1025/tcp", "8025/tcp"},
+			Env:          map[string]string{"MP_IGNORE_DUPLICATE_IDS": "true"}, // thư giao lại cùng Message-ID chỉ lưu một lần (US-P4-04 AC3)
 			WaitingFor:   wait.ForHTTP("/readyz").WithPort("8025/tcp").WithStartupTimeout(2 * time.Minute),
 		}
 		ready := func(string) error { return nil }

@@ -146,3 +146,33 @@ where u.id = sqlc.arg(student_id);
 -- Email (trong danh sách đưa vào) thuộc một sinh viên KHÁC của lớp.
 select lower(u.email)::text from users u join enrollments e on e.user_id = u.id
 where e.course_id = sqlc.arg(course_id) and e.role_in_course = 'STUDENT' and e.user_id <> sqlc.arg(student_id) and lower(u.email) = any(sqlc.arg(emails)::text[]);
+
+-- name: TicketByID :one
+-- Thư (resolver) chỉ có ticket_id trong payload; course_id lấy từ chính dòng ticket.
+select * from escalation_tickets where id = sqlc.arg(id);
+
+-- name: AnswerMailTarget :one
+-- Người nhận thư trả lời: CHÍNH chủ ticket, email đã xác minh; cờ thiếu hàng settings = mặc định (bật).
+select u.email, (u.email_verified_at is not null)::boolean as verified, u.full_name,
+       coalesce(us.notify_answer_by_mail, true)::boolean as wants_mail
+from users u left join user_settings us on us.user_id = u.id
+where u.id = sqlc.arg(user_id);
+
+-- name: TicketStaffMailTargets :many
+-- Người nhận thư "ticket mới": TA + TEACHER ACTIVE của lớp, email đã xác minh, ĐÃ bật cờ (mặc định tắt).
+select u.id, u.email
+from enrollments e
+join users u on u.id = e.user_id
+left join user_settings us on us.user_id = u.id
+where e.course_id = sqlc.arg(course_id) and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
+  and u.email_verified_at is not null and u.status = 'ACTIVE' and coalesce(us.notify_ticket_by_mail, false);
+
+-- name: TicketStaffRemindTargets :many
+-- Người nhận thư nhắc quá hạn: TA + TEACHER ACTIVE của lớp (không ADMIN), email đã xác minh; không phụ thuộc cờ cá nhân.
+select u.id, u.email
+from enrollments e join users u on u.id = e.user_id
+where e.course_id = sqlc.arg(course_id) and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE' and u.email_verified_at is not null and u.status = 'ACTIVE';
+
+-- name: TicketMailQueued :one
+-- Đã xếp thư với dedupe_key này chưa (giao lại outbox không được tiêu mốc cửa sổ gộp một lần nữa).
+select exists (select 1 from mail_outbox where dedupe_key = sqlc.arg(dedupe_key))::boolean as queued;

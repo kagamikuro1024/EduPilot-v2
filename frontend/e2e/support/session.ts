@@ -85,6 +85,7 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
       transcript: [],
     }));
   });
+  await context.route("**/api/v1/admin/observability/failed-mail**", (r) => r.fulfill(json({ items: [], next_cursor: null }))); // US-P4-04: mặc định không có thư lỗi
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
 }
 

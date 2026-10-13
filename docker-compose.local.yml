@@ -83,6 +83,9 @@ services:
 
   mailpit:
     image: axllent/mailpit:v1.27
+    environment:
+      # Thư giao lại sau khi worker chết giữa lúc gửi và ghi SENT mang cùng Message-ID: chỉ lưu một (US-P4-04 AC3, SRS 4.5.4).
+      MP_IGNORE_DUPLICATE_IDS: "true"
     ports: ["${EP_PORT_SMTP:-1025}:1025", "${EP_PORT_MAILPIT:-8025}:8025"]
     healthcheck:
       test: ["CMD", "/mailpit", "readyz"]

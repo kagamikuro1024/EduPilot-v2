@@ -269,4 +269,13 @@ func (r *runner) chatScenarios(x examRig) {
 	r.must(call{method: "POST", path: "/api/v1/notifications/read", token: x.gv, body: `{"link":"/inbox"}`}, 200)
 	r.must(call{method: "POST", path: "/api/v1/notifications/read", body: `{"link":"/inbox"}`}, 401)
 	r.must(call{method: "POST", path: "/api/v1/notifications/read", token: x.gv, body: `{"link":""}`}, 422)
+
+	// US-P4-04 — thư gửi lỗi (ADMIN).
+	FM := "/api/v1/admin/observability/failed-mail"
+	r.must(call{method: "GET", path: FM, token: x.admin}, 200)
+	r.must(call{method: "GET", path: FM}, 401)
+	for _, who := range []string{sa, x.gv, x.ta} {
+		r.must(call{method: "GET", path: FM, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: FM + "?limit=0", token: x.admin}, 422)
 }

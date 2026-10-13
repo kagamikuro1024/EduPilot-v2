@@ -3,6 +3,7 @@
 import { useSession } from "@/shared/session/session";
 import { Page, PageHeader } from "@/shared/ui";
 import { DevicesSection } from "./DevicesSection";
+import { MailSection } from "./MailSection";
 import { PasswordSection } from "./PasswordSection";
 import { RemindersSection } from "./RemindersSection";
 
@@ -14,6 +15,7 @@ export function SecuritySettings() {
       <PageHeader title="Tài khoản và bảo mật" description="Đổi mật khẩu và xem nơi tài khoản của bạn đang đăng nhập." />
       <PasswordSection />
       <DevicesSection />
+      {(role === "student" || role === "ta" || role === "teacher") && realCourseId && <MailSection role={role} />}
       {role === "student" && realCourseId && <RemindersSection />}
     </Page>
   );

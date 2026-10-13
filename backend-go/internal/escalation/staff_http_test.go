@@ -19,6 +19,7 @@ import (
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/config"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
@@ -48,6 +49,7 @@ func (r *rig) api(t *testing.T) http.Handler {
 			})
 		})
 		h.Mount(rt)
+		(&mailhttp.Handler{Pool: r.pool, Log: log}).Mount(rt)
 	})
 	return mux
 }

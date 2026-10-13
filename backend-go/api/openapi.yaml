@@ -6132,6 +6132,33 @@ paths:
           $ref: "#/components/responses/Unauthorized"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/failed-mail:
+    get:
+      operationId: listFailedMail
+      tags: [escalation]
+      summary: "Thư gửi lỗi (ADMIN): mẫu, người nhận đã che, số lần thử, lớp lỗi; không thân thư, không payload. Sắp (updated_at, id) giảm dần"
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang thư DEAD
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailedMailPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -10461,6 +10488,34 @@ components:
       properties:
         updated:
           type: integer
+    FailedMail:
+      type: object
+      required: [id, template, to_masked, attempts, last_error, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        template:
+          type: string
+        to_masked:
+          type: string
+        attempts:
+          type: integer
+        last_error:
+          type: [string, "null"]
+        updated_at:
+          type: string
+          format: date-time
+    FailedMailPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FailedMail"
+        next_cursor:
+          type: [string, "null"]
     ChatMessagePage:
       type: object
       required: [items, next_cursor, open_tickets]

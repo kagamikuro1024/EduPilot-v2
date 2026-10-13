@@ -138,16 +138,18 @@ type Config struct {
 	ChatRatePerMin    int
 	ChatStreamMax     time.Duration
 	// Escalation (SRS FEAT-escalation-notify 4.1): TICKET_OPEN_CAP.
-	TicketOpenCap  int
-	LLMProvider    string // "" | "fake"
-	LLMReplayDir   string
-	OpenAIKey      string
-	AnthropicKey   string
-	GeminiKey      string
-	FakeLatencyMin time.Duration
-	FakeLatencyMax time.Duration
-	FakeErrorRate  float64
-	FakeValidKey   string
+	TicketOpenCap int
+	// MailTicketNewCoalesce: tối đa một thư `ticket_new` mỗi (người, lớp) trong khoảng này (cửa sổ trượt, SRS escalation 4.5.3).
+	MailTicketNewCoalesce time.Duration
+	LLMProvider           string // "" | "fake"
+	LLMReplayDir          string
+	OpenAIKey             string
+	AnthropicKey          string
+	GeminiKey             string
+	FakeLatencyMin        time.Duration
+	FakeLatencyMax        time.Duration
+	FakeErrorRate         float64
+	FakeValidKey          string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -308,6 +310,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
 	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
 	c.TicketOpenCap = l.num("TICKET_OPEN_CAP", 5, 1, 50)
+	c.MailTicketNewCoalesce = time.Duration(l.num("MAIL_TICKET_NEW_COALESCE_SECONDS", 900, 1, 86400)) * time.Second
 	if c.LLMEmbedDims != 1536 {
 		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
 	}

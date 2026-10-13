@@ -331,3 +331,70 @@ test("bell no jump: thông báo mới chèn lên đầu lúc đang mở không l
   const after = (await second.boundingBox())!.y;
   expect(Math.abs(after - before)).toBeLessThan(1.5);
 });
+
+// ---------- US-P4-04: công tắc thư và thư lỗi ----------
+async function settingsApi(page: Page, start: Record<string, unknown>) {
+  const calls: string[] = [];
+  let cur = { notify_ticket_by_mail: false, notify_answer_by_mail: true, remind_deadline_by_mail: true, reminders: { exam: true, class_session: false, other: true }, version: 1, ...start };
+  await page.route("**/api/v1/me/settings", (r) => {
+    const req = r.request();
+    if (req.method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    if (req.method() === "PUT") {
+      calls.push(req.postData() ?? "");
+      cur = { ...cur, ...JSON.parse(req.postData() ?? "{}"), version: cur.version + 1 };
+    }
+    return r.fulfill(json(cur));
+  });
+  return calls;
+}
+
+test("mail settings: giảng viên thấy Mail báo ticket mới (tắt), bật lưu lạc quan không toast; không thấy công tắc của sinh viên", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  const calls = await settingsApi(page, {});
+  await page.goto("/settings");
+  const sw = page.getByRole("switch", { name: "Mail báo ticket mới" });
+  await expect(sw).not.toBeChecked();
+  await expect(page.getByRole("switch", { name: "Mail khi giảng viên trả lời" })).toHaveCount(0);
+  await sw.click();
+  await expect(sw).toBeChecked();
+  await expect.poll(() => calls.length).toBe(1);
+  expect(JSON.parse(calls[0])).toEqual({ notify_ticket_by_mail: true, version: 1 });
+  await expect(page.getByRole("status").filter({ hasText: /thành công|đã lưu/i })).toHaveCount(0);
+});
+
+test("mail settings student: sinh viên thấy Mail khi giảng viên trả lời (bật), không thấy công tắc ticket mới", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  const calls = await settingsApi(page, {});
+  await page.goto("/settings");
+  const sw = page.getByRole("switch", { name: "Mail khi giảng viên trả lời" });
+  await expect(sw).toBeChecked();
+  await expect(page.getByRole("switch", { name: "Mail báo ticket mới" })).toHaveCount(0);
+  await sw.click();
+  await expect(sw).not.toBeChecked();
+  await expect.poll(() => calls.length).toBe(1);
+  expect(JSON.parse(calls[0])).toEqual({ notify_answer_by_mail: false, version: 1 });
+});
+
+test("observability failed mail: Admin thấy thư lỗi với người nhận đã che; rỗng thì một dòng; giảng viên không thấy mục này", async ({ page, context }) => {
+  await asDemo(context, "admin");
+  let rows: unknown[] = [{ id: "m1", template: "escalation_answered", to_masked: "n***@example.test", attempts: 4, last_error: "smtp_temporary", updated_at: new Date(Date.now() - 3 * 3600_000).toISOString() }];
+  await page.route("**/api/v1/admin/observability/failed-mail**", (r) => {
+    if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    return r.fulfill(json({ items: rows, next_cursor: null }));
+  });
+  await page.goto("/observability");
+  const sec = page.locator("section", { has: page.getByRole("heading", { name: "Thư chưa gửi được" }) }).first();
+  await expect(sec).toContainText("Trả lời của giảng viên");
+  await expect(sec).toContainText("n***@example.test");
+  await expect(sec).toContainText("smtp_temporary");
+  expect(await sec.innerText()).not.toMatch(/nguyen|payload|CANARY/i);
+  rows = [];
+  await page.reload();
+  await expect(page.getByText("Không có thư lỗi.")).toBeVisible();
+  await expect(sec.getByRole("button")).toHaveCount(0);
+
+  await context.clearCookies();
+  await asDemo(context, "teacher");
+  await page.goto("/observability");
+  await expect(page.getByText("Thư chưa gửi được")).toHaveCount(0);
+});

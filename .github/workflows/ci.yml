@@ -155,7 +155,10 @@ jobs:
           [ -n "$pkgs" ] || { echo "dòng $ROW không có gói nào"; exit 1; }
           echo "gói: $(wc -l <<<"$pkgs")"
           log="$RUNNER_TEMP/go-test.log"
-          go test -race -tags testroutes -v $pkgs 2>&1 | tee "$log"
+          # -p 1: mặc định -p = số CPU (4) ⇒ 4 gói test chạy cùng lúc (mỗi gói dựng container; -race chậm 5–10×) làm máy quá tải, các test có chờ theo thời gian
+          # (TestCancelReachesProvider, TestStreamEventOrder, TestOutbox_RetryThenDead, TestJobs_Lifecycle…) đỏ ngẫu nhiên trên lượt nguội (7/9 lượt đỏ).
+          # Đo 8 lượt nguội mỗi cấu hình (docs/sprints/7/handoff/dev-US-CI-02.md): -p mặc định đỏ 3/6, -p 2 đỏ 6/30, -p 1 xanh 8/8, -p 1 -parallel 2 xanh 8/8.
+          go test -race -tags testroutes -p 1 -v $pkgs 2>&1 | tee "$log"
           echo "go test [$ROW] test cấp cao nhất: PASS=$(grep -c '^--- PASS' "$log") SKIP=$(grep -c '^--- SKIP' "$log") FAIL=$(grep -c '^--- FAIL' "$log")"
       - name: go test (đo thời gian, tuần tự, không -race)
         # Các test `*TimingEqualized` bị bỏ qua ở bước trên bằng EP_SKIP_TIMING=1 (không dùng -short: cờ đó bỏ qua mọi test cần container) (đo mili-giây không ổn định khi nhiều gói chạy song song). Chạy riêng, một gói một lúc, ngưỡng giữ nguyên (TL-3).

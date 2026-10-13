@@ -19,6 +19,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
@@ -137,6 +138,9 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.
 			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).Mount(r, RequireIdempotencyKey(d))
+		}
+		if d.DB != nil {
+			(&mailhttp.Handler{Pool: d.DB, Log: d.Log}).Mount(r) // US-P4-04 AC9: thư gửi lỗi (ADMIN)
 		}
 	})
 
