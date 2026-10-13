@@ -1,10 +1,32 @@
-# QC report — US-P5-02 (điểm danh ≤ 60 s, phát biểu, 409, mất mạng, AI hỏi đáp) — vòng 1
-Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `94fbb02` (gồm US-P5-02: `0909d3f`, `991f49d`; CI của `94fbb02` xanh, run `38459285203`). Bộ TC: `tc-US-P5-02.md` (không sửa chữ TC). Handoff: `dev-US-P5-02.md`. Stack `edupilot100` dựng lại từ code mới (DB trống, 30 sinh viên `ACTIVE` ở lớp 761987, `--scale gateway=2`, provider `fake`, không có tài liệu seed). Đang chấm **vòng 1** (Q-QC-P5-04); AC13 không bị cắt (TC-37 không áp dụng).
+# QC report — US-P5-02 (điểm danh ≤ 60 s, phát biểu, 409, mất mạng, AI hỏi đáp) — **vòng 2 (AC14)**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `2ad5764` (sửa vòng 2: `803393b`). Bộ TC: `tc-US-P5-02.md` (không sửa chữ TC). Handoff: `dev-US-P5-02.md` mục "Vòng 2". Stack `edupilot100` dựng lại từ code mới (DB trống, migration `14`, `--scale gateway=2`, provider `fake`). Dữ liệu sinh viên B (`sv.kha`): vắng 2 buổi (buổi 8, 10), 2 phát biểu = +0,50; ghi chú `CANARY-NOTE-9` ở hàng điểm danh.
 
-## Kết luận: **FAIL** (1 lỗi: TC-38, mức TRUNG BÌNH)
+## Kết luận: **PASS** (BUG-1 vòng 1 đã sửa; 46 TC + 2 nhánh không FAIL; TC-37 không áp dụng)
+## 1. Kết quả chạy lại ở vòng 2
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| 38 AI hỏi đáp khớp DB | **PASS** | đúng câu AC14 "Em đã nghỉ mấy buổi, được cộng bao nhiêu điểm phát biểu rồi ạ?": `blocks` = `[attendance {recorded 2, present 0, late 0, excused 0, absent 2, recent_absent[{buổi 10, 2026-10-14},{buổi 8, 2026-09-30}]}, participation {speak_count 2, points_total "0.50", recent[2 × SPEAK 0.25]}]` — khớp từng số với `v_attendance_summary` (2/0/2) và `v_student_360` (2 phát biểu, 0,50). Dữ kiện gửi LLM chứa cả `absent: 2` và `points_total: 0.50`; thứ tự khối cố định điểm danh → điểm cộng |
+| 39 cập nhật | PASS | ghi thêm 1 phát biểu: cùng câu ghép → `points_total 0.75`; hỏi riêng từng ý đúng (`PERSONAL_ATTENDANCE` chỉ khối `attendance`, `PERSONAL_PARTICIPATION` chỉ `participation`) |
+| 40 chưa có dữ liệu | PASS | sinh viên lớp 2 hỏi câu ghép: "Hệ thống chưa có dữ liệu điểm danh, điểm cộng của bạn.", `blocks []` |
+| 41 hỏi hộ, ghi chú | PASS | `CANARY-NOTE-9` = 0 trong phản hồi, trong `chat_messages` và trong payload LLM; hỏi hộ "bạn Bùi Thanh Khải" → `OTHER_PERSON` "Mình chỉ xem được dữ liệu của chính bạn." |
+| 01–37, 42–46, E1, E2 | PASS (giữ từ vòng 1) | không chạy lại: diff vòng 2 chỉ chạm `internal/agent` (phân loại / tool nhiều ý) |
+
+## 2. Lệnh của handoff
+| Lệnh | Kết quả |
+| --- | --- |
+| `go test -race -tags testroutes ./internal/agent ./internal/chat` | ok (chat 43 s) |
+| `go test -race -tags testroutes ./internal/crm` | ok |
+| `playwright attendance.spec.ts private-chat.spec.ts` (desktop) | 35 passed, 0 failed |
+
+## 3. Ghi nhận
+- Số lời gọi sinh chữ của câu ghép ("đúng một lần") không đếm được trực tiếp: vòng đệm `_test/llm/payloads` là của từng bản gateway (`--scale gateway=2`).
+- Mục 4 là báo cáo vòng 1 (đã đóng).
+
+## 4. Phụ lục: vòng 1 (đã đóng)
+### Kết luận: **FAIL** (1 lỗi: TC-38, mức TRUNG BÌNH)
 Điểm danh (lưới, `PUT` một giao dịch, xung đột, hoàn tất / sửa sau, phát biểu, hàng đợi ngoại tuyến, đăng xuất, phân quyền) đạt toàn bộ. Hỏng ở AC14: câu hỏi mẫu của AC ghép "nghỉ mấy buổi" và "điểm phát biểu" chỉ trả lời nửa sau.
 
-## 1. Kết quả TC
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | 01 đọc lưới | PASS | `{session, students[30]}`; mỗi sinh viên `{id, full_name, student_code, record, speak_count}`; `record:null` khi chưa có; sắp theo tên không dấu (kiểm lại bằng gập dấu trong Python: đúng) và ổn định (3 lần cùng `md5`) |
@@ -58,10 +80,10 @@ Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `94fbb02` (gồm US-P5-02: `
 
 Tổng 46 TC + 2 nhánh: PASS 45 (gồm TC-02, 36 một phần), FAIL 1 (TC-38), KHÔNG ÁP DỤNG 1 (TC-37).
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (TRUNG BÌNH) TC-38 / AC14 — câu hỏi ghép chỉ ra nửa sau.** Câu của AC14 "Em đã nghỉ mấy buổi, được cộng bao nhiêu điểm phát biểu rồi ạ?" (sinh viên B: vắng 2, 2 phát biểu = +0,50) được phân loại `PERSONAL_PARTICIPATION`: khối `blocks` chỉ có `participation` (`speak_count 2`, `points_total 0.50`, đúng), **không** có khối `attendance`, nên không trả "vắng 2 buổi". Hỏi riêng từng ý thì đúng và khớp DB: "Em đã nghỉ mấy buổi?" → `PERSONAL_ATTENDANCE` `{recorded 3, present 1, absent 2, recent_absent[buổi 10, buổi 8]}` = `v_attendance_summary`; "Em được cộng bao nhiêu điểm phát biểu rồi ạ?" → `{speak_count 2, points_total "0.50"}`. Tái hiện: sinh viên có điểm danh và phát biểu, mở `/chat`, gửi đúng câu AC14, đọc `chat_messages.blocks` của câu trả lời. AC14 yêu cầu cả hai khối cho một câu hỏi này; luật tốc độ D47 (phân loại một lần mỗi tin) có thể buộc chọn một intent — nhờ PM / BA quyết (sửa định tuyến hoặc sửa chữ AC14).
 
-## 3. Lệnh của handoff
+### 3. Lệnh của handoff
 | Lệnh | Kết quả |
 | --- | --- |
 | `go test -race -tags testroutes ./internal/crm` | ok (234 s) |
@@ -70,7 +92,7 @@ Tổng 46 TC + 2 nhánh: PASS 45 (gồm TC-02, 36 một phần), FAIL 1 (TC-38),
 | `playwright attendance.spec.ts exam-save-queue.spec.ts` (+ `a11y.spec.ts`) desktop | 35 passed |
 | `ui-antipatterns.sh` | rc=0 |
 
-## 4. Ghi nhận (không làm FAIL)
+### 4. Ghi nhận (không làm FAIL)
 - `TestSchemaAttendance` đỏ ngẫu nhiên (xem `report-BUG-S7-01.md`); dev cũng ghi trong handoff.
 - Lưới: "MSSV rút gọn" của TC-16 — giao diện hiện đủ 8 chữ số.
 - Số `PUT` khi tự lưu: mỗi thay đổi ngoại tuyến ra một `PUT` riêng khi có mạng (3 thay đổi = 3 `PUT`, theo thứ tự).
