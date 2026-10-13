@@ -44,7 +44,7 @@ Quy tắc áp dụng (không nới assertion, không retry, không bỏ test):
 | `TestGracefulShutdown`, `TestStartup_WaitsForDeps` | `Sleep(100ms)` rồi đọc `Draining()`; `elapsed ≤ 6 s` | R3 poll; R4 |
 | `TestRateLimit_RedisDown_FailOpen` | so trung vị `≤ +50 ms` | R4 |
 | `TestSSE_CrossInstance`, `TestSSE_TwoConnectionsTwoInstances`, `TestSSE_GatewayShutdownFailover`, `TestSSE_RedisDownMidStream`, `TestSSE_MaxDuration`, `TestSSE_TokenExpiryMidStream`, `TestSSE_FirstEventLatency` + `grace` (`httpapi/sse`) | `grace=5 s`, `want(2 s)`, `took ≤ 300 ms…5 s` | R2 (30 s) + R4 |
-| `TestFromDraftNoMessageStored` (`chat`) | canary `9f3` (hex) khớp UUID ngẫu nhiên | không phải đồng hồ, nhưng cũng đỏ ngẫu nhiên: canary `zq7`. Đề xuất #24 |
+| `TestFromDraftNoMessageStored` (`chat`) | canary `9f3` (hex) khớp UUID ngẫu nhiên | **chưa sửa**: không phải đồng hồ; test cũ đỏ vì canary nên ghi đề xuất #23 và chờ ACCEPTED (dev đã hoàn tác bản sửa lỡ tay) |
 
 ## Giữ nguyên (có lý do)
 
@@ -57,5 +57,5 @@ Quy tắc áp dụng (không nới assertion, không retry, không bỏ test):
 
 ## Kiểm
 - `go vet -tags testroutes ./...` và `-tags integration` (llm, llmconfig): sạch.
-- `go test -race -tags testroutes ./...` với `EP_SKIP_TIMING=1` (như CI, một lần đầy đủ): chỉ đỏ `TestFromDraftNoMessageStored` (canary hex, đề xuất #24); sau khi sửa, `./internal/chat ./internal/escalation` xanh.
+- `go test -race -tags testroutes ./...` với `EP_SKIP_TIMING=1` (như CI, một lần đầy đủ): chỉ đỏ `TestFromDraftNoMessageStored` (canary hex, đề xuất #23, chưa sửa vì chờ ACCEPTED); với canary đổi tạm, `./internal/chat ./internal/escalation` xanh.
 - Số lượt nguội liên tiếp xanh trên CI: ghi vào mục dưới sau khi chạy.

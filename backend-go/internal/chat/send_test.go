@@ -444,13 +444,13 @@ func TestChatRoleMatrix(t *testing.T) {
 func TestFromDraftNoMessageStored(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
-	body := "MSSV 20229001 chữ-nháp-duy-nhất-zq7"
-	out, err := r.svc.FromDraft(t.Context(), r.student, chat.FromDraftIn{CourseID: r.course, Title: "tiêu-đề-nháp-zq7", Body: body})
+	body := "MSSV 20229001 chữ-nháp-duy-nhất-9f3"
+	out, err := r.svc.FromDraft(t.Context(), r.student, chat.FromDraftIn{CourseID: r.course, Title: "tiêu-đề-nháp-9f3", Body: body})
 	require.NoError(t, err)
 	require.Zero(t, r.count(`select count(*) from chat_messages where session_id=$1`, out.SessionID))
 	require.Zero(t, r.count(`select count(*) from forum_threads`)+r.count(`select count(*) from forum_posts`))
 	for _, tbl := range []string{"chat_sessions", "outbox", "jobs", "audit_log", "pii_events"} {
-		require.Zero(t, r.count(`select count(*) from `+tbl+` t where t::text like '%zq7%'`), tbl)
+		require.Zero(t, r.count(`select count(*) from `+tbl+` t where t::text like '%9f3%'`), tbl)
 	}
 }
 
