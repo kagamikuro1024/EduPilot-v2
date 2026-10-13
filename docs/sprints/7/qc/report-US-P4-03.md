@@ -1,10 +1,26 @@
-# QC report — US-P4-03 (hộp thư giảng viên `/inbox`: danh sách, chi tiết, nhận, trả lời, đóng) — vòng 1
-Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `438c649`. Bộ TC: `tc-US-P4-03.md` (không sửa chữ TC). Handoff: `dev-US-P4-03.md`. Stack `edupilot100` như `report-US-P4-01.md` (fake LLM, `--scale gateway=2`). Dữ liệu danh sách >200 do QC nhân bản bằng SQL trên stack kiểm (ghi rõ ở TC-01). PM đã nhận: #15, #16, #17 (không ảnh hưởng story này); #18 (shell.spec cho `events`) và #14 (class-join) xem TC-42.
+# QC report — US-P4-03 (hộp thư giảng viên `/inbox`) — **vòng 2**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d` (code vòng 2: `e017337`, `a606a29`, `4a7bae0`, `04a1bfb`, `5795075`). Bộ TC: `tc-US-P4-03.md` (không sửa chữ TC). Handoff: `dev-US-P4-03.md` mục "Vòng 2". Stack `edupilot100` dựng lại từ code mới (như `report-US-P4-02.md`).
 
-## Kết luận: **FAIL** (3 lỗi: TC-16, TC-36, TC-42)
+## Kết luận: **FAIL** (1 lỗi: TC-16, mức THẤP–TRUNG BÌNH). BUG-2, BUG-3 vòng 1 đã sửa.
+## 1. Kết quả vòng 2
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| 16 người thua lượt nhận | **FAIL** (còn một phần) | Teacher và TA bấm `Nhận` cùng lúc (Playwright, `B:200 A:409`). Bên `409` nay có InlineNotice, nhưng chữ là **"Phạm Quốc Bảo đã nhận."** — thiếu "lúc HH:MM" dù body `409` có `details.claimed_at` (`2026-10-13T18:02:27Z`, `curl` xác nhận). Đồng thời hiện thêm một dòng chung **"Có người vừa sửa mục này. Chọn giữ bản nào. Chi tiết kỹ thuật"** (chữ kỹ thuật của khung xung đột chung, trùng nghĩa với thông báo đúng). Bên thắng: ô soạn hiện ngay (`textarea: 1`) — phần UX "phiếu không biến mất" đạt. AC4 / TC-16 đòi "đã nhận câu này lúc HH:MM" |
+| 36 phím tắt | **PASS** | J/K, R, phím không kích hoạt khi gõ, Ctrl+Enter gửi rồi sang phiếu kế; tooltip nút `Gửi trả lời` = **"⌘↵ · Ctrl+↵"** (vòng 1: rỗng) |
+| 42 cổng | **PASS** | `ui-antipatterns.sh` `rc=0`; e2e desktop `escalation, shell, class-join, private-chat, data-layer, a11y`: 141 passed, 5 skipped, 0 failed; `@/mock` trong `features/inbox` = 0 |
+| 31, 32, 35, 38 | PASS (chạy lại) | nháp theo phiếu và sau tải lại; gửi lỗi 5xx giữ nháp / thành công xoá; cột danh sách 380 px; tải khung xương / lỗi "Thử lại" |
+| 01…15, 17…30, 33, 34, 37, 39…41, E1, E2, P1 | PASS (giữ từ vòng 1) | không đổi mã backend của story; không chạy lại 33/34 (UI 375 px không đổi trong diff vòng 2 ngoài hành vi giữ phiếu) |
+
+Tổng: 45 TC (42 + 3 nhánh): PASS 44, FAIL 1 (TC-16).
+
+## 2. Lỗi
+**BUG-1 (THẤP–TRUNG BÌNH) TC-16:** `InlineNotice` của người thua thiếu giờ nhận và đi kèm khung "Có người vừa sửa mục này… Chi tiết kỹ thuật". Tái hiện: hai tài khoản (teacher, ta) mở cùng phiếu `OPEN`, bấm `Nhận` cùng lúc; đọc `main`. Mong đợi: một dòng "{tên} đã nhận câu này lúc HH:MM" (giờ Việt Nam), không khung chung. Dev nói giờ lấy từ `details.claimed_at` — test mô phỏng của dev có trường đó nhưng chữ thật không có giờ; cần kiểm cách đọc `details` của `apiClient`.
+
+## 3. Phụ lục: vòng 1 (đã đóng)
+### Kết luận: **FAIL** (3 lỗi: TC-16, TC-36, TC-42)
 Backend (danh sách, chi tiết, nhận, trả lời, đóng, PII, audit, idempotency, quyền) đạt toàn bộ. Hỏng ở giao diện: người thua lượt nhận không thấy thông báo, thiếu gợi ý phím trên nút Gửi, và cổng antipatterns / e2e đỏ.
 
-## 1. Kết quả TC
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | 01 danh sách phân trang | PASS | 227 `OPEN` (97 thật + 130 nhân bản SQL) → 5 trang × 50; không trùng; tập = DB; sắp theo `created_at`; `question_preview` ≤ 140 |
@@ -46,10 +62,10 @@ Backend (danh sách, chi tiết, nhận, trả lời, đóng, PII, audit, idempo
 
 Tổng 42 TC + 3 nhánh = 45: PASS 42, FAIL 3 (TC-16, 36, 42).
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (TRUNG BÌNH) TC-16:** người thua `409` không thấy "đã nhận lúc HH:MM" (AC4). Tái hiện: hai tài khoản (teacher và ta, cùng lớp) mở cùng phiếu `OPEN`, bấm `Nhận` cùng lúc; `scripts/p4-03-ui.mjs 16`.
 **BUG-2 (THẤP) TC-36:** thiếu tooltip phím (AC11) trên nút "Gửi trả lời".
 **BUG-3 (THẤP) TC-42:** `bash scripts/ui-antipatterns.sh` → `rc=1`: (a) `frontend/src/features/chat/RealChat.tsx:80` — chú thích chứa `#15a` bị bắt là "Màu viết cứng"; (b) `AppShell.module.css:124` (`font-size: 10px`, US-P4-02). e2e (`escalation, shell, class-join, private-chat, a11y`, desktop): 100 pass, 5 skip, 4 đỏ: `shell.spec.ts:312` (#18 đã ACCEPTED, test chưa sửa), `class-join.spec.ts:137,148` (#14 chưa quyết), `private-chat.spec.ts:235` (lệ thuộc giờ trong ngày: sau 00:00 giao diện in "hôm qua 21:21" thay "3 giờ trước"; không phải lỗi của nút).
 
-## 3. Ghi nhận UX (không chấm)
+### 3. Ghi nhận UX (không chấm)
 Sau `Nhận` ở bộ lọc "Đang chờ", phiếu rời danh sách và chi tiết trở về trống; phải sang tab "Đã nhận" mới có ô soạn. `p4-03-ui.mjs` ghi lại luồng này.

@@ -1,10 +1,50 @@
-# QC report — US-CI-02 (TL-CI #3 shard Playwright + chia Lighthouse, #5 tách Go)
-Ngày 2026-10-13. Commit kiểm: `sprint/7-p4-p5` @ `089d239` (workflow) và `7174df1` (handoff cuối). Repo `kagamikuro1024/EduPilot-v2`. Bộ TC: `tc-US-CI-02.md`, **không sửa chữ TC** (hai điểm dev nêu là "lệch" xử lý theo AC / ý định, mục 2).
+# QC report — US-CI-02 (TL-CI #3 shard Playwright + chia Lighthouse, #5 tách Go) — **vòng 3 (cuối)**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d` (workflow `e5f6390`). Bộ TC: `tc-US-CI-02.md` (không sửa chữ TC). Handoff: `dev-US-CI-02.md` mục "Vòng 3" (#19: bỏ `-p 1`, sửa test chờ theo đồng hồ thật ở gốc).
 
-## Kết luận: **FAIL** (1 lỗi mức CAO, BUG-1)
+## Kết luận: **FAIL** (1 lỗi mức TRUNG BÌNH, BUG-1 còn)
+Lượt nguội: **1 / 6 đỏ** ở `Go test (rest)` — `internal/llm` `TestAuditBatches` (một test thời gian khác, không nằm trong 11 test dev đã sửa). 5 / 6 xanh, mọi job còn lại xanh cả 6 lượt, thời gian 7 m 43 s … 8 m 44 s (≤ 10 phút). Vòng 2 là 7 / 9 đỏ; nay 1 / 6: đã cải thiện rõ nhưng một PR vào `main` vẫn có thể đỏ ngẫu nhiên (`CLAUDE.md` luật 8). Nếu PM chấp nhận tỷ lệ này, đó là quyết định của PM (không phải của QC).
+
+## 1. Đo lượt nguội (6 nhánh tạm, cùng cây `79a230d` + một tệp `.github/qc-probe.txt` để bỏ `paths-ignore: docs/**`)
+| Lượt | Run | `Go test (rest)` | Toàn run | Tổng thời gian |
+| --- | --- | --- | --- | --- |
+| a | `38442516043` | **failure** | failure | 7 m 56 s |
+| b | `38443076532` | success | success | 8 m 44 s |
+| c | `38443081921` | success | success | 7 m 43 s |
+| d | `38444566665` | success | success | 8 m 33 s |
+| e | `38444572193` | success | success | 8 m 19 s |
+| f | `38444577631` | success | success | 8 m 38 s |
+
+Ngoài ra `sprint/7-p4-p5` @ `e5f6390` (run `38440886368`) xanh. Mỗi lượt chạy đủ mọi job (Changes, Go static, Go test ×3, Judge, Frontend, Playwright ×3, Lighthouse ×3).
+
+## 2. Lỗi
+**BUG-1 (TRUNG BÌNH): `Go test (rest)` đỏ ngẫu nhiên (1/6 lượt nguội).** Log run `38442516043`, job `Go test (rest)`:
+```
+=== NAME  TestAuditBatches
+    audit_test.go:106: flushed=0 pending=0 dropped=0, muốn 100/0/0 (nguồn của stats.audit)
+--- FAIL: TestAuditBatches (0.01s)
+FAIL  github.com/edupilot/backend-go/internal/llm  7.165s
+```
+Test chạy cùng nhiều gói song song (`-race`, không `-p 1`) ở thời điểm 18:00:17; chạy riêng `go test -race -tags testroutes -count=300 -cpu 1,2 -run TestAuditBatches ./internal/llm` xanh ở máy QC (không tái hiện). Mẫu giống các test đã sửa trong bảng của dev: test kiểm đếm ngay (`flushed=0`) khi bộ ghi nền chưa chạy kịp. Đề xuất: chờ sự kiện thay vì đọc thống kê ngay (theo cách đã làm cho `TestOutbox_*`).
+
+## 3. Kết quả TC
+| TC | Kết quả | Ghi chú vòng 3 |
+| --- | --- | --- |
+| TC-01…15, 19, 21…27, E1…E4 | PASS (giữ từ vòng 2) | `git diff 7174df1 HEAD -- .github` chỉ thêm hai dòng chú thích; `playwright.config.ts`, `lighthouserc*.json` không đổi. Cả 6 lượt: Playwright 3 shard, Lighthouse 3 job, Go 3 dòng đều chạy đủ |
+| TC-05 `-race -tags testroutes` | PASS | dòng `rest` `go test -race -tags testroutes -v $pkgs`; `-p 1` **không còn** ở bước chính (chỉ còn ở bước đo thời gian, bắt buộc, không đổi) |
+| TC-20 thời gian ≤ 10 phút | **PASS** | 6/6 lượt 7 m 43 s … 8 m 44 s (vòng 2 có lượt 12 m 14 s do nhiễu; vòng này tách 3 + 3 lượt, runner không chờ) |
+| TC-16 / 17 / 18 (đỏ → CI đỏ) | PASS (vòng 2, cơ chế không đổi) | không chạy lại: không đổi các bước liên quan |
+| **TC-E1′ (mới)** ổn định `Go test (rest)` nguội | **FAIL** | 1/6 đỏ, xem BUG-1 |
+
+Không sửa TC. Không có mục BLOCKED.
+
+## 4. Dọn
+Nhánh tạm `tmp-qc3-a…f` xoá sau khi nộp báo cáo.
+
+## 5. Phụ lục: vòng 2 (đã đóng)
+### Kết luận: **FAIL** (1 lỗi mức CAO, BUG-1)
 `Go test (rest)` đỏ ngẫu nhiên trên lượt chạy nguội: **7 / 9** lượt trên 6 nhánh tạm / PR của QC đỏ ở đúng dòng này (mỗi lần một test khác nhau, đều test dùng container + thời gian), trong khi workflow cũ (một job `Go`, cùng mã) **2 / 2 xanh** cùng điều kiện. Mọi thứ còn lại PASS. Một lượt đỏ ngẫu nhiên ở PR vào `main` là "phá cái đang chạy" (`CLAUDE.md` luật 8): chưa nhận.
 
-## 1. Kết quả TC
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | TC-01 tổng test Playwright | PASS | `089d239` a1: 270+203+108 = 581 passed + 1 flaky (shard 1) = 582, skipped 3+71+166 = 240, tổng 822; a2: 271+203+108 = 582, skipped 240. Nền (run `38400101715`): 582 passed + 240 skipped = 822. `--list` ở máy QC = 822. 1 flaky ghi nhận, retry xanh |
@@ -39,11 +79,11 @@ Ngày 2026-10-13. Commit kiểm: `sprint/7-p4-p5` @ `089d239` (workflow) và `71
 | TC-E3 rerun failed | PASS | `gh run rerun --failed` chạy lại đúng job đỏ; job tổng xanh khi job đó xanh (run `38400115687` a3, `38409043382` a2). Các job xanh giữ nguyên |
 | TC-E4 shard rỗng | PASS | `--shard=30/30` trên 822 test: 27 test, lệnh không lỗi; hợp lệ |
 
-## 2. Hai điểm dev báo "lệch so với TC" — chấm theo ý định
+### 2. Hai điểm dev báo "lệch so với TC" — chấm theo ý định
 a. **TC-07 (`-v`)**: TC nói "ở CI không có `-v`, đối chiếu theo gói". Bản mới có `-v` và in `PASS/SKIP/FAIL` mỗi dòng. Ý định TC là tổng test không giảm, không gói nào bị bỏ. Bằng chứng tương đương **mạnh hơn**: tổng test cấp cao nhất 1429 PASS + 7 SKIP = 1436, bằng nền (cùng cách đếm, run `38400101715`) và bằng `-list` ở máy QC; tập gói `ok` bằng nhau (TC-06). Đạt, không sửa TC.
 b. **TC-12/14/18 (không có tệp a/b)**: dev dùng `--collect.url` trên cùng tệp cấu hình. Ý định TC là mọi assertion cũ vẫn chấm trên đủ URL. Bằng chứng: tệp cấu hình không đổi (diff rỗng); log chấm 4 + 3 URL, 12 + 9 lượt; run đỏ có ngưỡng hạ về 1 → cả hai nửa đỏ ở đúng assertion LCP, simulate đỏ ở TBT. Tức là assertion có hiệu lực ở cả hai nửa. Đạt, không sửa TC. (Muốn đổi chữ TC → ghi `proposals.md`, PM quyết; tôi không đề xuất.)
 
-## 3. Lỗi
+### 3. Lỗi
 **BUG-1 (CAO): `Go test (rest)` đỏ ngẫu nhiên trên lượt nguội (nhánh mới / PR).**
 - Tái hiện: tạo nhánh mới từ `sprint/7-p4-p5` (cache build chỉ lấy được từ `main`), thêm một tệp Go rỗng vào gói mới (`backend-go/internal/zzqcid/f.go`; cần đổi tệp ngoài `docs/` để CI chạy), push. Hoặc mở PR vào `main`.
 - Quan sát (cùng mã, `-race -tags testroutes -v`, dòng `rest`):
@@ -65,5 +105,5 @@ b. **TC-12/14/18 (không có tệp a/b)**: dev dùng `--collect.url` trên cùng
 
 **Ghi chú (không phải lỗi của story):** `Judge attacks` đỏ chập chờn do data race trong `internal/judge/queue.go` (`proposals.md` #4) — đã sửa ở `73a9cbe`; lượt `tmp-qc-old` (mã trước sửa) đỏ ở đó đúng như dự báo. Shard Playwright lệch (1: 470–538 s, 3: 130–160 s); dev đã thử 4 shard, lợi < 1 phút, không đổi.
 
-## 4. Dọn
+### 4. Dọn
 Nhánh tạm `tmp-qc-red`, `-newpkg`, `-f1`, `-f2`, `-pr`, `-ident`, `-ident2`, `-old`, `-old2` đã xoá; PR #1 đóng; worktree tạm xoá.

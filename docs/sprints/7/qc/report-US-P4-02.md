@@ -1,10 +1,31 @@
-# QC report — US-P4-02 (chuông tức thời, gộp, hai bản gateway, một cửa) — **vòng 2**
-Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `438c649`. Bộ TC: `tc-US-P4-02.md` (không sửa chữ TC). Handoff: `dev-US-P4-02.md` mục "Vòng 2", `dev-QC-answers.md`. Stack như `report-US-P4-01.md` (dựng lại từ code mới, `--scale gateway=2`). **#12 ACCEPTED:** AC1 chấm theo thứ tự đã quyết.
+# QC report — US-P4-02 (chuông tức thời, gộp, hai bản gateway, một cửa) — **vòng 3 (cuối)**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `79a230d` (code US-P4-02 vòng 3: `a606a29`, `1381a79`). Bộ TC: `tc-US-P4-02.md` (không sửa chữ TC). Handoff: `dev-US-P4-02.md` mục "Vòng 3". Stack dựng lại từ code mới: `edupilot100`, `docker-compose.test.yml`, `--scale gateway=2`, provider `fake`, DB trống.
 
-## Kết luận: **FAIL** (1 lỗi thấp: TC-29)
+## Kết luận: **PASS** (BUG-1 vòng 2 đã sửa; không FAIL; 2 TC còn BLOCKED vì phụ thuộc US-P4-06 và quyết định PM)
+## 1. Kết quả TC chạy lại ở vòng 3
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| 29 antipatterns | **PASS** | `bash scripts/ui-antipatterns.sh` → mọi dòng `✓`, `rc=0` (vòng 2 `rc=1`: `font-size: 10px` ở `AppShell.module.css:124`, nay dùng token) |
+| 25 chuông UI | PASS | `scripts/p4-02-ui.mjs`: 13 chưa đọc → chữ "9+"; `aria-label="Thông báo, 13 chưa đọc"`; bấm mục → `/class/members`, 375 px cũng "9+" (12 chưa đọc) |
+| 26 375 px | PASS | chuông 44×44; mục 330×65; không tràn ngang (chấm 18 px không phá khung) |
+| 27 không nhảy | PASS | `scripts/p4-02-nojump.mjs`: Δ = 1,5 px; dòng gộp lên đầu |
+| 07 hai gateway | PASS | `two-gateways.mjs` chạy trong container frontend: A→B 252 ms, B→A 229 ms, mỗi hướng 1 khung |
+| 13 gộp | PASS | 5 ticket 5 sinh viên → 1 dòng `TICKET_NEW` "8 câu hỏi đang chờ giảng viên", số = `OPEN` thật (8) |
+| 16 số giảm giữ `read_at` | PASS | `claim`, `dismiss` → tiêu đề 8 → 6; `read_at` giữ khi đã đọc |
+| 15 số về 0 | PASS | hết `OPEN` → dòng không bị xoá |
+| 01…12, 14, 17, 19…23, 28 | PASS (giữ) | không đổi mã (vòng 3 chỉ đổi CSS chấm, `useSSE({enabled})`, `session.ts` của test) |
+| e2e (desktop) `escalation, shell, class-join, private-chat, data-layer, a11y` | **PASS** | 141 passed, 5 skipped, **0 failed** (vòng 2: 4 đỏ). Gồm `shell.spec` "forbidden" (#18) và `data-layer` "sse parse + singleton" |
+| Chuông chỉ nghe `/events` khi có phiên | PASS | `data-layer.spec` xanh; trang chưa đăng nhập không mở `/events` (e2e) |
+
+## 2. Còn BLOCKED (không tính FAIL)
+- **TC-18** `AI_PENDING`, `POST_REPORTED`: thuộc US-P4-06 (chưa thi công).
+- **TC-24** Redis chết: dev xin PM chấp nhận hành vi quan sát (hàng cập nhật khi Redis lên lại); chờ quyết định PM.
+
+## 3. Phụ lục: vòng 1 và 2 (đã đóng)
+### Kết luận vòng 2: **FAIL** (1 lỗi thấp: TC-29)
 AC10 (chuông) nay đủ: số chưa đọc "9+", chống nhảy vị trí. Còn một lỗi: `bash scripts/ui-antipatterns.sh` đỏ (rc=1) vì huy hiệu số của chuông đặt `font-size: 10px` ngoài thang vai trò (`AppShell.module.css:124`). Luật `CLAUDE.md`: script phải sạch trước khi báo xong. Ba TC vẫn BLOCKED (TC-18 phần Threads, TC-24; xem dưới) nhưng không tính FAIL theo yêu cầu PM nếu handoff chưa cho đường kiểm.
 
-## 1. Kết quả TC
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng vòng 2 |
 | --- | --- | --- |
 | 01 một cửa | PASS (#12) | không còn `InsertNotification` / `insert into notifications` ngoài `internal/notify` và `store/queries/notify.sql` trong mã không phải test |
@@ -37,15 +58,15 @@ AC10 (chuông) nay đủ: số chưa đọc "9+", chống nhảy vị trí. Còn
 
 Tổng: 29 TC chính + 2 TC nhánh / quyền = 31: PASS 28 (gồm TC-14, 15, 16, 25, 27 mới đạt), FAIL 1 (TC-29), BLOCKED 2 (TC-18 phần Threads, TC-24).
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (THẤP): `ui-antipatterns.sh` đỏ ở `AppShell.module.css:124`** — `font-size: 10px` của `.unreadDot`. Tái hiện: `bash scripts/ui-antipatterns.sh; echo $?` → `1`. Sửa: dùng token cỡ chữ trong thang vai trò (`--ep-text-*`). Không đụng hành vi.
 
-## 3. Ghi chú
+### 3. Ghi chú
 - Kiểm giao diện chuông ở stack có số thật: hai người đọc cùng dòng, số "9+" ở 375 px, khung chèn không nhảy — xem script trong `docs/sprints/7/qc/scripts/` (`p4-02-ui.mjs`, `p4-02-nojump.mjs`, `sse.mjs`, `two-gateways.mjs`).
 - `shell.spec.ts:312` "forbidden… 0 request /api/v1" vẫn đỏ vì chuông mở SSE `/api/v1/events` (proposals #18 ACCEPTED, dev chưa áp dụng ở `HEAD`): ghi ở `report-US-P4-03.md` (cổng G4-05).
 
-## 4. Phụ lục: vòng 1 (đã đóng)
-### Kết luận: **FAIL**
+### 4. Phụ lục: vòng 1 (đã đóng)
+### Kết luận vòng 2: **FAIL**
 AC10 (chuông trên giao diện) chưa làm đủ: không hiện số chưa đọc, không "9+", không chống nhảy vị trí khi chèn mục mới. Dev đã tự ghi là nợ #3 trong handoff; theo luật QC vẫn FAIL. Phần hạ tầng (một cửa, SSE tức thì, hai gateway, đọc bù, gộp, cô lập, giới hạn kết nối) PASS.
 
 ### 1. Kết quả TC
