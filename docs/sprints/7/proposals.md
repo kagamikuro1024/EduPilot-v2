@@ -20,3 +20,4 @@ Mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh h�
 - **#3 ACCEPTED 2026-10-13:** một mục thật "Thư chưa gửi được" (ADMIN) ở đầu `/observability`, phần còn lại giữ mock tới P10.
 - **#4 ACCEPTED 2026-10-13:** lỗi race thật, sửa ở gốc: `defaults()` chạy một lần trong hàm dựng `Queue`. Dev làm ngay sau US-CI-02, commit `fix(judge): race defaults (#4)`, có test `-race` chạy song song `Run` + `HandleEnqueue`.
 - **#5, #6, #7:** chờ TL-REVIEW của `FEAT-crm-360`.
+- **#5, #6, #7 ACCEPTED 2026-10-13:** theo `FEAT-crm-360/TL-REVIEW.md` mục "Quyết định PM" (kèm TLR-11, TLR-13; #5 thêm `user_settings.track_study_time`). BA sửa `ARCHITECTURE.md` §4, §5, §9 cùng commit spec, ghi số proposal.

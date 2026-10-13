@@ -55,3 +55,22 @@ Tech Lead, 2026-10-13, nhánh `sprint/7-p4-p5` @ `d4e6c3f`. Spec còn `DRAFT` n�
 - **Tool AI (4.5):** seam `AttendanceSource` / `ParticipationSource` đã nhận `TrustedContext` và không có tham số danh tính (`agent/tools.go:137-146, 196-210`). `crm.Service` chỉ cần cài, không đổi chữ ký. `TestPersonalToolsHaveNoIdentityParam` giữ xanh.
 - **Điểm cộng:** `numeric(4,2)` + `decimal` trong Go, không `float64`, khớp luật 5. `[-5, 5]` bước 0,01 nằm gọn trong `numeric(4,2)`.
 - **`ADD CONSTRAINT class_sessions_course_id_key`:** tên trùng quy ước các bảng khác. `Down` phải `DROP CONSTRAINT` **sau khi** `DROP TABLE attendance_records` / `participation_events` (FK phụ thuộc chỉ mục này).
+
+## Quyết định PM (2026-10-13)
+
+**TLR-1 … TLR-14: ACCEPTED hết**, theo cột "Đề xuất". Chốt thêm:
+- **TLR-1:** AC3 thành hai vế (lớp 100 SV không `Seq Scan` trên năm bảng lớn; lớp 1.000 SV trang đầu p95 ≤ 300 ms, hồ sơ ≤ 3 s, hồ sơ một SV dùng chỉ mục).
+- **TLR-4:** phương án rẻ: khoảng trống ở giữa không lấp; xoá buổi cuối thì số đó được cấp lại.
+- **TLR-5:** khoá hàng đợi có `userId`, dùng lại `SaveQueue`; đăng xuất khi còn thay đổi chờ thì hỏi trước.
+- **TLR-10:** `SESSION_UNMARKED` = 12; bảng bậc dựng từ hằng `Tier*` trong mã, sửa cả `FEAT-course-foundation` 4.7.
+- **TLR-13:** lệnh seed chỉ chạy khi `APP_ENV ∈ {local, test}`; lùi cả `waiting_since` (TLR-3 của escalation đã ACCEPTED).
+
+**proposals #5, #6, #7: ACCEPTED**, kèm điều kiện của Tech Lead. #5 cộng thêm `ALTER user_settings ADD track_study_time` (Q1, chủ dự án chọn có công tắc tắt).
+
+**Câu còn lại (chủ dự án giao PM chốt 2026-10-13):**
+- **Q16:** ngăn kéo `Drawer` ở `/calendar`, không thêm route.
+- **Q20:** **không cắt** AC13 trước khi thử: dùng lại `SaveQueue` thì chi phí ngang AC13b. Chỉ cắt sang AC13b nếu QC FAIL AC13 sau 2 vòng.
+- **Q21:** giữ phạm vi audit của BA (mở hồ sơ + đọc ghi chú), kèm TLR-7.
+- **Q22:** chỉ STUDENT, năm khu vực; không đo `/exams/**`, `/`, `/me`; tôn trọng công tắc Q1.
+- **Q23:** tối đa 5 sinh viên `AT_RISK`, ẩn khối khi không có.
+- **Q13, Q14, Q15, Q17, Q18, Q19, Q24:** theo ý kiến Tech Lead.
