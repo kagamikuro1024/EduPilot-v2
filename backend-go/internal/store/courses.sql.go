@@ -47,7 +47,7 @@ const addTargetToSharedChunks = `-- name: AddTargetToSharedChunks :exec
 update content_chunks c
 set course_ids = array_append(c.course_ids, $1::uuid)
 from documents d
-where c.document_id = d.id and d.course_id = $2 and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+where c.document_id = d.id and d.course_id = $2 and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and not ($1::uuid = any(c.course_ids))
 `
 
@@ -175,8 +175,8 @@ func (q *Queries) CountCourseStudents(ctx context.Context, courseID uuid.UUID) (
 const countSharedDocuments = `-- name: CountSharedDocuments :one
 select
   (select count(*) from documents d join document_courses dc on dc.document_id = d.id and dc.course_id = $1
-    where d.course_id = $2 and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as shared,
-  (select count(*) from documents d where d.course_id = $2 and d.status = 'READY' and d.type = 'COURSE_POLICY')::int as policy
+    where d.course_id = $2 and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as shared,
+  (select count(*) from documents d where d.course_id = $2 and d.status = 'READY' and d.type = 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as policy
 `
 
 type CountSharedDocumentsParams struct {
@@ -958,7 +958,7 @@ func (q *Queries) ListNotifications(ctx context.Context, arg ListNotificationsPa
 
 const listShareSources = `-- name: ListShareSources :many
 select c.id, c.class_code, c.name, c.semester,
-       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as documents
+       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as documents
 from courses c
 join enrollments e on e.course_id = c.id and e.user_id = $1 and e.role_in_course = 'TEACHER' and e.status = 'ACTIVE'
 where c.subject_code = (select t.subject_code from courses t where t.id = $2)
@@ -1270,7 +1270,7 @@ const shareCourseDocuments = `-- name: ShareCourseDocuments :execrows
 insert into document_courses (document_id, course_id, shared_by)
 select d.id, $1, $2
 from documents d
-where d.course_id = $3 and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+where d.course_id = $3 and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE'
 on conflict (document_id, course_id) do nothing
 `
 

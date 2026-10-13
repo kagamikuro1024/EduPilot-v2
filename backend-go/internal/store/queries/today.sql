@@ -110,10 +110,10 @@ left join (
 -- Bốn bước "Thiết lập lớp mới" tự tick theo dữ liệu (SRS 4.7); dismissed = mốc giảng viên bỏ qua.
 select c.id as course_id,
        (exists (select 1 from enrollments e where e.course_id = c.id and e.role_in_course = 'STUDENT' and e.status in ('ACTIVE', 'PENDING')))::boolean as share_code,
-       (exists (select 1 from documents d where d.course_id = c.id and d.type = 'COURSE_POLICY' and d.status <> 'FAILED'))::boolean as policy,
+       (exists (select 1 from documents d where d.course_id = c.id and d.type = 'COURSE_POLICY' and d.status <> 'FAILED' and d.category is distinct from 'THREAD_KNOWLEDGE'))::boolean as policy,
        (exists (select 1 from class_sessions s where s.course_id = c.id))::boolean as sessions,
-       ((exists (select 1 from documents d where d.course_id = c.id and d.type <> 'COURSE_POLICY' and d.status <> 'FAILED')
-        or exists (select 1 from document_courses dc join documents d on d.id = dc.document_id where dc.course_id = c.id and d.status <> 'FAILED')))::boolean as documents,
+       ((exists (select 1 from documents d where d.course_id = c.id and d.type <> 'COURSE_POLICY' and d.status <> 'FAILED' and d.category is distinct from 'THREAD_KNOWLEDGE')
+        or exists (select 1 from document_courses dc join documents d on d.id = dc.document_id where dc.course_id = c.id and d.status <> 'FAILED' and d.category is distinct from 'THREAD_KNOWLEDGE')))::boolean as documents,
        coalesce(c.settings #>> '{setup,dismissed_at}', '')::text as dismissed
 from courses c
 where c.id = any(sqlc.arg(course_ids)::text[]::uuid[]);

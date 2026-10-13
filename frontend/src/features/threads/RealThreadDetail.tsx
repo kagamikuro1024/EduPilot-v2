@@ -120,7 +120,7 @@ function AiPost({ courseId, threadId, p, staff }: { courseId: string; threadId: 
         <Markdown source={p.body} />
       )}
       {p.citations.length > 0 && (
-        <CitationList items={p.citations.map((c) => ({ id: String(c.n), title: c.title, page: c.page_no ?? undefined, excerpt: <>{c.snippet}{" "}<Link href={`/library/${c.document_id}`}>Xem tài liệu</Link></> }))} />
+        <CitationList items={p.citations.map((c) => ({ id: String(c.n), title: c.title, page: c.page_no ?? undefined, excerpt: <>{c.snippet}{!c.knowledge && <>{" "}<Link href={`/library/${c.document_id}`}>Xem tài liệu</Link></>}</> }))} />
       )}
       {staff && !editing && (
         <div className={r.actions}>

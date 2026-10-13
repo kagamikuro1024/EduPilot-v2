@@ -210,10 +210,29 @@ func (s *Service) Messages(ctx context.Context, a Actor, sid uuid.UUID, p httpx.
 	if err != nil {
 		return MessagePage{}, err
 	}
+	// tin của giảng viên mang khối `ticket {ticket_id}`: gắn ticket để giao diện hiện `Hỏi tiếp` / `Đã rõ` / "Đã đóng"
+	staffTicket := map[uuid.UUID]uuid.UUID{}
+	var tids []uuid.UUID
+	for _, r := range rows {
+		if r.Role == store.ChatRoleASSISTANT && isStaffIntent(r.Intent) {
+			if id, ok := ticketIDOf(r.Blocks); ok {
+				staffTicket[r.ID] = id
+				tids = append(tids, id)
+			}
+		}
+	}
+	byID, err := escalation.ViewsByIDs(ctx, s.Pool, a.UserID, tids)
+	if err != nil {
+		return MessagePage{}, err
+	}
 	for _, r := range rows {
 		m := messageOut(r)
 		if t, ok := tickets[r.ID]; ok {
 			m.Ticket = &t
+		} else if tid, ok := staffTicket[r.ID]; ok {
+			if t, ok := byID[tid]; ok {
+				m.Ticket = &t
+			}
 		}
 		out.Items = append(out.Items, m)
 	}
@@ -327,4 +346,23 @@ func (s *Service) FromDraft(ctx context.Context, a Actor, in FromDraftIn) (FromD
 // isStaffIntent: tin của ticket (STAFF_ANSWER, ESCALATION_FOLLOWUP) nằm chung bảng với tin AI nhưng không đánh giá / sinh lại được.
 func isStaffIntent(intent *string) bool {
 	return intent != nil && (*intent == "STAFF_ANSWER" || *intent == "ESCALATION_FOLLOWUP")
+}
+
+// ticketIDOf lấy `ticket_id` từ khối `ticket` của một tin của giảng viên.
+func ticketIDOf(blocks json.RawMessage) (uuid.UUID, bool) {
+	var bs []struct {
+		Kind string `json:"kind"`
+		Data struct {
+			TicketID uuid.UUID `json:"ticket_id"`
+		} `json:"data"`
+	}
+	if json.Unmarshal(blocks, &bs) != nil {
+		return uuid.Nil, false
+	}
+	for _, b := range bs {
+		if b.Kind == "ticket" && b.Data.TicketID != uuid.Nil {
+			return b.Data.TicketID, true
+		}
+	}
+	return uuid.Nil, false
 }

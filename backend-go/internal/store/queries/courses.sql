@@ -265,7 +265,7 @@ limit 1;
 insert into document_courses (document_id, course_id, shared_by)
 select d.id, sqlc.arg(target_id), sqlc.arg(shared_by)
 from documents d
-where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE'
 on conflict (document_id, course_id) do nothing;
 
 -- name: AddTargetToSharedChunks :exec
@@ -273,20 +273,20 @@ on conflict (document_id, course_id) do nothing;
 update content_chunks c
 set course_ids = array_append(c.course_ids, sqlc.arg(target_id)::uuid)
 from documents d
-where c.document_id = d.id and d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+where c.document_id = d.id and d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and not (sqlc.arg(target_id)::uuid = any(c.course_ids));
 
 -- name: CountSharedDocuments :one
 -- Số tài liệu của lớp nguồn hiện đã dùng được ở lớp đích, và số tài liệu quy chế bị bỏ qua.
 select
   (select count(*) from documents d join document_courses dc on dc.document_id = d.id and dc.course_id = sqlc.arg(target_id)
-    where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as shared,
-  (select count(*) from documents d where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type = 'COURSE_POLICY')::int as policy;
+    where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as shared,
+  (select count(*) from documents d where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type = 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as policy;
 
 -- name: ListShareSources :many
 -- Lớp CÙNG học phần mà người gọi là giảng viên ACTIVE của cả hai, chưa lưu trữ, kèm số tài liệu có thể chia sẻ.
 select c.id, c.class_code, c.name, c.semester,
-       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as documents
+       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as documents
 from courses c
 join enrollments e on e.course_id = c.id and e.user_id = sqlc.arg(user_id) and e.role_in_course = 'TEACHER' and e.status = 'ACTIVE'
 where c.subject_code = (select t.subject_code from courses t where t.id = sqlc.arg(target_id))

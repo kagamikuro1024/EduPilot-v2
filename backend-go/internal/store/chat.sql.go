@@ -48,7 +48,7 @@ func (q *Queries) ChatCourseStatus(ctx context.Context, id uuid.UUID) (CourseSta
 
 const chatDocumentUsable = `-- name: ChatDocumentUsable :one
 select d.id from documents d
-where d.id = $1 and d.status = 'READY' and d.visible_to_students and d.use_for_rag and d.type <> 'ANSWER_KEY'
+where d.id = $1 and d.status = 'READY' and d.visible_to_students and d.use_for_rag and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (d.course_id = $2 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $2))
   and exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[$2::uuid] and c.embedding is not null)
 `

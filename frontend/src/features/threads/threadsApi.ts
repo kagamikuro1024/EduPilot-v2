@@ -9,7 +9,7 @@ export type ThreadRow = {
   id: string; title: string; preview: string; tags: string[]; week_no: number | null; author: Author;
   answer_state: "PENDING" | "VERIFIED" | "CORRECTED" | "REJECTED" | null; reply_count: number; last_activity_at: string; created_at: string; ai_state?: string;
 };
-export type PostCitation = { n: number; document_id: string; title: string; page_no: number | null; snippet: string };
+export type PostCitation = { n: number; document_id: string; title: string; page_no: number | null; snippet: string; knowledge?: boolean };
 export type ThreadPost = {
   id: string; kind: "AI" | "HUMAN"; author: Author | null; body: string; verification_state: string | null; citations: PostCitation[]; version: number; created_at: string;
   confidence?: string; ai_body?: string; rejected?: boolean;

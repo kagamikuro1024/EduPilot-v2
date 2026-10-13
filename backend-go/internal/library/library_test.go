@@ -507,3 +507,22 @@ func TestSearchLibraryExcludesAnswerKey(t *testing.T) {
 		require.Empty(t, srcs)
 	}
 }
+
+// TestKnowledgeDocHiddenFromLibraryAndDocuments — AC11: tài liệu ảo của kho tri thức không có trong /library (danh sách, chi tiết, tải về), kể cả khi đã nhúng.
+func TestKnowledgeDocHiddenFromLibraryAndDocuments(t *testing.T) {
+	t.Parallel()
+	f := newFx(t)
+	f.doc(docOpt{title: "Bài giảng", chunks: []string{"nội dung"}})
+	var kd uuid.UUID
+	require.NoError(t, f.pool.QueryRow(t.Context(), `insert into documents (course_id, title, type, status, visible_to_students, use_for_rag, category)
+		values ($1, 'Hỏi đáp đã được giảng viên xác nhận', 'OTHER', 'READY', true, true, 'THREAD_KNOWLEDGE') returning id`, f.course).Scan(&kd))
+	_, err := f.pool.Exec(t.Context(), `insert into content_chunks (document_id, course_ids, ord, text, embedding) values ($1, array[$2::uuid], 0, 'Câu hỏi: hạn nộp bài', $3::vector)`, kd, f.course, vecLit(5))
+	require.NoError(t, err)
+
+	require.Equal(t, []string{"Bài giảng"}, titles(f.list(library.Filter{})))
+	require.Empty(t, f.list(library.Filter{Q: "hạn nộp"}), "tìm theo chữ trong đoạn tri thức cũng không ra tài liệu nào")
+	_, err = f.svc.Get(t.Context(), f.course, kd)
+	require.Equal(t, "NOT_FOUND", codeOf(t, err))
+	_, err = f.svc.Download(t.Context(), f.course, kd)
+	require.Equal(t, "NOT_FOUND", codeOf(t, err))
+}

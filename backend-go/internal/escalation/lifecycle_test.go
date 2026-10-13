@@ -2,6 +2,8 @@ package escalation_test
 
 import (
 	"context"
+	"encoding/json"
+	"sort"
 	"sync"
 	"testing"
 	"time"
@@ -526,3 +528,54 @@ func TestSLAJobCrashSafe(t *testing.T) {
 const apiTicketStateInvalid = "TICKET_STATE_INVALID"
 
 func workhoursICT() *time.Location { return workhours.ICT }
+
+// TestStudentStatusLabels — AC7: sinh viên thấy đúng bốn trường của ticket ở MỌI trạng thái (không người nhận, độ tin cậy, nguồn gốc, phiên bản), cả ở tin AI lẫn tin của giảng viên.
+func TestStudentStatusLabels(t *testing.T) {
+	r := newRig(t, escalation.Config{})
+	r.verify(r.teacher, r.ta)
+	_, ai := r.pair("Hỏi", "AI trả lời")
+	c, err := r.svc.Escalate(r.t.Context(), r.a, ai)
+	require.NoError(t, err)
+	id := c.Ticket.ID
+	want := []string{"answered_at", "created_at", "id", "status"}
+	keys := func(v escalation.StudentView) []string {
+		raw, err := json.Marshal(v)
+		require.NoError(t, err)
+		var m map[string]any
+		require.NoError(t, json.Unmarshal(raw, &m))
+		var out []string
+		for k := range m {
+			out = append(out, k)
+		}
+		sort.Strings(out)
+		return out
+	}
+	views := func() escalation.StudentView {
+		v, err := escalation.ViewsByIDs(r.t.Context(), r.pool, r.a.UserID, []uuid.UUID{id})
+		require.NoError(r.t, err)
+		return v[id]
+	}
+	require.Equal(t, "OPEN", views().Status)
+	_, err = r.svc.Claim(r.t.Context(), r.gv(), r.course, id, nil)
+	require.NoError(t, err)
+	require.Equal(t, "CLAIMED", views().Status)
+	_, _, err = r.svc.Answer(r.t.Context(), r.gv(), r.course, id, "Trả lời", nil)
+	require.NoError(t, err)
+	v := views()
+	require.Equal(t, "ANSWERED", v.Status)
+	require.NotNil(t, v.AnsweredAt)
+	_, err = r.svc.Confirm(r.t.Context(), r.a, id)
+	require.NoError(t, err)
+	v = views()
+	require.Equal(t, "CLOSED", v.Status)
+	require.Subset(t, want, keys(v), "chỉ các trường sinh viên được thấy")
+	require.Equal(t, want, keys(escalation.StudentView{AnsweredAt: v.AnsweredAt}), "đủ bốn trường khi đã trả lời")
+	// theo tin AI (message_id) cho cùng kết quả
+	byMsg, err := escalation.ViewsForMessages(r.t.Context(), r.pool, r.a.UserID, []uuid.UUID{ai})
+	require.NoError(t, err)
+	require.Equal(t, id, byMsg[ai].ID)
+	// sinh viên khác không thấy ticket của A
+	other, err := escalation.ViewsByIDs(r.t.Context(), r.pool, r.b.UserID, []uuid.UUID{id})
+	require.NoError(t, err)
+	require.Empty(t, other)
+}

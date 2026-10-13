@@ -5,7 +5,7 @@ import { apiClient } from "@/shared/data";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/chat/*`, `/me/exam-lock`).
 export type ChatSession = { id: string; title: string | null; last_message_at: string; document_id: string | null };
-export type ChatCitation = { n: number; document_id: string; title: string; page_no: number | null; snippet: string };
+export type ChatCitation = { n: number; document_id: string; title: string; page_no: number | null; snippet: string; knowledge?: boolean };
 export type ChatBlock = { kind: string; data: unknown };
 /** Ticket "Nhờ giảng viên" mà sinh viên được thấy: đúng bốn trường (không độ tin cậy, người nhận, nguồn gốc). */
 export type StudentTicket = { id: string; status: "OPEN" | "CLAIMED" | "ANSWERED" | "CLOSED"; created_at: string; answered_at?: string };

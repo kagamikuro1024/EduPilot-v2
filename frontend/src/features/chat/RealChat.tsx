@@ -22,6 +22,7 @@ import {
   type ChatSession,
 } from "./chatApi";
 import { ChatSessionSheet } from "./ChatSessionSheet";
+import { StaffReplyActions } from "./StaffReplyActions";
 import { TicketAction } from "./TicketAction";
 import { useChatRun, type Live } from "./useChatRun";
 import s from "./ChatScreen.module.css";
@@ -86,6 +87,16 @@ export function RealChat({ courseId }: { courseId: string }) {
     void apiClient.post("/notifications/read", { link: `/chat?session=${sid}` }).catch(() => undefined);
   }, [sid, hasStaff]);
   const openTickets = messages.data?.openTickets ?? 0;
+  // `Hỏi tiếp` / `Đã rõ` chỉ ở tin giảng viên MỚI NHẤT của mỗi ticket
+  const lastStaff = new Set<string>();
+  const seenTicket = new Set<string>();
+  for (let i = list.length - 1; i >= 0; i--) {
+    const t = list[i].ticket;
+    if (t && staffOf(list[i]) && !seenTicket.has(t.id)) {
+      seenTicket.add(t.id);
+      lastStaff.add(list[i].id);
+    }
+  }
   // mở lại giữa lúc đang sinh: nối lại luồng của tin STREAMING (không mất, không lặp)
   const streamingRow = list.find((m) => m.role === "ASSISTANT" && m.stream_status === "STREAMING");
   useEffect(() => {
@@ -212,7 +223,7 @@ export function RealChat({ courseId }: { courseId: string }) {
                     </div>
                   ) : (
                     <>
-                      {list.map((m) => (live?.mid === m.id ? null : <Row key={m.id} m={m} fb={fb[m.id] ?? m.feedback} onVote={(v) => void vote.run({ mid: m.id, value: v, prev: fb[m.id] ?? m.feedback })} onRetry={() => void retry(m.id)} disabled={busy || locked} openTickets={openTickets} onTicket={() => void qc.invalidateQueries({ queryKey: messagesKey(sid ?? "") })} />))}
+                      {list.map((m) => (live?.mid === m.id ? null : <Row key={m.id} m={m} fb={fb[m.id] ?? m.feedback} onVote={(v) => void vote.run({ mid: m.id, value: v, prev: fb[m.id] ?? m.feedback })} onRetry={() => void retry(m.id)} disabled={busy || locked} openTickets={openTickets} userId={identity?.sub} lastStaff={lastStaff.has(m.id)} onTicket={() => void qc.invalidateQueries({ queryKey: messagesKey(sid ?? "") })} />))}
                       {live && <LiveRow live={live} onRetry={live.mid ? () => void retry(live.mid!) : undefined} />}
                     </>
                   )}
@@ -272,10 +283,18 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
   );
 }
 
-function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket }: { m: ChatMessage; fb: Feedback; onVote: (v: Feedback) => void; onRetry: () => void; disabled: boolean; openTickets: number; onTicket: () => void }) {
+function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket, userId, lastStaff }: { m: ChatMessage; fb: Feedback; onVote: (v: Feedback) => void; onRetry: () => void; disabled: boolean; openTickets: number; onTicket: () => void; userId?: string; lastStaff: boolean }) {
   if (m.role === "USER") return <div className={s.fromSv}><p className={s.who}>Bạn</p><p className={s.text}>{m.content}</p></div>;
   const staff = staffOf(m);
-  if (staff) return <div className={s.fromAi} data-part="staff-answer"><p className={s.who}>{staff.role === "TEACHER" ? "Giảng viên" : "Trợ giảng"} · {staff.full_name}</p><p className={r.plain}>{m.content}</p></div>;
+  if (staff) {
+    return (
+      <div className={s.fromAi} data-part="staff-answer">
+        <p className={s.who}>{staff.role === "TEACHER" ? "Giảng viên" : "Trợ giảng"} · {staff.full_name}</p>
+        <p className={r.plain}>{m.content}</p>
+        {lastStaff && m.ticket && <StaffReplyActions ticket={m.ticket} userId={userId} onChanged={onTicket} locked={disabled} />}
+      </div>
+    );
+  }
   const failed = m.stream_status === "FAILED";
   const cancelled = m.stream_status === "CANCELLED";
   return (
@@ -416,9 +435,11 @@ function Citations({ items }: { items: ChatCitation[] }) {
         excerpt: (
           <>
             {c.snippet}{" "}
-            <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
-              Xem tài liệu
-            </Link>
+            {!c.knowledge && (
+              <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
+                Xem tài liệu
+              </Link>
+            )}
           </>
         ),
       }))}

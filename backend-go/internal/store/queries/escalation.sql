@@ -25,6 +25,12 @@ select id, message_id, status, created_at, answered_at
 from escalation_tickets
 where student_id = sqlc.arg(student_id) and message_id = any(sqlc.arg(message_ids)::text[]::uuid[]); -- text[]: pgx ở chế độ simple protocol (PgBouncer) không mã hoá được []uuid.UUID
 
+-- name: TicketsOfStudentByIDs :many
+-- Ticket CỦA sinh viên theo id (tin của giảng viên trỏ tới ticket qua khối `ticket`).
+select id, status, created_at, answered_at
+from escalation_tickets
+where student_id = sqlc.arg(student_id) and id = any(sqlc.arg(ids)::text[]::uuid[]);
+
 -- name: TicketGet :one
 select * from escalation_tickets where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
 
@@ -241,3 +247,14 @@ select count(*)::int from escalation_tickets where course_id = sqlc.arg(course_i
 -- name: TicketMarkStalledRead :exec
 -- Lớp hết ticket quá hạn: thông báo COURSE_TICKETS_STALLED chưa đọc của lớp thành đã đọc (mục "Hôm nay" của Admin biến).
 update notifications set read_at = now() where type = 'COURSE_TICKETS_STALLED' and course_id = sqlc.arg(course_id) and read_at is null;
+
+-- name: TicketSetKnowledge :one
+update escalation_tickets set save_as_knowledge = sqlc.arg(saved), version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status in ('ANSWERED', 'CLOSED')
+returning *;
+
+-- name: TicketClearKnowledge :one
+-- Gỡ tri thức được phép ở mọi trạng thái (ticket có thể đã mở lại sau khi lưu).
+update escalation_tickets set save_as_knowledge = false, version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id)
+returning *;

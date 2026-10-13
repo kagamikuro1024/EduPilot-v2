@@ -15,7 +15,8 @@ export type StaffTicket = {
 };
 export type TicketMessage = { id: string; content: string; created_at: string; confidence?: string | null };
 export type TranscriptItem = { id: string; role: string; author: { full_name: string; role: string } | "student"; content: string; created_at: string };
-export type TicketDetail = { ticket: StaffTicket; question: TicketMessage | null; ai_answer: TicketMessage | null; transcript: TranscriptItem[] };
+export type KnowledgeState = { saved: boolean; loaded: boolean; question?: string; answer?: string };
+export type TicketDetail = { ticket: StaffTicket; question: TicketMessage | null; ai_answer: TicketMessage | null; transcript: TranscriptItem[]; knowledge?: KnowledgeState };
 
 export type InboxFilter = "open" | "claimed" | "answered" | "all";
 const API_STATUS: Record<InboxFilter, string> = { open: "OPEN", claimed: "CLAIMED", answered: "ANSWERED", all: "ALL" };

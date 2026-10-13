@@ -8,6 +8,7 @@ import { ApiError, ApiErrorNotice, apiClient, useAutosaveDraft, useIdempotentMut
 import { timeAgo } from "@/shared/lib/timeAgo";
 import { useSession } from "@/shared/session/session";
 import { ActionList, ActionRow, Button, Composer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, SegmentedControl, Skeleton, StatusText } from "@/shared/ui";
+import { KnowledgeBox } from "./KnowledgeBox";
 import { ticketsKey, useTicketDetail, useTicketList, waitLabel, type InboxFilter, type TicketDetail, type TicketRow, type TicketStatus } from "./inboxApi";
 import s from "./RealInbox.module.css";
 
@@ -258,6 +259,8 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
           ))}
         </div>
       )}
+
+      {finished && <KnowledgeBox t={t} state={d.knowledge} onChanged={() => void refresh()} />}
 
       {t.status !== "CLOSED" && (
         <div

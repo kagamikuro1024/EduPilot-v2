@@ -6110,6 +6110,97 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets/{tid}/knowledge-preview:
+    get:
+      operationId: previewTicketKnowledge
+      tags: [escalation]
+      summary: "Xem trước tri thức từ ticket đã trả lời (câu hỏi + trả lời đã che thông tin cá nhân, để giảng viên sửa)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgePreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/tickets/{tid}/knowledge:
+    post:
+      operationId: saveTicketKnowledge
+      tags: [escalation]
+      summary: "Lưu thành tri thức của lớp (201 lần đầu, 200 khi cập nhật); 422 PII_DETECTED / KNOWLEDGE_PERSONAL"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeInput"
+      responses:
+        "200":
+          description: Đã cập nhật mục tri thức
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeState"
+        "201":
+          description: Đã tạo mục tri thức
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: removeTicketKnowledge
+      tags: [escalation]
+      summary: "Gỡ tri thức của ticket (idempotent)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã gỡ
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/notifications/read:
     post:
       operationId: markNotificationsReadByLink
@@ -10567,6 +10658,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/TicketTranscriptItem"
+        knowledge:
+          $ref: "#/components/schemas/KnowledgeState"
     TicketResult:
       type: object
       required: [ticket]
@@ -10595,6 +10688,36 @@ components:
           maxLength: 4000
         version:
           type: integer
+    KnowledgePreview:
+      type: object
+      required: [question, answer, personal]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        personal:
+          type: boolean
+    KnowledgeInput:
+      type: object
+      required: [question, answer]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+    KnowledgeState:
+      type: object
+      required: [saved, loaded]
+      properties:
+        saved:
+          type: boolean
+        loaded:
+          type: boolean
+        question:
+          type: string
+        answer:
+          type: string
     DismissInput:
       type: object
       required: [reason]

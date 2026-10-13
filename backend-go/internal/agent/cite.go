@@ -17,6 +17,7 @@ type Citation struct {
 	Title      string    `json:"title"`
 	PageNo     *int      `json:"page_no"`
 	Snippet    string    `json:"snippet"`
+	Knowledge  bool      `json:"knowledge,omitempty"` // nguồn là tri thức đã xác nhận: giao diện không liên kết tới tài liệu
 }
 
 var reMarker = regexp.MustCompile(`\s?\[(\d{1,3})\]`)
@@ -42,7 +43,7 @@ func ExtractCitations(text string, hits []rag.Hit) (string, []Citation) {
 
 // CitationOf dựng mục trích dẫn thứ n từ một đoạn.
 func CitationOf(n int, h rag.Hit) Citation {
-	return Citation{N: n, DocumentID: h.DocumentID, Title: h.Title, PageNo: h.PageNo, Snippet: Cut(h.Text, 200)}
+	return Citation{N: n, DocumentID: h.DocumentID, Title: h.Title, PageNo: h.PageNo, Snippet: Cut(h.Text, 200), Knowledge: h.Knowledge}
 }
 
 // Cut cắt tối đa n rune ở ranh giới câu / từ gần nhất.

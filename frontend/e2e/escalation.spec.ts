@@ -398,3 +398,159 @@ test("observability failed mail: Admin thấy thư lỗi với người nhận �
   await page.goto("/observability");
   await expect(page.getByText("Thư chưa gửi được")).toHaveCount(0);
 });
+
+// --- US-P4-05: sinh viên thấy trạng thái, Hỏi tiếp / Đã rõ; giảng viên lưu thành tri thức ---
+
+const staffMsg = (id: string, ticketId: string, status: string, over: Record<string, unknown> = {}) =>
+  msg({
+    id, content: `Em xem lại bài 3 nhé (${status}).`, citations: [], low_confidence: false,
+    blocks: [{ kind: "ticket", data: { ticket_id: ticketId, answered_by: { full_name: "Nguyễn Thị Hoa", role: "TEACHER" } } }],
+    ticket: { id: ticketId, status, created_at: "2026-10-11T02:00:00Z", answered_at: "2026-10-11T03:00:00Z" }, ...over,
+  });
+
+async function studentChat(page: Page, items: () => unknown[], extra: NonNullable<Parameters<typeof chatApi>[1]> = {}) {
+  await page.route("**/api/v1/notifications/read", (r) => (r.request().method() === "OPTIONS" ? r.fulfill({ status: 204, headers: json({}).headers }) : r.fulfill(json({ updated: 0 }))));
+  return chatApi(page, {
+    "GET /chat/sessions": json({ items: [{ id: SID, title: "Câu hỏi", last_message_at: "2026-10-11T02:00:00Z", document_id: null }], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: items(), next_cursor: null, open_tickets: 0 })),
+    ...extra,
+  });
+}
+
+test("student sees ticket status: bốn trạng thái đúng chữ, không có từ kỹ thuật, ANSWERED có Hỏi tiếp + Đã rõ", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  const ago = (ms: number) => new Date(Date.now() - ms).toISOString();
+  await studentChat(page, () => [
+    msg({ id: "a4", content: "Câu trả lời AI bốn.", citations: [], ticket: { id: "t4", status: "OPEN", created_at: ago(5_000) } }),
+    msg({ id: "a3", content: "Câu trả lời AI ba.", citations: [], ticket: { id: "t3", status: "CLAIMED", created_at: ago(3 * 3600_000) } }),
+    staffMsg("s2", "t2", "ANSWERED"),
+    staffMsg("s1", "t1", "CLOSED"),
+  ]);
+  await page.goto(`/chat?session=${SID}`);
+  const thread = page.locator("[data-part=chat-thread]");
+  const status = thread.locator("[data-part=ticket-status]");
+  await expect(status.nth(0)).toHaveText("Giảng viên đã nhận · đã chờ 3 giờ");
+  await expect(status.nth(1)).toHaveText("Đang chờ giảng viên · vừa gửi");
+  const answered = thread.locator("[data-part=staff-answer]", { hasText: "(ANSWERED)" });
+  await expect(answered).toContainText("Giảng viên · Nguyễn Thị Hoa");
+  await expect(answered.getByRole("button", { name: "Hỏi tiếp" })).toBeVisible();
+  await expect(answered.getByRole("button", { name: "Đã rõ" })).toBeVisible();
+  const closed = thread.locator("[data-part=staff-answer]", { hasText: "(CLOSED)" });
+  await expect(closed).toContainText("Đã đóng");
+  await expect(closed.getByRole("button", { name: "Hỏi tiếp" })).toBeVisible();
+  await expect(closed.getByRole("button", { name: "Đã rõ" })).toHaveCount(0);
+  expect(await thread.innerText()).not.toMatch(/ticket|SLA|0[.,]\d\d/i);
+});
+
+test("student followup: Hỏi tiếp gửi một lần với mã tin, nháp còn khi lỗi, rồi hiện Đang chờ giảng viên", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  let status = "ANSWERED";
+  let posts = 0;
+  const calls = await studentChat(
+    page,
+    () => [staffMsg("s2", "t2", status)],
+    {
+      "POST /chat/tickets/t2/followup": (r) => {
+        posts++;
+        if (posts === 1) return r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500));
+        status = "OPEN";
+        return r.fulfill(json({ ticket: { id: "t2", status: "OPEN", created_at: "2026-10-11T02:00:00Z" } }));
+      },
+    },
+  );
+  await page.goto(`/chat?session=${SID}`);
+  const row = page.locator("[data-part=staff-answer]");
+  await row.getByRole("button", { name: "Hỏi tiếp" }).click();
+  await row.getByRole("textbox", { name: "Hỏi tiếp" }).fill("Em vẫn chưa hiểu phần 2.");
+  await row.getByRole("button", { name: "Gửi", exact: true }).click();
+  await expect(row.getByRole("button", { name: "Thử lại" })).toBeVisible();
+  await expect(row.getByRole("textbox", { name: "Hỏi tiếp" })).toHaveValue("Em vẫn chưa hiểu phần 2."); // không mất chữ
+  await row.getByRole("button", { name: "Thử lại" }).click();
+  await expect(row.locator("[data-part=ticket-status]")).toContainText("Đang chờ giảng viên");
+  const sent = calls.filter((c) => c.path.endsWith("/followup"));
+  expect(sent).toHaveLength(2);
+  const [a, b] = sent.map((c) => JSON.parse(c.body) as { content: string; client_msg_id: string });
+  expect(a.content).toBe("Em vẫn chưa hiểu phần 2.");
+  expect(b.client_msg_id).toBe(a.client_msg_id); // thử lại dùng lại mã tin: máy chủ không thêm tin thứ hai
+});
+
+test("student confirm: Đã rõ đóng ngay không hộp thoại, dòng Đã đóng · Hoàn tác, Hoàn tác gọi confirm/undo", async ({ page, context }) => {
+  await asDemo(context, "student", { person: "sv-2" });
+  let status = "ANSWERED";
+  const calls = await studentChat(
+    page,
+    () => [staffMsg("s2", "t2", status)],
+    {
+      "POST /chat/tickets/t2/confirm": (r) => {
+        status = "CLOSED";
+        return r.fulfill(json({ ticket: { id: "t2", status, created_at: "2026-10-11T02:00:00Z" } }));
+      },
+      "POST /chat/tickets/t2/confirm/undo": (r) => {
+        status = "ANSWERED";
+        return r.fulfill(json({ ticket: { id: "t2", status, created_at: "2026-10-11T02:00:00Z" } }));
+      },
+    },
+  );
+  await page.goto(`/chat?session=${SID}`);
+  const row = page.locator("[data-part=staff-answer]");
+  await row.getByRole("button", { name: "Đã rõ" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  const undo = row.locator("[data-part=undo-line]");
+  await expect(undo).toContainText("Đã đóng");
+  await undo.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect(row.getByRole("button", { name: "Đã rõ" })).toBeVisible();
+  expect(calls.filter((c) => c.path.endsWith("/confirm")).length).toBe(1);
+  expect(calls.filter((c) => c.path.endsWith("/confirm/undo")).length).toBe(1);
+});
+
+test("knowledge save: xem trước đã che → sửa → Lưu; Chưa nạp có Thử lại; Gỡ trả về nút ban đầu; câu hỏi riêng bị chặn", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  const answeredT = () => ticket({ status: "ANSWERED", answered_by: { id: SUB, full_name: "Giảng Viên Thử" }, version: 3 });
+  await inboxApi(page);
+  let knowledge: Record<string, unknown> | undefined;
+  let personal = false;
+  const posts: Array<Record<string, unknown>> = [];
+  let deletes = 0;
+  await page.route("**/api/v1/courses/*/tickets/*/knowledge-preview", (r) =>
+    r.request().method() === "OPTIONS"
+      ? r.fulfill({ status: 204, headers: json({}).headers })
+      : r.fulfill(json({ question: "[đã ẩn] hỏi điểm chuyên cần?", answer: "Chào [đã ẩn], tính theo quy chế.", personal })),
+  );
+  await page.route("**/api/v1/courses/*/tickets/*/knowledge", (r) => {
+    const m = r.request().method();
+    if (m === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    if (m === "DELETE") {
+      deletes++;
+      knowledge = undefined;
+      return r.fulfill({ status: 204, headers: json({}).headers });
+    }
+    const b = JSON.parse(r.request().postData() ?? "{}") as Record<string, unknown>;
+    posts.push(b);
+    knowledge = { saved: true, loaded: posts.length > 1, question: b.question, answer: b.answer };
+    return r.fulfill(json(knowledge, posts.length > 1 ? 200 : 201));
+  });
+  await page.route("**/api/v1/courses/*/tickets/*", (r) => {
+    const req = r.request();
+    if (req.method() !== "GET" || /knowledge/.test(req.url())) return r.fallback();
+    return r.fulfill(json({ ...detail(answeredT()), knowledge }));
+  });
+  await page.goto("/inbox");
+  const box = page.locator("[data-part=knowledge]");
+  await box.getByRole("button", { name: "Lưu thành tri thức" }).click();
+  const q = box.getByRole("textbox", { name: "Câu hỏi" });
+  await expect(q).toHaveValue("[đã ẩn] hỏi điểm chuyên cần?");
+  await q.fill("Điểm chuyên cần tính thế nào?");
+  await box.getByRole("button", { name: "Lưu", exact: true }).click();
+  await expect(box.getByText("Chưa nạp vào tri thức")).toBeVisible();
+  expect(posts[0]).toEqual({ question: "Điểm chuyên cần tính thế nào?", answer: "Chào [đã ẩn], tính theo quy chế." });
+  await box.getByRole("button", { name: "Thử lại" }).click();
+  await expect(box.getByText("Đã lưu", { exact: true })).toBeVisible();
+  expect(posts[1]).toEqual(posts[0]); // Thử lại lưu đúng bản đã lưu, không mất chữ đã sửa
+  await box.getByRole("button", { name: "Gỡ" }).click();
+  await expect(box.getByRole("button", { name: "Lưu thành tri thức" })).toBeVisible();
+  expect(deletes).toBe(1);
+  personal = true;
+  await box.getByRole("button", { name: "Lưu thành tri thức" }).click();
+  await expect(box.getByText("Câu hỏi riêng tư, không lưu được.")).toBeVisible();
+  await expect(box.getByRole("textbox")).toHaveCount(0);
+});

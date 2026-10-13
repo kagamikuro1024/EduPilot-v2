@@ -501,6 +501,54 @@ func (q *Queries) TicketClaimedCandidates(ctx context.Context, arg TicketClaimed
 	return items, nil
 }
 
+const ticketClearKnowledge = `-- name: TicketClearKnowledge :one
+update escalation_tickets set save_as_knowledge = false, version = version + 1
+where course_id = $1 and id = $2
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketClearKnowledgeParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+// Gỡ tri thức được phép ở mọi trạng thái (ticket có thể đã mở lại sau khi lưu).
+func (q *Queries) TicketClearKnowledge(ctx context.Context, arg TicketClearKnowledgeParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketClearKnowledge, arg.CourseID, arg.ID)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const ticketConfirm = `-- name: TicketConfirm :one
 update escalation_tickets set status = 'CLOSED', closed_at = $1::timestamptz, closed_reason = 'STUDENT_CONFIRMED', version = version + 1
 where id = $2 and student_id = $3 and status = 'ANSWERED'
@@ -764,7 +812,6 @@ func (q *Queries) TicketFollowup(ctx context.Context, arg TicketFollowupParams) 
 }
 
 const ticketGet = `-- name: TicketGet :one
-
 select id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at from escalation_tickets where course_id = $1 and id = $2
 `
 
@@ -773,7 +820,6 @@ type TicketGetParams struct {
 	ID       uuid.UUID
 }
 
-// text[]: pgx ở chế độ simple protocol (PgBouncer) không mã hoá được []uuid.UUID
 func (q *Queries) TicketGet(ctx context.Context, arg TicketGetParams) (EscalationTicket, error) {
 	row := q.db.QueryRow(ctx, ticketGet, arg.CourseID, arg.ID)
 	var i EscalationTicket
@@ -1422,6 +1468,54 @@ func (q *Queries) TicketSLACandidates(ctx context.Context, arg TicketSLACandidat
 	return items, nil
 }
 
+const ticketSetKnowledge = `-- name: TicketSetKnowledge :one
+update escalation_tickets set save_as_knowledge = $1, version = version + 1
+where course_id = $2 and id = $3 and status in ('ANSWERED', 'CLOSED')
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketSetKnowledgeParams struct {
+	Saved    bool
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+func (q *Queries) TicketSetKnowledge(ctx context.Context, arg TicketSetKnowledgeParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketSetKnowledge, arg.Saved, arg.CourseID, arg.ID)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const ticketStaffCourseIDs = `-- name: TicketStaffCourseIDs :many
 select course_id::text from enrollments where user_id = $1 and role_in_course in ('TEACHER', 'TA') and status = 'ACTIVE'
 `
@@ -1711,6 +1805,52 @@ func (q *Queries) TicketViewGet(ctx context.Context, arg TicketViewGetParams) (T
 		&i.ClassCode,
 	)
 	return i, err
+}
+
+const ticketsOfStudentByIDs = `-- name: TicketsOfStudentByIDs :many
+
+select id, status, created_at, answered_at
+from escalation_tickets
+where student_id = $1 and id = any($2::text[]::uuid[])
+`
+
+type TicketsOfStudentByIDsParams struct {
+	StudentID uuid.UUID
+	Ids       []string
+}
+
+type TicketsOfStudentByIDsRow struct {
+	ID         uuid.UUID
+	Status     TicketStatus
+	CreatedAt  time.Time
+	AnsweredAt *time.Time
+}
+
+// text[]: pgx ở chế độ simple protocol (PgBouncer) không mã hoá được []uuid.UUID
+// Ticket CỦA sinh viên theo id (tin của giảng viên trỏ tới ticket qua khối `ticket`).
+func (q *Queries) TicketsOfStudentByIDs(ctx context.Context, arg TicketsOfStudentByIDsParams) ([]TicketsOfStudentByIDsRow, error) {
+	rows, err := q.db.Query(ctx, ticketsOfStudentByIDs, arg.StudentID, arg.Ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TicketsOfStudentByIDsRow{}
+	for rows.Next() {
+		var i TicketsOfStudentByIDsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.CreatedAt,
+			&i.AnsweredAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const ticketsOfStudentForMessages = `-- name: TicketsOfStudentForMessages :many

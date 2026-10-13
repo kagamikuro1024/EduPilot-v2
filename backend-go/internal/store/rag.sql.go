@@ -47,7 +47,7 @@ fused AS (
     FROM (SELECT vec.id, vec.r FROM vec UNION ALL SELECT kw.id, kw.r FROM kw) x
     GROUP BY x.id ORDER BY s DESC LIMIT $7
 )
-SELECT c.id AS chunk_id, c.document_id, d.title, c.page_no, c.heading, c.text,
+SELECT c.id AS chunk_id, c.document_id, d.title, (d.category IS NOT DISTINCT FROM 'THREAD_KNOWLEDGE')::bool AS knowledge, c.page_no, c.heading, c.text,
        (1 - (c.embedding <=> (SELECT v FROM q)))::float8 AS cosine, f.s::float8 AS score
 FROM fused f JOIN content_chunks c ON c.id = f.id JOIN documents d ON d.id = c.document_id
 WHERE c.course_ids @> ARRAY[$1::uuid]
@@ -68,6 +68,7 @@ type RagSearchRow struct {
 	ChunkID    uuid.UUID
 	DocumentID uuid.UUID
 	Title      string
+	Knowledge  bool
 	PageNo     *int32
 	Heading    *string
 	Text       string
@@ -99,6 +100,7 @@ func (q *Queries) RagSearch(ctx context.Context, arg RagSearchParams) ([]RagSear
 			&i.ChunkID,
 			&i.DocumentID,
 			&i.Title,
+			&i.Knowledge,
 			&i.PageNo,
 			&i.Heading,
 			&i.Text,

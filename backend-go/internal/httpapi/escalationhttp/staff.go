@@ -37,6 +37,9 @@ func (h *StaffHandler) Mount(r chi.Router) {
 	r.With(staff).Post(c+"/{tid}/release", h.release)
 	r.With(staff, h.Idem).Post(c+"/{tid}/answer", h.answer)
 	r.With(staff).Post(c+"/{tid}/dismiss", h.dismiss)
+	r.With(staff).Get(c+"/{tid}/knowledge-preview", h.knowledgePreview)
+	r.With(staff).Post(c+"/{tid}/knowledge", h.knowledgeSave)
+	r.With(staff).Delete(c+"/{tid}/knowledge", h.knowledgeRemove)
 	r.Get("/me/tickets", h.mine)
 	r.Post("/notifications/read", h.readByLink)
 }
@@ -235,4 +238,59 @@ func (h *StaffHandler) readByLink(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, map[string]any{"updated": n})
+}
+
+func (h *StaffHandler) knowledgePreview(w http.ResponseWriter, r *http.Request) {
+	x, ok := h.ctxOf(w, r, true)
+	if !ok {
+		return
+	}
+	out, err := h.Svc.KnowledgePreview(r.Context(), x.course, x.ticket)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// knowledgeSave là `POST …/knowledge {question, answer}`: 201 khi tạo mới, 200 khi cập nhật mục đã có.
+func (h *StaffHandler) knowledgeSave(w http.ResponseWriter, r *http.Request) {
+	x, ok := h.ctxOf(w, r, true)
+	if !ok {
+		return
+	}
+	var in struct {
+		Question string `json:"question"`
+		Answer   string `json:"answer"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	before, err := h.Svc.KnowledgeOf(r.Context(), x.course, x.ticket)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	out, err := h.Svc.KnowledgeSave(r.Context(), x.a, x.course, x.ticket, in.Question, in.Answer)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	status := http.StatusCreated
+	if before.Saved {
+		status = http.StatusOK
+	}
+	httpx.WriteJSON(w, status, out)
+}
+
+func (h *StaffHandler) knowledgeRemove(w http.ResponseWriter, r *http.Request) {
+	x, ok := h.ctxOf(w, r, true)
+	if !ok {
+		return
+	}
+	if _, err := h.Svc.KnowledgeRemove(r.Context(), x.a, x.course, x.ticket); err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

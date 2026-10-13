@@ -27,7 +27,7 @@ select d.id, d.title, d.type, d.filename, d.mime_type, d.size_bytes, d.category,
 from documents d
 where d.id = $2
   and (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
-  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY'
+  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
 `
 
 type LibGetParams struct {
@@ -79,7 +79,7 @@ select d.id, d.title, d.type, d.filename, d.mime_type, d.category, d.week_no, d.
          where c.document_id = d.id and c.course_ids @> array[$1::uuid] and c.tsv @@ vn_bigram_query($2::text) order by c.ord limit 1), '') end::text as snippet
 from documents d
 where (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
-  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY'
+  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and ($3::text is null or d.type::text = $3::text)
   and ($4::int is null or d.week_no = $4::int)
   and ($5::text is null or d.category = $5::text)
@@ -167,7 +167,7 @@ select d.id, d.title, d.type, d.week_no,
        coalesce((select left(regexp_replace(c.text, '\s+', ' ', 'g'), 160) from content_chunks c where c.document_id = d.id and c.course_ids @> array[$1::uuid] and c.tsv @@ vn_bigram_query($2::text) order by c.ord limit 1), '')::text as snippet
 from documents d
 where (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
-  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY'
+  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (vn_fold(d.title) like '%' || vn_fold($2::text) || '%' escape '\'
        or exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[$1::uuid] and c.tsv @@ vn_bigram_query($2::text)))
 order by d.updated_at desc, d.id desc

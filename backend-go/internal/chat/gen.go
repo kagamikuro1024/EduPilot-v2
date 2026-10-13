@@ -428,7 +428,7 @@ func (s *Service) extractive(hits []rag.Hit) (string, []Citation) {
 	for i := range k {
 		h := hits[i]
 		fmt.Fprintf(&b, "\n\n«%s» [%d]", cut(h.Text, s.c().ExtractChars), i+1)
-		cites = append(cites, Citation{N: i + 1, DocumentID: h.DocumentID, Title: h.Title, PageNo: h.PageNo, Snippet: cut(h.Text, 200)})
+		cites = append(cites, Citation{N: i + 1, DocumentID: h.DocumentID, Title: h.Title, PageNo: h.PageNo, Snippet: cut(h.Text, 200), Knowledge: h.Knowledge})
 	}
 	return b.String(), cites
 }

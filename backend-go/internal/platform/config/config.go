@@ -149,15 +149,17 @@ type Config struct {
 	TicketInactiveAfter, TicketSLATick     time.Duration
 	// TodayProviderTimeout: hạn MỖI Provider của `/me/today` (quá hạn thì bỏ Provider đó, SRS 4.7); mặc định 150 ms. Test đặt dài để kết quả không phụ thuộc tải máy (#19).
 	TodayProviderTimeout time.Duration
-	LLMProvider          string // "" | "fake"
-	LLMReplayDir         string
-	OpenAIKey            string
-	AnthropicKey         string
-	GeminiKey            string
-	FakeLatencyMin       time.Duration
-	FakeLatencyMax       time.Duration
-	FakeErrorRate        float64
-	FakeValidKey         string
+	// KnowledgeEmbedTimeout: hạn MỘT lần nhúng đoạn tri thức (US-P4-05 AC10).
+	KnowledgeEmbedTimeout time.Duration
+	LLMProvider           string // "" | "fake"
+	LLMReplayDir          string
+	OpenAIKey             string
+	AnthropicKey          string
+	GeminiKey             string
+	FakeLatencyMin        time.Duration
+	FakeLatencyMax        time.Duration
+	FakeErrorRate         float64
+	FakeValidKey          string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -334,6 +336,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.TicketInactiveAfter = l.durRange("TICKET_INACTIVE_AFTER", 72*time.Hour, time.Hour, 720*time.Hour)
 	c.TicketSLATick = l.durRange("TICKET_SLA_TICK", 15*time.Minute, time.Minute, time.Hour)
 	c.TodayProviderTimeout = l.durRange("TODAY_PROVIDER_TIMEOUT", 150*time.Millisecond, 10*time.Millisecond, time.Minute)
+	c.KnowledgeEmbedTimeout = l.durRange("KNOWLEDGE_EMBED_TIMEOUT", 10*time.Second, time.Second, time.Minute)
 	if c.LLMEmbedDims != 1536 {
 		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
 	}

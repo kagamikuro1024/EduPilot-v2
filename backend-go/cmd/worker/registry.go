@@ -4,6 +4,7 @@ import (
 	"context"
 	"github.com/edupilot/backend-go/internal/calendar"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/escalation"
@@ -12,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/knowledge"
 	"github.com/edupilot/backend-go/internal/llm/budget"
 	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/notify"
@@ -77,6 +79,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	bump := rag.BumpVersion(d.Redis)
 	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump))
 	reg.Register("document.deleted", bump)
+	ks := &knowledge.Syncer{Pool: d.DB, Embed: agent.NewEmbedder(d.LLM, d.Redis), Timeout: d.Cfg.KnowledgeEmbedTimeout}
+	reg.Register(knowledge.TopicSync, ks.Handle) // US-P4-05: nhúng đoạn tri thức (một Embed, ngoài Chain) → document.changed
 	if d.Judge != nil {
 		reg.Register(judge.TopicEnqueue, d.Judge.HandleEnqueue) // XADD tín hiệu chấm rồi đặt enqueued_at (US-PE-02)
 	}

@@ -29,6 +29,9 @@ func runAdmin(args []string, getenv func(string) string, stdin io.Reader, stdout
 		_, _ = fmt.Fprintln(stderr, "Dùng: gateway admin create --email E --name N   (mật khẩu: biến ADMIN_PASSWORD hoặc stdin)")
 		return 2
 	}
+	if len(args) > 0 && args[0] == "run-job" {
+		return runJob(args[1:], getenv, stdout, stderr)
+	}
 	if len(args) == 0 || args[0] != "create" {
 		return usage("lệnh con phải là `create`.")
 	}

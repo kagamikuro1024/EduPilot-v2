@@ -116,6 +116,7 @@ type Detail struct {
 	Question   *Message         `json:"question"`
 	AIAnswer   *AIAnswer        `json:"ai_answer"`
 	Transcript []TranscriptItem `json:"transcript"`
+	Knowledge  *KnowledgeState  `json:"knowledge,omitempty"`
 }
 
 func (s *Service) now() time.Time {
@@ -253,6 +254,11 @@ func (s *Service) GetDetail(ctx context.Context, courseID, ticketID uuid.UUID) (
 			a.Confidence = &c
 		}
 		d.AIAnswer = a
+	}
+	if v.SaveAsKnowledge {
+		if k, err := s.KnowledgeOf(ctx, courseID, ticketID); err == nil && k.Saved {
+			d.Knowledge = &k
+		}
 	}
 	for _, m := range ex.Transcript {
 		d.Transcript = append(d.Transcript, TranscriptItem{ID: m.ID, Role: string(m.Role), Author: authorOf(m), Content: m.Content, CreatedAt: m.CreatedAt})

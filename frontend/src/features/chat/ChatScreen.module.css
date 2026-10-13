@@ -78,6 +78,9 @@
 .feedback { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-5); min-height: 44px; }
 .voted { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .waiting { margin: 0; }
+.staffActions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-3); min-height: 44px; }
+.followup { display: grid; gap: var(--ep-space-3); width: 100%; max-width: 560px; }
+.followupRow { display: flex; gap: var(--ep-space-3); }
 
 .teacher { display: grid; gap: var(--ep-space-3); justify-items: start; padding-left: var(--ep-space-4); border-left: 2px solid var(--ep-green); }
 .teacherWho { display: flex; align-items: center; gap: var(--ep-space-1); margin: 0; font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-green); }

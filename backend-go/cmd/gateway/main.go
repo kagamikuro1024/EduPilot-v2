@@ -1,4 +1,4 @@
-// Gateway EduPilot: `gateway serve` (mặc định) | `migrate` | `token` | `admin create` | cờ `-healthcheck`.
+// Gateway EduPilot: `gateway serve` (mặc định) | `migrate` | `token` | `admin create` | `admin run-job` | cờ `-healthcheck`.
 package main
 
 import (

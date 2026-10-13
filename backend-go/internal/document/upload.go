@@ -23,6 +23,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
+	"github.com/edupilot/backend-go/internal/knowledge"
 	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
@@ -256,6 +257,8 @@ func (s *Service) Complete(ctx context.Context, actor, course uuid.UUID, in Comp
 		return CompleteOut{}, field("title", "length", "Tên tài liệu dài 1–200 ký tự.")
 	case in.Category != nil && utf8.RuneCountInString(*in.Category) > 40:
 		return CompleteOut{}, field("category", "length", "Chủ đề tối đa 40 ký tự.")
+	case in.Category != nil && strings.TrimSpace(*in.Category) == knowledge.Category:
+		return CompleteOut{}, field("category", "reserved", "Chủ đề này dành riêng cho hệ thống.")
 	case in.WeekNo != nil && (*in.WeekNo < 1 || *in.WeekNo > 20):
 		return CompleteOut{}, field("week_no", "range", "Tuần từ 1 đến 20.")
 	}

@@ -149,6 +149,26 @@ func ViewsForMessages(ctx context.Context, db store.DBTX, student uuid.UUID, ids
 	return out, nil
 }
 
+// ViewsByIDs trả ticket CỦA sinh viên theo id (tin của giảng viên → ticket qua khối `ticket`).
+func ViewsByIDs(ctx context.Context, db store.DBTX, student uuid.UUID, ids []uuid.UUID) (map[uuid.UUID]StudentView, error) {
+	out := map[uuid.UUID]StudentView{}
+	if len(ids) == 0 {
+		return out, nil
+	}
+	strs := make([]string, len(ids))
+	for i, id := range ids {
+		strs[i] = id.String()
+	}
+	rows, err := store.New(db).TicketsOfStudentByIDs(ctx, store.TicketsOfStudentByIDsParams{StudentID: student, Ids: strs})
+	if err != nil {
+		return nil, fmt.Errorf("escalation: ticket theo id: %w", err)
+	}
+	for _, r := range rows {
+		out[r.ID] = StudentView{ID: r.ID, Status: string(r.Status), CreatedAt: r.CreatedAt, AnsweredAt: r.AnsweredAt}
+	}
+	return out, nil
+}
+
 // CreateInput là một yêu cầu mở ticket từ tin trợ lý. Auto = tự mở (chặn trần thì bỏ qua, không lỗi).
 type CreateInput struct {
 	CourseID, StudentID, MessageID, SessionID uuid.UUID

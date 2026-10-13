@@ -1,6 +1,6 @@
 # Dev trả lời QC — lệnh quản trị, chạy `ticket.sla`, xem thân yêu cầu LLM
 
-Trạng thái: **các lệnh dưới đây chưa tồn tại** (thuộc US-P4-05 và US-S7-SEED, chưa thi công). Cú pháp là hợp đồng dev sẽ làm đúng; nếu khác sẽ cập nhật ở handoff của story đó. Nguồn: `FEAT-crm-360/SRS.md` 4.10, `FEAT-escalation-notify/SRS.md` 4.6, `proposals.md` #7.
+Trạng thái: `run-job ticket.sla|ticket.autoclose` **đã có** (US-P4-05). Ba lệnh seed (`seed-study-time`, `seed-age`, `crm-risk-run`) **chưa có** (US-S7-SEED, chưa thi công). Cú pháp là hợp đồng dev sẽ làm đúng; nếu khác sẽ cập nhật ở handoff của story đó. Nguồn: `FEAT-crm-360/SRS.md` 4.10, `FEAT-escalation-notify/SRS.md` 4.6, `proposals.md` #7.
 
 ## Cách gọi (chung)
 
@@ -11,7 +11,7 @@ docker compose --env-file .env.local -f docker-compose.local.yml -f docker-compo
   exec -T gateway /gateway admin <lệnh> <cờ>
 ```
 
-Giống `gateway admin create` mà `scripts/seed.mjs` đang gọi. Ghi `-f docker-compose.test.yml` (build `gateway-test`, `APP_ENV=test`) hoặc bỏ nó (`APP_ENV=local`); cả hai được phép. `production`, `staging`, rỗng → thoát khác 0, không ghi gì. Mã thoát: 0 xong, 1 lỗi, 2 dùng sai.
+Giống `gateway admin create` mà `scripts/seed.mjs` đang gọi. Ghi `-f docker-compose.test.yml` (build `gateway-test`, `APP_ENV=test`) hoặc bỏ nó (`APP_ENV=dev`, mặc định của `.env.local`); cả hai được phép. Giá trị khác (`production`, `staging`, `local`, rỗng) → thoát 1, không ghi gì. Mã thoát: 0 xong, 1 lỗi, 2 dùng sai.
 
 ## Ba lệnh seed (US-S7-SEED)
 
@@ -30,8 +30,8 @@ Giống `gateway admin create` mà `scripts/seed.mjs` đang gọi. Ghi `-f docke
 ```
 
 - `--now` (RFC 3339) thay đồng hồ của **một lần chạy đó**; không có cờ → giờ thật. Không ghi gì ra ngoài lần chạy, không đổi đồng hồ của gateway / worker đang chạy.
-- Cùng chốt môi trường (`local`/`test`), cùng `ticket.autoclose` (`run-job ticket.autoclose`).
-- Chạy ở **gateway** (cùng khoá Redis `NX` như worker nên hai bên không chạy trùng một giai đoạn).
+- Cùng chốt môi trường (`dev`/`test`); đồng hồ giả chỉ có trong tiến trình của lệnh này. `run-job ticket.autoclose` chạy job tự đóng (in số ticket đã đóng).
+- Cờ sai / job lạ → thoát 2. Chạy ở **gateway** nhưng không dùng khoá leader: mỗi giai đoạn được ghi có điều kiện cùng giao dịch với sự kiện outbox nên chạy song song với worker không gửi trùng.
 - Cách khác, không cần `--now`: `seed-age --tickets` lùi `created_at` / `waiting_since`, rồi `run-job ticket.sla`.
 
 ## Xem thân yêu cầu LLM của `ai-summary` (US-P5-05)

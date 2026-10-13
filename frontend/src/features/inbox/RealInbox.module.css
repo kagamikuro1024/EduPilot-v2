@@ -184,3 +184,5 @@
     gap: var(--ep-space-1);
   }
 }
+
+.knowledgeForm { display: grid; gap: var(--ep-space-3); }

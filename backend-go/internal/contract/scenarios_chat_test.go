@@ -313,6 +313,33 @@ func (r *runner) chatScenarios(x examRig) {
 	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: sb}, 404)
 	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: sa}, 409) // đã hoàn tác (ANSWERED)
 
+	// US-P4-05 — lưu thành tri thức.
+	t7 := mkAnswered()
+	KP := T + "/" + t7 + "/knowledge-preview"
+	r.must(call{method: "GET", path: KP, token: x.gv}, 200)
+	r.must(call{method: "GET", path: KP}, 401)
+	for _, who := range []string{sa, x.admin} {
+		r.must(call{method: "GET", path: KP, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: T + "/" + uuid.NewString() + "/knowledge-preview", token: x.gv}, 404)
+	r.must(call{method: "GET", path: T + "/" + t3 + "/knowledge-preview", token: x.gv}, 409) // chưa trả lời
+	K := T + "/" + t7 + "/knowledge"
+	kb := `{"question":"Hạn nộp bài 3 là khi nào?","answer":"Hết thứ Sáu tuần 5."}`
+	r.must(call{method: "POST", path: K, token: x.gv, body: kb}, 201)
+	r.must(call{method: "POST", path: K, token: x.gv, body: kb}, 200) // lưu lại = cập nhật
+	r.must(call{method: "POST", path: K, body: kb}, 401)
+	for _, who := range []string{sa, x.admin} {
+		r.must(call{method: "POST", path: K, token: who, body: kb}, 403)
+	}
+	r.must(call{method: "POST", path: T + "/" + uuid.NewString() + "/knowledge", token: x.gv, body: kb}, 404)
+	r.must(call{method: "POST", path: T + "/" + t3 + "/knowledge", token: x.gv, body: kb}, 409)
+	r.must(call{method: "POST", path: K, token: x.gv, body: `{"question":"","answer":"x"}`}, 422)
+	r.must(call{method: "DELETE", path: K, token: x.gv}, 204)
+	r.must(call{method: "DELETE", path: K, token: x.gv}, 204) // idempotent
+	r.must(call{method: "DELETE", path: K}, 401)
+	r.must(call{method: "DELETE", path: K, token: sa}, 403)
+	r.must(call{method: "DELETE", path: T + "/" + uuid.NewString() + "/knowledge", token: x.gv}, 404)
+
 	// US-P4-05 — ngưỡng chuyển cho giảng viên.
 	CS := "/api/v1/courses/" + x.cid + "/settings"
 	var cur struct {

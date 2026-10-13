@@ -136,7 +136,7 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
 
 test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp", async ({ page }) => {
   const courseCalls = await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
-  await page.goto("/inbox");
+  await page.goto("/students");
   await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
   const panel = await options(page);
   await panel.getByRole("menuitem", { name: /761988 · An ninh mạng/ }).click();
@@ -147,7 +147,7 @@ test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùn
 
 test("mock course mapping: lớp có class_code lạ dùng lớp mô phỏng đầu", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "999999", "TEACHER")]);
-  await page.goto("/inbox");
+  await page.goto("/students");
   await expect(picker(page)).toContainText("999999");
   await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
 });
@@ -644,6 +644,61 @@ test("class settings page: TA thấy mã nhưng chỉ đọc; sinh viên bị ch
   await expect(page.getByRole("button", { name: "Lưu cài đặt" })).toHaveCount(0);
   await expect(page.getByText("Chỉ giảng viên được thay đổi.")).toBeVisible();
   await expect(page.getByLabel("Giới hạn sĩ số")).toBeDisabled();
+});
+
+/** Chi tiết lớp + `PUT /settings` cho thanh trượt ngưỡng; `server` là trạng thái máy chủ (đổi được giữa chừng để giả xung đột). */
+function thresholdApi(page: Page, server: { threshold: string; version: number }, put: (b: Json) => { status: number; body: unknown } | null = () => null) {
+  const log = { put: [] as Json[] };
+  return {
+    log,
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}`, (r) => fulfill(r, 200, { id: C1, class_code: "761988", settings: { escalation_threshold: server.threshold, version: server.version } }));
+      await page.route(`**/api/v1/courses/${C1}/settings`, (r) => {
+        const b = JSON.parse(r.request().postData() ?? "{}") as Json;
+        log.put.push(b);
+        const forced = put(b);
+        if (forced) return fulfill(r, forced.status, forced.body);
+        server.threshold = b.escalation_threshold as string;
+        server.version += 1;
+        return fulfill(r, 200, { id: C1, settings: { escalation_threshold: server.threshold, version: server.version } });
+      });
+    },
+  };
+}
+
+test("threshold slider: kéo đổi giá trị ngay (dấu phẩy), lưu một lần sau khi dừng; 409 nạp lại giá trị của máy chủ", async ({ page }) => {
+  const server = { threshold: "0.80", version: 3 };
+  let n = 0;
+  const api = thresholdApi(page, server, () => {
+    n++;
+    if (n < 2) return null;
+    server.threshold = "0.70"; // người khác vừa đổi
+    server.version = 6;
+    return { status: 409, body: apiErr("VERSION_CONFLICT", { current_version: 6, current: { escalation_threshold: "0.70", version: 6 } }) };
+  });
+  await openSettings(page, "TEACHER", { before: api.before });
+  const slider = page.getByRole("slider", { name: "Ngưỡng chuyển cho giảng viên" });
+  await expect(slider).toBeVisible();
+  await expect(page.getByText("Ít chuyển", { exact: true })).toBeVisible();
+  await expect(page.getByText("Chuyển nhiều", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,80");
+  await slider.fill("0.65");
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,65"); // lạc quan: chưa đợi máy chủ
+  await expect.poll(() => api.log.put.length).toBe(1);
+  expect(api.log.put[0]).toEqual({ escalation_threshold: "0.65", version: 3 });
+  await slider.fill("0.9");
+  await expect.poll(() => api.log.put.length).toBe(2);
+  expect(api.log.put[1]).toEqual({ escalation_threshold: "0.90", version: 4 });
+  await expect(page.getByText("Vừa có người đổi. Đã nạp lại giá trị mới.")).toBeVisible();
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,70"); // hoàn về giá trị thật
+});
+
+test("threshold slider: TA chỉ xem, không gửi PUT", async ({ page }) => {
+  const api = thresholdApi(page, { threshold: "0.60", version: 1 });
+  await openSettings(page, "TA", { before: api.before });
+  await expect(page.getByRole("slider", { name: "Ngưỡng chuyển cho giảng viên" })).toBeDisabled();
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,60");
+  expect(api.log.put).toEqual([]);
 });
 
 test("class settings page: sinh viên → màn chặn quyền, 0 yêu cầu tới join-code", async ({ page }) => {
