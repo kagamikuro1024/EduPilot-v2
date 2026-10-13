@@ -5,7 +5,7 @@ import { MID, SID, chatApi, frame, json, msg, noContent, session, sse } from "./
 
 // US-P3-05: /chat THẬT (gateway giả theo hợp đồng thật, support/chat-fixtures.ts).
 const open = async (page: Page, context: BrowserContext, h: Parameters<typeof chatApi>[1] = {}) => {
-  await asDemo(context, "student", { person: "sv-2" });
+  await asDemo(context, "student", { person: "sv-2", expIn: 366 * 86400 }); // token dài: ca đồng hồ giả (auto ticket) chạy ở ngày khác ngày thật
   const calls = await chatApi(page, h);
   await page.goto("/chat");
   await page.locator("[data-part=chat-thread]").waitFor();
@@ -233,7 +233,10 @@ test("escalate cap: đã có 5 ticket mở thì nút khoá, tooltip nêu lý do"
 });
 
 test("auto ticket: dưới ngưỡng đã tự mở → câu nhạt + dòng trạng thái, không nút, không số", async ({ page, context }) => {
-  await openAsked(page, context, { asst: { low_confidence: true, ticket: ticket("OPEN", new Date(Date.now() - 3 * 3600_000).toISOString()) } });
+  // đồng hồ cố định giữa ngày: "3 giờ trước" tính theo NGÀY LỊCH giờ VN nên đổi thành "hôm qua 21:18" khi chạy trong 3 giờ đầu sau nửa đêm (CI 00:03 giờ VN từng đỏ) — #19
+  const noon = new Date("2026-10-29T10:00:00+07:00");
+  await page.clock.install({ time: noon });
+  await openAsked(page, context, { asst: { low_confidence: true, ticket: ticket("OPEN", new Date(noon.getTime() - 3 * 3600_000).toISOString()) } });
   await expect(page.getByText("AI chưa đủ chắc chắn về câu này")).toBeVisible();
   await expect(page.getByText(/Đang chờ giảng viên · đã gửi 3 giờ trước/)).toBeVisible();
   await expect(askBtn(page)).toHaveCount(0);
