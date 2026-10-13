@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -13,6 +14,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/mail"
 	"github.com/edupilot/backend-go/internal/notify"
+	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -23,6 +25,14 @@ type Notifier struct {
 	Notify *notify.Service
 	Log    *slog.Logger
 	Gate   MailGate // thư `ticket_new`: cửa sổ trượt (Redis nil = không gộp)
+	Clock  clock.Clock
+}
+
+func (n *Notifier) now() time.Time {
+	if n.Clock != nil {
+		return n.Clock.Now()
+	}
+	return time.Now().UTC()
 }
 
 type courseEvent struct {
@@ -98,14 +108,23 @@ func (n *Notifier) RecountTicketNew(ctx context.Context, courseID uuid.UUID) err
 		return fmt.Errorf("escalation: người nhận: %w", err)
 	}
 	body := c.ClassCode
-	return n.Notify.Aggregate(ctx, notify.Agg{
+	if err := n.Notify.Aggregate(ctx, notify.Agg{
 		CourseID: courseID, Type: notify.TypeTicketNew, Recipients: staff, Link: "/inbox?course=" + courseID.String(), Body: &body,
 		Title: func(k int) string { return fmt.Sprintf("%d câu hỏi đang chờ giảng viên", k) },
 		Count: func(ctx context.Context, q *store.Queries) (int, error) {
 			k, err := q.TicketCountOpenInCourse(ctx, courseID)
 			return int(k), err
 		},
-	})
+	}); err != nil {
+		return err
+	}
+	// lớp hết ticket quá hạn: mục "Hôm nay" của Admin (COURSE_TICKETS_STALLED chưa đọc) biến
+	if k, err := q.TicketOpenAtStage(ctx, store.TicketOpenAtStageParams{CourseID: courseID, Stage: 2}); err == nil && k == 0 {
+		if err := q.TicketMarkStalledRead(ctx, &courseID); err != nil {
+			return fmt.Errorf("escalation: đóng thông báo quá hạn: %w", err)
+		}
+	}
+	return nil
 }
 
 // HandleRecount (`escalation.claimed` / `released` / `closed` / `followup`): đếm lại ticket OPEN của lớp và cập nhật dòng gộp TICKET_NEW.

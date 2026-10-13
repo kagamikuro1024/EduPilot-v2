@@ -278,4 +278,35 @@ func (r *runner) chatScenarios(x examRig) {
 		r.must(call{method: "GET", path: FM, token: who}, 403)
 	}
 	r.must(call{method: "GET", path: FM + "?limit=0", token: x.admin}, 422)
+
+	// US-P4-05 — sinh viên hỏi tiếp / Đã rõ / hoàn tác.
+	mkAnswered := func() string {
+		var id string
+		if err := db.QueryRow(ctx, `insert into escalation_tickets (course_id, kind, origin, source_type, source_id, student_id, status, answered_by, answered_at, answer, claimed_by, claimed_at)
+			values ($1, 'TEACHER_OUTREACH', 'STAFF_OUTREACH', 'STUDENT', $2, $2, 'ANSWERED', (select id from users where role = 'TEACHER' order by created_at limit 1), now(), 'Trả lời', (select id from users where role = 'TEACHER' order by created_at limit 1), now()) returning id::text`, x.cid, a).Scan(&id); err != nil {
+			r.t.Fatal(err)
+		}
+		return id
+	}
+	CT := "/api/v1/chat/tickets/"
+	t4 := mkAnswered()
+	fu := func(tok, id, body string) call { return call{method: "POST", path: CT + id + "/followup", token: tok, body: body} }
+	r.must(fu(sa, t4, `{"content":"Em vẫn chưa hiểu","client_msg_id":"`+uuid.NewString()+`"}`), 200)
+	r.must(fu("", t4, `{"content":"x","client_msg_id":"`+uuid.NewString()+`"}`), 401)
+	r.must(fu(x.gv, t4, `{"content":"x","client_msg_id":"`+uuid.NewString()+`"}`), 403)
+	r.must(fu(sb, t4, `{"content":"x","client_msg_id":"`+uuid.NewString()+`"}`), 404)
+	r.must(fu(sa, t4, `{"content":"x","client_msg_id":"`+uuid.NewString()+`"}`), 409) // đã OPEN
+	t5 := mkAnswered()
+	r.must(fu(sa, t5, `{"content":"","client_msg_id":"`+uuid.NewString()+`"}`), 422)
+	t6 := mkAnswered()
+	r.must(call{method: "POST", path: CT + t6 + "/confirm", token: sa}, 200)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm"}, 401)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm", token: x.gv}, 403)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm", token: sb}, 404)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm", token: sa}, 409) // đã đóng
+	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: sa}, 200)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo"}, 401)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: x.gv}, 403)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: sb}, 404)
+	r.must(call{method: "POST", path: CT + t6 + "/confirm/undo", token: sa}, 409) // đã hoàn tác (ANSWERED)
 }

@@ -33,7 +33,8 @@ select c.course_id::uuid as course_id,
        coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest,
        coalesce(k.n_open, 0)::int as tk_open,
        coalesce(k.n_mine, 0)::int as tk_mine,
-       coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest
+       coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest,
+       coalesce(k.n_over, 0)::int as tk_over
 from unnest(sqlc.arg(course_ids)::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -69,7 +70,8 @@ left join (
     select course_id,
            count(*) filter (where status = 'OPEN') as n_open,
            count(*) filter (where status = 'CLAIMED' and claimed_by = sqlc.arg(user_id)) as n_mine,
-           min(waiting_since) filter (where status = 'OPEN') as oldest
+           min(waiting_since) filter (where status = 'OPEN') as oldest,
+           count(*) filter (where status = 'OPEN' and sla_stage = 2) as n_over
     from escalation_tickets
     where course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and status in ('OPEN', 'CLAIMED')
     group by course_id
@@ -206,3 +208,10 @@ select * from (
      and exists (select 1 from chat_messages m where m.session_id = ch.id and m.course_id = ch.course_id)
    order by ch.last_message_at desc, ch.id desc limit 3)
 ) f order by f.kind, case when f.kind = 'S' then f.starts_at end, f.starts_at desc;
+
+-- name: TodayAdminStalled :many
+-- US-P4-05 AC6 COURSE_TICKETS_STALLED (bậc 45, ADMIN): thông báo CHƯA đọc của chính Admin, mỗi lớp lấy cái mới nhất; chỉ mã lớp + số lượng (không nội dung ticket).
+select n.course_id::uuid as course_id, c.class_code, max(n.title)::text as title, max(n.created_at)::timestamptz as newest
+from notifications n join courses c on c.id = n.course_id
+where n.user_id = sqlc.arg(user_id) and n.type = 'COURSE_TICKETS_STALLED' and n.read_at is null
+group by n.course_id, c.class_code;

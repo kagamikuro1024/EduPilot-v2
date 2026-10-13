@@ -57,3 +57,8 @@ from mail_outbox
 where status = 'DEAD' and (sqlc.narg(cursor_at)::timestamptz is null or (updated_at, id) < (sqlc.narg(cursor_at)::timestamptz, sqlc.narg(cursor_id)::uuid))
 order by updated_at desc, id desc
 limit sqlc.arg(page_limit);
+
+-- name: NotifyStalledToday :one
+-- Đã báo Admin về lớp này trong ngày chưa (job SLA không phát sự kiện thừa mỗi tick).
+-- ponytail: không có chỉ mục theo course_id; bảng thông báo nhỏ và chỉ chạy cho lớp đang quá hạn mỗi 15 phút — thêm chỉ mục nếu chậm.
+select exists (select 1 from notifications where course_id = sqlc.arg(course_id) and type = 'COURSE_TICKETS_STALLED' and created_at >= sqlc.arg(since)::timestamptz)::boolean as present;

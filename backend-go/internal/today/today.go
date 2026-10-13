@@ -50,9 +50,10 @@ const (
 	KindExamGradeError    Kind = "EXAM_GRADE_ERROR" // Giảng viên + TA
 	KindExamAppeal        Kind = "EXAM_APPEAL"      // chỉ Giảng viên
 	KindExamPublishHold   Kind = "EXAM_PUBLISH_HOLD"
-	KindAIConfirm         Kind = "AI_CONFIRM"          // US-P3-08: Giảng viên + TA
-	KindTicket            Kind = "TICKET"              // US-P4-03: câu hỏi chờ giảng viên (Giảng viên + TA)
-	KindStaffAnswerUnread Kind = "STAFF_ANSWER_UNREAD" // US-P4-03: sinh viên có trả lời của giảng viên chưa đọc
+	KindAIConfirm         Kind = "AI_CONFIRM"             // US-P3-08: Giảng viên + TA
+	KindTicket            Kind = "TICKET"                 // US-P4-03: câu hỏi chờ giảng viên (Giảng viên + TA)
+	KindCourseStalled     Kind = "COURSE_TICKETS_STALLED" // US-P4-05: Admin, lớp có ticket quá 72 giờ làm việc mà không ai hoạt động
+	KindStaffAnswerUnread Kind = "STAFF_ANSWER_UNREAD"    // US-P4-03: sinh viên có trả lời của giảng viên chưa đọc
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -79,6 +80,7 @@ const (
 	TierExamResult        = 44
 	TierExamAppealReply   = 46
 	TierAIConfirm         = 50
+	TierCourseStalled     = 45
 	TierTicket            = 10
 	TierStaffAnswerUnread = 40
 )
@@ -93,7 +95,7 @@ func allowed(role Role, k Kind) bool {
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher
-	case KindLLMProviderError, KindLLMBudgetOut, KindLLMBudgetWarn, KindCourseNoTeacher, KindInviteExpired:
+	case KindCourseStalled, KindLLMProviderError, KindLLMBudgetOut, KindLLMBudgetWarn, KindCourseNoTeacher, KindInviteExpired:
 		return role == RoleAdmin
 	}
 	return false

@@ -277,6 +277,46 @@ func (q *Queries) TodayAdminProviders(ctx context.Context) ([]TodayAdminProvider
 	return items, nil
 }
 
+const todayAdminStalled = `-- name: TodayAdminStalled :many
+select n.course_id::uuid as course_id, c.class_code, max(n.title)::text as title, max(n.created_at)::timestamptz as newest
+from notifications n join courses c on c.id = n.course_id
+where n.user_id = $1 and n.type = 'COURSE_TICKETS_STALLED' and n.read_at is null
+group by n.course_id, c.class_code
+`
+
+type TodayAdminStalledRow struct {
+	CourseID  uuid.UUID
+	ClassCode string
+	Title     string
+	Newest    time.Time
+}
+
+// US-P4-05 AC6 COURSE_TICKETS_STALLED (bậc 45, ADMIN): thông báo CHƯA đọc của chính Admin, mỗi lớp lấy cái mới nhất; chỉ mã lớp + số lượng (không nội dung ticket).
+func (q *Queries) TodayAdminStalled(ctx context.Context, userID uuid.UUID) ([]TodayAdminStalledRow, error) {
+	rows, err := q.db.Query(ctx, todayAdminStalled, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TodayAdminStalledRow{}
+	for rows.Next() {
+		var i TodayAdminStalledRow
+		if err := rows.Scan(
+			&i.CourseID,
+			&i.ClassCode,
+			&i.Title,
+			&i.Newest,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const todayCourseMembers = `-- name: TodayCourseMembers :many
 select user_id from enrollments where course_id = $1 and status in ('ACTIVE', 'PENDING')
 `
@@ -445,7 +485,8 @@ select c.course_id::uuid as course_id,
        coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest,
        coalesce(k.n_open, 0)::int as tk_open,
        coalesce(k.n_mine, 0)::int as tk_mine,
-       coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest
+       coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest,
+       coalesce(k.n_over, 0)::int as tk_over
 from unnest($1::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -481,7 +522,8 @@ left join (
     select course_id,
            count(*) filter (where status = 'OPEN') as n_open,
            count(*) filter (where status = 'CLAIMED' and claimed_by = $2) as n_mine,
-           min(waiting_since) filter (where status = 'OPEN') as oldest
+           min(waiting_since) filter (where status = 'OPEN') as oldest,
+           count(*) filter (where status = 'OPEN' and sla_stage = 2) as n_over
     from escalation_tickets
     where course_id = any($1::text[]::uuid[]) and status in ('OPEN', 'CLAIMED')
     group by course_id
@@ -538,6 +580,7 @@ type TodayStaffPendingRow struct {
 	TkOpen          int32
 	TkMine          int32
 	TkOldest        time.Time
+	TkOver          int32
 }
 
 // (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
@@ -567,6 +610,7 @@ func (q *Queries) TodayStaffPending(ctx context.Context, arg TodayStaffPendingPa
 			&i.TkOpen,
 			&i.TkMine,
 			&i.TkOldest,
+			&i.TkOver,
 		); err != nil {
 			return nil, err
 		}

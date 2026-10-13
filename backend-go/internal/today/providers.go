@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/edupilot/backend-go/internal/workhours"
 	"strings"
 	"time"
 
@@ -183,7 +184,10 @@ const examResultDays = 7
 // ----- Giảng viên / TA -----
 
 // StaffProvider: JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP — mỗi nguồn dùng MỘT truy vấn tổng hợp cho mọi lớp trong phạm vi.
-type StaffProvider struct{ Pool *pgxpool.Pool }
+type StaffProvider struct {
+	Pool *pgxpool.Pool
+	SLA  workhours.SLA // mốc quá hạn của mục TICKET (Overdue tự tính từ waiting_since)
+}
 
 // Name implements Provider.
 func (StaffProvider) Name() string { return "staff" }
@@ -214,7 +218,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			continue
 		}
 		out = append(out, examWorkItems(c, r.ExamWork, v.Now)...)
-		if r.TkOpen > 0 || r.TkMine > 0 { // US-P4-03 (bậc 10): ticket chờ + ticket mình đã nhận; "quá hạn" thêm ở US-P4-05
+		if r.TkOpen > 0 || r.TkMine > 0 { // US-P4-03 / P4-05 (bậc 10): ticket chờ + ticket mình đã nhận; Overdue khi ticket OPEN cũ nhất quá TICKET_ESCALATE_AFTER giờ làm việc
 			age := v.Now.Sub(r.TkOldest)
 			reason := fmt.Sprintf("%d câu hỏi đang chờ · %d câu bạn đã nhận", r.TkOpen, r.TkMine)
 			if r.TkOpen > 0 {
@@ -224,6 +228,11 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 				Title: fmt.Sprintf("Câu hỏi chờ giảng viên · lớp %s", c.ClassCode), Reason: reason}
 			if r.TkOpen > 0 {
 				it.AgeMinutes = int(age / time.Minute)
+				if at := p.SLA.EscalateAt(r.TkOldest); !at.IsZero() && !at.After(v.Now) {
+					it.Overdue = true
+					over := max(int(r.TkOver), 1)
+					it.Reason = fmt.Sprintf("%d câu hỏi chờ quá %d giờ làm việc · lâu nhất %d giờ", over, int(p.SLA.EscalateAfter/time.Hour), int(p.SLA.Hours.Elapsed(r.TkOldest, v.Now)/time.Hour))
+				}
 			}
 			out = append(out, mk(it))
 		}
@@ -353,6 +362,10 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 	if err != nil {
 		return nil, fmt.Errorf("today: nhà cung cấp AI: %w", err)
 	}
+	stalled, err := q.TodayAdminStalled(ctx, v.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("today: lớp có ticket quá hạn: %w", err)
+	}
 	nt, err := q.TodayAdminCoursesNoTeacher(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("today: lớp không giảng viên: %w", err)
@@ -389,6 +402,10 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 				Reason: fmt.Sprintf("Chi phí AI hôm nay đã dùng %d %% ngân sách.", pct),
 			}))
 		}
+	}
+	for _, c := range stalled { // US-P4-05 AC6 (bậc 45): chỉ mã lớp + số lượng, không nội dung ticket
+		out = append(out, mk(Item{ID: "COURSE_TICKETS_STALLED:" + c.CourseID.String(), Kind: KindCourseStalled, Tier: TierCourseStalled, Course: &CourseRef{ID: c.CourseID, ClassCode: c.ClassCode},
+			Href: "/", Title: c.Title, Reason: "Chưa có giảng viên hay trợ giảng nào xử lý.", AgeMinutes: int(v.Now.Sub(c.Newest) / time.Minute)}))
 	}
 	for _, c := range nt {
 		out = append(out, mk(Item{

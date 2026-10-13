@@ -175,6 +175,23 @@ func (q *Queries) ChatInsertStaffMessage(ctx context.Context, arg ChatInsertStaf
 	return i, err
 }
 
+const chatMessageByClientID = `-- name: ChatMessageByClientID :one
+select id from chat_messages where session_id = $1 and client_msg_id = $2
+`
+
+type ChatMessageByClientIDParams struct {
+	SessionID   uuid.UUID
+	ClientMsgID *uuid.UUID
+}
+
+// Hỏi tiếp (ESCALATION_FOLLOWUP): gửi lại cùng client_msg_id trong cùng phiên là cùng một tin (chat_messages_idem_key).
+func (q *Queries) ChatMessageByClientID(ctx context.Context, arg ChatMessageByClientIDParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, chatMessageByClientID, arg.SessionID, arg.ClientMsgID)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const chatStaffSession = `-- name: ChatStaffSession :one
 select id, course_id, user_id, channel, title, document_id, last_message_at, deleted_at, created_at, updated_at from chat_sessions
 where course_id = $1 and user_id = $2 and channel = 'PRIVATE' and title = $3 and deleted_at is null

@@ -37,9 +37,10 @@ where m.course_id = sqlc.arg(course_id)
 order by m.created_at, m.id;
 
 -- name: ListTicketTranscript :many
--- Chỉ các tin của chính ticket: STAFF_ANSWER / ESCALATION_FOLLOWUP mang khối `ticket` trỏ tới ticket này.
+-- Chỉ các tin của chính ticket: STAFF_ANSWER / ESCALATION_FOLLOWUP mang khối `ticket` trỏ tới ticket này (kể cả khi tin nằm ở phiên "Tin nhắn từ giảng viên"
+-- vì phiên của ticket đã xoá mềm). Không đọc tin nào khác của sinh viên.
 select m.* from chat_messages m
-where m.course_id = sqlc.arg(course_id) and m.session_id = sqlc.arg(session_id)
+where m.course_id = sqlc.arg(course_id)
   and m.intent in ('STAFF_ANSWER', 'ESCALATION_FOLLOWUP')
   and m.blocks @> jsonb_build_array(jsonb_build_object('kind', 'ticket', 'data', jsonb_build_object('ticket_id', sqlc.arg(ticket_id)::text)))
 order by m.created_at, m.id;
@@ -65,6 +66,7 @@ limit sqlc.arg(page_limit);
 -- Job SLA, giai đoạn nhắc (SRS 4.6.2.1): lọc rẻ theo giờ LỊCH qua escalation_tickets_sla_idx; giờ làm việc tính ở Go.
 select * from escalation_tickets
 where status = 'OPEN' and sla_stage = sqlc.arg(stage)::smallint and waiting_since < sqlc.arg(before)::timestamptz
+  and (sqlc.narg(cursor_at)::timestamptz is null or (waiting_since, id) > (sqlc.narg(cursor_at)::timestamptz, sqlc.narg(cursor_id)::uuid))
 order by waiting_since, id
 limit sqlc.arg(page_limit);
 
@@ -176,3 +178,66 @@ where e.course_id = sqlc.arg(course_id) and e.role_in_course in ('TEACHER', 'TA'
 -- name: TicketMailQueued :one
 -- Đã xếp thư với dedupe_key này chưa (giao lại outbox không được tiêu mốc cửa sổ gộp một lần nữa).
 select exists (select 1 from mail_outbox where dedupe_key = sqlc.arg(dedupe_key))::boolean as queued;
+
+-- name: TicketOwnedByStudent :one
+-- Ticket CỦA sinh viên gọi (sinh viên khác → không có hàng → 404).
+select * from escalation_tickets where id = sqlc.arg(id) and student_id = sqlc.arg(student_id);
+
+-- name: TicketFollowup :one
+-- Hỏi tiếp (SRS 4.2.5): ANSWERED, hoặc CLOSED chưa quá reopen_days. Đặt lại đồng hồ SLA: waiting_since = now, sla_stage = 0 (TLR-3).
+update escalation_tickets set status = 'OPEN', claimed_by = null, claimed_at = null, closed_at = null, closed_reason = null, dismiss_reason = null,
+       reopened_count = reopened_count + 1, sla_stage = 0, sla_stage_at = null, waiting_since = sqlc.arg(now)::timestamptz, version = version + 1
+where id = sqlc.arg(id) and student_id = sqlc.arg(student_id)
+  and (status = 'ANSWERED' or (status = 'CLOSED' and closed_at >= sqlc.arg(now)::timestamptz - make_interval(days => sqlc.arg(reopen_days)::int)))
+returning *;
+
+-- name: TicketConfirm :one
+update escalation_tickets set status = 'CLOSED', closed_at = sqlc.arg(now)::timestamptz, closed_reason = 'STUDENT_CONFIRMED', version = version + 1
+where id = sqlc.arg(id) and student_id = sqlc.arg(student_id) and status = 'ANSWERED'
+returning *;
+
+-- name: TicketConfirmUndo :one
+-- Chỉ trong 5 giây và chỉ khi vẫn đang CLOSED do chính sinh viên xác nhận (hành động khác đã đổi trạng thái thì không khớp).
+update escalation_tickets set status = 'ANSWERED', closed_at = null, closed_reason = null, version = version + 1
+where id = sqlc.arg(id) and student_id = sqlc.arg(student_id) and status = 'CLOSED' and closed_reason = 'STUDENT_CONFIRMED' and closed_at > sqlc.arg(now)::timestamptz - interval '5 seconds'
+returning *;
+
+-- name: TicketAutoCloseCandidates :many
+-- Dùng chỉ mục escalation_tickets_autoclose_idx (answered_at) WHERE status = 'ANSWERED'.
+select id, course_id from escalation_tickets where status = 'ANSWERED' and answered_at < sqlc.arg(before)::timestamptz order by answered_at, id limit sqlc.arg(page_limit);
+
+-- name: TicketAutoClose :one
+update escalation_tickets set status = 'CLOSED', closed_at = sqlc.arg(now)::timestamptz, closed_reason = 'AUTO_7D', version = version + 1
+where id = sqlc.arg(id) and status = 'ANSWERED' and answered_at < sqlc.arg(before)::timestamptz
+returning *;
+
+-- name: TicketSLAAdvance :one
+-- Cập nhật CÓ ĐIỀU KIỆN (hai worker chạy song song vẫn một lần): from_stage → to_stage chỉ khi ticket vẫn OPEN ở đúng giai đoạn.
+update escalation_tickets set sla_stage = sqlc.arg(to_stage)::smallint, sla_stage_at = sqlc.arg(now)::timestamptz
+where id = sqlc.arg(id) and status = 'OPEN' and sla_stage = sqlc.arg(from_stage)::smallint
+returning *;
+
+-- name: TicketClaimedCandidates :many
+-- Ticket CLAIMED lâu: nhắc người nhận. Lọc rẻ theo giờ lịch qua escalation_tickets_sla_idx? (claimed_at không có chỉ mục; tập CLAIMED nhỏ).
+select * from escalation_tickets where status = 'CLAIMED' and claimed_at < sqlc.arg(before)::timestamptz order by claimed_at, id limit sqlc.arg(page_limit);
+
+-- name: TicketStalledCourses :many
+-- Lớp đang có ticket OPEN ở giai đoạn 2 (quá hạn 72 giờ làm việc), kèm số lượng.
+select course_id, count(*)::int as n from escalation_tickets where status = 'OPEN' and sla_stage = 2 group by course_id;
+
+-- name: TicketCourseHasActivity :one
+-- "Có người hoạt động": TA / TEACHER ACTIVE có phiên chưa thu hồi dùng gần đây, hoặc đã thao tác ticket (audit_log) kể từ `since`.
+select (
+  exists (select 1 from enrollments e join auth_sessions s on s.user_id = e.user_id and s.revoked_at is null and s.last_used_at >= sqlc.arg(since)::timestamptz
+          where e.course_id = sqlc.arg(course_id) and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE')
+  or exists (select 1 from audit_log a join enrollments e on e.user_id = a.actor_id and e.course_id = sqlc.arg(course_id) and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
+             where a.entity = 'escalation_ticket' and a.course_id = sqlc.arg(course_id) and a.created_at >= sqlc.arg(since)::timestamptz)
+)::boolean as active;
+
+-- name: TicketOpenAtStage :one
+-- Số ticket OPEN của lớp có sla_stage ≥ stage (nguồn đếm của thông báo gộp TICKET_STALE).
+select count(*)::int from escalation_tickets where course_id = sqlc.arg(course_id) and status = 'OPEN' and sla_stage >= sqlc.arg(stage)::smallint;
+
+-- name: TicketMarkStalledRead :exec
+-- Lớp hết ticket quá hạn: thông báo COURSE_TICKETS_STALLED chưa đọc của lớp thành đã đọc (mục "Hôm nay" của Admin biến).
+update notifications set read_at = now() where type = 'COURSE_TICKETS_STALLED' and course_id = sqlc.arg(course_id) and read_at is null;

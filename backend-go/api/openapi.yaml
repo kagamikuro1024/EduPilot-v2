@@ -6159,6 +6159,95 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/chat/tickets/{id}/followup:
+    post:
+      operationId: followupTicket
+      tags: [escalation]
+      summary: "Hỏi tiếp (sinh viên chủ ticket): ANSWERED, hoặc CLOSED chưa quá 30 ngày → OPEN, đặt lại đồng hồ SLA; gửi lại cùng client_msg_id không thêm tin"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FollowupInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentTicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/chat/tickets/{id}/confirm:
+    post:
+      operationId: confirmTicket
+      tags: [escalation]
+      summary: "Đã rõ: ANSWERED → CLOSED (STUDENT_CONFIRMED); hoàn tác được 5 giây"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentTicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/chat/tickets/{id}/confirm/undo:
+    post:
+      operationId: undoConfirmTicket
+      tags: [escalation]
+      summary: "Hoàn tác Đã rõ (≤ 5 giây, chỉ khi chưa có hành động khác)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentTicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
 components:
   securitySchemes:
     bearerAuth:
@@ -10516,6 +10605,25 @@ components:
             $ref: "#/components/schemas/FailedMail"
         next_cursor:
           type: [string, "null"]
+    FollowupInput:
+      type: object
+      required: [content, client_msg_id]
+      properties:
+        content:
+          type: string
+          maxLength: 2000
+        client_msg_id:
+          type: string
+          format: uuid
+    StudentTicketResult:
+      type: object
+      required: [ticket]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StudentTicket"
+        message_id:
+          type: string
+          format: uuid
     ChatMessagePage:
       type: object
       required: [items, next_cursor, open_tickets]

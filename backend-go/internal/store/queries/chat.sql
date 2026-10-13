@@ -140,3 +140,7 @@ returning *;
 select * from chat_sessions
 where course_id = sqlc.arg(course_id) and user_id = sqlc.arg(user_id) and channel = 'PRIVATE' and title = sqlc.arg(title) and deleted_at is null
 order by created_at limit 1;
+
+-- name: ChatMessageByClientID :one
+-- Hỏi tiếp (ESCALATION_FOLLOWUP): gửi lại cùng client_msg_id trong cùng phiên là cùng một tin (chat_messages_idem_key).
+select id from chat_messages where session_id = sqlc.arg(session_id) and client_msg_id = sqlc.arg(client_msg_id);

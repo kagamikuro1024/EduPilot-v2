@@ -322,6 +322,24 @@ func (q *Queries) NotifyRow(ctx context.Context, id uuid.UUID) (NotifyRowRow, er
 	return i, err
 }
 
+const notifyStalledToday = `-- name: NotifyStalledToday :one
+select exists (select 1 from notifications where course_id = $1 and type = 'COURSE_TICKETS_STALLED' and created_at >= $2::timestamptz)::boolean as present
+`
+
+type NotifyStalledTodayParams struct {
+	CourseID *uuid.UUID
+	Since    time.Time
+}
+
+// Đã báo Admin về lớp này trong ngày chưa (job SLA không phát sự kiện thừa mỗi tick).
+// ponytail: không có chỉ mục theo course_id; bảng thông báo nhỏ và chỉ chạy cho lớp đang quá hạn mỗi 15 phút — thêm chỉ mục nếu chậm.
+func (q *Queries) NotifyStalledToday(ctx context.Context, arg NotifyStalledTodayParams) (bool, error) {
+	row := q.db.QueryRow(ctx, notifyStalledToday, arg.CourseID, arg.Since)
+	var present bool
+	err := row.Scan(&present)
+	return present, err
+}
+
 const notifyUnreadCounts = `-- name: NotifyUnreadCounts :many
 select user_id, count(*)::int as n from notifications
 where user_id = any($1::text[]::uuid[]) and read_at is null

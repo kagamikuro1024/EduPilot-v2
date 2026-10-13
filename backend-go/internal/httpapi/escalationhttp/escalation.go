@@ -13,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 )
 
 // Handler là nhóm route ticket.
@@ -24,6 +25,55 @@ type Handler struct {
 // Mount gắn route vào nhóm nghiệp vụ (đã qua auth.Middleware). Vai và quyền sở hữu do service kiểm (404 không lộ sự tồn tại).
 func (h *Handler) Mount(r chi.Router) {
 	r.Post("/chat/messages/{mid}/escalate", h.escalate)
+	r.Post("/chat/tickets/{id}/followup", h.followup)
+	r.Post("/chat/tickets/{id}/confirm", h.confirm)
+	r.Post("/chat/tickets/{id}/confirm/undo", h.confirmUndo)
+}
+
+// student chạy một thao tác của sinh viên trên ticket `{id}`; service kiểm vai (403) và chủ ticket (404).
+func (h *Handler) student(w http.ResponseWriter, r *http.Request, do func(a escalation.Actor, id uuid.UUID) (escalation.StudentTicketResult, error)) {
+	a, ok := h.actor(r)
+	if !ok {
+		apierr.Write(w, r, apierr.New(http.StatusUnauthorized, apierr.Unauthenticated))
+		return
+	}
+	id, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
+	res, err := do(a, id)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	writeJSON(w, http.StatusOK, res)
+}
+
+func (h *Handler) followup(w http.ResponseWriter, r *http.Request) {
+	var in struct {
+		Content     string `json:"content"`
+		ClientMsgID string `json:"client_msg_id"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	cid, _ := uuid.Parse(in.ClientMsgID)
+	h.student(w, r, func(a escalation.Actor, id uuid.UUID) (escalation.StudentTicketResult, error) {
+		return h.Svc.Followup(r.Context(), a, id, in.Content, cid)
+	})
+}
+
+func (h *Handler) confirm(w http.ResponseWriter, r *http.Request) {
+	h.student(w, r, func(a escalation.Actor, id uuid.UUID) (escalation.StudentTicketResult, error) {
+		return h.Svc.Confirm(r.Context(), a, id)
+	})
+}
+
+func (h *Handler) confirmUndo(w http.ResponseWriter, r *http.Request) {
+	h.student(w, r, func(a escalation.Actor, id uuid.UUID) (escalation.StudentTicketResult, error) {
+		return h.Svc.ConfirmUndo(r.Context(), a, id)
+	})
 }
 
 func (h *Handler) actor(r *http.Request) (escalation.Actor, bool) {

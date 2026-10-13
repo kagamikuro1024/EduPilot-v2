@@ -9,6 +9,7 @@ import (
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/document"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
@@ -90,7 +91,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			if d.LLM != nil {
 				sig = todayLLM{rt: d.LLM}
 			}
-			(&todayhttp.Handler{Today: today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig), Guard: courseGuard, Log: d.Log}).Mount(r)
+			(&todayhttp.Handler{Today: today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA)), Guard: courseGuard, Log: d.Log}).Mount(r)
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {

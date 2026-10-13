@@ -103,21 +103,21 @@ func (q *Queries) GetEscalatedExchange(ctx context.Context, arg GetEscalatedExch
 
 const listTicketTranscript = `-- name: ListTicketTranscript :many
 select m.id, m.course_id, m.session_id, m.user_id, m.role, m.content, m.partial_content, m.stream_status, m.client_msg_id, m.reply_to, m.attempt, m.intent, m.citations, m.blocks, m.confidence, m.low_confidence, m.no_context, m.degraded, m.masked_count, m.feedback, m.error_code, m.trace_id, m.completed_at, m.created_at, m.updated_at from chat_messages m
-where m.course_id = $1 and m.session_id = $2
+where m.course_id = $1
   and m.intent in ('STAFF_ANSWER', 'ESCALATION_FOLLOWUP')
-  and m.blocks @> jsonb_build_array(jsonb_build_object('kind', 'ticket', 'data', jsonb_build_object('ticket_id', $3::text)))
+  and m.blocks @> jsonb_build_array(jsonb_build_object('kind', 'ticket', 'data', jsonb_build_object('ticket_id', $2::text)))
 order by m.created_at, m.id
 `
 
 type ListTicketTranscriptParams struct {
-	CourseID  uuid.UUID
-	SessionID uuid.UUID
-	TicketID  string
+	CourseID uuid.UUID
+	TicketID string
 }
 
-// Chỉ các tin của chính ticket: STAFF_ANSWER / ESCALATION_FOLLOWUP mang khối `ticket` trỏ tới ticket này.
+// Chỉ các tin của chính ticket: STAFF_ANSWER / ESCALATION_FOLLOWUP mang khối `ticket` trỏ tới ticket này (kể cả khi tin nằm ở phiên "Tin nhắn từ giảng viên"
+// vì phiên của ticket đã xoá mềm). Không đọc tin nào khác của sinh viên.
 func (q *Queries) ListTicketTranscript(ctx context.Context, arg ListTicketTranscriptParams) ([]ChatMessage, error) {
-	rows, err := q.db.Query(ctx, listTicketTranscript, arg.CourseID, arg.SessionID, arg.TicketID)
+	rows, err := q.db.Query(ctx, listTicketTranscript, arg.CourseID, arg.TicketID)
 	if err != nil {
 		return nil, err
 	}
@@ -219,6 +219,89 @@ func (q *Queries) TicketAnswer(ctx context.Context, arg TicketAnswerParams) (Esc
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const ticketAutoClose = `-- name: TicketAutoClose :one
+update escalation_tickets set status = 'CLOSED', closed_at = $1::timestamptz, closed_reason = 'AUTO_7D', version = version + 1
+where id = $2 and status = 'ANSWERED' and answered_at < $3::timestamptz
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketAutoCloseParams struct {
+	Now    time.Time
+	ID     uuid.UUID
+	Before time.Time
+}
+
+func (q *Queries) TicketAutoClose(ctx context.Context, arg TicketAutoCloseParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketAutoClose, arg.Now, arg.ID, arg.Before)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const ticketAutoCloseCandidates = `-- name: TicketAutoCloseCandidates :many
+select id, course_id from escalation_tickets where status = 'ANSWERED' and answered_at < $1::timestamptz order by answered_at, id limit $2
+`
+
+type TicketAutoCloseCandidatesParams struct {
+	Before    time.Time
+	PageLimit int32
+}
+
+type TicketAutoCloseCandidatesRow struct {
+	ID       uuid.UUID
+	CourseID uuid.UUID
+}
+
+// Dùng chỉ mục escalation_tickets_autoclose_idx (answered_at) WHERE status = 'ANSWERED'.
+func (q *Queries) TicketAutoCloseCandidates(ctx context.Context, arg TicketAutoCloseCandidatesParams) ([]TicketAutoCloseCandidatesRow, error) {
+	rows, err := q.db.Query(ctx, ticketAutoCloseCandidates, arg.Before, arg.PageLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TicketAutoCloseCandidatesRow{}
+	for rows.Next() {
+		var i TicketAutoCloseCandidatesRow
+		if err := rows.Scan(&i.ID, &i.CourseID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const ticketByID = `-- name: TicketByID :one
@@ -359,6 +442,162 @@ func (q *Queries) TicketClaim(ctx context.Context, arg TicketClaimParams) (Escal
 	return i, err
 }
 
+const ticketClaimedCandidates = `-- name: TicketClaimedCandidates :many
+select id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at from escalation_tickets where status = 'CLAIMED' and claimed_at < $1::timestamptz order by claimed_at, id limit $2
+`
+
+type TicketClaimedCandidatesParams struct {
+	Before    time.Time
+	PageLimit int32
+}
+
+// Ticket CLAIMED lâu: nhắc người nhận. Lọc rẻ theo giờ lịch qua escalation_tickets_sla_idx? (claimed_at không có chỉ mục; tập CLAIMED nhỏ).
+func (q *Queries) TicketClaimedCandidates(ctx context.Context, arg TicketClaimedCandidatesParams) ([]EscalationTicket, error) {
+	rows, err := q.db.Query(ctx, ticketClaimedCandidates, arg.Before, arg.PageLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []EscalationTicket{}
+	for rows.Next() {
+		var i EscalationTicket
+		if err := rows.Scan(
+			&i.ID,
+			&i.CourseID,
+			&i.Kind,
+			&i.Origin,
+			&i.Status,
+			&i.SourceType,
+			&i.SourceID,
+			&i.MessageID,
+			&i.SessionID,
+			&i.StudentID,
+			&i.Confidence,
+			&i.AppealPayload,
+			&i.ClaimedBy,
+			&i.ClaimedAt,
+			&i.Answer,
+			&i.AnsweredBy,
+			&i.AnsweredAt,
+			&i.ClosedAt,
+			&i.ClosedReason,
+			&i.DismissReason,
+			&i.ReopenedCount,
+			&i.SlaStage,
+			&i.SlaStageAt,
+			&i.WaitingSince,
+			&i.SaveAsKnowledge,
+			&i.Version,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ticketConfirm = `-- name: TicketConfirm :one
+update escalation_tickets set status = 'CLOSED', closed_at = $1::timestamptz, closed_reason = 'STUDENT_CONFIRMED', version = version + 1
+where id = $2 and student_id = $3 and status = 'ANSWERED'
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketConfirmParams struct {
+	Now       time.Time
+	ID        uuid.UUID
+	StudentID uuid.UUID
+}
+
+func (q *Queries) TicketConfirm(ctx context.Context, arg TicketConfirmParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketConfirm, arg.Now, arg.ID, arg.StudentID)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const ticketConfirmUndo = `-- name: TicketConfirmUndo :one
+update escalation_tickets set status = 'ANSWERED', closed_at = null, closed_reason = null, version = version + 1
+where id = $1 and student_id = $2 and status = 'CLOSED' and closed_reason = 'STUDENT_CONFIRMED' and closed_at > $3::timestamptz - interval '5 seconds'
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketConfirmUndoParams struct {
+	ID        uuid.UUID
+	StudentID uuid.UUID
+	Now       time.Time
+}
+
+// Chỉ trong 5 giây và chỉ khi vẫn đang CLOSED do chính sinh viên xác nhận (hành động khác đã đổi trạng thái thì không khớp).
+func (q *Queries) TicketConfirmUndo(ctx context.Context, arg TicketConfirmUndoParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketConfirmUndo, arg.ID, arg.StudentID, arg.Now)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const ticketCountOpen = `-- name: TicketCountOpen :one
 select count(*)::int from escalation_tickets
 where course_id = $1 and student_id = $2 and status in ('OPEN', 'CLAIMED')
@@ -388,6 +627,28 @@ func (q *Queries) TicketCountOpenInCourse(ctx context.Context, courseID uuid.UUI
 	return column_1, err
 }
 
+const ticketCourseHasActivity = `-- name: TicketCourseHasActivity :one
+select (
+  exists (select 1 from enrollments e join auth_sessions s on s.user_id = e.user_id and s.revoked_at is null and s.last_used_at >= $1::timestamptz
+          where e.course_id = $2 and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE')
+  or exists (select 1 from audit_log a join enrollments e on e.user_id = a.actor_id and e.course_id = $2 and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
+             where a.entity = 'escalation_ticket' and a.course_id = $2 and a.created_at >= $1::timestamptz)
+)::boolean as active
+`
+
+type TicketCourseHasActivityParams struct {
+	Since    time.Time
+	CourseID uuid.UUID
+}
+
+// "Có người hoạt động": TA / TEACHER ACTIVE có phiên chưa thu hồi dùng gần đây, hoặc đã thao tác ticket (audit_log) kể từ `since`.
+func (q *Queries) TicketCourseHasActivity(ctx context.Context, arg TicketCourseHasActivityParams) (bool, error) {
+	row := q.db.QueryRow(ctx, ticketCourseHasActivity, arg.Since, arg.CourseID)
+	var active bool
+	err := row.Scan(&active)
+	return active, err
+}
+
 const ticketDismiss = `-- name: TicketDismiss :one
 update escalation_tickets set status = 'CLOSED', closed_at = now(), closed_reason = 'STAFF_DISMISSED', dismiss_reason = $1, version = version + 1
 where course_id = $2 and id = $3 and (status = 'OPEN' or (status = 'CLAIMED' and claimed_by = $4))
@@ -410,6 +671,63 @@ func (q *Queries) TicketDismiss(ctx context.Context, arg TicketDismissParams) (E
 		arg.ID,
 		arg.UserID,
 		arg.Version,
+	)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const ticketFollowup = `-- name: TicketFollowup :one
+update escalation_tickets set status = 'OPEN', claimed_by = null, claimed_at = null, closed_at = null, closed_reason = null, dismiss_reason = null,
+       reopened_count = reopened_count + 1, sla_stage = 0, sla_stage_at = null, waiting_since = $1::timestamptz, version = version + 1
+where id = $2 and student_id = $3
+  and (status = 'ANSWERED' or (status = 'CLOSED' and closed_at >= $1::timestamptz - make_interval(days => $4::int)))
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketFollowupParams struct {
+	Now        time.Time
+	ID         uuid.UUID
+	StudentID  uuid.UUID
+	ReopenDays int32
+}
+
+// Hỏi tiếp (SRS 4.2.5): ANSWERED, hoặc CLOSED chưa quá reopen_days. Đặt lại đồng hồ SLA: waiting_since = now, sla_stage = 0 (TLR-3).
+func (q *Queries) TicketFollowup(ctx context.Context, arg TicketFollowupParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketFollowup,
+		arg.Now,
+		arg.ID,
+		arg.StudentID,
+		arg.ReopenDays,
 	)
 	var i EscalationTicket
 	err := row.Scan(
@@ -817,6 +1135,33 @@ func (q *Queries) TicketMailQueued(ctx context.Context, dedupeKey *string) (bool
 	return queued, err
 }
 
+const ticketMarkStalledRead = `-- name: TicketMarkStalledRead :exec
+update notifications set read_at = now() where type = 'COURSE_TICKETS_STALLED' and course_id = $1 and read_at is null
+`
+
+// Lớp hết ticket quá hạn: thông báo COURSE_TICKETS_STALLED chưa đọc của lớp thành đã đọc (mục "Hôm nay" của Admin biến).
+func (q *Queries) TicketMarkStalledRead(ctx context.Context, courseID *uuid.UUID) error {
+	_, err := q.db.Exec(ctx, ticketMarkStalledRead, courseID)
+	return err
+}
+
+const ticketOpenAtStage = `-- name: TicketOpenAtStage :one
+select count(*)::int from escalation_tickets where course_id = $1 and status = 'OPEN' and sla_stage >= $2::smallint
+`
+
+type TicketOpenAtStageParams struct {
+	CourseID uuid.UUID
+	Stage    int16
+}
+
+// Số ticket OPEN của lớp có sla_stage ≥ stage (nguồn đếm của thông báo gộp TICKET_STALE).
+func (q *Queries) TicketOpenAtStage(ctx context.Context, arg TicketOpenAtStageParams) (int32, error) {
+	row := q.db.QueryRow(ctx, ticketOpenAtStage, arg.CourseID, arg.Stage)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const ticketOtherStudentEmails = `-- name: TicketOtherStudentEmails :many
 select lower(u.email)::text from users u join enrollments e on e.user_id = u.id
 where e.course_id = $1 and e.role_in_course = 'STUDENT' and e.user_id <> $2 and lower(u.email) = any($3::text[])
@@ -847,6 +1192,52 @@ func (q *Queries) TicketOtherStudentEmails(ctx context.Context, arg TicketOtherS
 		return nil, err
 	}
 	return items, nil
+}
+
+const ticketOwnedByStudent = `-- name: TicketOwnedByStudent :one
+select id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at from escalation_tickets where id = $1 and student_id = $2
+`
+
+type TicketOwnedByStudentParams struct {
+	ID        uuid.UUID
+	StudentID uuid.UUID
+}
+
+// Ticket CỦA sinh viên gọi (sinh viên khác → không có hàng → 404).
+func (q *Queries) TicketOwnedByStudent(ctx context.Context, arg TicketOwnedByStudentParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketOwnedByStudent, arg.ID, arg.StudentID)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const ticketRelease = `-- name: TicketRelease :one
@@ -904,22 +1295,86 @@ func (q *Queries) TicketRelease(ctx context.Context, arg TicketReleaseParams) (E
 	return i, err
 }
 
+const ticketSLAAdvance = `-- name: TicketSLAAdvance :one
+update escalation_tickets set sla_stage = $1::smallint, sla_stage_at = $2::timestamptz
+where id = $3 and status = 'OPEN' and sla_stage = $4::smallint
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketSLAAdvanceParams struct {
+	ToStage   int16
+	Now       time.Time
+	ID        uuid.UUID
+	FromStage int16
+}
+
+// Cập nhật CÓ ĐIỀU KIỆN (hai worker chạy song song vẫn một lần): from_stage → to_stage chỉ khi ticket vẫn OPEN ở đúng giai đoạn.
+func (q *Queries) TicketSLAAdvance(ctx context.Context, arg TicketSLAAdvanceParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketSLAAdvance,
+		arg.ToStage,
+		arg.Now,
+		arg.ID,
+		arg.FromStage,
+	)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const ticketSLACandidates = `-- name: TicketSLACandidates :many
 select id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at from escalation_tickets
 where status = 'OPEN' and sla_stage = $1::smallint and waiting_since < $2::timestamptz
+  and ($3::timestamptz is null or (waiting_since, id) > ($3::timestamptz, $4::uuid))
 order by waiting_since, id
-limit $3
+limit $5
 `
 
 type TicketSLACandidatesParams struct {
 	Stage     int16
 	Before    time.Time
+	CursorAt  *time.Time
+	CursorID  *uuid.UUID
 	PageLimit int32
 }
 
 // Job SLA, giai đoạn nhắc (SRS 4.6.2.1): lọc rẻ theo giờ LỊCH qua escalation_tickets_sla_idx; giờ làm việc tính ở Go.
 func (q *Queries) TicketSLACandidates(ctx context.Context, arg TicketSLACandidatesParams) ([]EscalationTicket, error) {
-	rows, err := q.db.Query(ctx, ticketSLACandidates, arg.Stage, arg.Before, arg.PageLimit)
+	rows, err := q.db.Query(ctx, ticketSLACandidates,
+		arg.Stage,
+		arg.Before,
+		arg.CursorAt,
+		arg.CursorID,
+		arg.PageLimit,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -1074,6 +1529,36 @@ func (q *Queries) TicketStaffRemindTargets(ctx context.Context, courseID uuid.UU
 	for rows.Next() {
 		var i TicketStaffRemindTargetsRow
 		if err := rows.Scan(&i.ID, &i.Email); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const ticketStalledCourses = `-- name: TicketStalledCourses :many
+select course_id, count(*)::int as n from escalation_tickets where status = 'OPEN' and sla_stage = 2 group by course_id
+`
+
+type TicketStalledCoursesRow struct {
+	CourseID uuid.UUID
+	N        int32
+}
+
+// Lớp đang có ticket OPEN ở giai đoạn 2 (quá hạn 72 giờ làm việc), kèm số lượng.
+func (q *Queries) TicketStalledCourses(ctx context.Context) ([]TicketStalledCoursesRow, error) {
+	rows, err := q.db.Query(ctx, ticketStalledCourses)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TicketStalledCoursesRow{}
+	for rows.Next() {
+		var i TicketStalledCoursesRow
+		if err := rows.Scan(&i.CourseID, &i.N); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

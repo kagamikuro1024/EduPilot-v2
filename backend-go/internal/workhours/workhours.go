@@ -1,4 +1,5 @@
-package escalation
+// Package workhours: "giờ làm việc" để tính SLA của ticket (SRS escalation 4.6.1) — hàm thuần, khung là tham số, không phụ thuộc gói nghiệp vụ nào.
+package workhours
 
 import (
 	"slices"
@@ -8,21 +9,21 @@ import (
 // ICT: Việt Nam không có giờ mùa hè nên múi cố định +7 đủ dùng, không phụ thuộc tzdata của image.
 var ICT = time.FixedZone("ICT", 7*60*60) //nolint:gochecknoglobals // hằng số múi giờ, bất biến
 
-// WorkHours là khung "giờ làm việc" để tính SLA (SRS 4.6.1): [Start, End) tính từ 00:00 giờ Việt Nam của mỗi ngày thuộc Days. Không có lịch nghỉ lễ (nợ).
-type WorkHours struct {
+// Hours là khung "giờ làm việc" để tính SLA (SRS 4.6.1): [Start, End) tính từ 00:00 giờ Việt Nam của mỗi ngày thuộc Days. Không có lịch nghỉ lễ (nợ).
+type Hours struct {
 	Start, End time.Duration
 	Days       []time.Weekday
 }
 
-// DefaultWorkHours là khung mặc định (chủ dự án chốt Q4): cả ngày thứ Hai–thứ Sáu.
-func DefaultWorkHours() WorkHours {
-	return WorkHours{Start: 0, End: 24 * time.Hour, Days: []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday}}
+// Default là khung mặc định (chủ dự án chốt Q4): cả ngày thứ Hai–thứ Sáu.
+func Default() Hours {
+	return Hours{Start: 0, End: 24 * time.Hour, Days: []time.Weekday{time.Monday, time.Tuesday, time.Wednesday, time.Thursday, time.Friday}}
 }
 
 const maxSearchDays = 400 // chặn vòng lặp khi khung rỗng / Days rỗng
 
 // window trả khoảng làm việc của ngày chứa `day` (giờ VN), hoặc ok=false nếu ngày đó không tính.
-func (w WorkHours) window(day time.Time) (from, to time.Time, ok bool) {
+func (w Hours) window(day time.Time) (from, to time.Time, ok bool) {
 	d := day.In(ICT)
 	if !slices.Contains(w.Days, d.Weekday()) {
 		return time.Time{}, time.Time{}, false
@@ -32,7 +33,7 @@ func (w WorkHours) window(day time.Time) (from, to time.Time, ok bool) {
 }
 
 // Elapsed = Σ độ dài giao của [from, to) với khung làm việc của mọi ngày. from ≥ to → 0.
-func (w WorkHours) Elapsed(from, to time.Time) time.Duration {
+func (w Hours) Elapsed(from, to time.Time) time.Duration {
 	if !from.Before(to) {
 		return 0
 	}
@@ -53,7 +54,7 @@ func (w WorkHours) Elapsed(from, to time.Time) time.Duration {
 }
 
 // At là thời điểm đầu tiên t mà Elapsed(from, t) ≥ after. after ≤ 0 → from. Không tìm được trong ~400 ngày (khung rỗng) → zero time.
-func (w WorkHours) At(from time.Time, after time.Duration) time.Time {
+func (w Hours) At(from time.Time, after time.Duration) time.Time {
 	if after <= 0 {
 		return from
 	}
@@ -95,7 +96,7 @@ func minTime(a, b time.Time) time.Time {
 
 // SLA gắn khung với hai mốc (SRS 4.6): ReminderAt = nhắc cả nhóm, EscalateAt = lên đầu "Hôm nay" + báo Admin.
 type SLA struct {
-	Hours                      WorkHours
+	Hours                      Hours
 	RemindAfter, EscalateAfter time.Duration
 }
 

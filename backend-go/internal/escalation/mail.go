@@ -194,7 +194,7 @@ func EnqueueReminder(ctx context.Context, tx pgx.Tx, courseID uuid.UUID, now tim
 	if err != nil {
 		return 0, fmt.Errorf("escalation: người nhận thư nhắc: %w", err)
 	}
-	hour := now.In(time.FixedZone("ICT", 7*3600)).Format("2006010215")
+	hour := now.In(time.FixedZone("workhours.ICT", 7*3600)).Format("2006010215")
 	n := 0
 	for _, t := range targets {
 		_, queued, err := mail.Enqueue(ctx, tx, mail.Message{To: t.Email, Template: MailReminder, Payload: map[string]any{"course_id": courseID},

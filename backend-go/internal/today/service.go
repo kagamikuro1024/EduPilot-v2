@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/edupilot/backend-go/internal/workhours"
 	"log/slog"
 	"strings"
 	"sync/atomic"
@@ -44,11 +45,21 @@ type Service struct {
 	warned *atomic.Int64 // mốc log "Redis lỗi" gần nhất, chung cho mọi yêu cầu
 }
 
+// Option chỉnh bộ gộp mặc định.
+type Option func(*StaffProvider)
+
+// WithSLA đặt khung giờ làm việc và mốc quá hạn mà mục `TICKET` dùng để tự tính `Overdue` (không phụ thuộc job `ticket.sla`).
+func WithSLA(s workhours.SLA) Option { return func(p *StaffProvider) { p.SLA = s } }
+
 // NewService dựng Service với bộ gộp mặc định: Provider sinh viên, staff và admin của P2. llm có thể nil.
-func NewService(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, log *slog.Logger, llm LLMSignals) *Service {
+func NewService(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, log *slog.Logger, llm LLMSignals, opts ...Option) *Service {
 	agg := &Aggregator{Log: log}
+	staff := StaffProvider{Pool: pool, SLA: workhours.SLA{Hours: workhours.Default(), RemindAfter: 24 * time.Hour, EscalateAfter: 72 * time.Hour}}
+	for _, o := range opts {
+		o(&staff)
+	}
 	agg.Register(StudentProvider{Pool: pool})
-	agg.Register(StaffProvider{Pool: pool})
+	agg.Register(staff)
 	agg.Register(AdminProvider{Pool: pool, LLM: llm})
 	return &Service{Pool: pool, Redis: rdb, Clock: clk, Log: log, Agg: agg, TTL: DefaultTTL, warned: new(atomic.Int64)}
 }

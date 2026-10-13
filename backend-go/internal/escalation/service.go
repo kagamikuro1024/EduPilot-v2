@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/edupilot/backend-go/internal/workhours"
 	"log/slog"
 	"net/http"
 	"sync/atomic"
@@ -19,7 +20,9 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/platform/config"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/store"
@@ -39,7 +42,45 @@ type Locker interface {
 
 // Config là hằng của SRS 4.1 (0 = mặc định).
 type Config struct {
-	OpenCap int // TICKET_OPEN_CAP
+	OpenCap       int           // TICKET_OPEN_CAP
+	ReopenDays    int           // TICKET_REOPEN_DAYS (mặc định 30)
+	AutocloseDays int           // TICKET_AUTOCLOSE_DAYS (mặc định 7)
+	SLA           workhours.SLA // giờ làm việc + mốc nhắc / quá hạn (mặc định 24 / 72 giờ làm việc, T2–T6 cả ngày)
+	InactiveAfter time.Duration // TICKET_INACTIVE_AFTER (mặc định 72 giờ lịch)
+}
+
+// ConfigFrom dựng cấu hình ticket (SRS 4.1) từ biến môi trường đã nạp.
+func ConfigFrom(c config.Config) Config {
+	return Config{OpenCap: c.TicketOpenCap, ReopenDays: c.TicketReopenDays, AutocloseDays: c.TicketAutocloseDays, InactiveAfter: c.TicketInactiveAfter,
+		SLA: workhours.SLA{Hours: workhours.Hours{Start: c.TicketWorkdayStart, End: c.TicketWorkdayEnd, Days: c.TicketWorkdays}, RemindAfter: c.TicketRemindAfter, EscalateAfter: c.TicketEscalateAfter}}
+}
+
+func (c Config) reopenDays() int {
+	if c.ReopenDays > 0 {
+		return c.ReopenDays
+	}
+	return 30
+}
+
+func (c Config) autocloseDays() int {
+	if c.AutocloseDays > 0 {
+		return c.AutocloseDays
+	}
+	return 7
+}
+
+func (c Config) sla() workhours.SLA {
+	if len(c.SLA.Hours.Days) == 0 {
+		return workhours.SLA{Hours: workhours.Default(), RemindAfter: 24 * time.Hour, EscalateAfter: 72 * time.Hour}
+	}
+	return c.SLA
+}
+
+func (c Config) inactiveAfter() time.Duration {
+	if c.InactiveAfter > 0 {
+		return c.InactiveAfter
+	}
+	return 72 * time.Hour
 }
 
 // Actor là người gọi: chỉ từ Principal.
@@ -55,6 +96,8 @@ type Service struct {
 	Lock    Locker
 	Log     *slog.Logger
 	Cfg     Config
+	// Notify: thông báo cá nhân của job SLA (ticket CLAIMED quá hạn); nil → bỏ qua.
+	Notify *notify.Service
 	// PII chặn định danh sinh viên khác trong câu trả lời của nhân viên; nil = không kiểm (test dựng chỉ bằng Pool).
 	PII *privacy.Detector
 	// Clock tuỳ chọn (nil = đồng hồ hệ thống).
@@ -288,11 +331,11 @@ func (s *Service) ReadExchange(ctx context.Context, courseID, ticketID uuid.UUID
 			}
 		}
 	}
-	if t.SessionID != nil {
-		ex.Transcript, err = q.ListTicketTranscript(ctx, store.ListTicketTranscriptParams{CourseID: courseID, SessionID: *t.SessionID, TicketID: t.ID.String()})
-		if err != nil {
-			return Exchange{}, unavailable()
-		}
+	ex.Transcript, err = q.ListTicketTranscript(ctx, store.ListTicketTranscriptParams{CourseID: courseID, TicketID: t.ID.String()})
+	if err != nil {
+		return Exchange{}, unavailable()
 	}
 	return ex, nil
 }
+
+func isNoRows(err error) bool { return errors.Is(err, pgx.ErrNoRows) }
