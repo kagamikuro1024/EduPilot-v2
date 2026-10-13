@@ -152,13 +152,18 @@ func TestChatHistoryExcludesStaffMessages(t *testing.T) {
 	require.Equal(t, []llm.Message{{Role: "user", Content: "câu một"}, {Role: "assistant", Content: "Xin chào bạn."}}, got, "lời giảng viên không vào ngữ cảnh LLM")
 }
 
-func TestStaffMessageNotRateableNotRetryable(t *testing.T) {
+func TestFeedbackOnStaffAnswerRejected(t *testing.T) {
 	r := newRig(t)
 	mid := r.staffMsg("Trả lời của giảng viên")
 	v := "HELPFUL"
-	err := r.svc.Feedback(t.Context(), r.student, mid, &v)
-	require.Equal(t, 422, httpStatus(err))
+	require.Equal(t, 422, httpStatus(r.svc.Feedback(t.Context(), r.student, mid, &v)))
 	require.Equal(t, 0, r.count(`select count(*) from chat_messages where id = $1 and feedback is not null`, mid))
-	_, err = r.svc.Retry(t.Context(), r.student, mid)
+}
+
+func TestRegenerateStaffAnswerRejected(t *testing.T) {
+	r := newRig(t)
+	mid := r.staffMsg("Trả lời của giảng viên")
+	_, err := r.svc.Retry(t.Context(), r.student, mid)
 	require.Equal(t, 422, httpStatus(err))
+	require.Equal(t, 1, r.count(`select count(*) from chat_messages where session_id = $1 and role = 'ASSISTANT'`, r.sess), "không sinh thêm tin nào")
 }

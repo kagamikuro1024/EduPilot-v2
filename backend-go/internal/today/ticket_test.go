@@ -18,15 +18,20 @@ func (r *rig) ticketRow(c cls, student uuid.UUID, status string, claimedBy *uuid
 	require.NoError(r.t, err)
 }
 
-func TestTicketProvider(t *testing.T) {
-	r := newRig(t)
-	c := r.klass("761990")
+// ticketRig: lớp có giảng viên, TA, sinh viên; trả (lớp, giảng viên, phiên GV, phiên TA, người SV, phiên SV).
+func ticketRig(r *rig, code, mssv string) (cls, store.User, session, session, store.User, session) {
+	c := r.klass(code)
 	gvUser, gv := r.teaching(c)
 	ta, taSess := r.person(store.UserRoleTA, true)
 	r.enrollAt(c, ta, "TA", "ACTIVE", "", 24*time.Hour)
-	svUser, sv := r.student("B20DC000010")
+	svUser, sv := r.student(mssv)
 	r.enrollAt(c, svUser, "STUDENT", "ACTIVE", "", 24*time.Hour)
+	return c, gvUser, gv, taSess, svUser, sv
+}
 
+func TestTicketProvider(t *testing.T) {
+	r := newRig(t)
+	c, gvUser, gv, taSess, svUser, _ := ticketRig(r, "761990", "B20DC000010")
 	require.NotContains(t, kindsOf(r.tget(gv, "/me/today")), "TICKET", "không có ticket thì không có việc")
 	r.ticketRow(c, svUser.ID, "OPEN", nil, 5*time.Hour)
 	r.ticketRow(c, svUser.ID, "OPEN", nil, time.Hour)
@@ -37,8 +42,20 @@ func TestTicketProvider(t *testing.T) {
 	require.Equal(t, "2 câu hỏi đang chờ · 1 câu bạn đã nhận · lâu nhất 5 giờ", k["TICKET"]["reason"])
 	require.Equal(t, "/inbox?course="+c.id.String(), k["TICKET"]["href"])
 	require.Equal(t, "2 câu hỏi đang chờ · 0 câu bạn đã nhận · lâu nhất 5 giờ", kindsOf(r.tget(taSess, "/me/today"))["TICKET"]["reason"], "số 'đã nhận' là của riêng từng người")
-	require.NotContains(t, kindsOf(r.tget(sv, "/me/today")), "TICKET", "sinh viên không thấy việc của nhân viên")
+}
 
+func TestTicketProviderStaffOnly(t *testing.T) {
+	r := newRig(t)
+	c, _, _, _, svUser, sv := ticketRig(r, "761992", "B20DC000012")
+	r.ticketRow(c, svUser.ID, "OPEN", nil, time.Hour)
+	require.NotContains(t, kindsOf(r.tget(sv, "/me/today")), "TICKET", "sinh viên không thấy việc của nhân viên")
+}
+
+func TestTicketProviderClears(t *testing.T) {
+	r := newRig(t)
+	c, gvUser, gv, _, svUser, _ := ticketRig(r, "761993", "B20DC000013")
+	r.ticketRow(c, svUser.ID, "OPEN", nil, time.Hour)
+	require.Contains(t, kindsOf(r.tget(gv, "/me/today")), "TICKET")
 	r.exec(`update escalation_tickets set status = 'ANSWERED', answered_by = $1, answered_at = now() where course_id = $2`, gvUser.ID, c.id)
 	require.NotContains(t, kindsOf(r.tget(gv, "/me/today")), "TICKET", "hết OPEN và hết CLAIMED thì biến mất")
 }
