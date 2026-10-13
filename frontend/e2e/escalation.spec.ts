@@ -554,3 +554,44 @@ test("knowledge save: xem trước đã che → sửa → Lưu; Chưa nạp có 
   await expect(box.getByText("Câu hỏi riêng tư, không lưu được.")).toBeVisible();
   await expect(box.getByRole("textbox")).toHaveCount(0);
 });
+
+// --- QC vòng 2 US-P4-03: người thua lượt nhận, tooltip phím ---
+
+test("inbox claim lost: người thua (409) thấy 'đã nhận lúc HH:MM' và chi tiết không biến mất dù phiếu rời bộ lọc Đang chờ", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  const api = await inboxApi(page);
+  const claimedAt = "2026-10-11T03:07:00Z"; // 10:07 giờ Việt Nam
+  await page.route("**/api/v1/courses/*/tickets**", async (r) => {
+    const req = r.request();
+    const path = new URL(req.url()).pathname;
+    if (req.method() === "POST" && path.endsWith("/claim")) {
+      api.state.t = ticket({ status: "CLAIMED", claimed_by: { id: "other", full_name: "Cô Hoa" }, version: 2 });
+      return r.fulfill(json({ code: "TICKET_ALREADY_CLAIMED", message: "m", trace_id: "b".repeat(32), details: { claimed_by: { id: "other", full_name: "Cô Hoa" }, claimed_at: claimedAt } }, 409));
+    }
+    if (req.method() === "GET" && path.endsWith("/tickets") && api.state.t.status !== "OPEN") return r.fulfill(json({ items: [], next_cursor: null })); // bộ lọc Đang chờ không còn phiếu này
+    return r.fallback();
+  });
+  await page.goto("/inbox");
+  const pane = page.locator("[data-part=inbox-detail]");
+  await pane.getByRole("button", { name: "Nhận", exact: true }).click();
+  await expect(pane.getByText("Cô Hoa đã nhận lúc 10:07.")).toBeVisible();
+  await expect(pane.getByText("Điểm chuyên cần tính thế nào?")).toBeVisible();
+  await expect(pane.getByRole("textbox")).toHaveCount(0);
+  await expect(page.locator("[data-part=inbox-list]").getByText("Sinh Viên Thử")).toHaveCount(0);
+});
+
+test("inbox claim won: nhận xong phiếu rời Đang chờ vẫn còn ô soạn; nút Gửi trả lời có tooltip phím", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  const api = await inboxApi(page);
+  await page.route("**/api/v1/courses/*/tickets**", (r) => {
+    const req = r.request();
+    if (req.method() === "GET" && new URL(req.url()).pathname.endsWith("/tickets") && api.state.t.status !== "OPEN") return r.fulfill(json({ items: [], next_cursor: null }));
+    return r.fallback();
+  });
+  await page.goto("/inbox");
+  const pane = page.locator("[data-part=inbox-detail]");
+  await pane.getByRole("button", { name: "Nhận", exact: true }).click();
+  const box = pane.getByRole("textbox", { name: "Câu trả lời gửi sinh viên" });
+  await expect(box).toBeVisible();
+  await expect(pane.getByRole("button", { name: "Gửi trả lời" })).toHaveAttribute("title", "⌘↵ · Ctrl+↵");
+});

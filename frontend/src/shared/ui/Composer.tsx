@@ -19,6 +19,7 @@ export function Composer({
   busy,
   onStop,
   submitLabel = "Gửi",
+  submitTitle,
   disabled,
   hint,
   label = "Nội dung",
@@ -34,6 +35,8 @@ export function Composer({
   busy?: boolean;
   onStop?: () => void;
   submitLabel?: string;
+  /** Tooltip của nút gửi (vd. phím tắt). */
+  submitTitle?: string;
   disabled?: boolean;
   /** Dòng chữ cạnh nút gửi khi nút bị khoá — nói còn thiếu gì (FR-X19). */
   hint?: ReactNode;
@@ -105,7 +108,7 @@ export function Composer({
                   {hint}
                 </p>
               )}
-              <button type="submit" data-variant="primary" className={s.send} disabled={!canSend} aria-describedby={!canSend && hint ? `${uid}-hint` : undefined}>
+              <button type="submit" data-variant="primary" className={s.send} title={submitTitle} disabled={!canSend} aria-describedby={!canSend && hint ? `${uid}-hint` : undefined}>
                 <Send aria-hidden />
                 {submitLabel}
               </button>

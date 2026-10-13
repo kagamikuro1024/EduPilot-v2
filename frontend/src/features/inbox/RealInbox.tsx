@@ -26,6 +26,8 @@ const STATUS: Record<TicketStatus, { label: string; tone: "red" | "amber" | "gre
   CLOSED: { label: "Đã đóng", tone: "neutral" },
 };
 
+const HM = new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", hour12: false });
+
 const DISMISS: Array<{ value: string; label: string }> = [
   { value: "OUT_OF_SCOPE", label: "Ngoài phạm vi" },
   { value: "DUPLICATE", label: "Trùng câu đã trả lời" },
@@ -49,7 +51,11 @@ export function RealInbox({ courseId }: { courseId: string }) {
   useSSE("notification", () => void qc.invalidateQueries({ queryKey: ticketsKey }), { invalidateKeys: [ticketsKey] });
 
   const rows = list.items;
-  const selected = rows.find((t) => t.id === picked) ?? (picked ? undefined : rows[0]);
+  // phiếu đang xem giữ nguyên khi rời bộ lọc hiện tại (vừa nhận → không còn "Đang chờ"; người khác nhận trước): không về màn trống giữa lúc đọc thông báo / soạn
+  const [lastSel, setLastSel] = useState<TicketRow | null>(null);
+  const found = rows.find((t) => t.id === picked) ?? (picked ? undefined : rows[0]);
+  if (found && (found.id !== lastSel?.id || found.status !== lastSel.status)) setLastSel(found); // điều chỉnh state ngay lúc render (mẫu React cho state suy ra)
+  const selected = found ?? (!picked || lastSel?.id === picked ? (lastSel ?? undefined) : undefined);
   const detail = useTicketDetail(selected?.course.id, selected?.id);
   const courseLabel = courseId === "all" ? "Tất cả lớp của tôi" : (realCourses?.find((c) => c.id === courseId)?.class_code ?? "");
 
@@ -108,6 +114,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
                   label="Lọc câu hỏi"
                   value={filter}
                   onChange={(next) => {
+                    setLastSel(null); // đổi bộ lọc: không giữ phiếu cũ
                     setFilter(next);
                     if (picked) backToList();
                   }}
@@ -115,7 +122,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
                 />
                 {rows.length === 0 ? (
                   <EmptyState title="Không có câu hỏi nào đang chờ.">
-                    {filter !== "all" && <Button variant="text" onClick={() => setFilter("all")}>Xem tất cả</Button>}
+                    {filter !== "all" && <Button variant="text" onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button>}
                   </EmptyState>
                 ) : (
                   <ActionList label="Câu hỏi cần xử lý">
@@ -184,6 +191,7 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
   const [err, setErr] = useState<unknown>(null);
   const [busy, setBusy] = useState(false);
   const [closing, setClosing] = useState(false);
+  const [lost, setLost] = useState<{ name: string; at?: string } | null>(null);
   const mine = t.claimed_by?.id === me;
   const refresh = () => qc.invalidateQueries({ queryKey: ticketsKey });
 
@@ -195,7 +203,10 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
       await apiClient.post(`${base}/${path}`, { ...body, version: t.version });
       setClosing(false);
     } catch (e) {
-      setErr(e);
+      if (e instanceof ApiError && e.code === "TICKET_ALREADY_CLAIMED") {
+        const d = (e.details ?? {}) as { claimed_by?: { full_name?: string }; claimed_at?: string };
+        setLost({ name: d.claimed_by?.full_name ?? "Người khác", at: d.claimed_at });
+      } else setErr(e);
     } finally {
       setBusy(false);
       void refresh(); // 409 (người khác đã nhận) cũng cần dữ liệu mới
@@ -274,7 +285,11 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
             }
           }}
         >
-          {claimedByOther && <InlineNotice tone="warning" compact>{t.claimed_by?.full_name} đã nhận.</InlineNotice>}
+          {(lost || claimedByOther) && (
+            <InlineNotice tone="warning" compact>
+              {lost ? `${lost.name} đã nhận${lost.at ? ` lúc ${HM.format(new Date(lost.at))}` : ""}.` : `${t.claimed_by?.full_name} đã nhận.`}
+            </InlineNotice>
+          )}
           {t.status === "OPEN" && (
             <div className={s.claimRow}>
               <Button variant="primary" onClick={() => void act("claim")} disabled={busy}>Nhận</Button>
@@ -289,6 +304,7 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
               onSubmit={() => void send()}
               busy={answer.pending}
               submitLabel="Gửi trả lời"
+              submitTitle="⌘↵ · Ctrl+↵"
               placeholder="Trả lời ngắn gọn, đúng việc sinh viên hỏi…"
               error={sendErr?.userMessage}
               onRetry={sendErr && sendErr.code !== "PII_IN_ANSWER" ? () => void send(true) : undefined}
