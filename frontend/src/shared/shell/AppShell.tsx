@@ -30,7 +30,9 @@ function displayName(role: Role, name: string, title?: string) {
 // `next/dynamic` kéo thêm mã nạp lười vào gói chung và làm tổng script TĂNG.
 const CommandPalette = lazy(() => import("@/shared/ui/CommandPalette").then((m) => ({ default: m.CommandPalette })));
 
-// Cùng lý do: hộp thoại + nhịp thời gian học chỉ cần cho sinh viên có lớp thật.
+// Hộp thoại + nhịp thời gian học chỉ cần cho sinh viên có lớp thật và không cần cho lần vẽ đầu: nạp lười, và chỉ gắn sau TRACKER_DELAY_MS (nhịp đầu vốn có pha
+// ngẫu nhiên 0–30 s; chưa ack thì chưa đo gì nên hộp thoại trễ vài giây không gây hại). Gói lười nạp ngay khi vào trang thì ngân sách script Lighthouse của /chat vượt.
+const TRACKER_DELAY_MS = 10_000;
 const StudyTimeTracker = lazy(() => import("./TrackingNotice").then((m) => ({ default: m.StudyTimeTracker })));
 
 const NARROW = "(max-width: 719px)";
@@ -90,6 +92,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mid = useMedia(MID);
   // 720–1099 px luôn thu gọn (72 px); ≥ 1100 px theo lựa chọn đã nhớ (216 px mặc định)
   const collapsed = mid || prefCollapsed;
+  const [trackerReady, setTrackerReady] = useState(false);
+  useEffect(() => {
+    const t = setTimeout(() => setTrackerReady(true), TRACKER_DELAY_MS);
+    return () => clearTimeout(t);
+  }, []);
   const [palette, setPalette] = useState(false);
   // mỗi lần MỞ tăng `paletteTick` để hộp thoại gốc mở lại kể cả khi sự kiện `close` của lần đóng trước chưa kịp cập nhật `palette`
   const [paletteTick, setPaletteTick] = useState(0);
@@ -348,7 +355,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
-      {role === "student" && realCourseId && (
+      {trackerReady && role === "student" && realCourseId && (
         <Suspense fallback={null}>
           <StudyTimeTracker />
         </Suspense>

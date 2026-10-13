@@ -38,6 +38,6 @@ bash ../scripts/ui-antipatterns.sh                              # rc=0
 
 ## Vòng CI — ngân sách script Lighthouse (`/settings/llm` 256910 B > 256000 B ở `f45454c`)
 - Đo cục bộ bằng chính `lhci collect` + `lighthouserc.json` (admin, `/settings/llm`): nền `fa7caf3` 247008 B; `f45454c` 248161 B (+1153); nay 247233 B (+225). Ngưỡng `lighthouserc.json` **không** đổi.
-- Cách làm: `CommandPalette` và `StudyTimeTracker` nạp bằng `React.lazy` (chỉ khi mở bảng lệnh / chỉ sinh viên có lớp thật); mã nhịp `useActivityHeartbeat` không còn xuất qua thùng `@/shared/data` (qua thùng thì mã nằm lại gói chung).
+- Cách làm: `CommandPalette` nạp bằng `React.lazy` khi mở lần đầu; `StudyTimeTracker` cũng `React.lazy` và chỉ gắn sau 10 s (`TRACKER_DELAY_MS`) cho sinh viên có lớp thật (gói nạp ngay thì `/chat` của lượt đo CI vượt 256524 B; nhịp đầu vốn có pha ngẫu nhiên 0–30 s, chưa ack thì chưa đo gì); mã nhịp `useActivityHeartbeat` không còn xuất qua thùng `@/shared/data`. `activity.spec.ts` thêm `clock.runFor(10_000)` sau khi vào trang.
 - Bài học đã đo: `next/dynamic` làm tổng script TĂNG (kéo thêm mã nạp lười vào gói chung) — hai lần thử trước (`e98866c`, `843b49c`) đỏ vì thế.
 - Flake `TestJudgeRetryThenDead` ở `1d841b1` (P4-07) không liên quan thay đổi; các lần chạy sau xanh.
