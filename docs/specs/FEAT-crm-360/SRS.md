@@ -36,13 +36,13 @@ Giảng viên điểm danh 30 sinh viên ≤ 60 s trên điện thoại và ghi 
 | 6 | `GET /courses/{id}/me/attendance`, `…/me/participation`, `…/me/study-time` | ✓ (chính mình) | 403 | 403 | 403 |
 | 7 | `POST /activity/heartbeat`, `POST /me/tracking-notice/ack` | ✓ (chính mình) | bỏ qua (`204`, không đo) | bỏ qua | bỏ qua |
 | 7a | `PUT /me/settings {track_study_time}` | ✓ (chính mình; chỉnh được khi lớp cho tắt, khoá khi lớp không cho tắt) | lưu, không tác dụng | lưu, không tác dụng | lưu, không tác dụng |
-| 7b | `allow_study_time_opt_out` — đặt lúc tạo lớp (`POST /admin/courses`; Q25: Admin hoặc TEACHER) | 403 | 403 | 403 (Q25) | ✓ (Q25); sửa sau khi tạo → `422 FIELD_IMMUTABLE` |
+| 7b | `allow_study_time_opt_out` — `PUT /courses/{id}/settings` (Q25 PM chốt): chỉ TEACHER của lớp, **chỉ tới khi lớp có sinh viên ghi danh đầu tiên**; sau đó `409 COURSE_HAS_STUDENTS` | 403 | 403 | ✓ (trước sinh viên đầu tiên) | 403 (cả `POST/PUT /admin/courses` không nhận trường này) |
 | 8 | `GET …/students`, `GET …/students/{uid}/profile` (+ `attendance`, `study-time`) | **403** (kể cả `uid` của mình) | ✓ | ✓ | 403 |
 | 9 | `GET` / `POST …/students/{uid}/observations` | 403 | ✓ | ✓ | 403 |
 | 10 | `PUT` / `DELETE …/observations/{oid}` | 403 | chỉ ghi chú của mình | chỉ ghi chú của mình | 403 |
 | 11 | `POST …/students/{uid}/ai-summary` | 403 | ✓ | ✓ | 403 |
 | 12 | `POST …/students/{uid}/outreach` | 403 | ✓ | ✓ | 403 |
-| 13 | `PUT /courses/{id}/settings` (`risk`) | 403 | 403 | ✓ | 403 |
+| 13 | `PUT /courses/{id}/settings` (`risk`, `escalation_threshold`, `allow_study_time_opt_out`) | 403 | 403 | ✓ | 403 |
 
 **Nguyên tắc dữ liệu (luật cứng, kiểm bằng test):**
 - Sinh viên **không bao giờ** thấy ghi chú quan sát, nhãn rủi ro, câu nhận định rủi ro của mình — qua API (mọi route của sinh viên), qua giao diện, qua AI (tool không có đường đọc `student_observations` / `student_risk`; lời nhắc không chứa chúng).
@@ -188,7 +188,7 @@ Không có `note`, `marked_by`, tên người khác. Một lượt sinh chữ nh
 
 **4.6.6 Luật cứng (TLR-2).** Ba lớp kiểm, xanh khi chưa có `internal/grade` (P6 chưa làm), đỏ ngay khi P6 vi phạm: (a) **phụ thuộc bắc cầu** — `go list -deps ./internal/grade/...` không chứa `/internal/activity` hay `/internal/crm` (bắt cả trường hợp `grade` import gói trung gian như `today`, `agent` mà gói đó import `crm` / `activity`); không có gói nào khớp → xanh; (b) **quét AST** `internal/grade/**` (`go/parser`): không lời gọi phương thức `*store.Queries` nào có tên nằm trong tập hàm sinh ra ở `store/activity.sql.go`, `store/crm.sql.go` (đọc tập tên bằng `go/parser`; vì sqlc gom mọi truy vấn vào một gói `store`) và không chuỗi SQL thô nào chứa `study_time_daily`, `student_risk`, `heartbeat`; (c) các tệp `store/queries/grade*.sql` và mọi view / hàm SQL của sổ điểm không tham chiếu `study_time_daily`, `heartbeat`, `student_risk`, `v_student_360`. Test: `TestGradeNeverImportsActivity` (a, b), `TestGradeQueriesNeverReadStudyTime` (b, c).
 
-**4.6.7 Cấu hình đo thời gian học (Q1 cập nhật — chủ dự án 2026-10-13).** (a) `courses.allow_study_time_opt_out boolean NOT NULL DEFAULT true` — chọn **lúc tạo lớp** ("Cho sinh viên tắt đo thời gian học", mặc định bật — an toàn cho dữ liệu cá nhân). **Lưu ý (Q25 [CHỦ DỰ ÁN]):** ở mã hiện có lớp do **ADMIN** tạo (`POST /admin/courses`, kèm `teacher_id`; `FEAT-course-foundation` SRS 6), nên mặc định của spec là ô này nằm ở form `Mở lớp` của Admin; phương án thay: TEACHER chọn một lần ngay sau khi được gán (Q25); bất biến sau khi tạo (`PUT /admin/courses/{id}` có trường này → `422 FIELD_IMMUTABLE`); `/class/settings` chỉ **hiện giá trị**, không có điều khiển. (b) `user_settings.track_study_time boolean NOT NULL DEFAULT true`; `PUT /me/settings {track_study_time?, version}` lưu được ở mọi vai nhưng chỉ có tác dụng với STUDENT (cùng tiền lệ `notify_ticket_by_mail`). (c) Lớp **không cho tắt** → luôn đo (sau khi sinh viên bấm `Đã hiểu`); công tắc của lớp đó ở `/settings` hiện bật và **khoá**, tooltip lý do ở chính công tắc. Lớp **cho tắt** → sinh viên tự bật / tắt (`track_study_time`). (d) Sinh viên học nhiều lớp: đo ở lớp X khi `tracked(X) = NOT allow_study_time_opt_out(X) OR track_study_time` — nên một sinh viên tắt vẫn được đo ở lớp không cho tắt và không được đo ở lớp cho tắt. (e) `GET /me/settings` trả thêm `study_time:{courses:[{course_id, class_code, locked}]}` (chỉ lớp sinh viên `ACTIVE`; `locked = NOT allow_study_time_opt_out`) để dựng giao diện. (f) Tắt đo **không** làm sinh viên bị coi là thấp ở tín hiệu `STUDY` (4.7.1) và không bị mất dữ liệu đã đo. (g) `POST /admin/courses` nhận thêm `allow_study_time_opt_out?` (mặc định `true`); form `Mở lớp` của `FEAT-course-foundation` thêm một trường (mục 10).
+**4.6.7 Cấu hình đo thời gian học (Q1 cập nhật — chủ dự án 2026-10-13; Q25 — PM chốt 2026-10-13).** (a) `courses.allow_study_time_opt_out boolean NOT NULL DEFAULT true` ("Cho sinh viên tắt đo thời gian học"): **lớp mới mặc định cho tắt** (an toàn cho dữ liệu cá nhân); form `Mở lớp` của Admin **không** có trường này (`POST` / `PUT /admin/courses` không nhận — thân có trường lạ bị từ chối như hiện có). **TEACHER của lớp** chọn ở `/class/settings` (đích `Href` của việc `COURSE_SETUP`; bốn bước của việc đó **không** đổi) bằng `PUT /courses/{id}/settings {allow_study_time_opt_out, version}` **cho tới khi lớp có sinh viên ghi danh đầu tiên** (`EXISTS (SELECT 1 FROM enrollments WHERE course_id = $1 AND role = 'STUDENT')`, mọi trạng thái); từ đó **khoá**: `409 COURSE_HAS_STUDENTS`, `/class/settings` chỉ hiện giá trị. Kiểm và ghi trong **một** giao dịch (`SELECT … FROM courses … FOR UPDATE`, rồi kiểm không có ghi danh sinh viên, rồi `UPDATE … WHERE version = $v`) và ghi danh đầu tiên cũng lấy khoá hàng `courses` nên hai việc tuần tự hoá — không sinh viên nào vào lớp dưới luật cũ mà không biết. TA / STUDENT / ADMIN → `403`; có `audit_log` (giá trị cũ / mới, không nội dung). (b) `user_settings.track_study_time boolean NOT NULL DEFAULT true` là **một cờ toàn tài khoản** ("học sinh tự config"; lớp không cho tắt thì bỏ qua cờ này; không có cờ theo từng ghi danh); `PUT /me/settings {track_study_time?, version}` lưu được ở mọi vai nhưng chỉ có tác dụng với STUDENT (cùng tiền lệ `notify_ticket_by_mail`). (c) Lớp **không cho tắt** → luôn đo (sau khi sinh viên bấm `Đã hiểu`); công tắc của lớp đó ở `/settings` hiện bật và **khoá**, tooltip lý do ở chính công tắc. Lớp **cho tắt** → sinh viên tự bật / tắt (`track_study_time`). (d) Sinh viên học nhiều lớp: đo ở lớp X khi `tracked(X) = NOT allow_study_time_opt_out(X) OR track_study_time` — nên một sinh viên tắt vẫn được đo ở lớp không cho tắt và không được đo ở lớp cho tắt. (e) `GET /me/settings` trả thêm `study_time:{courses:[{course_id, class_code, locked}]}` (chỉ lớp sinh viên `ACTIVE`; `locked = NOT allow_study_time_opt_out`) để dựng giao diện. (f) Tắt đo **không** làm sinh viên bị coi là thấp ở tín hiệu `STUDY` (4.7.1) và không bị mất dữ liệu đã đo. (g) `GET /courses/{id}` (Member) trả giá trị; giao diện `/class/settings` thêm nhóm "Đo thời gian học" (7.8); `FEAT-course-foundation` chỉ cần thêm nhóm này vào `/class/settings` (mục 10).
 
 ### 4.7 At-risk (`crm.risk`)
 
@@ -278,7 +278,7 @@ Seed (`scripts/seed.mjs`) gọi **API thật**; hai việc không thể dùng AP
 | Kết quả `crm.risk` | lớp 1: `AT_RISK` = {C}; `WATCH` = {sv12, sv19}; A, B `NONE`; lớp 2: không `AT_RISK` |
 | `seed/expected_crm.csv` | A, B, C: `recorded,present,late,excused,absent,speak_count,points_total` (đối chiếu tự động) |
 | Ticket / báo cáo | `FEAT-escalation-notify` SRS 9.4 (5 ticket đủ trạng thái; 2 + 3 báo cáo; 1 ghim; 1 tri thức) |
-| Cờ đo thời gian học (Q1) | lớp 1 (`761987`): `allow_study_time_opt_out = true`; lớp 2 (`761988`): `allow_study_time_opt_out = false` (đặt bằng `POST /admin/courses` của seed); ít nhất `sv.gioi` ghi danh cả hai lớp (để bước tự kiểm thấy công tắc ở lớp 2 bị khoá); mọi sinh viên seed giữ `track_study_time = true` (số liệu 10 tuần không đổi) |
+| Cờ đo thời gian học (Q1, Q25) | lớp 1 (`761987`): `allow_study_time_opt_out = true` (mặc định); lớp 2 (`761988`): `= false`, đặt bằng TEACHER qua `PUT /courses/{id}/settings` **sau khi gán giảng viên và trước khi import sinh viên** (lớp đã có sinh viên thì khoá); ít nhất `sv.gioi` ghi danh cả hai lớp (để bước tự kiểm thấy công tắc ở lớp 2 bị khoá); mọi sinh viên seed giữ `track_study_time = true` (số liệu 10 tuần không đổi) |
 
 Bảng này là ràng buộc cho dev; cách rải chi tiết (RNG cố định `SEED_RNG`) do dev chọn miễn kết quả khớp.
 
@@ -346,7 +346,7 @@ Mọi handler idempotent; lỗi → thử lại 1 s / 5 s / 30 s rồi dead-lett
 | FR-47 | `/me`: nội dung, không gamify, 375 px, trạng thái, phân quyền | P5-06-AC3, AC6, AC7, AC8 |
 | FR-48 | Số `/me` khớp AI; thời gian học của mình | P5-06-AC4, AC5 |
 | FR-49 | Seed sprint 7: điểm danh, phát biểu, 10 tuần, ticket, báo cáo, cổng, E2E; cờ đo thời gian học của hai lớp | S7-SEED-AC1…AC9 |
-| FR-50 | Cấu hình đo thời gian học: `courses.allow_study_time_opt_out` (lúc tạo lớp, bất biến), `user_settings.track_study_time`; lớp không cho tắt → luôn đo, công tắc khoá; lớp cho tắt → sinh viên tự chỉnh; sinh viên 2 lớp khác cấu hình | P5-03-AC11, AC12, AC13; P5-06-AC10 |
+| FR-50 | Cấu hình đo thời gian học: `courses.allow_study_time_opt_out` (mặc định cho tắt; TEACHER chọn tới khi có sinh viên ghi danh đầu tiên rồi khoá — `409 COURSE_HAS_STUDENTS`; TA / ADMIN không đổi được), `user_settings.track_study_time` (một cờ toàn tài khoản); lớp không cho tắt → luôn đo, công tắc khoá; lớp cho tắt → sinh viên tự chỉnh; sinh viên 2 lớp khác cấu hình | P5-03-AC11, AC12, AC13; P5-06-AC10 |
 
 ## 5. Dữ liệu
 
@@ -405,7 +405,7 @@ Chỉ mục: PK · `UNIQUE (course_id, session_id, student_id)` (**có `course_i
 ALTER TABLE user_settings ADD COLUMN track_study_time boolean NOT NULL DEFAULT true;
 ALTER TABLE courses ADD COLUMN allow_study_time_opt_out boolean NOT NULL DEFAULT true;
 ```
-`track_study_time`: công tắc của sinh viên (4.6.7). `allow_study_time_opt_out`: chọn lúc tạo lớp (Admin, hoặc TEACHER theo Q25), bất biến sau đó; mặc định `true` (cho phép tắt — an toàn cho dữ liệu cá nhân). `Down` bỏ hai cột trước, rồi `DROP` bảng.
+`track_study_time`: công tắc của sinh viên, toàn tài khoản (4.6.7). `allow_study_time_opt_out`: TEACHER chọn tới khi lớp có sinh viên ghi danh đầu tiên rồi khoá (Q25); mặc định `true` (cho phép tắt — an toàn cho dữ liệu cá nhân). `Down` bỏ hai cột trước, rồi `DROP` bảng.
 ### 5.8 `insight_reports` (P10 chỉ đọc / ghi)
 
 `id uuid PK`; `course_id`; `kind text NOT NULL CHECK (kind IN ('KNOWLEDGE_GAP'))`; `period_from date`, `period_to date`; `payload jsonb NOT NULL` (`jsonb_typeof='object'`); `data_watermark timestamptz NOT NULL`; `generated_by uuid NOT NULL` FK `users`; `version integer NOT NULL DEFAULT 1`; `created_at`, `updated_at`. Chỉ mục `insight_reports_course_kind_idx (course_id, kind, created_at DESC)`. `ALTER` bảng cũ ở `00014` chỉ có hai câu ở 5.7.
@@ -425,7 +425,7 @@ ALTER TABLE courses ADD COLUMN allow_study_time_opt_out boolean NOT NULL DEFAULT
 
 ## 6. API
 
-Thân lỗi `{code, message, details?, retry_after?}`. Mọi route lớp qua `CourseAccessGuard` (`TestAllCourseRoutesGuarded`). Phân trang con trỏ `?cursor=&limit=` (≤ 100). **Route mới ngoài `ARCHITECTURE.md` §5** (`proposals.md` #6 ACCEPTED; `ARCHITECTURE.md` §5 đã cập nhật; mọi route vào `backend-go/api/openapi.yaml` cùng commit — luật 7): `…/sessions/{sid}` `PUT`/`DELETE`; `GET /courses/{id}/me/attendance`, `…/me/participation`, `…/me/study-time` (TLR-11); `PUT …/observations/{oid}` / `DELETE`; `POST …/students/{uid}/outreach`; `GET …/students/{uid}/study-time`; `PUT /courses/{id}/settings` thêm `risk`; `?dry_run=true` của `generate`; `PUT /me/settings` thêm `track_study_time`, `GET /me/settings` thêm `study_time.courses`, `POST /admin/courses` thêm `allow_study_time_opt_out` (Q1). **Đổi nghĩa:** hàng "Hồ sơ" của `ARCHITECTURE.md` ghi `GET /me/profile` cho hồ sơ 360 — đã bị `FEAT-course-foundation` dùng cho hồ sơ tài khoản; hồ sơ 360 của sinh viên là `…/students/{uid}/profile` (Staff) và dữ liệu cá nhân của sinh viên là `…/me/*`.
+Thân lỗi `{code, message, details?, retry_after?}`. Mọi route lớp qua `CourseAccessGuard` (`TestAllCourseRoutesGuarded`). Phân trang con trỏ `?cursor=&limit=` (≤ 100). **Route mới ngoài `ARCHITECTURE.md` §5** (`proposals.md` #6 ACCEPTED; `ARCHITECTURE.md` §5 đã cập nhật; mọi route vào `backend-go/api/openapi.yaml` cùng commit — luật 7): `…/sessions/{sid}` `PUT`/`DELETE`; `GET /courses/{id}/me/attendance`, `…/me/participation`, `…/me/study-time` (TLR-11); `PUT …/observations/{oid}` / `DELETE`; `POST …/students/{uid}/outreach`; `GET …/students/{uid}/study-time`; `PUT /courses/{id}/settings` thêm `risk` và `allow_study_time_opt_out` (Q25); `?dry_run=true` của `generate`; `PUT /me/settings` thêm `track_study_time`, `GET /me/settings` thêm `study_time.courses`. **Đổi nghĩa:** hàng "Hồ sơ" của `ARCHITECTURE.md` ghi `GET /me/profile` cho hồ sơ 360 — đã bị `FEAT-course-foundation` dùng cho hồ sơ tài khoản; hồ sơ 360 của sinh viên là `…/students/{uid}/profile` (Staff) và dữ liệu cá nhân của sinh viên là `…/me/*`.
 
 ### 6.1 Lịch buổi học
 
@@ -454,7 +454,7 @@ Thân lỗi `{code, message, details?, retry_after?}`. Mọi route lớp qua `Co
 | 11 | `GET …/students/{uid}/study-time?weeks=` | `Staff` | 4.6.5 |
 | 12 | `POST /me/tracking-notice/ack` | STUDENT | idempotent; `DEL ep:trk:{uid}` |
 | 12a | `GET /me/settings`, `PUT /me/settings {track_study_time?, version}` | JWT | thêm `track_study_time` (STUDENT có tác dụng; vai khác lưu, không tác dụng) và `GET` thêm `study_time:{courses:[{course_id,class_code,locked}]}`; sai `version` → `409` |
-| 12b | `POST /admin/courses {…, allow_study_time_opt_out?}` · `PUT /admin/courses/{id}` | ADMIN | `allow_study_time_opt_out` chỉ nhận khi tạo (mặc định `true`); `PUT` có trường này → `422 FIELD_IMMUTABLE`; `GET /courses/{id}` (Member) trả giá trị |
+| 12b | `PUT /courses/{id}/settings {allow_study_time_opt_out, version}` (cùng route 18) | `Teacher` | `200 {course}`; chỉ khi lớp **chưa có** sinh viên ghi danh; `409 COURSE_HAS_STUDENTS` khi đã có (kể cả đua với ghi danh đầu tiên); TA / STUDENT / ADMIN → `403`; `POST/PUT /admin/courses` không nhận trường này; `GET /courses/{id}` (Member) trả giá trị |
 
 ### 6.4 Hồ sơ 360
 
@@ -465,11 +465,11 @@ Thân lỗi `{code, message, details?, retry_after?}`. Mọi route lớp qua `Co
 | 15 | `GET/POST …/students/{uid}/observations`, `PUT/DELETE …/observations/{oid}` | `Staff` (ghi: tác giả) | `200/201/204` | `409 VERSION_CONFLICT`, `403` |
 | 16 | `POST …/students/{uid}/ai-summary` | `Staff` | `200 {draft}` | `409 NOT_ENOUGH_DATA`, `429`, `503`, `504` |
 | 17 | `POST …/students/{uid}/outreach {body}` | `Staff` | `201 {ticket}` | `422 PII_IN_ANSWER`, `429 OUTREACH_LIMIT`, `409 STUDENT_NOT_ACTIVE` |
-| 18 | `PUT /courses/{id}/settings {risk?,escalation_threshold?,version}` | `Teacher` | `200 {course}` | `409`, `422` |
+| 18 | `PUT /courses/{id}/settings {risk?,escalation_threshold?,allow_study_time_opt_out?,version}` | `Teacher` | `200 {course}` | `409 VERSION_CONFLICT`, `409 COURSE_HAS_STUDENTS`, `422` |
 
 ### 6.5 Mã lỗi mới
 
-`TOO_MANY_SESSIONS` (422), `SESSION_DUPLICATE` (409), `SESSION_HAS_ATTENDANCE` (409), `STUDENT_NOT_IN_COURSE` (422), `NOT_ENOUGH_DATA` (409), `OUTREACH_LIMIT` (429), `STUDENT_NOT_ACTIVE` (409), `FIELD_IMMUTABLE` (422). Dùng lại: `VERSION_CONFLICT`, `COURSE_ARCHIVED`, `RATE_LIMITED`, `LLM_UNAVAILABLE`, `OVERLOADED`, `DEADLINE_EXCEEDED`, `PII_IN_ANSWER`, `INVALID_CURSOR`, `IDEMPOTENCY_KEY_REUSED` (middleware idempotency; `participation` khi `client_event_id` thuộc lớp / người khác).
+`TOO_MANY_SESSIONS` (422), `SESSION_DUPLICATE` (409), `SESSION_HAS_ATTENDANCE` (409), `STUDENT_NOT_IN_COURSE` (422), `NOT_ENOUGH_DATA` (409), `OUTREACH_LIMIT` (429), `STUDENT_NOT_ACTIVE` (409), `COURSE_HAS_STUDENTS` (409). Dùng lại: `VERSION_CONFLICT`, `COURSE_ARCHIVED`, `RATE_LIMITED`, `LLM_UNAVAILABLE`, `OVERLOADED`, `DEADLINE_EXCEEDED`, `PII_IN_ANSWER`, `INVALID_CURSOR`, `IDEMPOTENCY_KEY_REUSED` (middleware idempotency; `participation` khi `client_event_id` thuộc lớp / người khác).
 
 ## 7. Giao diện
 
@@ -510,9 +510,9 @@ Năm dòng nhãn + điều khiển + giá trị: Tỷ lệ có mặt tối thi�
 
 ### 7.8 `/settings` — nhóm "Thời gian học" (STUDENT) và `/class/settings` (Q1)
 
-- **`/settings` (STUDENT):** mỗi lớp sinh viên đang `ACTIVE` một dòng: nhãn = mã lớp (+ tên học phần), công tắc "Ghi thời gian học", giá trị Bật / Tắt. Lớp **không cho tắt** (`locked`): công tắc **bật và khoá**, **tooltip lý do ở chính công tắc** ("Lớp này luôn ghi thời gian học") — không dòng mô tả. Lớp **cho tắt**: công tắc đổi được; mọi dòng cho tắt phản ánh **cùng một** giá trị `user_settings.track_study_time` (Q25: bản thay thế là cột theo từng ghi danh); lưu lạc quan, không toast, sai `version` → `409` hoàn lại + `InlineNotice`. Không có dòng nào khi sinh viên chưa `Đã hiểu` hộp thoại minh bạch (chưa đo).
-- **`/class/settings`:** một dòng **chỉ đọc** "Cho sinh viên tắt đo thời gian học: Có / Không" (không điều khiển — bất biến sau khi tạo lớp); TA và TEACHER thấy như nhau.
-- **Form tạo lớp (Q25):** ô "Cho sinh viên tắt đo thời gian học" (`<input type="checkbox">`, mặc định bật) ở form `Mở lớp` (`/admin/courses`); không thêm câu mô tả.
+- **`/settings` (STUDENT):** mỗi lớp sinh viên đang `ACTIVE` một dòng: nhãn = mã lớp (+ tên học phần), công tắc "Ghi thời gian học", giá trị Bật / Tắt. Lớp **không cho tắt** (`locked`): công tắc **bật và khoá**, **tooltip lý do ở chính công tắc** ("Lớp này luôn ghi thời gian học") — không dòng mô tả. Lớp **cho tắt**: công tắc đổi được; mọi dòng cho tắt phản ánh **cùng một** giá trị `user_settings.track_study_time` (cờ toàn tài khoản — Q25 PM chốt); lưu lạc quan, không toast, sai `version` → `409` hoàn lại + `InlineNotice`. Không có dòng nào khi sinh viên chưa `Đã hiểu` hộp thoại minh bạch (chưa đo).
+- **`/class/settings` — nhóm "Đo thời gian học" (Q25):** một dòng "Cho sinh viên tắt đo thời gian học" + công tắc. **TEACHER, khi lớp chưa có sinh viên ghi danh:** công tắc đổi được (lưu lạc quan; `409 COURSE_HAS_STUDENTS` do đua với sinh viên đầu tiên → hoàn lại + `InlineNotice` "Lớp đã có sinh viên"). **Khi lớp đã có sinh viên (khoá):** chỉ hiện giá trị Có / Không, công tắc `disabled` với tooltip lý do ("Lớp đã có sinh viên") ở chính công tắc. **TA:** luôn chỉ đọc. Không câu mô tả dưới tiêu đề.
+- **Form `Mở lớp` của Admin:** không thêm trường (lớp mới mặc định cho tắt); bốn bước của `COURSE_SETUP` không đổi.
 
 ## 8. Phi chức năng áp dụng
 
@@ -546,7 +546,7 @@ Năm dòng nhãn + điều khiển + giá trị: Tỷ lệ có mặt tối thi�
 | Tích hợp | `internal/crm` (`-tags integration`) | lưới, `PUT` một giao dịch + audit, 409, hoàn tất / sửa sau, tham gia idempotent, hồ sơ + audit fail-closed, ghi chú, AI tóm tắt, outreach, danh sách + `EXPLAIN`, `/me/*` |
 | Tích hợp | `internal/activity` | heartbeat không Postgres, hai tab, khung, trần (khoá tổng ngày), burst, rollup tuyệt đối / crash / nửa đêm / `HDEL flushed`, ack ngay sau `Đã hiểu`, đọc, **cờ đo (Q1):** `TestHeartbeatRespectsStudyTimeOptOut`, `TestHeartbeatLockedCourseIgnoresOptOut`, `TestHeartbeatTwoCoursesDifferentConfig` |
 | Kiến trúc | `internal/activity`, `internal/crm`, `internal/agent` | `TestGradeNeverImportsActivity` (`go list -deps` bắc cầu + quét AST lời gọi `store.Queries` sinh từ `activity.sql.go` / `crm.sql.go`), `TestGradeQueriesNeverReadStudyTime`, `TestSensitiveQueriesOnlyFromCRM`, `TestAgentHasNoRiskOrObservationAccess` |
-| Tích hợp | `internal/course` | `generate` `dry_run` / một giao dịch / song song, `PUT` / `DELETE` buổi, settings `risk` |
+| Tích hợp | `internal/course` | `generate` `dry_run` / một giao dịch / song song, `PUT` / `DELETE` buổi, settings `risk`, `allow_study_time_opt_out` (TEACHER-only, khoá `409 COURSE_HAS_STUDENTS` sau sinh viên đầu tiên, đua với ghi danh) |
 | Tích hợp | `internal/today` | `SESSION_UNMARKED`, `STUDENT_ATTENTION`, khối `attention` |
 | Agent | `internal/agent` | `TestToolMyAttendance`, `TestToolMyParticipation` (gate), `TestPersonalToolsHaveNoIdentityParam` (giữ xanh) |
 | Lược đồ | `internal/store` | `TestSchemaAttendance`, `TestSchemaParticipation`, `TestSchemaObservations`, `TestSchemaStudentRisk`, `TestSchemaStudyTimeDaily`, `TestSchemaInsightReports`, `TestViewsColumns`, `TestIndexesStartWithCourseID` (chỉ mục **phức hợp** trên bảng **có** `course_id` — không áp cho `UNIQUE (client_event_id)` một cột), `TestMigration00013SingleAlter`, `TestMigration00014TwoAlters` |
@@ -583,7 +583,7 @@ Thêm vào 9.2: `TestRiskJobRunsOncePerDay` (`ep:crm.risk:done` — chạy bù k
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 
-**Câu hỏi mở:** `QUESTIONS.md` — Q1…Q25. Chủ dự án đã trả lời Q1–Q12 (**Q1 cập nhật:** giảng viên / Admin chọn lúc tạo lớp có cho sinh viên tắt đo thời gian học hay không — `courses.allow_study_time_opt_out`, mặc định cho phép; lớp không cho thì luôn đo, công tắc khoá; lớp cho thì sinh viên tự chỉnh — `user_settings.track_study_time`); PM chốt TLR-1…14 và Q13–Q24; Q25 mới (ai chọn lúc tạo lớp; hình dạng công tắc ở `/settings`). Góp ý kiến trúc: `docs/sprints/7/proposals.md` #5 (schema), #6 (route), #7 (seed) — **cả ba ACCEPTED**.
+**Câu hỏi mở:** `QUESTIONS.md` — Q1…Q25. Chủ dự án đã trả lời Q1–Q12 (**Q1 cập nhật:** có cờ cấp lớp `courses.allow_study_time_opt_out` — mặc định cho phép; lớp không cho thì luôn đo, công tắc khoá; lớp cho thì sinh viên tự chỉnh — `user_settings.track_study_time`); PM chốt TLR-1…14, Q13–Q24 và **Q25** (Admin không chọn; TEACHER chọn tới khi có sinh viên ghi danh đầu tiên rồi khoá; cờ sinh viên toàn tài khoản). Góp ý kiến trúc: `docs/sprints/7/proposals.md` #5 (schema), #6 (route), #7 (seed) — **cả ba ACCEPTED**.
 
 **Đã chốt (không mở lại):** D17 (thời gian học chỉ tham khảo + tín hiệu at-risk, không tính điểm); D44 (dữ liệu mô phỏng); D45 (không ALTER cho cột đã biết — nên mọi cột nằm trong `CREATE`; ngoại lệ có chủ ý ghi ở 5.1); D51 (xoá mock khi thay); luật cứng `CLAUDE.md` (sinh viên không thấy ghi chú / nhãn; `internal/grade` không dùng thời gian học; điểm = code thuần, `decimal`); mặc định điểm danh "Có mặt" và nút chính `Lưu điểm danh` (`DESIGN.md` §14.8, `INTEGRATION.md` mục 2); heartbeat write-behind (`SYSTEM_DESIGN.md` 3.3); số migration `00013` / `00014` (`plan.md`); `mail_inbound` không ở sprint này.
 
@@ -591,7 +591,7 @@ Thêm vào 9.2: `TestRiskJobRunsOncePerDay` (`ep:crm.risk:done` — chạy bù k
 1. `ARCHITECTURE.md` §4: dòng `00013` — thêm `attendance_records.course_id`, `participation_events.client_event_id`, `student_observations.kind` + `ai_edited`, bảng mới `student_risk`, một `ALTER class_sessions`, `UNIQUE (course_id, session_id, student_id)`; dòng `00014` — `study_time_daily` khoá duy nhất có `course_id`, hai `ALTER` (`user_settings.track_study_time`, `courses.allow_study_time_opt_out`); ghi ánh xạ số migration (`proposals.md` #5, Q1) — **đã sửa**.
 2. `ARCHITECTURE.md` §5: thêm / đổi các route ở đầu mục 6 (`proposals.md` #6); `POST /activity/heartbeat` thêm `course_id` — **đã sửa**.
 3. `ARCHITECTURE.md` §9 (Seed): "10 đã diễn ra / 300 bản ghi điểm danh" → 9 buổi đã điểm danh = 270 + buổi hôm nay chưa điểm danh; "3 ticket ở ba trạng thái" → 5 ticket đủ trạng thái (`proposals.md` #7) — **đã sửa**.
-4. `FEAT-course-foundation` SRS 4.7 bảng bậc: thêm `SESSION_UNMARKED` **12** và `STUDENT_ATTENTION` 95; dựng lại bảng từ hằng `Tier*` (TLR-10); cập nhật phần "Lớp cần chú ý". **Form tạo lớp (`/admin/courses`, `POST /admin/courses`) thêm ô `allow_study_time_opt_out`** (Q1; Q25 nếu chủ dự án chọn TEACHER) và `PUT /admin/courses/{id}` từ chối trường này (`FIELD_IMMUTABLE`); `/settings` thêm nhóm "Thời gian học" (7.8).
+4. `FEAT-course-foundation` SRS 4.7 bảng bậc: thêm `SESSION_UNMARKED` **12** và `STUDENT_ATTENTION` 95; dựng lại bảng từ hằng `Tier*` (TLR-10); cập nhật phần "Lớp cần chú ý". **`/class/settings` thêm nhóm "Đo thời gian học"** (Q25) và `PUT /courses/{id}/settings` nhận `allow_study_time_opt_out` (khoá khi có sinh viên đầu tiên); form `Mở lớp` của Admin **không** đổi; `/settings` thêm nhóm "Thời gian học" (7.8).
 5. `FEAT-docs-calendar` / `/calendar`: Staff có nút `Tạo lịch buổi học` (ngăn kéo — Q16 PM chốt).
 6. `P5.md`: số `00008` / `00009` → `00013` / `00014`; "Provider 'sinh viên mới vào diện cần chú ý'" nằm ở US-P5-04.
 7. `FEAT-escalation-notify` SRS 6.4 / 4.2.8: thân `PUT …/settings` nhận cả `risk` (trong spec này, 4.7.3).
