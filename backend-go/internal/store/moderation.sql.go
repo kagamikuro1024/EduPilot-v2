@@ -513,6 +513,7 @@ select p.id as post_id, p.verification_state::text as state, p.body as answer, (
        t.title, t.body as question
 from forum_posts p join forum_threads t on t.course_id = p.course_id and t.id = p.thread_id
 where p.course_id = $1 and p.thread_id = $2 and p.kind = 'AI'
+order by (p.verification_state = 'REJECTED'), p.created_at desc limit 1
 `
 
 type ThreadKnowledgeSourceParams struct {
@@ -529,7 +530,7 @@ type ThreadKnowledgeSourceRow struct {
 	Question    string
 }
 
-// hidden-ok: nguồn tri thức của thread (bài AI duy nhất + câu hỏi); trạng thái ẩn / xoá trả kèm để người gọi quyết định nạp hay gỡ.
+// hidden-ok: nguồn tri thức của thread (bài AI đang hiệu lực — chưa REJECTED, mới nhất — + câu hỏi); trạng thái ẩn / xoá trả kèm để người gọi quyết định nạp hay gỡ.
 func (q *Queries) ThreadKnowledgeSource(ctx context.Context, arg ThreadKnowledgeSourceParams) (ThreadKnowledgeSourceRow, error) {
 	row := q.db.QueryRow(ctx, threadKnowledgeSource, arg.CourseID, arg.ThreadID)
 	var i ThreadKnowledgeSourceRow

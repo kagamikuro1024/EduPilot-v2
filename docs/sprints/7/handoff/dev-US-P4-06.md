@@ -17,7 +17,7 @@ Nhánh: `sprint/7-p4-p5`. Commit: `US-P4-06: …` (một commit; cũng chứa vi
 ## Test
 - Go mới (tên khớp US): `internal/thread/moderation_test.go` (≈ 60 ca: báo cáo, tự ẩn, race, hàng chờ, RBAC, version, thông báo, sửa / xoá, ghim, tri thức, similar), `internal/today/post_reported_test.go`, `internal/store/forum_hidden_test.go` (`TestForumQueriesFilterHidden`: quét `queries/*.sql`, truy vấn đọc forum_* mà thiếu `hidden_at is null` / `-- hidden-ok:` thì đỏ). Kịch bản contract `moderationScenarios`.
 - e2e mới: `frontend/e2e/threads-moderation.spec.ts` (báo cáo + hoàn tác + báo lại, sửa PII hai lối + xoá, ẩn / bỏ ẩn / ghim, bài mình bị ẩn, ghim trên items + hàng chờ + axe, sinh viên không có tab, 375 px). `threads.spec.ts` cũ xanh nguyên (menu mới đặt nhãn "Tuỳ chọn bài" để không trùng "Thêm hành động" của Loại).
-- Không sửa test cũ nào.
+- Không sửa test cũ nào (ngoài số version `db/migrations_test.go`, #11).
 
 ## Lệnh QC chạy
 ```bash
@@ -35,9 +35,9 @@ bash ../scripts/ui-antipatterns.sh                                   # rc=0
 3. Hạn tần suất đếm bằng `post_reports.created_at` trong DB, không dùng Redis (chịu được Redis chết, cùng tinh thần #16).
 
 ## Cần PM / nợ
-1. **#25 chưa quyết ⇒ AC5 vế "AI sinh lại sau khi sửa" CHƯA chạy được**: chỉ mục `forum_posts_one_ai_key` (`00007`) cấm bài AI thứ hai. Phần còn lại của AC5 xong và có test (`TestEditWhileAIPendingRejectsOldAnswer`). Làm xong khi PM quyết số migration.
-2. **#24 chưa quyết**: bốn đường cũ giữ đồng bộ; nếu PM từ chối, tám test sprint 6 cần sửa theo đề xuất khác.
-3. **#26** (xem `proposals.md`): `TestSchemaAttendance` flake do thứ tự map (QC BUG-S7-01 BUG-1). Dev chưa sửa test, chờ ACCEPTED.
+1. ~~#25~~ **ACCEPTED, xong ở commit vòng 2**: migration `00014_forum_ai_regen` (DROP + CREATE `forum_posts_one_ai_key WHERE kind='AI' AND verification_state <> 'REJECTED'`, `down` trả lại, báo rõ `down` chỉ được khi chưa thread nào sinh lại). Ba truy vấn từng giả định "một bài AI mỗi thread" đã sửa: `ThreadList.ai_verification` (ưu tiên bài chưa REJECTED, mới nhất), `ThreadSimilar` (chỉ loại thread có bài AI MỚI NHẤT bị loại / ẩn), `ThreadKnowledgeSource` (bài hiệu lực mới nhất). Số ghim (#11): `db/migrations_test.go` 13 → 14. Test `TestEditRegeneratesAIAnswer`. Migration của P5-03 là `00015_observation` (theo PM).
+2. ~~#24~~ **ACCEPTED**: bốn đường cũ giữ đồng bộ; không sửa tám test sprint 6.
+3. `TestSchemaAttendance` đã sửa theo chỉ đạo PM (commit BUG-S7-01 vòng 2).
 4. **BUG-S7-01 BUG-2 (thời gian CI)**: tách `Go test (rest)` thành `rest-1` / `rest-2` (gói lẻ / chẵn của `go list`) trong `.github/workflows/ci.yml` — chỉ đổi cấu hình, đúng chỉ dẫn #19. Nếu nhánh có "required check" tên `Go test (rest)` thì PM đổi tên check.
 5. `docs/ARCHITECTURE.md` bảng env: thêm `REPORT_RATE_PER_HOUR`, `REPORT_AUTOHIDE_THRESHOLD`, `THREAD_PIN_MAX` (BA).
-6. Contract test đỏ MỘT lần khi chạy `go test ./...` (POST `/exams` 500 trong `scenarios_exam_test.go:275`); chạy riêng xanh, chạy lại cả cây: xem mục CI cuối tệp.
+6. Chạy `go test ./...` cả cây trên máy 8 GB làm `TestChatThreadsContract` chậm (131 s so với 62 s chạy riêng) và đỏ rải rác ở kịch bản khác nhau mỗi lần (`POST /exams` 500, `PATCH …/chunks` 503); chạy riêng `./internal/contract/...` xanh. Một lần ổ đĩa Colima đầy (`No space left on device`) — đã dọn. QC đã ghi nhận hiện tượng tải tương tự ở report P5-02. CI (tách `rest-1` / `rest-2`) là nguồn đúng.

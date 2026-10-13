@@ -366,7 +366,8 @@ select t.id, t.title, left(t.body, 160)::text as preview, t.tags, t.week_no, t.s
        u.full_name as author_name, u.role as author_role,
        coalesce((select p.verification_state::text from forum_posts p
          where p.thread_id = t.id and p.course_id = t.course_id and p.kind = 'AI' and p.deleted_at is null
-           and ($1::bool or (p.hidden_at is null and p.verification_state <> 'REJECTED')) limit 1), '')::text as ai_verification
+           and ($1::bool or (p.hidden_at is null and p.verification_state <> 'REJECTED'))
+         order by (p.verification_state = 'REJECTED'), p.created_at desc limit 1), '')::text as ai_verification
 from forum_threads t
 join users u on u.id = t.author_id
 where t.course_id = $2 and t.deleted_at is null
@@ -660,7 +661,9 @@ select t.id, t.title, left(t.body, 160)::text as preview, (1 - (t.embedding <=> 
 from forum_threads t, forum_threads src
 where src.course_id = $1 and src.id = $2 and t.course_id = src.course_id and t.id <> src.id
   and t.deleted_at is null and t.hidden_at is null and t.embedding is not null and src.embedding is not null
-  and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and (p.verification_state = 'REJECTED' or p.hidden_at is not null))
+  -- bài AI MỚI NHẤT bị loại / ẩn thì không gợi ý; thread đang sinh lại (bài cũ REJECTED, bài mới PENDING) vẫn được gợi ý
+  and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and (p.verification_state = 'REJECTED' or p.hidden_at is not null)
+                    and not exists (select 1 from forum_posts q where q.thread_id = p.thread_id and q.kind = 'AI' and q.created_at > p.created_at))
   and 1 - (t.embedding <=> src.embedding) >= $3::float8
 order by t.embedding <=> src.embedding
 limit $4

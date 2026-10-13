@@ -130,11 +130,12 @@ group by r.target_id, r.reason;
 select user_id from enrollments where course_id = sqlc.arg(course_id) and status = 'ACTIVE' and role_in_course in ('TEACHER', 'TA');
 
 -- name: ThreadKnowledgeSource :one
--- hidden-ok: nguồn tri thức của thread (bài AI duy nhất + câu hỏi); trạng thái ẩn / xoá trả kèm để người gọi quyết định nạp hay gỡ.
+-- hidden-ok: nguồn tri thức của thread (bài AI đang hiệu lực — chưa REJECTED, mới nhất — + câu hỏi); trạng thái ẩn / xoá trả kèm để người gọi quyết định nạp hay gỡ.
 select p.id as post_id, p.verification_state::text as state, p.body as answer, (p.hidden_at is not null or p.deleted_at is not null or t.hidden_at is not null or t.deleted_at is not null)::bool as unavailable,
        t.title, t.body as question
 from forum_posts p join forum_threads t on t.course_id = p.course_id and t.id = p.thread_id
-where p.course_id = sqlc.arg(course_id) and p.thread_id = sqlc.arg(thread_id) and p.kind = 'AI';
+where p.course_id = sqlc.arg(course_id) and p.thread_id = sqlc.arg(thread_id) and p.kind = 'AI'
+order by (p.verification_state = 'REJECTED'), p.created_at desc limit 1;
 
 -- name: ModerationAIPendingCount :one
 -- "N câu trả lời AI chờ duyệt": bài AI PENDING chưa ẩn / chưa xoá của thread chưa ẩn / chưa xoá.
