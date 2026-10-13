@@ -559,7 +559,9 @@ select c.course_id::uuid as course_id,
        coalesce(k.n_mine, 0)::int as tk_mine,
        coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest,
        coalesce(k.n_over, 0)::int as tk_over,
-       coalesce(u.sessions, '[]'::jsonb)::jsonb as unmarked
+       coalesce(u.sessions, '[]'::jsonb)::jsonb as unmarked,
+       coalesce(rp.n, 0)::int as reported,
+       coalesce(rp.oldest, 'epoch'::timestamptz)::timestamptz as reported_oldest
 from unnest($1::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -619,14 +621,14 @@ left join (
            coalesce(sum(ap.n), 0)::int as ai_pending,
            count(*) filter (where t.ai_state = 'SKIPPED' and not exists (
                select 1 from forum_posts hp join enrollments se on se.course_id = hp.course_id and se.user_id = hp.author_id and se.status = 'ACTIVE' and se.role_in_course in ('TEACHER', 'TA')
-               where hp.course_id = t.course_id and hp.thread_id = t.id and hp.kind = 'HUMAN' and hp.deleted_at is null))::int as ai_skipped,
+               where hp.course_id = t.course_id and hp.thread_id = t.id and hp.kind = 'HUMAN' and hp.deleted_at is null and hp.hidden_at is null))::int as ai_skipped,
            min(t.created_at) as oldest
     from forum_threads t
     left join lateral (
         select count(*) as n from forum_posts p
         where p.course_id = t.course_id and p.thread_id = t.id and p.kind = 'AI' and p.verification_state = 'PENDING' and p.deleted_at is null and p.hidden_at is null
     ) ap on true
-    where t.course_id = any($1::text[]::uuid[]) and t.deleted_at is null
+    where t.course_id = any($1::text[]::uuid[]) and t.deleted_at is null and t.hidden_at is null
       and (ap.n > 0 or t.ai_state = 'SKIPPED')
     group by t.course_id
 ) f on f.course_id = c.course_id
@@ -645,6 +647,22 @@ left join (
     where x.rn <= 3
     group by x.course_id
 ) u on u.course_id = c.course_id
+left join (
+    -- US-P4-06 POST_REPORTED: bài có báo cáo OPEN hoặc tự ẩn chờ duyệt (chưa xoá), đếm bài; GỘP vào cùng truy vấn (ngân sách ≤ 5).
+    select y.course_id, count(*)::int as n, min(y.at) as oldest
+    from (
+        select z.course_id, z.target_id, min(z.at) as at
+        from (
+            select r.course_id, r.target_id, r.created_at as at from post_reports r where r.course_id = any($1::text[]::uuid[]) and r.status = 'OPEN'
+            union all
+            select t.course_id, t.id, t.hidden_at from forum_threads t where t.course_id = any($1::text[]::uuid[]) and t.hidden_at is not null and t.hidden_by is null and t.deleted_at is null
+            union all
+            select p.course_id, p.id, p.hidden_at from forum_posts p where p.course_id = any($1::text[]::uuid[]) and p.hidden_at is not null and p.hidden_by is null and p.deleted_at is null
+        ) z
+        group by z.course_id, z.target_id
+    ) y
+    group by y.course_id
+) rp on rp.course_id = c.course_id
 `
 
 type TodayStaffPendingParams struct {
@@ -672,6 +690,8 @@ type TodayStaffPendingRow struct {
 	TkOldest        time.Time
 	TkOver          int32
 	Unmarked        json.RawMessage
+	Reported        int32
+	ReportedOldest  time.Time
 }
 
 // (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
@@ -708,6 +728,8 @@ func (q *Queries) TodayStaffPending(ctx context.Context, arg TodayStaffPendingPa
 			&i.TkOldest,
 			&i.TkOver,
 			&i.Unmarked,
+			&i.Reported,
+			&i.ReportedOldest,
 		); err != nil {
 			return nil, err
 		}

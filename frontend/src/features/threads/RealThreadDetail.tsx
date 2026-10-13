@@ -2,12 +2,14 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
 import { useSession } from "@/shared/session/session";
 import { Button, ButtonLink, Field, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import { ANSWER_LABEL, SKIP_LABEL, confidenceLabel, describeReasons, threadKey, useSimilar, useThread, type ThreadPost } from "./threadsApi";
+import { EditForm, HiddenNotice, PostMenu } from "./ThreadModeration";
 import { usePostGate } from "./usePostGate";
 import r from "./RealThreads.module.css";
 
@@ -19,6 +21,10 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
   const q = useThread(courseId, id);
   const similar = useSimilar(courseId, id);
   const staff = role === "teacher" || role === "ta";
+  const router = useRouter();
+  const [editing, setEditing] = useState(false);
+  const th = q.data?.thread;
+  const locked = q.data?.posts.some((p) => p.kind === "AI" && (p.verification_state === "VERIFIED" || p.verification_state === "CORRECTED")) ?? false;
   return (
     <Page width="full">
       <PageHeader title={q.data?.thread.title ?? "Thread"} actions={<ButtonLink href="/threads" variant="ghost">Tất cả câu hỏi</ButtonLink>} />
@@ -32,15 +38,35 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
                   <span>{WHEN.format(new Date(q.data.thread.created_at))}</span>
                   {q.data.thread.week_no !== null && <span>Tuần {q.data.thread.week_no}</span>}
                   {q.data.thread.tags.map((t) => <span key={t}>#{t}</span>)}
+                  {q.data.thread.edited && <span>đã sửa</span>}
+                  {th && (
+                    <PostMenu
+                      courseId={courseId}
+                      target={{ kind: "thread", id, version: th.version ?? 1 }}
+                      mine={th.author.is_me}
+                      staff={staff}
+                      hidden={th.hidden}
+                      pinned={th.pinned}
+                      canEdit={!locked}
+                      replyCount={th.reply_count}
+                      onEdit={() => setEditing(true)}
+                      onDeleted={() => router.push("/threads")}
+                    />
+                  )}
                 </div>
-                <p className={r.body}>{q.data.thread.body}</p>
+                {th?.hidden && <HiddenNotice hidden={th.hidden} staff={staff} />}
+                {editing && th ? (
+                  <EditForm courseId={courseId} target={{ kind: "thread", id, version: th.version ?? 1 }} title={th.title} body={th.body} canChat={role === "student"} onDone={() => setEditing(false)} onCancel={() => setEditing(false)} />
+                ) : (
+                  <p className={r.body}>{q.data.thread.body}</p>
+                )}
                 {staff && q.data.thread.ai_state === "SKIPPED" && <p className={r.collapsed}>AI chưa trả lời: {SKIP_LABEL[q.data.thread.ai_skip_reason ?? ""] ?? "không đủ tin cậy"}</p>}
               </div>
             </Panel>
             <Panel>
               {q.data.posts.length > 0 && (
                 <ul className={r.posts} data-part="thread-posts">
-                  {q.data.posts.map((p) => <li key={p.id}>{p.kind === "AI" ? <AiPost courseId={courseId} threadId={id} p={p} staff={staff} /> : <HumanPost p={p} />}</li>)}
+                  {q.data.posts.map((p) => <li key={p.id}>{p.kind === "AI" ? <AiPost courseId={courseId} threadId={id} p={p} staff={staff} /> : <HumanPost courseId={courseId} p={p} staff={staff} canChat={role === "student"} />}</li>)}
                 </ul>
               )}
               <Reply courseId={courseId} threadId={id} canChat={role === "student"} />
@@ -60,15 +86,20 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
   );
 }
 
-function HumanPost({ p }: { p: ThreadPost }) {
+function HumanPost({ courseId, p, staff, canChat }: { courseId: string; p: ThreadPost; staff: boolean; canChat: boolean }) {
+  const [editing, setEditing] = useState(false);
+  const target = { kind: "post" as const, id: p.id, version: p.version };
   return (
     <div className={r.post}>
       <div className={r.head}>
         <span className={r.who}>{p.author?.full_name}</span>
         {p.author && p.author.role !== "STUDENT" && <span>{p.author.role === "TEACHER" ? "Giảng viên" : p.author.role === "TA" ? "Trợ giảng" : ""}</span>}
         <span>{WHEN.format(new Date(p.created_at))}</span>
+        {p.edited && <span>đã sửa</span>}
+        <PostMenu courseId={courseId} target={target} mine={p.author?.is_me ?? false} staff={staff} hidden={p.hidden} canEdit onEdit={() => setEditing(true)} />
       </div>
-      <p className={r.body}>{p.body}</p>
+      {p.hidden && <HiddenNotice hidden={p.hidden} staff={staff} />}
+      {editing ? <EditForm courseId={courseId} target={target} body={p.body} canChat={canChat} onDone={() => setEditing(false)} onCancel={() => setEditing(false)} /> : <p className={r.body}>{p.body}</p>}
     </div>
   );
 }
@@ -107,7 +138,9 @@ function AiPost({ courseId, threadId, p, staff }: { courseId: string; threadId: 
         <span className={r.who}>AI</span>
         <span className={ok ? r.ok : r.muted}>{label?.text}</span>
         {staff && p.confidence !== undefined && <span>Độ tin cậy {confidenceLabel(p.confidence)}</span>}
+        <PostMenu courseId={courseId} target={{ kind: "post", id: p.id, version: p.version }} mine={false} staff={staff} hidden={p.hidden} canEdit={false} onEdit={() => undefined} />
       </div>
+      {p.hidden && <HiddenNotice hidden={p.hidden} staff={staff} />}
       {editing ? (
         <>
           <Field label="Bản sửa">{(fid) => <Textarea id={fid} rows={6} value={text} onChange={(e) => setText(e.target.value)} />}</Field>

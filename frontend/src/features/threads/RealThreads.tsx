@@ -1,13 +1,15 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
+import { Pin } from "lucide-react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useExamLock } from "@/features/chat/chatApi";
 import { useAutosaveDraft } from "@/shared/data";
 import { useSession } from "@/shared/session/session";
-import { Button, EmptyState, Field, Input, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Textarea } from "@/shared/ui";
-import { ANSWER_LABEL, describeReasons, threadsKey, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
+import { Button, DataTable, EmptyState, Field, Input, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Tabs, Textarea } from "@/shared/ui";
+import { ANSWER_LABEL, REASON_NAME, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
 import { usePostGate } from "./usePostGate";
 import r from "./RealThreads.module.css";
 
@@ -26,7 +28,10 @@ export function RealThreads({ courseId }: { courseId: string }) {
   const [filter, setFilter] = useState({ q: "", tag: "", week: "", state: "" });
   const [showFilters, setShowFilters] = useState(false);
   const [composing, setComposing] = useState(false);
+  const staff = role === "teacher" || role === "ta";
+  const [moderation, setModeration] = useState(useSearchParams().get("view") === "moderation");
   const list = useThreadList(courseId, filter);
+  const pinned = pinnedOf(list.data?.pages);
   const qc = useQueryClient();
   const filtered = filter.q !== "" || filter.tag !== "" || filter.week !== "" || filter.state !== "";
 
@@ -34,12 +39,14 @@ export function RealThreads({ courseId }: { courseId: string }) {
     <Page width="full">
       <PageHeader title="Threads" actions={!composing ? <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button> : undefined} />
       <div className={r.detail}>
+        {staff && <Tabs label="Chế độ xem" value={moderation ? "mod" : "all"} onChange={(v) => setModeration(v === "mod")} options={[{ value: "all", label: "Câu hỏi" }, { value: "mod", label: "Cần xem" }]} />}
+        {staff && moderation && <ModerationQueue courseId={courseId} />}
         {composing && (
           <Panel>
             <Composer courseId={courseId} canChat={role === "student"} onCancel={() => setComposing(false)} onPosted={() => { setComposing(false); void qc.invalidateQueries({ queryKey: threadsKey(courseId) }); }} />
           </Panel>
         )}
-        <Button variant="ghost" className={r.filterToggle} aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)}>Bộ lọc</Button>
+        {!(staff && moderation) && <><Button variant="ghost" className={r.filterToggle} aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)}>Bộ lọc</Button>
         <div className={[r.filters, showFilters ? r.filtersOpen : ""].join(" ")} role="search">
           <Field label="Tìm theo tiêu đề">{(id) => <Input id={id} value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} placeholder="Ví dụ: cảnh báo học vụ" />}</Field>
           <Field label="Chủ đề">{(id) => <Input id={id} value={filter.tag} onChange={(e) => setFilter({ ...filter, tag: e.target.value.trim().toLowerCase() })} placeholder="quy-che" />}</Field>
@@ -62,7 +69,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
         <Panel>
           <PageState
             query={list}
-            isEmpty={() => list.items.length === 0}
+            isEmpty={() => list.items.length === 0 && pinned.length === 0}
             loading={<Skeleton lines={5} />}
             empty={
               <EmptyState title={filtered ? "Không có câu hỏi nào khớp." : "Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên."}>
@@ -71,11 +78,12 @@ export function RealThreads({ courseId }: { courseId: string }) {
             }
           >
             <ul className={r.rows} data-part="thread-list">
+              {pinned.map((t) => <li key={t.id} data-part="pinned-row"><Row t={t} /></li>)}
               {list.items.map((t) => <li key={t.id}><Row t={t} /></li>)}
             </ul>
             {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}
           </PageState>
-        </Panel>
+        </Panel></>}
       </div>
     </Page>
   );
@@ -86,13 +94,14 @@ function Row({ t }: { t: ThreadRow }) {
   return (
     <div className={r.row}>
       <Link href={`/threads/${t.id}`} className={r.rowLink}>
-        <span className={r.rowTitle}>{t.title}</span>
+        <span className={r.rowTitle}>{t.pinned && <Pin className={r.pin} aria-label="Đã ghim" />}{t.title}</span>
         <p className={r.preview}>{t.preview}</p>
       </Link>
       <div className={r.meta}>
         <span>{t.author.full_name}</span>
         {t.week_no !== null && <span>Tuần {t.week_no}</span>}
         {t.tags.map((x) => <span key={x}>#{x}</span>)}
+        {t.hidden && <StatusText tone="amber">Đã ẩn</StatusText>}
         {label ? <StatusText tone={label.tone}>{label.text}</StatusText> : t.ai_state === "SKIPPED" ? <StatusText tone="amber">Đang chờ giảng viên</StatusText> : null}
         <span>{AGO.format(new Date(t.last_activity_at))}</span>
       </div>
@@ -160,3 +169,29 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
 }
 
 export { Composer as ThreadComposer };
+
+function ModerationQueue({ courseId }: { courseId: string }) {
+  const [status, setStatus] = useState<"OPEN" | "HIDDEN">("OPEN");
+  const q = useModerationQueue(courseId, status);
+  return (
+    <Panel>
+      <Tabs label="Trạng thái báo cáo" value={status} onChange={setStatus} options={[{ value: "OPEN", label: "Chờ xem" }, { value: "HIDDEN", label: "Đã ẩn" }]} />
+      <PageState query={q} isEmpty={() => q.items.length === 0} loading={<Skeleton lines={4} />} empty={<EmptyState title="Không có bài nào cần xem." />}>
+        <DataTable
+          caption="Bài bị báo cáo"
+          rows={q.items}
+          rowKey={(m) => `${m.kind}:${m.post_id ?? m.thread_id}`}
+          rowHref={(m) => `/threads/${m.thread_id}`}
+          columns={[
+            { key: "t", header: "Nội dung", primary: true, render: (m) => m.title_or_excerpt },
+            { key: "k", header: "Loại", render: (m) => (m.kind === "thread" ? "Câu hỏi" : "Bình luận") },
+            { key: "n", header: "Báo cáo", render: (m) => `${m.reports.total} · ${Object.keys(m.reports.by_reason).map((k) => REASON_NAME[k] ?? k).join(", ")}` },
+            { key: "s", header: "Trạng thái", render: (m) => (m.hidden_at ? (m.hidden_by_auto ? "Tự ẩn" : "Đã ẩn") : "Đang hiện") },
+            { key: "d", header: "Lúc", render: (m) => AGO.format(new Date(m.created_at)) },
+          ]}
+        />
+        {q.hasNextPage && <Button onClick={() => void q.fetchNextPage()} disabled={q.isFetchingNextPage}>Xem thêm</Button>}
+      </PageState>
+    </Panel>
+  );
+}

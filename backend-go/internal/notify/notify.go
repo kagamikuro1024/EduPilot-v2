@@ -26,6 +26,8 @@ const (
 	TypeTicketNew            = "TICKET_NEW"
 	TypeAIPending            = "AI_PENDING"
 	TypePostReported         = "POST_REPORTED"
+	TypePostHidden           = "POST_HIDDEN"
+	TypePostUnhidden         = "POST_UNHIDDEN"
 	TypeTicketStale          = "TICKET_STALE"
 	TypeTicketAnswered       = "TICKET_ANSWERED"
 	TypeCourseTicketsStalled = "COURSE_TICKETS_STALLED"

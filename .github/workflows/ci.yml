@@ -94,8 +94,8 @@ jobs:
         run: sqlc diff
 
   go-test:
-    # TL-CI #5: `course` và `auth` mỗi gói một dòng (dài nhất, kèm bước đo thời gian); dòng `rest` = MỌI gói còn lại, tính lúc chạy
-    # từ `go list` nên gói mới không bao giờ bị rơi. Dòng nào không có gói nào thì đỏ (tránh `go test` chạy nhầm thư mục hiện tại).
+    # TL-CI #5: `course` và `auth` mỗi gói một dòng (dài nhất, kèm bước đo thời gian); hai dòng `rest-1` / `rest-2` = MỌI gói còn lại (gói lẻ / chẵn theo thứ tự `go list`), tính lúc chạy
+    # từ `go list` nên gói mới không bao giờ bị rơi; tách đôi để mỗi dòng ≤ 10 phút (BUG-S7-01 BUG-2). Dòng nào không có gói nào thì đỏ (tránh `go test` chạy nhầm thư mục hiện tại).
     name: Go test (${{ matrix.name }})
     needs: changes
     if: needs.changes.outputs.go == 'true'
@@ -107,7 +107,8 @@ jobs:
         include:
           - { name: course, timing: ./internal/course/ }
           - { name: auth, timing: ./internal/auth/ }
-          - { name: rest, save: true }
+          - { name: rest-1, save: true }
+          - { name: rest-2 }
     defaults:
       run:
         shell: bash
@@ -129,7 +130,7 @@ jobs:
           path: ${{ steps.gopath.outputs.mod }}
           key: go-mod-${{ runner.os }}-${{ hashFiles('backend-go/go.sum') }}
       - name: cache biên dịch Go (khôi phục)
-        # Chỉ dòng `rest` ghi lại (cuối job, khoá có run_id); `course` / `auth` biên dịch phần lớn cùng phụ thuộc nên dùng chung bản của `rest`.
+        # Chỉ dòng `rest-1` ghi lại (cuối job, khoá có run_id); `course` / `auth` biên dịch phần lớn cùng phụ thuộc nên dùng chung bản của `rest-1`.
         uses: actions/cache/restore@v5
         with:
           path: ${{ steps.gopath.outputs.build }}
@@ -150,13 +151,15 @@ jobs:
           case "$ROW" in
             course) pkgs=$(grep -E '/internal/course(/|$)' <<<"$all" || true) ;;
             auth) pkgs=$(grep -E '/internal/auth(/|$)' <<<"$all" || true) ;;
-            *) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" || true) ;;
+            rest-1) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%2==1' || true) ;;
+            rest-2) pkgs=$(grep -Ev '/internal/(course|auth)(/|$)' <<<"$all" | awk 'NR%2==0' || true) ;;
+            *) echo "dòng $ROW không có trong bảng"; exit 1 ;;
           esac
           [ -n "$pkgs" ] || { echo "dòng $ROW không có gói nào"; exit 1; }
           echo "gói: $(wc -l <<<"$pkgs")"
           log="$RUNNER_TEMP/go-test.log"
           # Không -p 1 (#19): các test từng đỏ ngẫu nhiên khi 4 gói chạy cùng lúc đã được sửa ở gốc (chờ sự kiện / kênh / hạn đủ dài trong test thay cho đồng hồ thật;
-          # danh sách ở docs/sprints/7/handoff/dev-US-CI-02.md, vòng 3). Đo: 6/6 lượt nguội xanh, dòng `rest` 6–8 phút (-p 1 mất 10–12 phút, vượt ngưỡng TC-20).
+          # danh sách ở docs/sprints/7/handoff/dev-US-CI-02.md, vòng 3). Đo: 6/6 lượt nguội xanh, dòng `rest` 6–8 phút trước khi tách đôi (-p 1 mất 10–12 phút, vượt ngưỡng TC-20).
           go test -race -tags testroutes -v $pkgs 2>&1 | tee "$log"
           echo "go test [$ROW] test cấp cao nhất: PASS=$(grep -c '^--- PASS' "$log") SKIP=$(grep -c '^--- SKIP' "$log") FAIL=$(grep -c '^--- FAIL' "$log")"
       - name: go test (đo thời gian, tuần tự, không -race)

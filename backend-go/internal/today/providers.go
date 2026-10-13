@@ -245,6 +245,14 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 				Title: fmt.Sprintf("%d câu hỏi chờ duyệt · lớp %s", r.Questions, c.ClassCode), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
 			}))
 		}
+		if r.Reported > 0 { // US-P4-06 (bậc 47, Giảng viên + TA): bài bị báo cáo / tự ẩn chờ xem
+			age := v.Now.Sub(r.ReportedOldest)
+			out = append(out, mk(Item{
+				ID: "POST_REPORTED:" + c.ID.String(), Kind: KindPostReported, Tier: TierPostReported, Course: courseRef(c),
+				Href:  fmt.Sprintf("/threads?view=moderation&course=%s", c.ID),
+				Title: fmt.Sprintf("%d bài bị báo cáo chờ xem · lớp %s", r.Reported, c.ClassCode), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
+			}))
+		}
 		if r.AiPending > 0 || r.AiSkipped > 0 { // US-P3-08 (bậc 50, Giảng viên + TA): bài AI chờ xác nhận / câu hỏi AI chưa trả lời được; chỉ nêu số khác 0
 			var parts []string
 			if r.AiPending > 0 {

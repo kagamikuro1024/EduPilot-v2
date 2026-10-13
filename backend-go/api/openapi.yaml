@@ -5892,6 +5892,62 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/threads/{tid}:
+    put:
+      operationId: editThread
+      tags: [threads]
+      summary: "Sửa thread của mình (cùng tường lửa PII; câu hỏi đã có câu trả lời xác nhận bị khoá)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditThreadInput"
+      responses:
+        "200":
+          description: Đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteThread
+      tags: [threads]
+      summary: "Xoá mềm thread của mình"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
     get:
       operationId: getThread
       tags: [threads]
@@ -6607,6 +6663,474 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "409":
           $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads/{tid}/report:
+    post:
+      operationId: reportThread
+      tags: [threads]
+      summary: "Báo cáo thread (mọi thành viên trừ ADMIN; mỗi người một lần mỗi bài; ≥ N người khác nhau → tự ẩn chờ duyệt)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: Đã ghi báo cáo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportCreated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: unreportThread
+      tags: [threads]
+      summary: "Rút báo cáo trong 5 giây (Hoàn tác) khi bài chưa ẩn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã rút
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/report:
+    post:
+      operationId: reportThreadPost
+      tags: [threads]
+      summary: "Báo cáo bình luận / bài AI"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: Đã ghi báo cáo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportCreated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: unreportThreadPost
+      tags: [threads]
+      summary: "Rút báo cáo trong 5 giây khi bài chưa ẩn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã rút
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/hide:
+    post:
+      operationId: hideThread
+      tags: [threads]
+      summary: "Ẩn bài (Staff; lý do 1–200 ký tự; báo cáo OPEN → ACTIONED; gỡ tri thức đã nạp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HideInput"
+      responses:
+        "200":
+          description: Đã ẩn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads/{tid}/unhide:
+    post:
+      operationId: unhideThread
+      tags: [threads]
+      summary: "Bỏ ẩn (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã hiện lại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/dismiss-reports:
+    post:
+      operationId: dismissThreadReports
+      tags: [threads]
+      summary: "Giữ bài (Staff): báo cáo OPEN → DISMISSED; bài tự ẩn hiện lại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã xử lý
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/hide:
+    post:
+      operationId: hideThreadPost
+      tags: [threads]
+      summary: "Ẩn bài (Staff; lý do 1–200 ký tự; báo cáo OPEN → ACTIONED; gỡ tri thức đã nạp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HideInput"
+      responses:
+        "200":
+          description: Đã ẩn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/posts/{pid}/unhide:
+    post:
+      operationId: unhideThreadPost
+      tags: [threads]
+      summary: "Bỏ ẩn (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã hiện lại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/dismiss-reports:
+    post:
+      operationId: dismissThreadPostReports
+      tags: [threads]
+      summary: "Giữ bài (Staff): báo cáo OPEN → DISMISSED; bài tự ẩn hiện lại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã xử lý
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/pin:
+    post:
+      operationId: pinThread
+      tags: [threads]
+      summary: "Ghim thread (Staff; ≤ THREAD_PIN_MAX mỗi lớp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã ghim
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/unpin:
+    post:
+      operationId: unpinThread
+      tags: [threads]
+      summary: "Bỏ ghim (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã bỏ ghim
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/posts/{pid}:
+    put:
+      operationId: editThreadPost
+      tags: [threads]
+      summary: "Sửa bình luận của mình (cùng tường lửa PII)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditPostInput"
+      responses:
+        "200":
+          description: Đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteThreadPost
+      tags: [threads]
+      summary: "Xoá mềm bình luận của mình"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/moderation/queue:
+    get:
+      operationId: moderationQueue
+      tags: [threads]
+      summary: "Hàng chờ kiểm duyệt (Staff): bài có báo cáo OPEN hoặc đang ẩn; phân trang con trỏ"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, HIDDEN]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Hàng chờ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModerationQueuePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
 components:
@@ -11375,10 +11899,30 @@ components:
           format: date-time
         ai_state:
           type: string
+        hidden:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadHidden"
+            - type: "null"
+        pinned:
+          type: boolean
+        edited:
+          type: boolean
+    ThreadHidden:
+      type: object
+      required: [reason, auto]
+      properties:
+        reason:
+          type: string
+        auto:
+          type: boolean
     ThreadPage:
       type: object
-      required: [items, next_cursor]
+      required: [pinned, items, next_cursor]
       properties:
+        pinned:
+          type: array
+          items:
+            $ref: "#/components/schemas/ThreadRow"
         items:
           type: array
           items:
@@ -11418,6 +11962,12 @@ components:
           type: string
         rejected:
           type: boolean
+        hidden:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadHidden"
+            - type: "null"
+        edited:
+          type: boolean
     ThreadDetail:
       type: object
       required: [id, title, body, tags, week_no, author, reply_count, created_at, last_activity_at, similar_of]
@@ -11452,6 +12002,16 @@ components:
           type: string
         ai_skip_reason:
           type: string
+        version:
+          type: integer
+        hidden:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadHidden"
+            - type: "null"
+        pinned:
+          type: boolean
+        edited:
+          type: boolean
     ThreadView:
       type: object
       required: [thread, posts, next_cursor]
@@ -11462,6 +12022,120 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ThreadPost"
+        next_cursor:
+          type: [string, "null"]
+    ReportInput:
+      type: object
+      required: [reason]
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          enum: [SPAM, OFF_TOPIC, PERSONAL_INFO, OFFENSIVE, WRONG_ANSWER, OTHER]
+        note:
+          type: [string, "null"]
+          maxLength: 200
+    ReportCreated:
+      type: object
+      required: [reported]
+      properties:
+        reported:
+          type: boolean
+    HideInput:
+      type: object
+      required: [reason, version]
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        version:
+          type: integer
+    ModResult:
+      type: object
+      required: [id, hidden, version]
+      properties:
+        id:
+          type: string
+          format: uuid
+        hidden:
+          type: boolean
+        version:
+          type: integer
+    EditThreadInput:
+      type: object
+      required: [title, body, version]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        version:
+          type: integer
+        redact:
+          type: boolean
+    EditPostInput:
+      type: object
+      required: [body, version]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        version:
+          type: integer
+        redact:
+          type: boolean
+    ModerationReports:
+      type: object
+      required: [total, by_reason]
+      properties:
+        total:
+          type: integer
+        by_reason:
+          type: object
+          additionalProperties:
+            type: integer
+    ModerationQueueItem:
+      type: object
+      required: [kind, thread_id, post_id, title_or_excerpt, reports, hidden_at, hidden_by_auto, created_at]
+      properties:
+        kind:
+          type: string
+          enum: [thread, post]
+        thread_id:
+          type: string
+          format: uuid
+        post_id:
+          type: [string, "null"]
+          format: uuid
+        title_or_excerpt:
+          type: string
+        reports:
+          $ref: "#/components/schemas/ModerationReports"
+        hidden_at:
+          type: [string, "null"]
+          format: date-time
+        hidden_by_auto:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    ModerationQueuePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ModerationQueueItem"
         next_cursor:
           type: [string, "null"]
     CreateThreadInput:

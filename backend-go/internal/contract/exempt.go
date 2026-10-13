@@ -22,6 +22,8 @@ func Exemptions() []Exemption {
 		{"GET /api/v1/me/exam-lock", 503, "503 chỉ khi Redis và Postgres cùng lỗi (người gọi coi như bị khoá); hành vi được `exam.TestLockerBothDownDeniesChat` kiểm."},
 		{"PUT /api/v1/courses/{id}/exams/{eid}/items/{itemId}/override", 202, "202 chỉ khi bài có > 200 lượt GRADED (tính lại ở việc nền); đường 200 được kịch bản gọi, đường 202 do `exam.TestOverrideLargeUsesJob` kiểm."},
 		{"GET /api/v1/courses/{id}/exams/{eid}/results.csv", 422, "EXPORT_TOO_LARGE chỉ khi lớp > 5.000 sinh viên (thực tế sĩ số ≤ 1.000); `exam.TestCSVOver5000Rejected` kiểm bằng hạ trần."},
+		{"POST /api/v1/courses/{id}/threads/{tid}/report", 429, "Hạn mức 20 báo cáo / giờ / người: không gọi 21 lần trong kịch bản hợp đồng; `thread.TestReportRateLimit` kiểm bằng hạ ngưỡng."},
+		{"POST /api/v1/courses/{id}/posts/{pid}/report", 429, "Như trên: `thread.TestReportRateLimit`."},
 		{"PUT /api/v1/courses/{id}/sessions/{sid}/attendance", 503, "503 chỉ khi DB không dùng được giữa lúc lưu; không kéo sập Postgres dùng chung của bộ hợp đồng. `crm.TestPutGridDBDownAtomic` kiểm 503 và không ghi nửa chừng bằng pool đã đóng."},
 		{"PATCH /api/v1/courses/{id}/documents/{docId}/chunks/{chunkId}", 503, "503 chỉ khi nhúng lỗi; bộ hợp đồng chạy nhà cung cấp `fake` luôn nhúng được. `document.TestEditChunkEmbedFailureKeepsOld` kiểm 503 + giữ nguyên đoạn cũ bằng hàm nhúng lỗi."},
 	}

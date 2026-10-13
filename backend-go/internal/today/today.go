@@ -54,6 +54,7 @@ const (
 	KindTicket            Kind = "TICKET"                 // US-P4-03: câu hỏi chờ giảng viên (Giảng viên + TA)
 	KindCourseStalled     Kind = "COURSE_TICKETS_STALLED" // US-P4-05: Admin, lớp có ticket quá 72 giờ làm việc mà không ai hoạt động
 	KindStaffAnswerUnread Kind = "STAFF_ANSWER_UNREAD"    // US-P4-03: sinh viên có trả lời của giảng viên chưa đọc
+	KindPostReported      Kind = "POST_REPORTED"          // US-P4-06: bài bị báo cáo / tự ẩn chờ duyệt (Giảng viên + TA)
 	KindSessionUnmarked   Kind = "SESSION_UNMARKED"       // US-P5-01: buổi đang diễn ra / vừa kết thúc chưa điểm danh (Giảng viên + TA)
 )
 
@@ -80,6 +81,7 @@ const (
 	TierExamPublishHold   = 32
 	TierExamResult        = 44
 	TierExamAppealReply   = 46
+	TierPostReported      = 47
 	TierAIConfirm         = 50
 	TierCourseStalled     = 45
 	TierTicket            = 10
@@ -96,7 +98,7 @@ func allowed(role Role, k Kind) bool {
 	switch k {
 	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply:
 		return role == RoleStudent
-	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked:
+	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported:
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher

@@ -22,6 +22,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
+	"github.com/edupilot/backend-go/internal/store"
 	"github.com/edupilot/backend-go/internal/thread"
 	"github.com/edupilot/backend-go/internal/today"
 )
@@ -60,7 +61,15 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	// Threads (US-P3-08): thread mới / quyết định về bài AI đổi việc AI_CONFIRM của Staff → xoá cache "Hôm nay". Việc AI trả lời đi bằng `job.enqueue` → ep:ingest (không chạy trong consumer outbox này).
 	reg.Register(thread.TopicCreated, outbox.Chain(thread.OnCreated, inv.Handle))
-	reg.Register(thread.TopicPostDecided, inv.Handle)
+	// Kiểm duyệt Threads (US-P4-06, SRS 4.11): đếm lại hai dòng gộp của Staff, chuông chủ bài, vô hiệu "Hôm nay" — việc DB thuần trước, `inv.Handle` cuối.
+	tn := &thread.Notifier{Q: store.New(d.DB), Notify: nt}
+	reg.Register(thread.TopicPostDecided, outbox.Chain(tn.HandleAIPending, inv.Handle))
+	reg.Register(thread.TopicAIAnswerd, outbox.Chain(tn.HandleAIPending, inv.Handle))
+	reg.Register(thread.TopicEdited, outbox.Chain(tn.HandleAIPending, inv.Handle))
+	reg.Register(thread.TopicReported, outbox.Chain(tn.HandleReported, inv.Handle))
+	reg.Register(thread.TopicHidden, outbox.Chain(tn.HandleHidden, inv.Handle))
+	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
+	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
 	reg.Register(crm.TopicAttendanceSaved, inv.Handle) // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
 	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
 	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log, Gate: escalation.MailGate{Redis: d.Redis, Clock: clock.Real{}, Window: d.Cfg.MailTicketNewCoalesce}, Clock: clock.Real{}}

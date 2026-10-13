@@ -15,8 +15,8 @@ func TestChatThreadsContract(t *testing.T) {
 			keys = append(keys, o.Key())
 		}
 	}
-	if len(keys) != 21 {
-		t.Fatalf("chat + threads: %d thao tác (cần 21): %v", len(keys), keys)
+	if len(keys) != 38 {
+		t.Fatalf("chat + threads: %d thao tác (cần 38): %v", len(keys), keys)
 	}
 	seen := map[string]bool{}
 	for _, o := range observations(t) {

@@ -16,6 +16,9 @@ type Blocked = { reasons: Reason[]; personal_question: boolean };
 export function usePostGate<T>(o: {
   courseId: string;
   path: string;
+  /** mặc định POST (đăng mới); PUT khi chủ bài sửa — cùng tường lửa PII, cùng hộp thoại hai lối */
+  method?: "POST" | "PUT";
+  redactLabel?: string;
   title?: string;
   body: string;
   payload: Record<string, unknown>;
@@ -55,7 +58,8 @@ export function usePostGate<T>(o: {
     const sig = JSON.stringify([o.path, o.payload, redact]);
     if (key.current?.sig !== sig) key.current = { sig, key: newIdempotencyKey() };
     try {
-      const r = await apiClient.post<T>(o.path, { ...o.payload, redact }, { idempotencyKey: key.current.key });
+      const send = o.method === "PUT" ? apiClient.put<T> : apiClient.post<T>;
+      const r = await send(o.path, { ...o.payload, redact }, { idempotencyKey: key.current.key });
       key.current = null;
       o.onPosted(r.data);
     } catch (e) {
@@ -94,6 +98,7 @@ export function usePostGate<T>(o: {
         setBlocked(null);
         void submit(true);
       }}
+      redactLabel={o.redactLabel}
       redactDisabled={blocked?.personal_question ? "Câu hỏi về điểm của riêng bạn không đăng công khai được." : undefined}
     />
   );
