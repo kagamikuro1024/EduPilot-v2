@@ -44,10 +44,10 @@ function applyFrame(p: Page | undefined, e: SSEEvent): Page | undefined {
  * (429, mất kết nối) thì rơi về làm mới 30 s như cũ, và luôn làm mới khi tab lấy lại focus. Chấm chưa đọc theo `unread_count`;
  * đánh dấu đã đọc lạc quan (hỏng ⇒ tải lại để về đúng trạng thái).
  */
-export function useRealNotifications(enabled: boolean) {
+export function useRealNotifications(enabled: boolean, live = enabled) {
   const qc = useQueryClient();
   const sse = useSSEStatus();
-  useSSE("notification", (e) => qc.setQueryData<Page>(KEY, (p) => applyFrame(p, e)), { invalidateKeys: [KEY] }); // `resync` → đọc bù từ bảng
+  useSSE("notification", (e) => qc.setQueryData<Page>(KEY, (p) => applyFrame(p, e)), { invalidateKeys: [KEY], enabled: live }); // `resync` → đọc bù từ bảng
   const q = useQuery({
     queryKey: KEY,
     enabled,

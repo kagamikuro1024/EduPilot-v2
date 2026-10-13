@@ -128,7 +128,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   };
 
   // Chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus).
-  const real = useRealNotifications(true);
+  const real = useRealNotifications(true, Boolean(identity)); // chưa có phiên thật ⇒ không mở /events (kết nối chung của tab dành cho người nghe khác)
 
   // Thanh bên và thanh dưới loại trừ nhau: chỉ gắn một bộ badge vào DOM ở mỗi bề rộng.
   const narrow = useMedia(NARROW);

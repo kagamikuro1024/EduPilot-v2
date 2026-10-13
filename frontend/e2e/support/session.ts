@@ -21,6 +21,9 @@ const mineItem = (code: keyof typeof COURSE_ID, role: "TEACHER" | "TA" | "STUDEN
   enrollment_status: "ACTIVE",
 });
 
+/** Kết nối `/events` của chuông (US-P4-02): mặc định "mở rồi im" để trang có phiên không chạm máy chủ giả dùng chung (`api-server.mjs`) làm sai số đếm của test lớp dữ liệu chạy song song. */
+export const idleEvents = (cors: Record<string, string>) => ({ status: 200, headers: { ...cors, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" }, body: 'retry: 3000\n\nevent: ready\ndata: {"conn_id":"c"}\n\n' });
+
 /**
  * Đăng nhập GIẢ bằng JWT cho màn mô phỏng (thay bộ đổi vai bằng cookie đã bị xoá — US-P2-12 AC10): `POST /auth/refresh` trả phiên của
  * tài khoản seed tương ứng vai / người, `GET /me/courses` trả lớp thật tương ứng. Gateway không chạy: mọi lời gọi khác bị bỏ qua.
@@ -87,6 +90,7 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
   });
   await context.route("**/api/v1/admin/observability/failed-mail**", (r) => r.fulfill(json({ items: [], next_cursor: null }))); // US-P4-04: mặc định không có thư lỗi
   await context.route("**/api/v1/notifications**", (r) => r.fulfill(json({ items: [], next_cursor: null, unread_count: 0 })));
+  await context.route("**/api/v1/events", (r) => r.fulfill(idleEvents(cors)));
 }
 
 export type JwtRole = "ADMIN" | "TEACHER" | "TA" | "STUDENT";
@@ -123,5 +127,6 @@ export async function asJwt(page: Page, role: JwtRole, opts: { email?: string; f
     calls.logout++;
     return route.fulfill({ status: 204, headers: cors });
   });
+  await page.route("**/api/v1/events", (route) => route.fulfill(idleEvents(cors)));
   return calls;
 }

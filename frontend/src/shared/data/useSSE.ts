@@ -13,9 +13,10 @@ export function useSSEStatus(): SSEStatus {
 
 /**
  * Nghe một loại sự kiện SSE qua kết nối duy nhất của tab. `onResync` mặc định vô hiệu hoá các query trong `invalidateKeys`
- * (khoá đăng ký SSE); huỷ gắn kết cuối cùng của cả tab ⇒ abort kết nối.
+ * (khoá đăng ký SSE); huỷ gắn kết cuối cùng của cả tab ⇒ abort kết nối. `enabled: false` ⇒ không đăng ký (không mở kết nối khi chưa có phiên).
  */
-export function useSSE(type: string, handler: (e: SSEEvent) => void, opts: { invalidateKeys?: QueryKey[]; onResync?: () => void } = {}) {
+export function useSSE(type: string, handler: (e: SSEEvent) => void, opts: { invalidateKeys?: QueryKey[]; onResync?: () => void; enabled?: boolean } = {}) {
+  const enabled = opts.enabled ?? true;
   const qc = useQueryClient();
   const h = useRef(handler);
   const keys = useRef(opts.invalidateKeys);
@@ -25,17 +26,16 @@ export function useSSE(type: string, handler: (e: SSEEvent) => void, opts: { inv
     keys.current = opts.invalidateKeys;
     resync.current = opts.onResync;
   });
-  useEffect(
-    () =>
-      sseManager.on(
-        type,
-        (e) => h.current(e),
-        () => {
-          if (resync.current) resync.current();
-          else keys.current?.forEach((k) => void qc.invalidateQueries({ queryKey: k }));
-        },
-      ),
-    [type, qc],
-  );
+  useEffect(() => {
+    if (!enabled) return undefined;
+    return sseManager.on(
+      type,
+      (e) => h.current(e),
+      () => {
+        if (resync.current) resync.current();
+        else keys.current?.forEach((k) => void qc.invalidateQueries({ queryKey: k }));
+      },
+    );
+  }, [type, qc, enabled]);
   return useSSEStatus();
 }
