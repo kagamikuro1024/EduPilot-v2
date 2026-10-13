@@ -1,5 +1,5 @@
 # SRS FEAT-escalation-notify Escalation, thông báo tức thời, thư qua mail, kiểm duyệt Threads, an toàn con người
-Phiên bản 1.1 · 2026-10-13 · Trạng thái: **DRAFT** (đã sửa theo `TL-REVIEW.md` TLR-1…22, trả lời chủ dự án Q1–Q11, quyết định PM Q12–Q23, `proposals.md` #1 #2 #3 #8 #9; chờ PM đánh APPROVED).
+Phiên bản 1.1 · 2026-10-13 · Trạng thái: **APPROVED** (PM, 2026-10-13; đã sửa theo `TL-REVIEW.md` TLR-1…22, trả lời chủ dự án Q1–Q11, quyết định PM Q12–Q23, `proposals.md` #1 #2 #3 #8 #9). Thay đổi sau mốc này chỉ qua `proposals.md`.
 
 Nguồn: `docs/phases/P4.md` (L1, L2, L2b, L3); `docs/sprints/7/plan.md` story 1–7; PRD M2, M3, §3, §5; FLOWS F3, F4, F5, F14; `ARCHITECTURE.md` §4 (`00012`), §5 (Escalation, Thông báo, Kiểm duyệt Threads), §7 (`/inbox`); `SYSTEM_DESIGN.md` 3.2–3.5, §5 (SLO); `DECISIONS.md` D6, D39, D44, D47, D49, D51, D56, D59; `design/DESIGN.md` §13, §14.3–14.5; `UX.md` mục 2, 5, 6; `CLAUDE.md` (luật chữ UI); spec đã có `FEAT-course-foundation` v1.8 (`notifications`, mail outbox, `Hôm nay` 4.7, Guard), `FEAT-private-chat-pii` v1.7 (chat, Threads, ngưỡng tự tin, khoá giờ thi, an toàn con người), `FEAT-docs-calendar` (RAG, documents, ingest); mã `backend-go/internal/{agent,chat,thread,today,mail,httpapi/sse,platform/outbox}` ở `main` + `sprint/7-p4-p5` (đọc để biết cái đã làm, không sửa).
 
