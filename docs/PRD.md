@@ -118,7 +118,7 @@ Ticket không ai nhận: nhắc lại cả nhóm sau 24 giờ làm việc, nổi
 - Kích hoạt: `confidence` < ngưỡng lớp (mặc định 0,80; thanh trượt 0,50–0,95) hoặc sinh viên bấm "Cần hỗ trợ".
 - `confidence` tổng hợp: điểm rerank ngữ cảnh + LLM tự đánh giá groundedness + tool có trả dữ liệu không.
 - Giảng viên nhận chuông (SSE) → bấm mở ticket → trả lời ngay trong app → câu trả lời hiện trong chat riêng của sinh viên VÀ gửi mail cho sinh viên (câu hỏi gốc + trả lời + link). Mail báo ticket mới cho giảng viên: tuỳ chọn cá nhân, mặc định tắt.
-- "Lưu thành tri thức": che thông tin cá nhân rồi nạp vector DB + semantic cache.
+- "Lưu thành tri thức": che thông tin cá nhân rồi nạp vector DB; vô hiệu cache theo `ep:rag:ver`.
 - AC: chuông tới giảng viên ≤ 5 s; mail tới sinh viên ≤ 60 s sau khi gửi trả lời; ticket idempotent theo `message_id`.
 
 ### M4. Luyện đề cuối kỳ
