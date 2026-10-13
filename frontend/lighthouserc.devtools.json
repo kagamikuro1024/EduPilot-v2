@@ -37,7 +37,7 @@
             "largest-contentful-paint": [
               "error",
               {
-                "maxNumericValue": 2500,
+                "maxNumericValue": 1,
                 "aggregationMethod": "median"
               }
             ]
@@ -49,7 +49,7 @@
             "largest-contentful-paint": [
               "warn",
               {
-                "maxNumericValue": 2500,
+                "maxNumericValue": 1,
                 "aggregationMethod": "median"
               }
             ]
