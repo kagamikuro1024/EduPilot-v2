@@ -1,4 +1,3 @@
-import { ThreadsBackground } from "@/features/threads/ThreadsBackground";
 import { AppShell } from "@/shared/shell/AppShell";
 import { AuthGate } from "@/shared/session/AuthGate";
 
@@ -7,7 +6,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <AuthGate>
       <AppShell>{children}</AppShell>
-      <ThreadsBackground />
     </AuthGate>
   );
 }

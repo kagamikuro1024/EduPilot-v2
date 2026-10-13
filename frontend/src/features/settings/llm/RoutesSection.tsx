@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { Button, Field, Input, InlineNotice, Select } from "@/shared/ui";
-import { LLMRouteTable, type RouteRow } from "@/shared/domain";
+// nhập thẳng, không qua thùng `@/shared/domain` (thùng kéo cả AttendanceGrid, Markdown… vào gói trang: TL-1)
+import { LLMRouteTable, type RouteRow } from "@/shared/domain/LLMRouteTable";
 import { chatGroups, type Provider, type Route } from "./api";
 import { LANE_LABEL, TASKS, taskLabel } from "./labels";
 import { MAX_CHAIN, changeLabel, chainItemFor, useRouteWriter } from "./routeWriter";

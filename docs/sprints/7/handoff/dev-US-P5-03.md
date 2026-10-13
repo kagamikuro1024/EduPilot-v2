@@ -36,8 +36,9 @@ bash ../scripts/ui-antipatterns.sh                              # rc=0
 3. Spec AC8 ví dụ (1) dùng `today` làm gói trung gian import `crm` — thực tế không có đường đó; test vẫn bắt đúng mọi gói trung gian (BA sửa ví dụ).
 4. `k6 run benchmarks/load/heartbeat.js` chưa chạy trên stack (QC / PM chạy cùng seed của US-S7-SEED).
 
-## Vòng CI — ngân sách script Lighthouse (`/settings/llm` 256910 B > 256000 B ở `f45454c`)
-- Đo cục bộ bằng chính `lhci collect` + `lighthouserc.json` (admin, `/settings/llm`): nền `fa7caf3` 247008 B; `f45454c` 248161 B (+1153); nay 247233 B (+225). Ngưỡng `lighthouserc.json` **không** đổi.
-- Cách làm: `CommandPalette` nạp bằng `React.lazy` khi mở lần đầu; `StudyTimeTracker` cũng `React.lazy` và chỉ gắn sau 10 s (`TRACKER_DELAY_MS`) cho sinh viên có lớp thật (gói nạp ngay thì `/chat` của lượt đo CI vượt 256524 B; nhịp đầu vốn có pha ngẫu nhiên 0–30 s, chưa ack thì chưa đo gì); mã nhịp `useActivityHeartbeat` không còn xuất qua thùng `@/shared/data`. `activity.spec.ts` thêm `clock.runFor(10_000)` sau khi vào trang.
-- Bài học đã đo: `next/dynamic` làm tổng script TĂNG (kéo thêm mã nạp lười vào gói chung) — hai lần thử trước (`e98866c`, `843b49c`) đỏ vì thế.
-- Flake `TestJudgeRetryThenDead` ở `1d841b1` (P4-07) không liên quan thay đổi; các lần chạy sau xanh.
+## Vòng CI — ngân sách script Lighthouse, áp TL-1 (`docs/sprints/7/techlead.md`)
+- Nguyên nhân thật (TL-1): tracker nạp thẳng chỉ +0,8 KB; khung ứng dụng chở ≈ 16 KB mã mô phỏng xuống mọi trang. Các lần thử trước (`e98866c` … `ca9314b`: `next/dynamic`, `React.lazy`, **gắn trễ 10 s**) là né cổng đo, không giảm byte — **đã gỡ hết** (không còn `TRACKER_DELAY_MS`, không còn lười hoá tracker; `activity.spec.ts` bỏ `clock.runFor(10_000)`).
+- Giảm byte thật: (1) `shared/shell/DemoShellExtras.tsx` (`ThreadsBackground` + badge mô phỏng) nạp `React.lazy` CHỈ khi `!realCourseId && role !== "admin"`; `app/(app)/layout.tsx` không còn `ThreadsBackground`; (2) `RoutesSection.tsx` nhập thẳng `@/shared/domain/LLMRouteTable`; (3) `StudyTimeTracker` nạp thẳng; `CommandPalette` giữ `React.lazy`.
+- Đo cục bộ bằng `lhci collect` (1 lượt, script `transferSize`), trước → sau: `/` 235.332 → 220.056; `/chat` 231.751 → 216.474; `/threads` 231.773 → 216.512; `/inbox` 231.693 → 216.417; `/gradebook` 238.698 → 228.227; `/settings/llm` 247.233 → 227.777. Chênh lệch ≈ −15 … −19 KB khớp dự báo TL; trên CI số tuyệt đối cao hơn (đếm khác) nên mỗi URL dư ≈ 15 KB so với 256.000. Ngưỡng `lighthouserc.json` **không** đổi.
+- Nợ (TL): `session.tsx` / `myCourses.ts` / `clock.ts` còn nhập `@/mock/core` (≈ 3,3 KB), gỡ khi màn mock cuối được thay (D51).
+- Flake `TestJudgeRetryThenDead` ở `1d841b1` (P4-07) không liên quan; các lần chạy sau xanh.

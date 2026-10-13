@@ -4,20 +4,16 @@ import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose,
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { lazy, Suspense, useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { BT03_SEED } from "@/mock/assess";
-import { COURSE_1, ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
-import { reviewPending, ticketStats } from "@/mock/derive";
-import { KEYS, type Bt03State, type Ticket } from "@/mock/state";
-import { mergeTickets } from "@/mock/support";
+import { ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
 import { ALL_COURSES } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { useEnsureClock, useSimNow } from "@/shared/state/clock";
-import { useDemoSlice } from "@/shared/state/demo";
 import { unsavedCount } from "@/shared/lib/unsavedWork";
 import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
+import { StudyTimeTracker } from "./TrackingNotice";
 import s from "./AppShell.module.css";
 
 /** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
@@ -30,10 +26,8 @@ function displayName(role: Role, name: string, title?: string) {
 // `next/dynamic` kéo thêm mã nạp lười vào gói chung và làm tổng script TĂNG.
 const CommandPalette = lazy(() => import("@/shared/ui/CommandPalette").then((m) => ({ default: m.CommandPalette })));
 
-// Hộp thoại + nhịp thời gian học chỉ cần cho sinh viên có lớp thật và không cần cho lần vẽ đầu: nạp lười, và chỉ gắn sau TRACKER_DELAY_MS (nhịp đầu vốn có pha
-// ngẫu nhiên 0–30 s; chưa ack thì chưa đo gì nên hộp thoại trễ vài giây không gây hại). Gói lười nạp ngay khi vào trang thì ngân sách script Lighthouse của /chat vượt.
-const TRACKER_DELAY_MS = 10_000;
-const StudyTimeTracker = lazy(() => import("./TrackingNotice").then((m) => ({ default: m.StudyTimeTracker })));
+// Mã mô phỏng (nền Threads giả, badge mô phỏng ≈ 16 KB gzip) chỉ nạp ở phiên mô phỏng — phiên thật không trả giá (ngân sách script Lighthouse, TL-1).
+const DemoShellExtras = lazy(() => import("./DemoShellExtras").then((m) => ({ default: m.DemoShellExtras })));
 
 const NARROW = "(max-width: 719px)";
 const MID = "(max-width: 1099px)";
@@ -92,11 +86,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const mid = useMedia(MID);
   // 720–1099 px luôn thu gọn (72 px); ≥ 1100 px theo lựa chọn đã nhớ (216 px mặc định)
   const collapsed = mid || prefCollapsed;
-  const [trackerReady, setTrackerReady] = useState(false);
-  useEffect(() => {
-    const t = setTimeout(() => setTrackerReady(true), TRACKER_DELAY_MS);
-    return () => clearTimeout(t);
-  }, []);
   const [palette, setPalette] = useState(false);
   // mỗi lần MỞ tăng `paletteTick` để hộp thoại gốc mở lại kể cả khi sự kiện `close` của lần đóng trước chưa kịp cập nhật `palette`
   const [paletteTick, setPaletteTick] = useState(0);
@@ -134,13 +123,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const now = useSimNow();
 
   // N9: badge tính từ dữ liệu, giảm ngay khi hành động xảy ra; không bao giờ ghi số ở nav.ts.
-  const [storedTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
-  const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
-  const [approvedIds] = useDemoSlice<string[]>("grading.approved", []);
-  const badges = {
-    inbox: ticketStats(mergeTickets(storedTickets), scope, now).open,
-    grading: scope.includes(COURSE_1) ? reviewPending(bt03.status, approvedIds).length : 0,
-  };
+  // Phiên thật không có vé / bài chấm mô phỏng nên badge luôn 0; chỉ phiên mô phỏng nạp gói tính badge.
+  const demo = !realCourseId && role !== "admin";
+  const [badges, setBadges] = useState({ inbox: 0, grading: 0 });
 
   // Chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus).
   const real = useRealNotifications(true, Boolean(identity)); // chưa có phiên thật ⇒ không mở /events (kết nối chung của tab dành cho người nghe khác)
@@ -355,9 +340,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
-      {trackerReady && role === "student" && realCourseId && (
+      {role === "student" && realCourseId && <StudyTimeTracker />}
+      {demo && (
         <Suspense fallback={null}>
-          <StudyTimeTracker />
+          <DemoShellExtras scope={scope} now={now} onBadges={setBadges} />
         </Suspense>
       )}
 
