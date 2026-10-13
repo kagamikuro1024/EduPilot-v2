@@ -44,7 +44,7 @@ P4 và P5 độc lập nhau (ROADMAP "Vì sao ghép"), trừ một chỗ: "Nhắ
 BA viết FEAT-escalation-notify trước để dev bắt đầu sớm. Tech Lead thẩm định từng feature ngay khi BA xong. Story 0 không cần spec sản phẩm: TC lấy từ `techlead.md` TL-CI. TC ở `docs/sprints/7/qc/`.
 
 ## Quyết định PM tự chốt (đổi được qua `proposals.md`)
-- **Số migration:** phase file ghi `00007` / `00008` / `00009` nhưng các số đó đã dùng hoặc bỏ trống. Sprint này dùng `00012_escalation_notify`, `00013_crm`, `00014_observation`.
+- **Số migration:** phase file ghi `00007` / `00008` / `00009` nhưng các số đó đã dùng hoặc bỏ trống. Sprint này dùng `00012_escalation_notify`, `00013_crm`, `00014_forum_ai_regen` (#25), `00015_observation` (#25).
 - **`mail_inbound` không tạo ở sprint 7:** D6 chốt không nhận reply qua hộp thư. Bảng này phục vụ nhận bài qua mail ở P7, nên P7 tạo.
 - **"Giờ làm việc" cho SLA 24 giờ:** BA đề xuất định nghĩa trong SRS (mặc định gợi ý: 8:00–17:00 thứ Hai–thứ Sáu, giờ Việt Nam); câu nào đụng hành vi sản phẩm thì vào `QUESTIONS.md`.
 - **Mặc định mọi test dùng provider giả**; không gọi LLM thật trừ khi chủ dự án cho phép.
