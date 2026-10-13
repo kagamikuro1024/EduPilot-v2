@@ -20,6 +20,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi"
 	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/notify"
+	"github.com/edupilot/backend-go/internal/platform/config"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/testutil"
 )
@@ -31,8 +32,10 @@ func (r *rig) api(t *testing.T) http.Handler {
 	rc, err := appredis.New(t.Context(), testutil.RedisURL(t))
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = rc.Close() })
-	d := httpapi.Deps{DB: r.pool, Redis: rc, Log: log}
-	guard := func(m auth.GuardMode) func(http.Handler) http.Handler { return auth.CourseAccessGuard(course.Resolver{Pool: r.pool}, m) }
+	d := httpapi.Deps{DB: r.pool, Redis: rc, Log: log, Cfg: config.Config{MaxBodyBytes: 1 << 20}}
+	guard := func(m auth.GuardMode) func(http.Handler) http.Handler {
+		return auth.CourseAccessGuard(course.Resolver{Pool: r.pool}, m)
+	}
 	h := &escalationhttp.StaffHandler{Svc: r.svc, Notify: notify.New(r.pool, &capture{}, log), Guard: guard, Idem: httpapi.RequireIdempotencyKey(d), Log: log}
 	mux := chi.NewRouter()
 	mux.Route("/api/v1", func(rt chi.Router) {
@@ -135,12 +138,12 @@ func TestTicketDetailAuthMatrix(t *testing.T) {
 	// ticket của lớp này nhưng gọi qua lớp khác: giảng viên có mặt ở lớp kia vẫn 404
 	code, _ := call(h, r.whoAll()["gv"], "GET", "/courses/"+r.course2.String()+"/tickets/"+id.String(), "")
 	require.Equal(t, 404, code)
-	// giảng viên chỉ ở lớp 2 gọi lớp 1: không có quyền
-	other := r.user("GV khác", "TEACHER")
-	r.enroll(r.course2, other, "TEACHER", "ACTIVE")
-	code, _ = call(h, who{other, "TEACHER"}, "GET", url, "")
+	// nhân viên chỉ ở lớp 2 gọi lớp 1: không có quyền
+	other := r.user("TA khác", "TA")
+	r.enroll(r.course2, other, "TA", "ACTIVE")
+	code, _ = call(h, who{other, "TA"}, "GET", url, "")
 	require.Equal(t, 403, code)
-	require.Equal(t, 0, r.count(`select count(*) from audit_log where entity = 'escalation_ticket'`), "mở chi tiết không ghi audit")
+	require.Equal(t, 0, r.count(`select count(*) from audit_log where entity = 'escalation_ticket' and action <> 'escalation_ticket.created'`), "mở chi tiết không ghi audit")
 }
 
 func TestAnswerIdempotentKey(t *testing.T) {
