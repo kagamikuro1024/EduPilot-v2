@@ -136,6 +136,30 @@ func (r *runner) chatScenarios(x examRig) {
 	r.must(call{method: "PUT", path: M + "/feedback", token: x.ta, body: `{"value":"HELPFUL"}`}, 403)
 	r.must(call{method: "PUT", path: M + "/feedback", token: sb, body: `{"value":"HELPFUL"}`}, 404)
 	r.must(call{method: "PUT", path: M + "/feedback", token: sa, body: `{"value":"TUYỆT"}`}, 422)
+
+	// US-P4-01 — POST /chat/messages/{mid}/escalate: 201 mới, 200 đã có, 401, 403 (không phải sinh viên), 404 (tin của người khác), 409 (lớp lưu trữ), 422 (tin không nhờ được).
+	asst := func(session uuid.UUID, course uuid.UUID, user uuid.UUID, intent string) string {
+		var mid string
+		if err := db.QueryRow(ctx, `insert into chat_messages (course_id, session_id, user_id, role, content, stream_status, intent, low_confidence) values ($1, $2, $3, 'ASSISTANT', 'Trả lời mẫu', 'DONE', $4, false) returning id::text`, course, session, user, intent).Scan(&mid); err != nil {
+			r.t.Fatal(err)
+		}
+		return mid
+	}
+	sidU, _ := uuid.Parse(sid)
+	cidU, _ := uuid.Parse(x.cid)
+	archU, _ := uuid.Parse(x.arch)
+	esc := func(m string) string { return "/api/v1/chat/messages/" + m + "/escalate" }
+	qa := asst(sidU, cidU, a, "COURSE_QA")
+	r.must(call{method: "POST", path: esc(qa), token: sa}, 201)
+	r.must(call{method: "POST", path: esc(qa), token: sa}, 200)
+	r.must(call{method: "POST", path: esc(qa)}, 401)
+	for _, who := range []string{x.ta, x.gv, x.admin} {
+		r.must(call{method: "POST", path: esc(qa), token: who}, 403)
+	}
+	r.must(call{method: "POST", path: esc(qa), token: sb}, 404)
+	r.must(call{method: "POST", path: esc(uuid.NewString()), token: sa}, 404)
+	r.must(call{method: "POST", path: esc(asst(archSess, archU, a, "COURSE_QA")), token: sa}, 409)
+	r.must(call{method: "POST", path: esc(asst(sidU, cidU, a, "SMALLTALK")), token: sa}, 422)
 	var failed uuid.UUID // tin FAILED: không phản hồi được (409), thử lại được
 	var userMsg uuid.UUID
 	if err := db.QueryRow(ctx, `insert into chat_messages (course_id, session_id, user_id, role, content, stream_status, client_msg_id) values ($1,$2,$3,'USER','hỏi lại','DONE',$4) returning id`, x.cid, sid, a, uuid.New()).Scan(&userMsg); err != nil {

@@ -23,7 +23,7 @@ returning *;
 -- Chỉ ticket CỦA sinh viên (chat riêng không bao giờ đọc ticket của người khác).
 select id, message_id, status, created_at, answered_at
 from escalation_tickets
-where student_id = sqlc.arg(student_id) and message_id = any(sqlc.arg(message_ids)::uuid[]);
+where student_id = sqlc.arg(student_id) and message_id = any(sqlc.arg(message_ids)::text[]::uuid[]); -- text[]: pgx ở chế độ simple protocol (PgBouncer) không mã hoá được []uuid.UUID
 
 -- name: TicketGet :one
 select * from escalation_tickets where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);

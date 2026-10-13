@@ -6,6 +6,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/ingest"
@@ -53,6 +54,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	// Threads (US-P3-08): thread mới / quyết định về bài AI đổi việc AI_CONFIRM của Staff → xoá cache "Hôm nay". Việc AI trả lời đi bằng `job.enqueue` → ep:ingest (không chạy trong consumer outbox này).
 	reg.Register(thread.TopicCreated, outbox.Chain(thread.OnCreated, inv.Handle))
 	reg.Register(thread.TopicPostDecided, inv.Handle)
+	// Escalation (US-P4-01): ticket mới đổi hàng chờ của Staff → xoá cache "Hôm nay". Thông báo / thư nối chuỗi ở US-P4-02, US-P4-04.
+	reg.Register(escalation.TopicCreated, inv.Handle)
 	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.
 	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
 	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {

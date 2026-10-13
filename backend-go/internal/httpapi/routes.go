@@ -15,6 +15,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
+	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
@@ -125,6 +126,10 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		if d.Chat != nil {
 			// US-P3-05 — chat riêng: 7 route JSON ở đây; 3 route SSE nằm ngoài nhóm này (newRouterWith, SRS 4.7.0).
 			(&chathttp.Handler{Svc: d.Chat, Idem: RequireIdempotencyKey(d), Drain: drainC(d), Log: d.Log}).Mount(r)
+		}
+		if d.Escalation != nil {
+			// US-P4-01 — POST /chat/messages/{mid}/escalate (sinh viên nhờ giảng viên).
+			(&escalationhttp.Handler{Svc: d.Escalation, Log: d.Log}).Mount(r)
 		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.

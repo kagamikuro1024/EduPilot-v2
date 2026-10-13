@@ -24,9 +24,31 @@ type ResponseMetadata struct {
 	RetrievalScore decimal.Decimal
 	Groundedness   decimal.Decimal
 	NoContext      bool
+	NoFormula      bool // GRADE_FORMULA mà lớp chưa có công thức điểm chính thức
 	LowConfidence  bool
 	Degraded       bool
 	MaskedCount    int
+}
+
+// Nguồn gốc ticket tự mở (khớp enum `ticket_origin`).
+const (
+	OriginAutoLowConfidence = "AUTO_LOW_CONFIDENCE"
+	OriginAutoNoFormula     = "AUTO_NO_FORMULA"
+)
+
+// ShouldEscalate cho biết câu trả lời có tự mở ticket không (SRS escalation 4.2.4). Thuần, không I/O; origin rỗng khi false.
+func (m ResponseMetadata) ShouldEscalate(intent Intent) (bool, string) {
+	switch {
+	case intent == IntentCrisis || intent == IntentOtherPerson || intent == IntentSmalltalk:
+		return false, ""
+	case m.Degraded: // nút vẫn hiện: sinh viên tự nhờ
+		return false, ""
+	case intent == IntentGradeFormula && m.NoFormula:
+		return true, OriginAutoNoFormula
+	case m.LowConfidence:
+		return true, OriginAutoLowConfidence
+	}
+	return false, ""
 }
 
 var (
@@ -125,7 +147,7 @@ func (o Outcome) ToolBacked() bool {
 // Metadata tính siêu dữ liệu của câu trả lời đã sinh xong. Thuần tính toán (không LLM). threshold = courses.escalation_threshold.
 // `no_context` luôn kéo theo low_confidence; câu mẫu / chào hỏi không có độ tin cậy (NULL) và không bị coi là "chưa chắc".
 func (o Outcome) Metadata(answer string, threshold decimal.Decimal, degraded bool, masked int) ResponseMetadata {
-	m := ResponseMetadata{NoContext: o.NoContext, Degraded: degraded, MaskedCount: masked}
+	m := ResponseMetadata{NoContext: o.NoContext, NoFormula: o.NoFormula, Degraded: degraded, MaskedCount: masked}
 	one := decimal.NewFromInt(1)
 	switch {
 	case o.NoContext:

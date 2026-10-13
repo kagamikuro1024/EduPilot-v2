@@ -157,6 +157,88 @@ test("calendar tool block: lịch hiện thành danh sách dòng, không JSON th
   expect(await block.innerText()).not.toMatch(/[{}\[\]"]|events/);
 });
 
+// US-P4-01: nút "Nhờ giảng viên hỗ trợ" (AC7, AC8, AC9) — máy chủ giả theo hợp đồng: `can_escalate`, `ticket`, `open_tickets`.
+const ESC = `/chat/messages/${MID}/escalate`;
+const ticket = (status = "OPEN", created_at = new Date().toISOString()) => ({ id: "00000000-0000-7000-8000-0000000000a1", status, created_at });
+async function openAsked(page: import("@playwright/test").Page, context: import("@playwright/test").BrowserContext, opts: { onEscalate?: (r: import("@playwright/test").Route) => Promise<void> | void; asst?: Record<string, unknown>; open?: number } = {}) {
+  let asked = false;
+  const fulfillAsked = (r: import("@playwright/test").Route) => { asked = true; return r.fulfill(json({ ticket: ticket(), already: false }, 201)); };
+  const onEscalate = opts.onEscalate ?? fulfillAsked;
+  const calls = await open(page, context, {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: (r) =>
+      r.fulfill(json({ items: [msg({ citations: [], can_escalate: true, ticket: asked ? ticket() : null, ...opts.asst }), msg({ id: "u1", role: "USER", content: "Hỏi ngoài tài liệu", citations: [] })], next_cursor: null, open_tickets: opts.open ?? 0 })),
+    [`POST ${ESC}`]: (r) => onEscalate(r),
+  });
+  await page.locator("[data-part=chat-history] button[aria-pressed]").click();
+  await page.locator("[data-part=ask-staff], [data-part=ticket-status]").first().waitFor();
+  return calls;
+}
+const askBtn = (page: import("@playwright/test").Page) => page.getByRole("button", { name: "Nhờ giảng viên hỗ trợ" });
+
+test("escalate button: có ở câu thường, một tooltip duy nhất, bấm đổi thành dòng trạng thái", async ({ page, context }) => {
+  const calls = await openAsked(page, context);
+  await expect(askBtn(page)).toHaveCount(1);
+  await expect(askBtn(page)).toHaveAttribute("title", "Giảng viên sẽ đọc câu hỏi này và câu trả lời của AI");
+  await askBtn(page).click();
+  await expect(page.getByText("Đang chờ giảng viên · vừa gửi")).toBeVisible();
+  await expect(askBtn(page)).toHaveCount(0);
+  expect(calls.filter((c) => c.path === ESC)).toHaveLength(1);
+});
+
+test("escalate button: câu mẫu (can_escalate = false) không có nút", async ({ page, context }) => {
+  await open(page, context, {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: json({ items: [msg({ citations: [], can_escalate: false }), msg({ id: "u1", role: "USER", content: "câu mẫu", citations: [] })], next_cursor: null, open_tickets: 0 }),
+  });
+  await page.locator("[data-part=chat-history] button[aria-pressed]").click();
+  await expect(page.getByText(/Theo quy chế/)).toBeVisible();
+  await expect(page.getByText(/Nhờ giảng viên/)).toHaveCount(0);
+});
+
+test("escalate double click: bấm đúp chỉ phát một request", async ({ page, context }) => {
+  const calls = await openAsked(page, context);
+  await askBtn(page).dblclick();
+  await expect(page.getByText("Đang chờ giảng viên · vừa gửi")).toBeVisible();
+  expect(calls.filter((c) => c.path === ESC)).toHaveLength(1);
+});
+
+test("escalate error: 500 hoàn lại nút kèm Thử lại, bấm lại thành công", async ({ page, context }) => {
+  let n = 0;
+  await openAsked(page, context, {
+    onEscalate: (r: import("@playwright/test").Route) => (++n === 1 ? r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500)) : r.fulfill(json({ ticket: ticket(), already: false }, 201))),
+  });
+  await askBtn(page).click();
+  await expect(page.getByText("Chưa gửi được. Thử lại")).toBeVisible();
+  await expect(askBtn(page)).toBeVisible();
+  await page.getByRole("button", { name: "Thử lại" }).click();
+  await expect(page.getByText("Đang chờ giảng viên · vừa gửi")).toBeVisible();
+});
+
+test("escalate offline: giữ Đang gửi… rồi gửi lại khi có mạng, đúng một ticket", async ({ page, context }) => {
+  const calls = await openAsked(page, context);
+  await context.setOffline(true);
+  await askBtn(page).click();
+  await expect(page.getByText("Đang gửi…")).toBeVisible();
+  await context.setOffline(false);
+  await expect(page.getByText("Đang chờ giảng viên · vừa gửi")).toBeVisible();
+  expect(calls.filter((c) => c.path === ESC)).toHaveLength(1);
+});
+
+test("escalate cap: đã có 5 ticket mở thì nút khoá, tooltip nêu lý do", async ({ page, context }) => {
+  await openAsked(page, context, { open: 5 });
+  await expect(askBtn(page)).toBeDisabled();
+  await expect(askBtn(page)).toHaveAttribute("title", "Bạn đang có 5 câu hỏi chờ giảng viên");
+});
+
+test("auto ticket: dưới ngưỡng đã tự mở → câu nhạt + dòng trạng thái, không nút, không số", async ({ page, context }) => {
+  await openAsked(page, context, { asst: { low_confidence: true, ticket: ticket("OPEN", new Date(Date.now() - 3 * 3600_000).toISOString()) } });
+  await expect(page.getByText("AI chưa đủ chắc chắn về câu này")).toBeVisible();
+  await expect(page.getByText(/Đang chờ giảng viên · đã gửi 3 giờ trước/)).toBeVisible();
+  await expect(askBtn(page)).toHaveCount(0);
+  expect(await page.locator("main").innerText()).not.toMatch(/confidence|độ tin cậy/i);
+});
+
 test("375: không tràn ngang, vùng chạm ≥ 44 px", async ({ page, context }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await open(page, context);

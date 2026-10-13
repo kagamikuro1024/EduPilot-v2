@@ -22,6 +22,7 @@ import {
   type ChatSession,
 } from "./chatApi";
 import { ChatSessionSheet } from "./ChatSessionSheet";
+import { TicketAction } from "./TicketAction";
 import { useChatRun, type Live } from "./useChatRun";
 import s from "./ChatScreen.module.css";
 import r from "./RealChat.module.css";
@@ -74,7 +75,8 @@ export function RealChat({ courseId }: { courseId: string }) {
     return () => clearTimeout(t);
   }, [until?.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const list = messages.data ?? [];
+  const list = messages.data?.items ?? [];
+  const openTickets = messages.data?.openTickets ?? 0;
   // mở lại giữa lúc đang sinh: nối lại luồng của tin STREAMING (không mất, không lặp)
   const streamingRow = list.find((m) => m.role === "ASSISTANT" && m.stream_status === "STREAMING");
   useEffect(() => {
@@ -201,7 +203,7 @@ export function RealChat({ courseId }: { courseId: string }) {
                     </div>
                   ) : (
                     <>
-                      {list.map((m) => (live?.mid === m.id ? null : <Row key={m.id} m={m} fb={fb[m.id] ?? m.feedback} onVote={(v) => void vote.run({ mid: m.id, value: v, prev: fb[m.id] ?? m.feedback })} onRetry={() => void retry(m.id)} disabled={busy || locked} />))}
+                      {list.map((m) => (live?.mid === m.id ? null : <Row key={m.id} m={m} fb={fb[m.id] ?? m.feedback} onVote={(v) => void vote.run({ mid: m.id, value: v, prev: fb[m.id] ?? m.feedback })} onRetry={() => void retry(m.id)} disabled={busy || locked} openTickets={openTickets} onTicket={() => void qc.invalidateQueries({ queryKey: messagesKey(sid ?? "") })} />))}
                       {live && <LiveRow live={live} onRetry={live.mid ? () => void retry(live.mid!) : undefined} />}
                     </>
                   )}
@@ -261,7 +263,7 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
   );
 }
 
-function Row({ m, fb, onVote, onRetry, disabled }: { m: ChatMessage; fb: Feedback; onVote: (v: Feedback) => void; onRetry: () => void; disabled: boolean }) {
+function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket }: { m: ChatMessage; fb: Feedback; onVote: (v: Feedback) => void; onRetry: () => void; disabled: boolean; openTickets: number; onTicket: () => void }) {
   if (m.role === "USER") return <div className={s.fromSv}><p className={s.who}>Bạn</p><p className={s.text}>{m.content}</p></div>;
   const failed = m.stream_status === "FAILED";
   const cancelled = m.stream_status === "CANCELLED";
@@ -289,6 +291,7 @@ function Row({ m, fb, onVote, onRetry, disabled }: { m: ChatMessage; fb: Feedbac
             <ThumbsDown aria-hidden />
             Không hữu ích
           </button>
+          <TicketAction m={m} openTickets={openTickets} onChanged={onTicket} locked={disabled} />
         </div>
       )}
     </div>
@@ -319,7 +322,7 @@ function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
   );
 }
 
-/** Dưới ngưỡng tự tin: chỉ một câu nhạt, không nút, không biểu tượng cảnh báo (nút nhờ giảng viên ẩn tới sprint 7). */
+/** Dưới ngưỡng tự tin: một câu nhạt, không biểu tượng cảnh báo; ticket tự mở thì dòng trạng thái ở ngay dưới (TicketAction). */
 function Unsure() {
   return <p className={s.who} data-part="unsure">AI chưa đủ chắc chắn về câu này</p>;
 }

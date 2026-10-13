@@ -66,6 +66,8 @@ type Outcome struct {
 	Hits      []rag.Hit
 	Sources   []Source
 	NoContext bool
+	// NoFormula: lớp chưa có công thức điểm CONFIRMED (đặt đúng ở nhánh trả câu mẫu; không so chuỗi lời văn — SRS escalation 4.2.4, TLR-17).
+	NoFormula bool
 	// CacheKey khác rỗng: chat ghi câu trả lời vào cache sau khi sinh xong (COURSE_QA / LIBRARY_SEARCH không PII).
 	CacheKey string
 	Request  llm.Request
@@ -131,7 +133,7 @@ func (a *Agent) recordBlocked(ctx context.Context, tc TrustedContext) {
 
 func (a *Agent) formula(ctx context.Context, tc TrustedContext, in Input, out Outcome) (Outcome, error) {
 	if a.Schemes == nil {
-		out.Canned = ReplyNoFormula
+		out.Canned, out.NoFormula = ReplyNoFormula, true
 		return out, nil
 	}
 	f, ok, err := a.Schemes.Scheme(ctx, tc)
@@ -139,7 +141,7 @@ func (a *Agent) formula(ctx context.Context, tc TrustedContext, in Input, out Ou
 		return out, fmt.Errorf("agent: công thức điểm: %w", err)
 	}
 	if !ok {
-		out.Canned = ReplyNoFormula
+		out.Canned, out.NoFormula = ReplyNoFormula, true
 		return out, nil
 	}
 	out.Blocks = []Block{{Kind: "grade_scheme", Data: f}}

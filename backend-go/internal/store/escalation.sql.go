@@ -195,6 +195,7 @@ func (q *Queries) TicketCountOpen(ctx context.Context, arg TicketCountOpenParams
 }
 
 const ticketGet = `-- name: TicketGet :one
+
 select id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at from escalation_tickets where course_id = $1 and id = $2
 `
 
@@ -203,6 +204,7 @@ type TicketGetParams struct {
 	ID       uuid.UUID
 }
 
+// text[]: pgx ở chế độ simple protocol (PgBouncer) không mã hoá được []uuid.UUID
 func (q *Queries) TicketGet(ctx context.Context, arg TicketGetParams) (EscalationTicket, error) {
 	row := q.db.QueryRow(ctx, ticketGet, arg.CourseID, arg.ID)
 	var i EscalationTicket
@@ -527,12 +529,12 @@ func (q *Queries) TicketSLACandidates(ctx context.Context, arg TicketSLACandidat
 const ticketsOfStudentForMessages = `-- name: TicketsOfStudentForMessages :many
 select id, message_id, status, created_at, answered_at
 from escalation_tickets
-where student_id = $1 and message_id = any($2::uuid[])
+where student_id = $1 and message_id = any($2::text[]::uuid[])
 `
 
 type TicketsOfStudentForMessagesParams struct {
 	StudentID  uuid.UUID
-	MessageIds []uuid.UUID
+	MessageIds []string
 }
 
 type TicketsOfStudentForMessagesRow struct {

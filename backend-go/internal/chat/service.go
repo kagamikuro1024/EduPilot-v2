@@ -17,6 +17,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/clock"
@@ -80,10 +81,12 @@ type Service struct {
 	Lock    Locker
 	Members auth.CourseResolver
 	// PII (tuỳ chọn) đếm số lần che theo loại ở tin của người dùng để ghi pii_events; nil = không ghi.
-	PII   *privacy.Detector
-	Clock clock.Clock
-	Log   *slog.Logger
-	Cfg   Config
+	PII *privacy.Detector
+	// Tickets (tuỳ chọn): tự mở ticket "Nhờ giảng viên" trong CHÍNH giao dịch ghi câu trả lời (SRS escalation 4.2.3); nil = không tự mở.
+	Tickets *escalation.Service
+	Clock   clock.Clock
+	Log     *slog.Logger
+	Cfg     Config
 	// OnSwitched (tuỳ chọn) ghi pii_events SWITCHED khi người dùng chuyển một bản nháp Threads sang chat riêng.
 	OnSwitched func(ctx context.Context, userID, courseID uuid.UUID, title, body string)
 	// Drain đóng khi gateway bắt đầu tắt: mọi lượt sinh còn sống ghi FAILED INTERRUPTED và nhả CHAT_BUSY ngay.

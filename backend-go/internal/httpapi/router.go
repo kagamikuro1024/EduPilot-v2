@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"github.com/edupilot/backend-go/internal/chat"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"github.com/edupilot/backend-go/internal/thread"
 	"log/slog"
@@ -65,6 +66,8 @@ type Deps struct {
 	Chat *chat.Service
 	// Thread: Threads (US-P3-06). Dựng cùng điều kiện với Chat (+ Jobs).
 	Thread *thread.Service
+	// Escalation: ticket "Nhờ giảng viên" (US-P4-01). Lấy từ Chat.Tickets khi trống.
+	Escalation *escalation.Service
 }
 
 // now là đồng hồ của request (Clock trống → đồng hồ hệ thống).
@@ -151,6 +154,9 @@ func withDefaults(d Deps) Deps {
 				d.Chat.OnSwitched = d.Thread.RecordSwitched
 			}
 		}
+	}
+	if d.Escalation == nil && d.Chat != nil {
+		d.Escalation = d.Chat.Tickets
 	}
 	return d
 }

@@ -5434,6 +5434,45 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/chat/messages/{mid}/escalate:
+    post:
+      operationId: escalateChatMessage
+      tags: [chat]
+      summary: "Nhờ giảng viên (chỉ sinh viên chủ phiên; idempotent theo message_id — gọi lại trả 200 already:true; không mở lại ticket đã đóng)"
+      description: |
+        Tin phải là câu trả lời DONE của AI, phiên chưa xoá, intent không phải CRISIS / OTHER_PERSON / SMALLTALK (→ 422 MESSAGE_NOT_ESCALATABLE).
+        Sinh viên đã có 5 ticket mở ở lớp → 409 TICKET_LIMIT_REACHED (trừ khi tin đã có ticket). Đang bị khoá giờ thi → 409 EXAM_IN_PROGRESS (cùng mã với chat riêng).
+        Lớp lưu trữ → 409 COURSE_ARCHIVED. Hạ tầng lỗi → 503 SERVICE_UNAVAILABLE (không khai báo: không dựng được trong hợp đồng).
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "201":
+          description: Đã tạo ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EscalateResult"
+        "200":
+          description: Tin này đã có ticket (already = true)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EscalateResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/chat/messages/{mid}/retry:
     post:
       operationId: retryChatMessage
@@ -7609,6 +7648,19 @@ components:
             - MESSAGE_NOT_RETRYABLE
             - PII_DETECTED
             - POST_STATE_CONFLICT
+            - TICKET_ALREADY_CLAIMED
+            - TICKET_STATE_INVALID
+            - TICKET_LIMIT_REACHED
+            - TICKET_REOPEN_EXPIRED
+            - MESSAGE_NOT_ESCALATABLE
+            - MESSAGE_NOT_RATEABLE
+            - PII_IN_ANSWER
+            - KNOWLEDGE_PERSONAL
+            - ALREADY_REPORTED
+            - CANNOT_REPORT_OWN
+            - EDIT_LOCKED_VERIFIED
+            - PIN_LIMIT
+            - CRISIS_SUPPORT
         message:
           type: string
         trace_id:
@@ -9878,7 +9930,7 @@ components:
           enum: [HELPFUL, NOT_HELPFUL, null]
     ChatMessage:
       type: object
-      required: [id, role, content, streaming, stream_status, attempt, citations, blocks, low_confidence, degraded, masked_count, feedback, error_code, created_at]
+      required: [id, role, content, streaming, stream_status, attempt, citations, blocks, low_confidence, degraded, masked_count, feedback, error_code, ticket, can_escalate, created_at]
       properties:
         id:
           type: string
@@ -9913,13 +9965,48 @@ components:
           type: [string, "null"]
         error_code:
           type: [string, "null"]
+        ticket:
+          description: Ticket "Nhờ giảng viên" của tin trợ lý này; null khi chưa có. Sinh viên chỉ thấy bốn trường này.
+          oneOf:
+            - $ref: "#/components/schemas/StudentTicket"
+            - type: "null"
+        can_escalate:
+          type: boolean
+          description: Nút "Nhờ giảng viên hỗ trợ" được phép hiện dưới tin này (tin AI đã DONE, không phải câu mẫu khủng hoảng / hỏi hộ / chào hỏi).
         created_at:
           type: string
           format: date-time
+    StudentTicket:
+      type: object
+      required: [id, status, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [OPEN, CLAIMED, ANSWERED, CLOSED]
+        created_at:
+          type: string
+          format: date-time
+        answered_at:
+          type: string
+          format: date-time
+    EscalateResult:
+      type: object
+      required: [ticket, already]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StudentTicket"
+        already:
+          type: boolean
     ChatMessagePage:
       type: object
-      required: [items, next_cursor]
+      required: [items, next_cursor, open_tickets]
       properties:
+        open_tickets:
+          type: integer
+          description: Số ticket đang mở (OPEN / CLAIMED) của sinh viên ở lớp của phiên.
         items:
           type: array
           items:

@@ -15,6 +15,7 @@ import (
 	"github.com/shopspring/decimal"
 
 	"github.com/edupilot/backend-go/internal/agent"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
@@ -163,7 +164,7 @@ func (s *Service) generate(ctx context.Context, a Actor, r *run) {
 	fctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), 10*time.Second)
 	defer cancel()
 	meta := out.Metadata(text, s.threshold(fctx, r.sess.CourseID), res.degraded, masked)
-	ok, err := s.finish(fctx, a, r, intent, text, cites, out.Blocks, meta)
+	ok, tk, err := s.finish(fctx, a, r, intent, text, cites, out.Blocks, meta)
 	if err != nil {
 		s.fail(fctx, a, r, intent, res, err)
 		return
@@ -178,7 +179,7 @@ func (s *Service) generate(ctx context.Context, a Actor, r *run) {
 			st.StoreAnswer(fctx, out.CacheKey, text)
 		}
 	}
-	d := map[string]any{"message_id": mid, "citations": cites, "low_confidence": meta.LowConfidence, "degraded": res.degraded}
+	d := map[string]any{"message_id": mid, "citations": cites, "low_confidence": meta.LowConfidence, "degraded": res.degraded, "ticket": tk}
 	if text != res.text {
 		d["content"] = text // đã bỏ [n] không có trong danh sách / thay bằng câu trích
 	}
@@ -253,11 +254,12 @@ func (s *Service) threshold(ctx context.Context, course uuid.UUID) decimal.Decim
 	return c.EscalationThreshold
 }
 
-// finish: một giao dịch — ghi cuối (có điều kiện STREAMING + đúng lượt) + pii_events. 0 hàng → false.
-func (s *Service) finish(ctx context.Context, a Actor, r *run, intent, text string, cites []Citation, blocks []agent.Block, meta agent.ResponseMetadata) (bool, error) {
+// finish: một giao dịch — ghi cuối (có điều kiện STREAMING + đúng lượt) + pii_events + ticket tự mở (SRS escalation 4.2.3). 0 hàng → false.
+// Lỗi ghi ticket làm lỗi cả giao dịch: không có câu trả lời DONE mà thiếu ticket (mất ticket thầm lặng mới nguy hiểm).
+func (s *Service) finish(ctx context.Context, a Actor, r *run, intent, text string, cites []Citation, blocks []agent.Block, meta agent.ResponseMetadata) (bool, *escalation.StudentView, error) {
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
-		return false, err
+		return false, nil, err
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	q := store.New(tx)
@@ -271,18 +273,32 @@ func (s *Service) finish(ctx context.Context, a Actor, r *run, intent, text stri
 		NoContext: meta.NoContext, Degraded: meta.Degraded, MaskedCount: int32(meta.MaskedCount), Intent: nonEmpty(intent), TraceID: nonEmpty(r.trace), //nolint:gosec // đếm nhỏ
 	})
 	if err != nil {
-		return false, err
+		return false, nil, err
 	}
 	if n == 0 {
-		return false, nil
+		return false, nil, nil
 	}
 	if err := q.TouchChatSession(ctx, r.sess.ID); err != nil {
-		return false, err
+		return false, nil, err
 	}
 	if meta.MaskedCount > 0 {
 		s.piiEvents(ctx, q, a, r)
 	}
-	return true, tx.Commit(ctx)
+	var tk *escalation.StudentView
+	if esc, origin := meta.ShouldEscalate(agent.Intent(intent)); esc && s.Tickets != nil {
+		c, err := s.Tickets.CreateTx(ctx, tx, escalation.CreateInput{
+			CourseID: r.sess.CourseID, StudentID: a.UserID, MessageID: r.asst.ID, SessionID: r.sess.ID,
+			Origin: store.TicketOrigin(origin), Confidence: meta.Confidence, Auto: true,
+		})
+		if err != nil {
+			return false, nil, err
+		}
+		if !c.Suppressed {
+			v := escalation.ViewOf(c.Ticket)
+			tk = &v
+		}
+	}
+	return true, tk, tx.Commit(ctx)
 }
 
 // piiEvents ghi MỘT dòng MASKED cho mỗi loại có trong tin của người dùng (chỉ loại + số đếm, không chữ). Lỗi chỉ log: không làm hỏng câu trả lời.

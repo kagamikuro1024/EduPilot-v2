@@ -10,6 +10,7 @@ import (
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/chat"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/llm"
@@ -79,10 +80,12 @@ func chatService(d Deps, a *aiStack) *chat.Service {
 		An: an, Private: agent.DefaultPrivateRegistry(nil, nil, nil, calendarService(d), &library.Service{Pool: d.DB, Log: d.Log}), Rag: &rag.Service{DB: d.DB}, Gen: a.gw, Events: agent.StoreEvents{Pool: d.DB}, Log: d.Log,
 		Cache: &agent.AnswerCache{Redis: agent.NewRedisKV(d.Redis), Version: func(ctx context.Context, c uuid.UUID) (int64, error) { return rag.Version(ctx, d.Redis, c) }},
 	}
+	members := course.Resolver{Pool: d.DB}
 	return &chat.Service{
 		Pool: d.DB, Redis: d.Redis, Agent: ag, PII: a.det, Clock: d.Clock, Log: d.Log, Drain: drainC(d),
 		Lock:    a.locker(d),
-		Members: course.Resolver{Pool: d.DB},
+		Members: members,
+		Tickets: &escalation.Service{Pool: d.DB, Members: members, Lock: a.locker(d), Log: d.Log, Cfg: escalation.Config{OpenCap: d.Cfg.TicketOpenCap}},
 		Cfg:     chat.Config{MaxInput: d.Cfg.ChatMaxInputChars, RatePerMin: d.Cfg.ChatRatePerMin, StreamMax: d.Cfg.ChatStreamMax},
 	}
 }
