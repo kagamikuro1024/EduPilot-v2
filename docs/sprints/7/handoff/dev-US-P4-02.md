@@ -24,3 +24,10 @@ AC1 ✓ (test kiến trúc quét Go + `*.sql`; `SendMany` 1 INSERT) · AC2 ✓ (
 2. AC4/AC8: không viết lại test SSE đã có; nếu QC muốn test trong `notify` thì ghi TC.
 3. AC10: số "9+" trên chuông và tránh nhảy vị trí khi chèn mục mới lúc đang mở — chưa làm (cần chốt chấm hay số).
 4. `internal/notify` dùng `Publisher.Publish` tuần tự cho `SendMany` (1.000 lượt Redis ≈ vài trăm ms), không pipeline.
+
+## Vòng 2 (sau QC FAIL vòng 1, `report-US-P4-02.md`)
+- **BUG-1 / AC10 chuông**: làm đủ. Chuông hiện số chưa đọc (`data-part="bell-dot"`, tối đa `9+`, `aria-label="Thông báo, N chưa đọc"`, vùng `aria-live=polite` đọc "Có N thông báo mới" một lần). Khung danh sách cuộn được (cao tối đa 420 px) và **chốt chiều cao lúc mở**; thông báo mới chèn lên đầu lúc đang mở → bù `scrollTop` đúng độ lệch của mục đầu cũ nên mục đang đọc đứng yên (đo `getBoundingClientRect`, lệch < 1,5 px). Test: `escalation.spec.ts` "bell count", "bell count small", "bell no jump". File: `shared/shell/NotificationPopover.tsx`, `AppShell.module.css`.
+- **BUG-2** chữ spec (AC5 "dòng mới" ↔ SRS 4.4.3 "cùng dòng"): BA / PM sửa chữ, code giữ nguyên.
+- **TC-15, 16, 18** nay kích hoạt được bằng route của US-P4-03: `POST /api/v1/courses/{id}/tickets/{tid}/claim` (hoặc `answer` / `dismiss`) bằng TA / giảng viên → worker `escalation.claimed|answered|closed` → dòng gộp `TICKET_NEW` đếm lại theo số `OPEN` hiện tại; về 0 thì `read_at` được đặt (dòng KHÔNG bị xoá), tăng lại thì `read_at = NULL`. `TICKET_ANSWERED` (không gộp) tới sinh viên khi `answer`. Kiểm bằng `select type, title, read_at from notifications where course_id='…' order by created_at`.
+- **TC-24 (Redis chết)**: dựng bằng hộp đen không được — Redis dừng thì relay outbox (Redis Streams) cũng dừng nên không có khoảnh khắc "chỉ `Publish` lỗi". Phần đó do `TestPublishFailureKeepsRow` (`internal/notify`) phủ; hành vi QC quan sát (dòng DB cập nhật khi Redis lên lại, không mất) là đúng thiết kế. Xin PM chấp nhận.
+- **Test e2e `shell.spec.ts` "forbidden … 0 request /api/v1"** đỏ vì chuông nay mở kết nối SSE `/api/v1/events` ở mọi trang (kể cả màn bị chặn) — xem `proposals.md` #18.

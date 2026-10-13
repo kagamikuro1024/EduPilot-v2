@@ -9,7 +9,7 @@ import { timeAgo } from "@/shared/lib/timeAgo";
 import { useSession } from "@/shared/session/session";
 import { ActionList, ActionRow, Button, Composer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, SegmentedControl, Skeleton, StatusText } from "@/shared/ui";
 import { ticketsKey, useTicketDetail, useTicketList, waitLabel, type InboxFilter, type TicketDetail, type TicketRow, type TicketStatus } from "./inboxApi";
-import s from "./InboxView.module.css";
+import s from "./RealInbox.module.css";
 
 const FILTERS: Array<{ value: InboxFilter; label: string }> = [
   { value: "open", label: "Đang chờ" },
@@ -74,6 +74,14 @@ export function RealInbox({ courseId }: { courseId: string }) {
       const t = e.target as HTMLElement | null;
       if (t && (t.tagName === "TEXTAREA" || t.tagName === "INPUT" || t.isContentEditable)) return;
       if (e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "r") {
+        const box = document.querySelector<HTMLTextAreaElement>("[data-part=inbox-reply] textarea");
+        if (box) {
+          e.preventDefault();
+          box.focus();
+        }
+        return;
+      }
       const i = rows.findIndex((r) => r.id === selected?.id);
       if (e.key === "j" && i >= 0 && i < rows.length - 1) open(rows[i + 1].id);
       if (e.key === "k" && i > 0) open(rows[i - 1].id);
@@ -90,7 +98,6 @@ export function RealInbox({ courseId }: { courseId: string }) {
         query={list}
         isEmpty={() => false}
         loading={<Panel><Skeleton lines={10} /></Panel>}
-        error={{ problem: "Không tải được hộp thư hỗ trợ.", recovery: "Câu trả lời bạn đang soạn vẫn được giữ. Thử lại, hoặc mở lại sau ít phút." }}
       >
         <div className={s.work}>
           <Panel padding="none">
@@ -128,7 +135,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
                     {detail.isPending ? <Skeleton lines={8} /> : detail.isError ? (
                       <ApiErrorNotice error={detail.error} onRetry={() => void detail.refetch()} showTechnical />
                     ) : (
-                      <TicketPanel key={detail.data.ticket.id} d={detail.data} userId={identity?.sub} me={identity?.sub} />
+                      <TicketPanel key={detail.data.ticket.id} d={detail.data} userId={identity?.sub} me={identity?.sub} onNext={() => { const i = rows.findIndex((r) => r.id === selected.id); if (i >= 0 && i < rows.length - 1) open(rows[i + 1].id); }} />
                     )}
                   </>
                 ) : (
@@ -168,7 +175,7 @@ function Row({ t, showCourse, selected, onSelect }: { t: TicketRow; showCourse: 
   );
 }
 
-function TicketPanel({ d, userId, me }: { d: TicketDetail; userId?: string; me?: string }) {
+function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: string; me?: string; onNext: () => void }) {
   const t = d.ticket;
   const qc = useQueryClient();
   const base = `/courses/${t.course.id}/tickets/${t.id}`;
@@ -195,17 +202,20 @@ function TicketPanel({ d, userId, me }: { d: TicketDetail; userId?: string; me?:
   }
 
   const answer = useIdempotentMutation((text: string, key: string) => apiClient.post(`${base}/answer`, { body: text, version: t.version }, { idempotencyKey: key }));
-  async function send() {
+  async function send(retry = false): Promise<boolean> {
     setErr(null);
     try {
-      await answer.mutate(draft.value.trim());
+      await (retry ? answer.retry() : answer.mutate(draft.value.trim())); // gửi lại dùng LẠI khoá Idempotency: không tạo tin thứ hai
       draft.clear();
       void refresh();
+      return true;
     } catch (e) {
       setErr(e);
       if (e instanceof ApiError && e.code !== "PII_IN_ANSWER" && e.status !== 0) void refresh();
+      return false;
     }
   }
+  const sendErr = err instanceof ApiError && (err.code === "PII_IN_ANSWER" || err.code === "NETWORK" || err.status >= 500) ? err : null;
 
   const finished = t.status === "ANSWERED" || t.status === "CLOSED";
   const claimedByOther = t.status === "CLAIMED" && !mine;
@@ -250,7 +260,17 @@ function TicketPanel({ d, userId, me }: { d: TicketDetail; userId?: string; me?:
       )}
 
       {t.status !== "CLOSED" && (
-        <div className={s.reply} data-part="inbox-reply">
+        <div
+          className={s.reply}
+          data-part="inbox-reply"
+          onKeyDownCapture={(e) => {
+            // ⌘↵ / Ctrl+↵: gửi rồi sang ticket kế
+            if (e.key === "Enter" && (e.metaKey || e.ctrlKey) && canReply && draft.value.trim() && !answer.pending) {
+              e.preventDefault();
+              void send().then((ok) => ok && onNext());
+            }
+          }}
+        >
           {claimedByOther && <InlineNotice tone="warning" compact>{t.claimed_by?.full_name} đã nhận.</InlineNotice>}
           {t.status === "OPEN" && (
             <div className={s.claimRow}>
@@ -267,7 +287,8 @@ function TicketPanel({ d, userId, me }: { d: TicketDetail; userId?: string; me?:
               busy={answer.pending}
               submitLabel="Gửi trả lời"
               placeholder="Trả lời ngắn gọn, đúng việc sinh viên hỏi…"
-              error={err instanceof ApiError && err.code === "PII_IN_ANSWER" ? err.userMessage : undefined}
+              error={sendErr?.userMessage}
+              onRetry={sendErr && sendErr.code !== "PII_IN_ANSWER" ? () => void send(true) : undefined}
             />
           )}
           {t.status === "CLAIMED" && mine && (
@@ -283,7 +304,7 @@ function TicketPanel({ d, userId, me }: { d: TicketDetail; userId?: string; me?:
               ))}
             </div>
           )}
-          {err != null && !(err instanceof ApiError && err.code === "PII_IN_ANSWER") && <ApiErrorNotice error={err} showTechnical />}
+          {err != null && !sendErr && <ApiErrorNotice error={err} showTechnical />}
           {finished && t.answered_by && <p className="ep-meta">{t.answered_by.full_name} đã trả lời.</p>}
         </div>
       )}

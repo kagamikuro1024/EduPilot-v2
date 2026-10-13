@@ -140,7 +140,7 @@ test("inbox: danh sách → chi tiết → Nhận → soạn → Gửi; trả l�
   expect(await page.evaluate((k) => localStorage.getItem(k), `ep:draft:${SUB}:ticket:${TID}`)).toBeNull();
 });
 
-test("inbox: thông tin của sinh viên khác (422 PII_IN_ANSWER) giữ nguyên chữ đã gõ và báo ngay tại ô soạn", async ({ page, context }) => {
+test("inbox PII: thông tin của sinh viên khác (422 PII_IN_ANSWER) giữ nguyên chữ đã gõ và báo ngay tại ô soạn", async ({ page, context }) => {
   await asDemo(context, "teacher");
   const api = await inboxApi(page, { answer: (r) => r.fulfill(json({ code: "PII_IN_ANSWER", message: "m", trace_id: "b".repeat(32), details: [{ start: 3, end: 9, kind: "NAME" }] }, 422)) });
   await page.goto("/inbox");
@@ -154,7 +154,7 @@ test("inbox: thông tin của sinh viên khác (422 PII_IN_ANSWER) giữ nguyên
   expect(api.calls.filter((c) => c.path.endsWith("/answer"))).toHaveLength(1);
 });
 
-test("inbox: người khác đã nhận (409) → làm tươi, không có ô soạn, thấy tên người nhận", async ({ page, context }) => {
+test("inbox claim conflict: người khác đã nhận (409) → làm tươi, không có ô soạn, thấy tên người nhận", async ({ page, context }) => {
   await asDemo(context, "teacher");
   await inboxApi(page, { claim: 409 });
   await page.goto("/inbox");
@@ -164,7 +164,7 @@ test("inbox: người khác đã nhận (409) → làm tươi, không có ô so�
   await expect(pane.getByRole("textbox")).toHaveCount(0);
 });
 
-test("inbox @375: danh sách → chi tiết qua ?ticket=, nút Hộp thư quay lại, không tràn ngang", async ({ page, context }) => {
+test("inbox 375: danh sách → chi tiết qua ?ticket=, nút Hộp thư quay lại, không tràn ngang", async ({ page, context }) => {
   await asDemo(context, "teacher");
   await inboxApi(page);
   await page.setViewportSize({ width: 375, height: 812 });
@@ -177,7 +177,7 @@ test("inbox @375: danh sách → chi tiết qua ?ticket=, nút Hộp thư quay l
   await expect(page).not.toHaveURL(/\?ticket=/);
 });
 
-test("chat: tin của giảng viên hiện tên + vai, không có Hữu ích / Không hữu ích, và đánh dấu đã đọc thông báo của phiên", async ({ page, context }) => {
+test("answer appears in student chat: tin của giảng viên hiện tên + vai, không có Hữu ích / Không hữu ích, và đánh dấu đã đọc thông báo của phiên", async ({ page, context }) => {
   await asDemo(context, "student", { person: "sv-2" });
   const staff = msg({ id: "s1", content: "Em xem lại bài 3 nhé.", citations: [], blocks: [{ kind: "ticket", data: { ticket_id: TID, answered_by: { full_name: "Nguyễn Thị Hoa", role: "TEACHER" } } }] });
   const read: string[] = [];
@@ -197,4 +197,137 @@ test("chat: tin của giảng viên hiện tên + vai, không có Hữu ích / K
   await expect(thread.getByRole("button", { name: "Hữu ích", exact: true })).toHaveCount(0);
   await expect.poll(() => read.length).toBe(1);
   expect(JSON.parse(read[0])).toEqual({ link: `/chat?session=${SID}` });
+});
+
+test("inbox draft per ticket: nháp còn nguyên sau khi tải lại trang", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  await inboxApi(page);
+  await page.goto("/inbox");
+  const pane = page.locator("[data-part=inbox-detail]");
+  await pane.getByRole("button", { name: "Nhận", exact: true }).click();
+  await pane.getByRole("textbox", { name: "Câu trả lời gửi sinh viên" }).fill("Nháp dang dở");
+  await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
+  await page.reload();
+  await expect(page.locator("[data-part=inbox-detail]").getByRole("textbox", { name: "Câu trả lời gửi sinh viên" })).toHaveValue("Nháp dang dở");
+});
+
+test("inbox send failure keeps draft: lỗi 500 giữ chữ, Thử lại dùng lại cùng khoá Idempotency", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  let n = 0;
+  const api = await inboxApi(page, {
+    answer: (r) => {
+      n++;
+      if (n === 1) return r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500));
+      api.state.t = ticket({ status: "ANSWERED", answered_by: { id: SUB, full_name: "Giảng Viên Thử" }, version: 3 });
+      return r.fulfill(json({ ticket: api.state.t, message: { id: "m1", content: "x", created_at: "2026-10-11T02:00:00Z" } }));
+    },
+  });
+  await page.goto("/inbox");
+  const pane = page.locator("[data-part=inbox-detail]");
+  await pane.getByRole("button", { name: "Nhận", exact: true }).click();
+  const box = pane.getByRole("textbox", { name: "Câu trả lời gửi sinh viên" });
+  await box.fill("Trả lời quan trọng");
+  await box.press("Enter");
+  await expect(pane.getByRole("button", { name: "Gửi lại" })).toBeVisible();
+  await expect(box).toHaveValue("Trả lời quan trọng");
+  await pane.getByRole("button", { name: "Gửi lại" }).click();
+  await expect(pane.getByText("Giảng Viên Thử đã trả lời.")).toBeVisible();
+  const posts = api.calls.filter((c) => c.path.endsWith("/answer"));
+  expect(posts).toHaveLength(2);
+  expect(posts[1].headers["idempotency-key"]).toBe(posts[0].headers["idempotency-key"]);
+});
+
+test("inbox states: rỗng có Xem tất cả, lỗi có Thử lại mà không mất dữ liệu", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  let mode: "empty" | "error" = "empty";
+  await page.route("**/api/v1/courses/*/tickets**", (r) => {
+    if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    return mode === "empty" ? r.fulfill(json({ items: [], next_cursor: null })) : r.fulfill(json({ code: "INTERNAL", message: "m", trace_id: "b".repeat(32) }, 500));
+  });
+  await page.goto("/inbox");
+  await expect(page.getByText("Không có câu hỏi nào đang chờ.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Xem tất cả" })).toBeVisible();
+  mode = "error";
+  await page.getByRole("button", { name: "Xem tất cả" }).click();
+  await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
+  mode = "empty";
+  await page.getByRole("button", { name: "Thử lại" }).click();
+  await expect(page.getByText("Không có câu hỏi nào đang chờ.")).toBeVisible();
+});
+
+test("inbox all courses: chế độ Tất cả lớp của tôi gọi /me/tickets và mỗi dòng ghi mã lớp", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  await page.addInitScript(() => localStorage.setItem("ep:ui:course", "all"));
+  const urls: string[] = [];
+  await page.route("**/api/v1/me/tickets**", (r) => {
+    if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    urls.push(r.request().url());
+    return r.fulfill(json({ items: [row(ticket()), { ...row(ticket({ id: "00000000-0000-7000-8000-0000000000f8" })), course: { id: "c2", class_code: "761988" } }], next_cursor: null }));
+  });
+  await page.goto("/inbox");
+  const list = page.locator("[data-part=inbox-list]");
+  await expect(list).toContainText("761987");
+  await expect(list).toContainText("761988");
+  expect(urls[0]).toContain("status=OPEN");
+});
+
+test("inbox shortcuts: J / K đổi ticket, R vào ô soạn, không kích hoạt khi đang gõ", async ({ page, context }) => {
+  await asDemo(context, "teacher");
+  const second = ticket({ id: "00000000-0000-7000-8000-0000000000f8", student: { id: "s2", full_name: "Sinh Viên Hai" } });
+  await page.route("**/api/v1/courses/*/tickets**", (r) => {
+    if (r.request().method() === "OPTIONS") return r.fulfill({ status: 204, headers: json({}).headers });
+    const path = new URL(r.request().url()).pathname;
+    if (path.endsWith("/tickets")) return r.fulfill(json({ items: [row(ticket()), row(second)], next_cursor: null }));
+    return r.fulfill(json(detail(path.endsWith("f8") ? second : ticket({ status: "CLAIMED", claimed_by: { id: SUB, full_name: "Giảng Viên Thử" } }))));
+  });
+  await page.goto("/inbox");
+  await expect(page.locator("[data-part=inbox-list]").getByText("Sinh Viên Hai")).toBeVisible();
+  await page.keyboard.press("j");
+  await expect(page).toHaveURL(/ticket=.*f8/);
+  await expect(page.locator("[data-part=inbox-detail]").getByRole("heading", { name: "Sinh Viên Hai" })).toBeVisible();
+  await page.keyboard.press("k");
+  await expect(page).not.toHaveURL(/ticket=.*f8/);
+  await expect(page).toHaveURL(/ticket=/);
+  await page.keyboard.press("r");
+  const box = page.locator("[data-part=inbox-detail]").getByRole("textbox", { name: "Câu trả lời gửi sinh viên" });
+  await expect(box).toBeFocused();
+  await page.keyboard.type("jjkk");
+  await expect(box).toHaveValue("jjkk");
+  await expect(page).toHaveURL(/ticket=(?!.*f8)/);
+});
+
+test("bell count: số chưa đọc trên chuông, tối đa 9+", async ({ page }) => {
+  await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 15 }) });
+  await page.goto("/");
+  await expect(page.locator("[data-part=bell-dot]")).toHaveText("9+");
+  await expect(bell(page)).toHaveAttribute("aria-label", "Thông báo, 15 chưa đọc");
+});
+
+test("bell count small: 3 chưa đọc hiện đúng số 3", async ({ page }) => {
+  await setup(page, { list: () => ({ items: [note()], next_cursor: null, unread_count: 3 }) });
+  await page.goto("/");
+  await expect(page.locator("[data-part=bell-dot]")).toHaveText("3");
+});
+
+test("bell no jump: thông báo mới chèn lên đầu lúc đang mở không làm nhảy mục đang đọc", async ({ page }) => {
+  let push = false;
+  const items = [1, 2, 3].map((i) => note({ id: `00000000-0000-7000-8000-00000000000${i}`, title: `Thông báo số ${i}` }));
+  await setup(page, {
+    list: () => ({ items, next_cursor: null, unread_count: 3 }),
+    events: async (r) => {
+      while (!push) await new Promise((res) => setTimeout(res, 50));
+      await r.fulfill(sse(READY + frame("notification", { ...note({ id: "00000000-0000-7000-8000-0000000000ff", title: "Thông báo mới nhất" }), read: false, unread_count: 4 }, "1000-1")));
+    },
+  });
+  await page.goto("/");
+  await bell(page).click();
+  const second = page.locator("[data-part=notifications] li", { hasText: "Thông báo số 2" });
+  await expect(second).toBeVisible();
+  await page.waitForTimeout(500); // khung mở xong animation
+  const before = (await second.boundingBox())!.y;
+  push = true;
+  await expect(page.locator("[data-part=notifications] li").first()).toContainText("Thông báo mới nhất");
+  await page.waitForTimeout(200);
+  const after = (await second.boundingBox())!.y;
+  expect(Math.abs(after - before)).toBeLessThan(1.5);
 });

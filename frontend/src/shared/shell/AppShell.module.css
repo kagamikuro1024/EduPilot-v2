@@ -121,7 +121,7 @@
 .iconBtn { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink-2); }
 .iconBtn:hover, .iconBtn[aria-expanded="true"] { background: var(--ep-surface-subtle); color: var(--ep-ink); }
 .iconBtn svg { width: 18px; height: 18px; }
-.unreadDot { position: absolute; top: 8px; right: 9px; width: 7px; height: 7px; border-radius: var(--ep-radius-pill); background: var(--ep-red); border: 1.5px solid var(--ep-surface); }
+.unreadDot { position: absolute; top: 3px; right: 2px; display: grid; place-items: center; min-width: 16px; height: 16px; padding: 0 4px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); border: 1.5px solid var(--ep-surface); font-size: 10px; font-weight: 700; line-height: 1; }
 
 .profile { display: inline-flex; align-items: center; gap: var(--ep-space-2); height: 36px; padding: 0 var(--ep-space-2) 0 var(--ep-space-1); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; }
 .profile:hover, .profile[aria-expanded="true"] { border-color: var(--ep-ink-3); }
@@ -134,6 +134,7 @@
 .whoMail { font-size: var(--ep-text-meta); color: var(--ep-ink-3); overflow-wrap: anywhere; }
 
 .notes ul { display: grid; padding-bottom: var(--ep-space-1); }
+.noteList { max-height: min(420px, 60dvh); overflow-y: auto; overscroll-behavior: contain; }
 .notes li + li { border-top: 1px solid var(--ep-rule); }
 .note { display: flex; gap: var(--ep-space-3); padding: var(--ep-space-3); border-radius: var(--ep-radius-sm); }
 .note:hover { background: var(--ep-surface-subtle); }

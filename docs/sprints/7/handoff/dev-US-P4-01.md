@@ -37,3 +37,21 @@ AC1–AC3 ✓ · AC4 ✓ (tuần tự + 10 song song) · AC5 ✓ (`TestAutoTicke
 4. Counter `chat_tickets_suppressed_total` là `atomic.Int64` + log (repo chưa có hạ tầng metric).
 5. Test đã sửa theo #8 (`TestSchemaChat`, `TestSettingsDefaultsLazyCreate`) và #10 (`TestSettingsOwnerOnly`) — #10 sửa TRƯỚC khi có dòng ACCEPTED (lỗi quy trình, PM đã ghi nhận).
 6. `TestStreamEventOrder` (chat) và `TestExamResultTodayItems` (today) đỏ ngẫu nhiên khi chạy cả bộ, xanh khi chạy riêng — cùng họ BUG-1 của QC US-CI-02 (test thời gian trên runner tải nặng), không do story này.
+
+## Vòng 2 (sau QC FAIL vòng 1, `report-US-P4-01.md`)
+- **BUG-1 (test hợp đồng đỏ)**: đã sửa ở `9e05ffb` (ghi `#11` ở commit thêm route của US-P4-03; con số của US-P4-01 gộp cùng đợt): `TestSpec_LoadsAndValidates` 170 → 179 (cộng cả 8 thao tác của US-P4-03), `TestChatThreadsContract` 20 → 21, `TestSpec_SecurityDeclared` thêm mục `POST /api/v1/chat/messages/{mid}/escalate` (và 8 mục của US-P4-03), `db/migrations_test.go` version 11 → 12. Kiểm: `go test -count=1 -tags testroutes ./internal/contract/... ./db` → `ok`.
+- **BUG-2, BUG-3**: chữ spec, PM đã nhận (#15–#17); code giữ nguyên (`404` cho PENDING / ngoài lớp; đường tạo ticket không dùng Redis).
+- **Dựng stack có `-tags testroutes`** (`pnpm dev` / `scripts/dev.mjs` không dựng bản này; image `gateway`, `worker` mặc định không có route thử):
+  ```bash
+  docker compose --env-file .env.local -f docker-compose.local.yml -f docker-compose.test.yml -p edupilot up -d --build --scale gateway=2 --wait
+  ```
+  (`docker-compose.test.yml` chỉ đổi `build.target` sang `gateway-test` / `worker-test` và `APP_ENV=test`; cùng DB, cùng seed). Có `GET /api/v1/_test/llm/stats`, `POST …/_test/llm/fake`, `GET|POST …/_test/llm/payloads[/reset]` (ADMIN).
+- **Làm provider chết / chậm trên stack đó** (ADMIN token): `POST /api/v1/_test/llm/fake {"error_rate":1,"error_kind":"SERVER"}` → mọi lời gọi LLM lỗi → câu trả lời `degraded=true` (nút `Nhờ giảng viên hỗ trợ` vẫn hiện, **không** tự mở ticket); trả lại `{"error_rate":0}`. Để giữ tin ở `STREAMING` đủ lâu mà thử `STREAMING` / `CANCELLED`: `{"stream_delay_ms":1500}` rồi `POST /chat/messages/{mid}/cancel` giữa chừng.
+- **Ép `low_confidence=true` theo từng intent** — theo SRS escalation 4.2.4 và `internal/agent/confidence.go` (`Metadata`), tự mở ticket chỉ khi:
+  | Intent | Cách làm có `low_confidence` (ticket tự mở) | Ghi chú |
+  | --- | --- | --- |
+  | `COURSE_QA` | hỏi câu không có đoạn tài liệu nào đủ gần (lớp chưa có tài liệu, hoặc câu ngoài môn) → `no_context`; hoặc đặt `update courses set escalation_threshold = 0.99 where id=…` rồi hỏi câu có tài liệu → độ tin cậy < ngưỡng | `origin=AUTO_LOW_CONFIDENCE` |
+  | `GRADE_FORMULA` | lớp **chưa có công thức điểm được duyệt**, hỏi "điểm tổng kết tính thế nào" | `origin=AUTO_NO_FORMULA` |
+  | `LIBRARY_SEARCH`, `ATTENDANCE`, `PARTICIPATION`, `GRADE`, `WHAT_IF`, `EXAM_SCHEDULE`, `UPCOMING_EVENTS` | **không có cách**, đúng thiết kế: khi tool trả dữ liệu, độ tin cậy cố định 1,000 (số liệu từ DB, `ToolBacked`); khi không có dữ liệu trả câu mẫu ("Hệ thống chưa có dữ liệu…", `Canned`) — không có độ tin cậy, không bị coi là "chưa chắc" | nút `Nhờ giảng viên hỗ trợ` vẫn có để sinh viên tự bấm |
+  | `CRISIS`, `OTHER_PERSON`, `SMALLTALK` | không bao giờ (không nút, không ticket) | |
+  `degraded=true` (provider chết): không tự mở, nút vẫn hiện.

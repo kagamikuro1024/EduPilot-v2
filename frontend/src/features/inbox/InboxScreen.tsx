@@ -3,13 +3,11 @@
 import dynamic from "next/dynamic";
 import { useSession } from "@/shared/session/session";
 
-const DemoInbox = dynamic(() => import("./InboxView").then((m) => m.InboxView), { loading: () => null });
 const RealInbox = dynamic(() => import("./RealInbox").then((m) => m.RealInbox), { loading: () => null });
 
-/** Phiên đăng nhập thật có lớp → hộp thư thật; phiên mô phỏng → bản mô phỏng cũ. */
+/** Hộp thư hỗ trợ chỉ có thật: TA / giảng viên có lớp. Vai khác không có đường vào (điều hướng không hiện mục này). */
 export function InboxScreen() {
   const { realCourseId, role, realPending } = useSession();
-  if (realPending) return null;
-  if (realCourseId && role !== "admin" && role !== "student") return <RealInbox courseId={realCourseId} />;
-  return <DemoInbox />;
+  if (realPending || !realCourseId || (role !== "teacher" && role !== "ta")) return null;
+  return <RealInbox courseId={realCourseId} />;
 }
