@@ -99,7 +99,7 @@ flowchart LR
 | `PUT` 5xx | hoàn lại hiển thị bằng nút `Thử lại`; thay đổi giữ ở máy | "Chưa lưu được. Thử lại" |
 | Sinh viên không `ACTIVE` trong thân | `422 STUDENT_NOT_IN_COURSE` | thông báo ở dòng |
 | Xoá buổi đã có điểm danh | `409 SESSION_HAS_ATTENDANCE` | "Buổi này đã có điểm danh, chỉ sửa được giờ" |
-| Tạo lịch vượt 60 buổi | `422 TOO_MANY_SESSIONS` | "Sẽ tạo 74 buổi, tối đa 60" |
+| Tạo lịch vượt 60 buổi | `422 VALIDATION_FAILED` + `details[0].code = TOO_MANY_SESSIONS` (hợp đồng P2, `proposals.md` #20) | "Sẽ tạo 74 buổi, tối đa 60" |
 | Redis lỗi lúc heartbeat | `204`, bỏ nhịp, đếm `activity_heartbeat_dropped_total` | không thấy gì |
 | Tab ẩn / idle 2 phút | hook ngừng gửi | không thấy gì |
 | Chưa xác nhận thông báo theo dõi | hook không gửi; server `204` không cộng | hộp thoại một lần |
@@ -133,8 +133,8 @@ flowchart LR
 
 ### 4.2 `internal/course` — lịch buổi học (mở rộng P2)
 
-1. **Xem trước.** `POST …/sessions/generate?dry_run=true` (cùng thân) chạy toàn bộ kiểm hợp lệ và sinh danh sách trong **giao dịch chỉ đọc**; **không** đòi `Idempotency-Key` (chỉ đọc — middleware idempotency băm thân + query, nên cùng một khoá cho `Xem trước` rồi `Tạo N buổi` sẽ bị từ chối; TLR-12); trả `200 {would_create:[{session_no,starts_at,ends_at}], skipped:[{date,reason}]}`; **không** ghi `class_sessions`, `audit_log`, `outbox`, Redis. `session_no` xem trước = số sẽ được cấp nếu chạy ngay (`max+1…`). `reason` ∈ {`EXCLUDED`, `DUPLICATE`}.
-2. **Tạo thật** như P2 (≤ `SESSIONS_MAX_PER_GENERATE`; vượt → `422 TOO_MANY_SESSIONS` kèm `details:{would_create:74,max:60}`; `Idempotency-Key` **bắt buộc**, giao diện sinh khoá mới mỗi lần bấm `Tạo N buổi`); thêm trong **cùng giao dịch**: `audit_log` (`class_sessions`, `generate`, số buổi) và outbox `course.changed` (`today.invalidate`, ETag lịch).
+1. **Xem trước.** `POST …/sessions/generate?dry_run=true` (cùng thân) chạy toàn bộ kiểm hợp lệ và sinh danh sách trong **giao dịch chỉ đọc**; **không** đòi `Idempotency-Key` (chỉ đọc — middleware idempotency băm thân + query, nên cùng một khoá cho `Xem trước` rồi `Tạo N buổi` sẽ bị từ chối; TLR-12); trả `200 {would_create:[{session_no,starts_at,ends_at}], skipped:[{date,reason}]}`; **không** ghi `class_sessions`, `audit_log`, `outbox`, Redis. `session_no` xem trước = số sẽ được cấp nếu chạy ngay (`max+1…`). `reason` ∈ {`EXCLUDED`, `DUPLICATE`}; **chỉ bản xem trước** liệt kê `skipped` dạng mảng (cả `EXCLUDED` lẫn `DUPLICATE`).
+2. **Tạo thật** như P2 (≤ `SESSIONS_MAX_PER_GENERATE`; vượt → `422 VALIDATION_FAILED` với `details[0] = {field:"to", code:"TOO_MANY_SESSIONS", message:"Khoảng ngày này có 74 buổi, mỗi lần tạo tối đa 60"}` — hợp đồng P2 đã ghim, không đổi, `proposals.md` #20; `Idempotency-Key` **bắt buộc**, giao diện sinh khoá mới mỗi lần bấm `Tạo N buổi`); `201 {created, first_session_no, last_session_no, skipped}` với `skipped` là **số** buổi trùng đã bỏ (`SessionGenerateResult.skipped: integer`); thêm trong **cùng giao dịch**: `audit_log` (`class_sessions`, `generate`, số buổi) và outbox `course.changed` (`today.invalidate`, ETag lịch).
 3. **Sửa một buổi** `PUT …/sessions/{sid} {starts_at, ends_at, room?, topic?, version}` (`Staff`): `version` sai → `409`; `ends_at ≤ starts_at` → `422`; trùng `(course_id, starts_at)` → `409 SESSION_DUPLICATE`; `session_no` không đổi; có `audit_log`.
 4. **Huỷ một buổi** `DELETE …/sessions/{sid}` (`Staff`): chỉ khi không có `attendance_records` của buổi đó (`409 SESSION_HAS_ATTENDANCE`); `audit_log`. Cấp số = `max(session_no) + 1`: khoảng trống **ở giữa** do xoá không được lấp; xoá buổi **cuối cùng** thì số đó được cấp lại (buổi đã xoá chưa từng có điểm danh nên không dữ liệu nào trỏ tới số cũ — TLR-4, PM chọn phương án rẻ; không thêm cột đếm vào `courses`). "Nghỉ" = xoá buổi (Q9).
 5. **Buổi bù** = tạo một buổi một ngày bằng `generate` rồi `PUT` đặt `topic` "Học bù" (API generate không có `topic`).
@@ -215,7 +215,7 @@ Không có `note`, `marked_by`, tên người khác. Một lượt sinh chữ nh
 
 ### 4.8 Hồ sơ 360, ghi chú, nhận xét AI, nhắn sinh viên
 
-**4.8.1 Views (`00013`).** `v_attendance_summary(course_id, student_id, recorded, present, late, excused, absent, last_marked_at)` = `GROUP BY course_id, student_id` trên `attendance_records`. `v_student_360(course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at)` = `enrollments` (`role=STUDENT`, `status=ACTIVE`) ⋈ `users` ⟕ `v_attendance_summary` ⟕ tổng `participation_events` theo `(course_id, student_id)` ⟕ `study_time_daily` 7 ngày gần nhất ⟕ `student_risk`. Mọi nhóm gộp có `course_id` ở khoá nhóm để vị từ `course_id = $1` được đẩy xuống (không quét cả bảng); hai view **không** có `chat_messages` (đếm hoạt động đã vật chất hoá vào `student_risk`).
+**4.8.1 Views (`00013`; `00014` thay một view — `proposals.md` #20).** `v_attendance_summary(course_id, student_id, recorded, present, late, excused, absent, last_marked_at)` = `GROUP BY course_id, student_id` trên `attendance_records`. `v_student_360(course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at)` = `enrollments` (`role=STUDENT`, `status=ACTIVE`) ⋈ `users` ⟕ `v_attendance_summary` ⟕ tổng `participation_events` theo `(course_id, student_id)` ⟕ `study_time_daily` 7 ngày gần nhất ⟕ `student_risk`. **Vì `study_time_daily` chỉ tồn tại từ `00014`:** ở `00013` view dựng với `0::bigint AS study_seconds_7d` (không join bảng đó); `00014` chạy `CREATE OR REPLACE VIEW v_student_360` thay bằng bản join (cùng tên, thứ tự và kiểu cột nên không phải `DROP`), và `Down` của `00014` trả lại bản `0`. Mọi nhóm gộp có `course_id` ở khoá nhóm để vị từ `course_id = $1` được đẩy xuống (không quét cả bảng); hai view **không** có `chat_messages` (đếm hoạt động đã vật chất hoá vào `student_risk`).
 
 **4.8.2 `GET …/students`** (`Staff`): `v_student_360` + lọc / tìm / sắp xếp ở 4.8.6; phân trang con trỏ bằng khoá `(risk_rank, vn_fold(full_name), student_id)` (mã hoá base64, `INVALID_CURSOR` khi sai).
 
@@ -394,7 +394,7 @@ Chỉ mục: PK · `UNIQUE (course_id, session_id, student_id)` (**có `course_i
 
 ### 5.6 Views (cột ghim ở test lược đồ)
 
-`v_attendance_summary`: `course_id, student_id, recorded, present, late, excused, absent, last_marked_at`. `v_student_360`: `course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at` (4.8.1). Cả hai chỉ chứa sinh viên `ACTIVE` (view thứ hai) / theo dòng điểm danh (view thứ nhất).
+`v_attendance_summary`: `course_id, student_id, recorded, present, late, excused, absent, last_marked_at`. `v_student_360`: `course_id, student_id, full_name, student_code, joined_at, recorded, present, late, excused, absent, speak_count, points_total, study_seconds_7d, last_week_asks, last_week_posts, risk_level, risk_entered_at, risk_computed_at` (4.8.1). Cả hai chỉ chứa sinh viên `ACTIVE` (view thứ hai) / theo dòng điểm danh (view thứ nhất). Ở `00013`, `study_seconds_7d` là `0::bigint`; `00014` thay view bằng bản join `study_time_daily` (`proposals.md` #20).
 
 ### 5.7 Migration `00014_observation.sql` — `study_time_daily` và cấu hình đo thời gian học
 
@@ -405,7 +405,7 @@ Chỉ mục: PK · `UNIQUE (course_id, session_id, student_id)` (**có `course_i
 ALTER TABLE user_settings ADD COLUMN track_study_time boolean NOT NULL DEFAULT true;
 ALTER TABLE courses ADD COLUMN allow_study_time_opt_out boolean NOT NULL DEFAULT true;
 ```
-`track_study_time`: công tắc của sinh viên, toàn tài khoản (4.6.7). `allow_study_time_opt_out`: TEACHER chọn tới khi lớp có sinh viên ghi danh đầu tiên rồi khoá (Q25); mặc định `true` (cho phép tắt — an toàn cho dữ liệu cá nhân). `Down` bỏ hai cột trước, rồi `DROP` bảng.
+`track_study_time`: công tắc của sinh viên, toàn tài khoản (4.6.7). `allow_study_time_opt_out`: TEACHER chọn tới khi lớp có sinh viên ghi danh đầu tiên rồi khoá (Q25); mặc định `true` (cho phép tắt — an toàn cho dữ liệu cá nhân). Cũng ở `00014`: `CREATE OR REPLACE VIEW v_student_360` thay `study_seconds_7d = 0` bằng tổng `active_seconds` 7 ngày gần nhất (4.8.1; **không** phải `ALTER TABLE`, nên số `ALTER` vẫn là hai). `Down` trả lại view bản `0`, bỏ hai cột trước, rồi `DROP` bảng.
 ### 5.8 `insight_reports` (P10 chỉ đọc / ghi)
 
 `id uuid PK`; `course_id`; `kind text NOT NULL CHECK (kind IN ('KNOWLEDGE_GAP'))`; `period_from date`, `period_to date`; `payload jsonb NOT NULL` (`jsonb_typeof='object'`); `data_watermark timestamptz NOT NULL`; `generated_by uuid NOT NULL` FK `users`; `version integer NOT NULL DEFAULT 1`; `created_at`, `updated_at`. Chỉ mục `insight_reports_course_kind_idx (course_id, kind, created_at DESC)`. `ALTER` bảng cũ ở `00014` chỉ có hai câu ở 5.7.
@@ -431,7 +431,7 @@ Thân lỗi `{code, message, details?, retry_after?}`. Mọi route lớp qua `Co
 
 | # | Route | Quyền | `Idempotency-Key` | Thành công | Lỗi chính |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `POST …/sessions/generate[?dry_run=true]` | `Staff` | **bắt buộc khi chạy thật; `dry_run=true` không đòi** (TLR-12) | `201 {created,first_session_no,last_session_no,skipped}` / `200 {would_create,skipped}` | `422` (+ `TOO_MANY_SESSIONS`), `409 COURSE_ARCHIVED` |
+| 1 | `POST …/sessions/generate[?dry_run=true]` | `Staff` | **bắt buộc khi chạy thật; `dry_run=true` không đòi** (TLR-12) | `201 {created,first_session_no,last_session_no,skipped:<số>}` / `200 {would_create,skipped:[{date,reason}]}` | `422 VALIDATION_FAILED` (`details[].code = TOO_MANY_SESSIONS` khi > 60 buổi), `409 COURSE_ARCHIVED` |
 | 2 | `PUT …/sessions/{sid} {starts_at,ends_at,room?,topic?,version}` | `Staff` | – | `200 {session}` | `409 VERSION_CONFLICT`, `409 SESSION_DUPLICATE`, `422`, `404` |
 | 3 | `DELETE …/sessions/{sid}` | `Staff` | – | `204` | `409 SESSION_HAS_ATTENDANCE`, `404` |
 
@@ -469,7 +469,7 @@ Thân lỗi `{code, message, details?, retry_after?}`. Mọi route lớp qua `Co
 
 ### 6.5 Mã lỗi mới
 
-`TOO_MANY_SESSIONS` (422), `SESSION_DUPLICATE` (409), `SESSION_HAS_ATTENDANCE` (409), `STUDENT_NOT_IN_COURSE` (422), `NOT_ENOUGH_DATA` (409), `OUTREACH_LIMIT` (429), `STUDENT_NOT_ACTIVE` (409), `COURSE_HAS_STUDENTS` (409). Dùng lại: `VERSION_CONFLICT`, `COURSE_ARCHIVED`, `RATE_LIMITED`, `LLM_UNAVAILABLE`, `OVERLOADED`, `DEADLINE_EXCEEDED`, `PII_IN_ANSWER`, `INVALID_CURSOR`, `IDEMPOTENCY_KEY_REUSED` (middleware idempotency; `participation` khi `client_event_id` thuộc lớp / người khác).
+`SESSION_DUPLICATE` (409), `SESSION_HAS_ATTENDANCE` (409), `STUDENT_NOT_IN_COURSE` (422), `NOT_ENOUGH_DATA` (409), `OUTREACH_LIMIT` (429), `STUDENT_NOT_ACTIVE` (409), `COURSE_HAS_STUDENTS` (409). `TOO_MANY_SESSIONS` **không** phải mã lỗi cấp trên: đó là `details[].code` dưới `422 VALIDATION_FAILED` (giữ hợp đồng P2, `proposals.md` #20). Dùng lại: `VALIDATION_FAILED`, `VERSION_CONFLICT`, `COURSE_ARCHIVED`, `RATE_LIMITED`, `LLM_UNAVAILABLE`, `OVERLOADED`, `DEADLINE_EXCEEDED`, `PII_IN_ANSWER`, `INVALID_CURSOR`, `IDEMPOTENCY_KEY_REUSED` (middleware idempotency; `participation` khi `client_event_id` thuộc lớp / người khác).
 
 ## 7. Giao diện
 
