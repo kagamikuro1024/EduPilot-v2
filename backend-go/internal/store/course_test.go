@@ -25,7 +25,7 @@ func TestCourseSchema(t *testing.T) {
 	wantCols := map[string][]string{
 		"courses":          {"id", "subject_code", "class_code", "name", "semester", "status", "escalation_threshold", "settings", "join_code", "join_enabled", "join_expires_at", "join_require_approval", "allowed_email_domain", "capacity", "created_by", "archived_at", "version", "created_at", "updated_at"},
 		"enrollments":      {"id", "course_id", "user_id", "role_in_course", "status", "joined_via", "student_code_snapshot", "warning", "previous_status", "status_changed_at", "status_changed_by", "removed_at", "version", "created_at", "updated_at"},
-		"class_sessions":   {"id", "course_id", "session_no", "starts_at", "ends_at", "room", "topic", "version", "created_at", "updated_at"},
+		"class_sessions":   {"id", "course_id", "session_no", "starts_at", "ends_at", "room", "topic", "version", "created_at", "updated_at", "attendance_done_at", "attendance_done_by"}, // #5: 00013 thêm hai cột hoàn tất điểm danh
 		"notifications":    {"id", "user_id", "course_id", "type", "title", "body", "link", "dedupe_key", "read_at", "created_at", "updated_at"},
 		"user_settings":    {"user_id", "notify_ticket_by_mail", "notify_answer_by_mail", "remind_deadline_by_mail", "preferences", "version", "created_at", "updated_at"},
 		"documents":        {"id", "course_id", "title", "type", "filename", "mime_type", "size_bytes", "sha256", "blob_key", "status", "error", "page_count", "visible_to_students", "use_for_rag", "category", "week_no", "download_count", "uploaded_by", "version", "created_at", "updated_at"},

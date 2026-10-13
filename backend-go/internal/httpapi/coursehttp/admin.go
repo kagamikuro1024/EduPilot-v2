@@ -349,6 +349,7 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 	var inv *course.InvalidError
 	var vc *course.VersionConflictError
 	var jv *course.JoinVersionConflictError
+	var sv *course.SessionVersionConflictError
 	var rl *course.RateLimitedError
 	var ce course.ConfirmError
 	switch {
@@ -364,6 +365,12 @@ func (h *Handler) fail(w http.ResponseWriter, r *http.Request, op string, err er
 		httpx.WriteVersionConflict(w, r, vc.Current.Version, adminItemOf(vc.Current))
 	case errors.As(err, &jv):
 		httpx.WriteVersionConflict(w, r, jv.Current.Version, joinInfoOf(jv.Current))
+	case errors.As(err, &sv):
+		httpx.WriteVersionConflict(w, r, sv.Current.Version, sessionOutOf(sv.Current, true))
+	case errors.Is(err, course.ErrSessionDuplicate):
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.SessionDuplicate))
+	case errors.Is(err, course.ErrSessionHasAttendance):
+		apierr.Write(w, r, apierr.New(http.StatusConflict, apierr.SessionHasAttendance))
 	case errors.Is(err, course.ErrJoinInvalid):
 		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.JoinCodeInvalid))
 	case errors.Is(err, course.ErrCourseFull):

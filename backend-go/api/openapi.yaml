@@ -2068,7 +2068,7 @@ paths:
     post:
       operationId: generateCourseSessions
       tags: [courses]
-      summary: Sinh buổi học theo tuần (giảng viên / TA; ≤ 60 buổi mỗi lần; giờ Asia/Ho_Chi_Minh; bỏ buổi trùng starts_at)
+      summary: "Sinh buổi học theo tuần (giảng viên / TA; ≤ 60 buổi mỗi lần; giờ Asia/Ho_Chi_Minh; bỏ buổi trùng starts_at). `?dry_run=true` = xem trước: giao dịch chỉ đọc, không ghi gì, không đòi Idempotency-Key"
       parameters:
         - name: id
           in: path
@@ -2076,9 +2076,15 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: dry_run
+          in: query
+          required: false
+          schema:
+            type: boolean
         - name: Idempotency-Key
           in: header
-          required: true
+          required: false
+          description: Bắt buộc khi chạy thật (thiếu → 422); không gửi khi `dry_run=true`
           schema:
             type: string
       requestBody:
@@ -2088,6 +2094,12 @@ paths:
             schema:
               $ref: "#/components/schemas/SessionGenerateRequest"
       responses:
+        "200":
+          description: Xem trước (`dry_run=true`) — đúng tập buổi sẽ tạo nếu chạy thật ngay sau đó
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionGeneratePreview"
         "201":
           description: Kết quả sinh buổi (created = 0 khi chạy lại)
           content:
@@ -2104,6 +2116,70 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/sessions/{sid}:
+    put:
+      operationId: updateCourseSession
+      tags: [courses]
+      summary: "Sửa giờ / phòng / chủ đề một buổi (giảng viên / TA; thay toàn bộ, bỏ trống room / topic = xoá; session_no không đổi). Sai version 409 VERSION_CONFLICT; trùng giờ bắt đầu buổi khác 409 SESSION_DUPLICATE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionUpdateRequest"
+      responses:
+        "200":
+          description: Buổi sau khi sửa (version + 1)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [session]
+                additionalProperties: false
+                properties:
+                  session:
+                    $ref: "#/components/schemas/CourseSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteCourseSession
+      tags: [courses]
+      summary: "Huỷ một buổi (giảng viên / TA); chỉ khi buổi chưa có điểm danh, ngược lại 409 SESSION_HAS_ATTENDANCE. Nghỉ = xoá buổi"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -7389,21 +7465,19 @@ components:
           type: [integer, "null"]
         skipped:
           type: integer
-    CourseSessionList:
+    SessionGeneratePreview:
       type: object
-      required: [items, next_cursor]
+      required: [would_create, skipped]
       additionalProperties: false
       properties:
-        items:
+        would_create:
           type: array
+          maxItems: 60
           items:
             type: object
-            required: [id, session_no, starts_at, ends_at, room, topic]
+            required: [session_no, starts_at, ends_at]
             additionalProperties: false
             properties:
-              id:
-                type: string
-                format: uuid
               session_no:
                 type: integer
               starts_at:
@@ -7412,10 +7486,81 @@ components:
               ends_at:
                 type: string
                 format: date-time
-              room:
-                type: [string, "null"]
-              topic:
-                type: [string, "null"]
+        skipped:
+          type: array
+          items:
+            type: object
+            required: [date, reason]
+            additionalProperties: false
+            properties:
+              date:
+                type: string
+                format: date
+              reason:
+                type: string
+                enum: [EXCLUDED, DUPLICATE]
+    SessionUpdateRequest:
+      type: object
+      required: [starts_at, ends_at, version]
+      additionalProperties: false
+      properties:
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        room:
+          type: [string, "null"]
+          maxLength: 40
+        topic:
+          type: [string, "null"]
+          maxLength: 200
+        version:
+          type: integer
+          minimum: 1
+    CourseSession:
+      type: object
+      required: [id, session_no, starts_at, ends_at, room, topic, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_no:
+          type: integer
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        room:
+          type: [string, "null"]
+        topic:
+          type: [string, "null"]
+        version:
+          type: integer
+        attendance:
+          description: Chỉ nhân viên (giảng viên / TA) thấy
+          type: object
+          required: [done_at, has_records]
+          additionalProperties: false
+          properties:
+            done_at:
+              type: [string, "null"]
+              format: date-time
+            has_records:
+              type: boolean
+    CourseSessionList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseSession"
         next_cursor:
           type: [string, "null"]
     JoinInfo:
@@ -8167,6 +8312,8 @@ components:
             - EDIT_LOCKED_VERIFIED
             - PIN_LIMIT
             - CRISIS_SUPPORT
+            - SESSION_DUPLICATE
+            - SESSION_HAS_ATTENDANCE
         message:
           type: string
         trace_id:

@@ -34,7 +34,8 @@ select c.course_id::uuid as course_id,
        coalesce(k.n_open, 0)::int as tk_open,
        coalesce(k.n_mine, 0)::int as tk_mine,
        coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest,
-       coalesce(k.n_over, 0)::int as tk_over
+       coalesce(k.n_over, 0)::int as tk_over,
+       coalesce(u.sessions, '[]'::jsonb)::jsonb as unmarked
 from unnest(sqlc.arg(course_ids)::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -104,7 +105,22 @@ left join (
     where t.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and t.deleted_at is null
       and (ap.n > 0 or t.ai_state = 'SKIPPED')
     group by t.course_id
-) f on f.course_id = c.course_id;
+) f on f.course_id = c.course_id
+left join (
+    -- US-P5-01 SESSION_UNMARKED: buổi đang diễn ra / vừa kết thúc (≤ grace) chưa hoàn tất điểm danh, tối đa 3 mỗi lớp (mới nhất trước), chỉ lớp ACTIVE — GỘP vào cùng truy vấn (ngân sách ≤ 5).
+    select x.course_id, jsonb_agg(jsonb_build_object('id', x.id, 'session_no', x.session_no, 'starts_at', x.starts_at, 'ends_at', x.ends_at, 'room', x.room) order by x.starts_at desc) as sessions
+    from (
+        select s.course_id, s.id, s.session_no, s.starts_at, s.ends_at, s.room,
+               row_number() over (partition by s.course_id order by s.starts_at desc) as rn
+        from class_sessions s join courses cc on cc.id = s.course_id and cc.status = 'ACTIVE'
+        where s.course_id = any(sqlc.arg(course_ids)::text[]::uuid[])
+          and s.attendance_done_at is null
+          and s.starts_at <= sqlc.arg(now_at)::timestamptz
+          and s.ends_at + (sqlc.arg(grace_secs)::int * interval '1 second') >= sqlc.arg(now_at)::timestamptz
+    ) x
+    where x.rn <= 3
+    group by x.course_id
+) u on u.course_id = c.course_id;
 
 -- name: TodaySetup :many
 -- Bốn bước "Thiết lập lớp mới" tự tick theo dữ liệu (SRS 4.7); dismissed = mốc giảng viên bỏ qua.
@@ -186,10 +202,11 @@ on conflict (course_id, starts_at) do nothing;
 
 -- name: ListSessions :many
 -- Theo starts_at tăng dần; con trỏ = starts_at của dòng cuối trang trước.
-select id, session_no, starts_at, ends_at, room, topic
-from class_sessions
-where course_id = sqlc.arg(course_id) and (sqlc.narg(after)::timestamptz is null or starts_at > sqlc.narg(after)::timestamptz)
-order by starts_at
+select s.id, s.session_no, s.starts_at, s.ends_at, s.room, s.topic, s.version, s.attendance_done_at,
+       exists (select 1 from attendance_records a where a.course_id = s.course_id and a.session_id = s.id) as has_attendance
+from class_sessions s
+where s.course_id = sqlc.arg(course_id) and (sqlc.narg(after)::timestamptz is null or s.starts_at > sqlc.narg(after)::timestamptz)
+order by s.starts_at
 limit sqlc.arg(lim);
 
 -- name: TodayStudentFeed :many
@@ -215,3 +232,21 @@ select n.course_id::uuid as course_id, c.class_code, max(n.title)::text as title
 from notifications n join courses c on c.id = n.course_id
 where n.user_id = sqlc.arg(user_id) and n.type = 'COURSE_TICKETS_STALLED' and n.read_at is null
 group by n.course_id, c.class_code;
+
+-- ===== Lịch buổi học: sửa / huỷ một buổi (US-P5-01) =====
+
+-- name: LockSession :one
+-- Khoá dòng buổi (tuần tự hoá với lưu điểm danh cùng buổi); chỉ thấy buổi của đúng lớp.
+select * from class_sessions where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) for update;
+
+-- name: UpdateSession :one
+update class_sessions
+set starts_at = sqlc.arg(starts_at), ends_at = sqlc.arg(ends_at), room = sqlc.narg(room), topic = sqlc.narg(topic), version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and version = sqlc.arg(version)
+returning *;
+
+-- name: SessionHasAttendance :one
+select exists (select 1 from attendance_records where course_id = sqlc.arg(course_id) and session_id = sqlc.arg(session_id)) as has;
+
+-- name: DeleteSession :execrows
+delete from class_sessions where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);

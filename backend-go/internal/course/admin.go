@@ -136,6 +136,11 @@ func normSemester(s string) (string, error) {
 }
 
 func (s Service) audit(ctx context.Context, q *store.Queries, courseID, actor uuid.UUID, entityID, action string, before, after any) error {
+	return s.auditEntity(ctx, q, "course", courseID, actor, entityID, action, before, after)
+}
+
+// auditEntity ghi audit_log cho một thực thể khác `course` (vd. `class_sessions`); before / after không chứa dữ liệu cá nhân.
+func (s Service) auditEntity(ctx context.Context, q *store.Queries, entity string, courseID, actor uuid.UUID, entityID, action string, before, after any) error {
 	enc := func(v any) json.RawMessage {
 		if v == nil {
 			return nil
@@ -143,7 +148,7 @@ func (s Service) audit(ctx context.Context, q *store.Queries, courseID, actor uu
 		b, _ := json.Marshal(v) // chỉ chứa chuỗi / số / mảng id: không lỗi
 		return b
 	}
-	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &courseID, ActorID: &actor, Entity: "course", EntityID: entityID, Action: action, Before: enc(before), After: enc(after)}); err != nil {
+	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &courseID, ActorID: &actor, Entity: entity, EntityID: entityID, Action: action, Before: enc(before), After: enc(after)}); err != nil {
 		return fmt.Errorf("course: ghi audit_log: %w", err)
 	}
 	return nil

@@ -1201,6 +1201,45 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "GET", path: ls, token: admin}, 403)
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/sessions", token: gv}, 404)
 	r.must(call{method: "GET", path: ls + "?limit=0", token: gv}, 422)
+	// xem trước (US-P5-01): 200, không đòi Idempotency-Key; sửa / huỷ từng buổi
+	r.must(call{method: "POST", path: gen + "?dry_run=true", token: gv, body: wk}, 200)
+	r.must(call{method: "POST", path: gen + "?dry_run=true", token: svIn, body: wk}, 403)
+	_, lb := r.must(call{method: "GET", path: ls + "?limit=3", token: gv}, 200)
+	var lst struct {
+		Items []struct {
+			ID      string `json:"id"`
+			Version int    `json:"version"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal(lb, &lst); err != nil || len(lst.Items) < 3 {
+		r.t.Fatalf("danh sách buổi: %v %s", err, lb)
+	}
+	put := func(starts, ends string, version int) string {
+		return fmt.Sprintf(`{"starts_at":%q,"ends_at":%q,"room":"P.305","topic":"Học bù","version":%d}`, starts, ends, version)
+	}
+	s1, s2, s3 := ls+"/"+lst.Items[0].ID, ls+"/"+lst.Items[1].ID, ls+"/"+lst.Items[2].ID
+	r.must(call{method: "PUT", path: s1, token: gv, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", lst.Items[0].Version)}, 200)
+	r.must(call{method: "PUT", path: s1, token: ta, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", lst.Items[0].Version)}, 409)   // version đã cũ
+	r.must(call{method: "PUT", path: s1, token: gv, body: put("2026-09-10T09:00:00+07:00", "2026-09-10T12:00:00+07:00", lst.Items[0].Version+1)}, 409) // trùng giờ buổi 2
+	r.must(call{method: "PUT", path: s1, token: gv, body: put("2026-09-03T12:00:00+07:00", "2026-09-03T09:00:00+07:00", lst.Items[0].Version+1)}, 422)
+	r.must(call{method: "PUT", path: s1, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", 1)}, 401)
+	r.must(call{method: "PUT", path: s1, token: admin, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", 1)}, 403)
+	r.must(call{method: "PUT", path: ls + "/" + uuid.NewString(), token: gv, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", 1)}, 404)
+	var teacherID, studentID string
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'TEACHER'`, c2).Scan(&teacherID); err != nil {
+		r.t.Fatal(err)
+	}
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'STUDENT' and status = 'ACTIVE' limit 1`, c2).Scan(&studentID); err != nil {
+		r.t.Fatal(err)
+	}
+	if _, err := db.Exec(ctx, `insert into attendance_records (course_id, session_id, student_id, status, marked_by) values ($1, $2, $3, 'PRESENT', $4)`, c2, lst.Items[1].ID, studentID, teacherID); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "DELETE", path: s2, token: gv}, 409) // đã có điểm danh
+	r.must(call{method: "DELETE", path: s3, token: gv}, 204)
+	r.must(call{method: "DELETE", path: s3}, 401)
+	r.must(call{method: "DELETE", path: s3, token: svIn}, 403)
+	r.must(call{method: "DELETE", path: s3, token: gv}, 404) // đã xoá
 
 	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"
 	r.must(call{method: "POST", path: dm, token: gv}, 204)

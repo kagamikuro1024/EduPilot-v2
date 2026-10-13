@@ -54,6 +54,7 @@ const (
 	KindTicket            Kind = "TICKET"                 // US-P4-03: câu hỏi chờ giảng viên (Giảng viên + TA)
 	KindCourseStalled     Kind = "COURSE_TICKETS_STALLED" // US-P4-05: Admin, lớp có ticket quá 72 giờ làm việc mà không ai hoạt động
 	KindStaffAnswerUnread Kind = "STAFF_ANSWER_UNREAD"    // US-P4-03: sinh viên có trả lời của giảng viên chưa đọc
+	KindSessionUnmarked   Kind = "SESSION_UNMARKED"       // US-P5-01: buổi đang diễn ra / vừa kết thúc chưa điểm danh (Giảng viên + TA)
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -83,7 +84,11 @@ const (
 	TierCourseStalled     = 45
 	TierTicket            = 10
 	TierStaffAnswerUnread = 40
+	TierSessionUnmarked   = 12 // 15 đã là TierExamGradeError: hai mục cùng bậc xếp theo tuổi, mất thứ tự chủ đích (TLR-10)
 )
+
+// SessionUnmarkedGrace: buổi đã kết thúc vẫn hiện "chưa điểm danh" trong chừng này (SRS 4.1 SESSION_UNMARKED_GRACE).
+const SessionUnmarkedGrace = 24 * time.Hour
 
 // allowed: Kind nào được phép trong phản hồi của vai nào. Bộ gộp LỌC theo bảng này nên một Provider lỡ trả nhầm
 // (hoặc một phase sau đăng ký sai) cũng không làm lộ việc dành cho staff ra cho sinh viên.
@@ -91,7 +96,7 @@ func allowed(role Role, k Kind) bool {
 	switch k {
 	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply:
 		return role == RoleStudent
-	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm:
+	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked:
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher

@@ -145,6 +145,50 @@ func (ns NullAttemptSubmitReason) Value() (driver.Value, error) {
 	return string(ns.AttemptSubmitReason), nil
 }
 
+type AttendanceStatus string
+
+const (
+	AttendanceStatusPRESENT AttendanceStatus = "PRESENT"
+	AttendanceStatusLATE    AttendanceStatus = "LATE"
+	AttendanceStatusEXCUSED AttendanceStatus = "EXCUSED"
+	AttendanceStatusABSENT  AttendanceStatus = "ABSENT"
+)
+
+func (e *AttendanceStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = AttendanceStatus(s)
+	case string:
+		*e = AttendanceStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for AttendanceStatus: %T", src)
+	}
+	return nil
+}
+
+type NullAttendanceStatus struct {
+	AttendanceStatus AttendanceStatus
+	Valid            bool // Valid is true if AttendanceStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullAttendanceStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.AttendanceStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.AttendanceStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullAttendanceStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.AttendanceStatus), nil
+}
+
 type AuthTokenKind string
 
 const (
@@ -1104,6 +1148,91 @@ func (ns NullMultiScoring) Value() (driver.Value, error) {
 	return string(ns.MultiScoring), nil
 }
 
+type ObservationKind string
+
+const (
+	ObservationKindNOTE      ObservationKind = "NOTE"
+	ObservationKindAISUMMARY ObservationKind = "AI_SUMMARY"
+)
+
+func (e *ObservationKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ObservationKind(s)
+	case string:
+		*e = ObservationKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ObservationKind: %T", src)
+	}
+	return nil
+}
+
+type NullObservationKind struct {
+	ObservationKind ObservationKind
+	Valid           bool // Valid is true if ObservationKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullObservationKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.ObservationKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ObservationKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullObservationKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ObservationKind), nil
+}
+
+type ParticipationType string
+
+const (
+	ParticipationTypeSPEAK   ParticipationType = "SPEAK"
+	ParticipationTypeBONUS   ParticipationType = "BONUS"
+	ParticipationTypePENALTY ParticipationType = "PENALTY"
+)
+
+func (e *ParticipationType) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ParticipationType(s)
+	case string:
+		*e = ParticipationType(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ParticipationType: %T", src)
+	}
+	return nil
+}
+
+type NullParticipationType struct {
+	ParticipationType ParticipationType
+	Valid             bool // Valid is true if ParticipationType is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullParticipationType) Scan(value interface{}) error {
+	if value == nil {
+		ns.ParticipationType, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ParticipationType.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullParticipationType) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ParticipationType), nil
+}
+
 type PiiAction string
 
 const (
@@ -1591,6 +1720,49 @@ func (ns NullReminderSource) Value() (driver.Value, error) {
 	return string(ns.ReminderSource), nil
 }
 
+type RiskLevel string
+
+const (
+	RiskLevelNONE   RiskLevel = "NONE"
+	RiskLevelWATCH  RiskLevel = "WATCH"
+	RiskLevelATRISK RiskLevel = "AT_RISK"
+)
+
+func (e *RiskLevel) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = RiskLevel(s)
+	case string:
+		*e = RiskLevel(s)
+	default:
+		return fmt.Errorf("unsupported scan type for RiskLevel: %T", src)
+	}
+	return nil
+}
+
+type NullRiskLevel struct {
+	RiskLevel RiskLevel
+	Valid     bool // Valid is true if RiskLevel is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullRiskLevel) Scan(value interface{}) error {
+	if value == nil {
+		ns.RiskLevel, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.RiskLevel.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullRiskLevel) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.RiskLevel), nil
+}
+
 type SimilarityReviewState string
 
 const (
@@ -2026,6 +2198,19 @@ func (ns NullUserStatus) Value() (driver.Value, error) {
 	return string(ns.UserStatus), nil
 }
 
+type AttendanceRecord struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	SessionID uuid.UUID
+	StudentID uuid.UUID
+	Status    AttendanceStatus
+	Note      *string
+	MarkedBy  uuid.UUID
+	Version   int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
 type AuditLog struct {
 	ID        uuid.UUID
 	CourseID  *uuid.UUID
@@ -2128,16 +2313,18 @@ type ChatSession struct {
 }
 
 type ClassSession struct {
-	ID        uuid.UUID
-	CourseID  uuid.UUID
-	SessionNo int32
-	StartsAt  time.Time
-	EndsAt    time.Time
-	Room      *string
-	Topic     *string
-	Version   int32
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID               uuid.UUID
+	CourseID         uuid.UUID
+	SessionNo        int32
+	StartsAt         time.Time
+	EndsAt           time.Time
+	Room             *string
+	Topic            *string
+	Version          int32
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+	AttendanceDoneAt *time.Time
+	AttendanceDoneBy *uuid.UUID
 }
 
 type CodeDraft struct {
@@ -2652,6 +2839,20 @@ type Outbox struct {
 	UpdatedAt     time.Time
 }
 
+type ParticipationEvent struct {
+	ID            uuid.UUID
+	CourseID      uuid.UUID
+	StudentID     uuid.UUID
+	SessionID     *uuid.UUID
+	Type          ParticipationType
+	Points        decimal.Decimal
+	Note          *string
+	ClientEventID uuid.UUID
+	CreatedBy     uuid.UUID
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type PiiEvent struct {
 	ID        uuid.UUID
 	CourseID  uuid.UUID
@@ -2744,6 +2945,34 @@ type SimilarityReport struct {
 	CreatedAt          time.Time
 }
 
+type StudentObservation struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	StudentID uuid.UUID
+	AuthorID  uuid.UUID
+	Kind      ObservationKind
+	Tags      []string
+	Body      string
+	AiEdited  bool
+	Version   int32
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type StudentRisk struct {
+	CourseID      uuid.UUID
+	StudentID     uuid.UUID
+	Level         RiskLevel
+	Reasons       json.RawMessage
+	Weeks         json.RawMessage
+	LastWeekAsks  int32
+	LastWeekPosts int32
+	EnteredAt     *time.Time
+	ComputedAt    time.Time
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+}
+
 type User struct {
 	ID                  uuid.UUID
 	Email               string
@@ -2772,4 +3001,36 @@ type UserSetting struct {
 	Version              int32
 	CreatedAt            time.Time
 	UpdatedAt            time.Time
+}
+
+type VAttendanceSummary struct {
+	CourseID     uuid.UUID
+	StudentID    uuid.UUID
+	Recorded     int32
+	Present      int32
+	Late         int32
+	Excused      int32
+	Absent       int32
+	LastMarkedAt interface{}
+}
+
+type VStudent360 struct {
+	CourseID       uuid.UUID
+	StudentID      uuid.UUID
+	FullName       string
+	StudentCode    *string
+	JoinedAt       time.Time
+	Recorded       int32
+	Present        int32
+	Late           int32
+	Excused        int32
+	Absent         int32
+	SpeakCount     int32
+	PointsTotal    decimal.Decimal
+	StudySeconds7d int64
+	LastWeekAsks   int32
+	LastWeekPosts  int32
+	RiskLevel      RiskLevel
+	RiskEnteredAt  *time.Time
+	RiskComputedAt *time.Time
 }

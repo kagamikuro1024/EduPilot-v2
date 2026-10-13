@@ -13,6 +13,23 @@ import (
 	"github.com/google/uuid"
 )
 
+const deleteSession = `-- name: DeleteSession :execrows
+delete from class_sessions where course_id = $1 and id = $2
+`
+
+type DeleteSessionParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+func (q *Queries) DeleteSession(ctx context.Context, arg DeleteSessionParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteSession, arg.CourseID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const dismissCourseSetup = `-- name: DismissCourseSetup :execrows
 update courses
 set settings = jsonb_set(settings, '{setup}', coalesce(settings -> 'setup', '{}'::jsonb) || jsonb_build_object('dismissed_at', $1::text), true)
@@ -92,10 +109,11 @@ func (q *Queries) InsertSession(ctx context.Context, arg InsertSessionParams) (i
 }
 
 const listSessions = `-- name: ListSessions :many
-select id, session_no, starts_at, ends_at, room, topic
-from class_sessions
-where course_id = $1 and ($2::timestamptz is null or starts_at > $2::timestamptz)
-order by starts_at
+select s.id, s.session_no, s.starts_at, s.ends_at, s.room, s.topic, s.version, s.attendance_done_at,
+       exists (select 1 from attendance_records a where a.course_id = s.course_id and a.session_id = s.id) as has_attendance
+from class_sessions s
+where s.course_id = $1 and ($2::timestamptz is null or s.starts_at > $2::timestamptz)
+order by s.starts_at
 limit $3
 `
 
@@ -106,12 +124,15 @@ type ListSessionsParams struct {
 }
 
 type ListSessionsRow struct {
-	ID        uuid.UUID
-	SessionNo int32
-	StartsAt  time.Time
-	EndsAt    time.Time
-	Room      *string
-	Topic     *string
+	ID               uuid.UUID
+	SessionNo        int32
+	StartsAt         time.Time
+	EndsAt           time.Time
+	Room             *string
+	Topic            *string
+	Version          int32
+	AttendanceDoneAt *time.Time
+	HasAttendance    bool
 }
 
 // Theo starts_at tăng dần; con trỏ = starts_at của dòng cuối trang trước.
@@ -131,6 +152,9 @@ func (q *Queries) ListSessions(ctx context.Context, arg ListSessionsParams) ([]L
 			&i.EndsAt,
 			&i.Room,
 			&i.Topic,
+			&i.Version,
+			&i.AttendanceDoneAt,
+			&i.HasAttendance,
 		); err != nil {
 			return nil, err
 		}
@@ -140,6 +164,38 @@ func (q *Queries) ListSessions(ctx context.Context, arg ListSessionsParams) ([]L
 		return nil, err
 	}
 	return items, nil
+}
+
+const lockSession = `-- name: LockSession :one
+
+select id, course_id, session_no, starts_at, ends_at, room, topic, version, created_at, updated_at, attendance_done_at, attendance_done_by from class_sessions where course_id = $1 and id = $2 for update
+`
+
+type LockSessionParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+// ===== Lịch buổi học: sửa / huỷ một buổi (US-P5-01) =====
+// Khoá dòng buổi (tuần tự hoá với lưu điểm danh cùng buổi); chỉ thấy buổi của đúng lớp.
+func (q *Queries) LockSession(ctx context.Context, arg LockSessionParams) (ClassSession, error) {
+	row := q.db.QueryRow(ctx, lockSession, arg.CourseID, arg.ID)
+	var i ClassSession
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionNo,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.Room,
+		&i.Topic,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.AttendanceDoneAt,
+		&i.AttendanceDoneBy,
+	)
+	return i, err
 }
 
 const maxSessionNo = `-- name: MaxSessionNo :one
@@ -153,6 +209,22 @@ func (q *Queries) MaxSessionNo(ctx context.Context, courseID uuid.UUID) (int32, 
 	var column_1 int32
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const sessionHasAttendance = `-- name: SessionHasAttendance :one
+select exists (select 1 from attendance_records where course_id = $1 and session_id = $2) as has
+`
+
+type SessionHasAttendanceParams struct {
+	CourseID  uuid.UUID
+	SessionID uuid.UUID
+}
+
+func (q *Queries) SessionHasAttendance(ctx context.Context, arg SessionHasAttendanceParams) (bool, error) {
+	row := q.db.QueryRow(ctx, sessionHasAttendance, arg.CourseID, arg.SessionID)
+	var has bool
+	err := row.Scan(&has)
+	return has, err
 }
 
 const sessionNoInRange = `-- name: SessionNoInRange :one
@@ -486,7 +558,8 @@ select c.course_id::uuid as course_id,
        coalesce(k.n_open, 0)::int as tk_open,
        coalesce(k.n_mine, 0)::int as tk_mine,
        coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest,
-       coalesce(k.n_over, 0)::int as tk_over
+       coalesce(k.n_over, 0)::int as tk_over,
+       coalesce(u.sessions, '[]'::jsonb)::jsonb as unmarked
 from unnest($1::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -557,11 +630,28 @@ left join (
       and (ap.n > 0 or t.ai_state = 'SKIPPED')
     group by t.course_id
 ) f on f.course_id = c.course_id
+left join (
+    -- US-P5-01 SESSION_UNMARKED: buổi đang diễn ra / vừa kết thúc (≤ grace) chưa hoàn tất điểm danh, tối đa 3 mỗi lớp (mới nhất trước), chỉ lớp ACTIVE — GỘP vào cùng truy vấn (ngân sách ≤ 5).
+    select x.course_id, jsonb_agg(jsonb_build_object('id', x.id, 'session_no', x.session_no, 'starts_at', x.starts_at, 'ends_at', x.ends_at, 'room', x.room) order by x.starts_at desc) as sessions
+    from (
+        select s.course_id, s.id, s.session_no, s.starts_at, s.ends_at, s.room,
+               row_number() over (partition by s.course_id order by s.starts_at desc) as rn
+        from class_sessions s join courses cc on cc.id = s.course_id and cc.status = 'ACTIVE'
+        where s.course_id = any($1::text[]::uuid[])
+          and s.attendance_done_at is null
+          and s.starts_at <= $3::timestamptz
+          and s.ends_at + ($4::int * interval '1 second') >= $3::timestamptz
+    ) x
+    where x.rn <= 3
+    group by x.course_id
+) u on u.course_id = c.course_id
 `
 
 type TodayStaffPendingParams struct {
 	CourseIds []string
 	UserID    *uuid.UUID
+	NowAt     time.Time
+	GraceSecs int32
 }
 
 type TodayStaffPendingRow struct {
@@ -581,12 +671,18 @@ type TodayStaffPendingRow struct {
 	TkMine          int32
 	TkOldest        time.Time
 	TkOver          int32
+	Unmarked        json.RawMessage
 }
 
 // (epoch = không có.) Mỗi lớp: yêu cầu vào lớp chờ duyệt (không tính chờ xác minh email của roster), cũ nhất, số hàng email chưa khớp MSSV,
 // và (US-PE-03) số câu hỏi PENDING chưa lưu trữ cùng câu cũ nhất — GỘP vào MỘT truy vấn để Hôm nay của Staff giữ ngân sách ≤ 5 truy vấn.
 func (q *Queries) TodayStaffPending(ctx context.Context, arg TodayStaffPendingParams) ([]TodayStaffPendingRow, error) {
-	rows, err := q.db.Query(ctx, todayStaffPending, arg.CourseIds, arg.UserID)
+	rows, err := q.db.Query(ctx, todayStaffPending,
+		arg.CourseIds,
+		arg.UserID,
+		arg.NowAt,
+		arg.GraceSecs,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -611,6 +707,7 @@ func (q *Queries) TodayStaffPending(ctx context.Context, arg TodayStaffPendingPa
 			&i.TkMine,
 			&i.TkOldest,
 			&i.TkOver,
+			&i.Unmarked,
 		); err != nil {
 			return nil, err
 		}
@@ -783,4 +880,49 @@ func (q *Queries) TodayViewer(ctx context.Context, userID uuid.UUID) ([]TodayVie
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateSession = `-- name: UpdateSession :one
+update class_sessions
+set starts_at = $1, ends_at = $2, room = $3, topic = $4, version = version + 1
+where course_id = $5 and id = $6 and version = $7
+returning id, course_id, session_no, starts_at, ends_at, room, topic, version, created_at, updated_at, attendance_done_at, attendance_done_by
+`
+
+type UpdateSessionParams struct {
+	StartsAt time.Time
+	EndsAt   time.Time
+	Room     *string
+	Topic    *string
+	CourseID uuid.UUID
+	ID       uuid.UUID
+	Version  int32
+}
+
+func (q *Queries) UpdateSession(ctx context.Context, arg UpdateSessionParams) (ClassSession, error) {
+	row := q.db.QueryRow(ctx, updateSession,
+		arg.StartsAt,
+		arg.EndsAt,
+		arg.Room,
+		arg.Topic,
+		arg.CourseID,
+		arg.ID,
+		arg.Version,
+	)
+	var i ClassSession
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionNo,
+		&i.StartsAt,
+		&i.EndsAt,
+		&i.Room,
+		&i.Topic,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.AttendanceDoneAt,
+		&i.AttendanceDoneBy,
+	)
+	return i, err
 }

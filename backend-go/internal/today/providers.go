@@ -199,7 +199,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 		return nil, nil // không tốn truy vấn cho vai khác
 	}
 	q := store.New(p.Pool)
-	pend, err := q.TodayStaffPending(ctx, store.TodayStaffPendingParams{CourseIds: ids(courses), UserID: &v.UserID})
+	pend, err := q.TodayStaffPending(ctx, store.TodayStaffPendingParams{CourseIds: ids(courses), UserID: &v.UserID, NowAt: v.Now, GraceSecs: int32(SessionUnmarkedGrace / time.Second)})
 	if err != nil {
 		return nil, fmt.Errorf("today: yêu cầu chờ duyệt: %w", err)
 	}
@@ -236,7 +236,8 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			}
 			out = append(out, mk(it))
 		}
-		if r.Questions > 0 { // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
+		out = append(out, sessionUnmarkedItems(c, r.Unmarked, v.Now)...) // US-P5-01 (bậc 12, Giảng viên + TA)
+		if r.Questions > 0 {                                             // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
 			age := v.Now.Sub(r.QuestionsOldest)
 			out = append(out, mk(Item{
 				ID: "QUESTION_REVIEW:" + c.ID.String(), Kind: KindQuestionReview, Tier: TierQuestionReview, Course: courseRef(c),
@@ -308,7 +309,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			steps := []Step{
 				{Key: "share_code", Label: "Chia sẻ mã lớp", Done: r.ShareCode, Href: "/class/settings?course=" + c.ID.String()},
 				{Key: "policy", Label: "Tải quy chế môn học", Done: r.Policy, Href: "/documents?course=" + c.ID.String()},
-				{Key: "sessions", Label: "Tạo lịch buổi học", Done: r.Sessions, Href: "/calendar?course=" + c.ID.String()},
+				{Key: "sessions", Label: "Tạo lịch buổi học", Done: r.Sessions, Href: "/calendar?course=" + c.ID.String() + "&new=sessions"},
 				{Key: "documents", Label: "Tải tài liệu", Done: r.Documents, Href: "/documents?course=" + c.ID.String()},
 			}
 			done := 0
@@ -459,6 +460,39 @@ func examWorkItems(c CourseRef, raw []byte, now time.Time) []Item {
 			out = append(out, mk(Item{ID: "EXAM_PUBLISH_HOLD:" + id, Kind: KindExamPublishHold, Tier: TierExamPublishHold, Course: courseRef(c), Href: fmt.Sprintf("/exams/%s/results?course=%s", id, c.ID),
 				Title: fmt.Sprintf("Bài thi %s đã chấm xong nhưng đang hoãn công bố", w.Title), Reason: "Công bố khi thầy/cô sẵn sàng."}))
 		}
+	}
+	return out
+}
+
+// sessionUnmarkedItems dựng mục SESSION_UNMARKED từ cột `unmarked` của truy vấn tổng hợp (≤ 3 buổi, mới nhất trước).
+func sessionUnmarkedItems(c CourseRef, raw []byte, now time.Time) []Item {
+	var rows []struct {
+		ID        uuid.UUID `json:"id"`
+		SessionNo int       `json:"session_no"`
+		StartsAt  time.Time `json:"starts_at"`
+		EndsAt    time.Time `json:"ends_at"`
+		Room      *string   `json:"room"`
+	}
+	if json.Unmarshal(raw, &rows) != nil {
+		return nil
+	}
+	loc := time.FixedZone("ICT", 7*3600)
+	out := make([]Item, 0, len(rows))
+	for _, r := range rows {
+		running := !now.After(r.EndsAt)
+		title := fmt.Sprintf("Buổi %d đã kết thúc, chưa điểm danh · %s", r.SessionNo, c.ClassCode)
+		if running {
+			title = fmt.Sprintf("Điểm danh buổi %d đang diễn ra · %s", r.SessionNo, c.ClassCode)
+		}
+		reason := r.StartsAt.In(loc).Format("15:04") + "–" + r.EndsAt.In(loc).Format("15:04")
+		if r.Room != nil {
+			reason += " · " + *r.Room
+		}
+		out = append(out, mk(Item{
+			ID: "SESSION_UNMARKED:" + r.ID.String(), Kind: KindSessionUnmarked, Tier: TierSessionUnmarked, Course: courseRef(c), Overdue: !running,
+			Href:  fmt.Sprintf("/attendance?course=%s&session=%s", c.ID, r.ID),
+			Title: title, Reason: reason, AgeMinutes: int(now.Sub(r.StartsAt) / time.Minute),
+		}))
 	}
 	return out
 }

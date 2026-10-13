@@ -26,18 +26,18 @@ export const page = (items: unknown[]) => json({ items, next_cursor: null });
 type Handler = (route: Route) => Promise<void> | void;
 type Fulfill = Parameters<Route["fulfill"]>[0];
 export async function calApi(p: Page, h: Record<string, Handler | Fulfill> = {}) {
-  const calls: Array<{ method: string; path: string; body: string }> = [];
+  const calls: Array<{ method: string; path: string; body: string; key: string }> = [];
   const handle = async (route: Route) => {
     const req = route.request();
     if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: CORS });
     const u = new URL(req.url());
     const path = u.pathname.replace("/api/v1", "");
-    calls.push({ method: req.method(), path: path + u.search, body: req.postData() ?? "" });
+    calls.push({ method: req.method(), path: path + u.search, body: req.postData() ?? "", key: req.headers()["idempotency-key"] ?? "" });
     const step = h[`${req.method()} ${path}`];
     if (typeof step === "function") return step(route);
     if (step) return route.fulfill(step);
     return route.fulfill(err(404, "NOT_FOUND"));
   };
-  for (const g of [`**/api/v1/courses/${COURSE}/calendar**`, "**/api/v1/me/calendar/**"]) await p.route(g, handle);
+  for (const g of [`**/api/v1/courses/${COURSE}/calendar**`, `**/api/v1/courses/${COURSE}/sessions**`, "**/api/v1/me/calendar/**"]) await p.route(g, handle);
   return calls;
 }

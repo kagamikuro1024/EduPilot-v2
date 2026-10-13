@@ -71,6 +71,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   EDIT_LOCKED_VERIFIED: "Bài đã được xác nhận nên không sửa được.",
   PIN_LIMIT: "Lớp đã ghim đủ số bài.",
   CRISIS_SUPPORT: "Bạn không phải đi qua chuyện này một mình.",
+  SESSION_DUPLICATE: "Lớp đã có một buổi bắt đầu đúng giờ này.",
+  SESSION_HAS_ATTENDANCE: "Buổi này đã có điểm danh nên không xoá được.",
   POST_STATE_CONFLICT: "Câu trả lời đã được xử lý theo cách khác. Tải lại để xem.",
   MESSAGE_NOT_RETRYABLE: "Câu trả lời này không thử lại được.",
   EXAM_LOCKED: "Bài thi đã lên lịch nên phần này không sửa được.",

@@ -109,6 +109,10 @@ const (
 	EditLockedVerified    = "EDIT_LOCKED_VERIFIED"
 	PinLimit              = "PIN_LIMIT"
 	CrisisSupport         = "CRISIS_SUPPORT"
+
+	// Lịch buổi học, điểm danh (FEAT-crm-360 SRS 6.5).
+	SessionDuplicate     = "SESSION_DUPLICATE"
+	SessionHasAttendance = "SESSION_HAS_ATTENDANCE"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -343,6 +347,10 @@ func DefaultMessage(code string) string {
 		return "Lớp đã ghim đủ số bài tối đa."
 	case CrisisSupport:
 		return "Bạn không phải đi qua chuyện này một mình."
+	case SessionDuplicate:
+		return "Lớp đã có một buổi bắt đầu đúng giờ này."
+	case SessionHasAttendance:
+		return "Buổi này đã có điểm danh nên không xoá được."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}
