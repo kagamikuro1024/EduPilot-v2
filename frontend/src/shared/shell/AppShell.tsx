@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
@@ -19,7 +20,6 @@ import { CommandPalette } from "@/shared/ui/CommandPalette";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
-import { StudyTimeTracker } from "./TrackingNotice";
 import s from "./AppShell.module.css";
 
 /** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
@@ -27,6 +27,9 @@ import s from "./AppShell.module.css";
 function displayName(role: Role, name: string, title?: string) {
   return role === "teacher" && title ? `${title} ${name}` : name;
 }
+
+// Chỉ sinh viên có lớp thật cần hộp thoại + nhịp thời gian học: tách gói để các vai khác (và ngân sách script của mọi trang) không trả giá.
+const StudyTimeTracker = dynamic(() => import("./TrackingNotice").then((m) => m.StudyTimeTracker), { ssr: false, loading: () => null });
 
 const NARROW = "(max-width: 719px)";
 const MID = "(max-width: 1099px)";
@@ -343,7 +346,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
-      <StudyTimeTracker />
+      {role === "student" && realCourseId && <StudyTimeTracker />}
 
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (
