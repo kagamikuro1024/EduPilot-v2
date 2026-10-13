@@ -141,15 +141,21 @@ type Config struct {
 	TicketOpenCap int
 	// MailTicketNewCoalesce: tối đa một thư `ticket_new` mỗi (người, lớp) trong khoảng này (cửa sổ trượt, SRS escalation 4.5.3).
 	MailTicketNewCoalesce time.Duration
-	LLMProvider           string // "" | "fake"
-	LLMReplayDir          string
-	OpenAIKey             string
-	AnthropicKey          string
-	GeminiKey             string
-	FakeLatencyMin        time.Duration
-	FakeLatencyMax        time.Duration
-	FakeErrorRate         float64
-	FakeValidKey          string
+	// SLA / giờ làm việc (SRS escalation 4.1, 4.6): khung [START, END) tính từ 00:00 giờ Việt Nam; WORKDAYS = các thứ (time.Weekday) được tính.
+	TicketReopenDays, TicketAutocloseDays  int
+	TicketWorkdayStart, TicketWorkdayEnd   time.Duration
+	TicketWorkdays                         []time.Weekday
+	TicketRemindAfter, TicketEscalateAfter time.Duration
+	TicketInactiveAfter, TicketSLATick     time.Duration
+	LLMProvider                            string // "" | "fake"
+	LLMReplayDir                           string
+	OpenAIKey                              string
+	AnthropicKey                           string
+	GeminiKey                              string
+	FakeLatencyMin                         time.Duration
+	FakeLatencyMax                         time.Duration
+	FakeErrorRate                          float64
+	FakeValidKey                           string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -310,7 +316,21 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
 	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
 	c.TicketOpenCap = l.num("TICKET_OPEN_CAP", 5, 1, 50)
-	c.MailTicketNewCoalesce = time.Duration(l.num("MAIL_TICKET_NEW_COALESCE_SECONDS", 900, 1, 86400)) * time.Second
+	c.MailTicketNewCoalesce = l.durRange("MAIL_TICKET_NEW_COALESCE", 15*time.Minute, time.Minute, 6*time.Hour)
+	c.TicketReopenDays = l.num("TICKET_REOPEN_DAYS", 30, 1, 365)
+	c.TicketAutocloseDays = l.num("TICKET_AUTOCLOSE_DAYS", 7, 1, 60)
+	c.TicketWorkdayStart, c.TicketWorkdayEnd = l.workday("TICKET_WORKDAY_START", "00:00"), l.workday("TICKET_WORKDAY_END", "24:00")
+	if c.TicketWorkdayStart >= c.TicketWorkdayEnd {
+		l.bad("TICKET_WORKDAY_START", "phải nhỏ hơn TICKET_WORKDAY_END")
+	}
+	c.TicketWorkdays = l.weekdays("TICKET_WORKDAYS", "1-5")
+	c.TicketRemindAfter = l.durRange("TICKET_REMIND_AFTER", 24*time.Hour, time.Hour, 720*time.Hour)
+	c.TicketEscalateAfter = l.dur("TICKET_ESCALATE_AFTER", 72*time.Hour)
+	if c.TicketEscalateAfter <= c.TicketRemindAfter {
+		l.bad("TICKET_ESCALATE_AFTER", "phải lớn hơn TICKET_REMIND_AFTER")
+	}
+	c.TicketInactiveAfter = l.durRange("TICKET_INACTIVE_AFTER", 72*time.Hour, time.Hour, 720*time.Hour)
+	c.TicketSLATick = l.durRange("TICKET_SLA_TICK", 15*time.Minute, time.Minute, time.Hour)
 	if c.LLMEmbedDims != 1536 {
 		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
 	}
@@ -533,6 +553,47 @@ func (l *loader) dur(name string, def time.Duration) time.Duration {
 		return def
 	}
 	return d
+}
+
+// workday đọc "HH:MM" (đến "24:00") thành độ dài từ 00:00.
+func (l *loader) workday(name, def string) time.Duration {
+	v := l.str(name, def)
+	var h, m int
+	if _, err := fmt.Sscanf(v, "%d:%d", &h, &m); err != nil || h < 0 || h > 24 || m < 0 || m > 59 || (h == 24 && m != 0) {
+		l.bad(name, "cần HH:MM trong 00:00–24:00")
+		return 0
+	}
+	return time.Duration(h)*time.Hour + time.Duration(m)*time.Minute
+}
+
+// weekdays đọc tập con của 1–7 ("1-5", "1,3,5", "1-3,5"); 1 = thứ Hai … 7 = Chủ nhật.
+func (l *loader) weekdays(name, def string) []time.Weekday {
+	var out []time.Weekday
+	seen := map[int]bool{}
+	for _, part := range strings.Split(l.str(name, def), ",") {
+		lo, hi := 0, 0
+		if a, b, ok := strings.Cut(strings.TrimSpace(part), "-"); ok {
+			if _, e1 := fmt.Sscanf(a, "%d", &lo); e1 != nil {
+				lo = 0
+			}
+			if _, e2 := fmt.Sscanf(b, "%d", &hi); e2 != nil {
+				hi = 0
+			}
+		} else if _, err := fmt.Sscanf(part, "%d", &lo); err == nil {
+			hi = lo
+		}
+		if lo < 1 || hi > 7 || lo > hi {
+			l.bad(name, "cần tập con của 1–7, ví dụ 1-5")
+			return nil
+		}
+		for d := lo; d <= hi; d++ {
+			if !seen[d] {
+				seen[d] = true
+				out = append(out, time.Weekday(d%7)) // 7 = Chủ nhật = time.Sunday (0)
+			}
+		}
+	}
+	return out
 }
 
 // durRange như dur nhưng giới hạn [min, max]; max = 0 là không chặn trên.
