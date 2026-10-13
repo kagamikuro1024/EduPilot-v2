@@ -75,3 +75,74 @@ select count(*)::int from escalation_tickets where course_id = sqlc.arg(course_i
 -- name: TicketStaffIDs :many
 -- Người nhận thông báo ticket: TA + TEACHER ACTIVE của lớp.
 select user_id from enrollments where course_id = sqlc.arg(course_id) and role_in_course in ('TEACHER', 'TA') and status = 'ACTIVE';
+
+-- name: TicketListStaff :many
+-- Hàng chờ của nhân viên (SRS 6.2 #4, #5): một lớp hoặc mọi lớp của mình (course_ids). Câu hỏi chỉ là ĐOẠN CẮT 140 ký tự của đúng câu đã nhờ (reply_to của tin được nhờ) — cùng phạm vi với
+-- GetEscalatedExchange (TestEscalationReadsChatOnlyViaTicketQueries cho phép riêng hai truy vấn liệt kê này; proposals #13). status_filter: OPEN|CLAIMED|ANSWERED|ALL (ALL gồm CLOSED).
+select t.id, t.course_id, t.kind, t.status, t.student_id, s.full_name as student_name, t.claimed_by, cb.full_name as claimed_name, t.answered_by, t.sla_stage, t.waiting_since,
+       t.reopened_count, t.save_as_knowledge, t.version, t.created_at, c.class_code,
+       left(coalesce(q.content, ''), 140)::text as question_preview
+from escalation_tickets t
+join users s on s.id = t.student_id
+join courses c on c.id = t.course_id
+left join users cb on cb.id = t.claimed_by
+left join chat_messages a on a.course_id = t.course_id and a.id = t.message_id
+left join chat_messages q on q.course_id = a.course_id and q.id = a.reply_to
+where t.course_id = any(sqlc.arg(course_ids)::text[]::uuid[])
+  and (sqlc.arg(status_filter)::text = 'ALL' or t.status = sqlc.arg(status_filter)::ticket_status)
+  and (sqlc.narg(cursor_at)::timestamptz is null or (t.created_at, t.id) > (sqlc.narg(cursor_at)::timestamptz, sqlc.narg(cursor_id)::uuid))
+order by t.created_at, t.id
+limit sqlc.arg(page_limit);
+
+-- name: TicketStaffCourseIDs :many
+-- Lớp mà người này đang ACTIVE là TEACHER / TA (cho "Tất cả lớp của tôi").
+select course_id::text from enrollments where user_id = sqlc.arg(user_id) and role_in_course in ('TEACHER', 'TA') and status = 'ACTIVE';
+
+-- name: TicketUserBrief :one
+-- Tên + vai trong lớp của một nhân viên (hiển thị "Cô … đã nhận").
+select u.id, u.full_name, e.role_in_course::text as role from users u join enrollments e on e.user_id = u.id and e.course_id = sqlc.arg(course_id) where u.id = sqlc.arg(user_id);
+
+-- name: TicketViewGet :one
+select t.*, s.full_name as student_name, cb.full_name as claimed_name, ab.full_name as answered_name, c.class_code
+from escalation_tickets t
+join users s on s.id = t.student_id
+join courses c on c.id = t.course_id
+left join users cb on cb.id = t.claimed_by
+left join users ab on ab.id = t.answered_by
+where t.course_id = sqlc.arg(course_id) and t.id = sqlc.arg(id);
+
+-- name: TicketClaim :one
+update escalation_tickets set status = 'CLAIMED', claimed_by = sqlc.arg(user_id), claimed_at = now(), version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'OPEN' and (sqlc.narg(version)::int is null or version = sqlc.narg(version)::int)
+returning *;
+
+-- name: TicketRelease :one
+-- waiting_since KHÔNG đổi: bỏ nhận không tính lại đồng hồ SLA.
+update escalation_tickets set status = 'OPEN', claimed_by = null, claimed_at = null, version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'CLAIMED' and claimed_by = sqlc.arg(user_id) and (sqlc.narg(version)::int is null or version = sqlc.narg(version)::int)
+returning *;
+
+-- name: TicketAnswer :one
+update escalation_tickets set status = 'ANSWERED', answer = sqlc.arg(body), answered_by = sqlc.arg(user_id), answered_at = now(),
+       claimed_by = case when status = 'OPEN' then sqlc.arg(user_id)::uuid else claimed_by end, claimed_at = coalesce(claimed_at, now()), version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id)
+  and (status = 'OPEN' or (status = 'CLAIMED' and claimed_by = sqlc.arg(user_id)) or (status = 'ANSWERED' and answered_by = sqlc.arg(user_id)))
+  and (sqlc.narg(version)::int is null or version = sqlc.narg(version)::int)
+returning *;
+
+-- name: TicketDismiss :one
+update escalation_tickets set status = 'CLOSED', closed_at = now(), closed_reason = 'STAFF_DISMISSED', dismiss_reason = sqlc.arg(reason), version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and (status = 'OPEN' or (status = 'CLAIMED' and claimed_by = sqlc.arg(user_id)))
+  and (sqlc.narg(version)::int is null or version = sqlc.narg(version)::int)
+returning *;
+
+-- name: TicketStudentIdentity :one
+-- Khoá nhận dạng của sinh viên hỏi (tên, MSSV, email) để câu trả lời được phép nhắc CHÍNH họ (SRS 4.2.6).
+select u.full_name, u.email, coalesce(u.student_code, '') as student_code, coalesce(e.student_code_snapshot, '') as roster_code
+from users u left join enrollments e on e.user_id = u.id and e.course_id = sqlc.arg(course_id) and e.role_in_course = 'STUDENT'
+where u.id = sqlc.arg(student_id);
+
+-- name: TicketOtherStudentEmails :many
+-- Email (trong danh sách đưa vào) thuộc một sinh viên KHÁC của lớp.
+select lower(u.email)::text from users u join enrollments e on e.user_id = u.id
+where e.course_id = sqlc.arg(course_id) and e.role_in_course = 'STUDENT' and e.user_id <> sqlc.arg(student_id) and lower(u.email) = any(sqlc.arg(emails)::text[]);

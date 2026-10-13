@@ -45,3 +45,7 @@ update notifications set read_at = coalesce(read_at, now()) where id = sqlc.arg(
 
 -- name: NotifyRow :one
 select id, type, title, body, link, course_id, created_at from notifications where id = sqlc.arg(id);
+
+-- name: NotifyMarkReadByLink :execrows
+-- Đánh dấu đã đọc mọi thông báo CHƯA đọc CỦA CHÍNH MÌNH có `link` trùng (chat gọi khi mở phiên có tin của giảng viên).
+update notifications set read_at = now() where user_id = sqlc.arg(user_id) and link = sqlc.arg(link) and read_at is null;

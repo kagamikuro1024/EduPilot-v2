@@ -60,3 +60,42 @@ func (n *Notifier) RecountTicketNew(ctx context.Context, courseID uuid.UUID) err
 		},
 	})
 }
+
+// HandleRecount (`escalation.claimed` / `released` / `closed` / `followup`): đếm lại ticket OPEN của lớp và cập nhật dòng gộp TICKET_NEW.
+func (n *Notifier) HandleRecount(ctx context.Context, m outbox.Message) error {
+	var p courseEvent
+	if err := json.Unmarshal(m.Payload, &p); err != nil || p.CourseID == uuid.Nil {
+		return fmt.Errorf("payload %s không hợp lệ", m.Topic)
+	}
+	return n.RecountTicketNew(ctx, p.CourseID)
+}
+
+// HandleAnswered (`escalation.answered`): báo sinh viên chủ ticket (thông báo cá nhân, KHÔNG gộp; tiêu đề / thân không chứa nội dung) rồi đếm lại TICKET_NEW cho nhân viên.
+// Tin trả lời đọc theo id trong payload để biết phiên chat đã nhận (phiên của ticket hoặc "Tin nhắn từ giảng viên").
+func (n *Notifier) HandleAnswered(ctx context.Context, m outbox.Message) error {
+	var p struct {
+		CourseID        uuid.UUID `json:"course_id"`
+		AnswerMessageID uuid.UUID `json:"answer_message_id"`
+	}
+	if err := json.Unmarshal(m.Payload, &p); err != nil || p.CourseID == uuid.Nil || p.AnswerMessageID == uuid.Nil {
+		return errors.New("payload escalation.answered không hợp lệ")
+	}
+	q := store.New(n.Pool)
+	msg, err := q.GetChatMessageByID(ctx, p.AnswerMessageID)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return fmt.Errorf("escalation: đọc tin trả lời: %w", err)
+	}
+	if err == nil {
+		c, err := q.GetCourseBasic(ctx, p.CourseID)
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+			return fmt.Errorf("escalation: đọc lớp: %w", err)
+		}
+		body := c.ClassCode
+		link := "/chat?session=" + msg.SessionID.String()
+		if _, err := n.Notify.Send(ctx, notify.Spec{UserID: msg.UserID, CourseID: &p.CourseID, Type: notify.TypeTicketAnswered, Title: "Giảng viên đã trả lời câu hỏi của bạn", Body: &body, Link: &link,
+			DedupeKey: "escalation.answered:" + p.AnswerMessageID.String()}); err != nil {
+			return fmt.Errorf("escalation: thông báo trả lời: %w", err)
+		}
+	}
+	return n.RecountTicketNew(ctx, p.CourseID)
+}

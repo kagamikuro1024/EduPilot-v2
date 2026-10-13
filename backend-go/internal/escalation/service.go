@@ -19,7 +19,9 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -53,6 +55,10 @@ type Service struct {
 	Lock    Locker
 	Log     *slog.Logger
 	Cfg     Config
+	// PII chặn định danh sinh viên khác trong câu trả lời của nhân viên; nil = không kiểm (test dựng chỉ bằng Pool).
+	PII *privacy.Detector
+	// Clock tuỳ chọn (nil = đồng hồ hệ thống).
+	Clock clock.Clock
 
 	// Suppressed đếm ticket tự mở bị trần chặn (`chat_tickets_suppressed_total`); log không nội dung.
 	Suppressed atomic.Int64

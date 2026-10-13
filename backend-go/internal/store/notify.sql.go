@@ -224,6 +224,24 @@ func (q *Queries) NotifyInsertMany(ctx context.Context, arg NotifyInsertManyPara
 	return items, nil
 }
 
+const notifyMarkReadByLink = `-- name: NotifyMarkReadByLink :execrows
+update notifications set read_at = now() where user_id = $1 and link = $2 and read_at is null
+`
+
+type NotifyMarkReadByLinkParams struct {
+	UserID uuid.UUID
+	Link   *string
+}
+
+// Đánh dấu đã đọc mọi thông báo CHƯA đọc CỦA CHÍNH MÌNH có `link` trùng (chat gọi khi mở phiên có tin của giảng viên).
+func (q *Queries) NotifyMarkReadByLink(ctx context.Context, arg NotifyMarkReadByLinkParams) (int64, error) {
+	result, err := q.db.Exec(ctx, notifyMarkReadByLink, arg.UserID, arg.Link)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const notifyRow = `-- name: NotifyRow :one
 select id, type, title, body, link, course_id, created_at from notifications where id = $1
 `

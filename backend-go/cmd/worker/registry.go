@@ -59,6 +59,10 @@ func newRegistry(d Deps) *outbox.Registry {
 	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
 	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log}
 	reg.Register(escalation.TopicCreated, outbox.Chain(esc.HandleCreated, inv.Handle))
+	for _, t := range []string{escalation.TopicClaimed, escalation.TopicReleased, escalation.TopicClosed} {
+		reg.Register(t, outbox.Chain(esc.HandleRecount, inv.Handle))
+	}
+	reg.Register(escalation.TopicAnswered, outbox.Chain(esc.HandleAnswered, inv.Handle))
 	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.
 	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
 	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {

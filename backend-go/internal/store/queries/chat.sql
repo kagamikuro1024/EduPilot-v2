@@ -99,6 +99,7 @@ where id = sqlc.arg(id) and user_id = sqlc.arg(user_id) and role = 'ASSISTANT' a
 -- Các lượt gần nhất ĐÃ XONG trước tin hiện tại (mới nhất trước; người gọi đảo lại).
 select role, content from chat_messages
 where session_id = sqlc.arg(session_id) and stream_status = 'DONE' and (created_at, id) < (sqlc.arg(before_at)::timestamptz, sqlc.arg(before_id)::uuid)
+  and (intent is null or intent not in ('STAFF_ANSWER', 'ESCALATION_FOLLOWUP'))
 order by created_at desc, id desc
 limit sqlc.arg(page_limit);
 
@@ -126,3 +127,16 @@ update chat_sessions set deleted_at = now() where id = sqlc.arg(id) and user_id 
 
 -- name: RestoreChatSession :execrows
 update chat_sessions set deleted_at = null where id = sqlc.arg(id) and user_id = sqlc.arg(user_id) and deleted_at is not null;
+
+-- name: ChatInsertStaffMessage :one
+-- Tin của ticket do giảng viên / sinh viên viết, nằm chung bảng với tin AI (SRS escalation 5.6): intent STAFF_ANSWER (role ASSISTANT) hoặc ESCALATION_FOLLOWUP (role USER).
+-- user_id là CHỦ PHIÊN (FK phức hợp); người viết nằm ở blocks.
+insert into chat_messages (course_id, session_id, user_id, role, content, stream_status, intent, blocks, client_msg_id, reply_to, completed_at)
+values (sqlc.arg(course_id), sqlc.arg(session_id), sqlc.arg(user_id), sqlc.arg(role), sqlc.arg(content), 'DONE', sqlc.arg(intent), sqlc.arg(blocks)::jsonb, sqlc.narg(client_msg_id), sqlc.narg(reply_to), now())
+returning *;
+
+-- name: ChatStaffSession :one
+-- Phiên cố định "Tin nhắn từ giảng viên" của sinh viên ở lớp (chưa xoá mềm), nếu có.
+select * from chat_sessions
+where course_id = sqlc.arg(course_id) and user_id = sqlc.arg(user_id) and channel = 'PRIVATE' and title = sqlc.arg(title) and deleted_at is null
+order by created_at limit 1;

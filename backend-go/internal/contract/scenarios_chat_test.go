@@ -194,4 +194,79 @@ func (r *runner) chatScenarios(x examRig) {
 	r.must(call{method: "POST", path: S + "/" + sid2 + "/restore"}, 401)
 	r.must(call{method: "POST", path: S + "/" + sid2 + "/restore", token: x.ta}, 403)
 	r.must(call{method: "POST", path: S + "/" + sid2 + "/restore", token: sb}, 404)
+
+	// US-P4-03 — tin STAFF_ANSWER không sinh lại / thử lại được (422 MESSAGE_NOT_RATEABLE).
+	staffMsg := asst(sidU, cidU, a, "STAFF_ANSWER")
+	r.must(call{method: "POST", path: "/api/v1/chat/messages/" + staffMsg + "/retry", token: sa}, 422)
+	r.must(call{method: "PUT", path: "/api/v1/chat/messages/" + staffMsg + "/feedback", token: sa, body: `{"value":"HELPFUL"}`}, 422)
+
+	// US-P4-03 — hàng chờ của nhân viên (thao tác 4–10) và đọc thông báo theo liên kết (15a), mọi status đã khai báo.
+	mkTicket := func() string {
+		var id string
+		if err := db.QueryRow(ctx, `insert into escalation_tickets (course_id, kind, origin, source_type, source_id, student_id) values ($1, 'TEACHER_OUTREACH', 'STAFF_OUTREACH', 'STUDENT', $2, $2) returning id::text`, x.cid, a).Scan(&id); err != nil {
+			r.t.Fatal(err)
+		}
+		return id
+	}
+	T := "/api/v1/courses/" + x.cid + "/tickets"
+	r.must(call{method: "GET", path: T + "?status=ALL", token: x.gv}, 200)
+	r.must(call{method: "GET", path: T, token: x.ta}, 200)
+	r.must(call{method: "GET", path: T}, 401)
+	for _, who := range []string{sa, x.admin} {
+		r.must(call{method: "GET", path: T, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: T + "?status=NOPE", token: x.gv}, 422)
+	r.must(call{method: "GET", path: "/api/v1/me/tickets", token: x.gv}, 200)
+	r.must(call{method: "GET", path: "/api/v1/me/tickets"}, 401)
+	for _, who := range []string{sa, x.admin} {
+		r.must(call{method: "GET", path: "/api/v1/me/tickets", token: who}, 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/me/tickets?status=NOPE", token: x.gv}, 422)
+
+	t1 := mkTicket()
+	r.must(call{method: "GET", path: T + "/" + t1, token: x.gv}, 200)
+	r.must(call{method: "GET", path: T + "/" + t1}, 401)
+	for _, who := range []string{sa, x.admin} {
+		r.must(call{method: "GET", path: T + "/" + t1, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: T + "/" + uuid.NewString(), token: x.gv}, 404)
+
+	r.must(call{method: "POST", path: T + "/" + t1 + "/claim", token: x.gv}, 200)
+	r.must(call{method: "POST", path: T + "/" + t1 + "/claim", token: x.gv}, 200) // idempotent
+	r.must(call{method: "POST", path: T + "/" + t1 + "/claim"}, 401)
+	r.must(call{method: "POST", path: T + "/" + t1 + "/claim", token: sa}, 403)
+	r.must(call{method: "POST", path: T + "/" + uuid.NewString() + "/claim", token: x.gv}, 404)
+	r.must(call{method: "POST", path: T + "/" + t1 + "/claim", token: x.ta}, 409) // người khác đã nhận
+
+	r.must(call{method: "POST", path: T + "/" + t1 + "/release", token: x.ta}, 409) // không phải người nhận
+	r.must(call{method: "POST", path: T + "/" + t1 + "/release", token: x.gv}, 200)
+	r.must(call{method: "POST", path: T + "/" + t1 + "/release"}, 401)
+	r.must(call{method: "POST", path: T + "/" + t1 + "/release", token: sa}, 403)
+	r.must(call{method: "POST", path: T + "/" + uuid.NewString() + "/release", token: x.gv}, 404)
+
+	ans := func(tok, id, body string) call {
+		return call{method: "POST", path: T + "/" + id + "/answer", token: tok, headers: map[string]string{"Idempotency-Key": uuid.NewString()}, body: body}
+	}
+	r.must(ans(x.gv, t1, `{"body":"Em xem lại bài 3 nhé."}`), 200)
+	r.must(ans("", t1, `{"body":"x"}`), 401)
+	r.must(ans(sa, t1, `{"body":"x"}`), 403)
+	r.must(ans(x.gv, uuid.NewString(), `{"body":"x"}`), 404)
+	r.must(ans(x.ta, t1, `{"body":"Trả lời thêm"}`), 409) // đã được người khác trả lời
+	r.must(ans(x.gv, t1, `{"body":"   "}`), 422)
+
+	t2 := mkTicket()
+	D := func(tok, id, body string) call {
+		return call{method: "POST", path: T + "/" + id + "/dismiss", token: tok, body: body}
+	}
+	r.must(D(x.gv, t2, `{"reason":"DUPLICATE"}`), 200)
+	r.must(D("", t2, `{"reason":"DUPLICATE"}`), 401)
+	r.must(D(sa, t2, `{"reason":"DUPLICATE"}`), 403)
+	r.must(D(x.gv, uuid.NewString(), `{"reason":"DUPLICATE"}`), 404)
+	r.must(D(x.gv, t2, `{"reason":"DUPLICATE"}`), 409) // đã đóng
+	t3 := mkTicket()
+	r.must(D(x.gv, t3, `{"reason":"KHONG_CO"}`), 422)
+
+	r.must(call{method: "POST", path: "/api/v1/notifications/read", token: x.gv, body: `{"link":"/inbox"}`}, 200)
+	r.must(call{method: "POST", path: "/api/v1/notifications/read", body: `{"link":"/inbox"}`}, 401)
+	r.must(call{method: "POST", path: "/api/v1/notifications/read", token: x.gv, body: `{"link":""}`}, 422)
 }

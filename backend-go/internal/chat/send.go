@@ -220,6 +220,9 @@ func (s *Service) Retry(ctx context.Context, a Actor, mid uuid.UUID) (store.Chat
 	if err != nil {
 		return store.ChatMessage{}, err
 	}
+	if isStaffIntent(m.Intent) {
+		return store.ChatMessage{}, apierr.New(http.StatusUnprocessableEntity, apierr.MessageNotRateable)
+	}
 	if m.Role != store.ChatRoleASSISTANT || (m.StreamStatus != store.ChatStreamStatusFAILED && m.StreamStatus != store.ChatStreamStatusCANCELLED) {
 		return store.ChatMessage{}, apierr.New(http.StatusConflict, apierr.MessageNotRetryable)
 	}

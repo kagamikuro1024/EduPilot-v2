@@ -69,6 +69,7 @@ func (q *Queries) ChatDocumentUsable(ctx context.Context, arg ChatDocumentUsable
 const chatHistory = `-- name: ChatHistory :many
 select role, content from chat_messages
 where session_id = $1 and stream_status = 'DONE' and (created_at, id) < ($2::timestamptz, $3::uuid)
+  and (intent is null or intent not in ('STAFF_ANSWER', 'ESCALATION_FOLLOWUP'))
 order by created_at desc, id desc
 limit $4
 `
@@ -109,6 +110,100 @@ func (q *Queries) ChatHistory(ctx context.Context, arg ChatHistoryParams) ([]Cha
 		return nil, err
 	}
 	return items, nil
+}
+
+const chatInsertStaffMessage = `-- name: ChatInsertStaffMessage :one
+insert into chat_messages (course_id, session_id, user_id, role, content, stream_status, intent, blocks, client_msg_id, reply_to, completed_at)
+values ($1, $2, $3, $4, $5, 'DONE', $6, $7::jsonb, $8, $9, now())
+returning id, course_id, session_id, user_id, role, content, partial_content, stream_status, client_msg_id, reply_to, attempt, intent, citations, blocks, confidence, low_confidence, no_context, degraded, masked_count, feedback, error_code, trace_id, completed_at, created_at, updated_at
+`
+
+type ChatInsertStaffMessageParams struct {
+	CourseID    uuid.UUID
+	SessionID   uuid.UUID
+	UserID      uuid.UUID
+	Role        ChatRole
+	Content     string
+	Intent      *string
+	Blocks      json.RawMessage
+	ClientMsgID *uuid.UUID
+	ReplyTo     *uuid.UUID
+}
+
+// Tin của ticket do giảng viên / sinh viên viết, nằm chung bảng với tin AI (SRS escalation 5.6): intent STAFF_ANSWER (role ASSISTANT) hoặc ESCALATION_FOLLOWUP (role USER).
+// user_id là CHỦ PHIÊN (FK phức hợp); người viết nằm ở blocks.
+func (q *Queries) ChatInsertStaffMessage(ctx context.Context, arg ChatInsertStaffMessageParams) (ChatMessage, error) {
+	row := q.db.QueryRow(ctx, chatInsertStaffMessage,
+		arg.CourseID,
+		arg.SessionID,
+		arg.UserID,
+		arg.Role,
+		arg.Content,
+		arg.Intent,
+		arg.Blocks,
+		arg.ClientMsgID,
+		arg.ReplyTo,
+	)
+	var i ChatMessage
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SessionID,
+		&i.UserID,
+		&i.Role,
+		&i.Content,
+		&i.PartialContent,
+		&i.StreamStatus,
+		&i.ClientMsgID,
+		&i.ReplyTo,
+		&i.Attempt,
+		&i.Intent,
+		&i.Citations,
+		&i.Blocks,
+		&i.Confidence,
+		&i.LowConfidence,
+		&i.NoContext,
+		&i.Degraded,
+		&i.MaskedCount,
+		&i.Feedback,
+		&i.ErrorCode,
+		&i.TraceID,
+		&i.CompletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const chatStaffSession = `-- name: ChatStaffSession :one
+select id, course_id, user_id, channel, title, document_id, last_message_at, deleted_at, created_at, updated_at from chat_sessions
+where course_id = $1 and user_id = $2 and channel = 'PRIVATE' and title = $3 and deleted_at is null
+order by created_at limit 1
+`
+
+type ChatStaffSessionParams struct {
+	CourseID uuid.UUID
+	UserID   uuid.UUID
+	Title    *string
+}
+
+// Phiên cố định "Tin nhắn từ giảng viên" của sinh viên ở lớp (chưa xoá mềm), nếu có.
+func (q *Queries) ChatStaffSession(ctx context.Context, arg ChatStaffSessionParams) (ChatSession, error) {
+	row := q.db.QueryRow(ctx, chatStaffSession, arg.CourseID, arg.UserID, arg.Title)
+	var i ChatSession
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.UserID,
+		&i.Channel,
+		&i.Title,
+		&i.DocumentID,
+		&i.LastMessageAt,
+		&i.DeletedAt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const examChatBlockedInsert = `-- name: ExamChatBlockedInsert :exec

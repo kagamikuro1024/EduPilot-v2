@@ -24,6 +24,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/library"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
@@ -130,6 +131,8 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		if d.Escalation != nil {
 			// US-P4-01 — POST /chat/messages/{mid}/escalate (sinh viên nhờ giảng viên).
 			(&escalationhttp.Handler{Svc: d.Escalation, Log: d.Log}).Mount(r)
+			// US-P4-03 — hàng chờ của TA / TEACHER: danh sách, chi tiết, nhận / bỏ nhận / trả lời / đóng; đọc thông báo theo liên kết.
+			(&escalationhttp.StaffHandler{Svc: d.Escalation, Notify: notify.New(d.DB, d.Publisher, d.Log), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
 		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.

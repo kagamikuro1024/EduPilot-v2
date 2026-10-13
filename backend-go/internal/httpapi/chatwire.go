@@ -86,7 +86,7 @@ func chatService(d Deps, a *aiStack) *chat.Service {
 		Pool: d.DB, Redis: d.Redis, Agent: ag, PII: a.det, Clock: d.Clock, Log: d.Log, Drain: drainC(d),
 		Lock:    a.locker(d),
 		Members: members,
-		Tickets: &escalation.Service{Pool: d.DB, Members: members, Lock: a.locker(d), Log: d.Log, Cfg: escalation.Config{OpenCap: d.Cfg.TicketOpenCap}},
+		Tickets: &escalation.Service{Pool: d.DB, Members: members, Lock: a.locker(d), Log: d.Log, PII: a.det, Clock: d.Clock, Cfg: escalation.Config{OpenCap: d.Cfg.TicketOpenCap}},
 		Cfg:     chat.Config{MaxInput: d.Cfg.ChatMaxInputChars, RatePerMin: d.Cfg.ChatRatePerMin, StreamMax: d.Cfg.ChatStreamMax},
 	}
 }

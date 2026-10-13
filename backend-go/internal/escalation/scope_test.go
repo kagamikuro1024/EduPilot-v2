@@ -75,7 +75,10 @@ func TestStaffCannotReadOtherChat(t *testing.T) {
 // mã Go của gói chỉ gọi các truy vấn chat đã duyệt (đọc tin CỦA CHÍNH sinh viên gọi, trạng thái lớp). Thêm truy vấn chat mới phải sửa danh sách này có chủ đích.
 func TestEscalationReadsChatOnlyViaTicketQueries(t *testing.T) {
 	allowedSQL := map[string]bool{"GetEscalatedExchange": true, "ListTicketTranscript": true}
-	allowedChat := map[string]bool{"GetChatMessageOwned": true, "GetChatSession": true, "ChatCourseStatus": true}
+	// Đọc tin CỦA CHÍNH sinh viên gọi (Escalate), trạng thái lớp, phiên của ticket; ghi tin STAFF_ANSWER; tin trả lời theo id trong payload outbox; phiên "Tin nhắn từ giảng viên".
+	allowedChat := map[string]bool{"GetChatMessageOwned": true, "GetChatSession": true, "ChatCourseStatus": true, "ChatInsertStaffMessage": true, "ChatStaffSession": true,
+		"InsertChatSession": true, "TouchChatSession": true, "GetChatMessageByID": true}
+	allowedSQL["TicketListStaff"] = true // proposals #13: đoạn cắt 140 ký tự của đúng câu hỏi đã nhờ cho danh sách
 
 	body := func(path string) map[string]string {
 		raw, err := os.ReadFile(path)

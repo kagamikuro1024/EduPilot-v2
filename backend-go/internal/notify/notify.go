@@ -166,3 +166,12 @@ func (s *Service) Announce(ctx context.Context, rows ...Row) {
 		}
 	}
 }
+
+// MarkReadByLink đánh dấu đã đọc mọi thông báo chưa đọc của CHÍNH `user` có `link` trùng; trả số dòng đổi.
+func (s *Service) MarkReadByLink(ctx context.Context, user uuid.UUID, link string) (int64, error) {
+	n, err := store.New(s.Pool).NotifyMarkReadByLink(ctx, store.NotifyMarkReadByLinkParams{UserID: user, Link: &link})
+	if err != nil {
+		return 0, fmt.Errorf("notify: đánh dấu đã đọc: %w", err)
+	}
+	return n, nil
+}

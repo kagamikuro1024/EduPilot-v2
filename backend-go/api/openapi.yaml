@@ -5500,6 +5500,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/chat/messages/{mid}/feedback:
     put:
       operationId: setChatFeedback
@@ -5870,6 +5872,264 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "409":
           $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets:
+    get:
+      operationId: listCourseTickets
+      tags: [escalation]
+      summary: "Hàng chờ của một lớp (TA / TEACHER; ADMIN và sinh viên 403). Sắp (created_at, id); câu hỏi chỉ là đoạn cắt 140 ký tự; ANSWERED không gồm CLOSED, ALL gồm CLOSED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, CLAIMED, ANSWERED, ALL]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffTicketPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/tickets:
+    get:
+      operationId: listMyTickets
+      tags: [escalation]
+      summary: "Hàng chờ của mọi lớp mình đang ACTIVE là TEACHER / TA (\"Tất cả lớp của tôi\"); ADMIN, sinh viên 403"
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, CLAIMED, ANSWERED, ALL]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffTicketPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets/{tid}:
+    get:
+      operationId: getCourseTicket
+      tags: [escalation]
+      summary: "Chi tiết: chỉ đúng cặp hỏi–đáp đã nhờ + tin của chính ticket (không tin nào khác của phiên); ticket của lớp khác 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Chi tiết ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/tickets/{tid}/claim:
+    post:
+      operationId: claimTicket
+      tags: [escalation]
+      summary: "Nhận (OPEN → CLAIMED; người đã nhận bấm lại = 200; người khác đã nhận 409 TICKET_ALREADY_CLAIMED kèm người nhận)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/tickets/{tid}/release:
+    post:
+      operationId: releaseTicket
+      tags: [escalation]
+      summary: "Bỏ nhận (chỉ người đã nhận; waiting_since không đổi)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/tickets/{tid}/answer:
+    post:
+      operationId: answerTicket
+      tags: [escalation]
+      summary: "Gửi trả lời: MỘT giao dịch (ANSWERED + tin STAFF_ANSWER vào chat riêng của sinh viên + outbox). Thông tin sinh viên khác → 422 PII_IN_ANSWER (chặn cứng)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswerInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets/{tid}/dismiss:
+    post:
+      operationId: dismissTicket
+      tags: [escalation]
+      summary: "Đóng không trả lời (OUT_OF_SCOPE | DUPLICATE | NEED_MORE_INFO)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DismissInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/notifications/read:
+    post:
+      operationId: markNotificationsReadByLink
+      tags: [escalation]
+      summary: "Đánh dấu đã đọc mọi thông báo chưa đọc CỦA CHÍNH MÌNH có link trùng (chat gọi khi mở phiên có tin của giảng viên)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReadByLinkInput"
+      responses:
+        "200":
+          description: Số thông báo đã đổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadByLinkResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
         "422":
           $ref: "#/components/responses/ValidationFailed"
 components:
@@ -10000,6 +10260,207 @@ components:
           $ref: "#/components/schemas/StudentTicket"
         already:
           type: boolean
+    EscalationPerson:
+      type: object
+      required: [id, full_name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        role:
+          type: string
+    EscalationCourse:
+      type: object
+      required: [id, class_code]
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_code:
+          type: string
+    StaffTicketRow:
+      type: object
+      required: [id, status, kind, student, question_preview, age_minutes, claimed_by, sla_stage, course]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [OPEN, CLAIMED, ANSWERED, CLOSED]
+        kind:
+          type: string
+          enum: [QUESTION, GRADE_APPEAL, TEACHER_OUTREACH]
+        student:
+          $ref: "#/components/schemas/EscalationPerson"
+        question_preview:
+          type: string
+          maxLength: 140
+        age_minutes:
+          type: integer
+        claimed_by:
+          oneOf:
+            - $ref: "#/components/schemas/EscalationPerson"
+            - type: "null"
+        sla_stage:
+          type: integer
+        course:
+          $ref: "#/components/schemas/EscalationCourse"
+    StaffTicketPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/StaffTicketRow"
+        next_cursor:
+          type: [string, "null"]
+    StaffTicket:
+      type: object
+      required: [id, kind, status, student, claimed_by, answered_by, age_minutes, sla_stage, reopened_count, save_as_knowledge, course, version, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, CLAIMED, ANSWERED, CLOSED]
+        student:
+          $ref: "#/components/schemas/EscalationPerson"
+        claimed_by:
+          oneOf:
+            - $ref: "#/components/schemas/EscalationPerson"
+            - type: "null"
+        answered_by:
+          oneOf:
+            - $ref: "#/components/schemas/EscalationPerson"
+            - type: "null"
+        age_minutes:
+          type: integer
+        sla_stage:
+          type: integer
+        reopened_count:
+          type: integer
+        save_as_knowledge:
+          type: boolean
+        course:
+          $ref: "#/components/schemas/EscalationCourse"
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+    TicketMessage:
+      type: object
+      required: [id, content, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        citations:
+          type: array
+          items:
+            type: object
+        blocks:
+          type: array
+          items:
+            type: object
+        confidence:
+          type: [string, "null"]
+          description: Độ tin cậy có số — chỉ nhân viên thấy (sinh viên không bao giờ).
+    TicketTranscriptItem:
+      type: object
+      required: [id, role, author, content, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+        author:
+          description: '{full_name, role} của nhân viên, hoặc chuỗi "student"'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    TicketDetail:
+      type: object
+      required: [ticket, question, ai_answer, transcript]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StaffTicket"
+        question:
+          oneOf:
+            - $ref: "#/components/schemas/TicketMessage"
+            - type: "null"
+        ai_answer:
+          oneOf:
+            - $ref: "#/components/schemas/TicketMessage"
+            - type: "null"
+        transcript:
+          type: array
+          items:
+            $ref: "#/components/schemas/TicketTranscriptItem"
+    TicketResult:
+      type: object
+      required: [ticket]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StaffTicket"
+    AnswerResult:
+      type: object
+      required: [ticket, message]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StaffTicket"
+        message:
+          $ref: "#/components/schemas/TicketMessage"
+    VersionInput:
+      type: object
+      properties:
+        version:
+          type: integer
+    AnswerInput:
+      type: object
+      required: [body]
+      properties:
+        body:
+          type: string
+          maxLength: 4000
+        version:
+          type: integer
+    DismissInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          enum: [OUT_OF_SCOPE, DUPLICATE, NEED_MORE_INFO]
+        version:
+          type: integer
+    ReadByLinkInput:
+      type: object
+      required: [link]
+      properties:
+        link:
+          type: string
+    ReadByLinkResult:
+      type: object
+      required: [updated]
+      properties:
+        updated:
+          type: integer
     ChatMessagePage:
       type: object
       required: [items, next_cursor, open_tickets]

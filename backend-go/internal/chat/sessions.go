@@ -249,6 +249,9 @@ func (s *Service) Feedback(ctx context.Context, a Actor, mid uuid.UUID, value *s
 	if err != nil {
 		return err
 	}
+	if isStaffIntent(m.Intent) { // tin do giảng viên / sinh viên viết, không phải câu trả lời AI: không có "Hữu ích / Không hữu ích" (TLR-21)
+		return apierr.New(http.StatusUnprocessableEntity, apierr.MessageNotRateable)
+	}
 	var fb *store.ChatFeedback
 	if value != nil {
 		v := store.ChatFeedback(*value)
@@ -319,4 +322,9 @@ func (s *Service) FromDraft(ctx context.Context, a Actor, in FromDraftIn) (FromD
 	out.SessionID = row.ID
 	out.Draft.Title, out.Draft.Body = in.Title, in.Body
 	return out, nil
+}
+
+// isStaffIntent: tin của ticket (STAFF_ANSWER, ESCALATION_FOLLOWUP) nằm chung bảng với tin AI nhưng không đánh giá / sinh lại được.
+func isStaffIntent(intent *string) bool {
+	return intent != nil && (*intent == "STAFF_ANSWER" || *intent == "ESCALATION_FOLLOWUP")
 }
