@@ -1,6 +1,6 @@
 # Sprint 7: P4 Escalation + Mail, P5 CRM + Hồ sơ 360
 
-**Trạng thái:** **chủ dự án duyệt 2026-10-11.**
+**Trạng thái:** **chủ dự án duyệt 2026-10-11.** Từ 2026-10-13 chủ dự án giao PM toàn quyền chốt các câu [CHỦ DỰ ÁN] của sprint này; PM chọn phương án an toàn, ghi lý do trong `QUESTIONS.md` / `proposals.md` và liệt kê lại trong `report.md` để chủ dự án xem.
 **Nhánh và nơi làm:** `sprint/7-p4-p5` tách từ `main` (`628a79b`), worktree `../TA_Agent_v2-s7`.
 
 ## Mục tiêu
