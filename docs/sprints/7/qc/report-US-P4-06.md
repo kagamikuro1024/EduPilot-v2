@@ -1,10 +1,29 @@
-# QC report — US-P4-06 (Threads: báo cáo, kiểm duyệt, sửa / xoá, ghim, nạp lại tri thức) — vòng 1
-Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `2ad5764` (gồm US-P4-06 `fa7caf3`, migration `00014_forum_ai_regen`, #24, #25). Bộ TC: `tc-US-P4-06.md` (không sửa chữ TC). Handoff: `dev-US-P4-06.md`. Stack `edupilot100` dựng lại từ code mới (DB trống, migration `14`, `--scale gateway=2`, provider `fake`, không có tài liệu seed). Seed không có bài AI nên bài AI được chèn bằng SQL (`forum_posts`, `kind='AI'`) rồi xử lý qua API (`verify` / `correct` / `reject`); thông báo "đếm AI chờ" vì vậy chỉ đúng sau thao tác đầu tiên của giảng viên.
+# QC report — US-P4-06 (Threads: báo cáo, kiểm duyệt, sửa / xoá, ghim, nạp lại tri thức) — **vòng 2**
+Ngày 2026-10-14. Commit kiểm: `sprint/7-p4-p5` @ `ac187744` (sửa vòng 2: `843b49c`). CI của nhánh xanh từ `ca9314b` (PM). Bộ TC: `tc-US-P4-06.md` (không sửa chữ TC). Handoff: `dev-US-P4-06.md` mục "Vòng 2". Stack `edupilot100` dựng lại từ code mới (DB trống, migration `15`, `--scale gateway=2`, provider `fake`).
 
-## Kết luận: **FAIL** (1 lỗi: TC-42, mức THẤP–TRUNG BÌNH; 1 TC BLOCKED)
+## Kết luận: **PASS** (BUG-1 vòng 1 đã sửa; không FAIL; TC-44 vẫn BLOCKED)
+## 1. Kết quả vòng 2
+| TC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| 42 nạp lại (`VERIFY`) | **PASS** | bài AI `PENDING` → `verify` `200`; đoạn có `embedding` ngay; sinh viên khác hỏi đúng chuỗi đoạn: trích dẫn `{"title":"Hỏi đáp đã được giảng viên xác nhận","knowledge":true,"snippet":"Câu hỏi: … Trả lời: …","thread_id":"<id thread>"}` — `thread_id` khớp thread nguồn (vòng 1: không có khoá này). Ẩn thread bằng ba báo cáo → trích dẫn tri thức mất, `knowledge_items` 0 |
+| 41, 43, 33, 45 | PASS (giữ) | không đổi mã liên quan; bản chạy lại ở stack mới chỉ làm TC-42 |
+| 44 embedding chết | BLOCKED | không ép được lỗi `Embed` ở stack fake (Q-QC-P4-15 chưa có trả lời) |
+| Các TC còn lại (01–40, 46–53) | PASS (giữ từ vòng 1) | diff vòng 2 chỉ chạm `rag.sql` (cột `thread_id`), `rag.Hit` / `agent.Citation`, giao diện `Xem hỏi đáp` |
+
+Tổng 53 TC: PASS 52, BLOCKED 1 (TC-44).
+
+## 2. Lệnh của handoff
+| Lệnh | Kết quả |
+| --- | --- |
+| `go test -race -tags testroutes ./internal/thread ./internal/rag ./internal/contract/...` (gồm `TestKnowledgeCitationLinksThread`) | ok (thread 27,7 s, rag, contract 76 s) |
+| `playwright threads.spec.ts threads-moderation.spec.ts threads-crisis.spec.ts` (desktop + mobile) | 24 passed, 24 skipped, 0 failed |
+| `ui-antipatterns.sh` | rc=0 |
+
+## 3. Phụ lục: vòng 1 (đã đóng)
+### Kết luận: **FAIL** (1 lỗi: TC-42, mức THẤP–TRUNG BÌNH; 1 TC BLOCKED)
 Báo cáo, tự ẩn, hàng chờ, ẩn / bỏ ẩn / giữ bài, ghim, sửa / xoá, thông báo, nạp lại / gỡ / thay tri thức, cô lập, phân quyền đều đạt. Hỏng ở AC12: trích dẫn tri thức nguồn `POST` không có liên kết `/threads/{id}`.
 
-## 1. Kết quả TC
+### 1. Kết quả TC
 | TC | Kết quả | Bằng chứng |
 | --- | --- | --- |
 | 01 báo cáo | PASS | `201 {"reported":true}`; `post_reports.status='OPEN'` |
@@ -63,10 +82,10 @@ Báo cáo, tự ẩn, hàng chờ, ẩn / bỏ ẩn / giữ bài, ghim, sửa / 
 
 Tổng 53 TC: PASS 51, FAIL 1 (TC-42), BLOCKED 1 (TC-44).
 
-## 2. Lỗi
+### 2. Lỗi
 **BUG-1 (THẤP–TRUNG BÌNH) TC-42 / AC12:** trích dẫn của đoạn tri thức nguồn `POST` thiếu liên kết `/threads/{id}`. Tái hiện: bài AI `PENDING` → giảng viên `POST …/posts/{pid}/verify`; sinh viên khác hỏi đúng chuỗi của đoạn ("Câu hỏi: … Trả lời: …"); đọc `citations` ở khung SSE `done`: `knowledge:true` nhưng không có khoá trỏ tới thread. (Dev nêu ở handoff P4-05: "nguồn POST có liên kết thuộc US-P4-06"; handoff P4-06 không ghi đã làm.)
 
-## 3. Lệnh của handoff
+### 3. Lệnh của handoff
 | Lệnh | Kết quả |
 | --- | --- |
 | `go test -race -tags testroutes ./internal/thread ./internal/today ./internal/store ./internal/contract/... ./internal/httpapi/...` | ok (thread 71 s, today 106 s, store 64 s, contract 85 s, httpapi, httpx, sse) |
