@@ -29,6 +29,7 @@ const CommandPalette = lazy(() => import("@/shared/ui/CommandPalette").then((m) 
 // Mã mô phỏng (nền Threads giả, badge mô phỏng ≈ 16 KB gzip) chỉ nạp ở phiên mô phỏng — phiên thật không trả giá (ngân sách script Lighthouse, TL-1).
 const DemoShellExtras = lazy(() => import("./DemoShellExtras").then((m) => ({ default: m.DemoShellExtras })));
 
+const subscribeNever = () => () => {};
 const NARROW = "(max-width: 719px)";
 const MID = "(max-width: 1099px)";
 function useMedia(query: string) {
@@ -77,7 +78,7 @@ function useSidebarCollapsed(): [boolean, (v: boolean) => void] {
 const MOCK_SCREENS_OFF = process.env.NEXT_PUBLIC_MOCK_SCREENS === "0";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, user, course, courses, isAll, hasCourse, realCourses, realCourseId, setCourse, identity, logout } = useSession();
+  const { role, user, course, courses, isAll, hasCourse, realCourses, realPending, realCourseId, setCourse, identity, logout } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const groups = useMemo(() => navFor(role, hasCourse), [role, hasCourse]);
@@ -124,7 +125,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   // N9: badge tính từ dữ liệu, giảm ngay khi hành động xảy ra; không bao giờ ghi số ở nav.ts.
   // Phiên thật không có vé / bài chấm mô phỏng nên badge luôn 0; chỉ phiên mô phỏng nạp gói tính badge.
-  const demo = !realCourseId && role !== "admin";
+  // Không dựng ở lần vẽ phía máy chủ (chưa có phiên ⇒ `realCourseId` null ⇒ trông như mô phỏng): HTML sẽ tham chiếu gói lười và mọi phiên thật tải nó.
+  // Đang tải /me/courses cũng chưa phải mô phỏng.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const demo = mounted && !realPending && !realCourseId && role !== "admin";
   const [badges, setBadges] = useState({ inbox: 0, grading: 0 });
 
   // Chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus).
