@@ -5,7 +5,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 ## Đang ở đâu
 - Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4 + 5 + 5.5 + 6. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
 - Lộ trình: **11 sprint + 1.5 + 5.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu. Mỗi sprint merge xong: `writer` viết phần quyển đồ án, PM + BA review.
-- Sprint gần nhất: **6 — P3 Hai kênh + PII, P8 Tài liệu + Lịch** — xong, cổng P3 ĐẠT, cổng P8 ĐẠT, `docs/sprints/6/report.md`. Kế tiếp: quyển đồ án phần sprint 6, rồi sprint 7 (P4 + P5).
+- Sprint gần nhất: **6 — P3 Hai kênh + PII, P8 Tài liệu + Lịch** — xong, cổng P3 ĐẠT, cổng P8 ĐẠT, `docs/sprints/6/report.md`. Đang làm: sprint 7 (P4 + P5), xem "Phiên gần nhất".
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
@@ -34,10 +34,10 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☐ · F5 ☐ · F6 ☑ (sprint 6) · F7 ☐ · F8 ☐ · F9 ☐ · F10 ☐ · F11 ☐ · F12 ☐ · F13 ☑ (sprint 6) · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐ · F19 ☑ (sprint 5, `playwright-cli` + e2e)
 
 ## Phiên gần nhất
-- Ngày: 2026-10-11
-- Đã làm: sprint 6 — 11 story PASS, cổng P3 + P8 ĐẠT (góp ý #1–#17, QC Q1–Q3, dev D1–D3, TL-REVIEW 28 TLR, TL-CI). Chủ dự án chốt: tên người đăng thread công khai, khoá giờ thi = chat + đăng thread, migration `tsv` + ICS token băm, nút "Nhờ giảng viên" ẩn tới sprint 7. Thêm vai `writer` (quyển đồ án ở `~/Documents/EduPilot-thesis/`, đã viết tới sprint 5.5).
-- Đang dở: không.
-- Bước kế tiếp cụ thể: `writer` viết phần sprint 6, PM + BA review; PM lập kế hoạch sprint 7 (P4 + P5), gồm TL-CI #3 / #5.
+- Ngày: 2026-10-14
+- Đã làm: sprint 7 (P4 + P5), nhánh `sprint/7-p4-p5`, chủ dự án giao PM chốt câu [CHỦ DỰ ÁN] (`plan.md`). Spec `FEAT-escalation-notify`, `FEAT-crm-360` APPROVED (TL-REVIEW, proposals #1–#28). QC PASS: US-P4-01…07, US-P5-01, US-P5-02, BUG-S7-01 (CI 6/6 lượt nguội xanh, ≤ 10 phút); US-CI-02 ghi FAIL sau vòng 3, lỗi còn lại tách thành BUG-S7-01 (đã PASS).
+- Đang dở: US-P5-03 đã push, chờ QC chạy (CI xanh ở `1c6a01e`); US-P5-04 (commit cục bộ) và US-P5-05 dở ở nhánh `wip/p5-04-p5-05`, ghi chú trong `docs/sprints/7/handoff/dev-US-P5-03.md` mục "Ghi chú dừng ngày"; #28 đã ACCEPTED, US-P5-05 cần proposal #29 (e2e mock `/students`).
+- Bước kế tiếp cụ thể: dựng lại colima; dev đưa P5-04 lên nhánh sprint (sửa #28) → P5-05 → P5-06 → US-S7-SEED (`gate-p4.sh`, `gate-p5.sh`); QC chạy P5-03…06, SEED, rồi `gate P4`, `gate P5`; PM viết report sprint 7. PM làm trong worktree riêng `../TA_Agent_v2-s6` (detached, push `HEAD:sprint/7-p4-p5`), không đụng worktree s7 của dev.
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
 - Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).
