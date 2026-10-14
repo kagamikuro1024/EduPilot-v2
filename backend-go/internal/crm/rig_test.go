@@ -9,6 +9,8 @@ import (
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
+	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
@@ -34,10 +36,28 @@ const (
 )
 
 // qcount đếm câu SQL đi qua pool (kiểm "không N+1").
-type qcount struct{ n atomic.Int64 }
+type qcount struct {
+	n    atomic.Int64
+	mu   sync.Mutex
+	last map[string]captured // câu SQL gần nhất theo tên sqlc (`-- name: X`), để test EXPLAIN đúng câu thật
+}
 
-func (c *qcount) TraceQueryStart(ctx context.Context, _ *pgx.Conn, _ pgx.TraceQueryStartData) context.Context {
+type captured struct {
+	sql  string
+	args []any
+}
+
+func (c *qcount) TraceQueryStart(ctx context.Context, _ *pgx.Conn, d pgx.TraceQueryStartData) context.Context {
 	c.n.Add(1)
+	if name, ok := strings.CutPrefix(d.SQL, "-- name: "); ok {
+		name, _, _ = strings.Cut(name, " ")
+		c.mu.Lock()
+		if c.last == nil {
+			c.last = map[string]captured{}
+		}
+		c.last[name] = captured{d.SQL, d.Args}
+		c.mu.Unlock()
+	}
 	return ctx
 }
 func (c *qcount) TraceQueryEnd(context.Context, *pgx.Conn, pgx.TraceQueryEndData) {}

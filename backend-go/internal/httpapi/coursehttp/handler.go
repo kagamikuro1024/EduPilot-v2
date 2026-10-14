@@ -12,6 +12,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 )
@@ -144,8 +145,9 @@ type detail struct {
 }
 
 type settings struct {
-	EscalationThreshold string `json:"escalation_threshold"`
-	Version             int32  `json:"version"`
+	EscalationThreshold string         `json:"escalation_threshold"`
+	Version             int32          `json:"version"`
+	Risk                crm.RiskValues `json:"risk"`
 }
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
@@ -181,7 +183,7 @@ func detailOf(d course.Detail) detail {
 		out.Counts = &counts{StudentsActive: d.Counts.Active, StudentsPending: d.Counts.Pending}
 	}
 	if d.Settings != nil {
-		out.Settings = &settings{EscalationThreshold: d.Settings.EscalationThreshold, Version: d.Settings.Version}
+		out.Settings = &settings{EscalationThreshold: d.Settings.EscalationThreshold, Version: d.Settings.Version, Risk: d.Settings.Risk}
 	}
 	return out
 }

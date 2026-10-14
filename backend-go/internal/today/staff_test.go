@@ -623,14 +623,15 @@ func TestTodayQueryBudget(t *testing.T) {
 	su, ss := r.person(store.UserRoleSTUDENT, true)
 	r.enrollAt(c1, su, "STUDENT", "ACTIVE", "", time.Hour)
 	for name, tc := range map[string]struct {
-		s    session
-		path string
+		s     session
+		path  string
+		limit int64
 	}{
-		"giảng viên tất cả lớp": {g, "/me/today"}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today"}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today"},
+		"giảng viên tất cả lớp": {g, "/me/today", 6}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 6}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 5},
 	} {
 		before := r.qc.n.Load()
 		require.Equal(t, http.StatusOK, r.tgetC(tc.s, tc.path).code, name)
-		require.LessOrEqual(t, r.qc.n.Load()-before, int64(5), name+": ≤ 5 truy vấn kể cả guard")
+		require.LessOrEqual(t, r.qc.n.Load()-before, tc.limit, fmt.Sprintf("%s: ≤ %d truy vấn kể cả guard (#28)", name, tc.limit))
 	}
 }
 

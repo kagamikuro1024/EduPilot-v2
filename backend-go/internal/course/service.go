@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
@@ -144,6 +145,7 @@ type Detail struct {
 type Settings struct {
 	EscalationThreshold string
 	Version             int32
+	Risk                crm.RiskValues // ngưỡng cần chú ý hiệu lực (US-P5-04)
 }
 
 // Counts là số sinh viên của lớp.
@@ -177,7 +179,7 @@ func (s Service) Get(ctx context.Context, id uuid.UUID, myRole string, staff boo
 		if err != nil {
 			return Detail{}, fmt.Errorf("course: đọc cài đặt lớp: %w", err)
 		}
-		d.Settings = &Settings{EscalationThreshold: full.EscalationThreshold.StringFixed(2), Version: full.Version}
+		d.Settings = &Settings{EscalationThreshold: full.EscalationThreshold.StringFixed(2), Version: full.Version, Risk: crm.ThresholdsFrom(full.Settings).Values()}
 	}
 	return d, nil
 }

@@ -9,6 +9,7 @@ import (
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/chat"
+	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
@@ -44,6 +45,7 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks, reminderTask{&calendar.Reminder{Svc: &calendar.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, PublicURL: d.Cfg.AppPublicURL, Log: d.Log}, Name: name, Every: d.Cfg.ReminderTick, Lead: d.Cfg.ReminderLead, Log: d.Log, Notify: nt}})
 	tasks = append(tasks, slaTask{&escalation.SLAJob{Svc: &escalation.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt, Cfg: escalation.ConfigFrom(d.Cfg)}, Redis: d.Redis, Name: name, Every: d.Cfg.TicketSLATick, Log: d.Log}})
 	tasks = append(tasks, rollupTask{&activity.RollupJob{Svc: &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: d.Cfg.RollupTick, Log: d.Log}})
+	tasks = append(tasks, riskTask{&crm.RiskJob{Svc: &crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, At: d.Cfg.RiskJobAt, Every: time.Minute, Log: d.Log}})
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
@@ -88,6 +90,12 @@ type rollupTask struct{ j *activity.RollupJob }
 
 func (rollupTask) Name() string                    { return "heartbeat.rollup" }
 func (t rollupTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// riskTask chạy `crm.risk` (US-P5-04) — đúng một lần mỗi ngày sau RISK_JOB_AT, một bản nhờ khoá leader + dấu ngày Redis.
+type riskTask struct{ j *crm.RiskJob }
+
+func (riskTask) Name() string                    { return "crm.risk" }
+func (t riskTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // judgeTask chạy consumer chấm code (chỉ ở bản worker JUDGE_CONSUMER=true).
 type judgeTask struct{ q *judge.Queue }

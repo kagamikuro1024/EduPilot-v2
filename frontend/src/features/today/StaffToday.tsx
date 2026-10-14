@@ -2,7 +2,7 @@
 
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useSession } from "@/shared/session/session";
-import { ActionList, ActionRow, Button, EmptyState, InlineNotice, Page, PageHeader, Panel, Section } from "@/shared/ui";
+import { ActionList, ActionRow, Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, Panel, Section } from "@/shared/ui";
 import s from "./Today.module.css";
 import { TodayActions } from "./TodayActions";
 import { classLabel, hhmm, longDate, shortDay } from "./format";
@@ -39,6 +39,18 @@ export function StaffToday() {
             <Panel>
               <EmptyState title="Bạn đã xử lý hết việc.">Khi có yêu cầu vào lớp hoặc việc mới, chúng sẽ hiện ở đây.</EmptyState>
             </Panel>
+          )}
+          {d.attention.length > 0 && (
+            <Section title="Lớp cần chú ý" panel>
+              <ActionList label="Sinh viên cần chú ý">
+                {d.attention.map((a) => (
+                  <ActionRow key={`${a.course.id}-${a.student.id}`} title={a.student.full_name} context={a.reason} meta={classLabel(a.course)} href={`/students/${a.student.id}`} />
+                ))}
+              </ActionList>
+              <ButtonLink href={`/students?filter=attention${q.isAll ? "" : `&course=${d.attention[0].course.id}`}`} variant="ghost">
+                Xem tất cả ({d.attention_total})
+              </ButtonLink>
+            </Section>
           )}
           {d.upcoming.length > 0 && (
             <Section title="Sắp tới" panel>

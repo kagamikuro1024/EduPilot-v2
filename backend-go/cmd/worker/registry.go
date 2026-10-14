@@ -70,7 +70,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicHidden, outbox.Chain(tn.HandleHidden, inv.Handle))
 	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
 	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
-	reg.Register(crm.TopicAttendanceSaved, inv.Handle) // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
+	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
+	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged) // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó
+	reg.Register(crm.TopicAttendanceSaved, inv.Handle)                                                                        // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
 	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
 	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log, Gate: escalation.MailGate{Redis: d.Redis, Clock: clock.Real{}, Window: d.Cfg.MailTicketNewCoalesce}, Clock: clock.Real{}}
 	reg.Register(escalation.TopicCreated, outbox.Chain(esc.HandleCreated, inv.Handle))

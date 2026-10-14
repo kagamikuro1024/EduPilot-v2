@@ -95,7 +95,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			if d.LLM != nil {
 				sig = todayLLM{rt: d.LLM}
 			}
-			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA))
+			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
 			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Log: d.Log}).Mount(r)           // US-P5-02: điểm danh, phát biểu

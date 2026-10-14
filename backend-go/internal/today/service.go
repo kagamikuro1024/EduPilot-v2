@@ -41,6 +41,7 @@ type Service struct {
 	Log   *slog.Logger
 	Agg   *Aggregator
 	TTL   time.Duration
+	Attn  AttentionSource // US-P5-04: khối `attention` của Staff; nil = khối rỗng
 
 	warned *atomic.Int64 // mốc log "Redis lỗi" gần nhất, chung cho mọi yêu cầu
 }
@@ -61,7 +62,7 @@ func NewService(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, log *
 	agg.Register(StudentProvider{Pool: pool})
 	agg.Register(staff)
 	agg.Register(AdminProvider{Pool: pool, LLM: llm})
-	return &Service{Pool: pool, Redis: rdb, Clock: clk, Log: log, Agg: agg, TTL: DefaultTTL, warned: new(atomic.Int64)}
+	return &Service{Pool: pool, Redis: rdb, Clock: clk, Log: log, Agg: agg, Attn: staff.Attn, TTL: DefaultTTL, warned: new(atomic.Int64)}
 }
 
 func (s *Service) now() time.Time {
@@ -130,6 +131,20 @@ func (s *Service) compute(ctx context.Context, userID uuid.UUID, role Role, scop
 	v, err := s.viewer(ctx, userID, role)
 	if err != nil {
 		return nil, err
+	}
+	if (role == RoleTeacher || role == RoleTA) && s.Attn != nil { // MỘT truy vấn AT_RISK dùng chung cho mục STUDENT_ATTENTION và khối `attention`
+		scoped := v.Scoped(scope, "STAFF")
+		if len(scoped) > 0 {
+			ids := make([]uuid.UUID, len(scoped))
+			for i, c := range scoped {
+				ids[i] = c.ID
+			}
+			snap, err := s.Attn.Snapshot(ctx, ids, v.Now.Add(-AttentionWindow), AttentionMax)
+			if err != nil {
+				return nil, fmt.Errorf("today: sinh viên cần chú ý: %w", err)
+			}
+			v.attn = &snap
+		}
 	}
 	items, total, err := s.Agg.Collect(ctx, v, scope)
 	if err != nil {
@@ -240,10 +255,11 @@ type UpcomingOut struct {
 
 // StaffView là phản hồi cho Giảng viên / TA.
 type StaffView struct {
-	Count     int           `json:"count"`
-	Actions   []Item        `json:"actions"`
-	Attention []any         `json:"attention"`
-	Upcoming  []UpcomingOut `json:"upcoming"`
+	Count          int            `json:"count"`
+	Actions        []Item         `json:"actions"`
+	Attention      []AttentionRow `json:"attention"`
+	AttentionTotal int            `json:"attention_total"`
+	Upcoming       []UpcomingOut  `json:"upcoming"`
 }
 
 // AdminView là phản hồi cho Admin.
@@ -293,10 +309,13 @@ func (s *Service) student(ctx context.Context, v Viewer, scope Scope, items []It
 }
 
 func (s *Service) staff(ctx context.Context, v Viewer, scope Scope, items []Item, total int) (StaffView, error) {
-	out := StaffView{Count: total, Actions: nonNil(items), Attention: []any{}, Upcoming: []UpcomingOut{}}
+	out := StaffView{Count: total, Actions: nonNil(items), Attention: []AttentionRow{}, Upcoming: []UpcomingOut{}}
 	courses := v.Scoped(scope, "STAFF")
 	if len(courses) == 0 {
 		return out, nil
+	}
+	if v.attn != nil && len(v.attn.Rows) > 0 { // khối `attention` (nợ 5.5 #2): rỗng thì giao diện không hiện khối
+		out.Attention, out.AttentionTotal = v.attn.Rows, v.attn.Total
 	}
 	rows, err := store.New(s.Pool).TodaySessions(ctx, store.TodaySessionsParams{CourseIds: ids(courses), FromAt: v.Now, ToAt: v.Now.AddDate(0, 0, 7)})
 	if err != nil {

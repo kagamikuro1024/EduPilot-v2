@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -32,6 +34,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Post("/courses/{id}/participation", h.addParticipation)
 	r.With(staff).Get("/courses/{id}/participation", h.listParticipation)
 	r.With(staff).Delete("/courses/{id}/participation/{pid}", h.deleteParticipation)
+	r.With(staff).Get("/courses/{id}/students", h.listStudents)
 }
 
 func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
@@ -313,4 +316,103 @@ func (h *Handler) deleteParticipation(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+// ---- danh sách sinh viên (US-P5-04) ----
+
+type studentRowOut struct {
+	Student struct {
+		ID          uuid.UUID `json:"id"`
+		FullName    string    `json:"full_name"`
+		StudentCode *string   `json:"student_code"`
+	} `json:"student"`
+	Attendance struct {
+		Recorded int `json:"recorded"`
+		Present  int `json:"present"`
+		Late     int `json:"late"`
+		Excused  int `json:"excused"`
+		Absent   int `json:"absent"`
+	} `json:"attendance"`
+	Participation struct {
+		SpeakCount  int    `json:"speak_count"`
+		PointsTotal string `json:"points_total"`
+	} `json:"participation"`
+	Study struct {
+		Minutes7d int  `json:"minutes_7d"`
+		Tracked   bool `json:"tracked"`
+	} `json:"study"`
+	Activity struct {
+		AsksLastWeek  int `json:"asks_last_week"`
+		PostsLastWeek int `json:"posts_last_week"`
+	} `json:"activity"`
+	Risk struct {
+		Level      string     `json:"level"`
+		ComputedAt *time.Time `json:"computed_at"`
+	} `json:"risk"`
+}
+
+type studentsPageOut struct {
+	Items      []studentRowOut `json:"items"`
+	NextCursor *string         `json:"next_cursor"`
+	Total      int             `json:"total"`
+}
+
+const studentsDefaultLimit, studentsMaxLimit = 50, 100
+
+// listStudents là `GET /courses/{id}/students?q=&filter=&cursor=&limit=` (Staff).
+func (h *Handler) listStudents(w http.ResponseWriter, r *http.Request) {
+	cid, ok := idParam(w, r, "id")
+	if !ok {
+		return
+	}
+	in := crm.StudentsQuery{Q: strings.TrimSpace(r.URL.Query().Get("q")), Limit: studentsDefaultLimit}
+	if raw := r.URL.Query().Get("limit"); raw != "" {
+		n, err := strconv.Atoi(raw)
+		if err != nil || n < 1 || n > studentsMaxLimit {
+			apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "limit", Code: "range", Message: "limit phải là số nguyên từ 1 đến 100."}))
+			return
+		}
+		in.Limit = n
+	}
+	for _, raw := range r.URL.Query()["filter"] {
+		for _, f := range strings.Split(raw, ",") {
+			switch strings.TrimSpace(f) {
+			case "attention":
+				in.Attention = true
+			case "absent":
+				in.Absent = true
+			case "inactive":
+				in.Inactive = true
+			case "":
+			default:
+				apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "filter", Code: "invalid", Message: "Bộ lọc không hợp lệ."}))
+				return
+			}
+		}
+	}
+	if raw := r.URL.Query().Get("cursor"); raw != "" {
+		c, err := crm.ParseStudentCursor(raw)
+		if err != nil {
+			apierr.Write(w, r, apierr.New(http.StatusUnprocessableEntity, apierr.InvalidCursor))
+			return
+		}
+		in.Cursor = &c
+	}
+	page, err := h.Svc.ListStudents(r.Context(), cid, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	out := studentsPageOut{Items: make([]studentRowOut, len(page.Items)), NextCursor: page.NextCursor, Total: page.Total}
+	for i, x := range page.Items {
+		o := &out.Items[i]
+		o.Student.ID, o.Student.FullName, o.Student.StudentCode = x.ID, x.FullName, x.StudentCode
+		o.Attendance.Recorded, o.Attendance.Present, o.Attendance.Late, o.Attendance.Excused, o.Attendance.Absent = x.Recorded, x.Present, x.Late, x.Excused, x.Absent
+		o.Participation.SpeakCount, o.Participation.PointsTotal = x.SpeakCount, x.PointsTotal.StringFixed(2)
+		o.Study.Minutes7d, o.Study.Tracked = x.StudyMinutes7d, x.Tracked
+		o.Activity.AsksLastWeek, o.Activity.PostsLastWeek = x.AsksLastWeek, x.PostsLastWeek
+		o.Risk.Level, o.Risk.ComputedAt = x.RiskLevel, x.RiskComputedAt
+	}
+	w.Header().Set("Cache-Control", "no-store") // dữ liệu cá nhân (luật 15)
+	httpx.WriteJSON(w, http.StatusOK, out)
 }

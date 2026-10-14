@@ -63,8 +63,8 @@ func TestSpec_LoadsAndValidates(t *testing.T) {
 	}
 	if hasTestRoutes {
 		// 5 thao tác của PG + 13 thao tác của API cấu hình LLM (FEAT-llm-gateway SRS 6.2) + 3 thao tác phiên (US-P2-02) + 3 thao tác đăng ký / xác minh (US-P2-03).
-		if n := len(prod.Operations()); n != 215 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06) + 11 quản lý tài liệu / thư viện (US-P8-02) + 8 lịch / ICS (US-P8-03) + 2 sửa / huỷ buổi học (US-P5-01, proposals #11) + 5 điểm danh / tham gia (US-P5-02, #11) + 17 kiểm duyệt Threads (US-P4-06, #11) + 4 thời gian học (US-P5-03, #11); mỗi story PE sau cộng thêm
-			t.Errorf("openapi.yaml: %d thao tác (cần 215)", n)
+		if n := len(prod.Operations()); n != 216 { // 69 (P2) + 16 ngân hàng câu hỏi (US-PE-03) + 11 bài thi (US-PE-04) + 6 lượt làm (US-PE-05) + 6 bài code (US-PE-06) + 7 liêm chính (US-PE-07) + 11 kết quả / phúc khảo (US-PE-08) + 5 tài liệu (US-P8-01) + 10 chat riêng (US-P3-05) + 10 Threads / from-draft (US-P3-06) + 11 quản lý tài liệu / thư viện (US-P8-02) + 8 lịch / ICS (US-P8-03) + 2 sửa / huỷ buổi học (US-P5-01, proposals #11) + 5 điểm danh / tham gia (US-P5-02, #11) + 17 kiểm duyệt Threads (US-P4-06, #11) + 4 thời gian học (US-P5-03, #11) + 1 danh sách sinh viên (US-P5-04, #11); mỗi story PE sau cộng thêm
+			t.Errorf("openapi.yaml: %d thao tác (cần 216)", n)
 		}
 		// 15 thao tác của PG + 3 route thử của cổng LLM (FEAT-llm-gateway SRS 6.4: chat, stats, fake) + 1 cổng chat (US-PE-07).
 		if n := len(test.Operations()); n != 21 {
@@ -279,7 +279,7 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/courses/{id}/sessions": true, "POST /api/v1/courses/{id}/sessions/generate": true,
 		"PUT /api/v1/courses/{id}/sessions/{sid}": true, "DELETE /api/v1/courses/{id}/sessions/{sid}": true,
 		"GET /api/v1/courses/{id}/sessions/{sid}/attendance": true, "PUT /api/v1/courses/{id}/sessions/{sid}/attendance": true,
-		"POST /api/v1/courses/{id}/participation": true, "GET /api/v1/courses/{id}/participation": true, "DELETE /api/v1/courses/{id}/participation/{pid}": true,
+		"POST /api/v1/courses/{id}/participation": true, "GET /api/v1/courses/{id}/participation": true, "DELETE /api/v1/courses/{id}/participation/{pid}": true, "GET /api/v1/courses/{id}/students": true,
 		"POST /api/v1/activity/heartbeat": true, "POST /api/v1/me/tracking-notice/ack": true, "GET /api/v1/courses/{id}/me/study-time": true, "GET /api/v1/courses/{id}/students/{uid}/study-time": true, "POST /api/v1/courses/{id}/threads/{tid}/report": true, "DELETE /api/v1/courses/{id}/threads/{tid}/report": true, "POST /api/v1/courses/{id}/posts/{pid}/report": true, "DELETE /api/v1/courses/{id}/posts/{pid}/report": true, "GET /api/v1/courses/{id}/moderation/queue": true, "POST /api/v1/courses/{id}/threads/{tid}/hide": true, "POST /api/v1/courses/{id}/threads/{tid}/unhide": true, "POST /api/v1/courses/{id}/threads/{tid}/dismiss-reports": true, "POST /api/v1/courses/{id}/posts/{pid}/hide": true, "POST /api/v1/courses/{id}/posts/{pid}/unhide": true, "POST /api/v1/courses/{id}/posts/{pid}/dismiss-reports": true, "POST /api/v1/courses/{id}/threads/{tid}/pin": true, "POST /api/v1/courses/{id}/threads/{tid}/unpin": true, "PUT /api/v1/courses/{id}/threads/{tid}": true, "DELETE /api/v1/courses/{id}/threads/{tid}": true, "PUT /api/v1/courses/{id}/posts/{pid}": true, "DELETE /api/v1/courses/{id}/posts/{pid}": true,
 		"GET /api/v1/chat/sessions": true, "POST /api/v1/chat/sessions": true, "DELETE /api/v1/chat/sessions/{sid}": true, "POST /api/v1/chat/sessions/{sid}/restore": true,
 		"GET /api/v1/chat/sessions/{sid}/messages": true, "POST /api/v1/chat/sessions/{sid}/messages": true, "GET /api/v1/chat/messages/{mid}/stream": true,

@@ -2337,6 +2337,54 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "503":
           $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/students:
+    get:
+      operationId: listStudents
+      tags: [crm]
+      summary: "Danh sách sinh viên ACTIVE của lớp kèm chuyên cần, phát biểu, thời gian học, hoạt động tuần trước và mức rủi ro (giảng viên / TA). Sắp (rủi ro giảm, tên không dấu, id); cursor, mặc định 50, tối đa 100"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: q
+          in: query
+          required: false
+          description: Tên không dấu / không phân biệt hoa thường (chứa) hoặc MSSV (tiền tố)
+          schema:
+            type: string
+        - name: filter
+          in: query
+          required: false
+          description: "`attention` (AT_RISK), `absent` (vắng ≥ ngưỡng lớp), `inactive` (không hỏi / đăng và ít phút học); lặp hoặc phân tách bằng dấu phẩy = giao"
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang sinh viên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/participation:
     get:
       operationId: listParticipation
@@ -7571,7 +7619,7 @@ components:
         settings:
           type: object
           description: Chỉ GV / TA của lớp (TA chỉ đọc)
-          required: [escalation_threshold, version]
+          required: [escalation_threshold, version, risk]
           additionalProperties: false
           properties:
             escalation_threshold:
@@ -7579,6 +7627,8 @@ components:
               description: "Số thập phân hai chữ số, ví dụ 0.80"
             version:
               type: integer
+            risk:
+              $ref: "#/components/schemas/RiskThresholds"
         counts:
           type: object
           description: Chỉ GV / TA của lớp
@@ -8165,7 +8215,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION]
         title:
           type: string
         reason:
@@ -8245,9 +8295,28 @@ components:
               at:
                 type: string
                 format: date-time
+    TodayAttention:
+      type: object
+      required: [student, course, reason]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+        course:
+          $ref: "#/components/schemas/TodayCourse"
+        reason:
+          type: string
     TodayStaff:
       type: object
-      required: [count, actions, attention, upcoming]
+      required: [count, actions, attention, attention_total, upcoming]
       additionalProperties: false
       properties:
         count:
@@ -8259,7 +8328,12 @@ components:
             $ref: "#/components/schemas/TodayItem"
         attention:
           type: array
-          items: {}
+          maxItems: 5
+          description: Sinh viên AT_RISK mới vào trước; rỗng khi lớp không có ai (giao diện không hiện khối)
+          items:
+            $ref: "#/components/schemas/TodayAttention"
+        attention_total:
+          type: integer
         upcoming:
           type: array
           maxItems: 10
@@ -12001,10 +12075,135 @@ components:
             $ref: "#/components/schemas/FailedMail"
         next_cursor:
           type: [string, "null"]
+    StudentList:
+      type: object
+      required: [items, next_cursor, total]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentRow"
+        next_cursor:
+          type: [string, "null"]
+        total:
+          type: integer
+    StudentRow:
+      type: object
+      required: [student, attendance, participation, study, activity, risk]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name, student_code]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+            student_code:
+              type: [string, "null"]
+        attendance:
+          type: object
+          required: [recorded, present, late, excused, absent]
+          additionalProperties: false
+          properties:
+            recorded:
+              type: integer
+            present:
+              type: integer
+            late:
+              type: integer
+            excused:
+              type: integer
+            absent:
+              type: integer
+        participation:
+          type: object
+          required: [speak_count, points_total]
+          additionalProperties: false
+          properties:
+            speak_count:
+              type: integer
+            points_total:
+              type: string
+        study:
+          type: object
+          required: [minutes_7d, tracked]
+          additionalProperties: false
+          properties:
+            minutes_7d:
+              type: integer
+            tracked:
+              type: boolean
+        activity:
+          type: object
+          description: Tuần trọn trước (T2–CN), lấy từ student_risk
+          required: [asks_last_week, posts_last_week]
+          additionalProperties: false
+          properties:
+            asks_last_week:
+              type: integer
+            posts_last_week:
+              type: integer
+        risk:
+          type: object
+          required: [level, computed_at]
+          additionalProperties: false
+          properties:
+            level:
+              type: string
+              enum: [NONE, WATCH, AT_RISK]
+            computed_at:
+              type: [string, "null"]
+              format: date-time
+    RiskThresholds:
+      type: object
+      description: Ngưỡng cần chú ý của lớp (đã trộn mặc định 0.70 / 1 / 60 / 2 / 3)
+      required: [attendance_ok_min, activity_min_per_week, study_min_minutes, signals_required, absent_alert]
+      additionalProperties: false
+      properties:
+        attendance_ok_min:
+          type: string
+          description: "Tỷ lệ có mặt tối thiểu 0.50–1.00, bước 0.05"
+        activity_min_per_week:
+          type: integer
+          minimum: 0
+          maximum: 20
+        study_min_minutes:
+          type: integer
+          minimum: 0
+          maximum: 600
+        signals_required:
+          type: integer
+          minimum: 1
+          maximum: 3
+        absent_alert:
+          type: integer
+          minimum: 1
+          maximum: 20
+    RiskThresholdsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        attendance_ok_min:
+          type: string
+        activity_min_per_week:
+          type: integer
+        study_min_minutes:
+          type: integer
+        signals_required:
+          type: integer
+        absent_alert:
+          type: integer
     CourseSettingsInput:
       type: object
       required: [version]
       properties:
+        risk:
+          $ref: "#/components/schemas/RiskThresholdsInput"
         escalation_threshold:
           type: string
         allow_study_time_opt_out:

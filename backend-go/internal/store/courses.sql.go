@@ -7,6 +7,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
@@ -1391,6 +1392,44 @@ type UpdateCourseOptOutParams struct {
 // Người gọi đã khoá dòng (LockCourse), kiểm version và kiểm chưa có sinh viên.
 func (q *Queries) UpdateCourseOptOut(ctx context.Context, arg UpdateCourseOptOutParams) (Course, error) {
 	row := q.db.QueryRow(ctx, updateCourseOptOut, arg.Allow, arg.ID)
+	var i Course
+	err := row.Scan(
+		&i.ID,
+		&i.SubjectCode,
+		&i.ClassCode,
+		&i.Name,
+		&i.Semester,
+		&i.Status,
+		&i.EscalationThreshold,
+		&i.Settings,
+		&i.JoinCode,
+		&i.JoinEnabled,
+		&i.JoinExpiresAt,
+		&i.JoinRequireApproval,
+		&i.AllowedEmailDomain,
+		&i.Capacity,
+		&i.CreatedBy,
+		&i.ArchivedAt,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.AllowStudyTimeOptOut,
+	)
+	return i, err
+}
+
+const updateCourseSettings = `-- name: UpdateCourseSettings :one
+update courses set settings = $1, version = version + 1 where id = $2 returning id, subject_code, class_code, name, semester, status, escalation_threshold, settings, join_code, join_enabled, join_expires_at, join_require_approval, allowed_email_domain, capacity, created_by, archived_at, version, created_at, updated_at, allow_study_time_opt_out
+`
+
+type UpdateCourseSettingsParams struct {
+	Settings json.RawMessage
+	ID       uuid.UUID
+}
+
+// Ngưỡng at-risk (US-P5-04 AC6): `courses.settings` đã trộn ở tầng Go; người gọi đã khoá dòng và kiểm version.
+func (q *Queries) UpdateCourseSettings(ctx context.Context, arg UpdateCourseSettingsParams) (Course, error) {
+	row := q.db.QueryRow(ctx, updateCourseSettings, arg.Settings, arg.ID)
 	var i Course
 	err := row.Scan(
 		&i.ID,

@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -31,9 +33,10 @@ var ErrHasStudents = errors.New("course: lớp đã có sinh viên")
 type SettingsIn struct {
 	EscalationThreshold  *string
 	AllowStudyTimeOptOut *bool
+	Risk                 *crm.RiskIn // ngưỡng at-risk (US-P5-04): lưu vào `courses.settings.risk`, rồi outbox `course.settings_changed`
 }
 
-// PutSettings đặt `courses.escalation_threshold` và / hoặc `courses.allow_study_time_opt_out` trong MỘT giao dịch (chỉ giảng viên của lớp; guard ở route).
+// PutSettings đặt `courses.escalation_threshold`, `courses.allow_study_time_opt_out` và / hoặc `courses.settings.risk` trong MỘT giao dịch (chỉ giảng viên của lớp; guard ở route).
 // Ngưỡng: có hiệu lực ở tin kế tiếp (chat đọc mỗi lần), ngoài khoảng / sai bước → 422. Cờ đo thời gian học (Q25): `SELECT … FOR UPDATE`, rồi kiểm KHÔNG có ghi danh sinh viên nào (mọi trạng thái;
 // có → ErrHasStudents, kể cả đổi cùng giá trị cũ) rồi `UPDATE`; ghi danh sinh viên đầu tiên lấy `FOR SHARE` cùng hàng nên hai việc tuần tự hoá. Sai version → ThresholdConflictError.
 // Ghi audit_log (cũ / mới). `courses.version + 1`.
@@ -45,6 +48,11 @@ func (s Service) PutSettings(ctx context.Context, actor, courseID uuid.UUID, ver
 			return Detail{}, invalid("escalation_threshold", "range", "Ngưỡng từ 0,50 đến 0,95, mỗi bước 0,05.")
 		}
 		thr = v
+	}
+	if in.Risk != nil { // kiểm khoảng trước khi mở giao dịch: trộn lên settings rỗng chỉ để bắt trường sai
+		if _, _, _, err := crm.MergeRisk(nil, *in.Risk); err != nil {
+			return Detail{}, riskInvalid(err)
+		}
 	}
 	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
@@ -90,10 +98,27 @@ func (s Service) PutSettings(ctx context.Context, actor, courseID uuid.UUID, ver
 		}
 		before["allow_study_time_opt_out"], after["allow_study_time_opt_out"] = cur.AllowStudyTimeOptOut, upd.AllowStudyTimeOptOut
 	}
+	if in.Risk != nil {
+		merged, was, now, err := crm.MergeRisk(upd.Settings, *in.Risk)
+		if err != nil {
+			return Detail{}, riskInvalid(err)
+		}
+		if upd, err = q.UpdateCourseSettings(ctx, store.UpdateCourseSettingsParams{ID: courseID, Settings: merged}); err != nil {
+			return Detail{}, fmt.Errorf("course: đặt ngưỡng cần chú ý: %w", err)
+		}
+		before["risk"], after["risk"] = was.Values(), now.Values()
+		if _, err := outbox.Write(ctx, tx, crm.TopicSettingsChanged, map[string]string{"course_id": courseID.String()}); err != nil {
+			return Detail{}, fmt.Errorf("course: outbox %s: %w", crm.TopicSettingsChanged, err)
+		}
+	}
 	after["version"] = upd.Version
 	action := "course_threshold_updated"
-	if in.EscalationThreshold == nil {
+	switch {
+	case in.EscalationThreshold != nil:
+	case in.AllowStudyTimeOptOut != nil:
 		action = "course_study_time_opt_out_updated"
+	default:
+		action = "course_risk_updated"
 	}
 	if err := s.audit(ctx, q, courseID, actor, courseID.String(), action, before, after); err != nil {
 		return Detail{}, err
@@ -102,4 +127,13 @@ func (s Service) PutSettings(ctx context.Context, actor, courseID uuid.UUID, ver
 		return Detail{}, fmt.Errorf("course: commit cài đặt: %w", err)
 	}
 	return s.Get(ctx, courseID, "TEACHER", true)
+}
+
+// riskInvalid đổi lỗi khoảng của crm.MergeRisk thành 422 theo trường (`risk.<tên>`); lỗi khác giữ nguyên.
+func riskInvalid(err error) error {
+	var re *crm.RiskError
+	if errors.As(err, &re) {
+		return invalid("risk."+re.Field, "range", re.Message)
+	}
+	return err
 }

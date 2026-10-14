@@ -147,6 +147,8 @@ type Config struct {
 	// Đo thời gian học (US-P5-03, SRS FEAT-crm-360 4.1).
 	HeartbeatMaxPerMinute, StudyDailyCap int
 	HeartbeatCounterTTL, RollupTick      time.Duration
+	// RiskJobAt: giờ chạy `crm.risk` mỗi ngày (RISK_JOB_AT, "HH:MM", múi giờ Asia/Ho_Chi_Minh), tính từ 00:00 (US-P5-04).
+	RiskJobAt time.Duration
 	// SupportResourcesVI: thông tin hỗ trợ trong câu mẫu khủng hoảng (≤ 300 ký tự; rỗng → câu mặc định). Không đi qua Mask.
 	SupportResourcesVI         string
 	ReportAutoHideThreshold    int
@@ -339,6 +341,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.StudyDailyCap = l.num("STUDY_DAILY_CAP", 43200, 3600, 86400)
 	c.HeartbeatCounterTTL = l.durRange("HEARTBEAT_COUNTER_TTL", 192*time.Hour, 48*time.Hour, 30*24*time.Hour)
 	c.RollupTick = l.durRange("ROLLUP_TICK", time.Minute, 10*time.Second, 5*time.Minute)
+	c.RiskJobAt = l.workday("RISK_JOB_AT", "02:00")
 	c.SupportResourcesVI = l.str("SUPPORT_RESOURCES_VI", "")
 	if utf8.RuneCountInString(c.SupportResourcesVI) > 300 {
 		l.bad("SUPPORT_RESOURCES_VI", "tối đa 300 ký tự")

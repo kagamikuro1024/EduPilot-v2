@@ -1292,6 +1292,16 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: gv}, 404)
 	r.must(call{method: "DELETE", path: "/api/v1/courses/" + cid + "/participation/" + uuid.NewString(), token: gv}, 409) // lớp đã lưu trữ
 
+	// danh sách sinh viên (US-P5-04): chỉ giảng viên / TA; filter lạ 422; STUDENT 403 kể cả xem lớp mình
+	sl := "/api/v1/courses/" + c2 + "/students"
+	r.must(call{method: "GET", path: sl + "?filter=attention&limit=5", token: gv}, 200)
+	r.must(call{method: "GET", path: sl + "?q=an", token: ta}, 200)
+	r.must(call{method: "GET", path: sl}, 401)
+	r.must(call{method: "GET", path: sl, token: svIn}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/students", token: gv}, 404)
+	r.must(call{method: "GET", path: sl + "?filter=lac", token: gv}, 422)
+	r.must(call{method: "GET", path: sl + "?cursor=xyz", token: gv}, 422)
+
 	// thời gian học (US-P5-03): heartbeat 204 (kể cả bị bỏ), ack, hai route đọc
 	hbp := "/api/v1/activity/heartbeat"
 	hb := func(course, area string) string {

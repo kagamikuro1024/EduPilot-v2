@@ -186,7 +186,8 @@ const examResultDays = 7
 // StaffProvider: JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP — mỗi nguồn dùng MỘT truy vấn tổng hợp cho mọi lớp trong phạm vi.
 type StaffProvider struct {
 	Pool *pgxpool.Pool
-	SLA  workhours.SLA // mốc quá hạn của mục TICKET (Overdue tự tính từ waiting_since)
+	SLA  workhours.SLA   // mốc quá hạn của mục TICKET (Overdue tự tính từ waiting_since)
+	Attn AttentionSource // US-P5-04: nil = không có STUDENT_ATTENTION / khối attention
 }
 
 // Name implements Provider.
@@ -337,7 +338,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			}))
 		}
 	}
-	return out, nil
+	return append(out, attentionItems(v.attn, courses)...), nil // US-P5-04 (bậc 95)
 }
 
 // ----- Admin -----

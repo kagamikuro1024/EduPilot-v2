@@ -56,6 +56,7 @@ const (
 	KindStaffAnswerUnread Kind = "STAFF_ANSWER_UNREAD"    // US-P4-03: sinh viên có trả lời của giảng viên chưa đọc
 	KindPostReported      Kind = "POST_REPORTED"          // US-P4-06: bài bị báo cáo / tự ẩn chờ duyệt (Giảng viên + TA)
 	KindSessionUnmarked   Kind = "SESSION_UNMARKED"       // US-P5-01: buổi đang diễn ra / vừa kết thúc chưa điểm danh (Giảng viên + TA)
+	KindStudentAttention  Kind = "STUDENT_ATTENTION"      // US-P5-04: sinh viên mới vào diện cần chú ý ≤ 7 ngày (Giảng viên + TA)
 )
 
 // Bậc (số nhỏ = gấp hơn; có chỗ dự trữ cho phase sau) — SRS 4.7.
@@ -86,6 +87,7 @@ const (
 	TierCourseStalled     = 45
 	TierTicket            = 10
 	TierStaffAnswerUnread = 40
+	TierStudentAttention  = 95
 	TierSessionUnmarked   = 12 // 15 đã là TierExamGradeError: hai mục cùng bậc xếp theo tuổi, mất thứ tự chủ đích (TLR-10)
 )
 
@@ -98,7 +100,7 @@ func allowed(role Role, k Kind) bool {
 	switch k {
 	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply:
 		return role == RoleStudent
-	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported:
+	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported, KindStudentAttention:
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher
@@ -130,6 +132,7 @@ type Viewer struct {
 	Courses       []CourseRef
 	Now           time.Time
 	pending       []pendingRef
+	attn          *AttentionSnapshot // US-P5-04: ảnh chụp AT_RISK của yêu cầu này (chỉ Staff)
 	unread        []unreadRef
 }
 

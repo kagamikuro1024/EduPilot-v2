@@ -302,6 +302,10 @@ order by c.class_code, c.id;
 -- Ngưỡng chuyển cho giảng viên (US-P4-05 AC12); người gọi đã khoá dòng và kiểm version.
 update courses set escalation_threshold = sqlc.arg(threshold), version = version + 1 where id = sqlc.arg(id) returning *;
 
+-- name: UpdateCourseSettings :one
+-- Ngưỡng at-risk (US-P5-04 AC6): `courses.settings` đã trộn ở tầng Go; người gọi đã khoá dòng và kiểm version.
+update courses set settings = sqlc.arg(settings), version = version + 1 where id = sqlc.arg(id) returning *;
+
 -- name: CourseHasStudentEnrollment :one
 -- Q25: có ghi danh SINH VIÊN nào không (mọi trạng thái, kể cả PENDING / REMOVED) — điều kiện khoá cờ allow_study_time_opt_out.
 select exists (select 1 from enrollments where course_id = sqlc.arg(course_id) and role_in_course = 'STUDENT')::bool;
