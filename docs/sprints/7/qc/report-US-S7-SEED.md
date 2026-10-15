@@ -1,3 +1,14 @@
+# QC report — US-S7-SEED — **vòng 3 (CUỐI)**
+Ngày 2026-10-16. Commit kiểm: `sprint/7-p4-p5` @ `d134ed52` (code dev `fae3ac00`; CI `38802973582` xanh, cả `9775d5a` `38799300980` xanh). Stack `edupilot100` sạch dựng lại từ nhánh; `seed.mjs` từ DB trống **244 s**.
+## Kết luận vòng 3: **PASS** — 25/25 TC; BUG-S2 và `check-chat-seed` đã đóng
+| Mục | KQ | Bằng chứng |
+| --- | --- | --- |
+| TC-17 (BUG-S2) | **PASS** | `NODE_ENV=production node scripts/seed.mjs` → "Seed bị chặn: NODE_ENV=production. Seed chỉ chạy ở môi trường dev / test.", thoát **1** (kể cả khi `API_URL` trỏ stack thật); `APP_ENV=production` → "Seed bị chặn: APP_ENV=production…", thoát 1; `NODE_ENV=development` → chạy, "Seed xong trong 17 s", thoát 0; chạy lại thường thoát 0 ("không đổi"). `SUPPORT_RESOURCES_VI` có ở `docker-compose.local.yml:127`. `gate-p5.sh` nay có bước "seed.mjs bị chặn khi NODE_ENV hoặc APP_ENV = production" (PASS) |
+| `check-chat-seed.mjs` (#41) | **PASS** | `chat=150 sessions=33 outside=10 threads=12/3 states={"PENDING":4,"REJECTED":1,"CORRECTED":2,"VERIFIED":3,"SKIPPED":2} idempotent=ok` — không còn ✗ (11 hiện + đúng 1 thread tự ẩn có lý do, theo #41) |
+| Giữ từ vòng 2 | PASS | `check-crm-seed.mjs`: 270 / ABSENT 21 / phát biểu 65 / risk 1·2·27 / `tickets=5 {OPEN 2, CLAIMED 1, ANSWERED 1, CLOSED 1}` / hàng chờ 2 / `idempotent=ok`; `check-knowledge-seed.mjs`: `tri thức=6 … có trích dẫn=6` (TC-15); `gate-p5.sh` rc=0 "GATE P5: PASS" (16 bước) |
+
+---
+
 # QC report — US-S7-SEED — **vòng 2** (BUG-S1, TC-15)
 Ngày 2026-10-16. Commit kiểm: `sprint/7-p4-p5` @ `a1ff631e` (code dev `182a6d74`, CI `38797158070` xanh). Stack `edupilot100` **sạch** dựng lại từ nhánh (`down -v`, `up --build --profile ingest`, `--scale gateway=2`); `seed.mjs` từ DB trống **416 s** (docling thật), kết thúc `check-crm-seed.mjs` ok.
 

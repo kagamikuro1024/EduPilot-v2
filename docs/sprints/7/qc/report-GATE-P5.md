@@ -1,4 +1,14 @@
-# QC — báo cáo cổng P5 — **vòng 2** (2026-10-16)
+# QC — báo cáo cổng P5 — **vòng 3 (CUỐI)** (2026-10-16)
+Commit: `sprint/7-p4-p5` @ `d134ed52`; CI `38802973582` xanh. Stack sạch dựng lại từ nhánh. Chạy lại phần đổi ở vòng 3: US-S7-SEED (TC-17, `check-chat-seed`), `gate-p5.sh`.
+## Kết luận cổng P5: **ĐẠT** — mọi dòng PASS
+- G5-32 (SEED): **PASS** — 25/25 TC (BUG-S2 đóng: `NODE_ENV=production` và `APP_ENV=production` đều bị chặn, thoát 1; `check-chat-seed` xanh theo #41). Xem `report-US-S7-SEED.md`.
+- G5-04: `bash scripts/gate-p5.sh` rc=0 "GATE P5: PASS" (16 bước, có bước chặn production mới).
+- Các dòng còn lại: kết quả vòng 2 giữ nguyên (diff vòng 3 chỉ chạm `seed.mjs`, scripts kiểm seed, `gate-p5.sh`, một test seedtool).
+- Ghi nhận không phải điều kiện: `visual.spec.ts` 13 ca đỏ trên macOS (CI Linux xanh); câu mô tả dưới tiêu đề ở `/students`, `/class/settings`, `/settings` mật khẩu (G5-31, PM quyết); tiêu đề thread seed lấy từ chữ trích PDF.
+
+---
+
+# (Vòng 2, đã thay thế) QC — báo cáo cổng P5 — **vòng 2** (2026-10-16)
 Commit: `sprint/7-p4-p5` @ `a1ff631e` (code dev `182a6d74`; CI `38797158070` xanh). Stack sạch dựng lại từ nhánh, seed đầy đủ (416 s). Bộ kiểm như vòng 1; chạy lại đầy đủ phần chạy được: `go-test-all.sh`, `gate-p4.sh`, `gate-p5.sh`, vet / lint / sqlc, Playwright toàn bộ, k6, kiểm chéo trên stack.
 
 ## Kết luận cổng P5 vòng 2: **ĐẠT CÓ ĐIỀU KIỆN** — 1 dòng FAIL mức thấp (G5-32 ← TC-S7-SEED-17); không lỗi chặn
