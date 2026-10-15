@@ -1055,6 +1055,70 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/me/attendance:
+    get:
+      operationId: getMyAttendance
+      tags: [crm]
+      summary: "Chuyên cần của CHÍNH sinh viên (theo user_id JWT): tổng + buổi mới nhất trước, cursor; không ghi chú, người điểm"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang (lớp chưa điểm danh → mọi số 0, sessions rỗng)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyAttendance"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/me/participation:
+    get:
+      operationId: getMyParticipation
+      tags: [crm]
+      summary: "Phát biểu / điểm cộng ĐÃ GHI của CHÍNH sinh viên: tổng + sự kiện mới nhất trước, cursor"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyParticipation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/calendar:
     get:
       operationId: listCalendar
@@ -12536,6 +12600,75 @@ components:
                 enum: [PRESENT, LATE, EXCUSED, ABSENT]
               note:
                 type: [string, "null"]
+        next_cursor:
+          type: [string, "null"]
+    MyAttendance:
+      type: object
+      required: [attendance, next_cursor]
+      additionalProperties: false
+      properties:
+        attendance:
+          type: object
+          required: [recorded, present, late, excused, absent, sessions]
+          additionalProperties: false
+          properties:
+            recorded:
+              type: integer
+            present:
+              type: integer
+            late:
+              type: integer
+            excused:
+              type: integer
+            absent:
+              type: integer
+            sessions:
+              type: array
+              items:
+                type: object
+                required: [session_no, starts_at, status]
+                additionalProperties: false
+                properties:
+                  session_no:
+                    type: integer
+                  starts_at:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    enum: [PRESENT, LATE, EXCUSED, ABSENT]
+        next_cursor:
+          type: [string, "null"]
+    MyParticipation:
+      type: object
+      required: [participation, next_cursor]
+      additionalProperties: false
+      properties:
+        participation:
+          type: object
+          required: [speak_count, points_total, events]
+          additionalProperties: false
+          properties:
+            speak_count:
+              type: integer
+            points_total:
+              type: string
+              pattern: '^-?\d+\.\d{2}$'
+            events:
+              type: array
+              items:
+                type: object
+                required: [date, type, points]
+                additionalProperties: false
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  type:
+                    type: string
+                  points:
+                    type: string
+                    pattern: '^-?\d+\.\d{2}$'
         next_cursor:
           type: [string, "null"]
     Observation:

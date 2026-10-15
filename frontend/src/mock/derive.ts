@@ -102,12 +102,3 @@ export function reviewPending(bt03Status: "draft" | "approved" | "published", ap
     .filter((x) => x.flagKind && !isSubmissionApproved(x, bt03Status, approvedIds))
     .map((x) => x.flagKind!);
 }
-
-// ---- N7: mốc "Cập nhật" của /me -------------------------------------------------------------------------------------------
-
-/** "Thứ Năm, 29 tháng 10 09:20" từ mốc ms giả lập. */
-const WEEKDAY = ["Chủ nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
-export function fmtStamp(ms: number): string {
-  const d = new Date(ms);
-  return `${WEEKDAY[d.getDay()]}, ${d.getDate()} tháng ${d.getMonth() + 1} ${hhmm(d)}`;
-}

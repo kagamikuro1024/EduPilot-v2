@@ -1398,6 +1398,20 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "GET", path: "/api/v1/courses/" + c2 + "/students/khong-phai-uuid/study-time", token: gv}, 404)
 	r.must(call{method: "GET", path: of + "?weeks=21", token: gv}, 422)
 
+	// chuyên cần / phát biểu của CHÍNH sinh viên (US-P5-06)
+	for _, leaf := range []string{"attendance", "participation"} {
+		mp := "/api/v1/courses/" + c2 + "/me/" + leaf
+		r.must(call{method: "GET", path: mp, token: svIn}, 200)
+		r.must(call{method: "GET", path: mp + "?limit=1", token: svIn}, 200)
+		r.must(call{method: "GET", path: mp}, 401)
+		r.must(call{method: "GET", path: mp, token: gv}, 403)
+		r.must(call{method: "GET", path: mp, token: ta}, 403)
+		r.must(call{method: "GET", path: mp, token: admin}, 403)
+		r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/me/" + leaf, token: svIn}, 404)
+		r.must(call{method: "GET", path: mp + "?limit=0", token: svIn}, 422)
+		r.must(call{method: "GET", path: mp + "?cursor=%25%25", token: svIn}, 422)
+	}
+
 	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"
 	r.must(call{method: "POST", path: dm, token: gv}, 204)
 	r.must(call{method: "POST", path: dm, token: gv}, 204)

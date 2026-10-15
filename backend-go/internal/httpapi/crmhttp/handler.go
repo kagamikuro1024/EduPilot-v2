@@ -44,6 +44,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Delete("/courses/{id}/students/{uid}/observations/{oid}", h.deleteObservation)
 	r.With(staff).Post("/courses/{id}/students/{uid}/ai-summary", h.aiSummary)
 	r.With(staff, h.Idem).Post("/courses/{id}/students/{uid}/outreach", h.outreach)
+	h.mountMe(r)
 }
 
 func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
