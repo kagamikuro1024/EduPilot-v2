@@ -1,3 +1,9 @@
+# QC report — US-P5-06 — **chạy lại TC-17** (2026-10-16, `0f9ff865`, CI xanh)
+`/me` đã vào `lighthouserc.json` / `lighthouserc.devtools.json`. QC chạy `pnpm build:gate` rồi `lhci autorun --config=lighthouserc.json` (5 lần mỗi URL, 8 URL, Chrome headless shell của Playwright): **mọi assertion của lhci xanh**; `/me` trung vị: JS **242.819 B** (≤ 250 KB), TBT 10 ms, CLS 0,000, a11y `a11y.spec` 0 vi phạm (140 lượt quét). **LCP mô phỏng 2.707 ms** (TC: ≤ 2,5 s); cấu hình lhci đặt `largest-contentful-paint: "off"` cho mọi route (các route khác 3,2 – 4,1 s) nên ngưỡng không bị ép; `lcp.spec.ts` (`lcp before refresh /me`, #37) xanh — kiểm "không ứng viên LCP mới sau phiên", không đo giây.
+## Kết luận chạy lại: TC-17 **FAIL (thấp)** — LCP 2,7 s mô phỏng vượt 2,5 s của TC; JS và a11y đạt. Story giữ **FAIL** theo luật; PM cho chấp nhận 2,7 s (cổng LCP đang tắt toàn cục) thì đổi PASS.
+
+---
+
 # QC report — US-P5-06 (`/me`: chuyên cần, điểm cộng, thời gian học; không gamify; `/settings`)
 Ngày 2026-10-15 (tối). Commit kiểm: `sprint/7-p4-p5` @ `28ab4fb7`. Bộ TC: `tc-US-P5-06.md` (không sửa chữ TC). Handoff: `dev-US-P5-06.md` (#32 #33 #34). CI `a908fd9` đỏ ở `Frontend Lighthouse (simulate)` (`total-blocking-time`), route không rõ trong log. Dữ liệu thử: lớp `QC risk` (`108503`); `sv05` = "B" (vắng 6/8, 3 lần phát biểu = +0,75 do QC thêm bằng SQL, `note` chứa canary).
 

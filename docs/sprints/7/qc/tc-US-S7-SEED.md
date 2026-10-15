@@ -11,7 +11,7 @@ Biến như `tc-US-P5-01.md`. `seed/expected_crm.csv` (A, B, C: `recorded, prese
 | TC-S7-SEED-05 | AC1 (test của dev) | repo | `cd backend-go && go test -tags integration ./internal/integration -run TestSeedCRMExpected -v` | `ok` |
 | TC-S7-SEED-06 | AC2 (thời gian học 10 tuần) | sau TC-01 | `gateway admin seed-study-time` (cú pháp: xem `Q-QC-S7-01`); `select count(distinct date), count(*) from study_time_daily where course_id='$C1'` | in "N dòng"; `count(distinct date) ≥ 60`; ≈ 70 ngày × 30 SV × 1–3 khu vực |
 | TC-S7-SEED-07 | AC2 (số mẫu) | – | phút học theo tuần của C, A, B, lớp 2 | C tuần 7–9 dưới 60 phút/tuần; A ≈ 300; B ≈ 150; lớp 2 có 3 tuần |
-| TC-S7-SEED-08 | AC2 (chặn môi trường) | – | `APP_ENV=production gateway admin seed-study-time …; echo $?`; `APP_ENV=staging`; `APP_ENV=` (rỗng); `APP_ENV=local` | production/staging/rỗng → thoát **khác 0**, nêu lý do; local → `0`, in "N dòng" |
+| TC-S7-SEED-08 | AC2 (chặn môi trường; theo #35) | – | `APP_ENV=production gateway admin seed-study-time …; echo $?`; `APP_ENV=staging`; `APP_ENV=` (rỗng); `APP_ENV=local`; `APP_ENV=dev`; `APP_ENV=test` | production/staging/`local`/rỗng → thoát **khác 0**, nêu lý do; `dev`, `test` → `0`, in "N dòng" |
 | TC-S7-SEED-09 | AC2 (idempotent) | – | chạy `seed-study-time` lần hai; so `count(*)` và tổng `active_seconds` | không đổi (không nhân đôi) |
 | TC-S7-SEED-10 | AC3 (at-risk C) | seed + `gateway admin crm-risk-run` | `j "$Q/students?filter=attention" -H "$TCH"`; `select level, count(*) from student_risk where course_id='$C1' group by 1` | đúng **1** `AT_RISK` (C) với lý do chuyên cần + thời gian học (câu khớp SRS 4.7.5); đúng **2** `WATCH`; A, B `NONE`; lớp 2 không `AT_RISK` |
 | TC-S7-SEED-11 | AC3 (Hôm nay) | – | `GET /me/today -H "$TCH"`; `playwright-cli` `/` | mục `STUDENT_ATTENTION` "1 sinh viên mới vào diện cần chú ý · 761987"; khối `attention` có Sinh viên C |
@@ -43,3 +43,4 @@ TC-S7-SEED-20, 24.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-10-13: viết lần đầu.
+- 2026-10-16: TC-S7-SEED-08 — spec đổi theo `proposals.md` #35 (ACCEPTED; commit `e8fba173`): lệnh seed chỉ chạy khi `APP_ENV ∈ {dev, test}`; `local` trước đây được phép nay bị chặn.
