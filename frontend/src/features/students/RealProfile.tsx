@@ -5,7 +5,7 @@ import { useState } from "react";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { apiClient } from "@/shared/data";
 import { useCursorList } from "@/shared/data/useCursorList";
-import { Button, ButtonLink, DataTable, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, Panel, PrivateMark, Section, Skeleton, StatusText, Tabs, TrendChart } from "@/shared/ui";
+import { Button, ButtonLink, DataTable, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, Panel, Section, Skeleton, StatusText, Tabs, TrendChart } from "@/shared/ui";
 import { ProfileNotes } from "./ProfileNotes";
 import { ProfileOutreach } from "./ProfileOutreach";
 import { STATUS_LABEL, signedPoints, type AttendanceRow, type Profile } from "./studentsApi";
@@ -65,9 +65,7 @@ export function RealProfile({ courseId, studentId, classCode, userId, canManage 
       ) : (
         <>
           {p.risk.level !== "NONE" && p.risk.sentence && (
-            <InlineNotice tone={p.risk.level === "AT_RISK" ? "warning" : "info"} title={p.risk.sentence}>
-              <PrivateMark />
-            </InlineNotice>
+            <InlineNotice tone={p.risk.level === "AT_RISK" ? "warning" : "info"} title={p.risk.sentence} />
           )}
           {messaging && <ProfileOutreach courseId={courseId} studentId={studentId} name={p.student.full_name} onClose={() => setMessaging(false)} />}
           <Tabs label="Phần hồ sơ" value={tab} onChange={setTab} options={TABS} />

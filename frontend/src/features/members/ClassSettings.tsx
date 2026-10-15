@@ -63,7 +63,7 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
     <Page>
       <PageHeader
         title="Mã và cài đặt tham gia"
-        description={`Lớp ${code}. Chia sẻ mã hoặc liên kết cho sinh viên; bạn quyết định ai được vào.`}
+        description={`Lớp ${code}`}
         actions={<ButtonLink href="/class/members">Thành viên lớp</ButtonLink>}
       />
       <PageState query={{ isPending: q.isPending, isError: q.isError, error: q.error, data: q.data, refetch: q.refetch }} showTechnical>

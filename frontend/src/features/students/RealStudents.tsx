@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useCursorList } from "@/shared/data/useCursorList";
-import { Button, type Column, DataTable, EmptyState, FilterChips, Input, Page, PageHeader, Panel, PrivateMark, Skeleton, StatusText, Toolbar } from "@/shared/ui";
+import { Button, type Column, DataTable, EmptyState, FilterChips, Input, Page, PageHeader, Panel, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { FILTERS, isFilter, signedPoints, type StudentFilter, type StudentRow } from "./studentsApi";
 import s from "./StudentsView.module.css";
 
@@ -82,7 +82,7 @@ export function RealStudents({ courseId, classCode }: { courseId: string; classC
 
   return (
     <Page width="wide">
-      <PageHeader title="Sinh viên" description={total === null ? classCode : `${total} sinh viên · ${classCode}`} meta={<PrivateMark>Chuyên cần và nhãn rủi ro chỉ giảng viên/TA thấy</PrivateMark>} />
+      <PageHeader title="Sinh viên" description={total === null ? classCode : `${total} sinh viên · ${classCode}`} />
       <Panel>
         <Toolbar end={<FilterChips label="Lọc nhanh" value={chips} onChange={(next) => setUrl({ chips: next })} options={FILTERS} />}>
           <label className={s.search}>
