@@ -1344,15 +1344,14 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "DELETE", path: op}, 401)
 	r.must(call{method: "DELETE", path: op, token: gv}, 204)
 	r.must(call{method: "DELETE", path: op, token: gv}, 404)
-	// nhận xét AI: sinh viên chưa có số liệu → 409 (không gọi LLM); có số liệu mà AI chưa cấu hình → 503; quá 10 lượt / giờ → 429
+	// nhận xét AI: sinh viên chưa có số liệu → 409 (không gọi LLM); có số liệu → 200 bản nháp (qua llm.Gateway thật + provider giả; trước đây 503 vì BAD_LANE — QC BUG-A); quá 10 lượt / giờ → 429
 	r.must(call{method: "POST", path: "/api/v1/courses/" + c2 + "/students/" + emptyStudent + "/ai-summary", token: gv}, 409)
 	r.must(call{method: "POST", path: pf + "/ai-summary"}, 401)
 	r.must(call{method: "POST", path: pf + "/ai-summary", token: svIn}, 403)
 	r.must(call{method: "POST", path: ghost + "/ai-summary", token: gv}, 404)
 	ai := func(want int) { r.must(call{method: "POST", path: pf + "/ai-summary", token: ta}, want) }
-	ai(503)
-	for range 9 {
-		ai(503)
+	for range 10 {
+		ai(200)
 	}
 	ai(429)
 	// nhắn sinh viên: Idempotency-Key bắt buộc; 3 tin / ngày
