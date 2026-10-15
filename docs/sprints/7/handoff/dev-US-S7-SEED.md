@@ -46,3 +46,6 @@ node ../scripts/check-crm-seed.mjs && bash ../scripts/gate-p5.sh
 - `rag.SearchStudent` trên bài AI VERIFIED chưa gọi riêng (chỉ đếm `knowledge_items`).
 - Spec nói buổi `attendance_done_at` "buổi 1–9": seed gửi `complete:true` ở cả chín buổi (kiểm bằng `done_at` của phản hồi).
 - `k6 run benchmarks/load/heartbeat.js` đã được QC chạy ở P5-03 (đạt).
+
+## CI
+Run `38782040813` (commit `0f9ff865`) xanh toàn bộ, gồm sửa `TestAdminNotifiedDailyNotOnce` (khoá dedupe ngày) và BUG-S7-03 (#36: `TestStudentNeverSeesConfidence`, `TestMaskConcurrentSameSession`).
