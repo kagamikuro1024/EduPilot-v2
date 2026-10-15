@@ -32,6 +32,7 @@ import (
 	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
 )
@@ -98,8 +99,8 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
-			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Log: d.Log}).Mount(r)           // US-P5-02: điểm danh, phát biểu
-			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r) // US-P5-03: heartbeat, ack, đọc thời gian học
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P5-02: điểm danh, phát biểu
+			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                       // US-P5-03: heartbeat, ack, đọc thời gian học
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
@@ -174,7 +175,16 @@ func activityService(d Deps) *activity.Service {
 }
 
 func crmService(d Deps) *crm.Service {
-	return &crm.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, MaxRows: d.Cfg.AttendanceMaxRows, DefaultSpeakPoints: d.Cfg.ParticipationDefaultPoints}
+	s := &crm.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, MaxRows: d.Cfg.AttendanceMaxRows, DefaultSpeakPoints: d.Cfg.ParticipationDefaultPoints,
+		Redis: d.Redis, AITimeout: d.Cfg.AISummaryTimeout, AIPerHour: d.Cfg.AISummaryPerHour, OutreachPerDay: d.Cfg.OutreachPerDay}
+	if d.LLM != nil {
+		s.LLM = d.LLM.Gateway
+	}
+	if d.Redis != nil { // hồ sơ 360: quét tên / MSSV theo roster của lớp (đầu ra AI, thân tin nhắn)
+		s.PII = &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: d.DB}, Redis: d.Redis, Log: d.Log}}
+	}
+	s.Tickets = &escalation.Service{Pool: d.DB, Log: d.Log, PII: s.PII, Clock: d.Clock, Cfg: escalation.ConfigFrom(d.Cfg)}
+	return s
 }
 
 func calendarService(d Deps) *calendar.Service {

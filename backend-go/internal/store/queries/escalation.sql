@@ -258,3 +258,22 @@ returning *;
 update escalation_tickets set save_as_knowledge = false, version = version + 1
 where course_id = sqlc.arg(course_id) and id = sqlc.arg(id)
 returning *;
+
+-- name: OutreachStudentActive :one
+-- `Nhắn sinh viên`: người nhận phải là sinh viên ACTIVE của đúng lớp này (PENDING / REMOVED / ngoài lớp → từ chối).
+select exists (select 1 from enrollments where course_id = sqlc.arg(course_id) and user_id = sqlc.arg(student_id) and role_in_course = 'STUDENT' and status = 'ACTIVE')::bool;
+
+-- name: OutreachLock :exec
+-- Chặn vượt trần tin / ngày khi hai nhân viên gửi song song tới cùng một sinh viên.
+select pg_advisory_xact_lock(hashtextextended('outreach:' || sqlc.arg(student_id)::text || ':' || sqlc.arg(course_id)::text, 0));
+
+-- name: OutreachCountSince :one
+-- Số tin TEACHER_OUTREACH tới sinh viên từ `since` (mọi nhân viên cộng lại).
+select count(*)::int from escalation_tickets
+where course_id = sqlc.arg(course_id) and student_id = sqlc.arg(student_id) and kind = 'TEACHER_OUTREACH' and created_at >= sqlc.arg(since)::timestamptz;
+
+-- name: TicketInsertOutreach :one
+-- Ticket `TEACHER_OUTREACH` sinh ra ở trạng thái ANSWERED (người gửi vừa là claimed_by vừa là answered_by); không message_id (SRS escalation 4.2.7).
+insert into escalation_tickets (course_id, kind, origin, status, source_type, source_id, session_id, student_id, claimed_by, claimed_at, answer, answered_by, answered_at)
+values (sqlc.arg(course_id), 'TEACHER_OUTREACH', 'STAFF_OUTREACH', 'ANSWERED', 'STUDENT', sqlc.arg(student_id), sqlc.arg(session_id), sqlc.arg(student_id), sqlc.arg(sender), now(), sqlc.arg(body), sqlc.arg(sender), now())
+returning *;

@@ -44,7 +44,7 @@ export function StaffToday() {
             <Section title="Lớp cần chú ý" panel>
               <ActionList label="Sinh viên cần chú ý">
                 {d.attention.map((a) => (
-                  <ActionRow key={`${a.course.id}-${a.student.id}`} title={a.student.full_name} context={a.reason} meta={classLabel(a.course)} href={`/students/${a.student.id}`} />
+                  <ActionRow key={`${a.course.id}-${a.student.id}`} title={a.student.full_name} context={a.reason} meta={classLabel(a.course)} href={`/students/${a.student.id}?course=${a.course.id}`} />
                 ))}
               </ActionList>
               <ButtonLink href={`/students?filter=attention${q.isAll ? "" : `&course=${d.attention[0].course.id}`}`} variant="ghost">

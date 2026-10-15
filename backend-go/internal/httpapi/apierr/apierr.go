@@ -115,6 +115,10 @@ const (
 	SessionDuplicate     = "SESSION_DUPLICATE"
 	SessionHasAttendance = "SESSION_HAS_ATTENDANCE"
 	StudentNotInCourse   = "STUDENT_NOT_IN_COURSE"
+	// Hồ sơ 360 (FEAT-crm-360 SRS 6.5).
+	NotEnoughData    = "NOT_ENOUGH_DATA"
+	OutreachLimit    = "OUTREACH_LIMIT"
+	StudentNotActive = "STUDENT_NOT_ACTIVE"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -357,6 +361,12 @@ func DefaultMessage(code string) string {
 		return "Buổi này đã có điểm danh nên không xoá được."
 	case StudentNotInCourse:
 		return "Có sinh viên không còn trong lớp."
+	case NotEnoughData:
+		return "Sinh viên này chưa có đủ dữ liệu để nhận xét."
+	case OutreachLimit:
+		return "Đã nhắn sinh viên này đủ số tin tối đa hôm nay."
+	case StudentNotActive:
+		return "Sinh viên không còn trong lớp."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

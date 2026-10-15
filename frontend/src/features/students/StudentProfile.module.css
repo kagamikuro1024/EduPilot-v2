@@ -25,3 +25,5 @@
   border-bottom: 1px solid var(--ep-rule);
   max-width: 68ch;
 }
+
+.noteBody { white-space: pre-wrap; overflow-wrap: anywhere; }

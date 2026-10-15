@@ -1292,6 +1292,7 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: gv}, 404)
 	r.must(call{method: "DELETE", path: "/api/v1/courses/" + cid + "/participation/" + uuid.NewString(), token: gv}, 409) // lớp đã lưu trữ
 
+	idemKey := func() map[string]string { return map[string]string{"Idempotency-Key": "ct-" + uuid.NewString()} }
 	// danh sách sinh viên (US-P5-04): chỉ giảng viên / TA; filter lạ 422; STUDENT 403 kể cả xem lớp mình
 	sl := "/api/v1/courses/" + c2 + "/students"
 	r.must(call{method: "GET", path: sl + "?filter=attention&limit=5", token: gv}, 200)
@@ -1301,6 +1302,73 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/students", token: gv}, 404)
 	r.must(call{method: "GET", path: sl + "?filter=lac", token: gv}, 422)
 	r.must(call{method: "GET", path: sl + "?cursor=xyz", token: gv}, 422)
+
+	// hồ sơ 360 (US-P5-05): chỉ giảng viên / TA; STUDENT 403 kể cả xem chính mình
+	var emptyStudent string // sinh viên ACTIVE mới, chưa có bất kỳ số liệu nào
+	if err := db.QueryRow(ctx, `insert into users (email, full_name, role, status) values ('trong.' || gen_random_uuid() || '@example.test', 'Sv Trống', 'STUDENT', 'INVITED') returning id::text`).Scan(&emptyStudent); err != nil {
+		r.t.Fatal(err)
+	}
+	if _, err := db.Exec(ctx, `insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'STUDENT', 'ACTIVE', 'ADMIN')`, c2, emptyStudent); err != nil {
+		r.t.Fatal(err)
+	}
+	pf := "/api/v1/courses/" + c2 + "/students/" + studentID
+	ghost := "/api/v1/courses/" + c2 + "/students/" + uuid.NewString()
+	for _, tail := range []string{"/profile", "/attendance", "/observations"} {
+		r.must(call{method: "GET", path: pf + tail, token: gv}, 200)
+		r.must(call{method: "GET", path: pf + tail}, 401)
+		r.must(call{method: "GET", path: pf + tail, token: svIn}, 403)
+		r.must(call{method: "GET", path: ghost + tail, token: gv}, 404)
+	}
+	r.must(call{method: "GET", path: pf + "/profile", token: ta}, 200)
+	r.must(call{method: "GET", path: pf + "/attendance?cursor=xyz", token: gv}, 422)
+	r.must(call{method: "GET", path: pf + "/observations?limit=0", token: gv}, 422)
+	_, ob := r.must(call{method: "POST", path: pf + "/observations", token: gv, body: `{"tags":["chuyên cần"],"body":"Hay vắng buổi sáng"}`}, 201)
+	var obs struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(ob, &obs); err != nil || obs.ID == "" {
+		r.t.Fatalf("ghi chú: %v %s", err, ob)
+	}
+	r.must(call{method: "POST", path: pf + "/observations", token: gv, body: `{"body":""}`}, 422)
+	r.must(call{method: "POST", path: pf + "/observations", body: `{"body":"x"}`}, 401)
+	r.must(call{method: "POST", path: pf + "/observations", token: svIn, body: `{"body":"x"}`}, 403)
+	r.must(call{method: "POST", path: ghost + "/observations", token: gv, body: `{"body":"x"}`}, 404)
+	op := pf + "/observations/" + obs.ID
+	r.must(call{method: "PUT", path: op, token: ta, body: `{"body":"TA sửa","version":1}`}, 403) // chỉ tác giả
+	r.must(call{method: "PUT", path: op, token: gv, body: `{"body":"Đã sửa","version":1}`}, 200)
+	r.must(call{method: "PUT", path: op, token: gv, body: `{"body":"Sửa lại","version":1}`}, 409)
+	r.must(call{method: "PUT", path: op, token: gv, body: `{"body":"","version":2}`}, 422)
+	r.must(call{method: "PUT", path: op}, 401)
+	r.must(call{method: "PUT", path: pf + "/observations/" + uuid.NewString(), token: gv, body: `{"body":"x","version":1}`}, 404)
+	r.must(call{method: "DELETE", path: op, token: ta}, 403)
+	r.must(call{method: "DELETE", path: op}, 401)
+	r.must(call{method: "DELETE", path: op, token: gv}, 204)
+	r.must(call{method: "DELETE", path: op, token: gv}, 404)
+	// nhận xét AI: sinh viên chưa có số liệu → 409 (không gọi LLM); có số liệu mà AI chưa cấu hình → 503; quá 10 lượt / giờ → 429
+	r.must(call{method: "POST", path: "/api/v1/courses/" + c2 + "/students/" + emptyStudent + "/ai-summary", token: gv}, 409)
+	r.must(call{method: "POST", path: pf + "/ai-summary"}, 401)
+	r.must(call{method: "POST", path: pf + "/ai-summary", token: svIn}, 403)
+	r.must(call{method: "POST", path: ghost + "/ai-summary", token: gv}, 404)
+	ai := func(want int) { r.must(call{method: "POST", path: pf + "/ai-summary", token: ta}, want) }
+	ai(503)
+	for range 9 {
+		ai(503)
+	}
+	ai(429)
+	// nhắn sinh viên: Idempotency-Key bắt buộc; 3 tin / ngày
+	ou := func(tok, p, body string, want int) {
+		r.must(call{method: "POST", path: p + "/outreach", token: tok, headers: idemKey(), body: body}, want)
+	}
+	ou(gv, pf, `{"body":"Em ghé văn phòng khoa giúp thầy nhé."}`, 201)
+	ou(gv, pf, `{"body":""}`, 422)
+	r.must(call{method: "POST", path: pf + "/outreach", token: gv, body: `{"body":"x"}`}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: pf + "/outreach", headers: idemKey(), body: `{"body":"x"}`}, 401)
+	ou(svIn, pf, `{"body":"x"}`, 403)
+	ou(gv, ghost, `{"body":"x"}`, 409) // không phải sinh viên ACTIVE của lớp
+	ou(gv, "/api/v1/courses/"+c2+"/students/khong-phai-uuid", `{"body":"x"}`, 404)
+	ou(gv, pf, `{"body":"Tin thứ hai."}`, 201)
+	ou(gv, pf, `{"body":"Tin thứ ba."}`, 201)
+	ou(gv, pf, `{"body":"Tin thứ tư."}`, 429)
 
 	// thời gian học (US-P5-03): heartbeat 204 (kể cả bị bỏ), ack, hai route đọc
 	hbp := "/api/v1/activity/heartbeat"

@@ -151,6 +151,19 @@ func reasons(used []WeekResult) []Reason {
 	return out
 }
 
+// Phrase là cụm lý do bằng lời của một Reason (SRS 4.7.5): dùng cho câu nhận định và danh sách lý do ở hồ sơ.
+func Phrase(r Reason) string {
+	switch r.Code {
+	case ReasonAttendanceLow:
+		return fmt.Sprintf("vắng %d/%d buổi trong %d tuần gần nhất", r.Values["absent"], r.Values["recorded"], r.Values["weeks"])
+	case ReasonStudyLow:
+		return fmt.Sprintf("học trên EduPilot khoảng %d phút mỗi tuần", r.Values["minutes"])
+	case ReasonActivityLow:
+		return fmt.Sprintf("không hỏi AI hay đăng bài ở Threads trong %d tuần", r.Values["weeks"])
+	}
+	return ""
+}
+
 // Sentence dựng câu nhận định tiếng Việt từ MỘT dữ liệu (reasons đã lưu), SRS 4.7.5: không tên người, không điểm, không nội dung chat. NONE → "".
 func Sentence(level string, rs []Reason) string {
 	var prefix string
@@ -162,20 +175,11 @@ func Sentence(level string, rs []Reason) string {
 	default:
 		return ""
 	}
-	order := []string{ReasonAttendanceLow, ReasonStudyLow, ReasonActivityLow}
 	var parts []string
-	for _, code := range order {
+	for _, code := range []string{ReasonAttendanceLow, ReasonStudyLow, ReasonActivityLow} { // thứ tự: chuyên cần, thời gian học, hoạt động
 		for _, r := range rs {
-			if r.Code != code {
-				continue
-			}
-			switch code {
-			case ReasonAttendanceLow:
-				parts = append(parts, fmt.Sprintf("vắng %d/%d buổi trong %d tuần gần nhất", r.Values["absent"], r.Values["recorded"], r.Values["weeks"]))
-			case ReasonStudyLow:
-				parts = append(parts, fmt.Sprintf("học trên EduPilot khoảng %d phút mỗi tuần", r.Values["minutes"]))
-			case ReasonActivityLow:
-				parts = append(parts, fmt.Sprintf("không hỏi AI hay đăng bài ở Threads trong %d tuần", r.Values["weeks"]))
+			if r.Code == code {
+				parts = append(parts, Phrase(r))
 			}
 		}
 	}

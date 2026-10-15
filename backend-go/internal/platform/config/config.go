@@ -149,6 +149,9 @@ type Config struct {
 	HeartbeatCounterTTL, RollupTick      time.Duration
 	// RiskJobAt: giờ chạy `crm.risk` mỗi ngày (RISK_JOB_AT, "HH:MM", múi giờ Asia/Ho_Chi_Minh), tính từ 00:00 (US-P5-04).
 	RiskJobAt time.Duration
+	// Hồ sơ 360 (US-P5-05): AI_SUMMARY_TIMEOUT, AI_SUMMARY_PER_HOUR (lượt / giờ / người), OUTREACH_PER_DAY (tin / ngày tới một sinh viên).
+	AISummaryTimeout                 time.Duration
+	AISummaryPerHour, OutreachPerDay int
 	// SupportResourcesVI: thông tin hỗ trợ trong câu mẫu khủng hoảng (≤ 300 ký tự; rỗng → câu mặc định). Không đi qua Mask.
 	SupportResourcesVI         string
 	ReportAutoHideThreshold    int
@@ -342,6 +345,9 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.HeartbeatCounterTTL = l.durRange("HEARTBEAT_COUNTER_TTL", 192*time.Hour, 48*time.Hour, 30*24*time.Hour)
 	c.RollupTick = l.durRange("ROLLUP_TICK", time.Minute, 10*time.Second, 5*time.Minute)
 	c.RiskJobAt = l.workday("RISK_JOB_AT", "02:00")
+	c.AISummaryTimeout = l.durRange("AI_SUMMARY_TIMEOUT", 20*time.Second, 5*time.Second, 120*time.Second)
+	c.AISummaryPerHour = l.num("AI_SUMMARY_PER_HOUR", 10, 1, 1000)
+	c.OutreachPerDay = l.num("OUTREACH_PER_DAY", 3, 1, 20)
 	c.SupportResourcesVI = l.str("SUPPORT_RESOURCES_VI", "")
 	if utf8.RuneCountInString(c.SupportResourcesVI) > 300 {
 		l.bad("SUPPORT_RESOURCES_VI", "tối đa 300 ký tự")

@@ -112,27 +112,28 @@ select x.student_id, x.k, (sum(x.asks))::int as asks, (sum(x.posts))::int as pos
 from (
     select m.user_id as student_id, (((m.created_at at time zone 'Asia/Ho_Chi_Minh')::date - $1::date) / 7)::int as k, 1 as asks, 0 as posts
     from chat_messages m join chat_sessions cs on cs.course_id = m.course_id and cs.id = m.session_id
-    where m.course_id = $2 and m.role = 'USER' and cs.deleted_at is null
-      and m.created_at >= $3::timestamptz and m.created_at < $4::timestamptz
+    where m.course_id = $2 and m.role = 'USER' and cs.deleted_at is null and ($3::uuid is null or m.user_id = $3)
+      and m.created_at >= $4::timestamptz and m.created_at < $5::timestamptz
     union all
     select t.author_id, (((t.created_at at time zone 'Asia/Ho_Chi_Minh')::date - $1::date) / 7)::int, 0, 1
     from forum_threads t
-    where t.course_id = $2 and t.deleted_at is null
-      and t.created_at >= $3::timestamptz and t.created_at < $4::timestamptz
+    where t.course_id = $2 and t.deleted_at is null and ($3::uuid is null or t.author_id = $3)
+      and t.created_at >= $4::timestamptz and t.created_at < $5::timestamptz
     union all
     select p.author_id, (((p.created_at at time zone 'Asia/Ho_Chi_Minh')::date - $1::date) / 7)::int, 0, 1
     from forum_posts p
-    where p.course_id = $2 and p.kind = 'HUMAN' and p.deleted_at is null and p.author_id is not null
-      and p.created_at >= $3::timestamptz and p.created_at < $4::timestamptz
+    where p.course_id = $2 and p.kind = 'HUMAN' and p.deleted_at is null and p.author_id is not null and ($3::uuid is null or p.author_id = $3)
+      and p.created_at >= $4::timestamptz and p.created_at < $5::timestamptz
 ) x
 group by x.student_id, x.k
 `
 
 type CrmRiskActivityParams struct {
-	FromDay  pgtype.Date
-	CourseID uuid.UUID
-	FromAt   time.Time
-	ToAt     time.Time
+	FromDay   pgtype.Date
+	CourseID  uuid.UUID
+	StudentID *uuid.UUID
+	FromAt    time.Time
+	ToAt      time.Time
 }
 
 type CrmRiskActivityRow struct {
@@ -148,6 +149,7 @@ func (q *Queries) CrmRiskActivity(ctx context.Context, arg CrmRiskActivityParams
 	rows, err := q.db.Query(ctx, crmRiskActivity,
 		arg.FromDay,
 		arg.CourseID,
+		arg.StudentID,
 		arg.FromAt,
 		arg.ToAt,
 	)
@@ -181,16 +183,17 @@ select a.student_id, (((s.starts_at at time zone 'Asia/Ho_Chi_Minh')::date - $1:
        (count(*) filter (where a.status = 'ABSENT'))::int as absent
 from attendance_records a
 join class_sessions s on s.course_id = a.course_id and s.id = a.session_id
-where a.course_id = $2
-  and s.starts_at >= $3::timestamptz and s.starts_at < $4::timestamptz
+where a.course_id = $2 and ($3::uuid is null or a.student_id = $3)
+  and s.starts_at >= $4::timestamptz and s.starts_at < $5::timestamptz
 group by a.student_id, k
 `
 
 type CrmRiskAttendanceParams struct {
-	FromDay  pgtype.Date
-	CourseID uuid.UUID
-	FromAt   time.Time
-	ToAt     time.Time
+	FromDay   pgtype.Date
+	CourseID  uuid.UUID
+	StudentID *uuid.UUID
+	FromAt    time.Time
+	ToAt      time.Time
 }
 
 type CrmRiskAttendanceRow struct {
@@ -205,6 +208,7 @@ func (q *Queries) CrmRiskAttendance(ctx context.Context, arg CrmRiskAttendancePa
 	rows, err := q.db.Query(ctx, crmRiskAttendance,
 		arg.FromDay,
 		arg.CourseID,
+		arg.StudentID,
 		arg.FromAt,
 		arg.ToAt,
 	)
@@ -298,14 +302,15 @@ func (q *Queries) CrmRiskStudents(ctx context.Context, courseID uuid.UUID) ([]Cr
 const crmRiskStudy = `-- name: CrmRiskStudy :many
 select student_id, (((date - $1::date) / 7))::int as k, (sum(active_seconds))::int as seconds
 from study_time_daily
-where course_id = $2 and date >= $1::date and date < $3::date
+where course_id = $2 and ($3::uuid is null or student_id = $3) and date >= $1::date and date < $4::date
 group by student_id, k
 `
 
 type CrmRiskStudyParams struct {
-	FromDay  pgtype.Date
-	CourseID uuid.UUID
-	ToDay    pgtype.Date
+	FromDay   pgtype.Date
+	CourseID  uuid.UUID
+	StudentID *uuid.UUID
+	ToDay     pgtype.Date
 }
 
 type CrmRiskStudyRow struct {
@@ -315,7 +320,12 @@ type CrmRiskStudyRow struct {
 }
 
 func (q *Queries) CrmRiskStudy(ctx context.Context, arg CrmRiskStudyParams) ([]CrmRiskStudyRow, error) {
-	rows, err := q.db.Query(ctx, crmRiskStudy, arg.FromDay, arg.CourseID, arg.ToDay)
+	rows, err := q.db.Query(ctx, crmRiskStudy,
+		arg.FromDay,
+		arg.CourseID,
+		arg.StudentID,
+		arg.ToDay,
+	)
 	if err != nil {
 		return nil, err
 	}

@@ -25,6 +25,8 @@ func weekStart(t time.Time) time.Time {
 	return d.AddDate(0, 0, -((int(d.Weekday()) + 6) % 7))
 }
 
+func dateOf(t time.Time) pgtype.Date { return pgtype.Date{Time: t, Valid: true} }
+
 // weekJSON là một phần tử của `student_risk.weeks` (SRS 5.5).
 type weekJSON struct {
 	WeekStart  string `json:"week_start"`

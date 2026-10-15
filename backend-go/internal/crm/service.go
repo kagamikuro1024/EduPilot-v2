@@ -16,10 +16,19 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/store"
 )
+
+// Structurer là phần của llm.Gateway mà hồ sơ 360 dùng (đúng MỘT lời gọi `Structured` cho "Nhận xét tổng hợp"); test thay bằng bản giả.
+type Structurer interface {
+	Structured(ctx context.Context, r llm.Request, schema json.RawMessage) (json.RawMessage, error)
+}
 
 // Service là nghiệp vụ điểm danh / tham gia. Không giữ trạng thái giữa các yêu cầu.
 type Service struct {
@@ -30,6 +39,15 @@ type Service struct {
 	MaxRows int
 	// DefaultSpeakPoints = PARTICIPATION_DEFAULT_POINTS; zero = 0,25.
 	DefaultSpeakPoints decimal.Decimal
+
+	// Hồ sơ 360 (US-P5-05). LLM nil ⇒ `ai-summary` trả 503 LLM_UNAVAILABLE; Redis nil ⇒ không giới hạn lượt; Tickets nil ⇒ `outreach` không dùng được.
+	LLM            Structurer
+	PII            *privacy.Detector
+	Redis          *appredis.Client
+	Tickets        *escalation.Service
+	AITimeout      time.Duration // AI_SUMMARY_TIMEOUT (mặc định 20 s)
+	AIPerHour      int           // AI_SUMMARY_PER_HOUR (mặc định 10)
+	OutreachPerDay int           // OUTREACH_PER_DAY (mặc định 3)
 }
 
 func (s *Service) now() time.Time {

@@ -2385,6 +2385,235 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/profile:
+    get:
+      operationId: getStudentProfile
+      tags: [crm]
+      summary: "Hồ sơ 360 của một sinh viên ACTIVE (giảng viên / TA). MỖI LẦN GỌI ghi một dòng audit_log (cùng giao dịch; audit lỗi → 503, không trả dữ liệu); no-store, không ETag"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+      responses:
+        "200":
+          description: Hồ sơ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/students/{uid}/attendance:
+    get:
+      operationId: listStudentAttendance
+      tags: [crm]
+      summary: "Tab Chuyên cần của hồ sơ: buổi đã có dòng điểm danh của sinh viên × trạng thái × ghi chú buổi, mới nhất trước, cursor"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentAttendanceList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/observations:
+    get:
+      operationId: listObservations
+      tags: [crm]
+      summary: "Ghi chú quan sát của sinh viên (mọi nhân viên của lớp đọc được), mới nhất trước, cursor. Ghi audit_log `view_observations` (fail-closed)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObservationList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createObservation
+      tags: [crm]
+      summary: "Thêm ghi chú (tác giả = người gọi). kind NOTE (mặc định) hoặc AI_SUMMARY (lưu nhận xét AI đã soạn; ai_edited = bản lưu khác bản AI)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObservationInput"
+      responses:
+        "201":
+          description: Đã ghi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Observation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/observations/{oid}:
+    put:
+      operationId: updateObservation
+      tags: [crm]
+      summary: "Sửa ghi chú — CHỈ tác giả (người khác 403); sai version 409 kèm bản hiện tại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - $ref: "#/components/parameters/ObservationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObservationInput"
+      responses:
+        "200":
+          description: Đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Observation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteObservation
+      tags: [crm]
+      summary: "Xoá thật ghi chú của chính mình (audit không nội dung)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - $ref: "#/components/parameters/ObservationId"
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/students/{uid}/ai-summary:
+    post:
+      operationId: aiSummaryDraft
+      tags: [crm]
+      summary: "Soạn nhận xét tổng hợp bằng AI từ SỐ LIỆU (không tên / MSSV / nội dung ghi chú hay chat); trả bản nháp, KHÔNG lưu. Chưa có dữ liệu 409 NOT_ENOUGH_DATA; > 10 lượt/giờ/người 429; quá hạn 504; AI hỏng 503"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+      responses:
+        "200":
+          description: Bản nháp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AISummaryResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/students/{uid}/outreach:
+    post:
+      operationId: outreachStudent
+      tags: [crm]
+      summary: "Nhắn sinh viên: ticket TEACHER_OUTREACH đã ANSWERED + tin STAFF_ANSWER trong chat riêng của sinh viên, một giao dịch. Idempotency-Key bắt buộc; PII sinh viên khác 422; > 3 tin/ngày 429 OUTREACH_LIMIT; sinh viên không ACTIVE 409 STUDENT_NOT_ACTIVE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutreachInput"
+      responses:
+        "201":
+          description: Đã gửi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/participation:
     get:
       operationId: listParticipation
@@ -7347,6 +7576,20 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   parameters:
+    StudentUid:
+      name: uid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ObservationId:
+      name: oid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
     CourseId:
       name: id
       in: path
@@ -9475,6 +9718,9 @@ components:
             - SESSION_HAS_ATTENDANCE
             - STUDENT_NOT_IN_COURSE
             - COURSE_HAS_STUDENTS
+            - NOT_ENOUGH_DATA
+            - OUTREACH_LIMIT
+            - STUDENT_NOT_ACTIVE
         message:
           type: string
         trace_id:
@@ -12158,6 +12404,267 @@ components:
               enum: [NONE, WATCH, AT_RISK]
             computed_at:
               type: [string, "null"]
+              format: date-time
+    StudentProfile:
+      type: object
+      required: [student, risk, attendance, participation, study, activity]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name, student_code, joined_at]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+            student_code:
+              type: [string, "null"]
+            joined_at:
+              type: string
+              format: date-time
+        risk:
+          type: object
+          description: Chỉ nhân viên thấy. `sentence` null khi NONE
+          required: [level, sentence, reasons, computed_at]
+          additionalProperties: false
+          properties:
+            level:
+              type: string
+              enum: [NONE, WATCH, AT_RISK]
+            sentence:
+              type: [string, "null"]
+            reasons:
+              type: array
+              items:
+                type: object
+                required: [code, text]
+                additionalProperties: false
+                properties:
+                  code:
+                    type: string
+                  text:
+                    type: string
+            computed_at:
+              type: [string, "null"]
+              format: date-time
+        attendance:
+          type: object
+          required: [recorded, present, late, excused, absent]
+          additionalProperties: false
+          properties:
+            recorded:
+              type: integer
+            present:
+              type: integer
+            late:
+              type: integer
+            excused:
+              type: integer
+            absent:
+              type: integer
+        participation:
+          type: object
+          required: [speak_count, points_total]
+          additionalProperties: false
+          properties:
+            speak_count:
+              type: integer
+            points_total:
+              type: string
+        study:
+          type: object
+          required: [minutes_7d, weeks, tracked]
+          additionalProperties: false
+          properties:
+            minutes_7d:
+              type: integer
+            tracked:
+              type: boolean
+            weeks:
+              type: array
+              description: 8 tuần (thứ Hai đầu tuần), cũ → mới
+              items:
+                type: object
+                required: [week_start, minutes]
+                additionalProperties: false
+                properties:
+                  week_start:
+                    type: string
+                    format: date
+                  minutes:
+                    type: integer
+        activity:
+          type: object
+          description: Tuần trọn trước (T2–CN), lấy từ student_risk
+          required: [asks_last_week, posts_last_week]
+          additionalProperties: false
+          properties:
+            asks_last_week:
+              type: integer
+            posts_last_week:
+              type: integer
+    StudentAttendanceList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [session, status, note]
+            additionalProperties: false
+            properties:
+              session:
+                type: object
+                required: [id, session_no, starts_at]
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  session_no:
+                    type: integer
+                  starts_at:
+                    type: string
+                    format: date-time
+              status:
+                type: string
+                enum: [PRESENT, LATE, EXCUSED, ABSENT]
+              note:
+                type: [string, "null"]
+        next_cursor:
+          type: [string, "null"]
+    Observation:
+      type: object
+      required: [id, author, kind, tags, body, ai_edited, version, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        author:
+          type: object
+          required: [id, full_name]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+        kind:
+          type: string
+          enum: [NOTE, AI_SUMMARY]
+        tags:
+          type: array
+          items:
+            type: string
+        body:
+          type: string
+        ai_edited:
+          type: boolean
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ObservationList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Observation"
+        next_cursor:
+          type: [string, "null"]
+    ObservationInput:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [NOTE, AI_SUMMARY]
+        tags:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+            minLength: 1
+            maxLength: 30
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        ai_edited:
+          type: boolean
+        version:
+          type: integer
+    AISummaryResult:
+      type: object
+      required: [draft]
+      additionalProperties: false
+      properties:
+        draft:
+          type: object
+          required: [summary, strengths, concerns, suggestions]
+          additionalProperties: false
+          properties:
+            summary:
+              type: string
+              maxLength: 600
+            strengths:
+              type: array
+              maxItems: 3
+              items:
+                type: string
+            concerns:
+              type: array
+              maxItems: 3
+              items:
+                type: string
+            suggestions:
+              type: array
+              maxItems: 3
+              items:
+                type: string
+    OutreachInput:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    OutreachResult:
+      type: object
+      required: [ticket]
+      additionalProperties: false
+      properties:
+        ticket:
+          type: object
+          required: [id, kind, status, created_at]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            kind:
+              type: string
+              enum: [TEACHER_OUTREACH]
+            status:
+              type: string
+            created_at:
+              type: string
               format: date-time
     RiskThresholds:
       type: object

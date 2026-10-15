@@ -25,6 +25,7 @@ func Exemptions() []Exemption {
 		{"POST /api/v1/courses/{id}/threads/{tid}/report", 429, "Hạn mức 20 báo cáo / giờ / người: không gọi 21 lần trong kịch bản hợp đồng; `thread.TestReportRateLimit` kiểm bằng hạ ngưỡng."},
 		{"POST /api/v1/courses/{id}/posts/{pid}/report", 429, "Như trên: `thread.TestReportRateLimit`."},
 		{"PUT /api/v1/courses/{id}/sessions/{sid}/attendance", 503, "503 chỉ khi DB không dùng được giữa lúc lưu; không kéo sập Postgres dùng chung của bộ hợp đồng. `crm.TestPutGridDBDownAtomic` kiểm 503 và không ghi nửa chừng bằng pool đã đóng."},
+		{"POST /api/v1/courses/{id}/students/{uid}/ai-summary", 200, "Bộ hợp đồng không dựng runtime LLM (gateway thấy 503 LLM_UNAVAILABLE ở kịch bản); đường 200 + cấu trúc bản nháp do `crm.TestAISummaryOneLLMCall` / `TestAISummaryPayloadHasNoIdentity` kiểm bằng LLM giả."},
 		{"PATCH /api/v1/courses/{id}/documents/{docId}/chunks/{chunkId}", 503, "503 chỉ khi nhúng lỗi; bộ hợp đồng chạy nhà cung cấp `fake` luôn nhúng được. `document.TestEditChunkEmbedFailureKeepsOld` kiểm 503 + giữ nguyên đoạn cũ bằng hàm nhúng lỗi."},
 	}
 }

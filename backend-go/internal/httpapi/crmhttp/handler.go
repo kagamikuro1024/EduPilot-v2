@@ -23,6 +23,7 @@ import (
 type Handler struct {
 	Svc   *crm.Service
 	Guard func(auth.GuardMode) func(http.Handler) http.Handler
+	Idem  func(http.Handler) http.Handler // `Idempotency-Key` bắt buộc (nhắn sinh viên)
 	Log   *slog.Logger
 }
 
@@ -35,6 +36,14 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Get("/courses/{id}/participation", h.listParticipation)
 	r.With(staff).Delete("/courses/{id}/participation/{pid}", h.deleteParticipation)
 	r.With(staff).Get("/courses/{id}/students", h.listStudents)
+	r.With(staff).Get("/courses/{id}/students/{uid}/profile", h.getProfile)
+	r.With(staff).Get("/courses/{id}/students/{uid}/attendance", h.studentAttendance)
+	r.With(staff).Get("/courses/{id}/students/{uid}/observations", h.listObservations)
+	r.With(staff).Post("/courses/{id}/students/{uid}/observations", h.createObservation)
+	r.With(staff).Put("/courses/{id}/students/{uid}/observations/{oid}", h.updateObservation)
+	r.With(staff).Delete("/courses/{id}/students/{uid}/observations/{oid}", h.deleteObservation)
+	r.With(staff).Post("/courses/{id}/students/{uid}/ai-summary", h.aiSummary)
+	r.With(staff, h.Idem).Post("/courses/{id}/students/{uid}/outreach", h.outreach)
 }
 
 func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
@@ -415,4 +424,274 @@ func (h *Handler) listStudents(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Cache-Control", "no-store") // dữ liệu cá nhân (luật 15)
 	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// ---- hồ sơ 360, ghi chú, nhận xét AI, nhắn sinh viên (US-P5-05) ----
+
+func (h *Handler) ids(w http.ResponseWriter, r *http.Request) (course, student, actor uuid.UUID, ok bool) {
+	if course, ok = idParam(w, r, "id"); !ok {
+		return
+	}
+	if student, ok = idParam(w, r, "uid"); !ok {
+		return
+	}
+	actor, ok = actorOf(w, r)
+	return
+}
+
+type profileOut struct {
+	Student struct {
+		ID          uuid.UUID `json:"id"`
+		FullName    string    `json:"full_name"`
+		StudentCode *string   `json:"student_code"`
+		JoinedAt    time.Time `json:"joined_at"`
+	} `json:"student"`
+	Risk struct {
+		Level      string          `json:"level"`
+		Sentence   *string         `json:"sentence"`
+		Reasons    []crm.ReasonOut `json:"reasons"`
+		ComputedAt *time.Time      `json:"computed_at"`
+	} `json:"risk"`
+	Attendance struct {
+		Recorded int `json:"recorded"`
+		Present  int `json:"present"`
+		Late     int `json:"late"`
+		Excused  int `json:"excused"`
+		Absent   int `json:"absent"`
+	} `json:"attendance"`
+	Participation struct {
+		SpeakCount  int    `json:"speak_count"`
+		PointsTotal string `json:"points_total"`
+	} `json:"participation"`
+	Study struct {
+		Minutes7d int             `json:"minutes_7d"`
+		Weeks     []crm.StudyWeek `json:"weeks"`
+		Tracked   bool            `json:"tracked"`
+	} `json:"study"`
+	Activity struct {
+		AsksLastWeek  int `json:"asks_last_week"`
+		PostsLastWeek int `json:"posts_last_week"`
+	} `json:"activity"`
+}
+
+// getProfile: `GET …/students/{uid}/profile` — mỗi LẦN GỌI một dòng audit; no-store, không ETag (TLR-7).
+func (h *Handler) getProfile(w http.ResponseWriter, r *http.Request) {
+	cid, uid, actor, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	p, err := h.Svc.Profile(r.Context(), actor, cid, uid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	var o profileOut
+	o.Student.ID, o.Student.FullName, o.Student.StudentCode, o.Student.JoinedAt = p.StudentID, p.FullName, p.StudentCode, p.JoinedAt
+	o.Risk.Level, o.Risk.Reasons, o.Risk.ComputedAt = p.Level, p.Reasons, p.ComputedAt
+	if p.Sentence != "" {
+		o.Risk.Sentence = &p.Sentence
+	}
+	o.Attendance.Recorded, o.Attendance.Present, o.Attendance.Late, o.Attendance.Excused, o.Attendance.Absent = p.Recorded, p.Present, p.Late, p.Excused, p.Absent
+	o.Participation.SpeakCount, o.Participation.PointsTotal = p.SpeakCount, p.PointsTotal.StringFixed(2)
+	o.Study.Minutes7d, o.Study.Weeks, o.Study.Tracked = p.Minutes7d, p.StudyWeeks, p.Tracked
+	o.Activity.AsksLastWeek, o.Activity.PostsLastWeek = p.Asks, p.Posts
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, o)
+}
+
+type attendanceItemOut struct {
+	Session struct {
+		ID       uuid.UUID `json:"id"`
+		No       int       `json:"session_no"`
+		StartsAt time.Time `json:"starts_at"`
+	} `json:"session"`
+	Status string  `json:"status"`
+	Note   *string `json:"note"`
+}
+
+func (h *Handler) studentAttendance(w http.ResponseWriter, r *http.Request) {
+	cid, uid, _, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	pg, aerr := httpx.ParsePageParams(r)
+	if aerr != nil {
+		apierr.Write(w, r, aerr)
+		return
+	}
+	var at *time.Time
+	var after *uuid.UUID
+	if pg.Cursor != nil {
+		at, after = &pg.Cursor.CreatedAt, &pg.Cursor.ID
+	}
+	rows, err := h.Svc.StudentAttendance(r.Context(), cid, uid, at, after, pg.Limit)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	page := httpx.Paginate(rows, pg, func(x crm.AttendanceItem) (time.Time, string) { return x.StartsAt, x.SessionID.String() })
+	items := make([]attendanceItemOut, len(page.Items))
+	for i, x := range page.Items {
+		items[i].Session.ID, items[i].Session.No, items[i].Session.StartsAt = x.SessionID, x.SessionNo, x.StartsAt
+		items[i].Status, items[i].Note = x.Status, x.Note
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, httpx.Page[attendanceItemOut]{Items: items, NextCursor: page.NextCursor})
+}
+
+type observationOut struct {
+	ID     uuid.UUID `json:"id"`
+	Author struct {
+		ID       uuid.UUID `json:"id"`
+		FullName string    `json:"full_name"`
+	} `json:"author"`
+	Kind      string    `json:"kind"`
+	Tags      []string  `json:"tags"`
+	Body      string    `json:"body"`
+	AIEdited  bool      `json:"ai_edited"`
+	Version   int       `json:"version"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+func obsOut(o crm.Observation) observationOut {
+	x := observationOut{ID: o.ID, Kind: o.Kind, Tags: o.Tags, Body: o.Body, AIEdited: o.AIEdited, Version: o.Version, CreatedAt: o.CreatedAt, UpdatedAt: o.UpdatedAt}
+	x.Author.ID, x.Author.FullName = o.AuthorID, o.AuthorName
+	return x
+}
+
+func (h *Handler) listObservations(w http.ResponseWriter, r *http.Request) {
+	cid, uid, actor, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	pg, aerr := httpx.ParsePageParams(r)
+	if aerr != nil {
+		apierr.Write(w, r, aerr)
+		return
+	}
+	var at *time.Time
+	var after *uuid.UUID
+	if pg.Cursor != nil {
+		at, after = &pg.Cursor.CreatedAt, &pg.Cursor.ID
+	}
+	rows, err := h.Svc.ListObservations(r.Context(), actor, cid, uid, at, after, pg.Limit)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	page := httpx.Paginate(rows, pg, func(x crm.Observation) (time.Time, string) { return x.CreatedAt, x.ID.String() })
+	items := make([]observationOut, len(page.Items))
+	for i, x := range page.Items {
+		items[i] = obsOut(x)
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, httpx.Page[observationOut]{Items: items, NextCursor: page.NextCursor})
+}
+
+type observationBody struct {
+	Kind     string   `json:"kind"`
+	Tags     []string `json:"tags"`
+	Body     string   `json:"body"`
+	AIEdited bool     `json:"ai_edited"`
+	Version  *int     `json:"version"`
+}
+
+func (h *Handler) createObservation(w http.ResponseWriter, r *http.Request) {
+	cid, uid, actor, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	var b observationBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	o, err := h.Svc.CreateObservation(r.Context(), actor, cid, uid, crm.ObservationIn{Kind: b.Kind, Tags: b.Tags, Body: b.Body, AIEdited: b.AIEdited})
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusCreated, obsOut(o))
+}
+
+func (h *Handler) updateObservation(w http.ResponseWriter, r *http.Request) {
+	cid, uid, actor, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	oid, ok := idParam(w, r, "oid")
+	if !ok {
+		return
+	}
+	var b observationBody
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	version, aerr := httpx.WantedVersion(r, b.Version)
+	if aerr != nil {
+		apierr.Write(w, r, aerr)
+		return
+	}
+	o, err := h.Svc.UpdateObservation(r.Context(), actor, cid, uid, oid, crm.ObservationIn{Tags: b.Tags, Body: b.Body, Version: version})
+	var conflict *crm.ObservationConflict
+	if errors.As(err, &conflict) {
+		httpx.WriteVersionConflict(w, r, conflict.Current.Version, obsOut(conflict.Current))
+		return
+	}
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, obsOut(o))
+}
+
+func (h *Handler) deleteObservation(w http.ResponseWriter, r *http.Request) {
+	cid, uid, actor, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	oid, ok := idParam(w, r, "oid")
+	if !ok {
+		return
+	}
+	if err := h.Svc.DeleteObservation(r.Context(), actor, cid, uid, oid); err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) aiSummary(w http.ResponseWriter, r *http.Request) {
+	cid, uid, actor, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	d, err := h.Svc.AISummary(r.Context(), actor, cid, uid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"draft": d})
+}
+
+func (h *Handler) outreach(w http.ResponseWriter, r *http.Request) {
+	cid, uid, actor, ok := h.ids(w, r)
+	if !ok {
+		return
+	}
+	var b struct {
+		Body string `json:"body"`
+	}
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	res, err := h.Svc.Outreach(r.Context(), actor, cid, uid, b.Body)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusCreated, map[string]any{"ticket": map[string]any{"id": res.TicketID, "kind": "TEACHER_OUTREACH", "status": res.Status, "created_at": res.CreatedAt}})
 }

@@ -22,7 +22,7 @@ select a.student_id, (((s.starts_at at time zone 'Asia/Ho_Chi_Minh')::date - sql
        (count(*) filter (where a.status = 'ABSENT'))::int as absent
 from attendance_records a
 join class_sessions s on s.course_id = a.course_id and s.id = a.session_id
-where a.course_id = sqlc.arg(course_id)
+where a.course_id = sqlc.arg(course_id) and (sqlc.narg(student_id)::uuid is null or a.student_id = sqlc.narg(student_id))
   and s.starts_at >= sqlc.arg(from_at)::timestamptz and s.starts_at < sqlc.arg(to_at)::timestamptz
 group by a.student_id, k;
 
@@ -33,17 +33,17 @@ select x.student_id, x.k, (sum(x.asks))::int as asks, (sum(x.posts))::int as pos
 from (
     select m.user_id as student_id, (((m.created_at at time zone 'Asia/Ho_Chi_Minh')::date - sqlc.arg(from_day)::date) / 7)::int as k, 1 as asks, 0 as posts
     from chat_messages m join chat_sessions cs on cs.course_id = m.course_id and cs.id = m.session_id
-    where m.course_id = sqlc.arg(course_id) and m.role = 'USER' and cs.deleted_at is null
+    where m.course_id = sqlc.arg(course_id) and m.role = 'USER' and cs.deleted_at is null and (sqlc.narg(student_id)::uuid is null or m.user_id = sqlc.narg(student_id))
       and m.created_at >= sqlc.arg(from_at)::timestamptz and m.created_at < sqlc.arg(to_at)::timestamptz
     union all
     select t.author_id, (((t.created_at at time zone 'Asia/Ho_Chi_Minh')::date - sqlc.arg(from_day)::date) / 7)::int, 0, 1
     from forum_threads t
-    where t.course_id = sqlc.arg(course_id) and t.deleted_at is null
+    where t.course_id = sqlc.arg(course_id) and t.deleted_at is null and (sqlc.narg(student_id)::uuid is null or t.author_id = sqlc.narg(student_id))
       and t.created_at >= sqlc.arg(from_at)::timestamptz and t.created_at < sqlc.arg(to_at)::timestamptz
     union all
     select p.author_id, (((p.created_at at time zone 'Asia/Ho_Chi_Minh')::date - sqlc.arg(from_day)::date) / 7)::int, 0, 1
     from forum_posts p
-    where p.course_id = sqlc.arg(course_id) and p.kind = 'HUMAN' and p.deleted_at is null and p.author_id is not null
+    where p.course_id = sqlc.arg(course_id) and p.kind = 'HUMAN' and p.deleted_at is null and p.author_id is not null and (sqlc.narg(student_id)::uuid is null or p.author_id = sqlc.narg(student_id))
       and p.created_at >= sqlc.arg(from_at)::timestamptz and p.created_at < sqlc.arg(to_at)::timestamptz
 ) x
 group by x.student_id, x.k;
@@ -51,7 +51,7 @@ group by x.student_id, x.k;
 -- name: CrmRiskStudy :many
 select student_id, (((date - sqlc.arg(from_day)::date) / 7))::int as k, (sum(active_seconds))::int as seconds
 from study_time_daily
-where course_id = sqlc.arg(course_id) and date >= sqlc.arg(from_day)::date and date < sqlc.arg(to_day)::date
+where course_id = sqlc.arg(course_id) and (sqlc.narg(student_id)::uuid is null or student_id = sqlc.narg(student_id)) and date >= sqlc.arg(from_day)::date and date < sqlc.arg(to_day)::date
 group by student_id, k;
 
 -- name: CrmRiskUpsert :exec

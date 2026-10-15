@@ -50,8 +50,9 @@ test("tabular: số trong bảng canh theo chữ số bằng nhau (/gradebook, g
 
 test("diacritics: dấu tiếng Việt không bị cắt ở h1, h2, nút, ô nhập", async ({ page, context }) => {
   await asDemo(context, "teacher");
-  await page.goto("/students");
+  await page.goto("/threads"); // #29: /students không còn mô phỏng; chọn route có ô nhập (/gradebook không có `<input>`)
   await page.locator("[data-part=topbar]").waitFor();
+  await page.locator("input:not([type=checkbox]):not([type=radio]):not([type=hidden])").first().waitFor({ state: "attached" }); // màn nạp lười: chờ ô nhập thật có mặt
   const res = await page.evaluate(() => {
     const text = "Ặ Ế Ộ Ử Ữ Ầ";
     const mk = (tag: string, cls = "") => {

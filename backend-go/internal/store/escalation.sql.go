@@ -162,6 +162,57 @@ func (q *Queries) ListTicketTranscript(ctx context.Context, arg ListTicketTransc
 	return items, nil
 }
 
+const outreachCountSince = `-- name: OutreachCountSince :one
+select count(*)::int from escalation_tickets
+where course_id = $1 and student_id = $2 and kind = 'TEACHER_OUTREACH' and created_at >= $3::timestamptz
+`
+
+type OutreachCountSinceParams struct {
+	CourseID  uuid.UUID
+	StudentID uuid.UUID
+	Since     time.Time
+}
+
+// Số tin TEACHER_OUTREACH tới sinh viên từ `since` (mọi nhân viên cộng lại).
+func (q *Queries) OutreachCountSince(ctx context.Context, arg OutreachCountSinceParams) (int32, error) {
+	row := q.db.QueryRow(ctx, outreachCountSince, arg.CourseID, arg.StudentID, arg.Since)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const outreachLock = `-- name: OutreachLock :exec
+select pg_advisory_xact_lock(hashtextextended('outreach:' || $1::text || ':' || $2::text, 0))
+`
+
+type OutreachLockParams struct {
+	StudentID string
+	CourseID  string
+}
+
+// Chặn vượt trần tin / ngày khi hai nhân viên gửi song song tới cùng một sinh viên.
+func (q *Queries) OutreachLock(ctx context.Context, arg OutreachLockParams) error {
+	_, err := q.db.Exec(ctx, outreachLock, arg.StudentID, arg.CourseID)
+	return err
+}
+
+const outreachStudentActive = `-- name: OutreachStudentActive :one
+select exists (select 1 from enrollments where course_id = $1 and user_id = $2 and role_in_course = 'STUDENT' and status = 'ACTIVE')::bool
+`
+
+type OutreachStudentActiveParams struct {
+	CourseID  uuid.UUID
+	StudentID uuid.UUID
+}
+
+// `Nhắn sinh viên`: người nhận phải là sinh viên ACTIVE của đúng lớp này (PENDING / REMOVED / ngoài lớp → từ chối).
+func (q *Queries) OutreachStudentActive(ctx context.Context, arg OutreachStudentActiveParams) (bool, error) {
+	row := q.db.QueryRow(ctx, outreachStudentActive, arg.CourseID, arg.StudentID)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const ticketAnswer = `-- name: TicketAnswer :one
 update escalation_tickets set status = 'ANSWERED', answer = $1, answered_by = $2, answered_at = now(),
        claimed_by = case when status = 'OPEN' then $2::uuid else claimed_by end, claimed_at = coalesce(claimed_at, now()), version = version + 1
@@ -881,6 +932,63 @@ func (q *Queries) TicketInsert(ctx context.Context, arg TicketInsertParams) (Esc
 		arg.SessionID,
 		arg.StudentID,
 		arg.Confidence,
+	)
+	var i EscalationTicket
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.Kind,
+		&i.Origin,
+		&i.Status,
+		&i.SourceType,
+		&i.SourceID,
+		&i.MessageID,
+		&i.SessionID,
+		&i.StudentID,
+		&i.Confidence,
+		&i.AppealPayload,
+		&i.ClaimedBy,
+		&i.ClaimedAt,
+		&i.Answer,
+		&i.AnsweredBy,
+		&i.AnsweredAt,
+		&i.ClosedAt,
+		&i.ClosedReason,
+		&i.DismissReason,
+		&i.ReopenedCount,
+		&i.SlaStage,
+		&i.SlaStageAt,
+		&i.WaitingSince,
+		&i.SaveAsKnowledge,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const ticketInsertOutreach = `-- name: TicketInsertOutreach :one
+insert into escalation_tickets (course_id, kind, origin, status, source_type, source_id, session_id, student_id, claimed_by, claimed_at, answer, answered_by, answered_at)
+values ($1, 'TEACHER_OUTREACH', 'STAFF_OUTREACH', 'ANSWERED', 'STUDENT', $2, $3, $2, $4, now(), $5, $4, now())
+returning id, course_id, kind, origin, status, source_type, source_id, message_id, session_id, student_id, confidence, appeal_payload, claimed_by, claimed_at, answer, answered_by, answered_at, closed_at, closed_reason, dismiss_reason, reopened_count, sla_stage, sla_stage_at, waiting_since, save_as_knowledge, version, created_at, updated_at
+`
+
+type TicketInsertOutreachParams struct {
+	CourseID  uuid.UUID
+	StudentID uuid.UUID
+	SessionID *uuid.UUID
+	Sender    *uuid.UUID
+	Body      *string
+}
+
+// Ticket `TEACHER_OUTREACH` sinh ra ở trạng thái ANSWERED (người gửi vừa là claimed_by vừa là answered_by); không message_id (SRS escalation 4.2.7).
+func (q *Queries) TicketInsertOutreach(ctx context.Context, arg TicketInsertOutreachParams) (EscalationTicket, error) {
+	row := q.db.QueryRow(ctx, ticketInsertOutreach,
+		arg.CourseID,
+		arg.StudentID,
+		arg.SessionID,
+		arg.Sender,
+		arg.Body,
 	)
 	var i EscalationTicket
 	err := row.Scan(

@@ -252,7 +252,7 @@ test("staff attention block: liệt kê sinh viên + lý do ngắn + Xem tất c
   const att = (i: number) => ({ student: { id: `00000000-0000-7000-8000-00000000b00${i}`, full_name: `Sinh Viên ${i}` }, course: c1, reason: "vắng 3/4 buổi; học ít" });
   await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([], { attention: [att(1), att(2)], attention_total: 7 }));
   await expect(main(page).getByRole("heading", { name: "Lớp cần chú ý" })).toBeVisible();
-  await expect(main(page).getByRole("link", { name: /Sinh Viên 1/ })).toHaveAttribute("href", "/students/00000000-0000-7000-8000-00000000b001");
+  await expect(main(page).getByRole("link", { name: /Sinh Viên 1/ })).toHaveAttribute("href", `/students/00000000-0000-7000-8000-00000000b001?course=${C1}`);
   await expect(main(page).getByText("vắng 3/4 buổi; học ít")).toHaveCount(2);
   await expect(main(page).getByRole("link", { name: "Xem tất cả (7)" })).toHaveAttribute("href", `/students?filter=attention&course=${C1}`);
 });
