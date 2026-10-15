@@ -146,11 +146,11 @@ func (s *Service) AISummary(ctx context.Context, actor, courseID, studentID uuid
 	if err != nil {
 		return AISummaryDraft{}, fmt.Errorf("crm: mã hoá số liệu: %w", err)
 	}
-	lane := llm.LaneNearRealtime
 	temp := 0.3
 	cctx, cancel := context.WithTimeout(llm.WithIdentity(ctx, llm.Identity{UserID: &actor, CourseID: &courseID}), s.aiTimeout())
 	defer cancel()
-	raw, err := s.LLM.Structured(cctx, llm.Request{Task: llm.TaskInsight, Lane: &lane, Params: llm.Params{Temperature: &temp},
+	// UTILITY: làn mặc định NEAR_REALTIME ("tóm tắt, việc nhỏ", SRS llm-gateway 4.3). INSIGHT mặc định BATCH và ResolveLane chỉ cho HẠ làn, nên INSIGHT + NEAR_REALTIME luôn `BAD_LANE` (QC BUG-A).
+	raw, err := s.LLM.Structured(cctx, llm.Request{Task: llm.TaskUtility, Params: llm.Params{Temperature: &temp},
 		Messages: []llm.Message{{Role: "system", Content: aiSystem}, {Role: "user", Content: string(payload)}}}, json.RawMessage(aiSchema))
 	if err != nil {
 		var over *llm.ErrOverloaded

@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/llm/fake"
 	"github.com/edupilot/backend-go/internal/privacy"
 )
 
@@ -271,7 +272,7 @@ func (w world) dataFor(i int) {
 	w.r.exec(`insert into participation_events (course_id, student_id, type, points, client_event_id, created_by) values ($1, $2, 'SPEAK', 0.25, gen_random_uuid(), $3)`, w.course, w.students[i].ID, w.teacher.ID)
 }
 
-// TestAISummaryPayloadHasNoIdentity + OneLLMCall: đầu vào chỉ là số liệu — không tên / MSSV / email / nội dung ghi chú — và đúng MỘT lời gọi INSIGHT làn NEAR_REALTIME.
+// TestAISummaryPayloadHasNoIdentity + OneLLMCall: đầu vào chỉ là số liệu — không tên / MSSV / email / nội dung ghi chú — và đúng MỘT lời gọi UTILITY (làn mặc định NEAR_REALTIME).
 func TestAISummaryPayloadHasNoIdentity(t *testing.T) {
 	r := newRig(t)
 	w := r.world(1)
@@ -286,9 +287,9 @@ func TestAISummaryPayloadHasNoIdentity(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, 1, stub.calls, "đúng MỘT lời gọi LLM")
 	req := stub.reqs[0]
-	require.Equal(t, llm.TaskInsight, req.Task)
-	require.NotNil(t, req.Lane)
-	require.Equal(t, llm.LaneNearRealtime, *req.Lane)
+	require.Equal(t, llm.TaskUtility, req.Task, "UTILITY: làn mặc định NEAR_REALTIME (INSIGHT mặc định BATCH, không nâng được — BUG-A)")
+	require.Nil(t, req.Lane, "không xin làn: dùng mặc định của tác vụ")
+	require.Equal(t, llm.LaneNearRealtime, llm.DefaultLane(req.Task))
 	var all strings.Builder
 	for _, m := range req.Messages {
 		all.WriteString(m.Content)
@@ -385,4 +386,29 @@ func TestAISummaryEditedFlag(t *testing.T) {
 
 func piiFor(r *rig) *privacy.Detector {
 	return &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: r.pool}, Redis: r.rdb, Log: slog.New(slog.NewTextHandler(io.Discard, nil))}}
+}
+
+// TestAISummaryThroughRealGateway — QC BUG-A: đi qua llm.Gateway THẬT (registry + provider giả + Auditor ghi `llm_audit`), không dùng Structurer giả.
+// `ResolveLane` chỉ cho HẠ làn so với mặc định nên tác vụ + làn của "Nhận xét tổng hợp" phải hợp lệ ở cổng thật: có bản nháp, đúng một lời gọi tới provider,
+// `llm_audit` ghi `UTILITY | NEAR_REALTIME | ok`, không `BAD_LANE`.
+func TestAISummaryThroughRealGateway(t *testing.T) {
+	r := newRig(t)
+	w := r.world(1)
+	w.dataFor(0)
+	ctx := t.Context()
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	reg := llm.NewRegistry(nil, llm.EnvConfig{Provider: "fake", Fake: fake.Settings{StreamDelay: 1}}, nil, log)
+	require.NoError(t, reg.Load(ctx))
+	aud := llm.NewAuditor(ctx, llm.PGWriter(r.pool), log)
+	g := llm.New(llm.Options{Registry: reg, Auditor: aud, NoMask: true, Log: log})
+	svc := r.svc()
+	svc.LLM = g
+	d, err := svc.AISummary(ctx, w.teacher.ID, w.course, w.students[0].ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, d.Summary, "bản nháp phải có chữ")
+	require.EqualValues(t, 1, reg.Fake().Calls(), "đúng MỘT lời gọi tới provider")
+	aud.Close(ctx)
+	var task, lane, status, kind string
+	require.NoError(t, r.pool.QueryRow(ctx, `select task, lane, status, coalesce(error_kind, '') from llm_audit order by created_at desc limit 1`).Scan(&task, &lane, &status, &kind))
+	require.Equal(t, [4]string{"UTILITY", "NEAR_REALTIME", "ok", ""}, [4]string{task, lane, status, kind})
 }

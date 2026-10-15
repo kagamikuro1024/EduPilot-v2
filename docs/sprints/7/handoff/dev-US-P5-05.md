@@ -30,3 +30,11 @@ bash ../scripts/ui-antipatterns.sh                   # rc=0
 ## Cần PM / nợ
 - `visual.spec.ts` 13 ca đỏ trên máy dev macOS 27 (cả `dev-ui`, tĩnh): lệch dựng ảnh của máy, không liên quan; chờ CI Linux.
 - `docs/ARCHITECTURE.md` (BA): env `AI_SUMMARY_TIMEOUT`, `AI_SUMMARY_PER_HOUR`, `OUTREACH_PER_DAY`; 8 route hồ sơ.
+
+## Vòng 2 (sửa theo `qc/report-US-P5-05.md` vòng 1)
+Commit `US-P5-05: vòng 2 (BUG-A)`.
+- **BUG-A (cao): `ai-summary` luôn `503`.** Gốc: `aisummary.go` xin `INSIGHT` + `NEAR_REALTIME`; mặc định của `INSIGHT` là `BATCH` và `llm.ResolveLane` chỉ cho HẠ làn (số làn lớn hơn mặc định) ⇒ `ErrBadLane` ⇒ `llm_audit` `INSIGHT | BATCH | error | BAD_LANE`, không lời gọi nào tới provider; test của vòng 1 dùng `Structurer` giả nên không bắt.
+- **Sửa:** dùng task `UTILITY` (đã có, làn mặc định `NEAR_REALTIME`, SRS llm-gateway 4.3 ghi "tóm tắt, đặt tên, việc nhỏ"), không xin làn. Không đổi schema, không đổi `ResolveLane` hay bảng làn (các test ghim "không nâng INSIGHT" giữ nguyên). Hệ quả cho tài liệu: crm-360 AC5 / SRS 4.8.5 ghi "task `INSIGHT`" → BA sửa thành `UTILITY` (làn `NEAR_REALTIME` giữ nguyên). Tuyến mô hình của `UTILITY` chọn ở `/settings/llm` (dòng `UTILITY`), không còn dùng dòng `INSIGHT` cho việc này.
+- **Test:** `profile_test.go` `TestAISummaryPayloadHasNoIdentity` đổi khẳng định task / làn theo trên (test sprint 7 của chính story, giữ mọi khẳng định về danh tính). Thêm `TestAISummaryThroughRealGateway`: `llm.Gateway` thật (registry + provider giả + `Auditor` ghi `llm_audit`) — có bản nháp, đúng MỘT lời gọi tới provider, `llm_audit` = `UTILITY | NEAR_REALTIME | ok`. Đã chứng minh đỏ trên mã cũ (INSIGHT + `NEAR_REALTIME` → lỗi) và xanh trên mã mới.
+- TC-16…21 và E1 của QC giờ kiểm được trên gateway thật (`GET /_test/llm/stats` `fake_calls` tăng 1 mỗi lần soạn).
+- Lệnh QC chạy: `go test -count=1 -race -tags testroutes ./internal/crm -run 'TestAISummary' -v`.
