@@ -118,14 +118,19 @@ test("me offline keeps content: lỗi khi làm mới không xoá nội dung đã
   await expect(page.getByText("Bạn có mặt 7/9 buổi, vắng 2.")).toBeVisible();
 });
 
-test("me staff blocked: giảng viên / TA vào /me thấy màn chặn quyền (không chuyển hướng) và không gọi API của sinh viên", async ({ page, context }) => {
-  await context.clearCookies();
-  await page.unrouteAll({ behavior: "ignoreErrors" });
-  await asDemo(context, "teacher");
-  const calls = await api(page, COURSE);
-  await page.goto("/me");
-  await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" })).toBeVisible();
-  expect(calls).toEqual([]);
+test("me staff blocked: TA / giảng viên / admin vào /me thấy màn chặn chung (không chuyển hướng), có nút Về Hôm nay, không gọi API của sinh viên", async ({ page, context }) => {
+  for (const role of ["teacher", "ta", "admin"] as const) {
+    await context.clearCookies();
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    await asDemo(context, role);
+    const calls = await api(page, COURSE);
+    await page.goto("/me");
+    await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" }), role).toBeVisible();
+    await expect(page).toHaveURL(/\/me$/);
+    expect(calls, role).toEqual([]);
+    await page.getByRole("link", { name: "Về Hôm nay" }).click();
+    await expect(page).toHaveURL(/\/$/);
+  }
 });
 
 test("me two courses isolated: đổi lớp ở bộ chọn → số đổi theo, không lẫn", async ({ page, context }) => {

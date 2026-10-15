@@ -12,7 +12,7 @@ Nhánh: `sprint/7-p4-p5`. Commit: `US-P5-06: …`. Số ghim: `#11` (contract 22
 - Test cũ (`#32` B, `#33`): `panels.spec.ts` ba ca có `/me` (16 route Sinh viên; "/chat, /threads, … /me, /calendar"; "mobile gutter" @375 và @390) thêm `mockMe(page)` (`e2e/support/meMock.ts`); mọi khẳng định giữ nguyên.
 
 ## Chưa làm / khác spec
-- AC8 "TA / TEACHER / ADMIN vào `/me` được chuyển về `/`": thực tế là màn "Bạn không có quyền xem màn này" (khung ứng dụng từ sprint PU, không phải code của story này); `me staff blocked` khẳng định hành vi hiện có và không gọi API của sinh viên. Cần PM chọn: sửa spec cho khớp hoặc thêm chuyển hướng ở `AppShell`.
+- AC8: PM chốt #34 — màn chặn chung của khung ("Bạn không có quyền xem màn này" + nút `Về Hôm nay`), không chuyển hướng riêng; `me staff blocked` kiểm cả ba vai (teacher, ta, admin): URL giữ `/me`, bấm nút → `/`, không gọi API sinh viên.
 - AC4 vế e2e `me matches chat after teacher records speak` (hai ngữ cảnh, chat thật + giảng viên ghi phát biểu) và `lhci` route `/me`: cần stack đã seed (US-S7-SEED); phần máy chủ đã có `TestMeNotCached`, `TestToolMyParticipation`. Lighthouse chạy ở CI.
 - AC10 (`/settings` công tắc theo lớp, hai lớp khác cấu hình) đã được `activity.spec.ts` của US-P5-03 phủ; `me two courses isolated` phủ phần `/me` "Đang tắt" ở lớp khoá-đo-tắt.
 
