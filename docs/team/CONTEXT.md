@@ -10,7 +10,7 @@ Người dùng: sinh viên (chủ yếu điện thoại), trợ giảng và gi�
 ## 2. Đang ở đâu
 - Repo: `github.com/kagamikuro1024/EduPilot-v2` (public, 2026-10-09). Repo cũ `TA_Agent_v2` đã bỏ: **không push lên đó, không push nhánh có lịch sử cũ** (lịch sử cũ chứa secret của Project III).
 - Lộ trình 11 sprint + 1.5 + 5.5: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
-- **Việc hiện tại:** sprint 7 (P4 Escalation + Mail, P5 CRM + 360), nhánh `sprint/7-p4-p5`, worktree `../TA_Agent_v2-s7`, kế hoạch `docs/sprints/7/plan.md`. `main` = sprint 1 → 6.
+- **Việc hiện tại:** sprint 7 (P4 + P5) xong, cổng P4 và P5 ĐẠT, chờ chủ dự án chốt để merge; kế tiếp sprint 8 (P6). `main` = sprint 1 → 6. Worktree: dev `../TA_Agent_v2-s7`, PM `../TA_Agent_v2-s6` (detached), BA `/tmp/ba-wt`; không làm trong worktree của vai khác.
 - Prototype sprint 1.5 là MOCK (D51): màn mock được thay dần bằng màn thật; spec thật ở `docs/specs/<FEAT>/` thắng spec prototype `docs/sprints/1.5/spec/`. Sprint 7 thay mock của `/inbox`, `/attendance`, `/students`, `/students/[id]`, `/me`.
 
 ## 3. Đã chốt — không mở lại
