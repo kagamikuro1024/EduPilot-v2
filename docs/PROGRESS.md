@@ -76,6 +76,8 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☐ · F5 ☐ · F6 ☑ (sprint 6) �
 | 00011 | calendar | P8 (US-P8-03; số 00009 bỏ trống, proposals #13) |
 | 00012 | escalation_notify | P4 (US-P4-01; số `00007` trong phase file đã bị `chat_threads` dùng) |
 | 00013 | crm | P5 (US-P5-01; số `00008` trong phase file đã bị `privacy` dùng; proposals #5) |
+| 00014 | forum_ai_regen | P4 (US-P4-06; proposals #25) |
+| 00015 | observation | P5 (US-P5-03; số `00009` trong phase file; proposals #5, #25) |
 
 ## Việc chỉ chủ dự án làm được
 - [x] API key ≥ 2 provider LLM (OpenAI + Gemini, 2026-10-03; nên xoay khoá vì đã dán trong chat, đặt trần chi phí)
