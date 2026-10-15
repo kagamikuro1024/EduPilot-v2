@@ -39,6 +39,9 @@ func TestHeartbeatLatency(t *testing.T) {
 	r := newRig(t)
 	w := r.world(true)
 	s := w.student(true)
+	// 201 nhịp = 100 phút đồng hồ giả: đặt giữa ngày giờ Việt Nam để khoá "ngày" không đổi giữa chừng (chạy sau ~22:20 ICT thì tổng giây của "hôm nay" bị cắt đôi).
+	nowICT := r.clk.Now().In(ict)
+	r.clk.Set(time.Date(nowICT.Year(), nowICT.Month(), nowICT.Day(), 10, 0, 0, 0, ict))
 	require.NoError(t, r.beat(s.u.ID, w.course, "CHAT")) // nóng đệm
 	lat := make([]time.Duration, 0, 200)
 	for range 200 {
