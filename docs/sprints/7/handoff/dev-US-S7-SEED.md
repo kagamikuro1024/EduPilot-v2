@@ -49,3 +49,28 @@ node ../scripts/check-crm-seed.mjs && bash ../scripts/gate-p5.sh
 
 ## CI
 Run `38782040813` (commit `0f9ff865`) xanh toàn bộ, gồm sửa `TestAdminNotifiedDailyNotOnce` (khoá dedupe ngày) và BUG-S7-03 (#36: `TestStudentNeverSeesConfidence`, `TestMaskConcurrentSameSession`).
+
+## Vòng 2 (BUG-S1, #40, TimingEqualized)
+Theo `proposals.md`: BUG-S1 (PM), #40 (ACCEPTED). Stack sạch `down -v` → `up --build --profile ingest` → `seed.mjs` từ DB trống 250 s.
+
+### BUG-S1 — đúng 5 ticket, B không có ticket
+- **Gốc**: `LLM_PROVIDER=fake` nhúng bằng băm của CẢ chuỗi (`fake.Vector`), không có ngữ nghĩa ⇒ mọi câu hỏi tự nhiên có cosine < `RAG_SIM_FLOOR` (0,25) ⇒ `NoContext` ⇒ `low_confidence` ⇒ `ShouldEscalate` tự mở một ticket mỗi câu (không có công tắc tắt). Bước 12 chạy ≈ 140 câu về chủ đề tài liệu ⇒ 126 ticket. Không thể "câu mẫu trả lời được" bằng câu tự nhiên với provider giả (cosine chỉ = 1 khi chuỗi y hệt đoạn tài liệu).
+- **Sửa**: lựa chọn thứ hai của PM — lịch sử chat ghi thẳng: `gateway admin seed-chat --course 761987 --weeks 10 --plan -` (JSON qua stdin, cùng allowlist `APP_ENV ∈ {dev, test}`; `internal/seedtool/chat.go`). Id suy từ khoá (SHA-1) nên chạy lại không thêm gì; mốc thời gian rải theo băm trong 10 tuần (một phiên một ngày). Tin đáp `COURSE_QA`, `confidence 0,900` (câu ngoài tài liệu: `no_context`, `low_confidence`, 0,150), KHÔNG ticket, không `llm_audit`. `seed.mjs` bước 12 chỉ dựng kế hoạch (cùng 150 câu, cùng phân phối phiên: sv.gioi 4 phiên) rồi gọi lệnh này.
+- **Kết quả** (`check-crm-seed.mjs`, thêm hai khẳng định: `tickets === 5`, B không có ticket): `tickets=5 {"OPEN":2,"CLAIMED":1,"ANSWERED":1,"CLOSED":1}` — sv14 OPEN, sv15 OPEN (quá hạn), sv16 CLAIMED, sv17 ANSWERED, sv18 CLOSED, đều `STUDENT_REQUEST`; risk vẫn AT_RISK 1 / WATCH 2 / NONE 27; chạy lại `idempotent=ok`; `check-chat-seed`: chat=150, outside=10, phiên ≥ 33 đạt.
+- Test mới `TestSeedChatNoTickets` (ghi hai lần, 0 ticket, câu ngoài tài liệu `no_context`, mốc ≤ hôm nay, sinh viên không ACTIVE → lỗi).
+- **Mất so với trước**: lịch sử chat seed không đi qua `llm_audit` / mask nữa (không còn dữ liệu chi phí LLM từ chat seed). Nếu QC / spec cần dòng `llm_audit` cho chat mẫu thì phải dùng provider thật.
+
+### TC-15 — vì sao `citations: []`
+- Không phải lỗi nạp tri thức: `knowledge_items` có 6 (5 bài AI VERIFIED / CORRECTED + 1 ticket), đã nhúng. Đoạn tri thức được nhúng là `"Câu hỏi: <tiêu đề>\n<nội dung>\nTrả lời: <đáp>"` (`knowledge.chunkText`); với provider giả chỉ chuỗi y hệt mới có cosine 1. Hỏi bằng tiêu đề thread ⇒ cosine ≈ 0 ⇒ `citations: []`, `low_confidence: true` (đúng như QC thấy). Với embedding thật điều này không xảy ra.
+- Kiểm bằng đúng chữ đoạn tri thức (đọc từ Postgres): `node scripts/check-knowledge-seed.mjs` → `tri thức=6 (POST 5, TICKET 1) có trích dẫn=6`; mỗi câu trả về citation `"Hỏi đáp đã được giảng viên xác nhận"`, không `low_confidence`. Cần `docker compose … exec postgres psql` (đặt `SEED_PSQL_CMD` nếu stack không phải project `edupilot`). Script xoá phiên thử; chạy lần hai cùng câu hỏi thì trả từ cache câu trả lời (`agent.Cache`, theo lớp, chỉ giữ chữ, `citations` rỗng) — script chấp nhận khi chữ vẫn mang tên tài liệu.
+- Tiêu đề 5 thread seed lấy từ chữ trích PDF (dòng đầu đoạn) nên xấu ("ĐẠI HỌC QUỐC GIA HÀ NỘI TRƯỜNG QUÓC TÉ …"): do `threadFromChunk` cần chuỗi y hệt đoạn cho AI trả lời với provider giả. Không đổi.
+- Hệ quả đã biết: `check-chat-seed.mjs` (sprint 6) đòi 12 thread hiện ở lớp 1, nhưng bước 17 (SEED) cố ý tự ẩn một thread (3 báo cáo) nên script báo 11 / PENDING 3. Không nằm trong `gate-p4` / `gate-p5`; chưa sửa script cũ.
+
+### #40 — `POST …/observations` tôn trọng `Idempotency-Key`
+- `crmhttp.Handler.OptIdem` = `OptionalIdempotencyKey(d)` gắn vào route; **tuỳ chọn** chứ không bắt buộc: seed, e2e, kịch bản hợp đồng và client cũ không gửi khoá (frontend `apiClient.post` luôn gửi khoá nên đã được phủ). OpenAPI: tham số `Idempotency-Key` (`required: false`) + câu mô tả.
+- `TestObservationIdempotencyKey`: cùng khoá + cùng thân → một dòng, phản hồi phát lại đúng id; cùng khoá + thân khác → 422, vẫn một dòng; khoá khác → dòng mới; không khoá → như cũ. Đã chạy: đỏ khi bỏ `OptIdem` (id khác nhau), xanh khi có.
+
+### `TestJoinFailureTimingEqualized` — không đổi mã, không đổi test
+- Gốc đã được TL-3 (sprint 5, `techlead.md`) phân tích: đo trung vị sub-ms (0,5–1,1 ms; `Scan` ~20 trường chậm hơn nhiều lần dưới `-race`) trên máy dùng chung — nhiễu 0,2–0,6 ms vượt 35 %. `lookupByCode` đã một truy vấn + một quyết định gộp cho cả sáu nguyên nhân. Quy trình được duyệt: bước song song `EP_SKIP_TIMING=1` (bỏ các test `*TimingEqualized`), rồi chạy riêng tuần tự `-p 1 -count=3` không `-race` (`ci.yml`). Lượt đỏ của QC (0,633) là `go test -race ./...` trần không `EP_SKIP_TIMING` — ngoài quy trình đó.
+- Không tái hiện được dù cố ý: 28 lượt `-race` dưới 22–44 vòng lặp bận / song song với gói `contract`, `escalation`, `crm`, `thread`, `exam`, `GOMAXPROCS=2` — đều xanh. Bước tuần tự đúng quy trình: `go test -p 1 -count=3 -tags testroutes -run 'TimingEqualized$' ./internal/auth/ ./internal/course/` → ok (auth 25 s, course 2,7 s).
+- Thêm `scripts/go-test-all.sh` (hai bước trên, y hệt CI) để QC / dev khỏi chạy `go test -race ./...` trần. Nếu muốn chuyển phép đo sang đếm truy vấn tất định thì là (a) của TL-3 và cần proposal; chưa làm.
