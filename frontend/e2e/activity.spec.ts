@@ -256,3 +256,22 @@ test("class settings opt out TA read-only", async ({ page, context }) => {
   await classSettings(page, context, "ta", detail({ allow: true, students: 0 }));
   await expect(page.getByRole("switch", { name: "Cho sinh viên tắt đo thời gian học" })).toBeDisabled();
 });
+
+// QC N1: sau một thao tác đơn lẻ, nhịp phải đều 30 s (không xen kẽ ≈ 15 s) và dừng ở mốc idle 120 s (không nhịp nào sau đó), dù nhiều lần chạy effect / bộ hẹn giờ.
+test("heartbeat cadence even: nhịp cách đều ≥ 25 s, không nhịp sau mốc idle 120 s", async ({ page, context }) => {
+  const beats = await open(page, context, "/chat");
+  const t0 = await page.evaluate(() => Date.now());
+  await page.evaluate(() => {
+    const w = window as unknown as { __b: number[] };
+    w.__b = [];
+    const f = window.fetch;
+    window.fetch = (...a: Parameters<typeof fetch>) => (String(a[0]).includes("/activity/heartbeat") && w.__b.push(Date.now()), f(...a));
+  });
+  await page.mouse.move(100, 100);
+  for (let i = 0; i < 60; i++) await page.clock.runFor(5_000); // 300 s đồng hồ giả
+  void beats;
+  const at = (await page.evaluate(() => (window as unknown as { __b: number[] }).__b)).map((x) => (x - t0) / 1000);
+  expect(at.length, `nhịp: ${at.join(", ")}`).toBeGreaterThanOrEqual(3);
+  for (let i = 1; i < at.length; i++) expect(at[i] - at[i - 1], `khoảng cách nhịp ${i}: ${at.join(", ")}`).toBeGreaterThanOrEqual(25);
+  expect(at.at(-1)!, `nhịp cuối: ${at.join(", ")}`).toBeLessThanOrEqual(125);
+});

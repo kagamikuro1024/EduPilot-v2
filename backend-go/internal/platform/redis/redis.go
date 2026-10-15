@@ -46,6 +46,10 @@ func New(_ context.Context, url string) (*Client, error) {
 	}
 	// Mọi lệnh (kể cả lệnh chặn như BLPOP) phải huỷ theo ctx của request — SRS 4.1 FR-9, AC9.
 	opt.ContextTimeoutEnabled = true
+	// Dial / DNS không được giữ kết nối mới hàng giây khi Redis chết (mặc định 5 s): lệnh không có hạn riêng cũng thất bại nhanh; `?dial_timeout=` trong URL vẫn thắng.
+	if !strings.Contains(url, "dial_timeout=") {
+		opt.DialTimeout = 500 * time.Millisecond
+	}
 	// Mỗi luồng SSE (chat, sự kiện) giữ MỘT kết nối của pool trong lúc XREAD BLOCK; pool mặc định của go-redis (10 × GOMAXPROCS) cạn ở ~40 luồng và mọi lệnh khác
 	// (CHAT_BUSY, hạn mức, idempotency) xếp hàng → sự kiện SSE đầu trễ ≥ 1 s (k6 `chat.js first_event`, 100 người dùng). Kết nối nhàn rỗi không tốn gì; URL có `?pool_size=` vẫn thắng.
 	if !strings.Contains(url, "pool_size=") {

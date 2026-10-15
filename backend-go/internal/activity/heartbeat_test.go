@@ -384,3 +384,22 @@ func TestDroppedBeatDoesNotTakeWindow(t *testing.T) {
 func (r *rig) windowOf() string {
 	return strconv.FormatInt(r.clk.Now().Unix()/activity.HeartbeatSeconds, 10)
 }
+
+// #31 / QC BUG-4: trên ROUTER THẬT (rate limit → auth + kiểm thu hồi → handler) khi Redis chết giữa chừng, `POST /activity/heartbeat` vẫn `204` trong ≤ 1 s
+// (không chỉ handler: kiểm thu hồi phiên và bộ đếm giới hạn cũng dùng Redis). Trước khi sửa: kiểm thu hồi chờ Redis không có hạn ⇒ ≈ 2,3 s.
+func TestHeartbeatHTTPRedisDeadUnder1s(t *testing.T) {
+	px := newRedisProxy(t)
+	r := newRig(t, func(e map[string]string) { e["REDIS_URL"] = px.URL() })
+	w := r.world(true)
+	s := w.student(true)
+	require.Equal(t, http.StatusNoContent, r.httpBeat(s.s, w.course, "CHAT").code, "đối chứng: Redis sống")
+	px.Hang()
+	for i := range 3 {
+		t0 := time.Now()
+		res := r.httpBeat(s.s, w.course, "CHAT")
+		el := time.Since(t0)
+		t.Logf("nhịp %d khi Redis chết: %v", i+1, el)
+		require.Equal(t, http.StatusNoContent, res.code, string(res.body))
+		require.Less(t, el, time.Second, "nhịp %d: Redis chết phải trả 204 trong ≤ 1 s (đo %v)", i+1, el)
+	}
+}
