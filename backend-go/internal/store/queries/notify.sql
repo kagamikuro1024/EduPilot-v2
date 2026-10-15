@@ -61,4 +61,5 @@ limit sqlc.arg(page_limit);
 -- name: NotifyStalledToday :one
 -- Đã báo Admin về lớp này trong ngày chưa (job SLA không phát sự kiện thừa mỗi tick).
 -- ponytail: không có chỉ mục theo course_id; bảng thông báo nhỏ và chỉ chạy cho lớp đang quá hạn mỗi 15 phút — thêm chỉ mục nếu chậm.
-select exists (select 1 from notifications where course_id = sqlc.arg(course_id) and type = 'COURSE_TICKETS_STALLED' and created_at >= sqlc.arg(since)::timestamptz)::boolean as present;
+-- Theo khoá dedupe `stalled:<lớp>:<yyyymmdd>` (ngày theo đồng hồ của job), không theo created_at của DB: hai đồng hồ khác nhau (đồng hồ giả của test) làm ngày lệch.
+select exists (select 1 from notifications where dedupe_key = sqlc.arg(dedupe_key)::text and type = 'COURSE_TICKETS_STALLED')::boolean as present;

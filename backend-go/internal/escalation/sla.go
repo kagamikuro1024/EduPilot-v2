@@ -182,7 +182,6 @@ func (s *Service) stalledCourses(ctx context.Context, now time.Time) error {
 	if err != nil {
 		return fmt.Errorf("escalation: lớp quá hạn: %w", err)
 	}
-	dayStart := time.Date(now.In(workhours.ICT).Year(), now.In(workhours.ICT).Month(), now.In(workhours.ICT).Day(), 0, 0, 0, 0, workhours.ICT)
 	for _, c := range courses {
 		active, err := q.TicketCourseHasActivity(ctx, store.TicketCourseHasActivityParams{CourseID: c.CourseID, Since: now.Add(-s.Cfg.inactiveAfter())})
 		if err != nil {
@@ -191,7 +190,7 @@ func (s *Service) stalledCourses(ctx context.Context, now time.Time) error {
 		if active {
 			continue
 		}
-		if done, err := q.NotifyStalledToday(ctx, store.NotifyStalledTodayParams{CourseID: &c.CourseID, Since: dayStart}); err != nil {
+		if done, err := q.NotifyStalledToday(ctx, stalledKey(c.CourseID, now)); err != nil {
 			return fmt.Errorf("escalation: kiểm đã báo: %w", err)
 		} else if done {
 			continue
@@ -274,6 +273,11 @@ func (n *Notifier) recountStale(ctx context.Context, courseID uuid.UUID) error {
 	})
 }
 
+// stalledKey: khoá dedupe một thông báo mỗi lớp mỗi ngày (ICT); job và handler dùng chung để cùng một ngày.
+func stalledKey(courseID uuid.UUID, now time.Time) string {
+	return "stalled:" + courseID.String() + ":" + now.In(workhours.ICT).Format("20060102")
+}
+
 // HandleCourseStalled (`escalation.course_stalled`): ADMIN nhận MỘT thông báo `COURSE_TICKETS_STALLED` mỗi ngày (dedupe `stalled:<course_id>:<yyyymmdd>`), chỉ mã lớp + số lượng.
 func (n *Notifier) HandleCourseStalled(ctx context.Context, m outbox.Message) error {
 	var p struct {
@@ -291,14 +295,13 @@ func (n *Notifier) HandleCourseStalled(ctx context.Context, m outbox.Message) er
 	if err != nil {
 		return fmt.Errorf("escalation: đọc lớp: %w", err)
 	}
-	day := n.now().In(workhours.ICT).Format("20060102")
 	title := fmt.Sprintf("Lớp %s có %d câu hỏi chờ quá 72 giờ làm việc", c.ClassCode, p.N)
 	for _, raw := range p.UserIDs {
 		uid, err := uuid.Parse(raw)
 		if err != nil {
 			continue
 		}
-		if _, err := n.Notify.Send(ctx, notify.Spec{UserID: uid, CourseID: &p.CourseID, Type: notify.TypeCourseTicketsStalled, Title: title, DedupeKey: "stalled:" + p.CourseID.String() + ":" + day}); err != nil {
+		if _, err := n.Notify.Send(ctx, notify.Spec{UserID: uid, CourseID: &p.CourseID, Type: notify.TypeCourseTicketsStalled, Title: title, DedupeKey: stalledKey(p.CourseID, n.now())}); err != nil {
 			return fmt.Errorf("escalation: báo admin: %w", err)
 		}
 	}

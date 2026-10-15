@@ -323,18 +323,14 @@ func (q *Queries) NotifyRow(ctx context.Context, id uuid.UUID) (NotifyRowRow, er
 }
 
 const notifyStalledToday = `-- name: NotifyStalledToday :one
-select exists (select 1 from notifications where course_id = $1 and type = 'COURSE_TICKETS_STALLED' and created_at >= $2::timestamptz)::boolean as present
+select exists (select 1 from notifications where dedupe_key = $1::text and type = 'COURSE_TICKETS_STALLED')::boolean as present
 `
-
-type NotifyStalledTodayParams struct {
-	CourseID *uuid.UUID
-	Since    time.Time
-}
 
 // Đã báo Admin về lớp này trong ngày chưa (job SLA không phát sự kiện thừa mỗi tick).
 // ponytail: không có chỉ mục theo course_id; bảng thông báo nhỏ và chỉ chạy cho lớp đang quá hạn mỗi 15 phút — thêm chỉ mục nếu chậm.
-func (q *Queries) NotifyStalledToday(ctx context.Context, arg NotifyStalledTodayParams) (bool, error) {
-	row := q.db.QueryRow(ctx, notifyStalledToday, arg.CourseID, arg.Since)
+// Theo khoá dedupe `stalled:<lớp>:<yyyymmdd>` (ngày theo đồng hồ của job), không theo created_at của DB: hai đồng hồ khác nhau (đồng hồ giả của test) làm ngày lệch.
+func (q *Queries) NotifyStalledToday(ctx context.Context, dedupeKey string) (bool, error) {
+	row := q.db.QueryRow(ctx, notifyStalledToday, dedupeKey)
 	var present bool
 	err := row.Scan(&present)
 	return present, err
