@@ -1,6 +1,7 @@
 package activity_test
 
 import (
+	"net"
 	"net/http"
 	"sort"
 	"strconv"
@@ -205,6 +206,33 @@ func TestHeartbeatRedisDown204(t *testing.T) {
 	require.EqualValues(t, 1, dead.Dropped.Load(), "activity_heartbeat_dropped_total tăng")
 	require.Zero(t, r.secs(w.course, s.u.ID, "CHAT"))
 	require.NotContains(t, r.logs.String(), s.u.Email, "log không PII")
+}
+
+// #31 BUG-2: Redis treo (nhận kết nối nhưng không trả lời) → nhịp bị bỏ trong ≤ 1 s, không treo hàng chục giây; vẫn 204 và đếm bỏ.
+func TestHeartbeatRedisHangBounded(t *testing.T) {
+	r := newRig(t)
+	w := r.world(true)
+	s := w.student(true)
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = ln.Close() })
+	go func() {
+		for {
+			c, err := ln.Accept()
+			if err != nil {
+				return
+			}
+			t.Cleanup(func() { _ = c.Close() }) // giữ mở, không bao giờ trả lời
+		}
+	}()
+	rd, err := appredis.New(t.Context(), "redis://"+ln.Addr().String())
+	require.NoError(t, err)
+	hung := &activity.Service{Pool: r.pool, Redis: rd, Clock: r.clk, Log: r.svc.Log}
+	t0 := time.Now()
+	require.NoError(t, hung.Heartbeat(t.Context(), s.u.ID, "STUDENT", activity.Beat{CourseID: w.course, Area: "CHAT", TabID: uuid.NewString()}))
+	require.Less(t, time.Since(t0), time.Second, "Redis treo không được giữ nhịp quá 1 s")
+	require.EqualValues(t, 1, hung.Dropped.Load())
+	require.Contains(t, r.logs.String(), `total=1`, "bộ đếm cộng dồn nằm trong dòng WARN")
 }
 
 func TestHeartbeatBadCourse403(t *testing.T) {

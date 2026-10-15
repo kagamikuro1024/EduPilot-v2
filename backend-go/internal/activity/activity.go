@@ -125,11 +125,14 @@ func enrKey(uid, course uuid.UUID) string {
 	return appredis.Key("enr", uid.String(), course.String())
 }
 
-// cached đọc JSON đệm 60 s; trượt đệm → load rồi ghi. Redis lỗi → load thẳng (không chặn nhịp, nhưng không ghi Postgres).
-func cached[T any](ctx context.Context, rd *appredis.Client, key string, load func() (T, error)) (T, error) {
+// RedisBudget là tổng thời gian một nhịp được dành cho MỌI lệnh Redis (#31): Redis chết thì nhịp bị bỏ và trả `204` trong chừng đó, không treo ~10 s.
+const RedisBudget = 500 * time.Millisecond
+
+// cached đọc JSON đệm 60 s; trượt đệm → load rồi ghi. Redis lỗi → load thẳng (không chặn nhịp, nhưng không ghi Postgres). `rctx` giới hạn riêng các lệnh Redis.
+func cached[T any](ctx, rctx context.Context, rd *appredis.Client, key string, load func() (T, error)) (T, error) {
 	var v T
 	if rd != nil {
-		if raw, err := rd.Get(ctx, key).Bytes(); err == nil && json.Unmarshal(raw, &v) == nil {
+		if raw, err := rd.Get(rctx, key).Bytes(); err == nil && json.Unmarshal(raw, &v) == nil {
 			return v, nil
 		}
 	}
@@ -139,7 +142,7 @@ func cached[T any](ctx context.Context, rd *appredis.Client, key string, load fu
 	}
 	if rd != nil {
 		if raw, merr := json.Marshal(v); merr == nil {
-			_ = rd.Set(ctx, key, raw, time.Minute).Err()
+			_ = rd.Set(rctx, key, raw, time.Minute).Err()
 		}
 	}
 	return v, nil
@@ -156,7 +159,11 @@ func (s *Service) InvalidateTracking(ctx context.Context, uid uuid.UUID) {
 }
 
 func (s *Service) tracking(ctx context.Context, uid uuid.UUID) (trk, error) {
-	return cached(ctx, s.Redis, trkKey(uid), func() (trk, error) {
+	return s.trackingR(ctx, ctx, uid)
+}
+
+func (s *Service) trackingR(ctx, rctx context.Context, uid uuid.UUID) (trk, error) {
+	return cached(ctx, rctx, s.Redis, trkKey(uid), func() (trk, error) {
 		r, err := store.New(s.Pool).ActivityUserTracking(ctx, uid)
 		if err != nil {
 			return trk{}, fmt.Errorf("activity: đọc ack: %w", err)
@@ -166,7 +173,11 @@ func (s *Service) tracking(ctx context.Context, uid uuid.UUID) (trk, error) {
 }
 
 func (s *Service) enrollment(ctx context.Context, uid, course uuid.UUID) (enr, error) {
-	return cached(ctx, s.Redis, enrKey(uid, course), func() (enr, error) {
+	return s.enrollmentR(ctx, ctx, uid, course)
+}
+
+func (s *Service) enrollmentR(ctx, rctx context.Context, uid, course uuid.UUID) (enr, error) {
+	return cached(ctx, rctx, s.Redis, enrKey(uid, course), func() (enr, error) {
 		r, err := store.New(s.Pool).ActivityEnrollment(ctx, store.ActivityEnrollmentParams{CourseID: course, UserID: uid})
 		if errors.Is(err, pgx.ErrNoRows) {
 			return enr{}, nil
@@ -186,14 +197,16 @@ func (s *Service) Heartbeat(ctx context.Context, uid uuid.UUID, role string, b B
 	if role != "STUDENT" {
 		return nil // nhân viên / Admin không bị đo
 	}
-	t, err := s.tracking(ctx, uid)
+	rctx, cancel := context.WithTimeout(ctx, RedisBudget)
+	defer cancel()
+	t, err := s.trackingR(ctx, rctx, uid)
 	if err != nil {
 		return s.drop(ctx, err)
 	}
 	if !t.Ack {
 		return nil // chưa bấm "Đã hiểu": không đo
 	}
-	e, err := s.enrollment(ctx, uid, b.CourseID)
+	e, err := s.enrollmentR(ctx, rctx, uid, b.CourseID)
 	if err != nil {
 		return s.drop(ctx, err)
 	}
@@ -217,7 +230,7 @@ func (s *Service) Heartbeat(ctx context.Context, uid uuid.UUID, role string, b B
 	if s.Redis == nil {
 		return s.drop(ctx, errors.New("không có Redis"))
 	}
-	if err := beatScript.Run(ctx, s.Redis, keys, cfg.MaxPerMinute, cfg.DailyCap, int(cfg.CounterTTL.Seconds()), HeartbeatSeconds).Err(); err != nil {
+	if err := beatScript.Run(rctx, s.Redis, keys, cfg.MaxPerMinute, cfg.DailyCap, int(cfg.CounterTTL.Seconds()), HeartbeatSeconds).Err(); err != nil {
 		return s.drop(ctx, err)
 	}
 	return nil
@@ -227,7 +240,7 @@ func (s *Service) Heartbeat(ctx context.Context, uid uuid.UUID, role string, b B
 func (s *Service) drop(ctx context.Context, cause error) error {
 	s.Dropped.Add(1)
 	if s.Log != nil {
-		s.Log.WarnContext(ctx, "activity_heartbeat_dropped_total", "error", cause.Error())
+		s.Log.WarnContext(ctx, "activity_heartbeat_dropped_total", "error", cause.Error(), "total", s.Dropped.Load())
 	}
 	return nil
 }
@@ -459,7 +472,7 @@ func (s *Service) Read(ctx context.Context, courseID, studentID uuid.UUID, weeks
 		return StudyTime{}, err
 	}
 	if staff && !e.Active {
-		return StudyTime{}, apierr.New(http.StatusNotFound, apierr.NotFound) // không phải sinh viên ACTIVE của lớp
+		return StudyTime{}, apierr.New(http.StatusForbidden, apierr.Forbidden) // không phải sinh viên ACTIVE của lớp: 403 (AC9, #31)
 	}
 	t, err := s.tracking(ctx, studentID)
 	if err != nil {

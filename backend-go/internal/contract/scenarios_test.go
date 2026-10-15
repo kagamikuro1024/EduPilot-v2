@@ -1326,7 +1326,8 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "GET", path: of + "?weeks=4", token: ta}, 200)
 	r.must(call{method: "GET", path: of}, 401)
 	r.must(call{method: "GET", path: of, token: svIn}, 403)
-	r.must(call{method: "GET", path: "/api/v1/courses/" + c2 + "/students/" + uuid.NewString() + "/study-time", token: gv}, 404)
+	r.must(call{method: "GET", path: "/api/v1/courses/" + c2 + "/students/" + uuid.NewString() + "/study-time", token: gv}, 403) // #31: không phải sinh viên ACTIVE của lớp → 403
+	r.must(call{method: "GET", path: "/api/v1/courses/" + c2 + "/students/khong-phai-uuid/study-time", token: gv}, 404)
 	r.must(call{method: "GET", path: of + "?weeks=21", token: gv}, 422)
 
 	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"

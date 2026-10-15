@@ -51,3 +51,11 @@ bash ../scripts/ui-antipatterns.sh                              # rc=0
 - Chờ PM: proposal #28 (`TestTodayQueryBudget` ca staff 5 → 6, chặn US-P5-04); US-P5-05 sẽ cần thêm proposal cho 5 ca e2e cũ đỏ vì `/students`, `/students/[id]` thành thật (`panels.spec` ×4 gồm "bảng 7.2 × teacher/ta" và `/students/sv-1`, `tokens.spec` "diacritics" ×2 — theo mẫu #14) và AC10 xoá mock.
 - Bước kế: có #28 → sửa hằng 5 → 6 ở hai ca staff, chạy full Go + e2e, push `US-P5-04`; US-P5-05: backend + frontend + e2e + test Go đã viết (hồ sơ, ghi chú, AI, nhắn sinh viên, openapi 224 thao tác), còn chạy lại contract / lint / full e2e, viết proposal #29, handoff `dev-US-P5-05.md`.
 - Cách đo Lighthouse đúng: `pnpm build:gate` KHÔNG đặt `E2E_API_PORT`, rồi `pnpm exec lhci collect --config=lighthouserc.json --collect.numberOfRuns=1` (chi tiết ở mục trên).
+
+## Vòng 2 (sửa theo `qc/report-US-P5-03.md` vòng 1 và proposals #31)
+Commit `US-P5-03: vòng 2 (#31)`.
+- **BUG-1 (AC9):** `GET …/students/{uid}/study-time` với sinh viên không `ACTIVE` ở lớp (PENDING, REMOVED, ngoài lớp, uid lạ) → `403` (`activity.Read`, nhánh staff). uid không phải UUID vẫn `404`. Test sprint 7 của chính P5-03 đang ghim `404` nên đổi theo spec: `read_test.go` (ca "uid không thuộc lớp"), `contract/scenarios_test.go` (uid ngẫu nhiên → `403`, thêm ca uid sai định dạng → `404` để op giữ đủ status đã khai báo).
+- **BUG-2 (AC10, #31):** thêm `activity.RedisBudget = 500 ms` là TỔNG thời gian mọi lệnh Redis của một nhịp (`Heartbeat` tạo `rctx`; `cached` / script dùng `rctx`, đọc Postgres khi trượt đệm vẫn dùng `ctx` gốc). Redis treo → nhịp bị bỏ, `204`, dưới 1 s (trước: ~10,4 s). `/metrics` không có: bộ đếm `activity_heartbeat_dropped_total` nằm ở dòng log WARN, thêm giá trị cộng dồn `total=N`. Test mới `TestHeartbeatRedisHangBounded` (máy chủ TCP nhận kết nối nhưng không trả lời; khẳng định < 1 s, `Dropped = 1`, `total=1` trong log). BA sửa AC10 theo #31.
+- **BUG-3:** PM đã sửa `PROGRESS.md`.
+- **N1 (hook, nhịp 15 s):** chưa tái hiện được bằng đọc mã (`useActivityHeartbeat.ts` có đúng một `setInterval` bắt đầu sau `phase`; `resume` là hẹn một lần). Chưa đổi mã; cần QC cung cấp trình tự đồng hồ giả để dò (nợ).
+- Lệnh QC chạy: `go test -count=1 -race -tags testroutes ./internal/activity ./internal/contract/...` (có `TestHeartbeatRedisHangBounded`, `TestStudyTimeReadRBAC`).

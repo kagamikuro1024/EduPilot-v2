@@ -70,8 +70,8 @@ func TestStudyTimeReadRBAC(t *testing.T) {
 	out := r.mustLogin(outU.Email)
 	require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, "/courses/"+w.course.String()+"/me/study-time", out, nil).code, "không ACTIVE ở lớp")
 	require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, "/courses/"+w.course.String()+"/me/study-time", w.T, nil).code, "giảng viên không có 'của mình'")
-	// uid không thuộc lớp → 404
-	require.Equal(t, http.StatusNotFound, r.call(http.MethodGet, "/courses/"+w.course.String()+"/students/"+outU.ID.String()+"/study-time", w.T, nil).code)
+	// uid không phải sinh viên ACTIVE của lớp → 403 (AC9, #31)
+	require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, "/courses/"+w.course.String()+"/students/"+outU.ID.String()+"/study-time", w.T, nil).code)
 	require.Equal(t, http.StatusUnauthorized, r.do(req{method: http.MethodGet, path: own}).code)
 }
 
