@@ -1,3 +1,20 @@
+# QC report — US-P5-03 — **vòng 3 (CUỐI)**
+Ngày 2026-10-15 (tối). Commit kiểm: `sprint/7-p4-p5` @ `28ab4fb7` (code dev `b4bf2c39`). CI `a908fd9` **đỏ** ở job `Frontend Lighthouse (simulate)`, assertion `total-blocking-time` (`lighthouserc.json` ngưỡng 200 ms; route không in trong log); không phải mã P5-03 (Go và e2e xanh ở job khác). Stack `edupilot100` dựng lại từ mã mới.
+
+## Kết luận vòng 3: **PASS** — BUG-4 đã sửa; N1 không phải lỗi sản phẩm (QC rút lại)
+| Mục | KQ | Bằng chứng |
+| --- | --- | --- |
+| BUG-4 (Redis chết → `204` ≤ 1 s) | **PASS** | `compose stop redis`, 5 nhịp liên tiếp → `204` trong **0,698 – 0,759 s** (`curl %{time_total}`), trước sửa 2,26 – 2,32 s; bật lại Redis nhịp bình thường. Ghi nhận ngoài AC: route đã xác thực khác (`GET /me/settings`) khi Redis chết vẫn mất 3,8 s (kiểm thu hồi phiên + lệnh khác) — không thuộc AC10 |
+| N1 (nhịp 15 s, nhịp quá idle) | **PASS — rút lại** | Chạy **đúng giờ thật** (không `page.clock`), `sv21`, một lần `mouse.move`, 160 s: nhịp ở **6, 36, 66, 96 s**, cả bốn `204`, không nhịp nào sau 120 s. Chuỗi 15 s / nhịp sau idle QC thấy ở vòng 2 và trong 7 lần chạy vòng 3 (`page.clock.install` + `runFor(5000)` trên stack thật) chỉ có khi đồng hồ giả chạy nhanh hơn mạng thật (một `tab_id`, nhưng số lần `fetch` > số phản hồi) — nhiễu của bộ đo, không phải hook. Dev đúng khi không tái hiện được với gateway giả. Đề nghị giữ `MIN_GAP_MS` (vô hại) |
+| Lệnh handoff | PASS | `go test -race -tags testroutes ./internal/activity ./internal/auth ./internal/platform/redis` 283 passed / 3 gói; `activity.spec.ts` desktop xanh trong 118 passed |
+
+## Ghi nhận cho PM / dev (BUG-S7-02 và độ ổn định test)
+- **Dung lượng volume test (BUG-S7-02):** trước lượt `go test -count=1 -race -tags testroutes ./...` (máy rảnh, sau dọn của dev): `Local Volumes` 18 volume / **2,838 GB**; sau lượt full (+ dựng lại stack `edupilot100` song song): 18 volume / **3,308 GB** (đã gồm volume mới của stack); số volume **không tăng**; sau lượt không còn container `testcontainers` mồ côi (chỉ bộ `edupilot-test-*` dùng chung, 17 container tất cả). Không thấy rò rỉ do Go test.
+- Lượt full Go có **một** test đỏ một lần: `internal/privacy` `TestMaskConcurrentSameSession` (`integration_test.go:204`, "[] should have 1 item(s)") khi máy đang build stack; chạy riêng 2 lần: `ok` (2,0 – 2,6 s). Nghi phụ thuộc thời gian dưới tải.
+- `internal/contract` `TestStudentNeverSeesConfidence`: chạy **riêng** (`-run`) đỏ 4/6 lần (`scenarios_test.go:1352` `POST …/ai-summary → 503 SERVICE_UNAVAILABLE (cần 200)`; một lần khác "kịch bản chỉ có 0 lời gọi chat / Threads"); chạy **cả gói** `./internal/contract/...` xanh 2/2 (40 s, 70 s). Test phụ thuộc thứ tự / trạng thái chia sẻ — dev xem trước khi CI chạy lại.
+
+---
+
 # QC report — US-P5-03 — **vòng 2** (#31)
 Ngày 2026-10-15. Commit kiểm: `sprint/7-p4-p5` @ `aff08c2c` (code dev `5fa459d6`; CI xanh ở `b23b647`). Bộ TC: `tc-US-P5-03.md` (không sửa). Handoff: `dev-US-P5-03.md` mục "Vòng 2". Stack `edupilot100` dựng lại từ mã mới (`up.sh --build`, một gateway khi xem payload LLM).
 

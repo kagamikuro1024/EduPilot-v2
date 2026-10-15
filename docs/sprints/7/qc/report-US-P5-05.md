@@ -1,3 +1,23 @@
+# QC report — US-P5-05 — **vòng 2** (BUG-A)
+Ngày 2026-10-15 (tối). Commit kiểm: `sprint/7-p4-p5` @ `28ab4fb7` (code dev `5be69dbc`, `a908fd9`). Stack `edupilot100` dựng lại từ mã mới, một gateway để đọc `_test/llm/payloads`. Dữ liệu: lớp `QC risk` (`108503`), `sv04` (AT_RISK, có ghi chú canary `CANARY-OBS-4F`).
+
+## Kết luận vòng 2: **PASS** — BUG-A đã sửa; TC-16…22 và E1 kiểm được
+Dev đổi task `INSIGHT` → `UTILITY` (làn mặc định `NEAR_REALTIME`, không xin làn). Spec crm-360 AC5 / SRS 4.8.5 còn ghi "task `INSIGHT`" — BA sửa theo handoff (QC không sửa TC; TC-16 viết `INSIGHT`, QC đọc là `UTILITY` theo thay đổi spec của PM/dev).
+
+| TC | KQ | Bằng chứng |
+| --- | --- | --- |
+| 16 | PASS | `POST …/students/{sv04}/ai-summary` → `200 {draft:{summary,strengths[1],concerns[1],suggestions[1]}}`; `fake_calls` 0 → **1**; `llm_audit`: `UTILITY | NEAR_REALTIME | env:fake | ok | pii_masked_count 0`; thân yêu cầu (bộ đệm payload, 1 mục): prompt hệ thống + JSON số liệu (`attendance{absent 6,present 2,recorded 8}`, `participation`, phút học theo tuần…); grep tên "Vũ Minh Long", MSSV `20224786`, `sv04@`, `CANARY-OBS` = 0 |
+| 17 | PASS | `student_observations` 3 → 3 sau khi soạn (không lưu tới khi `Lưu`) |
+| 18 | PASS | lưu `kind=AI_SUMMARY, ai_edited=false` → ghi nhận; lưu bản sửa `ai_edited=true` ghi nhận |
+| 19 | PASS gián tiếp | provider fake không bịa tên theo yêu cầu; `TestAISummaryRedactsInventedName` xanh |
+| 20 | PASS (e2e) | `students.spec` `ai summary edit then save` xanh (nháp `aisum:<uid>` ở máy) |
+| 21 | PASS gián tiếp | không dừng được provider fake trên stack; `TestAISummaryLLMDown503`, `TestAISummaryTimeout504` xanh; `503 LLM_UNAVAILABLE` đường thật đã thôi bị `BAD_LANE` |
+| 22 | PASS | lần thứ 10 `200`, lần 11 `429`; STUDENT, ADMIN `403`; `NOT_ENOUGH_DATA` + không gọi LLM đã đạt ở vòng 1 |
+| E1 | PASS gián tiếp | `TestAISummary*` (schema sai → `503`, không lưu) — không có cách ép provider fake trả JSON sai trên stack |
+Lệnh handoff: `go test -race -tags testroutes ./internal/crm -run 'TestAISummary|TestMe' -v` → xanh (có `TestAISummaryThroughRealGateway`, `TestAISummaryNoDataNoLLM`, `TestAISummaryRateLimited`); `./internal/contract/... ./internal/httpapi/...` xanh khi chạy cả gói. Các TC còn lại của vòng 1 giữ PASS (không chạy lại: diff vòng 2 chỉ chạm `aisummary` và hợp đồng của nó).
+
+---
+
 # QC report — US-P5-05 (hồ sơ 360, ghi chú riêng tư, nhận xét AI, `Nhắn sinh viên`)
 Ngày 2026-10-15. Commit kiểm: `sprint/7-p4-p5` @ `aff08c2c` (code dev `b23b6477`; CI xanh). Bộ TC: `tc-US-P5-05.md` (không sửa chữ TC). Handoff: `dev-US-P5-05.md` (#29 #32 #33 áp dụng). Stack `edupilot100` dựng lại từ mã mới; một gateway để đọc `_test/llm/payloads`. Dữ liệu thử: lớp `QC risk` (`108503`) như report US-P5-04; ghi chú / nhắn sinh viên thử trên lớp 761987 (sinh viên C = `sv.nguyco`).
 
