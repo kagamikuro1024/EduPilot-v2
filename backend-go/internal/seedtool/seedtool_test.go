@@ -125,7 +125,7 @@ func TestSeedCRMExpected(t *testing.T) {
 	require.Equal(t, p.Totals.Absent, count(t, w, `select count(*) from attendance_records where course_id = $1 and status = 'ABSENT'`))
 	f, err := os.Open("../../../seed/expected_crm.csv")
 	require.NoError(t, err)
-	defer f.Close()
+	defer func() { _ = f.Close() }()
 	rows, err := csv.NewReader(f).ReadAll()
 	require.NoError(t, err)
 	require.Len(t, rows, 4)
