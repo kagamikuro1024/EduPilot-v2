@@ -89,7 +89,7 @@ func getAPI(t *testing.T) *apiRig {
 
 func buildAPI(t *testing.T) (*apiRig, error) {
 	env := map[string]string{
-		"DATABASE_URL": testutil.MigratedPostgresURL(t), "REDIS_URL": testutil.RedisURL(t), "JWT_SECRET_KEY": apiSecret,
+		"DATABASE_URL": testutil.SharedMigratedPostgresURL(t), "REDIS_URL": testutil.RedisURL(t), "JWT_SECRET_KEY": apiSecret,
 		"BLOB_ENDPOINT": "127.0.0.1:9", "BLOB_BUCKET": "t", "BLOB_ACCESS_KEY": "t-dev", "BLOB_SECRET_KEY": "t-dev-secret",
 		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "test", "REQUEST_TIMEOUT": "20s",
 		"MAX_BODY_BYTES": "65536", "RATE_LIMIT_IP_PER_MIN": "1000000", "RATE_LIMIT_USER_PER_MIN": "1000000",

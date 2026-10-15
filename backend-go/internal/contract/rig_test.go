@@ -51,7 +51,7 @@ func getRig(t *testing.T) *rig {
 
 func buildRig(t *testing.T) (*rig, error) {
 	env := map[string]string{
-		"DATABASE_URL":            testutil.MigratedPostgresURL(t),
+		"DATABASE_URL":            testutil.SharedMigratedPostgresURL(t),
 		"REDIS_URL":               testutil.RedisURL(t),
 		"JWT_SECRET_KEY":          rigSecret,
 		"BLOB_ENDPOINT":           "127.0.0.1:9",
