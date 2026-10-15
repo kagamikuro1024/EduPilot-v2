@@ -24,7 +24,9 @@ type Handler struct {
 	Svc   *crm.Service
 	Guard func(auth.GuardMode) func(http.Handler) http.Handler
 	Idem  func(http.Handler) http.Handler // `Idempotency-Key` bắt buộc (nhắn sinh viên)
-	Log   *slog.Logger
+	// OptIdem: `Idempotency-Key` tuỳ chọn (ghi chú quan sát, #40): có khoá thì gửi lại không ghi thêm dòng; không khoá thì chạy thẳng (client cũ, seed, hợp đồng).
+	OptIdem func(http.Handler) http.Handler
+	Log     *slog.Logger
 }
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware.
@@ -39,7 +41,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Get("/courses/{id}/students/{uid}/profile", h.getProfile)
 	r.With(staff).Get("/courses/{id}/students/{uid}/attendance", h.studentAttendance)
 	r.With(staff).Get("/courses/{id}/students/{uid}/observations", h.listObservations)
-	r.With(staff).Post("/courses/{id}/students/{uid}/observations", h.createObservation)
+	r.With(staff, h.OptIdem).Post("/courses/{id}/students/{uid}/observations", h.createObservation)
 	r.With(staff).Put("/courses/{id}/students/{uid}/observations/{oid}", h.updateObservation)
 	r.With(staff).Delete("/courses/{id}/students/{uid}/observations/{oid}", h.deleteObservation)
 	r.With(staff).Post("/courses/{id}/students/{uid}/ai-summary", h.aiSummary)

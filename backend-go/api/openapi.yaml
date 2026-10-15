@@ -2539,10 +2539,15 @@ paths:
     post:
       operationId: createObservation
       tags: [crm]
-      summary: "Thêm ghi chú (tác giả = người gọi). kind NOTE (mặc định) hoặc AI_SUMMARY (lưu nhận xét AI đã soạn; ai_edited = bản lưu khác bản AI)"
+      summary: "Thêm ghi chú (tác giả = người gọi). kind NOTE (mặc định) hoặc AI_SUMMARY (lưu nhận xét AI đã soạn; ai_edited = bản lưu khác bản AI). Idempotency-Key tuỳ chọn: gửi lại cùng khoá + cùng thân → phát lại phản hồi cũ, không ghi thêm; cùng khoá + thân khác 422"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - $ref: "#/components/parameters/StudentUid"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
