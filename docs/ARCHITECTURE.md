@@ -337,7 +337,7 @@ Dữ liệu của **lớp 1** (lớp 2 có phiên bản rút gọn 3 tuần):
 | Câu hỏi | 80 đã duyệt + 20 chờ duyệt (chia sẻ sang lớp 2) |
 | Lịch | 4 deadline, 1 giữa kỳ, 1 cuối kỳ (tương lai) |
 | Threads / chat / ticket | 12 thread; ≈ 150 câu hỏi chat lệch về 2 chủ đề + 10 câu ngoài tài liệu; 5 ticket đủ trạng thái (`OPEN` mới, `OPEN` quá hạn, `CLAIMED`, `ANSWERED`, `CLOSED`) — `proposals.md` #7 |
-| Thời gian học | 10 tuần `study_time_daily` cho 30 sinh viên (ghi bằng lệnh `gateway admin seed-study-time`, chỉ `APP_ENV ∈ {local, test}`); lớp 1 `allow_study_time_opt_out = true`, lớp 2 `= false` (TEACHER đặt trước khi import sinh viên — Q1, Q25) |
+| Thời gian học | 10 tuần `study_time_daily` cho 30 sinh viên (ghi bằng lệnh `gateway admin seed-study-time`, chỉ `APP_ENV ∈ {dev, test}`); lớp 1 `allow_study_time_opt_out = true`, lớp 2 `= false` (TEACHER đặt trước khi import sinh viên — Q1, Q25) |
 | Đối chiếu | `seed/expected_final_grades.csv` (tính tay, lớp 1) |
 
 ## 10. Kiểm thử

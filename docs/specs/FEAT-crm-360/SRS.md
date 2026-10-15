@@ -258,7 +258,7 @@ Khoá xếp và khuôn `Item` theo `FEAT-course-foundation` 4.7. Bảng bậc d�
 
 ### 4.10 Seed và lệnh quản trị (US-S7-SEED)
 
-Seed (`scripts/seed.mjs`) gọi **API thật**; hai việc không thể dùng API (thời gian quá khứ) dùng lệnh `gateway admin …` (`cmd/gateway/admin.go`). **Cả ba lệnh chỉ chạy khi `APP_ENV ∈ {local, test}`** (danh sách cho phép — không phải "≠ production" — TLR-13), từ chối với mã thoát khác 0 ở môi trường khác, và **in số dòng đã đổi**:
+Seed (`scripts/seed.mjs`) gọi **API thật**; hai việc không thể dùng API (thời gian quá khứ) dùng lệnh `gateway admin …` (`cmd/gateway/admin.go`). **Cả ba lệnh chỉ chạy khi `APP_ENV ∈ {dev, test}`** (danh sách cho phép — không phải "≠ production" — TLR-13), từ chối với mã thoát khác 0 ở môi trường khác, và **in số dòng đã đổi**:
 - `gateway admin seed-study-time --course <class_code> --weeks 10 --profile seed/study_profile.json`: ghi `study_time_daily` trực tiếp (`ON CONFLICT … GREATEST`, chạy lại không nhân đôi).
 - `gateway admin seed-age --course <class_code> [--tickets|--activity]`: lùi `created_at` / `answered_at` **và `waiting_since`** của `escalation_tickets` cho ca "quá hạn" (nếu không lùi `waiting_since` thì ca quá hạn không bao giờ quá hạn — `FEAT-escalation-notify` TLR-3) và (tuỳ chọn) rải `created_at` của tin chat / thread seed qua 10 tuần để hoạt động theo tuần có nghĩa; **không** đổi nội dung. Lùi `created_at` làm `id` (uuidv7, mang dấu thời gian) không còn khớp thời gian: mọi truy vấn đếm theo tuần lọc bằng `created_at`, **không** bằng khoảng `id`.
 - `gateway admin crm-risk-run --course <class_code>`: chạy `crm.risk` một lần.
