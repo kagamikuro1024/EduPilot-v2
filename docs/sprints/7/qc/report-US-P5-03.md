@@ -1,4 +1,29 @@
-# QC report — US-P5-03 (thời gian học: heartbeat, rollup, hộp thoại minh bạch, công tắc đo, luật cứng `internal/grade`)
+# QC report — US-P5-03 — **vòng 2** (#31)
+Ngày 2026-10-15. Commit kiểm: `sprint/7-p4-p5` @ `aff08c2c` (code dev `5fa459d6`; CI xanh ở `b23b647`). Bộ TC: `tc-US-P5-03.md` (không sửa). Handoff: `dev-US-P5-03.md` mục "Vòng 2". Stack `edupilot100` dựng lại từ mã mới (`up.sh --build`, một gateway khi xem payload LLM).
+
+## Kết luận vòng 2: **FAIL** — còn 1 lỗi (BUG-4), BUG-1/2/3 và TC-35 đã đóng
+| Mục vòng 1 | Vòng 2 | Bằng chứng |
+| --- | --- | --- |
+| BUG-1 (AC9 `404` ≠ `403`) | **PASS** | staff đọc uid PENDING / uid lạ → `403`; uid không phải UUID → `404`; ACTIVE → `200`; STUDENT → `403` |
+| BUG-2 (metric / treo 10,4 s) | **một nửa** | bộ đếm nay là dòng WARN `activity_heartbeat_dropped_total` có `total=N` (đúng #31, PASS); treo 10,4 s đã hết nhưng xem **BUG-4** |
+| BUG-3 (PROGRESS) | PASS (PM đã sửa) | — |
+| KKĐ-1 / TC-35 vế `student_risk` | **PASS** | `crm.risk` có (US-P5-04): sinh viên tắt đo ở lớp cho tắt → `study.tracked=false`, `weeks[].study=null`, câu nhận định không có cụm thời gian học; `STUDY` chưa ack trước đầu tuần → `null`; có ack → `STUDY_LOW` "khoảng 20 phút mỗi tuần"; Go `TestRiskStudyNullWhenOptedOut`, `…PerCourseConfig`, `…NotAckedStudyNull` xanh |
+| N1 (nhịp 15 s) | **vẫn tái hiện** | xem mục N1 dưới |
+
+### BUG-4 (trung bình) — AC10 / #31: Redis chết, heartbeat trả `204` sau **2,3 s**, không phải ≤ 1 s
+Tái hiện: `docker compose -p edupilot100 stop redis`; `POST /activity/heartbeat` (sinh viên đã ack, thân hợp lệ) ×3 → `204`, `duration_ms` của gateway **2260 / 2277 / 2318**, `curl` đo 2,29–2,38 s. Log: WARN `activity_heartbeat_dropped_total` (`error: context deadline exceeded`, `total` 2→3) **và** `rate limit: Redis không phản hồi, cho qua (fail-open)` — hạn 500 ms của heartbeat đúng, phần còn lại (middleware giới hạn tốc độ đợi Redis ≈ 1,7 s) làm tổng vượt AC10 "`204` trong ≤ 1 s". `TestHeartbeatRedisHangBounded` chỉ đo handler. Nghi ngờ: middleware rate-limit (`rate limit: Redis không trả lời trong hạn cho phép`), không phải `internal/activity`. Sau khi bật lại Redis nhịp bình thường.
+
+### N1 (hook, dev xin trình tự) — nhịp không đều, vượt mốc idle
+Trình tự (stack thật, `page.clock.install()` trước khi vào, đăng nhập `sv.gioi`, `goto /chat`, chờ 1,5 s thật, `mouse.move(100,100)` một lần, rồi `clock.runFor(5000)` × 60; ghi `Date.now()` ở mỗi `fetch` tới `/activity/heartbeat` qua `addInitScript`). 4 lần chạy, giây tương đối so với lúc thao tác:
+`9,39,54,69,84,99,100` · `16,46,61,76,91,106,121,137` · `18,48,63,78,79,108,123,139` · `4,34,49,64,65,94,109`.
+Hai nhịp đầu cách 30 s, từ nhịp thứ ba cách ≈ 15 s (có lúc hai nhịp cách 1 s: 99/100, 78/79); nhịp xuất hiện sau 120 s (121, 137, 123, 139) dù không còn thao tác. Thao tác liên tục (chuột mỗi 5 s) thì đều 30 s (13, 43, 73, 103, 133, 163). Máy chủ vẫn cộng ≤ 30 s mỗi khung nên không sai số liệu, nhưng tải gấp đôi, sát trần 4 nhịp/phút. Có thể do `scroll` lập trình của `/chat` đặt lại `last`; chưa xác định. Không đổi kết luận (AC5 đạt ở vòng 1: 10 phút / thao tác 3 phút = 10 nhịp).
+
+## Lệnh của handoff vòng 2
+`go test -race -tags testroutes ./internal/activity ./internal/contract/...` → 65 passed (gồm `TestHeartbeatRedisHangBounded`, `TestStudyTimeReadRBAC`). `activity.spec.ts` desktop: 16 passed (cùng đợt e2e 163 passed / 7 skipped; xem report US-P5-04).
+
+---
+
+# Phụ lục: vòng 1 (2026-10-15 sáng)
 Ngày 2026-10-15. Commit kiểm: `sprint/7-p4-p5` @ `1dbda5eb` (code dev `1c6a01e`, CI xanh). Bộ TC: `tc-US-P5-03.md` (không sửa chữ TC). Handoff: `dev-US-P5-03.md`. Stack `edupilot100` dựng lại (colima khởi động lại; `docling-serve` không chạy nên seed dừng ở bước 11 — không ảnh hưởng story này). Số migration thực là `00015_observation` (PM đổi theo #25; TC viết `00014`).
 
 ## Kết luận: **FAIL** — 3 lỗi (1 trung bình, 2 thấp) + 1 TC không kiểm được
