@@ -32,6 +32,9 @@ func runAdmin(args []string, getenv func(string) string, stdin io.Reader, stdout
 	if len(args) > 0 && args[0] == "run-job" {
 		return runJob(args[1:], getenv, stdout, stderr)
 	}
+	if len(args) > 0 && isSeedCmd(args[0]) {
+		return runSeedCmd(args, getenv, stdin, stdout, stderr)
+	}
 	if len(args) == 0 || args[0] != "create" {
 		return usage("lệnh con phải là `create`.")
 	}

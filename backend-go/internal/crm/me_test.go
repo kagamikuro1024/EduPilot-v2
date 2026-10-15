@@ -195,3 +195,40 @@ func staffOnly403(t *testing.T, r *rig, w world, student uuid.UUID, st session) 
 		require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, p, st, nil).code, p)
 	}
 }
+
+// TestSeedIsolation (US-S7-SEED AC8): sinh viên chỉ đọc dữ liệu của chính mình; sinh viên chưa vào lớp không thấy lớp nào; TA thấy lớp mình nhưng không thấy lớp khác.
+func TestSeedIsolation(t *testing.T) {
+	r := newRig(t)
+	w1, w2 := r.world(2), r.world(1)
+	a, b := w1.students[0], w1.students[1]
+	require.Equal(t, http.StatusOK, w1.put(w1.T, 0, []rec{row(a.ID, "PRESENT"), row(b.ID, "ABSENT")}, true).code)
+	sa, sb := r.mustLogin(a.Email), r.mustLogin(b.Email)
+	at := func(s session) map[string]any {
+		res := r.call(http.MethodGet, w1.mePath("attendance"), s, nil)
+		require.Equal(t, http.StatusOK, res.code)
+		return res.json()["attendance"].(map[string]any)
+	}
+	require.Equal(t, float64(0), at(sa)["absent"])
+	require.Equal(t, float64(1), at(sb)["absent"])
+	for _, s := range []session{sa, sb} {
+		require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, "/courses/"+w1.course.String()+"/students", s, nil).code)
+		require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, w2.mePath("attendance"), s, nil).code, "lớp khác")
+	}
+	// sinh viên D: chưa vào lớp nào
+	require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, w1.mePath("attendance"), w1.OUT, nil).code)
+	require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, w1.mePath("participation"), w1.OUT, nil).code)
+	// TA lớp 1: đọc lớp 1, không đọc lớp 2
+	require.Equal(t, http.StatusOK, r.call(http.MethodGet, "/courses/"+w1.course.String()+"/students", w1.A, nil).code)
+	require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, "/courses/"+w2.course.String()+"/students", w1.A, nil).code)
+	require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, "/courses/"+w2.course.String()+"/students/"+w2.students[0].ID.String()+"/profile", w1.A, nil).code)
+}
+
+// TestSeedAdminForbidden: ADMIN không đọc được hồ sơ, danh sách sinh viên, điểm danh (ticket: test của escalation và check-crm-seed.mjs trên stack thật) (dữ liệu cá nhân của sinh viên).
+func TestSeedAdminForbidden(t *testing.T) {
+	r := newRig(t)
+	w := r.world(1)
+	c := w.course.String()
+	for _, p := range []string{"/courses/" + c + "/students", "/courses/" + c + "/students/" + w.students[0].ID.String() + "/profile", w.path(0, "/attendance"), w.mePath("attendance")} {
+		require.Equal(t, http.StatusForbidden, r.call(http.MethodGet, p, w.ADM, nil).code, p)
+	}
+}
