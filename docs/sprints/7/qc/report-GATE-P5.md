@@ -1,6 +1,8 @@
 # QC — báo cáo cổng P5 (CRM, hồ sơ 360, thời gian học) + seed sprint 7
 Ngày 2026-10-16. Commit: `sprint/7-p4-p5` @ `0f9ff865`; CI `38782040813` **xanh**. Bộ kiểm: `gate-P5.md` (G5-01…34), `tc-US-P5-01…06.md`, `tc-US-S7-SEED.md`, `.claude/skills/gate/SKILL.md`. Cùng stack sạch với `report-GATE-P4.md`. Rà soát thay đổi spec / TC từ APPROVED: xem mục 1 của `report-GATE-P4.md` (dùng chung; kết quả: 0 TC bị vai khác sửa; 2 commit sửa spec không ghi số proposal — `803393b7`, `30f81cae`; test cũ bị sửa đều dẫn tới proposal ACCEPTED trừ ba dòng helper của BUG-S7-02).
 
+**Cập nhật 2026-10-16 (#38):** US-P5-06 TC-17 chấm lại theo LCP devtools → **PASS** (1.478 ms ≤ 2.500 ms); `G5-23` thành PASS. Điều kiện (3) bên dưới đã đóng; còn BUG-S1 / TC-S7-SEED-15 (chờ dev, #40).
+
 ## Kết luận cổng P5: **KHÔNG ĐẠT** — 1 TC FAIL + 1 một phần ở `G5-32` (US-S7-SEED) và 1 TC FAIL ở `G5-23`/US-P5-06; không lỗi nghiêm trọng
 Phần lõi P5 (điểm danh, lịch, thời gian học, at-risk, hồ sơ 360, ghi chú, nhận xét AI, nhắn sinh viên, không rò dữ liệu nhạy cảm, hiệu năng) đạt. Không đạt vì: (1) **BUG-S1** — seed lớp 1 có 129 ticket (126 `OPEN` tự sinh), B có ticket (TC-S7-SEED-12; AC4); (2) vế RAG của TC-S7-SEED-15 không kiểm được; (3) US-P5-06 TC-17: `/me` LCP mô phỏng 2,7 s > 2,5 s. Sửa BUG-S1 + PM quyết (2), (3) thì chạy lại `check-crm-seed.mjs` và `G5-32` là đủ.
 

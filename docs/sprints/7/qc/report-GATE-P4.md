@@ -3,6 +3,8 @@ Ngày 2026-10-16. Commit: `sprint/7-p4-p5` @ `0f9ff865`; CI `38782040813` **xanh
 
 ## Kết luận cổng P4: **ĐẠT CÓ ĐIỀU KIỆN** — 0 dòng FAIL; 4 điều kiện (mục 5)
 
+**Cập nhật 2026-10-16 (#39):** điều kiện 2 ở mục 5 đã được PM trả lời (803393b7 = nội dung #24/#25 của BA gộp nhầm vào commit dev; 30f81cae = BA bổ sung tài liệu theo chữ AC7, PM giao; ba dòng `a5c13b99` thuộc BUG-S7-02) — ghi nhận, lỗi quy trình ghi lại; không còn điều kiện mở về quy trình.
+
 ## 1. Rà soát thay đổi spec / TC từ APPROVED (yêu cầu của PM)
 Phạm vi: `git log -p` của `docs/specs/**` (mọi `FEAT-*`) và `docs/sprints/7/qc/tc-*`.
 - **`docs/sprints/7/qc/tc-*`**: 4 commit (`e3f49272`, `aa03369f`, `27b4c93a`, `aa7c71af`), toàn bộ của QC ở pha 1 (ngày 13/10); **không có commit nào sửa TC sau khi viết** bởi vai khác. Trong pha 2 QC chỉ sửa **một** TC: `TC-S7-SEED-08` (16/10, có ghi "Lịch sử sửa TC", dẫn `#35`).
