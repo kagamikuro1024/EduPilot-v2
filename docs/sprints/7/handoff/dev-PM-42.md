@@ -26,3 +26,4 @@ Nhánh: `sprint/7-p4-p5`. Commit ghi `#42`. Luật: `~/.claude/CLAUDE.md` "Luậ
 
 ## Kiểm
 `pnpm lint`, `tsc`, `ui-antipatterns.sh` sạch. Playwright (desktop + mobile, `--retries=0`) `students`, `account`, `class-join`, `panels`, `a11y`, `tokens`, `shell`, `me`, `attendance`, `escalation`: 291 passed, 193 skipped (ca chỉ chạy một dự án), 0 failed.
+CI: run `38805547265` (commit `28dcc90b`) xanh — Frontend lint + build, e2e 3 shard, Lighthouse; job Go bỏ qua (không đổi Go).
