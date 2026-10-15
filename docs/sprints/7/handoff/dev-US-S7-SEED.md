@@ -76,3 +76,6 @@ Theo `proposals.md`: BUG-S1 (PM), #40 (ACCEPTED). Stack sạch `down -v` → `up
 - Thêm `scripts/go-test-all.sh` (hai bước trên, y hệt CI) để QC / dev khỏi chạy `go test -race ./...` trần. Nếu muốn chuyển phép đo sang đếm truy vấn tất định thì là (a) của TL-3 và cần proposal; chưa làm.
 
 CI vòng 2: run `38797158070` (commit `182a6d74`) xanh toàn bộ (job Frontend bỏ qua vì không đổi `frontend/`). Cục bộ: `gate-p4.sh` PASS, `gate-p5.sh` PASS trên stack sạch seed mới; `scripts/go-test-all.sh` xanh (5 ph 11 s), database `t_*` rò 0 → 0.
+
+## #41 — `check-chat-seed.mjs`
+Thread lớp 1 = 12: bước 17 ghim một thread (nằm ở mảng `pinned` riêng của trang đầu, không có trong `items` nên `listAll` bỏ sót) và tự ẩn một thread (3 báo cáo). Script nay gộp `pinned` + `items`, đòi đúng 1 thread `hidden` (`auto: true`, có `reason`), Staff thấy 12, sinh viên thấy 11; mọi khẳng định khác giữ nguyên. Stack sạch: `chat=150 sessions=33 outside=10 threads=12/3 states={PENDING 4, REJECTED 1, CORRECTED 2, VERIFIED 3, SKIPPED 2} idempotent=ok`; `check-crm-seed` (tickets=5, idempotent=ok), `check-knowledge-seed` (có trích dẫn 6/6). TL-3 (a) (đếm truy vấn tất định): PM ghi nợ, không làm sprint này.
