@@ -1,4 +1,29 @@
-# QC — báo cáo cổng P5 (CRM, hồ sơ 360, thời gian học) + seed sprint 7
+# QC — báo cáo cổng P5 — **vòng 2** (2026-10-16)
+Commit: `sprint/7-p4-p5` @ `a1ff631e` (code dev `182a6d74`; CI `38797158070` xanh). Stack sạch dựng lại từ nhánh, seed đầy đủ (416 s). Bộ kiểm như vòng 1; chạy lại đầy đủ phần chạy được: `go-test-all.sh`, `gate-p4.sh`, `gate-p5.sh`, vet / lint / sqlc, Playwright toàn bộ, k6, kiểm chéo trên stack.
+
+## Kết luận cổng P5 vòng 2: **ĐẠT CÓ ĐIỀU KIỆN** — 1 dòng FAIL mức thấp (G5-32 ← TC-S7-SEED-17); không lỗi chặn
+| Mục | KQ | Bằng chứng |
+| --- | --- | --- |
+| G5-04 | PASS | `bash scripts/gate-p5.sh` rc=0 "GATE P5: PASS" (15 bước) trên stack sạch |
+| G5-05 | PASS | `bash scripts/go-test-all.sh` (đúng quy trình TL-3: bước 1 `EP_SKIP_TIMING=1 go test -race -count=1 -tags testroutes ./...`, bước 2 `-p 1 -count=3 -run 'TimingEqualized$' ./internal/auth ./internal/course`) → **rc=0**, mọi gói ok; `go vet -tags testroutes ./...` ok, `golangci-lint` "0 issues", `sqlc diff` rc=0; volume Docker 2,676 → 2,678 GB (không rò) |
+| G5-32 (SEED) | **FAIL (thấp)** | 24/25: TC-12 và TC-15 đóng (5 ticket, B 0 ticket; RAG 6/6 bằng script); **TC-17 FAIL** — `NODE_ENV=production node scripts/seed.mjs` không bị chặn (BUG-S2; `APP_ENV=production` bị chặn). Chi tiết: `report-US-S7-SEED.md` |
+| G5-25 (#40) | **PASS** | `POST …/observations` tôn trọng `Idempotency-Key`: cùng khoá + cùng thân → 1 dòng, phản hồi phát lại (`Idempotent-Replayed: true`); cùng khoá + thân khác → `422`; khoá khác → dòng mới; không khoá → `201` như cũ; khoá sai dạng → `422`; STUDENT `403`. `TestObservationIdempotencyKey` ok; `internal/contract` ok |
+| G5-23 | PASS | US-P5-06 TC-17 PASS theo #38 (LCP devtools `/me` 1.478 ms); không gamify; 375 px không tràn (đã đo ở vòng 1) |
+| G5-09 | PASS | k6 10 req/s × 60 s: p95 **8,65 ms**, 601 lượt, 0 lỗi |
+| G5-03 / Playwright | PASS | toàn bộ: **692 passed, 13 failed (chỉ `visual.spec.ts`, macOS), 369 skipped, 0 flaky**; `attendance` 17, `escalation` 25, `threads-moderation` 8, `me` 9, `students` 14, `activity` 17; CI Linux xanh |
+| G5-07, G5-30 | PASS | `pnpm lint` sạch, `pnpm build` ok, `ui-antipatterns.sh` rc=0; `@/mock` ở `features/{attendance,students,me,inbox}` = 0 |
+| G5-28 | PASS | canary `CANARY-OBS-4F` / `-NOTE-9` / `-9K3Z` và tên / MSSV / email thử: 0 ở log gateway + worker, payload LLM, `llm_audit`, `audit_log`, `outbox` |
+| G5-13, 16, 17, 20 (seed mới) | PASS | C ở "Cần chú ý" (câu nay: "…học trên EduPilot khoảng 31 phút mỗi tuần; không hỏi AI hay đăng bài ở Threads trong 2 tuần."); phân quyền ma trận đúng; ADMIN / TA lớp khác `403` |
+| Các dòng khác (G5-01, 02, 06, 08, 10, 11, 12, 14, 15, 18, 19, 21, 22, 24, 26, 27, 29, 31, 33, 34) | PASS (giữ) | không có thay đổi mã liên quan ở vòng 2 (diff dev: seed, `seed-chat`, `#40`, scripts); kết quả vòng 1 giữ nguyên, các test Go tương ứng chạy lại xanh trong `go-test-all.sh` / `gate-p5.sh` |
+
+## Điều kiện để đổi sang ĐẠT
+1. **BUG-S2**: `seed.mjs` chặn `NODE_ENV=production` (hoặc PM sửa AC6 / TC-17 thành `APP_ENV`).
+2. Dev đưa commit #41 (`check-chat-seed.mjs`: 11 thread hiện + 1 `hidden`) lên nhánh; chạy `node scripts/check-chat-seed.mjs` xanh.
+Còn lại từ vòng 1 (không phải điều kiện): `visual.spec.ts` macOS; dòng mô tả dưới tiêu đề ở `/students`, `/class/settings` (G5-31, PM quyết); `tiêu đề thread seed` lấy từ chữ trích PDF.
+
+---
+
+# (Vòng 1, đã thay thế) QC — báo cáo cổng P5 (CRM, hồ sơ 360, thời gian học) + seed sprint 7
 Ngày 2026-10-16. Commit: `sprint/7-p4-p5` @ `0f9ff865`; CI `38782040813` **xanh**. Bộ kiểm: `gate-P5.md` (G5-01…34), `tc-US-P5-01…06.md`, `tc-US-S7-SEED.md`, `.claude/skills/gate/SKILL.md`. Cùng stack sạch với `report-GATE-P4.md`. Rà soát thay đổi spec / TC từ APPROVED: xem mục 1 của `report-GATE-P4.md` (dùng chung; kết quả: 0 TC bị vai khác sửa; 2 commit sửa spec không ghi số proposal — `803393b7`, `30f81cae`; test cũ bị sửa đều dẫn tới proposal ACCEPTED trừ ba dòng helper của BUG-S7-02).
 
 **Cập nhật 2026-10-16 (#38):** US-P5-06 TC-17 chấm lại theo LCP devtools → **PASS** (1.478 ms ≤ 2.500 ms); `G5-23` thành PASS. Điều kiện (3) bên dưới đã đóng; còn BUG-S1 / TC-S7-SEED-15 (chờ dev, #40).

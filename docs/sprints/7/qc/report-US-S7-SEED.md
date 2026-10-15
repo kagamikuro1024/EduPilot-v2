@@ -1,3 +1,19 @@
+# QC report — US-S7-SEED — **vòng 2** (BUG-S1, TC-15)
+Ngày 2026-10-16. Commit kiểm: `sprint/7-p4-p5` @ `a1ff631e` (code dev `182a6d74`, CI `38797158070` xanh). Stack `edupilot100` **sạch** dựng lại từ nhánh (`down -v`, `up --build --profile ingest`, `--scale gateway=2`); `seed.mjs` từ DB trống **416 s** (docling thật), kết thúc `check-crm-seed.mjs` ok.
+
+## Kết luận vòng 2: **FAIL (thấp)** — 24/25 TC PASS; BUG-S1 và TC-15 đã đóng; **1 TC FAIL mới: TC-S7-SEED-17** (BUG-S2)
+| TC | Vòng 2 | Bằng chứng |
+| --- | --- | --- |
+| 12 (BUG-S1) | **PASS** | `escalation_tickets` lớp 761987 = **5**: `OPEN` 2 (một quá hạn `waiting_since` > 80 h), `CLAIMED` 1 (bởi `teacher@`), `ANSWERED` 1, `CLOSED` 1 (`STUDENT_CONFIRMED`); sinh viên B (`sv.kha`) **0** ticket; lớp 2 **0**; Mailpit 50 thư (có "Giảng viên đã trả lời…"). `check-crm-seed.mjs`: `tickets=5`; chat lịch sử 150 câu / 33 phiên ghi thẳng (`gateway admin seed-chat`), không `llm_audit` cho chat seed (dev đã nêu) |
+| 14 | PASS | `run-job ticket.sla`: ticket quá hạn `sla_stage 2`; `/me/today` mục `TICKET` `overdue` |
+| 15 (TC-15) | **PASS** | hàng chờ 2, `post_reports` 5, 1 ghim, 1 thread ẩn, 1 bình luận ẩn có lý do, bài AI VERIFIED 3 / CORRECTED 2 / REJECTED 1, `knowledge_items` 6, `POST_REPORTED` ở `Hôm nay`; RAG: `node scripts/check-knowledge-seed.mjs` → `tri thức=6 (POST 5, TICKET 1) có trích dẫn=6` (mỗi câu hỏi bằng đúng chữ đoạn tri thức trả citation "Hỏi đáp đã được giảng viên xác nhận"). Hỏi bằng tiêu đề thread vẫn `citations: []` — do embedding giả băm cả chuỗi (dev giải thích: không xảy ra với embedding thật). QC chấp nhận kiểm bằng script cho provider giả |
+| 01–11, 13, 16, 18–25 | PASS (chạy lại) | 270 dòng điểm danh, A/B/C khớp `expected_crm.csv`, ABSENT 21, phát biểu 65 · 16,25 (B 2 = 0,50), 68 ngày · 4.110 dòng · 1.883.002 s, risk `AT_RISK 1 / WATCH 2 / NONE 27` (lớp 2 NONE 24), `STUDENT_ATTENTION` "1 sinh viên mới vào diện cần chú ý · 761987", cờ lớp `t` / `f`, phân quyền A/B/C/D/TA/ADMIN đúng, `gate-p4.sh` và `gate-p5.sh` rc=0; ba lần dựng độc lập cho cùng số liệu (TC-04) |
+| 17 | **FAIL (BUG-S2)** | AC6: "`NODE_ENV=production node scripts/seed.mjs; echo $?` → khác 0". Thực tế `scripts/seed.mjs:37` chỉ chặn khi `APP_ENV === "production"`; với `NODE_ENV=production` (và `API_URL` trỏ stack thật) seed **chạy** và thoát `0`. **Đính chính**: vòng 1 tôi ghi PASS vì lúc đó thoát `1` — do không kết nối được `https://localhost/api/v1`, không phải do chặn production. `APP_ENV=production` thoát `1` đúng ("Seed bị chặn ở production."). Sửa: chặn cả `NODE_ENV=production` hoặc sửa AC / TC thành `APP_ENV` |
+| 22, 23 | PASS (giữ từ vòng 1) | bước 14 / lỗi API không đổi ở vòng 2 |
+Quan sát: `check-chat-seed.mjs` (sprint 6) vẫn báo "thread lớp 1 = 11 (cần 12)", "PENDING = 3 (cần 4)", "sv.gioi thấy 10 thread (cần 12)" — #41 (ACCEPTED) sửa script này nhưng commit của dev chưa có trên nhánh `a1ff631e` (`git log` chỉ có "PM quyết #41"). Không nằm trong `gate-p4/p5`.
+
+---
+
 # QC report — US-S7-SEED (dữ liệu seed sprint 7, lệnh quản trị, hai cổng)
 Ngày 2026-10-16. Commit kiểm: `sprint/7-p4-p5` @ `0f9ff865` (CI `38782040813` **xanh**, 10 ph 59 s). Bộ TC: `tc-US-S7-SEED.md` (một chỗ sửa theo `#35`: TC-S7-SEED-08, ghi ở "Lịch sử sửa TC"). Handoff: `dev-US-S7-SEED.md`. Stack: `edupilot100`, **dựng sạch** từ nhánh (`down -v`, `up --build --profile ingest`, `docker-compose.test.yml`, `--scale gateway=2`, docling thật, judge `-no-seccomp`), `node scripts/seed.mjs` từ DB trống **175 s** (lần có docling), chạy lại 19 s. Lưu ý dựng: cổng MinIO của stack QC là 9300 nên phải đặt `BLOB_PUBLIC_ENDPOINT=localhost:9300` (nếu không bước 11 "fetch failed" — do lệch cổng của QC, không phải lỗi seed).
 
