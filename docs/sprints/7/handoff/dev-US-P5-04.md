@@ -41,3 +41,6 @@ AC1, AC2, AC4, AC5 (phần câu sinh từ dữ liệu; route hồ sơ ở P5-05)
 - `docs/ARCHITECTURE.md` (BA): env `RISK_JOB_AT`; route `GET /courses/{id}/students`; topic `course.settings_changed`, `crm.risk_updated`.
 - `DataTable` ảo hoá: ở `AdminUsers` `pagination.nextCursor` là hằng `"next"` nên bảng chỉ xin trang thứ hai (cơ chế "mỗi con trỏ xin đúng một lần" khoá theo giá trị). `RealStudents` truyền con trỏ thật nên đi hết nhiều trang; `AdminUsers` chưa sửa (ngoài phạm vi).
 - Hồ sơ `/students/[id]` vẫn là màn mô phỏng tới US-P5-05; dòng danh sách và khối "Lớp cần chú ý" đã trỏ tới route đó.
+
+## Ghi chú đo lại `TestStudentsListP95Under300ms` (theo PM)
+Đỏ một lần (p95 354 ms) khi chạy `go test -p 4 ./...` đồng thời với `docker compose build docling` (máy bận, tải 8–9). Máy rảnh, ba lần liên tiếp (`-race`): p50 44,3 / 43,4 / 44,4 ms, p95 49,2 / 48,3 / 62,6 ms — thấp hơn ngưỡng 300 ms gần 5 lần. Ngưỡng KHÔNG đổi; chỉ đỏ khi máy quá bận.
