@@ -100,7 +100,7 @@ flowchart LR
 | Sinh viên không `ACTIVE` trong thân | `422 STUDENT_NOT_IN_COURSE` | thông báo ở dòng |
 | Xoá buổi đã có điểm danh | `409 SESSION_HAS_ATTENDANCE` | "Buổi này đã có điểm danh, chỉ sửa được giờ" |
 | Tạo lịch vượt 60 buổi | `422 VALIDATION_FAILED` + `details[0].code = TOO_MANY_SESSIONS` (hợp đồng P2, `proposals.md` #20) | "Sẽ tạo 74 buổi, tối đa 60" |
-| Redis lỗi lúc heartbeat | `204`, bỏ nhịp, đếm `activity_heartbeat_dropped_total` | không thấy gì |
+| Redis lỗi lúc heartbeat | `204` trong ≤ 1 s (lệnh Redis có hạn ≤ 500 ms), bỏ nhịp, đếm `activity_heartbeat_dropped_total` (log `WARN`, giá trị cộng dồn; không `/metrics` — #31) | không thấy gì |
 | Tab ẩn / idle 2 phút | hook ngừng gửi | không thấy gì |
 | Chưa xác nhận thông báo theo dõi | hook không gửi; server `204` không cộng | hộp thoại một lần |
 | Mở hồ sơ mà ghi audit lỗi | `503`, không trả dữ liệu | `PageState` lỗi + `Thử lại` |
@@ -176,7 +176,7 @@ Không có `note`, `marked_by`, tên người khác. Một lượt sinh chữ nh
 2. `403` khi sinh viên không `ACTIVE` ở `course_id` (kiểm bằng bộ nhớ đệm `ep:enr:{uid}:{course}` TTL 60 s — giá trị mang cả `allow_study_time_opt_out` của lớp —, **không** truy DB mỗi nhịp); `422` khi `area` ∉ `TRACKING_AREAS` hoặc thân sai.
 3. **Cấu hình đo (Q1):** `tracked = NOT courses.allow_study_time_opt_out OR user_settings.track_study_time` (cờ lớp từ `ep:enr`, cờ sinh viên từ `ep:trk:{uid}` cùng ack); `PUT /me/settings` đổi `track_study_time` thì `DEL ep:trk:{uid}`. `tracked = false` → `204`, **không** đo. Máy chủ quyết định; hook chỉ là tối ưu.
 4. Một lời gọi Lua duy nhất, nguyên tử, mọi khoá truyền qua `KEYS`: (a) giới hạn `INCR ep:hb:rate:{uid}` EX 60 ≤ `HEARTBEAT_MAX_PER_MINUTE`; (b) khung 30 s: `SET ep:hb:win:{uid}:{floor(unix/30)} NX EX 40` — đã có → bỏ (`tab` thứ hai cùng khung); (c) trần ngày: đọc `ep:study:total:{uid}:{yyyymmdd ICT}` (tổng mọi lớp × khu vực) ≥ `STUDY_DAILY_CAP` → bỏ; (d) `INCRBY ep:study:total:{uid}:{yyyymmdd ICT} 30` (TTL `HEARTBEAT_COUNTER_TTL`), `INCRBY ep:study:{course}:{uid}:{yyyymmdd ICT}:{AREA} 30`, `EXPIRE` `HEARTBEAT_COUNTER_TTL`, `SADD ep:study:dirty <khoá>` (TLR-9: có khoá tổng ngày vì khoá đếm tách theo lớp × khu vực).
-5. Redis lỗi → `204` + `activity_heartbeat_dropped_total`. **Không** ghi Postgres. Không log `area` kèm `uid` ở mức info.
+5. Redis lỗi (kể cả treo) → mọi lệnh Redis của heartbeat có hạn riêng **≤ 500 ms**; quá hạn hoặc lỗi → `204` **trong ≤ 1 s** + tăng `activity_heartbeat_dropped_total` và ghi một dòng log `WARN` mang giá trị cộng dồn của bộ đếm (gateway không có `/metrics` — `proposals.md` #31). **Không** ghi Postgres. Không log `area` kèm `uid` ở mức info.
 
 **4.6.2 `heartbeat.rollup`** (worker, `ROLLUP_TICK`, khoá leader `ep:lock:heartbeat.rollup`): quét `ep:study:dirty` (`SSCAN`), đọc giá trị tích luỹ `V` của các khoá **đổi từ lần trước** (so băm `ep:study:flushed`), ghi lô ≤ 500 hàng: `INSERT INTO study_time_daily (course_id, student_id, date, area, active_seconds) … ON CONFLICT (course_id, student_id, date, area) DO UPDATE SET active_seconds = GREATEST(study_time_daily.active_seconds, EXCLUDED.active_seconds)`; sau khi ghi thành công cập nhật `flushed`; khoá của ngày đã qua > 1 ngày được `SREM` khỏi `dirty` **và `HDEL` trường tương ứng ở `flushed`** (không để hash phình mãi — TLR-9). Ghi **tuyệt đối** (không cộng dồn) nên giao đôi / chết giữa chừng / chạy lại **không đổi kết quả**; Redis mất dữ liệu → DB giữ giá trị cũ, số đo ngày đó có thể thấp hơn thật (chấp nhận — dữ liệu tham khảo, D17; `SYSTEM_DESIGN.md` 3.3).
 
