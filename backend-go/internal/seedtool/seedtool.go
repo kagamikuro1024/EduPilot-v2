@@ -173,6 +173,12 @@ where study_time_daily.active_seconds < excluded.active_seconds`, courseID, ids,
 	if err != nil {
 		return 0, fmt.Errorf("ghi study_time_daily: %w", err)
 	}
+	// Tín hiệu STUDY của crm.risk chỉ có khi sinh viên đã xác nhận thông báo TỪ TRƯỚC tuần đó (SRS 4.7.1): lịch sử đã gieo thì coi như đã xác nhận trước tuần 1.
+	// Không có bước này, sinh viên mới đăng ký hôm nay không có STUDY ở mọi tuần quá khứ và kết quả at-risk của seed phụ thuộc hoạt động chat rải ngẫu nhiên.
+	first := monday(now).AddDate(0, 0, -7*weeks-1)
+	if _, err := pool.Exec(ctx, `update users set tracking_notice_ack_at = $2 where id = any($1) and (tracking_notice_ack_at is null or tracking_notice_ack_at > $2)`, ids, first); err != nil {
+		return 0, fmt.Errorf("xác nhận thông báo đo thời gian học: %w", err)
+	}
 	return tag.RowsAffected(), nil
 }
 

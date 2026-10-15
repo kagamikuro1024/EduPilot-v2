@@ -879,7 +879,7 @@ async function step15StudyTimeRisk() {
   vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-"], profile));
   vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10"]));
   const out = gatewayAdmin("crm-risk-run", ["--course", "761987"]);
-  if (!/AT_RISK 1, WATCH 2/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 2": ${out}`);
+  if (!/AT_RISK 1, WATCH 2/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 2": ${out} — buổi 10 phải là HÔM NAY (seed chạy trên DB trống; DB cũ giữ lịch buổi của ngày seed trước nên tuần của buổi 8 / 9 lệch)`);
   if (!/AT_RISK 0/.test(gatewayAdmin("crm-risk-run", ["--course", "761988"]))) throw new Error("Lớp 761988 không được có AT_RISK");
 }
 
@@ -894,9 +894,10 @@ async function step16Tickets() {
     const token = ctx.tokens[k];
     const sess = (await listAll(`/chat/sessions?course_id=${c1}`, token)).sort((a, b) => (a.id < b.id ? -1 : 1))[0];
     if (!sess) throw new Error(`${k} chưa có phiên chat (bước 12?)`);
-    const msg = (await listAll(`/chat/sessions/${sess.id}/messages`, token)).find((m) => m.role === "ASSISTANT");
+    // tin mới nhất có thể chuyển hoặc đã có ticket (chạy lại: tin mới nhất là STAFF_ANSWER, không chuyển được nhưng mang đúng ticket đó)
+    const msg = (await listAll(`/chat/sessions/${sess.id}/messages`, token)).find((m) => m.role === "ASSISTANT" && (m.can_escalate || m.ticket));
     if (!msg) throw new Error(`${k} chưa có câu trả lời nào của trợ lý để chuyển giảng viên`);
-    let tk = (await call("POST", `/chat/messages/${msg.id}/escalate`, { token, json: {} })).body.ticket;
+    let tk = msg.ticket ?? (await call("POST", `/chat/messages/${msg.id}/escalate`, { token, json: {} })).body.ticket;
     const rank = { OPEN: 0, CLAIMED: 1, ANSWERED: 2, CLOSED: 3 };
     const goal = { open: 0, overdue: 0, claimed: 1, answered: 2, closed: 3 }[want];
     if (rank[tk.status] < 1 && goal >= 1) tk = (await call("POST", `/courses/${c1}/tickets/${tk.id}/claim`, { token: t, json: {} })).body.ticket;
@@ -912,6 +913,7 @@ async function step17Moderation() {
   step(17, "Kiểm duyệt Threads lớp 761987: 2 báo cáo, 1 thread tự ẩn, 1 bình luận bị ẩn, 1 thread ghim…");
   const c1 = ctx.ids["761987"];
   const t = ctx.tokens.teacher;
+  if ((await listAll(`/courses/${c1}/moderation/queue`, t)).length >= 2) return; // chạy lại: thread đã tự ẩn (3 báo cáo) trả 404 cho báo cáo thứ tư
   const threads = (await listAll(`/courses/${c1}/threads`, t)).sort((a, b) => (a.id < b.id ? -1 : 1));
   if (threads.length < 4) throw new Error("Lớp 761987 cần ≥ 4 thread (bước 13)");
   const report = async (tid, who) => {

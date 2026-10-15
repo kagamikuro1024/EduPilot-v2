@@ -173,6 +173,7 @@ func TestSeedCRMExpected(t *testing.T) {
 	svc := &crm.Service{Pool: w.pool, Clock: clock.NewFake(today)}
 	require.NoError(t, svc.RunCourse(t.Context(), w.course, today))
 	got := levels(t, w)
+	require.Zero(t, count(t, w, `select count(*) from student_risk r, jsonb_array_elements(r.weeks) wk where r.course_id = $1 and wk->'study' is null`), "mọi sinh viên có tín hiệu STUDY ở cả 4 tuần (đã xác nhận thông báo từ trước tuần 1)")
 	var atRisk, watch []string
 	for e, l := range got {
 		switch l {
