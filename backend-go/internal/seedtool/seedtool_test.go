@@ -198,3 +198,29 @@ func count(t *testing.T, w world, sql string, args ...any) int {
 	require.NoError(t, w.pool.QueryRow(t.Context(), sql, args...).Scan(&n), sql)
 	return n
 }
+
+// TestSeedChatNoTickets (BUG-S1): lịch sử chat ghi thẳng KHÔNG tạo ticket nào (126 ticket tự mở khi đi qua luồng chat thật với provider giả), chạy lại không thêm gì,
+// tin hỏi không bị gán độ tin cậy, câu ngoài tài liệu có no_context, mọi mốc ≤ hôm nay.
+func TestSeedChatNoTickets(t *testing.T) {
+	var p plan
+	readJSON(t, "../../../seed/crm_plan.json", &p)
+	w := newWorld(t, p)
+	cp := seedtool.ChatPlan{Sessions: []seedtool.ChatSession{
+		{Email: "sv.gioi@edupilot.local", Key: "s-gioi-0", Turns: []seedtool.ChatTurn{{Key: "t1", Question: "Phishing là gì?", Answer: "Mẫu."}, {Key: "t2", Question: "Hôm nay thời tiết thế nào?", Answer: "Chưa tìm thấy.", Outside: true}}},
+		{Email: "sv.kha@edupilot.local", Key: "s-kha-0", Turns: []seedtool.ChatTurn{{Key: "t3", Question: "Điều kiện dự thi?", Answer: "Mẫu."}}},
+	}}
+	n, err := seedtool.SeedChat(t.Context(), w.pool, w.course, 10, cp, today)
+	require.NoError(t, err)
+	require.EqualValues(t, 6, n)
+	again, err := seedtool.SeedChat(t.Context(), w.pool, w.course, 10, cp, today)
+	require.NoError(t, err)
+	require.Zero(t, again)
+	require.Zero(t, count(t, w, `select count(*) from escalation_tickets where course_id = $1`))
+	require.Equal(t, 2, count(t, w, `select count(*) from chat_sessions where course_id = $1`))
+	require.Equal(t, 3, count(t, w, `select count(*) from chat_messages where course_id = $1 and role = 'USER' and confidence is null`))
+	require.Equal(t, 1, count(t, w, `select count(*) from chat_messages where course_id = $1 and role = 'ASSISTANT' and no_context and low_confidence`))
+	require.Zero(t, count(t, w, `select count(*) from chat_messages where course_id = $1 and (created_at > $2 or intent is distinct from case role when 'ASSISTANT' then 'COURSE_QA' end)`, w.course, today))
+	require.Error(t, mustErr(seedtool.SeedChat(t.Context(), w.pool, w.course, 10, seedtool.ChatPlan{Sessions: []seedtool.ChatSession{{Email: "khong.co@edupilot.local", Key: "x", Turns: []seedtool.ChatTurn{{Key: "y", Question: "q", Answer: "a"}}}}}, today)))
+}
+
+func mustErr(_ int64, err error) error { return err }

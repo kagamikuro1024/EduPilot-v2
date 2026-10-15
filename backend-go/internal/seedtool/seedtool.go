@@ -1,5 +1,5 @@
-// Package seedtool: ba việc của seed sprint 7 mà API không làm được vì phải ghi thời gian QUÁ KHỨ (FEAT-crm-360 SRS 4.10).
-// Chỉ gọi từ `gateway admin …` và chỉ khi APP_ENV nằm trong danh sách cho phép (xem cmd/gateway/seedcmd.go). Không đổi nội dung nghiệp vụ, chỉ đổi mốc thời gian.
+// Package seedtool: việc của seed sprint 7 mà API không làm được: ghi thời gian QUÁ KHỨ (FEAT-crm-360 SRS 4.10) và lịch sử chat không tự mở ticket (chat.go).
+// Chỉ gọi từ `gateway admin …` và chỉ khi APP_ENV nằm trong danh sách cho phép (xem cmd/gateway/seedcmd.go). Không đổi nội dung nghiệp vụ có sẵn.
 package seedtool
 
 import (

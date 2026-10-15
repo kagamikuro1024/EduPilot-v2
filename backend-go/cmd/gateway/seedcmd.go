@@ -24,10 +24,10 @@ var seedEnvs = []string{"dev", "test"} //nolint:gochecknoglobals // danh sách c
 
 // isSeedCmd: tên lệnh con thuộc nhóm seed.
 func isSeedCmd(name string) bool {
-	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run"
+	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat"
 }
 
-// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
+// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
 func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdout, stderr io.Writer) int {
 	name := args[0]
 	fail := func(code int, msg string) int {
@@ -39,6 +39,7 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 	course := fs.String("course", "", "mã lớp (class_code)")
 	weeks := fs.Int("weeks", 10, "số tuần")
 	profile := fs.String("profile", "", "tệp hồ sơ thời gian học (JSON); `-` đọc từ stdin (gateway chạy trong container không thấy thư mục seed/)")
+	chatPlan := fs.String("plan", "", "kế hoạch lịch sử chat (JSON); `-` đọc từ stdin (với seed-chat)")
 	tickets := fs.Bool("tickets", false, "lùi mốc thời gian của ticket")
 	ticket := fs.String("ticket", "", "id ticket cần lùi (với --tickets)")
 	hours := fs.Int("hours", 192, "số giờ lùi (với --tickets)")
@@ -78,6 +79,15 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, "không đọc được hồ sơ: "+err.Error())
 		}
 		body = raw
+	case "seed-chat":
+		if *chatPlan != "-" {
+			return fail(2, "seed-chat chỉ nhận --plan - (JSON qua stdin).")
+		}
+		raw, err := io.ReadAll(io.LimitReader(stdin, 4<<20))
+		if err != nil {
+			return fail(1, "không đọc được kế hoạch: "+err.Error())
+		}
+		body = raw
 	case "seed-age":
 		if *tickets == *activity {
 			return fail(2, "chọn đúng một trong --tickets hoặc --activity.")
@@ -112,6 +122,16 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, err.Error())
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-study-time: %d dòng\n", n)
+	case "seed-chat":
+		p, err := seedtool.ParseChatPlan(body)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		n, err := seedtool.SeedChat(ctx, pool, cid, *weeks, p, clk)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-chat: %d tin\n", n)
 	case "seed-age":
 		var n int64
 		if *tickets {

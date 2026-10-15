@@ -11,7 +11,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
+import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
 import { createHash } from "node:crypto";
 import { ROSTER1, crmPlan } from "./crm-plan.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
@@ -692,71 +692,35 @@ async function step11DocsEvents() {
   }
 }
 
-// ---- bước 12: ≈ 150 câu hỏi chat riêng bằng đúng luồng chat (US-P3-08 AC1) --------------------------------------------------
-// Mỗi sinh viên của lớp 761987 một phiên (sv.gioi: 4 phiên, để "Tiếp tục học" có > 3 mục); chạy lại chỉ bổ sung phần thiếu.
+// ---- bước 12: ≈ 150 câu hỏi chat riêng (US-P3-08 AC1) ---------------------------------------------------------------------------
+// Ghi thẳng bằng `gateway admin seed-chat` (BUG-S1): với provider giả mọi câu tự nhiên đều thiếu ngữ cảnh → luồng chat thật tự mở 126 ticket. Mỗi sinh viên của lớp 761987 một phiên (sv.gioi: 4 phiên, để "Tiếp tục học" có > 3 mục); chạy lại không thêm gì.
 const uuidOf = (s) => {
   const h = createHash("sha1").update(s).digest("hex");
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
 };
 
-/** Gửi một tin và đọc SSE tới hết (done | error). 409 EXAM_IN_PROGRESS (đang có lượt thi): đợi tối đa 4 phút. */
-async function sendChat(token, sid, content, key) {
-  for (let attempt = 0; ; attempt++) {
-    const res = await fetch(`${API}/chat/sessions/${sid}/messages`, {
-      method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", Accept: "text/event-stream", Origin: ORIGIN, "Idempotency-Key": uuidOf(key) },
-      body: JSON.stringify({ content }), tls: { rejectUnauthorized: false },
-    });
-    if (res.status === 429 && attempt < 8) {
-      await sleep(3000);
-      continue;
-    }
-    if (res.status === 409 && attempt < 50) {
-      await sleep(5000);
-      continue;
-    }
-    if (!res.ok) throw new Error(`POST messages → ${res.status} ${(await res.text()).slice(0, 120)}`);
-    const text = await res.text();
-    if (/event: error/.test(text)) throw new Error(`Chat báo lỗi: ${text.slice(text.indexOf("event: error"), text.indexOf("event: error") + 160)}`);
-    return;
-  }
-}
-
-async function userMessageCount(token, sid) {
-  const items = await listAll(`/chat/sessions/${sid}/messages`, token);
-  return items.filter((m) => m.role === "USER").length;
-}
+const CHAT_ANSWER = "Mình tìm thấy phần liên quan trong tài liệu của lớp. Bạn xem lại bài giảng tương ứng để nắm đầy đủ.";
+const CHAT_ANSWER_OUTSIDE = "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.";
 
 async function step12Chat() {
-  step(12, "Câu hỏi chat riêng của sinh viên lớp 761987 (≈ 150, bằng luồng chat thật)…");
-  const course = ctx.ids["761987"];
+  step(12, "Lịch sử chat riêng của sinh viên lớp 761987 (≈ 150 câu, ghi thẳng, không tự mở ticket)…");
   const questions = chatQuestions(mulberry32(RNG_SEED ^ 0x5eed));
-  const students = roster1;
   // kế hoạch: sv.gioi 4 phiên (2+1+1+1 tin), mỗi người còn lại 1 phiên × 5 tin → 5 + 145 = 150
-  const plan = students.map((k) => ({ k, sessions: k === "sv.gioi" ? [2, 1, 1, 1] : [5] }));
-  let n = 0;
-  const jobs = plan.map((p) => ({ ...p, from: (n += p.sessions.reduce((a, b) => a + b, 0)) - p.sessions.reduce((a, b) => a + b, 0) }));
-  await pool(jobs, 4, async (j) => {
-    const token = (await login(accounts.get(j.k).email)).access_token;
-    const existing = (await listAll(`/chat/sessions?course_id=${course}`, token)).sort((a, b) => (a.id < b.id ? -1 : 1));
-    let q = j.from;
-    for (const [si, quota] of j.sessions.entries()) {
-      let sess = existing[si];
-      const had = sess ? await userMessageCount(token, sess.id) : 0;
-      if (had >= quota) {
-        q += quota;
-        continue;
+  const sessions = [];
+  let q = 0;
+  for (const k of roster1) {
+    (k === "sv.gioi" ? [2, 1, 1, 1] : [5]).forEach((quota, si) => {
+      const turns = [];
+      for (let m = 0; m < quota; m++, q++) {
+        const text = questions[q % questions.length];
+        const outside = OUTSIDE.some((o) => text.endsWith(o));
+        turns.push({ key: `seed-chat-${k}-${si}-${m}`, q: text, a: outside ? CHAT_ANSWER_OUTSIDE : CHAT_ANSWER, outside });
       }
-      if (!sess) {
-        sess = (await call("POST", "/chat/sessions", { token, json: { course_id: course }, key: `seed-chat-session-${j.k}-${si}` })).body;
-        ctx.changed = true;
-      }
-      for (let m = had; m < quota; m++) {
-        await sendChat(token, sess.id, questions[(q + m) % questions.length], `seed-chat-${j.k}-${si}-${m}`);
-        ctx.changed = true;
-      }
-      q += quota;
-    }
-  });
+      sessions.push({ email: accounts.get(k).email, key: `seed-chat-session-${k}-${si}`, turns });
+    });
+  }
+  const out = gatewayAdmin("seed-chat", ["--course", "761987", "--weeks", "10", "--plan", "-"], JSON.stringify({ sessions }));
+  if (!/seed-chat: 0 tin/.test(out)) ctx.changed = true;
 }
 
 // ---- bước 13: thread lớp (12 + 3) với đủ trạng thái bài AI (US-P3-08 AC2) ---------------------------------------------------

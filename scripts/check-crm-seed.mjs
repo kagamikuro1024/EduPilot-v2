@@ -44,7 +44,10 @@ must(JSON.stringify(today).includes("STUDENT_ATTENTION"), "Hôm nay của giản
 must((await listAll(`/courses/${c2}/students?filter=attention`, t)).length === 0, "lớp 761988 không được có sinh viên cần chú ý");
 // AC4: 5 ticket đủ bốn trạng thái; lớp 2 không có
 for (const st of ["OPEN", "CLAIMED", "ANSWERED", "CLOSED"]) must((a.byStatus[st] ?? 0) >= 1, `thiếu ticket ${st}`);
-must(a.tickets >= 5, `ticket lớp 1 = ${a.tickets}, cần ≥ 5`);
+must(a.tickets === 5, `ticket lớp 1 = ${a.tickets}, cần đúng 5 (BUG-S1: lịch sử chat không được tự mở ticket)`);
+const ticketStudents = (await listAll(`/courses/${c1}/tickets?status=ALL`, t)).map((x) => x.student.id);
+const studentB = students.find((x) => x.student.student_code === CODE["sv.kha"]);
+must(!ticketStudents.includes(studentB.student.id), "sinh viên B không được có ticket (demo D3: B tự tạo ticket mới)");
 must((await listAll(`/courses/${c2}/tickets?status=ALL`, t)).length === 0, "lớp 761988 không được có ticket");
 // AC5: hàng đợi kiểm duyệt
 must(a.queue >= 2, `hàng đợi kiểm duyệt = ${a.queue}, cần ≥ 2`);
