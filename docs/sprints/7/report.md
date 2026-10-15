@@ -87,6 +87,7 @@ Tech Lead thẩm định cả hai trước khi `APPROVED` (P4: 22 TLR, 5 chặn;
 - **Lighthouse simulate:** TBT có đuôi dài ngẫu nhiên trên runner; tăng `numberOfRuns` 3 → 5 (ngưỡng giữ). Gói `mock/*` ≈ 17,8 KB còn bị prefetch qua thanh bên; hết khi màn mock cuối cùng được thay (D51).
 - `TestMaskConcurrentSameSession`: sửa phòng thủ (#36), nguyên nhân là suy luận.
 - At-risk chưa có tín hiệu điểm (`GRADE` neo chờ P6).
+- Luật chữ trên UI (#42): đã xoá 6 câu ở màn sprint 7 và `/class/settings`, `/settings`; các màn cũ `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings` còn câu mô tả dưới tiêu đề — quét một lượt ở sprint 8 (`docs/sprints/7/handoff/dev-PM-42.md`).
 - Từ sprint 6 còn: vai DB superuser (PR), báo upstream `docling_parse` arm64, thu hồi chia sẻ tài liệu, E1 cần người ngoài đội soạn mẫu.
 
 ## Chủ dự án tự kiểm

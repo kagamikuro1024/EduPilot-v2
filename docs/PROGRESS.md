@@ -55,6 +55,7 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
   - Lighthouse simulate: TBT đuôi dài trên runner (đã tăng `numberOfRuns` 5); gói `mock/*` ≈ 17,8 KB còn bị prefetch tới khi hết màn mock (D51).
   - `TestMaskConcurrentSameSession`: sửa phòng thủ (#36), chưa có bằng chứng nguyên nhân.
   - At-risk chưa có tín hiệu điểm (neo `GRADE` chờ P6). Chủ dự án chưa bấm giờ điểm danh trên điện thoại thật.
+  - Luật chữ trên UI (#42): đã xoá 6 câu ở màn sprint 7 và `/class/settings`, `/settings`; các màn cũ `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings` còn câu mô tả dưới tiêu đề — quét một lượt ở sprint 8 (`docs/sprints/7/handoff/dev-PM-42.md`).
 - **Nợ của sprint 6:**
   - Chưa ép được với provider giả: `OVERLOADED` / quá hạn che (TC-49/50 P3-02, TC-26 P3-05); chưa đo lại 3G chậm.
   - Nhiều test còn dùng `pgxpool.New` mặc định thay vì `RuntimePool`, nên lỗi PgBouncer có thể ẩn.
