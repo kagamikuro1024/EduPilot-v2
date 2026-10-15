@@ -25,3 +25,10 @@ E2E_PORT=3410 E2E_API_PORT=3412 pnpm exec playwright test me.spec.ts panels.spec
 grep -rn "@/mock" src/features/me | wc -l      # 0
 bash ../scripts/ui-antipatterns.sh             # rc=0
 ```
+
+## Vòng 2 — TC-17 (Lighthouse `/me`)
+Theo PM: `/me` vào `lighthouserc.json` (simulate) và `lighthouserc.devtools.json` (cùng ngưỡng), `lighthouse-auth.cjs` (vai student), `lighthouse-api.mjs` (ba API `me/*` theo hợp đồng thật để màn dựng đủ), `ci.yml` (devtools B: `/gradebook /me /settings/llm /dev/ui`; 8 URL).
+- **Lần đo đầu đỏ thật**: devtools `/me` LCP **5,5 s** (ngưỡng 2,5 s), FCP 4,1 s; `/chat` 1,5 s, `/threads` 1,5 s. Gốc: `shared/shell/intro.ts` không có `/me` nên `AuthSkeleton` rơi về khung xương (không có chữ từ máy chủ) → chữ đầu tiên chỉ vẽ sau JS + `/auth/refresh` + `/me/courses`. Sửa: thêm `"/me": { title: "Kết quả của tôi", description: "761987" }` (h1 thật là ứng viên LCP duy nhất của màn). Sau sửa: LCP **1,47 s**, FCP 0,83 s (3 lượt).
+- Simulate `/me` (3 lượt): TBT 27 / 29 / 31 ms, CLS 0, JS 237 KB (ngưỡng 200 ms / 0,1 / 250 KB). Cả 8 URL của lượt simulate đều qua cục bộ (TBT 15–38 ms).
+- `e2e/lcp.spec.ts`: thêm ca `/me` (dùng `mockMe`), 7/7 xanh — cần ACCEPTED #37 (xem `proposals.md`).
+- **TBT simulate đỏ ở CI (run `38767723328`, `/`: 40 / 274 / 312 ms, trung vị 274)**: không tái hiện cục bộ (16–24 ms). Log "benchmark máy chạy" của ba lượt CI gần nhất cho thấy đuôi dài ngẫu nhiên trên cùng `/` ở runner nhanh (benchmarkIndex ≈ 3000): `489 / 50 / 44` (run xanh `38754083522`), `96 / 72 / 69`, `40 / 274 / 312`. Mười hai lượt CI gần nhất: simulate đỏ 5 lần, trong đó 4 lần ngày 13/10 trước P5. Không do mã P5. Giảm nhiễu: `numberOfRuns` simulate 3 → 5 (trung vị chịu được 2 lượt xấu thay vì 1); ngưỡng 200 ms giữ nguyên. Đây là giảm nhiễu, không có bằng chứng đo trước/sau; nếu vẫn đỏ thì phải đo nguyên nhân tác vụ dài trên runner.

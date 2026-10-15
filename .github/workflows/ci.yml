@@ -261,7 +261,7 @@ jobs:
 
   lhci:
     # TL-CI #3b: simulate (TBT / CLS / dung lượng JS) một job; devtools (LCP) hai job, mỗi job một nửa URL. Cùng tệp cấu hình, cùng ngưỡng,
-    # cùng numberOfRuns: nửa URL ghi đè bằng --collect.url (lhci thay cả mảng url của tệp cấu hình, không nối thêm). Hợp hai nửa = đủ 7 URL.
+    # cùng numberOfRuns: nửa URL ghi đè bằng --collect.url (lhci thay cả mảng url của tệp cấu hình, không nối thêm). Hợp hai nửa = đủ 8 URL (có /me). Simulate chạy 5 lượt mỗi URL (devtools 3): TBT trên runner có đuôi dài (một lượt 270–490 ms giữa các lượt 40–70 ms) nên trung vị của 3 lượt đỏ ngẫu nhiên; ngưỡng giữ 200 ms.
     name: Frontend Lighthouse (${{ matrix.name }})
     needs: changes
     if: needs.changes.outputs.fe == 'true'
@@ -273,7 +273,7 @@ jobs:
         include:
           - { name: simulate, config: lighthouserc.json, out: .lighthouseci, paths: "" }
           - { name: devtools A, slug: devtools-a, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/ /chat /threads /inbox" }
-          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /settings/llm /dev/ui" }
+          - { name: devtools B, slug: devtools-b, config: lighthouserc.devtools.json, out: .lighthouseci-devtools, paths: "/gradebook /me /settings/llm /dev/ui" }
     steps:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/fe-setup

@@ -7,10 +7,11 @@
         "http://localhost:3310/threads",
         "http://localhost:3310/inbox",
         "http://localhost:3310/gradebook",
+        "http://localhost:3310/me",
         "http://localhost:3310/settings/llm",
         "http://localhost:3310/dev/ui"
       ],
-      "numberOfRuns": 3,
+      "numberOfRuns": 5,
       "puppeteerScript": "./lighthouse-auth.cjs",
       "startServerCommand": "node lighthouse-api.mjs & exec pnpm exec next start -p 3310",
       "startServerReadyPattern": "Ready",
