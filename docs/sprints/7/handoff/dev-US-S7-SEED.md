@@ -79,3 +79,8 @@ CI vòng 2: run `38797158070` (commit `182a6d74`) xanh toàn bộ (job Frontend 
 
 ## #41 — `check-chat-seed.mjs`
 Thread lớp 1 = 12: bước 17 ghim một thread (nằm ở mảng `pinned` riêng của trang đầu, không có trong `items` nên `listAll` bỏ sót) và tự ẩn một thread (3 báo cáo). Script nay gộp `pinned` + `items`, đòi đúng 1 thread `hidden` (`auto: true`, có `reason`), Staff thấy 12, sinh viên thấy 11; mọi khẳng định khác giữ nguyên. Stack sạch: `chat=150 sessions=33 outside=10 threads=12/3 states={PENDING 4, REJECTED 1, CORRECTED 2, VERIFIED 3, SKIPPED 2} idempotent=ok`; `check-crm-seed` (tickets=5, idempotent=ok), `check-knowledge-seed` (có trích dẫn 6/6). TL-3 (a) (đếm truy vấn tất định): PM ghi nợ, không làm sprint này.
+
+## Vòng 3 — BUG-S2 (TC-17 / AC6)
+- **Gốc:** `scripts/seed.mjs` chỉ chặn khi `APP_ENV=production` (đọc từ môi trường hoặc `.env.local`, mặc định dev); `NODE_ENV=production` không bị chặn. Vòng 1 QC thấy "thoát 1" chỉ vì bước 1 hỏng khi stack chưa có dữ liệu; từ khi seed chạy lại được (vòng 1–2) thì `NODE_ENV=production node scripts/seed.mjs` trên stack đã seed chạy hết và thoát 0.
+- **Sửa:** chặn TRƯỚC mọi lời gọi mạng khi `NODE_ENV` (biến tiến trình) HOẶC `APP_ENV` (môi trường / `.env.local`) là `production` (không phân biệt hoa thường, bỏ khoảng trắng): thông báo `Seed bị chặn: <TÊN>=production. Seed chỉ chạy ở môi trường dev / test.`, thoát 1. Chạy trên mã cũ: `NODE_ENV=production` đi tiếp tới `[1/17]` rồi gọi API; mã mới: thoát 1 ngay, không gọi gì.
+- **Cổng:** `gate-p5.sh` thêm bước "seed.mjs bị chặn khi NODE_ENV hoặc APP_ENV = production" (< 1 s, không cần stack): cả hai biến phải thoát ≠ 0 VÀ in "bị chặn", nếu không bước FAIL.

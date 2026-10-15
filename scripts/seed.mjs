@@ -33,10 +33,12 @@ function envFileValue(key) {
 }
 const setting = (key, fallback) => process.env[key] || envFileValue(key) || fallback;
 
-// Chặn production TRƯỚC mọi lời gọi mạng / lệnh.
-if (setting("APP_ENV", "dev") === "production") {
-  console.error("Seed bị chặn ở production.");
-  process.exit(1);
+// Chặn production TRƯỚC mọi lời gọi mạng / lệnh: NODE_ENV (chỉ biến môi trường tiến trình) HOẶC APP_ENV (môi trường hoặc .env.local) là production (BUG-S2).
+for (const [name, value] of [["NODE_ENV", process.env.NODE_ENV], ["APP_ENV", setting("APP_ENV", "dev")]]) {
+  if (String(value ?? "").trim().toLowerCase() === "production") {
+    console.error(`Seed bị chặn: ${name}=production. Seed chỉ chạy ở môi trường dev / test.`);
+    process.exit(1);
+  }
 }
 
 const API = setting("API_URL", "https://localhost/api/v1").replace(/\/$/, "");
