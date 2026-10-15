@@ -28,6 +28,7 @@ const MIN_GAP_MS = 25_000; // hai nhịp thường cách nhau ≥ 25 s dù có b
 // và không được sinh thêm lịch nhịp thứ hai (QC N1: nhịp 15 s, nhịp sau mốc idle).
 let lastInput = 0;
 let lastBeatAt = 0;
+let lastBeatArea = "";
 
 /**
  * Nhịp thời gian học (US-P5-03): mỗi 30 s khi tab đang hiện VÀ có thao tác trong 120 s gần nhất; ẩn tab → ngừng ngay; mạng đứt → bỏ nhịp (không xếp hàng);
@@ -48,8 +49,9 @@ export function useActivityHeartbeat({ courseId, area, enabled }: { courseId: st
     const active = () => document.visibilityState === "visible" && Date.now() - lastInput <= IDLE_MS;
     const beat = (resumed = false) => {
       if (stopped || !active()) return;
-      if (!resumed && Date.now() - lastBeatAt < MIN_GAP_MS) return;
+      if (!resumed && area === lastBeatArea && Date.now() - lastBeatAt < MIN_GAP_MS) return; // đổi khu vực thì nhịp đầu của khu vực mới được gửi ngay
       lastBeatAt = Date.now();
+      lastBeatArea = area;
       apiClient.post("/activity/heartbeat", { course_id: courseId, area, tab_id: tabId }, { signal: ctl.signal }).catch((e: unknown) => {
         if (e instanceof ApiError && (e.status === 403 || e.status === 422)) stop();
       });
