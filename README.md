@@ -9,7 +9,6 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 > - 5 (PE thi hằng tuần, chấm C/C++ bằng sandbox `go-judge`);
 > - 5.5 (giao diện panel nổi, D59);
 > - **6 (P3 + P8):** chat riêng và Threads có tường lửa dữ liệu cá nhân, che tên / MSSV trước mọi lời gọi LLM; tài liệu trích bằng `docling-serve` + tìm lai; thư viện, lịch, feed ICS; 535 test case, cổng P3 và P8 đạt.
->
 > - **7 (P4 + P5):** nút "Nhờ giảng viên", hộp thư hỗ trợ `/inbox`, chuông tức thì qua nhiều bản gateway, thư trả lời đúng một lần, SLA ticket, kiểm duyệt Threads, kho tri thức; điểm danh `/attendance`, hồ sơ 360, at-risk theo tuần, thời gian học có công tắc tắt, `/me`; 550 test case, cổng P4 và P5 đạt.
 >
 > Kế tiếp: sprint 8 (P6 Sổ điểm). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
