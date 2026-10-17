@@ -52,14 +52,30 @@ func grantOrder(t *testing.T, s *scheduler.Scheduler, lanes []llm.Lane) []int {
 			mu.Lock()
 			order = append(order, i)
 			mu.Unlock()
-			time.Sleep(20 * time.Millisecond)
 			p.Done(-1)
 		}()
-		time.Sleep(30 * time.Millisecond)
+		// goroutine kế chỉ bắt đầu khi goroutine này đã nằm trong hàng đợi (không đoán thứ tự đến bằng Sleep)
+		waitQueued(t, s, i+1)
 	}
 	release()
 	wg.Wait()
 	return order
+}
+
+// waitQueued chờ tới khi tổng độ sâu các hàng đợi đạt n.
+func waitQueued(t *testing.T, s *scheduler.Scheduler, n int) {
+	t.Helper()
+	for i := 0; i < 3000; i++ {
+		total := 0
+		for _, d := range s.Stats(t.Context()).QueueDepth {
+			total += d
+		}
+		if total >= n {
+			return
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
+	t.Fatalf("hàng đợi chưa đạt %d yêu cầu", n)
 }
 
 func TestLaneOrder(t *testing.T) {
@@ -135,15 +151,12 @@ func TestBatchShareAlwaysCapsBatch(t *testing.T) {
 		t.Fatalf("BATCH thứ 6 (không có INTERACTIVE): err = %v, muốn bị giữ lại dù còn 5 chỗ trống", err)
 	}
 	// INTERACTIVE đầu tiên vào NGAY, không chờ BATCH trả chỗ
-	ictx, icancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
+	// không BATCH nào trả chỗ trong lúc này: nếu INTERACTIVE phải chờ thì Admit kẹt tới hạn 30 s và test đỏ (không đo thời gian)
+	ictx, icancel := context.WithTimeout(t.Context(), 30*time.Second)
 	defer icancel()
-	start := time.Now()
 	pi, err := s.Admit(ictx, work(llm.LaneInteractive))
 	if err != nil {
-		t.Fatalf("INTERACTIVE đầu tiên phải có chỗ: %v", err)
-	}
-	if d := time.Since(start); d > 50*time.Millisecond {
-		t.Errorf("INTERACTIVE chờ %v", d)
+		t.Fatalf("INTERACTIVE đầu tiên phải có chỗ ngay: %v", err)
 	}
 	pi.Done(-1)
 	held[0].Done(-1) // một BATCH trả chỗ → BATCH kế được cấp

@@ -961,6 +961,164 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/activity/heartbeat:
+    post:
+      operationId: activityHeartbeat
+      tags: [crm]
+      summary: "Nhịp 30 giây của sinh viên (chỉ khu vực, không nội dung). 204 kể cả khi bị bỏ (chưa ack, tắt đo, cùng khung 30 s, vượt tốc độ / trần ngày, Redis lỗi); CHỈ ghi Redis, không bao giờ Postgres"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HeartbeatInput"
+      responses:
+        "204":
+          description: Đã nhận (có thể không tính)
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/tracking-notice/ack:
+    post:
+      operationId: ackTrackingNotice
+      tags: [me]
+      summary: "Sinh viên bấm `Đã hiểu` hộp thoại thời gian học (idempotent, giữ lần đầu); sau đó nhịp kế tiếp được đo ngay"
+      responses:
+        "204":
+          description: Đã ghi nhận
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+  /api/v1/courses/{id}/me/study-time:
+    get:
+      operationId: getMyStudyTime
+      tags: [crm]
+      summary: "Thời gian học của CHÍNH sinh viên (theo user_id JWT), `weeks` 1–20 mặc định 8; kèm `tracking {enabled, locked}`"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: weeks
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+      responses:
+        "200":
+          description: Tuần có dữ liệu, tăng dần (rỗng khi chưa có)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyTime"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/study-time:
+    get:
+      operationId: getStudentStudyTime
+      tags: [crm]
+      summary: "Thời gian học của một sinh viên ACTIVE (giảng viên / TA); kèm `tracked`"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: weeks
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 20
+      responses:
+        "200":
+          description: Tuần có dữ liệu, tăng dần
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudyTime"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/me/attendance:
+    get:
+      operationId: getMyAttendance
+      tags: [crm]
+      summary: "Chuyên cần của CHÍNH sinh viên (theo user_id JWT): tổng + buổi mới nhất trước, cursor; không ghi chú, người điểm"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang (lớp chưa điểm danh → mọi số 0, sessions rỗng)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyAttendance"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/me/participation:
+    get:
+      operationId: getMyParticipation
+      tags: [crm]
+      summary: "Phát biểu / điểm cộng ĐÃ GHI của CHÍNH sinh viên: tổng + sự kiện mới nhất trước, cursor"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MyParticipation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/calendar:
     get:
       operationId: listCalendar
@@ -2068,7 +2226,7 @@ paths:
     post:
       operationId: generateCourseSessions
       tags: [courses]
-      summary: Sinh buổi học theo tuần (giảng viên / TA; ≤ 60 buổi mỗi lần; giờ Asia/Ho_Chi_Minh; bỏ buổi trùng starts_at)
+      summary: "Sinh buổi học theo tuần (giảng viên / TA; ≤ 60 buổi mỗi lần; giờ Asia/Ho_Chi_Minh; bỏ buổi trùng starts_at). `?dry_run=true` = xem trước: giao dịch chỉ đọc, không ghi gì, không đòi Idempotency-Key"
       parameters:
         - name: id
           in: path
@@ -2076,9 +2234,15 @@ paths:
           schema:
             type: string
             format: uuid
+        - name: dry_run
+          in: query
+          required: false
+          schema:
+            type: boolean
         - name: Idempotency-Key
           in: header
-          required: true
+          required: false
+          description: Bắt buộc khi chạy thật (thiếu → 422); không gửi khi `dry_run=true`
           schema:
             type: string
       requestBody:
@@ -2088,6 +2252,12 @@ paths:
             schema:
               $ref: "#/components/schemas/SessionGenerateRequest"
       responses:
+        "200":
+          description: Xem trước (`dry_run=true`) — đúng tập buổi sẽ tạo nếu chạy thật ngay sau đó
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionGeneratePreview"
         "201":
           description: Kết quả sinh buổi (created = 0 khi chạy lại)
           content:
@@ -2104,6 +2274,518 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/sessions/{sid}:
+    put:
+      operationId: updateCourseSession
+      tags: [courses]
+      summary: "Sửa giờ / phòng / chủ đề một buổi (giảng viên / TA; thay toàn bộ, bỏ trống room / topic = xoá; session_no không đổi). Sai version 409 VERSION_CONFLICT; trùng giờ bắt đầu buổi khác 409 SESSION_DUPLICATE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionUpdateRequest"
+      responses:
+        "200":
+          description: Buổi sau khi sửa (version + 1)
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [session]
+                additionalProperties: false
+                properties:
+                  session:
+                    $ref: "#/components/schemas/CourseSession"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteCourseSession
+      tags: [courses]
+      summary: "Huỷ một buổi (giảng viên / TA); chỉ khi buổi chưa có điểm danh, ngược lại 409 SESSION_HAS_ATTENDANCE. Nghỉ = xoá buổi"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/sessions/{sid}/attendance:
+    get:
+      operationId: getSessionAttendance
+      tags: [crm]
+      summary: "Lưới điểm danh của một buổi (giảng viên / TA): mọi sinh viên ACTIVE; `record: null` = chưa có dòng (giao diện hiện mặc định Có mặt, chưa lưu). Không cache"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lưới của buổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendanceGrid"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: putSessionAttendance
+      tags: [crm]
+      summary: "Ghi cả lưới bằng MỘT giao dịch (giảng viên / TA). Hàng giống hệt DB bỏ qua; hàng đổi cần `version` đúng, sai → 409 VERSION_CONFLICT kèm `details.conflicts` và KHÔNG ghi gì. `complete:true` điền Có mặt cho sinh viên còn thiếu và đặt đã hoàn tất. Gửi lại cùng nội dung → 200, không audit mới"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AttendancePutRequest"
+      responses:
+        "200":
+          description: Các hàng đã ghi / giữ nguyên kèm version, và mốc hoàn tất
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AttendancePutResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/students:
+    get:
+      operationId: listStudents
+      tags: [crm]
+      summary: "Danh sách sinh viên ACTIVE của lớp kèm chuyên cần, phát biểu, thời gian học, hoạt động tuần trước và mức rủi ro (giảng viên / TA). Sắp (rủi ro giảm, tên không dấu, id); cursor, mặc định 50, tối đa 100"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: q
+          in: query
+          required: false
+          description: Tên không dấu / không phân biệt hoa thường (chứa) hoặc MSSV (tiền tố)
+          schema:
+            type: string
+        - name: filter
+          in: query
+          required: false
+          description: "`attention` (AT_RISK), `absent` (vắng ≥ ngưỡng lớp), `inactive` (không hỏi / đăng và ít phút học); lặp hoặc phân tách bằng dấu phẩy = giao"
+          style: form
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang sinh viên
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/profile:
+    get:
+      operationId: getStudentProfile
+      tags: [crm]
+      summary: "Hồ sơ 360 của một sinh viên ACTIVE (giảng viên / TA). MỖI LẦN GỌI ghi một dòng audit_log (cùng giao dịch; audit lỗi → 503, không trả dữ liệu); no-store, không ETag"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+      responses:
+        "200":
+          description: Hồ sơ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentProfile"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/students/{uid}/attendance:
+    get:
+      operationId: listStudentAttendance
+      tags: [crm]
+      summary: "Tab Chuyên cần của hồ sơ: buổi đã có dòng điểm danh của sinh viên × trạng thái × ghi chú buổi, mới nhất trước, cursor"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentAttendanceList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/observations:
+    get:
+      operationId: listObservations
+      tags: [crm]
+      summary: "Ghi chú quan sát của sinh viên (mọi nhân viên của lớp đọc được), mới nhất trước, cursor. Ghi audit_log `view_observations` (fail-closed)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObservationList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createObservation
+      tags: [crm]
+      summary: "Thêm ghi chú (tác giả = người gọi). kind NOTE (mặc định) hoặc AI_SUMMARY (lưu nhận xét AI đã soạn; ai_edited = bản lưu khác bản AI). Idempotency-Key tuỳ chọn: gửi lại cùng khoá + cùng thân → phát lại phản hồi cũ, không ghi thêm; cùng khoá + thân khác 422"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObservationInput"
+      responses:
+        "201":
+          description: Đã ghi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Observation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/students/{uid}/observations/{oid}:
+    put:
+      operationId: updateObservation
+      tags: [crm]
+      summary: "Sửa ghi chú — CHỈ tác giả (người khác 403); sai version 409 kèm bản hiện tại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - $ref: "#/components/parameters/ObservationId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ObservationInput"
+      responses:
+        "200":
+          description: Đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Observation"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteObservation
+      tags: [crm]
+      summary: "Xoá thật ghi chú của chính mình (audit không nội dung)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - $ref: "#/components/parameters/ObservationId"
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/students/{uid}/ai-summary:
+    post:
+      operationId: aiSummaryDraft
+      tags: [crm]
+      summary: "Soạn nhận xét tổng hợp bằng AI từ SỐ LIỆU (không tên / MSSV / nội dung ghi chú hay chat); trả bản nháp, KHÔNG lưu. Chưa có dữ liệu 409 NOT_ENOUGH_DATA; > 10 lượt/giờ/người 429; quá hạn 504; AI hỏng 503"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+      responses:
+        "200":
+          description: Bản nháp
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AISummaryResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/students/{uid}/outreach:
+    post:
+      operationId: outreachStudent
+      tags: [crm]
+      summary: "Nhắn sinh viên: ticket TEACHER_OUTREACH đã ANSWERED + tin STAFF_ANSWER trong chat riêng của sinh viên, một giao dịch. Idempotency-Key bắt buộc; PII sinh viên khác 422; > 3 tin/ngày 429 OUTREACH_LIMIT; sinh viên không ACTIVE 409 STUDENT_NOT_ACTIVE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - $ref: "#/components/parameters/StudentUid"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OutreachInput"
+      responses:
+        "201":
+          description: Đã gửi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OutreachResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/participation:
+    get:
+      operationId: listParticipation
+      tags: [crm]
+      summary: "Sự kiện tham gia của lớp, mới nhất trước (giảng viên / TA); lọc `student_id`, `session_id`; cursor, tối đa 100"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: student_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: session_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang sự kiện
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipationList"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: addParticipation
+      tags: [crm]
+      summary: "Ghi một sự kiện tham gia (giảng viên / TA). Idempotent theo `client_event_id`: gửi lại của chính mình trả sự kiện cũ (200), của lớp / người khác 409 IDEMPOTENCY_KEY_REUSED. `points` bỏ trống ⇒ phát biểu dùng điểm mặc định"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParticipationRequest"
+      responses:
+        "200":
+          description: Đã có (gửi lại cùng client_event_id)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipationEvent"
+        "201":
+          description: Đã ghi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipationEvent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/participation/{pid}:
+    delete:
+      operationId: deleteParticipation
+      tags: [crm]
+      summary: "Xoá một sự kiện tham gia: người tạo hoặc giảng viên của lớp (TA xoá của người khác → 403)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/auth/accept-invite:
     post:
       operationId: acceptInvite
@@ -5434,6 +6116,45 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/chat/messages/{mid}/escalate:
+    post:
+      operationId: escalateChatMessage
+      tags: [chat]
+      summary: "Nhờ giảng viên (chỉ sinh viên chủ phiên; idempotent theo message_id — gọi lại trả 200 already:true; không mở lại ticket đã đóng)"
+      description: |
+        Tin phải là câu trả lời DONE của AI, phiên chưa xoá, intent không phải CRISIS / OTHER_PERSON / SMALLTALK (→ 422 MESSAGE_NOT_ESCALATABLE).
+        Sinh viên đã có 5 ticket mở ở lớp → 409 TICKET_LIMIT_REACHED (trừ khi tin đã có ticket). Đang bị khoá giờ thi → 409 EXAM_IN_PROGRESS (cùng mã với chat riêng).
+        Lớp lưu trữ → 409 COURSE_ARCHIVED. Hạ tầng lỗi → 503 SERVICE_UNAVAILABLE (không khai báo: không dựng được trong hợp đồng).
+      parameters:
+        - name: mid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "201":
+          description: Đã tạo ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EscalateResult"
+        "200":
+          description: Tin này đã có ticket (already = true)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EscalateResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/chat/messages/{mid}/retry:
     post:
       operationId: retryChatMessage
@@ -5461,6 +6182,8 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/chat/messages/{mid}/feedback:
     put:
       operationId: setChatFeedback
@@ -5609,6 +6332,62 @@ paths:
         "429":
           $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/threads/{tid}:
+    put:
+      operationId: editThread
+      tags: [threads]
+      summary: "Sửa thread của mình (cùng tường lửa PII; câu hỏi đã có câu trả lời xác nhận bị khoá)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditThreadInput"
+      responses:
+        "200":
+          description: Đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteThread
+      tags: [threads]
+      summary: "Xoá mềm thread của mình"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
     get:
       operationId: getThread
       tags: [threads]
@@ -5833,6 +6612,967 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets:
+    get:
+      operationId: listCourseTickets
+      tags: [escalation]
+      summary: "Hàng chờ của một lớp (TA / TEACHER; ADMIN và sinh viên 403). Sắp (created_at, id); câu hỏi chỉ là đoạn cắt 140 ký tự; ANSWERED không gồm CLOSED, ALL gồm CLOSED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, CLAIMED, ANSWERED, ALL]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffTicketPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/me/tickets:
+    get:
+      operationId: listMyTickets
+      tags: [escalation]
+      summary: "Hàng chờ của mọi lớp mình đang ACTIVE là TEACHER / TA (\"Tất cả lớp của tôi\"); ADMIN, sinh viên 403"
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, CLAIMED, ANSWERED, ALL]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StaffTicketPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets/{tid}:
+    get:
+      operationId: getCourseTicket
+      tags: [escalation]
+      summary: "Chi tiết: chỉ đúng cặp hỏi–đáp đã nhờ + tin của chính ticket (không tin nào khác của phiên); ticket của lớp khác 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Chi tiết ticket
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/tickets/{tid}/claim:
+    post:
+      operationId: claimTicket
+      tags: [escalation]
+      summary: "Nhận (OPEN → CLAIMED; người đã nhận bấm lại = 200; người khác đã nhận 409 TICKET_ALREADY_CLAIMED kèm người nhận)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/tickets/{tid}/release:
+    post:
+      operationId: releaseTicket
+      tags: [escalation]
+      summary: "Bỏ nhận (chỉ người đã nhận; waiting_since không đổi)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/tickets/{tid}/answer:
+    post:
+      operationId: answerTicket
+      tags: [escalation]
+      summary: "Gửi trả lời: MỘT giao dịch (ANSWERED + tin STAFF_ANSWER vào chat riêng của sinh viên + outbox). Thông tin sinh viên khác → 422 PII_IN_ANSWER (chặn cứng)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AnswerInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AnswerResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets/{tid}/dismiss:
+    post:
+      operationId: dismissTicket
+      tags: [escalation]
+      summary: "Đóng không trả lời (OUT_OF_SCOPE | DUPLICATE | NEED_MORE_INFO)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DismissInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/tickets/{tid}/knowledge-preview:
+    get:
+      operationId: previewTicketKnowledge
+      tags: [escalation]
+      summary: "Xem trước tri thức từ ticket đã trả lời (câu hỏi + trả lời đã che thông tin cá nhân, để giảng viên sửa)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgePreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/tickets/{tid}/knowledge:
+    post:
+      operationId: saveTicketKnowledge
+      tags: [escalation]
+      summary: "Lưu thành tri thức của lớp (201 lần đầu, 200 khi cập nhật); 422 PII_DETECTED / KNOWLEDGE_PERSONAL"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/KnowledgeInput"
+      responses:
+        "200":
+          description: Đã cập nhật mục tri thức
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeState"
+        "201":
+          description: Đã tạo mục tri thức
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/KnowledgeState"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: removeTicketKnowledge
+      tags: [escalation]
+      summary: "Gỡ tri thức của ticket (idempotent)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã gỡ
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/notifications/read:
+    post:
+      operationId: markNotificationsReadByLink
+      tags: [escalation]
+      summary: "Đánh dấu đã đọc mọi thông báo chưa đọc CỦA CHÍNH MÌNH có link trùng (chat gọi khi mở phiên có tin của giảng viên)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReadByLinkInput"
+      responses:
+        "200":
+          description: Số thông báo đã đổi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReadByLinkResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/admin/observability/failed-mail:
+    get:
+      operationId: listFailedMail
+      tags: [escalation]
+      summary: "Thư gửi lỗi (ADMIN): mẫu, người nhận đã che, số lần thử, lớp lỗi; không thân thư, không payload. Sắp (updated_at, id) giảm dần"
+      parameters:
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Trang thư DEAD
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FailedMailPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/chat/tickets/{id}/followup:
+    post:
+      operationId: followupTicket
+      tags: [escalation]
+      summary: "Hỏi tiếp (sinh viên chủ ticket): ANSWERED, hoặc CLOSED chưa quá 30 ngày → OPEN, đặt lại đồng hồ SLA; gửi lại cùng client_msg_id không thêm tin"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FollowupInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentTicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/chat/tickets/{id}/confirm:
+    post:
+      operationId: confirmTicket
+      tags: [escalation]
+      summary: "Đã rõ: ANSWERED → CLOSED (STUDENT_CONFIRMED); hoàn tác được 5 giây"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentTicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/chat/tickets/{id}/confirm/undo:
+    post:
+      operationId: undoConfirmTicket
+      tags: [escalation]
+      summary: "Hoàn tác Đã rõ (≤ 5 giây, chỉ khi chưa có hành động khác)"
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StudentTicketResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/settings:
+    put:
+      operationId: putCourseSettings
+      tags: [escalation]
+      summary: "Đặt ngưỡng chuyển cho giảng viên (0,50–0,95, bước 0,05); chỉ giảng viên của lớp (TA / sinh viên / Admin 403); sai version 409"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CourseSettingsInput"
+      responses:
+        "200":
+          description: Lớp sau khi đặt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads/{tid}/report:
+    post:
+      operationId: reportThread
+      tags: [threads]
+      summary: "Báo cáo thread (mọi thành viên trừ ADMIN; mỗi người một lần mỗi bài; ≥ N người khác nhau → tự ẩn chờ duyệt)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: Đã ghi báo cáo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportCreated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: unreportThread
+      tags: [threads]
+      summary: "Rút báo cáo trong 5 giây (Hoàn tác) khi bài chưa ẩn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã rút
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/report:
+    post:
+      operationId: reportThreadPost
+      tags: [threads]
+      summary: "Báo cáo bình luận / bài AI"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReportInput"
+      responses:
+        "201":
+          description: Đã ghi báo cáo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReportCreated"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+    delete:
+      operationId: unreportThreadPost
+      tags: [threads]
+      summary: "Rút báo cáo trong 5 giây khi bài chưa ẩn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã rút
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/hide:
+    post:
+      operationId: hideThread
+      tags: [threads]
+      summary: "Ẩn bài (Staff; lý do 1–200 ký tự; báo cáo OPEN → ACTIONED; gỡ tri thức đã nạp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HideInput"
+      responses:
+        "200":
+          description: Đã ẩn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/threads/{tid}/unhide:
+    post:
+      operationId: unhideThread
+      tags: [threads]
+      summary: "Bỏ ẩn (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã hiện lại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/dismiss-reports:
+    post:
+      operationId: dismissThreadReports
+      tags: [threads]
+      summary: "Giữ bài (Staff): báo cáo OPEN → DISMISSED; bài tự ẩn hiện lại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã xử lý
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/hide:
+    post:
+      operationId: hideThreadPost
+      tags: [threads]
+      summary: "Ẩn bài (Staff; lý do 1–200 ký tự; báo cáo OPEN → ACTIONED; gỡ tri thức đã nạp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/HideInput"
+      responses:
+        "200":
+          description: Đã ẩn
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/posts/{pid}/unhide:
+    post:
+      operationId: unhideThreadPost
+      tags: [threads]
+      summary: "Bỏ ẩn (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã hiện lại
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/posts/{pid}/dismiss-reports:
+    post:
+      operationId: dismissThreadPostReports
+      tags: [threads]
+      summary: "Giữ bài (Staff): báo cáo OPEN → DISMISSED; bài tự ẩn hiện lại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VersionInput"
+      responses:
+        "200":
+          description: Đã xử lý
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/pin:
+    post:
+      operationId: pinThread
+      tags: [threads]
+      summary: "Ghim thread (Staff; ≤ THREAD_PIN_MAX mỗi lớp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã ghim
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/threads/{tid}/unpin:
+    post:
+      operationId: unpinThread
+      tags: [threads]
+      summary: "Bỏ ghim (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: tid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã bỏ ghim
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/posts/{pid}:
+    put:
+      operationId: editThreadPost
+      tags: [threads]
+      summary: "Sửa bình luận của mình (cùng tường lửa PII)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditPostInput"
+      responses:
+        "200":
+          description: Đã sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ThreadPost"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteThreadPost
+      tags: [threads]
+      summary: "Xoá mềm bình luận của mình"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: pid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/moderation/queue:
+    get:
+      operationId: moderationQueue
+      tags: [threads]
+      summary: "Hàng chờ kiểm duyệt (Staff): bài có báo cáo OPEN hoặc đang ẩn; phân trang con trỏ"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, HIDDEN]
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Hàng chờ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ModerationQueuePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -5905,6 +7645,20 @@ components:
           schema:
             $ref: "#/components/schemas/Error"
   parameters:
+    StudentUid:
+      name: uid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    ObservationId:
+      name: oid
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
     CourseId:
       name: id
       in: path
@@ -6124,9 +7878,16 @@ components:
           enum: [ACTIVE, PENDING]
     MyCoursePage:
       type: object
-      required: [items, next_cursor]
+      required: [items, next_cursor, tracking_notice_acked, study_time_opt_out_available]
       additionalProperties: false
       properties:
+        tracking_notice_acked:
+          type: boolean
+          description: Đã bấm `Đã hiểu` hộp thoại thời gian học (US-P5-03 AC7)
+        study_time_opt_out_available:
+          type: boolean
+          description: Có lớp ACTIVE nào cho sinh viên tắt đo thời gian học
+
         items:
           type: array
           maxItems: 100
@@ -6136,7 +7897,7 @@ components:
           type: [string, "null"]
     CourseDetail:
       type: object
-      required: [id, class_code, subject_code, name, semester, status, teachers, my_role]
+      required: [id, class_code, subject_code, name, semester, status, teachers, my_role, allow_study_time_opt_out]
       additionalProperties: false
       properties:
         id:
@@ -6153,6 +7914,8 @@ components:
         status:
           type: string
           enum: [ACTIVE, ARCHIVED]
+        allow_study_time_opt_out:
+          type: boolean
         teachers:
           type: array
           items:
@@ -6165,6 +7928,19 @@ components:
         my_role:
           type: string
           enum: [ADMIN, TEACHER, TA, STUDENT]
+        settings:
+          type: object
+          description: Chỉ GV / TA của lớp (TA chỉ đọc)
+          required: [escalation_threshold, version, risk]
+          additionalProperties: false
+          properties:
+            escalation_threshold:
+              type: string
+              description: "Số thập phân hai chữ số, ví dụ 0.80"
+            version:
+              type: integer
+            risk:
+              $ref: "#/components/schemas/RiskThresholds"
         counts:
           type: object
           description: Chỉ GV / TA của lớp
@@ -6212,7 +7988,7 @@ components:
           minimum: 1
     Settings:
       type: object
-      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, reminders, version]
+      required: [notify_ticket_by_mail, notify_answer_by_mail, remind_deadline_by_mail, track_study_time, reminders, version]
       additionalProperties: false
       properties:
         notify_ticket_by_mail:
@@ -6232,6 +8008,33 @@ components:
               type: boolean
             other:
               type: boolean
+        track_study_time:
+          type: boolean
+          description: Công tắc đo thời gian học, một cờ toàn tài khoản; chỉ STUDENT có tác dụng, lớp không cho tắt thì bỏ qua
+        study_time:
+          type: object
+          description: Chỉ ở GET. `acked` = đã bấm "Đã hiểu"; `courses` = lớp đang ACTIVE của sinh viên (rỗng khi không phải sinh viên)
+          required: [acked, courses]
+          additionalProperties: false
+          properties:
+            acked:
+              type: boolean
+            courses:
+              type: array
+              items:
+                type: object
+                required: [course_id, class_code, name, locked]
+                additionalProperties: false
+                properties:
+                  course_id:
+                    type: string
+                    format: uuid
+                  class_code:
+                    type: string
+                  name:
+                    type: string
+                  locked:
+                    type: boolean
         version:
           type: integer
     SettingsInput:
@@ -6244,6 +8047,8 @@ components:
         notify_answer_by_mail:
           type: boolean
         remind_deadline_by_mail:
+          type: boolean
+        track_study_time:
           type: boolean
         reminders:
           type: object
@@ -6258,6 +8063,56 @@ components:
         version:
           type: integer
           minimum: 1
+    HeartbeatInput:
+      type: object
+      required: [course_id, area, tab_id]
+      additionalProperties: false
+      properties:
+        course_id:
+          type: string
+          format: uuid
+        area:
+          type: string
+          enum: [CHAT, THREADS, PRACTICE, LIBRARY, CALENDAR]
+        tab_id:
+          type: string
+          format: uuid
+    StudyTime:
+      type: object
+      required: [weeks, this_week_minutes]
+      additionalProperties: false
+      properties:
+        weeks:
+          type: array
+          items:
+            type: object
+            required: [week_start, minutes, by_area]
+            additionalProperties: false
+            properties:
+              week_start:
+                type: string
+                format: date
+              minutes:
+                type: integer
+              by_area:
+                type: object
+                additionalProperties:
+                  type: integer
+        this_week_minutes:
+          type: integer
+        tracking:
+          type: object
+          description: Chỉ ở bản của sinh viên
+          required: [enabled, locked]
+          additionalProperties: false
+          properties:
+            enabled:
+              type: boolean
+            locked:
+              type: boolean
+        tracked:
+          type: boolean
+          description: Chỉ ở bản của nhân viên
     PersonRef:
       type: object
       required: [id, full_name]
@@ -6672,7 +8527,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION]
         title:
           type: string
         reason:
@@ -6752,9 +8607,28 @@ components:
               at:
                 type: string
                 format: date-time
+    TodayAttention:
+      type: object
+      required: [student, course, reason]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+        course:
+          $ref: "#/components/schemas/TodayCourse"
+        reason:
+          type: string
     TodayStaff:
       type: object
-      required: [count, actions, attention, upcoming]
+      required: [count, actions, attention, attention_total, upcoming]
       additionalProperties: false
       properties:
         count:
@@ -6766,7 +8640,12 @@ components:
             $ref: "#/components/schemas/TodayItem"
         attention:
           type: array
-          items: {}
+          maxItems: 5
+          description: Sinh viên AT_RISK mới vào trước; rỗng khi lớp không có ai (giao diện không hiện khối)
+          items:
+            $ref: "#/components/schemas/TodayAttention"
+        attention_total:
+          type: integer
         upcoming:
           type: array
           maxItems: 10
@@ -6844,7 +8723,177 @@ components:
           type: [integer, "null"]
         skipped:
           type: integer
-    CourseSessionList:
+    AttendanceGrid:
+      type: object
+      required: [session, students]
+      additionalProperties: false
+      properties:
+        session:
+          type: object
+          required: [id, session_no, starts_at, ends_at, room, topic, attendance_done_at]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            session_no:
+              type: integer
+            starts_at:
+              type: string
+              format: date-time
+            ends_at:
+              type: string
+              format: date-time
+            room:
+              type: [string, "null"]
+            topic:
+              type: [string, "null"]
+            attendance_done_at:
+              type: [string, "null"]
+              format: date-time
+        students:
+          type: array
+          items:
+            type: object
+            required: [id, full_name, student_code, record, speak_count]
+            additionalProperties: false
+            properties:
+              id:
+                type: string
+                format: uuid
+              full_name:
+                type: string
+              student_code:
+                type: [string, "null"]
+              speak_count:
+                type: integer
+              record:
+                type: [object, "null"]
+                required: [status, note, version, marked_by, marked_at]
+                additionalProperties: false
+                properties:
+                  status:
+                    $ref: "#/components/schemas/AttendanceStatus"
+                  note:
+                    type: [string, "null"]
+                  version:
+                    type: integer
+                  marked_by:
+                    type: object
+                    required: [full_name]
+                    additionalProperties: false
+                    properties:
+                      full_name:
+                        type: string
+                  marked_at:
+                    type: string
+                    format: date-time
+    AttendanceStatus:
+      type: string
+      enum: [PRESENT, LATE, EXCUSED, ABSENT]
+    AttendancePutRequest:
+      type: object
+      required: [records]
+      additionalProperties: false
+      properties:
+        records:
+          type: array
+          maxItems: 5000
+          items:
+            type: object
+            required: [student_id, status]
+            additionalProperties: false
+            properties:
+              student_id:
+                type: string
+                format: uuid
+              status:
+                $ref: "#/components/schemas/AttendanceStatus"
+              note:
+                type: [string, "null"]
+                maxLength: 200
+              version:
+                type: [integer, "null"]
+                minimum: 1
+        complete:
+          type: boolean
+    AttendancePutResult:
+      type: object
+      required: [records, done_at]
+      additionalProperties: false
+      properties:
+        records:
+          type: array
+          items:
+            type: object
+            required: [student_id, status, version]
+            additionalProperties: false
+            properties:
+              student_id:
+                type: string
+                format: uuid
+              status:
+                $ref: "#/components/schemas/AttendanceStatus"
+              version:
+                type: integer
+        done_at:
+          type: [string, "null"]
+          format: date-time
+    ParticipationRequest:
+      type: object
+      required: [student_id, type, client_event_id]
+      additionalProperties: false
+      properties:
+        student_id:
+          type: string
+          format: uuid
+        session_id:
+          type: [string, "null"]
+          format: uuid
+        type:
+          type: string
+          enum: [SPEAK, BONUS, PENALTY]
+        points:
+          description: Thập phân dạng chuỗi hoặc số, [-5, 5], bước 0,01; bỏ trống = điểm mặc định của phát biểu
+          type: [string, number, "null"]
+        note:
+          type: [string, "null"]
+          maxLength: 200
+        client_event_id:
+          type: string
+          format: uuid
+    ParticipationEvent:
+      type: object
+      required: [id, student_id, session_id, type, points, note, client_event_id, created_by, created_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        session_id:
+          type: [string, "null"]
+          format: uuid
+        type:
+          type: string
+          enum: [SPEAK, BONUS, PENALTY]
+        points:
+          type: string
+          pattern: "^-?[0-9]+\\.[0-9]{2}$"
+        note:
+          type: [string, "null"]
+        client_event_id:
+          type: string
+          format: uuid
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+    ParticipationList:
       type: object
       required: [items, next_cursor]
       additionalProperties: false
@@ -6853,12 +8902,53 @@ components:
           type: array
           items:
             type: object
-            required: [id, session_no, starts_at, ends_at, room, topic]
+            required: [id, student, session_id, type, points, note, created_by, created_at]
             additionalProperties: false
             properties:
               id:
                 type: string
                 format: uuid
+              student:
+                type: object
+                required: [id, full_name]
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  full_name:
+                    type: string
+              session_id:
+                type: [string, "null"]
+                format: uuid
+              type:
+                type: string
+                enum: [SPEAK, BONUS, PENALTY]
+              points:
+                type: string
+              note:
+                type: [string, "null"]
+              created_by:
+                type: string
+                format: uuid
+              created_at:
+                type: string
+                format: date-time
+        next_cursor:
+          type: [string, "null"]
+    SessionGeneratePreview:
+      type: object
+      required: [would_create, skipped]
+      additionalProperties: false
+      properties:
+        would_create:
+          type: array
+          maxItems: 60
+          items:
+            type: object
+            required: [session_no, starts_at, ends_at]
+            additionalProperties: false
+            properties:
               session_no:
                 type: integer
               starts_at:
@@ -6867,10 +8957,81 @@ components:
               ends_at:
                 type: string
                 format: date-time
-              room:
-                type: [string, "null"]
-              topic:
-                type: [string, "null"]
+        skipped:
+          type: array
+          items:
+            type: object
+            required: [date, reason]
+            additionalProperties: false
+            properties:
+              date:
+                type: string
+                format: date
+              reason:
+                type: string
+                enum: [EXCLUDED, DUPLICATE]
+    SessionUpdateRequest:
+      type: object
+      required: [starts_at, ends_at, version]
+      additionalProperties: false
+      properties:
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        room:
+          type: [string, "null"]
+          maxLength: 40
+        topic:
+          type: [string, "null"]
+          maxLength: 200
+        version:
+          type: integer
+          minimum: 1
+    CourseSession:
+      type: object
+      required: [id, session_no, starts_at, ends_at, room, topic, version]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        session_no:
+          type: integer
+        starts_at:
+          type: string
+          format: date-time
+        ends_at:
+          type: string
+          format: date-time
+        room:
+          type: [string, "null"]
+        topic:
+          type: [string, "null"]
+        version:
+          type: integer
+        attendance:
+          description: Chỉ nhân viên (giảng viên / TA) thấy
+          type: object
+          required: [done_at, has_records]
+          additionalProperties: false
+          properties:
+            done_at:
+              type: [string, "null"]
+              format: date-time
+            has_records:
+              type: boolean
+    CourseSessionList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseSession"
         next_cursor:
           type: [string, "null"]
     JoinInfo:
@@ -7609,6 +9770,26 @@ components:
             - MESSAGE_NOT_RETRYABLE
             - PII_DETECTED
             - POST_STATE_CONFLICT
+            - TICKET_ALREADY_CLAIMED
+            - TICKET_STATE_INVALID
+            - TICKET_LIMIT_REACHED
+            - TICKET_REOPEN_EXPIRED
+            - MESSAGE_NOT_ESCALATABLE
+            - MESSAGE_NOT_RATEABLE
+            - PII_IN_ANSWER
+            - KNOWLEDGE_PERSONAL
+            - ALREADY_REPORTED
+            - CANNOT_REPORT_OWN
+            - EDIT_LOCKED_VERIFIED
+            - PIN_LIMIT
+            - CRISIS_SUPPORT
+            - SESSION_DUPLICATE
+            - SESSION_HAS_ATTENDANCE
+            - STUDENT_NOT_IN_COURSE
+            - COURSE_HAS_STUDENTS
+            - NOT_ENOUGH_DATA
+            - OUTREACH_LIMIT
+            - STUDENT_NOT_ACTIVE
         message:
           type: string
         trace_id:
@@ -9878,7 +12059,7 @@ components:
           enum: [HELPFUL, NOT_HELPFUL, null]
     ChatMessage:
       type: object
-      required: [id, role, content, streaming, stream_status, attempt, citations, blocks, low_confidence, degraded, masked_count, feedback, error_code, created_at]
+      required: [id, role, content, streaming, stream_status, attempt, citations, blocks, low_confidence, degraded, masked_count, feedback, error_code, ticket, can_escalate, created_at]
       properties:
         id:
           type: string
@@ -9913,13 +12094,794 @@ components:
           type: [string, "null"]
         error_code:
           type: [string, "null"]
+        ticket:
+          description: Ticket "Nhờ giảng viên" của tin trợ lý này; null khi chưa có. Sinh viên chỉ thấy bốn trường này.
+          oneOf:
+            - $ref: "#/components/schemas/StudentTicket"
+            - type: "null"
+        can_escalate:
+          type: boolean
+          description: Nút "Nhờ giảng viên hỗ trợ" được phép hiện dưới tin này (tin AI đã DONE, không phải câu mẫu khủng hoảng / hỏi hộ / chào hỏi).
         created_at:
           type: string
           format: date-time
-    ChatMessagePage:
+    StudentTicket:
+      type: object
+      required: [id, status, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [OPEN, CLAIMED, ANSWERED, CLOSED]
+        created_at:
+          type: string
+          format: date-time
+        answered_at:
+          type: string
+          format: date-time
+    EscalateResult:
+      type: object
+      required: [ticket, already]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StudentTicket"
+        already:
+          type: boolean
+    EscalationPerson:
+      type: object
+      required: [id, full_name]
+      properties:
+        id:
+          type: string
+          format: uuid
+        full_name:
+          type: string
+        role:
+          type: string
+    EscalationCourse:
+      type: object
+      required: [id, class_code]
+      properties:
+        id:
+          type: string
+          format: uuid
+        class_code:
+          type: string
+    StaffTicketRow:
+      type: object
+      required: [id, status, kind, student, question_preview, age_minutes, claimed_by, sla_stage, course]
+      properties:
+        id:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [OPEN, CLAIMED, ANSWERED, CLOSED]
+        kind:
+          type: string
+          enum: [QUESTION, GRADE_APPEAL, TEACHER_OUTREACH]
+        student:
+          $ref: "#/components/schemas/EscalationPerson"
+        question_preview:
+          type: string
+          maxLength: 140
+        age_minutes:
+          type: integer
+        claimed_by:
+          oneOf:
+            - $ref: "#/components/schemas/EscalationPerson"
+            - type: "null"
+        sla_stage:
+          type: integer
+        course:
+          $ref: "#/components/schemas/EscalationCourse"
+    StaffTicketPage:
       type: object
       required: [items, next_cursor]
       properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/StaffTicketRow"
+        next_cursor:
+          type: [string, "null"]
+    StaffTicket:
+      type: object
+      required: [id, kind, status, student, claimed_by, answered_by, age_minutes, sla_stage, reopened_count, save_as_knowledge, course, version, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          type: string
+        status:
+          type: string
+          enum: [OPEN, CLAIMED, ANSWERED, CLOSED]
+        student:
+          $ref: "#/components/schemas/EscalationPerson"
+        claimed_by:
+          oneOf:
+            - $ref: "#/components/schemas/EscalationPerson"
+            - type: "null"
+        answered_by:
+          oneOf:
+            - $ref: "#/components/schemas/EscalationPerson"
+            - type: "null"
+        age_minutes:
+          type: integer
+        sla_stage:
+          type: integer
+        reopened_count:
+          type: integer
+        save_as_knowledge:
+          type: boolean
+        course:
+          $ref: "#/components/schemas/EscalationCourse"
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+    TicketMessage:
+      type: object
+      required: [id, content, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        citations:
+          type: array
+          items:
+            type: object
+        blocks:
+          type: array
+          items:
+            type: object
+        confidence:
+          type: [string, "null"]
+          description: Độ tin cậy có số — chỉ nhân viên thấy (sinh viên không bao giờ).
+    TicketTranscriptItem:
+      type: object
+      required: [id, role, author, content, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        role:
+          type: string
+        author:
+          description: '{full_name, role} của nhân viên, hoặc chuỗi "student"'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    TicketDetail:
+      type: object
+      required: [ticket, question, ai_answer, transcript]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StaffTicket"
+        question:
+          oneOf:
+            - $ref: "#/components/schemas/TicketMessage"
+            - type: "null"
+        ai_answer:
+          oneOf:
+            - $ref: "#/components/schemas/TicketMessage"
+            - type: "null"
+        transcript:
+          type: array
+          items:
+            $ref: "#/components/schemas/TicketTranscriptItem"
+        knowledge:
+          $ref: "#/components/schemas/KnowledgeState"
+    TicketResult:
+      type: object
+      required: [ticket]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StaffTicket"
+    AnswerResult:
+      type: object
+      required: [ticket, message]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StaffTicket"
+        message:
+          $ref: "#/components/schemas/TicketMessage"
+    VersionInput:
+      type: object
+      properties:
+        version:
+          type: integer
+    AnswerInput:
+      type: object
+      required: [body]
+      properties:
+        body:
+          type: string
+          maxLength: 4000
+        version:
+          type: integer
+    KnowledgePreview:
+      type: object
+      required: [question, answer, personal]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+        personal:
+          type: boolean
+    KnowledgeInput:
+      type: object
+      required: [question, answer]
+      properties:
+        question:
+          type: string
+        answer:
+          type: string
+    KnowledgeState:
+      type: object
+      required: [saved, loaded]
+      properties:
+        saved:
+          type: boolean
+        loaded:
+          type: boolean
+        question:
+          type: string
+        answer:
+          type: string
+    DismissInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          enum: [OUT_OF_SCOPE, DUPLICATE, NEED_MORE_INFO]
+        version:
+          type: integer
+    ReadByLinkInput:
+      type: object
+      required: [link]
+      properties:
+        link:
+          type: string
+    ReadByLinkResult:
+      type: object
+      required: [updated]
+      properties:
+        updated:
+          type: integer
+    FailedMail:
+      type: object
+      required: [id, template, to_masked, attempts, last_error, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        template:
+          type: string
+        to_masked:
+          type: string
+        attempts:
+          type: integer
+        last_error:
+          type: [string, "null"]
+        updated_at:
+          type: string
+          format: date-time
+    FailedMailPage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/FailedMail"
+        next_cursor:
+          type: [string, "null"]
+    StudentList:
+      type: object
+      required: [items, next_cursor, total]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/StudentRow"
+        next_cursor:
+          type: [string, "null"]
+        total:
+          type: integer
+    StudentRow:
+      type: object
+      required: [student, attendance, participation, study, activity, risk]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name, student_code]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+            student_code:
+              type: [string, "null"]
+        attendance:
+          type: object
+          required: [recorded, present, late, excused, absent]
+          additionalProperties: false
+          properties:
+            recorded:
+              type: integer
+            present:
+              type: integer
+            late:
+              type: integer
+            excused:
+              type: integer
+            absent:
+              type: integer
+        participation:
+          type: object
+          required: [speak_count, points_total]
+          additionalProperties: false
+          properties:
+            speak_count:
+              type: integer
+            points_total:
+              type: string
+        study:
+          type: object
+          required: [minutes_7d, tracked]
+          additionalProperties: false
+          properties:
+            minutes_7d:
+              type: integer
+            tracked:
+              type: boolean
+        activity:
+          type: object
+          description: Tuần trọn trước (T2–CN), lấy từ student_risk
+          required: [asks_last_week, posts_last_week]
+          additionalProperties: false
+          properties:
+            asks_last_week:
+              type: integer
+            posts_last_week:
+              type: integer
+        risk:
+          type: object
+          required: [level, computed_at]
+          additionalProperties: false
+          properties:
+            level:
+              type: string
+              enum: [NONE, WATCH, AT_RISK]
+            computed_at:
+              type: [string, "null"]
+              format: date-time
+    StudentProfile:
+      type: object
+      required: [student, risk, attendance, participation, study, activity]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name, student_code, joined_at]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+            student_code:
+              type: [string, "null"]
+            joined_at:
+              type: string
+              format: date-time
+        risk:
+          type: object
+          description: Chỉ nhân viên thấy. `sentence` null khi NONE
+          required: [level, sentence, reasons, computed_at]
+          additionalProperties: false
+          properties:
+            level:
+              type: string
+              enum: [NONE, WATCH, AT_RISK]
+            sentence:
+              type: [string, "null"]
+            reasons:
+              type: array
+              items:
+                type: object
+                required: [code, text]
+                additionalProperties: false
+                properties:
+                  code:
+                    type: string
+                  text:
+                    type: string
+            computed_at:
+              type: [string, "null"]
+              format: date-time
+        attendance:
+          type: object
+          required: [recorded, present, late, excused, absent]
+          additionalProperties: false
+          properties:
+            recorded:
+              type: integer
+            present:
+              type: integer
+            late:
+              type: integer
+            excused:
+              type: integer
+            absent:
+              type: integer
+        participation:
+          type: object
+          required: [speak_count, points_total]
+          additionalProperties: false
+          properties:
+            speak_count:
+              type: integer
+            points_total:
+              type: string
+        study:
+          type: object
+          required: [minutes_7d, weeks, tracked]
+          additionalProperties: false
+          properties:
+            minutes_7d:
+              type: integer
+            tracked:
+              type: boolean
+            weeks:
+              type: array
+              description: 8 tuần (thứ Hai đầu tuần), cũ → mới
+              items:
+                type: object
+                required: [week_start, minutes]
+                additionalProperties: false
+                properties:
+                  week_start:
+                    type: string
+                    format: date
+                  minutes:
+                    type: integer
+        activity:
+          type: object
+          description: Tuần trọn trước (T2–CN), lấy từ student_risk
+          required: [asks_last_week, posts_last_week]
+          additionalProperties: false
+          properties:
+            asks_last_week:
+              type: integer
+            posts_last_week:
+              type: integer
+    StudentAttendanceList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [session, status, note]
+            additionalProperties: false
+            properties:
+              session:
+                type: object
+                required: [id, session_no, starts_at]
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  session_no:
+                    type: integer
+                  starts_at:
+                    type: string
+                    format: date-time
+              status:
+                type: string
+                enum: [PRESENT, LATE, EXCUSED, ABSENT]
+              note:
+                type: [string, "null"]
+        next_cursor:
+          type: [string, "null"]
+    MyAttendance:
+      type: object
+      required: [attendance, next_cursor]
+      additionalProperties: false
+      properties:
+        attendance:
+          type: object
+          required: [recorded, present, late, excused, absent, sessions]
+          additionalProperties: false
+          properties:
+            recorded:
+              type: integer
+            present:
+              type: integer
+            late:
+              type: integer
+            excused:
+              type: integer
+            absent:
+              type: integer
+            sessions:
+              type: array
+              items:
+                type: object
+                required: [session_no, starts_at, status]
+                additionalProperties: false
+                properties:
+                  session_no:
+                    type: integer
+                  starts_at:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    enum: [PRESENT, LATE, EXCUSED, ABSENT]
+        next_cursor:
+          type: [string, "null"]
+    MyParticipation:
+      type: object
+      required: [participation, next_cursor]
+      additionalProperties: false
+      properties:
+        participation:
+          type: object
+          required: [speak_count, points_total, events]
+          additionalProperties: false
+          properties:
+            speak_count:
+              type: integer
+            points_total:
+              type: string
+              pattern: '^-?\d+\.\d{2}$'
+            events:
+              type: array
+              items:
+                type: object
+                required: [date, type, points]
+                additionalProperties: false
+                properties:
+                  date:
+                    type: string
+                    format: date
+                  type:
+                    type: string
+                  points:
+                    type: string
+                    pattern: '^-?\d+\.\d{2}$'
+        next_cursor:
+          type: [string, "null"]
+    Observation:
+      type: object
+      required: [id, author, kind, tags, body, ai_edited, version, created_at, updated_at]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        author:
+          type: object
+          required: [id, full_name]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+        kind:
+          type: string
+          enum: [NOTE, AI_SUMMARY]
+        tags:
+          type: array
+          items:
+            type: string
+        body:
+          type: string
+        ai_edited:
+          type: boolean
+        version:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ObservationList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Observation"
+        next_cursor:
+          type: [string, "null"]
+    ObservationInput:
+      type: object
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [NOTE, AI_SUMMARY]
+        tags:
+          type: array
+          maxItems: 5
+          items:
+            type: string
+            minLength: 1
+            maxLength: 30
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        ai_edited:
+          type: boolean
+        version:
+          type: integer
+    AISummaryResult:
+      type: object
+      required: [draft]
+      additionalProperties: false
+      properties:
+        draft:
+          type: object
+          required: [summary, strengths, concerns, suggestions]
+          additionalProperties: false
+          properties:
+            summary:
+              type: string
+              maxLength: 600
+            strengths:
+              type: array
+              maxItems: 3
+              items:
+                type: string
+            concerns:
+              type: array
+              maxItems: 3
+              items:
+                type: string
+            suggestions:
+              type: array
+              maxItems: 3
+              items:
+                type: string
+    OutreachInput:
+      type: object
+      required: [body]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+          minLength: 1
+          maxLength: 2000
+    OutreachResult:
+      type: object
+      required: [ticket]
+      additionalProperties: false
+      properties:
+        ticket:
+          type: object
+          required: [id, kind, status, created_at]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            kind:
+              type: string
+              enum: [TEACHER_OUTREACH]
+            status:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+    RiskThresholds:
+      type: object
+      description: Ngưỡng cần chú ý của lớp (đã trộn mặc định 0.70 / 1 / 60 / 2 / 3)
+      required: [attendance_ok_min, activity_min_per_week, study_min_minutes, signals_required, absent_alert]
+      additionalProperties: false
+      properties:
+        attendance_ok_min:
+          type: string
+          description: "Tỷ lệ có mặt tối thiểu 0.50–1.00, bước 0.05"
+        activity_min_per_week:
+          type: integer
+          minimum: 0
+          maximum: 20
+        study_min_minutes:
+          type: integer
+          minimum: 0
+          maximum: 600
+        signals_required:
+          type: integer
+          minimum: 1
+          maximum: 3
+        absent_alert:
+          type: integer
+          minimum: 1
+          maximum: 20
+    RiskThresholdsInput:
+      type: object
+      additionalProperties: false
+      properties:
+        attendance_ok_min:
+          type: string
+        activity_min_per_week:
+          type: integer
+        study_min_minutes:
+          type: integer
+        signals_required:
+          type: integer
+        absent_alert:
+          type: integer
+    CourseSettingsInput:
+      type: object
+      required: [version]
+      properties:
+        risk:
+          $ref: "#/components/schemas/RiskThresholdsInput"
+        escalation_threshold:
+          type: string
+        allow_study_time_opt_out:
+          type: boolean
+          description: Chỉ đổi được khi lớp chưa có sinh viên ghi danh (mọi trạng thái); đã có → 409 COURSE_HAS_STUDENTS
+        version:
+          type: integer
+    FollowupInput:
+      type: object
+      required: [content, client_msg_id]
+      properties:
+        content:
+          type: string
+          maxLength: 2000
+        client_msg_id:
+          type: string
+          format: uuid
+    StudentTicketResult:
+      type: object
+      required: [ticket]
+      properties:
+        ticket:
+          $ref: "#/components/schemas/StudentTicket"
+        message_id:
+          type: string
+          format: uuid
+    ChatMessagePage:
+      type: object
+      required: [items, next_cursor, open_tickets]
+      properties:
+        open_tickets:
+          type: integer
+          description: Số ticket đang mở (OPEN / CLAIMED) của sinh viên ở lớp của phiên.
         items:
           type: array
           items:
@@ -9967,10 +12929,30 @@ components:
           format: date-time
         ai_state:
           type: string
+        hidden:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadHidden"
+            - type: "null"
+        pinned:
+          type: boolean
+        edited:
+          type: boolean
+    ThreadHidden:
+      type: object
+      required: [reason, auto]
+      properties:
+        reason:
+          type: string
+        auto:
+          type: boolean
     ThreadPage:
       type: object
-      required: [items, next_cursor]
+      required: [pinned, items, next_cursor]
       properties:
+        pinned:
+          type: array
+          items:
+            $ref: "#/components/schemas/ThreadRow"
         items:
           type: array
           items:
@@ -10010,6 +12992,12 @@ components:
           type: string
         rejected:
           type: boolean
+        hidden:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadHidden"
+            - type: "null"
+        edited:
+          type: boolean
     ThreadDetail:
       type: object
       required: [id, title, body, tags, week_no, author, reply_count, created_at, last_activity_at, similar_of]
@@ -10044,6 +13032,16 @@ components:
           type: string
         ai_skip_reason:
           type: string
+        version:
+          type: integer
+        hidden:
+          oneOf:
+            - $ref: "#/components/schemas/ThreadHidden"
+            - type: "null"
+        pinned:
+          type: boolean
+        edited:
+          type: boolean
     ThreadView:
       type: object
       required: [thread, posts, next_cursor]
@@ -10054,6 +13052,120 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/ThreadPost"
+        next_cursor:
+          type: [string, "null"]
+    ReportInput:
+      type: object
+      required: [reason]
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          enum: [SPAM, OFF_TOPIC, PERSONAL_INFO, OFFENSIVE, WRONG_ANSWER, OTHER]
+        note:
+          type: [string, "null"]
+          maxLength: 200
+    ReportCreated:
+      type: object
+      required: [reported]
+      properties:
+        reported:
+          type: boolean
+    HideInput:
+      type: object
+      required: [reason, version]
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+        version:
+          type: integer
+    ModResult:
+      type: object
+      required: [id, hidden, version]
+      properties:
+        id:
+          type: string
+          format: uuid
+        hidden:
+          type: boolean
+        version:
+          type: integer
+    EditThreadInput:
+      type: object
+      required: [title, body, version]
+      additionalProperties: false
+      properties:
+        title:
+          type: string
+        body:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        week_no:
+          type: [integer, "null"]
+        version:
+          type: integer
+        redact:
+          type: boolean
+    EditPostInput:
+      type: object
+      required: [body, version]
+      additionalProperties: false
+      properties:
+        body:
+          type: string
+        version:
+          type: integer
+        redact:
+          type: boolean
+    ModerationReports:
+      type: object
+      required: [total, by_reason]
+      properties:
+        total:
+          type: integer
+        by_reason:
+          type: object
+          additionalProperties:
+            type: integer
+    ModerationQueueItem:
+      type: object
+      required: [kind, thread_id, post_id, title_or_excerpt, reports, hidden_at, hidden_by_auto, created_at]
+      properties:
+        kind:
+          type: string
+          enum: [thread, post]
+        thread_id:
+          type: string
+          format: uuid
+        post_id:
+          type: [string, "null"]
+          format: uuid
+        title_or_excerpt:
+          type: string
+        reports:
+          $ref: "#/components/schemas/ModerationReports"
+        hidden_at:
+          type: [string, "null"]
+          format: date-time
+        hidden_by_auto:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    ModerationQueuePage:
+      type: object
+      required: [items, next_cursor]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/ModerationQueueItem"
         next_cursor:
           type: [string, "null"]
     CreateThreadInput:

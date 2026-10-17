@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useDeferredValue, useEffect, useRef, useSyncExternalStore } from "react";
 import { apiClient } from "@/shared/data/apiClient";
 import { authStore, dropSession, refreshSession, type AuthSnapshot } from "@/shared/data/authSession";
+import { wipeDrafts } from "@/shared/lib/unsavedWork";
 
 type Auth = AuthSnapshot & {
   /** Đăng xuất thiết bị này: thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login. */
@@ -38,6 +39,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    const uid = authStore.get().user?.id;
+    if (uid) wipeDrafts(uid, "attendance"); // máy dùng chung: người sau không thấy điểm danh chưa gửi của người trước (FEAT-crm-360 AC13)
     try {
       await apiClient.post("/auth/logout");
     } catch {

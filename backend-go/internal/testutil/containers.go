@@ -61,6 +61,10 @@ func SkipTiming(t testing.TB) {
 	}
 }
 
+// TimingOn báo có nên kiểm ngưỡng mili-giây trong một test đa nhiệm (false khi EP_SKIP_TIMING=1: CI chạy nhiều gói song song, đồng hồ thật không ổn định).
+// Dùng cho CẬN TRÊN thời gian của một test vốn đã có bằng chứng hành vi; cận dưới (đã chờ ít nhất…) luôn kiểm.
+func TimingOn() bool { return os.Getenv("EP_SKIP_TIMING") != "1" }
+
 var (
 	pgOnce   sync.Once
 	pgHost   string // host:port trực tiếp tới Postgres
@@ -185,9 +189,46 @@ func startPG() {
 	}
 }
 
-// PostgresURL trả URL (sslmode=disable) tới MỘT database mới, trống, trong container Postgres dùng chung. Database KHÔNG bị xoá khi
-// test xong (nhiều test dùng chung một database dựng một lần cho cả gói); database cũ hơn 30 phút bị dọn ở lần dùng đầu của mỗi tiến trình.
+// PostgresURL trả URL (sslmode=disable) tới MỘT database mới, trống, trong container Postgres dùng chung; database bị `DROP … WITH (FORCE)` trong `t.Cleanup`
+// (BUG-S7-02: không còn để lại ≈ 25 GB `t_*` sau mỗi lượt full Go). Cleanup đăng ký TRƯỚC khi test mở pool nên chạy SAU khi pool đóng (LIFO).
+// Database dùng chung nhiều test của một gói (dựng một lần bằng sync.Once) dùng SharedPostgresURL; database cũ hơn 30 phút còn sót bị dọn ở lần dùng đầu của mỗi tiến trình.
 func PostgresURL(t testing.TB) string {
+	t.Helper()
+	name := newDatabase(t)
+	t.Cleanup(func() { dropDatabase(name) })
+	return pgDSN(pgHost, name)
+}
+
+var (
+	sharedMu  sync.Mutex
+	sharedDBs []string
+)
+
+// SharedPostgresURL như PostgresURL nhưng KHÔNG xoá khi test đầu tiên xong: dành cho database một gói dựng một lần rồi dùng chung cho mọi test (sync.Once).
+// Gói dùng nó PHẢI có `TestMain` gọi `testutil.Main(m)` để xoá khi tiến trình test kết thúc.
+func SharedPostgresURL(t testing.TB) string {
+	t.Helper()
+	name := newDatabase(t)
+	sharedMu.Lock()
+	sharedDBs = append(sharedDBs, name)
+	sharedMu.Unlock()
+	return pgDSN(pgHost, name)
+}
+
+// Main chạy `m.Run()` rồi xoá mọi database của SharedPostgresURL. Dùng: `func TestMain(m *testing.M) { testutil.Main(m) }`.
+func Main(m *testing.M) {
+	code := m.Run()
+	sharedMu.Lock()
+	names := sharedDBs
+	sharedDBs = nil
+	sharedMu.Unlock()
+	for _, n := range names {
+		dropDatabase(n)
+	}
+	os.Exit(code)
+}
+
+func newDatabase(t testing.TB) string {
 	t.Helper()
 	RequireContainers(t)
 	pgOnce.Do(startPG)
@@ -208,7 +249,19 @@ func PostgresURL(t testing.TB) string {
 	if _, err := admin.Exec(ctx, "CREATE DATABASE "+name); err != nil {
 		t.Fatalf("create database: %v", err)
 	}
-	return pgDSN(pgHost, name)
+	return name
+}
+
+// dropDatabase xoá một database test (FORCE: ngắt kết nối còn sót). Lỗi bị bỏ qua — bước dọn 30 phút của lần sau là lưới an toàn.
+func dropDatabase(name string) {
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	c, err := pgx.Connect(ctx, pgDSN(pgHost, "postgres"))
+	if err != nil {
+		return
+	}
+	defer func() { _ = c.Close(ctx) }()
+	_, _ = c.Exec(ctx, "DROP DATABASE IF EXISTS "+name+" WITH (FORCE)")
 }
 
 // PostgresHostPort trả địa chỉ host:port (trên máy chạy test) của container Postgres dùng chung.
@@ -285,6 +338,7 @@ func Mailpit(t testing.TB) (smtpAddr, apiURL string) {
 		req := testcontainers.ContainerRequest{
 			Image:        mailpitImage,
 			ExposedPorts: []string{"1025/tcp", "8025/tcp"},
+			Env:          map[string]string{"MP_IGNORE_DUPLICATE_IDS": "true"}, // thư giao lại cùng Message-ID chỉ lưu một lần (US-P4-04 AC3)
 			WaitingFor:   wait.ForHTTP("/readyz").WithPort("8025/tcp").WithStartupTimeout(2 * time.Minute),
 		}
 		ready := func(string) error { return nil }

@@ -7,9 +7,14 @@ select role_in_course, status from enrollments where course_id = sqlc.arg(course
 -- name: ListMyCourses :many
 -- Sinh viên: lớp ACTIVE và PENDING của chính mình; Giảng viên / TA: lớp được phân công (ACTIVE). Một truy vấn, không N+1.
 select c.id, c.class_code, c.subject_code, c.name, c.semester, c.status as course_status,
-       e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id
+       e.role_in_course, e.status as enrollment_status, e.created_at as enrolled_at, e.id as enrollment_id,
+       -- hộp thoại thời gian học (US-P5-03 AC7) đi cùng trang này để khỏi thêm câu SQL / yêu cầu: đã "Đã hiểu" chưa; có lớp ACTIVE nào cho tắt đo không
+       (u.tracking_notice_ack_at is not null)::bool as notice_acked,
+       exists (select 1 from enrollments x join courses y on y.id = x.course_id
+               where x.user_id = e.user_id and x.role_in_course = 'STUDENT' and x.status = 'ACTIVE' and y.status = 'ACTIVE' and y.allow_study_time_opt_out)::bool as opt_out_available
 from enrollments e
 join courses c on c.id = e.course_id
+join users u on u.id = e.user_id
 where e.user_id = sqlc.arg(user_id)
   and (e.status = 'ACTIVE' or (e.status = 'PENDING' and e.role_in_course = 'STUDENT'))
   and (sqlc.narg(cur_at)::timestamptz is null or (e.created_at, e.id) < (sqlc.narg(cur_at)::timestamptz, sqlc.narg(cur_id)::uuid))
@@ -17,7 +22,7 @@ order by e.created_at desc, e.id desc
 limit sqlc.arg(lim);
 
 -- name: GetCourseBasic :one
-select id, class_code, subject_code, name, semester, status from courses where id = sqlc.arg(id);
+select id, class_code, subject_code, name, semester, status, allow_study_time_opt_out from courses where id = sqlc.arg(id);
 
 -- name: ListCourseTeacherNames :many
 select u.full_name
@@ -134,12 +139,6 @@ limit 20;
 select count(*)::int from enrollments where course_id = sqlc.arg(course_id) and role_in_course = 'STUDENT' and status = 'ACTIVE';
 
 -- ===== Thông báo (US-P2-08) =====
-
--- name: InsertNotification :execrows
--- Idempotent theo (user_id, dedupe_key): giao lại cùng tin outbox không tạo dòng thứ hai.
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-values (sqlc.arg(user_id), sqlc.narg(course_id), sqlc.arg(type), sqlc.arg(title), sqlc.narg(body), sqlc.narg(link), sqlc.narg(dedupe_key))
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing;
 
 -- name: ListNotifications :many
 select id, type, title, body, link, course_id, read_at, created_at
@@ -271,7 +270,7 @@ limit 1;
 insert into document_courses (document_id, course_id, shared_by)
 select d.id, sqlc.arg(target_id), sqlc.arg(shared_by)
 from documents d
-where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE'
 on conflict (document_id, course_id) do nothing;
 
 -- name: AddTargetToSharedChunks :exec
@@ -279,22 +278,38 @@ on conflict (document_id, course_id) do nothing;
 update content_chunks c
 set course_ids = array_append(c.course_ids, sqlc.arg(target_id)::uuid)
 from documents d
-where c.document_id = d.id and d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY'
+where c.document_id = d.id and d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and not (sqlc.arg(target_id)::uuid = any(c.course_ids));
 
 -- name: CountSharedDocuments :one
 -- Số tài liệu của lớp nguồn hiện đã dùng được ở lớp đích, và số tài liệu quy chế bị bỏ qua.
 select
   (select count(*) from documents d join document_courses dc on dc.document_id = d.id and dc.course_id = sqlc.arg(target_id)
-    where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as shared,
-  (select count(*) from documents d where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type = 'COURSE_POLICY')::int as policy;
+    where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as shared,
+  (select count(*) from documents d where d.course_id = sqlc.arg(source_id) and d.status = 'READY' and d.type = 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as policy;
 
 -- name: ListShareSources :many
 -- Lớp CÙNG học phần mà người gọi là giảng viên ACTIVE của cả hai, chưa lưu trữ, kèm số tài liệu có thể chia sẻ.
 select c.id, c.class_code, c.name, c.semester,
-       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY')::int as documents
+       (select count(*) from documents d where d.course_id = c.id and d.status = 'READY' and d.type <> 'COURSE_POLICY' and d.category is distinct from 'THREAD_KNOWLEDGE')::int as documents
 from courses c
 join enrollments e on e.course_id = c.id and e.user_id = sqlc.arg(user_id) and e.role_in_course = 'TEACHER' and e.status = 'ACTIVE'
 where c.subject_code = (select t.subject_code from courses t where t.id = sqlc.arg(target_id))
   and c.id <> sqlc.arg(target_id) and c.status = 'ACTIVE'
 order by c.class_code, c.id;
+
+-- name: UpdateCourseThreshold :one
+-- Ngưỡng chuyển cho giảng viên (US-P4-05 AC12); người gọi đã khoá dòng và kiểm version.
+update courses set escalation_threshold = sqlc.arg(threshold), version = version + 1 where id = sqlc.arg(id) returning *;
+
+-- name: UpdateCourseSettings :one
+-- Ngưỡng at-risk (US-P5-04 AC6): `courses.settings` đã trộn ở tầng Go; người gọi đã khoá dòng và kiểm version.
+update courses set settings = sqlc.arg(settings), version = version + 1 where id = sqlc.arg(id) returning *;
+
+-- name: CourseHasStudentEnrollment :one
+-- Q25: có ghi danh SINH VIÊN nào không (mọi trạng thái, kể cả PENDING / REMOVED) — điều kiện khoá cờ allow_study_time_opt_out.
+select exists (select 1 from enrollments where course_id = sqlc.arg(course_id) and role_in_course = 'STUDENT')::bool;
+
+-- name: UpdateCourseOptOut :one
+-- Người gọi đã khoá dòng (LockCourse), kiểm version và kiểm chưa có sinh viên.
+update courses set allow_study_time_opt_out = sqlc.arg(allow), version = version + 1 where id = sqlc.arg(id) returning *;

@@ -4,26 +4,35 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/document"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/httpapi/activityhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
 	"github.com/edupilot/backend-go/internal/httpapi/coursehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/crmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/documenthttp"
+	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/library"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
 )
@@ -66,7 +75,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.Users != nil {
 			// US-P2-06 — /admin/users: chỉ ADMIN, POST cần Idempotency-Key.
-			uh := &userhttp.Handler{Users: d.Users, Log: d.Log}
+			uh := &userhttp.Handler{Users: d.Users, Study: activityService(d), Log: d.Log}
 			uh.Mount(r, RequireIdempotencyKey(d))
 			uh.MountMe(r) // US-P2-07: /me/profile, /me/settings
 		}
@@ -87,7 +96,11 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			if d.LLM != nil {
 				sig = todayLLM{rt: d.LLM}
 			}
-			(&todayhttp.Handler{Today: today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig), Guard: courseGuard, Log: d.Log}).Mount(r)
+			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)))
+			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
+			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P5-02: điểm danh, phát biểu
+			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                           // US-P5-03: heartbeat, ack, đọc thời gian học
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {
@@ -126,9 +139,18 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			// US-P3-05 — chat riêng: 7 route JSON ở đây; 3 route SSE nằm ngoài nhóm này (newRouterWith, SRS 4.7.0).
 			(&chathttp.Handler{Svc: d.Chat, Idem: RequireIdempotencyKey(d), Drain: drainC(d), Log: d.Log}).Mount(r)
 		}
+		if d.Escalation != nil {
+			// US-P4-01 — POST /chat/messages/{mid}/escalate (sinh viên nhờ giảng viên).
+			(&escalationhttp.Handler{Svc: d.Escalation, Log: d.Log}).Mount(r)
+			// US-P4-03 — hàng chờ của TA / TEACHER: danh sách, chi tiết, nhận / bỏ nhận / trả lời / đóng; đọc thông báo theo liên kết.
+			(&escalationhttp.StaffHandler{Svc: d.Escalation, Notify: notify.New(d.DB, d.Publisher, d.Log), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+		}
 		if d.LLM != nil && d.Redis != nil {
 			// US-P1-04 — API cấu hình LLM: 8 đường dẫn / 13 thao tác; RBAC từng route, Idempotency-Key cho POST providers.
 			llmhttp.NewAdmin(d.LLM, d.Redis.Client, d.Log, d.Clock).Mount(r, RequireIdempotencyKey(d))
+		}
+		if d.DB != nil {
+			(&mailhttp.Handler{Pool: d.DB, Log: d.Log}).Mount(r) // US-P4-04 AC9: thư gửi lỗi (ADMIN)
 		}
 	})
 
@@ -145,6 +167,24 @@ func authOptions(d Deps) []auth.MiddlewareOption {
 		mw = append(mw, auth.RequireSession()) // token dev (không sid) bị từ chối ở production
 	}
 	return mw
+}
+
+func activityService(d Deps) *activity.Service {
+	return &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log,
+		Cfg: activity.Config{MaxPerMinute: d.Cfg.HeartbeatMaxPerMinute, DailyCap: d.Cfg.StudyDailyCap, CounterTTL: d.Cfg.HeartbeatCounterTTL}}
+}
+
+func crmService(d Deps) *crm.Service {
+	s := &crm.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, MaxRows: d.Cfg.AttendanceMaxRows, DefaultSpeakPoints: d.Cfg.ParticipationDefaultPoints,
+		Redis: d.Redis, AITimeout: d.Cfg.AISummaryTimeout, AIPerHour: d.Cfg.AISummaryPerHour, OutreachPerDay: d.Cfg.OutreachPerDay}
+	if d.LLM != nil {
+		s.LLM = d.LLM.Gateway
+	}
+	if d.Redis != nil { // hồ sơ 360: quét tên / MSSV theo roster của lớp (đầu ra AI, thân tin nhắn)
+		s.PII = &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: d.DB}, Redis: d.Redis, Log: d.Log}}
+	}
+	s.Tickets = &escalation.Service{Pool: d.DB, Log: d.Log, PII: s.PII, Clock: d.Clock, Cfg: escalation.ConfigFrom(d.Cfg)}
+	return s
 }
 
 func calendarService(d Deps) *calendar.Service {

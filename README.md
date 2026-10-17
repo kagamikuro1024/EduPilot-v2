@@ -10,7 +10,9 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 > - 5.5 (giao diện panel nổi, D59);
 > - **6 (P3 + P8):** chat riêng và Threads có tường lửa dữ liệu cá nhân, che tên / MSSV trước mọi lời gọi LLM; tài liệu trích bằng `docling-serve` + tìm lai; thư viện, lịch, feed ICS; 535 test case, cổng P3 và P8 đạt.
 >
-> Kế tiếp: sprint 7 (P4 + P5). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> Nhánh `sprint/7-p4-p5` (chờ chủ dự án chốt để vào `main`): **7 (P4 + P5)**: nút "Nhờ giảng viên", hộp thư hỗ trợ `/inbox`, chuông tức thì qua nhiều bản gateway, thư trả lời đúng một lần, SLA ticket, kiểm duyệt Threads, kho tri thức; điểm danh `/attendance`, hồ sơ 360, at-risk theo tuần, thời gian học có công tắc tắt, `/me`; 550 test case, cổng P4 và P5 đạt.
+>
+> Kế tiếp: sprint 8 (P6 Sổ điểm). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -96,8 +98,15 @@ Thư viện ngoài bảng ở `ARCHITECTURE.md` §3 không được thêm khi ch
 │   │   ├── httpapi/         # router chi, middleware, lỗi thống nhất, cursor, Idempotency-Key, ETag, SSE
 │   │   ├── auth/            # JWT, refresh xoay vòng, bcrypt, RBAC, chống dò, CourseAccessGuard
 │   │   ├── user/            # tài khoản, đăng ký, xác minh email, lời mời
-│   │   ├── course/          # lớp, mã tham gia, thành viên, nạp danh sách lớp
+│   │   ├── course/          # lớp, mã tham gia, thành viên, nạp danh sách lớp, lịch buổi học
 │   │   ├── today/           # "Hôm nay": Provider theo vai, cache Redis xoá theo sự kiện
+│   │   ├── escalation/      # ticket nhờ giảng viên: idempotent, Nhận / trả lời, SLA, tự đóng
+│   │   ├── notify/          # một cửa thông báo: gộp, đẩy tức thì qua /events (Redis pub/sub)
+│   │   ├── workhours/       # tính giờ chờ theo ngày làm việc (T2–T6, giờ VN)
+│   │   ├── knowledge/       # kho tri thức từ ticket / Threads đã xác nhận (che PII rồi nạp)
+│   │   ├── crm/             # điểm danh, phát biểu, ghi chú, hồ sơ 360 (audit), at-risk theo tuần
+│   │   ├── activity/        # thời gian học: heartbeat chỉ ghi Redis, rollup vào DB
+│   │   ├── seedtool/        # lệnh quản trị cho seed dữ liệu quá khứ (chỉ dev / test)
 │   │   ├── exam/            # bài thi: lượt làm, tự lưu, nộp, công bố, kết quả, phúc khảo, liêm chính
 │   │   ├── quiz/            # Quiz Engine: chấm trắc nghiệm (decimal, từng phần)
 │   │   ├── judge/           # client go-judge + hàng chấm code (thuê việc kiểu outbox)
@@ -287,7 +296,7 @@ flowchart LR
 | 5 | ✅ Xong | PE | Bài thi hằng tuần (D54–D58): ngân hàng câu hỏi, trắc nghiệm + lập trình C/C++ chấm bằng sandbox `go-judge`, tự công bố khi đóng, liêm chính (khoá chat, log rời tab, so độ giống); trả nợ LCP / TBT (US-PU-06) |
 | 5.5 | ✅ Xong | UI | Giao diện panel nổi (D59): nền canvas xám ấm, mỗi vùng làm việc trên một `Panel`; khung, màn sinh viên / Staff / Admin; ảnh trước / sau, axe, Lighthouse |
 | 6 | ✅ Xong | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính trước LLM (E1 recall 0,960); tài liệu (`docling-serve`), thư viện, lịch + ICS |
-| 7 | | P4 + P5 | Escalation + mail, kiểm duyệt; điểm danh, CRM, hồ sơ 360 |
+| 7 | ✅ Xong (chờ merge) | P4 + P5 | "Nhờ giảng viên", `/inbox`, chuông tức thì, thư đúng một lần, SLA ticket, kiểm duyệt Threads; điểm danh, hồ sơ 360 (audit), at-risk, thời gian học có công tắc |
 | 8 | | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |
 | 9 | | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
 | 10 | | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |

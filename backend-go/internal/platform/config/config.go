@@ -12,6 +12,9 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
+
+	"github.com/shopspring/decimal"
 
 	"github.com/edupilot/backend-go/internal/platform/crypto"
 )
@@ -137,15 +140,46 @@ type Config struct {
 	ChatMaxInputChars int
 	ChatRatePerMin    int
 	ChatStreamMax     time.Duration
-	LLMProvider       string // "" | "fake"
-	LLMReplayDir      string
-	OpenAIKey         string
-	AnthropicKey      string
-	GeminiKey         string
-	FakeLatencyMin    time.Duration
-	FakeLatencyMax    time.Duration
-	FakeErrorRate     float64
-	FakeValidKey      string
+	// Điểm danh / tham gia (SRS FEAT-crm-360 4.1): ATTENDANCE_MAX_ROWS (số dòng tối đa mỗi lần lưu lưới), PARTICIPATION_DEFAULT_POINTS (điểm một lần phát biểu, decimal).
+	AttendanceMaxRows int
+	// Kiểm duyệt Threads (SRS FEAT-escalation-notify 4.10): REPORT_RATE_PER_HOUR (báo cáo / giờ / người), REPORT_AUTOHIDE_THRESHOLD (số người khác nhau để tự ẩn), THREAD_PIN_MAX (ghim / lớp).
+	ReportRatePerHour int
+	// Đo thời gian học (US-P5-03, SRS FEAT-crm-360 4.1).
+	HeartbeatMaxPerMinute, StudyDailyCap int
+	HeartbeatCounterTTL, RollupTick      time.Duration
+	// RiskJobAt: giờ chạy `crm.risk` mỗi ngày (RISK_JOB_AT, "HH:MM", múi giờ Asia/Ho_Chi_Minh), tính từ 00:00 (US-P5-04).
+	RiskJobAt time.Duration
+	// Hồ sơ 360 (US-P5-05): AI_SUMMARY_TIMEOUT, AI_SUMMARY_PER_HOUR (lượt / giờ / người), OUTREACH_PER_DAY (tin / ngày tới một sinh viên).
+	AISummaryTimeout                 time.Duration
+	AISummaryPerHour, OutreachPerDay int
+	// SupportResourcesVI: thông tin hỗ trợ trong câu mẫu khủng hoảng (≤ 300 ký tự; rỗng → câu mặc định). Không đi qua Mask.
+	SupportResourcesVI         string
+	ReportAutoHideThreshold    int
+	ThreadPinMax               int
+	ParticipationDefaultPoints decimal.Decimal
+	// Escalation (SRS FEAT-escalation-notify 4.1): TICKET_OPEN_CAP.
+	TicketOpenCap int
+	// MailTicketNewCoalesce: tối đa một thư `ticket_new` mỗi (người, lớp) trong khoảng này (cửa sổ trượt, SRS escalation 4.5.3).
+	MailTicketNewCoalesce time.Duration
+	// SLA / giờ làm việc (SRS escalation 4.1, 4.6): khung [START, END) tính từ 00:00 giờ Việt Nam; WORKDAYS = các thứ (time.Weekday) được tính.
+	TicketReopenDays, TicketAutocloseDays  int
+	TicketWorkdayStart, TicketWorkdayEnd   time.Duration
+	TicketWorkdays                         []time.Weekday
+	TicketRemindAfter, TicketEscalateAfter time.Duration
+	TicketInactiveAfter, TicketSLATick     time.Duration
+	// TodayProviderTimeout: hạn MỖI Provider của `/me/today` (quá hạn thì bỏ Provider đó, SRS 4.7); mặc định 150 ms. Test đặt dài để kết quả không phụ thuộc tải máy (#19).
+	TodayProviderTimeout time.Duration
+	// KnowledgeEmbedTimeout: hạn MỘT lần nhúng đoạn tri thức (US-P4-05 AC10).
+	KnowledgeEmbedTimeout time.Duration
+	LLMProvider           string // "" | "fake"
+	LLMReplayDir          string
+	OpenAIKey             string
+	AnthropicKey          string
+	GeminiKey             string
+	FakeLatencyMin        time.Duration
+	FakeLatencyMax        time.Duration
+	FakeErrorRate         float64
+	FakeValidKey          string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
 	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
@@ -305,6 +339,41 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.ChatMaxInputChars = l.num("CHAT_MAX_INPUT_CHARS", 4000, 100, 20000)
 	c.ChatRatePerMin = l.num("CHAT_RATE_PER_MIN", 20, 1, 600)
 	c.ChatStreamMax = time.Duration(l.num("CHAT_STREAM_MAX_SECONDS", 120, 5, 600)) * time.Second
+	c.AttendanceMaxRows = l.num("ATTENDANCE_MAX_ROWS", 1000, 100, 5000)
+	c.HeartbeatMaxPerMinute = l.num("HEARTBEAT_MAX_PER_MINUTE", 4, 2, 10)
+	c.StudyDailyCap = l.num("STUDY_DAILY_CAP", 43200, 3600, 86400)
+	c.HeartbeatCounterTTL = l.durRange("HEARTBEAT_COUNTER_TTL", 192*time.Hour, 48*time.Hour, 30*24*time.Hour)
+	c.RollupTick = l.durRange("ROLLUP_TICK", time.Minute, 10*time.Second, 5*time.Minute)
+	c.RiskJobAt = l.workday("RISK_JOB_AT", "02:00")
+	c.AISummaryTimeout = l.durRange("AI_SUMMARY_TIMEOUT", 20*time.Second, 5*time.Second, 120*time.Second)
+	c.AISummaryPerHour = l.num("AI_SUMMARY_PER_HOUR", 10, 1, 1000)
+	c.OutreachPerDay = l.num("OUTREACH_PER_DAY", 3, 1, 20)
+	c.SupportResourcesVI = l.str("SUPPORT_RESOURCES_VI", "")
+	if utf8.RuneCountInString(c.SupportResourcesVI) > 300 {
+		l.bad("SUPPORT_RESOURCES_VI", "tối đa 300 ký tự")
+	}
+	c.ReportRatePerHour = l.num("REPORT_RATE_PER_HOUR", 20, 1, 1000)
+	c.ReportAutoHideThreshold = l.num("REPORT_AUTOHIDE_THRESHOLD", 3, 2, 20)
+	c.ThreadPinMax = l.num("THREAD_PIN_MAX", 3, 1, 10)
+	c.ParticipationDefaultPoints = l.points("PARTICIPATION_DEFAULT_POINTS", "0.25", -5, 5)
+	c.TicketOpenCap = l.num("TICKET_OPEN_CAP", 5, 1, 50)
+	c.MailTicketNewCoalesce = l.durRange("MAIL_TICKET_NEW_COALESCE", 15*time.Minute, time.Minute, 6*time.Hour)
+	c.TicketReopenDays = l.num("TICKET_REOPEN_DAYS", 30, 1, 365)
+	c.TicketAutocloseDays = l.num("TICKET_AUTOCLOSE_DAYS", 7, 1, 60)
+	c.TicketWorkdayStart, c.TicketWorkdayEnd = l.workday("TICKET_WORKDAY_START", "00:00"), l.workday("TICKET_WORKDAY_END", "24:00")
+	if c.TicketWorkdayStart >= c.TicketWorkdayEnd {
+		l.bad("TICKET_WORKDAY_START", "phải nhỏ hơn TICKET_WORKDAY_END")
+	}
+	c.TicketWorkdays = l.weekdays("TICKET_WORKDAYS", "1-5")
+	c.TicketRemindAfter = l.durRange("TICKET_REMIND_AFTER", 24*time.Hour, time.Hour, 720*time.Hour)
+	c.TicketEscalateAfter = l.dur("TICKET_ESCALATE_AFTER", 72*time.Hour)
+	if c.TicketEscalateAfter <= c.TicketRemindAfter {
+		l.bad("TICKET_ESCALATE_AFTER", "phải lớn hơn TICKET_REMIND_AFTER")
+	}
+	c.TicketInactiveAfter = l.durRange("TICKET_INACTIVE_AFTER", 72*time.Hour, time.Hour, 720*time.Hour)
+	c.TicketSLATick = l.durRange("TICKET_SLA_TICK", 15*time.Minute, time.Minute, time.Hour)
+	c.TodayProviderTimeout = l.durRange("TODAY_PROVIDER_TIMEOUT", 150*time.Millisecond, 10*time.Millisecond, time.Minute)
+	c.KnowledgeEmbedTimeout = l.durRange("KNOWLEDGE_EMBED_TIMEOUT", 10*time.Second, time.Second, time.Minute)
 	if c.LLMEmbedDims != 1536 {
 		l.bad("LLM_EMBED_DIMS", "khoá cố định 1536 (pgvector vector(1536)); đổi số chiều cần migration và dựng lại chỉ mục")
 	}
@@ -529,6 +598,47 @@ func (l *loader) dur(name string, def time.Duration) time.Duration {
 	return d
 }
 
+// workday đọc "HH:MM" (đến "24:00") thành độ dài từ 00:00.
+func (l *loader) workday(name, def string) time.Duration {
+	v := l.str(name, def)
+	var h, m int
+	if _, err := fmt.Sscanf(v, "%d:%d", &h, &m); err != nil || h < 0 || h > 24 || m < 0 || m > 59 || (h == 24 && m != 0) {
+		l.bad(name, "cần HH:MM trong 00:00–24:00")
+		return 0
+	}
+	return time.Duration(h)*time.Hour + time.Duration(m)*time.Minute
+}
+
+// weekdays đọc tập con của 1–7 ("1-5", "1,3,5", "1-3,5"); 1 = thứ Hai … 7 = Chủ nhật.
+func (l *loader) weekdays(name, def string) []time.Weekday {
+	var out []time.Weekday
+	seen := map[int]bool{}
+	for _, part := range strings.Split(l.str(name, def), ",") {
+		lo, hi := 0, 0
+		if a, b, ok := strings.Cut(strings.TrimSpace(part), "-"); ok {
+			if _, e1 := fmt.Sscanf(a, "%d", &lo); e1 != nil {
+				lo = 0
+			}
+			if _, e2 := fmt.Sscanf(b, "%d", &hi); e2 != nil {
+				hi = 0
+			}
+		} else if _, err := fmt.Sscanf(part, "%d", &lo); err == nil {
+			hi = lo
+		}
+		if lo < 1 || hi > 7 || lo > hi {
+			l.bad(name, "cần tập con của 1–7, ví dụ 1-5")
+			return nil
+		}
+		for d := lo; d <= hi; d++ {
+			if !seen[d] {
+				seen[d] = true
+				out = append(out, time.Weekday(d%7)) // 7 = Chủ nhật = time.Sunday (0)
+			}
+		}
+	}
+	return out
+}
+
 // durRange như dur nhưng giới hạn [min, max]; max = 0 là không chặn trên.
 func (l *loader) durRange(name string, def, lo, hi time.Duration) time.Duration {
 	d := l.dur(name, def)
@@ -551,6 +661,20 @@ func (l *loader) fraction(name string, def float64) float64 {
 		return def
 	}
 	return f
+}
+
+// points đọc điểm (decimal, bước 0,01) trong [lo, hi]; không bao giờ qua float64 (luật 5).
+func (l *loader) points(name, def string, lo, hi int64) decimal.Decimal {
+	v := l.raw(name)
+	if v == "" {
+		v = def
+	}
+	d, err := decimal.NewFromString(v)
+	if err != nil || d.LessThan(decimal.NewFromInt(lo)) || d.GreaterThan(decimal.NewFromInt(hi)) || !d.Equal(d.Round(2)) {
+		l.bad(name, fmt.Sprintf("cần số thập phân trong [%d, %d], bước 0,01", lo, hi))
+		return decimal.RequireFromString(def)
+	}
+	return d
 }
 
 // rate đọc số thực trong [0, 1].

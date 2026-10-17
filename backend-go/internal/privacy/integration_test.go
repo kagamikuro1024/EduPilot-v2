@@ -35,6 +35,7 @@ func newFx(t *testing.T) *fx {
 	pool, err := pgxpool.New(ctx, testutil.MigratedPostgresURL(t))
 	require.NoError(t, err)
 	t.Cleanup(pool.Close)
+	warmPool(t, pool)
 	rdb, err := appredis.New(ctx, testutil.RedisURL(t))
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = rdb.Close() })
@@ -55,6 +56,17 @@ func newFx(t *testing.T) *fx {
 		"PV-"+strings.ToUpper(id), string(jc), teacher).Scan(&f.course))
 	f.enroll(t, teacher, "TEACHER", "ACTIVE", "", "Giảng Viên Thử")
 	return f
+}
+
+// warmPool mở sẵn 8 kết nối Postgres: `Mask` nạp roster với hạn cứng 2 s (rosterLoadCap, mã chạy thật); 8 lượt song song mỗi lượt mở kết nối LẠNH dưới -race + máy bận
+// có thể quá hạn đó → ErrMaskFailed → "[] should have 1 item" (BUG-S7-03). Test khẳng định số thứ tự placeholder, không phải tốc độ mở kết nối.
+func warmPool(t *testing.T, pool *pgxpool.Pool) {
+	t.Helper()
+	var wg sync.WaitGroup
+	for range 8 {
+		wg.Go(func() { _ = pool.Ping(t.Context()) })
+	}
+	wg.Wait()
 }
 
 // warmRedis mở sẵn 8 kết nối: mã chạy thật chỉ cho Redis 30 ms mỗi lệnh (redisOpTimeout, rơi về bộ nhớ khi quá hạn), nhưng kết nối LẠNH dưới -race + CI tải nặng
@@ -86,8 +98,8 @@ func (f *fx) user(t *testing.T, name, role string) uuid.UUID {
 }
 
 func (f *fx) masker() *privacy.Masker {
-	d := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: f.pool}, Redis: f.rdb, Log: f.log}}
-	return &privacy.Masker{Detector: d, Redis: f.rdb, Log: f.log}
+	d := &privacy.Detector{Roster: &privacy.Roster{Src: privacy.StoreRoster{Pool: f.pool}, Redis: f.rdb, Log: f.log, OpTimeout: 10 * time.Second}}
+	return &privacy.Masker{Detector: d, Redis: f.rdb, Log: f.log, Timeout: 30 * time.Second, RedisOpTimeout: 10 * time.Second}
 }
 
 func (f *fx) members(t *testing.T) []string {
@@ -187,20 +199,22 @@ func TestMaskConcurrentSameSession(t *testing.T) {
 	ctx := t.Context()
 	sid := "sess-" + uuid.NewString()
 	m := f.masker()
-	done := make(chan []string, 8)
+	type result struct {
+		out []string
+		err error
+	}
+	done := make(chan result, 8)
 	for i := range 8 {
 		go func() {
 			out, _, err := m.Mask(ctx, f.course, privacy.NewSession(sid), []string{"mail x" + string(rune('a'+i)) + "@b.vn"})
-			if err != nil {
-				done <- nil
-				return
-			}
-			done <- out
+			done <- result{out, err}
 		}()
 	}
 	seen := map[string]bool{}
 	for range 8 {
-		out := <-done
+		r := <-done
+		require.NoError(t, r.err)
+		out := r.out
 		require.Len(t, out, 1)
 		require.False(t, seen[out[0]], "placeholder trùng: %s", out[0])
 		seen[out[0]] = true

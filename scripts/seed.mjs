@@ -1,17 +1,19 @@
 // Dữ liệu mẫu của P2 (FEAT-course-foundation US-P2-12, SRS 4.8): 2 lớp × 30 sinh viên dựng bằng CHÍNH API thật của gateway,
-// nên chạy seed cũng là kiểm F1 + F2 đầu cuối. Không INSERT, không route _test, không ghi DB; chỉ `fetch` và `node:` chuẩn (Node >= 24 và Bun).
+// nên chạy seed cũng là kiểm F1 + F2 đầu cuối. Không INSERT, không route _test; chỉ `fetch` và `node:` chuẩn (Node >= 24 và Bun). Ngoại lệ DUY NHẤT (bước 15–16, SRS crm-360 4.10): ba lệnh
+// `gateway admin seed-study-time | seed-age | crm-risk-run` cho việc phải ghi thời gian QUÁ KHỨ (API không có); chỉ chạy khi APP_ENV là dev / test.
 //
 //   node scripts/seed.mjs [--if-empty] [--verbose]      pnpm seed
 //
 // Biến: API_URL (https://localhost/api/v1), MAILPIT_URL (http://localhost:8025), SEED_DEFAULT_PASSWORD, SEED_RNG (20261029),
-//       SEED_BASE_DATE (hôm nay, YYYY-MM-DD), SEED_ADMIN_CMD (mặc định: docker compose exec gateway /gateway admin create).
+//       SEED_BASE_DATE (hôm nay, YYYY-MM-DD), SEED_ADMIN_CMD (mặc định: docker compose exec gateway /gateway admin create; bước 15–16 dùng cùng tiền tố, bỏ `create`).
 // Idempotent: mỗi bước kiểm trạng thái trước khi làm; chạy lại không tạo bản ghi / thư mới.
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
+import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
 import { createHash } from "node:crypto";
+import { ROSTER1, crmPlan } from "./crm-plan.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -31,10 +33,12 @@ function envFileValue(key) {
 }
 const setting = (key, fallback) => process.env[key] || envFileValue(key) || fallback;
 
-// Chặn production TRƯỚC mọi lời gọi mạng / lệnh.
-if (setting("APP_ENV", "dev") === "production") {
-  console.error("Seed bị chặn ở production.");
-  process.exit(1);
+// Chặn production TRƯỚC mọi lời gọi mạng / lệnh: NODE_ENV (chỉ biến môi trường tiến trình) HOẶC APP_ENV (môi trường hoặc .env.local) là production (BUG-S2).
+for (const [name, value] of [["NODE_ENV", process.env.NODE_ENV], ["APP_ENV", setting("APP_ENV", "dev")]]) {
+  if (String(value ?? "").trim().toLowerCase() === "production") {
+    console.error(`Seed bị chặn: ${name}=production. Seed chỉ chạy ở môi trường dev / test.`);
+    process.exit(1);
+  }
 }
 
 const API = setting("API_URL", "https://localhost/api/v1").replace(/\/$/, "");
@@ -51,7 +55,7 @@ const ORIGIN = new URL(API).origin;
 
 const DOMAIN = "@edupilot.local";
 const SEMESTER = "2026-2027-HK1";
-const STEPS = 13;
+const STEPS = 17;
 
 // ---- tiện ích --------------------------------------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -289,6 +293,14 @@ async function step3Courses() {
     const hasTA = !wantTA || full.assistants_count >= 1;
     if (!hasTeacher || !hasTA) {
       await call("POST", `/admin/courses/${row.id}/assign`, { token: ctx.tokens.admin, json: { teacher_id: ctx.ids.teacher, ...(wantTA ? { ta_ids: [ctx.ids.ta] } : {}) } });
+    }
+  }
+  // Q1 / Q25: lớp 761988 không cho sinh viên tắt đo thời gian học — TEACHER đặt SAU khi gán giảng viên, TRƯỚC khi có sinh viên (có sinh viên rồi thì khoá: 409 = đã áp dụng).
+  {
+    const id2 = ctx.ids["761988"];
+    const d = (await call("GET", `/courses/${id2}`, { token: ctx.tokens.teacher })).body;
+    if (d.allow_study_time_opt_out !== false) {
+      await call("PUT", `/courses/${id2}/settings`, { token: ctx.tokens.teacher, json: { allow_study_time_opt_out: false, version: d.settings.version }, ok: [200, 409] });
     }
   }
   // Thông báo nhận lớp tới qua worker (outbox): chờ đủ 2, đánh dấu đã đọc thông báo lớp 1.
@@ -682,71 +694,35 @@ async function step11DocsEvents() {
   }
 }
 
-// ---- bước 12: ≈ 150 câu hỏi chat riêng bằng đúng luồng chat (US-P3-08 AC1) --------------------------------------------------
-// Mỗi sinh viên của lớp 761987 một phiên (sv.gioi: 4 phiên, để "Tiếp tục học" có > 3 mục); chạy lại chỉ bổ sung phần thiếu.
+// ---- bước 12: ≈ 150 câu hỏi chat riêng (US-P3-08 AC1) ---------------------------------------------------------------------------
+// Ghi thẳng bằng `gateway admin seed-chat` (BUG-S1): với provider giả mọi câu tự nhiên đều thiếu ngữ cảnh → luồng chat thật tự mở 126 ticket. Mỗi sinh viên của lớp 761987 một phiên (sv.gioi: 4 phiên, để "Tiếp tục học" có > 3 mục); chạy lại không thêm gì.
 const uuidOf = (s) => {
   const h = createHash("sha1").update(s).digest("hex");
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-5${h.slice(13, 16)}-a${h.slice(17, 20)}-${h.slice(20, 32)}`;
 };
 
-/** Gửi một tin và đọc SSE tới hết (done | error). 409 EXAM_IN_PROGRESS (đang có lượt thi): đợi tối đa 4 phút. */
-async function sendChat(token, sid, content, key) {
-  for (let attempt = 0; ; attempt++) {
-    const res = await fetch(`${API}/chat/sessions/${sid}/messages`, {
-      method: "POST", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", Accept: "text/event-stream", Origin: ORIGIN, "Idempotency-Key": uuidOf(key) },
-      body: JSON.stringify({ content }), tls: { rejectUnauthorized: false },
-    });
-    if (res.status === 429 && attempt < 8) {
-      await sleep(3000);
-      continue;
-    }
-    if (res.status === 409 && attempt < 50) {
-      await sleep(5000);
-      continue;
-    }
-    if (!res.ok) throw new Error(`POST messages → ${res.status} ${(await res.text()).slice(0, 120)}`);
-    const text = await res.text();
-    if (/event: error/.test(text)) throw new Error(`Chat báo lỗi: ${text.slice(text.indexOf("event: error"), text.indexOf("event: error") + 160)}`);
-    return;
-  }
-}
-
-async function userMessageCount(token, sid) {
-  const items = await listAll(`/chat/sessions/${sid}/messages`, token);
-  return items.filter((m) => m.role === "USER").length;
-}
+const CHAT_ANSWER = "Mình tìm thấy phần liên quan trong tài liệu của lớp. Bạn xem lại bài giảng tương ứng để nắm đầy đủ.";
+const CHAT_ANSWER_OUTSIDE = "Mình chưa tìm thấy nội dung này trong tài liệu của lớp.";
 
 async function step12Chat() {
-  step(12, "Câu hỏi chat riêng của sinh viên lớp 761987 (≈ 150, bằng luồng chat thật)…");
-  const course = ctx.ids["761987"];
+  step(12, "Lịch sử chat riêng của sinh viên lớp 761987 (≈ 150 câu, ghi thẳng, không tự mở ticket)…");
   const questions = chatQuestions(mulberry32(RNG_SEED ^ 0x5eed));
-  const students = roster1;
   // kế hoạch: sv.gioi 4 phiên (2+1+1+1 tin), mỗi người còn lại 1 phiên × 5 tin → 5 + 145 = 150
-  const plan = students.map((k) => ({ k, sessions: k === "sv.gioi" ? [2, 1, 1, 1] : [5] }));
-  let n = 0;
-  const jobs = plan.map((p) => ({ ...p, from: (n += p.sessions.reduce((a, b) => a + b, 0)) - p.sessions.reduce((a, b) => a + b, 0) }));
-  await pool(jobs, 4, async (j) => {
-    const token = (await login(accounts.get(j.k).email)).access_token;
-    const existing = (await listAll(`/chat/sessions?course_id=${course}`, token)).sort((a, b) => (a.id < b.id ? -1 : 1));
-    let q = j.from;
-    for (const [si, quota] of j.sessions.entries()) {
-      let sess = existing[si];
-      const had = sess ? await userMessageCount(token, sess.id) : 0;
-      if (had >= quota) {
-        q += quota;
-        continue;
+  const sessions = [];
+  let q = 0;
+  for (const k of roster1) {
+    (k === "sv.gioi" ? [2, 1, 1, 1] : [5]).forEach((quota, si) => {
+      const turns = [];
+      for (let m = 0; m < quota; m++, q++) {
+        const text = questions[q % questions.length];
+        const outside = OUTSIDE.some((o) => text.endsWith(o));
+        turns.push({ key: `seed-chat-${k}-${si}-${m}`, q: text, a: outside ? CHAT_ANSWER_OUTSIDE : CHAT_ANSWER, outside });
       }
-      if (!sess) {
-        sess = (await call("POST", "/chat/sessions", { token, json: { course_id: course }, key: `seed-chat-session-${j.k}-${si}` })).body;
-        ctx.changed = true;
-      }
-      for (let m = had; m < quota; m++) {
-        await sendChat(token, sess.id, questions[(q + m) % questions.length], `seed-chat-${j.k}-${si}-${m}`);
-        ctx.changed = true;
-      }
-      q += quota;
-    }
-  });
+      sessions.push({ email: accounts.get(k).email, key: `seed-chat-session-${k}-${si}`, turns });
+    });
+  }
+  const out = gatewayAdmin("seed-chat", ["--course", "761987", "--weeks", "10", "--plan", "-"], JSON.stringify({ sessions }));
+  if (!/seed-chat: 0 tin/.test(out)) ctx.changed = true;
 }
 
 // ---- bước 13: thread lớp (12 + 3) với đủ trạng thái bài AI (US-P3-08 AC2) ---------------------------------------------------
@@ -829,6 +805,95 @@ async function step13Threads() {
   for (const w of warn) console.log(`   CẢNH BÁO seed thread: ${w}`);
 }
 
+// ---- bước 14–17: CRM, thời gian học, ticket, kiểm duyệt (US-S7-SEED) ---------------------------------------------------------
+/** Chạy `gateway admin <lệnh con> …` (chỉ APP_ENV local / dev / test). SEED_ADMIN_CMD dạng "… admin create" → bỏ `create` để dùng làm tiền tố. */
+function gatewayAdmin(sub, args, input = "") {
+  const cmd = process.env.SEED_ADMIN_CMD;
+  const prefix = cmd ? cmd.replace(/\s+create\s*$/, "") : `docker compose --env-file .env.local -f docker-compose.local.yml -p ${process.env.COMPOSE_PROJECT_NAME || "edupilot"} exec -T gateway /gateway admin`;
+  const run = spawnSync("sh", ["-c", `${prefix} ${sub} ${args.map((a) => JSON.stringify(a)).join(" ")}`], { cwd: root, input, encoding: "utf8" });
+  if (run.status !== 0) throw new Error(`gateway admin ${sub} lỗi (mã ${run.status}): ${mask(run.stderr || run.error?.message || "")}`);
+  const out = run.stdout.trim();
+  vlog(sub, "→", out);
+  return out;
+}
+
+async function step14Attendance() {
+  step(14, "Điểm danh buổi 1–9 và phát biểu lớp 761987 (270 dòng, kế hoạch theo SEED_RNG)…");
+  const c1 = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  const plan = crmPlan(RNG_SEED);
+  const sessions = (await listAll(`/courses/${c1}/sessions`, t)).sort((a, b) => a.session_no - b.session_no);
+  for (let n = 1; n <= plan.sessions; n++) {
+    const s = sessions.find((x) => x.session_no === n);
+    if (!s) throw new Error(`Lớp 761987 thiếu buổi ${n}`);
+    const records = ROSTER1.map((k) => ({ student_id: userId(k), status: plan.attendance[k][n - 1] }));
+    const r = await call("PUT", `/courses/${c1}/sessions/${s.id}/attendance`, { token: t, json: { records, complete: true } });
+    if (!r.body.done_at) throw new Error(`Buổi ${n} chưa hoàn tất điểm danh`);
+  }
+  for (const k of ROSTER1) {
+    for (let i = 0; i < plan.speak[k]; i++) {
+      const s = sessions.find((x) => x.session_no === (i % 9) + 1);
+      await call("POST", `/courses/${c1}/participation`, { token: t, json: { student_id: userId(k), type: "SPEAK", session_id: s.id, client_event_id: uuidOf(`seed-speak-${k}-${i}`) } });
+    }
+  }
+}
+
+async function step15StudyTimeRisk() {
+  step(15, "Thời gian học 10 tuần (lớp 761988: 3 tuần), rải hoạt động, tính at-risk…");
+  const profile = readFileSync(path.join(root, "seed", "study_profile.json"), "utf8");
+  vlog(gatewayAdmin("seed-study-time", ["--course", "761987", "--weeks", "10", "--profile", "-"], profile));
+  vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-"], profile));
+  vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10"]));
+  const out = gatewayAdmin("crm-risk-run", ["--course", "761987"]);
+  if (!/AT_RISK 1, WATCH 2/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 2": ${out} — buổi 10 phải là HÔM NAY (seed chạy trên DB trống; DB cũ giữ lịch buổi của ngày seed trước nên tuần của buổi 8 / 9 lệch)`);
+  if (!/AT_RISK 0/.test(gatewayAdmin("crm-risk-run", ["--course", "761988"]))) throw new Error("Lớp 761988 không được có AT_RISK");
+}
+
+const TICKET_STUDENTS = [["sv14", "open"], ["sv15", "overdue"], ["sv16", "claimed"], ["sv17", "answered"], ["sv18", "closed"]];
+const TICKET_ANSWER = "Bạn xem lại mục 'nộp bài muộn' trong quy chế học phần: mỗi ngày nộp muộn bị trừ 0,5 điểm.";
+
+async function step16Tickets() {
+  step(16, "Ticket đủ trạng thái lớp 761987 (qua chat + escalate + trả lời thật)…");
+  const c1 = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  for (const [k, want] of TICKET_STUDENTS) {
+    const token = ctx.tokens[k];
+    const sess = (await listAll(`/chat/sessions?course_id=${c1}`, token)).sort((a, b) => (a.id < b.id ? -1 : 1))[0];
+    if (!sess) throw new Error(`${k} chưa có phiên chat (bước 12?)`);
+    // tin mới nhất có thể chuyển hoặc đã có ticket (chạy lại: tin mới nhất là STAFF_ANSWER, không chuyển được nhưng mang đúng ticket đó)
+    const msg = (await listAll(`/chat/sessions/${sess.id}/messages`, token)).find((m) => m.role === "ASSISTANT" && (m.can_escalate || m.ticket));
+    if (!msg) throw new Error(`${k} chưa có câu trả lời nào của trợ lý để chuyển giảng viên`);
+    let tk = msg.ticket ?? (await call("POST", `/chat/messages/${msg.id}/escalate`, { token, json: {} })).body.ticket;
+    const rank = { OPEN: 0, CLAIMED: 1, ANSWERED: 2, CLOSED: 3 };
+    const goal = { open: 0, overdue: 0, claimed: 1, answered: 2, closed: 3 }[want];
+    if (rank[tk.status] < 1 && goal >= 1) tk = (await call("POST", `/courses/${c1}/tickets/${tk.id}/claim`, { token: t, json: {} })).body.ticket;
+    if (rank[tk.status] < 2 && goal >= 2) tk = (await call("POST", `/courses/${c1}/tickets/${tk.id}/answer`, { token: t, json: { body: TICKET_ANSWER }, key: `seed-ticket-answer-${k}` })).body.ticket;
+    if (want === "answered") await call("POST", `/courses/${c1}/tickets/${tk.id}/knowledge`, { token: t, json: { question: "Nộp bài muộn bị trừ điểm thế nào?", answer: TICKET_ANSWER }, ok: [200, 201, 409] });
+    if (rank[tk.status] < 3 && goal >= 3) tk = (await call("POST", `/chat/tickets/${tk.id}/confirm`, { token })).body.ticket;
+    // ca "quá hạn": lùi created_at VÀ waiting_since (chỉ lần đầu: ticket mới tạo trong 2 giờ gần đây)
+    if (want === "overdue" && Date.now() - Date.parse(tk.created_at) < 2 * 3600_000) vlog(gatewayAdmin("seed-age", ["--course", "761987", "--tickets", "--ticket", tk.id, "--hours", "192"]));
+  }
+}
+
+async function step17Moderation() {
+  step(17, "Kiểm duyệt Threads lớp 761987: 2 báo cáo, 1 thread tự ẩn, 1 bình luận bị ẩn, 1 thread ghim…");
+  const c1 = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  if ((await listAll(`/courses/${c1}/moderation/queue`, t)).length >= 2) return; // chạy lại: thread đã tự ẩn (3 báo cáo) trả 404 cho báo cáo thứ tư
+  const threads = (await listAll(`/courses/${c1}/threads`, t)).sort((a, b) => (a.id < b.id ? -1 : 1));
+  if (threads.length < 4) throw new Error("Lớp 761987 cần ≥ 4 thread (bước 13)");
+  const report = async (tid, who) => {
+    for (const k of who) await call("POST", `/courses/${c1}/threads/${tid}/report`, { token: ctx.tokens[k], json: { reason: "OFF_TOPIC" }, ok: [200, 201, 409] });
+  };
+  await report(threads[3].id, ["sv20", "sv21"]); // 2 báo cáo OPEN (chưa tới ngưỡng tự ẩn 3)
+  await report(threads[2].id, ["sv22", "sv23", "sv24"]); // 3 người khác nhau → tự ẩn chờ duyệt
+  await call("POST", `/courses/${c1}/threads/${threads[0].id}/pin`, { token: t, ok: [200, 204, 409] });
+  const comment = (await call("POST", `/courses/${c1}/threads/${threads[1].id}/posts`, { token: ctx.tokens.sv25, json: { body: "Câu này lạc đề, mình bình luận để thử kiểm duyệt." }, key: "seed-moderation-comment" })).body;
+  await call("POST", `/courses/${c1}/posts/${comment.id}/hide`, { token: t, json: { reason: "Lạc đề, không liên quan môn học", version: comment.version }, ok: [200, 409] });
+  const q = await listAll(`/courses/${c1}/moderation/queue`, t);
+  if (q.length < 2) throw new Error(`Hàng đợi kiểm duyệt chỉ có ${q.length} mục (cần ≥ 2)`);
+}
+
 // ---- chạy ------------------------------------------------------------------------------------------------------------
 async function main() {
   const started = Date.now();
@@ -850,6 +915,10 @@ async function main() {
   await step11DocsEvents();
   await step12Chat();
   await step13Threads();
+  await step14Attendance();
+  await step15StudyTimeRisk();
+  await step16Tickets();
+  await step17Moderation();
   console.log(`Seed xong trong ${Math.round((Date.now() - started) / 1000)} s.`);
   if (!ctx.changed) console.log("Seed xong (không đổi)");
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
@@ -857,6 +926,7 @@ async function main() {
   console.log("  Lớp 761987: 20 câu trắc nghiệm APPROVED + 5 câu AI_DRAFT + 2 bài code; hai bài thi mẫu (24 lượt trắc nghiệm + 6 lượt code) tự đóng và công bố ≤ 3 phút — `node scripts/check-exam-seed.mjs bank|scores|demo`");
   console.log("  Lớp 761987: 5 tài liệu READY (1 quy chế scan, 2 bài giảng, 1 đề tham khảo, 1 đáp án canary) + 2 sự kiện thi; lớp 761988: bài giảng dùng chung + 1 sự kiện — `node scripts/check-docs-seed.mjs`");
   console.log("  ≈ 150 câu hỏi chat riêng (sinh viên lớp 761987), 12 thread lớp 761987 + 3 thread lớp 761988 — `node scripts/check-chat-seed.mjs [threads]`");
+  console.log("  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 

@@ -166,13 +166,6 @@ join exam_attempts a on a.course_id = e.course_id and a.exam_id = e.id and a.stu
 left join exam_appeals p on p.course_id = e.course_id and p.attempt_id = a.id
 where e.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and e.status = 'PUBLISHED' and (e.published_at > sqlc.arg(since)::timestamptz or p.responded_at > sqlc.arg(since)::timestamptz);
 
--- name: ExamNotifyUsers :execrows
--- Thông báo của bài thi (EXAM_PUBLISHED / EXAM_REGRADED / EXAM_APPEAL_*) cho danh sách người; khử trùng `<dedupe_prefix>:<user_id>`.
-insert into notifications (user_id, course_id, type, title, body, link, dedupe_key)
-select u, sqlc.arg(course_id), sqlc.arg(type), sqlc.arg(title), null, sqlc.arg(link), sqlc.arg(dedupe_prefix)::text || ':' || u::text
-from unnest(sqlc.arg(user_ids)::text[]::uuid[]) as u
-on conflict (user_id, dedupe_key) where dedupe_key is not null do nothing;
-
 -- name: ExamAttemptStudents :many
 select student_id from exam_attempts where course_id = sqlc.arg(course_id) and exam_id = sqlc.arg(exam_id);
 

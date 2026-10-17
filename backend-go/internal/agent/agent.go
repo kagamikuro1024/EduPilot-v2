@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"slices"
 	"strings"
 
 	"github.com/google/uuid"
@@ -66,6 +67,8 @@ type Outcome struct {
 	Hits      []rag.Hit
 	Sources   []Source
 	NoContext bool
+	// NoFormula: lớp chưa có công thức điểm CONFIRMED (đặt đúng ở nhánh trả câu mẫu; không so chuỗi lời văn — SRS escalation 4.2.4, TLR-17).
+	NoFormula bool
 	// CacheKey khác rỗng: chat ghi câu trả lời vào cache sau khi sinh xong (COURSE_QA / LIBRARY_SEARCH không PII).
 	CacheKey string
 	Request  llm.Request
@@ -88,12 +91,8 @@ func (a *Agent) Respond(ctx context.Context, tc TrustedContext, in Input) (Outco
 		return out, nil
 	case IntentGradeFormula:
 		return a.formula(ctx, tc, in, out)
-	case IntentAttendance:
-		return a.tool(ctx, tc, in, out, "get_my_attendance", nil, "điểm danh")
-	case IntentParticipation:
-		return a.tool(ctx, tc, in, out, "get_my_participation", nil, "điểm cộng")
-	case IntentGrade:
-		return a.tool(ctx, tc, in, out, "get_my_grade_summary", nil, "điểm")
+	case IntentAttendance, IntentParticipation, IntentGrade:
+		return a.personal(ctx, tc, in, out)
 	case IntentWhatIf:
 		return a.tool(ctx, tc, in, out, "what_if_final_grade", whatIfArgs(in.Text), "điểm")
 	case IntentExamSchedule:
@@ -109,13 +108,7 @@ func (a *Agent) Respond(ctx context.Context, tc TrustedContext, in Input) (Outco
 	return a.courseQA(ctx, tc, in, out)
 }
 
-func (a *Agent) crisisReply() string {
-	sup := strings.TrimSpace(a.SupportResources)
-	if sup == "" {
-		sup = DefaultSupport
-	}
-	return ReplyCrisis + " " + sup
-}
+func (a *Agent) crisisReply() string { return CrisisText(a.SupportResources) }
 
 // recordBlocked ghi pii_events BLOCKED / OTHER_PERSON (không nội dung) và một dòng log không kèm tên.
 func (a *Agent) recordBlocked(ctx context.Context, tc TrustedContext) {
@@ -131,7 +124,7 @@ func (a *Agent) recordBlocked(ctx context.Context, tc TrustedContext) {
 
 func (a *Agent) formula(ctx context.Context, tc TrustedContext, in Input, out Outcome) (Outcome, error) {
 	if a.Schemes == nil {
-		out.Canned = ReplyNoFormula
+		out.Canned, out.NoFormula = ReplyNoFormula, true
 		return out, nil
 	}
 	f, ok, err := a.Schemes.Scheme(ctx, tc)
@@ -139,7 +132,7 @@ func (a *Agent) formula(ctx context.Context, tc TrustedContext, in Input, out Ou
 		return out, fmt.Errorf("agent: công thức điểm: %w", err)
 	}
 	if !ok {
-		out.Canned = ReplyNoFormula
+		out.Canned, out.NoFormula = ReplyNoFormula, true
 		return out, nil
 	}
 	out.Blocks = []Block{{Kind: "grade_scheme", Data: f}}
@@ -172,6 +165,53 @@ func (a *Agent) tool(ctx context.Context, tc TrustedContext, in Input, out Outco
 		out.CacheKey = key
 	}
 	return a.generate(ctx, in, out, ContextFromFacts(res.Facts))
+}
+
+// personalTools: intent cá nhân đọc-dữ-liệu-của-chính-mình → tool Go + nhãn "chưa có dữ liệu".
+var personalTools = map[Intent]struct{ tool, what string }{ //nolint:gochecknoglobals // bảng tra cứu bất biến
+	IntentAttendance:    {"get_my_attendance", "điểm danh"},
+	IntentParticipation: {"get_my_participation", "điểm cộng"},
+	IntentGrade:         {"get_my_grade_summary", "điểm"},
+}
+
+var personalOrder = []Intent{IntentAttendance, IntentParticipation, IntentGrade} //nolint:gochecknoglobals // bảng tra cứu bất biến
+
+// personal chạy tool của ý chính và (câu ghép) của mọi ý phụ, rồi đúng MỘT lần sinh chữ trên các dữ kiện gộp. Một ý: hành vi như `tool`.
+func (a *Agent) personal(ctx context.Context, tc TrustedContext, in Input, out Outcome) (Outcome, error) {
+	steps := append([]Intent{out.Class.Intent}, out.Class.Extra...)
+	slices.SortFunc(steps, func(x, y Intent) int { return slices.Index(personalOrder, x) - slices.Index(personalOrder, y) }) // thứ tự khối cố định, không phụ thuộc ý nào khớp trước
+	if len(steps) == 1 {
+		t := personalTools[steps[0]]
+		return a.tool(ctx, tc, in, out, t.tool, nil, t.what)
+	}
+	facts := Facts{}
+	var missing []string
+	for _, it := range steps {
+		t := personalTools[it]
+		res, err := a.Private.Run(ctx, t.tool, tc, nil)
+		if err != nil {
+			return out, fmt.Errorf("agent: tool %s: %w", t.tool, err)
+		}
+		if res.NoData {
+			missing = append(missing, t.what)
+			continue
+		}
+		for k, v := range res.Facts {
+			facts[t.what+"."+k] = v
+		}
+		if res.Block != nil {
+			out.Blocks = append(out.Blocks, *res.Block)
+		}
+		out.Sources = append(out.Sources, res.Sources...)
+	}
+	if len(out.Blocks) == 0 && len(facts) == 0 {
+		out.Canned = ReplyNoData(strings.Join(missing, ", "))
+		return out, nil
+	}
+	if len(missing) > 0 {
+		facts["chưa có dữ liệu"] = strings.Join(missing, ", ")
+	}
+	return a.generate(ctx, in, out, ContextFromFacts(facts))
 }
 
 func (a *Agent) courseQA(ctx context.Context, tc TrustedContext, in Input, out Outcome) (Outcome, error) {

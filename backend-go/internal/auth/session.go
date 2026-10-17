@@ -475,6 +475,9 @@ func (s *Sessions) markRevoked(ctx context.Context, sid uuid.UUID) {
 
 // Revoked cho Middleware biết access token (đã qua chữ ký) có bị thu hồi không; reason chỉ khi biết.
 // Redis không với tới → chấp nhận token, log error tối đa mỗi 30 s (SRS 3.4).
+// revocationCheckTimeout là hạn của MỘT lần đọc cờ thu hồi từ Redis.
+const revocationCheckTimeout = 150 * time.Millisecond
+
 func (s *Sessions) Revoked(ctx context.Context, p Principal) (bool, string) {
 	if s.rdb == nil {
 		return false, ""
@@ -483,7 +486,11 @@ func (s *Sessions) Revoked(ctx context.Context, p Principal) (bool, string) {
 	if p.SessionID != "" {
 		keys = append(keys, revSidKey(p.SessionID))
 	}
-	vals, err := s.rdb.MGet(ctx, keys...).Result()
+	// Hạn riêng cho lệnh Redis: kiểm thu hồi chạy ở MỌI request đã xác thực; Redis chết / treo mà chờ theo hạn của cả request (20 s) thì mọi API chậm theo (QC BUG-4: heartbeat 2,3 s).
+	// Quá hạn → bỏ qua kiểm thu hồi (fail-open như khi Redis lỗi), token vẫn có hạn sống ngắn.
+	rctx, cancel := context.WithTimeout(ctx, revocationCheckTimeout)
+	defer cancel()
+	vals, err := s.rdb.MGet(rctx, keys...).Result()
 	if err != nil {
 		s.warnRedis(ctx, err)
 		return false, ""

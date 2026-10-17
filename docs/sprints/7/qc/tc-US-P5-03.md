@@ -1,0 +1,63 @@
+# QC test case — US-P5-03 (thời gian học: heartbeat, idle, hai tab, rollup, cờ đo, luật cứng `internal/grade`)
+Nguồn: `US.md` US-P5-03 AC1…AC13 + `SRS.md` 2, 4.6, 5.7, 5.9, 6.3, 7.5, 7.8; PRD M13-C ("mở 10 phút, thao tác 3 phút → ≈ 5 phút"), D17; `CLAUDE.md` (cấm tuyệt đối dùng thời gian học on-screen trong `internal/grade`); `proposals.md` #5. Hộp đen, không đọc code dev.
+Biến như `tc-US-P5-01.md`. Heartbeat: `j -X POST $GW/api/v1/activity/heartbeat -H "$SVA" -d '{"course_id":"'$C1'","area":"CHAT","tab_id":"t1"}'`. Redis: `$RDS GET ep:study:$C1:<uid>:<yyyymmdd>:CHAT`. Khung 30 s = `floor(unix/30)`: giữ hai nhịp cùng khung bằng `date +%s` căn lệnh. Đồng hồ giả không có trên stack thật: các ca "10 phút / idle 2 phút" chạy bằng đồng hồ giả của Playwright (`page.clock`), ca khác chạy thời gian thật.
+
+| TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
+| --- | --- | --- | --- | --- |
+| TC-P5-03-01 | AC1 (migration) | DB sau `00013` | `goose up/down/up`; `grep -c '^ALTER TABLE' db/migrations/00014_observation.sql`; `$PSQL -c "select table_name,column_name,column_default from information_schema.columns where (table_name='user_settings' and column_name='track_study_time') or (table_name='courses' and column_name='allow_study_time_opt_out')"`; `grep -n '00014' docs/PROGRESS.md` | sạch; `2`; hai dòng mặc định `true`; `PROGRESS.md` ghi `00014 observation` |
+| TC-P5-03-02 | AC1 (lược đồ) | – | `\d study_time_daily`; chèn `area='X'`; `active_seconds=-1`; `active_seconds=86401`; trùng `(course_id,student_id,date,area)`; `\d insight_reports` | `23514` ×3, `23505`; `UNIQUE` có `course_id`; `area` ∈ {CHAT,THREADS,PRACTICE,LIBRARY,CALENDAR}; `insight_reports` đúng SRS 5.8 |
+| TC-P5-03-03 | AC2 (chỉ Redis) | `$SVA` đã `Đã hiểu`, ghi danh lớp 1 | bật `log_statement='all'` Postgres; gửi 1 nhịp; `grep -ciE 'insert\|update' pg.log` quanh thời điểm | `204`; khoá Redis `ep:study:{course}:{student}:{yyyymmdd}:CHAT` += 30 (`$RDS GET` trước/sau); **0** câu `INSERT`/`UPDATE` từ request này tới Postgres |
+| TC-P5-03-04 | AC2 (độ trễ, tải) | – | `k6 run benchmarks/load/heartbeat.js` (10 req/s, 60 s) | p95 < 20 ms; 0 lỗi 5xx |
+| TC-P5-03-05 | AC3 (hai tab) | `$SVA` | gửi nhịp `tab_id:t1`, rồi `tab_id:t2` trong cùng khung 30 s; rồi nhịp ở khung kế | nhịp thứ hai cùng khung → `204` **không** cộng (+30 tổng); khung khác đều tính (+30 mỗi khung) |
+| TC-P5-03-06 | AC3 (10 phút hai tab, đồng hồ giả) | `playwright-cli`, hai tab `/chat` cùng người dùng, `page.clock` | chạy 10 phút giả lập, thao tác ở cả hai | tổng ≤ 10 phút + 30 s (kiểm Redis); không gấp đôi |
+| TC-P5-03-07 | AC4 (tab ẩn) | `/chat` mở, đồng hồ giả | `document.visibilityState='hidden'` (mô phỏng `Page.setWebLifecycleState`/`visibilitychange`); đếm `POST /activity/heartbeat` | không nhịp nào khi ẩn; hiện lại + thao tác → gửi tiếp ≤ 1 s |
+| TC-P5-03-08 | AC4 (idle 2 phút) | `/chat` mở, thao tác lúc t0, rồi dừng | chạy 5 phút giả lập | nhịp ngừng sau mốc 2 phút (nhịp cuối trước mốc idle); thao tác lại → tiếp tục |
+| TC-P5-03-09 | AC4 (dọn khi đổi trang) | – | `/chat` → `/library` → `/` (không đo) | không rò bộ hẹn giờ (không nhịp thừa sau khi rời; đổi `area` ghi đúng khu vực mới) |
+| TC-P5-03-10 | AC4 (mạng đứt, 403/422) | – | `setOffline` rồi online; `page.route` trả 403/422 cho nhịp | bỏ nhịp, không xếp hàng; ngừng im lặng (không báo người dùng) |
+| TC-P5-03-11 | AC5 (mở 10 phút, thao tác 3 phút) | tab hiện suốt 10 phút (đồng hồ giả), thao tác 3 phút đầu rồi dừng | chạy; đọc `study_time_daily` sau rollup (hoặc Redis) | **300 ± 30 s** cho ngày/khu vực đó |
+| TC-P5-03-12 | AC5 (tab ẩn 4/10 phút) | tab ẩn 4 phút | chạy | 4 phút đó không cộng |
+| TC-P5-03-13 | AC5 (chỉ khu vực) | – | `select * from study_time_daily` + khoá Redis | chỉ `area` ∈ 5 khu vực; không nội dung, đường dẫn, tiêu đề, tên; trang `/`, `/me`, `/exams/**`, trang giảng viên **không** gửi nhịp (đếm request khi duyệt các trang đó) |
+| TC-P5-03-14 | AC6 (rollup tuyệt đối) | khoá Redis có giá trị V | chờ job `heartbeat.rollup` (mỗi phút); `select active_seconds from study_time_daily …` | `= GREATEST(cũ, V)` (ghi tuyệt đối, không cộng dồn); chạy lại → không đổi |
+| TC-P5-03-15 | AC6 (giao đôi, worker chết) | – | `docker compose kill -s KILL worker` giữa rollup (vòng lặp theo log) rồi `up`; chạy thêm 2 phút | kết quả không đổi (không đôi, không âm) |
+| TC-P5-03-16 | AC6 (Redis mất khoá) | giá trị DB `X`; `$RDS DEL` khoá | rollup | DB giữ `X`, không giảm, không âm |
+| TC-P5-03-17 | AC6 (nửa đêm, TTL) | nhịp 23:59 và 00:01 giờ VN (đặt khoá tay `$RDS` theo ngày) | rollup | tách đúng hai hàng theo ngày `Asia/Ho_Chi_Minh`; `$RDS TTL` khoá ngày cũ ≤ 8 ngày |
+| TC-P5-03-18 | AC7 (hộp thoại lần đầu) | `users.tracking_notice_ack_at IS NULL` | `playwright-cli`: đăng nhập sinh viên, vào trang bất kỳ | `Dialog` một lần: nội dung (SRS 7.5) nói EduPilot ghi **thời gian** dùng Chat, Threads, Luyện đề, Thư viện, Lịch khi tab mở và đang thao tác; không ghi nội dung; giảng viên xem được; không dùng để tính điểm; "Bạn có thể tắt ở Cài đặt." khi sinh viên có lớp cho phép tắt; nút `Đã hiểu` |
+| TC-P5-03-19 | AC7 (ack) | – | bấm `Đã hiểu`; `POST /me/tracking-notice/ack` lần hai; đổi thiết bị | `tracking_notice_ack_at` đặt; idempotent (`200`); không hiện lại; nhịp kế tiếp đo ngay (không đợi 60 s; token cũ) |
+| TC-P5-03-20 | AC7 (chưa ack) | sinh viên chưa ack | gửi nhịp trực tiếp bằng `curl` | `204` **không** cộng; hook cũng không gửi |
+| TC-P5-03-21 | AC7 (staff không đo) | TA/TEACHER/ADMIN | đăng nhập; gửi nhịp | không thấy hộp thoại; không cộng (nhịp `204` không cộng hoặc `403` — ghi) |
+| TC-P5-03-22 | AC8 (luật cứng, bắc cầu) | repo | `cd backend-go && go list -deps ./internal/grade/... 2>&1 \| grep -E '/internal/(activity\|crm)'; go test ./internal/activity -run 'TestGradeNeverImportsActivity\|TestGradeQueriesNeverReadStudyTime' -v` | không dòng nào (hoặc "no packages" khi `grade` chưa có); `ok` |
+| TC-P5-03-23 | AC8 (tự thử đỏ — đường 1) | nhánh tạm `qc/tmp-grade-import` | thêm `backend-go/internal/grade/zz/zz.go` `package zz; import _ ".../internal/today"` (khi `today` import `crm`) rồi chạy bài kiểm | `FAIL` (bắt phụ thuộc bắc cầu). Xoá nhánh tạm |
+| TC-P5-03-24 | AC8 (tự thử đỏ — đường 2) | nhánh tạm | thêm vào `grade/zz` một lời gọi `q.CRMListStudents(...)` (hàm sinh từ `crm.sql.go`) | `FAIL` (bắt gọi `store.Queries`). Xoá nhánh tạm. (Nếu tên hàm khác: lấy từ `store/crm.sql.go`; ghi lại) |
+| TC-P5-03-25 | AC8 (quét SQL) | repo | `grep -rln 'study_time_daily\|student_risk\|heartbeat\|v_student_360' backend-go/internal/grade backend-go/internal/store/queries/grade*.sql 2>/dev/null` | 0 tệp |
+| TC-P5-03-26 | AC9 (đọc, quyền) | `$SVA` có dữ liệu | `j "$Q/me/study-time?weeks=8" -H "$SVA"`; `j "$Q/students/<uidA>/study-time?weeks=8" -H "$TCH"`; `$SVA` gọi `…/students/<uidA>/study-time`; `$ADM`; sinh viên không `ACTIVE` | `200 {weeks:[{week_start,minutes,by_area}],this_week_minutes,tracking:{enabled,locked}}` (bản nhân viên: `tracked`); STUDENT (kể cả `uid` mình)/ADMIN → `403`; không `ACTIVE` → `403`; không có tham số `student` ở `/me` |
+| TC-P5-03-27 | AC9 (weeks) | – | `weeks=0`, `21`, `abc`, bỏ trống | `422` ×3; mặc định 8 |
+| TC-P5-03-28 | AC9 (rỗng, guard) | sinh viên mới | gọi `/me/study-time` | mảng rỗng, không lỗi; `grep` route trong `TestAllCourseRoutesGuarded` (`go test ./internal/httpapi/... -run TestAllCourseRoutesGuarded -v` → `ok`) |
+| TC-P5-03-29 | AC10 (Redis lỗi) | `docker compose stop redis` | gửi nhịp | `204`; `activity_heartbeat_dropped_total` tăng (`curl $GW/metrics`); log không PII; không `5xx`; bật lại redis |
+| TC-P5-03-30 | AC10 (course/area/thân) | – | `course_id` của lớp không `ACTIVE` của sinh viên; `area:"X"`; thân thiếu / `course_id:123` | `403`; `422`; `422` |
+| TC-P5-03-31 | AC10 (trần ngày) | khoá tổng `ep:study:total:{uid}:{yyyymmdd}` = 43.170 (đặt bằng `$RDS`) | gửi 2 nhịp | nhịp 1 → +30 (43.200); nhịp 2 → bị bỏ (`204`, không cộng); trần tính cả hai lớp × hai khu vực (đặt khoá tổng từ nhiều lớp) |
+| TC-P5-03-32 | AC10 (burst 4 nhịp/phút) | – | gửi 6 nhịp trong 60 s cho 6 khung khác nhau (chờ đủ 30 s mỗi khung là quá dài → thay: gửi 6 nhịp liên tiếp nhanh, mỗi nhịp `tab_id` khác) | ≥ 2 nhịp bị bỏ theo cách `204` (không `429`) |
+| TC-P5-03-33 | AC10 (`flushed` không phình) | sau rollup nhiều chu kỳ | `$RDS HLEN ep:study:flushed`; so với `SCARD ep:study:dirty` | không tăng vô hạn; khoá đã `SREM` khỏi `dirty` thì `HDEL` ở `flushed` |
+| TC-P5-03-34 | AC11 (lớp cho tắt: tắt/bật) | lớp 1 (`allow_study_time_opt_out=true`), `$SVA` đã `Đã hiểu` | `PUT /me/settings {"track_study_time":false,"version":N}`; gửi nhịp ở lớp 1; chờ rollup; `PUT` bật lại; gửi nhịp | `200`; nhịp → `204` **không đo** (không tạo khoá `ep:study:{X}:…` mới; `study_time_daily` không đổi), hiệu lực ngay; dữ liệu cũ giữ và đọc được; bật lại → nhịp kế đo tiếp |
+| TC-P5-03-35 | AC11 (UI, risk) | – | `/settings` đổi công tắc (lạc quan, không toast); sai `version`; `select signals from student_risk` (STUDY) và hồ sơ 360 | đổi ngay; `409` hoàn lại; `STUDY=null` ở lớp cho tắt khi đã tắt; hồ sơ hiện "Đã tắt đo" thay biểu đồ |
+| TC-P5-03-36 | AC12a (lớp không cho tắt) | lớp 2 (`allow_study_time_opt_out=false`), `$SVA` ghi danh cả hai | `PUT /me/settings {track_study_time:false}`; gửi nhịp ở lớp 2; `/settings` | `200` (lưu, không tác dụng ở lớp 2); nhịp vẫn đo; công tắc lớp 2 **bật và khoá**, tooltip lý do ở chính công tắc, không dòng mô tả |
+| TC-P5-03-37 | AC12b (lớp mới, Admin không chọn) | – | `POST /admin/courses` có trường `allow_study_time_opt_out`; form Mở lớp; lớp mới | trường bị từ chối/không nhận (`422` hoặc bị bỏ qua — ghi); form không có trường; lớp mới mặc định `true` |
+| TC-P5-03-38 | AC12b (TEACHER đổi, chưa có sinh viên) | `$CN` chưa có sinh viên | `PUT $CNQ/settings {"allow_study_time_opt_out":false,"version":N}` bằng teacher; TA; `$SVA`; `$ADM` | teacher `200` + `audit_log` cũ/mới; TA/STUDENT/ADMIN `403` |
+| TC-P5-03-39 | AC12c (khoá khi có sinh viên) | `$CN` có 1 sinh viên `PENDING` | teacher `PUT` đổi cờ; đổi cùng giá trị cũ | `409 COURSE_HAS_STUDENTS` cả hai; không đổi gì; sai `version` → `409 VERSION_CONFLICT` |
+| TC-P5-03-40 | AC12c (đua) | `$CN` chưa sinh viên | 50 lượt song song: một luồng ghi danh sinh viên đầu tiên, một luồng `PUT` đổi cờ (`&`+`wait`, lặp 50 lần với lớp mới mỗi lần) | mỗi lượt chỉ một trong hai kết cục: (1) `PUT` thắng rồi sinh viên vào lớp dưới luật mới, hoặc (2) sinh viên vào trước rồi `PUT` `409`; không lượt nào có sinh viên ghi danh dưới giá trị cũ mà cờ bị đổi |
+| TC-P5-03-41 | AC12d (UI) | `playwright-cli` | `/class/settings` bằng teacher (chưa/đã có sinh viên), TA | teacher thấy công tắc đổi được khi chưa có sinh viên, khi đã khoá chỉ hiện giá trị + tooltip lý do ở chính công tắc; TA chỉ đọc; `GET $Q` (Member) trả cờ |
+| TC-P5-03-42 | AC12e | – | `GET /me/settings` bằng `$ADM`; `PUT /me/settings` có tham số danh tính | ADMIN chỉ thấy cài đặt của mình; không đọc `track_study_time` của sinh viên |
+| TC-P5-03-43 | AC13 (hai lớp, hai cấu hình) | `$SVA` ghi danh lớp X=lớp 1 (cho tắt), Y=lớp 2 (không cho tắt), đã `Đã hiểu`, `track_study_time=false` | gửi nhịp `CHAT` cho X rồi cho Y (khung 30 s khác nhau, cùng ngày); rollup; `GET /courses/{X}/me/study-time`; `GET /courses/{Y}/me/study-time` | X: `204` không đo, **không chiếm** khung 30 s của `S`; Y: đo (+30); `study_time_daily` có hàng của Y, **không có** hàng của X; X `tracking:{enabled:false,locked:false}`, Y `tracking:{enabled:true,locked:true}`; `/settings` hai dòng (X Tắt đổi được; Y Bật khoá); bật lại → X đo từ nhịp kế |
+| TC-P5-03-44 | UI | – | `$PW activity.spec.ts`; `bash scripts/ui-antipatterns.sh` | xanh; `rc=0`; ghi số test |
+
+## Nhánh lỗi
+TC-P5-03-10, 15, 16, 20, 29, 30, 31, 32, 39. Thêm TC-P5-03-E1: nhịp từ sinh viên `REMOVED` → `403`; TC-P5-03-E2: Redis mất dữ liệu (restart không lưu) giữa ngày → DB giữ giá trị, không âm.
+
+## Phân quyền
+TC-P5-03-21, 26, 37, 38, 41, 42 (và STUDENT không đọc thời gian học của người khác, TA/TEACHER lớp khác `403`: TC-P5-03-P1 `GET …/students/<uid>/study-time` bằng teacher của lớp 3 → `403`).
+
+## Câu hỏi (Q-QC)
+- **Q-QC-P5-05** Các ca đồng hồ (AC4, AC5 — 10 phút) chạy bằng `page.clock` của Playwright trên frontend thật, còn đo Redis/DB cần thời gian thật. Đề xuất: kiểm hook bằng `page.clock` (đếm `POST`), kiểm cộng dồn bằng chuỗi nhịp tay qua `curl` (mỗi nhịp một khung 30 s ≈ chờ). Chấp nhận kết quả "300 ± 30 s" ở mức hook (đếm nhịp × 30). PM xác nhận.
+- **Q-QC-P5-06** TC-32 (burst) khó đặt đúng "4 nhịp/phút" khi mỗi khung 30 s chỉ 1 nhịp; kỳ vọng nhịp thứ 5 trong 60 s bị bỏ. Ghi lại hành vi thực.
+
+## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
+- 2026-10-13: viết lần đầu.

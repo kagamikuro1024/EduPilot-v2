@@ -1,13 +1,15 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { ActionList, ActionRow, Button, ConfirmIrreversible, EmptyState, Field, IconButton, Input, OverflowMenu, Page, PageHeader, PageState, Panel, SegmentedControl, Select, Skeleton, StatusText, Toolbar, UndoLine } from "@/shared/ui";
 import {
   DAY, STATE_LABEL, TYPE_LABEL, WD_SHORT, dayLabel, fmtDM, fmtHM, fmtLong, fromLocalInput, isSoonExam, labelToIso, toLocalInput, useCalendar, useEventMutations, useIcsState, useIssueIcs, weekStartLabel,
   type CalItem,
 } from "./calendarApi";
+import { SessionsDrawer } from "./SessionsDrawer";
 import s from "./Calendar.module.css";
 
 type View = "week" | "month" | "list";
@@ -40,6 +42,7 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
   const [form, setForm] = useState<CalItem | "new" | null>(null);
   const [ics, setIcs] = useState(false);
   const [pending, setPending] = useState<CalItem | null>(null);
+  const [sessions, setSessions] = useState(false);
   const m = useEventMutations(courseId);
 
   const [now] = useState(() => Date.now());
@@ -75,10 +78,17 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
         actions={
           <>
             <Button onClick={() => setIcs((v) => !v)} aria-expanded={ics}>Thêm vào lịch</Button>
-            {staff && <Button variant="primary" onClick={() => setForm("new")}>Thêm sự kiện</Button>}
+            {staff && <Button onClick={() => setForm("new")}>Thêm sự kiện</Button>}
+            {staff && <Button variant="primary" onClick={() => setSessions(true)}>Tạo lịch buổi học</Button>}
           </>
         }
       />
+      {staff && (
+        <>
+          <Suspense fallback={null}><OpenOnQuery onOpen={() => setSessions(true)} /></Suspense>
+          <SessionsDrawer courseId={courseId} open={sessions} onClose={() => setSessions(false)} />
+        </>
+      )}
       {ics && <IcsPanel />}
       {form && (
         <EventForm
@@ -136,6 +146,19 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
       </PageState>
     </Page>
   );
+}
+
+/** Liên kết từ "Hôm nay" (`/calendar?new=sessions`) mở sẵn ngăn kéo — đúng một lần. */
+function OpenOnQuery({ onOpen }: { onOpen: () => void }) {
+  const want = useSearchParams().get("new") === "sessions";
+  const done = useRef(false);
+  useEffect(() => {
+    if (want && !done.current) {
+      done.current = true;
+      onOpen();
+    }
+  }, [want, onOpen]);
+  return null;
 }
 
 const kindClass = (e: CalItem, now: number) => (isSoonExam(e, now) ? s.exam : s.session);

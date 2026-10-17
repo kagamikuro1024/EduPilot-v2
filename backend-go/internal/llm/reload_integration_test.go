@@ -52,7 +52,12 @@ func TestReloadChild(t *testing.T) {
 	reg := llm.NewRegistry(llmconfig.NewResolver(pool, c), llm.EnvConfig{}, func(s llm.ProviderSpec) (provider.Provider, error) { return &stub{name: s.Name}, nil }, newDiscardLog())
 	require.NoError(t, reg.Load(ctx))
 	go reg.Watch(ctx, rdb)
-	time.Sleep(300 * time.Millisecond) // chờ đăng ký pub/sub
+	for i := 0; i < 3000; i++ { // chờ đăng ký pub/sub rồi mới báo READY
+		if m, err := rdb.PubSubNumSub(ctx, llm.ReloadChannel).Result(); err == nil && m[llm.ReloadChannel] > 0 {
+			break
+		}
+		time.Sleep(10 * time.Millisecond)
+	}
 	fmt.Println("READY")
 
 	go func() { _, _ = io.Copy(io.Discard, os.Stdin); cancel() }() // cha đóng stdin → thoát
@@ -136,7 +141,7 @@ func TestReloadTwoProcesses(t *testing.T) {
 	c1, c2 := startChild(t, dbURL, redisURL), startChild(t, dbURL, redisURL)
 	for _, ch := range []*child{c1, c2} {
 		ch.expect(t, "READY", 20*time.Second)
-		ch.expect(t, "CHAT=A", 5*time.Second)
+		ch.expect(t, "CHAT=A", 30*time.Second)
 	}
 	start := time.Now()
 	_, err = svc.SetRoute(ctx, "CHAT", []uuid.UUID{b.Models[0].ID}, nil, 1) // OnChange → PUBLISH

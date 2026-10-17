@@ -3,21 +3,17 @@
 import { Check, ChevronDown, KeyRound, LogOut, Menu as MenuIcon, PanelLeftClose, PanelLeft, Search, Settings, ShieldCheck, UserPlus, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
-import { BT03_SEED } from "@/mock/assess";
-import { COURSE_1, ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
-import { reviewPending, ticketStats } from "@/mock/derive";
-import { KEYS, type Bt03State, type Ticket } from "@/mock/state";
-import { mergeTickets } from "@/mock/support";
+import { lazy, Suspense, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { ROLE_LABEL, SUBJECT, type Role } from "@/mock/core";
 import { ALL_COURSES } from "@/shared/session/cookies";
 import { useSession } from "@/shared/session/session";
 import { useEnsureClock, useSimNow } from "@/shared/state/clock";
-import { useDemoSlice } from "@/shared/state/demo";
-import { ButtonLink, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
-import { CommandPalette } from "@/shared/ui/CommandPalette";
+import { unsavedCount } from "@/shared/lib/unsavedWork";
+import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
 import { NotificationPopover } from "./NotificationPopover";
+import { StudyTimeTracker } from "./TrackingNotice";
 import s from "./AppShell.module.css";
 
 /** Mốc giả lập của hai thông báo nền cho Quản trị viên (không có sự kiện nào sinh ra chúng). */
@@ -26,6 +22,14 @@ function displayName(role: Role, name: string, title?: string) {
   return role === "teacher" && title ? `${title} ${name}` : name;
 }
 
+// Bảng lệnh không cần cho lần vẽ đầu nên nạp lười khi mở lần đầu (ngân sách script Lighthouse 256 KB). `React.lazy` chứ không `next/dynamic`: đo trên build thật,
+// `next/dynamic` kéo thêm mã nạp lười vào gói chung và làm tổng script TĂNG.
+const CommandPalette = lazy(() => import("@/shared/ui/CommandPalette").then((m) => ({ default: m.CommandPalette })));
+
+// Mã mô phỏng (nền Threads giả, badge mô phỏng ≈ 16 KB gzip) chỉ nạp ở phiên mô phỏng — phiên thật không trả giá (ngân sách script Lighthouse, TL-1).
+const DemoShellExtras = lazy(() => import("./DemoShellExtras").then((m) => ({ default: m.DemoShellExtras })));
+
+const subscribeNever = () => () => {};
 const NARROW = "(max-width: 719px)";
 const MID = "(max-width: 1099px)";
 function useMedia(query: string) {
@@ -74,7 +78,7 @@ function useSidebarCollapsed(): [boolean, (v: boolean) => void] {
 const MOCK_SCREENS_OFF = process.env.NEXT_PUBLIC_MOCK_SCREENS === "0";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  const { role, user, course, courses, isAll, hasCourse, realCourses, realCourseId, setCourse, identity, logout } = useSession();
+  const { role, user, course, courses, isAll, hasCourse, realCourses, realPending, realCourseId, setCourse, identity, logout } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const groups = useMemo(() => navFor(role, hasCourse), [role, hasCourse]);
@@ -91,6 +95,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     setPaletteTick((n) => n + 1);
   };
   const [more, setMore] = useState(false);
+  const [askLogout, setAskLogout] = useState(0); // số thay đổi chưa lưu khi bấm Đăng xuất (0 = không hỏi)
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -119,16 +124,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const now = useSimNow();
 
   // N9: badge tính từ dữ liệu, giảm ngay khi hành động xảy ra; không bao giờ ghi số ở nav.ts.
-  const [storedTickets] = useDemoSlice<Ticket[]>(KEYS.tickets, []);
-  const [bt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
-  const [approvedIds] = useDemoSlice<string[]>("grading.approved", []);
-  const badges = {
-    inbox: ticketStats(mergeTickets(storedTickets), scope, now).open,
-    grading: scope.includes(COURSE_1) ? reviewPending(bt03.status, approvedIds).length : 0,
-  };
+  // Phiên thật không có vé / bài chấm mô phỏng nên badge luôn 0; chỉ phiên mô phỏng nạp gói tính badge.
+  // Không dựng ở lần vẽ phía máy chủ (chưa có phiên ⇒ `realCourseId` null ⇒ trông như mô phỏng): HTML sẽ tham chiếu gói lười và mọi phiên thật tải nó.
+  // Đang tải /me/courses cũng chưa phải mô phỏng.
+  const mounted = useSyncExternalStore(subscribeNever, () => true, () => false);
+  const demo = mounted && !realPending && !realCourseId && role !== "admin";
+  const [badges, setBadges] = useState({ inbox: 0, grading: 0 });
 
   // Chuông đọc GET /notifications (làm mới 30 s / khi tab lấy lại focus).
-  const real = useRealNotifications(true);
+  const real = useRealNotifications(true, Boolean(identity)); // chưa có phiên thật ⇒ không mở /events (kết nối chung của tab dành cho người nghe khác)
 
   // Thanh bên và thanh dưới loại trừ nhau: chỉ gắn một bộ badge vào DOM ở mỗi bề rộng.
   const narrow = useMedia(NARROW);
@@ -253,6 +257,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             items={real.items}
             unread={real.unread}
             failed={real.failed}
+            stale={real.stale}
             onRead={(id) => real.markRead(id)}
           />
 
@@ -290,7 +295,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                     {
                       label: "Đăng xuất",
                       icon: <LogOut aria-hidden />,
-                      onSelect: () => logout(), // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
+                      onSelect: () => {
+                        const n = unsavedCount();
+                        if (n > 0) setAskLogout(n);
+                        else logout(); // thu hồi phiên ở máy chủ, xoá bộ nhớ, về /login
+                      },
                     },
                   ]}
                 />
@@ -335,6 +344,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       )}
 
       <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
+      {role === "student" && realCourseId && <StudyTimeTracker />}
+      {demo && (
+        <Suspense fallback={null}>
+          <DemoShellExtras scope={scope} now={now} onBadges={setBadges} />
+        </Suspense>
+      )}
 
       <main id="main" className={s.main} tabIndex={-1}>
         {!canOpen(role, pathname) ? (
@@ -394,7 +409,23 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </>
       )}
 
-      <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />
+      <ConfirmIrreversible
+        open={askLogout > 0}
+        onClose={() => setAskLogout(0)}
+        onConfirm={() => {
+          setAskLogout(0);
+          logout();
+        }}
+        title="Còn điểm danh chưa lưu"
+        consequence={`${askLogout} thay đổi chưa lên máy chủ sẽ bị xoá khỏi máy này.`}
+        confirmLabel="Đăng xuất"
+        cancelLabel="Ở lại"
+      />
+      {paletteTick > 0 && (
+        <Suspense fallback={null}>
+          <CommandPalette open={palette} tick={paletteTick} onClose={() => setPalette(false)} items={flat} />
+        </Suspense>
+      )}
     </div>
   );
 }

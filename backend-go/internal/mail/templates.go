@@ -100,6 +100,45 @@ func specs() map[string]spec {
 				"Xem lịch: {{.CalendarURL}}",
 			},
 		},
+		// US-P4-04: dữ liệu hiển thị do Resolver nạp lúc gửi (payload chỉ có định danh); tiêu đề không chứa tên người.
+		"escalation_answered": {
+			subject: "Giảng viên đã trả lời câu hỏi của bạn", vars: []string{"FullName", "ClassCode", "QuestionText", "AnswererRole", "AnswererName", "AnswerText", "ChatURL"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"Câu hỏi của bạn ở lớp {{.ClassCode}}: {{.QuestionText}}",
+				"{{.AnswererRole}} {{.AnswererName}} trả lời: {{.AnswerText}}",
+				"Xem và hỏi tiếp: {{.ChatURL}}",
+			},
+		},
+		"outreach_message": {
+			subject: "Giảng viên vừa nhắn cho bạn", vars: []string{"FullName", "ClassCode", "AnswererRole", "AnswererName", "AnswerText", "ChatURL"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"{{.AnswererRole}} {{.AnswererName}} (lớp {{.ClassCode}}): {{.AnswerText}}",
+				"Trả lời trong EduPilot: {{.ChatURL}}",
+			},
+		},
+		"ticket_reminder": {
+			subject: "Có câu hỏi chờ giảng viên quá 24 giờ làm việc", vars: []string{"ClassCode", "Count", "InboxURL"},
+			paras: []string{
+				"Lớp {{.ClassCode}} có {{.Count}} câu hỏi đang chờ.",
+				"Mở hộp thư hỗ trợ: {{.InboxURL}}",
+			},
+		},
+		"ticket_new": {
+			subject: "Có câu hỏi mới cần giảng viên", vars: []string{"ClassCode", "Count", "InboxURL"},
+			paras: []string{
+				"Lớp {{.ClassCode}} có {{.Count}} câu hỏi đang chờ.",
+				"{{.InboxURL}}",
+			},
+		},
+		"thread_reply": {
+			subject: "Câu hỏi của bạn trên Threads có trả lời mới", vars: []string{"Event", "ThreadTitle", "ThreadURL"},
+			paras: []string{
+				"{{.Event}} trong câu hỏi «{{.ThreadTitle}}».",
+				"Xem: {{.ThreadURL}}",
+			},
+		},
 		"account_locked": {
 			subject: "Tài khoản EduPilot bị khoá tạm thời", vars: []string{"FullName", "Until", "ForgotURL"},
 			paras: []string{

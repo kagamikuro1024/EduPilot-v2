@@ -77,6 +77,13 @@ type Queue struct {
 	wg        sync.WaitGroup
 }
 
+// NewQueue đặt mặc định cho các trường để trống MỘT lần, trước khi Run / HandleEnqueue / Tick / ProbeNow chạy ở các goroutine khác nhau.
+// Mọi nơi dựng Queue phải đi qua đây: sau đó các hàm trên chỉ đọc cấu hình, không ghi (trước #4 chúng ghi lười → data race).
+func NewQueue(q *Queue) *Queue {
+	q.defaults()
+	return q
+}
+
 func (q *Queue) defaults() {
 	if q.Lease <= 0 {
 		q.Lease = 30 * time.Second
@@ -122,7 +129,6 @@ func (q *Queue) streamFor(kind string) (stream, dead string) {
 
 // HandleEnqueue là handler outbox của topic `judge.enqueue`: XADD tín hiệu `{submission_id}` rồi đặt `enqueued_at` (idempotent: tín hiệu thừa vô hại vì bước nhận việc chặn).
 func (q *Queue) HandleEnqueue(ctx context.Context, m outbox.Message) error {
-	q.defaults()
 	var p Enqueue
 	if err := json.Unmarshal(m.Payload, &p); err != nil || p.SubmissionID == uuid.Nil {
 		return fmt.Errorf("judge.enqueue: payload hỏng")
@@ -143,7 +149,6 @@ func (q *Queue) signal(ctx context.Context, id uuid.UUID, kind string) error {
 
 // Run chạy tới khi ctx huỷ: tạo nhóm, thăm dò judge, tick, rồi vòng đọc Stream chỉ khi có chỗ chạy.
 func (q *Queue) Run(ctx context.Context) error {
-	q.defaults()
 	for _, s := range []string{q.Prefix + StreamSubmit, q.Prefix + StreamRun} {
 		if err := q.Redis.XGroupCreateMkStream(ctx, s, Group, "0").Err(); err != nil && !isBusyGroup(err) {
 			return fmt.Errorf("tạo nhóm %s: %w", s, err)
@@ -520,7 +525,7 @@ func (q *Queue) leader(ctx context.Context) bool {
 func LeaderKey() string { return appredis.Key("exam", "tick", "leader") }
 
 // Tick chạy MỘT vòng tick (xuất ra để test gọi trực tiếp, không chờ nhịp 5 s): đưa lại Stream các dòng đến hạn / hết thuê / mất tín hiệu.
-func (q *Queue) Tick(ctx context.Context) { q.defaults(); q.tick(ctx) }
+func (q *Queue) Tick(ctx context.Context) { q.tick(ctx) }
 
 func (q *Queue) tick(ctx context.Context) {
 	s := store.New(q.Pool)
@@ -559,7 +564,7 @@ func (q *Queue) probeLoop(ctx context.Context) {
 
 // probeOnce thăm dò `GET /version`: thành công → đặt `ep:judge:up` (TTL 30 s); lỗi → xoá (gateway thấy 503 trong ≤ 10 s). Down > 60 s: log warn MỘT lần.
 // ProbeNow chạy MỘT lần thăm dò (test gọi trực tiếp với đồng hồ giả, không chờ nhịp 10 s).
-func (q *Queue) ProbeNow(ctx context.Context) { q.defaults(); q.probeOnce(ctx) }
+func (q *Queue) ProbeNow(ctx context.Context) { q.probeOnce(ctx) }
 
 func (q *Queue) probeOnce(ctx context.Context) {
 	key := appredis.Key("judge", upKeySuffix)

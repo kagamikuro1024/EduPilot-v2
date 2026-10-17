@@ -38,6 +38,15 @@ type Roster struct {
 	Src   RosterSource
 	Redis *appredis.Client // nil = không cache
 	Log   *slog.Logger
+	// OpTimeout: hạn mỗi lệnh Redis; 0 = redisOpTimeout (30 ms, quá hạn thì dựng lại từ DB). Test đặt dài để kết quả không phụ thuộc tải máy (#19).
+	OpTimeout time.Duration
+}
+
+func (r *Roster) opTimeout() time.Duration {
+	if r.OpTimeout > 0 {
+		return r.OpTimeout
+	}
+	return redisOpTimeout
 }
 
 // RosterKey là khoá Redis của một lớp.
@@ -46,7 +55,7 @@ func RosterKey(courseID uuid.UUID) string { return appredis.Key("roster", course
 func (r *Roster) members(ctx context.Context, courseID uuid.UUID) ([]Member, error) {
 	key := RosterKey(courseID)
 	if r.Redis != nil {
-		rctx, cancel := context.WithTimeout(ctx, redisOpTimeout)
+		rctx, cancel := context.WithTimeout(ctx, r.opTimeout())
 		raw, err := r.Redis.Get(rctx, key).Bytes()
 		cancel()
 		switch {
@@ -65,7 +74,7 @@ func (r *Roster) members(ctx context.Context, courseID uuid.UUID) ([]Member, err
 	}
 	if r.Redis != nil {
 		if raw, err := json.Marshal(ms); err == nil {
-			rctx, cancel := context.WithTimeout(ctx, redisOpTimeout)
+			rctx, cancel := context.WithTimeout(ctx, r.opTimeout())
 			if err := r.Redis.Set(rctx, key, raw, RosterTTL).Err(); err != nil {
 				r.warn("roster: không ghi được cache")
 			}

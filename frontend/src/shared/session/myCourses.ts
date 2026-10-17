@@ -35,19 +35,34 @@ export function writeStoredCourse(id: string) {
   } catch { /* như trên */ }
 }
 
+type MyCoursesData = { courses: RealCourse[]; acked: boolean; optOutAvailable: boolean };
+type MyCoursesPage = CursorPage<Item> & { tracking_notice_acked?: boolean; study_time_opt_out_available?: boolean };
+
+// Một truy vấn, hai người đọc (lớp thật; hộp thoại thời gian học): chung khoá nên chỉ MỘT yêu cầu `GET /me/courses`.
+const myCoursesQuery = (enabled: boolean) => ({
+  queryKey: ["me", "courses"] as const,
+  enabled,
+  queryFn: async ({ signal }: { signal: AbortSignal }): Promise<MyCoursesData> => {
+    const page = (await apiClient.get<MyCoursesPage>("/me/courses", { signal, query: { limit: 100 } })).data;
+    return {
+      courses: page.items.map((i) => ({ ...i.course, role_in_course: i.role_in_course, enrollment_status: i.enrollment_status })),
+      acked: page.tracking_notice_acked ?? true, // máy chủ cũ / gateway giả không có cờ: coi như đã xác nhận (không hộp thoại, không nhịp)
+      optOutAvailable: page.study_time_opt_out_available ?? false,
+    };
+  },
+});
+
+/** Hộp thoại minh bạch thời gian học (US-P5-03 AC7): `undefined` khi chưa tải xong. */
+export function useTrackingNotice(enabled: boolean) {
+  return useQuery({ ...myCoursesQuery(enabled), select: (d) => ({ acked: d.acked, optOutAvailable: d.optOutAvailable }) });
+}
+
 /**
  * Lớp thật của phiên `jwt`. `data` là `undefined` khi chưa tải xong / lỗi — khung giữ nguyên cách chạy cũ (màn mô phỏng) cho tới khi có dữ liệu thật.
  * Một trang tối đa 100 lớp (ponytail: đủ cho một người; thêm "tải tiếp" khi có người vượt).
  */
 export function useMyCourses(enabled: boolean) {
-  return useQuery({
-    queryKey: ["me", "courses"],
-    enabled,
-    queryFn: async ({ signal }): Promise<RealCourse[]> => {
-      const page = (await apiClient.get<CursorPage<Item>>("/me/courses", { signal, query: { limit: 100 } })).data;
-      return page.items.map((i) => ({ ...i.course, role_in_course: i.role_in_course, enrollment_status: i.enrollment_status }));
-    },
-  });
+  return useQuery({ ...myCoursesQuery(enabled), select: (d) => d.courses });
 }
 
 /** Màn mô phỏng chưa dựng lại dùng lớp mô phỏng tương ứng theo `class_code` (761987 ↔ int1006-1, 761988 ↔ int1006-2); lớp khác → lớp đầu. */

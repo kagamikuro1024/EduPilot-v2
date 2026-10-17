@@ -18,7 +18,8 @@ update documents d
 set status = 'PROCESSING', updated_at = now(), error = null
 where d.id = $1
   and (d.status = 'QUEUED' or (d.status = 'PROCESSING' and d.updated_at < now() - make_interval(secs => $2::float8)))
-  and not exists (select 1 from documents x where x.course_id = d.course_id and x.status = 'PROCESSING' and x.id <> d.id
+  and d.category is distinct from 'THREAD_KNOWLEDGE'
+  and not exists (select 1 from documents x where x.course_id = d.course_id and x.category is distinct from 'THREAD_KNOWLEDGE' and x.status = 'PROCESSING' and x.id <> d.id
                   and x.updated_at > now() - make_interval(secs => $2::float8))
 returning d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.blob_key, d.sha256, d.visible_to_students, d.use_for_rag, d.uploaded_by, d.version
 `
@@ -80,7 +81,7 @@ func (q *Queries) IngestDeleteChunks(ctx context.Context, arg IngestDeleteChunks
 }
 
 const ingestDocumentState = `-- name: IngestDocumentState :one
-select id, course_id, status, error, sha256, use_for_rag, uploaded_by from documents where id = $1
+select id, course_id, status, error, sha256, use_for_rag, uploaded_by from documents where id = $1 and category is distinct from 'THREAD_KNOWLEDGE'
 `
 
 type IngestDocumentStateRow struct {
@@ -250,7 +251,7 @@ func (q *Queries) ListChunkTexts(ctx context.Context, arg ListChunkTextsParams) 
 }
 
 const listCourseDocumentsForReindex = `-- name: ListCourseDocumentsForReindex :many
-select id from documents where course_id = $1 and status = 'READY' and use_for_rag order by id
+select id from documents where course_id = $1 and status = 'READY' and use_for_rag and category is distinct from 'THREAD_KNOWLEDGE' order by id
 `
 
 func (q *Queries) ListCourseDocumentsForReindex(ctx context.Context, courseID uuid.UUID) ([]uuid.UUID, error) {

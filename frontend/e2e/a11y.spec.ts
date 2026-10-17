@@ -82,6 +82,20 @@ test("axe: giảng viên có dữ liệu (bài thi, soạn, kết quả, giống
   expect(bad).toEqual([]);
 });
 
+test("axe: giảng viên /students có dữ liệu (danh sách thật, đủ ba mức rủi ro)", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await asDemo(context, "teacher");
+  const row = (i: number, level: string) => ({
+    student: { id: `00000000-0000-7000-8000-00000000d00${i}`, full_name: `Sinh Viên ${i}`, student_code: `B22DCCN10${i}` },
+    attendance: { recorded: 9, present: 6, late: 1, excused: 0, absent: 2 }, participation: { speak_count: 2, points_total: "0.50" },
+    study: { minutes_7d: 45, tracked: true }, activity: { asks_last_week: 3, posts_last_week: 0 }, risk: { level, computed_at: "2026-10-12T19:00:00Z" },
+  });
+  await page.route("**/api/v1/courses/*/students**", (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true" }, body: JSON.stringify({ items: [row(1, "AT_RISK"), row(2, "WATCH"), row(3, "NONE")], next_cursor: null, total: 3 }) }));
+  const bad: string[] = [];
+  for (const w of WIDTHS) for (const b of await scan(page, "teacher+data", "/students", w)) bad.push(`/students @${w}: ${b}`);
+  expect(bad).toEqual([]);
+});
+
 test("axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước giờ / đang làm / đã công bố)", async ({ page, context }) => {
   test.setTimeout(180_000);
   await asDemo(context, "student");

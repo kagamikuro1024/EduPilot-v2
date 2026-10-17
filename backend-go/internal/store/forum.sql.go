@@ -25,52 +25,18 @@ type BumpForumThreadParams struct {
 	ID       uuid.UUID
 }
 
+// hidden-ok: ghi nội bộ.
 func (q *Queries) BumpForumThread(ctx context.Context, arg BumpForumThreadParams) error {
 	_, err := q.db.Exec(ctx, bumpForumThread, arg.CourseID, arg.ID)
 	return err
 }
 
-const getForumThread = `-- name: GetForumThread :one
-select id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at from forum_threads where course_id = $1 and id = $2 and deleted_at is null
-`
-
-type GetForumThreadParams struct {
-	CourseID uuid.UUID
-	ID       uuid.UUID
-}
-
-func (q *Queries) GetForumThread(ctx context.Context, arg GetForumThreadParams) (ForumThread, error) {
-	row := q.db.QueryRow(ctx, getForumThread, arg.CourseID, arg.ID)
-	var i ForumThread
-	err := row.Scan(
-		&i.ID,
-		&i.CourseID,
-		&i.AuthorID,
-		&i.Title,
-		&i.Body,
-		&i.Tags,
-		&i.WeekNo,
-		&i.State,
-		&i.AiState,
-		&i.AiSkipReason,
-		&i.SimilarOf,
-		&i.PinnedAt,
-		&i.ReplyCount,
-		&i.LastActivityAt,
-		&i.Embedding,
-		&i.DeletedAt,
-		&i.Version,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
 const insertForumPost = `-- name: InsertForumPost :one
+
 insert into forum_posts (course_id, thread_id, author_id, kind, body, verification_state, citations, confidence)
 values ($1, $2, $3, $4, $5, $6,
         $7, $8)
-returning id, course_id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, verified_by, verified_at, hidden_at, hidden_reason, hidden_by, deleted_at, embedding, version, created_at, updated_at
+returning id, course_id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, verified_by, verified_at, hidden_at, hidden_reason, hidden_by, deleted_at, embedding, version, created_at, updated_at, edited_at
 `
 
 type InsertForumPostParams struct {
@@ -84,6 +50,8 @@ type InsertForumPostParams struct {
 	Confidence        decimal.NullDecimal
 }
 
+// Threads (US-P3-01; service ở US-P3-06).
+// hidden-ok: ghi nội bộ.
 func (q *Queries) InsertForumPost(ctx context.Context, arg InsertForumPostParams) (ForumPost, error) {
 	row := q.db.QueryRow(ctx, insertForumPost,
 		arg.CourseID,
@@ -117,172 +85,9 @@ func (q *Queries) InsertForumPost(ctx context.Context, arg InsertForumPostParams
 		&i.Version,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.EditedAt,
 	)
 	return i, err
-}
-
-const insertForumThread = `-- name: InsertForumThread :one
-
-insert into forum_threads (course_id, author_id, title, body, tags, week_no)
-values ($1, $2, $3, $4, $5, $6)
-returning id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at
-`
-
-type InsertForumThreadParams struct {
-	CourseID uuid.UUID
-	AuthorID uuid.UUID
-	Title    string
-	Body     string
-	Tags     []string
-	WeekNo   *int16
-}
-
-// Threads (US-P3-01; service ở US-P3-06).
-func (q *Queries) InsertForumThread(ctx context.Context, arg InsertForumThreadParams) (ForumThread, error) {
-	row := q.db.QueryRow(ctx, insertForumThread,
-		arg.CourseID,
-		arg.AuthorID,
-		arg.Title,
-		arg.Body,
-		arg.Tags,
-		arg.WeekNo,
-	)
-	var i ForumThread
-	err := row.Scan(
-		&i.ID,
-		&i.CourseID,
-		&i.AuthorID,
-		&i.Title,
-		&i.Body,
-		&i.Tags,
-		&i.WeekNo,
-		&i.State,
-		&i.AiState,
-		&i.AiSkipReason,
-		&i.SimilarOf,
-		&i.PinnedAt,
-		&i.ReplyCount,
-		&i.LastActivityAt,
-		&i.Embedding,
-		&i.DeletedAt,
-		&i.Version,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const listForumPosts = `-- name: ListForumPosts :many
-select id, course_id, thread_id, author_id, kind, body, verification_state, citations, confidence, ai_body, verified_by, verified_at, hidden_at, hidden_reason, hidden_by, deleted_at, embedding, version, created_at, updated_at from forum_posts
-where thread_id = $1 and deleted_at is null
-order by created_at, id
-limit $2
-`
-
-type ListForumPostsParams struct {
-	ThreadID  uuid.UUID
-	PageLimit int32
-}
-
-func (q *Queries) ListForumPosts(ctx context.Context, arg ListForumPostsParams) ([]ForumPost, error) {
-	rows, err := q.db.Query(ctx, listForumPosts, arg.ThreadID, arg.PageLimit)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ForumPost{}
-	for rows.Next() {
-		var i ForumPost
-		if err := rows.Scan(
-			&i.ID,
-			&i.CourseID,
-			&i.ThreadID,
-			&i.AuthorID,
-			&i.Kind,
-			&i.Body,
-			&i.VerificationState,
-			&i.Citations,
-			&i.Confidence,
-			&i.AiBody,
-			&i.VerifiedBy,
-			&i.VerifiedAt,
-			&i.HiddenAt,
-			&i.HiddenReason,
-			&i.HiddenBy,
-			&i.DeletedAt,
-			&i.Embedding,
-			&i.Version,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const listForumThreads = `-- name: ListForumThreads :many
-select id, course_id, author_id, title, body, tags, week_no, state, ai_state, ai_skip_reason, similar_of, pinned_at, reply_count, last_activity_at, embedding, deleted_at, version, created_at, updated_at from forum_threads
-where course_id = $1 and deleted_at is null
-  and ($2::timestamptz is null or (last_activity_at, id) < ($2::timestamptz, $3::uuid))
-order by last_activity_at desc, id desc
-limit $4
-`
-
-type ListForumThreadsParams struct {
-	CourseID  uuid.UUID
-	CursorAt  *time.Time
-	CursorID  *uuid.UUID
-	PageLimit int32
-}
-
-func (q *Queries) ListForumThreads(ctx context.Context, arg ListForumThreadsParams) ([]ForumThread, error) {
-	rows, err := q.db.Query(ctx, listForumThreads,
-		arg.CourseID,
-		arg.CursorAt,
-		arg.CursorID,
-		arg.PageLimit,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []ForumThread{}
-	for rows.Next() {
-		var i ForumThread
-		if err := rows.Scan(
-			&i.ID,
-			&i.CourseID,
-			&i.AuthorID,
-			&i.Title,
-			&i.Body,
-			&i.Tags,
-			&i.WeekNo,
-			&i.State,
-			&i.AiState,
-			&i.AiSkipReason,
-			&i.SimilarOf,
-			&i.PinnedAt,
-			&i.ReplyCount,
-			&i.LastActivityAt,
-			&i.Embedding,
-			&i.DeletedAt,
-			&i.Version,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const postDecide = `-- name: PostDecide :one
@@ -319,6 +124,7 @@ type PostDecideRow struct {
 	CreatedAt         time.Time
 }
 
+// hidden-ok: Staff.
 // Chuyển trạng thái bài AI (đã khoá hàng): verify / correct / reject. `ai_body` giữ bản AI gốc ở lần sửa đầu.
 func (q *Queries) PostDecide(ctx context.Context, arg PostDecideParams) (PostDecideRow, error) {
 	row := q.db.QueryRow(ctx, postDecide,
@@ -372,6 +178,7 @@ type PostGetRow struct {
 	ThreadAuthorID    uuid.UUID
 }
 
+// hidden-ok: quyết định của Staff trên bài (kể cả bài ẩn); đường người ngoài không dùng.
 func (q *Queries) PostGet(ctx context.Context, arg PostGetParams) (PostGetRow, error) {
 	row := q.db.QueryRow(ctx, postGet, arg.CourseID, arg.ID)
 	var i PostGetRow
@@ -404,6 +211,7 @@ type ThreadAnswerLoadRow struct {
 	Embedding *pgvector.Vector
 }
 
+// hidden-ok: việc nền AI (nội bộ).
 // Việc AI trả lời: nạp thread (không lọc lớp: id đến từ hàng đợi nội bộ), kèm vectơ đã có.
 func (q *Queries) ThreadAnswerLoad(ctx context.Context, id uuid.UUID) (ThreadAnswerLoadRow, error) {
 	row := q.db.QueryRow(ctx, threadAnswerLoad, id)
@@ -422,14 +230,18 @@ func (q *Queries) ThreadAnswerLoad(ctx context.Context, id uuid.UUID) (ThreadAns
 
 const threadDetail = `-- name: ThreadDetail :one
 select t.id, t.course_id, t.author_id, t.title, t.body, t.tags, t.week_no, t.state, t.ai_state, t.ai_skip_reason, t.similar_of, t.reply_count, t.last_activity_at, t.created_at, t.version,
+       t.hidden_at, t.hidden_reason, (t.hidden_by is null)::bool as hidden_auto, t.pinned_at, t.edited_at,
        u.full_name as author_name, u.role as author_role
 from forum_threads t join users u on u.id = t.author_id
 where t.course_id = $1 and t.id = $2 and t.deleted_at is null
+  and (t.hidden_at is null or $3::bool or t.author_id = $4::uuid)
 `
 
 type ThreadDetailParams struct {
 	CourseID uuid.UUID
 	ID       uuid.UUID
+	IsStaff  bool
+	ViewerID uuid.UUID
 }
 
 type ThreadDetailRow struct {
@@ -448,12 +260,23 @@ type ThreadDetailRow struct {
 	LastActivityAt time.Time
 	CreatedAt      time.Time
 	Version        int32
+	HiddenAt       *time.Time
+	HiddenReason   *string
+	HiddenAuto     bool
+	PinnedAt       *time.Time
+	EditedAt       *time.Time
 	AuthorName     string
 	AuthorRole     UserRole
 }
 
+// Thread ẩn: chỉ Staff và chủ bài đọc được (người khác 404 như thread không tồn tại).
 func (q *Queries) ThreadDetail(ctx context.Context, arg ThreadDetailParams) (ThreadDetailRow, error) {
-	row := q.db.QueryRow(ctx, threadDetail, arg.CourseID, arg.ID)
+	row := q.db.QueryRow(ctx, threadDetail,
+		arg.CourseID,
+		arg.ID,
+		arg.IsStaff,
+		arg.ViewerID,
+	)
 	var i ThreadDetailRow
 	err := row.Scan(
 		&i.ID,
@@ -471,6 +294,11 @@ func (q *Queries) ThreadDetail(ctx context.Context, arg ThreadDetailParams) (Thr
 		&i.LastActivityAt,
 		&i.CreatedAt,
 		&i.Version,
+		&i.HiddenAt,
+		&i.HiddenReason,
+		&i.HiddenAuto,
+		&i.PinnedAt,
+		&i.EditedAt,
 		&i.AuthorName,
 		&i.AuthorRole,
 	)
@@ -486,6 +314,7 @@ type ThreadGetAuthorRow struct {
 	CourseID uuid.UUID
 }
 
+// hidden-ok: nội bộ (đường ghi), không trả nội dung cho người đọc.
 func (q *Queries) ThreadGetAuthor(ctx context.Context, id uuid.UUID) (ThreadGetAuthorRow, error) {
 	row := q.db.QueryRow(ctx, threadGetAuthor, id)
 	var i ThreadGetAuthorRow
@@ -514,6 +343,7 @@ type ThreadInsertRow struct {
 	CreatedAt time.Time
 }
 
+// hidden-ok: ghi nội bộ.
 func (q *Queries) ThreadInsert(ctx context.Context, arg ThreadInsertParams) (ThreadInsertRow, error) {
 	row := q.db.QueryRow(ctx, threadInsert,
 		arg.CourseID,
@@ -532,35 +362,41 @@ func (q *Queries) ThreadInsert(ctx context.Context, arg ThreadInsertParams) (Thr
 const threadList = `-- name: ThreadList :many
 
 select t.id, t.title, left(t.body, 160)::text as preview, t.tags, t.week_no, t.state, t.ai_state, t.reply_count, t.last_activity_at, t.created_at, t.author_id,
+       t.hidden_at, t.hidden_reason, (t.hidden_by is null)::bool as hidden_auto, t.pinned_at, t.edited_at,
        u.full_name as author_name, u.role as author_role,
        coalesce((select p.verification_state::text from forum_posts p
          where p.thread_id = t.id and p.course_id = t.course_id and p.kind = 'AI' and p.deleted_at is null
-           and ($1::bool or (p.hidden_at is null and p.verification_state <> 'REJECTED')) limit 1), '')::text as ai_verification
+           and ($1::bool or (p.hidden_at is null and p.verification_state <> 'REJECTED'))
+         order by (p.verification_state = 'REJECTED'), p.created_at desc limit 1), '')::text as ai_verification
 from forum_threads t
 join users u on u.id = t.author_id
 where t.course_id = $2 and t.deleted_at is null
-  and ($3::int is null or t.week_no = $3::int)
-  and ($4::text is null or $4::text = any(t.tags))
-  and ($5::text is null or vn_fold(t.title) like '%' || vn_fold($5::text) || '%' escape '\')
-  and ($6::text is null
-       or ($6::text = 'pending' and exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state = 'PENDING' and p.deleted_at is null and p.hidden_at is null))
-       or ($6::text = 'verified' and exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state in ('VERIFIED', 'CORRECTED') and p.deleted_at is null and p.hidden_at is null))
-       or ($6::text = 'none' and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state <> 'REJECTED' and p.deleted_at is null and p.hidden_at is null)))
-  and ($7::timestamptz is null or (t.last_activity_at, t.id) < ($7::timestamptz, $8::uuid))
-order by t.last_activity_at desc, t.id desc
-limit $9
+  and (t.hidden_at is null or $1::bool or t.author_id = $3::uuid)
+  and (($4::bool and t.pinned_at is not null) or (not $4::bool and t.pinned_at is null))
+  and ($5::int is null or t.week_no = $5::int)
+  and ($6::text is null or $6::text = any(t.tags))
+  and ($7::text is null or vn_fold(t.title) like '%' || vn_fold($7::text) || '%' escape '\')
+  and ($8::text is null
+       or ($8::text = 'pending' and exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state = 'PENDING' and p.deleted_at is null and p.hidden_at is null))
+       or ($8::text = 'verified' and exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state in ('VERIFIED', 'CORRECTED') and p.deleted_at is null and p.hidden_at is null))
+       or ($8::text = 'none' and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and p.verification_state <> 'REJECTED' and p.deleted_at is null and p.hidden_at is null)))
+  and ($9::timestamptz is null or (t.last_activity_at, t.id) < ($9::timestamptz, $10::uuid))
+order by (case when $4::bool then t.pinned_at end) asc nulls last, t.last_activity_at desc, t.id desc
+limit $11
 `
 
 type ThreadListParams struct {
-	IsStaff   bool
-	CourseID  uuid.UUID
-	WeekNo    *int32
-	Tag       *string
-	Q         *string
-	State     *string
-	CursorAt  *time.Time
-	CursorID  *uuid.UUID
-	PageLimit int32
+	IsStaff    bool
+	CourseID   uuid.UUID
+	ViewerID   uuid.UUID
+	OnlyPinned bool
+	WeekNo     *int32
+	Tag        *string
+	Q          *string
+	State      *string
+	CursorAt   *time.Time
+	CursorID   *uuid.UUID
+	PageLimit  int32
 }
 
 type ThreadListRow struct {
@@ -575,17 +411,24 @@ type ThreadListRow struct {
 	LastActivityAt time.Time
 	CreatedAt      time.Time
 	AuthorID       uuid.UUID
+	HiddenAt       *time.Time
+	HiddenReason   *string
+	HiddenAuto     bool
+	PinnedAt       *time.Time
+	EditedAt       *time.Time
 	AuthorName     string
 	AuthorRole     UserRole
 	AiVerification string
 }
 
 // ===== US-P3-06: service Threads =====
-// Một hàng gọn mỗi thread. Sinh viên không thấy bài AI REJECTED / ẩn (thread vẫn hiện); Staff thấy hết. `state`: pending | verified | none.
+// Một hàng gọn mỗi thread. Sinh viên không thấy bài AI REJECTED / ẩn; thread ẩn chỉ hiện với Staff và chủ bài (AC2, TLR-22). `only_pinned`: true = chỉ thread đang ghim (trang đầu), false = loại thread ghim khỏi `items`.
 func (q *Queries) ThreadList(ctx context.Context, arg ThreadListParams) ([]ThreadListRow, error) {
 	rows, err := q.db.Query(ctx, threadList,
 		arg.IsStaff,
 		arg.CourseID,
+		arg.ViewerID,
+		arg.OnlyPinned,
 		arg.WeekNo,
 		arg.Tag,
 		arg.Q,
@@ -613,6 +456,11 @@ func (q *Queries) ThreadList(ctx context.Context, arg ThreadListParams) ([]Threa
 			&i.LastActivityAt,
 			&i.CreatedAt,
 			&i.AuthorID,
+			&i.HiddenAt,
+			&i.HiddenReason,
+			&i.HiddenAuto,
+			&i.PinnedAt,
+			&i.EditedAt,
 			&i.AuthorName,
 			&i.AuthorRole,
 			&i.AiVerification,
@@ -627,11 +475,31 @@ func (q *Queries) ThreadList(ctx context.Context, arg ThreadListParams) ([]Threa
 	return items, nil
 }
 
+const threadMailInfo = `-- name: ThreadMailInfo :one
+select id, course_id, title from forum_threads where id = $1 and deleted_at is null
+`
+
+type ThreadMailInfoRow struct {
+	ID       uuid.UUID
+	CourseID uuid.UUID
+	Title    string
+}
+
+// hidden-ok: tiêu đề thư gửi chính chủ thread.
+// Thư `thread_reply`: tiêu đề thread (công khai trong lớp) và lớp, theo id trong payload.
+func (q *Queries) ThreadMailInfo(ctx context.Context, id uuid.UUID) (ThreadMailInfoRow, error) {
+	row := q.db.QueryRow(ctx, threadMailInfo, id)
+	var i ThreadMailInfoRow
+	err := row.Scan(&i.ID, &i.CourseID, &i.Title)
+	return i, err
+}
+
 const threadMarkAnswered = `-- name: ThreadMarkAnswered :execrows
 update forum_threads set ai_state = 'ANSWERED', reply_count = reply_count + 1, last_activity_at = now()
 where id = $1 and ai_state = 'PENDING'
 `
 
+// hidden-ok: ghi nội bộ (đường ghi), không trả nội dung.
 func (q *Queries) ThreadMarkAnswered(ctx context.Context, id uuid.UUID) (int64, error) {
 	result, err := q.db.Exec(ctx, threadMarkAnswered, id)
 	if err != nil {
@@ -650,6 +518,7 @@ type ThreadMarkSkippedParams struct {
 	ID     uuid.UUID
 }
 
+// hidden-ok: ghi nội bộ.
 func (q *Queries) ThreadMarkSkipped(ctx context.Context, arg ThreadMarkSkippedParams) (int64, error) {
 	result, err := q.db.Exec(ctx, threadMarkSkipped, arg.Reason, arg.ID)
 	if err != nil {
@@ -659,20 +528,26 @@ func (q *Queries) ThreadMarkSkipped(ctx context.Context, arg ThreadMarkSkippedPa
 }
 
 const threadPosts = `-- name: ThreadPosts :many
-select p.id, p.thread_id, p.author_id, p.kind, p.body, p.verification_state, p.citations, p.confidence, p.ai_body, p.hidden_at, p.version, p.verified_at, p.created_at,
+select p.id, p.thread_id, p.author_id, p.kind, p.body, p.verification_state, p.citations, p.confidence, p.ai_body, p.hidden_at, p.hidden_reason, (p.hidden_by is null)::bool as hidden_auto, p.edited_at, p.version, p.verified_at, p.created_at,
        u.full_name as author_name, u.role as author_role
-from forum_posts p left join users u on u.id = p.author_id
+from forum_posts p
+join forum_threads t on t.course_id = p.course_id and t.id = p.thread_id
+left join users u on u.id = p.author_id
 where p.course_id = $1 and p.thread_id = $2 and p.deleted_at is null
-  and ($3::bool or (p.hidden_at is null and p.verification_state <> 'REJECTED'))
-  and ($4::timestamptz is null or (p.created_at, p.id) > ($4::timestamptz, $5::uuid))
+  and ($3::bool or (
+        (p.hidden_at is null or p.author_id = $4::uuid)
+    and (t.hidden_at is null or t.author_id = $4::uuid)
+    and p.verification_state <> 'REJECTED'))
+  and ($5::timestamptz is null or (p.created_at, p.id) > ($5::timestamptz, $6::uuid))
 order by p.created_at, p.id
-limit $6
+limit $7
 `
 
 type ThreadPostsParams struct {
 	CourseID  uuid.UUID
 	ThreadID  uuid.UUID
 	IsStaff   bool
+	ViewerID  uuid.UUID
 	CursorAt  *time.Time
 	CursorID  *uuid.UUID
 	PageLimit int32
@@ -689,6 +564,9 @@ type ThreadPostsRow struct {
 	Confidence        decimal.NullDecimal
 	AiBody            *string
 	HiddenAt          *time.Time
+	HiddenReason      *string
+	HiddenAuto        bool
+	EditedAt          *time.Time
 	Version           int32
 	VerifiedAt        *time.Time
 	CreatedAt         time.Time
@@ -696,12 +574,13 @@ type ThreadPostsRow struct {
 	AuthorRole        *UserRole
 }
 
-// Sinh viên: bỏ bài REJECTED / ẩn / xoá. Staff: thấy cả bài REJECTED (hiện dòng thu gọn "Đã loại").
+// Sinh viên: bỏ bài REJECTED / xoá; bài ẩn chỉ hiện với chủ bài; thread ẩn chỉ hiện với chủ thread. Staff: thấy cả bài REJECTED (dòng thu gọn "Đã loại") và bài ẩn (nhãn "Đã ẩn").
 func (q *Queries) ThreadPosts(ctx context.Context, arg ThreadPostsParams) ([]ThreadPostsRow, error) {
 	rows, err := q.db.Query(ctx, threadPosts,
 		arg.CourseID,
 		arg.ThreadID,
 		arg.IsStaff,
+		arg.ViewerID,
 		arg.CursorAt,
 		arg.CursorID,
 		arg.PageLimit,
@@ -724,6 +603,9 @@ func (q *Queries) ThreadPosts(ctx context.Context, arg ThreadPostsParams) ([]Thr
 			&i.Confidence,
 			&i.AiBody,
 			&i.HiddenAt,
+			&i.HiddenReason,
+			&i.HiddenAuto,
+			&i.EditedAt,
 			&i.Version,
 			&i.VerifiedAt,
 			&i.CreatedAt,
@@ -749,6 +631,7 @@ type ThreadSetEmbeddingParams struct {
 	ID        uuid.UUID
 }
 
+// hidden-ok: việc nền AI (nội bộ).
 func (q *Queries) ThreadSetEmbedding(ctx context.Context, arg ThreadSetEmbeddingParams) error {
 	_, err := q.db.Exec(ctx, threadSetEmbedding, arg.Embedding, arg.ID)
 	return err
@@ -757,7 +640,7 @@ func (q *Queries) ThreadSetEmbedding(ctx context.Context, arg ThreadSetEmbedding
 const threadSetSimilarOf = `-- name: ThreadSetSimilarOf :exec
 update forum_threads t set similar_of = (
   select o.id from forum_threads o
-  where o.course_id = t.course_id and o.id <> t.id and o.deleted_at is null and o.embedding is not null and t.embedding is not null
+  where o.course_id = t.course_id and o.id <> t.id and o.deleted_at is null and o.hidden_at is null and o.embedding is not null and t.embedding is not null
     and 1 - (o.embedding <=> t.embedding) >= $1::float8
   order by o.embedding <=> t.embedding limit 1)
 where t.id = $2 and t.similar_of is null
@@ -777,8 +660,10 @@ const threadSimilar = `-- name: ThreadSimilar :many
 select t.id, t.title, left(t.body, 160)::text as preview, (1 - (t.embedding <=> src.embedding))::float8 as cosine
 from forum_threads t, forum_threads src
 where src.course_id = $1 and src.id = $2 and t.course_id = src.course_id and t.id <> src.id
-  and t.deleted_at is null and t.embedding is not null and src.embedding is not null
-  and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and (p.verification_state = 'REJECTED' or p.hidden_at is not null))
+  and t.deleted_at is null and t.hidden_at is null and t.embedding is not null and src.embedding is not null
+  -- bài AI MỚI NHẤT bị loại / ẩn thì không gợi ý; thread đang sinh lại (bài cũ REJECTED, bài mới PENDING) vẫn được gợi ý
+  and not exists (select 1 from forum_posts p where p.thread_id = t.id and p.kind = 'AI' and (p.verification_state = 'REJECTED' or p.hidden_at is not null)
+                    and not exists (select 1 from forum_posts q where q.thread_id = p.thread_id and q.kind = 'AI' and q.created_at > p.created_at))
   and 1 - (t.embedding <=> src.embedding) >= $3::float8
 order by t.embedding <=> src.embedding
 limit $4

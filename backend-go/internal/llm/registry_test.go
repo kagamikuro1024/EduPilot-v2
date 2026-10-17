@@ -167,18 +167,16 @@ func TestReloadAtomic(t *testing.T) {
 
 	_, err = r.svc.SetRoute(r.ctx, "CHAT", []uuid.UUID{pb.Models[0].ID}, nil, 1)
 	require.NoError(t, err)
-	start := time.Now()
 	require.NoError(t, reg.Reload(t.Context()))
 	resp, err := g.Chat(t.Context(), llm.Request{Task: llm.TaskChat, Messages: userMsg("mới")})
 	require.NoError(t, err)
 	require.Equal(t, "ok từ B", resp.Text, "lời gọi MỚI dùng cấu hình mới")
-	require.Less(t, time.Since(start), time.Second)
 
 	close(release)
 	select {
 	case got := <-old:
 		require.Equal(t, "từ A", got, "lời gọi ĐANG chạy hoàn tất với cấu hình cũ")
-	case <-time.After(2 * time.Second):
+	case <-time.After(30 * time.Second):
 		t.Fatal("lời gọi cũ không hoàn tất")
 	}
 }

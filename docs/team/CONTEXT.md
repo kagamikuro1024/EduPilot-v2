@@ -10,8 +10,8 @@ Người dùng: sinh viên (chủ yếu điện thoại), trợ giảng và gi�
 ## 2. Đang ở đâu
 - Repo: `github.com/kagamikuro1024/EduPilot-v2` (public, 2026-10-09). Repo cũ `TA_Agent_v2` đã bỏ: **không push lên đó, không push nhánh có lịch sử cũ** (lịch sử cũ chứa secret của Project III).
 - Lộ trình 11 sprint + 1.5 + 5.5: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
-- **Việc hiện tại:** sprint 5 (PE thi hằng tuần, nhánh `sprint/5-pe`) đang nghiệm thu; tiếp theo sprint 5.5 (UI panel nổi, `docs/sprints/5.5/plan.md`).
-- Prototype sprint 1.5 là MOCK (D51): màn mock được thay dần bằng màn thật; spec thật ở `docs/specs/<FEAT>/` thắng spec prototype `docs/sprints/1.5/spec/`.
+- **Việc hiện tại:** sprint 7 (P4 + P5) xong, cổng P4 và P5 ĐẠT, chờ chủ dự án chốt để merge; kế tiếp sprint 8 (P6). `main` = sprint 1 → 6. Worktree: dev `../TA_Agent_v2-s7`, PM `../TA_Agent_v2-s6` (detached), BA `/tmp/ba-wt`; không làm trong worktree của vai khác.
+- Prototype sprint 1.5 là MOCK (D51): màn mock được thay dần bằng màn thật; spec thật ở `docs/specs/<FEAT>/` thắng spec prototype `docs/sprints/1.5/spec/`. Sprint 7 thay mock của `/inbox`, `/attendance`, `/students`, `/students/[id]`, `/me`.
 
 ## 3. Đã chốt — không mở lại
 | Mã | Chốt |
@@ -37,9 +37,9 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 ## 5. Mỗi vai đọc gì cho việc hiện tại
 | Vai | Đọc |
 | --- | --- |
-| ba | `docs/design/DESIGN.md` (§1–§2 vai trò + điều hướng, §13 lời văn, §14 hợp đồng 25 route), `docs/design/INTEGRATION.md` mục 2 (route ngoài §14), `docs/PRD.md`, `docs/DEMO_SCRIPT.md` |
-| dev | `docs/design/DESIGN.md` toàn bộ, `docs/UX.md`, spec `docs/sprints/1.5/spec/`, hướng thiết kế `frontend/.impeccable/surfaces/frontend-src-app.md`, nền đã có ở `frontend/src/shared/` + `frontend/src/mock/` |
-| qc | spec `docs/sprints/1.5/spec/`, `docs/design/DESIGN.md` §21–§22, `docs/UX.md` mục 6, `docs/DEMO_SCRIPT.md` |
+| ba | `docs/sprints/7/plan.md`, `docs/phases/P4.md` / `P5.md`, `docs/PRD.md` (M2, M3, M5, M6, M13-C), `docs/FLOWS.md` F4, F5, F7, F8, `docs/design/DESIGN.md` (§13 lời văn, §14.5 / §14.7 / §14.8 / §14.9), `docs/UX.md` mục 1, 5 |
+| dev | spec `docs/specs/<FEAT>/`, `docs/design/DESIGN.md`, `docs/UX.md`, `docs/ARCHITECTURE.md`, `docs/SYSTEM_DESIGN.md`, nền ở `frontend/src/shared/` |
+| qc | spec `docs/specs/<FEAT>/`, `docs/design/DESIGN.md` §21–§22, `docs/UX.md` mục 6, `docs/FLOWS.md` (nhánh lỗi) |
 
 ## 6. Từ điển nhanh
 Hôm nay = trang `/` theo vai · Hộp thư hỗ trợ = ticket escalation · Threads = hỏi đáp công khai, giảng viên Xác nhận / Loại câu trả lời AI · Hồ sơ 360 = trang một sinh viên · Sổ điểm / Công thức điểm = gradebook / scheme trích từ quy chế · Duyệt bài = xem AI chấm nháp rồi quyết · Insights = lỗ hổng kiến thức của lớp · Quan sát AI = observability (chỉ GV/Admin).

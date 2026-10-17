@@ -77,7 +77,7 @@ func TestJoinStudentCodeCollisionPending(t *testing.T) {
 	require.Equal(t, "ACTIVE", bst)
 	require.Empty(t, bwarn)
 
-	waitFor(t, 10*time.Second, "JOIN_REQUEST cho giảng viên và TA", func() bool {
+	waitFor(t, 60*time.Second, "JOIN_REQUEST cho giảng viên và TA", func() bool {
 		return len(r.notesOf(x.G, "JOIN_REQUEST")) == 1 && len(r.notesOf(x.T, "JOIN_REQUEST")) == 1
 	})
 	// Chỉ yêu cầu của X có cảnh báo; B vào bình thường nên không sinh JOIN_REQUEST (lớp không bật duyệt).

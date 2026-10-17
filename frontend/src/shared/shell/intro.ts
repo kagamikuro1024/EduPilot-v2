@@ -26,6 +26,8 @@ const INTROS: Record<string, RouteIntro> = {
     title: "Threads",
     description: `Câu hỏi công khai của ${CLASS_LABEL}. Câu trả lời có nhãn xác nhận là đã được giảng viên duyệt.`,
   },
+  // h1 thật = "Kết quả của tôi" + mã lớp (RealMe); các khối sau phiên nhỏ hơn h1 nên h1 là ứng viên LCP duy nhất
+  "/me": { title: "Kết quả của tôi", description: "761987" },
   "/gradebook": { title: "Sổ điểm", description: `${CLASS_LABEL} · Thứ Năm 09:00–11:30 · P.302 – G2`, width: "wide" },
   "/chat": {
     title: "Chat riêng",

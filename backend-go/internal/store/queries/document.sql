@@ -16,7 +16,7 @@ select pg_advisory_xact_lock(hashtextextended(sqlc.arg(course_id)::text || sqlc.
 -- name: DocFindDuplicateInCourse :one
 -- Cùng băm ở CÙNG lớp, kể cả tài liệu được chia sẻ vào lớp.
 select d.id from documents d
-where d.sha256 = sqlc.arg(sha256)
+where d.sha256 = sqlc.arg(sha256) and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
 order by d.created_at limit 1;
 
@@ -26,13 +26,13 @@ select d.id, c.class_code
 from documents d
 join courses c on c.id = d.course_id
 join enrollments e on e.course_id = d.course_id and e.user_id = sqlc.arg(user_id) and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
-where d.sha256 = sqlc.arg(sha256) and d.course_id <> sqlc.arg(course_id)
+where d.sha256 = sqlc.arg(sha256) and d.course_id <> sqlc.arg(course_id) and d.category is distinct from 'THREAD_KNOWLEDGE'
 order by d.created_at limit 1;
 
 -- name: DocGetInCourse :one
 -- Tài liệu thuộc lớp (của lớp hoặc được chia sẻ vào lớp).
 select d.* from documents d
-where d.id = sqlc.arg(id)
+where d.id = sqlc.arg(id) and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)));
 
 -- name: DocRetry :one
@@ -49,7 +49,7 @@ select d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.size_bytes
        d.category, d.week_no, d.version, d.created_at, d.updated_at,
        case when d.course_id = sqlc.arg(course_id) then '' else c.class_code end::text as shared_from
 from documents d join courses c on c.id = d.course_id
-where (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
+where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
   and (sqlc.narg(type)::text is null or d.type::text = sqlc.narg(type)::text)
   and (sqlc.narg(status)::text is null or d.status::text = sqlc.narg(status)::text)
   and (sqlc.narg(q)::text is null or vn_fold(d.title) like '%' || vn_fold(sqlc.narg(q)::text) || '%' escape '\' or vn_fold(coalesce(d.filename, '')) like '%' || vn_fold(sqlc.narg(q)::text) || '%' escape '\')
@@ -59,7 +59,7 @@ limit sqlc.arg(page_limit);
 
 -- name: DocGetForUpdate :one
 -- Khoá hàng để PATCH / xoá: chỉ tài liệu của CHÍNH lớp (chia sẻ vào → không thấy ở đây; người gọi tự phân biệt bằng DocGetInCourse).
-select * from documents where id = sqlc.arg(id) and course_id = sqlc.arg(course_id) for update;
+select * from documents where id = sqlc.arg(id) and course_id = sqlc.arg(course_id) and category is distinct from 'THREAD_KNOWLEDGE' for update;
 
 -- name: DocUpdate :one
 update documents set title = sqlc.arg(title), type = sqlc.arg(type), category = sqlc.narg(category), week_no = sqlc.narg(week_no),
@@ -71,7 +71,7 @@ returning *;
 update content_chunks c set audience = sqlc.arg(new_audience) where c.document_id = sqlc.arg(doc_id) and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.audience is distinct from sqlc.arg(new_audience);
 
 -- name: DocDelete :execrows
-delete from documents where id = sqlc.arg(id) and course_id = sqlc.arg(course_id);
+delete from documents where id = sqlc.arg(id) and course_id = sqlc.arg(course_id) and category is distinct from 'THREAD_KNOWLEDGE';
 
 -- name: DocDeleteImpact :one
 -- Số đoạn và số lớp khác đang dùng tài liệu (chia sẻ) — cho câu xác nhận xoá.
@@ -84,7 +84,7 @@ where c.document_id = sqlc.arg(doc_id) and c.course_ids @> array[sqlc.arg(course
 order by c.ord limit sqlc.arg(page_limit);
 
 -- name: DocChunkLock :one
-select c.id, c.document_id, c.text, c.audience from content_chunks c where c.id = sqlc.arg(id) and c.document_id = sqlc.arg(doc_id) and c.course_ids @> array[sqlc.arg(course_id)::uuid] for update;
+select c.id, c.document_id, c.text, c.audience, (c.embedding is not null)::bool as embedded from content_chunks c where c.id = sqlc.arg(id) and c.document_id = sqlc.arg(doc_id) and c.course_ids @> array[sqlc.arg(course_id)::uuid] for update;
 
 -- name: DocChunkSetText :one
 update content_chunks c set text = sqlc.arg(new_text), embedding = sqlc.narg(new_embedding), token_count = null
@@ -98,7 +98,7 @@ update documents set updated_at = now(), version = version + 1 where id = sqlc.a
 -- Một truy vấn tổng hợp (tài liệu của lớp + chia sẻ vào).
 with docs as (
   select d.* from documents d
-  where d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id))
+  where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
 ), ch as (
   select count(*) as chunks, count(embedding) as embedded from content_chunks c join docs on docs.id = c.document_id where c.course_ids @> array[sqlc.arg(course_id)::uuid]
 )
@@ -113,10 +113,10 @@ select (select count(*) from docs)::bigint as total,
 
 -- name: DocStatsByType :many
 select d.type::text as k, count(*)::bigint as n from documents d
-where d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id))
+where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
 group by d.type;
 
 -- name: DocStatsByStatus :many
 select d.status::text as k, count(*)::bigint as n from documents d
-where d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id))
+where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
 group by d.status;

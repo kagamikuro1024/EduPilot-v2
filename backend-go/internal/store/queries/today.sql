@@ -4,10 +4,16 @@
 -- Người xem và ghi danh ACTIVE / PENDING của chính họ trong lớp còn mở: MỘT truy vấn dựng Viewer (SRS 4.7 "ngân sách truy vấn").
 -- Người chưa có lớp ⇒ đúng một dòng với course_id NULL.
 select u.email, (u.email_verified_at is not null)::boolean as verified,
-       e.course_id, c.class_code, e.role_in_course, e.status, e.status_changed_at
+       e.course_id, c.class_code, e.role_in_course, e.status, e.status_changed_at,
+       coalesce(n.n, 0)::int as unread_n, coalesce(n.newest, 'epoch'::timestamptz)::timestamptz as unread_newest, coalesce(n.link, '')::text as unread_link
 from users u
 left join enrollments e on e.user_id = u.id and e.status in ('ACTIVE', 'PENDING')
 left join courses c on c.id = e.course_id and c.status = 'ACTIVE'
+left join lateral (
+    -- US-P4-03 STAFF_ANSWER_UNREAD (TLR-14): thông báo TICKET_ANSWERED CHƯA đọc của chính người xem trong lớp; GỘP vào đây để sinh viên giữ ngân sách ≤ 5 truy vấn.
+    select count(*) as n, max(created_at) as newest, (array_agg(link order by created_at desc))[1] as link
+    from notifications where user_id = u.id and course_id = e.course_id and type = 'TICKET_ANSWERED' and read_at is null
+) n on e.status = 'ACTIVE'
 where u.id = sqlc.arg(user_id);
 
 -- name: TodayStaffPending :many
@@ -24,7 +30,14 @@ select c.course_id::uuid as course_id,
        coalesce(w.exams, '[]'::jsonb)::jsonb as exam_work,
        coalesce(f.ai_pending, 0)::int as ai_pending,
        coalesce(f.ai_skipped, 0)::int as ai_skipped,
-       coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest
+       coalesce(f.oldest, 'epoch'::timestamptz)::timestamptz as ai_oldest,
+       coalesce(k.n_open, 0)::int as tk_open,
+       coalesce(k.n_mine, 0)::int as tk_mine,
+       coalesce(k.oldest, 'epoch'::timestamptz)::timestamptz as tk_oldest,
+       coalesce(k.n_over, 0)::int as tk_over,
+       coalesce(u.sessions, '[]'::jsonb)::jsonb as unmarked,
+       coalesce(rp.n, 0)::int as reported,
+       coalesce(rp.oldest, 'epoch'::timestamptz)::timestamptz as reported_oldest
 from unnest(sqlc.arg(course_ids)::text[]::uuid[]) as c(course_id)
 left join (
     select course_id,
@@ -56,6 +69,17 @@ left join (
     group by r.course_id
 ) s on s.course_id = c.course_id
 left join (
+    -- US-P4-03 TICKET: ticket OPEN của lớp, số ticket MÌNH đã nhận, và `waiting_since` cũ nhất của OPEN — GỘP vào cùng truy vấn.
+    select course_id,
+           count(*) filter (where status = 'OPEN') as n_open,
+           count(*) filter (where status = 'CLAIMED' and claimed_by = sqlc.arg(user_id)) as n_mine,
+           min(waiting_since) filter (where status = 'OPEN') as oldest,
+           count(*) filter (where status = 'OPEN' and sla_stage = 2) as n_over
+    from escalation_tickets
+    where course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and status in ('OPEN', 'CLAIMED')
+    group by course_id
+) k on k.course_id = c.course_id
+left join (
     -- US-PE-08: việc của Staff về bài đã đóng / công bố (lượt chấm lỗi, hoãn công bố, phúc khảo chờ); bài cũ hơn 120 ngày thôi làm việc của hôm nay.
     select e.course_id, jsonb_agg(jsonb_build_object('exam_id', e.id, 'title', e.title, 'hold', e.publish_hold,
         'errors', (select count(distinct a.id) from exam_attempts a join code_submissions cs on cs.course_id = a.course_id and cs.attempt_id = a.id and cs.kind = 'SUBMIT' and cs.status = 'ERROR'
@@ -73,26 +97,57 @@ left join (
            coalesce(sum(ap.n), 0)::int as ai_pending,
            count(*) filter (where t.ai_state = 'SKIPPED' and not exists (
                select 1 from forum_posts hp join enrollments se on se.course_id = hp.course_id and se.user_id = hp.author_id and se.status = 'ACTIVE' and se.role_in_course in ('TEACHER', 'TA')
-               where hp.course_id = t.course_id and hp.thread_id = t.id and hp.kind = 'HUMAN' and hp.deleted_at is null))::int as ai_skipped,
+               where hp.course_id = t.course_id and hp.thread_id = t.id and hp.kind = 'HUMAN' and hp.deleted_at is null and hp.hidden_at is null))::int as ai_skipped,
            min(t.created_at) as oldest
     from forum_threads t
     left join lateral (
         select count(*) as n from forum_posts p
         where p.course_id = t.course_id and p.thread_id = t.id and p.kind = 'AI' and p.verification_state = 'PENDING' and p.deleted_at is null and p.hidden_at is null
     ) ap on true
-    where t.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and t.deleted_at is null
+    where t.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and t.deleted_at is null and t.hidden_at is null
       and (ap.n > 0 or t.ai_state = 'SKIPPED')
     group by t.course_id
-) f on f.course_id = c.course_id;
+) f on f.course_id = c.course_id
+left join (
+    -- US-P5-01 SESSION_UNMARKED: buổi đang diễn ra / vừa kết thúc (≤ grace) chưa hoàn tất điểm danh, tối đa 3 mỗi lớp (mới nhất trước), chỉ lớp ACTIVE — GỘP vào cùng truy vấn (ngân sách ≤ 5).
+    select x.course_id, jsonb_agg(jsonb_build_object('id', x.id, 'session_no', x.session_no, 'starts_at', x.starts_at, 'ends_at', x.ends_at, 'room', x.room) order by x.starts_at desc) as sessions
+    from (
+        select s.course_id, s.id, s.session_no, s.starts_at, s.ends_at, s.room,
+               row_number() over (partition by s.course_id order by s.starts_at desc) as rn
+        from class_sessions s join courses cc on cc.id = s.course_id and cc.status = 'ACTIVE'
+        where s.course_id = any(sqlc.arg(course_ids)::text[]::uuid[])
+          and s.attendance_done_at is null
+          and s.starts_at <= sqlc.arg(now_at)::timestamptz
+          and s.ends_at + (sqlc.arg(grace_secs)::int * interval '1 second') >= sqlc.arg(now_at)::timestamptz
+    ) x
+    where x.rn <= 3
+    group by x.course_id
+) u on u.course_id = c.course_id
+left join (
+    -- US-P4-06 POST_REPORTED: bài có báo cáo OPEN hoặc tự ẩn chờ duyệt (chưa xoá), đếm bài; GỘP vào cùng truy vấn (ngân sách ≤ 5).
+    select y.course_id, count(*)::int as n, min(y.at) as oldest
+    from (
+        select z.course_id, z.target_id, min(z.at) as at
+        from (
+            select r.course_id, r.target_id, r.created_at as at from post_reports r where r.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and r.status = 'OPEN'
+            union all
+            select t.course_id, t.id, t.hidden_at from forum_threads t where t.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and t.hidden_at is not null and t.hidden_by is null and t.deleted_at is null
+            union all
+            select p.course_id, p.id, p.hidden_at from forum_posts p where p.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and p.hidden_at is not null and p.hidden_by is null and p.deleted_at is null
+        ) z
+        group by z.course_id, z.target_id
+    ) y
+    group by y.course_id
+) rp on rp.course_id = c.course_id;
 
 -- name: TodaySetup :many
 -- Bốn bước "Thiết lập lớp mới" tự tick theo dữ liệu (SRS 4.7); dismissed = mốc giảng viên bỏ qua.
 select c.id as course_id,
        (exists (select 1 from enrollments e where e.course_id = c.id and e.role_in_course = 'STUDENT' and e.status in ('ACTIVE', 'PENDING')))::boolean as share_code,
-       (exists (select 1 from documents d where d.course_id = c.id and d.type = 'COURSE_POLICY' and d.status <> 'FAILED'))::boolean as policy,
+       (exists (select 1 from documents d where d.course_id = c.id and d.type = 'COURSE_POLICY' and d.status <> 'FAILED' and d.category is distinct from 'THREAD_KNOWLEDGE'))::boolean as policy,
        (exists (select 1 from class_sessions s where s.course_id = c.id))::boolean as sessions,
-       ((exists (select 1 from documents d where d.course_id = c.id and d.type <> 'COURSE_POLICY' and d.status <> 'FAILED')
-        or exists (select 1 from document_courses dc join documents d on d.id = dc.document_id where dc.course_id = c.id and d.status <> 'FAILED')))::boolean as documents,
+       ((exists (select 1 from documents d where d.course_id = c.id and d.type <> 'COURSE_POLICY' and d.status <> 'FAILED' and d.category is distinct from 'THREAD_KNOWLEDGE')
+        or exists (select 1 from document_courses dc join documents d on d.id = dc.document_id where dc.course_id = c.id and d.status <> 'FAILED' and d.category is distinct from 'THREAD_KNOWLEDGE')))::boolean as documents,
        coalesce(c.settings #>> '{setup,dismissed_at}', '')::text as dismissed
 from courses c
 where c.id = any(sqlc.arg(course_ids)::text[]::uuid[]);
@@ -165,10 +220,11 @@ on conflict (course_id, starts_at) do nothing;
 
 -- name: ListSessions :many
 -- Theo starts_at tăng dần; con trỏ = starts_at của dòng cuối trang trước.
-select id, session_no, starts_at, ends_at, room, topic
-from class_sessions
-where course_id = sqlc.arg(course_id) and (sqlc.narg(after)::timestamptz is null or starts_at > sqlc.narg(after)::timestamptz)
-order by starts_at
+select s.id, s.session_no, s.starts_at, s.ends_at, s.room, s.topic, s.version, s.attendance_done_at,
+       exists (select 1 from attendance_records a where a.course_id = s.course_id and a.session_id = s.id) as has_attendance
+from class_sessions s
+where s.course_id = sqlc.arg(course_id) and (sqlc.narg(after)::timestamptz is null or s.starts_at > sqlc.narg(after)::timestamptz)
+order by s.starts_at
 limit sqlc.arg(lim);
 
 -- name: TodayStudentFeed :many
@@ -187,3 +243,28 @@ select * from (
      and exists (select 1 from chat_messages m where m.session_id = ch.id and m.course_id = ch.course_id)
    order by ch.last_message_at desc, ch.id desc limit 3)
 ) f order by f.kind, case when f.kind = 'S' then f.starts_at end, f.starts_at desc;
+
+-- name: TodayAdminStalled :many
+-- US-P4-05 AC6 COURSE_TICKETS_STALLED (bậc 45, ADMIN): thông báo CHƯA đọc của chính Admin, mỗi lớp lấy cái mới nhất; chỉ mã lớp + số lượng (không nội dung ticket).
+select n.course_id::uuid as course_id, c.class_code, max(n.title)::text as title, max(n.created_at)::timestamptz as newest
+from notifications n join courses c on c.id = n.course_id
+where n.user_id = sqlc.arg(user_id) and n.type = 'COURSE_TICKETS_STALLED' and n.read_at is null
+group by n.course_id, c.class_code;
+
+-- ===== Lịch buổi học: sửa / huỷ một buổi (US-P5-01) =====
+
+-- name: LockSession :one
+-- Khoá dòng buổi (tuần tự hoá với lưu điểm danh cùng buổi); chỉ thấy buổi của đúng lớp.
+select * from class_sessions where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) for update;
+
+-- name: UpdateSession :one
+update class_sessions
+set starts_at = sqlc.arg(starts_at), ends_at = sqlc.arg(ends_at), room = sqlc.narg(room), topic = sqlc.narg(topic), version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and version = sqlc.arg(version)
+returning *;
+
+-- name: SessionHasAttendance :one
+select exists (select 1 from attendance_records where course_id = sqlc.arg(course_id) and session_id = sqlc.arg(session_id)) as has;
+
+-- name: DeleteSession :execrows
+delete from class_sessions where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);

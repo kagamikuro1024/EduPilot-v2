@@ -46,3 +46,15 @@ func RuntimePoolAt(t testing.TB, url string) *pgxpool.Pool {
 	t.Cleanup(pool.Close)
 	return pool
 }
+
+// SharedMigratedPostgresURL: như MigratedPostgresURL nhưng dùng SharedPostgresURL (không xoá khi test đầu xong); gói PHẢI có TestMain gọi `testutil.Main(m)`.
+func SharedMigratedPostgresURL(t testing.TB) string {
+	t.Helper()
+	url := SharedPostgresURL(t)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	if err := db.Migrate(ctx, url, "up", io.Discard); err != nil {
+		t.Fatalf("migrate up: %v", err)
+	}
+	return url
+}

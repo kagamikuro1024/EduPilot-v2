@@ -216,7 +216,8 @@ func firstDetailCode(res resp) string {
 func TestNoQueryLinksByStudentCode(t *testing.T) {
 	t.Parallel()
 	// ListMembers: ô tìm của GIẢNG VIÊN / TA trong lớp của họ (US-P2-09 AC13: `q` tìm MSSV) — chỉ lọc hiển thị, không nối, không mở dữ liệu (đề xuất #10).
-	allowed := map[string]bool{"EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true, "ListMembers": true}
+	// CrmStudentsList, CrmStudentsCount: ô tìm của nhân viên trong lớp họ phụ trách (US-P5-04 AC2: `q` khớp MSSV tiền tố) — chỉ lọc hiển thị, không nối tài khoản, không mở dữ liệu (đề xuất #30).
+	allowed := map[string]bool{"EnrollmentConflictByStudentCode": true, "RosterStudentCodeConflict": true, "UpdateProfile": true, "ListMembers": true, "CrmStudentsList": true, "CrmStudentsCount": true}
 	dir := filepath.Join("..", "store", "queries")
 	files, err := filepath.Glob(filepath.Join(dir, "*.sql"))
 	require.NoError(t, err)

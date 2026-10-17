@@ -23,6 +23,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
@@ -65,6 +66,12 @@ type Service struct {
 	Embed func(ctx context.Context, text string) ([]float32, error)
 	Clock clock.Clock
 	Log   *slog.Logger
+	// Limits: ngưỡng kiểm duyệt (REPORT_RATE_PER_HOUR, REPORT_AUTOHIDE_THRESHOLD, THREAD_PIN_MAX); không đặt = mặc định.
+	Limits Limits
+	// Support là SUPPORT_RESOURCES_VI (rỗng → câu mặc định) — lời hỗ trợ khi bài đăng có tín hiệu khủng hoảng.
+	Support string
+	// Notify: một cửa tạo thông báo — thread ghi dòng trong giao dịch của mình (notify.SendTx) rồi Announce sau commit; nil → chỉ ghi, chuông làm mới 30 s.
+	Notify *notify.Service
 }
 
 // Actor là người gọi: danh tính từ JWT, vai TRONG LỚP từ CourseAccessGuard.
@@ -107,10 +114,27 @@ type ThreadRow struct {
 	CreatedAt      time.Time `json:"created_at"`
 	// Staff: lý do AI bỏ qua (NO_CONTEXT / LOW_SCORE / LLM_UNAVAILABLE) hoặc PENDING / ANSWERED.
 	AIState *string `json:"ai_state,omitempty"`
+	Hidden  *Hidden `json:"hidden"` // chỉ Staff và chủ bài thấy bài ẩn
+	Pinned  bool    `json:"pinned"`
+	Edited  bool    `json:"edited"`
+}
+
+// Hidden là trạng thái ẩn: `auto` = ẩn tự động chờ duyệt; lý do không lộ người báo cáo.
+type Hidden struct {
+	Reason string `json:"reason"`
+	Auto   bool   `json:"auto"`
+}
+
+func hiddenOf(at *time.Time, reason *string, auto bool) *Hidden {
+	if at == nil {
+		return nil
+	}
+	return &Hidden{Reason: deref(reason), Auto: auto}
 }
 
 // ThreadPage là một trang danh sách.
 type ThreadPage struct {
+	Pinned     []ThreadRow `json:"pinned"` // trang đầu: ≤ THREAD_PIN_MAX thread đang ghim (không lặp trong items)
 	Items      []ThreadRow `json:"items"`
 	NextCursor *string     `json:"next_cursor"`
 }
@@ -129,7 +153,7 @@ func escapeLike(q string) string {
 
 // List: danh sách của lớp theo vai (sinh viên không thấy bài AI REJECTED / ẩn; thread vẫn hiện).
 func (s *Service) List(ctx context.Context, a Actor, courseID uuid.UUID, f Filter, p httpx.PageParams) (ThreadPage, error) {
-	arg := store.ThreadListParams{CourseID: courseID, IsStaff: a.Staff(), PageLimit: int32(p.Fetch())} //nolint:gosec // ≤ 101
+	arg := store.ThreadListParams{CourseID: courseID, IsStaff: a.Staff(), ViewerID: a.UserID, PageLimit: int32(p.Fetch())} //nolint:gosec // ≤ 101
 	if f.Week != nil {
 		w := int32(*f.Week) //nolint:gosec // 1–20 đã kiểm
 		arg.WeekNo = &w
@@ -144,29 +168,47 @@ func (s *Service) List(ctx context.Context, a Actor, courseID uuid.UUID, f Filte
 	if f.State != "" {
 		arg.State = &f.State
 	}
+	q := store.New(s.Pool)
+	out := ThreadPage{Pinned: []ThreadRow{}}
+	if p.Cursor == nil { // ghim chỉ ở trang đầu, cùng bộ lọc
+		pin := arg
+		pin.OnlyPinned, pin.PageLimit = true, int32(s.Limits.pinMax()) //nolint:gosec // ≤ 10
+		rows, err := q.ThreadList(ctx, pin)
+		if err != nil {
+			return ThreadPage{}, fmt.Errorf("thread: ghim: %w", err)
+		}
+		for _, r := range rows {
+			out.Pinned = append(out.Pinned, listRow(r, a))
+		}
+	}
 	if p.Cursor != nil {
 		arg.CursorAt, arg.CursorID = &p.Cursor.CreatedAt, &p.Cursor.ID
 	}
-	rows, err := store.New(s.Pool).ThreadList(ctx, arg)
+	rows, err := q.ThreadList(ctx, arg)
 	if err != nil {
 		return ThreadPage{}, fmt.Errorf("thread: danh sách: %w", err)
 	}
-	out := ThreadPage{Items: make([]ThreadRow, 0, len(rows))}
+	out.Items = make([]ThreadRow, 0, len(rows))
 	if len(rows) > p.Limit {
 		rows = rows[:p.Limit]
 		c := httpx.EncodeCursor(rows[len(rows)-1].LastActivityAt, rows[len(rows)-1].ID.String())
 		out.NextCursor = &c
 	}
 	for _, r := range rows {
-		row := ThreadRow{ID: r.ID, Title: r.Title, Preview: r.Preview, Tags: r.Tags, WeekNo: r.WeekNo, Author: Author{FullName: r.AuthorName, Role: string(r.AuthorRole), IsMe: r.AuthorID == a.UserID},
-			AnswerState: nilIfEmpty(r.AiVerification), ReplyCount: r.ReplyCount, LastActivityAt: r.LastActivityAt, CreatedAt: r.CreatedAt}
-		if a.Staff() {
-			st := string(r.AiState)
-			row.AIState = &st
-		}
-		out.Items = append(out.Items, row)
+		out.Items = append(out.Items, listRow(r, a))
 	}
 	return out, nil
+}
+
+func listRow(r store.ThreadListRow, a Actor) ThreadRow {
+	row := ThreadRow{ID: r.ID, Title: r.Title, Preview: r.Preview, Tags: r.Tags, WeekNo: r.WeekNo, Author: Author{FullName: r.AuthorName, Role: string(r.AuthorRole), IsMe: r.AuthorID == a.UserID},
+		AnswerState: nilIfEmpty(r.AiVerification), ReplyCount: r.ReplyCount, LastActivityAt: r.LastActivityAt, CreatedAt: r.CreatedAt,
+		Hidden: hiddenOf(r.HiddenAt, r.HiddenReason, r.HiddenAuto), Pinned: r.PinnedAt != nil, Edited: r.EditedAt != nil}
+	if a.Staff() {
+		st := string(r.AiState)
+		row.AIState = &st
+	}
+	return row
 }
 
 // PostOut là một bài. Khoá `confidence`, `ai_body`, `rejected` chỉ có ở phản hồi cho Staff (projection sinh viên không có).
@@ -182,6 +224,8 @@ type PostOut struct {
 	Confidence   *string         `json:"confidence,omitempty"`
 	AIBody       *string         `json:"ai_body,omitempty"`
 	Rejected     *bool           `json:"rejected,omitempty"`
+	Hidden       *Hidden         `json:"hidden"`
+	Edited       bool            `json:"edited"`
 }
 
 // ThreadDetail là thread + bài.
@@ -198,6 +242,10 @@ type ThreadDetail struct {
 	AIState        *string    `json:"ai_state,omitempty"`
 	AISkipReason   *string    `json:"ai_skip_reason,omitempty"`
 	SimilarOf      *uuid.UUID `json:"similar_of"`
+	Version        int32      `json:"version"`
+	Hidden         *Hidden    `json:"hidden"`
+	Pinned         bool       `json:"pinned"`
+	Edited         bool       `json:"edited"`
 }
 
 // ThreadView là phản hồi của GET thread.
@@ -210,7 +258,7 @@ type ThreadView struct {
 func notFound() *apierr.Error { return apierr.New(http.StatusNotFound, apierr.NotFound) }
 
 func postOut(p store.ThreadPostsRow, a Actor) PostOut {
-	o := PostOut{ID: p.ID, Kind: string(p.Kind), Body: p.Body, Citations: p.Citations, Version: p.Version, CreatedAt: p.CreatedAt}
+	o := PostOut{ID: p.ID, Kind: string(p.Kind), Body: p.Body, Citations: p.Citations, Version: p.Version, CreatedAt: p.CreatedAt, Hidden: hiddenOf(p.HiddenAt, p.HiddenReason, p.HiddenAuto), Edited: p.EditedAt != nil}
 	if p.Kind == store.PostKindHUMAN {
 		o.Author = &Author{FullName: deref(p.AuthorName), Role: roleStr(p.AuthorRole), IsMe: p.AuthorID != nil && *p.AuthorID == a.UserID}
 	} else {
@@ -239,14 +287,14 @@ func deref(s *string) string {
 // Get: thread + bài theo projection vai. Thread của lớp khác / đã xoá → 404.
 func (s *Service) Get(ctx context.Context, a Actor, courseID, id uuid.UUID, p httpx.PageParams) (ThreadView, error) {
 	q := store.New(s.Pool)
-	t, err := q.ThreadDetail(ctx, store.ThreadDetailParams{CourseID: courseID, ID: id})
+	t, err := q.ThreadDetail(ctx, store.ThreadDetailParams{CourseID: courseID, ID: id, IsStaff: a.Staff(), ViewerID: a.UserID})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return ThreadView{}, notFound()
 	}
 	if err != nil {
 		return ThreadView{}, fmt.Errorf("thread: nạp thread: %w", err)
 	}
-	arg := store.ThreadPostsParams{CourseID: courseID, ThreadID: id, IsStaff: a.Staff(), PageLimit: int32(p.Fetch())} //nolint:gosec // ≤ 101
+	arg := store.ThreadPostsParams{CourseID: courseID, ThreadID: id, IsStaff: a.Staff(), ViewerID: a.UserID, PageLimit: int32(p.Fetch())} //nolint:gosec // ≤ 101
 	if p.Cursor != nil {
 		arg.CursorAt, arg.CursorID = &p.Cursor.CreatedAt, &p.Cursor.ID
 	}
@@ -264,7 +312,8 @@ func (s *Service) Get(ctx context.Context, a Actor, courseID, id uuid.UUID, p ht
 		v.Posts = append(v.Posts, postOut(r, a))
 	}
 	v.Thread = ThreadDetail{ID: t.ID, Title: t.Title, Body: t.Body, Tags: t.Tags, WeekNo: t.WeekNo, Author: Author{FullName: t.AuthorName, Role: string(t.AuthorRole), IsMe: t.AuthorID == a.UserID},
-		ReplyCount: t.ReplyCount, CreatedAt: t.CreatedAt, LastActivityAt: t.LastActivityAt, SimilarOf: t.SimilarOf}
+		ReplyCount: t.ReplyCount, CreatedAt: t.CreatedAt, LastActivityAt: t.LastActivityAt, SimilarOf: t.SimilarOf,
+		Version: t.Version, Hidden: hiddenOf(t.HiddenAt, t.HiddenReason, t.HiddenAuto), Pinned: t.PinnedAt != nil, Edited: t.EditedAt != nil}
 	if a.Staff() {
 		st := string(t.AiState)
 		v.Thread.AIState, v.Thread.AISkipReason = &st, t.AiSkipReason
@@ -281,8 +330,13 @@ type SimilarRow struct {
 
 // Similar: ≤ 3 thread cùng lớp có cosine ≥ SimilarMin; không gồm chính nó / thread có bài AI bị loại hay ẩn.
 func (s *Service) Similar(ctx context.Context, courseID, id uuid.UUID) ([]SimilarRow, error) {
+	return s.SimilarFor(ctx, Actor{}, courseID, id)
+}
+
+// SimilarFor là Similar theo người đọc: thread ẩn chỉ Staff / chủ bài mở được (người khác 404).
+func (s *Service) SimilarFor(ctx context.Context, a Actor, courseID, id uuid.UUID) ([]SimilarRow, error) {
 	q := store.New(s.Pool)
-	if _, err := q.ThreadDetail(ctx, store.ThreadDetailParams{CourseID: courseID, ID: id}); errors.Is(err, pgx.ErrNoRows) {
+	if _, err := q.ThreadDetail(ctx, store.ThreadDetailParams{CourseID: courseID, ID: id, IsStaff: a.Staff(), ViewerID: a.UserID}); errors.Is(err, pgx.ErrNoRows) {
 		return nil, notFound()
 	} else if err != nil {
 		return nil, fmt.Errorf("thread: nạp thread: %w", err)
@@ -354,6 +408,10 @@ func (s *Service) rate(ctx context.Context, name string, uid uuid.UUID, limit in
 // gate là phần chung của mọi đường ghi bài công khai: chạy `CheckPost`; không sạch thì (có redact và !Personal) lưu bản đã ẩn SAU KHI kiểm lại bản đó sạch,
 // còn lại 422 PII_DETECTED kèm ghi BLOCKED. Trả tiêu đề / nội dung được phép lưu, hành động đã ghi, và vectơ (chỉ khi văn bản không đổi).
 func (s *Service) gate(ctx context.Context, a Actor, courseID uuid.UUID, title, body string, redact bool) (string, string, []float32, error) {
+	// Khủng hoảng chạy TRƯỚC tường lửa PII (SRS 4.9.4): không lưu gì, không pii_events, không AI; chỉ đường tới chat riêng. `precheck` không bao giờ trả mã này.
+	if agent.DetectIntent(title+"\n"+body) == agent.IntentCrisis {
+		return "", "", nil, apierr.New(http.StatusUnprocessableEntity, apierr.CrisisSupport).WithMessage(agent.CrisisText(s.Support)).WithDetails(map[string]any{"actions": []string{"OPEN_PRIVATE_CHAT"}})
+	}
 	v, err := s.FW.CheckPost(ctx, courseID, title, body)
 	if err != nil {
 		return "", "", nil, unavailableErr()
@@ -424,27 +482,9 @@ func (s *Service) Create(ctx context.Context, a Actor, courseID uuid.UUID, in Cr
 	} else if st == store.CourseStatusARCHIVED {
 		return ThreadView{}, apierr.New(http.StatusConflict, apierr.CourseArchived)
 	}
-	title, body := strings.TrimSpace(in.Title), strings.TrimSpace(in.Body)
-	if n := utf8.RuneCountInString(title); n < 1 || n > 200 {
-		return ThreadView{}, validField("title", "Tiêu đề từ 1 đến 200 ký tự.")
-	}
-	if n := utf8.RuneCountInString(body); n < 1 || n > 8000 {
-		return ThreadView{}, validField("body", "Nội dung từ 1 đến 8.000 ký tự.")
-	}
-	if in.WeekNo != nil && (*in.WeekNo < 1 || *in.WeekNo > 20) {
-		return ThreadView{}, validField("week_no", "Tuần từ 1 đến 20.")
-	}
-	tags := in.Tags
-	if tags == nil {
-		tags = []string{}
-	}
-	if len(tags) > 5 {
-		return ThreadView{}, validField("tags", "Tối đa 5 thẻ.")
-	}
-	for _, t := range tags {
-		if n := utf8.RuneCountInString(t); n < 1 || n > 30 {
-			return ThreadView{}, validField("tags", "Mỗi thẻ từ 1 đến 30 ký tự.")
-		}
+	title, body, tags, err := checkThreadInput(in.Title, in.Body, in.Tags, in.WeekNo)
+	if err != nil {
+		return ThreadView{}, err
 	}
 	title, body, vec, err := s.gate(ctx, a, courseID, title, body, in.Redact)
 	if err != nil {
@@ -515,7 +555,7 @@ type CommentIn struct {
 // Comment đăng bình luận (HUMAN) qua CÙNG tường lửa; AI không trả lời bình luận. Báo người đăng thread (không báo chính mình).
 func (s *Service) Comment(ctx context.Context, a Actor, courseID, threadID uuid.UUID, in CommentIn) (PostOut, error) {
 	q := store.New(s.Pool)
-	if _, err := q.ThreadDetail(ctx, store.ThreadDetailParams{CourseID: courseID, ID: threadID}); errors.Is(err, pgx.ErrNoRows) {
+	if _, err := q.ThreadDetail(ctx, store.ThreadDetailParams{CourseID: courseID, ID: threadID, IsStaff: a.Staff(), ViewerID: a.UserID}); errors.Is(err, pgx.ErrNoRows) {
 		return PostOut{}, notFound()
 	} else if err != nil {
 		return PostOut{}, fmt.Errorf("thread: nạp thread: %w", err)
@@ -539,6 +579,7 @@ func (s *Service) Comment(ctx context.Context, a Actor, courseID, threadID uuid.
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	tq := store.New(tx)
+	var pending []notify.Row // thông báo ghi trong giao dịch, Announce sau commit
 	row, err := tq.InsertForumPost(ctx, store.InsertForumPostParams{CourseID: courseID, ThreadID: threadID, AuthorID: &a.UserID, Kind: store.PostKindHUMAN, Body: body, VerificationState: store.PostVerificationNONE, Citations: json.RawMessage("[]")})
 	if err != nil {
 		return PostOut{}, fmt.Errorf("thread: lưu bình luận: %w", err)
@@ -547,22 +588,31 @@ func (s *Service) Comment(ctx context.Context, a Actor, courseID, threadID uuid.
 		return PostOut{}, fmt.Errorf("thread: cập nhật thread: %w", err)
 	}
 	if owner, err := tq.ThreadGetAuthor(ctx, threadID); err == nil && owner.AuthorID != a.UserID {
-		s.notify(ctx, tq, owner.AuthorID, courseID, threadID, "THREAD_REPLY", "Có bình luận mới trong câu hỏi của bạn", "reply:"+row.ID.String())
+		if nr, ok := s.notify(ctx, tq, owner.AuthorID, courseID, threadID, "THREAD_REPLY", "Có bình luận mới trong câu hỏi của bạn", "reply:"+row.ID.String()); ok {
+			pending = append(pending, nr)
+		}
+		if err := enqueueMail(ctx, tx, owner.AuthorID, threadID, &row.ID, "REPLY"); err != nil {
+			return PostOut{}, err
+		}
 	}
 	if err := tx.Commit(ctx); err != nil {
 		return PostOut{}, fmt.Errorf("thread: commit: %w", err)
 	}
+	s.Notify.Announce(ctx, pending...)
 	name := ""
 	_ = s.Pool.QueryRow(ctx, `select full_name from users where id=$1`, a.UserID).Scan(&name)
 	return PostOut{ID: row.ID, Kind: "HUMAN", Author: &Author{FullName: name, Role: string(a.Role), IsMe: true}, Body: body, Citations: json.RawMessage("[]"), Version: row.Version, CreatedAt: row.CreatedAt}, nil
 }
 
-// notify tạo chuông cho `to` (idempotent theo dedupe_key). Lỗi chỉ log: không làm hỏng việc chính.
-func (s *Service) notify(ctx context.Context, q *store.Queries, to, courseID, threadID uuid.UUID, typ, title, dedupe string) {
+// notify ghi chuông cho `to` trong giao dịch của người gọi qua một cửa `notify` (idempotent theo dedupe_key); người gọi Announce sau commit.
+// Lỗi chỉ log: không làm hỏng việc chính.
+func (s *Service) notify(ctx context.Context, q *store.Queries, to, courseID, threadID uuid.UUID, typ, title, dedupe string) (notify.Row, bool) {
 	link := "/threads/" + threadID.String()
-	if _, err := q.InsertNotification(ctx, store.InsertNotificationParams{UserID: to, CourseID: &courseID, Type: typ, Title: title, Link: &link, DedupeKey: &dedupe}); err != nil && s.Log != nil {
+	row, created, err := notify.SendTx(ctx, q, notify.Spec{UserID: to, CourseID: &courseID, Type: typ, Title: title, Link: &link, DedupeKey: dedupe})
+	if err != nil && s.Log != nil {
 		s.Log.WarnContext(ctx, "thread: tạo thông báo lỗi", "error", err)
 	}
+	return row, created && err == nil
 }
 
 // ---- quyết định của Staff ----------------------------------------------------------------------------------------------------------
@@ -586,6 +636,7 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 	}
 	defer func() { _ = tx.Rollback(ctx) }()
 	q := store.New(tx)
+	var pending []notify.Row // thông báo ghi trong giao dịch, Announce sau commit
 	p, err := q.PostGet(ctx, store.PostGetParams{CourseID: courseID, ID: postID})
 	if errors.Is(err, pgx.ErrNoRows) {
 		return PostOut{}, notFound()
@@ -639,6 +690,9 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 	if _, err := q.InsertAuditLog(ctx, store.InsertAuditLogParams{CourseID: &courseID, ActorID: &a.UserID, Entity: "forum_post", EntityID: postID.String(), Action: "thread.post." + string(d), Before: before, After: after, TraceID: nonEmptyPtr(a.TraceID)}); err != nil {
 		return PostOut{}, fmt.Errorf("thread: audit: %w", err)
 	}
+	if err := s.syncKnowledge(ctx, tx, courseID, p.ThreadID, &a.UserID); err != nil { // VERIFY / CORRECT → nạp (embedding NULL), REJECT → gỡ: cùng giao dịch với quyết định
+		return PostOut{}, err
+	}
 	if _, err := outbox.Write(ctx, tx, TopicPostDecided, map[string]any{"post_id": postID, "thread_id": p.ThreadID, "course_id": courseID, "decision": d}); err != nil {
 		return PostOut{}, fmt.Errorf("thread: outbox: %w", err)
 	}
@@ -647,13 +701,22 @@ func (s *Service) Decide(ctx context.Context, a Actor, courseID, postID uuid.UUI
 		if target == store.PostVerificationCORRECTED {
 			title = "Giảng viên đã sửa câu trả lời cho câu hỏi của bạn"
 		}
-		s.notify(ctx, q, p.ThreadAuthorID, courseID, p.ThreadID, "THREAD_VERIFIED", title, fmt.Sprintf("decided:%s:%s:%d", postID, target, row.Version))
+		if nr, ok := s.notify(ctx, q, p.ThreadAuthorID, courseID, p.ThreadID, "THREAD_VERIFIED", title, fmt.Sprintf("decided:%s:%s:%d", postID, target, row.Version)); ok {
+			pending = append(pending, nr)
+		}
+		if err := enqueueMail(ctx, tx, p.ThreadAuthorID, p.ThreadID, &postID, string(target)); err != nil {
+			return PostOut{}, err
+		}
 	}
 	out, err := s.postView(ctx, q, courseID, postID, a)
 	if err != nil {
 		return PostOut{}, err
 	}
-	return out, tx.Commit(ctx)
+	if err := tx.Commit(ctx); err != nil {
+		return PostOut{}, err
+	}
+	s.Notify.Announce(ctx, pending...)
+	return out, nil
 }
 
 func nonEmptyPtr(s string) *string {

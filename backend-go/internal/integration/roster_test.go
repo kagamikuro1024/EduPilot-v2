@@ -137,7 +137,7 @@ func TestRosterLinkRequiresVerifiedEmail(t *testing.T) {
 	m := r.do(req{method: http.MethodGet, path: "/courses/" + id + "/members?status=PENDING", bearer: x.G.access}).json()["items"].([]any)
 	require.Len(t, m, 1)
 	require.Equal(t, "EMAIL_MISMATCH", m[0].(map[string]any)["warning"])
-	waitFor(t, 10*time.Second, "JOIN_REQUEST cho giảng viên", func() bool { return len(r.notesOf(x.G, "JOIN_REQUEST")) == 1 })
+	waitFor(t, 60*time.Second, "JOIN_REQUEST cho giảng viên", func() bool { return len(r.notesOf(x.G, "JOIN_REQUEST")) == 1 })
 }
 
 // AC5 — đăng ký bằng email của người trong roster không tạo gì, không khác biệt, thư tới chủ hộp thư.

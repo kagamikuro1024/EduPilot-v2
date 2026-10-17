@@ -123,8 +123,10 @@ type Settings struct {
 	NotifyTicketByMail   bool
 	NotifyAnswerByMail   bool
 	RemindDeadlineByMail bool
-	Reminders            Reminders
-	Version              int
+	// TrackStudyTime: công tắc đo thời gian học, một cờ toàn tài khoản (US-P5-03 Q25); chỉ STUDENT có tác dụng.
+	TrackStudyTime bool
+	Reminders      Reminders
+	Version        int
 }
 
 // Reminders: bật / tắt nhắc 24 giờ theo loại (US-P8-03). Mặc định bài thi + sự kiện khác bật, buổi học tắt.
@@ -161,7 +163,7 @@ func (r RemindersPatch) json() ([]byte, error) {
 }
 
 func settingsOf(r store.UserSetting) Settings {
-	return Settings{NotifyTicketByMail: r.NotifyTicketByMail, NotifyAnswerByMail: r.NotifyAnswerByMail, RemindDeadlineByMail: r.RemindDeadlineByMail, Reminders: remindersOf(r.Preferences), Version: int(r.Version)}
+	return Settings{NotifyTicketByMail: r.NotifyTicketByMail, NotifyAnswerByMail: r.NotifyAnswerByMail, RemindDeadlineByMail: r.RemindDeadlineByMail, TrackStudyTime: r.TrackStudyTime, Reminders: remindersOf(r.Preferences), Version: int(r.Version)}
 }
 
 // GetSettings đọc tuỳ chọn; tạo lười dòng mặc định ở lần đọc đầu (INSERT … ON CONFLICT DO NOTHING).
@@ -179,6 +181,7 @@ type SettingsInput struct {
 	NotifyTicketByMail   *bool
 	NotifyAnswerByMail   *bool
 	RemindDeadlineByMail *bool
+	TrackStudyTime       *bool
 	Reminders            RemindersPatch
 }
 
@@ -198,7 +201,7 @@ func (s *Service) PutSettings(ctx context.Context, id uuid.UUID, in SettingsInpu
 		return Settings{}, fmt.Errorf("user: nhắc: %w", err)
 	}
 	r, err := q.UpdateUserSettings(ctx, store.UpdateUserSettingsParams{
-		UserID: id, Version: int32(in.Version), NotifyTicketByMail: in.NotifyTicketByMail, NotifyAnswerByMail: in.NotifyAnswerByMail, RemindDeadlineByMail: in.RemindDeadlineByMail, Reminders: rem,
+		UserID: id, Version: int32(in.Version), NotifyTicketByMail: in.NotifyTicketByMail, NotifyAnswerByMail: in.NotifyAnswerByMail, RemindDeadlineByMail: in.RemindDeadlineByMail, TrackStudyTime: in.TrackStudyTime, Reminders: rem,
 	})
 	if errors.Is(err, pgx.ErrNoRows) {
 		cur, gerr := q.EnsureUserSettings(ctx, id)

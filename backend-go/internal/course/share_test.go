@@ -186,3 +186,20 @@ func TestShareSourcesTeacherOnly(t *testing.T) {
 		require.NotContains(t, string(res.body), c.src, name)
 	}
 }
+
+// TestKnowledgeNotShared — AC11: tài liệu ảo của kho tri thức không được chia sẻ sang lớp khác (tri thức theo lớp), không tính trong số chia sẻ được.
+func TestKnowledgeNotShared(t *testing.T) {
+	r := newRig(t)
+	c := r.twoClasses()
+	real := r.document(c.src, "LECTURE", "READY", true, "ALL", 1)
+	kd := r.scalar(`insert into documents (course_id, title, type, status, visible_to_students, use_for_rag, category) values ($1, 'Hỏi đáp đã được giảng viên xác nhận', 'OTHER', 'READY', true, true, 'THREAD_KNOWLEDGE') returning id::text`, c.src)
+	_, err := r.pool.Exec(t.Context(), `insert into content_chunks (document_id, course_ids, ord, text, embedding) values ($1, array[$2::uuid], 0, 'Câu hỏi: Q', array_fill(0.25::real, array[1536])::vector)`, kd, c.src)
+	require.NoError(t, err)
+
+	res := r.share(c.k.a.G, c.k.id, c.src, "documents")
+	require.Equal(t, http.StatusOK, res.code, string(res.body))
+	require.Equal(t, float64(1), res.json()["shared"].(map[string]any)["documents"], "chỉ tài liệu thật")
+	require.Equal(t, 1, r.count(`select count(*) from document_courses where document_id = $1 and course_id = $2`, real, c.k.id))
+	require.Equal(t, 0, r.count(`select count(*) from document_courses where document_id = $1`, kd))
+	require.Equal(t, 0, r.count(`select count(*) from content_chunks where document_id = $1 and $2::uuid = any(course_ids)`, kd, c.k.id), "đoạn tri thức không thêm lớp đích")
+}

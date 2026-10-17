@@ -20,7 +20,7 @@ export const TYPE_LABEL: Record<CalType, string> = { CLASS_SESSION: "Buổi họ
 // Giờ Việt Nam: múi giờ cố định UTC+7 (không DST). "Nhãn ngày" = nửa đêm UTC của ngày dương lịch ở Việt Nam, để làm số học ngày bằng getUTC*.
 export const VN = 7 * 3_600_000;
 export const DAY = 86_400_000;
-const WD = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
+export const WD = ["Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"];
 export const WD_SHORT = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
 
 export const dayLabel = (t: number | string | Date): number => {

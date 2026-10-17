@@ -47,7 +47,11 @@ fused AS (
     FROM (SELECT vec.id, vec.r FROM vec UNION ALL SELECT kw.id, kw.r FROM kw) x
     GROUP BY x.id ORDER BY s DESC LIMIT $7
 )
-SELECT c.id AS chunk_id, c.document_id, d.title, c.page_no, c.heading, c.text,
+SELECT c.id AS chunk_id, c.document_id, d.title, (d.category IS NOT DISTINCT FROM 'THREAD_KNOWLEDGE')::bool AS knowledge,
+       -- đoạn tri thức nguồn POST: thread chứa bài AI đã xác nhận (liên kết /threads/{id}); bài ẩn / xoá thì tri thức đã bị gỡ, nên chỉ lọc cho chắc
+       coalesce((SELECT p.thread_id FROM knowledge_items k JOIN forum_posts p ON p.id = k.source_id
+         WHERE k.chunk_id = c.id AND k.source_type = 'POST' AND p.hidden_at IS NULL AND p.deleted_at IS NULL LIMIT 1), '00000000-0000-0000-0000-000000000000'::uuid)::uuid AS thread_id, -- uuid nil = không phải đoạn POST
+       c.page_no, c.heading, c.text,
        (1 - (c.embedding <=> (SELECT v FROM q)))::float8 AS cosine, f.s::float8 AS score
 FROM fused f JOIN content_chunks c ON c.id = f.id JOIN documents d ON d.id = c.document_id
 WHERE c.course_ids @> ARRAY[$1::uuid]
@@ -68,6 +72,8 @@ type RagSearchRow struct {
 	ChunkID    uuid.UUID
 	DocumentID uuid.UUID
 	Title      string
+	Knowledge  bool
+	ThreadID   uuid.UUID
 	PageNo     *int32
 	Heading    *string
 	Text       string
@@ -99,6 +105,8 @@ func (q *Queries) RagSearch(ctx context.Context, arg RagSearchParams) ([]RagSear
 			&i.ChunkID,
 			&i.DocumentID,
 			&i.Title,
+			&i.Knowledge,
+			&i.ThreadID,
 			&i.PageNo,
 			&i.Heading,
 			&i.Text,

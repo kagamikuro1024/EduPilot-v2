@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { InboxView } from "@/features/inbox/InboxView";
+import { InboxScreen } from "@/features/inbox/InboxScreen";
 
 export const metadata: Metadata = { title: "Hộp thư hỗ trợ" };
 
 export default function Page() {
-  return <InboxView />;
+  return <InboxScreen />;
 }

@@ -23,10 +23,16 @@ async function chatCounts(c1) {
   return { sessions, messages, outside: outside.size };
 }
 
+/** Mọi thread một người thấy: thread ghim nằm ở mảng `pinned` riêng của trang đầu (không có trong `items`), nên phải gộp (#41). */
+async function listThreads(course, token) {
+  const first = (await call("GET", `/courses/${course}/threads?limit=100`, { token })).body;
+  return [...(first.pinned ?? []), ...(await listAll(`/courses/${course}/threads`, token))];
+}
+
 /** Bảng đếm bài AI của lớp: thread (Staff thấy hết) → trạng thái bài AI hoặc SKIPPED. */
 async function threadTable(course) {
   const t = await tok("teacher");
-  const rows = await listAll(`/courses/${course}/threads`, t);
+  const rows = await listThreads(course, t);
   const by = {};
   for (const r of rows) {
     const v = (await call("GET", `/courses/${course}/threads/${r.id}`, { token: t })).body;
@@ -46,13 +52,17 @@ must(a.chat.outside === 10, `câu ngoài tài liệu (khác nhau) = ${a.chat.out
 must(a.chat.sessions >= 33, `phiên chat = ${a.chat.sessions} (cần ≥ 33: sv.gioi 4 phiên + 29 người)`);
 must(a.t1.total === 12, `thread lớp 1 = ${a.t1.total} (cần 12)`);
 must(a.t2.total === 3, `thread lớp 2 = ${a.t2.total} (cần 3)`);
+// #41: bước 17 của seed (US-P4-06) cố ý tự ẩn MỘT thread (3 báo cáo) và ghim một thread — Staff vẫn thấy thread ẩn (kèm lý do), sinh viên thì không.
+const staffRows = await listThreads(c1, await tok("teacher"));
+const hiddenRows = staffRows.filter((r) => r.hidden);
+must(hiddenRows.length === 1 && hiddenRows[0].hidden.auto === true && !!hiddenRows[0].hidden.reason, `thread lớp 1 bị ẩn = ${hiddenRows.length} (cần đúng 1, tự ẩn, có lý do): ${JSON.stringify(hiddenRows.map((r) => r.hidden))}`);
 const want = { PENDING: 4, VERIFIED: 3, CORRECTED: 2, REJECTED: 1, SKIPPED: 2 };
 for (const [k, n] of Object.entries(want)) must((a.t1.by[k] ?? 0) === n, `thread lớp 1 trạng thái ${k} = ${a.t1.by[k] ?? 0} (cần ${n})`);
 
 // sinh viên không thấy bài AI REJECTED (thread vẫn hiện), không thấy khoá cấm
 const sv = await tok("sv.gioi");
-const seen = await listAll(`/courses/${c1}/threads`, sv);
-must(seen.length === 12, `sv.gioi thấy ${seen.length} thread (cần 12: thread có bài AI REJECTED vẫn hiện)`);
+const seen = await listThreads(c1, sv);
+must(seen.length === 11, `sv.gioi thấy ${seen.length} thread (cần 11: 12 trừ thread tự ẩn; thread có bài AI REJECTED vẫn hiện)`);
 const banned = /"(confidence|retrieval_score|groundedness|ai_body|hidden_reason)"/;
 for (const r of seen) {
   const raw = JSON.stringify((await call("GET", `/courses/${c1}/threads/${r.id}`, { token: sv })).body);

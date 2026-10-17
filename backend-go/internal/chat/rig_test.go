@@ -36,6 +36,11 @@ type fakeAgent struct {
 	fn        func(ctx context.Context, tc agent.TrustedContext, in agent.Input) (agent.Outcome, error)
 	calls     atomic.Int32
 	provAbort atomic.Bool
+	// aborted đóng đúng một lần khi ctx của luồng giả bị huỷ: test chờ SỰ KIỆN này thay vì đoán thời gian (#19).
+	aborted chan struct{}
+	abortMu sync.Once
+	// hold: sau mảnh cuối luồng giả KHÔNG tự xong mà chờ tới khi ctx huỷ (test huỷ giữa chừng không phụ thuộc đồng hồ).
+	hold bool
 }
 
 func (f *fakeAgent) Respond(ctx context.Context, tc agent.TrustedContext, in agent.Input) (agent.Outcome, error) {
@@ -48,7 +53,10 @@ func (f *fakeAgent) stream(ctx context.Context, gate <-chan struct{}, gap time.D
 	ch := make(chan llm.Chunk)
 	go func() {
 		defer close(ch)
-		abort := func() { f.provAbort.Store(true) }
+		abort := func() {
+			f.provAbort.Store(true)
+			f.abortMu.Do(func() { close(f.aborted) })
+		}
 		if gate != nil {
 			select {
 			case <-gate:
@@ -70,6 +78,11 @@ func (f *fakeAgent) stream(ctx context.Context, gate <-chan struct{}, gap time.D
 				abort()
 				return
 			}
+		}
+		if f.hold {
+			<-ctx.Done()
+			abort()
+			return
 		}
 		select {
 		case ch <- llm.Chunk{Done: true, Response: &resp}:
@@ -137,7 +150,7 @@ func newRig(t *testing.T, tweak ...func(*chat.Config)) *rig {
 	rdb, err := appredis.New(ctx, testutil.RedisURL(t))
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = rdb.Close() })
-	r := &rig{t: t, pool: pool, rdb: rdb, ag: &fakeAgent{}, lock: &fakeLock{}, logs: &bytes.Buffer{}}
+	r := &rig{t: t, pool: pool, rdb: rdb, ag: &fakeAgent{aborted: make(chan struct{})}, lock: &fakeLock{}, logs: &bytes.Buffer{}}
 	teacher := r.user("GV", "TEACHER")
 	r.course = r.newCourse(teacher, "ACTIVE")
 	r.student = chat.Actor{UserID: r.user("SV A", "STUDENT"), Role: auth.RoleStudent, TraceID: "trace-a"}

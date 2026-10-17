@@ -127,7 +127,7 @@ func TestSSE_MaxDuration(t *testing.T) {
 	s := r.connect(r.token(uid, time.Hour), nil)
 
 	start := time.Now()
-	f := s.wantType(2*time.Second, evReconnect)
+	f := s.wantType(30*time.Second, evReconnect)
 	if got := f.reason(t); got != reasonMaxDuration {
 		t.Fatalf("reason = %q, muốn %q", got, reasonMaxDuration)
 	}
@@ -137,7 +137,7 @@ func TestSSE_MaxDuration(t *testing.T) {
 	if took := time.Since(start); took < 400*time.Millisecond {
 		t.Fatalf("đóng sau %s, muốn ≈ SSE_MAX_DURATION", took)
 	}
-	s.eof(2 * time.Second)
+	s.eof(30 * time.Second)
 	waitSlots(t, r, uid, 0)
 }
 
@@ -147,10 +147,10 @@ func TestSSE_TokenExpiryMidStream(t *testing.T) {
 	uid := newUID()
 	s := r.connect(r.token(uid, 700*time.Millisecond), nil)
 
-	f := s.wantType(3*time.Second, evReconnect)
+	f := s.wantType(30*time.Second, evReconnect)
 	if got := f.reason(t); got != reasonTokenExpired {
 		t.Fatalf("reason = %q, muốn %q", got, reasonTokenExpired)
 	}
-	s.eof(2 * time.Second)
+	s.eof(30 * time.Second)
 	waitSlots(t, r, uid, 0)
 }

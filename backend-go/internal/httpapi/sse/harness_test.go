@@ -29,7 +29,7 @@ import (
 const testSecret = "0123456789abcdef0123456789abcdef"
 
 // Hạn chờ mặc định của test: ngắn nhưng đủ rộng cho Redis trong container.
-const grace = 5 * time.Second
+const grace = 30 * time.Second // hạn chờ chống treo, không phải mốc hiệu năng
 
 var testClient = &http.Client{}
 

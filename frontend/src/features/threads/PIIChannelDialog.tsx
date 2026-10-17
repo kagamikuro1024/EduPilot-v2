@@ -13,6 +13,7 @@ export function PIIChannelDialog({
   onPrivateChat,
   onRedactedPost,
   redactDisabled,
+  redactLabel = "Ẩn thông tin rồi đăng",
 }: {
   open: boolean;
   /** "1 địa chỉ email, 1 số điện thoại" */
@@ -23,6 +24,7 @@ export function PIIChannelDialog({
   onRedactedPost: () => void;
   /** lý do khoá lối "Ẩn rồi đăng" (câu hỏi riêng tư không có gì để ẩn) — hiện khi đưa chuột / focus */
   redactDisabled?: string;
+  redactLabel?: string;
 }) {
   return (
     <Dialog
@@ -40,8 +42,35 @@ export function PIIChannelDialog({
             </Button>
           )}
           <Button variant="primary" onClick={onRedactedPost} disabled={Boolean(redactDisabled)} title={redactDisabled}>
-            Ẩn thông tin rồi đăng
+            {redactLabel}
           </Button>
+        </>
+      }
+    />
+  );
+}
+
+/**
+ * Hộp hỗ trợ khi bài có tín hiệu khó khăn (SRS escalation-notify 4.9.4): không lưu bài, không báo ai. Lối chính `Mở chat riêng` mang nháp theo
+ * (chỉ vai Sinh viên có chat riêng), lối phụ `Quay lại sửa` giữ nguyên chữ trong ô soạn.
+ */
+export function CrisisSupportDialog({ open, message, onClose, onPrivateChat }: { open: boolean; message: string; onClose: () => void; onPrivateChat?: () => void }) {
+  return (
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title="Bạn không phải đi qua chuyện này một mình"
+      description={message}
+      footer={
+        <>
+          <Button variant={onPrivateChat ? "ghost" : "primary"} onClick={onClose}>
+            Quay lại sửa
+          </Button>
+          {onPrivateChat && (
+            <Button variant="primary" onClick={onPrivateChat}>
+              Mở chat riêng
+            </Button>
+          )}
         </>
       }
     />

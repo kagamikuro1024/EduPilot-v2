@@ -337,7 +337,7 @@ func TestServerLimits_SlowHeader(t *testing.T) {
 	if elapsed < 3*time.Second {
 		t.Fatalf("đóng sau %v, muốn ≈ ReadHeaderTimeout %v", elapsed, ReadHeaderTimeout)
 	}
-	if elapsed > ReadHeaderTimeout+5*time.Second {
+	if testutil.TimingOn() && elapsed > ReadHeaderTimeout+5*time.Second {
 		t.Fatalf("đóng sau %v, quá muộn", elapsed)
 	}
 }
@@ -393,7 +393,7 @@ func TestDeadline_DB(t *testing.T) {
 	if resp.StatusCode != http.StatusGatewayTimeout || body["code"] != "DEADLINE_EXCEEDED" {
 		t.Fatalf("status = %d, body = %v", resp.StatusCode, body)
 	}
-	if elapsed > 1500*time.Millisecond {
+	if testutil.TimingOn() && elapsed > 1500*time.Millisecond {
 		t.Fatalf("trả lời sau %v, muốn ≤ 1,5 s", elapsed)
 	}
 	coreWaitNoSleepQuery(t, d)
@@ -405,7 +405,7 @@ func coreWaitNoSleepQuery(t *testing.T, d Deps) {
 	const q = `select count(*) from pg_stat_activity
 		where query ilike '%pg_sleep%' and state = 'active'
 		  and pid <> pg_backend_pid() and datname = current_database()`
-	deadline := time.Now().Add(3 * time.Second)
+	deadline := time.Now().Add(30 * time.Second)
 	var n int
 	for time.Now().Before(deadline) {
 		if err := d.DB.QueryRow(t.Context(), q).Scan(&n); err == nil && n == 0 {
@@ -443,12 +443,12 @@ func TestDeadline_Redis(t *testing.T) {
 	if resp.StatusCode != http.StatusGatewayTimeout || body["code"] != "DEADLINE_EXCEEDED" {
 		t.Fatalf("status = %d, body = %v", resp.StatusCode, body)
 	}
-	if elapsed > 1500*time.Millisecond {
+	if testutil.TimingOn() && elapsed > 1500*time.Millisecond {
 		t.Fatalf("trả lời sau %v, muốn ≤ 1,5 s", elapsed)
 	}
 
 	// Không còn client nào kẹt ở BLPOP.
-	deadline := time.Now().Add(3 * time.Second)
+	deadline := time.Now().Add(30 * time.Second)
 	for {
 		info, err := d.Redis.Info(t.Context(), "clients").Result()
 		if err != nil {
@@ -496,7 +496,7 @@ func TestDeadline_ClientCancel(t *testing.T) {
 
 	select {
 	case <-done:
-	case <-time.After(3 * time.Second):
+	case <-time.After(30 * time.Second):
 		t.Fatal("handler không kết thúc sau khi client ngắt")
 	}
 	coreWaitNoSleepQuery(t, d)

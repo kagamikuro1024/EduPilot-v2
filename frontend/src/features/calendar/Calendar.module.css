@@ -66,3 +66,16 @@
 .formActions { display: flex; gap: var(--ep-space-2); }
 .ics { display: flex; flex-wrap: wrap; gap: var(--ep-space-3); align-items: end; }
 .ics > :first-child { flex: 1 1 320px; }
+
+/* Ngăn kéo "Lịch buổi học" (US-P5-01) */
+.sessions { display: grid; gap: var(--ep-space-5); }
+.sessionForm { display: grid; gap: var(--ep-space-3); }
+.formPair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ep-space-3); }
+.skipRow { display: flex; gap: var(--ep-space-2); }
+.skipRow > :first-child { flex: 1 1 auto; min-width: 0; }
+.skipList { display: flex; flex-wrap: wrap; gap: var(--ep-space-2); margin: 0; padding: 0; list-style: none; }
+.skipList li { display: inline-flex; align-items: center; gap: var(--ep-space-1); font-size: var(--ep-text-label); }
+.preview { display: grid; gap: var(--ep-space-2); }
+.previewSum { margin: 0; font-size: var(--ep-text-label); font-weight: 600; }
+.sessionList { display: grid; gap: var(--ep-space-2); }
+.editRow { list-style: none; padding-block: var(--ep-space-2); }

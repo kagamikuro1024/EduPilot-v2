@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -26,6 +27,15 @@ const (
 type Notifier struct {
 	Pool *pgxpool.Pool
 	Log  *slog.Logger
+	// Notify: một cửa tạo thông báo (ghi hàng loạt + đẩy SSE); nil → chỉ ghi.
+	Notify *notify.Service
+}
+
+func (n *Notifier) svc() *notify.Service {
+	if n.Notify != nil {
+		return n.Notify
+	}
+	return &notify.Service{Pool: n.Pool, Log: n.Log}
 }
 
 type examEvent struct {
@@ -67,7 +77,11 @@ func (n *Notifier) HandleScheduled(ctx context.Context, m outbox.Message) error 
 	}
 	link := fmt.Sprintf("/exams/%s/take", e.ID)
 	title := fmt.Sprintf("Bài thi %s mở lúc %s, làm trong %d phút", e.Title, ViTime(*e.OpensAt), *e.DurationMinutes)
-	if _, err := store.New(n.Pool).ExamNotifyScheduled(ctx, store.ExamNotifyScheduledParams{CourseID: p.CourseID, ExamID: p.ExamID.String(), Title: title, Body: nil, Link: &link}); err != nil {
+	students, err := store.New(n.Pool).ExamActiveStudentIDs(ctx, p.CourseID)
+	if err != nil {
+		return fmt.Errorf("đọc sinh viên của lớp: %w", err)
+	}
+	if _, err := n.svc().SendMany(ctx, students, notify.Spec{CourseID: &p.CourseID, Type: TypeExamScheduled, Title: title, Link: &link, DedupeKey: "exam.scheduled:" + p.ExamID.String()}); err != nil {
 		return fmt.Errorf("ghi thông báo: %w", err)
 	}
 	return nil
@@ -88,12 +102,8 @@ func (n *Notifier) HandleUnscheduled(ctx context.Context, m outbox.Message) erro
 	if len(users) == 0 {
 		return nil
 	}
-	ids := make([]string, len(users))
-	for i, u := range users {
-		ids[i] = u.String()
-	}
 	link := fmt.Sprintf("/exams/%s/take", e.ID)
-	if _, err := q.ExamNotifyUnscheduled(ctx, store.ExamNotifyUnscheduledParams{CourseID: &p.CourseID, Title: fmt.Sprintf("Bài thi %s đã bị hoãn, chờ lịch mới", e.Title), Link: &link, OutboxID: m.ID.String(), UserIds: ids}); err != nil {
+	if _, err := n.svc().SendMany(ctx, users, notify.Spec{CourseID: &p.CourseID, Type: TypeExamUnscheduled, Title: fmt.Sprintf("Bài thi %s đã bị hoãn, chờ lịch mới", e.Title), Link: &link, DedupeKey: "exam.unscheduled:" + m.ID.String()}); err != nil {
 		return fmt.Errorf("ghi thông báo hoãn: %w", err)
 	}
 	return nil

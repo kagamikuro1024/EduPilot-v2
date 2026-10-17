@@ -12,6 +12,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 )
@@ -49,6 +50,7 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(h.Guard(auth.StaffOrAdmin)).Get("/courses/{id}/join-code", h.joinCode)
 	r.With(h.Guard(auth.Manage)).Post("/courses/{id}/join-code/regenerate", h.regenerate)
 	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/join-settings", h.putJoinSettings)
+	r.With(h.Guard(auth.Teacher)).Put("/courses/{id}/settings", h.putSettings) // US-P4-05: ngưỡng chuyển cho giảng viên
 	r.With(h.Guard(auth.StaffOrAdmin)).Get("/courses/{id}/members", h.members)
 	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/approve", h.approve())
 	r.With(h.Guard(auth.StaffOrAdmin)).Post("/courses/{id}/members/{uid}/reject", h.reject())
@@ -58,7 +60,9 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(h.Guard(auth.Teacher)).Get("/courses/{id}/share-sources", h.shareSources)
 	r.With(h.Guard(auth.Teacher), h.Idem).Post("/courses/{id}/share-from", h.shareFrom)
 	r.With(h.Guard(auth.Teacher)).Post("/courses/{id}/setup/dismiss", h.dismissSetup)
-	r.With(h.Guard(auth.Staff), h.Idem).Post("/courses/{id}/sessions/generate", h.generateSessions)
+	r.With(h.Guard(auth.Staff), h.idemUnlessDryRun).Post("/courses/{id}/sessions/generate", h.generateSessions)
+	r.With(h.Guard(auth.Staff)).Put("/courses/{id}/sessions/{sid}", h.updateSession)
+	r.With(h.Guard(auth.Staff)).Delete("/courses/{id}/sessions/{sid}", h.deleteSession)
 	r.With(h.Guard(auth.Member)).Get("/courses/{id}/sessions", h.listSessions)
 	r.With(h.Guard(auth.Manage)).Put("/courses/{id}/assistants", h.putAssistants)
 	r.With(h.Guard(auth.Manage)).Get("/courses/{id}/assistant-candidates", h.candidates)
@@ -107,7 +111,18 @@ func (h *Handler) myCourses(w http.ResponseWriter, r *http.Request) {
 		b := m.Course
 		items[i] = myCourseItem{Course: brief{ID: b.ID, ClassCode: b.ClassCode, SubjectCode: b.SubjectCode, Name: b.Name, Semester: b.Semester, Status: b.Status}, RoleInCourse: m.RoleInCourse, EnrollmentStatus: m.EnrollmentStatus}
 	}
-	httpx.WriteJSONETag(w, r, httpx.Page[myCourseItem]{Items: items, NextCursor: page.NextCursor}, "")
+	acked, optOut := true, false // chưa có lớp nào: chưa có gì để đo, không hộp thoại
+	if len(rows) > 0 {
+		acked, optOut = rows[0].NoticeAcked, rows[0].OptOutAvailable
+	}
+	httpx.WriteJSONETag(w, r, myCoursesOut{Page: httpx.Page[myCourseItem]{Items: items, NextCursor: page.NextCursor}, TrackingNoticeAcked: acked, StudyTimeOptOutAvailable: optOut}, "")
+}
+
+// myCoursesOut: trang lớp của tôi + hai cờ của hộp thoại thời gian học (US-P5-03 AC7) để màn hình khỏi gọi thêm API.
+type myCoursesOut struct {
+	httpx.Page[myCourseItem]
+	TrackingNoticeAcked      bool `json:"tracking_notice_acked"`
+	StudyTimeOptOutAvailable bool `json:"study_time_opt_out_available"`
 }
 
 type teacher struct {
@@ -123,7 +138,16 @@ type detail struct {
 	brief
 	Teachers []teacher `json:"teachers"`
 	MyRole   string    `json:"my_role"`
-	Counts   *counts   `json:"counts,omitempty"`
+	// AllowStudyTimeOptOut: mọi thành viên đọc được (Q25).
+	AllowStudyTimeOptOut bool      `json:"allow_study_time_opt_out"`
+	Counts               *counts   `json:"counts,omitempty"`
+	Settings             *settings `json:"settings,omitempty"`
+}
+
+type settings struct {
+	EscalationThreshold string         `json:"escalation_threshold"`
+	Version             int32          `json:"version"`
+	Risk                crm.RiskValues `json:"risk"`
 }
 
 func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
@@ -145,12 +169,21 @@ func (h *Handler) get(w http.ResponseWriter, r *http.Request) {
 		apierr.Write(w, r, apierr.New(http.StatusInternalServerError, apierr.Internal))
 		return
 	}
-	out := detail{brief: brief{ID: d.ID, ClassCode: d.ClassCode, SubjectCode: d.SubjectCode, Name: d.Name, Semester: d.Semester, Status: d.Status}, MyRole: d.MyRole, Teachers: make([]teacher, len(d.Teachers))}
+	out := detailOf(d)
+	httpx.WriteJSONETag(w, r, out, "")
+}
+
+// detailOf dựng JSON chi tiết lớp (dùng chung `GET /courses/{id}` và `PUT /courses/{id}/settings`).
+func detailOf(d course.Detail) detail {
+	out := detail{brief: brief{ID: d.ID, ClassCode: d.ClassCode, SubjectCode: d.SubjectCode, Name: d.Name, Semester: d.Semester, Status: d.Status}, MyRole: d.MyRole, AllowStudyTimeOptOut: d.AllowStudyTimeOptOut, Teachers: make([]teacher, len(d.Teachers))}
 	for i, n := range d.Teachers {
 		out.Teachers[i] = teacher{FullName: n}
 	}
 	if d.Counts != nil {
 		out.Counts = &counts{StudentsActive: d.Counts.Active, StudentsPending: d.Counts.Pending}
 	}
-	httpx.WriteJSONETag(w, r, out, "")
+	if d.Settings != nil {
+		out.Settings = &settings{EscalationThreshold: d.Settings.EscalationThreshold, Version: d.Settings.Version, Risk: d.Settings.Risk}
+	}
+	return out
 }

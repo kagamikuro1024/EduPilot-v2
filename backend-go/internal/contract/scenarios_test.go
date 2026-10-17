@@ -1201,6 +1201,215 @@ func (r *runner) courseJoinScenarios() {
 	r.must(call{method: "GET", path: ls, token: admin}, 403)
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/sessions", token: gv}, 404)
 	r.must(call{method: "GET", path: ls + "?limit=0", token: gv}, 422)
+	// xem trước (US-P5-01): 200, không đòi Idempotency-Key; sửa / huỷ từng buổi
+	r.must(call{method: "POST", path: gen + "?dry_run=true", token: gv, body: wk}, 200)
+	r.must(call{method: "POST", path: gen + "?dry_run=true", token: svIn, body: wk}, 403)
+	_, lb := r.must(call{method: "GET", path: ls + "?limit=3", token: gv}, 200)
+	var lst struct {
+		Items []struct {
+			ID      string `json:"id"`
+			Version int    `json:"version"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal(lb, &lst); err != nil || len(lst.Items) < 3 {
+		r.t.Fatalf("danh sách buổi: %v %s", err, lb)
+	}
+	put := func(starts, ends string, version int) string {
+		return fmt.Sprintf(`{"starts_at":%q,"ends_at":%q,"room":"P.305","topic":"Học bù","version":%d}`, starts, ends, version)
+	}
+	s1, s2, s3 := ls+"/"+lst.Items[0].ID, ls+"/"+lst.Items[1].ID, ls+"/"+lst.Items[2].ID
+	r.must(call{method: "PUT", path: s1, token: gv, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", lst.Items[0].Version)}, 200)
+	r.must(call{method: "PUT", path: s1, token: ta, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", lst.Items[0].Version)}, 409)   // version đã cũ
+	r.must(call{method: "PUT", path: s1, token: gv, body: put("2026-09-10T09:00:00+07:00", "2026-09-10T12:00:00+07:00", lst.Items[0].Version+1)}, 409) // trùng giờ buổi 2
+	r.must(call{method: "PUT", path: s1, token: gv, body: put("2026-09-03T12:00:00+07:00", "2026-09-03T09:00:00+07:00", lst.Items[0].Version+1)}, 422)
+	r.must(call{method: "PUT", path: s1, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", 1)}, 401)
+	r.must(call{method: "PUT", path: s1, token: admin, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", 1)}, 403)
+	r.must(call{method: "PUT", path: ls + "/" + uuid.NewString(), token: gv, body: put("2026-09-03T09:00:00+07:00", "2026-09-03T12:00:00+07:00", 1)}, 404)
+	var teacherID, studentID string
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'TEACHER'`, c2).Scan(&teacherID); err != nil {
+		r.t.Fatal(err)
+	}
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'STUDENT' and status = 'ACTIVE' limit 1`, c2).Scan(&studentID); err != nil {
+		r.t.Fatal(err)
+	}
+	if _, err := db.Exec(ctx, `insert into attendance_records (course_id, session_id, student_id, status, marked_by) values ($1, $2, $3, 'PRESENT', $4)`, c2, lst.Items[1].ID, studentID, teacherID); err != nil {
+		r.t.Fatal(err)
+	}
+	r.must(call{method: "DELETE", path: s2, token: gv}, 409) // đã có điểm danh
+	r.must(call{method: "DELETE", path: s3, token: gv}, 204)
+	r.must(call{method: "DELETE", path: s3}, 401)
+	r.must(call{method: "DELETE", path: s3, token: svIn}, 403)
+	r.must(call{method: "DELETE", path: s3, token: gv}, 404) // đã xoá
+
+	// điểm danh + sự kiện tham gia (US-P5-02)
+	att := s1 + "/attendance"
+	r.must(call{method: "GET", path: att, token: gv}, 200)
+	r.must(call{method: "GET", path: att, token: ta}, 200)
+	r.must(call{method: "GET", path: att}, 401)
+	r.must(call{method: "GET", path: att, token: svIn}, 403)
+	r.must(call{method: "GET", path: att, token: admin}, 403)
+	r.must(call{method: "GET", path: ls + "/" + uuid.NewString() + "/attendance", token: gv}, 404)
+	save := func(status string, extra string) string {
+		return fmt.Sprintf(`{"records":[{"student_id":%q,"status":%q%s}],"complete":false}`, studentID, status, extra)
+	}
+	r.must(call{method: "PUT", path: att, token: gv, body: save("ABSENT", "")}, 200)
+	r.must(call{method: "PUT", path: att, token: gv, body: save("ABSENT", "")}, 200) // gửi lại cùng nội dung
+	r.must(call{method: "PUT", path: att, token: ta, body: save("LATE", "")}, 409)   // đổi mà thiếu version = xung đột
+	r.must(call{method: "PUT", path: att, token: ta, body: save("LATE", `,"version":1`)}, 200)
+	r.must(call{method: "PUT", path: att, token: gv, body: save("BAY_GIO", "")}, 422)
+	r.must(call{method: "PUT", path: att, body: save("ABSENT", "")}, 401)
+	r.must(call{method: "PUT", path: att, token: svIn, body: save("ABSENT", "")}, 403)
+	r.must(call{method: "PUT", path: ls + "/" + uuid.NewString() + "/attendance", token: gv, body: `{"records":[]}`}, 404)
+	r.must(call{method: "PUT", path: "/api/v1/courses/" + cid + "/sessions/" + uuid.NewString() + "/attendance", token: gv, body: `{"records":[]}`}, 409) // lớp đã lưu trữ
+	r.must(call{method: "PUT", path: att, token: gv, body: `{"records":[],"complete":true}`}, 200)
+
+	pp := "/api/v1/courses/" + c2 + "/participation"
+	ev := uuid.NewString()
+	spk := fmt.Sprintf(`{"student_id":%q,"type":"SPEAK","client_event_id":%q}`, studentID, ev)
+	_, pb := r.must(call{method: "POST", path: pp, token: gv, body: spk}, 201)
+	r.must(call{method: "POST", path: pp, token: gv, body: spk}, 200)
+	r.must(call{method: "POST", path: pp, token: ta, body: spk}, 409) // client_event_id của người khác
+	r.must(call{method: "POST", path: pp, body: spk}, 401)
+	r.must(call{method: "POST", path: pp, token: svIn, body: spk}, 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/participation", token: gv, body: spk}, 404)
+	r.must(call{method: "POST", path: pp, token: gv, body: fmt.Sprintf(`{"student_id":%q,"type":"LAC","client_event_id":%q}`, studentID, uuid.NewString())}, 422)
+	r.must(call{method: "GET", path: pp + "?student_id=" + studentID, token: gv}, 200)
+	r.must(call{method: "GET", path: pp, token: ta}, 200)
+	r.must(call{method: "GET", path: pp}, 401)
+	r.must(call{method: "GET", path: pp, token: svIn}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/participation", token: gv}, 404)
+	r.must(call{method: "GET", path: pp + "?student_id=khong-phai-uuid", token: gv}, 422)
+	var made struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(pb, &made); err != nil || made.ID == "" {
+		r.t.Fatalf("sự kiện tham gia: %v %s", err, pb)
+	}
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: ta}, 403) // TA xoá sự kiện của người khác
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID}, 401)
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: svIn}, 403)
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: gv}, 204)
+	r.must(call{method: "DELETE", path: pp + "/" + made.ID, token: gv}, 404)
+	r.must(call{method: "DELETE", path: "/api/v1/courses/" + cid + "/participation/" + uuid.NewString(), token: gv}, 409) // lớp đã lưu trữ
+
+	idemKey := func() map[string]string { return map[string]string{"Idempotency-Key": "ct-" + uuid.NewString()} }
+	// danh sách sinh viên (US-P5-04): chỉ giảng viên / TA; filter lạ 422; STUDENT 403 kể cả xem lớp mình
+	sl := "/api/v1/courses/" + c2 + "/students"
+	r.must(call{method: "GET", path: sl + "?filter=attention&limit=5", token: gv}, 200)
+	r.must(call{method: "GET", path: sl + "?q=an", token: ta}, 200)
+	r.must(call{method: "GET", path: sl}, 401)
+	r.must(call{method: "GET", path: sl, token: svIn}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/students", token: gv}, 404)
+	r.must(call{method: "GET", path: sl + "?filter=lac", token: gv}, 422)
+	r.must(call{method: "GET", path: sl + "?cursor=xyz", token: gv}, 422)
+
+	// hồ sơ 360 (US-P5-05): chỉ giảng viên / TA; STUDENT 403 kể cả xem chính mình
+	var emptyStudent string // sinh viên ACTIVE mới, chưa có bất kỳ số liệu nào
+	if err := db.QueryRow(ctx, `insert into users (email, full_name, role, status) values ('trong.' || gen_random_uuid() || '@example.test', 'Sv Trống', 'STUDENT', 'INVITED') returning id::text`).Scan(&emptyStudent); err != nil {
+		r.t.Fatal(err)
+	}
+	if _, err := db.Exec(ctx, `insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'STUDENT', 'ACTIVE', 'ADMIN')`, c2, emptyStudent); err != nil {
+		r.t.Fatal(err)
+	}
+	pf := "/api/v1/courses/" + c2 + "/students/" + studentID
+	ghost := "/api/v1/courses/" + c2 + "/students/" + uuid.NewString()
+	for _, tail := range []string{"/profile", "/attendance", "/observations"} {
+		r.must(call{method: "GET", path: pf + tail, token: gv}, 200)
+		r.must(call{method: "GET", path: pf + tail}, 401)
+		r.must(call{method: "GET", path: pf + tail, token: svIn}, 403)
+		r.must(call{method: "GET", path: ghost + tail, token: gv}, 404)
+	}
+	r.must(call{method: "GET", path: pf + "/profile", token: ta}, 200)
+	r.must(call{method: "GET", path: pf + "/attendance?cursor=xyz", token: gv}, 422)
+	r.must(call{method: "GET", path: pf + "/observations?limit=0", token: gv}, 422)
+	_, ob := r.must(call{method: "POST", path: pf + "/observations", token: gv, body: `{"tags":["chuyên cần"],"body":"Hay vắng buổi sáng"}`}, 201)
+	var obs struct {
+		ID string `json:"id"`
+	}
+	if err := json.Unmarshal(ob, &obs); err != nil || obs.ID == "" {
+		r.t.Fatalf("ghi chú: %v %s", err, ob)
+	}
+	r.must(call{method: "POST", path: pf + "/observations", token: gv, body: `{"body":""}`}, 422)
+	r.must(call{method: "POST", path: pf + "/observations", body: `{"body":"x"}`}, 401)
+	r.must(call{method: "POST", path: pf + "/observations", token: svIn, body: `{"body":"x"}`}, 403)
+	r.must(call{method: "POST", path: ghost + "/observations", token: gv, body: `{"body":"x"}`}, 404)
+	op := pf + "/observations/" + obs.ID
+	r.must(call{method: "PUT", path: op, token: ta, body: `{"body":"TA sửa","version":1}`}, 403) // chỉ tác giả
+	r.must(call{method: "PUT", path: op, token: gv, body: `{"body":"Đã sửa","version":1}`}, 200)
+	r.must(call{method: "PUT", path: op, token: gv, body: `{"body":"Sửa lại","version":1}`}, 409)
+	r.must(call{method: "PUT", path: op, token: gv, body: `{"body":"","version":2}`}, 422)
+	r.must(call{method: "PUT", path: op}, 401)
+	r.must(call{method: "PUT", path: pf + "/observations/" + uuid.NewString(), token: gv, body: `{"body":"x","version":1}`}, 404)
+	r.must(call{method: "DELETE", path: op, token: ta}, 403)
+	r.must(call{method: "DELETE", path: op}, 401)
+	r.must(call{method: "DELETE", path: op, token: gv}, 204)
+	r.must(call{method: "DELETE", path: op, token: gv}, 404)
+	// nhận xét AI: sinh viên chưa có số liệu → 409 (không gọi LLM); có số liệu → 200 bản nháp (qua llm.Gateway thật + provider giả; trước đây 503 vì BAD_LANE — QC BUG-A); quá 10 lượt / giờ → 429
+	r.must(call{method: "POST", path: "/api/v1/courses/" + c2 + "/students/" + emptyStudent + "/ai-summary", token: gv}, 409)
+	r.must(call{method: "POST", path: pf + "/ai-summary"}, 401)
+	r.must(call{method: "POST", path: pf + "/ai-summary", token: svIn}, 403)
+	r.must(call{method: "POST", path: ghost + "/ai-summary", token: gv}, 404)
+	ai := func(want int) { r.must(call{method: "POST", path: pf + "/ai-summary", token: ta}, want) }
+	for range 10 {
+		ai(200)
+	}
+	ai(429)
+	// nhắn sinh viên: Idempotency-Key bắt buộc; 3 tin / ngày
+	ou := func(tok, p, body string, want int) {
+		r.must(call{method: "POST", path: p + "/outreach", token: tok, headers: idemKey(), body: body}, want)
+	}
+	ou(gv, pf, `{"body":"Em ghé văn phòng khoa giúp thầy nhé."}`, 201)
+	ou(gv, pf, `{"body":""}`, 422)
+	r.must(call{method: "POST", path: pf + "/outreach", token: gv, body: `{"body":"x"}`}, 422) // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: pf + "/outreach", headers: idemKey(), body: `{"body":"x"}`}, 401)
+	ou(svIn, pf, `{"body":"x"}`, 403)
+	ou(gv, ghost, `{"body":"x"}`, 409) // không phải sinh viên ACTIVE của lớp
+	ou(gv, "/api/v1/courses/"+c2+"/students/khong-phai-uuid", `{"body":"x"}`, 404)
+	ou(gv, pf, `{"body":"Tin thứ hai."}`, 201)
+	ou(gv, pf, `{"body":"Tin thứ ba."}`, 201)
+	ou(gv, pf, `{"body":"Tin thứ tư."}`, 429)
+
+	// thời gian học (US-P5-03): heartbeat 204 (kể cả bị bỏ), ack, hai route đọc
+	hbp := "/api/v1/activity/heartbeat"
+	hb := func(course, area string) string {
+		return fmt.Sprintf(`{"course_id":%q,"area":%q,"tab_id":%q}`, course, area, uuid.NewString())
+	}
+	r.must(call{method: "POST", path: "/api/v1/me/tracking-notice/ack", token: svIn}, 204)
+	r.must(call{method: "POST", path: "/api/v1/me/tracking-notice/ack"}, 401)
+	r.must(call{method: "POST", path: hbp, token: svIn, body: hb(c2, "CHAT")}, 204)
+	r.must(call{method: "POST", path: hbp, token: gv, body: hb(c2, "CHAT")}, 204) // giảng viên không bị đo: 204 im lặng
+	r.must(call{method: "POST", path: hbp, body: hb(c2, "CHAT")}, 401)
+	r.must(call{method: "POST", path: hbp, token: svIn, body: hb(uuid.NewString(), "CHAT")}, 403)
+	r.must(call{method: "POST", path: hbp, token: svIn, body: hb(c2, "EXAM")}, 422)
+	mine := "/api/v1/courses/" + c2 + "/me/study-time"
+	r.must(call{method: "GET", path: mine, token: svIn}, 200)
+	r.must(call{method: "GET", path: mine + "?weeks=20", token: svIn}, 200)
+	r.must(call{method: "GET", path: mine}, 401)
+	r.must(call{method: "GET", path: mine, token: gv}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/me/study-time", token: svIn}, 404)
+	r.must(call{method: "GET", path: mine + "?weeks=0", token: svIn}, 422)
+	of := "/api/v1/courses/" + c2 + "/students/" + studentID + "/study-time"
+	r.must(call{method: "GET", path: of, token: gv}, 200)
+	r.must(call{method: "GET", path: of + "?weeks=4", token: ta}, 200)
+	r.must(call{method: "GET", path: of}, 401)
+	r.must(call{method: "GET", path: of, token: svIn}, 403)
+	r.must(call{method: "GET", path: "/api/v1/courses/" + c2 + "/students/" + uuid.NewString() + "/study-time", token: gv}, 403) // #31: không phải sinh viên ACTIVE của lớp → 403
+	r.must(call{method: "GET", path: "/api/v1/courses/" + c2 + "/students/khong-phai-uuid/study-time", token: gv}, 404)
+	r.must(call{method: "GET", path: of + "?weeks=21", token: gv}, 422)
+
+	// chuyên cần / phát biểu của CHÍNH sinh viên (US-P5-06)
+	for _, leaf := range []string{"attendance", "participation"} {
+		mp := "/api/v1/courses/" + c2 + "/me/" + leaf
+		r.must(call{method: "GET", path: mp, token: svIn}, 200)
+		r.must(call{method: "GET", path: mp + "?limit=1", token: svIn}, 200)
+		r.must(call{method: "GET", path: mp}, 401)
+		r.must(call{method: "GET", path: mp, token: gv}, 403)
+		r.must(call{method: "GET", path: mp, token: ta}, 403)
+		r.must(call{method: "GET", path: mp, token: admin}, 403)
+		r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/me/" + leaf, token: svIn}, 404)
+		r.must(call{method: "GET", path: mp + "?limit=0", token: svIn}, 422)
+		r.must(call{method: "GET", path: mp + "?cursor=%25%25", token: svIn}, 422)
+	}
 
 	dm := "/api/v1/courses/" + c2 + "/setup/dismiss"
 	r.must(call{method: "POST", path: dm, token: gv}, 204)

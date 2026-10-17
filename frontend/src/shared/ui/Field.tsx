@@ -83,18 +83,21 @@ export function Switch({
   label,
   description,
   disabled,
+  title,
 }: {
   checked: boolean;
   onChange: (next: boolean) => void;
   label: ReactNode;
   description?: ReactNode;
   disabled?: boolean;
+  /** lý do công tắc bị khoá — tooltip đặt trên chính nhãn và công tắc (không dòng mô tả) */
+  title?: string;
 }) {
   const id = useId();
   return (
     <div className={s.switchRow}>
       <div>
-        <label htmlFor={id} className={s.label}>
+        <label htmlFor={id} className={s.label} title={title}>
           {label}
         </label>
         {description && <p className={s.helper}>{description}</p>}
@@ -105,6 +108,7 @@ export function Switch({
         role="switch"
         aria-checked={checked}
         disabled={disabled}
+        title={title}
         className={s.switch}
         onClick={() => onChange(!checked)}
       >

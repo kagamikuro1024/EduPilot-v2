@@ -6,7 +6,8 @@ update documents d
 set status = 'PROCESSING', updated_at = now(), error = null
 where d.id = sqlc.arg(id)
   and (d.status = 'QUEUED' or (d.status = 'PROCESSING' and d.updated_at < now() - make_interval(secs => sqlc.arg(idle_secs)::float8)))
-  and not exists (select 1 from documents x where x.course_id = d.course_id and x.status = 'PROCESSING' and x.id <> d.id
+  and d.category is distinct from 'THREAD_KNOWLEDGE'
+  and not exists (select 1 from documents x where x.course_id = d.course_id and x.category is distinct from 'THREAD_KNOWLEDGE' and x.status = 'PROCESSING' and x.id <> d.id
                   and x.updated_at > now() - make_interval(secs => sqlc.arg(idle_secs)::float8))
 returning d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.blob_key, d.sha256, d.visible_to_students, d.use_for_rag, d.uploaded_by, d.version;
 
@@ -18,7 +19,7 @@ update documents set updated_at = now() where id = sqlc.arg(id) and status = 'PR
 update documents set status = 'QUEUED' where id = sqlc.arg(id) and status = 'PROCESSING';
 
 -- name: IngestDocumentState :one
-select id, course_id, status, error, sha256, use_for_rag, uploaded_by from documents where id = sqlc.arg(id);
+select id, course_id, status, error, sha256, use_for_rag, uploaded_by from documents where id = sqlc.arg(id) and category is distinct from 'THREAD_KNOWLEDGE';
 
 -- name: IngestDeleteChunks :exec
 delete from content_chunks where document_id = sqlc.arg(document_id) and course_ids @> array[sqlc.arg(course_id)::uuid];
@@ -51,4 +52,4 @@ update content_chunks set embedding = sqlc.arg(embedding)
 where id = sqlc.arg(id) and document_id = sqlc.arg(document_id) and course_ids @> array[sqlc.arg(course_id)::uuid];
 
 -- name: ListCourseDocumentsForReindex :many
-select id from documents where course_id = sqlc.arg(course_id) and status = 'READY' and use_for_rag order by id;
+select id from documents where course_id = sqlc.arg(course_id) and status = 'READY' and use_for_rag and category is distinct from 'THREAD_KNOWLEDGE' order by id;

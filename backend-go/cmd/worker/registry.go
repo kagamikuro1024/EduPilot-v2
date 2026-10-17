@@ -4,19 +4,25 @@ import (
 	"context"
 	"github.com/edupilot/backend-go/internal/calendar"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/crm"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/judge"
+	"github.com/edupilot/backend-go/internal/knowledge"
 	"github.com/edupilot/backend-go/internal/llm/budget"
 	"github.com/edupilot/backend-go/internal/mail"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
+	"github.com/edupilot/backend-go/internal/store"
 	"github.com/edupilot/backend-go/internal/thread"
 	"github.com/edupilot/backend-go/internal/today"
 )
@@ -27,6 +33,7 @@ import (
 func newRegistry(d Deps) *outbox.Registry {
 	reg := outbox.NewRegistry()
 	pub := sse.NewPublisher(d.Redis, d.Cfg.SSEBufferMaxLen, d.Cfg.SSEBufferTTL)
+	nt := notify.New(d.DB, pub, d.Log) // MỘT cửa tạo thông báo (SRS escalation 4.4): ghi dòng + đẩy SSE tới chuông
 	runner := jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
@@ -36,15 +43,17 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(budget.TopicWarn, ack)
 	thread.RegisterKind(runner, d.Redis)  // thread.answer: chỉ XADD ep:ingest (US-P3-06); AI trả lời chạy ở consumer ep:ingest
 	ingest.RegisterKinds(runner, d.Redis) // document.ingest / reindex / reindex_all: chỉ XADD ep:ingest (US-P8-01), không gọi docling trong consumer outbox
-	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log}
+	mh := &mail.Handler{Pool: d.DB, Clock: clock.Real{}, Sender: mail.SMTP{Cfg: d.Cfg}, Cfg: d.Cfg, Log: d.Log, Resolvers: map[string]mail.Resolver{}}
+	thread.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers)
+	escalation.MailResolver{PublicURL: d.Cfg.AppPublicURL}.Register(mh.Resolvers) // nội dung thư ticket đọc lúc gửi, payload chỉ có định danh
 	reg.Register(mail.Topic, mh.Handle)
-	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log}
+	cn := &course.Notifier{Pool: d.DB, AppPublicURL: d.Cfg.AppPublicURL, Log: d.Log, Notify: nt}
 	// "Hôm nay": mỗi sự kiện xoá cache của người bị ảnh hưởng (US-P2-11). Ba topic đã có thông báo được nối chuỗi.
 	inv := today.Invalidator{Pool: d.DB, Redis: d.Redis, Log: d.Log}
 	reg.Register(course.TopicAssigned, outbox.Chain(cn.HandleAssigned, inv.Handle))
 	reg.Register(course.TopicJoinRequested, outbox.Chain(cn.HandleJoinRequested, inv.Handle))
 	reg.Register(course.TopicJoinDecided, outbox.Chain(cn.HandleJoinDecided, inv.Handle))
-	en := &exam.Notifier{Pool: d.DB, Log: d.Log}
+	en := &exam.Notifier{Pool: d.DB, Log: d.Log, Notify: nt}
 	reg.Register(exam.TopicExamScheduled, outbox.Chain(en.HandleScheduled, inv.Handle)) // US-PE-04: thông báo lịch + xoá cache "Hôm nay"
 	reg.Register(exam.TopicExamUnscheduled, outbox.Chain(en.HandleUnscheduled, inv.Handle))
 	for _, t := range []string{exam.TopicExamOpened, exam.TopicExamClosed, exam.TopicAttemptStarted, exam.TopicAttemptSubmitted, exam.TopicSimilarityDone, exam.TopicSimilarityReviewed, exam.TopicQuestionReviewed, course.TopicChanged, auth.TopicUserVerified, calendar.TopicChanged} {
@@ -52,7 +61,29 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	// Threads (US-P3-08): thread mới / quyết định về bài AI đổi việc AI_CONFIRM của Staff → xoá cache "Hôm nay". Việc AI trả lời đi bằng `job.enqueue` → ep:ingest (không chạy trong consumer outbox này).
 	reg.Register(thread.TopicCreated, outbox.Chain(thread.OnCreated, inv.Handle))
-	reg.Register(thread.TopicPostDecided, inv.Handle)
+	// Kiểm duyệt Threads (US-P4-06, SRS 4.11): đếm lại hai dòng gộp của Staff, chuông chủ bài, vô hiệu "Hôm nay" — việc DB thuần trước, `inv.Handle` cuối.
+	tn := &thread.Notifier{Q: store.New(d.DB), Notify: nt}
+	reg.Register(thread.TopicPostDecided, outbox.Chain(tn.HandleAIPending, inv.Handle))
+	reg.Register(thread.TopicAIAnswerd, outbox.Chain(tn.HandleAIPending, inv.Handle))
+	reg.Register(thread.TopicEdited, outbox.Chain(tn.HandleAIPending, inv.Handle))
+	reg.Register(thread.TopicReported, outbox.Chain(tn.HandleReported, inv.Handle))
+	reg.Register(thread.TopicHidden, outbox.Chain(tn.HandleHidden, inv.Handle))
+	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
+	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
+	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
+	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged) // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó
+	reg.Register(crm.TopicAttendanceSaved, inv.Handle)                                                                        // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
+	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
+	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log, Gate: escalation.MailGate{Redis: d.Redis, Clock: clock.Real{}, Window: d.Cfg.MailTicketNewCoalesce}, Clock: clock.Real{}}
+	reg.Register(escalation.TopicCreated, outbox.Chain(esc.HandleCreated, inv.Handle))
+	for _, t := range []string{escalation.TopicClaimed, escalation.TopicReleased, escalation.TopicFollowup} {
+		reg.Register(t, outbox.Chain(esc.HandleRecount, inv.Handle))
+	}
+	reg.Register(escalation.TopicClosed, outbox.Chain(esc.HandleClosed, inv.Handle))
+	reg.Register(escalation.TopicAnswered, outbox.Chain(esc.HandleAnswered, inv.Handle))
+	reg.Register(escalation.TopicSLAReminder, outbox.Chain(esc.HandleSLAReminder, inv.Handle))
+	reg.Register(escalation.TopicSLAEscalated, outbox.Chain(esc.HandleSLAEscalated, inv.Handle))
+	reg.Register(escalation.TopicCourseStall, outbox.Chain(esc.HandleCourseStalled, inv.Handle))
 	// Từ điển PII (US-P3-02): thành viên đổi / nhập danh sách → xoá ep:roster:{course} ngay sau xoá cache "Hôm nay". Cùng topic nên phải Chain.
 	roster := &privacy.Roster{Redis: d.Redis, Log: d.Log}
 	for _, t := range []string{course.TopicMemberChanged, course.TopicRosterImport} {
@@ -62,10 +93,12 @@ func newRegistry(d Deps) *outbox.Registry {
 	bump := rag.BumpVersion(d.Redis)
 	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump))
 	reg.Register("document.deleted", bump)
+	ks := &knowledge.Syncer{Pool: d.DB, Embed: agent.NewEmbedder(d.LLM, d.Redis), Timeout: d.Cfg.KnowledgeEmbedTimeout}
+	reg.Register(knowledge.TopicSync, ks.Handle) // US-P4-05: nhúng đoạn tri thức (một Embed, ngoài Chain) → document.changed
 	if d.Judge != nil {
 		reg.Register(judge.TopicEnqueue, d.Judge.HandleEnqueue) // XADD tín hiệu chấm rồi đặt enqueued_at (US-PE-02)
 	}
-	rn := &exam.ResultNotifier{Pool: d.DB, SSE: pub, Log: d.Log}
+	rn := &exam.ResultNotifier{Pool: d.DB, SSE: pub, Log: d.Log, Notify: nt}
 	reg.Register(exam.TopicAttemptGraded, outbox.Chain(rn.HandleGraded, inv.Handle)) // US-PE-08
 	reg.Register(exam.TopicPublished, outbox.Chain(rn.HandlePublished, inv.Handle))
 	reg.Register(exam.TopicRegraded, outbox.Chain(rn.HandleRegraded, inv.Handle))

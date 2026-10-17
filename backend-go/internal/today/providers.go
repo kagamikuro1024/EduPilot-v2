@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/edupilot/backend-go/internal/workhours"
 	"strings"
 	"time"
 
@@ -125,6 +126,14 @@ func (p StudentProvider) examItems(ctx context.Context, v Viewer, sc Scope) ([]I
 	}
 	zone := ictZone()
 	var out []Item
+	for _, u := range v.unread { // US-P4-03 (bậc 40): thông báo TICKET_ANSWERED chưa đọc; biến mất khi /chat đánh dấu đã đọc
+		if _, ok := byCourse[u.Course.ID]; !ok {
+			continue
+		}
+		age := v.Now.Sub(u.Newest)
+		out = append(out, mk(Item{ID: "STAFF_ANSWER_UNREAD:" + u.Course.ID.String(), Kind: KindStaffAnswerUnread, Tier: TierStaffAnswerUnread, Course: courseRef(u.Course), Href: u.Link,
+			Title: "Giảng viên đã trả lời câu hỏi của bạn", Reason: fmt.Sprintf("Lớp %s · %s trước", u.Course.ClassCode, Age(age)), AgeMinutes: int(age / time.Minute)}))
+	}
 	for _, r := range rows {
 		if r.OpensAt == nil || r.ClosesAt == nil || r.DurationMinutes == nil {
 			continue
@@ -175,7 +184,11 @@ const examResultDays = 7
 // ----- Giảng viên / TA -----
 
 // StaffProvider: JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP — mỗi nguồn dùng MỘT truy vấn tổng hợp cho mọi lớp trong phạm vi.
-type StaffProvider struct{ Pool *pgxpool.Pool }
+type StaffProvider struct {
+	Pool *pgxpool.Pool
+	SLA  workhours.SLA   // mốc quá hạn của mục TICKET (Overdue tự tính từ waiting_since)
+	Attn AttentionSource // US-P5-04: nil = không có STUDENT_ATTENTION / khối attention
+}
 
 // Name implements Provider.
 func (StaffProvider) Name() string { return "staff" }
@@ -187,7 +200,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 		return nil, nil // không tốn truy vấn cho vai khác
 	}
 	q := store.New(p.Pool)
-	pend, err := q.TodayStaffPending(ctx, ids(courses))
+	pend, err := q.TodayStaffPending(ctx, store.TodayStaffPendingParams{CourseIds: ids(courses), UserID: &v.UserID, NowAt: v.Now, GraceSecs: int32(SessionUnmarkedGrace / time.Second)})
 	if err != nil {
 		return nil, fmt.Errorf("today: yêu cầu chờ duyệt: %w", err)
 	}
@@ -206,12 +219,39 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			continue
 		}
 		out = append(out, examWorkItems(c, r.ExamWork, v.Now)...)
-		if r.Questions > 0 { // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
+		if r.TkOpen > 0 || r.TkMine > 0 { // US-P4-03 / P4-05 (bậc 10): ticket chờ + ticket mình đã nhận; Overdue khi ticket OPEN cũ nhất quá TICKET_ESCALATE_AFTER giờ làm việc
+			age := v.Now.Sub(r.TkOldest)
+			reason := fmt.Sprintf("%d câu hỏi đang chờ · %d câu bạn đã nhận", r.TkOpen, r.TkMine)
+			if r.TkOpen > 0 {
+				reason += " · lâu nhất " + Age(age)
+			}
+			it := Item{ID: "TICKET:" + c.ID.String(), Kind: KindTicket, Tier: TierTicket, Course: courseRef(c), Href: "/inbox?course=" + c.ID.String(),
+				Title: fmt.Sprintf("Câu hỏi chờ giảng viên · lớp %s", c.ClassCode), Reason: reason}
+			if r.TkOpen > 0 {
+				it.AgeMinutes = int(age / time.Minute)
+				if at := p.SLA.EscalateAt(r.TkOldest); !at.IsZero() && !at.After(v.Now) {
+					it.Overdue = true
+					over := max(int(r.TkOver), 1)
+					it.Reason = fmt.Sprintf("%d câu hỏi chờ quá %d giờ làm việc · lâu nhất %d giờ", over, int(p.SLA.EscalateAfter/time.Hour), int(p.SLA.Hours.Elapsed(r.TkOldest, v.Now)/time.Hour))
+				}
+			}
+			out = append(out, mk(it))
+		}
+		out = append(out, sessionUnmarkedItems(c, r.Unmarked, v.Now)...) // US-P5-01 (bậc 12, Giảng viên + TA)
+		if r.Questions > 0 {                                             // US-PE-03: câu hỏi PENDING chờ duyệt (Giảng viên và TA)
 			age := v.Now.Sub(r.QuestionsOldest)
 			out = append(out, mk(Item{
 				ID: "QUESTION_REVIEW:" + c.ID.String(), Kind: KindQuestionReview, Tier: TierQuestionReview, Course: courseRef(c),
 				Href:  fmt.Sprintf("/questions?review_status=PENDING&course=%s", c.ID),
 				Title: fmt.Sprintf("%d câu hỏi chờ duyệt · lớp %s", r.Questions, c.ClassCode), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
+			}))
+		}
+		if r.Reported > 0 { // US-P4-06 (bậc 47, Giảng viên + TA): bài bị báo cáo / tự ẩn chờ xem
+			age := v.Now.Sub(r.ReportedOldest)
+			out = append(out, mk(Item{
+				ID: "POST_REPORTED:" + c.ID.String(), Kind: KindPostReported, Tier: TierPostReported, Course: courseRef(c),
+				Href:  fmt.Sprintf("/threads?view=moderation&course=%s", c.ID),
+				Title: fmt.Sprintf("%d bài bị báo cáo chờ xem · lớp %s", r.Reported, c.ClassCode), Reason: fmt.Sprintf("Cũ nhất đã chờ %s.", Age(age)), AgeMinutes: int(age / time.Minute),
 			}))
 		}
 		if r.AiPending > 0 || r.AiSkipped > 0 { // US-P3-08 (bậc 50, Giảng viên + TA): bài AI chờ xác nhận / câu hỏi AI chưa trả lời được; chỉ nêu số khác 0
@@ -278,7 +318,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			steps := []Step{
 				{Key: "share_code", Label: "Chia sẻ mã lớp", Done: r.ShareCode, Href: "/class/settings?course=" + c.ID.String()},
 				{Key: "policy", Label: "Tải quy chế môn học", Done: r.Policy, Href: "/documents?course=" + c.ID.String()},
-				{Key: "sessions", Label: "Tạo lịch buổi học", Done: r.Sessions, Href: "/calendar?course=" + c.ID.String()},
+				{Key: "sessions", Label: "Tạo lịch buổi học", Done: r.Sessions, Href: "/calendar?course=" + c.ID.String() + "&new=sessions"},
 				{Key: "documents", Label: "Tải tài liệu", Done: r.Documents, Href: "/documents?course=" + c.ID.String()},
 			}
 			done := 0
@@ -298,7 +338,7 @@ func (p StaffProvider) Items(ctx context.Context, v Viewer, s Scope) ([]Item, er
 			}))
 		}
 	}
-	return out, nil
+	return append(out, attentionItems(v.attn, courses)...), nil // US-P5-04 (bậc 95)
 }
 
 // ----- Admin -----
@@ -331,6 +371,10 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 	provs, err := q.TodayAdminProviders(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("today: nhà cung cấp AI: %w", err)
+	}
+	stalled, err := q.TodayAdminStalled(ctx, v.UserID)
+	if err != nil {
+		return nil, fmt.Errorf("today: lớp có ticket quá hạn: %w", err)
 	}
 	nt, err := q.TodayAdminCoursesNoTeacher(ctx)
 	if err != nil {
@@ -368,6 +412,10 @@ func (p AdminProvider) Items(ctx context.Context, v Viewer, _ Scope) ([]Item, er
 				Reason: fmt.Sprintf("Chi phí AI hôm nay đã dùng %d %% ngân sách.", pct),
 			}))
 		}
+	}
+	for _, c := range stalled { // US-P4-05 AC6 (bậc 45): chỉ mã lớp + số lượng, không nội dung ticket
+		out = append(out, mk(Item{ID: "COURSE_TICKETS_STALLED:" + c.CourseID.String(), Kind: KindCourseStalled, Tier: TierCourseStalled, Course: &CourseRef{ID: c.CourseID, ClassCode: c.ClassCode},
+			Href: "/", Title: c.Title, Reason: "Chưa có giảng viên hay trợ giảng nào xử lý.", AgeMinutes: int(v.Now.Sub(c.Newest) / time.Minute)}))
 	}
 	for _, c := range nt {
 		out = append(out, mk(Item{
@@ -421,6 +469,39 @@ func examWorkItems(c CourseRef, raw []byte, now time.Time) []Item {
 			out = append(out, mk(Item{ID: "EXAM_PUBLISH_HOLD:" + id, Kind: KindExamPublishHold, Tier: TierExamPublishHold, Course: courseRef(c), Href: fmt.Sprintf("/exams/%s/results?course=%s", id, c.ID),
 				Title: fmt.Sprintf("Bài thi %s đã chấm xong nhưng đang hoãn công bố", w.Title), Reason: "Công bố khi thầy/cô sẵn sàng."}))
 		}
+	}
+	return out
+}
+
+// sessionUnmarkedItems dựng mục SESSION_UNMARKED từ cột `unmarked` của truy vấn tổng hợp (≤ 3 buổi, mới nhất trước).
+func sessionUnmarkedItems(c CourseRef, raw []byte, now time.Time) []Item {
+	var rows []struct {
+		ID        uuid.UUID `json:"id"`
+		SessionNo int       `json:"session_no"`
+		StartsAt  time.Time `json:"starts_at"`
+		EndsAt    time.Time `json:"ends_at"`
+		Room      *string   `json:"room"`
+	}
+	if json.Unmarshal(raw, &rows) != nil {
+		return nil
+	}
+	loc := time.FixedZone("ICT", 7*3600)
+	out := make([]Item, 0, len(rows))
+	for _, r := range rows {
+		running := !now.After(r.EndsAt)
+		title := fmt.Sprintf("Buổi %d đã kết thúc, chưa điểm danh · %s", r.SessionNo, c.ClassCode)
+		if running {
+			title = fmt.Sprintf("Điểm danh buổi %d đang diễn ra · %s", r.SessionNo, c.ClassCode)
+		}
+		reason := r.StartsAt.In(loc).Format("15:04") + "–" + r.EndsAt.In(loc).Format("15:04")
+		if r.Room != nil {
+			reason += " · " + *r.Room
+		}
+		out = append(out, mk(Item{
+			ID: "SESSION_UNMARKED:" + r.ID.String(), Kind: KindSessionUnmarked, Tier: TierSessionUnmarked, Course: courseRef(c), Overdue: !running,
+			Href:  fmt.Sprintf("/attendance?course=%s&session=%s", c.ID, r.ID),
+			Title: title, Reason: reason, AgeMinutes: int(now.Sub(r.StartsAt) / time.Minute),
+		}))
 	}
 	return out
 }

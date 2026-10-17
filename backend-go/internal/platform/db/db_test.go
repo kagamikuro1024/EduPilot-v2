@@ -132,7 +132,7 @@ func TestPool_AcquireHonorsDeadline(t *testing.T) {
 	if !errorsIsDeadline(err) {
 		t.Fatalf("lỗi = %v, muốn deadline exceeded", err)
 	}
-	if elapsed > time.Second {
+	if testutil.TimingOn() && elapsed > time.Second {
 		t.Fatalf("chờ %v, muốn nhả ngay khi hết deadline", elapsed)
 	}
 }

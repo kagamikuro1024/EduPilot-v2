@@ -1,0 +1,10 @@
+{
+  "default": { "minutes_per_week": 100, "weeks": {} },
+  "students": {
+    "sv.gioi@edupilot.local": { "minutes_per_week": 300 },
+    "sv.kha@edupilot.local": { "minutes_per_week": 150 },
+    "sv.nguyco@edupilot.local": { "minutes_per_week": 120, "weeks": { "7": 30, "8": 28, "9": 35 } },
+    "sv12@edupilot.local": { "weeks": { "9": 45 } },
+    "sv19@edupilot.local": { "weeks": { "9": 40 } }
+  }
+}

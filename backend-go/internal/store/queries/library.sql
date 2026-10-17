@@ -9,7 +9,7 @@ select d.id, d.title, d.type, d.filename, d.mime_type, d.category, d.week_no, d.
          where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.narg(q)::text) order by c.ord limit 1), '') end::text as snippet
 from documents d
 where (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
-  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY'
+  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (sqlc.narg(type)::text is null or d.type::text = sqlc.narg(type)::text)
   and (sqlc.narg(week_no)::int is null or d.week_no = sqlc.narg(week_no)::int)
   and (sqlc.narg(category)::text is null or d.category = sqlc.narg(category)::text)
@@ -28,7 +28,7 @@ select d.id, d.title, d.type, d.filename, d.mime_type, d.size_bytes, d.category,
 from documents d
 where d.id = sqlc.arg(id)
   and (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
-  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY';
+  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE';
 
 -- name: LibCountDownload :exec
 update documents set download_count = download_count + 1 where id = sqlc.arg(id);
@@ -40,7 +40,7 @@ select d.id, d.title, d.type, d.week_no,
        coalesce((select left(regexp_replace(c.text, '\s+', ' ', 'g'), 160) from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text) order by c.ord limit 1), '')::text as snippet
 from documents d
 where (d.course_id = sqlc.arg(course_id) or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = sqlc.arg(course_id)))
-  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY'
+  and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (vn_fold(d.title) like '%' || vn_fold(sqlc.arg(q)::text) || '%' escape '\'
        or exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.tsv @@ vn_bigram_query(sqlc.arg(q)::text)))
 order by d.updated_at desc, d.id desc

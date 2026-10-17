@@ -17,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/ingest"
+	"github.com/edupilot/backend-go/internal/knowledge"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -167,6 +168,9 @@ func (s *Service) Patch(ctx context.Context, actor, course, id uuid.UUID, trace 
 		c := strings.TrimSpace(*in.Category)
 		if utf8.RuneCountInString(c) > 40 {
 			return Doc{}, field("category", "length", "Chủ đề tối đa 40 ký tự.")
+		}
+		if c == knowledge.Category {
+			return Doc{}, field("category", "reserved", "Chủ đề này dành riêng cho hệ thống.")
 		}
 		next.Category = &c
 		if c == "" {

@@ -13,6 +13,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/store"
@@ -143,7 +144,11 @@ type MessageOut struct {
 	MaskedCount   int32           `json:"masked_count"`
 	Feedback      *string         `json:"feedback"`
 	ErrorCode     *string         `json:"error_code"`
-	CreatedAt     time.Time       `json:"created_at"`
+	// Ticket: ticket "Nhờ giảng viên" của tin trợ lý này (null khi chưa có). Chỉ {id,status,created_at,answered_at} — không trường nội bộ.
+	Ticket *escalation.StudentView `json:"ticket"`
+	// CanEscalate: nút "Nhờ giảng viên hỗ trợ" được phép hiện dưới tin này (tin AI đã DONE, không phải câu mẫu khủng hoảng / hỏi hộ / chào hỏi). Giao diện tự ẩn khi đã có ticket.
+	CanEscalate bool      `json:"can_escalate"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
 func messageOut(m store.ChatMessage) MessageOut {
@@ -160,6 +165,7 @@ func messageOut(m store.ChatMessage) MessageOut {
 		ID: m.ID, Role: string(m.Role), Content: text, Streaming: m.StreamStatus == store.ChatStreamStatusSTREAMING, Status: string(m.StreamStatus),
 		Attempt: m.Attempt, Citations: m.Citations, Blocks: m.Blocks, LowConfidence: m.LowConfidence, Degraded: m.Degraded, MaskedCount: m.MaskedCount,
 		Feedback: fb, ErrorCode: m.ErrorCode, CreatedAt: m.CreatedAt,
+		CanEscalate: m.Role == store.ChatRoleASSISTANT && m.StreamStatus == store.ChatStreamStatusDONE && escalation.Escalatable(m.Intent),
 	}
 }
 
@@ -167,11 +173,14 @@ func messageOut(m store.ChatMessage) MessageOut {
 type MessagePage struct {
 	Items      []MessageOut `json:"items"`
 	NextCursor *string      `json:"next_cursor"`
+	// OpenTickets: số ticket đang mở (OPEN / CLAIMED) của sinh viên ở lớp của phiên — nút nhờ giảng viên khoá khi đạt trần.
+	OpenTickets int32 `json:"open_tickets"`
 }
 
 // Messages: lịch sử của phiên của mình.
 func (s *Service) Messages(ctx context.Context, a Actor, sid uuid.UUID, p httpx.PageParams) (MessagePage, error) {
-	if _, err := s.session(ctx, a, sid); err != nil {
+	sess, err := s.session(ctx, a, sid)
+	if err != nil {
 		return MessagePage{}, err
 	}
 	arg := store.ListChatMessagesParams{SessionID: sid, PageLimit: int32(p.Fetch())} //nolint:gosec // ≤ 101
@@ -183,13 +192,49 @@ func (s *Service) Messages(ctx context.Context, a Actor, sid uuid.UUID, p httpx.
 		return MessagePage{}, fmt.Errorf("chat: lịch sử: %w", err)
 	}
 	out := MessagePage{Items: make([]MessageOut, 0, len(rows))}
+	if out.OpenTickets, err = store.New(s.Pool).TicketCountOpen(ctx, store.TicketCountOpenParams{CourseID: sess.CourseID, StudentID: a.UserID}); err != nil {
+		return MessagePage{}, fmt.Errorf("chat: đếm ticket mở: %w", err)
+	}
 	if len(rows) > p.Limit {
 		rows = rows[:p.Limit]
 		c := httpx.EncodeCursor(rows[len(rows)-1].CreatedAt, rows[len(rows)-1].ID.String())
 		out.NextCursor = &c
 	}
+	var ids []uuid.UUID
 	for _, r := range rows {
-		out.Items = append(out.Items, messageOut(r))
+		if r.Role == store.ChatRoleASSISTANT {
+			ids = append(ids, r.ID)
+		}
+	}
+	tickets, err := escalation.ViewsForMessages(ctx, s.Pool, a.UserID, ids)
+	if err != nil {
+		return MessagePage{}, err
+	}
+	// tin của giảng viên mang khối `ticket {ticket_id}`: gắn ticket để giao diện hiện `Hỏi tiếp` / `Đã rõ` / "Đã đóng"
+	staffTicket := map[uuid.UUID]uuid.UUID{}
+	var tids []uuid.UUID
+	for _, r := range rows {
+		if r.Role == store.ChatRoleASSISTANT && isStaffIntent(r.Intent) {
+			if id, ok := ticketIDOf(r.Blocks); ok {
+				staffTicket[r.ID] = id
+				tids = append(tids, id)
+			}
+		}
+	}
+	byID, err := escalation.ViewsByIDs(ctx, s.Pool, a.UserID, tids)
+	if err != nil {
+		return MessagePage{}, err
+	}
+	for _, r := range rows {
+		m := messageOut(r)
+		if t, ok := tickets[r.ID]; ok {
+			m.Ticket = &t
+		} else if tid, ok := staffTicket[r.ID]; ok {
+			if t, ok := byID[tid]; ok {
+				m.Ticket = &t
+			}
+		}
+		out.Items = append(out.Items, m)
 	}
 	return out, nil
 }
@@ -222,6 +267,9 @@ func (s *Service) Feedback(ctx context.Context, a Actor, mid uuid.UUID, value *s
 	m, err := s.message(ctx, a, mid)
 	if err != nil {
 		return err
+	}
+	if isStaffIntent(m.Intent) { // tin do giảng viên / sinh viên viết, không phải câu trả lời AI: không có "Hữu ích / Không hữu ích" (TLR-21)
+		return apierr.New(http.StatusUnprocessableEntity, apierr.MessageNotRateable)
 	}
 	var fb *store.ChatFeedback
 	if value != nil {
@@ -293,4 +341,28 @@ func (s *Service) FromDraft(ctx context.Context, a Actor, in FromDraftIn) (FromD
 	out.SessionID = row.ID
 	out.Draft.Title, out.Draft.Body = in.Title, in.Body
 	return out, nil
+}
+
+// isStaffIntent: tin của ticket (STAFF_ANSWER, ESCALATION_FOLLOWUP) nằm chung bảng với tin AI nhưng không đánh giá / sinh lại được.
+func isStaffIntent(intent *string) bool {
+	return intent != nil && (*intent == "STAFF_ANSWER" || *intent == "ESCALATION_FOLLOWUP")
+}
+
+// ticketIDOf lấy `ticket_id` từ khối `ticket` của một tin của giảng viên.
+func ticketIDOf(blocks json.RawMessage) (uuid.UUID, bool) {
+	var bs []struct {
+		Kind string `json:"kind"`
+		Data struct {
+			TicketID uuid.UUID `json:"ticket_id"`
+		} `json:"data"`
+	}
+	if json.Unmarshal(blocks, &bs) != nil {
+		return uuid.Nil, false
+	}
+	for _, b := range bs {
+		if b.Kind == "ticket" && b.Data.TicketID != uuid.Nil {
+			return b.Data.TicketID, true
+		}
+	}
+	return uuid.Nil, false
 }

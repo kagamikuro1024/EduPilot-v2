@@ -70,11 +70,6 @@ export function noteTicketSent(studentId: string, ticketId: string) {
   pushNote({ id: `n-${ticketId}-sent`, to: { studentId }, title: "Câu hỏi của bạn đang chờ giảng viên", meta: "Chat riêng", just: "vừa gửi", href: "/chat" });
 }
 
-/** Giảng viên gửi trả lời phiếu → sinh viên đã hỏi. */
-export function noteTicketAnswered(studentId: string, ticketId: string) {
-  pushNote({ id: `n-${ticketId}-answered`, to: { studentId }, title: "Giảng viên đã trả lời câu hỏi của bạn", meta: "Chat riêng", href: "/chat" });
-}
-
 /** `Công bố` điểm Bài tập 03 → mỗi sinh viên có bài trong đợt. */
 export function noteBt03Published(studentId: string) {
   pushNote({ id: `n-bt03-published-${studentId}`, to: { studentId }, title: "Điểm Bài tập 03 đã được công bố", meta: "Bài tập", href: "/assignments/bt03" });

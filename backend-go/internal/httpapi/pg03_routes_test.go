@@ -44,7 +44,7 @@ func tStack(t *testing.T) (*httptest.Server, Deps) {
 		cfg.JWTSecretKey = rlSecret
 		cfg.RateLimitIPPerMin, cfg.RateLimitUserPerMin = 1_000_000, 1_000_000
 		cfg.SSEBufferMaxLen, cfg.SSEBufferTTL = 1000, time.Hour
-		cfg.DatabaseURL = testutil.MigratedPostgresURL(t)
+		cfg.DatabaseURL = testutil.SharedMigratedPostgresURL(t)
 		cfg.RedisURL = testutil.RedisURL(t)
 		log := applog.NewTo(io.Discard, cfg, "gateway")
 

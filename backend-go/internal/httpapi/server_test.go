@@ -7,12 +7,14 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/platform/config"
+	"github.com/edupilot/backend-go/internal/testutil"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -38,6 +40,31 @@ func coreSlowServer(t *testing.T, d Deps, delay time.Duration) (addr string, ser
 	serveErr = make(chan error, 1)
 	go func() { serveErr <- Serve(ctx, srv, ln, d) }()
 	return ln.Addr().String(), serveErr, cancel
+}
+
+// coreBlockedServer như coreSlowServer nhưng handler CHẶN trên kênh (không theo đồng hồ, không theo ctx của request): `entered` đóng khi request đã vào handler,
+// request chỉ được nhả khi test kết thúc. Dùng cho ca "request quá hạn bị cắt" — kết quả không phụ thuộc máy nhanh hay chậm (#19).
+func coreBlockedServer(t *testing.T, d Deps) (addr string, serveErr chan error, cancel context.CancelFunc, entered <-chan struct{}) {
+	t.Helper()
+	in, release := make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	t.Cleanup(func() { close(release) })
+	srv := NewServer(d)
+	srv.Handler = newRouterWith(d, func(r chi.Router) {
+		r.Get("/slow", func(w http.ResponseWriter, _ *http.Request) {
+			once.Do(func() { close(in) })
+			<-release
+			httpx.WriteJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+		})
+	})
+	ln, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatalf("listen: %v", err)
+	}
+	ctx, cancel := context.WithCancel(t.Context())
+	serveErr = make(chan error, 1)
+	go func() { serveErr <- Serve(ctx, srv, ln, d) }()
+	return ln.Addr().String(), serveErr, cancel, in
 }
 
 // coreWaitInFlight đợi tới khi có request thật sự đang chạy trong handler (tránh đua với client).
@@ -84,8 +111,10 @@ func TestGracefulShutdown(t *testing.T) {
 
 	coreWaitInFlight(t, d) // request chậm đã vào handler
 	start := time.Now()
-	cancel()                           // ~ SIGTERM
-	time.Sleep(100 * time.Millisecond) // cờ draining đã bật
+	cancel()                                           // ~ SIGTERM
+	for i := 0; i < 3000 && !d.State.Draining(); i++ { // chờ cờ draining bật (không đoán bằng Sleep)
+		time.Sleep(10 * time.Millisecond)
+	}
 
 	if !d.State.Draining() {
 		t.Error("State phải chuyển sang draining ngay khi bắt đầu tắt")
@@ -138,7 +167,7 @@ func TestGracefulShutdown(t *testing.T) {
 func TestShutdown_ForcedAfterTimeout(t *testing.T) {
 	t.Parallel()
 	d, buf := coreDeps(t, func(c *config.Config) { c.ShutdownTimeout = 300 * time.Millisecond })
-	addr, serveErr, cancel := coreSlowServer(t, d, 10*time.Second)
+	addr, serveErr, cancel, entered := coreBlockedServer(t, d)
 
 	go func() {
 		client := &http.Client{Timeout: 20 * time.Second}
@@ -151,7 +180,11 @@ func TestShutdown_ForcedAfterTimeout(t *testing.T) {
 		}
 	}()
 
-	coreWaitInFlight(t, d)
+	select {
+	case <-entered:
+	case <-time.After(30 * time.Second):
+		t.Fatal("không có request nào vào được handler")
+	}
 	cancel()
 
 	select {
@@ -237,7 +270,7 @@ func TestStartup_WaitsForDeps(t *testing.T) {
 		if !strings.Contains(err.Error(), "db") || strings.Contains(err.Error(), "redis") {
 			t.Fatalf("lỗi = %v, muốn chỉ nêu db", err)
 		}
-		if elapsed < 2*time.Second || elapsed > 6*time.Second {
+		if elapsed < 2*time.Second || (testutil.TimingOn() && elapsed > 6*time.Second) {
 			t.Fatalf("chờ %v, muốn ≈ STARTUP_TIMEOUT 2 s", elapsed)
 		}
 

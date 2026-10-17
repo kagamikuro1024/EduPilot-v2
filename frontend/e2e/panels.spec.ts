@@ -3,6 +3,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { loadAudit, runAudit } from "./support/audit";
 import { BASE_URL } from "./support/env";
 import { rgbOf } from "./support/colors";
+import { mockMe } from "./support/meMock";
 import { panelViolations as violations } from "./support/panels";
 import { settleGoto } from "./support/hydrate";
 import { ROLES, routesFor } from "./support/routes";
@@ -243,6 +244,7 @@ test.describe("student routes", () => {
     test.skip(info.project.name !== "desktop", "đo một lần");
     test.setTimeout(180_000);
     await asDemo(context, "student");
+    await mockMe(page); // #32(B): /me thật cần ba API me/* giả
     await page.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ items: [], next_cursor: null }) }));
     const bad: string[] = [];
     for (const w of [1440, 1024]) {
@@ -264,6 +266,7 @@ test.describe("student mock routes", () => {
     test.skip(info.project.name !== "desktop", "đo một lần");
     test.setTimeout(120_000);
     await asDemo(context, "student");
+    await mockMe(page); // #32(B): /me thật cần ba API me/* giả
     await page.goto("/chat");
     await page.locator("[data-part=chat-thread]").waitFor();
     expect(await page.locator("[data-part=chat-thread]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
@@ -367,6 +370,7 @@ test.describe("mobile gutter", () => {
       test.skip(info.project.name !== "desktop", "đo cả hai bề rộng");
       test.setTimeout(180_000);
       await asDemo(context, "student");
+      await mockMe(page); // #33: /me thật cần ba API me/* giả
       await page.route(/\/api\/v1\/courses\/[^/]+\/exams(\?|$)/, (r) => r.fulfill({ status: 200, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" }, body: JSON.stringify({ items: [], next_cursor: null }) }));
       await page.setViewportSize({ width: w, height: 844 });
       const { AUDIT_SRC, TOUCH_SRC } = await loadAudit();
@@ -391,7 +395,7 @@ test.describe("mobile gutter", () => {
 
 // ───────── US-UI-05 — Giảng viên / TA ─────────
 const STAFF_ROLES = ["teacher", "ta"] as const;
-const STAFF_ROUTES = (role: (typeof STAFF_ROLES)[number]) => [...new Set([...routesFor(role), "/students/sv-1", "/grading/sub-bt03-sv-2", "/settings", "/class/settings", `/exams/${STAFF_EXAM}`, `/exams/${STAFF_EXAM}/results`, ...(role === "teacher" ? [`/exams/${STAFF_EXAM}/similarity`, "/gradebook/scheme"] : [])])];
+const STAFF_ROUTES = (role: (typeof STAFF_ROLES)[number]) => [...new Set([...routesFor(role), "/grading/sub-bt03-sv-2", "/settings", "/class/settings", `/exams/${STAFF_EXAM}`, `/exams/${STAFF_EXAM}/results`, ...(role === "teacher" ? [`/exams/${STAFF_EXAM}/similarity`, "/gradebook/scheme"] : [])])];
 const okCors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
 
 async function staffToday(page: Page) {
@@ -578,7 +582,7 @@ test.describe("staff routes", () => {
       expect(bad).toEqual([]);
     });
   }
-  test("/grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng; /students/[id]: mỗi tab 1 Panel, không 6 thẻ", async ({ page, context }, info) => {
+  test("/grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng", async ({ page, context }, info) => {
     test.skip(info.project.name !== "desktop", "đo một lần");
     await asDemo(context, "teacher");
     await page.goto("/grading/sub-bt03-sv-2");
@@ -586,12 +590,6 @@ test.describe("staff routes", () => {
     const g = await violations(page);
     expect(g).toMatchObject({ panels: 2, nest: 0, title: 0, wall: 0 });
     expect(Math.abs(g.left[0] - g.left[1]), "hai Panel cạnh nhau").toBeGreaterThan(300);
-    await page.goto("/students/sv-1");
-    await page.locator("main [data-ep-panel]:visible").first().waitFor();
-    for (const tab of ["Tổng quan", "Chuyên cần", "Điểm", "Hoạt động học", "Ghi chú"]) {
-      await page.getByRole("tab", { name: tab }).click();
-      expect(await violations(page), tab).toMatchObject({ panels: 1, nest: 0, title: 0, strongMax: 0 });
-    }
   });
   test("/attendance và /inbox ở 375: không tràn ngang, không bị cắt, vùng chạm ≥ 44 px, Panel cách mép 12 px", async ({ page, context }, info) => {
     test.skip(info.project.name !== "desktop", "đo một lần");

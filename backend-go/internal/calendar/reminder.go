@@ -11,6 +11,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/edupilot/backend-go/internal/mail"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -26,6 +27,8 @@ type Reminder struct {
 	Every time.Duration // REMINDER_TICK
 	Lead  time.Duration // REMINDER_LEAD
 	Log   *slog.Logger
+	// Notify: một cửa tạo thông báo — dòng ghi trong giao dịch nhắc (notify.SendTx), phát SSE sau commit; nil → chỉ ghi.
+	Notify *notify.Service
 }
 
 // Run chạy tới khi ctx huỷ.
@@ -114,6 +117,7 @@ func (r *Reminder) batch(ctx context.Context, d store.CalDueRow, rcpt []store.Ca
 	title := "Sắp đến giờ: " + d.Title
 	body := Format(d.StartsAt)
 	n := 0
+	var pending []notify.Row
 	for _, u := range rcpt {
 		if !wants(u.Preferences, prefKey(d.Typ)) {
 			continue
@@ -127,8 +131,12 @@ func (r *Reminder) batch(ctx context.Context, d store.CalDueRow, rcpt []store.Ca
 		}
 		n++
 		course := d.CourseID
-		if _, err := q.InsertNotification(ctx, store.InsertNotificationParams{UserID: u.UserID, CourseID: &course, Type: "REMINDER", Title: title, Body: &body, Link: &link, DedupeKey: &dedupe}); err != nil {
+		nr, created, err := notify.SendTx(ctx, q, notify.Spec{UserID: u.UserID, CourseID: &course, Type: "REMINDER", Title: title, Body: &body, Link: &link, DedupeKey: dedupe})
+		if err != nil {
 			return 0, fmt.Errorf("calendar: thông báo nhắc: %w", err)
+		}
+		if created {
+			pending = append(pending, nr)
 		}
 		if u.RemindMail && u.Verified {
 			if _, _, err := mail.Enqueue(ctx, tx, mail.Message{To: u.Email, Template: "reminder", DedupeKey: "reminder:" + u.UserID.String() + ":" + dedupe,
@@ -140,5 +148,6 @@ func (r *Reminder) batch(ctx context.Context, d store.CalDueRow, rcpt []store.Ca
 	if err := tx.Commit(ctx); err != nil {
 		return 0, fmt.Errorf("calendar: commit nhắc: %w", err)
 	}
+	r.Notify.Announce(ctx, pending...)
 	return n, nil
 }

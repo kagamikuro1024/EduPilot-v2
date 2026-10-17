@@ -10,9 +10,11 @@ import (
 	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/chat"
 	"github.com/edupilot/backend-go/internal/course"
+	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/llm"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/thread"
@@ -66,7 +68,8 @@ func threadService(d Deps, a *aiStack) *thread.Service {
 		return nil
 	}
 	return &thread.Service{Pool: d.DB, Redis: d.Redis, FW: &thread.Firewall{Detector: a.det, Classifier: a.cl, Embed: a.embed}, Lock: a.locker(d), Jobs: d.Jobs,
-		Rag: &rag.Service{DB: d.DB}, LLM: a.gw, Embed: a.raw, Clock: d.Clock, Log: d.Log}
+		Rag: &rag.Service{DB: d.DB}, LLM: a.gw, Embed: a.raw, Clock: d.Clock, Log: d.Log, Notify: notify.New(d.DB, d.Publisher, d.Log),
+		Support: d.Cfg.SupportResourcesVI, Limits: thread.Limits{ReportPerHour: d.Cfg.ReportRatePerHour, AutoHideAt: d.Cfg.ReportAutoHideThreshold, PinMax: d.Cfg.ThreadPinMax}}
 }
 
 // chatService dựng chat.Service thật từ Deps (nil nếu thiếu DB / Redis / LLM → route chat không được gắn).
@@ -76,13 +79,15 @@ func chatService(d Deps, a *aiStack) *chat.Service {
 	}
 	an := &agent.Analyzer{Classifier: a.cl, Detector: a.det, Self: agent.StoreSelf{Pool: d.DB}, Log: d.Log, Embed: a.embed}
 	ag := &agent.Agent{
-		An: an, Private: agent.DefaultPrivateRegistry(nil, nil, nil, calendarService(d), &library.Service{Pool: d.DB, Log: d.Log}), Rag: &rag.Service{DB: d.DB}, Gen: a.gw, Events: agent.StoreEvents{Pool: d.DB}, Log: d.Log,
+		An: an, Private: agent.DefaultPrivateRegistry(crmService(d), crmService(d), nil, calendarService(d), &library.Service{Pool: d.DB, Log: d.Log}), Rag: &rag.Service{DB: d.DB}, Gen: a.gw, Events: agent.StoreEvents{Pool: d.DB}, Log: d.Log, SupportResources: d.Cfg.SupportResourcesVI,
 		Cache: &agent.AnswerCache{Redis: agent.NewRedisKV(d.Redis), Version: func(ctx context.Context, c uuid.UUID) (int64, error) { return rag.Version(ctx, d.Redis, c) }},
 	}
+	members := course.Resolver{Pool: d.DB}
 	return &chat.Service{
 		Pool: d.DB, Redis: d.Redis, Agent: ag, PII: a.det, Clock: d.Clock, Log: d.Log, Drain: drainC(d),
 		Lock:    a.locker(d),
-		Members: course.Resolver{Pool: d.DB},
+		Members: members,
+		Tickets: &escalation.Service{Pool: d.DB, Members: members, Lock: a.locker(d), Log: d.Log, PII: a.det, Clock: d.Clock, Cfg: escalation.ConfigFrom(d.Cfg)},
 		Cfg:     chat.Config{MaxInput: d.Cfg.ChatMaxInputChars, RatePerMin: d.Cfg.ChatRatePerMin, StreamMax: d.Cfg.ChatStreamMax},
 	}
 }

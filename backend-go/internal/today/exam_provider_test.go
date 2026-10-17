@@ -12,6 +12,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/testutil"
 	"github.com/edupilot/backend-go/internal/today"
 )
 
@@ -162,10 +163,12 @@ func TestExamTodayInvalidation(t *testing.T) {
 
 	_, err = svc.ScheduleExam(t.Context(), gv.ID, c.id, e.ID)
 	require.NoError(t, err)
-	took := waitFor(t, 2*time.Second, "EXAM_UPCOMING hiện sau khi lên lịch", func() bool { return recommendedExam(r.tgetC(svS, "/me/today")) != nil })
-	require.Less(t, took, 2*time.Second)
+	took := waitFor(t, 30*time.Second, "EXAM_UPCOMING hiện sau khi lên lịch", func() bool { return recommendedExam(r.tgetC(svS, "/me/today")) != nil })
+	if testutil.TimingOn() {
+		require.Less(t, took, 2*time.Second)
+	}
 
 	_, err = svc.UnscheduleExam(t.Context(), gv.ID, c.id, e.ID)
 	require.NoError(t, err)
-	waitFor(t, 2*time.Second, "EXAM_UPCOMING biến sau khi bỏ lịch", func() bool { return recommendedExam(r.tgetC(svS, "/me/today")) == nil })
+	waitFor(t, 30*time.Second, "EXAM_UPCOMING biến sau khi bỏ lịch", func() bool { return recommendedExam(r.tgetC(svS, "/me/today")) == nil })
 }

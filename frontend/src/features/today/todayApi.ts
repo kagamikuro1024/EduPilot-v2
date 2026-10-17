@@ -23,7 +23,9 @@ export type TodaySession = { at: string; ends_at: string; title: string; place: 
 /** Phiên chat riêng của chính sinh viên có tin trong 7 ngày (US-P3-08). */
 export type TodayContinue = { kind: "CHAT"; id: string; title: string; href: string; course: TodayCourse; at: string };
 export type StudentToday = { no_course: boolean; email_verified: boolean; recommended: TodayItem | null; timeline: TodaySession[]; continue: TodayContinue[] };
-export type StaffToday = { count: number; actions: TodayItem[]; attention: unknown[]; upcoming: { at: string; title: string; place: string; course: TodayCourse }[] };
+/** Sinh viên AT_RISK (mới vào trước, tối đa 5) — chỉ giảng viên / TA; `reason` là cụm ngắn dựng từ số liệu. */
+export type TodayAttention = { student: { id: string; full_name: string }; course: TodayCourse; reason: string };
+export type StaffToday = { count: number; actions: TodayItem[]; attention: TodayAttention[]; attention_total: number; upcoming: { at: string; title: string; place: string; course: TodayCourse }[] };
 export type AdminToday = { count: number; actions: TodayItem[] };
 
 export const TODAY_KEY = ["today"] as const;

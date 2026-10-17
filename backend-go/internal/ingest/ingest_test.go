@@ -887,10 +887,10 @@ func TestDocumentChangedNotBlockedByIngest(t *testing.T) {
 	t.Parallel()
 	f := newFx(t)
 	ingest.RegisterKinds(f.runner, f.rdb)
-	f.dl.submitDelay = 3 * time.Second // docling chậm: nếu handler outbox gọi nó thì mất ≥ 3 s
+	f.dl.submitDelay = 30 * time.Second // docling chậm: nếu handler outbox gọi nó thì mất ≥ 30 s
 	doc, job := f.upload(t, docSpec{visible: true, useRAG: true})
 	payload, _ := json.Marshal(map[string]any{"job_id": job, "kind": ingest.KindIngest, "payload": ingest.KindPayload{DocumentID: doc}})
 	start := time.Now()
 	require.NoError(t, f.runner.HandleMessage(t.Context(), outboxMsg(payload)))
-	require.Less(t, time.Since(start), time.Second)
+	require.Less(t, time.Since(start), 15*time.Second) // nửa độ trễ docling: gọi docling thì không thể dưới mức này
 }

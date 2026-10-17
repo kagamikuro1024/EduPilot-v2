@@ -14,7 +14,7 @@ import (
 )
 
 const docChunkLock = `-- name: DocChunkLock :one
-select c.id, c.document_id, c.text, c.audience from content_chunks c where c.id = $1 and c.document_id = $2 and c.course_ids @> array[$3::uuid] for update
+select c.id, c.document_id, c.text, c.audience, (c.embedding is not null)::bool as embedded from content_chunks c where c.id = $1 and c.document_id = $2 and c.course_ids @> array[$3::uuid] for update
 `
 
 type DocChunkLockParams struct {
@@ -28,6 +28,7 @@ type DocChunkLockRow struct {
 	DocumentID uuid.UUID
 	Text       string
 	Audience   ChunkAudience
+	Embedded   bool
 }
 
 func (q *Queries) DocChunkLock(ctx context.Context, arg DocChunkLockParams) (DocChunkLockRow, error) {
@@ -38,6 +39,7 @@ func (q *Queries) DocChunkLock(ctx context.Context, arg DocChunkLockParams) (Doc
 		&i.DocumentID,
 		&i.Text,
 		&i.Audience,
+		&i.Embedded,
 	)
 	return i, err
 }
@@ -155,7 +157,7 @@ func (q *Queries) DocCourseStatus(ctx context.Context, id uuid.UUID) (CourseStat
 }
 
 const docDelete = `-- name: DocDelete :execrows
-delete from documents where id = $1 and course_id = $2
+delete from documents where id = $1 and course_id = $2 and category is distinct from 'THREAD_KNOWLEDGE'
 `
 
 type DocDeleteParams struct {
@@ -199,7 +201,7 @@ select d.id, c.class_code
 from documents d
 join courses c on c.id = d.course_id
 join enrollments e on e.course_id = d.course_id and e.user_id = $1 and e.role_in_course in ('TEACHER', 'TA') and e.status = 'ACTIVE'
-where d.sha256 = $2 and d.course_id <> $3
+where d.sha256 = $2 and d.course_id <> $3 and d.category is distinct from 'THREAD_KNOWLEDGE'
 order by d.created_at limit 1
 `
 
@@ -224,7 +226,7 @@ func (q *Queries) DocFindDuplicateElsewhere(ctx context.Context, arg DocFindDupl
 
 const docFindDuplicateInCourse = `-- name: DocFindDuplicateInCourse :one
 select d.id from documents d
-where d.sha256 = $1
+where d.sha256 = $1 and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (d.course_id = $2 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $2))
 order by d.created_at limit 1
 `
@@ -243,7 +245,7 @@ func (q *Queries) DocFindDuplicateInCourse(ctx context.Context, arg DocFindDupli
 }
 
 const docGetForUpdate = `-- name: DocGetForUpdate :one
-select id, course_id, title, type, filename, mime_type, size_bytes, sha256, blob_key, status, error, page_count, visible_to_students, use_for_rag, category, week_no, download_count, uploaded_by, version, created_at, updated_at from documents where id = $1 and course_id = $2 for update
+select id, course_id, title, type, filename, mime_type, size_bytes, sha256, blob_key, status, error, page_count, visible_to_students, use_for_rag, category, week_no, download_count, uploaded_by, version, created_at, updated_at from documents where id = $1 and course_id = $2 and category is distinct from 'THREAD_KNOWLEDGE' for update
 `
 
 type DocGetForUpdateParams struct {
@@ -283,7 +285,7 @@ func (q *Queries) DocGetForUpdate(ctx context.Context, arg DocGetForUpdateParams
 
 const docGetInCourse = `-- name: DocGetInCourse :one
 select d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.size_bytes, d.sha256, d.blob_key, d.status, d.error, d.page_count, d.visible_to_students, d.use_for_rag, d.category, d.week_no, d.download_count, d.uploaded_by, d.version, d.created_at, d.updated_at from documents d
-where d.id = $1
+where d.id = $1 and d.category is distinct from 'THREAD_KNOWLEDGE'
   and (d.course_id = $2 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $2))
 `
 
@@ -394,7 +396,7 @@ select d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.size_bytes
        d.category, d.week_no, d.version, d.created_at, d.updated_at,
        case when d.course_id = $1 then '' else c.class_code end::text as shared_from
 from documents d join courses c on c.id = d.course_id
-where (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
+where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
   and ($2::text is null or d.type::text = $2::text)
   and ($3::text is null or d.status::text = $3::text)
   and ($4::text is null or vn_fold(d.title) like '%' || vn_fold($4::text) || '%' escape '\' or vn_fold(coalesce(d.filename, '')) like '%' || vn_fold($4::text) || '%' escape '\')
@@ -560,7 +562,7 @@ func (q *Queries) DocSetChunkAudience(ctx context.Context, arg DocSetChunkAudien
 const docStats = `-- name: DocStats :one
 with docs as (
   select d.id, d.course_id, d.title, d.type, d.filename, d.mime_type, d.size_bytes, d.sha256, d.blob_key, d.status, d.error, d.page_count, d.visible_to_students, d.use_for_rag, d.category, d.week_no, d.download_count, d.uploaded_by, d.version, d.created_at, d.updated_at from documents d
-  where d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1)
+  where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
 ), ch as (
   select count(*) as chunks, count(embedding) as embedded from content_chunks c join docs on docs.id = c.document_id where c.course_ids @> array[$1::uuid]
 )
@@ -608,7 +610,7 @@ func (q *Queries) DocStats(ctx context.Context, courseID uuid.UUID) (DocStatsRow
 
 const docStatsByStatus = `-- name: DocStatsByStatus :many
 select d.status::text as k, count(*)::bigint as n from documents d
-where d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1)
+where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
 group by d.status
 `
 
@@ -639,7 +641,7 @@ func (q *Queries) DocStatsByStatus(ctx context.Context, courseID uuid.UUID) ([]D
 
 const docStatsByType = `-- name: DocStatsByType :many
 select d.type::text as k, count(*)::bigint as n from documents d
-where d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1)
+where d.category is distinct from 'THREAD_KNOWLEDGE' and (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
 group by d.type
 `
 

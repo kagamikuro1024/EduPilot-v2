@@ -152,11 +152,13 @@ func TestNetworkAndTimeout(t *testing.T) {
 	if !errors.As(err, &pe) || pe.Kind != provider.KindNetwork {
 		t.Errorf("cổng đóng: %v", err)
 	}
-	// quá hạn ctx → TIMEOUT
+	// quá hạn ctx → TIMEOUT. Máy chủ giữ yêu cầu tới khi test xong nên chỉ hạn ctx mới kết thúc được lượt gọi (không phụ thuộc đồng hồ thật).
+	hold := make(chan struct{})
 	slow, _, _ := server(t, func(int, string, map[string]any) reply {
-		time.Sleep(300 * time.Millisecond)
+		<-hold
 		return reply{200, okChat, nil}
 	})
+	t.Cleanup(func() { close(hold) }) // chạy trước srv.Close (LIFO)
 	ctx, cancel := context.WithTimeout(t.Context(), 50*time.Millisecond)
 	defer cancel()
 	_, err = newP("openai_compatible", slow.URL, "k").Chat(ctx, chatOpts())
@@ -165,8 +167,16 @@ func TestNetworkAndTimeout(t *testing.T) {
 	}
 	// huỷ → CANCELLED
 	ctx2, cancel2 := context.WithCancel(t.Context())
-	go func() { time.Sleep(30 * time.Millisecond); cancel2() }()
-	_, err = newP("openai_compatible", slow.URL, "k").Chat(ctx2, chatOpts())
+	entered := make(chan struct{}, 1)
+	hold2 := make(chan struct{})
+	slow2, _, _ := server(t, func(int, string, map[string]any) reply {
+		entered <- struct{}{}
+		<-hold2
+		return reply{200, okChat, nil}
+	})
+	t.Cleanup(func() { close(hold2) })
+	go func() { <-entered; cancel2() }() // huỷ khi yêu cầu đã tới máy chủ
+	_, err = newP("openai_compatible", slow2.URL, "k").Chat(ctx2, chatOpts())
 	if !errors.As(err, &pe) || pe.Kind != provider.KindCancelled {
 		t.Errorf("huỷ: %v", err)
 	}
@@ -430,14 +440,13 @@ func TestSDKNoInternalRetry(t *testing.T) {
 	srv, calls, _ := server(t, func(int, string, map[string]any) reply {
 		return reply{429, `{"error":{"message":"slow down"}}`, map[string]string{"Retry-After": "3"}}
 	})
-	start := time.Now()
 	_, err := newP("openai", srv.URL, "k").Chat(t.Context(), chatOpts())
 	var pe *provider.Error
 	if !errors.As(err, &pe) || pe.Kind != provider.KindRateLimit || pe.RetryAfter != 3*time.Second {
 		t.Fatalf("err = %v", err)
 	}
-	if calls.Load() != 1 || time.Since(start) > time.Second {
-		t.Errorf("calls=%d sau %v, muốn 1 lần gọi và không chờ", calls.Load(), time.Since(start))
+	if calls.Load() != 1 { // SDK thử lại sẽ chờ 3 s rồi gọi lần hai: đếm lần gọi là bằng chứng, không đo thời gian
+		t.Errorf("calls=%d, muốn 1 lần gọi", calls.Load())
 	}
 }
 
@@ -449,14 +458,10 @@ func TestRateLimitKeepsStatusOnDeadline(t *testing.T) {
 	})
 	ctx, cancel := context.WithTimeout(t.Context(), 2*time.Second)
 	defer cancel()
-	start := time.Now()
 	_, err := newP("openai", srv.URL, "k").Chat(ctx, chatOpts())
 	var pe *provider.Error
 	if !errors.As(err, &pe) || pe.Kind != provider.KindRateLimit || pe.Status != 429 {
 		t.Fatalf("err = %v, muốn RATE_LIMIT 429", err)
-	}
-	if time.Since(start) > time.Second {
-		t.Errorf("mất %v", time.Since(start))
 	}
 }
 

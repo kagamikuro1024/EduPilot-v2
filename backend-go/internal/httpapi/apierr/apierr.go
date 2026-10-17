@@ -94,6 +94,31 @@ const (
 	MessageNotRetryable = "MESSAGE_NOT_RETRYABLE"
 	PIIDetected         = "PII_DETECTED"
 	PostStateConflict   = "POST_STATE_CONFLICT"
+
+	// Escalation, kiểm duyệt Threads (FEAT-escalation-notify SRS 6.5).
+	TicketAlreadyClaimed  = "TICKET_ALREADY_CLAIMED"
+	TicketStateInvalid    = "TICKET_STATE_INVALID"
+	TicketLimitReached    = "TICKET_LIMIT_REACHED"
+	TicketReopenExpired   = "TICKET_REOPEN_EXPIRED"
+	MessageNotEscalatable = "MESSAGE_NOT_ESCALATABLE"
+	MessageNotRateable    = "MESSAGE_NOT_RATEABLE"
+	PIIInAnswer           = "PII_IN_ANSWER"
+	KnowledgePersonal     = "KNOWLEDGE_PERSONAL"
+	AlreadyReported       = "ALREADY_REPORTED"
+	CannotReportOwn       = "CANNOT_REPORT_OWN"
+	EditLockedVerified    = "EDIT_LOCKED_VERIFIED"
+	PinLimit              = "PIN_LIMIT"
+	CrisisSupport         = "CRISIS_SUPPORT"
+	CourseHasStudents     = "COURSE_HAS_STUDENTS"
+
+	// Lịch buổi học, điểm danh (FEAT-crm-360 SRS 6.5).
+	SessionDuplicate     = "SESSION_DUPLICATE"
+	SessionHasAttendance = "SESSION_HAS_ATTENDANCE"
+	StudentNotInCourse   = "STUDENT_NOT_IN_COURSE"
+	// Hồ sơ 360 (FEAT-crm-360 SRS 6.5).
+	NotEnoughData    = "NOT_ENOUGH_DATA"
+	OutreachLimit    = "OUTREACH_LIMIT"
+	StudentNotActive = "STUDENT_NOT_ACTIVE"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -302,6 +327,46 @@ func DefaultMessage(code string) string {
 		return "Câu trả lời đã được xử lý theo cách khác. Hãy tải lại."
 	case MessageNotRetryable:
 		return "Chỉ thử lại được câu trả lời bị lỗi hoặc đã dừng."
+	case TicketAlreadyClaimed:
+		return "Câu hỏi này đã có người nhận."
+	case TicketStateInvalid:
+		return "Câu hỏi đã đổi trạng thái. Hãy tải lại."
+	case TicketLimitReached:
+		return "Bạn đang có 5 câu hỏi chờ giảng viên."
+	case TicketReopenExpired:
+		return "Câu hỏi đã đóng quá lâu, hãy đặt câu hỏi mới."
+	case MessageNotEscalatable:
+		return "Câu trả lời này không nhờ giảng viên được."
+	case MessageNotRateable:
+		return "Tin này không đánh giá được."
+	case PIIInAnswer:
+		return "Câu trả lời có thông tin của sinh viên khác. Hãy xoá hoặc sửa rồi gửi lại."
+	case KnowledgePersonal:
+		return "Nội dung còn thông tin cá nhân, không lưu thành tri thức được."
+	case AlreadyReported:
+		return "Bạn đã báo cáo bài này."
+	case CannotReportOwn:
+		return "Không báo cáo được bài của chính mình."
+	case EditLockedVerified:
+		return "Bài đã được xác nhận nên không sửa được."
+	case PinLimit:
+		return "Lớp đã ghim đủ số bài tối đa."
+	case CrisisSupport:
+		return "Bạn không phải đi qua chuyện này một mình."
+	case CourseHasStudents:
+		return "Lớp đã có sinh viên."
+	case SessionDuplicate:
+		return "Lớp đã có một buổi bắt đầu đúng giờ này."
+	case SessionHasAttendance:
+		return "Buổi này đã có điểm danh nên không xoá được."
+	case StudentNotInCourse:
+		return "Có sinh viên không còn trong lớp."
+	case NotEnoughData:
+		return "Sinh viên này chưa có đủ dữ liệu để nhận xét."
+	case OutreachLimit:
+		return "Đã nhắn sinh viên này đủ số tin tối đa hôm nay."
+	case StudentNotActive:
+		return "Sinh viên không còn trong lớp."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

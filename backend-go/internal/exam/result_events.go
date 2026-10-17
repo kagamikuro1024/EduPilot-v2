@@ -12,6 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
+	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -32,6 +33,8 @@ type ResultNotifier struct {
 	Pool *pgxpool.Pool
 	SSE  sse.Publisher
 	Log  *slog.Logger
+	// Notify: một cửa tạo thông báo; nil → dựng từ Pool + SSE.
+	Notify *notify.Service
 }
 
 type resultEvent struct {
@@ -62,11 +65,11 @@ func (n *ResultNotifier) notify(ctx context.Context, p resultEvent, typ, title, 
 	if len(users) == 0 {
 		return nil
 	}
-	ids := make([]string, len(users))
-	for i, u := range users {
-		ids[i] = u.String()
+	svc := n.Notify
+	if svc == nil {
+		svc = &notify.Service{Pool: n.Pool, Log: n.Log}
 	}
-	if _, err := store.New(n.Pool).ExamNotifyUsers(ctx, store.ExamNotifyUsersParams{CourseID: &p.CourseID, Type: typ, Title: title, Link: &link, DedupePrefix: dedupe, UserIds: ids}); err != nil {
+	if _, err := svc.SendMany(ctx, users, notify.Spec{CourseID: &p.CourseID, Type: typ, Title: title, Link: &link, DedupeKey: dedupe}); err != nil {
 		return fmt.Errorf("ghi thông báo %s: %w", typ, err)
 	}
 	return nil

@@ -15,6 +15,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
@@ -95,6 +96,8 @@ type MyCourse struct {
 	EnrollmentStatus string
 	EnrolledAt       time.Time
 	EnrollmentID     uuid.UUID
+	// NoticeAcked / OptOutAvailable: cờ của người gọi (giống nhau ở mọi dòng), cho hộp thoại thời gian học.
+	NoticeAcked, OptOutAvailable bool
 }
 
 // Cursor là dòng cuối của trang trước (created_at DESC, id DESC của enrollments).
@@ -120,7 +123,7 @@ func (s Service) MyCourses(ctx context.Context, userID uuid.UUID, role auth.Role
 	for i, r := range rows {
 		out[i] = MyCourse{
 			Course:       Brief{ID: r.ID, ClassCode: r.ClassCode, SubjectCode: r.SubjectCode, Name: r.Name, Semester: r.Semester, Status: string(r.CourseStatus)},
-			RoleInCourse: string(r.RoleInCourse), EnrollmentStatus: string(r.EnrollmentStatus), EnrolledAt: r.EnrolledAt, EnrollmentID: r.EnrollmentID,
+			RoleInCourse: string(r.RoleInCourse), EnrollmentStatus: string(r.EnrollmentStatus), EnrolledAt: r.EnrolledAt, EnrollmentID: r.EnrollmentID, NoticeAcked: r.NoticeAcked, OptOutAvailable: r.OptOutAvailable,
 		}
 	}
 	return out, nil
@@ -131,7 +134,18 @@ type Detail struct {
 	Brief
 	Teachers []string
 	MyRole   string
-	Counts   *Counts // chỉ TA / Giảng viên
+	// AllowStudyTimeOptOut: lớp cho sinh viên tắt đo thời gian học (mọi thành viên đọc được; Q25).
+	AllowStudyTimeOptOut bool
+	Counts               *Counts // chỉ TA / Giảng viên
+	// Settings: ngưỡng chuyển cho giảng viên + version (chỉ TA / Giảng viên; TA chỉ đọc).
+	Settings *Settings
+}
+
+// Settings là cài đặt lớp mà giảng viên chỉnh (US-P4-05).
+type Settings struct {
+	EscalationThreshold string
+	Version             int32
+	Risk                crm.RiskValues // ngưỡng cần chú ý hiệu lực (US-P5-04)
 }
 
 // Counts là số sinh viên của lớp.
@@ -154,13 +168,18 @@ func (s Service) Get(ctx context.Context, id uuid.UUID, myRole string, staff boo
 	if err != nil {
 		return Detail{}, fmt.Errorf("course: đọc giảng viên: %w", err)
 	}
-	d := Detail{Brief: Brief{ID: c.ID, ClassCode: c.ClassCode, SubjectCode: c.SubjectCode, Name: c.Name, Semester: c.Semester, Status: string(c.Status)}, Teachers: names, MyRole: myRole}
+	d := Detail{Brief: Brief{ID: c.ID, ClassCode: c.ClassCode, SubjectCode: c.SubjectCode, Name: c.Name, Semester: c.Semester, Status: string(c.Status)}, Teachers: names, MyRole: myRole, AllowStudyTimeOptOut: c.AllowStudyTimeOptOut}
 	if staff {
 		n, err := q.CountCourseStudents(ctx, id)
 		if err != nil {
 			return Detail{}, fmt.Errorf("course: đếm sinh viên: %w", err)
 		}
 		d.Counts = &Counts{Active: int(n.Active), Pending: int(n.Pending)}
+		full, err := q.GetCourse(ctx, id)
+		if err != nil {
+			return Detail{}, fmt.Errorf("course: đọc cài đặt lớp: %w", err)
+		}
+		d.Settings = &Settings{EscalationThreshold: full.EscalationThreshold.StringFixed(2), Version: full.Version, Risk: crm.ThresholdsFrom(full.Settings).Values()}
 	}
 	return d, nil
 }

@@ -51,7 +51,7 @@ func getRig(t *testing.T) *rig {
 
 func buildRig(t *testing.T) (*rig, error) {
 	env := map[string]string{
-		"DATABASE_URL":            testutil.MigratedPostgresURL(t),
+		"DATABASE_URL":            testutil.SharedMigratedPostgresURL(t),
 		"REDIS_URL":               testutil.RedisURL(t),
 		"JWT_SECRET_KEY":          rigSecret,
 		"BLOB_ENDPOINT":           "127.0.0.1:9",
@@ -72,6 +72,7 @@ func buildRig(t *testing.T) (*rig, error) {
 		"DB_MAX_CONNS":            "8",
 		"LOG_LEVEL":               "error",
 		"LLM_PROVIDER":            "fake",
+		"LLM_DEFAULT_RPM":         "6000", // mặc định 60 rpm → bucket 6 lượt, hồi 1 lượt/giây: lượt thứ 7 của một chuỗi gọi LLM chờ ~1 s = REQUEST_TIMEOUT của rig → 503/504 ngẫu nhiên (BUG-S7-03)
 		"PRIVACY_MASK_TIMEOUT_MS": "1000", // máy bận (nhiều gói song song, -race) không được làm hụt hạn 50 ms của sản xuất; hạn 50 ms có test riêng
 		"BCRYPT_COST":             "4",    // REQUEST_TIMEOUT=1s: bcrypt cost 12 dưới -race vượt hạn
 	}

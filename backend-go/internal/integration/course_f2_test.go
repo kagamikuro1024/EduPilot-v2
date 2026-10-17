@@ -110,8 +110,10 @@ func TestAssignTeacherNotifies(t *testing.T) {
 	x := r.f2()
 	id := r.openCourse(x.A, map[string]any{"teacher_id": x.gv.ID, "ta_ids": []string{x.ta.ID.String()}})
 	took := waitFor(t, 60*time.Second, "thông báo của giảng viên", func() bool { return len(r.notifications(x.G)) == 1 })
-	require.Less(t, took, 2*time.Second, "thực tế ≤ 2 s")
-	waitFor(t, 5*time.Second, "thông báo của trợ giảng", func() bool { return len(r.notifications(x.T)) == 1 })
+	if testutil.TimingOn() {
+		require.Less(t, took, 2*time.Second, "thực tế ≤ 2 s")
+	}
+	waitFor(t, 60*time.Second, "thông báo của trợ giảng", func() bool { return len(r.notifications(x.T)) == 1 })
 	n := r.notifications(x.G)[0].(map[string]any)
 	require.Contains(t, n["title"], "Bạn được phân công lớp An ninh mạng – F2-")
 	require.Equal(t, "/class/settings?course="+id, n["link"])
@@ -125,7 +127,7 @@ func TestAssignNotifyOnce(t *testing.T) {
 	hits := r.worker()
 	x := r.f2()
 	id := r.openCourse(x.A, map[string]any{"teacher_id": x.gv.ID})
-	waitFor(t, 10*time.Second, "thông báo", func() bool { return len(r.notifications(x.G)) == 1 })
+	waitFor(t, 60*time.Second, "thông báo", func() bool { return len(r.notifications(x.G)) == 1 })
 	var mid uuid.UUID
 	var payload []byte
 	require.NoError(t, r.pool.QueryRow(t.Context(), `select id, payload from outbox where topic = 'course.assigned' and payload->>'course_id' = $1`, id).Scan(&mid, &payload))

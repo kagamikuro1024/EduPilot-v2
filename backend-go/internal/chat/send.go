@@ -14,6 +14,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	goredis "github.com/redis/go-redis/v9"
 
+	"github.com/edupilot/backend-go/internal/agent"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -23,7 +24,11 @@ const busyTTL = 130 * time.Second
 const releaseLuaSrc = `if redis.call('GET', KEYS[1]) == ARGV[1] then return redis.call('DEL', KEYS[1]) end return 0`
 
 // precheck gom các kiểm tra theo thứ tự SRS 4.7.1 bước 3–4 (khoá giờ thi TRƯỚC tốc độ / phân loại / nhúng / provider).
-func (s *Service) precheck(ctx context.Context, a Actor) error {
+func (s *Service) precheck(ctx context.Context, a Actor, text string) error {
+	// Đường hỗ trợ KHÔNG bị khoá giờ thi (US-P4-07 AC5): tin khủng hoảng bỏ qua khoá, không tính CHAT_BLOCKED; câu mẫu do agent trả.
+	if agent.DetectIntent(text) == agent.IntentCrisis {
+		return s.rate(ctx, a.UserID)
+	}
 	lk, locked, err := s.Lock.IsLocked(ctx, a.UserID)
 	if err != nil {
 		if s.Log != nil {
@@ -117,7 +122,7 @@ func (s *Service) Send(ctx context.Context, a Actor, sid, clientMsgID uuid.UUID,
 	if err != nil {
 		return store.ChatMessage{}, err
 	}
-	if err := s.precheck(ctx, a); err != nil {
+	if err := s.precheck(ctx, a, text); err != nil {
 		return store.ChatMessage{}, err
 	}
 	q := store.New(s.Pool)
@@ -204,7 +209,8 @@ func (s *Service) insertPair(ctx context.Context, sess store.ChatSession, a Acto
 	if err := q.TouchChatSession(ctx, sess.ID); err != nil {
 		return user, asst, err
 	}
-	if sess.Title == nil {
+	// Tin khủng hoảng không làm tiêu đề phiên (US-P4-07 AC3: chữ của tin chỉ nằm ở chat_messages.content); tin thường sau đó đặt tiêu đề như cũ.
+	if sess.Title == nil && agent.DetectIntent(text) != agent.IntentCrisis {
 		if err := q.SetChatTitle(ctx, store.SetChatTitleParams{ID: sess.ID, Title: ptr(title60(text))}); err != nil {
 			return user, asst, err
 		}
@@ -220,6 +226,9 @@ func (s *Service) Retry(ctx context.Context, a Actor, mid uuid.UUID) (store.Chat
 	if err != nil {
 		return store.ChatMessage{}, err
 	}
+	if isStaffIntent(m.Intent) {
+		return store.ChatMessage{}, apierr.New(http.StatusUnprocessableEntity, apierr.MessageNotRateable)
+	}
 	if m.Role != store.ChatRoleASSISTANT || (m.StreamStatus != store.ChatStreamStatusFAILED && m.StreamStatus != store.ChatStreamStatusCANCELLED) {
 		return store.ChatMessage{}, apierr.New(http.StatusConflict, apierr.MessageNotRetryable)
 	}
@@ -230,7 +239,7 @@ func (s *Service) Retry(ctx context.Context, a Actor, mid uuid.UUID) (store.Chat
 	if err := s.archived(ctx, sess.CourseID); err != nil {
 		return store.ChatMessage{}, err
 	}
-	if err := s.precheck(ctx, a); err != nil {
+	if err := s.precheck(ctx, a, ""); err != nil {
 		return store.ChatMessage{}, err
 	}
 	q := store.New(s.Pool)

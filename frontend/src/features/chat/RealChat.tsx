@@ -22,6 +22,8 @@ import {
   type ChatSession,
 } from "./chatApi";
 import { ChatSessionSheet } from "./ChatSessionSheet";
+import { StaffReplyActions } from "./StaffReplyActions";
+import { TicketAction } from "./TicketAction";
 import { useChatRun, type Live } from "./useChatRun";
 import s from "./ChatScreen.module.css";
 import r from "./RealChat.module.css";
@@ -74,7 +76,27 @@ export function RealChat({ courseId }: { courseId: string }) {
     return () => clearTimeout(t);
   }, [until?.getTime()]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const list = messages.data ?? [];
+  const list = messages.data?.items ?? [];
+
+  // phiên có tin của giảng viên đang hiện → đánh dấu đã đọc thông báo "đã trả lời" (một lần mỗi phiên; GET không ghi, SRS 6.3 mục 15a)
+  const readFor = useRef<string | null>(null);
+  const hasStaff = list.some((m) => staffOf(m) !== null);
+  useEffect(() => {
+    if (!sid || !hasStaff || readFor.current === sid) return;
+    readFor.current = sid;
+    void apiClient.post("/notifications/read", { link: `/chat?session=${sid}` }).catch(() => undefined);
+  }, [sid, hasStaff]);
+  const openTickets = messages.data?.openTickets ?? 0;
+  // `Hỏi tiếp` / `Đã rõ` chỉ ở tin giảng viên MỚI NHẤT của mỗi ticket
+  const lastStaff = new Set<string>();
+  const seenTicket = new Set<string>();
+  for (let i = list.length - 1; i >= 0; i--) {
+    const t = list[i].ticket;
+    if (t && staffOf(list[i]) && !seenTicket.has(t.id)) {
+      seenTicket.add(t.id);
+      lastStaff.add(list[i].id);
+    }
+  }
   // mở lại giữa lúc đang sinh: nối lại luồng của tin STREAMING (không mất, không lặp)
   const streamingRow = list.find((m) => m.role === "ASSISTANT" && m.stream_status === "STREAMING");
   useEffect(() => {
@@ -201,7 +223,7 @@ export function RealChat({ courseId }: { courseId: string }) {
                     </div>
                   ) : (
                     <>
-                      {list.map((m) => (live?.mid === m.id ? null : <Row key={m.id} m={m} fb={fb[m.id] ?? m.feedback} onVote={(v) => void vote.run({ mid: m.id, value: v, prev: fb[m.id] ?? m.feedback })} onRetry={() => void retry(m.id)} disabled={busy || locked} />))}
+                      {list.map((m) => (live?.mid === m.id ? null : <Row key={m.id} m={m} fb={fb[m.id] ?? m.feedback} onVote={(v) => void vote.run({ mid: m.id, value: v, prev: fb[m.id] ?? m.feedback })} onRetry={() => void retry(m.id)} disabled={busy || locked} openTickets={openTickets} userId={identity?.sub} lastStaff={lastStaff.has(m.id)} onTicket={() => void qc.invalidateQueries({ queryKey: messagesKey(sid ?? "") })} />))}
                       {live && <LiveRow live={live} onRetry={live.mid ? () => void retry(live.mid!) : undefined} />}
                     </>
                   )}
@@ -261,8 +283,18 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
   );
 }
 
-function Row({ m, fb, onVote, onRetry, disabled }: { m: ChatMessage; fb: Feedback; onVote: (v: Feedback) => void; onRetry: () => void; disabled: boolean }) {
+function Row({ m, fb, onVote, onRetry, disabled, openTickets, onTicket, userId, lastStaff }: { m: ChatMessage; fb: Feedback; onVote: (v: Feedback) => void; onRetry: () => void; disabled: boolean; openTickets: number; onTicket: () => void; userId?: string; lastStaff: boolean }) {
   if (m.role === "USER") return <div className={s.fromSv}><p className={s.who}>Bạn</p><p className={s.text}>{m.content}</p></div>;
+  const staff = staffOf(m);
+  if (staff) {
+    return (
+      <div className={s.fromAi} data-part="staff-answer">
+        <p className={s.who}>{staff.role === "TEACHER" ? "Giảng viên" : "Trợ giảng"} · {staff.full_name}</p>
+        <p className={r.plain}>{m.content}</p>
+        {lastStaff && m.ticket && <StaffReplyActions ticket={m.ticket} userId={userId} onChanged={onTicket} locked={disabled} />}
+      </div>
+    );
+  }
   const failed = m.stream_status === "FAILED";
   const cancelled = m.stream_status === "CANCELLED";
   return (
@@ -289,10 +321,20 @@ function Row({ m, fb, onVote, onRetry, disabled }: { m: ChatMessage; fb: Feedbac
             <ThumbsDown aria-hidden />
             Không hữu ích
           </button>
+          <TicketAction m={m} openTickets={openTickets} onChanged={onTicket} locked={disabled} />
         </div>
       )}
     </div>
   );
+}
+
+/** Tin do giảng viên / trợ giảng viết (khối `ticket` có `answered_by`): không phải AI nên không có "Hữu ích" và không trích dẫn. */
+function staffOf(m: ChatMessage): { full_name: string; role: string } | null {
+  for (const b of m.blocks) {
+    const d = b.data as { answered_by?: { full_name?: string; role?: string } } | null;
+    if (b.kind === "ticket" && d?.answered_by?.full_name) return { full_name: d.answered_by.full_name, role: d.answered_by.role ?? "" };
+  }
+  return null;
 }
 
 function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
@@ -319,7 +361,7 @@ function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
   );
 }
 
-/** Dưới ngưỡng tự tin: chỉ một câu nhạt, không nút, không biểu tượng cảnh báo (nút nhờ giảng viên ẩn tới sprint 7). */
+/** Dưới ngưỡng tự tin: một câu nhạt, không biểu tượng cảnh báo; ticket tự mở thì dòng trạng thái ở ngay dưới (TicketAction). */
 function Unsure() {
   return <p className={s.who} data-part="unsure">AI chưa đủ chắc chắn về câu này</p>;
 }
@@ -393,9 +435,16 @@ function Citations({ items }: { items: ChatCitation[] }) {
         excerpt: (
           <>
             {c.snippet}{" "}
-            <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
-              Xem tài liệu
-            </Link>
+            {!c.knowledge && (
+              <Link href={`/library/${c.document_id}`} className={s.linkBtn}>
+                Xem tài liệu
+              </Link>
+            )}
+            {c.knowledge && c.thread_id && (
+              <Link href={`/threads/${c.thread_id}`} className={s.linkBtn}>
+                Xem hỏi đáp
+              </Link>
+            )}
           </>
         ),
       }))}

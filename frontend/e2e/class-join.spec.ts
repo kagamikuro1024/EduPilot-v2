@@ -136,7 +136,7 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
 
 test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp", async ({ page }) => {
   const courseCalls = await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
-  await page.goto("/inbox");
+  await page.goto("/gradebook"); // #14: màn mẫu còn mô phỏng (`/students` đã thành thật ở US-P5-04)
   await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
   const panel = await options(page);
   await panel.getByRole("menuitem", { name: /761988 · An ninh mạng/ }).click();
@@ -147,7 +147,7 @@ test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùn
 
 test("mock course mapping: lớp có class_code lạ dùng lớp mô phỏng đầu", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "999999", "TEACHER")]);
-  await page.goto("/inbox");
+  await page.goto("/gradebook"); // #14: màn mẫu còn mô phỏng (`/students` đã thành thật ở US-P5-04)
   await expect(picker(page)).toContainText("999999");
   await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
 });
@@ -646,6 +646,61 @@ test("class settings page: TA thấy mã nhưng chỉ đọc; sinh viên bị ch
   await expect(page.getByLabel("Giới hạn sĩ số")).toBeDisabled();
 });
 
+/** Chi tiết lớp + `PUT /settings` cho thanh trượt ngưỡng; `server` là trạng thái máy chủ (đổi được giữa chừng để giả xung đột). */
+function thresholdApi(page: Page, server: { threshold: string; version: number }, put: (b: Json) => { status: number; body: unknown } | null = () => null) {
+  const log = { put: [] as Json[] };
+  return {
+    log,
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}`, (r) => fulfill(r, 200, { id: C1, class_code: "761988", settings: { escalation_threshold: server.threshold, version: server.version } }));
+      await page.route(`**/api/v1/courses/${C1}/settings`, (r) => {
+        const b = JSON.parse(r.request().postData() ?? "{}") as Json;
+        log.put.push(b);
+        const forced = put(b);
+        if (forced) return fulfill(r, forced.status, forced.body);
+        server.threshold = b.escalation_threshold as string;
+        server.version += 1;
+        return fulfill(r, 200, { id: C1, settings: { escalation_threshold: server.threshold, version: server.version } });
+      });
+    },
+  };
+}
+
+test("threshold slider: kéo đổi giá trị ngay (dấu phẩy), lưu một lần sau khi dừng; 409 nạp lại giá trị của máy chủ", async ({ page }) => {
+  const server = { threshold: "0.80", version: 3 };
+  let n = 0;
+  const api = thresholdApi(page, server, () => {
+    n++;
+    if (n < 2) return null;
+    server.threshold = "0.70"; // người khác vừa đổi
+    server.version = 6;
+    return { status: 409, body: apiErr("VERSION_CONFLICT", { current_version: 6, current: { escalation_threshold: "0.70", version: 6 } }) };
+  });
+  await openSettings(page, "TEACHER", { before: api.before });
+  const slider = page.getByRole("slider", { name: "Ngưỡng chuyển cho giảng viên" });
+  await expect(slider).toBeVisible();
+  await expect(page.getByText("Ít chuyển", { exact: true })).toBeVisible();
+  await expect(page.getByText("Chuyển nhiều", { exact: true })).toBeVisible();
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,80");
+  await slider.fill("0.65");
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,65"); // lạc quan: chưa đợi máy chủ
+  await expect.poll(() => api.log.put.length).toBe(1);
+  expect(api.log.put[0]).toEqual({ escalation_threshold: "0.65", version: 3 });
+  await slider.fill("0.9");
+  await expect.poll(() => api.log.put.length).toBe(2);
+  expect(api.log.put[1]).toEqual({ escalation_threshold: "0.90", version: 4 });
+  await expect(page.getByText("Vừa có người đổi. Đã nạp lại giá trị mới.")).toBeVisible();
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,70"); // hoàn về giá trị thật
+});
+
+test("threshold slider: TA chỉ xem, không gửi PUT", async ({ page }) => {
+  const api = thresholdApi(page, { threshold: "0.60", version: 1 });
+  await openSettings(page, "TA", { before: api.before });
+  await expect(page.getByRole("slider", { name: "Ngưỡng chuyển cho giảng viên" })).toBeDisabled();
+  await expect(page.locator("[data-part=threshold-value]")).toHaveText("0,60");
+  expect(api.log.put).toEqual([]);
+});
+
 test("class settings page: sinh viên → màn chặn quyền, 0 yêu cầu tới join-code", async ({ page }) => {
   await login(page, "STUDENT", [item(C1, "761988", "STUDENT")]);
   const hits: string[] = [];
@@ -924,4 +979,61 @@ test("@real roster import ui + share sources section (seed): GV lớp 2 nhập r
 
 test("@real join flow end to end (375 × 812): D xem trước và vào lớp 2, giảng viên duyệt, tạo lại mã, 6 mã sai ⇒ 429", async () => {
   test.skip(true, "@real — cần compose + seed (US-P2-12); phần tương đương chạy được: TestJoinGuessSimulation, TestRegenerateOldCodeDeadImmediately, TestApproveReject và các ca 'join page' / 'class members page'");
+});
+
+// US-P5-04 AC6: nhóm "Ngưỡng cần chú ý" trong cài đặt lớp.
+function riskApi(page: Page, server: { risk: Json; version: number }, put: (b: Json) => { status: number; body: unknown } | null = () => null) {
+  const log = { put: [] as Json[] };
+  return {
+    log,
+    before: async () => {
+      await page.route(`**/api/v1/courses/${C1}`, (r) => fulfill(r, 200, { id: C1, class_code: "761988", settings: { escalation_threshold: "0.80", version: server.version, risk: server.risk } }));
+      await page.route(`**/api/v1/courses/${C1}/settings`, (r) => {
+        const b = JSON.parse(r.request().postData() ?? "{}") as { risk: Json; version: number };
+        log.put.push(b);
+        const forced = put(b);
+        if (forced) return fulfill(r, forced.status, forced.body);
+        server.risk = { ...server.risk, ...b.risk };
+        server.version += 1;
+        return fulfill(r, 200, { id: C1, settings: { escalation_threshold: "0.80", version: server.version, risk: server.risk } });
+      });
+    },
+  };
+}
+const RISK0 = { attendance_ok_min: "0.70", activity_min_per_week: 1, study_min_minutes: 60, signals_required: 2, absent_alert: 3 };
+
+test("risk thresholds: năm dòng nhãn + thanh + giá trị; kéo đổi ngay, lưu MỘT lần sau khi dừng; 409 hoàn lại", async ({ page }) => {
+  const server = { risk: { ...RISK0 }, version: 3 };
+  let n = 0;
+  const api = riskApi(page, server, () => {
+    if (++n < 2) return null;
+    server.risk = { ...server.risk, absent_alert: 4 }; // người khác vừa đổi
+    server.version = 7;
+    return { status: 409, body: apiErr("VERSION_CONFLICT", { current_version: 7 }) };
+  });
+  await openSettings(page, "TEACHER", { before: api.before });
+  await expect(page.getByRole("heading", { name: "Ngưỡng cần chú ý" })).toBeVisible();
+  for (const label of ["Tỷ lệ có mặt tối thiểu", "Hoạt động tối thiểu mỗi tuần", "Phút học tối thiểu mỗi tuần", "Số tín hiệu thấp để tính", "Vắng nhiều từ"]) await expect(page.getByRole("slider", { name: label })).toBeVisible();
+  await expect(page.locator("[data-part=risk-attendance_ok_min]")).toHaveText("0,70");
+  await expect(page.locator("[data-part=risk-absent_alert]")).toHaveText("3 buổi");
+  const absent = page.getByRole("slider", { name: "Vắng nhiều từ" });
+  await absent.fill("5");
+  await expect(page.locator("[data-part=risk-absent_alert]")).toHaveText("5 buổi"); // lạc quan
+  await expect.poll(() => api.log.put.length).toBe(1);
+  expect(api.log.put[0]).toEqual({ risk: { absent_alert: 5 }, version: 3 });
+  await page.getByRole("slider", { name: "Tỷ lệ có mặt tối thiểu" }).fill("0.85");
+  await expect.poll(() => api.log.put.length).toBe(2);
+  expect(api.log.put[1]).toEqual({ risk: { attendance_ok_min: "0.85" }, version: 4 });
+  await expect(page.getByText("Vừa có người đổi. Đã nạp lại giá trị mới.")).toBeVisible();
+  await expect(page.locator("[data-part=risk-attendance_ok_min]")).toHaveText("0,70"); // hoàn về giá trị thật
+  await expect(page.locator("[data-part=risk-absent_alert]")).toHaveText("4 buổi");
+});
+
+test("risk thresholds: TA chỉ xem, không gửi PUT", async ({ page }) => {
+  const api = riskApi(page, { risk: { ...RISK0, signals_required: 3 }, version: 1 });
+  await openSettings(page, "TA", { before: api.before });
+  const s = page.getByRole("slider", { name: "Số tín hiệu thấp để tính" });
+  await expect(s).toBeDisabled();
+  await expect(page.locator("[data-part=risk-signals_required]")).toHaveText("3");
+  expect(api.log.put).toHaveLength(0);
 });

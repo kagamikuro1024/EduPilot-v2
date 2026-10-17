@@ -91,3 +91,33 @@ func TestAdminCreateRejectsPasswordFlag(t *testing.T) {
 	require.Contains(t, errOut, "Dùng biến ADMIN_PASSWORD hoặc stdin.")
 	require.NotContains(t, errOut, "Mat-khau-quan-tri-2026")
 }
+
+// TestAdminRunJob — US-P4-05: `run-job` chỉ chạy ở dev / test, cú pháp sai thoát 2, chạy được một lần không có ticket (kèm --now).
+func TestAdminRunJob(t *testing.T) {
+	env := serveEnv()
+	env["DATABASE_URL"] = testutil.MigratedPostgresURL(t)
+	run := func(appEnv string, args ...string) (int, string, string) {
+		e := map[string]string{}
+		for k, v := range env {
+			e[k] = v
+		}
+		e["APP_ENV"] = appEnv
+		return runAdminCmd(t, append([]string{"run-job"}, args...), func(k string) string { return e[k] }, "")
+	}
+	for _, bad := range [][]string{{}, {"--now", "2026-10-13T09:30:00+07:00"}, {"khong.co"}, {"ticket.sla", "--now", "hôm qua"}, {"ticket.sla", "thừa"}} {
+		code, _, _ := run("test", bad...)
+		require.Equal(t, 2, code, "%v", bad)
+	}
+	for _, appEnv := range []string{"production", "staging", "local", ""} {
+		code, out, errOut := run(appEnv, "ticket.sla")
+		require.Equal(t, 1, code, appEnv)
+		require.Empty(t, out)
+		require.Contains(t, errOut, "APP_ENV")
+	}
+	code, out, errOut := run("test", "ticket.sla", "--now", "2026-10-13T09:30:00+07:00")
+	require.Equal(t, 0, code, errOut)
+	require.Contains(t, out, "ticket.sla xong")
+	code, out, errOut = run("dev", "ticket.autoclose")
+	require.Equal(t, 0, code, errOut)
+	require.Contains(t, out, "0 ticket đã đóng")
+}

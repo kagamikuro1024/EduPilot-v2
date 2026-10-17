@@ -153,6 +153,8 @@ func (r *runner) threadScenarios(x examRig) {
 	_ = db.QueryRow(ctx, `select id::text from forum_posts where thread_id=$1 and kind='HUMAN' limit 1`, tid).Scan(&humanID)
 	r.must(call{method: "POST", path: base + "/posts/" + humanID + "/verify", token: x.ta}, 409)
 
+	r.moderationScenarios(x, tsv, tother, sv, other)
+
 	// 11: from-draft.
 	F := "/api/v1/chat/sessions/from-draft"
 	fd := `{"course_id":"` + x.cid + `","title":"Hỏi","body":"Em có MSSV 20229001, điểm của em thế nào?"}`
@@ -161,4 +163,133 @@ func (r *runner) threadScenarios(x examRig) {
 	r.must(call{method: "POST", path: F, token: x.ta, headers: idem(), body: fd}, 403)
 	r.must(call{method: "POST", path: F, token: tsv, headers: idem(), body: `{"course_id":"` + x.arch + `","body":"x"}`}, 409)
 	r.must(call{method: "POST", path: F, token: tsv, headers: idem(), body: `{"course_id":"` + x.cid + `","body":"   "}`}, 422)
+}
+
+// moderationScenarios: 17 thao tác kiểm duyệt Threads (US-P4-06) với mọi status đã khai báo, cho cả thread lẫn bình luận. Hàng chèn thẳng vào DB.
+func (r *runner) moderationScenarios(x examRig, tsv, tother string, sv, other uuid.UUID) {
+	db := r.rig.deps.DB
+	ctx := context.Background()
+	base := "/api/v1/courses/" + x.cid
+	mkThread := func() string {
+		var id string
+		if err := db.QueryRow(ctx, `insert into forum_threads (course_id, author_id, title, body) values ($1, $2, 'Kiểm duyệt', 'Câu hỏi để kiểm duyệt') returning id::text`, x.cid, sv).Scan(&id); err != nil {
+			r.t.Fatal(err)
+		}
+		return id
+	}
+	mkPost := func(tid string) string {
+		var id string
+		if err := db.QueryRow(ctx, `insert into forum_posts (course_id, thread_id, author_id, kind, body, verification_state, citations) values ($1, $2, $3, 'HUMAN', 'Bình luận', 'NONE', '[]') returning id::text`, x.cid, tid, sv).Scan(&id); err != nil {
+			r.t.Fatal(err)
+		}
+		return id
+	}
+	ver := func(raw []byte) int {
+		var m struct {
+			Version int `json:"version"`
+		}
+		_ = json.Unmarshal(raw, &m)
+		return m.Version
+	}
+	body := func(v int, reason string) string {
+		b, _ := json.Marshal(map[string]any{"version": v, "reason": reason})
+		return string(b)
+	}
+	const spam = `{"reason":"SPAM"}`
+	for _, kind := range []string{"threads", "posts"} {
+		mk := func() string {
+			t := mkThread()
+			if kind == "posts" {
+				return mkPost(t)
+			}
+			return t
+		}
+		P := func(id, op string) string { return base + "/" + kind + "/" + id + op }
+
+		// báo cáo + rút báo cáo
+		id := mk()
+		r.must(call{method: "POST", path: P(id, "/report"), token: tother, body: spam}, 201)
+		r.must(call{method: "POST", path: P(id, "/report"), token: tother, body: spam}, 409) // ALREADY_REPORTED
+		r.must(call{method: "POST", path: P(id, "/report"), token: tsv, body: spam}, 422)    // CANNOT_REPORT_OWN
+		r.must(call{method: "POST", path: P(id, "/report"), token: tother, body: `{"reason":"KHONG_CO"}`}, 422)
+		r.must(call{method: "POST", path: P(id, "/report"), body: spam}, 401)
+		r.must(call{method: "POST", path: P(id, "/report"), token: x.admin, body: spam}, 403)
+		r.must(call{method: "POST", path: P(uuid.NewString(), "/report"), token: tother, body: spam}, 404)
+		r.must(call{method: "DELETE", path: P(id, "/report"), token: tother}, 204)
+		r.must(call{method: "DELETE", path: P(id, "/report"), token: tother}, 404)
+		r.must(call{method: "DELETE", path: P(id, "/report")}, 401)
+		r.must(call{method: "DELETE", path: P(id, "/report"), token: x.admin}, 403)
+
+		// ẩn / bỏ ẩn / giữ bài; rút báo cáo của bài đã ẩn = 409
+		h := mk()
+		r.must(call{method: "POST", path: P(h, "/report"), token: x.gv, body: spam}, 201)
+		r.must(call{method: "POST", path: P(h, "/hide"), token: x.gv, body: body(1, "")}, 422)
+		r.must(call{method: "POST", path: P(h, "/hide"), body: body(1, "x")}, 401)
+		r.must(call{method: "POST", path: P(h, "/hide"), token: tsv, body: body(1, "x")}, 403)
+		r.must(call{method: "POST", path: P(uuid.NewString(), "/hide"), token: x.gv, body: body(1, "Lạc đề")}, 404)
+		_, b := r.must(call{method: "POST", path: P(h, "/hide"), token: x.gv, body: body(1, "Lạc đề")}, 200)
+		v := ver(b)
+		r.must(call{method: "POST", path: P(h, "/hide"), token: x.gv, body: body(v, "Lạc đề")}, 409) // đã ẩn thủ công
+		r.must(call{method: "DELETE", path: P(h, "/report"), token: x.gv}, 409)                      // bài đã ẩn
+		r.must(call{method: "POST", path: P(h, "/unhide"), token: x.gv, body: body(v-1, "")}, 409)   // VERSION_CONFLICT
+		r.must(call{method: "POST", path: P(h, "/unhide"), body: body(v, "")}, 401)
+		r.must(call{method: "POST", path: P(h, "/unhide"), token: tsv, body: body(v, "")}, 403)
+		r.must(call{method: "POST", path: P(uuid.NewString(), "/unhide"), token: x.gv, body: body(1, "")}, 404)
+		_, b = r.must(call{method: "POST", path: P(h, "/unhide"), token: x.gv, body: body(v, "")}, 200)
+		v = ver(b)
+		r.must(call{method: "POST", path: P(h, "/dismiss-reports"), token: x.gv, body: body(v-1, "")}, 409)
+		r.must(call{method: "POST", path: P(h, "/dismiss-reports"), body: body(v, "")}, 401)
+		r.must(call{method: "POST", path: P(h, "/dismiss-reports"), token: tsv, body: body(v, "")}, 403)
+		r.must(call{method: "POST", path: P(uuid.NewString(), "/dismiss-reports"), token: x.gv, body: body(1, "")}, 404)
+		r.must(call{method: "POST", path: P(h, "/dismiss-reports"), token: x.ta, body: body(v, "")}, 200)
+
+		// sửa / xoá của chủ bài
+		e := mk()
+		edit := func(v int, text string) string {
+			b, _ := json.Marshal(map[string]any{"title": "Tiêu đề sửa", "body": text, "version": v})
+			if kind == "posts" {
+				b, _ = json.Marshal(map[string]any{"body": text, "version": v})
+			}
+			return string(b)
+		}
+		r.must(call{method: "PUT", path: P(e, ""), token: tsv, body: edit(1, "Nội dung đã sửa.")}, 200)
+		r.must(call{method: "PUT", path: P(e, ""), token: tsv, body: edit(1, "Nội dung đã sửa.")}, 409) // version cũ
+		r.must(call{method: "PUT", path: P(e, ""), body: edit(2, "x")}, 401)
+		r.must(call{method: "PUT", path: P(e, ""), token: tother, body: edit(2, "x")}, 403)
+		r.must(call{method: "PUT", path: P(uuid.NewString(), ""), token: tsv, body: edit(1, "x")}, 404)
+		r.must(call{method: "PUT", path: P(e, ""), token: tsv, body: edit(2, "   ")}, 422)
+		r.must(call{method: "DELETE", path: P(e, "")}, 401)
+		r.must(call{method: "DELETE", path: P(e, ""), token: tother}, 403)
+		r.must(call{method: "DELETE", path: P(e, ""), token: tsv}, 204)
+		r.must(call{method: "DELETE", path: P(e, ""), token: tsv}, 404)
+	}
+
+	// hàng chờ
+	Q := base + "/moderation/queue"
+	r.must(call{method: "GET", path: Q + "?status=OPEN", token: x.gv}, 200)
+	r.must(call{method: "GET", path: Q + "?status=HIDDEN", token: x.ta}, 200)
+	r.must(call{method: "GET", path: Q + "?status=KHAC", token: x.gv}, 422)
+	r.must(call{method: "GET", path: Q}, 401)
+	r.must(call{method: "GET", path: Q, token: tsv}, 403)
+
+	// ghim: ≤ THREAD_PIN_MAX = 3 mỗi lớp
+	var pins []string
+	for range 4 {
+		pins = append(pins, mkThread())
+	}
+	pin := func(id, op string) string { return base + "/threads/" + id + op }
+	for _, id := range pins[:3] {
+		r.must(call{method: "POST", path: pin(id, "/pin"), token: x.gv}, 204)
+	}
+	r.must(call{method: "POST", path: pin(pins[3], "/pin"), token: x.gv}, 409) // PIN_LIMIT
+	r.must(call{method: "POST", path: pin(pins[0], "/pin")}, 401)
+	r.must(call{method: "POST", path: pin(pins[0], "/pin"), token: tsv}, 403)
+	r.must(call{method: "POST", path: pin(uuid.NewString(), "/pin"), token: x.gv}, 404)
+	for _, id := range pins[:3] {
+		r.must(call{method: "POST", path: pin(id, "/unpin"), token: x.ta}, 204)
+	}
+	r.must(call{method: "POST", path: pin(pins[0], "/unpin")}, 401)
+	r.must(call{method: "POST", path: pin(pins[0], "/unpin"), token: tsv}, 403)
+	r.must(call{method: "POST", path: pin(uuid.NewString(), "/unpin"), token: x.ta}, 404)
+	_ = other
 }

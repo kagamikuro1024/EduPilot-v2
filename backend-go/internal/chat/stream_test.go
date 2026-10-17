@@ -47,11 +47,12 @@ func TestFirstEventBeforeProvider(t *testing.T) {
 func TestStreamEventOrder(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
+	gate := make(chan struct{}) // giữ luồng giả cho tới khi kiểm xong trạng thái "đang STREAMING"
 	r.ag.fn = func(ctx context.Context, _ agent.TrustedContext, in agent.Input) (agent.Outcome, error) {
 		in.OnStage("searching")
 		return agent.Outcome{Plan: agent.IntentCourseQA, Hits: []hitT{hit("Quy chế", "Nội dung quy chế.")},
 			Blocks: []agent.Block{{Kind: "upcoming_events", Data: map[string]any{"items": []string{}}}},
-			Stream: r.ag.stream(ctx, nil, 5*time.Millisecond, llm.Response{MaskedCurrent: 2}, "Theo ", "quy chế [1] ", "và [7].")}, nil
+			Stream: r.ag.stream(ctx, gate, 5*time.Millisecond, llm.Response{MaskedCurrent: 2}, "Theo ", "quy chế [1] ", "và [7].")}, nil
 	}
 	m, err := r.svc.Send(t.Context(), r.student, r.sess, uuid.New(), "Quy chế thi nói gì?")
 	require.NoError(t, err)
@@ -60,6 +61,7 @@ func TestStreamEventOrder(t *testing.T) {
 	st, _, partial, _ := r.row(m.ID)
 	require.Equal(t, "STREAMING", st)
 	require.Nil(t, partial)
+	close(gate)
 	c := newCol()
 	require.NoError(t, r.svc.Tail(t.Context(), c, m, ""))
 	ev := c.events()
@@ -266,6 +268,7 @@ func TestStreamMaxDuration(t *testing.T) {
 	require.Equal(t, "FAILED", st)
 	require.Equal(t, "PROVIDER_ERROR", *code)
 	require.Equal(t, chat.EvError, c.last().Ev)
+	<-r.ag.aborted // luồng giả thấy ctx huỷ (sự kiện, không đoán thời gian)
 	require.True(t, r.ag.provAbort.Load(), "ctx provider bị huỷ khi hết hạn")
 }
 
@@ -274,6 +277,7 @@ func TestCancelReachesProvider(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
 	gate := make(chan struct{})
+	r.ag.hold = true // luồng giả không tự xong: Cancel luôn tới khi còn đang sinh chữ
 	r.ag.fn = func(ctx context.Context, _ agent.TrustedContext, _ agent.Input) (agent.Outcome, error) {
 		return agent.Outcome{Plan: agent.IntentCourseQA, Stream: r.ag.stream(ctx, gate, 10*time.Millisecond, llm.Response{}, "đã ", "có ", "chữ")}, nil
 	}
@@ -288,6 +292,7 @@ func TestCancelReachesProvider(t *testing.T) {
 	t0 := time.Now()
 	require.NoError(t, r.svc.Cancel(t.Context(), r.student, m.ID))
 	r.svc.Wait()
+	<-r.ag.aborted
 	if os.Getenv("EP_SKIP_TIMING") != "1" { // AC6 ≤ 1 s chạy tuần tự; song song chỉ kiểm provider thật sự bị huỷ
 		require.Less(t, time.Since(t0), time.Second)
 	}
@@ -302,6 +307,7 @@ func TestCancelReachesProvider(t *testing.T) {
 	st2, _, _, _ := r.row(m.ID)
 	require.Equal(t, "CANCELLED", st2)
 	// khoá CHAT_BUSY đã nhả: gửi tiếp được
+	r.ag.hold = false
 	r.ag.say(time.Millisecond, "ok")
 	_, _, err = r.send(r.student, r.sess, "tiếp")
 	require.NoError(t, err)

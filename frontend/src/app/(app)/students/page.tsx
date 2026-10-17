@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { StudentsView } from "@/features/students/StudentsView";
+import { StudentsScreen } from "@/features/students/StudentsScreen";
 
 export const metadata: Metadata = { title: "Sinh viên" };
 
 export default function Page() {
-  return <StudentsView />;
+  return <StudentsScreen />;
 }

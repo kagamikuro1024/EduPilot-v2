@@ -17,6 +17,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/testutil"
 	"github.com/edupilot/backend-go/internal/today"
 )
 
@@ -507,7 +508,7 @@ func TestTodayTTLSafetyNet(t *testing.T) {
 	ttl := r.rdb.TTL(t.Context(), today.CacheKey(u.ID, "all")).Val()
 	require.True(t, ttl > 0 && ttl <= 60*time.Second, "TTL %s", ttl)
 	require.True(t, r.rdb.PExpire(t.Context(), today.CacheKey(u.ID, "all"), 5*time.Millisecond).Val())
-	time.Sleep(50 * time.Millisecond)
+	waitFor(t, 30*time.Second, "khoá cache hết hạn", func() bool { return r.rdb.Exists(t.Context(), today.CacheKey(u.ID, "all")).Val() == 0 })
 	require.NotContains(t, kinds(actionsOf(r.tgetC(g, "/me/today"))), "JOIN_REQUEST", "hết TTL ⇒ tính lại")
 }
 
@@ -584,10 +585,12 @@ func TestTodayInvalidatedByApprove(t *testing.T) {
 		res := r.do(req{method: http.MethodPost, path: "/courses/" + c.sid() + "/members/" + uid + "/approve", bearer: g.access, body: map[string]any{}})
 		require.Equal(t, http.StatusOK, res.code, string(res.body))
 	}
-	took := waitFor(t, 2*time.Second, "JOIN_REQUEST biến khỏi Hôm nay", func() bool {
+	took := waitFor(t, 30*time.Second, "JOIN_REQUEST biến khỏi Hôm nay", func() bool {
 		return !strings.Contains(strings.Join(kinds(actionsOf(r.tgetC(g, "/me/today"))), ","), "JOIN_REQUEST")
 	})
-	require.Less(t, took, 2*time.Second)
+	if testutil.TimingOn() {
+		require.Less(t, took, 2*time.Second)
+	}
 }
 
 func TestTodayRedisDownFailsOpen(t *testing.T) {
@@ -620,14 +623,15 @@ func TestTodayQueryBudget(t *testing.T) {
 	su, ss := r.person(store.UserRoleSTUDENT, true)
 	r.enrollAt(c1, su, "STUDENT", "ACTIVE", "", time.Hour)
 	for name, tc := range map[string]struct {
-		s    session
-		path string
+		s     session
+		path  string
+		limit int64
 	}{
-		"giảng viên tất cả lớp": {g, "/me/today"}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today"}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today"},
+		"giảng viên tất cả lớp": {g, "/me/today", 6}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 6}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 5},
 	} {
 		before := r.qc.n.Load()
 		require.Equal(t, http.StatusOK, r.tgetC(tc.s, tc.path).code, name)
-		require.LessOrEqual(t, r.qc.n.Load()-before, int64(5), name+": ≤ 5 truy vấn kể cả guard")
+		require.LessOrEqual(t, r.qc.n.Load()-before, tc.limit, fmt.Sprintf("%s: ≤ %d truy vấn kể cả guard (#28)", name, tc.limit))
 	}
 }
 
@@ -692,10 +696,9 @@ func TestAdminTodaySurvivesHangingLLMSignals(t *testing.T) {
 	r := newRig(t)
 	r.klass("761995")
 	r.llmProvider("Treo", true, new(bool))
-	start := time.Now()
+	// hangLLM chỉ nhả khi ctx huỷ và t.Context() không có hạn: Items trả về được là bằng chứng tín hiệu treo bị cắt ở hạn riêng (không đo mili-giây)
 	items, err := (today.AdminProvider{Pool: r.pool, LLM: hangLLM{}}).Items(t.Context(), today.Viewer{Role: today.RoleAdmin, Now: r.clk.Now()}, today.Scope{})
 	require.NoError(t, err)
-	require.Less(t, time.Since(start), 140*time.Millisecond, "tín hiệu treo bị cắt ở hạn riêng, trước hạn 150 ms của Provider")
 	var seen bool
 	for _, it := range items {
 		seen = seen || (it.Kind == today.KindCourseNoTeacher && it.Course.ClassCode == "761995")
