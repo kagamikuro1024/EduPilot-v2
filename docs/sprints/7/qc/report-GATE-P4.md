@@ -1,15 +1,17 @@
 # QC — báo cáo cổng P4 (escalation, thông báo, thư, kiểm duyệt Threads, an toàn con người)
 Ngày 2026-10-16. Commit: `sprint/7-p4-p5` @ `0f9ff865`; CI `38782040813` **xanh** (10 ph 59 s) — các lượt CI trước đó của nhánh (`a908fd9` …) đỏ ở Lighthouse, đã sửa. Bộ kiểm: `gate-P4.md` (G4-01…32), `tc-US-P4-01…07.md`, `.claude/skills/gate/SKILL.md`. Stack `edupilot100` **sạch** dựng từ nhánh (`down -v`, `up --build --profile ingest`, `--scale gateway=2`, docling thật, seed đầy đủ — xem `report-US-S7-SEED.md`).
 
-## Kết luận cổng P4: **ĐẠT CÓ ĐIỀU KIỆN** — 0 dòng FAIL; 4 điều kiện (mục 5)
-
-**Cập nhật 2026-10-16 (#39):** điều kiện 2 ở mục 5 đã được PM trả lời (803393b7 = nội dung #24/#25 của BA gộp nhầm vào commit dev; 30f81cae = BA bổ sung tài liệu theo chữ AC7, PM giao; ba dòng `a5c13b99` thuộc BUG-S7-02) — ghi nhận, lỗi quy trình ghi lại; không còn điều kiện mở về quy trình.
+## Kết luận cổng P4 (mới nhất, vòng 2): **ĐẠT**
 
 **Cập nhật vòng 2 (2026-10-16, `a1ff631e`, CI `38797158070` xanh): điều kiện 1 — đóng; cổng P4: ĐẠT.**
 - Điều kiện 1 (`TestJoinFailureTimingEqualized` đỏ khi chạy `go test -race ./...` trần): chạy lại **đúng quy trình TL-3** bằng `bash scripts/go-test-all.sh` → rc=0 (bước 1 song song `EP_SKIP_TIMING=1`, mọi gói ok; bước 2 `-p 1 -count=3 -run 'TimingEqualized$'` `internal/auth` 25,7 s, `internal/course` 2,9 s, ok). Lượt đỏ của QC là chạy ngoài quy trình CI; không còn là điều kiện.
 - Điều kiện 2 đóng theo #39 (ghi ở trên). Điều kiện 3 (`visual.spec.ts` macOS): vẫn 13 ca đỏ cục bộ, CI Linux xanh — ghi nhận, không phải lỗi mã. Điều kiện 4 (gián tiếp): không đổi.
 - Chạy lại trên stack sạch: `gate-p4.sh` rc=0 (8 bước PASS); G4-15 (ma trận quyền), G4-16 (hai người `claim`: `200`/`409 TICKET_ALREADY_CLAIMED`; `answer` lặp khoá → 1 tin), G4-23 (`PII_IN_ANSWER` ×3, email giảng viên `200`), G4-13/14 (thư trong 2 s, 0 dữ liệu chéo), G4-11 (đọc hết thông báo rồi hỏi: chuông "Thông báo" → "1 chưa đọc" ≤ 5 s; với seed mới chỉ 5 ticket nên không còn hiện tượng thông báo gộp che số), G4-25 (canary 0), G4-26 đều đạt.
-## Kết luận cổng P4 sau vòng 2: **ĐẠT**
+
+## (Vòng 1) Kết luận cổng P4: **ĐẠT CÓ ĐIỀU KIỆN** — 0 dòng FAIL; 4 điều kiện (mục 5)
+
+**Cập nhật 2026-10-16 (#39):** điều kiện 2 ở mục 5 đã được PM trả lời (803393b7 = nội dung #24/#25 của BA gộp nhầm vào commit dev; 30f81cae = BA bổ sung tài liệu theo chữ AC7, PM giao; ba dòng `a5c13b99` thuộc BUG-S7-02) — ghi nhận, lỗi quy trình ghi lại; không còn điều kiện mở về quy trình.
+
 
 ## 1. Rà soát thay đổi spec / TC từ APPROVED (yêu cầu của PM)
 Phạm vi: `git log -p` của `docs/specs/**` (mọi `FEAT-*`) và `docs/sprints/7/qc/tc-*`.
