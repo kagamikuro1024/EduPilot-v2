@@ -1,6 +1,6 @@
 # Sprint 8: P6 Sổ điểm và điểm cuối kỳ từ quy chế môn học
 
-**Trạng thái:** chờ chủ dự án duyệt.
+**Trạng thái:** bản nháp; chủ dự án hoãn sprint 8 (2026-10-18), chưa giao việc.
 **Nhánh:** `sprint/8-p6` tách từ `main` (sau merge sprint 7). Dev làm ở `../TA_Agent_v2-s7`, PM ở `../TA_Agent_v2-s6` (detached), BA ở `/tmp/ba-wt`.
 
 ## Mục tiêu
