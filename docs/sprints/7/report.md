@@ -9,7 +9,7 @@
 | Story | Nội dung | QC |
 | --- | --- | --- |
 | US-CI-02 | TL-CI #3 (shard Playwright 3 phần, Lighthouse matrix) và #5 (Go static ∥ matrix test) | **FAIL** (vòng 3: 1/6 lượt nguội đỏ) → tách BUG-S7-01 |
-| BUG-S7-01 | Sửa ở gốc mọi test Go chờ đồng hồ thật; tách dòng `rest` thành 2 | PASS, sau sửa (6/6 lượt nguội xanh, ≤ 10 phút) |
+| BUG-S7-01 | Sửa ở gốc mọi test Go chờ đồng hồ thật; tách dòng `rest` thành 2 | PASS, sau sửa (6/6 lượt nguội xanh, 8 m 06 s – 9 m 53 s) |
 | US-P4-01 | Migration `00012_escalation_notify`, ticket idempotent theo `message_id`, trần 5 ticket mở, nút "Nhờ giảng viên" | PASS, sau sửa |
 | US-P4-02 | `internal/notify` một cửa, chuông tức thì qua `/events` (Redis pub/sub, chạy qua 2 bản gateway), gộp thông báo | PASS, sau 2 vòng sửa |
 | US-P4-03 | `/inbox` thật: danh sách + hội thoại, `Nhận` (người sau 409 thấy ai nhận, lúc nào), trả lời vào chat riêng, phím tắt, 375 px | PASS, sau 2 vòng sửa |
@@ -38,10 +38,10 @@ Tech Lead thẩm định cả hai trước khi `APPROVED` (P4: 22 TLR, 5 chặn;
   - `TestNotifyAcrossTwoGateways`: sự kiện sinh ở bản B tới người nối ở bản A sau 14 ms;
   - thư trả lời tới Mailpit sau 2 s, đúng 1 thư, 0 dữ liệu sinh viên khác.
 - **Điểm danh (P5):** 30 sinh viên ở 375 px theo kịch bản QC 4,4 s; bàn phím 1–4 cả lưới ≈ 3 s; một `PUT` cho cả 30 dòng. Chủ dự án chưa bấm giờ trên điện thoại thật.
-- **Thời gian học:** heartbeat k6 10 req/s × 60 s p95 **8,82 ms**, 0 lỗi (ngưỡng 20 ms); Redis chết thì trả `204` sau 0,70–0,76 s.
+- **Thời gian học:** heartbeat k6 10 req/s × 60 s p95 **8,65 ms** ở lượt cổng P5 cuối (lượt đầu 8,82 ms), 0 lỗi (ngưỡng 20 ms); Redis chết thì trả `204` sau 0,70–0,76 s.
 - **Danh sách sinh viên lớp 1.000 SV:** p95 trang đầu ≈ 49 ms (ngưỡng 300 ms, đo khi máy rảnh); hồ sơ ≤ 3 s; lớp 100 SV không `Seq Scan`.
 - **`/me`:** LCP devtools 1.478 ms (ngưỡng 2.500 ms), JS 237 KB.
-- **CI:** sau BUG-S7-01, 6/6 lượt nguội xanh, 7 m 43 s – 8 m 44 s mỗi lượt (trước TL-CI #3 #5 ≈ 11,5 phút).
+- **CI:** sau BUG-S7-01, 6/6 lượt nguội xanh, 8 m 06 s – 9 m 53 s mỗi lượt, đều ≤ 10 phút (`report-BUG-S7-01.md`; trước TL-CI #3 #5 ≈ 11,5 phút). Số 7 m 43 s – 8 m 44 s trong bản trước của báo cáo là của US-CI-02 vòng 3 (5/6 xanh), PM ghi nhầm.
 - **Seed trên DB trống:** 416 s; đúng 1 sinh viên `AT_RISK` (C), 2 `WATCH`, 5 ticket đủ trạng thái.
 - **Khối lượng:** 164 commit; `backend-go` + `frontend` + `scripts` + `benchmarks` + `seed` thêm 45.927 dòng, bớt 6.712. Gói Go mới: `escalation`, `notify`, `knowledge`, `workhours`, `crm`, `activity`, `seedtool`.
 - **Góp ý:** #1–#42, PM quyết hết; Tech Lead thêm TL-1 (ngân sách JS khi thêm tracker).
