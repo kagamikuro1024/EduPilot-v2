@@ -124,6 +124,7 @@ type FailCondition struct {
 	RuleMeta
 	Kind  FailKind
 	Value decimal.Decimal
+	Text  string // chữ gốc của value ("3.0"), in lại ở verdict
 }
 
 // MissingScoreRule: các thành phần (theo key) được tính 0 khi thiếu điểm mà nguồn đã chốt (TLR-2).
