@@ -55,3 +55,15 @@ Tech Lead, 2026-10-31, nhánh `sprint/8-p6` @ `466b90ef`. Spec còn `DRAFT` nên
 - **Rủi ro còn lại:** khi hết ngân sách, chạy mô hình rẻ có thể trích kém hơn. Lưới đỡ là bộ kiểm bằng code, kiểm trích dẫn có thật, và giảng viên xác nhận. Chỉ cân nhắc thêm task `POLICY_EXTRACT` (đổi CHECK đã APPROVED của `FEAT-llm-gateway`) khi có số đo thật cho thấy mô hình mặc định trích sai, mà Q13 đã chốt không chạy LLM thật ở sprint này.
 
 **Dòng cho `proposals.md`:** `#3 Tech Lead: đồng ý + 4 bổ sung (UNIQUE(course_id,id) cho grade_items; chỉ mục snapshot (course_id,version,student_id); gradebooks tạo lúc xác nhận; SUPERSEDED trước CONFIRMED) · #4 đồng ý · #6 giữ UTILITY/NEAR_REALTIME (SYSTEM_DESIGN §3.1; BATCH bị chặn khi hết ngân sách và xếp sau chấm bài) — TL-REVIEW FEAT-gradebook.`
+
+## Quyết định PM (2026-10-31)
+
+**TLR-1 … TLR-19: ACCEPTED hết**, theo cột "Đề xuất". Bốn ý đụng cách tính điểm đã hỏi chủ dự án (2026-10-31, chủ dự án chọn theo đề xuất):
+- **TLR-1:** chuẩn hoá độ chính xác máy (`DivRound(·, 20)`, `HP_thô.Round(10)`) ngay trước bước làm tròn; quy tắc làm tròn nghiệp vụ không đổi.
+- **TLR-2:** số 0 theo `zero_components` chỉ áp khi nguồn đã chốt cho item đó (bài thi `PUBLISHED` mà không có lượt `GRADED`; item nhập tay đã công bố cột). Bài chưa công bố → `INCOMPLETE`, chặn chốt.
+- **TLR-7:** điểm nhập / sửa có hơn 2 chữ số thập phân → từ chối `SCORE_PRECISION`, không tự làm tròn; đọc ô XLSX bằng giá trị đã định dạng.
+- **TLR-17:** `PENALTY.applicable = false` → sự kiện `PENALTY` ghi tay ở P5 **không** bị trừ; sổ hiện cảnh báo không chặn `PENALTY_NOT_IN_SCHEME`.
+
+**proposals #3 ACCEPTED** kèm 4 bổ sung của Tech Lead; **#4 ACCEPTED**; **#6:** giữ `UTILITY` / `NEAR_REALTIME`, không thêm task.
+
+BA sửa spec + `fixtures/` + `seed/expected_final_grades.csv` (TLR-5: in đủ chữ số, sinh lại bằng `--write`) theo các quyết định trên, commit ghi `TLR-<số>` / `#<số>`; xong thì PM đánh `APPROVED`.
