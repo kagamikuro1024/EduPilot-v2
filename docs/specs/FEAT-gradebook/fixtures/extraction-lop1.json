@@ -131,7 +131,7 @@
    "applicable": true,
    "params": {
     "kind": "ABSENT_AT_LEAST",
-    "value": 7
+    "value": "7"
    },
    "citation_ids": [
     "c9"

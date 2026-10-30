@@ -1,13 +1,19 @@
-case,midterm,weekly_exam_t9,final_exam,speak_bonus_points,penalty_event_points,absent,round_step,hp_raw,hp,letter,verdict,note
-S01-san-QT,0.00,,6.00,0.25,0.00,4,0.5,3.6000,3.5,F,OK,QT âm → sàn 0
-S02-tran-cong-dung-1.00,7.00,7.00,7.00,1.00,0.00,0,0.5,7.4000,7.5,B,OK,"B = 1,00 đúng trần"
-S03-tran-cong-1.25,7.00,7.00,7.00,1.25,0.00,0,0.5,7.4000,7.5,B,OK,"B = 1,25 → 1,00"
-S04-vang-2-mien,7.00,7.00,7.00,0.00,0.00,2,0.5,7.0000,7.0,B,OK,vắng 2 → P = 0
-S05-vang-3-tru-0.5,7.00,7.00,7.00,0.00,0.00,3,0.5,6.8000,7.0,B,OK,"vắng 3 → P = 0,5"
-S06-su-kien-PENALTY,7.00,7.00,7.00,0.00,0.50,0,0.5,6.8000,7.0,B,OK,"sự kiện PENALTY −0,5 cộng vào P"
-S07-liet-vang-7,8.00,8.00,8.00,0.00,0.00,7,0.5,7.0000,7.0,F,LIET:absent>=7,vắng 7 → liệt
-S08-vang-6-chua-liet,8.00,8.00,8.00,0.00,0.00,6,0.5,7.2000,7.0,B,OK,"vắng 6 → chưa liệt (P = 2,0)"
-S09-thieu-cuoi-ky,8.00,8.00,,0.00,0.00,0,0.5,,,,INCOMPLETE:final_exam,thiếu cuối kỳ → chưa đủ điểm
-S10-lam-tron-0.1-nua-len,7.00,7.00,7.25,0.25,0.00,0,0.1,7.2500,7.30,B,OK,"raw 7,25 → 7,3 (chẵn-gần-nhất sẽ ra 7,2)"
-S11-lam-tron-0.5-duoi-1-chut,6.25,6.00,6.00,0.50,0.00,0,0.5,6.2500,6.5,C+,OK,"raw 6,25 (nửa lên → 6,5; chẵn-gần-nhất sẽ ra 6,0)"
-S12-A-khong-len-A+,8.00,8.00,9.00,0.00,0.00,0,0.5,8.6000,8.5,A,OK,"raw 8,60 → 8,5 → A (không phải A+)"
+case,midterm,weekly_exam_t9,weekly_state,final_exam,speak_bonus_points,penalty_event_points,absent,round_step,w_midterm,w_weekly,w_final,midterm_max,penalty_rule,hp_raw,hp,letter,verdict,scheme_warnings,note
+S01-san-QT,0.00,,EXAM_PUBLISHED_NO_ATTEMPT,6.00,0.25,0.00,4,0.5,20,20,60,10,ON,3.6,3.5,F,OK,,QT âm → sàn 0
+S02-tran-cong-dung-1.00,7.00,7.00,SCORE,7.00,1.00,0.00,0,0.5,20,20,60,10,ON,7.4,7.5,B,OK,,"B = 1,00 đúng trần"
+S03-tran-cong-1.25,7.00,7.00,SCORE,7.00,1.25,0.00,0,0.5,20,20,60,10,ON,7.4,7.5,B,OK,,"B = 1,25 → 1,00"
+S04-vang-2-mien,7.00,7.00,SCORE,7.00,0.00,0.00,2,0.5,20,20,60,10,ON,7,7.0,B,OK,,vắng 2 → P = 0
+S05-vang-3-tru-0.5,7.00,7.00,SCORE,7.00,0.00,0.00,3,0.5,20,20,60,10,ON,6.8,7.0,B,OK,,"vắng 3 → P = 0,5"
+S06-su-kien-PENALTY,7.00,7.00,SCORE,7.00,0.00,0.50,0,0.5,20,20,60,10,ON,6.8,7.0,B,OK,,"sự kiện PENALTY −0,5 cộng vào P"
+S07-liet-vang-7,8.00,8.00,SCORE,8.00,0.00,0.00,7,0.5,20,20,60,10,ON,7,7.0,F,LIET:absent>=7,,vắng 7 → liệt
+S08-vang-6-chua-liet,8.00,8.00,SCORE,8.00,0.00,0.00,6,0.5,20,20,60,10,ON,7.2,7.0,B,OK,,"vắng 6 → chưa liệt (P = 2,0)"
+S09-thieu-cuoi-ky,8.00,8.00,SCORE,,0.00,0.00,0,0.5,20,20,60,10,ON,,,,INCOMPLETE:final,,thiếu cuối kỳ → chưa đủ điểm
+S10-lam-tron-0.1-nua-len,7.00,7.00,SCORE,7.25,0.25,0.00,0,0.1,20,20,60,10,ON,7.25,7.30,B,OK,,"raw 7,25 → 7,3 (chẵn-gần-nhất sẽ ra 7,2)"
+S11-lam-tron-0.5-duoi-1-chut,6.25,6.00,SCORE,6.00,0.50,0.00,0,0.5,20,20,60,10,ON,6.25,6.5,C+,OK,,"raw 6,25 (nửa lên → 6,5; chẵn-gần-nhất sẽ ra 6,0)"
+S12-A-khong-len-A+,8.00,8.00,SCORE,9.00,0.00,0.00,0,0.5,20,20,60,10,ON,8.6,8.5,A,OK,,"raw 8,60 → 8,5 → A (không phải A+)"
+S13-bai-thi-chua-cong-bo,8.00,,EXAM_UNPUBLISHED,8.00,0.00,0.00,0,0.5,20,20,60,10,ON,,,,INCOMPLETE:weekly,,bài thi tuần chưa công bố → INCOMPLETE (không phải 0)
+S14-item-tay-trong-chua-cong-bo,8.00,,MANUAL_BLANK_UNPUBLISHED,8.00,0.00,0.00,0,0.5,20,20,60,10,ON,,,,INCOMPLETE:weekly,,"item nhập tay chưa công bố cột, ô trống → INCOMPLETE"
+S15-item-tay-trong-da-cong-bo,8.00,,MANUAL_BLANK_PUBLISHED,8.00,0.00,0.00,0,0.5,20,20,60,10,ON,6.4,6.5,C+,OK,,"item nhập tay đã công bố cột, ô trống → 0"
+S16-chia-khong-het,10.00,0.00,SCORE,8.75,0.00,0.00,0,0.5,30,10,60,30,ON,6.25,6.5,C+,OK,,"item 10/30 → 3,333…; HP thô đúng 6,25 → 6,5 (TLR-1: làm tròn trung gian ở 16 chữ số có thể ra 6,0)"
+S17-nhom-QT-bang-0,5.00,5.00,SCORE,7.40,0.50,0.00,0,0.5,0,0,100,10,ON,7.4,7.5,B,OK,BONUS_NO_EFFECT,w_QT = 0: HP = CK; điểm cộng không có tác dụng
+S18-PENALTY-khong-ap-dung,7.00,7.00,SCORE,7.00,0.00,0.50,5,0.5,20,20,60,10,OFF,7,7.0,B,OK,PENALTY_NOT_IN_SCHEME,"PENALTY.applicable=false: P = 0 dù vắng 5 và có sự kiện −0,5"

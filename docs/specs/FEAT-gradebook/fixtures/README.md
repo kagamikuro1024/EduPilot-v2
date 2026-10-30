@@ -9,7 +9,8 @@ Chủ sở hữu: **BA** (sprint 8). Dev và QC **không sửa** các tệp ở 
 | `extraction-lop1.json`, `extraction-lop2.json` | Kết quả `ExtractGradeScheme` **mong đợi sau bộ kiểm bằng code** cho hai quy chế. Bản ghi sẵn của provider giả (`seed/demo/fake_llm.json`) là các tệp này, bỏ các mục `unclear_items` có `source = "CODE"` (bộ kiểm tự thêm). Mọi `quote` là câu nguyên văn trong `quy-che-lopN.md`, đúng số trang |
 | `inputs-lop1.csv` | Đầu vào điểm của 30 sinh viên lớp 1 (khoá `account`) |
 | `../../../../seed/expected_final_grades.csv` | **Đáp án**: điểm học phần từng sinh viên + cột giải trình |
-| `cases-tong-hop.csv` | 12 ca biên mà 30 sinh viên seed không chạm tới (sàn QT, trần cộng, ngưỡng vắng, liệt vì vắng, thiếu cuối kỳ, làm tròn 0,1) |
+| `cases-tong-hop.csv` | 18 ca biên mà 30 sinh viên seed không chạm tới (sàn QT, trần cộng, ngưỡng vắng, liệt vì vắng, thiếu cuối kỳ, làm tròn 0,1, số 0 theo `MISSING_SCORE` chỉ khi nguồn đã chốt — TLR-2, phép chia không hết — TLR-1, nhóm trọng số 0 — TLR-9, `PENALTY` không áp dụng — TLR-17). Có thêm cột `w_*`, `midterm_max`, `weekly_state`, `penalty_rule` để đổi công thức từng ca |
+| `../../../../seed/expected_risk.csv` | Đáp án at-risk của lớp 1 **sau khi có tín hiệu `GRADE`** (#5): điểm quá trình hiện tại từng sinh viên, `GRADE` thấp hay không, mức rủi ro mong đợi, ràng buộc hoạt động tuần 8 / 9 |
 | `tinh_diem_tham_chieu.py` | Bảng tính tham chiếu của BA (decimal, không float). `python3 tinh_diem_tham_chieu.py` in kết quả; `--write` ghi hai CSV đáp án. Dev **không** import, không chạy trong CI |
 
 ## Quy chế lớp 1 → tham số (khớp `extraction-lop1.json`)
@@ -17,10 +18,10 @@ Chủ sở hữu: **BA** (sprint 8). Dev và QC **không sửa** các tệp ở 
 | Mục | Giá trị | Điều |
 | --- | --- | --- |
 | Trọng số (% điểm học phần) | Giữa kỳ 20 · Kiểm tra hằng tuần 20 · Cuối kỳ 60 (QT = 40) | 1.1–1.5 |
-| Kiểm tra hằng tuần | bài trắc nghiệm đã công bố (`Kiểm tra tuần 9 — Mật mã`); bài lập trình **không** tính; không dự = **0** | 1.3, 1.4 |
+| Kiểm tra hằng tuần | bài trắc nghiệm đã công bố (`Kiểm tra tuần 9 — Mật mã`); bài lập trình **không** tính; không dự = **0 chỉ khi bài thi đã `PUBLISHED`** mà sinh viên không có lượt `GRADED`; bài chưa công bố → chưa đủ điểm (TLR-2) | 1.3, 1.4 |
 | Điểm cộng B | Σ điểm `SPEAK` + `BONUS` ghi ở P5 (mặc định 0,25 / lần), tối đa **1,0** | 2.1 |
 | Điểm trừ P | **0,5** × (số buổi `ABSENT` − 2) nếu dương, cộng `|Σ PENALTY|`; `EXCUSED` và `LATE` không tính | 2.2, 2.3 |
-| Làm tròn | đến **0,5**, nửa lên (x,25 → x,5 · x,75 → x+1,0 · x,5 giữ nguyên) | 3.1 |
+| Làm tròn | đến **0,5**, nửa lên (x,25 → x,5 · x,75 → x+1,0 · x,5 giữ nguyên); trước bước này `HP thô` được chuẩn hoá về 10 chữ số thập phân và mọi phép chia dừng ở 20 chữ số (TLR-1: chuẩn hoá độ chính xác máy, không phải làm tròn nghiệp vụ) | 3.1 |
 | Thang chữ (trên điểm đã làm tròn) | A+ ≥ 9,0 · A ≥ 8,5 · B+ ≥ 8,0 · B ≥ 7,0 · C+ ≥ 6,5 · C ≥ 5,5 · D+ ≥ 5,0 · D ≥ 4,0 · F | 3.2 |
 | Liệt (điểm chữ F) | cuối kỳ < 3,0, hoặc vắng không phép ≥ 7 buổi | 4.1, 4.2 |
 | Điểm quá trình | luôn nằm trong [0; 10] (tối đa 10 theo công thức PRD M7; sàn 0 là mặc định ở QUESTIONS Q4) | – |
@@ -37,8 +38,8 @@ $$HP_{thô}=\frac{40\cdot QT+60\cdot CK}{100},\qquad HP=\text{làm tròn đến 
 | Cột | Lấy từ |
 | --- | --- |
 | `account`, `absent`, `late`, `speak_count`, `speak_bonus_points` | `seed/crm_plan.json` (`attendance`, `speak`; điểm = 0,25 × số lần phát biểu, khớp `seed/expected_crm.csv` cho A, B, C) |
-| `weekly_exam_t9` | `seed/expected_exam_scores.csv`, dòng `MCQ` (`expected_score`); **trống** = không có lượt làm (C và `sv26`…`sv30`) |
-| `student_code` (MSSV) | A, B, C cố định `20229001`–`20229003`; còn lại sinh bởi `scripts/seed.mjs` với `SEED_RNG=20261029` (giá trị mặc định). Đổi `SEED_RNG` thì MSSV đổi: so khớp bằng `account`, không bằng MSSV |
+| `weekly_exam_t9` | `seed/expected_exam_scores.csv`, dòng `MCQ` (`expected_score`); **trống** = bài thi tuần 9 đã công bố và sinh viên không có lượt làm → 0 theo quy chế (C và `sv26`…`sv30`; TLR-2) |
+| `student_code` (MSSV) | A, B, C cố định `20229001`–`20229003`; còn lại sinh bởi `scripts/seed.mjs` với `SEED_RNG=20261029` (giá trị mặc định). Đổi `SEED_RNG` thì MSSV đổi: so khớp bằng `account`, không bằng MSSV. Khi nhập XLSX, hệ thống khớp theo **`enrollments.student_code_snapshot`** (danh sách lớp), không theo MSSV tự khai ở `users` (TLR-3) |
 | `midterm`, `final_exam` | **BA định nghĩa** (không có nguồn khác), chọn để sinh các ca biên dưới đây |
 | `penalty_event_points` | 0,00 (seed không có sự kiện `PENALTY`) |
 
@@ -59,7 +60,7 @@ $$HP_{thô}=\frac{40\cdot QT+60\cdot CK}{100},\qquad HP=\text{làm tròn đến 
 | Cuối kỳ đúng 3,0 (**không** liệt) | `sv23`, `sv25` |
 | Điểm kiểm tra tuần bằng 0 vì không dự (6 sinh viên) | `sv.nguyco`, `sv26`…`sv30` |
 
-Không có sinh viên nào trong 30 chạm: vắng đúng 3 buổi, vắng ≥ 7 buổi, sàn QT = 0, trần cộng đúng 1,00, `PENALTY` thủ công, thiếu cuối kỳ, bước làm tròn 0,1 → đã phủ bằng `cases-tong-hop.csv` (S01…S12).
+Không có sinh viên nào trong 30 chạm: vắng đúng 3 buổi, vắng ≥ 7 buổi, sàn QT = 0, trần cộng đúng 1,00, `PENALTY` thủ công, thiếu cuối kỳ, bước làm tròn 0,1, bài thi chưa công bố, item nhập tay trống, phép chia không hết, nhóm trọng số 0, `PENALTY` không áp dụng → đã phủ bằng `cases-tong-hop.csv` (S01…S18).
 
 ## Kiểm tay A, B, C (chủ dự án làm lại ở cổng)
 
@@ -72,11 +73,11 @@ Không có sinh viên nào trong 30 chạm: vắng đúng 3 buổi, vắng ≥ 7
 **C** (`sv.nguyco`): GK 5,00 · KT không dự → 0 · CK 4,50 · phát biểu 1 lần = 0,25 · vắng 5 · muộn 1.
 `QT₀ = (20×5 + 20×0)/40 = 2,50` → cộng 0,25 → trừ `0,5 × (5 − 2) = 1,50` → `1,25`. `HP thô = (40×1,25 + 60×4,5)/100 = 3,20` → làm tròn đến 0,5 = **3,0** → **F** (dưới 4,0; không liệt: cuối kỳ 4,5 ≥ 3,0 và vắng 5 < 7).
 
-Giải trình bằng lời cho từng dòng nằm ở cột `explanation` của `seed/expected_final_grades.csv`. Kiểm chéo: 30/30 dòng đã được tính lại bằng phân số (`fractions`) độc lập với script và khớp.
+Giải trình bằng lời cho từng dòng nằm ở cột `explanation` của `seed/expected_final_grades.csv`: **mọi số in đủ chữ số, không làm tròn** (bỏ số 0 thừa; TLR-5) nên tính lại từ chuỗi ra đúng `hp_raw`. Kiểm chéo: 30/30 dòng đã được tính lại bằng phân số (`fractions`) độc lập với script và khớp; Tech Lead cũng tính lại độc lập (TL-REVIEW) và khớp.
 
 ## Cột của `seed/expected_final_grades.csv`
 
-`account, student_code, midterm, weekly_exam_t9, final_exam, speak_bonus_points, bonus_applied, absent, penalty, qt_before_clamp, qt, hp_raw, hp, letter, verdict, explanation`. Số dùng dấu chấm; `weekly_exam_t9` trống = không dự; `verdict` = `OK` hoặc `LIET:<lý do>`. Test Go so `hp`, `letter`, `verdict` (và `qt`, `hp_raw` đến 4 chữ số thập phân) bằng `decimal.Equal`, không bằng chuỗi.
+`account, student_code, midterm, weekly_exam_t9, final_exam, speak_bonus_points, bonus_applied, absent, penalty, qt_before_clamp, qt, hp_raw, hp, letter, verdict, explanation`. Số dùng dấu chấm; `weekly_exam_t9` trống = không dự (bài đã công bố → 0); `verdict` = `OK` hoặc `LIET:<lý do>`. `qt_before_clamp`, `qt` (3 chữ số) và `hp_raw` (4 chữ số) là số **chính xác** với dữ liệu này (script kiểm không mất chữ số nào). Test Go so `hp`, `letter`, `verdict`, `qt`, `hp_raw` bằng `decimal.Equal`, không bằng chuỗi.
 
 ## Ghi chú còn mở
 
