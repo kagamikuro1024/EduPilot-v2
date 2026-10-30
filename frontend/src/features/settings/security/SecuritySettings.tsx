@@ -13,7 +13,7 @@ export function SecuritySettings() {
   const { role, realCourseId } = useSession();
   return (
     <Page>
-      <PageHeader title="Tài khoản và bảo mật" description="Đổi mật khẩu và xem nơi tài khoản của bạn đang đăng nhập." />
+      <PageHeader title="Tài khoản và bảo mật" />
       <PasswordSection />
       <DevicesSection />
       {(role === "student" || role === "ta" || role === "teacher") && realCourseId && <MailSection role={role} />}

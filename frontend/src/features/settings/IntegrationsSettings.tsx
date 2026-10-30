@@ -15,7 +15,6 @@ export function IntegrationsSettings() {
     <Page>
       <PageHeader
         title="Tích hợp"
-        description="Thư đi, thư đến và Teams — ba đường EduPilot nối ra ngoài trường."
         meta={<span>Kiểm gần nhất 08:55 hôm nay</span>}
       />
 
@@ -49,7 +48,6 @@ export function IntegrationsSettings() {
             key={it.id}
             panel
             title={it.name}
-            description={it.purpose}
             action={<StatusText tone={it.state === "connected" ? "green" : it.state === "waiting" ? "amber" : "neutral"}>{it.stateText}</StatusText>}
           >
             <DefinitionList items={it.fields.map((f) => ({ term: f.term, value: f.value }))} />

@@ -29,7 +29,7 @@ export function PreShell({ intro }: { intro: RouteIntro }) {
                 <h1 className="ep-page-title" data-part="page-title">
                   {intro.title}
                 </h1>
-                <p className={ls.desc}>{intro.description}</p>
+                {intro.description && <p className={ls.desc}>{intro.description}</p>}
               </div>
             </div>
           </div>
