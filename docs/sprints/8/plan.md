@@ -1,6 +1,6 @@
 # Sprint 8: P6 Sổ điểm và điểm cuối kỳ từ quy chế môn học
 
-**Trạng thái:** bản nháp; chủ dự án hoãn sprint 8 (2026-10-18), chưa giao việc.
+**Trạng thái:** **chủ dự án duyệt 2026-10-19** ("Tiếp tục làm Sprint 8"). Chủ dự án vẫn giao PM toàn quyền chốt câu [CHỦ DỰ ÁN] như sprint 7, TRỪ mọi thay đổi hành vi tính điểm không có trong `phases/P6.md` (luôn hỏi chủ dự án).
 **Nhánh:** `sprint/8-p6` tách từ `main` (sau merge sprint 7). Dev làm ở `../TA_Agent_v2-s7`, PM ở `../TA_Agent_v2-s6` (detached), BA ở `/tmp/ba-wt`.
 
 ## Mục tiêu
@@ -32,6 +32,7 @@
 ## Quyết định PM tự chốt (đổi được qua `proposals.md`)
 - **Migration:** `00016_gradebook` (ARCHITECTURE đã dời số ở sprint 7, #25).
 - **`seed/expected_final_grades.csv` là đáp án độc lập:** BA soạn bằng tính tay / bảng tính từ quy chế seed, **không** sinh bằng mã của dev; QC kiểm lại tay 3 dòng; dev không được sửa tệp này (luật "Cấm tuyệt đối" trong `AGENTS.md`). Lệch → sửa mã, hoặc DỪNG hỏi.
+- **Vùng tệp của BA mở rộng cho sprint này (PM giao):** BA tạo và sở hữu `seed/expected_final_grades.csv` (30 dòng lớp 1, tính tay từ quy chế + điểm đầu vào do BA định nghĩa trong `docs/specs/FEAT-gradebook/fixtures/`), và nội dung `docs/specs/FEAT-gradebook/fixtures/quy-che-lop2.md` (cố ý thiếu quy tắc làm tròn); dev chỉ dựng `seed/demo/quy-che-lop2.pdf` từ nội dung đó, không đổi chữ. Dev và QC không sửa hai tệp đáp án / quy chế; lệch → proposal.
 - **Quy chế seed:** dùng `seed/documents/Quyche.pdf` (đã nạp là `COURSE_POLICY` từ sprint 6) cho lớp 1; BA viết thêm `seed/demo/quy-che-lop2.pdf`. Chưa có quy chế môn học thật của chủ dự án (PROGRESS, việc chỉ chủ dự án làm được).
 - **Xác nhận công thức và Chốt điểm** luôn là thao tác của TEACHER trên giao diện; không job, không agent nào làm thay.
 - Mặc định mọi test dùng provider giả; trích công thức với LLM thật chỉ khi chủ dự án cho phép.
