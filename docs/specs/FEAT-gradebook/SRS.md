@@ -1,5 +1,5 @@
 # SRS FEAT-gradebook Công thức điểm từ quy chế, Grade Engine, sổ điểm, chốt / mở khoá, điểm của sinh viên và seed sprint 8
-Phiên bản 1.1 · 2026-10-31 · Trạng thái: **DRAFT** (đã sửa theo `TL-REVIEW.md` TLR-1…19 — PM chấp nhận cả 19, chủ dự án chốt TLR-1, 2, 7, 17 —, `proposals.md` #3, #4, #5 (sửa: ghim lại số `WATCH`), #6; chủ dự án trả lời Q1–Q6; chờ PM đánh APPROVED)
+Phiên bản 1.1 · 2026-10-31 · Trạng thái: **APPROVED** (PM, 2026-10-31; thay đổi sau mốc này chỉ qua `proposals.md`) (đã sửa theo `TL-REVIEW.md` TLR-1…19 — PM chấp nhận cả 19, chủ dự án chốt TLR-1, 2, 7, 17 —, `proposals.md` #3, #4, #5 (sửa: ghim lại số `WATCH`), #6; chủ dự án trả lời Q1–Q6; chờ PM đánh APPROVED)
 
 Nguồn: `docs/phases/P6.md` (L1–L4), `docs/sprints/8/plan.md` story 1–11; PRD M7, M13-C, §3, §5; FLOWS F10, F14, F3; `ARCHITECTURE.md` §4 (`00016`), §5, §7, §9; `SYSTEM_DESIGN.md` (job nền, không cache điểm, SLO ghi); `DECISIONS.md` D5, D9, D17, D19, D33, D38, D39, D44, D45, D51, D54, D56; `design/DESIGN.md` §13, §14.9–§14.11; `UX.md` mục 1, 2, 5, 6; `AGENTS.md` luật 2, 5, 7, 10–15.
 
