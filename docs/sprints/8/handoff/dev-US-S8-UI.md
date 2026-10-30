@@ -14,8 +14,8 @@ Giữ nguyên (không phải câu mô tả tiêu đề): `InlineNotice` "Chỉ q
 ## Ảnh mốc, SRS, test
 - Ảnh mốc `settings-llm-1440.png` / `-390.png` sinh lại trong `mcr.microsoft.com/playwright:v1.63.0-noble` (cài `pnpm` trong container, như US-UI AC9). Cả 14 ảnh `visual.spec.ts` trong image: 14 passed.
 - `docs/specs/**`: không còn câu nào trong các câu đã xoá (grep chuỗi chính xác → 0 khớp).
-- **Proposal #1** (`proposals.md`): ca `e2e/lcp.spec.ts` `lcp before refresh /settings/llm` đỏ vì ứng viên LCP sau phiên là thông báo lỗi khi test không giả API (trước đây câu mô tả ở khung máy chủ che đi). Đề xuất thêm `mockLlmApi(page)` cho ca đó; chờ ACCEPTED, **chưa sửa test**.
+- **Proposal #1** (`proposals.md`): ca `e2e/lcp.spec.ts` `lcp before refresh /settings/llm` đỏ vì ứng viên LCP sau phiên là thông báo lỗi khi test không giả API (trước đây câu mô tả ở khung máy chủ che đi). PM ACCEPTED: đã thêm `mockLlmApi(page)` cho ca đó trong `e2e/lcp.spec.ts` (commit ghi #1); assertion và ngưỡng không đổi.
 
 ## Kiểm
-`tsc --noEmit`, `pnpm lint`, `ui-antipatterns.sh` sạch. Playwright (desktop + mobile, `--retries=0`) `lcp`, `settings-llm`, `account`, `panels`, `a11y`, `shell`: 161 passed, 130 skipped (ca chỉ chạy một dự án), 1 failed = ca LCP của proposal #1. Với `mockLlmApi` thêm vào bản sao tạm của spec: ca xanh (ứng viên duy nhất là h1).
+`tsc --noEmit`, `pnpm lint`, `ui-antipatterns.sh` sạch. Playwright (desktop + mobile, `--retries=0`) `lcp`, `settings-llm`, `account`, `panels`, `a11y`, `shell`: 161 passed, 130 skipped (ca chỉ chạy một dự án), 1 failed = ca LCP của proposal #1; sau khi sửa theo #1, `lcp.spec` desktop 7 passed.
 Không đổi Go.
