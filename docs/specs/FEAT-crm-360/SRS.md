@@ -1,5 +1,5 @@
 # SRS FEAT-crm-360 Lịch buổi học, điểm danh, phát biểu, thời gian học, hồ sơ 360, at-risk, `/me`, seed sprint 7
-Phiên bản 1.1 · 2026-10-13 · Trạng thái: **APPROVED** (PM, 2026-10-13; thay đổi sau mốc này chỉ qua `proposals.md`) (đã sửa theo `TL-REVIEW.md` TLR-1…14, trả lời chủ dự án Q1–Q12 và Q1 cập nhật, quyết định PM Q13–Q24, `proposals.md` #5 #6 #7; chờ PM đánh APPROVED).
+Phiên bản 1.1 · 2026-10-13 · Trạng thái: **APPROVED** (PM, 2026-10-13; thay đổi sau mốc này chỉ qua `proposals.md`) (đã sửa theo `TL-REVIEW.md` TLR-1…14, trả lời chủ dự án Q1–Q12 và Q1 cập nhật, quyết định PM Q13–Q24, `proposals.md` #5 #6 #7; chờ PM đánh APPROVED). **Sửa theo `proposals.md` sprint 8 #5 (2026-10-31): tín hiệu `GRADE` (P6) ở 4.7.1 / 4.7.3 / 4.7.5 và kết quả seed sau P6 ở 4.10.1.**
 
 Nguồn: `docs/phases/P5.md` (L1, L2, L3); `docs/sprints/7/plan.md` story 8–14; PRD M5, M6, M13-C, M14, §3, §5; FLOWS F7, F8, F14; `ARCHITECTURE.md` §4 (`00013`, `00015`), §5 (Điểm danh, Tham gia, Observation SV, Hồ sơ, Thời gian học), §7 (route), §9 (Seed); `SYSTEM_DESIGN.md` 3.3 (heartbeat write-behind), §5 (SLO); `DECISIONS.md` D17, D44, D45, D51, D59; `design/DESIGN.md` §13, §14.6–14.9; `UX.md` mục 1, 2, 5, 6; `CLAUDE.md` (luật chữ UI; luật cứng thời gian học); spec đã có `FEAT-course-foundation` v1.8 (`class_sessions`, `sessions/generate` tối thiểu, Guard, "Hôm nay" 4.7), `FEAT-private-chat-pii` v1.7 (tool seam `AttendanceSource` / `ParticipationSource`, chat, Threads), `FEAT-docs-calendar` (`/calendar`), `FEAT-escalation-notify` v1.0 (`CreateOutreach`, `notify`, mail); mã `backend-go/internal/{agent,course,today,thread,chat,httpapi/*}` và `frontend/src/features/{attendance,students,me,calendar}` (mock) ở `main` + `sprint/7-p4-p5` (đọc để biết cái đã làm, không sửa).
 
@@ -126,7 +126,7 @@ flowchart LR
 | `HEARTBEAT_COUNTER_TTL` | `192h` (8 ngày) | ≥ 48h | 4.6 |
 | `ROLLUP_TICK` | `1m` | 10s–5m | 4.6 |
 | `RISK_JOB_AT` | `02:00` (`Asia/Ho_Chi_Minh`) | `HH:MM` | 4.7 |
-| `RISK_DEFAULTS` | `attendance_ok_min=0.70, activity_min_per_week=1, study_min_minutes=60, signals_required=2, absent_alert=3` | khoảng ở 4.7.3 | 4.7 |
+| `RISK_DEFAULTS` | `attendance_ok_min=0.70, activity_min_per_week=1, study_min_minutes=60, signals_required=2, absent_alert=3, grade_low_below=5.0` | khoảng ở 4.7.3 | 4.7 |
 | `AI_SUMMARY_TIMEOUT` / `AI_SUMMARY_PER_HOUR` | `20s` / `10` | | 4.8 |
 | `OUTREACH_PER_DAY` | `3` | 1–20 | 4.8 |
 | `TRACKING_AREAS` | `CHAT, THREADS, PRACTICE, LIBRARY, CALENDAR` | cố định | 4.6 |
@@ -199,11 +199,11 @@ Không có `note`, `marked_by`, tên người khác. Một lượt sinh chữ nh
 | `ATTENDANCE` (neo) | sinh viên có ≥ 1 `attendance_records` ở buổi thuộc tuần `W` | `(PRESENT+LATE+EXCUSED) / số buổi đã ghi trong tuần` (vắng có phép **không** tính là thiếu) | `< attendance_ok_min` |
 | `ACTIVITY` | luôn | số tin `USER` ở phiên chat riêng chưa xoá mềm + số thread + số bình luận `HUMAN` chưa xoá của sinh viên trong tuần | `< activity_min_per_week` |
 | `STUDY` | `tracking_notice_ack_at ≤ đầu tuần W` **và** lớp không cho tắt đo **hoặc** `user_settings.track_study_time = true` lúc job chạy (Q1: sinh viên đã tắt đo ở lớp cho phép tắt → `STUDY = null`, **không** bị coi là thấp) | `Σ study_time_daily.active_seconds / 60` | `< study_min_minutes` |
-| `GRADE` (neo) | **chưa có** (P6) — giữ chỗ `null` | – | – |
+| `GRADE` (neo) | lớp có công thức điểm `CONFIRMED` **và** sinh viên có điểm quá trình `qt` tính được (`FEAT-gradebook` 4.8.4; P6, `proposals.md` sprint 8 #5) | `qt` hiện tại (thang 10, sau điểm cộng / trừ; **không** dùng thời gian học) | `< grade_low_below` (nghiêm ngặt: đúng bằng ngưỡng **không** thấp); lớp chưa `CONFIRMED` hoặc không tính được → `null` |
 
 **4.7.2 Quy tắc.** Tuần `W` là **yếu** khi (i) số tín hiệu có dữ liệu và thấp ≥ `signals_required` **và** (ii) có ≥ 1 tín hiệu **neo** (`ATTENDANCE` hoặc `GRADE`) thấp. Lý do cho (ii): thời gian học và hoạt động chỉ khuếch đại, không tự gây rủi ro (D17: tham khảo + tín hiệu at-risk, không tính điểm; nhiều sinh viên giỏi không dùng app). Tuần không đủ dữ liệu hoặc không có neo thấp → **không** yếu (và cắt chuỗi). Gọi `W1` = tuần trọn gần nhất, `W2` = tuần trước nó: `AT_RISK` khi `W1` và `W2` đều yếu; `WATCH` khi chỉ `W1` yếu; còn lại `NONE`. Hàm thuần `risk.Evaluate(weeks, thresholds) → Result{Level, Reasons[], Weeks[]}`; truy vấn tổng hợp là SQL tập hợp theo lớp (một lượt, không N+1). Hoạt động đếm `chat_messages` đã lọc `course_id` + khoảng thời gian: job chạy ngoài giờ cao điểm nên chấp nhận quét theo lớp (`ponytail:` đếm tuần bằng quét `chat_messages` của lớp mỗi đêm; thêm chỉ mục `(course_id, user_id, created_at)` nếu một lớp vượt ≈ 50.000 tin).
 
-**4.7.3 Ngưỡng theo lớp.** `courses.settings.risk` (`jsonb`), hợp với `RISK_DEFAULTS`: `attendance_ok_min` ∈ [0,50; 1,00] (bước 0,05); `activity_min_per_week` ∈ [0, 20]; `study_min_minutes` ∈ [0, 600]; `signals_required` ∈ [1, 3]; `absent_alert` ∈ [1, 20] (cho chip `Vắng nhiều`). Đặt qua `PUT /courses/{id}/settings {risk:{…}, version}` (TEACHER; cùng route với ngưỡng escalation của `FEAT-escalation-notify` 4.2.8 — thân nhận `escalation_threshold?` **và** `risk?`); lưu → outbox `course.settings_changed` → handler chạy `crm.risk` cho riêng lớp đó.
+**4.7.3 Ngưỡng theo lớp.** `courses.settings.risk` (`jsonb`), hợp với `RISK_DEFAULTS`: `attendance_ok_min` ∈ [0,50; 1,00] (bước 0,05); `activity_min_per_week` ∈ [0, 20]; `study_min_minutes` ∈ [0, 600]; `signals_required` ∈ [1, 3]; `absent_alert` ∈ [1, 20] (cho chip `Vắng nhiều`); `grade_low_below` ∈ [0; 10] (bước 0,5; mặc định 5,0 — P6). Đặt qua `PUT /courses/{id}/settings {risk:{…}, version}` (TEACHER; cùng route với ngưỡng escalation của `FEAT-escalation-notify` 4.2.8 — thân nhận `escalation_threshold?` **và** `risk?`); lưu → outbox `course.settings_changed` → handler chạy `crm.risk` cho riêng lớp đó.
 
 **4.7.4 Job (TLR-6, TLR-13).** `crm.risk` chạy **đúng một lần mỗi ngày**: mỗi tick (1 phút), khi `now ≥ RISK_JOB_AT` hôm nay (`Asia/Ho_Chi_Minh`) và `SET ep:crm.risk:done:{yyyymmdd} 1 NX EX 48h` thành công thì chạy (có chạy bù khi worker lên lại; lỗi giữa chừng → `DEL` khoá để tick sau thử lại; khoá leader `ep:lock:crm.risk` chỉ chống hai bản chạy cùng lúc). Mỗi lớp `ACTIVE` một lượt: `UPSERT student_risk` (`level`, `reasons`, `weeks` (4 tuần gần nhất để hiển thị), `last_week_asks`, `last_week_posts`, `computed_at`); `entered_at = CASE WHEN student_risk.level = 'AT_RISK' AND EXCLUDED.level = 'AT_RISK' THEN student_risk.entered_at WHEN EXCLUDED.level = 'AT_RISK' THEN now() END` (giữ `entered_at` khi sinh viên đã `AT_RISK` từ trước — ghi đè `now()` mỗi đêm thì `STUDENT_ATTENTION` báo cùng sinh viên mãi; rời `AT_RISK` → `NULL`); xoá dòng của sinh viên không còn `ACTIVE`. Đếm hoạt động theo tuần lọc bằng `created_at` (**không** khoảng `id`: `seed-age` lùi `created_at` nên uuidv7 không còn khớp thời gian). Idempotent (cùng dữ liệu → cùng kết quả); lớp 1.000 sinh viên ≤ 30 s.
 
@@ -211,7 +211,8 @@ Không có `note`, `marked_by`, tên người khác. Một lượt sinh chữ nh
 - `ATTENDANCE_LOW` → "vắng {a}/{n} buổi trong {k} tuần gần nhất" (`a` = số `ABSENT` không phép, `n` = số buổi đã ghi, `k` = số tuần yếu, 1–2).
 - `STUDY_LOW` → "học trên EduPilot khoảng {m} phút mỗi tuần" (`m` = trung bình các tuần yếu).
 - `ACTIVITY_LOW` → "không hỏi AI hay đăng bài ở Threads trong {k} tuần".
-- Câu: `AT_RISK` → "Cần chú ý: " + các cụm theo thứ tự chuyên cần, thời gian học, hoạt động, nối bằng "; " + "."; `WATCH` → "Đang theo dõi: …"; `NONE` → không có câu. **Cấm:** nêu điểm AI, nội dung chat, tên người khác, từ "AI chấm", "rủi ro cao" kiểu nhãn gây hại.
+- `GRADE_LOW` → "điểm quá trình hiện tại {x}/10" (`x` = `qt`, dấu phẩy; P6).
+- Câu: `AT_RISK` → "Cần chú ý: " + các cụm theo thứ tự chuyên cần, thời gian học, hoạt động, nối bằng "; " (`GRADE_LOW` đặt sau hoạt động) + "."; `WATCH` → "Đang theo dõi: …"; `NONE` → không có câu. **Cấm:** nêu điểm AI, nội dung chat, tên người khác, từ "AI chấm", "rủi ro cao" kiểu nhãn gây hại.
 
 ### 4.8 Hồ sơ 360, ghi chú, nhận xét AI, nhắn sinh viên
 
@@ -275,7 +276,7 @@ Seed (`scripts/seed.mjs`) gọi **API thật**; hai việc không thể dùng AP
 | ABSENT cả lớp | 18–26 (≈ 8 %) |
 | `participation_events` | ≈ 60, lệch (A nhiều nhất) |
 | `study_time_daily` | 10 tuần × 30 sinh viên (≈ 70 ngày × 1–3 khu vực); lớp 2: 3 tuần |
-| Kết quả `crm.risk` | lớp 1: `AT_RISK` = {C}; `WATCH` = {sv12, sv19}; A, B `NONE`; lớp 2: không `AT_RISK` |
+| Kết quả `crm.risk` | lớp 1 **trước P6** (chưa có điểm): `AT_RISK` = {C}; `WATCH` = {sv12, sv19}. **Sau P6** (có điểm lớp 1; `proposals.md` sprint 8 #5, đáp án `seed/expected_risk.csv`): `AT_RISK` = {C}; `WATCH` = {sv12, sv19, **sv26**}; A, B `NONE`; lớp 2: không `AT_RISK`. Điều kiện hoạt động tuần 8 / 9 để kết quả sau P6 xác định: `sv24`, `sv25`, `sv27`, `sv29` có ≥ 1 hoạt động mỗi tuần; `sv26` không hoạt động ở tuần 9 và có ở tuần 8 |
 | `seed/expected_crm.csv` | A, B, C: `recorded,present,late,excused,absent,speak_count,points_total` (đối chiếu tự động) |
 | Ticket / báo cáo | `FEAT-escalation-notify` SRS 9.4 (5 ticket đủ trạng thái; 2 + 3 báo cáo; 1 ghim; 1 tri thức) |
 | Cờ đo thời gian học (Q1, Q25) | lớp 1 (`761987`): `allow_study_time_opt_out = true` (mặc định); lớp 2 (`761988`): `= false`, đặt bằng TEACHER qua `PUT /courses/{id}/settings` **sau khi gán giảng viên và trước khi import sinh viên** (lớp đã có sinh viên thì khoá); ít nhất `sv.gioi` ghi danh cả hai lớp (để bước tự kiểm thấy công tắc ở lớp 2 bị khoá); mọi sinh viên seed giữ `track_study_time = true` (số liệu 10 tuần không đổi) |
