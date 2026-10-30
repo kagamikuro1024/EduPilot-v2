@@ -85,6 +85,7 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
 | 00013 | crm | P5 (US-P5-01; số `00008` trong phase file đã bị `privacy` dùng; proposals #5) |
 | 00014 | forum_ai_regen | P4 (US-P4-06; proposals #25) |
 | 00015 | observation | P5 (US-P5-03; số `00009` trong phase file; proposals #5, #25) |
+| 00016 | gradebook | P6 (US-P6-01; lược đồ khác ARCHITECTURE §4 theo proposals #3 + 4 bổ sung Tech Lead) |
 
 ## Việc chỉ chủ dự án làm được
 - [x] API key ≥ 2 provider LLM (OpenAI + Gemini, 2026-10-03; nên xoay khoá vì đã dán trong chat, đặt trần chi phí)
