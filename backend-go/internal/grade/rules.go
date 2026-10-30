@@ -44,7 +44,9 @@ type ParamError struct {
 
 func (e *ParamError) Error() string { return fmt.Sprintf("%s.%s: %s", e.Kind, e.Field, e.Msg) }
 
-func perr(k RuleKind, field, msg string) *ParamError { return &ParamError{Kind: k, Field: field, Msg: msg} }
+func perr(k RuleKind, field, msg string) *ParamError {
+	return &ParamError{Kind: k, Field: field, Msg: msg}
+}
 func pmiss(k RuleKind, field string) *ParamError {
 	return &ParamError{Kind: k, Field: field, Missing: true, Msg: "thiếu"}
 }
