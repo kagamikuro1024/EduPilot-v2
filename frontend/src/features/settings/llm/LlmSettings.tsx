@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useState } from "react";
 import { ApiError, ApiErrorNotice } from "@/shared/data";
 import { InlineNotice, Page, PageHeader, Panel, Section, Skeleton } from "@/shared/ui";
@@ -7,9 +8,11 @@ import { useSession } from "@/shared/session/session";
 import { EmbeddingSection } from "./EmbeddingSection";
 import { ProviderSection } from "./ProviderSection";
 import { FallbackSection, RouteTableSection } from "./RoutesSection";
-import { UsageSection } from "./UsageSection";
 import { useProviders, useRoutes } from "./api";
 import s from "./llm.module.css";
+
+// Phần dưới màn hình: tách khỏi mã nạp đầu để việc đồng bộ lúc dựng trang ngắn lại (TBT, #19).
+const UsageSection = dynamic(() => import("./UsageSection").then((m) => m.UsageSection), { loading: () => <Skeleton lines={3} /> });
 
 /**
  * /settings/llm — màn THẬT (US-P1-05): dữ liệu qua apiClient + TanStack Query, JWT. Admin sửa; Giảng viên chỉ xem.
