@@ -480,7 +480,7 @@ test("penalty not in scheme notice: một dòng cảnh báo không chặn, mở 
   await expect(p2.getByText(/không được tính theo công thức/)).toHaveCount(0);
 });
 
-test("gradebook banner: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức", async ({ page, context }, info) => {
+test("gradebook banner unconfirmed + finalize locked reason: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức", async ({ page, context }, info) => {
   desktopOnly(info);
   await sheet(page, context, { scheme: false, status: "DRAFT_READY" });
   const btn = page.getByRole("button", { name: "Chốt điểm" });

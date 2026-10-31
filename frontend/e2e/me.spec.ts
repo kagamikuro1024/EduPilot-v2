@@ -60,7 +60,7 @@ test("me content and layout: chuyên cần một câu + buổi vắng / muộn; 
   for (const gone of [/Điểm quá trình/, /Giải trình/, /nếu cuối kỳ/i, /Việc sắp tới/]) await expect(page.getByText(gone)).toHaveCount(0);
 });
 
-test("me no gamification: không streak, xếp hạng, vòng tiến độ, huy hiệu, confetti, so sánh bạn học", async ({ page }) => {
+test("me no gamification (no gamify): không streak, xếp hạng, vòng tiến độ, huy hiệu, confetti, so sánh bạn học", async ({ page }) => {
   await api(page, COURSE);
   await page.goto("/me");
   await expect(page.getByText("Tuần này: 45 phút")).toBeVisible();

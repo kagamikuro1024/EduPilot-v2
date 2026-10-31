@@ -1,4 +1,10 @@
 # QC report — US-P6-09 (`/me` điểm của sinh viên, tính thử, tool AI, tín hiệu at-risk `GRADE`, riêng tư) · Kết luận vòng 1: **PASS** (nợ chuyển US-S8-SEED; ghi nhận lỗ hổng test BUG-P6-09-1)
+
+## Vòng 2 (2026-10-31, `sprint/8-p6` @ `c3820726`)
+BUG-P6-09-1 **đã sửa**: dev thêm `TestNoDraftLeakQT` (QT nháp 7,77 không lọt khi chỉ cuối kỳ công bố, và ngược lại). QC chạy `TestNoDraftLeak`, `TestNoDraftLeakQT`: PASS; **đột biến M1 (bỏ `publishedInput`) → `TestNoDraftLeakQT` đỏ**. Canary sống trên stack thật (cột cuối kỳ gỡ công bố, điểm B = 7,77): `me/grades`, `me/attendance`, `gradebook`, `/notifications` của B không có "7,77"; tính thử không dùng điểm nháp. p95 `/me/grades` lớp 1.001 sinh viên: **16 ms**. Story giữ **PASS**, không còn lỗ hổng test.
+
+---
+## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `d563edcf`. Bộ TC: `tc-US-P6-09.md` (TC-P6-09-01…59, sửa theo #11). Handoff: `dev-US-P6-09.md`. CI run `41205151859`: **success** (mọi job xanh).
 
 ## 1. Cổng nghiệm thu đã chạy
