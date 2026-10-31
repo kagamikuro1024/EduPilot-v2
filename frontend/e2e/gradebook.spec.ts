@@ -199,3 +199,38 @@ test("scheme mobile: 375 px một cột, trích dẫn bằng Drawer, không trà
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
 });
+
+const PDF = { name: "quy-che.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.4\n% quy che\n") };
+const okJson = (body: unknown, status = 200) => ({ status, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true" }, body: JSON.stringify(body) });
+
+test("new policy upload: tải → đọc → trích có tiến độ, xong có bản nháp; trích dùng Idempotency-Key", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await open(page, context, { draft: null, confirmed: null });
+  let extracts = 0;
+  let polls = 0;
+  await page.route("**/api/v1/courses/*/uploads/presign", (r) => r.fulfill(okJson({ upload_id: "u1", method: "PUT", url: `${BASE_URL}/__blob/u1`, headers: {} })));
+  await page.route("**/__blob/**", (r) => r.fulfill({ status: 200, body: "" }));
+  await page.route("**/api/v1/courses/*/uploads/complete", (r) => r.fulfill(okJson({ job_id: "j1", document: { id: "00000000-0000-7000-8000-0000000007d1" } }, 202)));
+  await page.route("**/api/v1/jobs/j1", (r) => r.fulfill(okJson({ id: "j1", status: "SUCCEEDED", progress: 100 })));
+  await page.route("**/api/v1/jobs/j2", (r) => r.fulfill(okJson({ id: "j2", status: ++polls < 2 ? "RUNNING" : "SUCCEEDED", progress: polls < 2 ? 40 : 100 })));
+  await page.route("**/api/v1/courses/*/grade-scheme/extract", (r) => {
+    extracts++;
+    api.set({ draft: draftLop2() });
+    return r.fulfill(okJson({ job_id: "j2" }, 202));
+  });
+  await page.setInputFiles("[data-part=policy-input]", PDF);
+  await expect(page.locator("[data-part=policy-progress]")).toBeVisible();
+  await expect(page.locator("[data-block]")).toHaveCount(6, { timeout: 15_000 });
+  expect(extracts).toBe(1);
+  await expect(page.locator("[data-part=policy-progress]")).toHaveCount(0);
+});
+
+test("new policy upload failed: tải hỏng giữ tên tệp và có Tải lại", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await open(page, context, { draft: null, confirmed: null });
+  await page.route("**/api/v1/courses/*/uploads/presign", (r) => r.fulfill(okJson({ upload_id: "u1", method: "PUT", url: `${BASE_URL}/__blob/u1`, headers: {} })));
+  await page.route("**/__blob/**", (r) => r.abort("connectionfailed"));
+  await page.setInputFiles("[data-part=policy-input]", PDF);
+  await expect(page.getByRole("alert").filter({ hasText: "quy-che.pdf" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tải lại" })).toBeVisible();
+});

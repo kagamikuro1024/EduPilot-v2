@@ -8,7 +8,7 @@
 .blocks { display: grid; }
 .block { display: grid; gap: var(--ep-space-3); padding: var(--ep-space-4) 0; border-top: 1px solid var(--ep-rule); }
 .block:first-child { border-top: 0; }
-.blockSel { box-shadow: inset 2px 0 0 var(--ep-red); padding-left: var(--ep-space-3); }
+.blockSel { border-left: 2px solid var(--ep-red); padding-left: var(--ep-space-3); }
 .blockHead { display: flex; align-items: baseline; gap: var(--ep-space-3); flex-wrap: wrap; }
 .blockHead h3 { margin: 0; }
 .unclear { margin: 0; color: var(--ep-red); font-size: var(--ep-text-label); font-weight: 600; }
