@@ -20,8 +20,7 @@ import {
 import { COURSE_1, NOW, STAFF, STUDENT_B, fmtScore, fmtTime } from "@/mock/core";
 import { qtOf } from "@/mock/grades";
 import { QUIZ_SEED, quizKey, type QuizState } from "@/mock/quizState";
-import { BT03_SEED } from "@/mock/assess";
-import { ATTENDANCE_SEED, committedOf, KEYS, type AttendanceState, type Bt03State, type Ticket } from "@/mock/state";
+import { ATTENDANCE_SEED, BT03_SEED, committedOf, KEYS, type AttendanceState, type Bt03State, type Ticket } from "@/mock/state";
 import { B_ABSENT_DATES } from "@/mock/student";
 import { TICKETS_SEED, ticketD3 } from "@/mock/support";
 import { noteNewTicket, noteTicketSent } from "@/mock/notes";

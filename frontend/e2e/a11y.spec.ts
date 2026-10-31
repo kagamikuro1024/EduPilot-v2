@@ -8,7 +8,7 @@ import { mockStudentExams, mockStudentToday } from "./support/screens";
 import { mockTake, TAKE_COURSE, TAKE_EXAM } from "./support/takeMock";
 import { BASE_URL } from "./support/env";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
-import { A1, mineOut, studentApi } from "./support/assignment-fixtures";
+import { A1, SUB_B, gradingApi, mineOut, studentApi } from "./support/assignment-fixtures";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
 // `moderate` / `minor` ghi vào báo cáo (test-results/axe-report.json). Ngoại lệ ở axe-allow.json (≤ 3).
@@ -125,6 +125,16 @@ test("axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã n�
     await studentApi(page, { mine });
     for (const w of WIDTHS) for (const b of await scan(page, `student+assignment-${label}`, `/assignments/${A1}`, w)) bad.push(`assignment ${label} @${w}: ${b}`);
   }
+  expect(bad).toEqual([]);
+});
+
+// US-P7-08 AC9: hàng chờ chấm và màn duyệt ở trạng thái CÓ DỮ LIỆU.
+test("axe: grading a11y — hàng chờ chấm và màn duyệt của giảng viên", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await asDemo(context, "teacher");
+  await gradingApi(page);
+  const bad: string[] = [];
+  for (const route of ["/grading?tab=queue", `/grading/${SUB_B}`]) for (const w of WIDTHS) for (const b of await scan(page, "teacher+grading", route, w)) bad.push(`${route} @${w}: ${b}`);
   expect(bad).toEqual([]);
 });
 

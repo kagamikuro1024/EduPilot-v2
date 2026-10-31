@@ -12,6 +12,7 @@ import { redAreaPct } from "./support/redArea";
 import { openScreen, SCREENS } from "./support/screens";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 import { mockTake, TAKE_COURSE, TAKE_EXAM, type TakeKind } from "./support/takeMock";
+import { SUB_B, gradingApi } from "./support/assignment-fixtures";
 
 // "Panel có kỷ luật" (D59, FEAT-ui-panels). Chạy trên bản build có /dev/*: `pnpm build:gate` rồi `playwright test panels.spec.ts`.
 // US-UI-02 AC1–AC5, AC7, AC8: token, hợp đồng DOM, NEST = 0, STRONG ≤ 3, WALL = 0, primitive trong panel, "chỉ qua token".
@@ -395,7 +396,7 @@ test.describe("mobile gutter", () => {
 
 // ───────── US-UI-05 — Giảng viên / TA ─────────
 const STAFF_ROLES = ["teacher", "ta"] as const;
-const STAFF_ROUTES = (role: (typeof STAFF_ROLES)[number]) => [...new Set([...routesFor(role), "/grading/sub-bt03-sv-2", "/settings", "/class/settings", `/exams/${STAFF_EXAM}`, `/exams/${STAFF_EXAM}/results`, ...(role === "teacher" ? [`/exams/${STAFF_EXAM}/similarity`, "/gradebook/scheme"] : [])])];
+const STAFF_ROUTES = (role: (typeof STAFF_ROLES)[number]) => [...new Set([...routesFor(role), `/grading/${SUB_B}`, "/settings", "/class/settings", `/exams/${STAFF_EXAM}`, `/exams/${STAFF_EXAM}/results`, ...(role === "teacher" ? [`/exams/${STAFF_EXAM}/similarity`, "/gradebook/scheme"] : [])])];
 const okCors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
 
 async function staffToday(page: Page) {
@@ -585,7 +586,8 @@ test.describe("staff routes", () => {
   test("/grading/[submissionId]: bài + rubric = 2 Panel cạnh nhau, không lồng", async ({ page, context }, info) => {
     test.skip(info.project.name !== "desktop", "đo một lần");
     await asDemo(context, "teacher");
-    await page.goto("/grading/sub-bt03-sv-2");
+    await gradingApi(page); // US-P7-08: màn duyệt dùng API thật
+    await page.goto(`/grading/${SUB_B}`);
     await page.locator("main [data-ep-panel]:visible").nth(1).waitFor();
     const g = await violations(page);
     expect(g).toMatchObject({ panels: 2, nest: 0, title: 0, wall: 0 });

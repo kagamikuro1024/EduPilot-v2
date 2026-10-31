@@ -71,7 +71,16 @@ export async function uploadSubmissionFile(courseId: string, assignmentId: strin
   return p.data.upload_id;
 }
 
-async function uploadFile(courseId: string, file: File, purpose: "document" | "grade_import", signal?: AbortSignal): Promise<string> {
+/** Tệp lẻ hoặc ZIP bài nộp do nhân viên tải lên (US-P7-04 / US-P7-08): `purpose = submission_upload`. */
+const BUNDLE_EXT = /\.(zip|pdf|docx|txt|md)$/i;
+export function checkSubmissionBundle(f: File): string | null {
+  if (!BUNDLE_EXT.test(f.name)) return "Chỉ nhận ZIP, PDF, DOCX, TXT, MD";
+  if (f.size === 0) return "Tệp rỗng";
+  return null;
+}
+export const uploadSubmissionBundle = (courseId: string, file: File, signal?: AbortSignal) => uploadFile(courseId, file, "submission_upload", signal);
+
+async function uploadFile(courseId: string, file: File, purpose: "document" | "grade_import" | "submission_upload", signal?: AbortSignal): Promise<string> {
   const mime = purpose === "grade_import" ? XLSX_MIME : (MIME[file.name.split(".").pop()!.toLowerCase()] ?? file.type);
   const sha256 = await sha256Hex(file);
   const p = await apiClient.post<{ upload_id: string; method: string; url: string; headers: Record<string, string> }>(`/courses/${courseId}/uploads/presign`, { purpose, filename: file.name, mime_type: mime, size_bytes: file.size, sha256 }, { signal });

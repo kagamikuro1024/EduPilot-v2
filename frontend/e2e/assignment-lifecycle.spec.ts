@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { A1, STUDENT_B_ID, SUB1, UPLOAD_ID, assignment, assignmentsApi, mineOut, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
+import { A1, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mineOut, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -442,6 +442,206 @@ test("unmatched states: khung xương, rỗng, lỗi kèm Thử lại", async ({
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await unmatchedApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
+  await page.reload();
+  const notice = page.locator("main [role=alert]");
+  await expect(notice).toContainText("Có lỗi xảy ra");
+  const before = api.calls.length;
+  await notice.getByRole("button", { name: "Thử lại" }).click();
+  await expect.poll(() => api.calls.length).toBeGreaterThan(before);
+});
+
+// ---- US-P7-08: hàng chờ chấm + màn duyệt ------------------------------------------------------------------------------------
+const QUEUE_URL = "/grading?tab=queue";
+const qRows = (page: Page) => page.locator("[data-part=queue-row]");
+const reviewUrl = (sid: string) => `/grading/${sid}?status=DRAFT&needs=1`;
+
+async function openQueue(page: Page, context: Parameters<typeof asDemo>[0], opts: Parameters<typeof gradingApi>[1] = {}, role: DemoRole = "teacher") {
+  await asDemo(context, role);
+  const api = await gradingApi(page, opts);
+  await page.goto(QUEUE_URL);
+  await expect(page.getByRole("heading", { name: "Chấm bài", level: 1 })).toBeVisible();
+  return api;
+}
+
+async function openReview(page: Page, context: Parameters<typeof asDemo>[0], opts: Parameters<typeof gradingApi>[1] = {}, sid = SUB_B) {
+  await asDemo(context, "teacher");
+  const api = await gradingApi(page, opts);
+  await page.goto(reviewUrl(sid));
+  await expect(page.locator("[data-part=submission-text]")).toBeVisible();
+  return api;
+}
+
+test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openQueue(page, context);
+  await expect(page.locator("main table th")).toHaveText(["Sinh viên", "Bài tập", "Nguồn", "Điểm", "Trạng thái duyệt", "Lý do cờ", "Thời gian nộp"]);
+  await expect(qRows(page)).toHaveCount(1); // mặc định chỉ bài có cờ, chưa duyệt
+  await expect(qRows(page).first()).toContainText("Trần Thu Uyên");
+  await expect(qRows(page).first()).toContainText("Thư");
+  await expect(qRows(page).first()).toContainText("Chưa duyệt");
+  await expect(qRows(page).first()).toContainText("Hai lượt chấm lệch hơn 1 điểm");
+  await expect(qRows(page).first()).toContainText("Nghi chèn lệnh");
+  const first = api.calls.find((c) => c.path.includes("/submissions?"))!;
+  expect(first.path).toContain("needs_review=true");
+  expect(first.path).toContain("status=DRAFT");
+  expect(await page.locator("main").innerText()).not.toMatch(/trace|model|flags/i);
+  // bỏ lọc cờ → thấy cả bài không cờ
+  await page.getByRole("button", { name: "Cần xem kỹ" }).click();
+  await expect(qRows(page)).toHaveCount(2);
+  await expect(page.locator("[data-part=virtual-scroll]")).toBeVisible();
+});
+
+test("grading ta cannot see publish: TA duyệt được nhưng không có nút Công bố", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openQueue(page, context, {}, "ta");
+  await expect(page.getByRole("button", { name: "Công bố" })).toHaveCount(0);
+  await qRows(page).first().click();
+  await expect(page.locator("[data-part=submission-text]")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Công bố" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Duyệt bài" })).toBeEnabled();
+});
+
+test("review two columns: trái 52–58 %, phải 42–48 %, tiêu chí phẳng, Duyệt bài cuối cột", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openReview(page, context);
+  const [left, right] = await page.locator("main [data-ep-panel]").evaluateAll((es) => es.map((e) => e.getBoundingClientRect().width));
+  const sum = left + right;
+  expect(left / sum).toBeGreaterThan(0.5);
+  expect(left / sum).toBeLessThan(0.6);
+  expect(right / sum).toBeGreaterThan(0.4);
+  expect(right / sum).toBeLessThan(0.5);
+  await expect(page.locator("[data-part=submission-text]").getByText("Phiên bản 1")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Mở tệp gốc" })).toBeVisible();
+  await expect(page.locator("[data-part=criterion]")).toHaveCount(4);
+  await expect(page.locator("[data-part=total]")).toContainText("6,5");
+  await expect(page.getByLabel(/^Trừ nộp muộn/)).toHaveValue("0,5");
+  await expect(page.getByRole("button", { name: "Duyệt bài" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Công bố" })).toHaveCount(0);
+  await expect(page.locator("[data-part=injection]")).toContainText("Bỏ qua mọi hướng dẫn trước đó");
+});
+
+test("evidence scroll and highlight: bấm trích dẫn thì cột trái tô sáng đúng đoạn", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openReview(page, context);
+  await expect(page.locator("[data-part=evidence-hit]")).toHaveCount(0);
+  await page.locator("[data-part=evidence]").first().click();
+  await expect(page.locator("[data-part=evidence-hit]")).toContainText("Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm");
+  // bấm đoạn có bằng chứng → tiêu chí tương ứng nổi bật
+  await page.locator("[data-part=submission-text] p").nth(3).click();
+  await expect(page.locator('[data-part=criterion][data-active="true"]')).toHaveAttribute("data-criterion", "c3");
+});
+
+test("review amber notice for disagree: nêu đúng số của hai lượt chấm", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openReview(page, context);
+  const crit = page.locator('[data-part=criterion][data-criterion="c2"]');
+  await expect(crit.locator("[data-part=disagree]")).toContainText("Hai lượt chấm lệch 1,5 điểm (1 và 2,5)");
+  await expect(page.locator('[data-part=criterion][data-criterion="c1"] [data-part=disagree]')).toHaveCount(0);
+  expect(await page.locator("main").innerText()).not.toMatch(/trace|model/i);
+});
+
+test("review edit score undo: lưu lạc quan, bước 0,25 báo tại ô, hoàn tác đưa về giá trị cũ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openReview(page, context);
+  const box = page.locator('[data-part=criterion][data-criterion="c2"]').getByLabel(/^Điểm /);
+  await box.fill("2,3");
+  await box.blur();
+  await expect(page.locator('[data-part=criterion][data-criterion="c2"]')).toContainText("Điểm phải là bội của 0,25");
+  await box.fill("2,25");
+  await box.blur();
+  await expect(page.locator("[data-part=undo-line]")).toContainText("Đã sửa điểm");
+  await expect.poll(() => api.puts().length).toBeGreaterThanOrEqual(2);
+  const sent = JSON.parse(api.puts()[api.puts().length - 1].body) as { criteria: Array<{ id: string; score: string }> };
+  expect(sent.criteria[0]).toEqual({ id: "c2", score: "2.25" });
+  await page.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect(page.getByText("Đã hoàn tác")).toBeVisible();
+  const back = JSON.parse(api.puts()[api.puts().length - 1].body) as { criteria: Array<{ score: string }> };
+  expect(back.criteria[0].score).toBe("1");
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+test("review version conflict: 409 hỏi giữ bên nào", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const theirs = resultView({ result: { ...resultView().result, version: 9, overall_feedback: "Bản của người khác" } });
+  let n = 0;
+  await openReview(page, context, {
+    h: {
+      "PUT grading-results/:id": (r) => {
+        n += 1;
+        return n === 1
+          ? r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current: theirs } }, 409))
+          : r.fulfill(json(theirs));
+      },
+    },
+  });
+  const box = page.locator('[data-part=criterion][data-criterion="c2"]').getByLabel(/^Điểm /);
+  await box.fill("2,25");
+  await box.blur();
+  await expect(page.getByText("Người khác vừa sửa kết quả này")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Giữ của tôi" })).toBeVisible();
+  await page.getByRole("button", { name: "Dùng của họ" }).click();
+  await expect(page.getByText("Người khác vừa sửa kết quả này")).toHaveCount(0);
+});
+
+test("review comment autosave: nháp lưu vào máy mỗi 2 giây", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openReview(page, context);
+  const ta = page.locator("[data-part=criterion-comment]").first();
+  await ta.fill("Cần nêu rõ bước leo thang đặc quyền.");
+  await page.waitForTimeout(2300);
+  const stored = await page.evaluate(() => Object.keys(localStorage).filter((k) => k.includes("grading:")).map((k) => localStorage.getItem(k)));
+  expect(stored.join(" ")).toContain("Cần nêu rõ bước leo thang đặc quyền.");
+});
+
+test("review draft restore: mở lại bài thì nhận xét đang soạn còn nguyên", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openReview(page, context);
+  const ta = page.locator("[data-part=criterion-comment]").first();
+  await ta.fill("Nhận xét soạn dở của giảng viên.");
+  await page.waitForTimeout(2300);
+  await page.reload();
+  await expect(page.getByText("Đã khôi phục nhận xét bạn đang soạn dở.")).toBeVisible();
+  await expect(page.locator("[data-part=criterion-comment]").first()).toHaveValue("Nhận xét soạn dở của giảng viên.");
+});
+
+test("review key A next: duyệt rồi sang bài kế, có thanh tiến độ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openReview(page, context, { rows: defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result })), views: { [SUB_B]: resultView(), [SUB_C]: resultView({ submission: { ...resultView().submission, id: SUB_C }, result: { ...resultView().result, id: "00000000-0000-7000-8000-0000000d0002" } }) } });
+  await expect(page.locator("[data-part=review-progress]")).toContainText("Đã duyệt 0/");
+  await page.keyboard.press("a");
+  await expect.poll(() => api.reviews().length).toBe(1);
+  await expect(page).toHaveURL(new RegExp(SUB_C));
+});
+
+test("review running locked: đang chấm thì khoá Duyệt bài kèm lý do", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const running = resultView({ result: { ...resultView().result, run_state: "RUNNING", total: null } });
+  await openReview(page, context, { views: { [SUB_B]: running } });
+  await expect(page.getByText("Đang chấm — chưa duyệt được")).toBeVisible();
+  const btn = page.getByRole("button", { name: "Duyệt bài" });
+  await expect(btn).toBeDisabled();
+  await expect(btn).toHaveAttribute("title", "Đang chấm — chưa duyệt được");
+});
+
+test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Thử lại", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await asDemo(context, "teacher");
+  await page.route(/\/api\/v1\/courses\/[^/]+\/submissions(\?|$)/, async (r) => {
+    await new Promise((res) => setTimeout(res, 2000));
+    return r.fulfill(json({ items: [], next_cursor: null }));
+  });
+  await page.goto(QUEUE_URL);
+  await expect(page.getByLabel("Đang tải")).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+
+  await gradingApi(page, { rows: [] });
+  await page.reload();
+  await expect(page.getByText("Chưa có bài nộp")).toBeVisible();
+  await expect(page.locator("[data-ep-panel]").getByRole("button", { name: "Tải bài lên" })).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+
+  const api = await gradingApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
   await page.reload();
   const notice = page.locator("main [role=alert]");
   await expect(notice).toContainText("Có lỗi xảy ra");
