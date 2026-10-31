@@ -363,6 +363,8 @@ test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm 
   const noon = new Date("2026-10-29T10:00:00+07:00");
   await page.clock.install({ time: noon });
   await asJwt(page, "TEACHER");
+  // SSE không nối được ⇒ làm mới 30 s (SSE mở thì chỉ 120 s, `useRealNotifications`); trước #17 token "hết hạn" do lệch ngày làm SSE không mở một cách tình cờ
+  await page.route("**/api/v1/events", (r) => r.fulfill({ status: 429, contentType: "application/json", body: "{}" }));
   await page.route("**/api/v1/me/courses**", (r) => fulfill(r, 200, { items: [item(C1, "761987", "TEACHER")], next_cursor: null }));
   const now = noon;
   const mk = (id: string, title: string, read: boolean, ageMin = 1) => ({

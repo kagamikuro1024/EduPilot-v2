@@ -3,7 +3,7 @@ import { doc as docRow, libDetail, libItem, stats as docStats } from "./doc-fixt
 import { exam as calExam, item as calItem, session as calSession } from "./cal-fixtures";
 import { gridBody as attGrid, sessionRow as attSession } from "./att-fixtures";
 import { TID as THREAD_ID, row as threadRow, view as threadView } from "./thread-fixtures";
-import type { BrowserContext, Page } from "@playwright/test";
+import type { BrowserContext, Page, Route } from "@playwright/test";
 
 export type DemoRole = "student" | "ta" | "teacher" | "admin";
 
@@ -35,7 +35,7 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
   const jwtRole: JwtRole = role === "student" ? "STUDENT" : (role.toUpperCase() as JwtRole);
   const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
   const json = (body: unknown) => ({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
-  await context.route("**/api/v1/auth/refresh", (r) => r.fulfill(json(sessionBody(jwtRole, { email, expIn: opts.expIn }))));
+  await context.route("**/api/v1/auth/refresh", async (r) => r.fulfill(json(sessionBody(jwtRole, { email, expIn: opts.expIn, now: await pageNowSec(r) }))));
   await context.route("**/api/v1/auth/logout", (r) => r.fulfill({ status: 204, headers: cors }));
   const items =
     role === "student" ? (STUDENT_CLASSES[person] ?? []).map((c) => mineItem(c, "STUDENT"))
@@ -104,18 +104,31 @@ export async function asDemo(context: BrowserContext, role: DemoRole, opts: { pe
 export type JwtRole = "ADMIN" | "TEACHER" | "TA" | "STUDENT";
 
 /** JWT giả (chữ ký không kiểm ở client): chỉ để frontend giải mã vai / email / hạn. */
-export function makeJwt(role: JwtRole | string, opts: { email?: string; expIn?: number; sid?: string } = {}) {
+/**
+ * Giờ của TRANG (giây): đồng hồ giả nếu spec đã đặt (`page.clock.*`), nếu không là giờ thật. JWT giả PHẢI ký theo đây: ký bằng giờ thật của Node thì
+ * spec đặt đồng hồ cố định (trước hay sau giờ thật) được token "hết hạn" hay "còn hạn" tuỳ ngày chạy (BUG-S8-01, #17).
+ */
+export async function pageNowSec(route: Route): Promise<number> {
+  try {
+    return Math.floor((await route.request().frame().evaluate(() => Date.now())) / 1000);
+  } catch {
+    return Math.floor(Date.now() / 1000); // không có khung (service worker / đang chuyển trang)
+  }
+}
+
+export function makeJwt(role: JwtRole | string, opts: { email?: string; expIn?: number; sid?: string; now?: number } = {}) {
+  const now = opts.now ?? Math.floor(Date.now() / 1000);
   const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
   return `${b64({ alg: "HS256", typ: "JWT" })}.${b64({
     sub: "00000000-0000-7000-8000-0000000000a0", role, email: opts.email ?? "admin@ptit.edu.vn", sid: opts.sid ?? "00000000-0000-7000-8000-0000000000b0",
-    iat: Math.floor(Date.now() / 1000), exp: Math.floor(Date.now() / 1000) + (opts.expIn ?? 900),
+    iat: now, exp: now + (opts.expIn ?? 900),
   })}.c2ln`;
 }
 
-export const sessionBody = (role: JwtRole, opts: { email?: string; fullName?: string; expIn?: number } = {}) => {
+export const sessionBody = (role: JwtRole, opts: { email?: string; fullName?: string; expIn?: number; now?: number } = {}) => {
   const email = opts.email ?? `${role.toLowerCase()}@ptit.edu.vn`;
   return {
-    access_token: makeJwt(role, { email, expIn: opts.expIn }), token_type: "Bearer", expires_in: 900,
+    access_token: makeJwt(role, { email, expIn: opts.expIn, now: opts.now }), token_type: "Bearer", expires_in: 900,
     user: { id: "00000000-0000-7000-8000-0000000000a0", email, full_name: opts.fullName ?? "Người Thử", role, status: "ACTIVE", email_verified: true },
   };
 };
@@ -127,9 +140,9 @@ export const sessionBody = (role: JwtRole, opts: { email?: string; fullName?: st
 export async function asJwt(page: Page, role: JwtRole, opts: { email?: string; fullName?: string; expIn?: number } = {}) {
   const calls = { refresh: 0, logout: 0 };
   const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
-  await page.route("**/api/v1/auth/refresh", (route) => {
+  await page.route("**/api/v1/auth/refresh", async (route) => {
     calls.refresh++;
-    return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody(role, opts)) });
+    return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody(role, { ...opts, now: await pageNowSec(route) })) });
   });
   await page.route("**/api/v1/auth/logout", (route) => {
     calls.logout++;
