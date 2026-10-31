@@ -1,0 +1,2 @@
+Sổ điểm → /gradebook
+Mở trang 2 → http://localhost:3310/__pdf/quy-che.pdf?sig=1#page=2

@@ -1,0 +1,27 @@
+// QC US-P6-04: chụp + dump chữ `/gradebook/scheme` (tc-US-P6-04.md TC-01…06, 39, 45, 46). Sao chép vào frontend/e2e/ khi chạy, xoá sau.
+import { expect, test } from "@playwright/test";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { gradeApi, draftLop2, confirmedLop1 } from "./support/grade-fixtures";
+import { asDemo } from "./support/session";
+const OUT = "../docs/sprints/8/qc/shots"; mkdirSync(OUT, { recursive: true });
+async function dump(page: any, name: string) {
+  await page.waitForTimeout(800);
+  const t = await page.locator("main").innerText();
+  const links = await page.locator("main a").evaluateAll((a: any[]) => a.map((x) => x.textContent?.trim() + " → " + x.getAttribute("href")));
+  const icons = await page.locator("main svg[aria-label*='Thông tin'], main [data-icon=info], main svg.lucide-info, main svg.lucide-circle-help").count();
+  const panels = await page.locator("main [data-ep-panel]").count();
+  const inputs = await page.locator("main input:visible, main textarea:visible, main select:visible").count();
+  writeFileSync(`${OUT}/p604-${name}.txt`, `panels=${panels} inputs=${inputs} infoIcons=${icons}\nlinks:\n${links.join("\n")}\n---\n${t}\n`);
+  await page.screenshot({ path: `${OUT}/p604-${name}.png`, fullPage: true });
+}
+test.beforeEach(async ({}, i) => test.skip(i.project.name !== "desktop", "QC tự đặt bề rộng"));
+for (const [role, opts, vp] of [["teacher", {}, 1440], ["teacher", {}, 375], ["ta", {}, 1440]] as const) {
+  test(`dump ${role} ${vp}`, async ({ page, context }) => {
+    await page.setViewportSize({ width: vp, height: vp === 375 ? 812 : 900 });
+    await asDemo(context, role as any);
+    await gradeApi(page, opts as any);
+    await page.goto("/gradebook/scheme");
+    await expect(page.getByRole("heading", { name: "Công thức điểm", level: 1 })).toBeVisible();
+    await dump(page, `${role}-${vp}`);
+  });
+}
