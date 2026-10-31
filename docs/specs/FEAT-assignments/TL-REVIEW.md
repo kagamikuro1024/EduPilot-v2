@@ -66,3 +66,25 @@ Script và PoC ở `/tmp`, không commit.
 
 **Dòng cho `proposals.md`:**
 `Tech Lead (TL-REVIEW FEAT-assignments): #1 cần bổ sung SLA/stalled/trần/me-tickets/knowledge (TLR-3; đề xuất không tạo vé) · #2 đồng ý + FK phức hợp, uuidv7, course_id đầu chỉ mục, giữ giao dịch (TLR-11) · #3 đồng ý, PUBLISH_PENDING 32→33, gom truy vấn (TLR-13) · #4 đồng ý + UNMATCHED không thành 0 (TLR-9) + đọc trực tiếp như EXAM (TLR-14) → PM (chủ dự án) · #5 đồng ý · #6 khoá (submission_id, round) đồng ý, rubric → PM, integrations dùng GuardMode Manage. Đính chính TL sprint 8 TLR-3: student_code_snapshot của joined_via=CODE là MSSV tự khai (TLR-1) — cần proposal cho FEAT-gradebook 4.6.4.`
+
+## Quyết định PM (2026-10-31; chủ dự án vắng tới 01/11)
+
+**TLR-1 … TLR-20: ACCEPTED hết**, theo cột "Đề xuất"; chỗ có nhiều phương án thì PM chọn như sau:
+- **TLR-3:** phương án **A**: phúc khảo **không** tạo dòng `escalation_tickets`; `grade_appeals` tự giữ trạng thái, phản hồi, người quyết. Proposal #1 thay bằng phương án này.
+- **TLR-4:** mẫu injection chỉ gắn cờ + tô, **không** xoá khỏi đầu vào LLM.
+- **TLR-14:** phương án **A**: item `ASSIGNMENT` đọc thẳng `grading_results` `PUBLISHED` (bản nộp mới nhất) lúc tính, giống `EXAM`, theo lô. Không chép vào `grade_entries`.
+- **TLR-16:** `CHECK (max_score % 0.25 = 0)` + `422`; xoá câu làm tròn ở 4.6.9.
+- **Rubric:** chỉ TEACHER sửa (khớp Q1).
+
+**Ý đụng cách tính điểm, PM chọn thay chủ dự án.** Cả năm không đổi điểm đã có của lớp 1 (`seed/expected_final_grades.csv` giữ nguyên). Chủ dự án **xem lại 01/11**.
+- **TLR-4:** không bỏ chữ của bài.
+- **TLR-8:** `late_days` tính lúc chấm / công bố từ `due_at` hiện tại.
+- **TLR-9:** còn bài `UNMATCHED` thì sinh viên không có bài khớp → `INCOMPLETE`, không phải 0.
+- **TLR-14:** như trên.
+- **TLR-16:** như trên.
+
+**Proposals sprint 9:** #1 thay bằng TLR-3 A. #2 ACCEPTED + TLR-11. #3 ACCEPTED + TLR-13 (`PUBLISH_PENDING` = 33). #4 ACCEPTED + TLR-9 + TLR-14 A. #5 ACCEPTED. #6 ACCEPTED (rubric chỉ TEACHER; ADMIN dùng `GuardMode` sẵn có).
+
+**TLR-1 đụng sprint 8** (nhập XLSX sổ điểm US-P6-07). PM mở `proposals.md` sprint 8 **#20**, cùng luật: MSSV chỉ tin `student_code_snapshot` của dòng `joined_via IN ('ROSTER','ADMIN')`.
+
+BA sửa spec + fixtures theo các quyết định trên; commit ghi `TLR-<số>` / `#<số>`; xong thì PM đánh `APPROVED`.
