@@ -95,3 +95,53 @@ select id from grade_schemes where course_id = sqlc.arg(course_id) and status = 
 -- Ghi kết quả bộ kiểm của bản nháp (số mục chưa rõ). Chỉ khi bản nháp chưa đổi từ lúc tính (version): người sửa đồng thời đã tự ghi số mới.
 update grade_schemes set unclear_count = sqlc.arg(unclear_count)
 where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'DRAFT' and version = sqlc.arg(version);
+
+-- name: GradeSchemeBump :one
+-- Sửa bản nháp: so version rồi tăng (một câu, không đua); không khớp → không dòng nào.
+update grade_schemes set version = version + 1, unclear_count = 0
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'DRAFT' and version = sqlc.arg(version)
+returning version;
+
+-- name: GradeComponentsDelete :exec
+-- Xoá hết thành phần của bản nháp (item theo CASCADE) trước khi ghi lại toàn bộ (PUT thay toàn bộ).
+delete from grade_components where course_id = sqlc.arg(course_id) and scheme_id = sqlc.arg(scheme_id);
+
+-- name: GradeRulesDelete :exec
+delete from grade_rules where course_id = sqlc.arg(course_id) and scheme_id = sqlc.arg(scheme_id);
+
+-- name: GradeExamsOfCourse :many
+-- Bài thi của lớp theo id (kiểm gắn item EXAM): chỉ cần trạng thái.
+select id, status from exams where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(exam_ids)::text[]::uuid[]);
+
+-- name: GradeInputExamsByExam :many
+-- Như GradeInputExams nhưng theo bài thi (công thức chưa lưu, xem thử tác động): bài PUBLISHED, lượt GRADED, COALESCE(adjusted, auto).
+select a.exam_id, a.student_id, coalesce(a.adjusted_score, a.auto_score)::numeric(5,2) as score, x.max_score as exam_max
+from exams x join exam_attempts a on a.course_id = x.course_id and a.exam_id = x.id and a.status = 'GRADED'
+where x.course_id = sqlc.arg(course_id) and x.status = 'PUBLISHED' and x.id = any(sqlc.arg(exam_ids)::text[]::uuid[]) and a.student_id = any(sqlc.arg(student_ids)::text[]::uuid[]);
+
+-- name: GradebookEnsure :exec
+insert into gradebooks (course_id) values (sqlc.arg(course_id)) on conflict (course_id) do nothing;
+
+-- name: GradebookStatusShare :one
+select status from gradebooks where course_id = sqlc.arg(course_id) for share;
+
+-- name: GradeSchemeSupersede :execrows
+update grade_schemes set status = 'SUPERSEDED' where course_id = sqlc.arg(course_id) and status = 'CONFIRMED';
+
+-- name: GradeSchemeConfirm :one
+update grade_schemes set status = 'CONFIRMED', confirmed_by = sqlc.arg(actor_id), confirmed_at = now(), version = version + 1
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'DRAFT'
+returning confirmed_at, scheme_no;
+
+-- name: GradeEntryCountsByItem :many
+select item_id, count(*)::int as n from grade_entries
+where course_id = sqlc.arg(course_id) and item_id = any(sqlc.arg(item_ids)::text[]::uuid[]) group by item_id;
+
+-- name: GradeCarryEntries :execrows
+-- Mang điểm đã nhập sang item mới của công thức vừa xác nhận (cùng giao dịch): cùng key + nguồn nhập tay + max_score (TLR-8).
+update grade_entries set item_id = sqlc.arg(new_item_id) where course_id = sqlc.arg(course_id) and item_id = sqlc.arg(old_item_id);
+
+-- name: GradeCarryPublished :exec
+update grade_items n set published_at = o.published_at
+from grade_items o
+where n.course_id = sqlc.arg(course_id) and n.id = sqlc.arg(new_item_id) and o.course_id = n.course_id and o.id = sqlc.arg(old_item_id);
