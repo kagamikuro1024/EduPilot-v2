@@ -73,12 +73,11 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
               <div className={s.providerGrid}>
                 <div className={s.info}>
                   <p className="ep-item-title">{p.name}</p>
-                  <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>
+                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
                   {p.type === "openai_compatible" && p.base_url && <p className={s.mono}>{p.base_url}</p>}
                 </div>
                 <div className={s.status} data-part="provider-status">
                   <StatusText tone={st.tone === "neutral" ? "neutral" : st.tone}>{st.text}</StatusText>
-                  {p.has_key && <p className={s.sub}>Khoá API •••••••• · đã kết nối</p>}
                 </div>
                 {canEdit && (
                   <div className={s.action} data-part="provider-action">

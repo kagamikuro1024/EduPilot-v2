@@ -26,3 +26,10 @@ Không đổi Go.
 - **BUG-S8-UI-2, BUG-S8-UI-3 (CHƯA sửa — chờ proposal #10):** hai test cũ khẳng định đúng các chữ cần đổi (`e2e/settings-llm.spec.ts:41`, `:138`). Theo luật mới của PM: mở proposal #10, không sửa test trước. Sau ACCEPTED dev sửa code + test cùng commit.
 - Ảnh mốc: `visual.spec.ts` trong image `playwright:v1.63.0-noble`: 14 passed, `settings-llm-*.png` không đổi (hai thay đổi vòng này nằm dưới nếp gấp / ở màn không có ảnh mốc).
 - Kiểm: `tsc`, `pnpm lint`, `ui-antipatterns.sh` sạch; Playwright `settings-llm`, `shell`, `lcp`, `a11y`, `panels` (desktop + mobile): 112 passed.
+
+## Vòng 2b (proposal #10 ACCEPTED)
+- **BUG-S8-UI-2:** "Chuỗi dự phòng": bỏ `InlineNotice` câu dài lặp mỗi dòng; mỗi tác vụ chỉ có MỘT mô hình hiện nhãn ngắn `Chưa có dự phòng` (`StatusText`, `RoutesSection.tsx`).
+- **BUG-S8-UI-3:** trạng thái nhà cung cấp chỉ `Đã kết nối` (bỏ giờ kiểm; đã có nút `Test kết nối`); bỏ dòng `Khoá API •••••••• · đã kết nối`; bỏ dòng phụ trùng tên nhà cung cấp; dòng rỗng "Mặc định máy chủ" (ở "Mô hình theo tác vụ" / chuỗi dự phòng / mô hình tìm kiếm).
+- **Test đã sửa theo #10:** `e2e/settings-llm.spec.ts`: `:41` → `toContainText("Đã kết nối")`; khối dự phòng → nhãn ngắn `Chưa có dự phòng` đếm đúng số dòng một mô hình (`toHaveCount(oneModel)`) và không còn câu "nếu nhà cung cấp lỗi". Không đổi gì khác.
+- SRS `FEAT-llm-gateway` có câu cảnh báo cũ → BA vá SRS + Confluence (luật cứng PO).
+- Kiểm: `tsc`, lint, `ui-antipatterns.sh` sạch; Playwright `settings-llm`, `shell`, `a11y`, `panels`, `lcp` (desktop + mobile): 112 passed; `visual.spec.ts` trong image `playwright:v1.63.0-noble`: 14 passed (ảnh `settings-llm-*` sinh lại).

@@ -38,7 +38,7 @@ test("provider row: Test kết nối ở mỗi hàng, lỗi ngay dưới hàng, 
   await expect(rows).toHaveCount(2);
   await expect(page.getByRole("button", { name: "Test kết nối" })).toHaveCount(2);
   expect(await page.locator("main").getByRole("button", { name: "Test kết nối" }).evaluateAll((bs) => bs.every((b) => b.closest("[data-part=provider-row]") && b.getAttribute("data-variant") === "secondary"))).toBe(true);
-  await expect(rows.nth(0).locator("[data-part=provider-status]")).toContainText("Đã kết nối · kiểm tra lúc");
+  await expect(rows.nth(0).locator("[data-part=provider-status]")).toContainText("Đã kết nối");
   await expect(rows.nth(1).locator("[data-part=provider-status]")).toContainText("Lỗi xác thực");
   await rows.nth(1).getByRole("button", { name: "Test kết nối" }).click();
   await expect(rows.nth(1).getByText("Khoá API không được nhà cung cấp chấp nhận. Kiểm tra lại khoá.")).toBeVisible();
@@ -134,8 +134,12 @@ test("routing: đổi mô hình lạc quan ≤ 100 ms, Hoàn tác ghi ngay, Lên
   await expect.poll(async () => (await putRoutes(page)).length).toBe(3);
   expect(JSON.parse((await putRoutes(page))[2].body).chain).toEqual([IDS.m1, IDS.m3, IDS.m2]);
   await expect(fb.locator("text=Chưa có dự phòng")).toHaveCount(0);
-  // tác vụ chỉ có 1 mô hình ⇒ cảnh báo
-  await expect(page.locator('[data-part=fallback-row][data-task=CLASSIFY]').getByText("Chưa có dự phòng — nếu nhà cung cấp lỗi, người dùng sẽ thấy câu trả lời rút gọn.")).toBeVisible();
+  // tác vụ chỉ có 1 mô hình ⇒ nhãn ngắn "Chưa có dự phòng" trên đúng dòng đó (không câu cảnh báo lặp mỗi dòng, #10)
+  await expect(page.locator('[data-part=fallback-row][data-task=CLASSIFY]').getByText("Chưa có dự phòng", { exact: true })).toBeVisible();
+  const oneModel = await page.locator("[data-part=fallback-row]").evaluateAll((rows) => rows.filter((r) => r.querySelectorAll("ol > li").length === 1).length);
+  expect(oneModel).toBeGreaterThan(0);
+  await expect(page.locator("[data-part=fallback-row]").getByText("Chưa có dự phòng", { exact: true })).toHaveCount(oneModel);
+  await expect(page.locator("main").getByText(/nếu nhà cung cấp lỗi/)).toHaveCount(0);
   // nhãn làn
   await expect(row).toContainText("Trả lời ngay");
   await expect(page.locator('[data-part=route-row][data-task=GRADING]')).toContainText("Chạy nền");
