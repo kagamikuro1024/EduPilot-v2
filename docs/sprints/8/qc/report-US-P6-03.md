@@ -1,4 +1,17 @@
-# QC report — US-P6-03 (trích công thức từ quy chế: `ExtractGradeScheme`, bộ kiểm bằng code, trích dẫn, AI chỉ nháp) · Kết luận: **FAIL** (vòng 1)
+# QC report — US-P6-03 (trích công thức từ quy chế: `ExtractGradeScheme`, bộ kiểm bằng code, trích dẫn, AI chỉ nháp) · Kết luận vòng 2: **PASS** (chấm lại 2026-10-31 trên `f07c2af6`). Vòng 1: FAIL (ba test cũ đỏ + CI đỏ)
+
+## Vòng 2 (2026-10-31, `sprint/8-p6` @ `f07c2af6`; sửa nằm trong commit `05633308` của US-P6-05 và `e4547da2`)
+| Lỗi vòng 1 | Vòng 2 | Bằng chứng |
+| --- | --- | --- |
+| BUG-P6-03-1 `TestNoUnscopedChunkQuery` | **ĐÃ SỬA** | `go test -tags testroutes ./internal/integration -run 'TestNoUnscopedChunkQuery\|TestAllCourseRoutesGuarded'` PASS; `GradeDocForExtract` / `GradeCitationsCheck` không còn chạm `content_chunks` (đọc đoạn qua `DocChunks`), không sửa test |
+| BUG-P6-03-2 `TestKnowledgeDocExcludedEverywhere` | **ĐÃ SỬA** | PASS; mọi `from documents` loại `THREAD_KNOWLEDGE` |
+| BUG-P6-03-3 `TestSpec_LoadsAndValidates` (226) | **ĐÃ SỬA qua #12 ACCEPTED (228)** | `go test -race -tags testroutes ./internal/contract` PASS (21); chỉ đổi số đếm + chú thích |
+| BUG-P6-03-4 `bell real` (+ heartbeat, cursor, LCP) đỏ | **ĐÃ XỬ LÝ (không do US-P6-03)** | nguyên nhân gốc là test: đồng hồ trang cố định 29/10 + JWT giả ký giờ thật (#15/#17, BUG-S8-01, `pageNowSec`); CI `f07c2af6`: `Playwright 1/3, 2/3, 3/3` **xanh**, `Lighthouse (devtools B)` xanh (#14); QC máy: 174 passed. Lighthouse (simulate) đỏ một lần ở run này: `total-blocking-time` trung vị 217,5 ms > 200 (các lần 239 / 217,5 / 230 / 213,5 / 177,5) — sát ngưỡng, nhiễu hoặc do thêm hook `useSchemeStatus` ở `/attendance`; QC không kết luận, dev chạy lại |
+| BUG-P6-03-5 (quy trình) chưa chạy bộ test đầy đủ | còn ghi nhận | lượt này dev đã chạy lại `-tags testroutes`; QC chạy `bash scripts/go-test-all.sh` (đúng quy trình CI, TL-3) trên `f07c2af6`: **rc=0, 51 gói `ok`**. CI Go của `e4547da2` bị huỷ do commit mới và `f07c2af6` chỉ đổi frontend (job Go bỏ qua) nên bằng chứng Go đầy đủ là lượt chạy của QC |
+Kết luận: mọi AC PASS (không đổi), không còn test cũ đỏ → story **PASS**. Nợ chuyển: TC-11, 12, 14 (PDF), 28 và SSE trên stack → US-S8-SEED / `gate-P6`.
+
+---
+## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `4acd28b6` (dev) → kiểm trên `d4efecdd`/`f4921c86` (không đổi mã story). Bộ TC: `tc-US-P6-03.md` (sửa 1 dòng theo #11, lịch sử trong tệp). Handoff: `dev-US-P6-03.md`. **CI của dev đỏ** (run `41185772706`: `Go test (rest-1)`, `Go test (rest-2)`, `Frontend e2e (Playwright 1/3, 2/3)`, `Frontend Lighthouse (devtools B)`); QC xác nhận lại ba lỗi Go trên máy QC. Lượt chấm vẫn làm đủ để dev sửa một lần; AC của story không có AC nào FAIL ở mức hành vi, nhưng story **không** đạt "không phá cái đang chạy" (`AGENTS.md` nguyên tắc 8).
 
 ## 1. Cổng nghiệm thu đã chạy
