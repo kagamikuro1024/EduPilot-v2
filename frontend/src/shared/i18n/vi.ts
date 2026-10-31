@@ -134,6 +134,10 @@ export const ERROR_MESSAGES: Record<string, string> = {
   TEAMS_CONSENT_REQUIRED: "Cần quản trị viên của trường cấp quyền cho ứng dụng.",
   TEAMS_RESPONSE_INVALID: "Teams trả dữ liệu không đúng.",
   FILE_DOWNLOAD_FAILED: "Không tải được tệp.",
+  ASSIGNMENT_NOT_PUBLISHED: "Bài tập chưa được công bố.",
+  ENTRY_UNSAFE: "Tên tệp trong ZIP không an toàn.",
+  ENTRY_TYPE_NOT_ALLOWED: "Loại tệp này không nhận. Chỉ nhận PDF, DOCX, TXT, MD.",
+  ZIP_LIMIT: "ZIP vượt giới hạn số tệp hoặc dung lượng.",
   // mã phía client
   BAD_GATEWAY: "Máy chủ chưa phản hồi đúng. Dữ liệu của bạn vẫn an toàn.",
   NETWORK: "Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ.",

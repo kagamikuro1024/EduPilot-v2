@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { A1, UPLOAD_ID, assignment, assignmentsApi, mineOut, studentApi, studentItem } from "./support/assignment-fixtures";
+import { A1, STUDENT_B_ID, SUB1, UPLOAD_ID, assignment, assignmentsApi, mineOut, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -336,4 +336,116 @@ test("assignment page 375: một cột, vùng nộp ≥ 48 px, nút đủ rộng
   expect(btn!.height).toBeGreaterThanOrEqual(44);
   expect(btn!.width).toBeGreaterThanOrEqual(160);
   await expect(statusLine(page)).toHaveAttribute("aria-live", "polite");
+});
+
+// ---- US-P7-04: tab `Chưa khớp` ---------------------------------------------------------------------------------------------
+const UNMATCHED_URL = "/grading?tab=unmatched";
+const uRows = (page: Page) => page.locator("[data-part=unmatched-row]");
+
+async function openUnmatched(page: Page, context: Parameters<typeof asDemo>[0], opts: Parameters<typeof unmatchedApi>[1] = {}) {
+  await asDemo(context, "teacher");
+  const api = await unmatchedApi(page, opts);
+  await page.goto(UNMATCHED_URL);
+  await expect(page.getByRole("heading", { name: "Chấm bài", level: 1 })).toBeVisible();
+  return api;
+}
+
+test("unmatched assign: chọn bài + sinh viên gợi ý rồi Gán, 409 và 403 báo bằng chữ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let slow = false;
+  let conflict = false;
+  let forbidden = false;
+  const api = await openUnmatched(page, context, {
+    h: {
+      "PUT submissions/:id/match": async (r, dflt) => {
+        if (forbidden) return r.fulfill({ status: 403, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true" }, body: JSON.stringify({ code: "FORBIDDEN", message: "x", trace_id: "t" }) });
+        if (conflict) return r.fulfill({ status: 409, contentType: "application/json", headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true" }, body: JSON.stringify({ code: "VERSION_CONFLICT", message: "x", trace_id: "t" }) });
+        if (slow) await new Promise((res) => setTimeout(res, 800));
+        await dflt(r);
+      },
+    },
+  });
+  await expect(page.locator("main table th")).toHaveText(["Tệp", "Nguồn", "Nhận lúc", "Lý do", "Gợi ý"]);
+  await expect(uRows(page)).toHaveCount(2);
+  await expect(uRows(page).nth(0)).toContainText("bt03-uyen.pdf");
+  await expect(uRows(page).nth(0)).toContainText("Thư");
+  await expect(uRows(page).nth(0)).toContainText("Không có MSSV trong tên tệp");
+  await expect(uRows(page).nth(0)).toContainText("Trần Thu Uyên");
+  expect(await page.locator("main").innerText()).not.toMatch(/phiên bản|Bài nộp chưa khớp của lớp này/);
+
+  // 403 (TA sau khi đã công bố điểm): lý do bằng chữ, dòng vẫn còn
+  forbidden = true;
+  await uRows(page).nth(0).click();
+  const box = page.locator("[data-part=assign-box]");
+  await expect(box.getByLabel("Bài tập")).toHaveValue(A1);
+  await expect(box.getByLabel("Sinh viên", { exact: true })).toHaveValue(STUDENT_B_ID);
+  await box.getByRole("button", { name: "Gán" }).click();
+  await expect(page.getByText("Chỉ giảng viên sửa sau khi đã công bố điểm")).toBeVisible();
+  await expect(uRows(page)).toHaveCount(2);
+
+  // 409: dòng báo + tải lại danh sách
+  forbidden = false;
+  conflict = true;
+  await box.getByRole("button", { name: "Gán" }).click();
+  await expect(page.getByText("Bài này vừa được xử lý ở nơi khác")).toBeVisible();
+
+  // thành công: bấm đúp chỉ một PUT, dòng biến mất ngay
+  conflict = false;
+  slow = true;
+  await expect(box).toBeVisible(); // khu gán vẫn mở sau lỗi: lựa chọn không mất
+  await box.getByRole("button", { name: "Gán" }).dblclick();
+  await expect(uRows(page)).toHaveCount(1, { timeout: 15_000 });
+  await page.waitForTimeout(800);
+  const ok = api.matches().filter((c) => !c.body.includes("\"version\":0"));
+  expect(ok.filter((c) => JSON.parse(c.body).version === 1_800_000_000_000_001).length).toBeGreaterThanOrEqual(1);
+  const last = JSON.parse(api.matches()[api.matches().length - 1].body) as { assignment_id: string; student_id: string; version: number };
+  expect(last).toEqual({ assignment_id: A1, student_id: STUDENT_B_ID, version: 1_800_000_000_000_001 });
+  expect(api.matches().filter((c) => c.path.includes(SUB1)).length).toBe(3); // 403 + 409 + một lần thành công (bấm đúp = một yêu cầu)
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+test("unmatched dismiss: lý do rỗng không gửi, bỏ qua xong có Hoàn tác trong 5 giây", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openUnmatched(page, context);
+  await uRows(page).nth(1).click();
+  const box = page.locator("[data-part=assign-box]");
+  await box.getByRole("button", { name: "Bỏ qua" }).click();
+  const confirm = box.getByRole("button", { name: "Xác nhận bỏ qua" });
+  await expect(confirm).toBeDisabled();
+  expect(api.dismisses()).toHaveLength(0);
+  await box.getByLabel("Lý do bỏ qua").fill("Nộp nhầm lớp");
+  await confirm.click();
+  await expect(uRows(page)).toHaveCount(1);
+  const sent = JSON.parse(api.dismisses()[0].body) as { reason: string; version: number };
+  expect(sent).toEqual({ reason: "Nộp nhầm lớp", version: 1_800_000_000_000_002 });
+  const line = page.locator("[data-part=undo-line], p", { hasText: "Đã bỏ qua" }).first();
+  await expect(line).toBeVisible();
+  await page.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect(uRows(page)).toHaveCount(2);
+  expect(api.undismisses()).toHaveLength(1);
+});
+
+test("unmatched states: khung xương, rỗng, lỗi kèm Thử lại", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await asDemo(context, "teacher");
+  await page.route(/\/api\/v1\/courses\/[^/]+\/submissions(\?|$)/, async (r) => {
+    await new Promise((res) => setTimeout(res, 2000));
+    return r.fulfill(json({ items: [], next_cursor: null }));
+  });
+  await page.goto(UNMATCHED_URL);
+  await expect(page.getByLabel("Đang tải")).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+
+  await unmatchedApi(page, { rows: [] });
+  await page.reload();
+  await expect(page.getByText("Không có bài chưa khớp.")).toBeVisible();
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+
+  const api = await unmatchedApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
+  await page.reload();
+  const notice = page.locator("main [role=alert]");
+  await expect(notice).toContainText("Có lỗi xảy ra");
+  const before = api.calls.length;
+  await notice.getByRole("button", { name: "Thử lại" }).click();
+  await expect.poll(() => api.calls.length).toBeGreaterThan(before);
 });

@@ -52,6 +52,9 @@ func newTasks(d Deps) []Task {
 	if bs, ok := d.Blob.(submission.BlobAPI); ok { // *blob.Store thật; worker thử nghiệm không có object storage thì không chạy job
 		tasks = append(tasks, orphanTask{&submission.OrphanJob{Svc: &submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: time.Hour, Log: d.Log}})
 	}
+	if gq := newGradingQueue(d); gq != nil {
+		tasks = append(tasks, gradingTask{gq})
+	}
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})

@@ -73,7 +73,11 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.Jobs != nil {
 			// US-PG-03 FR-35/36 — handler việc dài của internal/jobs (chủ job hoặc ADMIN, người khác 404).
-			r.Get("/jobs/{id}", jobs.Handler(d.Jobs))
+			js := *d.Jobs
+			if d.DB != nil && d.Redis != nil {
+				js.Scopes = []jobs.Scope{grading.JobScope{Pool: d.DB, Redis: d.Redis}} // US-P7-07 AC9: nhân viên cùng lớp đọc việc chấm
+			}
+			r.Get("/jobs/{id}", jobs.Handler(&js))
 		}
 		if d.DB != nil {
 			// US-PE-07 — GET /me/exam-lock (thao tác 43): chat AI có đang bị khoá vì lượt làm bài không (chỉ chính mình, không lộ tên bài).
@@ -122,7 +126,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 			// US-P6-03 — công thức điểm: POST …/grade-scheme/extract (202 + việc nền), SRS FEAT-gradebook 6.1.
 			(&gradehttp.Handler{Grade: gradeService(d), Extract: gradingService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
-			(&assignmenthttp.Handler{Assignments: assignmentService(d), Submit: submissionService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P7-02: bài tập
+			(&assignmenthttp.Handler{Assignments: assignmentService(d), Submit: submissionService(d), Batches: &grading.Batches{Pool: d.DB, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P7-02: bài tập
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
 			// US-P8-01 — tải tài liệu lên (URL ký sẵn), hoàn tất → 202 + việc nền, thử lại, lập chỉ mục lại (SRS FEAT-docs-calendar 6, #1–#2, #9–#11).

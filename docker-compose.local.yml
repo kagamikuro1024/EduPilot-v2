@@ -226,6 +226,13 @@ services:
       # Đọc tài liệu (US-P8-01): docling chỉ chạy khi bật profile `ingest`; không có thì tài liệu nằm QUEUED / FAILED EXTRACT_UNAVAILABLE.
       DOCLING_URL: ${DOCLING_URL:-http://docling:5001}
       INGEST_WORKERS: ${INGEST_WORKERS:-1}
+      # Hàng chấm bài tự luận (US-P7-07): để trống = mặc định của SRS 4.7.
+      GRADING_WORKERS: ${GRADING_WORKERS:-}
+      GRADING_LEASE: ${GRADING_LEASE:-}
+      GRADING_HEARTBEAT: ${GRADING_HEARTBEAT:-}
+      GRADING_REQUEUE_AFTER: ${GRADING_REQUEUE_AFTER:-}
+      GRADING_ATTEMPTS: ${GRADING_ATTEMPTS:-}
+      GRADING_ATTEMPT_TIMEOUT: ${GRADING_ATTEMPT_TIMEOUT:-}
       JUDGE_CONSUMER: ${JUDGE_CONSUMER:-true}
       JUDGE_URL: ${JUDGE_URL:-http://judge:5050}
       JUDGE_TOKEN: ${JUDGE_TOKEN:-}

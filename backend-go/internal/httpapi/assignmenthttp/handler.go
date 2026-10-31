@@ -2,7 +2,9 @@
 package assignmenthttp
 
 import (
+	"encoding/json"
 	"errors"
+	"io"
 	"log/slog"
 	"net/http"
 
@@ -11,6 +13,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/assignment"
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
 	"github.com/edupilot/backend-go/internal/llm"
@@ -21,6 +24,7 @@ import (
 type Handler struct {
 	Assignments *assignment.Service
 	Submit      *submission.Service
+	Batches     *grading.Batches
 	Guard       func(auth.GuardMode) func(http.Handler) http.Handler
 	Idem        func(http.Handler) http.Handler // `Idempotency-Key` bắt buộc
 	Log         *slog.Logger
@@ -44,6 +48,10 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Get("/courses/{id}/submissions/{sid}/file", h.file)
 	r.With(staff).Post("/courses/{id}/submissions/{sid}/dismiss", h.dismiss)
 	r.With(staff).Delete("/courses/{id}/submissions/{sid}/dismiss", h.undismiss)
+	// Hàng đợi chấm (US-P7-07): nạp lô, chấm / chấm lại một bài, thử lại bài lỗi.
+	r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/grade-all", h.gradeAll)
+	r.With(staff, h.Idem).Post("/courses/{id}/submissions/{sid}/grade", h.gradeOne)
+	r.With(staff, h.Idem).Post("/courses/{id}/grading-results/{rid}/retry", h.retryResult)
 	// Route của sinh viên (US-P7-03): chỉ STUDENT của lớp (TA / TEACHER / ADMIN 403), mọi phản hồi `Cache-Control: no-store`.
 	r.With(student).Get("/courses/{id}/assignments/{aid}/mine", h.mine)
 	r.With(student).Post("/courses/{id}/assignments/{aid}/submit/presign", h.presign)
@@ -408,4 +416,56 @@ func (h *Handler) undismiss(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) enqueued(w http.ResponseWriter, e grading.Enqueued, err error, r *http.Request) {
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	if e.JobID == nil {
+		httpx.WriteJSON(w, http.StatusOK, map[string]any{"queued": 0})
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, map[string]any{"job_id": e.JobID, "queued": e.Queued})
+}
+
+func (h *Handler) gradeAll(w http.ResponseWriter, r *http.Request) {
+	course, id, a, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		OnlyUnscored *bool `json:"only_unscored"`
+		RetryFailed  bool  `json:"retry_failed"`
+	}
+	if err := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<10)).Decode(&in); err != nil && !errors.Is(err, io.EOF) {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "body", Code: "invalid", Message: "Nội dung không hợp lệ."}))
+		return
+	}
+	e, err := h.Batches.GradeAll(r.Context(), course, id, a.UserID, in.RetryFailed && in.OnlyUnscored != nil && !*in.OnlyUnscored)
+	h.enqueued(w, e, err, r)
+}
+
+func (h *Handler) gradeOne(w http.ResponseWriter, r *http.Request) {
+	course, sid, st, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	e, err := h.Batches.GradeOne(r.Context(), course, sid, st.UserID)
+	h.enqueued(w, e, err, r)
+}
+
+func (h *Handler) retryResult(w http.ResponseWriter, r *http.Request) {
+	course, _, st, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	rid, err := uuid.Parse(chi.URLParam(r, "rid"))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
+	e, err := h.Batches.Retry(r.Context(), course, rid, st.UserID)
+	h.enqueued(w, e, err, r)
 }

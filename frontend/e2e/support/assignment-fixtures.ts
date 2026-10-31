@@ -289,3 +289,107 @@ export async function studentApi(p: Page, opts: SOpts = {}) {
     set: (next: Mine) => { out = next; },
   };
 }
+
+// ---- tab `Chưa khớp` (US-P7-04): submissions + members + assignments -------------------------------------------------------
+export const SUB1 = "00000000-0000-7000-8000-0000000b0001";
+export const SUB2 = "00000000-0000-7000-8000-0000000b0002";
+export const STUDENT_B_ID = "00000000-0000-7000-8000-0000000000a2";
+
+export type UnmatchedRow = {
+  id: string; file_name: string; source: string; received_at: string; reason: string; reason_text: string;
+  assignment_id: string | null; suggestion: { student_id: string; full_name: string } | null; version: number;
+};
+
+export const unmatchedRow = (over: Partial<UnmatchedRow> = {}): UnmatchedRow => ({
+  id: SUB1,
+  file_name: "bt03-uyen.pdf",
+  source: "IMAP",
+  received_at: "2026-10-23T01:10:00.000Z",
+  reason: "NO_STUDENT_CODE",
+  reason_text: "Không có MSSV trong tên tệp",
+  assignment_id: A1,
+  suggestion: { student_id: STUDENT_B_ID, full_name: "Trần Thu Uyên" },
+  version: 1_800_000_000_000_001,
+  ...over,
+});
+
+const member = (i: number, over: Record<string, unknown> = {}) => ({
+  user_id: `00000000-0000-7000-8000-0000000000a${i}`,
+  full_name: `Sinh Viên 0${i}`,
+  email: `sv${i}@edupilot.local`,
+  student_code: `B22DCCN10${i}`,
+  role_in_course: "STUDENT",
+  status: "ACTIVE",
+  joined_via: "CODE",
+  warning: null,
+  status_changed_at: "2026-09-01T00:00:00Z",
+  ...over,
+});
+
+type UOpts = { rows?: UnmatchedRow[]; h?: Record<string, Handler> };
+
+/** Gateway giả có trạng thái cho tab `Chưa khớp`: gán / bỏ qua làm dòng biến mất, hoàn tác đưa về, sai `version` → 409. */
+export async function unmatchedApi(p: Page, opts: UOpts = {}) {
+  const calls: Call[] = [];
+  let rows: UnmatchedRow[] = (opts.rows ?? [unmatchedRow(), unmatchedRow({ id: SUB2, file_name: "bai-la.pdf", source: "UPLOAD", reason_text: "Thư từ email lạ", assignment_id: null, suggestion: null, version: 1_800_000_000_000_002 })]).map((r) => ({ ...r }));
+  const removed = new Map<string, UnmatchedRow>();
+
+  const handle = async (route: Route, skipCustom = false): Promise<void> => {
+    const req = route.request();
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+    const url = new URL(req.url());
+    const path = url.pathname.replace("/api/v1", "");
+    const body = req.postData() ?? "";
+    const tail = path.replace(/^\/courses\/[^/]+\//, "");
+    const sid = tail.startsWith("submissions/") ? tail.split("/")[1] : "";
+    const key = `${req.method()} ${tail.replace(/submissions\/[^/]+/, "submissions/:id")}`;
+    if (!skipCustom) calls.push({ method: req.method(), path: path + url.search, body, headers: req.headers() });
+    const custom = opts.h?.[key];
+    if (custom && !skipCustom) return custom(route, (r) => handle(r, true));
+    const cur = rows.find((r) => r.id === sid);
+
+    if (key === "GET assignments") return route.fulfill(j({ items: [assignment(), draftAssignment()], next_cursor: null }));
+    if (key === "GET members") {
+      const q = (url.searchParams.get("q") ?? "").toLowerCase();
+      const all = [member(1), member(2, { full_name: "Trần Thu Uyên" }), member(3)];
+      const items = q ? all.filter((m) => m.full_name.toLowerCase().includes(q) || m.student_code.toLowerCase().includes(q)) : all;
+      return route.fulfill(j({ items, next_cursor: null, counts: { active: all.length, pending: 0 } }));
+    }
+    if (key === "GET submissions") return route.fulfill(j({ items: rows, next_cursor: null }));
+    if (key === "PUT submissions/:id/match") {
+      if (!cur) return route.fulfill(e(404, "NOT_FOUND"));
+      const b = JSON.parse(body) as { assignment_id: string; student_id: string; version: number };
+      if (b.version !== cur.version) return route.fulfill(e(409, "VERSION_CONFLICT"));
+      rows = rows.filter((r) => r.id !== sid);
+      return route.fulfill(j({ id: cur.id, assignment_id: b.assignment_id, student_id: b.student_id, version: 2 }));
+    }
+    if (key === "POST submissions/:id/dismiss") {
+      if (!cur) return route.fulfill(e(404, "NOT_FOUND"));
+      const b = JSON.parse(body) as { reason: string; version: number };
+      if (b.version !== cur.version) return route.fulfill(e(409, "VERSION_CONFLICT"));
+      if (b.reason.length < 1 || b.reason.length > 200) return route.fulfill(e(422, "REASON_LENGTH"));
+      removed.set(sid, cur);
+      rows = rows.filter((r) => r.id !== sid);
+      return route.fulfill({ status: 204, headers: cors });
+    }
+    if (key === "DELETE submissions/:id/dismiss") {
+      const back = removed.get(sid);
+      if (back) {
+        removed.delete(sid);
+        rows = [back, ...rows];
+      }
+      return route.fulfill({ status: 204, headers: cors });
+    }
+    if (key === "GET submissions/:id/file") return route.fulfill(j({ url: `${BASE_URL}/__blob/${sid}.pdf`, expires_in: 300 }));
+    return route.fulfill(e(404, "NOT_FOUND"));
+  };
+
+  await p.route(/\/api\/v1\/courses\/[^/]+\/(submissions|members|assignments)(\?|$|\/)/, (r) => handle(r));
+  return {
+    calls,
+    rows: () => rows,
+    matches: () => calls.filter((c) => c.path.endsWith("/match")),
+    dismisses: () => calls.filter((c) => c.method === "POST" && c.path.endsWith("/dismiss")),
+    undismisses: () => calls.filter((c) => c.method === "DELETE" && c.path.endsWith("/dismiss")),
+  };
+}

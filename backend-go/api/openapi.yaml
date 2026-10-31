@@ -3095,6 +3095,133 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/grade-all:
+    post:
+      operationId: gradeAllSubmissions
+      tags: [assignments]
+      summary: "Chấm tất cả bài MATCHED phiên bản mới nhất chưa có kết quả (TA, TEACHER; Idempotency-Key bắt buộc). Một giao dịch ghi grading_results QUEUED + jobs(grading.batch); XADD ep:grading sau COMMIT. 202 {job_id, queued}; không có bài → 200 {queued:0}. only_unscored=false kèm retry_failed=true: chỉ xếp lại kết quả FAILED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                only_unscored: {type: boolean}
+                retry_failed: {type: boolean}
+      responses:
+        "202":
+          description: Đã xếp hàng chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "200":
+          description: Không có bài cần chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/submissions/{sid}/grade:
+    post:
+      operationId: gradeSubmission
+      tags: [assignments]
+      summary: "Chấm / chấm lại MỘT bài (TA, TEACHER; Idempotency-Key bắt buộc): round + 1 chỉ khi kết quả hiện có DRAFT (xong) hoặc FAILED. 409 ALREADY_REVIEWED khi REVIEWED / PUBLISHED; 409 VERSION_CONFLICT khi đang xếp hàng / chạy hoặc người khác vừa chấm lại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp hàng chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "200":
+          description: Không có gì để chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/grading-results/{rid}/retry:
+    post:
+      operationId: retryGradingResult
+      tags: [assignments]
+      summary: "Thử lại một kết quả FAILED (TA, TEACHER; Idempotency-Key bắt buộc): QUEUED lại, attempts = 0, cùng round. Không phải FAILED → 409 VERSION_CONFLICT"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp hàng chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "200":
+          description: Không có gì để chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/courses/{id}/submissions:
     get:
       operationId: listSubmissions
@@ -11567,6 +11694,13 @@ components:
             properties:
               entry: {type: string}
               code: {type: string}
+    GradingEnqueued:
+      type: object
+      required: [queued]
+      additionalProperties: false
+      properties:
+        job_id: {type: string, format: uuid}
+        queued: {type: integer}
     UploadSubmissionsJob:
       type: object
       required: [job_id]

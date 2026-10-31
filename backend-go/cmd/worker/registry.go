@@ -46,6 +46,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
+	if gq := newGradingQueue(d); gq != nil {
+		gq.RegisterBatch(runner) // grading.batch: chỉ XADD ep:grading (US-P7-07); chấm chạy ở consumer ep:grading
+	}
 	// Sự kiện chưa có bên tiêu thụ ở sprint 6 (P4 thông báo gộp, P10 cảnh báo ngân sách): vẫn PHẢI có handler ghi nhận — thiếu thì tin dead-letter sau 4 lần (TestEveryEmittedTopicHasHandler).
 	ack := func(context.Context, outbox.Message) error { return nil }
 	reg.Register(budget.TopicWarn, ack)

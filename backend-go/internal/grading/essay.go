@@ -121,6 +121,23 @@ func (g *Grader) log() *slog.Logger {
 	return slog.New(slog.NewTextHandler(io.Discard, nil))
 }
 
+// ErrLeaseLost: việc đã bị nhận lại (mất thuê) — kết quả của worker chậm bị bỏ, không đè (SRS 4.7.3).
+var ErrLeaseLost = errors.New("grading: mất thuê")
+
+type leaseKey struct{}
+
+// WithLease gắn chủ thuê vào ctx: mọi lần ghi kết quả chỉ có hiệu lực khi `run_state = RUNNING AND lease_owner = owner` (hàng đợi, US-P7-07).
+func WithLease(ctx context.Context, owner string) context.Context {
+	return context.WithValue(ctx, leaseKey{}, owner)
+}
+
+func leaseOf(ctx context.Context) *string {
+	if v, ok := ctx.Value(leaseKey{}).(string); ok {
+		return &v
+	}
+	return nil
+}
+
 // Run chạy việc chấm của `resultID`. Danh tính LLM luôn có `CourseID` (thiếu → gateway trả ErrMaskFailed, KHÔNG gọi LLM).
 func (g *Grader) Run(ctx context.Context, courseID, resultID uuid.UUID) (Outcome, error) {
 	q := store.New(g.Pool)
@@ -322,8 +339,12 @@ func (g *Grader) fail(ctx context.Context, q *store.Queries, c store.EssayGradeC
 	}
 	raw, _ := json.Marshal(crit)
 	flags = uniqSorted(flags)
-	if _, err := q.EssaySaveFailed(ctx, store.EssaySaveFailedParams{CourseID: c.CourseID, ID: c.ResultID, ErrorCode: &code, Criteria: raw, Flags: flags}); err != nil {
+	n, err := q.EssaySaveFailed(ctx, store.EssaySaveFailedParams{CourseID: c.CourseID, ID: c.ResultID, ErrorCode: &code, Criteria: raw, Flags: flags, Owner: leaseOf(ctx)})
+	if err != nil {
 		return Outcome{}, fmt.Errorf("grading: ghi lỗi: %w", err)
+	}
+	if n == 0 && leaseOf(ctx) != nil {
+		return Outcome{}, ErrLeaseLost
 	}
 	return Outcome{State: "FAILED", Code: code, Flags: flags}, nil
 }
@@ -389,12 +410,15 @@ func (g *Grader) write(ctx context.Context, q *store.Queries, c store.EssayGrade
 	}
 	n, err := q.EssaySaveDraft(ctx, store.EssaySaveDraftParams{
 		CourseID: c.CourseID, ID: c.ResultID, Criteria: critRaw, OverallFeedback: &feedback, Total: decimal.NullDecimal{Decimal: total, Valid: true}, AiScores: aiRaw, AiTotalBeforeLate: decimal.NullDecimal{Decimal: sum, Valid: true},
-		LateDays: int16(lateDays), LatePenalty: penalty, LlmReportedTotal: nd(reported), Flags: flags, Confidence: conf, PassDetail: detail,
+		LateDays: int16(lateDays), LatePenalty: penalty, LlmReportedTotal: nd(reported), Flags: flags, Confidence: conf, PassDetail: detail, Owner: leaseOf(ctx),
 	})
 	if err != nil {
 		return Outcome{}, fmt.Errorf("grading: ghi bản nháp: %w", err)
 	}
 	if n == 0 {
+		if leaseOf(ctx) != nil {
+			return Outcome{}, ErrLeaseLost
+		}
 		return Outcome{}, errors.New("grading: kết quả không còn ở trạng thái DRAFT")
 	}
 	return Outcome{State: "DONE", Flags: flags}, nil

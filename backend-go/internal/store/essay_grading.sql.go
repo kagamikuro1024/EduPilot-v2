@@ -101,6 +101,7 @@ update grading_results set
     late_days = $6, late_penalty = $7, llm_reported_total = $8,
     flags = $9, confidence = $10, pass_detail = $11, version = version + 1
 where course_id = $12 and id = $13 and status = 'DRAFT'
+  and ($14::text is null or (run_state = 'RUNNING' and lease_owner = $14))
 `
 
 type EssaySaveDraftParams struct {
@@ -117,6 +118,7 @@ type EssaySaveDraftParams struct {
 	PassDetail        json.RawMessage
 	CourseID          uuid.UUID
 	ID                uuid.UUID
+	Owner             *string
 }
 
 // Ghi bản nháp (DONE / DRAFT). `ai_scores` và `ai_total_before_late` chỉ ghi lần đầu (trigger chặn đổi). Không đụng kết quả đã REVIEWED / PUBLISHED.
@@ -135,6 +137,7 @@ func (q *Queries) EssaySaveDraft(ctx context.Context, arg EssaySaveDraftParams) 
 		arg.PassDetail,
 		arg.CourseID,
 		arg.ID,
+		arg.Owner,
 	)
 	if err != nil {
 		return 0, err
@@ -147,6 +150,7 @@ update grading_results set
     run_state = 'FAILED', error_code = $1, lease_owner = null, lease_until = null,
     criteria = $2, overall_feedback = null, total = null, flags = $3, version = version + 1
 where course_id = $4 and id = $5 and status = 'DRAFT'
+  and ($6::text is null or (run_state = 'RUNNING' and lease_owner = $6))
 `
 
 type EssaySaveFailedParams struct {
@@ -155,6 +159,7 @@ type EssaySaveFailedParams struct {
 	Flags     []string
 	CourseID  uuid.UUID
 	ID        uuid.UUID
+	Owner     *string
 }
 
 // Bài lỗi: mọi tiêu chí NULL (không ghi 0 điểm), `ai_scores` NULL.
@@ -165,6 +170,7 @@ func (q *Queries) EssaySaveFailed(ctx context.Context, arg EssaySaveFailedParams
 		arg.Flags,
 		arg.CourseID,
 		arg.ID,
+		arg.Owner,
 	)
 	if err != nil {
 		return 0, err

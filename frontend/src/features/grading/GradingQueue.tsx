@@ -12,6 +12,7 @@ import { bt03Total } from "@/mock/grades";
 import { noteBt03Published } from "@/mock/notes";
 import { KEYS, type Bt03State } from "@/mock/state";
 import { AssignmentsTab } from "@/features/assignments/AssignmentsTab";
+import { UnmatchedTab } from "./UnmatchedTab";
 import { useSession } from "@/shared/session/session";
 import { simNowMs } from "@/shared/state/clock";
 import { useDemoSlice, writeSlice } from "@/shared/state/demo";
@@ -19,6 +20,7 @@ import { useUndoLine } from "@/shared/lib/useUndoLine";
 import s from "./Grading.module.css";
 
 type Filter = "flag" | "unapproved" | "late";
+type Tab = "queue" | "assignments" | "unmatched";
 
 const FILTERS: Array<{ value: Filter; label: string }> = [
   { value: "flag", label: "Cần xem kỹ" },
@@ -41,9 +43,11 @@ export function GradingQueue() {
 
   const hasQueue = course.id !== COURSE_2;
   const all = useMemo(() => (hasQueue ? bt03Submissions(studentsOf(course.id)) : []), [course.id, hasQueue]);
-  // Tab nằm ở URL (`?tab=`): lịch dẫn thẳng tới `/grading?tab=assignments`. Chưa có tham số: hàng chờ khi còn việc, ngược lại bài tập.
-  const tab: "queue" | "assignments" = params.get("tab") === "assignments" ? "assignments" : params.get("tab") === "queue" ? "queue" : hasQueue ? "queue" : "assignments";
-  const setTab = (v: "queue" | "assignments") => router.replace(`/grading?tab=${v}`, { scroll: false });
+  // Tab nằm ở URL (`?tab=`): lịch và "Hôm nay" dẫn thẳng tới `/grading?tab=assignments` / `?tab=unmatched`.
+  // Chưa có tham số: hàng chờ khi còn việc, ngược lại bài tập.
+  const asked = params.get("tab");
+  const tab: Tab = asked === "assignments" || asked === "unmatched" || asked === "queue" ? asked : hasQueue ? "queue" : "assignments";
+  const setTab = (v: Tab) => router.replace(`/grading?tab=${v}`, { scroll: false });
 
   const isApproved = (sub: Submission) => isSubmissionApproved(sub, bt03.status, approvedIds);
   const isPublished = (sub: Submission) => (sub.id === "sub-bt03-sv-2" ? bt03.status === "published" : publishedIds.includes(sub.id));
@@ -174,13 +178,18 @@ export function GradingQueue() {
           options={[
             { value: "queue", label: "Hàng chờ chấm", count: all.filter((x) => !isApproved(x)).length },
             { value: "assignments", label: "Bài tập" },
+            { value: "unmatched", label: "Chưa khớp" },
           ]}
         />
       </div>
 
-      {tab === "assignments" ? (
+      {tab === "assignments" || tab === "unmatched" ? (
         realCourseId && realCourseId !== "all" ? (
-          <AssignmentsTab courseId={realCourseId} teacher={role === "teacher"} creating={creating} onCreatingChange={setCreating} />
+          tab === "assignments" ? (
+            <AssignmentsTab courseId={realCourseId} teacher={role === "teacher"} creating={creating} onCreatingChange={setCreating} />
+          ) : (
+            <UnmatchedTab courseId={realCourseId} />
+          )
         ) : (
           <Panel>
             <EmptyState title="Chọn một lớp để xem bài tập." />

@@ -21,11 +21,13 @@ update grading_results set
     ai_scores = coalesce(ai_scores, sqlc.arg(ai_scores)), ai_total_before_late = coalesce(ai_total_before_late, sqlc.arg(ai_total_before_late)),
     late_days = sqlc.arg(late_days), late_penalty = sqlc.arg(late_penalty), llm_reported_total = sqlc.narg(llm_reported_total),
     flags = sqlc.arg(flags), confidence = sqlc.narg(confidence), pass_detail = sqlc.narg(pass_detail), version = version + 1
-where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'DRAFT';
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'DRAFT'
+  and (sqlc.narg(owner)::text is null or (run_state = 'RUNNING' and lease_owner = sqlc.narg(owner)));
 
 -- name: EssaySaveFailed :execrows
 -- Bài lỗi: mọi tiêu chí NULL (không ghi 0 điểm), `ai_scores` NULL.
 update grading_results set
     run_state = 'FAILED', error_code = sqlc.arg(error_code), lease_owner = null, lease_until = null,
     criteria = sqlc.arg(criteria), overall_feedback = null, total = null, flags = sqlc.arg(flags), version = version + 1
-where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'DRAFT';
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'DRAFT'
+  and (sqlc.narg(owner)::text is null or (run_state = 'RUNNING' and lease_owner = sqlc.narg(owner)));
