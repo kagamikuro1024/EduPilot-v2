@@ -1,0 +1,28 @@
+package grade_test
+
+// QC probe (US-P6-09 AC2): điểm QT nháp (chưa công bố) không được lộ qua `calculation[]` khi CHỈ cột cuối kỳ đã công bố, và ngược lại.
+// Chép vào backend-go/internal/grade/ khi chạy, xoá sau. Bắt đột biến "MeGrades bỏ publishedInput" mà TestNoDraftLeak không bắt.
+import (
+	"encoding/json"
+	"strings"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestQCMeDraftNotInCalculation(t *testing.T) {
+	r := newMeRig(t)
+	r.exec(`update grade_entries set score = 7.77 where item_id = $1 and student_id = $2`, r.items["weekly"], r.b) // QT nháp của B = canary 7,77
+	for _, only := range []string{"final", "weekly"} {
+		r.exec(`update grade_items set published_at = null where course_id = $1`, r.course)
+		r.publish(only)
+		raw, _ := json.Marshal(r.me(r.b))
+		s := string(raw)
+		for _, bad := range []string{"7.77", "7,77", "9.87", "9,87"} {
+			if only == "final" && (bad == "9.87" || bad == "9,87") || only == "weekly" && (bad == "7.77" || bad == "7,77") {
+				continue // điểm của cột đã công bố được phép
+			}
+			require.NotContains(t, s, bad, "chỉ công bố %q: lộ điểm nháp %s: %s", only, bad, strings.TrimSpace(s))
+		}
+	}
+}
