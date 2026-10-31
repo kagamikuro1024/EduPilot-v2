@@ -50,3 +50,10 @@ Hai việc này bớt ≈ 0,85 s (chunk + CSS) + ≈ 0,6 s (một vòng). Ước
 Nếu PM không chọn 1 hoặc 2 thì AC9 phần LCP giữ nguyên ngưỡng nhưng **đỏ có ghi nợ** (số đo ở trên), không đổi thành "bỏ đo".
 
 **Đề xuất dòng `proposals.md`:** `#10 Tech Lead (TL-1): bỏ -g '/assignments' khỏi lcp.spec (bất biến PreShell không áp cho trang có phần tử LCP là dữ liệu), THAY bằng LHCI devtools cho /assignments/<id cố định> + /mine giả trong lighthouse-api.mjs (ngưỡng 2,5 s không đổi). Số đo hiện 6,1 s (FAIL): dev làm (a) ?course= + gọi /mine song song, (b) bỏ dynamic import → ước 4,6–4,8 s; đạt 2,5 s cần PM chọn: intro theo tiền tố + đề bài gọn ở màn đầu (FEAT-ui-foundation + DESIGN), hoặc ghi nợ.`
+
+## TL-2 (PM, 2026-10-31): proposals #13, whitelist `AssignmentQueue` trong `TestNoQueryLinksByStudentCode`
+Dev thêm truy vấn hàng chờ chấm có ô tìm theo MSSV, nên test bảo mật đỏ; dev đề xuất cho truy vấn này vào whitelist. Tech Lead xem truy vấn trên `origin/sprint/9-p7` (`c487e4fa`) và trả lời:
+- Ô tìm này có nối dữ liệu / danh tính theo MSSV tự khai không, hay chỉ là bộ lọc hiển thị cho nhân viên trong phạm vi lớp?
+- Nên lọc trên `enrollments.student_code_snapshot` (ROSTER / ADMIN), trên `users.student_code`, hay viết lại để khỏi cần whitelist?
+
+Kết luận: chấp nhận whitelist hay sửa mã. Trả lời ngay dưới, báo PM 2 dòng.
