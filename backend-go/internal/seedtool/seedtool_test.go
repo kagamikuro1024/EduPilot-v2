@@ -224,3 +224,43 @@ func TestSeedChatNoTickets(t *testing.T) {
 }
 
 func mustErr(_ int64, err error) error { return err }
+
+// TestPlaceActivity (US-P6-09 AC8): "0" dời hoạt động ra khỏi tuần; ">=1" đặt một tin chat vào tuần trống; chạy lại không đổi; MSSV lạ và giá trị lạ bị từ chối.
+func TestPlaceActivity(t *testing.T) {
+	var p plan
+	readJSON(t, "../../../seed/crm_plan.json", &p)
+	w := newWorld(t, p)
+	_, err := w.pool.Exec(t.Context(), `update enrollments set student_code_snapshot = case user_id when $2 then '20220111' when $3 then '20220222' end where course_id = $1 and role_in_course = 'STUDENT' and user_id in ($2, $3)`, w.course, w.ids["sv.gioi"], w.ids["sv.kha"])
+	require.NoError(t, err)
+	cp := seedtool.ChatPlan{Sessions: []seedtool.ChatSession{
+		{Email: "sv.gioi@edupilot.local", Key: "g", Turns: []seedtool.ChatTurn{{Key: "g1", Question: "q1", Answer: "a"}, {Key: "g2", Question: "q2", Answer: "a"}}},
+		{Email: "sv.kha@edupilot.local", Key: "k", Turns: []seedtool.ChatTurn{{Key: "k1", Question: "q3", Answer: "a"}, {Key: "k2", Question: "q4", Answer: "a"}}},
+	}}
+	_, err = seedtool.SeedChat(t.Context(), w.pool, w.course, 10, cp, today)
+	require.NoError(t, err)
+	cw := time.Date(2026, 10, 26, 0, 0, 0, 0, ict) // thứ Hai của tuần chứa `today`
+	inWeek := func(who string, from time.Time) int {
+		return count(t, w, `select count(*) from chat_messages where course_id = $1 and user_id = $2 and role = 'USER' and created_at >= $3 and created_at < $4`, w.course, w.ids[who], from, from.AddDate(0, 0, 7))
+	}
+	// khởi đầu: gioi có 2 tin cùng tuần 9, kha không có gì ở hai tuần đó
+	_, err = w.pool.Exec(t.Context(), `update chat_messages set created_at = $3::timestamptz + interval '1 day' where course_id = $1 and user_id = $2 and role = 'USER'`, w.course, w.ids["sv.gioi"], cw.AddDate(0, 0, -7))
+	require.NoError(t, err)
+	_, err = w.pool.Exec(t.Context(), `update chat_messages set created_at = $3 where course_id = $1 and user_id = $2 and role = 'USER'`, w.course, w.ids["sv.kha"], cw.AddDate(0, 0, -50))
+	require.NoError(t, err)
+	require.Equal(t, 2, inWeek("sv.gioi", cw.AddDate(0, 0, -7)))
+	want := []seedtool.ActivityWant{{StudentCode: "20220111", Week9: "0", Week8: ">=1"}, {StudentCode: "20220222", Week9: ">=1", Week8: ">=1"}}
+	n, err := seedtool.PlaceActivity(t.Context(), w.pool, w.course, want, today)
+	require.NoError(t, err)
+	require.EqualValues(t, 5, n) // gioi: 2 tin ra khỏi tuần 9 + 1 vào tuần 8; kha: 1 vào mỗi tuần
+	require.Zero(t, inWeek("sv.gioi", cw.AddDate(0, 0, -7)))
+	require.Equal(t, 1, inWeek("sv.gioi", cw.AddDate(0, 0, -14)))
+	require.Equal(t, 1, inWeek("sv.kha", cw.AddDate(0, 0, -7)))
+	require.Equal(t, 1, inWeek("sv.kha", cw.AddDate(0, 0, -14)))
+	again, err := seedtool.PlaceActivity(t.Context(), w.pool, w.course, want, today)
+	require.NoError(t, err)
+	require.Zero(t, again)
+	_, err = seedtool.PlaceActivity(t.Context(), w.pool, w.course, []seedtool.ActivityWant{{StudentCode: "20229999", Week9: ">=1"}}, today)
+	require.Error(t, err)
+	_, err = seedtool.ParseActivityPlan([]byte(`[{"student_code":"1","week9":"nhiều"}]`))
+	require.Error(t, err)
+}

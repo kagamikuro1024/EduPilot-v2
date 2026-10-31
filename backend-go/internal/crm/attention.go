@@ -48,7 +48,7 @@ func shortReason(raw json.RawMessage) string {
 		return ""
 	}
 	var parts []string
-	for _, code := range []string{ReasonAttendanceLow, ReasonStudyLow, ReasonActivityLow} {
+	for _, code := range []string{ReasonAttendanceLow, ReasonGradeLow, ReasonStudyLow, ReasonActivityLow} {
 		for _, r := range rs {
 			if r.Code != code {
 				continue
@@ -56,6 +56,8 @@ func shortReason(raw json.RawMessage) string {
 			switch code {
 			case ReasonAttendanceLow:
 				parts = append(parts, fmt.Sprintf("vắng %d/%d buổi", r.Values["absent"], r.Values["recorded"]))
+			case ReasonGradeLow:
+				parts = append(parts, "điểm quá trình thấp")
 			case ReasonStudyLow:
 				parts = append(parts, "học ít")
 			case ReasonActivityLow:

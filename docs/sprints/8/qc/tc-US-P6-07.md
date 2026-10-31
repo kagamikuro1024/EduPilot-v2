@@ -3,6 +3,8 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-07 (AC1–AC9) + `SRS.md` 3, 4.
 
 **Quy ước.** Tệp thử do QC sinh bằng `python3 docs/sprints/8/qc/scripts/p6-make-xlsx.py` → `/tmp/qc-p6-xlsx/` (`midterm.xlsx`, `final.xlsx`, `errors.xlsx`, `formula.xlsx`, `real-mssv.xlsx`, `rows5000.xlsx`, `toomany.xlsx`, `zipbomb.xlsx`, `corrupt.xlsx`, `notxlsx.xlsx`, `big3mb.xlsx`, `inject.xlsx`). Tải lên qua `POST $Q/uploads/presign {purpose:"grade_import", filename, mime_type, size_bytes, sha256}` rồi `PUT` lên URL ký (hàm `up()` trong `p6-env.sh`, QC thêm ở pha 2). `MIME`=`application/vnd.openxmlformats-officedocument.spreadsheetml.sheet`. Ca ghi đổi điểm lớp 1: làm trên DB dựng lại; `ITEM_MID`, `ITEM_FIN` = id item `midterm`, `final` lấy từ `GET $Q/gradebook`. `GO` = `p6-go-tests.sh`.
 
+Mã lỗi sau #20: `STUDENT_CODE_UNVERIFIED` (MSSV chỉ khớp sinh viên `joined_via='CODE'`, báo "MSSV chưa có trong danh sách lớp") khác `STUDENT_NOT_IN_COURSE` (MSSV không khớp ai); `AMBIGUOUS_STUDENT_CODE` chỉ xét giữa các dòng ROSTER/ADMIN.
+
 Kỳ vọng `errors.xlsx` (mục tiêu `ITEM_MID`; `rows_total = 9` — dòng trống bỏ qua): dòng 2 `STUDENT_NOT_IN_COURSE` (99999999) · dòng 3 hợp lệ (B = 7) · dòng 4 `DUPLICATE_IN_FILE` (B lần 2) · dòng 5 `SCORE_OUT_OF_RANGE` (C = 11) · dòng 6 `SCORE_PRECISION` (sv04 = 8.333) · dòng 7 `SCORE_NOT_NUMBER` (sv05 = "abc") · dòng 8 trống → bỏ qua, không lỗi · dòng 9 hợp lệ (sv06 = "8,5") · dòng 10 `SCORE_OUT_OF_RANGE` (sv07 = −1) · dòng 11 điểm trống → không xoá điểm cũ, không lỗi.
 
 | TC-id | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi |
@@ -20,7 +22,7 @@ Kỳ vọng `errors.xlsx` (mục tiêu `ITEM_MID`; `rows_total = 9` — dòng tr
 | TC-P6-07-11 | AC3 | `errors.xlsx` → `ITEM_MID` | preview (mapping A, C, hàng 1) | `errors[]` **đúng** 6 phần tử, đúng `row` và `code` như bảng kỳ vọng ở đầu file; dòng 8 (trống) không có trong `errors`; dòng 11 không lỗi; `rows_ok` = 3 (dòng 3, 9, 11?) — QC ghi số thực, đối chiếu: dòng 11 điểm trống không phải lỗi và **không** xoá điểm cũ |
 | TC-P6-07-12 | AC3 | `formula.xlsx` | preview | dòng B (`=22/3`, định dạng `0.00`): đọc giá trị **đã định dạng** `7.33` → hợp lệ; dòng C (`=22/3` định dạng chung → 7.333…): `SCORE_PRECISION` (TLR-7) |
 | TC-P6-07-13 | AC3 | `real-mssv.xlsx` (ô số thực `20229002.0`) | preview | khớp sinh viên B (chuẩn hoá bỏ đuôi `.0`) |
-| TC-P6-07-14 | AC3, TLR-3 | seed; sv `X` khai MSSV của bạn `Y` ở hồ sơ tài khoản (`users.student_code` = MSSV của Y, QC đặt bằng `PUT /me` hoặc SQL trên DB riêng) | tệp có dòng `Y_mssv, 9` → preview/commit | điểm vào **đúng sinh viên có `enrollments.student_code_snapshot` = MSSV đó** (Y), **không** vào X; X không nhận điểm của Y |
+| TC-P6-07-14 | AC3, TLR-3, #20 | seed; sv `X` khai MSSV của bạn `Y` ở hồ sơ tài khoản (`users.student_code` = MSSV của Y, QC đặt bằng `PUT /me` hoặc SQL trên DB riêng); `Y` có dòng `enrollments` `joined_via IN ('ROSTER','ADMIN')` | tệp có dòng `Y_mssv, 9` → preview/commit | điểm vào **đúng sinh viên có `student_code_snapshot` = MSSV đó và `joined_via ∈ {ROSTER, ADMIN}`** (Y), **không** vào X; X không nhận điểm của Y |
 | TC-P6-07-15 | AC3 | hai sinh viên lớp có cùng `student_code_snapshot` (QC dựng trên DB riêng) | preview dòng MSSV đó | `AMBIGUOUS_STUDENT_CODE` |
 | TC-P6-07-16 | AC3 | MSSV có số 0 đầu (QC thêm sinh viên `00123456` ở lớp thử) | dòng `00123456` kiểu chuỗi; dòng `123456` | khớp đúng người đầu; dòng sau `STUDENT_NOT_IN_COURSE` (không mất số 0) |
 | TC-P6-07-17 | AC3 | repo | `GO ./internal/grade "TestImportParseErrors|TestImportDecimalComma|TestImportPrecisionRejected|TestImportFormattedCellValue|TestImportStudentCodeAsText|TestImportMatchesEnrollmentSnapshot|TestImportSelfDeclaredCodeIgnored|TestImportBlankKeepsOld"` | PASS 8 test |
@@ -66,6 +68,11 @@ Kỳ vọng `errors.xlsx` (mục tiêu `ITEM_MID`; `rows_total = 9` — dòng tr
 | TC-P6-07-52 | `commit` thiếu `Idempotency-Key` | gọi không header | `400/422`; không ghi (luật 14) |
 | TC-P6-07-53 | `mapping` sai cột (cột điểm = cột MSSV) | preview | mọi dòng `SCORE_*` lỗi, không `500` |
 | TC-P6-07-54 | Hai `commit` cùng tệp song song, hai khoá khác nhau | `xargs -P2` | kết quả sau cùng bằng một lần commit; không `version` đôi; không deadlock (`5xx`) |
+| TC-P6-07-55 | AC3, #20 | `Z` vào lớp bằng mã (`enrollments.joined_via = 'CODE'`, `student_code_snapshot` = MSSV **tự khai** `20229777`); QC dựng `unverified.xlsx` (`UNVERIFIED_MSSV=20229777 python3 …/p6-make-xlsx.py`): một dòng `20229777, 9`, một dòng B hợp lệ | preview rồi `commit` (có và không `skip_errors`) | preview: `errors[]` có đúng một `STUDENT_CODE_UNVERIFIED` ở dòng của `Z` (thông báo "MSSV chưa có trong danh sách lớp"), **khác** `STUDENT_NOT_IN_COURSE` (mã dành cho MSSV không khớp ai); `commit` không `skip_errors` → `409 IMPORT_HAS_ERRORS`; `skip_errors:true` ghi dòng của B, **không** ghi dòng của `Z` (`select count(*) from grade_entries where student_id = <Z>` không tăng; không `audit_log` cho `Z`) |
+| TC-P6-07-56 | AC3, #20 | hai dòng `enrollments` cùng `student_code_snapshot` = `20229888`: một `joined_via = 'ROSTER'` (sinh viên `R`), một `joined_via = 'CODE'` (sinh viên `Z2`, tự khai trùng) | dòng `20229888, 8` | khớp **`R`** (không `AMBIGUOUS_STUDENT_CODE`: dòng `CODE` không tính là khớp); `Z2` không nhận điểm |
+| TC-P6-07-57 | AC3, #20 | chỉ có dòng `joined_via = 'ADMIN'` mang MSSV `20229999` | dòng `20229999, 7` | khớp (ADMIN được tin như ROSTER) |
+| TC-P6-07-58 | AC3, #20 | sinh viên `Z` (`CODE`, đã `ACTIVE`) | giảng viên nhập tay ô điểm của `Z` ở `/gradebook` / `PUT …/grade-entries` (không qua XLSX) | **vẫn nhập được** — hạn chế #20 chỉ áp cho **khớp theo MSSV** (XLSX), không chặn sinh viên `CODE` có điểm nhập tay / bài thi / chốt; sổ vẫn liệt kê `Z`. (Nếu spec nói khác → hỏi PM.) |
+| TC-P6-07-59 | AC3, #20 (hiển thị) | `/gradebook` → `Nhập từ XLSX` → xem trước có dòng `STUDENT_CODE_UNVERIFIED` | xem danh sách lỗi | hàng lỗi ghi chữ tiếng Việt "MSSV chưa có trong danh sách lớp" (không mã thô); không gợi ý ghép tên / tự khớp theo họ tên |
 
 ## Phân quyền
 Phủ ở TC-06, TC-40; thêm: giảng viên lớp khác import → `403` (#11).
@@ -78,3 +85,4 @@ Phủ ở TC-06, TC-40; thêm: giảng viên lớp khác import → `403` (#11).
 
 ## Lịch sử sửa TC
 - 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): mục Phân quyền `404` → `403`. TC-P6-07-50, 51 giữ `404` (upload / item của lớp khác trong lớp mà giảng viên thuộc = tài nguyên, không qua guard).
+- 2026-10-31 — **proposal #20 ACCEPTED** (spec đổi: MSSV chỉ khớp sinh viên `joined_via ∈ {ROSTER, ADMIN}`; MSSV chỉ khớp sinh viên `CODE` → `STUDENT_CODE_UNVERIFIED`, không ghi): sửa TC-P6-07-14; thêm TC-P6-07-55…59; ghi chú mã lỗi ở đầu tệp. TC-P6-07-15, 16 giữ (xét trên dòng ROSTER/ADMIN).

@@ -22,10 +22,23 @@ async function sha256Hex(f: File): Promise<string> {
  * Tải một tệp tài liệu lên bằng URL ký sẵn (không qua gateway): `presign` → PUT thẳng tới kho tệp (token KHÔNG gửi tới origin khác) → trả `upload_id` cho `uploads/complete`.
  * Lỗi mạng ném `ApiError{code:"NETWORK"}` để giao diện cho `Tải lại` đúng tệp đó.
  */
-export async function uploadDocumentFile(courseId: string, file: File, signal?: AbortSignal): Promise<string> {
-  const mime = MIME[file.name.split(".").pop()!.toLowerCase()] ?? file.type;
+export const uploadDocumentFile = (courseId: string, file: File, signal?: AbortSignal) => uploadFile(courseId, file, "document", signal);
+
+/** Tệp XLSX nhập điểm (≤ 2 MiB): cùng đường tải, `purpose = grade_import`; chỉ TEACHER. */
+export const GRADE_IMPORT_MAX_BYTES = 2 * 1024 * 1024;
+const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+export function checkGradeImportFile(f: File): string | null {
+  if (!/\.xlsx$/i.test(f.name)) return `${f.name}: chỉ nhận XLSX. Hãy chọn tệp khác.`;
+  if (f.size > GRADE_IMPORT_MAX_BYTES) return `${f.name}: quá 2 MB. Hãy tách tệp.`;
+  if (f.size === 0) return `${f.name}: tệp rỗng.`;
+  return null;
+}
+export const uploadGradeImportFile = (courseId: string, file: File, signal?: AbortSignal) => uploadFile(courseId, file, "grade_import", signal);
+
+async function uploadFile(courseId: string, file: File, purpose: "document" | "grade_import", signal?: AbortSignal): Promise<string> {
+  const mime = purpose === "grade_import" ? XLSX_MIME : (MIME[file.name.split(".").pop()!.toLowerCase()] ?? file.type);
   const sha256 = await sha256Hex(file);
-  const p = await apiClient.post<{ upload_id: string; method: string; url: string; headers: Record<string, string> }>(`/courses/${courseId}/uploads/presign`, { purpose: "document", filename: file.name, mime_type: mime, size_bytes: file.size, sha256 }, { signal });
+  const p = await apiClient.post<{ upload_id: string; method: string; url: string; headers: Record<string, string> }>(`/courses/${courseId}/uploads/presign`, { purpose, filename: file.name, mime_type: mime, size_bytes: file.size, sha256 }, { signal });
   let res: Response;
   try {
     res = await fetch(p.data.url, { method: p.data.method, headers: p.data.headers, body: file, signal });

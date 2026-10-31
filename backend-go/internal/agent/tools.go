@@ -259,6 +259,13 @@ func (t gradeTool) Run(ctx context.Context, tc TrustedContext, _ json.RawMessage
 // WhatIfArgs là tham số của what_if_final_grade: giả định theo thành phần. Điểm là decimal (luật 5: cấm float64 cho điểm).
 type WhatIfArgs struct {
 	Assumed map[string]decimal.Decimal `json:"assumed"`
+	// TargetLetter: điểm chữ mong muốn ("B") → điểm cuối kỳ tối thiểu. Không có id nào trong tham số của tool (luật 2).
+	TargetLetter string `json:"target_letter"`
+}
+
+// LetterGradeSource: nguồn có thể tính điểm cuối kỳ tối thiểu cho một điểm chữ mục tiêu (cài đặt tuỳ chọn của GradeSource).
+type LetterGradeSource interface {
+	MinFinal(ctx context.Context, tc TrustedContext, letter string) (Facts, bool, error)
 }
 
 type whatIfTool struct {
@@ -274,6 +281,13 @@ func (t whatIfTool) Run(ctx context.Context, tc TrustedContext, raw json.RawMess
 	a, err := argsOf[WhatIfArgs](raw)
 	if err != nil {
 		return Result{}, err
+	}
+	if ls, okLS := t.Src.(LetterGradeSource); okLS && a.TargetLetter != "" && len(a.Assumed) == 0 {
+		f, ok, err := ls.MinFinal(ctx, tc, a.TargetLetter)
+		if errors.Is(err, ErrNoScheme) {
+			return Result{NoData: true, Message: ReplyNoFormula}, nil
+		}
+		return result("what_if", f, ok, err)
 	}
 	if t.Src == nil || len(a.Assumed) == 0 {
 		return Result{NoData: true}, nil

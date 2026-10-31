@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/shopspring/decimal"
 
+	"github.com/edupilot/backend-go/internal/grade"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
@@ -83,6 +84,10 @@ func (s *Service) RunCourse(ctx context.Context, courseID uuid.UUID, now time.Ti
 	if err != nil {
 		return wrap("sinh viên ACTIVE", err)
 	}
+	qt, err := grade.RiskQT(ctx, q, courseID) // tín hiệu GRADE: cả lớp một lần, rỗng khi chưa có công thức CONFIRMED
+	if err != nil {
+		return wrap("điểm quá trình hiện tại", err)
+	}
 	att, err := q.CrmRiskAttendance(ctx, store.CrmRiskAttendanceParams{CourseID: courseID, FromDay: fromDay, FromAt: from, ToAt: cw})
 	if err != nil {
 		return wrap("chuyên cần theo tuần", err)
@@ -124,6 +129,9 @@ func (s *Service) RunCourse(ctx context.Context, courseID uuid.UUID, now time.Ti
 			k := int32(weeksShown - 1 - i) //nolint:gosec // 0..3
 			start := cw.AddDate(0, 0, -7*(i+1))
 			w := Week{Start: start}
+			if v, ok := qt[st.StudentID]; ok {
+				w.Grade = &v
+			}
 			if a, ok := attBy[key{st.StudentID, k}]; ok {
 				w.Attendance = &Attendance{Recorded: int(a.Recorded), OK: int(a.Ok), Absent: int(a.Absent)}
 			}

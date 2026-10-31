@@ -1,243 +1,310 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { FileText, Upload } from "lucide-react";
-import { Button, ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, Split, StatusText } from "@/shared/ui";
-import { COURSE_2 } from "@/mock/core";
-import { SCHEME_DOC_1, SCHEME_DOC_2, type SchemeRule } from "@/mock/gradebook";
-import { KEYS, SCHEMES_SEED, type SchemesState } from "@/mock/state";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { ApiError, newIdempotencyKey } from "@/shared/data";
+import { Button, ButtonLink, ConfirmIrreversible, Drawer, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
-import { useDemoSlice } from "@/shared/state/demo";
-import { useUndoLine } from "@/shared/lib/useUndoLine";
+import { CitationPane } from "./CitationPane";
+import { BLOCKS, Blocks, unclearOf, type BlockId } from "./SchemeBlocks";
+import { confirmScheme, schemeStatusKey, toWorking, useSchemes, type Citation, type Impact, type SchemeDiff, type SchemeDoc } from "./gradeApi";
+import { useSchemeEditor } from "./useSchemeEditor";
+import { usePolicyUpload, type PolicyUpload } from "./usePolicyUpload";
 import s from "./GradeScheme.module.css";
 
-const STEPS = ["Đang tải tệp lên…", "Đang đọc nội dung quy chế…", "Đang rút ra các mục công thức…"];
+const vi = (v: unknown) => String(v ?? "").replace(".", ",");
+const WIDE = "(min-width: 1024px)";
+const REASON = { ITEM_REMOVED: "cột bị bỏ", MAX_CHANGED: "đổi thang", SOURCE_CHANGED: "đổi nguồn" } as const;
 
+function useWide() {
+  return useSyncExternalStore(
+    (cb) => {
+      const m = window.matchMedia(WIDE);
+      m.addEventListener("change", cb);
+      return () => m.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(WIDE).matches,
+    () => false,
+  );
+}
+
+const at = (iso?: string) => (iso ? new Date(iso).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "");
+
+/** Công thức điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function GradeScheme() {
-  const { role, course } = useSession();
-  const [schemes, setSchemes] = useDemoSlice<SchemesState>(KEYS.schemes, SCHEMES_SEED);
-  const [uploading, setUploading] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [cite, setCite] = useState<SchemeRule | null>(null);
-  const [confirming, setConfirming] = useState(false);
-  const undo = useUndoLine();
+  const { role, realCourseId, realPending, realCourses } = useSession();
+  if (realPending || !realCourseId || realCourseId === "all" || (role !== "teacher" && role !== "ta")) return null;
+  const code = realCourses?.find((c) => c.id === realCourseId)?.class_code ?? "";
+  return <RealGradeScheme courseId={realCourseId} classCode={code} teacher={role === "teacher"} />;
+}
 
-  const doc = course.id === COURSE_2 ? SCHEME_DOC_2 : SCHEME_DOC_1;
-  const state = schemes[course.id]?.status ?? "none";
-  const rounding = schemes[course.id]?.rounding ?? (doc.rules.find((r) => r.id === "rounding")?.value ?? "");
-  const blocked = rounding.trim() === "";
+function RealGradeScheme({ courseId, teacher }: { courseId: string; classCode: string; teacher: boolean }) {
+  const qc = useQueryClient();
+  const base = useSchemes(courseId, false);
+  const [compare, setCompare] = useState(false);
+  const diffQ = useSchemes(courseId, true, compare);
+  const picker = useRef<HTMLInputElement>(null);
+  const refetch = useCallback(() => void base.refetch(), [base]);
+  const upload = usePolicyUpload(courseId, refetch);
+  const draft = base.data?.draft ?? null;
+  const confirmed = base.data?.confirmed ?? null;
 
-  useEffect(() => {
-    if (!uploading) return;
-    const t = window.setInterval(() => setProgress((p) => Math.min(100, p + 7)), 110);
-    return () => window.clearInterval(t);
-  }, [uploading]);
-
-  function uploadScheme() {
-    setProgress(0);
-    setUploading(true);
-    window.setTimeout(() => {
-      setUploading(false);
-      setSchemes((prev) => ({ ...prev, [course.id]: { status: "draft" } }));
-    }, 1600);
-  }
-
-  function setRounding(value: string) {
-    setSchemes((prev) => ({ ...prev, [course.id]: { status: prev[course.id]?.status ?? "draft", rounding: value } }));
-  }
-
-  const rules = doc.rules.map((r) => (r.id === "rounding" ? { ...r, value: rounding.trim() === "" ? null : rounding } : r));
+  const header = (
+    <PageHeader
+      title="Công thức điểm"
+      back={{ href: "/gradebook", label: "Sổ điểm" }}
+      meta={draft ? <StatusText tone="amber">Bản nháp</StatusText> : confirmed ? <span data-part="confirmed-line"><StatusText tone="green">{`Đã xác nhận · ${at(confirmed.confirmed_at)}`}</StatusText></span> : undefined}
+      actions={
+        teacher && (
+          <>
+            <input ref={picker} type="file" hidden accept=".pdf,.docx,.pptx" data-part="policy-input" onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ""; if (f) void upload.start(f); }} />
+            <Button variant="secondary" icon={<Upload aria-hidden />} disabled={upload.state.phase === "uploading" || upload.state.phase === "reading" || upload.state.phase === "extracting"} onClick={() => picker.current?.click()}>
+              Tải quy chế
+            </Button>
+          </>
+        )
+      }
+    />
+  );
 
   return (
     <Page>
-      <PageHeader
-        title="Công thức điểm"
-        description={`${course.label} · rút từ ${doc.file}`}
-        back={{ href: "/gradebook", label: "Sổ điểm" }}
-        meta={
-          <>
-            <span>{doc.pages} trang</span>
-            {state === "confirmed" ? (
-              <StatusText tone="green">Đã xác nhận</StatusText>
-            ) : state === "draft" ? (
-              <StatusText tone="amber">Bản nháp do AI rút ra · chờ giảng viên xác nhận</StatusText>
-            ) : (
-              <StatusText tone="neutral">Chưa có quy chế</StatusText>
-            )}
-          </>
-        }
-      />
-
       <PageState
-        loading={<Panel><Skeleton lines={10} /></Panel>}
-        empty={
-          <Panel><EmptyState
-            title="Chưa có quy chế điểm cho lớp này"
-            icon={<FileText aria-hidden />}
-            action={
-              role === "teacher" ? (
-                <Button
-                  variant="primary"
-                  icon={<Upload aria-hidden />}
-                  onClick={uploadScheme}
-                  disabled={uploading}
-                >
-                  Tải quy chế
-                </Button>
-              ) : (
-                <ButtonLink href="/gradebook">Về sổ điểm</ButtonLink>
-              )
-            }
-          >
-            {uploading ? (
-              <span className={s.progress}>
-                <span className={s.bar}>
-                  <span className={s.barFill} style={{ width: `${progress}%` }} />
-                </span>
-                <span className={s.progressText}>{STEPS[Math.min(STEPS.length - 1, Math.floor(progress / 34))]}</span>
-              </span>
-            ) : (
-              "Tải tệp quy chế của lớp (PDF) để EduPilot rút ra các mục công thức điểm. Bản rút ra chỉ là nháp — bạn xem lại từng mục rồi mới xác nhận."
-            )}
-          </EmptyState></Panel>
-        }
-        error={{
-          problem: "Không đọc được tệp quy chế.",
-          recovery: "Tệp vẫn được giữ nguyên trên máy bạn. Thử lại, hoặc tải lên bản PDF có lớp chữ.",
-        }}
-        state={state === "none" ? "empty" : undefined}
+        query={{ isPending: base.isPending, isError: base.isError, error: base.error, data: base.data, refetch: base.refetch }}
+        loading={<><PageHeader title="Công thức điểm" back={{ href: "/gradebook", label: "Sổ điểm" }} /><Panel><Skeleton lines={10} /></Panel></>}
+        showTechnical
       >
-        <Split
-          main={
-            <Panel>
-              {state === "draft" && (
-                <InlineNotice tone="info" title="Đây là bản nháp do AI rút ra từ quy chế">
-                  Mỗi mục đều kèm đoạn trích và số trang trong {doc.file}. Giảng viên đọc lại, điền mục còn thiếu rồi xác nhận — điểm chỉ tính theo công thức đã xác nhận.
-                </InlineNotice>
-              )}
-              {state === "confirmed" && (
-                <InlineNotice tone="success" title="Công thức đã được giảng viên xác nhận">
-                  Sổ điểm của lớp đang tính theo đúng các mục dưới đây. Mỗi mục vẫn giữ nguồn trích để đối chiếu khi cần.
-                </InlineNotice>
-              )}
-
-              {undo.node}
-
-              <div className={s.rules}>
-                {rules.map((r) => (
-                  <PanelSection key={r.id}>
-                    <div className={s.ruleHead}>
-                      <span className={s.ruleLabel}>{r.label}</span>
-                      <button type="button" className={s.cite} onClick={() => setCite(r)}>
-                        <FileText aria-hidden />
-                        Trang {r.page}
-                      </button>
-                    </div>
-                    {/* mục quy chế không nêu: ô điền ở lại tới khi xác nhận — không đổi thành chữ ngay sau ký tự đầu (03-1) */}
-                    {doc.rules.find((x) => x.id === r.id)?.value === null && state !== "confirmed" ? (
-                      <>
-                        {blocked && <p className={s.ruleMissing}>Chưa rõ: quy chế không nêu quy tắc làm tròn</p>}
-                        <div className={s.ask}>
-                          <p>{doc.rules.find((x) => x.id === r.id)?.ask}</p>
-                          <div className={s.askRow}>
-                            <Field className={s.askField} label="Quy tắc làm tròn" helper="Ví dụ: Làm tròn đến 0,1">
-                              {(id, by) => (
-                                <Input
-                                  id={id}
-                                  aria-describedby={by}
-                                  value={rounding}
-                                  placeholder="Làm tròn đến 0,1"
-                                  disabled={role !== "teacher"}
-                                  onChange={(e) => setRounding(e.target.value)}
-                                />
-                              )}
-                            </Field>
-                          </div>
-                        </div>
-                      </>
-                    ) : (
-                      <p className={s.ruleValue}>{r.value}</p>
-                    )}
-                    <blockquote className={s.quote}>{r.quote}</blockquote>
-                  </PanelSection>
-                ))}
-              </div>
-
-              {role === "teacher" && state !== "confirmed" && (
-                <div className={s.sticky}>
-                  <p className={s.stickyText}>
-                    {blocked
-                      ? "Còn 1 mục chưa rõ. Điền quy tắc làm tròn để xác nhận công thức."
-                      : "Sau khi xác nhận, sổ điểm của lớp sẽ tính theo đúng công thức này."}
-                  </p>
-                  {blocked ? (
-                    <span className={s.lock}>
-                      <Button variant="primary" className={s.lockBtn} aria-disabled="true" onClick={() => undefined}>
-                        Xác nhận công thức
-                      </Button>
-                      <span role="note" className={s.lockWhy}>
-                        Chưa xác nhận được: mục &ldquo;Quy tắc làm tròn&rdquo; còn trống. Điền ô ngay tại mục đó rồi xác nhận.
-                      </span>
-                    </span>
-                  ) : (
-                    <Button variant="primary" onClick={() => setConfirming(true)}>
-                      Xác nhận công thức
-                    </Button>
-                  )}
-                </div>
-              )}
-            </Panel>
-          }
-          aside={
-            <Panel>
-            <div className={s.sourcePanel}>
-              <div>
-                <p className={s.sourceHead}>Nguồn dùng để rút công thức</p>
-                <p className={s.sourceFile}>
-                  {doc.file} · {doc.pages} trang
-                </p>
-              </div>
-              {rules.map((r) => (
-                <div key={r.id} className={s.sourceItem}>
-                  <span className={s.sourcePage}>
-                    Trang {r.page} · {r.label}
-                  </span>
-                  <span className={s.sourceQuote}>{r.quote}</span>
-                </div>
-              ))}
-            </div>
-            </Panel>
-          }
-        />
-      </PageState>
-
-      <Drawer
-        open={Boolean(cite)}
-        onClose={() => setCite(null)}
-        title={cite ? `${doc.file} · trang ${cite.page}` : ""}
-        description={cite?.label}
-      >
-        {cite && (
-          <>
-            <blockquote className={s.quote}>{cite.quote}</blockquote>
-            <p className={s.sourcePage}>Đoạn trích nguyên văn từ quy chế đã tải lên. Mục công thức tương ứng được rút ra từ đoạn này.</p>
-          </>
+        {header}
+        <UploadProgress up={upload} />
+        {!draft && !confirmed ? (
+          <Panel>
+            <EmptyState
+              title="Lớp chưa có quy chế."
+              icon={<FileText aria-hidden />}
+              action={teacher ? <Button variant="primary" icon={<Upload aria-hidden />} onClick={() => picker.current?.click()}>Tải quy chế</Button> : <ButtonLink href="/gradebook">Về sổ điểm</ButtonLink>}
+            />
+          </Panel>
+        ) : draft ? (
+          <Review
+            key={draft.id}
+            courseId={courseId}
+            draft={draft}
+            confirmed={confirmed}
+            editable={teacher}
+            compare={compare}
+            diff={diffQ.data?.diff}
+            onCompare={setCompare}
+            onConfirmed={() => {
+              void qc.invalidateQueries({ queryKey: ["grade-schemes", courseId] });
+              void qc.invalidateQueries({ queryKey: schemeStatusKey(courseId) });
+              void qc.invalidateQueries({ queryKey: ["today"] });
+            }}
+          />
+        ) : (
+          confirmed && <ReadOnly courseId={courseId} doc={confirmed} />
         )}
-      </Drawer>
+      </PageState>
+    </Page>
+  );
+}
 
-      {role === "teacher" && (
+function UploadProgress({ up }: { up: PolicyUpload }) {
+  const { state, percent } = up;
+  if (state.phase === "idle") return null;
+  if (state.phase === "error") {
+    return (
+      <InlineNotice
+        tone="danger"
+        action={
+          <>
+            {state.canReplace && <Button size="sm" onClick={up.replace}>Thay bản nháp</Button>}
+            <Button size="sm" onClick={up.retry}>{state.docId ? "Thử lại" : "Tải lại"}</Button>
+            <Button size="sm" variant="ghost" onClick={up.dismiss}>Bỏ qua</Button>
+          </>
+        }
+      >
+        {state.file ? `${state.file.name}: ${state.error}` : state.error}
+      </InlineNotice>
+    );
+  }
+  const label = state.phase === "uploading" ? "Đang tải" : state.phase === "reading" ? "Đang đọc" : "Đang trích";
+  return (
+    <div className={s.progress} data-part="policy-progress" role="status">
+      <span className={s.bar}><span className={s.barFill} style={{ width: `${percent}%` }} /></span>
+      <span className={s.progressText}>{`${label} · ${state.file?.name ?? ""}`}</span>
+    </div>
+  );
+}
+
+function ReadOnly({ courseId, doc }: { courseId: string; doc: SchemeDoc }) {
+  const wide = useWide();
+  const [sel, setSel] = useState<{ block: BlockId; cite: Citation } | null>(null);
+  const w = useMemo(() => toWorking(doc), [doc]);
+  return (
+    <Panel>
+      <div className={s.review}>
+        <div className={s.main}>
+          <Blocks doc={doc} working={w} editable={false} errors={{}} selected={sel?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={() => undefined} />
+        </div>
+        {wide ? <aside className={s.aside}><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={sel?.cite ?? null} /></aside> : null}
+      </div>
+      {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
+    </Panel>
+  );
+}
+
+function CiteDrawer({ open, onClose, courseId, doc, cite }: { open: boolean; onClose: () => void; courseId: string; doc: SchemeDoc; cite: Citation | null }) {
+  return (
+    <Drawer open={open} onClose={onClose} title={doc.source_title ?? "Quy chế"}>
+      <CitationPane course={courseId} docId={doc.source_document_id} title={undefined} cite={cite} />
+    </Drawer>
+  );
+}
+
+function firstCitation(doc: SchemeDoc): { block: BlockId; cite: Citation } | null {
+  for (const b of BLOCKS) {
+    const c = b.id === "components" ? doc.components.flatMap((x) => x.citations)[0] : doc.rules.filter((r) => r.kind === b.id).flatMap((r) => r.citations)[0];
+    if (c) return { block: b.id, cite: c };
+  }
+  return null;
+}
+
+function lockReason(doc: SchemeDoc, saving: string): string | null {
+  if (saving === "offline" || saving === "error") return "Chưa lưu";
+  if (saving === "saving") return "Đang lưu";
+  const un = doc.unclear_items;
+  if (un.length === 0) return null;
+  const names = BLOCKS.filter((b) => unclearOf(un, b.id).length > 0).map((b) => b.short);
+  return `Còn ${un.length} mục chưa rõ: ${names.join(", ")}`;
+}
+
+function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare, onConfirmed }: { courseId: string; draft: SchemeDoc; confirmed: SchemeDoc | null; editable: boolean; compare: boolean; diff?: SchemeDiff; onCompare: (v: boolean) => void; onConfirmed: () => void }) {
+  const ed = useSchemeEditor(courseId, draft);
+  const wide = useWide();
+  const doc = ed.doc ?? draft;
+  const [sel, setSel] = useState<{ block: BlockId; cite: Citation } | null>(null);
+  const [asking, setAsking] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+  const key = useRef("");
+
+  // mở sẵn trích dẫn đầu tiên để cột phải không trống
+  const first = firstCitation(doc);
+  const shown = sel ?? first;
+  const reason = lockReason(doc, ed.state);
+  const locked = Boolean(reason) || !ed.impact;
+
+  useEffect(() => {
+    if (asking) key.current = newIdempotencyKey();
+  }, [asking]);
+
+  async function doConfirm() {
+    setBusy(true);
+    setErr(null);
+    try {
+      await confirmScheme(courseId, doc.version, key.current);
+      setAsking(false);
+      onConfirmed();
+    } catch (e) {
+      key.current = newIdempotencyKey();
+      if (e instanceof ApiError && (e.code === "VERSION_CONFLICT" || e.status === 422)) {
+        onConfirmed();
+        setErr(e.code === "VERSION_CONFLICT" ? "Có người vừa sửa công thức. Đã tải bản mới." : "Còn mục chưa rõ.");
+      } else setErr(e instanceof ApiError ? e.userMessage : "Chưa xác nhận được.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const imp = ed.impact;
+  const dropped = imp?.entries_dropped.reduce((n, d) => n + d.count, 0) ?? 0;
+  const consequence = imp ? (
+    <>
+      {`Áp cho ${imp.students_total} sinh viên · điểm học phần của ${imp.changed_vs_confirmed} sinh viên sẽ đổi so với công thức hiện tại · ${imp.entries_carried} điểm đã nhập được giữ · ${dropped} điểm đã nhập bị bỏ`}
+      {imp.entries_dropped.length > 0 && ` (${imp.entries_dropped.map((d) => `${d.item_key}: ${d.count}, ${REASON[d.reason]}`).join("; ")})`}
+    </>
+  ) : null;
+
+  const saving = ed.state === "saving" ? "Đang lưu…" : ed.state === "offline" ? "Chưa lưu" : ed.state === "error" ? "Chưa lưu" : null;
+
+  return (
+    <Panel>
+      {ed.notice && <InlineNotice tone="warning" compact action={<Button size="sm" variant="ghost" onClick={ed.dismissNotice}>Đã rõ</Button>}>{ed.notice}</InlineNotice>}
+      <div className={s.bar2}>
+        {saving && <span data-part="save-state"><StatusText tone="amber">{saving}</StatusText></span>}
+        {confirmed && <Button size="sm" variant="ghost" aria-pressed={compare} onClick={() => onCompare(!compare)}>{compare ? "Bản nháp" : "So sánh"}</Button>}
+        {editable && (
+          <span className={s.lock}>
+            <Button variant="primary" aria-disabled={locked || undefined} className={locked ? s.lockBtn : undefined} aria-describedby={locked ? "confirm-why" : undefined} onClick={() => (locked ? undefined : setAsking(true))}>
+              Xác nhận công thức
+            </Button>
+            {locked && <span id="confirm-why" role="tooltip" className={s.lockWhy}>{reason ?? "Đang tính"}</span>}
+          </span>
+        )}
+      </div>
+      <div className={s.review}>
+        <div className={s.main}>
+          {compare && diff ? (
+            <DiffView diff={diff} />
+          ) : (
+            ed.working && <Blocks doc={doc} working={ed.working} editable={editable} errors={ed.errors} selected={shown?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={ed.commit} />
+          )}
+          {!compare && <Preview impact={imp} />}
+        </div>
+        {wide ? <aside className={s.aside}><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={shown?.cite ?? null} /></aside> : null}
+      </div>
+      {!wide && sel && <CiteDrawer open onClose={() => setSel(null)} courseId={courseId} doc={doc} cite={sel.cite} />}
+      {editable && (
         <ConfirmIrreversible
-          open={confirming}
-          onClose={() => setConfirming(false)}
-          onConfirm={() => {
-            setSchemes((prev) => ({ ...prev, [course.id]: { status: "confirmed", rounding } }));
-            undo.push("Đã xác nhận công thức điểm của lớp");
-          }}
-          title="Xác nhận công thức điểm"
-          consequence={`Từ lúc này, điểm quá trình của ${course.code} tính theo: quá trình ${doc.scheme.qtWeight}% · cuối kỳ ${100 - doc.scheme.qtWeight}%, cộng ${doc.scheme.speakBonus.toFixed(2).replace(".", ",")} mỗi lần phát biểu (trần ${doc.scheme.speakCap.toFixed(1).replace(".", ",")}), trừ ${doc.scheme.absencePenalty.toFixed(1).replace(".", ",")} mỗi buổi vắng từ buổi thứ ${doc.scheme.absenceFrom}, ${rounding.toLowerCase()}. Sinh viên sẽ thấy lớp đã có công thức điểm chính thức.`}
+          open={asking}
+          onClose={() => setAsking(false)}
+          onConfirm={() => void doConfirm()}
+          title="Xác nhận công thức"
+          consequence={consequence}
           confirmLabel="Xác nhận công thức"
+          disabledReason={imp ? undefined : "Đang tính"}
+          loading={busy}
+          error={err ?? undefined}
         />
       )}
-    </Page>
+    </Panel>
+  );
+}
+
+const grade = (g: { hp: string; letter: string }) => `${vi(g.hp)} (${g.letter})`;
+
+function Preview({ impact }: { impact: Impact | null }) {
+  if (!impact) return null;
+  return (
+    <PanelSection title="Xem thử">
+      {impact.samples.length === 0 ? (
+        <p className={s.value} data-part="impact-empty">Chưa đủ điểm để xem thử</p>
+      ) : (
+        <ul className={s.samples} data-part="impact-samples">
+          {impact.samples.map((x) => (
+            <li key={x.student.id}>
+              <span>{x.student.full_name}</span>
+              <span>{x.before ? `${grade(x.before)} → ${grade(x.after)}` : grade(x.after)}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </PanelSection>
+  );
+}
+
+function DiffView({ diff }: { diff: SchemeDiff }) {
+  const rows: string[] = [
+    ...diff.components_added.map((k) => `Thêm thành phần ${k}`),
+    ...diff.components_removed.map((k) => `Bớt thành phần ${k}`),
+    ...diff.weight_changed.map((c) => `${c.key}: ${vi(c.from)}% → ${vi(c.to)}%`),
+    ...diff.rules_changed.map((r) => `${r.kind}: ${JSON.stringify(r.from)} → ${JSON.stringify(r.to)}`),
+  ];
+  return (
+    <PanelSection title="So với bản đang dùng">
+      {rows.length === 0 ? <p className={s.value}>Không khác</p> : <ul className={s.samples} data-part="diff-rows">{rows.map((r) => <li key={r}><span>{r}</span></li>)}</ul>}
+      {diff.weight_sum_from !== diff.weight_sum_to && <p className={s.value}>{`Tổng trọng số ${vi(diff.weight_sum_from)}% → ${vi(diff.weight_sum_to)}%`}</p>}
+    </PanelSection>
   );
 }

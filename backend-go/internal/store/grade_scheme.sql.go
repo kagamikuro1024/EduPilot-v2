@@ -14,6 +14,42 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const gradeCarryEntries = `-- name: GradeCarryEntries :execrows
+update grade_entries set item_id = $1 where course_id = $2 and item_id = $3
+`
+
+type GradeCarryEntriesParams struct {
+	NewItemID uuid.UUID
+	CourseID  uuid.UUID
+	OldItemID uuid.UUID
+}
+
+// Mang điểm đã nhập sang item mới của công thức vừa xác nhận (cùng giao dịch): cùng key + nguồn nhập tay + max_score (TLR-8).
+func (q *Queries) GradeCarryEntries(ctx context.Context, arg GradeCarryEntriesParams) (int64, error) {
+	result, err := q.db.Exec(ctx, gradeCarryEntries, arg.NewItemID, arg.CourseID, arg.OldItemID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const gradeCarryPublished = `-- name: GradeCarryPublished :exec
+update grade_items n set published_at = o.published_at
+from grade_items o
+where n.course_id = $1 and n.id = $2 and o.course_id = n.course_id and o.id = $3
+`
+
+type GradeCarryPublishedParams struct {
+	CourseID  uuid.UUID
+	NewItemID uuid.UUID
+	OldItemID uuid.UUID
+}
+
+func (q *Queries) GradeCarryPublished(ctx context.Context, arg GradeCarryPublishedParams) error {
+	_, err := q.db.Exec(ctx, gradeCarryPublished, arg.CourseID, arg.NewItemID, arg.OldItemID)
+	return err
+}
+
 const gradeCitationsCheck = `-- name: GradeCitationsCheck :many
 select (u.i - 1)::int as idx, (position(vn_fold(regexp_replace(normalize(u.e ->> 'quote', NFC), '\s+', ' ', 'g')) in vn_fold(regexp_replace(normalize(u.e ->> 'text', NFC), '\s+', ' ', 'g'))) > 0)::bool as found
 from jsonb_array_elements($1::jsonb) with ordinality as u(e, i)
@@ -79,6 +115,21 @@ func (q *Queries) GradeComponentInsert(ctx context.Context, arg GradeComponentIn
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const gradeComponentsDelete = `-- name: GradeComponentsDelete :exec
+delete from grade_components where course_id = $1 and scheme_id = $2
+`
+
+type GradeComponentsDeleteParams struct {
+	CourseID uuid.UUID
+	SchemeID uuid.UUID
+}
+
+// Xoá hết thành phần của bản nháp (item theo CASCADE) trước khi ghi lại toàn bộ (PUT thay toàn bộ).
+func (q *Queries) GradeComponentsDelete(ctx context.Context, arg GradeComponentsDeleteParams) error {
+	_, err := q.db.Exec(ctx, gradeComponentsDelete, arg.CourseID, arg.SchemeID)
+	return err
 }
 
 const gradeComponentsOf = `-- name: GradeComponentsOf :many
@@ -242,6 +293,121 @@ func (q *Queries) GradeDraftLock(ctx context.Context, courseID uuid.UUID) (Grade
 	return i, err
 }
 
+const gradeEntryCountsByItem = `-- name: GradeEntryCountsByItem :many
+select item_id, count(*)::int as n from grade_entries
+where course_id = $1 and item_id = any($2::text[]::uuid[]) group by item_id
+`
+
+type GradeEntryCountsByItemParams struct {
+	CourseID uuid.UUID
+	ItemIds  []string
+}
+
+type GradeEntryCountsByItemRow struct {
+	ItemID uuid.UUID
+	N      int32
+}
+
+func (q *Queries) GradeEntryCountsByItem(ctx context.Context, arg GradeEntryCountsByItemParams) ([]GradeEntryCountsByItemRow, error) {
+	rows, err := q.db.Query(ctx, gradeEntryCountsByItem, arg.CourseID, arg.ItemIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeEntryCountsByItemRow{}
+	for rows.Next() {
+		var i GradeEntryCountsByItemRow
+		if err := rows.Scan(&i.ItemID, &i.N); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const gradeExamsOfCourse = `-- name: GradeExamsOfCourse :many
+select id, status from exams where course_id = $1 and id = any($2::text[]::uuid[])
+`
+
+type GradeExamsOfCourseParams struct {
+	CourseID uuid.UUID
+	ExamIds  []string
+}
+
+type GradeExamsOfCourseRow struct {
+	ID     uuid.UUID
+	Status ExamStatus
+}
+
+// Bài thi của lớp theo id (kiểm gắn item EXAM): chỉ cần trạng thái.
+func (q *Queries) GradeExamsOfCourse(ctx context.Context, arg GradeExamsOfCourseParams) ([]GradeExamsOfCourseRow, error) {
+	rows, err := q.db.Query(ctx, gradeExamsOfCourse, arg.CourseID, arg.ExamIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeExamsOfCourseRow{}
+	for rows.Next() {
+		var i GradeExamsOfCourseRow
+		if err := rows.Scan(&i.ID, &i.Status); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const gradeInputExamsByExam = `-- name: GradeInputExamsByExam :many
+select a.exam_id, a.student_id, coalesce(a.adjusted_score, a.auto_score)::numeric(5,2) as score, x.max_score as exam_max
+from exams x join exam_attempts a on a.course_id = x.course_id and a.exam_id = x.id and a.status = 'GRADED'
+where x.course_id = $1 and x.status = 'PUBLISHED' and x.id = any($2::text[]::uuid[]) and a.student_id = any($3::text[]::uuid[])
+`
+
+type GradeInputExamsByExamParams struct {
+	CourseID   uuid.UUID
+	ExamIds    []string
+	StudentIds []string
+}
+
+type GradeInputExamsByExamRow struct {
+	ExamID    uuid.UUID
+	StudentID uuid.UUID
+	Score     decimal.Decimal
+	ExamMax   decimal.Decimal
+}
+
+// Như GradeInputExams nhưng theo bài thi (công thức chưa lưu, xem thử tác động): bài PUBLISHED, lượt GRADED, COALESCE(adjusted, auto).
+func (q *Queries) GradeInputExamsByExam(ctx context.Context, arg GradeInputExamsByExamParams) ([]GradeInputExamsByExamRow, error) {
+	rows, err := q.db.Query(ctx, gradeInputExamsByExam, arg.CourseID, arg.ExamIds, arg.StudentIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeInputExamsByExamRow{}
+	for rows.Next() {
+		var i GradeInputExamsByExamRow
+		if err := rows.Scan(
+			&i.ExamID,
+			&i.StudentID,
+			&i.Score,
+			&i.ExamMax,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const gradeItemInsert = `-- name: GradeItemInsert :one
 insert into grade_items (course_id, scheme_id, component_id, key, name, max_score, source, exam_id, position)
 values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
@@ -342,6 +508,20 @@ func (q *Queries) GradeRuleInsert(ctx context.Context, arg GradeRuleInsertParams
 	return err
 }
 
+const gradeRulesDelete = `-- name: GradeRulesDelete :exec
+delete from grade_rules where course_id = $1 and scheme_id = $2
+`
+
+type GradeRulesDeleteParams struct {
+	CourseID uuid.UUID
+	SchemeID uuid.UUID
+}
+
+func (q *Queries) GradeRulesDelete(ctx context.Context, arg GradeRulesDeleteParams) error {
+	_, err := q.db.Exec(ctx, gradeRulesDelete, arg.CourseID, arg.SchemeID)
+	return err
+}
+
 const gradeRulesOf = `-- name: GradeRulesOf :many
 select id, scheme_id, kind, applicable, params, source_quote, source_page, filled_by_user
 from grade_rules where scheme_id = any($1::text[]::uuid[]) order by scheme_id, kind, id
@@ -387,6 +567,26 @@ func (q *Queries) GradeRulesOf(ctx context.Context, schemeIds []string) ([]Grade
 	return items, nil
 }
 
+const gradeSchemeBump = `-- name: GradeSchemeBump :one
+update grade_schemes set version = version + 1, unclear_count = 0
+where course_id = $1 and id = $2 and status = 'DRAFT' and version = $3
+returning version
+`
+
+type GradeSchemeBumpParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+	Version  int32
+}
+
+// Sửa bản nháp: so version rồi tăng (một câu, không đua); không khớp → không dòng nào.
+func (q *Queries) GradeSchemeBump(ctx context.Context, arg GradeSchemeBumpParams) (int32, error) {
+	row := q.db.QueryRow(ctx, gradeSchemeBump, arg.CourseID, arg.ID, arg.Version)
+	var version int32
+	err := row.Scan(&version)
+	return version, err
+}
+
 const gradeSchemeByJob = `-- name: GradeSchemeByJob :one
 select id from grade_schemes where course_id = $1 and extract_job_id = $2
 `
@@ -401,6 +601,30 @@ func (q *Queries) GradeSchemeByJob(ctx context.Context, arg GradeSchemeByJobPara
 	var id uuid.UUID
 	err := row.Scan(&id)
 	return id, err
+}
+
+const gradeSchemeConfirm = `-- name: GradeSchemeConfirm :one
+update grade_schemes set status = 'CONFIRMED', confirmed_by = $1, confirmed_at = now(), version = version + 1
+where course_id = $2 and id = $3 and status = 'DRAFT'
+returning confirmed_at, scheme_no
+`
+
+type GradeSchemeConfirmParams struct {
+	ActorID  *uuid.UUID
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type GradeSchemeConfirmRow struct {
+	ConfirmedAt *time.Time
+	SchemeNo    int32
+}
+
+func (q *Queries) GradeSchemeConfirm(ctx context.Context, arg GradeSchemeConfirmParams) (GradeSchemeConfirmRow, error) {
+	row := q.db.QueryRow(ctx, gradeSchemeConfirm, arg.ActorID, arg.CourseID, arg.ID)
+	var i GradeSchemeConfirmRow
+	err := row.Scan(&i.ConfirmedAt, &i.SchemeNo)
+	return i, err
 }
 
 const gradeSchemeGet = `-- name: GradeSchemeGet :one
@@ -510,6 +734,18 @@ func (q *Queries) GradeSchemeNextNo(ctx context.Context, courseID uuid.UUID) (in
 	var column_1 int32
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const gradeSchemeSupersede = `-- name: GradeSchemeSupersede :execrows
+update grade_schemes set status = 'SUPERSEDED' where course_id = $1 and status = 'CONFIRMED'
+`
+
+func (q *Queries) GradeSchemeSupersede(ctx context.Context, courseID uuid.UUID) (int64, error) {
+	result, err := q.db.Exec(ctx, gradeSchemeSupersede, courseID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }
 
 const gradeSchemesByIDs = `-- name: GradeSchemesByIDs :many
@@ -633,4 +869,24 @@ func (q *Queries) GradeStatusFacts(ctx context.Context, courseIds []string) ([]G
 		return nil, err
 	}
 	return items, nil
+}
+
+const gradebookEnsure = `-- name: GradebookEnsure :exec
+insert into gradebooks (course_id) values ($1) on conflict (course_id) do nothing
+`
+
+func (q *Queries) GradebookEnsure(ctx context.Context, courseID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, gradebookEnsure, courseID)
+	return err
+}
+
+const gradebookStatusShare = `-- name: GradebookStatusShare :one
+select status from gradebooks where course_id = $1 for share
+`
+
+func (q *Queries) GradebookStatusShare(ctx context.Context, courseID uuid.UUID) (GradebookStatus, error) {
+	row := q.db.QueryRow(ctx, gradebookStatusShare, courseID)
+	var status GradebookStatus
+	err := row.Scan(&status)
+	return status, err
 }

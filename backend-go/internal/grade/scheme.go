@@ -17,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -25,7 +26,9 @@ type Service struct {
 	Pool   *pgxpool.Pool
 	Clock  clock.Clock
 	Log    *slog.Logger
-	Notify *notify.Service // chuông GRADE_*; nil = chỉ job nhắc không chạy được
+	Notify *notify.Service  // chuông GRADE_*; nil = chỉ job nhắc không chạy được
+	Redis  *appredis.Client // vé tải lên của nhập XLSX (`ep:upload:{id}`)
+	Blob   BlobReader       // đọc lại tệp nhập từ object storage
 }
 
 func (s *Service) now() time.Time {

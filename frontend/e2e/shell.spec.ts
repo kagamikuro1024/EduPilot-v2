@@ -372,7 +372,7 @@ test("keyboard: Bỏ qua điều hướng đầu tiên, vào main, thứ tự he
   expect(await page.evaluate(() => !!document.activeElement?.closest("main") || document.activeElement?.id === "main")).toBe(true);
   expect(await page.locator("main").count()).toBe(1);
   expect(await page.locator("nav[aria-label]").count()).toBeGreaterThan(0);
-  await page.goto("/gradebook"); // "/" là Hôm nay thật (US-P2-11) và không có phần tử nhận focus khi chưa đăng nhập; thứ tự focus kiểm ở một route mô phỏng
+  await page.goto("/analytics"); /* #23: /gradebook là màn thật */ // "/" là Hôm nay thật (US-P2-11) và không có phần tử nhận focus khi chưa đăng nhập; thứ tự focus kiểm ở một route mô phỏng
   const seq: string[] = [];
   for (let i = 0; i < 40; i++) {
     await page.keyboard.press("Tab");
@@ -397,12 +397,12 @@ test("regression-1.5: LEFT page-title 240 / 12, brand 56, logo 32, mark 28", asy
   const { LEFT_SRC } = await loadAudit();
   await asDemo(context, "teacher");
   await size(page, 1440);
-  await page.goto("/gradebook");
+  await page.goto("/analytics");
   expect(await page.evaluate(LEFT_SRC)).toBe(240);
   expect((await box(page, "[data-part=sidebar] [data-part=brand]")).h).toBe(56);
   expect((await box(page, "[data-part=sidebar] [data-part=brand] img")).h).toBe(32);
   await size(page, 390, 844);
-  await page.goto("/gradebook");
+  await page.goto("/analytics");
   expect(await page.evaluate(LEFT_SRC)).toBe(12); // US-UI-04 AC7 / TLR-4: lề ngang mobile 12 px (trước 16) để Panel cách mép đúng --ep-space-3
   expect(await box(page, "header [data-part=brand] img")).toMatchObject({ w: 28, h: 28 });
 });

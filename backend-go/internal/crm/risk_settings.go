@@ -20,6 +20,7 @@ type RiskIn struct {
 	StudyMinMinutes    *int    `json:"study_min_minutes"`
 	SignalsRequired    *int    `json:"signals_required"`
 	AbsentAlert        *int    `json:"absent_alert"`
+	GradeLowBelow      *string `json:"grade_low_below"`
 }
 
 // RiskValues là ngưỡng hiệu lực (đã trộn mặc định) trả cho giao diện.
@@ -29,11 +30,12 @@ type RiskValues struct {
 	StudyMinMinutes    int    `json:"study_min_minutes"`
 	SignalsRequired    int    `json:"signals_required"`
 	AbsentAlert        int    `json:"absent_alert"`
+	GradeLowBelow      string `json:"grade_low_below"`
 }
 
 // Values đổi Thresholds sang dạng trả ra.
 func (t Thresholds) Values() RiskValues {
-	return RiskValues{AttendanceOKMin: t.AttendanceOKMin.StringFixed(2), ActivityMinPerWeek: t.ActivityMinPerWeek, StudyMinMinutes: t.StudyMinMinutes, SignalsRequired: t.SignalsRequired, AbsentAlert: t.AbsentAlert}
+	return RiskValues{AttendanceOKMin: t.AttendanceOKMin.StringFixed(2), ActivityMinPerWeek: t.ActivityMinPerWeek, StudyMinMinutes: t.StudyMinMinutes, SignalsRequired: t.SignalsRequired, AbsentAlert: t.AbsentAlert, GradeLowBelow: t.GradeLowBelow.StringFixed(1)}
 }
 
 // stored là `courses.settings.risk`: chỉ chứa khoá đã đặt rõ.
@@ -58,6 +60,11 @@ func apply(th *Thresholds, in RiskIn) {
 			th.AttendanceOKMin = v
 		}
 	}
+	if in.GradeLowBelow != nil {
+		if v, err := decimal.NewFromString(*in.GradeLowBelow); err == nil {
+			th.GradeLowBelow = v
+		}
+	}
 	if in.ActivityMinPerWeek != nil {
 		th.ActivityMinPerWeek = *in.ActivityMinPerWeek
 	}
@@ -73,9 +80,11 @@ func apply(th *Thresholds, in RiskIn) {
 }
 
 var (
-	okMin  = decimal.New(50, -2) //nolint:gochecknoglobals // hằng tra cứu bất biến
-	okMax  = decimal.New(1, 0)   //nolint:gochecknoglobals
-	okStep = decimal.New(5, -2)  //nolint:gochecknoglobals
+	okMin     = decimal.New(50, -2) //nolint:gochecknoglobals // hằng tra cứu bất biến
+	okMax     = decimal.New(1, 0)   //nolint:gochecknoglobals
+	okStep    = decimal.New(5, -2)  //nolint:gochecknoglobals
+	gradeMax  = decimal.New(10, 0)  //nolint:gochecknoglobals
+	gradeStep = decimal.New(5, -1)  //nolint:gochecknoglobals
 )
 
 // RiskError nêu trường sai (→ 422 VALIDATION_FAILED, field = `risk.<Field>`).
@@ -93,6 +102,12 @@ func MergeRisk(settings json.RawMessage, in RiskIn) (merged json.RawMessage, bef
 		v, perr := decimal.NewFromString(*in.AttendanceOKMin)
 		if perr != nil || v.LessThan(okMin) || v.GreaterThan(okMax) || !v.Mod(okStep).IsZero() {
 			return nil, before, before, &RiskError{"attendance_ok_min", "Từ 0,50 đến 1,00, mỗi bước 0,05."}
+		}
+	}
+	if in.GradeLowBelow != nil {
+		v, perr := decimal.NewFromString(*in.GradeLowBelow)
+		if perr != nil || v.IsNegative() || v.GreaterThan(gradeMax) || !v.Mod(gradeStep).IsZero() {
+			return nil, before, before, &RiskError{"grade_low_below", "Từ 0 đến 10, mỗi bước 0,5."}
 		}
 	}
 	for _, c := range []struct {
@@ -128,6 +143,10 @@ func MergeRisk(settings json.RawMessage, in RiskIn) (merged json.RawMessage, bef
 	if in.AttendanceOKMin != nil {
 		v := decimal.RequireFromString(*in.AttendanceOKMin).StringFixed(2)
 		cur.AttendanceOKMin = &v
+	}
+	if in.GradeLowBelow != nil {
+		v := decimal.RequireFromString(*in.GradeLowBelow).StringFixed(1)
+		cur.GradeLowBelow = &v
 	}
 	for _, p := range []struct{ dst, src **int }{{&cur.ActivityMinPerWeek, &in.ActivityMinPerWeek}, {&cur.StudyMinMinutes, &in.StudyMinMinutes}, {&cur.SignalsRequired, &in.SignalsRequired}, {&cur.AbsentAlert, &in.AbsentAlert}} {
 		if *p.src != nil {

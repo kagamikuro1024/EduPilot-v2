@@ -193,7 +193,11 @@ func crmService(d Deps) *crm.Service {
 }
 
 func gradeService(d Deps) *grade.Service {
-	return &grade.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log}
+	s := &grade.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis}
+	if d.Blob != nil { // nhập XLSX đọc lại tệp từ object storage (luật 10)
+		s.Blob = d.Blob
+	}
+	return s
 }
 
 func gradingService(d Deps) *grading.Service {

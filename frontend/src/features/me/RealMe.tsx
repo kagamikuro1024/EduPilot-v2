@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { apiClient } from "@/shared/data";
 import { DefinitionList, EmptyState, Page, PageHeader, Panel, Section, Skeleton, TrendChart } from "@/shared/ui";
+import { MeGrade } from "./MeGrade";
 import { EVENT_LABEL, STATUS_LABEL, attendanceSentence, dayMonthOf, signedPoints, type MyAttendance, type MyParticipation, type MyStudyTime } from "./meApi";
 import s from "./Me.module.css";
 
@@ -20,7 +21,7 @@ function useMine<T>(courseId: string, leaf: string, query = "") {
   });
 }
 
-/** Kết quả của tôi (DESIGN §14.9): chuyên cần, điểm cộng phát biểu, nhịp học nhỏ ở cuối. Không điểm thành phần (P6), không xếp hạng. */
+/** Kết quả của tôi (DESIGN §14.9): điểm (P6), chuyên cần, điểm cộng phát biểu, nhịp học nhỏ ở cuối. Không xếp hạng, không so sánh. */
 export function RealMe({ courseId, classCode }: { courseId: string; classCode: string }) {
   const att = useMine<MyAttendance>(courseId, "attendance", "?limit=100");
   const part = useMine<MyParticipation>(courseId, "participation", "?limit=10");
@@ -40,6 +41,7 @@ export function RealMe({ courseId, classCode }: { courseId: string; classCode: s
         <Panel><Skeleton lines={6} /></Panel>
       ) : (
         <>
+          <MeGrade courseId={courseId} />
           <Attendance a={att.data.attendance} />
           <Participation p={part.data.participation} />
           {study.data && <StudyTrend t={study.data} />}

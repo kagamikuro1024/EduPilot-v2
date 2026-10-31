@@ -1,0 +1,15 @@
+panels=1 rows=0 inputs=0 officialNote=1 scroll=1440,1440
+buttons: Chốt điểm [khoá]
+---
+Sổ điểm
+Xem công thức
+Chốt điểm
+Chưa có công thức điểm đã xác nhận
+Công thức điểm chưa xác nhận
+Tải quy chế
+
+Chưa có công thức điểm.
+
+Thiết lập công thức
+
+Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.

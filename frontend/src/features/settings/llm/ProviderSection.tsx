@@ -5,10 +5,14 @@ import { useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient } from "@/shared/data";
 import { Button, ConfirmIrreversible, InlineNotice, OverflowMenu, StatusText, Switch } from "@/shared/ui";
 import { ConflictNotice } from "./ConflictNotice";
-import { ProviderForm, type FormMode } from "./ProviderForm";
+import dynamic from "next/dynamic";
+import type { FormMode } from "./ProviderForm";
 import { KEY, useSaver, type Provider, type TestResult } from "./api";
 import { TYPE_LABEL, providerStatus, testMessage } from "./labels";
 import s from "./llm.module.css";
+
+// Form chỉ mở khi bấm Thêm / Sửa: không nằm trong mã nạp đầu (TBT, #19).
+const ProviderForm = dynamic(() => import("./ProviderForm").then((m) => m.ProviderForm), { loading: () => null });
 
 type Test = { pending: boolean; result?: TestResult; error?: ApiError };
 

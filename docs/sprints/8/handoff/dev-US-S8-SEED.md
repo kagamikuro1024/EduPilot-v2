@@ -1,0 +1,23 @@
+# DEV handoff — US-S8-SEED (seed sprint 8 + cổng P6)
+Nhánh `sprint/8-p6`. Spec: US-S8-SEED AC1–AC8, SRS 4.9, US-P6-09 AC8 (ghim at-risk). Proposals: #2 (Quyche.pdf → `OTHER`), #5 (WATCH = {sv12, sv19, sv26}), #20 (khớp MSSV theo dòng ROSTER). Không có số OpenAPI mới (246).
+
+## Chạy thật (stack `pnpm dev` + docling, DB trống → `node scripts/seed.mjs`)
+- Lần đầu: bước 15 mới (`Quy chế môn, công thức điểm…`), tổng 18 bước, `rc=0`; lần hai chạy lại 17 s, `rc=0`, số không đổi (`check-grade-seed.mjs counts`: docs 6, cột 3, ô 60).
+- `node scripts/check-grade-seed.mjs` → `30/30 OK`, `A B C OK` (A 9,5 · A+, B 7,0 · B, C 3,0 · F; giải trình của B: điểm cộng 0,5 = 2 × 0,25, vắng 2 miễn 2, kiểm tra tuần 8), `lớp 2: chốt điểm 409`, `impact p95 7 ms (≤ 300)` (BUG-P6-04-2: 30 lần, lớp 1, 30 sinh viên), `counts … không đổi sau lần chạy hai`.
+- Đã chạy lại và đạt: `check-crm-seed.mjs` (270 điểm danh, `AT_RISK 1 / WATCH 3`, 5 ticket), `check-docs-seed.mjs`, `check-exam-seed.mjs bank|scores` (30/30), `check-chat-seed.mjs`.
+
+## Thay đổi
+- **Quy chế → PDF:** `scripts/make-policy-pdf.mjs` dựng `seed/demo/quy-che-lop{1,2}.pdf` từ `fixtures/*.md` (Chromium của Playwright, có sẵn trong bảng; kết quả được commit). Bài học khi dựng (docling đọc lại đúng chữ cần ba điều): bỏ chú thích đầu tệp của BA (nó chứa chính dấu `<!-- trang N -->` làm ví dụ → rò chữ vào PDF), tắt `font-kerning` (không thì docling đọc `F.` thành `F .` và trích dẫn không khớp), khoảng cách đoạn rộng (không thì docling xen các dòng cuộn của điều 2.1 / 2.2). Đã kiểm: 2 trang, mọi `quote` của `extraction-lop{1,2}.json` có trong văn bản docling.
+- **DEMO_MODE:** `LLM_DEMO_FILE` (provider giả đọc `seed/demo/fake_llm.json`: yêu cầu có chuỗi `match` thì trả `response`; thiếu → hành vi cũ). Bản ghi = `extraction-lopN.json` bỏ mục `unclear_items` do CODE. Khoá là CHỮ trong thân quy chế (`40%` cho lớp 1, `25%` cho lớp 2 — không dùng tiêu đề: docling đưa tiêu đề ra khỏi văn bản đoạn; không dùng MSSV / mã lớp: bị che). Cấm ở `production` (`config`: 422 cấu hình). Compose: `gateway` và `worker` gắn `./seed/demo:/seed/demo:ro`, `LLM_DEMO_FILE` có ở `.env.example`; worker phải có biến này vì việc trích chạy ở worker.
+- **`scripts/seed.mjs`:** `Quyche.pdf` → `OTHER` / `Quy chế trường`; bước 15: tải `quy-che-lop1.pdf` (`COURSE_POLICY`) → chờ `READY` và hai bài thi `PUBLISHED` → `extract` (khoá cố định theo tài liệu + lần thử) → nối `weekly` với `Kiểm tra tuần 9 — Mật mã` (`PUT grade-scheme`) → `confirm` (TEACHER) → nhập XLSX giữa kỳ / cuối kỳ (`scripts/grade-seed-data.mjs` dựng XLSX từ `inputs-lop1.csv`, không thêm thư viện) → công bố hai cột; tệp XLSX lỗi cố ý chỉ xem trước (không ghi). Chạy lại: bỏ qua nhập khi `unchanged = rows_ok` (khoá ghi nhập gắn với `upload_id` nên không phát lại được). Sổ KHÔNG chốt; lớp 2 không có quy chế.
+- **Hoạt động tuần 8 / 9:** lệnh admin mới `gateway admin seed-activity --course … --plan -` (`seedtool.PlaceActivity`, chỉ `dev|test`): đọc cột `activity_week9` / `activity_week8` của `seed/expected_risk.csv`, DỜI `created_at` tin chat / thread / bình luận đã có (thiếu thì thêm một câu hỏi, khoá cố định theo MSSV + tuần). Chạy sau `seed-age --activity`, trước `crm-risk-run`. Seed kiểm `AT_RISK 1, WATCH 3`.
+- `scripts/check-grade-seed.mjs` (`preview | abc | lop2 | impact | counts`), `scripts/gate-p6.sh` (đúng lệnh `P6.md` + `-race`, nhắc "chủ dự án tự tính tay A, B, C"), `check-crm-seed.mjs` (WATCH 2 → 3, #5).
+- `gradebook.spec.ts`: `lop2 demo step 6` (tải đúng `quy-che-lop2.pdf` dựng thật → mục chưa rõ → điền làm tròn → xác nhận → banner mất, `Chốt điểm` mở) và `f10 main path`.
+
+## Kiểm (Go)
+`TestSeedGradebookExpected` (30/30 theo `expected_final_grades.csv`), `TestSeedGradebookIsolation`, `TestSeedGradebookAdminForbidden`, `TestSeedRiskAfterGradebook` (qt / tín hiệu GRADE theo `expected_risk.csv` + phân loại hàng có cột hoạt động) — `internal/integration`; `TestDemoModeRecordingsCoverPolicies` (bản ghi đúng schema, lớp 1 không mục chưa rõ, lớp 2 đúng `ROUNDING_MISSING`), `TestDemoModeThroughGateway` (cổng LLM thật), `TestDemoFileProdForbidden` — `internal/grading`; `TestPlaceActivity` — `internal/seedtool`.
+
+## Giới hạn
+- Hàng tải 1.000 sinh viên (`p6-load1000.sql`) do QC chạy; đo `impact` ở đây là lớp 30 sinh viên. Hiệu năng 1.000 dòng đã có ở US-P6-06 AC8.
+- Bản ghi demo khớp theo chuỗi `40%` / `25%`: quy chế khác có chuỗi trùng sẽ nhận nhầm bản ghi (chỉ dùng cho seed / demo, bị cấm ở production).
+- `TestSeedGradebook*` dựng sổ bằng SQL từ đúng tệp của BA (đường nhập XLSX có test riêng ở `internal/grade`), không đi qua `seed.mjs`; `seed.mjs` được kiểm bằng `check-grade-seed.mjs` trên stack thật.

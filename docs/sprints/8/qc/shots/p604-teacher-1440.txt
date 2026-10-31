@@ -1,0 +1,60 @@
+panels=1 inputs=1 infoIcons=0
+links:
+Sổ điểm → /gradebook
+Mở trang 1 → http://localhost:3310/__pdf/quy-che.pdf?sig=1#page=1
+---
+Sổ điểm
+Công thức điểm
+Bản nháp
+Tải quy chế
+Xác nhận công thức
+Còn 1 mục chưa rõ: làm tròn
+Thành phần
+Tổng 100%
+Trang 1
+Kiểm tra hằng tuần · 20% · Quá trình
+Giữa kỳ · 20% · Quá trình
+Thi cuối kỳ · 60% · Cuối kỳ
+Thêm thành phần
+Điểm quá trình gồm bài kiểm tra hằng tuần, chiếm 20% điểm học phần.
+Điểm cộng
+Trang 2
++0,25 mỗi lần phát biểu · tối đa +1,0
+Mỗi lần phát biểu được cộng 0,25 điểm, tổng không quá 1,0 điểm.
+Điểm trừ
+Trang 2
+−0,5 mỗi buổi vắng · miễn 2 buổi
+Từ buổi vắng thứ ba, mỗi buổi trừ 0,5 điểm quá trình.
+Làm tròn
+
+Quy chế chưa nêu cách làm tròn: điền bước làm tròn.
+
+Bước làm tròn
+Chọn bước
+Làm tròn đến 0,01
+Làm tròn đến 0,1
+Làm tròn đến 0,25
+Làm tròn đến 0,5
+Làm tròn đến 1
+Thang chữ
+Trang 2
+A từ 8,5 · D từ 4 · F từ 0
+Thang điểm chữ: A từ 8,5; B từ 7,0; C từ 5,5; D từ 4,0; dưới 4,0 là F.
+Liệt
+
+Không có
+
+Thêm điều kiện
+Xem thử
+Sinh Viên 06
+10 (A) → 9,8 (A)
+Sinh Viên 15
+7 (B) → 6,8 (B)
+Sinh Viên 30
+3 (F) → 3,2 (F)
+
+quy-che-lop2
+
+Trang 1 · Mở trang 1
+
+Điều 1. Cách tính điểm. Điểm quá trình gồm bài kiểm tra hằng tuần, chiếm 20% điểm học phần. Bài kiểm tra giữa kỳ chiếm 20% điểm học phần. Thi kết thúc học phần chiếm 60% điểm học phần.

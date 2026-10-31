@@ -40,3 +40,24 @@ export function attendanceSentence(a: MyAttendance["attendance"]): string {
 const ICT_DAY = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
 /** "08/10" theo giờ Việt Nam, cố định dấu `/` (không phụ thuộc locale của trình duyệt). */
 export const dayMonthOf = (iso: string) => ICT_DAY.format(new Date(iso));
+
+// `GET /courses/{id}/me/grades` và `POST …/me/grades/what-if` (US-P6-09): DTO sinh viên — cột chưa công bố là PENDING và KHÔNG có `score`.
+export type MeGrades = {
+  status: "NO_SCHEME" | "IN_PROGRESS" | "FINAL";
+  components?: Array<{ key: string; name: string; weight: string; status: "PUBLISHED" | "PENDING"; score?: string }>;
+  qt?: string;
+  final?: { numeric_grade: string; letter: string; failed_reason?: string; version: number; locked_at: string };
+  calculation?: Array<{ label: string; expr: string; value: string; source_quote?: string; page?: number }>;
+  official_note?: string;
+};
+export type MeWhatIf = { hp?: string; letter?: string; failed?: string };
+
+const comma = (v: string) => v.replace(".", ",");
+
+/** Câu nhận định theo trạng thái (không bình luận tốt / xấu, không động viên). */
+export function gradeSentence(g: MeGrades): string {
+  if (g.status === "NO_SCHEME") return "Lớp chưa có công thức điểm chính thức.";
+  if (g.status === "FINAL" && g.final) return `Điểm học phần đã chốt: ${comma(g.final.numeric_grade)} (${g.final.letter}).`;
+  if (g.qt) return `Điểm quá trình hiện tại của bạn là ${comma(g.qt)} trên 10.`;
+  return "";
+}

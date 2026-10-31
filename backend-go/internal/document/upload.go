@@ -38,6 +38,12 @@ const (
 	presignExpiry      = 10 * time.Minute
 	headBytes          = 8 << 10
 	maxFilename        = 255
+
+	// GradeImportMaxBytes: cỡ tệp XLSX nhập điểm (`GRADE_IMPORT_MAX_BYTES`, SRS FEAT-gradebook 4.1) — cùng giá trị với `grade.ImportMaxBytes`.
+	GradeImportMaxBytes = 2 << 20
+	// PurposeGradeImport là mục đích tải lên của nhập điểm XLSX; vé của nó KHÔNG hoàn tất được thành tài liệu.
+	PurposeGradeImport = "grade_import"
+	xlsxMime           = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
 // BlobAPI là phần của platform/blob mà gói này dùng.
@@ -46,6 +52,7 @@ type BlobAPI interface {
 	Get(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 	PresignPutSized(ctx context.Context, key, contentType string, size int64) (string, error)
+	PresignGetInline(ctx context.Context, key string) (string, error)
 }
 
 // Service là nghiệp vụ tải tài liệu.
@@ -76,6 +83,14 @@ func kindOf(ext string) (fileKind, bool) {
 		return fileKind{"application/vnd.openxmlformats-officedocument.wordprocessingml.document", []byte("PK\x03\x04")}, true
 	case ".pptx":
 		return fileKind{"application/vnd.openxmlformats-officedocument.presentationml.presentation", []byte("PK\x03\x04")}, true
+	}
+	return fileKind{}, false
+}
+
+// gradeImportKind: nhập điểm chỉ nhận `.xlsx` (zip `PK\x03\x04`).
+func gradeImportKind(ext string) (fileKind, bool) {
+	if ext == ".xlsx" {
+		return fileKind{xlsxMime, []byte("PK\x03\x04")}, true
 	}
 	return fileKind{}, false
 }
@@ -134,25 +149,29 @@ func (s *Service) Presign(ctx context.Context, actor, course uuid.UUID, in Presi
 	if err := s.requireActive(ctx, course); err != nil {
 		return PresignOut{}, err
 	}
-	if in.Purpose != "document" {
+	if in.Purpose != "document" && in.Purpose != PurposeGradeImport {
 		return PresignOut{}, field("purpose", "enum", "Mục đích tải lên không hợp lệ.")
 	}
 	name := in.Filename
 	if name == "" || utf8.RuneCountInString(name) > maxFilename || strings.ContainsAny(name, `/\`) || strings.Contains(name, "..") || strings.ContainsFunc(name, func(r rune) bool { return r < 0x20 || r == 0x7f }) {
 		return PresignOut{}, field("filename", "invalid", "Tên tệp không hợp lệ.")
 	}
-	kind, ok := kindOf(strings.ToLower(path.Ext(name)))
+	kindFn, limit, folder := kindOf, s.maxBytes(), "documents"
+	if in.Purpose == PurposeGradeImport {
+		kindFn, limit, folder = gradeImportKind, GradeImportMaxBytes, "grade-imports"
+	}
+	kind, ok := kindFn(strings.ToLower(path.Ext(name)))
 	if !ok || in.MimeType != kind.mime {
 		return PresignOut{}, apierr.New(http.StatusUnprocessableEntity, apierr.FileTypeNotAllowed)
 	}
-	if in.SizeBytes <= 0 || in.SizeBytes > s.maxBytes() {
+	if in.SizeBytes <= 0 || in.SizeBytes > limit {
 		return PresignOut{}, apierr.New(http.StatusUnprocessableEntity, apierr.FileTooLarge)
 	}
 	if !reHash.MatchString(in.SHA256) {
 		return PresignOut{}, field("sha256", "format", "Mã băm tệp không hợp lệ.")
 	}
 	id := uuid.New()
-	key := fmt.Sprintf("courses/%s/documents/%s/%s", course, id, name)
+	key := fmt.Sprintf("courses/%s/%s/%s/%s", course, folder, id, name)
 	url, err := s.Blob.PresignPutSized(ctx, key, kind.mime, in.SizeBytes)
 	if err != nil {
 		return PresignOut{}, fmt.Errorf("document: ký URL tải lên: %w", err)
@@ -160,7 +179,7 @@ func (s *Service) Presign(ctx context.Context, actor, course uuid.UUID, in Presi
 	rk := appredis.Key("upload", id.String())
 	pipe := s.Redis.TxPipeline()
 	pipe.HSet(ctx, rk, map[string]any{"user_id": actor.String(), "course_id": course.String(), "filename": name, "size": in.SizeBytes, "mime": kind.mime,
-		"sha256": strings.ToLower(in.SHA256), "blob_key": key})
+		"sha256": strings.ToLower(in.SHA256), "blob_key": key, "purpose": in.Purpose})
 	pipe.Expire(ctx, rk, uploadTicketTTL)
 	if _, err := pipe.Exec(ctx); err != nil {
 		return PresignOut{}, fmt.Errorf("document: ghi vé tải lên: %w", err)
@@ -218,6 +237,8 @@ type Doc struct {
 	Version           int32     `json:"version"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
+	// PreviewURL: URL ký sẵn (inline, 5 phút) của tệp PDF — chỉ có ở `GET …/documents/{id}` (US-P6-04: `Mở trang N` ở trích dẫn công thức).
+	PreviewURL *string `json:"preview_url,omitempty"`
 }
 
 func docOf(d store.Document) Doc {
@@ -277,7 +298,7 @@ func (s *Service) Complete(ctx context.Context, actor, course uuid.UUID, in Comp
 	if err != nil {
 		return CompleteOut{}, fmt.Errorf("document: đọc vé tải lên: %w", err)
 	}
-	if len(tk) == 0 || tk["user_id"] != actor.String() || tk["course_id"] != course.String() {
+	if len(tk) == 0 || tk["user_id"] != actor.String() || tk["course_id"] != course.String() || tk["purpose"] == PurposeGradeImport {
 		return CompleteOut{}, apierr.New(http.StatusNotFound, apierr.UploadNotFound) // của người khác / lớp khác / hết hạn: một câu trả lời
 	}
 	if err := s.requireActive(ctx, course); err != nil {

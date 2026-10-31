@@ -1,0 +1,30 @@
+# QC report — US-P6-09 (`/me` điểm của sinh viên, tính thử, tool AI, tín hiệu at-risk `GRADE`, riêng tư) · Kết luận vòng 1: **PASS** (nợ chuyển US-S8-SEED; ghi nhận lỗ hổng test BUG-P6-09-1)
+Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `d563edcf`. Bộ TC: `tc-US-P6-09.md` (TC-P6-09-01…59, sửa theo #11). Handoff: `dev-US-P6-09.md`. CI run `41205151859`: **success** (mọi job xanh).
+
+## 1. Cổng nghiệm thu đã chạy
+| Lệnh | Kết quả |
+| --- | --- |
+| `p6-go-tests.sh` theo gói, `-race -tags integration`, mọi `func Test` của `me_test.go`, `gradetools_test.go`, `risk_grade_test.go` + mọi tên trong TC-P6-09 (trừ `TestSeedRiskAfterGradebook`) | PASS 29/29: grade 16 (`TestMeGradesOwnOnly`, `…IgnoresStudentParam`, `…NoSchemeStatus`, `…NoStore`, `…FinalFromSnapshot`, `…Isolation`, `TestNoDraftLeak`, `TestStudentDTOAllowlist`, `TestPendingItemHasNoScore`, `TestMeWhatIfNoWrite`, `…TargetLetter`, `…Incomplete`, `…OutOfRange`, `TestStudentCannotCallStaffGradeRoutes`, `TestSnapshotIDOR`, `TestRBACMatrixAll`); agent 6 (`TestToolGradeSummaryTrustedContext`, `TestToolWhatIfNoIdentityParam`, `TestToolGradeNumbersMatchMeGrades`, `TestToolGradeNotInPublicRegistry`, `TestGradeFormulaFromConfirmedScheme`, `TestPersonalToolsHaveNoIdentityParam`); crm 6 (`TestRiskGradeSignal`, `…Anchor`, `…StrictBelow`, `…NullWithoutScheme`, `…BatchInput`, `TestRiskGradeSignalDB`); exam 1 (`TestPublishItemToggle`); không SKIP, không DATA RACE |
+| `bash scripts/go-test-all.sh` (toàn bộ, `-race`, 51 gói) | rc=0, 51 `ok`; test cũ bị sửa (`crm/risk_db_test.go` thêm khoá `grade_low_below`, #5 / #26) vẫn đạt |
+| Playwright `me private-chat gradebook shell tokens panels a11y lcp class-join` (`build:gate`, `--workers=2 --retries=0`) | 256 passed, 0 failed (gồm `grade section`, `calculation linear`, `what if inline`, `grade states`, `grade mobile 375`, `my grade question`); `ui-antipatterns.sh` rc=0; `pnpm lint` sạch |
+| Đột biến (`/tmp/qc-mut`, đã xoá) | M3 bỏ `FINAL_ALREADY_LOCKED` ở tính thử: **đỏ** `TestMeWhatIfIncomplete`; M4 tín hiệu `GRADE` thấp khi `≤` thay `<`: **đỏ** `TestRiskGradeSignalDB`; **M1 `MeGrades` bỏ `publishedInput`: SỐNG** (xem BUG-P6-09-1); M2 tính thử bỏ `publishedInput`: sống nhưng tương đương (đã có chặn `NOT_ENOUGH_GRADES` / thay cuối kỳ bằng giá trị giả định) |
+| **Probe QC** (`scripts/p6_qc_probe_me_leak_test.go.txt`, chép vào gói rồi xoá): QT nháp của B = 7,77 chưa công bố, chỉ công bố cuối kỳ (và ngược lại); quét toàn JSON `MeGrades` | **mã hiện tại: PASS** (không lộ 7,77 / 9,87 qua `components`, `qt`, `calculation`); **đột biến M1: ĐỎ** ("lộ điểm nháp 7,77" ở `calculation[]`/`qt`) → probe bắt được cái mà `TestNoDraftLeak` bỏ lọt |
+| QC dump (`scripts/qc-p6-09-ui.spec.ts.txt` → `shots/p609-*`) | `/me` IN_PROGRESS: một câu "Điểm quá trình hiện tại của bạn là 8,25 trên 10."; giữa kỳ 8,25, kiểm tra tuần 8, cuối kỳ "Chưa công bố"; giải trình tuyến tính có "Căn cứ · tr. 2"; ô "Nếu cuối kỳ được"; đúng 1 dòng ghi chú; quét `streak\|xếp hạng\|so với lớp\|Tuyệt vời\|cố lên\|🎉\|huy hiệu\|vòng tiến độ` = 0; không số thập phân dấu chấm; 375 px không tràn ngang; FINAL: "Điểm học phần đã chốt: 7,0 (B).", **không** ô tính thử; NO_SCHEME: "Lớp chưa có công thức điểm chính thức." |
+
+## 2. Kết quả theo AC
+| AC | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| AC1 `GET …/me/grades` chỉ của mình, `no-store`, `NO_SCHEME` chỉ có `status`, `FINAL` từ snapshot | PASS | `OwnOnly`, `IgnoresStudentParam`, `NoSchemeStatus`, `NoStore`, `FinalFromSnapshot` |
+| AC2 không lộ điểm nháp / chưa công bố (`PENDING` không có khoá `score`; `qt` chỉ khi mọi thành phần QT đã công bố; không `unlock_reason`) | PASS (mã đúng — probe QC + dump; **test bảo vệ còn lỗ**: BUG-P6-09-1) | `NoDraftLeak`, `StudentDTOAllowlist`, `PendingItemHasNoScore`, `PublishItemToggle`; probe |
+| AC3 một câu nhận định, giải trình tuyến tính + căn cứ, không gamify | PASS | dump 1440 / 375; `grade section`, `calculation linear` |
+| AC4 tính thử tại chỗ, không ghi, `NOT_ENOUGH_GRADES`, `FINAL_ALREADY_LOCKED`, 0–10 | PASS | `MeWhatIfNoWrite`, `…TargetLetter`, `…Incomplete`, `…OutOfRange`; `what if inline`; M3 |
+| AC5 tool `get_my_grade_summary` / `what_if_final_grade`: danh tính từ `trusted_context`, số bằng màn hình, chỉ kênh riêng | PASS | `ToolGradeSummaryTrustedContext`, `ToolWhatIfNoIdentityParam`, `ToolGradeNumbersMatchMeGrades`, `ToolGradeNotInPublicRegistry`, `PersonalToolsHaveNoIdentityParam`; `my grade question` |
+| AC6 "cách tính điểm" từ công thức `CONFIRMED`, có trang | PASS | `TestGradeFormulaFromConfirmedScheme` |
+| AC7 cách ly và phân quyền (20 route × 6 vai, IDOR snapshot) | PASS | `RBACMatrixAll`, `StudentCannotCallStaffGradeRoutes`, `SnapshotIDOR`, `MeGradesIsolation` |
+| AC8 tín hiệu `GRADE` at-risk: neo, `< ngưỡng` nghiêm ngặt, lý do cho Staff, `null` khi chưa đủ | PASS ở mức đơn vị; **ghim `WATCH` = {sv12, sv19, sv26} trên seed → US-S8-SEED** (dev chuyển, trùng TC-S8-SEED) | `RiskGradeSignal`, `…Anchor`, `…StrictBelow`, `…NullWithoutScheme`, `…BatchInput`, `…SignalDB`; M4 |
+| AC9 trạng thái tải / rỗng / lỗi, 375 px, thay mock | PASS | `grade states`, `grade mobile 375`; dump |
+
+## 3. Lỗi / ghi nhận
+- **BUG-P6-09-1 (Trung bình, lỗ hổng test — mã đúng):** `TestNoDraftLeak` đặt canary 9,87 ở cột **cuối kỳ**, còn thành phần QT duy nhất luôn nằm trong cùng trạng thái công bố nên bỏ `publishedInput` không làm test nào đỏ (đột biến M1 sống). Đây là chốt chặn trung tâm của luật "sinh viên không thấy nháp"; một lần sửa sai sau này sẽ làm lộ điểm nháp qua `calculation[]` / `qt` mà không test nào báo. Đề nghị dev thêm test như probe QC (QT nháp 7,77 khi chỉ cuối kỳ công bố, và ngược lại).
+- Nợ chuyển US-S8-SEED: `TestSeedRiskAfterGradebook`, `node scripts/check-crm-seed.mjs` (lớp 1 đã chấm), p95 route `/me/grades` trên lớp 1.000.
+- #26 (PM ghi lỗi quy trình lần 5): đã ACCEPTED; các sửa cũ là `me.spec` (thêm khối `Điểm` vào thứ tự layout, nhánh dự phòng `grades`), `risk_db_test.go` (khoá `grade_low_below`), `private-chat.spec` (chỉ thêm ca mới); QC đối chiếu `git diff`: assertion khác giữ nguyên.

@@ -117,6 +117,7 @@ services:
       context: ./backend-go
       target: gateway
     image: edupilot-gateway
+    volumes: ["./seed/demo:/seed/demo:ro"]
     environment:
       <<: *app-env
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
@@ -174,6 +175,7 @@ services:
       LLM_EMBED_DIMS: ${LLM_EMBED_DIMS:-}
       LLM_PROVIDER: ${LLM_PROVIDER:-}
       LLM_REPLAY_DIR: ${LLM_REPLAY_DIR:-}
+      LLM_DEMO_FILE: ${LLM_DEMO_FILE:-}
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
@@ -199,6 +201,7 @@ services:
       context: ./backend-go
       target: worker
     image: edupilot-worker
+    volumes: ["./seed/demo:/seed/demo:ro"]
     environment:
       <<: *app-env
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
@@ -239,6 +242,7 @@ services:
       SIMILARITY_CAP: ${SIMILARITY_CAP:-}
       # Việc `question.suggest` (US-PE-03) chạy ở worker: cần nhà cung cấp AI dự phòng theo env như gateway (dev: `fake`).
       LLM_PROVIDER: ${LLM_PROVIDER:-}
+      LLM_DEMO_FILE: ${LLM_DEMO_FILE:-}
     networks: [default, judge_net]
     read_only: true
     tmpfs: ["/tmp"]

@@ -173,6 +173,7 @@ type Config struct {
 	KnowledgeEmbedTimeout time.Duration
 	LLMProvider           string // "" | "fake"
 	LLMReplayDir          string
+	LLMDemoFile           string // DEMO_MODE: tệp bản ghi của provider giả (seed/demo/fake_llm.json); cấm ở production
 	OpenAIKey             string
 	AnthropicKey          string
 	GeminiKey             string
@@ -379,6 +380,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	}
 	c.LLMProvider = l.enum("LLM_PROVIDER", "", "", "fake")
 	c.LLMReplayDir = l.str("LLM_REPLAY_DIR", "")
+	c.LLMDemoFile = l.str("LLM_DEMO_FILE", "")
+	if c.LLMDemoFile != "" && c.AppEnv == "production" {
+		l.bad("LLM_DEMO_FILE", "không dùng ở production")
+	}
 	c.OpenAIKey = l.raw("OPENAI_API_KEY")
 	c.AnthropicKey = l.raw("ANTHROPIC_API_KEY")
 	c.GeminiKey = l.raw("GEMINI_API_KEY")

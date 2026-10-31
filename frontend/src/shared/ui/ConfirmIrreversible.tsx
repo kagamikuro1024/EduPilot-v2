@@ -19,6 +19,7 @@ export function ConfirmIrreversible({
   disabledReason,
   loading,
   error,
+  children,
 }: {
   open: boolean;
   onClose: () => void;
@@ -35,6 +36,8 @@ export function ConfirmIrreversible({
   loading?: boolean;
   /** thực hiện lỗi: hộp giữ nguyên, hiện lỗi (role=alert) và nút xác nhận đổi thành "Thử lại" */
   error?: ReactNode;
+  /** ô nhập kèm theo (vd. lý do mở khoá 10–500 ký tự); khoá nút xác nhận bằng `disabledReason` */
+  children?: ReactNode;
 }) {
   const descId = useId();
   return (
@@ -65,6 +68,8 @@ export function ConfirmIrreversible({
           </Button>
         </>
       }
-    />
+    >
+      {children}
+    </Dialog>
   );
 }

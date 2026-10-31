@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"math"
 	"math/rand/v2"
 	"os"
@@ -31,6 +32,7 @@ type Settings struct {
 	ValidKey               string        // khác rỗng: khoá khác → AUTH
 	StreamDelay            time.Duration // cách nhau giữa các từ; mặc định 20 ms
 	ReplayDir              string        // khác rỗng: chế độ phát lại
+	DemoFile               string        // khác rỗng: tệp bản ghi demo (DEMO_MODE): yêu cầu chứa đủ chuỗi `match` thì trả `response`
 }
 
 // Controller chia sẻ Settings và bộ đếm giữa mọi provider fake của một Registry.
@@ -44,12 +46,17 @@ type Controller struct {
 	peak     atomic.Int64
 	pmu      sync.Mutex
 	payloads []Payload
+	demo     []demoRec
+	demoErr  error
 }
 
 // NewController dựng Controller với Settings ban đầu.
 func NewController(s Settings) *Controller {
 	c := &Controller{}
 	c.s = withDefaults(s)
+	if c.s.DemoFile != "" {
+		c.demo, c.demoErr = loadDemo(c.s.DemoFile)
+	}
 	return c
 }
 
@@ -261,6 +268,12 @@ func (p *Provider) Chat(ctx context.Context, o provider.ChatOpts) (provider.Resu
 	if err != nil {
 		return provider.Result{}, err
 	}
+	if p.c.demoErr != nil {
+		return provider.Result{}, &provider.Error{Kind: provider.KindBadResponse, Detail: "tệp bản ghi demo không đọc được"}
+	}
+	if text, ok := p.c.demoMatch(o); ok {
+		return provider.Result{Text: text, TokensIn: tokens(promptText(o)), TokensOut: tokens(text)}, nil
+	}
 	if s.ReplayDir != "" {
 		return replayChat(s.ReplayDir, o)
 	}
@@ -359,6 +372,51 @@ func leUint64(b []byte) uint64 {
 		x = x<<8 | uint64(b[i])
 	}
 	return x
+}
+
+// ---- bản ghi demo (DEMO_MODE) ----
+
+// demoRec: yêu cầu có đủ mọi chuỗi trong Match thì trả Response (JSON) làm văn bản. Khác phát lại ở chỗ khoá là nội dung, không phải băm của cả yêu cầu — sửa lời nhắc không làm hỏng bản ghi.
+type demoRec struct {
+	Name     string          `json:"name"`
+	Match    []string        `json:"match"`
+	Response json.RawMessage `json:"response"`
+}
+
+func loadDemo(path string) ([]demoRec, error) {
+	b, err := os.ReadFile(path) //nolint:gosec // đường dẫn do cấu hình
+	if err != nil {
+		return nil, err
+	}
+	var f struct {
+		Recordings []demoRec `json:"recordings"`
+	}
+	if err := json.Unmarshal(b, &f); err != nil {
+		return nil, err
+	}
+	for _, r := range f.Recordings {
+		if len(r.Match) == 0 || len(r.Response) == 0 {
+			return nil, fmt.Errorf("bản ghi demo %q thiếu match / response", r.Name)
+		}
+	}
+	return f.Recordings, nil
+}
+
+func (c *Controller) demoMatch(o provider.ChatOpts) (string, bool) {
+	if len(c.demo) == 0 {
+		return "", false
+	}
+	prompt := promptText(o)
+next:
+	for _, r := range c.demo {
+		for _, m := range r.Match {
+			if !strings.Contains(prompt, m) {
+				continue next
+			}
+		}
+		return string(r.Response), true
+	}
+	return "", false
 }
 
 // ---- phát lại ----

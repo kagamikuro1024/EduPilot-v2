@@ -32,15 +32,19 @@ type fakeLLM struct {
 	reqs  []llm.Request
 	ctxs  []context.Context
 	fn    func(n int, ctx context.Context) (json.RawMessage, error)
+	via   func(r llm.Request, schema json.RawMessage) (json.RawMessage, error) // khác nil: thay fn, nhìn thấy nội dung yêu cầu
 }
 
-func (f *fakeLLM) Structured(ctx context.Context, r llm.Request, _ json.RawMessage) (json.RawMessage, error) {
+func (f *fakeLLM) Structured(ctx context.Context, r llm.Request, schema json.RawMessage) (json.RawMessage, error) {
 	f.mu.Lock()
 	f.calls++
 	n := f.calls
 	f.reqs = append(f.reqs, r)
 	f.ctxs = append(f.ctxs, ctx)
 	f.mu.Unlock()
+	if f.via != nil {
+		return f.via(r, schema)
+	}
 	return f.fn(n, ctx)
 }
 

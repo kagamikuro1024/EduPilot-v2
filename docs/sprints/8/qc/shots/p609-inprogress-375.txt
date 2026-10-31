@@ -1,0 +1,25 @@
+BAD=false dotDecimals=[] scroll=375,375 officialNote=1 whatIfInput=1
+---
+Điểm
+
+Điểm quá trình hiện tại của bạn là 8,25 trên 10.
+
+Giữa kỳ · 20%
+8,25
+Kiểm tra hằng tuần · 20%
+8
+Thi cuối kỳ · 60%
+Chưa công bố
+Giữa kỳ (20%)
+8,25
+= 8,25
+Điểm cộng
+min(0,5; 1,0)
+= 0,5
+Căn cứ · tr. 2
+Điểm quá trình
+min(10; max(0; 8,25 + 0,5 − 0))
+= 8,25
+Nếu cuối kỳ được
+
+Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.
