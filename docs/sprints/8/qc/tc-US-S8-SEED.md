@@ -38,6 +38,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-S8-SEED (AC1–AC8) + `SRS.md` 4.9
 | TC-P6-SEED-31 | AC8 | seed | ADMIN: chạy `p6-rbac.sh` nhóm `[ADM]` | `403` mọi route lớp |
 | TC-P6-SEED-32 | AC8 | seed + CANARY (xem tc-US-P6-09 quy ước) | `p6-student-sweep.sh` | canary không xuất hiện ở phản hồi sinh viên nào |
 | TC-P6-SEED-33 | AC8 | repo | `GO ./internal/integration "TestSeedGradebookExpected|TestSeedGradebookIsolation|TestSeedGradebookAdminForbidden" -tags integration` | PASS |
+| TC-P6-SEED-37 | AC2, #20 | seed lớp 1 | `$PSQL "select joined_via, count(*) from enrollments e join courses c on c.id=e.course_id where c.class_code='761987' and e.role_in_course='STUDENT' and e.status='ACTIVE' group by 1"` | 30 sinh viên có điểm vào bằng XLSX đều `joined_via ∈ {ROSTER, ADMIN}` (nếu có sinh viên `CODE` mang MSSV trong tệp nhập thì nhập báo `STUDENT_CODE_UNVERIFIED` và preview không còn 30/30 — seed phải xếp các sinh viên này qua danh sách lớp, không qua mã tham gia) |
 
 ## Nhánh lỗi (SRS mục 3)
 | TC-id | Tình huống | Bước | Kết quả mong đợi |
@@ -57,3 +58,4 @@ Phủ ở TC-28…32.
 
 ## Lịch sử sửa TC
 - 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-SEED-29, 30 `403/404`, `404` → `403`.
+- 2026-10-31 — **proposal #20 ACCEPTED**: thêm TC-P6-SEED-37 (sinh viên lớp 1 trong tệp nhập phải `joined_via ∈ {ROSTER, ADMIN}`).

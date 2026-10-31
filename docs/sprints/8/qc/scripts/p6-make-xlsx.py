@@ -106,6 +106,9 @@ open(os.path.join(OUT, "corrupt.xlsx"), "wb").write(os.urandom(4096))
 open(os.path.join(OUT, "notxlsx.xlsx"), "wb").write(b"%PDF-1.4\n1 0 obj<<>>endobj\n%%EOF\n")
 rnd = random.Random(7)
 write("big3mb.xlsx", [H] + [[f"{rnd.randrange(10**8)}", "".join(rnd.choice("abcdefghijklmnopqrstuvwxyz") for _ in range(40)), ("5", "n")] for _ in range(60000)], compress=zipfile.ZIP_STORED)
+UN = os.environ.get("UNVERIFIED_MSSV")
+if UN:  # #20: MSSV chỉ khớp sinh viên vào lớp bằng mã (joined_via CODE)
+    write("unverified.xlsx", [H, [UN, "CODE tự khai", ("9", "n")], [B["student_code"], "B hợp lệ", ("7", "n")]])
 write("inject.xlsx", [H, ["=1+1", "=cmd|' /C calc'!A0", ("5", "n")], ["+84", "-2+3", ("5", "n")], ["@SUM(A1)", "tên", ("5", "n")]])
 
 for f in sorted(os.listdir(OUT)):
