@@ -620,6 +620,11 @@ func TestTodayQueryBudget(t *testing.T) {
 			r.enrollAt(c, p, "STUDENT", "ACTIVE", "", time.Hour)
 		}
 		r.pending(c, 2, time.Hour, "")
+		// US-P7-08: đủ dữ liệu cho các kind bài tập của nhân viên (một truy vấn tổng hợp, không +1 mỗi kind).
+		a := r.asg(c, "BT"+c.code, 72*time.Hour, true, "")
+		r.gres(c, a, 1, "FAILED", "DRAFT", "{}")
+		r.gres(c, a, 1, "DONE", "DRAFT", "{NEEDS_REVIEW}")
+		r.unmatched(c, 2)
 	}
 	su, ss := r.person(store.UserRoleSTUDENT, true)
 	r.enrollAt(c1, su, "STUDENT", "ACTIVE", "", time.Hour)

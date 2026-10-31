@@ -194,7 +194,11 @@ func TestLeaseRenewedWhileRunning(t *testing.T) {
 	r.sub(uuid.Nil, 1, "MATCHED")
 	r.delay.Store(int64(1800 * time.Millisecond))
 	e := r.gradeAll(false)
-	cfg := func(c *grading.QueueConfig) { c.Lease = 500 * time.Millisecond; c.Heartbeat = 120 * time.Millisecond; c.Workers = 1 }
+	cfg := func(c *grading.QueueConfig) {
+		c.Lease = 500 * time.Millisecond
+		c.Heartbeat = 120 * time.Millisecond
+		c.Workers = 1
+	}
 	r.start(r.queue(cfg))
 	r.start(r.queue(cfg)) // consumer thứ hai thử nhận lại: thuê còn hạn nên bị từ chối
 	r.deliver(*e.JobID)
@@ -336,7 +340,9 @@ func TestJobReadRBAC(t *testing.T) {
 	r.first.Prefix = "" // JobScope của gateway đọc lô ở khoá không tiền tố
 	r.deliver(*e.JobID)
 	res := r.onlyResult()
-	t.Cleanup(func() { r.rdb.Del(context.Background(), "ep:gradebatch:"+e.JobID.String(), "ep:gradejob:"+res.String(), grading.StreamGrading) })
+	t.Cleanup(func() {
+		r.rdb.Del(context.Background(), "ep:gradebatch:"+e.JobID.String(), "ep:gradejob:"+res.String(), grading.StreamGrading)
+	})
 	path := "/api/v1/jobs/" + e.JobID.String()
 	for _, who := range []struct {
 		name string

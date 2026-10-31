@@ -20,6 +20,7 @@ import (
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/notify"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 )
@@ -380,15 +381,29 @@ func (q *Queue) process(ctx context.Context, m goredis.XMessage) {
 		return
 	}
 	if gerr != nil {
-		q.retryOrFail(ctx, s, rid, owner, row.Attempts, gerr)
+		q.retryOrFail(ctx, s, row.CourseID, rid, owner, row.Attempts, gerr)
 		return
 	}
 	q.M.inc(map[string]string{"DONE": "done", "FAILED": "failed"}[out.State])
+	q.touch(ctx, row.CourseID)
 	q.progress(ctx, rid)
 }
 
+// TopicTouch: kết quả chấm vừa xong / lỗi → xoá cache "Hôm nay" của nhân viên (GRADING_REVIEW / GRADING_ERROR); topic course-wide của submission, đã có handler.
+const TopicTouch = "submission.resolved"
+
+func (q *Queue) touch(ctx context.Context, course uuid.UUID) {
+	err := pgx.BeginFunc(ctx, q.Pool, func(tx pgx.Tx) error {
+		_, err := outbox.Write(ctx, tx, TopicTouch, map[string]any{"course_id": course})
+		return err
+	})
+	if err != nil {
+		q.Log.WarnContext(ctx, "grading: không ghi sự kiện làm mới", "error", err.Error())
+	}
+}
+
 // retryOrFail: lỗi tạm còn lượt → QUEUED + not_before; hết lượt → FAILED + `.dead` (chỉ để đếm).
-func (q *Queue) retryOrFail(ctx context.Context, s *store.Queries, rid uuid.UUID, owner string, attempts int16, gerr error) {
+func (q *Queue) retryOrFail(ctx context.Context, s *store.Queries, course, rid uuid.UUID, owner string, attempts int16, gerr error) {
 	code := "INTERNAL"
 	var te *TransientError
 	if errors.As(gerr, &te) {
@@ -407,6 +422,7 @@ func (q *Queue) retryOrFail(ctx context.Context, s *store.Queries, rid uuid.UUID
 	}
 	q.M.inc("failed")
 	q.M.dead.Add(1)
+	q.touch(ctx, course)
 	q.Redis.XAdd(ctx, &goredis.XAddArgs{Stream: q.Prefix + StreamGradingDead, MaxLen: 10000, Approx: true, Values: map[string]any{"result_id": rid.String(), "code": code}})
 	q.progress(ctx, rid)
 }

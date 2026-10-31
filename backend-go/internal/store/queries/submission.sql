@@ -110,12 +110,29 @@ where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and match_status = '
 update submissions set dismissed_at = null, dismissed_by = null, dismissed_reason = null, updated_at = now()
 where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and dismissed_at is not null;
 
--- name: TodayUnmatchedBatch :many
--- "Hôm nay" của nhân viên (UNMATCHED_SUBMISSION, bậc 60): số bài chưa khớp chưa bỏ qua theo lớp — MỘT truy vấn cho mọi lớp.
-select s.course_id, count(*)::int as n
-from submissions s
-where s.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and s.match_status = 'UNMATCHED' and s.dismissed_at is null
-group by s.course_id;
+-- name: TodayStaffAssignmentBatch :many
+-- "Hôm nay" của nhân viên: UNMATCHED_SUBMISSION (60), GRADING_ERROR (28), GRADING_REVIEW (30) — MỘT truy vấn tổng hợp cho mọi lớp (SRS 4.12). Chỉ kết quả HIỆN HÀNH của bài nộp MATCHED mới nhất.
+with ids as (select unnest(sqlc.arg(course_ids)::text[])::uuid as course_id),
+unm as (
+  select s.course_id, count(*)::int as n from submissions s
+  where s.course_id in (select course_id from ids) and s.match_status = 'UNMATCHED' and s.dismissed_at is null
+  group by s.course_id),
+cur as (
+  select r.course_id,
+         count(*) filter (where r.run_state = 'FAILED')::int as err_n,
+         count(*) filter (where r.run_state = 'DONE' and r.needs_review)::int as rev_n,
+         coalesce(min(a.title) filter (where r.run_state = 'FAILED'), '')::text as err_title,
+         coalesce(min(a.title) filter (where r.run_state = 'DONE' and r.needs_review), '')::text as rev_title
+  from grading_results r
+  join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+  join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+  where r.course_id in (select course_id from ids) and r.status = 'DRAFT' and r.run_state in ('FAILED', 'DONE') and s.match_status = 'MATCHED'
+    and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+    and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+  group by r.course_id)
+select ids.course_id, coalesce(unm.n, 0)::int as unmatched, coalesce(cur.err_n, 0)::int as err_n, coalesce(cur.rev_n, 0)::int as rev_n,
+       coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title
+from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id;
 
 -- name: GradeInputAssignments :many
 -- Điểm item ASSIGNMENT (đọc thẳng như EXAM, TLR-14 A): `grading_results.total` PUBLISHED của BẢN NỘP MỚI NHẤT của (bài, sinh viên), theo lô sinh viên; kèm có bài MATCHED hay không và thang của bài / item.

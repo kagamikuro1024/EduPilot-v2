@@ -48,7 +48,7 @@ const (
 	PurposeSubmissionUpload = "submission_upload"
 	// SubmissionZipMaxBytes: cỡ ZIP bài nộp (`ZIP_MAX_BYTES`).
 	SubmissionZipMaxBytes = 200 << 20
-	xlsxMime           = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	xlsxMime              = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
 // BlobAPI là phần của platform/blob mà gói này dùng.

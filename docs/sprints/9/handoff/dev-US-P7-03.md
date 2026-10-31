@@ -19,3 +19,17 @@ Phần máy chủ đã nằm trong commit `cd189fea`; frontend nằm cùng commi
 
 ## Test cũ đã sửa
 `today.Topics()` 24 → 28 và `TestTodayQueryBudget` (sinh viên 5 → 6, giảng viên 6 → 7 / 7 → 8): proposals sprint 9 #8, #9; không đổi ý nghĩa assertion.
+
+## Đo LCP `/assignments/[id]` bằng LHCI (TL-1, proposals #10 — 2026-10-31)
+- **Cấu hình (PM quyết cuối tệp proposals #10):** URL `/assignments/<id>` **không** nằm trong `lighthouserc*.json` / `ci.yml` (ma trận LHCI giữ nguyên 8 URL, đếm giữ như cũ) vì sẽ đỏ cố định tới khi chủ project chọn hướng. Giữ lại để đo thủ công: `lighthouse-auth.cjs` tra vai theo tiền tố (`/assignments/` → `student`); `lighthouse-api.mjs` trả `…/assignments/{aid}/mine` theo `MineOut` (đề bài nguyên văn `de-bai-bt03.md`, 4 tiêu chí `rubric-bt03.json`, `submission: null`).
+- **Sửa hiệu năng:** (a) liên kết tới bài tập ở "Hôm nay", lịch, `/me`, chuông mang `?course={id}` (`shared/lib/courseHref.ts`); `AssignmentScreen` đọc tham số ở lượt dựng đầu và gọi `…/mine` ngay khi có phiên, song song `/me/courses`. (b) `StudentAssignment` nhập TĨNH (bỏ `dynamic(..., { loading: () => null })`).
+- **Số đo thật** (devtools, 3 lượt, `pnpm build:gate`, gateway giả ở trên; phần tử LCP cả 3 trường hợp là `div.md > p` đầu của đề bài, `Render Delay` ≈ toàn bộ LCP):
+
+| Trạng thái | LCP từng lượt (ms) | Trung vị |
+| --- | --- | --- |
+| Trước (dynamic import, chờ `/me/courses`) | 6189 / 6146 / 6128 | **6146** |
+| Sau (b), URL trần như cấu hình | 5385 / 5240 / 5263 | **5263** |
+| Sau (a)+(b), URL thật có `?course=` | 4761 / 4723 / 4719 | **4723** |
+
+- **Thác yêu cầu sau sửa (URL trần):** HTML xong 895 → JS xong ≈ 3,4 s → `auth/refresh` 3398→3962 → `me/courses` 4042→4614 → `…/mine` 4628→5202 → LCP 5240. Với `?course=`, `…/mine` chạy ngay sau `refresh` (bỏ hẳn một vòng 570 ms).
+- **AC9 phần LCP: FAIL** (4.723 ms với `?course=`, 5.263 ms URL trần so với ngưỡng 2.500; trước sửa 6.146 ms). Chờ chủ project chọn ngày 01/11. Đo lại thủ công: `pnpm -C frontend exec lhci autorun --config=lighthouserc.devtools.json --collect.url=http://localhost:3310/assignments/00000000-0000-7000-8000-0000000000a3` (3 lượt). Không nới ngưỡng, không ẩn phần tử. Trần còn lại là JS của tuyến (≈ 3,4 s ở cấu hình devtools) cộng `refresh` + một lần gọi dữ liệu: mọi chữ dựng từ API không thể vẽ trước mốc đó. Hạ xuống ≤ 2.500 ms cần đúng hai đường TL-1 đã nêu (hợp đồng `intro` theo tiền tố + đề bài gọn ở màn đầu — đụng `FEAT-ui-foundation` / `DESIGN.md`; hoặc dựng dữ liệu phía máy chủ — đổi kiến trúc xác thực). Chờ chủ project.

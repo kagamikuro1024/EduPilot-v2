@@ -379,7 +379,8 @@ func (r *runner) uploadScenarios(x examRig, base string) {
 		r.must(call{method: "GET", path: sub + "?match_status=UNMATCHED", token: who}, 403)
 	}
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/submissions?match_status=UNMATCHED", token: x.gv}, 404)
-	r.must(call{method: "GET", path: sub, token: x.gv}, 422)
+	r.must(call{method: "GET", path: sub + "?match_status=NOPE", token: x.gv}, 422)
+	r.must(call{method: "GET", path: sub, token: x.gv}, 200) // mặc định: hàng chờ chấm (MATCHED + DRAFT)
 	id1, v1 := list()
 
 	// 17: tải tệp (URL ký 5 phút).
@@ -469,4 +470,52 @@ func (r *runner) uploadScenarios(x examRig, base string) {
 	r.must(call{method: "POST", path: strings.TrimSuffix(base, "/assignments") + "/grading-results/00000000-0000-7000-8000-000000000000/retry", token: x.gv, headers: x.idem()}, 404)
 	r.must(call{method: "POST", path: rt, token: x.ta, headers: x.idem()}, 202)
 	r.must(call{method: "POST", path: rt, token: x.ta, headers: x.idem()}, 409) // đã QUEUED lại
+	// US-P7-08: chi tiết / sửa / duyệt kết quả chấm với mọi status đã khai báo.
+	var rubricID string
+	if err := db.QueryRow(ctx, `select rubric->0->>'id' from assignments where id = $1`, asg).Scan(&rubricID); err != nil {
+		r.t.Fatalf("rubric: %v", err)
+	}
+	var done string
+	if err := db.QueryRow(ctx, `update grading_results set run_state = 'DONE', error_code = null, total = 5, ai_total_before_late = 5, ai_scores = jsonb_build_object($2::text, '5.00'),
+		criteria = jsonb_build_array(jsonb_build_object('id', $2::text, 'score', '5.00', 'comment', '', 'edited', false, 'evidence', '[]'::jsonb)) where submission_id = $1 returning id`, id3, rubricID).Scan(&done); err != nil {
+		r.t.Fatalf("đặt DONE: %v", err)
+	}
+	gr := strings.TrimSuffix(base, "/assignments") + "/grading-results/"
+	version := func(id string) int {
+		var v int
+		if err := db.QueryRow(ctx, `select version from grading_results where id = $1`, id).Scan(&v); err != nil {
+			r.t.Fatalf("version: %v", err)
+		}
+		return v
+	}
+	r.must(call{method: "GET", path: gr + done}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: gr + done, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: gr + "00000000-0000-7000-8000-000000000000", token: x.gv}, 404)
+	r.must(call{method: "GET", path: gr + done, token: x.ta}, 200)
+	edit := func(id string, v int, score string) call {
+		return call{method: "PUT", path: gr + id, token: x.ta, body: fmt.Sprintf(`{"version":%d,"criteria":[{"id":%q,"score":%s}]}`, v, rubricID, score)}
+	}
+	r.must(call{method: "PUT", path: gr + done, body: `{"version":1}`}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "PUT", path: gr + done, token: who, body: `{"version":1}`}, 403)
+	}
+	r.must(call{method: "PUT", path: gr + "00000000-0000-7000-8000-000000000000", token: x.ta, body: `{"version":1}`}, 404)
+	r.must(edit(done, version(done), `"5.1"`), 422) // SCORE_STEP
+	r.must(edit(done, version(done)+7, `"6"`), 409) // VERSION_CONFLICT
+	r.must(edit(res, version(res), `"6"`), 409)     // NOT_READY: đang QUEUED sau retry
+	r.must(edit(done, version(done), `7.25`), 200)  // số JSON, bước 0,25
+	r.must(call{method: "POST", path: gr + done + "/review", body: `{"version":1}`}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "POST", path: gr + done + "/review", token: who, body: `{"version":1}`}, 403)
+	}
+	r.must(call{method: "POST", path: gr + "00000000-0000-7000-8000-000000000000/review", token: x.ta, body: `{"version":1}`}, 404)
+	r.must(call{method: "POST", path: gr + done + "/review", token: x.ta, body: fmt.Sprintf(`{"version":%d}`, version(done)+9)}, 409)
+	r.must(call{method: "POST", path: gr + done + "/review", token: x.ta, body: fmt.Sprintf(`{"version":%d}`, version(done))}, 200)
+	r.must(call{method: "POST", path: gr + done + "/review", token: x.ta, body: fmt.Sprintf(`{"version":%d}`, version(done))}, 200) // idempotent
+	if _, err := db.Exec(ctx, `update grading_results set run_state = 'FAILED', error_code = 'LLM_UNAVAILABLE', criteria = jsonb_build_array(jsonb_build_object('id', $2::text, 'score', null, 'comment', '', 'edited', false, 'evidence', '[]'::jsonb)), total = null where id = $1`, res, rubricID); err != nil {
+		r.t.Fatalf("đặt FAILED: %v", err)
+	}
+	r.must(call{method: "POST", path: gr + res + "/review", token: x.ta, body: fmt.Sprintf(`{"version":%d}`, version(res))}, 422) // SCORES_REQUIRED
 }

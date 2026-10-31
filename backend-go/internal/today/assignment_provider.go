@@ -60,15 +60,16 @@ func (p AssignmentProvider) Items(ctx context.Context, v Viewer, sc Scope) ([]It
 	return out, nil
 }
 
-// staffItems: UNMATCHED_SUBMISSION (bậc 60) — một mục mỗi lớp có bài chưa khớp chưa bỏ qua; MỘT truy vấn tổng hợp cho mọi lớp (các kind GRADING_* / APPEAL của nhân viên cùng truy vấn này ở các story sau).
+// staffItems: UNMATCHED_SUBMISSION (60), GRADING_ERROR (28), GRADING_REVIEW (30) — mỗi (lớp, kind) một mục; MỘT truy vấn tổng hợp cho mọi lớp (SRS 4.12).
+// Các kind APPEAL / PUBLISH_PENDING của nhân viên cùng truy vấn này ở các story sau.
 func (p AssignmentProvider) staffItems(ctx context.Context, v Viewer, sc Scope) ([]Item, error) {
 	courses := v.Scoped(sc, "STAFF")
 	if p.Pool == nil || len(courses) == 0 {
 		return nil, nil
 	}
-	rows, err := store.New(p.Pool).TodayUnmatchedBatch(ctx, ids(courses))
+	rows, err := store.New(p.Pool).TodayStaffAssignmentBatch(ctx, ids(courses))
 	if err != nil {
-		return nil, fmt.Errorf("today: bài chưa khớp: %w", err)
+		return nil, fmt.Errorf("today: việc chấm bài của nhân viên: %w", err)
 	}
 	byCourse := map[uuid.UUID]CourseRef{}
 	for _, c := range courses {
@@ -77,11 +78,21 @@ func (p AssignmentProvider) staffItems(ctx context.Context, v Viewer, sc Scope) 
 	var out []Item
 	for _, r := range rows {
 		c, ok := byCourse[r.CourseID]
-		if !ok || r.N == 0 {
+		if !ok {
 			continue
 		}
-		out = append(out, mk(Item{ID: "UNMATCHED_SUBMISSION:" + c.ID.String(), Kind: KindUnmatchedSubmission, Tier: TierUnmatchedSubmission, Course: courseRef(c),
-			Href: "/grading?tab=unmatched&course=" + c.ID.String(), Title: fmt.Sprintf("%d bài nộp chưa khớp sinh viên · lớp %s", r.N, c.ClassCode), Reason: "Gán cho sinh viên hoặc bỏ qua."}))
+		if r.Unmatched > 0 {
+			out = append(out, mk(Item{ID: "UNMATCHED_SUBMISSION:" + c.ID.String(), Kind: KindUnmatchedSubmission, Tier: TierUnmatchedSubmission, Course: courseRef(c),
+				Href: "/grading?tab=unmatched&course=" + c.ID.String(), Title: fmt.Sprintf("%d bài nộp chưa khớp sinh viên · lớp %s", r.Unmatched, c.ClassCode), Reason: "Gán cho sinh viên hoặc bỏ qua."}))
+		}
+		if r.ErrN > 0 {
+			out = append(out, mk(Item{ID: "GRADING_ERROR:" + c.ID.String(), Kind: KindGradingError, Tier: TierGradingError, Course: courseRef(c),
+				Href: "/grading?status=FAILED", Title: fmt.Sprintf("%d bài chấm lỗi · %s", r.ErrN, r.ErrTitle), Reason: "Thử chấm lại hoặc nhập điểm tay."}))
+		}
+		if r.RevN > 0 {
+			out = append(out, mk(Item{ID: "GRADING_REVIEW:" + c.ID.String(), Kind: KindGradingReview, Tier: TierGradingReview, Course: courseRef(c),
+				Href: "/grading", Title: fmt.Sprintf("%d bài cần xem kỹ · %s", r.RevN, r.RevTitle), Reason: "Xem lại các bài có cờ trước khi duyệt."}))
+		}
 	}
 	return out, nil
 }

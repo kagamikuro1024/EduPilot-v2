@@ -514,12 +514,12 @@ func TestDismissedNotCountedAsPending(t *testing.T) {
 	_, _, err := e.upload("khong-ma.txt", []byte("x\n"))
 	require.NoError(t, err)
 	n := func() int {
-		rows, err := store.New(e.pool).TodayUnmatchedBatch(e.ctx, []string{e.course.String()})
+		rows, err := store.New(e.pool).TodayStaffAssignmentBatch(e.ctx, []string{e.course.String()})
 		require.NoError(t, err)
 		if len(rows) == 0 {
 			return 0
 		}
-		return int(rows[0].N)
+		return int(rows[0].Unmatched)
 	}
 	require.Equal(t, 1, n())
 	id, v := e.firstUnmatched()

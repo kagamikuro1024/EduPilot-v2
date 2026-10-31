@@ -277,7 +277,7 @@ test("assignments section: mỗi bài một dòng tên · hạn · trạng thái
   await expect(rows.nth(0)).toContainText("Hạn Thứ Sáu, 20/11 · 14:00");
   await expect(rows.nth(0)).toContainText("Chưa nộp");
   await expect(rows.nth(1)).toContainText("Đã nộp");
-  await expect(rows.nth(0).getByRole("link")).toHaveAttribute("href", `/assignments/${A1}`);
+  await expect(rows.nth(0).getByRole("link")).toHaveAttribute("href", `/assignments/${A1}?course=${COURSE}`); // mang lớp theo để màn đích gọi API ngay (TL-1)
   const titles = await page.locator("main section h2, main [data-ep-panel] h2").allInnerTexts();
   expect(titles).toEqual(["Điểm", "Chuyên cần", "Điểm cộng đã ghi", "Bài tập", "Thời gian học"]);
 });

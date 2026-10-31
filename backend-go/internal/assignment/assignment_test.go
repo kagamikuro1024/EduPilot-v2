@@ -37,7 +37,11 @@ type env struct {
 func newEnv(t *testing.T) *env {
 	t.Helper()
 	testutil.RequireContainers(t)
-	pool := testutil.RuntimePool(t)
+	return newEnvPool(t, testutil.RuntimePool(t))
+}
+
+func newEnvPool(t *testing.T, pool *pgxpool.Pool) *env {
+	t.Helper()
 	log := slog.New(slog.NewTextHandler(io.Discard, nil))
 	e := &env{t: t, ctx: t.Context(), pool: pool}
 	e.svc = &assignment.Service{Pool: pool, Log: log, Notify: &notify.Service{Pool: pool, Log: log}}

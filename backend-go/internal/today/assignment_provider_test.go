@@ -3,6 +3,7 @@ package today_test
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
 	"testing"
 	"time"
 
@@ -157,4 +158,134 @@ func TestProviderUnmatchedCleared(t *testing.T) {
 	inv := today.Invalidator{Pool: r.pool, Redis: r.rdb}
 	require.NoError(t, inv.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionResolved, Payload: payload}))
 	require.Empty(t, unmatchedItems(r.tgetC(gvSess, "/me/today")))
+}
+
+func kindItems(res resp, kind string) []map[string]any {
+	var out []map[string]any
+	if rec, ok := res.json()["recommended"].(map[string]any); ok && rec["kind"] == kind {
+		out = append(out, rec)
+	}
+	for _, a := range actionsOf(res) {
+		if m := a.(map[string]any); m["kind"] == kind {
+			out = append(out, m)
+		}
+	}
+	return out
+}
+
+// gres chèn một bài nộp MATCHED (phiên bản v của sinh viên mới) + kết quả hiện hành.
+func (r *rig) gres(c cls, asg string, v int, runState, status string, flags string) {
+	r.t.Helper()
+	su, _ := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	r.insertRes(c, asg, su.ID.String(), v, runState, status, flags)
+}
+
+func (r *rig) insertRes(c cls, asg, stu string, v int, runState, status, flags string) {
+	r.t.Helper()
+	sub := r.scalar(`insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method)
+		values ($1, $2, $3, 'IN_APP', $4, 'k', 'a.txt', 1, 'text/plain', 'x', 'MATCHED', 'IN_APP') returning id`, c.id, asg, stu, v)
+	r.exec(`insert into grading_results (course_id, submission_id, run_state, status, flags, total) values ($1, $2, $3, $4, $5::text[], case when $3 = 'DONE' then 5 end)`, c.id, sub, runState, status, flags)
+}
+
+// TestProviderGradingError — GRADING_ERROR (bậc 28): "{n} bài chấm lỗi · {bài}", một mục mỗi lớp; bản cũ bị thay không tính; TEACHER + TA thấy, STUDENT / ADMIN không; hết việc (retry) + sự kiện → mục biến mất.
+func TestProviderGradingError(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764201")
+	_, gvSess := r.teaching(c)
+	su, svSess := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	_, adSess := r.person(store.UserRoleADMIN, true)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.gres(c, a, 1, "FAILED", "DRAFT", "{}")
+	r.gres(c, a, 1, "FAILED", "DRAFT", "{}")
+	old, _ := r.student("")
+	r.enrollAt(c, old, "STUDENT", "ACTIVE", "", time.Hour)
+	r.insertRes(c, a, old.ID.String(), 1, "FAILED", "DRAFT", "{}") // bản 1 bị thay bởi bản 2
+	r.scalar(`insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method)
+		values ($1, $2, $3, 'IN_APP', 2, 'k', 'a.txt', 1, 'text/plain', 'x', 'MATCHED', 'IN_APP') returning id`, c.id, a, old.ID.String())
+	items := kindItems(r.tget(gvSess, "/me/today"), "GRADING_ERROR")
+	require.Len(t, items, 1)
+	require.Equal(t, "2 bài chấm lỗi · Bài BT03", items[0]["title"])
+	require.Equal(t, "/grading?status=FAILED", items[0]["href"])
+	require.EqualValues(t, today.TierGradingError, 28)
+	for name, s := range map[string]session{"sinh viên": svSess, "admin": adSess} {
+		require.Empty(t, kindItems(r.tget(s, "/me/today"), "GRADING_ERROR"), name)
+	}
+	r.exec(`update grading_results set run_state = 'QUEUED' where course_id = $1`, c.id)
+	payload, _ := json.Marshal(map[string]string{"course_id": c.sid()})
+	require.NoError(t, today.Invalidator{Pool: r.pool, Redis: r.rdb}.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionResolved, Payload: payload}))
+	require.Empty(t, kindItems(r.tgetC(gvSess, "/me/today"), "GRADING_ERROR"))
+}
+
+// TestProviderGradingReview — GRADING_REVIEW (bậc 30): "{n} bài cần xem kỹ · {bài}" chỉ cho DRAFT xong có cờ; đã duyệt thì biến mất.
+func TestProviderGradingReview(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764202")
+	_, gvSess := r.teaching(c)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.gres(c, a, 1, "DONE", "DRAFT", "{NEEDS_REVIEW}")
+	r.gres(c, a, 1, "DONE", "DRAFT", "{INJECTION_SUSPECTED,OFF_TOPIC}")
+	r.gres(c, a, 1, "DONE", "DRAFT", "{}")                // không cờ
+	r.gres(c, a, 1, "DONE", "REVIEWED", "{NEEDS_REVIEW}") // đã duyệt
+	items := kindItems(r.tget(gvSess, "/me/today"), "GRADING_REVIEW")
+	require.Len(t, items, 1)
+	require.Equal(t, "2 bài cần xem kỹ · Bài BT03", items[0]["title"])
+	require.Equal(t, "/grading", items[0]["href"])
+	require.EqualValues(t, today.TierGradingReview, 30)
+	r.exec(`update grading_results set status = 'REVIEWED' where course_id = $1 and needs_review`, c.id)
+	payload, _ := json.Marshal(map[string]string{"course_id": c.sid()})
+	require.NoError(t, today.Invalidator{Pool: r.pool, Redis: r.rdb}.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionResolved, Payload: payload}))
+	require.Empty(t, kindItems(r.tgetC(gvSess, "/me/today"), "GRADING_REVIEW"))
+}
+
+func (r *rig) queries(s session, path string) int64 {
+	r.t.Helper()
+	before := r.qc.n.Load()
+	require.Equal(r.t, http.StatusOK, r.tget(s, path).code)
+	return r.qc.n.Load() - before
+}
+
+// TestProviderStaffAggregatedOneQuery — SRS 4.12: các kind của nhân viên (UNMATCHED_SUBMISSION, GRADING_ERROR, GRADING_REVIEW) do MỘT truy vấn tổng hợp cho mọi lớp: số truy vấn của giảng viên có đủ dữ liệu ở 4 lớp bằng của giảng viên không có dữ liệu.
+func TestProviderStaffAggregatedOneQuery(t *testing.T) {
+	r := newRig(t)
+	var with, without []cls
+	for i := range 4 {
+		with = append(with, r.klass(fmt.Sprintf("76430%d", i)))
+		without = append(without, r.klass(fmt.Sprintf("76431%d", i)))
+	}
+	_, gData := r.teaching(with...)
+	_, gNone := r.teaching(without...)
+	for _, c := range with {
+		a := r.asg(c, "BT"+c.code, 72*time.Hour, true, "")
+		r.gres(c, a, 1, "FAILED", "DRAFT", "{}")
+		r.gres(c, a, 1, "DONE", "DRAFT", "{NEEDS_REVIEW}")
+		r.unmatched(c, 2)
+	}
+	res := r.tget(gData, "/me/today")
+	require.Equal(t, http.StatusOK, res.code)
+	for _, k := range []string{"UNMATCHED_SUBMISSION", "GRADING_ERROR", "GRADING_REVIEW"} {
+		require.Len(t, kindItems(res, k), 4, k)
+	}
+	data := r.queries(gData, "/me/today")
+	none := r.queries(gNone, "/me/today")
+	require.LessOrEqual(t, data-none, int64(1), "kind của nhân viên thêm tối đa MỘT truy vấn, không tăng theo số lớp / số kind")
+}
+
+// TestProviderStudentAggregatedOneQuery — ba kind của sinh viên cùng một truy vấn khác: sinh viên của 4 lớp có bài tập đến hạn không tốn thêm truy vấn theo số lớp.
+func TestProviderStudentAggregatedOneQuery(t *testing.T) {
+	r := newRig(t)
+	su, sSess := r.student("")
+	nu, nSess := r.student("")
+	for i := range 4 {
+		c := r.klass(fmt.Sprintf("76440%d", i))
+		r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+		r.asg(c, "BT"+c.code, 12*time.Hour, true, "")
+		d := r.klass(fmt.Sprintf("76441%d", i))
+		r.enrollAt(d, nu, "STUDENT", "ACTIVE", "", time.Hour)
+	}
+	require.Len(t, dueItems(r.tget(sSess, "/me/today")), 1, "một mục ASSIGNMENT_DUE cho cả 4 lớp (bài gần hạn nhất)")
+	data := r.queries(sSess, "/me/today")
+	none := r.queries(nSess, "/me/today")
+	require.LessOrEqual(t, data-none, int64(1), "kind của sinh viên thêm tối đa MỘT truy vấn, không tăng theo số lớp")
 }

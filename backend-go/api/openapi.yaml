@@ -3209,19 +3209,141 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/grading-results/{rid}:
+    get:
+      operationId: getGradingResult
+      tags: [assignments]
+      summary: "Chi tiết kết quả chấm cho màn duyệt (TA, TEACHER; Cache-Control: no-store): bài nộp, rubric, tiêu chí kèm điểm AI, cờ, pass_detail, khoản trừ muộn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingResultView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: editGradingResult
+      tags: [assignments]
+      summary: "Sửa điểm / nhận xét / khoản trừ muộn tại chỗ (TA, TEACHER). Điểm chuỗi hoặc số, bước 0,25, ≤ max (422 SCORE_OUT_OF_RANGE | SCORE_STEP | SCORE_PRECISION | CRITERION_UNKNOWN); tổng tính lại bằng decimal; ai_scores giữ nguyên; REVIEWED → DRAFT; FAILED nhập đủ điểm → DONE. 409 VERSION_CONFLICT (details.current) | RESULT_PUBLISHED | NOT_READY | SUPERSEDED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GradingResultEdit"
+      responses:
+        "200":
+          description: Kết quả sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingResultView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grading-results/{rid}/review:
+    post:
+      operationId: reviewGradingResult
+      tags: [assignments]
+      summary: "Duyệt nháp: DRAFT → REVIEWED (TA, TEACHER; idempotent khi đã REVIEWED). 422 SCORES_REQUIRED khi còn tiêu chí chưa có điểm; 409 VERSION_CONFLICT | NOT_READY | SUPERSEDED | RESULT_PUBLISHED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version]
+              additionalProperties: false
+              properties:
+                version: {type: integer, minimum: 1}
+      responses:
+        "200":
+          description: Kết quả đã duyệt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingResultView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/submissions:
     get:
       operationId: listSubmissions
       tags: [assignments]
-      summary: "Bài nộp theo trạng thái khớp (TA, TEACHER; Cache-Control: no-store): match_status=UNMATCHED → tab Chưa khớp (chưa bỏ qua, mới nhất trước, con trỏ). version là khoá lạc quan của dòng, gửi lại khi gán / bỏ qua"
+      summary: "Bài nộp (TA, TEACHER; Cache-Control: no-store). Không tham số hoặc match_status=MATCHED → hàng chờ chấm (mặc định status=DRAFT; chỉ phiên bản mới nhất của từng sinh viên; sắp needs_review trước rồi received_at, id; con trỏ cursor/limit ≤ 100; lọc assignment_id, status, needs_review, flag, q). match_status=UNMATCHED → tab Chưa khớp (chưa bỏ qua, mới nhất trước, con trỏ). version là khoá lạc quan của dòng, gửi lại khi gán / bỏ qua"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: match_status
           in: query
-          required: true
           schema:
             type: string
-            enum: [UNMATCHED]
+            enum: [MATCHED, UNMATCHED]
+        - name: assignment_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [NONE, RUNNING, DRAFT, REVIEWED, PUBLISHED, FAILED]
+        - name: needs_review
+          in: query
+          schema:
+            type: boolean
+        - name: flag
+          in: query
+          schema:
+            type: string
+        - name: q
+          in: query
+          schema:
+            type: string
         - name: cursor
           in: query
           schema:
@@ -3238,7 +3360,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/UnmatchedPage"
+                anyOf:
+                  - $ref: "#/components/schemas/UnmatchedPage"
+                  - $ref: "#/components/schemas/GradingQueuePage"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "403":
@@ -9813,7 +9937,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE, UNMATCHED_SUBMISSION]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE, UNMATCHED_SUBMISSION, GRADING_ERROR, GRADING_REVIEW]
         title:
           type: string
         reason:
@@ -11681,6 +11805,150 @@ components:
             properties:
               entry: {type: string}
               code: {type: string}
+    GradingQueuePage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, assignment, student, source, version, received_at, late_days, match_status, result]
+            properties:
+              id: {type: string, format: uuid}
+              assignment:
+                type: object
+                required: [id, title]
+                properties:
+                  id: {type: string, format: uuid}
+                  title: {type: string}
+              student:
+                type: [object, "null"]
+                required: [id, full_name, student_code, inactive]
+                properties:
+                  id: {type: string, format: uuid}
+                  full_name: {type: string}
+                  student_code: {type: string}
+                  inactive: {type: boolean}
+              source: {type: string}
+              version: {type: integer}
+              received_at: {type: string, format: date-time}
+              late_days: {type: integer}
+              match_status: {type: string}
+              result:
+                type: [object, "null"]
+                required: [id, status, run_state, flags, needs_review, version]
+                properties:
+                  id: {type: string, format: uuid}
+                  status: {type: string, enum: [DRAFT, REVIEWED, PUBLISHED]}
+                  run_state: {type: string, enum: [QUEUED, RUNNING, DONE, FAILED]}
+                  total: {type: string}
+                  flags: {type: array, items: {type: string}}
+                  needs_review: {type: boolean}
+                  error_code: {type: string}
+                  version: {type: integer}
+        next_cursor: {type: [string, "null"]}
+    GradingResultEdit:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        version: {type: integer, minimum: 1}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [id]
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              score: {oneOf: [{type: string}, {type: number}]}
+              comment: {type: string}
+        overall_feedback: {type: string}
+        late_penalty: {oneOf: [{type: string}, {type: number}]}
+    GradingResultView:
+      type: object
+      required: [result, submission, assignment, criteria, flags, pass_detail, late]
+      properties:
+        result:
+          type: object
+          required: [id, round, status, run_state, total, ai_total_before_late, overall_feedback, overall_edited, version]
+          properties:
+            id: {type: string, format: uuid}
+            round: {type: integer}
+            status: {type: string, enum: [DRAFT, REVIEWED, PUBLISHED]}
+            run_state: {type: string, enum: [QUEUED, RUNNING, DONE, FAILED]}
+            error_code: {type: string}
+            total: {type: [string, "null"]}
+            ai_total_before_late: {type: [string, "null"]}
+            overall_feedback: {type: string}
+            overall_edited: {type: boolean}
+            reviewed_at: {type: string, format: date-time}
+            version: {type: integer}
+        submission:
+          type: object
+          required: [id, version, file_name, received_at, late_days, source, extracted_text, flagged_ranges, superseded]
+          properties:
+            id: {type: string, format: uuid}
+            version: {type: integer}
+            file_name: {type: string}
+            received_at: {type: string, format: date-time}
+            late_days: {type: integer}
+            source: {type: string}
+            extracted_text: {type: string}
+            flagged_ranges:
+              type: array
+              items:
+                type: object
+                required: [start, end, code]
+                properties:
+                  start: {type: integer}
+                  end: {type: integer}
+                  code: {type: string}
+            superseded: {type: boolean}
+        assignment:
+          type: object
+          required: [id, title, max_score, rubric]
+          properties:
+            id: {type: string, format: uuid}
+            title: {type: string}
+            max_score: {type: string}
+            rubric: {type: array, items: {type: object}}
+            reference_answer: {type: string}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [id, name, max, score, comment, edited, evidence, ai_score]
+            properties:
+              id: {type: string}
+              name: {type: string}
+              max: {type: string}
+              score: {type: [string, "null"]}
+              comment: {type: string}
+              edited: {type: boolean}
+              ai_score: {type: [string, "null"]}
+              evidence:
+                type: array
+                items:
+                  type: object
+                  required: [quote, start, end]
+                  properties:
+                    quote: {type: string}
+                    start: {type: integer}
+                    end: {type: integer}
+        flags: {type: array, items: {type: string}}
+        pass_detail: {}
+        late:
+          type: object
+          required: [days, penalty, max_days, per_day, manual]
+          properties:
+            days: {type: integer}
+            penalty: {type: string}
+            max_days: {type: integer}
+            per_day: {type: string}
+            manual: {type: boolean}
     GradingEnqueued:
       type: object
       required: [queued]

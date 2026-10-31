@@ -59,6 +59,8 @@ const (
 	KindStudentAttention       Kind = "STUDENT_ATTENTION"        // US-P5-04: sinh viên mới vào diện cần chú ý ≤ 7 ngày (Giảng viên + TA)
 	KindGradeSchemeUnconfirmed Kind = "GRADE_SCHEME_UNCONFIRMED" // US-P6-05: lớp chưa có công thức điểm đã xác nhận (Giảng viên + TA)
 	KindUnmatchedSubmission    Kind = "UNMATCHED_SUBMISSION"     // US-P7-04: bài nộp chưa khớp sinh viên (Giảng viên + TA)
+	KindGradingError           Kind = "GRADING_ERROR"            // US-P7-08: bài chấm lỗi (Giảng viên + TA)
+	KindGradingReview          Kind = "GRADING_REVIEW"           // US-P7-08: bài cần xem kỹ (Giảng viên + TA)
 	KindAssignmentDue          Kind = "ASSIGNMENT_DUE"           // US-P7-03: bài tập đã công bố, chưa nộp, hạn trong ≤ 24 giờ (hoặc đang nộp muộn) — sinh viên
 )
 
@@ -93,6 +95,8 @@ const (
 	TierStudentAttention       = 95
 	TierGradeSchemeUnconfirmed = 70
 	TierUnmatchedSubmission    = 60 // SRS FEAT-assignments 4.12
+	TierGradingError           = 28
+	TierGradingReview          = 30
 	TierAssignmentDue          = 41 // SRS FEAT-assignments 4.12: bậc 41 không trùng bậc nào khác trong vai sinh viên
 	TierSessionUnmarked        = 12 // 15 đã là TierExamGradeError: hai mục cùng bậc xếp theo tuổi, mất thứ tự chủ đích (TLR-10)
 )
@@ -106,7 +110,7 @@ func allowed(role Role, k Kind) bool {
 	switch k {
 	case KindStaffAnswerUnread, KindVerifyEmail, KindJoinCode, KindJoinPending, KindExamInProgress, KindExamOpen, KindExamUpcoming, KindExamResult, KindExamAppealReply, KindAssignmentDue:
 		return role == RoleStudent
-	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported, KindStudentAttention, KindGradeSchemeUnconfirmed, KindUnmatchedSubmission:
+	case KindTicket, KindJoinRequest, KindQuestionReview, KindExamGradeError, KindAIConfirm, KindSessionUnmarked, KindPostReported, KindStudentAttention, KindGradeSchemeUnconfirmed, KindUnmatchedSubmission, KindGradingError, KindGradingReview:
 		return role == RoleTeacher || role == RoleTA
 	case KindEmailMismatch, KindCourseSetup, KindExamSimilarity, KindExamAppeal, KindExamPublishHold:
 		return role == RoleTeacher

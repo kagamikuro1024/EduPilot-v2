@@ -238,3 +238,36 @@ func TestSignedGetChecksRole(t *testing.T) {
 		t.Fatalf("giảng viên, id lạ → %d (cần 404)", r.StatusCode)
 	}
 }
+
+// TestReviewRBACMatrix — US-P7-08 AC8: GET/PUT/review kết quả + hàng chờ: TEACHER qua; STUDENT, ADMIN, giảng viên lớp khác 403; chưa đăng nhập 401. TA qua đã được kiểm ở kịch bản contract.
+func TestReviewRBACMatrix(t *testing.T) {
+	c, _ := pubAsgCourse(t)
+	rid := uuid.NewString()
+	base := "/api/v1/courses/" + c.id
+	outsider := tTokenRole(t, uuid.NewString(), auth.RoleTeacher)
+	calls := []struct{ method, path, body string }{
+		{http.MethodGet, base + "/submissions", ""},
+		{http.MethodGet, base + "/grading-results/" + rid, ""},
+		{http.MethodPut, base + "/grading-results/" + rid, `{"version":1}`},
+		{http.MethodPost, base + "/grading-results/" + rid + "/review", `{"version":1}`},
+	}
+	for _, cl := range calls {
+		for name, tok := range map[string]string{"sinh viên": c.sTok, "admin": c.adminTk, "giảng viên lớp khác": outsider} {
+			if r := tDo(t, cl.method, cl.path, tok, cl.body); r.StatusCode != http.StatusForbidden {
+				t.Fatalf("%s %s: %s → %d (cần 403)", cl.method, cl.path, name, r.StatusCode)
+			}
+		}
+		if r := tDo(t, cl.method, cl.path, "", cl.body); r.StatusCode != http.StatusUnauthorized {
+			t.Fatalf("%s %s không token → %d (cần 401)", cl.method, cl.path, r.StatusCode)
+		}
+	}
+	if r := tDo(t, http.MethodGet, base+"/submissions", c.tTok, ""); r.StatusCode != http.StatusOK || r.Header.Get("Cache-Control") != "no-store" {
+		t.Fatalf("giảng viên: hàng chờ → %d, Cache-Control %q", r.StatusCode, r.Header.Get("Cache-Control"))
+	}
+	if r := tDo(t, http.MethodGet, base+"/grading-results/"+rid, c.tTok, ""); r.StatusCode != http.StatusNotFound {
+		t.Fatalf("giảng viên, id lạ → %d (cần 404)", r.StatusCode)
+	}
+}
+
+// TestSignedGetFileRole — AC8: URL ký tệp gốc chỉ phát sau khi kiểm vai (cùng kiểm với TestSignedGetChecksRole, tên theo US-P7-08).
+func TestSignedGetFileRole(t *testing.T) { TestSignedGetChecksRole(t) }

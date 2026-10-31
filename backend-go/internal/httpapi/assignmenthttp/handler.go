@@ -7,6 +7,7 @@ import (
 	"io"
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -52,6 +53,10 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/grade-all", h.gradeAll)
 	r.With(staff, h.Idem).Post("/courses/{id}/submissions/{sid}/grade", h.gradeOne)
 	r.With(staff, h.Idem).Post("/courses/{id}/grading-results/{rid}/retry", h.retryResult)
+	// Duyệt (US-P7-08): chi tiết, sửa tại chỗ, duyệt nháp. Công bố ở US-P7-09 (TEACHER).
+	r.With(staff).Get("/courses/{id}/grading-results/{rid}", h.resultDetail)
+	r.With(staff).Put("/courses/{id}/grading-results/{rid}", h.resultEdit)
+	r.With(staff).Post("/courses/{id}/grading-results/{rid}/review", h.resultReview)
 	// Route của sinh viên (US-P7-03): chỉ STUDENT của lớp (TA / TEACHER / ADMIN 403), mọi phản hồi `Cache-Control: no-store`.
 	r.With(student).Get("/courses/{id}/assignments/{aid}/mine", h.mine)
 	r.With(student).Post("/courses/{id}/assignments/{aid}/submit/presign", h.presign)
@@ -338,21 +343,56 @@ func (h *Handler) listSubmissions(w http.ResponseWriter, r *http.Request) {
 	if !ok {
 		return
 	}
-	if r.URL.Query().Get("match_status") != "UNMATCHED" {
-		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "match_status", Code: "enum", Message: "match_status là UNMATCHED."}))
+	qs := r.URL.Query()
+	if ms := qs.Get("match_status"); ms != "" && ms != "UNMATCHED" && ms != "MATCHED" {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "match_status", Code: "enum", Message: "match_status là MATCHED hoặc UNMATCHED."}))
 		return
 	}
-	pp, perr := httpx.ParsePageParams(r)
-	if perr != nil {
-		apierr.Write(w, r, perr)
+	w.Header().Set("Cache-Control", "no-store")
+	if qs.Get("match_status") == "UNMATCHED" {
+		pp, perr := httpx.ParsePageParams(r)
+		if perr != nil {
+			apierr.Write(w, r, perr)
+			return
+		}
+		out, err := h.Submit.ListUnmatched(r.Context(), course, pp)
+		if err != nil {
+			h.fail(w, r, err)
+			return
+		}
+		httpx.WriteJSON(w, http.StatusOK, out)
 		return
 	}
-	out, err := h.Submit.ListUnmatched(r.Context(), course, pp)
+	f := assignment.QueueFilter{Status: qs.Get("status"), Flag: qs.Get("flag"), Q: qs.Get("q"), Cursor: qs.Get("cursor")}
+	if raw := qs.Get("limit"); raw != "" {
+		n, err := strconv.Atoi(raw)
+		if err != nil || n < 1 || n > httpx.MaxLimit {
+			apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "limit", Code: "range", Message: "limit phải là số nguyên từ 1 đến " + strconv.Itoa(httpx.MaxLimit) + "."}))
+			return
+		}
+		f.Limit = n
+	}
+	if raw := qs.Get("assignment_id"); raw != "" {
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "assignment_id", Code: "uuid", Message: "assignment_id không hợp lệ."}))
+			return
+		}
+		f.AssignmentID = &id
+	}
+	if raw := qs.Get("needs_review"); raw != "" {
+		b, err := strconv.ParseBool(raw)
+		if err != nil {
+			apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "needs_review", Code: "bool", Message: "needs_review là true hoặc false."}))
+			return
+		}
+		f.NeedsReview = &b
+	}
+	out, err := h.Assignments.Queue(r.Context(), course, f)
 	if err != nil {
 		h.fail(w, r, err)
 		return
 	}
-	w.Header().Set("Cache-Control", "no-store")
 	httpx.WriteJSON(w, http.StatusOK, out)
 }
 
@@ -468,4 +508,77 @@ func (h *Handler) retryResult(w http.ResponseWriter, r *http.Request) {
 	}
 	e, err := h.Batches.Retry(r.Context(), course, rid, st.UserID)
 	h.enqueued(w, e, err, r)
+}
+
+func rid(w http.ResponseWriter, r *http.Request) (course, id uuid.UUID, a assignment.Actor, ok bool) {
+	course, _, a, ok = ids(w, r)
+	if !ok {
+		return
+	}
+	var err error
+	if id, err = uuid.Parse(chi.URLParam(r, "rid")); err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return course, id, a, false
+	}
+	return course, id, a, true
+}
+
+func (h *Handler) resultDetail(w http.ResponseWriter, r *http.Request) {
+	course, id, _, ok := rid(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Assignments.ResultDetail(r.Context(), course, id)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) resultEdit(w http.ResponseWriter, r *http.Request) {
+	course, id, a, ok := rid(w, r)
+	if !ok {
+		return
+	}
+	var in assignment.EditIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	if in.Version < 1 {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "version", Code: "required", Message: "Thiếu version."}))
+		return
+	}
+	out, err := h.Assignments.EditResult(r.Context(), a, course, id, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) resultReview(w http.ResponseWriter, r *http.Request) {
+	course, id, a, ok := rid(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		Version int32 `json:"version"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	if in.Version < 1 {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "version", Code: "required", Message: "Thiếu version."}))
+		return
+	}
+	out, err := h.Assignments.Review(r.Context(), a, course, id, in.Version)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
 }
