@@ -1,5 +1,5 @@
 # SRS FEAT-assignments Bài tập: tạo, nộp (trong app, ZIP, thư, Teams), chấm AI nháp, duyệt, công bố vào sổ điểm, phúc khảo, seed sprint 9
-Phiên bản 1.1 · 2026-11-01 · Trạng thái: **DRAFT** (đã sửa theo `TL-REVIEW.md` TLR-1…20 — PM chấp nhận cả 20, TLR-3 phương án A, TLR-14 phương án A —, `proposals.md` sprint 9 #1–#6 theo quyết định PM và `proposals.md` sprint 8 #20; chờ PM đánh APPROVED)
+Phiên bản 1.1 · 2026-11-01 · Trạng thái: **APPROVED** (PM, 2026-10-31; thay đổi sau mốc này chỉ qua `proposals.md`) (đã sửa theo `TL-REVIEW.md` TLR-1…20 — PM chấp nhận cả 20, TLR-3 phương án A, TLR-14 phương án A —, `proposals.md` sprint 9 #1–#6 theo quyết định PM và `proposals.md` sprint 8 #20; chờ PM đánh APPROVED)
 
 Nguồn: `docs/phases/P7.md` (L0–L4), `docs/sprints/9/plan.md` story 1–12; PRD M8, M11, M13-A, M14, §3, §5; FLOWS F9, F11, F14, F15; `ARCHITECTURE.md` §2 (Submission Sources, mock-graph), §4 (`00017`), §5, §7, §8, §9; `SYSTEM_DESIGN.md` §3.1 (làn), §3.3 (file), §3.4 (Streams), §5 (SLO); `DECISIONS.md` D5, D36–D38, D44–D47, D51, D59; `design/DESIGN.md` §13, §14.12, §14.13, §14.24; `UX.md` mục 1–6; `AGENTS.md` luật 2–5, 10–15, luật chữ UI; `FEAT-gradebook` (APPROVED), `FEAT-escalation-notify`, `FEAT-llm-gateway`, `FEAT-docs-calendar`, `FEAT-course-foundation` 4.7, `FEAT-crm-360` 7.6, `FEAT-weekly-exam` (mẫu).
 
