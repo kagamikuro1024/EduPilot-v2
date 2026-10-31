@@ -52,7 +52,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-05 (AC1–AC9) + `SRS.md` 2, 3,
 ## Nhánh lỗi (SRS mục 3)
 | TC-id | Tình huống | Bước | Kết quả mong đợi |
 | --- | --- | --- | --- |
-| TC-P6-05-44 | `status` ở lớp không thuộc tài khoản | giảng viên lớp khác gọi `$Q/grade-scheme/status` | `404` |
+| TC-P6-05-44 | `status` ở lớp không thuộc tài khoản | giảng viên lớp khác gọi `$Q/grade-scheme/status` | `403` (#11) |
 | TC-P6-05-45 | Redis mất khoá nhắc | xoá `ep:grade.remind:*` giữa hai lần chạy cùng tuần | khử trùng ở mức thông báo (`grade.scheme_reminder:{course}:{yyyyww}:{user}`) vẫn chặn gửi trùng — chuông không đôi |
 | TC-P6-05-46 | Hai worker cùng chạy | khởi hai worker; chạy job đồng thời | đúng một chuông mỗi (lớp, tuần, giảng viên) — khoá leader `ep:lock:grade.remind` |
 
@@ -67,4 +67,4 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-05 (AC1–AC9) + `SRS.md` 2, 3,
 - Q-05-b (TC-P6-05-28): chưa biết cách tạo lớp `ARCHIVED` trong stack seed; nếu không có API → ca dựa vào Go test.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-05-44 `404` → `403`.

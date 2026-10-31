@@ -57,7 +57,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-03 (AC1–AC10) + `SRS.md` 3, 4
 | TC-id | Tình huống | Bước | Kết quả mong đợi |
 | --- | --- | --- | --- |
 | TC-P6-03-44 | TA / STUDENT / ADMIN gọi `extract` | `for T in "$TA_" "$SVA" "$ADM"; do code -X POST -H "$T" -H "$(idem)" -H 'Content-Type: application/json' -d "{\"document_id\":\"$POLICY1\"}" $Q/grade-scheme/extract; done` | `403 403 403`; không job, không dòng `llm_audit` mới |
-| TC-P6-03-45 | Giảng viên lớp khác | token giảng viên khác (xem tc-US-P6-01 TC-37) gọi `extract` lớp 1 | `404` |
+| TC-P6-03-45 | Giảng viên lớp khác | token giảng viên khác (xem tc-US-P6-01 TC-37) gọi `extract` lớp 1 | `403` (#11) |
 | TC-P6-03-46 | TA đọc, không sửa | `code -H "$TA_" $Q/grade-scheme` → `200`; `code -X PUT -H "$TA_" … $Q/grade-scheme` → `403` | đúng |
 | TC-P6-03-47 | STUDENT đọc | `code -H "$SVA" $Q/grade-scheme` | `403` (không lộ công thức nháp) |
 | TC-P6-03-48 | `GO` | `GO ./internal/grading "TestExtractRBAC" -tags integration` | PASS |
@@ -69,4 +69,4 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-03 (AC1–AC10) + `SRS.md` 3, 4
 - Q-03-a (TC-P6-03-35): cách bật chế độ "mọi nhà cung cấp lỗi" của provider giả — `FEAT-llm-gateway` có nêu; nếu cần cờ riêng cho P6, dev ghi ở handoff, QC dùng.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-03-45 `404` → `403`.

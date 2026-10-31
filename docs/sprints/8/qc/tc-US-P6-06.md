@@ -75,7 +75,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-06 (AC1–AC13) + `SRS.md` 3, 4
 | --- | --- | --- | --- |
 | TC-P6-06-60 | TA mở `/gradebook` lớp 1 | UI | đọc được bảng, mở `Giải trình`, `Lịch sử`; ô **không** sửa được (hiển thị chữ, không `input` / không con trỏ nhập); **không** `Chốt điểm`, `Nhập từ XLSX`, `Xuất XLSX`, `Mở khoá`, `Công bố cho sinh viên` |
 | TC-P6-06-61 | TA / STUDENT / ADMIN gọi `PUT` | `for T in "$TA_" "$SVA" "$ADM"; do code -X PUT -H "$T" -H 'Content-Type: application/json' -d '{}' $Q/grade-entries; done` | `403 403 403` |
-| TC-P6-06-62 | sinh viên / lớp khác | giảng viên lớp khác `GET $Q/gradebook`; STUDENT `GET $Q/gradebook` | `404`; `403` |
+| TC-P6-06-62 | sinh viên / lớp khác | giảng viên lớp khác `GET $Q/gradebook`; STUDENT `GET $Q/gradebook` | `403`; `403` (#11) |
 | TC-P6-06-63 | `GO` + UI | `GO ./internal/grade "TestGradebookRBAC" -tags integration`; `playwright test gradebook.spec.ts -g 'gradebook rbac'`; `bash docs/sprints/8/qc/scripts/p6-rbac.sh` | PASS; xanh; `RBAC: PASS` |
 
 ## Script chạy được
@@ -86,4 +86,4 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-06 (AC1–AC13) + `SRS.md` 3, 4
 - Q-06-b (TC-P6-06-30): `limit > 100` trả 422 hay kẹp 100. Luật 13 nói `limit ≤ 100`; QC chấp nhận cả hai.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-06-62 `404; 403` → `403; 403`. TC-P6-06-57 giữ `404`/`422` (sinh viên không thuộc lớp trong thân yêu cầu = tài nguyên, không qua guard).

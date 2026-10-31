@@ -68,7 +68,7 @@ Kỳ vọng `errors.xlsx` (mục tiêu `ITEM_MID`; `rows_total = 9` — dòng tr
 | TC-P6-07-54 | Hai `commit` cùng tệp song song, hai khoá khác nhau | `xargs -P2` | kết quả sau cùng bằng một lần commit; không `version` đôi; không deadlock (`5xx`) |
 
 ## Phân quyền
-Phủ ở TC-06, TC-40; thêm: giảng viên lớp khác import → `404`.
+Phủ ở TC-06, TC-40; thêm: giảng viên lớp khác import → `403` (#11).
 
 ## Script chạy được
 `scripts/p6-make-xlsx.py`, `p6-env.sh`, `p6-go-tests.sh`; QC viết ở pha 2: `p6-import.sh` (presign + PUT + preview/commit), `p6-put-race.sh`.
@@ -77,4 +77,4 @@ Phủ ở TC-06, TC-40; thêm: giảng viên lớp khác import → `404`.
 - Q-07-a (TC-P6-07-11): `rows_ok` ở `errors.xlsx` khi dòng 11 (điểm trống): AC3 nói "điểm blank không xoá điểm cũ" nhưng không nói blank tính vào `rows_ok` hay `unchanged`. QC ghi số thực, không FAIL nếu nhất quán và `errors` đúng 6 dòng.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): mục Phân quyền `404` → `403`. TC-P6-07-50, 51 giữ `404` (upload / item của lớp khác trong lớp mà giảng viên thuộc = tài nguyên, không qua guard).

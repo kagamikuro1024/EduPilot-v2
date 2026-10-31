@@ -9,7 +9,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-09 (AC1–AC9) + `SRS.md` 2, 4.
 | TC-P6-09-02 | AC1 | như trên | `j "$Q/me/grades?student_id=$SVC_ID&user_id=$SVC_ID" -H "$SVB"` và `POST` với thân `{"student_id":"<C>"}` | vẫn trả dữ liệu **của B** (`qt 8,25`, không `1,25` của C); tham số bị bỏ qua |
 | TC-P6-09-03 | AC1 | lớp 2 `NO_POLICY`; B (nếu B thuộc lớp 2) hoặc sinh viên lớp 2 | `j $Q2/me/grades -H "$S2"` | `{status:"NO_SCHEME"}` **chỉ** có `status` (không `scheme`, không `components`) |
 | TC-P6-09-04 | AC1 | sau chốt v1 (`FINAL`) | `j $Q/me/grades -H "$SVB"` | `status:"FINAL"`; `final` = `7.0 B` lấy từ **snapshot mới nhất**; sau mở khoá + chốt lại v2 → lấy v2 (QC đổi điểm sv08 → A thấy 9,0; xem tc-08 TC-21) |
-| TC-P6-09-05 | AC1 | — | Sinh viên ngoài lớp (D) gọi `$Q/me/grades` | `403`/`404` theo `CourseAccessGuard`; không dữ liệu |
+| TC-P6-09-05 | AC1 | — | Sinh viên ngoài lớp (D) gọi `$Q/me/grades` | `403` (`CourseAccessGuard`, #11); không dữ liệu |
 | TC-P6-09-06 | AC1 | repo | `GO ./internal/grade "TestMeGradesOwnOnly|TestMeGradesIgnoresStudentParam|TestMeGradesNoSchemeStatus|TestMeGradesNoStore" -tags integration` | PASS |
 | TC-P6-09-07 | AC2 | cột `midterm` **chưa công bố** (`published_at` NULL), điểm B có giá trị 7,50; bài thi tuần 9 `PUBLISHED`, chưa chốt | `j $Q/me/grades -H "$SVB" \| jq '.components'` | thành phần giữa kỳ: `{status:"PENDING"}` — **không có khoá `score`** (kiểm `jq 'has("score")'` = false); `final_exam` cùng cách nếu chưa công bố; mục đã công bố có `score` |
 | TC-P6-09-08 | AC2 | cột giữa kỳ chưa công bố có điểm CANARY 7,77 của B | `j $Q/me/grades -H "$SVB" \| grep -c '7.77\|7,77'` và quét toàn bộ phản hồi STUDENT | `0` — điểm chưa công bố không rò ở bất kỳ trường nào (kể cả `calculation[]`, `qt` — chú ý `qt` **không** được tính trên điểm chưa công bố: khi giữa kỳ chưa công bố, `qt`=null/vắng, "Chưa đủ điểm") |
@@ -39,7 +39,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-09 (AC1–AC9) + `SRS.md` 2, 4.
 | TC-P6-09-32 | AC6 | lớp 1 `CONFIRMED`; B | hỏi "Cách tính điểm môn này thế nào?" | nêu **đúng** thành phần + trọng số (giữa kỳ 20 %, kiểm tra tuần 20 %, cuối kỳ 60 %), điểm cộng (0,25/lần, tối đa 1,0), trừ vắng (miễn 2, 0,5/buổi), làm tròn 0,5; kèm nguồn "Quy chế học phần, tr. N" (N ∈ {1,2} đúng điều); **không** thêm số ngoài công thức; không ticket (`count(AUTO_NO_FORMULA)` không tăng) |
 | TC-P6-09-33 | AC6 | như trên | đổi công thức (xác nhận DRAFT mới có `cap 1,5`) rồi hỏi lại | câu trả lời **theo công thức mới** (trần 1,5), không dùng số cũ cache |
 | TC-P6-09-34 | AC6 | repo | `GO ./internal/agent "TestGradeFormulaFromConfirmedScheme"` | PASS |
-| TC-P6-09-35 | AC7 | A, B, C, D | `for U in SVA SVB SVC; do j $Q/me/grades -H "${!U}" \| jq -c '.qt'; done` | `10.00`·`8.25`·`1.25` (mỗi người của mình); D (chưa vào lớp) `403/404` |
+| TC-P6-09-35 | AC7 | A, B, C, D | `for U in SVA SVB SVC; do j $Q/me/grades -H "${!U}" \| jq -c '.qt'; done` | `10.00`·`8.25`·`1.25` (mỗi người của mình); D (chưa vào lớp) `403` |
 | TC-P6-09-36 | AC7 | — | `for T in "$TA_" "$TCH" "$ADM"; do code -H "$T" $Q/me/grades; done` | `403 403 403` |
 | TC-P6-09-37 | AC7 | STUDENT | gọi mọi route Staff ở `p6-rbac.sh` (nhóm RD/WR) bằng `$SVA` | `403` hết (không route Staff nào mở) |
 | TC-P6-09-38 | AC7 | sau chốt, lấy `snapshot_id` của A (SQL) | B: `GET $Q/gradebook/snapshots/1`, `GET $Q/gradebook/snapshots/<id của A>`, đoán 20 id lân cận | `403`/`404` mọi lần; không rò dòng của A |
@@ -59,10 +59,10 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-09 (AC1–AC9) + `SRS.md` 2, 4.
 | --- | --- | --- | --- |
 | TC-P6-09-48 | `what-if` thiếu cả `final_exam_score` và `target_letter` / có cả hai | `POST …/what-if {}` ; `{…cả hai…}` | `422 VALIDATION_FAILED`, không `5xx` |
 | TC-P6-09-49 | `target_letter` không có trong thang (`"Z"`, `"a+"`) | POST | `422` |
-| TC-P6-09-50 | Sinh viên rời lớp | B rời lớp rồi `GET me/grades` | `403/404`; snapshot cũ vẫn không đọc được bởi người khác |
+| TC-P6-09-50 | Sinh viên rời lớp | B rời lớp rồi `GET me/grades` | `403` (#11); snapshot cũ vẫn không đọc được bởi người khác |
 
 ## Phân quyền
-Phủ: TC-05, 35–38, 27, 28. Thêm: STUDENT lớp 1 gọi `$Q2/me/grades` (không thuộc lớp 2) → `403/404`.
+Phủ: TC-05, 35–38, 27, 28. Thêm: STUDENT lớp 1 gọi `$Q2/me/grades` (không thuộc lớp 2) → `403`.
 
 ## Script chạy được
 `scripts/p6-hand-calc.py`, `p6-go-tests.sh`, `p6-env.sh`, `p6-rbac.sh`; QC pha 2: `p6-student-sweep.sh`.
@@ -71,4 +71,4 @@ Phủ: TC-05, 35–38, 27, 28. Thêm: STUDENT lớp 1 gọi `$Q2/me/grades` (kh�
 - Q-09-a (TC-P6-09-08): `qt` ở `/me` khi một thành phần QT **chưa công bố** — AC2 nói item chưa công bố trả `PENDING`, AC3 nói câu nhận định "Điểm quá trình hiện tại…". QC kỳ vọng `qt` chỉ tính trên điểm **đã công bố** (nếu tính cả điểm chưa công bố là rò rỉ số). Nếu SRS 4.8 khác → báo.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-09-05, 35, 50 và dòng Phân quyền `403/404` → `403`. TC-P6-09-38 (đoán `snapshot_id`) giữ `403`/`404` (tài nguyên).

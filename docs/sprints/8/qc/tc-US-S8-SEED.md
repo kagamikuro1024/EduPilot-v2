@@ -33,8 +33,8 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-S8-SEED (AC1–AC8) + `SRS.md` 4.9
 | TC-P6-SEED-26 | AC7 | repo | `pnpm -C frontend exec playwright test gradebook.spec.ts --workers=2`; ghi số test, flaky | xanh toàn bộ; đi trọn F10: lớp 2 banner + `Chốt điểm` khoá (tooltip) → tải `quy-che-lop2.pdf` → bản nháp mục chưa rõ chặn → điền → hộp thoại có con số → banner biến mất; lớp 1: sửa ô (Enter/Tab) → xem trước đổi → 409 hai phiên → giải trình B → nhập XLSX có dòng lỗi → xuất XLSX (dòng ghi chú) → `Chốt điểm` → ô khoá → `Mở khoá` có lý do → sửa → chốt lại v2 → sinh viên bị đổi nhận chuông → `/me` của B có what-if; TA chỉ đọc; sinh viên không thấy điểm nháp (≥ 3 flaky → FAIL) |
 | TC-P6-SEED-27 | AC7 | repo | `pnpm -C frontend exec playwright test gradebook.spec.ts --list \| grep -c` ; đối chiếu với tên `-g` đã nêu ở mọi US (QC lập danh sách: `scheme review layout`, `unclear blocks confirm`, `scheme edit optimistic`, `impact preview`, `confirm irreversible`, `new policy diff`, `scheme offline retry`, `scheme rbac`, `scheme states`, `scheme mobile`, `banner unconfirmed`, `finalize locked reason`, `attendance notice`, `gradebook layout`, `official note`, `cell edit keys`, `cell conflict choose`, `explain student B`, `virtualized 1000`, `type then scroll keeps text`, `gradebook states`, `offline cell`, `gradebook rbac`, `publish column`, `penalty not in scheme notice`, `import xlsx flow`, `import errors listed`, `unlock reason`, `finalize flow`, `finalize incomplete list`, `lop2 demo step 6`) | mọi tên có ≥ 1 test (không `-g` nào khớp 0 test: Playwright báo "No tests found" → FAIL) |
 | TC-P6-SEED-28 | AC8 | seed | A, B, C: `j $Q/me/grades` của mình đúng; thử chéo `SVB` gọi `$Q/gradebook/students/$SVC_ID/explain` | đúng; chéo `403` |
-| TC-P6-SEED-29 | AC8 | seed; sinh viên D (chưa vào lớp) | đăng nhập D, `GET /courses` / dashboard | không thấy lớp nào; `403/404` ở `$Q/me/grades` |
-| TC-P6-SEED-30 | AC8 | seed | TA: `code -H "$TA_" $Q/gradebook` → `200`; `code -H "$TA_" $Q2/gradebook` (TA không thuộc lớp 2) | `200`; `404` (không thấy lớp 2) — nếu seed gán TA vào cả hai lớp → ghi nhận và đối chiếu `ARCHITECTURE.md` §9 |
+| TC-P6-SEED-29 | AC8 | seed; sinh viên D (chưa vào lớp) | đăng nhập D, `GET /courses` / dashboard | không thấy lớp nào; `403` ở `$Q/me/grades` (#11) |
+| TC-P6-SEED-30 | AC8 | seed | TA: `code -H "$TA_" $Q/gradebook` → `200`; `code -H "$TA_" $Q2/gradebook` (TA không thuộc lớp 2) | `200`; `403` (#11; không thấy lớp 2) — nếu seed gán TA vào cả hai lớp → ghi nhận và đối chiếu `ARCHITECTURE.md` §9 |
 | TC-P6-SEED-31 | AC8 | seed | ADMIN: chạy `p6-rbac.sh` nhóm `[ADM]` | `403` mọi route lớp |
 | TC-P6-SEED-32 | AC8 | seed + CANARY (xem tc-US-P6-09 quy ước) | `p6-student-sweep.sh` | canary không xuất hiện ở phản hồi sinh viên nào |
 | TC-P6-SEED-33 | AC8 | repo | `GO ./internal/integration "TestSeedGradebookExpected|TestSeedGradebookIsolation|TestSeedGradebookAdminForbidden" -tags integration` | PASS |
@@ -56,4 +56,4 @@ Phủ ở TC-28…32.
 - Q-SEED-a (TC-P6-SEED-30): TA có thuộc lớp 2 ở seed không? US-S8-SEED AC8 nói "TA thấy sổ lớp 1, không thấy lớp 2". QC dùng đúng câu đó.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-SEED-29, 30 `403/404`, `404` → `403`.

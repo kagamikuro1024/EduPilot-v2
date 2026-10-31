@@ -60,7 +60,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-04 (AC1–AC10) + `SRS.md` 3, 4
 | --- | --- | --- | --- |
 | TC-P6-04-45 | TA mở `/gradebook/scheme` | `playwright-cli` đăng nhập `ta@`; mở trang lớp 1 và lớp 2 | thấy công thức / bản nháp + trích dẫn **chỉ đọc**; **không** thấy `Xác nhận công thức`, `Tải quy chế`, ô điền (`input` count trong vùng công thức = 0) |
 | TC-P6-04-46 | STUDENT mở route | đăng nhập `sv.gioi@`; mở `/gradebook/scheme` | trang 403 chuẩn của shell; **không** có chữ công thức nháp trong DOM (kiểm `page.content()` không chứa "Thi cuối kỳ" / "60"); `code -H "$SVA" $Q/grade-scheme` → `403` |
-| TC-P6-04-47 | Lớp khác | giảng viên lớp khác mở `$Q/grade-scheme` | `404` |
+| TC-P6-04-47 | Lớp khác | giảng viên lớp khác mở `$Q/grade-scheme` | `403` (#11) |
 | TC-P6-04-48 | repo | `playwright test gradebook.spec.ts -g 'scheme rbac'` | xanh |
 | TC-P6-04-49 | ADMIN | `code -H "$ADM" $Q/grade-scheme` | `403` |
 
@@ -72,4 +72,4 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-04 (AC1–AC10) + `SRS.md` 3, 4
 - Q-04-b (TC-P6-04-11): `12,5` làm trọng số có hợp lệ không (cột `numeric(5,2)` cho phép)? QC ghi nhận hành vi thực; không FAIL nếu nhất quán với `weight BETWEEN 0 AND 100`.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-04-47 `404` → `403`.

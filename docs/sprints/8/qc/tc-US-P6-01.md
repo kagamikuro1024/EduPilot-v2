@@ -49,9 +49,11 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-01 (AC1–AC7) + `SRS.md` mục
 | TC-id | Tình huống | Bước | Kết quả mong đợi |
 | --- | --- | --- | --- |
 | TC-P6-01-36 | Ma trận 20 route × 5 vai | `bash docs/sprints/8/qc/scripts/p6-rbac.sh` | `RBAC: PASS`, 0 dòng FAIL: STUDENT chỉ `…/me/grades` (+ `what-if`); TA `GET` được, ghi `403`; TEACHER qua cổng; ADMIN `403` mọi route lớp; không đăng nhập `401` |
-| TC-P6-01-37 | Giảng viên lớp khác (nếu có tài khoản thứ hai; nếu seed không có, tạo qua API admin + gán lớp khác) | `GET $Q/gradebook`, `PUT $Q/grade-entries`, `POST $Q/gradebook/finalize` bằng token giảng viên đó | `404` (không lộ lớp tồn tại) |
+| TC-P6-01-37 | Giảng viên lớp khác (nếu có tài khoản thứ hai; nếu seed không có, tạo qua API admin + gán lớp khác) | `GET $Q/gradebook`, `PUT $Q/grade-entries`, `POST $Q/gradebook/finalize` bằng token giảng viên đó | `403` (như mọi người ngoài lớp; uuid lớp không tồn tại cũng `403` — #11) |
 | TC-P6-01-38 | Mọi route lớp qua `CourseAccessGuard` | `GO ./internal/server "TestAllCourseRoutesGuarded"`; QC thêm: `grep -n 'grade-scheme\|gradebook\|grade-entries\|grade-items\|me/grades' backend-go/api/openapi.yaml \| wc -l` | PASS; mọi route ở SRS 6 xuất hiện trong `openapi.yaml` (đếm ≥ 19 operation; thiếu một → FAIL luật 7) |
 | TC-P6-01-39 | `GO` RBAC | `GO ./internal/grade "TestRBACMatrix" -tags integration` | `RESULT: PASS` |
+| TC-P6-01-40 | `CourseAccessGuard` đồng nhất (#11) | Người ngoài lớp và lớp không tồn tại | `code -H "$TCH2" $Q/gradebook` (giảng viên không thuộc lớp 1); `code -H "$TCH" $GW/api/v1/courses/00000000-0000-7000-8000-000000000999/gradebook` (uuid hợp lệ, lớp không tồn tại); `code -H "$SVA" $GW/api/v1/courses/<uuid lớp không có SVA>/me/grades` | `403 403 403` — cùng mã cho "ngoài lớp" và "không tồn tại" (không lộ tồn tại) |
+| TC-P6-01-41 | id không phải uuid (#11) | — | `code -H "$TCH" $GW/api/v1/courses/khong-phai-uuid/gradebook`; `…/courses/123/me/grades` | `404` |
 
 ## Script chạy được
 `docs/sprints/8/qc/scripts/p6-env.sh`, `p6-rbac.sh`, `p6-go-tests.sh`.
@@ -60,4 +62,4 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-01 (AC1–AC7) + `SRS.md` mục
 - Không có.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-01-37 `404` → `403`; thêm TC-P6-01-40, 41 (uuid lớp không tồn tại → `403`; id không phải uuid → `404`). TC-P6-01-32 giữ `404` (giảng viên thuộc lớp 2, item không thuộc lớp 2 → tài nguyên không có, không qua guard).

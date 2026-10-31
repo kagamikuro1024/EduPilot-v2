@@ -23,7 +23,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-08 (AC1–AC10) + `SRS.md` 3, 4
 | TC-P6-08-16 | AC4 | như trên | `curl -X POST $Q/gradebook/unlock -H "$TCH" -H "$(idem)" -d '{"reason":"Phúc khảo sv04: sửa điểm giữa kỳ"}'` | `200`; `gradebooks.status='OPEN'`, `unlock_reason` lưu đúng, `unlocked_by` = teacher, `unlocked_at`; `audit_log` có dòng `unlock`; `SNAP(1)` không đổi |
 | TC-P6-08-17 | AC4 | sổ `LOCKED` | `reason` thiếu / `""` / 9 ký tự / 501 ký tự / chỉ khoảng trắng (10 dấu cách) | `422 VALIDATION_FAILED` mọi ca; chốt biên: đúng 10 và đúng 500 ký tự → `200` |
 | TC-P6-08-18 | AC4 | sổ `OPEN` | `unlock` | `409 NOT_LOCKED` |
-| TC-P6-08-19 | AC4 (phân quyền) | — | `for T in "$TA_" "$SVA" "$ADM"`: `finalize` và `unlock` | `403` 6/6; giảng viên lớp khác → `404` |
+| TC-P6-08-19 | AC4 (phân quyền) | — | `for T in "$TA_" "$SVA" "$ADM"`: `finalize` và `unlock` | `403` 6/6; giảng viên lớp khác → `403` (#11) |
 | TC-P6-08-20 | AC4 | repo | `GO ./internal/grade "TestUnlockRequiresReason|TestUnlockWhenOpen|TestUnlockAudit|TestUnlockRBAC" -tags integration`; `playwright test gradebook.spec.ts -g 'unlock reason'` | PASS; xanh |
 | TC-P6-08-21 | AC5 | đã mở khoá (TC-16); lưu `H1=$(SNAP(1) \| md5sum)` | Sửa **hai** ô: (a) sv08 cuối kỳ `8,25 → 9,25` (QC tính: QT 8,25; HP thô (40·8,25+60·9,25)/100 = 8,85 → **9,0 A+**; trước đó 8,25 → 8,5 A) — sinh viên **đổi**; (b) sv04 giữa kỳ `6,25 → 7,25` (QT₀ 6,625 +0,5 = 7,125; HP thô (285+360)/100 = 6,45 → **6,5 C+**, không đổi so với trước 6,25 → 6,5 C+) — điểm thành phần đổi nhưng `numeric_grade` và `letter` **không** đổi | sửa thành công (200) cả hai; xem trước sv08 `9,0 A+`, sv04 `6,5 C+` (khớp tính tay) |
 | TC-P6-08-22 | AC5 | như trên | `finalize` lần hai | `200 {version:2}`; `snapshot` v2 **30 dòng** mang `unlock_reason` của lần mở khoá; `gradebooks.snapshot_version=2`, `status='LOCKED'` |
@@ -44,7 +44,7 @@ Nguồn: `docs/specs/FEAT-gradebook/US.md` US-P6-08 (AC1–AC10) + `SRS.md` 3, 4
 | TC-P6-08-37 | AC9 | sau chốt | UI | đầu bảng "Đã chốt v1 · {thời điểm}"; ô khoá; `Mở khoá` ở menu; **không** toast "Thành công"; dòng ghi chú cố định vẫn có (đúng 1) |
 | TC-P6-08-38 | AC9 | UI | `finalize` khi 409 | hiển thị nguyên nhân + liên kết (thiếu điểm → danh sách); chữ tiếng Việt, không mã thô |
 | TC-P6-08-39 | AC9 | repo | `playwright test gradebook.spec.ts -g 'finalize flow\|finalize incomplete list'` | xanh |
-| TC-P6-08-40 | AC10 | sau chốt | `for T in "$TA_" "$SVA" "$ADM"; do code -X POST -H "$T" -H "$(idem)" $Q/gradebook/finalize; done`; giảng viên lớp khác | `403 403 403`; `404` |
+| TC-P6-08-40 | AC10 | sau chốt | `for T in "$TA_" "$SVA" "$ADM"; do code -X POST -H "$T" -H "$(idem)" $Q/gradebook/finalize; done`; giảng viên lớp khác | `403 403 403`; `403` (#11) |
 | TC-P6-08-41 | AC10 | sinh viên B | `GET $Q/gradebook/snapshots/1` bằng `$SVB`; đoán `snapshot_id` của A | `403`/`404`; **không** dòng của A (IDOR); xem tc-US-P6-09 |
 | TC-P6-08-42 | AC10 | repo | `GO ./internal/grade "TestFinalizeRBAC" -tags integration` | PASS |
 
@@ -68,4 +68,4 @@ Phủ ở TC-19, TC-40, TC-41; thêm `p6-rbac.sh` đã gồm `finalize`/`unlock`
 - Q-08-a (TC-P6-08-36): ví dụ "2 sinh viên liệt" ở AC9 — theo CSV lớp 1 chỉ sv20 liệt (`LIET:final<3.0`); sv.nguyco = F nhưng **không liệt** (F do thang chữ). QC kỳ vọng "1 sinh viên liệt" và đếm chữ F riêng ("F 3": C, sv20, sv26). Nếu BA định nghĩa "liệt" gồm mọi F → báo.
 
 ## Lịch sử sửa TC
-(chưa có)
+- 2026-10-31 — **proposal #11 ACCEPTED** (spec đổi: ngoài lớp → `403`, id không phải uuid → `404`): TC-P6-08-19, TC-P6-08-40 `404` → `403`.

@@ -31,7 +31,7 @@ Nguồn: `docs/phases/P6.md` (cổng nghiệm thu, "Bạn tự kiểm"), `docs/s
 | ID | Mục | TC | Kết quả mong đợi |
 | --- | --- | --- | --- |
 | G6-19 | **Dữ liệu nhạy cảm:** STUDENT (API trực tiếp, `/me`, chat, Threads) không thấy điểm nháp / cột chưa công bố / điểm học phần trước khi chốt / `unlock_reason` / ghi chú / nhãn rủi ro; canary 0 | TC-P6-09-07…12, 27, 28; TC-P6-SEED-32 | `0` canary (`CANARY-GRADE-7Q`) ở mọi phản hồi/DOM sinh viên |
-| G6-20 | **Phân quyền ma trận 20 route × 5 vai** (SRS 2): STUDENT chỉ `me/*`; TA `GET`; TEACHER đủ; ADMIN `403`; không đăng nhập `401`; lớp khác `404`; ghi/chốt/xuất/xác nhận/nhập chỉ TEACHER | TC-P6-01-36…39; `bash docs/sprints/8/qc/scripts/p6-rbac.sh` | `RBAC: PASS`; `TestAllCourseRoutesGuarded` PASS; mọi route trong `openapi.yaml` |
+| G6-20 | **Phân quyền ma trận 20 route × 5 vai** (SRS 2): STUDENT chỉ `me/*`; TA `GET`; TEACHER đủ; ADMIN `403`; không đăng nhập `401`; ngoài lớp (kể cả uuid lớp không tồn tại) `403`, id không phải uuid `404` (#11); ghi/chốt/xuất/xác nhận/nhập chỉ TEACHER | TC-P6-01-36…39; `bash docs/sprints/8/qc/scripts/p6-rbac.sh` | `RBAC: PASS`; `TestAllCourseRoutesGuarded` PASS; mọi route trong `openapi.yaml` |
 | G6-21 | **Toàn vẹn điểm:** snapshot bất biến (UPDATE/DELETE/TRUNCATE chặn), chốt = một giao dịch, 409 thiếu điểm → 0 snapshot, đua `PUT` × `finalize` 20 lần không snapshot lẻ, mọi `PUT` điểm có `audit_log` (fail-closed) | TC-P6-01-14…19; TC-P6-08-01…34; TC-P6-06-43…45 | đúng |
 | G6-22 | **AI chỉ nháp:** `ConfirmScheme` chỉ từ handler; seed xác nhận bằng TEACHER qua HTTP; mục "chưa rõ" chặn; chỉ TEACHER xác nhận / chốt / xuất / mở khoá | TC-P6-03-25…28; TC-P6-04-08, 23; TC-P6-SEED-03 | đúng |
 | G6-23 | **Không LLM tính điểm / thời gian học không vào điểm:** `grep` cổng; `go list -deps`; thử `study_time_daily` rất cao không đổi điểm; prompt trích công thức không chứa số điểm sinh viên | TC-P6-02-14…21; TC-P6-01-30; TC-P6-09-44 | đúng |
@@ -49,3 +49,5 @@ Nguồn: `docs/phases/P6.md` (cổng nghiệm thu, "Bạn tự kiểm"), `docs/s
 
 ## Lịch sử sửa
 (chưa có)
+
+- 2026-10-31 — **proposal #11 ACCEPTED**: G6-20 "lớp khác `404`" → "`403` (id không phải uuid `404`)".
