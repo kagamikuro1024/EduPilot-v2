@@ -333,7 +333,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className={s.sideFoot}>
-          {!collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}
+          {demo && !collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}
           {!mid && (
             <button type="button" className={s.collapse} onClick={() => setPrefCollapsed(!prefCollapsed)} aria-expanded={!prefCollapsed} aria-controls="sidebar-nav" aria-label={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}>
               {collapsed ? <PanelLeft aria-hidden /> : <PanelLeftClose aria-hidden />}
@@ -344,7 +344,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       )}
 
-      <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
+      {demo && <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>}
       {role === "student" && realCourseId && <StudyTimeTracker />}
       {demo && (
         <Suspense fallback={null}>
