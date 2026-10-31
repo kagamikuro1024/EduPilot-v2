@@ -23,3 +23,10 @@ Nhánh `sprint/8-p6`. Spec: US-P6-03 AC1–AC10, SRS 4.2, 6.1 #1. Proposals: #9 
 ## Cần hỏi / nợ
 - **#11** (404 → 403 ngoài lớp) chờ PM.
 - Tool nhận `GET …/grade-scheme` (TC-46/47) thuộc US-P6-04.
+
+## Vòng 2 (sau QC FAIL vòng 1 — commit `05633308`, push cùng US-P6-05)
+- **BUG-P6-03-1** (`TestNoUnscopedChunkQuery`): `GradeDocForExtract` không còn chạm `content_chunks`; đọc văn bản tài liệu qua `DocChunks` (đường ĐỌC đã có trong danh sách cho phép, lọc `document_id` + `course_ids`) — `grade.DocPages`. Kiểm độ dài: `DocPages(maxChars)` dừng khi vượt trần (`POLICY_TOO_LONG`). `GradeDocPages` bị xoá. Test cũ không đổi.
+- **BUG-P6-03-2** (`TestKnowledgeDocExcludedEverywhere`): mọi truy vấn `from documents` trong `grade_scheme.sql` (`GradeDocForExtract`, `GradeStatusFacts`) có `d.category is distinct from 'THREAD_KNOWLEDGE'`.
+- **BUG-P6-03-3** (số thao tác OpenAPI): proposals #12 ACCEPTED, số cuối là 228 sau P6-05, 232 sau P6-04.
+- `GradeCitationsCheck` nay nhận văn bản trang làm tham số (`vn_fold` vẫn ở SQL, không có `vnFold` ở Go); `grade.VerifyCitations` dùng chung.
+- Kiểm: `go test -tags testroutes ./internal/contract ./internal/integration ./internal/rag` (xem dòng kết quả ở handoff US-P6-04).
