@@ -9,6 +9,7 @@ import {
   CHANNELS, CHANNEL_LABEL, createAssignment, deleteAssignment, fromUnits, publishAssignment, putRubric, suggestRubric, sumUnits, toUnits, updateAssignment, useAssignment, vi,
   type Assignment, type AssignmentInput, type Channel, type RubricIn,
 } from "./assignmentApi";
+import { useAssignmentStats } from "@/features/grading/gradingApi";
 import s from "./Assignments.module.css";
 
 type Row = { id?: string; name: string; max: string; guidance: string };
@@ -78,6 +79,14 @@ function bodyOf(f: Form): AssignmentInput {
  * Tạo / sửa MỘT bài tập (US-P7-02): trường theo AC2, tiêu chí theo AC3, `Gợi ý tiêu chí` (AC4), `Công bố bài` (AC5), xoá (AC7).
  * TA mở chỉ để xem (trừ `Gợi ý tiêu chí`, không lưu). Chữ đã gõ tự lưu vào máy mỗi 2 giây và không bao giờ mất (AC9).
  */
+/** Một dòng số của bài ĐÃ CÔNG BỐ (US-P7-09 AC5) — không phải thẻ KPI. */
+function Stats({ courseId, id }: { courseId: string; id: string }) {
+  const q = useAssignmentStats(courseId, id, true);
+  if (!q.data) return null;
+  const d = q.data;
+  return <p className={s.link} data-part="assignment-stats">{`Đã nộp ${d.submitted} · Đã chấm ${d.graded} · Đã duyệt ${d.reviewed} · Đã công bố ${d.published}`}</p>;
+}
+
 export function AssignmentDrawer({ courseId, teacher, id, userId, onClose, onSaved, onDeleted }: {
   courseId: string;
   teacher: boolean;
@@ -388,6 +397,8 @@ export function AssignmentDrawer({ courseId, teacher, id, userId, onClose, onSav
                 </p>
               </div>
             </div>
+
+            {published && <Stats courseId={courseId} id={id!} />}
 
             {!creating && (
               <p className={s.link} data-part="grade-link">

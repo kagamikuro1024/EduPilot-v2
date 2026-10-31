@@ -7,7 +7,7 @@ import { checkSubmissionFile, uploadSubmissionFile } from "@/shared/data/uploadF
 import { Markdown } from "@/shared/domain";
 import { Button, DefinitionList, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton } from "@/shared/ui";
 import { WD, dayLabel, fmtDM, fmtHM, fmtLong } from "@/features/calendar/calendarApi";
-import { completeSubmission, dueLabel, mineKey, useMine, vi, type MineOut } from "./assignmentApi";
+import { completeSubmission, dueLabel, mineKey, useMine, vi, type MineOut, type MineResult } from "./assignmentApi";
 import s from "./StudentAssignment.module.css";
 
 // Vé tải lên còn hạn 15 phút: CHỈ siêu dữ liệu (không tệp, không token) để lần mở sau hoàn tất được (AC6).
@@ -50,6 +50,34 @@ export function StudentAssignment({ courseId, id }: { courseId: string; id: stri
         </PageState>
       </Panel>
     </Page>
+  );
+}
+
+/** Kết quả ĐÃ CÔNG BỐ (US-P7-09 AC6): chỉ thứ sinh viên được thấy — không cờ, không điểm AI, không chữ "nháp". */
+function Result({ r }: { r: MineResult }) {
+  return (
+    <PanelSection title="Kết quả">
+      <div data-part="result">
+        <p className={s.total} data-part="result-total">{`${vi(r.total)} / ${vi(r.max)}`}</p>
+        {r.criteria.map((c) => (
+          <div key={c.name} className={s.crit} data-part="result-criterion">
+            <p className={s.critHead}>
+              <span>{c.name}</span>
+              <span className={s.critScore}>{`${vi(c.score)} / ${vi(c.max)}`}</span>
+            </p>
+            {c.comment && <p className={s.critText}>{c.comment}</p>}
+            {c.evidence.map((q) => (
+              <blockquote key={q} className={s.quote} data-part="result-evidence">
+                {q}
+              </blockquote>
+            ))}
+          </div>
+        ))}
+        {r.late && <p className={s.critText} data-part="result-late">{`Trừ nộp muộn: −${vi(r.late.penalty)} điểm`}</p>}
+        {r.overall_feedback && <p className={s.critText} data-part="result-overall">{r.overall_feedback}</p>}
+        <p className={s.status}>{r.label}</p>
+      </div>
+    </PanelSection>
   );
 }
 
@@ -152,6 +180,7 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
 
   return (
     <>
+      {data.result && <Result r={data.result} />}
       <PanelSection title="Đề bài">
         <Markdown source={a.description} />
       </PanelSection>

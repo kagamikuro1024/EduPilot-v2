@@ -69,7 +69,9 @@ export function useSchemeEditor(course: string, server: SchemeDoc | null) {
             setNotice("Có người vừa sửa công thức. Đã tải bản mới.");
             setState("idle");
           } else if (!retryable(e)) {
-            setErrors(fieldErrors(e));
+            const fe = fieldErrors(e);
+            // lỗi gắn bài tập không đi theo `details[]`: hiện ngay tại dòng item
+            setErrors(Object.keys(fe).length > 0 ? fe : e instanceof ApiError ? { items: e.userMessage } : {});
             setState("error");
           } else {
             pending.current ??= w;

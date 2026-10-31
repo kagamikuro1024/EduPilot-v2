@@ -189,7 +189,37 @@ export type Mine = {
   assignment: { id: string; title: string; description: string; due_at: string; max_score: string; criteria: Array<{ id: string; name: string; max_score: string }>; allow_late: boolean; late_penalty_per_day: string; late_max_days: number; appeal_days: number };
   submission: MineSub | null;
   state: string;
+  result?: MineResultFx | null;
 };
+
+export type MineResultFx = {
+  status: "PUBLISHED";
+  total: string;
+  max: string;
+  criteria: Array<{ name: string; score: string; max: string; comment: string; evidence: string[] }>;
+  overall_feedback: string;
+  late: { days: number; penalty: string } | null;
+  published_at: string;
+  label: string;
+  appeal: { state: "NONE" | "OPEN" | "UPHELD" | "ADJUSTED"; closes_at: string | null; response: string | null };
+};
+
+/** Kết quả đã công bố của sinh viên (US-P7-09 AC6). */
+export const mineResult = (over: Partial<MineResultFx> = {}): MineResultFx => ({
+  status: "PUBLISHED",
+  total: "6.5",
+  max: "10",
+  criteria: [
+    { name: "Phát hiện dấu hiệu", score: "4", max: "6", comment: "Nêu đủ ba dấu hiệu.", evidence: ["Nhật ký cho thấy ba lần đăng nhập sai liên tiếp"] },
+    { name: "Đề xuất xử lý", score: "3", max: "4", comment: "Thiếu bước khoá tài khoản.", evidence: [] },
+  ],
+  overall_feedback: "Bài nắm được chuỗi tấn công.",
+  late: { days: 1, penalty: "0.5" },
+  published_at: "2026-10-31T03:00:00.000Z",
+  label: "Nhận xét · đã được giảng viên duyệt",
+  appeal: { state: "NONE", closes_at: null, response: null },
+  ...over,
+});
 
 export const mineOut = (over: Partial<Mine> = {}): Mine => ({
   assignment: {
@@ -209,6 +239,7 @@ export const mineOut = (over: Partial<Mine> = {}): Mine => ({
   },
   submission: null,
   state: "NOT_SUBMITTED",
+  result: null,
   ...over,
 });
 
@@ -491,7 +522,7 @@ export async function gradingApi(p: Page, opts: GOpts = {}) {
     const body = req.postData() ?? "";
     const tail = path.replace(/^\/courses\/[^/]+\//, "");
     const rid = tail.startsWith("grading-results/") ? tail.split("/")[1] : "";
-    const key = `${req.method()} ${tail.replace(/grading-results\/[^/]+/, "grading-results/:id").replace(/submissions\/[^/]+/, "submissions/:id").replace(/assignments\/[^/]+/, "assignments/:id")}`;
+    const key = `${req.method()} ${tail.replace(/grading-results\/(?!publish)[^/]+/, "grading-results/:id").replace(/submissions\/[^/]+/, "submissions/:id").replace(/assignments\/[^/]+/, "assignments/:id")}`;
     if (!skipCustom) calls.push({ method: req.method(), path: path + url.search, body, headers: req.headers() });
     const custom = opts.h?.[key];
     if (custom && !skipCustom) return custom(route, (r) => handle(r, true));
@@ -560,12 +591,41 @@ export async function gradingApi(p: Page, opts: GOpts = {}) {
       rows = rows.map((r) => (r.id === v.submission.id && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", needs_review: false } } : r));
       return route.fulfill(j(v));
     }
+    if (key === "POST grading-results/publish") {
+      const b = JSON.parse(body) as { result_ids?: string[]; versions?: Record<string, number> };
+      const ids = new Set(b.result_ids ?? []);
+      const bad = rows.filter((r) => r.result && ids.has(r.result.id) && r.result.status !== "REVIEWED");
+      if (bad.length > 0) return route.fulfill(e(422, "NOT_REVIEWED", { ids: bad.map((r) => r.result!.id) }));
+      const stale = rows.filter((r) => r.result && ids.has(r.result.id) && b.versions?.[r.result.id] !== undefined && b.versions[r.result.id] !== r.result.version);
+      if (stale.length > 0) return route.fulfill(e(409, "VERSION_CONFLICT", { ids: stale.map((r) => r.result!.id) }));
+      rows = rows.map((r) => (r.result && ids.has(r.result.id) ? { ...r, result: { ...r.result, status: "PUBLISHED", needs_review: false } } : r));
+      return route.fulfill(j({ published: ids.size, skipped: 0 }));
+    }
+    if (key === "GET assignments/:id/stats") return route.fulfill(j({ submitted: 3, graded: 3, reviewed: 2, published: 1, mean_abs_deviation: "1", teacher_changed_rate: "0.5", appealed: 0, appeal_rate: null, adjusted: 0, appeal_success_rate: null }));
     if (key === "POST assignments/:id/grade-all") return route.fulfill(j({ job_id: "00000000-0000-7000-8000-0000000e0009", queued: 2 }, 202));
     if (key === "GET submissions/:id/file") return route.fulfill(j({ url: `${BASE_URL}/__blob/bt03.pdf`, expires_in: 300 }));
     return route.fulfill(e(404, "NOT_FOUND"));
   };
 
   await p.route(/\/api\/v1\/courses\/[^/]+\/(submissions|grading-results|assignments)(\?|$|\/)/, (r) => handle(r));
+  // công thức điểm: chỉ cần tên cột của bài để dựng câu hậu quả
+  await p.route(/\/api\/v1\/courses\/[^/]+\/grade-scheme(\?|$)/, (r) =>
+    r.fulfill(
+      j({
+        confirmed: {
+          id: "00000000-0000-7000-8000-0000000b0001",
+          scheme_no: 1,
+          status: "CONFIRMED",
+          version: 2,
+          components: [{ key: "qt", name: "Quá trình", grp: "QT", weight: "40", items: [{ key: "bt03", name: "Bài tập lớn", max_score: "10", source: "ASSIGNMENT", assignment_id: A1 }], citations: [], filled_by_user: false }],
+          rules: [],
+          unclear_items: [],
+          warnings: [],
+        },
+        draft: null,
+      }),
+    ),
+  );
   return {
     calls,
     rows: () => rows,

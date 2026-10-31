@@ -118,10 +118,24 @@ export type MyState = "NOT_SUBMITTED" | "SUBMITTED" | "GRADING" | "GRADED";
 export type MyBrief = { state: MyState; late_days: number; submitted_at: string | null };
 export type StudentListItem = { id: string; title: string; due_at: string; my: MyBrief };
 export type MineSubmission = { version: number; file_name: string; received_at: string; late_days: number };
+export type MineResult = {
+  status: "PUBLISHED";
+  total: string;
+  max: string;
+  criteria: Array<{ name: string; score: string; max: string; comment: string; evidence: string[] }>;
+  overall_feedback: string;
+  late: { days: number; penalty: string } | null;
+  published_at: string;
+  label: string;
+  appeal: { state: "NONE" | "OPEN" | "UPHELD" | "ADJUSTED"; closes_at: string | null; response: string | null };
+};
+
 export type MineOut = {
   assignment: { id: string; title: string; description: string; due_at: string; max_score: string; criteria: Array<{ id: string; name: string; max_score: string }>; allow_late: boolean; late_penalty_per_day: string; late_max_days: number; appeal_days: number };
   submission: MineSubmission | null;
   state: MyState;
+  /** chỉ khác null khi kết quả ĐÃ CÔNG BỐ — không bao giờ có điểm nháp (US-P7-09 AC6) */
+  result: MineResult | null;
 };
 
 export const STATE_LABEL: Record<MyState, string> = { NOT_SUBMITTED: "Chưa nộp", SUBMITTED: "Đã nộp", GRADING: "Đang chấm", GRADED: "Đã có điểm" };

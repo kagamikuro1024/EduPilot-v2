@@ -59,7 +59,7 @@ export function GradingQueue() {
       ) : tab === "unmatched" ? (
         <UnmatchedTab courseId={realCourseId} />
       ) : (
-        <QueueTab courseId={realCourseId} />
+        <QueueTab courseId={realCourseId} teacher={teacher} />
       )}
     </Page>
   );

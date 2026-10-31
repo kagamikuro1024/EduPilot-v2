@@ -3,7 +3,8 @@
 import { FileText, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { Button, IconButton, Input, Select, StatusText } from "@/shared/ui";
-import type { Citation, PutRule, RuleDoc, RuleKind, SchemeDoc, Unclear, Working } from "./gradeApi";
+import { useAssignments } from "@/features/assignments/assignmentApi";
+import type { Citation, PutItem, PutRule, RuleDoc, RuleKind, SchemeDoc, Unclear, Working } from "./gradeApi";
 import s from "./GradeScheme.module.css";
 
 export type BlockId = "components" | "BONUS" | "PENALTY" | "ROUNDING" | "LETTER_SCALE" | "FAIL_CONDITION";
@@ -19,6 +20,65 @@ export const BLOCKS: Array<{ id: BlockId; title: string; short: string }> = [
 const vi = (v: unknown) => String(v ?? "").replace(".", ",");
 const NUM = /^\d{1,3}([.,]\d{1,2})?$/;
 const dot = (t: string) => t.trim().replace(",", ".");
+
+/**
+ * Dòng item của thành phần (SRS 7.5): nguồn `Tự nhập` hoặc `Bài tập`; chọn bài thì điểm tối đa lấy theo bài
+ * (máy chủ từ chối lệch thang: `ASSIGNMENT_SCALE_MISMATCH`). Item lấy từ đề thi chỉ hiện chữ, không đổi ở đây.
+ */
+function ItemRows({ courseId, items, editable, onChange }: { courseId: string; items: PutItem[]; editable: boolean; onChange: (items: PutItem[]) => void }) {
+  const list = useAssignments(courseId);
+  const set = (i: number, patch: Partial<PutItem>) => onChange(items.map((it, j) => (j === i ? { ...it, ...patch } : it)));
+  return (
+    <div className={s.comps} data-part="scheme-items">
+      {items.map((it, i) => (
+        <div key={it.key} className={s.compRow} data-part="scheme-item" data-item={it.key}>
+          <span className={s.value}>{it.name}</span>
+          {it.source === "EXAM" ? (
+            <span className={s.value}>Đề thi</span>
+          ) : editable ? (
+            <>
+              <label className={s.cell}>
+                <span className={s.cellLabel}>Nguồn</span>
+                <Select
+                  value={it.source}
+                  onChange={(e) => {
+                    const src = e.target.value as PutItem["source"];
+                    set(i, src === "ASSIGNMENT" ? { source: src } : { source: src, assignment_id: undefined });
+                  }}
+                >
+                  <option value="MANUAL">Tự nhập</option>
+                  <option value="ASSIGNMENT">Bài tập</option>
+                </Select>
+              </label>
+              {it.source === "ASSIGNMENT" && (
+                <label className={s.cell}>
+                  <span className={s.cellLabel}>Bài tập</span>
+                  <Select
+                    value={it.assignment_id ?? ""}
+                    onChange={(e) => {
+                      const a = list.items.find((x) => x.id === e.target.value);
+                      set(i, { assignment_id: e.target.value || undefined, max_score: a ? a.max_score : it.max_score });
+                    }}
+                  >
+                    <option value="">Chọn bài tập</option>
+                    {list.items.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.title}
+                      </option>
+                    ))}
+                  </Select>
+                </label>
+              )}
+            </>
+          ) : (
+            <span className={s.value}>{it.source === "ASSIGNMENT" ? "Bài tập" : "Tự nhập"}</span>
+          )}
+          <span className={s.value}>{`${vi(it.max_score)} điểm`}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 /** Mục chưa rõ của khối: `components…` → Thành phần; `rules.KIND` → khối của luật đó. */
 export const unclearOf = (items: Unclear[], id: BlockId) => items.filter((u) => (id === "components" ? u.target.startsWith("components") : u.target === `rules.${id}`));
@@ -94,7 +154,7 @@ export function summary(kind: BlockId, r: RuleDoc | PutRule | undefined): string
 
 const quoteOf = (cs: Citation[] | undefined) => cs?.[0];
 
-export function Blocks({ doc, working, editable, errors, selected, onSelect, onChange }: { doc: SchemeDoc; working: Working; editable: boolean; errors: Record<string, string>; selected: BlockId | null; onSelect: (id: BlockId, c: Citation | null) => void; onChange: (w: Working) => void }) {
+export function Blocks({ courseId, doc, working, editable, errors, selected, onSelect, onChange }: { courseId: string; doc: SchemeDoc; working: Working; editable: boolean; errors: Record<string, string>; selected: BlockId | null; onSelect: (id: BlockId, c: Citation | null) => void; onChange: (w: Working) => void }) {
   // Mặc định mọi mục là CHỮ (văn bản để duyệt); ô nhập chỉ hiện ở mục chưa rõ hoặc ở mục giảng viên bấm vào để sửa (DESIGN §14.11).
   const [editing, setEditing] = useState<string | null>(null);
   const setRule = (kind: RuleKind, patch: (r: PutRule | undefined) => PutRule | null) => {
@@ -164,6 +224,8 @@ export function Blocks({ doc, working, editable, errors, selected, onSelect, onC
                         <Trash2 aria-hidden />
                       </IconButton>
                       {editing === `c:${c.key}` && done(`c:${c.key}`)}
+                      {c.items.length > 0 && <ItemRows courseId={courseId} items={c.items} editable={editable} onChange={(items) => setComp(i, { items })} />}
+                      {errors.items && <p className={s.cellError} role="alert">{errors.items}</p>}
                     </div>
                   ) : editable ? (
                     <button key={c.key} type="button" className={s.valueBtn} data-part="edit-value" onClick={() => setEditing(`c:${c.key}`)}>{text}</button>

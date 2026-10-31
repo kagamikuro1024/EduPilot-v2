@@ -6,11 +6,12 @@ import { ListChecks, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, newIdempotencyKey } from "@/shared/data";
 import { checkSubmissionBundle, uploadSubmissionBundle } from "@/shared/data/uploadFile";
-import { Button, type Column, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
+import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useAssignments, vi } from "@/features/assignments/assignmentApi";
+import { useSchemes } from "@/features/gradebook/gradeApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
 import { SOURCE_LABEL } from "./submissionApi";
-import { FLAG_TEXT, gradeAll, importSubmissions, reviewStateText, useQueue, type QueueFilter, type QueueRow, type QueueStatus } from "./gradingApi";
+import { FLAG_TEXT, gradeAll, importSubmissions, publishResults, reviewStateText, useQueue, type QueueFilter, type QueueRow, type QueueStatus } from "./gradingApi";
 import s from "./Grading.module.css";
 
 const STATUS_OPTIONS: Array<{ value: QueueStatus; label: string }> = [
@@ -33,7 +34,7 @@ export const reviewHref = (id: string, f: QueueFilter) => {
 };
 
 /** Tab `Hàng chờ` của `/grading` (US-P7-08 AC1): bảng ảo hoá, lọc mặc định `Cần xem kỹ` + `Chưa duyệt`. */
-export function QueueTab({ courseId }: { courseId: string }) {
+export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boolean }) {
   const qc = useQueryClient();
   const router = useRouter();
   const assignments = useAssignments(courseId);
@@ -44,6 +45,9 @@ export function QueueTab({ courseId }: { courseId: string }) {
   const [busy, setBusy] = useState(false);
   const picker = useRef<HTMLInputElement>(null);
   const running = useRef(false);
+  const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [confirming, setConfirming] = useState(false);
+  const publishIdem = useRef<string | null>(null);
   const relaxed = useRef(false);
 
   const filter: QueueFilter = { assignment_id: assignmentId || undefined, status, needs_review: flagOnly };
@@ -110,6 +114,69 @@ export function QueueTab({ courseId }: { courseId: string }) {
 
   const needAssignment = assignmentId === "" ? "Chọn một bài tập trước." : undefined;
 
+  // ---- công bố hàng loạt (US-P7-09 AC1): chỉ TEACHER, chỉ hàng ĐÃ DUYỆT ---------------------------------------------------
+  const reviewable = rows.filter((r) => r.result?.status === "REVIEWED");
+  const chosen = reviewable.filter((r) => picked.has(r.id));
+  const schemes = useSchemes(courseId, false, teacher && chosen.length > 0);
+  const assignmentIds = new Set(chosen.map((r) => r.assignment.id));
+  const scheme = schemes.data?.confirmed ?? schemes.data?.draft ?? null;
+  const column =
+    assignmentIds.size === 1
+      ? scheme?.components.flatMap((c) => c.items).find((i) => i.assignment_id && assignmentIds.has(i.assignment_id))?.name
+      : undefined;
+  const students = new Set(chosen.map((r) => r.student?.id).filter(Boolean)).size;
+  const consequence = `Công bố ${chosen.length} bài · ${students} sinh viên nhận thư · ${column ? `điểm vào sổ điểm cột ${column}` : "không tính vào sổ điểm"}`;
+
+  const publishNow = () =>
+    void run(async () => {
+      publishIdem.current ??= newIdempotencyKey();
+      const versions: Record<string, number> = {};
+      for (const r of chosen) if (r.result) versions[r.result.id] = r.result.version;
+      try {
+        await publishResults(courseId, { result_ids: chosen.map((r) => r.result!.id), versions }, publishIdem.current);
+      } catch (e) {
+        if (e instanceof ApiError && (e.code === "NOT_REVIEWED" || e.code === "VERSION_CONFLICT" || e.code === "LATE_RECOMPUTED" || e.code === "ALREADY_PUBLISHED")) {
+          const ids = (e.details as { ids?: string[] } | undefined)?.ids ?? [];
+          setConfirming(false);
+          setPicked(new Set());
+          publishIdem.current = null;
+          refresh();
+          setNotice(`${e.userMessage}${ids.length > 0 ? ` ${ids.length} bài cần xem lại.` : ""}`);
+          return;
+        }
+        throw e;
+      }
+      publishIdem.current = null;
+      setConfirming(false);
+      setPicked(new Set());
+      refresh();
+    });
+
+  const allPicked = reviewable.length > 0 && reviewable.every((r) => picked.has(r.id));
+  const pickCol: Column<QueueRow> = {
+    key: "pick",
+    header: (
+      <input
+        type="checkbox"
+        aria-label="Chọn tất cả đã duyệt"
+        checked={allPicked}
+        onChange={() => setPicked(allPicked ? new Set() : new Set(reviewable.map((r) => r.id)))}
+      />
+    ),
+    width: "44px",
+    frozen: true,
+    render: (r) =>
+      r.result?.status === "REVIEWED" ? (
+        <input
+          type="checkbox"
+          aria-label={`Chọn bài của ${r.student?.full_name ?? "sinh viên"}`}
+          checked={picked.has(r.id)}
+          onClick={(ev) => ev.stopPropagation()}
+          onChange={() => setPicked((p) => { const n = new Set(p); if (n.has(r.id)) n.delete(r.id); else n.add(r.id); return n; })}
+        />
+      ) : null,
+  };
+
   const columns: Column<QueueRow>[] = [
     {
       key: "student",
@@ -170,24 +237,6 @@ export function QueueTab({ courseId }: { courseId: string }) {
 
   return (
     <Panel>
-    <PageState
-      query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: rows, refetch: list.refetch }}
-      isEmpty={(d) => (d as QueueRow[]).length === 0}
-      loading={<Skeleton lines={10} />}
-      empty={
-        <EmptyState
-            title="Chưa có bài nộp"
-            icon={<ListChecks aria-hidden />}
-            action={
-              <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment)} title={needAssignment} onClick={() => picker.current?.click()}>
-                Tải bài lên
-              </Button>
-            }
-        />
-      }
-      showTechnical
-    >
-      <>
         <Toolbar
           end={
             <>
@@ -197,6 +246,11 @@ export function QueueTab({ courseId }: { courseId: string }) {
               <Button variant="primary" loading={busy} disabled={Boolean(needAssignment)} title={needAssignment} onClick={gradeAllNow}>
                 Chấm tất cả
               </Button>
+              {teacher && chosen.length > 0 && (
+                <Button variant="primary" onClick={() => setConfirming(true)}>
+                  Công bố
+                </Button>
+              )}
             </>
           }
         >
@@ -251,11 +305,19 @@ export function QueueTab({ courseId }: { courseId: string }) {
             {notice}
           </InlineNotice>
         )}
+    <PageState
+      query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: rows, refetch: list.refetch }}
+      isEmpty={(d) => (d as QueueRow[]).length === 0}
+      loading={<Skeleton lines={10} />}
+      empty={<EmptyState title="Chưa có bài nộp" icon={<ListChecks aria-hidden />} />}
+      showTechnical
+    >
+      <>
         {grading > 0 && <p className={s.progressText} data-part="grading-progress">{`Đang chấm ${grading}/${rows.length} bài`}</p>}
 
         <DataTable
           caption="Hàng chờ chấm bài"
-          columns={columns}
+          columns={teacher && reviewable.length > 0 ? [pickCol, ...columns] : columns}
           rows={rows}
           rowKey={(r) => r.id}
           onRowClick={(r) => router.push(reviewHref(r.id, filter))}
@@ -269,6 +331,15 @@ export function QueueTab({ courseId }: { courseId: string }) {
         />
       </>
     </PageState>
+        <ConfirmIrreversible
+          open={confirming}
+          onClose={() => setConfirming(false)}
+          onConfirm={publishNow}
+          title="Công bố điểm"
+          consequence={consequence}
+          confirmLabel="Công bố"
+          loading={busy}
+        />
     </Panel>
   );
 }

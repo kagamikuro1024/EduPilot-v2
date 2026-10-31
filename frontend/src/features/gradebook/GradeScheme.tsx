@@ -145,7 +145,7 @@ function ReadOnly({ courseId, doc }: { courseId: string; doc: SchemeDoc }) {
     <Panel>
       <div className={s.review}>
         <div className={s.main}>
-          <Blocks doc={doc} working={w} editable={false} errors={{}} selected={sel?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={() => undefined} />
+          <Blocks courseId={courseId} doc={doc} working={w} editable={false} errors={{}} selected={sel?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={() => undefined} />
         </div>
         {wide ? <aside className={s.aside}><CitationPane course={courseId} docId={doc.source_document_id} title={doc.source_title} cite={sel?.cite ?? null} /></aside> : null}
       </div>
@@ -248,7 +248,7 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
           {compare && diff ? (
             <DiffView diff={diff} />
           ) : (
-            ed.working && <Blocks doc={doc} working={ed.working} editable={editable} errors={ed.errors} selected={shown?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={ed.commit} />
+            ed.working && <Blocks courseId={courseId} doc={doc} working={ed.working} editable={editable} errors={ed.errors} selected={shown?.block ?? null} onSelect={(block, cite) => cite && setSel({ block, cite })} onChange={ed.commit} />
           )}
           {!compare && <Preview impact={imp} />}
         </div>

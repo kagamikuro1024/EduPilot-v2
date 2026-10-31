@@ -111,3 +111,20 @@ export const gradeAll = async (course: string, aid: string, idempotencyKey: stri
 
 export const importSubmissions = async (course: string, aid: string, uploadId: string, idempotencyKey: string) =>
   (await apiClient.post<{ created?: number; matched?: number; unmatched?: number; job_id?: string }>(`/courses/${course}/assignments/${aid}/submissions/upload`, { upload_id: uploadId }, { idempotencyKey })).data;
+
+export type PublishInput = { result_ids?: string[]; assignment_id?: string; scope?: "ALL_REVIEWED"; versions?: Record<string, number> };
+
+/** Công bố hàng loạt (chỉ TEACHER). `result_ids` tường minh = all-or-nothing; lỗi mang `details.ids`. */
+export const publishResults = async (course: string, body: PublishInput, idempotencyKey: string) =>
+  (await apiClient.post<{ published: number; skipped: number }>(`/courses/${course}/grading-results/publish`, body, { idempotencyKey })).data;
+
+export type AssignmentStats = { submitted: number; graded: number; reviewed: number; published: number; mean_abs_deviation: string | null; teacher_changed_rate: string | null; appealed: number; appeal_rate: string | null; adjusted: number; appeal_success_rate: string | null };
+
+export const useAssignmentStats = (course: string, aid: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["assignment-stats", course, aid] as const,
+    enabled,
+    staleTime: 10_000,
+    retry: false,
+    queryFn: async ({ signal }) => (await apiClient.get<AssignmentStats>(`/courses/${course}/assignments/${aid}/stats`, { signal })).data,
+  });

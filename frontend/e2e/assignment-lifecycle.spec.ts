@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { A1, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mineOut, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
+import { A1, RECEIVED, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mineOut, mineResult, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -638,7 +638,7 @@ test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Th�
   await gradingApi(page, { rows: [] });
   await page.reload();
   await expect(page.getByText("Chưa có bài nộp")).toBeVisible();
-  await expect(page.locator("[data-ep-panel]").getByRole("button", { name: "Tải bài lên" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tải bài lên" })).toBeVisible();
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await gradingApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
@@ -648,4 +648,74 @@ test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Th�
   const before = api.calls.length;
   await notice.getByRole("button", { name: "Thử lại" }).click();
   await expect.poll(() => api.calls.length).toBeGreaterThan(before);
+});
+
+// ---- US-P7-09: công bố hàng loạt + sinh viên thấy kết quả -------------------------------------------------------------------
+test("publish bulk confirm: chọn bài đã duyệt, xác nhận hậu quả bằng số, dòng đổi sang Đã công bố", async ({ page, context }, info) => {
+  desktopOnly(info);
+  // hàng 1 vẫn DRAFT + cờ (lọc mặc định có việc → không tự nới lọc); hai hàng sau đã duyệt
+  const reviewed = defaultRows().map((r, i) => (i > 0 && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", run_state: "DONE", needs_review: false } } : r));
+  const api = await openQueue(page, context, { rows: reviewed });
+  await page.getByRole("button", { name: "Cần xem kỹ" }).click(); // bỏ lọc cờ
+  await page.getByLabel("Trạng thái").selectOption("REVIEWED");
+  await expect(qRows(page)).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "Công bố" })).toHaveCount(0); // chưa chọn gì
+
+  await qRows(page).first().getByRole("checkbox").check();
+  await qRows(page).nth(1).getByRole("checkbox").check();
+  await expect(page.getByRole("button", { name: "Công bố" })).toBeVisible();
+  await page.getByRole("button", { name: "Công bố" }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toContainText("Công bố 2 bài · 2 sinh viên nhận thư · điểm vào sổ điểm cột Bài tập lớn");
+  await dialog.getByRole("button", { name: "Công bố" }).dblclick();
+  await expect.poll(() => api.calls.filter((c) => c.path.endsWith("/grading-results/publish")).length).toBe(1);
+  const sent = JSON.parse(api.calls.find((c) => c.path.endsWith("/grading-results/publish"))!.body) as { result_ids: string[]; versions: Record<string, number> };
+  expect(sent.result_ids).toHaveLength(2);
+  expect(Object.keys(sent.versions)).toHaveLength(2);
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+  await page.getByLabel("Trạng thái").selectOption("PUBLISHED");
+  await expect(qRows(page).first()).toContainText("Đã công bố");
+});
+
+test("publish bulk conflict: bài bị sửa chen ngang thì cả lô dừng và nói rõ số bài", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const reviewed = defaultRows().map((r, i) => (i > 0 && r.result ? { ...r, result: { ...r.result, status: "REVIEWED", run_state: "DONE", needs_review: false, version: 9 } } : r));
+  await openQueue(page, context, {
+    rows: reviewed,
+    h: { "POST grading-results/publish": (r) => r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { ids: ["00000000-0000-7000-8000-0000000d0002"] } }, 409)) },
+  });
+  await page.getByRole("button", { name: "Cần xem kỹ" }).click();
+  await page.getByLabel("Trạng thái").selectOption("REVIEWED");
+  await qRows(page).first().getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Công bố" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Công bố" }).click();
+  await expect(page.getByText(/1 bài cần xem lại/)).toBeVisible();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+});
+
+test("student sees published result: điểm, tiêu chí, trích dẫn, trừ muộn — không có chữ nháp hay AI", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await asDemo(context, "student");
+  await studentApi(page, { mine: mineOut({ state: "GRADED", submission: { version: 1, file_name: "bt03.pdf", received_at: RECEIVED, late_days: 1 }, result: mineResult() }) });
+  await page.goto(`/assignments/${A1}`);
+  const block = page.locator("[data-part=result]");
+  await expect(block.locator("[data-part=result-total]")).toHaveText("6,5 / 10");
+  await expect(page.locator("[data-part=result-criterion]")).toHaveCount(2);
+  await expect(block).toContainText("4 / 6");
+  await expect(block.locator("[data-part=result-evidence]").first()).toContainText("ba lần đăng nhập sai liên tiếp");
+  await expect(block.locator("[data-part=result-late]")).toHaveText("Trừ nộp muộn: −0,5 điểm");
+  await expect(block).toContainText("Nhận xét · đã được giảng viên duyệt");
+  const text = await page.locator("main").innerText();
+  expect(text).not.toMatch(/nháp|\bAI\b|độ tin cậy|lượt chấm/);
+  await expect(page.getByRole("button", { name: "Yêu cầu xem lại" })).toHaveCount(0); // US-P7-10
+});
+
+test("student grading shows no score: chưa công bố thì chỉ thấy Đang chấm", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await asDemo(context, "student");
+  await studentApi(page, { mine: mineOut({ state: "GRADING", submission: { version: 1, file_name: "bt03.pdf", received_at: RECEIVED, late_days: 0 }, result: null }) });
+  await page.goto(`/assignments/${A1}`);
+  await expect(page.locator("[data-part=submit-status]")).toHaveText("Đang chấm");
+  await expect(page.locator("[data-part=result]")).toHaveCount(0);
+  expect(await page.locator("main").innerText()).not.toMatch(/\d,\d\s*\/\s*10/);
 });
