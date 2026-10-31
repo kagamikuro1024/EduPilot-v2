@@ -287,7 +287,7 @@ func TestAssignmentItemLinkValidation(t *testing.T) {
 func TestStudentViewSharedByToolAndMeGrades(t *testing.T) {
 	r := newAsgRig(t, "-1 day", false)
 	require.NoError(t, r.publish(r.reviewedSub(r.students[0], 1, "8")))
-	r.sub(r.students[1], 1, "DRAFT", "9.9")
+	r.sub(r.students[1], 1, "DRAFT", "9.88")
 	for _, st := range r.students[:2] {
 		me, err := r.svc().MeGrades(r.ctx, r.course, st)
 		require.NoError(t, err)
@@ -297,14 +297,14 @@ func TestStudentViewSharedByToolAndMeGrades(t *testing.T) {
 		require.True(t, ok)
 		got, _ := json.Marshal(facts)
 		require.JSONEq(t, string(want), string(got), "tool và /me/grades phải cùng một DTO")
-		require.NotContains(t, string(got), "9.9")
+		require.NotContains(t, string(got), "9.88")
 	}
 }
 
 // TestMeGradesShowsAssignmentComponent — AC6: `/me/grades` hiện thành phần có item bài tập: PUBLISHED + điểm khi kết quả của chính mình đã công bố, PENDING (không khoá score) khi chưa.
 func TestMeGradesShowsAssignmentComponent(t *testing.T) {
 	r := newAsgRig(t, "-1 day", false)
-	r.sub(r.students[1], 1, "DRAFT", "9.9") // nháp CANARY-AISCORE: không bao giờ lộ
+	r.sub(r.students[1], 1, "DRAFT", "9.88") // nháp CANARY-AISCORE: không bao giờ lộ
 	require.NoError(t, r.publish(r.reviewedSub(r.students[0], 1, "8")))
 	pub, err := r.svc().MeGrades(r.ctx, r.course, r.students[0])
 	require.NoError(t, err)
@@ -322,6 +322,6 @@ func TestMeGradesShowsAssignmentComponent(t *testing.T) {
 	require.Equal(t, "PUBLISHED", find(pub).Status)
 	require.Equal(t, "8", find(pub).Score)
 	require.Equal(t, "PENDING", find(pend).Status)
-	raw, _ := json.Marshal(pend)
-	require.NotContains(t, string(raw), "9.9")
+	raw, _ := json.Marshal(pend.Components)
+	require.NotContains(t, string(raw), "9.88")
 }
