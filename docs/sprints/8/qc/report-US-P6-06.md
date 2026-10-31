@@ -1,4 +1,15 @@
-# QC report — US-P6-06 (`/gradebook`: sổ điểm thật, sửa ô kiểu bảng tính, xem trước tức thì, 409, giải trình, lịch sử, công bố cột, 1.000 dòng) · Kết luận vòng 1: **FAIL** (CI đỏ do chính story: `shell.spec.ts:395` dùng `/gradebook` thật không có API giả; AC1–AC13 PASS ở mức hành vi, có nợ chuyển đo ở stack)
+# QC report — US-P6-06 (`/gradebook`: sổ điểm thật, sửa ô kiểu bảng tính, xem trước tức thì, 409, giải trình, lịch sử, công bố cột, 1.000 dòng) · Kết luận vòng 2: **PASS** (xem "Vòng 2"). Vòng 1: **FAIL** (CI đỏ do chính story: `shell.spec.ts:395` dùng `/gradebook` thật không có API giả; AC1–AC13 PASS ở mức hành vi, có nợ chuyển đo ở stack)
+
+## Vòng 2 (2026-10-31, `sprint/8-p6` @ `13646f87`)
+| Lỗi vòng 1 | Vòng 2 |
+| --- | --- |
+| BUG-P6-06-1 `shell.spec.ts:395` đỏ | **ĐÃ SỬA** (#23: `shell.spec` 375 / 400 / 405 → `/analytics`, không đổi assertion); QC chạy `gradebook.spec shell.spec tokens.spec` → 71 passed, 0 failed (gồm `regression-1.5`); CI run `41202190312` **success** (mọi job xanh) |
+| BUG-P6-06-2 tự sửa test trước ACCEPTED | đóng (#22 ACCEPTED, PM ghi lỗi quy trình lần 4) |
+| BUG-P6-06-3 `private-chat.spec:219` flaky | không tái hiện ở CI vòng này |
+Mọi AC giữ PASS. Story **PASS** (nợ: đo p95 / đua `PUT` trên stack lớp 1.000 → US-S8-SEED).
+
+---
+## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `b8284b73`. Bộ TC: `tc-US-P6-06.md` (chữ TC chỉ đổi theo #11). Handoff: `dev-US-P6-06.md`. CI run `41200524277`: **đỏ** chỉ ở `Frontend e2e (Playwright 2/3)` — `shell.spec.ts:395` (đỏ cả retry) và `private-chat.spec.ts:219` "escalate offline" (đỏ một lần, không thuộc story); Go ×4, Judge, Lighthouse, Playwright 1/3, 3/3 xanh.
 
 ## 1. Cổng nghiệm thu đã chạy

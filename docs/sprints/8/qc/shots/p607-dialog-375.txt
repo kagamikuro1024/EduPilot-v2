@@ -1,0 +1,48 @@
+menu: Nhập từ XLSX | Xuất XLSX
+--- bước 1 ---
+Nhập điểm từ XLSX
+Nhập vào
+Kiểm tra tuần
+Thi cuối kỳ
+Tệp XLSX
+Đóng
+Tiếp tục
+--- bước 2 ---
+Nhập điểm từ XLSX
+Nhập vào
+Kiểm tra tuần
+Thi cuối kỳ
+Tệp XLSX
+
+giua-ky.xlsx
+
+Đóng
+Tiếp tục
+--- bước 3 ---
+Nhập điểm từ XLSX
+
+1 dòng hợp lệ · 1 ghi đè · 0 không đổi · 2 lỗi
+
+Dòng 3 · 99999999 · MSSV không có trong lớp
+Dòng 6 · 20229777 · MSSV chưa có trong danh sách lớp
+Sinh Viên 0001 · B22DCCN101
+Trước
+5
+Sau
+7
+Sinh Viên 0002 · B22DCCN102
+Trước
+—
+Sau
+8
+Sinh Viên 0003 · B22DCCN103
+Trước
+—
+Sau
+9
+Công bố cột cho sinh viên
+Quay lại
+Đóng
+Bỏ qua 2 dòng lỗi và ghi 1 dòng
+scroll=375,375
+checked(Công bố)=false
