@@ -4,3 +4,4 @@ export { LLMRouteTable, type ModelGroup, type RouteRow } from "./LLMRouteTable";
 export { Markdown } from "./Markdown";
 export { ExamTimer } from "./ExamTimer";
 export { AttendanceGrid, ATTENDANCE_OPTIONS, type AttendanceGridRow, type AttendanceStatus } from "./AttendanceGrid";
+export { GradeCalculation, type CalcLine } from "./GradeCalculation";

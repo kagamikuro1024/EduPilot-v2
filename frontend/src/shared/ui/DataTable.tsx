@@ -14,6 +14,8 @@ type VirtualProps<T> = {
   activeKey?: string;
   caption: string;
   height: number;
+  cellNav?: CellNav<T>;
+  rowAttrs?: (row: T) => Record<string, string>;
   pagination?: Pagination;
 };
 // Nạp lười (react-virtual không vào gói của route không dùng bảng dài). lazy làm mất tham số kiểu generic → ép lại chữ ký.
@@ -44,6 +46,26 @@ export type Column<T> = {
   primary?: boolean;
   /** móc đo dev: `data-part` đặt lên ô tiêu đề của cột (vd. `col-qt`, `col-status`) */
   part?: string;
+  /** ô sửa được kiểu bảng tính (chỉ bảng ảo hoá có `cellNav`): ô không sửa được dùng `render` */
+  cell?: {
+    editable: (row: T) => boolean;
+    /** giá trị hiện có của máy chủ (chuỗi hiển thị) */
+    value: (row: T) => string;
+    /** nhãn trợ năng của ô nhập */
+    label: (row: T) => string;
+    /** nhãn ngắn cạnh ô: "Chưa lưu", "…" */
+    status?: (row: T) => ReactNode;
+    /** ô đang có lỗi: viền đỏ, `aria-invalid` */
+    invalid?: (row: T) => boolean;
+  };
+};
+
+/** Chế độ ô của bảng ảo hoá (sổ điểm): nháp đang gõ nằm NGOÀI DOM (`drafts`) nên dòng cuộn ra khỏi cửa sổ không mất chữ. */
+export type CellNav<T> = {
+  drafts: ReadonlyMap<string, string>;
+  onDraft: (key: string, text: string | null) => void;
+  /** `Enter` → "down", `Tab` → "right", rời ô → "stay". Hàm tự kiểm tra và lưu; bảng chỉ di chuyển ô nhập. */
+  onCommit: (row: T, colKey: string, text: string, move: "down" | "right" | "stay") => void;
 };
 
 /**
@@ -71,6 +93,7 @@ export function DataTable<T>({
   scrollHint = "Vuốt ngang để xem thêm",
   rowAttrs,
   virtual,
+  cellNav,
   pagination,
   loading,
 }: {
@@ -92,6 +115,8 @@ export function DataTable<T>({
   rowAttrs?: (row: T) => Record<string, string>;
   /** danh sách dài: ảo hoá dòng trong khung cao `height` px (chỉ dựng dòng nhìn thấy); bỏ chế độ danh sách ở < 720px */
   virtual?: { height: number };
+  /** chỉ với `virtual`: ô sửa được (Tab sang ô kế, Enter xuống ô dưới, Esc hoàn tác) — TLR-12 */
+  cellNav?: CellNav<T>;
   pagination?: Pagination;
   /** đang tải: giữ tiêu đề cột thật + từng ấy dòng khung xương cao đúng bằng dòng thật (CLS ≈ 0), aria-busy */
   loading?: number;
@@ -122,7 +147,7 @@ export function DataTable<T>({
       <div className={s.root}>
         {/* khung chờ cao ĐÚNG bằng khung thật nên nạp xong không dịch bố cục (CLS) */}
         <Suspense fallback={<div aria-busy="true" className={s.vscroll} style={{ "--vh": `${virtual.height}px` } as CSSProperties} />}>
-          <VirtualTable columns={columns} rows={rows} rowKey={rowKey} onRowClick={onRowClick} activeKey={activeKey} caption={caption} height={virtual.height} pagination={pagination} />
+          <VirtualTable columns={columns} rows={rows} rowKey={rowKey} onRowClick={onRowClick} activeKey={activeKey} caption={caption} height={virtual.height} cellNav={cellNav} rowAttrs={rowAttrs} pagination={pagination} />
         </Suspense>
         {rows.length === 0 && empty && <div className={s.empty}>{empty}</div>}
       </div>

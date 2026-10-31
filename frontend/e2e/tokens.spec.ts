@@ -1,5 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
+import { gradebookApi } from "./support/gradebook-fixtures";
 import { settleGoto } from "./support/hydrate";
 import { asDemo } from "./support/session";
 
@@ -38,6 +39,7 @@ test.beforeEach(({ page }) => {
 
 test("tabular: số trong bảng canh theo chữ số bằng nhau (/gradebook, giảng viên)", async ({ page, context }) => {
   await asDemo(context, "teacher");
+  await gradebookApi(page); // #21 / #22: /analytics không có bảng; /gradebook thật cần API giả (assertion giữ nguyên)
   await page.goto("/gradebook");
   await page.locator("[data-part=topbar]").waitFor();
   const cells = page.locator("td, th");

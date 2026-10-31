@@ -10,7 +10,7 @@
   width: var(--w);
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 3; /* trên ô cố định của thân bảng: menu trong tiêu đề cột không bị ô che */
   background: var(--ep-surface-subtle);
   padding: var(--ep-space-3) var(--ep-space-3);
   font-size: var(--ep-text-meta);
@@ -34,7 +34,7 @@
 
 .scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-rule); }
 .frozen { position: sticky; left: 0; background: var(--ep-surface); z-index: 1; }
-th.frozen { z-index: 2; background: var(--ep-surface-subtle); }
+th.frozen { z-index: 4; background: var(--ep-surface-subtle); }
 .clickable:hover .frozen, .active .frozen { background: var(--ep-surface-subtle); }
 
 .checkCol { width: 40px; text-align: center; }
@@ -83,3 +83,9 @@ th.frozen { z-index: 2; background: var(--ep-surface-subtle); }
 .retry:hover { text-decoration-color: var(--ep-red); }
 .skCell { display: block; height: var(--ep-space-4); width: 70%; border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }
 .active td:first-child, .itemActive .itemMain { font-weight: 700; }
+
+.cellBox { display: inline-flex; align-items: center; gap: var(--ep-space-1); }
+.cellInput { width: 72px; min-height: 32px; padding: 0 var(--ep-space-2); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: transparent; font: inherit; font-variant-numeric: tabular-nums; text-align: right; color: var(--ep-ink); }
+.cellInput:hover { border-color: var(--ep-ink-3); }
+.cellInput:focus-visible { border-color: var(--ep-ink); background: var(--ep-surface); outline: 2px solid var(--ep-ink); outline-offset: 0; }
+.cellInput[aria-invalid="true"] { border-color: var(--ep-red); }

@@ -95,6 +95,8 @@ export function summary(kind: BlockId, r: RuleDoc | PutRule | undefined): string
 const quoteOf = (cs: Citation[] | undefined) => cs?.[0];
 
 export function Blocks({ doc, working, editable, errors, selected, onSelect, onChange }: { doc: SchemeDoc; working: Working; editable: boolean; errors: Record<string, string>; selected: BlockId | null; onSelect: (id: BlockId, c: Citation | null) => void; onChange: (w: Working) => void }) {
+  // Mặc định mọi mục là CHỮ (văn bản để duyệt); ô nhập chỉ hiện ở mục chưa rõ hoặc ở mục giảng viên bấm vào để sửa (DESIGN §14.11).
+  const [editing, setEditing] = useState<string | null>(null);
   const setRule = (kind: RuleKind, patch: (r: PutRule | undefined) => PutRule | null) => {
     const cur = rulesOf(working, kind)[0];
     const next = patch(cur);
@@ -104,6 +106,9 @@ export function Blocks({ doc, working, editable, errors, selected, onSelect, onC
   const setComp = (i: number, patch: Partial<Working["components"][number]>) => onChange({ ...working, components: working.components.map((c, j) => (j === i ? { ...c, ...patch } : c)) });
   const sum = working.components.reduce((a, c) => a + (Number(c.weight) || 0), 0);
   const docRule = (k: RuleKind) => doc.rules.find((r) => r.kind === k);
+  const done = (id: string) => (
+    <Button size="sm" variant="ghost" onClick={() => setEditing(editing === id ? null : id)}>Xong</Button>
+  );
 
   return (
     <div className={s.blocks}>
@@ -113,6 +118,14 @@ export function Blocks({ doc, working, editable, errors, selected, onSelect, onC
         const cite = b.id === "components" ? quoteOf(doc.components.flatMap((c) => c.citations)) : quoteOf(rules.flatMap((r) => r.citations));
         const byUser = b.id === "components" ? doc.components.some((c) => c.filled_by_user) : rules.some((r) => r.filled_by_user);
         const isSel = selected === b.id;
+        const open = editable && (un.length > 0 || editing === b.id); // ô nhập của khối
+        const rule = rulesOf(working, b.id as RuleKind)[0];
+        const view = (text: string) =>
+          editable ? (
+            <button type="button" className={s.valueBtn} data-part="edit-value" onClick={() => setEditing(b.id)}>{text}</button>
+          ) : (
+            <p className={s.value}>{text}</p>
+          );
         return (
           <section key={b.id} className={[s.block, isSel ? s.blockSel : ""].join(" ")} aria-labelledby={`blk-${b.id}`} data-block={b.id} data-unclear={un.length > 0 ? "true" : undefined}>
             <div className={s.blockHead}>
@@ -133,28 +146,31 @@ export function Blocks({ doc, working, editable, errors, selected, onSelect, onC
 
             {b.id === "components" && (
               <div className={s.comps}>
-                {working.components.map((c, i) => (
-                  <div key={c.key} className={s.compRow}>
-                    {editable ? (
-                      <>
-                        <Cell plain label="Tên" value={c.name} width={200} onCommit={(v) => setComp(i, { name: v })} check={(t) => (t.trim() && t.trim().length <= 80 ? null : "Nhập tên 1–80 ký tự")} />
-                        <Cell label="Trọng số" value={c.weight} suffix="%" onCommit={(v) => setComp(i, { weight: v })} check={weightCheck} />
-                        <label className={s.cell}>
-                          <span className={s.cellLabel}>Nhóm</span>
-                          <Select value={c.grp} onChange={(e) => setComp(i, { grp: e.target.value as "QT" | "CK" })}>
-                            <option value="QT">Quá trình</option>
-                            <option value="CK">Cuối kỳ</option>
-                          </Select>
-                        </label>
-                        <IconButton label={`Xoá ${c.name}`} onClick={() => onChange({ ...working, components: working.components.filter((_, j) => j !== i) })}>
-                          <Trash2 aria-hidden />
-                        </IconButton>
-                      </>
-                    ) : (
-                      <p className={s.value}>{`${c.name} · ${vi(c.weight)}% · ${c.grp === "QT" ? "Quá trình" : "Cuối kỳ"}`}</p>
-                    )}
-                  </div>
-                ))}
+                {working.components.map((c, i) => {
+                  const text = `${c.name} · ${vi(c.weight)}% · ${c.grp === "QT" ? "Quá trình" : "Cuối kỳ"}`;
+                  const rowOpen = editable && (un.length > 0 || editing === `c:${c.key}`);
+                  return rowOpen ? (
+                    <div key={c.key} className={s.compRow}>
+                      <Cell plain label="Tên" value={c.name} width={200} onCommit={(v) => setComp(i, { name: v })} check={(t) => (t.trim() && t.trim().length <= 80 ? null : "Nhập tên 1–80 ký tự")} />
+                      <Cell label="Trọng số" value={c.weight} suffix="%" onCommit={(v) => setComp(i, { weight: v })} check={weightCheck} />
+                      <label className={s.cell}>
+                        <span className={s.cellLabel}>Nhóm</span>
+                        <Select value={c.grp} onChange={(e) => setComp(i, { grp: e.target.value as "QT" | "CK" })}>
+                          <option value="QT">Quá trình</option>
+                          <option value="CK">Cuối kỳ</option>
+                        </Select>
+                      </label>
+                      <IconButton label={`Xoá ${c.name}`} onClick={() => onChange({ ...working, components: working.components.filter((_, j) => j !== i) })}>
+                        <Trash2 aria-hidden />
+                      </IconButton>
+                      {editing === `c:${c.key}` && done(`c:${c.key}`)}
+                    </div>
+                  ) : editable ? (
+                    <button key={c.key} type="button" className={s.valueBtn} data-part="edit-value" onClick={() => setEditing(`c:${c.key}`)}>{text}</button>
+                  ) : (
+                    <p key={c.key} className={s.value}>{text}</p>
+                  );
+                })}
                 {errors.components && <p className={s.cellError} role="alert">{errors.components}</p>}
                 {editable && (
                   <Button
@@ -164,6 +180,7 @@ export function Blocks({ doc, working, editable, errors, selected, onSelect, onC
                     onClick={() => {
                       const key = `tp${working.components.length + 1}`;
                       onChange({ ...working, components: [...working.components, { key, name: "Thành phần mới", grp: "QT", weight: "0", items: [] }] });
+                      setEditing(`c:${key}`);
                     }}
                   >
                     Thêm thành phần
@@ -172,52 +189,66 @@ export function Blocks({ doc, working, editable, errors, selected, onSelect, onC
               </div>
             )}
 
-            {(b.id === "BONUS" || b.id === "PENALTY") && (
-              <RuleApplicable
-                kind={b.id}
-                rule={rulesOf(working, b.id)[0]}
-                editable={editable}
-                onSet={(applicable) => setRule(b.id as RuleKind, (r) => ({ kind: b.id as RuleKind, applicable, params: applicable ? (r?.params ?? {}) : {} }))}
-              >
-                {b.id === "BONUS" ? (
-                  <>
-                    <Cell label="Mỗi lần phát biểu" value={str(rulesOf(working, "BONUS")[0]?.params, "per_speak")} check={decCheck} onCommit={(v) => setRule("BONUS", (r) => ({ kind: "BONUS", applicable: true, params: { source: "PARTICIPATION", per_speak: v, cap: str(r?.params, "cap") || undefined } }))} />
-                    <Cell label="Tối đa" value={str(rulesOf(working, "BONUS")[0]?.params, "cap")} check={decCheck} onCommit={(v) => setRule("BONUS", (r) => ({ kind: "BONUS", applicable: true, params: { source: "PARTICIPATION", per_speak: str(r?.params, "per_speak") || undefined, cap: v } }))} />
-                  </>
-                ) : (
-                  <>
-                    <Cell label="Buổi vắng được miễn" value={String((rulesOf(working, "PENALTY")[0]?.params as Params | undefined)?.free ?? "")} check={intCheck} onCommit={(v) => setRule("PENALTY", (r) => ({ kind: "PENALTY", applicable: true, params: { source: "ABSENCE", free: Number(v), per: str(r?.params, "per") || undefined } }))} />
-                    <Cell label="Trừ mỗi buổi" value={str(rulesOf(working, "PENALTY")[0]?.params, "per")} check={decCheck} onCommit={(v) => setRule("PENALTY", (r) => ({ kind: "PENALTY", applicable: true, params: { source: "ABSENCE", free: (r?.params as Params | undefined)?.free, per: v } }))} />
-                  </>
-                )}
-              </RuleApplicable>
-            )}
-
-            {b.id === "ROUNDING" &&
-              (editable ? (
-                <label className={s.cell}>
-                  <span className={s.cellLabel}>Bước làm tròn</span>
-                  <Select
-                    value={str(rulesOf(working, "ROUNDING")[0]?.params, "step")}
-                    aria-invalid={un.length > 0 ? true : undefined}
-                    onChange={(e) => setRule("ROUNDING", () => (e.target.value ? { kind: "ROUNDING", applicable: true, params: { step: e.target.value, mode: "HALF_UP" } } : null))}
-                  >
-                    <option value="">Chọn bước</option>
-                    {["0.01", "0.1", "0.25", "0.5", "1"].map((v) => (
-                      <option key={v} value={v}>{`Làm tròn đến ${vi(v)}`}</option>
-                    ))}
-                  </Select>
-                </label>
+            {(b.id === "BONUS" || b.id === "PENALTY") &&
+              (!open || !rule ? (
+                !rule && !editable ? <p className={s.value}>Chưa có</p> : !rule ? <RuleApplicable kind={b.id} rule={rule} editable onSet={(applicable) => setRule(b.id as RuleKind, (r) => ({ kind: b.id as RuleKind, applicable, params: applicable ? (r?.params ?? {}) : {} }))}>{null}</RuleApplicable> : view(summary(b.id, rule))
               ) : (
-                <p className={s.value}>{summary("ROUNDING", docRule("ROUNDING"))}</p>
+                <>
+                  <RuleApplicable kind={b.id} rule={rule} editable onSet={(applicable) => setRule(b.id as RuleKind, (r) => ({ kind: b.id as RuleKind, applicable, params: applicable ? (r?.params ?? {}) : {} }))}>
+                    {b.id === "BONUS" ? (
+                      <>
+                        <Cell label="Mỗi lần phát biểu" value={str(rule?.params, "per_speak")} check={decCheck} onCommit={(v) => setRule("BONUS", (r) => ({ kind: "BONUS", applicable: true, params: { source: "PARTICIPATION", per_speak: v, cap: str(r?.params, "cap") || undefined } }))} />
+                        <Cell label="Tối đa" value={str(rule?.params, "cap")} check={decCheck} onCommit={(v) => setRule("BONUS", (r) => ({ kind: "BONUS", applicable: true, params: { source: "PARTICIPATION", per_speak: str(r?.params, "per_speak") || undefined, cap: v } }))} />
+                      </>
+                    ) : (
+                      <>
+                        <Cell label="Buổi vắng được miễn" value={String((rule?.params as Params | undefined)?.free ?? "")} check={intCheck} onCommit={(v) => setRule("PENALTY", (r) => ({ kind: "PENALTY", applicable: true, params: { source: "ABSENCE", free: Number(v), per: str(r?.params, "per") || undefined } }))} />
+                        <Cell label="Trừ mỗi buổi" value={str(rule?.params, "per")} check={decCheck} onCommit={(v) => setRule("PENALTY", (r) => ({ kind: "PENALTY", applicable: true, params: { source: "ABSENCE", free: (r?.params as Params | undefined)?.free, per: v } }))} />
+                      </>
+                    )}
+                  </RuleApplicable>
+                  {editing === b.id && done(b.id)}
+                </>
               ))}
 
-            {b.id === "LETTER_SCALE" && <Letters rule={rulesOf(working, "LETTER_SCALE")[0]} shown={docRule("LETTER_SCALE")} editable={editable} onSet={(bands) => setRule("LETTER_SCALE", () => ({ kind: "LETTER_SCALE", applicable: true, params: { bands } }))} />}
+            {b.id === "ROUNDING" &&
+              (open || (editable && !rule) ? (
+                <div className={s.compRow}>
+                  <label className={s.cell}>
+                    <span className={s.cellLabel}>Bước làm tròn</span>
+                    <Select
+                      value={str(rule?.params, "step")}
+                      aria-invalid={un.length > 0 ? true : undefined}
+                      onChange={(e) => setRule("ROUNDING", () => (e.target.value ? { kind: "ROUNDING", applicable: true, params: { step: e.target.value, mode: "HALF_UP" } } : null))}
+                    >
+                      <option value="">Chọn bước</option>
+                      {["0.01", "0.1", "0.25", "0.5", "1"].map((v) => (
+                        <option key={v} value={v}>{`Làm tròn đến ${vi(v)}`}</option>
+                      ))}
+                    </Select>
+                  </label>
+                  {editing === b.id && done(b.id)}
+                </div>
+              ) : (
+                view(summary("ROUNDING", rule ?? docRule("ROUNDING")))
+              ))}
+
+            {b.id === "LETTER_SCALE" && (
+              open || (editable && !rule) ? (
+                <>
+                  <Letters rule={rule} shown={docRule("LETTER_SCALE")} editable onSet={(bands) => setRule("LETTER_SCALE", () => ({ kind: "LETTER_SCALE", applicable: true, params: { bands } }))} />
+                  {editing === b.id && done(b.id)}
+                </>
+              ) : (
+                view(summary("LETTER_SCALE", rule ?? docRule("LETTER_SCALE")))
+              )
+            )}
 
             {b.id === "FAIL_CONDITION" && (
               <div className={s.comps}>
-                {rulesOf(working, "FAIL_CONDITION").map((r, i) =>
-                  editable ? (
+                {rulesOf(working, "FAIL_CONDITION").map((r, i) => {
+                  const k = `f:${i}`;
+                  return editable && (un.length > 0 || editing === k) ? (
                     <div key={i} className={s.compRow}>
                       <label className={s.cell}>
                         <span className={s.cellLabel}>Điều kiện</span>
@@ -230,14 +261,17 @@ export function Blocks({ doc, working, editable, errors, selected, onSelect, onC
                       <IconButton label="Xoá điều kiện" onClick={() => onChange({ ...working, rules: working.rules.filter((x) => x !== r) })}>
                         <Trash2 aria-hidden />
                       </IconButton>
+                      {editing === k && done(k)}
                     </div>
+                  ) : editable ? (
+                    <button key={i} type="button" className={s.valueBtn} data-part="edit-value" onClick={() => setEditing(k)}>{summary("FAIL_CONDITION", r)}</button>
                   ) : (
                     <p key={i} className={s.value}>{summary("FAIL_CONDITION", r)}</p>
-                  ),
-                )}
-                {!editable && rulesOf(working, "FAIL_CONDITION").length === 0 && <p className={s.value}>Không có</p>}
+                  );
+                })}
+                {rulesOf(working, "FAIL_CONDITION").length === 0 && <p className={s.value}>Không có</p>}
                 {editable && (
-                  <Button size="sm" variant="ghost" icon={<Plus aria-hidden />} onClick={() => onChange({ ...working, rules: [...working.rules, { kind: "FAIL_CONDITION", applicable: true, params: { kind: "FINAL_BELOW", value: "3" } }] })}>
+                  <Button size="sm" variant="ghost" icon={<Plus aria-hidden />} onClick={() => { onChange({ ...working, rules: [...working.rules, { kind: "FAIL_CONDITION", applicable: true, params: { kind: "FINAL_BELOW", value: "3" } }] }); setEditing(`f:${rulesOf(working, "FAIL_CONDITION").length}`); }}>
                     Thêm điều kiện
                   </Button>
                 )}

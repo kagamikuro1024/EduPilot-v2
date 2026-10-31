@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { IMPACT, confirmedLop1, draftLop2, gradeApi } from "./support/grade-fixtures";
+import { EXAMCOL, FINAL, WEEKLY, gradebookApi, student as gbStudent, type Opts as SheetOpts } from "./support/gradebook-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -34,6 +35,13 @@ test("scheme review layout: một Panel, sáu khối đúng thứ tự, cột tr
   await expect(pane.locator("mark")).toContainText("Điểm quá trình gồm bài kiểm tra hằng tuần");
   expect(await page.locator("main").innerText()).not.toMatch(/AI rút ra|Chọn một mục|nháp do/i);
   await expect(page.locator("main svg[aria-label*='Thông tin'], main [data-icon=info]")).toHaveCount(0);
+  // QC BUG-P6-04-1: mặc định là chữ để duyệt; ô nhập chỉ ở mục chưa rõ (ở đây: bước làm tròn) hoặc mục vừa bấm vào
+  await expect(page.locator("main input:visible, main select:visible, main textarea:visible")).toHaveCount(1);
+  await expect(block(page, "components")).toContainText("Kiểm tra hằng tuần · 20% · Quá trình");
+  await block(page, "components").getByRole("button", { name: "Kiểm tra hằng tuần · 20% · Quá trình" }).click();
+  await expect(block(page, "components").getByLabel("Trọng số")).toHaveValue("20");
+  await block(page, "components").getByRole("button", { name: "Xong" }).click();
+  await expect(page.locator("main input:visible, main select:visible, main textarea:visible")).toHaveCount(1);
 });
 
 test("unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có lý do ở chính nút, điền xong thì mở", async ({ page, context }, info) => {
@@ -57,6 +65,7 @@ test("unclear blocks confirm: mục chưa rõ ngay tại khối, nút khoá có 
 test("scheme edit optimistic: số sai báo tại ô và giữ chữ; số đúng lưu ngay khi rời ô, version + 1; 409 hoàn lại kèm dòng báo", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await open(page, context);
+  await block(page, "components").locator("[data-part=edit-value]").first().click();
   const weight = block(page, "components").getByLabel("Trọng số").first();
   for (const bad of ["abc", "-5", "101"]) {
     await weight.fill(bad);
@@ -84,11 +93,12 @@ test("scheme edit conflict: 409 VERSION_CONFLICT nạp bản hiện tại và b�
   desktopOnly(info);
   const theirs = draftLop2({ version: 5, components: draftLop2().components.map((c) => (c.key === "weekly" ? { ...c, weight: "30" } : c)) });
   await open(page, context, { h: { "PUT grade-scheme": (r) => r.fulfill({ status: 409, contentType: "application/json", body: JSON.stringify({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current_version: 5, current: theirs } }), headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true" } }) } });
-  const w = block(page, "components").getByLabel("Trọng số").nth(1);
+  await block(page, "components").locator("[data-part=edit-value]").nth(1).click();
+  const w = block(page, "components").getByLabel("Trọng số");
   await w.fill("15");
   await w.blur();
   await expect(page.getByText("Có người vừa sửa công thức. Đã tải bản mới.")).toBeVisible();
-  await expect(block(page, "components").getByLabel("Trọng số").first()).toHaveValue("30");
+  await expect(block(page, "components")).toContainText("Kiểm tra hằng tuần · 30% · Quá trình");
 });
 
 test("impact preview: ba sinh viên mẫu trước → sau; lớp chưa đủ điểm hiện dòng chưa đủ điểm", async ({ page, context }, info) => {
@@ -144,6 +154,7 @@ test("scheme offline retry: mất mạng giữ chữ, báo Chưa lưu 1–2 từ
   desktopOnly(info);
   let n = 0;
   const api = await open(page, context, { h: { "PUT grade-scheme": (r, next) => (++n === 1 ? r.abort("connectionfailed") : next(r)) } });
+  await block(page, "components").locator("[data-part=edit-value]").first().click();
   const w = block(page, "components").getByLabel("Trọng số").first();
   await w.fill("25");
   await w.blur();
@@ -234,4 +245,250 @@ test("new policy upload failed: tải hỏng giữ tên tệp và có Tải lạ
   await page.setInputFiles("[data-part=policy-input]", PDF);
   await expect(page.getByRole("alert").filter({ hasText: "quy-che.pdf" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Tải lại" })).toBeVisible();
+});
+
+// ---- US-P6-06: `/gradebook` THẬT -------------------------------------------------------------------------------------------------------------------
+async function sheet(page: Page, context: Parameters<typeof asDemo>[0], opts: SheetOpts = {}, role: DemoRole = "teacher") {
+  await asDemo(context, role);
+  const api = await gradebookApi(page, opts);
+  await page.goto("/gradebook");
+  await expect(page.getByRole("heading", { name: "Sổ điểm", level: 1 })).toBeVisible();
+  return api;
+}
+const cellOf = (page: Page, i: number, item: string) => page.locator(`input[data-cell="${gbStudent(i).id}:${item}"]`);
+
+test("gradebook layout: một Panel, cột Sinh viên cố định, cột theo item + Điểm cộng… Trạng thái, không thẻ KPI", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await sheet(page, context);
+  await expect(page.locator("[data-part=grade-row]").first()).toBeVisible();
+  await expect(page.locator("main [data-ep-panel]")).toHaveCount(1);
+  const heads = await page.locator("thead th").allInnerTexts();
+  expect(heads.map((h) => h.split("\n")[0])).toEqual(["Sinh viên", "Kiểm tra tuần", "Thi cuối kỳ", "Bài thi giữa kỳ", "Điểm cộng", "Điểm trừ", "Quá trình", "Điểm học phần", "Điểm chữ", "Trạng thái", "Hành động"]);
+  expect(await page.locator("thead th").first().evaluate((e) => getComputedStyle(e).position)).toBe("sticky");
+  await expect(page.getByRole("link", { name: "Xem công thức" })).toHaveAttribute("href", "/gradebook/scheme");
+  await expect(page.locator("[data-part=grade-row]").first().locator("[data-part=row-status]")).toHaveText("Thiếu điểm");
+});
+
+test("official note: đúng một dòng ghi chú cố định dưới bảng", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context);
+  await expect(page.getByText("Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.")).toHaveCount(1);
+});
+
+test("cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context);
+  const a = cellOf(page, 1, WEEKLY);
+  await a.fill("8,5");
+  await a.press("Enter");
+  await expect.poll(() => api.puts().length).toBe(1);
+  expect(JSON.parse(api.puts()[0].body)).toEqual({ item_id: WEEKLY, student_id: gbStudent(1).id, score: "8.5", version: null });
+  await expect(cellOf(page, 2, WEEKLY)).toBeFocused();
+  await expect(a).toHaveValue("8,5");
+  const b = cellOf(page, 2, WEEKLY);
+  await b.fill("7");
+  await b.press("Tab");
+  await expect(cellOf(page, 2, FINAL)).toBeFocused();
+  await expect.poll(() => api.puts().length).toBe(2);
+  const c = cellOf(page, 2, FINAL);
+  await c.fill("9");
+  await c.press("Escape");
+  await expect(c).toHaveValue("");
+  expect(api.puts()).toHaveLength(2);
+  // lỗi: giữ chữ, không gửi
+  await a.fill("8,333");
+  await a.press("Enter");
+  await expect(page.getByRole("alert").filter({ hasText: "Điểm có quá 2 chữ số thập phân" })).toBeVisible();
+  await expect(a).toHaveValue("8,333");
+  await a.fill("11");
+  await a.press("Enter");
+  await expect(page.getByRole("alert").filter({ hasText: "Điểm ngoài thang 0–10" })).toBeVisible();
+  expect(api.puts()).toHaveLength(2);
+  // xoá ô
+  await a.fill("");
+  await a.press("Enter");
+  await expect.poll(() => api.puts().length).toBe(3);
+  expect(JSON.parse(api.puts()[2].body)).toMatchObject({ score: null, version: 1 });
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+test("cell edit instant: cột tính hiện … trong lúc chờ rồi đổi theo phản hồi của máy chủ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, { h: { "PUT grade-entries": async (r, next) => { await new Promise((res) => setTimeout(res, 700)); return next(r); } } });
+  const row = page.locator("[data-part=grade-row]").first();
+  await cellOf(page, 1, WEEKLY).fill("8");
+  await cellOf(page, 1, WEEKLY).press("Tab");
+  await cellOf(page, 1, FINAL).fill("6");
+  await cellOf(page, 1, FINAL).press("Enter");
+  await expect(row.locator("[data-part=row-status]")).toHaveText("…");
+  await expect(row.locator("[data-part=row-status]")).toHaveText("Đủ", { timeout: 5000 });
+  await expect(row.locator("td").nth(7)).toHaveText("7");
+});
+
+test("cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context);
+  const key = `${gbStudent(1).id}:${WEEKLY}`;
+  api.entries.set(key, { score: "6", version: 1, source: "MANUAL" });
+  await page.reload();
+  await expect(cellOf(page, 1, WEEKLY)).toHaveValue("6");
+  api.entries.set(key, { score: "7.5", version: 2, source: "MANUAL" }); // người kia vừa nhập
+  const a = cellOf(page, 1, WEEKLY);
+  await expect(a).toHaveValue("6");
+  await a.fill("9");
+  await a.press("Enter");
+  const pop = page.locator("[data-part=cell-conflict]");
+  await expect(pop).toContainText("Thầy Nam vừa nhập 7,5 · 2 phút trước");
+  await pop.getByRole("button", { name: "Giữ của tôi" }).click();
+  await expect.poll(() => api.entries.get(key)?.score).toBe("9");
+  expect(api.entries.get(key)?.version).toBe(3);
+  // Dùng của họ
+  api.entries.set(key, { score: "5", version: 4, source: "MANUAL" });
+  await a.fill("8");
+  await a.press("Enter");
+  await expect(pop).toBeVisible();
+  await pop.getByRole("button", { name: "Dùng của họ" }).click();
+  await expect(pop).toHaveCount(0);
+  await expect(a).toHaveValue("5");
+});
+
+test("explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context);
+  await page.getByRole("button", { name: /^Hành động — Sinh Viên 0002/ }).click();
+  await page.getByRole("menuitem", { name: "Giải trình" }).click();
+  const calc = page.locator("[data-part=grade-calculation]");
+  await expect(calc).toContainText("QT₀");
+  await expect(calc).toContainText("= 7,75");
+  await expect(calc).toContainText("= 0,50");
+  await expect(calc).toContainText("do giảng viên đặt");
+  await calc.getByRole("button", { name: /Căn cứ · tr\. 2/ }).click();
+  await expect(calc).toContainText("Mỗi lần phát biểu được cộng 0,25 điểm.");
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await page.getByRole("button", { name: /^Hành động — Sinh Viên 0001/ }).click();
+  await page.getByRole("menuitem", { name: "Lịch sử" }).click();
+  await expect(page.locator("[data-part=history-list]")).toContainText("weekly: 8 → 9");
+  expect(await page.getByRole("button", { name: "Lịch sử", exact: true }).count()).toBe(0);
+});
+
+test("virtualized 1000: DOM ≤ 60 dòng, cuộn tải trang kế theo con trỏ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context, { students: 1000 });
+  expect(await page.locator("[data-part=grade-row]").count()).toBeLessThanOrEqual(60);
+  const scroller = page.locator("[data-part=virtual-scroll]");
+  for (let i = 0; i < 6; i++) {
+    await scroller.evaluate((el) => { el.scrollTop = el.scrollHeight; });
+    await page.waitForTimeout(150);
+  }
+  await expect.poll(() => api.calls.filter((c) => c.path.includes("gradebook?") && c.path.includes("cursor=")).length).toBeGreaterThan(0);
+  expect(await page.locator("[data-part=grade-row]").count()).toBeLessThanOrEqual(60);
+  expect(api.calls.every((c) => !c.path.includes("limit=1000"))).toBe(true);
+});
+
+test("type then scroll keeps text: gõ dở ở dòng 5, cuộn xa rồi cuộn về, chữ còn", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, { students: 300 });
+  const a = cellOf(page, 5, WEEKLY);
+  await a.fill("7,5");
+  const scroller = page.locator("[data-part=virtual-scroll]");
+  await scroller.evaluate((el) => { el.scrollTop = 48 * 250; });
+  await expect(page.locator(`input[data-cell="${gbStudent(5).id}:${WEEKLY}"]`)).toHaveCount(0);
+  await scroller.evaluate((el) => { el.scrollTop = 0; });
+  await expect(cellOf(page, 5, WEEKLY)).toHaveValue("7,5");
+});
+
+test("gradebook states: chưa công thức, lớp rỗng, lỗi có Thử lại", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, { scheme: false });
+  await expect(page.getByText("Chưa có công thức điểm.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Thiết lập công thức" })).toBeVisible();
+  await expect(page.getByText("Công thức điểm chưa xác nhận")).toBeVisible();
+  await expect(page.locator("input[data-cell]")).toHaveCount(0);
+
+  const p2 = await context.newPage();
+  await gradebookApi(p2, { students: 0 });
+  await p2.goto("/gradebook");
+  await expect(p2.getByText("Lớp chưa có sinh viên.")).toBeVisible();
+
+  const p3 = await context.newPage();
+  let n = 0;
+  await gradebookApi(p3, { h: { "GET gradebook": (r, next) => (++n === 1 ? r.fulfill({ status: 500, contentType: "application/json", body: JSON.stringify({ code: "INTERNAL", message: "x", trace_id: "t" }), headers: { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true" } }) : next(r)) } });
+  await p3.goto("/gradebook");
+  await p3.getByRole("button", { name: "Thử lại" }).click();
+  await expect(p3.locator("[data-part=grade-row]").first()).toBeVisible();
+});
+
+test("offline cell: mất mạng giữ chữ, nhãn Chưa lưu tại ô, tự gửi lại khi có mạng", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let n = 0;
+  const api = await sheet(page, context, { h: { "PUT grade-entries": (r, next) => (++n === 1 ? r.abort("connectionfailed") : next(r)) } });
+  const a = cellOf(page, 1, WEEKLY);
+  await a.fill("8");
+  await a.press("Enter");
+  await expect(page.getByText("Chưa lưu", { exact: true })).toBeVisible();
+  await expect(a).toHaveValue("8");
+  await expect(page.getByText("Chưa lưu", { exact: true })).toHaveCount(0, { timeout: 10_000 });
+  expect(api.puts().length).toBeGreaterThanOrEqual(2);
+  expect(JSON.parse(api.puts().at(-1)!.body)).toMatchObject({ score: "8", version: null });
+});
+
+test("gradebook rbac: TA đọc bảng, giải trình, lịch sử nhưng không có ô nhập, menu cột, Chốt điểm; sổ đã chốt khoá mọi ô", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, {}, "ta");
+  await expect(page.locator("input[data-cell]")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Cột / })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Hành động — Sinh Viên 0001/ })).toBeVisible();
+
+  const p2 = await context.newPage();
+  await gradebookApi(p2, { locked: true });
+  await p2.goto("/gradebook");
+  await expect(p2.locator("[data-part=row-status]").first()).toHaveText("Đã chốt v2");
+  await expect(p2.locator("input[data-cell]")).toHaveCount(0);
+});
+
+test("publish column: menu cột công bố / gỡ; cột bài thi không có menu", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context);
+  const head = page.locator("thead th").nth(1);
+  await expect(head).toContainText("Chưa công bố");
+  await head.getByRole("button", { name: "Cột Kiểm tra tuần" }).click();
+  await page.getByRole("menuitem", { name: "Công bố cho sinh viên" }).click();
+  await expect(head).toContainText("Đã công bố");
+  expect(api.calls.some((c) => c.method === "POST" && c.path.endsWith("/publish") && JSON.parse(c.body).published === true)).toBe(true);
+  await expect(page.locator("thead th").nth(3).getByRole("button")).toHaveCount(0);
+  await head.getByRole("button", { name: "Cột Kiểm tra tuần" }).click();
+  await expect(page.getByRole("menuitem", { name: "Gỡ công bố" })).toBeVisible();
+  expect(EXAMCOL).toBeTruthy();
+});
+
+test("penalty not in scheme notice: một dòng cảnh báo không chặn, mở xem sinh viên liên quan; không có sự kiện thì không hiện", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, { warnings: ["PENALTY_NOT_IN_SCHEME"] });
+  const note = page.getByText("Có điểm trừ ghi tay không được tính theo công thức");
+  await expect(note).toHaveCount(1);
+  await page.getByRole("button", { name: "Xem", exact: true }).click();
+  await expect(page.getByText("Sinh Viên 0001").first()).toBeVisible();
+  await expect(cellOf(page, 1, WEEKLY)).toBeVisible();
+  const p2 = await context.newPage();
+  await gradebookApi(p2, {});
+  await p2.goto("/gradebook");
+  await expect(p2.getByText(/không được tính theo công thức/)).toHaveCount(0);
+});
+
+test("gradebook banner: công thức chưa xác nhận → Chốt điểm khoá có lý do ở chính nút; TA có Xem công thức", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, { scheme: false, status: "DRAFT_READY" });
+  const btn = page.getByRole("button", { name: "Chốt điểm" });
+  await expect(btn).toHaveAttribute("aria-disabled", "true");
+  await btn.focus();
+  await expect(page.getByRole("tooltip")).toHaveText("Chưa có công thức điểm đã xác nhận");
+  await expect(page.getByRole("link", { name: "Xác nhận công thức" })).toBeVisible();
+  const p2 = await context.newPage();
+  await asDemo(context, "ta");
+  await gradebookApi(p2, { scheme: false, status: "DRAFT_READY" });
+  await p2.goto("/gradebook");
+  await expect(p2.getByRole("link", { name: "Xem công thức" }).first()).toBeVisible();
+  await expect(p2.getByRole("button", { name: "Chốt điểm" })).toHaveCount(0);
 });

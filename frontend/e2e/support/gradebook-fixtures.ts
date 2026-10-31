@@ -1,0 +1,116 @@
+import type { Page, Route } from "@playwright/test";
+import { BASE_URL } from "./env";
+
+// Sổ điểm THẬT (US-P6-06): gateway giả theo HỢP ĐỒNG THẬT (`…/gradebook`, `…/grade-entries`, `…/grade-items/{id}/publish`, `…/students/{id}/explain|history`).
+// Giữ trạng thái như máy chủ: `PUT` kiểm version, tăng version, trả kết quả của hàng (công thức đơn giản chỉ để dựng dữ liệu thử: HP = 0,4 × tuần + 0,6 × cuối kỳ).
+const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+const j = (body: unknown, status = 200) => ({ status, contentType: "application/json", headers: cors, body: JSON.stringify(body) });
+const e = (status: number, code: string, details?: unknown) => j({ code, message: code, trace_id: "t", ...(details ? { details } : {}) }, status);
+
+export const WEEKLY = "00000000-0000-7000-8000-0000000008a1";
+export const FINAL = "00000000-0000-7000-8000-0000000008a2";
+export const EXAMCOL = "00000000-0000-7000-8000-0000000008a3";
+
+const stuId = (i: number) => `00000000-0000-7000-8000-${String(100000000000 + i)}`;
+export const student = (i: number) => ({ id: stuId(i), full_name: `Sinh Viên ${String(i).padStart(4, "0")}`, student_code: `B22DCCN${String(100 + i)}` });
+
+type Entry = { score: string; version: number; source: string; updated_by?: string };
+export type Opts = {
+  students?: number;
+  scheme?: boolean;
+  locked?: boolean;
+  warnings?: Array<"PENALTY_NOT_IN_SCHEME" | "BONUS_NOT_IN_SCHEME">;
+  status?: string;
+  h?: Record<string, (route: Route, next: (r: Route) => Promise<void> | void) => Promise<void> | void>;
+};
+
+export const COLUMNS = (published = false) => [
+  { item_id: WEEKLY, key: "weekly", name: "Kiểm tra tuần", component_key: "weekly", grp: "QT", max_score: "10", source: "MANUAL", published },
+  { item_id: FINAL, key: "final", name: "Thi cuối kỳ", component_key: "final", grp: "CK", max_score: "10", source: "MANUAL", published: false },
+  { item_id: EXAMCOL, key: "exam", name: "Bài thi giữa kỳ", component_key: "weekly", grp: "QT", max_score: "10", source: "EXAM", published: true },
+];
+
+export async function gradebookApi(p: Page, opts: Opts = {}) {
+  const n = opts.students ?? 30;
+  const entries = new Map<string, Entry>();
+  const columns = COLUMNS();
+  const calls: Array<{ method: string; path: string; body: string }> = [];
+  const scheme = opts.scheme ?? true;
+  const result = (i: number) => {
+    const w = entries.get(`${stuId(i)}:${WEEKLY}`);
+    const f = entries.get(`${stuId(i)}:${FINAL}`);
+    if (!w || !f) return { status: "INCOMPLETE", verdict: "INCOMPLETE:final", missing: f ? ["weekly"] : ["final"] };
+    const hp = Math.round((Number(w.score) * 0.4 + Number(f.score) * 0.6) * 2) / 2;
+    return { status: "COMPLETE", qt: w.score, hp: String(hp), letter: hp >= 8.5 ? "A" : hp >= 5 ? "C" : "F", verdict: hp < 3 ? "LIET:final<3.0" : "OK", missing: [] };
+  };
+  const row = (i: number) => ({
+    student: student(i),
+    entries: Object.fromEntries([WEEKLY, FINAL].flatMap((c) => { const x = entries.get(`${stuId(i)}:${c}`); return x ? [[c, x]] : []; })),
+    bonus: "0", penalty: "0", result: scheme ? result(i) : null, ...(opts.locked ? { locked: { version: 2 } } : {}),
+  });
+  const handle = async (route: Route, skip = false): Promise<void> => {
+    const req = route.request();
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+    const url = new URL(req.url());
+    const path = url.pathname.replace("/api/v1", "");
+    const body = req.postData() ?? "";
+    const tail = path.replace(/^\/courses\/[^/]+\//, "").replace(/\/students\/[^/]+\//, "/students/*/");
+    const key = `${req.method()} ${tail.replace(/^grade-items\/[^/]+\//, "grade-items/*/")}`;
+    calls.push({ method: req.method(), path: path + url.search, body });
+    const custom = opts.h?.[key];
+    if (custom && !skip) return custom(route, (r) => handle(r, true));
+    if (key === "GET grade-scheme/status") {
+      const state = opts.status ?? (scheme ? "CONFIRMED" : "NO_POLICY");
+      return route.fulfill(j({ state, unclear_count: 0, has_policy: state !== "NO_POLICY", pending_draft: false, gradebook: { status: opts.locked ? "LOCKED" : "OPEN", snapshot_version: opts.locked ? 2 : 0 }, ...(state !== "CONFIRMED" ? { finalize_blocked_reason: "Chưa có công thức điểm đã xác nhận" } : {}) }));
+    }
+    if (key === "GET gradebook") {
+      const cursor = Number(url.searchParams.get("cursor") ?? 0);
+      const limit = Number(url.searchParams.get("limit") ?? 30);
+      const idx = Array.from({ length: Math.min(limit, n - cursor) }, (_, k) => cursor + k + 1);
+      const next = cursor + limit < n ? String(cursor + limit) : null;
+      return route.fulfill(j({
+        scheme: scheme ? { id: "s1", scheme_no: 1 } : null, state: { status: opts.locked ? "LOCKED" : "OPEN", snapshot_version: opts.locked ? 2 : 0 },
+        columns: scheme ? columns : [], rows: idx.map(row), next_cursor: next,
+        ...(cursor === 0 && opts.warnings?.length ? { warnings: opts.warnings, warning_students: Object.fromEntries(opts.warnings.map((w) => [w, [{ id: stuId(1), full_name: student(1).full_name }]])) } : {}),
+      }));
+    }
+    if (key === "PUT grade-entries") {
+      const b = JSON.parse(body) as { item_id: string; student_id: string; score: string | null; version: number | null };
+      const k = `${b.student_id}:${b.item_id}`;
+      const cur = entries.get(k);
+      if (opts.locked) return route.fulfill(e(409, "GRADEBOOK_LOCKED"));
+      if (b.item_id === EXAMCOL) return route.fulfill(e(409, "ITEM_NOT_EDITABLE"));
+      if (cur && b.version !== cur.version) return route.fulfill(e(409, "VERSION_CONFLICT", { current_version: cur.version, current: { score: cur.score, version: cur.version, updated_by: { name: "Thầy Nam" }, updated_at: new Date(Date.now() - 120_000).toISOString() } }));
+      if (!cur && b.version !== null) return route.fulfill(e(409, "VERSION_CONFLICT", { current_version: 0, current: { score: null, version: 0 } }));
+      const i = Number(b.student_id.slice(-5));
+      if (b.score === null) entries.delete(k);
+      else {
+        if (Number(b.score) > 10) return route.fulfill(e(422, "SCORE_OUT_OF_RANGE"));
+        if (!/^\d{1,3}(\.\d{1,2})?$/.test(b.score)) return route.fulfill(e(422, "SCORE_PRECISION"));
+        entries.set(k, { score: b.score, version: (cur?.version ?? 0) + 1, source: "MANUAL" });
+      }
+      const out = entries.get(k);
+      return route.fulfill(j({ entry: out ? { item_id: b.item_id, student_id: b.student_id, ...out } : null, row_result: result(i), bonus: "0", penalty: "0" }));
+    }
+    if (key === "POST grade-items/*/publish") {
+      const b = JSON.parse(body) as { published: boolean };
+      return route.fulfill(j({ item_id: path.split("/").at(-2), published: b.published }));
+    }
+    if (key === "GET gradebook/students/*/explain") {
+      return route.fulfill(j({
+        student: student(2), result: { status: "COMPLETE", hp: "7", letter: "B", verdict: "OK", missing: [] },
+        lines: [
+          { label: "QT₀", expr: "(8 + 7,5) ÷ 2", value: "7,75", filled_by_user: false },
+          { label: "Điểm cộng", expr: "min(0,5; 1,0)", value: "0,50", quote: "Mỗi lần phát biểu được cộng 0,25 điểm.", page: 2, filled_by_user: false },
+          { label: "Làm tròn", expr: "round(7,20 ÷ 0,5) × 0,5", value: "7,0", filled_by_user: true },
+        ],
+      }));
+    }
+    if (key === "GET gradebook/students/*/history") {
+      return route.fulfill(j({ items: [{ at: "2026-10-30T03:00:00Z", by: "Lê Thu Hà", action: "set", item: "weekly", from: "8", to: "9" }], next_cursor: null }));
+    }
+    return route.fulfill(e(404, "NOT_FOUND"));
+  };
+  await p.route(/\/api\/v1\/courses\/[^/]+\/(gradebook|grade-entries|grade-items\/[^/]+\/publish|grade-scheme\/status)/, (r) => handle(r));
+  return { calls, entries, puts: () => calls.filter((c) => c.method === "PUT") };
+}

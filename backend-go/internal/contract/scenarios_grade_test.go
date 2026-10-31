@@ -71,6 +71,14 @@ func (r *runner) gradeScenarios(x examRig) {
 	}
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/grade-scheme/status", token: x.gv}, 404)
 
+	// Chưa có công thức đã xác nhận: xem trước và giải trình → 409 SCHEME_NOT_CONFIRMED (US-P6-06).
+	var student string
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'STUDENT' and status = 'ACTIVE' order by user_id limit 1`, x.cid).Scan(&student); err != nil {
+		r.t.Fatalf("sinh viên của lớp: %v", err)
+	}
+	r.must(call{method: "GET", path: base + "/gradebook/preview", token: x.gv}, 409)
+	r.must(call{method: "GET", path: base + "/gradebook/students/" + student + "/explain", token: x.gv}, 409)
+
 	// US-P6-04: GET / PUT …/grade-scheme, POST …/impact, POST …/confirm.
 	gs := base + "/grade-scheme"
 	r.must(call{method: "GET", path: gs, token: x.gv}, 200)
@@ -122,4 +130,105 @@ func (r *runner) gradeScenarios(x examRig) {
 	r.must(put(4, valid), 200)
 	r.must(confirm(x.gv, 5), 200)
 	r.must(confirm(x.gv, 6), 409) // không còn bản nháp
+
+	// US-P6-06: bảng điểm, xem trước, sửa ô, công bố cột, giải trình, lịch sử (công thức đã CONFIRMED ở trên).
+	var weekly, finalItem, exam string
+	for k, dst := range map[string]*string{"weekly": &weekly, "final": &finalItem} {
+		if err := db.QueryRow(ctx, `select i.id from grade_items i join grade_schemes s on s.id = i.scheme_id where i.course_id = $1 and s.status = 'CONFIRMED' and i.key = $2`, x.cid, k).Scan(dst); err != nil {
+			r.t.Fatalf("cột điểm %s: %v", k, err)
+		}
+	}
+	gb := base + "/gradebook"
+	r.must(call{method: "GET", path: gb + "?limit=10", token: x.gv}, 200)
+	r.must(call{method: "GET", path: gb, token: x.ta}, 200)
+	r.must(call{method: "GET", path: gb}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: gb, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/gradebook", token: x.gv}, 404)
+	r.must(call{method: "GET", path: gb + "?limit=0", token: x.gv}, 422)
+	r.must(call{method: "GET", path: gb + "?cursor=%25", token: x.gv}, 422)
+
+	pv := gb + "/preview"
+	r.must(call{method: "GET", path: pv, token: x.gv}, 200)
+	r.must(call{method: "GET", path: pv, token: x.ta}, 200)
+	r.must(call{method: "GET", path: pv}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: pv, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/gradebook/preview", token: x.gv}, 404)
+	r.must(call{method: "GET", path: pv + "?limit=0", token: x.gv}, 422)
+
+	ge := base + "/grade-entries"
+	entry := func(token, item, score string, version string) call {
+		return call{method: "PUT", path: ge, token: token, body: `{"item_id":"` + item + `","student_id":"` + student + `","score":` + score + `,"version":` + version + `}`}
+	}
+	r.must(entry(x.gv, weekly, `"8,5"`, "null"), 200)
+	r.must(entry(x.gv, weekly, `"9"`, "null"), 409) // ô đã có mà version null
+	r.must(entry(x.gv, weekly, `"9"`, "1"), 200)
+	r.must(entry(x.gv, weekly, `"11"`, "2"), 422)    // ngoài thang
+	r.must(entry(x.gv, weekly, `"8,333"`, "2"), 422) // quá 2 chữ số thập phân
+	r.must(entry(x.gv, weekly, `"abc"`, "2"), 422)
+	r.must(entry(x.gv, "00000000-0000-7000-8000-00000000dead", `"5"`, "null"), 404)
+	r.must(call{method: "PUT", path: ge, token: x.gv, body: `{}`}, 422)
+	r.must(entry(x.ta, weekly, `"5"`, "2"), 403)
+	r.must(entry(x.sv, weekly, `"5"`, "2"), 403)
+	r.must(entry(x.admin, weekly, `"5"`, "2"), 403)
+	r.must(entry("", weekly, `"5"`, "2"), 401)
+	r.must(call{method: "PUT", path: "/api/v1/courses/khong-phai-uuid/grade-entries", token: x.gv, body: `{"item_id":"` + weekly + `","student_id":"` + student + `","score":"5","version":2}`}, 404)
+	r.must(entry(x.gv, weekly, `null`, "3"), 409) // version cũ: ô đã ở version 2
+	r.must(entry(x.gv, finalItem, `"7"`, "null"), 200)
+	r.must(entry(x.gv, finalItem, `null`, "1"), 200) // xoá ô
+
+	var teacherID string
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'TEACHER'`, x.cid).Scan(&teacherID); err != nil {
+		r.t.Fatalf("giảng viên của lớp: %v", err)
+	}
+	if err := db.QueryRow(ctx, `insert into exams (course_id, title, created_by, status, max_score, opens_at, closes_at, duration_minutes) values ($1, 'Thi giữa kỳ', $2, 'SCHEDULED', 10, now() + interval '1 day', now() + interval '2 days', 45) returning id`, x.cid, teacherID).Scan(&exam); err != nil {
+		r.t.Fatalf("chèn bài thi: %v", err)
+	}
+	if _, err := db.Exec(ctx, `update grade_items set source = 'EXAM', exam_id = $2 where id = $1`, finalItem, exam); err != nil {
+		r.t.Fatalf("đổi nguồn cột: %v", err)
+	}
+	r.must(entry(x.gv, finalItem, `"7"`, "null"), 409) // ITEM_NOT_EDITABLE
+
+	pub := base + "/grade-items/" + weekly + "/publish"
+	r.must(call{method: "POST", path: pub, token: x.gv, body: `{"published":true}`}, 200)
+	r.must(call{method: "POST", path: pub, token: x.gv, body: `{"published":true}`}, 200) // idempotent
+	r.must(call{method: "POST", path: pub, token: x.gv, body: `{}`}, 422)
+	r.must(call{method: "POST", path: pub, token: x.ta, body: `{"published":true}`}, 403)
+	r.must(call{method: "POST", path: pub, token: x.sv, body: `{"published":true}`}, 403)
+	r.must(call{method: "POST", path: pub, body: `{"published":true}`}, 401)
+	r.must(call{method: "POST", path: base + "/grade-items/" + finalItem + "/publish", token: x.gv, body: `{"published":true}`}, 409) // ITEM_NOT_PUBLISHABLE
+	r.must(call{method: "POST", path: base + "/grade-items/khong-phai-uuid/publish", token: x.gv, body: `{"published":true}`}, 404)
+
+	ex1 := gb + "/students/" + student + "/explain"
+	r.must(call{method: "GET", path: ex1, token: x.gv}, 200)
+	r.must(call{method: "GET", path: ex1, token: x.ta}, 200)
+	r.must(call{method: "GET", path: ex1}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: ex1, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: gb + "/students/00000000-0000-7000-8000-00000000dead/explain", token: x.gv}, 404)
+	r.must(call{method: "GET", path: gb + "/students/khong-phai-uuid/explain", token: x.gv}, 404)
+
+	hi := gb + "/students/" + student + "/history"
+	r.must(call{method: "GET", path: hi, token: x.gv}, 200)
+	r.must(call{method: "GET", path: hi, token: x.ta}, 200)
+	r.must(call{method: "GET", path: hi}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: hi, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: hi + "?cursor=%25", token: x.gv}, 422)
+	r.must(call{method: "GET", path: gb + "/students/khong-phai-uuid/history", token: x.gv}, 404)
+
+	// sổ đã chốt: sửa ô, công bố cột → 409 GRADEBOOK_LOCKED
+	if _, err := db.Exec(ctx, `update gradebooks set status = 'LOCKED', snapshot_version = 1 where course_id = $1`, x.cid); err != nil {
+		r.t.Fatalf("khoá sổ: %v", err)
+	}
+	r.must(entry(x.gv, weekly, `"5"`, "2"), 409)
+	r.must(call{method: "POST", path: pub, token: x.gv, body: `{"published":false}`}, 409)
+	if _, err := db.Exec(ctx, `update gradebooks set status = 'OPEN', snapshot_version = 0 where course_id = $1`, x.cid); err != nil {
+		r.t.Fatalf("mở sổ: %v", err)
+	}
 }

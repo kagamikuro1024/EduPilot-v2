@@ -12,6 +12,8 @@
 .blockHead { display: flex; align-items: baseline; gap: var(--ep-space-3); flex-wrap: wrap; }
 .blockHead h3 { margin: 0; }
 .unclear { margin: 0; color: var(--ep-red); font-size: var(--ep-text-label); font-weight: 600; }
+.valueBtn { justify-self: start; padding: var(--ep-space-1) 0; border: 0; background: none; text-align: left; font-size: var(--ep-text-item); font-weight: 600; line-height: 1.45; color: var(--ep-ink); cursor: pointer; text-decoration: underline; text-decoration-color: transparent; text-underline-offset: 3px; }
+.valueBtn:hover, .valueBtn:focus-visible { text-decoration-color: var(--ep-ink-3); }
 .value { margin: 0; font-size: var(--ep-text-item); font-weight: 600; line-height: 1.45; }
 
 .comps { display: grid; gap: var(--ep-space-3); }

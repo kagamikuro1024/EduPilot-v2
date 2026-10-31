@@ -5,6 +5,8 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
@@ -34,6 +36,12 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(teacher).Put("/courses/{id}/grade-scheme", h.putScheme)
 	r.With(staff).Post("/courses/{id}/grade-scheme/impact", h.impact)
 	r.With(teacher, h.Idem).Post("/courses/{id}/grade-scheme/confirm", h.confirm)
+	r.With(staff).Get("/courses/{id}/gradebook", h.gradebook)
+	r.With(staff).Get("/courses/{id}/gradebook/preview", h.preview)
+	r.With(teacher).Put("/courses/{id}/grade-entries", h.putEntry)
+	r.With(teacher).Post("/courses/{id}/grade-items/{itemId}/publish", h.publish)
+	r.With(staff).Get("/courses/{id}/gradebook/students/{uid}/explain", h.explain)
+	r.With(staff).Get("/courses/{id}/gradebook/students/{uid}/history", h.history)
 }
 
 func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
@@ -186,5 +194,174 @@ func (h *Handler) confirm(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// limitOf đọc `limit` (1..100, mặc định 30); sai → 422 VALIDATION_FAILED. Con trỏ do gói grade giải mã (khoá sắp xếp là chữ, không phải thời gian).
+func limitOf(w http.ResponseWriter, r *http.Request) (int, bool) {
+	raw := r.URL.Query().Get("limit")
+	if raw == "" {
+		return 30, true
+	}
+	n, err := strconv.Atoi(raw)
+	if err != nil || n < 1 || n > 100 {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "limit", Code: "range", Message: "limit phải là số nguyên từ 1 đến 100."}))
+		return 0, false
+	}
+	return n, true
+}
+
+// gradebook: GET …/gradebook?cursor=&limit= (Staff) — không cache (điểm không cache phía máy chủ).
+func (h *Handler) gradebook(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	limit, ok := limitOf(w, r)
+	if !ok {
+		return
+	}
+	cursor := r.URL.Query().Get("cursor")
+	out, err := h.Grade.Gradebook(r.Context(), cid, cursor, limit, cursor == "")
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// preview: GET …/gradebook/preview?cursor=&limit= (Staff).
+func (h *Handler) preview(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	limit, ok := limitOf(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Grade.Preview(r.Context(), cid, r.URL.Query().Get("cursor"), limit)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// putEntry: PUT …/grade-entries {item_id, student_id, score, version} (TEACHER).
+func (h *Handler) putEntry(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	var in grade.PutEntryInput
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	if in.ItemID == uuid.Nil || in.StudentID == uuid.Nil {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "item_id", Code: "required", Message: "Thiếu cột điểm hoặc sinh viên."}))
+		return
+	}
+	out, err := h.Grade.PutEntry(r.Context(), actor, cid, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// publish: POST …/grade-items/{itemId}/publish {published} (TEACHER; idempotent).
+func (h *Handler) publish(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	item, err := uuid.Parse(chi.URLParam(r, "itemId"))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
+	var b struct {
+		Published *bool `json:"published"`
+	}
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	if b.Published == nil {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "published", Code: "required", Message: "Thiếu published."}))
+		return
+	}
+	pub, err := h.Grade.PublishItem(r.Context(), actor, cid, item, *b.Published)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"item_id": item, "published": pub})
+}
+
+func studentOf(w http.ResponseWriter, r *http.Request) (uuid.UUID, bool) {
+	id, err := uuid.Parse(chi.URLParam(r, "uid"))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return uuid.Nil, false
+	}
+	return id, true
+}
+
+// explain: GET …/gradebook/students/{uid}/explain (Staff).
+func (h *Handler) explain(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	uid, ok := studentOf(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Grade.Explain(r.Context(), cid, uid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// history: GET …/gradebook/students/{uid}/history?cursor= (Staff; ≤ 50 mục mới nhất từ audit_log).
+func (h *Handler) history(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	uid, ok := studentOf(w, r)
+	if !ok {
+		return
+	}
+	var at *time.Time
+	var id *uuid.UUID
+	if c := r.URL.Query().Get("cursor"); c != "" {
+		t, i, err := grade.ParseHistoryCursor(c)
+		if err != nil {
+			h.fail(w, r, err)
+			return
+		}
+		at, id = &t, &i
+	}
+	out, err := h.Grade.History(r.Context(), cid, uid, at, id, 50)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
 	httpx.WriteJSON(w, http.StatusOK, out)
 }

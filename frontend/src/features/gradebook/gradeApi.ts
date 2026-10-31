@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { apiClient } from "@/shared/data";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`GET /courses/{id}/grade-scheme/status`).
@@ -122,4 +122,58 @@ export const useDocPreview = (course: string, docId: string | undefined) =>
     staleTime: 4 * 60_000,
     retry: false,
     queryFn: async ({ signal }) => (await apiClient.get<{ preview_url?: string }>(`/courses/${course}/documents/${docId}`, { signal })).data.preview_url ?? null,
+  });
+
+// ---- bảng điểm (US-P6-06) ------------------------------------------------------------------------------------------------------------------------
+export type Column = { item_id: string; key: string; name: string; component_key: string; grp: "QT" | "CK"; max_score: string; source: "MANUAL" | "EXAM" | "ASSIGNMENT"; published: boolean };
+export type GEntry = { score: string; version: number; source: string; updated_by?: string };
+export type GResult = { status: "COMPLETE" | "INCOMPLETE" | "INVALID"; qt?: string; hp?: string; letter?: string; verdict: string; missing: string[] };
+export type GRow = { student: { id: string; full_name: string; student_code: string }; entries: Record<string, GEntry>; bonus: string; penalty: string; result: GResult | null; locked?: { version: number } };
+export type GradebookPage = {
+  scheme: { id: string; scheme_no: number } | null;
+  state: { status: "OPEN" | "LOCKED"; snapshot_version: number };
+  columns: Column[];
+  rows: GRow[];
+  next_cursor: string | null;
+  warnings?: Array<"PENALTY_NOT_IN_SCHEME" | "BONUS_NOT_IN_SCHEME">;
+  warning_students?: Record<string, Array<{ id: string; full_name: string }>>;
+};
+export type PutEntryOut = { entry: { item_id: string; student_id: string; score: string; version: number; source: string } | null; row_result: GResult | null; bonus: string; penalty: string };
+export type Explain = { student: { id: string; full_name: string; student_code: string }; result: GResult; lines: Array<{ label: string; expr: string; value: string; quote?: string; page?: number; filled_by_user: boolean }>; locked?: { version: number } };
+export type HistoryPage = { items: Array<{ at: string; by: string; action: string; item: string; from: string | null; to: string | null }>; next_cursor: string | null };
+
+export const gradebookKey = (course: string) => ["gradebook", course] as const;
+
+export const useGradebook = (course: string) =>
+  useInfiniteQuery({
+    queryKey: gradebookKey(course),
+    initialPageParam: null as string | null,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+    queryFn: async ({ pageParam, signal }) => (await apiClient.get<GradebookPage>(`/courses/${course}/gradebook`, { signal, query: { limit: 100, cursor: pageParam } })).data,
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
+  });
+
+export const putEntry = async (course: string, body: { item_id: string; student_id: string; score: string | null; version: number | null }) =>
+  (await apiClient.put<PutEntryOut>(`/courses/${course}/grade-entries`, body)).data;
+
+export const publishItem = async (course: string, item: string, published: boolean) =>
+  (await apiClient.post<{ item_id: string; published: boolean }>(`/courses/${course}/grade-items/${item}/publish`, { published })).data;
+
+export const useExplain = (course: string, student: string | null) =>
+  useQuery({
+    queryKey: ["grade-explain", course, student],
+    enabled: Boolean(student),
+    staleTime: 0,
+    queryFn: async ({ signal }) => (await apiClient.get<Explain>(`/courses/${course}/gradebook/students/${student}/explain`, { signal })).data,
+  });
+
+export const useHistory = (course: string, student: string | null) =>
+  useInfiniteQuery({
+    queryKey: ["grade-history", course, student],
+    enabled: Boolean(student),
+    initialPageParam: null as string | null,
+    staleTime: 0,
+    queryFn: async ({ pageParam, signal }) => (await apiClient.get<HistoryPage>(`/courses/${course}/gradebook/students/${student}/history`, { signal, query: { cursor: pageParam } })).data,
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
   });

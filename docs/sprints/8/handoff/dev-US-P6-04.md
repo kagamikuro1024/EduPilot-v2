@@ -23,3 +23,8 @@ Nhánh `sprint/8-p6`. Spec: US-P6-04 AC1–AC10, SRS 4.4, 6.1 #2–#5. Proposals
 ## Còn nợ / hỏi
 - Kiểm trên stack đầy đủ (PDF thật, SSE trình duyệt) ở US-S8-SEED / cổng.
 - Banner `/gradebook` và khoá `Chốt điểm` (US-P6-05 AC2 / AC3) làm ở US-P6-06 / US-P6-08.
+
+## Vòng 2 (sau QC vòng 1)
+- **BUG-P6-04-1:** `SchemeBlocks.tsx` — mặc định mỗi mục là CHỮ ("Giữa kỳ · 20 % · Quá trình", "Làm tròn đến 0,5", …); bấm vào mục thì chỉ mục đó mở ô sửa tại chỗ kèm `Xong`; ô nhập tự mở ở khối có mục chưa rõ. `useSchemeEditor` giữ nguyên. Test: `scheme review layout` thêm kiểm "chỉ 1 ô nhập hiện (bước làm tròn chưa rõ)", bấm mục → `Trọng số`, `Xong` → đóng; `scheme edit optimistic/conflict/offline retry` bấm mục trước khi sửa.
+- **BUG-P6-04-3:** `grade-fixtures.ts` — route giả của công thức chỉ bắt `grade-scheme` và tài liệu nguồn `documents/<DOC>(/chunks)`, không bắt route tài liệu khác (`panels.spec` teacher / ta xanh cục bộ).
+- **BUG-P6-04-2:** đo p95 `POST …/impact` ≤ 300 ms để US-S8-SEED (PM đã dời).

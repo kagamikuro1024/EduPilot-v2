@@ -5,6 +5,8 @@ import { useState } from "react";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { apiClient } from "@/shared/data";
 import { useCursorList } from "@/shared/data/useCursorList";
+import { GradeCalculation } from "@/shared/domain";
+import { useExplain, useSchemeStatus } from "../gradebook/gradeApi";
 import { Button, ButtonLink, DataTable, DefinitionList, EmptyState, InlineNotice, Page, PageHeader, Panel, Section, Skeleton, StatusText, Tabs, TrendChart } from "@/shared/ui";
 import { ProfileNotes } from "./ProfileNotes";
 import { ProfileOutreach } from "./ProfileOutreach";
@@ -71,7 +73,7 @@ export function RealProfile({ courseId, studentId, classCode, userId, canManage 
           <Tabs label="Phần hồ sơ" value={tab} onChange={setTab} options={TABS} />
           {tab === "overview" && <Overview p={p} />}
           {tab === "attendance" && <AttendanceTab courseId={courseId} studentId={studentId} name={p.student.full_name} />}
-          {tab === "grades" && <GradesTab p={p} canManage={canManage} />}
+          {tab === "grades" && <GradesTab p={p} courseId={courseId} studentId={studentId} canManage={canManage} />}
           {tab === "activity" && <ActivityTab p={p} />}
           {tab === "notes" && <ProfileNotes courseId={courseId} studentId={studentId} userId={userId} focusSignal={composeNote} />}
         </>
@@ -126,11 +128,17 @@ function AttendanceTab({ courseId, studentId, name }: { courseId: string; studen
   );
 }
 
-function GradesTab({ p, canManage }: { p: Profile; canManage: boolean }) {
+function GradesTab({ p, courseId, studentId, canManage }: { p: Profile; courseId: string; studentId: string; canManage: boolean }) {
+  const confirmed = useSchemeStatus(courseId).data?.state === "CONFIRMED";
+  const explain = useExplain(courseId, confirmed ? studentId : null);
   return (
     <Section panel title="Điểm">
       <DefinitionList items={[{ term: "Điểm cộng đã ghi", value: signedPoints(p.participation.points_total) }]} />
-      <EmptyState title="Lớp chưa có công thức điểm đã xác nhận." action={canManage ? <ButtonLink href="/gradebook">Xác nhận công thức</ButtonLink> : undefined} />
+      {confirmed ? (
+        explain.isPending ? <Skeleton lines={5} /> : explain.data ? <GradeCalculation lines={explain.data.lines} caption={`Giải trình điểm của ${p.student.full_name}`} /> : <ApiErrorNotice error={explain.error} onRetry={() => void explain.refetch()} title="Không tải được giải trình." />
+      ) : (
+        <EmptyState title="Lớp chưa có công thức điểm đã xác nhận." action={canManage ? <ButtonLink href="/gradebook">Xác nhận công thức</ButtonLink> : undefined} />
+      )}
     </Section>
   );
 }

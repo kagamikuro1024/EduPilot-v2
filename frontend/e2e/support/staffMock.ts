@@ -1,6 +1,7 @@
 import type { Page, Route } from "@playwright/test";
 import { BASE_URL } from "./env";
 import { gradeApi } from "./grade-fixtures";
+import { gradebookApi } from "./gradebook-fixtures";
 
 /** Gateway giả đọc-chỉ cho các màn Staff có API thật (bài thi, câu hỏi, thành viên): chỉ phục vụ đo bố cục, không ghi gì. */
 const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
@@ -44,6 +45,7 @@ const MEMBERS = [
 ];
 
 export async function mockStaffApi(page: Page, opts: { emptyExams?: boolean } = {}) {
+  await gradebookApi(page); // /gradebook THẬT (US-P6-06): sổ điểm mẫu để màn dựng dữ liệu khi quét
   await gradeApi(page); // /gradebook/scheme THẬT (US-P6-04): bản nháp mẫu để màn dựng dữ liệu khi quét
   await page.route(/\/api\/v1\/courses\/[^/]+\/(exams|questions|members|join-code|share-sources)/, async (route) => {
     const req = route.request();

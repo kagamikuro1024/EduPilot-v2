@@ -2,7 +2,7 @@
 
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
-import type { Column, Pagination } from "./DataTable";
+import type { CellNav, Column, Pagination } from "./DataTable";
 import { InlineNotice } from "./Feedback";
 import s from "./DataTable.module.css";
 
@@ -22,6 +22,8 @@ export default function VirtualTable<T>({
   activeKey,
   caption,
   height,
+  cellNav,
+  rowAttrs,
   pagination,
 }: {
   columns: Column<T>[];
@@ -31,6 +33,8 @@ export default function VirtualTable<T>({
   activeKey?: string;
   caption: string;
   height: number;
+  cellNav?: CellNav<T>;
+  rowAttrs?: (row: T) => Record<string, string>;
   pagination?: Pagination;
 }) {
   const parentRef = useRef<HTMLDivElement>(null);
@@ -54,6 +58,59 @@ export default function VirtualTable<T>({
       pagination.onLoadMore(next);
     }
   }, [last, count, next, pagination]);
+
+  // Di chuyển ô nhập (Enter / Tab): dòng đích có thể đang ngoài cửa sổ ảo → cuộn tới rồi lấy focus sau khi dựng.
+  const pendingFocus = useRef<{ idx: number; col: string } | null>(null);
+  const skipBlur = useRef(false); // Esc hoàn tác: rời ô sau đó không được lưu lại nháp vừa bỏ
+  const [, bump] = useState(0);
+  useEffect(() => {
+    const p = pendingFocus.current;
+    if (!p || !cellNav) return;
+    const row = rows[p.idx];
+    if (!row) { pendingFocus.current = null; return; }
+    const el = parentRef.current?.querySelector<HTMLInputElement>(`input[data-cell="${CSS.escape(`${rowKey(row)}:${p.col}`)}"]`);
+    if (el) { pendingFocus.current = null; el.focus(); el.select(); }
+  });
+  const editableCols = columns.filter((c) => c.cell);
+  function focusCell(idx: number, col: string) {
+    pendingFocus.current = { idx, col };
+    v.scrollToIndex(idx, { align: "auto" });
+    bump((n) => n + 1);
+  }
+  function cellKey(e: KeyboardEvent<HTMLInputElement>, row: T, rowIdx: number, col: Column<T>) {
+    if (!cellNav) return;
+    const text = e.currentTarget.value;
+    const next = (dir: 1 | -1) => {
+      const at = editableCols.findIndex((c) => c.key === col.key);
+      for (let i = at + dir; i >= 0 && i < editableCols.length; i += dir) {
+        const c = editableCols[i];
+        if (c.cell?.editable(row)) return c.key;
+      }
+      return null;
+    };
+    if (e.key === "Enter") {
+      e.preventDefault();
+      cellNav.onCommit(row, col.key, text, "down");
+      if (rowIdx + 1 < count) focusCell(rowIdx + 1, col.key);
+    } else if (e.key === "Tab" && !e.shiftKey) {
+      const to = next(1);
+      cellNav.onCommit(row, col.key, text, "right");
+      if (to) { e.preventDefault(); focusCell(rowIdx, to); }
+    } else if (e.key === "Tab" && e.shiftKey) {
+      const to = next(-1);
+      cellNav.onCommit(row, col.key, text, "stay");
+      if (to) { e.preventDefault(); focusCell(rowIdx, to); }
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      cellNav.onDraft(`${rowKey(row)}:${col.key}`, null);
+      skipBlur.current = true;
+      e.currentTarget.blur();
+    } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      const to = rowIdx + (e.key === "ArrowDown" ? 1 : -1);
+      if (to >= 0 && to < count) focusCell(to, col.key);
+    }
+  }
 
   const activeIdx = activeKey !== undefined ? rows.findIndex((r) => rowKey(r) === activeKey) : cursorIdx;
   // aria-activedescendant chỉ được trỏ tới dòng ĐANG có trong DOM: dòng ngoài cửa sổ ảo thì bỏ thuộc tính (scrollToIndex dựng dòng đó ngay sau phím).
@@ -103,7 +160,7 @@ export default function VirtualTable<T>({
         <thead>
           <tr aria-rowindex={1}>
             {columns.map((c) => (
-              <th key={c.key} scope="col" style={{ "--w": c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties} className={s.th}>
+              <th key={c.key} scope="col" style={{ "--w": c.width, textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" } as CSSProperties} className={[s.th, c.frozen ? s.frozen : ""].join(" ")}>
                 {c.header}
               </th>
             ))}
@@ -123,13 +180,42 @@ export default function VirtualTable<T>({
                 aria-rowindex={it.index + 2}
                 className={[onRowClick ? s.clickable : "", on ? s.active : ""].join(" ")}
                 aria-current={on ? "true" : undefined}
+                {...rowAttrs?.(row)}
                 onClick={onRowClick ? () => { setCursorIdx(it.index); onRowClick(row); } : undefined}
               >
-                {columns.map((c) => (
-                  <td key={c.key} style={{ textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}>
-                    {c.render(row)}
-                  </td>
-                ))}
+                {columns.map((c) => {
+                  const edit = cellNav && c.cell?.editable(row);
+                  const ck = `${key}:${c.key}`;
+                  return (
+                    <td key={c.key} className={c.frozen ? s.frozen : undefined} style={{ textAlign: c.align === "end" ? "right" : c.align === "center" ? "center" : "left" }}>
+                      {edit && c.cell ? (
+                        <span className={s.cellBox}>
+                          <input
+                            className={s.cellInput}
+                            data-cell={ck}
+                            inputMode="decimal"
+                            aria-label={c.cell.label(row)}
+                            aria-invalid={c.cell.invalid?.(row) ? true : undefined}
+                            value={cellNav.drafts.get(ck) ?? c.cell.value(row)}
+                            onChange={(e) => cellNav.onDraft(ck, e.target.value)}
+                            onFocus={(e) => e.currentTarget.select()}
+                            onBlur={(e) => {
+                              if (skipBlur.current) {
+                                skipBlur.current = false;
+                                return;
+                              }
+                              if (cellNav.drafts.has(ck)) cellNav.onCommit(row, c.key, e.currentTarget.value, "stay");
+                            }}
+                            onKeyDown={(e) => cellKey(e, row, it.index, c)}
+                          />
+                          {c.cell.status?.(row)}
+                        </span>
+                      ) : (
+                        c.render(row)
+                      )}
+                    </td>
+                  );
+                })}
               </tr>
             );
           })}

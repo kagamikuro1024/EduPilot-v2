@@ -2684,6 +2684,199 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/gradebook:
+    get:
+      operationId: getGradebook
+      tags: [gradebook]
+      summary: "Bảng điểm của lớp theo trang con trỏ (TEACHER / TA; limit ≤ 100; sắp theo tên bỏ dấu rồi id): cột theo thành phần → item, điểm đã nhập kèm version, kết quả `Compute` mỗi sinh viên. Lớp chưa có công thức đã xác nhận: không có cột. Trang đầu kèm `warnings` (luật điểm cộng / trừ không áp dụng mà vẫn có sự kiện). Không cache"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Một trang bảng điểm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradebookPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/gradebook/preview:
+    get:
+      operationId: previewGradebook
+      tags: [gradebook]
+      summary: "Kết quả `Compute` cho cả lớp theo trang (TEACHER / TA); `summary` (số sinh viên, đủ / thiếu điểm, liệt, phân bố điểm chữ) chỉ ở trang đầu. Chưa có công thức đã xác nhận 409 SCHEME_NOT_CONFIRMED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Một trang xem trước
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradebookPreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grade-entries:
+    put:
+      operationId: putGradeEntry
+      tags: [gradebook]
+      summary: "Sửa / xoá một ô điểm nhập tay (chỉ TEACHER): điểm ≤ 2 chữ số thập phân (không tự làm tròn), trong [0; thang của cột]; khoá lạc quan bằng version (ô mới version null). Trả điểm đã lưu + kết quả `Compute` của hàng. Cột bài thi 409 ITEM_NOT_EDITABLE; sổ đã chốt 409 GRADEBOOK_LOCKED; sai version 409 VERSION_CONFLICT kèm giá trị hiện tại. Mỗi lần ghi có một dòng audit cùng giao dịch"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutGradeEntryInput"
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PutGradeEntryOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grade-items/{itemId}/publish:
+    post:
+      operationId: publishGradeItem
+      tags: [gradebook]
+      summary: "Công bố / gỡ công bố một cột điểm nhập tay cho sinh viên (chỉ TEACHER; idempotent; có audit). Cột bài thi theo bài thi: 409 ITEM_NOT_PUBLISHABLE; sổ đã chốt 409 GRADEBOOK_LOCKED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublishGradeItemInput"
+      responses:
+        "200":
+          description: Trạng thái công bố
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishGradeItemOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/gradebook/students/{uid}/explain:
+    get:
+      operationId: explainGrade
+      tags: [gradebook]
+      summary: "Giải trình điểm học phần của một sinh viên (TEACHER / TA): các dòng phép tính do `Compute` sinh, kèm căn cứ quy chế"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Giải trình
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeExplain"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/gradebook/students/{uid}/history:
+    get:
+      operationId: gradeHistory
+      tags: [gradebook]
+      summary: "Lịch sử điểm của một sinh viên (TEACHER / TA): tối đa 50 mục mới nhất từ audit_log, phân trang con trỏ"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: uid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Một trang lịch sử
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeHistoryPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/grade-scheme:
     get:
       operationId: getGradeScheme
@@ -13342,6 +13535,342 @@ components:
           format: date-time
         impact:
           $ref: "#/components/schemas/GradeImpact"
+    GradeColumn:
+      type: object
+      required: [item_id, key, name, component_key, grp, max_score, source, published]
+      additionalProperties: false
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        name:
+          type: string
+        component_key:
+          type: string
+        grp:
+          type: string
+          enum: [QT, CK]
+        max_score:
+          type: string
+        source:
+          type: string
+          enum: [MANUAL, EXAM, ASSIGNMENT]
+        published:
+          type: boolean
+    GradeEntry:
+      type: object
+      required: [score, version, source]
+      additionalProperties: false
+      properties:
+        score:
+          type: string
+        version:
+          type: integer
+        source:
+          type: string
+          enum: [MANUAL, AI_GRADED, QUIZ, IMPORT]
+        updated_by:
+          type: string
+    GradeResult:
+      type: object
+      required: [status, verdict, missing]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [COMPLETE, INCOMPLETE, INVALID]
+        qt:
+          type: string
+        hp:
+          type: string
+        letter:
+          type: string
+        verdict:
+          type: string
+        missing:
+          type: array
+          items:
+            type: string
+    GradebookRow:
+      type: object
+      required: [student, entries, bonus, penalty, result]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name, student_code]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+            student_code:
+              type: string
+        entries:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/GradeEntry"
+        bonus:
+          type: string
+        penalty:
+          type: string
+        result:
+          oneOf:
+            - $ref: "#/components/schemas/GradeResult"
+            - type: "null"
+        locked:
+          type: object
+          required: [version]
+          additionalProperties: false
+          properties:
+            version:
+              type: integer
+    GradebookPage:
+      type: object
+      required: [scheme, state, columns, rows, next_cursor]
+      additionalProperties: false
+      properties:
+        scheme:
+          oneOf:
+            - type: object
+              required: [id, scheme_no]
+              additionalProperties: false
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                scheme_no:
+                  type: integer
+            - type: "null"
+        state:
+          type: object
+          required: [status, snapshot_version]
+          additionalProperties: false
+          properties:
+            status:
+              type: string
+              enum: [OPEN, LOCKED]
+            snapshot_version:
+              type: integer
+        columns:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeColumn"
+        rows:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradebookRow"
+        next_cursor:
+          type: [string, "null"]
+        warnings:
+          type: array
+          items:
+            type: string
+            enum: [PENALTY_NOT_IN_SCHEME, BONUS_NOT_IN_SCHEME]
+        warning_students:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              required: [id, full_name]
+              additionalProperties: false
+              properties:
+                id:
+                  type: string
+                  format: uuid
+                full_name:
+                  type: string
+    GradebookPreview:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        summary:
+          type: object
+          required: [students, complete, incomplete, liet, distribution]
+          additionalProperties: false
+          properties:
+            students:
+              type: integer
+            complete:
+              type: integer
+            incomplete:
+              type: integer
+            liet:
+              type: integer
+            distribution:
+              type: object
+              additionalProperties:
+                type: integer
+        items:
+          type: array
+          items:
+            type: object
+            required: [student_id, student_code, full_name, status, verdict]
+            additionalProperties: false
+            properties:
+              student_id:
+                type: string
+                format: uuid
+              student_code:
+                type: string
+              full_name:
+                type: string
+              status:
+                type: string
+              qt:
+                type: string
+              hp_raw:
+                type: string
+              hp:
+                type: string
+              letter:
+                type: string
+              verdict:
+                type: string
+        next_cursor:
+          type: [string, "null"]
+    PutGradeEntryInput:
+      type: object
+      required: [item_id, student_id]
+      additionalProperties: false
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
+        score:
+          type: [string, "null"]
+        version:
+          type: [integer, "null"]
+    PutGradeEntryOutput:
+      type: object
+      required: [entry, row_result, bonus, penalty]
+      additionalProperties: false
+      properties:
+        entry:
+          oneOf:
+            - type: object
+              required: [item_id, student_id, score, version, source]
+              additionalProperties: false
+              properties:
+                item_id:
+                  type: string
+                  format: uuid
+                student_id:
+                  type: string
+                  format: uuid
+                score:
+                  type: string
+                version:
+                  type: integer
+                source:
+                  type: string
+            - type: "null"
+        row_result:
+          oneOf:
+            - $ref: "#/components/schemas/GradeResult"
+            - type: "null"
+        bonus:
+          type: string
+        penalty:
+          type: string
+    PublishGradeItemInput:
+      type: object
+      required: [published]
+      additionalProperties: false
+      properties:
+        published:
+          type: boolean
+    PublishGradeItemOutput:
+      type: object
+      required: [item_id, published]
+      additionalProperties: false
+      properties:
+        item_id:
+          type: string
+          format: uuid
+        published:
+          type: boolean
+    GradeExplain:
+      type: object
+      required: [student, result, lines]
+      additionalProperties: false
+      properties:
+        student:
+          type: object
+          required: [id, full_name, student_code]
+          additionalProperties: false
+          properties:
+            id:
+              type: string
+              format: uuid
+            full_name:
+              type: string
+            student_code:
+              type: string
+        result:
+          $ref: "#/components/schemas/GradeResult"
+        lines:
+          type: array
+          items:
+            type: object
+            required: [label, expr, value, filled_by_user]
+            additionalProperties: false
+            properties:
+              label:
+                type: string
+              expr:
+                type: string
+              value:
+                type: string
+              quote:
+                type: string
+              page:
+                type: integer
+              filled_by_user:
+                type: boolean
+        locked:
+          type: object
+          required: [version]
+          additionalProperties: false
+          properties:
+            version:
+              type: integer
+    GradeHistoryPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [at, by, action, item, from, to]
+            additionalProperties: false
+            properties:
+              at:
+                type: string
+                format: date-time
+              by:
+                type: string
+              action:
+                type: string
+              item:
+                type: string
+              from:
+                type: [string, "null"]
+              to:
+                type: [string, "null"]
+        next_cursor:
+          type: [string, "null"]
     ExtractGradeSchemeInput:
       type: object
       required: [document_id]
