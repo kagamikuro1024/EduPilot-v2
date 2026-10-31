@@ -450,7 +450,7 @@ func (q *Queue) progress(ctx context.Context, rid uuid.UUID) {
 	}
 	fin := int(c.Done + c.Failed)
 	if fin < int(c.Total) {
-		q.Jobs.Report(ctx, job, fin*100/int(c.Total))
+		q.Jobs.ReportDetail(ctx, job, fin*100/int(c.Total), map[string]int32{"done": c.Done, "failed": c.Failed, "total": c.Total}) // "Đang chấm 12/85" (US-P7-07 AC1)
 		return
 	}
 	if q.Redis.SetNX(ctx, batchKey(q.Prefix, job)+":done", "1", batchTTL).Val() {

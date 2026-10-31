@@ -715,3 +715,20 @@ func TestAppealsRBACMatrix(t *testing.T) {
 	}
 	require.Equal(t, http.StatusOK, h.call(http.MethodPost, root+"/appeals/"+id.String()+"/decide", h.teacher, auth.RoleTeacher, body))
 }
+
+// TestVersionCount — hộp thoại gán tay (US-P7-04 AC4): đếm đúng các phiên bản ĐÃ KHỚP của sinh viên ở bài; bài ngoài lớp 404.
+func TestVersionCount(t *testing.T) {
+	e := newEnv(t)
+	a := e.create("BT03")
+	stu := e.student()
+	n, err := e.svc.VersionCount(e.ctx, e.course, a.ID, stu)
+	require.NoError(t, err)
+	require.Zero(t, n)
+	e.rrow(a, stu, 1, time.Now().UTC().Add(-2*time.Hour), "DONE", "DRAFT", crit10, nil)
+	e.rrow(a, stu, 2, time.Now().UTC().Add(-time.Hour), "DONE", "DRAFT", crit10, nil)
+	n, err = e.svc.VersionCount(e.ctx, e.course, a.ID, stu)
+	require.NoError(t, err)
+	require.Equal(t, 2, n)
+	_, err = e.svc.VersionCount(e.ctx, e.course, uuid.New(), stu)
+	require.Equal(t, "NOT_FOUND", code(err))
+}

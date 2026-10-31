@@ -74,3 +74,7 @@ select e.user_id from enrollments e where e.course_id = sqlc.arg(course_id) and 
 
 -- name: GradeAppealIDByResult :one
 select id from grade_appeals where course_id = sqlc.arg(course_id) and result_id = sqlc.arg(result_id);
+
+-- name: SubmissionVersionCount :one
+-- Số phiên bản đã KHỚP của sinh viên ở bài (hộp thoại gán tay: "Sinh viên này đã có n phiên bản").
+select count(*)::int from submissions where course_id = sqlc.arg(course_id) and assignment_id = sqlc.arg(assignment_id) and student_id = sqlc.arg(student_id) and match_status = 'MATCHED';

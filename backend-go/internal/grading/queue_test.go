@@ -259,6 +259,24 @@ func TestGradeAllProgressSSE(t *testing.T) {
 	require.Equal(t, 2*n, int(r.calls.Load()), "hai lượt mỗi bài, không chấm đôi")
 }
 
+// TestGradeAllProgressDetail — AC1: khi lô chạy dở, job.result mang {done, failed, total} của CẢ lô (không phải số dòng đã tải ở trang).
+func TestGradeAllProgressDetail(t *testing.T) {
+	r := newQRig(t)
+	const n = 6
+	for range n {
+		r.sub(uuid.Nil, 1, "MATCHED")
+	}
+	r.delay.Store(int64(150 * time.Millisecond))
+	e := r.gradeAll(false)
+	r.start(r.queue(nil))
+	r.deliver(*e.JobID)
+	r.eventually(func() bool {
+		s, _, res := r.jobRow(*e.JobID)
+		return s == "RUNNING" && strings.Contains(res, `"total": 6`) // jsonb chuẩn hoá có khoảng trắng
+	}, "tiến độ chi tiết giữa lô")
+	r.eventually(func() bool { s, _, _ := r.jobRow(*e.JobID); return s == "SUCCEEDED" }, "lô xong")
+}
+
 // TestGradeAllConcurrentNoDuplicate — AC2: mười request song song + hai giảng viên: mỗi (bài nộp, round) đúng một dòng.
 func TestGradeAllConcurrentNoDuplicate(t *testing.T) {
 	r := newQRig(t)

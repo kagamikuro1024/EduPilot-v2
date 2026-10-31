@@ -19,6 +19,15 @@ set progress = greatest(progress, sqlc.arg(progress)::smallint),
 where id = sqlc.arg(id) and status in ('QUEUED', 'RUNNING')
 returning *;
 
+-- name: UpdateJobProgressDetail :one
+-- Như UpdateJobProgress, kèm chi tiết tiến độ ghi vào `result` khi việc còn chạy (ví dụ {done, failed, total}); Complete ghi đè bằng kết quả cuối.
+update jobs
+set progress = greatest(progress, sqlc.arg(progress)::smallint),
+    result = sqlc.arg(result)::jsonb,
+    status = 'RUNNING'
+where id = sqlc.arg(id) and status in ('QUEUED', 'RUNNING')
+returning *;
+
 -- name: MarkJobSucceeded :one
 update jobs
 set status = 'SUCCEEDED', progress = 100, result = sqlc.narg(result), finished_at = now()

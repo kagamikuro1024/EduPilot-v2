@@ -135,6 +135,7 @@ func (r *runner) assignmentScenarios(x examRig) {
 	r.studentSubmitScenarios(x, base, A, a.ID)
 	r.uploadScenarios(x, base)
 	r.appealScenarios(x, base)
+	r.versionsScenarios(x, base)
 
 	// 5: xoá — bài nộp → 409; bài sạch 204.
 	if _, err := db.Exec(ctx, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method, submitted_at)
@@ -631,4 +632,33 @@ func (r *runner) appealScenarios(x examRig, base string) {
 	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(9, good, `,"criteria_scores":[{"id":"c2","score":"5.5"}]`)}, 409)
 	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(1, good, `,"criteria_scores":[{"id":"c2","score":"5.5"}]`)}, 200)
 	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(1, good, `,"criteria_scores":[{"id":"c2","score":"5.5"}]`)}, 409) // APPEAL_ALREADY_DECIDED
+}
+
+// versionsScenarios: số phiên bản đã khớp của sinh viên ở bài (hộp thoại gán tay).
+func (r *runner) versionsScenarios(x examRig, base string) {
+	seg := strings.Split(x.sv, ".")
+	raw, _ := base64.RawURLEncoding.DecodeString(seg[1])
+	var claims struct {
+		Sub string `json:"sub"`
+	}
+	_ = json.Unmarshal(raw, &claims)
+	aid := "00000000-0000-7000-8000-000000000000"
+	P := base + "/" + aid + "/versions?student_id=" + claims.Sub
+	r.must(call{method: "GET", path: P}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: P, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: P, token: x.gv}, 404)
+	r.must(call{method: "GET", path: base + "/" + aid + "/versions?student_id=zz", token: x.gv}, 422)
+	_, out := r.must(call{method: "GET", path: base, token: x.gv}, 200)
+	var list struct {
+		Items []struct {
+			ID string `json:"id"`
+		} `json:"items"`
+	}
+	_ = json.Unmarshal(out, &list)
+	if len(list.Items) == 0 {
+		r.t.Fatalf("không có bài tập để đếm phiên bản")
+	}
+	r.must(call{method: "GET", path: base + "/" + list.Items[0].ID + "/versions?student_id=" + claims.Sub, token: x.ta}, 200)
 }

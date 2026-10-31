@@ -60,6 +60,7 @@ func (h *Handler) Mount(r chi.Router) {
 	// Công bố hàng loạt (US-P7-09): chỉ TEACHER; số liệu bài cho nhân viên.
 	r.With(teacher, h.Idem).Post("/courses/{id}/grading-results/publish", h.publishResults)
 	r.With(staff).Get("/courses/{id}/assignments/{aid}/stats", h.stats)
+	r.With(staff).Get("/courses/{id}/assignments/{aid}/versions", h.versionCount)
 	// Phúc khảo (US-P7-10): sinh viên gửi; nhân viên đọc; TEACHER quyết định.
 	r.With(student, h.Idem).Post("/courses/{id}/assignments/{aid}/appeal", h.fileAppeal)
 	r.With(staff).Get("/courses/{id}/appeals", h.listAppeals)
@@ -714,4 +715,23 @@ func (h *Handler) decideAppeal(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) versionCount(w http.ResponseWriter, r *http.Request) {
+	course, id, _, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	stu, err := uuid.Parse(r.URL.Query().Get("student_id"))
+	if err != nil {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "student_id", Code: "uuid", Message: "student_id không hợp lệ."}))
+		return
+	}
+	n, err := h.Assignments.VersionCount(r.Context(), course, id, stu)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, map[string]int{"versions": n})
 }

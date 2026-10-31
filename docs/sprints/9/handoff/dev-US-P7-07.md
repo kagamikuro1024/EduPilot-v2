@@ -27,3 +27,8 @@
 ## Test cũ đã sửa
 - `internal/course/share.go`: câu `NOT_AVAILABLE` của công thức điểm đổi "Công thức điểm chưa dùng lại được (phase P6)." → "Công thức điểm chưa dùng lại được giữa các lớp." (PM yêu cầu; không test nào khẳng định câu cũ). Câu của ngân hàng câu hỏi ("… (phase P9).") cùng lỗi từ kỹ thuật, chưa đổi vì chưa được yêu cầu.
 - `internal/contract/contract_test.go`: số thao tác 263 → 266.
+
+## QC vòng 1 — sửa (BUG-P7-07-1, BUG-P7-07-2)
+- **BUG-P7-07-1:** `benchmarks/load/grading-vs-chat.js` đã có (k6; `k6 inspect` đọc được). Hai lượt: `PHASE=baseline` (20 luồng chat riêng, 40 s) rồi `PHASE=grading` (giây 5 TEACHER gọi `grade-all`, chat chạy tiếp): `first_event_ms` p95 < 500, `ttft_ms` p95 ≤ 1,2 × `BASELINE_TTFT_MS` (p95 của lượt baseline), `grading_queued` count > 0. Chạy trên stack seed có bài tập ≥ 200 bài nộp chưa chấm — dựng ở US-S9-SEED; kết quả đo sẽ dán ở handoff đó.
+- **BUG-P7-07-2:** `jobs.Runner.ReportDetail` (SQL `UpdateJobProgressDetail`) ghi `{done, failed, total}` của CẢ lô vào `jobs.result` khi lô còn chạy và phát trong `job.progress` (SSE) / `GET /jobs/{id}`; `Complete` ghi đè bằng `{graded, failed, flagged}`. `TestGradeAllProgressDetail`. FE dùng `result.total` thay cho `rows.length` ở "Đang chấm n/total".
+- BUG-P7-07-3 (việc `grading.batch` mồ côi khi Redis mất ánh xạ lô sau 24 giờ): giữ nguyên, các bài vẫn được chấm; ghi nhận.

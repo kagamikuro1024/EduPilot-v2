@@ -233,3 +233,18 @@ func (s *Service) Stats(ctx context.Context, course, id uuid.UUID) (Stats, error
 	}
 	return out, nil
 }
+
+// VersionCount trả số phiên bản đã khớp của một sinh viên ở bài (đúng lớp: bài ngoài lớp → 404).
+func (s *Service) VersionCount(ctx context.Context, course, id, student uuid.UUID) (int, error) {
+	q := store.New(s.Pool)
+	if _, err := q.AssignmentGet(ctx, store.AssignmentGetParams{CourseID: course, ID: id}); errors.Is(err, pgx.ErrNoRows) {
+		return 0, notFound()
+	} else if err != nil {
+		return 0, fmt.Errorf("assignment: đọc bài: %w", err)
+	}
+	n, err := q.SubmissionVersionCount(ctx, store.SubmissionVersionCountParams{CourseID: course, AssignmentID: &id, StudentID: &student})
+	if err != nil {
+		return 0, fmt.Errorf("assignment: đếm phiên bản: %w", err)
+	}
+	return int(n), nil
+}

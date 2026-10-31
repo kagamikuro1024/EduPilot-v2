@@ -454,3 +454,21 @@ func (q *Queries) GradeAppealTeachers(ctx context.Context, courseID uuid.UUID) (
 	}
 	return items, nil
 }
+
+const submissionVersionCount = `-- name: SubmissionVersionCount :one
+select count(*)::int from submissions where course_id = $1 and assignment_id = $2 and student_id = $3 and match_status = 'MATCHED'
+`
+
+type SubmissionVersionCountParams struct {
+	CourseID     uuid.UUID
+	AssignmentID *uuid.UUID
+	StudentID    *uuid.UUID
+}
+
+// Số phiên bản đã KHỚP của sinh viên ở bài (hộp thoại gán tay: "Sinh viên này đã có n phiên bản").
+func (q *Queries) SubmissionVersionCount(ctx context.Context, arg SubmissionVersionCountParams) (int32, error) {
+	row := q.db.QueryRow(ctx, submissionVersionCount, arg.CourseID, arg.AssignmentID, arg.StudentID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}

@@ -26,3 +26,7 @@ Máy chủ + frontend nằm ở commit `e424a20b` (CI xanh) và commit kế ti�
 ## Test cũ đã sửa
 - `today.Topics()` 27 → 28 và `TestTodayQueryBudget` (giảng viên 6 → 7 / 7 → 8): proposals sprint 9 #9 (PM đã chấp nhận).
 - `internal/grade/me_test.go` `noStamps()`: chuỗi canary "7.77" trùng phần giây lẻ của `confirmed_at` → loại timestamp RFC3339 trước khi tìm canary (chặt hơn, không nới).
+
+## QC vòng 1 — sửa (BUG-P7-04-1, BUG-P7-04-2)
+- **BUG-P7-04-1:** thêm `GET …/assignments/{aid}/versions?student_id=` (TA, TEACHER; `{versions: n}` = số phiên bản đã khớp; `Service.VersionCount`, SQL `SubmissionVersionCount`; OpenAPI 275 → **276**; `TestVersionCount`, kịch bản contract). Hộp thoại gán (`UnmatchedTab.tsx`) gọi route này khi chọn sinh viên và hiện "Sinh viên này đã có {n} phiên bản" khi n > 0.
+- **BUG-P7-04-2:** `PresignInput.purpose` thêm `submission_upload` vào `enum`.

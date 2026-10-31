@@ -3494,6 +3494,44 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/assignments/{aid}/versions:
+    get:
+      operationId: getAssignmentStudentVersions
+      tags: [assignments]
+      summary: "Số phiên bản đã khớp của một sinh viên ở bài (TA, TEACHER; Cache-Control: no-store) — hộp thoại gán tay: \"Sinh viên này đã có {n} phiên bản\""
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: student_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [versions]
+                additionalProperties: false
+                properties:
+                  versions: {type: integer}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/grading-results/{rid}:
     get:
       operationId: getGradingResult
@@ -11561,7 +11599,7 @@ components:
       properties:
         purpose:
           type: string
-          enum: [document, grade_import]
+          enum: [document, grade_import, submission_upload]
         filename:
           type: string
           maxLength: 255
