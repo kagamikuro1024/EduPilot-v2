@@ -28,3 +28,12 @@ Mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh h�
 - **#3 ACCEPTED (2026-10-31)** kèm 4 bổ sung Tech Lead (UNIQUE(course_id,id) cho `grade_items`; chỉ mục snapshot `(course_id, version, student_id)`; `gradebooks` tạo lúc xác nhận; `SUPERSEDED` trước `CONFIRMED`). **#4 ACCEPTED** (`GET /courses/{cid}/me/grades`). **#6:** giữ `UTILITY` → `NEAR_REALTIME` theo `SYSTEM_DESIGN.md` §3.1.
 - **#7 ACCEPTED (2026-10-31)**: `15` → `16` trong `TestMigrations_RoundTrip`, đúng quy ước chú thích của tệp. **Lỗi quy trình:** dev commit `12fa90bf` trước khi có ACCEPTED (lần thứ 3 kể từ sprint 7); ghi vào report. Từ nay test đỏ chặn CI: dev mở proposal rồi **báo PM qua `herdr`**, chờ trả lời, không tự sửa trước.
 - **#8 ACCEPTED (2026-10-31)**: AC route của US-P6-01 (AC7) và US-P6-02 (AC10 nửa xem trước, AC11) **chuyển nơi kiểm** sang US-P6-06 (xem trước) và US-P6-09 (ma trận đủ route); chữ AC giữ nguyên. US-P6-01, US-P6-02 chấm PASS khi mọi AC còn lại PASS; nếu ở US-P6-06 / 09 các AC chuyển sang FAIL thì cả story gốc mở lại.
+
+## Quyết định PM #12–#16 (2026-10-31)
+Dev báo #12–#15 qua `herdr` (dòng đề xuất dev push sau; quyết định ghi ở đây).
+- **#12 ACCEPTED:** `contract_test.go` đếm thao tác 226 → 227 cho route status US-P6-05; chỉ đổi số đếm.
+- **#13 ACCEPTED có điều kiện** (Tech Lead `techlead.md` TL-1: 165 và thứ tự kind đúng là hệ quả). Cùng commit phải sửa N+1 theo **#16** và thêm ca "giảng viên 2 lớp, cả hai có `DRAFT` có trích dẫn" vào `TestTodayQueryBudget`, giới hạn **≤ 7**. Chú thích `:118` ghi "55 yêu cầu + 55 mục thiết lập + 55 mục công thức điểm".
+- **#14 ACCEPTED:** thêm route giả `/admin/llm/*` vào `lighthouse-api.mjs`; không đổi ngưỡng LCP.
+- **#15 KHÔNG sửa test:** main CI xanh ở `d062144b`. Dev xác định ca `class-join.spec.ts:361` đỏ trên CI `sprint/8-p6` hay chỉ ở local. Đỏ ở CI → BUG-S8-01, sửa nguyên nhân gốc trong code. Chỉ local → ghi handoff, không chặn.
+- **#16 (PM mở, theo TL-1 phương án a) ACCEPTED:** thêm cột kết quả bộ kiểm (`unclear_count int NOT NULL DEFAULT 0` hoặc `unclear_codes text[]`) vào `grade_schemes` ở `00016` (chưa merge, luật 6 cho phép). Ghi trong giao dịch lưu bản nháp (SRS 4.2.7) và `PUT …/grade-scheme` (4.4.2); handler `course.policy_changed` tính lại. `GradeStatusFacts`, Today và `GET …/status` đọc cột này, không gọi `InspectDrafts`. BA ghi cột vào SRS 5.1 và `ARCHITECTURE.md` §4.
+
