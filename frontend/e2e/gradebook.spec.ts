@@ -343,6 +343,7 @@ test("cell conflict choose: người sau nhận 409, hiện giá trị người 
   await pop.getByRole("button", { name: "Giữ của tôi" }).click();
   await expect.poll(() => api.entries.get(key)?.score).toBe("9");
   expect(api.entries.get(key)?.version).toBe(3);
+  await expect(page.locator("[data-part=grade-row]").first().locator("[data-part=row-status]")).not.toHaveText("…");
   // Dùng của họ
   api.entries.set(key, { score: "5", version: 4, source: "MANUAL" });
   await a.fill("8");
@@ -491,4 +492,113 @@ test("gradebook banner: công thức chưa xác nhận → Chốt điểm khoá 
   await p2.goto("/gradebook");
   await expect(p2.getByRole("link", { name: "Xem công thức" }).first()).toBeVisible();
   await expect(p2.getByRole("button", { name: "Chốt điểm" })).toHaveCount(0);
+});
+
+// ---- US-P6-07: nhập / xuất XLSX ------------------------------------------------------------------------------------------------------------------
+const XLSX = { name: "giua-ky.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buffer: Buffer.from("PK\x03\x04 thử") };
+
+async function openImport(page: Page) {
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await page.getByRole("menuitem", { name: "Nhập từ XLSX" }).click();
+  return page.getByRole("dialog", { name: "Nhập điểm từ XLSX" });
+}
+
+test("import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đổi không cần tải lại, công bố mặc định tắt", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context);
+  const dlg = await openImport(page);
+  await expect(dlg.getByRole("button", { name: "Tiếp tục" })).toBeDisabled();
+  await dlg.locator("[data-part=import-input]").setInputFiles(XLSX);
+  await expect(dlg.locator("[data-part=import-file]")).toHaveText("giua-ky.xlsx");
+  await dlg.getByRole("button", { name: "Tiếp tục" }).click();
+  // bước 2: gợi ý theo tên cột
+  await expect(dlg.getByLabel("Cột MSSV")).toHaveValue("A");
+  await expect(dlg.getByLabel("Cột chứa điểm")).toHaveValue("C");
+  await dlg.getByRole("button", { name: "Xem trước" }).click();
+  // bước 3
+  await expect(dlg.locator("[data-part=import-summary]")).toHaveText("3 dòng hợp lệ · 1 ghi đè · 0 không đổi · 0 lỗi");
+  await expect(dlg.locator("[data-part=import-sample]")).toContainText("Sinh Viên 0001");
+  await expect(dlg.getByLabel("Công bố cột cho sinh viên")).not.toBeChecked();
+  await expect(dlg.getByRole("button", { name: "Ghi 3 dòng" })).toBeVisible();
+  expect(api.calls.filter((c) => c.path.endsWith("/grade-entries/import") && JSON.parse(c.body).mode === "commit")).toHaveLength(0); // xem trước không ghi
+  await dlg.getByRole("button", { name: "Ghi 3 dòng" }).click();
+  await expect(dlg).toHaveCount(0);
+  await expect(cellOf(page, 2, WEEKLY)).toHaveValue("8");
+  const commit = api.calls.find((c) => c.path.endsWith("/grade-entries/import") && JSON.parse(c.body).mode === "commit")!;
+  expect(commit.idem).not.toBe("");
+  expect(JSON.parse(commit.body)).toMatchObject({ skip_errors: false, mapping: { header_row: 1, student_code_col: "A", score_col: "C" } });
+  expect(api.calls.some((c) => c.path.endsWith("/publish"))).toBe(false);
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+test("import errors listed: dòng lỗi theo hàng bằng chữ tiếng Việt, nút Bỏ qua N dòng lỗi và ghi M dòng gửi skip_errors", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const errors = [
+    { row: 3, student_code: "99999999", code: "STUDENT_NOT_IN_COURSE", message: "MSSV không có trong lớp" },
+    { row: 5, student_code: "20229002", code: "SCORE_OUT_OF_RANGE", message: "Điểm ngoài thang 0–10" },
+    { row: 6, student_code: "20229777", code: "STUDENT_CODE_UNVERIFIED", message: "MSSV chưa có trong danh sách lớp" },
+  ];
+  const api = await sheet(page, context, { importOut: { rows_ok: 1, errors } });
+  const dlg = await openImport(page);
+  await dlg.locator("[data-part=import-input]").setInputFiles(XLSX);
+  await dlg.getByRole("button", { name: "Tiếp tục" }).click();
+  await dlg.getByRole("button", { name: "Xem trước" }).click();
+  const list = dlg.locator("[data-part=import-errors]");
+  await expect(list.locator("li")).toHaveText(["Dòng 3 · 99999999 · MSSV không có trong lớp", "Dòng 5 · 20229002 · Điểm ngoài thang 0–10", "Dòng 6 · 20229777 · MSSV chưa có trong danh sách lớp"]);
+  expect(await dlg.innerText()).not.toMatch(/STUDENT_NOT_IN_COURSE|SCORE_OUT_OF_RANGE|STUDENT_CODE_UNVERIFIED/);
+  await dlg.getByRole("button", { name: "Bỏ qua 3 dòng lỗi và ghi 1 dòng" }).click();
+  await expect(dlg).toHaveCount(0);
+  const commit = api.calls.find((c) => c.path.endsWith("/grade-entries/import") && JSON.parse(c.body).mode === "commit")!;
+  expect(JSON.parse(commit.body).skip_errors).toBe(true);
+});
+
+test("import upload failed: giữ tên tệp và có Tải lại; chọn cột và hạng mục không mất", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let down = true;
+  await sheet(page, context, { h: { "POST uploads/presign": (r, next) => (down ? r.abort("connectionfailed") : next(r)) } });
+  const dlg = await openImport(page);
+  await dlg.getByLabel("Nhập vào").selectOption({ label: "Thi cuối kỳ" });
+  await dlg.locator("[data-part=import-input]").setInputFiles(XLSX);
+  await dlg.getByRole("button", { name: "Tiếp tục" }).click();
+  await expect(dlg.getByRole("alert")).toBeVisible();
+  await expect(dlg.locator("[data-part=import-file]")).toHaveText("giua-ky.xlsx");
+  down = false;
+  await dlg.getByRole("button", { name: "Tải lại" }).click();
+  await expect(dlg.getByLabel("Cột MSSV")).toBeVisible();
+});
+
+test("import publish option: bật Công bố cột thì ghi xong gọi công bố đúng cột", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context);
+  const dlg = await openImport(page);
+  await dlg.locator("[data-part=import-input]").setInputFiles(XLSX);
+  await dlg.getByRole("button", { name: "Tiếp tục" }).click();
+  await dlg.getByRole("button", { name: "Xem trước" }).click();
+  await dlg.getByLabel("Công bố cột cho sinh viên").check();
+  await dlg.getByRole("button", { name: "Ghi 3 dòng" }).click();
+  await expect(dlg).toHaveCount(0);
+  expect(api.calls.some((c) => c.method === "POST" && c.path.endsWith(`/grade-items/${WEEKLY}/publish`) && JSON.parse(c.body).published === true)).toBe(true);
+});
+
+test("export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có Nhập", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context);
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  const dl = page.waitForEvent("download");
+  await page.getByRole("menuitem", { name: "Xuất XLSX" }).click();
+  expect((await dl).suggestedFilename()).toBe("so-diem.xlsx");
+
+  const p2 = await context.newPage();
+  await gradebookApi(p2, { locked: true });
+  await p2.goto("/gradebook");
+  await p2.getByRole("button", { name: "Thêm hành động" }).click();
+  await expect(p2.getByRole("menuitem", { name: "Nhập từ XLSX" })).toHaveCount(0);
+  await expect(p2.getByRole("menuitem", { name: "Xuất XLSX" })).toBeVisible();
+
+  const p3 = await context.newPage();
+  await asDemo(context, "ta");
+  await gradebookApi(p3, {});
+  await p3.goto("/gradebook");
+  await expect(p3.locator("[data-part=grade-row]").first()).toBeVisible();
+  await expect(p3.getByRole("button", { name: "Thêm hành động" })).toHaveCount(0);
 });

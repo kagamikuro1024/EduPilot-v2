@@ -177,3 +177,24 @@ export const useHistory = (course: string, student: string | null) =>
     queryFn: async ({ pageParam, signal }) => (await apiClient.get<HistoryPage>(`/courses/${course}/gradebook/students/${student}/history`, { signal, query: { cursor: pageParam } })).data,
     getNextPageParam: (last) => last.next_cursor ?? undefined,
   });
+
+// ---- nhập / xuất XLSX (US-P6-07) -----------------------------------------------------------------------------------------------------------------
+export type ImportMapping = { header_row: number; student_code_col: string; score_col: string };
+export type ImportRowError = { row: number; student_code: string; code: string; message: string };
+export type ImportOut = {
+  rows_total: number;
+  rows_ok: number;
+  overwrites: number;
+  unchanged: number;
+  errors: ImportRowError[];
+  sample: Array<{ student: { id: string; full_name: string; student_code: string }; before: string | null; after: string }>;
+  headers: string[];
+  suggested_mapping: ImportMapping;
+  written: number;
+  skipped_errors: number;
+};
+
+export const importEntries = async (course: string, body: { upload_id: string; item_id: string; mode: "preview" | "commit"; mapping: Partial<ImportMapping> & { header_row: number }; skip_errors?: boolean }, idempotencyKey?: string) =>
+  (await apiClient.post<ImportOut>(`/courses/${course}/grade-entries/import`, body, { idempotencyKey })).data;
+
+export const exportXlsx = async (course: string) => (await apiClient.get<Blob>(`/courses/${course}/gradebook/export.xlsx`, { blob: true })).data;

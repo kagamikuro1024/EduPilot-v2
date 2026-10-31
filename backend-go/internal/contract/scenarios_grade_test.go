@@ -1,9 +1,14 @@
 package contract
 
 import (
+	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"strings"
+
+	"github.com/xuri/excelize/v2"
 )
 
 // gradeScenarios: công thức điểm — thao tác POST …/grade-scheme/extract (US-P6-03, SRS FEAT-gradebook 6.1 #1) với mọi status đã khai báo.
@@ -78,6 +83,7 @@ func (r *runner) gradeScenarios(x examRig) {
 	}
 	r.must(call{method: "GET", path: base + "/gradebook/preview", token: x.gv}, 409)
 	r.must(call{method: "GET", path: base + "/gradebook/students/" + student + "/explain", token: x.gv}, 409)
+	r.must(call{method: "GET", path: base + "/gradebook/export.xlsx", token: x.gv}, 409) // US-P6-07: chưa có công thức đã xác nhận
 
 	// US-P6-04: GET / PUT …/grade-scheme, POST …/impact, POST …/confirm.
 	gs := base + "/grade-scheme"
@@ -192,6 +198,91 @@ func (r *runner) gradeScenarios(x examRig) {
 	}
 	r.must(entry(x.gv, finalItem, `"7"`, "null"), 409) // ITEM_NOT_EDITABLE
 
+	// US-P6-07: nhập điểm XLSX (presign → PUT → preview / commit) và xuất XLSX.
+	if _, err := db.Exec(ctx, `update enrollments set student_code_snapshot = '20229001', joined_via = 'ROSTER' where course_id = $1 and user_id = $2`, x.cid, student); err != nil {
+		r.t.Fatalf("MSSV của sinh viên: %v", err)
+	}
+	xl := func(rows ...[]any) []byte {
+		f := excelize.NewFile()
+		defer func() { _ = f.Close() }()
+		for i, row := range rows {
+			cell, _ := excelize.CoordinatesToCellName(1, i+1)
+			if err := f.SetSheetRow("Sheet1", cell, &row); err != nil {
+				r.t.Fatalf("dựng XLSX: %v", err)
+			}
+		}
+		var b bytes.Buffer
+		if err := f.Write(&b); err != nil {
+			r.t.Fatalf("ghi XLSX: %v", err)
+		}
+		return b.Bytes()
+	}
+	const xlsxMime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	if keys, err := r.rig.deps.Redis.Keys(ctx, "ep:rl:upload:*").Result(); err == nil && len(keys) > 0 { // kịch bản tài liệu đã dùng hết 10 lượt presign / phút của giảng viên
+		r.rig.deps.Redis.Del(ctx, keys...)
+	}
+	presignXL := func(token, name, mime string, data []byte, size int) call {
+		h := sha256.Sum256(data)
+		raw, _ := json.Marshal(map[string]any{"purpose": "grade_import", "filename": name, "mime_type": mime, "size_bytes": size, "sha256": hex.EncodeToString(h[:])})
+		return call{method: "POST", path: base + "/uploads/presign", token: token, body: string(raw)}
+	}
+	upXL := func(data []byte) string {
+		_, raw := r.must(presignXL(x.gv, "diem.xlsx", xlsxMime, data, len(data)), 200) //nolint:contextcheck // bộ chạy kịch bản gọi qua httptest, không có ctx
+		var p struct {
+			UploadID string `json:"upload_id"`
+			BlobKey  string `json:"blob_key"`
+		}
+		_ = json.Unmarshal(raw, &p)
+		if err := r.rig.deps.Blob.Put(ctx, p.BlobKey, bytes.NewReader(data), int64(len(data)), xlsxMime); err != nil {
+			r.t.Fatalf("đặt tệp XLSX: %v", err)
+		}
+		return p.UploadID
+	}
+	good := xl([]any{"MSSV", "Họ tên", "Điểm"}, []any{"20229001", "An", "7,5"})
+	r.must(presignXL(x.ta, "diem.xlsx", xlsxMime, good, len(good)), 403)
+	r.must(presignXL(x.sv, "diem.xlsx", xlsxMime, good, len(good)), 403)
+	r.must(presignXL(x.admin, "diem.xlsx", xlsxMime, good, len(good)), 403)
+	r.must(presignXL("", "diem.xlsx", xlsxMime, good, len(good)), 401)
+	r.must(presignXL(x.gv, "diem.pdf", "application/pdf", good, len(good)), 422)
+	r.must(presignXL(x.gv, "diem.xlsx", xlsxMime, good, 3<<20), 422)
+
+	im2 := base + "/grade-entries/import"
+	imp := func(token, mode, upload, item, extra string, headers map[string]string) call {
+		return call{method: "POST", path: im2, token: token, headers: headers, body: `{"upload_id":"` + upload + `","item_id":"` + item + `","mode":"` + mode + `","mapping":{"header_row":1,"student_code_col":"A","score_col":"C"}` + extra + `}`}
+	}
+	up := upXL(good)
+	r.must(call{method: "POST", path: im2, token: x.gv, body: `{"upload_id":"` + up + `","item_id":"` + weekly + `","mode":"preview","mapping":{"header_row":1}}`}, 200) // chỉ tiêu đề + gợi ý
+	r.must(imp(x.gv, "preview", up, weekly, "", nil), 200)
+	r.must(imp(x.gv, "commit", up, weekly, "", x.idem()), 200)
+	r.must(imp(x.gv, "commit", up, weekly, "", x.idem()), 200) // nhập lại cùng tệp: không đổi gì
+	r.must(imp(x.gv, "commit", up, weekly, "", nil), 422)      // thiếu Idempotency-Key
+	r.must(imp(x.gv, "nope", up, weekly, "", nil), 422)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(imp(who, "preview", up, weekly, "", nil), 403)
+		r.must(imp(who, "commit", up, weekly, "", x.idem()), 403)
+	}
+	r.must(imp("", "preview", up, weekly, "", nil), 401)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/grade-entries/import", token: x.gv, body: `{}`}, 404)
+	r.must(imp(x.gv, "preview", "00000000-0000-7000-8000-00000000dead", weekly, "", nil), 404) // vé không có
+	r.must(imp(x.gv, "preview", up, "00000000-0000-7000-8000-00000000dead", "", nil), 404)     // cột không có
+	r.must(imp(x.gv, "preview", up, finalItem, "", nil), 409)                                  // cột bài thi: ITEM_NOT_EDITABLE
+	bad := upXL(xl([]any{"MSSV", "Họ tên", "Điểm"}, []any{"20229001", "An", "6"}, []any{"99999999", "x", "5"}))
+	r.must(imp(x.gv, "commit", bad, weekly, "", x.idem()), 409) // IMPORT_HAS_ERRORS
+	r.must(imp(x.gv, "commit", bad, weekly, `,"skip_errors":true`, x.idem()), 200)
+	garbage := []byte("khong phai xlsx")
+	r.must(imp(x.gv, "preview", upXL(garbage), weekly, "", nil), 422) // FILE_INVALID
+
+	xp := gb + "/export.xlsx"
+	_, xraw := r.must(call{method: "GET", path: xp, token: x.gv}, 200)
+	if !bytes.HasPrefix(xraw, []byte("PK")) {
+		r.t.Fatalf("export.xlsx không phải XLSX")
+	}
+	r.must(call{method: "GET", path: xp}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "GET", path: xp, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/gradebook/export.xlsx", token: x.gv}, 404)
+
 	pub := base + "/grade-items/" + weekly + "/publish"
 	r.must(call{method: "POST", path: pub, token: x.gv, body: `{"published":true}`}, 200)
 	r.must(call{method: "POST", path: pub, token: x.gv, body: `{"published":true}`}, 200) // idempotent
@@ -222,11 +313,12 @@ func (r *runner) gradeScenarios(x examRig) {
 	r.must(call{method: "GET", path: hi + "?cursor=%25", token: x.gv}, 422)
 	r.must(call{method: "GET", path: gb + "/students/khong-phai-uuid/history", token: x.gv}, 404)
 
-	// sổ đã chốt: sửa ô, công bố cột → 409 GRADEBOOK_LOCKED
+	// sổ đã chốt: sửa ô, nhập XLSX, công bố cột → 409 GRADEBOOK_LOCKED
 	if _, err := db.Exec(ctx, `update gradebooks set status = 'LOCKED', snapshot_version = 1 where course_id = $1`, x.cid); err != nil {
 		r.t.Fatalf("khoá sổ: %v", err)
 	}
 	r.must(entry(x.gv, weekly, `"5"`, "2"), 409)
+	r.must(imp(x.gv, "commit", up, weekly, "", x.idem()), 409)
 	r.must(call{method: "POST", path: pub, token: x.gv, body: `{"published":false}`}, 409)
 	if _, err := db.Exec(ctx, `update gradebooks set status = 'OPEN', snapshot_version = 0 where course_id = $1`, x.cid); err != nil {
 		r.t.Fatalf("mở sổ: %v", err)

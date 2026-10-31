@@ -2,7 +2,9 @@
 package gradehttp
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
@@ -40,6 +42,8 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Get("/courses/{id}/gradebook/preview", h.preview)
 	r.With(teacher).Put("/courses/{id}/grade-entries", h.putEntry)
 	r.With(teacher).Post("/courses/{id}/grade-items/{itemId}/publish", h.publish)
+	r.With(teacher).Post("/courses/{id}/grade-entries/import", h.importXLSX)
+	r.With(teacher).Get("/courses/{id}/gradebook/export.xlsx", h.export)
 	r.With(staff).Get("/courses/{id}/gradebook/students/{uid}/explain", h.explain)
 	r.With(staff).Get("/courses/{id}/gradebook/students/{uid}/history", h.history)
 }
@@ -274,6 +278,64 @@ func (h *Handler) putEntry(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// importXLSX: POST …/grade-entries/import {upload_id, item_id, mode, mapping, skip_errors?} (TEACHER). `commit` đòi `Idempotency-Key`; `preview` thì không.
+func (h *Handler) importXLSX(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 1<<16))
+	if err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusRequestEntityTooLarge, apierr.PayloadTooLarge))
+		return
+	}
+	r.Body = io.NopCloser(bytes.NewReader(body))
+	var in grade.ImportInput
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	run := func(w http.ResponseWriter, r *http.Request) {
+		out, err := h.Grade.Import(r.Context(), actor, cid, in)
+		if err != nil {
+			h.fail(w, r, err)
+			return
+		}
+		httpx.WriteJSON(w, http.StatusOK, out)
+	}
+	if in.Mode == "commit" { // thân đã đọc: trả lại cho middleware để băm đúng nội dung yêu cầu
+		r.Body = io.NopCloser(bytes.NewReader(body))
+		h.Idem(http.HandlerFunc(run)).ServeHTTP(w, r)
+		return
+	}
+	run(w, r)
+}
+
+// export: GET …/gradebook/export.xlsx (TEACHER; no-store, attachment, có audit).
+func (h *Handler) export(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	f, err := h.Grade.Export(r.Context(), actor, cid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+	w.Header().Set("Content-Disposition", `attachment; filename="so-diem-`+f.ClassCode+`.xlsx"`)
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(http.StatusOK)
+	_, _ = w.Write(f.Bytes)
 }
 
 // publish: POST …/grade-items/{itemId}/publish {published} (TEACHER; idempotent).

@@ -2780,6 +2780,71 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grade-entries/import:
+    post:
+      operationId: importGradeEntries
+      tags: [gradebook]
+      summary: "Nhập điểm một cột nhập tay từ XLSX đã tải lên (chỉ TEACHER). `preview` không ghi, không cần Idempotency-Key; `commit` đòi Idempotency-Key, ghi mọi dòng hợp lệ trong MỘT giao dịch (có dòng lỗi mà không `skip_errors` → 409 IMPORT_HAS_ERRORS). Khớp MSSV theo `student_code_snapshot` của dòng ROSTER / ADMIN, so chuỗi; ô điểm trống giữ điểm cũ; không tự làm tròn. Chưa chọn cột (thiếu student_code_col / score_col) → chỉ trả tiêu đề + ánh xạ gợi ý. Tệp đọc lại từ object storage, so sha256 đã khai; vượt giới hạn zip / dòng → 422 FILE_INVALID / TOO_MANY_ROWS; cột bài thi 409 ITEM_NOT_EDITABLE; sổ đã chốt 409 GRADEBOOK_LOCKED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImportGradeEntriesInput"
+      responses:
+        "200":
+          description: Kết quả xem trước / ghi
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ImportGradeEntriesOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/gradebook/export.xlsx:
+    get:
+      operationId: exportGradebook
+      tags: [gradebook]
+      summary: "Xuất sổ điểm ra XLSX (chỉ TEACHER): hàng đầu tên lớp / mã lớp / thời điểm / bản chốt hoặc \"Bản xem trước — chưa chốt\", cột cố định, hàng cuối ghi chú điểm chính thức. Sổ đã chốt lấy từ bản chốt mới nhất. No-store, attachment; mỗi lần xuất có một dòng audit. Chưa có công thức đã xác nhận 409 SCHEME_NOT_CONFIRMED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Tệp XLSX
+          headers:
+            Content-Disposition:
+              schema:
+                type: string
+            Cache-Control:
+              schema:
+                type: string
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema:
+                type: string
+                format: binary
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/courses/{id}/grade-items/{itemId}/publish:
     post:
       operationId: publishGradeItem
@@ -5775,7 +5840,7 @@ paths:
     post:
       operationId: presignUpload
       tags: [document]
-      summary: "Xin URL PUT ký sẵn để tải tài liệu lên (Staff; URL hết hạn 10 phút, ký kèm Content-Length; tệp không đi qua gateway)"
+      summary: "Xin URL PUT ký sẵn để tải tài liệu lên (Staff; URL hết hạn 10 phút, ký kèm Content-Length; tệp không đi qua gateway). `purpose = grade_import` (nhập điểm XLSX): chỉ TEACHER, chỉ .xlsx ≤ 2 MiB (422 FILE_TYPE_NOT_ALLOWED / FILE_TOO_LARGE); vé của nó chỉ dùng cho `…/grade-entries/import`"
       parameters:
         - $ref: "#/components/parameters/CourseId"
       requestBody:
@@ -10193,7 +10258,7 @@ components:
       properties:
         purpose:
           type: string
-          enum: [document]
+          enum: [document, grade_import]
         filename:
           type: string
           maxLength: 255
@@ -13789,6 +13854,109 @@ components:
       properties:
         published:
           type: boolean
+    ImportGradeEntriesInput:
+      type: object
+      required: [upload_id, item_id, mode, mapping]
+      additionalProperties: false
+      properties:
+        upload_id:
+          type: string
+          format: uuid
+        item_id:
+          type: string
+          format: uuid
+        mode:
+          type: string
+          enum: [preview, commit]
+        mapping:
+          type: object
+          required: [header_row]
+          additionalProperties: false
+          properties:
+            header_row:
+              type: integer
+              minimum: 1
+              maximum: 100
+            student_code_col:
+              type: string
+              pattern: "^[A-Za-z]{1,3}$"
+            score_col:
+              type: string
+              pattern: "^[A-Za-z]{1,3}$"
+        skip_errors:
+          type: boolean
+    ImportGradeEntriesOutput:
+      type: object
+      required: [rows_total, rows_ok, overwrites, unchanged, errors, sample, headers, suggested_mapping, written, skipped_errors]
+      additionalProperties: false
+      properties:
+        rows_total:
+          type: integer
+        rows_ok:
+          type: integer
+        overwrites:
+          type: integer
+        unchanged:
+          type: integer
+        errors:
+          type: array
+          items:
+            type: object
+            required: [row, student_code, code, message]
+            additionalProperties: false
+            properties:
+              row:
+                type: integer
+              student_code:
+                type: string
+              code:
+                type: string
+                enum: [STUDENT_NOT_IN_COURSE, STUDENT_CODE_UNVERIFIED, DUPLICATE_IN_FILE, AMBIGUOUS_STUDENT_CODE, SCORE_OUT_OF_RANGE, SCORE_PRECISION, SCORE_NOT_NUMBER]
+              message:
+                type: string
+        sample:
+          type: array
+          maxItems: 20
+          items:
+            type: object
+            required: [student, before, after]
+            additionalProperties: false
+            properties:
+              student:
+                type: object
+                required: [id, full_name, student_code]
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  full_name:
+                    type: string
+                  student_code:
+                    type: string
+              before:
+                type: [string, "null"]
+              after:
+                type: string
+        headers:
+          type: array
+          items:
+            type: string
+        suggested_mapping:
+          type: object
+          required: [header_row, student_code_col, score_col]
+          additionalProperties: false
+          properties:
+            header_row:
+              type: integer
+            student_code_col:
+              type: string
+            score_col:
+              type: string
+        written:
+          type: integer
+        skipped_errors:
+          type: integer
     PublishGradeItemOutput:
       type: object
       required: [item_id, published]

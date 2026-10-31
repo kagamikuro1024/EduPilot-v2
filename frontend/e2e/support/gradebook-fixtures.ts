@@ -21,6 +21,8 @@ export type Opts = {
   locked?: boolean;
   warnings?: Array<"PENALTY_NOT_IN_SCHEME" | "BONUS_NOT_IN_SCHEME">;
   status?: string;
+  /** kết quả `preview` của nhập XLSX (mặc định: 3 dòng hợp lệ, không lỗi) */
+  importOut?: Record<string, unknown>;
   h?: Record<string, (route: Route, next: (r: Route) => Promise<void> | void) => Promise<void> | void>;
 };
 
@@ -34,7 +36,7 @@ export async function gradebookApi(p: Page, opts: Opts = {}) {
   const n = opts.students ?? 30;
   const entries = new Map<string, Entry>();
   const columns = COLUMNS();
-  const calls: Array<{ method: string; path: string; body: string }> = [];
+  const calls: Array<{ method: string; path: string; body: string; idem: string }> = [];
   const scheme = opts.scheme ?? true;
   const result = (i: number) => {
     const w = entries.get(`${stuId(i)}:${WEEKLY}`);
@@ -56,7 +58,7 @@ export async function gradebookApi(p: Page, opts: Opts = {}) {
     const body = req.postData() ?? "";
     const tail = path.replace(/^\/courses\/[^/]+\//, "").replace(/\/students\/[^/]+\//, "/students/*/");
     const key = `${req.method()} ${tail.replace(/^grade-items\/[^/]+\//, "grade-items/*/")}`;
-    calls.push({ method: req.method(), path: path + url.search, body });
+    calls.push({ method: req.method(), path: path + url.search, body, idem: req.headers()["idempotency-key"] ?? "" });
     const custom = opts.h?.[key];
     if (custom && !skip) return custom(route, (r) => handle(r, true));
     if (key === "GET grade-scheme/status") {
@@ -92,6 +94,22 @@ export async function gradebookApi(p: Page, opts: Opts = {}) {
       const out = entries.get(k);
       return route.fulfill(j({ entry: out ? { item_id: b.item_id, student_id: b.student_id, ...out } : null, row_result: result(i), bonus: "0", penalty: "0" }));
     }
+    if (key === "POST uploads/presign") return route.fulfill(j({ upload_id: "00000000-0000-7000-8000-0000000000a1", method: "PUT", url: `${BASE_URL}/__blob/up1`, headers: {}, blob_key: "k", expires_in: 600 }));
+    if (key === "POST grade-entries/import") {
+      const b = JSON.parse(body) as { mode: string; mapping: { student_code_col?: string }; skip_errors?: boolean };
+      const base = { rows_total: 0, rows_ok: 0, overwrites: 0, unchanged: 0, errors: [], sample: [], headers: ["MSSV", "Họ tên", "Điểm"], suggested_mapping: { header_row: 1, student_code_col: "A", score_col: "C" }, written: 0, skipped_errors: 0 };
+      if (!b.mapping.student_code_col) return route.fulfill(j(base));
+      const sample = [1, 2, 3].map((i) => ({ student: student(i), before: i === 1 ? "5" : null, after: String(6 + i) }));
+      const out = { ...base, rows_total: 3, rows_ok: 3, overwrites: 1, sample, ...opts.importOut };
+      if (b.mode === "commit") {
+        const ok = (out.errors as unknown[]).length === 0 || b.skip_errors;
+        if (!ok) return route.fulfill(e(409, "IMPORT_HAS_ERRORS"));
+        for (const r of sample) entries.set(`${r.student.id}:${WEEKLY}`, { score: r.after, version: 1, source: "IMPORT" });
+        return route.fulfill(j({ ...out, written: sample.length, skipped_errors: (out.errors as unknown[]).length }));
+      }
+      return route.fulfill(j(out));
+    }
+    if (key === "GET gradebook/export.xlsx") return route.fulfill({ status: 200, headers: { ...cors, "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "Content-Disposition": 'attachment; filename="so-diem-L1.xlsx"' }, body: "PK" });
     if (key === "POST grade-items/*/publish") {
       const b = JSON.parse(body) as { published: boolean };
       return route.fulfill(j({ item_id: path.split("/").at(-2), published: b.published }));
@@ -111,6 +129,7 @@ export async function gradebookApi(p: Page, opts: Opts = {}) {
     }
     return route.fulfill(e(404, "NOT_FOUND"));
   };
-  await p.route(/\/api\/v1\/courses\/[^/]+\/(gradebook|grade-entries|grade-items\/[^/]+\/publish|grade-scheme\/status)/, (r) => handle(r));
+  await p.route(/\/api\/v1\/courses\/[^/]+\/(gradebook|grade-entries|grade-items\/[^/]+\/publish|grade-scheme\/status|uploads\/presign)/, (r) => handle(r));
+  await p.route(/\/__blob\//, (r) => r.fulfill({ status: 200, headers: cors, body: "" }));
   return { calls, entries, puts: () => calls.filter((c) => c.method === "PUT") };
 }

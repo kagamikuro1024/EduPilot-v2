@@ -7,9 +7,10 @@ import { GradeCalculation } from "@/shared/domain";
 import { Button, ButtonLink, type Column as TableColumn, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import {
-  gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus,
+  exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus,
   type Column, type GEntry, type GradebookPage, type GRow,
 } from "./gradeApi";
+import { ImportDialog } from "./ImportDialog";
 import s from "./Gradebook.module.css";
 
 const vi = (v: string | undefined) => (v === undefined || v === "" ? "" : v.replace(".", ","));
@@ -53,6 +54,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
   const [explainOf, setExplainOf] = useState<GRow | null>(null);
   const [historyOf, setHistoryOf] = useState<GRow | null>(null);
   const [warnOpen, setWarnOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
   const latest = useRef(new Map<string, string>());
   const busy = useRef(new Map<string, string>()); // khoá ô → chữ đang gửi
 
@@ -98,7 +100,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
           return { ...r, entries, result: out.row_result, bonus: out.bonus, penalty: out.penalty };
         });
         setCells((c) => { const n = { ...c }; delete n[key]; return n; });
-        setDraft(key, null);
+        setDrafts((d) => { if (d.get(key) !== text) return d; const n = new Map(d); n.delete(key); return n; }); // chữ gõ tiếp trong lúc chờ không bị xoá
         const again = latest.current.get(key);
         latest.current.delete(key);
         busy.current.delete(key);
@@ -238,6 +240,14 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
   ];
 
   const hasScheme = first?.scheme != null;
+  async function download() {
+    const blob = await exportXlsx(courseId);
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "so-diem.xlsx";
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
   const banner = status && status.state !== "CONFIRMED" && (
     <InlineNotice tone="warning" compact action={teacher ? <ButtonLink size="sm" href="/gradebook/scheme">{status.state === "NO_POLICY" ? "Tải quy chế" : "Xác nhận công thức"}</ButtonLink> : <ButtonLink size="sm" href="/gradebook/scheme">Xem công thức</ButtonLink>}>
       Công thức điểm chưa xác nhận
@@ -248,6 +258,15 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
   const actions = (
     <>
       <ButtonLink href="/gradebook/scheme" variant="secondary">Xem công thức</ButtonLink>
+      {teacher && hasScheme && (
+        <OverflowMenu
+          label="Thêm hành động"
+          items={[
+            ...(locked ? [] : [{ label: "Nhập từ XLSX", onSelect: () => setImporting(true) }]),
+            { label: "Xuất XLSX", onSelect: () => void download() },
+          ]}
+        />
+      )}
       {teacher && status && status.state !== "CONFIRMED" && (
         <span className={s.lock}>
           <Button variant="primary" aria-disabled="true" className={s.lockBtn} aria-describedby="finalize-why" onClick={() => undefined}>Chốt điểm</Button>
@@ -301,6 +320,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
           </div>
         </div>
       )}
+      {importing && <ImportDialog course={courseId} columns={columns} onClose={() => setImporting(false)} />}
       <ExplainDrawer courseId={courseId} row={explainOf} onClose={() => setExplainOf(null)} />
       <HistoryDrawer courseId={courseId} row={historyOf} onClose={() => setHistoryOf(null)} />
     </Page>
