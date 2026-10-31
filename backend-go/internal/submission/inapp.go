@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"path"
@@ -21,6 +22,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/platform/blob"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
@@ -46,9 +48,12 @@ var reHash = regexp.MustCompile(`^[0-9a-fA-F]{64}$`) //nolint:gochecknoglobals /
 // BlobAPI là phần của platform/blob mà gói này dùng.
 type BlobAPI interface {
 	Reader
+	Get(ctx context.Context, key string) (io.ReadCloser, error)
+	Put(ctx context.Context, key string, r io.Reader, size int64, contentType string) error
 	Stat(ctx context.Context, key string) (blob.Info, error)
 	Delete(ctx context.Context, key string) error
 	PresignPutChecked(ctx context.Context, key, contentType string, size int64, sha256Hex string) (string, error)
+	PresignGet(ctx context.Context, key, filename string) (string, error)
 	List(ctx context.Context, prefix string) ([]blob.Info, error)
 }
 
@@ -59,6 +64,7 @@ type Service struct {
 	Blob          BlobAPI
 	Clock         clock.Clock
 	Log           *slog.Logger
+	Jobs          *jobs.Service // UploadSource: ZIP > 5 mục chạy nền (kind `submission.zip`)
 	MaxBytes      int64
 	PresignPerMin int
 }

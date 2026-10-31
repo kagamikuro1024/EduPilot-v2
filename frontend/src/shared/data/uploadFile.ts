@@ -35,6 +35,42 @@ export function checkGradeImportFile(f: File): string | null {
 }
 export const uploadGradeImportFile = (courseId: string, file: File, signal?: AbortSignal) => uploadFile(courseId, file, "grade_import", signal);
 
+// ---- nộp bài tập (US-P7-03 AC2, AC3): .pdf .docx .txt .md, ≤ 20 MiB ------------------------------------------------------
+export const ASSIGN_MAX_BYTES = 20 * 1024 * 1024;
+const ASSIGN_EXT = /\.(pdf|docx|txt|md)$/i;
+
+/** Kiểm TRƯỚC mọi yêu cầu mạng; trả câu lỗi hoặc null. Máy chủ kiểm lại độc lập. */
+export function checkSubmissionFile(f: File): string | null {
+  if (!ASSIGN_EXT.test(f.name)) return "Chỉ nhận PDF, DOCX, TXT, MD";
+  if (f.size > ASSIGN_MAX_BYTES) return "Tệp lớn hơn 20 MB";
+  if (f.size === 0) return "Tệp rỗng";
+  return null;
+}
+
+/**
+ * Xin URL ký sẵn rồi `PUT` thẳng tệp lên kho (byte không qua gateway, token không gửi sang origin khác):
+ * gửi ĐÚNG các header máy chủ trả về, kể cả `x-amz-checksum-sha256`; `Content-Length` do trình duyệt tự đặt.
+ * Trả `upload_id` để `POST …/submit` hoàn tất.
+ */
+export async function uploadSubmissionFile(courseId: string, assignmentId: string, file: File, signal?: AbortSignal): Promise<string> {
+  const sha256 = await sha256Hex(file);
+  const p = await apiClient.post<{ upload_id: string; method: string; url: string; headers: Record<string, string> }>(
+    `/courses/${courseId}/assignments/${assignmentId}/submit/presign`,
+    { filename: file.name, size_bytes: file.size, sha256 },
+    { signal },
+  );
+  const headers = { ...p.data.headers };
+  delete headers["Content-Length"];
+  let res: Response;
+  try {
+    res = await fetch(p.data.url, { method: p.data.method, headers, body: file, signal });
+  } catch {
+    throw new ApiError({ status: 0, code: "NETWORK" });
+  }
+  if (!res.ok) throw new ApiError({ status: res.status >= 500 ? 502 : 400, code: res.status >= 500 ? "BAD_GATEWAY" : "UPLOAD_INCOMPLETE" });
+  return p.data.upload_id;
+}
+
 async function uploadFile(courseId: string, file: File, purpose: "document" | "grade_import", signal?: AbortSignal): Promise<string> {
   const mime = purpose === "grade_import" ? XLSX_MIME : (MIME[file.name.split(".").pop()!.toLowerCase()] ?? file.type);
   const sha256 = await sha256Hex(file);

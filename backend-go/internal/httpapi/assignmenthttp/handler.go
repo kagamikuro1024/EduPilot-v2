@@ -37,6 +37,13 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(teacher, h.Idem).Post("/courses/{id}/assignments/{aid}/publish", h.publish)
 	r.With(teacher).Put("/courses/{id}/assignments/{aid}/rubric", h.putRubric)
 	r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/rubric/suggest", h.suggest)
+	// Route của nhân viên về bài nộp (US-P7-04): tải tệp lẻ / ZIP, tab `Chưa khớp`, gán tay, bỏ qua, tải tệp.
+	r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/submissions/upload", h.upload)
+	r.With(staff).Get("/courses/{id}/submissions", h.listSubmissions)
+	r.With(staff).Put("/courses/{id}/submissions/{sid}/match", h.match)
+	r.With(staff).Get("/courses/{id}/submissions/{sid}/file", h.file)
+	r.With(staff).Post("/courses/{id}/submissions/{sid}/dismiss", h.dismiss)
+	r.With(staff).Delete("/courses/{id}/submissions/{sid}/dismiss", h.undismiss)
 	// Route của sinh viên (US-P7-03): chỉ STUDENT của lớp (TA / TEACHER / ADMIN 403), mọi phản hồi `Cache-Control: no-store`.
 	r.With(student).Get("/courses/{id}/assignments/{aid}/mine", h.mine)
 	r.With(student).Post("/courses/{id}/assignments/{aid}/submit/presign", h.presign)
@@ -270,4 +277,135 @@ func (h *Handler) submit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusCreated, map[string]any{"submission": out})
+}
+
+func staffOf(w http.ResponseWriter, r *http.Request) (course, sid uuid.UUID, st submission.Staff, ok bool) {
+	course, e1 := uuid.Parse(chi.URLParam(r, "id"))
+	p, hasP := auth.FromContext(r.Context())
+	uid, e2 := uuid.Parse(p.Sub)
+	if e1 != nil || !hasP || e2 != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return course, sid, st, false
+	}
+	if raw := chi.URLParam(r, "sid"); raw != "" {
+		var err error
+		if sid, err = uuid.Parse(raw); err != nil {
+			apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+			return course, sid, st, false
+		}
+	}
+	ca, _ := auth.CourseFromContext(r.Context())
+	return course, sid, submission.Staff{UserID: uid, IsTA: ca.CourseRole == auth.RoleTA, TraceID: llm.TraceID(r.Context())}, true
+}
+
+func (h *Handler) upload(w http.ResponseWriter, r *http.Request) {
+	course, id, a, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		UploadID uuid.UUID `json:"upload_id"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	if in.UploadID == uuid.Nil {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "upload_id", Code: "required", Message: "Thiếu mã tải lên."}))
+		return
+	}
+	out, job, err := h.Submit.UploadComplete(r.Context(), a.UserID, course, id, in.UploadID)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	if job != nil {
+		httpx.WriteJSON(w, http.StatusAccepted, map[string]any{"job_id": job})
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) listSubmissions(w http.ResponseWriter, r *http.Request) {
+	course, _, _, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	if r.URL.Query().Get("match_status") != "UNMATCHED" {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "match_status", Code: "enum", Message: "match_status là UNMATCHED."}))
+		return
+	}
+	pp, perr := httpx.ParsePageParams(r)
+	if perr != nil {
+		apierr.Write(w, r, perr)
+		return
+	}
+	out, err := h.Submit.ListUnmatched(r.Context(), course, pp)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) match(w http.ResponseWriter, r *http.Request) {
+	course, sid, st, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	var in submission.MatchIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Submit.Match(r.Context(), st, course, sid, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) file(w http.ResponseWriter, r *http.Request) {
+	course, sid, _, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	u, err := h.Submit.FileURL(r.Context(), course, sid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"url": u, "expires_in": 300})
+}
+
+func (h *Handler) dismiss(w http.ResponseWriter, r *http.Request) {
+	course, sid, st, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		Reason  string `json:"reason"`
+		Version int64  `json:"version"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	if err := h.Submit.Dismiss(r.Context(), st, course, sid, in.Reason, in.Version); err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) undismiss(w http.ResponseWriter, r *http.Request) {
+	course, sid, st, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	if err := h.Submit.Undismiss(r.Context(), st, course, sid); err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }

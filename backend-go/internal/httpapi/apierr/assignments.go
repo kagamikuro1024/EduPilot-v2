@@ -38,9 +38,17 @@ const (
 	TeamsConsentRequired    = "TEAMS_CONSENT_REQUIRED"
 	TeamsResponseInvalid    = "TEAMS_RESPONSE_INVALID"
 	FileDownloadFailed      = "FILE_DOWNLOAD_FAILED"
+	AssignmentNotPublished  = "ASSIGNMENT_NOT_PUBLISHED"
+	EntryUnsafe             = "ENTRY_UNSAFE"
+	EntryTypeNotAllowed     = "ENTRY_TYPE_NOT_ALLOWED"
+	ZipLimit                = "ZIP_LIMIT"
 )
 
 var assignmentMessages = map[string]string{ //nolint:gochecknoglobals // bảng lời văn bất biến
+	AssignmentNotPublished:  "Bài tập chưa được công bố.",
+	EntryUnsafe:             "Tên tệp trong ZIP không an toàn.",
+	EntryTypeNotAllowed:     "Loại tệp này không nhận. Chỉ nhận PDF, DOCX, TXT, MD.",
+	ZipLimit:                "ZIP vượt giới hạn số tệp hoặc dung lượng.",
 	TypeNotSupported:        "Loại bài tập này chưa được hỗ trợ.",
 	RubricInvalid:           "Tổng điểm các tiêu chí phải bằng điểm tối đa của bài.",
 	RubricLocked:            "Bài đã có kết quả chấm, không đổi tiêu chí nữa.",

@@ -1,8 +1,7 @@
 // Dữ liệu mô phỏng cho các màn sinh viên (US-PROTO-01): buổi học, bài tập, bài nộp của SV B,
 // khuyến nghị "việc nên làm". Mốc ngày/điểm theo SRS 4.1 — không tự đổi số.
 
-import { BT03_SUBMITTED_AT } from "./assess";
-import { COURSE_1, COURSE_2, NOW, STUDENT_B, TERM_START, fmtShortDate, type Student } from "./core";
+import { COURSE_1, COURSE_2, NOW, TERM_START, fmtShortDate, type Student } from "./core";
 
 const DAY = 86_400_000;
 
@@ -96,19 +95,6 @@ export const ASSIGNMENTS: Assignment[] = [
     description: "10 câu về AES, chế độ ECB/CBC và quản lý khoá. Bài có tính điểm.",
   },
 ];
-
-export function assignmentById(id: string) {
-  return ASSIGNMENTS.find((a) => a.id === id);
-}
-
-/** Bài nộp BT03 của SV B: mốc nộp lấy từ N6 (`BT03_SUBMITTED_AT` = 23/10 08:10), muộn 1 ngày. */
-export const BT03_SUBMISSION = {
-  studentId: STUDENT_B.id,
-  at: BT03_SUBMITTED_AT,
-  lateDays: 1,
-  file: "bt03-tran-thu-uyen.pdf",
-  sizeKb: 418,
-};
 
 // ---- kỳ thi ---------------------------------------------------------------------------------
 

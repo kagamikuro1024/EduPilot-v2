@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { assignment, assignmentsApi } from "./support/assignment-fixtures";
+import { A1, UPLOAD_ID, assignment, assignmentsApi, mineOut, studentApi, studentItem } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -192,4 +192,148 @@ test("assignments tab states: khung xương, rỗng, lỗi kèm Thử lại", as
   await expect(page.locator("[data-part=assignment-row]")).toHaveCount(0);
   // bài tập đã công bố dẫn từ lịch sang đúng tab này
   expect(page.url()).toContain("tab=assignments");
+});
+
+// ---- US-P7-03: trang nộp bài của sinh viên ---------------------------------------------------------------------------------
+const STUDENT_URL = `/assignments/${A1}`;
+const PDF = { name: "bt03.pdf", mimeType: "application/pdf", buffer: Buffer.from("%PDF-1.7\nbai lam cua sinh vien\n") };
+const picker = (page: Page) => page.getByLabel("Chọn tệp bài nộp");
+const statusLine = (page: Page) => page.locator("[data-part=submit-status]");
+
+async function openStudent(page: Page, context: Parameters<typeof asDemo>[0], opts: Parameters<typeof studentApi>[1] = {}) {
+  await asDemo(context, "student");
+  const api = await studentApi(page, opts);
+  await page.goto(STUDENT_URL);
+  await expect(page.getByRole("heading", { name: "Bài tập 03 · Phân tích nhật ký", level: 1 })).toBeVisible();
+  return api;
+}
+
+test("student page states: bốn trạng thái, đề bài Markdown, tiêu chí, không mục sidebar", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openStudent(page, context);
+  await expect(page.locator("[data-part=due-left]")).toHaveText(/^(còn|đã quá hạn) /);
+  await expect(page.locator("[data-part=markdown] li").first()).toHaveText("Nêu ba dấu hiệu");
+  await expect(page.locator("main dt").first()).toHaveText("Phát hiện dấu hiệu");
+  await expect(page.locator("main dd").first()).toHaveText("6 điểm");
+  await expect(page.locator("[data-part=dropzone]")).toBeVisible();
+  await expect(statusLine(page)).toHaveText("Chưa nộp");
+  await expect(page.getByRole("button", { name: "Nộp bài" })).toBeVisible();
+  await expect(page.locator("main [data-ep-panel]")).toHaveCount(1);
+  await expect(page.locator("nav a[href^='/assignments']")).toHaveCount(0); // không có mục sidebar
+  await expect(page.locator("main [data-tone=strong]")).toHaveCount(0);
+
+  for (const [state, text] of [
+    ["SUBMITTED", "Đã nộp Thứ Sáu, 23/10 · 08:10 · Nộp muộn 1 ngày"],
+    ["GRADING", "Đang chấm"],
+    ["GRADED", "Đã có điểm"],
+  ] as const) {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    await studentApi(page, { mine: mineOut({ state, submission: { version: 1, file_name: "bt03.pdf", received_at: "2026-10-23T01:10:00.000Z", late_days: 1 } }) });
+    await page.reload();
+    await expect(statusLine(page)).toHaveText(text);
+    await expect(page.getByRole("button", { name: "Nộp lại" })).toBeVisible();
+  }
+  const body = await page.locator("main").innerText();
+  expect(body).not.toMatch(/điểm nháp|AI|tiến độ chấm/i);
+});
+
+test("dropzone rejects before upload: sai đuôi / quá 20 MB / rỗng báo tại chỗ, không có presign", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openStudent(page, context);
+  const seen: string[] = [];
+  page.on("request", (r) => seen.push(r.url()));
+  const err = page.locator("[data-part=file-error]");
+  await picker(page).setInputFiles({ name: "bai.exe", mimeType: "application/octet-stream", buffer: Buffer.from("MZ") });
+  await expect(err).toHaveText("Chỉ nhận PDF, DOCX, TXT, MD");
+  await picker(page).setInputFiles({ name: "to.pdf", mimeType: "application/pdf", buffer: Buffer.alloc(20 * 1024 * 1024 + 1) });
+  await expect(err).toHaveText("Tệp lớn hơn 20 MB");
+  await picker(page).setInputFiles({ name: "rong.txt", mimeType: "text/plain", buffer: Buffer.alloc(0) });
+  await expect(err).toHaveText("Tệp rỗng");
+  await expect(page.getByRole("button", { name: "Nộp bài" })).toBeDisabled();
+  expect(seen.filter((u) => u.includes("presign"))).toHaveLength(0);
+  expect(api.presigns()).toHaveLength(0);
+});
+
+test("submit confirms with server timestamp: presign → PUT kho tệp → submit, xác nhận bằng giờ máy chủ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openStudent(page, context);
+  await picker(page).setInputFiles(PDF);
+  await expect(page.locator("[data-part=picked]")).toHaveText("bt03.pdf");
+  await page.getByRole("button", { name: "Nộp bài" }).click();
+  await expect(statusLine(page)).toHaveText("Đã nhận bài lúc 08:10 Thứ Sáu, 23/10");
+  const sent = JSON.parse(api.presigns()[0].body) as { filename: string; size_bytes: number; sha256: string };
+  expect(sent.filename).toBe("bt03.pdf");
+  expect(sent.size_bytes).toBe(PDF.buffer.length);
+  expect(sent.sha256).toMatch(/^[0-9a-f]{64}$/);
+  expect(api.blobPuts).toHaveLength(1);
+  expect(api.blobPuts[0].headers["x-amz-checksum-sha256"]).toBeTruthy();
+  expect(api.blobPuts[0].headers["content-type"]).toBe("application/pdf");
+  const submits = api.submits();
+  expect(submits).toHaveLength(1);
+  expect(JSON.parse(submits[0].body)).toEqual({ upload_id: UPLOAD_ID });
+  expect(submits[0].headers["idempotency-key"]).toBeTruthy();
+});
+
+test("submit offline retry: kho tệp hỏng giữ nguyên tệp đã chọn, Thử lại xin presign mới", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let down = true;
+  const api = await openStudent(page, context, { storage: (r) => (down ? r.abort("connectionfailed") : r.fulfill({ status: 200, body: "" })) });
+  await picker(page).setInputFiles(PDF);
+  await page.getByRole("button", { name: "Nộp bài" }).click();
+  await expect(page.getByText("Chưa gửi được")).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator("[data-part=picked]")).toHaveText("bt03.pdf");
+  expect(api.submits()).toHaveLength(0);
+  down = false;
+  await page.getByRole("button", { name: "Thử lại" }).click();
+  await expect(statusLine(page)).toHaveText("Đã nhận bài lúc 08:10 Thứ Sáu, 23/10");
+  expect(api.presigns().length).toBeGreaterThanOrEqual(2);
+  expect(api.submits()).toHaveLength(1);
+});
+
+test("submit double click: bấm đúp Nộp bài chỉ tạo một bản nộp", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openStudent(page, context, {
+    h: {
+      "POST assignments/:id/submit": async (r, dflt) => {
+        await new Promise((res) => setTimeout(res, 800));
+        await dflt(r);
+      },
+    },
+  });
+  await picker(page).setInputFiles(PDF);
+  await page.getByRole("button", { name: "Nộp bài" }).dblclick();
+  await expect(statusLine(page)).toHaveText("Đã nhận bài lúc 08:10 Thứ Sáu, 23/10", { timeout: 15_000 });
+  await page.waitForTimeout(800);
+  expect(api.submits()).toHaveLength(1);
+  expect(api.presigns()).toHaveLength(1);
+});
+
+test("submit resume complete: vé còn hạn hiện Chưa hoàn tất nộp, Hoàn tất dùng lại upload_id", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await openStudent(page, context);
+  await page.evaluate(
+    ([key, id]) => localStorage.setItem(key, JSON.stringify({ upload_id: id, filename: "bt03.pdf", size: 30, ts: Date.now() })),
+    [`ep:submit:00000000-0000-7000-8000-00000000c001:${A1}`, UPLOAD_ID],
+  );
+  await page.reload();
+  await expect(page.getByText("Chưa hoàn tất nộp · bt03.pdf")).toBeVisible();
+  await page.getByRole("button", { name: "Hoàn tất" }).click();
+  await expect(statusLine(page)).toHaveText("Đã nhận bài lúc 08:10 Thứ Sáu, 23/10");
+  expect(api.presigns()).toHaveLength(0);
+  expect(JSON.parse(api.submits()[0].body)).toEqual({ upload_id: UPLOAD_ID });
+  expect(await page.evaluate((k) => localStorage.getItem(k), `ep:submit:00000000-0000-7000-8000-00000000c001:${A1}`)).toBeNull();
+});
+
+test("assignment page 375: một cột, vùng nộp ≥ 48 px, nút đủ rộng, không cuộn ngang", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await page.setViewportSize({ width: 375, height: 812 });
+  await openStudent(page, context, { mine: mineOut(), items: [studentItem()] });
+  const over = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(over).toBeLessThanOrEqual(0);
+  const drop = await page.locator("[data-part=dropzone]").boundingBox();
+  expect(drop!.height).toBeGreaterThanOrEqual(48);
+  const btn = await page.getByRole("button", { name: "Nộp bài" }).boundingBox();
+  expect(btn!.height).toBeGreaterThanOrEqual(44);
+  expect(btn!.width).toBeGreaterThanOrEqual(160);
+  await expect(statusLine(page)).toHaveAttribute("aria-live", "polite");
 });

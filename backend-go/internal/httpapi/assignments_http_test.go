@@ -190,3 +190,51 @@ func TestStudentCannotCallStaffRoutes(t *testing.T) {
 		}
 	}
 }
+
+// TestUnmatchedListRBAC / TestUploadRBAC / TestSignedGetChecksRole — route nhân viên về bài nộp: TEACHER 200; STUDENT, ADMIN, giảng viên lớp khác 403 (kể cả khi tệp / vé không tồn tại: guard chạy trước).
+func TestUnmatchedListRBAC(t *testing.T) {
+	c, id := pubAsgCourse(t)
+	list := "/api/v1/courses/" + c.id + "/submissions?match_status=UNMATCHED"
+	if r := tDo(t, http.MethodGet, list, c.tTok, ""); r.StatusCode != http.StatusOK || r.Header.Get("Cache-Control") != "no-store" {
+		t.Fatalf("giảng viên → %d, Cache-Control %q", r.StatusCode, r.Header.Get("Cache-Control"))
+	}
+	outsider := tTokenRole(t, uuid.NewString(), auth.RoleTeacher)
+	for name, tok := range map[string]string{"sinh viên": c.sTok, "admin": c.adminTk, "giảng viên lớp khác": outsider} {
+		if r := tDo(t, http.MethodGet, list, tok, ""); r.StatusCode != http.StatusForbidden {
+			t.Fatalf("%s → %d (cần 403)", name, r.StatusCode)
+		}
+		if r := tDo(t, http.MethodPut, "/api/v1/courses/"+c.id+"/submissions/"+uuid.NewString()+"/match", tok,
+			`{"assignment_id":"`+id+`","student_id":"`+c.student+`","version":1}`); r.StatusCode != http.StatusForbidden {
+			t.Fatalf("gán tay: %s → %d (cần 403)", name, r.StatusCode)
+		}
+	}
+}
+
+func TestUploadRBAC(t *testing.T) {
+	c, id := pubAsgCourse(t)
+	path := "/api/v1/courses/" + c.id + "/assignments/" + id + "/submissions/upload"
+	body := `{"upload_id":"` + uuid.NewString() + `"}`
+	outsider := tTokenRole(t, uuid.NewString(), auth.RoleTeacher)
+	for name, tok := range map[string]string{"sinh viên": c.sTok, "admin": c.adminTk, "giảng viên lớp khác": outsider} {
+		if r := tDo(t, http.MethodPost, path, tok, body, "Idempotency-Key", tIdemKey(t)); r.StatusCode != http.StatusForbidden {
+			t.Fatalf("%s → %d (cần 403)", name, r.StatusCode)
+		}
+	}
+	// giảng viên của lớp qua guard: vé không có → 404 UPLOAD_NOT_FOUND (hoặc 503 nếu ngăn xếp thử không có object storage), không phải 403
+	if r := tDo(t, http.MethodPost, path, c.tTok, body, "Idempotency-Key", tIdemKey(t)); r.StatusCode == http.StatusForbidden || r.StatusCode == http.StatusUnauthorized {
+		t.Fatalf("giảng viên lớp bị chặn: %d", r.StatusCode)
+	}
+}
+
+func TestSignedGetChecksRole(t *testing.T) {
+	c, _ := pubAsgCourse(t)
+	path := "/api/v1/courses/" + c.id + "/submissions/" + uuid.NewString() + "/file"
+	for name, tok := range map[string]string{"sinh viên": c.sTok, "admin": c.adminTk, "giảng viên lớp khác": tTokenRole(t, uuid.NewString(), auth.RoleTeacher)} {
+		if r := tDo(t, http.MethodGet, path, tok, ""); r.StatusCode != http.StatusForbidden {
+			t.Fatalf("%s → %d (cần 403): URL ký chỉ phát sau khi kiểm vai", name, r.StatusCode)
+		}
+	}
+	if r := tDo(t, http.MethodGet, path, c.tTok, ""); r.StatusCode != http.StatusNotFound {
+		t.Fatalf("giảng viên, id lạ → %d (cần 404)", r.StatusCode)
+	}
+}

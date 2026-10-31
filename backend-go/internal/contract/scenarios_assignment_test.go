@@ -1,6 +1,7 @@
 package contract
 
 import (
+	"archive/zip"
 	"bytes"
 	"context"
 	"crypto/sha256"
@@ -132,6 +133,7 @@ func (r *runner) assignmentScenarios(x examRig) {
 
 	// 9–11: sinh viên — mine, presign, submit.
 	r.studentSubmitScenarios(x, base, A, a.ID)
+	r.uploadScenarios(x, base)
 
 	// 5: xoá — bài nộp → 409; bài sạch 204.
 	if _, err := db.Exec(ctx, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method, submitted_at)
@@ -274,4 +276,160 @@ func (r *runner) studentSubmitScenarios(x examRig, base, A, aid string) {
 	if !got429 {
 		r.t.Fatal("presign bài nộp: không thấy 429 sau 30 lượt")
 	}
+}
+
+// uploadScenarios: thao tác 13 (upload), 14 (danh sách chưa khớp), 16 (gán tay), 17 (tải tệp), 35 / 36 (bỏ qua / hoàn tác) của SRS FEAT-assignments 6 với mọi status đã khai báo.
+func (r *runner) uploadScenarios(x examRig, base string) {
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	due := time.Now().UTC().Add(72 * time.Hour).Format(time.RFC3339)
+	mk := func(code string, publish bool, channels string) string {
+		_, b := r.must(call{method: "POST", path: base, token: x.gv, headers: x.idem(), body: `{"title":"` + code + `","submission_code":"` + code + `","due_at":"` + due + `","channels":` + channels + `,"rubric":[{"name":"Một","max_score":"10"}]}`}, 201)
+		var o struct {
+			ID string `json:"id"`
+		}
+		_ = json.Unmarshal(b, &o)
+		if publish {
+			r.must(call{method: "POST", path: base + "/" + o.ID + "/publish", token: x.gv, headers: x.idem()}, 200)
+		}
+		return o.ID
+	}
+	asg := mk("UPL1", true, `["IN_APP","UPLOAD"]`)
+	A := base + "/" + asg
+	type pres struct {
+		UploadID string            `json:"upload_id"`
+		URL      string            `json:"url"`
+		Headers  map[string]string `json:"headers"`
+	}
+	upload := func(token, name string, data []byte, doPut bool) pres {
+		h := sha256.Sum256(data)
+		body := fmt.Sprintf(`{"purpose":"submission_upload","filename":%q,"size_bytes":%d,"sha256":%q}`, name, len(data), fmt.Sprintf("%x", h))
+		_, b := r.must(call{method: "POST", path: strings.TrimSuffix(base, "/assignments") + "/uploads/presign", token: token, body: body}, 200)
+		var p pres
+		_ = json.Unmarshal(b, &p)
+		if doPut {
+			req, _ := http.NewRequest(http.MethodPut, p.URL, bytes.NewReader(data))
+			for k, v := range p.Headers {
+				if k != "Content-Length" {
+					req.Header.Set(k, v)
+				}
+			}
+			resp, err := http.DefaultClient.Do(req)
+			if err != nil {
+				r.t.Fatalf("PUT: %v", err)
+			}
+			_, _ = io.Copy(io.Discard, resp.Body)
+			_ = resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				r.t.Fatalf("PUT → %d", resp.StatusCode)
+			}
+		}
+		return p
+	}
+	up := func(token, path, id string) call {
+		return call{method: "POST", path: path + "/submissions/upload", token: token, headers: x.idem(), body: `{"upload_id":"` + id + `"}`}
+	}
+	// 13: tệp lẻ không MSSV → 200, vào Chưa khớp.
+	single := upload(x.ta, "khong-mssv.txt", []byte("Bài làm không ghi MSSV.\n"), true)
+	_, raw := r.must(up(x.ta, A, single.UploadID), 200)
+	if !strings.Contains(string(raw), `"unmatched":1`) {
+		r.t.Fatalf("tệp lẻ không MSSV phải vào Chưa khớp: %s", raw)
+	}
+	r.must(up(x.ta, A, single.UploadID), 404) // vé đã dùng
+	// ZIP 6 mục → 202 + việc nền.
+	var zb bytes.Buffer
+	zw := zip.NewWriter(&zb)
+	for i := range 6 {
+		f, _ := zw.Create(fmt.Sprintf("bai-%d.txt", i))
+		_, _ = fmt.Fprintf(f, "Bài làm số %d.\n", i)
+	}
+	_ = zw.Close()
+	z := upload(x.gv, "lop.zip", zb.Bytes(), true)
+	r.must(up(x.gv, A, z.UploadID), 202)
+	// lỗi: chưa PUT → 422; ngoài vai → 403; bài lạ → 404; bài nháp / kênh tắt → 409.
+	noPut := upload(x.ta, "chua-tai.txt", []byte("x\n"), false)
+	r.must(up(x.ta, A, noPut.UploadID), 422)
+	r.must(call{method: "POST", path: A + "/submissions/upload", headers: x.idem(), body: `{"upload_id":"` + noPut.UploadID + `"}`}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(up(who, A, noPut.UploadID), 403)
+	}
+	r.must(up(x.ta, base+"/00000000-0000-7000-8000-000000000000", noPut.UploadID), 404)
+	r.must(up(x.ta, base+"/"+mk("UPLDRAFT", false, `["UPLOAD"]`), noPut.UploadID), 409) // ASSIGNMENT_NOT_PUBLISHED
+	r.must(up(x.ta, base+"/"+mk("UPLOFF", true, `["IN_APP"]`), noPut.UploadID), 409)    // CHANNEL_NOT_ALLOWED
+
+	// 14: tab Chưa khớp.
+	sub := strings.TrimSuffix(base, "/assignments") + "/submissions"
+	list := func() (id string, version int64) {
+		_, b := r.must(call{method: "GET", path: sub + "?match_status=UNMATCHED", token: x.gv}, 200)
+		var pg struct {
+			Items []struct {
+				ID      string `json:"id"`
+				Version int64  `json:"version"`
+			} `json:"items"`
+		}
+		_ = json.Unmarshal(b, &pg)
+		if len(pg.Items) == 0 {
+			r.t.Fatalf("Chưa khớp rỗng: %s", b)
+		}
+		return pg.Items[0].ID, pg.Items[0].Version
+	}
+	r.must(call{method: "GET", path: sub + "?match_status=UNMATCHED", token: x.ta}, 200)
+	r.must(call{method: "GET", path: sub + "?match_status=UNMATCHED"}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: sub + "?match_status=UNMATCHED", token: who}, 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/submissions?match_status=UNMATCHED", token: x.gv}, 404)
+	r.must(call{method: "GET", path: sub, token: x.gv}, 422)
+	id1, v1 := list()
+
+	// 17: tải tệp (URL ký 5 phút).
+	r.must(call{method: "GET", path: sub + "/" + id1 + "/file", token: x.gv}, 200)
+	r.must(call{method: "GET", path: sub + "/" + id1 + "/file", token: x.ta}, 200)
+	r.must(call{method: "GET", path: sub + "/" + id1 + "/file"}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: sub + "/" + id1 + "/file", token: who}, 403)
+	}
+	r.must(call{method: "GET", path: sub + "/00000000-0000-7000-8000-000000000000/file", token: x.gv}, 404)
+
+	// 16: gán tay — sai version 409; sinh viên ngoài lớp 422; thành công 200.
+	var student string
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'STUDENT' and status = 'ACTIVE' order by user_id limit 1`, x.cid).Scan(&student); err != nil {
+		r.t.Fatalf("sinh viên của lớp: %v", err)
+	}
+	mt := func(version int64, who string) string {
+		return fmt.Sprintf(`{"assignment_id":%q,"student_id":%q,"version":%d}`, asg, who, version)
+	}
+	r.must(call{method: "PUT", path: sub + "/" + id1 + "/match", token: x.gv, body: mt(v1+1, student)}, 409)
+	r.must(call{method: "PUT", path: sub + "/" + id1 + "/match", token: x.gv, body: mt(v1, uuid.NewString())}, 422)
+	r.must(call{method: "PUT", path: sub + "/" + id1 + "/match", body: mt(v1, student)}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "PUT", path: sub + "/" + id1 + "/match", token: who, body: mt(v1, student)}, 403)
+	}
+	r.must(call{method: "PUT", path: sub + "/00000000-0000-7000-8000-000000000000/match", token: x.gv, body: mt(v1, student)}, 404)
+	r.must(call{method: "PUT", path: sub + "/" + id1 + "/match", token: x.ta, body: mt(v1, student)}, 200)
+	r.must(call{method: "PUT", path: sub + "/" + id1 + "/match", token: x.ta, body: mt(v1, student)}, 409) // đã gán
+
+	// 35 / 36: bỏ qua và hoàn tác.
+	other := upload(x.ta, "bai-khac.txt", []byte("Một bài khác không MSSV.\n"), true)
+	r.must(up(x.ta, A, other.UploadID), 200)
+	id2, v2 := list()
+	ds := func(version int64, reason string) string {
+		return fmt.Sprintf(`{"reason":%q,"version":%d}`, reason, version)
+	}
+	r.must(call{method: "POST", path: sub + "/" + id2 + "/dismiss", token: x.gv, body: ds(v2, "")}, 422)
+	r.must(call{method: "POST", path: sub + "/" + id2 + "/dismiss", token: x.gv, body: ds(v2+1, "Nộp nhầm lớp")}, 409)
+	r.must(call{method: "POST", path: sub + "/" + id2 + "/dismiss", body: ds(v2, "x")}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "POST", path: sub + "/" + id2 + "/dismiss", token: who, body: ds(v2, "x")}, 403)
+	}
+	r.must(call{method: "POST", path: sub + "/00000000-0000-7000-8000-000000000000/dismiss", token: x.gv, body: ds(v2, "x")}, 404)
+	r.must(call{method: "POST", path: sub + "/" + id2 + "/dismiss", token: x.ta, body: ds(v2, "Nộp nhầm lớp")}, 204)
+	r.must(call{method: "POST", path: sub + "/" + id2 + "/dismiss", token: x.ta, body: ds(v2, "Nộp nhầm lớp")}, 409)
+	r.must(call{method: "DELETE", path: sub + "/" + id2 + "/dismiss"}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "DELETE", path: sub + "/" + id2 + "/dismiss", token: who}, 403)
+	}
+	r.must(call{method: "DELETE", path: sub + "/00000000-0000-7000-8000-000000000000/dismiss", token: x.gv}, 404)
+	r.must(call{method: "DELETE", path: sub + "/" + id2 + "/dismiss", token: x.gv}, 204)
+	r.must(call{method: "DELETE", path: sub + "/" + id2 + "/dismiss", token: x.gv}, 409) // chưa bỏ qua
 }

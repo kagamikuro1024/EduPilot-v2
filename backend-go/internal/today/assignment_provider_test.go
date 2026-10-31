@@ -2,12 +2,14 @@ package today_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/store"
 	"github.com/edupilot/backend-go/internal/today"
 )
 
@@ -95,4 +97,64 @@ func TestTodayAssignmentDue(t *testing.T) {
 	items = dueItems(r.tgetC(sv, "/me/today"))
 	require.Len(t, items, 1, "còn bài GAN2 chưa nộp")
 	require.Equal(t, "Bài GAN2", items[0]["title"])
+}
+
+func unmatchedItems(res resp) []map[string]any {
+	var out []map[string]any
+	if rec, ok := res.json()["recommended"].(map[string]any); ok && rec["kind"] == "UNMATCHED_SUBMISSION" {
+		out = append(out, rec)
+	}
+	for _, a := range actionsOf(res) {
+		if m := a.(map[string]any); m["kind"] == "UNMATCHED_SUBMISSION" {
+			out = append(out, m)
+		}
+	}
+	return out
+}
+
+func (r *rig) unmatched(c cls, n int) {
+	r.t.Helper()
+	for i := range n {
+		r.exec(`insert into submissions (course_id, source, blob_key, file_name, file_size, file_mime, sha256, match_status, unmatched_reason, external_ref, external_ts)
+			values ($1, 'UPLOAD', 'k', 'a.txt', 1, 'text/plain', 'x', 'UNMATCHED', 'NO_STUDENT_SIGNAL', $2, '1970-01-01Z')`, c.id, fmt.Sprintf("ref-%s-%d", c.code, i))
+	}
+}
+
+// TestProviderUnmatchedSubmission — UNMATCHED_SUBMISSION (bậc 60): "{n} bài nộp chưa khớp sinh viên · lớp {mã}", một mục mỗi lớp; TEACHER và TA thấy, STUDENT và ADMIN không; không lẫn lớp khác.
+func TestProviderUnmatchedSubmission(t *testing.T) {
+	r := newRig(t)
+	c, other := r.klass("764101"), r.klass("764102")
+	_, gvSess := r.teaching(c)
+	ta, taSess := r.person(store.UserRoleTA, true)
+	r.enrollAt(c, ta, "TA", "ACTIVE", "", 24*time.Hour)
+	su, svSess := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	_, adSess := r.person(store.UserRoleADMIN, true)
+	r.unmatched(c, 3)
+	r.unmatched(other, 5)
+	for name, s := range map[string]session{"giảng viên": gvSess, "trợ giảng": taSess} {
+		items := unmatchedItems(r.tget(s, "/me/today"))
+		require.Len(t, items, 1, name)
+		require.Equal(t, "3 bài nộp chưa khớp sinh viên · lớp 764101", items[0]["title"], name)
+		require.Equal(t, "/grading?tab=unmatched&course="+c.sid(), items[0]["href"], name)
+	}
+	for name, s := range map[string]session{"sinh viên": svSess, "admin": adSess} {
+		require.Empty(t, unmatchedItems(r.tget(s, "/me/today")), name)
+	}
+	require.EqualValues(t, today.TierUnmatchedSubmission, 60)
+}
+
+// TestProviderUnmatchedCleared — gán / bỏ qua hết → outbox `submission.resolved` xoá cache → mục biến mất.
+func TestProviderUnmatchedCleared(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764103")
+	_, gvSess := r.teaching(c)
+	r.unmatched(c, 2)
+	require.Len(t, unmatchedItems(r.tget(gvSess, "/me/today")), 1)
+	r.exec(`update submissions set dismissed_at = now() where course_id = $1`, c.id)
+	require.Len(t, unmatchedItems(r.tgetC(gvSess, "/me/today")), 1, "cache còn bản cũ tới khi có sự kiện")
+	payload, _ := json.Marshal(map[string]string{"course_id": c.sid()})
+	inv := today.Invalidator{Pool: r.pool, Redis: r.rdb}
+	require.NoError(t, inv.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionResolved, Payload: payload}))
+	require.Empty(t, unmatchedItems(r.tgetC(gvSess, "/me/today")))
 }

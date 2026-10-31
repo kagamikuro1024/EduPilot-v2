@@ -41,6 +41,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	runner := jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
+	if bs, ok := d.Blob.(submission.BlobAPI); ok {
+		(&submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}).RegisterZip(runner) // submission.zip (US-P7-04)
+	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
 	// Sự kiện chưa có bên tiêu thụ ở sprint 6 (P4 thông báo gộp, P10 cảnh báo ngân sách): vẫn PHẢI có handler ghi nhận — thiếu thì tin dead-letter sau 4 lần (TestEveryEmittedTopicHasHandler).
@@ -80,6 +83,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	asg := &assignment.Service{Pool: d.DB, Log: d.Log, Notify: nt}
 	reg.Register(assignment.TopicPublished, outbox.Chain(asg.HandlePublished, inv.Handle))                                    // US-P7-02: công bố bài → chuông ASSIGNMENT_PUBLISHED + xoá cache "Hôm nay"
 	reg.Register(assignment.TopicUpdated, outbox.Chain(asg.HandleUpdated, inv.Handle))                                        // đổi hạn / quy tắc muộn → tính lại khoản trừ muộn + xoá cache
+	reg.Register(submission.TopicResolved, inv.Handle)                                                                        // US-P7-04: gán tay / bỏ qua → xoá cache "Hôm nay"
 	reg.Register(submission.TopicCreated, inv.Handle)                                                                         // US-P7-03: bài nộp mới → xoá cache "Hôm nay" của Staff (hàng đợi chấm do US-P7-07 nối thêm)
 	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
 	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged) // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó

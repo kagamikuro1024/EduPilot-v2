@@ -3048,6 +3048,208 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/submissions/upload:
+    post:
+      operationId: uploadSubmissions
+      tags: [assignments]
+      summary: "Nhập bài nộp từ tệp lẻ hoặc ZIP đã tải lên (TA, TEACHER; Idempotency-Key bắt buộc; vé từ uploads/presign purpose=submission_upload). Tệp lẻ và ZIP ≤ 5 mục hợp lệ: 200 đồng bộ; nhiều hơn: 202 + job_id (kind submission.zip). Khớp sinh viên theo 4.4.2; mục hỏng không làm hỏng cả lô. 409 ASSIGNMENT_NOT_PUBLISHED | CHANNEL_NOT_ALLOWED | COURSE_ARCHIVED; 422 FILE_INVALID | FILE_EMPTY | FILE_TOO_LARGE | FILE_TYPE_NOT_ALLOWED | UPLOAD_INCOMPLETE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadSubmissionsInput"
+      responses:
+        "200":
+          description: Kết quả nhập
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadSubmissionsOutput"
+        "202":
+          description: ZIP nhiều mục chạy nền
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadSubmissionsJob"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/submissions:
+    get:
+      operationId: listSubmissions
+      tags: [assignments]
+      summary: "Bài nộp theo trạng thái khớp (TA, TEACHER; Cache-Control: no-store): match_status=UNMATCHED → tab Chưa khớp (chưa bỏ qua, mới nhất trước, con trỏ). version là khoá lạc quan của dòng, gửi lại khi gán / bỏ qua"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: match_status
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [UNMATCHED]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnmatchedPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/submissions/{sid}/match:
+    put:
+      operationId: matchSubmission
+      tags: [assignments]
+      summary: "Gán tay bài chưa khớp cho (bài tập, sinh viên) (TA, TEACHER; TA chỉ khi bài chưa có điểm công bố): sinh viên không ACTIVE 422 STUDENT_NOT_IN_COURSE; bản mới nhất của họ đã duyệt / công bố 409 ALREADY_REVIEWED; sai version 409 VERSION_CONFLICT; version bài nộp = max + 1"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchSubmissionInput"
+      responses:
+        "200":
+          description: Đã gán
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchSubmissionOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/submissions/{sid}/file:
+    get:
+      operationId: getSubmissionFile
+      tags: [assignments]
+      summary: "URL tải tệp bài nộp (TA, TEACHER; ký 5 phút, attachment; Cache-Control: no-store). Sinh viên không có route này"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionFileURL"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/submissions/{sid}/dismiss:
+    post:
+      operationId: dismissSubmission
+      tags: [assignments]
+      summary: "Bỏ qua một bài chưa khớp (TA, TEACHER; lý do 1–200 ký tự; không xoá bản ghi / tệp). Sai version 409 VERSION_CONFLICT; TA khi bài đã có điểm công bố 403"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DismissSubmissionInput"
+      responses:
+        "204":
+          description: Đã bỏ qua
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: undismissSubmission
+      tags: [assignments]
+      summary: "Hoàn tác Bỏ qua (TA, TEACHER); chưa bỏ qua 409"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã hoàn tác
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/courses/{id}/gradebook:
     get:
       operationId: getGradebook
@@ -9497,7 +9699,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE, UNMATCHED_SUBMISSION]
         title:
           type: string
         reason:
@@ -10692,6 +10894,10 @@ components:
             - SERVICE_UNAVAILABLE
             - NOT_READY
             - DEADLINE_EXCEEDED
+            - ASSIGNMENT_NOT_PUBLISHED
+            - ENTRY_UNSAFE
+            - ENTRY_TYPE_NOT_ALLOWED
+            - ZIP_LIMIT
             - TYPE_NOT_SUPPORTED
             - RUBRIC_INVALID
             - RUBRIC_LOCKED
@@ -11335,6 +11541,97 @@ components:
             received_at: {type: string, format: date-time}
             late_days: {type: integer}
             file_name: {type: string}
+    UploadSubmissionsInput:
+      type: object
+      required: [upload_id]
+      additionalProperties: false
+      properties:
+        upload_id: {type: string, format: uuid}
+    UploadSubmissionsOutput:
+      type: object
+      required: [created, matched, unmatched, deduped, rejected]
+      additionalProperties: false
+      properties:
+        created: {type: integer}
+        matched: {type: integer}
+        unmatched: {type: integer}
+        deduped:
+          type: array
+          items: {type: string}
+        rejected:
+          type: array
+          items:
+            type: object
+            required: [entry, code]
+            additionalProperties: false
+            properties:
+              entry: {type: string}
+              code: {type: string}
+    UploadSubmissionsJob:
+      type: object
+      required: [job_id]
+      additionalProperties: false
+      properties:
+        job_id: {type: string, format: uuid}
+    UnmatchedPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, file_name, source, received_at, reason, reason_text, assignment_id, suggestion, version]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              file_name: {type: string}
+              source: {type: string}
+              received_at: {type: string, format: date-time}
+              reason: {type: string}
+              reason_text: {type: string}
+              assignment_id: {type: [string, "null"], format: uuid}
+              suggestion:
+                type: [object, "null"]
+                required: [student_id, full_name]
+                additionalProperties: false
+                properties:
+                  student_id: {type: string, format: uuid}
+                  full_name: {type: string}
+              version: {type: integer, format: int64}
+        next_cursor: {type: [string, "null"]}
+    MatchSubmissionInput:
+      type: object
+      required: [assignment_id, student_id, version]
+      additionalProperties: false
+      properties:
+        assignment_id: {type: string, format: uuid}
+        student_id: {type: string, format: uuid}
+        version: {type: integer, format: int64}
+    MatchSubmissionOutput:
+      type: object
+      required: [id, assignment_id, student_id, version]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        assignment_id: {type: string, format: uuid}
+        student_id: {type: string, format: uuid}
+        version: {type: integer}
+    SubmissionFileURL:
+      type: object
+      required: [url, expires_in]
+      additionalProperties: false
+      properties:
+        url: {type: string}
+        expires_in: {type: integer}
+    DismissSubmissionInput:
+      type: object
+      required: [reason, version]
+      additionalProperties: false
+      properties:
+        reason: {type: string}
+        version: {type: integer, format: int64}
     CalendarItem:
       type: object
       required: [id, source, type, title, starts_at, ends_at, location, href, editable, personal_state, status]

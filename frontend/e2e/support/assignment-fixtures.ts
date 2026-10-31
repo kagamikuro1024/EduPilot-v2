@@ -176,3 +176,116 @@ export async function assignmentsApi(p: Page, opts: Opts = {}) {
     puts: () => calls.filter((c) => c.method === "PUT"),
   };
 }
+
+// ---- phía sinh viên (US-P7-03): /mine, presign, PUT kho tệp giả, submit ----------------------------------------------------
+export const DUE = "2026-11-20T07:00:00.000Z"; // Thứ Sáu 20/11 14:00 giờ Việt Nam
+export const RECEIVED = "2026-10-23T01:10:00.000Z"; // 08:10 Thứ Sáu, 23/10
+export const UPLOAD_ID = "00000000-0000-7000-8000-0000000f0001";
+export const BLOB_URL = `${BASE_URL}/__blob/bt03.pdf`;
+
+export type StudentItem = { id: string; title: string; due_at: string; my: { state: string; late_days: number; submitted_at: string | null } };
+export type MineSub = { version: number; file_name: string; received_at: string; late_days: number };
+export type Mine = {
+  assignment: { id: string; title: string; description: string; due_at: string; max_score: string; criteria: Array<{ id: string; name: string; max_score: string }>; allow_late: boolean; late_penalty_per_day: string; late_max_days: number; appeal_days: number };
+  submission: MineSub | null;
+  state: string;
+};
+
+export const mineOut = (over: Partial<Mine> = {}): Mine => ({
+  assignment: {
+    id: A1,
+    title: "Bài tập 03 · Phân tích nhật ký",
+    description: "Phân tích nhật ký tấn công và viết báo cáo.\n\n- Nêu ba dấu hiệu\n- Đề xuất cách xử lý",
+    due_at: DUE,
+    max_score: "10",
+    criteria: [
+      { id: "c1", name: "Phát hiện dấu hiệu", max_score: "6" },
+      { id: "c2", name: "Đề xuất xử lý", max_score: "4" },
+    ],
+    allow_late: true,
+    late_penalty_per_day: "0.5",
+    late_max_days: 3,
+    appeal_days: 7,
+  },
+  submission: null,
+  state: "NOT_SUBMITTED",
+  ...over,
+});
+
+export const studentItem = (over: Partial<StudentItem> = {}): StudentItem => ({
+  id: A1, title: "Bài tập 03 · Phân tích nhật ký", due_at: DUE, my: { state: "NOT_SUBMITTED", late_days: 0, submitted_at: null }, ...over,
+});
+
+type SOpts = {
+  mine?: Mine;
+  items?: StudentItem[];
+  h?: Record<string, Handler>;
+  /** hành vi của kho tệp giả (mặc định 200) */
+  storage?: (route: Route) => Promise<void> | void;
+};
+
+/** Gateway giả của sinh viên + kho tệp giả (`/__blob/…`): presign → PUT thẳng → submit, có trạng thái như máy chủ. */
+export async function studentApi(p: Page, opts: SOpts = {}) {
+  const calls: Call[] = [];
+  const blobPuts: Array<{ headers: Record<string, string> }> = [];
+  let out: Mine = opts.mine ?? mineOut();
+  const items = opts.items ?? [studentItem()];
+  let filename = "";
+  const done = new Map<string, unknown>(); // Idempotency-Key → phản hồi
+
+  await p.route(`${BASE_URL}/__blob/**`, async (r) => {
+    if (r.request().method() === "PUT") blobPuts.push({ headers: r.request().headers() });
+    if (opts.storage) return opts.storage(r);
+    return r.fulfill({ status: 200, headers: cors, body: "" });
+  });
+
+  const handle = async (route: Route, skipCustom = false): Promise<void> => {
+    const req = route.request();
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { ...cors, "Access-Control-Allow-Headers": "*", "Access-Control-Allow-Methods": "*" } });
+    const url = new URL(req.url());
+    const path = url.pathname.replace("/api/v1", "");
+    const body = req.postData() ?? "";
+    const tail = path.replace(/^\/courses\/[^/]+\//, "");
+    const key = `${req.method()} ${tail.replace(/assignments\/[^/]+/, "assignments/:id")}`;
+    if (!skipCustom) calls.push({ method: req.method(), path: path + url.search, body, headers: req.headers() });
+    const custom = opts.h?.[key];
+    if (custom && !skipCustom) return custom(route, (r) => handle(r, true));
+    const idem = req.headers()["idempotency-key"] ?? "";
+
+    if (key === "GET assignments") return route.fulfill(j({ items, next_cursor: null }));
+    if (key === "GET assignments/:id/mine") return route.fulfill(j(out));
+    if (key === "POST assignments/:id/submit/presign") {
+      const b = JSON.parse(body) as { filename: string; size_bytes: number; sha256: string };
+      filename = b.filename;
+      return route.fulfill(j({
+        upload_id: UPLOAD_ID,
+        method: "PUT",
+        url: BLOB_URL,
+        headers: { "Content-Type": "application/pdf", "Content-Length": String(b.size_bytes), "x-amz-checksum-sha256": Buffer.from(b.sha256, "hex").toString("base64") },
+        blob_key: "courses/c1/sub/bt03.pdf",
+        expires_in: 600,
+      }));
+    }
+    if (key === "POST assignments/:id/submit") {
+      if (done.has(idem)) return route.fulfill(j(done.get(idem), 201));
+      const b = JSON.parse(body) as { upload_id: string };
+      if (b.upload_id !== UPLOAD_ID) return route.fulfill(e(404, "UPLOAD_NOT_FOUND"));
+      const sub: MineSub = { version: (out.submission?.version ?? 0) + 1, file_name: filename || "bt03.pdf", received_at: RECEIVED, late_days: 0 };
+      out = { ...out, submission: sub, state: "SUBMITTED" };
+      const res = { submission: { id: "00000000-0000-7000-8000-0000000e0001", ...sub } };
+      done.set(idem, res);
+      return route.fulfill(j(res, 201));
+    }
+    return route.fulfill(e(404, "NOT_FOUND"));
+  };
+
+  await p.route(/\/api\/v1\/courses\/[^/]+\/assignments(\?|$|\/)/, (r) => handle(r));
+  return {
+    calls,
+    blobPuts,
+    presigns: () => calls.filter((c) => c.path.endsWith("/submit/presign")),
+    submits: () => calls.filter((c) => c.path.endsWith("/submit")),
+    mine: () => out,
+    set: (next: Mine) => { out = next; },
+  };
+}

@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 import { COURSE, err, json } from "./support/cal-fixtures";
 import { asDemo } from "./support/session";
+import { A1, A2, studentApi, studentItem } from "./support/assignment-fixtures";
 
 // US-P5-06: `/me` THẬT của sinh viên. Gateway giả theo hợp đồng thật (openapi.yaml): `…/me/attendance`, `…/me/participation`, `…/me/study-time`.
 const C2 = "00000000-0000-7000-8000-00000000c002";
@@ -259,4 +260,24 @@ test("grade mobile 375: khối điểm một cột, không tràn ngang", async (
   await page.goto("/me");
   await expect(page.locator("[data-part=grade-sentence]")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
+});
+
+test("assignments section: mỗi bài một dòng tên · hạn · trạng thái, mở sang trang bài tập (US-P7-03 AC10)", async ({ page }) => {
+  await api(page, COURSE);
+  await studentApi(page, {
+    items: [
+      studentItem(),
+      studentItem({ id: A2, title: "Bài tập 04 · Mã độc", my: { state: "SUBMITTED", late_days: 0, submitted_at: "2026-10-23T01:10:00.000Z" } }),
+    ],
+  });
+  await page.goto("/me");
+  const rows = page.locator("[data-part=me-assignment-row]");
+  await expect(rows).toHaveCount(2);
+  await expect(rows.nth(0)).toContainText("Bài tập 03 · Phân tích nhật ký");
+  await expect(rows.nth(0)).toContainText("Hạn Thứ Sáu, 20/11 · 14:00");
+  await expect(rows.nth(0)).toContainText("Chưa nộp");
+  await expect(rows.nth(1)).toContainText("Đã nộp");
+  await expect(rows.nth(0).getByRole("link")).toHaveAttribute("href", `/assignments/${A1}`);
+  const titles = await page.locator("main section h2, main [data-ep-panel] h2").allInnerTexts();
+  expect(titles).toEqual(["Điểm", "Chuyên cần", "Điểm cộng đã ghi", "Bài tập", "Thời gian học"]);
 });

@@ -23,6 +23,9 @@ func (AssignmentProvider) Name() string { return "assignment" }
 
 // Items implements Provider.
 func (p AssignmentProvider) Items(ctx context.Context, v Viewer, sc Scope) ([]Item, error) {
+	if v.Role == RoleTeacher || v.Role == RoleTA {
+		return p.staffItems(ctx, v, sc)
+	}
 	if v.Role != RoleStudent {
 		return nil, nil
 	}
@@ -53,6 +56,32 @@ func (p AssignmentProvider) Items(ctx context.Context, v Viewer, sc Scope) ([]It
 		}
 		out = append(out, mk(Item{ID: "ASSIGNMENT_DUE:" + r.ID.String(), Kind: KindAssignmentDue, Tier: TierAssignmentDue, Course: courseRef(c), Href: "/assignments/" + r.ID.String(),
 			EstimateMinutes: 30, Title: r.Title, Reason: reason}))
+	}
+	return out, nil
+}
+
+// staffItems: UNMATCHED_SUBMISSION (bậc 60) — một mục mỗi lớp có bài chưa khớp chưa bỏ qua; MỘT truy vấn tổng hợp cho mọi lớp (các kind GRADING_* / APPEAL của nhân viên cùng truy vấn này ở các story sau).
+func (p AssignmentProvider) staffItems(ctx context.Context, v Viewer, sc Scope) ([]Item, error) {
+	courses := v.Scoped(sc, "STAFF")
+	if p.Pool == nil || len(courses) == 0 {
+		return nil, nil
+	}
+	rows, err := store.New(p.Pool).TodayUnmatchedBatch(ctx, ids(courses))
+	if err != nil {
+		return nil, fmt.Errorf("today: bài chưa khớp: %w", err)
+	}
+	byCourse := map[uuid.UUID]CourseRef{}
+	for _, c := range courses {
+		byCourse[c.ID] = c
+	}
+	var out []Item
+	for _, r := range rows {
+		c, ok := byCourse[r.CourseID]
+		if !ok || r.N == 0 {
+			continue
+		}
+		out = append(out, mk(Item{ID: "UNMATCHED_SUBMISSION:" + c.ID.String(), Kind: KindUnmatchedSubmission, Tier: TierUnmatchedSubmission, Course: courseRef(c),
+			Href: "/grading?tab=unmatched&course=" + c.ID.String(), Title: fmt.Sprintf("%d bài nộp chưa khớp sinh viên · lớp %s", r.N, c.ClassCode), Reason: "Gán cho sinh viên hoặc bỏ qua."}))
 	}
 	return out, nil
 }

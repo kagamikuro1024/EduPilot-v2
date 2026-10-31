@@ -213,7 +213,7 @@ func assignmentService(d Deps) *assignment.Service {
 }
 
 func submissionService(d Deps) *submission.Service {
-	s := &submission.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log}
+	s := &submission.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log, Jobs: d.Jobs}
 	if d.Blob != nil {
 		s.Blob = d.Blob
 	}

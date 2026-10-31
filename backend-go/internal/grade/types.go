@@ -154,7 +154,11 @@ type Scheme struct {
 
 // Input là đầu vào điểm của MỘT sinh viên. Scores: item → điểm theo thang của item; thiếu khoá = thiếu điểm (không phải 0).
 type Input struct {
-	Scores             map[uuid.UUID]decimal.Decimal
+	Scores map[uuid.UUID]decimal.Decimal
+	// ItemClosed / ItemReason: trạng thái THEO SINH VIÊN của item ASSIGNMENT thiếu điểm (SRS FEAT-assignments 4.9 mục 3): đã đóng (không nộp → 0 nếu thành phần trong zero_components)
+	// hay còn chờ (lý do: còn bài chưa khớp / chưa chấm xong / chưa đến hạn). Item không ở đây theo `Item.Closed` như cũ.
+	ItemClosed         map[uuid.UUID]bool
+	ItemReason         map[uuid.UUID]string
 	BonusPoints        decimal.Decimal
 	PenaltyEventPoints decimal.Decimal
 	Absent             int

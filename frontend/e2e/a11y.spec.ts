@@ -8,6 +8,7 @@ import { mockStudentExams, mockStudentToday } from "./support/screens";
 import { mockTake, TAKE_COURSE, TAKE_EXAM } from "./support/takeMock";
 import { BASE_URL } from "./support/env";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
+import { A1, mineOut, studentApi } from "./support/assignment-fixtures";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
 // `moderate` / `minor` ghi vào báo cáo (test-results/axe-report.json). Ngoại lệ ở axe-allow.json (≤ 3).
@@ -107,6 +108,22 @@ test("axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước gi
     await page.unrouteAll({ behavior: "ignoreErrors" });
     await mockTake(page, kind);
     for (const w of WIDTHS) for (const b of await scan(page, `student+take-${kind}`, `/exams/${TAKE_EXAM}/take?course=${TAKE_COURSE}`, w)) bad.push(`take-${kind} @${w}: ${b}`);
+  }
+  expect(bad).toEqual([]);
+});
+
+// US-P7-03 AC9: trang nộp bài của sinh viên ở trạng thái CÓ DỮ LIỆU (chưa nộp và đã nộp).
+test("axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã nộp)", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await asDemo(context, "student");
+  const bad: string[] = [];
+  for (const [label, mine] of [
+    ["chưa nộp", mineOut()],
+    ["đã nộp", mineOut({ state: "SUBMITTED", submission: { version: 1, file_name: "bt03.pdf", received_at: "2026-10-23T01:10:00.000Z", late_days: 1 } })],
+  ] as const) {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    await studentApi(page, { mine });
+    for (const w of WIDTHS) for (const b of await scan(page, `student+assignment-${label}`, `/assignments/${A1}`, w)) bad.push(`assignment ${label} @${w}: ${b}`);
   }
   expect(bad).toEqual([]);
 });

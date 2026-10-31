@@ -10,7 +10,159 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
+
+const gradeAssignmentFacts = `-- name: GradeAssignmentFacts :many
+select i.id as item_id,
+       (select count(*) from submissions s where s.course_id = i.course_id and s.assignment_id = i.assignment_id and s.match_status = 'UNMATCHED' and s.dismissed_at is null)::int as unmatched,
+       (a.due_at + case when a.allow_late then make_interval(days => a.late_max_days::int) else interval '0' end < now())::bool as closed
+from grade_items i join assignments a on a.course_id = i.course_id and a.id = i.assignment_id
+where i.course_id = $1 and i.scheme_id = $2 and i.source = 'ASSIGNMENT'
+`
+
+type GradeAssignmentFactsParams struct {
+	CourseID uuid.UUID
+	SchemeID uuid.UUID
+}
+
+type GradeAssignmentFactsRow struct {
+	ItemID    uuid.UUID
+	Unmatched int32
+	Closed    bool
+}
+
+// Dữ kiện theo item ASSIGNMENT: còn bao nhiêu bài UNMATCHED chưa bỏ qua của bài đó, và cửa nộp đã đóng chưa (due_at, cộng late_max_days nếu cho nộp muộn).
+func (q *Queries) GradeAssignmentFacts(ctx context.Context, arg GradeAssignmentFactsParams) ([]GradeAssignmentFactsRow, error) {
+	rows, err := q.db.Query(ctx, gradeAssignmentFacts, arg.CourseID, arg.SchemeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeAssignmentFactsRow{}
+	for rows.Next() {
+		var i GradeAssignmentFactsRow
+		if err := rows.Scan(&i.ItemID, &i.Unmatched, &i.Closed); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const gradeInputAssignments = `-- name: GradeInputAssignments :many
+select i.id as item_id, st.student_id::uuid as student_id, i.max_score as item_max, a.max_score as asg_max,
+       (select r.total from submissions s join grading_results r on r.course_id = s.course_id and r.submission_id = s.id and r.status = 'PUBLISHED'
+         where s.course_id = i.course_id and s.assignment_id = i.assignment_id and s.student_id = st.student_id::uuid and s.match_status = 'MATCHED'
+           and s.version = (select max(v.version) from submissions v where v.course_id = s.course_id and v.assignment_id = s.assignment_id and v.student_id = s.student_id and v.match_status = 'MATCHED')
+         order by r.round desc limit 1) as score,
+       exists (select 1 from submissions s where s.course_id = i.course_id and s.assignment_id = i.assignment_id and s.student_id = st.student_id::uuid and s.match_status = 'MATCHED')::bool as has_matched
+from grade_items i
+join assignments a on a.course_id = i.course_id and a.id = i.assignment_id
+cross join unnest($1::text[]) as st(student_id)
+where i.course_id = $2 and i.scheme_id = $3 and i.source = 'ASSIGNMENT'
+`
+
+type GradeInputAssignmentsParams struct {
+	StudentIds []string
+	CourseID   uuid.UUID
+	SchemeID   uuid.UUID
+}
+
+type GradeInputAssignmentsRow struct {
+	ItemID     uuid.UUID
+	StudentID  uuid.UUID
+	ItemMax    decimal.Decimal
+	AsgMax     decimal.Decimal
+	Score      decimal.NullDecimal
+	HasMatched bool
+}
+
+// Điểm item ASSIGNMENT (đọc thẳng như EXAM, TLR-14 A): `grading_results.total` PUBLISHED của BẢN NỘP MỚI NHẤT của (bài, sinh viên), theo lô sinh viên; kèm có bài MATCHED hay không và thang của bài / item.
+func (q *Queries) GradeInputAssignments(ctx context.Context, arg GradeInputAssignmentsParams) ([]GradeInputAssignmentsRow, error) {
+	rows, err := q.db.Query(ctx, gradeInputAssignments, arg.StudentIds, arg.CourseID, arg.SchemeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeInputAssignmentsRow{}
+	for rows.Next() {
+		var i GradeInputAssignmentsRow
+		if err := rows.Scan(
+			&i.ItemID,
+			&i.StudentID,
+			&i.ItemMax,
+			&i.AsgMax,
+			&i.Score,
+			&i.HasMatched,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const submissionAssignmentHasPublished = `-- name: SubmissionAssignmentHasPublished :one
+select exists (select 1 from grading_results r join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+               where s.course_id = $1 and s.assignment_id = $2::uuid and r.status = 'PUBLISHED')::bool
+`
+
+type SubmissionAssignmentHasPublishedParams struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+}
+
+// Bài đã có kết quả chấm PUBLISHED (TA không gán / bỏ qua nữa — Q5).
+func (q *Queries) SubmissionAssignmentHasPublished(ctx context.Context, arg SubmissionAssignmentHasPublishedParams) (bool, error) {
+	row := q.db.QueryRow(ctx, submissionAssignmentHasPublished, arg.CourseID, arg.AssignmentID)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const submissionAssignmentRefs = `-- name: SubmissionAssignmentRefs :many
+select a.id, a.submission_code
+from assignments a
+where a.course_id = $1 and a.published_at is not null and $2::text = any(a.channels)
+`
+
+type SubmissionAssignmentRefsParams struct {
+	CourseID uuid.UUID
+	Channel  string
+}
+
+type SubmissionAssignmentRefsRow struct {
+	ID             uuid.UUID
+	SubmissionCode string
+}
+
+// Bài đã công bố của lớp có kênh `channel` bật: mã nộp thư để bộ khớp tìm trong tiêu đề / tên tệp.
+func (q *Queries) SubmissionAssignmentRefs(ctx context.Context, arg SubmissionAssignmentRefsParams) ([]SubmissionAssignmentRefsRow, error) {
+	rows, err := q.db.Query(ctx, submissionAssignmentRefs, arg.CourseID, arg.Channel)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SubmissionAssignmentRefsRow{}
+	for rows.Next() {
+		var i SubmissionAssignmentRefsRow
+		if err := rows.Scan(&i.ID, &i.SubmissionCode); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
 
 const submissionBlobKeysUsed = `-- name: SubmissionBlobKeysUsed :many
 select s.blob_key from submissions s where s.blob_key = any($1::text[])
@@ -35,6 +187,160 @@ func (q *Queries) SubmissionBlobKeysUsed(ctx context.Context, keys []string) ([]
 		return nil, err
 	}
 	return items, nil
+}
+
+const submissionDismiss = `-- name: SubmissionDismiss :execrows
+update submissions set dismissed_at = now(), dismissed_by = $1, dismissed_reason = $2, updated_at = now()
+where course_id = $3 and id = $4 and match_status = 'UNMATCHED' and dismissed_at is null
+`
+
+type SubmissionDismissParams struct {
+	Actor    *uuid.UUID
+	Reason   *string
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+func (q *Queries) SubmissionDismiss(ctx context.Context, arg SubmissionDismissParams) (int64, error) {
+	result, err := q.db.Exec(ctx, submissionDismiss,
+		arg.Actor,
+		arg.Reason,
+		arg.CourseID,
+		arg.ID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const submissionFileKey = `-- name: SubmissionFileKey :one
+select blob_key, file_name from submissions where course_id = $1 and id = $2
+`
+
+type SubmissionFileKeyParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type SubmissionFileKeyRow struct {
+	BlobKey  string
+	FileName string
+}
+
+func (q *Queries) SubmissionFileKey(ctx context.Context, arg SubmissionFileKeyParams) (SubmissionFileKeyRow, error) {
+	row := q.db.QueryRow(ctx, submissionFileKey, arg.CourseID, arg.ID)
+	var i SubmissionFileKeyRow
+	err := row.Scan(&i.BlobKey, &i.FileName)
+	return i, err
+}
+
+const submissionGetForUpdate = `-- name: SubmissionGetForUpdate :one
+select id, course_id, assignment_id, student_id, match_status, dismissed_at, blob_key, file_name, (extract(epoch from updated_at) * 1000000)::bigint as row_version
+from submissions where course_id = $1 and id = $2 for update
+`
+
+type SubmissionGetForUpdateParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type SubmissionGetForUpdateRow struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	AssignmentID *uuid.UUID
+	StudentID    *uuid.UUID
+	MatchStatus  string
+	DismissedAt  *time.Time
+	BlobKey      string
+	FileName     string
+	RowVersion   int64
+}
+
+func (q *Queries) SubmissionGetForUpdate(ctx context.Context, arg SubmissionGetForUpdateParams) (SubmissionGetForUpdateRow, error) {
+	row := q.db.QueryRow(ctx, submissionGetForUpdate, arg.CourseID, arg.ID)
+	var i SubmissionGetForUpdateRow
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.AssignmentID,
+		&i.StudentID,
+		&i.MatchStatus,
+		&i.DismissedAt,
+		&i.BlobKey,
+		&i.FileName,
+		&i.RowVersion,
+	)
+	return i, err
+}
+
+const submissionIngest = `-- name: SubmissionIngest :one
+insert into submissions (course_id, assignment_id, student_id, candidate_student_id, source, version, blob_key, file_name, file_size, file_mime, sha256,
+                         external_ref, external_ts, from_email, subject, sender_verified, match_status, match_method, unmatched_reason, submitted_at, received_at)
+values ($1, $2, $3, $4, $5,
+        case when $3::uuid is not null then (select coalesce(max(v.version), 0) + 1 from submissions v where v.course_id = $1 and v.assignment_id = $2::uuid and v.student_id = $3::uuid) end,
+        $6, $7, $8, $9, $10,
+        $11, $12, $13, $14, $15, $16, $17, $18,
+        $19, $20)
+on conflict (course_id, source, external_ref, external_ts) where external_ref is not null do nothing
+returning id, version
+`
+
+type SubmissionIngestParams struct {
+	CourseID           uuid.UUID
+	AssignmentID       *uuid.UUID
+	StudentID          *uuid.UUID
+	CandidateStudentID *uuid.UUID
+	Source             string
+	BlobKey            string
+	FileName           string
+	FileSize           int64
+	FileMime           string
+	Sha256             string
+	ExternalRef        *string
+	ExternalTs         *time.Time
+	FromEmail          *string
+	Subject            *string
+	SenderVerified     bool
+	MatchStatus        string
+	MatchMethod        *string
+	UnmatchedReason    *string
+	SubmittedAt        *time.Time
+	ReceivedAt         time.Time
+}
+
+type SubmissionIngestRow struct {
+	ID      uuid.UUID
+	Version *int32
+}
+
+// Ghi một bài nộp từ nguồn ngoài. Trùng (course, source, external_ref, external_ts) → không ghi (sqlc trả no rows = `deduped`). `version` chỉ cấp khi MATCHED (dưới khoá `SubmissionLockStudent`).
+func (q *Queries) SubmissionIngest(ctx context.Context, arg SubmissionIngestParams) (SubmissionIngestRow, error) {
+	row := q.db.QueryRow(ctx, submissionIngest,
+		arg.CourseID,
+		arg.AssignmentID,
+		arg.StudentID,
+		arg.CandidateStudentID,
+		arg.Source,
+		arg.BlobKey,
+		arg.FileName,
+		arg.FileSize,
+		arg.FileMime,
+		arg.Sha256,
+		arg.ExternalRef,
+		arg.ExternalTs,
+		arg.FromEmail,
+		arg.Subject,
+		arg.SenderVerified,
+		arg.MatchStatus,
+		arg.MatchMethod,
+		arg.UnmatchedReason,
+		arg.SubmittedAt,
+		arg.ReceivedAt,
+	)
+	var i SubmissionIngestRow
+	err := row.Scan(&i.ID, &i.Version)
+	return i, err
 }
 
 const submissionInsertInApp = `-- name: SubmissionInsertInApp :one
@@ -144,6 +450,39 @@ func (q *Queries) SubmissionLockStudent(ctx context.Context, arg SubmissionLockS
 	return err
 }
 
+const submissionMatchManual = `-- name: SubmissionMatchManual :one
+update submissions set assignment_id = $1, student_id = $2, match_method = 'MANUAL', match_status = 'MATCHED', unmatched_reason = null, candidate_student_id = null,
+       version = (select coalesce(max(v.version), 0) + 1 from submissions v where v.course_id = $3 and v.assignment_id = $1::uuid and v.student_id = $2::uuid),
+       updated_at = now()
+where submissions.course_id = $3 and submissions.id = $4 and submissions.match_status = 'UNMATCHED'
+returning id, version
+`
+
+type SubmissionMatchManualParams struct {
+	AssignmentID *uuid.UUID
+	StudentID    *uuid.UUID
+	CourseID     uuid.UUID
+	ID           uuid.UUID
+}
+
+type SubmissionMatchManualRow struct {
+	ID      uuid.UUID
+	Version *int32
+}
+
+// Gán tay: version = max + 1 của (bài, sinh viên) — gọi SAU khi giữ `SubmissionLockStudent`.
+func (q *Queries) SubmissionMatchManual(ctx context.Context, arg SubmissionMatchManualParams) (SubmissionMatchManualRow, error) {
+	row := q.db.QueryRow(ctx, submissionMatchManual,
+		arg.AssignmentID,
+		arg.StudentID,
+		arg.CourseID,
+		arg.ID,
+	)
+	var i SubmissionMatchManualRow
+	err := row.Scan(&i.ID, &i.Version)
+	return i, err
+}
+
 const submissionMineBatch = `-- name: SubmissionMineBatch :many
 select distinct on (s.assignment_id) s.assignment_id, s.id as submission_id, s.version, s.file_name, s.received_at, s.submitted_at, coalesce(r.status, '')::text as result_status
 from submissions s
@@ -186,6 +525,147 @@ func (q *Queries) SubmissionMineBatch(ctx context.Context, arg SubmissionMineBat
 			&i.ReceivedAt,
 			&i.SubmittedAt,
 			&i.ResultStatus,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const submissionRoster = `-- name: SubmissionRoster :many
+select e.user_id, lower(u.email)::text as email, (u.email_verified_at is not null)::bool as email_verified, coalesce(e.student_code_snapshot, '')::text as code, e.joined_via::text as joined_via
+from enrollments e join users u on u.id = e.user_id
+where e.course_id = $1 and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE' and u.status = 'ACTIVE'
+`
+
+type SubmissionRosterRow struct {
+	UserID        uuid.UUID
+	Email         string
+	EmailVerified bool
+	Code          string
+	JoinedVia     string
+}
+
+// Sinh viên ACTIVE của lớp cùng các tín hiệu để khớp: email đã xác minh, MSSV theo `student_code_snapshot` (chỉ dòng ROSTER / ADMIN là tín hiệu; dòng CODE là MSSV tự khai — TLR-1). KHÔNG đọc `users.student_code`.
+func (q *Queries) SubmissionRoster(ctx context.Context, courseID uuid.UUID) ([]SubmissionRosterRow, error) {
+	rows, err := q.db.Query(ctx, submissionRoster, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SubmissionRosterRow{}
+	for rows.Next() {
+		var i SubmissionRosterRow
+		if err := rows.Scan(
+			&i.UserID,
+			&i.Email,
+			&i.EmailVerified,
+			&i.Code,
+			&i.JoinedVia,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const submissionStudentActive = `-- name: SubmissionStudentActive :one
+select exists (select 1 from enrollments e where e.course_id = $1 and e.user_id = $2::uuid and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE')::bool
+`
+
+type SubmissionStudentActiveParams struct {
+	CourseID uuid.UUID
+	UserID   uuid.UUID
+}
+
+func (q *Queries) SubmissionStudentActive(ctx context.Context, arg SubmissionStudentActiveParams) (bool, error) {
+	row := q.db.QueryRow(ctx, submissionStudentActive, arg.CourseID, arg.UserID)
+	var column_1 bool
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
+const submissionUndismiss = `-- name: SubmissionUndismiss :execrows
+update submissions set dismissed_at = null, dismissed_by = null, dismissed_reason = null, updated_at = now()
+where course_id = $1 and id = $2 and dismissed_at is not null
+`
+
+type SubmissionUndismissParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+func (q *Queries) SubmissionUndismiss(ctx context.Context, arg SubmissionUndismissParams) (int64, error) {
+	result, err := q.db.Exec(ctx, submissionUndismiss, arg.CourseID, arg.ID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const submissionUnmatchedList = `-- name: SubmissionUnmatchedList :many
+select s.id, s.file_name, s.source, s.received_at, s.unmatched_reason, s.assignment_id, s.candidate_student_id,
+       coalesce(u.full_name, '')::text as candidate_name, (extract(epoch from s.updated_at) * 1000000)::bigint as row_version
+from submissions s
+left join users u on u.id = s.candidate_student_id
+where s.course_id = $1 and s.match_status = 'UNMATCHED' and s.dismissed_at is null
+  and ($2::timestamptz is null or (s.received_at, s.id) < ($2::timestamptz, $3::uuid))
+order by s.received_at desc, s.id desc
+limit $4
+`
+
+type SubmissionUnmatchedListParams struct {
+	CourseID  uuid.UUID
+	CursorAt  *time.Time
+	CursorID  *uuid.UUID
+	PageLimit int32
+}
+
+type SubmissionUnmatchedListRow struct {
+	ID                 uuid.UUID
+	FileName           string
+	Source             string
+	ReceivedAt         time.Time
+	UnmatchedReason    *string
+	AssignmentID       *uuid.UUID
+	CandidateStudentID *uuid.UUID
+	CandidateName      string
+	RowVersion         int64
+}
+
+// Tab `Chưa khớp`: bài UNMATCHED chưa `Bỏ qua`, mới nhất trước; keyset (received_at, id). `version` = updated_at theo micro-giây (khoá lạc quan của dòng; bảng không có cột version cho bài chưa khớp).
+func (q *Queries) SubmissionUnmatchedList(ctx context.Context, arg SubmissionUnmatchedListParams) ([]SubmissionUnmatchedListRow, error) {
+	rows, err := q.db.Query(ctx, submissionUnmatchedList,
+		arg.CourseID,
+		arg.CursorAt,
+		arg.CursorID,
+		arg.PageLimit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []SubmissionUnmatchedListRow{}
+	for rows.Next() {
+		var i SubmissionUnmatchedListRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.FileName,
+			&i.Source,
+			&i.ReceivedAt,
+			&i.UnmatchedReason,
+			&i.AssignmentID,
+			&i.CandidateStudentID,
+			&i.CandidateName,
+			&i.RowVersion,
 		); err != nil {
 			return nil, err
 		}
@@ -248,6 +728,39 @@ func (q *Queries) TodayStudentAssignments(ctx context.Context, arg TodayStudentA
 			&i.AllowLate,
 			&i.LateMaxDays,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const todayUnmatchedBatch = `-- name: TodayUnmatchedBatch :many
+select s.course_id, count(*)::int as n
+from submissions s
+where s.course_id = any($1::text[]::uuid[]) and s.match_status = 'UNMATCHED' and s.dismissed_at is null
+group by s.course_id
+`
+
+type TodayUnmatchedBatchRow struct {
+	CourseID uuid.UUID
+	N        int32
+}
+
+// "Hôm nay" của nhân viên (UNMATCHED_SUBMISSION, bậc 60): số bài chưa khớp chưa bỏ qua theo lớp — MỘT truy vấn cho mọi lớp.
+func (q *Queries) TodayUnmatchedBatch(ctx context.Context, courseIds []string) ([]TodayUnmatchedBatchRow, error) {
+	rows, err := q.db.Query(ctx, todayUnmatchedBatch, courseIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []TodayUnmatchedBatchRow{}
+	for rows.Next() {
+		var i TodayUnmatchedBatchRow
+		if err := rows.Scan(&i.CourseID, &i.N); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

@@ -112,3 +112,40 @@ export const deleteAssignment = async (course: string, id: string) => {
 
 export const suggestRubric = async (course: string, id: string, idempotencyKey: string) =>
   (await apiClient.post<{ criteria: Array<{ name: string; guidance: string; max_score: string }> }>(`${path(course)}/${id}/rubric/suggest`, {}, { idempotencyKey })).data;
+
+// ---- phía sinh viên (US-P7-03) ---------------------------------------------------------------------------------------------
+export type MyState = "NOT_SUBMITTED" | "SUBMITTED" | "GRADING" | "GRADED";
+export type MyBrief = { state: MyState; late_days: number; submitted_at: string | null };
+export type StudentListItem = { id: string; title: string; due_at: string; my: MyBrief };
+export type MineSubmission = { version: number; file_name: string; received_at: string; late_days: number };
+export type MineOut = {
+  assignment: { id: string; title: string; description: string; due_at: string; max_score: string; criteria: Array<{ id: string; name: string; max_score: string }>; allow_late: boolean; late_penalty_per_day: string; late_max_days: number; appeal_days: number };
+  submission: MineSubmission | null;
+  state: MyState;
+};
+
+export const STATE_LABEL: Record<MyState, string> = { NOT_SUBMITTED: "Chưa nộp", SUBMITTED: "Đã nộp", GRADING: "Đang chấm", GRADED: "Đã có điểm" };
+
+export const myAssignmentsKey = (course: string) => ["assignments-mine", course] as const;
+export const useMyAssignments = (course: string) => useCursorList<StudentListItem>(myAssignmentsKey(course), path(course), { limit: 50 });
+
+export const mineKey = (course: string, id: string) => ["assignment-mine", course, id] as const;
+export const useMine = (course: string, id: string) =>
+  useQuery({
+    queryKey: mineKey(course, id),
+    staleTime: 0,
+    retry: false,
+    queryFn: async ({ signal }) => (await apiClient.get<MineOut>(`${path(course)}/${id}/mine`, { signal })).data,
+  });
+
+export type SubmitOut = { submission: { id: string; version: number; received_at: string; late_days: number; file_name: string } };
+export const completeSubmission = async (course: string, id: string, uploadId: string, idempotencyKey: string) =>
+  (await apiClient.post<SubmitOut>(`${path(course)}/${id}/submit`, { upload_id: uploadId }, { idempotencyKey })).data;
+
+/** "còn 18 giờ" / "đã quá hạn 3 giờ". */
+export function dueLabel(due: string, now = Date.now()): string {
+  const ms = new Date(due).getTime() - now;
+  const abs = Math.abs(ms);
+  const n = abs >= 86_400_000 ? `${Math.floor(abs / 86_400_000)} ngày` : abs >= 3_600_000 ? `${Math.floor(abs / 3_600_000)} giờ` : `${Math.max(1, Math.floor(abs / 60_000))} phút`;
+  return ms >= 0 ? `còn ${n}` : `đã quá hạn ${n}`;
+}
