@@ -15,3 +15,7 @@ Nhánh `sprint/8-p6`. Spec: US-P6-09 AC1–AC9, SRS 4.8, TLR-16. Proposals: #9 (
 
 ## Nằm ngoài (chuyển US-S8-SEED)
 - `TestSeedRiskAfterGradebook` (ghim `WATCH` = {sv12, sv19, sv26} theo `seed/expected_risk.csv`) và `node scripts/check-crm-seed.mjs` cần seed lớp 1 đã có điểm → làm cùng seed. Logic đã có test thuần (`TestRiskGradeSignal`: sv26 = 2,125 → WATCH; `TestRiskGradeStrictBelow`: đúng 5,0 không thấp).
+
+## Vòng 2 (QC BUG-P6-09-1, lỗ hổng test)
+- Thêm `TestNoDraftLeakQT`: điểm quá trình NHÁP (7,77) không lọt khi chỉ cuối kỳ công bố (`qt` rỗng, thành phần `PENDING` không có `score`, dòng giải trình dừng trước "Điểm quá trình"); và ngược lại (công bố quá trình, gỡ công bố cuối kỳ: không lộ 9,87). Đã thử đột biến: bỏ `publishedInput` ở `MeGrades` → test **đỏ**; khôi phục → xanh.
+- p95 `/me/grades` trên lớp 1.000 sinh viên: QC đo bằng `p6-load1000.sql`; dev chưa có dữ liệu 1.000 dòng trên stack.

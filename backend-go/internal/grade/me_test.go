@@ -178,6 +178,38 @@ func TestNoDraftLeak(t *testing.T) {
 	check(r.me(r.a))
 }
 
+// TestNoDraftLeakQT (BUG-P6-09-1): điểm quá trình NHÁP không lọt khi CHỈ cuối kỳ được công bố — `publishedInput` là chốt chặn duy nhất; bỏ nó thì `qt` / `calculation` lộ 7,77.
+func TestNoDraftLeakQT(t *testing.T) {
+	r := newMeRig(t)
+	r.exec(`update grade_entries set score = 7.77 where item_id = $1 and student_id = $2`, r.items["weekly"], r.a)
+	r.publish("final") // cuối kỳ công bố, thành phần quá trình (weekly) còn nháp
+	m := r.me(r.a)
+	raw, _ := json.Marshal(m)
+	for _, bad := range []string{"7.77", "7,77"} {
+		require.NotContains(t, string(raw), bad)
+	}
+	require.Empty(t, m.QT, "chưa đủ thành phần quá trình đã công bố: không có qt")
+	for _, c := range m.Components {
+		if c.Key == "weekly" {
+			require.Equal(t, "PENDING", c.Status)
+			require.Empty(t, c.Score)
+		}
+	}
+	for _, l := range m.Calculation {
+		require.NotContains(t, l.Label+l.Expr+l.Value, "7,77")
+		require.NotContains(t, l.Label, "Điểm quá trình", "dòng giải trình dừng trước khi cần điểm quá trình nháp")
+	}
+	// công bố quá trình, gỡ công bố cuối kỳ (canary 9,87 của B): qt có, nhưng cuối kỳ không lộ
+	r.exec(`update grade_items set published_at = null where id = $1`, r.items["final"])
+	r.publish("weekly")
+	mb := r.me(r.b)
+	require.NotEmpty(t, mb.QT)
+	rawb, _ := json.Marshal(mb)
+	for _, bad := range []string{"9.87", "9,87"} {
+		require.NotContains(t, string(rawb), bad)
+	}
+}
+
 var meAllowed = map[string]bool{
 	"status": true, "scheme": true, "scheme_no": true, "confirmed_at": true, "components": true, "key": true, "name": true, "grp": true, "weight": true,
 	"bonus": true, "applied": true, "raw": true, "cap": true, "penalty": true, "value": true, "absent": true, "free": true, "per": true,
