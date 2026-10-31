@@ -6,6 +6,7 @@ import { useMemo } from "react";
 import { AttendanceGrid, type AttendanceGridRow } from "@/shared/domain/AttendanceGrid";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
+import { useSchemeStatus } from "../gradebook/gradeApi";
 import { WD, dayLabel, fmtDM, fmtHM } from "../calendar/calendarApi";
 import { sessionsKey, useSessions, type SessionRow } from "../calendar/sessionsApi";
 import { labelOf, useGrid, type Grid } from "./attendanceApi";
@@ -77,6 +78,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
   const a = useAttendance({ course: courseId, userId, grid });
   const undo = useUndoLine();
   const st = grid.session;
+  const scheme = useSchemeStatus(courseId).data;
 
   const rows: AttendanceGridRow[] = a.rows.map((r) => ({ id: r.id, name: r.name, code: r.code, status: r.status, speaks: r.speaks, conflict: r.conflict ? { by: r.conflict.current.marked_by.full_name, theirs: r.conflict.current.status } : null }));
   const byName = a.conflicts[0]?.current.marked_by.full_name;
@@ -121,6 +123,11 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
       />
       <Panel>
         <Toolbar end={<span data-part="att-save-state">{state}</span>}>{picker}</Toolbar>
+        {scheme && scheme.state !== "CONFIRMED" && (
+          <InlineNotice tone="warning" compact action={<ButtonLink href={`/gradebook/scheme?course=${courseId}`} size="sm">Xem công thức</ButtonLink>}>
+            Công thức điểm chưa xác nhận
+          </InlineNotice>
+        )}
         {a.conflicts.length > 0 && (
           <InlineNotice tone="warning" compact>
             {byName} vừa đổi {a.conflicts.length} dòng

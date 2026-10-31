@@ -10,6 +10,7 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/edupilot/backend-go/internal/auth"
+	"github.com/edupilot/backend-go/internal/grade"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/httpapi/httpx"
@@ -17,6 +18,7 @@ import (
 
 // Handler gắn các route của sổ điểm. Guard `Teacher`: chỉ TEACHER đang dạy lớp (TA, STUDENT, ADMIN → 403; người ngoài lớp → 404).
 type Handler struct {
+	Grade   *grade.Service
 	Extract *grading.Service
 	Guard   func(auth.GuardMode) func(http.Handler) http.Handler
 	Idem    func(http.Handler) http.Handler // `Idempotency-Key` bắt buộc
@@ -25,8 +27,9 @@ type Handler struct {
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware.
 func (h *Handler) Mount(r chi.Router) {
-	teacher := h.Guard(auth.Teacher)
+	teacher, staff := h.Guard(auth.Teacher), h.Guard(auth.Staff)
 	r.With(teacher, h.Idem).Post("/courses/{id}/grade-scheme/extract", h.extract)
+	r.With(staff).Get("/courses/{id}/grade-scheme/status", h.status)
 }
 
 func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
@@ -82,4 +85,19 @@ func (h *Handler) extract(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httpx.WriteJSON(w, http.StatusAccepted, map[string]any{"job_id": id})
+}
+
+// status: GET …/grade-scheme/status (Staff) — đọc mỗi lần, không cache (điểm không cache phía máy chủ).
+func (h *Handler) status(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	st, err := h.Grade.Status(r.Context(), cid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, st)
 }

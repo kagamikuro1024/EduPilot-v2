@@ -3027,6 +3027,7 @@ type GradeScheme struct {
 	ConfirmedAt      *time.Time
 	CreatedBy        uuid.UUID
 	Version          int32
+	UnclearCount     int32
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 }

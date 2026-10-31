@@ -124,3 +124,39 @@ func TestExtractIdempotencyHTTP(t *testing.T) {
 	st, _ := r.extract(r.course, tok, "", map[string]any{"document_id": doc})
 	require.GreaterOrEqual(t, st, 400)
 }
+
+func (r *httpRig) status(course uuid.UUID, token string) (int, map[string]any) {
+	r.t.Helper()
+	req := httptest.NewRequest(http.MethodGet, "/api/v1/courses/"+course.String()+"/grade-scheme/status", nil)
+	if token != "" {
+		req.Header.Set("Authorization", "Bearer "+token)
+	}
+	w := httptest.NewRecorder()
+	r.h.ServeHTTP(w, req)
+	var out map[string]any
+	_ = json.Unmarshal(w.Body.Bytes(), &out)
+	return w.Code, out
+}
+
+// TestStatusRBAC — US-P6-05 AC1: TEACHER và TA của lớp đọc được (không cache); STUDENT / ADMIN / giảng viên lớp khác 403; chưa đăng nhập 401.
+func TestStatusRBAC(t *testing.T) {
+	r := newHTTPRig(t)
+	ta := r.user("TA", "Trợ Giảng")
+	r.exec(`insert into enrollments (course_id, user_id, role_in_course, status, joined_via) values ($1, $2, 'TA', 'ACTIVE', 'ADMIN')`, r.course, ta)
+	sv := r.user("STUDENT", "Sinh Viên")
+	r.exec(`insert into enrollments (course_id, user_id, role_in_course, status, joined_via, student_code_snapshot) values ($1, $2, 'STUDENT', 'ACTIVE', 'ADMIN', '20220001')`, r.course, sv)
+	admin, other := r.user("ADMIN", "Quản Trị"), r.user("TEACHER", "GV Khác")
+
+	st, _ := r.status(r.course, "")
+	require.Equal(t, http.StatusUnauthorized, st)
+	for name, tok := range map[string]string{"STUDENT": r.token(sv, auth.RoleStudent), "ADMIN": r.token(admin, auth.RoleAdmin), "GV lớp khác": r.token(other, auth.RoleTeacher)} {
+		st, out := r.status(r.course, tok)
+		require.Equal(t, http.StatusForbidden, st, name)
+		require.Equal(t, "FORBIDDEN", out["code"], name)
+	}
+	for name, tok := range map[string]string{"TEACHER": r.token(r.teacher, auth.RoleTeacher), "TA": r.token(ta, auth.RoleTA)} {
+		st, out := r.status(r.course, tok)
+		require.Equal(t, http.StatusOK, st, name)
+		require.Contains(t, []any{"NO_POLICY", "NOT_EXTRACTED"}, out["state"], name)
+	}
+}

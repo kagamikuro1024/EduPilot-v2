@@ -2719,6 +2719,26 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grade-scheme/status:
+    get:
+      operationId: gradeSchemeStatus
+      tags: [gradebook]
+      summary: "Trạng thái công thức điểm của lớp (TEACHER / TA): NO_POLICY, NOT_EXTRACTED, DRAFT_UNCLEAR, DRAFT_READY, CONFIRMED; kèm số mục chưa rõ, bản nháp mới cạnh bản đang dùng, trạng thái sổ điểm và lý do khoá `Chốt điểm`. Đọc mỗi lần, không cache"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Trạng thái
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeSchemeStatus"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/courses/{id}/participation:
     get:
       operationId: listParticipation
@@ -8563,7 +8583,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED]
         title:
           type: string
         reason:
@@ -12830,6 +12850,37 @@ components:
               maxItems: 3
               items:
                 type: string
+    GradeSchemeStatus:
+      type: object
+      required: [state, unclear_count, has_policy, pending_draft, gradebook]
+      additionalProperties: false
+      properties:
+        state:
+          type: string
+          enum: [NO_POLICY, NOT_EXTRACTED, DRAFT_UNCLEAR, DRAFT_READY, CONFIRMED]
+        unclear_count:
+          type: integer
+        has_policy:
+          type: boolean
+        confirmed_at:
+          type: string
+          format: date-time
+        scheme_no:
+          type: integer
+        pending_draft:
+          type: boolean
+        gradebook:
+          type: object
+          required: [status, snapshot_version]
+          additionalProperties: false
+          properties:
+            status:
+              type: string
+              enum: [OPEN, LOCKED]
+            snapshot_version:
+              type: integer
+        finalize_blocked_reason:
+          type: string
     ExtractGradeSchemeInput:
       type: object
       required: [document_id]

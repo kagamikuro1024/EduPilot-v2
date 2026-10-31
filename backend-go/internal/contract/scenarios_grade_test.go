@@ -60,4 +60,14 @@ func (r *runner) gradeScenarios(x examRig) {
 	}
 	r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: body(policy, false)}, 409)
 	r.must(call{method: "POST", path: ex, token: x.gv, headers: x.idem(), body: body(policy, true)}, 202) // replace_draft
+
+	// GET …/grade-scheme/status (US-P6-05): Staff đọc; STUDENT / ADMIN 403; chưa đăng nhập 401; id lạ 404.
+	st := base + "/grade-scheme/status"
+	r.must(call{method: "GET", path: st, token: x.gv}, 200)
+	r.must(call{method: "GET", path: st, token: x.ta}, 200)
+	r.must(call{method: "GET", path: st}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: st, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/grade-scheme/status", token: x.gv}, 404)
 }

@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
-	"strings"
 	"time"
 	"unicode/utf8"
 
@@ -153,7 +152,10 @@ func (s *Service) checkDoc(ctx context.Context, q *store.Queries, courseID, docu
 		return apierr.New(http.StatusUnprocessableEntity, apierr.DocumentNotPolicy)
 	case doc.Status != store.DocumentStatusREADY:
 		return apierr.New(http.StatusConflict, apierr.DocumentNotReady)
-	case doc.Chars > int64(s.Cfg.maxChars()):
+	}
+	if _, _, tooLong, err := grade.DocPages(ctx, q, courseID, documentID, s.Cfg.maxChars()); err != nil {
+		return err
+	} else if tooLong {
 		return apierr.New(http.StatusUnprocessableEntity, apierr.PolicyTooLong)
 	}
 	return nil
@@ -192,11 +194,16 @@ func (s *Service) Run(ctx context.Context, owner, jobID uuid.UUID, raw json.RawM
 	if err != nil {
 		return nil, fmt.Errorf("grading: đọc tài liệu: %w", err)
 	}
-	rows, err := q.GradeDocPages(ctx, p.DocumentID)
+	texts, _, _, err := grade.DocPages(ctx, q, p.CourseID, p.DocumentID, 0)
 	if err != nil {
-		return nil, fmt.Errorf("grading: đọc trang: %w", err)
+		return nil, err
 	}
-	pages := groupPages(rows)
+	pages := make([]Page, len(texts))
+	textOf := make(map[int]string, len(texts))
+	for i, t := range texts {
+		pages[i] = Page{No: t.No, Text: t.Text}
+		textOf[t.No] = t.Text
+	}
 	progress(15)
 
 	jctx, cancel := context.WithTimeout(llm.WithIdentity(ctx, llm.Identity{UserID: &owner, CourseID: &p.CourseID}), s.Cfg.timeout())
@@ -219,7 +226,7 @@ func (s *Service) Run(ctx context.Context, owner, jobID uuid.UUID, raw json.RawM
 	if err != nil {
 		return nil, userErr(CodeExtractionBad, "Không đọc được công thức từ quy chế. Thử lại hoặc nhập tay.")
 	}
-	cited, err := s.verifyCitations(ctx, q, p.DocumentID, d)
+	cited, err := grade.VerifyCitations(ctx, q, textOf, d.draft)
 	if err != nil {
 		return nil, err
 	}
@@ -234,19 +241,6 @@ func (s *Service) resultOf(ctx context.Context, q *store.Queries, courseID, sche
 		return Result{SchemeID: schemeID}, nil //nolint:nilerr // bản nháp đã được xác nhận / thay: việc coi như xong
 	}
 	return Result{SchemeID: schemeID, SchemeNo: int(d.SchemeNo)}, nil
-}
-
-// groupPages gộp các đoạn thành văn bản theo trang (thứ tự trang tăng dần).
-func groupPages(rows []store.GradeDocPagesRow) []Page {
-	var out []Page
-	for _, r := range rows {
-		if n := len(out); n > 0 && out[n-1].No == int(r.PageNo) {
-			out[n-1].Text += "\n" + r.Text
-			continue
-		}
-		out = append(out, Page{No: int(r.PageNo), Text: r.Text})
-	}
-	return out
 }
 
 // callLLM gọi đúng một llm.Structured mỗi lần thử; chỉ lỗi TẠM (ErrUnavailable do nhà cung cấp, quá tải, hết hạn của riêng lần thử) mới thử lại, tối đa maxAttempts (TLR-11).
@@ -387,48 +381,6 @@ func validKey(k string) bool {
 	return true
 }
 
-// verifyCitations tra SQL một lần cho mọi trích dẫn (4.2.6): NFC → gộp khoảng trắng → vn_fold → hạ chữ thường, trên văn bản ĐÚNG trang. Không viết lại vn_fold ở Go.
-// Trích dẫn đã là đầu ra SAU bước gỡ che danh tính của gateway (TLR-19).
-func (s *Service) verifyCitations(ctx context.Context, q *store.Queries, docID uuid.UUID, b built) (func(grade.Citation) bool, error) {
-	type key struct {
-		page  int
-		quote string
-	}
-	idx := map[key]int{}
-	var list []map[string]any
-	add := func(c grade.Citation) {
-		k := key{c.Page, c.Quote}
-		if _, ok := idx[k]; !ok && c.Page > 0 && strings.TrimSpace(c.Quote) != "" {
-			idx[k] = len(list)
-			list = append(list, map[string]any{"page": c.Page, "quote": c.Quote})
-		}
-	}
-	for _, c := range b.draft.Components {
-		for _, ct := range c.Citations {
-			add(ct)
-		}
-	}
-	for _, r := range b.draft.Rules {
-		add(grade.Citation{Page: r.Page, Quote: r.Quote})
-	}
-	found := map[key]bool{}
-	if len(list) > 0 {
-		raw, _ := json.Marshal(list)
-		rows, err := q.GradeCitationsCheck(ctx, store.GradeCitationsCheckParams{Cites: raw, DocumentID: docID})
-		if err != nil {
-			return nil, fmt.Errorf("grading: kiểm trích dẫn: %w", err)
-		}
-		for k, i := range idx {
-			for _, r := range rows {
-				if int(r.Idx) == i {
-					found[k] = r.Found
-				}
-			}
-		}
-	}
-	return func(c grade.Citation) bool { return found[key{c.Page, c.Quote}] }, nil
-}
-
 func llmUnclear(ex Extraction) []grade.Unclear {
 	var out []grade.Unclear
 	for _, u := range ex.Unclear {
@@ -479,7 +431,7 @@ func (s *Service) save(ctx context.Context, owner, jobID uuid.UUID, p Payload, t
 	}
 	extraction, _ := json.Marshal(map[string]any{"llm": json.RawMessage(rawOut), "unclear_items": unclear, "trace_id": llm.TraceID(ctx)})
 	doc := p.DocumentID
-	id, err := q.GradeSchemeInsert(ctx, store.GradeSchemeInsertParams{CourseID: p.CourseID, SchemeNo: no, SourceDocumentID: &doc, SourceTitle: &title, Extraction: extraction, ExtractJobID: &jobID, CreatedBy: owner})
+	id, err := q.GradeSchemeInsert(ctx, store.GradeSchemeInsertParams{CourseID: p.CourseID, SchemeNo: no, SourceDocumentID: &doc, SourceTitle: &title, Extraction: extraction, ExtractJobID: &jobID, CreatedBy: owner, UnclearCount: int32(len(unclear))})
 	if err != nil {
 		var pg *pgconn.PgError
 		if errors.As(err, &pg) && pg.Code == "23505" {

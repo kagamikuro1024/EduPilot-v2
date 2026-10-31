@@ -10,6 +10,7 @@ import (
 	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/grade"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/ingest"
@@ -72,6 +73,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicHidden, outbox.Chain(tn.HandleHidden, inv.Handle))
 	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
 	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
+	reg.Register(grade.TopicSchemeConfirmed, inv.Handle)                                                                      // US-P6-05: xác nhận công thức → GRADE_SCHEME_UNCONFIRMED biến mất
 	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
 	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged) // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó
 	reg.Register(crm.TopicAttendanceSaved, inv.Handle)                                                                        // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
@@ -93,7 +95,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	// Tài liệu (US-P8-01): đổi / xoá → tăng ep:rag:ver:{course}; việc đọc dài chạy ở consumer ep:ingest riêng nên không làm trễ việc này.
 	bump := rag.BumpVersion(d.Redis)
-	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump))
+	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump, (&grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleDocumentChanged)) // US-P6-05: tài liệu đổi → tính lại số mục chưa rõ của bản nháp (#16)
 	reg.Register("document.deleted", bump)
 	ks := &knowledge.Syncer{Pool: d.DB, Embed: agent.NewEmbedder(d.LLM, d.Redis), Timeout: d.Cfg.KnowledgeEmbedTimeout}
 	reg.Register(knowledge.TopicSync, ks.Handle) // US-P4-05: nhúng đoạn tri thức (một Embed, ngoài Chain) → document.changed

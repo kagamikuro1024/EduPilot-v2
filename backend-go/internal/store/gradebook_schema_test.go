@@ -47,7 +47,7 @@ func TestSchemaGradebook(t *testing.T) {
 	t.Parallel()
 	ctx, conn := connect(t)
 	want := map[string][]string{
-		"grade_schemes":         {"id", "course_id", "scheme_no", "status", "source_document_id", "source_title", "extraction", "extract_job_id", "confirmed_by", "confirmed_at", "created_by", "version", "created_at", "updated_at"},
+		"grade_schemes":         {"id", "course_id", "scheme_no", "status", "source_document_id", "source_title", "extraction", "extract_job_id", "confirmed_by", "confirmed_at", "created_by", "version", "unclear_count", "created_at", "updated_at"},
 		"grade_components":      {"id", "course_id", "scheme_id", "key", "name", "grp", "weight", "position", "citations", "filled_by_user", "created_at", "updated_at"},
 		"grade_rules":           {"id", "course_id", "scheme_id", "kind", "applicable", "params", "source_quote", "source_page", "filled_by_user", "created_at", "updated_at"},
 		"grade_items":           {"id", "course_id", "scheme_id", "component_id", "key", "name", "max_score", "source", "exam_id", "assignment_id", "published_at", "position", "created_at", "updated_at"},

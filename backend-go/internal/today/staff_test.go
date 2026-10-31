@@ -15,6 +15,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
+	"github.com/edupilot/backend-go/internal/grade"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 	"github.com/edupilot/backend-go/internal/testutil"
@@ -115,7 +116,7 @@ func TestStaffTodayCountAndCap(t *testing.T) {
 		r.pending(c, 1, time.Hour, "")
 	}
 	j := r.tget(g, "/me/today").json()
-	require.Equal(t, float64(55+55), j["count"], "55 yêu cầu + 55 mục thiết lập")
+	require.Equal(t, float64(55+55+55), j["count"], "55 yêu cầu + 55 mục thiết lập + 55 mục công thức điểm chưa xác nhận (US-P6-05, #13)")
 	require.Len(t, j["actions"], 50, "tối đa 50 mục")
 }
 
@@ -275,13 +276,13 @@ func TestProviderOverdueAfter48h(t *testing.T) {
 	r.pending(c, 1, 3*time.Hour, "EMAIL_MISMATCH") // bậc 40
 	r.pending(c, 1, 49*time.Hour, "")              // bậc 45 nhưng quá hạn
 	acts := actionsOf(r.tget(g, "/me/today"))
-	require.Equal(t, []string{"JOIN_REQUEST", "EMAIL_MISMATCH", "COURSE_SETUP"}, kinds(acts), "quá hạn nổi lên trước mọi bậc")
+	require.Equal(t, []string{"JOIN_REQUEST", "EMAIL_MISMATCH", "GRADE_SCHEME_UNCONFIRMED", "COURSE_SETUP"}, kinds(acts), "quá hạn nổi lên trước mọi bậc; công thức điểm chưa xác nhận bậc 70 (US-P6-05, #13)")
 	r2 := newRig(t)
 	c2 := r2.klass("761987")
 	_, g2 := r2.teaching(c2)
 	r2.pending(c2, 1, 3*time.Hour, "EMAIL_MISMATCH")
 	r2.pending(c2, 1, 47*time.Hour, "")
-	require.Equal(t, []string{"EMAIL_MISMATCH", "JOIN_REQUEST", "COURSE_SETUP"}, kinds(actionsOf(r2.tget(g2, "/me/today"))), "47 giờ chưa quá hạn")
+	require.Equal(t, []string{"EMAIL_MISMATCH", "JOIN_REQUEST", "GRADE_SCHEME_UNCONFIRMED", "COURSE_SETUP"}, kinds(actionsOf(r2.tget(g2, "/me/today"))), "47 giờ chưa quá hạn (#13)")
 }
 
 // deliver xử lý một sự kiện outbox đồng bộ bằng Invalidator (như worker sẽ làm).
@@ -612,7 +613,7 @@ func TestTodayRedisDownFailsOpen(t *testing.T) {
 func TestTodayQueryBudget(t *testing.T) {
 	r := newRig(t)
 	c1, c2 := r.klass("761987"), r.klass("761988")
-	_, g := r.teaching(c1, c2)
+	gv, g := r.teaching(c1, c2)
 	for _, c := range []cls{c1, c2} {
 		for range 30 {
 			p := r.addUser(uniq("sv"), store.UserRoleSTUDENT, store.UserStatusACTIVE)
@@ -627,11 +628,23 @@ func TestTodayQueryBudget(t *testing.T) {
 		path  string
 		limit int64
 	}{
-		"giảng viên tất cả lớp": {g, "/me/today", 6}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 6}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 5},
+		"giảng viên tất cả lớp": {g, "/me/today", 6}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 7}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 5},
 	} {
 		before := r.qc.n.Load()
 		require.Equal(t, http.StatusOK, r.tgetC(tc.s, tc.path).code, name)
 		require.LessOrEqual(t, r.qc.n.Load()-before, tc.limit, fmt.Sprintf("%s: ≤ %d truy vấn kể cả guard (#28)", name, tc.limit))
+	}
+	// #13 / #16: giảng viên 2 lớp, cả hai có bản nháp có trích dẫn → số truy vấn không tăng theo số bản nháp (số mục chưa rõ đọc từ cột, không đọc toàn văn).
+	for _, c := range []cls{c1, c2} {
+		r.policyDoc(c)
+		sc := r.draft(c, gv, true)
+		r.exec(`update grade_components set citations = '[{"page":1,"quote":"Điều 5"}]' where scheme_id = $1`, sc)
+		require.NoError(t, (&grade.Service{Pool: r.pool}).RecomputeUnclear(t.Context(), c.id))
+	}
+	for name, path := range map[string]string{"giảng viên tất cả lớp, có bản nháp": "/me/today", "giảng viên một lớp, có bản nháp": "/courses/" + c1.sid() + "/today"} {
+		before := r.qc.n.Load()
+		require.Equal(t, http.StatusOK, r.tgetC(g, path).code, name)
+		require.LessOrEqual(t, r.qc.n.Load()-before, int64(7), name+": ≤ 7 truy vấn dù có bản nháp (#16)")
 	}
 }
 

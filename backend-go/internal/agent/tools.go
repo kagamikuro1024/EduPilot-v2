@@ -17,6 +17,9 @@ var ErrToolNotRegistered = errors.New("agent: tool chưa đăng ký ở kênh n�
 // Facts là dữ kiện tool trả (đưa vào lời nhắc trong khối rào; qua hook che ở internal/llm).
 type Facts map[string]any
 
+// ErrNoScheme: lớp chưa có công thức điểm do giảng viên xác nhận. GradeSource trả lỗi này thì tool nói câu mẫu ReplyNoFormula, không phải "chưa có dữ liệu điểm" (US-P6-05 AC7).
+var ErrNoScheme = errors.New("agent: lớp chưa có công thức điểm đã xác nhận")
+
 // Block là khối dữ liệu có cấu trúc cho giao diện (sự kiện SSE `block`).
 type Block struct {
 	Kind string `json:"kind"`
@@ -247,6 +250,9 @@ func (t gradeTool) Run(ctx context.Context, tc TrustedContext, _ json.RawMessage
 		return Result{NoData: true}, nil
 	}
 	f, ok, err := t.Src.Summary(ctx, tc)
+	if errors.Is(err, ErrNoScheme) {
+		return Result{NoData: true, Message: ReplyNoFormula}, nil
+	}
 	return result("grade_summary", f, ok, err)
 }
 
@@ -273,6 +279,9 @@ func (t whatIfTool) Run(ctx context.Context, tc TrustedContext, raw json.RawMess
 		return Result{NoData: true}, nil
 	}
 	f, ok, err := t.Src.WhatIf(ctx, tc, a.Assumed)
+	if errors.Is(err, ErrNoScheme) {
+		return Result{NoData: true, Message: ReplyNoFormula}, nil
+	}
 	return result("what_if", f, ok, err)
 }
 

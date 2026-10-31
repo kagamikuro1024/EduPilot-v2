@@ -15,28 +15,19 @@ import (
 )
 
 const gradeCitationsCheck = `-- name: GradeCitationsCheck :many
-select (u.i - 1)::int as idx, coalesce(p.found, false)::bool as found
+select (u.i - 1)::int as idx, (position(vn_fold(regexp_replace(normalize(u.e ->> 'quote', NFC), '\s+', ' ', 'g')) in vn_fold(regexp_replace(normalize(u.e ->> 'text', NFC), '\s+', ' ', 'g'))) > 0)::bool as found
 from jsonb_array_elements($1::jsonb) with ordinality as u(e, i)
-left join lateral (
-    select position(vn_fold(regexp_replace(normalize(u.e ->> 'quote', NFC), '\s+', ' ', 'g')) in vn_fold(regexp_replace(normalize(string_agg(c.text, ' ' order by c.ord), NFC), '\s+', ' ', 'g'))) > 0 as found
-    from content_chunks c where c.document_id = $2 and coalesce(c.page_no, 1) = (u.e ->> 'page')::int having count(*) > 0
-) p on true
 order by u.i
 `
-
-type GradeCitationsCheckParams struct {
-	Cites      json.RawMessage
-	DocumentID uuid.UUID
-}
 
 type GradeCitationsCheckRow struct {
 	Idx   int32
 	Found bool
 }
 
-// Trích dẫn (trang, đoạn nguyên văn) có thật ở đúng trang không: NFC → gộp khoảng trắng → vn_fold (bỏ dấu, hạ chữ thường). `cites` = JSON [{page, quote}]. Trang không có đoạn nào → found = false.
-func (q *Queries) GradeCitationsCheck(ctx context.Context, arg GradeCitationsCheckParams) ([]GradeCitationsCheckRow, error) {
-	rows, err := q.db.Query(ctx, gradeCitationsCheck, arg.Cites, arg.DocumentID)
+// Trích dẫn có thật ở đúng trang không: NFC → gộp khoảng trắng → vn_fold (bỏ dấu, hạ chữ thường). `cites` = JSON [{quote, text}] với `text` là văn bản của trang (đọc qua DocChunks, đã lọc lớp).
+func (q *Queries) GradeCitationsCheck(ctx context.Context, cites json.RawMessage) ([]GradeCitationsCheckRow, error) {
+	rows, err := q.db.Query(ctx, gradeCitationsCheck, cites)
 	if err != nil {
 		return nil, err
 	}
@@ -90,11 +81,56 @@ func (q *Queries) GradeComponentInsert(ctx context.Context, arg GradeComponentIn
 	return id, err
 }
 
+const gradeComponentsOf = `-- name: GradeComponentsOf :many
+select id, scheme_id, key, name, grp, weight, position, citations, filled_by_user
+from grade_components where scheme_id = any($1::text[]::uuid[]) order by scheme_id, position, id
+`
+
+type GradeComponentsOfRow struct {
+	ID           uuid.UUID
+	SchemeID     uuid.UUID
+	Key          string
+	Name         string
+	Grp          GradeGroup
+	Weight       decimal.Decimal
+	Position     int32
+	Citations    json.RawMessage
+	FilledByUser bool
+}
+
+func (q *Queries) GradeComponentsOf(ctx context.Context, schemeIds []string) ([]GradeComponentsOfRow, error) {
+	rows, err := q.db.Query(ctx, gradeComponentsOf, schemeIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeComponentsOfRow{}
+	for rows.Next() {
+		var i GradeComponentsOfRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SchemeID,
+			&i.Key,
+			&i.Name,
+			&i.Grp,
+			&i.Weight,
+			&i.Position,
+			&i.Citations,
+			&i.FilledByUser,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const gradeDocForExtract = `-- name: GradeDocForExtract :one
 
-select d.id, d.title, d.type, d.status,
-       coalesce((select sum(char_length(c.text)) from content_chunks c where c.document_id = d.id), 0)::bigint as chars
-from documents d where d.id = $1 and d.course_id = $2
+select d.id, d.title, d.type, d.status from documents d where d.id = $1 and d.course_id = $2 and d.category is distinct from 'THREAD_KNOWLEDGE'
 `
 
 type GradeDocForExtractParams struct {
@@ -107,12 +143,10 @@ type GradeDocForExtractRow struct {
 	Title  string
 	Type   DocumentType
 	Status DocumentStatus
-	Chars  int64
 }
 
 // Công thức điểm (FEAT-gradebook US-P6-03/04): tài liệu quy chế, kiểm trích dẫn, bản nháp. Mọi truy vấn có course_id hoặc đi qua id thuộc lớp.
 // Chỉ internal/grade và internal/grading gọi. Mảng id / chuỗi: `::text[]` (PgBouncer, giao thức đơn giản).
-// Tài liệu của lớp + tổng số ký tự của các đoạn (đo độ dài văn bản đưa vào một lần trích).
 func (q *Queries) GradeDocForExtract(ctx context.Context, arg GradeDocForExtractParams) (GradeDocForExtractRow, error) {
 	row := q.db.QueryRow(ctx, gradeDocForExtract, arg.DocumentID, arg.CourseID)
 	var i GradeDocForExtractRow
@@ -121,40 +155,8 @@ func (q *Queries) GradeDocForExtract(ctx context.Context, arg GradeDocForExtract
 		&i.Title,
 		&i.Type,
 		&i.Status,
-		&i.Chars,
 	)
 	return i, err
-}
-
-const gradeDocPages = `-- name: GradeDocPages :many
-select coalesce(c.page_no, 1)::int as page_no, c.text
-from content_chunks c where c.document_id = $1 order by coalesce(c.page_no, 1), c.ord
-`
-
-type GradeDocPagesRow struct {
-	PageNo int32
-	Text   string
-}
-
-// Đoạn của tài liệu theo (trang, thứ tự); đoạn không có số trang tính là trang 1.
-func (q *Queries) GradeDocPages(ctx context.Context, documentID uuid.UUID) ([]GradeDocPagesRow, error) {
-	rows, err := q.db.Query(ctx, gradeDocPages, documentID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []GradeDocPagesRow{}
-	for rows.Next() {
-		var i GradeDocPagesRow
-		if err := rows.Scan(&i.PageNo, &i.Text); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
 }
 
 const gradeDraftDelete = `-- name: GradeDraftDelete :exec
@@ -275,6 +277,41 @@ func (q *Queries) GradeItemInsert(ctx context.Context, arg GradeItemInsertParams
 	return id, err
 }
 
+const gradeReminderTargets = `-- name: GradeReminderTargets :many
+select c.id as course_id, c.class_code, e.user_id as teacher_id
+from courses c
+join enrollments e on e.course_id = c.id and e.role_in_course = 'TEACHER' and e.status = 'ACTIVE'
+where c.status = 'ACTIVE' and not exists (select 1 from grade_schemes s where s.course_id = c.id and s.status = 'CONFIRMED')
+order by c.id
+`
+
+type GradeReminderTargetsRow struct {
+	CourseID  uuid.UUID
+	ClassCode string
+	TeacherID uuid.UUID
+}
+
+// Lớp ACTIVE chưa có công thức CONFIRMED + giảng viên đang dạy (đúng một mỗi lớp).
+func (q *Queries) GradeReminderTargets(ctx context.Context) ([]GradeReminderTargetsRow, error) {
+	rows, err := q.db.Query(ctx, gradeReminderTargets)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeReminderTargetsRow{}
+	for rows.Next() {
+		var i GradeReminderTargetsRow
+		if err := rows.Scan(&i.CourseID, &i.ClassCode, &i.TeacherID); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const gradeRuleInsert = `-- name: GradeRuleInsert :exec
 insert into grade_rules (course_id, scheme_id, kind, applicable, params, source_quote, source_page, filled_by_user)
 values ($1, $2, $3, $4, $5, $6, $7, $8)
@@ -305,6 +342,51 @@ func (q *Queries) GradeRuleInsert(ctx context.Context, arg GradeRuleInsertParams
 	return err
 }
 
+const gradeRulesOf = `-- name: GradeRulesOf :many
+select id, scheme_id, kind, applicable, params, source_quote, source_page, filled_by_user
+from grade_rules where scheme_id = any($1::text[]::uuid[]) order by scheme_id, kind, id
+`
+
+type GradeRulesOfRow struct {
+	ID           uuid.UUID
+	SchemeID     uuid.UUID
+	Kind         GradeRuleKind
+	Applicable   bool
+	Params       json.RawMessage
+	SourceQuote  *string
+	SourcePage   *int32
+	FilledByUser bool
+}
+
+func (q *Queries) GradeRulesOf(ctx context.Context, schemeIds []string) ([]GradeRulesOfRow, error) {
+	rows, err := q.db.Query(ctx, gradeRulesOf, schemeIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeRulesOfRow{}
+	for rows.Next() {
+		var i GradeRulesOfRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.SchemeID,
+			&i.Kind,
+			&i.Applicable,
+			&i.Params,
+			&i.SourceQuote,
+			&i.SourcePage,
+			&i.FilledByUser,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const gradeSchemeByJob = `-- name: GradeSchemeByJob :one
 select id from grade_schemes where course_id = $1 and extract_job_id = $2
 `
@@ -321,9 +403,74 @@ func (q *Queries) GradeSchemeByJob(ctx context.Context, arg GradeSchemeByJobPara
 	return id, err
 }
 
+const gradeSchemeGet = `-- name: GradeSchemeGet :one
+select id, course_id, scheme_no, status, source_document_id, source_title, extraction, extract_job_id, confirmed_by, confirmed_at, created_by, version, created_at, updated_at
+from grade_schemes where course_id = $1 and id = $2
+`
+
+type GradeSchemeGetParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type GradeSchemeGetRow struct {
+	ID               uuid.UUID
+	CourseID         uuid.UUID
+	SchemeNo         int32
+	Status           GradeSchemeStatus
+	SourceDocumentID *uuid.UUID
+	SourceTitle      *string
+	Extraction       json.RawMessage
+	ExtractJobID     *uuid.UUID
+	ConfirmedBy      *uuid.UUID
+	ConfirmedAt      *time.Time
+	CreatedBy        uuid.UUID
+	Version          int32
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+func (q *Queries) GradeSchemeGet(ctx context.Context, arg GradeSchemeGetParams) (GradeSchemeGetRow, error) {
+	row := q.db.QueryRow(ctx, gradeSchemeGet, arg.CourseID, arg.ID)
+	var i GradeSchemeGetRow
+	err := row.Scan(
+		&i.ID,
+		&i.CourseID,
+		&i.SchemeNo,
+		&i.Status,
+		&i.SourceDocumentID,
+		&i.SourceTitle,
+		&i.Extraction,
+		&i.ExtractJobID,
+		&i.ConfirmedBy,
+		&i.ConfirmedAt,
+		&i.CreatedBy,
+		&i.Version,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const gradeSchemeIDByStatus = `-- name: GradeSchemeIDByStatus :one
+select id from grade_schemes where course_id = $1 and status = $2::grade_scheme_status
+`
+
+type GradeSchemeIDByStatusParams struct {
+	CourseID uuid.UUID
+	Status   GradeSchemeStatus
+}
+
+func (q *Queries) GradeSchemeIDByStatus(ctx context.Context, arg GradeSchemeIDByStatusParams) (uuid.UUID, error) {
+	row := q.db.QueryRow(ctx, gradeSchemeIDByStatus, arg.CourseID, arg.Status)
+	var id uuid.UUID
+	err := row.Scan(&id)
+	return id, err
+}
+
 const gradeSchemeInsert = `-- name: GradeSchemeInsert :one
-insert into grade_schemes (course_id, scheme_no, status, source_document_id, source_title, extraction, extract_job_id, created_by)
-values ($1, $2, 'DRAFT', $3, $4, $5, $6, $7)
+insert into grade_schemes (course_id, scheme_no, status, source_document_id, source_title, extraction, extract_job_id, created_by, unclear_count)
+values ($1, $2, 'DRAFT', $3, $4, $5, $6, $7, $8)
 returning id
 `
 
@@ -335,6 +482,7 @@ type GradeSchemeInsertParams struct {
 	Extraction       json.RawMessage
 	ExtractJobID     *uuid.UUID
 	CreatedBy        uuid.UUID
+	UnclearCount     int32
 }
 
 func (q *Queries) GradeSchemeInsert(ctx context.Context, arg GradeSchemeInsertParams) (uuid.UUID, error) {
@@ -346,6 +494,7 @@ func (q *Queries) GradeSchemeInsert(ctx context.Context, arg GradeSchemeInsertPa
 		arg.Extraction,
 		arg.ExtractJobID,
 		arg.CreatedBy,
+		arg.UnclearCount,
 	)
 	var id uuid.UUID
 	err := row.Scan(&id)
@@ -361,4 +510,127 @@ func (q *Queries) GradeSchemeNextNo(ctx context.Context, courseID uuid.UUID) (in
 	var column_1 int32
 	err := row.Scan(&column_1)
 	return column_1, err
+}
+
+const gradeSchemesByIDs = `-- name: GradeSchemesByIDs :many
+select id, course_id, version, source_document_id, extraction from grade_schemes
+where id = any($1::text[]::uuid[])
+`
+
+type GradeSchemesByIDsRow struct {
+	ID               uuid.UUID
+	CourseID         uuid.UUID
+	Version          int32
+	SourceDocumentID *uuid.UUID
+	Extraction       json.RawMessage
+}
+
+func (q *Queries) GradeSchemesByIDs(ctx context.Context, ids []string) ([]GradeSchemesByIDsRow, error) {
+	rows, err := q.db.Query(ctx, gradeSchemesByIDs, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeSchemesByIDsRow{}
+	for rows.Next() {
+		var i GradeSchemesByIDsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CourseID,
+			&i.Version,
+			&i.SourceDocumentID,
+			&i.Extraction,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const gradeSetUnclear = `-- name: GradeSetUnclear :execrows
+update grade_schemes set unclear_count = $1
+where course_id = $2 and id = $3 and status = 'DRAFT' and version = $4
+`
+
+type GradeSetUnclearParams struct {
+	UnclearCount int32
+	CourseID     uuid.UUID
+	ID           uuid.UUID
+	Version      int32
+}
+
+// Ghi kết quả bộ kiểm của bản nháp (số mục chưa rõ). Chỉ khi bản nháp chưa đổi từ lúc tính (version): người sửa đồng thời đã tự ghi số mới.
+func (q *Queries) GradeSetUnclear(ctx context.Context, arg GradeSetUnclearParams) (int64, error) {
+	result, err := q.db.Exec(ctx, gradeSetUnclear,
+		arg.UnclearCount,
+		arg.CourseID,
+		arg.ID,
+		arg.Version,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const gradeStatusFacts = `-- name: GradeStatusFacts :many
+select c.id as course_id, c.class_code,
+       exists(select 1 from documents d where d.course_id = c.id and d.type = 'COURSE_POLICY' and d.status = 'READY' and d.category is distinct from 'THREAD_KNOWLEDGE') as has_policy,
+       cs.id as confirmed_id, cs.scheme_no as confirmed_no, cs.confirmed_at,
+       ds.id as draft_id, coalesce(ds.unclear_count, 0)::int as unclear_count,
+       coalesce(g.status::text, 'OPEN')::text as gb_status, coalesce(g.snapshot_version, 0)::int as gb_version
+from courses c
+left join grade_schemes cs on cs.course_id = c.id and cs.status = 'CONFIRMED'
+left join grade_schemes ds on ds.course_id = c.id and ds.status = 'DRAFT'
+left join gradebooks g on g.course_id = c.id
+where c.id = any($1::text[]::uuid[])
+`
+
+type GradeStatusFactsRow struct {
+	CourseID     uuid.UUID
+	ClassCode    string
+	HasPolicy    bool
+	ConfirmedID  *uuid.UUID
+	ConfirmedNo  *int32
+	ConfirmedAt  *time.Time
+	DraftID      *uuid.UUID
+	UnclearCount int32
+	GbStatus     string
+	GbVersion    int32
+}
+
+// Dữ kiện trạng thái công thức của một lô lớp (một truy vấn, không N+1): có quy chế READY, bản CONFIRMED, bản DRAFT + số mục chưa rõ đã ghi lúc lưu (#16), sổ điểm.
+func (q *Queries) GradeStatusFacts(ctx context.Context, courseIds []string) ([]GradeStatusFactsRow, error) {
+	rows, err := q.db.Query(ctx, gradeStatusFacts, courseIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeStatusFactsRow{}
+	for rows.Next() {
+		var i GradeStatusFactsRow
+		if err := rows.Scan(
+			&i.CourseID,
+			&i.ClassCode,
+			&i.HasPolicy,
+			&i.ConfirmedID,
+			&i.ConfirmedNo,
+			&i.ConfirmedAt,
+			&i.DraftID,
+			&i.UnclearCount,
+			&i.GbStatus,
+			&i.GbVersion,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

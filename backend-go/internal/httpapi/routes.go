@@ -13,6 +13,7 @@ import (
 	"github.com/edupilot/backend-go/internal/document"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/grade"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/activityhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
@@ -117,7 +118,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			}
 			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 			// US-P6-03 — công thức điểm: POST …/grade-scheme/extract (202 + việc nền), SRS FEAT-gradebook 6.1.
-			(&gradehttp.Handler{Extract: gradingService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+			(&gradehttp.Handler{Grade: gradeService(d), Extract: gradingService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
 			// US-P8-01 — tải tài liệu lên (URL ký sẵn), hoàn tất → 202 + việc nền, thử lại, lập chỉ mục lại (SRS FEAT-docs-calendar 6, #1–#2, #9–#11).
@@ -189,6 +190,10 @@ func crmService(d Deps) *crm.Service {
 	}
 	s.Tickets = &escalation.Service{Pool: d.DB, Log: d.Log, PII: s.PII, Clock: d.Clock, Cfg: escalation.ConfigFrom(d.Cfg)}
 	return s
+}
+
+func gradeService(d Deps) *grade.Service {
+	return &grade.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log}
 }
 
 func gradingService(d Deps) *grading.Service {

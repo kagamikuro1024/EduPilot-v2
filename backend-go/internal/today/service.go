@@ -61,6 +61,7 @@ func NewService(pool *pgxpool.Pool, rdb *appredis.Client, clk clock.Clock, log *
 	}
 	agg.Register(StudentProvider{Pool: pool})
 	agg.Register(staff)
+	agg.Register(GradeProvider{Pool: pool}) // US-P6-05: GRADE_SCHEME_UNCONFIRMED (bậc 70)
 	agg.Register(AdminProvider{Pool: pool, LLM: llm})
 	return &Service{Pool: pool, Redis: rdb, Clock: clk, Log: log, Agg: agg, Attn: staff.Attn, TTL: DefaultTTL, warned: new(atomic.Int64)}
 }
