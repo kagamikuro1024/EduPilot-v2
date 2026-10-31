@@ -23,3 +23,10 @@ Mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh h�
 - **#9 ACCEPTED (PM, 2026-10-31):** `Topics` 24 → 28 (topic mới của P7, cùng dạng đếm). `TestTodayQueryBudget` +1 mỗi vai, đúng TLR-13 (một truy vấn gộp cho mỗi vai). Sửa test chập chờn `grade/me_test`: canary `7.77` trùng phần giây lẻ của timestamp, chỉ làm test chặt hơn.
 - **#10: chờ Tech Lead** (`techlead.md` TL-1). PM không nhận phương án bỏ hẳn kiểm hiệu năng (A) khi chưa có cách đo thay thế.
 - **#10 quyết (PM, 2026-10-31, theo TL-1):** bỏ `lcp.spec.ts -g /assignments` khỏi dòng `Kiểm:` của AC9, vì đó là công cụ sai cho route này. **Không bỏ việc đo LCP:** đo `/assignments/[id]` bằng Lighthouse CI devtools, ngưỡng 2.500 ms giữ nguyên (TL-1 bước 1–4). US-PU-06 AC4 đếm URL tăng theo, cùng dạng lần thêm `/me`. **Số đo hiện 6,1 s, đó là lỗi hiệu năng thật của US-P7-03:** dev sửa mã cho LCP ≤ 2.500 ms; US-P7-03 chưa PASS khi chưa đạt. BA sửa dòng `Kiểm:` của AC9.
+- **#10 tiếp (PM, 2026-10-31, khuya):** dev đã tối ưu, LCP giảm 6.146 → 4.723 ms nhưng chưa đạt 2.500. Phần tử LCP là đoạn đầu đề bài, và trang chỉ vẽ được phía client vì phiên không có ở máy chủ Next. Hai lối còn lại:
+  - (1) Đổi hợp đồng `shared/shell/intro` + đề bài gọn ở màn đầu. Đây là đổi thiết kế (DESIGN / FEAT-ui-foundation) và ảnh hưởng cách sinh viên đọc đề.
+  - (2) Chấp nhận chưa đạt.
+
+  `AGENTS.md` cấm nới ngưỡng. PM **không** chọn (1) thay chủ dự án. **Quyết định tạm:** giữ phần tối ưu đã làm. **Không** đưa URL `/assignments/[id]` vào ma trận lỗi của LHCI (giữ nguyên như trước #10, không nới gì). **US-P7-03 AC9 (LCP) ghi FAIL**, chờ chủ dự án chọn (1) hoặc (2) ngày 01/11. Đếm URL LHCI giữ như cũ. Dev làm tiếp các story khác.
+- **#11 ACCEPTED (PM):** `GET /jobs/{id}` của người khác trả `404`, không phải `403`, để không lộ việc job tồn tại. Đúng hành vi sẵn có của route chung. BA sửa chữ AC9 US-P7-07.
+- **Ghi chú:** `share.go:26` "(phase P9)" cũng sửa lời văn như "(phase P6)", cùng dạng.
