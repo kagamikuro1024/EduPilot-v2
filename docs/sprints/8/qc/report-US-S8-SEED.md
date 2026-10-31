@@ -1,4 +1,17 @@
-# QC report — US-S8-SEED (seed sprint 8 + cổng P6) · Kết luận vòng 1: **FAIL** (AC7: hai tên `-g` của US không có test nào; mọi AC khác PASS trên stack thật)
+# QC report — US-S8-SEED (seed sprint 8 + cổng P6) · Kết luận vòng 2: **PASS** (xem "Vòng 2"). Vòng 1: **FAIL** (AC7: hai tên `-g` của US không có test nào; mọi AC khác PASS trên stack thật)
+
+## Vòng 2 (2026-10-31, `sprint/8-p6` @ `2fea08ec`; handoff "Vòng 2"; CI run `41213938391` **success**)
+| Lỗi vòng 1 | Vòng 2 | Bằng chứng (stack QC `edupilot100`, DB xoá sạch mỗi kịch bản) |
+| --- | --- | --- |
+| **BUG-S8-SEED-3** (AC7, hai tên `-g` thiếu) | **ĐÃ SỬA** | chỉ đổi tên hai test, assertion không đổi (`git diff`); quét lại 38 tên `-g` của `FEAT-gradebook/US.md` (tách theo `\|`) với tiêu đề `e2e/*.spec.ts`: 0 tên thiếu; chạy: `-g 'banner unconfirmed'` 1 passed, `-g 'finalize locked reason'` 1 passed, `-g 'no gamify'` 1 passed |
+| **BUG-S8-SEED-1** (khoá `seed-doc-<sha>` kẹt sau `complete` lỗi 4xx) | **ĐÃ SỬA** | tái hiện đúng kịch bản lỗi: bộ nghe giả ở `:9000` nhận `PUT` (200) nhưng không lưu → lần 1 `422 UPLOAD_INCOMPLETE`, bảng `idempotency_keys` có `seed-doc-<upload_id>` (422, khoá theo vé mới); bật lại endpoint đúng rồi chạy lại **không xoá khoá thủ công** → rc=0, đủ 18 bước |
+| **BUG-S8-SEED-2** (`SEED_RNG` khác → "25 dòng lỗi") | **ĐÃ SỬA** | `SEED_RNG=1`, DB trống: seed rc=0 (bước 15 qua); MSSV đổi (sv04 `20229714`, CSV `20224786`); **đầu vào XLSX khớp CSV theo `account` 30/30**; A `9,5 A+`, B `7,0 B`, C `3,0 F` giữ nguyên (MSSV cố định); `counts` docs 6, cột 3, điểm 60, không đổi ở lần chạy hai |
+Ghi nhận khi chạy `SEED_RNG=1`: **13/30 sinh viên có `qt`/`hp` khác `expected_final_grades.csv`** (sv04, 08, 09, 10, 11, 15, 16, 19, 20, 22, 25, 28, 29) — không phải lỗi nhập: điểm danh và phát biểu cũng theo `SEED_RNG` nên điểm cộng / trừ thật khác cột `bonus_applied` / `penalty` của CSV. QC tính lại từ DB (điểm nhập + phát biểu + vắng thật) bằng phân số: **engine = tính tay 30/30**. Nghĩa là `expected_final_grades.csv` chỉ đúng với `SEED_RNG` mặc định (trừ A, B, C); `check-grade-seed.mjs` cũng vậy (dev đã ghi). Đề nghị BA ghi rõ ở `fixtures/README.md`.
+**Chạy lại đầy đủ (SEED_RNG mặc định, DB trống):** seed rc=0 (4 phút 12 s), chạy lại 17 s rc=0; `check-grade-seed` `preview` 30/30, `abc` OK, `lop2` 409, `impact` p95 8 ms, `counts` không đổi; `p6-preview-vs-csv.py` 30/30 theo MSSV **và** theo account; `check-crm-seed`, `check-chat-seed`, `check-docs-seed`, `check-exam-seed scores` xanh; **`bash scripts/gate-p6.sh` → `GATE P6: PASS`** (13 bước, Playwright `gradebook + me` 54 passed).
+AC1–AC8 đều PASS; story **PASS**. Còn mở (thấp, không chặn): `dev.mjs` chưa đặt `BLOB_PUBLIC_ENDPOINT` theo `EP_PORT_OFFSET` (dev xác nhận không làm).
+
+---
+## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `6711408d` (+ `c3820726` cho vòng 2 của US-P6-09). Bộ TC: `tc-US-S8-SEED.md` (TC-P6-SEED-01…37). Handoff: `dev-US-S8-SEED.md`. CI run `41208847316` (`6711408d`): **success**.
 
 ## 1. Môi trường QC (stack riêng, cạnh stack của dev)

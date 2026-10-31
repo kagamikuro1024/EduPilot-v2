@@ -58,7 +58,11 @@ Nguồn: `docs/phases/P6.md` (cổng nghiệm thu, "Bạn tự kiểm"), `docs/s
 | G6-01…03, G6-07…11 | PASS (qua `scripts/gate-p6.sh`: `go vet`, `go test -race ./internal/grade/...` 30/30, không `float64`, `TestExtractGradeScheme`/demo, contract, ui-antipatterns; `go-test-all.sh` rc=0 51 gói ở `d563edcf`) |
 | G6-04 | PASS (lớp 2 `finalize` → 409 khi chưa có công thức; sau khi QC xác nhận bản 2 → 409 `GRADES_INCOMPLETE`) |
 | G6-05 | PASS (`GATE P6: PASS`; tự thử đỏ với `float64` → đỏ) |
-| G6-06 | **FAIL nhẹ**: 54 test xanh nhưng hai tên `-g` của US-P6-05 (`banner unconfirmed`, `finalize locked reason`) không có test (BUG-S8-SEED-3) |
+| G6-06 | PASS (vòng 2): 54 test xanh; 38 tên `-g` của US đều có test (đã sửa BUG-S8-SEED-3) |
 | G6-12 | PASS (`p6-hand-calc.py` 30/30, 18/18; `p6-preview-vs-csv.py` 30/30 trên stack thật) |
 | G6-13…15 | QC đã tự tính tay A 9,5 A+, B 7,0 B, C 3,0 F khớp giải trình; lớp 2: một mục chưa rõ → điền → xác nhận qua API thật; **chủ dự án vẫn tự tính tay** |
 | Tải 1.000 | `impact` p95 52 ms; `finalize` 0,12 s; `PUT` p95 18 ms; `/me/grades` p95 16 ms; trang sổ p95 19 ms |
+
+## Kết luận cổng P6 (QC, 2026-10-31, `sprint/8-p6` @ `2fea08ec`, CI `41213938391` xanh)
+**CỔNG KỸ THUẬT P6: PASS.** Trên stack QC dựng lại từ DB trống: `seed.mjs` rc=0 và idempotent; `check-grade-seed` (30/30, A B C, lớp 2 → 409, `impact` p95 8 ms, số không đổi), `p6-preview-vs-csv.py` 30/30 (MSSV và account), `gate-p6.sh` `GATE P6: PASS` (13 bước, Playwright 54 passed), seed sprint 5–8 xanh; `SEED_RNG=1` chạy trọn (đầu vào khớp theo account; điểm cộng / trừ theo RNG nên 13 sinh viên khác CSV — engine = tính tay 30/30); lớp 2 qua API thật (một mục chưa rõ → điền → xác nhận); tải 1.000 sinh viên: `impact` p95 52 ms, `finalize` 0,12 s, `PUT` p95 18 ms, `/me/grades` p95 16 ms; US-P6-01…09, US-S8-UI, US-S8-SEED đều có report PASS.
+**Còn lại cho chủ dự án (không thuộc QC):** G6-13 tự tính tay A (9,5 A+), B (7,0 B), C (3,0 F) bằng máy tính rồi so với giải trình trên màn hình (QC đã tự tính trước, khớp từng dòng); xem lớp 2 demo bước 6. Ghi nhận mở (thấp): BUG-P6-02-1 (thiếu test đột biến làm tròn TLR-1), BUG-P6-05-1 (thiếu test khử trùng thông báo nhắc), BUG-P6-08-1 (test đọc mã nguồn), BUG-P6-08-2 (`data-layer.spec` flaky ở CI), nhãn ô chọn dài ở 390 px (S8-UI), `dev.mjs` + `BLOB_PUBLIC_ENDPOINT` với `EP_PORT_OFFSET`.
