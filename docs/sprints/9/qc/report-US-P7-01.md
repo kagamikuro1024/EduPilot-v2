@@ -26,3 +26,7 @@ Ngày 2026-10-31. Commit kiểm: `sprint/9-p7` @ `a16e9c17` (US-P7-01 ở `4ca8d
 - **Q-01-b (BA / PM):** `assignments_teams_chk` là `('TEAMS' = ANY(channels)) = (teams_class_id IS NOT NULL) AND (teams_class_id IS NULL) = (teams_assignment_id IS NULL)`: chặt hơn spec (AC2 chỉ nói `TEAMS ∈ channels ⇒` hai id không NULL) — còn cấm **có** id khi không có kênh `TEAMS` (probe: `23514`). Hệ quả cho US-P7-02: `PUT` bỏ kênh Teams phải xoá luôn hai id, nếu không `23514`. QC coi là chấp nhận được; ghi để dev US-P7-02 / US-P7-11 biết.
 - Lệch có chủ ý đã được PM chấp nhận: `ON DELETE RESTRICT` (SRS) → `NO ACTION` (`23001` vs `23503`) — #7. `type = 'QUIZ'` cho phép ở DB (P7 từ chối ở API: US-P7-02).
 - `go.mod` đổi `golang.org/x/text`, `moby/moby/api` từ `indirect` sang trực tiếp (xem report US-P7-06).
+
+## 4. Vòng 2 — `e424a20b` · Kết luận: **PASS**
+- **BUG-P7-01-1 đã sửa:** `TestAssignmentDeleteRestrictedByGradeItem` dùng bài tập không có bài nộp; đột biến `ON DELETE CASCADE` ở `grade_items` làm test **đỏ**.
+- **Q-01-b:** dev chuẩn hoá `""` → NULL cho hai id Teams (`TestTeamsIdsFollowChannel` xanh). Câu hỏi về `assignments_teams_chk` chặt hơn spec vẫn là của BA / PM.

@@ -31,3 +31,8 @@ Ngày 2026-10-31. Commit kiểm: `sprint/9-p7` @ `a16e9c17`. Bộ TC: `tc-US-P7-
 - **BUG-P7-06-2 (Thấp, tên test ≠ US):** năm tên ở dòng `Kiểm:` của US không có trong repo — `TestAuditHasNoSubmissionText` (nội dung được `TestClassmateNameMaskedByGateway` kiểm), `TestExtractDocx` (không có test; probe QC PASS), `TestExtractFailedNotZero` (= `TestExtractFailedNoLLM`), `TestGradingInvalidOutputFailed` (= `TestInvalidOutputFailedNotZero`), `TestInjectionFlagAndHighlight` (= `TestInjectionCasesTable` + `TestInjectionHighlightOffsetsUTF16`). `go test -run 'A|B'` im lặng bỏ qua tên không tồn tại nên lệnh không đỏ; đề nghị dev đổi tên cho khớp hoặc BA sửa US; nên thêm `TestExtractDocx`.
 - **Q-06-d (PM):** `go.mod` chuyển `golang.org/x/text v0.42.0` và `github.com/moby/moby/api v1.55.0` từ `// indirect` sang trực tiếp; `ARCHITECTURE.md` không có hai thư viện này trong bảng. `x/text` đã có sẵn trong cây phụ thuộc (không thêm thư viện mới) nên QC không chặn; xin PM ghi vào bảng thư viện hoặc xác nhận "chấp nhận" (luật AGENTS.md: không thêm thư viện ngoài bảng mà không hỏi).
 - Còn thiếu cho cổng: kiểm bằng docling thật (PDF / DOCX) ở US-S9-SEED; `canary-scan.sh` cần stack.
+
+## 4. Vòng 2 — `e424a20b` · Kết luận: **PASS**
+- Chạy lại 6 test mới (`TestAnswerEchoInRun`, `TestExtractDocx`, `TestExtractFailedNotZero`, `TestGradingInvalidOutputFailed`, `TestInjectionFlagAndHighlight`, `TestAuditHasNoSubmissionText`): PASS `-race`.
+- **BUG-P7-06-1 đã sửa:** đột biến G5 (`EchoWords + 1` ở `Grader.Run`) làm `TestAnswerEchoInRun` **đỏ**. **BUG-P7-06-2 đã sửa:** đủ tên test ở dòng `Kiểm:`.
+- Q-06-d (`x/text`, `moby/moby/api` ngoài bảng thư viện) vẫn chờ PM.
