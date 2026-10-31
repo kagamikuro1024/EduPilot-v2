@@ -43,6 +43,8 @@ Nguồn: `docs/specs/FEAT-assignments/US.md` US-P7-06 (AC1–AC12) + `SRS.md` 2,
 
 ## Câu hỏi cho BA / PM (không tự đoán)
 - Q-06-a (TC-P7-06-01): đường PDF/DOCX qua `docling-serve` cần container thật hoặc bản giả; nếu CI chỉ dùng bản giả, QC đánh dấu "đã kiểm bản giả" ở report và nêu rủi ro.
+- Q-06-b (TC-P7-06-07): `expected_checks.json` — 10/13 ca một lượt (K03, K04, K06–K12) **không có khoá `total`** trong `llm`, trong khi AC4 nói schema `required` mọi khoá kể cả `total`. QC cài `Check` coi `total` vắng = không so (kết quả 17/17 khớp BA); nếu hàm của dev coi thiếu `total` là đầu ra không hợp lệ thì K03… sẽ lệch. BA/PM làm rõ: `total` bắt buộc ở schema hay tuỳ chọn ở `Check`?
+- Q-06-c (TC-P7-06-06/07): AC4 buộc `score` khớp `^\d{1,3}(\.\d{1,2})?$` (không có dấu `-`), nhưng ca **K04** của `expected_checks.json` đưa điểm **âm** và kỳ vọng `valid:true`, kẹp về 0 + `SCORE_ADJUSTED`. Hai điều không cùng đúng nếu schema `strict` chặn trước khi tới `Check`. BA/PM làm rõ: pattern cho phép `-` hay `Check` chỉ nhận chuỗi đã qua schema (khi đó K04 phải đổi thành `GRADING_OUTPUT_INVALID`)?
 
 ## Lịch sử sửa TC
 - 2026-11-01 — v1, viết từ spec APPROVED (US v1.1, `TL-REVIEW` TLR-1…20). Chưa có sửa.

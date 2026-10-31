@@ -55,4 +55,4 @@ Nguồn: `docs/phases/P7.md` ("Cổng nghiệm thu", "Bạn tự kiểm", "Ghi c
 5. Bài chưa khớp không thành 0 (TLR-9) và `Bỏ qua` có đường kết thúc (TC-P7-04-16/17, TC-P7-SEED-07).
 6. Hạn nộp / gia hạn / `late_days` tính lúc chấm, không lưu (TLR-8) (TC-P7-02-14, TC-P7-03-12/13).
 7. Phúc khảo không đi qua `escalation_tickets`, AI không tham gia (TC-P7-10-07/09).
-8. Câu hỏi mở cho PM: xem mục "Câu hỏi" ở các `tc-*.md` (Q-01-a, Q-02-a, Q-05-a, Q-06-a, Q-09-a, Q-S9-a).
+8. Câu hỏi mở cho PM: xem mục "Câu hỏi" ở các `tc-*.md` (Q-01-a, Q-02-a, Q-05-a, Q-06-a, Q-06-b, Q-06-c, Q-09-a, Q-S9-a).
