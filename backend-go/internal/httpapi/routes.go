@@ -6,6 +6,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/agent"
+	"github.com/edupilot/backend-go/internal/assignment"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
@@ -16,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grade"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/activityhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/assignmenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
@@ -36,6 +38,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/privacy"
+	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
 )
@@ -119,6 +122,7 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 			// US-P6-03 — công thức điểm: POST …/grade-scheme/extract (202 + việc nền), SRS FEAT-gradebook 6.1.
 			(&gradehttp.Handler{Grade: gradeService(d), Extract: gradingService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+			(&assignmenthttp.Handler{Assignments: assignmentService(d), Submit: submissionService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P7-02: bài tập
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
 			// US-P8-01 — tải tài liệu lên (URL ký sẵn), hoàn tất → 202 + việc nền, thử lại, lập chỉ mục lại (SRS FEAT-docs-calendar 6, #1–#2, #9–#11).
@@ -195,6 +199,22 @@ func crmService(d Deps) *crm.Service {
 func gradeService(d Deps) *grade.Service {
 	s := &grade.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis}
 	if d.Blob != nil { // nhập XLSX đọc lại tệp từ object storage (luật 10)
+		s.Blob = d.Blob
+	}
+	return s
+}
+
+func assignmentService(d Deps) *assignment.Service {
+	s := &assignment.Service{Pool: d.DB, Log: d.Log}
+	if d.LLM != nil && d.LLM.Gateway != nil {
+		s.LLM = d.LLM.Gateway
+	}
+	return s
+}
+
+func submissionService(d Deps) *submission.Service {
+	s := &submission.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log}
+	if d.Blob != nil {
 		s.Blob = d.Blob
 	}
 	return s

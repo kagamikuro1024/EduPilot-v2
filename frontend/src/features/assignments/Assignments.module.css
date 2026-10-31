@@ -1,0 +1,21 @@
+.form { display: grid; gap: var(--ep-space-4); }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ep-space-4); }
+.checks { display: flex; flex-wrap: wrap; gap: var(--ep-space-4); }
+
+.rubric { display: grid; gap: var(--ep-space-3); padding-top: var(--ep-space-4); border-top: 1px solid var(--ep-rule); }
+.rubricHead { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-3); }
+.criterion { display: grid; grid-template-columns: minmax(0, 1fr) 5rem minmax(0, 1.2fr) auto; gap: var(--ep-space-2); align-items: center; }
+.score { text-align: right; font-variant-numeric: tabular-nums; }
+.rubricFoot { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-3); flex-wrap: wrap; }
+.total { display: flex; align-items: baseline; gap: var(--ep-space-2); font-size: var(--ep-text-label); color: var(--ep-ink-2); font-variant-numeric: tabular-nums; }
+
+.link { display: flex; align-items: center; gap: var(--ep-space-3); flex-wrap: wrap; padding-top: var(--ep-space-4); border-top: 1px solid var(--ep-rule); font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+
+.due { font-variant-numeric: tabular-nums; }
+.count { font-variant-numeric: tabular-nums; }
+.more { display: flex; justify-content: center; padding-top: var(--ep-space-4); }
+
+@media (max-width: 719px) {
+  .row { grid-template-columns: 1fr; }
+  .criterion { grid-template-columns: minmax(0, 1fr) 4.5rem auto; }
+}

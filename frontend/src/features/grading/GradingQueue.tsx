@@ -1,15 +1,17 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ListChecks, Plus, Send } from "lucide-react";
-import { ActionList, ActionRow, Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, Input, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Tabs, Textarea, Toolbar } from "@/shared/ui";
+import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, FilterChips, InlineNotice, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Tabs, Toolbar } from "@/shared/ui";
 import { COURSE_2, fmtScore, fmtShortDate, fmtTime, studentById, studentsOf } from "@/mock/core";
-import { ASSIGNMENTS, BT03, BT03_SEED, bt03Submissions, type Assignment, type Submission } from "@/mock/assess";
+import { BT03, BT03_SEED, bt03Submissions, type Submission } from "@/mock/assess";
 import { isSubmissionApproved, studentNo } from "@/mock/derive";
 import { logGrade } from "@/mock/audit";
 import { bt03Total } from "@/mock/grades";
 import { noteBt03Published } from "@/mock/notes";
 import { KEYS, type Bt03State } from "@/mock/state";
+import { AssignmentsTab } from "@/features/assignments/AssignmentsTab";
 import { useSession } from "@/shared/session/session";
 import { simNowMs } from "@/shared/state/clock";
 import { useDemoSlice, writeSlice } from "@/shared/state/demo";
@@ -17,7 +19,6 @@ import { useUndoLine } from "@/shared/lib/useUndoLine";
 import s from "./Grading.module.css";
 
 type Filter = "flag" | "unapproved" | "late";
-type Draft = { id: string; title: string; kind: "ESSAY" | "QUIZ"; due: string; note: string };
 
 const FILTERS: Array<{ value: Filter; label: string }> = [
   { value: "flag", label: "Cần xem kỹ" },
@@ -26,21 +27,23 @@ const FILTERS: Array<{ value: Filter; label: string }> = [
 ];
 
 export function GradingQueue() {
-  const { role, course, user } = useSession();
+  const { role, course, user, realCourseId } = useSession();
+  const params = useSearchParams();
+  const router = useRouter();
   const [bt03, setBt03] = useDemoSlice<Bt03State>(KEYS.bt03, BT03_SEED);
   const [approvedIds] = useDemoSlice<string[]>("grading.approved", []);
   const [publishedIds, setPublishedIds] = useDemoSlice<string[]>("grading.published", []);
-  const [drafts, setDrafts] = useDemoSlice<Draft[]>("grading.drafts", []);
-  const [tab, setTab] = useState<"queue" | "assignments">("queue");
   const [filters, setFilters] = useState<Filter[]>(["flag", "unapproved"]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [publishing, setPublishing] = useState(false);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState<Draft>({ id: "", title: "", kind: "ESSAY", due: "", note: "" });
   const undo = useUndoLine();
 
   const hasQueue = course.id !== COURSE_2;
   const all = useMemo(() => (hasQueue ? bt03Submissions(studentsOf(course.id)) : []), [course.id, hasQueue]);
+  // Tab nằm ở URL (`?tab=`): lịch dẫn thẳng tới `/grading?tab=assignments`. Chưa có tham số: hàng chờ khi còn việc, ngược lại bài tập.
+  const tab: "queue" | "assignments" = params.get("tab") === "assignments" ? "assignments" : params.get("tab") === "queue" ? "queue" : hasQueue ? "queue" : "assignments";
+  const setTab = (v: "queue" | "assignments") => router.replace(`/grading?tab=${v}`, { scroll: false });
 
   const isApproved = (sub: Submission) => isSubmissionApproved(sub, bt03.status, approvedIds);
   const isPublished = (sub: Submission) => (sub.id === "sub-bt03-sv-2" ? bt03.status === "published" : publishedIds.includes(sub.id));
@@ -135,27 +138,20 @@ export function GradingQueue() {
     undo.push(`Đã công bố điểm Bài tập 03 cho ${ids.length} sinh viên · sinh viên thấy điểm và nhận xét ngay`);
   }
 
-  function saveDraft() {
-    if (form.title.trim() === "") return;
-    const draft: Draft = { ...form, id: `draft-${drafts.length + 1}` };
-    setDrafts((prev) => [...prev, draft]);
-    setForm({ id: "", title: "", kind: "ESSAY", due: "", note: "" });
-    setCreating(false);
-    undo.push(`Đã lưu nháp bài tập “${draft.title}” · chưa giao cho sinh viên`, () => setDrafts((prev) => prev.filter((d) => d.id !== draft.id)));
-  }
-
   return (
     <Page width="wide">
       <PageHeader
         title="Chấm bài"
-        description={`${course.label} · AI chấm nháp, giảng viên duyệt và công bố`}
+        description={tab === "queue" ? `${course.label} · AI chấm nháp, giảng viên duyệt và công bố` : undefined}
         meta={
-          <>
-            <span>
-              {doneCount}/{all.length} bài đã duyệt
-            </span>
-            <span>Bài tập 03 · hạn {fmtShortDate(BT03.due)}</span>
-          </>
+          tab === "queue" ? (
+            <>
+              <span>
+                {doneCount}/{all.length} bài đã duyệt
+              </span>
+              <span>Bài tập 03 · hạn {fmtShortDate(BT03.due)}</span>
+            </>
+          ) : undefined
         }
         actions={
           tab === "queue" && role === "teacher" ? (
@@ -177,22 +173,30 @@ export function GradingQueue() {
           onChange={setTab}
           options={[
             { value: "queue", label: "Hàng chờ chấm", count: all.filter((x) => !isApproved(x)).length },
-            { value: "assignments", label: "Bài tập", count: ASSIGNMENTS.length + drafts.length },
+            { value: "assignments", label: "Bài tập" },
           ]}
         />
       </div>
 
-      <PageState
-        loading={<Panel><Skeleton lines={10} /></Panel>}
-        empty={
-          <Panel><EmptyState title="Chưa có bài nào cần chấm" icon={<ListChecks aria-hidden />}>
-            Lớp này chưa có bài tập nào đang mở. Khi sinh viên nộp bài, AI chấm nháp trước rồi bài sẽ xuất hiện ở đây để bạn duyệt.
-          </EmptyState></Panel>
-        }
-        error={{ problem: "Không tải được hàng chờ chấm bài.", recovery: "Các bài đã duyệt vẫn được giữ. Thử lại sau ít phút." }}
-        state={hasQueue ? undefined : "empty"}
-      >
-        {tab === "queue" ? (
+      {tab === "assignments" ? (
+        realCourseId && realCourseId !== "all" ? (
+          <AssignmentsTab courseId={realCourseId} teacher={role === "teacher"} creating={creating} onCreatingChange={setCreating} />
+        ) : (
+          <Panel>
+            <EmptyState title="Chọn một lớp để xem bài tập." />
+          </Panel>
+        )
+      ) : (
+        <PageState
+          loading={<Panel><Skeleton lines={10} /></Panel>}
+          empty={
+            <Panel><EmptyState title="Chưa có bài nào cần chấm" icon={<ListChecks aria-hidden />}>
+              Lớp này chưa có bài tập nào đang mở. Khi sinh viên nộp bài, AI chấm nháp trước rồi bài sẽ xuất hiện ở đây để bạn duyệt.
+            </EmptyState></Panel>
+          }
+          error={{ problem: "Không tải được hàng chờ chấm bài.", recovery: "Các bài đã duyệt vẫn được giữ. Thử lại sau ít phút." }}
+          state={hasQueue ? undefined : "empty"}
+        >
           <Panel>
             {role === "ta" && (
               <InlineNotice tone="info" title="Chỉ giảng viên công bố điểm">
@@ -244,64 +248,8 @@ export function GradingQueue() {
               }
             />
           </Panel>
-        ) : (
-          <Panel>
-            {creating && (
-              <div className={s.form}>
-                <Field label="Tên bài tập" required>
-                  {(id) => <Input id={id} value={form.title} placeholder="Ví dụ: Phân tích nhật ký tấn công" onChange={(e) => setForm({ ...form, title: e.target.value })} />}
-                </Field>
-                <div className={s.formRow}>
-                  <Field label="Hình thức">
-                    {(id) => (
-                      <Select id={id} value={form.kind} onChange={(e) => setForm({ ...form, kind: e.target.value as Draft["kind"] })}>
-                        <option value="ESSAY">Tự luận</option>
-                        <option value="QUIZ">Trắc nghiệm</option>
-                      </Select>
-                    )}
-                  </Field>
-                  <Field label="Hạn nộp">{(id) => <Input id={id} type="date" value={form.due} onChange={(e) => setForm({ ...form, due: e.target.value })} />}</Field>
-                </div>
-                <Field label="Yêu cầu với sinh viên" helper="Lưu nháp để soạn tiếp; sinh viên chưa thấy cho tới khi bạn giao bài.">
-                  {(id) => <Textarea id={id} rows={3} value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />}
-                </Field>
-                <div className={s.formActions}>
-                  <Button variant="primary" onClick={saveDraft} disabled={form.title.trim() === ""}>
-                    Lưu nháp
-                  </Button>
-                  <Button variant="ghost" onClick={() => setCreating(false)}>
-                    Để sau
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {undo.node}
-
-            <ActionList label="Bài tập của lớp">
-              {ASSIGNMENTS.map((a) => (
-                <ActionRow
-                  key={a.id}
-                  tone={a.state === "grading" ? "amber" : a.state === "open" ? "blue" : "green"}
-                  title={`${a.id.toUpperCase()} · ${a.title}`}
-                  context={a.note}
-                  meta={`${ASSIGNMENT_KIND[a.kind]} · hạn ${fmtShortDate(a.due)} ${fmtTime(a.due)} · ${a.submitted}/${a.size} đã nộp`}
-                  action={<StatusText tone={a.state === "published" ? "green" : a.state === "grading" ? "amber" : "blue"}>{ASSIGNMENT_STATE[a.state]}</StatusText>}
-                />
-              ))}
-              {drafts.map((d) => (
-                <ActionRow
-                  key={d.id}
-                  title={d.title}
-                  context={d.note || "Chưa có mô tả yêu cầu"}
-                  meta={`${ASSIGNMENT_KIND[d.kind]}${d.due ? ` · hạn ${d.due}` : ""} · chưa giao cho sinh viên`}
-                  action={<StatusText tone="neutral">Bản nháp</StatusText>}
-                />
-              ))}
-            </ActionList>
-          </Panel>
-        )}
-      </PageState>
+        </PageState>
+      )}
 
       <ConfirmIrreversible
         open={publishing}
@@ -316,11 +264,3 @@ export function GradingQueue() {
     </Page>
   );
 }
-
-const ASSIGNMENT_KIND: Record<Assignment["kind"], string> = { ESSAY: "Tự luận", QUIZ: "Trắc nghiệm" };
-const ASSIGNMENT_STATE: Record<Assignment["state"], string> = {
-  published: "Đã công bố điểm",
-  grading: "Đang chấm",
-  open: "Đang mở",
-  draft: "Bản nháp",
-};

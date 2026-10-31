@@ -5,6 +5,7 @@ import (
 	"github.com/edupilot/backend-go/internal/calendar"
 
 	"github.com/edupilot/backend-go/internal/agent"
+	"github.com/edupilot/backend-go/internal/assignment"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/course"
 	"github.com/edupilot/backend-go/internal/crm"
@@ -25,6 +26,7 @@ import (
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/thread"
 	"github.com/edupilot/backend-go/internal/today"
 )
@@ -75,9 +77,13 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
 	reg.Register(grade.TopicFinalized, (&grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}).HandleFinalized) // US-P6-08: chốt điểm → GRADE_FINALIZED / GRADE_CHANGED (chỉ chuông)
 	reg.Register(grade.TopicSchemeConfirmed, inv.Handle)                                                                          // US-P6-05: xác nhận công thức → GRADE_SCHEME_UNCONFIRMED biến mất
-	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                                // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
-	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged)     // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó
-	reg.Register(crm.TopicAttendanceSaved, inv.Handle)                                                                            // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
+	asg := &assignment.Service{Pool: d.DB, Log: d.Log, Notify: nt}
+	reg.Register(assignment.TopicPublished, outbox.Chain(asg.HandlePublished, inv.Handle))                                    // US-P7-02: công bố bài → chuông ASSIGNMENT_PUBLISHED + xoá cache "Hôm nay"
+	reg.Register(assignment.TopicUpdated, outbox.Chain(asg.HandleUpdated, inv.Handle))                                        // đổi hạn / quy tắc muộn → tính lại khoản trừ muộn + xoá cache
+	reg.Register(submission.TopicCreated, inv.Handle)                                                                         // US-P7-03: bài nộp mới → xoá cache "Hôm nay" của Staff (hàng đợi chấm do US-P7-07 nối thêm)
+	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
+	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged) // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó
+	reg.Register(crm.TopicAttendanceSaved, inv.Handle)                                                                        // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
 	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
 	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log, Gate: escalation.MailGate{Redis: d.Redis, Clock: clock.Real{}, Window: d.Cfg.MailTicketNewCoalesce}, Clock: clock.Real{}}
 	reg.Register(escalation.TopicCreated, outbox.Chain(esc.HandleCreated, inv.Handle))

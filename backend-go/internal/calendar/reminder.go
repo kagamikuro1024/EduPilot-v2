@@ -84,7 +84,7 @@ func (r *Reminder) Tick(ctx context.Context) (int, error) {
 	for _, d := range due {
 		after := uuid.Nil
 		for {
-			rcpt, err := q.CalRecipients(ctx, store.CalRecipientsParams{CourseID: d.CourseID, AfterUser: after, PageLimit: reminderBatch})
+			rcpt, err := q.CalRecipients(ctx, store.CalRecipientsParams{CourseID: d.CourseID, AfterUser: after, PageLimit: reminderBatch, AssignmentID: assignmentOf(d)})
 			if err != nil {
 				return total, fmt.Errorf("calendar: người nhận: %w", err)
 			}
@@ -102,6 +102,14 @@ func (r *Reminder) Tick(ctx context.Context) (int, error) {
 	return total, nil
 }
 
+// assignmentOf: nhắc hạn bài tập chỉ gửi sinh viên chưa nộp (SRS 4.2.7); nguồn khác không lọc.
+func assignmentOf(d store.CalDueRow) *uuid.UUID {
+	if d.Src != "ASSIGNMENT" {
+		return nil
+	}
+	return &d.ID
+}
+
 func (r *Reminder) batch(ctx context.Context, d store.CalDueRow, rcpt []store.CalRecipientsRow) (int, error) {
 	tx, err := r.Svc.Pool.Begin(ctx)
 	if err != nil {
@@ -110,11 +118,15 @@ func (r *Reminder) batch(ctx context.Context, d store.CalDueRow, rcpt []store.Ca
 	defer func() { _ = tx.Rollback(ctx) }()
 	q := store.New(tx)
 	link := "/calendar"
-	if d.Src == "WEEKLY_EXAM" {
+	title := "Sắp đến giờ: " + d.Title
+	switch d.Src {
+	case "WEEKLY_EXAM":
 		link = "/exams/" + d.ID.String() + "/take"
+	case "ASSIGNMENT":
+		link = "/assignments/" + d.ID.String()
+		title = d.Title + " hạn " + d.StartsAt.In(vietnam).Format("15:04 02/01")
 	}
 	dedupe := "remind:" + d.Src + ":" + d.ID.String() + ":" + strconv.FormatInt(d.StartsAt.Unix(), 10)
-	title := "Sắp đến giờ: " + d.Title
 	body := Format(d.StartsAt)
 	n := 0
 	var pending []notify.Row

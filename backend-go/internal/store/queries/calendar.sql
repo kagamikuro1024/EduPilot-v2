@@ -13,11 +13,17 @@ with u as (
   union all
   select 'calendar_event', ce.id, ce.type::text, ce.title, ce.starts_at, ce.ends_at, ce.location, '', ce.updated_at, ce.version
   from calendar_events ce where ce.course_id = sqlc.arg(course_id)
+  union all
+  select 'assignment', asg.id, 'DEADLINE', asg.title, asg.due_at, null, null, '', asg.updated_at, 0
+  from assignments asg where asg.course_id = sqlc.arg(course_id) and asg.published_at is not null
 )
 select u.src, u.id, u.typ, u.title, u.starts_at, coalesce(u.ends_at, 'epoch'::timestamptz)::timestamptz as ends_at, (u.ends_at is not null)::bool as has_end, u.location, u.exam_status, u.updated_at, u.ver,
        case when u.src = 'weekly_exam' and sqlc.arg(is_student)::bool then coalesce((
          select case when a.status = 'IN_PROGRESS' then 'IN_PROGRESS' else 'SUBMITTED' end
-         from exam_attempts a where a.exam_id = u.id and a.student_id = sqlc.arg(viewer_id) limit 1), 'NOT_STARTED') else '' end::text as personal_state
+         from exam_attempts a where a.exam_id = u.id and a.student_id = sqlc.arg(viewer_id) limit 1), 'NOT_STARTED')
+       when u.src = 'assignment' and sqlc.arg(is_student)::bool then case when exists (
+         select 1 from submissions sb where sb.assignment_id = u.id and sb.student_id = sqlc.arg(viewer_id)::uuid and sb.match_status = 'MATCHED') then 'SUBMITTED' else 'NOT_STARTED' end
+       else '' end::text as personal_state
 from u
 where u.starts_at < sqlc.arg(to_at)::timestamptz and coalesce(u.ends_at, u.starts_at) >= sqlc.arg(from_at)::timestamptz
   and (not sqlc.arg(only_exam)::bool or u.typ = 'EXAM')
@@ -40,6 +46,11 @@ with feed as (
   select c.class_code, 'calendar_event', ce.id, ce.title, ce.starts_at, ce.ends_at, ce.location, ce.updated_at
   from calendar_events ce join courses c on c.id = ce.course_id
   where ce.course_id in (select en.course_id from enrollments en where en.user_id = sqlc.arg(owner) and en.status = 'ACTIVE')
+  union all
+  select c.class_code, 'assignment', a.id, a.title, a.due_at, null, null, a.updated_at
+  from assignments a join courses c on c.id = a.course_id
+  where a.published_at is not null
+    and a.course_id in (select en.course_id from enrollments en where en.user_id = sqlc.arg(owner) and en.status = 'ACTIVE')
 )
 select f.class_code, f.src, f.id, f.title, f.starts_at, coalesce(f.ends_at, 'epoch'::timestamptz)::timestamptz as ends_at, (f.ends_at is not null)::bool as has_end, f.location, f.updated_at,
        (select count(*) from enrollments en2 where en2.user_id = sqlc.arg(owner) and en2.status = 'ACTIVE')::int as course_count
@@ -81,7 +92,7 @@ select (u.ics_token is not null)::bool from users u where u.id = sqlc.arg(owner)
 select u.id from users u where u.ics_token = sqlc.arg(token_hash) and u.status = 'ACTIVE';
 
 -- name: CalDue :many
--- Nguồn có starts_at ∈ (now, until] của lớp ACTIVE: buổi học, bài thi SCHEDULED / OPEN, sự kiện.
+-- Nguồn có starts_at ∈ (now, until] của lớp ACTIVE: buổi học, bài thi SCHEDULED / OPEN, sự kiện, bài tập đã công bố (hạn nộp).
 select d.src, d.id, d.course_id, d.typ, d.title, d.starts_at from (
   select 'CLASS_SESSION'::text as src, cs.id, cs.course_id, 'CLASS_SESSION'::text as typ, ('Buổi ' || cs.session_no::text || coalesce(' · ' || nullif(cs.topic, ''), ''))::text as title, cs.starts_at
   from class_sessions cs
@@ -89,6 +100,8 @@ select d.src, d.id, d.course_id, d.typ, d.title, d.starts_at from (
   select 'WEEKLY_EXAM', e.id, e.course_id, 'EXAM', e.title, e.opens_at from exams e where e.status in ('SCHEDULED', 'OPEN') and e.opens_at is not null
   union all
   select 'CALENDAR_EVENT', ce.id, ce.course_id, ce.type::text, ce.title, ce.starts_at from calendar_events ce
+  union all
+  select 'ASSIGNMENT', a.id, a.course_id, 'DEADLINE', a.title, a.due_at from assignments a where a.published_at is not null
 ) d join courses c on c.id = d.course_id and c.status = 'ACTIVE'
 where d.starts_at > sqlc.arg(now_at)::timestamptz and d.starts_at <= sqlc.arg(until_at)::timestamptz
 order by d.starts_at, d.id;
@@ -101,6 +114,9 @@ from enrollments e join users u on u.id = e.user_id
 left join user_settings us on us.user_id = e.user_id
 where e.course_id = sqlc.arg(course_id) and e.status = 'ACTIVE' and e.role_in_course = 'STUDENT' and u.status = 'ACTIVE'
   and e.user_id > sqlc.arg(after_user)::uuid
+  -- nhắc hạn bài tập: chỉ sinh viên CHƯA nộp (không có bài nộp MATCHED)
+  and (sqlc.narg(assignment_id)::uuid is null or not exists (
+    select 1 from submissions sb where sb.assignment_id = sqlc.narg(assignment_id)::uuid and sb.student_id = e.user_id and sb.match_status = 'MATCHED'))
 order by e.user_id
 limit sqlc.arg(page_limit);
 

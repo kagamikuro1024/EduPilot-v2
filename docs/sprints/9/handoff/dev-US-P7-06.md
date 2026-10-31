@@ -18,3 +18,7 @@ Nhánh `sprint/9-p7`. Spec: US-P7-06 AC1–AC12, SRS 4.6; TLR-4, 6, 8, 12, 16, 1
 - `TestGradingResultsRBAC`, `TestNoDraftCanaryToStudent`, `TestLatePenaltyEditableByStaff` (cần route / màn duyệt): làm ở US-P7-08 / 09.
 - `bash scripts/canary-scan.sh` cần stack chạy (token ADMIN): chưa chạy ở story này (không có route mới); chạy ở cổng.
 - `DoclingExtractor` chưa kiểm với docling thật ở đây (adapter mỏng trên `ingest.Docling` đã có test); seed (US-S9-SEED) chạy PDF thật.
+
+## Vòng 2 (QC BUG-P7-06-1, -2)
+- **BUG-P7-06-1:** `TestAnswerEchoInRun` (`essay_qc_test.go`): `Grader.Run` với nhận xét chép đúng 12 từ đầu của đáp án chuẩn → cờ `ANSWER_ECHO` + `needs_review`; 11 từ → không cờ (đột biến `EchoWords + 1` làm test đỏ).
+- **BUG-P7-06-2:** thêm đúng tên mà US ghi: `TestExtractDocx` (DOCX qua docling giả), `TestExtractFailedNotZero`, `TestGradingInvalidOutputFailed` (hai kiểu đầu ra hỏng), `TestInjectionFlagAndHighlight`, `TestAuditHasNoSubmissionText` (nhật ký + `audit_log` không có nội dung bài / tên). Các test cũ giữ nguyên.

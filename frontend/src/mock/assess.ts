@@ -241,23 +241,3 @@ export function submissionDetail(sub: Submission) {
   };
 }
 
-// ---- bài tập của lớp 1 (tab Bài tập ở /grading) ---------------------------------------------
-
-export type Assignment = {
-  id: string;
-  title: string;
-  kind: "ESSAY" | "QUIZ";
-  /** hạn nộp (QUIZ: giờ đóng) */
-  due: Date;
-  submitted: number;
-  size: number;
-  state: "published" | "grading" | "open" | "draft";
-  note: string;
-};
-
-export const ASSIGNMENTS: Assignment[] = [
-  { id: "bt01", title: "Mô hình đe doạ", kind: "ESSAY", due: new Date("2026-09-17T23:59:00+07:00"), submitted: 30, size: 30, state: "published", note: "Đã công bố điểm 20/09" },
-  { id: "bt02", title: "Tấn công mạng phổ biến", kind: "ESSAY", due: new Date("2026-10-01T23:59:00+07:00"), submitted: 29, size: 30, state: "published", note: "Đã công bố điểm 05/10 · 1 sinh viên thiếu bài" },
-  { id: "bt03", title: BT03.title, kind: "ESSAY", due: BT03.due, submitted: 28, size: 30, state: "grading", note: "Cho nộp muộn 2 ngày, trừ 0,5 điểm mỗi ngày" },
-  { id: "quiz01", title: "Mật mã đối xứng", kind: "QUIZ", due: new Date("2026-10-30T03:20:00+07:00"), submitted: 21, size: 30, state: "open", note: "Trắc nghiệm tính điểm · 15 câu · đóng sau 18 giờ nữa" },
-];

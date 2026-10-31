@@ -10,3 +10,6 @@ Nhánh `sprint/9-p7`. Spec: US-P7-01 AC1–AC5, SRS mục 5; TLR-3 A, 8, 11, 16;
 
 ## Chưa làm trong story này
 - AC6 (`TestAssignmentsRBACMatrix`, `TestAllCourseRoutesGuarded` cho route P7): các route chưa tồn tại; ma trận được dựng cùng route và chạy đủ ở US-P7-10 (route cuối của L0–L3b) / US-P7-11.
+
+## Vòng 2 (QC BUG-P7-01-1)
+`TestAssignmentDeleteRestrictedByGradeItem` dùng bài tập KHÔNG có bài nộp (a3) cho nhánh `grade_items` (lỗi `23503` phải đến từ `grade_items_assignment_fkey`), giữ thêm nhánh bài nộp chặn xoá a1; đột biến `ON DELETE CASCADE` ở FK này làm test đỏ. Q-01-b: US-P7-02 chuẩn hoá `""` → NULL cho hai id Teams (`TestTeamsIdsFollowChannel`).

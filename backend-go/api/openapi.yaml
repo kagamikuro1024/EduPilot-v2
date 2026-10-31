@@ -28,6 +28,7 @@ tags:
   - name: library
   - name: calendar
   - name: gradebook
+  - name: assignments
 paths:
   /healthz:
     get:
@@ -2684,6 +2685,369 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/assignments:
+    get:
+      operationId: listAssignments
+      tags: [assignments]
+      summary: "Danh sách bài tập, mới nhất trước, phân trang con trỏ (mọi thành viên ACTIVE trừ ADMIN). Sinh viên chỉ thấy bài đã công bố, bản rút gọn: không reference_answer, không guidance, không submission_code"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignmentPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createAssignment
+      tags: [assignments]
+      summary: "Tạo bài tập nháp (chỉ TEACHER; Idempotency-Key bắt buộc). 422 VALIDATION_FAILED / SCORE_STEP / RUBRIC_INVALID / TYPE_NOT_SUPPORTED; mã nộp thư trùng 422 VALIDATION_FAILED field submission_code; lớp lưu trữ 409 COURSE_ARCHIVED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentInput"
+      responses:
+        "201":
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}:
+    get:
+      operationId: getAssignment
+      tags: [assignments]
+      summary: "Chi tiết bài tập. Staff: đầy đủ + số liệu + liên kết sổ điểm + cờ khoá; sinh viên: bản rút gọn của bài đã công bố (bài nháp 404)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Assignment"
+                  - $ref: "#/components/schemas/AssignmentStudent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateAssignment
+      tags: [assignments]
+      summary: "Sửa bài tập (chỉ TEACHER; version bắt buộc). Sau công bố khoá điểm tối đa / mã nộp (422 locked); đã có kết quả PUBLISHED khoá hạn + quy tắc muộn (409 LATE_RULE_LOCKED); sai version 409 VERSION_CONFLICT kèm bản hiện tại. Đổi hạn / quy tắc muộn → outbox assignment.updated"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteAssignment
+      tags: [assignments]
+      summary: "Xoá bài tập sạch (chỉ TEACHER): có bài nộp 409 HAS_SUBMISSIONS; gắn vào công thức điểm 409 LINKED_TO_GRADEBOOK"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/assignments/{aid}/publish:
+    post:
+      operationId: publishAssignment
+      tags: [assignments]
+      summary: "Công bố bài (chỉ TEACHER; Idempotency-Key bắt buộc; không đảo ngược): thiếu rubric hợp lệ 422 RUBRIC_REQUIRED; đã công bố 409 ALREADY_PUBLISHED. Một giao dịch: published_at, audit, outbox assignment.published"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishAssignmentOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/rubric:
+    put:
+      operationId: putAssignmentRubric
+      tags: [assignments]
+      summary: "Lưu rubric (chỉ TEACHER; version bắt buộc): 1–10 tiêu chí, điểm bội 0,25, Σ = điểm tối đa (422 RUBRIC_INVALID); đã có kết quả chấm 409 RUBRIC_LOCKED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentRubricInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/rubric/suggest:
+    post:
+      operationId: suggestAssignmentRubric
+      tags: [assignments]
+      summary: "Gợi ý rubric từ đáp án chuẩn (TA, TEACHER; Idempotency-Key bắt buộc): một lời gọi LLM, KHÔNG ghi DB. Thiếu đáp án 422 REFERENCE_ANSWER_REQUIRED; đầu ra sai 422 RUBRIC_SUGGEST_INVALID; LLM không sẵn sàng 503 LLM_UNAVAILABLE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuggestedRubric"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/assignments/{aid}/mine:
+    get:
+      operationId: getMyAssignment
+      tags: [assignments]
+      summary: "Bài tập của chính mình (chỉ STUDENT của lớp; Cache-Control: no-store; tham số student_id bị bỏ qua): đề, tên + điểm tối đa từng tiêu chí (không guidance, không đáp án), bản nộp mới nhất, trạng thái NOT_SUBMITTED | SUBMITTED | GRADING | GRADED. Bài chưa công bố 404 ASSIGNMENT_NOT_FOUND"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MineAssignmentOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/assignments/{aid}/submit/presign:
+    post:
+      operationId: presignSubmission
+      tags: [assignments]
+      summary: "Xin URL PUT ký sẵn để nộp bài (chỉ STUDENT; ≤ 10 lượt / phút / người, 429 + retry_after). Bài chưa công bố 404 ASSIGNMENT_NOT_FOUND; kênh IN_APP tắt 409 CHANNEL_NOT_ALLOWED; hết hạn nộp 409 SUBMISSION_CLOSED; tệp sai loại / quá 20 MiB / rỗng 422 FILE_TYPE_NOT_ALLOWED | FILE_TOO_LARGE | FILE_EMPTY. Content-Type do máy chủ suy từ đuôi"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitPresignInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitPresignOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/assignments/{aid}/submit:
+    post:
+      operationId: submitAssignment
+      tags: [assignments]
+      summary: "Hoàn tất nộp bài (chỉ STUDENT; Idempotency-Key bắt buộc): kiểm kích thước thật + nội dung theo đuôi (422 FILE_CONTENT_MISMATCH / UPLOAD_INCOMPLETE), cửa nộp (409 SUBMISSION_CLOSED), khoá nộp lại (409 SUBMISSION_LOCKED); một giao dịch cấp version, ghi bài nộp, audit, outbox submission.created"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitInput"
+      responses:
+        "201":
+          description: Đã nhận bài
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/gradebook:
     get:
       operationId: getGradebook
@@ -9133,7 +9497,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE]
         title:
           type: string
         reason:
@@ -10328,6 +10692,42 @@ components:
             - SERVICE_UNAVAILABLE
             - NOT_READY
             - DEADLINE_EXCEEDED
+            - TYPE_NOT_SUPPORTED
+            - RUBRIC_INVALID
+            - RUBRIC_LOCKED
+            - RUBRIC_REQUIRED
+            - REFERENCE_ANSWER_REQUIRED
+            - RUBRIC_SUGGEST_INVALID
+            - HAS_SUBMISSIONS
+            - LINKED_TO_GRADEBOOK
+            - ASSIGNMENT_NOT_FOUND
+            - CHANNEL_NOT_ALLOWED
+            - SUBMISSION_CLOSED
+            - ALREADY_REVIEWED
+            - SUBMISSION_LOCKED
+            - LATE_RULE_LOCKED
+            - LATE_RECOMPUTED
+            - FILE_EMPTY
+            - FILE_CONTENT_MISMATCH
+            - SUPERSEDED
+            - SCORE_STEP
+            - SCORES_REQUIRED
+            - RESULT_PUBLISHED
+            - NOT_REVIEWED
+            - ALREADY_PUBLISHED
+            - ASSIGNMENT_SCALE_MISMATCH
+            - ASSIGNMENT_ALREADY_LINKED
+            - APPEAL_ALREADY_FILED
+            - APPEAL_ALREADY_DECIDED
+            - APPEAL_DISABLED
+            - CRITERION_UNKNOWN
+            - REASON_LENGTH
+            - RESPONSE_REQUIRED
+            - NO_CHANGE
+            - TEAMS_AUTH_FAILED
+            - TEAMS_CONSENT_REQUIRED
+            - TEAMS_RESPONSE_INVALID
+            - FILE_DOWNLOAD_FAILED
             - OVERLOADED
             - LLM_NOT_CONFIGURED
             - LLM_UNAVAILABLE
@@ -10669,6 +11069,272 @@ components:
           type: string
         can_ask_ai:
           type: boolean
+    AssignmentRubricCriterion:
+      type: object
+      required: [id, name, max_score, guidance]
+      additionalProperties: false
+      properties:
+        id: {type: string}
+        name: {type: string}
+        max_score: {type: string}
+        guidance: {type: string}
+    AssignmentRubricCriterionStudent:
+      type: object
+      required: [id, name, max_score]
+      additionalProperties: false
+      properties:
+        id: {type: string}
+        name: {type: string}
+        max_score: {type: string}
+    AssignmentRubricInput:
+      type: object
+      required: [version, criteria]
+      additionalProperties: false
+      properties:
+        version: {type: integer, minimum: 1}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [name, max_score]
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              name: {type: string}
+              max_score: {type: string}
+              guidance: {type: string}
+    AssignmentInput:
+      type: object
+      required: [title, due_at]
+      additionalProperties: false
+      properties:
+        title: {type: string}
+        description: {type: string}
+        type: {type: string}
+        max_score: {type: string}
+        due_at: {type: string, format: date-time}
+        allow_late: {type: boolean}
+        late_penalty_per_day: {type: string}
+        late_max_days: {type: integer}
+        appeal_days: {type: [integer, "null"]}
+        channels:
+          type: array
+          items: {type: string, enum: [IN_APP, UPLOAD, IMAP, TEAMS]}
+        submission_code: {type: string}
+        reference_answer: {type: [string, "null"]}
+        teams_class_id: {type: [string, "null"]}
+        teams_assignment_id: {type: [string, "null"]}
+        rubric:
+          type: array
+          items:
+            type: object
+            required: [name, max_score]
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              name: {type: string}
+              max_score: {type: string}
+              guidance: {type: string}
+        version: {type: integer}
+    Assignment:
+      type: object
+      required: [id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, version, created_at, rubric_locked, late_rule_locked]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        title: {type: string}
+        description: {type: string}
+        type: {type: string}
+        max_score: {type: string}
+        due_at: {type: string, format: date-time}
+        allow_late: {type: boolean}
+        late_penalty_per_day: {type: string}
+        late_max_days: {type: integer}
+        appeal_days: {type: integer}
+        channels:
+          type: array
+          items: {type: string}
+        submission_code: {type: string}
+        reference_answer: {type: [string, "null"]}
+        rubric:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignmentRubricCriterion"
+        teams_class_id: {type: [string, "null"]}
+        teams_assignment_id: {type: [string, "null"]}
+        published_at: {type: [string, "null"], format: date-time}
+        version: {type: integer}
+        created_at: {type: string, format: date-time}
+        counts:
+          type: object
+          required: [submitted, total, graded, published]
+          additionalProperties: false
+          properties:
+            submitted: {type: integer}
+            total: {type: integer}
+            graded: {type: integer}
+            published: {type: integer}
+        grade_link:
+          type: object
+          required: [component_name, component_key]
+          additionalProperties: false
+          properties:
+            component_name: {type: string}
+            component_key: {type: string}
+        rubric_locked: {type: boolean}
+        late_rule_locked: {type: boolean}
+    AssignmentStudent:
+      type: object
+      required: [id, title, description, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, rubric, published_at]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        title: {type: string}
+        description: {type: string}
+        max_score: {type: string}
+        due_at: {type: string, format: date-time}
+        allow_late: {type: boolean}
+        late_penalty_per_day: {type: string}
+        late_max_days: {type: integer}
+        appeal_days: {type: integer}
+        channels:
+          type: array
+          items: {type: string}
+        rubric:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignmentRubricCriterionStudent"
+        published_at: {type: string, format: date-time}
+    AssignmentPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Assignment"
+              - $ref: "#/components/schemas/AssignmentStudentListItem"
+        next_cursor: {type: [string, "null"]}
+    PublishAssignmentOutput:
+      type: object
+      required: [assignment, students]
+      additionalProperties: false
+      properties:
+        assignment:
+          $ref: "#/components/schemas/Assignment"
+        students: {type: integer}
+    SuggestedRubric:
+      type: object
+      required: [criteria]
+      additionalProperties: false
+      properties:
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [name, guidance, max_score]
+            additionalProperties: false
+            properties:
+              name: {type: string}
+              guidance: {type: string}
+              max_score: {type: string}
+    MineAssignmentOutput:
+      type: object
+      required: [assignment, submission, state]
+      additionalProperties: false
+      properties:
+        assignment:
+          type: object
+          required: [id, title, description, due_at, max_score, criteria, allow_late, late_penalty_per_day, late_max_days, appeal_days]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            title: {type: string}
+            description: {type: string}
+            due_at: {type: string, format: date-time}
+            max_score: {type: string}
+            criteria:
+              type: array
+              items:
+                $ref: "#/components/schemas/AssignmentRubricCriterionStudent"
+            allow_late: {type: boolean}
+            late_penalty_per_day: {type: string}
+            late_max_days: {type: integer}
+            appeal_days: {type: integer}
+        submission:
+          type: [object, "null"]
+          required: [version, file_name, received_at, late_days]
+          additionalProperties: false
+          properties:
+            version: {type: integer}
+            file_name: {type: string}
+            received_at: {type: string, format: date-time}
+            late_days: {type: integer}
+        state:
+          type: string
+          enum: [NOT_SUBMITTED, SUBMITTED, GRADING, GRADED]
+    AssignmentStudentListItem:
+      type: object
+      required: [id, title, due_at, my]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        title: {type: string}
+        due_at: {type: string, format: date-time}
+        my:
+          type: object
+          required: [state, late_days, submitted_at]
+          additionalProperties: false
+          properties:
+            state:
+              type: string
+              enum: [NOT_SUBMITTED, SUBMITTED, GRADING, GRADED]
+            late_days: {type: integer}
+            submitted_at: {type: [string, "null"], format: date-time}
+    SubmitPresignInput:
+      type: object
+      required: [filename, size_bytes, sha256]
+      additionalProperties: false
+      properties:
+        filename: {type: string}
+        size_bytes: {type: integer, format: int64}
+        sha256: {type: string}
+    SubmitPresignOutput:
+      type: object
+      required: [upload_id, method, url, headers, blob_key, expires_in]
+      additionalProperties: false
+      properties:
+        upload_id: {type: string, format: uuid}
+        method: {type: string}
+        url: {type: string}
+        headers:
+          type: object
+          additionalProperties: {type: string}
+        blob_key: {type: string}
+        expires_in: {type: integer}
+    SubmitInput:
+      type: object
+      required: [upload_id]
+      additionalProperties: false
+      properties:
+        upload_id: {type: string, format: uuid}
+    SubmitOutput:
+      type: object
+      required: [submission]
+      additionalProperties: false
+      properties:
+        submission:
+          type: object
+          required: [id, version, received_at, late_days, file_name]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            version: {type: integer}
+            received_at: {type: string, format: date-time}
+            late_days: {type: integer}
+            file_name: {type: string}
     CalendarItem:
       type: object
       required: [id, source, type, title, starts_at, ends_at, location, href, editable, personal_state, status]
@@ -10678,10 +11344,10 @@ components:
           type: string
         source:
           type: string
-          enum: [class_session, weekly_exam, calendar_event]
+          enum: [class_session, weekly_exam, calendar_event, assignment]
         type:
           type: string
-          enum: [CLASS_SESSION, EXAM, OTHER]
+          enum: [CLASS_SESSION, EXAM, OTHER, DEADLINE]
         title:
           type: string
         starts_at:

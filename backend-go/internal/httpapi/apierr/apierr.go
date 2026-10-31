@@ -430,6 +430,9 @@ func DefaultMessage(code string) string {
 	case ExtractionInvalid:
 		return "Không đọc được công thức từ quy chế."
 	default:
+		if m, ok := assignmentMessage(code); ok {
+			return m
+		}
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}
 }

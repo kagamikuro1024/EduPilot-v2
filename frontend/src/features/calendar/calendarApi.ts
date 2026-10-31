@@ -5,9 +5,9 @@ import { useEffect } from "react";
 import { apiClient, useCursorList } from "@/shared/data";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/courses/{id}/calendar*`, `/me/calendar/ics-token`).
-export type CalType = "CLASS_SESSION" | "EXAM" | "OTHER";
+export type CalType = "CLASS_SESSION" | "EXAM" | "DEADLINE" | "OTHER";
 export type CalItem = {
-  id: string; source: "class_session" | "weekly_exam" | "calendar_event"; type: CalType; title: string; starts_at: string; ends_at: string | null; location: string | null;
+  id: string; source: "class_session" | "weekly_exam" | "assignment" | "calendar_event"; type: CalType; title: string; starts_at: string; ends_at: string | null; location: string | null;
   href: string | null; editable: boolean; personal_state: "NOT_STARTED" | "IN_PROGRESS" | "SUBMITTED" | null; status: string | null; version?: number;
 };
 export type EventInput = { type: "EXAM" | "OTHER"; title: string; starts_at: string; ends_at: string | null; location: string | null; version?: number };
@@ -15,7 +15,7 @@ export type EventInput = { type: "EXAM" | "OTHER"; title: string; starts_at: str
 export const calKey = (course: string) => ["calendar", course] as const;
 
 export const STATE_LABEL: Record<string, string> = { NOT_STARTED: "Chưa làm", IN_PROGRESS: "Đang làm", SUBMITTED: "Đã nộp" };
-export const TYPE_LABEL: Record<CalType, string> = { CLASS_SESSION: "Buổi học", EXAM: "Bài thi", OTHER: "Sự kiện" };
+export const TYPE_LABEL: Record<CalType, string> = { CLASS_SESSION: "Buổi học", EXAM: "Bài thi", DEADLINE: "Hạn nộp", OTHER: "Sự kiện" };
 
 // Giờ Việt Nam: múi giờ cố định UTC+7 (không DST). "Nhãn ngày" = nửa đêm UTC của ngày dương lịch ở Việt Nam, để làm số học ngày bằng getUTC*.
 export const VN = 7 * 3_600_000;

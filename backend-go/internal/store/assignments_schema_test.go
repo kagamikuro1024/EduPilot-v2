@@ -305,10 +305,15 @@ func TestAssignmentDeleteRestrictedByGradeItem(t *testing.T) {
 	t.Parallel()
 	ctx, conn := connect(t)
 	f := newAsgFx(t, ctx, conn)
-	_, err := conn.Exec(ctx, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name, source, assignment_id) values ('{c1}', '{sc1}', '{k1}', 'bt', 'BT', 'ASSIGNMENT', '{a1}')`))
+	// Bài KHÔNG có bài nộp: nếu lỗi 23503 đến từ đâu đó khác `grade_items` thì test không bắt được đột biến ON DELETE CASCADE (QC BUG-P7-01-1).
+	var a3 uuid.UUID
+	require.NoError(t, conn.QueryRow(ctx, `insert into assignments (course_id, title, due_at, submission_code, created_by) values ($1, 'BT9', now() + interval '7 days', 'BT09', $2) returning id`, f.c1, f.teacher).Scan(&a3))
+	_, err := conn.Exec(ctx, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name, source, assignment_id) values ('{c1}', '{sc1}', '{k1}', 'bt', 'BT', 'ASSIGNMENT', '`+a3.String()+`')`))
 	require.NoError(t, err)
+	_, err = conn.Exec(ctx, `delete from assignments where id = $1`, a3)
+	require.Equal(t, "23503", sqlState(err), "item sổ điểm chặn xoá")
 	_, err = conn.Exec(ctx, f.q(`delete from assignments where id = '{a1}'`))
-	require.Equal(t, "23503", sqlState(err))
+	require.Equal(t, "23503", sqlState(err), "bài nộp chặn xoá")
 	_, err = conn.Exec(ctx, f.q(`delete from assignments where id = '{a2}'`))
 	require.NoError(t, err, "bài tập không ai trỏ tới xoá được")
 }

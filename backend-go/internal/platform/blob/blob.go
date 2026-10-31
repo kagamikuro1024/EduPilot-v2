@@ -5,6 +5,9 @@ package blob
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -259,6 +262,74 @@ func (s *Store) PresignPutSized(ctx context.Context, key, contentType string, si
 		return "", fmt.Errorf("blob: ký URL tải lên: %w", err)
 	}
 	return u.String(), nil
+}
+
+// PresignPutChecked như PresignPutSized và ký thêm `x-amz-checksum-sha256` (sha256 hex của tệp): object storage tự tính lại băm lúc PUT, lệch → từ chối
+// (SRS FEAT-assignments 4.3.1). Client PHẢI gửi đúng các header đã ký (xem ChecksumHeader).
+func (s *Store) PresignPutChecked(ctx context.Context, key, contentType string, size int64, sha256Hex string) (string, error) {
+	if err := validateKey(key); err != nil {
+		return "", err
+	}
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+	sum, err := ChecksumHeader(sha256Hex)
+	if err != nil {
+		return "", err
+	}
+	h := http.Header{}
+	if contentType != "" {
+		h.Set("Content-Type", contentType)
+	}
+	h.Set("Content-Length", strconv.FormatInt(size, 10))
+	h.Set("x-amz-checksum-sha256", sum)
+	u, err := s.signer.PresignHeader(ctx, http.MethodPut, s.bucket, key, s.putTTL, nil, h)
+	if err != nil {
+		return "", fmt.Errorf("blob: ký URL tải lên: %w", err)
+	}
+	return u.String(), nil
+}
+
+// ChecksumHeader đổi sha256 hex → giá trị header `x-amz-checksum-sha256` (base64 của 32 byte).
+func ChecksumHeader(sha256Hex string) (string, error) {
+	raw, err := hex.DecodeString(sha256Hex)
+	if err != nil || len(raw) != sha256.Size {
+		return "", fmt.Errorf("blob: sha256 không hợp lệ")
+	}
+	return base64.StdEncoding.EncodeToString(raw), nil
+}
+
+// GetRange đọc `length` byte từ `offset` (Range GET) — dùng để đọc thư mục trung tâm ở cuối tệp zip mà không tải cả tệp. Vượt cuối tệp: trả phần còn lại.
+func (s *Store) GetRange(ctx context.Context, key string, offset, length int64) ([]byte, error) {
+	if err := validateKey(key); err != nil {
+		return nil, err
+	}
+	opts := minio.GetObjectOptions{}
+	if err := opts.SetRange(offset, offset+length-1); err != nil {
+		return nil, fmt.Errorf("blob: range: %w", err)
+	}
+	o, err := s.cli.GetObject(ctx, s.bucket, key, opts)
+	if err != nil {
+		return nil, s.mapErr(ctx, "get", key, err)
+	}
+	defer func() { _ = o.Close() }()
+	b, err := io.ReadAll(o)
+	if err != nil {
+		return nil, s.mapErr(ctx, "get", key, err)
+	}
+	return b, nil
+}
+
+// List liệt kê (đệ quy) mọi đối tượng có khoá bắt đầu bằng prefix; dùng cho job dọn tệp mồ côi, không dùng trong request.
+func (s *Store) List(ctx context.Context, prefix string) ([]Info, error) {
+	var out []Info
+	for o := range s.cli.ListObjects(ctx, s.bucket, minio.ListObjectsOptions{Prefix: prefix, Recursive: true}) {
+		if o.Err != nil {
+			return nil, s.mapErr(ctx, "list", prefix, o.Err)
+		}
+		out = append(out, Info{Key: o.Key, Size: o.Size, ContentType: o.ContentType, ETag: o.ETag, LastModified: o.LastModified})
+	}
+	return out, nil
 }
 
 // PresignGetInline trả URL xem trước (Content-Disposition: inline) — dùng cho PDF trong trình duyệt; TTL mặc định 5 phút.

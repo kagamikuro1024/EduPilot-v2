@@ -1,0 +1,58 @@
+package today
+
+import (
+	"context"
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/edupilot/backend-go/internal/store"
+)
+
+// assignmentHorizon: bài có hạn trong khoảng này (hoặc đã quá hạn còn cửa muộn) mới thành việc ASSIGNMENT_DUE.
+const assignmentHorizon = 24 * time.Hour
+
+// AssignmentProvider: ASSIGNMENT_DUE (bậc 41, sinh viên) — SRS FEAT-assignments 4.12. MỘT truy vấn cho mọi lớp trong phạm vi; một mục mỗi lớp (bài có hạn gần nhất).
+// Nộp bài / đóng cửa → outbox `submission.created` / `assignment.updated` xoá cache nên mục biến mất ≤ 5 s. Các kind của nhân viên (GRADING_*, APPEAL…) do các story sau thêm vào cùng nhà cung cấp.
+type AssignmentProvider struct{ Pool *pgxpool.Pool }
+
+// Name implements Provider.
+func (AssignmentProvider) Name() string { return "assignment" }
+
+// Items implements Provider.
+func (p AssignmentProvider) Items(ctx context.Context, v Viewer, sc Scope) ([]Item, error) {
+	if v.Role != RoleStudent {
+		return nil, nil
+	}
+	courses := v.Scoped(sc, "STUDENT")
+	if p.Pool == nil || len(courses) == 0 {
+		return nil, nil
+	}
+	rows, err := store.New(p.Pool).TodayStudentAssignments(ctx, store.TodayStudentAssignmentsParams{UserID: v.UserID, CourseIds: ids(courses), Now: v.Now, Horizon: v.Now.Add(assignmentHorizon)})
+	if err != nil {
+		return nil, fmt.Errorf("today: bài tập: %w", err)
+	}
+	byCourse := map[uuid.UUID]CourseRef{}
+	for _, c := range courses {
+		byCourse[c.ID] = c
+	}
+	seen := map[uuid.UUID]bool{}
+	var out []Item
+	for _, r := range rows { // đã sắp theo hạn: dòng đầu của mỗi lớp là bài gần nhất
+		if seen[r.CourseID] {
+			continue
+		}
+		seen[r.CourseID] = true
+		c := byCourse[r.CourseID]
+		reason := "Đang nộp muộn — Nộp bài"
+		if r.DueAt.After(v.Now) {
+			hours := max(1, int((r.DueAt.Sub(v.Now)+time.Hour-1)/time.Hour))
+			reason = fmt.Sprintf("Còn %d giờ — Nộp bài", hours)
+		}
+		out = append(out, mk(Item{ID: "ASSIGNMENT_DUE:" + r.ID.String(), Kind: KindAssignmentDue, Tier: TierAssignmentDue, Course: courseRef(c), Href: "/assignments/" + r.ID.String(),
+			EstimateMinutes: 30, Title: r.Title, Reason: reason}))
+	}
+	return out, nil
+}
