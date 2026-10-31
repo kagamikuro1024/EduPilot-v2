@@ -5,8 +5,10 @@ import { useEffect, useRef, useState } from "react";
 import { ApiError, ApiErrorNotice, newIdempotencyKey } from "@/shared/data";
 import { checkSubmissionFile, uploadSubmissionFile } from "@/shared/data/uploadFile";
 import { Markdown } from "@/shared/domain";
+import { useSession } from "@/shared/session/session";
 import { Button, DefinitionList, InlineNotice, Page, PageHeader, PageState, Panel, PanelSection, Skeleton } from "@/shared/ui";
 import { WD, dayLabel, fmtDM, fmtHM, fmtLong } from "@/features/calendar/calendarApi";
+import { AppealBlock } from "./AppealBlock";
 import { completeSubmission, dueLabel, mineKey, useMine, vi, type MineOut, type MineResult } from "./assignmentApi";
 import s from "./StudentAssignment.module.css";
 
@@ -82,6 +84,8 @@ function Result({ r }: { r: MineResult }) {
 }
 
 function Mine({ courseId, id, data, now }: { courseId: string; id: string; data: MineOut; now: number }) {
+  const { identity } = useSession();
+  const userId = identity?.sub;
   const qc = useQueryClient();
   const a = data.assignment;
   const key = resumeKey(courseId, id);
@@ -181,6 +185,7 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
   return (
     <>
       {data.result && <Result r={data.result} />}
+      {data.result && <AppealBlock courseId={courseId} id={id} data={data} userId={userId} now={now} />}
       <PanelSection title="Đề bài">
         <Markdown source={a.description} />
       </PanelSection>

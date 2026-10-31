@@ -6,7 +6,7 @@ import { Button, type Column, DataTable, EmptyState, Field, InlineNotice, Input,
 import { classKey, type Member } from "@/features/members/classApi";
 import { useAssignments } from "@/features/assignments/assignmentApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
-import { SOURCE_LABEL, dismissSubmission, matchSubmission, submissionFileUrl, undismissSubmission, useUnmatched, type Unmatched } from "./submissionApi";
+import { SOURCE_LABEL, dismissSubmission, matchSubmission, submissionFileUrl, undismissSubmission, useStudentVersions, useUnmatched, type Unmatched } from "./submissionApi";
 import s from "./Unmatched.module.css";
 
 const CONFLICT = "Bài này vừa được xử lý ở nơi khác";
@@ -161,6 +161,7 @@ function AssignBox({ courseId, row, assignments, onDone, onError }: {
     idOf: (m) => m.user_id,
   });
   const options = students.items;
+  const versions = useStudentVersions(courseId, assignmentId, studentId).data?.versions ?? 0;
   // gợi ý của máy chủ có thể không nằm trong trang đang tải: vẫn giữ lựa chọn mặc định
   const known = options.some((m) => m.user_id === studentId);
 
@@ -218,6 +219,7 @@ function AssignBox({ courseId, row, assignments, onDone, onError }: {
             {(id) => <Input id={id} value={reason} maxLength={200} placeholder="Nộp nhầm lớp" onChange={(e) => setReason(e.target.value)} />}
           </Field>
         )}
+        {versions > 0 && <p className={s.note} data-part="student-versions">{`Sinh viên này đã có ${versions} phiên bản`}</p>}
         <div className={s.actions}>
           <Button variant="primary" disabled={!assignmentId || !studentId} loading={busy} onClick={() => void run("match")}>
             Gán

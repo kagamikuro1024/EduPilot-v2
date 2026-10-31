@@ -32,6 +32,23 @@ export type Criterion = {
   evidence: Array<{ quote: string; start: number; end: number }>;
 };
 
+/** Phúc khảo gắn với kết quả (US-P7-10). */
+export type Appeal = {
+  id: string;
+  student: { id: string; full_name: string; student_code: string };
+  criteria: Array<{ id: string; name: string }>;
+  reason: string;
+  status: "OPEN" | "UPHELD" | "ADJUSTED";
+  created_at: string;
+  score_before: string;
+  ai_total_before_late: string | null;
+  score_after: string | null;
+  response: string | null;
+  decided_by: string | null;
+  decided_at: string | null;
+  version: number;
+};
+
 export type ResultView = {
   result: { id: string; round: number; status: ResultStatus; run_state: RunState; error_code?: string; total: string | null; ai_total_before_late: string | null; overall_feedback: string; overall_edited: boolean; reviewed_at?: string; version: number };
   submission: { id: string; version: number; file_name: string; received_at: string; late_days: number; source: string; extracted_text: string; flagged_ranges: Array<{ start: number; end: number; code: string }>; superseded: boolean };
@@ -40,6 +57,7 @@ export type ResultView = {
   flags: string[];
   pass_detail: Record<string, { pass1?: string; pass2?: string }> | null;
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
+  appeal?: Appeal | null;
 };
 
 /** Lý do cờ bằng chữ (AC1). Màn của nhân viên: dùng đúng cụm của AC. */
@@ -128,3 +146,9 @@ export const useAssignmentStats = (course: string, aid: string, enabled: boolean
     retry: false,
     queryFn: async ({ signal }) => (await apiClient.get<AssignmentStats>(`/courses/${course}/assignments/${aid}/stats`, { signal })).data,
   });
+
+export type DecideInput = { decision: "UPHELD" | "ADJUSTED"; response: string; version: number; criteria_scores?: Array<{ id: string; score: string }> };
+
+/** Quyết định phúc khảo (chỉ TEACHER). */
+export const decideAppeal = async (course: string, apid: string, body: DecideInput, idempotencyKey: string) =>
+  (await apiClient.post<{ id: string; status: "UPHELD" | "ADJUSTED"; score_after: string | null; version: number }>(`/courses/${course}/appeals/${apid}/decide`, body, { idempotencyKey })).data;

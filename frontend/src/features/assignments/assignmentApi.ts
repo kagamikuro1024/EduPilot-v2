@@ -152,6 +152,12 @@ export const useMine = (course: string, id: string) =>
     queryFn: async ({ signal }) => (await apiClient.get<MineOut>(`${path(course)}/${id}/mine`, { signal })).data,
   });
 
+export type AppealOut = { appeal: { id: string; status: "OPEN"; created_at: string } };
+
+/** Gửi yêu cầu xem lại điểm (US-P7-10 AC1). */
+export const fileAppeal = async (course: string, id: string, criteriaIds: string[], reason: string, idempotencyKey: string) =>
+  (await apiClient.post<AppealOut>(`${path(course)}/${id}/appeal`, { criteria_ids: criteriaIds, reason }, { idempotencyKey })).data;
+
 export type SubmitOut = { submission: { id: string; version: number; received_at: string; late_days: number; file_name: string } };
 export const completeSubmission = async (course: string, id: string, uploadId: string, idempotencyKey: string) =>
   (await apiClient.post<SubmitOut>(`${path(course)}/${id}/submit`, { upload_id: uploadId }, { idempotencyKey })).data;

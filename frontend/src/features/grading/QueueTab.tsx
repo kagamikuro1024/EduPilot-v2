@@ -4,7 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { ListChecks, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { ApiError, newIdempotencyKey } from "@/shared/data";
+import { ApiError, newIdempotencyKey, useJob } from "@/shared/data";
 import { checkSubmissionBundle, uploadSubmissionBundle } from "@/shared/data/uploadFile";
 import { Button, type Column, ConfirmIrreversible, DataTable, EmptyState, Field, FilterChips, InlineNotice, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useAssignments, vi } from "@/features/assignments/assignmentApi";
@@ -46,6 +46,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   const picker = useRef<HTMLInputElement>(null);
   const running = useRef(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
+  const [job, setJob] = useState<{ id: string; queued: number } | null>(null);
   const [confirming, setConfirming] = useState(false);
   const publishIdem = useRef<string | null>(null);
   const relaxed = useRef(false);
@@ -62,13 +63,18 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
     }
   }, [flagOnly, list.isPending, list.isError, rows.length]);
 
-  // Còn bài đang chấm: làm mới danh sách để tiến độ đi tiếp.
-  const grading = rows.filter((r) => r.result && (r.result.run_state === "QUEUED" || r.result.run_state === "RUNNING")).length;
+  // Tiến độ của CẢ lô do máy chủ báo (job.progress); `rows.length` chỉ là số dòng đã tải nên không dùng làm tổng.
+  const jobState = useJob(job?.id ?? null);
+  const batch = (jobState.result ?? null) as { done?: number; failed?: number; total?: number } | null;
+  const batchDone = (batch?.done ?? 0) + (batch?.failed ?? 0);
+  const batchTotal = batch?.total ?? job?.queued ?? 0;
+  const batchRunning = Boolean(job) && jobState.status !== "SUCCEEDED" && jobState.status !== "FAILED";
+  const waiting = rows.some((r) => r.result && (r.result.run_state === "QUEUED" || r.result.run_state === "RUNNING"));
   useEffect(() => {
-    if (grading === 0) return;
+    if (!waiting && !batchRunning) return;
     const t = setInterval(() => void list.refetch(), 5000);
     return () => clearInterval(t);
-  }, [grading, list]);
+  }, [waiting, batchRunning, list]);
 
   const refresh = () => void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
 
@@ -94,6 +100,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   const gradeAllNow = () =>
     void run(async () => {
       const out = await gradeAll(courseId, assignmentId, newIdempotencyKey());
+      if (out.job_id && out.queued > 0) setJob({ id: out.job_id, queued: out.queued });
       setNotice(out.queued > 0 ? `Đã xếp hàng chấm ${out.queued} bài.` : "Không có bài nào cần chấm.");
       refresh();
     });
@@ -313,7 +320,9 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       showTechnical
     >
       <>
-        {grading > 0 && <p className={s.progressText} data-part="grading-progress">{`Đang chấm ${grading}/${rows.length} bài`}</p>}
+        {batchRunning && batchTotal > 0 && (
+          <p className={s.progressText} data-part="grading-progress">{`Đang chấm ${batchDone}/${batchTotal} bài`}</p>
+        )}
 
         <DataTable
           caption="Hàng chờ chấm bài"

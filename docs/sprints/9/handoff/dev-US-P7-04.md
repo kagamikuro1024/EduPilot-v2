@@ -30,3 +30,4 @@ Máy chủ + frontend nằm ở commit `e424a20b` (CI xanh) và commit kế ti�
 ## QC vòng 1 — sửa (BUG-P7-04-1, BUG-P7-04-2)
 - **BUG-P7-04-1:** thêm `GET …/assignments/{aid}/versions?student_id=` (TA, TEACHER; `{versions: n}` = số phiên bản đã khớp; `Service.VersionCount`, SQL `SubmissionVersionCount`; OpenAPI 275 → **276**; `TestVersionCount`, kịch bản contract). Hộp thoại gán (`UnmatchedTab.tsx`) gọi route này khi chọn sinh viên và hiện "Sinh viên này đã có {n} phiên bản" khi n > 0.
 - **BUG-P7-04-2:** `PresignInput.purpose` thêm `submission_upload` vào `enum`.
+- FE: `useStudentVersions` (`submissionApi.ts`) + dòng "Sinh viên này đã có {n} phiên bản" trước nút `Gán` (`UnmatchedTab.tsx`, chỉ khi n > 0); e2e `unmatched assign` kiểm dòng chữ.

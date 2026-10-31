@@ -379,6 +379,7 @@ test("unmatched assign: chọn bài + sinh viên gợi ý rồi Gán, 409 và 40
   const box = page.locator("[data-part=assign-box]");
   await expect(box.getByLabel("Bài tập")).toHaveValue(A1);
   await expect(box.getByLabel("Sinh viên", { exact: true })).toHaveValue(STUDENT_B_ID);
+  await expect(box.locator("[data-part=student-versions]")).toHaveText("Sinh viên này đã có 2 phiên bản");
   await box.getByRole("button", { name: "Gán" }).click();
   await expect(page.getByText("Chỉ giảng viên sửa sau khi đã công bố điểm")).toBeVisible();
   await expect(uRows(page)).toHaveCount(2);
@@ -718,4 +719,17 @@ test("student grading shows no score: chưa công bố thì chỉ thấy Đang c
   await expect(page.locator("[data-part=submit-status]")).toHaveText("Đang chấm");
   await expect(page.locator("[data-part=result]")).toHaveCount(0);
   expect(await page.locator("main").innerText()).not.toMatch(/\d,\d\s*\/\s*10/);
+});
+
+test("queue progress: tiến độ lô lấy từ job, không đếm theo số dòng đã tải", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const JOB = "00000000-0000-7000-8000-0000000e0009";
+  let job = { id: JOB, status: "RUNNING", progress: 20, result: { done: 6, failed: 1, total: 30 } };
+  await page.route(/\/api\/v1\/jobs\/[^/]+$/, (r) => r.fulfill(json(job)));
+  await openQueue(page, context);
+  await page.getByLabel("Bài tập").selectOption(A1);
+  await page.getByRole("button", { name: "Chấm tất cả" }).click();
+  await expect(page.locator("[data-part=grading-progress]")).toHaveText("Đang chấm 7/30 bài");
+  job = { id: JOB, status: "SUCCEEDED", progress: 100, result: { done: 29, failed: 1, total: 30 } };
+  await expect(page.locator("[data-part=grading-progress]")).toHaveCount(0, { timeout: 10_000 });
 });

@@ -181,6 +181,7 @@ export async function assignmentsApi(p: Page, opts: Opts = {}) {
 export const DUE = "2026-11-20T07:00:00.000Z"; // Thứ Sáu 20/11 14:00 giờ Việt Nam
 export const RECEIVED = "2026-10-23T01:10:00.000Z"; // 08:10 Thứ Sáu, 23/10
 export const UPLOAD_ID = "00000000-0000-7000-8000-0000000f0001";
+export const APPEAL_ID = "00000000-0000-7000-8000-0000000a1001";
 export const BLOB_URL = `${BASE_URL}/__blob/bt03.pdf`;
 
 export type StudentItem = { id: string; title: string; due_at: string; my: { state: string; late_days: number; submitted_at: string | null } };
@@ -297,6 +298,16 @@ export async function studentApi(p: Page, opts: SOpts = {}) {
         expires_in: 600,
       }));
     }
+    if (key === "POST assignments/:id/appeal") {
+      if (done.has(idem)) return route.fulfill(j(done.get(idem), 201));
+      const b = JSON.parse(body) as { criteria_ids: string[]; reason: string };
+      if (b.reason.length < 10 || b.reason.length > 1000) return route.fulfill(e(422, "REASON_LENGTH"));
+      if (b.criteria_ids.length === 0) return route.fulfill(e(422, "CRITERION_UNKNOWN"));
+      const res = { appeal: { id: APPEAL_ID, status: "OPEN", created_at: "2026-11-01T02:30:00.000Z" } };
+      if (out.result) out = { ...out, result: { ...out.result, appeal: { ...out.result.appeal, state: "OPEN" } } };
+      done.set(idem, res);
+      return route.fulfill(j(res, 201));
+    }
     if (key === "POST assignments/:id/submit") {
       if (done.has(idem)) return route.fulfill(j(done.get(idem), 201));
       const b = JSON.parse(body) as { upload_id: string };
@@ -360,7 +371,7 @@ const member = (i: number, over: Record<string, unknown> = {}) => ({
 type UOpts = { rows?: UnmatchedRow[]; h?: Record<string, Handler> };
 
 /** Gateway giả có trạng thái cho tab `Chưa khớp`: gán / bỏ qua làm dòng biến mất, hoàn tác đưa về, sai `version` → 409. */
-export async function unmatchedApi(p: Page, opts: UOpts = {}) {
+export async function unmatchedApi(p: Page, opts: UOpts & { versions?: number } = {}) {
   const calls: Call[] = [];
   let rows: UnmatchedRow[] = (opts.rows ?? [unmatchedRow(), unmatchedRow({ id: SUB2, file_name: "bai-la.pdf", source: "UPLOAD", reason_text: "Thư từ email lạ", assignment_id: null, suggestion: null, version: 1_800_000_000_000_002 })]).map((r) => ({ ...r }));
   const removed = new Map<string, UnmatchedRow>();
@@ -373,11 +384,13 @@ export async function unmatchedApi(p: Page, opts: UOpts = {}) {
     const body = req.postData() ?? "";
     const tail = path.replace(/^\/courses\/[^/]+\//, "");
     const sid = tail.startsWith("submissions/") ? tail.split("/")[1] : "";
-    const key = `${req.method()} ${tail.replace(/submissions\/[^/]+/, "submissions/:id")}`;
+    const key = `${req.method()} ${tail.replace(/submissions\/[^/]+/, "submissions/:id").replace(/assignments\/[^/]+/, "assignments/:id")}`;
     if (!skipCustom) calls.push({ method: req.method(), path: path + url.search, body, headers: req.headers() });
     const custom = opts.h?.[key];
     if (custom && !skipCustom) return custom(route, (r) => handle(r, true));
     const cur = rows.find((r) => r.id === sid);
+
+    if (key === "GET assignments/:id/versions") return route.fulfill(j({ versions: opts.versions ?? 2 }));
 
     if (key === "GET assignments") return route.fulfill(j({ items: [assignment(), draftAssignment()], next_cursor: null }));
     if (key === "GET members") {
@@ -450,8 +463,42 @@ export type View = {
   criteria: Crit[];
   flags: string[];
   pass_detail: Record<string, { pass1?: string; pass2?: string }> | null;
+  appeal?: AppealFx | null;
   late: { days: number; penalty: string; max_days: number; per_day: string; manual: boolean };
 };
+
+export type AppealFx = {
+  id: string;
+  student: { id: string; full_name: string; student_code: string };
+  criteria: Array<{ id: string; name: string }>;
+  reason: string;
+  status: "OPEN" | "UPHELD" | "ADJUSTED";
+  created_at: string;
+  score_before: string;
+  ai_total_before_late: string | null;
+  score_after: string | null;
+  response: string | null;
+  decided_by: string | null;
+  decided_at: string | null;
+  version: number;
+};
+
+export const appealFx = (over: Partial<AppealFx> = {}): AppealFx => ({
+  id: APPEAL_ID,
+  student: { id: STUDENT_B_ID, full_name: "Trần Thu Uyên", student_code: "B22DCCN102" },
+  criteria: [{ id: "c2", name: "Phân tích tấn công" }],
+  reason: "Em đã nêu bước leo thang đặc quyền ở đoạn 3, mong thầy xem lại tiêu chí này.",
+  status: "OPEN",
+  created_at: "2026-11-01T02:30:00.000Z",
+  score_before: "6.5",
+  ai_total_before_late: "7",
+  score_after: null,
+  response: null,
+  decided_by: null,
+  decided_at: null,
+  version: 1,
+  ...over,
+});
 
 export const resultView = (over: Partial<View> = {}): View => ({
   result: { id: RES_B, round: 1, status: "DRAFT", run_state: "DONE", total: "6.5", ai_total_before_late: "7", overall_feedback: "Bài nắm được chuỗi tấn công.", overall_edited: false, version: 3 },
@@ -522,7 +569,7 @@ export async function gradingApi(p: Page, opts: GOpts = {}) {
     const body = req.postData() ?? "";
     const tail = path.replace(/^\/courses\/[^/]+\//, "");
     const rid = tail.startsWith("grading-results/") ? tail.split("/")[1] : "";
-    const key = `${req.method()} ${tail.replace(/grading-results\/(?!publish)[^/]+/, "grading-results/:id").replace(/submissions\/[^/]+/, "submissions/:id").replace(/assignments\/[^/]+/, "assignments/:id")}`;
+    const key = `${req.method()} ${tail.replace(/grading-results\/(?!publish)[^/]+/, "grading-results/:id").replace(/submissions\/[^/]+/, "submissions/:id").replace(/assignments\/[^/]+/, "assignments/:id").replace(/appeals\/[^/]+/, "appeals/:id")}`;
     if (!skipCustom) calls.push({ method: req.method(), path: path + url.search, body, headers: req.headers() });
     const custom = opts.h?.[key];
     if (custom && !skipCustom) return custom(route, (r) => handle(r, true));
@@ -601,13 +648,34 @@ export async function gradingApi(p: Page, opts: GOpts = {}) {
       rows = rows.map((r) => (r.result && ids.has(r.result.id) ? { ...r, result: { ...r.result, status: "PUBLISHED", needs_review: false } } : r));
       return route.fulfill(j({ published: ids.size, skipped: 0 }));
     }
+    if (key === "POST appeals/:id/decide") {
+      const v = Object.values(views).find((x) => x.appeal?.id === tail.split("/")[1]);
+      if (!v?.appeal) return route.fulfill(e(404, "NOT_FOUND"));
+      const b = JSON.parse(body) as { decision: "UPHELD" | "ADJUSTED"; response: string; version: number; criteria_scores?: Array<{ id: string; score: string }> };
+      if (v.appeal.status !== "OPEN") return route.fulfill(e(409, "APPEAL_ALREADY_DECIDED"));
+      if (b.version !== v.appeal.version) return route.fulfill(e(409, "VERSION_CONFLICT"));
+      if (b.response.trim().length < 10) return route.fulfill(e(422, "RESPONSE_REQUIRED"));
+      if (b.decision === "ADJUSTED") {
+        if (!b.criteria_scores || b.criteria_scores.length === 0) return route.fulfill(e(422, "NO_CHANGE"));
+        for (const cs of b.criteria_scores) {
+          const crit = v.criteria.find((c) => c.id === cs.id);
+          if (!crit) return route.fulfill(e(422, "CRITERION_UNKNOWN"));
+          if (Math.round(Number(cs.score) * 100) % 25 !== 0) return route.fulfill(e(422, "SCORE_STEP"));
+          crit.score = cs.score;
+          crit.edited = true;
+        }
+        v.result.total = total(v);
+      }
+      v.appeal = { ...v.appeal, status: b.decision, response: b.response, score_after: b.decision === "ADJUSTED" ? v.result.total : v.appeal.score_before, decided_at: "2026-11-01T04:00:00.000Z", decided_by: "00000000-0000-7000-8000-00000000000b", version: v.appeal.version + 1 };
+      return route.fulfill(j({ id: v.appeal.id, status: v.appeal.status, score_after: v.appeal.score_after, version: v.appeal.version }));
+    }
     if (key === "GET assignments/:id/stats") return route.fulfill(j({ submitted: 3, graded: 3, reviewed: 2, published: 1, mean_abs_deviation: "1", teacher_changed_rate: "0.5", appealed: 0, appeal_rate: null, adjusted: 0, appeal_success_rate: null }));
     if (key === "POST assignments/:id/grade-all") return route.fulfill(j({ job_id: "00000000-0000-7000-8000-0000000e0009", queued: 2 }, 202));
     if (key === "GET submissions/:id/file") return route.fulfill(j({ url: `${BASE_URL}/__blob/bt03.pdf`, expires_in: 300 }));
     return route.fulfill(e(404, "NOT_FOUND"));
   };
 
-  await p.route(/\/api\/v1\/courses\/[^/]+\/(submissions|grading-results|assignments)(\?|$|\/)/, (r) => handle(r));
+  await p.route(/\/api\/v1\/courses\/[^/]+\/(submissions|grading-results|assignments|appeals)(\?|$|\/)/, (r) => handle(r));
   // công thức điểm: chỉ cần tên cột của bài để dựng câu hậu quả
   await p.route(/\/api\/v1\/courses\/[^/]+\/grade-scheme(\?|$)/, (r) =>
     r.fulfill(

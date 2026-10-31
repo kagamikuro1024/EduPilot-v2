@@ -14,6 +14,7 @@ import {
   FLAG_TEXT, FLAG_TODO, editResult, resultKey, reviewResult, useQueue, useResult,
   type Criterion, type QueueStatus, type ResultView,
 } from "./gradingApi";
+import { AppealPanel } from "./AppealPanel";
 import s from "./SubmissionReview.module.css";
 
 type Draft = { overall: string; comments: Record<string, string> };
@@ -322,6 +323,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
 
       <Panel>
         <div className={s.panel}>
+          {view.appeal && <AppealPanel courseId={courseId} submissionId={submissionId} view={view} appeal={view.appeal} teacher={identity?.role === "teacher"} />}
           <div className={s.total} data-part="total">
             <span className={s.totalLabel}>Tổng điểm</span>
             <span className={s.totalValue}>{view.result.total ? vi(view.result.total) : "—"}</span>

@@ -22,6 +22,7 @@ const CTA: Record<string, string> = {
   GRADING_REVIEW: "Xem bài",
   GRADING_ERROR: "Mở hàng chờ",
   UNMATCHED_SUBMISSION: "Xem bài chưa khớp",
+  APPEAL: "Xem yêu cầu",
 };
 
 /** Các việc đã xếp đúng thứ tự máy chủ trả. `showClass`: chế độ "Tất cả lớp của tôi" ghi rõ lớp nào. */

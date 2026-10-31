@@ -126,6 +126,7 @@ export const ERROR_MESSAGES: Record<string, string> = {
   APPEAL_ALREADY_FILED: "Bạn đã gửi phúc khảo cho bài này.",
   APPEAL_ALREADY_DECIDED: "Phúc khảo này đã có quyết định.",
   APPEAL_DISABLED: "Bài này không nhận phúc khảo.",
+  APPEAL_WINDOW_CLOSED: "Đã hết hạn xem lại điểm.",
   CRITERION_UNKNOWN: "Tiêu chí không có trong bài.",
   REASON_LENGTH: "Lý do cần từ 10 đến 1.000 ký tự.",
   RESPONSE_REQUIRED: "Cần nhập phản hồi cho sinh viên.",

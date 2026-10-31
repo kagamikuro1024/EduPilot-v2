@@ -11,7 +11,7 @@ import s from "./Today.module.css";
 import { hhmm, longDate, shortDay } from "./format";
 import { useToday, type StudentToday as Data, type TodayItem, type TodaySession } from "./todayApi";
 
-const CTA: Record<string, string> = { VERIFY_EMAIL: "Xác minh email", ASSIGNMENT_GRADED: "Xem điểm", ASSIGNMENT_DUE: "Mở bài tập" };
+const CTA: Record<string, string> = { VERIFY_EMAIL: "Xác minh email", ASSIGNMENT_GRADED: "Xem điểm", ASSIGNMENT_DUE: "Mở bài tập", ASSIGNMENT_APPEAL_REPLY: "Xem phản hồi" };
 const STATE: Record<TodaySession["state"], { label: string; tone: "green" | "amber" | "neutral" }> = {
   NOW: { label: "Đang diễn ra", tone: "green" },
   NEXT: { label: "Sắp tới", tone: "amber" },

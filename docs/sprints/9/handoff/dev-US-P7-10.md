@@ -23,5 +23,8 @@
 - `internal/today/assignment_provider_test.go`: `TestProviderAppealTeacherOnly`, `TestProviderAppealOverdue48h`, `TestProviderAppealReplyStudentOnly`.
 - `internal/contract`: 275 thao tác, mọi status đã khai báo.
 
-## Còn lại (FE)
-- `grade-appeal.spec.ts` ('student files appeal', 'teacher decides appeal', 'appeal offline draft', luồng đầy đủ AC11), khối phúc khảo ở `/assignments/[id]` và `SubmissionReview`: giao cho agent frontend (xem mục FE bên dưới khi xong).
+## Giao diện (đã làm)
+- `/assignments/[id]` (sinh viên): `AppealBlock.tsx` — nút `Yêu cầu xem lại` mở form tại chỗ (hộp chọn theo TÊN tiêu chí, `Lý do · n/1000`, `Gửi`); lý do tự lưu (`useAutosaveDraft` `appeal:{id}`), lỗi hiện chữ kèm `Gửi lại` dùng lại cùng Idempotency-Key, bấm đúp = một POST; OPEN → "Đã gửi yêu cầu xem lại · {Thứ…, HH:mm}"; UPHELD / ADJUSTED → "Giữ nguyên" / "Đã sửa" + phản hồi nguyên văn; hạn do máy chủ quyết (`closes_at`).
+- Màn duyệt: `AppealPanel.tsx` ở đầu cột phải — sinh viên, tiêu chí đã chọn, lý do, điểm đã công bố + điểm AI nháp để đối chiếu; TEACHER `Giữ nguyên điểm` / `Sửa điểm` + `Phản hồi · n/2000` + `Quyết định` (ConfirmIrreversible); TA chỉ đọc. `APPEAL` / `ASSIGNMENT_APPEAL_REPLY` có nhãn nút ở "Hôm nay"; `APPEAL_WINDOW_CLOSED` có chữ.
+- e2e `grade-appeal.spec.ts` (7 ca): `student files appeal`, `appeal window and states`, `appeal already filed`, `appeal offline draft`, `teacher decides appeal`, `ta cannot decide appeal`, `appeal decided twice`. lint / tsc / ui-antipatterns (rc=0) / build:gate xanh; Playwright desktop: assignment-lifecycle + grade-appeal 39 passed; panels + shell + me + today + gradebook + a11y 163 passed / 4 skipped.
+- **Nợ (AC11):** nhánh "sổ đã chốt → hiện 'Khác bản chốt' → mở khoá → chốt lại → GRADE_CHANGED" chưa nằm trong `grade-appeal.spec.ts` (phía Go phủ bằng `TestAdjusted*` ở `internal/grade`; màn sổ điểm có `gradebook.spec.ts`). Bổ sung ca mock này cùng đợt FE của US-P7-05.

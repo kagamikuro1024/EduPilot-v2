@@ -1,5 +1,6 @@
 "use client";
 
+import { useQuery } from "@tanstack/react-query";
 import { apiClient, useCursorList } from "@/shared/data";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/courses/{id}/submissions…`).
@@ -40,3 +41,14 @@ export const undismissSubmission = async (course: string, sid: string) => {
 /** URL ký 5 phút; chỉ lấy khi người dùng bấm (không nhúng sẵn vào DOM). */
 export const submissionFileUrl = async (course: string, sid: string) =>
   (await apiClient.get<{ url: string; expires_in: number }>(`${path(course, sid)}/file`)).data.url;
+
+/** Số bản nộp sinh viên đã có cho một bài (US-P7-04 BUG-1): 0 khi chưa nộp lần nào. */
+export const studentVersionsKey = (course: string, aid: string, uid: string) => ["assignment-versions", course, aid, uid] as const;
+export const useStudentVersions = (course: string, aid: string, uid: string) =>
+  useQuery({
+    queryKey: studentVersionsKey(course, aid, uid),
+    enabled: Boolean(aid && uid),
+    staleTime: 10_000,
+    retry: false,
+    queryFn: async ({ signal }) => (await apiClient.get<{ versions: number }>(`/courses/${course}/assignments/${aid}/versions`, { signal, query: { student_id: uid } })).data,
+  });

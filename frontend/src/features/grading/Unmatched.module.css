@@ -6,3 +6,4 @@
 @media (max-width: 719px) {
   .form { grid-template-columns: 1fr; }
 }
+.note { grid-column: 1 / -1; font-size: var(--ep-text-label); color: var(--ep-ink-2); }

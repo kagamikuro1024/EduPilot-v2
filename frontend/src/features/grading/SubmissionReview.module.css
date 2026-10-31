@@ -202,3 +202,7 @@
 .scoreInput { width: 5rem; text-align: right; font-variant-numeric: tabular-nums; }
 .critScore { flex: none; }
 .crit[data-active="true"] { border-left: 2px solid var(--ep-red); padding-left: var(--ep-space-3); }
+
+/* US-P7-10: khối phúc khảo ở đầu cột phải */
+.appeal { display: grid; gap: var(--ep-space-3); padding-bottom: var(--ep-space-5); border-bottom: 1px solid var(--ep-rule); }
+.appealActions { display: flex; gap: var(--ep-space-2); flex-wrap: wrap; }
