@@ -185,7 +185,7 @@ func (r *rig) insertRes(c cls, asg, stu string, v int, runState, status, flags s
 	r.t.Helper()
 	sub := r.scalar(`insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method)
 		values ($1, $2, $3, 'IN_APP', $4, 'k', 'a.txt', 1, 'text/plain', 'x', 'MATCHED', 'IN_APP') returning id`, c.id, asg, stu, v)
-	r.exec(`insert into grading_results (course_id, submission_id, run_state, status, flags, total) values ($1, $2, $3, $4, $5::text[], case when $3 = 'DONE' then 5 end)`, c.id, sub, runState, status, flags)
+	r.exec(`insert into grading_results (course_id, submission_id, run_state, status, flags, total, published_at) values ($1, $2, $3, $4, $5::text[], case when $3 = 'DONE' then 5 end, case when $4 = 'PUBLISHED' then now() end)`, c.id, sub, runState, status, flags)
 }
 
 // TestProviderGradingError — GRADING_ERROR (bậc 28): "{n} bài chấm lỗi · {bài}", một mục mỗi lớp; bản cũ bị thay không tính; TEACHER + TA thấy, STUDENT / ADMIN không; hết việc (retry) + sự kiện → mục biến mất.
@@ -288,4 +288,80 @@ func TestProviderStudentAggregatedOneQuery(t *testing.T) {
 	data := r.queries(sSess, "/me/today")
 	none := r.queries(nSess, "/me/today")
 	require.LessOrEqual(t, data-none, int64(1), "kind của sinh viên thêm tối đa MỘT truy vấn, không tăng theo số lớp")
+}
+
+// TestProviderPublishPendingTier33 — PUBLISH_PENDING (bậc 33): "{n} bài đã duyệt chờ công bố · {bài}" cho TEACHER; công bố hết + sự kiện → biến mất.
+func TestProviderPublishPendingTier33(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764301")
+	_, gvSess := r.teaching(c)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.gres(c, a, 1, "DONE", "REVIEWED", "{}")
+	r.gres(c, a, 1, "DONE", "REVIEWED", "{NEEDS_REVIEW}")
+	r.gres(c, a, 1, "DONE", "DRAFT", "{}") // chưa duyệt: không tính
+	items := kindItems(r.tget(gvSess, "/me/today"), "PUBLISH_PENDING")
+	require.Len(t, items, 1)
+	require.Equal(t, "2 bài đã duyệt chờ công bố · Bài BT03", items[0]["title"])
+	require.Equal(t, "/grading", items[0]["href"])
+	require.EqualValues(t, today.TierPublishPending, 33)
+	r.exec(`update grading_results set status = 'PUBLISHED', published_at = now() where course_id = $1 and status = 'REVIEWED'`, c.id)
+	payload, _ := json.Marshal(map[string]string{"course_id": c.sid()})
+	require.NoError(t, today.Invalidator{Pool: r.pool, Redis: r.rdb}.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionResolved, Payload: payload}))
+	require.Empty(t, kindItems(r.tgetC(gvSess, "/me/today"), "PUBLISH_PENDING"))
+}
+
+// TestPublishPendingNotSameTierAsExamHold — bậc 33 khác bậc 32 của EXAM_PUBLISH_HOLD cùng vai TEACHER và không trùng bậc nào khác của Giảng viên.
+func TestPublishPendingNotSameTierAsExamHold(t *testing.T) {
+	require.NotEqual(t, today.TierExamPublishHold, today.TierPublishPending)
+	for _, other := range []int{today.TierEmailMismatch, today.TierExamSimilarity, today.TierExamAppeal, today.TierExamGradeError, today.TierGradingError, today.TierGradingReview, today.TierUnmatchedSubmission,
+		today.TierJoinRequest, today.TierTicket, today.TierAIConfirm, today.TierGradeSchemeUnconfirmed, today.TierCourseSetup, today.TierQuestionReview, today.TierPostReported} {
+		require.NotEqual(t, other, today.TierPublishPending)
+	}
+}
+
+// TestProviderPublishPendingTeacherOnly — TA, sinh viên và ADMIN không có PUBLISH_PENDING (công bố chỉ TEACHER).
+func TestProviderPublishPendingTeacherOnly(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764302")
+	_, gvSess := r.teaching(c)
+	ta, taSess := r.person(store.UserRoleTA, true)
+	r.enrollAt(c, ta, "TA", "ACTIVE", "", 24*time.Hour)
+	su, svSess := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	_, adSess := r.person(store.UserRoleADMIN, true)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.gres(c, a, 1, "DONE", "REVIEWED", "{}")
+	require.Len(t, kindItems(r.tget(gvSess, "/me/today"), "PUBLISH_PENDING"), 1)
+	for name, s := range map[string]session{"trợ giảng": taSess, "sinh viên": svSess, "admin": adSess} {
+		require.Empty(t, kindItems(r.tget(s, "/me/today"), "PUBLISH_PENDING"), name)
+	}
+}
+
+// TestProviderAssignmentGradedPublishedOnly — ASSIGNMENT_GRADED (bậc 43): chỉ kết quả ĐÃ PUBLISHED của CHÍNH mình trong 7 ngày; nháp / duyệt chưa công bố / của người khác / quá 7 ngày không có.
+func TestProviderAssignmentGradedPublishedOnly(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764303")
+	su, sv := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	other, otherSess := r.student("")
+	r.enrollAt(c, other, "STUDENT", "ACTIVE", "", time.Hour)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.insertRes(c, a, su.ID.String(), 1, "DONE", "DRAFT", "{}")
+	require.Empty(t, kindItems(r.tget(sv, "/me/today"), "ASSIGNMENT_GRADED"), "nháp không bao giờ hiện")
+	r.exec(`update grading_results set status = 'REVIEWED' where course_id = $1`, c.id)
+	inv := today.Invalidator{Pool: r.pool, Redis: r.rdb}
+	payload, _ := json.Marshal(map[string]string{"course_id": c.sid(), "user_id": su.ID.String()})
+	require.NoError(t, inv.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionCreated, Payload: payload}))
+	require.Empty(t, kindItems(r.tgetC(sv, "/me/today"), "ASSIGNMENT_GRADED"), "đã duyệt chưa công bố: không hiện")
+	r.exec(`update grading_results set status = 'PUBLISHED', published_at = now() where course_id = $1`, c.id)
+	require.NoError(t, inv.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionCreated, Payload: payload}))
+	items := kindItems(r.tgetC(sv, "/me/today"), "ASSIGNMENT_GRADED")
+	require.Len(t, items, 1)
+	require.Equal(t, "/assignments/"+a, items[0]["href"])
+	require.Equal(t, "Điểm Bài BT03 đã có — Xem", items[0]["reason"])
+	require.EqualValues(t, today.TierAssignmentGraded, 43)
+	require.Empty(t, kindItems(r.tget(otherSess, "/me/today"), "ASSIGNMENT_GRADED"), "kết quả của người khác")
+	r.exec(`update grading_results set published_at = now() - interval '8 days' where course_id = $1`, c.id)
+	require.NoError(t, inv.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionCreated, Payload: payload}))
+	require.Empty(t, kindItems(r.tgetC(sv, "/me/today"), "ASSIGNMENT_GRADED"), "quá 7 ngày")
 }

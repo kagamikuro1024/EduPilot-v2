@@ -518,4 +518,25 @@ func (r *runner) uploadScenarios(x examRig, base string) {
 		r.t.Fatalf("đặt FAILED: %v", err)
 	}
 	r.must(call{method: "POST", path: gr + res + "/review", token: x.ta, body: fmt.Sprintf(`{"version":%d}`, version(res))}, 422) // SCORES_REQUIRED
+	// US-P7-09: công bố hàng loạt (chỉ TEACHER) và số liệu bài với mọi status đã khai báo.
+	pub := strings.TrimSuffix(base, "/assignments") + "/grading-results/publish"
+	pb := func(ids ...string) string {
+		b, _ := json.Marshal(map[string]any{"result_ids": ids})
+		return string(b)
+	}
+	r.must(call{method: "POST", path: pub, headers: x.idem(), body: pb(done)}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "POST", path: pub, token: who, headers: x.idem(), body: pb(done)}, 403)
+	}
+	r.must(call{method: "POST", path: pub, token: x.gv, headers: x.idem(), body: `{}`}, 422)
+	r.must(call{method: "POST", path: pub, token: x.gv, headers: x.idem(), body: pb(res)}, 422) // NOT_REVIEWED: bài FAILED
+	r.must(call{method: "POST", path: pub, token: x.gv, headers: x.idem(), body: pb(done)}, 200)
+	r.must(call{method: "POST", path: pub, token: x.gv, headers: x.idem(), body: pb(done)}, 409) // ALREADY_PUBLISHED
+	st := A + "/stats"
+	r.must(call{method: "GET", path: st}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: st, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: base + "/00000000-0000-7000-8000-000000000000/stats", token: x.gv}, 404)
+	r.must(call{method: "GET", path: st, token: x.ta}, 200)
 }

@@ -57,6 +57,9 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(staff).Get("/courses/{id}/grading-results/{rid}", h.resultDetail)
 	r.With(staff).Put("/courses/{id}/grading-results/{rid}", h.resultEdit)
 	r.With(staff).Post("/courses/{id}/grading-results/{rid}/review", h.resultReview)
+	// Công bố hàng loạt (US-P7-09): chỉ TEACHER; số liệu bài cho nhân viên.
+	r.With(teacher, h.Idem).Post("/courses/{id}/grading-results/publish", h.publishResults)
+	r.With(staff).Get("/courses/{id}/assignments/{aid}/stats", h.stats)
 	// Route của sinh viên (US-P7-03): chỉ STUDENT của lớp (TA / TEACHER / ADMIN 403), mọi phản hồi `Cache-Control: no-store`.
 	r.With(student).Get("/courses/{id}/assignments/{aid}/mine", h.mine)
 	r.With(student).Post("/courses/{id}/assignments/{aid}/submit/presign", h.presign)
@@ -575,6 +578,37 @@ func (h *Handler) resultReview(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out, err := h.Assignments.Review(r.Context(), a, course, id, in.Version)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) publishResults(w http.ResponseWriter, r *http.Request) {
+	course, _, a, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	var in assignment.PublishIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Assignments.PublishResults(r.Context(), a, course, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) stats(w http.ResponseWriter, r *http.Request) {
+	course, id, _, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Assignments.Stats(r.Context(), course, id)
 	if err != nil {
 		h.fail(w, r, err)
 		return

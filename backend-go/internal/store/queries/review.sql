@@ -68,3 +68,69 @@ where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and version = sqlc.a
 -- name: ReviewMark :execrows
 update grading_results set status = 'REVIEWED', reviewed_by = sqlc.arg(reviewer), reviewed_at = now(), run_state = 'DONE', error_code = null, version = version + 1, updated_at = now()
 where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and version = sqlc.arg(version) and status = 'DRAFT';
+
+-- name: PublishReviewedIDs :many
+-- scope ALL_REVIEWED: kết quả REVIEWED HIỆN HÀNH (round cao nhất) của bài, bản nộp mới nhất; tối đa limit.
+select r.id from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+where r.course_id = sqlc.arg(course_id) and s.assignment_id = sqlc.arg(assignment_id)::uuid and r.status = 'REVIEWED'
+  and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+  and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+order by r.id
+limit sqlc.arg(page_limit);
+
+-- name: PublishLockMany :many
+-- Khoá các kết quả sẽ công bố (thứ tự id: tránh deadlock giữa hai giảng viên) kèm dữ kiện để tính lại độ lệch / khoản trừ muộn lần cuối.
+select r.id, r.status, r.run_state, r.version, r.criteria, r.ai_scores, r.ai_total_before_late, r.total, r.late_days, r.late_penalty, r.late_penalty_manual,
+       s.student_id, s.assignment_id, s.submitted_at,
+       a.title, a.due_at, a.allow_late, a.late_penalty_per_day, a.late_max_days, a.max_score,
+       (exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version))::bool as superseded
+from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where r.course_id = sqlc.arg(course_id) and r.id = any(sqlc.arg(ids)::text[]::uuid[])
+order by r.id
+for update of r;
+
+-- name: PublishMark :execrows
+-- NƠI DUY NHẤT đặt status = 'PUBLISHED' (TestPublishOnlyFromHandler quét mã).
+update grading_results set status = 'PUBLISHED', published_by = sqlc.arg(publisher), published_at = now(), deviation = sqlc.arg(deviation),
+    teacher_changed_criteria = sqlc.arg(changed), late_days = sqlc.arg(late_days), late_penalty = sqlc.arg(late_penalty), version = version + 1, updated_at = now()
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'REVIEWED' and version = sqlc.arg(version);
+
+-- name: AssignmentStats :one
+-- Số liệu bài tập (nhân viên): kết quả HIỆN HÀNH của bản nộp mới nhất; độ lệch / tỷ lệ chỉ trên kết quả đã công bố; phúc khảo từ grade_appeals.
+with cur as (
+  select r.status, r.run_state, r.deviation, r.teacher_changed_criteria
+  from submissions s
+  join grading_results r on r.course_id = s.course_id and r.submission_id = s.id
+  where s.course_id = sqlc.arg(course_id) and s.assignment_id = sqlc.arg(assignment_id)::uuid and s.match_status = 'MATCHED'
+    and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+    and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)),
+subs as (
+  select count(distinct s.student_id)::int as n from submissions s
+  where s.course_id = sqlc.arg(course_id) and s.assignment_id = sqlc.arg(assignment_id)::uuid and s.match_status = 'MATCHED'),
+ap as (
+  select count(*)::int as appealed, count(*) filter (where status = 'ADJUSTED')::int as adjusted, count(*) filter (where status <> 'OPEN')::int as decided
+  from grade_appeals where course_id = sqlc.arg(course_id) and assignment_id = sqlc.arg(assignment_id)::uuid)
+select (select n from subs) as submitted,
+       (select count(*) from cur where run_state = 'DONE')::int as graded,
+       (select count(*) from cur where status in ('REVIEWED', 'PUBLISHED'))::int as reviewed,
+       (select count(*) from cur where status = 'PUBLISHED')::int as published,
+       coalesce((select avg(deviation) from cur where status = 'PUBLISHED'), 0)::numeric(5,2) as mean_abs_deviation,
+       coalesce((select (count(*) filter (where cardinality(teacher_changed_criteria) > 0))::numeric / nullif(count(*), 0) from cur where status = 'PUBLISHED'), 0)::numeric(5,4) as teacher_changed_rate,
+       (select appealed from ap) as appealed, (select adjusted from ap) as adjusted, (select decided from ap) as decided;
+
+-- name: MinePublishedResult :one
+-- Kết quả ĐÃ CÔNG BỐ của chính sinh viên (bản nộp mới nhất, round cao nhất). Không đọc cờ / độ tin cậy / điểm AI / lượt chấm / người duyệt; chỉ `status = 'PUBLISHED'`.
+select r.id, r.total, r.criteria, r.overall_feedback, r.late_days, r.late_penalty, r.published_at
+from submissions s
+join grading_results r on r.course_id = s.course_id and r.submission_id = s.id
+where s.course_id = sqlc.arg(course_id) and s.assignment_id = sqlc.arg(assignment_id)::uuid and s.student_id = sqlc.arg(student_id)::uuid and s.match_status = 'MATCHED'
+  and r.status = 'PUBLISHED'
+  and s.version = (select max(v.version) from submissions v where v.course_id = s.course_id and v.assignment_id = s.assignment_id and v.student_id = s.student_id and v.match_status = 'MATCHED')
+order by r.round desc
+limit 1;
+
+-- name: MineAppealOf :one
+select status, response from grade_appeals where course_id = sqlc.arg(course_id) and result_id = sqlc.arg(result_id);

@@ -138,6 +138,285 @@ func (q *Queries) AssignmentQueue(ctx context.Context, arg AssignmentQueueParams
 	return items, nil
 }
 
+const assignmentStats = `-- name: AssignmentStats :one
+with cur as (
+  select r.status, r.run_state, r.deviation, r.teacher_changed_criteria
+  from submissions s
+  join grading_results r on r.course_id = s.course_id and r.submission_id = s.id
+  where s.course_id = $1 and s.assignment_id = $2::uuid and s.match_status = 'MATCHED'
+    and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+    and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)),
+subs as (
+  select count(distinct s.student_id)::int as n from submissions s
+  where s.course_id = $1 and s.assignment_id = $2::uuid and s.match_status = 'MATCHED'),
+ap as (
+  select count(*)::int as appealed, count(*) filter (where status = 'ADJUSTED')::int as adjusted, count(*) filter (where status <> 'OPEN')::int as decided
+  from grade_appeals where course_id = $1 and assignment_id = $2::uuid)
+select (select n from subs) as submitted,
+       (select count(*) from cur where run_state = 'DONE')::int as graded,
+       (select count(*) from cur where status in ('REVIEWED', 'PUBLISHED'))::int as reviewed,
+       (select count(*) from cur where status = 'PUBLISHED')::int as published,
+       coalesce((select avg(deviation) from cur where status = 'PUBLISHED'), 0)::numeric(5,2) as mean_abs_deviation,
+       coalesce((select (count(*) filter (where cardinality(teacher_changed_criteria) > 0))::numeric / nullif(count(*), 0) from cur where status = 'PUBLISHED'), 0)::numeric(5,4) as teacher_changed_rate,
+       (select appealed from ap) as appealed, (select adjusted from ap) as adjusted, (select decided from ap) as decided
+`
+
+type AssignmentStatsParams struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+}
+
+type AssignmentStatsRow struct {
+	Submitted          int32
+	Graded             int32
+	Reviewed           int32
+	Published          int32
+	MeanAbsDeviation   decimal.Decimal
+	TeacherChangedRate decimal.Decimal
+	Appealed           int32
+	Adjusted           int32
+	Decided            int32
+}
+
+// Số liệu bài tập (nhân viên): kết quả HIỆN HÀNH của bản nộp mới nhất; độ lệch / tỷ lệ chỉ trên kết quả đã công bố; phúc khảo từ grade_appeals.
+func (q *Queries) AssignmentStats(ctx context.Context, arg AssignmentStatsParams) (AssignmentStatsRow, error) {
+	row := q.db.QueryRow(ctx, assignmentStats, arg.CourseID, arg.AssignmentID)
+	var i AssignmentStatsRow
+	err := row.Scan(
+		&i.Submitted,
+		&i.Graded,
+		&i.Reviewed,
+		&i.Published,
+		&i.MeanAbsDeviation,
+		&i.TeacherChangedRate,
+		&i.Appealed,
+		&i.Adjusted,
+		&i.Decided,
+	)
+	return i, err
+}
+
+const mineAppealOf = `-- name: MineAppealOf :one
+select status, response from grade_appeals where course_id = $1 and result_id = $2
+`
+
+type MineAppealOfParams struct {
+	CourseID uuid.UUID
+	ResultID uuid.UUID
+}
+
+type MineAppealOfRow struct {
+	Status   string
+	Response *string
+}
+
+func (q *Queries) MineAppealOf(ctx context.Context, arg MineAppealOfParams) (MineAppealOfRow, error) {
+	row := q.db.QueryRow(ctx, mineAppealOf, arg.CourseID, arg.ResultID)
+	var i MineAppealOfRow
+	err := row.Scan(&i.Status, &i.Response)
+	return i, err
+}
+
+const minePublishedResult = `-- name: MinePublishedResult :one
+select r.id, r.total, r.criteria, r.overall_feedback, r.late_days, r.late_penalty, r.published_at
+from submissions s
+join grading_results r on r.course_id = s.course_id and r.submission_id = s.id
+where s.course_id = $1 and s.assignment_id = $2::uuid and s.student_id = $3::uuid and s.match_status = 'MATCHED'
+  and r.status = 'PUBLISHED'
+  and s.version = (select max(v.version) from submissions v where v.course_id = s.course_id and v.assignment_id = s.assignment_id and v.student_id = s.student_id and v.match_status = 'MATCHED')
+order by r.round desc
+limit 1
+`
+
+type MinePublishedResultParams struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+	StudentID    uuid.UUID
+}
+
+type MinePublishedResultRow struct {
+	ID              uuid.UUID
+	Total           decimal.NullDecimal
+	Criteria        json.RawMessage
+	OverallFeedback *string
+	LateDays        int16
+	LatePenalty     decimal.Decimal
+	PublishedAt     *time.Time
+}
+
+// Kết quả ĐÃ CÔNG BỐ của chính sinh viên (bản nộp mới nhất, round cao nhất). Không đọc cờ / độ tin cậy / điểm AI / lượt chấm / người duyệt; chỉ `status = 'PUBLISHED'`.
+func (q *Queries) MinePublishedResult(ctx context.Context, arg MinePublishedResultParams) (MinePublishedResultRow, error) {
+	row := q.db.QueryRow(ctx, minePublishedResult, arg.CourseID, arg.AssignmentID, arg.StudentID)
+	var i MinePublishedResultRow
+	err := row.Scan(
+		&i.ID,
+		&i.Total,
+		&i.Criteria,
+		&i.OverallFeedback,
+		&i.LateDays,
+		&i.LatePenalty,
+		&i.PublishedAt,
+	)
+	return i, err
+}
+
+const publishLockMany = `-- name: PublishLockMany :many
+select r.id, r.status, r.run_state, r.version, r.criteria, r.ai_scores, r.ai_total_before_late, r.total, r.late_days, r.late_penalty, r.late_penalty_manual,
+       s.student_id, s.assignment_id, s.submitted_at,
+       a.title, a.due_at, a.allow_late, a.late_penalty_per_day, a.late_max_days, a.max_score,
+       (exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version))::bool as superseded
+from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where r.course_id = $1 and r.id = any($2::text[]::uuid[])
+order by r.id
+for update of r
+`
+
+type PublishLockManyParams struct {
+	CourseID uuid.UUID
+	Ids      []string
+}
+
+type PublishLockManyRow struct {
+	ID                uuid.UUID
+	Status            string
+	RunState          string
+	Version           int32
+	Criteria          json.RawMessage
+	AiScores          json.RawMessage
+	AiTotalBeforeLate decimal.NullDecimal
+	Total             decimal.NullDecimal
+	LateDays          int16
+	LatePenalty       decimal.Decimal
+	LatePenaltyManual bool
+	StudentID         *uuid.UUID
+	AssignmentID      *uuid.UUID
+	SubmittedAt       *time.Time
+	Title             string
+	DueAt             time.Time
+	AllowLate         bool
+	LatePenaltyPerDay decimal.Decimal
+	LateMaxDays       int16
+	MaxScore          decimal.Decimal
+	Superseded        bool
+}
+
+// Khoá các kết quả sẽ công bố (thứ tự id: tránh deadlock giữa hai giảng viên) kèm dữ kiện để tính lại độ lệch / khoản trừ muộn lần cuối.
+func (q *Queries) PublishLockMany(ctx context.Context, arg PublishLockManyParams) ([]PublishLockManyRow, error) {
+	rows, err := q.db.Query(ctx, publishLockMany, arg.CourseID, arg.Ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PublishLockManyRow{}
+	for rows.Next() {
+		var i PublishLockManyRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Status,
+			&i.RunState,
+			&i.Version,
+			&i.Criteria,
+			&i.AiScores,
+			&i.AiTotalBeforeLate,
+			&i.Total,
+			&i.LateDays,
+			&i.LatePenalty,
+			&i.LatePenaltyManual,
+			&i.StudentID,
+			&i.AssignmentID,
+			&i.SubmittedAt,
+			&i.Title,
+			&i.DueAt,
+			&i.AllowLate,
+			&i.LatePenaltyPerDay,
+			&i.LateMaxDays,
+			&i.MaxScore,
+			&i.Superseded,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const publishMark = `-- name: PublishMark :execrows
+update grading_results set status = 'PUBLISHED', published_by = $1, published_at = now(), deviation = $2,
+    teacher_changed_criteria = $3, late_days = $4, late_penalty = $5, version = version + 1, updated_at = now()
+where course_id = $6 and id = $7 and status = 'REVIEWED' and version = $8
+`
+
+type PublishMarkParams struct {
+	Publisher   *uuid.UUID
+	Deviation   decimal.NullDecimal
+	Changed     []string
+	LateDays    int16
+	LatePenalty decimal.Decimal
+	CourseID    uuid.UUID
+	ID          uuid.UUID
+	Version     int32
+}
+
+// NƠI DUY NHẤT đặt status = 'PUBLISHED' (TestPublishOnlyFromHandler quét mã).
+func (q *Queries) PublishMark(ctx context.Context, arg PublishMarkParams) (int64, error) {
+	result, err := q.db.Exec(ctx, publishMark,
+		arg.Publisher,
+		arg.Deviation,
+		arg.Changed,
+		arg.LateDays,
+		arg.LatePenalty,
+		arg.CourseID,
+		arg.ID,
+		arg.Version,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const publishReviewedIDs = `-- name: PublishReviewedIDs :many
+select r.id from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+where r.course_id = $1 and s.assignment_id = $2::uuid and r.status = 'REVIEWED'
+  and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+  and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+order by r.id
+limit $3
+`
+
+type PublishReviewedIDsParams struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+	PageLimit    int32
+}
+
+// scope ALL_REVIEWED: kết quả REVIEWED HIỆN HÀNH (round cao nhất) của bài, bản nộp mới nhất; tối đa limit.
+func (q *Queries) PublishReviewedIDs(ctx context.Context, arg PublishReviewedIDsParams) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, publishReviewedIDs, arg.CourseID, arg.AssignmentID, arg.PageLimit)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []uuid.UUID{}
+	for rows.Next() {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const reviewApplyEdit = `-- name: ReviewApplyEdit :execrows
 update grading_results set criteria = $1, overall_feedback = $2, total = $3,
     late_days = $4, late_penalty = $5, late_penalty_manual = $6,

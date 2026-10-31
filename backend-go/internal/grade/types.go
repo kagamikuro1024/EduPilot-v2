@@ -47,16 +47,17 @@ type Citation struct {
 // Item là một cột điểm của thành phần. Max là thang của item (điểm nhập ∈ [0; Max]).
 // Closed: nguồn đã chốt sổ cho item (bài thi PUBLISHED; cột MANUAL/IMPORT có published_at) — chỉ khi đó "thiếu điểm" mới được coi là 0 theo MISSING_SCORE (TLR-2).
 type Item struct {
-	ID          uuid.UUID
-	Key, Name   string
-	Max         decimal.Decimal
-	Source      ItemSource
-	ExamID      *uuid.UUID
-	Closed      bool
-	Published   bool // published_at IS NOT NULL (cột nhập tay)
-	ExamMax     decimal.Decimal
-	Position    int
-	ComponentID uuid.UUID
+	ID           uuid.UUID
+	Key, Name    string
+	Max          decimal.Decimal
+	Source       ItemSource
+	ExamID       *uuid.UUID
+	AssignmentID *uuid.UUID // item ASSIGNMENT: bài tập được gắn (US-P7-09)
+	Closed       bool
+	Published    bool // published_at IS NOT NULL (cột nhập tay)
+	ExamMax      decimal.Decimal
+	Position     int
+	ComponentID  uuid.UUID
 }
 
 // Component là một thành phần điểm: trọng số là % của điểm học phần.

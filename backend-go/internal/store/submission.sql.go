@@ -685,19 +685,22 @@ unm as (
   group by s.course_id),
 cur as (
   select r.course_id,
-         count(*) filter (where r.run_state = 'FAILED')::int as err_n,
-         count(*) filter (where r.run_state = 'DONE' and r.needs_review)::int as rev_n,
-         coalesce(min(a.title) filter (where r.run_state = 'FAILED'), '')::text as err_title,
-         coalesce(min(a.title) filter (where r.run_state = 'DONE' and r.needs_review), '')::text as rev_title
+         count(*) filter (where r.run_state = 'FAILED' and r.status = 'DRAFT')::int as err_n,
+         count(*) filter (where r.run_state = 'DONE' and r.needs_review and r.status = 'DRAFT')::int as rev_n,
+         count(*) filter (where r.status = 'REVIEWED')::int as pub_n,
+         coalesce(min(a.title) filter (where r.status = 'REVIEWED'), '')::text as pub_title,
+         coalesce(min(a.title) filter (where r.run_state = 'FAILED' and r.status = 'DRAFT'), '')::text as err_title,
+         coalesce(min(a.title) filter (where r.run_state = 'DONE' and r.needs_review and r.status = 'DRAFT'), '')::text as rev_title
   from grading_results r
   join submissions s on s.course_id = r.course_id and s.id = r.submission_id
   join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
-  where r.course_id in (select course_id from ids) and r.status = 'DRAFT' and r.run_state in ('FAILED', 'DONE') and s.match_status = 'MATCHED'
+  where r.course_id in (select course_id from ids) and r.status in ('DRAFT', 'REVIEWED') and r.run_state in ('FAILED', 'DONE') and s.match_status = 'MATCHED'
     and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
     and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
   group by r.course_id)
 select ids.course_id, coalesce(unm.n, 0)::int as unmatched, coalesce(cur.err_n, 0)::int as err_n, coalesce(cur.rev_n, 0)::int as rev_n,
-       coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title
+       coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title,
+       coalesce(cur.pub_n, 0)::int as pub_n, coalesce(cur.pub_title, '')::text as pub_title
 from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id
 `
 
@@ -708,6 +711,8 @@ type TodayStaffAssignmentBatchRow struct {
 	RevN      int32
 	ErrTitle  string
 	RevTitle  string
+	PubN      int32
+	PubTitle  string
 }
 
 // "Hôm nay" của nhân viên: UNMATCHED_SUBMISSION (60), GRADING_ERROR (28), GRADING_REVIEW (30) — MỘT truy vấn tổng hợp cho mọi lớp (SRS 4.12). Chỉ kết quả HIỆN HÀNH của bài nộp MATCHED mới nhất.
@@ -727,6 +732,8 @@ func (q *Queries) TodayStaffAssignmentBatch(ctx context.Context, courseIds []str
 			&i.RevN,
 			&i.ErrTitle,
 			&i.RevTitle,
+			&i.PubN,
+			&i.PubTitle,
 		); err != nil {
 			return nil, err
 		}
@@ -739,7 +746,7 @@ func (q *Queries) TodayStaffAssignmentBatch(ctx context.Context, courseIds []str
 }
 
 const todayStudentAssignments = `-- name: TodayStudentAssignments :many
-select a.id, a.course_id, a.title, a.due_at, a.allow_late, a.late_max_days
+select 'DUE'::text as kind, a.id, a.course_id, a.title, a.due_at as at, a.allow_late, a.late_max_days
 from assignments a
 where a.course_id = any($1::text[]::uuid[])
   and a.published_at is not null
@@ -747,32 +754,45 @@ where a.course_id = any($1::text[]::uuid[])
   and a.due_at <= $2::timestamptz
   and (a.due_at > $3::timestamptz or (a.allow_late and a.due_at + make_interval(days => a.late_max_days::int) > $3::timestamptz))
   and not exists (select 1 from submissions s where s.course_id = a.course_id and s.assignment_id = a.id and s.student_id = $4::uuid and s.match_status = 'MATCHED')
-order by a.due_at, a.id
+union all
+select 'GRADED'::text, a.id, a.course_id, a.title, r.published_at, a.allow_late, a.late_max_days
+from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where s.course_id = any($1::text[]::uuid[]) and s.student_id = $4::uuid and s.match_status = 'MATCHED'
+  and r.status = 'PUBLISHED' and r.published_at > $5::timestamptz
+  and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+  and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+order by kind, at, id
 `
 
 type TodayStudentAssignmentsParams struct {
-	CourseIds []string
-	Horizon   time.Time
-	Now       time.Time
-	UserID    uuid.UUID
+	CourseIds   []string
+	Horizon     time.Time
+	Now         time.Time
+	UserID      uuid.UUID
+	GradedSince time.Time
 }
 
 type TodayStudentAssignmentsRow struct {
+	Kind        string
 	ID          uuid.UUID
 	CourseID    uuid.UUID
 	Title       string
-	DueAt       time.Time
+	At          time.Time
 	AllowLate   bool
 	LateMaxDays int16
 }
 
-// "Hôm nay" của sinh viên (ASSIGNMENT_DUE, bậc 41): bài đã công bố, CHƯA nộp (không có bài MATCHED của mình), hạn trong `horizon` hoặc đã quá hạn nhưng còn cửa muộn — MỘT truy vấn cho mọi lớp.
+// "Hôm nay" của sinh viên — MỘT truy vấn cho mọi lớp và mọi kind: DUE (ASSIGNMENT_DUE, bậc 41): bài đã công bố, CHƯA nộp, hạn trong `horizon` hoặc đã quá hạn còn cửa muộn;
+// GRADED (ASSIGNMENT_GRADED, bậc 43): kết quả ĐÃ CÔNG BỐ của CHÍNH MÌNH (bản nộp mới nhất) trong `graded_since`. Điểm nháp không bao giờ nằm trong truy vấn này (chỉ status = 'PUBLISHED').
 func (q *Queries) TodayStudentAssignments(ctx context.Context, arg TodayStudentAssignmentsParams) ([]TodayStudentAssignmentsRow, error) {
 	rows, err := q.db.Query(ctx, todayStudentAssignments,
 		arg.CourseIds,
 		arg.Horizon,
 		arg.Now,
 		arg.UserID,
+		arg.GradedSince,
 	)
 	if err != nil {
 		return nil, err
@@ -782,10 +802,11 @@ func (q *Queries) TodayStudentAssignments(ctx context.Context, arg TodayStudentA
 	for rows.Next() {
 		var i TodayStudentAssignmentsRow
 		if err := rows.Scan(
+			&i.Kind,
 			&i.ID,
 			&i.CourseID,
 			&i.Title,
-			&i.DueAt,
+			&i.At,
 			&i.AllowLate,
 			&i.LateMaxDays,
 		); err != nil {

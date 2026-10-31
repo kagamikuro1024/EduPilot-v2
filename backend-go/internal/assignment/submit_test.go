@@ -588,7 +588,8 @@ func keysIn(t *testing.T, v any) []string {
 func TestMineDTOAllowlist(t *testing.T) {
 	now := time.Now()
 	full := assignment.MineOut{State: "SUBMITTED", Assignment: assignment.MineAssignment{Criteria: []assignment.StudentCriterion{{ID: "c1"}}},
-		Submission: &assignment.MineSubmission{ReceivedAt: now}}
+		Submission: &assignment.MineSubmission{ReceivedAt: now},
+		Result:     &assignment.MineResult{Criteria: []assignment.MineCriterion{{}}, Late: &assignment.MineLate{}, Appeal: assignment.MineAppeal{ClosesAt: &now, Response: new("x")}}}
 	got := keysIn(t, full)
 	// khoá của phần tử mảng gộp dạng `criteria[].x`; allowlist ghi `criteria[].x` và `criteria`
 	want := allowlist(t, "mine")

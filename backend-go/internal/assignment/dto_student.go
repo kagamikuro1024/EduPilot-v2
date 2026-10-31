@@ -2,6 +2,7 @@ package assignment
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -64,11 +65,50 @@ type MineSubmission struct {
 	LateDays   int       `json:"late_days"`
 }
 
-// MineOut là phản hồi GET …/assignments/{aid}/mine.
+// MineCriterion là một tiêu chí của kết quả ĐÃ CÔNG BỐ: điểm / max, nhận xét và các trích dẫn đã xác minh có trong bài của chính sinh viên.
+type MineCriterion struct {
+	Name     string   `json:"name"`
+	Score    string   `json:"score"`
+	Max      string   `json:"max"`
+	Comment  string   `json:"comment"`
+	Evidence []string `json:"evidence"`
+}
+
+// MineLate là khoản trừ nộp muộn đã áp (nil khi không trừ).
+type MineLate struct {
+	Days    int    `json:"days"`
+	Penalty string `json:"penalty"`
+}
+
+// MineAppeal là trạng thái phúc khảo của chính sinh viên (NONE | OPEN | UPHELD | ADJUSTED).
+type MineAppeal struct {
+	State    string     `json:"state"`
+	ClosesAt *time.Time `json:"closes_at"`
+	Response *string    `json:"response"`
+}
+
+// MineResult là kết quả ĐÃ CÔNG BỐ (SRS 4.8.7); nhãn chung "Nhận xét · đã được giảng viên duyệt". Không có điểm nháp, điểm AI, độ lệch, cờ, độ tin cậy, kết quả hai lượt, người duyệt.
+type MineResult struct {
+	Status          string          `json:"status"`
+	Total           string          `json:"total"`
+	Max             string          `json:"max"`
+	Criteria        []MineCriterion `json:"criteria"`
+	OverallFeedback string          `json:"overall_feedback"`
+	Late            *MineLate       `json:"late"`
+	PublishedAt     time.Time       `json:"published_at"`
+	Label           string          `json:"label"`
+	Appeal          MineAppeal      `json:"appeal"`
+}
+
+// ResultLabel là nhãn chung ở màn sinh viên (không nêu AI).
+const ResultLabel = "Nhận xét · đã được giảng viên duyệt"
+
+// MineOut là phản hồi GET …/assignments/{aid}/mine. `result` chỉ khác null khi kết quả ĐÃ CÔNG BỐ.
 type MineOut struct {
 	Assignment MineAssignment  `json:"assignment"`
 	Submission *MineSubmission `json:"submission"`
 	State      string          `json:"state"`
+	Result     *MineResult     `json:"result"`
 }
 
 func stateOf(have bool, result string) string {
@@ -131,5 +171,63 @@ func (s *Service) Mine(ctx context.Context, a Actor, course, id uuid.UUID) (Mine
 		out.Submission = &MineSubmission{Version: int(*cur.Version), FileName: cur.FileName, ReceivedAt: cur.ReceivedAt, LateDays: grading.LateDays(cur.SubmittedAt, row.DueAt)}
 	}
 	out.State = stateOf(true, cur.ResultStatus)
+	if out.State == StateGraded {
+		if out.Result, err = s.minePublished(ctx, q, course, id, a.UserID, row); err != nil {
+			return MineOut{}, err
+		}
+	}
+	return out, nil
+}
+
+// minePublished dựng phần `result` từ DUY NHẤT truy vấn chỉ đọc kết quả PUBLISHED (nháp không bao giờ qua đường này).
+func (s *Service) minePublished(ctx context.Context, q *store.Queries, course, id, student uuid.UUID, a store.Assignment) (*MineResult, error) {
+	r, err := q.MinePublishedResult(ctx, store.MinePublishedResultParams{CourseID: course, AssignmentID: id, StudentID: student})
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, fmt.Errorf("assignment: kết quả đã công bố: %w", err)
+	}
+	var rubric []grading.RubricItem
+	_ = json.Unmarshal(a.Rubric, &rubric)
+	var crits []critRow
+	_ = json.Unmarshal(r.Criteria, &crits)
+	byID := map[string]critRow{}
+	for _, c := range crits {
+		byID[c.ID] = c
+	}
+	out := &MineResult{Status: "PUBLISHED", Max: a.MaxScore.StringFixed(2), Criteria: []MineCriterion{}, Label: ResultLabel, Appeal: MineAppeal{State: "NONE"}}
+	if r.Total.Valid {
+		out.Total = r.Total.Decimal.StringFixed(2)
+	}
+	if r.OverallFeedback != nil {
+		out.OverallFeedback = *r.OverallFeedback
+	}
+	if r.PublishedAt != nil {
+		out.PublishedAt = *r.PublishedAt
+		if a.AppealDays > 0 {
+			t := r.PublishedAt.Add(time.Duration(a.AppealDays) * 24 * time.Hour)
+			out.Appeal.ClosesAt = &t
+		}
+	}
+	for _, ri := range rubric {
+		c := byID[ri.ID]
+		mc := MineCriterion{Name: ri.Name, Max: fix2(ri.MaxScore), Comment: c.Comment, Evidence: []string{}}
+		if c.Score != nil {
+			mc.Score = fix2(*c.Score)
+		}
+		for _, e := range c.Evidence {
+			mc.Evidence = append(mc.Evidence, e.Quote)
+		}
+		out.Criteria = append(out.Criteria, mc)
+	}
+	if r.LatePenalty.IsPositive() {
+		out.Late = &MineLate{Days: int(r.LateDays), Penalty: r.LatePenalty.StringFixed(2)}
+	}
+	if ap, err := q.MineAppealOf(ctx, store.MineAppealOfParams{CourseID: course, ResultID: r.ID}); err == nil {
+		out.Appeal.State, out.Appeal.Response = ap.Status, ap.Response
+	} else if !errors.Is(err, pgx.ErrNoRows) {
+		return nil, fmt.Errorf("assignment: phúc khảo của tôi: %w", err)
+	}
 	return out, nil
 }

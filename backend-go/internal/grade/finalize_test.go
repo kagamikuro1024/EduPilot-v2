@@ -34,7 +34,11 @@ type finRig struct {
 // newFinRig: lớp weekly 40 (QT) + final 60 (CK), `n` sinh viên đủ điểm (weekly 8, final 6 + i % 3).
 func newFinRig(t *testing.T, n int) *finRig {
 	t.Helper()
-	d := newTDB(t)
+	return newFinRigOn(t, newTDB(t), n)
+}
+
+func newFinRigOn(t *testing.T, d *tdb, n int) *finRig {
+	t.Helper()
 	r := &finRig{tdb: d}
 	r.gv = d.user("TEACHER", "GV")
 	r.course = d.course(r.gv, "L1")

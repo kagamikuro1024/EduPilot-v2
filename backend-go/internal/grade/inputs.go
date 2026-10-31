@@ -41,7 +41,7 @@ func LoadItems(ctx context.Context, q *store.Queries, courseID, schemeID uuid.UU
 	}
 	out := make([]Item, len(rows))
 	for i, r := range rows {
-		it := Item{ID: r.ID, ComponentID: r.ComponentID, Key: r.Key, Name: r.Name, Max: r.MaxScore, Source: ItemSource(r.Source), ExamID: r.ExamID, Position: int(r.Position), Published: r.PublishedAt != nil}
+		it := Item{ID: r.ID, ComponentID: r.ComponentID, Key: r.Key, Name: r.Name, Max: r.MaxScore, Source: ItemSource(r.Source), ExamID: r.ExamID, AssignmentID: r.AssignmentID, Position: int(r.Position), Published: r.PublishedAt != nil}
 		switch it.Source {
 		case SourceExam:
 			it.Closed = r.ExamPublished

@@ -19,11 +19,12 @@ import (
 // Dạng JSON của công thức ở `GET/PUT …/grade-scheme` (SRS 4.4.1). Số là chuỗi decimal (không float).
 type (
 	ItemDoc struct {
-		Key      string     `json:"key"`
-		Name     string     `json:"name"`
-		MaxScore string     `json:"max_score"`
-		Source   string     `json:"source"`
-		ExamID   *uuid.UUID `json:"exam_id,omitempty"`
+		Key          string     `json:"key"`
+		Name         string     `json:"name"`
+		MaxScore     string     `json:"max_score"`
+		Source       string     `json:"source"`
+		ExamID       *uuid.UUID `json:"exam_id,omitempty"`
+		AssignmentID *uuid.UUID `json:"assignment_id,omitempty"`
 	}
 	ComponentDoc struct {
 		Key          string     `json:"key"`
@@ -98,7 +99,7 @@ func docOf(l Loaded, insp *Inspection) SchemeDoc {
 	for _, c := range l.Scheme.Components {
 		cd := ComponentDoc{Key: c.Key, Name: c.Name, Grp: string(c.Group), Weight: c.Weight.String(), Items: []ItemDoc{}, Citations: citesOrEmpty(c.Citations), FilledByUser: c.FilledByUser}
 		for _, it := range c.Items {
-			cd.Items = append(cd.Items, ItemDoc{Key: it.Key, Name: it.Name, MaxScore: it.Max.String(), Source: string(it.Source), ExamID: it.ExamID})
+			cd.Items = append(cd.Items, ItemDoc{Key: it.Key, Name: it.Name, MaxScore: it.Max.String(), Source: string(it.Source), ExamID: it.ExamID, AssignmentID: it.AssignmentID})
 		}
 		d.Components = append(d.Components, cd)
 	}

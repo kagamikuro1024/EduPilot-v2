@@ -103,8 +103,22 @@ func itemPublished(it Item) bool {
 		return it.Closed
 	case SourceManual:
 		return it.Published
+	case SourceAssignment:
+		return true // đầu vào chỉ chứa điểm ĐÃ CÔNG BỐ của chính sinh viên (GradeInputAssignments); nháp không bao giờ vào Input
 	}
 	return false
+}
+
+// assignmentsScored: thành phần có item ASSIGNMENT chỉ PUBLISHED khi kết quả của CHÍNH sinh viên đã công bố (có điểm trong đầu vào đã lọc); chưa thì PENDING.
+func assignmentsScored(c Component, in Input) bool {
+	for _, it := range c.Items {
+		if it.Source == SourceAssignment {
+			if _, ok := in.Scores[it.ID]; !ok {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 func componentPublished(c Component) bool {
@@ -187,7 +201,7 @@ func (s *Service) MeGrades(ctx context.Context, courseID, user uuid.UUID) (MeGra
 	qtPublished := true
 	for _, c := range conf.Scheme.Components {
 		mc := MeComponent{Key: c.Key, Name: c.Name, Weight: c.Weight.String(), Status: "PENDING"}
-		if componentPublished(c) {
+		if componentPublished(c) && assignmentsScored(c, in) {
 			mc.Status = "PUBLISHED"
 			if cr, ok := byKey[c.Key]; ok && cr.Computed {
 				mc.Score = cr.Score.String()

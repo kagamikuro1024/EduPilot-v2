@@ -18,7 +18,12 @@ type asgRig struct {
 
 func newAsgRig(t *testing.T, due string, allowLate bool) *asgRig {
 	t.Helper()
-	r := &asgRig{finRig: newFinRig(t, 3)}
+	return newAsgRigOn(t, newTDB(t), 3, due, allowLate)
+}
+
+func newAsgRigOn(t *testing.T, d *tdb, n int, due string, allowLate bool) *asgRig {
+	t.Helper()
+	r := &asgRig{finRig: newFinRigOn(t, d, n)}
 	r.item = r.items["weekly"]
 	r.one(&r.scheme, `select scheme_id from grade_items where id = $1`, r.item)
 	r.exec(`delete from grade_entries where item_id = $1`, r.item)

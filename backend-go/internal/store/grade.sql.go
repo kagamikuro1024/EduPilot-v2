@@ -201,7 +201,7 @@ func (q *Queries) GradeInputP5(ctx context.Context, arg GradeInputP5Params) ([]G
 }
 
 const gradeSchemeItemsMeta = `-- name: GradeSchemeItemsMeta :many
-select i.id, i.component_id, i.key, i.name, i.max_score, i.source, i.exam_id, i.published_at, i.position,
+select i.id, i.component_id, i.key, i.name, i.max_score, i.source, i.exam_id, i.assignment_id, i.published_at, i.position,
        coalesce(x.status = 'PUBLISHED', false)::bool as exam_published, x.max_score as exam_max
 from grade_items i left join exams x on x.course_id = i.course_id and x.id = i.exam_id
 where i.course_id = $1 and i.scheme_id = $2
@@ -221,6 +221,7 @@ type GradeSchemeItemsMetaRow struct {
 	MaxScore      decimal.Decimal
 	Source        GradeItemSource
 	ExamID        *uuid.UUID
+	AssignmentID  *uuid.UUID
 	PublishedAt   *time.Time
 	Position      int32
 	ExamPublished bool
@@ -245,6 +246,7 @@ func (q *Queries) GradeSchemeItemsMeta(ctx context.Context, arg GradeSchemeItems
 			&i.MaxScore,
 			&i.Source,
 			&i.ExamID,
+			&i.AssignmentID,
 			&i.PublishedAt,
 			&i.Position,
 			&i.ExamPublished,

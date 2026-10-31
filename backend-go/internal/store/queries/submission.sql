@@ -33,8 +33,9 @@ order by s.assignment_id, s.version desc;
 select s.blob_key from submissions s where s.blob_key = any(sqlc.arg(keys)::text[]);
 
 -- name: TodayStudentAssignments :many
--- "Hôm nay" của sinh viên (ASSIGNMENT_DUE, bậc 41): bài đã công bố, CHƯA nộp (không có bài MATCHED của mình), hạn trong `horizon` hoặc đã quá hạn nhưng còn cửa muộn — MỘT truy vấn cho mọi lớp.
-select a.id, a.course_id, a.title, a.due_at, a.allow_late, a.late_max_days
+-- "Hôm nay" của sinh viên — MỘT truy vấn cho mọi lớp và mọi kind: DUE (ASSIGNMENT_DUE, bậc 41): bài đã công bố, CHƯA nộp, hạn trong `horizon` hoặc đã quá hạn còn cửa muộn;
+-- GRADED (ASSIGNMENT_GRADED, bậc 43): kết quả ĐÃ CÔNG BỐ của CHÍNH MÌNH (bản nộp mới nhất) trong `graded_since`. Điểm nháp không bao giờ nằm trong truy vấn này (chỉ status = 'PUBLISHED').
+select 'DUE'::text as kind, a.id, a.course_id, a.title, a.due_at as at, a.allow_late, a.late_max_days
 from assignments a
 where a.course_id = any(sqlc.arg(course_ids)::text[]::uuid[])
   and a.published_at is not null
@@ -42,7 +43,16 @@ where a.course_id = any(sqlc.arg(course_ids)::text[]::uuid[])
   and a.due_at <= sqlc.arg(horizon)::timestamptz
   and (a.due_at > sqlc.arg(now)::timestamptz or (a.allow_late and a.due_at + make_interval(days => a.late_max_days::int) > sqlc.arg(now)::timestamptz))
   and not exists (select 1 from submissions s where s.course_id = a.course_id and s.assignment_id = a.id and s.student_id = sqlc.arg(user_id)::uuid and s.match_status = 'MATCHED')
-order by a.due_at, a.id;
+union all
+select 'GRADED'::text, a.id, a.course_id, a.title, r.published_at, a.allow_late, a.late_max_days
+from grading_results r
+join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+where s.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and s.student_id = sqlc.arg(user_id)::uuid and s.match_status = 'MATCHED'
+  and r.status = 'PUBLISHED' and r.published_at > sqlc.arg(graded_since)::timestamptz
+  and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
+  and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+order by kind, at, id;
 
 -- name: SubmissionRoster :many
 -- Sinh viên ACTIVE của lớp cùng các tín hiệu để khớp: email đã xác minh, MSSV theo `student_code_snapshot` (chỉ dòng ROSTER / ADMIN là tín hiệu; dòng CODE là MSSV tự khai — TLR-1). KHÔNG đọc `users.student_code`.
@@ -119,19 +129,22 @@ unm as (
   group by s.course_id),
 cur as (
   select r.course_id,
-         count(*) filter (where r.run_state = 'FAILED')::int as err_n,
-         count(*) filter (where r.run_state = 'DONE' and r.needs_review)::int as rev_n,
-         coalesce(min(a.title) filter (where r.run_state = 'FAILED'), '')::text as err_title,
-         coalesce(min(a.title) filter (where r.run_state = 'DONE' and r.needs_review), '')::text as rev_title
+         count(*) filter (where r.run_state = 'FAILED' and r.status = 'DRAFT')::int as err_n,
+         count(*) filter (where r.run_state = 'DONE' and r.needs_review and r.status = 'DRAFT')::int as rev_n,
+         count(*) filter (where r.status = 'REVIEWED')::int as pub_n,
+         coalesce(min(a.title) filter (where r.status = 'REVIEWED'), '')::text as pub_title,
+         coalesce(min(a.title) filter (where r.run_state = 'FAILED' and r.status = 'DRAFT'), '')::text as err_title,
+         coalesce(min(a.title) filter (where r.run_state = 'DONE' and r.needs_review and r.status = 'DRAFT'), '')::text as rev_title
   from grading_results r
   join submissions s on s.course_id = r.course_id and s.id = r.submission_id
   join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
-  where r.course_id in (select course_id from ids) and r.status = 'DRAFT' and r.run_state in ('FAILED', 'DONE') and s.match_status = 'MATCHED'
+  where r.course_id in (select course_id from ids) and r.status in ('DRAFT', 'REVIEWED') and r.run_state in ('FAILED', 'DONE') and s.match_status = 'MATCHED'
     and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
     and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
   group by r.course_id)
 select ids.course_id, coalesce(unm.n, 0)::int as unmatched, coalesce(cur.err_n, 0)::int as err_n, coalesce(cur.rev_n, 0)::int as rev_n,
-       coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title
+       coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title,
+       coalesce(cur.pub_n, 0)::int as pub_n, coalesce(cur.pub_title, '')::text as pub_title
 from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id;
 
 -- name: GradeInputAssignments :many

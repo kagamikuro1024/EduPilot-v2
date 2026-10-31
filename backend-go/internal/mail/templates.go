@@ -139,6 +139,16 @@ func specs() map[string]spec {
 				"Xem: {{.ThreadURL}}",
 			},
 		},
+		// US-P7-09: nhận xét bài tập đã công bố. Chi tiết (từng tiêu chí, khoản trừ muộn, nhận xét chung) do Resolver dựng LÚC GỬI từ payload; chỉ có thứ sinh viên được thấy.
+		"assignment_feedback": {
+			subject: "Điểm bài tập đã được công bố", vars: []string{"FullName", "AssignmentTitle", "Total", "Max", "Details", "AssignmentURL"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"Điểm {{.AssignmentTitle}} của bạn đã được công bố: {{.Total}}/{{.Max}}.",
+				"{{.Details}}",
+				"Xem chi tiết: {{.AssignmentURL}}",
+			},
+		},
 		"account_locked": {
 			subject: "Tài khoản EduPilot bị khoá tạm thời", vars: []string{"FullName", "Until", "ForgotURL"},
 			paras: []string{
