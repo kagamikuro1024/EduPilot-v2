@@ -43,3 +43,5 @@ Dev báo #12–#15 qua `herdr` (dòng đề xuất dev push sau; quyết định
 - **Ghi chú #16:** topic `course.policy_changed` không tồn tại; dùng `document.changed` (đã phát khi tạo / sửa / xoá tài liệu). BA sửa SRS 4.5.3.
 - **#12 hiệu chỉnh:** số thao tác 226 → 228 (route extract US-P6-03 + route status US-P6-05); vẫn chỉ đổi số đếm, ACCEPTED.
 - **#17 bổ sung ACCEPTED:** thêm một dòng thiết lập (mock `/events` trả 429) để ca "bell real" đi đúng nhánh dự phòng 30 s mà nó kiểm. Không đổi ngày / assertion. Điều kiện: chú thích ca ghi rõ "kiểm nhánh dự phòng khi SSE bị từ chối"; handoff nêu test nào đang phủ nhánh SSE (120 s). Nếu không có test nào → dev thêm một ca mới cho nhánh SSE.
+- **#12 mở rộng (2026-10-31):** mỗi story P6 thêm route thì cập nhật số đếm thao tác trong `contract_test.go` theo số route mới; không cần proposal riêng. Dev ghi số mới trong handoff (US-P6-04: 232).
+- **US-P6-04, cột trích dẫn (PM):** hiện văn bản trang + đoạn trích được bôi là đủ, không dựng trình xem PDF. Thêm liên kết `Mở trang N` tới PDF qua URL ký sẵn kèm `#page=N` (trình duyệt tự mở đúng trang, không thêm thư viện). QC chấm AC "mở đúng trang" theo liên kết này.
