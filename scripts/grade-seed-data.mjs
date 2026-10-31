@@ -8,11 +8,15 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 
-/** Các dòng của `inputs-lop1.csv` (BA): account, student_code, midterm, weekly_exam_t9, final_exam, …; ô trống → "". */
-export function lop1Inputs() {
+/** Các dòng của `inputs-lop1.csv` (BA): account, student_code, midterm, weekly_exam_t9, final_exam, …; ô trống → "".
+ * `codeOf(account)` (tuỳ chọn) thay `student_code` của CSV bằng MSSV THẬT của tài khoản trong lớp: đổi `SEED_RNG` thì MSSV đổi, so khớp luôn theo `account` (fixtures/README, QC BUG-S8-SEED-2). */
+export function lop1Inputs(codeOf) {
   const [head, ...rows] = readFileSync(path.join(root, "docs/specs/FEAT-gradebook/fixtures/inputs-lop1.csv"), "utf8").trim().split("\n");
   const cols = head.split(",");
-  return rows.map((l) => Object.fromEntries(l.split(",").map((v, i) => [cols[i], v])));
+  return rows.map((l) => {
+    const r = Object.fromEntries(l.split(",").map((v, i) => [cols[i], v]));
+    return codeOf ? { ...r, student_code: codeOf(r.account) } : r;
+  });
 }
 
 const CRC = (() => {
@@ -69,12 +73,12 @@ export function xlsx(rows) {
 }
 
 /** Tệp nhập một cột điểm của lớp 1 (`column` = tên cột trong CSV: midterm | final_exam). Dòng 1 là tiêu đề; điểm là ô số. */
-export function lop1Column(column, title) {
-  return xlsx([["MSSV", "Họ tên", title], ...lop1Inputs().map((r) => [r.student_code, r.account, Number(r[column])])]);
+export function lop1Column(column, title, codeOf) {
+  return xlsx([["MSSV", "Họ tên", title], ...lop1Inputs(codeOf).map((r) => [r.student_code, r.account, Number(r[column])])]);
 }
 
 /** Tệp lỗi cố ý (chỉ xem trước, không ghi): MSSV lạ, điểm ngoài thang, trùng MSSV, điểm không phải số, MSSV trống kèm điểm. */
-export function lop1Faulty() {
-  const [a, b] = lop1Inputs();
+export function lop1Faulty(codeOf) {
+  const [a, b] = lop1Inputs(codeOf);
   return xlsx([["MSSV", "Họ tên", "Điểm giữa kỳ"], [a.student_code, a.account, 9], ["99999999", "Không có trong lớp", 5], [b.student_code, b.account, 11], [a.student_code, a.account, 7], ["20229010", "x", "tám"], ["", "", 4]]);
 }

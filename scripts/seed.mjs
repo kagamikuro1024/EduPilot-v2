@@ -648,6 +648,7 @@ const DOCS = [
   { gen: ANSWER_KEY_LINES, title: "Đáp án đề tham khảo tuần 5", type: "ANSWER_KEY", week: 5, name: "dap-an-tuan-5.pdf" },
 ];
 
+// Khoá `complete` gắn `upload_id` (mỗi lần chạy một vé mới): gateway lưu cả phản hồi 4xx theo khoá, nên khoá cố định theo băm làm mọi lần chạy lại sau lỗi 4xx kẹt `IDEMPOTENCY_KEY_REUSED` (QC BUG-S8-SEED-1).
 async function uploadDoc(course, token, d) {
   const bytes = d.gen ? miniPdf(d.gen) : readFileSync(d.abs ?? path.join(root, "seed", "documents", d.file));
   const sha = createHash("sha256").update(bytes).digest("hex");
@@ -656,7 +657,7 @@ async function uploadDoc(course, token, d) {
   const put = await fetch(pre.body.url, { method: pre.body.method, headers: pre.body.headers, body: bytes });
   if (!put.ok) throw new Error(`PUT tệp ${filename} → ${put.status}`);
   const json = { upload_id: pre.body.upload_id, title: d.title, type: d.type, ...(d.category ? { category: d.category } : {}), ...(d.week ? { week_no: d.week } : {}) };
-  const done = await call("POST", `/courses/${course}/uploads/complete`, { token, json, key: `seed-doc-${sha.slice(0, 16)}`, ok: [200, 202, 409] });
+  const done = await call("POST", `/courses/${course}/uploads/complete`, { token, json, key: `seed-doc-${pre.body.upload_id}`, ok: [200, 202, 409] });
   return done.status === 409 ? null : done.body.job_id;
 }
 
@@ -903,14 +904,15 @@ async function step15Gradebook() {
     await call("POST", `/courses/${c1}/grade-scheme/confirm`, { token: t, json: { version: saved.body.version ?? draft.version + 1 }, key: `seed-confirm-761987-${doc.id.slice(0, 8)}` });
     ctx.changed = true;
   }
+  const codeOf = (account) => accounts.get(account)?.code ?? (() => { throw new Error(`Tài khoản ${account} không có trong danh sách seed`); })();
   const gb = (await call("GET", `/courses/${c1}/gradebook?limit=1`, { token: t })).body;
   const itemId = (key) => gb.columns.find((c) => c.component_key === key)?.item_id;
   for (const [key, col, label, title] of [["midterm", "midterm", "giua-ky", "Điểm giữa kỳ"], ["final", "final_exam", "cuoi-ky", "Điểm cuối kỳ"]]) {
-    await importColumn(c1, t, itemId(key), label, lop1Column(col, title));
+    await importColumn(c1, t, itemId(key), label, lop1Column(col, title, codeOf));
     await call("POST", `/courses/${c1}/grade-items/${itemId(key)}/publish`, { token: t, json: { published: true }, ok: [200, 204] });
   }
   // tệp lỗi cố ý: chỉ xem trước, KHÔNG ghi (AC2)
-  const bad = lop1Faulty();
+  const bad = lop1Faulty(codeOf);
   const pre = await call("POST", `/courses/${c1}/uploads/presign`, { token: t, json: { purpose: "grade_import", filename: "loi.xlsx", mime_type: XLSX_MIME, size_bytes: bad.length, sha256: createHash("sha256").update(bad).digest("hex") } });
   await fetch(pre.body.url, { method: pre.body.method, headers: pre.body.headers, body: bad });
   const out = await call("POST", `/courses/${c1}/grade-entries/import`, { token: t, json: { upload_id: pre.body.upload_id, item_id: itemId("midterm"), mode: "preview", mapping: { header_row: 1, student_code_col: "A", score_col: "C" } } });
@@ -924,7 +926,7 @@ async function step15StudyTimeRisk() {
   vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-"], profile));
   vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10"]));
   // hoạt động tuần 8 / 9 của sinh viên có điểm quá trình thấp, đúng cột `activity_week9` / `activity_week8` của seed/expected_risk.csv (US-P6-09 AC8)
-  const want = readFileSync(path.join(root, "seed", "expected_risk.csv"), "utf8").trim().split("\n").slice(1).map((l) => l.split(",")).filter((c) => c[4] !== "").map((c) => ({ student_code: c[1], week9: c[4], week8: c[5] }));
+  const want = readFileSync(path.join(root, "seed", "expected_risk.csv"), "utf8").trim().split("\n").slice(1).map((l) => l.split(",")).filter((c) => c[4] !== "").map((c) => ({ student_code: accounts.get(c[0]).code, week9: c[4], week8: c[5] }));
   vlog(gatewayAdmin("seed-activity", ["--course", "761987", "--plan", "-"], JSON.stringify(want)));
   const out = gatewayAdmin("crm-risk-run", ["--course", "761987"]);
   if (!/AT_RISK 1, WATCH 3/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": ${out} — buổi 10 phải là HÔM NAY (seed chạy trên DB trống; DB cũ giữ lịch buổi của ngày seed trước nên tuần của buổi 8 / 9 lệch)`);
