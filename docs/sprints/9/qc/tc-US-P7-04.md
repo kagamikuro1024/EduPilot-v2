@@ -34,7 +34,7 @@ Nguồn: `docs/specs/FEAT-assignments/US.md` US-P7-04 (AC1–AC9) + `SRS.md` 2, 
 | TC-P7-04-G09 | AC9 | chạy đúng dòng `Kiểm:` của US (runner nghiêm `scripts/p7-go-tests.sh`; Playwright `--workers=2 --retries=0`): `go test -tags integration ./internal/submission ./internal/grade -run 'TestDismissUnmatched\|TestDismissedNotCountedAsPending\|TestUnmatchedBlocksZeroScore\|TestNoSubmissionZeroOnlyWhenNoUnmatched\|TestFinalizeIncompleteWhenUnmatched' -v` → `ok`; `playwright test assignment-lifecycle.spec.ts -g 'unmatched dismiss'` → xanh. | mọi test được nêu tên **tồn tại, không SKIP, PASS** (`-race` nếu có); lệnh shell cho kết quả như ghi |
 
 ## Script chạy được
-`scripts/p7-go-tests.sh`, `p7-env.sh`, `p7-rbac.sh`.
+`scripts/p7-go-tests.sh`, `p7-env.sh`, `p7-rbac.sh`, `p7-make-fixtures.py` (ZIP / tệp / thư thử).
 
 ## Câu hỏi cho BA / PM (không tự đoán)
 - (chưa có)

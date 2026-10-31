@@ -31,7 +31,7 @@ Nguồn: `docs/specs/FEAT-assignments/US.md` US-P7-05 (AC1–AC10) + `SRS.md` 2,
 | TC-P7-05-G10 | AC10 | chạy đúng dòng `Kiểm:` của US (runner nghiêm `scripts/p7-go-tests.sh`; Playwright `--workers=2 --retries=0`): `go test -tags integration ./internal/integration -run 'TestImapSpoofedFromNotMatched\|TestImapAuthResultsTrustedOnly\|TestImapAuthResultsFirstHeader\|TestImapNoTrustedIdUnmatched\|TestImapReceiptBellToMatchedStudent' -v` → `ok` (máy chủ IMAP trong test đặt được header). | mọi test được nêu tên **tồn tại, không SKIP, PASS** (`-race` nếu có); lệnh shell cho kết quả như ghi |
 
 ## Script chạy được
-`scripts/p7-go-tests.sh`, `p7-env.sh`, `p7-rbac.sh`.
+`scripts/p7-go-tests.sh`, `p7-env.sh`, `p7-rbac.sh`, `p7-make-fixtures.py` (ZIP / tệp / thư thử).
 
 ## Câu hỏi cho BA / PM (không tự đoán)
 - Q-05-a (TC-P7-05-12 ca g): header `Authentication-Results` do người gửi tự thêm ở **trên** header của máy chủ tin cậy — SRS nói chỉ header trên cùng của `authserv-id` tin cậy được xét; QC kỳ vọng thư giả bị `SENDER_UNVERIFIED` vì máy chủ thư thật luôn chèn header của mình lên đầu. Nếu dev thử bằng máy chủ test đặt header theo thứ tự khác → ghi rõ trong handoff.
