@@ -1,0 +1,34 @@
+# settings-integrations
+icon Info/CircleHelp: 0
+tooltips/describedby: 0
+
+---
+H1     .ep-page-title	Tích hợp
+SPAN  	Kiểm gần nhất 08:55 hôm nay
+H2     .ep-section-title	Thư đi (SMTP)
+SPAN   .Feedback-module__VRpUaW__status	Đã kết nối · kiểm gần nhất 08:55 hôm nay
+DT    	Máy chủ
+DD    	smtp.ptit.edu.vn:587 (STARTTLS)
+DT    	Địa chỉ gửi
+DD    	no-reply@edupilot.test
+DT    	Thư đã gửi 7 ngày
+DD    	214 · hỏng 0
+BUTTON .Button-module__lwrakq__btn	Gửi thư thử
+H2     .ep-section-title	Thư đến (IMAP)
+SPAN   .Feedback-module__VRpUaW__status	Chưa cấu hình
+DT    	Máy chủ
+DD    	— chưa điền
+DT    	Hộp thư nhận bài
+DD    	— chưa điền
+DT    	Việc đang chờ
+DD    	Không có
+BUTTON .Button-module__lwrakq__btn	Kiểm tra
+H2     .ep-section-title	Microsoft Teams
+SPAN   .Feedback-module__VRpUaW__status	Chờ quản trị viên của trường đồng ý
+DT    	Tổ chức
+DD    	ptit.edu.vn
+DT    	Yêu cầu đã gửi
+DD    	27/10, 14:20
+DT    	Người duyệt
+DD    	Quản trị viên Microsoft 365 của trường
+BUTTON .Button-module__lwrakq__btn	Kiểm tra

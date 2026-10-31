@@ -1,0 +1,133 @@
+# settings-llm
+icon Info/CircleHelp: 0
+tooltips/describedby: 4
+BUTTON title=Thêm hành động cho OpenAI desc=null
+BUTTON title=Thêm hành động cho Gemini desc=null
+DIALOG title= desc=_r_5_
+DIALOG title= desc=_r_d_
+---
+H1     .ep-page-title	Cấu hình LLM
+H2     .ep-section-title	Kết nối nhà cung cấp
+P      .ep-item-title	OpenAI
+P      .llm-module__k5iwQq__sub	OpenAI
+SPAN   .Feedback-module__VRpUaW__status	Đã kết nối · kiểm tra lúc 09:12
+P      .llm-module__k5iwQq__sub	Khoá API •••••••• · đã kết nối
+LABEL  .Field-module__M16HFW__label	Đang bật
+BUTTON .Button-module__lwrakq__btn	Test kết nối
+P      .ep-item-title	Gemini
+P      .llm-module__k5iwQq__sub	Gemini
+SPAN   .Feedback-module__VRpUaW__status	Lỗi xác thực
+P      .llm-module__k5iwQq__sub	Khoá API •••••••• · đã kết nối
+LABEL  .Field-module__M16HFW__label	Đang bật
+BUTTON .Button-module__lwrakq__btn	Test kết nối
+BUTTON .Button-module__lwrakq__btn	Thêm nhà cung cấp
+H2     .ep-section-title	Xoá nhà cung cấp?
+P      .Dialog-module__rUw9Ha__desc	Nhà cung cấp và các mô hình của nó sẽ bị xoá. Không hoàn tác được.
+BUTTON .Button-module__lwrakq__btn	Để sau
+BUTTON .Button-module__lwrakq__btn	Xoá nhà cung cấp
+H2     .ep-section-title	Mô hình theo tác vụ
+SPAN   .LLMRouteTable-module__FD9_rW__label	Trả lời chat riêng
+SPAN   .LLMRouteTable-module__FD9_rW__lane	Trả lời ngay
+BUTTON .Button-module__lwrakq__btn	Cài đặt nâng cao
+SPAN   .LLMRouteTable-module__FD9_rW__label	Phân loại câu hỏi
+SPAN   .LLMRouteTable-module__FD9_rW__lane	Gần thời gian thực
+BUTTON .Button-module__lwrakq__btn	Cài đặt nâng cao
+SPAN   .LLMRouteTable-module__FD9_rW__label	Việc nhỏ (tóm tắt, đặt tên)
+SPAN   .LLMRouteTable-module__FD9_rW__lane	Gần thời gian thực
+BUTTON .Button-module__lwrakq__btn	Cài đặt nâng cao
+SPAN   .LLMRouteTable-module__FD9_rW__label	Chấm bài
+SPAN   .LLMRouteTable-module__FD9_rW__lane	Chạy nền
+BUTTON .Button-module__lwrakq__btn	Cài đặt nâng cao
+SPAN   .LLMRouteTable-module__FD9_rW__label	Sinh câu hỏi
+SPAN   .LLMRouteTable-module__FD9_rW__lane	Chạy nền
+BUTTON .Button-module__lwrakq__btn	Cài đặt nâng cao
+SPAN   .LLMRouteTable-module__FD9_rW__label	Tóm tắt lớp học
+SPAN   .LLMRouteTable-module__FD9_rW__lane	Chạy nền
+BUTTON .Button-module__lwrakq__btn	Cài đặt nâng cao
+H2     .ep-section-title	Chuỗi dự phòng
+P      .ep-item-title	Trả lời chat riêng
+SPAN   .llm-module__k5iwQq__chainIndex	Chính
+SPAN  	gpt-4o-mini
+SPAN   .llm-module__k5iwQq__sub	· OpenAI
+SPAN   .llm-module__k5iwQq__chainIndex	Dự phòng 1
+SPAN  	gpt-4o
+SPAN   .llm-module__k5iwQq__sub	· OpenAI
+BUTTON .Button-module__lwrakq__btn	Lên
+BUTTON .Button-module__lwrakq__btn	Xuống
+BUTTON .Button-module__lwrakq__btn	Bỏ
+SPAN   .llm-module__k5iwQq__chainIndex	Dự phòng 2
+SPAN  	gemini-2.0-flash
+SPAN   .llm-module__k5iwQq__sub	· Gemini
+BUTTON .Button-module__lwrakq__btn	Lên
+BUTTON .Button-module__lwrakq__btn	Xuống
+BUTTON .Button-module__lwrakq__btn	Bỏ
+P      .ep-item-title	Phân loại câu hỏi
+SPAN   .llm-module__k5iwQq__chainIndex	Chính
+SPAN  	gpt-4o-mini
+SPAN   .llm-module__k5iwQq__sub	· OpenAI
+LABEL  .Field-module__M16HFW__label	Thêm dự phòng cho Phân loại câu hỏi
+BUTTON .Button-module__lwrakq__btn	Thêm
+P      .ep-item-title	Việc nhỏ (tóm tắt, đặt tên)
+SPAN   .llm-module__k5iwQq__chainIndex	Chính
+SPAN  	gpt-4o-mini
+SPAN   .llm-module__k5iwQq__sub	· OpenAI
+LABEL  .Field-module__M16HFW__label	Thêm dự phòng cho Việc nhỏ (tóm tắt, đặt tên)
+BUTTON .Button-module__lwrakq__btn	Thêm
+P      .ep-item-title	Chấm bài
+SPAN   .llm-module__k5iwQq__chainIndex	Chính
+SPAN  	gpt-4o
+SPAN   .llm-module__k5iwQq__sub	· OpenAI
+SPAN   .llm-module__k5iwQq__chainIndex	Dự phòng 1
+SPAN  	gemini-2.0-flash
+SPAN   .llm-module__k5iwQq__sub	· Gemini
+BUTTON .Button-module__lwrakq__btn	Lên
+BUTTON .Button-module__lwrakq__btn	Xuống
+BUTTON .Button-module__lwrakq__btn	Bỏ
+LABEL  .Field-module__M16HFW__label	Thêm dự phòng cho Chấm bài
+BUTTON .Button-module__lwrakq__btn	Thêm
+P      .ep-item-title	Sinh câu hỏi
+SPAN   .llm-module__k5iwQq__chainIndex	Chính
+SPAN  	gpt-4o
+SPAN   .llm-module__k5iwQq__sub	· OpenAI
+LABEL  .Field-module__M16HFW__label	Thêm dự phòng cho Sinh câu hỏi
+BUTTON .Button-module__lwrakq__btn	Thêm
+P      .ep-item-title	Tóm tắt lớp học
+P      .llm-module__k5iwQq__sub	Chưa chọn mô hình chính — đang dùng cấu hình mặc định của máy chủ.
+H2     .ep-section-title	Mô hình tìm kiếm tài liệu
+P      .llm-module__k5iwQq__sub	Đổi mục này cần lập chỉ mục lại tài liệu.
+P      .ep-item-title	text-embedding-3-small
+P      .llm-module__k5iwQq__sub	OpenAI · 1536 chiều
+LABEL  .Field-module__M16HFW__label	Đổi mô hình tìm kiếm tài liệu
+H2     .ep-section-title	Đổi sang mô hình mới?
+P      .Dialog-module__rUw9Ha__desc	Đổi mô hình tìm kiếm tài liệu. Mọi tài liệu đã nạp sẽ phải lập chỉ mục lại; trong lúc đó tìm kiếm có thể kém chính xác.
+BUTTON .Button-module__lwrakq__btn	Để sau
+BUTTON .Button-module__lwrakq__btn	Đổi mô hình
+H2     .ep-section-title	Mức dùng và ngân sách
+P     	Hôm nay 42.000 đ / 80.000 đ · tháng này 1.240.000 đ / 2.000.000 đ
+BUTTON .Button-module__lwrakq__btn	Đổi hạn mức
+BUTTON .Tabs-module__-iOmWq__segment	7 ngày
+BUTTON .Tabs-module__-iOmWq__segment	30 ngày
+DT    	Lượt gọi
+DD    	1.840
+DT    	Token vào / ra
+DD    	912.000 / 301.000
+DT    	Chi phí ước tính
+DD    	1.240.000 đ
+DT    	Độ trễ p95
+DD    	1.180 ms
+DT    	Lỗi
+DD    	3
+DT    	Chạy rút gọn
+DD    	12
+DT    	Lượt gọi
+DD    	60
+DT    	Token vào / ra
+DD    	400.000 / 90.000
+DT    	Chi phí ước tính
+DD    	88.000 đ
+DT    	Độ trễ p95
+DD    	9.000 ms
+DT    	Lỗi
+DD    	0
+DT    	Chạy rút gọn
+DD    	0
