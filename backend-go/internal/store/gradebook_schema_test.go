@@ -150,12 +150,12 @@ func TestGradebookCrossCourseFK(t *testing.T) {
 	const fk = "23503"
 	expect(t, ctx, conn, map[string]struct{ code, sql string }{
 		"thành phần của lớp 2 trong công thức lớp 1": {fk, f.q(`insert into grade_components (course_id, scheme_id, key, name, grp, weight) values ('{c2}', '{sc1}', 'x', 'X', 'QT', 10)`)},
-		"item lớp 1 gắn thành phần lớp 2":           {fk, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name) values ('{c1}', '{sc1}', '{k2}', 'x', 'X')`)},
-		"item lớp 1 gắn công thức lớp 2":            {fk, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name) values ('{c1}', '{sc2}', '{k1}', 'x', 'X')`)},
-		"item lớp 1 nối bài thi lớp 2":              {fk, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name, source, exam_id) values ('{c1}', '{sc1}', '{k1}', 'x', 'X', 'EXAM', '{e2}')`)},
-		"điểm lớp 2 vào item lớp 1":                 {fk, f.q(`insert into grade_entries (course_id, item_id, student_id, score, entered_by) values ('{c2}', '{i1}', '{s1}', 5, '{t}')`)},
-		"điểm của sinh viên chưa vào lớp 2":         {fk, f.q(`insert into grade_entries (course_id, item_id, student_id, score, entered_by) values ('{c1}', '{i1}', '` + f.s3.String() + `', 5, '{t}')`)},
-		"quy tắc lớp 1 gắn công thức lớp 2":         {fk, f.q(`insert into grade_rules (course_id, scheme_id, kind) values ('{c1}', '{sc2}', 'ROUNDING')`)},
+		"item lớp 1 gắn thành phần lớp 2":            {fk, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name) values ('{c1}', '{sc1}', '{k2}', 'x', 'X')`)},
+		"item lớp 1 gắn công thức lớp 2":             {fk, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name) values ('{c1}', '{sc2}', '{k1}', 'x', 'X')`)},
+		"item lớp 1 nối bài thi lớp 2":               {fk, f.q(`insert into grade_items (course_id, scheme_id, component_id, key, name, source, exam_id) values ('{c1}', '{sc1}', '{k1}', 'x', 'X', 'EXAM', '{e2}')`)},
+		"điểm lớp 2 vào item lớp 1":                  {fk, f.q(`insert into grade_entries (course_id, item_id, student_id, score, entered_by) values ('{c2}', '{i1}', '{s1}', 5, '{t}')`)},
+		"điểm của sinh viên chưa vào lớp 2":          {fk, f.q(`insert into grade_entries (course_id, item_id, student_id, score, entered_by) values ('{c1}', '{i1}', '` + f.s3.String() + `', 5, '{t}')`)},
+		"quy tắc lớp 1 gắn công thức lớp 2":          {fk, f.q(`insert into grade_rules (course_id, scheme_id, kind) values ('{c1}', '{sc2}', 'ROUNDING')`)},
 	})
 	// luật duy nhất theo kind trừ FAIL_CONDITION
 	rule := func(kind string) string {

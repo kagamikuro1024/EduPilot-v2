@@ -27,6 +27,7 @@ tags:
   - name: threads
   - name: library
   - name: calendar
+  - name: gradebook
 paths:
   /healthz:
     get:
@@ -2683,6 +2684,41 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/grade-scheme/extract:
+    post:
+      operationId: extractGradeScheme
+      tags: [gradebook]
+      summary: "Trích bản nháp công thức điểm từ tài liệu quy chế (COURSE_POLICY, READY) bằng MỘT lời gọi LLM có cấu trúc; việc nền 202 + tiến độ SSE `job.progress`. Chỉ TEACHER; Idempotency-Key bắt buộc. Không phải COURSE_POLICY 422 DOCUMENT_NOT_POLICY; chưa READY 409 DOCUMENT_NOT_READY; quá dài 422 POLICY_TOO_LONG; có bản nháp đã sửa tay mà không `replace_draft` 409 DRAFT_EXISTS. AI không bao giờ tự xác nhận"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ExtractGradeSchemeInput"
+      responses:
+        "202":
+          description: Đã nhận việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/participation:
     get:
       operationId: listParticipation
@@ -9790,6 +9826,26 @@ components:
             - NOT_ENOUGH_DATA
             - OUTREACH_LIMIT
             - STUDENT_NOT_ACTIVE
+            - SCHEME_NOT_CONFIRMED
+            - SCHEME_HAS_UNCLEAR
+            - SCHEME_NOT_DRAFT
+            - NO_DRAFT
+            - DRAFT_EXISTS
+            - DOCUMENT_NOT_POLICY
+            - POLICY_TOO_LONG
+            - GRADEBOOK_LOCKED
+            - GRADES_INCOMPLETE
+            - NOT_LOCKED
+            - ITEM_NOT_EDITABLE
+            - ITEM_NOT_PUBLISHABLE
+            - SCORE_OUT_OF_RANGE
+            - SCORE_PRECISION
+            - IMPORT_HAS_ERRORS
+            - FILE_INVALID
+            - TOO_MANY_ROWS
+            - NOT_ENOUGH_GRADES
+            - FINAL_ALREADY_LOCKED
+            - EXTRACTION_INVALID
         message:
           type: string
         trace_id:
@@ -12774,6 +12830,16 @@ components:
               maxItems: 3
               items:
                 type: string
+    ExtractGradeSchemeInput:
+      type: object
+      required: [document_id]
+      additionalProperties: false
+      properties:
+        document_id:
+          type: string
+          format: uuid
+        replace_draft:
+          type: boolean
     OutreachInput:
       type: object
       required: [body]

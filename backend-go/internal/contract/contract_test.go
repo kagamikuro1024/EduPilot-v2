@@ -382,6 +382,7 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"POST /api/v1/chat/tickets/{id}/confirm":                                        true,
 		"POST /api/v1/chat/tickets/{id}/confirm/undo":                                   true,
 		"PUT /api/v1/courses/{id}/settings":                                             true,
+		"POST /api/v1/courses/{id}/grade-scheme/extract":                                true, // US-P6-03 (proposals #9)
 		"GET /api/v1/me/courses":                                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {
