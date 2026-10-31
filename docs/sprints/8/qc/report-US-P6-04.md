@@ -1,4 +1,15 @@
-# QC report — US-P6-04 (`/gradebook/scheme`: duyệt công thức như văn bản, mục chưa rõ chặn, xem thử 3 sinh viên, xác nhận có hậu quả bằng số) · Kết luận vòng 1: **FAIL** (AC1: "không tường ô nhập" bị vi phạm — 22 ô nhập luôn hiện; AC4: chưa đo ≤ 300 ms; CI đỏ ở `panels.spec.ts` do chính story — BUG-P6-04-3; còn lại PASS)
+# QC report — US-P6-04 (`/gradebook/scheme`: duyệt công thức như văn bản, mục chưa rõ chặn, xem thử 3 sinh viên, xác nhận có hậu quả bằng số) · Kết luận vòng 2: **PASS** (xem "Vòng 2"; CI đỏ ở run `41200524277` do `shell.spec.ts` của US-P6-06, không do US-P6-04). Vòng 1: **FAIL** (AC1: "không tường ô nhập" bị vi phạm — 22 ô nhập luôn hiện; AC4: chưa đo ≤ 300 ms; CI đỏ ở `panels.spec.ts` do chính story — BUG-P6-04-3; còn lại PASS)
+
+## Vòng 2 (2026-10-31, `sprint/8-p6` @ `b8284b73`; handoff mục "Vòng 2")
+| Lỗi vòng 1 | Vòng 2 | Bằng chứng |
+| --- | --- | --- |
+| BUG-P6-04-1 tường ô nhập (22 ô) | **ĐÃ SỬA** | dump lại: `inputs=1` (chỉ ô `Chọn bước` của mục chưa rõ "Làm tròn"), mặc định mỗi mục là chữ: "Kiểm tra hằng tuần · 20% · Quá trình", "+0,25 mỗi lần phát biểu · tối đa +1,0", "−0,5 mỗi buổi vắng · miễn 2 buổi", "A từ 8,5 · D từ 4 · F từ 0"; bấm mục mới mở ô sửa tại chỗ (e2e `scheme review layout` kiểm "chỉ 1 ô nhập hiện", bấm mục → `Trọng số`, `Xong`); 375 px cũng `inputs=1`; TA `inputs=0`; ảnh `shots/p604-r2-teacher-1440.png`; có `Mở trang 1` |
+| BUG-P6-04-3 CI đỏ `panels.spec` `/documents` | **ĐÃ SỬA** | route giả của `gradeApi` chỉ bắt `grade-scheme` và `documents/<DOC>(/chunks)`; CI `b8284b73`: `panels.spec.ts` không còn đỏ; QC `panels tokens … ` 260 passed |
+| BUG-P6-04-2 p95 `impact` ≤ 300 ms | chuyển US-S8-SEED (PM đã dời) | |
+Chạy lại: `gradebook.spec.ts` 29 passed (desktop) gồm toàn bộ ca `scheme *`; Go `grade` 25/25 PASS ở vòng 1, không đổi; `ui-antipatterns` rc=0. AC1 **PASS**; mọi AC khác giữ PASS. Story **PASS** (nợ: đo p95 `impact` ở SEED).
+
+---
+## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `a50ec5b9` (đã gồm `6d552d67`, thêm liên kết `Mở trang N` theo quyết định PM 18:41). Bộ TC: `tc-US-P6-04.md` (chữ TC chỉ đổi 1 dòng theo #11). Handoff: `dev-US-P6-04.md`. CI: run `41198097712` (`a50ec5b9`) — xem "CI" cuối mục 1.
 
 ## 1. Cổng nghiệm thu đã chạy

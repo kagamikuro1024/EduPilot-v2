@@ -1,0 +1,161 @@
+panels=1 rows=20 inputs=40 officialNote=1 scroll=1440,1440
+buttons: Cột Kiểm tra tuần | Cột Thi cuối kỳ | Hành động — Sinh Viên 0001 | Hành động — Sinh Viên 0002 | Hành động — Sinh Viên 0003 | Hành động — Sinh Viên 0004 | Hành động — Sinh Viên 0005 | Hành động — Sinh Viên 0006 | Hành động — Sinh Viên 0007 | Hành động — Sinh Viên 0008 | Hành động — Sinh Viên 0009 | Hành động — Sinh Viên 0010 | Hành động — Sinh Viên 0011 | Hành động — Sinh Viên 0012 | Hành động — Sinh Viên 0013 | Hành động — Sinh Viên 0014 | Hành động — Sinh Viên 0015 | Hành động — Sinh Viên 0016 | Hành động — Sinh Viên 0017 | Hành động — Sinh Viên 0018 | Hành động — Sinh Viên 0019 | Hành động — Sinh Viên 0020
+---
+Sổ điểm
+Xem công thức
+Bảng điểm của lớp
+Sinh viên	
+Kiểm tra tuần
+Chưa công bố
+	
+Thi cuối kỳ
+Chưa công bố
+	
+Bài thi giữa kỳ
+Bài thi
+	Điểm cộng	Điểm trừ	Quá trình	Điểm học phần	Điểm chữ	Trạng thái	
+Hành động
+
+
+Sinh Viên 0001
+B22DCCN101
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0002
+B22DCCN102
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0003
+B22DCCN103
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0004
+B22DCCN104
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0005
+B22DCCN105
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0006
+B22DCCN106
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0007
+B22DCCN107
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0008
+B22DCCN108
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0009
+B22DCCN109
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0010
+B22DCCN110
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0011
+B22DCCN111
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0012
+B22DCCN112
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0013
+B22DCCN113
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0014
+B22DCCN114
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0015
+B22DCCN115
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0016
+B22DCCN116
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0017
+B22DCCN117
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0018
+B22DCCN118
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0019
+B22DCCN119
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+Sinh Viên 0020
+B22DCCN120
+	
+	
+	—	0	0	—	—	—	Thiếu điểm	
+
+
+
+Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.

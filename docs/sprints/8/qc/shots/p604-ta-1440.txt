@@ -1,6 +1,7 @@
 panels=1 inputs=0 infoIcons=0
 links:
 Sổ điểm → /gradebook
+Mở trang 1 → http://localhost:3310/__pdf/quy-che.pdf?sig=1#page=1
 ---
 Sổ điểm
 Công thức điểm
@@ -54,6 +55,6 @@ Sinh Viên 30
 
 quy-che-lop2
 
-Trang 1
+Trang 1 · Mở trang 1
 
 Điều 1. Cách tính điểm. Điểm quá trình gồm bài kiểm tra hằng tuần, chiếm 20% điểm học phần. Bài kiểm tra giữa kỳ chiếm 20% điểm học phần. Thi kết thúc học phần chiếm 60% điểm học phần.

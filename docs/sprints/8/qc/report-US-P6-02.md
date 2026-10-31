@@ -6,6 +6,8 @@ Luật QC: "KHÔNG KIỂM ĐƯỢC" = FAIL. Dev ghi rõ ở handoff: "AC10 `Test
 ## 0. Chấm lại theo #8 (PM, 2026-10-31)
 AC11 (`TestPreviewRBAC`) và nửa xem trước của AC10 (`TestPreviewUsesCompute`) **chuyển nơi kiểm** sang US-P6-06 (route xem trước); chữ AC giữ nguyên. Phần engine (AC1–AC9, AC12, nửa `WhatIf`/`MinFinalFor`/hiệu năng của AC10) PASS ở vòng 1 và không có commit mới đụng `internal/grade` (`git log 12fa90bf..HEAD -- backend-go` rỗng) → kết luận **PASS**. Nợ chuyển: QC chạy TC-P6-02-03, 04, 12, 16, 22, 24, 39 (nửa route), 45, 46–49 ở US-P6-06 / US-P6-04; BUG-P6-02-1 (thấp, khoảng trống bảo vệ TLR-1) vẫn mở, dev thêm ca khi tiện.
 
+**Cập nhật 2026-10-31 (US-P6-06 đã có route, `b8284b73`):** nợ #8 của story này đã kiểm: `TestPreviewUsesCompute` (AC10, nửa xem trước dùng đúng `Compute`) PASS, `TestPreviewRBAC` (AC11: STUDENT `403`, TA đọc, ADMIN `403`) PASS, `TestRBACMatrix` PASS (24/24 test US-P6-06 chạy `-race`). Còn nợ qua API trên stack lớp 1 (TC-03, 04, 12, 16, 22, 24, 45): US-P6-04 `impact` đã có (PASS), phần 30/30 qua `preview` → US-S8-SEED. Kết luận **PASS** giữ nguyên.
+
 ## 1. Cổng nghiệm thu đã chạy (vòng 1)
 | Lệnh | Kết quả |
 | --- | --- |

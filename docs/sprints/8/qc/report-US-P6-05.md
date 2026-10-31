@@ -6,6 +6,8 @@
 - CI `f07c2af6`: Playwright 1/3–3/3 xanh, Lighthouse devtools xanh; còn đỏ `Lighthouse (simulate)` TBT `/settings/llm` — dev đã mở và PM đã chấp nhận #19 (tối ưu mã, không đổi ngưỡng), không thuộc US-P6-05. Go: QC đã chạy `scripts/go-test-all.sh` rc=0 (51 gói) trên cùng mã.
 - BUG-P6-05-1 (thiếu test khử trùng chuông, thấp) vẫn mở cho dev thêm ca; không chặn.
 
+**Cập nhật 2026-10-31 (US-P6-06, `b8284b73`):** AC2 đã kiểm trên màn thật: `gradebook banner` (`gradebook.spec.ts`) PASS — lớp chưa xác nhận → `Chốt điểm` `aria-disabled`, tooltip khi focus đúng "Chưa có công thức điểm đã xác nhận", liên kết `Xác nhận công thức` (TEACHER) / `Xem công thức` (TA, không có `Chốt điểm`); dump QC lớp chưa công thức: banner + `Tải quy chế` (NO_POLICY). AC3 phần giao diện PASS; phần `POST finalize` → `409 SCHEME_NOT_CONFIRMED` chờ US-P6-08 (#18). **PASS** giữ nguyên.
+
 ---
 ## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `f07c2af6` (mã story ở `05633308`). Bộ TC: `tc-US-P6-05.md` (chữ TC chỉ đổi 1 dòng theo #11). Handoff: `dev-US-P6-05.md`. CI: run `41188894701` (`f07c2af6`) **đang chạy lúc QC chốt**; run trước `41188589228` bị huỷ do commit mới (Go static / auth / course / Judge xanh). QC chạy lại toàn bộ bằng chứng trên máy QC (Go + Playwright, mục 1).
