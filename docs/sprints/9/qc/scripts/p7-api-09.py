@@ -48,6 +48,7 @@ td = call("GET", f"{Q}/today", T)[1]; kinds = [i.get("kind") for i in td.get("ac
 chk("10 'Hôm nay' TEACHER có PUBLISH_PENDING khi có bài REVIEWED chưa công bố", "PUBLISH_PENDING" in kinds, kinds)
 td = call("GET", f"{Q}/today", TA)[1]; chk("10 TA không có PUBLISH_PENDING (chỉ TEACHER)", "PUBLISH_PENDING" not in [i.get("kind") for i in td.get("actions", []) + td.get("attention", [])])
 call("POST", f"{Q}/grading-results/{rB}/review", T, {"version": ver(rB)}, idem())
+if os.environ.get("STOP_BEFORE_PUBLISH"): print("   DỪNG trước khi công bố (STOP_BEFORE_PUBLISH); bài", A, "| fails", fails); sys.exit(0)
 # --- phân quyền
 for n, tk in (("TA", TA), ("STUDENT", SB), ("ADMIN", ADM)):
     s, _, _ = pub(tk, {"result_ids": [rA, rB]}); chk(f"09 {n} công bố → 403", s == 403, s)

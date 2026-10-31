@@ -1,4 +1,4 @@
-# QC report — US-P7-09 (công bố hàng loạt, sổ điểm, sinh viên thấy kết quả) · Kết luận vòng 1: **FAIL** (AC1 và AC6: chưa có giao diện — hai lệnh Playwright của `Kiểm:` không có test; phần máy chủ PASS)
+# QC report — US-P7-09 (công bố hàng loạt, sổ điểm, sinh viên thấy kết quả) · Kết luận vòng 1: **FAIL** (AC1 và AC6: chưa có giao diện); **vòng 2 (`eaf827a8`): PASS** — xem mục 4
 Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (máy chủ `578da354`). Bộ TC: `tc-US-P7-09.md`. Handoff: `dev-US-P7-09.md` (chỉ mục "Máy chủ"). CI `c487e4fa`: **success**.
 
 ## 1. Cổng đã chạy
@@ -30,3 +30,21 @@ Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (máy chủ `578da35
 - Ghi nhận: thân `POST …/grading-results/publish` có thêm `versions` (tuỳ chọn) ngoài SRS — dev đã ghi và có trong OpenAPI; `TestMineDTOAllowlist` cập nhật cho `result`.
 - Đóng nợ: `TestTAReviewsCannotPublish` của US-P7-08 AC8 nay nằm ở đây, xanh; hộp đen TA công bố → 403.
 - Chưa kiểm: liên kết item `ASSIGNMENT` ở `PUT grade-scheme` (`ASSIGNMENT_ALREADY_LINKED`, `ASSIGNMENT_SCALE_MISMATCH`) bằng hộp đen — chỉ Go; làm cùng US-S9-SEED.
+
+## 4. Vòng 2 — `eaf827a8` (frontend) · Kết luận: **PASS**
+CI `eaf827a8`: **success**. Bộ TC: `tc-US-P7-09.md` (không đổi).
+
+| Lệnh | Kết quả |
+| --- | --- |
+| Playwright desktop `publish bulk confirm`, `publish bulk conflict`, `student sees published result`, `student grading shows no score` (+ `student page states`, `assignment a11y`, `grading a11y`) | 7/7 xanh; axe 8 lượt, 0 lỗi |
+| Hồi quy `gradebook.spec.ts me.spec.ts today.spec.ts panels.spec.ts a11y.spec.ts` (desktop) | 141 passed, 3 skipped (đúng như dev) |
+| `ui-antipatterns.sh`; grep `mock/assess` | rc 0; rỗng |
+| **Đầu-cuối trên stack thật dựng lại từ `eaf827a8`**: 2 sinh viên nộp → nhập điểm tay → duyệt (API), rồi TEACHER công bố **bằng giao diện** | `/grading` → lọc `Đã duyệt` → `Chọn tất cả đã duyệt` → `Công bố`: hộp thoại "Công bố 2 bài · 2 sinh viên nhận thư · không tính vào sổ điểm" (`Để sau` / `Công bố`) → 2 kết quả `PUBLISHED`, 2 chuông `GRADE_PUBLISHED`, đúng 2 thư (Mailpit) tới `sv.gioi@`, `sv.kha@`. Sinh viên B mở `/assignments/{id}` 1440 và 375: khối "Kết quả" **4,00 / 10,00**, bốn tiêu chí `1,00 / 2,50`, nhận xét, nhãn "đã được giảng viên duyệt"; không có chữ nháp / AI / cờ; `scrollWidth = innerWidth` ở cả hai bề rộng. Ảnh: `shots/p709-queue-reviewed-1440.png`, `p709-publish-confirm-1440.png`, `p709-queue-after-publish-1440.png`, `p709-student-result-1440.png`, `-375.png` |
+
+| AC | Vòng 2 |
+| --- | --- |
+| AC1 công bố hàng loạt (giao diện) | PASS — hộp thoại nêu số bài và số thư; công bố qua giao diện đúng hậu quả ở DB / chuông / thư; TA không thấy nút (`grading ta cannot see publish`, vòng US-P7-08) |
+| AC6 sinh viên thấy điểm đã công bố | PASS — thấy điểm + tiêu chí + nhận xét; chưa công bố chỉ thấy "Đang chấm" (`student grading shows no score`) |
+| AC2, AC3, AC4, AC5, AC7–AC10 | giữ PASS (máy chủ không đổi từ vòng 1) |
+
+Ghi nhận (thấp): sau công bố `/assignments/{id}` vẫn hiện vùng thả "Chọn tệp / Kéo thả" cùng nút `Nộp lại` bị mờ kèm "Đã có điểm" — máy chủ khoá bằng `409 SUBMISSION_LOCKED`; nên ẩn vùng thả khi đã công bố. Liên kết item `ASSIGNMENT` ở công thức (`/gradebook/scheme`) chỉ kiểm bằng Go + Playwright (dev: `TestAssignmentItemLinkValidation`, spec gradebook) — chưa dựng trên stack thật (công thức lớp 1 đã `CONFIRMED`, sửa cần bản nháp mới) → làm cùng US-S9-SEED.
