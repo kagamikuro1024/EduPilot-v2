@@ -27,6 +27,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/gradehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/integrationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
@@ -35,8 +36,10 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/library"
+	"github.com/edupilot/backend-go/internal/mailin"
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/platform/crypto"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/today"
@@ -127,6 +130,13 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			// US-P6-03 — công thức điểm: POST …/grade-scheme/extract (202 + việc nền), SRS FEAT-gradebook 6.1.
 			(&gradehttp.Handler{Grade: gradeService(d), Extract: gradingService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
 			(&assignmenthttp.Handler{Assignments: assignmentService(d), Submit: submissionService(d), Batches: &grading.Batches{Pool: d.DB, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P7-02: bài tập
+			if d.Redis != nil {
+				if cipher, err := crypto.ParseKey(d.Cfg.AppEncryptionKey); err == nil { // US-P7-05: cấu hình IMAP / SMTP, Đồng bộ ngay, thư không xử lý được
+					ms := &mailin.Service{Pool: d.DB, Cipher: cipher, Redis: d.Redis, Jobs: d.Jobs, Production: d.Cfg.AppEnv == "production", MinSync: d.Cfg.SyncNowMinInterval,
+						SMTP: mailin.SMTPInfo{Host: d.Cfg.SMTPHost, Port: d.Cfg.SMTPPort, Security: d.Cfg.SMTPTLS, From: d.Cfg.MailFrom}}
+					(&integrationhttp.Handler{Svc: ms, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+				}
+			}
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
 			// US-P8-01 — tải tài liệu lên (URL ký sẵn), hoàn tất → 202 + việc nền, thử lại, lập chỉ mục lại (SRS FEAT-docs-calendar 6, #1–#2, #9–#11).

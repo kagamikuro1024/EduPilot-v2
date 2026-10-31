@@ -55,6 +55,9 @@ func newTasks(d Deps) []Task {
 	if gq := newGradingQueue(d); gq != nil {
 		tasks = append(tasks, gradingTask{gq})
 	}
+	if ys := newImapSyncer(d); ys != nil {
+		tasks = append(tasks, imapTask{ys})
+	}
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})

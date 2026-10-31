@@ -58,6 +58,12 @@ type rig struct {
 
 func newRig(t *testing.T, opts ...func(map[string]string)) *rig {
 	t.Helper()
+	return newRigDeps(t, nil, opts...)
+}
+
+// newRigDeps như newRig, cho phép bổ sung Deps (vd. Jobs để gắn nhóm route cần việc nền).
+func newRigDeps(t *testing.T, mut func(*httpapi.Deps), opts ...func(map[string]string)) *rig {
+	t.Helper()
 	testutil.RequireContainers(t)
 	env := map[string]string{
 		"DATABASE_URL": testutil.MigratedPostgresURL(t), "REDIS_URL": testutil.RedisURL(t), "JWT_SECRET_KEY": rigSecret,
@@ -91,6 +97,9 @@ func newRig(t *testing.T, opts ...func(map[string]string)) *rig {
 	require.NoError(t, err)
 	d := httpapi.Deps{
 		Cfg: cfg, Log: log, DB: pool, Redis: rdb, Clock: clk, State: httpapi.NewState(), LLM: rt,
+	}
+	if mut != nil {
+		mut(&d)
 	}
 	id := uuid.New()
 	return &rig{t: t, cfg: cfg, h: httpapi.NewRouter(d), pool: pool, rdb: rdb, clk: clk, qc: qc, logs: logs, ip: fmt.Sprintf("203.0.%d.%d", 1+int(id[0])%254, 1+int(id[1])%254)}

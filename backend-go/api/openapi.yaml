@@ -29,6 +29,7 @@ tags:
   - name: calendar
   - name: gradebook
   - name: assignments
+  - name: integrations
 paths:
   /healthz:
     get:
@@ -3404,6 +3405,212 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/imap:
+    get:
+      operationId: getImapIntegration
+      tags: [integrations]
+      summary: "Cấu hình IMAP của lớp (ADMIN, TEACHER của lớp; Cache-Control: no-store). Không bao giờ có mật khẩu hay đuôi mật khẩu; chưa cấu hình → configured=false"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: putImapIntegration
+      tags: [integrations]
+      summary: "Lưu cấu hình IMAP (chỉ ADMIN). password trống = giữ cũ (lần đầu bắt buộc); security NONE bị từ chối ở production; version khoá lạc quan (409 VERSION_CONFLICT); lưu xong mở lại poll đang tạm dừng"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [host, port, security, username, enabled]
+              additionalProperties: false
+              properties:
+                host: {type: string}
+                port: {type: integer, minimum: 1, maximum: 65535}
+                security: {type: string, enum: [TLS, STARTTLS, NONE]}
+                username: {type: string}
+                password: {type: string}
+                mailbox: {type: string}
+                poll_seconds: {type: integer, minimum: 10, maximum: 3600}
+                enabled: {type: boolean}
+                version: {type: integer}
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/imap/test:
+    post:
+      operationId: testImapIntegration
+      tags: [integrations]
+      summary: "Test kết nối IMAP bằng cấu hình đã lưu (chỉ ADMIN): kết nối + đăng nhập + mở hộp thư ≤ 10 giây. ok=false kèm kind UNREACHABLE | AUTH | TLS | MAILBOX | TIMEOUT; ghi last_ok_at / last_error"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Kết quả
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                additionalProperties: false
+                properties:
+                  ok: {type: boolean}
+                  kind: {type: string, enum: [UNREACHABLE, AUTH, TLS, MAILBOX, TIMEOUT]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/integrations/imap/sync-now:
+    post:
+      operationId: syncImapNow
+      tags: [integrations]
+      summary: "Đồng bộ ngay (TA, TEACHER; ADMIN 403; Idempotency-Key bắt buộc): 202 {job_id}, tiến độ job.progress, kết quả {received, created, matched, unmatched, ignored, failed}. Đang có một lần chạy → trả job_id đó; ≤ 1 lần / SYNC_NOW_MIN_INTERVAL / lớp (429 + retry_after)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job_id]
+                additionalProperties: false
+                properties:
+                  job_id: {type: string, format: uuid}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/integrations/smtp:
+    get:
+      operationId: getSmtpIntegration
+      tags: [integrations]
+      summary: "Cấu hình gửi thư của máy chủ (SMTP_*), chỉ đọc (ADMIN, TEACHER của lớp; Cache-Control: no-store); không có mật khẩu"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/courses/{id}/integrations/smtp/test:
+    post:
+      operationId: testSmtpIntegration
+      tags: [integrations]
+      summary: "Gửi thư thử tới địa chỉ của người bấm (chỉ ADMIN); thư đi qua mail_outbox"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "202":
+          description: Đã xếp thư
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [queued]
+                additionalProperties: false
+                properties:
+                  queued: {type: boolean}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/courses/{id}/mail-inbound:
+    get:
+      operationId: listMailInbound
+      tags: [integrations]
+      summary: "Thư đã nhận qua IMAP (TA, TEACHER; Cache-Control: no-store): lọc status (ACCEPTED | IGNORED | FAILED), con trỏ (received_at, id) mới nhất trước — mục \"Thư không xử lý được\" ở tab Chưa khớp"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACCEPTED, IGNORED, FAILED]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                additionalProperties: false
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, from_email, subject, received_at, status, reason, submission_id]
+                      additionalProperties: false
+                      properties:
+                        id: {type: string, format: uuid}
+                        from_email: {type: string}
+                        subject: {type: string}
+                        received_at: {type: string, format: date-time}
+                        status: {type: string, enum: [ACCEPTED, IGNORED, FAILED]}
+                        reason: {type: [string, "null"], enum: [AUTO_REPLY, NO_ATTACHMENT, TOO_MANY_ATTACHMENTS, ATTACHMENT_REJECTED, PARSE_ERROR, null]}
+                        submission_id: {type: [string, "null"], format: uuid}
+                  next_cursor: {type: [string, "null"]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/grading-results/publish:
@@ -12355,6 +12562,24 @@ components:
         response: {type: [string, "null"]}
         decided_by: {type: [string, "null"], format: uuid}
         decided_at: {type: [string, "null"], format: date-time}
+        version: {type: integer}
+    IntegrationView:
+      type: object
+      required: [kind, configured, enabled, status, config, read_only, last_ok_at, last_sync_at, last_error, error_since, version]
+      additionalProperties: false
+      properties:
+        kind: {type: string, enum: [IMAP, SMTP]}
+        configured: {type: boolean}
+        enabled: {type: boolean}
+        status: {type: string, enum: [CONNECTED, NOT_CONNECTED, ERROR, PAUSED]}
+        config:
+          type: [object, "null"]
+          description: "Phần không bí mật: IMAP {host, port, security, username, mailbox, poll_seconds}; SMTP {host, port, security, from}"
+        read_only: {type: boolean}
+        last_ok_at: {type: [string, "null"], format: date-time}
+        last_sync_at: {type: [string, "null"], format: date-time}
+        last_error: {type: [string, "null"], description: "Nguyên nhân ngắn: UNREACHABLE | AUTH | TLS | MAILBOX | TIMEOUT"}
+        error_since: {type: [string, "null"], format: date-time}
         version: {type: integer}
     GradingEnqueued:
       type: object

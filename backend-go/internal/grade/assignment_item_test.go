@@ -130,3 +130,25 @@ func TestAssignmentOpenIsIncomplete(t *testing.T) {
 	late := newAsgRig(t, "-1 day", true) // quá hạn nhưng còn 2 ngày nộp muộn
 	require.Equal(t, grade.ReasonAssignmentOpen, late.inputs()[late.students[0]].ItemReason[late.item])
 }
+
+func (r *asgRig) ignoredMail(subject, from, status, reason string, uid int) {
+	r.t.Helper()
+	r.exec(`insert into mail_inbound (course_id, uidvalidity, message_uid, from_email, subject, received_at, status, reason) values ($1, 1, $2, $3, $4, now(), $5, nullif($6, ''))`, r.course, uid, from, subject, status, reason)
+}
+
+// TestIgnoredMailBlocksZeroScore — thư IGNORED có mã bài trong tiêu đề (trừ tự trả lời) là "còn bài chưa khớp": không có 0 điểm tự động; thư tự trả lời / mã khác không chặn; người gửi nộp lại thành công thì hết chặn (US-P7-05).
+func TestIgnoredMailBlocksZeroScore(t *testing.T) {
+	r := newAsgRig(t, "-1 day", false)
+	r.sub(r.students[0], 1, "PUBLISHED", "8")
+	r.sub(r.students[1], 1, "PUBLISHED", "6")
+	r.exec(`update assignments set submission_code = 'BT03' where id = $1`, r.asg)
+	r.ignoredMail("[BT07] bài khác", "a@x.vn", "IGNORED", "NO_ATTACHMENT", 1)
+	r.ignoredMail("[BT03] trả lời tự động", "b@x.vn", "IGNORED", "AUTO_REPLY", 2)
+	require.True(t, r.inputs()[r.students[2]].ItemClosed[r.item], "mã khác / tự trả lời không chặn")
+	r.ignoredMail("[bt03] 20229003", "c@x.vn", "IGNORED", "NO_ATTACHMENT", 3)
+	in := r.inputs()
+	require.Equal(t, grade.ReasonUnmatchedPending, in[r.students[2]].ItemReason[r.item])
+	require.False(t, in[r.students[2]].ItemClosed[r.item], "không 0 điểm khi còn thư chưa xử lý được")
+	r.exec(`insert into mail_inbound (course_id, uidvalidity, message_uid, from_email, subject, received_at, status) values ($1, 1, 4, 'c@x.vn', '[BT03] nộp lại', now() + interval '1 minute', 'ACCEPTED')`, r.course)
+	require.True(t, r.inputs()[r.students[2]].ItemClosed[r.item], "người gửi đã nộp lại thành công")
+}

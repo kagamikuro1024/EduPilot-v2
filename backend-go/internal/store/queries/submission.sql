@@ -174,7 +174,11 @@ where i.course_id = sqlc.arg(course_id) and i.scheme_id = sqlc.arg(scheme_id) an
 -- name: GradeAssignmentFacts :many
 -- Dữ kiện theo item ASSIGNMENT: còn bao nhiêu bài UNMATCHED chưa bỏ qua của bài đó, và cửa nộp đã đóng chưa (due_at, cộng late_max_days nếu cho nộp muộn).
 select i.id as item_id,
-       (select count(*) from submissions s where s.course_id = i.course_id and s.assignment_id = i.assignment_id and s.match_status = 'UNMATCHED' and s.dismissed_at is null)::int as unmatched,
+       ((select count(*) from submissions s where s.course_id = i.course_id and s.assignment_id = i.assignment_id and s.match_status = 'UNMATCHED' and s.dismissed_at is null)
+        -- Thư IGNORED (trừ tự trả lời) có mã bài trong tiêu đề mà người gửi chưa nộp lại thành công cũng là "còn bài chưa khớp" (SRS 4.5.4 / 4.9).
+        + (select count(*) from mail_inbound m where m.course_id = i.course_id and m.status = 'IGNORED' and m.reason <> 'AUTO_REPLY' and position(lower('[' || a.submission_code || ']') in lower(m.subject)) > 0
+             and not exists (select 1 from mail_inbound m2 where m2.course_id = m.course_id and m2.from_email = m.from_email and m2.status = 'ACCEPTED' and m2.received_at > m.received_at
+                             and position(lower('[' || a.submission_code || ']') in lower(m2.subject)) > 0)))::int as unmatched,
        (a.due_at + case when a.allow_late then make_interval(days => a.late_max_days::int) else interval '0' end < now())::bool as closed
 from grade_items i join assignments a on a.course_id = i.course_id and a.id = i.assignment_id
 where i.course_id = sqlc.arg(course_id) and i.scheme_id = sqlc.arg(scheme_id) and i.source = 'ASSIGNMENT';

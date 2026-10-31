@@ -183,17 +183,22 @@ type Config struct {
 	FakeValidKey          string
 
 	// Tài khoản an toàn (SRS FEAT-account-security 8.1): thư và hạn token một lần.
-	AppPublicURL    string // gốc dựng liên kết trong thư (không có dấu / cuối)
-	SMTPHost        string
-	SMTPPort        int
-	SMTPUser        string
-	SMTPPass        string // bí mật: không log
-	SMTPTLS         string // none | starttls | tls
-	MailFrom        string
-	MailSendTimeout time.Duration
-	VerifyTokenTTL  time.Duration
-	ResetTokenTTL   time.Duration
-	InviteTokenTTL  time.Duration
+	AppPublicURL string // gốc dựng liên kết trong thư (không có dấu / cuối)
+	SMTPHost     string
+	SMTPPort     int
+	SMTPUser     string
+	SMTPPass     string // bí mật: không log
+	SMTPTLS      string // none | starttls | tls
+	MailFrom     string
+	// US-P7-05 (ImapSource): chu kỳ poll mặc định, trần lùi luỹ tiến, authserv-id của máy chủ thư trường (rỗng = mọi thư UNMATCHED SENDER_UNVERIFIED), giãn cách `Đồng bộ ngay`.
+	IMAPPollSeconds       int
+	IMAPBackoffMax        time.Duration
+	IMAPTrustedAuthservID string
+	SyncNowMinInterval    time.Duration
+	MailSendTimeout       time.Duration
+	VerifyTokenTTL        time.Duration
+	ResetTokenTTL         time.Duration
+	InviteTokenTTL        time.Duration
 }
 
 // ErrMissingEnv liệt kê MỌI biến bắt buộc bị thiếu (chỉ tên).
@@ -407,6 +412,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 		l.bad("MAIL_FROM", "không phải địa chỉ thư hợp lệ")
 	}
 	c.MailSendTimeout = l.dur("MAIL_SEND_TIMEOUT", 10*time.Second)
+	c.IMAPPollSeconds = l.num("IMAP_POLL_SECONDS", 60, 5, 3600)
+	c.IMAPBackoffMax = l.dur("IMAP_BACKOFF_MAX", 15*time.Minute)
+	c.IMAPTrustedAuthservID = l.raw("IMAP_TRUSTED_AUTHSERV_ID")
+	c.SyncNowMinInterval = l.dur("SYNC_NOW_MIN_INTERVAL", 30*time.Second)
 	c.VerifyTokenTTL = l.dur("VERIFY_TOKEN_TTL", 24*time.Hour)
 	c.ResetTokenTTL = l.dur("RESET_TOKEN_TTL", 30*time.Minute)
 	c.InviteTokenTTL = l.dur("INVITE_TOKEN_TTL", 72*time.Hour)

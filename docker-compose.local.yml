@@ -122,6 +122,7 @@ services:
       <<: *app-env
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
+      SYNC_NOW_MIN_INTERVAL: ${SYNC_NOW_MIN_INTERVAL:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       # Thông tin hỗ trợ trong câu mẫu khủng hoảng (giá trị MÔ PHỎNG, D44); ≤ 300 ký tự, rỗng → câu mặc định.
@@ -233,6 +234,10 @@ services:
       GRADING_REQUEUE_AFTER: ${GRADING_REQUEUE_AFTER:-}
       GRADING_ATTEMPTS: ${GRADING_ATTEMPTS:-}
       GRADING_ATTEMPT_TIMEOUT: ${GRADING_ATTEMPT_TIMEOUT:-}
+      # Nhận bài qua thư IMAP (US-P7-05): để trống = mặc định; IMAP_TRUSTED_AUTHSERV_ID rỗng = mọi thư UNMATCHED SENDER_UNVERIFIED.
+      IMAP_POLL_SECONDS: ${IMAP_POLL_SECONDS:-}
+      IMAP_BACKOFF_MAX: ${IMAP_BACKOFF_MAX:-}
+      IMAP_TRUSTED_AUTHSERV_ID: ${IMAP_TRUSTED_AUTHSERV_ID:-}
       JUDGE_CONSUMER: ${JUDGE_CONSUMER:-true}
       JUDGE_URL: ${JUDGE_URL:-http://judge:5050}
       JUDGE_TOKEN: ${JUDGE_TOKEN:-}

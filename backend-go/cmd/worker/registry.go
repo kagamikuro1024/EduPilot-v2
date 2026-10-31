@@ -46,6 +46,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
+	if ys := newImapSyncer(d); ys != nil {
+		ys.Register(runner) // imap.sync: Đồng bộ ngay (US-P7-05)
+	}
 	if gq := newGradingQueue(d); gq != nil {
 		gq.RegisterBatch(runner) // grading.batch: chỉ XADD ep:grading (US-P7-07); chấm chạy ở consumer ep:grading
 	}

@@ -159,6 +159,14 @@ func specs() map[string]spec {
 				"Xem chi tiết: {{.AssignmentURL}}",
 			},
 		},
+		// US-P7-05: thư thử của khối SMTP ở /settings/integrations (gửi tới người bấm).
+		"smtp_test": {
+			subject: "Thư thử từ EduPilot", vars: []string{"FullName"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"Đây là thư thử: cấu hình gửi thư của EduPilot đang hoạt động.",
+			},
+		},
 		"account_locked": {
 			subject: "Tài khoản EduPilot bị khoá tạm thời", vars: []string{"FullName", "Until", "ForgotURL"},
 			paras: []string{

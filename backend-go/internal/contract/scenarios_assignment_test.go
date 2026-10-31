@@ -136,6 +136,7 @@ func (r *runner) assignmentScenarios(x examRig) {
 	r.uploadScenarios(x, base)
 	r.appealScenarios(x, base)
 	r.versionsScenarios(x, base)
+	r.integrationScenarios(x)
 
 	// 5: xoá — bài nộp → 409; bài sạch 204.
 	if _, err := db.Exec(ctx, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method, submitted_at)
@@ -661,4 +662,69 @@ func (r *runner) versionsScenarios(x examRig, base string) {
 		r.t.Fatalf("không có bài tập để đếm phiên bản")
 	}
 	r.must(call{method: "GET", path: base + "/" + list.Items[0].ID + "/versions?student_id=" + claims.Sub, token: x.ta}, 200)
+}
+
+// integrationScenarios: cấu hình IMAP / SMTP, Test, Đồng bộ ngay, thư đã nhận (US-P7-05) với mọi status đã khai báo.
+func (r *runner) integrationScenarios(x examRig) {
+	ctx := context.Background()
+	root := "/api/v1/courses/" + x.cid
+	imap := root + "/integrations/imap"
+	body := func(version string, password string, host string) string {
+		return `{"host":"` + host + `","port":1,"security":"NONE","username":"nop@truong.edu","password":"` + password + `","mailbox":"INBOX","poll_seconds":60,"enabled":true` + version + `}`
+	}
+	r.must(call{method: "GET", path: imap}, 401)
+	for _, who := range []string{x.ta, x.sv} {
+		r.must(call{method: "GET", path: imap, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: imap, token: x.gv}, 200) // chưa cấu hình
+	r.must(call{method: "POST", path: imap + "/test", token: x.admin}, 404)
+	r.must(call{method: "POST", path: imap + "/sync-now", token: x.gv, headers: x.idem()}, 404)
+	r.must(call{method: "PUT", path: imap, body: body("", "mat-khau-1", "127.0.0.1")}, 401)
+	for _, who := range []string{x.gv, x.ta, x.sv} {
+		r.must(call{method: "PUT", path: imap, token: who, body: body("", "mat-khau-1", "127.0.0.1")}, 403)
+	}
+	r.must(call{method: "PUT", path: imap, token: x.admin, body: body("", "", "127.0.0.1")}, 422) // lần đầu cần mật khẩu
+	r.must(call{method: "PUT", path: imap, token: x.admin, body: body("", "mat-khau-1", "127.0.0.1")}, 200)
+	r.must(call{method: "PUT", path: imap, token: x.admin, body: body(`,"version":9`, "", "127.0.0.1")}, 409)
+	_, out := r.must(call{method: "GET", path: imap, token: x.admin}, 200)
+	if strings.Contains(string(out), "mat-khau-1") {
+		r.t.Fatalf("GET cấu hình IMAP lộ mật khẩu")
+	}
+	r.must(call{method: "POST", path: imap + "/test"}, 401)
+	for _, who := range []string{x.gv, x.ta, x.sv} {
+		r.must(call{method: "POST", path: imap + "/test", token: who}, 403)
+	}
+	r.must(call{method: "POST", path: imap + "/test", token: x.admin}, 200) // ok=false UNREACHABLE (cổng 1)
+
+	sync := imap + "/sync-now"
+	r.must(call{method: "POST", path: sync, headers: x.idem()}, 401)
+	for _, who := range []string{x.admin, x.sv} {
+		r.must(call{method: "POST", path: sync, token: who, headers: x.idem()}, 403)
+	}
+	r.must(call{method: "POST", path: sync, token: x.ta, headers: x.idem()}, 202)
+	r.must(call{method: "POST", path: sync, token: x.ta, headers: x.idem()}, 202) // đang chạy: cùng job_id
+	if err := r.rig.deps.Redis.Del(ctx, "ep:imapsync:"+x.cid+":job").Err(); err != nil {
+		r.t.Fatalf("xoá khoá đang chạy: %v", err)
+	}
+	r.must(call{method: "POST", path: sync, token: x.ta, headers: x.idem()}, 429) // giãn cách 30 giây / lớp
+
+	smtp := root + "/integrations/smtp"
+	r.must(call{method: "GET", path: smtp}, 401)
+	for _, who := range []string{x.ta, x.sv} {
+		r.must(call{method: "GET", path: smtp, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: smtp, token: x.admin}, 200)
+	r.must(call{method: "POST", path: smtp + "/test"}, 401)
+	for _, who := range []string{x.gv, x.sv} {
+		r.must(call{method: "POST", path: smtp + "/test", token: who}, 403)
+	}
+	r.must(call{method: "POST", path: smtp + "/test", token: x.admin}, 202)
+
+	in := root + "/mail-inbound"
+	r.must(call{method: "GET", path: in}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: in, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: in + "?status=NOPE", token: x.ta}, 422)
+	r.must(call{method: "GET", path: in + "?status=IGNORED", token: x.ta}, 200)
 }
