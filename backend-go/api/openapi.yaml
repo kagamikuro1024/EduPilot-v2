@@ -2969,6 +2969,56 @@ paths:
           $ref: "#/components/responses/NotFound"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/me/grades:
+    get:
+      operationId: getMyGrades
+      tags: [gradebook]
+      summary: "Điểm của CHÍNH sinh viên trong lớp (chỉ STUDENT của lớp; danh tính chỉ từ JWT, mọi tham số định danh bị bỏ qua; Cache-Control no-store). `status`: NO_SCHEME (chỉ trả status) · IN_PROGRESS (chỉ cột đã công bố; `qt` khi mọi thành phần quá trình đã công bố) · FINAL (từ bản chốt mới nhất). Cột chưa công bố là PENDING và KHÔNG có `score`. TA / TEACHER / ADMIN → 403"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Điểm của mình
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeGrades"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/me/grades/what-if:
+    post:
+      operationId: whatIfMyGrade
+      tags: [gradebook]
+      summary: "Tính thử \"nếu cuối kỳ được X\" (hoặc điểm cuối kỳ tối thiểu để đạt điểm chữ mục tiêu) bằng engine; chỉ đọc, không ghi gì, không cần Idempotency-Key. Đúng một trong hai trường; điểm ngoài 0–10 hoặc quá 2 chữ số thập phân 422; thiếu thành phần quá trình đã công bố 409 NOT_ENOUGH_GRADES; đã chốt 409 FINAL_ALREADY_LOCKED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeWhatIfInput"
+      responses:
+        "200":
+          description: Kết quả tính thử
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeWhatIfOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/grade-items/{itemId}/publish:
     post:
       operationId: publishGradeItem
@@ -14187,6 +14237,146 @@ components:
                   type: string
         next_cursor:
           type: [string, "null"]
+    MeLine:
+      type: object
+      required: [label, expr, value]
+      additionalProperties: false
+      properties:
+        label:
+          type: string
+        expr:
+          type: string
+        value:
+          type: string
+        source_quote:
+          type: string
+        page:
+          type: integer
+    MeGrades:
+      type: object
+      required: [status]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [NO_SCHEME, IN_PROGRESS, FINAL]
+        scheme:
+          type: object
+          required: [scheme_no, confirmed_at, components]
+          additionalProperties: false
+          properties:
+            scheme_no:
+              type: integer
+            confirmed_at:
+              type: [string, "null"]
+              format: date-time
+            components:
+              type: array
+              items:
+                type: object
+                required: [key, name, grp, weight]
+                additionalProperties: false
+                properties:
+                  key:
+                    type: string
+                  name:
+                    type: string
+                  grp:
+                    type: string
+                  weight:
+                    type: string
+        components:
+          type: array
+          items:
+            type: object
+            required: [key, name, weight, status]
+            additionalProperties: false
+            properties:
+              key:
+                type: string
+              name:
+                type: string
+              weight:
+                type: string
+              status:
+                type: string
+                enum: [PUBLISHED, PENDING]
+              score:
+                type: string
+        bonus:
+          type: object
+          required: [applied, raw, cap]
+          additionalProperties: false
+          properties:
+            applied:
+              type: string
+            raw:
+              type: string
+            cap:
+              type: string
+        penalty:
+          type: object
+          required: [value, absent, free, per]
+          additionalProperties: false
+          properties:
+            value:
+              type: string
+            absent:
+              type: integer
+            free:
+              type: integer
+            per:
+              type: string
+        qt:
+          type: string
+        final:
+          type: object
+          required: [numeric_grade, letter, version, locked_at]
+          additionalProperties: false
+          properties:
+            numeric_grade:
+              type: string
+            letter:
+              type: string
+            failed_reason:
+              type: string
+            version:
+              type: integer
+            locked_at:
+              type: string
+              format: date-time
+        calculation:
+          type: array
+          items:
+            $ref: "#/components/schemas/MeLine"
+        official_note:
+          type: string
+    MeWhatIfInput:
+      type: object
+      additionalProperties: false
+      properties:
+        final_exam_score:
+          type: [string, "null"]
+        target_letter:
+          type: [string, "null"]
+    MeWhatIfOutput:
+      type: object
+      additionalProperties: false
+      properties:
+        hp:
+          type: string
+        letter:
+          type: string
+        failed:
+          type: string
+        calculation:
+          type: array
+          items:
+            $ref: "#/components/schemas/MeLine"
+        min_final_exam_score:
+          type: string
+        reachable:
+          type: boolean
     PublishGradeItemOutput:
       type: object
       required: [item_id, published]
@@ -14312,9 +14502,12 @@ components:
     RiskThresholds:
       type: object
       description: Ngưỡng cần chú ý của lớp (đã trộn mặc định 0.70 / 1 / 60 / 2 / 3)
-      required: [attendance_ok_min, activity_min_per_week, study_min_minutes, signals_required, absent_alert]
+      required: [attendance_ok_min, activity_min_per_week, study_min_minutes, signals_required, absent_alert, grade_low_below]
       additionalProperties: false
       properties:
+        grade_low_below:
+          type: string
+          description: "Điểm quá trình hiện tại thấp khi < ngưỡng này (0–10, bước 0.5; mặc định 5.0)"
         attendance_ok_min:
           type: string
           description: "Tỷ lệ có mặt tối thiểu 0.50–1.00, bước 0.05"
@@ -14338,6 +14531,8 @@ components:
       type: object
       additionalProperties: false
       properties:
+        grade_low_below:
+          type: string
         attendance_ok_min:
           type: string
         activity_min_per_week:

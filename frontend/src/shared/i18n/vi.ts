@@ -86,6 +86,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   SCORE_PRECISION: "Điểm có quá 2 chữ số thập phân.",
   GRADES_INCOMPLETE: "Còn sinh viên chưa đủ điểm.",
   NOT_LOCKED: "Sổ điểm đang mở.",
+  NOT_ENOUGH_GRADES: "Chưa đủ điểm để tính.",
+  FINAL_ALREADY_LOCKED: "Điểm đã được chốt.",
   CRISIS_SUPPORT: "Bạn không phải đi qua chuyện này một mình.",
   SESSION_DUPLICATE: "Lớp đã có một buổi bắt đầu đúng giờ này.",
   SESSION_HAS_ATTENDANCE: "Buổi này đã có điểm danh nên không xoá được.",

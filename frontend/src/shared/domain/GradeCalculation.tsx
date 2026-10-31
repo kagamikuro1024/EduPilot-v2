@@ -4,7 +4,7 @@ import { useState } from "react";
 import { StatusText } from "../ui";
 import s from "./GradeCalculation.module.css";
 
-export type CalcLine = { label: string; expr: string; value: string; quote?: string; page?: number; filled_by_user: boolean };
+export type CalcLine = { label: string; expr: string; value: string; quote?: string; page?: number; filled_by_user?: boolean };
 
 const vi = (v: string) => v.replace(".", ",");
 

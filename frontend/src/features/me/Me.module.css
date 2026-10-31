@@ -1,3 +1,6 @@
 .headline { margin: 0; font-size: var(--ep-text-section); line-height: 1.4; }
 .sub { margin: 0; color: var(--ep-ink-2); max-width: 70ch; }
 .trend { max-width: 560px; }
+.whatif { display: grid; gap: var(--ep-space-2); margin-top: var(--ep-space-3); }
+.whatifLabel { display: flex; align-items: center; gap: var(--ep-space-3); flex-wrap: wrap; }
+.whatifInput { width: 88px; }

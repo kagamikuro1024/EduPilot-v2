@@ -31,7 +31,7 @@ type Handler struct {
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware.
 func (h *Handler) Mount(r chi.Router) {
-	teacher, staff := h.Guard(auth.Teacher), h.Guard(auth.Staff)
+	teacher, staff, student := h.Guard(auth.Teacher), h.Guard(auth.Staff), h.Guard(auth.StudentRole)
 	r.With(teacher, h.Idem).Post("/courses/{id}/grade-scheme/extract", h.extract)
 	r.With(staff).Get("/courses/{id}/grade-scheme/status", h.status)
 	r.With(staff).Get("/courses/{id}/grade-scheme", h.getScheme)
@@ -44,6 +44,8 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(teacher).Post("/courses/{id}/grade-items/{itemId}/publish", h.publish)
 	r.With(teacher).Post("/courses/{id}/grade-entries/import", h.importXLSX)
 	r.With(teacher).Get("/courses/{id}/gradebook/export.xlsx", h.export)
+	r.With(student).Get("/courses/{id}/me/grades", h.meGrades)
+	r.With(student).Post("/courses/{id}/me/grades/what-if", h.meWhatIf)
 	r.With(teacher, h.Idem).Post("/courses/{id}/gradebook/finalize", h.finalize)
 	r.With(teacher, h.Idem).Post("/courses/{id}/gradebook/unlock", h.unlock)
 	r.With(staff).Get("/courses/{id}/gradebook/snapshots", h.snapshots)
@@ -318,6 +320,48 @@ func (h *Handler) importXLSX(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	run(w, r)
+}
+
+// meGrades: GET /courses/{id}/me/grades (STUDENT): danh tính CHỈ từ JWT; mọi tham số định danh trong query bị bỏ qua. Không cache.
+func (h *Handler) meGrades(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	me, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Grade.MeGrades(r.Context(), cid, me)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// meWhatIf: POST /courses/{id}/me/grades/what-if {final_exam_score | target_letter} (STUDENT, chỉ đọc, không Idempotency-Key).
+func (h *Handler) meWhatIf(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	me, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	var in grade.WhatIfInput
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Grade.MeWhatIf(r.Context(), cid, me, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
 }
 
 // finalize: POST …/gradebook/finalize (TEACHER, Idempotency-Key): chốt cả lớp thành snapshot bất biến.

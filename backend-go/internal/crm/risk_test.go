@@ -133,3 +133,54 @@ func TestRiskSentenceConsistentWithCounts(t *testing.T) {
 }
 
 func ptr(n int) *int { return &n }
+
+func gradeWeek(q string, act int) crm.Week {
+	v := decimal.RequireFromString(q)
+	return crm.Week{Activity: act, Grade: &v}
+}
+
+// TestRiskGradeSignal: GRADE thấp là tín hiệu neo (không cần dữ liệu chuyên cần); cùng một tín hiệu thấp khác thành tuần yếu; lý do ghi điểm quá trình hiện tại.
+// sv26 của lớp 1: điểm quá trình 2,125 < 5,0, không hoạt động ở tuần 9 (W1), có ở tuần 8 (W2) → WATCH.
+func TestRiskGradeSignal(t *testing.T) {
+	t.Parallel()
+	th := crm.DefaultThresholds()
+	res := crm.Evaluate([]crm.Week{gradeWeek("2.125", 0), gradeWeek("2.125", 3)}, th)
+	require.Equal(t, crm.LevelWatch, res.Level)
+	require.Equal(t, []string{crm.SignalGrade, crm.SignalActivity}, res.Weeks[0].Low)
+	require.Equal(t, []string{crm.SignalGrade}, res.Weeks[1].Low)
+	require.Len(t, res.Reasons, 2)
+	require.Equal(t, crm.ReasonGradeLow, res.Reasons[0].Code)
+	require.Equal(t, 2125, res.Reasons[0].Values["qt_milli"])
+	require.Equal(t, "điểm quá trình hiện tại 2,125/10", crm.Phrase(res.Reasons[0]))
+	require.Contains(t, crm.Sentence(res.Level, res.Reasons), "điểm quá trình hiện tại 2,125/10")
+	both := crm.Evaluate([]crm.Week{gradeWeek("1.25", 0), gradeWeek("1.25", 0)}, th)
+	require.Equal(t, crm.LevelAtRisk, both.Level)
+}
+
+// TestRiskGradeAnchor: tín hiệu neo là ATTENDANCE hoặc GRADE; một mình GRADE thấp (không tín hiệu thấp thứ hai) không đủ; không neo thì hoạt động + học ít không đủ.
+func TestRiskGradeAnchor(t *testing.T) {
+	t.Parallel()
+	th := crm.DefaultThresholds()
+	alone := crm.Evaluate([]crm.Week{gradeWeek("2", 5), gradeWeek("2", 5)}, th)
+	require.Equal(t, crm.LevelNone, alone.Level)
+	study := 30
+	noAnchor := func(grade string) crm.Week { w := gradeWeek(grade, 0); w.StudyMinutes = &study; return w }
+	require.Equal(t, crm.LevelNone, crm.Evaluate([]crm.Week{noAnchor("8"), noAnchor("8")}, th).Level, "GRADE ổn, chuyên cần không có dữ liệu: không neo")
+	require.Equal(t, crm.LevelAtRisk, crm.Evaluate([]crm.Week{noAnchor("2"), noAnchor("2")}, th).Level)
+	// ATTENDANCE vẫn là neo và vẫn cộng với GRADE
+	w := wk(.5, 5, -1)
+	g := decimal.RequireFromString("2")
+	w.Grade = &g
+	require.Equal(t, crm.LevelAtRisk, crm.Evaluate([]crm.Week{w, w}, th).Level)
+}
+
+// TestRiskGradeStrictBelow: ngưỡng là `<` nghiêm ngặt (sv30 có điểm quá trình đúng 5,0: không thấp); ngưỡng lớp đổi được.
+func TestRiskGradeStrictBelow(t *testing.T) {
+	t.Parallel()
+	th := crm.DefaultThresholds()
+	for q, want := range map[string]string{"5.0": crm.LevelNone, "4.99": crm.LevelAtRisk, "5.000": crm.LevelNone} {
+		require.Equal(t, want, crm.Evaluate([]crm.Week{gradeWeek(q, 0), gradeWeek(q, 0)}, th).Level, q)
+	}
+	th.GradeLowBelow = decimal.RequireFromString("6.5")
+	require.Equal(t, crm.LevelAtRisk, crm.Evaluate([]crm.Week{gradeWeek("5", 0), gradeWeek("5", 0)}, th).Level)
+}

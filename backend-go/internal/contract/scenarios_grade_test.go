@@ -374,4 +374,33 @@ func (r *runner) gradeScenarios(x examRig) {
 	r.must(unlock(x.gv, "ngan"), 422)
 	r.must(unlock(x.gv, "Phúc khảo sinh viên A: sửa điểm"), 200)
 	r.must(unlock(x.gv, "Phúc khảo sinh viên A: sửa điểm"), 409)
+
+	// US-P6-09: điểm của chính sinh viên và tính thử.
+	me, wi := base+"/me/grades", base+"/me/grades/what-if"
+	whatIf := func(token, body string) call { return call{method: "POST", path: wi, token: token, body: body} }
+	r.must(call{method: "GET", path: me, token: x.sv}, 200)
+	r.must(call{method: "GET", path: me + "?student_id=" + student, token: x.sv}, 200) // tham số định danh bị bỏ qua
+	r.must(call{method: "GET", path: me}, 401)
+	for _, who := range []string{x.ta, x.gv, x.admin} {
+		r.must(call{method: "GET", path: me, token: who}, 403)
+		r.must(whatIf(who, `{"final_exam_score":"8"}`), 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/me/grades", token: x.sv}, 404)
+	r.must(whatIf("", `{"final_exam_score":"8"}`), 401)
+	if _, err := db.Exec(ctx, `update grade_items set published_at = null where id = $1`, weekly); err != nil {
+		r.t.Fatalf("gỡ công bố cột: %v", err)
+	}
+	r.must(whatIf(x.sv, `{"final_exam_score":"8"}`), 409) // NOT_ENOUGH_GRADES: cột quá trình chưa công bố
+	if _, err := db.Exec(ctx, `update grade_items set published_at = now() where id = $1`, weekly); err != nil {
+		r.t.Fatalf("công bố cột: %v", err)
+	}
+	r.must(whatIf(x.sv, `{"final_exam_score":"8,0"}`), 200)
+	r.must(whatIf(x.sv, `{"target_letter":"B"}`), 200)
+	r.must(whatIf(x.sv, `{"final_exam_score":"11"}`), 422)
+	r.must(whatIf(x.sv, `{"final_exam_score":"8.333"}`), 422)
+	r.must(whatIf(x.sv, `{}`), 422)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/me/grades/what-if", token: x.sv, body: `{"final_exam_score":"8"}`}, 404)
+	r.must(finalize(x.gv), 200)
+	r.must(call{method: "GET", path: me, token: x.sv}, 200) // FINAL từ bản chốt
+	r.must(whatIf(x.sv, `{"final_exam_score":"8"}`), 409)   // FINAL_ALREADY_LOCKED
 }

@@ -158,6 +158,29 @@ test("calendar tool block: lịch hiện thành danh sách dòng, không JSON th
   expect(await block.innerText()).not.toMatch(/[{}\[\]"]|events/);
 });
 
+test("my grade question: câu hỏi điểm của mình → câu trả lời có số, khối dữ liệu điểm không hiện thô, không nút nhờ giảng viên", async ({ page, context }) => {
+  const facts = { status: "IN_PROGRESS", qt: "8.25", components: [{ key: "midterm", name: "Giữa kỳ", weight: "20", status: "PUBLISHED", score: "8.25" }], scheme: { scheme_no: 1 } };
+  const answer = "Điểm quá trình hiện tại của bạn là 8,25 trên 10.";
+  let sent = false;
+  const calls = await open(page, context, {
+    "POST /chat/sessions": json(session(), 201),
+    [`POST /chat/sessions/${SID}/messages`]: (r) => {
+      sent = true;
+      return r.fulfill(sse(frame("status", { message_id: MID, stage: "received" }, "1:1-0"), frame("block", { kind: "grade_summary", data: facts }, "1:2-0"), frame("token", { off: 0, t: answer }, "1:3-0"),
+        frame("done", { message_id: MID, citations: [], low_confidence: false, degraded: false }, "1:4-0")));
+    },
+    [`GET /chat/sessions/${SID}/messages`]: (r) => r.fulfill(json({ items: sent ? [msg({ citations: [], content: answer, blocks: [{ kind: "grade_summary", data: facts }] }), msg({ id: "u1", role: "USER", content: "Điểm giữa kỳ của em?", citations: [] })] : [], next_cursor: null })),
+  });
+  await composer(page).fill("Điểm giữa kỳ của em?");
+  await composer(page).press("Enter");
+  await expect(page.getByText(answer)).toBeVisible();
+  const body = await page.locator("[data-part=chat-thread]").innerText();
+  expect(body).not.toMatch(/[{}\[\]"]|qt_milli|scheme_no|grade_summary/);
+  await expect(page.getByRole("button", { name: /Nhờ giảng viên/ })).toHaveCount(0);
+  const post = calls.find((c) => c.method === "POST" && c.path.endsWith("/messages"))!;
+  expect(JSON.parse(post.body)).toEqual({ content: "Điểm giữa kỳ của em?" }); // danh tính không đi theo thân yêu cầu
+});
+
 // US-P4-01: nút "Nhờ giảng viên hỗ trợ" (AC7, AC8, AC9) — máy chủ giả theo hợp đồng: `can_escalate`, `ticket`, `open_tickets`.
 const ESC = `/chat/messages/${MID}/escalate`;
 const ticket = (status = "OPEN", created_at = new Date().toISOString()) => ({ id: "00000000-0000-7000-8000-0000000000a1", status, created_at });
