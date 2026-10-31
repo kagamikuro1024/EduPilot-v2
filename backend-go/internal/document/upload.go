@@ -46,6 +46,7 @@ type BlobAPI interface {
 	Get(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 	PresignPutSized(ctx context.Context, key, contentType string, size int64) (string, error)
+	PresignGetInline(ctx context.Context, key string) (string, error)
 }
 
 // Service là nghiệp vụ tải tài liệu.
@@ -218,6 +219,8 @@ type Doc struct {
 	Version           int32     `json:"version"`
 	CreatedAt         time.Time `json:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at"`
+	// PreviewURL: URL ký sẵn (inline, 5 phút) của tệp PDF — chỉ có ở `GET …/documents/{id}` (US-P6-04: `Mở trang N` ở trích dẫn công thức).
+	PreviewURL *string `json:"preview_url,omitempty"`
 }
 
 func docOf(d store.Document) Doc {

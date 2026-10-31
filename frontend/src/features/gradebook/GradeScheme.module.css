@@ -43,6 +43,8 @@
 .pane { display: grid; gap: var(--ep-space-3); }
 .paneHead { margin: 0; font-size: var(--ep-text-label); font-weight: 600; }
 .paneMeta { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.paneLink { color: var(--ep-ink); text-decoration: underline; text-underline-offset: 2px; }
+.paneLink:hover { color: var(--ep-red); }
 .paneText { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-2); line-height: 1.6; white-space: pre-wrap; }
 .mark { background: var(--ep-red-soft); color: var(--ep-ink); padding: 0 2px; border-radius: var(--ep-radius-sm); }
 

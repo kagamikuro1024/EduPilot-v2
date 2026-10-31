@@ -77,7 +77,7 @@ export async function gradeApi(p: Page, opts: Opts = {}) {
     const path = url.pathname.replace("/api/v1", "");
     const body = req.postData() ?? "";
     const tail = path.replace(/^\/courses\/[^/]+\//, "");
-    const key = `${req.method()} ${tail.startsWith("documents") ? "chunks" : tail}`;
+    const key = `${req.method()} ${tail.startsWith("documents") ? (tail.endsWith("/chunks") || tail.includes("/chunks?") ? "chunks" : "document") : tail}`;
     calls.push({ method: req.method(), path: path + url.search, body, headers: req.headers() });
     const custom = opts.h?.[key];
     if (custom && !skipCustom) return custom(route, (r) => handle(r, true));
@@ -111,6 +111,7 @@ export async function gradeApi(p: Page, opts: Opts = {}) {
       draft = null;
       return route.fulfill(j({ scheme_id: confirmed.id, scheme_no: confirmed.scheme_no, confirmed_at: confirmed.confirmed_at, impact: opts.impact ?? IMPACT }));
     }
+    if (key === "GET document") return route.fulfill(j({ id: DOC, title: "quy-che-lop2", preview_url: `${BASE_URL}/__pdf/quy-che.pdf?sig=1` }));
     if (key === "GET chunks") {
       return route.fulfill(j({
         items: [
@@ -122,6 +123,6 @@ export async function gradeApi(p: Page, opts: Opts = {}) {
     }
     return route.fulfill(e(404, "NOT_FOUND"));
   };
-  await p.route(/\/api\/v1\/courses\/[^/]+\/(grade-scheme|documents\/[^/]+\/chunks)/, (r) => handle(r));
+  await p.route(/\/api\/v1\/courses\/[^/]+\/(grade-scheme|documents\/[^/]+(\/chunks)?(\?|$))/, (r) => handle(r));
   return { calls, set: (d: { draft?: Doc | null; confirmed?: Doc | null }) => { if (d.draft !== undefined) draft = d.draft; if (d.confirmed !== undefined) confirmed = d.confirmed; }, puts: () => calls.filter((c) => c.method === "PUT") };
 }

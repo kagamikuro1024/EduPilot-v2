@@ -88,6 +88,11 @@ func (s *Service) Get(ctx context.Context, course, id uuid.UUID) (Row, error) {
 		return Row{}, fmt.Errorf("document: đọc tài liệu: %w", err)
 	}
 	r := Row{Doc: docOf(d)}
+	if d.BlobKey != nil && s.Blob != nil && d.MimeType != nil && *d.MimeType == "application/pdf" && d.CourseID == course {
+		if u, err := s.Blob.PresignGetInline(ctx, *d.BlobKey); err == nil {
+			r.PreviewURL = &u
+		}
+	}
 	if d.CourseID != course {
 		c, err := store.New(s.Pool).GetCourse(ctx, d.CourseID)
 		if err != nil {

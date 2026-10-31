@@ -28,6 +28,7 @@ test("scheme review layout: một Panel, sáu khối đúng thứ tự, cột tr
   await block(page, "BONUS").getByRole("button", { name: "Trang 2" }).click();
   await expect(page.locator("[data-part=citation-page]")).toHaveText("Trang 2");
   await expect(pane.locator("mark")).toContainText("Mỗi lần phát biểu được cộng 0,25 điểm");
+  await expect(pane.getByRole("link", { name: "Mở trang 2" })).toHaveAttribute("href", /\/__pdf\/quy-che\.pdf\?sig=1#page=2$/);
   await block(page, "components").getByRole("button", { name: "Trang 1" }).click();
   await expect(page.locator("[data-part=citation-page]")).toHaveText("Trang 1");
   await expect(pane.locator("mark")).toContainText("Điểm quá trình gồm bài kiểm tra hằng tuần");

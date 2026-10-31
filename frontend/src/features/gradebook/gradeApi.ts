@@ -113,3 +113,13 @@ export const useDocPages = (course: string, docId: string | undefined) =>
       return pages;
     },
   });
+
+/** URL ký sẵn (xem trực tiếp, 5 phút) của tệp PDF nguồn: `GET …/documents/{id}` → `preview_url`. Không có (tệp mất / không phải PDF) → không có liên kết. */
+export const useDocPreview = (course: string, docId: string | undefined) =>
+  useQuery({
+    queryKey: ["grade-doc-preview", course, docId],
+    enabled: Boolean(docId),
+    staleTime: 4 * 60_000,
+    retry: false,
+    queryFn: async ({ signal }) => (await apiClient.get<{ preview_url?: string }>(`/courses/${course}/documents/${docId}`, { signal })).data.preview_url ?? null,
+  });
