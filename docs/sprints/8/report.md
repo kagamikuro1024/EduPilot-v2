@@ -1,6 +1,6 @@
 # Sprint 8: báo cáo (P6 Sổ điểm và điểm cuối kỳ từ quy chế môn học)
 
-**Nhánh:** `sprint/8-p6` (88 commit sau `main`; `backend-go` + `frontend` + `scripts`: 162 tệp, +29 894 / −7 070). **Thời gian:** 2026-10-31. **Cổng P6:** **kỹ thuật PASS** (`qc/gate-P6.md`, CI `41213938391` xanh); chờ chủ dự án tự tính tay A, B, C (G6-13).
+**Nhánh:** `sprint/8-p6` (88 commit sau `main`; `backend-go` + `frontend` + `scripts`: 162 tệp, +29 894 / −7 070). **Thời gian:** 2026-10-31. **Cổng P6:** **kỹ thuật PASS** (`qc/gate-P6.md`, CI `41213938391` xanh); chờ chủ dự án tự tính tay A, B, C (G6-30).
 
 ## Story
 
@@ -82,6 +82,6 @@
 - **Judge arm64 lỗi `cc1plus`** trên máy dev (môi trường), seed đầy đủ chạy ở stack QC.
 
 ## Chủ dự án tự kiểm
-1. **G6-13:** tính tay A (9,5 A+), B (7,0 B), C (3,0 F) bằng máy tính, so với giải trình ở `/gradebook` (lớp 1). QC đã tính trước và khớp từng dòng.
+1. **G6-30:** tính tay A (9,5 A+), B (7,0 B), C (3,0 F) bằng máy tính, so với giải trình ở `/gradebook` (lớp 1). QC đã tính trước và khớp từng dòng.
 2. **Lớp 2:** banner hiện; `Chốt điểm` khoá kèm lý do. Tải quy chế lớp 2 (thiếu quy tắc làm tròn) thì có mục "chưa rõ" và không cho xác nhận khi chưa điền.
 3. Nói **"chốt"** để merge `sprint/8-p6` vào `main`.
