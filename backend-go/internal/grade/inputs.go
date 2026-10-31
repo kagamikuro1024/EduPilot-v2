@@ -58,7 +58,7 @@ func LoadItems(ctx context.Context, q *store.Queries, courseID, schemeID uuid.UU
 
 // LoadInputs đọc đầu vào điểm của một lô sinh viên ACTIVE (đúng ba truy vấn cho cả lô, không N+1):
 // item MANUAL / IMPORT từ `grade_entries`; item EXAM từ lượt GRADED của bài thi PUBLISHED (COALESCE(adjusted, auto), quy thang item); điểm cộng / trừ / vắng của P5.
-// Sinh viên không ACTIVE không có trong kết quả. Không đọc study_time_daily, student_risk, student_observations.
+// Sinh viên không ACTIVE không có trong kết quả. Không đọc dữ liệu thời gian học, rủi ro hay ghi chú quan sát (D17).
 func LoadInputs(ctx context.Context, q *store.Queries, courseID, schemeID uuid.UUID, studentIDs []uuid.UUID) (map[uuid.UUID]Input, error) {
 	out := make(map[uuid.UUID]Input, len(studentIDs))
 	if len(studentIDs) == 0 {

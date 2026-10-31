@@ -174,7 +174,7 @@ type GradeInputP5Row struct {
 	Absent             int32
 }
 
-// Điểm cộng / trừ / vắng của P5 (SPEAK + BONUS; |Σ PENALTY|; số dòng ABSENT — EXCUSED và LATE không tính). Không đọc study_time_daily, student_risk, student_observations.
+// Điểm cộng / trừ / vắng của P5 (SPEAK + BONUS; |Σ PENALTY|; số dòng ABSENT — EXCUSED và LATE không tính). Không đọc dữ liệu thời gian học, rủi ro hay ghi chú quan sát (D17).
 func (q *Queries) GradeInputP5(ctx context.Context, arg GradeInputP5Params) ([]GradeInputP5Row, error) {
 	rows, err := q.db.Query(ctx, gradeInputP5, arg.CourseID, arg.StudentIds)
 	if err != nil {

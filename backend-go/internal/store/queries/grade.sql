@@ -22,7 +22,7 @@ join exam_attempts a on a.course_id = i.course_id and a.exam_id = i.exam_id and 
 where i.course_id = sqlc.arg(course_id) and i.scheme_id = sqlc.arg(scheme_id) and i.source = 'EXAM' and a.student_id = any(sqlc.arg(student_ids)::text[]::uuid[]);
 
 -- name: GradeInputP5 :many
--- Điểm cộng / trừ / vắng của P5 (SPEAK + BONUS; |Σ PENALTY|; số dòng ABSENT — EXCUSED và LATE không tính). Không đọc study_time_daily, student_risk, student_observations.
+-- Điểm cộng / trừ / vắng của P5 (SPEAK + BONUS; |Σ PENALTY|; số dòng ABSENT — EXCUSED và LATE không tính). Không đọc dữ liệu thời gian học, rủi ro hay ghi chú quan sát (D17).
 select e.user_id as student_id,
        coalesce(p.bonus, 0)::numeric(8,2) as bonus_points,
        coalesce(p.penalty, 0)::numeric(8,2) as penalty_event_points,
