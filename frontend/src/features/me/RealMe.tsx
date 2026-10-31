@@ -6,6 +6,7 @@ import { apiClient } from "@/shared/data";
 import { ActionList, ActionRow, DefinitionList, EmptyState, Page, PageHeader, Panel, Section, Skeleton, TrendChart } from "@/shared/ui";
 import { STATE_LABEL, dueLabel, useMyAssignments } from "@/features/assignments/assignmentApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
+import { withCourse } from "@/shared/lib/courseHref";
 import { MeGrade } from "./MeGrade";
 import { EVENT_LABEL, STATUS_LABEL, attendanceSentence, dayMonthOf, signedPoints, type MyAttendance, type MyParticipation, type MyStudyTime } from "./meApi";
 import s from "./Me.module.css";
@@ -68,7 +69,7 @@ function Assignments({ courseId }: { courseId: string }) {
           {list.items.map((a) => (
             <ActionRow
               key={a.id}
-              href={`/assignments/${a.id}`}
+              href={withCourse(`/assignments/${a.id}`, courseId)}
               title={a.title}
               meta={`Hạn ${fmtLong(a.due_at)} · ${dueLabel(a.due_at)} · ${STATE_LABEL[a.my.state]}`}
               data={{ "data-part": "me-assignment-row" }}

@@ -9,6 +9,7 @@ import {
   DAY, STATE_LABEL, TYPE_LABEL, WD_SHORT, dayLabel, fmtDM, fmtHM, fmtLong, fromLocalInput, isSoonExam, labelToIso, toLocalInput, useCalendar, useEventMutations, useIcsState, useIssueIcs, weekStartLabel,
   type CalItem,
 } from "./calendarApi";
+import { withCourse } from "@/shared/lib/courseHref";
 import { SessionsDrawer } from "./SessionsDrawer";
 import s from "./Calendar.module.css";
 
@@ -53,7 +54,8 @@ export function RealCalendar({ courseId, staff }: { courseId: string; staff: boo
   const monthStart = weekStartLabel(monthFirst);
   const [from, to] = view === "week" ? [weekStart, weekStart + 7 * DAY] : view === "month" ? [monthStart, monthStart + 42 * DAY] : [today - DAY, today + 60 * DAY];
   const list = useCalendar(courseId, labelToIso(from), labelToIso(to));
-  const items = list.items.filter((e) => e.id !== pending?.id);
+  // liên kết bài tập mang theo `?course=` để màn đích gọi API ngay, không chờ `/me/courses` (TL-1)
+  const items = list.items.filter((e) => e.id !== pending?.id).map((e) => (e.href ? { ...e, href: withCourse(e.href, courseId) } : e));
 
   // Xoá: dòng biến ngay, "Hoàn tác" 5 giây, hết giờ mới gọi API; rời trang giữa chừng vẫn gọi.
   const cancelled = useRef(false); // "Hoàn tác" cũng gọi onDone ngay sau onUndo (cùng một lượt bấm) nên cần cờ

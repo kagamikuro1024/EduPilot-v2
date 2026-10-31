@@ -419,6 +419,9 @@ func TestSpec_SecurityDeclared(t *testing.T) {
 		"GET /api/v1/courses/{id}/submissions/{sid}/file":                               true, // US-P7-04 (proposals #9)
 		"POST /api/v1/courses/{id}/submissions/{sid}/dismiss":                           true, // US-P7-04 (proposals #9)
 		"DELETE /api/v1/courses/{id}/submissions/{sid}/dismiss":                         true, // US-P7-04 (proposals #9)
+		"POST /api/v1/courses/{id}/assignments/{aid}/grade-all":                         true, // US-P7-07 (proposals #9)
+		"POST /api/v1/courses/{id}/submissions/{sid}/grade":                             true, // US-P7-07 (proposals #9)
+		"POST /api/v1/courses/{id}/grading-results/{rid}/retry":                         true, // US-P7-07 (proposals #9)
 		"GET /api/v1/me/courses":                                                        true, "GET /api/v1/courses/{id}": true, "GET /api/v1/me/profile": true, "PUT /api/v1/me/profile": true, "GET /api/v1/me/settings": true, "PUT /api/v1/me/settings": true,
 	}
 	for _, o := range prod.Operations() {

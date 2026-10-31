@@ -42,6 +42,9 @@ type qrig struct {
 	calls   atomic.Int64
 	delay   atomic.Int64 // ns
 	nstu    int
+	cfg     config.Config
+	reg     bool
+	first   *grading.Queue
 }
 
 func newQRig(t *testing.T) *qrig {
@@ -54,10 +57,7 @@ func newQRig(t *testing.T) *qrig {
 	r.gradeEnv = newGradeEnv(t, func(g *gradeEnv, req llm.Request) (json.RawMessage, error) {
 		n := int(r.calls.Add(1))
 		if d := time.Duration(r.delay.Load()); d > 0 {
-			select {
-			case <-time.After(d):
-			case <-req.ctxDone():
-			}
+			time.Sleep(d)
 		}
 		if f, ok := r.llmErr.Load().(func(int) error); ok && f != nil {
 			if err := f(n); err != nil {
@@ -75,6 +75,7 @@ func newQRig(t *testing.T) *qrig {
 			"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "test"}[k]
 	}, config.Gateway)
 	require.NoError(t, err)
+	r.cfg = cfg
 	r.rdb, err = appredis.New(t.Context(), cfg.RedisURL)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = r.rdb.Close() })
@@ -94,7 +95,11 @@ func (r *qrig) queue(mut func(*grading.QueueConfig)) *grading.Queue {
 	pub := sse.NewPublisher(r.rdb, 1000, time.Hour)
 	q := grading.NewQueue(&grading.Queue{Pool: r.pool, Redis: r.rdb, Grader: r.grader, Jobs: r.runner, Notify: notify.New(r.pool, pub, slog.New(slog.NewTextHandler(io.Discard, nil))),
 		Log: slog.New(slog.NewTextHandler(io.Discard, nil)), Cfg: cfg, Prefix: r.prefix, Name: "w-" + uuid.NewString()[:4]})
-	q.RegisterBatch(r.runner)
+	if !r.reg {
+		q.RegisterBatch(r.runner)
+		r.reg = true
+		r.first = q
+	}
 	return q
 }
 
@@ -116,12 +121,13 @@ func (r *qrig) sub(student uuid.UUID, version int, match string) uuid.UUID {
 	key := "courses/" + r.course.String() + "/" + uuid.NewString() + "/bai.md"
 	r.blob.m[key] = []byte(r.text)
 	var id uuid.UUID
-	var stu *uuid.UUID
-	if match == "MATCHED" {
-		stu = &student
+	if match != "MATCHED" {
+		r.one(&id, `insert into submissions (course_id, source, blob_key, file_name, file_size, file_mime, sha256, match_status, unmatched_reason, submitted_at)
+			values ($1, 'IMAP', $2, 'bai.md', $3, 'text/plain', 'x', 'UNMATCHED', 'NO_STUDENT_SIGNAL', now()) returning id`, r.course, key, len(r.text))
+		return id
 	}
 	r.one(&id, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method, submitted_at)
-		values ($1, $2, $3, 'IN_APP', $4, $5, 'bai.md', $6, 'text/plain', 'x', $7, 'IN_APP', now()) returning id`, r.course, r.asg, stu, version, key, len(r.text), match)
+		values ($1, $2, $3, 'IN_APP', $4, $5, 'bai.md', $6, 'text/plain', 'x', 'MATCHED', 'IN_APP', now()) returning id`, r.course, r.asg, student, version, key, len(r.text))
 	return id
 }
 
@@ -177,11 +183,10 @@ func (r *qrig) jobRow(id uuid.UUID) (status string, progress int, result string)
 	return status, progress, string(res)
 }
 
-func apiCode(t *testing.T, err error) string {
+func codeOf(t *testing.T, err error) string {
 	t.Helper()
-	var ae *apierr.Error
-	require.ErrorAs(t, err, &ae)
-	return ae.Code
+	_, c := apiCode(t, err)
+	return c
 }
 
 // TestGradeAllEnqueuesOnlyUngraded — AC1: chỉ bài MATCHED mới nhất, chưa có kết quả; hàng QUEUED ghi trong giao dịch (không cần Redis); UNMATCHED / bản cũ / đã có kết quả không xếp.
@@ -287,10 +292,10 @@ func TestRegradeOnlyDraftOrFailed(t *testing.T) {
 		{"RUNNING", "DRAFT", apierr.VersionConflict}, {"QUEUED", "DRAFT", apierr.VersionConflict},
 	} {
 		sub := r.sub(uuid.Nil, 1, "MATCHED")
-		r.exec(`insert into grading_results (course_id, submission_id, run_state, status) values ($1, $2, $3, $4::result_status)`, r.course, sub, c.state, c.status)
+		r.exec(`insert into grading_results (course_id, submission_id, run_state, status, published_at) values ($1, $2, $3, $4::text, case when $4::text = 'PUBLISHED' then now() end)`, r.course, sub, c.state, c.status)
 		e, err := r.batches.GradeOne(r.ctx, r.course, sub, r.teacher)
 		if c.want != "" {
-			require.Equal(t, c.want, apiCode(t, err), c.state+"/"+c.status)
+			require.Equal(t, c.want, codeOf(t, err), c.state+"/"+c.status)
 			continue
 		}
 		require.NoError(t, err, c.state)
@@ -314,7 +319,7 @@ func TestRegradeConflict(t *testing.T) {
 			switch {
 			case err == nil:
 				ok.Add(1)
-			case apiCode(t, err) == apierr.VersionConflict:
+			case codeOf(t, err) == apierr.VersionConflict:
 				conflict.Add(1)
 			}
 		}()

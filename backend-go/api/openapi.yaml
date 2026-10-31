@@ -3142,8 +3142,7 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
-        "409":
-          $ref: "#/components/responses/Conflict"
+
   /api/v1/courses/{id}/submissions/{sid}/grade:
     post:
       operationId: gradeSubmission
@@ -3165,12 +3164,6 @@ paths:
       responses:
         "202":
           description: Đã xếp hàng chấm
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GradingEnqueued"
-        "200":
-          description: Không có gì để chấm
           content:
             application/json:
               schema:
@@ -3204,12 +3197,6 @@ paths:
       responses:
         "202":
           description: Đã xếp hàng chấm
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/GradingEnqueued"
-        "200":
-          description: Không có gì để chấm
           content:
             application/json:
               schema:

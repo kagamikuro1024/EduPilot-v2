@@ -8,6 +8,7 @@
         "http://localhost:3310/inbox",
         "http://localhost:3310/gradebook",
         "http://localhost:3310/me",
+        "http://localhost:3310/assignments/00000000-0000-7000-8000-0000000000a3",
         "http://localhost:3310/settings/llm",
         "http://localhost:3310/dev/ui"
       ],

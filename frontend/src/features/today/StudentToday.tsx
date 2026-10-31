@@ -5,6 +5,7 @@ import { useState } from "react";
 import { cleanCode } from "@/features/join/JoinScreen";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { useSession } from "@/shared/session/session";
+import { withCourse } from "@/shared/lib/courseHref";
 import { ActionList, ActionRow, Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, Section, Skeleton, StatusText } from "@/shared/ui";
 import s from "./Today.module.css";
 import { hhmm, longDate, shortDay } from "./format";
@@ -36,6 +37,7 @@ export function StudentToday() {
 }
 
 function Body({ d, retry }: { d: Data; retry?: () => void }) {
+  const { realCourseId } = useSession();
   const rec = d.recommended;
   const rowRec = rec && rec.kind !== "JOIN_CODE" ? rec : null; // chưa vào lớp: ô nhập mã thay cho khuyến nghị
   const calm = !rec && !d.no_course;
@@ -49,7 +51,7 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
       {rowRec && (
         <Section title="Việc nên làm tiếp" panel>
           <ActionList label="Việc nên làm">
-            <Recommended item={rowRec} />
+            <Recommended item={rowRec} courseId={realCourseId} />
           </ActionList>
         </Section>
       )}
@@ -92,18 +94,19 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
   );
 }
 
-function Recommended({ item }: { item: TodayItem }) {
+function Recommended({ item, courseId }: { item: TodayItem; courseId: string | null }) {
+  const href = item.href ? withCourse(item.href, courseId) : undefined;
   return (
     <ActionRow
       tone="red"
-      href={item.href || undefined}
-      redThread={Boolean(item.href)}
+      href={href}
+      redThread={Boolean(href)}
       title={item.title}
       context={item.reason}
       meta={item.estimate_minutes ? `Khoảng ${item.estimate_minutes} phút` : undefined}
       action={
-        item.href ? (
-          <ButtonLink href={item.href} variant="primary" data-part="primary-action">
+        href ? (
+          <ButtonLink href={href} variant="primary" data-part="primary-action">
             {CTA[item.kind] ?? item.title}
           </ButtonLink>
         ) : undefined

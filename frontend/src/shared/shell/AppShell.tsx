@@ -12,6 +12,7 @@ import { unsavedCount } from "@/shared/lib/unsavedWork";
 import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
+import { withCourse } from "@/shared/lib/courseHref";
 import { NotificationPopover } from "./NotificationPopover";
 import { StudyTimeTracker } from "./TrackingNotice";
 import s from "./AppShell.module.css";
@@ -254,7 +255,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
 
           <NotificationPopover
-            items={real.items}
+            items={real.items.map((n) => ({ ...n, href: withCourse(n.href, realCourseId) }))}
             unread={real.unread}
             failed={real.failed}
             stale={real.stale}

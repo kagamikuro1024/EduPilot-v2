@@ -432,4 +432,41 @@ func (r *runner) uploadScenarios(x examRig, base string) {
 	r.must(call{method: "DELETE", path: sub + "/00000000-0000-7000-8000-000000000000/dismiss", token: x.gv}, 404)
 	r.must(call{method: "DELETE", path: sub + "/" + id2 + "/dismiss", token: x.gv}, 204)
 	r.must(call{method: "DELETE", path: sub + "/" + id2 + "/dismiss", token: x.gv}, 409) // chưa bỏ qua
+	// US-P7-07: hàng đợi chấm (grade-all, grade, retry) với mọi status đã khai báo.
+	ga := A + "/grade-all"
+	r.must(call{method: "POST", path: ga, headers: x.idem()}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "POST", path: ga, token: who, headers: x.idem()}, 403)
+	}
+	r.must(call{method: "POST", path: base + "/00000000-0000-7000-8000-000000000000/grade-all", token: x.gv, headers: x.idem()}, 404)
+	r.must(call{method: "POST", path: ga, token: x.ta, headers: x.idem()}, 202) // id1 đã MATCHED, chưa có kết quả
+	var student2 string
+	if err := db.QueryRow(ctx, `select user_id from enrollments where course_id = $1 and role_in_course = 'STUDENT' and status = 'ACTIVE' and user_id <> $2 order by user_id limit 1`, x.cid, student).Scan(&student2); err != nil {
+		r.t.Fatalf("sinh viên thứ hai: %v", err)
+	}
+	third := upload(x.ta, "bai-ba.txt", []byte("Bài thứ ba không MSSV.\n"), true)
+	r.must(up(x.ta, A, third.UploadID), 200)
+	id3, v3 := list()
+	r.must(call{method: "PUT", path: sub + "/" + id3 + "/match", token: x.gv, body: mt(v3, student2)}, 200)
+	g := func(id string) string { return sub + "/" + id + "/grade" }
+	r.must(call{method: "POST", path: g(id3), headers: x.idem()}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "POST", path: g(id3), token: who, headers: x.idem()}, 403)
+	}
+	r.must(call{method: "POST", path: g("00000000-0000-7000-8000-000000000000"), token: x.gv, headers: x.idem()}, 404)
+	r.must(call{method: "POST", path: g(id3), token: x.gv, headers: x.idem()}, 202)
+	r.must(call{method: "POST", path: g(id1), token: x.gv, headers: x.idem()}, 409) // đang xếp hàng
+	r.must(call{method: "POST", path: ga, token: x.gv, headers: x.idem()}, 200)     // không còn bài chưa chấm
+	var res string
+	if err := db.QueryRow(ctx, `update grading_results set run_state = 'FAILED', error_code = 'LLM_UNAVAILABLE' where submission_id = $1 returning id`, id1).Scan(&res); err != nil {
+		r.t.Fatalf("đặt FAILED: %v", err)
+	}
+	rt := strings.TrimSuffix(base, "/assignments") + "/grading-results/" + res + "/retry"
+	r.must(call{method: "POST", path: rt, headers: x.idem()}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "POST", path: rt, token: who, headers: x.idem()}, 403)
+	}
+	r.must(call{method: "POST", path: strings.TrimSuffix(base, "/assignments") + "/grading-results/00000000-0000-7000-8000-000000000000/retry", token: x.gv, headers: x.idem()}, 404)
+	r.must(call{method: "POST", path: rt, token: x.ta, headers: x.idem()}, 202)
+	r.must(call{method: "POST", path: rt, token: x.ta, headers: x.idem()}, 409) // đã QUEUED lại
 }
