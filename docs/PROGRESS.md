@@ -22,7 +22,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | P3 Hai kênh + PII | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P3.md`) | Che danh tính một chỗ trong `internal/llm`; E1 recall 0,960, chặn nhầm 0; sự kiện SSE đầu p95 85 ms |
 | P4 Escalation + Mail | Xong | 2026-10-13 | 2026-10-16 | ĐẠT (`sprints/7/qc/report-GATE-P4.md`) | Ticket idempotent, chuông qua `/events` nhiều gateway, thư `Message-ID` tất định, SLA T2–T6, kiểm duyệt Threads, kho tri thức |
 | P5 CRM + 360 | Xong | 2026-10-13 | 2026-10-16 | ĐẠT (`sprints/7/qc/report-GATE-P5.md`) | Điểm danh một giao dịch + audit, hồ sơ 360 audit mỗi lần mở, at-risk vật chất hoá, heartbeat chỉ Redis, công tắc đo theo lớp |
-| P6 Sổ điểm | Chưa | | | | |
+| P6 Sổ điểm | Chờ nghiệm thu | 2026-10-31 | 2026-10-31 | Kỹ thuật PASS (`sprints/8/qc/gate-P6.md`); chờ chủ dự án tính tay A, B, C | `00016_gradebook`; decimal, không `float64`; AI chỉ trích nháp; snapshot bất biến; MSSV chỉ theo danh sách lớp (#20) |
 | P7 Chấm bài | Chưa | | | | |
 | P8 Tài liệu + Lịch | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P8.md`) | `docling-serve` (profile `ingest`), tìm lai RRF + `tsv`, lịch UNION, ICS token băm |
 | P9 Luyện đề | Chưa | | | | |
