@@ -30,3 +30,5 @@ Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (phần máy chủ `
 - Lệch có chủ ý của dev (SRS 4.8.3): bài `FAILED` sửa được và khi đủ điểm thì `run_state = DONE` — cần cho nhập tay (AC6); QC xác nhận đúng và không ghi điểm 0.
 - Test cũ dev sửa (proposals #13 ACCEPTED): `TestNoQueryLinksByStudentCode` thêm `AssignmentQueue` vào danh sách trắng — QC đã xem `review.sql`: MSSV chỉ để hiển thị và lọc `ilike` trong phạm vi lớp, mọi nối theo khoá `user_id` / `enrollments`; `TestShareNotAvailableKinds` đổi chữ.
 - BUG-S9-01 (#12): nhãn "Bản mô phỏng · dữ liệu giả" không còn ở màn thật (thấy trong ảnh `p704-unmatched-*-1440.png`).
+
+- **Cập nhật 2026-11-01:** nợ `TestTAReviewsCannotPublish` đã đóng ở `report-US-P7-09.md` (test có, xanh; hộp đen TA công bố → 403).
