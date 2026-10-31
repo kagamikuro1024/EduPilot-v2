@@ -70,4 +70,56 @@ func (r *runner) gradeScenarios(x examRig) {
 		r.must(call{method: "GET", path: st, token: who}, 403)
 	}
 	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/grade-scheme/status", token: x.gv}, 404)
+
+	// US-P6-04: GET / PUT …/grade-scheme, POST …/impact, POST …/confirm.
+	gs := base + "/grade-scheme"
+	r.must(call{method: "GET", path: gs, token: x.gv}, 200)
+	r.must(call{method: "GET", path: gs + "?diff=confirmed", token: x.ta}, 200)
+	r.must(call{method: "GET", path: gs}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: gs, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/grade-scheme", token: x.gv}, 404)
+
+	rules := `[{"kind":"BONUS","applicable":false},{"kind":"PENALTY","applicable":false},{"kind":"ROUNDING","params":{"step":"0.5","mode":"HALF_UP"}},{"kind":"LETTER_SCALE","params":{"bands":[{"min":"5","letter":"A"},{"min":"0","letter":"F"}]}}]`
+	valid := `"components":[{"key":"weekly","name":"Hằng tuần","grp":"QT","weight":"40"},{"key":"final","name":"Cuối kỳ","grp":"CK","weight":"60"}],"rules":` + rules
+	put := func(version int, comps string) call {
+		return call{method: "PUT", path: gs, token: x.gv, body: `{"version":` + itoa(version) + `,` + comps + `}`}
+	}
+	r.must(put(2, valid), 200) // bản nháp chèn tay có version 2 → 3
+	r.must(put(2, valid), 409) // version cũ
+	r.must(put(3, `"components":[{"key":"A","name":"x","grp":"QT","weight":"abc"}],"rules":[]`), 422)
+	r.must(call{method: "PUT", path: gs, body: `{"version":3,` + valid + `}`}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "PUT", path: gs, token: who, body: `{"version":3,` + valid + `}`}, 403)
+	}
+	r.must(call{method: "PUT", path: "/api/v1/courses/khong-phai-uuid/grade-scheme", token: x.gv, body: `{"version":3,` + valid + `}`}, 404)
+
+	im := gs + "/impact"
+	for _, who := range []string{x.gv, x.ta} {
+		r.must(call{method: "POST", path: im, token: who, body: `{` + valid + `}`}, 200)
+	}
+	r.must(call{method: "POST", path: im, token: x.gv, body: `{"components":[{"key":"A","name":"x","grp":"QT","weight":"abc"}],"rules":[]}`}, 422)
+	r.must(call{method: "POST", path: im, body: `{` + valid + `}`}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "POST", path: im, token: who, body: `{` + valid + `}`}, 403)
+	}
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/grade-scheme/impact", token: x.gv, body: `{` + valid + `}`}, 404)
+
+	cf := gs + "/confirm"
+	confirm := func(token string, version int) call {
+		return call{method: "POST", path: cf, token: token, headers: x.idem(), body: `{"version":` + itoa(version) + `}`}
+	}
+	r.must(confirm("", 3), 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(confirm(who, 3), 403)
+	}
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/grade-scheme/confirm", token: x.gv, headers: x.idem(), body: `{"version":3}`}, 404)
+	r.must(call{method: "POST", path: cf, token: x.gv, headers: x.idem(), body: `{}`}, 422)
+	r.must(confirm(x.gv, 2), 409) // version cũ
+	r.must(put(3, `"components":[{"key":"weekly","name":"Hằng tuần","grp":"QT","weight":"20"}],"rules":[]`), 200)
+	r.must(confirm(x.gv, 4), 422) // còn mục chưa rõ
+	r.must(put(4, valid), 200)
+	r.must(confirm(x.gv, 5), 200)
+	r.must(confirm(x.gv, 6), 409) // không còn bản nháp
 }

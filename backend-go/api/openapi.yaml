@@ -2684,6 +2684,124 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/grade-scheme:
+    get:
+      operationId: getGradeScheme
+      tags: [gradebook]
+      summary: "Công thức điểm của lớp (TEACHER / TA): bản đã xác nhận + bản nháp (kèm mục chưa rõ, cảnh báo, trích dẫn); `?diff=confirmed` thêm khác biệt bản nháp so với bản đã xác nhận do code tính. Không cache"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: diff
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [confirmed]
+      responses:
+        "200":
+          description: Công thức
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeSchemesView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: putGradeScheme
+      tags: [gradebook]
+      summary: "Thay toàn bộ bản nháp công thức (chỉ TEACHER): kiểm version, chạy lại bộ kiểm, ghi số mục chưa rõ. Sai version 409 VERSION_CONFLICT kèm `details.current`; không có bản nháp 409 NO_DRAFT; chỉ có bản đã xác nhận 409 SCHEME_NOT_DRAFT. Mục giảng viên sửa / điền mang filled_by_user và không có trích dẫn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PutGradeSchemeInput"
+      responses:
+        "200":
+          description: Bản nháp sau khi lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeSchemeDoc"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grade-scheme/impact:
+    post:
+      operationId: gradeSchemeImpact
+      tags: [gradebook]
+      summary: "Xem thử tác động của công thức đang xét lên sinh viên đủ điểm: ba sinh viên mẫu trước → sau, số đổi, số điểm nhập mang / bỏ. Chỉ đọc, không Idempotency-Key"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GradeImpactInput"
+      responses:
+        "200":
+          description: Tác động
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeImpact"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grade-scheme/confirm:
+    post:
+      operationId: confirmGradeScheme
+      tags: [gradebook]
+      summary: "Xác nhận bản nháp công thức (chỉ TEACHER; Idempotency-Key bắt buộc): bản đã xác nhận cũ thành SUPERSEDED, điểm nhập tay cùng key / nguồn / thang được mang sang. Sai version 409 VERSION_CONFLICT; sổ điểm đã chốt 409 GRADEBOOK_LOCKED; còn mục chưa rõ 422 SCHEME_HAS_UNCLEAR"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConfirmGradeSchemeInput"
+      responses:
+        "200":
+          description: Đã xác nhận
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeConfirmResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/grade-scheme/extract:
     post:
       operationId: extractGradeScheme
@@ -12881,6 +12999,346 @@ components:
               type: integer
         finalize_blocked_reason:
           type: string
+    GradeCitation:
+      type: object
+      required: [page, quote]
+      additionalProperties: false
+      properties:
+        page:
+          type: integer
+        quote:
+          type: string
+    GradeItemDoc:
+      type: object
+      required: [key, name, max_score, source]
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        max_score:
+          type: string
+        source:
+          type: string
+          enum: [MANUAL, EXAM, ASSIGNMENT]
+        exam_id:
+          type: string
+          format: uuid
+    GradeComponentDoc:
+      type: object
+      required: [key, name, grp, weight, items, citations, filled_by_user]
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        grp:
+          type: string
+          enum: [QT, CK]
+        weight:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeItemDoc"
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeCitation"
+        filled_by_user:
+          type: boolean
+    GradeRuleDoc:
+      type: object
+      required: [kind, applicable, params, citations, filled_by_user]
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [BONUS, PENALTY, ROUNDING, FAIL_CONDITION, LETTER_SCALE, MISSING_SCORE]
+        applicable:
+          type: boolean
+        params:
+          type: object
+          additionalProperties: true
+        citations:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeCitation"
+        filled_by_user:
+          type: boolean
+    GradeUnclear:
+      type: object
+      required: [source, target, message]
+      additionalProperties: false
+      properties:
+        source:
+          type: string
+          enum: [CODE, LLM]
+        code:
+          type: string
+        target:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+    GradeSchemeDoc:
+      type: object
+      required: [id, scheme_no, status, version, components, rules, unclear_items, warnings]
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        scheme_no:
+          type: integer
+        status:
+          type: string
+          enum: [DRAFT, CONFIRMED, SUPERSEDED]
+        version:
+          type: integer
+        source_title:
+          type: string
+        source_document_id:
+          type: string
+          format: uuid
+        confirmed_at:
+          type: string
+          format: date-time
+        components:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeComponentDoc"
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeRuleDoc"
+        unclear_items:
+          type: array
+          items:
+            $ref: "#/components/schemas/GradeUnclear"
+        warnings:
+          type: array
+          items:
+            type: string
+    GradeSchemeDiff:
+      type: object
+      required: [components_added, components_removed, weight_changed, rules_changed, weight_sum_from, weight_sum_to]
+      additionalProperties: false
+      properties:
+        components_added:
+          type: array
+          items:
+            type: string
+        components_removed:
+          type: array
+          items:
+            type: string
+        weight_changed:
+          type: array
+          items:
+            type: object
+            required: [key, from, to]
+            additionalProperties: false
+            properties:
+              key:
+                type: string
+              from:
+                type: string
+              to:
+                type: string
+        rules_changed:
+          type: array
+          items:
+            type: object
+            required: [kind, from, to]
+            additionalProperties: false
+            properties:
+              kind:
+                type: string
+              from: {}
+              to: {}
+        weight_sum_from:
+          type: string
+        weight_sum_to:
+          type: string
+    GradeSchemesView:
+      type: object
+      required: [confirmed, draft]
+      additionalProperties: false
+      properties:
+        confirmed:
+          oneOf:
+            - $ref: "#/components/schemas/GradeSchemeDoc"
+            - type: "null"
+        draft:
+          oneOf:
+            - $ref: "#/components/schemas/GradeSchemeDoc"
+            - type: "null"
+        diff:
+          $ref: "#/components/schemas/GradeSchemeDiff"
+    PutGradeItem:
+      type: object
+      required: [key, name, max_score, source]
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        max_score:
+          type: string
+        source:
+          type: string
+          enum: [MANUAL, EXAM]
+        exam_id:
+          type: string
+          format: uuid
+    PutGradeComponent:
+      type: object
+      required: [key, name, grp, weight]
+      additionalProperties: false
+      properties:
+        key:
+          type: string
+        name:
+          type: string
+        grp:
+          type: string
+          enum: [QT, CK]
+        weight:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutGradeItem"
+    PutGradeRule:
+      type: object
+      required: [kind]
+      additionalProperties: false
+      properties:
+        kind:
+          type: string
+          enum: [BONUS, PENALTY, ROUNDING, FAIL_CONDITION, LETTER_SCALE, MISSING_SCORE]
+        applicable:
+          type: boolean
+        params:
+          type: object
+          additionalProperties: true
+    PutGradeSchemeInput:
+      type: object
+      required: [version, components, rules]
+      additionalProperties: false
+      properties:
+        version:
+          type: integer
+          minimum: 1
+        components:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutGradeComponent"
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutGradeRule"
+    GradeImpactInput:
+      type: object
+      required: [components, rules]
+      additionalProperties: false
+      properties:
+        components:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutGradeComponent"
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/PutGradeRule"
+    GradeValue:
+      type: object
+      required: [hp, letter]
+      additionalProperties: false
+      properties:
+        hp:
+          type: string
+        letter:
+          type: string
+    GradeImpact:
+      type: object
+      required: [students_total, students_computable, changed_vs_confirmed, entries_carried, entries_dropped, samples]
+      additionalProperties: false
+      properties:
+        students_total:
+          type: integer
+        students_computable:
+          type: integer
+        changed_vs_confirmed:
+          type: integer
+        entries_carried:
+          type: integer
+        entries_dropped:
+          type: array
+          items:
+            type: object
+            required: [item_key, count, reason]
+            additionalProperties: false
+            properties:
+              item_key:
+                type: string
+              count:
+                type: integer
+              reason:
+                type: string
+                enum: [ITEM_REMOVED, MAX_CHANGED, SOURCE_CHANGED]
+        samples:
+          type: array
+          items:
+            type: object
+            required: [student, before, after]
+            additionalProperties: false
+            properties:
+              student:
+                type: object
+                required: [id, full_name]
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  full_name:
+                    type: string
+              before:
+                oneOf:
+                  - $ref: "#/components/schemas/GradeValue"
+                  - type: "null"
+              after:
+                $ref: "#/components/schemas/GradeValue"
+    ConfirmGradeSchemeInput:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        version:
+          type: integer
+          minimum: 1
+    GradeConfirmResult:
+      type: object
+      required: [scheme_id, scheme_no, confirmed_at, impact]
+      additionalProperties: false
+      properties:
+        scheme_id:
+          type: string
+          format: uuid
+        scheme_no:
+          type: integer
+        confirmed_at:
+          type: string
+          format: date-time
+        impact:
+          $ref: "#/components/schemas/GradeImpact"
     ExtractGradeSchemeInput:
       type: object
       required: [document_id]

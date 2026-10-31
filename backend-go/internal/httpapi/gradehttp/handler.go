@@ -30,6 +30,10 @@ func (h *Handler) Mount(r chi.Router) {
 	teacher, staff := h.Guard(auth.Teacher), h.Guard(auth.Staff)
 	r.With(teacher, h.Idem).Post("/courses/{id}/grade-scheme/extract", h.extract)
 	r.With(staff).Get("/courses/{id}/grade-scheme/status", h.status)
+	r.With(staff).Get("/courses/{id}/grade-scheme", h.getScheme)
+	r.With(teacher).Put("/courses/{id}/grade-scheme", h.putScheme)
+	r.With(staff).Post("/courses/{id}/grade-scheme/impact", h.impact)
+	r.With(teacher, h.Idem).Post("/courses/{id}/grade-scheme/confirm", h.confirm)
 }
 
 func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
@@ -100,4 +104,87 @@ func (h *Handler) status(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Cache-Control", "no-store")
 	httpx.WriteJSON(w, http.StatusOK, st)
+}
+
+// getScheme: GET …/grade-scheme[?diff=confirmed] (Staff) → {confirmed, draft, diff?}. Không cache.
+func (h *Handler) getScheme(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	v, err := h.Grade.Schemes(r.Context(), cid, r.URL.Query().Get("diff") == "confirmed")
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+// putScheme: PUT …/grade-scheme {version, components, rules} (TEACHER) → 200 bản nháp + unclear_items.
+func (h *Handler) putScheme(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	var in grade.PutInput
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	if in.Version < 1 {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "version", Code: "required", Message: "Thiếu version."}))
+		return
+	}
+	doc, err := h.Grade.PutDraft(r.Context(), actor, cid, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, doc)
+}
+
+// impact: POST …/grade-scheme/impact {components, rules} (Staff; chỉ đọc).
+func (h *Handler) impact(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	var in grade.PutInput
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Grade.Impact(r.Context(), cid, in.Components, in.Rules)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// confirm: POST …/grade-scheme/confirm {version} (TEACHER, Idempotency-Key) — đường DUY NHẤT gọi ConfirmScheme.
+func (h *Handler) confirm(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	var b struct {
+		Version int `json:"version" validate:"required,min=1"`
+	}
+	if !httpx.DecodeJSON(w, r, &b) {
+		return
+	}
+	out, err := h.Grade.ConfirmScheme(r.Context(), actor, cid, b.Version)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
 }

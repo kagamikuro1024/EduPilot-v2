@@ -9,12 +9,25 @@ import { rosterOf } from "@/mock/roster";
 import { attendanceStats, btScoresFor, calcQt, SCHEME_1, SCHEME_2_DRAFT } from "@/mock/grades";
 import { BT03_SEED } from "@/mock/assess";
 import { ATTENDANCE_SEED, KEYS, MEMBERS_SEED, SCHEMES_SEED, type AttendanceState, type Bt03State, type MembersState, type SchemesState } from "@/mock/state";
-import { CELL_HISTORY, CONFLICT_CELL, OFFICIAL_GRADE_NOTE } from "@/mock/gradebook";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useProgressiveCount } from "@/shared/lib/useProgressiveCount";
 import s from "./Gradebook.module.css";
+
+// Dữ liệu mô phỏng của bảng điểm (US-P6-06 thay bằng dữ liệu thật).
+/** Ô mẫu có xung đột phiên bản (409 giả lập) khi giảng viên sửa — SRS mục 3. */
+export const CONFLICT_CELL = { studentId: "sv-5", column: "bt02", otherValue: "8,0", by: "Lê Thu Hà", at: "09:18" };
+
+export const OFFICIAL_GRADE_NOTE = "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường; bảng này là bản làm việc của lớp.";
+
+/** Lịch sử sửa một ô điểm (mở từ menu ngữ cảnh của hàng). */
+export const CELL_HISTORY = [
+  { at: "22/10 16:04", by: "AI chấm nháp", text: "Đề xuất 7,0 cho Bài tập 03" },
+  { at: "22/10 16:04", by: "AI chấm nháp (lượt 2)", text: "Tiêu chí 2 chấm 2,5 — lệch 1,5 so với lượt 1, chuyển sang Cần xem kỹ" },
+  { at: "05/10 08:40", by: "Lê Thu Hà", text: "Công bố điểm Bài tập 02: 8,0" },
+  { at: "20/09 10:12", by: "Lê Thu Hà", text: "Công bố điểm Bài tập 01: 7,0" },
+];
 
 const EDITABLE = ["bt01", "bt02", "ck"] as const;
 type EditCol = (typeof EDITABLE)[number];
