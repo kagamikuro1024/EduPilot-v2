@@ -1,9 +1,14 @@
-# Sprint 8: điểm dừng (2026-10-31, chủ dự án restart máy)
+# Sprint 8: điểm dừng (2026-10-31 chiều; chủ dự án nghỉ, tối làm tiếp)
 
-- Spec `FEAT-gradebook` **APPROVED** (`a3280c95`); chủ dự án chốt Q1–Q6, TLR-1, 2, 7, 17.
-- **dev:** US-S8-UI xong (CI xanh, #1); US-P6-01 xong (`ddbc8948`); US-P6-02 dở: `rules.go` WIP. Kế tiếp `engine.go` + test 30/30 → `docs/sprints/8/handoff/dev-US-P6-02-WIP.md`, rồi US-P6-03 … SEED.
-- **qc:** tc-US-P6-01…06 + script xong (`a15313ee`); dở TC-07, 08, 09, SEED, UI, `gate-P6.md`, chấm US-S8-UI → `docs/sprints/8/qc/WIP-tc-p6.md`.
-- **ba, research, writer:** rảnh.
-- Dev đã tắt colima: bật lại bằng `colima start` (dùng chung với container llm-eval của chủ dự án).
-
-Khởi động lại: `herdr agent start <n> --kind omp --pane <pane> -- --model claude-sonnet-5-5` (research: `claude-opus-5-5`), gửi prompt vai, rồi giao dev / qc đọc tệp WIP trên để làm tiếp. Văn phòng: `cd ~/Documents/EduPilot-office && ./start.sh`.
+- **PASS (QC):** US-S8-UI, US-P6-01, US-P6-02. US-P6-05 PASS sau khi QC chấm lại theo #18.
+- **US-P6-03:** vòng 2 đã push, chờ QC chấm lại.
+- **dev:**
+  - (1) #19: tối ưu TBT `/settings/llm` ≤ 200 ms (CI Lighthouse simulate đang đỏ).
+  - (2) Hoàn US-P6-04 từ nhánh `wip/p6-04`: backend + `/gradebook/scheme` + `gradebook.spec.ts` đã xanh; còn spec chung, e2e tải quy chế, CI. Gộp vào `sprint/8-p6`.
+  - (3) Rồi US-P6-06 → 07 → 08 → 09 → US-S8-SEED.
+- **qc:**
+  - chấm lại US-P6-05 (#18) và US-P6-03 vòng 2 khi CI xanh;
+  - sau đó chấm từng story mới.
+- **ba:** #10 / #11 / #16 sửa spec. Kiểm đã push (`/tmp/ba-wt`).
+- **Proposals đã quyết:** #1 – #19.
+- **Văn phòng:** service `office` (cổng 4777).
