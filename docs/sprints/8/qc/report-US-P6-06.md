@@ -44,6 +44,11 @@ AC1 PASS (phần menu `⋯` / `Chốt điểm` chính chuyển nơi kiểm sang 
 - Luật 13: phân trang con trỏ ≤ 100, không N+1 (test); luật 14: `version` → 409; luật 15: điểm không cache phía máy chủ.
 - Test cũ bị sửa: `contract_test.go` 232 → 238 (#12 mở rộng, PM đã cho); `class-join.spec.ts` ×2 route → `/analytics` (#21 ACCEPTED); `tokens.spec.ts`, `visual.spec.ts` (#22, chưa ACCEPTED — BUG-P6-06-2).
 
+## Cập nhật 19:40 — quyết định PM (`proposals.md` #22, #23 ACCEPTED; #24)
+- BUG-P6-06-2: **đóng** (PM chấp nhận #22; ghi lỗi quy trình lần 4; từ nay cùng dạng được làm trước, ghi số proposal vào commit).
+- BUG-P6-06-1: PM chấp nhận #23 (`shell.spec.ts` 375 / 400 / 405 → `/analytics`, không đổi assertion). **Vẫn FAIL cho tới khi dev đẩy sửa và CI xanh**; vòng 2 QC chạy lại `shell.spec.ts -g "regression-1.5"` riêng từng ca.
+- #24 (`ui-antipatterns.sh` thêm `ImportDialog`) thuộc US-P6-07, QC kiểm ở đó.
+
 ## Đề nghị
 1. Dev mở proposal sửa `shell.spec.ts:400, :405` (route hoặc `gradebookApi`), báo PM qua herdr, chờ ACCEPTED rồi sửa; PM quyết #22.
 2. Chuyển đo p95 (500 ms trang đầu 1.000 sinh viên; 300 ms `PUT`) + đua `PUT` song song sang US-S8-SEED (như US-P6-04).
