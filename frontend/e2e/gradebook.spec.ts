@@ -602,3 +602,98 @@ test("export xlsx: Xuất XLSX tải tệp; TA và sổ đã chốt không có N
   await expect(p3.locator("[data-part=grade-row]").first()).toBeVisible();
   await expect(p3.getByRole("button", { name: "Thêm hành động" })).toHaveCount(0);
 });
+
+// ---- US-P6-08: chốt / mở khoá / lịch sử chốt -----------------------------------------------------------------------------------------------------
+async function fill(api: Awaited<ReturnType<typeof gradebookApi>>, n: number, final = true) {
+  for (let i = 1; i <= n; i++) {
+    api.entries.set(`${gbStudent(i).id}:${WEEKLY}`, { score: "8", version: 1, source: "MANUAL" });
+    if (final) api.entries.set(`${gbStudent(i).id}:${FINAL}`, { score: "7", version: 1, source: "MANUAL" });
+  }
+}
+
+test("finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu bảng Đã chốt v1, ô khoá, Mở khoá ở menu, không toast", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context, { students: 3 });
+  await fill(api, 3);
+  await page.reload();
+  await expect(page.locator("[data-part=grade-row]").first().locator("[data-part=row-status]")).toHaveText("Đủ");
+  await page.getByRole("button", { name: "Chốt điểm" }).click();
+  const dlg = page.getByRole("dialog", { name: "Chốt điểm" });
+  await expect(dlg).toContainText("Chốt 3 sinh viên · phân bố: C 3 · 0 sinh viên liệt");
+  await dlg.getByRole("button", { name: "Chốt điểm" }).click();
+  await expect(dlg).toHaveCount(0);
+  await expect(page.getByText(/^Đã chốt v1 · \d{1,2}[:/]\d{2}/)).toBeVisible();
+  const call = api.calls.find((c) => c.method === "POST" && c.path.endsWith("/gradebook/finalize"))!;
+  expect(call.idem).not.toBe("");
+  await expect(page.locator("input[data-cell]")).toHaveCount(0);
+  await expect(page.locator("[data-part=row-status]").first()).toHaveText("Đã chốt v1");
+  await expect(page.getByRole("button", { name: "Chốt điểm" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await expect(page.getByRole("menuitem", { name: "Mở khoá" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByText("Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.")).toHaveCount(1);
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+test("finalize incomplete list: 409 hiện danh sách sinh viên thiếu kèm liên kết tới ô, chữ tiếng Việt", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context, { students: 3 });
+  await fill(api, 3, false);
+  await page.reload();
+  await expect(page.locator("[data-part=grade-row]").first()).toBeVisible();
+  await page.getByRole("button", { name: "Chốt điểm" }).click();
+  await page.getByRole("dialog", { name: "Chốt điểm" }).getByRole("button", { name: "Chốt điểm" }).click();
+  const list = page.locator("[data-part=incomplete-list]");
+  await expect(page.getByText("Còn 3 sinh viên chưa đủ điểm")).toBeVisible();
+  await expect(list.locator("li")).toHaveCount(3);
+  await expect(list.locator("li").first()).toHaveText("Sinh Viên 0001 — thiếu Thi cuối kỳ");
+  expect(await page.locator("main").innerText()).not.toMatch(/GRADES_INCOMPLETE/);
+  await list.getByRole("button", { name: /Sinh Viên 0002/ }).click();
+  await expect(cellOf(page, 2, FINAL)).toBeFocused();
+  await expect(page.getByText("Còn 3 sinh viên chưa đủ điểm")).toBeVisible();
+});
+
+test("unlock reason: hậu quả bằng số, lý do 10–500 ký tự khoá nút, mở khoá xong ô nhập lại được", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context, { locked: true });
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await page.getByRole("menuitem", { name: "Mở khoá" }).click();
+  const dlg = page.getByRole("dialog", { name: "Mở khoá" });
+  await expect(dlg).toContainText("Mở khoá bản chốt v2 của 30 sinh viên. Bản v2 vẫn được giữ nguyên.");
+  const ok = dlg.getByRole("button", { name: "Mở khoá" });
+  await expect(ok).toBeDisabled();
+  await dlg.getByLabel("Lý do").fill("123456789");
+  await expect(ok).toBeDisabled();
+  await dlg.getByLabel("Lý do").fill("Phúc khảo sv04: sửa điểm giữa kỳ");
+  await expect(ok).toBeEnabled();
+  await ok.click();
+  await expect(dlg).toHaveCount(0);
+  await expect(cellOf(page, 1, WEEKLY)).toBeVisible();
+  const call = api.calls.find((c) => c.path.endsWith("/gradebook/unlock"))!;
+  expect(call.idem).not.toBe("");
+  expect(JSON.parse(call.body)).toEqual({ reason: "Phúc khảo sv04: sửa điểm giữa kỳ" });
+});
+
+test("snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý do mở khoá, chọn bản cũ xem điểm đã chốt; TA cũng xem được", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await sheet(page, context, { locked: true, drift: true });
+  await expect(page.locator("[data-part=row-drift]")).toHaveText("Khác bản chốt");
+  await expect(page.locator("[data-part=row-drift]")).toHaveCount(1);
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await page.getByRole("menuitem", { name: "Lịch sử chốt" }).click();
+  const hist = page.locator("[data-part=snapshot-history]");
+  await expect(hist.getByRole("button", { name: /^Bản chốt v2/ })).toBeVisible();
+  await expect(hist).toContainText("Phúc khảo sv04");
+  await hist.getByRole("button", { name: /^Bản chốt v1/ }).click();
+  await expect(hist.getByRole("table", { name: "Điểm đã chốt v1" })).toContainText("Sinh Viên 0001");
+  await page.keyboard.press("Escape");
+
+  const p2 = await context.newPage();
+  await asDemo(context, "ta");
+  await gradebookApi(p2, { locked: true });
+  await p2.goto("/gradebook");
+  await p2.getByRole("button", { name: "Thêm hành động" }).click();
+  await expect(p2.getByRole("menuitem", { name: "Lịch sử chốt" })).toBeVisible();
+  await expect(p2.getByRole("menuitem", { name: "Mở khoá" })).toHaveCount(0);
+  await expect(p2.getByRole("menuitem", { name: "Xuất XLSX" })).toHaveCount(0);
+});

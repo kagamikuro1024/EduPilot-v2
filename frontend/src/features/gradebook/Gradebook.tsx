@@ -1,16 +1,18 @@
 "use client";
 
 import { useQueryClient, type InfiniteData } from "@tanstack/react-query";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError } from "@/shared/data";
 import { GradeCalculation } from "@/shared/domain";
 import { Button, ButtonLink, type Column as TableColumn, DataTable, Drawer, EmptyState, InlineNotice, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton, StatusText } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import {
-  exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus,
-  type Column, type GEntry, type GradebookPage, type GRow,
+  exportXlsx, gradebookKey, publishItem, putEntry, useExplain, useGradebook, useHistory, useSchemeStatus, useSnapshots,
+  type Column, type GEntry, type GradebookPage, type GRow, type Incomplete,
 } from "./gradeApi";
+import { FinalizeDialog, SnapshotHistory, UnlockDialog, stamp } from "./FinalizeGrades";
 import { ImportDialog } from "./ImportDialog";
+import f from "./FinalizeGrades.module.css";
 import s from "./Gradebook.module.css";
 
 const vi = (v: string | undefined) => (v === undefined || v === "" ? "" : v.replace(".", ","));
@@ -55,6 +57,11 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
   const [historyOf, setHistoryOf] = useState<GRow | null>(null);
   const [warnOpen, setWarnOpen] = useState(false);
   const [importing, setImporting] = useState(false);
+  const [finalizing, setFinalizing] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
+  const [history, setHistory] = useState(false);
+  const [incomplete, setIncomplete] = useState<Incomplete | null>(null);
+  const [focusReq, setFocusReq] = useState<{ rowKey: string; col: string; n: number } | undefined>();
   const latest = useRef(new Map<string, string>());
   const busy = useRef(new Map<string, string>()); // khoá ô → chữ đang gửi
 
@@ -67,6 +74,11 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     return out;
   }, [q.data]);
   const locked = first?.state.status === "LOCKED";
+  const snaps = useSnapshots(courseId, locked).data;
+  // danh sách thiếu điểm cần tên sinh viên: nạp hết các trang (≤ 10 trang cho 1.000 sinh viên)
+  useEffect(() => {
+    if (incomplete && q.hasNextPage && !q.isFetchingNextPage) void q.fetchNextPage();
+  }, [incomplete, q]);
   const canEdit = teacher && !locked;
 
   const patchRow = useCallback(
@@ -232,7 +244,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     { key: "qt", header: "Quá trình", align: "end", width: "92px", part: "col-qt", render: (r) => calc(r, r.result?.qt) },
     { key: "hp", header: "Điểm học phần", align: "end", width: "112px", part: "col-hp", render: (r) => calc(r, r.result?.hp) },
     { key: "letter", header: "Điểm chữ", align: "center", width: "88px", part: "col-letter", render: (r) => (pending.has(r.student.id) ? "…" : r.result?.letter ?? "—") },
-    { key: "status", header: "Trạng thái", width: "120px", part: "col-status", render: (r) => <span data-part="row-status">{pending.has(r.student.id) ? "…" : statusText(r)}</span> },
+    { key: "status", header: "Trạng thái", width: "120px", part: "col-status", render: (r) => <span data-part="row-status">{pending.has(r.student.id) ? "…" : statusText(r)}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span> },
     {
       key: "menu", header: <span className="ep-sr-only">Hành động</span>, width: "56px", align: "end",
       render: (r) => <OverflowMenu label={`Hành động — ${r.student.full_name}`} items={[{ label: "Giải trình", onSelect: () => setExplainOf(r) }, { label: "Lịch sử", onSelect: () => setHistoryOf(r) }]} />,
@@ -258,14 +270,19 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
   const actions = (
     <>
       <ButtonLink href="/gradebook/scheme" variant="secondary">Xem công thức</ButtonLink>
-      {teacher && hasScheme && (
+      {hasScheme && (teacher || (first?.state.snapshot_version ?? 0) > 0) && (
         <OverflowMenu
           label="Thêm hành động"
           items={[
-            ...(locked ? [] : [{ label: "Nhập từ XLSX", onSelect: () => setImporting(true) }]),
-            { label: "Xuất XLSX", onSelect: () => void download() },
+            ...(teacher && !locked ? [{ label: "Nhập từ XLSX", onSelect: () => setImporting(true) }] : []),
+            ...(teacher ? [{ label: "Xuất XLSX", onSelect: () => void download() }] : []),
+            ...((first?.state.snapshot_version ?? 0) > 0 ? [{ label: "Lịch sử chốt", onSelect: () => setHistory(true) }] : []),
+            ...(teacher && locked ? [{ label: "Mở khoá", onSelect: () => setUnlocking(true) }] : []),
           ]}
         />
+      )}
+      {teacher && status?.state === "CONFIRMED" && !locked && (
+        <Button variant="primary" onClick={() => setFinalizing(true)}>Chốt điểm</Button>
       )}
       {teacher && status && status.state !== "CONFIRMED" && (
         <span className={s.lock}>
@@ -283,9 +300,25 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         loading={<><PageHeader title="Sổ điểm" /><Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
-        <PageHeader title="Sổ điểm" actions={actions} meta={locked ? <StatusText tone="green">{`Đã chốt v${first?.state.snapshot_version}`}</StatusText> : undefined} />
+        <PageHeader title="Sổ điểm" actions={actions} meta={locked ? <StatusText tone="green">{`Đã chốt v${first?.state.snapshot_version}${snaps?.[0] ? ` · ${stamp(snaps[0].locked_at)}` : ""}`}</StatusText> : undefined} />
         <Panel>
           {banner}
+          {incomplete && (
+            <InlineNotice tone="warning" compact action={<Button size="sm" variant="ghost" onClick={() => setIncomplete(null)}>Ẩn</Button>}>
+              {`Còn ${incomplete.total} sinh viên chưa đủ điểm`}
+              <ul className={f.missing} data-part="incomplete-list">
+                {incomplete.students.map((m) => {
+                  const who = rows.find((r) => r.student.id === m.id)?.student.full_name ?? "Sinh viên";
+                  const col = columns.find((c) => m.missing.includes(c.component_key) && c.source === "MANUAL") ?? columns.find((c) => m.missing.includes(c.component_key));
+                  return (
+                    <li key={m.id}>
+                      <button type="button" className={f.link} onClick={() => col && setFocusReq({ rowKey: m.id, col: col.item_id, n: Date.now() })}>{`${who} — thiếu ${col?.name ?? m.missing.join(", ")}`}</button>
+                    </li>
+                  );
+                })}
+              </ul>
+            </InlineNotice>
+          )}
           {warnLabel.map((w, i) => (
             <InlineNotice key={w} tone="warning" compact action={<Button size="sm" variant="ghost" onClick={() => setWarnOpen((x) => !x)}>{warnOpen ? "Ẩn" : "Xem"}</Button>}>
               {w}
@@ -303,7 +336,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
               rowKey={(r) => r.student.id}
               caption="Bảng điểm của lớp"
               virtual={{ height: 560 }}
-              cellNav={{ drafts, onDraft: setDraft, onCommit: (row, col, text) => commit(row, col, text) }}
+              cellNav={{ drafts, onDraft: setDraft, onCommit: (row, col, text) => commit(row, col, text), focus: focusReq }}
               pagination={{ nextCursor: q.hasNextPage ? (q.data?.pages.at(-1)?.next_cursor ?? null) : null, onLoadMore: () => void q.fetchNextPage(), loading: q.isFetchingNextPage }}
               rowAttrs={(r) => ({ "data-part": "grade-row", "data-student-id": r.student.id })}
             />
@@ -320,6 +353,9 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
           </div>
         </div>
       )}
+      {finalizing && <FinalizeDialog course={courseId} onClose={() => setFinalizing(false)} onIncomplete={setIncomplete} />}
+      {unlocking && <UnlockDialog course={courseId} version={first?.state.snapshot_version ?? 0} students={snaps?.[0]?.students ?? rows.length} onClose={() => setUnlocking(false)} />}
+      {history && <SnapshotHistory course={courseId} onClose={() => setHistory(false)} />}
       {importing && <ImportDialog course={courseId} columns={columns} onClose={() => setImporting(false)} />}
       <ExplainDrawer courseId={courseId} row={explainOf} onClose={() => setExplainOf(null)} />
       <HistoryDrawer courseId={courseId} row={historyOf} onClose={() => setHistoryOf(null)} />

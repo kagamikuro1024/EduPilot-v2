@@ -323,4 +323,55 @@ func (r *runner) gradeScenarios(x examRig) {
 	if _, err := db.Exec(ctx, `update gradebooks set status = 'OPEN', snapshot_version = 0 where course_id = $1`, x.cid); err != nil {
 		r.t.Fatalf("mở sổ: %v", err)
 	}
+
+	// US-P6-08: chốt, mở khoá, chốt lại, đọc bản chốt.
+	fin, unl := gb+"/finalize", gb+"/unlock"
+	finalize := func(token string) call {
+		return call{method: "POST", path: fin, token: token, headers: x.idem(), body: `{}`}
+	}
+	unlock := func(token, reason string) call {
+		return call{method: "POST", path: unl, token: token, headers: x.idem(), body: `{"reason":"` + reason + `"}`}
+	}
+	r.must(finalize(x.gv), 409) // GRADES_INCOMPLETE: cột cuối kỳ là bài thi chưa công bố, sinh viên khác chưa có điểm
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(finalize(who), 403)
+		r.must(unlock(who, "Phúc khảo sinh viên A"), 403)
+	}
+	r.must(finalize(""), 401)
+	r.must(unlock("", "Phúc khảo sinh viên A"), 401)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/gradebook/finalize", token: x.gv, headers: x.idem(), body: `{}`}, 404)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/gradebook/unlock", token: x.gv, headers: x.idem(), body: `{"reason":"Phúc khảo sinh viên A"}`}, 404)
+	r.must(call{method: "POST", path: fin, token: x.gv, body: `{}`}, 422) // thiếu Idempotency-Key
+	r.must(unlock(x.gv, "Phúc khảo sinh viên A"), 409)                    // NOT_LOCKED: đang mở
+	if _, err := db.Exec(ctx, `update grade_items set source = 'MANUAL', exam_id = null where id = $1`, finalItem); err != nil {
+		r.t.Fatalf("trả cột về nhập tay: %v", err)
+	}
+	if _, err := db.Exec(ctx, `insert into grade_entries (course_id, item_id, student_id, score, entered_by)
+		select e.course_id, i.id, e.user_id, 7, $2 from enrollments e join grade_items i on i.course_id = e.course_id
+		join grade_schemes sc on sc.id = i.scheme_id and sc.status = 'CONFIRMED'
+		where e.course_id = $1 and e.role_in_course = 'STUDENT' and e.status = 'ACTIVE' on conflict (item_id, student_id) do nothing`, x.cid, teacherID); err != nil {
+		r.t.Fatalf("điểm đủ cho cả lớp: %v", err)
+	}
+	r.must(finalize(x.gv), 200)
+	r.must(finalize(x.gv), 409) // GRADEBOOK_LOCKED
+	sn := gb + "/snapshots"
+	r.must(call{method: "GET", path: sn, token: x.gv}, 200)
+	r.must(call{method: "GET", path: sn, token: x.ta}, 200)
+	r.must(call{method: "GET", path: sn}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: sn, token: who}, 403)
+		r.must(call{method: "GET", path: sn + "/1", token: who}, 403)
+	}
+	r.must(call{method: "GET", path: sn + "/1?limit=1", token: x.gv}, 200)
+	r.must(call{method: "GET", path: sn + "/1", token: x.ta}, 200)
+	r.must(call{method: "GET", path: sn + "/1"}, 401)
+	r.must(call{method: "GET", path: sn + "/9", token: x.gv}, 404)
+	r.must(call{method: "GET", path: sn + "/abc", token: x.gv}, 404)
+	r.must(call{method: "GET", path: sn + "/1?limit=0", token: x.gv}, 422)
+	r.must(call{method: "GET", path: sn + "/1?cursor=%25", token: x.gv}, 422)
+	r.must(call{method: "GET", path: "/api/v1/courses/khong-phai-uuid/gradebook/snapshots", token: x.gv}, 404)
+	r.must(call{method: "GET", path: gb + "?limit=10", token: x.gv}, 200) // sổ LOCKED: hiển thị bản chốt
+	r.must(unlock(x.gv, "ngan"), 422)
+	r.must(unlock(x.gv, "Phúc khảo sinh viên A: sửa điểm"), 200)
+	r.must(unlock(x.gv, "Phúc khảo sinh viên A: sửa điểm"), 409)
 }

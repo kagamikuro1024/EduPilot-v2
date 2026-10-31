@@ -2845,6 +2845,130 @@ paths:
           $ref: "#/components/responses/NotFound"
         "409":
           $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/gradebook/finalize:
+    post:
+      operationId: finalizeGradebook
+      tags: [gradebook]
+      summary: "Chốt điểm cả lớp thành snapshot bất biến (chỉ TEACHER; Idempotency-Key bắt buộc). Một giao dịch: mọi sinh viên ACTIVE phải đủ điểm (409 GRADES_INCOMPLETE kèm danh sách ≤ 30 + total, không ghi gì); chưa có công thức đã xác nhận 409 SCHEME_NOT_CONFIRMED; đã chốt 409 GRADEBOOK_LOCKED. Ghi một dòng audit, phát thông báo chuông qua outbox"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinalizeGradebookOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/gradebook/unlock:
+    post:
+      operationId: unlockGradebook
+      tags: [gradebook]
+      summary: "Mở khoá sổ đã chốt (chỉ TEACHER; Idempotency-Key bắt buộc): lý do 10–500 ký tự (422), đang mở 409 NOT_LOCKED. Bản chốt cũ không đổi; có audit"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UnlockGradebookInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UnlockGradebookOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/gradebook/snapshots:
+    get:
+      operationId: listGradeSnapshots
+      tags: [gradebook]
+      summary: "Các phiên bản đã chốt của lớp, mới nhất trước (Staff)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeSnapshotVersions"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/gradebook/snapshots/{version}:
+    get:
+      operationId: getGradeSnapshot
+      tags: [gradebook]
+      summary: "Một trang của bản chốt `version` (Staff; con trỏ, limit 1–100); bản không có → 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: version
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradeSnapshotPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/grade-items/{itemId}/publish:
     post:
       operationId: publishGradeItem
@@ -13694,6 +13818,9 @@ components:
           properties:
             version:
               type: integer
+        drift:
+          type: boolean
+          description: Sổ đã chốt mà điểm sống khác bản chốt (chỉ Staff; nhãn "Khác bản chốt")
     GradebookPage:
       type: object
       required: [scheme, state, columns, rows, next_cursor]
@@ -13957,6 +14084,109 @@ components:
           type: integer
         skipped_errors:
           type: integer
+    FinalizeGradebookOutput:
+      type: object
+      required: [version, students, locked_at]
+      additionalProperties: false
+      properties:
+        version:
+          type: integer
+        students:
+          type: integer
+        locked_at:
+          type: string
+          format: date-time
+    UnlockGradebookInput:
+      type: object
+      required: [reason]
+      additionalProperties: false
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 600
+    UnlockGradebookOutput:
+      type: object
+      required: [status, snapshot_version]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          enum: [OPEN]
+        snapshot_version:
+          type: integer
+    GradeSnapshotVersions:
+      type: object
+      required: [items]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [version, students, locked_at, locked_by, unlock_reason]
+            additionalProperties: false
+            properties:
+              version:
+                type: integer
+              students:
+                type: integer
+              locked_at:
+                type: string
+                format: date-time
+              locked_by:
+                type: string
+              unlock_reason:
+                type: [string, "null"]
+    GradeSnapshotPage:
+      type: object
+      required: [version, locked_at, items, next_cursor]
+      additionalProperties: false
+      properties:
+        version:
+          type: integer
+        locked_at:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            type: object
+            required: [student, numeric_grade, letter, failed_reason, qt, ck, bonus, penalty, items]
+            additionalProperties: false
+            properties:
+              student:
+                type: object
+                required: [id, full_name, student_code]
+                additionalProperties: false
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  full_name:
+                    type: string
+                  student_code:
+                    type: string
+              numeric_grade:
+                type: string
+              letter:
+                type: string
+              failed_reason:
+                type: [string, "null"]
+              qt:
+                type: string
+              ck:
+                type: string
+              bonus:
+                type: string
+              penalty:
+                type: string
+              items:
+                type: object
+                additionalProperties:
+                  type: string
+        next_cursor:
+          type: [string, "null"]
     PublishGradeItemOutput:
       type: object
       required: [item_id, published]

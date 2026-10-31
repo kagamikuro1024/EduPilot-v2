@@ -52,6 +52,8 @@ type (
 		Penalty string               `json:"penalty"`
 		Result  *ResultView          `json:"result"`
 		Locked  *LockedView          `json:"locked,omitempty"`
+		// Drift: sổ LOCKED mà điểm sống (Compute) khác bản chốt — chỉ Staff thấy (nhãn "Khác bản chốt").
+		Drift bool `json:"drift,omitempty"`
 	}
 	StudentView struct {
 		ID          uuid.UUID `json:"id"`
@@ -154,6 +156,7 @@ func (s *Service) Gradebook(ctx context.Context, courseID uuid.UUID, cursor stri
 	}
 	var inputs map[uuid.UUID]Input
 	var detail map[uuid.UUID]map[uuid.UUID]EntryView
+	snaps := map[uuid.UUID]store.GradeSnapshotsForStudentsRow{}
 	if ok {
 		out.Scheme = &struct {
 			ID       uuid.UUID `json:"id"`
@@ -170,6 +173,15 @@ func (s *Service) Gradebook(ctx context.Context, courseID uuid.UUID, cursor stri
 		rows, err := q.GradeEntriesDetail(ctx, store.GradeEntriesDetailParams{CourseID: courseID, SchemeID: conf.ID, StudentIds: idStrings(ids)})
 		if err != nil {
 			return out, fmt.Errorf("grade: điểm đã nhập: %w", err)
+		}
+		if out.State.Status == "LOCKED" {
+			sn, err := q.GradeSnapshotsForStudents(ctx, store.GradeSnapshotsForStudentsParams{CourseID: courseID, Version: int32(out.State.SnapshotVersion), StudentIds: idStrings(ids)}) //nolint:gosec // phiên bản nhỏ
+			if err != nil {
+				return out, fmt.Errorf("grade: bản chốt của trang: %w", err)
+			}
+			for _, r := range sn {
+				snaps[r.StudentID] = r
+			}
 		}
 		detail = map[uuid.UUID]map[uuid.UUID]EntryView{}
 		for _, r := range rows {
@@ -189,7 +201,10 @@ func (s *Service) Gradebook(ctx context.Context, courseID uuid.UUID, cursor stri
 			r := Compute(conf.Scheme, in)
 			row.Result = resultView(r)
 			row.Bonus, row.Penalty = r.BonusApplied.String(), r.Penalty.String()
-			if out.State.Status == "LOCKED" {
+			if sn, found := snaps[st.StudentID]; found { // sổ LOCKED: hiển thị bản chốt, so điểm sống để gắn cờ drift
+				row.Result, row.Bonus, row.Penalty, row.Drift = snapshotResult(sn, r)
+				row.Locked = &LockedView{Version: out.State.SnapshotVersion}
+			} else if out.State.Status == "LOCKED" {
 				row.Locked = &LockedView{Version: out.State.SnapshotVersion}
 			}
 		}

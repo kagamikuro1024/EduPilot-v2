@@ -128,7 +128,7 @@ export const useDocPreview = (course: string, docId: string | undefined) =>
 export type Column = { item_id: string; key: string; name: string; component_key: string; grp: "QT" | "CK"; max_score: string; source: "MANUAL" | "EXAM" | "ASSIGNMENT"; published: boolean };
 export type GEntry = { score: string; version: number; source: string; updated_by?: string };
 export type GResult = { status: "COMPLETE" | "INCOMPLETE" | "INVALID"; qt?: string; hp?: string; letter?: string; verdict: string; missing: string[] };
-export type GRow = { student: { id: string; full_name: string; student_code: string }; entries: Record<string, GEntry>; bonus: string; penalty: string; result: GResult | null; locked?: { version: number } };
+export type GRow = { student: { id: string; full_name: string; student_code: string }; entries: Record<string, GEntry>; bonus: string; penalty: string; result: GResult | null; locked?: { version: number }; drift?: boolean };
 export type GradebookPage = {
   scheme: { id: string; scheme_no: number } | null;
   state: { status: "OPEN" | "LOCKED"; snapshot_version: number };
@@ -198,3 +198,43 @@ export const importEntries = async (course: string, body: { upload_id: string; i
   (await apiClient.post<ImportOut>(`/courses/${course}/grade-entries/import`, body, { idempotencyKey })).data;
 
 export const exportXlsx = async (course: string) => (await apiClient.get<Blob>(`/courses/${course}/gradebook/export.xlsx`, { blob: true })).data;
+
+// ---- chốt / mở khoá / bản chốt (US-P6-08) -----------------------------------------------------------------------------------------------------
+export type PreviewSummary = { students: number; complete: number; incomplete: number; liet: number; distribution: Record<string, number> };
+export type SnapshotVersion = { version: number; students: number; locked_at: string; locked_by: string; unlock_reason: string | null };
+export type SnapshotRow = { student: { id: string; full_name: string; student_code: string }; numeric_grade: string; letter: string; failed_reason: string | null };
+export type Incomplete = { total: number; students: Array<{ id: string; missing: string[] }> };
+
+export const snapshotsKey = (course: string) => ["grade-snapshots", course] as const;
+
+export const usePreviewSummary = (course: string, enabled: boolean) =>
+  useQuery({
+    queryKey: ["grade-preview-summary", course],
+    enabled,
+    staleTime: 0,
+    queryFn: async ({ signal }) => (await apiClient.get<{ summary: PreviewSummary }>(`/courses/${course}/gradebook/preview`, { signal, query: { limit: 1 } })).data.summary,
+  });
+
+export const useSnapshots = (course: string, enabled: boolean) =>
+  useQuery({
+    queryKey: snapshotsKey(course),
+    enabled,
+    staleTime: 0,
+    queryFn: async ({ signal }) => (await apiClient.get<{ items: SnapshotVersion[] }>(`/courses/${course}/gradebook/snapshots`, { signal })).data.items,
+  });
+
+export const useSnapshotRows = (course: string, version: number | null) =>
+  useInfiniteQuery({
+    queryKey: ["grade-snapshot", course, version],
+    enabled: version !== null,
+    initialPageParam: null as string | null,
+    staleTime: 0,
+    queryFn: async ({ pageParam, signal }) => (await apiClient.get<{ items: SnapshotRow[]; next_cursor: string | null }>(`/courses/${course}/gradebook/snapshots/${version}`, { signal, query: { limit: 50, cursor: pageParam } })).data,
+    getNextPageParam: (last) => last.next_cursor ?? undefined,
+  });
+
+export const finalizeGradebook = async (course: string, idempotencyKey: string) =>
+  (await apiClient.post<{ version: number; students: number; locked_at: string }>(`/courses/${course}/gradebook/finalize`, {}, { idempotencyKey })).data;
+
+export const unlockGradebook = async (course: string, reason: string, idempotencyKey: string) =>
+  (await apiClient.post<{ status: "OPEN"; snapshot_version: number }>(`/courses/${course}/gradebook/unlock`, { reason }, { idempotencyKey })).data;

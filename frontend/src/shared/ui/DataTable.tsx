@@ -66,6 +66,8 @@ export type CellNav<T> = {
   onDraft: (key: string, text: string | null) => void;
   /** `Enter` → "down", `Tab` → "right", rời ô → "stay". Hàm tự kiểm tra và lưu; bảng chỉ di chuyển ô nhập. */
   onCommit: (row: T, colKey: string, text: string, move: "down" | "right" | "stay") => void;
+  /** yêu cầu đưa focus tới một ô (vd. từ danh sách sinh viên thiếu điểm); `n` tăng mỗi lần yêu cầu, dòng chưa nạp thì chờ tới khi có */
+  focus?: { rowKey: string; col: string; n: number };
 };
 
 /**

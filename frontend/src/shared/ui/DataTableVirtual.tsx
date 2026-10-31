@@ -77,6 +77,17 @@ export default function VirtualTable<T>({
     v.scrollToIndex(idx, { align: "auto" });
     bump((n) => n + 1);
   }
+  const wanted = cellNav?.focus;
+  const doneFocus = useRef(0);
+  useEffect(() => {
+    if (!wanted || doneFocus.current === wanted.n) return;
+    const idx = rows.findIndex((r) => rowKey(r) === wanted.rowKey);
+    if (idx < 0) return; // dòng chưa nạp: chạy lại khi `rows` đổi
+    doneFocus.current = wanted.n;
+    pendingFocus.current = { idx, col: wanted.col };
+    v.scrollToIndex(idx, { align: "center" });
+    bump((n) => n + 1);
+  }, [wanted, rows, rowKey, v]);
   function cellKey(e: KeyboardEvent<HTMLInputElement>, row: T, rowIdx: number, col: Column<T>) {
     if (!cellNav) return;
     const text = e.currentTarget.value;

@@ -84,6 +84,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   ITEM_NOT_PUBLISHABLE: "Cột này không công bố riêng được.",
   SCORE_OUT_OF_RANGE: "Điểm ngoài thang của cột.",
   SCORE_PRECISION: "Điểm có quá 2 chữ số thập phân.",
+  GRADES_INCOMPLETE: "Còn sinh viên chưa đủ điểm.",
+  NOT_LOCKED: "Sổ điểm đang mở.",
   CRISIS_SUPPORT: "Bạn không phải đi qua chuyện này một mình.",
   SESSION_DUPLICATE: "Lớp đã có một buổi bắt đầu đúng giờ này.",
   SESSION_HAS_ATTENDANCE: "Buổi này đã có điểm danh nên không xoá được.",

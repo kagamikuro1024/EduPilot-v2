@@ -73,6 +73,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicHidden, outbox.Chain(tn.HandleHidden, inv.Handle))
 	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
 	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
+	reg.Register(grade.TopicFinalized, (&grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}).HandleFinalized) // US-P6-08: chốt điểm → GRADE_FINALIZED / GRADE_CHANGED (chỉ chuông)
 	reg.Register(grade.TopicSchemeConfirmed, inv.Handle)                                                                      // US-P6-05: xác nhận công thức → GRADE_SCHEME_UNCONFIRMED biến mất
 	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
 	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged) // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó

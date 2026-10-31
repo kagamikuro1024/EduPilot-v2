@@ -44,6 +44,10 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(teacher).Post("/courses/{id}/grade-items/{itemId}/publish", h.publish)
 	r.With(teacher).Post("/courses/{id}/grade-entries/import", h.importXLSX)
 	r.With(teacher).Get("/courses/{id}/gradebook/export.xlsx", h.export)
+	r.With(teacher, h.Idem).Post("/courses/{id}/gradebook/finalize", h.finalize)
+	r.With(teacher, h.Idem).Post("/courses/{id}/gradebook/unlock", h.unlock)
+	r.With(staff).Get("/courses/{id}/gradebook/snapshots", h.snapshots)
+	r.With(staff).Get("/courses/{id}/gradebook/snapshots/{version}", h.snapshot)
 	r.With(staff).Get("/courses/{id}/gradebook/students/{uid}/explain", h.explain)
 	r.With(staff).Get("/courses/{id}/gradebook/students/{uid}/history", h.history)
 }
@@ -314,6 +318,87 @@ func (h *Handler) importXLSX(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	run(w, r)
+}
+
+// finalize: POST …/gradebook/finalize (TEACHER, Idempotency-Key): chốt cả lớp thành snapshot bất biến.
+func (h *Handler) finalize(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Grade.Finalize(r.Context(), actor, cid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// unlock: POST …/gradebook/unlock {reason} (TEACHER, Idempotency-Key).
+func (h *Handler) unlock(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	actor, ok := actorOf(w, r)
+	if !ok {
+		return
+	}
+	var in struct {
+		Reason string `json:"reason"`
+	}
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Grade.Unlock(r.Context(), actor, cid, in.Reason)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// snapshots: GET …/gradebook/snapshots (Staff) — các phiên bản đã chốt.
+func (h *Handler) snapshots(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	items, err := h.Grade.SnapshotVersions(r.Context(), cid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"items": items})
+}
+
+// snapshot: GET …/gradebook/snapshots/{version}?cursor=&limit= (Staff) — một trang của bản chốt.
+func (h *Handler) snapshot(w http.ResponseWriter, r *http.Request) {
+	cid, ok := courseOf(w, r)
+	if !ok {
+		return
+	}
+	v, err := strconv.Atoi(chi.URLParam(r, "version"))
+	if err != nil || v < 1 {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return
+	}
+	limit, ok := limitOf(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Grade.Snapshot(r.Context(), cid, v, r.URL.Query().Get("cursor"), limit)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
 }
 
 // export: GET …/gradebook/export.xlsx (TEACHER; no-store, attachment, có audit).

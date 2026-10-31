@@ -155,21 +155,26 @@ func fillFromSnapshot(row *exportRow, items []Item, sn store.GradeSnapshotsAtRow
 	row.bonus, row.penalty, row.qt, row.ck = b.Bonus, b.Penalty, b.QT, b.CK
 	row.hp, row.letter = sn.NumericGrade.Round(2).String(), sn.Letter
 	if sn.FailedReason != nil {
-		row.remark = "Liệt: " + *sn.FailedReason
+		row.remark = lietRemark(*sn.FailedReason)
 	}
+}
+
+// lietRemark: "Liệt: …" từ mã lý do (`LIET:final<3.0`, `LIET:absent>=7`).
+func lietRemark(verdict string) string {
+	switch {
+	case strings.Contains(verdict, "final<"):
+		return "Liệt: thi cuối kỳ dưới ngưỡng"
+	case strings.Contains(verdict, "absent>="):
+		return "Liệt: vắng quá số buổi cho phép"
+	}
+	return "Liệt"
 }
 
 // remarkOf: "Liệt: …" hoặc "Thiếu điểm: …" (tên thành phần còn thiếu).
 func remarkOf(r Result, conf Loaded) string {
 	switch {
 	case strings.HasPrefix(r.Verdict, "LIET"):
-		switch {
-		case strings.Contains(r.Verdict, "final<"):
-			return "Liệt: thi cuối kỳ dưới ngưỡng"
-		case strings.Contains(r.Verdict, "absent>="):
-			return "Liệt: vắng quá số buổi cho phép"
-		}
-		return "Liệt"
+		return lietRemark(r.Verdict)
 	case r.Status != StatusComplete:
 		names := make([]string, 0, len(r.Missing))
 		for _, k := range r.Missing {
