@@ -123,6 +123,6 @@ export async function gradeApi(p: Page, opts: Opts = {}) {
     }
     return route.fulfill(e(404, "NOT_FOUND"));
   };
-  await p.route(/\/api\/v1\/courses\/[^/]+\/(grade-scheme|documents\/[^/]+(\/chunks)?(\?|$))/, (r) => handle(r));
+  await p.route(new RegExp(`/api/v1/courses/[^/]+/(grade-scheme|documents/${DOC}(/chunks)?(\\?|$))`), (r) => handle(r)); // chỉ tài liệu nguồn của công thức: không bắt các route tài liệu khác
   return { calls, set: (d: { draft?: Doc | null; confirmed?: Doc | null }) => { if (d.draft !== undefined) draft = d.draft; if (d.confirmed !== undefined) confirmed = d.confirmed; }, puts: () => calls.filter((c) => c.method === "PUT") };
 }
