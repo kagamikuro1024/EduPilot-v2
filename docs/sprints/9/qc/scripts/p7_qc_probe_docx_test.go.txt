@@ -1,0 +1,24 @@
+package grading_test
+
+// QC probe (US-P7-06 AC1, TC-P7-06-01): đường DOCX đi qua TextExtractor như PDF (dev không có TestExtractDocx). Chép vào backend-go/internal/grading/ khi chạy, xoá sau.
+import (
+	"os"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestQCExtractDocxViaExtractor(t *testing.T) {
+	ss := samples(t)
+	b, _ := os.ReadFile(asgFix + ss[0].File)
+	g := newGradeEnv(t, byPrompt(t, ss[:1], map[string]string{"S1": string(b)}))
+	g.ext.text = string(b)
+	res := g.submit("A", "bai.docx", "PK\x03\x04 giả", nil)
+	out, err := g.grader.Run(t.Context(), g.course, res)
+	require.NoError(t, err)
+	require.Equal(t, 1, g.ext.n, "DOCX phải đi qua TextExtractor (docling)")
+	require.Empty(t, out.Code)
+	state, _, _, total, _, _, _ := g.row(res)
+	require.Equal(t, "DONE", state)
+	require.NotNil(t, total)
+}
