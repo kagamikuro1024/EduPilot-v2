@@ -55,6 +55,15 @@ http
     if (/^\/courses\/[^/]+\/me\/attendance$/.test(path)) return send(200, { attendance: { recorded: 9, present: 6, late: 1, excused: 0, absent: 2, sessions: [{ session_no: 7, starts_at: "2026-10-08T02:00:00Z", status: "ABSENT" }, { session_no: 3, starts_at: "2026-09-10T02:00:00Z", status: "ABSENT" }] }, next_cursor: null });
     if (/^\/courses\/[^/]+\/me\/participation$/.test(path)) return send(200, { participation: { speak_count: 2, points_total: "0.50", events: [{ date: "2026-10-01", type: "SPEAK", points: "0.25" }, { date: "2026-09-17", type: "SPEAK", points: "0.25" }] }, next_cursor: null });
     if (/^\/courses\/[^/]+\/me\/study-time$/.test(path)) return send(200, { weeks: Array.from({ length: 8 }, (_, i) => ({ week_start: new Date(Date.UTC(2026, 7, 17 + i * 7)).toISOString().slice(0, 10), minutes: 120 + i * 10, by_area: { CHAT: 60 } })), this_week_minutes: 45, tracking: { enabled: true, locked: false } });
+    // /settings/llm (đọc): dữ liệu như người dùng thật; không có thì màn dựng thông báo lỗi sau phiên và LCP đo trang lỗi.
+    if (role === "admin" && path.startsWith("/admin/llm/")) {
+      const model = { id: "m1", model: "gpt-4o-mini", kind: "chat", dims: null, price_in: "0.15", price_out: "0.60", enabled: true };
+      const provider = { id: "pv1", type: "openai", name: "OpenAI", base_url: null, enabled: true, has_key: true, key_status: "ok", rpm_limit: 600, tpm_limit: null, last_test: { ok: true, at: "2026-10-01T00:00:00Z", error_kind: null }, circuit: "closed", models: [model], version: 1 };
+      if (path === "/admin/llm/providers") return send(200, { items: [provider], env_fallback: { active: false, providers: [] } });
+      if (path === "/admin/llm/routes") return send(200, { items: [{ task: "chat", lane: "INTERACTIVE", chain: [{ model_id: "m1", provider_id: "pv1", provider_name: "OpenAI", model: "gpt-4o-mini" }], params: {}, version: 1 }], embedding: null });
+      if (path === "/admin/llm/budget") return send(200, { scope: "global", daily_limit: "10.00", monthly_limit: "200.00", spent_today: "1.20", spent_month: "40.00", pct_today: 12, pct_month: 20, state: "ok", version: 1 });
+      if (path === "/admin/llm/usage") return send(200, { from: "2026-10-01T00:00:00Z", to: "2026-10-30T00:00:00Z", group: "task", items: [] });
+    }
     if (path === "/notifications") return send(200, { items: [], next_cursor: null, unread_count: 0 });
     return send(404, { code: "NOT_FOUND", message: "x", trace_id: "0".repeat(32) });
   })
