@@ -1,4 +1,4 @@
-# QC report — US-S8-UI (bỏ câu mô tả thừa ở `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings`) · Kết luận vòng 3 (2b): **PASS phần giao diện** (AC1, AC2, AC3 PASS trên máy QC; CI của dev đỏ ở `Playwright 2/3` và `Lighthouse devtools B` — nguyên nhân chưa đọc được lúc chấm, xem mục "Vòng 3"). Vòng 2: FAIL (AC1: BUG-2, 3 chưa sửa). Vòng 1: FAIL (AC1, AC2)
+# QC report — US-S8-UI (bỏ câu mô tả thừa ở `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings`) · Kết luận vòng 3 (2b): **PASS** (AC1, AC2, AC3 PASS; ảnh mốc `settings-llm` xanh ở CI Linux; CI của run vẫn đỏ vì bốn ca KHÔNG thuộc story — xem "Bổ sung CI"). Vòng 2: FAIL (AC1: BUG-2, 3 chưa sửa). Vòng 1: FAIL (AC1, AC2)
 
 ## Vòng 3 (2026-10-31, `sprint/8-p6` @ `f4921c86` — handoff mục "Vòng 2b", #10 ACCEPTED)
 Dựng lại `pnpm build:gate`; dump `docs/sprints/8/qc/shots/ui-settings-*.txt` (1440 px) và `ui-settings-*-390.txt/png` (390 px, lần đầu có).
@@ -36,6 +36,8 @@ Chạy lại: `playwright test settings-llm shell lcp a11y panels --project=desk
 | AC3 bảo mật `/settings` | PASS (không đổi) |
 
 **Đề nghị:** dev thực thi #10 (sửa code + hai assertion `settings-llm.spec.ts:41`, `:136–138` cùng commit, ghi `#10`) rồi báo handoff vòng 3; QC chấm lại AC1 (dump + `settings-llm.spec.ts`) và chốt story. Vòng 1 giữ nguyên bên dưới.
+
+**Bổ sung CI (run `41186476014`, `f4921c86`, hoàn tất — QC đọc nhật ký):** `visual.spec.ts` 14/14 `✓` kể cả `settings-llm @1440` và `@390` (TC-18 PASS bằng ảnh mốc Linux của CI); không có ca `settings-llm.spec.ts` nào đỏ. Đỏ gồm bốn ca ngoài phạm vi story: `class-join.spec.ts:361` "bell real" (desktop + mobile, cả retry), `activity.spec.ts:261` "heartbeat cadence even" (desktop, cả retry), `dev-ui.spec.ts:234` "cursor" (một lần) và `Lighthouse (devtools B)` LCP. Cả bốn đều dựa vào đồng hồ giả / thời gian; run này là commit chỉ đổi frontend (job Go bỏ qua) nên không do thay đổi Go của US-P6-03. QC tái hiện cục bộ: "bell real" đỏ 4/4; "heartbeat cadence" xanh; chưa rõ nguyên nhân chung. Đã báo trong `report-US-P6-03.md` BUG-P6-03-4 (nâng thành việc riêng cho PM/dev).
 
 ---
 ## Vòng 1
