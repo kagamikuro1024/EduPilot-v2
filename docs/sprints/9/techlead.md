@@ -4,3 +4,49 @@
 
 ## TL-1 (PM, 2026-10-31): proposals #10, kiểm LCP cho `/assignments/[id]` (US-P7-03 AC9)
 Dev nói `lcp.spec.ts -g /assignments` không đạt được nếu không đổi hợp đồng `shared/shell/intro`: route động, `h1` là tiêu đề bài. Dev đề xuất bỏ khỏi AC9, chỉ giữ 375 px + a11y. Tech Lead xem mã `lcp.spec.ts` / Lighthouse CI và chọn cách **vẫn đo được** LCP màn nộp bài của sinh viên (route seed cố định, phần tử LCP khác, hoặc thêm vào danh sách Lighthouse CI), hoặc giải thích vì sao thật sự không đo được. Không nới ngưỡng. Trả lời ngay dưới, báo PM 2 dòng.
+
+**TL trả lời:**
+
+**Kết luận.** LCP của `/assignments/[id]` **đo được** bằng Lighthouse CI lượt `devtools` (cùng cách, cùng ngưỡng 2.500 ms với 8 route hiện có). `lcp.spec.ts` là công cụ sai cho route này. Nhưng số đo thật hiện là **≈ 6,1 s**: AC9 đỏ vì hiệu năng thật, không phải vì không đo được. Bỏ `-g '/assignments'` khỏi dòng `Kiểm:` là đúng (phương án A). **Bỏ hẳn phần đo LCP thì không đúng**: thay bằng lệnh LHCI ở dưới.
+
+**Vì sao `lcp.spec.ts` không dùng được cho route này.** Test đó kiểm một bất biến của US-PU-06: chữ lớn nhất màn đầu là chữ do `PreShell` vẽ từ máy chủ, và sau phiên không có ứng viên LCP nào mới. Bất biến này chỉ đúng khi mọi khối chữ dựng từ dữ liệu đều **nhỏ hơn** chữ máy chủ.
+- Trên `/assignments/[id]`, phần tử LCP thật là **đoạn đầu của đề bài Markdown**. Đo được: `section > div.Markdown-module__md > p`, cả 3 lượt.
+- Diện tích đoạn này phụ thuộc dữ liệu nên không có chuỗi giữ chỗ nào chặn được.
+- Phiên ở bộ nhớ trình duyệt, cookie refresh `Path` = `/auth/*` của API (`authhttp/handler.go:22`, `:144-145`). Máy chủ Next không có phiên nên không vẽ trước dữ liệu được.
+
+**Cách đo (dev làm, không đổi ngưỡng).**
+1. `lighthouserc.json` và `lighthouserc.devtools.json`: thêm `http://localhost:3310/assignments/00000000-0000-7000-8000-0000000000a3`. Ở `ci.yml`, thêm vào nửa `devtools B` (hoặc tách `devtools C` nếu job vượt 25 phút).
+2. `lighthouse-auth.cjs`: tra vai theo tiền tố (`/assignments/` → `student`).
+3. `lighthouse-api.mjs`: trả `GET /courses/{cid}/assignments/{aid}/mine` theo đúng `MineOut` (`assignmentApi.ts`), đề bài lấy nguyên văn `fixtures/de-bai-bt03.md` và 4 tiêu chí của `rubric-bt03.json`, `submission: null`. Như vậy đo đúng màn thật chứ không đo trang lỗi (tiền lệ `/me`, `/settings/llm`).
+4. US-P7-03 AC9 `Kiểm:` đổi thành `pnpm -C frontend exec lhci autorun --config=lighthouserc.devtools.json --collect.url=http://localhost:3310/assignments/00000000-0000-7000-8000-0000000000a3` → `largest-contentful-paint` trung vị ≤ 2500 (mức `error`, đã có trong `assertMatrix` theo mẫu URL).
+5. `FEAT-ui-foundation` US-PU-06 AC4 đếm số URL trong tệp cấu hình (`… | length`), nên đếm phải tăng theo. Đổi qua `proposals.md` như lần thêm `/me`.
+
+**Số đo (Tech Lead tự chạy).** Bản `origin/sprint/9-p7` @ `27edb226`, `pnpm -C frontend build:gate`. Dùng `lighthouserc.devtools.json` (devtools, 3 lượt, không tự đặt `throttling`), gateway giả có thêm `/mine` như mục 3. Tệp tạm ở `/tmp/tl-lh/`, không commit.
+
+| URL | LCP trung vị | FCP | Phần tử LCP |
+| --- | --- | --- | --- |
+| `/assignments/…a3` | **6.148 ms** (6.173 / 6.148 / 6.120) — `✘ expected <=2500` | ≈ 4,1 s | `<p>` đầu của đề bài (Render Delay ≈ 6,1 s) |
+| `/me` (đối chứng) | 1.461 ms | ≈ 0,9 s | `h1` của `PreShell` |
+
+Thác yêu cầu của `/assignments` (ms, lượt 1):
+- HTML xong 893.
+- Các chunk JS xong ≈ 3.484.
+- `auth/refresh` (tiền kiểm + gọi) 3.417 → 3.993.
+- `me/courses` 4.077 → 4.655.
+- **Sau đó** mới tải chunk động `StudentAssignment` + CSS: 4.662 → 5.505. Nguyên nhân: `dynamic(…, { loading: () => null })` ở `AssignmentScreen.tsx:6`, cộng thêm chờ `realCourseId`.
+- **Sau đó** mới gọi `…/mine`: 5.532 → 6.114.
+- LCP 6,1 s.
+
+**Phần dev làm được ngay, trong phạm vi P7, không đổi hợp đồng:**
+- (a) Liên kết tới bài tập (Hôm nay, lịch, `/me`, chuông) mang `?course={id}`. Màn gọi `…/mine` ngay khi có phiên, song song với `/me/courses`. Không có `?course` thì giữ đường cũ.
+- (b) Nhập `StudentAssignment` tĩnh (hoặc `import()` ngay khi `AssignmentScreen` gắn).
+
+Hai việc này bớt ≈ 0,85 s (chunk + CSS) + ≈ 0,6 s (một vòng). Ước còn **≈ 4,6–4,8 s** [SUY LUẬN, tính từ thác ở trên], **vẫn đỏ**.
+
+**Vì sao ≤ 2,5 s không đạt được nếu chỉ tối ưu phía máy khách.** Ở cấu hình này, riêng JS xong đã ≈ 3,4 s. Mọi chữ dựng từ API (cần phiên ở bộ nhớ) không thể vẽ trước JS + `refresh` + một lần gọi dữ liệu ≈ 4,6 s. Các route đang xanh đều xanh nhờ chữ máy chủ là ứng viên LCP. Muốn ≤ 2,5 s chỉ có hai đường, cả hai vượt khuôn Tech Lead → **PM**:
+1. **Mở rộng hợp đồng `intro` theo tiền tố route (phương án B của dev, sửa `FEAT-ui-foundation`)**, kèm quyết định giao diện để không khối chữ dữ liệu nào lớn hơn chữ máy chủ. Ví dụ đề bài hiện gọn vài dòng đầu và có `Xem toàn bộ đề`. Việc này đụng `DESIGN.md` §14 và luật chữ UI, phải qua BA / chủ dự án.
+2. **Vẽ dữ liệu phía máy chủ**: Next cần phiên khi dựng HTML. Đây là đổi kiến trúc xác thực (`Path` cookie refresh, D-quyết định về token chỉ ở bộ nhớ). Tech Lead **không** đề xuất ở P7.
+
+Nếu PM không chọn 1 hoặc 2 thì AC9 phần LCP giữ nguyên ngưỡng nhưng **đỏ có ghi nợ** (số đo ở trên), không đổi thành "bỏ đo".
+
+**Đề xuất dòng `proposals.md`:** `#10 Tech Lead (TL-1): bỏ -g '/assignments' khỏi lcp.spec (bất biến PreShell không áp cho trang có phần tử LCP là dữ liệu), THAY bằng LHCI devtools cho /assignments/<id cố định> + /mine giả trong lighthouse-api.mjs (ngưỡng 2,5 s không đổi). Số đo hiện 6,1 s (FAIL): dev làm (a) ?course= + gọi /mine song song, (b) bỏ dynamic import → ước 4,6–4,8 s; đạt 2,5 s cần PM chọn: intro theo tiền tố + đề bài gọn ở màn đầu (FEAT-ui-foundation + DESIGN), hoặc ghi nợ.`
