@@ -54,6 +54,14 @@ type Service struct {
 	Log    *slog.Logger
 	Notify *notify.Service
 	LLM    grading.Structurer // SuggestRubric (task UTILITY → NEAR_REALTIME)
+	Now    func() time.Time   // nil → time.Now; test đặt để kiểm hạn phúc khảo ở biên
+}
+
+func (s *Service) now() time.Time {
+	if s.Now != nil {
+		return s.Now()
+	}
+	return time.Now()
 }
 
 // Actor là người gọi.

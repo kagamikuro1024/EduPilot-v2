@@ -134,6 +134,7 @@ func (r *runner) assignmentScenarios(x examRig) {
 	// 9–11: sinh viên — mine, presign, submit.
 	r.studentSubmitScenarios(x, base, A, a.ID)
 	r.uploadScenarios(x, base)
+	r.appealScenarios(x, base)
 
 	// 5: xoá — bài nộp → 409; bài sạch 204.
 	if _, err := db.Exec(ctx, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method, submitted_at)
@@ -539,4 +540,95 @@ func (r *runner) uploadScenarios(x examRig, base string) {
 	}
 	r.must(call{method: "GET", path: base + "/00000000-0000-7000-8000-000000000000/stats", token: x.gv}, 404)
 	r.must(call{method: "GET", path: st, token: x.ta}, 200)
+}
+
+// appealScenarios: phúc khảo bài tập (US-P7-10) với mọi status đã khai báo. Sinh viên là x.sv (id lấy từ claim `sub` của token).
+func (r *runner) appealScenarios(x examRig, base string) {
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	seg := strings.Split(x.sv, ".")
+	raw, err := base64.RawURLEncoding.DecodeString(seg[1])
+	if err != nil {
+		r.t.Fatalf("token: %v", err)
+	}
+	var claims struct {
+		Sub string `json:"sub"`
+	}
+	_ = json.Unmarshal(raw, &claims)
+	mk := func(code string, published bool) (aid, res string) {
+		pub := "null"
+		if published {
+			pub = "now()"
+		}
+		if err := db.QueryRow(ctx, `insert into assignments (course_id, title, max_score, due_at, submission_code, created_by, published_at, rubric)
+			select $1, 'BT-PK', 10, now() + interval '2 days', $2, c.created_by, now(), '[{"id":"c1","name":"Khái niệm","max_score":"4","guidance":""},{"id":"c2","name":"Ví dụ","max_score":"6","guidance":""}]'::jsonb
+			from courses c where c.id = $1 returning id`, x.cid, code).Scan(&aid); err != nil {
+			r.t.Fatalf("bài tập: %v", err)
+		}
+		var sub string
+		if err := db.QueryRow(ctx, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method, submitted_at)
+			values ($1, $2, $3, 'IN_APP', 1, 'k', 'a.txt', 1, 'text/plain', 'x', 'MATCHED', 'IN_APP', now()) returning id`, x.cid, aid, claims.Sub).Scan(&sub); err != nil {
+			r.t.Fatalf("bài nộp: %v", err)
+		}
+		status := "REVIEWED"
+		if published {
+			status = "PUBLISHED"
+		}
+		if err := db.QueryRow(ctx, `insert into grading_results (course_id, submission_id, run_state, status, criteria, total, ai_total_before_late, ai_scores, published_at)
+			values ($1, $2, 'DONE', $3, '[{"id":"c1","score":"3.00","comment":"","evidence":[]},{"id":"c2","score":"4.00","comment":"","evidence":[]}]'::jsonb, 7, 7, '{"c1":"3.00","c2":"4.00"}'::jsonb, `+pub+`) returning id`, x.cid, sub, status).Scan(&res); err != nil {
+			r.t.Fatalf("kết quả: %v", err)
+		}
+		return aid, res
+	}
+	aid, _ := mk("PK1", true)
+	draftAid, _ := mk("PK2", false)
+	A := base + "/" + aid + "/appeal"
+	body := `{"criteria_ids":["c2"],"reason":"Em nghĩ ví dụ của em đã đủ ý, nhờ thầy xem lại."}`
+	r.must(call{method: "POST", path: A, headers: x.idem(), body: body}, 401)
+	for _, who := range []string{x.ta, x.gv, x.admin} {
+		r.must(call{method: "POST", path: A, token: who, headers: x.idem(), body: body}, 403)
+	}
+	r.must(call{method: "POST", path: base + "/00000000-0000-7000-8000-000000000000/appeal", token: x.sv, headers: x.idem(), body: body}, 404)
+	r.must(call{method: "POST", path: base + "/" + draftAid + "/appeal", token: x.sv, headers: x.idem(), body: body}, 404) // chưa công bố
+	r.must(call{method: "POST", path: A, token: x.sv, headers: x.idem(), body: `{"criteria_ids":["c2"],"reason":"ngắn"}`}, 422)
+	r.must(call{method: "POST", path: A, token: x.sv, headers: x.idem(), body: `{"criteria_ids":["zz"],"reason":"Em nghĩ ví dụ của em đã đủ ý, nhờ thầy xem lại."}`}, 422)
+	_, out := r.must(call{method: "POST", path: A, token: x.sv, headers: x.idem(), body: body}, 201)
+	var created struct {
+		Appeal struct {
+			ID string `json:"id"`
+		} `json:"appeal"`
+	}
+	_ = json.Unmarshal(out, &created)
+	id := created.Appeal.ID
+	r.must(call{method: "POST", path: A, token: x.sv, headers: x.idem(), body: body}, 409) // APPEAL_ALREADY_FILED
+
+	root := "/api/v1/courses/" + x.cid + "/appeals"
+	r.must(call{method: "GET", path: root}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: root, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: root + "?status=NOPE", token: x.ta}, 422)
+	r.must(call{method: "GET", path: root + "?status=OPEN", token: x.ta}, 200)
+	r.must(call{method: "GET", path: root + "/" + id}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: root + "/" + id, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: root + "/00000000-0000-7000-8000-000000000000", token: x.gv}, 404)
+	r.must(call{method: "GET", path: root + "/" + id, token: x.gv}, 200)
+
+	D := root + "/" + id + "/decide"
+	dec := func(version int, resp string, scores string) string {
+		return fmt.Sprintf(`{"decision":"ADJUSTED","response":%q,"version":%d%s}`, resp, version, scores)
+	}
+	good := "Thầy đã xem lại: ví dụ thứ hai đủ ý."
+	r.must(call{method: "POST", path: D, headers: x.idem(), body: dec(1, good, "")}, 401)
+	for _, who := range []string{x.ta, x.sv, x.admin} {
+		r.must(call{method: "POST", path: D, token: who, headers: x.idem(), body: dec(1, good, "")}, 403)
+	}
+	r.must(call{method: "POST", path: root + "/00000000-0000-7000-8000-000000000000/decide", token: x.gv, headers: x.idem(), body: dec(1, good, "")}, 404)
+	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(1, "ngắn", "")}, 422)
+	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(1, good, "")}, 422) // NO_CHANGE
+	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(9, good, `,"criteria_scores":[{"id":"c2","score":"5.5"}]`)}, 409)
+	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(1, good, `,"criteria_scores":[{"id":"c2","score":"5.5"}]`)}, 200)
+	r.must(call{method: "POST", path: D, token: x.gv, headers: x.idem(), body: dec(1, good, `,"criteria_scores":[{"id":"c2","score":"5.5"}]`)}, 409) // APPEAL_ALREADY_DECIDED
 }

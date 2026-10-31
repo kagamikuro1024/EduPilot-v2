@@ -72,7 +72,7 @@ func (e *env) email(u uuid.UUID) (s string) {
 
 func (e *env) sendAll(h *mail.Handler) {
 	e.t.Helper()
-	rows, err := e.pool.Query(e.ctx, `select id from mail_outbox where template = 'assignment_feedback' and status = 'QUEUED'`)
+	rows, err := e.pool.Query(e.ctx, `select id from mail_outbox where template in ('assignment_feedback', 'appeal_reply') and status = 'QUEUED'`)
 	require.NoError(e.t, err)
 	var ids []uuid.UUID
 	for rows.Next() {

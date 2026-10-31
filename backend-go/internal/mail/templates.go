@@ -149,6 +149,16 @@ func specs() map[string]spec {
 				"Xem chi tiết: {{.AssignmentURL}}",
 			},
 		},
+		// US-P7-10: phản hồi phúc khảo bài tập; chi tiết (quyết định, điểm cũ → mới, phản hồi nguyên văn) do Resolver dựng LÚC GỬI; không nhắc AI.
+		"appeal_reply": {
+			subject: "Giảng viên đã trả lời yêu cầu xem lại điểm", vars: []string{"FullName", "AssignmentTitle", "Decision", "Details", "AssignmentURL"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"Yêu cầu xem lại điểm {{.AssignmentTitle}} của bạn đã có quyết định: {{.Decision}}.",
+				"{{.Details}}",
+				"Xem chi tiết: {{.AssignmentURL}}",
+			},
+		},
 		"account_locked": {
 			subject: "Tài khoản EduPilot bị khoá tạm thời", vars: []string{"FullName", "Until", "ForgotURL"},
 			paras: []string{

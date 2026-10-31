@@ -52,6 +52,11 @@ where s.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and s.student_id =
   and r.status = 'PUBLISHED' and r.published_at > sqlc.arg(graded_since)::timestamptz
   and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
   and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+union all
+select 'REPLY'::text, a.id, a.course_id, a.title, ap.decided_at, false, 0::smallint
+from grade_appeals ap
+join assignments a on a.course_id = ap.course_id and a.id = ap.assignment_id
+where ap.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and ap.student_id = sqlc.arg(user_id)::uuid and ap.status <> 'OPEN' and ap.decided_at > sqlc.arg(graded_since)::timestamptz
 order by kind, at, id;
 
 -- name: SubmissionRoster :many
@@ -141,11 +146,17 @@ cur as (
   where r.course_id in (select course_id from ids) and r.status in ('DRAFT', 'REVIEWED') and r.run_state in ('FAILED', 'DONE') and s.match_status = 'MATCHED'
     and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
     and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
-  group by r.course_id)
+  group by r.course_id),
+ap as (
+  select p.course_id, count(*)::int as n, min(p.created_at) as oldest, (array_agg(p.submission_id order by p.created_at))[1] as sub, min(a.title) as title
+  from grade_appeals p join assignments a on a.course_id = p.course_id and a.id = p.assignment_id
+  where p.course_id in (select course_id from ids) and p.status = 'OPEN'
+  group by p.course_id)
 select ids.course_id, coalesce(unm.n, 0)::int as unmatched, coalesce(cur.err_n, 0)::int as err_n, coalesce(cur.rev_n, 0)::int as rev_n,
        coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title,
-       coalesce(cur.pub_n, 0)::int as pub_n, coalesce(cur.pub_title, '')::text as pub_title
-from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id;
+       coalesce(cur.pub_n, 0)::int as pub_n, coalesce(cur.pub_title, '')::text as pub_title,
+       coalesce(ap.n, 0)::int as appeal_n, coalesce(ap.oldest, 'epoch'::timestamptz)::timestamptz as appeal_oldest, coalesce(ap.sub, '00000000-0000-0000-0000-000000000000'::uuid)::uuid as appeal_sub, coalesce(ap.title, '')::text as appeal_title
+from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id left join ap on ap.course_id = ids.course_id;
 
 -- name: GradeInputAssignments :many
 -- Điểm item ASSIGNMENT (đọc thẳng như EXAM, TLR-14 A): `grading_results.total` PUBLISHED của BẢN NỘP MỚI NHẤT của (bài, sinh viên), theo lô sinh viên; kèm có bài MATCHED hay không và thang của bài / item.

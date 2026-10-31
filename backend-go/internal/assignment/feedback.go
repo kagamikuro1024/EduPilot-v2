@@ -122,10 +122,16 @@ func (s *Service) HandleResultPublished(ctx context.Context, m outbox.Message) e
 type MailResolver struct{ PublicURL string }
 
 // Register gắn resolver vào bảng của mail.Handler.
-func (m MailResolver) Register(into map[string]mail.Resolver) { into[MailFeedback] = m }
+func (m MailResolver) Register(into map[string]mail.Resolver) {
+	into[MailFeedback] = m
+	into[MailAppealReply] = m
+}
 
 // Resolve implements mail.Resolver.
 func (m MailResolver) Resolve(_ context.Context, _ pgx.Tx, row store.MailOutbox) (map[string]string, error) {
+	if row.Template == MailAppealReply {
+		return resolveAppealReply(m.PublicURL, row)
+	}
 	var p feedbackPayload
 	if err := json.Unmarshal(row.Payload, &p); err != nil || p.AssignmentID == "" || p.Total == "" {
 		return nil, mail.Permanent("payload_invalid")

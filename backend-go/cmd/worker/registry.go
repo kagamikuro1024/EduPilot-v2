@@ -88,6 +88,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(assignment.TopicPublished, outbox.Chain(asg.HandlePublished, inv.Handle))                                    // US-P7-02: công bố bài → chuông ASSIGNMENT_PUBLISHED + xoá cache "Hôm nay"
 	reg.Register(assignment.TopicUpdated, outbox.Chain(asg.HandleUpdated, inv.Handle))                                        // đổi hạn / quy tắc muộn → tính lại khoản trừ muộn + xoá cache
 	reg.Register(assignment.TopicResultPublished, outbox.Chain(asg.HandleResultPublished, inv.Handle))                        // US-P7-09: công bố → chuông GRADE_PUBLISHED + thư nhận xét (cùng giao dịch) + xoá cache "Hôm nay"
+	reg.Register(assignment.TopicAppealCreated, outbox.Chain(asg.HandleAppealCreated, inv.Handle))                            // US-P7-10: phúc khảo mới → chuông gộp TEACHER + xoá cache "Hôm nay"
+	reg.Register(assignment.TopicAppealDecided, outbox.Chain(asg.HandleAppealDecided, inv.Handle))                            // quyết định → chuông + thư cho sinh viên, đếm lại chuông gộp
 	reg.Register(submission.TopicResolved, inv.Handle)                                                                        // US-P7-04: gán tay / bỏ qua → xoá cache "Hôm nay"
 	reg.Register(submission.TopicCreated, inv.Handle)                                                                         // US-P7-03: bài nộp mới → xoá cache "Hôm nay" của Staff (hàng đợi chấm do US-P7-07 nối thêm)
 	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)

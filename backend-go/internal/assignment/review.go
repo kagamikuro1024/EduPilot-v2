@@ -239,6 +239,7 @@ type ResultView struct {
 	Flags      []string        `json:"flags"`
 	PassDetail json.RawMessage `json:"pass_detail"`
 	Late       LateView        `json:"late"`
+	Appeal     *AppealView     `json:"appeal,omitempty"` // chỉ ở GET chi tiết: phúc khảo của bài (US-P7-10)
 }
 
 type critRow struct {
@@ -340,7 +341,20 @@ func (s *Service) ResultDetail(ctx context.Context, course, id uuid.UUID) (Resul
 	if err != nil {
 		return ResultView{}, fmt.Errorf("assignment: chi tiết kết quả: %w", err)
 	}
-	return viewOf(detailAsLock(d))
+	v, err := viewOf(detailAsLock(d))
+	if err != nil {
+		return v, err
+	}
+	if apid, aerr := q.GradeAppealIDByResult(ctx, store.GradeAppealIDByResultParams{CourseID: course, ResultID: v.Result.ID}); aerr == nil {
+		ap, gerr := s.GetAppeal(ctx, course, apid)
+		if gerr != nil {
+			return v, gerr
+		}
+		v.Appeal = &ap
+	} else if !errors.Is(aerr, pgx.ErrNoRows) {
+		return v, fmt.Errorf("assignment: phúc khảo của kết quả: %w", aerr)
+	}
+	return v, nil
 }
 
 // CriterionEdit là một tiêu chí được sửa; `nil` = giữ nguyên.

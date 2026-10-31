@@ -697,22 +697,32 @@ cur as (
   where r.course_id in (select course_id from ids) and r.status in ('DRAFT', 'REVIEWED') and r.run_state in ('FAILED', 'DONE') and s.match_status = 'MATCHED'
     and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
     and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
-  group by r.course_id)
+  group by r.course_id),
+ap as (
+  select p.course_id, count(*)::int as n, min(p.created_at) as oldest, (array_agg(p.submission_id order by p.created_at))[1] as sub, min(a.title) as title
+  from grade_appeals p join assignments a on a.course_id = p.course_id and a.id = p.assignment_id
+  where p.course_id in (select course_id from ids) and p.status = 'OPEN'
+  group by p.course_id)
 select ids.course_id, coalesce(unm.n, 0)::int as unmatched, coalesce(cur.err_n, 0)::int as err_n, coalesce(cur.rev_n, 0)::int as rev_n,
        coalesce(cur.err_title, '')::text as err_title, coalesce(cur.rev_title, '')::text as rev_title,
-       coalesce(cur.pub_n, 0)::int as pub_n, coalesce(cur.pub_title, '')::text as pub_title
-from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id
+       coalesce(cur.pub_n, 0)::int as pub_n, coalesce(cur.pub_title, '')::text as pub_title,
+       coalesce(ap.n, 0)::int as appeal_n, coalesce(ap.oldest, 'epoch'::timestamptz)::timestamptz as appeal_oldest, coalesce(ap.sub, '00000000-0000-0000-0000-000000000000'::uuid)::uuid as appeal_sub, coalesce(ap.title, '')::text as appeal_title
+from ids left join unm on unm.course_id = ids.course_id left join cur on cur.course_id = ids.course_id left join ap on ap.course_id = ids.course_id
 `
 
 type TodayStaffAssignmentBatchRow struct {
-	CourseID  uuid.UUID
-	Unmatched int32
-	ErrN      int32
-	RevN      int32
-	ErrTitle  string
-	RevTitle  string
-	PubN      int32
-	PubTitle  string
+	CourseID     uuid.UUID
+	Unmatched    int32
+	ErrN         int32
+	RevN         int32
+	ErrTitle     string
+	RevTitle     string
+	PubN         int32
+	PubTitle     string
+	AppealN      int32
+	AppealOldest time.Time
+	AppealSub    uuid.UUID
+	AppealTitle  string
 }
 
 // "Hôm nay" của nhân viên: UNMATCHED_SUBMISSION (60), GRADING_ERROR (28), GRADING_REVIEW (30) — MỘT truy vấn tổng hợp cho mọi lớp (SRS 4.12). Chỉ kết quả HIỆN HÀNH của bài nộp MATCHED mới nhất.
@@ -734,6 +744,10 @@ func (q *Queries) TodayStaffAssignmentBatch(ctx context.Context, courseIds []str
 			&i.RevTitle,
 			&i.PubN,
 			&i.PubTitle,
+			&i.AppealN,
+			&i.AppealOldest,
+			&i.AppealSub,
+			&i.AppealTitle,
 		); err != nil {
 			return nil, err
 		}
@@ -763,6 +777,11 @@ where s.course_id = any($1::text[]::uuid[]) and s.student_id = $4::uuid and s.ma
   and r.status = 'PUBLISHED' and r.published_at > $5::timestamptz
   and r.round = (select max(x.round) from grading_results x where x.course_id = r.course_id and x.submission_id = r.submission_id)
   and not exists (select 1 from submissions n where n.course_id = s.course_id and n.assignment_id = s.assignment_id and n.student_id = s.student_id and n.match_status = 'MATCHED' and n.version > s.version)
+union all
+select 'REPLY'::text, a.id, a.course_id, a.title, ap.decided_at, false, 0::smallint
+from grade_appeals ap
+join assignments a on a.course_id = ap.course_id and a.id = ap.assignment_id
+where ap.course_id = any($1::text[]::uuid[]) and ap.student_id = $4::uuid and ap.status <> 'OPEN' and ap.decided_at > $5::timestamptz
 order by kind, at, id
 `
 

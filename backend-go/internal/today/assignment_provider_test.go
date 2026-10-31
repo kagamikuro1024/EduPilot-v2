@@ -365,3 +365,84 @@ func TestProviderAssignmentGradedPublishedOnly(t *testing.T) {
 	require.NoError(t, inv.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionCreated, Payload: payload}))
 	require.Empty(t, kindItems(r.tgetC(sv, "/me/today"), "ASSIGNMENT_GRADED"), "quá 7 ngày")
 }
+
+// appealRow chèn một phúc khảo của `stu` trên bài `asg` (kèm bài nộp + kết quả đã công bố). `decided` → UPHELD đã quyết vừa xong; `age` là tuổi của yêu cầu.
+func (r *rig) appealRow(c cls, asg, stu string, age time.Duration, decided bool) {
+	r.t.Helper()
+	sub := r.scalar(`insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method)
+		values ($1, $2, $3, 'IN_APP', 1, 'k', 'a.txt', 1, 'text/plain', 'x', 'MATCHED', 'IN_APP') returning id`, c.id, asg, stu)
+	res := r.scalar(`insert into grading_results (course_id, submission_id, run_state, status, total, published_at) values ($1, $2, 'DONE', 'PUBLISHED', 5, now()) returning id`, c.id, sub)
+	r.exec(`insert into grade_appeals (course_id, assignment_id, student_id, submission_id, result_id, criteria_ids, reason, score_before, created_at, status, decided_at, response)
+		values ($1, $2, $3, $4, $5, '{c1}', 'Em nghĩ bài đủ ý rồi ạ.', 5, now() - $6::interval, case when $7 then 'UPHELD' else 'OPEN' end, case when $7 then now() end, case when $7 then 'Thầy giữ nguyên.' end)`,
+		c.id, asg, stu, sub, res, age.String(), decided)
+}
+
+func (r *rig) openAppeal(c cls, asg string, age time.Duration) {
+	su, _ := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	r.appealRow(c, asg, su.ID.String(), age, false)
+}
+
+// TestProviderAppealTeacherOnly — APPEAL (bậc 20): "{N} yêu cầu xem lại điểm · {bài}", một mục mỗi lớp, href tới bài nộp; chỉ TEACHER (TA, STUDENT, ADMIN không); hết khi quyết hết.
+func TestProviderAppealTeacherOnly(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764401")
+	_, gvSess := r.teaching(c)
+	ta, taSess := r.person(store.UserRoleTA, true)
+	r.enrollAt(c, ta, "TA", "ACTIVE", "", 24*time.Hour)
+	su, svSess := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	_, adSess := r.person(store.UserRoleADMIN, true)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.openAppeal(c, a, time.Hour)
+	r.openAppeal(c, a, 2*time.Hour)
+	items := kindItems(r.tget(gvSess, "/me/today"), "APPEAL")
+	require.Len(t, items, 1)
+	require.Equal(t, "2 yêu cầu xem lại điểm · Bài BT03", items[0]["title"])
+	require.EqualValues(t, today.TierAppeal, 20)
+	require.Equal(t, "high", items[0]["urgency"])
+	require.Contains(t, items[0]["href"], "/grading/")
+	for name, s := range map[string]session{"trợ giảng": taSess, "sinh viên": svSess, "admin": adSess} {
+		require.Empty(t, kindItems(r.tget(s, "/me/today"), "APPEAL"), name)
+	}
+	r.exec(`update grade_appeals set status = 'UPHELD', decided_at = now(), response = 'Thầy giữ nguyên.' where course_id = $1`, c.id)
+	payload, _ := json.Marshal(map[string]string{"course_id": c.sid()})
+	require.NoError(t, today.Invalidator{Pool: r.pool, Redis: r.rdb}.Handle(t.Context(), outbox.Message{Topic: today.TopicSubmissionResolved, Payload: payload}))
+	require.Empty(t, kindItems(r.tgetC(gvSess, "/me/today"), "APPEAL"))
+}
+
+// TestProviderAppealOverdue48h — urgency "overdue" chỉ khi yêu cầu cũ nhất chờ quá 48 giờ.
+func TestProviderAppealOverdue48h(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764402")
+	_, gvSess := r.teaching(c)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.openAppeal(c, a, 47*time.Hour)
+	require.Equal(t, "high", kindItems(r.tget(gvSess, "/me/today"), "APPEAL")[0]["urgency"])
+	r.openAppeal(c, a, 49*time.Hour)
+	require.Equal(t, "overdue", kindItems(r.tget(gvSess, "/me/today"), "APPEAL")[0]["urgency"])
+}
+
+// TestProviderAppealReplyStudentOnly — ASSIGNMENT_APPEAL_REPLY (bậc 48): chỉ sinh viên của phúc khảo ĐÃ quyết, trong 7 ngày; đang chờ / người khác / quá 7 ngày không hiện.
+func TestProviderAppealReplyStudentOnly(t *testing.T) {
+	r := newRig(t)
+	c := r.klass("764403")
+	_, gvSess := r.teaching(c)
+	su, sv := r.student("")
+	r.enrollAt(c, su, "STUDENT", "ACTIVE", "", time.Hour)
+	other, otherSess := r.student("")
+	r.enrollAt(c, other, "STUDENT", "ACTIVE", "", time.Hour)
+	a := r.asg(c, "BT03", 72*time.Hour, true, "")
+	r.appealRow(c, a, su.ID.String(), time.Hour, false)
+	require.Empty(t, kindItems(r.tget(sv, "/me/today"), "ASSIGNMENT_APPEAL_REPLY"), "đang chờ: chưa có phản hồi")
+	r.exec(`update grade_appeals set status = 'UPHELD', decided_at = now(), response = 'Thầy giữ nguyên.' where course_id = $1`, c.id)
+	r.exec(`update grading_results set published_at = now() - interval '9 days' where course_id = $1`, c.id) // hết 7 ngày của ASSIGNMENT_GRADED: chỉ còn phản hồi
+	items := kindItems(r.tget(sv, "/me/today"), "ASSIGNMENT_APPEAL_REPLY")
+	require.Len(t, items, 1)
+	require.Equal(t, "/assignments/"+a, items[0]["href"])
+	require.EqualValues(t, today.TierAssignmentAppealReply, 48)
+	require.Empty(t, kindItems(r.tget(otherSess, "/me/today"), "ASSIGNMENT_APPEAL_REPLY"))
+	require.Empty(t, kindItems(r.tget(gvSess, "/me/today"), "ASSIGNMENT_APPEAL_REPLY"))
+	r.exec(`update grade_appeals set decided_at = now() - interval '8 days' where course_id = $1`, c.id)
+	require.Empty(t, kindItems(r.tget(sv, "/me/today"), "ASSIGNMENT_APPEAL_REPLY"), "quá 7 ngày")
+}

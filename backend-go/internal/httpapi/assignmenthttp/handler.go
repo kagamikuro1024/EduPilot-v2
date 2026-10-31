@@ -60,6 +60,11 @@ func (h *Handler) Mount(r chi.Router) {
 	// Công bố hàng loạt (US-P7-09): chỉ TEACHER; số liệu bài cho nhân viên.
 	r.With(teacher, h.Idem).Post("/courses/{id}/grading-results/publish", h.publishResults)
 	r.With(staff).Get("/courses/{id}/assignments/{aid}/stats", h.stats)
+	// Phúc khảo (US-P7-10): sinh viên gửi; nhân viên đọc; TEACHER quyết định.
+	r.With(student, h.Idem).Post("/courses/{id}/assignments/{aid}/appeal", h.fileAppeal)
+	r.With(staff).Get("/courses/{id}/appeals", h.listAppeals)
+	r.With(staff).Get("/courses/{id}/appeals/{apid}", h.getAppeal)
+	r.With(teacher, h.Idem).Post("/courses/{id}/appeals/{apid}/decide", h.decideAppeal)
 	// Route của sinh viên (US-P7-03): chỉ STUDENT của lớp (TA / TEACHER / ADMIN 403), mọi phản hồi `Cache-Control: no-store`.
 	r.With(student).Get("/courses/{id}/assignments/{aid}/mine", h.mine)
 	r.With(student).Post("/courses/{id}/assignments/{aid}/submit/presign", h.presign)
@@ -614,5 +619,99 @@ func (h *Handler) stats(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) fileAppeal(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Cache-Control", "no-store") // route sinh viên: TLR-17
+	course, id, a, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	var in assignment.AppealIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Assignments.FileAppeal(r.Context(), a, course, id, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusCreated, out)
+}
+
+func apid(w http.ResponseWriter, r *http.Request) (course, id uuid.UUID, a assignment.Actor, ok bool) {
+	course, _, a, ok = ids(w, r)
+	if !ok {
+		return
+	}
+	var err error
+	if id, err = uuid.Parse(chi.URLParam(r, "apid")); err != nil {
+		apierr.Write(w, r, apierr.New(http.StatusNotFound, apierr.NotFound))
+		return course, id, a, false
+	}
+	return course, id, a, true
+}
+
+func (h *Handler) listAppeals(w http.ResponseWriter, r *http.Request) {
+	course, _, _, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	pp, perr := httpx.ParsePageParams(r)
+	if perr != nil {
+		apierr.Write(w, r, perr)
+		return
+	}
+	var aid *uuid.UUID
+	if raw := r.URL.Query().Get("assignment_id"); raw != "" {
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "assignment_id", Code: "uuid", Message: "assignment_id không hợp lệ."}))
+			return
+		}
+		aid = &id
+	}
+	out, err := h.Assignments.ListAppeals(r.Context(), course, aid, r.URL.Query().Get("status"), pp)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) getAppeal(w http.ResponseWriter, r *http.Request) {
+	course, id, _, ok := apid(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Assignments.GetAppeal(r.Context(), course, id)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) decideAppeal(w http.ResponseWriter, r *http.Request) {
+	course, id, a, ok := apid(w, r)
+	if !ok {
+		return
+	}
+	var in assignment.DecideIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	if in.Version < 1 {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "version", Code: "required", Message: "Thiếu version."}))
+		return
+	}
+	out, err := h.Assignments.DecideAppeal(r.Context(), a, course, id, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
 	httpx.WriteJSON(w, http.StatusOK, out)
 }

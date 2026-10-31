@@ -44,17 +44,28 @@ func (p AssignmentProvider) Items(ctx context.Context, v Viewer, sc Scope) ([]It
 	for _, c := range courses {
 		byCourse[c.ID] = c
 	}
-	seen := map[string]bool{}
+	// Hàng đã sắp theo (kind, thời điểm tăng dần): DUE lấy dòng ĐẦU của mỗi lớp (hạn gần nhất); GRADED / REPLY lấy dòng CUỐI (mới nhất).
+	pick := map[string]int{}
+	for i, r := range rows {
+		k := r.Kind + r.CourseID.String()
+		if _, seen := pick[k]; !seen || r.Kind != "DUE" {
+			pick[k] = i
+		}
+	}
 	var out []Item
-	for _, r := range rows { // đã sắp theo (kind, thời điểm): DUE theo hạn tăng dần nên dòng đầu của mỗi lớp là bài gần nhất
-		if seen[r.Kind+r.CourseID.String()] {
+	for i, r := range rows {
+		if pick[r.Kind+r.CourseID.String()] != i {
 			continue
 		}
-		seen[r.Kind+r.CourseID.String()] = true
 		c := byCourse[r.CourseID]
-		if r.Kind == "GRADED" {
+		switch r.Kind {
+		case "GRADED":
 			out = append(out, mk(Item{ID: "ASSIGNMENT_GRADED:" + r.ID.String(), Kind: KindAssignmentGraded, Tier: TierAssignmentGraded, Course: courseRef(c), Href: "/assignments/" + r.ID.String(),
 				EstimateMinutes: 5, Title: r.Title, Reason: "Điểm " + r.Title + " đã có — Xem"}))
+			continue
+		case "REPLY":
+			out = append(out, mk(Item{ID: "ASSIGNMENT_APPEAL_REPLY:" + r.ID.String(), Kind: KindAssignmentAppealReply, Tier: TierAssignmentAppealReply, Course: courseRef(c), Href: "/assignments/" + r.ID.String(),
+				EstimateMinutes: 5, Title: r.Title, Reason: "Giảng viên đã trả lời yêu cầu xem lại — Xem"}))
 			continue
 		}
 		reason := "Đang nộp muộn — Nộp bài"
@@ -96,6 +107,10 @@ func (p AssignmentProvider) staffItems(ctx context.Context, v Viewer, sc Scope) 
 		if r.ErrN > 0 {
 			out = append(out, mk(Item{ID: "GRADING_ERROR:" + c.ID.String(), Kind: KindGradingError, Tier: TierGradingError, Course: courseRef(c),
 				Href: "/grading?status=FAILED", Title: fmt.Sprintf("%d bài chấm lỗi · %s", r.ErrN, r.ErrTitle), Reason: "Thử chấm lại hoặc nhập điểm tay."}))
+		}
+		if r.AppealN > 0 && v.Role == RoleTeacher { // phúc khảo: chỉ TEACHER quyết; Overdue khi chờ quá 48 giờ
+			out = append(out, mk(Item{ID: "APPEAL:" + c.ID.String(), Kind: KindAppeal, Tier: TierAppeal, Course: courseRef(c), Href: "/grading/" + r.AppealSub.String(),
+				Title: fmt.Sprintf("%d yêu cầu xem lại điểm · %s", r.AppealN, r.AppealTitle), Reason: "Giữ hoặc sửa điểm kèm phản hồi.", Overdue: v.Now.Sub(r.AppealOldest) > 48*time.Hour}))
 		}
 		if r.PubN > 0 && v.Role == RoleTeacher { // công bố chỉ TEACHER (TA không thấy mục này)
 			out = append(out, mk(Item{ID: "PUBLISH_PENDING:" + c.ID.String(), Kind: KindPublishPending, Tier: TierPublishPending, Course: courseRef(c),
