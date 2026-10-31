@@ -1,4 +1,13 @@
-# QC report — US-P6-05 (trạng thái công thức, nhắc hằng tuần, "Hôm nay" `GRADE_SCHEME_UNCONFIRMED`, AI nói chưa có công thức) · Kết luận: **FAIL** (vòng 1: AC2 và AC3 chưa kiểm được — màn `/gradebook` và route `finalize` chưa có; AC1, AC4–AC9 PASS; đề nghị PM chấp nhận proposals #18 như #8 → PASS có điều kiện)
+# QC report — US-P6-05 (trạng thái công thức, nhắc hằng tuần, "Hôm nay" `GRADE_SCHEME_UNCONFIRMED`, AI nói chưa có công thức) · Kết luận vòng 2: **PASS** (chấm lại 2026-10-31 theo `proposals.md` #18 ACCEPTED; AC2 kiểm ở US-P6-06, AC3 kiểm ở US-P6-08; vòng 1: FAIL — AC2 và AC3 chưa kiểm được — màn `/gradebook` và route `finalize` chưa có; AC1, AC4–AC9 PASS; đề nghị PM chấp nhận proposals #18 như #8 → PASS có điều kiện)
+
+## Vòng 2 (2026-10-31, `sprint/8-p6` @ `152d789e`)
+- **#18 ACCEPTED (PM):** AC2 (banner `/gradebook`) kiểm ở US-P6-06; AC3 (nút `Chốt điểm` khoá + `409 SCHEME_NOT_CONFIRMED`) kiểm ở US-P6-08; chữ AC giữ nguyên. AC1, AC4–AC9 PASS từ vòng 1 và **không có commit mã nào đụng US-P6-05 sau `f07c2af6`** (`git log f07c2af6..HEAD` chỉ gồm tài liệu: handoff / proposals / RESUME) → kết luận **PASS**.
+- Nợ chuyển (mở lại story nếu FAIL ở nơi nhận): TC-P6-05-09…14 (banner `/gradebook`) → US-P6-06; TC-P6-05-15…18 (khoá `Chốt điểm`, `409` lớp 2, cổng P6) → US-P6-08.
+- CI `f07c2af6`: Playwright 1/3–3/3 xanh, Lighthouse devtools xanh; còn đỏ `Lighthouse (simulate)` TBT `/settings/llm` — dev đã mở và PM đã chấp nhận #19 (tối ưu mã, không đổi ngưỡng), không thuộc US-P6-05. Go: QC đã chạy `scripts/go-test-all.sh` rc=0 (51 gói) trên cùng mã.
+- BUG-P6-05-1 (thiếu test khử trùng chuông, thấp) vẫn mở cho dev thêm ca; không chặn.
+
+---
+## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `f07c2af6` (mã story ở `05633308`). Bộ TC: `tc-US-P6-05.md` (chữ TC chỉ đổi 1 dòng theo #11). Handoff: `dev-US-P6-05.md`. CI: run `41188894701` (`f07c2af6`) **đang chạy lúc QC chốt**; run trước `41188589228` bị huỷ do commit mới (Go static / auth / course / Judge xanh). QC chạy lại toàn bộ bằng chứng trên máy QC (Go + Playwright, mục 1).
 
 ## 1. Cổng nghiệm thu đã chạy
