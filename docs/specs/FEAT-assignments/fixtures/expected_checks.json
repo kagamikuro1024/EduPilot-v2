@@ -1,0 +1,732 @@
+{
+ "single_pass": [
+  {
+   "id": "K01",
+   "why": "hợp lệ: không cờ",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [
+       "nhóm APT29"
+      ],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "7.0"
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.00",
+     "c2": "2.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "7.00",
+    "flags": [],
+    "dropped_quotes": []
+   }
+  },
+  {
+   "id": "K02",
+   "why": "điểm > max (3.0 > 2.5) → kẹp 2.5 + SCORE_ADJUSTED",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "3.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "7.5"
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.50",
+     "c2": "2.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "7.50",
+    "flags": [
+     "SCORE_ADJUSTED"
+    ],
+    "dropped_quotes": []
+   }
+  },
+  {
+   "id": "K03",
+   "why": "điểm không phải bội của 0,25 (1.1) → 1.0 (nửa lên theo bước) + SCORE_ADJUSTED",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "1.1",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.00",
+     "c2": "1.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "6.00",
+    "flags": [
+     "SCORE_ADJUSTED"
+    ],
+    "dropped_quotes": []
+   }
+  },
+  {
+   "id": "K04",
+   "why": "điểm âm → 0 + SCORE_ADJUSTED",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "-0.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.00",
+     "c2": "0.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "5.00",
+    "flags": [
+     "SCORE_ADJUSTED"
+    ],
+    "dropped_quotes": []
+   }
+  },
+  {
+   "id": "K05",
+   "why": "tổng LLM báo ≠ Σ (7.5 ≠ 7.0) → TOTAL_MISMATCH, code dùng Σ",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "7.5"
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.00",
+     "c2": "2.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "7.00",
+    "flags": [
+     "TOTAL_MISMATCH"
+    ],
+    "dropped_quotes": []
+   }
+  },
+  {
+   "id": "K06",
+   "why": "trích dẫn không có trong bài → bị loại + EVIDENCE_NOT_FOUND",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [
+       "SolarWinds mất 200 triệu đô la"
+      ],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.00",
+     "c2": "2.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "7.00",
+    "flags": [
+     "EVIDENCE_NOT_FOUND"
+    ],
+    "dropped_quotes": [
+     {
+      "criterion": "c3",
+      "quote": "SolarWinds mất 200 triệu đô la"
+     }
+    ]
+   }
+  },
+  {
+   "id": "K07",
+   "why": "trích dẫn lệch dấu / khoảng trắng / xuống dòng (OCR) vẫn khớp",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [
+       "chi phi   ung pho khoang 40 trieu do la",
+       "BẢN CẬP NHẬT vẫn ký hợp  lệ"
+      ],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.00",
+     "c2": "2.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "7.00",
+    "flags": [],
+    "dropped_quotes": []
+   }
+  },
+  {
+   "id": "K08",
+   "why": "thiếu tiêu chí c4 → đầu ra không hợp lệ",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": false,
+    "error": "GRADING_OUTPUT_INVALID"
+   }
+  },
+  {
+   "id": "K09",
+   "why": "id tiêu chí lạ c9 → đầu ra không hợp lệ",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c9",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": false,
+    "error": "GRADING_OUTPUT_INVALID"
+   }
+  },
+  {
+   "id": "K10",
+   "why": "trùng id c1 → đầu ra không hợp lệ",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": false,
+    "error": "GRADING_OUTPUT_INVALID"
+   }
+  },
+  {
+   "id": "K11",
+   "why": "confidence 0,4 < 0,6 → LOW_CONFIDENCE",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.4,
+    "flags": []
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "2.00",
+     "c2": "2.00",
+     "c3": "1.50",
+     "c4": "1.50"
+    },
+    "total": "7.00",
+    "flags": [
+     "LOW_CONFIDENCE"
+    ],
+    "dropped_quotes": []
+   }
+  },
+  {
+   "id": "K12",
+   "why": "điểm không phải số → đầu ra không hợp lệ",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "abc",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": []
+   },
+   "expected": {
+    "valid": false,
+    "error": "GRADING_OUTPUT_INVALID"
+   }
+  },
+  {
+   "id": "K13",
+   "why": "cờ LLM OFF_TOPIC được giữ",
+   "text": "Tác nhân là nhóm APT29. Họ cấy SUNBURST vào bản cập nhật Orion; bản cập nhật vẫn ký hợp lệ.\nChi phí ứng phó khoảng 40 triệu đô la.",
+   "llm": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c2",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c3",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "x"
+     },
+     {
+      "id": "c4",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "x"
+     }
+    ],
+    "overall_feedback": "x",
+    "confidence": 0.9,
+    "flags": [
+     "OFF_TOPIC"
+    ],
+    "total": "0"
+   },
+   "expected": {
+    "valid": true,
+    "criteria_scores": {
+     "c1": "0.00",
+     "c2": "0.00",
+     "c3": "0.00",
+     "c4": "0.00"
+    },
+    "total": "0.00",
+    "flags": [
+     "OFF_TOPIC"
+    ],
+    "dropped_quotes": []
+   }
+  }
+ ],
+ "two_pass": [
+  {
+   "id": "D01",
+   "why": "tổng lệch đúng 1,0 (mỗi tiêu chí lệch 0,5) → không cờ",
+   "pass1_scores": [
+    "2.0",
+    "2.0",
+    "1.5",
+    "1.5"
+   ],
+   "pass2_scores": [
+    "2.5",
+    "2.5",
+    "1.5",
+    "1.5"
+   ],
+   "expected": {
+    "flags": [],
+    "total_delta": "1.00",
+    "disagree": [],
+    "total": "7.00"
+   }
+  },
+  {
+   "id": "D02",
+   "why": "tổng lệch 1,25 (không tiêu chí nào > 1,0) → NEEDS_REVIEW vì tổng",
+   "pass1_scores": [
+    "2.0",
+    "2.0",
+    "1.5",
+    "1.5"
+   ],
+   "pass2_scores": [
+    "2.5",
+    "2.25",
+    "2.0",
+    "1.5"
+   ],
+   "expected": {
+    "flags": [
+     "NEEDS_REVIEW"
+    ],
+    "total_delta": "1.25",
+    "disagree": [],
+    "total": "7.00"
+   }
+  },
+  {
+   "id": "D03",
+   "why": "một tiêu chí lệch 1,5, tổng lệch 1,5 → NEEDS_REVIEW (tiêu chí c2)",
+   "pass1_scores": [
+    "2.0",
+    "1.0",
+    "2.0",
+    "2.0"
+   ],
+   "pass2_scores": [
+    "2.0",
+    "2.5",
+    "2.0",
+    "2.0"
+   ],
+   "expected": {
+    "flags": [
+     "NEEDS_REVIEW"
+    ],
+    "total_delta": "1.50",
+    "disagree": [
+     {
+      "criterion": "c2",
+      "delta": "1.50"
+     }
+    ],
+    "total": "7.00"
+   }
+  },
+  {
+   "id": "D04",
+   "why": "hai tiêu chí lệch 1,25 ngược chiều, tổng lệch 0 (bù trừ) → NEEDS_REVIEW (theo tiêu chí)",
+   "pass1_scores": [
+    "2.5",
+    "1.0",
+    "1.5",
+    "1.5"
+   ],
+   "pass2_scores": [
+    "1.25",
+    "2.25",
+    "1.5",
+    "1.5"
+   ],
+   "expected": {
+    "flags": [
+     "NEEDS_REVIEW"
+    ],
+    "total_delta": "0.00",
+    "disagree": [
+     {
+      "criterion": "c1",
+      "delta": "1.25"
+     },
+     {
+      "criterion": "c2",
+      "delta": "1.25"
+     }
+    ],
+    "total": "6.50"
+   }
+  }
+ ]
+}
