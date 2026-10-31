@@ -1,9 +1,13 @@
-# QC report — US-P6-01 (migration `00016_gradebook`, ràng buộc DB, nguồn điểm PE / P5) · Kết luận: **FAIL** (chỉ vì AC7 "KHÔNG KIỂM ĐƯỢC": chưa có route; AC1–AC6 PASS)
+# QC report — US-P6-01 (migration `00016_gradebook`, ràng buộc DB, nguồn điểm PE / P5) · Kết luận: **PASS** (chấm lại 2026-10-31 theo `proposals.md` #8 ACCEPTED; vòng 1: FAIL vì AC7 chưa có route)
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `12fa90bf` (đã gồm `ddbc8948` US-P6-01, `7df6eff3`, `859ca52d`). Bộ TC: `tc-US-P6-01.md` (không sửa chữ TC). Handoff: `dev-US-P6-01.md`. DB trống riêng của QC: container `qc-p6-pg` (`pgvector/pgvector:pg18`, cổng 55432, đã/sẽ xoá sau lượt), `goose v3.28.0` cài ngoài repo. **Không có stack gateway** (US này chưa có route) nên TC qua API là "KHÔNG KIỂM ĐƯỢC" (ghi rõ bên dưới), thay bằng đẩy dữ liệu xấu trực tiếp vào DB.
 
 Luật QC: "KHÔNG KIỂM ĐƯỢC" tính là FAIL. AC7 là AC về route; dev tự ghi ở handoff "story này chưa có route … `TestRBACMatrix` được thêm dần ở US-P6-03…09". Đề nghị PM chuyển việc kiểm AC7 sang story route cuối (xem `proposals.md` #8): QC sẽ chạy lại TC-36…39 khi đủ route (US-P6-09).
 
-## 1. Cổng nghiệm thu đã chạy
+## 0. Chấm lại theo #8 và #7 (PM, 2026-10-31)
+- **#8 ACCEPTED:** AC7 (phân quyền, `TestRBACMatrix`, `TestAllCourseRoutesGuarded`, TC-P6-01-36…39) **chuyển nơi kiểm** sang US-P6-09 (ma trận đủ 20 route); chữ AC giữ nguyên. AC1–AC6 đã PASS ở vòng 1 và không có commit mới đụng `00016`, `internal/grade/inputs.go` hay `grade.sql` sau `12fa90bf` (`git log 12fa90bf..HEAD -- backend-go` rỗng) → kết luận **PASS**. Nợ chuyển: QC chạy TC-36…39 + `p6-rbac.sh` ở US-P6-09; dev ghi vào mỗi handoff story route hàng `TestRBACMatrix` đã thêm.
+- **#7 ACCEPTED:** BUG-P6-01-2 (sửa `db/migrations_test.go` trước ACCEPTED) giữ nguyên là **lỗi quy trình** (PM ghi: lần thứ 3 từ sprint 7); thay đổi tự nó được chấp nhận, không hoàn tác.
+
+## 1. Cổng nghiệm thu đã chạy (vòng 1)
 | Lệnh | Kết quả |
 | --- | --- |
 | `goose up` (DB trống, 16 bước) → `down` → `up` → `status` | PASS: `OK 00016_gradebook.sql (34 ms)` → `down` OK (20 ms) → `up` → `version: 16`; sau `down` còn **0** bảng `grade_*`/`gradebooks`/`final_grade_snapshots` và **0** kiểu enum `grade%`/`gradebook_status` |

@@ -1,9 +1,12 @@
-# QC report — US-P6-02 (Grade Engine `internal/grade`: đúng tuyệt đối, decimal, giải trình) · Kết luận: **FAIL** (chỉ vì AC11 và nửa "xem trước cả lớp" của AC10 "KHÔNG KIỂM ĐƯỢC": chưa có route; mọi phần của engine PASS)
+# QC report — US-P6-02 (Grade Engine `internal/grade`: đúng tuyệt đối, decimal, giải trình) · Kết luận: **PASS** (chấm lại 2026-10-31 theo `proposals.md` #8 ACCEPTED; vòng 1: FAIL vì AC11 và nửa AC10 chưa có route)
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `12fa90bf`. Bộ TC: `tc-US-P6-02.md` (không sửa chữ TC). Handoff: `dev-US-P6-02.md`. Đáp án độc lập: `seed/expected_final_grades.csv` + `fixtures/` (không ai sửa: `git diff 4c86d357.. -- seed/expected_final_grades.csv docs/specs/FEAT-gradebook/fixtures` chỉ có commit của BA).
 
 Luật QC: "KHÔNG KIỂM ĐƯỢC" = FAIL. Dev ghi rõ ở handoff: "AC10 `TestPreviewUsesCompute` và AC11 `TestPreviewRBAC`: chưa có route xem trước → làm ở US-P6-06". Đề nghị PM chấp nhận `proposals.md` #8 (đã mở rộng cho story này): QC chấm lại hai phần đó ở US-P6-06, story coi PASS có điều kiện.
 
-## 1. Cổng nghiệm thu đã chạy
+## 0. Chấm lại theo #8 (PM, 2026-10-31)
+AC11 (`TestPreviewRBAC`) và nửa xem trước của AC10 (`TestPreviewUsesCompute`) **chuyển nơi kiểm** sang US-P6-06 (route xem trước); chữ AC giữ nguyên. Phần engine (AC1–AC9, AC12, nửa `WhatIf`/`MinFinalFor`/hiệu năng của AC10) PASS ở vòng 1 và không có commit mới đụng `internal/grade` (`git log 12fa90bf..HEAD -- backend-go` rỗng) → kết luận **PASS**. Nợ chuyển: QC chạy TC-P6-02-03, 04, 12, 16, 22, 24, 39 (nửa route), 45, 46–49 ở US-P6-06 / US-P6-04; BUG-P6-02-1 (thấp, khoảng trống bảo vệ TLR-1) vẫn mở, dev thêm ca khi tiện.
+
+## 1. Cổng nghiệm thu đã chạy (vòng 1)
 | Lệnh | Kết quả |
 | --- | --- |
 | `go test -race -count=1 -v ./internal/grade -run TestEngineExpected30` + đếm `--- PASS: TestEngineExpected30/` | PASS, đúng **30** ca con (không `SKIP`, không `DATA RACE`) |
