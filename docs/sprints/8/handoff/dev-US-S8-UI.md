@@ -19,3 +19,10 @@ Giữ nguyên (không phải câu mô tả tiêu đề): `InlineNotice` "Chỉ q
 ## Kiểm
 `tsc --noEmit`, `pnpm lint`, `ui-antipatterns.sh` sạch. Playwright (desktop + mobile, `--retries=0`) `lcp`, `settings-llm`, `account`, `panels`, `a11y`, `shell`: 161 passed, 130 skipped (ca chỉ chạy một dự án), 1 failed = ca LCP của proposal #1; sau khi sửa theo #1, `lcp.spec` desktop 7 passed.
 Không đổi Go.
+
+## Vòng 2 (sau QC FAIL vòng 1, `report-US-S8-UI.md`)
+- **BUG-S8-UI-1 (đã sửa):** bỏ hẳn câu thường trực "Đổi mục này cần lập chỉ mục lại tài liệu." ở `EmbeddingSection.tsx`. Hệ quả của việc đổi vẫn nằm ở nơi luật cho phép: hộp thoại xác nhận khi đổi mô hình và `InlineNotice` điều kiện "Cần lập chỉ mục lại".
+- **BUG-S8-UI-4 (đã sửa):** `/settings/integrations`: trạng thái `Đã kết nối` / `Chưa cấu hình` / `Chờ duyệt` (1–2 từ); bỏ `meta` "Kiểm gần nhất 08:55 hôm nay" dưới tiêu đề; giờ kiểm chỉ còn MỘT lần, thành dòng `Kiểm gần nhất — 08:55 hôm nay` trong danh sách trường của "Thư đi (SMTP)" (`mock/system.ts`, `IntegrationsSettings.tsx`).
+- **BUG-S8-UI-2, BUG-S8-UI-3 (CHƯA sửa — chờ proposal #10):** hai test cũ khẳng định đúng các chữ cần đổi (`e2e/settings-llm.spec.ts:41`, `:138`). Theo luật mới của PM: mở proposal #10, không sửa test trước. Sau ACCEPTED dev sửa code + test cùng commit.
+- Ảnh mốc: `visual.spec.ts` trong image `playwright:v1.63.0-noble`: 14 passed, `settings-llm-*.png` không đổi (hai thay đổi vòng này nằm dưới nếp gấp / ở màn không có ảnh mốc).
+- Kiểm: `tsc`, `pnpm lint`, `ui-antipatterns.sh` sạch; Playwright `settings-llm`, `shell`, `lcp`, `a11y`, `panels` (desktop + mobile): 112 passed.

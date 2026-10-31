@@ -13,10 +13,7 @@ export function IntegrationsSettings() {
 
   return (
     <Page>
-      <PageHeader
-        title="Tích hợp"
-        meta={<span>Kiểm gần nhất 08:55 hôm nay</span>}
-      />
+      <PageHeader title="Tích hợp" />
 
       <PageState
         loading={
