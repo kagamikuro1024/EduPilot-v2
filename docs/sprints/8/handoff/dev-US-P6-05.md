@@ -17,7 +17,7 @@ Nhánh `sprint/8-p6`. Spec: US-P6-05 AC1–AC8, SRS 4.5. Proposals: #9 (dòng `w
 - `golangci-lint` 0 issue; `sqlc diff` sạch.
 
 ## Quyết định PM đã nhận
-- **#12 ACCEPTED**: `contract_test.go` 226 → 227 (chỉ số đếm + chú thích; commit cùng story).
+- **#12 ACCEPTED** — số đúng là **228**, không phải 227: CI của US-P6-03 đã báo `227 (cần 226)` (route `extract` của P6-03, tôi gán nhầm cho route status ở dòng #12); thêm route `status` của P6-05 thành 228. `contract_test.go` 226 → 228 (chỉ số đếm + chú thích hai route). Đã chạy `-tags testroutes`.
 - **#14 ACCEPTED**: `frontend/lighthouse-api.mjs` thêm bốn route đọc `/admin/llm/*` (providers / routes / budget / usage, chỉ vai admin), dữ liệu như `mockLlmApi`; không đổi `lighthouserc*.json`.
 - **#13 ACCEPTED có điều kiện — phần test CHƯA push, chờ TL xác nhận qua PM.** Ba chỗ sửa trong `internal/today/staff_test.go` (nằm trong cây làm việc, chưa commit):
   - `TestStaffTodayCountAndCap`: `55+55` → `55+55+55`. **Phép suy ra 165:** giảng viên của test dạy 55 lớp ACTIVE, mỗi lớp có đúng 1 yêu cầu chờ duyệt (+55), 1 mục thiết lập `COURSE_SETUP` (+55) và — vì không lớp nào có công thức `CONFIRMED` (bảng `grade_schemes` rỗng) — đúng 1 mục `GRADE_SCHEME_UNCONFIRMED` theo AC5 "mỗi lớp ACTIVE có `state ≠ CONFIRMED`" (+55) = 165. Seed sprint 8 không đổi phép tính này: mỗi lớp seed của giảng viên cũng chỉ có một mục công thức (lớp 1 `CONFIRMED` sau US-S8-SEED thì không có mục).
@@ -30,3 +30,8 @@ Nhánh `sprint/8-p6`. Spec: US-P6-05 AC1–AC8, SRS 4.5. Proposals: #9 (dòng `w
 ## Cần hỏi / nợ
 - **#13** (xem trên) chờ TL; **BUG-S8-01** (`bell real`) chờ PM giao người sửa test.
 - AC2 / AC3 phần giao diện (banner + `Chốt điểm` khoá trên `/gradebook`) làm ở US-P6-06 / US-P6-08; `POST finalize` → `409 SCHEME_NOT_CONFIRMED` ở US-P6-08. `GradeAdapter.Summary/WhatIf` khi đã có công thức xác nhận trả "chưa có dữ liệu" tới US-P6-09 (cần bảng điểm).
+
+## BUG-S8-01 (#17 ACCEPTED, commit riêng `e4547da2`)
+- `e2e/support/session.ts`: `pageNowSec(route)` (đọc `Date.now()` trong trang, tức đồng hồ giả nếu có) + `makeJwt` / `sessionBody` nhận `now`; `asDemo` và `asJwt` ký JWT theo giờ của TRANG. Mọi spec dùng hai hàm này được sửa cùng lúc (hết cặp "đồng hồ cố định + JWT giờ thật": `class-join`, `private-chat` ×2, `screens.ts` / `visual`, `attendance`, `calendar`). Các chỗ gọi `sessionBody` trực tiếp (`account`, `lcp`, `shell`, `class-join:533`) không dùng đồng hồ giả nên giữ nguyên.
+- Phát hiện thêm khi ký đúng: `bell real` vẫn đỏ vì `idleEvents` làm SSE "mở" ⇒ chuông làm mới 120 s thay vì 30 s (`useRealNotifications`); trước đó test chỉ xanh nhờ lệch ngày làm token "hết hạn" khiến SSE không mở (tình cờ). Thêm MỘT dòng thiết lập vào chính ca đó: `/events` trả 429 ("SSE không nối được ⇒ làm mới 30 s", đúng điều tên ca nói). Không đổi ngày, không đổi assertion. Đối chứng: không có dòng này → đỏ 4/4; có → xanh.
+- Kiểm: `class-join` + `private-chat` 87 passed (desktop + mobile).
