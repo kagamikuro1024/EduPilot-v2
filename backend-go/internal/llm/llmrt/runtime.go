@@ -38,7 +38,7 @@ func EnvFrom(cfg config.Config) llm.EnvConfig {
 		Provider: cfg.LLMProvider, OpenAIKey: cfg.OpenAIKey, AnthropicKey: cfg.AnthropicKey, GeminiKey: cfg.GeminiKey,
 		DefaultRPM: cfg.LLMDefaultRPM, DefaultTPM: cfg.LLMDefaultTPM,
 		Fake: fake.Settings{LatencyMin: cfg.FakeLatencyMin, LatencyMax: cfg.FakeLatencyMax, ErrorRate: cfg.FakeErrorRate,
-			ValidKey: cfg.FakeValidKey, ReplayDir: cfg.LLMReplayDir},
+			ValidKey: cfg.FakeValidKey, ReplayDir: cfg.LLMReplayDir, DemoFile: cfg.LLMDemoFile},
 	}
 }
 

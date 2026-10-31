@@ -38,7 +38,7 @@ must(a.speak >= 40 && a.speak <= 80, `phát biểu cả lớp = ${a.speak}, cầ
 const attention = await listAll(`/courses/${c1}/students?filter=attention`, t);
 must(attention.length === 1 && attention[0].student.student_code === CODE["sv.nguyco"], `filter=attention = ${attention.length} (cần đúng Sinh viên C)`);
 const levels = students.reduce((m, s) => ((m[s.risk.level] = (m[s.risk.level] ?? 0) + 1), m), {});
-must(levels.AT_RISK === 1 && levels.WATCH === 2, `mức rủi ro lớp 1 ${JSON.stringify(levels)}, cần AT_RISK 1, WATCH 2`);
+must(levels.AT_RISK === 1 && levels.WATCH === 3, `mức rủi ro lớp 1 ${JSON.stringify(levels)}, cần AT_RISK 1, WATCH 3 (sv12, sv19, sv26 — expected_risk.csv, #5)`);
 const today = (await call("GET", `/courses/${c1}/today`, { token: t })).body;
 must(JSON.stringify(today).includes("STUDENT_ATTENTION"), "Hôm nay của giảng viên thiếu STUDENT_ATTENTION");
 must((await listAll(`/courses/${c2}/students?filter=attention`, t)).length === 0, "lớp 761988 không được có sinh viên cần chú ý");

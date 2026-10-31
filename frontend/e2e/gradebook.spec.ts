@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import path from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 import { IMPACT, confirmedLop1, draftLop2, gradeApi } from "./support/grade-fixtures";
 import { EXAMCOL, FINAL, WEEKLY, gradebookApi, student as gbStudent, type Opts as SheetOpts } from "./support/gradebook-fixtures";
@@ -696,4 +698,78 @@ test("snapshot history: Lịch sử chốt liệt kê các phiên bản kèm lý
   await expect(p2.getByRole("menuitem", { name: "Lịch sử chốt" })).toBeVisible();
   await expect(p2.getByRole("menuitem", { name: "Mở khoá" })).toHaveCount(0);
   await expect(p2.getByRole("menuitem", { name: "Xuất XLSX" })).toHaveCount(0);
+});
+
+// ---- US-S8-SEED: F10 đi trọn (AC4, AC7) ----------------------------------------------------------------------------------------------------------
+test("lop2 demo step 6: tải quy chế lớp 2 (bản dựng thật) → một mục chưa rõ chặn xác nhận → điền làm tròn → xác nhận → banner mất, Chốt điểm mở", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const pdf = { name: "quy-che-lop2.pdf", mimeType: "application/pdf", buffer: readFileSync(path.resolve(__dirname, "../../seed/demo/quy-che-lop2.pdf")) };
+  expect(pdf.buffer.subarray(0, 5).toString()).toBe("%PDF-");
+  const api = await open(page, context, { draft: null, confirmed: null });
+  await page.route("**/api/v1/courses/*/uploads/presign", (r) => r.fulfill(okJson({ upload_id: "u1", method: "PUT", url: `${BASE_URL}/__blob/u1`, headers: {} })));
+  await page.route("**/__blob/**", (r) => r.fulfill({ status: 200, body: "" }));
+  await page.route("**/api/v1/courses/*/uploads/complete", (r) => r.fulfill(okJson({ job_id: "j1", document: { id: "00000000-0000-7000-8000-0000000007d1" } }, 202)));
+  await page.route("**/api/v1/jobs/*", (r) => r.fulfill(okJson({ id: "j", status: "SUCCEEDED", progress: 100 })));
+  await page.route("**/api/v1/courses/*/grade-scheme/extract", (r) => {
+    api.set({ draft: draftLop2() });
+    return r.fulfill(okJson({ job_id: "j2" }, 202));
+  });
+  await page.setInputFiles("[data-part=policy-input]", pdf);
+  await expect(page.locator("[data-block]")).toHaveCount(6, { timeout: 15_000 });
+  await expect(block(page, "ROUNDING")).toContainText("Quy chế chưa nêu cách làm tròn");
+  await expect(confirmBtn(page)).toHaveAttribute("aria-disabled", "true");
+  await block(page, "ROUNDING").getByRole("combobox").selectOption("0.1");
+  await expect(confirmBtn(page)).not.toHaveAttribute("aria-disabled", "true");
+  await confirmBtn(page).click();
+  const dlg = page.getByRole("dialog");
+  await expect(dlg).toContainText("Áp cho");
+  await dlg.getByRole("button", { name: "Xác nhận công thức" }).click();
+  await expect(page.locator("[data-part=confirmed-line]")).toContainText("Đã xác nhận ·");
+  expect(api.calls.some((c) => c.method === "POST" && c.path.endsWith("/confirm"))).toBe(true);
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await gradebookApi(page, { students: 3, scheme: true });
+  await page.goto("/gradebook");
+  await expect(page.locator("[data-part=grade-row]").first()).toBeVisible();
+  await expect(page.getByText(/Chưa có công thức điểm đã xác nhận/)).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Chốt điểm" })).not.toHaveAttribute("aria-disabled", "true");
+});
+
+test("f10 main path: sửa ô → giải trình → chốt v1 → ô khoá → mở khoá có lý do → sửa → chốt lại v2; TA chỉ đọc", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const api = await sheet(page, context, { students: 3 });
+  await fill(api, 3);
+  await page.reload();
+  const c = cellOf(page, 1, FINAL);
+  await c.fill("9");
+  await c.press("Enter");
+  await expect.poll(() => api.puts().length).toBe(1);
+  await page.getByRole("button", { name: /^Hành động — Sinh Viên 0002/ }).click();
+  await page.getByRole("menuitem", { name: "Giải trình" }).click();
+  await expect(page.locator("[data-part=grade-calculation]")).toBeVisible();
+  await page.keyboard.press("Escape");
+  await page.getByRole("button", { name: "Chốt điểm" }).click();
+  await page.getByRole("dialog", { name: "Chốt điểm" }).getByRole("button", { name: "Chốt điểm" }).click();
+  await expect(page.getByText(/^Đã chốt v1 · /)).toBeVisible();
+  await expect(page.locator("input[data-cell]")).toHaveCount(0);
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await page.getByRole("menuitem", { name: "Mở khoá" }).click();
+  const un = page.getByRole("dialog", { name: "Mở khoá" });
+  await un.getByLabel("Lý do").fill("Phúc khảo sv01: sửa điểm cuối kỳ");
+  await un.getByRole("button", { name: "Mở khoá" }).click();
+  await expect(cellOf(page, 1, FINAL)).toBeVisible();
+  const d = cellOf(page, 1, FINAL);
+  await d.fill("8");
+  await d.press("Enter");
+  await expect.poll(() => api.puts().length).toBe(2);
+  await page.getByRole("button", { name: "Chốt điểm" }).click();
+  await page.getByRole("dialog", { name: "Chốt điểm" }).getByRole("button", { name: "Chốt điểm" }).click();
+  await expect(page.getByText(/^Đã chốt v2 · /)).toBeVisible();
+  expect(api.calls.filter((x) => x.path.endsWith("/gradebook/finalize"))).toHaveLength(2);
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await asDemo(context, "ta");
+  await gradebookApi(page, { students: 3, locked: true });
+  await page.goto("/gradebook");
+  await expect(page.locator("[data-part=grade-row]").first()).toBeVisible();
+  await expect(page.locator("input[data-cell]")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Chốt điểm" })).toHaveCount(0);
 });

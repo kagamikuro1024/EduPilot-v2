@@ -13,6 +13,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
 import { createHash } from "node:crypto";
+import { XLSX_MIME, lop1Column, lop1Faulty } from "./grade-seed-data.mjs";
 import { ROSTER1, crmPlan } from "./crm-plan.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 
@@ -55,7 +56,7 @@ const ORIGIN = new URL(API).origin;
 
 const DOMAIN = "@edupilot.local";
 const SEMESTER = "2026-2027-HK1";
-const STEPS = 17;
+const STEPS = 18;
 
 // ---- tiện ích --------------------------------------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -642,19 +643,19 @@ async function step10Exams() {
 const DOCS = [
   { file: "Mordern_Network_Security_Threats.pdf", title: "Network Security Threats", type: "LECTURE", week: 3 },
   { file: "QMB12ch6b.pdf", title: "Forecasting (QMB ch. 6b)", type: "LECTURE", week: 6 },
-  { file: "Quyche.pdf", title: "Quy chế học vụ", type: "COURSE_POLICY", week: null },
+  { file: "Quyche.pdf", title: "Quy chế học vụ", type: "OTHER", category: "Quy chế trường", week: null }, // quy chế đào tạo của trường, KHÔNG phải công thức môn (proposals.md #2)
   { gen: EXAM_PAPER_LINES, title: "Đề tham khảo tuần 5", type: "EXAM_PAPER", week: 5, name: "de-tham-khao-tuan-5.pdf" },
   { gen: ANSWER_KEY_LINES, title: "Đáp án đề tham khảo tuần 5", type: "ANSWER_KEY", week: 5, name: "dap-an-tuan-5.pdf" },
 ];
 
 async function uploadDoc(course, token, d) {
-  const bytes = d.gen ? miniPdf(d.gen) : readFileSync(path.join(root, "seed", "documents", d.file));
+  const bytes = d.gen ? miniPdf(d.gen) : readFileSync(d.abs ?? path.join(root, "seed", "documents", d.file));
   const sha = createHash("sha256").update(bytes).digest("hex");
-  const filename = d.name ?? d.file;
+  const filename = d.name ?? path.basename(d.abs ?? d.file);
   const pre = await call("POST", `/courses/${course}/uploads/presign`, { token, json: { purpose: "document", filename, mime_type: "application/pdf", size_bytes: bytes.length, sha256: sha } });
   const put = await fetch(pre.body.url, { method: pre.body.method, headers: pre.body.headers, body: bytes });
   if (!put.ok) throw new Error(`PUT tệp ${filename} → ${put.status}`);
-  const json = { upload_id: pre.body.upload_id, title: d.title, type: d.type, ...(d.week ? { week_no: d.week } : {}) };
+  const json = { upload_id: pre.body.upload_id, title: d.title, type: d.type, ...(d.category ? { category: d.category } : {}), ...(d.week ? { week_no: d.week } : {}) };
   const done = await call("POST", `/courses/${course}/uploads/complete`, { token, json, key: `seed-doc-${sha.slice(0, 16)}`, ok: [200, 202, 409] });
   return done.status === 409 ? null : done.body.job_id;
 }
@@ -838,14 +839,95 @@ async function step14Attendance() {
   }
 }
 
+// ---- bước 15: quy chế môn, công thức điểm, điểm lớp 761987 (US-S8-SEED) -----------------------------------------------------
+// Chỉ HTTP API thật, bằng đúng vai: tải quy chế (TEACHER) → `extract` (provider giả đọc bản ghi seed/demo/fake_llm.json) → nối item "weekly" với bài thi → `confirm` (TEACHER) → nhập XLSX → công bố hai cột.
+// Khoá nghiệp vụ: `title` của tài liệu; Idempotency-Key cố định cho extract / confirm / nhập. Sổ KHÔNG được chốt (để demo `Chốt điểm`). Lớp 761988: không quy chế.
+const POLICY_TITLE = "Quy chế học phần";
+const POLICY_FILE = path.join(root, "seed", "demo", "quy-che-lop1.pdf");
+
+async function pollExamsPublished(course, t) {
+  const until = Date.now() + 360_000;
+  for (;;) {
+    const ex = (await listAll(`/courses/${course}/exams`, t)).filter((e) => [EXAM_MCQ_TITLE, EXAM_CODE_TITLE].includes(e.title));
+    if (ex.length === 2 && ex.every((e) => e.status === "PUBLISHED")) return ex;
+    if (Date.now() > until) throw new Error("Hai bài thi mẫu chưa PUBLISHED sau 6 phút (worker chạy chưa? điểm bài thi tuần 9 là đầu vào của sổ điểm)");
+    await sleep(3000);
+  }
+}
+
+async function importColumn(course, t, itemId, label, bytes) {
+  const sha = createHash("sha256").update(bytes).digest("hex");
+  const pre = await call("POST", `/courses/${course}/uploads/presign`, { token: t, json: { purpose: "grade_import", filename: `${label}.xlsx`, mime_type: XLSX_MIME, size_bytes: bytes.length, sha256: sha } });
+  const put = await fetch(pre.body.url, { method: pre.body.method, headers: pre.body.headers, body: bytes });
+  if (!put.ok) throw new Error(`PUT tệp ${label}.xlsx → ${put.status}`);
+  const body = { upload_id: pre.body.upload_id, item_id: itemId, mapping: { header_row: 1, student_code_col: "A", score_col: "C" }, skip_errors: false };
+  const prev = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "preview" } });
+  if (prev.body.errors.length > 0) throw new Error(`Tệp ${label}: ${prev.body.errors.length} dòng lỗi (MSSV khớp theo dòng ROSTER, #20)`);
+  if (prev.body.rows_ok > 0 && prev.body.unchanged === prev.body.rows_ok) return; // chạy lại: không còn gì đổi → không ghi (khoá ghi nhập gắn với upload_id nên không phát lại được)
+  const done = await call("POST", `/courses/${course}/grade-entries/import`, { token: t, json: { ...body, mode: "commit" }, key: `seed-import-${label}-${sha.slice(0, 12)}` });
+  vlog("nhập", label, `ghi ${done.body.written}`);
+  if (done.body.written > 0) ctx.changed = true;
+}
+
+async function step15Gradebook() {
+  step(15, "Quy chế môn, công thức điểm (extract → confirm), nhập điểm giữa kỳ / cuối kỳ lớp 761987…");
+  const c1 = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  const status = async () => (await call("GET", `/courses/${c1}/grade-scheme/status`, { token: t })).body.state;
+  if ((await status()) === "NO_POLICY") { // chưa có COURSE_POLICY → tải bản quy chế lớp 1
+    const job = await uploadDoc(c1, t, { abs: POLICY_FILE, title: POLICY_TITLE, type: "COURSE_POLICY", week: null });
+    ctx.changed = true;
+    if (job) await waitJob(job, t, `đọc quy chế "${POLICY_TITLE}"`, 360_000);
+  }
+  const mcq = (await pollExamsPublished(c1, t)).find((e) => e.title === EXAM_MCQ_TITLE);
+  if ((await status()) !== "CONFIRMED") {
+    const doc = (await listAll(`/courses/${c1}/documents`, t)).find((d) => d.title === POLICY_TITLE);
+    if (doc?.status !== "READY") throw new Error(`Quy chế chưa READY (${doc?.status})`);
+    for (let n = 0; ; n++) { // khoá cố định theo tài liệu + lần thử: chạy lại sau lỗi không phát lại việc đã hỏng, quá 3 lần thì dừng
+      const ex = await call("POST", `/courses/${c1}/grade-scheme/extract`, { token: t, json: { document_id: doc.id }, key: `seed-extract-761987-${doc.id.slice(0, 8)}-${n}` });
+      try {
+        await waitJob(ex.body.job_id, t, "trích công thức lớp 761987", 120_000);
+        break;
+      } catch (e) {
+        if (n >= 2) throw e;
+      }
+    }
+    const draft = (await call("GET", `/courses/${c1}/grade-scheme`, { token: t })).body.draft;
+    if (draft.unclear_items.length > 0) throw new Error(`Bản nháp lớp 761987 còn ${draft.unclear_items.length} mục chưa rõ (bản ghi fake_llm.json hoặc quy chế sai?)`);
+    const put = {
+      version: draft.version,
+      components: draft.components.map((c) => ({ key: c.key, name: c.name, grp: c.grp, weight: c.weight, items: c.items.map((i) => (c.key === "weekly" ? { ...i, source: "EXAM", exam_id: mcq.id } : i)) })),
+      rules: draft.rules.map((r) => ({ kind: r.kind, applicable: r.applicable, params: r.params })),
+    };
+    const saved = await call("PUT", `/courses/${c1}/grade-scheme`, { token: t, json: put });
+    await call("POST", `/courses/${c1}/grade-scheme/confirm`, { token: t, json: { version: saved.body.version ?? draft.version + 1 }, key: `seed-confirm-761987-${doc.id.slice(0, 8)}` });
+    ctx.changed = true;
+  }
+  const gb = (await call("GET", `/courses/${c1}/gradebook?limit=1`, { token: t })).body;
+  const itemId = (key) => gb.columns.find((c) => c.component_key === key)?.item_id;
+  for (const [key, col, label, title] of [["midterm", "midterm", "giua-ky", "Điểm giữa kỳ"], ["final", "final_exam", "cuoi-ky", "Điểm cuối kỳ"]]) {
+    await importColumn(c1, t, itemId(key), label, lop1Column(col, title));
+    await call("POST", `/courses/${c1}/grade-items/${itemId(key)}/publish`, { token: t, json: { published: true }, ok: [200, 204] });
+  }
+  // tệp lỗi cố ý: chỉ xem trước, KHÔNG ghi (AC2)
+  const bad = lop1Faulty();
+  const pre = await call("POST", `/courses/${c1}/uploads/presign`, { token: t, json: { purpose: "grade_import", filename: "loi.xlsx", mime_type: XLSX_MIME, size_bytes: bad.length, sha256: createHash("sha256").update(bad).digest("hex") } });
+  await fetch(pre.body.url, { method: pre.body.method, headers: pre.body.headers, body: bad });
+  const out = await call("POST", `/courses/${c1}/grade-entries/import`, { token: t, json: { upload_id: pre.body.upload_id, item_id: itemId("midterm"), mode: "preview", mapping: { header_row: 1, student_code_col: "A", score_col: "C" } } });
+  if (out.body.errors.length < 4) throw new Error(`Tệp lỗi cố ý chỉ báo ${out.body.errors.length} dòng lỗi`);
+}
+
 async function step15StudyTimeRisk() {
-  step(15, "Thời gian học 10 tuần (lớp 761988: 3 tuần), rải hoạt động, tính at-risk…");
+  step(16, "Thời gian học 10 tuần (lớp 761988: 3 tuần), rải hoạt động, tính at-risk…");
   const profile = readFileSync(path.join(root, "seed", "study_profile.json"), "utf8");
   vlog(gatewayAdmin("seed-study-time", ["--course", "761987", "--weeks", "10", "--profile", "-"], profile));
   vlog(gatewayAdmin("seed-study-time", ["--course", "761988", "--weeks", "3", "--profile", "-"], profile));
   vlog(gatewayAdmin("seed-age", ["--course", "761987", "--activity", "--weeks", "10"]));
+  // hoạt động tuần 8 / 9 của sinh viên có điểm quá trình thấp, đúng cột `activity_week9` / `activity_week8` của seed/expected_risk.csv (US-P6-09 AC8)
+  const want = readFileSync(path.join(root, "seed", "expected_risk.csv"), "utf8").trim().split("\n").slice(1).map((l) => l.split(",")).filter((c) => c[4] !== "").map((c) => ({ student_code: c[1], week9: c[4], week8: c[5] }));
+  vlog(gatewayAdmin("seed-activity", ["--course", "761987", "--plan", "-"], JSON.stringify(want)));
   const out = gatewayAdmin("crm-risk-run", ["--course", "761987"]);
-  if (!/AT_RISK 1, WATCH 2/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 2": ${out} — buổi 10 phải là HÔM NAY (seed chạy trên DB trống; DB cũ giữ lịch buổi của ngày seed trước nên tuần của buổi 8 / 9 lệch)`);
+  if (!/AT_RISK 1, WATCH 3/.test(out)) throw new Error(`crm-risk-run lớp 761987 không ra "AT_RISK 1, WATCH 3": ${out} — buổi 10 phải là HÔM NAY (seed chạy trên DB trống; DB cũ giữ lịch buổi của ngày seed trước nên tuần của buổi 8 / 9 lệch)`);
   if (!/AT_RISK 0/.test(gatewayAdmin("crm-risk-run", ["--course", "761988"]))) throw new Error("Lớp 761988 không được có AT_RISK");
 }
 
@@ -853,7 +935,7 @@ const TICKET_STUDENTS = [["sv14", "open"], ["sv15", "overdue"], ["sv16", "claime
 const TICKET_ANSWER = "Bạn xem lại mục 'nộp bài muộn' trong quy chế học phần: mỗi ngày nộp muộn bị trừ 0,5 điểm.";
 
 async function step16Tickets() {
-  step(16, "Ticket đủ trạng thái lớp 761987 (qua chat + escalate + trả lời thật)…");
+  step(17, "Ticket đủ trạng thái lớp 761987 (qua chat + escalate + trả lời thật)…");
   const c1 = ctx.ids["761987"];
   const t = ctx.tokens.teacher;
   for (const [k, want] of TICKET_STUDENTS) {
@@ -876,7 +958,7 @@ async function step16Tickets() {
 }
 
 async function step17Moderation() {
-  step(17, "Kiểm duyệt Threads lớp 761987: 2 báo cáo, 1 thread tự ẩn, 1 bình luận bị ẩn, 1 thread ghim…");
+  step(18, "Kiểm duyệt Threads lớp 761987: 2 báo cáo, 1 thread tự ẩn, 1 bình luận bị ẩn, 1 thread ghim…");
   const c1 = ctx.ids["761987"];
   const t = ctx.tokens.teacher;
   if ((await listAll(`/courses/${c1}/moderation/queue`, t)).length >= 2) return; // chạy lại: thread đã tự ẩn (3 báo cáo) trả 404 cho báo cáo thứ tư
@@ -916,6 +998,7 @@ async function main() {
   await step12Chat();
   await step13Threads();
   await step14Attendance();
+  await step15Gradebook();
   await step15StudyTimeRisk();
   await step16Tickets();
   await step17Moderation();
@@ -924,9 +1007,10 @@ async function main() {
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
   console.log("  60 tài khoản (1 Admin, 1 giảng viên, 1 TA, 57 sinh viên); mật khẩu = SEED_DEFAULT_PASSWORD");
   console.log("  Lớp 761987: 20 câu trắc nghiệm APPROVED + 5 câu AI_DRAFT + 2 bài code; hai bài thi mẫu (24 lượt trắc nghiệm + 6 lượt code) tự đóng và công bố ≤ 3 phút — `node scripts/check-exam-seed.mjs bank|scores|demo`");
-  console.log("  Lớp 761987: 5 tài liệu READY (1 quy chế scan, 2 bài giảng, 1 đề tham khảo, 1 đáp án canary) + 2 sự kiện thi; lớp 761988: bài giảng dùng chung + 1 sự kiện — `node scripts/check-docs-seed.mjs`");
+  console.log("  Lớp 761987: 6 tài liệu READY (quy chế trường scan = OTHER, quy chế học phần = COURSE_POLICY, 2 bài giảng, 1 đề tham khảo, 1 đáp án canary) + 2 sự kiện thi; lớp 761988: bài giảng dùng chung + 1 sự kiện — `node scripts/check-docs-seed.mjs`");
   console.log("  ≈ 150 câu hỏi chat riêng (sinh viên lớp 761987), 12 thread lớp 761987 + 3 thread lớp 761988 — `node scripts/check-chat-seed.mjs [threads]`");
-  console.log("  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`");
+  console.log("  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 / sv26 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`");
+  console.log("  Lớp 761987: công thức điểm CONFIRMED (trích từ quy chế học phần bằng provider giả, TEACHER xác nhận), điểm giữa kỳ / cuối kỳ nhập bằng XLSX và đã công bố, sổ CHƯA chốt; lớp 761988: chưa có quy chế — `node scripts/check-grade-seed.mjs`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 

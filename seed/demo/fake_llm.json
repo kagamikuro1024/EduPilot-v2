@@ -1,0 +1,357 @@
+{
+ "recordings": [
+  {
+   "name": "quy-che-lop1",
+   "match": [
+    "40%"
+   ],
+   "response": {
+    "components": [
+     {
+      "key": "midterm",
+      "name": "Giữa kỳ",
+      "group": "QT",
+      "weight": "20",
+      "kind_hint": "MANUAL",
+      "citation_ids": [
+       "c1"
+      ]
+     },
+     {
+      "key": "weekly",
+      "name": "Kiểm tra hằng tuần",
+      "group": "QT",
+      "weight": "20",
+      "kind_hint": "EXAM",
+      "citation_ids": [
+       "c1",
+       "c2"
+      ]
+     },
+     {
+      "key": "final",
+      "name": "Thi cuối kỳ",
+      "group": "CK",
+      "weight": "60",
+      "kind_hint": "MANUAL",
+      "citation_ids": [
+       "c3"
+      ]
+     }
+    ],
+    "rules": [
+     {
+      "kind": "BONUS",
+      "applicable": true,
+      "params": {
+       "source": "PARTICIPATION",
+       "per_speak": "0.25",
+       "cap": "1.0"
+      },
+      "citation_ids": [
+       "c4"
+      ]
+     },
+     {
+      "kind": "PENALTY",
+      "applicable": true,
+      "params": {
+       "source": "ABSENCE",
+       "free": 2,
+       "per": "0.5"
+      },
+      "citation_ids": [
+       "c5"
+      ]
+     },
+     {
+      "kind": "ROUNDING",
+      "applicable": true,
+      "params": {
+       "step": "0.5",
+       "mode": "HALF_UP"
+      },
+      "citation_ids": [
+       "c6"
+      ]
+     },
+     {
+      "kind": "LETTER_SCALE",
+      "applicable": true,
+      "params": {
+       "bands": [
+        {
+         "min": "9.0",
+         "letter": "A+"
+        },
+        {
+         "min": "8.5",
+         "letter": "A"
+        },
+        {
+         "min": "8.0",
+         "letter": "B+"
+        },
+        {
+         "min": "7.0",
+         "letter": "B"
+        },
+        {
+         "min": "6.5",
+         "letter": "C+"
+        },
+        {
+         "min": "5.5",
+         "letter": "C"
+        },
+        {
+         "min": "5.0",
+         "letter": "D+"
+        },
+        {
+         "min": "4.0",
+         "letter": "D"
+        },
+        {
+         "min": "0",
+         "letter": "F"
+        }
+       ]
+      },
+      "citation_ids": [
+       "c7"
+      ]
+     },
+     {
+      "kind": "FAIL_CONDITION",
+      "applicable": true,
+      "params": {
+       "kind": "FINAL_BELOW",
+       "value": "3.0"
+      },
+      "citation_ids": [
+       "c8"
+      ]
+     },
+     {
+      "kind": "FAIL_CONDITION",
+      "applicable": true,
+      "params": {
+       "kind": "ABSENT_AT_LEAST",
+       "value": "7"
+      },
+      "citation_ids": [
+       "c9"
+      ]
+     },
+     {
+      "kind": "MISSING_SCORE",
+      "applicable": true,
+      "params": {
+       "zero_components": [
+        "weekly"
+       ]
+      },
+      "citation_ids": [
+       "c10"
+      ]
+     }
+    ],
+    "citations": [
+     {
+      "id": "c1",
+      "page": 1,
+      "quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần."
+     },
+     {
+      "id": "c2",
+      "page": 1,
+      "quote": "Điểm kiểm tra hằng tuần lấy từ các bài kiểm tra trắc nghiệm hằng tuần trên hệ thống; bài kiểm tra lập trình chỉ để luyện tập và không tính vào điểm học phần."
+     },
+     {
+      "id": "c3",
+      "page": 1,
+      "quote": "Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
+     },
+     {
+      "id": "c4",
+      "page": 1,
+      "quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
+     },
+     {
+      "id": "c5",
+      "page": 1,
+      "quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
+     },
+     {
+      "id": "c6",
+      "page": 2,
+      "quote": "Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
+     },
+     {
+      "id": "c7",
+      "page": 2,
+      "quote": "Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ 6,5 đến dưới 7,0 là C+; từ 5,5 đến dưới 6,5 là C; từ 5,0 đến dưới 5,5 là D+; từ 4,0 đến dưới 5,0 là D; dưới 4,0 là F."
+     },
+     {
+      "id": "c8",
+      "page": 2,
+      "quote": "Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+     },
+     {
+      "id": "c9",
+      "page": 2,
+      "quote": "Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
+     },
+     {
+      "id": "c10",
+      "page": 1,
+      "quote": "Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó."
+     }
+    ],
+    "unclear_items": []
+   }
+  },
+  {
+   "name": "quy-che-lop2",
+   "match": [
+    "25%"
+   ],
+   "response": {
+    "components": [
+     {
+      "key": "midterm",
+      "name": "Giữa kỳ",
+      "group": "QT",
+      "weight": "25",
+      "kind_hint": "MANUAL",
+      "citation_ids": [
+       "c1"
+      ]
+     },
+     {
+      "key": "lab",
+      "name": "Bài thực hành",
+      "group": "QT",
+      "weight": "25",
+      "kind_hint": "ASSIGNMENT",
+      "citation_ids": [
+       "c1"
+      ]
+     },
+     {
+      "key": "final",
+      "name": "Thi cuối kỳ",
+      "group": "CK",
+      "weight": "50",
+      "kind_hint": "MANUAL",
+      "citation_ids": [
+       "c2"
+      ]
+     }
+    ],
+    "rules": [
+     {
+      "kind": "BONUS",
+      "applicable": true,
+      "params": {
+       "source": "PARTICIPATION",
+       "per_speak": "0.25",
+       "cap": "1.5"
+      },
+      "citation_ids": [
+       "c3"
+      ]
+     },
+     {
+      "kind": "PENALTY",
+      "applicable": true,
+      "params": {
+       "source": "ABSENCE",
+       "free": 1,
+       "per": "0.5"
+      },
+      "citation_ids": [
+       "c4"
+      ]
+     },
+     {
+      "kind": "LETTER_SCALE",
+      "applicable": true,
+      "params": {
+       "bands": [
+        {
+         "min": "8.5",
+         "letter": "A"
+        },
+        {
+         "min": "7.0",
+         "letter": "B"
+        },
+        {
+         "min": "5.5",
+         "letter": "C"
+        },
+        {
+         "min": "4.0",
+         "letter": "D"
+        },
+        {
+         "min": "0",
+         "letter": "F"
+        }
+       ]
+      },
+      "citation_ids": [
+       "c5"
+      ]
+     },
+     {
+      "kind": "FAIL_CONDITION",
+      "applicable": true,
+      "params": {
+       "kind": "FINAL_BELOW",
+       "value": "3.0"
+      },
+      "citation_ids": [
+       "c6"
+      ]
+     }
+    ],
+    "citations": [
+     {
+      "id": "c1",
+      "page": 1,
+      "quote": "Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+     },
+     {
+      "id": "c2",
+      "page": 1,
+      "quote": "Điểm thi cuối kỳ chiếm 50% điểm học phần."
+     },
+     {
+      "id": "c3",
+      "page": 2,
+      "quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
+     },
+     {
+      "id": "c4",
+      "page": 2,
+      "quote": "Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
+     },
+     {
+      "id": "c5",
+      "page": 2,
+      "quote": "Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
+     },
+     {
+      "id": "c6",
+      "page": 2,
+      "quote": "Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+     }
+    ],
+    "unclear_items": []
+   }
+  }
+ ]
+}
