@@ -15,7 +15,7 @@ Bất biến: (1) mọi phép tính điểm là Go + `shopspring/decimal`; (2) k
 
 ## 2. Người dùng và quyền
 
-`Staff` = TA + TEACHER `ACTIVE` của lớp; ADMIN bị từ chối ở mọi route lớp (D39); `404` khi không thuộc lớp (không lộ tồn tại). Mọi route lớp qua `CourseAccessGuard`.
+`Staff` = TA + TEACHER `ACTIVE` của lớp; ADMIN bị từ chối ở mọi route lớp (D39); **người ngoài lớp (mọi vai, kể cả uuid lớp không tồn tại) → `403`; id không phải uuid → `404`** (hành vi sẵn có của `CourseAccessGuard`, `proposals.md` sprint 8 #11). Mọi route lớp qua `CourseAccessGuard`.
 
 | # | Hành động | STUDENT | TA | TEACHER | ADMIN |
 | --- | --- | --- | --- | --- | --- |

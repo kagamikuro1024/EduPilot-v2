@@ -1,6 +1,7 @@
 # SRS FEAT-llm-gateway Cổng LLM của Go (P1): lược đồ, `internal/llm`, Scheduler, API cấu hình, `/settings/llm`
-Phiên bản 1.7 · 2026-10-10 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
+Phiên bản 1.8 · 2026-10-31 · Trạng thái: **APPROVED** (PM 2026-10-03; Q1–Q14 theo mặc định của BA; Q11 key thật = việc chủ dự án, AC ghi âm BLOCKED tới khi có; PM đã cập nhật `ARCHITECTURE.md` §4, §5 theo Q1, Q2; v1.1: bỏ nhắc "gọi LLM từ Python" / `llm_audit` phía Python ở Ngoài phạm vi (trái D46 — không còn service Python))
 
+**v1.8 (2026-10-31)** — `proposals.md` sprint 8 #10 (PM `ACCEPTED`; nguồn: dev, QC US-S8-UI): luật chữ UI của chủ dự án — 7.1 mục 3 bỏ câu cảnh báo `Chưa có dự phòng — …` lặp từng dòng, thay bằng nhãn ngắn `Chưa có dự phòng` ở hàng chỉ có một mô hình; 7.2 trạng thái `Đã kết nối` không còn giờ kiểm; bỏ dòng `•••••••• · đã kết nối` ở ô khoá. Không đổi số AC, API hay hành vi gateway.
 **v1.7 (2026-10-10)** — góp ý #9 `docs/sprints/6/proposals.md` (PM `ACCEPTED`; nguồn: ba, QC sprint 6): 6.4 thêm tham chiếu hai route thử `_test/llm/payloads` / `…/payloads/reset` do `FEAT-private-chat-pii` 4.3 định nghĩa. Không đổi số AC (72) và không đổi hành vi đã cài của spec này.
 
 **v1.6 (2026-10-03)** — góp ý #33 `docs/sprints/3/proposals.md` (PM `ACCEPTED`; nguồn: ba, QC `report-GATE-P1.md` TC-15; trích: "`FallbackIndex` = vị trí trong chuỗi đã giải (chỉ nhà / mô hình `enabled`, theo `fallback_order`), 0 = nhà dùng được đầu tiên; `≥ 1` khi một nhà dùng được đứng trước đã thử mà lỗi hoặc mạch hở. Sửa dòng `Kiểm` của AC7 và AC12: làm **nhà chính lỗi** (còn bật) → `fallback_index: 1`; **tắt** nhà chính bằng công tắc → vẫn trả lời, `fallback_index: 0`"). Không đổi số AC (72) và không đổi hành vi đã cài. Đổi: US-P1-02 AC7 (định nghĩa chỉ số + dòng `Kiểm`), US-P1-04 AC12 (kịch bản), `SRS.md` 4.1 (chú thích `FallbackIndex`). QC sửa TC-P102-19, TC-P104-46, TC-P105-22, TC-GATEP1-15.
@@ -503,7 +504,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 
 1. **Kết nối nhà cung cấp** — hàng mỗi nhà: tên · loại · trạng thái (chữ + chấm) · công tắc · `Test kết nối` (secondary, cục bộ) · `OverflowMenu` (Sửa, Đổi khoá, Xoá); dưới danh sách: `Thêm nhà cung cấp` (text button); form xổ tại chỗ khi thêm / sửa; `Cài đặt nâng cao` (base URL, RPM / TPM, giá mô hình).
 2. **Mô hình theo tác vụ** — `LLMRouteTable` 6 hàng chat; chọn mô hình chính; nhãn làn; `Cài đặt nâng cao` mỗi hàng (nhiệt độ, số token tối đa, thời gian chờ, số lần thử).
-3. **Chuỗi dự phòng** — theo tác vụ: danh sách 0–3 mô hình; thêm / bớt; `Lên` / `Xuống`; cảnh báo khi không có dự phòng.
+3. **Chuỗi dự phòng** — theo tác vụ: danh sách 0–3 mô hình; thêm / bớt; `Lên` / `Xuống`; tác vụ chỉ có một mô hình hiện nhãn ngắn `Chưa có dự phòng` trên hàng đó (không câu giải thích; không lặp một câu trên nhiều dòng — luật chữ UI, `proposals.md` sprint 8 #10); hàng chưa cấu hình hiện `Mặc định máy chủ`.
 4. **Mô hình tìm kiếm tài liệu** — một mô hình + "1536 chiều" cố định; đổi → `ConfirmIrreversible`.
 5. (dưới cùng, không đánh số) **Mức dùng và ngân sách** — dòng chữ ngân sách; `DataTable` theo tác vụ; chọn khoảng 7 / 30 ngày.
 
@@ -517,7 +518,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 | `key_status=unreadable` | "Lỗi khoá — nhập lại khoá" | đỏ (cần hành động) |
 | `circuit=open` | "Tạm dừng do lỗi liên tiếp" | hổ phách |
 | `last_test.ok=false` | "Lỗi xác thực" / theo `error_kind` | đỏ |
-| `last_test.ok=true` | "Đã kết nối · kiểm tra lúc HH:mm" | xanh |
+| `last_test.ok=true` | "Đã kết nối" (không giờ kiểm; kết quả mới nằm ở `InlineNotice` của `Test kết nối`) | xanh |
 | `last_test.ok=null` | "Chưa kiểm tra" | xám |
 
 ### 7.3 Nhãn tác vụ và làn (đọc được, không từ kỹ thuật)
@@ -538,7 +539,7 @@ Router: đường tĩnh `/admin/llm/providers/test` đặt **trước** `/{id}`.
 | --- | --- | --- | --- |
 | 1 | Nguồn dữ liệu | `useDemoSlice` + cookie / localStorage | TanStack Query + `apiClient` + JWT (Admin dev) |
 | 2 | Nhà cung cấp | 3 cố định (OpenAI, Gemini, "Máy chủ trong trường") | CRUD động, 5 loại (`openai`, `anthropic`, `gemini`, `openai_compatible`, `fake`) |
-| 3 | Hiển thị khoá | "••••3f9a · đã kết nối" (4 ký tự cuối) | chuỗi tĩnh "•••••••• · đã kết nối"; **máy chủ không bao giờ trả ký tự nào của khoá** (Q3) |
+| 3 | Hiển thị khoá | "••••3f9a · đã kết nối" (4 ký tự cuối) | **không dòng nào** (không hiện khoá, đuôi khoá hay chuỗi tĩnh "•••••••• · đã kết nối"; trạng thái kết nối chỉ ở hàng nhà cung cấp); **máy chủ không bao giờ trả ký tự nào của khoá** (Q3; `proposals.md` sprint 8 #10) |
 | 4 | Test kết nối | mô phỏng, luôn thành công / lỗi theo kịch bản | gọi nhà cung cấp thật qua `internal/llm`; sai khoá → báo rõ, không lưu |
 | 5 | Lưu khoá sai | lưu được | bị từ chối 422 (trừ `skip_verify`) |
 | 6 | Tác vụ | 5 nhãn mock ("Trả lời chat", "Chấm bài tập", "Trích quy chế", "Sinh câu hỏi", "Tóm tắt tài liệu") + embedding | 6 tác vụ chat theo PRD (`CHAT`, `CLASSIFY`, `UTILITY`, `GRADING`, `QUESTION_GEN`, `INSIGHT`) + phần embedding riêng; "Trích quy chế" được gộp vào `GRADING`/`UTILITY` (Q5) |
