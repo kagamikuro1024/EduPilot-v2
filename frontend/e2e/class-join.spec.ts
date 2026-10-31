@@ -363,7 +363,7 @@ test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm 
   const noon = new Date("2026-10-29T10:00:00+07:00");
   await page.clock.install({ time: noon });
   await asJwt(page, "TEACHER");
-  // SSE không nối được ⇒ làm mới 30 s (SSE mở thì chỉ 120 s, `useRealNotifications`); trước #17 token "hết hạn" do lệch ngày làm SSE không mở một cách tình cờ
+  // kiểm nhánh dự phòng khi SSE bị từ chối: làm mới 30 s (nhánh SSE mở 120 s có ca riêng bên dưới); trước #17 token "hết hạn" do lệch ngày làm SSE không mở một cách tình cờ
   await page.route("**/api/v1/events", (r) => r.fulfill({ status: 429, contentType: "application/json", body: "{}" }));
   await page.route("**/api/v1/me/courses**", (r) => fulfill(r, 200, { items: [item(C1, "761987", "TEACHER")], next_cursor: null }));
   const now = noon;
@@ -406,6 +406,43 @@ test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm 
   await expect(page).toHaveURL(`${BASE_URL}/class/settings`);
   await expect(picker(page)).toContainText("761987");
   await expect(page.getByRole("button", { name: /^Thông báo, 1 chưa đọc/ })).toBeVisible();
+});
+
+// SSE MỞ (luồng không kết thúc): chuông chỉ làm mới lưới an toàn 120 s, không thăm dò 30 s (`useRealNotifications`, #17).
+test("bell real sse open: không làm mới ở 30 s, làm mới ở 120 s", async ({ page }) => {
+  const noon = new Date("2026-10-29T10:00:00+07:00");
+  await page.clock.install({ time: noon });
+  await asJwt(page, "TEACHER");
+  await page.addInitScript(() => {
+    const real = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+      if (!url.includes("/api/v1/events")) return real(input, init);
+      const enc = new TextEncoder();
+      // không đóng + nhịp tim như máy chủ thật (máy canh của client nối lại nếu im quá lâu): SSE ở trạng thái "open"
+      const body = new ReadableStream({
+        start: (c) => {
+          c.enqueue(enc.encode('retry: 3000\n\nevent: ready\ndata: {"conn_id":"c"}\n\n'));
+          setInterval(() => c.enqueue(enc.encode(": hb\n\n")), 10_000);
+        },
+      });
+      return Promise.resolve(new Response(body, { status: 200, headers: { "Content-Type": "text/event-stream" } }));
+    };
+  });
+  await page.route("**/api/v1/me/courses**", (r) => fulfill(r, 200, { items: [item(C1, "761987", "TEACHER")], next_cursor: null }));
+  let lists = 0;
+  await page.route("**/api/v1/notifications**", (r) => {
+    lists++;
+    return fulfill(r, 200, { items: [], next_cursor: null, unread_count: 0 });
+  });
+  await page.goto("/");
+  await expect.poll(() => lists).toBeGreaterThan(0);
+  await page.clock.runFor(1_000);
+  const before = lists;
+  await page.clock.runFor(31_000);
+  expect(lists).toBe(before);
+  await page.clock.runFor(95_000);
+  await expect.poll(() => lists).toBeGreaterThan(before);
 });
 
 test("bell real: lỗi tải → dòng 'Chưa tải được thông báo.' không chặn app; hết chưa đọc thì chấm biến", async ({ page }) => {
