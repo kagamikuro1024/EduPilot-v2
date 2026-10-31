@@ -20,3 +20,7 @@
 ## BUG-S9-01 (proposals #12) — làm xen giữa US-P7-07 và US-P7-08
 - `shared/shell/AppShell.tsx` (dòng 336 và 347): nhãn "Bản mô phỏng · dữ liệu giả" chỉ hiện ở bản demo (cờ `demo` sẵn có: `mounted && !realPending && !realCourseId && role !== "admin"`); màn thật không còn nhãn. Ca mới `shell.spec.ts` "demo label": phiên có lớp thật 1440 + 390 → 0 nhãn; phiên không có lớp thật → có nhãn. Không test cũ nào khẳng định nhãn ở màn thật.
 - **12 ảnh mốc sinh lại trong docker** (`mcr.microsoft.com/playwright:v1.63.0-noble`, `--update-snapshots=all`, hai lượt kiểm lại không update đều 14 passed): 6 ảnh @390 (home, chat, threads, inbox, gradebook, settings-llm — dải nhãn mobile biến mất nên nội dung dịch lên) và 6 ảnh @1440 (home, chat, threads: chỉ chân sidebar dịch lên; inbox, settings-llm, gradebook: chân sidebar **kèm** khác biệt đã có từ trước, dưới ngưỡng 0,5 %, nay được nạp luôn — chữ số huy hiệu nav, dữ liệu LLM giả, dữ liệu sổ điểm giả). `dev-ui-1440/390` không đổi. QC cần xem lại 3 ảnh @1440 cuối nếu muốn tách phần drift cũ.
+
+## Test cũ đã sửa (cả hai cùng dạng đã ACCEPTED)
+- `internal/course/share_test.go` `TestShareNotAvailableKinds`: khẳng định chữ "P6"/"P9" đổi sang câu mới của `share.go` (PM yêu cầu sửa chữ "phase P6/P9"); thêm khẳng định không chứa "phase".
+- `internal/auth/account_test.go` `TestNoQueryLinksByStudentCode`: danh sách trắng thêm `AssignmentQueue` (ô tìm tên / MSSV của hàng chờ — chỉ lọc hiển thị trong lớp phụ trách, cùng loại `ListMembers` #10 / `CrmStudentsList` #30); proposals sprint 9 #13.
