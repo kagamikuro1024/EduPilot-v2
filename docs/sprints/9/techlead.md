@@ -57,3 +57,23 @@ Dev thêm truy vấn hàng chờ chấm có ô tìm theo MSSV, nên test bảo m
 - Nên lọc trên `enrollments.student_code_snapshot` (ROSTER / ADMIN), trên `users.student_code`, hay viết lại để khỏi cần whitelist?
 
 Kết luận: chấp nhận whitelist hay sửa mã. Trả lời ngay dưới, báo PM 2 dòng.
+
+**TL trả lời:**
+
+**Kết luận: chấp nhận whitelist `AssignmentQueue` (#13). Không cần viết lại truy vấn; có một sửa nhỏ không bắt buộc.**
+
+Đọc `store/queries/review.sql:3-32` và `assignment/review.go:100-124` ở `origin/sprint/9-p7` @ `1d5919c6`:
+
+1. **Không nối danh tính theo MSSV.**
+   - Hàng chờ chỉ lấy bài `match_status = 'MATCHED'`. Sinh viên của bài đã được xác định từ trước bằng `s.student_id`, do bộ khớp đặt hoặc giảng viên gán tay.
+   - Mọi phép nối đều theo khoá: `u.id = s.student_id`, `e.course_id = s.course_id AND e.user_id = s.student_id`.
+   - MSSV chỉ xuất hiện ở vị từ `q` (dòng 28): một bộ **lọc hiển thị** trên các hàng đã thuộc lớp `course_id` của nhân viên (route qua `CourseAccessGuard` Staff). Nó không gán bài, không ghi gì, không mở thêm dữ liệu nào ngoài những hàng nhân viên vốn đã được xem khi không có `q`.
+   - Đúng loại với `ListMembers` (#10 sprint 4) và `CrmStudentsList` / `CrmStudentsCount` (#30 sprint 7).
+2. **Lọc trên cột nào.** Dùng `enrollments.student_code_snapshot`, **không** dùng `users.student_code`: như vậy cột hiển thị và cột lọc là một (cột `student_code` của chính truy vấn này), và khớp `ListMembers`, `CrmStudentsList`. Không cần giới hạn `joined_via IN ('ROSTER','ADMIN')` ở đây: với bộ lọc hiển thị, MSSV tự khai của dòng `CODE` chỉ làm hàng **hiện ra** khi gõ số đó. Bài đã thuộc sinh viên đó theo `student_id`, không chuyển sang ai. Ràng buộc `joined_via` (TL-REVIEW TLR-1) chỉ cần ở chỗ **khớp**, và mã đã làm đúng: `submission.sql:58-59` trả `joined_via`, bộ khớp Go chỉ tin dòng ROSTER / ADMIN.
+3. **Đầu vào an toàn.** `q` đã được thoát `\`, `%`, `_` ở `review.go:110-112`. Ký tự thoát mặc định của `ILIKE` là `\`, nên không gõ ký tự đại diện được. Tham số đi qua sqlc nên không có tiêm SQL.
+
+**Sửa nhỏ (nên làm cùng story, không đổi spec):** tên đang so bằng `ILIKE` thô, nên gõ "kha" không ra "Khá". `ListMembers` và `CrmStudentsList` đều tìm tên qua `vn_fold(…)`. Đổi vế tên thành `vn_fold(u.full_name) like vn_fold(sqlc.narg(q)) escape '\'` (giữ `%…%`); vế MSSV giữ `ilike`. Đây là sửa nhất quán UX, không phải điều kiện của whitelist.
+
+**Rủi ro còn lại của cơ chế whitelist (gợi ý, không chặn #13):** whitelist miễn **cả truy vấn** theo tên. Nếu sau này ai thêm `JOIN … ON e.student_code_snapshot = …` vào `AssignmentQueue` thì test vẫn xanh. Muốn chặt hơn: đổi `TestNoQueryLinksByStudentCode` để vị từ có `student_code` dạng `like` / `ilike` không cần whitelist, còn so bằng (`=`, `IN`, `ON … student_code`) thì luôn đỏ trừ `EnrollmentConflictByStudentCode` / `RosterStudentCodeConflict`. Test thuộc P2 nên phải qua `proposals.md` riêng nếu PM muốn.
+
+**Dòng cho `proposals.md` #13:** `Tech Lead TL-2: ACCEPT whitelist — AssignmentQueue chỉ lọc hiển thị trên hàng MATCHED đã gán theo student_id, nối theo id, lọc trên student_code_snapshot (cùng cột hiển thị, như ListMembers/CrmStudentsList); q đã thoát ký tự đại diện. Nên: tìm tên qua vn_fold cho nhất quán.`
