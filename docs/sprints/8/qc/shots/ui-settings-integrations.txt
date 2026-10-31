@@ -4,13 +4,14 @@ tooltips/describedby: 0
 
 ---
 H1     .ep-page-title	Tích hợp
-SPAN  	Kiểm gần nhất 08:55 hôm nay
 H2     .ep-section-title	Thư đi (SMTP)
-SPAN   .Feedback-module__VRpUaW__status	Đã kết nối · kiểm gần nhất 08:55 hôm nay
+SPAN   .Feedback-module__VRpUaW__status	Đã kết nối
 DT    	Máy chủ
 DD    	smtp.ptit.edu.vn:587 (STARTTLS)
 DT    	Địa chỉ gửi
 DD    	no-reply@edupilot.test
+DT    	Kiểm gần nhất
+DD    	08:55 hôm nay
 DT    	Thư đã gửi 7 ngày
 DD    	214 · hỏng 0
 BUTTON .Button-module__lwrakq__btn	Gửi thư thử
@@ -24,7 +25,7 @@ DT    	Việc đang chờ
 DD    	Không có
 BUTTON .Button-module__lwrakq__btn	Kiểm tra
 H2     .ep-section-title	Microsoft Teams
-SPAN   .Feedback-module__VRpUaW__status	Chờ quản trị viên của trường đồng ý
+SPAN   .Feedback-module__VRpUaW__status	Chờ duyệt
 DT    	Tổ chức
 DD    	ptit.edu.vn
 DT    	Yêu cầu đã gửi

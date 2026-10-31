@@ -1,4 +1,44 @@
-# QC report — US-S8-UI (bỏ câu mô tả thừa ở `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings`) · Kết luận: **FAIL** (AC1 FAIL, AC2 FAIL, AC3 PASS)
+# QC report — US-S8-UI (bỏ câu mô tả thừa ở `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings`) · Kết luận vòng 3 (2b): **PASS phần giao diện** (AC1, AC2, AC3 PASS trên máy QC; CI của dev đỏ ở `Playwright 2/3` và `Lighthouse devtools B` — nguyên nhân chưa đọc được lúc chấm, xem mục "Vòng 3"). Vòng 2: FAIL (AC1: BUG-2, 3 chưa sửa). Vòng 1: FAIL (AC1, AC2)
+
+## Vòng 3 (2026-10-31, `sprint/8-p6` @ `f4921c86` — handoff mục "Vòng 2b", #10 ACCEPTED)
+Dựng lại `pnpm build:gate`; dump `docs/sprints/8/qc/shots/ui-settings-*.txt` (1440 px) và `ui-settings-*-390.txt/png` (390 px, lần đầu có).
+| Lỗi | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| BUG-S8-UI-2 cảnh báo dài lặp 3 dòng | **ĐÃ SỬA** | không còn `InlineNotice` câu dài; ba tác vụ chỉ có một mô hình hiện nhãn ngắn `Chưa có dự phòng` (`StatusText`, 1–3 từ) đúng chỗ #10 chấp nhận; không còn chữ "nếu nhà cung cấp lỗi" |
+| BUG-S8-UI-3 trạng thái dài / dòng phụ trùng / `Khoá API ••••` | **ĐÃ SỬA** | trạng thái `Đã kết nối` / `Lỗi xác thực`; không dòng `Khoá API`; không dòng phụ trùng tên; dòng rỗng `Mặc định máy chủ` |
+| BUG-S8-UI-1, 4 (vòng 2) | giữ nguyên đã sửa | không câu dưới tiêu đề "Mô hình tìm kiếm tài liệu"; integrations `Đã kết nối` / `Chưa cấu hình` / `Chờ duyệt`, "Kiểm gần nhất" một lần |
+Kiểm: `playwright test settings-llm shell lcp a11y panels --project=desktop --workers=2 --retries=0`: **112 passed**, 2 skipped, 0 failed; `ui-antipatterns.sh` rc=0; `pnpm lint` sạch; icon Info/CircleHelp = 0; tooltip chỉ ở hai nút chỉ-có-icon. Test cũ bị sửa: `e2e/settings-llm.spec.ts` (`:41`, khối dự phòng) — **có proposal #10 ACCEPTED**, chỉ đổi đúng chuỗi và đếm theo số dòng một mô hình, không đổi gì khác (`git diff 4ff5bb76..f4921c86 -- frontend/e2e`).
+390 px (TC-06, 10): `/settings/llm` và `/settings/integrations` một cột, không câu mô tả, không tràn ngang; ghi nhận (thấp): ô chọn "Tóm tắt lớp học" hiện nhãn tuỳ chọn `Chưa chọn — dùng cấu hình mặc định của máy chủ` bị cắt ở 390 px (nhãn của giá trị chọn, không phải câu mô tả) — dev xét đổi `Mặc định máy chủ` cho đồng bộ.
+Ảnh mốc `visual.spec.ts` (TC-18): QC không dựng lại trong image Playwright (cần cài `pnpm install` Linux riêng); dev báo 14 passed trong image; `git diff` chỉ đổi `settings-llm-390.png`. **CI ở `f4921c86`:** `Frontend e2e (Playwright 2/3)` và `Frontend Lighthouse (devtools B)` đỏ, `Playwright 3/3` và `lint + build` xanh, các job Go bỏ qua (commit chỉ đổi frontend); nhật ký chi tiết chưa đọc được khi run còn chạy → QC sẽ ghi bổ sung. Không đổi kết luận AC (đo trực tiếp trên màn), nhưng story chưa "CI xanh". Nghi `Lighthouse devtools B` và `bell real` (xem `report-US-P6-03.md` BUG-P6-03-4) là cùng nguyên nhân hạ tầng/ca mong manh, không thuộc US-S8-UI.
+
+| AC | Vòng 3 |
+| --- | --- |
+| AC1 `/settings/llm` | **PASS** |
+| AC2 `/settings/integrations` | **PASS** |
+| AC3 bảo mật `/settings` | **PASS** |
+
+---
+
+## Vòng 2 (2026-10-31, `sprint/8-p6` @ `d4efecdd`; commit dev `74a778c7`; handoff mục "Vòng 2"; proposals #10, #11 ACCEPTED)
+Dựng lại `pnpm build:gate`, dump lại ba màn (`shots/ui-settings-*.txt/png` ghi đè). Lưu ý môi trường: server `next start` / `api-server.mjs` của lượt trước còn chạy với bản dựng cũ → QC kill rồi mới đo (nếu không, trang báo "Trang này gặp sự cố").
+| Lỗi vòng 1 | Vòng 2 | Bằng chứng |
+| --- | --- | --- |
+| BUG-S8-UI-1 câu thường trực "Đổi mục này cần lập chỉ mục lại tài liệu." | **ĐÃ SỬA** | dump `/settings/llm`: khối "Mô hình tìm kiếm tài liệu" không còn câu dưới tiêu đề; hệ quả vẫn ở hộp thoại xác nhận đổi mô hình (đúng luật) |
+| BUG-S8-UI-4 trạng thái dài / lặp ở `/settings/integrations` | **ĐÃ SỬA** | trạng thái `Đã kết nối` / `Chưa cấu hình` / `Chờ duyệt`; không còn dòng meta dưới `h1`; "Kiểm gần nhất" chỉ còn **một** lần, thành `DT Kiểm gần nhất` trong danh sách trường của "Thư đi (SMTP)" |
+| BUG-S8-UI-2 cảnh báo `Chưa có dự phòng — …` lặp 3 dòng | **CHƯA SỬA** (chờ dev, #10 đã ACCEPTED) | `RoutesSection.tsx:149` còn nguyên `InlineNotice` |
+| BUG-S8-UI-3 trạng thái / dòng phụ dài, lặp | **CHƯA SỬA** (như trên) | `labels.ts:44` còn `Đã kết nối · kiểm tra lúc …`; `ProviderSection.tsx:81` còn `Khoá API •••••••• · đã kết nối`; dòng phụ trùng tên `OpenAI` / `Gemini`; dòng rỗng "Tóm tắt lớp học" còn câu dài |
+
+Chạy lại: `playwright test settings-llm shell lcp a11y panels --project=desktop --workers=2 --retries=0`: **112 passed**, 2 skipped, 0 failed; `ui-antipatterns` và `lint` không đổi so vòng 1 (dev báo xanh; không có commit đụng thêm). `git diff 0db5ff70..HEAD -- 'frontend/e2e/*'`: không sửa test cũ nào ở vòng này (#10 chưa thực thi: dev nói rõ chờ proposal).
+| AC | Vòng 2 |
+| --- | --- |
+| AC1 `/settings/llm` | **FAIL** (BUG-S8-UI-2, 3 mở) |
+| AC2 `/settings/integrations` | **PASS** |
+| AC3 bảo mật `/settings` | PASS (không đổi) |
+
+**Đề nghị:** dev thực thi #10 (sửa code + hai assertion `settings-llm.spec.ts:41`, `:136–138` cùng commit, ghi `#10`) rồi báo handoff vòng 3; QC chấm lại AC1 (dump + `settings-llm.spec.ts`) và chốt story. Vòng 1 giữ nguyên bên dưới.
+
+---
+## Vòng 1
 Ngày 2026-10-31. Commit kiểm: `sprint/8-p6` @ `12fa90bf` (gồm `365b8050`, `6b539a5e`). Bộ TC: `tc-US-S8-UI.md` (không sửa chữ TC). Handoff: `dev-US-S8-UI.md`. Bản dựng `pnpm build:gate`; chạy ở 1440 × 900, kiểm bằng dump `innerText` + ảnh (`docs/sprints/8/qc/shots/ui-settings-{llm,integrations,admin,teacher,student}.{txt,png}`; spec QC `scripts/qc-s8-ui.spec.ts.txt`, đã gỡ khỏi `frontend/e2e/` sau khi chạy).
 
 Ghi chú trung thực: TC này viết ở pha 1 hộp đen từ US + luật chữ UI, nhưng QC đã đọc `dev-US-S8-UI.md` trước khi viết (lệnh PM giao việc đọc handoff trong cùng lượt). Ba phát hiện lỗi dưới đây đến từ **màn thực chạy**, không từ handoff.
