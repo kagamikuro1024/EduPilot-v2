@@ -89,14 +89,15 @@ Mỗi module: `handler.go` (mỏng) · `service.go` (logic, transaction, audit) 
 | Redis | `redis/go-redis` v9 |
 | LLM / embedding | `openai/openai-go` (một client cho mọi provider có endpoint tương thích OpenAI) |
 | SSE | `net/http` + `http.Flusher` |
-| Mail gửi / nhận | `wneessen/go-mail` + `html/template` / `emersion/go-imap` v2 + `go-message` — **go-imap v2 mới ở beta**: ghim `v2.0.0-beta.8` + `go-message v0.18.2` (rủi ro: API có thể đổi; nâng bản chỉ qua `proposals.md`); test dùng `imapserver` + `imapmemserver` của chính thư viện (Mailpit không có IMAP) — TLR-19 |
+| Mail gửi / nhận | `wneessen/go-mail` + `html/template` / `emersion/go-imap` v2 (kéo theo `go-sasl`) + `go-message` — **go-imap v2 mới ở beta**: ghim `v2.0.0-beta.8` + `go-message v0.18.2` (rủi ro: API có thể đổi; nâng bản chỉ qua `proposals.md`); test dùng `imapserver` + `imapmemserver` của chính thư viện (Mailpit không có IMAP) — TLR-19 |
 | XLSX | `xuri/excelize` v2 |
 | Thập phân | `shopspring/decimal` |
+| Chuẩn hoá Unicode (NFC) | `golang.org/x/text` (`norm.NFC`) — **chờ chủ dự án duyệt** (`proposals.md` / `techlead.md` sprint 9 TL-3): module của nhóm Go, đã nằm trong đồ thị `go.mod` từ sprint 8 (bắc cầu, cùng phiên bản), sprint 9 chuyển thành trực tiếp; dùng ở `internal/grading` để chuẩn hoá NFC văn bản bài làm trước khi lưu `extracted_text` (SRS FEAT-assignments 4.6.1; thư viện chuẩn không có NFC) |
 | Cron | `robfig/cron` v3 |
 | OpenAPI | `oapi-codegen` |
 | Quan sát | OpenTelemetry Go + `log/slog` |
 | Object storage | `minio/minio-go` v7 (tương thích S3) |
-| Test | `testing` + `testify` + `testcontainers-go` + REST API Mailpit |
+| Test | `testing` + `testify` + `testcontainers-go` (+ `moby/moby/api`: kiểu `HostConfig` cho container sandbox go-judge trong test; **chỉ test**, từ sprint 6, không vào binary gateway / worker) + REST API Mailpit |
 
 Frontend giữ: Next.js, React, zustand (chỉ trạng thái UI + phiên), tailwind, recharts; thêm `@tanstack/react-query`, `@tanstack/react-virtual`, `lucide-react` (thư viện icon DUY NHẤT), font Be Vietnam Pro qua `next/font`, Playwright, `@axe-core/playwright`, Lighthouse CI.
 Hạ tầng thêm trong compose: Caddy, PgBouncer, MinIO, Mailpit, `docling-serve` (trích PDF/DOCX cho worker), mock-graph (chỉ local). Test tải: k6.
