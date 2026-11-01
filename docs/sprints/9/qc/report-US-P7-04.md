@@ -1,4 +1,4 @@
-# QC report — US-P7-04 (`UploadSource`, bộ khớp sinh viên, tab `Chưa khớp`) · Kết luận vòng 1: **FAIL** (chỉ AC4: hộp thoại gán thiếu câu "Sinh viên này đã có {n} phiên bản"; 8/9 AC còn lại PASS)
+# QC report — US-P7-04 (`UploadSource`, bộ khớp sinh viên, tab `Chưa khớp`) · Kết luận vòng 1: **FAIL** (chỉ AC4) → **vòng 2 (`e7aeff77`): PASS** — xem mục 4
 Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (mã US-P7-04 không đổi từ `f5bbfa57`). Bộ TC: `tc-US-P7-04.md`. Handoff: `dev-US-P7-04.md`. CI `c487e4fa`: **success** (`6f9f219a` và `acd5c294` đỏ do hai test cũ + ba test `activity` chập chờn; QC chạy lại cả năm test ở `c487e4fa`: xanh).
 
 ## 1. Cổng đã chạy
@@ -30,3 +30,16 @@ Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (mã US-P7-04 không
 - Ghi nhận: ZIP 201 mục đã nhập 200 mục đầu rồi mới báo `ZIP_LIMIT` — đúng SRS ("dừng và báo"), TC-07 viết "từ chối" → hiểu là dừng ở mục thứ 201.
 - Ghi nhận: `GET /jobs/{id}` của job `submission.zip` chỉ người tạo đọc được (TEACHER không đọc job của TA) — đúng `jobs.Scope` hiện tại, SRS chưa nói rõ.
 - Handoff nêu `-tags integration` không dùng; QC dùng `integration` (không ảnh hưởng kết quả). Test cũ dev sửa: `today.Topics()` 27 → 28, `TestTodayQueryBudget` (#9 ACCEPTED), `grade/me_test.go noStamps()` (chặt hơn).
+
+## 4. Vòng 2 — `e7aeff77` (máy chủ `90bd69d0`, frontend `d10af653`) · Kết luận: **PASS**
+CI `e7aeff77`: **success**.
+
+| Lệnh | Kết quả |
+| --- | --- |
+| `p7-go-tests.sh` (39 tên cũ + `TestVersionCount`): submission 31, grade 3, httpapi 3, today 2, assignment 1 | PASS 40/40 |
+| Playwright desktop `unmatched assign` (đã kiểm dòng chữ), `unmatched dismiss` | xanh |
+| **Stack thật dựng lại từ `e7aeff77`**: một bài `UNMATCHED` (`khong-ma.md`), mở `/grading?tab=unmatched`, chọn bài tập + sinh viên `20229001` | hộp thoại hiện **"Sinh viên này đã có 1 phiên bản"** (ảnh `shots/p704-assign-versions-1440.png`) |
+| `GET …/assignments/{aid}/versions?student_id=` | TEACHER, TA `200 {"versions":n}`; ADMIN, STUDENT `403`; thiếu `student_id` `422`; sinh viên ngoài lớp `{"versions":0}` |
+| `openapi.yaml` `PresignInput.purpose` | `enum: [document, grade_import, submission_upload]` |
+
+BUG-P7-04-1 và BUG-P7-04-2 đã sửa; AC4 → **PASS**, các AC còn lại giữ PASS (không đổi mã nhập bài).

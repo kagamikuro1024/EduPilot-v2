@@ -1,4 +1,4 @@
-# QC report — US-P7-07 (hàng đợi chấm `ep:grading`) · Kết luận vòng 1: **FAIL** (AC5: thiếu `benchmarks/load/grading-vs-chat.js`, chưa đo TTFT qua gateway; 9/10 AC còn lại PASS)
+# QC report — US-P7-07 (hàng đợi chấm `ep:grading`) · Kết luận vòng 1: **FAIL** (AC5) → **vòng 2 (`e7aeff77`): FAIL** (vẫn chỉ AC5; BUG-P7-07-4) — xem mục 4
 Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (mã US-P7-07 không đổi từ `f5bbfa57`). Bộ TC: `tc-US-P7-07.md`. Handoff: `dev-US-P7-07.md`. CI `c487e4fa`: **success**.
 
 ## 1. Cổng đã chạy
@@ -30,3 +30,24 @@ Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (mã US-P7-07 không
 - **BUG-P7-07-3 (Thấp):** việc `grading.batch` mồ côi (không tự `SUCCEEDED`) nếu Redis mất ánh xạ lô sau 24 giờ hoặc `FLUSHALL` (dev tự ghi); các bài vẫn được chấm.
 - Chưa kiểm được trên stack: kill -9 giữa hai lượt, gia hạn thuê 100 s, Redis dừng 70 s — chỉ có test Go; cần provider giả có độ trễ cấu hình (US-S9-SEED).
 - Test cũ dev sửa: `course/share.go` câu `NOT_AVAILABLE` (PM yêu cầu; `share_test` sửa sau — #13 ACCEPTED), `contract_test.go` 263 → 266.
+
+## 4. Vòng 2 — `e7aeff77` (máy chủ `90bd69d0`, frontend `d10af653`) · Kết luận: **FAIL** (chỉ AC5)
+CI `e7aeff77`: **success**.
+
+| Lệnh | Kết quả |
+| --- | --- |
+| `p7-go-tests.sh` (28 tên cũ + `TestGradeAllProgressDetail`): grading 25, integration 4 | PASS 29/29 |
+| Playwright desktop `queue progress`, `queue default filter and flags`, `grading states`, `grading a11y` | xanh; axe 10 lượt, 0 lỗi |
+| `k6 inspect benchmarks/load/grading-vs-chat.js` | đọc được (rc 0) |
+| **`k6 run` thật trên stack seed** (QC dựng thêm 30 bài MATCHED cho một bài tập — lớp 1 chỉ có 30 sinh viên ACTIVE, **không dựng được 200 bài** như US yêu cầu): `PHASE=baseline` | 240 mẫu, `first_event_ms` p95 69 ms, `ttft_ms` p95 116 ms, `http_req_failed` 0 % — đạt |
+| `PHASE=grading` (`BASELINE_TTFT_MS=116`, `grade-all` giây 5, xếp 30 bài) | ngưỡng đạt: `first_event_ms` p95 24,6 ms (< 500), `ttft_ms` p95 42,4 ms (< 139), `grading_queued` 30, 228 mẫu; mọi dòng `llm_audit` task `GRADING` làn `BATCH`. **Nhưng** kịch bản ném `TypeError: Cannot read property 'sid' of undefined` ở `chatVU` (`grading-vs-chat.js:86`) trong vòng lặp không `sleep`: **≈ 2,19 triệu dòng lỗi (≈ 420 MB)** trong 40 s; ít nhất một luồng chat không chạy được |
+| `jobs.result` của lô chấm đang chạy | `{"done":0,"total":30,"failed":13}` (BUG-P7-07-2 đã sửa); xong → `{"failed":3,"graded":0,"flagged":0}` |
+
+| AC | Vòng 2 |
+| --- | --- |
+| AC1 tiến độ `{done, failed, total}`, "Đang chấm n/total" | PASS — `jobs.result` đúng dạng; `queue progress` xanh; không còn đếm theo `rows.length` |
+| **AC5 làn `BATCH`, chat không bị ảnh hưởng, `k6 run grading-vs-chat.js` đạt** | **FAIL** — lệnh `Kiểm:` chạy được nhưng (a) lỗi chỉ số luồng ở `PHASE=grading` (BUG-P7-07-4), (b) số đo ở 30 bài, chưa phải 200 bài (cần US-S9-SEED) |
+| AC2–AC4, AC6–AC10 | giữ PASS |
+
+- **BUG-P7-07-4 (Trung bình, AC5):** `chatVU` lấy `d.sessions[exec.vu.idInTest - 1]`; ở `PHASE=grading` có thêm kịch bản `grade` nên `idInTest` của luồng chat vượt 20 (nghi: VU của `grade` nhận id trước, lệch chỉ số) → `undefined` → ném lỗi liên tục, làm nhiễu số đo và đầy log. Đề nghị dùng `(exec.vu.idInTest - 1) % VUS` hoặc `exec.vu.idInScenario`, thêm `sleep` ngoài nhánh lỗi, rồi chạy lại ở 200 bài (US-S9-SEED).
+- BUG-P7-07-3 (việc `grading.batch` mồ côi khi Redis mất ánh xạ lô) vẫn là ghi nhận của dev, không đổi.
