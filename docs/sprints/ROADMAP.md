@@ -1,4 +1,4 @@
-# Lộ trình 11 sprint
+# Lộ trình 11 sprint (+ 1.5, 5.5, 9.5 chen giữa)
 
 Chủ dự án chốt 2026-10-01: toàn dự án = **10 sprint**; 2026-10-03 chèn **sprint 5 — PE Thi hằng tuần** (yêu cầu của thầy hướng dẫn, D54), các sprint sau lùi 1 → **11 sprint**. Sprint 1 đã xong và là `main` của repo mới `kagamikuro1024/EduPilot-v2` (public từ 2026-10-09; trước đó `TA_Agent_v2`). Mỗi sprint rộng hơn trước (1–2 phase), nhưng giữ nguyên thứ tự phụ thuộc của phase và cổng nghiệm thu của từng phase.
 
@@ -16,7 +16,8 @@ Phạm vi: P0 → P10 (vạch bảo vệ). **PR nằm ngoài đồ án** (D44). 
 | 6 | P3 Hai kênh + PII · P8 Tài liệu + Lịch | 2 + 1 | F3, F6, F13 | `gate P3`, `gate P8` | (#4 NER đã cắt bởi D46) |
 | 7 | P4 Escalation + Mail · P5 CRM + 360 | 1,5 + 1,5 | F4, F5, F7, F8 | `gate P4`, `gate P5` | #5 hàng đợi ghi cục bộ điểm danh; #6 phím tắt `/inbox` |
 | 8 | P6 Sổ điểm (gồm nối điểm bài thi PE vào `grade_items`) | 1,5 | F10 | `gate P6` (+ chủ dự án tự tính tay 3 SV) | – |
-| 9 | P7 Chấm bài | 3 | F9, F11 | `gate P7` | #1 kịch bản lỗi nâng cao mock-graph; #4b mock-graph |
+| 9 ✅ | P7 Chấm bài | 3 | F9, F11 | `gate P7` | #1 kịch bản lỗi nâng cao mock-graph; #4b mock-graph |
+| 9.5 | **Seed + yêu cầu phi chức năng + LLM thật** — chen giữa theo chủ dự án 2026-11-02. Trên VPS (netcup 12 vCPU / 32 GB, bản demo `https://v2202609419695521098.happysrv.de`): seed đầy đủ (gồm `seed-t1` 1.000 sinh viên); đo k6 / p95 / Lighthouse / thử tải T1 theo `SYSTEM_DESIGN.md` §5; đánh giá LLM thật Gemini 3.8 flash qua 9router (trích công thức, chấm tự luận, che danh tính, chat / Threads, chèn lệnh; `docs/sprints/ops-vps/prompts/tl-eval.md`); judge amd64 có seccomp; QC smoke trên bản demo | ≈ 1 | Chạy lại `DEMO_SCRIPT.md` trên VPS với LLM thật | báo cáo số đo NFR + `docs/research/…-real-llm-eval.md` | – |
 | 10 | P9 Luyện đề (dùng lại ngân hàng câu hỏi + Quiz Engine của PE) | 1 | F12 | `gate P9` | #2 `GenerateQuestions` + E5; #3 import Forms |
 | 11 | P10 Đánh giá + hoàn thiện (gồm **thống kê điểm thi PE** trên màn quan sát lớp — chủ dự án yêu cầu 2026-10-09) | 2,5 | F14–F17, F19; chạy lại `DEMO_SCRIPT.md` trọn 15 phút | `gate P10` → **vạch bảo vệ** | #7 xuất PDF; #8 k6 (d), chaos Redis |
 
