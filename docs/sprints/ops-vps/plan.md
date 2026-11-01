@@ -20,3 +20,17 @@
 2. **research (Tech Lead):** `prompts/tl-eval.md`: chuẩn bị bộ đo song song, chạy khi dev báo stack lên; báo cáo `docs/research/2026-11-01-real-llm-eval.md`.
 3. **qc:** smoke hộp đen trên URL công khai khi dev xong (`prompts/qc-smoke.md`).
 4. PM tổng hợp, báo chủ dự án; lỗi thật → dev sửa trên `ops/vps-deploy`, merge `main` khi CI xanh.
+
+## Thu hẹp phạm vi (chủ dự án, 2026-11-02)
+OPS-VPS chỉ còn ba việc:
+- seed chạy qua trên VPS;
+- chat dùng được (embedding Gemini, sinh chữ qua 9router);
+- trang giới thiệu (`prompts/dev-landing.md`).
+
+**Hoãn sang một sprint riêng "seed + yêu cầu phi chức năng":**
+- đánh giá LLM thật (`prompts/tl-eval.md`);
+- chấm hàng loạt BT03 trên LLM thật;
+- judge amd64 có seccomp;
+- `docker stats`;
+- k6 / Lighthouse / p95 / thử tải 1.000 sinh viên;
+- QC smoke đầy đủ.
