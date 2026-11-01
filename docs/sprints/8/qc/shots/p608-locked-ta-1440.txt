@@ -1,0 +1,60 @@
+inputs=0 menu=[Lịch sử chốt] officialNote=1 chotDiemBtn=0 khacBanChot=0 scroll=1440,1440
+---
+Sổ điểm
+Đã chốt v2 · 10:00 30-10
+Xem công thức
+Bảng điểm của lớp
+Sinh viên	
+Kiểm tra tuần
+Chưa công bố
+	
+Thi cuối kỳ
+Chưa công bố
+	
+Bài thi giữa kỳ
+Bài thi
+	Điểm cộng	Điểm trừ	Quá trình	Điểm học phần	Điểm chữ	Trạng thái	
+Hành động
+
+
+Sinh Viên 0001
+B22DCCN101
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0002
+B22DCCN102
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0003
+B22DCCN103
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0004
+B22DCCN104
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0005
+B22DCCN105
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0006
+B22DCCN106
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0007
+B22DCCN107
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0008
+B22DCCN108
+	—	—	—	0	0	—	—	—	Đã chốt v2	
+
+
+Sinh Viên 0

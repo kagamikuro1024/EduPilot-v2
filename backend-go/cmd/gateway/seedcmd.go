@@ -24,10 +24,10 @@ var seedEnvs = []string{"dev", "test"} //nolint:gochecknoglobals // danh sách c
 
 // isSeedCmd: tên lệnh con thuộc nhóm seed.
 func isSeedCmd(name string) bool {
-	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat"
+	return name == "seed-study-time" || name == "seed-age" || name == "crm-risk-run" || name == "seed-chat" || name == "seed-activity"
 }
 
-// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
+// runSeedCmd chạy `gateway admin seed-study-time|seed-age|crm-risk-run|seed-chat|seed-activity`. Mã thoát: 0 xong (in số dòng đã đổi), 1 lỗi hoặc môi trường không được phép, 2 dùng sai lệnh.
 func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdout, stderr io.Writer) int {
 	name := args[0]
 	fail := func(code int, msg string) int {
@@ -79,9 +79,9 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, "không đọc được hồ sơ: "+err.Error())
 		}
 		body = raw
-	case "seed-chat":
+	case "seed-chat", "seed-activity":
 		if *chatPlan != "-" {
-			return fail(2, "seed-chat chỉ nhận --plan - (JSON qua stdin).")
+			return fail(2, name+" chỉ nhận --plan - (JSON qua stdin).")
 		}
 		raw, err := io.ReadAll(io.LimitReader(stdin, 4<<20))
 		if err != nil {
@@ -132,6 +132,16 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 			return fail(1, err.Error())
 		}
 		_, _ = fmt.Fprintf(stdout, "seed-chat: %d tin\n", n)
+	case "seed-activity":
+		p, err := seedtool.ParseActivityPlan(body)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		n, err := seedtool.PlaceActivity(ctx, pool, cid, p, clk)
+		if err != nil {
+			return fail(1, err.Error())
+		}
+		_, _ = fmt.Fprintf(stdout, "seed-activity: %d dòng\n", n)
 	case "seed-age":
 		var n int64
 		if *tickets {

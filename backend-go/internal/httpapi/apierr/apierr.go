@@ -119,6 +119,28 @@ const (
 	NotEnoughData    = "NOT_ENOUGH_DATA"
 	OutreachLimit    = "OUTREACH_LIMIT"
 	StudentNotActive = "STUDENT_NOT_ACTIVE"
+
+	// Sổ điểm, công thức điểm (FEAT-gradebook SRS 6.4).
+	SchemeNotConfirmed = "SCHEME_NOT_CONFIRMED"
+	SchemeHasUnclear   = "SCHEME_HAS_UNCLEAR"
+	SchemeNotDraft     = "SCHEME_NOT_DRAFT"
+	NoDraft            = "NO_DRAFT"
+	DraftExists        = "DRAFT_EXISTS"
+	DocumentNotPolicy  = "DOCUMENT_NOT_POLICY"
+	PolicyTooLong      = "POLICY_TOO_LONG"
+	GradebookLocked    = "GRADEBOOK_LOCKED"
+	GradesIncomplete   = "GRADES_INCOMPLETE"
+	NotLocked          = "NOT_LOCKED"
+	ItemNotEditable    = "ITEM_NOT_EDITABLE"
+	ItemNotPublishable = "ITEM_NOT_PUBLISHABLE"
+	ScoreOutOfRange    = "SCORE_OUT_OF_RANGE"
+	ScorePrecision     = "SCORE_PRECISION"
+	ImportHasErrors    = "IMPORT_HAS_ERRORS"
+	FileInvalid        = "FILE_INVALID"
+	TooManyRows        = "TOO_MANY_ROWS"
+	NotEnoughGrades    = "NOT_ENOUGH_GRADES"
+	FinalAlreadyLocked = "FINAL_ALREADY_LOCKED"
+	ExtractionInvalid  = "EXTRACTION_INVALID"
 )
 
 // Error là một lỗi API. Status + Code + Message bắt buộc; Details/RetryAfter tuỳ chọn.
@@ -367,6 +389,46 @@ func DefaultMessage(code string) string {
 		return "Đã nhắn sinh viên này đủ số tin tối đa hôm nay."
 	case StudentNotActive:
 		return "Sinh viên không còn trong lớp."
+	case SchemeNotConfirmed:
+		return "Lớp chưa có công thức điểm đã xác nhận."
+	case SchemeHasUnclear:
+		return "Công thức còn mục chưa rõ."
+	case SchemeNotDraft:
+		return "Chỉ sửa được bản nháp của công thức."
+	case NoDraft:
+		return "Lớp chưa có bản nháp công thức."
+	case DraftExists:
+		return "Đã có bản nháp công thức do người dùng chỉnh sửa."
+	case DocumentNotPolicy:
+		return "Tài liệu này không phải quy chế môn học."
+	case PolicyTooLong:
+		return "Quy chế quá dài để trích công thức."
+	case GradebookLocked:
+		return "Sổ điểm đã chốt."
+	case GradesIncomplete:
+		return "Còn sinh viên thiếu điểm."
+	case NotLocked:
+		return "Sổ điểm chưa chốt."
+	case ItemNotEditable:
+		return "Điểm lấy từ bài thi, sửa ở bài thi."
+	case ItemNotPublishable:
+		return "Cột này không công bố riêng được."
+	case ScoreOutOfRange:
+		return "Điểm ngoài thang của cột."
+	case ScorePrecision:
+		return "Điểm có quá 2 chữ số thập phân."
+	case ImportHasErrors:
+		return "Tệp còn dòng lỗi."
+	case FileInvalid:
+		return "Tệp không đọc được."
+	case TooManyRows:
+		return "Tệp có quá nhiều dòng."
+	case NotEnoughGrades:
+		return "Chưa đủ điểm thành phần để tính thử."
+	case FinalAlreadyLocked:
+		return "Điểm học phần đã chốt."
+	case ExtractionInvalid:
+		return "Không đọc được công thức từ quy chế."
 	default:
 		return "Đã xảy ra lỗi. Hãy thử lại sau."
 	}

@@ -1,0 +1,75 @@
+package grade_test
+
+// QC probe (proposal #25, TC-P6-07-25): đua `Import commit` ↔ `Finalize`. Chép vào backend-go/internal/grade/ khi chạy, xoá sau.
+// Bất biến: nhập thành công trước chốt → snapshot có điểm mới; nhập bị GRADEBOOK_LOCKED → snapshot giữ điểm cũ. Không có trạng thái nửa vời.
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"fmt"
+	"sync"
+	"testing"
+
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/require"
+	"github.com/xuri/excelize/v2"
+
+	"github.com/edupilot/backend-go/internal/grade"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
+	"github.com/edupilot/backend-go/internal/testutil"
+)
+
+func TestQCImportVsFinalizeRace(t *testing.T) {
+	rdb, err := appredis.New(t.Context(), testutil.RedisURL(t))
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = rdb.Close() })
+	lockedN, okN := 0, 0
+	for range 25 {
+		r := newFinRig(t, 3)
+		f := excelize.NewFile()
+		for i, row := range [][]any{{"MSSV", "Họ tên", "Điểm"}, {"20220001", "x", 10}} {
+			cell, _ := excelize.CoordinatesToCellName(1, i+1)
+			require.NoError(t, f.SetSheetRow("Sheet1", cell, &row))
+		}
+		var b bytes.Buffer
+		require.NoError(t, f.Write(&b))
+		_ = f.Close()
+		data := b.Bytes()
+		blob := memBlob{}
+		id := uuid.New()
+		key := fmt.Sprintf("courses/%s/grade-imports/%s/f.xlsx", r.course, id)
+		blob[key] = data
+		sum := sha256.Sum256(data)
+		require.NoError(t, rdb.HSet(r.ctx, appredis.Key("upload", id.String()), map[string]any{"user_id": r.gv.String(), "course_id": r.course.String(), "blob_key": key, "sha256": hex.EncodeToString(sum[:]), "purpose": "grade_import"}).Err())
+		svc := &grade.Service{Pool: r.pool, Redis: rdb, Blob: blob}
+		var wg sync.WaitGroup
+		var impErr, finErr error
+		wg.Add(2)
+		go func() { defer wg.Done(); _, finErr = r.finalize() }()
+		go func() {
+			defer wg.Done()
+			_, impErr = svc.Import(r.ctx, r.gv, r.course, grade.ImportInput{UploadID: id, ItemID: r.items["final"], Mode: "commit", Mapping: grade.ImportMapping{HeaderRow: 1, StudentCodeCol: "A", ScoreCol: "C"}})
+		}()
+		wg.Wait()
+		require.NoError(t, finErr)
+		var bd string
+		r.one(&bd, `select breakdown::text from final_grade_snapshots where course_id = $1 and student_id = $2 and version = 1`, r.course, r.students[0])
+		var sb grade.SnapBreakdown
+		require.NoError(t, json.Unmarshal([]byte(bd), &sb))
+		var live string
+		r.one(&live, `select score::text from grade_entries where item_id = $1 and student_id = $2`, r.items["final"], r.students[0])
+		if impErr == nil {
+			okN++
+			require.Equal(t, "10", sb.Items["final"], "nhập thành công trước chốt phải có trong snapshot")
+			require.Equal(t, "10.00", live)
+		} else {
+			lockedN++
+			_, code := apiCode(t, impErr)
+			require.Equal(t, "GRADEBOOK_LOCKED", code)
+			require.Equal(t, "6", sb.Items["final"])
+			require.Equal(t, "6.00", live)
+		}
+	}
+	t.Logf("nhập trước chốt: %d lần; nhập bị khoá: %d lần", okN, lockedN)
+}

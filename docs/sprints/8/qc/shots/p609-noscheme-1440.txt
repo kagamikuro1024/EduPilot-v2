@@ -1,0 +1,5 @@
+BAD=false dotDecimals=[] scroll=1440,1440 officialNote=0 whatIfInput=0
+---
+Điểm
+
+Lớp chưa có công thức điểm chính thức.

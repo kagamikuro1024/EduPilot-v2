@@ -430,3 +430,13 @@ func TestDeleteDocumentNullsChatSessions(t *testing.T) {
 	require.NoError(t, f.svc.Delete(t.Context(), f.teacher, f.course, id, ""))
 	require.Equal(t, 1, f.count(t, `select count(*) from chat_sessions where id=$1 and document_id is null`, sid))
 }
+
+// US-P6-04: `GET …/documents/{id}` của Staff có `preview_url` ký sẵn (inline) cho PDF; tài liệu chia sẻ từ lớp khác không có (không ký tệp của lớp khác).
+func TestGetDocumentPreviewURL(t *testing.T) {
+	f := newFx(t)
+	id := f.doc(t, f.course, "quy-che", "COURSE_POLICY", true, true, 1)
+	r := f.get(t, f.course, id)
+	require.NotNil(t, r.PreviewURL)
+	require.Contains(t, *r.PreviewURL, "X-Amz-Signature")
+	require.Contains(t, *r.PreviewURL, "inline")
+}

@@ -284,7 +284,7 @@ func TestSettingsRiskVersion(t *testing.T) {
 	require.Contains(t, r.scalar(`select before::text || after::text from audit_log where course_id = $1 and action = 'course_risk_updated'`, w.course), `"absent_alert": 4`)
 }
 
-// TestRiskDefaultsWhenUnset: chưa đặt → 0,70 / 1 / 60 / 2 / 3; đặt một trường giữ nguyên bốn trường còn lại.
+// TestRiskDefaultsWhenUnset: chưa đặt → 0,70 / 1 / 60 / 2 / 3 và điểm quá trình thấp < 5,0; đặt một trường giữ nguyên bốn trường còn lại.
 func TestRiskDefaultsWhenUnset(t *testing.T) {
 	r := newRig(t)
 	w := r.world(0)
@@ -293,7 +293,7 @@ func TestRiskDefaultsWhenUnset(t *testing.T) {
 		require.Equal(t, http.StatusOK, res.code, string(res.body))
 		return res.json()["settings"].(map[string]any)["risk"].(map[string]any)
 	}
-	require.Equal(t, map[string]any{"attendance_ok_min": "0.70", "activity_min_per_week": float64(1), "study_min_minutes": float64(60), "signals_required": float64(2), "absent_alert": float64(3)}, get())
+	require.Equal(t, map[string]any{"attendance_ok_min": "0.70", "activity_min_per_week": float64(1), "study_min_minutes": float64(60), "signals_required": float64(2), "absent_alert": float64(3), "grade_low_below": "5.0"}, get()) // #5: khoá mới của tín hiệu GRADE
 	require.Equal(t, http.StatusOK, w.putRisk(w.T, w.version(), map[string]any{"study_min_minutes": 90}).code)
 	got := get()
 	require.Equal(t, float64(90), got["study_min_minutes"])

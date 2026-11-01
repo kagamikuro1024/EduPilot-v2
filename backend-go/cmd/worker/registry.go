@@ -10,6 +10,8 @@ import (
 	"github.com/edupilot/backend-go/internal/crm"
 	"github.com/edupilot/backend-go/internal/escalation"
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/grade"
+	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/sse"
 	"github.com/edupilot/backend-go/internal/ingest"
 	"github.com/edupilot/backend-go/internal/jobs"
@@ -37,7 +39,8 @@ func newRegistry(d Deps) *outbox.Registry {
 	runner := jobs.NewRunner(d.DB, pub, clock.Real{}, d.Log)
 	reg.Register(jobs.TopicEnqueue, runner.HandleMessage)
 	ew := &exam.Worker{Pool: d.DB, Svc: &exam.Service{Pool: d.DB, Blob: d.Blob, Integrity: exam.IntegrityConfig{SimilarityMinPermille: d.Cfg.SimilarityMinPermille, SimilarityCapPermille: d.Cfg.SimilarityCapPermille}}, Sandbox: d.Sandbox, LLM: d.LLM, Log: d.Log}
-	ew.Register(runner) // code.verify_reference, question.suggest (US-PE-03)
+	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
+	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
 	// Sự kiện chưa có bên tiêu thụ ở sprint 6 (P4 thông báo gộp, P10 cảnh báo ngân sách): vẫn PHẢI có handler ghi nhận — thiếu thì tin dead-letter sau 4 lần (TestEveryEmittedTopicHasHandler).
 	ack := func(context.Context, outbox.Message) error { return nil }
 	reg.Register(budget.TopicWarn, ack)
@@ -70,9 +73,11 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicHidden, outbox.Chain(tn.HandleHidden, inv.Handle))
 	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
 	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
-	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                            // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
-	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged) // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó
-	reg.Register(crm.TopicAttendanceSaved, inv.Handle)                                                                        // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
+	reg.Register(grade.TopicFinalized, (&grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}).HandleFinalized) // US-P6-08: chốt điểm → GRADE_FINALIZED / GRADE_CHANGED (chỉ chuông)
+	reg.Register(grade.TopicSchemeConfirmed, inv.Handle)                                                                          // US-P6-05: xác nhận công thức → GRADE_SCHEME_UNCONFIRMED biến mất
+	reg.Register(crm.TopicRiskUpdated, inv.Handle)                                                                                // US-P5-04: job at-risk xong → STUDENT_ATTENTION + khối attention của Hôm nay (≤ 60 s)
+	reg.Register(crm.TopicSettingsChanged, (&crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleSettingsChanged)     // US-P5-04: đổi ngưỡng → tính lại riêng lớp đó
+	reg.Register(crm.TopicAttendanceSaved, inv.Handle)                                                                            // US-P5-02: lưu điểm danh → mục SESSION_UNMARKED của Hôm nay biến mất ≤ 60 s
 	// Escalation (US-P4-01/02): ticket mới → đếm lại + gộp thông báo TICKET_NEW (SSE tới chuông) rồi xoá cache "Hôm nay". Thư nối chuỗi ở US-P4-04.
 	esc := &escalation.Notifier{Pool: d.DB, Notify: nt, Log: d.Log, Gate: escalation.MailGate{Redis: d.Redis, Clock: clock.Real{}, Window: d.Cfg.MailTicketNewCoalesce}, Clock: clock.Real{}}
 	reg.Register(escalation.TopicCreated, outbox.Chain(esc.HandleCreated, inv.Handle))
@@ -91,7 +96,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	// Tài liệu (US-P8-01): đổi / xoá → tăng ep:rag:ver:{course}; việc đọc dài chạy ở consumer ep:ingest riêng nên không làm trễ việc này.
 	bump := rag.BumpVersion(d.Redis)
-	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump))
+	reg.Register(ingest.TopicDocumentChanged, outbox.Chain(inv.Handle, bump, (&grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}).HandleDocumentChanged)) // US-P6-05: tài liệu đổi → tính lại số mục chưa rõ của bản nháp (#16)
 	reg.Register("document.deleted", bump)
 	ks := &knowledge.Syncer{Pool: d.DB, Embed: agent.NewEmbedder(d.LLM, d.Redis), Timeout: d.Cfg.KnowledgeEmbedTimeout}
 	reg.Register(knowledge.TopicSync, ks.Handle) // US-P4-05: nhúng đoạn tri thức (một Embed, ngoài Chain) → document.changed

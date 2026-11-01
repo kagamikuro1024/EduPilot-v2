@@ -5,7 +5,7 @@
  * không lớn hơn chữ đã vẽ. QUY TẮC LCP (AC8): ứng viên LCP đầu tiên phải là khối chữ LỚN NHẤT mà màn sẽ có sau phiên — chữ nào xuất hiện sau
  * phiên mà lớn hơn sẽ thành ứng viên mới và kéo LCP về lúc có phiên. Kiểm bằng e2e `lcp before refresh`.
  */
-export type RouteIntro = { title: string; description: string; width?: "reading" | "wide" | "full"; body?: string };
+export type RouteIntro = { title: string; description?: string; width?: "reading" | "wide" | "full"; body?: string };
 
 const CLASS_LABEL = "An ninh mạng – 761987"; // cùng dạng `course.label` của lớp mẫu
 
@@ -16,7 +16,6 @@ export const INBOX_INTRO = {
 
 export const LLM_INTRO = {
   title: "Cấu hình LLM",
-  description: "Tác vụ nào chạy bằng mô hình nào, hỏng thì chuyển sang đâu, và tiêu bao nhiêu tiền.",
 } as const;
 
 const INTROS: Record<string, RouteIntro> = {

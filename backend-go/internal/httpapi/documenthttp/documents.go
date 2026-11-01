@@ -77,12 +77,19 @@ func (h *Handler) presign(w http.ResponseWriter, r *http.Request) {
 	if !httpx.DecodeJSON(w, r, &in) {
 		return
 	}
-	out, err := h.Svc.Presign(r.Context(), x.actor, x.course, in)
-	if err != nil {
-		h.fail(w, r, err)
+	issue := func(w http.ResponseWriter, r *http.Request) {
+		out, err := h.Svc.Presign(r.Context(), x.actor, x.course, in)
+		if err != nil {
+			h.fail(w, r, err)
+			return
+		}
+		httpx.WriteJSON(w, http.StatusOK, out)
+	}
+	if in.Purpose == document.PurposeGradeImport { // nhập điểm chỉ TEACHER (TA → 403)
+		h.Guard(auth.TeacherRole)(http.HandlerFunc(issue)).ServeHTTP(w, r)
 		return
 	}
-	httpx.WriteJSON(w, http.StatusOK, out)
+	issue(w, r)
 }
 
 func (h *Handler) complete(w http.ResponseWriter, r *http.Request) {

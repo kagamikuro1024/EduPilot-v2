@@ -17,6 +17,9 @@ var ErrToolNotRegistered = errors.New("agent: tool chưa đăng ký ở kênh n�
 // Facts là dữ kiện tool trả (đưa vào lời nhắc trong khối rào; qua hook che ở internal/llm).
 type Facts map[string]any
 
+// ErrNoScheme: lớp chưa có công thức điểm do giảng viên xác nhận. GradeSource trả lỗi này thì tool nói câu mẫu ReplyNoFormula, không phải "chưa có dữ liệu điểm" (US-P6-05 AC7).
+var ErrNoScheme = errors.New("agent: lớp chưa có công thức điểm đã xác nhận")
+
 // Block là khối dữ liệu có cấu trúc cho giao diện (sự kiện SSE `block`).
 type Block struct {
 	Kind string `json:"kind"`
@@ -247,12 +250,22 @@ func (t gradeTool) Run(ctx context.Context, tc TrustedContext, _ json.RawMessage
 		return Result{NoData: true}, nil
 	}
 	f, ok, err := t.Src.Summary(ctx, tc)
+	if errors.Is(err, ErrNoScheme) {
+		return Result{NoData: true, Message: ReplyNoFormula}, nil
+	}
 	return result("grade_summary", f, ok, err)
 }
 
 // WhatIfArgs là tham số của what_if_final_grade: giả định theo thành phần. Điểm là decimal (luật 5: cấm float64 cho điểm).
 type WhatIfArgs struct {
 	Assumed map[string]decimal.Decimal `json:"assumed"`
+	// TargetLetter: điểm chữ mong muốn ("B") → điểm cuối kỳ tối thiểu. Không có id nào trong tham số của tool (luật 2).
+	TargetLetter string `json:"target_letter"`
+}
+
+// LetterGradeSource: nguồn có thể tính điểm cuối kỳ tối thiểu cho một điểm chữ mục tiêu (cài đặt tuỳ chọn của GradeSource).
+type LetterGradeSource interface {
+	MinFinal(ctx context.Context, tc TrustedContext, letter string) (Facts, bool, error)
 }
 
 type whatIfTool struct {
@@ -269,10 +282,20 @@ func (t whatIfTool) Run(ctx context.Context, tc TrustedContext, raw json.RawMess
 	if err != nil {
 		return Result{}, err
 	}
+	if ls, okLS := t.Src.(LetterGradeSource); okLS && a.TargetLetter != "" && len(a.Assumed) == 0 {
+		f, ok, err := ls.MinFinal(ctx, tc, a.TargetLetter)
+		if errors.Is(err, ErrNoScheme) {
+			return Result{NoData: true, Message: ReplyNoFormula}, nil
+		}
+		return result("what_if", f, ok, err)
+	}
 	if t.Src == nil || len(a.Assumed) == 0 {
 		return Result{NoData: true}, nil
 	}
 	f, ok, err := t.Src.WhatIf(ctx, tc, a.Assumed)
+	if errors.Is(err, ErrNoScheme) {
+		return Result{NoData: true, Message: ReplyNoFormula}, nil
+	}
 	return result("what_if", f, ok, err)
 }
 

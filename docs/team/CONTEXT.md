@@ -10,7 +10,7 @@ Người dùng: sinh viên (chủ yếu điện thoại), trợ giảng và gi�
 ## 2. Đang ở đâu
 - Repo: `github.com/kagamikuro1024/EduPilot-v2` (public, 2026-10-09). Repo cũ `TA_Agent_v2` đã bỏ: **không push lên đó, không push nhánh có lịch sử cũ** (lịch sử cũ chứa secret của Project III).
 - Lộ trình 11 sprint + 1.5 + 5.5: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
-- **Việc hiện tại:** sprint 7 (P4 + P5) xong, cổng P4 và P5 ĐẠT, chờ chủ dự án chốt để merge; kế tiếp sprint 8 (P6). `main` = sprint 1 → 6. Worktree: dev `../TA_Agent_v2-s7`, PM `../TA_Agent_v2-s6` (detached), BA `/tmp/ba-wt`; không làm trong worktree của vai khác.
+- **Việc hiện tại:** sprint 8 (P6 Sổ điểm và điểm cuối kỳ từ quy chế), nhánh `sprint/8-p6`, kế hoạch `docs/sprints/8/plan.md`. `main` = sprint 1 → 7. Worktree: dev `../TA_Agent_v2-s7`, PM `../TA_Agent_v2-s6` (detached), BA `/tmp/ba-wt`, QC `../TA_Agent_qc5`; không làm trong worktree của vai khác. Sprint 8 thay mock của `/gradebook`, `/gradebook/scheme`.
 - Prototype sprint 1.5 là MOCK (D51): màn mock được thay dần bằng màn thật; spec thật ở `docs/specs/<FEAT>/` thắng spec prototype `docs/sprints/1.5/spec/`. Sprint 7 thay mock của `/inbox`, `/attendance`, `/students`, `/students/[id]`, `/me`.
 
 ## 3. Đã chốt — không mở lại
@@ -37,7 +37,7 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 ## 5. Mỗi vai đọc gì cho việc hiện tại
 | Vai | Đọc |
 | --- | --- |
-| ba | `docs/sprints/7/plan.md`, `docs/phases/P4.md` / `P5.md`, `docs/PRD.md` (M2, M3, M5, M6, M13-C), `docs/FLOWS.md` F4, F5, F7, F8, `docs/design/DESIGN.md` (§13 lời văn, §14.5 / §14.7 / §14.8 / §14.9), `docs/UX.md` mục 1, 5 |
+| ba | `docs/sprints/8/plan.md`, `docs/phases/P6.md`, `docs/PRD.md` M7, `docs/FLOWS.md` F10, `docs/DEMO_SCRIPT.md` bước 6, `docs/design/DESIGN.md` (§13 lời văn, §14.11 sổ điểm / công thức), `docs/UX.md` |
 | dev | spec `docs/specs/<FEAT>/`, `docs/design/DESIGN.md`, `docs/UX.md`, `docs/ARCHITECTURE.md`, `docs/SYSTEM_DESIGN.md`, nền ở `frontend/src/shared/` |
 | qc | spec `docs/specs/<FEAT>/`, `docs/design/DESIGN.md` §21–§22, `docs/UX.md` mục 6, `docs/FLOWS.md` (nhánh lỗi) |
 

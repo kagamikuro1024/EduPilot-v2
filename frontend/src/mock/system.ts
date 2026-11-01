@@ -165,7 +165,6 @@ export const STATUS_LABEL: Record<RequestStatus, string> = { ok: "Xong", fallbac
 export type Integration = {
   id: string;
   name: string;
-  purpose: string;
   state: "connected" | "unset" | "waiting";
   stateText: string;
   fields: Array<{ term: string; value: string }>;
@@ -178,12 +177,12 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: "mail",
     name: "Thư đi (SMTP)",
-    purpose: "Gửi thư mời giảng viên, thông báo điểm và nhắc hạn nộp.",
     state: "connected",
-    stateText: "Đã kết nối · kiểm gần nhất 08:55 hôm nay",
+    stateText: "Đã kết nối",
     fields: [
       { term: "Máy chủ", value: "smtp.ptit.edu.vn:587 (STARTTLS)" },
       { term: "Địa chỉ gửi", value: "no-reply@edupilot.test" },
+      { term: "Kiểm gần nhất", value: "08:55 hôm nay" },
       { term: "Thư đã gửi 7 ngày", value: "214 · hỏng 0" },
     ],
     actionLabel: "Gửi thư thử",
@@ -192,7 +191,6 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: "imap",
     name: "Thư đến (IMAP)",
-    purpose: "Nhận bài nộp sinh viên gửi qua email và tự khớp vào đúng bài tập.",
     state: "unset",
     stateText: "Chưa cấu hình",
     fields: [
@@ -209,9 +207,8 @@ export const INTEGRATIONS: Integration[] = [
   {
     id: "teams",
     name: "Microsoft Teams",
-    purpose: "Đồng bộ lịch buổi học và gửi thông báo vào kênh lớp.",
     state: "waiting",
-    stateText: "Chờ quản trị viên của trường đồng ý",
+    stateText: "Chờ duyệt",
     fields: [
       { term: "Tổ chức", value: "ptit.edu.vn" },
       { term: "Yêu cầu đã gửi", value: "27/10, 14:20" },

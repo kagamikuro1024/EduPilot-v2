@@ -292,3 +292,29 @@ test("attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồ
   expect(api.puts().filter((c) => bodyOf(c).complete)).toHaveLength(1);
   expect(students().length).toBe(30);
 });
+
+// US-P6-05 AC4: công thức chưa xác nhận → MỘT dòng mỏng trên bảng + `Xem công thức`; không chặn điểm danh; CONFIRMED không hiện.
+for (const [state, shown] of [["NO_POLICY", true], ["DRAFT_READY", true], ["CONFIRMED", false]] as const) {
+  test(`attendance notice: công thức ${state} ${shown ? "hiện dòng nhắc" : "không có dòng nhắc"}`, async ({ page, context }, info) => {
+    desktopOnly(info);
+    await asDemo(context, "teacher");
+    await page.clock.setFixedTime(NOW);
+    const api = await attApi(page);
+    await page.route("**/api/v1/courses/*/grade-scheme/status", (r) =>
+      r.fulfill(json({ state, unclear_count: 0, has_policy: state !== "NO_POLICY", pending_draft: false, gradebook: { status: "OPEN", snapshot_version: 0 } })));
+    await page.goto("/attendance");
+    await expect(page.locator("[data-part=student-row]")).toHaveCount(30);
+    const notice = page.getByText("Công thức điểm chưa xác nhận", { exact: true });
+    if (!shown) {
+      await expect(notice).toHaveCount(0);
+      return;
+    }
+    await expect(notice).toHaveCount(1);
+    await expect(page.getByRole("link", { name: "Xem công thức" })).toHaveAttribute("href", `/gradebook/scheme?course=${COURSE}`);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    await page.getByLabel(/Bảng điểm danh/).focus();
+    await page.keyboard.press("4"); // vẫn điểm danh được
+    await expect(radio(page, 1, "Vắng")).toBeChecked();
+    expect(api).toBeTruthy();
+  });
+}

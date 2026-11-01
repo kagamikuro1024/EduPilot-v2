@@ -926,6 +926,266 @@ func (ns NullExamStatus) Value() (driver.Value, error) {
 	return string(ns.ExamStatus), nil
 }
 
+type GradeEntrySource string
+
+const (
+	GradeEntrySourceMANUAL   GradeEntrySource = "MANUAL"
+	GradeEntrySourceAIGRADED GradeEntrySource = "AI_GRADED"
+	GradeEntrySourceQUIZ     GradeEntrySource = "QUIZ"
+	GradeEntrySourceIMPORT   GradeEntrySource = "IMPORT"
+)
+
+func (e *GradeEntrySource) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GradeEntrySource(s)
+	case string:
+		*e = GradeEntrySource(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GradeEntrySource: %T", src)
+	}
+	return nil
+}
+
+type NullGradeEntrySource struct {
+	GradeEntrySource GradeEntrySource
+	Valid            bool // Valid is true if GradeEntrySource is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGradeEntrySource) Scan(value interface{}) error {
+	if value == nil {
+		ns.GradeEntrySource, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GradeEntrySource.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGradeEntrySource) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GradeEntrySource), nil
+}
+
+type GradeGroup string
+
+const (
+	GradeGroupQT GradeGroup = "QT"
+	GradeGroupCK GradeGroup = "CK"
+)
+
+func (e *GradeGroup) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GradeGroup(s)
+	case string:
+		*e = GradeGroup(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GradeGroup: %T", src)
+	}
+	return nil
+}
+
+type NullGradeGroup struct {
+	GradeGroup GradeGroup
+	Valid      bool // Valid is true if GradeGroup is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGradeGroup) Scan(value interface{}) error {
+	if value == nil {
+		ns.GradeGroup, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GradeGroup.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGradeGroup) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GradeGroup), nil
+}
+
+type GradeItemSource string
+
+const (
+	GradeItemSourceMANUAL     GradeItemSource = "MANUAL"
+	GradeItemSourceEXAM       GradeItemSource = "EXAM"
+	GradeItemSourceASSIGNMENT GradeItemSource = "ASSIGNMENT"
+)
+
+func (e *GradeItemSource) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GradeItemSource(s)
+	case string:
+		*e = GradeItemSource(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GradeItemSource: %T", src)
+	}
+	return nil
+}
+
+type NullGradeItemSource struct {
+	GradeItemSource GradeItemSource
+	Valid           bool // Valid is true if GradeItemSource is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGradeItemSource) Scan(value interface{}) error {
+	if value == nil {
+		ns.GradeItemSource, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GradeItemSource.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGradeItemSource) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GradeItemSource), nil
+}
+
+type GradeRuleKind string
+
+const (
+	GradeRuleKindBONUS         GradeRuleKind = "BONUS"
+	GradeRuleKindPENALTY       GradeRuleKind = "PENALTY"
+	GradeRuleKindROUNDING      GradeRuleKind = "ROUNDING"
+	GradeRuleKindFAILCONDITION GradeRuleKind = "FAIL_CONDITION"
+	GradeRuleKindLETTERSCALE   GradeRuleKind = "LETTER_SCALE"
+	GradeRuleKindMISSINGSCORE  GradeRuleKind = "MISSING_SCORE"
+)
+
+func (e *GradeRuleKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GradeRuleKind(s)
+	case string:
+		*e = GradeRuleKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GradeRuleKind: %T", src)
+	}
+	return nil
+}
+
+type NullGradeRuleKind struct {
+	GradeRuleKind GradeRuleKind
+	Valid         bool // Valid is true if GradeRuleKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGradeRuleKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.GradeRuleKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GradeRuleKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGradeRuleKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GradeRuleKind), nil
+}
+
+type GradeSchemeStatus string
+
+const (
+	GradeSchemeStatusDRAFT      GradeSchemeStatus = "DRAFT"
+	GradeSchemeStatusCONFIRMED  GradeSchemeStatus = "CONFIRMED"
+	GradeSchemeStatusSUPERSEDED GradeSchemeStatus = "SUPERSEDED"
+)
+
+func (e *GradeSchemeStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GradeSchemeStatus(s)
+	case string:
+		*e = GradeSchemeStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GradeSchemeStatus: %T", src)
+	}
+	return nil
+}
+
+type NullGradeSchemeStatus struct {
+	GradeSchemeStatus GradeSchemeStatus
+	Valid             bool // Valid is true if GradeSchemeStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGradeSchemeStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.GradeSchemeStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GradeSchemeStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGradeSchemeStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GradeSchemeStatus), nil
+}
+
+type GradebookStatus string
+
+const (
+	GradebookStatusOPEN   GradebookStatus = "OPEN"
+	GradebookStatusLOCKED GradebookStatus = "LOCKED"
+)
+
+func (e *GradebookStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = GradebookStatus(s)
+	case string:
+		*e = GradebookStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for GradebookStatus: %T", src)
+	}
+	return nil
+}
+
+type NullGradebookStatus struct {
+	GradebookStatus GradebookStatus
+	Valid           bool // Valid is true if GradebookStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullGradebookStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.GradebookStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.GradebookStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullGradebookStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.GradebookStatus), nil
+}
+
 type JobStatus string
 
 const (
@@ -2629,6 +2889,22 @@ type ExamItem struct {
 	UpdatedAt  time.Time
 }
 
+type FinalGradeSnapshot struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	StudentID    uuid.UUID
+	Version      int32
+	SchemeID     uuid.UUID
+	Breakdown    json.RawMessage
+	NumericGrade decimal.Decimal
+	Letter       string
+	FailedReason *string
+	LockedAt     time.Time
+	LockedBy     uuid.UUID
+	UnlockReason *string
+	CreatedAt    time.Time
+}
+
 type ForumPost struct {
 	ID                uuid.UUID
 	CourseID          uuid.UUID
@@ -2677,6 +2953,95 @@ type ForumThread struct {
 	HiddenReason   *string
 	HiddenBy       *uuid.UUID
 	EditedAt       *time.Time
+}
+
+type GradeComponent struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	SchemeID     uuid.UUID
+	Key          string
+	Name         string
+	Grp          GradeGroup
+	Weight       decimal.Decimal
+	Position     int32
+	Citations    json.RawMessage
+	FilledByUser bool
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type GradeEntry struct {
+	ID        uuid.UUID
+	CourseID  uuid.UUID
+	ItemID    uuid.UUID
+	StudentID uuid.UUID
+	Score     decimal.Decimal
+	Source    GradeEntrySource
+	Version   int32
+	EnteredBy uuid.UUID
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+type GradeItem struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	SchemeID     uuid.UUID
+	ComponentID  uuid.UUID
+	Key          string
+	Name         string
+	MaxScore     decimal.Decimal
+	Source       GradeItemSource
+	ExamID       *uuid.UUID
+	AssignmentID *uuid.UUID
+	PublishedAt  *time.Time
+	Position     int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type GradeRule struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	SchemeID     uuid.UUID
+	Kind         GradeRuleKind
+	Applicable   bool
+	Params       json.RawMessage
+	SourceQuote  *string
+	SourcePage   *int32
+	FilledByUser bool
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
+type GradeScheme struct {
+	ID               uuid.UUID
+	CourseID         uuid.UUID
+	SchemeNo         int32
+	Status           GradeSchemeStatus
+	SourceDocumentID *uuid.UUID
+	SourceTitle      *string
+	Extraction       json.RawMessage
+	ExtractJobID     *uuid.UUID
+	ConfirmedBy      *uuid.UUID
+	ConfirmedAt      *time.Time
+	CreatedBy        uuid.UUID
+	Version          int32
+	UnclearCount     int32
+	CreatedAt        time.Time
+	UpdatedAt        time.Time
+}
+
+type Gradebook struct {
+	CourseID        uuid.UUID
+	Status          GradebookStatus
+	SnapshotVersion int32
+	UnlockReason    *string
+	UnlockedBy      *uuid.UUID
+	UnlockedAt      *time.Time
+	Version         int32
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
 }
 
 type IdempotencyKey struct {

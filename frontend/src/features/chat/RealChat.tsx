@@ -30,6 +30,8 @@ import r from "./RealChat.module.css";
 
 type Feedback = "HELPFUL" | "NOT_HELPFUL" | null;
 
+// Khối dữ liệu điểm do tool trả (US-P6-09): chỉ để LLM diễn đạt, không hiển thị thô cho sinh viên.
+const GRADE_BLOCKS = new Set(["grade_summary", "what_if", "grade_scheme"]);
 const BLOCK_TITLE: Record<string, string> = { upcoming_events: "Lịch sắp tới", exam_schedule: "Lịch thi", library_results: "Tài liệu" };
 const HM = new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" });
 const DAY = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -389,7 +391,8 @@ function Blocks({ blocks }: { blocks: ChatBlock[] }) {
       {blocks.map((b, i) => {
         const data = b.data && typeof b.data === "object" ? (b.data as Record<string, unknown>) : {};
         const rows = Object.entries(data);
-        if (rows.length === 0) return null;
+        if (rows.length === 0 || GRADE_BLOCKS.has(b.kind)) return null; // điểm: số nằm trong câu trả lời (code đưa vào, LLM chỉ diễn đạt) — không dựng bảng khoá / JSON thô
+
         if ((b.kind === "exam_schedule" || b.kind === "upcoming_events") && Array.isArray(data.events)) {
           // Lịch (US-P8-03): mỗi sự kiện một dòng "Thứ Hai, 21/09 · 14:00 · Tên · Địa điểm" (giờ đã định dạng ở máy chủ).
           const evs = data.events as { title: string; starts: string; location?: string }[];

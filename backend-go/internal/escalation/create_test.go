@@ -228,3 +228,17 @@ func keys(m map[string]any) []string {
 	}
 	return out
 }
+
+// US-P6-05 AC7: câu mẫu "chưa có công thức" tự mở đúng MỘT ticket AUTO_NO_FORMULA; hỏi lại cùng tin không mở ticket thứ hai.
+func TestAutoNoFormulaTicket(t *testing.T) {
+	r := newRig(t, escalation.Config{})
+	_, m := r.pair("Cách tính điểm môn này?", "Lớp chưa có công thức điểm chính thức do giảng viên xác nhận.")
+	for range 2 {
+		tx, err := r.pool.Begin(t.Context())
+		require.NoError(t, err)
+		_, err = r.svc.CreateTx(t.Context(), tx, escalation.CreateInput{CourseID: r.course, StudentID: r.a.UserID, MessageID: m, SessionID: r.sessA, Origin: store.TicketOriginAUTONOFORMULA, Auto: true})
+		require.NoError(t, err)
+		require.NoError(t, tx.Commit(t.Context()))
+	}
+	require.Equal(t, 1, r.count(`select count(*) from escalation_tickets where message_id = $1 and origin = 'AUTO_NO_FORMULA'`, m))
+}

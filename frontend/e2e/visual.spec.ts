@@ -1,5 +1,6 @@
 import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
+import { gradebookApi } from "./support/gradebook-fixtures";
 import { base, reset, script } from "./support/llm-fixtures";
 import { asDemo, asJwt, type DemoRole } from "./support/session";
 
@@ -52,6 +53,7 @@ for (const r of ROUTES) {
       }
       if (r.admin) await asJwt(page, "ADMIN", { email: "admin@ptit.edu.vn", fullName: "Đỗ Hoàng Nam", expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: hạn phải dài hơn khoảng lệch với giờ thật; phiên thật giả lập (refresh → JWT ADMIN)
       else if (r.role) await asDemo(context, r.role, { expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: token mặc định (15 phút) đã hết hạn nên phiên rơi về Sinh viên — ảnh inbox / gradebook từng là trang chặn quyền
+      if (r.path === "/gradebook") await gradebookApi(page); // #22: màn thật; dữ liệu cố định theo hợp đồng thật (support/gradebook-fixtures.ts)
       await page.goto(r.path);
       await page.locator("main").first().waitFor();
       await settle(page);

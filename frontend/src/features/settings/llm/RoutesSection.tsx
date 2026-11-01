@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button, Field, Input, InlineNotice, Select } from "@/shared/ui";
+import { Button, Field, Input, Select, StatusText } from "@/shared/ui";
 // nhập thẳng, không qua thùng `@/shared/domain` (thùng kéo cả AttendanceGrid, Markdown… vào gói trang: TL-1)
 import { LLMRouteTable, type RouteRow } from "@/shared/domain/LLMRouteTable";
 import { chatGroups, type Provider, type Route } from "./api";
@@ -120,7 +120,7 @@ export function FallbackSection({ routes, providers, canEdit }: { routes: Route[
           <li key={t.task} className={s.item} data-part="fallback-row" data-task={t.task}>
             <p className="ep-item-title">{t.label}</p>
             {chain.length === 0 ? (
-              <p className={s.sub}>Chưa chọn mô hình chính — đang dùng cấu hình mặc định của máy chủ.</p>
+              <p className={s.sub}>Mặc định máy chủ</p>
             ) : (
               <ol className={s.chain}>
                 {chain.map((c, i) => (
@@ -146,7 +146,7 @@ export function FallbackSection({ routes, providers, canEdit }: { routes: Route[
                 ))}
               </ol>
             )}
-            {chain.length === 1 && <InlineNotice tone="warning" compact>Chưa có dự phòng — nếu nhà cung cấp lỗi, người dùng sẽ thấy câu trả lời rút gọn.</InlineNotice>}
+            {chain.length === 1 && <StatusText tone="amber">Chưa có dự phòng</StatusText>}
             {canEdit && chain.length >= 1 && chain.length < MAX_CHAIN && candidates.length > 0 && (
               <div className={s.addFallback}>
                 <Field label={`Thêm dự phòng cho ${t.label}`}>

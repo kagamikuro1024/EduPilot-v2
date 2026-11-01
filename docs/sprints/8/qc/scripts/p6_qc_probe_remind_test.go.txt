@@ -1,0 +1,18 @@
+package grade_test
+
+// QC US-P6-05 TC-P6-05-45/46: chuông nhắc không đôi khi khoá Redis "mỗi tuần một lần" mất hoặc hai worker cùng chạy — khử trùng ở mức thông báo.
+// Sao chép thành backend-go/internal/grade/qc_probe_remind_test.go khi chạy; XOÁ sau khi chạy (không commit).
+import (
+	"testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+func TestQCProbeReminderDedupeBelowRedis(t *testing.T) {
+	r := newRemindRig(t)
+	now := r.clk.Now()
+	require.NoError(t, r.job.Svc.RemindUnconfirmed(r.ctx, now))
+	require.Equal(t, 1, r.count(r.gv))
+	require.NoError(t, r.job.Svc.RemindUnconfirmed(r.ctx, now.Add(3*24*60*60*1e9)), "cùng tuần ISO, gọi lại trực tiếp (Redis NX không đứng trước)")
+	require.Equal(t, 1, r.count(r.gv), "cùng (lớp, tuần, người) không được gửi đôi")
+}

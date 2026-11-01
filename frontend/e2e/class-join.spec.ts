@@ -136,7 +136,7 @@ test("no course screen: SV chưa có lớp ACTIVE thấy cùng một màn ở 7 
 
 test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùng lớp int1006-2, không gọi API lớp", async ({ page }) => {
   const courseCalls = await login(page, "TEACHER", [item(C1, "761987", "TEACHER"), item(C2, "761988", "TEACHER")]);
-  await page.goto("/gradebook"); // #14: màn mẫu còn mô phỏng (`/students` đã thành thật ở US-P5-04)
+  await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
   await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
   const panel = await options(page);
   await panel.getByRole("menuitem", { name: /761988 · An ninh mạng/ }).click();
@@ -147,7 +147,7 @@ test("mock course mapping: giảng viên chọn 761988 → màn mô phỏng dùn
 
 test("mock course mapping: lớp có class_code lạ dùng lớp mô phỏng đầu", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "999999", "TEACHER")]);
-  await page.goto("/gradebook"); // #14: màn mẫu còn mô phỏng (`/students` đã thành thật ở US-P5-04)
+  await page.goto("/analytics"); // #14 / #21: màn mẫu còn mô phỏng (`/students` thật ở US-P5-04, `/gradebook` thật ở US-P6-06)
   await expect(picker(page)).toContainText("999999");
   await expect(page.getByText(/An ninh mạng – 761987/).first()).toBeVisible();
 });
@@ -363,6 +363,8 @@ test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm 
   const noon = new Date("2026-10-29T10:00:00+07:00");
   await page.clock.install({ time: noon });
   await asJwt(page, "TEACHER");
+  // kiểm nhánh dự phòng khi SSE bị từ chối: làm mới 30 s (nhánh SSE mở 120 s có ca riêng bên dưới); trước #17 token "hết hạn" do lệch ngày làm SSE không mở một cách tình cờ
+  await page.route("**/api/v1/events", (r) => r.fulfill({ status: 429, contentType: "application/json", body: "{}" }));
   await page.route("**/api/v1/me/courses**", (r) => fulfill(r, 200, { items: [item(C1, "761987", "TEACHER")], next_cursor: null }));
   const now = noon;
   const mk = (id: string, title: string, read: boolean, ageMin = 1) => ({
@@ -404,6 +406,43 @@ test("bell real: chấm theo unread_count, mở khung không xoá chấm, bấm 
   await expect(page).toHaveURL(`${BASE_URL}/class/settings`);
   await expect(picker(page)).toContainText("761987");
   await expect(page.getByRole("button", { name: /^Thông báo, 1 chưa đọc/ })).toBeVisible();
+});
+
+// SSE MỞ (luồng không kết thúc): chuông chỉ làm mới lưới an toàn 120 s, không thăm dò 30 s (`useRealNotifications`, #17).
+test("bell real sse open: không làm mới ở 30 s, làm mới ở 120 s", async ({ page }) => {
+  const noon = new Date("2026-10-29T10:00:00+07:00");
+  await page.clock.install({ time: noon });
+  await asJwt(page, "TEACHER");
+  await page.addInitScript(() => {
+    const real = window.fetch.bind(window);
+    window.fetch = (input, init) => {
+      const url = typeof input === "string" ? input : input instanceof Request ? input.url : String(input);
+      if (!url.includes("/api/v1/events")) return real(input, init);
+      const enc = new TextEncoder();
+      // không đóng + nhịp tim như máy chủ thật (máy canh của client nối lại nếu im quá lâu): SSE ở trạng thái "open"
+      const body = new ReadableStream({
+        start: (c) => {
+          c.enqueue(enc.encode('retry: 3000\n\nevent: ready\ndata: {"conn_id":"c"}\n\n'));
+          setInterval(() => c.enqueue(enc.encode(": hb\n\n")), 10_000);
+        },
+      });
+      return Promise.resolve(new Response(body, { status: 200, headers: { "Content-Type": "text/event-stream" } }));
+    };
+  });
+  await page.route("**/api/v1/me/courses**", (r) => fulfill(r, 200, { items: [item(C1, "761987", "TEACHER")], next_cursor: null }));
+  let lists = 0;
+  await page.route("**/api/v1/notifications**", (r) => {
+    lists++;
+    return fulfill(r, 200, { items: [], next_cursor: null, unread_count: 0 });
+  });
+  await page.goto("/");
+  await expect.poll(() => lists).toBeGreaterThan(0);
+  await page.clock.runFor(1_000);
+  const before = lists;
+  await page.clock.runFor(31_000);
+  expect(lists).toBe(before);
+  await page.clock.runFor(95_000);
+  await expect.poll(() => lists).toBeGreaterThan(before);
 });
 
 test("bell real: lỗi tải → dòng 'Chưa tải được thông báo.' không chặn app; hết chưa đọc thì chấm biến", async ({ page }) => {

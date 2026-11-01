@@ -1,0 +1,5 @@
+.versions { display: grid; gap: var(--ep-space-2); margin: 0 0 var(--ep-space-4); padding: 0; list-style: none; }
+.why { margin: var(--ep-space-1) 0 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.missing { display: grid; gap: var(--ep-space-1); margin: var(--ep-space-2) 0 0; padding: 0; list-style: none; max-height: 160px; overflow-y: auto; }
+.link { padding: 0; border: 0; background: none; font: inherit; font-size: var(--ep-text-label); color: var(--ep-ink); text-decoration: underline; text-underline-offset: 2px; cursor: pointer; text-align: left; }
+.link:hover { color: var(--ep-red); }

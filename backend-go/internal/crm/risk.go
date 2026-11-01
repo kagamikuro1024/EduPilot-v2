@@ -15,10 +15,12 @@ const (
 	LevelAtRisk = "AT_RISK"
 
 	SignalAttendance = "ATTENDANCE"
+	SignalGrade      = "GRADE"
 	SignalActivity   = "ACTIVITY"
 	SignalStudy      = "STUDY"
 
 	ReasonAttendanceLow = "ATTENDANCE_LOW"
+	ReasonGradeLow      = "GRADE_LOW"
 	ReasonStudyLow      = "STUDY_LOW"
 	ReasonActivityLow   = "ACTIVITY_LOW"
 )
@@ -30,11 +32,13 @@ type Thresholds struct {
 	StudyMinMinutes    int
 	SignalsRequired    int
 	AbsentAlert        int
+	// GradeLowBelow: điểm quá trình hiện tại THẤP khi `< GradeLowBelow` (nghiêm ngặt; thang 10, bước 0,5; mặc định 5,0).
+	GradeLowBelow decimal.Decimal
 }
 
-// DefaultThresholds = RISK_DEFAULTS: 0,70 / 1 / 60 / 2 / 3.
+// DefaultThresholds = RISK_DEFAULTS: 0,70 / 1 / 60 / 2 / 3 và điểm quá trình thấp < 5,0.
 func DefaultThresholds() Thresholds {
-	return Thresholds{AttendanceOKMin: decimal.New(70, -2), ActivityMinPerWeek: 1, StudyMinMinutes: 60, SignalsRequired: 2, AbsentAlert: 3}
+	return Thresholds{AttendanceOKMin: decimal.New(70, -2), ActivityMinPerWeek: 1, StudyMinMinutes: 60, SignalsRequired: 2, AbsentAlert: 3, GradeLowBelow: decimal.New(50, -1)}
 }
 
 // Attendance của một tuần: số buổi đã ghi, số buổi tính là có mặt (PRESENT+LATE+EXCUSED) và số buổi ABSENT không phép.
@@ -46,6 +50,8 @@ type Week struct {
 	Attendance   *Attendance
 	Activity     int
 	StudyMinutes *int
+	// Grade: điểm quá trình hiện tại (thang 10); nil = lớp chưa CONFIRMED hoặc chưa tính được → tín hiệu GRADE không có dữ liệu.
+	Grade *decimal.Decimal
 }
 
 // WeekResult là một tuần sau khi chấm: Low liệt kê tín hiệu thấp theo thứ tự ATTENDANCE, STUDY, ACTIVITY; Weak theo SRS 4.7.2.
@@ -100,6 +106,12 @@ func score(w Week, th Thresholds) WeekResult {
 			r.Low, anchor = append(r.Low, SignalAttendance), true
 		}
 	}
+	if w.Grade != nil { // tín hiệu neo thứ hai (cùng ATTENDANCE): thấp nghiêm ngặt `<` ngưỡng
+		data++
+		if w.Grade.LessThan(th.GradeLowBelow) {
+			r.Low, anchor = append(r.Low, SignalGrade), true
+		}
+	}
 	if w.StudyMinutes != nil {
 		data++
 		if *w.StudyMinutes < th.StudyMinMinutes {
@@ -124,12 +136,16 @@ func reasons(used []WeekResult) []Reason {
 		}
 		return false
 	}
-	var abs, rec, attK, studySum, studyK, actK int
+	var abs, rec, attK, studySum, studyK, actK, gradeK, gradeMilli int
 	for _, w := range used {
 		if has(w, SignalAttendance) {
 			attK++
 			abs += w.Attendance.Absent
 			rec += w.Attendance.Recorded
+		}
+		if has(w, SignalGrade) {
+			gradeK++
+			gradeMilli = int(w.Grade.Mul(decimal.NewFromInt(1000)).IntPart())
 		}
 		if has(w, SignalStudy) {
 			studyK++
@@ -141,6 +157,9 @@ func reasons(used []WeekResult) []Reason {
 	}
 	if attK > 0 {
 		out = append(out, Reason{Code: ReasonAttendanceLow, Values: map[string]int{"absent": abs, "recorded": rec, "weeks": len(used)}})
+	}
+	if gradeK > 0 {
+		out = append(out, Reason{Code: ReasonGradeLow, Values: map[string]int{"qt_milli": gradeMilli}})
 	}
 	if studyK > 0 {
 		out = append(out, Reason{Code: ReasonStudyLow, Values: map[string]int{"minutes": studySum / studyK}})
@@ -156,6 +175,8 @@ func Phrase(r Reason) string {
 	switch r.Code {
 	case ReasonAttendanceLow:
 		return fmt.Sprintf("vắng %d/%d buổi trong %d tuần gần nhất", r.Values["absent"], r.Values["recorded"], r.Values["weeks"])
+	case ReasonGradeLow:
+		return "điểm quá trình hiện tại " + strings.Replace(decimal.New(int64(r.Values["qt_milli"]), -3).String(), ".", ",", 1) + "/10"
 	case ReasonStudyLow:
 		return fmt.Sprintf("học trên EduPilot khoảng %d phút mỗi tuần", r.Values["minutes"])
 	case ReasonActivityLow:
@@ -176,7 +197,7 @@ func Sentence(level string, rs []Reason) string {
 		return ""
 	}
 	var parts []string
-	for _, code := range []string{ReasonAttendanceLow, ReasonStudyLow, ReasonActivityLow} { // thứ tự: chuyên cần, thời gian học, hoạt động
+	for _, code := range []string{ReasonAttendanceLow, ReasonGradeLow, ReasonStudyLow, ReasonActivityLow} { // thứ tự: chuyên cần, điểm quá trình, thời gian học, hoạt động
 		for _, r := range rs {
 			if r.Code == code {
 				parts = append(parts, Phrase(r))

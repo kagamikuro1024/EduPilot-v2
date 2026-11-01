@@ -5,10 +5,14 @@ import { useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient } from "@/shared/data";
 import { Button, ConfirmIrreversible, InlineNotice, OverflowMenu, StatusText, Switch } from "@/shared/ui";
 import { ConflictNotice } from "./ConflictNotice";
-import { ProviderForm, type FormMode } from "./ProviderForm";
+import dynamic from "next/dynamic";
+import type { FormMode } from "./ProviderForm";
 import { KEY, useSaver, type Provider, type TestResult } from "./api";
 import { TYPE_LABEL, providerStatus, testMessage } from "./labels";
 import s from "./llm.module.css";
+
+// Form chỉ mở khi bấm Thêm / Sửa: không nằm trong mã nạp đầu (TBT, #19).
+const ProviderForm = dynamic(() => import("./ProviderForm").then((m) => m.ProviderForm), { loading: () => null });
 
 type Test = { pending: boolean; result?: TestResult; error?: ApiError };
 
@@ -73,12 +77,11 @@ export function ProviderSection({ providers, canEdit, envFallback, initialAdd = 
               <div className={s.providerGrid}>
                 <div className={s.info}>
                   <p className="ep-item-title">{p.name}</p>
-                  <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>
+                  {(TYPE_LABEL[p.type] ?? p.type) !== p.name && <p className={s.sub}>{TYPE_LABEL[p.type] ?? p.type}</p>}
                   {p.type === "openai_compatible" && p.base_url && <p className={s.mono}>{p.base_url}</p>}
                 </div>
                 <div className={s.status} data-part="provider-status">
                   <StatusText tone={st.tone === "neutral" ? "neutral" : st.tone}>{st.text}</StatusText>
-                  {p.has_key && <p className={s.sub}>Khoá API •••••••• · đã kết nối</p>}
                 </div>
                 {canEdit && (
                   <div className={s.action} data-part="provider-action">

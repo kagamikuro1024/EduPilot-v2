@@ -1,0 +1,13 @@
+Mở khoá
+
+Mở khoá bản chốt v2 của 30 sinh viên. Bản v2 vẫn được giữ nguyên. Nhập lý do 10–500 ký tự.
+
+Lý do
+Để sau
+Mở khoá
+len 0: nút KHOÁ
+len 9: nút KHOÁ
+len 10: nút mở
+len 500: nút mở
+len 501: nút KHOÁ
+10 dấu cách: nút KHOÁ

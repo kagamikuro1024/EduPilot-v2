@@ -1,0 +1,55 @@
+package grade_test
+
+// QC US-P6-02 (TC-P6-02-37/38 + mẫu what-if): đối chiếu WhatIf / MinFinalFor với số QC tự tính tay. Sao chép thành
+// backend-go/internal/grade/qc_probe_test.go khi chạy, XOÁ sau khi chạy (không commit). Dùng helper sẵn của gói test.
+import (
+	"testing"
+
+	"github.com/shopspring/decimal"
+	"github.com/stretchr/testify/require"
+
+	"github.com/edupilot/backend-go/internal/grade"
+)
+
+func TestQCProbeWhatIfMinFinal(t *testing.T) {
+	s, ids, rows := lop1(t)
+	by := map[string]map[string]string{}
+	for _, r := range rows {
+		by[r["account"]] = r
+	}
+	B, C, A := inputOf(by["sv.kha"], ids), inputOf(by["sv.nguyco"], ids), inputOf(by["sv.gioi"], ids)
+
+	// B: QT 8,25. cuối kỳ 8,0 → HP thô (40·8,25 + 60·8)/100 = 8,10 → 8,0 → B+
+	r := grade.WhatIf(s, B, decimal.RequireFromString("8.0"))
+	require.True(t, r.HPRaw.Equal(decimal.RequireFromString("8.1")), "hp_raw %s", r.HPRaw)
+	require.True(t, r.HP.Equal(decimal.RequireFromString("8.0")), "hp %s", r.HP)
+	require.Equal(t, "B+", r.Letter)
+	// WhatIf không đổi đầu vào
+	require.True(t, B.Scores[ids["final"]].Equal(decimal.RequireFromString("6.5")), "đầu vào bị ghi")
+
+	for _, c := range []struct {
+		who    string
+		in     grade.Input
+		target string
+		want   string // "" = không đạt được
+	}{
+		{"B→A", B, "A", "8.25"},   // 330+60x ≥ 825 ⇒ x ≥ 8,25
+		{"B→A+", B, "A+", "9.09"}, // 330+60x ≥ 875 ⇒ x ≥ 9,0833… → 9,09 (bước 0,01)
+		{"B→B", B, "B", "5.75"},   // HP thô ≥ 6,75 (làm tròn nửa lên 7,0): 330+60x ≥ 675 ⇒ x ≥ 5,75
+		{"C→A+", C, "A+", ""},     // QT 1,25: 50+60x ≥ 875 ⇒ x ≥ 13,75 > 10
+		{"A→A+", A, "A+", "8.0"},  // QT 10: 400+60x ≥ 875 ⇒ x ≥ 7,9167 → 7,92
+	} {
+		got, ok := grade.MinFinalFor(s, c.in, c.target)
+		t.Logf("%s: ok=%v min=%s", c.who, ok, got)
+		switch c.who {
+		case "B→A", "B→A+", "B→B":
+			require.True(t, ok, c.who)
+			require.True(t, got.Equal(decimal.RequireFromString(c.want)), "%s got %s want %s", c.who, got, c.want)
+		case "C→A+":
+			require.False(t, ok, c.who)
+		case "A→A+":
+			require.True(t, ok)
+			require.True(t, got.Equal(decimal.RequireFromString("7.92")), "A→A+ got %s", got)
+		}
+	}
+}

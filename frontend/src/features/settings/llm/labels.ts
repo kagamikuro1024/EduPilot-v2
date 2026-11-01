@@ -33,15 +33,13 @@ export const DEFAULT_MODELS: Record<string, Array<{ model: string; kind: "chat" 
 export type Tone = "green" | "amber" | "red" | "neutral";
 type StatusInput = { enabled: boolean; key_status: string; circuit: string; last_test: { ok: boolean | null; at: string | null; error_kind: string | null } };
 
-const hhmm = (iso: string) => new Date(iso).toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false });
-
 /** Trạng thái nhà cung cấp → chữ + màu (SRS 7.2); thứ tự ưu tiên như bảng. */
 export function providerStatus(p: StatusInput): { text: string; tone: Tone } {
   if (!p.enabled) return { text: "Đã tắt", tone: "neutral" };
   if (p.key_status === "unreadable") return { text: "Lỗi khoá — nhập lại khoá", tone: "red" };
   if (p.circuit === "open") return { text: "Tạm dừng do lỗi liên tiếp", tone: "amber" };
   if (p.last_test.ok === false) return { text: p.last_test.error_kind === "AUTH" ? "Lỗi xác thực" : "Kết nối lỗi", tone: "red" };
-  if (p.last_test.ok === true) return { text: `Đã kết nối${p.last_test.at ? ` · kiểm tra lúc ${hhmm(p.last_test.at)}` : ""}`, tone: "green" };
+  if (p.last_test.ok === true) return { text: "Đã kết nối", tone: "green" };
   return { text: "Chưa kiểm tra", tone: "neutral" };
 }
 

@@ -1,0 +1,57 @@
+// QC sprint 8 — US-S8-UI: chụp + dump chữ ba màn để đối chiếu luật "không câu mô tả dưới tiêu đề" (tc-US-S8-UI.md). Chỉ đọc, không sửa app.
+import { expect, test, type Page } from "@playwright/test";
+import { mkdirSync, writeFileSync } from "node:fs";
+import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
+import { openLlm } from "./support/llm-fixtures";
+import { asDemo, type DemoRole } from "./support/session";
+
+const OUT = "../docs/sprints/8/qc/shots";
+mkdirSync(OUT, { recursive: true });
+test.describe.configure({ mode: "serial" });
+test.beforeAll(acquireFakeApi);
+test.afterAll(releaseFakeApi);
+test.beforeEach(async ({}, info) => test.skip(info.project.name !== "desktop", "QC tự đặt bề rộng"));
+
+async function dump(page: Page, name: string) {
+  await page.waitForTimeout(1500);
+  const rows = await page.locator("main").evaluate((m) => {
+    const out: string[] = [];
+    const w = document.createTreeWalker(m, NodeFilter.SHOW_ELEMENT);
+    for (let n = w.currentNode as Element | null; n; n = w.nextNode() as Element | null) {
+      const t = n as HTMLElement;
+      if (!["H1", "H2", "H3", "P", "BUTTON", "LABEL", "DT", "DD", "SPAN", "A"].includes(t.tagName)) continue;
+      const own = Array.from(t.childNodes).filter((c) => c.nodeType === 3).map((c) => c.textContent?.trim()).join(" ").trim();
+      if (own) out.push(`${t.tagName.padEnd(6)}${t.className && typeof t.className === "string" ? " ." + t.className.split(" ")[0] : ""}\t${own}`);
+    }
+    return out;
+  });
+  const icons = await page.locator('main svg[data-lucide="info"], main svg[data-lucide="circle-help"], main svg.lucide-info, main svg.lucide-circle-help, main [data-icon="info"]').count();
+  const tips = await page.locator("main [title], main [data-tooltip], main [aria-describedby]").evaluateAll((es) => es.map((e) => `${e.tagName} title=${(e as HTMLElement).title} desc=${e.getAttribute("aria-describedby")}`));
+  writeFileSync(`${OUT}/ui-${name}.txt`, `# ${name}\nicon Info/CircleHelp: ${icons}\ntooltips/describedby: ${tips.length}\n${tips.join("\n")}\n---\n${rows.join("\n")}\n`);
+  await page.screenshot({ path: `${OUT}/ui-${name}-1440.png`, fullPage: true });
+  return { rows, icons };
+}
+
+test("qc dump /settings/llm (ADMIN)", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openLlm(page, "ADMIN");
+  await expect(page.getByRole("heading", { name: "Kết nối nhà cung cấp", level: 2 })).toBeVisible();
+  const { icons } = await dump(page, "settings-llm");
+  expect(icons).toBe(0);
+});
+for (const role of ["admin", "teacher", "student"] as DemoRole[]) {
+  test(`qc dump /settings (${role})`, async ({ page, context }) => {
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await asDemo(context, role);
+    await page.goto("/settings");
+    await expect(page.getByRole("heading", { name: "Tài khoản và bảo mật" })).toBeVisible();
+    await dump(page, `settings-${role}`);
+  });
+}
+test("qc dump /settings/integrations (admin)", async ({ page, context }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await asDemo(context, "admin");
+  await page.goto("/settings/integrations");
+  await expect(page.getByRole("heading", { name: "Tích hợp" })).toBeVisible();
+  await dump(page, "settings-integrations");
+});

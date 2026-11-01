@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 import { asDemo, sessionBody, type DemoRole } from "./support/session";
 import { BASE_URL } from "./support/env";
 import { mockMe } from "./support/meMock";
+import { mockLlmApi } from "./support/staffMock";
 
 // US-PU-06 AC8: lần vẽ chữ đầu tiên là chữ của khung máy chủ (PreShell) và SAU KHI có phiên không có ứng viên LCP nào mới.
 // Mạng giả 1,6 Mbps / 150 ms + CPU 4× như Lighthouse để phông chữ về muộn (phông đổi làm chữ rộng hơn ⇒ ứng viên mới — lỗi từng gặp).
@@ -24,6 +25,7 @@ for (const [path, role] of CASES) {
       await route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody(role === "student" ? "STUDENT" : role === "teacher" ? "TEACHER" : "ADMIN", {})) });
     });
     if (path === "/me") await mockMe(page); // có dữ liệu thật của màn: khối chữ nào lớn hơn h1 sau phiên sẽ hiện ra
+    if (path === "/settings/llm") await mockLlmApi(page); // không giả API thì sau phiên hiện thông báo lỗi, lớn hơn h1 (proposal #1)
     const cdp = await context.newCDPSession(page);
     await cdp.send("Network.enable");
     await cdp.send("Network.emulateNetworkConditions", { offline: false, latency: 150, downloadThroughput: (1.6 * 1024 * 1024) / 8, uploadThroughput: (750 * 1024) / 8 });

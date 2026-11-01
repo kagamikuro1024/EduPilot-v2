@@ -296,7 +296,7 @@ flowchart LR
 | 5.5 | ✅ Xong | UI | Giao diện panel nổi (D59): nền canvas xám ấm, mỗi vùng làm việc trên một `Panel`; khung, màn sinh viên / Staff / Admin; ảnh trước / sau, axe, Lighthouse |
 | 6 | ✅ Xong | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính trước LLM (E1 recall 0,960); tài liệu (`docling-serve`), thư viện, lịch + ICS |
 | 7 | ✅ Xong | P4 + P5 | "Nhờ giảng viên", `/inbox`, chuông tức thì, thư đúng một lần, SLA ticket, kiểm duyệt Threads; điểm danh, hồ sơ 360 (audit), at-risk, thời gian học có công tắc |
-| 8 | | P6 | Sổ điểm, công thức từ quy chế, điểm cuối kỳ (gồm điểm bài thi PE) |
+| 8 | ⏳ Chờ chủ dự án nghiệm thu | P6 | Sổ điểm kiểu bảng tính, AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay), chốt / mở khoá có lý do, nhập / xuất XLSX, điểm của tôi + tính thử |
 | 9 | | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
 | 10 | | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |
 | 11 | | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |

@@ -37,10 +37,9 @@ export function EmbeddingSection({ routes, providers, canEdit }: { routes: Route
 
   return (
     <div className={s.rows}>
-      <p className={s.sub}>Đổi mục này cần lập chỉ mục lại tài liệu.</p>
       <div className={s.embedRow} data-part="embedding-current">
         <div>
-          <p className="ep-item-title">{current ? current.model : "Chưa chọn — đang dùng cấu hình mặc định của máy chủ"}</p>
+          <p className="ep-item-title">{current ? current.model : "Mặc định máy chủ"}</p>
           <p className={s.sub}>
             {current ? `${current.provider_name} · ` : ""}
             1536 chiều

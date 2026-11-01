@@ -1,0 +1,6 @@
+.body { display: grid; gap: var(--ep-space-4); min-width: min(440px, 100%); }
+.file { font: inherit; }
+.fileName { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-2); overflow-wrap: anywhere; }
+.narrow { max-width: 96px; }
+.summary { margin: 0; font-weight: 600; }
+.errors { display: grid; gap: var(--ep-space-1); max-height: 180px; margin: 0; padding: 0 0 0 var(--ep-space-4); overflow-y: auto; color: var(--ep-red); font-size: var(--ep-text-label); }

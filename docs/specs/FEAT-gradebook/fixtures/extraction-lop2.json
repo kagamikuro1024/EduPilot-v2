@@ -1,0 +1,142 @@
+{
+ "components": [
+  {
+   "key": "midterm",
+   "name": "Giữa kỳ",
+   "group": "QT",
+   "weight": "25",
+   "kind_hint": "MANUAL",
+   "citation_ids": [
+    "c1"
+   ]
+  },
+  {
+   "key": "lab",
+   "name": "Bài thực hành",
+   "group": "QT",
+   "weight": "25",
+   "kind_hint": "ASSIGNMENT",
+   "citation_ids": [
+    "c1"
+   ]
+  },
+  {
+   "key": "final",
+   "name": "Thi cuối kỳ",
+   "group": "CK",
+   "weight": "50",
+   "kind_hint": "MANUAL",
+   "citation_ids": [
+    "c2"
+   ]
+  }
+ ],
+ "rules": [
+  {
+   "kind": "BONUS",
+   "applicable": true,
+   "params": {
+    "source": "PARTICIPATION",
+    "per_speak": "0.25",
+    "cap": "1.5"
+   },
+   "citation_ids": [
+    "c3"
+   ]
+  },
+  {
+   "kind": "PENALTY",
+   "applicable": true,
+   "params": {
+    "source": "ABSENCE",
+    "free": 1,
+    "per": "0.5"
+   },
+   "citation_ids": [
+    "c4"
+   ]
+  },
+  {
+   "kind": "LETTER_SCALE",
+   "applicable": true,
+   "params": {
+    "bands": [
+     {
+      "min": "8.5",
+      "letter": "A"
+     },
+     {
+      "min": "7.0",
+      "letter": "B"
+     },
+     {
+      "min": "5.5",
+      "letter": "C"
+     },
+     {
+      "min": "4.0",
+      "letter": "D"
+     },
+     {
+      "min": "0",
+      "letter": "F"
+     }
+    ]
+   },
+   "citation_ids": [
+    "c5"
+   ]
+  },
+  {
+   "kind": "FAIL_CONDITION",
+   "applicable": true,
+   "params": {
+    "kind": "FINAL_BELOW",
+    "value": "3.0"
+   },
+   "citation_ids": [
+    "c6"
+   ]
+  }
+ ],
+ "citations": [
+  {
+   "id": "c1",
+   "page": 1,
+   "quote": "Điểm quá trình gồm điểm kiểm tra giữa kỳ chiếm 25% điểm học phần và điểm bài thực hành chiếm 25% điểm học phần."
+  },
+  {
+   "id": "c2",
+   "page": 1,
+   "quote": "Điểm thi cuối kỳ chiếm 50% điểm học phần."
+  },
+  {
+   "id": "c3",
+   "page": 2,
+   "quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,5 điểm."
+  },
+  {
+   "id": "c4",
+   "page": 2,
+   "quote": "Mỗi buổi vắng không phép từ buổi vắng thứ hai trở đi thì trừ 0,5 điểm vào điểm quá trình; buổi vắng không phép đầu tiên không bị trừ."
+  },
+  {
+   "id": "c5",
+   "page": 2,
+   "quote": "Điểm chữ xác định theo điểm học phần: từ 8,5 đến 10 là A; từ 7,0 đến dưới 8,5 là B; từ 5,5 đến dưới 7,0 là C; từ 4,0 đến dưới 5,5 là D; dưới 4,0 là F."
+  },
+  {
+   "id": "c6",
+   "page": 2,
+   "quote": "Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+  }
+ ],
+ "unclear_items": [
+  {
+   "source": "CODE",
+   "code": "ROUNDING_MISSING",
+   "target": "rules.ROUNDING",
+   "message": "Quy chế không nêu quy tắc làm tròn điểm học phần."
+  }
+ ]
+}
