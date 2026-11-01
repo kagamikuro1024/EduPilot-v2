@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { getImageProps } from "next/image";
 import Link from "next/link";
 import { ButtonLink } from "@/shared/ui/Button";
 import s from "./Landing.module.css";
@@ -29,6 +29,19 @@ const STUDENT = [
   ["Threads", "Hỏi cả lớp và đọc câu trả lời đã được giảng viên xác nhận."],
   ["Lịch và thư viện", "Buổi học, bài thi và tài liệu ở một chỗ, dùng được trên điện thoại."],
 ] as const;
+
+/** Ảnh chụp màn hình: tệp WebP đã nén sẵn (không qua bộ tối ưu của Next), điện thoại (≤ 719 px) tải bản 640 px; có width / height để không dịch bố cục. */
+function Shot({ name, alt, priority, className, sizes }: { name: string; alt: string; priority?: boolean; className?: string; sizes: string }) {
+  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1440, height: 900, alt, unoptimized: true, priority, className, sizes });
+  const small = getImageProps({ src: `/landing/${name}-640.webp`, width: 640, height: 400, alt, unoptimized: true });
+  return (
+    <picture>
+      <source media="(max-width: 719px)" srcSet={small.props.src} width={640} height={400} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img {...props} alt={alt} />
+    </picture>
+  );
+}
 
 function Items({ rows }: { rows: ReadonlyArray<readonly [string, string]> }) {
   return (
@@ -61,7 +74,7 @@ export function Landing() {
             <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
             <ButtonLink href="/register" variant="secondary">Tạo tài khoản</ButtonLink>
           </div>
-          <Image className={s.shot} src="/landing/giang-vien-duyet-bai.webp" width={1440} height={900} priority unoptimized sizes="(min-width: 1200px) 1120px, 100vw"
+          <Shot className={s.shot} name="giang-vien-duyet-bai" priority sizes="(min-width: 1200px) 1120px, 100vw"
             alt="Màn duyệt bài của giảng viên: bài làm bên trái, điểm từng tiêu chí, đoạn trích và nhận xét nháp bên phải" />
         </section>
 
@@ -83,8 +96,8 @@ export function Landing() {
           <div className={s.split}>
             <Items rows={TEACHER} />
             <div className={s.shots}>
-              <Image className={s.shot} src="/landing/giang-vien-hom-nay.webp" width={1440} height={900} unoptimized sizes="(min-width: 1200px) 520px, 100vw" alt="Màn Hôm nay của giảng viên: ba việc cần xử lý và buổi học sắp tới" />
-              <Image className={s.shot} src="/landing/giang-vien-so-diem.webp" width={1440} height={900} unoptimized sizes="(min-width: 1200px) 520px, 100vw" alt="Sổ điểm của lớp: điểm giữa kỳ, cuối kỳ, điểm học phần và điểm chữ từng sinh viên" />
+              <Shot className={s.shot} name="giang-vien-hom-nay" sizes="(min-width: 1200px) 520px, 100vw" alt="Màn Hôm nay của giảng viên: ba việc cần xử lý và buổi học sắp tới" />
+              <Shot className={s.shot} name="giang-vien-so-diem" sizes="(min-width: 1200px) 520px, 100vw" alt="Sổ điểm của lớp: điểm giữa kỳ, cuối kỳ, điểm học phần và điểm chữ từng sinh viên" />
             </div>
           </div>
         </section>
@@ -94,8 +107,9 @@ export function Landing() {
           <div className={s.split}>
             <Items rows={STUDENT} />
             <div className={s.shotsStudent}>
-              <Image className={s.shot} src="/landing/sinh-vien-chat-rieng.webp" width={1440} height={900} unoptimized sizes="(min-width: 1200px) 520px, 100vw" alt="Chat riêng của sinh viên: câu trả lời có nguồn tham khảo trong tài liệu lớp và dòng báo đã ẩn thông tin cá nhân" />
-              <Image className={s.phone} src="/landing/sinh-vien-375-hom-nay.webp" width={750} height={1624} unoptimized sizes="240px" alt="Màn Hôm nay của sinh viên trên điện thoại" />
+              <Shot className={s.shot} name="sinh-vien-chat-rieng" sizes="(min-width: 1200px) 520px, 100vw" alt="Chat riêng của sinh viên: câu trả lời có nguồn tham khảo trong tài liệu lớp và dòng báo đã ẩn thông tin cá nhân" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img className={s.phone} src="/landing/sinh-vien-375-hom-nay-360.webp" width={360} height={780} loading="lazy" alt="Màn Hôm nay của sinh viên trên điện thoại" />
             </div>
           </div>
         </section>
