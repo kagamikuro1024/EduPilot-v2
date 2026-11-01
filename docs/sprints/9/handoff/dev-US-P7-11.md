@@ -22,5 +22,7 @@
 - `internal/submission/teams_job_test.go`: `TestTeamsSyncJobProgress`, `TestTeamsSyncNoOverlap`, `TestTeamsSyncRateLimit`, `TestTeamsSyncChannelNotAllowed`, `TestTeamsSyncPartialListed`, `TestTeamsSyncConsentJobError`.
 - `internal/platform/config`: `TestProductionRejectsMockGraph`, `TestTeamsDefaultsPerEnv` (không đặt → false + Graph thật; đặt tường minh thì nhận). `internal/contract`: 287 thao tác.
 
-## Còn lại (FE)
-- Thẻ Teams ở `/settings/integrations` (nhãn "Môi trường giả lập", hướng dẫn consent, "Chưa bật"), nút `Đồng bộ từ Teams` + danh sách "Không lấy được" kèm `Thử lại`, e2e `settings-integrations.spec.ts -g 'teams card sandbox label|teams consent guidance|teams disabled'`, `assignment-lifecycle.spec.ts -g 'teams sync happy then throttle|teams sync no_consent'`. Chưa làm: agent frontend bị giới hạn tần suất của nhà cung cấp mô hình; làm tiếp cùng FE US-P7-05.
+## Giao diện (đã làm)
+- Thẻ Teams trong `IntegrationsSettings.tsx`: nhãn `Môi trường giả lập` khi `sandbox`, `available=false` → `Chưa bật` + nút khoá kèm lý do, hướng dẫn admin consent một dòng, `Kiểm tra kết nối` (kết quả bằng chữ).
+- `features/grading/QueueTab.tsx` + `gradingApi.ts`: nút `Đồng bộ từ Teams` chỉ ở bài có kênh TEAMS; 202 + `useJob` (`Đã lấy 2/5 bài`), danh sách "Không lấy được" kèm lý do tiếng Việt và `Thử lại`, việc hỏng nói bằng chữ, 429 khoá nút kèm thời gian chờ.
+- e2e: `settings-integrations.spec.ts` (`teams card sandbox label`, `teams consent guidance`, `teams disabled`), `assignment-lifecycle.spec.ts` (`teams sync happy then throttle`, `teams sync no_consent`, `teams sync hidden`).

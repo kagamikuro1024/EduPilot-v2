@@ -42,7 +42,8 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 	chatPlan := fs.String("plan", "", "kế hoạch lịch sử chat (JSON); `-` đọc từ stdin (với seed-chat)")
 	tickets := fs.Bool("tickets", false, "lùi mốc thời gian của ticket")
 	ticket := fs.String("ticket", "", "id ticket cần lùi (với --tickets)")
-	hours := fs.Int("hours", 192, "số giờ lùi (với --tickets)")
+	hours := fs.Int("hours", 192, "số giờ lùi (với --tickets hoặc --assignment)")
+	assignment := fs.String("assignment", "", "mã nộp bài (submission_code) của bài tập cần lùi hạn và mọi bài nộp / thư của lớp")
 	activity := fs.Bool("activity", false, "rải tin chat / thread qua các tuần trước")
 	now := fs.String("now", "", "đồng hồ của lần chạy (RFC 3339)")
 	if err := fs.Parse(args[1:]); err != nil || fs.NArg() > 0 {
@@ -89,8 +90,14 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 		}
 		body = raw
 	case "seed-age":
-		if *tickets == *activity {
-			return fail(2, "chọn đúng một trong --tickets hoặc --activity.")
+		modes := 0
+		for _, on := range []bool{*tickets, *activity, strings.TrimSpace(*assignment) != ""} {
+			if on {
+				modes++
+			}
+		}
+		if modes != 1 {
+			return fail(2, "chọn đúng một trong --tickets, --activity hoặc --assignment.")
 		}
 		if *tickets && *ticket == "" {
 			return fail(2, "--tickets cần --ticket <id>.")
@@ -144,13 +151,16 @@ func runSeedCmd(args []string, getenv func(string) string, stdin io.Reader, stdo
 		_, _ = fmt.Fprintf(stdout, "seed-activity: %d dòng\n", n)
 	case "seed-age":
 		var n int64
-		if *tickets {
+		switch {
+		case strings.TrimSpace(*assignment) != "":
+			n, err = seedtool.AgeAssignment(ctx, pool, cid, strings.TrimSpace(*assignment), *hours)
+		case *tickets:
 			tid, perr := uuid.Parse(*ticket)
 			if perr != nil {
 				return fail(2, "--ticket không phải UUID.")
 			}
 			n, err = seedtool.AgeTickets(ctx, pool, cid, tid, *hours)
-		} else {
+		default:
 			n, err = seedtool.AgeActivity(ctx, pool, cid, *weeks, clk)
 		}
 		if err != nil {

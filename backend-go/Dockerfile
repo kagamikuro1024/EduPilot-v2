@@ -8,7 +8,8 @@ COPY . .
 ENV CGO_ENABLED=0
 RUN go build -trimpath -ldflags "-s -w" -o /out/gateway ./cmd/gateway \
  && go build -trimpath -ldflags "-s -w" -o /out/worker ./cmd/worker \
- && go build -trimpath -ldflags "-s -w" -o /out/mock-graph ./cmd/mock-graph
+ && go build -trimpath -ldflags "-s -w" -o /out/mock-graph ./cmd/mock-graph \
+ && go build -trimpath -ldflags "-s -w" -o /out/mock-imap ./cmd/mock-imap
 
 # Bản có route thử (US-PG-07 AC20): chỉ hai dòng `go build` dưới đây mang tag.
 FROM build AS build-test
@@ -47,3 +48,10 @@ ENV MOCK_GRAPH_DATA=/data/mock-graph
 EXPOSE 8090
 USER nonroot:nonroot
 ENTRYPOINT ["/mock-graph"]
+
+# Máy chủ IMAP thử cho seed / demo (US-S9-SEED): CHỈ local / test-seed.
+FROM gcr.io/distroless/static-debian12:nonroot AS mock-imap
+COPY --from=build /out/mock-imap /mock-imap
+EXPOSE 1143 8091
+USER nonroot:nonroot
+ENTRYPOINT ["/mock-imap"]

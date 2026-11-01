@@ -224,7 +224,7 @@ test("student page states: bốn trạng thái, đề bài Markdown, tiêu chí,
 
   for (const [state, text] of [
     ["SUBMITTED", "Đã nộp Thứ Sáu, 23/10 · 08:10 · Nộp muộn 1 ngày"],
-    ["GRADING", "Đang chấm"],
+    ["GRADING", "Đang chấm · Nộp muộn 1 ngày"],
     ["GRADED", "Đã có điểm"],
   ] as const) {
     await page.unrouteAll({ behavior: "ignoreErrors" });
@@ -813,4 +813,67 @@ test("teams sync hidden: bài không có kênh Teams thì không có nút", asyn
   await openQueue(page, context);
   await page.getByLabel("Bài tập").selectOption(A1);
   await expect(page.getByRole("button", { name: "Đồng bộ từ Teams" })).toHaveCount(0);
+});
+
+// US-S9-SEED AC5 — DEMO_SCRIPT bước 5: Sinh viên B thấy "Đã nộp, nộp muộn, đang chấm" không có điểm nháp → giảng viên mở bài B (hộp hổ phách ở tiêu chí 2) → sửa tiêu chí 2 từ 1,00 lên 2,00 + một câu nhận xét
+// → `Duyệt bài` → `Công bố` → B tải lại thấy 7,5 (8 − 0,5) cùng nhận xét và đoạn trích của chính bài mình. Một trang, ba pha (sinh viên → giảng viên → sinh viên), gateway giả riêng mỗi pha.
+test("demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu chí 2, duyệt, công bố → B thấy 7,5 cùng nhận xét", async ({ page, context }, info) => {
+  desktopOnly(info);
+  test.setTimeout(60_000);
+  const late = { version: 1, file_name: "bt03.pdf", received_at: RECEIVED, late_days: 1 };
+  await asDemo(context, "student");
+  await studentApi(page, { mine: mineOut({ state: "GRADING", submission: late, result: null }) });
+  await page.goto(`/assignments/${A1}`);
+  await expect(page.locator("[data-part=submit-status]")).toHaveText("Đang chấm · Nộp muộn 1 ngày");
+  await expect(page.locator("[data-part=result]")).toHaveCount(0);
+  expect(await page.locator("main").innerText()).not.toMatch(/\d,\d\s*\/\s*10|nháp/);
+
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  const api = await openReview(page, context);
+  const c2 = page.locator('[data-part=criterion][data-criterion="c2"]');
+  await expect(c2.locator("[data-part=disagree]")).toContainText("Hai lượt chấm lệch 1,5 điểm (1 và 2,5)");
+  await c2.getByLabel(/^Điểm /).fill("2");
+  await c2.getByLabel(/^Điểm /).blur();
+  await expect.poll(() => api.puts().length).toBeGreaterThanOrEqual(1);
+  const ta = c2.locator("[data-part=criterion-comment]");
+  await ta.fill("Chuỗi tấn công đã đủ các bước then chốt, có căn cứ kỹ thuật.");
+  await ta.blur();
+  await expect.poll(() => api.puts().length).toBeGreaterThanOrEqual(2);
+  await page.getByRole("button", { name: "Duyệt bài" }).click();
+  await expect.poll(() => api.reviews().length).toBe(1);
+  await page.goto(QUEUE_URL);
+  const flagFilter = page.getByRole("button", { name: "Cần xem kỹ" });
+  await page.getByLabel("Trạng thái").selectOption("REVIEWED");
+  await expect(page.locator("[data-part=queue-row], main p").filter({ hasText: /Chưa có bài nộp|Trần Thu Uyên/ }).first()).toBeVisible();
+  if ((await flagFilter.getAttribute("aria-pressed")) === "true") await flagFilter.click(); // bài B đã duyệt (hết cờ chờ xem) nên lọc cờ che mất: bỏ lọc
+  await qRows(page).first().getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Công bố" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Công bố" }).click();
+  await expect.poll(() => api.calls.filter((c) => c.path.endsWith("/grading-results/publish")).length).toBe(1);
+  const sent = JSON.parse(api.calls.find((c) => c.path.endsWith("/grading-results/publish"))!.body) as { result_ids: string[] };
+  expect(sent.result_ids).toHaveLength(1);
+  const edit = JSON.parse(api.puts().find((p) => p.body.includes('"c2"') && p.body.includes("score"))!.body) as { criteria: Array<{ id: string; score: string }> };
+  expect(edit.criteria[0]).toEqual({ id: "c2", score: "2" });
+
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await asDemo(context, "student");
+  await studentApi(page, {
+    mine: mineOut({
+      state: "GRADED",
+      submission: late,
+      result: mineResult({
+        total: "7.5",
+        criteria: [
+          { name: "Phát hiện dấu hiệu", score: "4", max: "6", comment: "Nêu đủ ba dấu hiệu.", evidence: ["Nhật ký cho thấy ba lần đăng nhập sai liên tiếp"] },
+          { name: "Đề xuất xử lý", score: "4", max: "4", comment: "Chuỗi tấn công đã đủ các bước then chốt, có căn cứ kỹ thuật.", evidence: [] },
+        ],
+      }),
+    }),
+  });
+  await page.goto(`/assignments/${A1}`);
+  const block = page.locator("[data-part=result]");
+  await expect(block.locator("[data-part=result-total]")).toHaveText("7,5 / 10");
+  await expect(block).toContainText("Chuỗi tấn công đã đủ các bước then chốt, có căn cứ kỹ thuật.");
+  await expect(block.locator("[data-part=result-evidence]").first()).toContainText("ba lần đăng nhập sai liên tiếp");
+  await expect(block.locator("[data-part=result-late]")).toHaveText("Trừ nộp muộn: −0,5 điểm");
 });

@@ -1,5 +1,5 @@
 // k6 — chấm bài hàng loạt (làn BATCH) KHÔNG làm chậm chat riêng của sinh viên (US-P7-07 AC5; SYSTEM_DESIGN §5). Chạy trên stack TEST đã seed
-// (`node scripts/seed.mjs`; US-S9-SEED: lớp 761987 có bài tập BT-TAI với ≥ 200 bài nộp MATCHED chưa chấm; provider giả).
+// (`node scripts/seed.mjs`; US-S9-SEED: lớp 761987 có Bài tập 03 (22 bài MATCHED chưa chấm); provider giả). ASSIGNMENT_ID = id của BT03 (`GET /courses/{id}/assignments`, submission_code BT03).
 //
 //   Lượt 1 — đo chat khi KHÔNG chấm:
 //     k6 run benchmarks/load/grading-vs-chat.js -e BASE=https://localhost:773 -e COURSE_ID=<lớp> -e ASSIGNMENT_ID=<bài> -e PHASE=baseline
@@ -24,7 +24,8 @@ const COURSE_ID = __ENV.COURSE_ID;
 const ASSIGNMENT_ID = __ENV.ASSIGNMENT_ID;
 const BASELINE = Number(__ENV.BASELINE_TTFT_MS || 0);
 const VUS = 20;
-const SEED_STUDENTS = ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: 17 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
+const POOL = PHASE === 'grading' ? VUS + 1 : VUS; // k6 cấp id cho cả VU của kịch bản `grade` (id nằm giữa các VU chat): 21 id liên tiếp → 21 phiên khác nhau (BUG-P7-07-4)
+const SEED_STUDENTS = ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: POOL - 3 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
 const QUESTIONS = [
   'Phishing là gì và làm sao nhận ra một email lừa đảo?',
   'Ransomware hoạt động như thế nào?',
@@ -64,7 +65,7 @@ function login(key) {
 /** setup: mỗi luồng một sinh viên seed + một phiên chat riêng; TEACHER (chỉ ở lượt `grading`). */
 export function setup() {
   const sessions = [];
-  for (let i = 0; i < VUS; i++) {
+  for (let i = 0; i < POOL; i++) {
     const token = login(SEED_STUDENTS[i]);
     const course = http.get(`${API}/me/courses`, { headers: json(token) }).json('items')[0]?.course.id;
     if (!course) fail(`${SEED_STUDENTS[i]} chưa có lớp (chạy node scripts/seed.mjs)`);
@@ -81,8 +82,14 @@ const msOf = (body, event) => {
 };
 
 export function chatVU(d) {
-  const s = d.sessions[exec.vu.idInTest - 1];
-  const q = `${QUESTIONS[exec.vu.idInTest % QUESTIONS.length]} (${crypto.randomUUID().slice(0, 8)})`;
+  const i = (exec.vu.idInTest - 1) % POOL; // mỗi VU một phiên riêng, không dùng chung (dùng chung → CHAT_BUSY giả)
+  const s = d.sessions[i];
+  if (!s) { // không bao giờ quay vòng nóng (vòng lặp rỗng làm nhiễu số đo)
+    console.error(`chat: không có phiên cho VU ${exec.vu.idInTest}`);
+    sleep(3.5);
+    return;
+  }
+  const q = `${QUESTIONS[i % QUESTIONS.length]} (${crypto.randomUUID().slice(0, 8)})`;
   const r = http.post(`${API}/chat/sessions/${s.sid}/messages`, JSON.stringify({ content: q }), {
     headers: { ...json(s.token), Accept: 'text/event-stream', 'Idempotency-Key': crypto.randomUUID() }, tags: { name: 'chat_send' }, timeout: '90s',
   });
@@ -95,7 +102,7 @@ export function chatVU(d) {
       nTtft.add(1);
     }
   } else {
-    console.error(`chat → ${r.status} ${String(r.body).slice(0, 120)}`); // lỗi thật KHÔNG bị che
+    console.error(`chat VU ${exec.vu.idInTest} (phiên ${i}) → ${r.status} ${String(r.body).slice(0, 120)}`); // lỗi thật KHÔNG bị che
   }
   sleep(3.5); // dưới CHAT_RATE_PER_MIN mặc định: đo dưới hạn mức THẬT
 }

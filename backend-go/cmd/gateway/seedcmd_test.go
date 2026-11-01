@@ -186,3 +186,51 @@ func TestSeedStudyTimeProfileFromStdin(t *testing.T) {
 	require.NotZero(t, code, "khoá lạ trong hồ sơ bị từ chối")
 	require.Contains(t, errOut, "study_profile")
 }
+
+// TestSeedAgeAssignment — US-S9-SEED: `seed-age --assignment BT03 --hours 96` lùi hạn + bài nộp + thư NGUYÊN khoảng cách tương đối; chạy lại không lùi thêm; bài khác không bị chạm; APP_ENV production bị từ chối.
+func TestSeedAgeAssignment(t *testing.T) {
+	testutil.RequireContainers(t)
+	w := newSeedWorld(t)
+	ctx := t.Context()
+	asg := func(code string) uuid.UUID {
+		var id uuid.UUID
+		require.NoError(t, w.pool.QueryRow(ctx, `insert into assignments (course_id, title, max_score, due_at, submission_code, created_by, published_at, rubric)
+			values ($1, $2, 10, now() + interval '1 minute', $2, $3, now(), '[{"id":"c1","name":"x","max_score":"10","guidance":""}]'::jsonb) returning id`, w.course, code, w.teacher).Scan(&id))
+		return id
+	}
+	a3, a4 := asg("BT03"), asg("BT04")
+	sub := func(a uuid.UUID, after string) uuid.UUID {
+		var id uuid.UUID
+		require.NoError(t, w.pool.QueryRow(ctx, `insert into submissions (course_id, assignment_id, student_id, source, version, blob_key, file_name, file_size, file_mime, sha256, match_status, match_method, submitted_at, received_at)
+			values ($1, $2, $3, 'IN_APP', 1, 'k', 'a.txt', 1, 'text/plain', 'x', 'MATCHED', 'IN_APP', now() + $4::interval, now() + $4::interval) returning id`, w.course, a, w.stu1, after).Scan(&id))
+		return id
+	}
+	sub(a3, "10 seconds")
+	s4 := sub(a4, "0 seconds")
+	_, err := w.pool.Exec(ctx, `insert into mail_inbound (course_id, uidvalidity, message_uid, from_email, subject, received_at, status) values ($1, 1, 1, 'a@x.vn', 's', now(), 'IGNORED')`, w.course)
+	require.NoError(t, err)
+	gap := func() (time.Duration, time.Duration) { // (due → bài nộp BT03, hạn BT03 → bây giờ)
+		var due, rcv time.Time
+		require.NoError(t, w.pool.QueryRow(ctx, `select a.due_at, s.received_at from assignments a join submissions s on s.assignment_id = a.id where a.id = $1`, a3).Scan(&due, &rcv))
+		return rcv.Sub(due), time.Since(due)
+	}
+	before, _ := gap()
+	var other time.Time
+	require.NoError(t, w.pool.QueryRow(ctx, `select received_at from submissions where id = $1`, s4).Scan(&other))
+	code, out, _ := runSeed(t, seedEnv(w.url, "dev"), "seed-age", "--course", "761987", "--assignment", "BT03", "--hours", "96")
+	require.Equal(t, 0, code)
+	require.Contains(t, out, "seed-age: 3 dòng") // bài tập + 1 bài nộp BT03 + 1 thư; bài nộp BT04 không bị chạm
+	after, age := gap()
+	require.Equal(t, before, after, "khoảng cách tương đối giữ nguyên")
+	require.Greater(t, age, 95*time.Hour)
+	var other2 time.Time
+	require.NoError(t, w.pool.QueryRow(ctx, `select received_at from submissions where id = $1`, s4).Scan(&other2))
+	require.True(t, other.Equal(other2), "bài nộp của bài khác không bị chạm")
+	code, out, _ = runSeed(t, seedEnv(w.url, "dev"), "seed-age", "--course", "761987", "--assignment", "BT03", "--hours", "96")
+	require.Equal(t, 0, code)
+	require.Contains(t, out, "seed-age: 0 dòng", "chạy lại không lùi thêm")
+	code, _, _ = runSeed(t, seedEnv(w.url, "production"), "seed-age", "--course", "761987", "--assignment", "BT03")
+	require.Equal(t, 1, code)
+	code, _, _ = runSeed(t, seedEnv(w.url, "dev"), "seed-age", "--course", "761987", "--assignment", "BT03", "--activity")
+	require.Equal(t, 2, code, "hai chế độ một lúc")
+}

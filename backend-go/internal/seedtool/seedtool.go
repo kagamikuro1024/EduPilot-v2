@@ -202,6 +202,43 @@ where course_id = $1 and id = $2`, courseID, ticketID, hours)
 	return tag.RowsAffected(), nil
 }
 
+// AgeAssignment lùi `hours` giờ hạn nộp của bài tập `code` cùng `received_at` / `submitted_at` của mọi bài nộp và `received_at` của mọi thư nhận vào của lớp (US-S9-SEED): seed nộp bài lúc hạn còn mở rồi
+// đưa cả bộ về quá khứ NGUYÊN khoảng cách tương đối (muộn / đúng hạn giữ nguyên). Chạy lại không lùi thêm: bài đã có hạn trước `now − hours/2` (đã lùi) thì không bị chạm. Trả số dòng đổi.
+func AgeAssignment(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, code string, hours int) (int64, error) {
+	if hours < 1 {
+		return 0, errors.New("--hours phải ≥ 1")
+	}
+	tx, err := pool.Begin(ctx)
+	if err != nil {
+		return 0, fmt.Errorf("lùi bài tập: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+	var id uuid.UUID
+	err = tx.QueryRow(ctx, `update assignments set due_at = due_at - make_interval(hours => $3), published_at = published_at - make_interval(hours => $3), created_at = created_at - make_interval(hours => $3)
+where course_id = $1 and submission_code = $2 and due_at > now() - make_interval(hours => $3::int / 2) returning id`, courseID, code, hours).Scan(&id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, nil // đã lùi rồi (hoặc không có bài)
+	}
+	if err != nil {
+		return 0, fmt.Errorf("lùi bài tập: %w", err)
+	}
+	n := int64(1)
+	for _, q := range []string{
+		`update submissions set received_at = received_at - make_interval(hours => $2), submitted_at = submitted_at - make_interval(hours => $2) where course_id = $1 and (assignment_id = $3 or assignment_id is null)`,
+		`update mail_inbound set received_at = received_at - make_interval(hours => $2) where course_id = $1 and $3::uuid is not null`,
+	} {
+		tag, err := tx.Exec(ctx, q, courseID, hours, id)
+		if err != nil {
+			return 0, fmt.Errorf("lùi bài nộp: %w", err)
+		}
+		n += tag.RowsAffected()
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return 0, fmt.Errorf("lùi bài tập: %w", err)
+	}
+	return n, nil
+}
+
 // AgeActivity đưa `created_at` của tin chat (USER), thread và bình luận của lớp nằm trong tuần hiện tại về một mốc ngẫu nhiên-nhưng-ổn-định (băm của `id`) trong `weeks` tuần TRƯỚC tuần hiện tại.
 // Chạy lại không đổi gì thêm: dòng đã ở trước đầu tuần hiện tại không bị chạm. Không đổi nội dung; mọi truy vấn đếm theo tuần lọc bằng `created_at`, không bằng khoảng `id`.
 func AgeActivity(ctx context.Context, pool *pgxpool.Pool, courseID uuid.UUID, weeks int, now time.Time) (int64, error) {

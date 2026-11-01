@@ -110,15 +110,16 @@ function Mine({ courseId, id, data, now }: { courseId: string; id: string; data:
 
   const overdue = new Date(a.due_at).getTime() < now;
   const sub = data.submission;
+  const lateTag = sub && sub.late_days > 0 ? ` · Nộp muộn ${sub.late_days} ngày` : "";
   const status = receipt
     ? `Đã nhận bài lúc ${at(receipt)}`
     : data.state === "NOT_SUBMITTED" || !sub
       ? "Chưa nộp"
       : data.state === "GRADING"
-        ? "Đang chấm"
+        ? `Đang chấm${lateTag}`
         : data.state === "GRADED"
           ? "Đã có điểm"
-          : `Đã nộp ${fmtLong(sub.received_at)}${sub.late_days > 0 ? ` · Nộp muộn ${sub.late_days} ngày` : ""}`;
+          : `Đã nộp ${fmtLong(sub.received_at)}${lateTag}`;
 
   function choose(list: FileList | null) {
     const files = Array.from(list ?? []);

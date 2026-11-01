@@ -99,8 +99,22 @@ services:
       context: ./backend-go
       target: mock-graph
     image: edupilot-mock-graph
+    ports: ["127.0.0.1:${EP_PORT_MOCK_GRAPH:-8090}:8090"] # seed / check-assignments-seed.mjs đọc nhật ký từ máy chủ
     healthcheck:
       test: ["CMD", "/mock-graph", "-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Máy chủ IMAP thử (US-S9-SEED): cổng IMAP 1143 chỉ trong mạng compose (ImapSource nối `mock-imap:1143`), cổng điều khiển HTTP 8091 mở cho seed trên máy chủ.
+  mock-imap:
+    build:
+      context: ./backend-go
+      target: mock-imap
+    image: edupilot-mock-imap
+    ports: ["127.0.0.1:${EP_PORT_MOCK_IMAP:-8091}:8091"]
+    healthcheck:
+      test: ["CMD", "/mock-imap", "-healthcheck"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -259,7 +273,7 @@ services:
       # Nhận bài qua thư IMAP (US-P7-05): để trống = mặc định; IMAP_TRUSTED_AUTHSERV_ID rỗng = mọi thư UNMATCHED SENDER_UNVERIFIED.
       IMAP_POLL_SECONDS: ${IMAP_POLL_SECONDS:-}
       IMAP_BACKOFF_MAX: ${IMAP_BACKOFF_MAX:-}
-      IMAP_TRUSTED_AUTHSERV_ID: ${IMAP_TRUSTED_AUTHSERV_ID:-}
+      IMAP_TRUSTED_AUTHSERV_ID: ${IMAP_TRUSTED_AUTHSERV_ID:-mx.edupilot.test}
       # Teams (US-P7-11): local trỏ mock-graph (cổng 8090); production dùng graph.microsoft.com / login.microsoftonline.com và TEAMS_ENABLED=false mặc định.
       TEAMS_ENABLED: ${TEAMS_ENABLED:-true}
       GRAPH_BASE_URL: ${GRAPH_BASE_URL:-http://mock-graph:8090/v1.0}

@@ -33,3 +33,17 @@
 - **BUG-P7-07-2:** `jobs.Runner.ReportDetail` (SQL `UpdateJobProgressDetail`) ghi `{done, failed, total}` của CẢ lô vào `jobs.result` khi lô còn chạy và phát trong `job.progress` (SSE) / `GET /jobs/{id}`; `Complete` ghi đè bằng `{graded, failed, flagged}`. `TestGradeAllProgressDetail`. FE dùng `result.total` thay cho `rows.length` ở "Đang chấm n/total".
 - BUG-P7-07-3 (việc `grading.batch` mồ côi khi Redis mất ánh xạ lô sau 24 giờ): giữ nguyên, các bài vẫn được chấm; ghi nhận.
 - FE: `QueueTab.tsx` bỏ đếm theo `rows.length`; sau `Chấm tất cả` giữ `job_id` + `queued`, dùng `useJob` (GET /jobs/{id} + SSE `job.progress`) và hiện "Đang chấm {done+failed}/{total}" (total = `queued` cho tới khi có `result.total`); e2e `queue progress`.
+
+## Vòng 2 (BUG-P7-07-4 + đo thật trên stack có seed)
+- **Sửa `benchmarks/load/grading-vs-chat.js`:** k6 cấp `idInTest` cho cả VU của kịch bản `grade` (id nằm giữa các VU chat) → chỉ số `idInTest - 1` ra `undefined` (lỗi QC thấy), còn `% VUS` thì VU 1 và VU 21 dùng CHUNG một phiên → `409 CHAT_BUSY` giả (tôi đo được 10 / 129 lượt ở lần thử đầu). Cách đúng: `POOL = VUS + 1` phiên ở lượt `grading` (21 sinh viên seed), `i = (idInTest - 1) % POOL` → mỗi VU một phiên riêng; thiếu phiên thì `sleep` rồi bỏ lượt (không quay vòng nóng); lỗi thật vẫn in kèm VU / phiên. (`exec.vu.idInScenario` không tồn tại ở k6 này.)
+- **Số đo** (stack `pnpm dev` + `node scripts/seed.mjs`; provider giả `DEMO_MODE`; BT03 = **22 bài MATCHED** — seed không có 200 bài, bản 200 bài cần `seed-t1.mjs` của P10; xoá `grading_results` giữa hai lượt để `grade-all` có việc):
+
+  | | baseline (không chấm) | grading (`grade-all` 22 bài, giây 5) |
+  | --- | --- | --- |
+  | `first_event_ms` p95 | 23,85 ms | 28 ms (≤ 500 ✓) |
+  | `ttft_ms` p95 | 20,48 s | 20,49 s (+0,05 %, ≤ +20 % ✓) |
+  | `http_req_failed` | 0 % (0/125) | 0 % (0/123) |
+  | `grading_queued` | — | 22 |
+
+  k6 thoát `0` ở cả hai lượt. TTFT tuyệt đối 20 s là do cách provider giả nhả chữ (StreamDelay), không phải độ trễ cố định 300 ms; chỉ tỉ số hai lượt là phép đo.
+- `scripts/check-assignments-seed.mjs grade` giờ chờ lô đang chạy (do k6 hoặc lần trước) xong rồi mới so `expected_grading.json`.
