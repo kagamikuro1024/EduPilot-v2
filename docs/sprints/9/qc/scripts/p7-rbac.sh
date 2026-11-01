@@ -21,6 +21,7 @@ rows=(
 "POST $Q/uploads/presign|403 ok ok 403"
 "POST $Q/assignments/$A3/submissions/upload|403 ok ok 403"
 "GET $Q/submissions|403 ok ok 403"
+"GET $Q/submissions/$SUB_B|403 ok ok 403"
 "PUT $Q/submissions/$SUB_B/match|403 ok ok 403"
 "GET $Q/submissions/$SUB_B/file|403 ok ok 403"
 "GET $Q/mail-inbound|403 ok ok 403"

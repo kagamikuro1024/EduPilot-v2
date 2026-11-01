@@ -1,4 +1,4 @@
-# QC report — US-P7-11 (đồng bộ bài nộp từ Teams: `TeamsGraphSource`, `cmd/mock-graph`, thẻ Teams, `Đồng bộ từ Teams`) · Kết luận vòng 1: **PASS** (BUG-P7-11-1 thấp, lỗ hổng test)
+# QC report — US-P7-11 (đồng bộ bài nộp từ Teams: `TeamsGraphSource`, `cmd/mock-graph`, thẻ Teams, `Đồng bộ từ Teams`) · Kết luận vòng 1: **PASS** (BUG-P7-11-1 thấp, lỗ hổng test) → **vòng 2 (`d37c8138`): PASS** — BUG-P7-11-1 đã sửa, xem mục 4
 Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `8e478910` (HEAD `61c35b39` chỉ thêm tài liệu; mã US-P7-11 ở `025b97df` + `1c435f23` + FE `a775299d`). Bộ TC: `tc-US-P7-11.md`. Handoff: `dev-US-P7-11.md`. CI `8e478910`: **success**. Stack dựng từ DB trống ở HEAD (có `mock-graph`).
 
 ## 1. Cổng đã chạy
@@ -35,3 +35,8 @@ Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `8e478910` (HEAD `61c35b39` ch�
 - Ghi nhận: mock-graph không có phần tử `teacher` trong `members`; `members` thêm `mail`. Không ảnh hưởng nhập bài.
 - Ghi nhận: `docker-compose.prod.yml` chưa có (PR, #14 ACCEPTED) — TC-12 phần `prod 0` không áp dụng.
 - Chưa kiểm được: hết thời gian `TEAMS_SYNC_TIMEOUT` thật (treo > timeout) trên stack — chỉ `TestTeamsSyncTimeout`.
+
+## 4. Vòng 2 — `d37c8138` (CI success) · Kết luận: **PASS**
+- **BUG-P7-11-1 đã sửa:** dev thêm `TestTeamsNoAuthHeaderToListedSecondaryHost` (`fileUrl` trỏ thẳng tới host phụ đã liệt kê trong `GRAPH_FILE_HOSTS` → tải được nhưng **không** mang `Authorization`; tệp ở chính host Graph nhận `Bearer`). QC chạy lại đột biến **T4** (gửi `Authorization` tới mọi host) ở `fetchFile`: test mới **đỏ** (trước đó sống sót). Mã adapter không đổi.
+- `p7-go-tests.sh` mọi tên của TC + handoff (cmd/gateway 1, mock-graph 3, mock-imap 2, grading 2, integration 25, config 2, submission 6, source 3): PASS 44/44; `go test -race ./internal/submission/source/... -run Teams` và `TestTeamsSyncAgainstMockGraph` nằm trong `go-test-all.sh` rc 0.
+- AC8 giữ PASS; mọi AC khác không đổi.

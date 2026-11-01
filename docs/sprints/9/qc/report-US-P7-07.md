@@ -1,4 +1,4 @@
-# QC report — US-P7-07 (hàng đợi chấm `ep:grading`) · Kết luận vòng 1: **FAIL** (AC5) → **vòng 2 (`e7aeff77`): FAIL** (vẫn chỉ AC5; BUG-P7-07-4) — xem mục 4
+# QC report — US-P7-07 (hàng đợi chấm `ep:grading`) · Kết luận vòng 1: **FAIL** (AC5) → vòng 2: FAIL (AC5; BUG-P7-07-4) → vòng 3: PASS (AC5) nhưng BUG-P7-07-5 chặn cổng → **vòng 4 (`d37c8138`): PASS** — xem mục 6
 Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `c487e4fa` (mã US-P7-07 không đổi từ `f5bbfa57`). Bộ TC: `tc-US-P7-07.md`. Handoff: `dev-US-P7-07.md`. CI `c487e4fa`: **success**.
 
 ## 1. Cổng đã chạy
@@ -65,3 +65,9 @@ CI `8e478910`: **success**. Stack dựng từ DB trống ở HEAD.
 - **AC5 → PASS**, với giới hạn: số đo ở 30 bài, không phải 200 (seed không có 200 sinh viên; bản 200 bài cần `seed-t1.mjs` của P10 — dev đã ghi). Phần "200 việc `BATCH` không làm chat chờ > 500 ms" được `TestChatUnaffectedDuringBatchGrading` phủ ở mức Scheduler (xanh). **Đề nghị PM xác nhận chấp nhận giới hạn này** (nếu không, AC5 chuyển FAIL cho tới khi có seed 200 bài).
 - **BUG-P7-07-5 (Trung bình, test đua; chặn G7-10):** `TestRetryThreeThenDead` đợi dòng kết quả `FAILED` ở DB rồi đọc ngay `XLEN ep:grading.dead`, nhưng `retryOrFail` ghi `FAILED` (`GradingFailPermanent`) **trước**, sau đó mới `XADD` `.dead` → đua; dưới tải của `go test ./...` song song thì đỏ ổn định (2/2 lần trên máy QC, 1 lần ở lượt dò đầu). Sửa: `eventually` cho `XLEN` / `DeadTotal`, hoặc `XADD` trước khi đánh dấu `FAILED`.
 - `go test -list`: sprint 9 thêm 425 hàm `Test…` Go, **0 xoá**; 0 ca Playwright bị xoá.
+
+## 6. Vòng 4 — `d37c8138` (CI success) · Kết luận: **PASS**
+- **BUG-P7-07-5 đã sửa (sửa test, mã không đổi):** `TestRetryThreeThenDead` giờ `eventually` (20 s) tới khi `.dead` XLEN = 1 **và** `DeadTotal = 1` rồi mới kiểm số lời gọi LLM; vẫn đỏ nếu `.dead` không đúng một mục (QC đọc diff `queue_more_test.go`: không bỏ khẳng định nào). Lý do dev giữ thứ tự `FAILED` → `XADD` (đảo sẽ để mục `.dead` mồ côi khi thua đua) hợp lý.
+- **G7-10: `bash scripts/go-test-all.sh` rc 0** — 57 gói `ok` (`-race -tags testroutes`) + `TimingEqualized` 3 lượt, chạy một mình trên máy QC; `go vet`, `golangci-lint` (0 issues), `sqlc diff` sạch. `TestRetryThreeThenDead` `-race` thêm 3 lượt riêng: xanh.
+- `p7-go-tests.sh` (25 grading + 4 integration): PASS 29/29.
+- AC5 giữ PASS ở quy mô seed (30 bài); PM đã chấp nhận (proposals, cổng P7 vòng 1): tải 200 bài thuộc P10 (`seed-t1`), ghi nợ.
