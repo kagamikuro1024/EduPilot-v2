@@ -23,7 +23,7 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | P4 Escalation + Mail | Xong | 2026-10-13 | 2026-10-16 | ĐẠT (`sprints/7/qc/report-GATE-P4.md`) | Ticket idempotent, chuông qua `/events` nhiều gateway, thư `Message-ID` tất định, SLA T2–T6, kiểm duyệt Threads, kho tri thức |
 | P5 CRM + 360 | Xong | 2026-10-13 | 2026-10-16 | ĐẠT (`sprints/7/qc/report-GATE-P5.md`) | Điểm danh một giao dịch + audit, hồ sơ 360 audit mỗi lần mở, at-risk vật chất hoá, heartbeat chỉ Redis, công tắc đo theo lớp |
 | P6 Sổ điểm | Chưa | | | | |
-| P7 Chấm bài | Chưa | | | | |
+| P7 Chấm bài | Chờ nghiệm thu | 2026-10-31 | 2026-11-01 | Kỹ thuật PASS (`sprints/9/qc/gate-P7.md`); G7-23 LCP chờ chủ dự án | `00017_assignments`; chấm mù hai lượt, kiểm bằng mã; thư chỉ tin khi `dmarc=pass`; Teams qua `mock-graph` |
 | P8 Tài liệu + Lịch | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P8.md`) | `docling-serve` (profile `ingest`), tìm lai RRF + `tsv`, lịch UNION, ICS token băm |
 | P9 Luyện đề | Chưa | | | | |
 | P10 Đánh giá | Chưa | | | | → vạch bảo vệ |
