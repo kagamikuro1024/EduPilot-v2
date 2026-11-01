@@ -68,7 +68,7 @@ func newRigDeps(t *testing.T, mut func(*httpapi.Deps), opts ...func(map[string]s
 	env := map[string]string{
 		"DATABASE_URL": testutil.MigratedPostgresURL(t), "REDIS_URL": testutil.RedisURL(t), "JWT_SECRET_KEY": rigSecret,
 		"BLOB_ENDPOINT": "127.0.0.1:9", "BLOB_BUCKET": "x", "BLOB_ACCESS_KEY": "x", "BLOB_SECRET_KEY": "x",
-		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "test", "BCRYPT_COST": "4",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "test", "BCRYPT_COST": "4", "TEAMS_ENABLED": "true",
 		"RATE_LIMIT_IP_PER_MIN": "1000000", "RATE_LIMIT_USER_PER_MIN": "1000000", "LOG_LEVEL": "debug",
 		"AUTH_LOGIN_IP_PER_MIN": "1000000", "AUTH_LOGIN_IP_FAIL_PER_15M": "1000000", "AUTH_TOKEN_IP_PER_MIN": "1000000",
 	}

@@ -426,14 +426,10 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.IMAPTrustedAuthservID = l.raw("IMAP_TRUSTED_AUTHSERV_ID")
 	c.SyncNowMinInterval = l.dur("SYNC_NOW_MIN_INTERVAL", 30*time.Second)
 	prod := c.AppEnv == "production"
-	// Production: mặc định Graph thật và TẮT; ngoài production: mặc định trỏ mock-graph và BẬT (docker-compose.local.yml).
-	baseDef, authDef := "http://mock-graph:8090/v1.0", "http://mock-graph:8090"
-	if prod {
-		baseDef, authDef = "https://graph.microsoft.com/v1.0", "https://login.microsoftonline.com"
-	}
-	c.TeamsEnabled = l.boolean("TEAMS_ENABLED", !prod)
-	c.GraphBaseURL = strings.TrimRight(l.str("GRAPH_BASE_URL", baseDef), "/")
-	c.GraphAuthURL = strings.TrimRight(l.str("GRAPH_AUTH_URL", authDef), "/")
+	// Mặc định (mọi môi trường): Graph thật và TẮT (proposals #14). docker-compose.local.yml / .env.local đặt TEAMS_ENABLED=true + địa chỉ mock-graph.
+	c.TeamsEnabled = l.boolean("TEAMS_ENABLED", false)
+	c.GraphBaseURL = strings.TrimRight(l.str("GRAPH_BASE_URL", "https://graph.microsoft.com/v1.0"), "/")
+	c.GraphAuthURL = strings.TrimRight(l.str("GRAPH_AUTH_URL", "https://login.microsoftonline.com"), "/")
 	for _, v := range []struct{ name, val string }{{"GRAPH_BASE_URL", c.GraphBaseURL}, {"GRAPH_AUTH_URL", c.GraphAuthURL}} {
 		u, err := url.Parse(v.val)
 		switch {

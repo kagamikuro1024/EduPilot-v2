@@ -443,7 +443,7 @@ func TestProductionRejectsMockGraph(t *testing.T) {
 	require.Error(t, err, "production không dùng http")
 }
 
-// TestTeamsDefaultsPerEnv — US-P7-11 AC11: production mặc định Graph thật và TẮT; dev / test mặc định mock-graph và BẬT.
+// TestTeamsDefaultsPerEnv — US-P7-11 AC11 (proposals #14): không đặt biến thì TEAMS_ENABLED = false và Graph thật ở MỌI môi trường; môi trường local đặt tường minh (compose).
 func TestTeamsDefaultsPerEnv(t *testing.T) {
 	env := func(app string) map[string]string {
 		m := map[string]string{"DATABASE_URL": "postgres://x", "REDIS_URL": "redis://x", "JWT_SECRET_KEY": "0123456789abcdef0123456789abcdef-prod", "BLOB_ENDPOINT": "x:1", "BLOB_BUCKET": "b", "BLOB_ACCESS_KEY": "a", "BLOB_SECRET_KEY": "s",
@@ -453,18 +453,21 @@ func TestTeamsDefaultsPerEnv(t *testing.T) {
 		}
 		return m
 	}
-	for _, c := range []struct {
-		app     string
-		enabled bool
-		base    string
-	}{{"production", false, "https://graph.microsoft.com/v1.0"}, {"dev", true, "http://mock-graph:8090/v1.0"}, {"test", true, "http://mock-graph:8090/v1.0"}} {
-		m := env(c.app)
+	for _, app := range []string{"production", "dev", "test"} {
+		m := env(app)
 		cfg, err := config.Load(func(k string) string { return m[k] }, config.Gateway)
-		require.NoError(t, err, c.app)
-		require.Equal(t, c.enabled, cfg.TeamsEnabled, c.app)
-		require.Equal(t, c.base, cfg.GraphBaseURL, c.app)
+		require.NoError(t, err, app)
+		require.False(t, cfg.TeamsEnabled, app)
+		require.Equal(t, "https://graph.microsoft.com/v1.0", cfg.GraphBaseURL, app)
+		require.Equal(t, "https://login.microsoftonline.com", cfg.GraphAuthURL, app)
 		require.Equal(t, 4, cfg.TeamsDownloadParallel)
 		require.Equal(t, 2, cfg.TeamsFileRetry)
 		require.Equal(t, 120*time.Second, cfg.TeamsSyncTimeout)
 	}
+	m := env("dev")
+	m["TEAMS_ENABLED"], m["GRAPH_BASE_URL"], m["GRAPH_AUTH_URL"] = "true", "http://mock-graph:8090/v1.0", "http://mock-graph:8090"
+	cfg, err := config.Load(func(k string) string { return m[k] }, config.Gateway)
+	require.NoError(t, err)
+	require.True(t, cfg.TeamsEnabled)
+	require.Equal(t, "http://mock-graph:8090/v1.0", cfg.GraphBaseURL)
 }
