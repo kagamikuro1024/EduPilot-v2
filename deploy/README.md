@@ -23,6 +23,10 @@ node deploy/vps-llm.mjs                                     # SAU seed: chuyển
 ```
 Sau seed, bỏ bốn dòng `RATE_LIMIT_IP_PER_MIN`, `AUTH_*_IP_*` khỏi `.env.local` rồi `deploy/dc up -d gateway` (giới hạn theo IP trở lại mặc định).
 
+## Tường lửa của host (quan trọng)
+Host có hardening cũ trong `/etc/iptables/rules.v4` (+ `rules.v6`): chuỗi `DOCKER-USER` có `-i eth0 -m conntrack --ctstate NEW -j DROP` chặn mọi kết nối mới tới cổng container công bố. Đã viết lại tối giản: `DOCKER-USER` chỉ cho `-i eth0 -m conntrack --ctorigdstport 80/443` (đúng hai cổng Caddy), còn lại vẫn DROP; SSH (INPUT) không đổi. Bản cũ: `/root/rules.v4.before-80-443`, `/root/rules.v6.before-80-443`. Muốn mở thêm cổng ra Internet thì thêm luật `--ctorigdstport` tương ứng; không publish cổng ra `0.0.0.0` ở compose khi chưa cần.
+**KHÔNG chạy `netfilter-persistent reload` (hay `iptables-restore` bản cũ) khi Docker đang chạy** — nó flush bảng `filter` và xoá các chuỗi `DOCKER*` do Docker dựng: container mất mạng ra / vào cho tới khi `systemctl restart docker`. Sửa luật bằng `iptables -I/-D DOCKER-USER …` rồi `netfilter-persistent save`.
+
 ## LLM
 - 9router (`http://9router:20128/v1`, OpenAI-compatible) qua loại `openai_compatible`: `json_object` + schema trong lời nhắc (9router bỏ qua `json_schema`), Go vẫn kiểm schema. Model mọi tác vụ sinh chữ: `ag/gemini-3.8-flash`; RPM 20 / nhà cung cấp (tài khoản miễn phí phía sau 9router có hạn mức).
 - **Không có embeddings** ở 9router → tác vụ `EMBEDDING` dùng nhà cung cấp `fake` (tất định 1536 chiều); tìm lai vẫn có nhánh `tsv`. Đây là giới hạn của bản triển khai này.
