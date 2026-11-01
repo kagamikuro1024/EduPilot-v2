@@ -147,7 +147,12 @@ func estimate(s string) int { return (len(s) + 3) / 4 }
 
 // Chat gọi sinh văn bản một lần.
 func (p *oaClient) Chat(ctx context.Context, o ChatOpts) (Result, error) {
-	res, err := p.cl.Chat.Completions.New(ctx, p.params(o))
+	var ro []option.RequestOption
+	if p.typ == "openai_compatible" {
+		// Một số cổng tương thích OpenAI (9router, OPS-VPS) trả SSE khi thân không nêu `stream`: SDK không giải mã được → BAD_RESPONSE. Nêu rõ `stream:false`.
+		ro = append(ro, option.WithJSONSet("stream", false))
+	}
+	res, err := p.cl.Chat.Completions.New(ctx, p.params(o), ro...)
 	if err != nil {
 		return Result{}, p.fail(err)
 	}

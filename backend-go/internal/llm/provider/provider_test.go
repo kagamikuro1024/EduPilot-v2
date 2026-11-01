@@ -252,6 +252,9 @@ func TestStructuredRequestShape(t *testing.T) {
 			rf := b["response_format"].(map[string]any)
 			msgs := b["messages"].([]any)
 			first := msgs[0].(map[string]any)
+			if v, ok := b["stream"]; !ok || v != false {
+				t.Errorf("openai_compatible Chat phải gửi stream:false tường minh (9router trả SSE nếu thiếu): stream=%v", v)
+			}
 			if rf["type"] != "json_object" || first["role"] != "system" || !strings.Contains(first["content"].(string), `"additionalProperties":false`) {
 				t.Errorf("json_object + schema trong lời nhắc: %v", b)
 			}
