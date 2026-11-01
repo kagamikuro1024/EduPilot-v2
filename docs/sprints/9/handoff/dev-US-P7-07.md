@@ -47,3 +47,7 @@
 
   k6 thoát `0` ở cả hai lượt. TTFT tuyệt đối 20 s là do cách provider giả nhả chữ (StreamDelay), không phải độ trễ cố định 300 ms; chỉ tỉ số hai lượt là phép đo.
 - `scripts/check-assignments-seed.mjs grade` giờ chờ lô đang chạy (do k6 hoặc lần trước) xong rồi mới so `expected_grading.json`.
+
+## Vòng 3 (BUG-P7-07-5 — cổng P7)
+- `TestRetryThreeThenDead` (`internal/grading/queue_more_test.go`) đua: consumer ghi `FAILED` ở DB RỒI mới `XADD` `.dead` và tăng `DeadTotal` (hai bước tuần tự, `.dead` chỉ để đếm, không cùng giao dịch); test đọc `XLEN` ngay sau khi thấy `FAILED` nên có lúc 0. Sửa **test**: chờ (`eventually`, 20 s) tới khi `XLEN = 1` và `DeadTotal = 1` rồi mới kiểm số lời gọi LLM; vẫn đỏ nếu `.dead` không bao giờ có đúng một mục (hoặc có hai). Mã chạy thật không đổi (không đảo thứ tự: nếu `XADD` trước `FAILED` thì thua cuộc đua lại để lại mục `.dead` mồ côi).
+- Đã chạy `scripts/go-test-all.sh` đủ (kết quả ở cuối `dev-US-P7-11.md` mục Vòng 3).

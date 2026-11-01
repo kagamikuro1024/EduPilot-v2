@@ -53,10 +53,11 @@ func TestRetryThreeThenDead(t *testing.T) {
 	var code string
 	r.one(&code, `select error_code from grading_results where id = $1`, res)
 	require.Equal(t, grading.ErrLLMUnavailable, code)
-	n, err := r.rdb.XLen(r.ctx, r.prefix+grading.StreamGradingDead).Result()
-	require.NoError(t, err)
-	require.EqualValues(t, 1, n)
-	require.EqualValues(t, 1, q.M.Snapshot().DeadTotal)
+	// FAILED ghi ở DB TRƯỚC khi consumer XADD `.dead` và tăng bộ đếm (hai bước tuần tự, không cùng giao dịch): chờ cho tới khi quan sát được, không đọc ngay (BUG-P7-07-5)
+	r.eventually(func() bool {
+		n, err := r.rdb.XLen(r.ctx, r.prefix+grading.StreamGradingDead).Result()
+		return err == nil && n == 1 && q.M.Snapshot().DeadTotal == 1
+	}, ".dead có đúng 1 mục và DeadTotal = 1")
 	require.Equal(t, 6, int(r.calls.Load()), "ba lần chạy, mỗi lần hai lượt")
 }
 

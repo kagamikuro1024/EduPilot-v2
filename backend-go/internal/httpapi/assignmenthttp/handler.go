@@ -46,6 +46,7 @@ func (h *Handler) Mount(r chi.Router) {
 	// Route của nhân viên về bài nộp (US-P7-04): tải tệp lẻ / ZIP, tab `Chưa khớp`, gán tay, bỏ qua, tải tệp.
 	r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/submissions/upload", h.upload)
 	r.With(staff).Get("/courses/{id}/submissions", h.listSubmissions)
+	r.With(staff).Get("/courses/{id}/submissions/{sid}", h.submissionDetail)
 	r.With(staff).Put("/courses/{id}/submissions/{sid}/match", h.match)
 	r.With(staff).Get("/courses/{id}/submissions/{sid}/file", h.file)
 	r.With(staff).Post("/courses/{id}/submissions/{sid}/dismiss", h.dismiss)
@@ -423,6 +424,21 @@ func (h *Handler) match(w http.ResponseWriter, r *http.Request) {
 		h.fail(w, r, err)
 		return
 	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+// submissionDetail: GET …/submissions/{sid} (TA, TEACHER; ADMIN 403) — người nộp + mọi phiên bản (SRS 6 hàng 15).
+func (h *Handler) submissionDetail(w http.ResponseWriter, r *http.Request) {
+	course, sid, _, ok := staffOf(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Assignments.SubmissionDetail(r.Context(), course, sid)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
 	httpx.WriteJSON(w, http.StatusOK, out)
 }
 

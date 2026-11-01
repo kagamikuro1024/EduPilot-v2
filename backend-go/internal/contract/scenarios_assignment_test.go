@@ -386,6 +386,16 @@ func (r *runner) uploadScenarios(x examRig, base string) {
 	r.must(call{method: "GET", path: sub, token: x.gv}, 200) // mặc định: hàng chờ chấm (MATCHED + DRAFT)
 	id1, v1 := list()
 
+	// 15: chi tiết bài nộp + các phiên bản (BUG-P7-03-4).
+	r.must(call{method: "GET", path: sub + "/" + id1, token: x.gv}, 200)
+	r.must(call{method: "GET", path: sub + "/" + id1, token: x.ta}, 200)
+	r.must(call{method: "GET", path: sub + "/" + id1}, 401)
+	for _, who := range []string{x.sv, x.admin} {
+		r.must(call{method: "GET", path: sub + "/" + id1, token: who}, 403)
+	}
+	r.must(call{method: "GET", path: sub + "/00000000-0000-7000-8000-000000000000", token: x.gv}, 404)
+	r.must(call{method: "GET", path: sub + "/khong-phai-uuid", token: x.gv}, 404)
+
 	// 17: tải tệp (URL ký 5 phút).
 	r.must(call{method: "GET", path: sub + "/" + id1 + "/file", token: x.gv}, 200)
 	r.must(call{method: "GET", path: sub + "/" + id1 + "/file", token: x.ta}, 200)

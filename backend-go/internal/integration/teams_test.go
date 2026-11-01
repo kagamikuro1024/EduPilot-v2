@@ -359,6 +359,27 @@ func TestTeamsNoAuthHeaderToForeignHost(t *testing.T) {
 	require.Equal(t, []string{""}, cdn.fileAuth, "host khác không nhận Authorization")
 }
 
+// TestTeamsNoAuthHeaderToListedSecondaryHost — AC8 / TLR-20 / BUG-P7-11-1: `fileUrl` trỏ THẲNG (không chuyển hướng) tới host phụ ĐÃ liệt kê trong GRAPH_FILE_HOSTS thì được tải nhưng KHÔNG mang Authorization;
+// chỉ host Graph nhận token. (Bắt đột biến "gửi Authorization tới mọi host".)
+func TestTeamsNoAuthHeaderToListedSecondaryHost(t *testing.T) {
+	other := newFakeGraph(t)
+	g := newFakeGraph(t)
+	g.fileURL = func(string) string { return other.srv.URL + "/files/x" }
+	var f files
+	_, err := g.teams(hostOf(g.srv.URL), hostOf(other.srv.URL)).Sync(t.Context(), tcred, "c", "a", f.on, nil)
+	require.NoError(t, err)
+	require.Len(t, f.got, 1, "host phụ đã liệt kê được tải")
+	require.Equal(t, []string{""}, other.fileAuth, "host phụ không nhận Authorization")
+	require.Empty(t, g.fileAuth, "host Graph không bị gọi tải tệp ở ca này")
+	// ngược lại: tệp ở chính host Graph thì nhận token
+	g2 := newFakeGraph(t)
+	g2.fileURL = func(host string) string { return host + "/files/y" }
+	var f2 files
+	_, err = g2.teams(hostOf(g2.srv.URL)).Sync(t.Context(), tcred, "c", "a", f2.on, nil)
+	require.NoError(t, err)
+	require.Equal(t, []string{"Bearer tok-fake"}, g2.fileAuth)
+}
+
 // ---- AC9: nhánh lỗi ----
 
 // outageGraph bọc mock-graph: sau `after` yêu cầu tải tệp thì cắt kết nối (như máy chủ tắt giữa chừng).

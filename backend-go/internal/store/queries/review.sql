@@ -134,3 +134,20 @@ limit 1;
 
 -- name: MineAppealOf :one
 select status, response from grade_appeals where course_id = sqlc.arg(course_id) and result_id = sqlc.arg(result_id);
+
+-- name: SubmissionVersions :many
+-- Chi tiết một bài nộp cho nhân viên (SRS 6 hàng 15): mọi PHIÊN BẢN MATCHED của cùng (bài tập, sinh viên), mới nhất trước, kèm kết quả chấm HIỆN HÀNH của từng bản. Bài chưa khớp / chưa có sinh viên: chỉ chính nó.
+select s.id, s.assignment_id, a.title as assignment_title, s.student_id, coalesce(u.full_name, '')::text as student_name,
+       coalesce(e.student_code_snapshot, '')::text as student_code, coalesce(e.status::text, '')::text as enrollment_status,
+       s.source, s.version, s.file_name, s.file_size, s.match_status, s.unmatched_reason, s.received_at, s.submitted_at, a.due_at,
+       (s.id = cur.id)::bool as requested,
+       r.id as result_id, r.status as result_status, r.run_state, r.total, r.flags, r.needs_review as result_needs_review, r.error_code, r.version as result_version
+from submissions cur
+join submissions s on s.course_id = cur.course_id and (s.id = cur.id or (cur.student_id is not null and s.assignment_id = cur.assignment_id and s.student_id = cur.student_id and s.match_status = 'MATCHED'))
+left join assignments a on a.course_id = s.course_id and a.id = s.assignment_id
+left join users u on u.id = s.student_id
+left join enrollments e on e.course_id = s.course_id and e.user_id = s.student_id
+left join grading_results r on r.course_id = s.course_id and r.submission_id = s.id
+     and r.round = (select max(x.round) from grading_results x where x.course_id = s.course_id and x.submission_id = s.id)
+where cur.course_id = sqlc.arg(course_id) and cur.id = sqlc.arg(id)
+order by s.version desc nulls last, s.received_at desc, s.id desc;

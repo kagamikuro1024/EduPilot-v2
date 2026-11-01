@@ -562,3 +562,42 @@ func TestSeedTeamsHappyCounts(t *testing.T) {
 }
 
 func encode(b []byte) string { return base64.StdEncoding.EncodeToString(b) }
+
+// TestSubmissionDetailVersions — BUG-P7-03-4 (SRS 6 hàng 15): `GET …/submissions/{id}` cho nhân viên gồm MỌI phiên bản của cùng (bài tập, sinh viên), mới nhất trước và đánh dấu bản được chấm; hỏi bằng id bản cũ vẫn ra đủ;
+// bài chưa khớp chỉ có chính nó; sinh viên / ADMIN 403; lớp khác 404.
+func TestSubmissionDetailVersions(t *testing.T) {
+	s := newSeedAsg(t)
+	s.addSubmissions()
+	c := "/courses/" + s.c1.String()
+	var oldID uuid.UUID
+	require.NoError(t, s.r.pool.QueryRow(t.Context(), `select id from submissions where course_id = $1 and student_id = $2 and version = 1`, s.c1, s.userOf["sv12"]).Scan(&oldID))
+	for _, id := range []uuid.UUID{s.sub["sv12"], oldID} { // sv12 nộp hai phiên bản (S3 rồi S2)
+		for _, who := range []session{s.gv, s.ta} {
+			res := s.get(who, c+"/submissions/"+id.String())
+			require.Equal(t, http.StatusOK, res.code, string(res.body))
+			require.Equal(t, "no-store", res.hdr.Get("Cache-Control"))
+			j := res.json()
+			require.Equal(t, id.String(), j["id"])
+			require.Equal(t, s.code["sv12"], j["student"].(map[string]any)["student_code"])
+			vs := j["versions"].([]any)
+			require.Len(t, vs, 2)
+			require.EqualValues(t, 2, vs[0].(map[string]any)["version"])
+			require.Equal(t, true, vs[0].(map[string]any)["current"])
+			require.EqualValues(t, 1, vs[1].(map[string]any)["version"])
+			require.Equal(t, false, vs[1].(map[string]any)["current"])
+			require.NotContains(t, string(res.body), "blob_key", "không lộ khoá kho tệp")
+		}
+	}
+	one := s.get(s.gv, c+"/submissions/"+s.sub["sv.gioi"].String()).json()["versions"].([]any)
+	require.Len(t, one, 1)
+	un := s.get(s.gv, c+"/submissions/"+s.unmatch["zip30"].String())
+	require.Equal(t, http.StatusOK, un.code)
+	require.Equal(t, "UNMATCHED", un.json()["match_status"])
+	require.Nil(t, un.json()["student"])
+	require.Len(t, un.json()["versions"], 1)
+	for _, who := range []session{s.sv["sv.gioi"], s.admin, s.dd} {
+		require.Equal(t, http.StatusForbidden, s.get(who, c+"/submissions/"+s.sub["sv12"].String()).code)
+	}
+	require.Equal(t, http.StatusNotFound, s.get(s.gv, "/courses/"+s.c2.String()+"/submissions/"+s.sub["sv12"].String()).code, "bài của lớp 1 không đọc được qua lớp 2")
+	require.Equal(t, http.StatusNotFound, s.get(s.gv, c+"/submissions/"+uuid.NewString()).code)
+}

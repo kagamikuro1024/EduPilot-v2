@@ -4054,6 +4054,32 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/submissions/{sid}:
+    get:
+      operationId: getSubmission
+      tags: [assignments]
+      summary: "Chi tiết một bài nộp cho nhân viên (TA, TEACHER; ADMIN 403; Cache-Control: no-store): người nộp, bài tập và mọi phiên bản MATCHED của cùng (bài tập, sinh viên), mới nhất trước, kèm kết quả chấm hiện hành của từng bản (SRS 6 hàng 15). Bài chưa khớp: chỉ chính nó. Không trả URL tệp (xem …/file). Không thuộc lớp 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/v1/courses/{id}/submissions/{sid}/file:
     get:
       operationId: getSubmissionFile
@@ -12758,6 +12784,59 @@ components:
         assignment_id: {type: string, format: uuid}
         student_id: {type: string, format: uuid}
         version: {type: integer}
+    SubmissionDetail:
+      type: object
+      required: [id, assignment, student, match_status, versions]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        assignment:
+          type: [object, "null"]
+          required: [id, title]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            title: {type: string}
+        student:
+          type: [object, "null"]
+          required: [id, full_name, student_code, inactive]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            full_name: {type: string}
+            student_code: {type: string}
+            inactive: {type: boolean}
+        match_status: {type: string, enum: [MATCHED, UNMATCHED]}
+        unmatched_reason: {type: string}
+        versions:
+          type: array
+          items:
+            type: object
+            required: [id, version, source, file_name, file_size, match_status, received_at, late_days, current, result]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              version: {type: [integer, "null"]}
+              source: {type: string}
+              file_name: {type: string}
+              file_size: {type: integer, format: int64}
+              match_status: {type: string}
+              received_at: {type: string, format: date-time}
+              late_days: {type: integer}
+              current: {type: boolean}
+              result:
+                type: [object, "null"]
+                required: [id, status, run_state, flags, needs_review, version]
+                additionalProperties: false
+                properties:
+                  id: {type: string, format: uuid}
+                  status: {type: string}
+                  run_state: {type: string}
+                  total: {type: [string, "null"]}
+                  flags: {type: array, items: {type: string}}
+                  needs_review: {type: boolean}
+                  error_code: {type: string}
+                  version: {type: integer}
     SubmissionFileURL:
       type: object
       required: [url, expires_in]

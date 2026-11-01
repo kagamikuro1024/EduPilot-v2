@@ -649,3 +649,80 @@ func (s *Service) Review(ctx context.Context, a Actor, course, id uuid.UUID, ver
 	})
 	return out, err
 }
+
+// SubmissionVersion là một phiên bản trong chi tiết bài nộp.
+type SubmissionVersion struct {
+	ID         uuid.UUID    `json:"id"`
+	Version    *int32       `json:"version"`
+	Source     string       `json:"source"`
+	FileName   string       `json:"file_name"`
+	FileSize   int64        `json:"file_size"`
+	Match      string       `json:"match_status"`
+	ReceivedAt time.Time    `json:"received_at"`
+	LateDays   int          `json:"late_days"`
+	Current    bool         `json:"current"` // bản mới nhất (bản được chấm)
+	Result     *QueueResult `json:"result"`
+}
+
+// SubmissionDetail là chi tiết một bài nộp cho nhân viên: người nộp, bài tập và mọi phiên bản (SRS 6 hàng 15).
+type SubmissionDetail struct {
+	ID         uuid.UUID `json:"id"`
+	Assignment *struct {
+		ID    uuid.UUID `json:"id"`
+		Title string    `json:"title"`
+	} `json:"assignment"`
+	Student         *QueueStudent       `json:"student"`
+	Match           string              `json:"match_status"`
+	UnmatchedReason *string             `json:"unmatched_reason,omitempty"`
+	Versions        []SubmissionVersion `json:"versions"`
+}
+
+// SubmissionDetail trả bài nộp `id` cùng mọi phiên bản MATCHED của cùng (bài tập, sinh viên), mới nhất trước. Không thuộc lớp → 404. Chỉ nhân viên (route); không trả URL tệp (đã có `…/file`).
+func (s *Service) SubmissionDetail(ctx context.Context, course, id uuid.UUID) (SubmissionDetail, error) {
+	rows, err := store.New(s.Pool).SubmissionVersions(ctx, store.SubmissionVersionsParams{CourseID: course, ID: id})
+	if err != nil {
+		return SubmissionDetail{}, fmt.Errorf("assignment: các phiên bản bài nộp: %w", err)
+	}
+	var out SubmissionDetail
+	for _, r := range rows {
+		if !r.Requested {
+			continue
+		}
+		out.ID, out.Match, out.UnmatchedReason = r.ID, r.MatchStatus, r.UnmatchedReason
+		if r.AssignmentID != nil && r.AssignmentTitle != nil {
+			out.Assignment = &struct {
+				ID    uuid.UUID `json:"id"`
+				Title string    `json:"title"`
+			}{*r.AssignmentID, *r.AssignmentTitle}
+		}
+		if r.StudentID != nil {
+			out.Student = &QueueStudent{ID: *r.StudentID, FullName: r.StudentName, StudentCode: r.StudentCode, Inactive: r.EnrollmentStatus != "" && r.EnrollmentStatus != "ACTIVE"}
+		}
+	}
+	if out.ID == uuid.Nil {
+		return SubmissionDetail{}, apierr.New(http.StatusNotFound, apierr.NotFound)
+	}
+	out.Versions = make([]SubmissionVersion, 0, len(rows))
+	for i, r := range rows {
+		v := SubmissionVersion{ID: r.ID, Version: r.Version, Source: r.Source, FileName: r.FileName, FileSize: r.FileSize, Match: r.MatchStatus, ReceivedAt: r.ReceivedAt, Current: i == 0}
+		if r.DueAt != nil {
+			v.LateDays = grading.LateDays(r.SubmittedAt, *r.DueAt)
+		}
+		if r.ResultID != nil {
+			qr := &QueueResult{ID: *r.ResultID, Status: deref(r.ResultStatus), RunState: deref(r.RunState), Flags: r.Flags, ErrorCode: r.ErrorCode, NeedsReview: r.ResultNeedsReview != nil && *r.ResultNeedsReview}
+			if qr.Flags == nil {
+				qr.Flags = []string{}
+			}
+			if r.Total.Valid {
+				t := r.Total.Decimal.StringFixed(2)
+				qr.Total = &t
+			}
+			if r.ResultVersion != nil {
+				qr.Version = *r.ResultVersion
+			}
+			v.Result = qr
+		}
+		out.Versions = append(out.Versions, v)
+	}
+	return out, nil
+}
