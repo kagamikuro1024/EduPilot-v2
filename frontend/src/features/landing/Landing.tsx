@@ -37,7 +37,6 @@ function Shot({ name, alt, priority, className, sizes }: { name: string; alt: st
   return (
     <picture>
       <source media="(max-width: 719px)" srcSet={small.props.src} width={640} height={400} />
-      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img {...props} alt={alt} />
     </picture>
   );
