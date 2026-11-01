@@ -81,15 +81,28 @@ func (p *oaClient) fail(err error) error { return classify(err, p.key) }
 
 func (p *oaClient) params(o ChatOpts) openai.ChatCompletionNewParams {
 	msgs := make([]openai.ChatCompletionMessageParamUnion, 0, len(o.Messages)+1)
+	// openai_compatible: chỉ dẫn schema nằm TRONG tin system đầu tiên (gộp, không thêm tin system riêng) — Gemini sau 9router chỉ theo một tin system và bỏ qua schema ở tin kia (OPS-VPS).
+	instr := ""
+	if p.typ == "openai_compatible" && len(o.Schema) > 0 {
+		instr = schemaInstruction + string(o.Schema)
+	}
 	for _, m := range o.Messages {
 		switch m.Role {
 		case "system":
+			if instr != "" {
+				msgs = append(msgs, openai.SystemMessage(instr+"\n\n"+m.Content))
+				instr = ""
+				continue
+			}
 			msgs = append(msgs, openai.SystemMessage(m.Content))
 		case "assistant":
 			msgs = append(msgs, openai.AssistantMessage(m.Content))
 		default:
 			msgs = append(msgs, openai.UserMessage(m.Content))
 		}
+	}
+	if instr != "" { // không có tin system nào: thêm một tin ở đầu
+		msgs = append([]openai.ChatCompletionMessageParamUnion{openai.SystemMessage(instr)}, msgs...)
 	}
 	prm := openai.ChatCompletionNewParams{Model: shared.ChatModel(o.Model), Messages: msgs}
 	if o.Temperature != nil {
@@ -118,6 +131,8 @@ func (p *oaClient) params(o ChatOpts) openai.ChatCompletionNewParams {
 
 const toolName = "emit_result"
 
+const schemaInstruction = "Chỉ trả về MỘT đối tượng JSON hợp lệ theo đúng JSON Schema sau, không thêm chữ nào khác:\n"
+
 // applySchema chọn cách ép đầu ra có cấu trúc THEO LOẠI (cố định, một lời gọi — D47): openai/gemini → json_schema strict;
 // anthropic bỏ qua response_format nên dùng tool bắt buộc; openai_compatible → json_object kèm schema trong lời nhắc.
 func (p *oaClient) applySchema(prm *openai.ChatCompletionNewParams, schema json.RawMessage) {
@@ -136,10 +151,7 @@ func (p *oaClient) applySchema(prm *openai.ChatCompletionNewParams, schema json.
 			Function: openai.ChatCompletionNamedToolChoiceFunctionParam{Name: toolName},
 		}}
 	default:
-		prm.ResponseFormat = openai.ChatCompletionNewParamsResponseFormatUnion{OfJSONObject: &shared.ResponseFormatJSONObjectParam{}}
-		prm.Messages = append([]openai.ChatCompletionMessageParamUnion{
-			openai.SystemMessage("Chỉ trả về MỘT đối tượng JSON hợp lệ theo đúng JSON Schema sau, không thêm chữ nào khác:\n" + string(schema)),
-		}, prm.Messages...)
+		prm.ResponseFormat = openai.ChatCompletionNewParamsResponseFormatUnion{OfJSONObject: &shared.ResponseFormatJSONObjectParam{}} // chỉ dẫn schema đã gộp vào tin system ở params()
 	}
 }
 
