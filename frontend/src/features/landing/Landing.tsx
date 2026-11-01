@@ -1,4 +1,5 @@
 import { getImageProps } from "next/image";
+import { preload } from "react-dom";
 import Link from "next/link";
 import { ButtonLink } from "@/shared/ui/Button";
 import s from "./Landing.module.css";
@@ -56,6 +57,9 @@ function Items({ rows }: { rows: ReadonlyArray<readonly [string, string]> }) {
 }
 
 export function Landing() {
+  // Ảnh đầu trang là ứng viên LCP: báo trình duyệt tải ngay từ <head>, đúng bản theo bề rộng, không chờ phân tích tới thẻ <img>.
+  preload("/landing/giang-vien-duyet-bai-640.webp", { as: "image", media: "(max-width: 719px)", fetchPriority: "high" });
+  preload("/landing/giang-vien-duyet-bai.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
   return (
     <div className={s.page} data-part="landing">
       <header className={s.top}>
