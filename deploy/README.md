@@ -16,22 +16,21 @@ git clone -b ops/vps-deploy https://github.com/kagamikuro1024/EduPilot-v2.git /o
 EP_HOST=<hostname công khai> bash deploy/vps-env.sh        # .env.local
 deploy/dc up -d --build --wait                              # build + dựng (docling build lâu một lần)
 # Node 24 chỉ để chạy seed / vps-llm (tải bản linux-x64 vào /opt/node, ngoài repo)
-export PATH=/opt/node/bin:$PATH API_URL=https://<hostname>/api/v1 MAILPIT_URL=http://127.0.0.1:8025 \
-  SEED_ADMIN_CMD="deploy/dc exec -T gateway /gateway admin create"
-node scripts/seed.mjs                                       # seed bằng API thật (LLM giả + bản ghi demo: seed cần để trích quy chế)
-node deploy/vps-llm.mjs                                     # SAU seed: chuyển sang LLM thật
+# GEMINI_API_KEY (khoá embeddings Gemini, do chủ dự án cấp) thêm vào .env.local TRƯỚC bước dưới; không commit
+deploy/vps-seed.sh                                          # seed bằng API thật + cấu hình LLM (xem "LLM")
 ```
-Sau seed, bỏ bốn dòng `RATE_LIMIT_IP_PER_MIN`, `AUTH_*_IP_*` khỏi `.env.local` rồi `deploy/dc up -d gateway` (giới hạn theo IP trở lại mặc định).
+`vps-seed.sh` nới giới hạn theo IP chỉ trong lúc seed (seed là MỘT IP gửi hàng nghìn yêu cầu) rồi gỡ và `up -d gateway`.
 
 ## Tường lửa của host (quan trọng)
 Host có hardening cũ trong `/etc/iptables/rules.v4` (+ `rules.v6`): chuỗi `DOCKER-USER` có `-i eth0 -m conntrack --ctstate NEW -j DROP` chặn mọi kết nối mới tới cổng container công bố. Đã viết lại tối giản: `DOCKER-USER` chỉ cho `-i eth0 -m conntrack --ctorigdstport 80/443` (đúng hai cổng Caddy), còn lại vẫn DROP; SSH (INPUT) không đổi. Bản cũ: `/root/rules.v4.before-80-443`, `/root/rules.v6.before-80-443`. Muốn mở thêm cổng ra Internet thì thêm luật `--ctorigdstport` tương ứng; không publish cổng ra `0.0.0.0` ở compose khi chưa cần.
 **KHÔNG chạy `netfilter-persistent reload` (hay `iptables-restore` bản cũ) khi Docker đang chạy** — nó flush bảng `filter` và xoá các chuỗi `DOCKER*` do Docker dựng: container mất mạng ra / vào cho tới khi `systemctl restart docker`. Sửa luật bằng `iptables -I/-D DOCKER-USER …` rồi `netfilter-persistent save`.
 
 ## LLM
-- 9router (`http://9router:20128/v1`, OpenAI-compatible) qua loại `openai_compatible`: `json_object` + schema trong lời nhắc (9router bỏ qua `json_schema`), Go vẫn kiểm schema. Model mọi tác vụ sinh chữ: `ag/gemini-3.8-flash`; RPM 20 / nhà cung cấp (tài khoản miễn phí phía sau 9router có hạn mức).
-- **Không có embeddings** ở 9router → tác vụ `EMBEDDING` dùng nhà cung cấp `fake` (tất định 1536 chiều); tìm lai vẫn có nhánh `tsv`. Đây là giới hạn của bản triển khai này.
-- Khoá 9router đọc thẳng từ sqlite của 9router bởi `vps-llm.mjs`, gửi cho gateway (lưu mã hoá trong DB); không nằm trong `.env.local`, không in ra. KHÔNG đụng container / thư mục / cron của 9router.
-- Đổi model: `MODEL=ag/gemini-3.7-flash node deploy/vps-llm.mjs` chỉ đặt lại tuyến nếu nhà cung cấp đã có model đó; muốn model mới hãy thêm ở `/settings/llm`.
+Cấu hình bằng API quản trị (`deploy/vps-llm.mjs`, ghi vào DB, khoá lưu mã hoá AES-GCM), hai pha:
+- **Sinh chữ (CHAT, CLASSIFY, UTILITY, GRADING, QUESTION_GEN, INSIGHT):** 9router (`http://9router:20128/v1`) qua loại `openai_compatible`, model `ag/gemini-3.8-flash`, RPM 20. 9router bỏ qua `json_schema` nên gateway dùng `json_object` + schema trong lời nhắc (Go vẫn kiểm schema). **9router trả SSE nếu thân không nêu `stream`** → `openai_compatible` gửi `stream:false` tường minh (đã sửa ở `internal/llm/provider`). Khoá 9router đọc thẳng từ sqlite của 9router bởi `vps-llm.mjs`, gửi cho gateway; không nằm trong `.env.local`, không in ra. KHÔNG đụng container / thư mục / cron của 9router.
+- **EMBEDDING:** Gemini THẬT — nhà cung cấp loại `gemini` (`https://generativelanguage.googleapis.com/v1beta/openai/`, xác thực `Authorization: Bearer`), model `gemini-embedding-001`, gateway ép `dimensions=1536` (khớp cột `vector(1536)`, không đổi migration) và chuẩn hoá L2. Khoá `GEMINI_API_KEY` ở `.env.local` (600). 9router không có embeddings; embedding giả (hash ngẫu nhiên) làm mọi truy vấn RAG có cosine ≈ 0 < `RagSimFloor` nên chat luôn "chưa tìm thấy nội dung" — không dùng cho triển khai thật.
+- **Pha `seed`:** seed trích quy chế bằng bản ghi demo của provider `fake` nên lúc seed tuyến sinh chữ trỏ `chat-gia` (fake) còn EMBEDDING đã là Gemini (tài liệu, thread seed được nhúng thật ngay từ đầu, không phải nạp lại); xong seed chuyển pha `live`. Đổi embedding giữa chừng thì phải lập chỉ mục lại (`POST /courses/{id}/documents/reindex`; thread không có đường nạp lại → seed lại).
+- Đổi model chat: `MODEL=ag/gemini-3.7-flash PHASE=live node deploy/vps-llm.mjs` (tạo nhà cung cấp nếu chưa có model đó; nếu `9router` đã có thì thêm model ở `/settings/llm`).
 
 ## Cập nhật / vận hành
 ```bash
