@@ -9,3 +9,4 @@
 .tabsRow { margin-bottom: var(--ep-space-6); }
 .filterField { min-width: 180px; }
 .picker { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.failedList { list-style: none; margin: 0 0 var(--ep-space-2); padding: 0; display: grid; gap: var(--ep-space-1); font-size: var(--ep-text-label); color: var(--ep-ink-2); }

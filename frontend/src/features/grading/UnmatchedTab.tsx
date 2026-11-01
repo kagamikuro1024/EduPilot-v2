@@ -6,7 +6,7 @@ import { Button, type Column, DataTable, EmptyState, Field, InlineNotice, Input,
 import { classKey, type Member } from "@/features/members/classApi";
 import { useAssignments } from "@/features/assignments/assignmentApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
-import { SOURCE_LABEL, dismissSubmission, matchSubmission, submissionFileUrl, undismissSubmission, useStudentVersions, useUnmatched, type Unmatched } from "./submissionApi";
+import { MAIL_REASON_TEXT, SOURCE_LABEL, dismissSubmission, matchSubmission, submissionFileUrl, undismissSubmission, useIgnoredMail, useStudentVersions, useUnmatched, type MailInbound, type Unmatched } from "./submissionApi";
 import s from "./Unmatched.module.css";
 
 const CONFLICT = "Bài này vừa được xử lý ở nơi khác";
@@ -129,8 +129,41 @@ export function UnmatchedTab({ courseId }: { courseId: string }) {
             onError={fail}
           />
         )}
+        <IgnoredMail courseId={courseId} />
       </Panel>
     </PageState>
+  );
+}
+
+/** "Thư không xử lý được" (US-P7-05 AC9): chỉ hiện khi có ít nhất một thư bị bỏ qua. */
+function IgnoredMail({ courseId }: { courseId: string }) {
+  const mail = useIgnoredMail(courseId);
+  if (mail.items.length === 0) return null;
+
+  const columns: Column<MailInbound>[] = [
+    { key: "from", header: "Người gửi", primary: true, render: (m) => m.from_email },
+    { key: "subject", header: "Tiêu đề", render: (m) => m.subject },
+    { key: "at", header: "Giờ nhận", render: (m) => <span className={s.at}>{fmtLong(m.received_at)}</span> },
+    { key: "reason", header: "Lý do", render: (m) => (m.reason ? MAIL_REASON_TEXT[m.reason] ?? m.reason : "") },
+  ];
+
+  return (
+    <PanelSection title="Thư không xử lý được">
+      <DataTable
+        caption="Thư không xử lý được"
+        columns={columns}
+        rows={mail.items}
+        rowKey={(m) => m.id}
+        rowAttrs={(m) => ({ "data-part": "mail-row", "data-mail-id": m.id })}
+      />
+      {mail.hasNextPage && (
+        <div className={s.more}>
+          <Button loading={mail.isFetchingNextPage} onClick={() => void mail.fetchNextPage()}>
+            Tải thêm
+          </Button>
+        </div>
+      )}
+    </PanelSection>
   );
 }
 

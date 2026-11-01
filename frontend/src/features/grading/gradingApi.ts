@@ -130,6 +130,13 @@ export const gradeAll = async (course: string, aid: string, idempotencyKey: stri
 export const importSubmissions = async (course: string, aid: string, uploadId: string, idempotencyKey: string) =>
   (await apiClient.post<{ created?: number; matched?: number; unmatched?: number; job_id?: string }>(`/courses/${course}/assignments/${aid}/submissions/upload`, { upload_id: uploadId }, { idempotencyKey })).data;
 
+// ---- lấy bài từ Teams (US-P7-11 AC4): 202 {job_id}, kết quả qua `useJob` --------------------------------------------------
+export type TeamsFailed = { graph_submission_id: string; code: string };
+export type TeamsSyncResult = { fetched: number; total?: number; created?: number; deduped?: number; unmatched?: number; failed?: TeamsFailed[] };
+
+export const syncFromTeams = async (course: string, aid: string, idempotencyKey: string) =>
+  (await apiClient.post<{ job_id: string }>(`/courses/${course}/assignments/${aid}/teams/sync`, {}, { idempotencyKey })).data;
+
 export type PublishInput = { result_ids?: string[]; assignment_id?: string; scope?: "ALL_REVIEWED"; versions?: Record<string, number> };
 
 /** Công bố hàng loạt (chỉ TEACHER). `result_ids` tường minh = all-or-nothing; lỗi mang `details.ids`. */

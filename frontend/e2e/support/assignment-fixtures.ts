@@ -368,7 +368,20 @@ const member = (i: number, over: Record<string, unknown> = {}) => ({
   ...over,
 });
 
-type UOpts = { rows?: UnmatchedRow[]; h?: Record<string, Handler> };
+export type MailRow = { id: string; from_email: string; subject: string; received_at: string; status: string; reason: string | null; submission_id: string | null };
+
+export const mailRow = (over: Partial<MailRow> = {}): MailRow => ({
+  id: "00000000-0000-7000-8000-0000000c0001",
+  from_email: "sv.kha@sv.ptit.edu.vn",
+  subject: "Nộp bài tập 03",
+  received_at: "2026-10-23T01:40:00.000Z",
+  status: "IGNORED",
+  reason: "NO_ATTACHMENT",
+  submission_id: null,
+  ...over,
+});
+
+type UOpts = { rows?: UnmatchedRow[]; /** thư đã nhận nhưng bị bỏ qua (`GET mail-inbound?status=IGNORED`) */ ignored?: MailRow[]; h?: Record<string, Handler> };
 
 /** Gateway giả có trạng thái cho tab `Chưa khớp`: gán / bỏ qua làm dòng biến mất, hoàn tác đưa về, sai `version` → 409. */
 export async function unmatchedApi(p: Page, opts: UOpts & { versions?: number } = {}) {
@@ -425,10 +438,11 @@ export async function unmatchedApi(p: Page, opts: UOpts & { versions?: number } 
       return route.fulfill({ status: 204, headers: cors });
     }
     if (key === "GET submissions/:id/file") return route.fulfill(j({ url: `${BASE_URL}/__blob/${sid}.pdf`, expires_in: 300 }));
+    if (key === "GET mail-inbound") return route.fulfill(j({ items: opts.ignored ?? [], next_cursor: null }));
     return route.fulfill(e(404, "NOT_FOUND"));
   };
 
-  await p.route(/\/api\/v1\/courses\/[^/]+\/(submissions|members|assignments)(\?|$|\/)/, (r) => handle(r));
+  await p.route(/\/api\/v1\/courses\/[^/]+\/(submissions|members|assignments|mail-inbound)(\?|$|\/)/, (r) => handle(r));
   return {
     calls,
     rows: () => rows,
@@ -547,7 +561,16 @@ export const defaultRows = (): QRow[] => [
   queueRow({ id: SUB_RUN, student: { id: "00000000-0000-7000-8000-0000000000a4", full_name: "Sinh Viên 04", student_code: "B22DCCN104", inactive: false }, source: "UPLOAD", late_days: 0, result: { id: "00000000-0000-7000-8000-0000000d0003", status: "DRAFT", run_state: "RUNNING", flags: [], needs_review: false, version: 1 } }),
 ];
 
-type GOpts = { rows?: QRow[]; views?: Record<string, View>; h?: Record<string, Handler> };
+export const TEAMS_JOB = "00000000-0000-7000-8000-0000000e0011";
+type GOpts = {
+  rows?: QRow[];
+  views?: Record<string, View>;
+  /** bài tập trả về cho bộ lọc hàng chờ (mặc định: một bài đã công bố + một nháp) */
+  assignments?: A[];
+  /** `GET /jobs/{id}` cho việc lấy bài từ Teams — chỉ gắn khi có */
+  teamsJob?: () => { status: string; progress?: number; result?: unknown; error?: { code: string; message: string } };
+  h?: Record<string, Handler>;
+};
 
 /** Gateway giả có trạng thái cho hàng chờ + màn duyệt: PUT kiểm version và tính lại tổng, review kiểm điểm đủ. */
 export async function gradingApi(p: Page, opts: GOpts = {}) {
@@ -574,7 +597,7 @@ export async function gradingApi(p: Page, opts: GOpts = {}) {
     const custom = opts.h?.[key];
     if (custom && !skipCustom) return custom(route, (r) => handle(r, true));
 
-    if (key === "GET assignments") return route.fulfill(j({ items: [assignment(), draftAssignment()], next_cursor: null }));
+    if (key === "GET assignments") return route.fulfill(j({ items: opts.assignments ?? [assignment(), draftAssignment()], next_cursor: null }));
     if (key === "GET submissions") {
       const needs = url.searchParams.get("needs_review") === "true";
       const status = url.searchParams.get("status") ?? "DRAFT";
@@ -671,11 +694,16 @@ export async function gradingApi(p: Page, opts: GOpts = {}) {
     }
     if (key === "GET assignments/:id/stats") return route.fulfill(j({ submitted: 3, graded: 3, reviewed: 2, published: 1, mean_abs_deviation: "1", teacher_changed_rate: "0.5", appealed: 0, appeal_rate: null, adjusted: 0, appeal_success_rate: null }));
     if (key === "POST assignments/:id/grade-all") return route.fulfill(j({ job_id: "00000000-0000-7000-8000-0000000e0009", queued: 2 }, 202));
+    if (key === "POST assignments/:id/teams/sync") return route.fulfill(j({ job_id: TEAMS_JOB }, 202));
     if (key === "GET submissions/:id/file") return route.fulfill(j({ url: `${BASE_URL}/__blob/bt03.pdf`, expires_in: 300 }));
     return route.fulfill(e(404, "NOT_FOUND"));
   };
 
   await p.route(/\/api\/v1\/courses\/[^/]+\/(submissions|grading-results|assignments|appeals)(\?|$|\/)/, (r) => handle(r));
+  if (opts.teamsJob) {
+    const job = opts.teamsJob;
+    await p.route(/\/api\/v1\/jobs\/[^/]+$/, (r) => r.fulfill(j({ id: TEAMS_JOB, progress: 0, ...job() })));
+  }
   // công thức điểm: chỉ cần tên cột của bài để dựng câu hậu quả
   await p.route(/\/api\/v1\/courses\/[^/]+\/grade-scheme(\?|$)/, (r) =>
     r.fulfill(

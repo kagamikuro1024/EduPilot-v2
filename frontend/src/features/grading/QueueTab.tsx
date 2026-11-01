@@ -11,7 +11,7 @@ import { useAssignments, vi } from "@/features/assignments/assignmentApi";
 import { useSchemes } from "@/features/gradebook/gradeApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
 import { SOURCE_LABEL } from "./submissionApi";
-import { FLAG_TEXT, gradeAll, importSubmissions, publishResults, reviewStateText, useQueue, type QueueFilter, type QueueRow, type QueueStatus } from "./gradingApi";
+import { FLAG_TEXT, gradeAll, importSubmissions, publishResults, reviewStateText, syncFromTeams, useQueue, type QueueFilter, type QueueRow, type QueueStatus, type TeamsSyncResult } from "./gradingApi";
 import s from "./Grading.module.css";
 
 const STATUS_OPTIONS: Array<{ value: QueueStatus; label: string }> = [
@@ -22,6 +22,16 @@ const STATUS_OPTIONS: Array<{ value: QueueStatus; label: string }> = [
   { value: "RUNNING", label: "Đang chấm" },
   { value: "NONE", label: "Chưa chấm" },
 ];
+
+/** Lý do một bài Teams không lấy được (mã của máy chủ → lời thường). */
+const TEAMS_FAIL_TEXT: Record<string, string> = {
+  FILE_DOWNLOAD_FAILED: "Không tải được tệp",
+  TEAMS_RESPONSE_INVALID: "Teams trả dữ liệu không đúng",
+  TEAMS_AUTH_FAILED: "Không đăng nhập được vào Teams",
+  FILE_TYPE_NOT_ALLOWED: "Loại tệp không nhận",
+  FILE_TOO_LARGE: "Tệp quá lớn",
+  FILE_EMPTY: "Tệp trống",
+};
 
 /** Liên kết sang màn duyệt mang theo bộ lọc đang xem: màn đó dùng lại đúng hàng chờ để đi bài kế. */
 export const reviewHref = (id: string, f: QueueFilter) => {
@@ -50,6 +60,8 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   const [confirming, setConfirming] = useState(false);
   const publishIdem = useRef<string | null>(null);
   const relaxed = useRef(false);
+  const [teamsJob, setTeamsJob] = useState<string | null>(null);
+  const [teamsWait, setTeamsWait] = useState(0);
 
   const filter: QueueFilter = { assignment_id: assignmentId || undefined, status, needs_review: flagOnly };
   const list = useQueue(courseId, filter);
@@ -75,6 +87,34 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
     const t = setInterval(() => void list.refetch(), 5000);
     return () => clearInterval(t);
   }, [waiting, batchRunning, list]);
+
+  // Lấy bài từ Teams (US-P7-11 AC4): chỉ cho bài có kênh TEAMS; tiến độ và danh sách không lấy được đọc từ cùng một việc.
+  const teamsState = useJob(teamsJob);
+  const teams = (teamsState.result ?? null) as TeamsSyncResult | null;
+  const teamsRunning = Boolean(teamsJob) && teamsState.status !== "SUCCEEDED" && teamsState.status !== "FAILED";
+  const teamsChannel = assignments.items.find((a) => a.id === assignmentId)?.channels.includes("TEAMS") ?? false;
+  const teamsFailed = teamsState.status === "SUCCEEDED" ? teams?.failed ?? [] : [];
+
+  const teamsSync = () =>
+    void run(async () => {
+      setTeamsWait(0);
+      setTeamsJob(null);
+      try {
+        const out = await syncFromTeams(courseId, assignmentId, newIdempotencyKey());
+        setTeamsJob(out.job_id);
+      } catch (e) {
+        if (e instanceof ApiError && e.status === 429) {
+          setTeamsWait(e.retryAfter ?? 30);
+          setNotice(e.userMessage);
+          return;
+        }
+        throw e;
+      }
+    });
+  useEffect(() => {
+    if (teamsState.status !== "SUCCEEDED") return;
+    void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
+  }, [teamsState.status, qc, courseId]);
 
   const refresh = () => void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
 
@@ -258,6 +298,15 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
                   Công bố
                 </Button>
               )}
+              {teamsChannel && (
+                <Button
+                  disabled={busy || teamsRunning || teamsWait > 0}
+                  title={teamsWait > 0 ? `Chờ ${teamsWait} giây nữa` : undefined}
+                  onClick={teamsSync}
+                >
+                  Đồng bộ từ Teams
+                </Button>
+              )}
             </>
           }
         >
@@ -311,6 +360,34 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           <InlineNotice tone="info" compact action={<Button size="sm" onClick={() => setNotice(null)}>Đã hiểu</Button>}>
             {notice}
           </InlineNotice>
+        )}
+        {teamsRunning && (
+          <p className={s.progressText} data-part="teams-progress">
+            {teams?.total ? `Đã lấy ${teams.fetched}/${teams.total} bài` : "Đang lấy bài từ Teams"}
+          </p>
+        )}
+        {teamsState.status === "SUCCEEDED" && teams && (
+          <p className={s.progressText} data-part="teams-result">
+            {`Đã lấy ${teams.fetched} bài · tạo ${teams.created ?? 0} · trùng ${teams.deduped ?? 0} · chưa khớp ${teams.unmatched ?? 0}`}
+          </p>
+        )}
+        {teamsState.status === "FAILED" && (
+          <InlineNotice tone="warning" compact action={<Button size="sm" onClick={teamsSync}>Thử lại</Button>}>
+            <span data-part="teams-error">{teamsState.error || "Chưa lấy được bài từ Teams."}</span>
+          </InlineNotice>
+        )}
+        {teamsFailed.length > 0 && (
+          <div data-part="teams-failed">
+            <p className={s.progressText}>Không lấy được</p>
+            <ul className={s.failedList}>
+              {teamsFailed.map((f) => (
+                <li key={f.graph_submission_id}>{`${f.graph_submission_id} — ${TEAMS_FAIL_TEXT[f.code] ?? "Chưa lấy được"}`}</li>
+              ))}
+            </ul>
+            <Button size="sm" onClick={teamsSync}>
+              Thử lại
+            </Button>
+          </div>
         )}
     <PageState
       query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: rows, refetch: list.refetch }}

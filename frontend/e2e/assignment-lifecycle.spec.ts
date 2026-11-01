@@ -1,5 +1,5 @@
 import { expect, test, type Page, type Route } from "@playwright/test";
-import { A1, RECEIVED, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mineOut, mineResult, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
+import { A1, RECEIVED, SUB1, SUB_B, SUB_C, STUDENT_B_ID, UPLOAD_ID, assignment, assignmentsApi, defaultRows, gradingApi, mailRow, mineOut, mineResult, resultView, studentApi, studentItem, unmatchedApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo, type DemoRole } from "./support/session";
 
@@ -451,6 +451,31 @@ test("unmatched states: khung xương, rỗng, lỗi kèm Thử lại", async ({
   await expect.poll(() => api.calls.length).toBeGreaterThan(before);
 });
 
+test("unmatched mail ignored: mục Thư không xử lý được chỉ hiện khi có thư, lý do bằng tiếng Việt", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openUnmatched(page, context);
+  await expect(page.getByRole("heading", { name: "Thư không xử lý được" })).toHaveCount(0); // không có thư: không có mục
+
+  await page.unrouteAll({ behavior: "ignoreErrors" });
+  await unmatchedApi(page, {
+    ignored: [
+      mailRow(),
+      mailRow({ id: "00000000-0000-7000-8000-0000000c0002", from_email: "noreply@ptit.edu.vn", subject: "Tự động trả lời", reason: "AUTO_REPLY" }),
+      mailRow({ id: "00000000-0000-7000-8000-0000000c0003", from_email: "sv.gioi@sv.ptit.edu.vn", subject: "Bài 03 (3 tệp)", reason: "TOO_MANY_ATTACHMENTS" }),
+    ],
+  });
+  await page.reload();
+  const mail = page.locator("[data-part=mail-row]");
+  await expect(page.getByRole("heading", { name: "Thư không xử lý được" })).toBeVisible();
+  await expect(mail).toHaveCount(3);
+  await expect(page.getByRole("table", { name: "Thư không xử lý được" }).locator("th")).toHaveText(["Người gửi", "Tiêu đề", "Giờ nhận", "Lý do"]);
+  await expect(mail.nth(0)).toContainText("sv.kha@sv.ptit.edu.vn");
+  await expect(mail.nth(0)).toContainText("Không có tệp đính kèm");
+  await expect(mail.nth(1)).toContainText("Thư tự động");
+  await expect(mail.nth(2)).toContainText("Quá nhiều tệp đính kèm");
+  expect(await page.locator("main").innerText()).not.toMatch(/NO_ATTACHMENT|AUTO_REPLY|TOO_MANY_ATTACHMENTS/);
+});
+
 // ---- US-P7-08: hàng chờ chấm + màn duyệt ------------------------------------------------------------------------------------
 const QUEUE_URL = "/grading?tab=queue";
 const qRows = (page: Page) => page.locator("[data-part=queue-row]");
@@ -732,4 +757,60 @@ test("queue progress: tiến độ lô lấy từ job, không đếm theo số d
   await expect(page.locator("[data-part=grading-progress]")).toHaveText("Đang chấm 7/30 bài");
   job = { id: JOB, status: "SUCCEEDED", progress: 100, result: { done: 29, failed: 1, total: 30 } };
   await expect(page.locator("[data-part=grading-progress]")).toHaveCount(0, { timeout: 10_000 });
+});
+
+// ---- US-P7-11: lấy bài từ Teams ---------------------------------------------------------------------------------------------
+const teamsAssignment = () => [assignment({ channels: ["IN_APP", "TEAMS"], teams_class_id: "cls-1", teams_assignment_id: "as-1" })];
+
+test("teams sync happy then throttle: tiến độ, danh sách không lấy được, lần hai 429 khoá nút kèm lý do", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let job: { status: string; progress?: number; result?: unknown } = { status: "RUNNING", progress: 30, result: { fetched: 2, total: 5 } };
+  let throttled = false;
+  const api = await openQueue(page, context, {
+    assignments: teamsAssignment(),
+    teamsJob: () => job,
+    h: {
+      "POST assignments/:id/teams/sync": (r, dflt) =>
+        throttled ? r.fulfill(json({ code: "RATE_LIMITED", message: "x", trace_id: "t", retry_after: 18 }, 429)) : dflt(r),
+    },
+  });
+  await page.getByLabel("Bài tập").selectOption(A1);
+  const sync = page.getByRole("button", { name: "Đồng bộ từ Teams" });
+  await expect(sync).toBeEnabled();
+  await sync.click();
+  await expect(page.locator("[data-part=teams-progress]")).toHaveText("Đã lấy 2/5 bài");
+  expect(api.calls.find((c) => c.path.endsWith("/teams/sync"))!.headers["idempotency-key"]).toBeTruthy();
+
+  job = { status: "SUCCEEDED", progress: 100, result: { fetched: 5, created: 3, deduped: 1, unmatched: 1, failed: [{ graph_submission_id: "gs-9", code: "FILE_DOWNLOAD_FAILED" }] } };
+  await expect(page.locator("[data-part=teams-result]")).toHaveText("Đã lấy 5 bài · tạo 3 · trùng 1 · chưa khớp 1", { timeout: 10_000 });
+  const failed = page.locator("[data-part=teams-failed]");
+  await expect(failed).toContainText("Không lấy được");
+  await expect(failed.locator("li")).toHaveText(["gs-9 — Không tải được tệp"]);
+
+  throttled = true;
+  await failed.getByRole("button", { name: "Thử lại" }).click();
+  await expect(sync).toBeDisabled();
+  await expect(sync).toHaveAttribute("title", "Chờ 18 giây nữa");
+  await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
+});
+
+test("teams sync no_consent: việc hỏng nói bằng chữ, trang vẫn dùng được", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openQueue(page, context, {
+    assignments: teamsAssignment(),
+    teamsJob: () => ({ status: "FAILED", progress: 40, error: { code: "TEAMS_CONSENT_REQUIRED", message: "Cần quản trị viên của trường cấp quyền cho ứng dụng." } }),
+  });
+  await page.getByLabel("Bài tập").selectOption(A1);
+  await page.getByRole("button", { name: "Đồng bộ từ Teams" }).click();
+  await expect(page.locator("[data-part=teams-error]")).toHaveText("Cần quản trị viên của trường cấp quyền cho ứng dụng.");
+  expect(await page.locator("main").innerText()).not.toMatch(/TEAMS_CONSENT_REQUIRED|consent/i);
+  await expect(qRows(page).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
+});
+
+test("teams sync hidden: bài không có kênh Teams thì không có nút", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await openQueue(page, context);
+  await page.getByLabel("Bài tập").selectOption(A1);
+  await expect(page.getByRole("button", { name: "Đồng bộ từ Teams" })).toHaveCount(0);
 });

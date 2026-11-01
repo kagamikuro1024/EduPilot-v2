@@ -134,6 +134,8 @@ export const ERROR_MESSAGES: Record<string, string> = {
   TEAMS_AUTH_FAILED: "Không đăng nhập được vào Teams.",
   TEAMS_CONSENT_REQUIRED: "Cần quản trị viên của trường cấp quyền cho ứng dụng.",
   TEAMS_RESPONSE_INVALID: "Teams trả dữ liệu không đúng.",
+  TEAMS_DISABLED: "Lớp chưa bật nhận bài từ Teams.",
+  TEAMS_NOT_CONFIGURED: "Lớp chưa có cấu hình Teams.",
   FILE_DOWNLOAD_FAILED: "Không tải được tệp.",
   ASSIGNMENT_NOT_PUBLISHED: "Bài tập chưa được công bố.",
   ENTRY_UNSAFE: "Tên tệp trong ZIP không an toàn.",

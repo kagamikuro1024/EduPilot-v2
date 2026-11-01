@@ -52,3 +52,26 @@ export const useStudentVersions = (course: string, aid: string, uid: string) =>
     retry: false,
     queryFn: async ({ signal }) => (await apiClient.get<{ versions: number }>(`/courses/${course}/assignments/${aid}/versions`, { signal, query: { student_id: uid } })).data,
   });
+
+// ---- thư không xử lý được (US-P7-05 AC9): `GET /courses/{id}/mail-inbound?status=IGNORED` -------------------------------
+export type MailInbound = {
+  id: string;
+  from_email: string;
+  subject: string;
+  received_at: string;
+  status: "ACCEPTED" | "IGNORED" | "FAILED";
+  reason: string | null;
+  submission_id: string | null;
+};
+
+export const MAIL_REASON_TEXT: Record<string, string> = {
+  AUTO_REPLY: "Thư tự động",
+  NO_ATTACHMENT: "Không có tệp đính kèm",
+  TOO_MANY_ATTACHMENTS: "Quá nhiều tệp đính kèm",
+  ATTACHMENT_REJECTED: "Tệp bị từ chối",
+  PARSE_ERROR: "Không đọc được thư",
+};
+
+export const mailInboundKey = (course: string) => ["mail-inbound", course, "IGNORED"] as const;
+export const useIgnoredMail = (course: string) =>
+  useCursorList<MailInbound>(mailInboundKey(course), `/courses/${course}/mail-inbound`, { limit: 20, query: { status: "IGNORED" } });

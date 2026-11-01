@@ -9,6 +9,7 @@ import { mockTake, TAKE_COURSE, TAKE_EXAM } from "./support/takeMock";
 import { BASE_URL } from "./support/env";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
 import { A1, SUB_B, appealFx, gradingApi, mineOut, mineResult, resultView, studentApi } from "./support/assignment-fixtures";
+import { imapView, integrationsApi, teamsView } from "./support/integration-fixtures";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
 // `moderate` / `minor` ghi vào báo cáo (test-results/axe-report.json). Ngoại lệ ở axe-allow.json (≤ 3).
@@ -174,6 +175,19 @@ test("axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): kh�
   expect(bad).toEqual([]);
 });
 
+// US-P7-05 AC10 / US-P7-11: màn Tích hợp ở trạng thái CÓ DỮ LIỆU (Admin sửa được, giảng viên chỉ xem).
+test("axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng viên)", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  const bad: string[] = [];
+  for (const role of ["admin", "teacher"] as const) {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    await asDemo(context, role);
+    await integrationsApi(page, { imap: imapView({ status: "ERROR", last_error: "UNREACHABLE", error_since: "2026-10-23T02:12:00.000Z" }), teams: teamsView({ sandbox: true }) });
+    for (const w of WIDTHS) for (const b of await scan(page, `${role}+integrations`, "/settings/integrations", w)) bad.push(`${role} @${w}: ${b}`);
+  }
+  expect(bad).toEqual([]);
+});
+
 test("axe: route PU không cần vai (/login, /dev/ui, /dev/data)", async ({ page }) => {
   test.setTimeout(120_000);
   const bad: string[] = [];
@@ -189,3 +203,4 @@ test.afterAll(() => {
   const by = (imp: string) => report.filter((r) => r.impact === imp).length;
   console.log(`AXE: ${scanned} lượt quét (route × vai × bề rộng); critical ${by("critical")}, serious ${by("serious")}, moderate ${by("moderate")}, minor ${by("minor")}`);
 });
+

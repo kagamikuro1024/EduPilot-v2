@@ -2,6 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { A1, RECEIVED, SUB_B, appealFx, gradingApi, mineOut, mineResult, resultView, studentApi } from "./support/assignment-fixtures";
 import { BASE_URL } from "./support/env";
 import { asDemo } from "./support/session";
+import { FINAL, WEEKLY, gradebookApi, student as gbStudent } from "./support/gradebook-fixtures";
 
 // US-P7-10: phúc khảo điểm bài tập. Gateway giả theo hợp đồng thật (support/assignment-fixtures.ts).
 const desktopOnly = (info: { project: { name: string } }) => test.skip(info.project.name !== "desktop", "đo một lần");
@@ -159,4 +160,65 @@ test("appeal decided twice: 409 nói bằng chữ", async ({ page, context }, in
   await page.getByRole("button", { name: "Quyết định" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Quyết định" }).click();
   await expect(page.getByText("Phúc khảo này đã có quyết định.")).toBeVisible();
+});
+
+// US-P7-10 AC11: phúc khảo sửa điểm khi sổ đã CHỐT — sổ đánh dấu lệch, giảng viên mở khoá rồi chốt lại, sinh viên được báo.
+test("appeal locked gradebook drift: sửa điểm khi sổ đã chốt ⇒ Khác bản chốt, Mở khoá → Chốt điểm, sinh viên nhận thông báo", async ({ page, context }, info) => {
+  desktopOnly(info);
+  await asDemo(context, "teacher");
+  const grading = await gradingApi(page, { views: { [SUB_B]: resultView({ appeal: appealFx() }) } });
+  const book = await gradebookApi(page, { students: 3, locked: true, drift: true });
+
+  // 1) quyết định ADJUSTED trong khi sổ đang khoá
+  await page.goto(`/grading/${SUB_B}`);
+  const block = page.locator("[data-part=appeal]");
+  await block.getByRole("button", { name: "Sửa điểm" }).click();
+  await block.locator('[data-part=appeal-score][data-criterion="c2"]').fill("2,25");
+  await block.locator("[data-part=appeal-response-input]").fill("Thầy đồng ý phần leo thang đặc quyền, đã cộng thêm điểm.");
+  await page.getByRole("button", { name: "Quyết định" }).click();
+  await page.getByRole("dialog").getByRole("button", { name: "Quyết định" }).click();
+  await expect(block.locator("[data-part=appeal-decision]")).toContainText("Đã sửa");
+  expect(JSON.parse(grading.calls.find((c) => c.path.endsWith("/decide"))!.body).decision).toBe("ADJUSTED");
+
+  // 2) sổ điểm: dòng của sinh viên đó lệch bản chốt
+  await page.goto("/gradebook");
+  await expect(page.locator("[data-part=grade-row]").first()).toBeVisible();
+  await expect(page.locator("[data-part=row-drift]")).toHaveText("Khác bản chốt");
+  await expect(page.locator("[data-part=row-drift]")).toHaveCount(1);
+
+  // 3) Mở khoá (có lý do) → Chốt điểm
+  for (let i = 1; i <= 3; i++) {
+    book.entries.set(`${gbStudent(i).id}:${WEEKLY}`, { score: "8", version: 1, source: "MANUAL" });
+    book.entries.set(`${gbStudent(i).id}:${FINAL}`, { score: "7", version: 1, source: "MANUAL" });
+  }
+  await page.getByRole("button", { name: "Thêm hành động" }).click();
+  await page.getByRole("menuitem", { name: "Mở khoá" }).click();
+  const unlock = page.getByRole("dialog", { name: "Mở khoá" });
+  await unlock.getByLabel("Lý do").fill("Phúc khảo bài tập 03: đã cộng điểm tiêu chí 2");
+  await unlock.getByRole("button", { name: "Mở khoá" }).click();
+  await expect(unlock).toHaveCount(0);
+  expect(JSON.parse(book.calls.find((c) => c.path.endsWith("/gradebook/unlock"))!.body).reason).toContain("Phúc khảo");
+
+  await page.getByRole("button", { name: "Chốt điểm" }).click();
+  const dlg = page.getByRole("dialog", { name: "Chốt điểm" });
+  await dlg.getByRole("button", { name: "Chốt điểm" }).click();
+  await expect(dlg).toHaveCount(0);
+  await expect(page.getByText(/^Đã chốt v3 · \d{1,2}[:/]\d{2}/)).toBeVisible();
+
+  // 4) sinh viên nhận thông báo điểm đổi
+  const p2 = await context.newPage();
+  await asDemo(context, "student");
+  await p2.route("**/api/v1/notifications**", (r) =>
+    r.fulfill(
+      json({
+        items: [{ id: "n1", type: "GRADE_CHANGED", title: "Điểm Bài tập 03 đã đổi sau phúc khảo", body: null, link: `/assignments/${A1}`, course_id: null, read_at: null, created_at: new Date().toISOString() }],
+        next_cursor: null,
+        unread_count: 1,
+      }),
+    ),
+  );
+  await p2.goto("/");
+  await p2.getByRole("button", { name: "Thông báo, 1 chưa đọc" }).click();
+  await expect(p2.locator("[data-part=notifications]")).toContainText("Điểm Bài tập 03 đã đổi sau phúc khảo");
+  await p2.close();
 });
