@@ -4,7 +4,7 @@
 #   (sinh chữ = fake + bản ghi demo vì seed trích quy chế bằng bản ghi; EMBEDDING = Gemini thật), 3) bỏ giới hạn nới, 4) pha `live` (sinh chữ = 9router).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-. ./.env.local 2>/dev/null || true
+EP_HOST=$(grep "^EP_HOST=" .env.local | cut -d= -f2-)
 export PATH=/opt/node/bin:$PATH
 export API_URL="https://${EP_HOST:?}/api/v1" MAILPIT_URL=http://127.0.0.1:8025 SEED_ADMIN_CMD="deploy/dc exec -T gateway /gateway admin create"
 printf 'RATE_LIMIT_IP_PER_MIN=5000\nAUTH_LOGIN_IP_PER_MIN=1000\nAUTH_REGISTER_IP_PER_HOUR=1000\nAUTH_TOKEN_IP_PER_MIN=1000\n' >> .env.local
