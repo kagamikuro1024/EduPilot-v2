@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -39,7 +40,7 @@ type seedAsg struct {
 	unmatch  map[string]uuid.UUID // "zip30" | "mail29" | "foreign" → bài UNMATCHED
 	rubric   string
 	refText  string
-	llmCalls int
+	llmCalls atomic.Int32 // hai lượt chấm chạy song song
 }
 
 func asgFixtureText(t *testing.T, rel string) string {
@@ -141,7 +142,7 @@ func (s *seedAsg) demoGrader(blobs blobMem) *grading.Grader {
 	p := fake.NewNamed(fake.NewController(fake.Settings{DemoFile: demoLLMFile}), "demo", "")
 	return &grading.Grader{Pool: s.r.pool, Blob: blobs, Extract: noExtract{}, Cfg: grading.DefaultEssayConfig(),
 		LLM: structFn(func(ctx context.Context, req llm.Request, schema json.RawMessage) (json.RawMessage, error) {
-			s.llmCalls++
+			s.llmCalls.Add(1)
 			msgs := make([]provider.Message, len(req.Messages))
 			for i, m := range req.Messages {
 				msgs[i] = provider.Message{Role: m.Role, Content: m.Content}
@@ -233,7 +234,7 @@ func TestSeedGradeAllMatchesExpected(t *testing.T) {
 		n++
 	}
 	require.Equal(t, 22, n)
-	require.Equal(t, 42, s.llmCalls, "21 bài × 2 lượt; sv24 (bài trống S4) không gọi LLM")
+	require.EqualValues(t, 42, s.llmCalls.Load(), "21 bài × 2 lượt; sv24 (bài trống S4) không gọi LLM")
 	var drafts int
 	require.NoError(t, s.r.pool.QueryRow(t.Context(), `select count(*)::int from grading_results where course_id = $1 and status = 'DRAFT'`, s.c1).Scan(&drafts))
 	require.Equal(t, 22, drafts, "chấm xong chỉ là nháp, không công bố")
