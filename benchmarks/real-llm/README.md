@@ -1,5 +1,7 @@
 # Đo LLM thật (OPS-VPS)
 
+> **Trạng thái 2026-11-02: CHƯA CHẠY.** Chủ dự án hoãn đánh giá LLM thật và đo phi chức năng sang một sprint riêng. Bộ đo đã viết xong, phần chấm điểm đã tự kiểm offline với fixtures, nhưng chưa có số đo nào; `benchmarks/reports/real-llm/` và `docs/research/2026-11-01-real-llm-eval.md` chưa có. Khi làm lại: đọc `docs/team/CONTEXT.md` mục 4 (chạy trên VPS `/srv/work/research`, stack `-p ep-research`) rồi làm theo các bước dưới đây.
+
 Script `real_llm.py` là client ngoài: nó chỉ gọi HTTP API của gateway và chỉ dùng thư viện chuẩn của Python. Mô hình được đo là mô hình mà stack đang cấu hình (OPS-VPS: `ag/gemini-3.8-flash` qua 9router).
 - Kết quả ghi vào `benchmarks/reports/real-llm/*.json`.
 - Báo cáo nằm ở `docs/research/2026-11-01-real-llm-eval.md`.
