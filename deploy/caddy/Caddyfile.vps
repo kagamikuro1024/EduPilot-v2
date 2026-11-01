@@ -3,9 +3,8 @@
 	admin off
 	# rỗng = chứng chỉ Let's Encrypt tự cấp; đặt EP_CADDY_GLOBAL=local_certs khi cổng 80/443 chưa mở ra Internet (chứng chỉ nội bộ, trình duyệt cảnh báo)
 	{$EP_CADDY_GLOBAL}
-	# hostname thuộc miền dùng chung (happysrv.de): Let's Encrypt có thể chạm trần 50 chứng chỉ / miền / tuần (429) → ZeroSSL trước, Let's Encrypt dự phòng
-	cert_issuer zerossl
-	cert_issuer acme
+	# hostname thuộc miền dùng chung (happysrv.de): Let's Encrypt có thể chạm trần 50 chứng chỉ / miền / tuần (429); Caddy tự thử ZeroSSL khi cần, ZeroSSL đòi email
+	email admin@{$EP_HOST}
 }
 
 (gateway_upstream) {
