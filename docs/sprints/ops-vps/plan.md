@@ -34,3 +34,14 @@ OPS-VPS chỉ còn ba việc:
 - `docker stats`;
 - k6 / Lighthouse / p95 / thử tải 1.000 sinh viên;
 - QC smoke đầy đủ.
+
+## Điểm dừng (2026-11-02 01:15, chủ dự án bảo dừng)
+- **Đã xong:**
+  - demo chạy ở `https://v2202609419695521098.happysrv.de` (seed, chat Gemini thật, embedding Gemini, trang giới thiệu);
+  - host firewall mở 80/443;
+  - lộ trình có sprint 9.5.
+- **Việc kế tiếp (dev):**
+  - CI `ops/vps-deploy` đỏ ở Lighthouse simulate: `resource-summary.script.size` > 256 KB trên 2 URL. Sửa mã, không nới ngân sách.
+  - Chạy lại cả bộ Playwright, gồm project mobile, trên VPS.
+  - CI xanh thì chờ chủ dự án "chốt" để merge `main`.
+- **Agent đã khởi động lại** (bỏ MCP Atlassian): BA, dev, QC, writer dùng Sonnet 5.5; research dùng Opus.
