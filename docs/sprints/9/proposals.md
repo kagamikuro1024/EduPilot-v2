@@ -37,3 +37,8 @@ Mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh h�
 - **#12 (PM mở, BUG-S9-01) ACCEPTED (2026-10-31):** `AppShell.tsx:335`, `:346` luôn hiện "Bản mô phỏng · dữ liệu giả", kể cả trên stack thật đã seed (thấy trong ảnh màn hình luận văn). Đây là phần sót từ prototype 1.5. **Sửa:** chỉ hiện khi `demo` (bản mô phỏng D51). Ảnh mốc có nhãn này được sinh lại trong docker. Test khẳng định nhãn ở màn thật đổi sang khẳng định **không** có nhãn. Cùng dạng #22 sprint 8; commit ghi `#12`.
 - **#10 hệ quả:** URL `/assignments` không vào LHCI nên US-PU-06 AC4 giữ số URL như trước #10. BA hoàn tác dòng đếm.
 - **#13 ACCEPTED (PM, 2026-11-01, theo TL-2):** chữ `share_test` cùng dạng. Whitelist `AssignmentQueue` trong `TestNoQueryLinksByStudentCode` được chấp nhận: ô tìm MSSV là bộ lọc hiển thị trong phạm vi lớp, mọi phép nối theo khoá, không nối danh tính theo MSSV. Cùng loại `ListMembers` (#10 sprint 4) và `CrmStudentsList` (#30 sprint 7). Truy vấn lọc trên `enrollments.student_code_snapshot`.
+- **#14 (PM, 2026-11-01) ACCEPTED:** US-P7-11 AC11 có nhắc `docker-compose.prod.yml`, nhưng tệp này chưa tồn tại và thuộc phase PR. Không tạo ở sprint 9. Dòng `Kiểm:` đổi thành:
+  - (a) test Go: `TEAMS_ENABLED` không đặt thì là `false`, và `GRAPH_BASE_URL` không đặt thì là `https://graph.microsoft.com/v1.0`;
+  - (b) `grep`: service `mock-graph` chỉ có trong `docker-compose.local.yml`.
+
+  Ghi nợ PR: tệp compose production phải đặt `TEAMS_ENABLED=false`. BA sửa chữ AC.
