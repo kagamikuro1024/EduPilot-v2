@@ -39,7 +39,9 @@
   - **XSS lưu trữ qua `Content-Type` do client khai** (TLR-15).
   - **Gia hạn nộp mà sinh viên vẫn bị trừ muộn** (TLR-8).
   - **Bài chưa khớp bị tính 0** (TLR-9).
-- **PM:** nhãn "Bản mô phỏng · dữ liệu giả" hiện trên cả bản chạy thật. Đây là phần sót từ prototype (BUG-S9-01, #12).
+- **PM:**
+  - Nhãn "Bản mô phỏng · dữ liệu giả" hiện trên cả bản chạy thật. Đây là phần sót từ prototype (BUG-S9-01, #12).
+  - Chú thích nội bộ của tệp đề bài lộ ra trang sinh viên; phát hiện khi viết quyển. Sửa: seed bỏ chú thích, bộ hiển thị Markdown không in chú thích HTML (BUG-S9-02, #17, QC PASS).
 - **QC:**
   - test đua dead-letter (BUG-P7-07-5);
   - thiếu route lịch sử phiên bản (BUG-P7-03-4);
@@ -50,7 +52,7 @@
 **PM chốt thay chủ dự án** (vắng 31/10 → 01/11), theo mặc định an toàn:
 - Q1–Q20 của FEAT-assignments.
 - TLR-1…20 với hai lựa chọn phương án: TLR-3 chọn A, TLR-14 chọn A.
-- Proposals #1–#16.
+- Proposals #1–#17.
 
 **Các mục [ĐIỂM], chủ dự án xem lại.** Không mục nào đổi điểm đã có của lớp 1.
 - **Q2:** trừ muộn 0,5 điểm/ngày, cấu hình mỗi bài.
