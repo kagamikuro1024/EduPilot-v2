@@ -235,6 +235,7 @@ func TestLoad_Defaults(t *testing.T) {
 		{"BLOB_REGION", cfg.BlobRegion, "us-east-1"},
 		{"BLOB_USE_SSL", cfg.BlobUseSSL, false},
 		{"BLOB_PUBLIC_ENDPOINT", cfg.BlobPublicEndpoint, "minio:9000"},
+		{"BLOB_PUBLIC_USE_SSL (mặc định = BLOB_USE_SSL)", cfg.BlobPublicUseSSL, false},
 		{"db_via", cfg.DBVia(), "direct"},
 		{"runtime URL", cfg.RuntimeDatabaseURL(), dbURL},
 	}

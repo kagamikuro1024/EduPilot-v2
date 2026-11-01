@@ -106,7 +106,7 @@ func runServe(args []string, getenv func(string) string, stdout, stderr io.Write
 	}()
 	deps.LLM = llmRT
 	bl, err := blob.New(startCtx, blob.Config{Endpoint: cfg.BlobEndpoint, PublicEndpoint: cfg.BlobPublicEndpoint, Bucket: cfg.BlobBucket, AccessKey: cfg.BlobAccessKey, SecretKey: cfg.BlobSecretKey,
-		Region: cfg.BlobRegion, UseSSL: cfg.BlobUseSSL, EnsureBucket: cfg.AppEnv != "production"})
+		Region: cfg.BlobRegion, UseSSL: cfg.BlobUseSSL, PublicUseSSL: &cfg.BlobPublicUseSSL, EnsureBucket: cfg.AppEnv != "production"})
 	if err != nil {
 		// Không có kho đối tượng chỉ làm test > 64 KiB của bài code bị từ chối (503); phần còn lại của gateway chạy bình thường.
 		log.WarnContext(startCtx, "chưa dùng được kho đối tượng", "error", err.Error())

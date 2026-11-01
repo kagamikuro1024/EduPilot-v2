@@ -97,6 +97,7 @@ type Config struct {
 	BlobEndpoint       string
 	BlobBucket         string
 	BlobUseSSL         bool
+	BlobPublicUseSSL   bool // BLOB_PUBLIC_USE_SSL; mặc định = BlobUseSSL
 	BlobPublicEndpoint string
 	BlobRegion         string
 	// Nhập test zip (US-PE-03, SRS 4.1.5): giới hạn nén / giải nén (đếm khi đọc).
@@ -319,6 +320,7 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	}
 
 	c.BlobUseSSL = l.boolean("BLOB_USE_SSL", false)
+	c.BlobPublicUseSSL = l.boolean("BLOB_PUBLIC_USE_SSL", c.BlobUseSSL)
 	c.BlobPublicEndpoint = l.str("BLOB_PUBLIC_ENDPOINT", c.BlobEndpoint)
 	c.BlobRegion = l.str("BLOB_REGION", "us-east-1")
 	c.ExamTestZipMaxBytes = l.num("EXAM_TESTZIP_MAX_BYTES", 10<<20, 1024, 100<<20)
@@ -515,6 +517,7 @@ func (c Config) LogAttrs() []any {
 		"blob_endpoint", c.BlobEndpoint,
 		"blob_bucket", c.BlobBucket,
 		"blob_use_ssl", c.BlobUseSSL,
+		"blob_public_use_ssl", c.BlobPublicUseSSL,
 		"blob_public_endpoint", c.BlobPublicEndpoint,
 		"blob_region", c.BlobRegion,
 		"llm_max_concurrency", c.LLMMaxConcurrency,
