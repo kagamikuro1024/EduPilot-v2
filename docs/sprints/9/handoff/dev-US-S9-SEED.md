@@ -31,4 +31,5 @@
 | `go test … TestSeed* TestExtractLop1V2MatchesExpected` | `ok` (9 + 1) |
 | `playwright assignment-lifecycle.spec.ts -g 'demo step 5'` | xanh |
 | k6 `grading-vs-chat.js` (22 bài) | xem `dev-US-P7-07.md` mục Vòng 2: first_event p95 28 ms, TTFT +0,05 %, 0 % lỗi |
-| `gate-p6.sh` (stack seed sạch, TRƯỚC `v2`) | xem mục dưới |
+| `bash scripts/gate-p7.sh; echo $?` (stack seed sạch, 19 lệnh) | `GATE P7: PASS`, rc 0 (Go -race, bốn bài `P7.md`, seed Go, contract, sha256 bản 1, Playwright lifecycle + appeal, ui-antipatterns, check `bt03`/`counts`/`grade`/`demo5`/`teams`/`v2`) |
+| `gate-p6.sh` (stack seed sạch có BT03 / BT04, TRƯỚC `grade`/`v2`) | `GATE P6: PASS` (rc 0). Lần đầu đỏ vì scenario hợp đồng `teams/test` gọi Graph THẬT khi mặc định là Graph thật (REQUEST_TIMEOUT 1 s hết hạn → 500): rig hợp đồng nay trỏ `GRAPH_BASE_URL` về cổng đóng `127.0.0.1:9` |
