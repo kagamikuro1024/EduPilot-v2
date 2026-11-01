@@ -52,7 +52,8 @@ export function Landing() {
         <ButtonLink href="/login" variant="ghost" size="sm">Đăng nhập</ButtonLink>
       </header>
 
-      <main id="main">
+      {/* role="main" thay vì <main>: HTML của `/` còn mang cả khung PreShell (có <main id="main">) cho người quay lại; chỉ một khung hiện, khung kia display:none nên không vào cây truy cập */}
+      <div role="main" id="landing-main">
         <section className={s.hero} aria-labelledby="hero-title">
           <h1 id="hero-title" className={s.display}>Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân</h1>
           <p className={s.lead}>Hỏi đáp, chấm bài, sổ điểm và theo dõi lớp trong một nơi. AI soạn nháp; giảng viên là người quyết.</p>
@@ -98,7 +99,7 @@ export function Landing() {
             </div>
           </div>
         </section>
-      </main>
+      </div>
 
       <footer className={s.foot}>
         <p>Đồ án tốt nghiệp · Lê Văn Quang Trung</p>
