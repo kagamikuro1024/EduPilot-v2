@@ -1,6 +1,8 @@
 # Caddyfile của VPS (OPS-VPS): như deploy/caddy/Caddyfile nhưng site = $EP_HOST (HTTPS Let's Encrypt tự cấp), thêm đường vào MinIO. Dùng qua deploy/vps.compose.yml.
 {
 	admin off
+	# rỗng = chứng chỉ Let's Encrypt tự cấp; đặt EP_CADDY_GLOBAL=local_certs khi cổng 80/443 chưa mở ra Internet (chứng chỉ nội bộ, trình duyệt cảnh báo)
+	{$EP_CADDY_GLOBAL}
 }
 
 (gateway_upstream) {

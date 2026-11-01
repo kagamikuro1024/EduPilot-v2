@@ -15,6 +15,7 @@ services:
   caddy:
     environment:
       EP_HOST: ${EP_HOST}
+      EP_CADDY_GLOBAL: ${EP_CADDY_GLOBAL:-}
     volumes: !override
       - ./deploy/caddy/Caddyfile.vps:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
