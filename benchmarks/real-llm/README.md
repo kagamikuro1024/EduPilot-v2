@@ -4,15 +4,16 @@ Script `real_llm.py` là client ngoài: nó chỉ gọi HTTP API của gateway v
 - Kết quả ghi vào `benchmarks/reports/real-llm/*.json`.
 - Báo cáo nằm ở `docs/research/2026-11-01-real-llm-eval.md`.
 
-**Chạy trên VPS, trên stack đo `-p edupilot-test`, không trên stack demo** (luật `docs/team/CONTEXT.md` mục 4). Lý do: đo có ghi dữ liệu (kết quả chấm nháp của `BT03`, lớp `EVALLLM`, ticket). Chạy trên stack demo thì `Chấm tất cả` ở bước 5 của `DEMO_SCRIPT.md` không còn bài nào để chấm.
+**Chạy trên VPS, trong thư mục `/srv/work/research`, trên stack `-p ep-research`; không chạy trên stack demo `/opt/edupilot`, không chạy trên Mac** (luật `docs/team/CONTEXT.md` mục 4). Không dùng stack demo vì lần đo này có ghi dữ liệu (kết quả chấm nháp của `BT03`, lớp `EVALLLM`, ticket); chạy ở đó thì `Chấm tất cả` ở bước 5 của `DEMO_SCRIPT.md` không còn bài nào để chấm.
 
-Dựng stack đo theo `deploy/README.md`, với `-p edupilot-test` và cổng lệch (`EP_PORT_OFFSET`, không mở 80/443). Sau đó seed bằng `scripts/seed.mjs` rồi chạy `deploy/vps-llm.mjs` để chuyển sang LLM thật. Đo xong thì `docker compose -p edupilot-test down -v` và `docker volume prune -f`. Mỗi lần chỉ chạy một lượt đo nặng.
+Dựng stack đo theo `deploy/README.md`, với `-p ep-research` và cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`, không mở 80/443. Sau đó seed bằng `scripts/seed.mjs` rồi chạy `deploy/vps-llm.mjs` để chuyển sang LLM thật. Đo xong thì `docker compose -p ep-research down -v` và `docker volume prune -f`. Mỗi lần chỉ chạy một lượt đo nặng.
 
 ```bash
-ssh root@152.53.64.175 && cd /opt/edupilot && git pull
-export BASE=http://127.0.0.1:<cổng gateway / caddy của edupilot-test>
+ssh root@152.53.64.175
+cd /srv/work/research && git fetch && git checkout ops/vps-deploy && git pull
+export BASE=http://127.0.0.1:<cổng gateway / caddy của ep-research>
 # đọc llm_audit / chat_messages; CHỈ ĐỌC (script tự bọc mỗi truy vấn trong `begin read only`)
-export AUDIT_PSQL="docker exec -i edupilot-test-postgres-1 psql -U edupilot -d edupilot -tA -v ON_ERROR_STOP=1"
+export AUDIT_PSQL="docker exec -i ep-research-postgres-1 psql -U edupilot -d edupilot -tA -v ON_ERROR_STOP=1"
 cd benchmarks/real-llm
 python3 real_llm.py setup                       # lớp đo EVALLLM + 2 quy chế + 12 sinh viên seed (không phải A, B, C)
 python3 real_llm.py extract --runs 5            # mục 1
@@ -29,7 +30,7 @@ python3 real_llm.py threads                     # mục 4–5 (thread [EVAL-LLM]
 python3 real_llm.py misc                        # mục 5
 ```
 
-## Dữ liệu đo tạo ra (chỉ trên `edupilot-test`, mất khi `down -v`)
+## Dữ liệu đo tạo ra (chỉ trên `ep-research`, mất khi `down -v`)
 
 | Ở đâu | Dữ liệu |
 | --- | --- |
