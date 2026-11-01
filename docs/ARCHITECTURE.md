@@ -291,7 +291,7 @@ Toàn cục: chuông thông báo; bộ chọn lớp; banner nhắc công thức 
 | `APP_PUBLIC_URL` | Deep link mail, ICS |
 | `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `MAIL_FROM` | Gửi mail (dev → Mailpit 1025) |
 | `IMAP_HOST`, `IMAP_USER`, `IMAP_PASS`, `IMAP_POLL_SECONDS`, `IMAP_TRUSTED_AUTHSERV_ID` | Nhận bài nộp; `IMAP_TRUSTED_AUTHSERV_ID` rỗng (production) → không thư nào tự khớp (cần `Authentication-Results` `dmarc=pass` của máy chủ thư tin cậy — TLR-2); compose local: `mx.edupilot.test` |
-| `TEAMS_ENABLED`, `TEAMS_TENANT_ID`, `TEAMS_CLIENT_ID`, `TEAMS_CLIENT_SECRET` | Adapter Teams; production mặc định tắt, dev mặc định bật và trỏ vào mock-graph |
+| `TEAMS_ENABLED`, `TEAMS_TENANT_ID`, `TEAMS_CLIENT_ID`, `TEAMS_CLIENT_SECRET` | Adapter Teams; mặc định trong mã tắt (`TEAMS_ENABLED=false`), compose local đặt bật và trỏ vào mock-graph; tệp compose production (phase PR) phải đặt `TEAMS_ENABLED=false` — `proposals.md` sprint 9 #14 |
 | `GRAPH_BASE_URL`, `GRAPH_AUTH_URL`, `GRAPH_FILE_HOSTS`, `TEAMS_DOWNLOAD_PARALLEL` | Thật: `https://graph.microsoft.com/v1.0`, `https://login.microsoftonline.com`; `GRAPH_FILE_HOSTS` mặc định = host của `GRAPH_BASE_URL` (Graph thật: thêm host SharePoint); `TEAMS_DOWNLOAD_PARALLEL` = 4. Dev: `http://mock-graph:8090/v1.0`, `http://mock-graph:8090` |
 | `PII_NER_ENABLED` | ~~Tầng NER~~ — cắt theo D46 (không còn NER tiếng Việt); giữ tên biến làm chỗ mở rộng, mặc định tắt |
 | `SEED_ON_EMPTY_DB`, `SEED_DEFAULT_PASSWORD` | Seed |

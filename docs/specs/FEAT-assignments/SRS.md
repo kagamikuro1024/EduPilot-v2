@@ -146,8 +146,8 @@ stateDiagram-v2
 | `IMAP_POLL_SECONDS` | 60 | Chu kỳ poll |
 | `IMAP_BACKOFF_MAX` | 15 phút | Lùi tối đa |
 | `SYNC_NOW_MIN_INTERVAL` | 30 s | Giãn cách `sync-now` / `teams/sync` |
-| `TEAMS_ENABLED` | `true` (dev) / `false` (production) | Bật adapter |
-| `GRAPH_BASE_URL` / `GRAPH_AUTH_URL` | `http://mock-graph:8090/v1.0` / `http://mock-graph:8090` (dev) | Địa chỉ Graph |
+| `TEAMS_ENABLED` | `false` khi không đặt (compose local đặt `true`) | Bật adapter |
+| `GRAPH_BASE_URL` / `GRAPH_AUTH_URL` | `https://graph.microsoft.com/v1.0` / `https://login.microsoftonline.com` khi không đặt (compose local đặt `http://mock-graph:8090/v1.0` / `http://mock-graph:8090`) | Địa chỉ Graph |
 | `TEAMS_SYNC_TIMEOUT` | 120 s | Hạn một lần đồng bộ |
 | `TEAMS_RETRY_MAX` | 3 | Số lần thử lại `429` / lỗi tạm mỗi yêu cầu |
 | `TEAMS_FILE_RETRY` | 2 | Số lần thử lại tải tệp |
