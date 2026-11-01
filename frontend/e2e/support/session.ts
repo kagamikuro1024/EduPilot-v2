@@ -30,6 +30,7 @@ export const idleEvents = (cors: Record<string, string>) => ({ status: 200, head
  * tài khoản seed tương ứng vai / người, `GET /me/courses` trả lớp thật tương ứng. Gateway không chạy: mọi lời gọi khác bị bỏ qua.
  */
 export async function asDemo(context: BrowserContext, role: DemoRole, opts: { person?: string; expIn?: number } = {}) {
+  await context.addInitScript(() => localStorage.setItem("ep_returning", "1")); // máy đã từng đăng nhập: `/` vẽ khung "Hôm nay" thay vì trang giới thiệu (OPS-VPS landing)
   const person = role === "student" ? (opts.person ?? "sv-2") : role;
   const email = SEED_EMAIL[person];
   const jwtRole: JwtRole = role === "student" ? "STUDENT" : (role.toUpperCase() as JwtRole);

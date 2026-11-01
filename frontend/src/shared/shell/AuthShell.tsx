@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Panel } from "@/shared/ui/Panel";
 import s from "./AuthShell.module.css";
 
@@ -6,8 +7,10 @@ export function AuthShell({ children }: { children: React.ReactNode }) {
   return (
     <main className={s.wrap}>
       <div className={s.col}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/brand/logo-edupilot.svg" alt="EduPilot" data-part="brand" className={s.brand} />
+        <Link href="/" aria-label="EduPilot — trang giới thiệu" data-part="brand-link" className={s.brandLink}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo-edupilot.svg" alt="EduPilot" data-part="brand" className={s.brand} />
+        </Link>
         {children}
       </div>
       <p className={s.foot}>Cần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.</p>

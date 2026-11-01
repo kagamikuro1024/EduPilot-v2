@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useDeferredValue, useEffect, useRef, useSyncExternalStore } from "react";
 import { apiClient } from "@/shared/data/apiClient";
 import { authStore, dropSession, refreshSession, type AuthSnapshot } from "@/shared/data/authSession";
+import { setReturning } from "@/shared/session/returning";
 import { wipeDrafts } from "@/shared/lib/unsavedWork";
 
 type Auth = AuthSnapshot & {
@@ -31,6 +32,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!r.ok && authStore.get().status === "initializing") dropSession("anonymous"); // mạng lỗi lúc tải: coi như chưa đăng nhập
     });
   }, []);
+
+  useEffect(() => {
+    if (snap.status === "authenticated") setReturning(true); // trang chủ vẽ khung "Hôm nay" thay vì giới thiệu cho người quay lại
+  }, [snap.status]);
 
   useEffect(() => {
     const onExpired = () => dropSession("anonymous");
