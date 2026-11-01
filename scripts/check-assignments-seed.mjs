@@ -78,6 +78,10 @@ if (run("bt03")) {
   must(inbound.length === 8 && inbound.every((m) => ["ACCEPTED", "IGNORED"].includes(m.status) || m.submission_id), `mail_inbound: ${inbound.length}, cần 8`);
   must(allAsg.length === 2 && bt03.published_at && bt04.published_at, "cần đúng 2 bài tập đã công bố");
   must(bt03.counts.graded === 0, "seed không được chạy chấm (chưa có grading_results)");
+  // BUG-S9-02: chú thích HTML nội bộ của tệp đề bài / đáp án không được nạp (đề bài hiện cho sinh viên, đáp án cho nhân viên)
+  for (const a of [bt03, bt04]) must(!/<!--|-->|BA sở hữu|NỘI DUNG GỐC|D44/.test(`${a.description}\n${a.reference_answer ?? ""}`), `${a.submission_code}: đề / đáp án còn chú thích HTML nội bộ`);
+  const mine = await call("GET", `/courses/${c1}/assignments/${bt03.id}/mine`, { token: await tok("sv.gioi") });
+  must(mine.status === 200 && !/<!--|BA sở hữu|NỘI DUNG GỐC|D44|CANARY/.test(JSON.stringify(mine.body)), "trang sinh viên BT03 còn chữ nội bộ / canary");
   const bs = new Map();
   for (const r of matchedPlan) bs.set(r.channel, (bs.get(r.channel) ?? 0) + 1 + (r.sample2 ? 1 : 0));
   summary += `OK ${ok}/${matchedPlan.length} khớp ngay + 3 chưa khớp + 6 không nộp; bản ghi: IN_APP ${bs.get("IN_APP")} · IMAP ${bs.get("IMAP") + 2} (kèm sv29 + thư lạ) · UPLOAD ${bs.get("UPLOAD") + 1} (kèm sv30)\n`;

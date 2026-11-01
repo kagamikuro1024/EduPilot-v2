@@ -28,7 +28,16 @@ export function sampleText(root, id) {
   return { file: path.basename(s.file), text: read(root, s.file) };
 }
 
-export const createBody = (root) => JSON.parse(read(root, "create-bt03.json"));
+/** Bỏ khối chú thích HTML `<!-- … -->` (ghi chú nội bộ của BA ở đầu tệp đề bài / đáp án): không nạp vào `description` / `reference_answer` (BUG-S9-02, proposals #17). */
+export const stripHtmlComments = (s) => (typeof s === "string" ? s.replace(/<!--[\s\S]*?-->/g, "").replace(/\n{3,}/g, "\n\n").trim() : s);
+
+export function createBody(root) {
+  const b = JSON.parse(read(root, "create-bt03.json"));
+  b.description = stripHtmlComments(b.description);
+  b.reference_answer = stripHtmlComments(b.reference_answer);
+  if (Array.isArray(b.rubric)) b.rubric = b.rubric.map((c) => ({ ...c, name: stripHtmlComments(c.name), guidance: stripHtmlComments(c.guidance) }));
+  return b;
+}
 export const teamsMeta = (root) => JSON.parse(readFileSync(path.join(root, "backend-go", "testdata", "mock-graph", "meta.json"), "utf8"));
 export const TEAMS_TITLE_04 = "Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams)";
 

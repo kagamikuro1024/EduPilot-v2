@@ -65,8 +65,45 @@ const cells = (line: string) =>
     .map((c) => c.trim());
 const isSep = (line: string) => /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/.test(line);
 
+/**
+ * Bỏ chú thích HTML `<!-- … -->` (kể cả nhiều dòng) NGOÀI khối mã: đó là ghi chú nội bộ của người soạn tệp, không phải nội dung để đọc (BUG-S9-02).
+ * Chú thích chưa đóng bỏ tới hết văn bản. Trong khối ``` thì giữ nguyên chữ; các HTML thô khác vẫn chỉ là chữ.
+ */
+export function stripComments(src: string): string {
+  const out: string[] = [];
+  let fence = false;
+  let open = false;
+  for (const line of src.split("\n")) {
+    if (!open && line.trimStart().startsWith("```")) fence = !fence;
+    if (fence || (!open && line.trimStart().startsWith("```"))) {
+      out.push(line);
+      continue;
+    }
+    let rest = line;
+    let kept = "";
+    for (;;) {
+      if (open) {
+        const end = rest.indexOf("-->");
+        if (end < 0) break;
+        rest = rest.slice(end + 3);
+        open = false;
+      }
+      const start = rest.indexOf("<!--");
+      if (start < 0) {
+        kept += rest;
+        break;
+      }
+      kept += rest.slice(0, start);
+      rest = rest.slice(start + 4);
+      open = true;
+    }
+    out.push(kept);
+  }
+  return out.join("\n");
+}
+
 export function parseMarkdown(src: string): Block[] {
-  const lines = src.replace(/\r\n?/g, "\n").split("\n");
+  const lines = stripComments(src.replace(/\r\n?/g, "\n")).split("\n");
   const blocks: Block[] = [];
   let i = 0;
   while (i < lines.length) {

@@ -877,3 +877,17 @@ test("demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu ch�
   await expect(block.locator("[data-part=result-evidence]").first()).toContainText("ba lần đăng nhập sai liên tiếp");
   await expect(block.locator("[data-part=result-late]")).toHaveText("Trừ nộp muộn: −0,5 điểm");
 });
+
+// BUG-S9-02 (proposals #17): tệp đề bài có chú thích HTML nội bộ (`<!-- … BA sở hữu … D44 -->`) → trang sinh viên không chứa chữ của chú thích; nội dung đề vẫn đủ.
+test("student page hides html comment: chú thích nội bộ của tệp đề bài không hiện thành chữ", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const internal = "NỘI DUNG GỐC của Bài tập 03 lớp 1 (761987). BA sở hữu; seed dùng nguyên văn. Dữ liệu mô phỏng (D44).";
+  const base = mineOut();
+  await asDemo(context, "student");
+  await studentApi(page, { mine: mineOut({ assignment: { ...base.assignment, description: `<!-- ${internal} -->\n\n# Phân tích một vụ tấn công\n\n<!-- ghi chú\nnhiều dòng -->\n\n- Nêu ba dấu hiệu\n- Đề xuất cách xử lý` } }) });
+  await page.goto(`/assignments/${A1}`);
+  await expect(page.locator("[data-part=markdown] li").first()).toHaveText("Nêu ba dấu hiệu");
+  await expect(page.locator("[data-part=markdown]")).toContainText("Phân tích một vụ tấn công");
+  const body = await page.locator("main").innerText();
+  expect(body).not.toMatch(/NỘI DUNG GỐC|BA sở hữu|D44|<!--|-->|ghi chú|nhiều dòng/);
+});
