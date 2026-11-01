@@ -63,7 +63,7 @@ CI `8e478910`: success. Proposals #15, #16 ACCEPTED. Script QC: `scripts/p7-*.py
 
 | ID | Kết quả | Bằng chứng |
 | --- | --- | --- |
-| G7-01 Playwright `assignment-lifecycle` + `grade-appeal` `--workers=2 --retries=0` | **PASS** | xanh trong `gate-p7.sh` (34 test + `grade-appeal` 8 ca), 0 flaky; 0 ca bị xoá so với đầu sprint |
+| G7-01 Playwright `assignment-lifecycle` + `grade-appeal` `--workers=2 --retries=0` | **PASS** | xanh trong `gate-p7.sh` (`assignment-lifecycle` + `grade-appeal` 8 ca), 0 flaky; 0 ca bị xoá so với đầu sprint |
 | G7-02 `TestStudentNeverSeesDraftGrade` | **PASS** | `ok`; QC thêm `p7-student-sweep.py`: 6 trạng thái (không nộp / QUEUED / RUNNING / DRAFT / REVIEWED / FAILED) × 12 bề mặt API + SSE + `GET /jobs/{id}` (404) + chat → 0 dấu vết nháp; DOM thật `/assignments/{id}` ở 1440 và 390: chỉ "Đang chấm", 0 nháp / cờ / điểm, 0 trong `localStorage` và console |
 | G7-03 `go test -race ./internal/submission/... ./internal/jobs/...` | **PASS** | 57 test, không `DATA RACE` |
 | G7-04 `TestImapToDraftGrade` | **PASS** | máy chủ IMAP trong test; QC thêm thư giả `From` trên `mock-imap` thật (`p7-imap-live.py`) |

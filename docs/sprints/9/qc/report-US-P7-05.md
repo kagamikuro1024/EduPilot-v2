@@ -34,7 +34,7 @@ CI `8e478910`: **success**. Stack dựng từ DB trống ở HEAD (`dev.mjs up` 
 
 | Lệnh | Kết quả |
 | --- | --- |
-| Playwright desktop `settings-integrations.spec.ts` (`imap key write-only`, `flat sections`, `states`, `save conflicts`, `no description lines`), `assignment-lifecycle.spec.ts -g 'unmatched mail ignored'`, `a11y.spec.ts -g 'tích hợp có dữ liệu'` | 7/7 xanh (cũng nằm trong 34 test Playwright của `gate-p7.sh`); axe 14 lượt, 0 lỗi |
+| Playwright desktop `settings-integrations.spec.ts` (`imap key write-only`, `flat sections`, `states`, `save conflicts`, `no description lines`), `assignment-lifecycle.spec.ts -g 'unmatched mail ignored'`, `a11y.spec.ts -g 'tích hợp có dữ liệu'` | 7/7 xanh (cũng nằm trong lượt Playwright của `gate-p7.sh`); axe 14 lượt, 0 lỗi |
 | `go test -race` toàn bộ `internal/integration` (35 test IMAP) + `TestImapToDraftGrade` ở cổng | xanh |
 | **Trên stack thật có `cmd/mock-imap`** (`scripts/p7-imap-live.py`): `Test kết nối` tới `mock-imap:1143` | `ok:true`; thẻ `CONNECTED`, không lộ mật khẩu |
 | Thư giả `From` (TLR-2) — 6 thư thêm vào mock-imap rồi `Đồng bộ ngay` | A (`dmarc=pass`, authserv-id tin cậy) → `MATCHED` về đúng `sv.gioi`; B (không có `Authentication-Results`), C (`dmarc=fail`), D (authserv-id lạ) → `UNMATCHED SENDER_UNVERIFIED`, **không** có bài nào gán cho `sv.kha` / `sv.nguyco` / `sv04`; E (`Auto-Submitted`) → `IGNORED AUTO_REPLY`; F (không đính kèm) → `IGNORED NO_ATTACHMENT`; chuông "đã nhận bài" chỉ tới `sv.gioi`; log không có mật khẩu |
