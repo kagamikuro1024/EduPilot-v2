@@ -23,7 +23,7 @@
 | Đo | Kết quả |
 | --- | --- |
 | Chat khi đang chấm hàng loạt (k6) | Sự kiện đầu tiên p95 28 ms; TTFT +0,05 %; 0 % lỗi |
-| Test | +425 hàm `Test…` Go, 0 xoá; `go-test-all.sh` 57 gói xanh |
+| Test | +426 hàm `Test…` Go (QC đếm `go test -list`), 0 xoá; `go-test-all.sh` 57 gói xanh |
 | Phân quyền | `p7-rbac.sh` 35 route PASS |
 | OpenAPI | 246 → 288 thao tác |
 | Đáp án v2 | Quy chế lớp 1 bản 2 (nháp): 30/30 khớp `expected_final_grades_v2.csv`; bản 1 không đổi (băm giữ nguyên) |
