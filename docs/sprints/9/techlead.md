@@ -85,3 +85,26 @@ QC thấy `go.mod` sprint 9 có thêm: `go-imap/v2`, `go-message`, `go-sasl`, `g
 - `moby/moby/api` để làm gì, có bỏ được không.
 
 Kết luận theo từng gói: (a) bắc cầu / đã có → chỉ ghi bảng; (b) trực tiếp mới, nên giữ → PM ghi để chủ dự án duyệt; (c) bỏ được → dev bỏ. Trả lời ngay dưới, báo PM 3 dòng.
+
+**TL trả lời:**
+
+**Cách kiểm** (`origin/sprint/9-p7` @ `44c823d9`, so với `origin/sprint/8-p6`):
+- `git diff … -- backend-go/go.mod backend-go/go.sum`;
+- `go mod why -m <gói>`;
+- `grep` lệnh `import` trong mã không phải `_test.go`.
+
+`go.sum` chỉ thêm **mã nguồn** (dòng `h1:` không phải `/go.mod`) của **ba** module: `go-imap/v2`, `go-message`, `go-sasl`. Còn 34 dòng mới khác đều là `/go.mod h1:` (băm đồ thị phiên bản), không tải mã. `golang.org/x/text v0.42.0` và `moby/moby/api v1.55.0` **đã có trong `go.mod` sprint 8 cùng phiên bản** (`// indirect`, dòng 114 và 73). Sprint 9 chỉ đổi nhãn sang trực tiếp sau `go mod tidy`.
+
+| Gói | Trực tiếp / bắc cầu | Ai dùng | Trong bảng `ARCHITECTURE.md`? | Kết luận |
+| --- | --- | --- | --- | --- |
+| `github.com/emersion/go-imap/v2 v2.0.0-beta.8` | trực tiếp, mới | `internal/mailin/imap.go` (`ImapSource`); `cmd/mock-imap/server` (máy chủ IMAP thử) | **Có**, dòng 92: ghim beta.8, ghi rủi ro beta (TLR-19) | **(a)** đã có, không cần ghi thêm |
+| `github.com/emersion/go-message v0.18.2` | trực tiếp, mới | `internal/mailin/parse.go` (tách MIME, đính kèm) | **Có**, dòng 92 | **(a)** đã có |
+| `github.com/emersion/go-sasl` | **bắc cầu** | `go mod why`: `cmd/mock-imap/server` → `go-imap/v2/imapserver` → `go-sasl` (xác thực SASL của IMAP) | Không (gói con bắt buộc của go-imap) | **(a)** chỉ ghi bảng: thêm "(kéo theo `go-sasl`)" vào dòng 92. Không bỏ được nếu còn go-imap |
+| `golang.org/x/text v0.42.0` | trực tiếp (trước đó bắc cầu, cùng phiên bản) | `internal/grading/essay.go:20, 237, 436`: `norm.NFC.String` chuẩn hoá NFC văn bản bài làm trước khi lưu `extracted_text` (SRS 4.6.1 đòi NFC). Không có NFC thì so trích dẫn / `vn_fold` (bảng ký tự dựng sẵn) và offset tô sáng sai với chữ tổ hợp NFD do docling / DOCX trả | Không | **(b)** giữ, PM ghi để chủ dự án duyệt. Đề xuất duyệt: module của nhóm Go (`golang.org/x`), đã nằm trong đồ thị, không tải mã mới. Thư viện chuẩn không có NFC; chuyển NFC sang SQL (`normalize(…, NFC)`) thì vẫn cần NFC ở Go cho trích dẫn LLM trả về (TLR-12) |
+| `github.com/moby/moby/api v1.55.0` | trực tiếp nhưng **chỉ trong mã test** | `internal/testutil/judge.go:13`: kiểu `container.HostConfig` trong `HostConfigModifier` của testcontainers, để chạy sandbox go-judge với `Privileged`, `CgroupnsMode=host`, giới hạn RAM / CPU. Có từ **sprint 6** (US-PE-02, `86c4270d`), không phải việc của sprint 9. `testutil` chỉ được `_test.go` nhập (không gói sản phẩm nào), nên không vào binary gateway / worker | Bảng có `testcontainers-go` (dòng 99); `moby/moby/api` là kiểu thuộc API của chính testcontainers | **(a)** chỉ ghi bảng: dòng 99 thêm "(+ `moby/moby/api`: kiểu `HostConfig` cho container sandbox trong test)". **Không bỏ được**: chữ ký `HostConfigModifier func(*container.HostConfig)` của testcontainers bắt buộc kiểu này. Bỏ thì phải bỏ cấu hình sandbox của test chấm code (PE) |
+
+**Không có gói (c) (bỏ được)** trong năm gói QC nêu.
+
+**Việc kèm theo** (một commit tài liệu, PM giao BA / dev sửa `ARCHITECTURE.md`): dòng 92 thêm `go-sasl` (bắc cầu); dòng 99 thêm `moby/moby/api` (chỉ test); thêm một dòng `golang.org/x/text` (NFC) sau khi chủ dự án duyệt.
+
+**Gợi ý chặn tái diễn:** thêm vào CI một bước so `go list -m -f '{{if not .Indirect}}{{.Path}}{{end}}' all` của module chính với danh sách cho phép rút từ bảng `ARCHITECTURE.md`. Gói trực tiếp mới thì CI đỏ, không phải đợi QC đọc `go.mod`.
