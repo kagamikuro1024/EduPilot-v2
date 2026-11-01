@@ -51,3 +51,4 @@ Mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh h�
   - **AC5 US-P7-07:** chấp nhận đo ở quy mô seed (22–30 bài). Tải 200 bài thuộc P10 (`seed-t1`); ghi nợ.
   - **Thư viện mới:** chờ TL-3.
   - **G7-23 LCP:** chờ chủ dự án (#10).
+- **TL-3 thư viện (PM, 2026-11-01):** không có gói mới thật sự ngoài bảng, trừ `golang.org/x/text`. `go-sasl` là phụ thuộc bắc cầu của go-imap, `moby/moby/api` chỉ dùng trong test và có từ sprint 6; hai gói này chỉ ghi vào bảng. `golang.org/x/text` (NFC bài làm, gói `x` chính thức của Go, đã có trong `go.mod` từ trước dưới dạng bắc cầu) được **giữ tạm và đưa vào danh sách chủ dự án duyệt 01/11**. Gợi ý thêm bước CI kiểm danh sách cho phép: ghi nợ, chưa làm.
