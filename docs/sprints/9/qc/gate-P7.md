@@ -56,3 +56,43 @@ Nguồn: `docs/phases/P7.md` ("Cổng nghiệm thu", "Bạn tự kiểm", "Ghi c
 6. Hạn nộp / gia hạn / `late_days` tính lúc chấm, không lưu (TLR-8) (TC-P7-02-14, TC-P7-03-12/13).
 7. Phúc khảo không đi qua `escalation_tickets`, AI không tham gia (TC-P7-10-07/09).
 8. Câu hỏi mở cho PM: xem mục "Câu hỏi" ở các `tc-*.md` (Q-01-a, Q-02-a, Q-05-a, Q-06-a, Q-06-b, Q-06-c, Q-09-a, Q-S9-a).
+
+---
+# KẾT QUẢ PHA 2 — chạy ngày 2026-11-01 trên `sprint/9-p7` @ `8e478910` (HEAD `61c35b39`, chỉ thêm tài liệu), stack dựng từ DB trống (`dev.mjs up` + `seed.mjs`, cổng host +100)
+CI `8e478910`: success. Proposals #15, #16 ACCEPTED. Script QC: `scripts/p7-*.py|sh` (đã commit).
+
+| ID | Kết quả | Bằng chứng |
+| --- | --- | --- |
+| G7-01 Playwright `assignment-lifecycle` + `grade-appeal` `--workers=2 --retries=0` | **PASS** | xanh trong `gate-p7.sh` (34 test + `grade-appeal` 8 ca), 0 flaky; 0 ca bị xoá so với đầu sprint |
+| G7-02 `TestStudentNeverSeesDraftGrade` | **PASS** | `ok`; QC thêm `p7-student-sweep.py`: 6 trạng thái (không nộp / QUEUED / RUNNING / DRAFT / REVIEWED / FAILED) × 12 bề mặt API + SSE + `GET /jobs/{id}` (404) + chat → 0 dấu vết nháp; DOM thật `/assignments/{id}` ở 1440 và 390: chỉ "Đang chấm", 0 nháp / cờ / điểm, 0 trong `localStorage` và console |
+| G7-03 `go test -race ./internal/submission/... ./internal/jobs/...` | **PASS** | 57 test, không `DATA RACE` |
+| G7-04 `TestImapToDraftGrade` | **PASS** | máy chủ IMAP trong test; QC thêm thư giả `From` trên `mock-imap` thật (`p7-imap-live.py`) |
+| G7-05 `TestGradingJobSurvivesWorkerKill` | **PASS** (Go) | QC không `kill -9` được giữa hai lượt (provider giả quá nhanh) — chỉ test Go; việc `docker pause` worker + `SUPERSEDED` đã kiểm ở US-P7-07 |
+| G7-06 `go test -race ./internal/submission/source/... -run Teams` | **PASS** | 10 test; `TestTeamsAdapterHasNoMockBranch` xanh |
+| G7-07 `TestTeamsSyncAgainstMockGraph` | **PASS** | 7 kịch bản; QC chạy tay 8 kịch bản trên stack (US-P7-11) |
+| G7-08 `go test -race ./internal/grading/...` | **PASS** | 128 test, không `DATA RACE` |
+| G7-09 `bash scripts/gate-p7.sh` | **PASS** | rc 0, `GATE P7: PASS`, 19 dòng PASS, có khối "Bạn tự kiểm"; **tự thử đỏ**: đổi S2 5,75 → 5,50 ở bản sao → `check … grade` rc 1 ("11/22") và `TestSeedGradeAllMatchesExpected` đỏ |
+| **G7-10** `go vet`, `golangci-lint run`, `go test -race ./...` (`scripts/go-test-all.sh`), `sqlc diff` | **FAIL** | `go vet -tags testroutes ./...` rc 0; `golangci-lint` 0 issues; `sqlc diff` rc 0; **toàn bộ test: 1 test đỏ 2/2 lượt** — `internal/grading` `TestRetryThreeThenDead` (`queue_more_test.go:58`, `.dead` XLEN 0 ≠ 1): **BUG-P7-07-5** (đua giữa `FAILED` ở DB và `XADD` `.dead`; riêng lẻ xanh 6/6). 53 gói còn lại xanh. Sprint thêm 425 hàm `Test…` Go, 0 xoá |
+| G7-11 `go test ./internal/contract/...`; `sqlc diff`; `goose up/down/up` | **PASS** | contract xanh (cổng, 287 thao tác); `sqlc diff` sạch; `00017` up / down / up: `TestMigration00016UpDownUp` và `db` xanh trong lượt toàn bộ |
+| G7-12 `pnpm lint && pnpm build`; `ui-antipatterns.sh`; `canary-scan.sh` | **PASS** | lint rc 0, build rc 0; antipatterns rc 0 (trong cổng); canary: log compose / `audit_log` / `outbox` / `llm_audit` / `jobs` / `llm_providers` đều 0 |
+| G7-13 diff test cũ / e2e / `expected_*` / fixtures so mốc `2fea08ec` | **PASS** | `seed/expected_final_grades.csv` không đổi (`sha256sum -c` OK); fixtures BA chỉ **thêm** (20 tệp); test cũ sửa đều có proposal ACCEPTED (#7 migration, #8 / #9 `today.Topics()` 24 → 28 + `TestTodayQueryBudget`, #12 12 ảnh mốc + nhãn demo, #13 `AssignmentQueue` + `share_test`, #15 `demo_test` đếm theo loại, #16 `student page states`, `me_test` `noStamps`, `rig_test` `TEAMS_ENABLED`); 0 hàm `Test…` bị xoá, 0 ca Playwright bị xoá |
+| G7-14 không SDK provider ngoài `internal/llm` | **PASS** | 0 import trực tiếp `openai` / `anthropic` ở `grading`, `assignment`, `submission` (`go list -f '{{.Imports}}'`); `go list -deps` chỉ thấy SDK gián tiếp qua `internal/llm` |
+| G7-15 quét cấm `float` / `ParseFloat` / `math.Round`; `users.student_code` | **PASS** | chỉ `[]float64` ở `grading/queue.go` cho thời lượng giây (số đo, không phải điểm); `users.student_code` ở `submission` / `assignment` / `grading`: 0 |
+| G7-16 `mock-graph` trong compose; production từ chối | **PASS** (theo #14) | local 12, test-seed 0 (chồng lên local), `docker-compose.prod.yml` chưa tồn tại (PR); `TestProductionRejectsMockGraph` xanh |
+| G7-17 `p7-hand-calc.py all` | **PASS** | 7/7 mẫu chấm; 30/30 điểm v2, 22/30 khác bản 1 |
+| G7-18 `p7-rbac.sh` (34 route × vai) | **PASS** | `RESULT: PASS`; sửa harness (sinh viên ngoài lớp = `sv.moi`; seed chỉ có **một** giảng viên dạy cả hai lớp → bỏ hàng "giảng viên lớp khác"); phát hiện route SRS #15 chưa có (BUG-P7-03-4) |
+| G7-19 quét sinh viên + `p7-seed-grade.py` 22/22 | **PASS** | 0 canary / nháp; 22/22 từng ô (US-S9-SEED) |
+| G7-20 đột biến | **PASS** | 31 đột biến sprint 9 làm đỏ ≥ 1 test; **1 sống sót** (T4, BUG-P7-11-1, lỗ hổng test); các lỗ hổng cũ đã sửa (BUG-P7-01-1, 06-1) |
+| G7-21 DOM sinh viên 6 trạng thái | **PASS** | xem G7-02 |
+| G7-22 `GET /submissions` 1.000 bài p95 ≤ 300 ms, không `Seq Scan`; chat không chậm hơn +20 % khi chấm | **PASS** (30 bài cho k6) | `TestQueueP95Under300ms`, `TestQueueExplainNoSeqScan` xanh; k6 `grading` p95 TTFT 44,8 ms ≤ 143 ms, chờ hàng 28 ms ≤ 500 ms, 0 lỗi (**30 bài, không phải 200** — seed chỉ có 30 sinh viên; `TestChatUnaffectedDuringBatchGrading` phủ 200 việc ở Scheduler) |
+| **G7-23** 375 px `/assignments/[id]`; **LCP ≤ 2,5 s** | **FAIL** | 375 px, vùng thả ≥ 48 px, không cuộn ngang, axe 0 lỗi: đạt. **LCP 4.723 ms > 2.500 ms** (US-P7-03 AC9, proposals #10 chờ chủ dự án) |
+| G7-24 mock-graph khớp tài liệu Microsoft | **PASS** | so từng khoá ngày 01/11/2026 (report US-P7-11) |
+| G7-25…G7-29 "Bạn tự kiểm" | **QC đã làm** | thư đúng mẫu → khớp, thư sai → `Chưa khớp` (đúng lý do bằng chữ); 22 bài chấm khớp mẫu; B không thấy điểm trước công bố, sau công bố **7,50**; Teams `happy` / `throttle` / `no_consent` ("Cần quản trị Microsoft 365 của trường cấp quyền đọc bài tập và danh sách lớp."); mock-graph khớp tài liệu. **Chủ dự án vẫn tự làm lại** |
+| G7-30 chấm tay 60 bài (E3) và quyết lại [ĐIỂM] ngày 01/11 | ngoài phạm vi QC | nhắc chủ dự án |
+
+## Kết luận cổng P7: **FAIL** (3 chặn; mọi việc còn lại PASS)
+1. **G7-10 / BUG-P7-07-5:** `TestRetryThreeThenDead` đỏ ổn định khi chạy toàn bộ `go test ./...` (đua test, sửa một dòng). Dev sửa → QC chạy lại `go-test-all.sh`.
+2. **G7-23 / US-P7-03 AC9:** LCP 4,7 s > 2,5 s — chờ quyết định của chủ dự án (#10), không phải việc dev.
+3. **BUG-P7-03-4:** route SRS #15 (`GET …/submissions/{id}` — lịch sử phiên bản) chưa có; dev thêm hoặc PM bỏ khỏi SRS.
+
+Còn mở (không chặn): BUG-P7-11-1 (lỗ hổng test, token Graph gửi sang host phụ trong allowlist chưa có test); thư viện ngoài bảng `ARCHITECTURE.md` (`go-imap/v2`, `go-message`, `go-sasl`, `x/text`, `moby/moby/api`) chờ PM / Tech Lead; AC5 US-P7-07 đo ở 30 bài (đề nghị PM chấp nhận); BUG-P7-02/05 mức thấp ở các report; chưa chạy được trên stack: `kill -9` worker giữa hai lượt, Redis dừng 70 s, hết thời gian Teams thật.

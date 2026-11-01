@@ -1,0 +1,37 @@
+# QC report — US-P7-11 (đồng bộ bài nộp từ Teams: `TeamsGraphSource`, `cmd/mock-graph`, thẻ Teams, `Đồng bộ từ Teams`) · Kết luận vòng 1: **PASS** (BUG-P7-11-1 thấp, lỗ hổng test)
+Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `8e478910` (HEAD `61c35b39` chỉ thêm tài liệu; mã US-P7-11 ở `025b97df` + `1c435f23` + FE `a775299d`). Bộ TC: `tc-US-P7-11.md`. Handoff: `dev-US-P7-11.md`. CI `8e478910`: **success**. Stack dựng từ DB trống ở HEAD (có `mock-graph`).
+
+## 1. Cổng đã chạy
+| Lệnh | Kết quả |
+| --- | --- |
+| `go test -race` `./internal/submission/source/... -run Teams` (P7.md) | PASS 10 test, không `DATA RACE`; có `TestTeamsAdapterHasNoMockBranch` |
+| `go test ./internal/integration -run TestTeamsSyncAgainstMockGraph` (P7.md) | PASS (7 kịch bản) |
+| `p7-go-tests.sh` mọi tên của TC + handoff: `cmd/gateway`, `cmd/mock-graph/server` 3, `cmd/mock-imap/server` 2, `internal/integration` 24 (Teams + seed), `internal/platform/config` 2 (`TestTeamsEnabledDefaultFalse`, `TestProductionRejectsMockGraph`…), `internal/submission` 6, `…/source` 3 | PASS (riêng `internal/integration` đỏ ở lần đầu do `TestSeedGradeAllMatchesExpected` có `DATA RACE` ở test — đã sửa ở `0a409f71`, xem report US-S9-SEED) |
+| TC-05: `grep -rniE mock backend-go/internal/submission --include=*.go \| grep -v _test`; `go list -deps ./cmd/mock-graph`; `go list -deps ./internal/... \| grep cmd/mock` | rỗng; `mock-graph` chỉ phụ thuộc gói của chính nó; không gói nào phụ thuộc `cmd/mock-*` |
+| TC-12 (theo #14 đã ACCEPTED): `grep -l mock-graph docker-compose*.yml` | chỉ `docker-compose.local.yml` (12 lần); `docker-compose.test-seed.yml` 0 (chồng lên local); `docker-compose.prod.yml` chưa tồn tại (phase PR, #14); `TEAMS_ENABLED` mặc định `false` + `GRAPH_BASE_URL` mặc định Graph thật + production từ chối `mock-graph`: `TestTeamsEnabledDefaultFalse`, `TestGraphBaseURLDefaultReal`, `TestProductionRejectsMockGraph` xanh |
+| **TC-04 / G7-24: so mock-graph với tài liệu Microsoft** (QC mở `https://learn.microsoft.com/en-us/graph/api/educationassignment-list-submissions?view=graph-rest-1.0` và `…educationclass-list-members…` ngày **01/11/2026**, so với phản hồi sống của `mock-graph` sau khi xin token) | `educationSubmission`: mọi khoá của ví dụ 1 (`status`, `submittedDateTime`, `unsubmittedDateTime`, `returnedDateTime`, `reassignedDateTime`, `resourcesFolderUrl`, `webUrl`, `id`, `recipient{@odata.type, userId}`, `submittedBy/unsubmittedBy/returnedBy/reassignedBy{application, device, user{id, displayName}}`) **có đủ, đúng tên**; mock chỉ thêm `@odata.context` (đúng Graph thật). `educationClass` members: `@odata.context`, `id`, `accountEnabled`, `displayName`, `givenName`, `surname`, `userPrincipalName`, `userType`, `primaryRole`, `onPremisesInfo.immutableId`, `student: {}` khớp; mock thêm `mail` (có ở tài nguyên `educationUser`) và không có phần tử `teacher`. Token: `token_type`, `expires_in`, `ext_expires_in`, `access_token` khớp `token.json` của tài liệu OAuth |
+| **Hộp đen trên stack thật** (`scripts/p7-api-11.py`, `mock-graph` chạy trong compose) | PASS: thẻ Teams ADMIN `GET` 200; lưu secret canary → phản hồi, `GET` ADMIN / TEACHER, `integration_configs`, `audit_log`, log **không có secret**; TA / STUDENT `GET` 403; TEACHER / TA / STUDENT `PUT` và `teams/test` 403; `Kiểm tra kết nối`: `happy` `ok:true`, `no_consent` → `TEAMS_CONSENT_REQUIRED`, `unauthorized` → `TEAMS_AUTH_FAILED`. Đồng bộ BT04 theo kịch bản (xoá bài Teams giữa các lượt): `happy` 25 bài (24 `MATCHED` + 1 `UNMATCHED` email ngoài lớp); `paged` 25 bài, 32 yêu cầu `200`; `throttle` hai `429` rồi đủ 25 (3,4 s); `expired_token` đúng **2** lần xin token, một `401`, đủ 25; `no_consent` → job `FAILED` `TEAMS_CONSENT_REQUIRED` (câu "Cần quản trị Microsoft 365 của trường cấp quyền…"), không bài, không khoá `ep:lock:teams*` treo; `unauthorized` → `TEAMS_AUTH_FAILED`, token ≤ 2 lần (không vòng lặp); `partial_failure` → `SUCCEEDED`, `failed:[{FILE_DOWNLOAD_FAILED, graph_submission_id}]`, 24 bài còn lại vẫn về; `slow` 31 s, không hết thời gian oan, đủ 25. Nhật ký mock: chỉ `POST` token + `GET` (không `PATCH` / `PUT` / `POST` ghi ngược). `sync` TA 202; lần hai trong 30 s 429; ADMIN / STUDENT 403; lớp 2 (chưa cấu hình Teams) không kéo được bài bằng cấu hình lớp 1 (0 bài). Log gateway + worker không có client secret |
+| Playwright desktop `settings-integrations.spec.ts -g 'teams card sandbox label|teams consent guidance|teams disabled'`, `assignment-lifecycle.spec.ts -g 'teams sync happy then throttle|teams sync no_consent'` (+ `teams sync hidden`) | 6/6 xanh |
+| Giao diện thật (`shots/g7-integrations-admin-1440.png`, `-390.png`) | thẻ Teams có nhãn "Môi trường giả lập", Tenant / Client ID, Client secret (ô trống "Để trống = giữ cũ", không trả lại), `Bật`, `Lưu`, `Kiểm tra kết nối` |
+| Đột biến (`/tmp/qc-mut9`, đã xoá) T1 bỏ allowlist host tải tệp · T2 giữ `Authorization` khi chuyển hướng sang host khác · T3 thêm nhánh `mock` ở adapter · T4 gửi `Authorization` tới mọi host | T1 **đỏ** `TestTeamsDownloadHostAllowlist`; T2 **đỏ** `TestTeamsNoAuthHeaderToForeignHost`; T3 **đỏ** `TestTeamsAdapterHasNoMockBranch`; **T4 sống sót** (xem BUG-P7-11-1) |
+
+## 2. Kết quả theo AC
+| AC | Kết quả | Ghi chú |
+| --- | --- | --- |
+| AC1 chuỗi gọi Graph đúng tài liệu (token client-credentials → members → submissions) | PASS | `testdata/graph-docs/*.json` có `_source` URL; nhật ký mock |
+| AC2 đồng bộ idempotent, phân trang, nộp lại, bản đã duyệt | PASS | `happy` / `paged`; `TestTeamsSyncTwiceNoDuplicate`, `TestTeamsResubmitNewVersion` |
+| AC3 bảy kịch bản | PASS | hộp đen đủ `happy`, `paged`, `throttle`, `expired_token`, `no_consent`, `unauthorized`, `slow`, `partial_failure`; `TestTeamsSyncAgainstMockGraph` |
+| AC4 mock-graph giống tài liệu Microsoft từng chữ | PASS | bảng trên (ngày 01/11/2026) |
+| AC5 một đường mã, không nhánh `mock` | PASS | T3; greps |
+| AC6 thẻ Teams, secret chỉ ghi, hướng dẫn cấp quyền | PASS | hộp đen + Playwright + ảnh |
+| AC7 `Đồng bộ từ Teams` — 202 + job, tiến độ, giới hạn tần suất | PASS | hộp đen (202, 429); Playwright `teams sync happy then throttle`. SSE "Đã lấy n/25" kiểm bằng Playwright (gateway giả) |
+| AC8 an toàn tải tệp (allowlist, không ghi ngược, không lộ token) | PASS ở mức hộp đen + Go | T1, T2; `TestTeamsDownloadHostAllowlist`, `…RedirectOnlyListedHosts`, `…NoAuthHeaderToForeignHost`, `…NoWriteBack`, `…TokenNeverLogged`; BUG-P7-11-1 |
+| AC9 lỗi: tắt giữa chừng, JSON hỏng, treo | PASS | hộp đen (`partial_failure`, khoá không treo); `TestTeamsMidSyncOutage`, `…ResumeAfterOutage`, `…InvalidJSON`, `…SyncTimeout` |
+| AC10 phân quyền, cách ly lớp | PASS | hộp đen |
+| AC11 mặc định trong mã tắt Teams, chỉ compose local có `mock-graph` | PASS (theo #14) | bảng trên |
+
+## 3. Lỗi / ghi nhận
+- **BUG-P7-11-1 (Trung bình, lỗ hổng test — mã đúng):** đột biến T4 (`fetchFile` gửi `Authorization: Bearer …` tới **mọi** host được phép, không chỉ host của Graph) không làm test nào đỏ: `TestTeamsNoAuthHeaderToForeignHost` chỉ kiểm nhánh chuyển hướng. Khi `GRAPH_FILE_HOSTS` liệt kê thêm một host khác (CDN), token Graph sẽ lộ sang host đó. Dev thêm ca: `fileUrl` trỏ host thứ hai trong danh sách → máy chủ giả đó **không** nhận `Authorization`.
+- Ghi nhận: mock-graph không có phần tử `teacher` trong `members`; `members` thêm `mail`. Không ảnh hưởng nhập bài.
+- Ghi nhận: `docker-compose.prod.yml` chưa có (PR, #14 ACCEPTED) — TC-12 phần `prod 0` không áp dụng.
+- Chưa kiểm được: hết thời gian `TEAMS_SYNC_TIMEOUT` thật (treo > timeout) trên stack — chỉ `TestTeamsSyncTimeout`.

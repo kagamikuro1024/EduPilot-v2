@@ -1,4 +1,4 @@
-# QC report — US-P7-10 (phúc khảo bài tập) · Kết luận vòng 1: **FAIL** (chỉ AC11: `grade-appeal.spec.ts` thiếu nhánh sổ đã chốt → mở khoá → chốt lại → `GRADE_CHANGED`; AC1–AC10 PASS)
+# QC report — US-P7-10 (phúc khảo bài tập) · Kết luận vòng 1: **FAIL** (chỉ AC11) → **vòng 2 (`8e478910`): PASS** — xem mục 4
 Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `e7aeff77` (máy chủ `3f0f663f`, frontend `d10af653`). Bộ TC: `tc-US-P7-10.md`. Handoff: `dev-US-P7-10.md`. CI `e7aeff77`: **success**.
 
 ## 1. Cổng đã chạy
@@ -31,3 +31,9 @@ Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `e7aeff77` (máy chủ `3f0f663
 - Ghi nhận: khối "Yêu cầu xem lại" của TEACHER không hiện điểm AI nháp khi kết quả do giảng viên nhập tay (AI `NULL`) — đúng; ca có điểm AI chỉ kiểm bằng Go / Playwright.
 - Ghi nhận: không có job thư nhắc quá hạn / SLA (dev ghi rõ); student view chỉ nêu một mục `recommended` nên `ASSIGNMENT_APPEAL_REPLY` (bậc 48) đứng sau `ASSIGNMENT_GRADED` trong 7 ngày đầu — dev đã ghi.
 - Test cũ dev sửa: `contract_test.go` 275 thao tác + `appealScenarios`.
+
+## 4. Vòng 2 — `8e478910` · Kết luận: **PASS**
+CI `8e478910`: **success**.
+- `grade-appeal.spec.ts` giờ **8 ca**, thêm `appeal locked gradebook drift` (sửa điểm khi sổ đã chốt → "Khác bản chốt" → `Mở khoá` có lý do → `Chốt điểm` v3 → chuông `GRADE_CHANGED` của sinh viên): xanh; nằm trong 34 test Playwright của `gate-p7.sh` (`assignment-lifecycle` + `grade-appeal`, `--workers=2 --retries=0`, xanh). BUG-P7-10-1 đã sửa → AC11 **PASS**.
+- Hồi quy: `go test -race ./internal/grading/... ./internal/submission/... ./internal/jobs/...` xanh; 42 test của story (assignment 31, escalation 4, grade 4, today 3) xanh ở lượt `go-test-all.sh` (trừ `TestRetryThreeThenDead`, xem report US-P7-07, BUG-P7-07-5).
+- Máy chủ không đổi từ `3f0f663f`; AC1–AC10 giữ PASS.

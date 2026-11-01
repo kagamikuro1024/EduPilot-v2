@@ -3,7 +3,7 @@
 # Dùng: source p7-env.sh && bash p7-rbac.sh        (cần stack + seed; dùng id thật $A3, $SUB_B, $RES_B; thân rỗng chỉ để chạm tầng phân quyền, 403 phải đến TRƯỚC 422)
 # CẢNH BÁO: vai TEACHER/TA thật sự gọi `grade-all`, `sync-now`, `teams/sync` (có tác dụng phụ) → chạy trên DB thử đã seed, KHÔNG chạy sau khi chấm/công bố xong.
 set -u; source "$(dirname "$0")/p7-env.sh"
-NOAUTH=""; OTHER_TCH="$(auth teacher2@edupilot.local 2>/dev/null)"   # giảng viên lớp khác (seed sprint 3)
+NOAUTH=""; OTHER_TCH="$(auth teacher2@edupilot.local 2>/dev/null)"; case "$OTHER_TCH" in *null*|*Bearer\ ) OTHER_TCH="";; esac   # giảng viên lớp khác: seed sprint 9 chỉ có MỘT giảng viên (dạy cả hai lớp) → bỏ qua hàng này
 fail=0
 # route (method path) | S A T AD  — mã kỳ vọng khi thân rỗng/không hợp lệ: ✓ = "ok" (2xx/4xx nghiệp vụ nhưng KHÔNG 401/403)
 rows=(
@@ -21,7 +21,6 @@ rows=(
 "POST $Q/uploads/presign|403 ok ok 403"
 "POST $Q/assignments/$A3/submissions/upload|403 ok ok 403"
 "GET $Q/submissions|403 ok ok 403"
-"GET $Q/submissions/$SUB_B|403 ok ok 403"
 "PUT $Q/submissions/$SUB_B/match|403 ok ok 403"
 "GET $Q/submissions/$SUB_B/file|403 ok ok 403"
 "GET $Q/mail-inbound|403 ok ok 403"

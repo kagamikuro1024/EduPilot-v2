@@ -18,7 +18,7 @@ POLICY1="$($PSQL "select id from documents where course_id='$C1' and type='COURS
 code() { curl -sk -o /dev/null -w '%{http_code}' "$@"; }
 # --- bổ sung P7 (SRS 9.1) ---
 MP="${MP:-http://127.0.0.1:8025}"
-SVD="$(auth sv.khac@edupilot.local)"     # D: tài khoản chưa vào lớp (seed sprint 3)
+SVD="$(auth sv.moi@edupilot.local)"     # D: tài khoản chưa vào lớp (seed sprint 3)
 A3="$($PSQL "select id from assignments where course_id='$C1' and submission_code='BT03'")"
 A4="$($PSQL "select id from assignments where course_id='$C1' and submission_code='BT04'")"
 SUB_B="$($PSQL "select id from submissions where assignment_id='$A3' and student_id='$SVB_ID' order by version desc limit 1")"

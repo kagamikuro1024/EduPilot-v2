@@ -30,3 +30,8 @@ Ngày 2026-10-31. Commit kiểm: `sprint/9-p7` @ `e424a20b`. Bộ TC: `tc-US-P7-
 - **BUG-P7-03-2 (Thấp, chữ ≠ SRS):** `SUBMISSION_LOCKED` hiện "Bài của bạn đang được xử lý, chưa nộp lại được." (`apierr/assignments.go`, `shared/i18n/vi.ts`); SRS ghi "Bài đã được nhận, không nộp lại được". Câu chung, không lộ trạng thái → không FAIL; thống nhất chữ với BA.
 - **BUG-P7-03-3 (Thấp, tên test ≠ US):** `TestSubmitClosed`, `TestSubmitIdempotent` ở dòng `Kiểm:` không có trong repo (Go bỏ qua im lặng); `TestSubmitContentSniff` chỉ là hàm gọi `TestSubmitSniff`. Hành vi đóng / idempotent đã kiểm bằng API và `TestClosedAfterCutoff` / `TestSubmitFlow`.
 - Phần tiếp: US-P7-04 chưa có handoff nên chưa chấm.
+
+## 4. Cập nhật 2026-11-01 (HEAD `61c35b39`, không có vòng mới của story) · Kết luận giữ: **FAIL**
+- **AC9 (LCP) vẫn FAIL** theo proposals #10: dev tối ưu 6.146 → 4.723 ms, chưa đạt 2.500 ms; PM ghi chờ chủ dự án chọn phương án ngày 01/11. QC không đo lại bằng LHCI (URL `/assignments/{id}` không có trong ma trận, theo #10).
+- **BUG-P7-03-4 (Trung bình, AC4 "nhân viên xem được lịch sử"):** SRS mục 6 hàng 15 `GET …/submissions/{id}` (A, T — "gồm các phiên bản") **chưa có**: `GET /courses/{id}/submissions/{sid}` trả `404` cho mọi vai (QC phát hiện qua ma trận `p7-rbac.sh`; OpenAPI không có thao tác này). Hiện nhân viên chỉ thấy bản mới nhất ở hàng chờ và số bản ở hộp thoại gán (`…/versions?student_id=`). Dev thêm route hoặc BA / PM bỏ hàng 15 khỏi SRS bằng proposal.
+- BUG-P7-03-1, -2, -3 giữ nguyên (LCP; câu `SUBMISSION_LOCKED` khác SRS; tên test ≠ US).

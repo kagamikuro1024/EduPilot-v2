@@ -51,3 +51,17 @@ CI `e7aeff77`: **success**.
 
 - **BUG-P7-07-4 (Trung bình, AC5):** `chatVU` lấy `d.sessions[exec.vu.idInTest - 1]`; ở `PHASE=grading` có thêm kịch bản `grade` nên `idInTest` của luồng chat vượt 20 (nghi: VU của `grade` nhận id trước, lệch chỉ số) → `undefined` → ném lỗi liên tục, làm nhiễu số đo và đầy log. Đề nghị dùng `(exec.vu.idInTest - 1) % VUS` hoặc `exec.vu.idInScenario`, thêm `sleep` ngoài nhánh lỗi, rồi chạy lại ở 200 bài (US-S9-SEED).
 - BUG-P7-07-3 (việc `grading.batch` mồ côi khi Redis mất ánh xạ lô) vẫn là ghi nhận của dev, không đổi.
+
+## 5. Vòng 3 — `8e478910` (k6 sửa ở `92718308`) · Kết luận: **PASS** (AC5), kèm BUG-P7-07-5 chặn cổng G7-10
+CI `8e478910`: **success**. Stack dựng từ DB trống ở HEAD.
+
+| Lệnh | Kết quả |
+| --- | --- |
+| `k6 run grading-vs-chat.js` `PHASE=baseline` | rc 0; 240 mẫu; `first_event_ms` p95 76,7 ms; `ttft_ms` p95 118 ms; `http_req_failed` 0 % |
+| `PHASE=grading` (`BASELINE_TTFT_MS=119`, `grade-all` giây 5, **30 bài** QC dựng thêm — lớp 1 chỉ có 30 sinh viên ACTIVE) | rc 0; **0 dòng lỗi** (BUG-P7-07-4 đã sửa: trước ≈ 2,19 triệu); `first_event_ms` p95 28,2 ms (< 500); `ttft_ms` p95 44,8 ms (< 143); `grading_queued` 30; 240 mẫu chat; mọi dòng `llm_audit` task `GRADING` làn `BATCH` |
+| `go test -race ./internal/grading/...` (cổng G7-08) | PASS 128 test, không `DATA RACE` |
+| `scripts/go-test-all.sh` (cổng G7-10) | **ĐỎ 2/2 lượt**: `TestRetryThreeThenDead` (`queue_more_test.go:58`: `.dead` XLEN 0, kỳ vọng 1); chạy riêng 3/3 xanh |
+
+- **AC5 → PASS**, với giới hạn: số đo ở 30 bài, không phải 200 (seed không có 200 sinh viên; bản 200 bài cần `seed-t1.mjs` của P10 — dev đã ghi). Phần "200 việc `BATCH` không làm chat chờ > 500 ms" được `TestChatUnaffectedDuringBatchGrading` phủ ở mức Scheduler (xanh). **Đề nghị PM xác nhận chấp nhận giới hạn này** (nếu không, AC5 chuyển FAIL cho tới khi có seed 200 bài).
+- **BUG-P7-07-5 (Trung bình, test đua; chặn G7-10):** `TestRetryThreeThenDead` đợi dòng kết quả `FAILED` ở DB rồi đọc ngay `XLEN ep:grading.dead`, nhưng `retryOrFail` ghi `FAILED` (`GradingFailPermanent`) **trước**, sau đó mới `XADD` `.dead` → đua; dưới tải của `go test ./...` song song thì đỏ ổn định (2/2 lần trên máy QC, 1 lần ở lượt dò đầu). Sửa: `eventually` cho `XLEN` / `DeadTotal`, hoặc `XADD` trước khi đánh dấu `FAILED`.
+- `go test -list`: sprint 9 thêm 425 hàm `Test…` Go, **0 xoá**; 0 ca Playwright bị xoá.

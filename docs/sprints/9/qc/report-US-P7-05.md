@@ -1,4 +1,4 @@
-# QC report — US-P7-05 (`ImapSource`, cấu hình IMAP, thư không xử lý được) · Kết luận vòng 1: **FAIL** (AC1 phần Playwright và AC9: chưa có giao diện — `/settings/integrations` vẫn là mock; phần máy chủ PASS)
+# QC report — US-P7-05 (`ImapSource`, cấu hình IMAP, thư không xử lý được) · Kết luận vòng 1: **FAIL** (AC1 phần Playwright và AC9: FE còn mock) → **vòng 2 (`8e478910`): PASS** — xem mục 4
 Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `e7aeff77` (chỉ có phần máy chủ). Bộ TC: `tc-US-P7-05.md`. Handoff: `dev-US-P7-05.md` (mục "Còn lại (FE)"). CI `e7aeff77`: **success**.
 
 ## 1. Cổng đã chạy
@@ -28,3 +28,23 @@ Ngày 2026-11-01. Commit kiểm: `sprint/9-p7` @ `e7aeff77` (chỉ có phần m�
 - Chưa kiểm được trên stack: poll thật, `kill` gateway giữa chừng, đổi `UIDVALIDITY`, thư giả `From` — Mailpit không phải IMAP; chỉ có test Go. Cần máy chủ IMAP thử có sẵn ở stack US-S9-SEED nếu muốn kiểm đầu-cuối.
 - Ghi nhận (dev đã tự ghi): thư `IGNORED` không có thao tác `Bỏ qua`, thư không bao giờ nộp lại giữ sinh viên `INCOMPLETE` (nợ nhỏ); thư viện mới `go-imap/v2@v2.0.0-beta.8`, `go-message@v0.18.2`, `go-sasl` ngoài bảng `ARCHITECTURE.md` — **cần PM / Tech Lead chấp nhận** (cùng dạng Q-06-d).
 - Mật khẩu `security NONE` bị từ chối khi `APP_ENV=production` (hộp đen ở môi trường dev: 409 — chưa rõ môi trường test có đặt `APP_ENV=production`; không FAIL).
+
+## 4. Vòng 2 — `8e478910` (máy chủ `e7aeff77`, frontend `a775299d`; HEAD `61c35b39` chỉ thêm tài liệu) · Kết luận: **PASS**
+CI `8e478910`: **success**. Stack dựng từ DB trống ở HEAD (`dev.mjs up` + `seed.mjs`, có `mock-imap`).
+
+| Lệnh | Kết quả |
+| --- | --- |
+| Playwright desktop `settings-integrations.spec.ts` (`imap key write-only`, `flat sections`, `states`, `save conflicts`, `no description lines`), `assignment-lifecycle.spec.ts -g 'unmatched mail ignored'`, `a11y.spec.ts -g 'tích hợp có dữ liệu'` | 7/7 xanh (cũng nằm trong 34 test Playwright của `gate-p7.sh`); axe 14 lượt, 0 lỗi |
+| `go test -race` toàn bộ `internal/integration` (35 test IMAP) + `TestImapToDraftGrade` ở cổng | xanh |
+| **Trên stack thật có `cmd/mock-imap`** (`scripts/p7-imap-live.py`): `Test kết nối` tới `mock-imap:1143` | `ok:true`; thẻ `CONNECTED`, không lộ mật khẩu |
+| Thư giả `From` (TLR-2) — 6 thư thêm vào mock-imap rồi `Đồng bộ ngay` | A (`dmarc=pass`, authserv-id tin cậy) → `MATCHED` về đúng `sv.gioi`; B (không có `Authentication-Results`), C (`dmarc=fail`), D (authserv-id lạ) → `UNMATCHED SENDER_UNVERIFIED`, **không** có bài nào gán cho `sv.kha` / `sv.nguyco` / `sv04`; E (`Auto-Submitted`) → `IGNORED AUTO_REPLY`; F (không đính kèm) → `IGNORED NO_ATTACHMENT`; chuông "đã nhận bài" chỉ tới `sv.gioi`; log không có mật khẩu |
+| Giao diện thật (`shots/g7-integrations-admin-1440.png`, `-admin-390.png`, `-teacher-1440.png`) | ba khối phẳng trong một panel (SMTP · IMAP · Teams "Môi trường giả lập"), trạng thái 1–2 từ, ADMIN chọn lớp; ô mật khẩu / secret rỗng, DOM không có mật khẩu; TEACHER chỉ đọc + `Đồng bộ ngay` |
+
+| AC | Vòng 2 |
+| --- | --- |
+| AC1 cấu hình IMAP, mật khẩu chỉ ghi | PASS (Playwright `imap key write-only` có) |
+| AC9 giao diện phẳng, luật chữ, trạng thái | PASS |
+| AC3–AC6, AC10 trên máy chủ IMAP thật | PASS thêm bằng thư giả `From` ở trên (trước đây chỉ có test Go) |
+| AC2, AC7, AC8 | giữ PASS |
+
+Ghi nhận (thấp): `mail-inbound?status=FAILED` (`PARSE_ERROR`) chưa có màn riêng (dev ghi); thư viện `go-imap/v2@v2.0.0-beta.8`, `go-message`, `go-sasl` ngoài bảng `ARCHITECTURE.md` vẫn chờ PM / Tech Lead.
