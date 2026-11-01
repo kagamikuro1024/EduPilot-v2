@@ -44,3 +44,10 @@ Mỗi dòng: #, ai, vấn đề, đề xuất, lý do + bằng chứng, ảnh h�
   - (b) `grep`: service `mock-graph` chỉ có trong `docker-compose.local.yml`.
 
   Ghi nợ PR: tệp compose production phải đặt `TEAMS_ENABLED=false`. BA sửa chữ AC.
+- **Cổng P7 vòng 1 (PM, 2026-11-01):**
+  - **BUG-P7-07-5** (`TestRetryThreeThenDead` đua): dev sửa.
+  - **BUG-P7-03-4:** route `GET …/submissions/{id}` có trong SRS nên phải làm, **không** bỏ khỏi SRS.
+  - **BUG-P7-11-1:** dev thêm test token Graph không bị gửi sang host phụ (bảo mật).
+  - **AC5 US-P7-07:** chấp nhận đo ở quy mô seed (22–30 bài). Tải 200 bài thuộc P10 (`seed-t1`); ghi nợ.
+  - **Thư viện mới:** chờ TL-3.
+  - **G7-23 LCP:** chờ chủ dự án (#10).

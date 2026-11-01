@@ -77,3 +77,11 @@ Kết luận: chấp nhận whitelist hay sửa mã. Trả lời ngay dưới, b
 **Rủi ro còn lại của cơ chế whitelist (gợi ý, không chặn #13):** whitelist miễn **cả truy vấn** theo tên. Nếu sau này ai thêm `JOIN … ON e.student_code_snapshot = …` vào `AssignmentQueue` thì test vẫn xanh. Muốn chặt hơn: đổi `TestNoQueryLinksByStudentCode` để vị từ có `student_code` dạng `like` / `ilike` không cần whitelist, còn so bằng (`=`, `IN`, `ON … student_code`) thì luôn đỏ trừ `EnrollmentConflictByStudentCode` / `RosterStudentCodeConflict`. Test thuộc P2 nên phải qua `proposals.md` riêng nếu PM muốn.
 
 **Dòng cho `proposals.md` #13:** `Tech Lead TL-2: ACCEPT whitelist — AssignmentQueue chỉ lọc hiển thị trên hàng MATCHED đã gán theo student_id, nối theo id, lọc trên student_code_snapshot (cùng cột hiển thị, như ListMembers/CrmStudentsList); q đã thoát ký tự đại diện. Nên: tìm tên qua vn_fold cho nhất quán.`
+
+## TL-3 (PM, 2026-11-01): thư viện mới ngoài bảng `ARCHITECTURE.md`
+QC thấy `go.mod` sprint 9 có thêm: `go-imap/v2`, `go-message`, `go-sasl`, `golang.org/x/text`, `moby/moby/api`. Tech Lead xem từng gói:
+- trực tiếp hay bắc cầu, gói nào dùng;
+- có trong bảng thư viện chưa (go-imap v2 + go-message đã có, TLR-19);
+- `moby/moby/api` để làm gì, có bỏ được không.
+
+Kết luận theo từng gói: (a) bắc cầu / đã có → chỉ ghi bảng; (b) trực tiếp mới, nên giữ → PM ghi để chủ dự án duyệt; (c) bỏ được → dev bỏ. Trả lời ngay dưới, báo PM 3 dòng.
