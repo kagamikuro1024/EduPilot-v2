@@ -32,8 +32,8 @@ const STUDENT = [
 ] as const;
 
 /** Ảnh chụp màn hình: tệp WebP đã nén sẵn (không qua bộ tối ưu của Next), điện thoại (≤ 719 px) tải bản 640 px; có width / height để không dịch bố cục. */
-function Shot({ name, alt, priority, className, sizes }: { name: string; alt: string; priority?: boolean; className?: string; sizes: string }) {
-  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1440, height: 900, alt, unoptimized: true, priority, className, sizes });
+function Shot({ name, alt, lazy, className, sizes }: { name: string; alt: string; lazy?: boolean; className?: string; sizes: string }) {
+  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1440, height: 900, alt, unoptimized: true, loading: lazy ? "lazy" : undefined, className, sizes });
   const small = getImageProps({ src: `/landing/${name}-640.webp`, width: 640, height: 400, alt, unoptimized: true });
   return (
     <picture>
@@ -57,8 +57,7 @@ function Items({ rows }: { rows: ReadonlyArray<readonly [string, string]> }) {
 }
 
 export function Landing() {
-  // Ảnh đầu trang là ứng viên LCP: báo trình duyệt tải ngay từ <head>, đúng bản theo bề rộng, không chờ phân tích tới thẻ <img>.
-  preload("/landing/giang-vien-duyet-bai-640.webp", { as: "image", media: "(max-width: 719px)", fetchPriority: "high" });
+  // Ảnh đầu trang chỉ có ở ≥ 720 px (điện thoại ẩn nó để chữ là ứng viên LCP, ảnh 117 KB làm LCP trượt ngưỡng 2,5 s trên 4G chậm): tải ngay từ <head>.
   preload("/landing/giang-vien-duyet-bai.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
   return (
     <div className={s.page} data-part="landing">
@@ -77,8 +76,10 @@ export function Landing() {
             <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
             <ButtonLink href="/register" variant="secondary">Tạo tài khoản</ButtonLink>
           </div>
-          <Shot className={s.shot} name="giang-vien-duyet-bai" priority sizes="(min-width: 1200px) 1120px, 100vw"
-            alt="Màn duyệt bài của giảng viên: bài làm bên trái, điểm từng tiêu chí, đoạn trích và nhận xét nháp bên phải" />
+          <div className={s.heroShot}>
+            <Shot className={s.shot} name="giang-vien-duyet-bai" lazy sizes="(min-width: 1200px) 1120px, 100vw"
+              alt="Màn duyệt bài của giảng viên: bài làm bên trái, điểm từng tiêu chí, đoạn trích và nhận xét nháp bên phải" />
+          </div>
         </section>
 
         <section className={s.section} aria-labelledby="proof-title">
