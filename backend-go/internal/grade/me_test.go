@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -162,7 +163,7 @@ func TestNoDraftLeak(t *testing.T) {
 	check := func(m grade.MeGrades) {
 		raw, _ := json.Marshal(m)
 		for _, bad := range []string{"9.87", "9,87", "CANARY-UNLOCK", "hp_raw", "unlock_reason", "unclear", "drift", "updated_by", "breakdown", "LIET:"} {
-			require.NotContains(t, string(raw), bad)
+			require.NotContains(t, noStamps(raw), bad)
 		}
 	}
 	check(r.me(r.a))
@@ -186,7 +187,7 @@ func TestNoDraftLeakQT(t *testing.T) {
 	m := r.me(r.a)
 	raw, _ := json.Marshal(m)
 	for _, bad := range []string{"7.77", "7,77"} {
-		require.NotContains(t, string(raw), bad)
+		require.NotContains(t, noStamps(raw), bad)
 	}
 	require.Empty(t, m.QT, "chưa đủ thành phần quá trình đã công bố: không có qt")
 	for _, c := range m.Components {
@@ -206,7 +207,7 @@ func TestNoDraftLeakQT(t *testing.T) {
 	require.NotEmpty(t, mb.QT)
 	rawb, _ := json.Marshal(mb)
 	for _, bad := range []string{"9.87", "9,87"} {
-		require.NotContains(t, string(rawb), bad)
+		require.NotContains(t, noStamps(rawb), bad)
 	}
 }
 
@@ -344,7 +345,7 @@ func TestMeWhatIfNoWrite(t *testing.T) {
 	require.NotEmpty(t, out.Letter)
 	require.NotEmpty(t, out.Calculation)
 	require.Equal(t, before, counts())
-	require.NotContains(t, body, "9.87")
+	require.NotContains(t, noStamps([]byte(body)), "9.87")
 }
 
 func TestMeWhatIfTargetLetter(t *testing.T) {
@@ -449,3 +450,8 @@ func TestRBACMatrixAll(t *testing.T) {
 		}
 	}
 }
+
+var stampRe = regexp.MustCompile(`\d{4}-\d{2}-\d{2}T[0-9:.+Z-]+`)
+
+// noStamps bỏ dấu thời gian RFC 3339 trước khi tìm số canary: giây lẻ của `confirmed_at` (vd. "…:07.779788") có thể chứa đúng chuỗi "7.77" và làm test đỏ ngẫu nhiên.
+func noStamps(raw []byte) string { return stampRe.ReplaceAllString(string(raw), "") }

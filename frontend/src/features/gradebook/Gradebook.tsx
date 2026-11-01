@@ -212,7 +212,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
       <span className={s.colHead}>
         <span className={s.colName}>{c.name}</span>
         <span className={s.colMeta}>
-          {c.source === "MANUAL" ? (c.published ? "Đã công bố" : "Chưa công bố") : "Bài thi"}
+          {c.source === "MANUAL" ? (c.published ? "Đã công bố" : "Chưa công bố") : c.source === "ASSIGNMENT" ? "Bài tập" : "Bài thi"}
         </span>
         {teacher && c.source === "MANUAL" && !locked && (
           <OverflowMenu label={`Cột ${c.name}`} items={[c.published ? { label: "Gỡ công bố", onSelect: () => void publish(c, false) } : { label: "Công bố cho sinh viên", onSelect: () => void publish(c, true) }]} />
@@ -231,7 +231,9 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     } : undefined,
     render: (r: GRow) => {
       const e: GEntry | undefined = r.entries[c.item_id];
-      return c.source === "EXAM" ? <span title="Điểm lấy từ bài thi, sửa ở bài thi">{e ? vi(e.score) : "—"}</span> : <span>{e ? vi(e.score) : "—"}</span>;
+      if (c.source === "EXAM") return <span title="Điểm lấy từ bài thi, sửa ở bài thi">{e ? vi(e.score) : "—"}</span>;
+      if (c.source === "ASSIGNMENT") return <span title="Điểm lấy từ bài tập, sửa ở màn chấm">{e ? vi(e.score) : "—"}</span>;
+      return <span>{e ? vi(e.score) : "—"}</span>;
     },
   }));
 
@@ -369,6 +371,11 @@ function ExplainDrawer({ courseId, row, onClose }: { courseId: string; row: GRow
   return (
     <Drawer open onClose={onClose} title={`Giải trình · ${row.student.full_name}`}>
       {q.isPending ? <Skeleton lines={6} /> : q.isError || !q.data ? <p>Chưa tải được giải trình.</p> : <GradeCalculation lines={q.data.lines} caption={`Giải trình điểm của ${row.student.full_name}`} />}
+      {q.data?.lines.some((l) => l.value === "Còn bài chưa khớp") && (
+        <ButtonLink size="sm" href="/grading?tab=unmatched">
+          Xem bài chưa khớp
+        </ButtonLink>
+      )}
     </Drawer>
   );
 }

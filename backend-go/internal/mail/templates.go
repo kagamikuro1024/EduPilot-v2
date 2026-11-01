@@ -139,6 +139,34 @@ func specs() map[string]spec {
 				"Xem: {{.ThreadURL}}",
 			},
 		},
+		// US-P7-09: nhận xét bài tập đã công bố. Chi tiết (từng tiêu chí, khoản trừ muộn, nhận xét chung) do Resolver dựng LÚC GỬI từ payload; chỉ có thứ sinh viên được thấy.
+		"assignment_feedback": {
+			subject: "Điểm bài tập đã được công bố", vars: []string{"FullName", "AssignmentTitle", "Total", "Max", "Details", "AssignmentURL"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"Điểm {{.AssignmentTitle}} của bạn đã được công bố: {{.Total}}/{{.Max}}.",
+				"{{.Details}}",
+				"Xem chi tiết: {{.AssignmentURL}}",
+			},
+		},
+		// US-P7-10: phản hồi phúc khảo bài tập; chi tiết (quyết định, điểm cũ → mới, phản hồi nguyên văn) do Resolver dựng LÚC GỬI; không nhắc AI.
+		"appeal_reply": {
+			subject: "Giảng viên đã trả lời yêu cầu xem lại điểm", vars: []string{"FullName", "AssignmentTitle", "Decision", "Details", "AssignmentURL"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"Yêu cầu xem lại điểm {{.AssignmentTitle}} của bạn đã có quyết định: {{.Decision}}.",
+				"{{.Details}}",
+				"Xem chi tiết: {{.AssignmentURL}}",
+			},
+		},
+		// US-P7-05: thư thử của khối SMTP ở /settings/integrations (gửi tới người bấm).
+		"smtp_test": {
+			subject: "Thư thử từ EduPilot", vars: []string{"FullName"},
+			paras: []string{
+				"Chào {{.FullName}},",
+				"Đây là thư thử: cấu hình gửi thư của EduPilot đang hoạt động.",
+			},
+		},
 		"account_locked": {
 			subject: "Tài khoản EduPilot bị khoá tạm thời", vars: []string{"FullName", "Until", "ForgotURL"},
 			paras: []string{

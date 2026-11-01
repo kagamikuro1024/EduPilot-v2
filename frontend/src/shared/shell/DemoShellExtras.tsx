@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
-import { BT03_SEED } from "@/mock/assess";
 import { COURSE_1 } from "@/mock/core";
 import { reviewPending, ticketStats } from "@/mock/derive";
-import { KEYS, type Bt03State, type Ticket } from "@/mock/state";
+import { BT03_SEED, KEYS, type Bt03State, type Ticket } from "@/mock/state";
 import { mergeTickets } from "@/mock/support";
 import { ThreadsBackground } from "@/features/threads/ThreadsBackground";
 import { useDemoSlice } from "@/shared/state/demo";

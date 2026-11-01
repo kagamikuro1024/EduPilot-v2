@@ -18,6 +18,11 @@ const CTA: Record<string, string> = {
   LLM_BUDGET_WARN: "Mở cấu hình AI",
   COURSE_NO_TEACHER: "Gán giảng viên",
   INVITE_EXPIRED: "Gửi lại lời mời",
+  PUBLISH_PENDING: "Công bố",
+  GRADING_REVIEW: "Xem bài",
+  GRADING_ERROR: "Mở hàng chờ",
+  UNMATCHED_SUBMISSION: "Xem bài chưa khớp",
+  APPEAL: "Xem yêu cầu",
 };
 
 /** Các việc đã xếp đúng thứ tự máy chủ trả. `showClass`: chế độ "Tất cả lớp của tôi" ghi rõ lớp nào. */

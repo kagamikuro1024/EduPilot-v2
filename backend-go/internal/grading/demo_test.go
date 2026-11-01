@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -47,10 +48,22 @@ func TestDemoModeRecordingsCoverPolicies(t *testing.T) {
 	raw, err := os.ReadFile("../../../seed/demo/fake_llm.json")
 	require.NoError(t, err)
 	require.NoError(t, json.Unmarshal(raw, &f))
-	require.Len(t, f.Recordings, 2)
+	rubric := []grading.RubricItem{{ID: "c1"}, {ID: "c2"}, {ID: "c3"}, {ID: "c4"}}
+	got := map[string]int{}
 	for _, r := range f.Recordings { // gateway kiểm đầu ra theo schema của `llm.Structured`: bản ghi sai schema = LLM_UNAVAILABLE khi seed chạy thật
-		require.NoError(t, llm.ValidateJSON(grading.ExtractSchema, r.Response), r.Name)
+		switch {
+		case strings.HasPrefix(r.Name, "quy-che"):
+			require.NoError(t, llm.ValidateJSON(grading.ExtractSchema, r.Response), r.Name)
+			got["quy-che"]++
+		case strings.HasSuffix(r.Name, "suggest-rubric"):
+			require.NoError(t, llm.ValidateJSON(grading.SuggestSchema, r.Response), r.Name)
+			got["suggest"]++
+		default: // bt03-sN-p1|p2: bản chấm mẫu của BA (sprint 9)
+			require.NoError(t, llm.ValidateJSON(grading.EssaySchema(rubric), r.Response), r.Name)
+			got["grading"]++
+		}
 	}
+	require.Equal(t, map[string]int{"quy-che": 3, "suggest": 1, "grading": 12}, got) // 3 quy chế (v2, lớp 1, lớp 2); 6 mẫu × 2 lượt
 	e := newEnv(t, demoLLM(t))
 	res, err := e.run(e.policyDoc("quy-che-lop1.md"), false, 0)
 	require.NoError(t, err)
@@ -70,6 +83,24 @@ func TestDemoModeRecordingsCoverPolicies(t *testing.T) {
 	res, err = e2.run(e2.policyDoc("quy-che-lop2.md"), true, 0)
 	require.NoError(t, err)
 	require.Equal(t, grade.CodeRoundingMissing, res.(grading.Result).UnclearCode)
+}
+
+// TestExtractLop1V2MatchesExpected — US-S9-SEED AC4: quy chế bản 2 (chữ của BA) qua bản ghi demo ra đúng extraction-lop1-v2.json: 4 thành phần 10/10/20/60, không mục chưa rõ, mọi trích dẫn nằm đúng trong văn bản.
+func TestExtractLop1V2MatchesExpected(t *testing.T) {
+	e := newEnv(t, demoLLM(t))
+	res, err := e.run(e.policyDoc("../../FEAT-assignments/fixtures/quy-che-lop1-v2.md"), false, 0)
+	require.NoError(t, err)
+	require.Empty(t, res.(grading.Result).UnclearCode)
+	var ws []string
+	rows, err := e.pool.Query(e.ctx, `select key || ':' || weight::text from grade_components where course_id = $1 order by position`, e.course)
+	require.NoError(t, err)
+	defer rows.Close()
+	for rows.Next() {
+		var w string
+		require.NoError(t, rows.Scan(&w))
+		ws = append(ws, w)
+	}
+	require.Equal(t, []string{"midterm:10.00", "weekly:10.00", "assignment:20.00", "final:60.00"}, ws)
 }
 
 // TestDemoModeThroughGateway — đúng đường seed chạy thật: cổng LLM thật (che danh tính, kiểm schema, provider giả có LLM_DEMO_FILE) trích được quy chế lớp 1 và lớp 2.

@@ -28,6 +28,8 @@ tags:
   - name: library
   - name: calendar
   - name: gradebook
+  - name: assignments
+  - name: integrations
 paths:
   /healthz:
     get:
@@ -2684,6 +2686,1481 @@ paths:
           $ref: "#/components/responses/ValidationFailed"
         "429":
           $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/assignments:
+    get:
+      operationId: listAssignments
+      tags: [assignments]
+      summary: "Danh sách bài tập, mới nhất trước, phân trang con trỏ (mọi thành viên ACTIVE trừ ADMIN). Sinh viên chỉ thấy bài đã công bố, bản rút gọn: không reference_answer, không guidance, không submission_code"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignmentPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    post:
+      operationId: createAssignment
+      tags: [assignments]
+      summary: "Tạo bài tập nháp (chỉ TEACHER; Idempotency-Key bắt buộc). 422 VALIDATION_FAILED / SCORE_STEP / RUBRIC_INVALID / TYPE_NOT_SUPPORTED; mã nộp thư trùng 422 VALIDATION_FAILED field submission_code; lớp lưu trữ 409 COURSE_ARCHIVED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentInput"
+      responses:
+        "201":
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}:
+    get:
+      operationId: getAssignment
+      tags: [assignments]
+      summary: "Chi tiết bài tập. Staff: đầy đủ + số liệu + liên kết sổ điểm + cờ khoá; sinh viên: bản rút gọn của bài đã công bố (bài nháp 404)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Assignment"
+                  - $ref: "#/components/schemas/AssignmentStudent"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: updateAssignment
+      tags: [assignments]
+      summary: "Sửa bài tập (chỉ TEACHER; version bắt buộc). Sau công bố khoá điểm tối đa / mã nộp (422 locked); đã có kết quả PUBLISHED khoá hạn + quy tắc muộn (409 LATE_RULE_LOCKED); sai version 409 VERSION_CONFLICT kèm bản hiện tại. Đổi hạn / quy tắc muộn → outbox assignment.updated"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: deleteAssignment
+      tags: [assignments]
+      summary: "Xoá bài tập sạch (chỉ TEACHER): có bài nộp 409 HAS_SUBMISSIONS; gắn vào công thức điểm 409 LINKED_TO_GRADEBOOK"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã xoá
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/assignments/{aid}/publish:
+    post:
+      operationId: publishAssignment
+      tags: [assignments]
+      summary: "Công bố bài (chỉ TEACHER; Idempotency-Key bắt buộc; không đảo ngược): thiếu rubric hợp lệ 422 RUBRIC_REQUIRED; đã công bố 409 ALREADY_PUBLISHED. Một giao dịch: published_at, audit, outbox assignment.published"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishAssignmentOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/rubric:
+    put:
+      operationId: putAssignmentRubric
+      tags: [assignments]
+      summary: "Lưu rubric (chỉ TEACHER; version bắt buộc): 1–10 tiêu chí, điểm bội 0,25, Σ = điểm tối đa (422 RUBRIC_INVALID); đã có kết quả chấm 409 RUBRIC_LOCKED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AssignmentRubricInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Assignment"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/rubric/suggest:
+    post:
+      operationId: suggestAssignmentRubric
+      tags: [assignments]
+      summary: "Gợi ý rubric từ đáp án chuẩn (TA, TEACHER; Idempotency-Key bắt buộc): một lời gọi LLM, KHÔNG ghi DB. Thiếu đáp án 422 REFERENCE_ANSWER_REQUIRED; đầu ra sai 422 RUBRIC_SUGGEST_INVALID; LLM không sẵn sàng 503 LLM_UNAVAILABLE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuggestedRubric"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/assignments/{aid}/mine:
+    get:
+      operationId: getMyAssignment
+      tags: [assignments]
+      summary: "Bài tập của chính mình (chỉ STUDENT của lớp; Cache-Control: no-store; tham số student_id bị bỏ qua): đề, tên + điểm tối đa từng tiêu chí (không guidance, không đáp án), bản nộp mới nhất, trạng thái NOT_SUBMITTED | SUBMITTED | GRADING | GRADED. Bài chưa công bố 404 ASSIGNMENT_NOT_FOUND"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MineAssignmentOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/assignments/{aid}/submit/presign:
+    post:
+      operationId: presignSubmission
+      tags: [assignments]
+      summary: "Xin URL PUT ký sẵn để nộp bài (chỉ STUDENT; ≤ 10 lượt / phút / người, 429 + retry_after). Bài chưa công bố 404 ASSIGNMENT_NOT_FOUND; kênh IN_APP tắt 409 CHANNEL_NOT_ALLOWED; hết hạn nộp 409 SUBMISSION_CLOSED; tệp sai loại / quá 20 MiB / rỗng 422 FILE_TYPE_NOT_ALLOWED | FILE_TOO_LARGE | FILE_EMPTY. Content-Type do máy chủ suy từ đuôi"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitPresignInput"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitPresignOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/assignments/{aid}/submit:
+    post:
+      operationId: submitAssignment
+      tags: [assignments]
+      summary: "Hoàn tất nộp bài (chỉ STUDENT; Idempotency-Key bắt buộc): kiểm kích thước thật + nội dung theo đuôi (422 FILE_CONTENT_MISMATCH / UPLOAD_INCOMPLETE), cửa nộp (409 SUBMISSION_CLOSED), khoá nộp lại (409 SUBMISSION_LOCKED); một giao dịch cấp version, ghi bài nộp, audit, outbox submission.created"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubmitInput"
+      responses:
+        "201":
+          description: Đã nhận bài
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmitOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/submissions/upload:
+    post:
+      operationId: uploadSubmissions
+      tags: [assignments]
+      summary: "Nhập bài nộp từ tệp lẻ hoặc ZIP đã tải lên (TA, TEACHER; Idempotency-Key bắt buộc; vé từ uploads/presign purpose=submission_upload). Tệp lẻ và ZIP ≤ 5 mục hợp lệ: 200 đồng bộ; nhiều hơn: 202 + job_id (kind submission.zip). Khớp sinh viên theo 4.4.2; mục hỏng không làm hỏng cả lô. 409 ASSIGNMENT_NOT_PUBLISHED | CHANNEL_NOT_ALLOWED | COURSE_ARCHIVED; 422 FILE_INVALID | FILE_EMPTY | FILE_TOO_LARGE | FILE_TYPE_NOT_ALLOWED | UPLOAD_INCOMPLETE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UploadSubmissionsInput"
+      responses:
+        "200":
+          description: Kết quả nhập
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadSubmissionsOutput"
+        "202":
+          description: ZIP nhiều mục chạy nền
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UploadSubmissionsJob"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/grade-all:
+    post:
+      operationId: gradeAllSubmissions
+      tags: [assignments]
+      summary: "Chấm tất cả bài MATCHED phiên bản mới nhất chưa có kết quả (TA, TEACHER; Idempotency-Key bắt buộc). Một giao dịch ghi grading_results QUEUED + jobs(grading.batch); XADD ep:grading sau COMMIT. 202 {job_id, queued}; không có bài → 200 {queued:0}. only_unscored=false kèm retry_failed=true: chỉ xếp lại kết quả FAILED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                only_unscored: {type: boolean}
+                retry_failed: {type: boolean}
+      responses:
+        "202":
+          description: Đã xếp hàng chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "200":
+          description: Không có bài cần chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+
+  /api/v1/courses/{id}/submissions/{sid}/grade:
+    post:
+      operationId: gradeSubmission
+      tags: [assignments]
+      summary: "Chấm / chấm lại MỘT bài (TA, TEACHER; Idempotency-Key bắt buộc): round + 1 chỉ khi kết quả hiện có DRAFT (xong) hoặc FAILED. 409 ALREADY_REVIEWED khi REVIEWED / PUBLISHED; 409 VERSION_CONFLICT khi đang xếp hàng / chạy hoặc người khác vừa chấm lại"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp hàng chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/grading-results/{rid}/retry:
+    post:
+      operationId: retryGradingResult
+      tags: [assignments]
+      summary: "Thử lại một kết quả FAILED (TA, TEACHER; Idempotency-Key bắt buộc): QUEUED lại, attempts = 0, cùng round. Không phải FAILED → 409 VERSION_CONFLICT"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp hàng chấm
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingEnqueued"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+  /api/v1/courses/{id}/assignments/{aid}/appeal:
+    post:
+      operationId: fileAssignmentAppeal
+      tags: [assignments]
+      summary: "Gửi yêu cầu xem lại điểm bài tập (chỉ STUDENT của chính mình; Idempotency-Key bắt buộc; Cache-Control: no-store). Kết quả của sinh viên phải PUBLISHED (chưa → 404 ASSIGNMENT_NOT_FOUND), appeal_days > 0 (409 APPEAL_DISABLED), mỗi bài một lần (409 APPEAL_ALREADY_FILED), còn hạn published_at + appeal_days (409 APPEAL_WINDOW_CLOSED, details.closes_at), criteria_ids ⊆ rubric (422 CRITERION_UNKNOWN), lý do 10–1.000 ký tự (422 REASON_LENGTH). Không ghi escalation_tickets; không gọi LLM"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [criteria_ids, reason]
+              additionalProperties: false
+              properties:
+                criteria_ids:
+                  type: array
+                  minItems: 1
+                  items: {type: string}
+                reason: {type: string}
+      responses:
+        "201":
+          description: Đã gửi
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [appeal]
+                additionalProperties: false
+                properties:
+                  appeal:
+                    type: object
+                    required: [id, status, created_at]
+                    additionalProperties: false
+                    properties:
+                      id: {type: string, format: uuid}
+                      status: {type: string, enum: [OPEN]}
+                      created_at: {type: string, format: date-time}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/appeals:
+    get:
+      operationId: listAssignmentAppeals
+      tags: [assignments]
+      summary: "Danh sách phúc khảo bài tập (TA, TEACHER; Cache-Control: no-store): lọc assignment_id, status (OPEN | UPHELD | ADJUSTED), con trỏ (created_at, id) mới nhất trước"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: assignment_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [OPEN, UPHELD, ADJUSTED]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                additionalProperties: false
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/AssignmentAppeal"
+                  next_cursor: {type: [string, "null"]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/appeals/{apid}:
+    get:
+      operationId: getAssignmentAppeal
+      tags: [assignments]
+      summary: "Một phúc khảo bài tập (TA, TEACHER): tiêu chí sinh viên chọn (kèm tên), lý do, điểm đã công bố, điểm AI nháp gốc để đối chiếu, quyết định"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: apid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AssignmentAppeal"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/appeals/{apid}/decide:
+    post:
+      operationId: decideAssignmentAppeal
+      tags: [assignments]
+      summary: "Quyết định phúc khảo (chỉ TEACHER; Idempotency-Key bắt buộc): UPHELD giữ điểm, ADJUSTED sửa điểm tiêu chí tại chỗ trên kết quả đã công bố; phản hồi 10–2.000 ký tự bắt buộc (422 RESPONSE_REQUIRED); ADJUSTED cần ≥ 1 tiêu chí đổi (422 NO_CHANGE), điểm bước 0,25 ≤ max. Đóng ngay khi quyết; đã quyết 409 APPEAL_ALREADY_DECIDED; sai version 409 VERSION_CONFLICT. Sổ điểm LOCKED không chặn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: apid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [decision, response, version]
+              additionalProperties: false
+              properties:
+                decision: {type: string, enum: [UPHELD, ADJUSTED]}
+                response: {type: string}
+                version: {type: integer, minimum: 1}
+                criteria_scores:
+                  type: array
+                  items:
+                    type: object
+                    required: [id, score]
+                    additionalProperties: false
+                    properties:
+                      id: {type: string}
+                      score: {oneOf: [{type: string}, {type: number}]}
+      responses:
+        "200":
+          description: Đã quyết định
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, status, score_after, version]
+                additionalProperties: false
+                properties:
+                  id: {type: string, format: uuid}
+                  status: {type: string, enum: [UPHELD, ADJUSTED]}
+                  score_after: {type: [string, "null"]}
+                  version: {type: integer}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/imap:
+    get:
+      operationId: getImapIntegration
+      tags: [integrations]
+      summary: "Cấu hình IMAP của lớp (ADMIN, TEACHER của lớp; Cache-Control: no-store). Không bao giờ có mật khẩu hay đuôi mật khẩu; chưa cấu hình → configured=false"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: putImapIntegration
+      tags: [integrations]
+      summary: "Lưu cấu hình IMAP (chỉ ADMIN). password trống = giữ cũ (lần đầu bắt buộc); security NONE bị từ chối ở production; version khoá lạc quan (409 VERSION_CONFLICT); lưu xong mở lại poll đang tạm dừng"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [host, port, security, username, enabled]
+              additionalProperties: false
+              properties:
+                host: {type: string}
+                port: {type: integer, minimum: 1, maximum: 65535}
+                security: {type: string, enum: [TLS, STARTTLS, NONE]}
+                username: {type: string}
+                password: {type: string}
+                mailbox: {type: string}
+                poll_seconds: {type: integer, minimum: 10, maximum: 3600}
+                enabled: {type: boolean}
+                version: {type: integer}
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/imap/test:
+    post:
+      operationId: testImapIntegration
+      tags: [integrations]
+      summary: "Test kết nối IMAP bằng cấu hình đã lưu (chỉ ADMIN): kết nối + đăng nhập + mở hộp thư ≤ 10 giây. ok=false kèm kind UNREACHABLE | AUTH | TLS | MAILBOX | TIMEOUT; ghi last_ok_at / last_error"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Kết quả
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                additionalProperties: false
+                properties:
+                  ok: {type: boolean}
+                  kind: {type: string, enum: [UNREACHABLE, AUTH, TLS, MAILBOX, TIMEOUT]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/integrations/imap/sync-now:
+    post:
+      operationId: syncImapNow
+      tags: [integrations]
+      summary: "Đồng bộ ngay (TA, TEACHER; ADMIN 403; Idempotency-Key bắt buộc): 202 {job_id}, tiến độ job.progress, kết quả {received, created, matched, unmatched, ignored, failed}. Đang có một lần chạy → trả job_id đó; ≤ 1 lần / SYNC_NOW_MIN_INTERVAL / lớp (429 + retry_after)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job_id]
+                additionalProperties: false
+                properties:
+                  job_id: {type: string, format: uuid}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/integrations/smtp:
+    get:
+      operationId: getSmtpIntegration
+      tags: [integrations]
+      summary: "Cấu hình gửi thư của máy chủ (SMTP_*), chỉ đọc (ADMIN, TEACHER của lớp; Cache-Control: no-store); không có mật khẩu"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/courses/{id}/integrations/smtp/test:
+    post:
+      operationId: testSmtpIntegration
+      tags: [integrations]
+      summary: "Gửi thư thử tới địa chỉ của người bấm (chỉ ADMIN); thư đi qua mail_outbox"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "202":
+          description: Đã xếp thư
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [queued]
+                additionalProperties: false
+                properties:
+                  queued: {type: boolean}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+  /api/v1/courses/{id}/mail-inbound:
+    get:
+      operationId: listMailInbound
+      tags: [integrations]
+      summary: "Thư đã nhận qua IMAP (TA, TEACHER; Cache-Control: no-store): lọc status (ACCEPTED | IGNORED | FAILED), con trỏ (received_at, id) mới nhất trước — mục \"Thư không xử lý được\" ở tab Chưa khớp"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [ACCEPTED, IGNORED, FAILED]
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [items, next_cursor]
+                additionalProperties: false
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      required: [id, from_email, subject, received_at, status, reason, submission_id]
+                      additionalProperties: false
+                      properties:
+                        id: {type: string, format: uuid}
+                        from_email: {type: string}
+                        subject: {type: string}
+                        received_at: {type: string, format: date-time}
+                        status: {type: string, enum: [ACCEPTED, IGNORED, FAILED]}
+                        reason: {type: [string, "null"], enum: [AUTO_REPLY, NO_ATTACHMENT, TOO_MANY_ATTACHMENTS, ATTACHMENT_REJECTED, PARSE_ERROR, null]}
+                        submission_id: {type: [string, "null"], format: uuid}
+                  next_cursor: {type: [string, "null"]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/teams:
+    get:
+      operationId: getTeamsIntegration
+      tags: [integrations]
+      summary: "Cấu hình Teams của lớp (ADMIN, TEACHER của lớp; Cache-Control: no-store). Không bao giờ có client secret; sandbox = GRAPH_BASE_URL không phải graph.microsoft.com (nhãn \"Môi trường giả lập\"); available = TEAMS_ENABLED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: putTeamsIntegration
+      tags: [integrations]
+      summary: "Lưu cấu hình Teams (chỉ ADMIN): client_secret chỉ ghi (AES-GCM), trống = giữ cũ (lần đầu bắt buộc); version khoá lạc quan (409 VERSION_CONFLICT)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tenant_id, client_id, enabled]
+              additionalProperties: false
+              properties:
+                tenant_id: {type: string}
+                client_id: {type: string}
+                client_secret: {type: string}
+                enabled: {type: boolean}
+                version: {type: integer}
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/teams/test:
+    post:
+      operationId: testTeamsIntegration
+      tags: [integrations]
+      summary: "Kiểm tra kết nối Teams (chỉ ADMIN): xin token + GET /education/classes. ok=false kèm kind TEAMS_AUTH_FAILED | TEAMS_CONSENT_REQUIRED | TEAMS_RESPONSE_INVALID | UNREACHABLE | TIMEOUT"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Kết quả
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                additionalProperties: false
+                properties:
+                  ok: {type: boolean}
+                  kind: {type: string, enum: [TEAMS_AUTH_FAILED, TEAMS_CONSENT_REQUIRED, TEAMS_RESPONSE_INVALID, UNREACHABLE, TIMEOUT]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/assignments/{aid}/teams/sync:
+    post:
+      operationId: syncAssignmentFromTeams
+      tags: [assignments]
+      summary: "Đồng bộ từ Teams (TA, TEACHER; ADMIN 403; Idempotency-Key bắt buộc): 202 {job_id}, tiến độ job.progress (result {fetched, total} khi còn chạy), kết quả {fetched, created, deduped, unmatched, failed:[{graph_submission_id, code}]}. 409 TEAMS_DISABLED | TEAMS_NOT_CONFIGURED | CHANNEL_NOT_ALLOWED; đang chạy → job_id cũ; ≤ 1 lần / SYNC_NOW_MIN_INTERVAL / bài (429 + retry_after)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job_id]
+                additionalProperties: false
+                properties:
+                  job_id: {type: string, format: uuid}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+  /api/v1/courses/{id}/grading-results/publish:
+    post:
+      operationId: publishGradingResults
+      tags: [assignments]
+      summary: "Công bố hàng loạt kết quả đã duyệt (chỉ TEACHER; Idempotency-Key bắt buộc; ≤ 200 bài / lần). result_ids tường minh: mọi bài phải REVIEWED (422 NOT_REVIEWED {ids}; 409 ALREADY_PUBLISHED {ids}; 409 VERSION_CONFLICT {ids} khi gửi kèm versions; 409 LATE_RECOMPUTED {ids}) — all-or-nothing. assignment_id + scope=ALL_REVIEWED: công bố bài REVIEWED, bỏ qua phần còn lại → {published, skipped}. Một giao dịch, không ghi grade_entries (item ASSIGNMENT đọc thẳng điểm đã công bố); không bị sổ LOCKED chặn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              properties:
+                result_ids:
+                  type: array
+                  maxItems: 200
+                  items: {type: string, format: uuid}
+                assignment_id: {type: string, format: uuid}
+                scope: {type: string, enum: [ALL_REVIEWED]}
+                versions:
+                  type: object
+                  additionalProperties: {type: integer}
+      responses:
+        "200":
+          description: Đã công bố
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [published, skipped]
+                additionalProperties: false
+                properties:
+                  published: {type: integer}
+                  skipped: {type: integer}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/assignments/{aid}/stats:
+    get:
+      operationId: getAssignmentStats
+      tags: [assignments]
+      summary: "Số liệu bài tập cho nhân viên (TA, TEACHER): đã nộp / chấm / duyệt / công bố, độ lệch AI ↔ giảng viên (mean_abs_deviation, teacher_changed_rate), phúc khảo. Tỷ lệ là chuỗi decimal, null khi mẫu số 0"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [submitted, graded, reviewed, published, mean_abs_deviation, teacher_changed_rate, appealed, appeal_rate, adjusted, appeal_success_rate]
+                additionalProperties: false
+                properties:
+                  submitted: {type: integer}
+                  graded: {type: integer}
+                  reviewed: {type: integer}
+                  published: {type: integer}
+                  mean_abs_deviation: {type: [string, "null"]}
+                  teacher_changed_rate: {type: [string, "null"]}
+                  appealed: {type: integer}
+                  appeal_rate: {type: [string, "null"]}
+                  adjusted: {type: integer}
+                  appeal_success_rate: {type: [string, "null"]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/assignments/{aid}/versions:
+    get:
+      operationId: getAssignmentStudentVersions
+      tags: [assignments]
+      summary: "Số phiên bản đã khớp của một sinh viên ở bài (TA, TEACHER; Cache-Control: no-store) — hộp thoại gán tay: \"Sinh viên này đã có {n} phiên bản\""
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: student_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [versions]
+                additionalProperties: false
+                properties:
+                  versions: {type: integer}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grading-results/{rid}:
+    get:
+      operationId: getGradingResult
+      tags: [assignments]
+      summary: "Chi tiết kết quả chấm cho màn duyệt (TA, TEACHER; Cache-Control: no-store): bài nộp, rubric, tiêu chí kèm điểm AI, cờ, pass_detail, khoản trừ muộn"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingResultView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      operationId: editGradingResult
+      tags: [assignments]
+      summary: "Sửa điểm / nhận xét / khoản trừ muộn tại chỗ (TA, TEACHER). Điểm chuỗi hoặc số, bước 0,25, ≤ max (422 SCORE_OUT_OF_RANGE | SCORE_STEP | SCORE_PRECISION | CRITERION_UNKNOWN); tổng tính lại bằng decimal; ai_scores giữ nguyên; REVIEWED → DRAFT; FAILED nhập đủ điểm → DONE. 409 VERSION_CONFLICT (details.current) | RESULT_PUBLISHED | NOT_READY | SUPERSEDED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GradingResultEdit"
+      responses:
+        "200":
+          description: Kết quả sau khi sửa
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingResultView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/grading-results/{rid}/review:
+    post:
+      operationId: reviewGradingResult
+      tags: [assignments]
+      summary: "Duyệt nháp: DRAFT → REVIEWED (TA, TEACHER; idempotent khi đã REVIEWED). 422 SCORES_REQUIRED khi còn tiêu chí chưa có điểm; 409 VERSION_CONFLICT | NOT_READY | SUPERSEDED | RESULT_PUBLISHED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: rid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [version]
+              additionalProperties: false
+              properties:
+                version: {type: integer, minimum: 1}
+      responses:
+        "200":
+          description: Kết quả đã duyệt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GradingResultView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/submissions:
+    get:
+      operationId: listSubmissions
+      tags: [assignments]
+      summary: "Bài nộp (TA, TEACHER; Cache-Control: no-store). Không tham số hoặc match_status=MATCHED → hàng chờ chấm (mặc định status=DRAFT; chỉ phiên bản mới nhất của từng sinh viên; sắp needs_review trước rồi received_at, id; con trỏ cursor/limit ≤ 100; lọc assignment_id, status, needs_review, flag, q). match_status=UNMATCHED → tab Chưa khớp (chưa bỏ qua, mới nhất trước, con trỏ). version là khoá lạc quan của dòng, gửi lại khi gán / bỏ qua"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: match_status
+          in: query
+          schema:
+            type: string
+            enum: [MATCHED, UNMATCHED]
+        - name: assignment_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [NONE, RUNNING, DRAFT, REVIEWED, PUBLISHED, FAILED]
+        - name: needs_review
+          in: query
+          schema:
+            type: boolean
+        - name: flag
+          in: query
+          schema:
+            type: string
+        - name: q
+          in: query
+          schema:
+            type: string
+        - name: cursor
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                anyOf:
+                  - $ref: "#/components/schemas/UnmatchedPage"
+                  - $ref: "#/components/schemas/GradingQueuePage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/submissions/{sid}/match:
+    put:
+      operationId: matchSubmission
+      tags: [assignments]
+      summary: "Gán tay bài chưa khớp cho (bài tập, sinh viên) (TA, TEACHER; TA chỉ khi bài chưa có điểm công bố): sinh viên không ACTIVE 422 STUDENT_NOT_IN_COURSE; bản mới nhất của họ đã duyệt / công bố 409 ALREADY_REVIEWED; sai version 409 VERSION_CONFLICT; version bài nộp = max + 1"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MatchSubmissionInput"
+      responses:
+        "200":
+          description: Đã gán
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MatchSubmissionOutput"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/submissions/{sid}:
+    get:
+      operationId: getSubmission
+      tags: [assignments]
+      summary: "Chi tiết một bài nộp cho nhân viên (TA, TEACHER; ADMIN 403; Cache-Control: no-store): người nộp, bài tập và mọi phiên bản MATCHED của cùng (bài tập, sinh viên), mới nhất trước, kèm kết quả chấm hiện hành của từng bản (SRS 6 hàng 15). Bài chưa khớp: chỉ chính nó. Không trả URL tệp (xem …/file). Không thuộc lớp 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionDetail"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/submissions/{sid}/file:
+    get:
+      operationId: getSubmissionFile
+      tags: [assignments]
+      summary: "URL tải tệp bài nộp (TA, TEACHER; ký 5 phút, attachment; Cache-Control: no-store). Sinh viên không có route này"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SubmissionFileURL"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/submissions/{sid}/dismiss:
+    post:
+      operationId: dismissSubmission
+      tags: [assignments]
+      summary: "Bỏ qua một bài chưa khớp (TA, TEACHER; lý do 1–200 ký tự; không xoá bản ghi / tệp). Sai version 409 VERSION_CONFLICT; TA khi bài đã có điểm công bố 403"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DismissSubmissionInput"
+      responses:
+        "204":
+          description: Đã bỏ qua
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+    delete:
+      operationId: undismissSubmission
+      tags: [assignments]
+      summary: "Hoàn tác Bỏ qua (TA, TEACHER); chưa bỏ qua 409"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: sid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "204":
+          description: Đã hoàn tác
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
   /api/v1/courses/{id}/gradebook:
     get:
       operationId: getGradebook
@@ -9133,7 +10610,7 @@ components:
           type: string
         kind:
           type: string
-          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED]
+          enum: [VERIFY_EMAIL, JOIN_CODE, JOIN_PENDING, JOIN_REQUEST, EMAIL_MISMATCH, COURSE_SETUP, LLM_PROVIDER_ERROR, LLM_BUDGET_EXHAUSTED, LLM_BUDGET_WARN, COURSE_NO_TEACHER, INVITE_EXPIRED, STUDENT_ATTENTION, GRADE_SCHEME_UNCONFIRMED, ASSIGNMENT_DUE, UNMATCHED_SUBMISSION, GRADING_ERROR, GRADING_REVIEW, PUBLISH_PENDING, ASSIGNMENT_GRADED, APPEAL, ASSIGNMENT_APPEAL_REPLY]
         title:
           type: string
         reason:
@@ -10328,6 +11805,46 @@ components:
             - SERVICE_UNAVAILABLE
             - NOT_READY
             - DEADLINE_EXCEEDED
+            - ASSIGNMENT_NOT_PUBLISHED
+            - ENTRY_UNSAFE
+            - ENTRY_TYPE_NOT_ALLOWED
+            - ZIP_LIMIT
+            - TYPE_NOT_SUPPORTED
+            - RUBRIC_INVALID
+            - RUBRIC_LOCKED
+            - RUBRIC_REQUIRED
+            - REFERENCE_ANSWER_REQUIRED
+            - RUBRIC_SUGGEST_INVALID
+            - HAS_SUBMISSIONS
+            - LINKED_TO_GRADEBOOK
+            - ASSIGNMENT_NOT_FOUND
+            - CHANNEL_NOT_ALLOWED
+            - SUBMISSION_CLOSED
+            - ALREADY_REVIEWED
+            - SUBMISSION_LOCKED
+            - LATE_RULE_LOCKED
+            - LATE_RECOMPUTED
+            - FILE_EMPTY
+            - FILE_CONTENT_MISMATCH
+            - SUPERSEDED
+            - SCORE_STEP
+            - SCORES_REQUIRED
+            - RESULT_PUBLISHED
+            - NOT_REVIEWED
+            - ALREADY_PUBLISHED
+            - ASSIGNMENT_SCALE_MISMATCH
+            - ASSIGNMENT_ALREADY_LINKED
+            - APPEAL_ALREADY_FILED
+            - APPEAL_ALREADY_DECIDED
+            - APPEAL_DISABLED
+            - CRITERION_UNKNOWN
+            - REASON_LENGTH
+            - RESPONSE_REQUIRED
+            - NO_CHANGE
+            - TEAMS_AUTH_FAILED
+            - TEAMS_CONSENT_REQUIRED
+            - TEAMS_RESPONSE_INVALID
+            - FILE_DOWNLOAD_FAILED
             - OVERLOADED
             - LLM_NOT_CONFIGURED
             - LLM_UNAVAILABLE
@@ -10432,7 +11949,7 @@ components:
       properties:
         purpose:
           type: string
-          enum: [document, grade_import]
+          enum: [document, grade_import, submission_upload]
         filename:
           type: string
           maxLength: 255
@@ -10669,6 +12186,671 @@ components:
           type: string
         can_ask_ai:
           type: boolean
+    AssignmentRubricCriterion:
+      type: object
+      required: [id, name, max_score, guidance]
+      additionalProperties: false
+      properties:
+        id: {type: string}
+        name: {type: string}
+        max_score: {type: string}
+        guidance: {type: string}
+    AssignmentRubricCriterionStudent:
+      type: object
+      required: [id, name, max_score]
+      additionalProperties: false
+      properties:
+        id: {type: string}
+        name: {type: string}
+        max_score: {type: string}
+    AssignmentRubricInput:
+      type: object
+      required: [version, criteria]
+      additionalProperties: false
+      properties:
+        version: {type: integer, minimum: 1}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [name, max_score]
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              name: {type: string}
+              max_score: {type: string}
+              guidance: {type: string}
+    AssignmentInput:
+      type: object
+      required: [title, due_at]
+      additionalProperties: false
+      properties:
+        title: {type: string}
+        description: {type: string}
+        type: {type: string}
+        max_score: {type: string}
+        due_at: {type: string, format: date-time}
+        allow_late: {type: boolean}
+        late_penalty_per_day: {type: string}
+        late_max_days: {type: integer}
+        appeal_days: {type: [integer, "null"]}
+        channels:
+          type: array
+          items: {type: string, enum: [IN_APP, UPLOAD, IMAP, TEAMS]}
+        submission_code: {type: string}
+        reference_answer: {type: [string, "null"]}
+        teams_class_id: {type: [string, "null"]}
+        teams_assignment_id: {type: [string, "null"]}
+        rubric:
+          type: array
+          items:
+            type: object
+            required: [name, max_score]
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              name: {type: string}
+              max_score: {type: string}
+              guidance: {type: string}
+        version: {type: integer}
+    Assignment:
+      type: object
+      required: [id, title, description, type, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, submission_code, reference_answer, rubric, teams_class_id, teams_assignment_id, published_at, version, created_at, rubric_locked, late_rule_locked]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        title: {type: string}
+        description: {type: string}
+        type: {type: string}
+        max_score: {type: string}
+        due_at: {type: string, format: date-time}
+        allow_late: {type: boolean}
+        late_penalty_per_day: {type: string}
+        late_max_days: {type: integer}
+        appeal_days: {type: integer}
+        channels:
+          type: array
+          items: {type: string}
+        submission_code: {type: string}
+        reference_answer: {type: [string, "null"]}
+        rubric:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignmentRubricCriterion"
+        teams_class_id: {type: [string, "null"]}
+        teams_assignment_id: {type: [string, "null"]}
+        published_at: {type: [string, "null"], format: date-time}
+        version: {type: integer}
+        created_at: {type: string, format: date-time}
+        counts:
+          type: object
+          required: [submitted, total, graded, published]
+          additionalProperties: false
+          properties:
+            submitted: {type: integer}
+            total: {type: integer}
+            graded: {type: integer}
+            published: {type: integer}
+        grade_link:
+          type: object
+          required: [component_name, component_key]
+          additionalProperties: false
+          properties:
+            component_name: {type: string}
+            component_key: {type: string}
+        rubric_locked: {type: boolean}
+        late_rule_locked: {type: boolean}
+    AssignmentStudent:
+      type: object
+      required: [id, title, description, max_score, due_at, allow_late, late_penalty_per_day, late_max_days, appeal_days, channels, rubric, published_at]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        title: {type: string}
+        description: {type: string}
+        max_score: {type: string}
+        due_at: {type: string, format: date-time}
+        allow_late: {type: boolean}
+        late_penalty_per_day: {type: string}
+        late_max_days: {type: integer}
+        appeal_days: {type: integer}
+        channels:
+          type: array
+          items: {type: string}
+        rubric:
+          type: array
+          items:
+            $ref: "#/components/schemas/AssignmentRubricCriterionStudent"
+        published_at: {type: string, format: date-time}
+    AssignmentPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/Assignment"
+              - $ref: "#/components/schemas/AssignmentStudentListItem"
+        next_cursor: {type: [string, "null"]}
+    PublishAssignmentOutput:
+      type: object
+      required: [assignment, students]
+      additionalProperties: false
+      properties:
+        assignment:
+          $ref: "#/components/schemas/Assignment"
+        students: {type: integer}
+    SuggestedRubric:
+      type: object
+      required: [criteria]
+      additionalProperties: false
+      properties:
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [name, guidance, max_score]
+            additionalProperties: false
+            properties:
+              name: {type: string}
+              guidance: {type: string}
+              max_score: {type: string}
+    MineAssignmentOutput:
+      type: object
+      required: [assignment, submission, state, result]
+      additionalProperties: false
+      properties:
+        assignment:
+          type: object
+          required: [id, title, description, due_at, max_score, criteria, allow_late, late_penalty_per_day, late_max_days, appeal_days]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            title: {type: string}
+            description: {type: string}
+            due_at: {type: string, format: date-time}
+            max_score: {type: string}
+            criteria:
+              type: array
+              items:
+                $ref: "#/components/schemas/AssignmentRubricCriterionStudent"
+            allow_late: {type: boolean}
+            late_penalty_per_day: {type: string}
+            late_max_days: {type: integer}
+            appeal_days: {type: integer}
+        submission:
+          type: [object, "null"]
+          required: [version, file_name, received_at, late_days]
+          additionalProperties: false
+          properties:
+            version: {type: integer}
+            file_name: {type: string}
+            received_at: {type: string, format: date-time}
+            late_days: {type: integer}
+        state:
+          type: string
+          enum: [NOT_SUBMITTED, SUBMITTED, GRADING, GRADED]
+        result:
+          description: Chỉ khác null khi kết quả ĐÃ CÔNG BỐ (state GRADED). Không có điểm nháp, điểm AI, độ lệch, cờ, độ tin cậy, kết quả hai lượt, người duyệt
+          type: [object, "null"]
+          required: [status, total, max, criteria, overall_feedback, late, published_at, label, appeal]
+          additionalProperties: false
+          properties:
+            status: {type: string, enum: [PUBLISHED]}
+            total: {type: string}
+            max: {type: string}
+            criteria:
+              type: array
+              items:
+                type: object
+                required: [name, score, max, comment, evidence]
+                additionalProperties: false
+                properties:
+                  name: {type: string}
+                  score: {type: string}
+                  max: {type: string}
+                  comment: {type: string}
+                  evidence: {type: array, items: {type: string}}
+            overall_feedback: {type: string}
+            late:
+              type: [object, "null"]
+              required: [days, penalty]
+              additionalProperties: false
+              properties:
+                days: {type: integer}
+                penalty: {type: string}
+            published_at: {type: string, format: date-time}
+            label: {type: string}
+            appeal:
+              type: object
+              required: [state, closes_at, response]
+              additionalProperties: false
+              properties:
+                state: {type: string, enum: [NONE, OPEN, UPHELD, ADJUSTED]}
+                closes_at: {type: [string, "null"], format: date-time}
+                response: {type: [string, "null"]}
+    AssignmentStudentListItem:
+      type: object
+      required: [id, title, due_at, my]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        title: {type: string}
+        due_at: {type: string, format: date-time}
+        my:
+          type: object
+          required: [state, late_days, submitted_at]
+          additionalProperties: false
+          properties:
+            state:
+              type: string
+              enum: [NOT_SUBMITTED, SUBMITTED, GRADING, GRADED]
+            late_days: {type: integer}
+            submitted_at: {type: [string, "null"], format: date-time}
+    SubmitPresignInput:
+      type: object
+      required: [filename, size_bytes, sha256]
+      additionalProperties: false
+      properties:
+        filename: {type: string}
+        size_bytes: {type: integer, format: int64}
+        sha256: {type: string}
+    SubmitPresignOutput:
+      type: object
+      required: [upload_id, method, url, headers, blob_key, expires_in]
+      additionalProperties: false
+      properties:
+        upload_id: {type: string, format: uuid}
+        method: {type: string}
+        url: {type: string}
+        headers:
+          type: object
+          additionalProperties: {type: string}
+        blob_key: {type: string}
+        expires_in: {type: integer}
+    SubmitInput:
+      type: object
+      required: [upload_id]
+      additionalProperties: false
+      properties:
+        upload_id: {type: string, format: uuid}
+    SubmitOutput:
+      type: object
+      required: [submission]
+      additionalProperties: false
+      properties:
+        submission:
+          type: object
+          required: [id, version, received_at, late_days, file_name]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            version: {type: integer}
+            received_at: {type: string, format: date-time}
+            late_days: {type: integer}
+            file_name: {type: string}
+    UploadSubmissionsInput:
+      type: object
+      required: [upload_id]
+      additionalProperties: false
+      properties:
+        upload_id: {type: string, format: uuid}
+    UploadSubmissionsOutput:
+      type: object
+      required: [created, matched, unmatched, deduped, rejected]
+      additionalProperties: false
+      properties:
+        created: {type: integer}
+        matched: {type: integer}
+        unmatched: {type: integer}
+        deduped:
+          type: array
+          items: {type: string}
+        rejected:
+          type: array
+          items:
+            type: object
+            required: [entry, code]
+            additionalProperties: false
+            properties:
+              entry: {type: string}
+              code: {type: string}
+    GradingQueuePage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, assignment, student, source, version, received_at, late_days, match_status, result]
+            properties:
+              id: {type: string, format: uuid}
+              assignment:
+                type: object
+                required: [id, title]
+                properties:
+                  id: {type: string, format: uuid}
+                  title: {type: string}
+              student:
+                type: [object, "null"]
+                required: [id, full_name, student_code, inactive]
+                properties:
+                  id: {type: string, format: uuid}
+                  full_name: {type: string}
+                  student_code: {type: string}
+                  inactive: {type: boolean}
+              source: {type: string}
+              version: {type: integer}
+              received_at: {type: string, format: date-time}
+              late_days: {type: integer}
+              match_status: {type: string}
+              result:
+                type: [object, "null"]
+                required: [id, status, run_state, flags, needs_review, version]
+                properties:
+                  id: {type: string, format: uuid}
+                  status: {type: string, enum: [DRAFT, REVIEWED, PUBLISHED]}
+                  run_state: {type: string, enum: [QUEUED, RUNNING, DONE, FAILED]}
+                  total: {type: string}
+                  flags: {type: array, items: {type: string}}
+                  needs_review: {type: boolean}
+                  error_code: {type: string}
+                  version: {type: integer}
+        next_cursor: {type: [string, "null"]}
+    GradingResultEdit:
+      type: object
+      required: [version]
+      additionalProperties: false
+      properties:
+        version: {type: integer, minimum: 1}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [id]
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              score: {oneOf: [{type: string}, {type: number}]}
+              comment: {type: string}
+        overall_feedback: {type: string}
+        late_penalty: {oneOf: [{type: string}, {type: number}]}
+    GradingResultView:
+      type: object
+      required: [result, submission, assignment, criteria, flags, pass_detail, late]
+      properties:
+        appeal:
+          type: object
+          description: "Phúc khảo của bài (cùng dạng AssignmentAppeal); chỉ có ở GET chi tiết khi sinh viên đã gửi"
+        result:
+          type: object
+          required: [id, round, status, run_state, total, ai_total_before_late, overall_feedback, overall_edited, version]
+          properties:
+            id: {type: string, format: uuid}
+            round: {type: integer}
+            status: {type: string, enum: [DRAFT, REVIEWED, PUBLISHED]}
+            run_state: {type: string, enum: [QUEUED, RUNNING, DONE, FAILED]}
+            error_code: {type: string}
+            total: {type: [string, "null"]}
+            ai_total_before_late: {type: [string, "null"]}
+            overall_feedback: {type: string}
+            overall_edited: {type: boolean}
+            reviewed_at: {type: string, format: date-time}
+            version: {type: integer}
+        submission:
+          type: object
+          required: [id, version, file_name, received_at, late_days, source, extracted_text, flagged_ranges, superseded]
+          properties:
+            id: {type: string, format: uuid}
+            version: {type: integer}
+            file_name: {type: string}
+            received_at: {type: string, format: date-time}
+            late_days: {type: integer}
+            source: {type: string}
+            extracted_text: {type: string}
+            flagged_ranges:
+              type: array
+              items:
+                type: object
+                required: [start, end, code]
+                properties:
+                  start: {type: integer}
+                  end: {type: integer}
+                  code: {type: string}
+            superseded: {type: boolean}
+        assignment:
+          type: object
+          required: [id, title, max_score, rubric]
+          properties:
+            id: {type: string, format: uuid}
+            title: {type: string}
+            max_score: {type: string}
+            rubric: {type: array, items: {type: object}}
+            reference_answer: {type: string}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [id, name, max, score, comment, edited, evidence, ai_score]
+            properties:
+              id: {type: string}
+              name: {type: string}
+              max: {type: string}
+              score: {type: [string, "null"]}
+              comment: {type: string}
+              edited: {type: boolean}
+              ai_score: {type: [string, "null"]}
+              evidence:
+                type: array
+                items:
+                  type: object
+                  required: [quote, start, end]
+                  properties:
+                    quote: {type: string}
+                    start: {type: integer}
+                    end: {type: integer}
+        flags: {type: array, items: {type: string}}
+        pass_detail: {}
+        late:
+          type: object
+          required: [days, penalty, max_days, per_day, manual]
+          properties:
+            days: {type: integer}
+            penalty: {type: string}
+            max_days: {type: integer}
+            per_day: {type: string}
+            manual: {type: boolean}
+    AssignmentAppeal:
+      type: object
+      required: [id, assignment, student, submission_id, result_id, criteria, reason, status, created_at, score_before, ai_total_before_late, score_after, response, decided_by, decided_at, version]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        assignment:
+          type: object
+          required: [id, title]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            title: {type: string}
+        student:
+          type: object
+          required: [id, full_name, student_code]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            full_name: {type: string}
+            student_code: {type: string}
+        submission_id: {type: string, format: uuid}
+        result_id: {type: string, format: uuid}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [id, name]
+            additionalProperties: false
+            properties:
+              id: {type: string}
+              name: {type: string}
+        reason: {type: string}
+        status: {type: string, enum: [OPEN, UPHELD, ADJUSTED]}
+        created_at: {type: string, format: date-time}
+        score_before: {type: string}
+        ai_total_before_late: {type: [string, "null"]}
+        score_after: {type: [string, "null"]}
+        response: {type: [string, "null"]}
+        decided_by: {type: [string, "null"], format: uuid}
+        decided_at: {type: [string, "null"], format: date-time}
+        version: {type: integer}
+    IntegrationView:
+      type: object
+      required: [kind, configured, enabled, status, config, read_only, last_ok_at, last_sync_at, last_error, error_since, version]
+      additionalProperties: false
+      properties:
+        kind: {type: string, enum: [IMAP, SMTP, TEAMS]}
+        configured: {type: boolean}
+        enabled: {type: boolean}
+        status: {type: string, enum: [CONNECTED, NOT_CONNECTED, ERROR, PAUSED]}
+        config:
+          type: [object, "null"]
+          description: "Phần không bí mật: IMAP {host, port, security, username, mailbox, poll_seconds}; SMTP {host, port, security, from}"
+        read_only: {type: boolean}
+        last_ok_at: {type: [string, "null"], format: date-time}
+        last_sync_at: {type: [string, "null"], format: date-time}
+        last_error: {type: [string, "null"], description: "Nguyên nhân ngắn: UNREACHABLE | AUTH | TLS | MAILBOX | TIMEOUT"}
+        error_since: {type: [string, "null"], format: date-time}
+        sandbox: {type: boolean, description: "Chỉ Teams: GRAPH_BASE_URL không phải graph.microsoft.com"}
+        available: {type: boolean, description: "Chỉ Teams: TEAMS_ENABLED"}
+        version: {type: integer}
+    GradingEnqueued:
+      type: object
+      required: [queued]
+      additionalProperties: false
+      properties:
+        job_id: {type: string, format: uuid}
+        queued: {type: integer}
+    UploadSubmissionsJob:
+      type: object
+      required: [job_id]
+      additionalProperties: false
+      properties:
+        job_id: {type: string, format: uuid}
+    UnmatchedPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, file_name, source, received_at, reason, reason_text, assignment_id, suggestion, version]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              file_name: {type: string}
+              source: {type: string}
+              received_at: {type: string, format: date-time}
+              reason: {type: string}
+              reason_text: {type: string}
+              assignment_id: {type: [string, "null"], format: uuid}
+              suggestion:
+                type: [object, "null"]
+                required: [student_id, full_name]
+                additionalProperties: false
+                properties:
+                  student_id: {type: string, format: uuid}
+                  full_name: {type: string}
+              version: {type: integer, format: int64}
+        next_cursor: {type: [string, "null"]}
+    MatchSubmissionInput:
+      type: object
+      required: [assignment_id, student_id, version]
+      additionalProperties: false
+      properties:
+        assignment_id: {type: string, format: uuid}
+        student_id: {type: string, format: uuid}
+        version: {type: integer, format: int64}
+    MatchSubmissionOutput:
+      type: object
+      required: [id, assignment_id, student_id, version]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        assignment_id: {type: string, format: uuid}
+        student_id: {type: string, format: uuid}
+        version: {type: integer}
+    SubmissionDetail:
+      type: object
+      required: [id, assignment, student, match_status, versions]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        assignment:
+          type: [object, "null"]
+          required: [id, title]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            title: {type: string}
+        student:
+          type: [object, "null"]
+          required: [id, full_name, student_code, inactive]
+          additionalProperties: false
+          properties:
+            id: {type: string, format: uuid}
+            full_name: {type: string}
+            student_code: {type: string}
+            inactive: {type: boolean}
+        match_status: {type: string, enum: [MATCHED, UNMATCHED]}
+        unmatched_reason: {type: string}
+        versions:
+          type: array
+          items:
+            type: object
+            required: [id, version, source, file_name, file_size, match_status, received_at, late_days, current, result]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              version: {type: [integer, "null"]}
+              source: {type: string}
+              file_name: {type: string}
+              file_size: {type: integer, format: int64}
+              match_status: {type: string}
+              received_at: {type: string, format: date-time}
+              late_days: {type: integer}
+              current: {type: boolean}
+              result:
+                type: [object, "null"]
+                required: [id, status, run_state, flags, needs_review, version]
+                additionalProperties: false
+                properties:
+                  id: {type: string, format: uuid}
+                  status: {type: string}
+                  run_state: {type: string}
+                  total: {type: [string, "null"]}
+                  flags: {type: array, items: {type: string}}
+                  needs_review: {type: boolean}
+                  error_code: {type: string}
+                  version: {type: integer}
+    SubmissionFileURL:
+      type: object
+      required: [url, expires_in]
+      additionalProperties: false
+      properties:
+        url: {type: string}
+        expires_in: {type: integer}
+    DismissSubmissionInput:
+      type: object
+      required: [reason, version]
+      additionalProperties: false
+      properties:
+        reason: {type: string}
+        version: {type: integer, format: int64}
     CalendarItem:
       type: object
       required: [id, source, type, title, starts_at, ends_at, location, href, editable, personal_state, status]
@@ -10678,10 +12860,10 @@ components:
           type: string
         source:
           type: string
-          enum: [class_session, weekly_exam, calendar_event]
+          enum: [class_session, weekly_exam, calendar_event, assignment]
         type:
           type: string
-          enum: [CLASS_SESSION, EXAM, OTHER]
+          enum: [CLASS_SESSION, EXAM, OTHER, DEADLINE]
         title:
           type: string
         starts_at:
@@ -13460,6 +15642,9 @@ components:
         exam_id:
           type: string
           format: uuid
+        assignment_id:
+          type: string
+          format: uuid
     GradeComponentDoc:
       type: object
       required: [key, name, grp, weight, items, citations, filled_by_user]
@@ -13628,8 +15813,11 @@ components:
           type: string
         source:
           type: string
-          enum: [MANUAL, EXAM]
+          enum: [MANUAL, EXAM, ASSIGNMENT]
         exam_id:
+          type: string
+          format: uuid
+        assignment_id:
           type: string
           format: uuid
     PutGradeComponent:

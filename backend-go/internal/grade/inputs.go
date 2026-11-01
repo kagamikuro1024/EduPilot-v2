@@ -41,7 +41,7 @@ func LoadItems(ctx context.Context, q *store.Queries, courseID, schemeID uuid.UU
 	}
 	out := make([]Item, len(rows))
 	for i, r := range rows {
-		it := Item{ID: r.ID, ComponentID: r.ComponentID, Key: r.Key, Name: r.Name, Max: r.MaxScore, Source: ItemSource(r.Source), ExamID: r.ExamID, Position: int(r.Position), Published: r.PublishedAt != nil}
+		it := Item{ID: r.ID, ComponentID: r.ComponentID, Key: r.Key, Name: r.Name, Max: r.MaxScore, Source: ItemSource(r.Source), ExamID: r.ExamID, AssignmentID: r.AssignmentID, Position: int(r.Position), Published: r.PublishedAt != nil}
 		switch it.Source {
 		case SourceExam:
 			it.Closed = r.ExamPublished
@@ -88,6 +88,46 @@ func LoadInputs(ctx context.Context, q *store.Queries, courseID, schemeID uuid.U
 	for _, r := range ex {
 		if in, ok := out[r.StudentID]; ok && r.ExamMax.Sign() > 0 {
 			in.Scores[r.ItemID] = r.Score.Mul(r.ItemMax).DivRound(r.ExamMax, DivPrecision)
+		}
+	}
+	asg, err := q.GradeInputAssignments(ctx, store.GradeInputAssignmentsParams{CourseID: courseID, SchemeID: schemeID, StudentIds: strs})
+	if err != nil {
+		return nil, fmt.Errorf("grade: điểm bài tập: %w", err)
+	}
+	if len(asg) > 0 {
+		facts, err := q.GradeAssignmentFacts(ctx, store.GradeAssignmentFactsParams{CourseID: courseID, SchemeID: schemeID})
+		if err != nil {
+			return nil, fmt.Errorf("grade: dữ kiện bài tập: %w", err)
+		}
+		fact := make(map[uuid.UUID]store.GradeAssignmentFactsRow, len(facts))
+		for _, f := range facts {
+			fact[f.ItemID] = f
+		}
+		for _, r := range asg {
+			in, ok := out[r.StudentID]
+			if !ok {
+				continue
+			}
+			if in.ItemClosed == nil {
+				in.ItemClosed, in.ItemReason = map[uuid.UUID]bool{}, map[uuid.UUID]string{}
+				out[r.StudentID] = in
+			}
+			if r.Score.Valid && r.AsgMax.Sign() > 0 {
+				in.Scores[r.ItemID] = r.Score.Decimal.Mul(r.ItemMax).DivRound(r.AsgMax, DivPrecision)
+				continue
+			}
+			// Không có kết quả PUBLISHED (TLR-9): bài chưa khớp / chưa chấm xong / cửa còn mở → INCOMPLETE; chỉ "không nộp, hết hạn, không còn bài chưa khớp" mới tính 0 theo MISSING_SCORE.
+			f := fact[r.ItemID]
+			switch {
+			case !r.HasMatched && f.Unmatched > 0:
+				in.ItemReason[r.ItemID] = ReasonUnmatchedPending
+			case r.HasMatched:
+				in.ItemReason[r.ItemID] = ReasonAssignmentUngrade
+			case f.Closed:
+				in.ItemClosed[r.ItemID] = true
+			default:
+				in.ItemReason[r.ItemID] = ReasonAssignmentOpen
+			}
 		}
 	}
 	return out, nil

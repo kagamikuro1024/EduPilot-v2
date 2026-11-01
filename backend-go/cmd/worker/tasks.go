@@ -21,6 +21,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/rag"
+	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/thread"
 	"github.com/google/uuid"
 )
@@ -48,6 +49,15 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks, rollupTask{&activity.RollupJob{Svc: &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: d.Cfg.RollupTick, Log: d.Log}})
 	tasks = append(tasks, riskTask{&crm.RiskJob{Svc: &crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, At: d.Cfg.RiskJobAt, Every: time.Minute, Log: d.Log}})
 	tasks = append(tasks, gradeRemindTask{&grade.ReminderJob{Svc: &grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}, Redis: d.Redis, Name: name, Every: time.Minute, Log: d.Log}})
+	if bs, ok := d.Blob.(submission.BlobAPI); ok { // *blob.Store thật; worker thử nghiệm không có object storage thì không chạy job
+		tasks = append(tasks, orphanTask{&submission.OrphanJob{Svc: &submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: time.Hour, Log: d.Log}})
+	}
+	if gq := newGradingQueue(d); gq != nil {
+		tasks = append(tasks, gradingTask{gq})
+	}
+	if ys := newImapSyncer(d); ys != nil {
+		tasks = append(tasks, imapTask{ys})
+	}
 	tasks = append(tasks, chat.ReapTask{Svc: &chat.Service{Pool: d.DB, Redis: d.Redis, Log: d.Log}})
 	if d.JudgeConsumer {
 		tasks = append(tasks, judgeTask{d.Judge})
@@ -104,6 +114,12 @@ type gradeRemindTask struct{ j *grade.ReminderJob }
 
 func (gradeRemindTask) Name() string                    { return "grade.scheme_reminder" }
 func (t gradeRemindTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// orphanTask chạy `submission.orphan_cleanup` (US-P7-03) — mỗi giờ, một bản nhờ khoá leader Redis.
+type orphanTask struct{ j *submission.OrphanJob }
+
+func (orphanTask) Name() string                    { return "submission.orphan_cleanup" }
+func (t orphanTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // judgeTask chạy consumer chấm code (chỉ ở bản worker JUDGE_CONSUMER=true).
 type judgeTask struct{ q *judge.Queue }

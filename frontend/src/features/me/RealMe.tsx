@@ -3,7 +3,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { apiClient } from "@/shared/data";
-import { DefinitionList, EmptyState, Page, PageHeader, Panel, Section, Skeleton, TrendChart } from "@/shared/ui";
+import { ActionList, ActionRow, DefinitionList, EmptyState, Page, PageHeader, Panel, Section, Skeleton, TrendChart } from "@/shared/ui";
+import { STATE_LABEL, dueLabel, useMyAssignments } from "@/features/assignments/assignmentApi";
+import { fmtLong } from "@/features/calendar/calendarApi";
+import { withCourse } from "@/shared/lib/courseHref";
 import { MeGrade } from "./MeGrade";
 import { EVENT_LABEL, STATUS_LABEL, attendanceSentence, dayMonthOf, signedPoints, type MyAttendance, type MyParticipation, type MyStudyTime } from "./meApi";
 import s from "./Me.module.css";
@@ -44,10 +47,37 @@ export function RealMe({ courseId, classCode }: { courseId: string; classCode: s
           <MeGrade courseId={courseId} />
           <Attendance a={att.data.attendance} />
           <Participation p={part.data.participation} />
+          <Assignments courseId={courseId} />
           {study.data && <StudyTrend t={study.data} />}
         </>
       )}
     </Page>
+  );
+}
+
+/** Bài tập đã công bố của lớp: tên · hạn · trạng thái bằng chữ, mở sang `/assignments/{id}` (US-P7-03 AC10). */
+function Assignments({ courseId }: { courseId: string }) {
+  const list = useMyAssignments(courseId);
+  if (list.isPending) return <Section panel title="Bài tập" part="me-assignments"><ActionList label="Bài tập" loading={2} /></Section>;
+  if (list.isError) return null; // lỗi của khối phụ không che các khối đã tải
+  return (
+    <Section panel title="Bài tập" part="me-assignments">
+      {list.items.length === 0 ? (
+        <EmptyState title="Lớp chưa có bài tập." />
+      ) : (
+        <ActionList label="Bài tập">
+          {list.items.map((a) => (
+            <ActionRow
+              key={a.id}
+              href={withCourse(`/assignments/${a.id}`, courseId)}
+              title={a.title}
+              meta={`Hạn ${fmtLong(a.due_at)} · ${dueLabel(a.due_at)} · ${STATE_LABEL[a.my.state]}`}
+              data={{ "data-part": "me-assignment-row" }}
+            />
+          ))}
+        </ActionList>
+      )}
+    </Section>
   );
 }
 

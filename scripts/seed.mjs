@@ -13,7 +13,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
 import { createHash } from "node:crypto";
-import { XLSX_MIME, lop1Column, lop1Faulty } from "./grade-seed-data.mjs";
+import { XLSX_MIME, lop1Column, lop1Faulty, zip } from "./grade-seed-data.mjs";
+import { FOREIGN_MAIL, PERSONAL_MAIL, TEAMS_TITLE_04, createBody, loadPlan, sampleText, teamsMeta } from "./assignment-seed-data.mjs";
 import { ROSTER1, crmPlan } from "./crm-plan.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 
@@ -21,6 +22,12 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
 const IF_EMPTY = argv.includes("--if-empty");
 const VERBOSE = argv.includes("--verbose");
+
+// Dữ liệu của cmd/mock-graph (US-P7-11): sinh từ fixtures/teams-plan.csv, không cần stack / DB.
+if (argv.includes("--mock-graph")) {
+  (await import("./mock-graph-data.mjs")).writeMockGraph(root);
+  process.exit(0);
+}
 
 // ---- cấu hình --------------------------------------------------------------------------------------------------------
 function envFileValue(key) {
@@ -56,7 +63,7 @@ const ORIGIN = new URL(API).origin;
 
 const DOMAIN = "@edupilot.local";
 const SEMESTER = "2026-2027-HK1";
-const STEPS = 18;
+const STEPS = 19;
 
 // ---- tiện ích --------------------------------------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -978,6 +985,144 @@ async function step17Moderation() {
   if (q.length < 2) throw new Error(`Hàng đợi kiểm duyệt chỉ có ${q.length} mục (cần ≥ 2)`);
 }
 
+// ---- bước 18: Bài tập 03 / 04, thư IMAP thử, thẻ Teams (US-S9-SEED) ------------------------------------------------------
+// Chỉ HTTP API thật + cmd/mock-imap (`POST /__mock/append`). Hạn BT03 = bây giờ + DUE_AHEAD_S: sinh viên "đúng hạn" nộp trước hạn, thư IMAP mang INTERNALDATE = hạn + giờ so với hạn trong seed-plan.csv,
+// riêng Sinh viên B nộp SAU hạn (chờ tới hạn rồi nộp: muộn 1 ngày theo luật làm tròn lên). Không chạy chấm (để demo `Chấm tất cả`).
+const MOCK_IMAP = setting("MOCK_IMAP_URL", "http://localhost:8091").replace(/\/$/, "");
+const MOCK_GRAPH = setting("MOCK_GRAPH_URL", "http://localhost:8090").replace(/\/$/, "");
+const DUE_AHEAD_S = 75;
+const BT03 = "BT03", BT04 = "BT04";
+const IMAP_USER = "nop@edupilot.test";
+
+async function waitService(name, url) {
+  const until = Date.now() + 60_000;
+  for (;;) {
+    try {
+      const r = await fetch(url, { signal: AbortSignal.timeout(3000) });
+      if (r.ok) return;
+    } catch {
+      /* chưa lên */
+    }
+    if (Date.now() > until) throw new Error(`Dịch vụ ${name} chưa sẵn sàng sau 60 s (${url}); bật lại (compose local) rồi chạy seed tiếp`);
+    await sleep(2000);
+  }
+}
+
+async function putBlob(pre, bytes) {
+  const headers = { ...pre.headers };
+  delete headers["Content-Length"];
+  const put = await fetch(pre.url, { method: pre.method, headers, body: bytes });
+  if (!put.ok) throw new Error(`PUT tệp bài nộp → ${put.status}`);
+}
+
+async function ensureAssignment(c1, t, body, key) {
+  const have = (await listAll(`/courses/${c1}/assignments`, t)).find((a) => a.submission_code === body.submission_code);
+  let a = have;
+  if (!a) {
+    a = (await call("POST", `/courses/${c1}/assignments`, { token: t, json: body, key })).body;
+    ctx.changed = true;
+  }
+  if (!a.published_at) {
+    await call("POST", `/courses/${c1}/assignments/${a.id}/publish`, { token: t, key: `seed-publish-${body.submission_code}` });
+    ctx.changed = true;
+    a = (await call("GET", `/courses/${c1}/assignments/${a.id}`, { token: t })).body;
+  }
+  return a;
+}
+
+async function submitInApp(c1, asg, account, text, name, version) {
+  const email = accounts.get(account).email;
+  const st = (await login(email))?.access_token;
+  if (!st) throw new Error(`Không đăng nhập được ${account}`);
+  const tt = ctx.tokens.teacher;
+  const have = (await call("GET", `/courses/${c1}/assignments/${asg.id}/versions?student_id=${ids.get(account)}`, { token: tt })).body.versions;
+  if (have >= version) return;
+  const bytes = Buffer.from(text, "utf8");
+  const pre = await call("POST", `/courses/${c1}/assignments/${asg.id}/submit/presign`, { token: st, json: { filename: name, size_bytes: bytes.length, sha256: createHash("sha256").update(bytes).digest("hex") } });
+  await putBlob(pre.body, bytes);
+  await call("POST", `/courses/${c1}/assignments/${asg.id}/submit`, { token: st, json: { upload_id: pre.body.upload_id }, key: `seed-sub-${BT03}-${account}-v${version}` });
+  ctx.changed = true;
+}
+
+async function appendMail(m) {
+  const r = await fetch(`${MOCK_IMAP}/__mock/append`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(m) });
+  if (!r.ok) throw new Error(`mock-imap append → ${r.status} ${await r.text()}`);
+  return (await r.json()).created;
+}
+
+async function step18Assignments() {
+  step(19, "Bài tập 03 / 04 lớp 761987: 26 bài nộp (app, ZIP, thư IMAP thử), thẻ IMAP + Teams…");
+  await waitService("mock-imap", `${MOCK_IMAP}/__mock/health`);
+  await waitService("mock-graph", `${MOCK_GRAPH}/__mock/requests`);
+  const c1 = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  const plan = loadPlan(root);
+  const meta = teamsMeta(root);
+  // thẻ tích hợp (ADMIN): IMAP trỏ mock-imap, Teams trỏ mock-graph; có rồi thì giữ
+  const cfg = async (kind, body) => {
+    const cur = (await call("GET", `/courses/${c1}/integrations/${kind}`, { token: ctx.tokens.admin })).body;
+    if (cur.configured && cur.enabled) return;
+    await call("PUT", `/courses/${c1}/integrations/${kind}`, { token: ctx.tokens.admin, json: { ...body, enabled: true, version: cur.version ?? 0 } });
+    ctx.changed = true;
+  };
+  await cfg("imap", { host: "mock-imap", port: 1143, security: "NONE", username: IMAP_USER, password: setting("MOCK_IMAP_PASSWORD", "mock-imap-password"), mailbox: "INBOX", poll_seconds: 60 });
+  await cfg("teams", { tenant_id: meta.tenant_id, client_id: meta.client_id, client_secret: meta.client_secret });
+
+  const base = createBody(root);
+  const existing = (await listAll(`/courses/${c1}/assignments`, t)).find((a) => a.submission_code === BT03);
+  const dueAt = existing ? new Date(existing.due_at) : new Date(Date.now() + DUE_AHEAD_S * 1000);
+  const asg = await ensureAssignment(c1, t, { ...base, due_at: dueAt.toISOString(), channels: ["IN_APP", "UPLOAD", "IMAP"] }, `seed-create-${BT03}`);
+  await ensureAssignment(c1, t, { ...base, title: TEAMS_TITLE_04, submission_code: BT04, channels: ["IN_APP", "TEAMS"], teams_class_id: meta.class_id, teams_assignment_id: meta.assignment_id, due_at: new Date(dueAt.getTime() + 7 * 86400_000).toISOString() }, `seed-create-${BT04}`);
+  const due = new Date(asg.due_at);
+
+  // 1) trong app, đúng hạn (trừ Sinh viên B, nộp sau hạn)
+  const inApp = plan.filter((r) => r.channel === "IN_APP");
+  for (const r of inApp.filter((x) => x.account !== "sv.kha")) {
+    if (r.sample2) await submitInApp(c1, asg, r.account, sampleText(root, r.sample1).text, "bai-tap-03.md", 1);
+    await submitInApp(c1, asg, r.account, sampleText(root, r.sample2 || r.sample1).text, "bai-tap-03.md", r.sample2 ? 2 : 1);
+  }
+  // 2) ZIP của giảng viên (UPLOAD): tên tệp chứa MSSV; sv30 không có MSSV trong tên
+  const ups = plan.filter((r) => r.channel === "UPLOAD");
+  const entries = ups.map((r) => [r.account === "sv30" ? "bai-lam-khong-ten.md" : `${accounts.get(r.account).code}_bai-tap-03.md`, sampleText(root, r.sample1).text]);
+  const zbytes = zip(entries);
+  const zpre = await call("POST", `/courses/${c1}/uploads/presign`, { token: t, json: { purpose: "submission_upload", filename: "bai-tap-03.zip", mime_type: "application/zip", size_bytes: zbytes.length, sha256: createHash("sha256").update(zbytes).digest("hex") } });
+  await putBlob(zpre.body, zbytes);
+  const up = await call("POST", `/courses/${c1}/assignments/${asg.id}/submissions/upload`, { token: t, json: { upload_id: zpre.body.upload_id }, key: `seed-zip-${BT03}-${zpre.body.upload_id}` }); // mỗi lần chạy một vé tải lên mới → khoá mới; chạy lại không tạo đôi vì nhập ZIP bỏ qua tệp trùng băm (deduped)
+  if (up.status === 202) await waitJob(up.body.job_id, t, "nhập ZIP Bài tập 03", 120_000);
+  // 3) thư IMAP thử: đúng mẫu `[BT03] MSSV` (người gửi = email của sinh viên, máy chủ thư xác thực), 1 thư sai mẫu (sv29), 1 thư email lạ
+  const at = (h) => new Date(due.getTime() + h * 3600_000).toISOString();
+  const att = (name, text) => [{ name, base64: Buffer.from(text, "utf8").toString("base64"), content_type: "text/markdown" }];
+  let appended = 0;
+  for (const r of plan.filter((x) => x.channel === "IMAP" && x.account !== "(ngoài lớp)")) {
+    const s = sampleText(root, r.sample1);
+    const m = r.account === "sv29"
+      ? { ...PERSONAL_MAIL(r.account), internal_date: at(r.hours), attachments: att("bai-tap-03.md", s.text) }
+      : { from: accounts.get(r.account).email, subject: `[${BT03}] ${accounts.get(r.account).code}`, message_id: `seed-bt03-${r.account}@edupilot.test`, internal_date: at(r.hours), attachments: att("bai-tap-03.md", s.text) };
+    if (await appendMail(m)) appended++;
+  }
+  const fx = FOREIGN_MAIL;
+  if (await appendMail({ from: fx.from, subject: fx.subject, message_id: fx.message_id, internal_date: at(fx.hours), attachments: att("bai-tap-03.md", sampleText(root, fx.sample).text) })) appended++;
+  if (appended > 0) {
+    ctx.changed = true;
+    for (let n = 0; ; n++) { // đồng bộ ngay; giới hạn tần suất thì chờ rồi thử lại
+      const r = await call("POST", `/courses/${c1}/integrations/imap/sync-now`, { token: t, key: `seed-imap-sync-${asg.id.slice(0, 8)}-${n}`, ok: [200, 202, 429] });
+      if (r.status === 429) { await sleep(Math.min(70, Number(r.body?.retry_after ?? 30)) * 1000); continue; }
+      await waitJob(r.body.job_id, t, "đồng bộ thư IMAP", 180_000);
+      break;
+    }
+  }
+  // 4) Sinh viên B: nộp sau hạn
+  const wait = due.getTime() - Date.now() + 2000;
+  const b = plan.find((x) => x.account === "sv.kha");
+  if (wait > 0 && (await call("GET", `/courses/${c1}/assignments/${asg.id}/versions?student_id=${ids.get("sv.kha")}`, { token: t })).body.versions < 1) {
+    vlog("chờ tới hạn BT03", Math.ceil(wait / 1000), "s");
+    await sleep(wait);
+  }
+  await submitInApp(c1, asg, "sv.kha", sampleText(root, b.sample1).text, "bai-tap-03.md", 1);
+  // 5) đưa cả bộ về quá khứ nguyên khoảng cách tương đối: "hạn đã qua", cửa nộp muộn (2 ngày) cũng đã đóng → sinh viên không nộp là 0 theo MISSING_SCORE khi gắn item (US-S9-SEED AC4). Chạy lại không lùi thêm.
+  vlog(gatewayAdmin("seed-age", ["--course", "761987", "--assignment", BT03, "--hours", "96"]));
+}
+
 // ---- chạy ------------------------------------------------------------------------------------------------------------
 async function main() {
   const started = Date.now();
@@ -1004,6 +1149,7 @@ async function main() {
   await step15StudyTimeRisk();
   await step16Tickets();
   await step17Moderation();
+  await step18Assignments();
   console.log(`Seed xong trong ${Math.round((Date.now() - started) / 1000)} s.`);
   if (!ctx.changed) console.log("Seed xong (không đổi)");
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
@@ -1013,6 +1159,7 @@ async function main() {
   console.log("  ≈ 150 câu hỏi chat riêng (sinh viên lớp 761987), 12 thread lớp 761987 + 3 thread lớp 761988 — `node scripts/check-chat-seed.mjs [threads]`");
   console.log("  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 / sv26 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`");
   console.log("  Lớp 761987: công thức điểm CONFIRMED (trích từ quy chế học phần bằng provider giả, TEACHER xác nhận), điểm giữa kỳ / cuối kỳ nhập bằng XLSX và đã công bố, sổ CHƯA chốt; lớp 761988: chưa có quy chế — `node scripts/check-grade-seed.mjs`");
+  console.log("  Lớp 761987: Bài tập 03 (26 bài nộp: 13 app, 5 ZIP, 8 thư IMAP thử; 3 chưa khớp; chưa chấm) + Bài tập 04 (kênh Teams, chưa đồng bộ) — `node scripts/check-assignments-seed.mjs`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 

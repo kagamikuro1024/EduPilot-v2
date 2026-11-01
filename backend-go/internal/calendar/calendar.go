@@ -141,6 +141,12 @@ func (s *Service) rows(ctx context.Context, a Actor, course uuid.UUID, from, to 
 				href += "/take"
 			}
 			it.Href = &href
+		case "assignment": // US-P7-02: hạn nộp bài tập đã công bố (UNION, không nhân bản)
+			href := "/grading?tab=assignments"
+			if a.Student {
+				href = "/assignments/" + r.ID.String()
+			}
+			it.Href = &href
 		case "calendar_event":
 			it.Editable = a.Staff
 			if a.Staff {

@@ -1,0 +1,2312 @@
+[
+  {
+    "account": "sv.gioi",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T16:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/ec3baa97-c04a-5bdb-b548-d0fa1bc7444b",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=ec3baa97-c04a-5bdb-b548-d0fa1bc7444b",
+    "id": "ec3baa97-c04a-5bdb-b548-d0fa1bc7444b",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "b01aac03-978d-5b05-a4fd-9cf8497d3235"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "b01aac03-978d-5b05-a4fd-9cf8497d3235",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "0b9baf9c-8f8e-5a06-84ef-5ca953066f1a",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv.gioi.md",
+          "createdDateTime": "2026-11-29T16:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T16:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "b01aac03-978d-5b05-a4fd-9cf8497d3235",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "b01aac03-978d-5b05-a4fd-9cf8497d3235",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/ec3baa97-c04a-5bdb-b548-d0fa1bc7444b"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv.kha",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T17:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/88842053-1a3e-5670-9de0-47fc2c72baa3",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=88842053-1a3e-5670-9de0-47fc2c72baa3",
+    "id": "88842053-1a3e-5670-9de0-47fc2c72baa3",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "9c9542e6-4f0d-5d32-a5d6-f9d048d7e638"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "9c9542e6-4f0d-5d32-a5d6-f9d048d7e638",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "2c78c813-e597-509f-a6e9-46c6e4e99932",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv.kha.md",
+          "createdDateTime": "2026-11-29T17:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T17:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "9c9542e6-4f0d-5d32-a5d6-f9d048d7e638",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "9c9542e6-4f0d-5d32-a5d6-f9d048d7e638",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/88842053-1a3e-5670-9de0-47fc2c72baa3"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv04",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T18:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/b2ea777e-d784-5a32-b905-bdbac891ccc7",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=b2ea777e-d784-5a32-b905-bdbac891ccc7",
+    "id": "b2ea777e-d784-5a32-b905-bdbac891ccc7",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "5f7cd2f0-bf4d-53e3-97a2-6d1cf6027349"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "5f7cd2f0-bf4d-53e3-97a2-6d1cf6027349",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "52f40f2d-b7c7-5a8d-b8b9-73dd37324d84",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv04.md",
+          "createdDateTime": "2026-11-29T18:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T18:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5f7cd2f0-bf4d-53e3-97a2-6d1cf6027349",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5f7cd2f0-bf4d-53e3-97a2-6d1cf6027349",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/b2ea777e-d784-5a32-b905-bdbac891ccc7"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv05",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T19:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/c9a6355f-0dca-5040-b9b0-a45d41a49362",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=c9a6355f-0dca-5040-b9b0-a45d41a49362",
+    "id": "c9a6355f-0dca-5040-b9b0-a45d41a49362",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "432a442b-d700-5b3d-8aee-140a041f2ed0"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "432a442b-d700-5b3d-8aee-140a041f2ed0",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "c5033327-855d-5de2-b7d2-3474a9607639",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv05.md",
+          "createdDateTime": "2026-11-29T19:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T19:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "432a442b-d700-5b3d-8aee-140a041f2ed0",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "432a442b-d700-5b3d-8aee-140a041f2ed0",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/c9a6355f-0dca-5040-b9b0-a45d41a49362"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv06",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T20:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/b9c9a78a-4fbe-5607-95b6-e7857e7e0039",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=b9c9a78a-4fbe-5607-95b6-e7857e7e0039",
+    "id": "b9c9a78a-4fbe-5607-95b6-e7857e7e0039",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "58e01982-6612-5879-8ccf-1568c76ec8f1"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "58e01982-6612-5879-8ccf-1568c76ec8f1",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "06914ac0-1758-5b18-84c2-ec6843faab3d",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv06.md",
+          "createdDateTime": "2026-11-29T20:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T20:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "58e01982-6612-5879-8ccf-1568c76ec8f1",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "58e01982-6612-5879-8ccf-1568c76ec8f1",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/b9c9a78a-4fbe-5607-95b6-e7857e7e0039"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv07",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T21:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/784a1f89-ae1c-544b-a83f-20dc07f35dd9",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=784a1f89-ae1c-544b-a83f-20dc07f35dd9",
+    "id": "784a1f89-ae1c-544b-a83f-20dc07f35dd9",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "c27d16da-60b9-5837-b754-503e15a29691"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "c27d16da-60b9-5837-b754-503e15a29691",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "3d8e9d54-df1c-5812-af2d-83e3adf464e7",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv07.md",
+          "createdDateTime": "2026-11-29T21:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T21:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c27d16da-60b9-5837-b754-503e15a29691",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c27d16da-60b9-5837-b754-503e15a29691",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/784a1f89-ae1c-544b-a83f-20dc07f35dd9"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv08",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T22:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/0c968bd8-8e99-59f9-9c16-321dfd642303",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=0c968bd8-8e99-59f9-9c16-321dfd642303",
+    "id": "0c968bd8-8e99-59f9-9c16-321dfd642303",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "8d0e6139-fb17-5286-843e-4708efbc4c22"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "8d0e6139-fb17-5286-843e-4708efbc4c22",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "64534d3d-e6ba-587c-a1ac-764894f323b7",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv08.md",
+          "createdDateTime": "2026-11-29T22:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T22:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "8d0e6139-fb17-5286-843e-4708efbc4c22",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "8d0e6139-fb17-5286-843e-4708efbc4c22",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/0c968bd8-8e99-59f9-9c16-321dfd642303"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv09",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-29T23:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/20b78711-b7af-5ac8-b7b4-a5b4ca2c8fdf",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=20b78711-b7af-5ac8-b7b4-a5b4ca2c8fdf",
+    "id": "20b78711-b7af-5ac8-b7b4-a5b4ca2c8fdf",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "c54f48fe-89d1-510a-880f-419322ae6587"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "c54f48fe-89d1-510a-880f-419322ae6587",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "d87f1eab-2c5c-59ac-a7d8-cdc6eed4e28d",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv09.md",
+          "createdDateTime": "2026-11-29T23:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T23:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c54f48fe-89d1-510a-880f-419322ae6587",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c54f48fe-89d1-510a-880f-419322ae6587",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/20b78711-b7af-5ac8-b7b4-a5b4ca2c8fdf"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv10",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T00:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/ae95fcb1-d449-5351-bc28-b8e51c8bc552",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=ae95fcb1-d449-5351-bc28-b8e51c8bc552",
+    "id": "ae95fcb1-d449-5351-bc28-b8e51c8bc552",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "59cf7065-2d43-59b7-8a4f-431e260479ce"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "59cf7065-2d43-59b7-8a4f-431e260479ce",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "52e17dd5-8682-5906-822e-f19b7f1920cd",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv10.md",
+          "createdDateTime": "2026-11-30T00:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T00:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "59cf7065-2d43-59b7-8a4f-431e260479ce",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "59cf7065-2d43-59b7-8a4f-431e260479ce",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/ae95fcb1-d449-5351-bc28-b8e51c8bc552"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv11",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T01:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/def3325e-c3ba-5326-a4d5-2cf7ba4f44f1",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=def3325e-c3ba-5326-a4d5-2cf7ba4f44f1",
+    "id": "def3325e-c3ba-5326-a4d5-2cf7ba4f44f1",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "143776e5-fdc1-5cd6-af4b-90306c2a5b9b"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "143776e5-fdc1-5cd6-af4b-90306c2a5b9b",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "4f9c41cf-3d59-5cff-b154-996ec96f92aa",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv11.md",
+          "createdDateTime": "2026-11-30T01:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T01:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "143776e5-fdc1-5cd6-af4b-90306c2a5b9b",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "143776e5-fdc1-5cd6-af4b-90306c2a5b9b",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/def3325e-c3ba-5326-a4d5-2cf7ba4f44f1"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv12",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T02:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/67f7f696-1ea1-5501-9e84-09114807f4c8",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=67f7f696-1ea1-5501-9e84-09114807f4c8",
+    "id": "67f7f696-1ea1-5501-9e84-09114807f4c8",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "b8a30239-00dc-56f7-8d17-f7dfcb8a8971"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "b8a30239-00dc-56f7-8d17-f7dfcb8a8971",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "03f098c4-dbd7-517c-8536-25e0577deba0",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv12.md",
+          "createdDateTime": "2026-11-30T02:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T02:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "b8a30239-00dc-56f7-8d17-f7dfcb8a8971",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "b8a30239-00dc-56f7-8d17-f7dfcb8a8971",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/67f7f696-1ea1-5501-9e84-09114807f4c8"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv13",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T03:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/20421710-c5c9-5238-bb0c-9bc2632db673",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=20421710-c5c9-5238-bb0c-9bc2632db673",
+    "id": "20421710-c5c9-5238-bb0c-9bc2632db673",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "0faec62b-2dec-5058-8579-73f6ab9ef3f3"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "0faec62b-2dec-5058-8579-73f6ab9ef3f3",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "cd8de154-114b-5d2b-951d-bf048d1be17f",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv13.md",
+          "createdDateTime": "2026-11-30T03:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T03:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "0faec62b-2dec-5058-8579-73f6ab9ef3f3",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "0faec62b-2dec-5058-8579-73f6ab9ef3f3",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/20421710-c5c9-5238-bb0c-9bc2632db673"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv14",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T04:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/27e9d2f7-3c3e-502f-bde2-888d3511b0c1",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=27e9d2f7-3c3e-502f-bde2-888d3511b0c1",
+    "id": "27e9d2f7-3c3e-502f-bde2-888d3511b0c1",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "e19448e4-22aa-5ceb-814c-86246339ea1b"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "e19448e4-22aa-5ceb-814c-86246339ea1b",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "c6cadb79-acdb-5bed-a737-51d3c8363f2b",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv14.md",
+          "createdDateTime": "2026-11-30T04:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T04:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "e19448e4-22aa-5ceb-814c-86246339ea1b",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "e19448e4-22aa-5ceb-814c-86246339ea1b",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/27e9d2f7-3c3e-502f-bde2-888d3511b0c1"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv15",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T05:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/6645bf94-0374-5989-99de-c93e08269363",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=6645bf94-0374-5989-99de-c93e08269363",
+    "id": "6645bf94-0374-5989-99de-c93e08269363",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "374708a3-6c0c-577b-ba60-62fbb6f8918a"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "374708a3-6c0c-577b-ba60-62fbb6f8918a",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "6d955f25-61c7-5955-8d0a-09bef5d6bc21",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv15.md",
+          "createdDateTime": "2026-11-30T05:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T05:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "374708a3-6c0c-577b-ba60-62fbb6f8918a",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "374708a3-6c0c-577b-ba60-62fbb6f8918a",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/6645bf94-0374-5989-99de-c93e08269363"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv16",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T06:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/4bc71e43-9476-53a1-8d41-49e17a35481e",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=4bc71e43-9476-53a1-8d41-49e17a35481e",
+    "id": "4bc71e43-9476-53a1-8d41-49e17a35481e",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "c8a9a2a3-a3ec-543a-b170-24b60020a946"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "c8a9a2a3-a3ec-543a-b170-24b60020a946",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "3a89af90-e6d8-5e7d-9b83-c1c14ea5ff3a",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv16.md",
+          "createdDateTime": "2026-11-30T06:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T06:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c8a9a2a3-a3ec-543a-b170-24b60020a946",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c8a9a2a3-a3ec-543a-b170-24b60020a946",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/4bc71e43-9476-53a1-8d41-49e17a35481e"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv18",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T07:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/8290b12a-5407-5c41-9d2b-f336f949f2db",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=8290b12a-5407-5c41-9d2b-f336f949f2db",
+    "id": "8290b12a-5407-5c41-9d2b-f336f949f2db",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "f1f65d0b-22c8-568c-b719-23bd7af404f5"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "f1f65d0b-22c8-568c-b719-23bd7af404f5",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "1be28f3a-24a2-5d46-9676-a9dd2a67bd2d",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv18.md",
+          "createdDateTime": "2026-11-30T07:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T07:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "f1f65d0b-22c8-568c-b719-23bd7af404f5",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "f1f65d0b-22c8-568c-b719-23bd7af404f5",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/8290b12a-5407-5c41-9d2b-f336f949f2db"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv19",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T08:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/a1f6e052-9c3e-5b58-9b3f-b67e39305a94",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=a1f6e052-9c3e-5b58-9b3f-b67e39305a94",
+    "id": "a1f6e052-9c3e-5b58-9b3f-b67e39305a94",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "e0ee5664-6d1c-56b2-8b42-2a3ffab3a8c3"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "e0ee5664-6d1c-56b2-8b42-2a3ffab3a8c3",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "97058f7e-4465-500a-9d64-1431c927c868",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv19.md",
+          "createdDateTime": "2026-11-30T08:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T08:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "e0ee5664-6d1c-56b2-8b42-2a3ffab3a8c3",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "e0ee5664-6d1c-56b2-8b42-2a3ffab3a8c3",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/a1f6e052-9c3e-5b58-9b3f-b67e39305a94"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv20",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T09:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/8401ca61-76f0-564f-8269-466ebe6323a3",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=8401ca61-76f0-564f-8269-466ebe6323a3",
+    "id": "8401ca61-76f0-564f-8269-466ebe6323a3",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "c08c073e-59ee-5914-8820-8ce255709a98"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "c08c073e-59ee-5914-8820-8ce255709a98",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "24398296-9c6a-5377-aab9-a7baaef991fe",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv20.md",
+          "createdDateTime": "2026-11-30T09:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T09:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c08c073e-59ee-5914-8820-8ce255709a98",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "c08c073e-59ee-5914-8820-8ce255709a98",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/8401ca61-76f0-564f-8269-466ebe6323a3"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv22",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T10:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/dca2cfeb-c40b-5b9e-9d35-53970a12258c",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=dca2cfeb-c40b-5b9e-9d35-53970a12258c",
+    "id": "dca2cfeb-c40b-5b9e-9d35-53970a12258c",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "5b583038-d7b9-5049-b13f-0dd45ea71a3c"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "5b583038-d7b9-5049-b13f-0dd45ea71a3c",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "0471e574-a99d-51ea-8aa7-0fe17e8b8874",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv22.md",
+          "createdDateTime": "2026-11-30T10:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T10:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5b583038-d7b9-5049-b13f-0dd45ea71a3c",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5b583038-d7b9-5049-b13f-0dd45ea71a3c",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/dca2cfeb-c40b-5b9e-9d35-53970a12258c"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv24",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T11:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/804a6424-44be-50eb-a0f1-958f5377c699",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=804a6424-44be-50eb-a0f1-958f5377c699",
+    "id": "804a6424-44be-50eb-a0f1-958f5377c699",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "d1119b2d-7fac-511f-806d-6fe9ca7a35da"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "d1119b2d-7fac-511f-806d-6fe9ca7a35da",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "25fce3c4-68a0-521a-a5a0-031a04931991",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv24.md",
+          "createdDateTime": "2026-11-30T11:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T11:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "d1119b2d-7fac-511f-806d-6fe9ca7a35da",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "d1119b2d-7fac-511f-806d-6fe9ca7a35da",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/804a6424-44be-50eb-a0f1-958f5377c699"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv25",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T12:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/a24a1900-bed1-52b7-b224-6e024b545a0c",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=a24a1900-bed1-52b7-b224-6e024b545a0c",
+    "id": "a24a1900-bed1-52b7-b224-6e024b545a0c",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "5acf9c5d-5a2e-5b9f-a3a1-a2f36f08bebf"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "5acf9c5d-5a2e-5b9f-a3a1-a2f36f08bebf",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "6b19dddb-b577-5dd9-878b-3b31eb829d75",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv25.md",
+          "createdDateTime": "2026-11-30T12:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T12:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5acf9c5d-5a2e-5b9f-a3a1-a2f36f08bebf",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5acf9c5d-5a2e-5b9f-a3a1-a2f36f08bebf",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/a24a1900-bed1-52b7-b224-6e024b545a0c"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv27",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T13:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/2f3ebb12-6c81-5935-93b6-deaf64100e57",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=2f3ebb12-6c81-5935-93b6-deaf64100e57",
+    "id": "2f3ebb12-6c81-5935-93b6-deaf64100e57",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "1cdae6f1-8e5d-55a4-8539-431bb4a62c72"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "1cdae6f1-8e5d-55a4-8539-431bb4a62c72",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "4f9227f8-69e3-50d9-aa0b-56fb95a041c9",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv27.md",
+          "createdDateTime": "2026-11-30T13:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T13:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "1cdae6f1-8e5d-55a4-8539-431bb4a62c72",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "1cdae6f1-8e5d-55a4-8539-431bb4a62c72",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/2f3ebb12-6c81-5935-93b6-deaf64100e57"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv29",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T14:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/7b25bbd5-ab56-5c93-889c-cbb275b2d845",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=7b25bbd5-ab56-5c93-889c-cbb275b2d845",
+    "id": "7b25bbd5-ab56-5c93-889c-cbb275b2d845",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "5d778efb-0755-5d41-8f3a-dba9f63a99eb"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "5d778efb-0755-5d41-8f3a-dba9f63a99eb",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "da3f2044-85a8-57e1-956e-d0403df88cd8",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv29.md",
+          "createdDateTime": "2026-11-30T14:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T14:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5d778efb-0755-5d41-8f3a-dba9f63a99eb",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "5d778efb-0755-5d41-8f3a-dba9f63a99eb",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/7b25bbd5-ab56-5c93-889c-cbb275b2d845"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv30",
+    "status": "submitted",
+    "submittedDateTime": "2026-11-30T15:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/8a717371-df5d-5aea-ae03-55d7ad2bbceb",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=8a717371-df5d-5aea-ae03-55d7ad2bbceb",
+    "id": "8a717371-df5d-5aea-ae03-55d7ad2bbceb",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "abcadbf0-c828-53dd-85c8-b9df3fd9e51c"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "abcadbf0-c828-53dd-85c8-b9df3fd9e51c",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "f303f2a0-1edc-5594-bbef-f52a0405d309",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv30.md",
+          "createdDateTime": "2026-11-30T15:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-30T15:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "abcadbf0-c828-53dd-85c8-b9df3fd9e51c",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "abcadbf0-c828-53dd-85c8-b9df3fd9e51c",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/8a717371-df5d-5aea-ae03-55d7ad2bbceb"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "(ngoài lớp)",
+    "status": "submitted",
+    "submittedDateTime": "2026-12-01T06:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": "/files/folders/de038547-2294-5d18-bb85-b829fadd24d6",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=de038547-2294-5d18-bb85-b829fadd24d6",
+    "id": "de038547-2294-5d18-bb85-b829fadd24d6",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "453bba53-11b8-5325-8530-aecad378d466"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "453bba53-11b8-5325-8530-aecad378d466",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "b0e7ab83-9e98-5272-b308-f0f87ec3c61b",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-ngoàilớp.md",
+          "createdDateTime": "2026-12-01T06:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-12-01T06:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "453bba53-11b8-5325-8530-aecad378d466",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "453bba53-11b8-5325-8530-aecad378d466",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/de038547-2294-5d18-bb85-b829fadd24d6"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv.nguyco",
+    "status": "working",
+    "submittedDateTime": null,
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": null,
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=bd90678a-9356-531a-8877-efadba0c02bd",
+    "id": "bd90678a-9356-531a-8877-efadba0c02bd",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "64d7933e-61d5-54dd-8aae-32ed3733e065"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "64d7933e-61d5-54dd-8aae-32ed3733e065",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [],
+    "resources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "982e0ea9-6078-588d-8014-6cb9a49a3443",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv.nguyco.md",
+          "createdDateTime": "2026-11-29T16:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-12-01T15:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "64d7933e-61d5-54dd-8aae-32ed3733e065",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "64d7933e-61d5-54dd-8aae-32ed3733e065",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/bd90678a-9356-531a-8877-efadba0c02bd"
+        }
+      }
+    ]
+  },
+  {
+    "account": "sv17",
+    "status": "working",
+    "submittedDateTime": null,
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": null,
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=addbbff2-9328-5ab2-822c-ddbb20b0adc3",
+    "id": "addbbff2-9328-5ab2-822c-ddbb20b0adc3",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "1e02d7dd-0cff-590a-8e99-35db1c43304c"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "1e02d7dd-0cff-590a-8e99-35db1c43304c",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [],
+    "resources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "03954629-0aea-5ce1-bf62-2f6c58c8f20c",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv17.md",
+          "createdDateTime": "2026-11-29T16:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-12-01T15:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "1e02d7dd-0cff-590a-8e99-35db1c43304c",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "1e02d7dd-0cff-590a-8e99-35db1c43304c",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/addbbff2-9328-5ab2-822c-ddbb20b0adc3"
+        }
+      }
+    ]
+  },
+  {
+    "account": "sv21",
+    "status": "working",
+    "submittedDateTime": null,
+    "unsubmittedDateTime": null,
+    "returnedDateTime": null,
+    "reassignedDateTime": null,
+    "resourcesFolderUrl": null,
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=b68e9e8e-0a46-53bd-afa2-0e4c512e114a",
+    "id": "b68e9e8e-0a46-53bd-afa2-0e4c512e114a",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "94bc56a0-63e7-5092-9aaf-d55c51dff720"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "94bc56a0-63e7-5092-9aaf-d55c51dff720",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "submittedResources": [],
+    "resources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "efb42f34-494a-52c7-9674-b5558b6d4678",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv21.md",
+          "createdDateTime": "2026-11-29T16:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-12-01T15:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "94bc56a0-63e7-5092-9aaf-d55c51dff720",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "94bc56a0-63e7-5092-9aaf-d55c51dff720",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/b68e9e8e-0a46-53bd-afa2-0e4c512e114a"
+        }
+      }
+    ]
+  },
+  {
+    "account": "sv23",
+    "status": "returned",
+    "submittedDateTime": "2026-11-29T04:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": "2026-11-30T04:59:00.0000000Z",
+    "reassignedDateTime": "2026-11-30T04:59:00.0000000Z",
+    "resourcesFolderUrl": "/files/folders/61416297-d416-59fb-903b-58d709c16629",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=61416297-d416-59fb-903b-58d709c16629",
+    "id": "61416297-d416-59fb-903b-58d709c16629",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "785370b0-0812-5826-ab51-f2654b1fea8b"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "785370b0-0812-5826-ab51-f2654b1fea8b",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "6cd50bb4-2615-5e1c-a8a2-6b2686b270f7",
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "6cd50bb4-2615-5e1c-a8a2-6b2686b270f7",
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "cd443304-ea02-56a7-8007-779065fe5e35",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv23.md",
+          "createdDateTime": "2026-11-29T04:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T04:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "785370b0-0812-5826-ab51-f2654b1fea8b",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "785370b0-0812-5826-ab51-f2654b1fea8b",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/61416297-d416-59fb-903b-58d709c16629"
+        }
+      }
+    ],
+    "resources": []
+  },
+  {
+    "account": "sv26",
+    "status": "returned",
+    "submittedDateTime": "2026-11-29T04:59:00.0000000Z",
+    "unsubmittedDateTime": null,
+    "returnedDateTime": "2026-11-30T04:59:00.0000000Z",
+    "reassignedDateTime": "2026-11-30T04:59:00.0000000Z",
+    "resourcesFolderUrl": "/files/folders/e4bff539-5a7b-5df0-a061-02c7f634304a",
+    "webUrl": "https://teams.microsoft.com/l/entity/66aeee93-507d-479a-a3ef-8f494af43945/classroom?submissionId=e4bff539-5a7b-5df0-a061-02c7f634304a",
+    "id": "e4bff539-5a7b-5df0-a061-02c7f634304a",
+    "recipient": {
+      "@odata.type": "#microsoft.graph.educationSubmissionIndividualRecipient",
+      "userId": "309045ec-3433-54e5-9f91-2b701f2ecf1d"
+    },
+    "submittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "309045ec-3433-54e5-9f91-2b701f2ecf1d",
+        "displayName": null
+      }
+    },
+    "unsubmittedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": null,
+        "displayName": null
+      }
+    },
+    "returnedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "6cd50bb4-2615-5e1c-a8a2-6b2686b270f7",
+        "displayName": null
+      }
+    },
+    "reassignedBy": {
+      "application": null,
+      "device": null,
+      "user": {
+        "id": "6cd50bb4-2615-5e1c-a8a2-6b2686b270f7",
+        "displayName": null
+      }
+    },
+    "submittedResources": [
+      {
+        "assignmentResourceUrl": null,
+        "id": "b0e160f1-abe7-5468-8b0b-c50546171135",
+        "resource": {
+          "@odata.type": "#microsoft.graph.educationFileResource",
+          "displayName": "bai-sv26.md",
+          "createdDateTime": "2026-11-29T04:49:00.0000000Z",
+          "lastModifiedDateTime": "2026-11-29T04:59:00.0000000Z",
+          "createdBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "309045ec-3433-54e5-9f91-2b701f2ecf1d",
+              "displayName": null
+            }
+          },
+          "lastModifiedBy": {
+            "application": null,
+            "device": null,
+            "user": {
+              "id": "309045ec-3433-54e5-9f91-2b701f2ecf1d",
+              "displayName": null
+            }
+          },
+          "fileUrl": "/files/e4bff539-5a7b-5df0-a061-02c7f634304a"
+        }
+      }
+    ],
+    "resources": []
+  }
+]

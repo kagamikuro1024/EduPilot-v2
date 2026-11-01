@@ -21,11 +21,12 @@ import (
 // Đầu vào PUT / impact (SRS 4.4.2–4.4.3). Số là chuỗi decimal.
 type (
 	PutItem struct {
-		Key      string     `json:"key"`
-		Name     string     `json:"name"`
-		MaxScore string     `json:"max_score"`
-		Source   string     `json:"source"`
-		ExamID   *uuid.UUID `json:"exam_id"`
+		Key          string     `json:"key"`
+		Name         string     `json:"name"`
+		MaxScore     string     `json:"max_score"`
+		Source       string     `json:"source"`
+		ExamID       *uuid.UUID `json:"exam_id"`
+		AssignmentID *uuid.UUID `json:"assignment_id"`
 	}
 	PutComponent struct {
 		Key    string    `json:"key"`
@@ -48,10 +49,11 @@ type (
 
 type (
 	parsedItem struct {
-		key, name string
-		max       decimal.Decimal
-		source    ItemSource
-		exam      *uuid.UUID
+		key, name  string
+		max        decimal.Decimal
+		source     ItemSource
+		exam       *uuid.UUID
+		assignment *uuid.UUID
 	}
 	parsedComp struct {
 		key, name string
@@ -137,7 +139,7 @@ func parseInput(comps []PutComponent, rules []PutRule) (parsed, error) {
 		}
 		for j, it := range items {
 			ia := fmt.Sprintf("%s.items[%d]", at, j)
-			pi := parsedItem{key: it.Key, name: it.Name, source: ItemSource(it.Source), exam: it.ExamID}
+			pi := parsedItem{key: it.Key, name: it.Name, source: ItemSource(it.Source), exam: it.ExamID, assignment: it.AssignmentID}
 			if !keyRE.MatchString(it.Key) || seenItem[it.Key] {
 				bad[ia+".key"] = "Khoá không hợp lệ hoặc trùng."
 			}
@@ -155,12 +157,25 @@ func parseInput(comps []PutComponent, rules []PutRule) (parsed, error) {
 				if it.ExamID != nil {
 					bad[ia+".exam_id"] = "Cột nhập tay không gắn bài thi."
 				}
+				if it.AssignmentID != nil {
+					bad[ia+".assignment_id"] = "Cột nhập tay không gắn bài tập."
+				}
 			case SourceExam:
 				if it.ExamID == nil {
 					bad[ia+".exam_id"] = "Chọn bài thi."
 				}
+				if it.AssignmentID != nil {
+					bad[ia+".assignment_id"] = "Cột bài thi không gắn bài tập."
+				}
+			case SourceAssignment:
+				if it.AssignmentID == nil {
+					bad[ia+".assignment_id"] = "Chọn bài tập."
+				}
+				if it.ExamID != nil {
+					bad[ia+".exam_id"] = "Cột bài tập không gắn bài thi."
+				}
 			default:
-				bad[ia+".source"] = "Nguồn là MANUAL hoặc EXAM."
+				bad[ia+".source"] = "Nguồn là MANUAL, EXAM hoặc ASSIGNMENT."
 			}
 			pc.items = append(pc.items, pi)
 		}
@@ -247,6 +262,55 @@ func checkExams(ctx context.Context, q *store.Queries, courseID uuid.UUID, p par
 	return nil
 }
 
+// checkAssignments: item ASSIGNMENT gắn bài tập CỦA LỚP (bài chưa công bố vẫn gắn được), mỗi bài một item trong công thức (422 ASSIGNMENT_ALREADY_LINKED), `max_score` item = `max_score` bài (422 ASSIGNMENT_SCALE_MISMATCH).
+func checkAssignments(ctx context.Context, q *store.Queries, courseID uuid.UUID, p parsed) error {
+	var ids []string
+	seen := map[uuid.UUID]bool{}
+	for _, c := range p.comps {
+		for _, it := range c.items {
+			if it.assignment == nil {
+				continue
+			}
+			if seen[*it.assignment] {
+				return apierr.New(http.StatusUnprocessableEntity, apierr.AssignmentAlreadyLinked)
+			}
+			seen[*it.assignment] = true
+			ids = append(ids, it.assignment.String())
+		}
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	rows, err := q.GradeAssignmentsOfCourse(ctx, store.GradeAssignmentsOfCourseParams{CourseID: courseID, AssignmentIds: ids})
+	if err != nil {
+		return fmt.Errorf("grade: bài tập của lớp: %w", err)
+	}
+	max := map[uuid.UUID]decimal.Decimal{}
+	for _, r := range rows {
+		max[r.ID] = r.MaxScore
+	}
+	bad := map[string]string{}
+	for i, c := range p.comps {
+		for j, it := range c.items {
+			if it.assignment == nil {
+				continue
+			}
+			at := fmt.Sprintf("components[%d].items[%d]", i, j)
+			m, ok := max[*it.assignment]
+			switch {
+			case !ok:
+				bad[at+".assignment_id"] = "Bài tập không thuộc lớp."
+			case !m.Equal(it.max):
+				return apierr.New(http.StatusUnprocessableEntity, apierr.AssignmentScaleMismatch).WithDetails(map[string]string{"item_max_score": it.max.String(), "assignment_max_score": m.String()})
+			}
+		}
+	}
+	if len(bad) > 0 {
+		return invalid(bad)
+	}
+	return nil
+}
+
 // versionConflict dựng 409 kèm bản hiện tại để giao diện hoàn lại.
 func versionConflict(current SchemeDoc) error {
 	return apierr.New(http.StatusConflict, apierr.VersionConflict).WithDetails(map[string]any{"current_version": current.Version, "current": current})
@@ -258,7 +322,7 @@ func sameItems(old []Item, nu []parsedItem) bool {
 	}
 	for i, o := range old {
 		n := nu[i]
-		if o.Key != n.key || o.Name != n.name || !o.Max.Equal(n.max) || o.Source != n.source || (o.ExamID == nil) != (n.exam == nil) || (o.ExamID != nil && *o.ExamID != *n.exam) {
+		if o.Key != n.key || o.Name != n.name || !o.Max.Equal(n.max) || o.Source != n.source || (o.ExamID == nil) != (n.exam == nil) || (o.ExamID != nil && *o.ExamID != *n.exam) || (o.AssignmentID == nil) != (n.assignment == nil) || (o.AssignmentID != nil && *o.AssignmentID != *n.assignment) {
 			return false
 		}
 	}
@@ -279,6 +343,9 @@ func (s *Service) PutDraft(ctx context.Context, actor, courseID uuid.UUID, in Pu
 	defer func() { _ = tx.Rollback(context.WithoutCancel(ctx)) }()
 	q := store.New(tx)
 	if err := checkExams(ctx, q, courseID, p); err != nil {
+		return SchemeDoc{}, err
+	}
+	if err := checkAssignments(ctx, q, courseID, p); err != nil {
 		return SchemeDoc{}, err
 	}
 	cur, err := q.GradeDraftLock(ctx, courseID)
@@ -333,7 +400,7 @@ func (s *Service) PutDraft(ctx context.Context, actor, courseID uuid.UUID, in Pu
 			return SchemeDoc{}, fmt.Errorf("grade: lưu thành phần: %w", err)
 		}
 		for _, it := range c.items {
-			if _, err := q.GradeItemInsert(ctx, store.GradeItemInsertParams{CourseID: courseID, SchemeID: cur.ID, ComponentID: cid, Key: it.key, Name: it.name, MaxScore: it.max, Source: store.GradeItemSource(it.source), ExamID: it.exam, Position: pos}); err != nil {
+			if _, err := q.GradeItemInsert(ctx, store.GradeItemInsertParams{CourseID: courseID, SchemeID: cur.ID, ComponentID: cid, Key: it.key, Name: it.name, MaxScore: it.max, Source: store.GradeItemSource(it.source), ExamID: it.exam, AssignmentID: it.assignment, Position: pos}); err != nil {
 				return SchemeDoc{}, fmt.Errorf("grade: lưu cột điểm: %w", err)
 			}
 			pos++

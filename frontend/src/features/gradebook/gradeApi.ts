@@ -28,7 +28,8 @@ export const useSchemeStatus = (course: string) =>
 
 // ---- công thức: đọc / sửa / xem thử / xác nhận (US-P6-04) -----------------------------------------------------------------------------------------
 export type Citation = { page: number; quote: string };
-export type ItemDoc = { key: string; name: string; max_score: string; source: "MANUAL" | "EXAM" | "ASSIGNMENT"; exam_id?: string };
+export type ItemSource = "MANUAL" | "EXAM" | "ASSIGNMENT";
+export type ItemDoc = { key: string; name: string; max_score: string; source: ItemSource; exam_id?: string; assignment_id?: string };
 export type ComponentDoc = { key: string; name: string; grp: "QT" | "CK"; weight: string; items: ItemDoc[]; citations: Citation[]; filled_by_user: boolean };
 export type RuleKind = "BONUS" | "PENALTY" | "ROUNDING" | "FAIL_CONDITION" | "LETTER_SCALE" | "MISSING_SCORE";
 export type RuleDoc = { kind: RuleKind; applicable: boolean; params: Record<string, unknown>; citations: Citation[]; filled_by_user: boolean };
@@ -57,7 +58,8 @@ export type SchemeDiff = {
 export type SchemesView = { confirmed: SchemeDoc | null; draft: SchemeDoc | null; diff?: SchemeDiff };
 
 /** Dạng gửi lên `PUT` / `impact` (không có trích dẫn / cờ: máy chủ tự tính). */
-export type PutComponent = { key: string; name: string; grp: "QT" | "CK"; weight: string; items: Array<{ key: string; name: string; max_score: string; source: "MANUAL" | "EXAM"; exam_id?: string }> };
+export type PutItem = { key: string; name: string; max_score: string; source: ItemSource; exam_id?: string; assignment_id?: string };
+export type PutComponent = { key: string; name: string; grp: "QT" | "CK"; weight: string; items: PutItem[] };
 export type PutRule = { kind: RuleKind; applicable: boolean; params: Record<string, unknown> };
 export type Working = { components: PutComponent[]; rules: PutRule[] };
 
@@ -82,7 +84,7 @@ export const useSchemes = (course: string, diff: boolean, enabled = true) =>
   });
 
 export const toWorking = (d: SchemeDoc): Working => ({
-  components: d.components.map((c) => ({ key: c.key, name: c.name, grp: c.grp, weight: c.weight, items: c.items.filter((i) => i.source !== "ASSIGNMENT").map((i) => ({ key: i.key, name: i.name, max_score: i.max_score, source: i.source as "MANUAL" | "EXAM", exam_id: i.exam_id })) })),
+  components: d.components.map((c) => ({ key: c.key, name: c.name, grp: c.grp, weight: c.weight, items: c.items.map((i) => ({ key: i.key, name: i.name, max_score: i.max_score, source: i.source, exam_id: i.exam_id, assignment_id: i.assignment_id })) })),
   rules: d.rules.map((r) => ({ kind: r.kind, applicable: r.applicable, params: r.params })),
 });
 

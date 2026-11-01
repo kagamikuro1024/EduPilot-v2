@@ -12,6 +12,7 @@ import { unsavedCount } from "@/shared/lib/unsavedWork";
 import { ButtonLink, ConfirmIrreversible, Drawer, EmptyState, Kbd, MenuDivider, MenuList, Page, PageHeader, Popover } from "@/shared/ui";
 import { useRealNotifications } from "@/shared/session/notifications";
 import { MOBILE_PRIMARY, canOpen, mockBackend, navFor, needsCourse, whoCanOpen, type NavItem } from "./nav";
+import { withCourse } from "@/shared/lib/courseHref";
 import { NotificationPopover } from "./NotificationPopover";
 import { StudyTimeTracker } from "./TrackingNotice";
 import s from "./AppShell.module.css";
@@ -254,7 +255,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </button>
 
           <NotificationPopover
-            items={real.items}
+            items={real.items.map((n) => ({ ...n, href: withCourse(n.href, realCourseId) }))}
             unread={real.unread}
             failed={real.failed}
             stale={real.stale}
@@ -332,7 +333,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
 
         <div className={s.sideFoot}>
-          {!collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}
+          {demo && !collapsed && <p className={s.demo}>Bản mô phỏng · dữ liệu giả</p>}
           {!mid && (
             <button type="button" className={s.collapse} onClick={() => setPrefCollapsed(!prefCollapsed)} aria-expanded={!prefCollapsed} aria-controls="sidebar-nav" aria-label={collapsed ? "Mở rộng thanh bên" : "Thu gọn thanh bên"}>
               {collapsed ? <PanelLeft aria-hidden /> : <PanelLeftClose aria-hidden />}
@@ -343,7 +344,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
       )}
 
-      <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>
+      {demo && <p className={s.demoMobile}>Bản mô phỏng · dữ liệu giả</p>}
       {role === "student" && realCourseId && <StudyTimeTracker />}
       {demo && (
         <Suspense fallback={null}>

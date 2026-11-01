@@ -43,8 +43,8 @@ values (sqlc.arg(course_id), sqlc.arg(scheme_id), sqlc.arg(key), sqlc.arg(name),
 returning id;
 
 -- name: GradeItemInsert :one
-insert into grade_items (course_id, scheme_id, component_id, key, name, max_score, source, exam_id, position)
-values (sqlc.arg(course_id), sqlc.arg(scheme_id), sqlc.arg(component_id), sqlc.arg(key), sqlc.arg(name), sqlc.arg(max_score), sqlc.arg(source), sqlc.arg(exam_id), sqlc.arg(position))
+insert into grade_items (course_id, scheme_id, component_id, key, name, max_score, source, exam_id, assignment_id, position)
+values (sqlc.arg(course_id), sqlc.arg(scheme_id), sqlc.arg(component_id), sqlc.arg(key), sqlc.arg(name), sqlc.arg(max_score), sqlc.arg(source), sqlc.arg(exam_id), sqlc.narg(assignment_id), sqlc.arg(position))
 returning id;
 
 -- name: GradeRuleInsert :exec
@@ -145,3 +145,7 @@ update grade_entries set item_id = sqlc.arg(new_item_id) where course_id = sqlc.
 update grade_items n set published_at = o.published_at
 from grade_items o
 where n.course_id = sqlc.arg(course_id) and n.id = sqlc.arg(new_item_id) and o.course_id = n.course_id and o.id = sqlc.arg(old_item_id);
+
+-- name: GradeAssignmentsOfCourse :many
+-- Bài tập của lớp (kiểm item ASSIGNMENT: thuộc lớp, thang điểm).
+select id, max_score from assignments where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(assignment_ids)::text[]::uuid[]);

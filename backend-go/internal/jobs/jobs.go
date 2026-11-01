@@ -27,7 +27,16 @@ import (
 const TopicEnqueue = "job.enqueue"
 
 // Service là phía gateway: xếp hàng việc và đọc trạng thái việc.
-type Service struct{ DB *pgxpool.Pool }
+type Service struct {
+	DB     *pgxpool.Pool
+	Scopes []Scope
+}
+
+// Scope cho người không phải chủ việc đọc một LOẠI việc (vd. nhân viên cùng lớp đọc việc chấm). Loại có Scope: ADMIN không được miễn trừ — chỉ Allowed quyết.
+type Scope interface {
+	Kind() string
+	Allowed(ctx context.Context, p auth.Principal, jobID uuid.UUID) bool
+}
 
 // NewService dựng Service trên pool đã có.
 func NewService(db *pgxpool.Pool) *Service { return &Service{DB: db} }
@@ -92,7 +101,18 @@ func (s *Service) Get(ctx context.Context, p auth.Principal, id string) (store.J
 	if err != nil {
 		return store.Job{}, err
 	}
-	if p.Role != auth.RoleAdmin && j.OwnerID.String() != p.Sub {
+	if j.OwnerID.String() == p.Sub {
+		return j, nil
+	}
+	for _, sc := range s.Scopes {
+		if sc.Kind() == j.Kind {
+			if sc.Allowed(ctx, p, j.ID) {
+				return j, nil
+			}
+			return store.Job{}, pgx.ErrNoRows
+		}
+	}
+	if p.Role != auth.RoleAdmin {
 		return store.Job{}, pgx.ErrNoRows
 	}
 	return j, nil

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
-import { parseInline, parseMarkdown, type Block, type Inline } from "../src/shared/lib/markdown";
+import { parseInline, parseMarkdown, stripComments, type Block, type Inline } from "../src/shared/lib/markdown";
 
 // US-PE-03 AC1 — bộ render Markdown tối thiểu: HTML thô chỉ là CHỮ, không bao giờ thành thẻ. Test thuần (không cần trình duyệt).
 
@@ -48,4 +48,19 @@ test("markdown: bộ vẽ không dùng dangerouslySetInnerHTML và không dựng
   const feature = readFileSync(resolve(__dirname, "../src/features/questions/QuestionReview.tsx"), "utf8");
   expect(feature).not.toMatch(/dangerouslySetInnerHTML/);
   expect(feature).toContain("<Markdown source={d.stem}");
+});
+
+// BUG-S9-02 (proposals #17): chú thích HTML `<!-- … -->` trong tệp đề bài là ghi chú nội bộ, không bao giờ in ra thành chữ.
+test("markdown: chú thích HTML không hiện thành chữ (một dòng, nhiều dòng, giữa dòng, chưa đóng), khối mã giữ nguyên", () => {
+  const all = (src: string) => parseMarkdown(src).map(flat).join("\n");
+  const hidden = "NỘI DUNG GỐC của Bài tập 03. BA sở hữu. Dữ liệu mô phỏng (D44).";
+  const doc = `<!-- ${hidden} -->\n\n# Bài tập 03\n\nĐoạn <!-- ghi chú giữa dòng --> tiếp.\n\n<!-- chú thích\nnhiều dòng\n  BA sở hữu -->\n\n- ý một\n\n<!-- chưa đóng\nvẫn ẩn`;
+  const text = all(doc);
+  for (const w of ["NỘI DUNG GỐC", "BA sở hữu", "D44", "ghi chú giữa dòng", "chú thích", "chưa đóng", "vẫn ẩn", "<!--", "-->"]) expect(text, w).not.toContain(w);
+  expect(text).toContain("Bài tập 03");
+  expect(text).toContain("Đoạn  tiếp.");
+  expect(text).toContain("ý một");
+  expect(parseMarkdown(`<!-- ${hidden} -->`)).toEqual([]);
+  expect(all("```\n<!-- giữ nguyên -->\n```")).toContain("<!-- giữ nguyên -->");
+  expect(stripComments("a\r\nb")).toBe("a\r\nb"); // không đổi khi không có chú thích
 });

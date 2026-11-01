@@ -1,6 +1,235 @@
 {
  "recordings": [
   {
+   "name": "quy-che-lop1-v2",
+   "match": [
+    "Điểm quá trình gồm ba thành phần"
+   ],
+   "response": {
+    "components": [
+     {
+      "key": "midterm",
+      "name": "Giữa kỳ",
+      "group": "QT",
+      "weight": "10",
+      "kind_hint": "MANUAL",
+      "citation_ids": [
+       "c1"
+      ]
+     },
+     {
+      "key": "weekly",
+      "name": "Kiểm tra hằng tuần",
+      "group": "QT",
+      "weight": "10",
+      "kind_hint": "EXAM",
+      "citation_ids": [
+       "c1",
+       "c2"
+      ]
+     },
+     {
+      "key": "assignment",
+      "name": "Bài tập",
+      "group": "QT",
+      "weight": "20",
+      "kind_hint": "ASSIGNMENT",
+      "citation_ids": [
+       "c1",
+       "c3"
+      ]
+     },
+     {
+      "key": "final",
+      "name": "Thi cuối kỳ",
+      "group": "CK",
+      "weight": "60",
+      "kind_hint": "MANUAL",
+      "citation_ids": [
+       "c4"
+      ]
+     }
+    ],
+    "rules": [
+     {
+      "kind": "BONUS",
+      "applicable": true,
+      "params": {
+       "source": "PARTICIPATION",
+       "per_speak": "0.25",
+       "cap": "1.0"
+      },
+      "citation_ids": [
+       "c5"
+      ]
+     },
+     {
+      "kind": "PENALTY",
+      "applicable": true,
+      "params": {
+       "source": "ABSENCE",
+       "free": 2,
+       "per": "0.5"
+      },
+      "citation_ids": [
+       "c6"
+      ]
+     },
+     {
+      "kind": "ROUNDING",
+      "applicable": true,
+      "params": {
+       "step": "0.5",
+       "mode": "HALF_UP"
+      },
+      "citation_ids": [
+       "c7"
+      ]
+     },
+     {
+      "kind": "LETTER_SCALE",
+      "applicable": true,
+      "params": {
+       "bands": [
+        {
+         "min": "9.0",
+         "letter": "A+"
+        },
+        {
+         "min": "8.5",
+         "letter": "A"
+        },
+        {
+         "min": "8.0",
+         "letter": "B+"
+        },
+        {
+         "min": "7.0",
+         "letter": "B"
+        },
+        {
+         "min": "6.5",
+         "letter": "C+"
+        },
+        {
+         "min": "5.5",
+         "letter": "C"
+        },
+        {
+         "min": "5.0",
+         "letter": "D+"
+        },
+        {
+         "min": "4.0",
+         "letter": "D"
+        },
+        {
+         "min": "0",
+         "letter": "F"
+        }
+       ]
+      },
+      "citation_ids": [
+       "c8"
+      ]
+     },
+     {
+      "kind": "FAIL_CONDITION",
+      "applicable": true,
+      "params": {
+       "kind": "FINAL_BELOW",
+       "value": "3.0"
+      },
+      "citation_ids": [
+       "c9"
+      ]
+     },
+     {
+      "kind": "FAIL_CONDITION",
+      "applicable": true,
+      "params": {
+       "kind": "ABSENT_AT_LEAST",
+       "value": "7"
+      },
+      "citation_ids": [
+       "c10"
+      ]
+     },
+     {
+      "kind": "MISSING_SCORE",
+      "applicable": true,
+      "params": {
+       "zero_components": [
+        "weekly",
+        "assignment"
+       ]
+      },
+      "citation_ids": [
+       "c11"
+      ]
+     }
+    ],
+    "citations": [
+     {
+      "id": "c1",
+      "page": 1,
+      "quote": "Điểm quá trình gồm ba thành phần: điểm kiểm tra giữa kỳ có trọng số 10% của điểm học phần, điểm kiểm tra hằng tuần có trọng số 10% của điểm học phần, và điểm bài tập có trọng số 20% của điểm học phần."
+     },
+     {
+      "id": "c2",
+      "page": 1,
+      "quote": "Điểm kiểm tra hằng tuần lấy từ các bài kiểm tra trắc nghiệm hằng tuần trên hệ thống; bài kiểm tra lập trình chỉ để luyện tập và không tính vào điểm học phần."
+     },
+     {
+      "id": "c3",
+      "page": 1,
+      "quote": "Điểm bài tập lấy từ Bài tập 03 đã được giảng viên duyệt và công bố trên hệ thống; bài nộp muộn bị trừ điểm theo quy định của bài tập."
+     },
+     {
+      "id": "c4",
+      "page": 1,
+      "quote": "Điểm thi cuối kỳ có trọng số 60% của điểm học phần."
+     },
+     {
+      "id": "c5",
+      "page": 1,
+      "quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm."
+     },
+     {
+      "id": "c6",
+      "page": 1,
+      "quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ."
+     },
+     {
+      "id": "c7",
+      "page": 2,
+      "quote": "Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn."
+     },
+     {
+      "id": "c8",
+      "page": 2,
+      "quote": "Điểm chữ xác định theo điểm học phần đã làm tròn: từ 9,0 đến 10 là A+; từ 8,5 đến dưới 9,0 là A; từ 8,0 đến dưới 8,5 là B+; từ 7,0 đến dưới 8,0 là B; từ 6,5 đến dưới 7,0 là C+; từ 5,5 đến dưới 6,5 là C; từ 5,0 đến dưới 5,5 là D+; từ 4,0 đến dưới 5,0 là D; dưới 4,0 là F."
+     },
+     {
+      "id": "c9",
+      "page": 2,
+      "quote": "Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình."
+     },
+     {
+      "id": "c10",
+      "page": 2,
+      "quote": "Sinh viên vắng không phép từ 7 buổi trở lên thì bị điểm F."
+     },
+     {
+      "id": "c11",
+      "page": 1,
+      "quote": "Sinh viên không dự bài kiểm tra hằng tuần được tính 0 điểm bài đó. Sinh viên không nộp Bài tập 03 sau khi hết thời hạn nộp được tính 0 điểm bài tập."
+     }
+    ],
+    "unclear_items": []
+   }
+  },
+  {
    "name": "quy-che-lop1",
    "match": [
     "40%"
@@ -351,6 +580,543 @@
      }
     ],
     "unclear_items": []
+   }
+  },
+  {
+   "name": "bt03-s1-p2",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",
+    "Chiến dịch SolarWinds Orion là vụ tấn công chuỗi cung ứng ph"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.5",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "2.25",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c4",
+      "score": "2.5",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "9.25"
+   }
+  },
+  {
+   "name": "bt03-s1-p1",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c1, c2, c3, c4.",
+    "Chiến dịch SolarWinds Orion là vụ tấn công chuỗi cung ứng ph"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.5",
+      "evidence_quotes": [
+       "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã nguồn được biên dịch rồi ký số trước khi phát hành",
+       "nhóm APT29, còn gọi là Cozy Bear"
+      ],
+      "comment": "Nêu đủ tác nhân và bề mặt tấn công là hệ thống dựng phần mềm."
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [
+       "chúng cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll",
+       "kỹ thuật Golden SAML"
+      ],
+      "comment": "Chuỗi năm bước đủ ý; chưa giải thích vì sao việc nằm im giúp vượt kiểm tra tự động."
+     },
+     {
+      "id": "c3",
+      "score": "2.0",
+      "evidence_quotes": [
+       "SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la",
+       "Em không tìm được số liệu công khai về thời gian gián đoạn của từng tổ chức"
+      ],
+      "comment": "Có số liệu chi phí và nói rõ phần chưa có số liệu; chưa phân tích tác động vận hành."
+     },
+     {
+      "id": "c4",
+      "score": "2.5",
+      "evidence_quotes": [
+       "kiểm tra toàn vẹn bản dựng bằng quy trình build tái lập được kèm SBOM",
+       "giám sát hành vi bất thường của tiến trình hợp lệ"
+      ],
+      "comment": "Biện pháp cụ thể, gắn với từng bước tấn công."
+     }
+    ],
+    "overall_feedback": "Bài đầy đủ bốn phần, có căn cứ kỹ thuật. Có thể mạnh hơn nếu phân tích vì sao các phép kiểm tra tự động bỏ sót.",
+    "confidence": 0.92,
+    "flags": [],
+    "total": "9.0"
+   }
+  },
+  {
+   "name": "bt03-s2-p2",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",
+    "Vụ SolarWinds năm 2020 là một ví dụ về tấn công chuỗi cung ứ"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "1.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c4",
+      "score": "1.75",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.85,
+    "flags": [],
+    "total": "6.25"
+   }
+  },
+  {
+   "name": "bt03-s2-p1",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c1, c2, c3, c4.",
+    "Vụ SolarWinds năm 2020 là một ví dụ về tấn công chuỗi cung ứ"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "1.75",
+      "evidence_quotes": [
+       "Kẻ tấn công là nhóm APT29, có liên quan tới nhà nước"
+      ],
+      "comment": "Nêu được tác nhân nhưng chưa nói bề mặt tấn công là hệ thống dựng phần mềm."
+     },
+     {
+      "id": "c2",
+      "score": "1.5",
+      "evidence_quotes": [
+       "chèn mã độc SUNBURST vào bản cập nhật Orion"
+      ],
+      "comment": "Có ý chính nhưng thiếu bước nằm im, ký số hợp lệ và di chuyển ngang."
+     },
+     {
+      "id": "c3",
+      "score": "1.0",
+      "evidence_quotes": [
+       "SolarWinds mất 200 triệu đô la để xử lý sự cố"
+      ],
+      "comment": "Nêu tác động chung, chưa có số liệu cụ thể."
+     },
+     {
+      "id": "c4",
+      "score": "1.5",
+      "evidence_quotes": [
+       "các tổ chức nên cập nhật phần mềm cẩn thận, dùng xác thực hai yếu tố"
+      ],
+      "comment": "Biện pháp đúng hướng nhưng còn chung."
+     }
+    ],
+    "overall_feedback": "Bài hiểu đúng bản chất tấn công chuỗi cung ứng nhưng còn thiếu chi tiết kỹ thuật và số liệu.",
+    "confidence": 0.85,
+    "flags": [],
+    "total": "5.75"
+   }
+  },
+  {
+   "name": "bt03-s3-p2",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",
+    "SolarWinds là công ty phần mềm bị hacker tấn công năm 2020. "
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "1.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "0.5",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "0.5",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c4",
+      "score": "0.75",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "2.75"
+   }
+  },
+  {
+   "name": "bt03-s3-p1",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c1, c2, c3, c4.",
+    "SolarWinds là công ty phần mềm bị hacker tấn công năm 2020. "
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "1.0",
+      "evidence_quotes": [
+       "SolarWinds là công ty phần mềm bị hacker tấn công năm 2020"
+      ],
+      "comment": "Chỉ nêu sơ lược, không có tác nhân cụ thể."
+     },
+     {
+      "id": "c2",
+      "score": "0.5",
+      "evidence_quotes": [],
+      "comment": "Không mô tả được chuỗi tấn công."
+     },
+     {
+      "id": "c3",
+      "score": "0.5",
+      "evidence_quotes": [],
+      "comment": "Chỉ nói chung là nghiêm trọng."
+     },
+     {
+      "id": "c4",
+      "score": "1.0",
+      "evidence_quotes": [
+       "cần cài phần mềm diệt virus và đặt mật khẩu mạnh"
+      ],
+      "comment": "Biện pháp quá chung chung."
+     }
+    ],
+    "overall_feedback": "Bài quá ngắn và thiếu căn cứ; cần đọc lại đề và nêu tác nhân, chuỗi tấn công, tác động cụ thể.",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "3.5"
+   }
+  },
+  {
+   "name": "bt03-s5-p2",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",
+    "Cách đặt mật khẩu Wi-Fi cho gia đình"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c4",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.97,
+    "flags": [
+     "OFF_TOPIC"
+    ],
+    "total": "0"
+   }
+  },
+  {
+   "name": "bt03-s5-p1",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c1, c2, c3, c4.",
+    "Cách đặt mật khẩu Wi-Fi cho gia đình"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "Bài không bàn về vụ SolarWinds."
+     },
+     {
+      "id": "c2",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "Bài không bàn về vụ SolarWinds."
+     },
+     {
+      "id": "c3",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "Bài không bàn về vụ SolarWinds."
+     },
+     {
+      "id": "c4",
+      "score": "0",
+      "evidence_quotes": [],
+      "comment": "Bài không bàn về vụ SolarWinds."
+     }
+    ],
+    "overall_feedback": "Bài viết về mật khẩu Wi-Fi gia đình, không liên quan tới đề bài.",
+    "confidence": 0.97,
+    "flags": [
+     "OFF_TOPIC"
+    ],
+    "total": "0"
+   }
+  },
+  {
+   "name": "bt03-s6-p2",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",
+    "Vụ SolarWinds năm 2020 là một vụ tấn công chuỗi cung ứng. Nh"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "1.25",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "1.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c4",
+      "score": "1.0",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.8,
+    "flags": [],
+    "total": "4.75"
+   }
+  },
+  {
+   "name": "bt03-s6-p1",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c1, c2, c3, c4.",
+    "Vụ SolarWinds năm 2020 là một vụ tấn công chuỗi cung ứng. Nh"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "1.5",
+      "evidence_quotes": [],
+      "comment": "Nêu nhóm APT29 và quy trình dựng phần mềm nhưng sơ lược."
+     },
+     {
+      "id": "c2",
+      "score": "1.0",
+      "evidence_quotes": [
+       "chèn mã độc SUNBURST vào bản cập nhật Orion"
+      ],
+      "comment": "Có ý chính, thiếu chi tiết các bước sau cài đặt."
+     },
+     {
+      "id": "c3",
+      "score": "1.0",
+      "evidence_quotes": [],
+      "comment": "Tác động nêu rất chung."
+     },
+     {
+      "id": "c4",
+      "score": "1.0",
+      "evidence_quotes": [],
+      "comment": "Biện pháp chung, chưa gắn với bước tấn công."
+     }
+    ],
+    "overall_feedback": "Bài hiểu ý chính nhưng sơ lược ở mọi phần.",
+    "confidence": 0.8,
+    "flags": [],
+    "total": "4.5"
+   }
+  },
+  {
+   "name": "bt03-s7-p2",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",
+    "Bài viết phân tích chiến dịch tấn công chuỗi cung ứng nhằm v"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "2.5",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c4",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.88,
+    "flags": [],
+    "total": "8.5"
+   }
+  },
+  {
+   "name": "bt03-s7-p1",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c1, c2, c3, c4.",
+    "Bài viết phân tích chiến dịch tấn công chuỗi cung ứng nhằm v"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.0",
+      "evidence_quotes": [
+       "Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds — nơi mã nguồn được biên dịch và ký số trước khi phát hành"
+      ],
+      "comment": "Bài nêu rõ nhóm tác nhân và các điểm vào của hệ thống bị tấn công."
+     },
+     {
+      "id": "c2",
+      "score": "1.0",
+      "evidence_quotes": [
+       "đánh cắp khoá ký SAML của máy chủ liên kết danh tính"
+      ],
+      "comment": "Mô tả chuỗi tấn công còn thiếu bước leo thang đặc quyền."
+     },
+     {
+      "id": "c3",
+      "score": "2.0",
+      "evidence_quotes": [
+       "nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng toàn bộ khoá cùng chứng thư"
+      ],
+      "comment": "Đánh giá được thiệt hại dữ liệu nhưng chưa định lượng thời gian gián đoạn."
+     },
+     {
+      "id": "c4",
+      "score": "2.0",
+      "evidence_quotes": [
+       "phân đoạn mạng để máy chủ giám sát không có đường đi thẳng ra Internet"
+      ],
+      "comment": "Có đề xuất phân đoạn mạng và xác thực đa yếu tố, chưa nêu cách giám sát."
+     }
+    ],
+    "overall_feedback": "Bài phân tích chắc, có căn cứ kỹ thuật; phần chuỗi tấn công cần rõ hơn ở bước leo thang.",
+    "confidence": 0.88,
+    "flags": [],
+    "total": "7.0"
+   }
+  },
+  {
+   "name": "bt03-suggest-rubric",
+   "match": [
+    "ĐÁP ÁN CHUẨN (dữ liệu):",
+    "CANARY-BT03-ANSWER"
+   ],
+   "response": {
+    "criteria": [
+     {
+      "name": "Xác định tác nhân và bề mặt tấn công",
+      "guidance": "Nêu tác nhân (APT29 / nhóm có tài trợ nhà nước) VÀ bề mặt bị khai thác là hệ thống dựng phần mềm / quy trình phát hành, không phải máy chủ khách hàng. Đủ cả hai: 2,0–2,5. Chỉ một trong hai: 1,0–1,75. Không rõ hoặc sai: 0–0,75.",
+      "weight_pct": 25
+     },
+     {
+      "name": "Phân tích tấn công",
+      "guidance": "Chuỗi bước có thứ tự: xâm nhập build → cấy SUNBURST → ký số hợp lệ phát tới ~18.000 tổ chức → nằm im, gọi C2 giả dạng lưu lượng Orion → với ~100 mục tiêu: di chuyển ngang, Golden SAML, leo thang. Mỗi mắt xích nêu căn cứ kỹ thuật. Thiếu một bước then chốt trừ 0,5–1,0.",
+      "weight_pct": 25
+     },
+     {
+      "name": "Đánh giá tác động",
+      "guidance": "Nêu tác động dữ liệu / vận hành / niềm tin / chi phí kèm số liệu công khai (ví dụ ~40 triệu đô la chi phí ứng phó SolarWinds 2021). Nói rõ phần nào chưa có số liệu thì không bị trừ; bịa số liệu thì trừ.",
+      "weight_pct": 25
+     },
+     {
+      "name": "Biện pháp phòng thủ",
+      "guidance": "Biện pháp cụ thể, gắn với bước tấn công: phân đoạn mạng, MFA + giới hạn quyền + xoay vòng khoá, toàn vẹn bản dựng (build tái lập, SBOM), giám sát hành vi bất thường. Chỉ nêu chung chung (\"cần nâng cao nhận thức\") tối đa 1,0.",
+      "weight_pct": 25
+     }
+    ]
    }
   }
  ]

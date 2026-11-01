@@ -3,9 +3,9 @@
 Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phiên. Giữ ngắn; chi tiết nằm trong git log.
 
 ## Đang ở đâu
-- Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4 + 5 + 5.5 + 6 + 7. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
+- Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4 + 5 + 5.5 + 6 + 7 + 8 + 9. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
 - Lộ trình: **11 sprint + 1.5 + 5.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu. Mỗi sprint merge xong: `writer` viết phần quyển đồ án, PM + BA review.
-- Sprint gần nhất: **6 — P3 Hai kênh + PII, P8 Tài liệu + Lịch** — xong, cổng P3 ĐẠT, cổng P8 ĐẠT, `docs/sprints/6/report.md`. Sprint gần nhất: **7 — P4 + P5**, cổng P4 ĐẠT, cổng P5 ĐẠT, `docs/sprints/7/report.md`; chủ dự án chốt 2026-10-16, đã vào `main`. Kế tiếp: quyển đồ án phần sprint 7, rồi sprint 8 (P6).
+- Sprint gần nhất: **8 — P6 Sổ điểm** (`docs/sprints/8/report.md`) và **9 — P7 Bài tập + chấm** (`docs/sprints/9/report.md`), cổng P6 / P7 ĐẠT kỹ thuật; chủ dự án chốt 2026-11-01, đã vào `main`; quyển đồ án ĐẠT tới sprint 9 (190 trang). Kế tiếp: sprint 10 (P9 Luyện đề).
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
@@ -22,8 +22,8 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 | P3 Hai kênh + PII | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P3.md`) | Che danh tính một chỗ trong `internal/llm`; E1 recall 0,960, chặn nhầm 0; sự kiện SSE đầu p95 85 ms |
 | P4 Escalation + Mail | Xong | 2026-10-13 | 2026-10-16 | ĐẠT (`sprints/7/qc/report-GATE-P4.md`) | Ticket idempotent, chuông qua `/events` nhiều gateway, thư `Message-ID` tất định, SLA T2–T6, kiểm duyệt Threads, kho tri thức |
 | P5 CRM + 360 | Xong | 2026-10-13 | 2026-10-16 | ĐẠT (`sprints/7/qc/report-GATE-P5.md`) | Điểm danh một giao dịch + audit, hồ sơ 360 audit mỗi lần mở, at-risk vật chất hoá, heartbeat chỉ Redis, công tắc đo theo lớp |
-| P6 Sổ điểm | Chờ nghiệm thu | 2026-10-31 | 2026-10-31 | Kỹ thuật PASS (`sprints/8/qc/gate-P6.md`); chờ chủ dự án tính tay A, B, C | `00016_gradebook`; decimal, không `float64`; AI chỉ trích nháp; snapshot bất biến; MSSV chỉ theo danh sách lớp (#20) |
-| P7 Chấm bài | Chưa | | | | |
+| P6 Sổ điểm | Xong | 2026-10-31 | 2026-10-31 | ĐẠT kỹ thuật (`sprints/8/qc/gate-P6.md`); tính tay A, B, C của chủ dự án còn nợ | `00016_gradebook`; decimal, không `float64`; AI chỉ trích nháp; snapshot bất biến; MSSV chỉ theo danh sách lớp (#20) |
+| P7 Chấm bài | Xong | 2026-10-31 | 2026-11-01 | ĐẠT kỹ thuật (`sprints/9/qc/gate-P7.md`); nợ G7-23 LCP `/assignments/[id]` 4,7 s | `00017_assignments`; chấm mù hai lượt, kiểm bằng mã; thư chỉ tin khi `dmarc=pass`; Teams qua `mock-graph` |
 | P8 Tài liệu + Lịch | Xong | 2026-10-10 | 2026-10-11 | ĐẠT (`sprints/6/qc/report-GATE-P8.md`) | `docling-serve` (profile `ingest`), tìm lai RRF + `tsv`, lịch UNION, ICS token băm |
 | P9 Luyện đề | Chưa | | | | |
 | P10 Đánh giá | Chưa | | | | → vạch bảo vệ |
@@ -31,13 +31,13 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 
 ## Luồng end-to-end (tick khi có spec E2E xanh cho đường chính + một nhánh lỗi)
 
-F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) · F6 ☑ (sprint 6) · F7 ☑ (sprint 7) · F8 ☑ (sprint 7) · F9 ☐ · F10 ☐ · F11 ☐ · F12 ☐ · F13 ☑ (sprint 6) · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐ · F19 ☑ (sprint 5, `playwright-cli` + e2e)
+F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) · F6 ☑ (sprint 6) · F7 ☑ (sprint 7) · F8 ☑ (sprint 7) · F9 ☑ (sprint 9) · F10 ☑ (sprint 8) · F11 ☑ (sprint 9) · F12 ☐ · F13 ☑ (sprint 6) · F14 ☐ · F15 ☐ · F16 ☐ · F17 ☐ · F18 ☐ · F19 ☑ (sprint 5, `playwright-cli` + e2e)
 
 ## Phiên gần nhất
-- Ngày: 2026-10-16
-- Đã làm: sprint 7 — 14/14 story sản phẩm PASS, cổng P4 ĐẠT, cổng P5 ĐẠT (proposals #1–#42, TL-REVIEW 36 TLR, TL-1). US-CI-02 FAIL sau vòng 3, lỗi tách thành BUG-S7-01 (PASS). Chủ dự án giao PM toàn quyền chốt câu [CHỦ DỰ ÁN] từ 2026-10-13; danh sách quyết định trong `docs/sprints/7/report.md`.
-- Đang dở: không. Sprint 7 đã merge vào `main` (chủ dự án chốt 2026-10-16).
-- Bước kế tiếp cụ thể: merge `--no-ff`, CI `main` xanh; `writer` viết phần sprint 7 vào quyển đồ án, PM + BA review; PM lập kế hoạch sprint 8 (P6 Sổ điểm, gồm nối điểm bài thi PE). PM làm trong worktree riêng `../TA_Agent_v2-s6` (detached), BA ở `/tmp/ba-wt`, dev ở `../TA_Agent_v2-s7`.
+- Ngày: 2026-11-01
+- Đã làm: sprint 8 (P6, 11/11 story PASS, proposals #1–#26) và sprint 9 (P7, 11/12 story PASS, US-P7-03 FAIL chỉ AC9 LCP; proposals #1–#17). PM chốt thay chủ dự án khi vắng (31/10 → 01/11), danh sách [ĐIỂM] trong `docs/sprints/9/report.md`. Chủ dự án chốt 2026-11-01.
+- Đang dở: không.
+- Bước kế tiếp cụ thể: CI `main` xanh; chủ dự án quyết LCP `/assignments/[id]` (#10 sprint 9), duyệt `golang.org/x/text`, tính tay A, B, C; PM lập kế hoạch sprint 10 (P9 Luyện đề).
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
 - Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).
@@ -56,6 +56,12 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
   - `TestMaskConcurrentSameSession`: sửa phòng thủ (#36), chưa có bằng chứng nguyên nhân.
   - At-risk chưa có tín hiệu điểm (neo `GRADE` chờ P6). Chủ dự án chưa bấm giờ điểm danh trên điện thoại thật.
   - Luật chữ trên UI (#42): đã xoá 6 câu ở màn sprint 7 và `/class/settings`, `/settings`; các màn cũ `/settings/llm`, `/settings/integrations`, khối bảo mật `/settings` còn câu mô tả dưới tiêu đề — quét một lượt ở sprint 8 (`docs/sprints/7/handoff/dev-PM-42.md`).
+- **Nợ của sprint 8 + 9:**
+  - LCP `/assignments/[id]` 4,7 s > 2,5 s (US-P7-03 AC9, G7-23): chủ dự án chọn đổi thiết kế màn đầu hoặc chấp nhận.
+  - Chủ dự án chưa tự tính tay A, B, C (G6-30), chưa làm "Bạn tự kiểm" P7; chưa duyệt `golang.org/x/text`.
+  - Tải 200 bài chấm cùng lúc → P10 (`seed-t1`); chưa kiểm trên stack: `kill -9` worker giữa hai lượt, Redis dừng 70 s, Teams hết thời gian thật; `grading.batch` mồ côi khi Redis mất ánh xạ lô.
+  - Compose production đặt `TEAMS_ENABLED=false` (PR); bước CI kiểm danh sách thư viện cho phép; `/students` chưa có cột điểm; xuất XLSX mẫu cột cố định; chưa đo độ chính xác LLM thật (trích công thức, chấm bài).
+  - Ghi nhận thấp của QC sprint 8: BUG-P6-02-1, BUG-P6-05-1, BUG-P6-08-1, BUG-P6-08-2 (`data-layer.spec` chập chờn).
 - **Nợ của sprint 6:**
   - Chưa ép được với provider giả: `OVERLOADED` / quá hạn che (TC-49/50 P3-02, TC-26 P3-05); chưa đo lại 3G chậm.
   - Nhiều test còn dùng `pgxpool.New` mặc định thay vì `RuntimePool`, nên lỗi PgBouncer có thể ẩn.
@@ -86,6 +92,7 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
 | 00014 | forum_ai_regen | P4 (US-P4-06; proposals #25) |
 | 00015 | observation | P5 (US-P5-03; số `00009` trong phase file; proposals #5, #25) |
 | 00016 | gradebook | P6 (US-P6-01; lược đồ khác ARCHITECTURE §4 theo proposals #3 + 4 bổ sung Tech Lead) |
+| 00017 | assignments | P7 (US-P7-01; gộp `integration_configs`, `mail_inbound`, `grade_appeals`; số `00018` không dùng; proposals sprint 9 #2) |
 
 ## Việc chỉ chủ dự án làm được
 - [x] API key ≥ 2 provider LLM (OpenAI + Gemini, 2026-10-03; nên xoay khoá vì đã dán trong chat, đặt trần chi phí)

@@ -160,68 +160,6 @@ export const REQUESTS: LlmRequest[] = makeRequests();
 
 export const STATUS_LABEL: Record<RequestStatus, string> = { ok: "Xong", fallback: "Dùng model dự phòng", error: "Lỗi" };
 
-// ---- tích hợp --------------------------------------------------------------------------------
-
-export type Integration = {
-  id: string;
-  name: string;
-  state: "connected" | "unset" | "waiting";
-  stateText: string;
-  fields: Array<{ term: string; value: string }>;
-  actionLabel: string;
-  /** kết quả giả lập khi bấm hành động */
-  result: { ok: boolean; text: string };
-};
-
-export const INTEGRATIONS: Integration[] = [
-  {
-    id: "mail",
-    name: "Thư đi (SMTP)",
-    state: "connected",
-    stateText: "Đã kết nối",
-    fields: [
-      { term: "Máy chủ", value: "smtp.ptit.edu.vn:587 (STARTTLS)" },
-      { term: "Địa chỉ gửi", value: "no-reply@edupilot.test" },
-      { term: "Kiểm gần nhất", value: "08:55 hôm nay" },
-      { term: "Thư đã gửi 7 ngày", value: "214 · hỏng 0" },
-    ],
-    actionLabel: "Gửi thư thử",
-    result: { ok: true, text: "Đã gửi thư thử tới nam.dh@edupilot.test lúc 09:20. Nếu 5 phút nữa chưa thấy, kiểm tra hộp thư rác." },
-  },
-  {
-    id: "imap",
-    name: "Thư đến (IMAP)",
-    state: "unset",
-    stateText: "Chưa cấu hình",
-    fields: [
-      { term: "Máy chủ", value: "— chưa điền" },
-      { term: "Hộp thư nhận bài", value: "— chưa điền" },
-      { term: "Việc đang chờ", value: "Không có" },
-    ],
-    actionLabel: "Kiểm tra",
-    result: {
-      ok: false,
-      text: "Chưa có máy chủ IMAP để kiểm tra. Điền máy chủ, cổng và tài khoản hộp thư nhận bài, lưu lại rồi kiểm tra lần nữa. Trong lúc chưa cấu hình, sinh viên vẫn nộp bài trực tiếp trên EduPilot được.",
-    },
-  },
-  {
-    id: "teams",
-    name: "Microsoft Teams",
-    state: "waiting",
-    stateText: "Chờ duyệt",
-    fields: [
-      { term: "Tổ chức", value: "ptit.edu.vn" },
-      { term: "Yêu cầu đã gửi", value: "27/10, 14:20" },
-      { term: "Người duyệt", value: "Quản trị viên Microsoft 365 của trường" },
-    ],
-    actionLabel: "Kiểm tra",
-    result: {
-      ok: false,
-      text: "Teams vẫn chờ quản trị viên Microsoft 365 của trường bấm đồng ý cho EduPilot đọc lịch và gửi thông báo. Đây là việc của trường, không làm được từ màn này. Gửi lại yêu cầu nếu quá 5 ngày chưa có hồi âm.",
-    },
-  },
-];
-
 // ---- việc của quản trị viên ("Hôm nay") ------------------------------------------------------
 
 export type AdminTask = { id: string; tone: "red" | "amber" | "blue" | "neutral"; title: string; context: string; meta: string; href: string };

@@ -131,9 +131,12 @@ func (s *Service) Feed(ctx context.Context, token string) ([]byte, error) {
 		if r.Location != nil && *r.Location != "" {
 			line("LOCATION:" + escape(*r.Location))
 		}
-		if r.Src == "weekly_exam" {
+		switch r.Src {
+		case "weekly_exam":
 			line("URL:" + strings.TrimRight(s.PublicURL, "/") + "/exams/" + r.ID.String() + "/take")
-		} else {
+		case "assignment":
+			line("URL:" + strings.TrimRight(s.PublicURL, "/") + "/assignments/" + r.ID.String())
+		default:
 			line("URL:" + strings.TrimRight(s.PublicURL, "/") + "/calendar")
 		}
 		line("END:VEVENT")

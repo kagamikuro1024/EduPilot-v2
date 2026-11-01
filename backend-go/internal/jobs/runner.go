@@ -148,6 +148,23 @@ func (r *Runner) Report(ctx context.Context, jobID uuid.UUID, pct int) {
 	r.publish(ctx, row)
 }
 
+// ReportDetail như Report, kèm chi tiết tiến độ (ví dụ {done, failed, total}) lưu ở `jobs.result` và có trong job.progress; Complete ghi đè bằng kết quả cuối.
+func (r *Runner) ReportDetail(ctx context.Context, jobID uuid.UUID, pct int, detail any) {
+	raw, err := json.Marshal(detail)
+	if err != nil {
+		return
+	}
+	pct = max(0, min(pct, 99))
+	row, err := store.New(r.db).UpdateJobProgressDetail(ctx, store.UpdateJobProgressDetailParams{ID: jobID, Progress: int16(pct), Result: raw}) //nolint:gosec // 0–99
+	if err != nil {
+		if !errors.Is(err, pgx.ErrNoRows) {
+			r.log.WarnContext(ctx, "không ghi được tiến độ việc", "job_id", jobID.String(), "error", err.Error())
+		}
+		return
+	}
+	r.publish(ctx, row)
+}
+
 // Complete đánh dấu việc SUCCEEDED với kết quả; idempotent (đã xong thì không làm gì).
 func (r *Runner) Complete(ctx context.Context, jobID uuid.UUID, result any) error {
 	raw, err := json.Marshal(result)

@@ -198,6 +198,13 @@ func (s *Service) Gradebook(ctx context.Context, courseID uuid.UUID, cursor stri
 			for item, e := range detail[st.StudentID] {
 				row.Entries[item.String()] = e
 			}
+			for _, c := range conf.Scheme.Components { // ô item ASSIGNMENT hiện điểm đã công bố (đọc thẳng, không sửa được — chỉ để xem)
+				for _, it := range c.Items {
+					if v, has := in.Scores[it.ID]; has && it.Source == SourceAssignment {
+						row.Entries[it.ID.String()] = EntryView{Score: v.String(), Source: string(SourceAssignment)}
+					}
+				}
+			}
 			r := Compute(conf.Scheme, in)
 			row.Result = resultView(r)
 			row.Bonus, row.Penalty = r.BonusApplied.String(), r.Penalty.String()

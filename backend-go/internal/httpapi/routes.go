@@ -6,6 +6,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/activity"
 	"github.com/edupilot/backend-go/internal/agent"
+	"github.com/edupilot/backend-go/internal/assignment"
 	"github.com/edupilot/backend-go/internal/auth"
 	"github.com/edupilot/backend-go/internal/calendar"
 	"github.com/edupilot/backend-go/internal/course"
@@ -16,6 +17,7 @@ import (
 	"github.com/edupilot/backend-go/internal/grade"
 	"github.com/edupilot/backend-go/internal/grading"
 	"github.com/edupilot/backend-go/internal/httpapi/activityhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/assignmenthttp"
 	"github.com/edupilot/backend-go/internal/httpapi/authhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/calendarhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/chathttp"
@@ -25,6 +27,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/escalationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/examhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/gradehttp"
+	"github.com/edupilot/backend-go/internal/httpapi/integrationhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
@@ -33,9 +36,13 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/library"
+	"github.com/edupilot/backend-go/internal/mailin"
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/platform/crypto"
 	"github.com/edupilot/backend-go/internal/privacy"
+	"github.com/edupilot/backend-go/internal/submission"
+	"github.com/edupilot/backend-go/internal/submission/source"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
 )
@@ -70,7 +77,11 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 		}
 		if d.Jobs != nil {
 			// US-PG-03 FR-35/36 — handler việc dài của internal/jobs (chủ job hoặc ADMIN, người khác 404).
-			r.Get("/jobs/{id}", jobs.Handler(d.Jobs))
+			js := *d.Jobs
+			if d.DB != nil && d.Redis != nil {
+				js.Scopes = []jobs.Scope{grading.JobScope{Pool: d.DB, Redis: d.Redis}} // US-P7-07 AC9: nhân viên cùng lớp đọc việc chấm
+			}
+			r.Get("/jobs/{id}", jobs.Handler(&js))
 		}
 		if d.DB != nil {
 			// US-PE-07 — GET /me/exam-lock (thao tác 43): chat AI có đang bị khoá vì lượt làm bài không (chỉ chính mình, không lộ tên bài).
@@ -119,6 +130,17 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 			// US-P6-03 — công thức điểm: POST …/grade-scheme/extract (202 + việc nền), SRS FEAT-gradebook 6.1.
 			(&gradehttp.Handler{Grade: gradeService(d), Extract: gradingService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+			ah := &assignmenthttp.Handler{Assignments: assignmentService(d), Submit: submissionService(d), Batches: &grading.Batches{Pool: d.DB, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log} // US-P7-02: bài tập
+			if d.Redis != nil {
+				if cipher, err := crypto.ParseKey(d.Cfg.AppEncryptionKey); err == nil { // US-P7-05 / 11: cấu hình IMAP / SMTP / Teams, Đồng bộ ngay, thư không xử lý được
+					tenv := mailin.TeamsEnv{Enabled: d.Cfg.TeamsEnabled, Source: source.ConfigFrom(d.Cfg, 0)}
+					ms := &mailin.Service{Pool: d.DB, Cipher: cipher, Redis: d.Redis, Jobs: d.Jobs, Production: d.Cfg.AppEnv == "production", MinSync: d.Cfg.SyncNowMinInterval, Teams: tenv,
+						SMTP: mailin.SMTPInfo{Host: d.Cfg.SMTPHost, Port: d.Cfg.SMTPPort, Security: d.Cfg.SMTPTLS, From: d.Cfg.MailFrom}}
+					(&integrationhttp.Handler{Svc: ms, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+					ah.Teams = &submission.TeamsSync{Pool: d.DB, Redis: d.Redis, Cipher: cipher, Jobs: d.Jobs, Log: d.Log, Enabled: d.Cfg.TeamsEnabled, Source: tenv.Source, Timeout: d.Cfg.TeamsSyncTimeout, MinInterval: d.Cfg.SyncNowMinInterval}
+				}
+			}
+			ah.Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
 			// US-P8-01 — tải tài liệu lên (URL ký sẵn), hoàn tất → 202 + việc nền, thử lại, lập chỉ mục lại (SRS FEAT-docs-calendar 6, #1–#2, #9–#11).
@@ -195,6 +217,22 @@ func crmService(d Deps) *crm.Service {
 func gradeService(d Deps) *grade.Service {
 	s := &grade.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log, Redis: d.Redis}
 	if d.Blob != nil { // nhập XLSX đọc lại tệp từ object storage (luật 10)
+		s.Blob = d.Blob
+	}
+	return s
+}
+
+func assignmentService(d Deps) *assignment.Service {
+	s := &assignment.Service{Pool: d.DB, Log: d.Log}
+	if d.LLM != nil && d.LLM.Gateway != nil {
+		s.LLM = d.LLM.Gateway
+	}
+	return s
+}
+
+func submissionService(d Deps) *submission.Service {
+	s := &submission.Service{Pool: d.DB, Redis: d.Redis, Clock: d.Clock, Log: d.Log, Jobs: d.Jobs}
+	if d.Blob != nil {
 		s.Blob = d.Blob
 	}
 	return s

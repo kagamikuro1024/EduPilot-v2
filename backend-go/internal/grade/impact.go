@@ -55,7 +55,7 @@ func parsedFromLoaded(l Loaded) parsed {
 	for _, c := range l.Scheme.Components {
 		pc := parsedComp{key: c.Key, name: c.Name, grp: c.Group, weight: c.Weight}
 		for _, it := range c.Items {
-			pc.items = append(pc.items, parsedItem{key: it.Key, name: it.Name, max: it.Max, source: it.Source, exam: it.ExamID})
+			pc.items = append(pc.items, parsedItem{key: it.Key, name: it.Name, max: it.Max, source: it.Source, exam: it.ExamID, assignment: it.AssignmentID})
 		}
 		p.comps = append(p.comps, pc)
 	}
@@ -73,6 +73,9 @@ func (s *Service) Impact(ctx context.Context, courseID uuid.UUID, comps []PutCom
 	}
 	q := store.New(s.Pool)
 	if err := checkExams(ctx, q, courseID, p); err != nil {
+		return Impact{}, err
+	}
+	if err := checkAssignments(ctx, q, courseID, p); err != nil {
 		return Impact{}, err
 	}
 	return impactFor(ctx, q, courseID, p)
@@ -149,7 +152,7 @@ func impactFor(ctx context.Context, q *store.Queries, courseID uuid.UUID, p pars
 	for i, c := range p.comps {
 		comp := Component{ID: uuid.New(), Key: c.key, Name: c.name, Group: c.grp, Weight: c.weight}
 		for j, it := range c.items {
-			item := Item{ID: uuid.New(), Key: it.key, Name: it.name, Max: it.max, Source: it.source, ExamID: it.exam, ComponentID: comp.ID, Position: i*maxItems + j}
+			item := Item{ID: uuid.New(), Key: it.key, Name: it.name, Max: it.max, Source: it.source, ExamID: it.exam, AssignmentID: it.assignment, ComponentID: comp.ID, Position: i*maxItems + j}
 			switch it.source {
 			case SourceExam:
 				item.Closed = examPublished[*it.exam]

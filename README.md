@@ -10,8 +10,10 @@ Nền tảng vận hành lớp học có AI cho một học phần đại học:
 > - 5.5 (giao diện panel nổi, D59);
 > - **6 (P3 + P8):** chat riêng và Threads có tường lửa dữ liệu cá nhân, che tên / MSSV trước mọi lời gọi LLM; tài liệu trích bằng `docling-serve` + tìm lai; thư viện, lịch, feed ICS; 535 test case, cổng P3 và P8 đạt.
 > - **7 (P4 + P5):** nút "Nhờ giảng viên", hộp thư hỗ trợ `/inbox`, chuông tức thì qua nhiều bản gateway, thư trả lời đúng một lần, SLA ticket, kiểm duyệt Threads, kho tri thức; điểm danh `/attendance`, hồ sơ 360, at-risk theo tuần, thời gian học có công tắc tắt, `/me`; 550 test case, cổng P4 và P5 đạt.
+> - **8 (P6):** sổ điểm kiểu bảng tính; AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay); chốt / mở khoá có lý do; nhập / xuất XLSX; điểm của tôi + tính thử; cổng P6 đạt.
+> - **9 (P7):** bài tập nộp trong app / ZIP / mail / Teams giả lập, khớp sinh viên theo danh sách lớp, AI chấm nháp hai lượt có bằng chứng, duyệt cạnh nhau, chỉ giảng viên công bố, phúc khảo; cổng P7 đạt kỹ thuật (nợ LCP màn nộp bài).
 >
-> Kế tiếp: sprint 8 (P6 Sổ điểm). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
+> Kế tiếp: sprint 10 (P9 Luyện đề). Tiến độ: [`docs/PROGRESS.md`](docs/PROGRESS.md) · Báo cáo sprint: [`docs/sprints/<N>/report.md`](docs/sprints/) · Lộ trình: [`docs/sprints/ROADMAP.md`](docs/sprints/ROADMAP.md).
 
 ---
 
@@ -296,8 +298,8 @@ flowchart LR
 | 5.5 | ✅ Xong | UI | Giao diện panel nổi (D59): nền canvas xám ấm, mỗi vùng làm việc trên một `Panel`; khung, màn sinh viên / Staff / Admin; ảnh trước / sau, axe, Lighthouse |
 | 6 | ✅ Xong | P3 + P8 | Chat riêng + Threads, tường lửa PII, che danh tính trước LLM (E1 recall 0,960); tài liệu (`docling-serve`), thư viện, lịch + ICS |
 | 7 | ✅ Xong | P4 + P5 | "Nhờ giảng viên", `/inbox`, chuông tức thì, thư đúng một lần, SLA ticket, kiểm duyệt Threads; điểm danh, hồ sơ 360 (audit), at-risk, thời gian học có công tắc |
-| 8 | ⏳ Chờ chủ dự án nghiệm thu | P6 | Sổ điểm kiểu bảng tính, AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay), chốt / mở khoá có lý do, nhập / xuất XLSX, điểm của tôi + tính thử |
-| 9 | | P7 | Bài tập, nộp bài, chấm nháp AI, công bố, phúc khảo |
+| 8 | ✅ Xong | P6 | Sổ điểm kiểu bảng tính, AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay), chốt / mở khoá có lý do, nhập / xuất XLSX, điểm của tôi + tính thử |
+| 9 | ✅ Xong | P7 | Bài tập nộp trong app / ZIP / mail / Teams giả lập, khớp sinh viên an toàn, AI chấm nháp hai lượt có bằng chứng, duyệt cạnh nhau, chỉ giảng viên công bố, phúc khảo |
 | 10 | | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |
 | 11 | | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
 

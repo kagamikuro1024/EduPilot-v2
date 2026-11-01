@@ -238,3 +238,37 @@ func (q *Queries) UpdateJobProgress(ctx context.Context, arg UpdateJobProgressPa
 	)
 	return i, err
 }
+
+const updateJobProgressDetail = `-- name: UpdateJobProgressDetail :one
+update jobs
+set progress = greatest(progress, $1::smallint),
+    result = $2::jsonb,
+    status = 'RUNNING'
+where id = $3 and status in ('QUEUED', 'RUNNING')
+returning id, kind, status, progress, result, error, owner_id, created_at, updated_at, finished_at
+`
+
+type UpdateJobProgressDetailParams struct {
+	Progress int16
+	Result   json.RawMessage
+	ID       uuid.UUID
+}
+
+// Như UpdateJobProgress, kèm chi tiết tiến độ ghi vào `result` khi việc còn chạy (ví dụ {done, failed, total}); Complete ghi đè bằng kết quả cuối.
+func (q *Queries) UpdateJobProgressDetail(ctx context.Context, arg UpdateJobProgressDetailParams) (Job, error) {
+	row := q.db.QueryRow(ctx, updateJobProgressDetail, arg.Progress, arg.Result, arg.ID)
+	var i Job
+	err := row.Scan(
+		&i.ID,
+		&i.Kind,
+		&i.Status,
+		&i.Progress,
+		&i.Result,
+		&i.Error,
+		&i.OwnerID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.FinishedAt,
+	)
+	return i, err
+}

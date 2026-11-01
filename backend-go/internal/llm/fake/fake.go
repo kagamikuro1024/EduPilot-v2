@@ -258,6 +258,21 @@ func answer(o provider.ChatOpts) string {
 	return "Đây là câu trả lời giả lập cho: " + string(q)
 }
 
+// LoadDemo nạp (hoặc thay) tệp bản ghi demo lúc chạy; đường dẫn rỗng = bỏ bản ghi. Dùng cho test cần câu trả lời có cấu trúc chủ đích.
+func (c *Controller) LoadDemo(path string) error {
+	var recs []demoRec
+	if path != "" {
+		var err error
+		if recs, err = loadDemo(path); err != nil {
+			return err
+		}
+	}
+	c.mu.Lock()
+	c.demo, c.demoErr = recs, nil
+	c.mu.Unlock()
+	return nil
+}
+
 // Chat trả văn bản xác định; có Schema → JSON sinh theo schema.
 func (p *Provider) Chat(ctx context.Context, o provider.ChatOpts) (provider.Result, error) {
 	p.recordChat(o)
@@ -403,6 +418,8 @@ func loadDemo(path string) ([]demoRec, error) {
 }
 
 func (c *Controller) demoMatch(o provider.ChatOpts) (string, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
 	if len(c.demo) == 0 {
 		return "", false
 	}

@@ -34,7 +34,7 @@ const crc32 = (b) => {
   return (c ^ 0xffffffff) >>> 0;
 };
 
-function zip(files) {
+export function zip(files) {
   const parts = [], central = [];
   let off = 0;
   for (const [name, text] of files) {

@@ -269,10 +269,12 @@ func TestMigration00016UpDownUp(t *testing.T) {
 	}
 	require.Equal(t, 7, tables())
 	require.Equal(t, 6, enums())
+	require.NoError(t, migrateCmd(ctx, url, "down")) // 00017 (P7) đứng trên 00016: gỡ nó trước (proposals sprint 9 #7)
 	require.NoError(t, migrateCmd(ctx, url, "down"))
 	require.Equal(t, 0, tables())
 	require.Equal(t, 0, enums())
 	require.Equal(t, 0, count(`select count(*) from pg_proc where proname = 'final_grade_snapshots_immutable'`))
+	require.NoError(t, migrateCmd(ctx, url, "up"))
 	require.NoError(t, migrateCmd(ctx, url, "up"))
 	require.Equal(t, 7, tables())
 }

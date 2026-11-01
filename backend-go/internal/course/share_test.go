@@ -131,11 +131,12 @@ func TestShareNotAvailableKinds(t *testing.T) {
 	r := newRig(t)
 	c := r.twoClasses()
 	d := r.document(c.src, "LECTURE", "READY", true, "ALL", 1)
-	for what, phase := range map[string]string{"questions": "P9", "grade_scheme": "P6"} {
+	for what, msg := range map[string]string{"questions": "Ngân hàng câu hỏi chưa dùng lại được giữa các lớp.", "grade_scheme": "Công thức điểm chưa dùng lại được giữa các lớp."} {
 		res := r.share(c.k.a.G, c.k.id, c.src, what)
 		require.Equal(t, http.StatusUnprocessableEntity, res.code)
 		require.Contains(t, string(res.body), "NOT_AVAILABLE")
-		require.Contains(t, string(res.body), phase)
+		require.Contains(t, string(res.body), msg)
+		require.NotContains(t, string(res.body), "phase", "câu hiển thị cho người dùng không chứa từ kỹ thuật (luật chữ UI)")
 	}
 	// Một loại không có ⇒ không ghi gì kể cả phần documents hợp lệ.
 	require.Equal(t, http.StatusUnprocessableEntity, r.share(c.k.a.G, c.k.id, c.src, "documents", "questions").code)

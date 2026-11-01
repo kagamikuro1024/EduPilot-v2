@@ -1,0 +1,40 @@
+{
+  "title": "Bài tập 03 — Phân tích một vụ tấn công thực tế",
+  "description": "<!-- NỘI DUNG GỐC của Bài tập 03 lớp 1 (761987). BA sở hữu; seed dùng nguyên văn (`assignments.title`, `description`). Dữ liệu mô phỏng (D44). -->\n\n# Bài tập 03 — Phân tích một vụ tấn công thực tế\n\n**Loại:** tự luận (ESSAY) · **Thang điểm:** 10 · **Hạn nộp:** 23:59 ngày hạn (giờ Việt Nam) · **Nộp muộn:** được, trừ 0,5 điểm mỗi ngày trễ, tối đa 2 ngày\n\n## Đề bài\n\nPhân tích chiến dịch tấn công chuỗi cung ứng nhằm vào phần mềm giám sát hạ tầng **SolarWinds Orion** (phát hiện tháng 12 năm 2020). Bài nộp dài khoảng một đến hai trang và trả lời bốn câu hỏi:\n\n1. Ai là tác nhân và kẻ tấn công đã khai thác bề mặt tấn công nào?\n2. Chuỗi tấn công diễn ra qua những bước nào?\n3. Tác động của vụ việc là gì (dữ liệu, vận hành, niềm tin, chi phí)?\n4. Tổ chức nên phòng thủ như thế nào để giảm rủi ro tương tự?\n\nMỗi nhận định cần nêu căn cứ cụ thể (tên công cụ, kỹ thuật, số liệu công khai). Nếu không tìm được số liệu thì nói rõ là chưa có số liệu, đừng đoán.\n\n## Yêu cầu nộp\n\n- Tệp PDF, DOCX, TXT hoặc MD, tối đa 20 MB.\n- Không ghi họ tên hay MSSV trong thân bài (hệ thống chấm không đọc phần đó; giảng viên biết bài của ai qua tài khoản nộp).\n- Nộp trong EduPilot, hoặc gửi thư tới hộp thư lớp với tiêu đề `[BT03] <MSSV>`, hoặc nộp qua ZIP do trợ giảng gom (tên tệp chứa MSSV).",
+  "type": "ESSAY",
+  "max_score": "10",
+  "due_at": "2026-12-01T16:59:00Z",
+  "allow_late": true,
+  "late_penalty_per_day": "0.5",
+  "late_max_days": 2,
+  "appeal_days": 7,
+  "channels": [
+    "IN_APP",
+    "UPLOAD",
+    "IMAP"
+  ],
+  "submission_code": "BT03",
+  "reference_answer": "<!-- ĐÁP ÁN CHUẨN Bài tập 03 (`assignments.reference_answer`). Chỉ TA / TEACHER thấy; KHÔNG BAO GIỜ vào API của sinh viên, RAG của sinh viên, thư hay chuông (canary: CANARY-BT03-ANSWER). BA sở hữu. -->\n\nCANARY-BT03-ANSWER\n\n**Tác nhân và bề mặt tấn công (tiêu chí 1).** Tác nhân được quy cho nhóm APT29 (Cozy Bear), có tài trợ nhà nước, ưu tiên gián điệp. Bề mặt bị khai thác: hệ thống dựng phần mềm (build system) của SolarWinds, nơi mã được biên dịch và ký số trước khi phát hành; khách hàng nhận bản cập nhật Orion hợp lệ, ký đúng chứng thư.\n\n**Chuỗi tấn công (tiêu chí 2).** (1) xâm nhập môi trường dựng phần mềm; (2) cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức; (3) bản cập nhật có chữ ký hợp lệ được phát cho khoảng 18.000 tổ chức; (4) mã độc nằm im 12–14 ngày rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com, giả dạng lưu lượng của Orion; (5) với khoảng 100 mục tiêu được chọn: nạp TEARDROP / Cobalt Strike, di chuyển ngang, đánh cắp khoá ký SAML (Golden SAML) và leo thang lên dịch vụ thư điện tử đám mây.\n\n**Tác động (tiêu chí 3).** Nhiều cơ quan liên bang Mỹ và doanh nghiệp phải coi hệ thống đã bị xâm nhập, dựng lại máy chủ, xoay vòng khoá và chứng thư; thiệt hại chính là niềm tin vào chuỗi cung ứng phần mềm; SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la; chưa có số liệu công khai đáng tin về thời gian gián đoạn từng tổ chức (chấp nhận nêu rõ là định tính).\n\n**Phòng thủ (tiêu chí 4).** Phân đoạn mạng cho máy chủ giám sát (không ra Internet trực tiếp); xác thực đa yếu tố, giới hạn quyền tài khoản dịch vụ, xoay vòng khoá ký; kiểm tra toàn vẹn bản dựng (build tái lập được, SBOM); giám sát hành vi bất thường của tiến trình hợp lệ (ví dụ DNS lạ); không tin chữ ký số là đủ.",
+  "rubric": [
+    {
+      "name": "Xác định tác nhân và bề mặt tấn công",
+      "max_score": "2.5",
+      "guidance": "Nêu tác nhân (APT29 / nhóm có tài trợ nhà nước) VÀ bề mặt bị khai thác là hệ thống dựng phần mềm / quy trình phát hành, không phải máy chủ khách hàng. Đủ cả hai: 2,0–2,5. Chỉ một trong hai: 1,0–1,75. Không rõ hoặc sai: 0–0,75."
+    },
+    {
+      "name": "Phân tích tấn công",
+      "max_score": "2.5",
+      "guidance": "Chuỗi bước có thứ tự: xâm nhập build → cấy SUNBURST → ký số hợp lệ phát tới ~18.000 tổ chức → nằm im, gọi C2 giả dạng lưu lượng Orion → với ~100 mục tiêu: di chuyển ngang, Golden SAML, leo thang. Mỗi mắt xích nêu căn cứ kỹ thuật. Thiếu một bước then chốt trừ 0,5–1,0."
+    },
+    {
+      "name": "Đánh giá tác động",
+      "max_score": "2.5",
+      "guidance": "Nêu tác động dữ liệu / vận hành / niềm tin / chi phí kèm số liệu công khai (ví dụ ~40 triệu đô la chi phí ứng phó SolarWinds 2021). Nói rõ phần nào chưa có số liệu thì không bị trừ; bịa số liệu thì trừ."
+    },
+    {
+      "name": "Biện pháp phòng thủ",
+      "max_score": "2.5",
+      "guidance": "Biện pháp cụ thể, gắn với bước tấn công: phân đoạn mạng, MFA + giới hạn quyền + xoay vòng khoá, toàn vẹn bản dựng (build tái lập, SBOM), giám sát hành vi bất thường. Chỉ nêu chung chung (\"cần nâng cao nhận thức\") tối đa 1,0."
+    }
+  ]
+}

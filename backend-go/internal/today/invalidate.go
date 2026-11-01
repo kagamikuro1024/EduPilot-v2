@@ -43,6 +43,13 @@ const (
 	TopicAppealAnswered = "exam.appeal_answered"
 	// US-P8-03: Staff đổi sự kiện lịch → mọi thành viên lớp (lịch hiện ở "Hôm nay").
 	TopicCalendarChanged = "calendar.changed"
+	// US-P7-02: bài tập công bố / sửa / xoá → mọi thành viên lớp (hạn nộp hiện ở "Hôm nay" và lịch).
+	TopicAssignmentPublished = "assignment.published"
+	TopicAssignmentUpdated   = "assignment.updated"
+	// US-P7-03: bài nộp mới → hàng chờ chấm / "chưa khớp" của Staff (người học xem trạng thái của mình qua `/mine`, không cache).
+	TopicSubmissionCreated = "submission.created"
+	// US-P7-04: bài chưa khớp vừa được gán tay / bỏ qua / hoàn tác → mục UNMATCHED_SUBMISSION của Staff đổi (và cache của sinh viên được gán).
+	TopicSubmissionResolved = "submission.resolved"
 	// US-P3-08: thread mới / quyết định về bài AI → việc AI_CONFIRM của Staff đổi.
 	TopicThreadCreated     = "thread.created"
 	TopicThreadPostDecided = "thread.post_decided"
@@ -52,7 +59,7 @@ const (
 func Topics() []string {
 	return []string{TopicJoinRequested, TopicJoinDecided, TopicMemberChanged, TopicAssigned, TopicChanged, TopicUserVerified, TopicRosterImport,
 		TopicExamScheduled, TopicExamUnscheduled, TopicExamOpened, TopicExamClosed, TopicAttemptStarted, TopicAttemptSubmitted, TopicSimilarityDone, TopicSimilarityReviewed,
-		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered, TopicCalendarChanged, TopicThreadCreated, TopicThreadPostDecided}
+		TopicAttemptGraded, TopicExamPublished, TopicExamHold, TopicExamRegraded, TopicAppealCreated, TopicAppealAnswered, TopicCalendarChanged, TopicThreadCreated, TopicThreadPostDecided, TopicAssignmentPublished, TopicAssignmentUpdated, TopicSubmissionCreated, TopicSubmissionResolved}
 }
 
 // Invalidator xoá `ep:today:{uid}:{scope}` của những người bị một sự kiện outbox ảnh hưởng. Idempotent (DEL).
@@ -94,7 +101,7 @@ func (i Invalidator) Handle(ctx context.Context, m outbox.Message) error {
 		// Giảng viên + TA của lớp luôn bị ảnh hưởng (hàng chờ, thiết lập). course.changed ảnh hưởng cả người học.
 		var uids []uuid.UUID
 		var err error
-		if m.Topic == TopicChanged || m.Topic == TopicCalendarChanged || isExamTopic(m.Topic) { // sự kiện của bài thi ảnh hưởng cả người học
+		if m.Topic == TopicChanged || m.Topic == TopicCalendarChanged || m.Topic == TopicAssignmentPublished || m.Topic == TopicAssignmentUpdated || isExamTopic(m.Topic) { // sự kiện của bài thi ảnh hưởng cả người học
 			uids, err = q.TodayCourseMembers(ctx, c)
 		} else {
 			uids, err = q.TodayCourseStaff(ctx, c)

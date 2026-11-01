@@ -28,6 +28,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
+	"github.com/edupilot/backend-go/internal/submission"
 )
 
 // Hằng số (SRS 4.1, 5.4).
@@ -43,7 +44,11 @@ const (
 	GradeImportMaxBytes = 2 << 20
 	// PurposeGradeImport là mục đích tải lên của nhập điểm XLSX; vé của nó KHÔNG hoàn tất được thành tài liệu.
 	PurposeGradeImport = "grade_import"
-	xlsxMime           = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+	// PurposeSubmissionUpload là mục đích tải bài nộp (tệp lẻ / ZIP) của TA / TEACHER (US-P7-04): vé của nó chỉ hoàn tất được ở `…/submissions/upload`, không thành tài liệu.
+	PurposeSubmissionUpload = "submission_upload"
+	// SubmissionZipMaxBytes: cỡ ZIP bài nộp (`ZIP_MAX_BYTES`).
+	SubmissionZipMaxBytes = 200 << 20
+	xlsxMime              = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 )
 
 // BlobAPI là phần của platform/blob mà gói này dùng.
@@ -149,7 +154,7 @@ func (s *Service) Presign(ctx context.Context, actor, course uuid.UUID, in Presi
 	if err := s.requireActive(ctx, course); err != nil {
 		return PresignOut{}, err
 	}
-	if in.Purpose != "document" && in.Purpose != PurposeGradeImport {
+	if in.Purpose != "document" && in.Purpose != PurposeGradeImport && in.Purpose != PurposeSubmissionUpload {
 		return PresignOut{}, field("purpose", "enum", "Mục đích tải lên không hợp lệ.")
 	}
 	name := in.Filename
@@ -160,8 +165,24 @@ func (s *Service) Presign(ctx context.Context, actor, course uuid.UUID, in Presi
 	if in.Purpose == PurposeGradeImport {
 		kindFn, limit, folder = gradeImportKind, GradeImportMaxBytes, "grade-imports"
 	}
-	kind, ok := kindFn(strings.ToLower(path.Ext(name)))
-	if !ok || in.MimeType != kind.mime {
+	var kind fileKind
+	var ok bool
+	if in.Purpose == PurposeSubmissionUpload { // bài nộp: loại suy từ ĐUÔI, bỏ mime do máy khách khai (TLR-15)
+		ext := strings.ToLower(path.Ext(name))
+		if sk, found := submission.KindOf(ext); found {
+			kind, ok = fileKind{mime: sk.Mime}, true
+		} else if ext == ".zip" {
+			kind, ok, limit = fileKind{mime: "application/zip"}, true, SubmissionZipMaxBytes
+		}
+		if ok && ext != ".zip" {
+			limit = submission.DefaultMaxBytes
+		}
+		folder = "submissions"
+	} else {
+		kind, ok = kindFn(strings.ToLower(path.Ext(name)))
+		ok = ok && in.MimeType == kind.mime
+	}
+	if !ok {
 		return PresignOut{}, apierr.New(http.StatusUnprocessableEntity, apierr.FileTypeNotAllowed)
 	}
 	if in.SizeBytes <= 0 || in.SizeBytes > limit {
@@ -298,7 +319,7 @@ func (s *Service) Complete(ctx context.Context, actor, course uuid.UUID, in Comp
 	if err != nil {
 		return CompleteOut{}, fmt.Errorf("document: đọc vé tải lên: %w", err)
 	}
-	if len(tk) == 0 || tk["user_id"] != actor.String() || tk["course_id"] != course.String() || tk["purpose"] == PurposeGradeImport {
+	if len(tk) == 0 || tk["user_id"] != actor.String() || tk["course_id"] != course.String() || tk["purpose"] != "document" {
 		return CompleteOut{}, apierr.New(http.StatusNotFound, apierr.UploadNotFound) // của người khác / lớp khác / hết hạn: một câu trả lời
 	}
 	if err := s.requireActive(ctx, course); err != nil {

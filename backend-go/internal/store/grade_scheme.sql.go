@@ -14,6 +14,41 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+const gradeAssignmentsOfCourse = `-- name: GradeAssignmentsOfCourse :many
+select id, max_score from assignments where course_id = $1 and id = any($2::text[]::uuid[])
+`
+
+type GradeAssignmentsOfCourseParams struct {
+	CourseID      uuid.UUID
+	AssignmentIds []string
+}
+
+type GradeAssignmentsOfCourseRow struct {
+	ID       uuid.UUID
+	MaxScore decimal.Decimal
+}
+
+// Bài tập của lớp (kiểm item ASSIGNMENT: thuộc lớp, thang điểm).
+func (q *Queries) GradeAssignmentsOfCourse(ctx context.Context, arg GradeAssignmentsOfCourseParams) ([]GradeAssignmentsOfCourseRow, error) {
+	rows, err := q.db.Query(ctx, gradeAssignmentsOfCourse, arg.CourseID, arg.AssignmentIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []GradeAssignmentsOfCourseRow{}
+	for rows.Next() {
+		var i GradeAssignmentsOfCourseRow
+		if err := rows.Scan(&i.ID, &i.MaxScore); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const gradeCarryEntries = `-- name: GradeCarryEntries :execrows
 update grade_entries set item_id = $1 where course_id = $2 and item_id = $3
 `
@@ -409,21 +444,22 @@ func (q *Queries) GradeInputExamsByExam(ctx context.Context, arg GradeInputExams
 }
 
 const gradeItemInsert = `-- name: GradeItemInsert :one
-insert into grade_items (course_id, scheme_id, component_id, key, name, max_score, source, exam_id, position)
-values ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+insert into grade_items (course_id, scheme_id, component_id, key, name, max_score, source, exam_id, assignment_id, position)
+values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
 returning id
 `
 
 type GradeItemInsertParams struct {
-	CourseID    uuid.UUID
-	SchemeID    uuid.UUID
-	ComponentID uuid.UUID
-	Key         string
-	Name        string
-	MaxScore    decimal.Decimal
-	Source      GradeItemSource
-	ExamID      *uuid.UUID
-	Position    int32
+	CourseID     uuid.UUID
+	SchemeID     uuid.UUID
+	ComponentID  uuid.UUID
+	Key          string
+	Name         string
+	MaxScore     decimal.Decimal
+	Source       GradeItemSource
+	ExamID       *uuid.UUID
+	AssignmentID *uuid.UUID
+	Position     int32
 }
 
 func (q *Queries) GradeItemInsert(ctx context.Context, arg GradeItemInsertParams) (uuid.UUID, error) {
@@ -436,6 +472,7 @@ func (q *Queries) GradeItemInsert(ctx context.Context, arg GradeItemInsertParams
 		arg.MaxScore,
 		arg.Source,
 		arg.ExamID,
+		arg.AssignmentID,
 		arg.Position,
 	)
 	var id uuid.UUID

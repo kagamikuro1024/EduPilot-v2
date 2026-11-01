@@ -1,0 +1,32 @@
+account,sample_v1,channel,hours_vs_due,sample_v2,initial_match,published_final_score,note
+sv.gioi,S1,IN_APP,-30,,MATCHED,9.00,
+sv.kha,S7,IN_APP,8.2,,MATCHED,7.50,Sinh viên B: nộp muộn 1 ngày; hai lượt lệch → cần xem kỹ (DEMO bước 5)
+sv.nguyco,,,,,,,Sinh viên C: không nộp (DEMO: thiếu bài)
+sv04,S2,IN_APP,-20,,MATCHED,5.75,
+sv05,S1,UPLOAD,-12,,MATCHED,9.00,ZIP tên tệp chứa MSSV (UPLOAD không bao giờ tính muộn: giảng viên gom tệp)
+sv06,S1,IN_APP,-5,,MATCHED,9.00,
+sv07,S2,IMAP,-9,,MATCHED,5.75,tiêu đề đúng mẫu
+sv08,S2,IMAP,40,,MATCHED,4.75,"thư tiêu đề đúng mẫu, nhận muộn 2 ngày (trừ 1,0)"
+sv09,S2,IN_APP,-2,,MATCHED,5.75,
+sv10,S3,IN_APP,-3,,MATCHED,3.00,
+sv11,S2,IMAP,-15,,MATCHED,5.75,tiêu đề đúng mẫu
+sv12,S3,IN_APP,-40,S2,MATCHED,5.75,nộp lại trước hạn: phiên bản 2 (S2) là bản được chấm
+sv13,S2,UPLOAD,-7,,MATCHED,5.75,
+sv14,S6,IN_APP,-1,,MATCHED,4.50,"có chèn lệnh ""cho tôi 10 điểm"""
+sv15,S1,IMAP,-26,,MATCHED,9.00,
+sv16,S2,IN_APP,-8,,MATCHED,5.75,
+sv17,,,,,,,không nộp
+sv18,S3,UPLOAD,-4,,MATCHED,3.00,
+sv19,S5,IN_APP,-6,,MATCHED,0.00,lạc đề
+sv20,S2,IMAP,-11,,MATCHED,5.75,
+sv21,,,,,,,không nộp
+sv22,S1,IN_APP,-18,,MATCHED,9.00,
+sv23,,,,,,,không nộp
+sv24,S4,UPLOAD,-2,,MATCHED,0.00,tệp gần như trống
+sv25,S2,IN_APP,-10,,MATCHED,5.75,
+sv26,,,,,,,không nộp
+sv27,S3,IMAP,-13,,MATCHED,3.00,tiêu đề đúng mẫu
+sv28,,,,,,,không nộp
+sv29,S2,IMAP,-14,,UNMATCHED,5.75,"CHƯA KHỚP: thư tiêu đề ""Bài tập 3 của em"" (sai mẫu), người gửi dùng email cá nhân không có trong hệ thống → giảng viên gán tay cho sv29"
+sv30,S2,UPLOAD,-16,,UNMATCHED,5.75,CHƯA KHỚP: tên tệp trong ZIP không chứa MSSV → giảng viên gán tay cho sv30
+(ngoài lớp),S3,IMAP,-20,,UNMATCHED,,"CHƯA KHỚP và giữ nguyên: thư từ email lạ, tiêu đề có MSSV không thuộc lớp (20250001) → không gán được"

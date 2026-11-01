@@ -1,0 +1,15 @@
+{
+  "assignment": "Bài tập 03 — Phân tích một vụ tấn công thực tế",
+  "max_score": "10",
+  "score_step": "0.25",
+  "criteria": [
+    { "id": "c1", "name": "Xác định tác nhân và bề mặt tấn công", "max_score": "2.5",
+      "guidance": "Nêu tác nhân (APT29 / nhóm có tài trợ nhà nước) VÀ bề mặt bị khai thác là hệ thống dựng phần mềm / quy trình phát hành, không phải máy chủ khách hàng. Đủ cả hai: 2,0–2,5. Chỉ một trong hai: 1,0–1,75. Không rõ hoặc sai: 0–0,75." },
+    { "id": "c2", "name": "Phân tích tấn công", "max_score": "2.5",
+      "guidance": "Chuỗi bước có thứ tự: xâm nhập build → cấy SUNBURST → ký số hợp lệ phát tới ~18.000 tổ chức → nằm im, gọi C2 giả dạng lưu lượng Orion → với ~100 mục tiêu: di chuyển ngang, Golden SAML, leo thang. Mỗi mắt xích nêu căn cứ kỹ thuật. Thiếu một bước then chốt trừ 0,5–1,0." },
+    { "id": "c3", "name": "Đánh giá tác động", "max_score": "2.5",
+      "guidance": "Nêu tác động dữ liệu / vận hành / niềm tin / chi phí kèm số liệu công khai (ví dụ ~40 triệu đô la chi phí ứng phó SolarWinds 2021). Nói rõ phần nào chưa có số liệu thì không bị trừ; bịa số liệu thì trừ." },
+    { "id": "c4", "name": "Biện pháp phòng thủ", "max_score": "2.5",
+      "guidance": "Biện pháp cụ thể, gắn với bước tấn công: phân đoạn mạng, MFA + giới hạn quyền + xoay vòng khoá, toàn vẹn bản dựng (build tái lập, SBOM), giám sát hành vi bất thường. Chỉ nêu chung chung (\"cần nâng cao nhận thức\") tối đa 1,0." }
+  ]
+}

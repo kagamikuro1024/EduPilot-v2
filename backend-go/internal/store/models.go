@@ -1944,6 +1944,7 @@ const (
 	ReminderSourceCLASSSESSION  ReminderSource = "CLASS_SESSION"
 	ReminderSourceWEEKLYEXAM    ReminderSource = "WEEKLY_EXAM"
 	ReminderSourceCALENDAREVENT ReminderSource = "CALENDAR_EVENT"
+	ReminderSourceASSIGNMENT    ReminderSource = "ASSIGNMENT"
 )
 
 func (e *ReminderSource) Scan(src interface{}) error {
@@ -2459,6 +2460,31 @@ func (ns NullUserStatus) Value() (driver.Value, error) {
 	return string(ns.UserStatus), nil
 }
 
+type Assignment struct {
+	ID                uuid.UUID
+	CourseID          uuid.UUID
+	Title             string
+	Description       string
+	Type              string
+	MaxScore          decimal.Decimal
+	DueAt             time.Time
+	AllowLate         bool
+	LatePenaltyPerDay decimal.Decimal
+	LateMaxDays       int16
+	AppealDays        int16
+	Channels          []string
+	SubmissionCode    string
+	ReferenceAnswer   *string
+	Rubric            json.RawMessage
+	TeamsClassID      *string
+	TeamsAssignmentID *string
+	PublishedAt       *time.Time
+	CreatedBy         uuid.UUID
+	Version           int32
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+}
+
 type AttendanceRecord struct {
 	ID        uuid.UUID
 	CourseID  uuid.UUID
@@ -2955,6 +2981,26 @@ type ForumThread struct {
 	EditedAt       *time.Time
 }
 
+type GradeAppeal struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+	StudentID    uuid.UUID
+	SubmissionID uuid.UUID
+	ResultID     uuid.UUID
+	CriteriaIds  []string
+	Reason       string
+	Status       string
+	ScoreBefore  decimal.Decimal
+	ScoreAfter   decimal.NullDecimal
+	Response     *string
+	DecidedBy    *uuid.UUID
+	DecidedAt    *time.Time
+	Version      int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+}
+
 type GradeComponent struct {
 	ID           uuid.UUID
 	CourseID     uuid.UUID
@@ -3044,6 +3090,42 @@ type Gradebook struct {
 	UpdatedAt       time.Time
 }
 
+type GradingResult struct {
+	ID                     uuid.UUID
+	CourseID               uuid.UUID
+	SubmissionID           uuid.UUID
+	Round                  int16
+	RunState               string
+	Status                 string
+	Attempts               int16
+	NotBefore              time.Time
+	LeaseOwner             *string
+	LeaseUntil             *time.Time
+	ErrorCode              *string
+	Criteria               json.RawMessage
+	OverallFeedback        *string
+	Total                  decimal.NullDecimal
+	AiScores               json.RawMessage
+	AiTotalBeforeLate      decimal.NullDecimal
+	LateDays               int16
+	LatePenalty            decimal.Decimal
+	LatePenaltyManual      bool
+	LlmReportedTotal       decimal.NullDecimal
+	Flags                  []string
+	NeedsReview            *bool
+	Confidence             decimal.NullDecimal
+	PassDetail             json.RawMessage
+	Deviation              decimal.NullDecimal
+	TeacherChangedCriteria []string
+	ReviewedBy             *uuid.UUID
+	ReviewedAt             *time.Time
+	PublishedBy            *uuid.UUID
+	PublishedAt            *time.Time
+	Version                int32
+	CreatedAt              time.Time
+	UpdatedAt              time.Time
+}
+
 type IdempotencyKey struct {
 	ID          uuid.UUID
 	UserID      uuid.UUID
@@ -3067,6 +3149,21 @@ type InsightReport struct {
 	Version       int32
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+}
+
+type IntegrationConfig struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	Kind         string
+	ConfigPublic json.RawMessage
+	ConfigEnc    []byte
+	Enabled      bool
+	State        json.RawMessage
+	LastOkAt     *time.Time
+	LastError    *string
+	Version      int32
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type Job struct {
@@ -3176,6 +3273,21 @@ type LoginAttempt struct {
 	UserAgent *string
 	Outcome   LoginOutcome
 	CreatedAt time.Time
+}
+
+type MailInbound struct {
+	ID           uuid.UUID
+	CourseID     uuid.UUID
+	Uidvalidity  int64
+	MessageUid   int64
+	MessageID    *string
+	FromEmail    string
+	Subject      string
+	ReceivedAt   time.Time
+	Status       string
+	Reason       *string
+	SubmissionID *uuid.UUID
+	CreatedAt    time.Time
 }
 
 type MailOutbox struct {
@@ -3363,6 +3475,39 @@ type StudyTimeDaily struct {
 	ActiveSeconds int32
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
+}
+
+type Submission struct {
+	ID                 uuid.UUID
+	CourseID           uuid.UUID
+	AssignmentID       *uuid.UUID
+	StudentID          *uuid.UUID
+	CandidateStudentID *uuid.UUID
+	Source             string
+	Version            *int32
+	BlobKey            string
+	FileName           string
+	FileSize           int64
+	FileMime           string
+	Sha256             string
+	ExtractedText      *string
+	ExtractedAt        *time.Time
+	ExtractStatus      *string
+	ExternalRef        *string
+	ExternalTs         *time.Time
+	FromEmail          *string
+	Subject            *string
+	SenderVerified     bool
+	MatchStatus        string
+	MatchMethod        *string
+	UnmatchedReason    *string
+	DismissedAt        *time.Time
+	DismissedBy        *uuid.UUID
+	DismissedReason    *string
+	SubmittedAt        *time.Time
+	ReceivedAt         time.Time
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
 }
 
 type User struct {

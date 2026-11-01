@@ -193,3 +193,16 @@
     max-height: none;
   }
 }
+
+/* US-P7-08: câu nghi chèn lệnh (đỏ nhạt, vẫn nằm trong bài) và đoạn bằng chứng đang xem */
+.injected { background: var(--ep-red-soft); color: inherit; }
+.evidenceMark { background: var(--ep-surface-subtle); border-bottom: 2px solid var(--ep-amber); color: inherit; }
+.lateRow { display: grid; gap: var(--ep-space-2); }
+.scoreBox { display: inline-flex; align-items: baseline; gap: var(--ep-space-2); }
+.scoreInput { width: 5rem; text-align: right; font-variant-numeric: tabular-nums; }
+.critScore { flex: none; }
+.crit[data-active="true"] { border-left: 2px solid var(--ep-red); padding-left: var(--ep-space-3); }
+
+/* US-P7-10: khối phúc khảo ở đầu cột phải */
+.appeal { display: grid; gap: var(--ep-space-3); padding-bottom: var(--ep-space-5); border-bottom: 1px solid var(--ep-rule); }
+.appealActions { display: flex; gap: var(--ep-space-2); flex-wrap: wrap; }

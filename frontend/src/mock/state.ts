@@ -108,6 +108,18 @@ export type Bt03State = {
   comments: [string, string, string, string];
 };
 
+/** Bản chấm nháp của AI cho BT03 ở bản mô phỏng (lượt 1). Lượt 2 chấm tiêu chí 2 = 2,5 → lệch 1,5 → "Cần xem kỹ". */
+export const BT03_SEED: Bt03State = {
+  status: "draft",
+  scores: [2.0, 1.0, 2.0, 2.0],
+  comments: [
+    "Bài nêu rõ nhóm tác nhân và các điểm vào của hệ thống bị tấn công.",
+    "Mô tả chuỗi tấn công còn thiếu bước leo thang đặc quyền.",
+    "Đánh giá được thiệt hại dữ liệu nhưng chưa định lượng thời gian gián đoạn.",
+    "Có đề xuất phân đoạn mạng và xác thực đa yếu tố, chưa nêu cách giám sát.",
+  ],
+};
+
 // ---- công thức điểm ------------------------------------------------------------------------
 
 export type SchemeStatus = "none" | "draft" | "confirmed";

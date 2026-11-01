@@ -42,7 +42,7 @@ where e.course_id = sqlc.arg(course_id) and e.role_in_course = 'STUDENT' and e.s
 
 -- name: GradeSchemeItemsMeta :many
 -- Item của một công thức kèm trạng thái nguồn: bài thi PUBLISHED hay chưa, thang của bài thi (cho item EXAM).
-select i.id, i.component_id, i.key, i.name, i.max_score, i.source, i.exam_id, i.published_at, i.position,
+select i.id, i.component_id, i.key, i.name, i.max_score, i.source, i.exam_id, i.assignment_id, i.published_at, i.position,
        coalesce(x.status = 'PUBLISHED', false)::bool as exam_published, x.max_score as exam_max
 from grade_items i left join exams x on x.course_id = i.course_id and x.id = i.exam_id
 where i.course_id = sqlc.arg(course_id) and i.scheme_id = sqlc.arg(scheme_id)

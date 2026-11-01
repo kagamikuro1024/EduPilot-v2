@@ -1,0 +1,24 @@
+# Handoff — US-P7-02 (tab Bài tập: tạo / sửa / công bố, rubric, SuggestRubric, lịch)
+
+Commit chung với phần máy chủ của US-P7-03 (chung `openapi.yaml`, router, contract); frontend US-P7-03 sẽ có commit riêng.
+
+## Đã làm
+- **Máy chủ:** `internal/assignment` (`Create/Get/List/Update/Delete/SetRubric/Publish/SuggestRubric`, `HandlePublished`, `HandleUpdated`, `RecomputeLate`), `internal/httpapi/assignmenthttp` (8 route đầu của SRS mục 6, mọi chế độ guard `*Role`: ADMIN không qua), `internal/grading/suggest.go` (`SuggestRubric`: **một** `llm.Structured`, task `UTILITY`, temperature 0; `LargestRemainder` bằng số nguyên bước 0,25), `apierr/assignments.go` (37 mã + lời tiếng Việt), `queries/assignment.sql`.
+- **Quy tắc:** điểm `shopspring/decimal` (chuỗi ở JSON); rubric id `c1…` cấp bởi máy chủ và giữ nguyên khi sửa; Σ tiêu chí = điểm tối đa; khoá sau công bố (loại / điểm tối đa / mã nộp → `422 VALIDATION_FAILED` field `locked`), `409 RUBRIC_LOCKED` khi đã có kết quả chấm, `409 LATE_RULE_LOCKED` khi đã có kết quả `PUBLISHED`; `VERSION_CONFLICT` kèm bản hiện tại; xoá chỉ khi sạch (`HAS_SUBMISSIONS`, `LINKED_TO_GRADEBOOK`); `""` ở hai id Teams = không có (Q-01-b của QC).
+- **Outbox:** `assignment.published` (chuông `ASSIGNMENT_PUBLISHED`, khử trùng `assignment.published:{id}:{user}`) và `assignment.updated` (tính lại `late_days` / khoản trừ của kết quả DRAFT / REVIEWED từ **tiêu chí hiện hành**, trừ `late_penalty_manual`; REVIEWED có tổng đổi → DRAFT); đăng ký ở `cmd/worker/registry.go`, xoá cache "Hôm nay" qua `today.Topics()` (+2).
+- **Lịch / nhắc:** nguồn thứ tư `assignment` trong `CalList` / `CalFeed` / `CalDue` (UNION, `type DEADLINE`, `personal_state` NOT_STARTED|SUBMITTED, href theo vai, ICS `UID:assignment-{uuid}@edupilot`); nhắc 24 giờ nguồn `ASSIGNMENT` chỉ cho sinh viên chưa nộp (`CalRecipients` lọc), khoá `reminder_log` theo `starts_at`.
+- **OpenAPI:** +8 thao tác → **254** (`TestSpec_LoadsAndValidates`); `TestSpec_SecurityDeclared` có 8 dòng mới; scenario `assignmentScenarios` phủ mọi status đã khai báo (200/201/204/401/403/404/409/422/503); `CalendarItem` thêm `assignment` / `DEADLINE`; `Error.code` thêm các mã mới.
+- **Frontend:** `features/assignments/{assignmentApi.ts, AssignmentsTab.tsx, AssignmentDrawer.tsx}`; `/grading` đọc `?tab=` (mặc định `Hàng chờ` khi còn việc, ngược lại `Bài tập`); tab Bài tập thay hoàn toàn mock (`mock/assess.ts` bỏ `Assignment` + `ASSIGNMENTS`; `GradingQueue.tsx` bỏ danh sách / form mock); lịch hiện "Hạn nộp"; `ApiError.ts` + `vi.ts` thêm mã P7. Tab `Chưa khớp` thuộc US-P7-04 nên chưa có.
+- **Fake LLM:** `fake.Controller.LoadDemo(path)` (nạp bản ghi demo lúc chạy) để contract có câu trả lời có cấu trúc chủ đích cho `rubric/suggest` 200.
+
+## Kiểm
+`go test -race -tags testroutes ./internal/{assignment,calendar,httpapi/...,contract,store,grading,llm/...,today,notify,platform/outbox,platform/blob} ./cmd/...` xanh; `golangci-lint` sạch; `sqlc diff` sạch. Test theo tên của AC: `TestCreateAssignment`, `TestSubmissionCodeUnique`, `TestCreateValidation`, `TestQuizTypeRejected`, `TestMaxScoreMustBeQuarterStep`, `TestRubricSumEqualsMax|StepQuarter|CountBounds|IDsStable`, `TestPublishAssignment|NeedsRubric|Twice|NotifiesStudents`, `TestPublishIdempotent`, `TestCreateIdempotent` (httpapi, qua router), `TestUpdateAfterPublish|LockedFields|VersionConflict`, `TestRubricLockedAfterGrading`, `TestLateRuleLockedAfterPublish`, `TestDueChangeRecomputesLateBeforePublish`, `TestDueExtensionClearsLatePenalty`, `TestLatePenaltyManualKept`, `TestDueChangeCalendarAndToday` (calendar), `TestDeleteClean|HasSubmissions|LinkedToGradebook`, `TestGradeItemLinkDisplay`, `TestNoGradeItemColumn`, `TestReferenceAnswerNeverToStudent`, `TestStudentSeesNoAnswerOverHTTP`, `TestTeamsIdsFollowChannel`; `TestSuggestRubricOneCall|LargestRemainder|NoWrite|Invalid|NeedsAnswer|LLMDown` ở `./internal/grading`. Playwright `assignment-lifecycle.spec.ts` (5 ca) + `calendar|panels|a11y|shell|today|dev-ui` xanh, `pnpm lint`, `tsc`, `ui-antipatterns` rc=0.
+Lệnh trong US ghi `-tags integration`; repo không dùng tag đó (test dùng container thật mặc định) nên chạy không tag.
+
+## Không làm / chuyển nơi kiểm (theo luật sprint 9)
+- `TestAssignmentsRBACMatrix` (AC10) và `TestAllCourseRoutesGuarded` cho route P7: US-P7-10 / 11 (đủ 36 route). Phần đã kiểm: 403 ADMIN / TA / STUDENT ở contract + `TestStudentCannotCallStaffRoutes`.
+- `bash scripts/canary-scan.sh` cần stack đang chạy; canary `CANARY-BT03-ANSWER` đã kiểm ở `TestStudentSeesNoAnswerOverHTTP` (GET danh sách / chi tiết / mine).
+- Công bố / xoá phía giao diện chỉ qua đường `run()` dùng chung (Go test phủ hành vi máy chủ); xoá chưa có ca e2e riêng.
+
+## Test cũ đã sửa (proposals sprint 9 #8, #9)
+`today.Topics()` 24 → 27; `TestTodayQueryBudget` sinh viên 5 → 6 (SRS 4.12). `TestAssignmentDeleteRestrictedByGradeItem` (QC BUG-P7-01-1): dùng bài không có bài nộp để bắt đột biến CASCADE.

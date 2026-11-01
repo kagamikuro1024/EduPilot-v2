@@ -23,9 +23,9 @@ const (
 func shareKindError(kind string) error {
 	switch kind {
 	case ShareQuestions:
-		return &InvalidError{Field: "what", Code: "NOT_AVAILABLE", Message: "Ngân hàng câu hỏi chưa dùng lại được (phase P9)."}
+		return &InvalidError{Field: "what", Code: "NOT_AVAILABLE", Message: "Ngân hàng câu hỏi chưa dùng lại được giữa các lớp."}
 	case ShareGradeScheme:
-		return &InvalidError{Field: "what", Code: "NOT_AVAILABLE", Message: "Công thức điểm chưa dùng lại được (phase P6)."}
+		return &InvalidError{Field: "what", Code: "NOT_AVAILABLE", Message: "Công thức điểm chưa dùng lại được giữa các lớp."}
 	}
 	return &InvalidError{Field: "what", Code: "INVALID_KIND", Message: "Loại nội dung không hợp lệ."}
 }

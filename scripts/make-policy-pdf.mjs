@@ -33,8 +33,10 @@ function html(md) {
 const browser = await chromium.launch();
 try {
   mkdirSync(path.join(root, "seed", "demo"), { recursive: true });
-  for (const n of [1, 2]) {
-    const md = readFileSync(path.join(root, "docs/specs/FEAT-gradebook/fixtures", `quy-che-lop${n}.md`), "utf8");
+  // `node scripts/make-policy-pdf.mjs v2` chỉ dựng bản 2 của lớp 1 (US-S9-SEED AC4; nguồn của BA ở FEAT-assignments), không ghi đè hai bản cũ.
+  const jobs = process.argv[2] === "v2" ? [["1-v2", "docs/specs/FEAT-assignments/fixtures/quy-che-lop1-v2.md"]] : [[1, "docs/specs/FEAT-gradebook/fixtures/quy-che-lop1.md"], [2, "docs/specs/FEAT-gradebook/fixtures/quy-che-lop2.md"]];
+  for (const [n, src] of jobs) {
+    const md = readFileSync(path.join(root, src), "utf8");
     const page = await browser.newPage();
     await page.setContent(html(md));
     const pdf = await page.pdf({ format: "A4", margin: { top: "18mm", bottom: "18mm", left: "20mm", right: "20mm" } });

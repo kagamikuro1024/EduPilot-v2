@@ -8,6 +8,8 @@ import { mockStudentExams, mockStudentToday } from "./support/screens";
 import { mockTake, TAKE_COURSE, TAKE_EXAM } from "./support/takeMock";
 import { BASE_URL } from "./support/env";
 import { mockAdminApi, mockLlmApi, mockStaffApi, STAFF_DRAFT, STAFF_EXAM } from "./support/staffMock";
+import { A1, SUB_B, appealFx, gradingApi, mineOut, mineResult, resultView, studentApi } from "./support/assignment-fixtures";
+import { imapView, integrationsApi, teamsView } from "./support/integration-fixtures";
 
 // US-PU-05 AC4: axe (WCAG 2.2 AA) trên mọi route × vai được phép mở, ở 1440 và 390; chặn `critical` và `serious`,
 // `moderate` / `minor` ghi vào báo cáo (test-results/axe-report.json). Ngoại lệ ở axe-allow.json (≤ 3).
@@ -111,6 +113,33 @@ test("axe: sinh viên có dữ liệu (Hôm nay, bài thi, làm bài trước gi
   expect(bad).toEqual([]);
 });
 
+// US-P7-03 AC9: trang nộp bài của sinh viên ở trạng thái CÓ DỮ LIỆU (chưa nộp và đã nộp).
+test("axe: assignment a11y — sinh viên mở bài tập (chưa nộp / đã nộp)", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await asDemo(context, "student");
+  const bad: string[] = [];
+  for (const [label, mine] of [
+    ["chưa nộp", mineOut()],
+    ["đã nộp", mineOut({ state: "SUBMITTED", submission: { version: 1, file_name: "bt03.pdf", received_at: "2026-10-23T01:10:00.000Z", late_days: 1 } })],
+    ["đã có điểm", mineOut({ state: "GRADED", submission: { version: 1, file_name: "bt03.pdf", received_at: "2026-10-23T01:10:00.000Z", late_days: 1 }, result: mineResult({ appeal: { state: "NONE", closes_at: "2026-12-20T07:00:00.000Z", response: null } }) })],
+  ] as const) {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    await studentApi(page, { mine });
+    for (const w of WIDTHS) for (const b of await scan(page, `student+assignment-${label}`, `/assignments/${A1}`, w)) bad.push(`assignment ${label} @${w}: ${b}`);
+  }
+  expect(bad).toEqual([]);
+});
+
+// US-P7-08 AC9: hàng chờ chấm và màn duyệt ở trạng thái CÓ DỮ LIỆU.
+test("axe: grading a11y — hàng chờ chấm và màn duyệt của giảng viên", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  await asDemo(context, "teacher");
+  await gradingApi(page, { views: { [SUB_B]: resultView({ appeal: appealFx() }) } }); // kèm khối phúc khảo (US-P7-10)
+  const bad: string[] = [];
+  for (const route of ["/grading?tab=queue", `/grading/${SUB_B}`]) for (const w of WIDTHS) for (const b of await scan(page, "teacher+grading", route, w)) bad.push(`${route} @${w}: ${b}`);
+  expect(bad).toEqual([]);
+});
+
 // QC US-UI-07 B1: bảng ảo hoá có nhiều dòng hơn cửa sổ — aria-activedescendant phải ở phần tử có role hợp lệ và chỉ trỏ tới dòng đang render.
 test("axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): không critical, activedescendant hợp lệ khi dòng ở trong / ngoài cửa sổ", async ({ page, context }) => {
   test.setTimeout(120_000);
@@ -146,6 +175,19 @@ test("axe: bảng ảo hoá > cửa sổ (kết quả bài thi 1.000 dòng): kh�
   expect(bad).toEqual([]);
 });
 
+// US-P7-05 AC10 / US-P7-11: màn Tích hợp ở trạng thái CÓ DỮ LIỆU (Admin sửa được, giảng viên chỉ xem).
+test("axe: tích hợp có dữ liệu (/settings/integrations, admin và giảng viên)", async ({ page, context }) => {
+  test.setTimeout(120_000);
+  const bad: string[] = [];
+  for (const role of ["admin", "teacher"] as const) {
+    await page.unrouteAll({ behavior: "ignoreErrors" });
+    await asDemo(context, role);
+    await integrationsApi(page, { imap: imapView({ status: "ERROR", last_error: "UNREACHABLE", error_since: "2026-10-23T02:12:00.000Z" }), teams: teamsView({ sandbox: true }) });
+    for (const w of WIDTHS) for (const b of await scan(page, `${role}+integrations`, "/settings/integrations", w)) bad.push(`${role} @${w}: ${b}`);
+  }
+  expect(bad).toEqual([]);
+});
+
 test("axe: route PU không cần vai (/login, /dev/ui, /dev/data)", async ({ page }) => {
   test.setTimeout(120_000);
   const bad: string[] = [];
@@ -161,3 +203,4 @@ test.afterAll(() => {
   const by = (imp: string) => report.filter((r) => r.impact === imp).length;
   console.log(`AXE: ${scanned} lượt quét (route × vai × bề rộng); critical ${by("critical")}, serious ${by("serious")}, moderate ${by("moderate")}, minor ${by("minor")}`);
 });
+

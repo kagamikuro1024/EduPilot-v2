@@ -93,6 +93,32 @@ services:
       timeout: 3s
       retries: 20
 
+  # Microsoft Graph giả lập (US-P7-11): chỉ local / test; production không có service này và đặt TEAMS_ENABLED=false.
+  mock-graph:
+    build:
+      context: ./backend-go
+      target: mock-graph
+    image: edupilot-mock-graph
+    ports: ["127.0.0.1:${EP_PORT_MOCK_GRAPH:-8090}:8090"] # seed / check-assignments-seed.mjs đọc nhật ký từ máy chủ
+    healthcheck:
+      test: ["CMD", "/mock-graph", "-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  # Máy chủ IMAP thử (US-S9-SEED): cổng IMAP 1143 chỉ trong mạng compose (ImapSource nối `mock-imap:1143`), cổng điều khiển HTTP 8091 mở cho seed trên máy chủ.
+  mock-imap:
+    build:
+      context: ./backend-go
+      target: mock-imap
+    image: edupilot-mock-imap
+    ports: ["127.0.0.1:${EP_PORT_MOCK_IMAP:-8091}:8091"]
+    healthcheck:
+      test: ["CMD", "/mock-imap", "-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   migrate:
     # Một lần: goose up qua DATABASE_URL trực tiếp (không qua PgBouncer — goose dùng khoá tư vấn session).
     build:
@@ -122,6 +148,16 @@ services:
       <<: *app-env
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
+      SYNC_NOW_MIN_INTERVAL: ${SYNC_NOW_MIN_INTERVAL:-}
+      # Teams (US-P7-11): local trỏ mock-graph (cổng 8090); production dùng graph.microsoft.com / login.microsoftonline.com và TEAMS_ENABLED=false mặc định.
+      TEAMS_ENABLED: ${TEAMS_ENABLED:-true}
+      GRAPH_BASE_URL: ${GRAPH_BASE_URL:-http://mock-graph:8090/v1.0}
+      GRAPH_AUTH_URL: ${GRAPH_AUTH_URL:-http://mock-graph:8090}
+      GRAPH_FILE_HOSTS: ${GRAPH_FILE_HOSTS:-}
+      TEAMS_DOWNLOAD_PARALLEL: ${TEAMS_DOWNLOAD_PARALLEL:-}
+      TEAMS_FILE_RETRY: ${TEAMS_FILE_RETRY:-}
+      TEAMS_RETRY_MAX: ${TEAMS_RETRY_MAX:-}
+      TEAMS_SYNC_TIMEOUT: ${TEAMS_SYNC_TIMEOUT:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       # Thông tin hỗ trợ trong câu mẫu khủng hoảng (giá trị MÔ PHỎNG, D44); ≤ 300 ký tự, rỗng → câu mặc định.
@@ -190,6 +226,7 @@ services:
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
       minio: { condition: service_healthy }
+      mock-graph: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/gateway", "-healthcheck"]
       interval: 5s
@@ -226,6 +263,26 @@ services:
       # Đọc tài liệu (US-P8-01): docling chỉ chạy khi bật profile `ingest`; không có thì tài liệu nằm QUEUED / FAILED EXTRACT_UNAVAILABLE.
       DOCLING_URL: ${DOCLING_URL:-http://docling:5001}
       INGEST_WORKERS: ${INGEST_WORKERS:-1}
+      # Hàng chấm bài tự luận (US-P7-07): để trống = mặc định của SRS 4.7.
+      GRADING_WORKERS: ${GRADING_WORKERS:-}
+      GRADING_LEASE: ${GRADING_LEASE:-}
+      GRADING_HEARTBEAT: ${GRADING_HEARTBEAT:-}
+      GRADING_REQUEUE_AFTER: ${GRADING_REQUEUE_AFTER:-}
+      GRADING_ATTEMPTS: ${GRADING_ATTEMPTS:-}
+      GRADING_ATTEMPT_TIMEOUT: ${GRADING_ATTEMPT_TIMEOUT:-}
+      # Nhận bài qua thư IMAP (US-P7-05): để trống = mặc định; IMAP_TRUSTED_AUTHSERV_ID rỗng = mọi thư UNMATCHED SENDER_UNVERIFIED.
+      IMAP_POLL_SECONDS: ${IMAP_POLL_SECONDS:-}
+      IMAP_BACKOFF_MAX: ${IMAP_BACKOFF_MAX:-}
+      IMAP_TRUSTED_AUTHSERV_ID: ${IMAP_TRUSTED_AUTHSERV_ID:-mx.edupilot.test}
+      # Teams (US-P7-11): local trỏ mock-graph (cổng 8090); production dùng graph.microsoft.com / login.microsoftonline.com và TEAMS_ENABLED=false mặc định.
+      TEAMS_ENABLED: ${TEAMS_ENABLED:-true}
+      GRAPH_BASE_URL: ${GRAPH_BASE_URL:-http://mock-graph:8090/v1.0}
+      GRAPH_AUTH_URL: ${GRAPH_AUTH_URL:-http://mock-graph:8090}
+      GRAPH_FILE_HOSTS: ${GRAPH_FILE_HOSTS:-}
+      TEAMS_DOWNLOAD_PARALLEL: ${TEAMS_DOWNLOAD_PARALLEL:-}
+      TEAMS_FILE_RETRY: ${TEAMS_FILE_RETRY:-}
+      TEAMS_RETRY_MAX: ${TEAMS_RETRY_MAX:-}
+      TEAMS_SYNC_TIMEOUT: ${TEAMS_SYNC_TIMEOUT:-}
       JUDGE_CONSUMER: ${JUDGE_CONSUMER:-true}
       JUDGE_URL: ${JUDGE_URL:-http://judge:5050}
       JUDGE_TOKEN: ${JUDGE_TOKEN:-}
@@ -252,6 +309,7 @@ services:
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
       mailpit: { condition: service_healthy }
+      mock-graph: { condition: service_healthy }
       judge: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/worker", "-healthcheck"]

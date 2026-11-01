@@ -394,3 +394,39 @@ func TestPresign_NoNetwork(t *testing.T) {
 		t.Fatal("ký URL phải xong tức thì (không gọi mạng)")
 	}
 }
+
+// TestBlob_PresignPutCheckedRejectsWrongHash — URL ký kèm x-amz-checksum-sha256: nội dung đúng băm được nhận, nội dung khác (cùng kích thước) bị từ chối; GetRange đọc đúng đoạn.
+func TestBlob_PresignPutCheckedRejectsWrongHash(t *testing.T) {
+	t.Parallel()
+	testutil.RequireContainers(t)
+	ctx := t.Context()
+	s, err := blob.New(ctx, blob.Config{Endpoint: testutil.MinIOEndpoint(t), Bucket: "qc-" + strings.ToLower(testutil.TestPrefix(t)), AccessKey: testutil.MinIOAccessKey, SecretKey: testutil.MinIOSecretKey, EnsureBucket: true})
+	require.NoError(t, err)
+	body := []byte("0123456789abcdefghij")
+	sum := sha256.Sum256(body)
+	hexSum := hex.EncodeToString(sum[:])
+	b64, err := blob.ChecksumHeader(hexSum)
+	require.NoError(t, err)
+	put := func(key string, payload []byte) int {
+		u, err := s.PresignPutChecked(ctx, key, "text/plain; charset=utf-8", int64(len(body)), hexSum)
+		require.NoError(t, err)
+		req, err := http.NewRequestWithContext(ctx, http.MethodPut, u, bytes.NewReader(payload))
+		require.NoError(t, err)
+		req.Header.Set("Content-Type", "text/plain; charset=utf-8")
+		req.Header.Set("x-amz-checksum-sha256", b64)
+		resp, err := http.DefaultClient.Do(req)
+		require.NoError(t, err)
+		_, _ = io.Copy(io.Discard, resp.Body)
+		require.NoError(t, resp.Body.Close())
+		return resp.StatusCode
+	}
+	require.Equal(t, http.StatusOK, put("chk/ok.txt", body))
+	require.GreaterOrEqual(t, put("chk/bad.txt", []byte("ABCDEFGHIJ0123456789")), 400, "băm lệch phải bị từ chối")
+	_, err = s.Stat(ctx, "chk/bad.txt")
+	require.ErrorIs(t, err, blob.ErrNotFound)
+	got, err := s.GetRange(ctx, "chk/ok.txt", 10, 100)
+	require.NoError(t, err)
+	require.Equal(t, "abcdefghij", string(got))
+	_, err = blob.ChecksumHeader("không-phải-hex")
+	require.Error(t, err)
+}

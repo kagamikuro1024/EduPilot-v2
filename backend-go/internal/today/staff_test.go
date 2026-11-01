@@ -557,7 +557,7 @@ func TestTodayInvalidatedByOutbox(t *testing.T) {
 			require.True(t, exists(u, "all"), "%s: khoá của người không liên quan phải còn", tc.topic)
 		}
 	}
-	require.Equal(t, 24, len(today.Topics()), "thread.created + thread.post_decided (US-P3-08) + calendar.changed (US-P8-03) + 7 topic của P2 + 4 topic bài thi (US-PE-04) + 2 topic lượt làm (US-PE-05) + 2 topic so độ giống (US-PE-07: exam.similarity_done / similarity_reviewed)")
+	require.Equal(t, 28, len(today.Topics()), "assignment.published + assignment.updated (US-P7-02, proposals sprint 9 #8) + submission.created (US-P7-03) + submission.resolved (US-P7-04) + thread.created + thread.post_decided (US-P3-08) + calendar.changed (US-P8-03) + 7 topic của P2 + 4 topic bài thi (US-PE-04) + 2 topic lượt làm (US-PE-05) + 2 topic so độ giống (US-PE-07: exam.similarity_done / similarity_reviewed)")
 	// user.verified xoá cả khoá theo từng lớp của người đó.
 	warm()
 	inv := today.Invalidator{Pool: r.pool, Redis: r.rdb}
@@ -620,6 +620,11 @@ func TestTodayQueryBudget(t *testing.T) {
 			r.enrollAt(c, p, "STUDENT", "ACTIVE", "", time.Hour)
 		}
 		r.pending(c, 2, time.Hour, "")
+		// US-P7-08: đủ dữ liệu cho các kind bài tập của nhân viên (một truy vấn tổng hợp, không +1 mỗi kind).
+		a := r.asg(c, "BT"+c.code, 72*time.Hour, true, "")
+		r.gres(c, a, 1, "FAILED", "DRAFT", "{}")
+		r.gres(c, a, 1, "DONE", "DRAFT", "{NEEDS_REVIEW}")
+		r.unmatched(c, 2)
 	}
 	su, ss := r.person(store.UserRoleSTUDENT, true)
 	r.enrollAt(c1, su, "STUDENT", "ACTIVE", "", time.Hour)
@@ -628,7 +633,7 @@ func TestTodayQueryBudget(t *testing.T) {
 		path  string
 		limit int64
 	}{
-		"giảng viên tất cả lớp": {g, "/me/today", 6}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 7}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 5},
+		"giảng viên tất cả lớp": {g, "/me/today", 7}, "giảng viên một lớp": {g, "/courses/" + c1.sid() + "/today", 8}, "sinh viên": {ss, "/courses/" + c1.sid() + "/today", 6},
 	} {
 		before := r.qc.n.Load()
 		require.Equal(t, http.StatusOK, r.tgetC(tc.s, tc.path).code, name)

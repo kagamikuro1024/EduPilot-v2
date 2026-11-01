@@ -18,12 +18,16 @@ const (
 
 // Lý do thiếu điểm của một item (giải trình hiển thị chữ tương ứng).
 const (
-	ReasonNoScore          = "NO_SCORE"
-	ReasonExamUnpublished  = "EXAM_UNPUBLISHED"
-	ReasonColumnUnpublish  = "COLUMN_UNPUBLISHED"
-	WarnBonusNoEffect      = "BONUS_NO_EFFECT"
-	WarnPenaltyNotInScheme = "PENALTY_NOT_IN_SCHEME"
-	WarnBonusNotInScheme   = "BONUS_NOT_IN_SCHEME"
+	ReasonNoScore         = "NO_SCORE"
+	ReasonExamUnpublished = "EXAM_UNPUBLISHED"
+	ReasonColumnUnpublish = "COLUMN_UNPUBLISHED"
+	// Item ASSIGNMENT (SRS FEAT-assignments 4.9): thiếu điểm vì còn bài chưa khớp / bài chưa chấm xong / chưa đến hạn nộp — không bao giờ coi là 0.
+	ReasonUnmatchedPending  = "UNMATCHED_PENDING"
+	ReasonAssignmentUngrade = "ASSIGNMENT_UNGRADED"
+	ReasonAssignmentOpen    = "ASSIGNMENT_OPEN"
+	WarnBonusNoEffect       = "BONUS_NO_EFFECT"
+	WarnPenaltyNotInScheme  = "PENALTY_NOT_IN_SCHEME"
+	WarnBonusNotInScheme    = "BONUS_NOT_IN_SCHEME"
 )
 
 // MissingItem: item của thành phần chưa có điểm (và nguồn chưa chốt, hoặc thành phần không nằm trong zero_components).
@@ -183,13 +187,21 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 				}
 				continue
 			}
-			if it.Closed && zero[c.Key] { // nguồn đã chốt sổ cho item → 0 theo quy chế (TLR-2)
+			closed := it.Closed
+			if it.Source == SourceAssignment {
+				closed = in.ItemClosed[it.ID]
+			}
+			if closed && zero[c.Key] { // nguồn đã chốt sổ cho item → 0 theo quy chế (TLR-2)
 				scores = append(scores, decimal.Zero)
 				exprs = append(exprs, "0")
 				continue
 			}
 			reason := ReasonNoScore
 			switch {
+			case it.Source == SourceAssignment:
+				if r, ok := in.ItemReason[it.ID]; ok {
+					reason = r
+				}
 			case it.Source == SourceExam && !it.Closed:
 				reason = ReasonExamUnpublished
 			case it.Source != SourceExam && !it.Closed:
@@ -234,6 +246,12 @@ func compute(s Scheme, in Input, ckOverride *decimal.Decimal) Result {
 				txt = "Bài thi chưa công bố"
 			case ReasonColumnUnpublish:
 				txt = "Cột chưa công bố"
+			case ReasonUnmatchedPending:
+				txt = "Còn bài chưa khớp"
+			case ReasonAssignmentUngrade:
+				txt = "Bài tập chưa chấm xong"
+			case ReasonAssignmentOpen:
+				txt = "Bài tập chưa đến hạn nộp"
 			}
 			r.Lines = append(r.Lines, Line{Label: m.Item, Value: txt})
 		}
