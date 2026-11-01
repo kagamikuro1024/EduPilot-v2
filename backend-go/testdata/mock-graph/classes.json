@@ -1,0 +1,18 @@
+[
+  {
+    "id": "37d99af7-cfc5-4e3b-8566-f7d40e4a2070",
+    "description": "An ninh mạng — lớp mẫu",
+    "classCode": "INT1006-01",
+    "createdBy": {
+      "user": {
+        "displayName": "TS. Lê Thu Hà",
+        "id": "6cd50bb4-2615-5e1c-a8a2-6b2686b270f7"
+      }
+    },
+    "displayName": "An ninh mạng",
+    "externalId": "37d99af7-cfc5-4e3b-8566-f7d40e4a2070",
+    "externalName": "An ninh mạng",
+    "externalSource": "sis",
+    "mailNickname": "edupilot.local"
+  }
+]

@@ -764,4 +764,29 @@ func TestIntegrationsRBACMatrix(t *testing.T) {
 	// GET của giảng viên không có mật khẩu
 	res := r.do(req{method: http.MethodGet, path: path, bearer: teacher.access})
 	require.NotContains(t, string(res.body), `"p"`)
+
+	// Teams (US-P7-11): GET = ADMIN, TEACHER; PUT / test = chỉ ADMIN; đồng bộ = TA, TEACHER (ADMIN, STUDENT, lớp khác 403)
+	tp := "/courses/" + course.String() + "/integrations/teams"
+	tbody := map[string]any{"tenant_id": "t", "client_id": "c", "client_secret": "s", "enabled": true}
+	for name, want := range map[string]int{"admin": 200, "giảng viên": 200, "ta": 403, "sinh viên": 403, "giảng viên lớp khác": 403} {
+		s := map[string]session{"admin": admin, "giảng viên": teacher, "ta": ta, "sinh viên": student, "giảng viên lớp khác": foreign}[name]
+		require.Equal(t, want, do(http.MethodGet, tp, s, nil, nil), "GET teams "+name)
+	}
+	for name, s := range map[string]session{"giảng viên": teacher, "ta": ta, "sinh viên": student, "giảng viên lớp khác": foreign} {
+		require.Equal(t, 403, do(http.MethodPut, tp, s, tbody, nil), "PUT teams "+name)
+		require.Equal(t, 403, do(http.MethodPost, tp+"/test", s, nil, nil), "test teams "+name)
+	}
+	require.Equal(t, 200, do(http.MethodPut, tp, admin, tbody, nil))
+	res = r.do(req{method: http.MethodGet, path: tp, bearer: teacher.access})
+	require.NotContains(t, string(res.body), `"client_secret"`)
+	var asgID uuid.UUID
+	require.NoError(t, r.pool.QueryRow(t.Context(), `insert into assignments (course_id, title, due_at, submission_code, created_by, channels, teams_class_id, teams_assignment_id, published_at, rubric)
+		values ($1, 'BT', now() + interval '2 days', 'BT03', $2, ARRAY['IN_APP','TEAMS'], 'c', 'a', now(), '[]') returning id`, course, owner.ID).Scan(&asgID))
+	sp := "/courses/" + course.String() + "/assignments/" + asgID.String() + "/teams/sync"
+	for name, s := range map[string]session{"admin": admin, "sinh viên": student, "giảng viên lớp khác": foreign} {
+		require.Equal(t, 403, do(http.MethodPost, sp, s, nil, idem()), "teams sync "+name)
+	}
+	require.Equal(t, 202, do(http.MethodPost, sp, ta, nil, idem()))
+	r.rdb.Del(t.Context(), "ep:teamssync:"+asgID.String()+":job", "ep:teamssync:"+asgID.String()+":rl")
+	require.Equal(t, 202, do(http.MethodPost, sp, teacher, nil, idem()))
 }

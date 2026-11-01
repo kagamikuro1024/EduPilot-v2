@@ -34,6 +34,10 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(manage).Get("/courses/{id}/integrations/smtp", h.get(mailin.KindSMTP))
 	r.With(manage, admin).Post("/courses/{id}/integrations/smtp/test", h.smtpTest)
 	r.With(staff).Get("/courses/{id}/mail-inbound", h.inbound)
+	// Teams (US-P7-11): GET = Manage; PUT / test = Manage + ADMIN. Đồng bộ ở assignmenthttp (`…/assignments/{aid}/teams/sync`).
+	r.With(manage).Get("/courses/{id}/integrations/teams", h.get(mailin.KindTeams))
+	r.With(manage, admin).Put("/courses/{id}/integrations/teams", h.teamsPut)
+	r.With(manage, admin).Post("/courses/{id}/integrations/teams/test", h.teamsTest)
 }
 
 func (h *Handler) fail(w http.ResponseWriter, r *http.Request, err error) {
@@ -143,6 +147,38 @@ func (h *Handler) inbound(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	out, err := h.Svc.ListInbound(r.Context(), course, r.URL.Query().Get("status"), pp)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) teamsPut(w http.ResponseWriter, r *http.Request) {
+	course, user, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	var in mailin.TeamsPutIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	v, err := h.Svc.TeamsPut(r.Context(), user, course, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+func (h *Handler) teamsTest(w http.ResponseWriter, r *http.Request) {
+	course, _, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Svc.TeamsTest(r.Context(), course)
 	if err != nil {
 		h.fail(w, r, err)
 		return

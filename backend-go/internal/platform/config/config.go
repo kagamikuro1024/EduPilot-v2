@@ -195,6 +195,15 @@ type Config struct {
 	IMAPBackoffMax        time.Duration
 	IMAPTrustedAuthservID string
 	SyncNowMinInterval    time.Duration
+	// US-P7-11 (Teams / Microsoft Graph). Chỉ KHÁC ĐỊA CHỈ giữa bản thật và bản chạy thử: không có cờ đổi hành vi.
+	TeamsEnabled          bool
+	GraphBaseURL          string
+	GraphAuthURL          string
+	GraphFileHosts        []string // rỗng = chỉ host của GraphBaseURL
+	TeamsDownloadParallel int
+	TeamsFileRetry        int
+	TeamsRetryMax         int
+	TeamsSyncTimeout      time.Duration
 	MailSendTimeout       time.Duration
 	VerifyTokenTTL        time.Duration
 	ResetTokenTTL         time.Duration
@@ -416,6 +425,33 @@ func Load(getenv func(string) string, role Role) (Config, error) {
 	c.IMAPBackoffMax = l.dur("IMAP_BACKOFF_MAX", 15*time.Minute)
 	c.IMAPTrustedAuthservID = l.raw("IMAP_TRUSTED_AUTHSERV_ID")
 	c.SyncNowMinInterval = l.dur("SYNC_NOW_MIN_INTERVAL", 30*time.Second)
+	prod := c.AppEnv == "production"
+	// Production: mặc định Graph thật và TẮT; ngoài production: mặc định trỏ mock-graph và BẬT (docker-compose.local.yml).
+	baseDef, authDef := "http://mock-graph:8090/v1.0", "http://mock-graph:8090"
+	if prod {
+		baseDef, authDef = "https://graph.microsoft.com/v1.0", "https://login.microsoftonline.com"
+	}
+	c.TeamsEnabled = l.boolean("TEAMS_ENABLED", !prod)
+	c.GraphBaseURL = strings.TrimRight(l.str("GRAPH_BASE_URL", baseDef), "/")
+	c.GraphAuthURL = strings.TrimRight(l.str("GRAPH_AUTH_URL", authDef), "/")
+	for _, v := range []struct{ name, val string }{{"GRAPH_BASE_URL", c.GraphBaseURL}, {"GRAPH_AUTH_URL", c.GraphAuthURL}} {
+		u, err := url.Parse(v.val)
+		switch {
+		case err != nil || (u.Scheme != "https" && u.Scheme != "http") || u.Host == "":
+			l.bad(v.name, "phải là URL http(s) đầy đủ")
+		case prod && (u.Scheme != "https" || strings.Contains(strings.ToLower(u.Host), "mock")):
+			l.bad(v.name, "production không được dùng mock-graph hoặc kết nối không mã hoá")
+		}
+	}
+	for _, h := range strings.Split(l.raw("GRAPH_FILE_HOSTS"), ",") {
+		if h = strings.TrimSpace(h); h != "" {
+			c.GraphFileHosts = append(c.GraphFileHosts, strings.ToLower(h))
+		}
+	}
+	c.TeamsDownloadParallel = l.num("TEAMS_DOWNLOAD_PARALLEL", 4, 1, 16)
+	c.TeamsFileRetry = l.num("TEAMS_FILE_RETRY", 2, 0, 5)
+	c.TeamsRetryMax = l.num("TEAMS_RETRY_MAX", 3, 0, 10)
+	c.TeamsSyncTimeout = l.dur("TEAMS_SYNC_TIMEOUT", 120*time.Second)
 	c.VerifyTokenTTL = l.dur("VERIFY_TOKEN_TTL", 24*time.Hour)
 	c.ResetTokenTTL = l.dur("RESET_TOKEN_TTL", 30*time.Minute)
 	c.InviteTokenTTL = l.dur("INVITE_TOKEN_TTL", 72*time.Hour)

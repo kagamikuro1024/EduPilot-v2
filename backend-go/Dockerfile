@@ -7,7 +7,8 @@ RUN go mod download
 COPY . .
 ENV CGO_ENABLED=0
 RUN go build -trimpath -ldflags "-s -w" -o /out/gateway ./cmd/gateway \
- && go build -trimpath -ldflags "-s -w" -o /out/worker ./cmd/worker
+ && go build -trimpath -ldflags "-s -w" -o /out/worker ./cmd/worker \
+ && go build -trimpath -ldflags "-s -w" -o /out/mock-graph ./cmd/mock-graph
 
 # Bản có route thử (US-PG-07 AC20): chỉ hai dòng `go build` dưới đây mang tag.
 FROM build AS build-test
@@ -37,3 +38,12 @@ COPY --from=build-test /out/worker-test /worker
 EXPOSE 8081
 USER nonroot:nonroot
 ENTRYPOINT ["/worker"]
+
+# Microsoft Graph giả lập (US-P7-11): CHỈ local / test, không có ở production.
+FROM gcr.io/distroless/static-debian12:nonroot AS mock-graph
+COPY --from=build /out/mock-graph /mock-graph
+COPY testdata/mock-graph /data/mock-graph
+ENV MOCK_GRAPH_DATA=/data/mock-graph
+EXPOSE 8090
+USER nonroot:nonroot
+ENTRYPOINT ["/mock-graph"]

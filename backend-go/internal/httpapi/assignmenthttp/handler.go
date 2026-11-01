@@ -26,6 +26,7 @@ type Handler struct {
 	Assignments *assignment.Service
 	Submit      *submission.Service
 	Batches     *grading.Batches
+	Teams       *submission.TeamsSync // nil → không có route đồng bộ Teams
 	Guard       func(auth.GuardMode) func(http.Handler) http.Handler
 	Idem        func(http.Handler) http.Handler // `Idempotency-Key` bắt buộc
 	Log         *slog.Logger
@@ -61,6 +62,9 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(teacher, h.Idem).Post("/courses/{id}/grading-results/publish", h.publishResults)
 	r.With(staff).Get("/courses/{id}/assignments/{aid}/stats", h.stats)
 	r.With(staff).Get("/courses/{id}/assignments/{aid}/versions", h.versionCount)
+	if h.Teams != nil { // US-P7-11: Đồng bộ từ Teams (TA, TEACHER)
+		r.With(staff, h.Idem).Post("/courses/{id}/assignments/{aid}/teams/sync", h.teamsSync)
+	}
 	// Phúc khảo (US-P7-10): sinh viên gửi; nhân viên đọc; TEACHER quyết định.
 	r.With(student, h.Idem).Post("/courses/{id}/assignments/{aid}/appeal", h.fileAppeal)
 	r.With(staff).Get("/courses/{id}/appeals", h.listAppeals)
@@ -734,4 +738,17 @@ func (h *Handler) versionCount(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Cache-Control", "no-store")
 	httpx.WriteJSON(w, http.StatusOK, map[string]int{"versions": n})
+}
+
+func (h *Handler) teamsSync(w http.ResponseWriter, r *http.Request) {
+	course, id, a, ok := ids(w, r)
+	if !ok {
+		return
+	}
+	out, err := h.Teams.Enqueue(r.Context(), a.UserID, course, id)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, out)
 }

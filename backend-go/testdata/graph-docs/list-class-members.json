@@ -1,0 +1,48 @@
+{
+  "_source": "https://learn.microsoft.com/en-us/graph/api/educationclass-list-members?view=graph-rest-1.0",
+  "@odata.context": "https://graph.microsoft.com/v1.0/$metadata#Collection(microsoft.graph.educationUser)",
+  "value": [
+    {
+      "id": "87d349ed-44d7-43e1-9a83-5f2406dee5bd",
+      "accountEnabled": true,
+      "displayName": "Adele Vance",
+      "givenName": "Adele",
+      "surname": "Vance",
+      "userPrincipalName": "AdeleV@contoso.com",
+      "userType": "Member",
+      "primaryRole": "teacher",
+      "onPremisesInfo": {
+        "immutableId": null
+      },
+      "teacher": {}
+    },
+    {
+      "id": "b66ecf79-a093-4d51-86e0-efcc4531f37a",
+      "accountEnabled": true,
+      "displayName": "Christie Cline",
+      "givenName": "Christie",
+      "surname": "Cline",
+      "userPrincipalName": "ChristieC@contoso.com",
+      "userType": "Member",
+      "primaryRole": "student",
+      "onPremisesInfo": {
+        "immutableId": null
+      },
+      "student": {}
+    },
+    {
+      "id": "f5289423-7233-4d60-831a-fe107a8551cc",
+      "accountEnabled": true,
+      "displayName": "Ben Walters",
+      "givenName": "Ben",
+      "surname": "Walters",
+      "userPrincipalName": "BenW@contoso.com",
+      "userType": "Member",
+      "primaryRole": "student",
+      "onPremisesInfo": {
+        "immutableId": null
+      },
+      "student": {}
+    }
+  ]
+}

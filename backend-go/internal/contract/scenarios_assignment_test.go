@@ -727,4 +727,65 @@ func (r *runner) integrationScenarios(x examRig) {
 	}
 	r.must(call{method: "GET", path: in + "?status=NOPE", token: x.ta}, 422)
 	r.must(call{method: "GET", path: in + "?status=IGNORED", token: x.ta}, 200)
+
+	r.teamsScenarios(x)
+}
+
+// teamsScenarios: cấu hình Teams, Kiểm tra kết nối, Đồng bộ từ Teams (US-P7-11) với mọi status đã khai báo.
+func (r *runner) teamsScenarios(x examRig) {
+	ctx := context.Background()
+	db := r.rig.deps.DB
+	root := "/api/v1/courses/" + x.cid
+	teams := root + "/integrations/teams"
+	body := func(tenant, version, secret string) string {
+		return `{"tenant_id":"` + tenant + `","client_id":"client-1","client_secret":"` + secret + `","enabled":true` + version + `}`
+	}
+	r.must(call{method: "GET", path: teams}, 401)
+	for _, who := range []string{x.ta, x.sv} {
+		r.must(call{method: "GET", path: teams, token: who}, 403)
+	}
+	_, out := r.must(call{method: "GET", path: teams, token: x.gv}, 200) // chưa cấu hình
+	if !strings.Contains(string(out), `"sandbox"`) {
+		r.t.Fatalf("GET Teams thiếu sandbox")
+	}
+	r.must(call{method: "POST", path: teams + "/test", token: x.admin}, 404)
+	r.must(call{method: "PUT", path: teams, body: body("t1", "", "bi-mat")}, 401)
+	for _, who := range []string{x.gv, x.ta, x.sv} {
+		r.must(call{method: "PUT", path: teams, token: who, body: body("t1", "", "bi-mat")}, 403)
+	}
+	r.must(call{method: "PUT", path: teams, token: x.admin, body: body("t1", "", "")}, 422) // lần đầu cần client secret
+	r.must(call{method: "PUT", path: teams, token: x.admin, body: body("t1", "", "bi-mat-teams-77")}, 200)
+	r.must(call{method: "PUT", path: teams, token: x.admin, body: body("t1", `,"version":9`, "")}, 409)
+	_, out = r.must(call{method: "GET", path: teams, token: x.admin}, 200)
+	if strings.Contains(string(out), "bi-mat-teams-77") {
+		r.t.Fatalf("GET cấu hình Teams lộ client secret")
+	}
+	r.must(call{method: "POST", path: teams + "/test"}, 401)
+	for _, who := range []string{x.gv, x.ta, x.sv} {
+		r.must(call{method: "POST", path: teams + "/test", token: who}, 403)
+	}
+	r.must(call{method: "POST", path: teams + "/test", token: x.admin}, 200) // ok=false (không tới được Graph trong rig)
+
+	var aid, plain string
+	if err := db.QueryRow(ctx, `insert into assignments (course_id, title, due_at, submission_code, created_by, channels, teams_class_id, teams_assignment_id, published_at, rubric)
+		select $1, 'BT-TEAMS', now() + interval '2 days', 'BTT1', c.created_by, ARRAY['IN_APP','TEAMS'], 'class-1', 'asg-1', now(), '[]'::jsonb from courses c where c.id = $1 returning id`, x.cid).Scan(&aid); err != nil {
+		r.t.Fatalf("bài Teams: %v", err)
+	}
+	if err := db.QueryRow(ctx, `insert into assignments (course_id, title, due_at, submission_code, created_by, channels, published_at, rubric)
+		select $1, 'BT-KHONG-TEAMS', now() + interval '2 days', 'BTT2', c.created_by, ARRAY['IN_APP'], now(), '[]'::jsonb from courses c where c.id = $1 returning id`, x.cid).Scan(&plain); err != nil {
+		r.t.Fatalf("bài thường: %v", err)
+	}
+	sync := root + "/assignments/" + aid + "/teams/sync"
+	r.must(call{method: "POST", path: sync, headers: x.idem()}, 401)
+	for _, who := range []string{x.admin, x.sv} {
+		r.must(call{method: "POST", path: sync, token: who, headers: x.idem()}, 403)
+	}
+	r.must(call{method: "POST", path: root + "/assignments/00000000-0000-7000-8000-000000000000/teams/sync", token: x.ta, headers: x.idem()}, 404)
+	r.must(call{method: "POST", path: root + "/assignments/" + plain + "/teams/sync", token: x.ta, headers: x.idem()}, 409) // CHANNEL_NOT_ALLOWED
+	r.must(call{method: "POST", path: sync, token: x.ta, headers: x.idem()}, 202)
+	r.must(call{method: "POST", path: sync, token: x.gv, headers: x.idem()}, 202) // đang chạy: cùng job_id
+	if err := r.rig.deps.Redis.Del(ctx, "ep:teamssync:"+aid+":job").Err(); err != nil {
+		r.t.Fatalf("xoá khoá đang chạy: %v", err)
+	}
+	r.must(call{method: "POST", path: sync, token: x.ta, headers: x.idem()}, 429)
 }

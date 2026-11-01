@@ -93,6 +93,18 @@ services:
       timeout: 3s
       retries: 20
 
+  # Microsoft Graph giả lập (US-P7-11): chỉ local / test; production không có service này và đặt TEAMS_ENABLED=false.
+  mock-graph:
+    build:
+      context: ./backend-go
+      target: mock-graph
+    image: edupilot-mock-graph
+    healthcheck:
+      test: ["CMD", "/mock-graph", "-healthcheck"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
   migrate:
     # Một lần: goose up qua DATABASE_URL trực tiếp (không qua PgBouncer — goose dùng khoá tư vấn session).
     build:
@@ -123,6 +135,15 @@ services:
       JWT_SECRET_KEY: ${JWT_SECRET_KEY:-}
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-}
       SYNC_NOW_MIN_INTERVAL: ${SYNC_NOW_MIN_INTERVAL:-}
+      # Teams (US-P7-11): local trỏ mock-graph (cổng 8090); production dùng graph.microsoft.com / login.microsoftonline.com và TEAMS_ENABLED=false mặc định.
+      TEAMS_ENABLED: ${TEAMS_ENABLED:-true}
+      GRAPH_BASE_URL: ${GRAPH_BASE_URL:-http://mock-graph:8090/v1.0}
+      GRAPH_AUTH_URL: ${GRAPH_AUTH_URL:-http://mock-graph:8090}
+      GRAPH_FILE_HOSTS: ${GRAPH_FILE_HOSTS:-}
+      TEAMS_DOWNLOAD_PARALLEL: ${TEAMS_DOWNLOAD_PARALLEL:-}
+      TEAMS_FILE_RETRY: ${TEAMS_FILE_RETRY:-}
+      TEAMS_RETRY_MAX: ${TEAMS_RETRY_MAX:-}
+      TEAMS_SYNC_TIMEOUT: ${TEAMS_SYNC_TIMEOUT:-}
       HTTP_ADDR: ${HTTP_ADDR:-}
       CORS_ORIGINS: ${CORS_ORIGINS:-}
       # Thông tin hỗ trợ trong câu mẫu khủng hoảng (giá trị MÔ PHỎNG, D44); ≤ 300 ký tự, rỗng → câu mặc định.
@@ -191,6 +212,7 @@ services:
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
       minio: { condition: service_healthy }
+      mock-graph: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/gateway", "-healthcheck"]
       interval: 5s
@@ -238,6 +260,15 @@ services:
       IMAP_POLL_SECONDS: ${IMAP_POLL_SECONDS:-}
       IMAP_BACKOFF_MAX: ${IMAP_BACKOFF_MAX:-}
       IMAP_TRUSTED_AUTHSERV_ID: ${IMAP_TRUSTED_AUTHSERV_ID:-}
+      # Teams (US-P7-11): local trỏ mock-graph (cổng 8090); production dùng graph.microsoft.com / login.microsoftonline.com và TEAMS_ENABLED=false mặc định.
+      TEAMS_ENABLED: ${TEAMS_ENABLED:-true}
+      GRAPH_BASE_URL: ${GRAPH_BASE_URL:-http://mock-graph:8090/v1.0}
+      GRAPH_AUTH_URL: ${GRAPH_AUTH_URL:-http://mock-graph:8090}
+      GRAPH_FILE_HOSTS: ${GRAPH_FILE_HOSTS:-}
+      TEAMS_DOWNLOAD_PARALLEL: ${TEAMS_DOWNLOAD_PARALLEL:-}
+      TEAMS_FILE_RETRY: ${TEAMS_FILE_RETRY:-}
+      TEAMS_RETRY_MAX: ${TEAMS_RETRY_MAX:-}
+      TEAMS_SYNC_TIMEOUT: ${TEAMS_SYNC_TIMEOUT:-}
       JUDGE_CONSUMER: ${JUDGE_CONSUMER:-true}
       JUDGE_URL: ${JUDGE_URL:-http://judge:5050}
       JUDGE_TOKEN: ${JUDGE_TOKEN:-}
@@ -264,6 +295,7 @@ services:
       pgbouncer: { condition: service_healthy }
       redis: { condition: service_healthy }
       mailpit: { condition: service_healthy }
+      mock-graph: { condition: service_healthy }
       judge: { condition: service_healthy }
     healthcheck:
       test: ["CMD", "/worker", "-healthcheck"]

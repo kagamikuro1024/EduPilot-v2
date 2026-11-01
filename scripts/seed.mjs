@@ -22,6 +22,12 @@ const argv = process.argv.slice(2);
 const IF_EMPTY = argv.includes("--if-empty");
 const VERBOSE = argv.includes("--verbose");
 
+// Dữ liệu của cmd/mock-graph (US-P7-11): sinh từ fixtures/teams-plan.csv, không cần stack / DB.
+if (argv.includes("--mock-graph")) {
+  (await import("./mock-graph-data.mjs")).writeMockGraph(root);
+  process.exit(0);
+}
+
 // ---- cấu hình --------------------------------------------------------------------------------------------------------
 function envFileValue(key) {
   for (const f of [".env.local", ".env.example"]) {

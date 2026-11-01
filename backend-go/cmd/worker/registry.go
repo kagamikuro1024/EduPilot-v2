@@ -46,6 +46,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
+	if ts := newTeamsSync(d); ts != nil {
+		ts.Register(runner) // teams.sync: Đồng bộ từ Teams (US-P7-11)
+	}
 	if ys := newImapSyncer(d); ys != nil {
 		ys.Register(runner) // imap.sync: Đồng bộ ngay (US-P7-05)
 	}

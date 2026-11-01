@@ -1,0 +1,452 @@
+[
+  {
+    "id": "b01aac03-978d-5b05-a4fd-9cf8497d3235",
+    "accountEnabled": true,
+    "displayName": "sv.gioi",
+    "givenName": "sv.gioi",
+    "surname": "sv.gioi",
+    "mail": "sv.gioi@edupilot.local",
+    "userPrincipalName": "sv.gioi@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "9c9542e6-4f0d-5d32-a5d6-f9d048d7e638",
+    "accountEnabled": true,
+    "displayName": "sv.kha",
+    "givenName": "sv.kha",
+    "surname": "sv.kha",
+    "mail": "sv.kha@edupilot.local",
+    "userPrincipalName": "sv.kha@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "5f7cd2f0-bf4d-53e3-97a2-6d1cf6027349",
+    "accountEnabled": true,
+    "displayName": "sv04",
+    "givenName": "sv04",
+    "surname": "sv04",
+    "mail": "sv04@edupilot.local",
+    "userPrincipalName": "sv04@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "432a442b-d700-5b3d-8aee-140a041f2ed0",
+    "accountEnabled": true,
+    "displayName": "sv05",
+    "givenName": "sv05",
+    "surname": "sv05",
+    "mail": "sv05@edupilot.local",
+    "userPrincipalName": "sv05@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "58e01982-6612-5879-8ccf-1568c76ec8f1",
+    "accountEnabled": true,
+    "displayName": "sv06",
+    "givenName": "sv06",
+    "surname": "sv06",
+    "mail": "sv06@edupilot.local",
+    "userPrincipalName": "sv06@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "c27d16da-60b9-5837-b754-503e15a29691",
+    "accountEnabled": true,
+    "displayName": "sv07",
+    "givenName": "sv07",
+    "surname": "sv07",
+    "mail": "sv07@edupilot.local",
+    "userPrincipalName": "sv07@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "8d0e6139-fb17-5286-843e-4708efbc4c22",
+    "accountEnabled": true,
+    "displayName": "sv08",
+    "givenName": "sv08",
+    "surname": "sv08",
+    "mail": "sv08@edupilot.local",
+    "userPrincipalName": "sv08@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "c54f48fe-89d1-510a-880f-419322ae6587",
+    "accountEnabled": true,
+    "displayName": "sv09",
+    "givenName": "sv09",
+    "surname": "sv09",
+    "mail": "sv09@edupilot.local",
+    "userPrincipalName": "sv09@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "59cf7065-2d43-59b7-8a4f-431e260479ce",
+    "accountEnabled": true,
+    "displayName": "sv10",
+    "givenName": "sv10",
+    "surname": "sv10",
+    "mail": "sv10@edupilot.local",
+    "userPrincipalName": "sv10@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "143776e5-fdc1-5cd6-af4b-90306c2a5b9b",
+    "accountEnabled": true,
+    "displayName": "sv11",
+    "givenName": "sv11",
+    "surname": "sv11",
+    "mail": "sv11@edupilot.local",
+    "userPrincipalName": "sv11@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "b8a30239-00dc-56f7-8d17-f7dfcb8a8971",
+    "accountEnabled": true,
+    "displayName": "sv12",
+    "givenName": "sv12",
+    "surname": "sv12",
+    "mail": "sv12@edupilot.local",
+    "userPrincipalName": "sv12@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "0faec62b-2dec-5058-8579-73f6ab9ef3f3",
+    "accountEnabled": true,
+    "displayName": "sv13",
+    "givenName": "sv13",
+    "surname": "sv13",
+    "mail": "sv13@edupilot.local",
+    "userPrincipalName": "sv13@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "e19448e4-22aa-5ceb-814c-86246339ea1b",
+    "accountEnabled": true,
+    "displayName": "sv14",
+    "givenName": "sv14",
+    "surname": "sv14",
+    "mail": "sv14@edupilot.local",
+    "userPrincipalName": "sv14@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "374708a3-6c0c-577b-ba60-62fbb6f8918a",
+    "accountEnabled": true,
+    "displayName": "sv15",
+    "givenName": "sv15",
+    "surname": "sv15",
+    "mail": "sv15@edupilot.local",
+    "userPrincipalName": "sv15@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "c8a9a2a3-a3ec-543a-b170-24b60020a946",
+    "accountEnabled": true,
+    "displayName": "sv16",
+    "givenName": "sv16",
+    "surname": "sv16",
+    "mail": "sv16@edupilot.local",
+    "userPrincipalName": "sv16@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "f1f65d0b-22c8-568c-b719-23bd7af404f5",
+    "accountEnabled": true,
+    "displayName": "sv18",
+    "givenName": "sv18",
+    "surname": "sv18",
+    "mail": "sv18@edupilot.local",
+    "userPrincipalName": "sv18@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "e0ee5664-6d1c-56b2-8b42-2a3ffab3a8c3",
+    "accountEnabled": true,
+    "displayName": "sv19",
+    "givenName": "sv19",
+    "surname": "sv19",
+    "mail": "sv19@edupilot.local",
+    "userPrincipalName": "sv19@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "c08c073e-59ee-5914-8820-8ce255709a98",
+    "accountEnabled": true,
+    "displayName": "sv20",
+    "givenName": "sv20",
+    "surname": "sv20",
+    "mail": "sv20@edupilot.local",
+    "userPrincipalName": "sv20@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "5b583038-d7b9-5049-b13f-0dd45ea71a3c",
+    "accountEnabled": true,
+    "displayName": "sv22",
+    "givenName": "sv22",
+    "surname": "sv22",
+    "mail": "sv22@edupilot.local",
+    "userPrincipalName": "sv22@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "d1119b2d-7fac-511f-806d-6fe9ca7a35da",
+    "accountEnabled": true,
+    "displayName": "sv24",
+    "givenName": "sv24",
+    "surname": "sv24",
+    "mail": "sv24@edupilot.local",
+    "userPrincipalName": "sv24@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "5acf9c5d-5a2e-5b9f-a3a1-a2f36f08bebf",
+    "accountEnabled": true,
+    "displayName": "sv25",
+    "givenName": "sv25",
+    "surname": "sv25",
+    "mail": "sv25@edupilot.local",
+    "userPrincipalName": "sv25@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "1cdae6f1-8e5d-55a4-8539-431bb4a62c72",
+    "accountEnabled": true,
+    "displayName": "sv27",
+    "givenName": "sv27",
+    "surname": "sv27",
+    "mail": "sv27@edupilot.local",
+    "userPrincipalName": "sv27@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "5d778efb-0755-5d41-8f3a-dba9f63a99eb",
+    "accountEnabled": true,
+    "displayName": "sv29",
+    "givenName": "sv29",
+    "surname": "sv29",
+    "mail": "sv29@edupilot.local",
+    "userPrincipalName": "sv29@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "abcadbf0-c828-53dd-85c8-b9df3fd9e51c",
+    "accountEnabled": true,
+    "displayName": "sv30",
+    "givenName": "sv30",
+    "surname": "sv30",
+    "mail": "sv30@edupilot.local",
+    "userPrincipalName": "sv30@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "453bba53-11b8-5325-8530-aecad378d466",
+    "accountEnabled": true,
+    "displayName": "Người Ngoài Lớp",
+    "givenName": "Người",
+    "surname": "Ngoài Lớp",
+    "mail": "ngoai.lop@example.org",
+    "userPrincipalName": "ngoai.lop@example.org",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "64d7933e-61d5-54dd-8aae-32ed3733e065",
+    "accountEnabled": true,
+    "displayName": "sv.nguyco",
+    "givenName": "sv.nguyco",
+    "surname": "sv.nguyco",
+    "mail": "sv.nguyco@edupilot.local",
+    "userPrincipalName": "sv.nguyco@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "1e02d7dd-0cff-590a-8e99-35db1c43304c",
+    "accountEnabled": true,
+    "displayName": "sv17",
+    "givenName": "sv17",
+    "surname": "sv17",
+    "mail": "sv17@edupilot.local",
+    "userPrincipalName": "sv17@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "94bc56a0-63e7-5092-9aaf-d55c51dff720",
+    "accountEnabled": true,
+    "displayName": "sv21",
+    "givenName": "sv21",
+    "surname": "sv21",
+    "mail": "sv21@edupilot.local",
+    "userPrincipalName": "sv21@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "785370b0-0812-5826-ab51-f2654b1fea8b",
+    "accountEnabled": true,
+    "displayName": "sv23",
+    "givenName": "sv23",
+    "surname": "sv23",
+    "mail": "sv23@edupilot.local",
+    "userPrincipalName": "sv23@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  },
+  {
+    "id": "309045ec-3433-54e5-9f91-2b701f2ecf1d",
+    "accountEnabled": true,
+    "displayName": "sv26",
+    "givenName": "sv26",
+    "surname": "sv26",
+    "mail": "sv26@edupilot.local",
+    "userPrincipalName": "sv26@edupilot.local",
+    "userType": "Member",
+    "primaryRole": "student",
+    "onPremisesInfo": {
+      "immutableId": null
+    },
+    "student": {}
+  }
+]

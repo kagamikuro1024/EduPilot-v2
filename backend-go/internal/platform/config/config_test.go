@@ -10,6 +10,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/stretchr/testify/require"
+
 	"github.com/edupilot/backend-go/internal/platform/config"
 )
 
@@ -413,5 +415,56 @@ func TestLoad_Mail(t *testing.T) {
 	c, err = config.Load(getenv(prod), config.Worker)
 	if err != nil || c.AppPublicURL != "https://edupilot.example" {
 		t.Errorf("production hợp lệ: c.AppPublicURL = %q, err = %v", c.AppPublicURL, err)
+	}
+}
+
+// TestProductionRejectsMockGraph — US-P7-11 AC11: APP_ENV=production mà GRAPH_BASE_URL / GRAPH_AUTH_URL trỏ mock-graph (hoặc không https) → không khởi động, lỗi nêu đúng tên biến.
+func TestProductionRejectsMockGraph(t *testing.T) {
+	base := map[string]string{"DATABASE_URL": "postgres://x", "REDIS_URL": "redis://x", "JWT_SECRET_KEY": "0123456789abcdef0123456789abcdef-prod", "BLOB_ENDPOINT": "x:1", "BLOB_BUCKET": "b", "BLOB_ACCESS_KEY": "a", "BLOB_SECRET_KEY": "s",
+		"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": "production", "APP_PUBLIC_URL": "https://edupilot.example.vn", "SMTP_TLS": "tls", "CORS_ALLOWED_ORIGINS": "https://edupilot.example.vn"}
+	load := func(extra map[string]string) error {
+		_, err := config.Load(func(k string) string {
+			if v, ok := extra[k]; ok {
+				return v
+			}
+			return base[k]
+		}, config.Gateway)
+		return err
+	}
+	for name, extra := range map[string]map[string]string{
+		"GRAPH_BASE_URL": {"GRAPH_BASE_URL": "http://mock-graph:8090/v1.0"},
+		"GRAPH_AUTH_URL": {"GRAPH_AUTH_URL": "http://mock-graph:8090"},
+	} {
+		err := load(extra)
+		require.Error(t, err, name)
+		require.Contains(t, err.Error(), name)
+	}
+	err := load(map[string]string{"GRAPH_BASE_URL": "http://graph.microsoft.com/v1.0"})
+	require.Error(t, err, "production không dùng http")
+}
+
+// TestTeamsDefaultsPerEnv — US-P7-11 AC11: production mặc định Graph thật và TẮT; dev / test mặc định mock-graph và BẬT.
+func TestTeamsDefaultsPerEnv(t *testing.T) {
+	env := func(app string) map[string]string {
+		m := map[string]string{"DATABASE_URL": "postgres://x", "REDIS_URL": "redis://x", "JWT_SECRET_KEY": "0123456789abcdef0123456789abcdef-prod", "BLOB_ENDPOINT": "x:1", "BLOB_BUCKET": "b", "BLOB_ACCESS_KEY": "a", "BLOB_SECRET_KEY": "s",
+			"APP_ENCRYPTION_KEY": "ZWR1cGlsb3QtZGV2LWVuY3J5cHRpb24ta2V5LTMyYnk=", "APP_ENV": app}
+		if app == "production" {
+			m["APP_PUBLIC_URL"], m["SMTP_TLS"], m["CORS_ALLOWED_ORIGINS"] = "https://edupilot.example.vn", "tls", "https://edupilot.example.vn"
+		}
+		return m
+	}
+	for _, c := range []struct {
+		app     string
+		enabled bool
+		base    string
+	}{{"production", false, "https://graph.microsoft.com/v1.0"}, {"dev", true, "http://mock-graph:8090/v1.0"}, {"test", true, "http://mock-graph:8090/v1.0"}} {
+		m := env(c.app)
+		cfg, err := config.Load(func(k string) string { return m[k] }, config.Gateway)
+		require.NoError(t, err, c.app)
+		require.Equal(t, c.enabled, cfg.TeamsEnabled, c.app)
+		require.Equal(t, c.base, cfg.GraphBaseURL, c.app)
+		require.Equal(t, 4, cfg.TeamsDownloadParallel)
+		require.Equal(t, 2, cfg.TeamsFileRetry)
+		require.Equal(t, 120*time.Second, cfg.TeamsSyncTimeout)
 	}
 }

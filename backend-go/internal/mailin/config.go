@@ -22,8 +22,9 @@ import (
 )
 
 const (
-	KindIMAP = "IMAP"
-	KindSMTP = "SMTP"
+	KindIMAP  = "IMAP"
+	KindSMTP  = "SMTP"
+	KindTeams = "TEAMS"
 	// JobKind là loại việc nền của `Đồng bộ ngay`.
 	JobKind = "imap.sync"
 
@@ -54,6 +55,7 @@ type Service struct {
 	Jobs        *jobs.Service
 	Production  bool
 	SMTP        SMTPInfo
+	Teams       TeamsEnv      // US-P7-11: cấu hình địa chỉ Graph (chỉ khác địa chỉ giữa bản thật và bản chạy thử)
 	TestTimeout time.Duration // 0 → 10 giây (SRS 4.5.2)
 	MinSync     time.Duration // `SYNC_NOW_MIN_INTERVAL`; 0 → 30 giây
 	Now         func() time.Time
@@ -80,7 +82,9 @@ type View struct {
 	LastOKAt   *time.Time `json:"last_ok_at"`
 	LastSyncAt *time.Time `json:"last_sync_at"`
 	LastError  *string    `json:"last_error"`
-	ErrorSince *time.Time `json:"error_since"` // từ lúc nào lỗi ("Không kết nối được từ 09:12")
+	Sandbox    *bool      `json:"sandbox,omitempty"`   // chỉ Teams: GRAPH_BASE_URL không phải graph.microsoft.com ("Môi trường giả lập")
+	Available  *bool      `json:"available,omitempty"` // chỉ Teams: TEAMS_ENABLED
+	ErrorSince *time.Time `json:"error_since"`         // từ lúc nào lỗi ("Không kết nối được từ 09:12")
 	Version    int32      `json:"version"`
 }
 
@@ -131,6 +135,8 @@ func (s *Service) Get(ctx context.Context, course uuid.UUID, kind string) (View,
 		}
 		return View{Kind: KindSMTP, Configured: ok, Enabled: ok, Status: st, ReadOnly: true, Version: 1,
 			Config: map[string]any{"host": s.SMTP.Host, "port": s.SMTP.Port, "security": s.SMTP.Security, "from": s.SMTP.From}}, nil
+	case KindTeams:
+		return s.teamsView(ctx, course)
 	case KindIMAP:
 	default:
 		return View{}, apierr.New(http.StatusNotFound, apierr.NotFound)

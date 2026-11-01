@@ -1,0 +1,9 @@
+Chiến dịch SolarWinds Orion là vụ tấn công chuỗi cung ứng phần mềm được phát hiện vào tháng 12 năm 2020. Thay vì đánh vào từng tổ chức, kẻ tấn công đánh vào một nhà cung cấp mà hàng nghìn tổ chức tin tưởng.
+
+Về tác nhân, các hãng an ninh và cơ quan chính phủ Mỹ quy cho nhóm APT29, còn gọi là Cozy Bear, một nhóm có tài trợ nhà nước, ưu tiên gián điệp dài hạn. Bề mặt tấn công bị khai thác là hệ thống dựng phần mềm của SolarWinds, nơi mã nguồn được biên dịch rồi ký số trước khi phát hành. Máy chủ của khách hàng không phải điểm vào ban đầu.
+
+Chuỗi tấn công có năm bước. Một, kẻ tấn công xâm nhập môi trường dựng phần mềm. Hai, chúng cấy backdoor SUNBURST vào thư viện SolarWinds.Orion.Core.BusinessLayer.dll của bản phát hành chính thức. Ba, bản cập nhật vẫn mang chữ ký hợp lệ nên được phát tới khoảng 18.000 tổ chức mà không bị nghi ngờ. Bốn, mã độc nằm im từ 12 đến 14 ngày rồi gọi về máy chủ điều khiển qua tên miền avsvmcloud.com, lưu lượng giả dạng giao thức của chính Orion. Năm, với khoảng 100 mục tiêu được chọn, chúng nạp TEARDROP và Cobalt Strike, di chuyển ngang, đánh cắp khoá ký SAML và dùng kỹ thuật Golden SAML để leo thang lên dịch vụ thư điện tử đám mây.
+
+Về tác động, nhiều cơ quan liên bang Mỹ phải coi toàn bộ hệ thống là đã bị xâm nhập, dựng lại máy chủ và xoay vòng khoá, chứng thư. Thiệt hại lớn nhất là niềm tin vào chuỗi cung ứng phần mềm. SolarWinds công bố chi phí ứng phó năm 2021 khoảng 40 triệu đô la. Em không tìm được số liệu công khai về thời gian gián đoạn của từng tổ chức nên không nêu con số.
+
+Về phòng thủ, em đề xuất phân đoạn mạng để máy chủ giám sát không ra Internet trực tiếp, xác thực đa yếu tố và giới hạn quyền cho tài khoản dịch vụ, xoay vòng khoá ký, kiểm tra toàn vẹn bản dựng bằng quy trình build tái lập được kèm SBOM, và giám sát hành vi bất thường của tiến trình hợp lệ như Orion mở kết nối DNS tới tên miền lạ.

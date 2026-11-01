@@ -3613,6 +3613,123 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/teams:
+    get:
+      operationId: getTeamsIntegration
+      tags: [integrations]
+      summary: "Cấu hình Teams của lớp (ADMIN, TEACHER của lớp; Cache-Control: no-store). Không bao giờ có client secret; sandbox = GRAPH_BASE_URL không phải graph.microsoft.com (nhãn \"Môi trường giả lập\"); available = TEAMS_ENABLED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+    put:
+      operationId: putTeamsIntegration
+      tags: [integrations]
+      summary: "Lưu cấu hình Teams (chỉ ADMIN): client_secret chỉ ghi (AES-GCM), trống = giữ cũ (lần đầu bắt buộc); version khoá lạc quan (409 VERSION_CONFLICT)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [tenant_id, client_id, enabled]
+              additionalProperties: false
+              properties:
+                tenant_id: {type: string}
+                client_id: {type: string}
+                client_secret: {type: string}
+                enabled: {type: boolean}
+                version: {type: integer}
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IntegrationView"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/integrations/teams/test:
+    post:
+      operationId: testTeamsIntegration
+      tags: [integrations]
+      summary: "Kiểm tra kết nối Teams (chỉ ADMIN): xin token + GET /education/classes. ok=false kèm kind TEAMS_AUTH_FAILED | TEAMS_CONSENT_REQUIRED | TEAMS_RESPONSE_INVALID | UNREACHABLE | TIMEOUT"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Kết quả
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [ok]
+                additionalProperties: false
+                properties:
+                  ok: {type: boolean}
+                  kind: {type: string, enum: [TEAMS_AUTH_FAILED, TEAMS_CONSENT_REQUIRED, TEAMS_RESPONSE_INVALID, UNREACHABLE, TIMEOUT]}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/assignments/{aid}/teams/sync:
+    post:
+      operationId: syncAssignmentFromTeams
+      tags: [assignments]
+      summary: "Đồng bộ từ Teams (TA, TEACHER; ADMIN 403; Idempotency-Key bắt buộc): 202 {job_id}, tiến độ job.progress (result {fetched, total} khi còn chạy), kết quả {fetched, created, deduped, unmatched, failed:[{graph_submission_id, code}]}. 409 TEAMS_DISABLED | TEAMS_NOT_CONFIGURED | CHANNEL_NOT_ALLOWED; đang chạy → job_id cũ; ≤ 1 lần / SYNC_NOW_MIN_INTERVAL / bài (429 + retry_after)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [job_id]
+                additionalProperties: false
+                properties:
+                  job_id: {type: string, format: uuid}
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/grading-results/publish:
     post:
       operationId: publishGradingResults
@@ -12568,7 +12685,7 @@ components:
       required: [kind, configured, enabled, status, config, read_only, last_ok_at, last_sync_at, last_error, error_since, version]
       additionalProperties: false
       properties:
-        kind: {type: string, enum: [IMAP, SMTP]}
+        kind: {type: string, enum: [IMAP, SMTP, TEAMS]}
         configured: {type: boolean}
         enabled: {type: boolean}
         status: {type: string, enum: [CONNECTED, NOT_CONNECTED, ERROR, PAUSED]}
@@ -12580,6 +12697,8 @@ components:
         last_sync_at: {type: [string, "null"], format: date-time}
         last_error: {type: [string, "null"], description: "Nguyên nhân ngắn: UNREACHABLE | AUTH | TLS | MAILBOX | TIMEOUT"}
         error_since: {type: [string, "null"], format: date-time}
+        sandbox: {type: boolean, description: "Chỉ Teams: GRAPH_BASE_URL không phải graph.microsoft.com"}
+        available: {type: boolean, description: "Chỉ Teams: TEAMS_ENABLED"}
         version: {type: integer}
     GradingEnqueued:
       type: object

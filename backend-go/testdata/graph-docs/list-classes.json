@@ -1,0 +1,21 @@
+{
+  "_source": "https://learn.microsoft.com/en-us/graph/api/educationroot-list-classes?view=graph-rest-1.0",
+  "value": [
+    {
+      "id": "11019",
+      "description": "Health Level 1",
+      "classCode": "Health 501",
+      "createdBy": {
+        "user": {
+          "displayName": "Susana Rocha",
+          "id": "14012"
+        }
+      },
+      "displayName": "Health 1",
+      "externalId": "11019",
+      "externalName": "Health Level 1",
+      "externalSource": "sis",
+      "mailNickname": "fineartschool.net"
+    }
+  ]
+}

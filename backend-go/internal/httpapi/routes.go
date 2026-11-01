@@ -42,6 +42,7 @@ import (
 	"github.com/edupilot/backend-go/internal/platform/crypto"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/submission"
+	"github.com/edupilot/backend-go/internal/submission/source"
 	"github.com/edupilot/backend-go/internal/today"
 	"github.com/go-chi/chi/v5"
 )
@@ -129,14 +130,17 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			(&examhttp.Handler{Svc: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ZipMaxBytes: d.Cfg.ExamTestZipMaxBytes, Log: d.Log}).Mount(r)
 			// US-P6-03 — công thức điểm: POST …/grade-scheme/extract (202 + việc nền), SRS FEAT-gradebook 6.1.
 			(&gradehttp.Handler{Grade: gradeService(d), Extract: gradingService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
-			(&assignmenthttp.Handler{Assignments: assignmentService(d), Submit: submissionService(d), Batches: &grading.Batches{Pool: d.DB, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P7-02: bài tập
+			ah := &assignmenthttp.Handler{Assignments: assignmentService(d), Submit: submissionService(d), Batches: &grading.Batches{Pool: d.DB, Jobs: d.Jobs}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log} // US-P7-02: bài tập
 			if d.Redis != nil {
-				if cipher, err := crypto.ParseKey(d.Cfg.AppEncryptionKey); err == nil { // US-P7-05: cấu hình IMAP / SMTP, Đồng bộ ngay, thư không xử lý được
-					ms := &mailin.Service{Pool: d.DB, Cipher: cipher, Redis: d.Redis, Jobs: d.Jobs, Production: d.Cfg.AppEnv == "production", MinSync: d.Cfg.SyncNowMinInterval,
+				if cipher, err := crypto.ParseKey(d.Cfg.AppEncryptionKey); err == nil { // US-P7-05 / 11: cấu hình IMAP / SMTP / Teams, Đồng bộ ngay, thư không xử lý được
+					tenv := mailin.TeamsEnv{Enabled: d.Cfg.TeamsEnabled, Source: source.ConfigFrom(d.Cfg, 0)}
+					ms := &mailin.Service{Pool: d.DB, Cipher: cipher, Redis: d.Redis, Jobs: d.Jobs, Production: d.Cfg.AppEnv == "production", MinSync: d.Cfg.SyncNowMinInterval, Teams: tenv,
 						SMTP: mailin.SMTPInfo{Host: d.Cfg.SMTPHost, Port: d.Cfg.SMTPPort, Security: d.Cfg.SMTPTLS, From: d.Cfg.MailFrom}}
 					(&integrationhttp.Handler{Svc: ms, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r)
+					ah.Teams = &submission.TeamsSync{Pool: d.DB, Redis: d.Redis, Cipher: cipher, Jobs: d.Jobs, Log: d.Log, Enabled: d.Cfg.TeamsEnabled, Source: tenv.Source, Timeout: d.Cfg.TeamsSyncTimeout, MinInterval: d.Cfg.SyncNowMinInterval}
 				}
 			}
+			ah.Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil && d.Blob != nil && d.Redis != nil {
 			// US-P8-01 — tải tài liệu lên (URL ký sẵn), hoàn tất → 202 + việc nền, thử lại, lập chỉ mục lại (SRS FEAT-docs-calendar 6, #1–#2, #9–#11).
