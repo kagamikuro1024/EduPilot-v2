@@ -78,8 +78,9 @@ function Items({ title, rows }: { title: string; rows: ReadonlyArray<readonly [s
 }
 
 export function Landing() {
-  // Poster clip là ảnh lớn nhất lần vẽ đầu (cả điện thoại: nằm ngay dưới nút): tải ngay từ <head> để là LCP sớm, không đợi phông.
-  preload("/landing/gioi-thieu-clip-v1.webp", { as: "image", fetchPriority: "high" });
+  // Ảnh lớn nhất lần vẽ đầu là LCP: ≥ 720 px là poster của clip (1280 px); điện thoại là bản 640 px nhỏ (22 KB) nằm ngay dưới nút — bản lớn 64 KB tranh băng thông với JS và phông nên LCP chậm hơn 1 s.
+  preload("/landing/gioi-thieu-clip-v1.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
+  preload("/landing/gioi-thieu-clip-v1-640.webp", { as: "image", media: "(max-width: 719px)", fetchPriority: "high" });
   return (
     <div className={s.page} data-part="landing">
       <LandingMedia />
@@ -104,6 +105,9 @@ export function Landing() {
           </div>
           <div className={`${s.heroShot} ${s.frame}`}>
             {/* clip lặp 6–8 s: poster trước (LCP), LandingMedia nạp và phát sau sự kiện `load`; không tiếng, bỏ qua khi reduce / Save-Data / tab ẩn */}
+            {/* điện thoại: ảnh nhỏ thay cho clip (clip chỉ chạy ≥ 720 px) */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={s.posterSm} src="/landing/gioi-thieu-clip-v1-640.webp" width={640} height={400} alt="Màn duyệt bài của giảng viên: AI chấm nháp theo rubric, kèm đoạn trích từ bài làm." fetchPriority="high" />
             <video className={s.video} data-clip muted loop playsInline preload="none" poster="/landing/gioi-thieu-clip-v1.webp" width={1280} height={800} aria-hidden="true" tabIndex={-1} />
             <button type="button" className={s.clipToggle} data-clip-toggle aria-pressed="false" hidden>Tạm dừng</button>
           </div>
