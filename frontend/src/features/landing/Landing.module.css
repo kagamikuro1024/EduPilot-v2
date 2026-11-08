@@ -1,4 +1,5 @@
-/* Trang giới thiệu (Persuade): cùng token, cùng phông, đỏ chỉ ở nút chính và vạch đánh dấu; không thẻ KPI, không card lồng card, không bóng. */
+/* Trang giới thiệu (Persuade): cùng token, cùng phông, đỏ chỉ ở nút chính và vạch đánh dấu; không thẻ KPI, không card lồng card, không bóng.
+   Chuyển động: chỉ transform / opacity, ease-out, một lần khi cuộn tới (LandingMotion gắn data-wait cho phần dưới màn hình); prefers-reduced-motion → trạng thái cuối, không chạy gì. */
 .landingRoot { display: block; background: var(--ep-canvas); }
 .preRoot { display: none; }
 :global(html[data-returning]) .landingRoot { display: none; }
@@ -31,6 +32,13 @@
 .item:first-child { border-top: 0; padding-top: 0; }
 .item dt { font-size: var(--ep-text-item); font-weight: 650; }
 .item dd { margin: 0; font-size: var(--ep-text-body); color: var(--ep-ink-2); line-height: 1.6; }
+.roles { display: grid; gap: var(--ep-space-6); }
+.tabs { display: flex; gap: var(--ep-space-6); margin: 0; padding: 0; border: 0; min-width: 0; position: relative; }
+.tabs label { padding-block: var(--ep-space-2); border-bottom: 2px solid transparent; font-size: var(--ep-text-item); font-weight: 650; color: var(--ep-ink-2); cursor: pointer; }
+.radio { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.radio:checked + label { color: var(--ep-ink); border-bottom-color: var(--ep-red); }
+.radio:focus-visible + label { box-shadow: var(--ep-focus); border-radius: var(--ep-radius-xs); }
+.roles:has(.radio[value="sv"]:checked) .panelGv, .roles:not(:has(.radio[value="sv"]:checked)) .panelSv { display: none; }
 .shots { display: grid; gap: var(--ep-space-5); }
 .shotsStudent { display: grid; grid-template-columns: minmax(0, 1fr) 11rem; gap: var(--ep-space-5); align-items: start; }
 .phone { display: block; width: 100%; height: auto; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-lg); background: var(--ep-surface); }
@@ -48,7 +56,103 @@
 @media (max-width: 719px) {
   .top, .hero, .section, .foot { width: min(100% - 2 * var(--ep-space-4), 70rem); }
   .hero { padding-block: var(--ep-space-8) var(--ep-space-6); }
-  .heroShot { display: none; }
   .section { padding-block: var(--ep-space-8); }
   .shotsStudent { grid-template-columns: minmax(0, 1fr) 8rem; }
+}
+
+/* ---- video giới thiệu */
+.video { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-md); background: var(--ep-surface); object-fit: cover; }
+
+/* ---- vạch đỏ dưới tiêu đề */
+.thread { display: block; width: 5.5rem; height: 3px; background: var(--ep-red); transform-origin: left center; }
+
+/* ---- dòng chảy bài nộp: vạch đỏ chạy qua ba bước (trạng thái mặc định = đã chạy xong, đủ chữ) */
+.flow { --dot: 1.75rem; list-style: none; margin: 0; padding: 0; position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--ep-space-8); }
+.flow::before, .flow::after { content: ""; position: absolute; top: calc(var(--dot) / 2 - 1px); left: calc(var(--dot) / 2); right: calc((100% - 2 * var(--ep-space-8)) / 3 - var(--dot) / 2); height: 2px; transform-origin: left center; }
+.flow::before { background: var(--ep-rule); }
+.flow::after { background: var(--ep-red); }
+.step { position: relative; display: grid; gap: var(--ep-space-2); align-content: start; padding-top: calc(var(--dot) + var(--ep-space-4)); }
+.mark { position: absolute; top: 0; left: 0; z-index: 1; display: grid; place-items: center; width: var(--dot); height: var(--dot); border-radius: 50%; border: 2px solid var(--ep-red); background: var(--ep-surface); color: var(--ep-ink); font-size: var(--ep-text-meta); font-weight: 700; }
+.specimen { display: grid; gap: var(--ep-space-1); margin-top: var(--ep-space-3); padding-block: var(--ep-space-3); border-block: 1px solid var(--ep-rule); font-size: var(--ep-text-label); font-variant-numeric: tabular-nums; }
+.specimen p { margin: 0; display: flex; justify-content: space-between; gap: var(--ep-space-3); color: var(--ep-ink-2); }
+.specimen b { color: var(--ep-ink); font-weight: 650; }
+.specimen i { justify-self: start; margin-top: var(--ep-space-2); padding: 1px var(--ep-space-2); border-radius: var(--ep-radius-xs); font-size: var(--ep-text-meta); font-style: normal; font-weight: 600; }
+.tagDraft { border: 1px dashed var(--ep-ink-3); color: var(--ep-ink-2); }
+.tagDone { border: 1px solid var(--ep-red); background: var(--ep-red-soft); color: var(--ep-ink); }
+.edit s { color: var(--ep-ink-3); text-decoration-color: var(--ep-ink-3); }
+.edit em { font-style: normal; }
+
+@media (max-width: 959px) {
+  .flow { grid-template-columns: 1fr; gap: var(--ep-space-6); padding-left: calc(var(--dot) + var(--ep-space-4)); }
+  .flow::before, .flow::after { top: calc(var(--dot) / 2); bottom: calc(var(--dot) / 2); left: calc(var(--dot) / 2 - 1px); right: auto; width: 2px; height: auto; transform-origin: center top; }
+  .step { padding-top: 0; }
+  .mark { left: calc(-1 * (var(--dot) + var(--ep-space-4))); }
+}
+
+@property --n { syntax: "<integer>"; inherits: true; initial-value: 0; } /* bộ đếm số đo của trang giới thiệu */
+
+/* ======== Chuyển động (docs/sprints/9.1/techlead.md TL-1 B): 0 KB JS, chỉ CSS; chỉ transform / opacity (trừ màu viền dấu bước và đếm số).
+   Mọi thứ ngoài các khối dưới đây là trạng thái cuối, đủ chữ. Hiệu ứng theo cuộn PHẢI nằm trong no-preference: base.css không tắt được animation-timeline. ======== */
+
+/* mở đầu: chữ chính (LCP) KHÔNG mờ dần; phần còn lại vào theo nhịp, khung video chỉ trượt (poster là ứng viên LCP) */
+@media (prefers-reduced-motion: no-preference) {
+  .panelGv, .panelSv { animation: fade 160ms ease-out; }
+  @keyframes fade { from { opacity: 0; } }
+  .thread { animation: draw 600ms var(--ep-ease-out) 150ms both; }
+  .lead, .actions { animation: rise 500ms var(--ep-ease-out) both; }
+  .lead { animation-delay: 100ms; }
+  .actions { animation-delay: 160ms; }
+  .heroShot { animation: nudge 600ms var(--ep-ease-out) 220ms both; }
+  @keyframes draw { from { transform: scaleX(0); } }
+  @keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+  @keyframes nudge { from { transform: translateY(24px); } }
+
+  /* phản hồi bấm: nhấn xuống 97 % rồi nhả; chỉ ở trang giới thiệu (nút dùng chung của ứng dụng không đổi) */
+  .actions > :global([data-variant]) { transition: transform var(--ep-fast) var(--ep-ease-out); }
+  .actions > :global([data-variant]):active { transform: scale(.97); }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    /* xuất hiện theo nhịp khi cuộn */
+    .reveal, .proof { animation: reveal linear both; animation-timeline: view(); animation-range: entry 0% entry 55%; }
+    .proof:nth-child(2) { animation-range: entry 8% entry 63%; }
+    .proof:nth-child(3) { animation-range: entry 16% entry 71%; }
+    @keyframes reveal { from { opacity: 0; transform: translateY(16px); } }
+
+    /* chiều sâu: khung ảnh nhô lên khi vào, điện thoại trôi ngược chiều cuộn */
+    .shot { animation: lift linear both; animation-timeline: view(); animation-range: entry 0% entry 65%; }
+    .phone { animation: drift linear both; animation-timeline: view(); animation-range: cover 0% cover 100%; }
+    @keyframes lift { from { transform: translateY(40px) scale(.965); } }
+    @keyframes drift { from { transform: translateY(28px); } to { transform: translateY(-28px); } }
+
+    /* dòng chảy: một dòng thời gian theo vị trí của cả danh sách, ba bước lệch nhau */
+    .flow { view-timeline: --flow block; }
+    .flow::after { animation: thread-x linear both; animation-timeline: --flow; animation-range: entry 15% cover 45%; }
+    .mark { animation: mark-on linear both; animation-timeline: --flow; }
+    .step > :not(.mark) { animation: reveal linear both; animation-timeline: --flow; }
+    .step:nth-child(1) .mark { animation-range: entry 15% entry 40%; }
+    .step:nth-child(2) .mark { animation-range: entry 30% cover 15%; }
+    .step:nth-child(3) .mark { animation-range: entry 45% cover 30%; }
+    .step:nth-child(1) > :not(.mark) { animation-range: entry 15% entry 55%; }
+    .step:nth-child(2) > :not(.mark) { animation-range: entry 30% cover 20%; }
+    .step:nth-child(3) > :not(.mark) { animation-range: entry 45% cover 35%; }
+    .edit s { animation: strike linear both; animation-timeline: --flow; animation-range: cover 5% cover 30%; }
+    @keyframes thread-x { from { transform: scaleX(0); } }
+    @keyframes mark-on { from { border-color: var(--ep-rule); color: var(--ep-ink-3); } }
+    @keyframes strike { from { text-decoration-color: transparent; } }
+
+    /* số đo đếm lên (số nguyên): chữ thật vẫn ở trong DOM cho trình đọc màn hình, bản đếm vẽ bằng bộ đếm CSS và bị loại khỏi cây truy cập */
+    .num { font-size: 0; animation: count linear both; animation-timeline: view(); animation-range: entry 10% cover 30%; }
+    .num::after { counter-reset: n var(--n); content: counter(n) / ""; font-size: var(--ep-text-page); }
+    @keyframes count { from { --n: 0; } }
+  }
+}
+@media (max-width: 959px) {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .flow::after { animation-name: thread-y; }
+      @keyframes thread-y { from { transform: scaleY(0); } }
+    }
+  }
 }

@@ -22,13 +22,13 @@ test("landing anonymous: tiêu đề, nút Đăng nhập / Tạo tài khoản, c
   await expect(page).toHaveURL(`${BASE_URL}/`);
   await expect(page.getByRole("heading", { level: 1 })).toHaveText("Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân");
   await expect(page.locator("[data-part=landing]").getByRole("link", { name: "Đăng nhập" }).first()).toBeVisible();
-  await expect(page.getByRole("link", { name: "Tạo tài khoản" })).toHaveAttribute("href", "/register");
+  await expect(page.getByRole("link", { name: "Tạo tài khoản" }).first()).toHaveAttribute("href", "/register");
   await expect(page.getByText("Đồ án tốt nghiệp · Lê Văn Quang Trung")).toBeVisible();
   await expect(page.getByRole("link", { name: "Mã nguồn trên GitHub" })).toHaveAttribute("href", /github\.com\/kagamikuro1024\/EduPilot-v2$/);
   await expect(page.getByText("Dữ liệu trên bản demo là dữ liệu mô phỏng.")).toBeVisible();
   const text = await page.locator("body").innerText();
   expect(text).not.toMatch(/@edupilot\.local|Edupilot#|mật khẩu mặc định/i);
-  await expect(page.locator("[data-part=landing] h2")).toHaveText(["Khác biệt, có số đo", "Cho giảng viên", "Cho sinh viên"]);
+  await expect(page.locator("[data-part=landing] h2")).toHaveText(["AI soạn nháp, giảng viên quyết, mã tính điểm", "Khác biệt, có số đo", "Cho giảng viên và sinh viên", "Bắt đầu với lớp của bạn"]);
   await expect(page.locator("[data-part=sidebar]:visible, [data-part=topbar]:visible")).toHaveCount(0); // không khung ứng dụng
   expect(api.filter((p) => !p.endsWith("/auth/refresh"))).toEqual([]);
   await page.getByRole("link", { name: "Đăng nhập" }).first().click();
@@ -83,3 +83,50 @@ for (const width of [1440, 375]) {
     expect(res.violations.filter((v) => v.impact === "critical" || v.impact === "serious").map((v) => `${v.id}: ${v.nodes.length}`)).toEqual([]);
   });
 }
+
+test("landing video: không tải video khi chưa bấm (preload=none), có poster, không tự phát, có lời thay cho video không tiếng", async ({ page }) => {
+  const media: string[] = [];
+  page.on("request", (q) => /\/landing\/gioi-thieu-v1\.(mp4|webm)/.test(q.url()) && media.push(new URL(q.url()).pathname));
+  await anonymous(page);
+  await page.goto("/");
+  const video = page.locator("[data-part=landing] video");
+  await expect(video).toHaveAttribute("preload", "none");
+  await expect(video).toHaveAttribute("poster", "/landing/gioi-thieu-v1.webp");
+  expect(await video.evaluate((v: HTMLVideoElement) => v.autoplay || !v.paused)).toBe(false);
+  await page.waitForLoadState("networkidle");
+  expect(media).toEqual([]);
+  await expect(page.locator("#video-loi")).toContainText("AI không tự công bố");
+  await expect(video).toHaveAttribute("aria-describedby", "video-loi");
+});
+
+test("landing motion: khối dưới màn hình hiện dần theo cuộn (scroll-driven); reduced-motion hiện đủ ngay", async ({ page }) => {
+  await anonymous(page);
+  await page.goto("/");
+  const proof = page.locator("[data-part=landing] li").filter({ hasText: "yêu cầu gửi AI" }).first();
+  const opacity = () => proof.evaluate((e) => Number(getComputedStyle(e).opacity));
+  expect(await opacity()).toBeLessThan(1);
+  await proof.scrollIntoViewIfNeeded();
+  await page.mouse.wheel(0, 400);
+  await expect.poll(opacity).toBe(1);
+  await expect(proof.locator("p").first()).toHaveText("146"); // chữ thật luôn ở trong DOM; số đếm chỉ là phần vẽ
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.reload();
+  await expect(page.locator("[data-part=landing]")).toBeVisible();
+  expect(await opacity()).toBe(1);
+});
+
+test("landing vai: mặc định Giảng viên; chọn Sinh viên (chuột hoặc mũi tên) thì đổi nội dung, không cần JS", async ({ page }) => {
+  await anonymous(page);
+  await page.goto("/");
+  const gv = page.getByText("Việc cần xử lý xếp theo mức khẩn");
+  const sv = page.getByText("Hỏi về điểm, chuyên cần, lịch");
+  await expect(gv).toBeVisible();
+  await expect(sv).toBeHidden();
+  await page.getByText("Sinh viên", { exact: true }).click();
+  await expect(sv).toBeVisible();
+  await expect(gv).toBeHidden();
+  await page.getByRole("radio", { name: "Giảng viên" }).focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(sv).toBeVisible();
+});
