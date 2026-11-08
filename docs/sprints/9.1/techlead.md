@@ -348,3 +348,34 @@ B chỉ đáng làm khi PM muốn cô lập tuyệt đối. Trong cả hai cách
    **Cần chủ dự án duyệt vì đụng auth.** Kèm hai quyết định:
    - (a) đặt giá thật cho model 9router, khiến "Chi phí" của lớp trình diễn khác 0;
    - (b) tắt `DEMO_MODE` trong buổi bảo vệ.
+
+### Bổ sung TL-3 (2026-11-08): `DEMO_MODE` bật cả trong buổi bảo vệ. Trần mặc định để lớp trình diễn ít bị ảnh hưởng
+**Căn cứ:** P-91-3; chủ dự án đồng ý (a), chọn **bật** ở (b).
+
+**Cơ chế đã có:**
+- Lớp nào có ngân sách cạn thì gateway (`llm/gateway.go` dòng 126–132) xử lý theo làn:
+  - **INTERACTIVE / NEAR_REALTIME không bị từ chối**, mà chuyển sang `Registry.Cheapest()` (model chat bật có giá thấp nhất, `registry.go` dòng 96–97);
+  - BATCH thì dừng.
+- Khi model 9router đã có giá thật (a), model rẻ nhất trên demo là `chat-gia` (fake, giá 0, đọc bản ghi `LLM_DEMO_FILE`). Vậy **lớp sandbox cạn hạn mức thì khách vẫn được trả lời (từ bản ghi), và 9router không bị gọi thêm.** Chỉ lớp sandbox có dòng `llm_budgets`, nên lớp trình diễn không bao giờ bị chuyển.
+- **Còn thiếu:** trần **theo phút**. Ngân sách ngày không chặn được một đợt dồn trong một phút, mà 20 rpm là theo phút.
+
+**Đề xuất cho dev (thay đổi nhỏ, không đụng token bucket của Scheduler):**
+1. **Trần LLM theo phút cho lớp sandbox: 6 lời gọi / phút** (≤ 30 % của 20 rpm), nên lớp trình diễn luôn còn ≥ 14 rpm.
+   - Ở `Scheduler.BudgetState(ctx, courseID)` (`scheduler.go` dòng 444): nếu `courseID` là lớp sandbox thì đếm `INCR` cửa sổ cố định 60 s trên Redis, vượt thì trả `BudgetExhausted`. Lời gọi đó đi theo nhánh có sẵn ở trên (chat → `chat-gia`, BATCH → dừng). **Không xếp hàng**, nên không chiếm hàng đợi của lớp trình diễn.
+   - Mỗi tin chat theo D47 là 1 CLASSIFY + 1 CHAT, nên 6 rpm ≈ **3 câu hỏi / phút cho tất cả khách**. Câu vượt trần vẫn được trả lời, chỉ là từ bản ghi.
+   - Id lớp sandbox: lệnh đặt lại ghi vào Redis `ep:demo:sandbox_course`, vì lớp xoay mỗi đêm. Gateway đọc kèm cache ≤ 60 s.
+   - **Núm chỉnh nóng:** số 6 đọc từ Redis `ep:demo:llm_rpm` (mặc định 6). PM đặt `0` trong buổi bảo vệ nếu thấy chat lớp trình diễn chậm: mọi câu của sandbox sang bản ghi, 9router chỉ còn lớp trình diễn. Không cần khởi động lại.
+2. **Ngân sách ngày của lớp sandbox ≈ 300 lời gọi** quy ra VND = 300 × chi phí trung bình một lời gọi đo từ `llm_audit` sau khi đặt giá. Tháng = 30 × ngày. Đặt mỗi lần đặt lại.
+3. **Theo tài khoản cho mượn:** 10 tin chat / phút. Trần chung `CHAT_RATE_PER_MIN` mặc định là 20 (`config.go` dòng 357). Thêm trần 40 tin / lượt mượn 30 phút, đếm bằng `HitWindow` khoá theo `user_id`, cửa sổ = lượt mượn.
+4. **Cấp phiên:** 5 phiên / 10 phút / IP; **60 phiên / giờ toàn cục** (thay cho 120 ở trên). Nhóm 10 SV + 3 GV vốn đã giới hạn số khách đồng thời ở 13.
+5. **BATCH của sandbox** ("Chấm tất cả", tạo câu hỏi, báo cáo Insights): chịu chung trần 6 / phút ở mục 1. Seed `--sandbox` để ≤ 8 bài nộp, nên "Chấm tất cả" tốn khoảng 16 lời gọi (hai lượt chấm) trải qua vài phút, không dồn.
+6. **Tải tài liệu:** 3 tệp / giờ / tài khoản, ≤ 5 MB. Embedding đi Gemini trực tiếp, không qua 9router, nên không ăn 20 rpm.
+
+**Kiểm (dev / QC):**
+- k6 hoặc script: 10 khách sandbox chat liên tục trong lúc 20 sinh viên lớp trình diễn chat. Kỳ vọng:
+  - p95 TTFT của lớp trình diễn tăng ≤ 20 % so với khi không có khách;
+  - lượt `llm_audit` của sandbox đi 9router ≤ 6 / phút;
+  - phần vượt có `model = fake-chat`.
+- Đặt `ep:demo:llm_rpm=0` → không còn lời gọi 9router nào từ lớp sandbox.
+
+**Ước lượng thêm:** S (≈ 0,5 ngày), nằm trong L của TL-3.
