@@ -55,6 +55,7 @@ export function LandingMedia() {
         clip.querySelectorAll("source").forEach((x) => x.remove());
         if (toggle) toggle.hidden = true;
       });
+      on(clip, "playing", () => clip.setAttribute("data-ready", ""));
       clip.load();
       if (toggle) toggle.hidden = false;
       label();

@@ -122,8 +122,10 @@ test("landing clip màn đầu: poster trước, clip nạp sau `load`, có nút
   page.on("request", (q) => /gioi-thieu-clip-v1\.(mp4|webm)/.test(q.url()) && clipReq.push(q.url()));
   await page.goto("/");
   const clip = page.locator("[data-part=landing] video[data-clip]");
-  await expect(clip).toHaveAttribute("poster", "/landing/gioi-thieu-clip-v1.webp");
+  await expect(page.locator("[data-part=landing] img[src='/landing/gioi-thieu-clip-v1.webp']")).toBeVisible(); // poster là <img> (LCP); video không có thuộc tính poster
+  expect(await clip.getAttribute("poster")).toBeNull();
   await expect(clip).toHaveAttribute("aria-hidden", "true");
+  await expect(clip).toHaveAttribute("data-ready", ""); // đã phát thì đè lên poster
   const toggle = page.getByRole("button", { name: "Tạm dừng" });
   await expect(toggle).toBeVisible();
   await expect(toggle).toHaveAttribute("aria-pressed", "false");

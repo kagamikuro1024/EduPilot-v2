@@ -30,6 +30,8 @@ const STORY = [
   { name: "story-gradebook-v1", title: "Điểm có giải trình", line: "Điểm học phần do mã tính từ quy chế; mỗi điểm mở ra giải trình từng dòng.", alt: "Sổ điểm của lớp với bảng giải trình từng dòng cách tính điểm học phần của một sinh viên" },
 ] as const;
 
+const POSTER_ALT = "Màn duyệt bài của giảng viên: AI chấm nháp theo rubric, kèm đoạn trích từ bài làm.";
+
 // Lời thay cho video không tiếng (WCAG 1.2.1); phải khớp phụ đề in trong video (scripts/landing-video/record.mjs, mảng CAPTIONS).
 const VIDEO_CAPTIONS = [
   "Sinh viên hỏi riêng về điểm và chuyên cần của chính mình.",
@@ -105,10 +107,13 @@ export function Landing() {
           </div>
           <div className={`${s.heroShot} ${s.frame}`}>
             {/* clip lặp 6–8 s: poster trước (LCP), LandingMedia nạp và phát sau sự kiện `load`; không tiếng, bỏ qua khi reduce / Save-Data / tab ẩn */}
-            {/* điện thoại: ảnh nhỏ thay cho clip (clip chỉ chạy ≥ 720 px) */}
+            {/* Poster là <img> (LCP, preload ở <head>) chứ không phải thuộc tính `poster` của video: điện thoại chỉ tải bản 640 px, máy tính chỉ tải bản 1280 px; video nằm đè lên và chỉ hiện khi đã phát */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={s.posterSm} src="/landing/gioi-thieu-clip-v1-640.webp" width={640} height={400} alt="Màn duyệt bài của giảng viên: AI chấm nháp theo rubric, kèm đoạn trích từ bài làm." fetchPriority="high" />
-            <video className={s.video} data-clip muted loop playsInline preload="none" poster="/landing/gioi-thieu-clip-v1.webp" width={1280} height={800} aria-hidden="true" tabIndex={-1} />
+            <img className={s.posterSm} src="/landing/gioi-thieu-clip-v1-640.webp" width={640} height={400} alt={POSTER_ALT} fetchPriority="high" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img className={s.posterLg} src="/landing/gioi-thieu-clip-v1.webp" width={1280} height={800} alt={POSTER_ALT} fetchPriority="high" />
+            {/* clip lặp 6–8 s: LandingMedia nạp và phát sau sự kiện `load`; không tiếng, bỏ qua khi reduce / Save-Data / tab ẩn */}
+            <video className={s.video} data-clip muted loop playsInline preload="none" width={1280} height={800} aria-hidden="true" tabIndex={-1} />
             <button type="button" className={s.clipToggle} data-clip-toggle aria-pressed="false" hidden>Tạm dừng</button>
           </div>
         </section>
