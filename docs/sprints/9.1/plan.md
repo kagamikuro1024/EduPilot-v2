@@ -51,3 +51,13 @@
   - chuyển trạng thái, xác nhận lưu.
 
   Theo `emil-design-eng`. Không trang trí, không làm chậm thao tác lặp lại.
+
+## Quyết định của chủ dự án (2026-11-08, "Đồng ý hết")
+| # | Quyết định |
+| --- | --- |
+| Q-UX91-1 | Nhãn điều hướng = tiêu đề trang, tiếng Việt: `Threads` → **Hỏi đáp công khai**, `Insights` → **Lỗ hổng kiến thức**, `Analytics` → **Số liệu lớp học**. Sửa `DESIGN.md` §2 + ảnh mốc. |
+| Q-UX91-2 | Hôm nay của giảng viên chia nhóm **Gấp / Hôm nay / Khi rảnh**. Gấp = quá 72 giờ làm việc hoặc có cờ rủi ro; Khi rảnh = phát hiện giống bài, bài chưa khớp. |
+| Q-UX91-3 | Cột "Trạng thái" sổ điểm: "Đủ" = đã có đủ điểm thành phần → nhãn **Đủ điểm / Thiếu điểm** (bỏ cột nếu mọi hàng đều Đủ điểm là tuỳ BA đề xuất trong spec). |
+| Q-UX91-4 | Điểm danh: mặc định "Có mặt" dùng chấm mực; đỏ chỉ cho Vắng / Vắng phép / Muộn. |
+| Q-UX91-5 | Trang giới thiệu được nêu số đo từ môi trường mô phỏng, kèm dòng chú thích "đo trên dữ liệu mô phỏng". |
+| [ĐỔI DESIGN] trang giới thiệu | Thêm mục "Trang giới thiệu (Persuade)" vào `DESIGN.md`: cho phép chuyển động cuộn / sơ đồ / số đếm; §11 ("không dàn dựng khi tải trang") chỉ áp dụng cho ứng dụng sau đăng nhập. |
