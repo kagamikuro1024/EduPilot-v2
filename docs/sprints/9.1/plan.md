@@ -68,3 +68,25 @@
 - **UX-15, highlight trích dẫn:** chuyển động ≤ 200 ms theo luật ứng dụng. Nền highlight được **giữ** khoảng 1 s rồi mờ đi trong 200 ms; khoảng giữ là trạng thái, không phải chuyển động.
 - **UX-25(a), lớp mặc định:** cách S. Nhớ lớp đã chọn; lần đầu chọn lớp đầu tiên **có dữ liệu** theo thứ tự API. "Lớp có việc chờ" để Nợ.
 - **TL-2 đề xuất 4, 5:** chấp nhận (P-91-1, P-91-2). Gộp việc pha 2 theo **6 đợt** của TL-2.
+
+## Chủ dự án duyệt báo cáo (2026-11-08, "Duyệt hết, bắt đầu làm luôn")
+Duyệt cả 3 mục:
+1. Báo cáo `bao-cao-uiux.html` → pha 2 theo 6 đợt.
+2. Trang giới thiệu v2:
+   - clip sản phẩm lặp 6–8 s không tiếng ở màn đầu (poster trước, giữ LCP), video đầy đủ mở bằng "Xem video";
+   - kể chuyện theo cuộn: khung sản phẩm ghim, đổi Chat → Duyệt bài → Sổ điểm;
+   - chữ lớn, khoảng thở; khung có chiều sâu, nổi khi rê chuột (máy tính).
+3. Nút **"Dùng thử"** trên trang giới thiệu, đăng nhập sẵn vai sinh viên / giảng viên.
+   - **Ràng buộc an toàn (PM):** chỉ bật khi `DEMO_MODE=true`.
+   - Dùng **tài khoản và lớp sandbox riêng**, không phải tài khoản / lớp dùng để trình diễn, để khách không làm hỏng dữ liệu buổi bảo vệ.
+   - Dữ liệu sandbox được **đặt lại định kỳ bằng job seed** (không `down -v`, không đụng lớp trình diễn).
+   - Có giới hạn tần suất; không lộ mật khẩu ra HTML.
+   - Tech Lead chốt thiết kế (TL-3) trước khi dev làm.
+
+## Pha 2: thứ tự làm
+Dev làm tuần tự: **đợt 1** (nền chung) → **đợt 2** (chữ) → **đợt 6** (trang giới thiệu v2 + Dùng thử) → **đợt 3** (Hôm nay + Hộp thư) → **đợt 4** (Chấm bài, Sổ điểm, Điểm danh) → **đợt 5** (Chat, Hỏi đáp, `/me`, Tài liệu).
+
+Mỗi đợt gồm:
+- `docs/sprints/9.1/handoff/dev-wave-<n>.md` (ảnh trước / sau 1440 + 375);
+- QC kiểm theo TC → `docs/sprints/9.1/qc/wave-<n>.md` (PASS / FAIL);
+- đợt PASS thì dev deploy frontend lên demo.
