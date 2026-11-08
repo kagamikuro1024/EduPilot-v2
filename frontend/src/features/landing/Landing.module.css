@@ -57,7 +57,7 @@
 @media (max-width: 719px) {
   .top, .hero, .section, .foot { width: min(100% - 2 * var(--ep-space-4), 70rem); }
   .hero { padding-block: var(--ep-space-8) var(--ep-space-6); }
-  .heroText { min-height: calc(100svh - 7rem); align-content: center; } /* khối chữ đầy màn hình đầu, video dưới nếp gấp: chữ là LCP */
+  .heroText { min-height: calc(100svh - 12rem); } /* khối chữ gần đầy màn hình đầu; chỉ ~90 px mép trên poster lộ ra (nhỏ hơn diện tích h1) nên chữ vẫn là LCP, và mời cuộn */
   .section { padding-block: var(--ep-space-8); }
   .shotsStudent { grid-template-columns: minmax(0, 1fr) 8rem; }
 }
