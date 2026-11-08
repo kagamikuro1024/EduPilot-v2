@@ -1,17 +1,19 @@
 import { getImageProps } from "next/image";
 import { preload } from "react-dom";
 import Link from "next/link";
-import { ButtonLink } from "@/shared/ui/Button";
+import { Button, ButtonLink } from "@/shared/ui/Button";
 import s from "./Landing.module.css";
-import { PlayState } from "./PlayState";
+import { LandingMedia } from "./LandingMedia";
 
-// Trang giới thiệu (Persuade): HTML tĩnh từ máy chủ, không gọi API. Số liệu lấy từ báo cáo sprint 6, 8, 9 (docs/sprints/*/report.md); ảnh chụp từ bản demo đã seed.
+// Trang giới thiệu v2 (Persuade, DESIGN.md §11.1): HTML tĩnh từ máy chủ, không gọi API. Số liệu lấy từ báo cáo sprint 6, 8, 9 (docs/sprints/*/report.md); ảnh chụp từ bản demo đã seed
+// (scripts/landing-video). Chuyển động hoàn toàn bằng CSS (`animation-timeline`); JS thêm duy nhất là LandingMedia (clip màn đầu + hộp thoại video).
 const REPO = "https://github.com/kagamikuro1024/EduPilot-v2";
 
+// Mỗi số một câu người ngoài hiểu ngay, khớp từng chữ với nguồn (US-UX91-08 AC9). Chỉ số nguyên (146) đếm lên; "30/30", "0,05 %" hiện tĩnh.
 const PROOFS = [
-  { stat: [146], title: "yêu cầu gửi AI, 0 lần lộ họ tên hay MSSV", line: "Quét toàn bộ yêu cầu gửi nhà cung cấp AI: danh sách lớp không còn họ tên hay MSSV nào." },
-  { stat: [30, "/", 30], title: "sinh viên mẫu có điểm khớp tính tay", line: "Điểm học phần do mã tính từ quy chế, khớp đáp án tính tay. AI chỉ trích công thức, giảng viên xác nhận." },
-  { stat: [22], title: "bài chấm cùng lúc, chat không chậm thêm", line: "Chấm 22 bài trong lúc 20 sinh viên đang chat: độ trễ chat tăng 0,05 %." },
+  { stat: [146], title: "yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp", line: "Bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn." }, // docs/sprints/6/report.md dòng 34–35
+  { stat: [30, "/", 30], title: "sinh viên mẫu có điểm học phần khớp tính tay", line: "Điểm do mã tính từ quy chế; AI chỉ trích công thức, giảng viên xác nhận." }, // docs/sprints/8/report.md dòng 24
+  { stat: ["+", 0.05, " %"], title: "Chấm hàng loạt: thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %", line: "Đo bằng k6 với nhà cung cấp AI mô phỏng." }, // docs/sprints/9/report.md dòng 25 (TTFT +0,05 %)
 ] as const;
 
 // Ví dụ minh hoạ cho dòng chảy bài nộp: số mẫu, không phải số đo.
@@ -19,6 +21,13 @@ const FLOW = [
   { title: "AI soạn nháp", line: "Chấm theo rubric, mỗi tiêu chí kèm đoạn trích từ bài làm.", tag: "Nháp" },
   { title: "Giảng viên duyệt", line: "Sửa từng tiêu chí, duyệt, rồi mới công bố.", tag: "Đã duyệt" },
   { title: "Mã tính điểm", line: "Công thức trích từ quy chế và do giảng viên xác nhận. Không có AI trong phép tính.", tag: "Mã tính" },
+] as const;
+
+// Kể chuyện theo cuộn: khung ghim đổi Chat → Duyệt bài → Sổ điểm (AC6). Ảnh chụp bằng scripts/landing-video/run.sh từ bản demo.
+const STORY = [
+  { name: "story-chat-v1", title: "Hỏi riêng, có nguồn", line: "Họ tên và MSSV được che trước khi gửi cho AI; câu trả lời kèm nguồn trong tài liệu của lớp.", alt: "Chat riêng của sinh viên: câu trả lời có nguồn tham khảo trong tài liệu lớp và dòng báo đã ẩn thông tin cá nhân" },
+  { name: "story-review-v1", title: "AI chấm nháp, giảng viên duyệt", line: "Mỗi tiêu chí có điểm nháp và đoạn trích từ bài làm; giảng viên sửa rồi mới duyệt và công bố.", alt: "Màn duyệt bài của giảng viên: bài làm bên trái, điểm từng tiêu chí, đoạn trích và nhận xét nháp bên phải" },
+  { name: "story-gradebook-v1", title: "Điểm có giải trình", line: "Điểm học phần do mã tính từ quy chế; mỗi điểm mở ra giải trình từng dòng.", alt: "Sổ điểm của lớp với bảng giải trình từng dòng cách tính điểm học phần của một sinh viên" },
 ] as const;
 
 // Lời thay cho video không tiếng (WCAG 1.2.1); phải khớp phụ đề in trong video (scripts/landing-video/record.mjs, mảng CAPTIONS).
@@ -35,7 +44,7 @@ const VIDEO_CAPTIONS = [
 const TEACHER = [
   ["Hôm nay", "Việc cần xử lý xếp theo mức khẩn: yêu cầu vào lớp, câu hỏi AI chưa chắc, bài chờ duyệt."],
   ["Chấm bài", "AI chấm nháp theo rubric kèm đoạn trích từ bài. Bạn sửa từng tiêu chí, duyệt, rồi mới công bố."],
-  ["Sổ điểm", "Công thức trích từ quy chế và do bạn xác nhận. Mỗi điểm có giải trình từng dòng; chốt thành bản bất biến."],
+  ["Sổ điểm", "Công thức trích từ quy chế và do bạn xác nhận. Mỗi điểm có giải trình từng dòng."],
   ["Theo dõi lớp", "Điểm danh, phát biểu, thời gian học và cảnh báo sinh viên có nguy cơ."],
 ] as const;
 
@@ -43,40 +52,38 @@ const STUDENT = [
   ["Chat riêng", "Hỏi về điểm, chuyên cần, lịch hoặc nội dung bài học. Câu trả lời kèm nguồn trong tài liệu của lớp."],
   ["Nộp bài tập", "Nộp tệp ngay trên trang. Điểm và nhận xét theo từng tiêu chí chỉ hiện sau khi giảng viên công bố."],
   ["Kết quả của tôi", "Điểm học phần có giải trình từng dòng; yêu cầu xem lại điểm khi cần."],
-  ["Threads", "Hỏi cả lớp và đọc câu trả lời đã được giảng viên xác nhận."],
+  ["Hỏi đáp công khai", "Hỏi cả lớp và đọc câu trả lời đã được giảng viên xác nhận."],
 ] as const;
 
-/** Ảnh chụp màn hình (đều dưới màn hình đầu, nạp lười để không tranh băng thông với poster video là ảnh LCP): tệp WebP đã nén sẵn (không qua bộ tối ưu của Next), điện thoại (≤ 719 px) tải bản 640 px; có width / height để không dịch bố cục. */
-function Shot({ name, alt, className, sizes }: { name: string; alt: string; className?: string; sizes: string }) {
-  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1440, height: 900, alt, unoptimized: true, loading: "lazy", className, sizes });
-  const small = getImageProps({ src: `/landing/${name}-640.webp`, width: 640, height: 400, alt, unoptimized: true });
-  return (
-    <picture>
-      <source media="(max-width: 719px)" srcSet={small.props.src} width={640} height={400} />
-      <img {...props} alt={alt} />
-    </picture>
-  );
+/** Ảnh chụp màn hình (đều dưới màn hình đầu, nạp lười): WebP 1000 px đã nén sẵn, có width / height để không dịch bố cục. */
+function Shot({ name, alt, className }: { name: string; alt: string; className?: string }) {
+  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1000, height: 625, alt, unoptimized: true, loading: "lazy", className, sizes: "(min-width: 1100px) 660px, 100vw" });
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img {...props} alt={alt} />;
 }
 
-function Items({ rows }: { rows: ReadonlyArray<readonly [string, string]> }) {
+function Items({ title, rows }: { title: string; rows: ReadonlyArray<readonly [string, string]> }) {
   return (
-    <dl className={s.items}>
-      {rows.map(([t, d]) => (
-        <div key={t} className={s.item}>
-          <dt>{t}</dt>
-          <dd>{d}</dd>
-        </div>
-      ))}
-    </dl>
+    <div className={s.role}>
+      <h3 className={s.h3}>{title}</h3>
+      <dl className={s.items}>
+        {rows.map(([t, d]) => (
+          <div key={t} className={s.item}>
+            <dt>{t}</dt>
+            <dd>{d}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
   );
 }
 
 export function Landing() {
-  // Poster video là ảnh lớn nhất lần vẽ đầu ở ≥ 720 px: tải ngay từ <head>. Ở điện thoại khối chữ đầu trang chiếm trọn màn hình đầu, video nằm dưới nếp gấp nên chữ là LCP
-  // (poster 52 KB tranh băng thông 4G chậm với phông + JS làm LCP 3,1 s khi nó nằm trong màn hình đầu).
-  preload("/landing/gioi-thieu-v1.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
+  // Poster clip là ảnh lớn nhất lần vẽ đầu ở ≥ 720 px: tải ngay từ <head>. Ở điện thoại khối chữ đầu trang cao gần hết màn hình, clip nằm dưới nếp gấp nên chữ là LCP.
+  preload("/landing/gioi-thieu-clip-v1.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
   return (
     <div className={s.page} data-part="landing">
+      <LandingMedia />
       <header className={s.top}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/brand/logo-edupilot.svg" alt="EduPilot" height={36} className={s.logo} />
@@ -93,15 +100,35 @@ export function Landing() {
             <div className={s.actions}>
               <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
               <ButtonLink href="/register" variant="secondary">Tạo tài khoản</ButtonLink>
+              <Button variant="secondary" data-open-video>Xem video</Button>
             </div>
           </div>
-          <div className={s.heroShot}>
-            <video id="video-gt" className={s.video} controls preload="none" playsInline poster="/landing/gioi-thieu-v1.webp" width={1280} height={800} aria-label="Video giới thiệu EduPilot" aria-describedby="video-loi">
-              <source src="/landing/gioi-thieu-v1.mp4" type="video/mp4" />
-              <source src="/landing/gioi-thieu-v1.webm" type="video/webm" />
-            </video>
-            <p id="video-loi" className="ep-sr-only">{VIDEO_CAPTIONS.join(" ")}</p>
-            <PlayState video="video-gt" />
+          <div className={`${s.heroShot} ${s.frame}`}>
+            {/* clip lặp 6–8 s: poster trước (LCP), LandingMedia nạp và phát sau sự kiện `load`; không tiếng, bỏ qua khi reduce / Save-Data / tab ẩn */}
+            <video className={s.video} data-clip muted loop playsInline preload="none" poster="/landing/gioi-thieu-clip-v1.webp" width={1280} height={800} aria-hidden="true" tabIndex={-1} />
+            <button type="button" className={s.clipToggle} data-clip-toggle aria-pressed="false" hidden>Tạm dừng</button>
+          </div>
+        </section>
+
+        <section className={s.section} aria-labelledby="story-title">
+          <h2 id="story-title" className={s.h2}>Xem EduPilot làm việc</h2>
+          <div className={s.story}>
+            <div className={`${s.stage} ${s.frame}`} aria-hidden="true">
+              {STORY.map((x) => (
+                <Shot key={x.name} name={x.name} alt={x.alt} className={s.stageImg} />
+              ))}
+            </div>
+            <ol className={s.steps}>
+              {STORY.map((x) => (
+                <li key={x.name} className={s.step}>
+                  <h3 className={s.h3}>{x.title}</h3>
+                  <p className={s.body}>{x.line}</p>
+                  <figure className={`${s.stepFig} ${s.frame}`}>
+                    <Shot name={x.name} alt={x.alt} />
+                  </figure>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
@@ -109,7 +136,7 @@ export function Landing() {
           <h2 id="flow-title" className={s.h2}>AI soạn nháp, giảng viên quyết, mã tính điểm</h2>
           <ol className={s.flow}>
             {FLOW.map((f, i) => (
-              <li key={f.title} className={s.step} style={{ "--i": i } as React.CSSProperties}>
+              <li key={f.title} className={s.step2} style={{ "--i": i } as React.CSSProperties}>
                 <span className={s.mark} aria-hidden>{i + 1}</span>
                 <h3 className={s.h3}>{f.title}</h3>
                 <p className={s.body}>{f.line}</p>
@@ -139,42 +166,21 @@ export function Landing() {
             {PROOFS.map((p, i) => (
               <li key={p.title} className={s.proof} style={{ "--i": i } as React.CSSProperties}>
                 <p className={s.stat}>
-                  {p.stat.map((x, i) => (typeof x === "number" ? <span key={i} className={x >= 1 ? s.num : undefined} style={x >= 1 ? ({ "--n": x } as React.CSSProperties) : undefined}>{String(x).replace(".", ",")}</span> : x))}
+                  {p.stat.map((x, k) => (typeof x === "number" ? <span key={k} className={Number.isInteger(x) && x >= 1 && p.stat.length === 1 ? s.num : undefined} style={Number.isInteger(x) && x >= 1 && p.stat.length === 1 ? ({ "--n": x } as React.CSSProperties) : undefined}>{String(x).replace(".", ",")}</span> : x))}
                 </p>
                 <h3 className={s.h3}>{p.title}</h3>
                 <p className={s.body}>{p.line}</p>
               </li>
             ))}
           </ol>
-          <p className={s.note}>Đo trên dữ liệu mô phỏng; nhà cung cấp AI trong phép đo chat là bản mô phỏng.</p>
+          <p className={s.note}>Đo trên dữ liệu mô phỏng.</p>
         </section>
 
         <section className={s.section} aria-labelledby="roles-title">
           <h2 id="roles-title" className={s.h2}>Cho giảng viên và sinh viên</h2>
-          <div className={`${s.roles} ${s.reveal}`}>
-            {/* Hai nút radio thay cho tab: đổi vai bằng CSS (:has), không JS; bàn phím dùng mũi tên */}
-            <fieldset className={s.tabs}>
-              <legend className="ep-sr-only">Xem theo vai</legend>
-              <input type="radio" name="role" value="gv" id="role-gv" defaultChecked className={s.radio} />
-              <label htmlFor="role-gv">Giảng viên</label>
-              <input type="radio" name="role" value="sv" id="role-sv" className={s.radio} />
-              <label htmlFor="role-sv">Sinh viên</label>
-            </fieldset>
-            <div className={`${s.split} ${s.panelGv}`}>
-              <Items rows={TEACHER} />
-              <div className={s.shots}>
-                <Shot className={s.shot} name="giang-vien-hom-nay" sizes="(min-width: 1200px) 520px, 100vw" alt="Màn Hôm nay của giảng viên: ba việc cần xử lý và buổi học sắp tới" />
-                <Shot className={s.shot} name="giang-vien-so-diem" sizes="(min-width: 1200px) 520px, 100vw" alt="Sổ điểm của lớp: điểm giữa kỳ, cuối kỳ, điểm học phần và điểm chữ từng sinh viên" />
-              </div>
-            </div>
-            <div className={`${s.split} ${s.panelSv}`}>
-              <Items rows={STUDENT} />
-              <div className={s.shotsStudent}>
-                <Shot className={s.shot} name="sinh-vien-chat-rieng" sizes="(min-width: 1200px) 520px, 100vw" alt="Chat riêng của sinh viên: câu trả lời có nguồn tham khảo trong tài liệu lớp và dòng báo đã ẩn thông tin cá nhân" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img className={s.phone} src="/landing/sinh-vien-375-hom-nay-360.webp" width={360} height={780} loading="lazy" alt="Màn Hôm nay của sinh viên trên điện thoại" />
-              </div>
-            </div>
+          <div className={s.roles}>
+            <Items title="Giảng viên" rows={TEACHER} />
+            <Items title="Sinh viên" rows={STUDENT} />
           </div>
         </section>
 
@@ -186,6 +192,18 @@ export function Landing() {
           </div>
         </section>
       </div>
+
+      <dialog className={s.dialog} data-video-dialog aria-label="Video giới thiệu EduPilot">
+        <video className={s.dialogVideo} controls preload="none" playsInline data-poster="/landing/gioi-thieu-v1.webp" width={1280} height={800} aria-describedby="video-loi">
+          <source src="/landing/gioi-thieu-v1.mp4" type="video/mp4" />
+          <source src="/landing/gioi-thieu-v1.webm" type="video/webm" />
+        </video>
+        <p id="video-loi" className="ep-sr-only">{VIDEO_CAPTIONS.join(" ")}</p>
+        <form method="dialog" className={s.dialogBar}>
+          <a className={s.link} href="/landing/gioi-thieu-v1.mp4" target="_blank" rel="noopener noreferrer">Mở video trong tab mới</a>
+          <Button type="submit" variant="secondary" size="sm">Đóng</Button>
+        </form>
+      </dialog>
 
       <footer className={s.foot}>
         <p>Đồ án tốt nghiệp · Lê Văn Quang Trung</p>

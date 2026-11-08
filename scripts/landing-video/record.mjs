@@ -61,11 +61,12 @@ async function login(email, classCode) {
 }
 
 const frameLines = ["ffconcat version 1.0"];
+const clipLines = ["ffconcat version 1.0"]; // clip lặp ở màn đầu trang giới thiệu (cảnh có { clip: true })
 let elapsed = 0; // giây đã ghi của các cảnh trước
 const meta = { poster: 0, scenes: [] };
 
 /** Một cảnh = một context. `run(page, a)`: a.start() bắt đầu ghi (gọi khi trang đã sẵn sàng), a.cap(text|null) đặt / xoá phụ đề, a.move / a.click đi chuột có đường. */
-async function scene(name, who, run) {
+async function scene(name, who, run, opt = {}) {
   const state = who && (await login(...who)); // đăng nhập MỚI cho mỗi cảnh: refresh token xoay vòng, dùng lại phiên cũ sẽ bị thu hồi
   const ctx = await browser.newContext({ viewport: VIEW, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh", storageState: state });
   await ctx.addInitScript(cursor);
@@ -110,10 +111,10 @@ async function scene(name, who, run) {
   await ctx.close();
   for (let i = 0; i < frames.length; i++) {
     const d = i + 1 < frames.length ? (frames[i + 1][1] - frames[i][1]) / 1000 : 0.04; // timestamp tính bằng ms → chia 1000
-    frameLines.push(`file ${frames[i][0].replace(`${OUT}/`, "")}`, `duration ${d.toFixed(4)}`);
+    (opt.clip ? clipLines : frameLines).push(`file ${frames[i][0].replace(`${OUT}/`, "")}`, `duration ${d.toFixed(4)}`);
   }
   const span = frames.length ? (frames.at(-1)[1] - frames[0][1]) / 1000 : 0;
-  elapsed += span;
+  if (!opt.clip) elapsed += span;
   meta.scenes.push({ name, frames: frames.length, seconds: +span.toFixed(2) });
   console.log("cảnh", name, frames.length, "khung,", span.toFixed(1), "s");
 }
@@ -143,7 +144,9 @@ await scene("s1-chat", sv, async (page, a) => {
   await a.click(session);
   await sleep(1200);
   await a.cap(CAPTIONS[1]);
-  await sleep(5500);
+  await sleep(1200);
+  await page.screenshot({ path: `${OUT}/story-chat.png` }); // ảnh khung ghim của trang giới thiệu (US-UX91-08 AC6), chụp trước phụ đề của lần quay kế
+  await sleep(4300);
   await page.mouse.wheel(0, 300);
   await sleep(3500);
 });
@@ -170,6 +173,7 @@ await scene("s2-review", gv, async (page, a) => {
   await page.mouse.move(1100, 880, { steps: 8 }); // đưa con trỏ ra khỏi vùng nội dung trước khi lấy poster
   await sleep(1500);
   a.posterHere();
+  await page.screenshot({ path: `${OUT}/story-review.png` });
   await sleep(3800);
   await a.cap(CAPTIONS[4]);
   await page.mouse.wheel(0, 380);
@@ -186,9 +190,30 @@ await scene("s3-gradebook", gv, async (page, a) => {
   await a.click(page.locator("main tbody tr", { hasText: /\d{8}/ }).first().getByRole("button").last());
   await sleep(1000);
   const explain = page.getByRole("menuitem", { name: /Giải trình/ }).first();
-  if (await explain.count()) { await a.click(explain); await sleep(600); }
-  await sleep(6000);
+  if (await explain.count()) { await a.click(explain); await sleep(900); }
+  await page.screenshot({ path: `${OUT}/story-gradebook.png` });
+  await sleep(5100);
 });
+
+// ---- clip lặp 6–8 s cho màn đầu trang giới thiệu (không phụ đề): màn duyệt bài, cuộn xuống rồi về đúng chỗ cũ để vòng lặp liền mạch
+await scene("clip-review", gv, async (page, a) => {
+  await page.goto(`${BASE}/grading`, { waitUntil: "load" });
+  await sleep(1500);
+  await a.click(page.locator("main tbody tr").first());
+  await page.waitForURL(/\/grading\//);
+  await page.mouse.move(1100, 880, { steps: 8 });
+  await sleep(1200);
+  await a.start();
+  await sleep(900);
+  await page.mouse.move(1000, 520, { steps: 30 });
+  await sleep(500);
+  for (let i = 0; i < 12; i++) { await page.mouse.wheel(0, 30); await sleep(55); }
+  await sleep(1400);
+  for (let i = 0; i < 12; i++) { await page.mouse.wheel(0, -30); await sleep(55); }
+  await sleep(300);
+  await page.mouse.move(1100, 880, { steps: 30 });
+  await sleep(900);
+}, { clip: true });
 
 await scene("s4-today", gv, async (page, a) => {
   await page.goto(`${BASE}/`, { waitUntil: "load" });
@@ -206,6 +231,7 @@ await scene("s5-outro", undefined, async (page, a) => {
 });
 
 fs.writeFileSync(`${OUT}/frames.ffconcat`, frameLines.join("\n"));
+fs.writeFileSync(`${OUT}/clip.ffconcat`, clipLines.join("\n"));
 meta.total = +elapsed.toFixed(2);
 fs.writeFileSync(`${OUT}/meta.json`, JSON.stringify(meta, null, 2));
 console.log("tổng", meta.total, "s; poster ở", meta.poster.toFixed(1), "s");
