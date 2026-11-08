@@ -61,3 +61,10 @@
 | Q-UX91-4 | Điểm danh: mặc định "Có mặt" dùng chấm mực; đỏ chỉ cho Vắng / Vắng phép / Muộn. |
 | Q-UX91-5 | Trang giới thiệu được nêu số đo từ môi trường mô phỏng, kèm dòng chú thích "đo trên dữ liệu mô phỏng". |
 | [ĐỔI DESIGN] trang giới thiệu | Thêm mục "Trang giới thiệu (Persuade)" vào `DESIGN.md`: cho phép chuyển động cuộn / sơ đồ / số đếm; §11 ("không dàn dựng khi tải trang") chỉ áp dụng cho ứng dụng sau đăng nhập. |
+
+## Quyết định của PM cho các câu TL-2 (2026-11-08)
+- **UX-16:** không làm tròn khi hiển thị (P-91-1).
+- **UX-5, "Gấp":** dùng `urgency == "overdue"` của backend. Ngưỡng riêng từng nguồn việc đã định ở F14; "quá 72 giờ làm việc" là ngưỡng của các nguồn đó, không đặt ngưỡng mới ở client. Có thêm cờ rủi ro thì cũng vào nhóm Gấp.
+- **UX-15, highlight trích dẫn:** chuyển động ≤ 200 ms theo luật ứng dụng. Nền highlight được **giữ** khoảng 1 s rồi mờ đi trong 200 ms; khoảng giữ là trạng thái, không phải chuyển động.
+- **UX-25(a), lớp mặc định:** cách S. Nhớ lớp đã chọn; lần đầu chọn lớp đầu tiên **có dữ liệu** theo thứ tự API. "Lớp có việc chờ" để Nợ.
+- **TL-2 đề xuất 4, 5:** chấp nhận (P-91-1, P-91-2). Gộp việc pha 2 theo **6 đợt** của TL-2.
