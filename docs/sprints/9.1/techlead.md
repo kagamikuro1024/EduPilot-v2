@@ -209,3 +209,142 @@ Căn cứ: các quyết định Q-UX91-1…5 và [ĐỔI DESIGN] trang giới th
    - bỏ gợi ý "chủ đề sai nhiều" ở 9.1 (ghi Nợ, cần API).
 
    Lý do: mỗi mục hoặc thêm JS vào `/`, hoặc trùng thứ đã có, hoặc cần API ngoài phạm vi sprint giao diện (TL-2). Ảnh hưởng: phạm vi spec `FEAT-uiux-91` nhỏ lại, không mất mục tiêu nào của BA.
+
+## TL-3 (pha 2, đợt 6: thiết kế "Dùng thử", PM giao 2026-11-08)
+
+**Câu hỏi (PM):** thiết kế nút "Dùng thử" đăng nhập một chạm vai sinh viên / giảng viên. Ràng buộc an toàn theo `plan.md` mục "Chủ dự án duyệt báo cáo":
+- chỉ bật khi `DEMO_MODE=true`;
+- tài khoản và lớp sandbox riêng;
+- đặt lại định kỳ bằng seed, không `down -v`, không đụng lớp trình diễn;
+- giới hạn tần suất;
+- không lộ mật khẩu.
+
+Cần nêu cả ảnh hưởng OpenAPI / migration / auth, rủi ro và ước lượng.
+
+**TL trả lời:**
+
+### Hiện trạng bản demo (đọc trên VPS 2026-11-08, chỉ đọc)
+- Gateway chạy `APP_ENV=dev`, có `LLM_DEMO_FILE=/seed/demo/fake_llm.json`. **Biến `DEMO_MODE` chưa tồn tại** (`config.go` chỉ có `LLM_DEMO_FILE`, dòng 399–402).
+- **Mọi tác vụ LLM đều đi 9router** `ag/gemini-3.8-flash`: CHAT, CLASSIFY, GRADING, INSIGHT, QUESTION_GEN, UTILITY. EMBEDDING đi Gemini thật (`gemini-embedding-001`).
+- Provider 9router có `rpm_limit = 20`, **giá `price_in` / `price_out` = 0**. Bảng `llm_budgets` **rỗng**.
+  → Ngân sách VND hiện có (`internal/llm/budget`, theo hệ thống / lớp × ngày / tháng) **không chặn được gì**, vì chi phí luôn tính bằng 0.
+  → 20 rpm là chung cho cả lớp trình diễn và khách.
+- Bản demo có 2 lớp. Mail đi Mailpit, không ra ngoài.
+
+### Chọn: sandbox **trong cùng stack**, lớp sandbox riêng, nhóm tài khoản cho mượn theo lượt
+
+| Tiêu chí | A. Cùng stack, lớp + tài khoản sandbox (**chọn**) | B. Stack sandbox riêng (`-p ep-sandbox`) |
+| --- | --- | --- |
+| Khớp ràng buộc PM | Đủ: không `down -v`, không đụng lớp trình diễn | Đặt lại = dựng lại DB của stack sandbox, trái chữ "không `down -v`" → phải mở lại ràng buộc |
+| Cô lập | Theo lớp (`CourseAccessGuard`) + chặn thêm cho tài khoản sandbox | Hoàn toàn (DB / Redis riêng) |
+| Hạ tầng | Không thêm | Thêm một bộ gateway / worker / Postgres / Redis / frontend. Cần tên miền phụ hoặc `basePath` cho frontend (host `happysrv.de` của netcup [CHƯA KIỂM] có cho tên miền phụ không) |
+| 9router 20 rpm | Vẫn chung | Vẫn chung (cùng 9router) |
+| Công sức | L (≈ 3–3,5 ngày) | L+ (≈ 4–5 ngày, thêm vận hành) |
+
+B chỉ đáng làm khi PM muốn cô lập tuyệt đối. Trong cả hai cách, rủi ro lớn nhất (hạn mức 9router chung) là như nhau.
+
+### Thiết kế A
+
+**1. Tài khoản và lớp sandbox (seed, không migration)**
+- Seed tạo **một lớp sandbox** gồm:
+  - mã lớp riêng (ví dụ `79xxxx`), tên "Lớp dùng thử";
+  - **nhóm tài khoản cho mượn**: 10 sinh viên `thu.sv01…10@thu.edupilot.local`, 3 giảng viên `thu.gv01…03@thu.edupilot.local`, đều là thành viên **chỉ** của lớp sandbox;
+  - các sinh viên khác của lớp sandbox (≈ 20, như lớp 1), không cho mượn.
+- Mật khẩu ngẫu nhiên lúc seed, không lưu ở đâu. Endpoint không cần mật khẩu.
+- **Dấu nhận biết sandbox = miền email dành riêng `@thu.edupilot.local`**, đọc từ claim `email` của JWT. `IssueSession` đã ký email vào token: `session.go` dòng 336.
+  - Không cần cột mới, nên không có migration.
+  - Đăng ký / mời bằng miền này bị từ chối khi `DEMO_MODE=true` (một dòng kiểm ở `register` / `invite`).
+
+**2. Đăng nhập một chạm: `POST /api/v1/demo/sessions {"role": "student" | "teacher"}`**
+- **Chỉ gắn route** khi `DEMO_MODE=true`. `config.Load` báo lỗi nếu `DEMO_MODE=true` và `APP_ENV=production`, cùng kiểu `LLM_DEMO_FILE` (`config.go` dòng 400–402). Tắt → route không tồn tại (404).
+- Middleware dùng lại của `authhttp`, giống các route auth (`handler.go` dòng 44–57):
+  - `noStore`;
+  - `cookieGuard`: chặn `Origin` lạ, chống login CSRF ép khách vào phiên sandbox;
+  - `limitIP("demo", 10*time.Minute, 5)`.
+  - Thêm một trần toàn cục `Limiter.HitWindow(ctx, "demo", "all", time.Hour, 120)`.
+- **Cho mượn:** chọn một tài khoản trong nhóm của vai đó bằng `SET ep:demo:lease:{user_id} 1 NX EX 1800` (Redis, không trạng thái trong tiến trình). Hết tài khoản rảnh → `503 SERVICE_UNAVAILABLE` + `Retry-After`.
+  - Mượn được thì `Sessions.RevokeAll(..., ReasonAdmin)`: phiên của khách trước bị đá ra ≤ 1 s nhờ khoá thu hồi Redis (`session.go` dòng 451–474). Dùng lý do có sẵn nên **không đổi CHECK của `auth_sessions`**.
+  - Sau đó gọi `Sessions.CreateSessionFor`, hàm đã dùng cho "nhận lời mời", không kiểm mật khẩu (`session.go` dòng 312–315).
+  - Trả **cùng thân + cookie `ep_rt`** như `/auth/login` (`writeSession`, `handler.go` dòng 142). Frontend không cần nhánh phiên mới.
+- Ghi `audit_log` hành động `demo_session` (vai, `user_id`), không ghi IP vào nội dung.
+- **Frontend, 0 KB JS ở `/`:**
+  - nút trên trang giới thiệu là liên kết `/login?thu=sv` | `/login?thu=gv`;
+  - màn đăng nhập (đã là client, đã có `authSession`) thấy tham số thì gọi endpoint, nạp phiên, rồi về `/`;
+  - lỗi (đang tắt / 503 / 429) → một dòng trên màn đăng nhập ("Dùng thử đang tạm đóng" / "Đang đông, thử lại sau ít phút").
+  - Nút chỉ hiện khi bản dựng có `NEXT_PUBLIC_DEMO_MODE=1`. Endpoint mới là chốt an toàn thật.
+
+**3. Chặn hành vi phá hoại của tài khoản sandbox** (một middleware, điều kiện "email thuộc miền sandbox", trả 403):
+- **Quản lý tài khoản:** `POST /me/password`, `DELETE /me/sessions*`, đổi email / hồ sơ đăng nhập. Không chặn thì khách đổi mật khẩu tài khoản cho mượn, rồi sau này `/login` vào lại, đi vòng qua cơ chế cho mượn.
+- **Tích hợp:** cấu hình IMAP / Teams. Máy chủ sẽ kết nối tới host do người dùng nhập, tức rủi ro SSRF.
+- **Tạo lời mời** giảng viên / TA, đổi người được gán của lớp.
+- **Tải tài liệu:** giữ (là một phần của trải nghiệm) nhưng có trần riêng: ≤ 5 tệp / giờ / tài khoản, bằng `HitWindow`. Tải lên chạy docling (CPU) và embedding Gemini thật.
+- Ngoài các mục trên, mọi quyền như người dùng thường của lớp sandbox. `CourseAccessGuard` đã ngăn đụng lớp trình diễn, vì tài khoản sandbox không là thành viên ở đó.
+
+**4. Hạn mức LLM** (khách gọi Gemini thật qua 9router)
+- **Đặt giá thật cho model 9router** (`llm_models.price_in` / `price_out`, theo bảng giá Gemini Flash) và **một dòng `llm_budgets` phạm vi lớp sandbox**, ví dụ 20.000 đ / ngày. Khi tới mức `exhausted`, budget Manager đã chặn lớp đó (`budget.go`: `State`, `Charge`); lớp trình diễn không bị ảnh hưởng.
+  - Hệ quả: số "Chi phí" ở `/analytics` của lớp trình diễn sẽ khác 0 → **PM / chủ dự án quyết**.
+- Đã có sẵn, không đổi: `chat.RatePerMin` theo người (`chat/send.go` dòng 65). Mỗi khách giữ một tài khoản nên trần này là theo từng khách. `crm` AI theo giờ (`aisummary.go` dòng 137).
+- **Rủi ro còn lại:** 20 rpm của 9router là chung. Nhiều khách chat cùng lúc có thể làm chậm / 429 chat của lớp trình diễn; cùng làn `INTERACTIVE` nên Scheduler không ưu tiên được. → **Trước buổi bảo vệ: `DEMO_MODE=false`** (sửa env, khởi động lại gateway), hoặc giảm hạn mức sandbox về 0.
+
+**5. Đặt lại sandbox định kỳ** (không `down -v`, không đụng lớp trình diễn)
+- **Không xoá cứng theo lớp:** có 50 bảng mang `course_id`, phần lớn FK không `ON DELETE CASCADE`, và `audit_log` chỉ cho ghi thêm (trigger `audit_log_no_update`, `00001_pg_platform.sql` dòng 135). Xoá theo lớp vừa dễ gãy vừa phải sửa mỗi khi thêm bảng.
+- **Xoay lớp thay vì xoá.** Mỗi đêm cron trên VPS chạy `scripts/sandbox-reset.sh`:
+  1. Admin API **lưu trữ** lớp sandbox hiện tại (`adminArchive`). Lớp đã lưu trữ từ chối ghi bằng `409 COURSE_ARCHIVED` (`coursehttp/admin.go` dòng 360), nên tab cũ của khách không ghi được nữa.
+  2. Xoá các khoá `ep:demo:lease:*`.
+  3. `node scripts/seed.mjs --sandbox`: một chế độ mới của seed hiện có, chỉ dựng lớp sandbox + nhóm tài khoản, bằng **API thật**. Seed idempotent (US-P2-12 AC6), chạy được ở `APP_ENV=dev` của demo.
+     - Tài khoản cho mượn đã có thì chỉ ghi danh vào lớp mới.
+     - Đặt `llm_budgets` của lớp mới.
+  4. `Sessions.RevokeAll` cho mọi tài khoản sandbox (qua lệnh `gateway admin`, kiểu `run-job` có kiểm `APP_ENV`).
+- Lớp trình diễn không bị chạm: mọi bước lọc theo mã lớp sandbox hoặc miền email sandbox.
+- **Chi phí LLM mỗi lần đặt lại:** seed có chấm bài / trích công thức qua 9router [SUY LUẬN: cỡ vài chục lời gọi]. Nên để `--sandbox` dựng **ít bài hơn** lớp 1 (khoảng 8 bài nộp).
+- **Dữ liệu khách nhập** (chat, Hỏi đáp, tài liệu) nằm lại trong lớp đã lưu trữ. Ghi Nợ: lệnh dọn chữ tự do của lớp sandbox đã lưu trữ > 7 ngày, đúng danh sách bảng chat / forum / ticket / document. Chủ dự án quyết có cần trước bảo vệ không.
+
+### Ảnh hưởng
+- **OpenAPI:** thêm `POST /demo/sessions`:
+  - request `{role}`;
+  - `200` dùng lại schema phản hồi của `/auth/login`;
+  - lỗi `403` (Origin), `404` (tắt), `422` (vai sai), `429` (`RATE_LIMITED` + `retry_after`), `503` (hết tài khoản rảnh).
+
+  Contract test chạy với `DEMO_MODE=true`, và một ca `false` → 404.
+- **Migration:** **không có.** Dùng lại `ReasonAdmin`; sandbox nhận biết bằng miền email; lớp nhận biết bằng mã lớp trong cấu hình seed.
+- **Auth (cần PM / chủ dự án duyệt, theo `AGENTS.md` "Khi nào DỪNG"):**
+  - một đường cấp phiên **không mật khẩu** cho tài khoản sandbox;
+  - một middleware 403 cho tài khoản sandbox ở các route tài khoản / tích hợp / mời;
+  - một điều kiện từ chối miền email sandbox khi đăng ký / mời;
+  - cấu hình mới `DEMO_MODE` (bị cấm ở production).
+- **Cấu hình demo (không phải code):** giá model 9router; ngân sách lớp sandbox; cron trên VPS; `NEXT_PUBLIC_DEMO_MODE=1` cho bản dựng frontend của demo.
+- **Tài liệu:** `ARCHITECTURE.md` §5 (endpoint), `deploy/README.md` (cron, cách tắt trước bảo vệ), `DEMO_SCRIPT.md` (không dùng tài khoản sandbox để trình diễn).
+
+### Rủi ro
+| Rủi ro | Mức | Chặn bằng |
+| --- | --- | --- |
+| Bật nhầm ở production | Cao nếu xảy ra | `config.Load` từ chối `DEMO_MODE` + `APP_ENV=production`; route không gắn khi tắt; contract test hai trạng thái |
+| Khách giữ tài khoản cho mượn lâu dài (đổi mật khẩu rồi `/login`) | TB | Chặn đổi mật khẩu / quản lý phiên cho miền sandbox; cho mượn mới thì `RevokeAll` |
+| Login CSRF (trang lạ ép trình duyệt vào phiên sandbox) | Thấp | `cookieGuard` (Origin / `Sec-Fetch-Site`) như `/auth/refresh` |
+| SSRF qua cấu hình IMAP | Cao nếu không chặn | Middleware 403 cho tích hợp |
+| Tốn hạn mức 9router / làm chậm lớp trình diễn | **Cao** | Ngân sách lớp sandbox (cần giá > 0); giới hạn theo IP / toàn cục; **tắt `DEMO_MODE` trước bảo vệ** |
+| Khách nhập thông tin thật vào chat | TB | Lớp xoay hằng đêm; lệnh dọn chữ tự do (Nợ); dữ liệu mô phỏng (D44) không trộn vào lớp trình diễn |
+| Hai khách dùng chung một tài khoản | Thấp | Cho mượn theo lượt bằng `SET NX` + đá phiên cũ |
+
+### Ước lượng: **L, khoảng 3–3,5 ngày dev** (chưa tính QC)
+- Gateway M–L (1,5–2 ngày):
+  - config `DEMO_MODE`;
+  - endpoint + cho mượn + trần tần suất;
+  - middleware chặn sandbox, chặn miền khi đăng ký / mời;
+  - OpenAPI + contract test;
+  - test bảng (tắt / bật / production / hết tài khoản / Origin lạ / đổi mật khẩu bị 403).
+- Seed `--sandbox` + `scripts/sandbox-reset.sh` + lệnh `gateway admin` thu hồi phiên sandbox + cron: M (1 ngày).
+- Frontend S (0,5 ngày): liên kết trên trang giới thiệu, xử lý `?thu=` ở `/login`, dòng lỗi.
+
+### Đề xuất cho PM (chép vào `proposals.md` nếu đồng ý)
+6. **"Dùng thử" theo thiết kế A của TL-3.** Gồm:
+   - `POST /demo/sessions` chỉ có khi `DEMO_MODE=true`, cấm ở production;
+   - nhóm tài khoản sandbox `@thu.edupilot.local` cho mượn 30 phút bằng Redis;
+   - lớp sandbox xoay hằng đêm bằng seed `--sandbox` + lưu trữ lớp cũ;
+   - chặn đổi mật khẩu / quản lý phiên / tích hợp / mời cho tài khoản sandbox;
+   - ngân sách LLM riêng cho lớp sandbox;
+   - không migration.
+
+   **Cần chủ dự án duyệt vì đụng auth.** Kèm hai quyết định:
+   - (a) đặt giá thật cho model 9router, khiến "Chi phí" của lớp trình diễn khác 0;
+   - (b) tắt `DEMO_MODE` trong buổi bảo vệ.
