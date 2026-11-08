@@ -57,7 +57,7 @@
 @media (max-width: 719px) {
   .top, .hero, .section, .foot { width: min(100% - 2 * var(--ep-space-4), 70rem); }
   .hero { padding-block: var(--ep-space-8) var(--ep-space-6); }
-  .heroText { min-height: calc(100svh - 7rem); } /* khối chữ đầy màn hình đầu, video dưới nếp gấp: chữ là LCP */
+  .heroText { min-height: calc(100svh - 7rem); align-content: center; } /* khối chữ đầy màn hình đầu, video dưới nếp gấp: chữ là LCP */
   .section { padding-block: var(--ep-space-8); }
   .shotsStudent { grid-template-columns: minmax(0, 1fr) 8rem; }
 }
