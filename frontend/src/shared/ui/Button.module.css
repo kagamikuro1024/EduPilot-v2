@@ -48,7 +48,7 @@
 .reasonWrap:focus-within .reason { opacity: 1; }
 @media (hover: hover) and (pointer: fine) { .reasonWrap:hover .reason { opacity: 1; } }
 @media (hover: none) {
-  .reason { transition-delay: 3s; }
+  .reason { top: calc(100% + var(--ep-space-2)); bottom: auto; transition-delay: 3s; } /* cảm ứng: lý do hiện dưới nút (US-UX91-03 AC4) */
   .reasonWrap:active .reason, .reasonWrap:focus-within .reason { opacity: 1; transition-delay: 0s; }
 }
 

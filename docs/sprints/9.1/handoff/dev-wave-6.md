@@ -25,3 +25,11 @@ Stack kiểm: `-p ep-qc`, `/srv/work/qc`, nhánh `sprint/9.1-uiux` ở commit tr
 - **Di động < 720 px**: khối chữ đầu `min-height: calc(100svh - 12rem)` để chữ là LCP (poster chỉ preload ≥ 720 px) — để lại khoảng trống ~300 px giữa nút và ảnh; đổi lấy LCP 2,3 s. Nếu muốn ảnh lên cao hơn thì LCP sang ảnh.
 - Nút phụ `Xem video` có từ v1 → AC2 đủ ba nút; không có "Dùng thử".
 - Test `landing.spec.ts` viết lại theo AC21 (bỏ test tab vai và `PlayState` của v1).
+
+## Sửa theo review PM và QC (cập nhật)
+- Review PM (P-91-6): khung kể chuyện ≥ 58 % bề rộng ở 1440 (khung ~66 %: vùng `wide` 84 rem, cột chữ 16–21 rem), ảnh WebP 1600 px chụp gấp đôi ở cửa sổ 1360 × 850 + bản 800 px, khối ghim 52 vh mỗi bước; sơ đồ ba bước giữ `h2` và thứ tự AC1 nhưng bỏ câu giải thích (lặp phần kể chuyện); `Xem video` là nút chữ có ▶ cạnh hai nút (ba nút một hàng ở 375 px, hẹp hơn thì xuống hàng, không tràn); màn đầu 375 px chữ lớn lấp màn, mép poster 640 px ở đáy (LCP là chữ, không phải ảnh).
+- Poster là `<img>` (1280 px ≥ 720 px, 640 px điện thoại), không dùng thuộc tính `poster` của video, để máy nào chỉ tải ảnh của máy đó; video nằm đè khi đã phát (`data-ready`). Thử poster 640 px làm LCP ở điện thoại: 2,7–2,9 s (tranh băng thông với JS và phông) nên bỏ.
+- LCP di động throttle thật sau sửa: 2,25 / 2,38 / 2,35 s; JS 211 KB; CLS 0,001.
+- QC (`qc/wave-6.md`): UX08-11 tab ẩn ngay lúc tải rồi hiện ⇒ clip tải và phát (`LandingMedia`, test mới); UX08-51 nhóm khung ứng dụng + phiên + dữ liệu mô phỏng tách thành `AuthedHome` nạp động (`HomeGate`) nên JS của `/` cho khách không còn `mock/identity.ts` (chunk chứa email mẫu không có trong HTML của `/`); UX09-4 poster clip 58,5 KB (`quality 40`); UX09-16 `scripts/landing-video/README.md`, `run.sh` hết cứng host / `.env.local` (`EP_HOST` / `EP_BASE_URL`, `SEED_DEFAULT_PASSWORD` hoặc `ENV_FILE`, `EP_CLASS_CODE`…), đầu ra mặc định `.landing-out/` (đã vào `.gitignore`).
+- Ảnh khung ghim: 49 / 88 / 47 KB (1600 px), 20 / 38 / 21 KB (800 px) — trong ngân sách 90 KB của AC6.
+- PM đã chốt (P-91-7, P-91-8): chuyển động gắn cuộn, số đếm / đổi màu sơ đồ là ngoại lệ, bỏ AC "một h2 mỗi khung nhìn": không đổi code.

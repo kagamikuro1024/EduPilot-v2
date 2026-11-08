@@ -160,6 +160,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
   };
 
   const needAssignment = assignmentId === "" ? "Chọn một bài tập trước." : undefined;
+  const noneToGrade = !needAssignment && !list.isPending && !list.isError && rows.length === 0 ? "Chưa có bài nộp." : undefined; // hàng chờ rỗng: không có gì để chấm (US-UX91-03 AC2)
 
   // ---- công bố hàng loạt (US-P7-09 AC1): chỉ TEACHER, chỉ hàng ĐÃ DUYỆT ---------------------------------------------------
   const reviewable = rows.filter((r) => r.result?.status === "REVIEWED");
@@ -290,7 +291,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
               <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment) || busy} disabledReason={needAssignment} onClick={() => picker.current?.click()}>
                 Tải bài lên
               </Button>
-              <Button variant="primary" loading={busy} disabled={Boolean(needAssignment)} disabledReason={needAssignment} onClick={gradeAllNow}>
+              <Button variant="primary" loading={busy} disabled={Boolean(needAssignment || noneToGrade)} disabledReason={needAssignment ?? noneToGrade} onClick={gradeAllNow}>
                 Chấm tất cả
               </Button>
               {teacher && chosen.length > 0 && (

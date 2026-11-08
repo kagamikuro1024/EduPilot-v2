@@ -1,12 +1,14 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useEffect } from "react";
-import { TodayScreen } from "@/features/today/TodayScreen";
-import { AppShell } from "@/shared/shell/AppShell";
 import { useAuth } from "@/shared/session/AuthProvider";
-import { SessionProvider } from "@/shared/session/session";
 import s from "./Landing.module.css";
-import { setReturning } from "@/shared/session/returning";
+import { isReturning, setReturning } from "@/shared/session/returning";
+
+// Khung ứng dụng nạp riêng: khách vào `/` không tải mã khung / phiên / dữ liệu mô phỏng. Người quay lại (có cờ) nạp trước ngay khi trang chạy để không chờ thêm sau khi phiên xác nhận.
+const loadAuthed = () => import("./AuthedHome");
+const AuthedHome = dynamic(loadAuthed, { loading: () => null });
 
 /**
  * `/`: đã đăng nhập → khung ứng dụng + "Hôm nay"; còn lại → giới thiệu (máy chủ đã vẽ sẵn, truyền vào dạng `landing`) hoặc khung "Hôm nay" chờ phiên (`pre`) cho người quay lại.
@@ -19,17 +21,14 @@ export function HomeGate({ landing, pre }: { landing: React.ReactNode; pre: Reac
     if (anonymous) setReturning(false);
   }, [anonymous]);
   useEffect(() => {
+    if (isReturning()) void loadAuthed();
+  }, []);
+  useEffect(() => {
     if (auth.status === "authenticated") document.title = "Hôm nay · EduPilot";
   }, [auth.status]);
 
   if (auth.status === "authenticated") {
-    return (
-      <SessionProvider fullName={auth.user?.full_name}>
-        <AppShell>
-          <TodayScreen />
-        </AppShell>
-      </SessionProvider>
-    );
+    return <AuthedHome fullName={auth.user?.full_name} />;
   }
   return (
     <>

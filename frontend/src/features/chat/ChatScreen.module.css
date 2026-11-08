@@ -44,7 +44,7 @@
   max-width: 54ch;
 }
 .caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; background: var(--ep-red); vertical-align: -2px; animation: blink 1s steps(2, start) infinite; }
-@keyframes blink { to { visibility: hidden; } }
+@keyframes blink { to { opacity: 0; } }
 
 .privacy { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-2); margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-2); }
 .privacy svg { width: 14px; height: 14px; color: var(--ep-green); }

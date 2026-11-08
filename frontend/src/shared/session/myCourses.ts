@@ -29,6 +29,12 @@ export function readStoredCourse(): string | null {
   }
 }
 
+export function clearStoredCourse() {
+  try {
+    localStorage.removeItem(COURSE_STORAGE_KEY);
+  } catch { /* như trên */ }
+}
+
 export function writeStoredCourse(id: string) {
   try {
     localStorage.setItem(COURSE_STORAGE_KEY, id);

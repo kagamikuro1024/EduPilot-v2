@@ -25,16 +25,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const started = useRef(false);
+  const skipped = useRef(false); // đã bỏ qua làm mới ở `/` (chưa có cờ): rời `/` sang route khác (ví dụ bấm Đăng nhập) thì thử bằng cookie
 
   useEffect(() => {
-    if (started.current) return;
+    if (started.current && !skipped.current) return;
     started.current = true;
     // Trang giới thiệu cho khách (FEAT-uiux-91 US-21): máy chưa từng đăng nhập thì `/` không gọi làm mới phiên (hết 401 ở console).
     // `/login` và mọi route khác vẫn thử bằng cookie; mất cờ mà còn cookie thì bấm "Đăng nhập" là vào thẳng.
     if (pathname === "/" && !isReturning()) {
+      skipped.current = true;
       dropSession("anonymous");
       return;
     }
+    skipped.current = false;
     void refreshSession().then((r) => {
       if (!r.ok && authStore.get().status === "initializing") dropSession("anonymous"); // mạng lỗi lúc tải: coi như chưa đăng nhập
     });

@@ -4,10 +4,9 @@
 import { chromium } from "playwright";
 import fs from "node:fs";
 
-const HOST = process.env.EP_HOST;
 const PW = process.env.PW;
 const OUT = process.env.OUT ?? "/out";
-const BASE = `https://${HOST}`;
+const BASE = process.env.EP_BASE_URL ?? `https://${process.env.EP_HOST}`; // chạy bằng run.sh: xem README.md
 const VIEW = { width: 1440, height: 900 };
 
 // Phụ đề (in vào hình bằng showOverlay). PHẢI khớp VIDEO_CAPTIONS trong frontend/src/features/landing/Landing.tsx (lời thay cho video không tiếng).
@@ -125,7 +124,8 @@ const card = (page, html) => page.evaluate((h) => {
   document.body.innerHTML = `<div style="position:fixed;inset:0;background:#fff;display:grid;place-content:center;gap:28px;text-align:center;font-family:var(--ep-font,sans-serif);color:#18181b">${h}</div>`;
 }, html);
 
-const sv = ["sv.kha@edupilot.local", "761987"], gv = ["teacher@edupilot.local", "761987"];
+const CLASS = process.env.EP_CLASS_CODE ?? "761987";
+const sv = [process.env.EP_STUDENT_EMAIL ?? "sv.kha@edupilot.local", CLASS], gv = [process.env.EP_TEACHER_EMAIL ?? "teacher@edupilot.local", CLASS];
 
 await scene("s0-intro", undefined, async (page, a) => {
   await page.goto(`${BASE}/login`, { waitUntil: "load" });

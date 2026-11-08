@@ -44,6 +44,36 @@ test("landing có cờ 'đã từng đăng nhập' ⇒ vẫn gọi làm mới ph
   await expect.poll(() => refresh.length).toBeGreaterThan(0);
 });
 
+test("landing mất cờ nhưng còn cookie: bấm Đăng nhập (chuyển trang trong ứng dụng) thì thử làm mới phiên bằng cookie (US-21 AC3)", async ({ page }) => {
+  const refresh: string[] = [];
+  page.on("request", (q) => q.url().includes("/api/v1/auth/refresh") && refresh.push(q.method()));
+  await anonymous(page);
+  await page.goto("/");
+  await expect(page.locator("[data-part=landing]")).toBeVisible();
+  expect(refresh).toEqual([]); // ở `/` chưa có cờ: không gọi
+  await page.getByRole("link", { name: "Đăng nhập" }).first().click();
+  await expect(page).toHaveURL(`${BASE_URL}/login`);
+  await expect.poll(() => refresh.length).toBe(1);
+});
+
+test("landing clip: tab ẩn ngay lúc tải rồi hiện ⇒ clip tải và phát (US-UX91-08 AC3)", async ({ page }) => {
+  const clipReq: string[] = [];
+  page.on("request", (q) => /gioi-thieu-clip-v1\.(mp4|webm)/.test(q.url()) && clipReq.push(q.url()));
+  await anonymous(page);
+  await page.addInitScript(() => {
+    Object.defineProperty(document, "hidden", { configurable: true, get: () => (window as unknown as { __hid?: boolean }).__hid !== false });
+  });
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  expect(clipReq).toEqual([]);
+  await page.evaluate(() => {
+    (window as unknown as { __hid: boolean }).__hid = false;
+    document.dispatchEvent(new Event("visibilitychange", { bubbles: true }));
+  });
+  await expect.poll(() => clipReq.length).toBeGreaterThan(0);
+  await expect(page.locator("[data-part=landing] video[data-clip]")).toHaveAttribute("data-ready", "");
+});
+
 test("landing signed in: đã đăng nhập thì `/` là Hôm nay, không có trang giới thiệu", async ({ page, context }) => {
   await asDemo(context, "student");
   await mockStudentToday(page);

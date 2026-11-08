@@ -15,7 +15,7 @@ C=gioi-thieu-clip-v1
 ffmpeg -hide_banner -loglevel error -y -f concat -safe 0 -i clip.ffconcat -fps_mode cfr -r 30 \
   -c:v libx264 -preset slow -tune stillimage -crf 32 -maxrate 450k -bufsize 900k -pix_fmt yuv420p -movflags +faststart -an /dest/$C.mp4
 ffmpeg -hide_banner -loglevel error -y -i /dest/$C.mp4 -c:v libvpx-vp9 -b:v 0 -crf 48 -row-mt 1 -deadline good -cpu-used 2 -an /dest/$C.webm
-ffmpeg -hide_banner -loglevel error -y -i /dest/$C.mp4 -frames:v 1 -vf scale=1280:-2 -c:v libwebp -quality 48 /dest/$C.webp
+ffmpeg -hide_banner -loglevel error -y -i /dest/$C.mp4 -frames:v 1 -vf scale=1280:-2 -c:v libwebp -quality 40 /dest/$C.webp
 ffmpeg -hide_banner -loglevel error -y -i /dest/$C.mp4 -frames:v 1 -vf scale=640:-2 -c:v libwebp -quality 38 /dest/$C-640.webp # poster điện thoại (nhỏ để về sớm)
 fi
 # ba ảnh khung ghim: 1600 px (máy tính, ảnh gấp đôi) và 800 px (điện thoại)

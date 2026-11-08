@@ -17,3 +17,7 @@ Commit: `4b6389f1` (chung với đợt 1). Stack kiểm như `dev-wave-1.md`.
 ## Lệch / nợ
 - Bộ chọn lớp hiện "buổi tiếp theo" chưa làm (Nợ theo spec).
 - Hai `ui-allow` mới ở `not-found.tsx`, `AppShell.tsx` (`NoCourse`) — tổng 10/10.
+
+## Sửa sau QC (`qc/wave-2.md`)
+- UX06-6: `ep:ui:course` là id không còn trong danh sách lớp của tôi ⇒ xoá giá trị (`session.tsx`, `clearStoredCourse`).
+- US-07 AC4 ("Threads" ở `Landing.tsx`) đã sửa ở đợt 6 (QC ghi nhận).

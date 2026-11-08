@@ -27,6 +27,7 @@ export function LandingMedia() {
     const saveData = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData === true;
     const wide = matchMedia("(min-width: 720px)").matches;
     let userPaused = false;
+    let failed = false; // nạp lỗi một lần thì giữ poster, không thử lại mỗi lần tab hiện
     try {
       userPaused = sessionStorage.getItem(PAUSED_KEY) === "1";
     } catch {
@@ -43,7 +44,7 @@ export function LandingMedia() {
       else void clip.play().catch(() => undefined);
     };
     const start = () => {
-      if (!clip || reduce || saveData || !wide || document.hidden) return;
+      if (!clip || failed || reduce || saveData || !wide || document.hidden) return;
       for (const [ext, type] of [["mp4", "video/mp4"], ["webm", "video/webm"]] as const) {
         const src = document.createElement("source");
         src.src = `${CLIP}.${ext}`;
@@ -52,6 +53,7 @@ export function LandingMedia() {
       }
       // lỗi tải: giữ poster, bỏ nguồn, ẩn nút (không còn gì để dừng)
       on(clip.lastElementChild as HTMLElement, "error", () => {
+        failed = true;
         clip.querySelectorAll("source").forEach((x) => x.remove());
         if (toggle) toggle.hidden = true;
       });
@@ -75,7 +77,11 @@ export function LandingMedia() {
         sync();
       });
     }
-    on(document, "visibilitychange", sync);
+    on(document, "visibilitychange", () => {
+      // tab ẩn ngay lúc tải rồi mới hiện: clip chưa được nạp thì nạp bây giờ (AC3)
+      if (clip && !clip.querySelector("source") && document.readyState === "complete") start();
+      else sync();
+    });
 
     // ---- hộp thoại video đầy đủ
     const dlg = root.querySelector<HTMLDialogElement>("[data-video-dialog]");

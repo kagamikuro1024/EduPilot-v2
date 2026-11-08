@@ -30,3 +30,12 @@ Mục "Ca đặc biệt" (`section[data-part=edge-cases]`), giữa "Trạng thá
 - US-04 AC7 (nháy lưu ô): có tiện ích `.ep-saved` + keyframes ở `base.css`, **chưa áp** vào ô sổ điểm / điểm danh / nhận xét — làm ở đợt 4.
 - `DESIGN.md` §11 (dialog / drawer ≤ 200 ms): phần chữ do BA sửa; code đã dùng `--ep-slow`.
 - `ui-allow:` đang đúng 10 chỗ (trần).
+
+## Sửa sau QC (`qc/wave-1.md`; PM: P-91-7, P-91-8)
+- US-21 AC3: `AuthProvider` nhớ đã bỏ qua làm mới ở `/` (chưa có cờ); rời `/` sang route khác (bấm `Đăng nhập`, chuyển trang trong ứng dụng) thì gọi `/auth/refresh` bằng cookie, còn phiên thì vào thẳng ứng dụng. Test: `landing.spec.ts` "mất cờ nhưng còn cookie".
+- UX03-8: `Chấm tất cả` khoá với "Chưa có bài nộp." khi đã chọn bài tập và hàng chờ rỗng (`QueueTab.tsx`, `noneToGrade`).
+- UX03-13: ở cảm ứng (`hover: none`) lý do hiện DƯỚI nút (`Button.module.css`).
+- UX04-16: con trỏ nhấp nháy của chat đổi bằng `opacity` (`ChatScreen.module.css`).
+- UX03-18: `dev-ui-*`, `gradebook-*` không đổi hình ở khung 1440 / 390 (ca đặc biệt nằm dưới màn đầu; ảnh mốc chỉ chụp khung nhìn) nên không sinh lại; **`DESIGN.md` chưa có đoạn về lý do nút khoá — việc của BA** (nội dung đề nghị: nút khoá luôn kèm lý do ≤ 1 câu, hiện khi rê / focus / chạm, đặt dưới nút ở cảm ứng; xem `Button.tsx`).
+- AC7 nháy lưu ô (UX04-12, 13, 14, 19): PM chốt kiểm ở đợt 4.
+- Ảnh mốc mới `hom-nay-gv-1440`, `hom-nay-gv-390` (US-10 AC12) thuộc đợt 3.

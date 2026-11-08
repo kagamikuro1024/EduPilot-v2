@@ -10,7 +10,7 @@ import { useDemoSlice } from "@/shared/state/demo";
 import { useAuth } from "./AuthProvider";
 import { ALL_COURSES } from "./cookies";
 import { checkToken, type Claims } from "./jwt";
-import { mockCourseFor, readStoredCourse, useFirstCourseWithData, useMyCourses, writeStoredCourse, type RealCourse } from "./myCourses";
+import { clearStoredCourse, mockCourseFor, readStoredCourse, useFirstCourseWithData, useMyCourses, writeStoredCourse, type RealCourse } from "./myCourses";
 
 type Session = {
   role: Role;
@@ -119,6 +119,13 @@ export function SessionProvider({
       setCourse, identity, logout,
     };
   }, [identity, fullName, pickedCourseId, real, mine.isPending, needFirst, first.isPending, firstId, members, setCourse, logout]);
+
+  // lớp đã nhớ không còn trong danh sách lớp của tôi (id lạ, bị xoá lớp): bỏ giá trị, dùng lớp mặc định (US-UX91-06 AC3)
+  useEffect(() => {
+    if (!real || mine.isPending) return;
+    const stored = readStoredCourse();
+    if (stored && stored !== ALL_COURSES && !real.some((c) => c.id === stored)) clearStoredCourse();
+  }, [real, mine.isPending]);
 
   // phiên thật chưa tải xong lớp thật (đang tải / lỗi) → chưa xử lý tham số, tránh bỏ nhầm một id hợp lệ
   useCourseDeepLink(value.realCourses ? value.realCourses.map((c) => c.id) : identity && value.role !== "admin" ? null : value.courses.map((c) => c.id), setCourse);
