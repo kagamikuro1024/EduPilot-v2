@@ -117,7 +117,7 @@
 - **Ngoài phạm vi luật:** spinner của `Button` (700 ms, lặp) và ba chấm `Threads` là chỉ báo chạy liên tục, không phải chuyển trạng thái. Ba chấm đã có nhánh `reduce`.
 
 ### D. Khả thi từng đề xuất của BA
-Chờ `docs/sprints/9.1/audit/findings.md` (2026-11-08 chưa có trên `sprint/9.1-uiux`).
+Xem TL-2.
 
 ### Đề xuất cho PM (chép vào `proposals.md` nếu đồng ý)
 1. **Quay video trên stack riêng.** Vấn đề: `plan.md` ghi "quay màn hình bản demo thật"; quay trên `/opt/edupilot` sẽ ghi chat / duyệt / công bố vào DB demo và tốn hạn mức 9router. Đề xuất: quay trên stack `-p ep-video` cùng bản dựng, seed như demo, provider `fake`. Lý do: tất định, quay lại được, không đụng demo (TL-1 A, rủi ro 1). Ảnh hưởng: chỉ đổi chữ trong `plan.md`; hình như nhau.
@@ -126,5 +126,86 @@ Chờ `docs/sprints/9.1/audit/findings.md` (2026-11-08 chưa có trên `sprint/9
    - phần tử LCP không bắt đầu từ `opacity: 0`;
    - hiệu ứng theo cuộn chỉ dùng `transform` / `opacity`, bọc `prefers-reduced-motion: no-preference`.
 
-   Lý do: TL-1 B. Ảnh hưởng: BA sửa `DESIGN.md` §11; không đổi code app.
+   Lý do: TL-1 B. Ảnh hưởng: BA sửa `DESIGN.md` §11; không đổi code app. **Chủ dự án đã chốt 2026-11-08** (`plan.md`, "Quyết định của chủ dự án"); khi BA viết mục mới, nên kèm ba điều kiện kỹ thuật ở trên.
 3. **Rút thời lượng dialog / drawer về ≤ 200 ms.** Vấn đề: `Dialog.module.css` dòng 10, 25 dùng `--ep-slow` 250 ms; `DESIGN.md` §11 ghi 200–250 ms, trái luật ≤ 200 ms vừa chốt. Đề xuất: `--ep-slow` → 200 ms (hoặc dùng `--ep-normal`), sửa §11 thành "≤ 200 ms". Ảnh hưởng: một dòng token + một dòng doc; ảnh mốc không đổi.
+
+## TL-2 (pha 1: khả thi từng đề xuất trong `audit/findings.md`, PM giao 2026-11-08)
+
+**Câu hỏi (PM):** với mọi mục mức Cao / TB và mọi [ĐỔI DESIGN] của `findings.md`, đánh giá:
+- khả thi với stack hiện có;
+- rủi ro hiệu năng, a11y, ảnh mốc;
+- cỡ việc S / M / L;
+- nên gộp hay bỏ.
+
+Căn cứ: các quyết định Q-UX91-1…5 và [ĐỔI DESIGN] trang giới thiệu (`plan.md`, "Quyết định của chủ dự án").
+
+**TL trả lời:**
+
+### Quy ước
+- **Cỡ:**
+  - S: ≤ nửa ngày, ≤ 3 tệp, không đổi API;
+  - M: 0,5–1,5 ngày hoặc đụng primitive dùng chung;
+  - L: > 1,5 ngày, hoặc cần API / dữ liệu mới.
+- **Ảnh mốc** là 14 ảnh của `visual.spec.ts`, gồm 7 cảnh × 1440 / 390 (dòng 21–29): `home` (SV), `chat` (SV), `threads` (SV), `inbox` (GV), `gradebook` (GV), `settings-llm`, `dev-ui`. Cảnh nào không nằm trong danh sách này thì không phải sinh lại ảnh mốc.
+- Các thông số chung đều kiểm được trong repo:
+  - mọi mục dưới đây không thêm thư viện;
+  - không mục nào chạm ngân sách JS, trừ UX-1 (đã tính trong TL-1 B: 0 KB).
+
+### Bảng đánh giá
+
+| ID | Mức | Khả thi + cách làm (bằng chứng) | Cỡ | Rủi ro: hiệu năng · a11y · ảnh mốc | Gộp / bỏ / điều kiện |
+| --- | --- | --- | :---: | --- | --- |
+| UX-1 | Cao | Có. Toàn bộ là CSS trong `Landing.module.css`, `Landing` vẫn là Server Component (TL-1 B). Hai cơ chế: **(1) theo cuộn** `animation-timeline: view()` cho xuất hiện / chiều sâu / vạch đỏ SVG `stroke-dashoffset`; **(2) chạy một lần khi vào khung** cho số đếm và sơ đồ luồng, dùng một đoạn `<script>` nội tuyến khoảng 0,4 KB (cùng kiểu đoạn `data-returning` ở `app/page.tsx` dòng 16): `IntersectionObserver` gắn `data-in` lên khối, CSS animation theo thời gian chạy khi có `data-in`. Không cần React island | L (cả video) | LCP: `h1` / ảnh hero không bắt đầu từ `opacity: 0`. a11y: hiệu ứng cuộn **phải** bọc `prefers-reduced-motion: no-preference`, vì luật `1ms` ở `base.css` không tắt được `view()` (PoC `rm.mjs`). Ảnh mốc: 0 (`home` là "Hôm nay" của SV) | **Bỏ phần "dự phòng `IntersectionObserver` cho `view()`"** trong findings §4.2. `view()` là Baseline từ 10/2026; trình duyệt cũ thấy trang tĩnh, đủ nội dung. Đoạn script ở (2) đã thay việc đó cho những gì cần chạy một lần. `landing.spec.ts` dòng 31 khớp nguyên văn `h2`: spec mới của BA phải nêu `h2` mới |
+| UX-2 | Cao | Có. Đổi chữ + số đếm `@property --n { syntax: "<integer>" }` + `counter()`. Q-UX91-5: thêm dòng chú thích "đo trên dữ liệu mô phỏng" | S | Chỉ đếm được số nguyên (`146`, `30`, `22`). Số thật nằm trong DOM; bản đếm để `aria-hidden`. Có `tabular-nums` nên không xô bố cục (CLS 0) | Gộp vào UX-1. Số phải giữ nguồn từ `report.md` của sprint 6 / 8 / 9 (chú thích ở `Landing.tsx` dòng 7) vì quyển đồ án dùng lại |
+| UX-3 | TB | (a) Có: CSS cắt / khung điện thoại; ảnh 640 px đã có sẵn. (b) Tab GV / SV cần trạng thái, tức là thêm JS vào bundle của `/`. (c) Có. (d) Có: `AuthProvider.tsx` dòng 28–34 luôn gọi `refreshSession()`. Khi đang ở `/` và không có cờ `ep_returning` thì bỏ qua lời gọi, `dropSession("anonymous")` luôn. Hết `401` ở console | (a) S, (b) S, (c) S, (d) S | (d) không đổi bảo mật: cookie `ep_rt` vẫn được thử ở `/login`. Người còn phiên nhưng mất cờ chỉ phải bấm "Đăng nhập". Test `landing.spec.ts` dòng 17 ("không gọi API nào ngoài refresh") vẫn qua | **(b) đổi thành "mỗi vai 4 mục, hai cột, không tab"**: cùng mục tiêu bớt chữ, 0 JS, 0 rủi ro bàn phím / ARIA của tab. Nếu giữ tab: dùng `Tabs` có sẵn, đo lại `resource-summary:script` của `/`. (d) nên làm ngay, độc lập trang mới |
+| UX-4 | Cao | Có. Xoá `description=` là chuỗi giải thích. Giữ dạng `meta` khi là dữ liệu: ví dụ `RealAttendance.tsx` dòng 117 (mã lớp · buổi · giờ), `RealMe.tsx` dòng 40, `ClassSettings.tsx` dòng 66. **Không sửa `Demo*.tsx`** (`DemoChat`, `DemoCalendar`, `DemoDocuments`, `DemoLibrary`): chỉ phiên mô phỏng dùng (`ChatScreen.tsx`, `CalendarScreen.tsx` dòng 13–14), nên số chỗ thật ít hơn 55 | M | a11y: `Drawer` `description` có thể đang là `aria-describedby` của dialog. Xoá thì dialog vẫn có tên từ `title`, không lỗi axe. Ảnh mốc: `chat`, `threads` (nếu có mô tả) | Phép bắt mới trong `ui-antipatterns.sh`: chỉ bắt **chuỗi tĩnh** > 40 ký tự ở `PageHeader` / `Section`. Bắt cả biểu thức thì báo nhầm các dòng dữ liệu ở trên. Có e2e đã khoá luật này cho riêng một màn (`settings-integrations.spec.ts` dòng 154): dùng làm mẫu AC |
+| UX-5 | Cao | Có, **không cần API mới.** `TodayItem` đã có `urgency` (`overdue` / `high` / `normal`), `kind`, `age_minutes` (`openapi.yaml` schema `TodayItem`). Khối "Lớp cần chú ý" đã có (`StaffToday.tsx` dòng 43–53), nguồn là `attention` (sinh viên AT_RISK), chỉ cần chuyển sang cột phải ≥ 1440. Q-UX91-2: nhóm Gấp / Hôm nay / Khi rảnh tính ở client từ `urgency` + `kind` | M | Ảnh mốc: 0 (`home` chụp vai SV). a11y: nhãn nhóm là tiêu đề chữ (`h3`), đạt §16 (không mã hoá chỉ bằng màu) | **Bỏ [ĐỔI DESIGN] "biến thể nút `link` mới"**: `Button` đã có `ghost` (chữ `--ep-ink-2`, không đỏ; `Button.module.css` dòng 27) + `iconEnd` mũi tên. **→ PM / BA:** "Gấp = quá 72 giờ làm việc" nên định nghĩa là `urgency == "overdue"` do backend tính. Backend đã có SLA giờ làm việc (`today/service.go` dòng 58, `EscalateAfter: 72h`) và ngưỡng riêng từng loại việc (phúc khảo 48 giờ: `TestProviderAppealOverdue48h`; buổi chưa điểm danh). Tính lại 72 giờ ở client là hai nguồn sự thật. Mẫu 3.B ghi nội dung cột phải theo lớp ("5 câu chờ quá 72 giờ") nhưng API trả **sinh viên** cần chú ý; muốn theo lớp thì cần API mới (L): giữ theo sinh viên |
+| UX-6 | TB | Có. Ở Hôm nay, chữ tuổi lấy từ `age_minutes`, định dạng bằng `shared/lib/timeAgo.ts`. Ở Hộp thư, chấm đỏ chỉ cho hàng quá hạn | S | Ảnh mốc: `inbox` 1440 + 390 | Gộp với UX-5 (cùng quy tắc "đỏ = overdue") |
+| UX-7 | Cao | Có. Q-UX91-4: chấm mặc định dùng mực. Thanh lưu dính đáy ở 375 px: `position: sticky; bottom: 0` + `padding-bottom: env(safe-area-inset-bottom)`; danh sách thêm khoảng đệm bằng chiều cao thanh để không che hàng cuối | M | a11y: trạng thái vẫn có chữ ("Có mặt"); thanh dính đáy không được che ô đang focus (`scroll-padding-bottom`). Ảnh mốc: 0. Bàn phím ảo trên di động đẩy thanh lên: QC kiểm trên máy thật hoặc emulation | "+ phát biểu" chỉ hiện khi hover / focus thì **ở 375 không có hover**. Ở di động giữ nút hiện thường trực (biểu tượng `+`, vùng chạm 44 px), chỉ bỏ chữ lặp |
+| UX-8 | TB | Có. Gom các bộ định dạng về một `shared/lib/datetime.ts`, dựa trên `timeAgo.ts` và `today/format.ts`. **Lỗi thật:** 8 bộ định dạng **không đặt `timeZone`** nên chạy theo múi giờ của máy: `RealChat.tsx` 36–37, `RealDocuments.tsx` 14, `RealThreads.tsx` 16, `RealThreadDetail.tsx` 16, `RealLibrary.tsx` 11, `Gradebook.tsx` 383, `GradeScheme.tsx` 32, `FinalizeGrades.tsx` 12. Định dạng `00:10 02-11` là do ICU của `vi-VN`; `timeAgo.ts` dòng 6 đã dùng `en-GB` để có `dd/MM` ổn định | M | Ảnh mốc: `chat`, `threads`, `inbox`, `gradebook` (chữ ngày đổi). `visual.spec` đóng băng đồng hồ (`FROZEN`), nên "Hôm nay, 14:00" ra tất định | Làm ngay như BA đề xuất; đây là sửa lỗi, không chỉ thẩm mỹ |
+| UX-9 | TB | Có. Q-UX91-1: sửa 3 nhãn ở `shell/nav.ts` dòng 38, 71, 79, 80 | S | Test: `shell.spec.ts` dòng 120, 122 khớp nguyên văn nhãn nav, nên spec mới phải nêu nhãn mới. Ảnh mốc: mọi ảnh 1440 có thanh bên (`home`, `chat`, `threads`, `inbox`, `gradebook`, `settings-llm`); ảnh 390 nếu thanh dưới của SV có chữ "Threads". "Hỏi đáp công khai" (17 ký tự) dài hơn "Threads": kiểm cắt chữ ở thanh bên và thanh dưới 375 (§22.7) | Gộp UX-9 + UX-8 + UX-4 vào **một** đợt sinh lại ảnh mốc, để khỏi sinh lại ba lần |
+| UX-10 | TB | Có, chỉ đổi bố cục / CSS | S | Ảnh mốc: 0. Phép bắt "Panel chứa phần tử có `border` + `border-radius`" trong `ui-antipatterns.sh` dễ báo nhầm (ô nhập, chip có viền là hợp lệ) | Phép bắt tự động: **bỏ**. QC kiểm bằng `panels.spec` NEST (đã có từ sprint 5.5) |
+| UX-11 | Cao | Phần bố cục có: một `Panel`, lịch sử phẳng, `Phiên mới` ẩn khi phiên trống. Sheet di động đã có (`chat/SessionSheet.tsx`). Xoá có hoàn tác 5 s: hoãn lệnh xoá ở client bằng `useUndoLine`; tab đóng trong 5 s thì phiên **không** bị xoá, lệch về phía an toàn. **Gợi ý "lấy từ dữ liệu sinh viên" chưa có nguồn trong chat** (`RealChat.tsx` không có gì về gợi ý). Hạn bài lấy được từ dữ liệu Hôm nay của SV (`timeline`, `recommended`); "chủ đề sai nhiều" chưa thấy API | Bố cục M; gợi ý theo hạn bài S; "chủ đề sai nhiều" L (API mới) | Ảnh mốc: `chat` 1440 + 390. `/chat` nằm trong Lighthouse (ngân sách JS): không thêm query mới chặn lúc tải; gợi ý nạp sau. D47: gợi ý **không** gọi LLM | **Bỏ "chủ đề sai nhiều"** ở 9.1 (ghi Nợ). Giữ gợi ý từ hạn bài / lịch. Hiệu ứng tin nhắn 160 ms đạt luật ≤ 200 ms |
+| UX-12 | TB | Có, chỉ đổi chữ + ẩn vùng chi tiết khi danh sách rỗng | S | Ảnh mốc: `inbox` | Gộp với UX-6 (cùng màn) |
+| UX-13 | TB | Có, nhưng **không có primitive Tooltip** (`shared/ui/index.ts`). Nút `disabled` gốc không nhận focus, nên lý do không bao giờ hiện bằng bàn phím. Cách làm: prop `disabledReason` trên `Button`. Khi có prop thì dùng `aria-disabled="true"` (không dùng `disabled`), chặn `onClick`, `aria-describedby` trỏ tới một `span` ẩn trực quan chứa lý do; hiện chữ bằng CSS `::after` khi `:hover` / `:focus-visible` | M | a11y: đây chính là cách đúng (vẫn focus được, đọc được lý do). Test: `toBeDisabled()` của Playwright tính cả `aria-disabled`, nên test cũ không gãy [SUY LUẬN theo tài liệu Playwright; dev chạy lại bộ e2e]. Chạm trên di động: lý do hiện khi chạm (focus). Ảnh mốc: những cảnh có nút khoá (`gradebook`) | Một cơ chế trong `Button` (đúng đề xuất BA); không viết Tooltip riêng từng màn. `.btn:disabled { opacity: .45 }` (`Button.module.css` dòng 34) phải áp cả `[aria-disabled=true]` |
+| UX-14 | TB | Có, đổi cột / hàng ở trang danh sách chấm | S | Ảnh mốc: 0 | Gộp với UX-15 (cùng luồng chấm) |
+| UX-15 | TB | Bố cục một hàng / tiêu chí, gợi ý phím `A` (`Kbd` có sẵn), thanh dính đáy: có. **"‹ 3/12 ›"** cần thứ tự hàng chờ; chỉ có khi đi từ trang danh sách (bộ đệm TanStack đang giữ danh sách). Mở bằng đường dẫn trực tiếp thì không có, nên ẩn | M | **Highlight 600 ms ở mẫu 3.D trái luật ≤ 200 ms của app.** Hoặc coi là "tín hiệu mờ dần", không phải chuyển cảnh (→ PM), hoặc giữ nền tĩnh 1,5 s rồi tắt bằng 200 ms. Ảnh mốc: 0 | → PM: quyết highlight 600 ms; Red Thread 280 ms (đã có, `shared/motion/redThread.ts` dòng 6) cũng > 200 ms nhưng DESIGN §11 ghi < 300 ms: ghi rõ là ngoại lệ đã có |
+| UX-16 | TB | Căn phải + `tabular-nums`: có. **"Hai chữ số thập phân" là làm tròn khi hiển thị:** sổ điểm hiện nguyên chuỗi decimal của máy chủ (`Gradebook.tsx` dòng 18 chỉ đổi `.` → `,`), `7,915` sẽ thành `7,92`. **"Cuộn theo trang, tiêu đề dính" không làm được với bảng này:** bảng là `DataTable` ảo hoá `virtual={{ height: 560 }}` (dòng 340; US-PU-02 cho T1 1.000 SV). Vùng cuộn ngang `overflow-x: auto` (`DataTable.module.css` dòng 2) giữ tiêu đề dính trong chính nó, không dính theo trang | M (với cách thay thế) | Q-UX91-3 "Đủ điểm / Thiếu điểm": S. Ảnh mốc: `gradebook` 1440 + 390 | **Thay "hai chữ số thập phân"** bằng đệm số 0 tới số chữ số lẻ lớn nhất của cột (`0,500` / `7,915`). Căn được dấu phẩy mà không làm tròn. **→ PM:** làm tròn điểm hiển thị đụng luật tính điểm, cần chủ dự án quyết. **Thay "cuộn theo trang"** bằng chiều cao vùng cuộn = khung nhìn (`--vh: calc(100dvh - <đầu trang>)`): một thanh cuộn, giữ ảo hoá. Chuyển sang `useWindowVirtualizer` là L và đụng AC hiệu năng T1 |
+| UX-17 | TB | Có. `Chart.tsx` là primitive dùng chung, chỉnh token cỡ chữ / độ dày đường | S | Ảnh mốc: `dev-ui` nếu trang danh mục có biểu đồ | BA xếp "Để sau": đồng ý |
+| UX-19 | TB | Có. Công tắc đã có `aria-checked` (`Field.module.css` dòng 50); màu lệch là do `:hover` (dòng 90–91) | S | Ảnh mốc: 0 | – |
+| UX-20 | TB | Có ở client. `preview` = `left(t.body, 160)` trong SQL (`forum.sql` dòng 19) là markdown thô. Làm sạch ở client bằng `shared/lib/markdown.ts` (`parseMarkdown` → lấy chữ) | S | Ảnh mốc: `threads` 1440 + 390 | Không đổi SQL / API ở 9.1. Cắt 160 ký tự **trước** khi bỏ markdown thì sau khi bỏ ký hiệu còn ngắn hơn 140: chấp nhận |
+| UX-21 | TB | Có, gộp hai khối của `/me` thành một (cùng dữ liệu) | S | `/me` có trong Lighthouse; ảnh mốc: 0. Không thêm query | – |
+| UX-25 | TB | (a) Có ở client. `session.tsx` dòng 66: chưa chọn thì đọc `ep:ui:course`, rồi lấy "lớp đầu" theo thứ tự API. "Lớp có việc chờ" cần số việc theo lớp → L. **Cách S:** GV / TA có > 1 lớp và chưa từng chọn thì mặc định "Tất cả lớp" (Hôm nay đã hỗ trợ `isAll`). (c) Seed: dev | (a) S | Ảnh mốc: 0 | → PM chọn "mặc định Tất cả lớp" (S) hay "lớp có việc" (L) |
+| UX-26 | TB | Có, một đợt ở `shared/ui` + `base.css`. Thanh tiến độ: 4 chỗ `transition: width` (`Documents`, `GradeScheme`, `Questions`, `Practice` `.module.css`) đổi sang `scaleX` + `transform-origin: left`. Track đã `overflow: hidden` + bo tròn, phần lấp không bo nên không méo. Khung vỏ: `AppShell.module.css` dòng 17, 82, 150 | M | **Reduced-motion "giảm thay vì tắt":** đổi `base.css` dòng 51–53 sẽ làm mọi animation hiện có chạy lại khi `reduce`. Nên giữ luật `1ms` làm lưới và **cho phép riêng** `opacity` / màu bằng lớp `.ep-motion-safe`, khỏi phải rà 71 chỗ. Ảnh mốc: 0 (`reduce` + `animations: "disabled"`). Gate `hover: hover` cho 71 `:hover` là đổi lớn nhưng cơ học | Gộp với TL-1 đề xuất 3 (dialog / drawer 250 → 200 ms) |
+| [ĐỔI DESIGN] trang giới thiệu | – | Đã chốt. Mục mới của `DESIGN.md` nên ghi: mở đầu ≤ 600 ms; phần tử LCP không bắt đầu từ `opacity: 0`; theo cuộn chỉ dùng `transform` / `opacity`; bọc `prefers-reduced-motion: no-preference` (TL-1 đề xuất 2) | S (doc) | – | – |
+| [ĐỔI DESIGN] UX-5 nút `link` | – | Không cần: dùng `ghost` có sẵn | – | – | **Bỏ** |
+| [ĐỔI DESIGN] UX-9 §2 nav | – | Đã chốt (Q-UX91-1) | S (doc) | Xem UX-9 | – |
+
+### Nên gộp thành 6 đợt (giảm số lần sinh lại ảnh mốc và số lần chạm primitive)
+1. **Nền chung (làm ngay)**, mỗi mục chạm primitive một lần:
+   - UX-26 + TL-1 đề xuất 3;
+   - UX-13 (`Button`);
+   - UX-8 (`datetime.ts`);
+   - UX-3(d) (`AuthProvider`).
+2. **Chữ:** UX-4 + UX-12 + UX-22 + UX-9. Sinh lại ảnh mốc **một lần** cho cả đợt 1 + 2.
+3. **Hôm nay + Hộp thư:** UX-5 + UX-6.
+4. **Chấm bài:** UX-14 + UX-15. **Sổ điểm:** UX-16 + Q-UX91-3. **Điểm danh:** UX-7.
+5. **Chat + Threads + `/me`:** UX-11 (bỏ "chủ đề sai nhiều") + UX-20 + UX-21. **Tài liệu + Insights / Quan sát AI:** UX-19 + UX-10.
+6. **Trang giới thiệu + video:** UX-1 + UX-2 + UX-3(a–c), song song, độc lập các đợt trên.
+
+### Cần PM / chủ dự án quyết (không phải câu kỹ thuật)
+1. **UX-16, làm tròn khi hiển thị.** "Hai chữ số thập phân" đổi `7,915` → `7,92` trên sổ điểm. TL đề xuất đệm số 0, không làm tròn.
+2. **UX-5, định nghĩa "Gấp".** Định nghĩa là `urgency == "overdue"` của backend (ngưỡng riêng từng loại việc), hay đúng nghĩa đen "72 giờ làm việc" cho mọi việc.
+3. **UX-15, highlight 600 ms trong app.** Ngoại lệ của luật ≤ 200 ms, hay rút ngắn.
+4. **UX-25(a), lớp mặc định.** "Tất cả lớp" (S) hay "lớp có việc chờ" (L, cần API).
+
+### Đề xuất cho PM (chép vào `proposals.md` nếu đồng ý)
+4. **UX-16:** thay "số cố định hai chữ số thập phân" bằng "đệm số 0 tới số chữ số lẻ lớn nhất của cột, không làm tròn", và thay "cuộn theo trang" bằng "vùng cuộn cao bằng khung nhìn, giữ ảo hoá". Lý do: làm tròn hiển thị đụng luật điểm; bảng ảo hoá + cuộn ngang không cho tiêu đề dính theo trang (TL-2 UX-16). Ảnh hưởng: mẫu 3.E.
+5. **UX-1 / UX-3(b) / UX-5 / UX-10 / UX-11:**
+   - bỏ "dự phòng `IntersectionObserver` cho `view()`";
+   - bỏ tab GV / SV (hai cột, mỗi vai 4 mục);
+   - bỏ [ĐỔI DESIGN] nút `link` (dùng `ghost`);
+   - bỏ phép bắt tự động "Panel chứa khung có viền";
+   - bỏ gợi ý "chủ đề sai nhiều" ở 9.1 (ghi Nợ, cần API).
+
+   Lý do: mỗi mục hoặc thêm JS vào `/`, hoặc trùng thứ đã có, hoặc cần API ngoài phạm vi sprint giao diện (TL-2). Ảnh hưởng: phạm vi spec `FEAT-uiux-91` nhỏ lại, không mất mục tiêu nào của BA.
