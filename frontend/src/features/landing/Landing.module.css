@@ -30,7 +30,7 @@
 .clipToggle { position: absolute; right: var(--ep-space-3); bottom: var(--ep-space-3); z-index: 1; min-height: 44px; min-width: 44px; padding: var(--ep-space-2) var(--ep-space-4); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; cursor: pointer; }
 .clipToggle[hidden] { display: none; }
 .posterSm, .posterLg { display: block; width: 100%; height: auto; aspect-ratio: 8 / 5; }
-.posterSm { display: none; }
+.posterSm, .posterSharp { display: none; }
 
 .wide { width: min(100% - 2 * var(--ep-space-6), 84rem); }
 .section { padding-block: clamp(4rem, 3rem + 4vw, 7.5rem); border-top: 1px solid var(--ep-rule); display: grid; gap: var(--ep-space-10); }
@@ -99,10 +99,13 @@
 @media (max-width: 719px) {
   .top, .hero, .section, .foot { width: min(100% - 2 * var(--ep-space-4), 70rem); }
   .hero { padding-block: var(--ep-space-8) var(--ep-space-6); }
+  .heroShot { aspect-ratio: 8 / 5; }
   .posterSm { display: block; }
+  .posterSharp { display: block; position: absolute; inset: 0; width: 100%; height: 100%; }
   .posterLg, .video, .clipToggle { display: none; }
-  .heroActions { gap: var(--ep-space-2); flex-wrap: nowrap; }
+  .heroActions { gap: var(--ep-space-2); }
   .heroActions > * { padding-inline: var(--ep-space-3); font-size: var(--ep-text-label); white-space: nowrap; }
+  .heroActions > [data-variant="text"] { padding-inline: var(--ep-space-2); } /* ba nút một hàng ở 375 px; hẹp hơn thì Xem video xuống hàng, không tràn */
   .section { gap: var(--ep-space-8); }
   .roles { grid-template-columns: 1fr; gap: var(--ep-space-8); }
   .steps { gap: var(--ep-space-10); }
