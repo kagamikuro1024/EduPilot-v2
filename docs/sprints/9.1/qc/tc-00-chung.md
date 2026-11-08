@@ -1,6 +1,6 @@
 # TC FEAT-uiux-91 (sprint 9.1 pha 2) — quy ước chung
 
-Phiên bản 1 · 2026-11-08 · Nguồn duy nhất: `docs/specs/FEAT-uiux-91/US.md` (APPROVED, `0147eb69`), `SRS.md`, `QUESTIONS.md`. Hộp đen: TC viết từ AC, không đọc mã của `dev`. **US-UX91-22 (Dùng thử) chưa có TC** (spec còn DRAFT, chờ TL-3 / Q-UX91-13).
+Phiên bản 1 · 2026-11-08 · Nguồn duy nhất: `docs/specs/FEAT-uiux-91/US.md` (APPROVED, `0147eb69`), `SRS.md`, `QUESTIONS.md`. Hộp đen: TC viết từ AC, không đọc mã của `dev`. **US-UX91-22 (Dùng thử) đã bị chủ dự án bỏ (P-91-4, 2026-11-08): không có TC.**
 
 ## Tệp
 | Tệp | Đợt | Story |

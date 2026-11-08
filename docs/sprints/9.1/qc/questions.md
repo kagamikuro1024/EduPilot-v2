@@ -15,7 +15,7 @@ QC không tự đoán hành vi sản phẩm: các chỗ dưới đây AC mơ h�
 | Q9 | US-09 AC2 | «khung đầu ≈ khung cuối» (lặp liền mạch) không có ngưỡng | QC dùng SSIM ≥ 0,90 giữa khung đầu và cuối làm ngưỡng kiểm máy, kèm xem tay |
 | Q10 | US-08 AC13 | «4G chậm (Lighthouse mobile, throttle thật)» chạy từ VPS tới chính nó không phản ánh mạng thật | Chấp nhận Lighthouse mô phỏng throttle trên VPS (≥ 3 lượt, trung vị) như số đo chính thức của QC; ghi rõ giới hạn trong báo cáo |
 | Q11 | (quy ước tệp) | `QC.md` quy định `tc-<story>.md`; QC gộp theo đợt (`tc-wave-N.md`) để dùng chung tiền điều kiện | Chấp nhận gộp theo đợt (mỗi story một mục, có bảng phủ AC) |
-| Q12 | US-22 | Chưa viết TC | Chờ TL-3 + Q-UX91-13…17 chốt và BA đổi sang APPROVED |
+| Q12 | US-22 | **Đã đóng:** chủ dự án bỏ «Dùng thử» (P-91-4) | Không có TC |
 
 ## Nhắc dev / PM (không phải câu hỏi)
 - Stack test `-p ep-qc` cần được dựng với **commit của từng đợt**; dev ghi commit và cách dựng ở `handoff/dev-wave-<n>.md`.

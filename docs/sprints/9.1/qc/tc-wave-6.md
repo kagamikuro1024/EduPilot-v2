@@ -1,6 +1,6 @@
 # TC đợt 6 — Trang giới thiệu v2, clip và video (US-UX91-08, 09)
 
-Phiên bản 1 · 2026-11-08. **US-UX91-22 (Dùng thử) chưa có TC** (spec DRAFT). Khi US-22 APPROVED: bổ sung TC cho AC2 của US-08 (vị trí nút) và `tryout.spec.ts`.
+Phiên bản 1 · 2026-11-08. **US-UX91-22 (Dùng thử) đã bị bỏ (P-91-4): không có TC và không có `tryout.spec.ts`.** Nút màn đầu chỉ gồm `Đăng nhập` (đỏ), `Tạo tài khoản`, `Xem video`.
 Quy ước chung và kiểm chung: `tc-00-chung.md`. Trang: `/` ở trạng thái khách (context mới).
 Công cụ riêng: Chromium (mặc định); **WebKit và Firefox** của Playwright (có sẵn trong `~/Library/Caches/ms-playwright` và trên VPS) cho ca "không hỗ trợ `animation-timeline`" (AC15) và "WebM" (US-09 AC11); `ffprobe` / `ffmpeg` trên VPS cho video.
 
@@ -13,7 +13,7 @@ Nguồn đối chiếu số liệu (đọc được trong repo): `docs/sprints/6
 | --- | --- | --- | --- | --- | --- |
 | TC-UX08-1 | AC1 | khách, 1440 | Mở `/`; đọc `h1`, dòng dẫn, danh sách `h2` theo thứ tự DOM | `h1` «Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân»; dòng dẫn «AI soạn nháp. Giảng viên quyết. Điểm do mã tính.»; `h2` đúng thứ tự: «Xem EduPilot làm việc» → «AI soạn nháp, giảng viên quyết, mã tính điểm» → «Khác biệt, có số đo» → «Cho giảng viên và sinh viên» → «Bắt đầu với lớp của bạn» | E2E |
 | TC-UX08-2 | AC1 | khách | `landing.spec.ts` | Danh sách `h2` trong spec khớp đúng TC-UX08-1 | GREP |
-| TC-UX08-3 | AC2 | khách, 1440 | Đếm nút / liên kết dạng nút ở màn đầu (trong 900 px đầu); đọc `background-color` | Đúng **1** nút đỏ (`Đăng nhập`); `Tạo tài khoản`, `Xem video` là nút phụ (≤ 2 nút phụ). (Khi US-22 bật: một nút đỏ duy nhất, vị trí theo US-22) | E2E |
+| TC-UX08-3 | AC2 | khách, 1440 | Đếm nút / liên kết dạng nút ở màn đầu (trong 900 px đầu); đọc `background-color` | Đúng **1** nút đỏ (`Đăng nhập`); `Tạo tài khoản`, `Xem video` là nút phụ (≤ 2 nút phụ). | E2E |
 | TC-UX08-4 | AC2 | khách | `mouse.down` lên mỗi nút | `transform` ≈ scale 0,97 | E2E |
 | TC-UX08-5 | AC2 | khách | Quét CSS của trang: luật `:hover` có nằm trong `@media (hover: hover)`; trên `hasTouch` + `isMobile` chạm nút | Hover chỉ đổi màu khi `hover: hover`; cảm ứng không hover dính | E2E + GREP |
 | TC-UX08-6 | AC3 | khách, 1440 | `PerformanceObserver('largest-contentful-paint')` lấy phần tử LCP; ghi thời điểm request clip so với sự kiện `load` (`performance.timing`, `resource timing`) | Phần tử LCP là **poster** ảnh của clip (hoặc `h1` nếu AC9-5 cho phép); request `.mp4` / `.webm` của clip bắt đầu **sau** `load` | E2E |
