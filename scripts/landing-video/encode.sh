@@ -20,7 +20,7 @@ ffmpeg -hide_banner -loglevel error -y -i /dest/$C.mp4 -frames:v 1 -vf scale=640
 fi
 # ba ảnh khung ghim: 1600 px (máy tính, ảnh gấp đôi) và 800 px (điện thoại)
 for k in chat review gradebook; do
-  ffmpeg -hide_banner -loglevel error -y -i story-$k.png -vf scale=1600:-2 -c:v libwebp -quality 54 /dest/story-$k-v1.webp
+  ffmpeg -hide_banner -loglevel error -y -i story-$k.png -vf scale=1600:-2 -c:v libwebp -quality $([ $k = review ] && echo 48 || echo 54) /dest/story-$k-v1.webp
   ffmpeg -hide_banner -loglevel error -y -i story-$k.png -vf scale=800:-2 -c:v libwebp -quality 72 /dest/story-$k-v1-800.webp
 done
 ls -l /dest/story-*-v1*.webp
