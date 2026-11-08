@@ -1,0 +1,422 @@
+[
+ {
+  "width": 1440,
+  "reducedMotion": "no-preference",
+  "steps": [
+   {
+    "y": 0,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 800,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 1600,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 2400,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 3200,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   }
+  ],
+  "static": {
+   "lcp": 1468,
+   "docH": 3354,
+   "videos": [
+    {
+     "preload": "none",
+     "autoplay": false,
+     "muted": false,
+     "controls": true,
+     "poster": true,
+     "sources": [
+      "video/mp4",
+      "video/webm"
+     ]
+    }
+   ],
+   "imgs": [
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": "EduPilot"
+    },
+    {
+     "lazy": "lazy",
+     "w": 1440,
+     "alt": "Màn Hôm nay của giảng viên: ba"
+    },
+    {
+     "lazy": "lazy",
+     "w": 1440,
+     "alt": "Sổ điểm của lớp: điểm giữa kỳ,"
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Chat riêng của sinh viên: câu "
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Màn Hôm nay của sinh viên trên"
+    },
+    {
+     "lazy": "auto",
+     "w": 40,
+     "alt": ""
+    },
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": ""
+    }
+   ],
+   "rmRules": 2,
+   "scrollTimeline": true,
+   "ioUsed": true
+  },
+  "bytes": {
+   "js": 220725,
+   "css": 0,
+   "img": 175823,
+   "media": 0,
+   "font": 76488,
+   "total": 571300,
+   "jsRaw": 695411
+  },
+  "jsKB": 216,
+  "jsRawKB": 679,
+  "totalKB": 558
+ },
+ {
+  "width": 1440,
+  "reducedMotion": "reduce",
+  "steps": [
+   {
+    "y": 0,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 800,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 1600,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 2400,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 3200,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   }
+  ],
+  "static": {
+   "lcp": 1464,
+   "docH": 3354,
+   "videos": [
+    {
+     "preload": "none",
+     "autoplay": false,
+     "muted": false,
+     "controls": true,
+     "poster": true,
+     "sources": [
+      "video/mp4",
+      "video/webm"
+     ]
+    }
+   ],
+   "imgs": [
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": "EduPilot"
+    },
+    {
+     "lazy": "lazy",
+     "w": 1440,
+     "alt": "Màn Hôm nay của giảng viên: ba"
+    },
+    {
+     "lazy": "lazy",
+     "w": 1440,
+     "alt": "Sổ điểm của lớp: điểm giữa kỳ,"
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Chat riêng của sinh viên: câu "
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Màn Hôm nay của sinh viên trên"
+    },
+    {
+     "lazy": "auto",
+     "w": 40,
+     "alt": ""
+    },
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": ""
+    }
+   ],
+   "rmRules": 2,
+   "scrollTimeline": true,
+   "ioUsed": true
+  },
+  "bytes": {
+   "js": 220748,
+   "css": 0,
+   "img": 175801,
+   "media": 0,
+   "font": 76487,
+   "total": 571309,
+   "jsRaw": 695411
+  },
+  "jsKB": 216,
+  "jsRawKB": 679,
+  "totalKB": 558
+ },
+ {
+  "width": 375,
+  "reducedMotion": "no-preference",
+  "steps": [
+   {
+    "y": 0,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 700,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 1400,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 2100,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 2800,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 3500,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   },
+   {
+    "y": 4200,
+    "animsJustAfterScroll": 29,
+    "animsAfter1s": 29
+   }
+  ],
+  "static": {
+   "lcp": 1448,
+   "docH": 4214,
+   "videos": [
+    {
+     "preload": "none",
+     "autoplay": false,
+     "muted": false,
+     "controls": true,
+     "poster": true,
+     "sources": [
+      "video/mp4",
+      "video/webm"
+     ]
+    }
+   ],
+   "imgs": [
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": "EduPilot"
+    },
+    {
+     "lazy": "lazy",
+     "w": 640,
+     "alt": "Màn Hôm nay của giảng viên: ba"
+    },
+    {
+     "lazy": "lazy",
+     "w": 640,
+     "alt": "Sổ điểm của lớp: điểm giữa kỳ,"
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Chat riêng của sinh viên: câu "
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Màn Hôm nay của sinh viên trên"
+    },
+    {
+     "lazy": "auto",
+     "w": 40,
+     "alt": ""
+    },
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": ""
+    }
+   ],
+   "rmRules": 2,
+   "scrollTimeline": true,
+   "ioUsed": true
+  },
+  "bytes": {
+   "js": 220690,
+   "css": 0,
+   "img": 81810,
+   "media": 0,
+   "font": 76487,
+   "total": 477223,
+   "jsRaw": 695411
+  },
+  "jsKB": 216,
+  "jsRawKB": 679,
+  "totalKB": 466
+ },
+ {
+  "width": 375,
+  "reducedMotion": "reduce",
+  "steps": [
+   {
+    "y": 0,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 700,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 1400,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 2100,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 2800,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 3500,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   },
+   {
+    "y": 4200,
+    "animsJustAfterScroll": 0,
+    "animsAfter1s": 0
+   }
+  ],
+  "static": {
+   "lcp": 1468,
+   "docH": 4214,
+   "videos": [
+    {
+     "preload": "none",
+     "autoplay": false,
+     "muted": false,
+     "controls": true,
+     "poster": true,
+     "sources": [
+      "video/mp4",
+      "video/webm"
+     ]
+    }
+   ],
+   "imgs": [
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": "EduPilot"
+    },
+    {
+     "lazy": "lazy",
+     "w": 640,
+     "alt": "Màn Hôm nay của giảng viên: ba"
+    },
+    {
+     "lazy": "lazy",
+     "w": 640,
+     "alt": "Sổ điểm của lớp: điểm giữa kỳ,"
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Chat riêng của sinh viên: câu "
+    },
+    {
+     "lazy": "lazy",
+     "w": 0,
+     "alt": "Màn Hôm nay của sinh viên trên"
+    },
+    {
+     "lazy": "auto",
+     "w": 40,
+     "alt": ""
+    },
+    {
+     "lazy": "auto",
+     "w": 188,
+     "alt": ""
+    }
+   ],
+   "rmRules": 2,
+   "scrollTimeline": true,
+   "ioUsed": true
+  },
+  "bytes": {
+   "js": 220745,
+   "css": 0,
+   "img": 81833,
+   "media": 0,
+   "font": 76487,
+   "total": 477284,
+   "jsRaw": 695411
+  },
+  "jsKB": 216,
+  "jsRawKB": 679,
+  "totalKB": 466
+ }
+]
