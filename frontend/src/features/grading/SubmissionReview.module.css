@@ -106,9 +106,13 @@
 }
 
 .critName {
+  flex: 1;
+  min-width: 0;
   font-weight: 600;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
+.critHead { align-items: flex-start; }
 
 .stepper {
   display: inline-flex;
@@ -130,7 +134,9 @@
 }
 
 .evidence {
-  display: block;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ep-space-2);
   width: 100%;
   text-align: left;
   padding: var(--ep-space-2) var(--ep-space-3);
@@ -198,7 +204,8 @@
 
 /* US-P7-08: câu nghi chèn lệnh (đỏ nhạt, vẫn nằm trong bài) và đoạn bằng chứng đang xem */
 .injected { background: var(--ep-red-soft); color: inherit; }
-.evidenceMark { background: var(--ep-surface-subtle); border-bottom: 2px solid var(--ep-amber); color: inherit; }
+.evidenceMark { background: var(--ep-red-soft); color: inherit; }
+.evidenceMark[data-fading] { background: transparent; transition: background-color 200ms var(--ep-ease-out); } /* giữ ≈ 1 s rồi mờ 200 ms (US-UX91-15 AC2) */
 .lateRow { display: grid; gap: var(--ep-space-2); }
 .scoreBox { display: inline-flex; align-items: baseline; gap: var(--ep-space-2); }
 .scoreInput { width: 5rem; text-align: right; font-variant-numeric: tabular-nums; }
@@ -208,3 +215,18 @@
 /* US-P7-10: khối phúc khảo ở đầu cột phải */
 .appeal { display: grid; gap: var(--ep-space-3); padding-bottom: var(--ep-space-5); border-bottom: 1px solid var(--ep-rule); }
 .appealActions { display: flex; gap: var(--ep-space-2); flex-wrap: wrap; }
+.docCol, .gradeCol { min-width: 0; }
+.tabs { display: none; }
+.evidence svg { width: 14px; height: 14px; flex: none; margin-top: 4px; color: var(--ep-ink-3); }
+.evNote { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.fieldErr { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-red); }
+.footActions { display: inline-flex; align-items: center; gap: var(--ep-space-2); }
+@media (max-width: 719px) {
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ep-space-1); }
+  .tabs button { min-height: 44px; border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; }
+  .tabs button[aria-selected="true"] { border-color: var(--ep-ink); background: var(--ep-ink); color: var(--ep-surface); font-weight: 650; }
+  .reviewGrid[data-tab="doc"] .gradeCol, .reviewGrid[data-tab="grade"] .docCol { display: none; }
+  .foot { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); margin: 0; padding: var(--ep-space-2) var(--ep-space-4); }
+  .footText { max-width: none; }
+  .gradeCol { padding-bottom: calc(88px + 56px); }
+}

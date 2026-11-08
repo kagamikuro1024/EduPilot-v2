@@ -500,7 +500,8 @@ async function openReview(page: Page, context: Parameters<typeof asDemo>[0], opt
 test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openQueue(page, context);
-  await expect(page.locator("main table th")).toHaveText(["Sinh viên", "Bài tập", "Nguồn", "Điểm", "Trạng thái duyệt", "Lý do cờ", "Thời gian nộp"]);
+  // US-UX91-14 AC1, AC2, AC3: lý do cờ gộp vào ô Sinh viên (bỏ cột Lý do cờ); thêm cột hành động "Duyệt"
+  await expect(page.locator("main table th")).toHaveText(["Sinh viên", "Bài tập", "Nguồn", "Điểm", "Trạng thái duyệt", "Thời gian nộp", "Duyệt"]);
   await expect(qRows(page)).toHaveCount(1); // mặc định chỉ bài có cờ, chưa duyệt
   await expect(qRows(page).first()).toContainText("Trần Thu Uyên");
   await expect(qRows(page).first()).toContainText("Thư");
@@ -562,7 +563,7 @@ test("review amber notice for disagree: nêu đúng số của hai lượt chấ
   desktopOnly(info);
   await openReview(page, context);
   const crit = page.locator('[data-part=criterion][data-criterion="c2"]');
-  await expect(crit.locator("[data-part=disagree]")).toContainText("Hai lượt chấm lệch 1,5 điểm (1 và 2,5)");
+  await expect(crit.locator("[data-part=disagree]")).toContainText("Lệch 1,5 điểm so với lượt 2 (1 và 2,5)");
   await expect(page.locator('[data-part=criterion][data-criterion="c1"] [data-part=disagree]')).toHaveCount(0);
   expect(await page.locator("main").innerText()).not.toMatch(/trace|model/i);
 });
@@ -831,7 +832,7 @@ test("demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu ch�
   await page.unrouteAll({ behavior: "ignoreErrors" });
   const api = await openReview(page, context);
   const c2 = page.locator('[data-part=criterion][data-criterion="c2"]');
-  await expect(c2.locator("[data-part=disagree]")).toContainText("Hai lượt chấm lệch 1,5 điểm (1 và 2,5)");
+  await expect(c2.locator("[data-part=disagree]")).toContainText("Lệch 1,5 điểm so với lượt 2 (1 và 2,5)");
   await c2.getByLabel(/^Điểm /).fill("2");
   await c2.getByLabel(/^Điểm /).blur();
   await expect.poll(() => api.puts().length).toBeGreaterThanOrEqual(1);

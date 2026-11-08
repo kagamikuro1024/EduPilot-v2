@@ -2,11 +2,11 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AttendanceGrid, type AttendanceGridRow } from "@/shared/domain/AttendanceGrid";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
-import { useSchemeStatus } from "../gradebook/gradeApi";
+import { useSchemeStatus, useSchemes } from "../gradebook/gradeApi";
 import { formatWhen } from "@/shared/lib/datetime";
 import { dayLabel, fmtDM, fmtHM } from "../calendar/calendarApi";
 import { sessionsKey, useSessions, type SessionRow } from "../calendar/sessionsApi";
@@ -14,7 +14,12 @@ import { labelOf, useGrid, type Grid } from "./attendanceApi";
 import { useAttendance } from "./useAttendance";
 import s from "./RealAttendance.module.css";
 
-const SPEAK_LABEL = "+ phát biểu · +0,25";
+/** Điểm cộng mỗi lần phát biểu đọc từ công thức lớp (luật BONUS `per_speak`), dấu phẩy thập phân; chưa có công thức thì không có giá trị. */
+function speakBonusOf(v: ReturnType<typeof useSchemes>["data"]): string | undefined {
+  const rule = (v?.confirmed ?? v?.draft)?.rules.find((r) => r.kind === "BONUS" && r.applicable);
+  const per = rule?.params.per_speak;
+  return typeof per === "string" && per !== "" ? per.replace(".", ",") : undefined;
+}
 
 /** Buổi mặc định: đang diễn ra, hoặc buổi đã qua gần nhất; lớp chưa có buổi nào đã qua thì buổi sắp tới sớm nhất. */
 function defaultSession(list: SessionRow[], now = Date.now()): SessionRow | undefined {
@@ -79,20 +84,26 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
   const undo = useUndoLine();
   const st = grid.session;
   const scheme = useSchemeStatus(courseId).data;
+  const speakBonus = speakBonusOf(useSchemes(courseId, false).data);
 
-  const rows: AttendanceGridRow[] = a.rows.map((r) => ({ id: r.id, name: r.name, code: r.code, status: r.status, speaks: r.speaks, conflict: r.conflict ? { by: r.conflict.current.marked_by.full_name, theirs: r.conflict.current.status } : null }));
+  // nháy nền xanh nhạt ở hàng vừa lưu xong (hàng đợi về trạng thái đã lưu), không toast (US-UX91-04 AC7)
+  const dirty = useRef(new Set<string>());
+  const [flash, setFlash] = useState<Set<string>>(new Set());
+  const rows: AttendanceGridRow[] = a.rows.map((r) => ({ saved: flash.has(r.id), id: r.id, name: r.name, code: r.code, status: r.status, speaks: r.speaks, conflict: r.conflict ? { by: r.conflict.current.marked_by.full_name, theirs: r.conflict.current.status } : null }));
   const byName = a.conflicts[0]?.current.marked_by.full_name;
   const q = a.qstate;
 
   function setMark(id: string, status: AttendanceGridRow["status"]) {
     const row = a.rows.find((r) => r.id === id);
     if (!row || row.status === status) return;
+    dirty.current.add(id);
     a.setMark(id, status);
     undo.push(`Đã đánh ${labelOf(status)} · ${row.name}`, () => a.setMark(id, row.status));
   }
   function speak(id: string) {
     const row = a.rows.find((r) => r.id === id);
     if (!row) return;
+    dirty.current.add(id);
     const ev = a.speak(id);
     undo.push(`Đã ghi phát biểu · ${row.name}`, () => void a.undoSpeak(id, ev));
   }
@@ -102,6 +113,15 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
     undo.clear();
   }
 
+  const qSavedAt = q.savedAt;
+  useEffect(() => {
+    if (!qSavedAt || q.pending > 0 || dirty.current.size === 0) return;
+    setFlash(new Set(dirty.current));
+    dirty.current.clear();
+    const t = setTimeout(() => setFlash(new Set()), 400);
+    return () => clearTimeout(t);
+  }, [qSavedAt, q.pending]);
+
   const saved = !a.changedSinceDone && a.doneAt != null && q.pending === 0;
   const state =
     a.conflicts.length > 0 || a.fatal ? <StatusText tone="amber">Chưa lưu</StatusText>
@@ -110,22 +130,29 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
     : q.savedAt ? <StatusText tone="green">Đã lưu {fmtHM(q.savedAt)}</StatusText>
     : <StatusText tone="neutral">Chưa có thay đổi</StatusText>;
 
+  const present = rows.filter((r) => r.status === "PRESENT" || r.status === "LATE").length;
+  const absent = rows.length - present;
+  const barState = q.status === "offline" ? "Chờ mạng" : saved ? "Đã lưu" : "Lưu điểm danh";
+
   return (
-    <>
+    <div className={s.sheet}>
       <PageHeader
         title="Điểm danh"
         description={`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`}
         actions={
-          <Button variant={saved ? "secondary" : "primary"} disabled={saved || a.conflicts.length > 0} onClick={() => void complete()}>
-            {saved ? "Đã lưu" : "Lưu điểm danh"}
-          </Button>
+          <span className={s.desktopOnly}>
+            <Button variant={saved ? "secondary" : "primary"} disabled={saved || a.conflicts.length > 0} onClick={() => void complete()}>
+              {saved ? "Đã lưu" : "Lưu điểm danh"}
+            </Button>
+          </span>
         }
       />
       <Panel>
         <Toolbar end={<span data-part="att-save-state">{state}</span>}>{picker}</Toolbar>
         {scheme && scheme.state !== "CONFIRMED" && (
           <InlineNotice tone="warning" compact action={<ButtonLink href={`/gradebook/scheme?course=${courseId}`} size="sm">Xem công thức</ButtonLink>}>
-            Công thức điểm chưa xác nhận
+            <span className={s.longText}>Công thức điểm chưa xác nhận</span>
+            <span className={s.shortText}>Công thức chưa xác nhận</span>
           </InlineNotice>
         )}
         {a.conflicts.length > 0 && (
@@ -144,9 +171,14 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
             Đã lưu điểm danh · {a.completed.total} sinh viên · vắng {a.completed.absent}
           </InlineNotice>
         )}
-        <AttendanceGrid rows={rows} caption={`Điểm danh buổi ${st.session_no} lớp ${classCode}`} speakLabel={SPEAK_LABEL} onSet={setMark} onSpeak={speak} onResolve={a.resolve} />
+        <AttendanceGrid rows={rows} caption={`Điểm danh buổi ${st.session_no} lớp ${classCode}`} speakBonus={speakBonus} stickyHeight="calc(100dvh - 18rem)" onSet={setMark} onSpeak={speak} onResolve={a.resolve} />
         {undo.node}
       </Panel>
-    </>
+      <div className={s.saveBar} data-part="att-save-bar">
+        <Button variant="primary" disabled={saved || a.conflicts.length > 0 || q.status === "offline"} onClick={() => void complete()}>
+          {barState} · {present} có mặt · {absent} vắng
+        </Button>
+      </div>
+    </div>
   );
 }

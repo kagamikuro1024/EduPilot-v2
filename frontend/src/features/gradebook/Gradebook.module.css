@@ -1,11 +1,17 @@
 .who { display: grid; gap: 2px; }
 .code { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
-.colHead { display: grid; gap: 2px; justify-items: end; }
+.colHead { display: inline-flex; align-items: center; justify-content: flex-end; gap: var(--ep-space-1); white-space: nowrap; }
+.colMenu { display: inline-flex; opacity: 0; }
+.colHead:hover .colMenu, .colHead:focus-within .colMenu { opacity: 1; }
+@media (hover: none) { .colMenu { opacity: 1; } }
+.pubDot { display: inline-block; flex: none; width: 6px; height: 6px; border-radius: 50%; background: var(--ep-ink-2); }
+.missDot { display: inline-block; width: 6px; height: 6px; margin-right: var(--ep-space-2); border-radius: 50%; background: var(--ep-amber); }
+.missLink { padding: 0; border: 0; background: none; color: var(--ep-amber); font: inherit; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.missLink[aria-pressed="true"] { color: var(--ep-ink); }
 .colName { font-weight: 600; }
-.colMeta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-weight: 400; }
 .cellOff { font-size: var(--ep-text-meta); color: var(--ep-amber); }
 .cellErr { font-size: var(--ep-text-meta); color: var(--ep-red); max-width: 120px; }
-.note { margin: var(--ep-space-4) 0 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
+.note { margin: var(--ep-space-4) 0 0; display: flex; align-items: center; gap: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .warnList { display: block; margin-top: var(--ep-space-1); font-size: var(--ep-text-meta); }
 
 .conflict {

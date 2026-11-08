@@ -2,6 +2,7 @@ import { expect, test, type BrowserContext, type Page } from "@playwright/test";
 import { BASE_URL } from "./support/env";
 import { acquireFakeApi, releaseFakeApi } from "./support/fake-api-lock";
 import { gradebookApi } from "./support/gradebook-fixtures";
+import { gradingApi } from "./support/assignment-fixtures";
 import { base, reset, script } from "./support/llm-fixtures";
 import { asDemo, asJwt, type DemoRole } from "./support/session";
 
@@ -24,6 +25,9 @@ const ROUTES: Array<{ name: string; path: string; role?: DemoRole; admin?: boole
   { name: "chat", path: "/chat", role: "student" },
   { name: "threads", path: "/threads", role: "student" },
   { name: "inbox", path: "/inbox", role: "teacher" },
+  { name: "attendance", path: "/attendance", role: "teacher" }, // US-UX91-12 AC12
+  { name: "grading-queue", path: "/grading", role: "teacher" },
+  { name: "grading-review", path: "/grading/00000000-0000-7000-8000-0000000c0001", role: "teacher" }, // US-UX91-15 AC11 // US-UX91-14 AC9
   { name: "hom-nay-gv", path: "/", staffToday: true }, // US-UX91-10 AC12: Hôm nay của giảng viên, việc chia nhóm + cột phải
   { name: "gradebook", path: "/gradebook", role: "teacher" },
   { name: "settings-llm", path: "/settings/llm", role: "admin", admin: true }, // Admin bằng token dev (dán ở cổng); màn THẬT với dữ liệu giả cố định
@@ -82,7 +86,8 @@ for (const r of ROUTES) {
         await asJwt(page, "TEACHER", { expIn: 366 * 86400 });
         await staffTodayApi(page);
       } else if (r.role) await asDemo(context, r.role, { expIn: 366 * 86400 }); // đồng hồ đóng băng 29/10: token mặc định (15 phút) đã hết hạn nên phiên rơi về Sinh viên — ảnh inbox / gradebook từng là trang chặn quyền
-      if (r.path === "/gradebook") await gradebookApi(page); // #22: màn thật; dữ liệu cố định theo hợp đồng thật (support/gradebook-fixtures.ts)
+      if (r.path === "/gradebook") await gradebookApi(page);
+      if (r.path.startsWith("/grading")) await gradingApi(page); // #22: màn thật; dữ liệu cố định theo hợp đồng thật (support/gradebook-fixtures.ts)
       await page.goto(r.path);
       await page.locator("main").first().waitFor();
       await settle(page);

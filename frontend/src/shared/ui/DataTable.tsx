@@ -68,6 +68,8 @@ export type CellNav<T> = {
   onCommit: (row: T, colKey: string, text: string, move: "down" | "right" | "stay") => void;
   /** yêu cầu đưa focus tới một ô (vd. từ danh sách sinh viên thiếu điểm); `n` tăng mỗi lần yêu cầu, dòng chưa nạp thì chờ tới khi có */
   focus?: { rowKey: string; col: string; n: number };
+  /** ô vừa lưu xong (`rowKey:col`): nháy nền xanh nhạt 200 ms, không toast */
+  saved?: ReadonlySet<string>;
 };
 
 /**
@@ -95,6 +97,7 @@ export function DataTable<T>({
   scrollHint = "Vuốt ngang để xem thêm",
   rowAttrs,
   virtual,
+  stickyHeight,
   cellNav,
   pagination,
   loading,
@@ -117,6 +120,8 @@ export function DataTable<T>({
   rowAttrs?: (row: T) => Record<string, string>;
   /** danh sách dài: ảo hoá dòng trong khung cao `height` px (chỉ dựng dòng nhìn thấy); bỏ chế độ danh sách ở < 720px */
   virtual?: { height: number };
+  /** bảng thường (không ảo hoá) cao tối đa `stickyHeight` (vd. `calc(100dvh - 14rem)`): một vùng cuộn, tiêu đề cột và cột cố định dính trong vùng đó (chỉ bảng; danh sách ở điện thoại không đổi) */
+  stickyHeight?: string;
   /** chỉ với `virtual`: ô sửa được (Tab sang ô kế, Enter xuống ô dưới, Esc hoàn tác) — TLR-12 */
   cellNav?: CellNav<T>;
   pagination?: Pagination;
@@ -159,7 +164,7 @@ export function DataTable<T>({
   return (
     <div className={s.root}>
       {mobile === "scroll" && scrollHint && <p className={s.scrollHint}>{scrollHint}</p>}
-      <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} ref={scrollRef} aria-busy={loading ? true : undefined}>
+      <div className={[s.scroll, mobile === "list" ? s.tableOnly : ""].join(" ")} ref={scrollRef} aria-busy={loading ? true : undefined} data-sticky={stickyHeight ? "" : undefined} style={stickyHeight ? ({ "--sh": stickyHeight } as CSSProperties) : undefined}>
       <table className={[s.table, dense ? s.dense : ""].join(" ")}>
         <caption className="ep-sr-only">{caption}</caption>
         <thead>

@@ -202,7 +202,7 @@ export default function VirtualTable<T>({
                       {edit && c.cell ? (
                         <span className={s.cellBox}>
                           <input
-                            className={s.cellInput}
+                            className={[s.cellInput, cellNav.saved?.has(ck) ? "ep-saved ep-motion-safe" : ""].join(" ")}
                             data-cell={ck}
                             inputMode="decimal"
                             aria-label={c.cell.label(row)}

@@ -2,10 +2,10 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, FileSearch } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, FileSearch, Quote } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ApiError, useAutosaveDraft, useUndoableAction } from "@/shared/data";
-import { Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { Button, ButtonLink, Field, InlineNotice, Input, Kbd, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import { fromUnits, toUnits, vi } from "@/features/assignments/assignmentApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
@@ -131,6 +131,16 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   const [conflict, setConflict] = useState<ResultView | null>(null);
   const [undone, setUndone] = useState(false);
   const [activeEv, setActiveEv] = useState<{ start: number; end: number } | null>(null);
+  const [fading, setFading] = useState(false);
+  const [tab, setTab] = useState<"doc" | "grade">("grade");
+  const [savedKey, setSavedKey] = useState<string | null>(null); // ô vừa lưu xong: nháy nền xanh nhạt 200 ms (US-UX91-04 AC7)
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const evTimers = useRef<Array<ReturnType<typeof setTimeout>>>([]);
+  const flashSaved = (key: string) => {
+    setSavedKey(key);
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setSavedKey(null), 400);
+  };
   const [activeCrit, setActiveCrit] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const running = useRef(false);
@@ -175,6 +185,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
       setFieldErr(null);
       try {
         await put({ version: view.result.version, criteria: [{ id, score: after.replace(",", ".") }] });
+        flashSaved(`score:${id}`);
       } catch (e) {
         handle(e, id);
         throw e;
@@ -270,7 +281,11 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   ];
 
   function showEvidence(ev: { start: number; end: number }) {
+    // tô nền giữ ≈ 1 s (trạng thái), rồi mờ đi trong 200 ms, rồi gỡ (US-UX91-15 AC2)
+    evTimers.current.forEach(clearTimeout);
+    setFading(false);
     setActiveEv(ev);
+    evTimers.current = [setTimeout(() => setFading(true), 1000), setTimeout(() => setActiveEv(null), 1200)];
     const idx = paras.findIndex((p) => ev.start >= p.start && ev.start < p.end);
     docRef.current?.querySelector(`[data-para="${idx}"]`)?.scrollIntoView({ block: "center", behavior: "auto" });
   }
@@ -290,7 +305,12 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   const otherFlags = view.flags.filter((f) => f !== "NEEDS_REVIEW");
 
   return (
-    <div className={s.reviewGrid}>
+    <div className={s.reviewGrid} data-tab={tab}>
+      <div className={s.tabs} role="tablist" aria-label="Chế độ xem">
+        <button type="button" role="tab" aria-selected={tab === "doc"} onClick={() => setTab("doc")}>Bài làm</button>
+        <button type="button" role="tab" aria-selected={tab === "grade"} onClick={() => setTab("grade")}>Chấm</button>
+      </div>
+      <div className={s.docCol}>
       <Panel>
         <div className={s.doc} ref={docRef} data-part="submission-text">
           <div className={s.docMeta}>
@@ -311,7 +331,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                 seg.kind === null ? (
                   <span key={k}>{seg.text}</span>
                 ) : (
-                  <mark key={k} className={seg.kind === "injection" ? s.injected : s.evidenceMark} data-part={seg.kind === "injection" ? "injection" : "evidence-hit"}>
+                  <mark key={k} className={seg.kind === "injection" ? s.injected : s.evidenceMark} data-fading={seg.kind === "evidence" && fading ? "" : undefined} data-part={seg.kind === "injection" ? "injection" : "evidence-hit"}>
                     {seg.text}
                   </mark>
                 ),
@@ -320,7 +340,9 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
           ))}
         </div>
       </Panel>
+      </div>
 
+      <div className={s.gradeCol}>
       <Panel>
         <div className={s.panel}>
           {view.appeal && <AppealPanel courseId={courseId} submissionId={submissionId} view={view} appeal={view.appeal} teacher={identity?.role === "teacher"} />}
@@ -376,6 +398,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
               {FLAG_TODO[f] ?? ""}
             </InlineNotice>
           ))}
+          {view.criteria.some((c) => c.evidence.length > 0) && <p className={s.evNote}>Bấm một dòng trích để xem trong bài.</p>}
           {restored && <InlineNotice compact>Đã khôi phục nhận xét bạn đang soạn dở.</InlineNotice>}
           {conflict && (
             <InlineNotice
@@ -412,21 +435,13 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
             const gap = u1 !== null && u2 !== null ? Math.abs(u1 - u2) : 0;
             return (
               <section key={c.id} className={s.crit} data-part="criterion" data-criterion={c.id} data-active={activeCrit === c.id || undefined}>
-                {gap > 100 && (
-                  <span data-part="disagree">
-                    <InlineNotice tone="warning" compact>
-                      {`Hai lượt chấm lệch ${vi(fromUnits(gap))} điểm (${vi(pd!.pass1!)} và ${vi(pd!.pass2!)})`}
-                    </InlineNotice>
-                  </span>
-                )}
                 <div className={s.critHead}>
                   <span className={s.critName}>{c.name}</span>
-                  <Field label={`Điểm ${c.name}`} error={fieldErr?.id === c.id ? fieldErr.message : undefined} className={s.critScore}>
-                    {(id) => (
+                  <span className={s.critScore}>
                       <span className={s.scoreBox}>
                         <Input
-                          id={id}
-                          className={s.scoreInput}
+                          aria-label={`Điểm ${c.name}`}
+                          className={[s.scoreInput, savedKey === `score:${c.id}` ? "ep-saved ep-motion-safe" : ""].join(" ")}
                           inputMode="decimal"
                           data-part="score-input"
                           value={scoreOf(c)}
@@ -439,14 +454,21 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                         />
                         <span className={s.stepMax}>{` / ${vi(c.max)}`}</span>
                       </span>
-                    )}
-                  </Field>
+                  </span>
                 </div>
+                {fieldErr?.id === c.id && <p className={s.fieldErr} role="alert">{fieldErr.message}</p>}
+                {gap > 100 && (
+                  <span data-part="disagree">
+                    <InlineNotice tone="warning" compact>
+                      {`Lệch ${vi(fromUnits(gap))} điểm so với lượt 2 (${vi(pd!.pass1!)} và ${vi(pd!.pass2!)})`}
+                    </InlineNotice>
+                  </span>
+                )}
                 {c.edited && <p className={s.aiTag} data-part="edited">Đã sửa bởi giảng viên</p>}
                 {c.evidence.map((ev, i) => (
                   <button key={i} type="button" className={s.evidence} data-part="evidence" onClick={() => showEvidence(ev)}>
-                    <span className={s.evidenceTag}>Đoạn trích từ bài làm · bấm để xem trong bài</span>
-                    {`“${ev.quote}”`}
+                    <Quote aria-hidden />
+                    <span>{`“${ev.quote}”`}</span>
                   </button>
                 ))}
                 <Field label="Nhận xét cho sinh viên">
@@ -455,13 +477,14 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                       id={id}
                       rows={2}
                       data-part="criterion-comment"
+                      className={savedKey === `comment:${c.id}` ? "ep-saved ep-motion-safe" : undefined}
                       value={commentOf(c)}
                       onChange={(e) => {
                         setComments((p) => ({ ...p, [c.id]: e.target.value }));
                         saveDraft({ comments: { [c.id]: e.target.value } });
                       }}
                       onBlur={() => {
-                        if (commentOf(c) !== c.comment) void run(() => put({ version: view.result.version, criteria: [{ id: c.id, comment: commentOf(c) }] }).then(() => undefined));
+                        if (commentOf(c) !== c.comment) void run(() => put({ version: view.result.version, criteria: [{ id: c.id, comment: commentOf(c) }] }).then(() => flashSaved(`comment:${c.id}`)));
                       }}
                     />
                   )}
@@ -485,17 +508,23 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
             )}
           </Field>
 
-          <div className={s.foot}>
+          <div className={s.foot} data-part="review-bar">
             <p className={s.footText} data-part="review-progress">{`Đã duyệt ${done}/${total || order.length || 0}`}</p>
-            <Button variant="primary" icon={<Check aria-hidden />} loading={busy} disabled={Boolean(lockedReason) || view.result.status === "PUBLISHED"} title={lockedReason} onClick={approve}>
-              {view.result.status === "REVIEWED" ? "Đã duyệt" : "Duyệt bài"}
-            </Button>
+            <span className={s.footActions}>
+              <Button variant="ghost" size="sm" icon={<ChevronLeft aria-hidden />} aria-label="Bài trước" disabled={at <= 0} onClick={() => goto(at - 1)} />
+              <Button variant="ghost" size="sm" icon={<ChevronRight aria-hidden />} aria-label="Bài sau" disabled={at < 0 || at + 1 >= order.length} onClick={() => goto(at + 1)} />
+              <Button variant="primary" icon={<Check aria-hidden />} loading={busy} disabled={Boolean(lockedReason) || view.result.status === "PUBLISHED"} title={lockedReason} onClick={approve}>
+                {view.result.status === "REVIEWED" ? "Đã duyệt" : "Duyệt bài"}
+              </Button>
+              <Kbd>A</Kbd>
+            </span>
           </div>
           <ButtonLink href="/grading" variant="ghost" size="sm">
             Về hàng chờ chấm
           </ButtonLink>
         </div>
       </Panel>
+      </div>
     </div>
   );
 }

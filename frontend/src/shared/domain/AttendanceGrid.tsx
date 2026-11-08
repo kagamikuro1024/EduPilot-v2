@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, type KeyboardEvent } from "react";
-import { Button, DataTable, Kbd, type Column } from "@/shared/ui";
+import { Plus } from "lucide-react";
+import { DataTable, Kbd, type Column } from "@/shared/ui";
 import s from "./AttendanceGrid.module.css";
 
 export type AttendanceStatus = "PRESENT" | "LATE" | "EXCUSED" | "ABSENT";
@@ -11,6 +12,8 @@ export const ATTENDANCE_OPTIONS: Array<{ value: AttendanceStatus; label: string;
   { value: "EXCUSED", label: "Vắng phép", key: "3" },
   { value: "ABSENT", label: "Vắng", key: "4" },
 ];
+/** "+2 · +0,25×2" (số lần · điểm cộng mỗi lần × số lần); chưa biết điểm cộng thì chỉ "+2". */
+const speakText = (n: number, bonus?: string) => (bonus ? `+${n} · +${bonus}×${n}` : `+${n}`);
 const labelOf = (v: AttendanceStatus) => ATTENDANCE_OPTIONS.find((o) => o.value === v)?.label ?? v;
 
 export type AttendanceGridRow = {
@@ -19,6 +22,8 @@ export type AttendanceGridRow = {
   code: string;
   status: AttendanceStatus;
   speaks: number;
+  /** vừa lưu xong: nháy nền xanh nhạt tại ô tên (US-UX91-04 AC7) */
+  saved?: boolean;
   /** có khi người khác vừa đổi dòng này (409): hiện lựa chọn giữ / lấy ngay trên dòng */
   conflict?: { by: string; theirs: AttendanceStatus } | null;
 };
@@ -31,7 +36,8 @@ export function AttendanceGrid({
   rows,
   caption,
   readOnly,
-  speakLabel,
+  speakBonus,
+  stickyHeight,
   onSet,
   onSpeak,
   onResolve,
@@ -39,8 +45,10 @@ export function AttendanceGrid({
   rows: AttendanceGridRow[];
   caption: string;
   readOnly?: boolean;
-  /** nhãn nút phát biểu, vd. "+ phát biểu · +0,25" */
-  speakLabel: string;
+  /** điểm cộng mỗi lần phát biểu đọc từ công thức lớp, vd. "0,25"; chưa có công thức thì bỏ trống */
+  speakBonus?: string;
+  /** bảng máy tính cao tối đa, tiêu đề cột và cột tên dính (DESIGN §14.8) */
+  stickyHeight?: string;
   onSet: (id: string, status: AttendanceStatus) => void;
   onSpeak: (id: string) => void;
   onResolve?: (id: string, choice: "mine" | "theirs") => void;
@@ -86,9 +94,12 @@ export function AttendanceGrid({
       frozen: true,
       width: "30%",
       render: (r) => (
-        <span className={s.name}>
+        <span className={[s.name, r.saved ? "ep-saved ep-motion-safe" : ""].join(" ")}>
           <span className="ep-item-title">{r.name}</span>
-          <span className="ep-meta">{r.code}</span>
+          <span className="ep-meta">
+            {r.code}
+            {r.status !== "PRESENT" && <span className={s.statusText} data-status={r.status}> · {labelOf(r.status)}</span>}
+          </span>
           {resolve(r)}
         </span>
       ),
@@ -109,6 +120,7 @@ export function AttendanceGrid({
             type="radio"
             name={`mark-${r.id}`}
             className={s.radio}
+            data-status={o.value}
             disabled={readOnly}
             checked={r.status === o.value}
             onChange={() => onSet(r.id, o.value)}
@@ -126,12 +138,12 @@ export function AttendanceGrid({
       ),
       align: "end",
       render: (r) => (
-        <>
-          {r.speaks > 0 && <span className={s.count} data-part="speak-count">{r.speaks}</span>}
-          <button type="button" className={s.speak} disabled={readOnly} onClick={() => onSpeak(r.id)}>
-            {speakLabel}
+        <span className={s.speakCell}>
+          {r.speaks > 0 && <span className={s.count} data-part="speak-count">{speakText(r.speaks, speakBonus)}</span>}
+          <button type="button" className={s.speak} disabled={readOnly} onClick={() => onSpeak(r.id)} aria-label={`Ghi phát biểu · ${r.name}`} title="Ghi phát biểu (P)">
+            <Plus aria-hidden />
           </button>
-        </>
+        </span>
       ),
     },
   ];
@@ -142,6 +154,7 @@ export function AttendanceGrid({
         caption={caption}
         columns={columns}
         rows={rows}
+        stickyHeight={stickyHeight}
         rowKey={(r) => r.id}
         activeKey={rows[cursor]?.id}
         rowAttrs={(r) => ({ "data-part": "student-row", "data-student-id": r.id })}
@@ -150,13 +163,18 @@ export function AttendanceGrid({
           const tone = r.status === "ABSENT" ? s.mStatusAbsent : r.status === "PRESENT" ? "" : s.mStatusOther;
           return (
             <div className={s.mRow} data-part="att-row" data-student-id={r.id}>
-              <button type="button" className={s.mHead} aria-expanded={expanded} onClick={() => setOpen(expanded ? null : r.id)} disabled={readOnly}>
-                <span className={s.name}>
-                  <span className="ep-item-title">{r.name}</span>
-                  <span className="ep-meta">{r.code}{r.speaks > 0 ? ` · ${r.speaks} phát biểu` : ""}</span>
-                </span>
-                <span className={`${s.mStatus} ${tone}`} data-part="att-status">{labelOf(r.status)}</span>
-              </button>
+              <div className={s.mTop}>
+                <button type="button" className={s.mHead} aria-expanded={expanded} onClick={() => setOpen(expanded ? null : r.id)} disabled={readOnly}>
+                  <span className={[s.name, r.saved ? "ep-saved ep-motion-safe" : ""].join(" ")}>
+                    <span className="ep-item-title">{r.name}</span>
+                    <span className="ep-meta">{r.code}{r.speaks > 0 ? ` · ${speakText(r.speaks, speakBonus)}` : ""}</span>
+                  </span>
+                  <span className={`${s.mStatus} ${tone}`} data-part="att-status">{labelOf(r.status)}</span>
+                </button>
+                <button type="button" className={s.mPlus} disabled={readOnly} onClick={() => onSpeak(r.id)} aria-label={`Ghi phát biểu · ${r.name}`}>
+                  <Plus aria-hidden />
+                </button>
+              </div>
               {resolve(r)}
               {expanded && !readOnly && (
                 <div className={s.mPanel}>
@@ -177,9 +195,6 @@ export function AttendanceGrid({
                       </button>
                     ))}
                   </div>
-                  <Button variant="secondary" className={s.mSpeak} onClick={() => onSpeak(r.id)}>
-                    {speakLabel}
-                  </Button>
                 </div>
               )}
             </div>

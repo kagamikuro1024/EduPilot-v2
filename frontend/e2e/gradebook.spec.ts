@@ -324,8 +324,8 @@ test("cell edit instant: cột tính hiện … trong lúc chờ rồi đổi th
   await cellOf(page, 1, FINAL).fill("6");
   await cellOf(page, 1, FINAL).press("Enter");
   await expect(row.locator("[data-part=row-status]")).toHaveText("…");
-  await expect(row.locator("[data-part=row-status]")).toHaveText("Đủ", { timeout: 5000 });
-  await expect(row.locator("td").nth(7)).toHaveText("7");
+  await expect(row.locator("[data-part=row-status]")).toHaveText("", { timeout: 5000 }) // "Đủ điểm" để trống (US-UX91-16 AC4);
+  await expect(row.locator("td").nth(7)).toHaveText("7,00") // US-UX91-16 AC1: đệm tối thiểu 2 chữ số thập phân;
 });
 
 test("cell conflict choose: người sau nhận 409, hiện giá trị người kia, chọn Giữ của tôi hoặc Dùng của họ", async ({ page, context }, info) => {
@@ -455,10 +455,11 @@ test("publish column: menu cột công bố / gỡ; cột bài thi không có me
   desktopOnly(info);
   const api = await sheet(page, context);
   const head = page.locator("thead th").nth(1);
-  await expect(head).toContainText("Chưa công bố");
+  // US-UX91-16 AC2: trạng thái đã công bố là chấm tròn (pubDot), không còn dòng chữ phụ
+  await expect(head.locator("[aria-label='Đã công bố']")).toHaveCount(0);
   await head.getByRole("button", { name: "Cột Kiểm tra tuần" }).click();
   await page.getByRole("menuitem", { name: "Công bố cho sinh viên" }).click();
-  await expect(head).toContainText("Đã công bố");
+  await expect(head.locator("[aria-label='Đã công bố']")).toHaveCount(1);
   expect(api.calls.some((c) => c.method === "POST" && c.path.endsWith("/publish") && JSON.parse(c.body).published === true)).toBe(true);
   await expect(page.locator("thead th").nth(3).getByRole("button")).toHaveCount(0);
   await head.getByRole("button", { name: "Cột Kiểm tra tuần" }).click();
@@ -618,7 +619,8 @@ test("finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu
   const api = await sheet(page, context, { students: 3 });
   await fill(api, 3);
   await page.reload();
-  await expect(page.locator("[data-part=grade-row]").first().locator("[data-part=row-status]")).toHaveText("Đủ");
+  // US-UX91-16 AC4: mọi hàng đủ điểm thì ẩn cả cột Trạng thái
+  await expect(page.locator("[data-part=grade-row]").first().locator("[data-part=row-status]")).toHaveCount(0);
   await page.getByRole("button", { name: "Chốt điểm" }).click();
   const dlg = page.getByRole("dialog", { name: "Chốt điểm" });
   await expect(dlg).toContainText("Chốt 3 sinh viên · phân bố: C 3 · 0 sinh viên liệt");

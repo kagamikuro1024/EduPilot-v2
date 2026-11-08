@@ -144,17 +144,17 @@ test("attendance complete không có thay đổi vẫn gửi complete:true cho c
 test("attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await open(page, context);
-  const speak = row(page, 6).getByRole("button", { name: "+ phát biểu · +0,25" });
+  const speak = row(page, 6).getByRole("button", { name: /^Ghi phát biểu/ });
   await speak.click();
-  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText("1");
+  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText(/^\+1\b/);
   await speak.click();
   await speak.click();
-  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText("3");
+  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText(/^\+3\b/);
   await expect.poll(() => api.calls.filter((c) => c.method === "POST").length).toBe(3);
   const ids = api.calls.filter((c) => c.method === "POST").map((c) => (JSON.parse(c.body) as { client_event_id: string; type: string }).client_event_id);
   expect(new Set(ids).size).toBe(3);
   await page.getByRole("button", { name: "Hoàn tác" }).click();
-  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText("2");
+  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText(/^\+2\b/);
   await expect.poll(() => api.calls.filter((c) => c.method === "DELETE").length).toBe(1);
 });
 
@@ -280,8 +280,7 @@ test("attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồ
   }
   for (const i of [2, 5, 8]) await mark(i, "Vắng");
   await mark(10, "Muộn");
-  await rows.nth(12).getByRole("button").first().click();
-  await page.getByRole("button", { name: "+ phát biểu · +0,25" }).click();
+  await rows.nth(12).getByRole("button", { name: /^Ghi phát biểu/ }).click();
   await page.getByRole("button", { name: "Lưu điểm danh" }).click();
   await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 3")).toBeVisible();
   expect(Date.now() - t0).toBeLessThan(15000);

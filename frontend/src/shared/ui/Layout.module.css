@@ -62,3 +62,4 @@
 @media (max-width: 719px), (pointer: coarse) {
   .back { min-height: 44px; min-width: 44px; margin-bottom: calc(var(--ep-space-2) * -1); }
 }
+.toolbarStart[data-align="end"] { align-items: end; }
