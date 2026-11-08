@@ -1,5 +1,3 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import { Play } from "lucide-react";
 import { preload } from "react-dom";
 import Link from "next/link";
@@ -9,15 +7,6 @@ import { LandingMedia } from "./LandingMedia";
 
 // Trang giới thiệu v2 (Persuade, DESIGN.md §11.1): HTML tĩnh từ máy chủ, không gọi API. Số liệu lấy từ báo cáo sprint 6, 8, 9 (docs/sprints/*/report.md); ảnh chụp từ bản demo đã seed
 // (scripts/landing-video). Chuyển động hoàn toàn bằng CSS (`animation-timeline`); JS thêm duy nhất là LandingMedia (clip màn đầu + hộp thoại video).
-// Ảnh 320 px (5 KB) nhúng thẳng vào HTML cho điện thoại: có hình ngay lần vẽ đầu, không tranh băng thông với JS / phông (đo: ảnh 640 px 19 KB về lúc 2,7 s trên 4G chậm, LCP vượt 2,5 s);
-// bản 640 px nét đè lên khi về. Đọc lúc dựng trang tĩnh; thiếu tệp thì bỏ qua (chỉ mất bước làm mờ).
-const LQIP = (() => {
-  try {
-    return `data:image/webp;base64,${readFileSync(join(process.cwd(), "public/landing/gioi-thieu-clip-v1-lqip.webp")).toString("base64")}`;
-  } catch {
-    return undefined;
-  }
-})();
 const REPO = "https://github.com/kagamikuro1024/EduPilot-v2";
 
 // Mỗi số một câu người ngoài hiểu ngay, khớp từng chữ với nguồn (US-UX91-08 AC9). Chỉ số nguyên (146) đếm lên; "30/30", "0,05 %" hiện tĩnh.
@@ -91,7 +80,7 @@ function Items({ title, rows }: { title: string; rows: ReadonlyArray<readonly [s
 }
 
 export function Landing() {
-  // Ảnh lớn nhất lần vẽ đầu là LCP: ≥ 720 px là poster của clip (1280 px); điện thoại là bản 640 px nhỏ (22 KB) nằm ngay dưới nút — bản lớn 64 KB tranh băng thông với JS và phông nên LCP chậm hơn 1 s.
+  // ≥ 720 px: poster của clip (1280 px) là LCP, preload ở <head>. Điện thoại: khối chữ cao gần hết màn hình, chữ là LCP; chỉ mép trên của poster 640 px (19 KB, ưu tiên thấp) lộ ở đáy màn đầu — nhỏ hơn diện tích h1 nên không giành LCP (ảnh về lúc 2,7 s trên 4G chậm vì tranh băng thông với JS và phông).
   preload("/landing/gioi-thieu-clip-v1.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
   return (
     <div className={s.page} data-part="landing">
@@ -119,12 +108,8 @@ export function Landing() {
             {/* clip lặp 6–8 s: poster trước (LCP), LandingMedia nạp và phát sau sự kiện `load`; không tiếng, bỏ qua khi reduce / Save-Data / tab ẩn */}
             {/* Poster là <img> (LCP, preload ở <head>) chứ không phải thuộc tính `poster` của video: điện thoại chỉ tải bản 640 px, máy tính chỉ tải bản 1280 px; video nằm đè lên và chỉ hiện khi đã phát */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            {LQIP && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img className={s.posterSm} src={LQIP} width={640} height={400} alt="" aria-hidden="true" />
-            )}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img className={s.posterSharp} src="/landing/gioi-thieu-clip-v1-640.webp" width={640} height={400} alt={POSTER_ALT} />
+            <img className={s.posterSm} src="/landing/gioi-thieu-clip-v1-640.webp" width={640} height={400} alt={POSTER_ALT} fetchPriority="low" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={s.posterLg} src="/landing/gioi-thieu-clip-v1.webp" width={1280} height={800} alt={POSTER_ALT} fetchPriority="high" />
             {/* clip lặp 6–8 s: LandingMedia nạp và phát sau sự kiện `load`; không tiếng, bỏ qua khi reduce / Save-Data / tab ẩn */}
