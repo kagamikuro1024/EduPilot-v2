@@ -11,3 +11,10 @@
 .rowActions { display: inline-flex; align-items: center; gap: var(--ep-space-2); flex-wrap: wrap; justify-content: flex-end; }
 .note { margin: 0; color: var(--ep-ink-3); font-size: var(--ep-text-meta); }
 @media (max-width: 719px), (pointer: coarse) { .steps a { display: inline-flex; align-items: center; min-height: 44px; } }
+.group { display: grid; gap: var(--ep-space-2); }
+.group + .group { margin-top: var(--ep-space-6); }
+.groupTitle { margin: 0; font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink-2); }
+.split { display: grid; gap: var(--ep-space-8); align-items: start; }
+.side { display: grid; gap: var(--ep-space-8); min-width: 0; }
+.mainCol { display: grid; gap: var(--ep-space-4); min-width: 0; }
+@media (min-width: 1440px) { .split { grid-template-columns: minmax(0, 1fr) 320px; } }

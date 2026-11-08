@@ -1,7 +1,7 @@
 "use client";
 
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
-import { ActionList, Button, EmptyState, InlineNotice, Page, PageHeader, Panel, Section } from "@/shared/ui";
+import { ActionList, Button, EmptyState, InlineNotice, Page, PageHeader, Panel } from "@/shared/ui";
 import { TodayActions } from "./TodayActions";
 import { longDate } from "./format";
 import { useToday, type AdminToday as Data } from "./todayApi";
@@ -27,9 +27,7 @@ export function AdminToday() {
             </InlineNotice>
           )}
           {d.actions.length > 0 ? (
-            <Section title="Việc cần bạn xử lý" panel>
-              <TodayActions actions={d.actions} showClass={false} canDismiss={false} />
-            </Section>
+            <TodayActions actions={d.actions} showClass={false} canDismiss={false} />
           ) : (
             <Panel><EmptyState title="Hệ thống đang vận hành bình thường">Khi một nhà cung cấp AI lỗi, ngân sách sắp chạm trần hoặc một lớp không có giảng viên, việc sẽ xuất hiện ở đây.</EmptyState></Panel>
           )}

@@ -42,6 +42,7 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
   const rec = d.recommended;
   const rowRec = rec && rec.kind !== "JOIN_CODE" ? rec : null; // chưa vào lớp: ô nhập mã thay cho khuyến nghị
   const calm = !rec && !d.no_course;
+  const recent = latestPerThread(d.continue);
   return (
     <>
       {retry && (
@@ -66,15 +67,6 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
           <p className={s.calm}>Hôm nay bạn không có việc gấp.</p>
         </Section>
       )}
-      {d.continue.length > 0 && (
-        <Section title="Tiếp tục học" panel>
-          <ActionList label="Tiếp tục học">
-            {d.continue.map((c) => (
-              <ActionRow key={c.id} title={c.title} context={`Lớp ${c.course.class_code} · ${formatWhen(c.at)}`} href={c.href} />
-            ))}
-          </ActionList>
-        </Section>
-      )}
       {d.timeline.length > 0 && (
         <Section title="Hôm nay" panel>
           <ActionList label="Lịch hôm nay">
@@ -91,8 +83,28 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
           </ActionList>
         </Section>
       )}
+      {recent.length > 0 && (
+        <Section title="Tiếp tục học" panel>
+          <ActionList label="Tiếp tục học">
+            {recent.map((c) => (
+              <ActionRow key={c.id} title={c.title} context={`Lớp ${c.course.class_code} · ${formatWhen(c.at)}`} href={c.href} />
+            ))}
+          </ActionList>
+        </Section>
+      )}
     </>
   );
+}
+
+/** Một phiên gần nhất cho mỗi cặp (tiêu đề, lớp), tối đa 3 hàng (US-UX91-11 AC2). */
+function latestPerThread(items: Data["continue"]) {
+  const best = new Map<string, Data["continue"][number]>();
+  for (const c of items) {
+    const k = `${c.course.id}|${c.title.trim().toLowerCase()}`;
+    const cur = best.get(k);
+    if (!cur || new Date(c.at).getTime() > new Date(cur.at).getTime()) best.set(k, c);
+  }
+  return [...best.values()].sort((a, b) => new Date(b.at).getTime() - new Date(a.at).getTime()).slice(0, 3);
 }
 
 function Recommended({ item, courseId }: { item: TodayItem; courseId: string | null }) {

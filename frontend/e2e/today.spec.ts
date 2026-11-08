@@ -122,6 +122,23 @@ test("student today: continue learning — tối đa 3 phiên chat, mở đúng 
   await expect(main(page)).toContainText("Lớp 761988");
 });
 
+test("student today: thứ tự Hôm nay trước Tiếp tục học; phiên cùng tiêu đề cùng lớp chỉ hiện phiên gần nhất (US-UX91-11)", async ({ page }) => {
+  const chat = (id: string, title: string, at: string, course = c1) => ({ kind: "CHAT", id, title, href: `/chat?session=${id}`, course, at });
+  await open(page, "STUDENT", [mine(C1, "761988", "STUDENT")], () =>
+    student({
+      timeline: [{ at: "2026-10-15T02:00:00Z", ends_at: "2026-10-15T04:30:00Z", title: "Buổi 10 · An ninh mạng", place: "P.302", state: "NOW", course: c1 }],
+      continue: [chat("a1", "Điều kiện thi", "2026-11-02T02:00:00Z"), chat("a2", "điều kiện thi", "2026-11-03T02:00:00Z"), chat("a3", "Điều kiện thi", "2026-11-01T02:00:00Z", c2), chat("b1", "Khác", "2026-10-30T02:00:00Z")],
+    }),
+  );
+  const heads = main(page).getByRole("heading", { level: 2 });
+  await expect(heads).toHaveText(["Việc nên làm tiếp", "Hôm nay", "Tiếp tục học"]);
+  const links = main(page).getByRole("link", { name: /điều kiện thi|Khác/i });
+  await expect(links).toHaveCount(3); // a2 (mới nhất của cặp lớp c1), a3 (lớp khác), b1
+  await expect(main(page).locator('a[href="/chat?session=a1"]')).toHaveCount(0);
+  await expect(main(page).locator('a[href="/chat?session=a2"]')).toHaveCount(1);
+  await expect(main(page)).toContainText(/Thứ [A-Za-zÀ-ỹ ]+, 03\/11 · 09:00|Hôm qua|Hôm nay/);
+});
+
 test("student today: chọn một lớp ⇒ gọi /courses/{id}/today; không lớp ⇒ /me/today", async ({ page }) => {
   const st = await open(page, "STUDENT", [mine(C1, "761988", "STUDENT"), mine(C2, "761987", "STUDENT")], () => student());
   await expect(page.getByText("Hôm nay bạn không có việc gấp.")).toBeVisible();
@@ -148,6 +165,53 @@ test("staff today: tiêu đề đếm việc, hàng đúng thứ tự, 'lớp 76
   await expect(page.getByRole("heading", { name: "Lớp cần chú ý" })).toHaveCount(0);
   expect(st.calls[0]).toBe(`/courses/${C1}/today`);
   expect(st.calls).toContain("/me/today");
+});
+
+test("staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10)", async ({ page }) => {
+  const acts = [
+    item("GRADING_ERROR", "2 bài chấm lỗi", "Chạy lại ở hàng chờ.", { urgency: "overdue", course: c1, href: "/grading" }),
+    item("GRADING_REVIEW", "Bài AI cần xem kỹ", "Độ tin cậy thấp.", { urgency: "high", course: c1, href: "/grading" }),
+    item("PUBLISH_PENDING", "Công bố điểm Bài 2", "Đã duyệt đủ.", { course: c1, href: "/grading" }),
+    item("EXAM_SIMILARITY", "Hai bài thi giống nhau", "Xem khi rảnh.", { course: c1, href: "/exams" }),
+    item("UNMATCHED_SUBMISSION", "1 bài chưa khớp sinh viên", "Chọn sinh viên.", { course: c1, href: "/grading" }),
+  ];
+  await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff(acts));
+  const heads = main(page).getByRole("heading", { level: 3 });
+  await expect(heads).toHaveText(["Gấp · 2", "Hôm nay · 1", "Khi rảnh · 2"]);
+  await expect(main(page).getByRole("heading", { name: "Gấp, 2 việc" })).toBeVisible(); // trình đọc màn hình nghe "Gấp, 2 việc"
+  await expect(main(page).locator("li[data-kind]")).toHaveCount(5);
+  expect(await main(page).locator("li[data-kind]").evaluateAll((els) => els.map((e) => e.getAttribute("data-kind")))).toEqual(["GRADING_ERROR", "GRADING_REVIEW", "PUBLISH_PENDING", "EXAM_SIMILARITY", "UNMATCHED_SUBMISSION"]);
+  await expect(main(page).locator('a[data-variant="primary"]')).toHaveCount(1);
+  await expect(main(page).locator('li[data-kind="GRADING_ERROR"] a[data-variant="primary"]')).toBeVisible(); // việc đầu của nhóm đầu
+  await expect(main(page).locator('li[data-kind="GRADING_REVIEW"] a[data-variant="ghost"] svg')).toHaveCount(1); // ghost + mũi tên
+  await expect(main(page).locator("li[data-kind]").first()).not.toContainText("lớp 761988"); // một lớp đang chọn: không lặp mã lớp
+  await expect(main(page).getByRole("heading", { name: "Việc cần xử lý", exact: true })).toHaveCount(0); // khối trùng tiêu đề trang đã bỏ
+});
+
+test("staff today: nhóm rỗng không hiện; chỉ việc thường ⇒ chỉ nhóm Hôm nay", async ({ page }) => {
+  await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([item("PUBLISH_PENDING", "Công bố điểm", "x", { course: c1, href: "/grading" })]));
+  await expect(main(page).getByRole("heading", { level: 3 })).toHaveText(["Hôm nay · 1"]);
+});
+
+test("staff today: nguồn Khi rảnh nhưng urgency high ⇒ vẫn là Gấp", async ({ page }) => {
+  await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff([item("UNMATCHED_SUBMISSION", "Bài chưa khớp", "x", { urgency: "high", course: c1, href: "/grading" })]));
+  await expect(main(page).getByRole("heading", { level: 3 })).toHaveText(["Gấp · 1"]);
+});
+
+test("staff today ≥ 1440: Lớp cần chú ý và Sắp tới nằm cột phải cạnh danh sách; 1024 nằm dưới", async ({ page }) => {
+  const acts = [item("PUBLISH_PENDING", "Công bố điểm", "x", { course: c1, href: "/grading" })];
+  const att = { student: { id: "00000000-0000-7000-8000-00000000b001", full_name: "Sinh Viên 1" }, course: c1, reason: "vắng 3/4 buổi" };
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await open(page, "TEACHER", [mine(C1, "761988", "TEACHER")], () => staff(acts, { attention: [att], attention_total: 1, upcoming: [{ at: "2026-10-20T02:00:00Z", title: "Buổi 11", place: "P.302", course: c1 }] }));
+  const list = main(page).locator("li[data-kind]").first();
+  const side = main(page).getByRole("heading", { name: "Lớp cần chú ý" });
+  await expect(side).toBeVisible();
+  const [lb, sb] = [await list.boundingBox(), await side.boundingBox()];
+  expect(sb!.x).toBeGreaterThan(lb!.x + lb!.width - 1); // cột phải
+  expect(sb!.y).toBeLessThan(lb!.y + 400);
+  await page.setViewportSize({ width: 1024, height: 800 });
+  const [lb2, sb2] = [await list.boundingBox(), await side.boundingBox()];
+  expect(sb2!.y).toBeGreaterThan(lb2!.y + lb2!.height - 1); // dưới danh sách
 });
 
 test("staff today: 'Thiết lập lớp mới' mở 4 bước tại chỗ, Bỏ qua gọi setup/dismiss và hàng biến mất", async ({ page }) => {

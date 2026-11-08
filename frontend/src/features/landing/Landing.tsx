@@ -105,9 +105,7 @@ export function Landing() {
             </div>
           </div>
           <div className={`${s.heroShot} ${s.frame}`}>
-            {/* clip lặp 6–8 s: poster trước (LCP), LandingMedia nạp và phát sau sự kiện `load`; không tiếng, bỏ qua khi reduce / Save-Data / tab ẩn */}
             {/* Poster là <img> (LCP, preload ở <head>) chứ không phải thuộc tính `poster` của video: điện thoại chỉ tải bản 640 px, máy tính chỉ tải bản 1280 px; video nằm đè lên và chỉ hiện khi đã phát */}
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img className={s.posterSm} src="/landing/gioi-thieu-clip-v1-640.webp" width={640} height={400} alt={POSTER_ALT} fetchPriority="low" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
