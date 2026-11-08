@@ -1,6 +1,6 @@
 # Dev — đợt 1 (nền chung) · sprint 9.1 pha 2
 
-Commit: xem dòng `9.1 đợt 1+2` trong `git log` nhánh `sprint/9.1-uiux` (đợt 1 và 2 chồng tệp nên chung một commit, QC dựng stack theo commit đó).
+Commit: `4b6389f1` (đợt 1 và 2 chồng tệp nên chung một commit).
 Stack kiểm: theo `qc/tc-00-chung.md` §môi trường (`-p ep-qc`, `/srv/work/qc`, nhánh `sprint/9.1-uiux`). Ảnh trước/sau 1440 + 375 do QC chụp (K7); đợt này gần như không đổi bố cục.
 
 ## Làm được

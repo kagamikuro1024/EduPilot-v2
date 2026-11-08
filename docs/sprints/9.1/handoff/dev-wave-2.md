@@ -1,6 +1,6 @@
 # Dev — đợt 2 (chữ) · sprint 9.1 pha 2
 
-Commit: chung với đợt 1 (`9.1 đợt 1+2`). Stack kiểm như `dev-wave-1.md`.
+Commit: `4b6389f1` (chung với đợt 1). Stack kiểm như `dev-wave-1.md`.
 
 ## Làm được
 | Story | Nội dung |
