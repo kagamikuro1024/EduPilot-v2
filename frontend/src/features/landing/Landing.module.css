@@ -102,7 +102,7 @@
   .posterSm { display: block; }
   .posterLg, .video, .clipToggle { display: none; }
   .heroActions { gap: var(--ep-space-2); }
-  .heroActions.heroActions > * { padding-inline: var(--ep-space-3); font-size: var(--ep-text-label); white-space: nowrap; }
+  .heroActions.heroActions > [data-variant] { padding-inline: var(--ep-space-3); font-size: var(--ep-text-label); white-space: nowrap; }
   .heroActions.heroActions > [data-variant="text"] { padding-inline: var(--ep-space-2); } /* ba nút một hàng ở 375 px (~330 px); hẹp hơn thì Xem video xuống hàng, không tràn */
   /* khối chữ chiếm gần hết màn đầu: chữ lớn hơn, thở rộng hơn, canh giữa dọc; mép poster lộ ở ~90vh */
   .display { font-size: clamp(2.5rem, 11vw, 2.75rem); }

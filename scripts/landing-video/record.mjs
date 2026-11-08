@@ -229,10 +229,10 @@ await scene("s5-outro", undefined, async (page, a) => {
   await sleep(4000);
 });
 
-// ---- ba ảnh khung ghim của trang giới thiệu (US-UX91-08 AC6): chụp riêng, không quay: cửa sổ 1200 × 750 (8:5), độ phân giải gấp đôi, không phụ đề, không con trỏ.
-// Cỡ 1200 (không phải 1440) để chữ trong ảnh còn đọc được khi ảnh nằm trong khung ~940 px của trang.
+// ---- ba ảnh khung ghim của trang giới thiệu (US-UX91-08 AC6): chụp riêng, không quay: cửa sổ 1360 × 850 (8:5), độ phân giải gấp đôi, không phụ đề, không con trỏ.
+// Cỡ 1360 (không phải 1440) để chữ trong ảnh còn đọc được khi ảnh nằm trong khung ~940 px của trang.
 async function stills() {
-  const SHOT = { width: 1200, height: 750 };
+  const SHOT = { width: 1360, height: 850 };
   const open = async (who) => browser.newContext({ viewport: SHOT, deviceScaleFactor: 2, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh", storageState: await login(...who) });
   let ctx = await open(sv);
   let p = await ctx.newPage();
