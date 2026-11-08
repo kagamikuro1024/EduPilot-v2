@@ -26,7 +26,7 @@ Lớp mẫu: 761987 (30 SV, 1 bài tập có 4 bài nộp chưa duyệt, có đi
 ---
 ## US-UX91-15 — Duyệt bài
 
-Dữ liệu: bài `‹sid›` trong lớp 761987 chưa duyệt, có ≥ 2 tiêu chí, ≥ 1 tiêu chí có đoạn trích, tên tiêu chí dài (≥ 40 ký tự). Bài có hai lượt chấm lệch > 1 điểm (xem `questions.md` Q4 nếu seed không có).
+Dữ liệu: bài `‹sid›` trong lớp 761987 chưa duyệt, có ≥ 2 tiêu chí, ≥ 1 tiêu chí có đoạn trích, tên tiêu chí dài (≥ 40 ký tự). Bài có hai lượt chấm lệch > 1 điểm ở lớp 761987 (P-91-5 Q4: dev / seed thêm, mã bài ghi ở handoff).
 
 | TC | AC | Vai / cỡ | Bước | Kết quả mong đợi | Chạy |
 | --- | --- | --- | --- | --- | --- |

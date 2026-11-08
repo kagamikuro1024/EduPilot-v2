@@ -21,7 +21,7 @@ Nguồn đối chiếu số liệu (đọc được trong repo): `docs/sprints/6
 | TC-UX08-8 | AC3 | khách | Sau 3 s: `video.paused`, `currentTime` tăng; `HEAD` hai tệp clip | Đang phát, lặp; mỗi tệp ≤ 1.048.576 byte | E2E + FFP |
 | TC-UX08-9 | AC3 | khách, `reduce` | Mở `/` ghi request | **Không** có request tới clip; chỉ poster | E2E |
 | TC-UX08-10 | AC3 | khách | `addInitScript`: `navigator.connection = { saveData: true }` | Không tải clip, chỉ poster | E2E |
-| TC-UX08-11 | AC3 | khách | `addInitScript` ép `document.visibilityState = 'hidden'` trước khi tải; sau đó đổi sang `visible` + `visibilitychange` | Hidden → không tải / không phát; visible → phát (hoặc đúng theo thiết kế, nêu ở handoff) | E2E |
+| TC-UX08-11 | AC3 | khách | `addInitScript` ép `document.visibilityState = 'hidden'` trước khi tải; sau đó đổi sang `visible` + `visibilitychange` | Hidden → không tải / không phát; khi tab hiện lại → clip tải và phát (trừ `reduce` / `Save-Data`, P-91-5 Q5) | E2E |
 | TC-UX08-12 | AC3 | khách | `route.abort()` mọi tệp clip | Poster giữ nguyên; không `console.error` / `pageerror` | E2E |
 | TC-UX08-13 | AC3 | khách, 375 | Mở `/` | Poster tĩnh hoặc clip dưới nút; đạt TC-UX08-31 (LCP) | E2E |
 | TC-UX08-14 | AC4 | khách, 1440 | Đợi 6 s; tìm nút `Tạm dừng`; đo kích thước; Tab tới + Enter | Nút hiện, ≥ 44 × 44 px, `aria-pressed`, dùng được bằng bàn phím; bấm → clip dừng, poster hiện lại, nhãn đổi `Phát` | E2E |
