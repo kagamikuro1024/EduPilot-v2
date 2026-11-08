@@ -1,6 +1,24 @@
 # QC đợt 1 — Nền chung (US-UX91-02, 03, 04, 21)
 
-**Kết luận: FAIL.** US-02 PASS. US-03 FAIL (AC2, AC4, AC8). US-04 FAIL (AC7, AC8). US-21 FAIL (AC3).
+**Kết luận (kiểm lại 2026-11-09 ở `6a0e8584`): FAIL.** US-02 PASS. US-03 FAIL (chỉ còn AC8, chờ PM). US-04 PASS (AC7 chuyển sang đợt 4, P-91-8 (a)). US-21 PASS.
+Lượt 1 (ở `62f4833b`) là FAIL; bảng chi tiết lượt 1 giữ nguyên bên dưới làm lịch sử.
+
+## Kiểm lại ở `6a0e8584` (2026-11-09)
+Stack `-p ep-qc` dựng lại từ `6a0e8584` (gồm `c7083a3d` sửa QC). Spec `qc-uiux91-w1.spec.ts`: 29 ca pass sau khi sửa hai giả định của QC (lý do có dấu chấm cuối; chữ lý do sổ điểm theo spec đã sửa).
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX03-6 | FAIL | PASS | Spec sửa theo mã (P-91-7 (4)): «Chưa có công thức điểm đã xác nhận» |
+| UX03-8 | FAIL | PASS | Chọn bài tập, hàng chờ rỗng → `Chấm tất cả` khoá, lý do «Chưa có bài nộp.» |
+| UX03-13 | FAIL | PASS | Cảm ứng 375: lý do hiện dưới nút, còn sau ≥ 3 s |
+| UX03-18 | FAIL | **FAIL (Thấp)** | `dev-ui-*`, `gradebook-*` không đổi: `visual.spec.ts` chụp khung nhìn (không `fullPage`), ca mới nằm dưới màn đầu, lý do chỉ hiện khi rê / focus. AC8 không thể thoả bằng ảnh tĩnh: đề nghị bỏ AC8 (P-91-9) |
+| UX04-12, 13, 14, 19 | FAIL | Chuyển đợt 4 | P-91-8 (a): chỉ kiểm `ep-saved` có sẵn ở đợt 1 (`base.css:59-60`, đạt) |
+| UX04-16 | FAIL | PASS | `ChatScreen.module.css:47 blink` nay đổi `opacity`; còn lại là ngoại lệ (spinner, ba chấm, shimmer, `ep-saved`) |
+| UX21-4, 5 | FAIL | PASS | Mất cờ + còn cookie: bấm `Đăng nhập` → gọi `/auth/refresh` → vào ứng dụng |
+| UX03-17 | PASS | PASS | Chạy lại |
+Toàn bộ các TC còn lại của đợt 1 chạy lại đều PASS (45 ca spec QC đợt 1 + 3, 0 đỏ ngoài ba giả định nêu trên). Suite có sẵn ở `6a0e8584`: xem `wave-3.md` (4 ca `panels.spec.ts` đỏ do đợt 3). `lint`, `tsc`, `ui-antipatterns.sh` sạch.
+
+---
+# Lượt 1 ở `62f4833b` (lịch sử)
 
 ## Môi trường
 | Mục | Giá trị |

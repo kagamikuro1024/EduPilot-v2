@@ -179,14 +179,14 @@ test("TC-UX03-14 /dev/ui: disabledReason mà không disabled → không tooltip,
   await b.click();
 });
 
-test("TC-UX03-6 Sổ điểm công thức chưa xác nhận → Chốt điểm khoá, lý do «Cần xác nhận công thức trước»", async ({ page, context }, info) => {
+test("TC-UX03-6 Sổ điểm công thức chưa xác nhận → Chốt điểm khoá, lý do «Chưa có công thức điểm đã xác nhận»", async ({ page, context }, info) => {
   desktop(info);
   await asDemo(context, "teacher", { expIn: LONG_EXP });
   await gradebookApi(page, { scheme: false, status: "DRAFT_READY" });
   await page.goto("/gradebook");
   const btn = page.getByRole("button", { name: "Chốt điểm" });
   await expect(btn).toHaveAttribute("aria-disabled", "true");
-  expect(await reasonText(btn)).toBe("Cần xác nhận công thức trước");
+  expect(await reasonText(btn)).toBe("Chưa có công thức điểm đã xác nhận"); // chữ theo mã, US-03 AC2 sau P-91-7 (4)
 });
 
 test("TC-UX03-7 Công thức có mục chưa rõ → Xác nhận công thức khoá «Còn N mục chưa rõ»", async ({ page, context }, info) => {
@@ -210,12 +210,12 @@ test("TC-UX03-8/10 Chấm bài: Chấm tất cả khoá khi rỗng; Tải bài l
   await page.getByLabel("Bài tập").selectOption(A1);
   await page.waitForTimeout(400);
   await expect(page.getByRole("button", { name: "Chấm tất cả" }), "hàng chờ rỗng (đã chọn một bài) thì Chấm tất cả phải khoá").toHaveAttribute("aria-disabled", "true");
-  expect(await reasonText(page.getByRole("button", { name: "Chấm tất cả" }))).toBe("Chưa có bài nộp");
+  expect(await reasonText(page.getByRole("button", { name: "Chấm tất cả" }))).toMatch(/^Chưa có bài nộp\.?$/);
   await page.getByLabel("Bài tập").selectOption({ index: 0 });
   await page.waitForTimeout(300);
   const up = page.getByRole("button", { name: "Tải bài lên" }).first();
   await expect(up).toHaveAttribute("aria-disabled", "true");
-  expect(await reasonText(up)).toBe("Chọn một bài tập trước");
+  expect(await reasonText(up)).toMatch(/^Chọn một bài tập trước\.?$/);
 });
 
 test("TC-UX03-9/10b Chấm bài có bài nộp: Chấm tất cả bấm được; chọn bài tập → Tải bài lên bấm được", async ({ page, context }, info) => {

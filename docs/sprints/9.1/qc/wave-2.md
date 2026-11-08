@@ -1,6 +1,27 @@
 # QC đợt 2 — Chữ và điều hướng (US-UX91-01, 05, 06, 07)
 
-**Kết luận: FAIL.** US-06 FAIL (AC3). US-05 PASS. US-07 PASS (ở `62f4833b`). US-01: các TC đã chạy PASS, còn 7 TC chưa chạy (liệt kê cuối file), chưa kết luận.
+**Kết luận (kiểm lại 2026-11-09 ở `6a0e8584`): FAIL.** US-05 PASS. US-07 PASS. US-01 FAIL (AC1 #3, AC5 #34). US-06 FAIL (AC3, lớp đã lưu trữ).
+Lượt 1 (ở `62f4833b`) là FAIL; bảng lượt 1 giữ nguyên bên dưới làm lịch sử.
+
+## Kiểm lại ở `6a0e8584` (2026-11-09)
+Stack `-p ep-qc` dựng lại từ `6a0e8584`. Spec: `qc-uiux91-w2-real.spec.ts` (40 ca), `qc-uiux91-w12b-real.spec.ts`, `qc-uiux91-w12c-real.spec.ts`; chạy `--workers=1`. Ba ca (UX05-11, UX06-1, UX06-3/4/5) đỏ ở lần chạy chuỗi vì `/me/courses` trả lỗi giữa chừng (nhiễu như lượt 1); chạy riêng cả ba pass.
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX06-6 | FAIL | PASS | `ep:ui:course` = UUID lạ → xoá (`null` sau đăng nhập), chọn lớp theo AC2, không `pageerror` (GV và SV) |
+| UX06-7 | chưa chạy | **FAIL (Thấp)** | Admin mở lớp thử `QC196964` cho `teacher`, đặt `ep:ui:course` = lớp đó, admin lưu trữ (200). `/me/courses` vẫn trả lớp với `status: ARCHIVED`; `ep:ui:course` giữ nguyên, lớp lưu trữ vẫn là lớp đang chọn. AC3 ghi «lớp không còn trong `me/courses` (đã lưu trữ, bị gỡ)» → cần BA chốt: lớp `ARCHIVED` còn trong danh sách thì có được chọn không (P-91-9) |
+| UX06-PQ | chưa chạy | PASS | SV `sv.gioi` với `ep:ui:course` = lớp mà SV không thuộc: `GET /courses/‹id›/today` = 403, giá trị bị xoá, vào lớp của mình |
+| UX01-2 | chưa chạy | PASS | `grep` 27 chuỗi «Xoá» của bảng, trừ `Demo*` và `mock/`: 0 kết quả |
+| UX01-4 | chưa chạy | **FAIL (Thấp)** | #3: không có tooltip nút `Mở lớp` («Người được gán nhận thông báo kèm mã tham gia.» không có trong mã; nút không `title`, không `aria-describedby`). #4, #18, #20, #25, #28, #29 (`AN7K2MQ`), #42 đạt |
+| UX01-5 | chưa chạy | PASS | #48 «24 sinh viên» (không mã lớp), #11 «buổi 4 · Hôm qua, 13:30–16:00 · P.405» (không mã lớp), MSSV còn |
+| UX01-8 | chưa chạy | PASS | `lcp.spec.ts` 7 route pass trong suite |
+| UX01-9 | chưa chạy | PASS có giới hạn | `PIIChannelDialog.tsx:34`: «Hỏi đáp công khai là nơi cả lớp cùng đọc…»; không dựng được hộp thoại trên stack thật |
+| UX01-11 | chưa chạy | **FAIL (Thấp)** | #34 (`Switch` «Cần giảng viên duyệt»): chỉ `title` native, không `aria-describedby` (dev đã tự khai ở đợt 1: không hiện khi focus bàn phím). #4 có `aria-describedby`. Chữ ≤ 12 từ (6–10 từ) |
+| UX01-16 | chưa chạy | PASS | `/students` CLS 0,015, `/class/members` CLS 0,001; không dòng trống dưới `h1` |
+| UX07-9 | chưa chạy | PASS | Thông báo thật của GV (13), TA (6), SV (7; loại `TICKET_*`, `POST_REPORTED`, `AI_PENDING`, `JOIN_REQUEST`…): không «Threads» / «Insights» / «Analytics» |
+Các TC khác của đợt 2 chạy lại đều PASS (UX01-1, 3, 6, 7, 10, 12–15, 17–19, PQ; UX05-1…12; UX06-1…5, 8, 9; UX07-1…8, 10…17, PQ).
+
+---
+# Lượt 1 ở `62f4833b` (lịch sử)
 
 ## Môi trường
 Như `wave-1.md`: commit `62f4833b` (chứa `4b6389f1` đợt 1 + 2), VPS `/srv/work/qc`, stack `-p ep-qc` (seed thật, tài khoản `admin|teacher|ta|sv.gioi@edupilot.local`), Caddy `https://localhost:14443`.

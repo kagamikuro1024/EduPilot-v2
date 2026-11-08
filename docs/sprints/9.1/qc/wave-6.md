@@ -1,6 +1,30 @@
 # QC đợt 6 — Trang giới thiệu v2, clip và video (US-UX91-08, 09)
 
-**Kết luận: FAIL.** US-08 FAIL (AC3, AC8, AC9, AC11, AC13, AC17). US-09 FAIL (AC2, AC10). Không có lỗi Cao: trang dùng được, LCP, axe, tải, bảo mật đạt; các lỗi là lệch chữ AC.
+**Kết luận (kiểm lại 2026-11-09 ở `6a0e8584`): FAIL.** US-08 FAIL (chỉ còn AC5: bỏ nguồn khi đóng hộp thoại). US-09 FAIL (AC10: `run.sh`). Mọi mục FAIL khác của lượt 1 đã sửa.
+Lượt 1 (ở `62f4833b`) là FAIL; bảng lượt 1 giữ nguyên bên dưới làm lịch sử. Có **một đính chính** lượt 1: TC-UX08-18 ghi PASS «bỏ nguồn» nhưng phép kiểm khi đó yếu (`getAttribute("src") === null` luôn đúng vì nguồn nằm ở thẻ `<source>`); đã kiểm lại đúng, kết quả là FAIL bên dưới.
+
+## Kiểm lại ở `6a0e8584` (2026-11-09)
+Stack `-p ep-qc` dựng lại từ `6a0e8584` (frontend build lại), Playwright (`qc-uiux91-w6-real.spec.ts`, 27 ca, `--workers=1`), Lighthouse 12 devtools throttle 3 lượt × mobile + desktop, `ffprobe`, `curl`.
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX08-11 | FAIL | PASS | Tab ẩn lúc tải: 0 request; hiện lại: 1 request clip, đang phát. Tab đang phát → ẩn → hiện: dừng rồi phát lại |
+| UX08-16, 17, 18 | PASS | **FAIL (Thấp)** | Đóng bằng `Esc` / bấm ngoài: video dừng (đạt), nhưng **không bỏ nguồn**: sau khi đóng `currentSrc = …/landing/gioi-thieu-v1.mp4`, vẫn còn hai `<source src>` (AC5: «dừng và bỏ nguồn khi đóng»). Tái hiện: mở `Xem video`, `play()`, `Esc`, đọc `video.currentSrc` |
+| UX08-29, 30, 31 | FAIL | PASS (spec mới) | Gắn cuộn đúng spec P-91-7 (3b): vạch `scaleX` 0,40 → 1 theo cuộn, cuộn ngược thì co lại; `--n` 0 → 77 → 146 theo cuộn, giữ 146; `reduce` hiện trạng thái cuối |
+| UX08-33 | PASS | PASS | Không còn số «22» trong spec |
+| UX08-38 | PASS | PASS | 1440: `h1` 64, `h2` 44, thân 18, giữa mục ≥ 106 px; 375: `h1` 41, `h2` 28, thân 16, ≥ 64 |
+| UX08-39 | FAIL | Bỏ | P-91-8 (b) |
+| UX08-43 | PASS | PASS | Mobile LCP **2,12 s** (2,07 / 2,12 / 2,19; phần tử LCP là `h1`), CLS 0,001, perf 93–97, a11y 100. Desktop LCP 0,15–0,20 s (ảnh poster), CLS 0, perf 100 |
+| UX08-44 | PASS | PASS | JS gzip các chunk của `/` = **217.349 B** (11 chunk; lượt 1: 253.675 B) ≤ 256 KB; HTML không còn bảng email mẫu |
+| UX08-25, AC13 | FAIL | PASS (spec mới) | Ngoại lệ số đếm `--n` và đổi màu nhỏ của sơ đồ (P-91-7 (3)); khối ghim chỉ `transform` / `opacity` |
+| UX08-51 | FAIL | PASS | `/` cho khách: HTML và chunk không còn `@edupilot.local` / `Edupilot#` (`AuthedHome` nạp động) |
+| UX08-24 | PASS | PASS | Ảnh khung ghim 1600 px: 48.646 / 90.202 / 48.052 B (≤ 92.160). Ghi chú: 90.202 B vượt 90.000 nếu «90 KB» tính theo 1000 |
+| UX08-56 | PASS | PASS | Ảnh sau chụp lại: `shots/wave-6/` |
+| UX09-4 | FAIL | PASS | Poster clip **58.526 B** (≤ 61.440); mp4 213.882 B, webm 399.980 B, 7,03 s |
+| UX09-16 | FAIL | **FAIL (Thấp)** | Có `scripts/landing-video/README.md`. Nhưng lệnh «bản demo» của README (`ENV_FILE=/opt/edupilot/.env.local bash scripts/landing-video/run.sh`, tức `EP_HOST`) lỗi: `run.sh` truyền `-e EP_BASE_URL=""` vào container, `record.mjs` dùng `process.env.EP_BASE_URL ?? https://${EP_HOST}` (`??` không bắt chuỗi rỗng) nên `BASE = ""` → «Cannot navigate to invalid URL». Với `EP_BASE_URL=http://127.0.0.1:17000` (frontend ep-qc): đăng nhập quá hạn 20 s (cổng 17000 không có `/api`). Chưa kiểm được phần quay / mã hoá còn lại khi vượt lỗi này |
+Các TC còn lại của đợt 6 chạy lại đều PASS (UX08-1…10, 12…15, 19…23, 26…28, 32, 34…37, 40…42, 45…50, 52…56, PQ; UX09-1…3, 5…15, 17…19, PQ). UX08-37 vẫn chờ gate đợt 5; UX09-20 chưa xem tay.
+
+---
+# Lượt 1 ở `62f4833b` (lịch sử)
 
 ## Môi trường
 | Mục | Giá trị |

@@ -181,9 +181,11 @@ test("TC-UX08-16/17/18/21 Xem video: không tải trước, hộp thoại, focus
   await expect(dlg).toBeHidden();
   const back = await page.evaluate(() => (document.activeElement as HTMLElement | null)?.innerText ?? "");
   expect(back, "focus về nút Xem video").toMatch(/Xem video/);
-  const vid = await page.locator("dialog video, [role=dialog] video").first().evaluate((e: HTMLVideoElement) => ({ paused: e.paused, src: e.currentSrc, attr: e.getAttribute("src") }));
-  expect(vid.paused).toBe(true);
-  expect(vid.src === "" || vid.attr === null || vid.attr === "", `đã bỏ nguồn: ${vid.src}`).toBe(true);
+  const vidEl = page.locator("dialog video, [role=dialog] video").first();
+  await expect.poll(() => vidEl.evaluate((e: HTMLVideoElement) => e.paused), { message: "đóng thì dừng", timeout: 3000 }).toBe(true);
+  const vid = await vidEl.evaluate((e: HTMLVideoElement) => ({ cur: e.currentSrc, attr: e.getAttribute("src"), srcs: e.querySelectorAll("source[src]").length }));
+  console.log("INFO sau khi đóng:", JSON.stringify(vid));
+  expect(vid.cur === "" || (vid.attr === null && vid.srcs === 0), `AC5 bỏ nguồn khi đóng: currentSrc=${vid.cur}, <source>=${vid.srcs}`).toBe(true);
   await ctx.close();
   const r = await open(browser, { reducedMotion: "reduce" });
   await r.page.getByRole("button", { name: "Xem video" }).or(r.page.getByRole("link", { name: "Xem video" })).first().click();
@@ -340,7 +342,7 @@ test("TC-UX08-38/39 chữ lớn, khoảng thở, một h2 mỗi khung nhìn", as
       const secs = [...document.querySelectorAll("main section, [data-part=landing] section")];
       const gaps: number[] = [];
       for (let i = 1; i < secs.length; i++) gaps.push(Math.round(secs[i].getBoundingClientRect().top - secs[i - 1].getBoundingClientRect().bottom));
-      const small = [...document.querySelectorAll("p")].filter((p) => px(p) < 17 && (p as HTMLElement).innerText.trim().length > 60 && !p.closest("[aria-hidden=true], #video-loi, footer, dialog")).map((p) => `${px(p)}px «${(p as HTMLElement).innerText.trim().slice(0, 50)}»`);
+      const small = [...document.querySelectorAll("p")].filter((p) => px(p) < (innerWidth >= 700 ? 18 : 16) && (p as HTMLElement).innerText.trim().length > 60 && !p.closest("[aria-hidden=true], #video-loi, footer, dialog")).map((p) => `${px(p)}px «${(p as HTMLElement).innerText.trim().slice(0, 50)}»`);
       const notes = [...document.querySelectorAll("p")].filter((p) => px(p) < 17 && (p as HTMLElement).innerText.trim()).map((p) => `${px(p)}px ${(p as HTMLElement).innerText.trim().slice(0, 28).replace(/\n/g, " ")}`);
       console.log("NOTES", notes.length);
       const pads = secs.map((e) => { const c = getComputedStyle(e); return Math.round(parseFloat(c.paddingTop) + parseFloat(c.marginTop)) + "/" + Math.round(parseFloat(c.paddingBottom) + parseFloat(c.marginBottom)); });
@@ -360,7 +362,7 @@ test("TC-UX08-38/39 chữ lớn, khoảng thở, một h2 mỗi khung nhìn", as
         await page.waitForTimeout(250);
         const inView = await page.evaluate(() => [...document.querySelectorAll("h2")].filter((e) => { const r = e.getBoundingClientRect(); return r.top >= 0 && r.bottom <= innerHeight; }).map((e) => `${(e as HTMLElement).innerText.slice(0, 22)}@${Math.round(e.getBoundingClientRect().top)}`));
         console.log("INFO h2 trong khung khi cuộn tới", h, ":", inView.join(" ; "));
-        expect.soft(inView.length, `${h}: số h2 trong khung`).toBeLessThanOrEqual(1);
+        // AC «một h2 mỗi khung nhìn» đã bỏ (P-91-8 (b)): chỉ ghi lại
       }
     }
     await ctx.close();
