@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { AttemptScreen } from "@/features/practice/AttemptScreen";
+import { AttemptScreen } from "@/features/practice/PracticeLazy";
 
 export const metadata: Metadata = { title: "Làm bài" };
 
