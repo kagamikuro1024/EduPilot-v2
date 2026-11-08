@@ -379,3 +379,5 @@ B chỉ đáng làm khi PM muốn cô lập tuyệt đối. Trong cả hai cách
 - Đặt `ep:demo:llm_rpm=0` → không còn lời gọi 9router nào từ lớp sandbox.
 
 **Ước lượng thêm:** S (≈ 0,5 ngày), nằm trong L của TL-3.
+
+**Huỷ theo P-91-4** (2026-11-08): bỏ "Dùng thử". Không làm endpoint `/demo/sessions`, `DEMO_MODE`, sandbox hay đặt giá 9router; TL-3 và phần bổ sung chỉ còn để tham khảo.
