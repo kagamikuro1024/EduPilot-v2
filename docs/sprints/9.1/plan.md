@@ -37,3 +37,17 @@
 | dev | Sửa CI `ops/vps-deploy` (ngân sách JS); dựng **mẫu** (mockup HTML tĩnh hoặc nhánh mẫu) cho trang giới thiệu mới + 3–4 màn chính theo đề xuất; quay video thử | Làm theo mẫu đã duyệt |
 | research | Rà khả thi kỹ thuật các đề xuất (hiệu năng, a11y, ngân sách JS, video) | Trả lời câu hỏi kỹ thuật |
 | pm | Tổng hợp **báo cáo HTML** cho chủ dự án | Duyệt, báo cáo sprint |
+
+## Hướng chuyển động (chủ dự án chốt 2026-11-08)
+- **Trang giới thiệu là nơi đầu tư chuyển động:** hiện đại, tạo cảm giác muốn dùng ngay.
+  - Hiệu ứng mở đầu có chủ ý, xuất hiện theo nhịp khi cuộn.
+  - Sơ đồ luồng sống động; ảnh / khung sản phẩm có chiều sâu và chuyển động nhẹ theo cuộn.
+  - Số liệu đếm lên; nút chính có phản hồi tinh tế.
+  - Video giới thiệu.
+
+  Mặc định dùng CSS (scroll-driven animations, `@starting-style`, view transitions) + WAAPI. Nếu một hiệu ứng thật sự cần thư viện, chỉ được dùng **cho riêng trang giới thiệu**, nạp lười (không vào bundle của ứng dụng), nhỏ, và phải mở proposal để PM / chủ dự án duyệt trước.
+- **Ứng dụng (sau đăng nhập) không thêm thư viện chuyển động nào.** Chỉ chuyển động chức năng, ngắn (≤ 200 ms):
+  - phản hồi bấm, mở / đóng drawer, dialog, popover;
+  - chuyển trạng thái, xác nhận lưu.
+
+  Theo `emil-design-eng`. Không trang trí, không làm chậm thao tác lặp lại.
