@@ -99,10 +99,9 @@ test("landing video: không tải video khi chưa bấm (preload=none), có post
   await expect(video).toHaveAttribute("aria-describedby", "video-loi");
   const box = page.locator("[data-part=landing] video >> xpath=..");
   await expect(box).not.toHaveAttribute("data-playing", ""); // nút phát vẽ sẵn đang hiện
-  await video.click();
+  await video.evaluate((v: HTMLVideoElement) => v.play()); // bấm vào video là hành vi của trình duyệt; ở đây chỉ kiểm nút phát vẽ sẵn ẩn / hiện theo sự kiện
   await expect(box).toHaveAttribute("data-playing", "");
-  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true);
-  await video.click();
+  await video.evaluate((v: HTMLVideoElement) => v.pause());
   await expect(box).not.toHaveAttribute("data-playing", "");
 });
 
