@@ -238,7 +238,7 @@ Quyết định PM (TL-2 câu 4): cách S. "Lớp có việc chờ" (chọn theo
 
 ### Tiêu chí nghiệm thu
 - AC1 (nhớ lớp). Given giảng viên chọn lớp B rồi đăng xuất, đăng nhập lại cùng trình duyệt When vào `/` Then lớp B được chọn (`ep:ui:course`), không về lớp đầu danh sách.
-- AC2 (lần đầu). Given trình duyệt mới (không có `ep:ui:course`) và giảng viên có ≥ 2 lớp ACTIVE When đăng nhập Then lớp mặc định là lớp **đầu tiên có dữ liệu** theo thứ tự `GET /me/courses` (lớp có ít nhất một sinh viên hoặc một việc trong `GET /me/today`); không lớp nào có dữ liệu thì lớp đầu danh sách. Định nghĩa "có dữ liệu" xem Q-UX91-9; chưa chốt thì dùng "lớp đầu danh sách" (hành vi hiện tại), không đoán.
+- AC2 (lần đầu). Given trình duyệt mới (không có `ep:ui:course`) và giảng viên có ≥ 2 lớp ACTIVE When đăng nhập Then lớp mặc định là lớp **đầu tiên có dữ liệu** theo thứ tự `GET /me/courses`, tức lớp đầu tiên mà `GET /me/today` có ≥ 1 mục thuộc lớp đó (Q-UX91-9, PM đồng ý); không lớp nào có thì lớp đầu danh sách.
 - AC3 (nhánh lỗi). Given `ep:ui:course` trỏ tới lớp không còn trong `me/courses` (đã lưu trữ, bị gỡ) When tải Then bỏ giá trị, chọn theo AC2, không báo lỗi, không trang trống.
 - AC4 (phân quyền). Given STUDENT / TA When dùng bộ chọn Then chỉ thấy lớp của mình; không mục "Quản lý lớp này" / "Mời trợ giảng" nếu không có quyền (như hiện tại).
 - AC5 (di động 375). Given 375 px When mở bộ chọn lớp Then mỗi mục vùng chạm ≥ 44 px (như hiện tại).
@@ -288,7 +288,7 @@ Căn cứ: plan 9.1 (mục Trang giới thiệu, Hướng chuyển động, Quy�
 - AC4 (sơ đồ luồng). Given khách cuộn tới "Ba bước, một người quyết" When khối vào khung nhìn Then ba bước "AI soạn nháp" → "Giảng viên duyệt" → "Mã tính điểm" hiện lần lượt (lệch ≤ 120 ms, mỗi bước ≤ 400 ms), vạch đỏ mảnh nối ba bước vẽ dần bằng `transform: scaleX`; chữ ba bước là HTML thật (trình đọc màn hình đọc đủ), vạch đỏ `aria-hidden`. Đỏ chỉ ở vạch nối (đúng "đang ở đâu").
 - AC5 (số liệu đếm lên). Given "Khác biệt, có số đo" vào khung nhìn When hiện Then số nguyên (146, 22) đếm từ 0 đến giá trị cuối trong ≤ 900 ms, chạy một lần; số không phải số nguyên hoặc tỉ lệ ("30/30", "0,05 %") hiện tĩnh. Giá trị thật nằm trong DOM; bản đếm `aria-hidden`.
 - AC6 (số liệu trung thực, Q-UX91-5). Given ba số liệu When hiển thị Then mỗi số một câu người ngoài hiểu ngay, **khớp từng chữ với nguồn** và có dòng chú thích riêng "Đo trên dữ liệu mô phỏng." dưới khối:
-  1. "146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp" (nguồn `docs/sprints/6/report.md` dòng 35). Tiêu đề **không** dùng "mọi lời gọi" vì nguồn ghi tên người ngoài danh sách lớp chưa bắt được và recall 0,960 trên 200 mẫu tự soạn (dòng 34, 35);
+  1. "146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp" kèm số "bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn" (nguồn `docs/sprints/6/report.md` dòng 34, 35). **Không** dùng "mọi" hay "được che trước mọi lời gọi AI": nguồn ghi tên người ngoài danh sách lớp chưa bắt được và recall 0,960 (Q-UX91-11, PM);
   2. "30/30 sinh viên mẫu có điểm học phần khớp tính tay" (nguồn `docs/sprints/8/report.md` dòng 24);
   3. "Chấm hàng loạt, thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %" (nguồn `docs/sprints/9/report.md` dòng 25: TTFT +0,05 %; **không** viết "độ trễ chat" chung chung). Con số "22 bài / 20 sinh viên" trong chữ cũ phải đối chiếu với báo cáo trước khi giữ; không đối chiếu được thì bỏ phần đó.
 - AC7 (vai). Given khối "Dùng cho giảng viên và sinh viên" When hiện Then là **hai cột** "Giảng viên" và "Sinh viên" cạnh nhau (≥ 720 px; xếp dọc ở < 720 px), mỗi vai tối đa **4** mục, mỗi mục một câu ngắn; không tab, không JS cho khối này (P-91-2).
@@ -344,7 +344,7 @@ Căn cứ: DESIGN §14.1, §22; Q-UX91-2; `findings.md` UX-5, 6, 18 và mẫu 3.
 
 ### Tiêu chí nghiệm thu
 - AC1 (nhóm). Given giảng viên / TA có việc When mở `/` Then việc chia nhóm có **nhãn chữ** (`h3`), giữ nguyên thứ tự máy chủ trả trong từng nhóm; nhóm tính ở frontend từ `urgency` và `kind` (không ngưỡng mới ở client; ngưỡng "quá hạn" là của từng nguồn việc đã định ở F14 và backend):
-  - **Gấp**: `urgency = overdue`; cộng việc có **cờ rủi ro** hiện có trong dữ liệu (`urgency = high`: bài AI "cần xem kỹ", email chưa khớp MSSV, yêu cầu vào lớp) — xác nhận ánh xạ ở Q-UX91-8;
+  - **Gấp**: `urgency = overdue` hoặc `urgency = high` (cờ rủi ro hiện có: bài AI "cần xem kỹ", email chưa khớp MSSV, yêu cầu vào lớp) — Q-UX91-8, PM đồng ý;
   - **Khi rảnh**: `kind ∈ {EXAM_SIMILARITY, UNMATCHED_SUBMISSION}` và `urgency = normal`;
   - **Hôm nay**: mọi việc còn lại.
   Nhóm rỗng không hiện; nhãn nhóm kèm số việc ("Gấp · 2").
@@ -365,7 +365,7 @@ Căn cứ: DESIGN §14.1, §22; Q-UX91-2; `findings.md` UX-5, 6, 18 và mẫu 3.
 - Đổi luật xếp thứ tự của máy chủ (bậc `Tier`, SRS 4.7); thêm nhóm mới; đổi API.
 
 ### Phụ thuộc
-- Q-UX91-2 (đã chốt); P-91-2 (dùng `ghost`); Q-UX91-8 (xác nhận ánh xạ "cờ rủi ro" = `urgency high`).
+- Q-UX91-2, Q-UX91-8 (đã chốt); P-91-2 (dùng `ghost`).
 
 ---
 

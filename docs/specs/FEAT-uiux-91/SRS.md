@@ -138,7 +138,7 @@ Mỗi story ở `US.md` nêu khung nhìn đầu, tải / rỗng / lỗi, 375 px 
 | Seed | Không đổi bắt buộc; lớp 2 đa dạng hơn để demo (Nợ) |
 
 ## 10. Câu hỏi mở và quyết định đã chốt
-- Chốt: Q-UX91-1…5 (chủ dự án), TL-2 câu 1–4 (PM), P-91-1, P-91-2. Mở: Q-UX91-8…12 (xem `QUESTIONS.md`).
+- Chốt: Q-UX91-1…5 (chủ dự án), TL-2 câu 1–4 (PM), P-91-1, P-91-2, và Q-UX91-6…12 (BA đóng hoặc PM trả lời 2026-11-08, xem `QUESTIONS.md`). Không còn câu mở. Spec vẫn **DRAFT** tới khi chủ dự án duyệt báo cáo sprint 9.1.
 - **Spec cũ cần vá khi spec này APPROVED.** Mỗi dòng cần PM ghi số proposal trước khi BA sửa (luật "không thoả hiệp ngang hàng"); commit vá ghi số proposal và tăng phiên bản SRS cũ.
 
 | Spec cũ | Chỗ | Vá vì | Story |
