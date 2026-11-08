@@ -39,6 +39,17 @@ const cursor = () => {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", add); else add();
 };
 
+
+// Ảnh khung ghim: không phụ đề, không con trỏ (cả hai đã có ở video; ở khung ghim chúng chỉ chen vào nội dung). Dựng lại phụ đề sau khi chụp.
+async function still(page, a, name, restore) {
+  await a.cap(null);
+  await page.evaluate(() => document.querySelectorAll('div[style*="2147483647"]').forEach((e) => (e.style.visibility = "hidden")));
+  await sleep(150);
+  await page.screenshot({ path: `${OUT}/${name}.png` });
+  await page.evaluate(() => document.querySelectorAll('div[style*="2147483647"]').forEach((e) => (e.style.visibility = "")));
+  if (restore) await a.cap(restore);
+}
+
 // ---- đăng nhập không quay; giữ cookie phiên + lớp đang chọn (localStorage) trong storageState
 async function login(email, classCode) {
   const ctx = await browser.newContext({ viewport: VIEW, locale: "vi-VN" });
@@ -145,7 +156,7 @@ await scene("s1-chat", sv, async (page, a) => {
   await sleep(1200);
   await a.cap(CAPTIONS[1]);
   await sleep(1200);
-  await page.screenshot({ path: `${OUT}/story-chat.png` }); // ảnh khung ghim của trang giới thiệu (US-UX91-08 AC6), chụp trước phụ đề của lần quay kế
+  await still(page, a, "story-chat", CAPTIONS[1]); // ảnh khung ghim của trang giới thiệu (US-UX91-08 AC6), chụp trước phụ đề của lần quay kế
   await sleep(4300);
   await page.mouse.wheel(0, 300);
   await sleep(3500);
@@ -173,7 +184,7 @@ await scene("s2-review", gv, async (page, a) => {
   await page.mouse.move(1100, 880, { steps: 8 }); // đưa con trỏ ra khỏi vùng nội dung trước khi lấy poster
   await sleep(1500);
   a.posterHere();
-  await page.screenshot({ path: `${OUT}/story-review.png` });
+  await still(page, a, "story-review", CAPTIONS[3]);
   await sleep(3800);
   await a.cap(CAPTIONS[4]);
   await page.mouse.wheel(0, 380);
@@ -191,7 +202,7 @@ await scene("s3-gradebook", gv, async (page, a) => {
   await sleep(1000);
   const explain = page.getByRole("menuitem", { name: /Giải trình/ }).first();
   if (await explain.count()) { await a.click(explain); await sleep(900); }
-  await page.screenshot({ path: `${OUT}/story-gradebook.png` });
+  await still(page, a, "story-gradebook", CAPTIONS[4]);
   await sleep(5100);
 });
 
