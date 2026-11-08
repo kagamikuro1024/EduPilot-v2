@@ -167,7 +167,8 @@ await scene("s2-review", gv, async (page, a) => {
   const row = page.locator("main tbody tr").first();
   await a.click(row);
   await page.waitForURL(/\/grading\//);
-  await sleep(1800);
+  await page.mouse.move(1100, 880, { steps: 8 }); // đưa con trỏ ra khỏi vùng nội dung trước khi lấy poster
+  await sleep(1500);
   a.posterHere();
   await sleep(3800);
   await a.cap(CAPTIONS[4]);
