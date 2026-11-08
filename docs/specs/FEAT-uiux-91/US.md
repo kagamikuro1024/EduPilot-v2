@@ -1,6 +1,6 @@
 # FEAT-uiux-91 Cải thiện UI/UX sau khảo sát (sprint 9.1)
 Nguồn: `docs/sprints/9.1/audit/findings.md` (UX-1…27) · `docs/sprints/9.1/plan.md` (mục "Quyết định của chủ dự án": Q-UX91-1…5, [ĐỔI DESIGN] trang giới thiệu) · `docs/sprints/9.1/techlead.md` TL-1 · DESIGN §0–§22 · UX.md · luật chữ UI (`~/.claude/CLAUDE.md`, 09/10/2026).
-Phase: sprint 9.1 pha 2 (không thuộc P0–P9). Trạng thái: **APPROVED** (căn cứ: chủ dự án duyệt báo cáo UI/UX, trang giới thiệu v2 và nút Dùng thử ngày 2026-11-08, `plan.md` mục "Chủ dự án duyệt báo cáo"). **Ngoại lệ: US-UX91-22 (Dùng thử) vẫn DRAFT, chờ TL-3 và câu Q-UX91-13.** Đã theo: `techlead.md` TL-1, TL-2; `plan.md` mục "Quyết định của PM cho các câu TL-2"; `proposals.md` P-91-1, P-91-2. Thứ tự làm của dev: đợt 1 → 2 → 6 → 3 → 4 → 5; mỗi story ghi đợt ở dòng "Ưu tiên".
+Phase: sprint 9.1 pha 2 (không thuộc P0–P9). Trạng thái: **APPROVED** toàn bộ 21 story. Căn cứ: chủ dự án duyệt báo cáo UI/UX và trang giới thiệu v2 (2026-11-08, `plan.md` mục "Chủ dự án duyệt báo cáo"). **"Dùng thử" (US-UX91-22) đã gỡ khỏi spec theo P-91-4** (chủ dự án bỏ, huỷ P-91-3). Đã theo: `techlead.md` TL-1, TL-2; `plan.md` mục "Quyết định của PM cho các câu TL-2"; `proposals.md` P-91-1, P-91-2, P-91-4. Thứ tự làm của dev: đợt 1 → 2 → 6 → 3 → 4 → 5; mỗi story ghi đợt ở dòng "Ưu tiên".
 
 **Quy ước chung cho mọi story** (không lặp lại trong từng AC):
 - Ảnh mốc: `visual.spec.ts` có 7 route × 2 bề rộng (`home`, `chat`, `threads`, `inbox`, `gradebook`, `settings-llm`, `dev-ui` × 1440 / 390). Story nào đổi hình một route đó thì ghi "Ảnh mốc đổi: …"; dev sinh lại bằng `--update-snapshots` kèm giải thích trong handoff. Route chưa có ảnh mốc mà story đổi nhiều (trang giới thiệu, điểm danh, Hôm nay giảng viên, duyệt bài) thì QC thêm ảnh mốc mới ở story đó.
@@ -24,7 +24,6 @@ Story gộp theo **6 đợt** của TL-2. Thứ tự dev làm (plan 9.1): **đ�
 | 2 | 2 | US-UX91-06 Nhớ lớp đã chọn, lớp đầu có dữ liệu | UX-25(a) cách S | S | Should |
 | 3 | 6 Trang giới thiệu v2 + clip + video | US-UX91-08 Trang giới thiệu v2 | UX-1, 2, 3(a–c), Q-UX91-5, duyệt v2 | L | Must |
 | 3 | 6 | US-UX91-09 Clip màn đầu + video đầy đủ | UX-1, duyệt v2 | L | Must |
-| 3 | 6 | **US-UX91-22 Dùng thử (DRAFT, chờ TL-3 và Q-UX91-13)** | duyệt "Dùng thử" | L | Must |
 | 4 | 3 Hôm nay + Hộp thư | US-UX91-10 Hôm nay giảng viên: nhóm việc | UX-5, 6, Q-UX91-2 | M | Must |
 | 4 | 3 | US-UX91-11 Hôm nay sinh viên: chỉnh nhỏ | §3.B | S | Should |
 | 5 | 4 Chấm bài / Sổ điểm / Điểm danh | US-UX91-14 Hàng chờ chấm bài | UX-14 | S | Should |
@@ -280,11 +279,11 @@ Quyết định chủ dự án Q-UX91-1: `Threads` → **Hỏi đáp công khai*
 ## US-UX91-08: Khách ghé trang giới thiệu muốn thấy EduPilot làm việc ngay màn đầu và theo cuộn, để muốn dùng thử (v2)
 Ưu tiên: Must · Ước lượng: L · Sprint: 9.1 · **Đợt 6**
 
-Căn cứ: `plan.md` (chủ dự án duyệt trang giới thiệu v2, 2026-11-08), `DESIGN.md` §11.1 (đã sửa), TL-1 B, TL-2, `handoff/dev-phase1.md`. Chế độ *Persuade*; vẫn Be Vietnam Pro và token `--ep-*`. **Bản v1 đã dựng ở pha 1** (hero + video bấm phát, sơ đồ ba bước, số đếm, đổi vai); story này mô tả **v2** và những chỗ phải đổi so với v1. Khối "Dùng thử" thuộc US-UX91-22.
+Căn cứ: `plan.md` (chủ dự án duyệt trang giới thiệu v2, 2026-11-08), `DESIGN.md` §11.1 (đã sửa), TL-1 B, TL-2, `handoff/dev-phase1.md`. Chế độ *Persuade*; vẫn Be Vietnam Pro và token `--ep-*`. **Bản v1 đã dựng ở pha 1** (hero + video bấm phát, sơ đồ ba bước, số đếm, đổi vai); story này mô tả **v2** và những chỗ phải đổi so với v1. Trang chỉ có `Đăng nhập` / `Tạo tài khoản` + `Xem video`; không có nút "Dùng thử" (P-91-4).
 
 ### Tiêu chí nghiệm thu
 - AC1 (cấu trúc). Given khách chưa đăng nhập mở `/` ở 1440 px When tải xong Then thấy theo thứ tự: màn đầu (`h1` "Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân" giữ nguyên chữ; dòng dẫn "AI soạn nháp. Giảng viên quyết. Điểm do mã tính."; nút; clip sống) → các `h2`: "Xem EduPilot làm việc" (kể chuyện theo cuộn, AC5), "AI soạn nháp, giảng viên quyết, mã tính điểm" (sơ đồ, AC8), "Khác biệt, có số đo" (AC9), "Cho giảng viên và sinh viên" (AC10), "Bắt đầu với lớp của bạn" (CTA cuối). `landing.spec` khớp đúng danh sách này.
-- AC2 (nút ở màn đầu). Given màn đầu When xem Then có đúng **một** nút đỏ; tối đa hai nút phụ. Khi chưa có khối Dùng thử: `Đăng nhập` (đỏ), `Tạo tài khoản`, `Xem video` (phụ). Khi US-22 bật: vị trí nút do US-22 AC2 quy định, vẫn một nút đỏ. Nút có `:active` thu 0,97; hover đổi màu chỉ khi `hover: hover`.
+- AC2 (nút ở màn đầu). Given màn đầu When xem Then có đúng **một** nút đỏ `Đăng nhập` và hai nút phụ `Tạo tài khoản`, `Xem video`; không có nút "Dùng thử", không liên kết `/login?thu=…` (P-91-4). Nút có `:active` thu 0,97; hover đổi màu chỉ khi `hover: hover`.
 - AC3 (clip sống ở màn đầu). Given màn đầu ở ≥ 720 px When tải Then thấy **poster** tĩnh của clip ngay (là phần tử LCP); sau sự kiện `load` clip mới được tải và phát: lặp liên tục 6–8 s, không tiếng, `muted loop playsinline`, tệp ≤ 1 MB mỗi định dạng (mp4 + webm), `aria-hidden` (nội dung đã có trong chữ). Clip **không tải và không phát** khi `prefers-reduced-motion: reduce`, `Save-Data`, hoặc tab ẩn; lỗi tải → giữ poster, không lỗi console. Ở < 720 px dev chọn poster tĩnh hoặc clip dưới nút miễn đạt AC13.
 - AC4 (dừng được, WCAG 2.2.2). Given clip đang chạy hơn 5 s When người dùng muốn dừng Then có nút `Tạm dừng` / `Phát` (vùng chạm ≥ 44 px, `aria-pressed`, dùng được bằng bàn phím) cạnh clip; dừng xong poster hiện lại, trạng thái nhớ trong phiên.
 - AC5 (`Xem video`). Given nút `Xem video` When bấm Then video đầy đủ mở trong hộp thoại (`<dialog>` hoặc `Dialog`: focus trap, `Esc` đóng, trả focus về nút, dừng và bỏ nguồn khi đóng); không có request tới tệp video đầy đủ trước khi bấm (`preload="none"`); JS thêm ≤ 1 KB gzip; video không có rãnh âm; bản chữ thay thế (`#video-loi`) có trong DOM. `reduce` → hộp thoại mở tức thì. (Phương án dùng neo `#video` cuộn xuống thay hộp thoại không đạt yêu cầu "mở" của chủ dự án.)
@@ -311,7 +310,7 @@ Căn cứ: `plan.md` (chủ dự án duyệt trang giới thiệu v2, 2026-11-08
 - AC21 (e2e / ảnh mốc). Given `landing.spec.ts` When đổi Then sửa danh sách `h2` (AC1), thêm: clip không tải khi `reduce` / `Save-Data`; nút `Tạm dừng`; `Xem video` mở / đóng đúng, không request video trước khi bấm; khung ghim ở 1440 và xếp dọc ở 1024 / `reduce`; hai cột vai (không tab); số hiện giá trị cuối khi `reduce`; QC sửa test theo US này, không nới. Thêm ảnh mốc `landing-1440`, `landing-390` (anonymous, `reduce`, đồng hồ đóng băng).
 
 ### Ngoài phạm vi
-- Thư viện chuyển động ngoài (cần proposal riêng); trang giới thiệu theo vai; tiếng Anh; video dọc 9:16 (TL-1: để sau); khối **Dùng thử** (US-UX91-22).
+- Thư viện chuyển động ngoài (cần proposal riêng); trang giới thiệu theo vai; tiếng Anh; video dọc 9:16 (TL-1: để sau); nút / luồng "Dùng thử" (chủ dự án bỏ, P-91-4).
 
 ### Phụ thuộc
 - US-UX91-09 (clip và video); `DESIGN.md` §11.1 (đã sửa); đo LCP ẩn danh (dev); US-UX91-21 (không gọi refresh ở `/`).
@@ -635,31 +634,5 @@ Căn cứ: UX-3(d) và TL-2 (`AuthProvider.tsx` luôn gọi `refreshSession()`; 
 
 ---
 
-## US-UX91-22: Khách ghé trang giới thiệu muốn bấm "Dùng thử" để vào ứng dụng đã đăng nhập sẵn, mà không làm hỏng dữ liệu trình diễn
-Ưu tiên: Must · Ước lượng: L · Sprint: 9.1 · **Đợt 6** · Trạng thái: **DRAFT — chờ TL-3 (thiết kế kỹ thuật) và Q-UX91-13 (cờ bật)**. Mọi AC dưới đây là yêu cầu hành vi; cách thực hiện (cấp phiên, tài khoản dùng chung hay tạm, con số giới hạn) do TL-3 chốt và BA cập nhật AC rồi mới APPROVED.
-
-Căn cứ: `plan.md` mục "Chủ dự án duyệt báo cáo" (mục 3) và các ràng buộc an toàn của PM: chỉ bật khi `DEMO_MODE=true`; **tài khoản và lớp sandbox riêng**, không phải tài khoản / lớp trình diễn; sandbox **đặt lại định kỳ bằng job seed** (không `down -v`, không đụng lớp trình diễn); có giới hạn tần suất; không lộ mật khẩu ra HTML. D44 (dữ liệu mô phỏng), CLAUDE.md (danh tính từ JWT, không nối tài khoản bằng MSSV tự khai).
-
-### Tiêu chí nghiệm thu
-- AC1 (cờ tắt thì không có). Given cờ "Dùng thử" không bật (mặc định; luôn tắt ở `APP_ENV=production`; tên cờ: PM nói `DEMO_MODE=true`, nhưng `DEMO_MODE` hiện bật LLM giả của buổi bảo vệ — chờ Q-UX91-13) When mở `/` Then **không có** nút / khối "Dùng thử" trong HTML; gọi trực tiếp đường cấp phiên dùng thử → máy chủ trả 404 (như không tồn tại) và **không** tạo phiên, không tạo dữ liệu.
-- AC2 (cờ bật: nút). Given cờ "Dùng thử" bật When mở `/` Then có khối "Dùng thử" với hai lựa chọn `Dùng thử vai sinh viên`, `Dùng thử vai giảng viên`; ở màn đầu `Dùng thử` là nút đỏ duy nhất và `Đăng nhập` thành nút phụ (còn tối đa hai nút phụ; `Tạo tài khoản` chuyển xuống thanh đầu trang và CTA cuối; Q-UX91-17). Câu chữ mỗi nút một động từ, không giải thích dài (luật chữ UI); cảnh báo "dữ liệu mô phỏng" chỉ một dòng ngắn.
-- AC3 (vào ứng dụng đã đăng nhập). Given khối "Dùng thử" When khách bấm một vai Then trong ≤ 3 s vào `/` ở vai đó, **đã có phiên**, lớp đang chọn là lớp sandbox; khách không nhập email, mật khẩu hay MSSV; dải một dòng "Đang dùng thử" + nút `Thoát dùng thử` luôn hiện trong ứng dụng (không từ kỹ thuật AI).
-- AC4 (không lộ mật khẩu). Given tài khoản sandbox có mật khẩu nội bộ When `grep` HTML của `/`, mọi tệp JS / CSS tĩnh, mọi phản hồi API của luồng dùng thử, `localStorage` / `sessionStorage`, URL, `console` Then **không có** mật khẩu (hay token dài hạn) của tài khoản sandbox; phiên cấp từ máy chủ (cơ chế do TL-3); cookie làm mới `httpOnly` như phiên thường.
-- AC5 (cách ly, phân quyền: khách không thấy và không sửa được lớp trình diễn). Given phiên dùng thử (vai nào cũng vậy) When gọi `GET /me/courses` Then chỉ trả **lớp sandbox**; When mở trực tiếp URL / id của lớp trình diễn (761987, 761988) hoặc gọi API đọc / ghi lên chúng Then 403 hoặc 404 (không lộ lớp tồn tại), không thấy tên sinh viên, điểm, tài liệu, hộp thư, thread của lớp trình diễn ở bất kỳ màn nào (tìm kiếm `⌘K`, thông báo, bộ chọn lớp, Hôm nay, Hỏi đáp công khai); bộ kiểm quyền `CourseAccessGuard` là nơi chặn, không chỉ ẩn ở giao diện.
-- AC6 (không thoát khỏi sandbox). Given vai giảng viên dùng thử When thao tác Then **không** có quyền admin; không mở / gán lớp ngoài sandbox, không mời người dùng ngoài, không gửi thư ra ngoài (mail đi tới hộp thư giả của môi trường), không đổi cấu hình LLM / tích hợp, không đọc `audit_log` hay nội dung prompt; không chốt điểm / công bố ra ngoài sandbox; các màn tương ứng 403.
-- AC7 (tài khoản không bị phá). Given phiên dùng thử When đổi mật khẩu, đổi email, xoá tài khoản, tạo khoá API Then bị chặn (403) kèm thông báo một câu; không thể khoá tài khoản sandbox khỏi người dùng thử sau.
-- AC8 (giới hạn tần suất, nhánh lỗi). Given khách cấp phiên dùng thử liên tục When vượt ngưỡng theo IP và theo toàn hệ thống (con số do TL-3) Then 429, giao diện hiện một câu "Có nhiều người đang dùng thử. Thử lại sau {N} phút." kèm `Retry-After`; không lộ chi tiết kỹ thuật; nút không bị khoá vĩnh viễn; không tạo phiên khi bị chặn; giới hạn **không** ảnh hưởng đăng nhập thường.
-- AC9 (phiên ngắn hạn). Given phiên dùng thử When quá thời hạn tối đa (TL-3, đề xuất 30 phút) Then phiên hết hạn, khách về trang giới thiệu với một dòng "Phiên dùng thử đã hết. Bấm Dùng thử để bắt đầu lại."; không còn token dùng được.
-- AC10 (đặt lại sandbox, không đụng lớp trình diễn). Given job seed đặt lại định kỳ (chu kỳ do TL-3) When chạy Then dữ liệu sandbox về đúng bản seed (lớp, sinh viên, bài, điểm, thread, hộp thư), số liệu của **lớp trình diễn** và tài khoản trình diễn **không đổi** (QC so đếm hàng + băm trước / sau); không dùng `down -v` hay xoá volume; job idempotent, chạy lại an toàn, ghi log không chứa PII / token.
-- AC11 (đặt lại khi khách đang dùng). Given khách đang dùng trong lúc job chạy When thao tác tiếp Then thấy một dòng "Dữ liệu dùng thử vừa được đặt lại" và dữ liệu mới, không lỗi trắng trang, không mất nháp ở ô nhập của khách (nháp cục bộ giữ).
-- AC12 (không làm tốn tài nguyên thật). Given phiên dùng thử When gọi AI (chat, chấm bài) Then đi qua giới hạn riêng của sandbox (Q-UX91-14: provider `fake` đã ghi sẵn hoặc hạn mức nhỏ riêng với cầu dao), không tiêu hạn mức LLM của lớp trình diễn, không vượt hạn mức 9router; khi hết hạn mức hiện thông báo thân thiện, không lỗi kỹ thuật.
-- AC13 (hai khách đồng thời). Given hai khách cùng vai dùng thử đồng thời When một người sửa dữ liệu Then hành vi khớp thiết kế TL-3 (Q-UX91-16): hoặc mỗi khách có bản sandbox riêng, hoặc dùng chung và dải "Đang dùng thử" nêu một dòng "dữ liệu chung, có thể thay đổi"; không xung đột 409 vỡ giao diện.
-- AC14 (di động và trợ năng). Given 375 px When mở khối "Dùng thử" Then hai nút xếp dọc, vùng chạm ≥ 44 px, không tràn ngang; dùng được bằng bàn phím; axe 0 lỗi serious / critical; `reduce` không thêm chuyển động.
-- AC15 (e2e). Given `landing.spec.ts` và spec mới `tryout.spec.ts` When viết Then phủ: cờ tắt không có nút và API 404; cờ bật có nút; bấm vào đúng vai; không có mật khẩu trong HTML / JS / response; `GET /me/courses` chỉ lớp sandbox; truy cập lớp trình diễn 403 / 404; 429 + thông báo; phiên hết hạn. QC viết TC khi TL-3 xong; dev **không** viết TC thay QC.
-- AC16 (seed). Given seed When chạy Then có lớp sandbox riêng (mã lớp khác 761987 / 761988, tên có chữ "Dùng thử" để phân biệt), tối thiểu 1 giảng viên + 1 sinh viên dùng thử + dữ liệu đủ để thấy Hôm nay, chat, hàng chờ chấm, sổ điểm; tài khoản dùng thử không đăng nhập thường được (không có mật khẩu dùng được từ ngoài, TL-3).
-
-### Ngoài phạm vi
-- Dùng thử vai quản trị hoặc trợ giảng; đăng ký tài khoản thật từ dùng thử; lưu tiến độ dùng thử sau khi hết phiên.
-
-### Phụ thuộc
-- TL-3 (thiết kế kỹ thuật); Q-UX91-13 (cờ bật: `DEMO_MODE` hiện có nghĩa khác, xem `QUESTIONS.md`); Q-UX91-14, 15, 16, 17 (hạn mức LLM, thông số, khách đồng thời, vị trí nút); US-UX91-08 (vị trí khối trên trang); `FEAT-course-foundation` (seed, `CourseAccessGuard`); `docs/DEMO_SCRIPT.md` (lớp trình diễn).
+## US-UX91-22: GỠ (P-91-4)
+Chủ dự án **bỏ "Dùng thử"** khỏi sprint 9.1 ngày 2026-11-08 (`proposals.md` P-91-4, huỷ P-91-3): lý do "lằng nhằng" (đụng auth, sandbox, cron, hạn mức 9router). Không làm: endpoint `/demo/sessions`, cờ `DEMO_MODE`, lớp / tài khoản sandbox, đặt giá model 9router, nút "Dùng thử" ở trang giới thiệu. Số `US-UX91-22` để trống, không đánh số lại các story khác. Không còn AC nào của FEAT-uiux-91 nói tới "Dùng thử".

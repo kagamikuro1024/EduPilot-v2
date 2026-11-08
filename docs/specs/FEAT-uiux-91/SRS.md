@@ -1,5 +1,5 @@
 # SRS FEAT-uiux-91 Cải thiện UI/UX sau khảo sát (sprint 9.1)
-Phiên bản 1.0 · 2026-11-08 · Trạng thái: **APPROVED** (chủ dự án duyệt báo cáo UI/UX, trang giới thiệu v2 và nút Dùng thử ngày 2026-11-08). **Riêng FR-25 / US-UX91-22 (Dùng thử): DRAFT, chờ TL-3 và Q-UX91-13.** Phiên bản 0.2 → 1.0: thêm trang giới thiệu v2 (clip sống, kể chuyện theo cuộn, chữ lớn, chiều sâu), thêm US-22, đổi thứ tự đợt 1 → 2 → 6 → 3 → 4 → 5, `DESIGN.md` đã sửa.
+Phiên bản 1.1 · 2026-11-08 · Trạng thái: **APPROVED** (chủ dự án duyệt báo cáo UI/UX và trang giới thiệu v2 ngày 2026-11-08). **"Dùng thử" (US-UX91-22 / FR-25) đã gỡ theo P-91-4** (chủ dự án bỏ, huỷ P-91-3): không endpoint `/demo/sessions`, không `DEMO_MODE`, không sandbox, không đặt giá model 9router. Phiên bản 0.2 → 1.0: thêm trang giới thiệu v2 (clip sống, kể chuyện theo cuộn, chữ lớn, chiều sâu), đổi thứ tự đợt 1 → 2 → 6 → 3 → 4 → 5, `DESIGN.md` đã sửa. 1.0 → 1.1: gỡ US-22, 21 story.
 
 Nguồn: `docs/sprints/9.1/audit/findings.md`, `plan.md` (Quyết định của chủ dự án Q-UX91-1…5; Quyết định của PM cho TL-2), `proposals.md` P-91-1 / P-91-2, `techlead.md` TL-1 / TL-2, `US.md` cùng thư mục.
 
@@ -8,7 +8,7 @@ Nguồn: `docs/sprints/9.1/audit/findings.md`, `plan.md` (Quyết định của 
 
 | Trong phạm vi | Ngoài phạm vi |
 | --- | --- |
-| 22 story `US-UX91-01…22` (`US.md`), gộp 6 đợt theo TL-2, dev làm theo thứ tự đợt 1 → 2 → 6 → 3 → 4 → 5 | Màn quản trị, trợ giảng, `/settings/*`, `/admin`, `/class`, `/join` ngoài dòng chữ ở US-01 (BA chưa khảo sát) |
+| 21 story `US-UX91-01…21` (`US.md`; số 22 để trống), gộp 6 đợt theo TL-2, dev làm theo thứ tự đợt 1 → 2 → 6 → 3 → 4 → 5 | Màn quản trị, trợ giảng, `/settings/*`, `/admin`, `/class`, `/join` ngoài dòng chữ ở US-01 (BA chưa khảo sát); nút / luồng "Dùng thử" (bỏ, P-91-4) |
 | Sửa `DESIGN.md` ở §2, §11, §14.x, thêm mục "Trang giới thiệu (Persuade)" (mục 7) | Biểu đồ Analytics (UX-17), menu Thêm của Lịch (UX-23), bộ lọc câu hỏi (UX-24), trang đăng nhập (UX-27): để sau |
 | Ảnh mốc, e2e theo từng story | Nợ: bộ chọn lớp hiện buổi học tiếp theo; chọn lớp theo số việc chờ (L, API); gợi ý chat "chủ đề sai nhiều" (L, API); sửa `Demo*.tsx` |
 
@@ -18,7 +18,6 @@ Không story nào đổi quyền. Ma trận dưới đây là **bất biến c�
 | Màn | Khách | STUDENT | TA | TEACHER | ADMIN |
 | --- | :---: | :---: | :---: | :---: | :---: |
 | `/` giới thiệu (ẩn danh) | xem | — (thấy Hôm nay) | — | — | — |
-| Dùng thử (US-22, chỉ khi bật cờ) | cấp phiên sandbox; **không** thấy / sửa lớp trình diễn | — | — | — | — |
 | `/` Hôm nay (nhóm Gấp / Hôm nay / Khi rảnh) | — | Hôm nay SV | nhóm, không `dismiss` | nhóm + `dismiss` | việc hệ thống |
 | `/chat` | — | chính mình | không đọc chat riêng chưa escalate | không đọc | không đọc nội dung chưa escalate (prompt chỉ ADMIN, có `audit_log`) |
 | `/grading`, `/grading/[id]` | — | 403 | duyệt theo quyền | duyệt | — |
@@ -34,15 +33,14 @@ Không story nào đổi quyền. Ma trận dưới đây là **bất biến c�
 flowchart LR
   D1[Đợt 1 Nền chung: ngày giờ, nút khoá, chuyển động, trang công khai] --> D2[Đợt 2 Chữ: description, rỗng, nhãn nav, nhớ lớp]
   D2 --> SNAP[Sinh lại ảnh mốc một lần chung đợt 1+2]
-  D2 --> D6[Đợt 6 Trang giới thiệu v2 + clip + video + Dùng thử]
+  D2 --> D6[Đợt 6 Trang giới thiệu v2 + clip + video]
   D6 --> D3[Đợt 3 Hôm nay + Hộp thư]
   D3 --> D4[Đợt 4 Chấm bài, Sổ điểm, Điểm danh]
   D4 --> D5[Đợt 5 Chat, Hỏi đáp, Me, Tài liệu, Insights]
   D5 --> RESHOOT[Chụp lại ảnh và clip của trang giới thiệu một lượt]
-  TL3[TL-3 thiết kế Dùng thử] -.chặn.-> D6
 ```
 
-Thứ tự dev làm: đợt 1 → đợt 2 → **đợt 6** (trang giới thiệu v2, clip, video, Dùng thử) → đợt 3 → đợt 4 → đợt 5. Đợt 1 trước đợt 2 (primitive `Button`, `datetime`, `.ep-motion-safe` dùng lại ở mọi đợt sau). Đợt 6 chen trước đợt 3–5 theo plan 9.1: ảnh và clip của khung ghim chụp từ giao diện lúc đó, sẽ lệch sau đợt 3–5 → dev chụp lại **một lượt** ở cuối pha 2 (ghi Nợ trong handoff đợt 6).
+Thứ tự dev làm: đợt 1 → đợt 2 → **đợt 6** (trang giới thiệu v2, clip, video) → đợt 3 → đợt 4 → đợt 5. Đợt 1 trước đợt 2 (primitive `Button`, `datetime`, `.ep-motion-safe` dùng lại ở mọi đợt sau). Đợt 6 chen trước đợt 3–5 theo plan 9.1: ảnh và clip của khung ghim chụp từ giao diện lúc đó, sẽ lệch sau đợt 3–5 → dev chụp lại **một lượt** ở cuối pha 2 (ghi Nợ trong handoff đợt 6).
 
 | Tình huống | Hệ thống phản ứng | Người dùng thấy |
 | --- | --- | --- |
@@ -54,11 +52,6 @@ Thứ tự dev làm: đợt 1 → đợt 2 → **đợt 6** (trang giới thiệ
 | Chat đứt stream | Tự nối lại, giữ phần đã sinh (không đổi) | Dải mất mạng |
 | `ep:ui:course` trỏ lớp không còn | Bỏ giá trị, chọn lại theo US-06 AC2 | Không lỗi, không trang trống |
 | Video / ảnh landing lỗi | Poster + liên kết mở tab mới; ảnh giữ khung kích thước | Bố cục không dịch |
-| Cờ Dùng thử tắt, khách gọi thẳng đường cấp phiên | 404, không tạo phiên | Không có gì (không có nút) |
-| Vượt giới hạn tần suất Dùng thử | 429 + `Retry-After`, không tạo phiên | "Có nhiều người đang dùng thử. Thử lại sau N phút." |
-| Phiên dùng thử hết hạn | Thu hồi phiên | Về trang giới thiệu, một dòng thông báo |
-| Job seed đặt lại sandbox khi khách đang dùng | Dữ liệu sandbox về seed, lớp trình diễn không đổi | Dòng "Dữ liệu dùng thử vừa được đặt lại" |
-| Khách dùng thử gọi lớp trình diễn | `CourseAccessGuard` 403 / 404 | Không thấy lớp, không lộ tồn tại |
 | Không hỗ trợ `animation-timeline` | Nội dung tĩnh, đủ chữ | Không hiệu ứng theo cuộn, không mất nội dung |
 | `localStorage` bị chặn | Coi như không có cờ / không có nháp | Không ném lỗi |
 
@@ -90,7 +83,6 @@ Thứ tự dev làm: đợt 1 → đợt 2 → **đợt 6** (trang giới thiệ
 | FR-22 | Hỏi đáp công khai: làm sạch đoạn trích bằng `shared/lib/markdown.ts`, nhãn trạng thái đa số nêu một lần | US-19 |
 | FR-23 | `/me`: một khối giải trình, bỏ phụ đề mã lớp | US-20 |
 | FR-24 | không gọi `POST /auth/refresh` ở `/` khi chưa có cờ "đã từng đăng nhập" | US-21 |
-| FR-25 *(DRAFT, chờ TL-3)* | cấp phiên dùng thử vai sinh viên / giảng viên vào lớp sandbox riêng **chỉ khi cờ bật**; cách ly khỏi lớp trình diễn ở tầng `CourseAccessGuard`; không lộ mật khẩu; giới hạn tần suất; phiên ngắn hạn; job seed đặt lại sandbox; chặn đổi mật khẩu / email / thư ra ngoài / cấu hình LLM | US-22 |
 
 ## 5. Dữ liệu
 Không bảng / cột / migration mới. Không đổi seed ngoài việc dev / QC có thể đa dạng hoá seed lớp 2 (Nợ).
@@ -109,7 +101,7 @@ Không endpoint mới, không đổi hợp đồng. Các endpoint dùng lại:
 ### 7.1 Primitive và token
 Chỉ token `--ep-*` và primitive `frontend/src/shared/ui`. Không thêm: biến thể nút `link`, Tooltip riêng, thư viện chuyển động. Nút phụ ở hàng dùng `Button` `ghost` + `iconEnd` mũi tên (P-91-2).
 
-### 7.2 Sửa `DESIGN.md` (**đã sửa 2026-11-08** bởi BA theo [ĐỔI DESIGN] đã duyệt: §1–§2 nhãn nav, §11 + §11.1 mới, §14.1, §14.3, §14.8, §14.10, §14.13, §14.25; chưa có mục Dùng thử, chờ TL-3)
+### 7.2 Sửa `DESIGN.md` (**đã sửa 2026-11-08** bởi BA theo [ĐỔI DESIGN] đã duyệt: §1–§2 nhãn nav, §11 + §11.1 mới, §14.1, §14.3, §14.8, §14.10, §14.13, §14.25)
 | Mục | Sửa | Nguồn |
 | --- | --- | --- |
 | §2 (điều hướng), §14.3, §14.21, §14.25 | Ba nhãn mới: Hỏi đáp công khai, Lỗ hổng kiến thức, Số liệu lớp học | Q-UX91-1 |
@@ -147,7 +139,7 @@ Mỗi story ở `US.md` nêu khung nhìn đầu, tải / rỗng / lỗi, 375 px 
 | Seed | Không đổi bắt buộc; lớp 2 đa dạng hơn để demo (Nợ) |
 
 ## 10. Câu hỏi mở và quyết định đã chốt
-- Chốt: Q-UX91-1…5 (chủ dự án), TL-2 câu 1–4 (PM), P-91-1, P-91-2, Q-UX91-6…12. **Mở:** Q-UX91-13…17 (Dùng thử, xem `QUESTIONS.md`), chặn US-22 / FR-25. Phần còn lại của spec **APPROVED**.
+- Chốt: Q-UX91-1…5 (chủ dự án), TL-2 câu 1–4 (PM), P-91-1, P-91-2, Q-UX91-6…12. **Không còn câu mở.** Q-UX91-13…17 (Dùng thử) đã đóng vì chủ dự án bỏ tính năng (P-91-4). Spec **APPROVED**.
 - **Spec cũ cần vá khi spec này APPROVED.** Mỗi dòng cần PM ghi số proposal trước khi BA sửa (luật "không thoả hiệp ngang hàng"); commit vá ghi số proposal và tăng phiên bản SRS cũ.
 
 | Spec cũ | Chỗ | Vá vì | Story |
@@ -175,7 +167,6 @@ Mỗi story ở `US.md` nêu khung nhìn đầu, tải / rỗng / lỗi, 375 px 
 | DESIGN §11, §16; plan 9.1 | — | 9.1 đợt 1 | US-04 | FR-6, 7 | `ui-foundation.spec`, `tokens.spec`, `a11y.spec` |
 | DESIGN §2 | — | 9.1 đợt 2 | US-06, 07 | FR-9, 10 | `shell.spec` |
 | PRD M0 (tài khoản, vào lớp; trang `/` ẩn danh); DESIGN §11.1 | F1 (Tài khoản) | 9.1 đợt 6 | US-08, 09, 21 | FR-11, 12, 24 | `landing.spec`, đo LCP ẩn danh, kiểm tay video |
-| PRD M0; DESIGN (mục Dùng thử, chờ TL-3); D44; CLAUDE.md (danh tính từ JWT) | F1, F2 | 9.1 đợt 6 (DRAFT) | US-22 | FR-25 | `tryout.spec` (QC viết sau TL-3) |
 | DESIGN §14.1; PRD M14 ("Hôm nay") | F14 (Hôm nay) | 9.1 đợt 3 | US-10, 11 | FR-13, 14 | `today.spec` |
 | DESIGN §14.8; UX.md §5; PRD M5 (điểm danh, phát biểu) | F7 (Điểm danh và phát biểu) | 9.1 đợt 4 | US-12 | FR-15 | `attendance.spec` |
 | DESIGN §14.12–§14.13; UX.md §5; PRD M8 (bài tập, chấm) | F9 (Bài tập: tạo → nộp → chấm → công bố) | 9.1 đợt 4 | US-14, 15 | FR-17, 18 | `assignment-lifecycle.spec` |
