@@ -71,8 +71,9 @@ function Items({ rows }: { rows: ReadonlyArray<readonly [string, string]> }) {
 }
 
 export function Landing() {
-  // Poster video là ảnh lớn nhất lần vẽ đầu: tải ngay từ <head>.
-  preload("/landing/gioi-thieu-v1.webp", { as: "image", fetchPriority: "high" });
+  // Poster video là ảnh lớn nhất lần vẽ đầu ở ≥ 720 px: tải ngay từ <head>. Ở điện thoại khối chữ đầu trang chiếm trọn màn hình đầu, video nằm dưới nếp gấp nên chữ là LCP
+  // (poster 52 KB tranh băng thông 4G chậm với phông + JS làm LCP 3,1 s khi nó nằm trong màn hình đầu).
+  preload("/landing/gioi-thieu-v1.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
   return (
     <div className={s.page} data-part="landing">
       <header className={s.top}>
@@ -84,12 +85,14 @@ export function Landing() {
       {/* role="main" thay vì <main>: HTML của `/` còn mang cả khung PreShell (có <main id="main">) cho người quay lại; chỉ một khung hiện, khung kia display:none nên không vào cây truy cập */}
       <div role="main" id="landing-main">
         <section className={s.hero} aria-labelledby="hero-title">
-          <h1 id="hero-title" className={s.display}>Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân</h1>
-          <span className={s.thread} aria-hidden />
-          <p className={s.lead}>AI soạn nháp. Giảng viên quyết. Điểm do mã tính.</p>
-          <div className={s.actions}>
-            <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
-            <ButtonLink href="/register" variant="secondary">Tạo tài khoản</ButtonLink>
+          <div className={s.heroText}>
+            <h1 id="hero-title" className={s.display}>Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân</h1>
+            <span className={s.thread} aria-hidden />
+            <p className={s.lead}>AI soạn nháp. Giảng viên quyết. Điểm do mã tính.</p>
+            <div className={s.actions}>
+              <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
+              <ButtonLink href="/register" variant="secondary">Tạo tài khoản</ButtonLink>
+            </div>
           </div>
           <div className={s.heroShot}>
             <video className={s.video} controls preload="none" playsInline poster="/landing/gioi-thieu-v1.webp" width={1280} height={800} aria-label="Video giới thiệu EduPilot" aria-describedby="video-loi">
