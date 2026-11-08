@@ -173,7 +173,7 @@ Hành động: **Xoá** = bỏ chuỗi; **Giữ (dữ liệu)** = số liệu / 
 - AC5 (nhánh lỗi). Given `disabledReason` có nhưng nút không `disabled` When render Then lý do bị bỏ qua (không hiện tooltip) và nút hoạt động bình thường.
 - AC6 (phân quyền). Given STUDENT / vai không có quyền When mở màn Then nút giảng viên **không có** trong DOM (không chỉ khoá); lý do khoá không lộ dữ liệu của người khác.
 - AC7 (chuyển động). Tooltip hiện bằng `opacity` ≤ 120 ms; `reduce` → hiện tức thì.
-- AC8 (ảnh mốc). Ảnh mốc đổi: `dev-ui-*` (thêm trạng thái nút khoá có lý do); `gradebook-*`.
+- AC8 (trưng bày và kiểm). `/dev/ui` có ca nút khoá có lý do (kể cả ca có `disabledReason` nhưng không `disabled`), vị trí nêu ở handoff; QC kiểm bằng E2E (rê / focus / chạm), không bằng ảnh mốc vì `visual.spec` chụp khung nhìn tĩnh còn lý do chỉ hiện khi rê / focus (P-91-9 (1)).
 
 ### Ngoài phạm vi
 - Nút khoá ở màn quản trị chưa khảo sát.
@@ -240,7 +240,7 @@ Quyết định PM (TL-2 câu 4): cách S. "Lớp có việc chờ" (chọn theo
 ### Tiêu chí nghiệm thu
 - AC1 (nhớ lớp). Given giảng viên chọn lớp B rồi đăng xuất, đăng nhập lại cùng trình duyệt When vào `/` Then lớp B được chọn (`ep:ui:course`), không về lớp đầu danh sách.
 - AC2 (lần đầu). Given trình duyệt mới (không có `ep:ui:course`) và giảng viên có ≥ 2 lớp ACTIVE When đăng nhập Then lớp mặc định là lớp **đầu tiên có dữ liệu** theo thứ tự `GET /me/courses`, tức lớp đầu tiên mà `GET /me/today` có ≥ 1 mục thuộc lớp đó (Q-UX91-9, PM đồng ý); không lớp nào có thì lớp đầu danh sách.
-- AC3 (nhánh lỗi). Given `ep:ui:course` trỏ tới lớp không còn trong `me/courses` (đã lưu trữ, bị gỡ) When tải Then bỏ giá trị, chọn theo AC2, không báo lỗi, không trang trống.
+- AC3 (nhánh lỗi). Given `ep:ui:course` trỏ tới lớp không còn trong `me/courses` (bị gỡ), hoặc lớp có trạng thái `ARCHIVED` (máy chủ vẫn trả lớp đã lưu trữ trong `/me/courses`) When tải Then bỏ giá trị; lớp `ARCHIVED` **không** được làm lớp nhớ hay lớp mặc định (cả ở AC1 lẫn AC2): chọn theo AC2 trong các lớp `ACTIVE`, không báo lỗi, không trang trống (P-91-9 (2)).
 - AC4 (phân quyền). Given STUDENT / TA When dùng bộ chọn Then chỉ thấy lớp của mình; không mục "Quản lý lớp này" / "Mời trợ giảng" nếu không có quyền (như hiện tại).
 - AC5 (di động 375). Given 375 px When mở bộ chọn lớp Then mỗi mục vùng chạm ≥ 44 px (như hiện tại).
 - AC6 (ảnh mốc). Không đổi ảnh mốc.
