@@ -1,0 +1,308 @@
+{
+ "home__teacher__1440.png": [
+  "«Hôm nay» giảng viên: 9 dòng việc, dòng nào cũng một chữ «Mở» đỏ nhỏ ở mép phải; 6/9 dòng cùng chấm xám giống nhau",
+  "ba khối (Việc cần xử lý / Lớp cần chú ý / Sắp tới) đều là Panel trắng dài ~960 px, chừa trống ~240 px bên phải ở 1440"
+ ],
+ "gradebook__teacher__1440.png": [
+  "bảng điểm nằm trong khung cuộn riêng cao ~560 px; hàng cuối bị cắt giữa chừng, trang dưới bảng trống",
+  "ô điểm là ô nhập số ngay trong bảng; cột «Kiểm tra hằng tuần» toàn «–»",
+  "«Chốt điểm» (đỏ) cạnh «Xem công thức» và nút «…» ở góc trên phải"
+ ],
+ "grading__teacher__1440.png": [
+  "«Chấm tất cả» hồng nhạt (trông bị khoá) khi hàng chờ có 4 bài; không thấy lý do khoá",
+  "cột «Bài tập» ngắt 3 dòng cho cùng một tên bài ở mọi hàng; nửa dưới khung trống",
+  "«Điểm» 0,00 đậm cho bài trống / lạc đề; thời gian nộp chữ rất nhỏ, xám nhạt"
+ ],
+ "students__teacher__1440.png": [
+  "bảng sinh viên cuộn trong khung riêng; cột «Phát biểu» hiện «1 · +0,25» không có nhãn đơn vị",
+  "cột «Hoạt động học» lặp «14 phút · 0 câu hỏi» ở hầu hết hàng"
+ ],
+ "class-members__teacher__1440.png": [
+  "có câu mô tả dưới tiêu đề: «Lớp 761987. Duyệt yêu cầu vào lớp và quản lý người học.»",
+  "cột «Vào lớp» mọi hàng cùng «Danh sách đầu lớp» chữ rất nhỏ xám; email dưới tên cũng rất nhỏ",
+  "30 hàng liền, không phân trang; trang dài ~1470 px"
+ ],
+ "class-settings__teacher__1440.png": [
+  "dưới gần mọi ô nhập có một dòng giải thích nhỏ («Để trống nếu không giới hạn» lặp 2 lần, ví dụ miền email, mô tả công tắc)",
+  "mã lớp cỡ rất lớn chữ đơn cách; «Tạo lại mã» là nút chữ không viền cạnh hai nút có viền",
+  "5 thanh trượt đỏ liền nhau cùng màu đỏ + công tắc đen; đỏ xuất hiện ở thanh trượt và mọi nút chính"
+ ],
+ "documents__teacher__1440.png": [
+  "chữ trong ô chọn «Loại» bị cắt («Quy chế m…», «Đề tham k…»)",
+  "cột «Cập nhật» ghi «00:10 02-11» (giờ trước, ngày-tháng sau), khác định dạng «Thứ Năm, 29/10 · 00:10» ở Chấm bài",
+  "hai cột công tắc «Dùng cho AI» / «Hiện cho sinh viên» ở mọi dòng; dòng «Đáp án…» có hai dòng chữ nhỏ giải thích dưới tên"
+ ],
+ "calendar__teacher__1440.png": [
+  "ba nút ngang hàng ở góc trên phải («Thêm vào lịch», «Thêm sự kiện», «Tạo lịch buổi học») tên gần giống nhau",
+  "ô «Chủ nhật» (hôm nay) tô nền hồng nhạt cả cột; ngày trống hiện «—»; chỉ 1 tuần, phần dưới trang trống"
+ ],
+ "exams__teacher__1440.png": [
+  "có câu mô tả dưới tiêu đề «Bài kiểm tra tính điểm của lớp 761987: soạn từ ngân hàng câu hỏi, đặt khung giờ rồi lên lịch.»",
+  "chỉ có nhóm «Đã đóng»; hàng bài thi có «Xem kết quả» dạng chữ không viền và dòng nhỏ «6 sinh viên đã bắt đầu»"
+ ],
+ "exams-ID__teacher__1440.png": [
+  "biểu mẫu dài ~1000 px với 5 nhóm; bài đã lên lịch nên hầu hết ô bị khoá (xám) chỉ có một biểu ngữ ở đầu trang giải thích; «Lưu thông tin» xám",
+  "dưới gần mọi ô có dòng chữ nhỏ giải thích («Hỗ trợ Markdown cơ bản…», «5–300, không dài hơn khung giờ.», «0 = không nhận yêu cầu xem lại.»)",
+  "ngày giờ viết «02/11/2026, 00:07» trong ô; ở tiêu đề phụ viết «00:07 02/11 – 00:09 02/11»"
+ ],
+ "insights__teacher__1440.png": [
+  "mỗi tiêu đề khối có câu mô tả xám bên dưới («Câu hỏi của lớp, đã bỏ tên và mã sinh viên…», «Câu hỏi trong 7 ngày liền trước đó, đã ẩn danh · xếp theo mức độ…») và thêm một biểu ngữ xanh về ẩn danh",
+  "năm thẻ chủ đề cao ~250 px mỗi thẻ nằm trong Panel lớn (thẻ trong thẻ); mỗi thẻ có đoạn «Nên làm:» nhãn đỏ + hai nút «Tạo thread ghim» / «Tạo buổi ôn tập» lặp 5 lần; trang dài > 2000 px",
+  "cột nội dung hẹp hơn các trang khác, nút «Tạo báo cáo mới» (đỏ) nằm ngoài lề phải của cột"
+ ],
+ "analytics__teacher__1440.png": [
+  "mỗi khối có tiêu đề + một dòng mô tả xám, rồi một câu tóm tắt in đậm một phần trong Panel (ba lớp chữ trước khi tới số)",
+  "biểu đồ đường: nhãn «47 câu» chồng lên đường ở đầu phải; nhãn trục ngày T6 T7 CN T2… không ghi ngày"
+ ],
+ "observability__teacher__1440.png": [
+  "hai khối cùng số đo (dải 5 chỉ số «Yêu cầu hôm nay 1.284 · p95 3,1 s…» và bảng «Lớp 761987 trong 7 ngày» p95 2,9 s…) liền nhau",
+  "danh sách yêu cầu hiện tên model kỹ thuật (gpt-4o-mini, qwen2.5-14b-instruct) và «Lớp int1006-1» dù lớp đang xem là 761987"
+ ],
+ "settings-llm__teacher__1440.png": [
+  "tài khoản giảng viên thấy trang cấu hình nhưng mọi ô xám và chỉ có dòng «Chỉ quản trị viên được thay đổi cấu hình.»; sáu liên kết đỏ «Cài đặt nâng cao» giống nhau"
+ ],
+ "settings-integrations__teacher__1440.png": [
+  "giá trị kỹ thuật thô hiện nguyên văn: «mailpit:1025», «none», «mock-imap:1143», Tenant / Client ID dạng GUID, «Bật · Có»; ba khối SMTP / IMAP / Teams cùng kiểu bảng hai cột, panel chỉ rộng ~640 px (nửa trang)"
+ ],
+ "settings__teacher__1440.png": [
+  "«Thiết bị đang đăng nhập» liệt kê ~25 phiên liền nhau, không phân trang, nhãn «Chrome trên macOS» / «Trình duyệt khác» giống nhau (phần lớn là các phiên đăng nhập của đợt chụp QC này)",
+  "«Đổi mật khẩu» hồng nhạt (khoá) khi chưa nhập; ba ô mật khẩu rộng ~370 px trong Panel rộng ~850 px"
+ ],
+ "threads__teacher__1440.png": [
+  "tiêu đề nhiều thread là đoạn chữ cắt từ tài liệu (tiếng Anh, bắt đầu bằng «·», «- -», «• »), cả tiêu đề lẫn đoạn xem trước cùng cỡ chữ trên nhiều dòng",
+  "mỗi dòng có ngày «00:10 02-11» rất nhỏ, tên tác giả + «Tuần 3» + trạng thái xếp ngang một dòng nhỏ"
+ ],
+ "threads-ID__teacher__1440.png": [
+  "câu trả lời AI hiện chuỗi «<ngữ_cảnh>» nguyên văn trong nội dung; «Độ tin cậy 0,80» hiện cho giảng viên",
+  "nội dung bài đăng hiện nguyên văn «- - Unstructured threats» (gạch đầu dòng lặp); nút «Đăng» hồng nhạt (khoá) dưới ô bình luận"
+ ],
+ "questions__teacher__1440.png": [
+  "có câu mô tả dưới tiêu đề «Câu hỏi dùng cho bài thi và luyện đề của lớp 761987. Chỉ giảng viên và trợ giảng thấy.» + dòng nhỏ «5 câu chờ duyệt»",
+  "5 câu đều tên «mẫu» chờ duyệt; 30 hàng liền, không phân trang; nút «Tạo câu hỏi» đỏ có dấu +"
+ ],
+ "gradebook-scheme__teacher__1440.png": [
+  "cột phải «Quy chế học phần» gần như trống (chỉ có tiêu đề, không hiện đoạn quy chế); mỗi mục có huy hiệu «Trang 1» / «Trang 2»",
+  "mỗi mục hiện hai lớp: dòng in đậm tóm tắt và đoạn giải thích trong khung xám bên dưới"
+ ],
+ "grading-ID__teacher__1440.png": [
+  "bài làm bên trái, khung chấm bên phải bị cắt giữa tiêu chí thứ hai (khung chấm cuộn riêng, cao ~600 px); hộp «Duyệt bài» (đỏ) và «Đã duyệt 0/22» dính đáy khung",
+  "tên tiêu chí hiện hai lần cho mỗi dòng («Xác định tác nhân…» bên trái và «Điểm Xác định tác nhân…» phía trên ô điểm); hai khung «Đoạn trích từ bài làm · bấm để xem trong bài» nền hồng nhạt"
+ ],
+ "khong-ton-tai__teacher__1440.png": [
+  "màn «Không tìm thấy trang»: nút «Về Hôm nay» nằm xa mép phải, cách xa dòng giải thích; phần còn lại của trang trống"
+ ],
+ "exams-ID-results__teacher__1440.png": [
+  "ô «Tìm theo tên hoặc MSSV» chỉ rộng ~110 px, nhãn nằm trên và không có biểu tượng tìm; hai nút trắng «Xuất CSV» / «Chấm lại» cạnh bộ lọc",
+  "cột «Nộp lúc» ghi «00:07 02/11» (khác «00:07 02-11» ở Tài liệu); dòng «Bùi Khánh Việt» in đậm (không rõ vì sao)"
+ ],
+ "exams-ID-similarity__teacher__1440.png": [
+  "có câu giải thích dài trong Panel «Độ giống chỉ là gợi ý — nhiều bài đúng cùng một cách làm…»; chỉ 1 dòng kết quả; nửa dưới trang trống"
+ ],
+ "home__student__375.png": [
+  "tiêu đề «Hôm nay» của khối thứ hai trùng tên mục «Hôm nay» ở thanh dưới; thanh điều hướng dưới có 5 mục (4 + «Thêm»)"
+ ],
+ "threads__student__375.png": [
+  "«Bộ lọc» là một dòng chữ không có dấu hiệu bấm được; phần lớn tiêu đề thread là đoạn chữ tiếng Anh cắt từ tài liệu, dài 4–5 dòng ở 375 px"
+ ],
+ "practice__student__375.png": [
+  "có câu mô tả dưới tiêu đề «Luyện theo chủ đề bạn hay sai, hoặc thi thử với đề cũ.» và chân trang «Kết quả luyện đề không tính vào điểm quá trình, trừ các bài ghi “tính điểm”.»",
+  "mỗi chủ đề lặp «Bạn chưa luyện chủ đề này» + «N câu · phản hồi ngay sau mỗi câu» (4 lần giống hệt chữ)"
+ ],
+ "chat__student__375.png": [
+  "ẢNH LÀ TRANG ĐĂNG NHẬP — phiên bị đá ra giữa lúc chụp; chụp lại ở lượt sau (xem ghi chú mục cuối)",
+  "«Phiên trước (4)» là một ô thu gọn; khung chat chiếm cả màn, ô nhập ở đáy khung; nút «Gửi» hồng nhạt (khoá) khi chưa nhập"
+ ],
+ "exams__student__375.png": [
+  "có câu mô tả dưới tiêu đề «Bài kiểm tra tính điểm của lớp. Đồng hồ chạy khi bạn bấm Bắt đầu làm bài.»; mỗi bài thi lặp «Đã có điểm» hai lần (nhóm «Đã có điểm» và dòng nhỏ dưới tên)"
+ ],
+ "library__student__375.png": [
+  "ô «Tìm tài liệu» có viền đỏ (đang focus) ngay khi mở trang, chưa chạm gì",
+  "mỗi tài liệu có nhãn «PDF» + nút «Xem» + nút «…» trên cùng một hàng; ba lớp bộ lọc (tìm, Loại, Tuần) chiếm hơn nửa màn đầu"
+ ],
+ "calendar__student__375.png": [
+  "mặc định ở 375 là kiểu «Danh sách»; mỗi mục lặp nhãn loại («Buổi học», «Bài thi») bằng chữ nhỏ xám dưới giờ"
+ ],
+ "me__student__375.png": [
+  "công thức tính điểm hiện nguyên dạng biểu thức: «min(3; 1) = 1», «(20 × 9 + 20 × 10) ÷ 40», «min(10; max(0; 9,5 + 1 − 0))», kèm «Căn cứ · tr. 1»",
+  "ô «Nếu cuối kỳ được [8,0]» là ô nhập giữa đoạn văn, không có nút; trang dài ~2000 px"
+ ],
+ "assignments-ID__student__375.png": [
+  "đề bài hiện ký hiệu Markdown thô: «# Bài tập 03 — Phân tích…», «## Đề bài», «## Yêu cầu nộp» (in đậm và danh sách thì dựng đúng); tiêu đề trang là «Bài tập 04» còn đề bài ghi «Bài tập 03»",
+  "trang dài hơn ~3 màn hình ở 375 px trước khi tới «Tiêu chí chấm» và ô nộp bài"
+ ],
+ "threads-ID__student__375.png": [
+  "sinh viên thấy chuỗi «<ngữ_cảnh>» trong câu trả lời AI; nội dung bài đăng có «- - Unstructured threats»; dấu «···» đứng một dòng riêng dưới tên tác giả"
+ ],
+ "practice-at-symmetric__student__375.png": [
+  "«Kiểm tra» hồng nhạt (khoá) kèm dòng «Chọn một đáp án để kiểm tra»; nửa dưới màn hình trống"
+ ],
+ "join-AN7K2MQ__student__375.png": [
+  "hai câu hướng dẫn mã cùng ý («Mã gồm 7 ký tự, không phân biệt chữ hoa chữ thường.» và «7 ký tự, không có O, 0, 1, I, L.»); đã là thành viên nên chỉ hiện «Bạn đã ở trong lớp này.» và nút «Về Hôm nay»"
+ ],
+ "gradebook__student__375.png": [
+  "màn chặn quyền: «Bạn không có quyền xem màn này» + «Trang này dành cho giảng viên và trợ giảng.»; nút «Về Hôm nay» là nút trắng, trong khi màn «Không tìm thấy trang» dùng nút đỏ cho cùng việc"
+ ],
+ "inbox__student__375.png": [
+  "cùng màn chặn quyền, nửa dưới màn hình trống"
+ ],
+ "admin-users__student__375.png": [
+  "cùng màn chặn quyền («Trang này dành cho quản trị viên.»)"
+ ],
+ "home@error__student__1440.png": [
+  "dải báo mất mạng ở đầu trang bị sidebar che phần đầu câu (đọc được «…n đã nhập vẫn được giữ; hệ thống sẽ gửi lại khi có mạng.»)",
+  "sau ~2 s vẫn chỉ có 4 vạch khung xương, chưa có thông báo lỗi hay nút thử lại trong vùng nội dung; chuông thông báo mất số; chân sidebar hiện «Bản mô phỏng · dữ liệu giả» (chữ này không có ở trạng thái bình thường)"
+ ],
+ "exams-ID-results__student__1440.png": [
+  "sinh viên mở route của giảng viên nhận «Bạn không có quyền xem màn này»; mục «Bài thi» ở sidebar vẫn sáng như đang ở đúng màn"
+ ],
+ "me__student__1440.png": [
+  "cột nội dung rộng ~660 px bên trái, 60% bề ngang 1440 để trống; «Phát biểu +0,25» lặp 12 dòng với cùng ngày «02/11»"
+ ],
+ "gradebook@loading__teacher__1440.png": [
+  "sau 1,8 s vùng nội dung hoàn toàn trống: không tiêu đề, không khung xương, không dấu hiệu đang tải (khác trang sinh viên có khung xương)"
+ ],
+ "home@loading__student__1440.png": [
+  "khung chờ của «Hôm nay» cho tài khoản sinh viên hiện tiêu đề kiểu giảng viên «Việc cần xử lý hôm nay» + câu mô tả «Việc của bạn và các buổi học sắp tới hiện ở đây.»; sidebar chưa có mục nào, thanh trên không có chọn lớp / tìm kiếm"
+ ],
+ "students@loading__teacher__1440.png": [
+  "sau 1,8 s vùng nội dung trống hoàn toàn (không tiêu đề «Sinh viên», không khung xương)"
+ ],
+ "exams@loading__teacher__1440.png": [
+  "có tiêu đề «Bài thi» và khung xương 6 vạch trong Panel (khác Sổ điểm / Sinh viên không có gì)"
+ ],
+ "login__anon__1440.png": [
+  "thẻ đăng nhập rộng ~440 px ở giữa trên nền trống 1440×900; dòng «Cần giúp? Liên hệ giảng viên hoặc quản trị viên của bạn.» ở đáy trang, chữ nhỏ"
+ ],
+ "reset-password__anon__1440.png": [
+  "mở không kèm mã nhận ngay «Liên kết không dùng được» + nút đỏ «Yêu cầu liên kết mới»"
+ ],
+ "verify-email__anon__1440.png": [
+  "mở không kèm mã nhận «Liên kết không dùng được» + ô email gửi lại (nút xám khoá)"
+ ],
+ "register__anon__1440.png": [
+  "biểu mẫu 4 ô, hai dòng gợi ý chữ nhỏ (dưới ô mã số sinh viên và dưới ô mật khẩu); nút «Tạo tài khoản» hồng nhạt (khoá) khi chưa nhập"
+ ],
+ "admin-users__admin__1440.png": [
+  "có câu mô tả hai dòng dưới tiêu đề «Mời giảng viên và trợ giảng, khoá hoặc mở khoá tài khoản. Sinh viên tự đăng ký rồi vào lớp bằng mã tham gia.»",
+  "danh sách 30+ người dùng liền nhau không phân trang; cột «Lần cuối» ghi «00:06 · 02-11», «18:26», «Chưa đăng nhập» ba dạng khác nhau; thanh trên ghi «Toàn hệ thống · INT1006» thay cho chọn lớp"
+ ],
+ "admin-courses__admin__1440.png": [
+  "có câu mô tả dưới tiêu đề «Mở lớp, phân công giảng viên và lưu trữ lớp đã kết thúc.» + dòng nhỏ «2 lớp đang chạy»; chỉ 2 hàng, nửa dưới trang trống"
+ ],
+ "home__newbie__375.png": [
+  "dải hồng «Bản mô phỏng · dữ liệu giả» ở đầu mọi trang của sinh viên chưa có lớp (không có ở `sv.gioi`)",
+  "ý «bạn chưa vào lớp nào» lặp 3 lần trong một màn (dòng ngày, tiêu đề khối «Nhập mã tham gia lớp», câu mô tả bên dưới) + «Mã gồm 7 chữ và số.» dưới ô nhập",
+  "ô «Mã tham gia lớp» hiện sẵn chữ xám «AN7K2MQ» (là mã thật của lớp 761987) trông như đã điền; «Tiếp tục» hồng nhạt (khoá)"
+ ],
+ "join__newbie__375.png": [
+  "trang «Tham gia lớp» có hai câu hướng dẫn mã (trên thẻ «Nhập mã tham gia giảng viên gửi cho bạn. Mã gồm 7 ký tự…» và dưới ô «7 ký tự, không có O, 0, 1, I, L.»); nút «Xem lớp» hồng nhạt khi ô đã có chữ xám placeholder"
+ ],
+ "chat__newbie__375.png": [
+  "trạng thái chưa có lớp: tiêu đề «Bạn chưa vào lớp nào» + nút đỏ «Tham gia lớp bằng mã»; nửa dưới màn hình trống; thanh dưới chỉ có «Hôm nay»; chữ chọn lớp «Chưa có lớp» ở thanh trên"
+ ],
+ "library__newbie__375.png": [
+  "cùng khung trống «Bạn chưa vào lớp nào» như Chat riêng"
+ ],
+ "attendance__teacher__1440.png": [
+  "30 hàng × 5 cột nút tròn; cả 30 dòng đã chọn sẵn «Có mặt» (chấm đỏ đặc) nên cột «Có mặt» là một cột đỏ liền; nút «+ phát biểu · +0,25» lặp 30 lần cùng chữ",
+  "tiêu đề cột có ký hiệu phím tắt «1 2 3 4 P» chữ rất nhỏ; trạng thái «Chưa có thay đổi» ở góc phải panel; «Lưu điểm danh» (đỏ) ở góc trên phải ngoài tầm mắt khi cuộn xuống hàng cuối"
+ ],
+ "assignments-ID__teacher__1440.png": [
+  "giảng viên mở /assignments/‹id› nhận «Bạn không có quyền xem màn này — Trang này dành cho sinh viên»; không thấy trang bài tập từ phía giảng viên ở route này"
+ ],
+ "class-settings__ta__1440.png": [
+  "trợ giảng thấy toàn bộ cài đặt nhưng mọi ô, công tắc, thanh trượt đều xám khoá; lý do chỉ là dòng chữ rất nhỏ «Chỉ giảng viên được thay đổi.» ở cuối khung đầu tiên; mã lớp vẫn hiện"
+ ],
+ "library__student__1440.png": [
+  "ô «Tìm tài liệu» tự focus (viền đỏ dày) khi mở trang; mép trên Panel danh sách chạm vào đáy ô tìm kiếm",
+  "dòng «Đề tham khảo tuần 5» không có nút «…» nên nút «Xem» lệch phải so với bốn dòng còn lại"
+ ],
+ "calendar__student__1440.png": [
+  "tuần hiện tại chỉ có dữ liệu ở T2 (3 mục) còn 6 cột còn lại «—»; cột Chủ nhật tô nền hồng nhạt; phần dưới trang trống"
+ ],
+ "inbox__teacher__1440.png": [
+  "«Đang chờ» lặp ở mỗi hàng của danh sách, ở bộ lọc, và ở dòng «Trạng thái» trong chi tiết; chi tiết hiện cả câu trả lời nháp của AI với «Độ tin cậy 0,90» cho giảng viên",
+  "hai hành động «Nhận» (nút đỏ) và «Đóng không trả lời» (chữ đỏ không viền) cạnh nhau; thời gian chờ «14 ngày», «6 ngày» chữ nhỏ ở góc phải mỗi hàng"
+ ],
+ "chat__student__1440.png": [
+  "khung chat gần như trống: dòng «Hỏi bất cứ điều gì về lớp này.», một chip gợi ý «Quy chế thi cuối kỳ nói gì về tài liệu?», ô nhập sát đáy; nút «Phiên mới» hồng nhạt (khoá) ở góc trên phải",
+  "danh sách «Phiên trước» có 4 phiên, mỗi phiên tên bằng cả câu hỏi (3–4 dòng) cùng ngày giờ «23:10 30-10»; một phiên là câu hỏi ngoài chủ đề («Địa điểm du lịch đẹp ở miền Trung?»)"
+ ],
+ "attendance__teacher__375.png": [
+  "5 cột lựa chọn thu thành một chữ «Có mặt» xám bên phải mỗi dòng; không thấy điều khiển nào để đổi sang Muộn / Vắng phép / Vắng, không thấy nút «+ phát biểu»; «Lưu điểm danh» nằm trên đầu danh sách 30 dòng"
+ ],
+ "inbox__teacher__375.png": [
+  "chỉ có danh sách (không có khung chi tiết); hàng được chọn nền hồng + vạch đỏ bên trái; «Đang chờ» lặp mỗi hàng; ba chip trạng thái bộ lọc nằm trong một khung chữ nhỏ"
+ ],
+ "home__teacher__375.png": [
+  "nút hành động mỗi dòng là chữ đỏ «Mở» / «Xem bài» cỡ nhỏ nằm riêng một dòng dưới mô tả, vùng bấm thấp (~20 px)"
+ ],
+ "home@dlg-cmdk__teacher__1440.png": [
+  "hộp tìm nhanh (⌘K): axe «nested-interactive» mức cao ×16 (mỗi kết quả `#_r_3_-opt-N` chứa điều khiển lồng nhau)",
+  "hộp tìm nhanh gồm danh sách mục điều hướng cao ~330 px, mục đầu có phím ↵; không có nhóm hay nhãn phân loại"
+ ],
+ "class-members@dlg-thaotac__teacher__1440.png": [
+  "axe «target-size» mức cao ×1: nút «…» (thao tác cho từng thành viên) nhỏ hơn 24×24 px"
+ ],
+ "gradebook@dlg-chotdiem__teacher__1440.png": [
+  "hộp thoại xác nhận «Chốt điểm» mở bằng hiệu ứng fadeIn 250 ms (dài hơn 200 ms); chỉ mở rồi đóng bằng Esc, không bấm xác nhận",
+  "hộp xác nhận «Chốt điểm» nói rõ phân bố điểm chữ và «1 sinh viên liệt»; nút huỷ là «Để sau» (các biểu mẫu nội tuyến khác dùng «Huỷ»); nền phủ mờ cả sidebar"
+ ],
+ "calendar@dlg-taolichbuoihoc__teacher__1440.png": [
+  "ngăn kéo / hộp «Tạo lịch buổi học» vào bằng slideIn 250 ms và có 4 khung xương shimmer 1400 ms chạy lặp trong lúc mở"
+ ],
+ "threads@dlg-datcauhoi__teacher__1440.png": [
+  "«Đặt câu hỏi» mở khung soạn nội tuyến đẩy danh sách thread xuống ~330 px (không phải hộp thoại); ô «Đăng» hồng nhạt (khoá) đến khi nhập"
+ ],
+ "admin-users@dlg-moigv__admin__1440.png": [
+  "«Mời giảng viên» mở biểu mẫu nội tuyến ngay dưới tiêu đề kèm thêm một câu giải thích («Người được mời nhận mật khẩu… dùng trong 72 giờ…») và đẩy bảng người dùng xuống"
+ ],
+ "admin-courses@dlg-molop__admin__1440.png": [
+  "«Mở lớp» mở biểu mẫu nội tuyến 6 ô + «Trợ giảng» + 2 nút; mỗi ô có dòng gợi ý nhỏ dưới (ví dụ «Không bắt buộc. 1–1.000»); nút «Mở lớp» hồng nhạt (khoá)"
+ ],
+ "calendar@dlg-themsukien__teacher__1440.png": [
+  "«Thêm sự kiện» mở biểu mẫu nội tuyến 5 ô phía trên tuần; ô đầu tự focus (viền đỏ dày); «Lưu» hồng nhạt (khoá); chuyển viền 140 ms ở 4 cạnh"
+ ],
+ "settings-llm@dlg-nangcao__admin__1440.png": [
+  "«Cài đặt nâng cao» mở nội tuyến ngay trong hàng (ô nhiệt độ, số token), không đổi vị trí nút; mỗi ô có dòng đơn vị / mặc định nhỏ"
+ ],
+ "home@dlg-bell__teacher__1440.png": [
+  "popover thông báo / menu tài khoản / chọn lớp vào bằng «pop» 200 ms; đóng được bằng Esc"
+ ],
+ "home@dlg-them__student__375.png": [
+  "«Thêm» mở tờ đáy (bottom sheet) với 4 mục (Bài thi, Thư viện, Lịch, Kết quả của tôi) và nút đóng ×; nền phủ xám cả thanh trên"
+ ],
+ "inbox@dlg-ticket__teacher__375.png": [
+  "mở một yêu cầu thì thay danh sách bằng trang chi tiết (có «← Hộp thư»); hai nút «Nhận» / «Đóng không trả lời» nằm sát thanh điều hướng dưới, phải cuộn mới thấy đủ"
+ ],
+ "chat@dlg-soanthao__student__375.png": [
+  "ô nhập chat khi focus có khung đỏ dày bao cả vùng ô nhập + nút «Gửi» ở góc dưới phải"
+ ],
+ "threads@dlg-datcauhoi__student__375.png": [
+  "biểu mẫu «Đặt câu hỏi» gồm Tiêu đề, Nội dung (cả hai «bắt buộc»), Thẻ (placeholder «quy-che, tcp»), Tuần; «Đăng» hồng nhạt (khoá) cạnh «Huỷ»; cao hơn một màn hình ở 375"
+ ],
+ "home@error-late__student__1440.png": [
+  "sau 15 s mất mạng vẫn chỉ có khung xương + dải «…n đã nhập vẫn được giữ…» bị sidebar che đầu câu; không có thông báo lỗi hay nút «Thử lại» (đã tìm nút chứa «thử lại» / «tải lại»: không có)"
+ ],
+ "home@error-late__teacher__1440.png": [
+  "sau 15 s mất mạng «Hôm nay» giảng viên vẫn là 3 dòng khung xương trong Panel; không thông báo lỗi, không nút thử lại; các số trên mục Hộp thư / Chấm bài ở sidebar vẫn hiện"
+ ],
+ "gradebook@error-late__teacher__1440.png": [
+  "sau 15 s mất mạng vùng nội dung của Sổ điểm hoàn toàn trống: không tiêu đề, không khung xương, không thông báo lỗi"
+ ],
+ "me@error-late__student__1440.png": [
+  "sau 15 s mất mạng «Kết quả của tôi» hiện «Chưa có lớp nào.» — lỗi mạng bị trình bày như thể sinh viên chưa vào lớp"
+ ],
+ "__landing": [
+  "**Bản cũ** (xem và đo trước 19:25; ảnh gốc không còn vì demo được cập nhật giữa lúc chụp): hero chữ + 2 nút, ảnh chụp ứng dụng tĩnh cắt ngang ở đáy khung, ba số đo «0 / 146», «30 / 30», «+0,05 %» là chữ tĩnh, hai danh sách 6 mục «Cho giảng viên» / «Cho sinh viên» với ảnh nhỏ không đọc được chữ, không video, không sơ đồ luồng, không chuyển động nào; JS nén 215 KB, 0 luật scroll-driven, 1 luật reduced-motion, 0 video; LCP đo được 1,4–1,6 s (một lần 6,9 s lúc 4 trình duyệt cùng chạy).",
+  "**Bản mới** (demo đổi lúc ~19:25, commit `765dabfb`): video có poster (`preload=none`, có điều khiển, không tự phát, mp4 + webm, phụ đề in trong poster), sơ đồ 3 bước «AI soạn nháp → Giảng viên duyệt → Mã tính điểm» có đường nối đỏ, ba số đo đếm lên (đo được «19» đang chạy lên tới «146»), tab «Giảng viên | Sinh viên»; hiện dần khi cuộn bằng CSS scroll-timeline.",
+  "Bản mới, `prefers-reduced-motion: reduce`: 0 animation đang chạy (so với 29 ở chế độ thường), số đo hiện ngay giá trị cuối «146»; có 2 luật reduced-motion trong CSS. Chế độ thường: 29 animation chạy liên tục sau mỗi lần cuộn (không về 0 sau 1 s).",
+  "Bản mới: JS nén 216 KB (giải nén 679 KB) — sát ngưỡng 256 KB của sprint; LCP 1,47 s ở 1440 và 375; tổng truyền 558 KB (1440) / 466 KB (375), video chưa tải (media = 0 KB) trước khi bấm."
+ ],
+ "home__anon__375.png": [
+  "ẢNH DÀI BỊ TRẮNG phía dưới hero: hiệu ứng hiện theo cuộn không chạy khi khung nhìn được kéo dài hết trang (cách chụp), nên không dùng ảnh này để đánh giá nội dung; xem `landing-scroll-motion-375-*` (chụp khung nhìn thật khi cuộn)"
+ ],
+ "home__anon__1440.png": [
+  "bản mới: video có nút ▶ và phụ đề in sẵn trong poster che phần dưới ảnh Chấm bài; sơ đồ 3 bước, 3 số đo, tab Giảng viên / Sinh viên với ảnh ứng dụng bên phải (ảnh vẫn nhỏ, chữ trong ảnh không đọc được); ảnh chụp lúc 19:28, sau khi demo cập nhật"
+ ]
+}
