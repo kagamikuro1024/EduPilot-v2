@@ -1,6 +1,6 @@
 # FEAT-uiux-91 Cải thiện UI/UX sau khảo sát (sprint 9.1)
 Nguồn: `docs/sprints/9.1/audit/findings.md` (UX-1…27) · `docs/sprints/9.1/plan.md` (mục "Quyết định của chủ dự án": Q-UX91-1…5, [ĐỔI DESIGN] trang giới thiệu) · `docs/sprints/9.1/techlead.md` TL-1 · DESIGN §0–§22 · UX.md · luật chữ UI (`~/.claude/CLAUDE.md`, 09/10/2026).
-Phase: sprint 9.1 pha 2 (không thuộc P0–P9). Trạng thái: **DRAFT** (chưa APPROVED cho tới khi chủ dự án duyệt báo cáo). Đã theo: `techlead.md` TL-2; `plan.md` mục "Quyết định của PM cho các câu TL-2"; `proposals.md` P-91-1, P-91-2 (chấp nhận 2026-11-08).
+Phase: sprint 9.1 pha 2 (không thuộc P0–P9). Trạng thái: **APPROVED** (căn cứ: chủ dự án duyệt báo cáo UI/UX, trang giới thiệu v2 và nút Dùng thử ngày 2026-11-08, `plan.md` mục "Chủ dự án duyệt báo cáo"). **Ngoại lệ: US-UX91-22 (Dùng thử) vẫn DRAFT, chờ TL-3 và câu Q-UX91-13.** Đã theo: `techlead.md` TL-1, TL-2; `plan.md` mục "Quyết định của PM cho các câu TL-2"; `proposals.md` P-91-1, P-91-2. Thứ tự làm của dev: đợt 1 → 2 → 6 → 3 → 4 → 5; mỗi story ghi đợt ở dòng "Ưu tiên".
 
 **Quy ước chung cho mọi story** (không lặp lại trong từng AC):
 - Ảnh mốc: `visual.spec.ts` có 7 route × 2 bề rộng (`home`, `chat`, `threads`, `inbox`, `gradebook`, `settings-llm`, `dev-ui` × 1440 / 390). Story nào đổi hình một route đó thì ghi "Ảnh mốc đổi: …"; dev sinh lại bằng `--update-snapshots` kèm giải thích trong handoff. Route chưa có ảnh mốc mà story đổi nhiều (trang giới thiệu, điểm danh, Hôm nay giảng viên, duyệt bài) thì QC thêm ảnh mốc mới ở story đó.
@@ -10,38 +10,39 @@ Phase: sprint 9.1 pha 2 (không thuộc P0–P9). Trạng thái: **DRAFT** (chư
 - Chữ UI tiếng Việt, không từ kỹ thuật AI cho sinh viên (DESIGN §13).
 - Các story sửa hành vi / chữ đã nằm trong SPEC cũ ghi ở SRS mục 10 (bảng "Spec cũ cần vá"). Vá spec cũ chỉ sau khi PM ghi số proposal.
 
-Story gộp theo **6 đợt** của TL-2 (mỗi đợt chạm primitive / sinh lại ảnh mốc một lần). Đợt 1 + 2 sinh lại ảnh mốc **một lần chung**.
+Story gộp theo **6 đợt** của TL-2. Thứ tự dev làm (plan 9.1): **đợt 1 → 2 → 6 → 3 → 4 → 5**. Đợt 1 + 2 sinh lại ảnh mốc **một lần chung**. Mỗi story có dòng "Đợt n" ở đầu.
 
-| Đợt | Story | Findings | Cỡ (TL-2) | Ưu tiên |
-| --- | --- | --- | :---: | --- |
-| 1 Nền chung | US-UX91-02 Định dạng ngày giờ dùng chung | UX-8 | M | Must |
-| 1 | US-UX91-03 Nút khoá nói lý do | UX-13 | M | Must |
-| 1 | US-UX91-04 Chuyển động chức năng của ứng dụng | UX-26, TL-1 đề xuất 3 | M | Must |
-| 1 | US-UX91-21 Trang công khai không gọi làm mới phiên | UX-3(d) | S | Should |
-| 2 Chữ | US-UX91-01 Xoá câu giải thích dưới tiêu đề | UX-4 | M | Must |
-| 2 | US-UX91-05 Trạng thái rỗng đúng mẫu | UX-12, 22 | S | Should |
-| 2 | US-UX91-07 Nhãn điều hướng bằng tiếng Việt | UX-9, Q-UX91-1 | S | Must |
-| 2 | US-UX91-06 Nhớ lớp đã chọn, lớp đầu có dữ liệu | UX-25(a) cách S | S | Should |
-| 3 Hôm nay + Hộp thư | US-UX91-10 Hôm nay giảng viên: nhóm việc | UX-5, 6, Q-UX91-2 | M | Must |
-| 3 | US-UX91-11 Hôm nay sinh viên: chỉnh nhỏ | §3.B | S | Should |
-| 4 Chấm bài / Sổ điểm / Điểm danh | US-UX91-14 Hàng chờ chấm bài | UX-14 | S | Should |
-| 4 | US-UX91-15 Duyệt bài: một hàng một tiêu chí, thanh hành động dính | UX-15 | M | Must |
-| 4 | US-UX91-16 Sổ điểm: số căn thập phân, Đủ điểm / Thiếu điểm | UX-16, Q-UX91-3, P-91-1 | M | Must |
-| 4 | US-UX91-12 Điểm danh: "Có mặt" không đỏ, lưu dính đáy | UX-7, Q-UX91-4 | M | Must |
-| 5 Chat / Threads / Me / Tài liệu / Insights | US-UX91-13 Chat riêng: một Panel, lịch sử phẳng | UX-11 | M | Must |
-| 5 | US-UX91-19 Hỏi đáp công khai: đoạn trích sạch, bớt nhãn lặp | UX-20 | S | Should |
-| 5 | US-UX91-20 Kết quả của tôi: một khối giải trình | UX-21 | S | Should |
-| 5 | US-UX91-18 Tài liệu giảng viên: bớt chữ lặp | UX-19 | S | Should |
-| 5 | US-UX91-17 Insights và Quan sát AI: bỏ khung lồng khung | UX-10 | S | Should |
-| 6 Trang giới thiệu + video | US-UX91-08 Trang giới thiệu mới | UX-1, 2, 3(a–c), Q-UX91-5 | L | Must |
-| 6 | US-UX91-09 Video giới thiệu | UX-1 | L | Must |
+| Thứ tự | Đợt | Story | Findings | Cỡ (TL-2) | Ưu tiên |
+| :---: | --- | --- | --- | :---: | --- |
+| 1 | 1 Nền chung | US-UX91-02 Định dạng ngày giờ dùng chung | UX-8 | M | Must |
+| 1 | 1 | US-UX91-03 Nút khoá nói lý do | UX-13 | M | Must |
+| 1 | 1 | US-UX91-04 Chuyển động chức năng của ứng dụng | UX-26, TL-1 đề xuất 3 | M | Must |
+| 1 | 1 | US-UX91-21 Trang công khai không gọi làm mới phiên | UX-3(d) | S | Should |
+| 2 | 2 Chữ | US-UX91-01 Xoá câu giải thích dưới tiêu đề | UX-4 | M | Must |
+| 2 | 2 | US-UX91-05 Trạng thái rỗng đúng mẫu | UX-12, 22 | S | Should |
+| 2 | 2 | US-UX91-07 Nhãn điều hướng bằng tiếng Việt | UX-9, Q-UX91-1 | S | Must |
+| 2 | 2 | US-UX91-06 Nhớ lớp đã chọn, lớp đầu có dữ liệu | UX-25(a) cách S | S | Should |
+| 3 | 6 Trang giới thiệu v2 + clip + video | US-UX91-08 Trang giới thiệu v2 | UX-1, 2, 3(a–c), Q-UX91-5, duyệt v2 | L | Must |
+| 3 | 6 | US-UX91-09 Clip màn đầu + video đầy đủ | UX-1, duyệt v2 | L | Must |
+| 3 | 6 | **US-UX91-22 Dùng thử (DRAFT, chờ TL-3 và Q-UX91-13)** | duyệt "Dùng thử" | L | Must |
+| 4 | 3 Hôm nay + Hộp thư | US-UX91-10 Hôm nay giảng viên: nhóm việc | UX-5, 6, Q-UX91-2 | M | Must |
+| 4 | 3 | US-UX91-11 Hôm nay sinh viên: chỉnh nhỏ | §3.B | S | Should |
+| 5 | 4 Chấm bài / Sổ điểm / Điểm danh | US-UX91-14 Hàng chờ chấm bài | UX-14 | S | Should |
+| 5 | 4 | US-UX91-15 Duyệt bài: một hàng một tiêu chí, thanh hành động dính | UX-15 | M | Must |
+| 5 | 4 | US-UX91-16 Sổ điểm: số căn thập phân, Đủ điểm / Thiếu điểm | UX-16, Q-UX91-3, P-91-1 | M | Must |
+| 5 | 4 | US-UX91-12 Điểm danh: "Có mặt" không đỏ, lưu dính đáy | UX-7, Q-UX91-4 | M | Must |
+| 6 | 5 Chat / Hỏi đáp / Me / Tài liệu / Insights | US-UX91-13 Chat riêng: một Panel, lịch sử phẳng | UX-11 | M | Must |
+| 6 | 5 | US-UX91-19 Hỏi đáp công khai: đoạn trích sạch, bớt nhãn lặp | UX-20 | S | Should |
+| 6 | 5 | US-UX91-20 Kết quả của tôi: một khối giải trình | UX-21 | S | Should |
+| 6 | 5 | US-UX91-18 Tài liệu giảng viên: bớt chữ lặp | UX-19 | S | Should |
+| 6 | 5 | US-UX91-17 Insights và Quan sát AI: bỏ khung lồng khung | UX-10 | M | Should |
 
 Đã bỏ khỏi phạm vi theo P-91-2: dự phòng `IntersectionObserver` cho `view()`; tab GV / SV (thay bằng hai cột, mỗi vai 4 mục); [ĐỔI DESIGN] nút `link` (dùng `ghost` + mũi tên); phép tự động bắt "Panel chứa khung có viền"; gợi ý "chủ đề sai nhiều" ở chat (ghi Nợ, cần API). Bộ chọn lớp hiện buổi học tiếp theo và lớp "có nhiều việc nhất" (UX-25 L) ghi Nợ.
 
 ---
 
 ## US-UX91-01: Mọi người dùng muốn màn hình không có câu giải thích thừa dưới tiêu đề, để nhìn ra việc cần làm trong 3 giây
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 2**
 
 ### Tiêu chí nghiệm thu
 - AC1 (xoá đúng danh sách). Given bảng "Từng chỗ `description=`" bên dưới When dev làm xong Then mọi dòng có hành động **Xoá** không còn chuỗi đó trên màn (cả khi truyền qua `intro.ts`); `grep` mã nguồn không còn chuỗi cũ. Chuỗi mới (nếu có) chỉ là dữ liệu (số lượng, ngày, mã) hoặc tooltip / placeholder theo cột "Thay bằng".
@@ -130,7 +131,7 @@ Hành động: **Xoá** = bỏ chuỗi; **Giữ (dữ liệu)** = số liệu / 
 ---
 
 ## US-UX91-02: Mọi người dùng muốn ngày giờ hiển thị một kiểu, đúng múi giờ Việt Nam, để không phải đoán
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 1**
 
 ### Tiêu chí nghiệm thu
 - AC1 (một hàm chung). Given một mô-đun định dạng ngày giờ ở `shared/lib` When dev làm xong Then `grep` các tệp ngoài mô-đun đó không còn `Intl.DateTimeFormat`, `toLocaleDateString`, `toLocaleTimeString` cho **hiển thị** ngày giờ (danh sách hiện có: `admin/users/api.ts`, `chat/RealChat.tsx`, `documents/RealDocuments.tsx`, `inbox/RealInbox.tsx`, `library/RealLibrary.tsx`, `me/meApi.ts`, `members/ClassSettings.tsx`, `settings/security/DevicesSection.tsx`, `students/RealProfile.tsx`, `threads/RealThreadDetail.tsx`, `threads/RealThreads.tsx` (cả dòng 158), `today/format.ts`, `shared/lib/timeAgo.ts`).
@@ -162,7 +163,7 @@ Hành động: **Xoá** = bỏ chuỗi; **Giữ (dữ liệu)** = số liệu / 
 ---
 
 ## US-UX91-03: Giảng viên muốn biết vì sao nút bị khoá, để biết phải làm gì tiếp
-Ưu tiên: Must · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: S · Sprint: 9.1 · **Đợt 1**
 
 ### Tiêu chí nghiệm thu
 - AC1 (primitive). Given `Button` / `ButtonLink` nhận `disabledReason: string` When `disabled` và có lý do Then nhãn nút giữ nguyên; rê chuột hoặc focus bàn phím hiện tooltip chứa lý do; nút có `aria-disabled="true"` và `aria-describedby` trỏ tới `span` ẩn trực quan chứa lý do; **không** dùng thuộc tính `disabled` gốc khi có lý do (để còn focus được); `onClick` bị chặn; kiểu "mờ" `opacity: .45` của `.btn:disabled` áp cả `[aria-disabled="true"]` (TL-2 UX-13). Test cũ dùng `toBeDisabled()` vẫn đúng (Playwright tính cả `aria-disabled`); dev chạy lại toàn bộ e2e.
@@ -183,7 +184,7 @@ Hành động: **Xoá** = bỏ chuỗi; **Giữ (dữ liệu)** = số liệu / 
 ---
 
 ## US-UX91-04: Mọi người dùng muốn thao tác trong ứng dụng có phản hồi ngắn gọn, không làm chậm việc lặp lại
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 1**
 
 Căn cứ: plan 9.1 "Hướng chuyển động" (ứng dụng: chỉ chuyển động chức năng ≤ 200 ms, không thư viện), `emil-design-eng`, `review-animations`, TL-1 mục C.
 
@@ -211,7 +212,7 @@ Căn cứ: plan 9.1 "Hướng chuyển động" (ứng dụng: chỉ chuyển đ
 ---
 
 ## US-UX91-05: Người dùng muốn trạng thái rỗng nói vì sao rỗng và có việc kế tiếp
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 2**
 
 ### Tiêu chí nghiệm thu
 - AC1 (hộp thư). Given giảng viên mở `/inbox` với tab "Đang chờ" không có ticket When tải xong Then hiện `EmptyState`: tiêu đề "Chưa có câu hỏi nào cần thầy/cô xử lý." + một câu "Khi AI không đủ chắc chắn hoặc sinh viên nhờ hỗ trợ, câu sẽ hiện ở đây." (đúng mẫu DESIGN §15); **không** hiện vùng chi tiết "Chọn một câu hỏi để xem" khi danh sách rỗng; liên kết "Xem tất cả" thành nút `ghost` căn trái cùng lề tiêu đề.
@@ -232,7 +233,7 @@ Căn cứ: plan 9.1 "Hướng chuyển động" (ứng dụng: chỉ chuyển đ
 ---
 
 ## US-UX91-06: Giảng viên muốn mở lại đúng lớp mình đã chọn, và lần đầu vào thấy lớp có dữ liệu
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 2**
 
 Quyết định PM (TL-2 câu 4): cách S. "Lớp có việc chờ" (chọn theo số việc, cần API) ghi Nợ.
 
@@ -253,7 +254,7 @@ Quyết định PM (TL-2 câu 4): cách S. "Lớp có việc chờ" (chọn theo
 ---
 
 ## US-UX91-07: Người dùng muốn nhãn điều hướng trùng tiêu đề trang và bằng tiếng Việt
-Ưu tiên: Must · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: S · Sprint: 9.1 · **Đợt 2**
 
 Quyết định chủ dự án Q-UX91-1: `Threads` → **Hỏi đáp công khai**, `Insights` → **Lỗ hổng kiến thức**, `Analytics` → **Số liệu lớp học**.
 
@@ -276,69 +277,75 @@ Quyết định chủ dự án Q-UX91-1: `Threads` → **Hỏi đáp công khai*
 
 ---
 
-## US-UX91-08: Khách ghé trang giới thiệu muốn thấy EduPilot làm việc, để muốn dùng thử
-Ưu tiên: Must · Ước lượng: L · Sprint: 9.1
+## US-UX91-08: Khách ghé trang giới thiệu muốn thấy EduPilot làm việc ngay màn đầu và theo cuộn, để muốn dùng thử (v2)
+Ưu tiên: Must · Ước lượng: L · Sprint: 9.1 · **Đợt 6**
 
-Căn cứ: plan 9.1 (mục Trang giới thiệu, Hướng chuyển động, Quyết định [ĐỔI DESIGN]), TL-1 B. Chế độ *Persuade*; vẫn Be Vietnam Pro và token `--ep-*`. Mẫu bố cục: `findings.md` §3.A.
+Căn cứ: `plan.md` (chủ dự án duyệt trang giới thiệu v2, 2026-11-08), `DESIGN.md` §11.1 (đã sửa), TL-1 B, TL-2, `handoff/dev-phase1.md`. Chế độ *Persuade*; vẫn Be Vietnam Pro và token `--ep-*`. **Bản v1 đã dựng ở pha 1** (hero + video bấm phát, sơ đồ ba bước, số đếm, đổi vai); story này mô tả **v2** và những chỗ phải đổi so với v1. Khối "Dùng thử" thuộc US-UX91-22.
 
 ### Tiêu chí nghiệm thu
-- AC1 (cấu trúc). Given khách chưa đăng nhập mở `/` ở 1440 px When tải xong Then thấy theo thứ tự: tiêu đề `h1` "Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân" (giữ nguyên chữ, `landing.spec` dòng 24); dòng dẫn một câu "AI soạn nháp. Giảng viên quyết. Điểm do mã tính."; hai nút: `Đăng nhập` (chính, đỏ) và `Xem video` (phụ, neo tới `#video`); khung ảnh sản phẩm; rồi các mục `h2` theo thứ tự: "Xem EduPilot làm việc" (video, US-UX91-09), "Ba bước, một người quyết" (sơ đồ), "Khác biệt, có số đo", "Dùng cho giảng viên và sinh viên", "Bắt đầu với lớp của bạn" (CTA cuối).
-- AC2 (chữ máy chủ, không JS). Given vô hiệu hoá JavaScript When tải `/` Then toàn bộ chữ, sơ đồ, số liệu, CTA vẫn có trong HTML (Server Component, trạng thái cuối); video chỉ cần JS của trình duyệt (`controls` gốc).
-- AC3 (mở đầu). Given tải trang When hiển thị Then `h1` và dòng dẫn **hiện ngay** (không bắt đầu từ `opacity: 0`); khung ảnh sản phẩm trượt `translateY(24px → 0)` + mờ → rõ trong ≤ 600 ms; nút chính có phản hồi `:active` (thu 0,97) và hover (đổi màu) chỉ khi `hover: hover`. Không chuyển động nào kéo dài quá 600 ms sau khi tải.
-- AC4 (sơ đồ luồng). Given khách cuộn tới "Ba bước, một người quyết" When khối vào khung nhìn Then ba bước "AI soạn nháp" → "Giảng viên duyệt" → "Mã tính điểm" hiện lần lượt (lệch ≤ 120 ms, mỗi bước ≤ 400 ms), vạch đỏ mảnh nối ba bước vẽ dần bằng `transform: scaleX`; chữ ba bước là HTML thật (trình đọc màn hình đọc đủ), vạch đỏ `aria-hidden`. Đỏ chỉ ở vạch nối (đúng "đang ở đâu").
-- AC5 (số liệu đếm lên). Given "Khác biệt, có số đo" vào khung nhìn When hiện Then số nguyên (146, 22) đếm từ 0 đến giá trị cuối trong ≤ 900 ms, chạy một lần; số không phải số nguyên hoặc tỉ lệ ("30/30", "0,05 %") hiện tĩnh. Giá trị thật nằm trong DOM; bản đếm `aria-hidden`.
-- AC6 (số liệu trung thực, Q-UX91-5). Given ba số liệu When hiển thị Then mỗi số một câu người ngoài hiểu ngay, **khớp từng chữ với nguồn** và có dòng chú thích riêng "Đo trên dữ liệu mô phỏng." dưới khối:
-  1. "146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp" kèm số "bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn" (nguồn `docs/sprints/6/report.md` dòng 34, 35). **Không** dùng "mọi" hay "được che trước mọi lời gọi AI": nguồn ghi tên người ngoài danh sách lớp chưa bắt được và recall 0,960 (Q-UX91-11, PM);
+- AC1 (cấu trúc). Given khách chưa đăng nhập mở `/` ở 1440 px When tải xong Then thấy theo thứ tự: màn đầu (`h1` "Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân" giữ nguyên chữ; dòng dẫn "AI soạn nháp. Giảng viên quyết. Điểm do mã tính."; nút; clip sống) → các `h2`: "Xem EduPilot làm việc" (kể chuyện theo cuộn, AC5), "AI soạn nháp, giảng viên quyết, mã tính điểm" (sơ đồ, AC8), "Khác biệt, có số đo" (AC9), "Cho giảng viên và sinh viên" (AC10), "Bắt đầu với lớp của bạn" (CTA cuối). `landing.spec` khớp đúng danh sách này.
+- AC2 (nút ở màn đầu). Given màn đầu When xem Then có đúng **một** nút đỏ; tối đa hai nút phụ. Khi chưa có khối Dùng thử: `Đăng nhập` (đỏ), `Tạo tài khoản`, `Xem video` (phụ). Khi US-22 bật: vị trí nút do US-22 AC2 quy định, vẫn một nút đỏ. Nút có `:active` thu 0,97; hover đổi màu chỉ khi `hover: hover`.
+- AC3 (clip sống ở màn đầu). Given màn đầu ở ≥ 720 px When tải Then thấy **poster** tĩnh của clip ngay (là phần tử LCP); sau sự kiện `load` clip mới được tải và phát: lặp liên tục 6–8 s, không tiếng, `muted loop playsinline`, tệp ≤ 1 MB mỗi định dạng (mp4 + webm), `aria-hidden` (nội dung đã có trong chữ). Clip **không tải và không phát** khi `prefers-reduced-motion: reduce`, `Save-Data`, hoặc tab ẩn; lỗi tải → giữ poster, không lỗi console. Ở < 720 px dev chọn poster tĩnh hoặc clip dưới nút miễn đạt AC13.
+- AC4 (dừng được, WCAG 2.2.2). Given clip đang chạy hơn 5 s When người dùng muốn dừng Then có nút `Tạm dừng` / `Phát` (vùng chạm ≥ 44 px, `aria-pressed`, dùng được bằng bàn phím) cạnh clip; dừng xong poster hiện lại, trạng thái nhớ trong phiên.
+- AC5 (`Xem video`). Given nút `Xem video` When bấm Then video đầy đủ mở trong hộp thoại (`<dialog>` hoặc `Dialog`: focus trap, `Esc` đóng, trả focus về nút, dừng và bỏ nguồn khi đóng); không có request tới tệp video đầy đủ trước khi bấm (`preload="none"`); JS thêm ≤ 1 KB gzip; video không có rãnh âm; bản chữ thay thế (`#video-loi`) có trong DOM. `reduce` → hộp thoại mở tức thì. (Phương án dùng neo `#video` cuộn xuống thay hộp thoại không đạt yêu cầu "mở" của chủ dự án.)
+- AC6 (kể chuyện theo cuộn, khung ghim). Given ≥ 1100 px When cuộn khối "Xem EduPilot làm việc" Then một **khung sản phẩm ghim** (`position: sticky`) ở một bên, ba bước chữ cuộn bên kia, mỗi bước là `h3` + một câu: (1) chat riêng có nguồn và dòng "đã ẩn thông tin cá nhân", (2) duyệt bài AI chấm nháp, (3) sổ điểm có giải trình. Khi bước *i* chiếm ≥ 60 % khung nhìn thì khung hiện màn *i* (Chat → Duyệt bài → Sổ điểm), đổi bằng mờ chéo ≤ 200 ms hoặc theo dòng thời gian cuộn; hết khối thì bỏ ghim. Chỉ `transform` / `opacity`. Ba ảnh WebP (mỗi ảnh ≤ 90 KB, có `width` / `height`, nạp lười, `alt` riêng, chữ trong ảnh đọc được).
+- AC7 (ghim chỉ khi đủ chỗ). Given < 1100 px hoặc `prefers-reduced-motion: reduce` hoặc không hỗ trợ `animation-timeline` When mở Then **không ghim**: ba bước xếp dọc, mỗi bước kèm ảnh của nó (trạng thái cuối); không bước nào mất chữ hay ảnh.
+- AC8 (sơ đồ luồng). Given khách cuộn tới "AI soạn nháp, giảng viên quyết, mã tính điểm" When khối vào khung nhìn Then ba bước "AI soạn nháp" → "Giảng viên duyệt" → "Mã tính điểm" hiện lần lượt (lệch ≤ 120 ms, mỗi bước ≤ 400 ms), vạch đỏ mảnh nối vẽ dần bằng `transform: scaleX` (`scaleY` ở điện thoại), một lần mỗi lượt xem; chữ ba bước là HTML thật, vạch đỏ `aria-hidden`; đỏ chỉ ở vạch nối.
+- AC9 (số liệu đếm lên, trung thực). Given "Khác biệt, có số đo" vào khung nhìn When hiện Then số nguyên (146, 22) đếm từ 0 tới giá trị cuối ≤ 900 ms, chạy một lần; "30/30" và "0,05 %" hiện tĩnh; giá trị thật nằm trong DOM, bản đếm `aria-hidden`. Mỗi số một câu người ngoài hiểu ngay, **khớp từng chữ với nguồn**, có dòng chú thích riêng "Đo trên dữ liệu mô phỏng." dưới khối (Q-UX91-5, Q-UX91-11):
+  1. "146 yêu cầu gửi AI: 0 lần lộ họ tên hoặc MSSV trong danh sách lớp", kèm "bộ phát hiện đạt recall 0,960 trên 200 mẫu tự soạn" (nguồn `docs/sprints/6/report.md` dòng 34, 35). **Không** dùng "mọi", "toàn bộ", "được che trước mọi lời gọi AI";
   2. "30/30 sinh viên mẫu có điểm học phần khớp tính tay" (nguồn `docs/sprints/8/report.md` dòng 24);
-  3. "Chấm hàng loạt, thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %" (nguồn `docs/sprints/9/report.md` dòng 25: TTFT +0,05 %; **không** viết "độ trễ chat" chung chung). Con số "22 bài / 20 sinh viên" trong chữ cũ phải đối chiếu với báo cáo trước khi giữ; không đối chiếu được thì bỏ phần đó.
-- AC7 (vai). Given khối "Dùng cho giảng viên và sinh viên" When hiện Then là **hai cột** "Giảng viên" và "Sinh viên" cạnh nhau (≥ 720 px; xếp dọc ở < 720 px), mỗi vai tối đa **4** mục, mỗi mục một câu ngắn; không tab, không JS cho khối này (P-91-2).
-- AC8 (ảnh sản phẩm đọc được). Given 375 px When xem Then ảnh sản phẩm là khung điện thoại / cắt vào vùng cần xem, chữ trong ảnh đọc được (≥ 12 px sau co); không còn ảnh cả màn 1440 co về 343 px.
-- AC9 (reduced-motion). Given `prefers-reduced-motion: reduce` When mở và cuộn trang Then mọi khối hiện **ngay ở trạng thái cuối** (sơ đồ đủ, số hiện giá trị cuối); không có chuyển động trượt / đếm. Mọi hiệu ứng theo cuộn nằm trong `@media (prefers-reduced-motion: no-preference) { @supports (animation-timeline: view()) { … } }` (TL-1: luật chung `base.css` không tắt được animation theo cuộn).
-- AC10 (trình duyệt cũ, không dự phòng). Given trình duyệt không hỗ trợ `animation-timeline` When mở Then trang hiện đủ nội dung tĩnh (không dự phòng `IntersectionObserver` cho hiệu ứng theo cuộn, P-91-2), không khối ẩn vĩnh viễn: trạng thái ẩn ban đầu chỉ áp khi có cờ `data-anim` do đoạn script nội tuyến đặt.
-- AC11 (hiệu năng, JS). Given đo ẩn danh, 4G chậm (Lighthouse mobile hoặc `PerformanceObserver`) When tải `/` Then LCP ≤ 2,5 s ở 375 px và 1440 px; JS của route `/` ≤ 256 KB gzip (không tăng); `Landing` giữ là Server Component; JS thêm chỉ là **một đoạn `<script>` nội tuyến ≤ 0,5 KB** (`IntersectionObserver` đặt `data-in` cho số đếm và sơ đồ chạy một lần; cùng kiểu đoạn `data-returning` của `app/page.tsx`), không React island; CLS ≤ 0,1; không thêm thư viện; chỉ `transform` / `opacity` được animate. (Hiện không cổng nào đo LCP trang giới thiệu: dev thêm một lượt đo ẩn danh vào handoff; SRS mục 9.)
-- AC12 (trợ năng). Given axe When chạy trên `/` ở 1440 và 375 Then 0 lỗi serious / critical; tiêu đề `h1` → `h2` đúng thứ bậc; mọi nội dung và liên kết dùng được bằng bàn phím; focus ring thấy được; không truyền nghĩa chỉ bằng màu; mọi ảnh có `alt`.
-- AC13 (không rò dữ liệu). Given `/` When đọc HTML Then không có `@edupilot.local`, `Edupilot#`, "mật khẩu mặc định" (giữ `landing.spec`); dòng "Dữ liệu trên bản demo là dữ liệu mô phỏng." giữ; cuối trang giữ "Đồ án tốt nghiệp · Lê Văn Quang Trung" và liên kết GitHub.
-- AC14 (đã đăng nhập). Given người đã đăng nhập (có cờ `RETURNING_KEY` / phiên) When mở `/` Then vẫn là "Hôm nay" như hiện tại, không thấy trang giới thiệu, không nháy (giữ `landing signed in` e2e).
-- AC15 (nhánh lỗi: ảnh / tệp hỏng). Given một ảnh sản phẩm 404 When tải Then khung giữ kích thước (có `width`/`height`), có `alt`, bố cục không dịch; video lỗi hiện poster và liên kết "Mở video trong tab mới".
-- AC16 (CTA). Given nút `Đăng nhập` / `Tạo tài khoản` ở hero và CTA cuối When bấm Then tới `/login` / `/register` (không đổi đường dẫn).
-- AC17 (e2e). Given `landing.spec.ts` When đổi Then danh sách `h2` mới theo AC1 (QC sửa test theo US này, không nới); thêm: hai cột vai hiện đủ 4 + 4 mục; số hiện giá trị cuối khi `reducedMotion: "reduce"`; không còn khối ẩn khi tắt JS.
-- AC18 (ảnh mốc). Thêm ảnh mốc mới `landing-1440`, `landing-390` (anonymous, `reduce`, đồng hồ đóng băng).
+  3. "Chấm hàng loạt, thời gian đến chữ đầu tiên của chat chỉ tăng 0,05 %" (nguồn `docs/sprints/9/report.md` dòng 25: TTFT +0,05 %); không viết "độ trễ chat" chung chung; số "22 bài / 20 sinh viên" phải đối chiếu với báo cáo trước khi giữ.
+  **Chữ v1 đang dùng cần sửa:** dòng 1 ("Quét toàn bộ yêu cầu…", thiếu "trong danh sách lớp" và recall) và dòng 3 ("độ trễ chat tăng 0,05 %").
+- AC10 (vai, hai cột). Given khối "Cho giảng viên và sinh viên" When hiện Then là **hai cột** "Giảng viên" và "Sinh viên" cạnh nhau (≥ 720 px; xếp dọc ở < 720 px), mỗi vai tối đa **4** mục, mỗi mục một câu; **không** tab, không JS (P-91-2). Tên mục dùng nhãn mới: "Hỏi đáp công khai" (không "Threads", Q-UX91-1). **v1 đang đổi vai bằng chuột / mũi tên và còn chữ "Threads": phải sửa.**
+- AC10a (ảnh lệch UI sau đợt 3–5). Given đợt 6 làm trước đợt 3–5 When đợt 5 xong Then dev chụp lại ba ảnh khung ghim, clip và poster **một lượt** từ UI mới và ghi vào handoff đợt 5; trước đó dùng ảnh chụp từ giao diện hiện tại.
+- AC11 (chữ lớn, khoảng thở). Given 1440 px / 375 px When đo kiểu tính toán Then `h1` ≥ 56 / 36 px, `h2` ≥ 40 / 28 px, chữ thân ≥ 18 / 16 px, khoảng cách dọc giữa hai mục ≥ 96 / 64 px (DESIGN §11.1); mỗi `h2` cuộn tới đầu khung nhìn 1440 × 900 thì không có `h2` khác cùng nằm trong khung nhìn.
+- AC12 (chiều sâu, nổi khi rê chuột). Given khung sản phẩm / ảnh When có chiều sâu và rê chuột (máy tính) Then khung có một bóng tĩnh thuộc họ popover (§7, không màu mới) và nâng ≤ 6 px bằng `translateY` trong ≤ 200 ms; chỉ trong `@media (hover: hover) and (pointer: fine)` và `no-preference`; trên cảm ứng không hiệu ứng hover; focus bàn phím vẫn có vòng focus thấy được; không glow, không nghiêng, không kính mờ.
+- AC13 (hiệu năng). Given đo ẩn danh, 4G chậm (Lighthouse mobile, throttle thật, ≥ 3 lượt) When tải `/` Then LCP ≤ 2,5 s ở 375 px và 1440 px; JS của route `/` ≤ 256 KB gzip (v1 đo 216 KB); `Landing` vẫn Server Component; JS thêm chỉ gồm một đoạn nội tuyến ≤ 0,5 KB (số đếm, sơ đồ) và phần mở video ≤ 1 KB; CLS ≤ 0,1; không thêm thư viện; chỉ `transform` / `opacity` được animate.
+- AC14 (reduced-motion). Given `prefers-reduced-motion: reduce` When mở và cuộn Then mọi khối hiện **ngay ở trạng thái cuối**: không clip chạy (chỉ poster), sơ đồ đủ, số hiện giá trị cuối, bước xếp dọc không ghim; mọi hiệu ứng theo cuộn nằm trong `@media (prefers-reduced-motion: no-preference) { @supports (animation-timeline: view()) { … } }`.
+- AC15 (trình duyệt cũ, không dự phòng). Given trình duyệt không hỗ trợ `animation-timeline` When mở Then trang hiện đủ nội dung tĩnh (không `IntersectionObserver` dự phòng cho hiệu ứng theo cuộn, P-91-2) và không khối ẩn vĩnh viễn: trạng thái ẩn ban đầu chỉ áp khi có cờ `data-anim` do script nội tuyến đặt.
+- AC16 (trợ năng). Given axe When chạy ở 1440 và 375 Then 0 lỗi serious / critical; thứ bậc `h1` → `h2` → `h3` đúng; mọi chức năng (nút `Xem video`, `Tạm dừng`, đóng hộp thoại) dùng được bằng bàn phím; focus ring thấy được; không truyền nghĩa chỉ bằng màu; mọi ảnh có `alt`.
+- AC17 (không rò, giữ nguyên). Given `/` When đọc HTML Then không có `@edupilot.local`, `Edupilot#`, "mật khẩu mặc định" (`landing.spec`); giữ dòng "Dữ liệu trên bản demo là dữ liệu mô phỏng.", "Đồ án tốt nghiệp · Lê Văn Quang Trung" và liên kết GitHub.
+- AC18 (đã đăng nhập). Given người đã đăng nhập (có cờ `RETURNING_KEY` / phiên) When mở `/` Then vẫn là "Hôm nay", không thấy trang giới thiệu, không nháy.
+- AC19 (nhánh lỗi). Given một ảnh 404, clip lỗi hoặc video đầy đủ lỗi When tải Then khung giữ kích thước (`width` / `height`), có `alt`, bố cục không dịch; clip lỗi → poster; video đầy đủ lỗi → hộp thoại hiện poster + liên kết "Mở video trong tab mới"; không lỗi console.
+- AC20 (CTA). Given nút `Đăng nhập` / `Tạo tài khoản` ở màn đầu và CTA cuối When bấm Then tới `/login` / `/register` (không đổi đường dẫn).
+- AC21 (e2e / ảnh mốc). Given `landing.spec.ts` When đổi Then sửa danh sách `h2` (AC1), thêm: clip không tải khi `reduce` / `Save-Data`; nút `Tạm dừng`; `Xem video` mở / đóng đúng, không request video trước khi bấm; khung ghim ở 1440 và xếp dọc ở 1024 / `reduce`; hai cột vai (không tab); số hiện giá trị cuối khi `reduce`; QC sửa test theo US này, không nới. Thêm ảnh mốc `landing-1440`, `landing-390` (anonymous, `reduce`, đồng hồ đóng băng).
 
 ### Ngoài phạm vi
-- Thư viện chuyển động ngoài (cần proposal riêng); trang giới thiệu cho từng vai riêng; tiếng Anh; bản video dọc 9:16 cho điện thoại (TL-1 để sau).
+- Thư viện chuyển động ngoài (cần proposal riêng); trang giới thiệu theo vai; tiếng Anh; video dọc 9:16 (TL-1: để sau); khối **Dùng thử** (US-UX91-22).
 
 ### Phụ thuộc
-- US-UX91-09 (video); DESIGN.md mục "Trang giới thiệu (Persuade)" (SRS mục 7 nêu nội dung cần thêm, BA soạn khi APPROVED); sửa `lighthouserc` / đo LCP ẩn danh (dev).
+- US-UX91-09 (clip và video); `DESIGN.md` §11.1 (đã sửa); đo LCP ẩn danh (dev); US-UX91-21 (không gọi refresh ở `/`).
 
 ---
 
-## US-UX91-09: Khách muốn xem video 60–90 giây để hiểu sản phẩm mà không bị tự phát
-Ưu tiên: Must · Ước lượng: L · Sprint: 9.1
+## US-UX91-09: Khách muốn clip sản phẩm ở màn đầu và xem video đầy đủ khi chủ động, không bị tự phát tiếng
+Ưu tiên: Must · Ước lượng: L · Sprint: 9.1 · **Đợt 6**
 
 ### Tiêu chí nghiệm thu
-- AC1 (nội dung). Given video When xem Then dài 60–90 s, kịch bản rút từ `DEMO_SCRIPT.md`: sinh viên hỏi chat (tên được che) → giảng viên duyệt bài AI chấm → sổ điểm giải trình → Hôm nay; 1440 × 900, con trỏ hiện; phụ đề tiếng Việt in vào hình, chữ ≥ 36 px trong nguồn, dấu đúng; không âm thanh (không rãnh âm).
-- AC2 (tệp). Given thư mục `frontend/public/landing/` When kiểm Then có `gioi-thieu-v1.mp4` (H.264, `yuv420p`, `+faststart`), `gioi-thieu-v1.webm` (VP9), `gioi-thieu-v1.webp` (poster); tổng mỗi định dạng video < 8 MB; tên có số phiên bản.
-- AC3 (không tự phát, không tải trước). Given `/` When tải Then thẻ `<video>` có `controls`, `preload="none"`, `playsinline`, `poster`, không `autoplay`; không có request tới `.mp4` / `.webm` trước khi người xem bấm phát (kiểm bằng log mạng).
-- AC4 (poster không kéo LCP). Given video nằm ngoài khung nhìn đầu ở 1440 px và 375 px When đo LCP Then poster không phải ứng viên LCP, hoặc nếu có thì được tải trước như ảnh hero và LCP vẫn ≤ 2,5 s (TL-1 rủi ro 5).
-- AC5 (bản chữ thay thế). Given video không có tiếng When trình đọc màn hình duyệt Then có đoạn chữ ẩn trực quan (`#video-loi`, `aria-describedby`) chứa đủ các câu phụ đề theo thứ tự; không thêm chữ lên giao diện (luật chữ UI).
-- AC6 (bàn phím và 375 px). Given 375 px When Tab / chạm Then phát / dừng / tua bằng điều khiển gốc; vùng chạm ≥ 44 px; video co theo bề rộng, không tràn ngang.
-- AC7 (tua). Given Safari / Chrome When kéo thanh tua Then phát tiếp (máy chủ trả `206` + `accept-ranges: bytes`; đã kiểm ở bản demo — TL-1).
-- AC8 (an toàn dữ liệu quay). Given kịch bản quay When ghi Then chạy trên stack riêng `-p ep-video` (provider `fake` / phát lại), **không** quay trên DB demo `/opt/edupilot`; không hiện email thật, MSSV thật, khoá, URL nội bộ; tên sinh viên là dữ liệu mô phỏng (D44).
-- AC9 (dựng lại được). Given `scripts/landing-video/` When chạy `record.mjs` + `encode.sh` Then sinh lại đúng ba tệp ở AC2; README ngắn nêu lệnh.
-- AC10 (nhánh lỗi). Given trình duyệt không hỗ trợ WebM When phát Then rơi về MP4; không hỗ trợ cả hai → hiện poster + liên kết tải; không lỗi console.
-- AC11 (reduced-motion). Given `reduce` When mở trang Then video **vẫn không tự phát** (đã không tự phát); không thêm chuyển động quanh video.
-- AC12 (kiểm tay). QC xem toàn video một lượt: phụ đề không tràn, không trùng cảnh, không lộ dữ liệu cá nhân; ghi giây của lỗi nếu có.
+- AC1 (video đầy đủ, nội dung). Given video When xem Then dài 60–90 s (QC đo bằng `ffprobe`; bản v1 handoff chưa ghi độ dài), kịch bản rút từ `DEMO_SCRIPT.md`: sinh viên hỏi chat (tên được che) → hộp thư → duyệt bài AI chấm → sổ điểm giải trình → Hôm nay; 1440 × 900, con trỏ hiện; phụ đề tiếng Việt in vào hình, dấu đúng; không rãnh âm.
+- AC2 (clip màn đầu). Given clip lặp When xem Then dài 6–8 s, cắt từ cùng nguồn quay, không phụ đề, lặp liền mạch (khung đầu ≈ khung cuối), không con trỏ giữa chừng gây giật; tệp `gioi-thieu-clip-v1.mp4` (H.264, `+faststart`) + `.webm` + poster `.webp`, mỗi video ≤ 1 MB, poster ≤ 60 KB.
+- AC3 (tệp video đầy đủ). Given `frontend/public/landing/` When kiểm Then có `gioi-thieu-v1.mp4`, `.webm`, `.webp` (poster); mỗi định dạng < 8 MB; tên có số phiên bản.
+- AC4 (không tự phát video đầy đủ, không tải trước). Given `/` When tải Then thẻ `<video>` của video đầy đủ có `controls`, `preload="none"`, `playsinline`, `poster`, không `autoplay`; không request `.mp4` / `.webm` của nó trước khi người xem bấm `Xem video`.
+- AC5 (poster không phá LCP). Given đo LCP ở 1440 px và 375 px When có poster clip trong màn đầu Then LCP ≤ 2,5 s: poster ≤ 60 KB, tải trước (`preload` ảnh) ở ≥ 720 px; ở < 720 px poster không phải ứng viên LCP (h1 là LCP) hoặc LCP vẫn đạt (bài học v1: poster ≥ 84 KB làm LCP di động 3,1 s).
+- AC6 (bản chữ thay thế). Given video đầy đủ không tiếng When trình đọc màn hình duyệt Then có đoạn chữ ẩn trực quan (`#video-loi`, `aria-describedby`) chứa đủ các câu phụ đề theo thứ tự và khớp phụ đề in trong video; không thêm chữ lên giao diện.
+- AC7 (bàn phím và 375 px). Given 375 px When Tab / chạm Then phát / dừng / tua bằng điều khiển gốc; vùng chạm ≥ 44 px; video co theo bề rộng, không tràn ngang.
+- AC8 (tua). Given Safari / Chrome When kéo thanh tua Then phát tiếp (máy chủ trả `206` + `accept-ranges: bytes`).
+- AC9 (an toàn dữ liệu quay). Given kịch bản quay When ghi Then **chỉ đọc** trên bản demo (không gửi chat, không duyệt / công bố / sửa điểm; chat mở lại một hội thoại seed có sẵn; không ghi DB, không tốn hạn mức 9router) hoặc quay trên stack riêng `-p ep-video`; không hiện email thật, MSSV thật, khoá, URL nội bộ; tên là dữ liệu mô phỏng (D44). *(Pha 1 dev quay chỉ đọc trên demo theo PM; chấp nhận thay cho yêu cầu stack riêng của bản nháp trước.)*
+- AC10 (dựng lại được). Given `scripts/landing-video/` When chạy `run.sh` Then sinh lại cả clip và video đầy đủ cùng poster; README ngắn nêu lệnh.
+- AC11 (nhánh lỗi). Given trình duyệt không hỗ trợ WebM When phát Then rơi về MP4; không hỗ trợ cả hai → poster + liên kết tải; không lỗi console.
+- AC12 (reduced-motion). Given `reduce` When mở trang Then clip không phát (poster) và video đầy đủ không tự phát; không chuyển động quanh video.
+- AC13 (kiểm tay). QC xem hết video đầy đủ và vòng lặp clip: phụ đề không tràn, không trùng cảnh, không lộ dữ liệu cá nhân, clip lặp không giật; ghi giây của lỗi nếu có.
 
 ### Ngoài phạm vi
 - Nhạc nền; bản dọc 9:16; phụ đề `.vtt` bật tắt (đã có bản chữ thay thế).
 
 ### Phụ thuộc
-- TL-1 mục A (Playwright `page.screencast` + ffmpeg trong container); US-UX91-08 (vị trí video).
+- TL-1 mục A; US-UX91-08 (vị trí clip, nút `Xem video`).
 
 ---
 
 ## US-UX91-10: Giảng viên muốn mở Hôm nay là thấy việc nào làm trước và các việc còn lại gom theo mức khẩn
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 3**
 
 Căn cứ: DESIGN §14.1, §22; Q-UX91-2; `findings.md` UX-5, 6, 18 và mẫu 3.B. Không đổi API: nhóm dựng ở frontend từ `urgency` và `kind` của `GET /me/today` / `GET /courses/{id}/today`.
 
@@ -370,7 +377,7 @@ Căn cứ: DESIGN §14.1, §22; Q-UX91-2; `findings.md` UX-5, 6, 18 và mẫu 3.
 ---
 
 ## US-UX91-11: Sinh viên muốn Hôm nay có lịch trong ngày ngay đầu trang và không lặp việc
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 3**
 
 ### Tiêu chí nghiệm thu
 - AC1 (thứ tự). Given sinh viên có `timeline` (buổi học / hạn bài trong ngày) When mở `/` ở 1440 px Then thứ tự là: lời chào + ngày → "Việc nên làm tiếp" (một việc, một nút chính) → khối **Hôm nay** (timeline) → "Tiếp tục học"; khối Hôm nay hiện trong khung nhìn đầu ở 1440 × 900 (DESIGN §14.1 mục 3).
@@ -391,7 +398,7 @@ Căn cứ: DESIGN §14.1, §22; Q-UX91-2; `findings.md` UX-5, 6, 18 và mẫu 3.
 ---
 
 ## US-UX91-12: Giảng viên muốn điểm danh 30 sinh viên bằng một tay, trong đó chỉ người vắng nổi lên
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 4**
 
 Căn cứ: DESIGN §14.8; UX.md §5 `/attendance`; Q-UX91-4 (đã chốt: "Có mặt" dùng chấm mực; đỏ chỉ cho Vắng / Vắng phép / Muộn).
 
@@ -418,7 +425,7 @@ Căn cứ: DESIGN §14.8; UX.md §5 `/attendance`; Q-UX91-4 (đã chốt: "Có m
 ---
 
 ## US-UX91-13: Sinh viên muốn chat riêng gọn gàng, bắt đầu hỏi được ngay
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 5**
 
 Căn cứ: DESIGN §14.2; `findings.md` UX-11 và mẫu 3.C.
 
@@ -445,7 +452,7 @@ Căn cứ: DESIGN §14.2; `findings.md` UX-11 và mẫu 3.C.
 ---
 
 ## US-UX91-14: Giảng viên muốn hàng chờ chấm nói rõ bài nào, vì sao cờ, và bấm vào đâu
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 4**
 
 ### Tiêu chí nghiệm thu
 - AC1 (một bài tập). Given bộ lọc "Bài tập" đang chọn một bài hoặc lớp chỉ có một bài When xem bảng Then cột "Bài tập" ẩn; tên bài hiện một lần trên tiêu đề bảng; nhiều bài → cột hiện, tên một dòng cắt `…`, đầy đủ trong tooltip.
@@ -467,7 +474,7 @@ Căn cứ: DESIGN §14.2; `findings.md` UX-11 và mẫu 3.C.
 ---
 
 ## US-UX91-15: Giảng viên muốn duyệt bài mà luôn thấy nút Duyệt và tiến độ
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 4**
 
 Căn cứ: DESIGN §14.13; UX.md §5 `/grading/[id]`; `findings.md` UX-15 và mẫu 3.D. Giữ nguyên hai cột 52–58 % / 42–48 %.
 
@@ -493,7 +500,7 @@ Căn cứ: DESIGN §14.13; UX.md §5 `/grading/[id]`; `findings.md` UX-15 và m�
 ---
 
 ## US-UX91-16: Giảng viên muốn đọc sổ điểm mà số thẳng hàng và biết ai còn thiếu điểm
-Ưu tiên: Must · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Must · Ước lượng: M · Sprint: 9.1 · **Đợt 4**
 
 Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" = đã có đủ điểm thành phần, nhãn **Đủ điểm / Thiếu điểm**; BA đề xuất bỏ cột nếu mọi hàng đều Đủ điểm). Tính điểm là code thuần; **không** đổi giá trị, chỉ đổi cách hiển thị.
 
@@ -519,7 +526,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 ---
 
 ## US-UX91-17: Giảng viên muốn Insights và Quan sát AI đọc một lượt, không khung lồng khung, không số liệu lặp
-Ưu tiên: Should · Ước lượng: M · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: M · Sprint: 9.1 · **Đợt 5**
 
 ### Tiêu chí nghiệm thu
 - AC1 (Lỗ hổng kiến thức). Given `/insights` có báo cáo When xem Then mỗi khối ("Chủ đề nên dạy lại", "Tài liệu chưa đề cập", "So với báo cáo ngày …") là **một** Panel; các chủ đề bên trong ngăn bằng đường kẻ 1 px, không khung có viền / bo góc riêng. Kiểm bằng `panels.spec` NEST (đã có từ sprint 5.5) và QC xem ảnh; **không** thêm phép tự động vào `ui-antipatterns.sh` (P-91-2).
@@ -542,7 +549,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 ---
 
 ## US-UX91-18: Giảng viên muốn danh sách tài liệu không bị cắt chữ và bớt lặp
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 5**
 
 ### Tiêu chí nghiệm thu
 - AC1 (không cắt). Given `/documents` When xem ở 1440 px và 1100 px Then ô "Loại" hiển thị đủ "Quy chế học phần", "Tài liệu khác"… không cắt chữ giữa từ (độ rộng theo nội dung dài nhất hoặc hiển thị chữ + đổi bằng menu).
@@ -563,7 +570,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 ---
 
 ## US-UX91-19: Người dùng muốn danh sách Hỏi đáp công khai dễ quét, không ký tự thừa
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 5**
 
 ### Tiêu chí nghiệm thu
 - AC1 (đoạn trích sạch). Given thread có nội dung bắt đầu bằng ký tự markdown (`-`, `·`, `*`, `#`, `>` hoặc chuỗi `- -`) When xem danh sách Then đoạn trích bỏ các ký tự đầu dòng đó, gộp xuống dòng thành khoảng trắng, cắt ≤ 140 ký tự kèm `…`; không bao giờ hiện `- - ` hay `· ` ở đầu đoạn trích.
@@ -585,7 +592,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 ---
 
 ## US-UX91-20: Sinh viên muốn hiểu điểm của mình trong một khối giải trình, không đọc cùng số hai lần
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 5**
 
 ### Tiêu chí nghiệm thu
 - AC1 (một khối). Given `/me` có điểm When xem Then chỉ **một** khối giải trình; mỗi dòng: thành phần · trọng số → điểm → đóng góp ("Giữa kỳ · 20 % · 7,5 → 1,5"), "Căn cứ · tr. 1" nằm cùng dòng; khối liệt kê thành phần riêng trước đó bị bỏ.
@@ -608,7 +615,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 ---
 
 ## US-UX91-21: Khách muốn trang giới thiệu không gọi làm mới phiên khi chưa từng đăng nhập
-Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · Đợt 1 (độc lập trang mới)
+Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 1** (độc lập trang mới)
 
 Căn cứ: UX-3(d) và TL-2 (`AuthProvider.tsx` luôn gọi `refreshSession()`; mỗi lần vào trang công khai có `401 /auth/refresh` ở console).
 
@@ -625,3 +632,34 @@ Căn cứ: UX-3(d) và TL-2 (`AuthProvider.tsx` luôn gọi `refreshSession()`; 
 
 ### Phụ thuộc
 - `shared/session/AuthProvider.tsx`, `app/page.tsx` (`RETURNING_KEY`); không đổi API.
+
+---
+
+## US-UX91-22: Khách ghé trang giới thiệu muốn bấm "Dùng thử" để vào ứng dụng đã đăng nhập sẵn, mà không làm hỏng dữ liệu trình diễn
+Ưu tiên: Must · Ước lượng: L · Sprint: 9.1 · **Đợt 6** · Trạng thái: **DRAFT — chờ TL-3 (thiết kế kỹ thuật) và Q-UX91-13 (cờ bật)**. Mọi AC dưới đây là yêu cầu hành vi; cách thực hiện (cấp phiên, tài khoản dùng chung hay tạm, con số giới hạn) do TL-3 chốt và BA cập nhật AC rồi mới APPROVED.
+
+Căn cứ: `plan.md` mục "Chủ dự án duyệt báo cáo" (mục 3) và các ràng buộc an toàn của PM: chỉ bật khi `DEMO_MODE=true`; **tài khoản và lớp sandbox riêng**, không phải tài khoản / lớp trình diễn; sandbox **đặt lại định kỳ bằng job seed** (không `down -v`, không đụng lớp trình diễn); có giới hạn tần suất; không lộ mật khẩu ra HTML. D44 (dữ liệu mô phỏng), CLAUDE.md (danh tính từ JWT, không nối tài khoản bằng MSSV tự khai).
+
+### Tiêu chí nghiệm thu
+- AC1 (cờ tắt thì không có). Given cờ "Dùng thử" không bật (mặc định; luôn tắt ở `APP_ENV=production`; tên cờ: PM nói `DEMO_MODE=true`, nhưng `DEMO_MODE` hiện bật LLM giả của buổi bảo vệ — chờ Q-UX91-13) When mở `/` Then **không có** nút / khối "Dùng thử" trong HTML; gọi trực tiếp đường cấp phiên dùng thử → máy chủ trả 404 (như không tồn tại) và **không** tạo phiên, không tạo dữ liệu.
+- AC2 (cờ bật: nút). Given cờ "Dùng thử" bật When mở `/` Then có khối "Dùng thử" với hai lựa chọn `Dùng thử vai sinh viên`, `Dùng thử vai giảng viên`; ở màn đầu `Dùng thử` là nút đỏ duy nhất và `Đăng nhập` thành nút phụ (còn tối đa hai nút phụ; `Tạo tài khoản` chuyển xuống thanh đầu trang và CTA cuối; Q-UX91-17). Câu chữ mỗi nút một động từ, không giải thích dài (luật chữ UI); cảnh báo "dữ liệu mô phỏng" chỉ một dòng ngắn.
+- AC3 (vào ứng dụng đã đăng nhập). Given khối "Dùng thử" When khách bấm một vai Then trong ≤ 3 s vào `/` ở vai đó, **đã có phiên**, lớp đang chọn là lớp sandbox; khách không nhập email, mật khẩu hay MSSV; dải một dòng "Đang dùng thử" + nút `Thoát dùng thử` luôn hiện trong ứng dụng (không từ kỹ thuật AI).
+- AC4 (không lộ mật khẩu). Given tài khoản sandbox có mật khẩu nội bộ When `grep` HTML của `/`, mọi tệp JS / CSS tĩnh, mọi phản hồi API của luồng dùng thử, `localStorage` / `sessionStorage`, URL, `console` Then **không có** mật khẩu (hay token dài hạn) của tài khoản sandbox; phiên cấp từ máy chủ (cơ chế do TL-3); cookie làm mới `httpOnly` như phiên thường.
+- AC5 (cách ly, phân quyền: khách không thấy và không sửa được lớp trình diễn). Given phiên dùng thử (vai nào cũng vậy) When gọi `GET /me/courses` Then chỉ trả **lớp sandbox**; When mở trực tiếp URL / id của lớp trình diễn (761987, 761988) hoặc gọi API đọc / ghi lên chúng Then 403 hoặc 404 (không lộ lớp tồn tại), không thấy tên sinh viên, điểm, tài liệu, hộp thư, thread của lớp trình diễn ở bất kỳ màn nào (tìm kiếm `⌘K`, thông báo, bộ chọn lớp, Hôm nay, Hỏi đáp công khai); bộ kiểm quyền `CourseAccessGuard` là nơi chặn, không chỉ ẩn ở giao diện.
+- AC6 (không thoát khỏi sandbox). Given vai giảng viên dùng thử When thao tác Then **không** có quyền admin; không mở / gán lớp ngoài sandbox, không mời người dùng ngoài, không gửi thư ra ngoài (mail đi tới hộp thư giả của môi trường), không đổi cấu hình LLM / tích hợp, không đọc `audit_log` hay nội dung prompt; không chốt điểm / công bố ra ngoài sandbox; các màn tương ứng 403.
+- AC7 (tài khoản không bị phá). Given phiên dùng thử When đổi mật khẩu, đổi email, xoá tài khoản, tạo khoá API Then bị chặn (403) kèm thông báo một câu; không thể khoá tài khoản sandbox khỏi người dùng thử sau.
+- AC8 (giới hạn tần suất, nhánh lỗi). Given khách cấp phiên dùng thử liên tục When vượt ngưỡng theo IP và theo toàn hệ thống (con số do TL-3) Then 429, giao diện hiện một câu "Có nhiều người đang dùng thử. Thử lại sau {N} phút." kèm `Retry-After`; không lộ chi tiết kỹ thuật; nút không bị khoá vĩnh viễn; không tạo phiên khi bị chặn; giới hạn **không** ảnh hưởng đăng nhập thường.
+- AC9 (phiên ngắn hạn). Given phiên dùng thử When quá thời hạn tối đa (TL-3, đề xuất 30 phút) Then phiên hết hạn, khách về trang giới thiệu với một dòng "Phiên dùng thử đã hết. Bấm Dùng thử để bắt đầu lại."; không còn token dùng được.
+- AC10 (đặt lại sandbox, không đụng lớp trình diễn). Given job seed đặt lại định kỳ (chu kỳ do TL-3) When chạy Then dữ liệu sandbox về đúng bản seed (lớp, sinh viên, bài, điểm, thread, hộp thư), số liệu của **lớp trình diễn** và tài khoản trình diễn **không đổi** (QC so đếm hàng + băm trước / sau); không dùng `down -v` hay xoá volume; job idempotent, chạy lại an toàn, ghi log không chứa PII / token.
+- AC11 (đặt lại khi khách đang dùng). Given khách đang dùng trong lúc job chạy When thao tác tiếp Then thấy một dòng "Dữ liệu dùng thử vừa được đặt lại" và dữ liệu mới, không lỗi trắng trang, không mất nháp ở ô nhập của khách (nháp cục bộ giữ).
+- AC12 (không làm tốn tài nguyên thật). Given phiên dùng thử When gọi AI (chat, chấm bài) Then đi qua giới hạn riêng của sandbox (Q-UX91-14: provider `fake` đã ghi sẵn hoặc hạn mức nhỏ riêng với cầu dao), không tiêu hạn mức LLM của lớp trình diễn, không vượt hạn mức 9router; khi hết hạn mức hiện thông báo thân thiện, không lỗi kỹ thuật.
+- AC13 (hai khách đồng thời). Given hai khách cùng vai dùng thử đồng thời When một người sửa dữ liệu Then hành vi khớp thiết kế TL-3 (Q-UX91-16): hoặc mỗi khách có bản sandbox riêng, hoặc dùng chung và dải "Đang dùng thử" nêu một dòng "dữ liệu chung, có thể thay đổi"; không xung đột 409 vỡ giao diện.
+- AC14 (di động và trợ năng). Given 375 px When mở khối "Dùng thử" Then hai nút xếp dọc, vùng chạm ≥ 44 px, không tràn ngang; dùng được bằng bàn phím; axe 0 lỗi serious / critical; `reduce` không thêm chuyển động.
+- AC15 (e2e). Given `landing.spec.ts` và spec mới `tryout.spec.ts` When viết Then phủ: cờ tắt không có nút và API 404; cờ bật có nút; bấm vào đúng vai; không có mật khẩu trong HTML / JS / response; `GET /me/courses` chỉ lớp sandbox; truy cập lớp trình diễn 403 / 404; 429 + thông báo; phiên hết hạn. QC viết TC khi TL-3 xong; dev **không** viết TC thay QC.
+- AC16 (seed). Given seed When chạy Then có lớp sandbox riêng (mã lớp khác 761987 / 761988, tên có chữ "Dùng thử" để phân biệt), tối thiểu 1 giảng viên + 1 sinh viên dùng thử + dữ liệu đủ để thấy Hôm nay, chat, hàng chờ chấm, sổ điểm; tài khoản dùng thử không đăng nhập thường được (không có mật khẩu dùng được từ ngoài, TL-3).
+
+### Ngoài phạm vi
+- Dùng thử vai quản trị hoặc trợ giảng; đăng ký tài khoản thật từ dùng thử; lưu tiến độ dùng thử sau khi hết phiên.
+
+### Phụ thuộc
+- TL-3 (thiết kế kỹ thuật); Q-UX91-13 (cờ bật: `DEMO_MODE` hiện có nghĩa khác, xem `QUESTIONS.md`); Q-UX91-14, 15, 16, 17 (hạn mức LLM, thông số, khách đồng thời, vị trí nút); US-UX91-08 (vị trí khối trên trang); `FEAT-course-foundation` (seed, `CourseAccessGuard`); `docs/DEMO_SCRIPT.md` (lớp trình diễn).
