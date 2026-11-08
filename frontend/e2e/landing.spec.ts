@@ -97,6 +97,13 @@ test("landing video: không tải video khi chưa bấm (preload=none), có post
   expect(media).toEqual([]);
   await expect(page.locator("#video-loi")).toContainText("AI không tự công bố");
   await expect(video).toHaveAttribute("aria-describedby", "video-loi");
+  const box = page.locator("[data-part=landing] video >> xpath=..");
+  await expect(box).not.toHaveAttribute("data-playing", ""); // nút phát vẽ sẵn đang hiện
+  await video.click();
+  await expect(box).toHaveAttribute("data-playing", "");
+  await expect.poll(() => video.evaluate((v: HTMLVideoElement) => !v.paused)).toBe(true);
+  await video.click();
+  await expect(box).not.toHaveAttribute("data-playing", "");
 });
 
 test("landing motion: khối dưới màn hình hiện dần theo cuộn (scroll-driven); reduced-motion hiện đủ ngay", async ({ page }) => {

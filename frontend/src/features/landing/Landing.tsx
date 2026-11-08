@@ -3,6 +3,7 @@ import { preload } from "react-dom";
 import Link from "next/link";
 import { ButtonLink } from "@/shared/ui/Button";
 import s from "./Landing.module.css";
+import { PlayState } from "./PlayState";
 
 // Trang giới thiệu (Persuade): HTML tĩnh từ máy chủ, không gọi API. Số liệu lấy từ báo cáo sprint 6, 8, 9 (docs/sprints/*/report.md); ảnh chụp từ bản demo đã seed.
 const REPO = "https://github.com/kagamikuro1024/EduPilot-v2";
@@ -95,11 +96,12 @@ export function Landing() {
             </div>
           </div>
           <div className={s.heroShot}>
-            <video className={s.video} controls preload="none" playsInline poster="/landing/gioi-thieu-v1.webp" width={1280} height={800} aria-label="Video giới thiệu EduPilot" aria-describedby="video-loi">
+            <video id="video-gt" className={s.video} controls preload="none" playsInline poster="/landing/gioi-thieu-v1.webp" width={1280} height={800} aria-label="Video giới thiệu EduPilot" aria-describedby="video-loi">
               <source src="/landing/gioi-thieu-v1.mp4" type="video/mp4" />
               <source src="/landing/gioi-thieu-v1.webm" type="video/webm" />
             </video>
             <p id="video-loi" className="ep-sr-only">{VIDEO_CAPTIONS.join(" ")}</p>
+            <PlayState video="video-gt" />
           </div>
         </section>
 
