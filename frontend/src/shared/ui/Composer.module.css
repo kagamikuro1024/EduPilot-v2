@@ -11,10 +11,11 @@
   box-shadow: var(--ep-shadow-composer);
   transition: border-color var(--ep-fast) var(--ep-ease-standard);
 }
-.composer:hover { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .composer:hover { border-color: var(--ep-ink-3); } }
 /* Trong Panel (D59): ngăn bằng đường kẻ 1 px phía trên, không khung / bóng riêng (không --ep-shadow-composer). */
 :global([data-ep-panel]) .composer { border: 0; border-top: 1px solid var(--ep-rule); border-radius: 0; box-shadow: none; padding-inline: 0; }
-:global([data-ep-panel]) .composer:hover, :global([data-ep-panel]) .composer:focus-within { border-top-color: var(--ep-rule); }
+:global([data-ep-panel]) .composer:focus-within { border-top-color: var(--ep-rule); }
+@media (hover: hover) and (pointer: fine) { :global([data-ep-panel]) .composer:hover { border-top-color: var(--ep-rule); } }
 :global([data-ep-panel]) .composer:has(.input:focus-visible) { box-shadow: var(--ep-focus); }
 .composer:focus-within { border-color: var(--ep-ink-3); }
 .composer:has(.input:focus-visible) { box-shadow: var(--ep-focus); }
@@ -49,7 +50,7 @@
   font-weight: 600;
 }
 .send { background: var(--ep-red); color: var(--ep-surface); }
-.send:hover:not(:disabled) { background: var(--ep-red-hover); }
+@media (hover: hover) and (pointer: fine) { .send:hover:not(:disabled) { background: var(--ep-red-hover); } }
 .send:disabled { background: var(--ep-surface-subtle); color: var(--ep-ink-3); }
 .stop { background: var(--ep-ink); color: var(--ep-surface); }
 .send svg, .stop svg { width: 15px; height: 15px; }
@@ -65,5 +66,5 @@
 
 .error { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ep-space-3); font-size: var(--ep-text-label); color: var(--ep-ink); border-left: 2px solid var(--ep-red); padding: var(--ep-space-1) var(--ep-space-3); }
 .retry { font: inherit; font-weight: 600; color: var(--ep-ink); background: none; border: 0; min-height: 32px; padding: 0 var(--ep-space-1); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
-.retry:hover { text-decoration-color: var(--ep-red); }
+@media (hover: hover) and (pointer: fine) { .retry:hover { text-decoration-color: var(--ep-red); } }
 @media (max-width: 719px), (pointer: coarse) { .retry { min-height: 44px; } }

@@ -8,7 +8,8 @@ import { useSession } from "@/shared/session/session";
 import { withCourse } from "@/shared/lib/courseHref";
 import { ActionList, ActionRow, Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, Section, Skeleton, StatusText } from "@/shared/ui";
 import s from "./Today.module.css";
-import { hhmm, longDate, shortDay } from "./format";
+import { formatTime, formatWhen } from "@/shared/lib/datetime";
+import { longDate } from "./format";
 import { useToday, type StudentToday as Data, type TodayItem, type TodaySession } from "./todayApi";
 
 const CTA: Record<string, string> = { VERIFY_EMAIL: "Xác minh email", ASSIGNMENT_GRADED: "Xem điểm", ASSIGNMENT_DUE: "Mở bài tập", ASSIGNMENT_APPEAL_REPLY: "Xem phản hồi" };
@@ -69,7 +70,7 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
         <Section title="Tiếp tục học" panel>
           <ActionList label="Tiếp tục học">
             {d.continue.map((c) => (
-              <ActionRow key={c.id} title={c.title} context={`Lớp ${c.course.class_code} · ${shortDay(c.at)} · ${hhmm(c.at)}`} href={c.href} />
+              <ActionRow key={c.id} title={c.title} context={`Lớp ${c.course.class_code} · ${formatWhen(c.at)}`} href={c.href} />
             ))}
           </ActionList>
         </Section>
@@ -82,7 +83,7 @@ function Body({ d, retry }: { d: Data; retry?: () => void }) {
                 key={`${t.course.id}-${t.at}`}
                 tone={t.state === "NOW" ? "green" : "neutral"}
                 title={t.title}
-                context={`${shortDay(t.at)} · ${hhmm(t.at)}–${hhmm(t.ends_at)}${t.place ? ` · ${t.place}` : ""}`}
+                context={`${formatWhen(t.at)}–${formatTime(t.ends_at)}${t.place ? ` · ${t.place}` : ""}`}
                 meta={<StatusText tone={STATE[t.state].tone}>{STATE[t.state].label}</StatusText>}
                 href="/calendar"
               />

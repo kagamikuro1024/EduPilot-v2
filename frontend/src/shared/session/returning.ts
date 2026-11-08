@@ -13,3 +13,12 @@ export function setReturning(on: boolean) {
     else delete document.documentElement.dataset.returning;
   }
 }
+
+/** Máy này đã từng đăng nhập? (storage bị chặn ⇒ coi như chưa.) */
+export function isReturning(): boolean {
+  try {
+    return localStorage.getItem(RETURNING_KEY) === "1";
+  } catch {
+    return false;
+  }
+}

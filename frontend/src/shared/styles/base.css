@@ -21,7 +21,7 @@ a.ep-link, .ep-link {
   text-underline-offset: 3px;
   transition: text-decoration-color var(--ep-fast) var(--ep-ease-standard);
 }
-a.ep-link:hover, .ep-link:hover { text-decoration-color: var(--ep-red); }
+@media (hover: hover) and (pointer: fine) { a.ep-link:hover, .ep-link:hover { text-decoration-color: var(--ep-red); } }
 
 /* Vai chữ cố định (DESIGN.md §5) */
 .ep-page-title { font-size: var(--ep-text-page); font-weight: 680; line-height: 1.25; letter-spacing: -0.02em; }
@@ -50,4 +50,11 @@ a.ep-link:hover, .ep-link:hover { text-decoration-color: var(--ep-red); }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 1ms !important; transition-duration: 1ms !important; }
+  /* Giảm thay vì tắt (FEAT-uiux-91 US-04 AC9): chuyển động chức năng MỚI chỉ đổi opacity / màu thì đánh dấu .ep-motion-safe để vẫn chạy ≤ 200 ms
+     (luật lưới 1 ms ở trên giữ nguyên cho phần còn lại). Phần tử đánh dấu KHÔNG được có transform / trượt trong keyframes của nó. */
+  .ep-motion-safe, .ep-motion-safe::before, .ep-motion-safe::after { animation-duration: 200ms !important; transition-duration: 160ms !important; }
 }
+
+/* Xác nhận lưu tại chỗ (AC7): nền ô đổi sang xanh rất nhạt rồi mờ về thường trong 200 ms, không toast. Dùng kèm .ep-motion-safe. */
+.ep-saved { animation: ep-saved 200ms var(--ep-ease-out); }
+@keyframes ep-saved { from { background-color: color-mix(in oklch, var(--ep-green) 14%, transparent); } }

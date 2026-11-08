@@ -64,7 +64,7 @@
   --ep-ease-standard: cubic-bezier(.2, .8, .2, 1);
   --ep-fast: 140ms;
   --ep-normal: 200ms;
-  --ep-slow: 250ms;
+  --ep-slow: 200ms; /* ≤ 200 ms: luật chuyển động của ứng dụng (FEAT-uiux-91 US-04) */
 
   --ep-shadow-popover: 0 10px 30px rgba(71, 32, 37, .12);
   --ep-elevation-1: 0 1px 2px rgb(71 32 37 / .05), 0 6px 18px rgb(71 32 37 / .07); /* bóng tĩnh của Panel — chỉ ở Panel.module.css (phép 20) */

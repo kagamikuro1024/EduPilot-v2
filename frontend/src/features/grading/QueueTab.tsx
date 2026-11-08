@@ -287,10 +287,10 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
         <Toolbar
           end={
             <>
-              <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment) || busy} title={needAssignment} onClick={() => picker.current?.click()}>
+              <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment) || busy} disabledReason={needAssignment} onClick={() => picker.current?.click()}>
                 Tải bài lên
               </Button>
-              <Button variant="primary" loading={busy} disabled={Boolean(needAssignment)} title={needAssignment} onClick={gradeAllNow}>
+              <Button variant="primary" loading={busy} disabled={Boolean(needAssignment)} disabledReason={needAssignment} onClick={gradeAllNow}>
                 Chấm tất cả
               </Button>
               {teacher && chosen.length > 0 && (
@@ -393,7 +393,15 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
       query={{ isPending: list.isPending, isError: list.isError, error: list.error, data: rows, refetch: list.refetch }}
       isEmpty={(d) => (d as QueueRow[]).length === 0}
       loading={<Skeleton lines={10} />}
-      empty={<EmptyState title="Chưa có bài nộp" icon={<ListChecks aria-hidden />} />}
+      empty={
+        <EmptyState
+          title="Chưa có bài nộp."
+          icon={<ListChecks aria-hidden />}
+          action={teacher ? <Button icon={<Upload aria-hidden />} disabled={Boolean(needAssignment) || busy} disabledReason={needAssignment} onClick={() => picker.current?.click()}>Tải bài lên</Button> : undefined}
+        >
+          Sinh viên nộp trong ứng dụng, hoặc thầy/cô tải ZIP lên.
+        </EmptyState>
+      }
       showTechnical
     >
       <>

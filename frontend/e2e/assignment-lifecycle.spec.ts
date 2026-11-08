@@ -664,7 +664,7 @@ test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Th�
   await gradingApi(page, { rows: [] });
   await page.reload();
   await expect(page.getByText("Chưa có bài nộp")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tải bài lên" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tải bài lên" }).first()).toBeVisible(); // thanh công cụ + nút trong trạng thái rỗng (US-UX91-05 AC3)
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await gradingApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });

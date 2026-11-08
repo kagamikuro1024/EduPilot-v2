@@ -29,10 +29,10 @@ export function MembersView() {
       </Page>
     );
   }
-  return <Members courseId={cc.course.id} code={cc.course.class_code} canManage={cc.canManage} />;
+  return <Members courseId={cc.course.id} canManage={cc.canManage} />;
 }
 
-function Members({ courseId, code, canManage }: { courseId: string; code: string; canManage: boolean }) {
+function Members({ courseId, canManage }: { courseId: string; canManage: boolean }) {
   const qc = useQueryClient();
   const initial = useSearchParams().get("tab");
   const [tab, setTab] = useState<Tab>(initial === "pending" ? "pending" : initial === "staff" && canManage ? "staff" : initial === "import" && canManage ? "import" : "members");
@@ -181,7 +181,6 @@ function Members({ courseId, code, canManage }: { courseId: string; code: string
     <Page width="wide">
       <PageHeader
         title="Thành viên lớp"
-        description={`Lớp ${code}. Duyệt yêu cầu vào lớp và quản lý người học.`}
         actions={<ButtonLink href="/class/settings">Mã và cài đặt tham gia</ButtonLink>}
       />
       <Tabs

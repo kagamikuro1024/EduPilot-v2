@@ -624,7 +624,7 @@ test("finalize flow: hậu quả bằng số, Idempotency-Key, sau chốt đầu
   await expect(dlg).toContainText("Chốt 3 sinh viên · phân bố: C 3 · 0 sinh viên liệt");
   await dlg.getByRole("button", { name: "Chốt điểm" }).click();
   await expect(dlg).toHaveCount(0);
-  await expect(page.getByText(/^Đã chốt v1 · \d{1,2}[:/]\d{2}/)).toBeVisible();
+  await expect(page.getByText(/^Đã chốt v1 · .*\d{2}:\d{2}/)).toBeVisible();
   const call = api.calls.find((c) => c.method === "POST" && c.path.endsWith("/gradebook/finalize"))!;
   expect(call.idem).not.toBe("");
   await expect(page.locator("input[data-cell]")).toHaveCount(0);

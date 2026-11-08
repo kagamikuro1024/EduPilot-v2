@@ -9,8 +9,8 @@ import { classKey, useClassCourse, type JoinInfo } from "./classApi";
 import { RiskSection } from "./RiskSection";
 import { StudyTimeSetting } from "./StudyTimeSetting";
 import { ThresholdSection } from "./ThresholdSection";
+import { dateInputValue } from "@/shared/lib/datetime";
 
-const ICT_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" });
 
 /** Mã tham gia và cài đặt tham gia của lớp. Giảng viên sửa; TA chỉ xem (không thấy nút tạo lại mã). */
 export function ClassSettings() {
@@ -63,7 +63,6 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
     <Page>
       <PageHeader
         title="Mã và cài đặt tham gia"
-        description={`Lớp ${code}`}
         actions={<ButtonLink href="/class/members">Thành viên lớp</ButtonLink>}
       />
       <PageState query={{ isPending: q.isPending, isError: q.isError, error: q.error, data: q.data, refetch: q.refetch }} showTechnical>
@@ -124,7 +123,7 @@ function Settings({ courseId, code, canManage }: { courseId: string; code: strin
 function SettingsForm({ courseId, info, canManage, saved, onSaved, onReload }: { courseId: string; info: JoinInfo; canManage: boolean; saved: boolean; onSaved: (i: JoinInfo) => void; onReload: () => void }) {
   const [enabled, setEnabled] = useState(info.enabled);
   const [approval, setApproval] = useState(info.require_approval);
-  const [expires, setExpires] = useState(info.expires_at ? ICT_DAY.format(new Date(info.expires_at)) : "");
+  const [expires, setExpires] = useState(info.expires_at ? dateInputValue(info.expires_at) : "");
   const [capacity, setCapacity] = useState(info.capacity === null ? "" : String(info.capacity));
   const [domain, setDomain] = useState(info.allowed_email_domain ?? "");
   const [pending, setPending] = useState(false);
@@ -167,7 +166,7 @@ function SettingsForm({ courseId, info, canManage, saved, onSaved, onReload }: {
       }}
     >
       <Switch label="Cho phép tham gia bằng mã" checked={enabled} onChange={setEnabled} disabled={!canManage} />
-      <Switch label="Cần giảng viên duyệt" description="Sinh viên vào bằng mã sẽ chờ bạn duyệt." checked={approval} onChange={setApproval} disabled={!canManage} />
+      <Switch label="Cần giảng viên duyệt" title="Sinh viên vào bằng mã sẽ chờ bạn duyệt." checked={approval} onChange={setApproval} disabled={!canManage} />
       <div className={s.fields}>
         <Field label="Hết hạn" helper="Để trống nếu không giới hạn." error={fe.expires_at}>
           {(id, d) => <Input id={id} aria-describedby={d} invalid={!!fe.expires_at} type="date" value={expires} disabled={!canManage} onChange={(e) => setExpires(e.target.value)} />}

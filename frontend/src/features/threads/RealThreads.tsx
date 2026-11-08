@@ -12,8 +12,8 @@ import { Button, DataTable, EmptyState, Field, Input, InlineNotice, Page, PageHe
 import { ANSWER_LABEL, REASON_NAME, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
 import { usePostGate } from "./usePostGate";
 import r from "./RealThreads.module.css";
+import { formatTime, formatWhen } from "@/shared/lib/datetime";
 
-const AGO = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const WEEKS = Array.from({ length: 20 }, (_, i) => String(i + 1));
 const STATES = [
   { value: "", label: "Mọi trạng thái" },
@@ -37,7 +37,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
 
   return (
     <Page width="full">
-      <PageHeader title="Threads" actions={!composing ? <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button> : undefined} />
+      <PageHeader title="Hỏi đáp công khai" actions={!composing ? <Button variant="primary" onClick={() => setComposing(true)}>Đặt câu hỏi</Button> : undefined} />
       <div className={r.detail}>
         {staff && <Tabs label="Chế độ xem" value={moderation ? "mod" : "all"} onChange={(v) => setModeration(v === "mod")} options={[{ value: "all", label: "Câu hỏi" }, { value: "mod", label: "Cần xem" }]} />}
         {staff && moderation && <ModerationQueue courseId={courseId} />}
@@ -103,7 +103,7 @@ function Row({ t }: { t: ThreadRow }) {
         {t.tags.map((x) => <span key={x}>#{x}</span>)}
         {t.hidden && <StatusText tone="amber">Đã ẩn</StatusText>}
         {label ? <StatusText tone={label.tone}>{label.text}</StatusText> : t.ai_state === "SKIPPED" ? <StatusText tone="amber">Đang chờ giảng viên</StatusText> : null}
-        <span>{AGO.format(new Date(t.last_activity_at))}</span>
+        <span>{formatWhen(t.last_activity_at)}</span>
       </div>
     </div>
   );
@@ -155,7 +155,7 @@ function Composer({ courseId, canChat, onCancel, onPosted }: { courseId: string;
       {gate.check && !gate.check.allowed && (
         <p className={r.noticeLine} role="status" data-part="pii-notice">Phát hiện {describeReasons(gate.check.reasons)}</p>
       )}
-      {locked && <p className={r.noticeLine} role="status">Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${until.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}.` : ""}</p>}
+      {locked && <p className={r.noticeLine} role="status">Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}</p>}
       {gate.error && (
         <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => void gate.submit(false)}>Gửi lại</Button>}>{gate.error.userMessage}</InlineNotice>
       )}
@@ -187,7 +187,7 @@ function ModerationQueue({ courseId }: { courseId: string }) {
             { key: "k", header: "Loại", render: (m) => (m.kind === "thread" ? "Câu hỏi" : "Bình luận") },
             { key: "n", header: "Báo cáo", render: (m) => `${m.reports.total} · ${Object.keys(m.reports.by_reason).map((k) => REASON_NAME[k] ?? k).join(", ")}` },
             { key: "s", header: "Trạng thái", render: (m) => (m.hidden_at ? (m.hidden_by_auto ? "Tự ẩn" : "Đã ẩn") : "Đang hiện") },
-            { key: "d", header: "Lúc", render: (m) => AGO.format(new Date(m.created_at)) },
+            { key: "d", header: "Lúc", render: (m) => formatWhen(m.created_at) },
           ]}
         />
         {q.hasNextPage && <Button onClick={() => void q.fetchNextPage()} disabled={q.isFetchingNextPage}>Xem thêm</Button>}

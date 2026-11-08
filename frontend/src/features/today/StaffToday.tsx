@@ -5,7 +5,8 @@ import { useSession } from "@/shared/session/session";
 import { ActionList, ActionRow, Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, Panel, Section } from "@/shared/ui";
 import s from "./Today.module.css";
 import { TodayActions } from "./TodayActions";
-import { classLabel, hhmm, longDate, shortDay } from "./format";
+import { formatWhen } from "@/shared/lib/datetime";
+import { classLabel, longDate } from "./format";
 import { useToday, type StaffToday as Data } from "./todayApi";
 
 /** "Hôm nay" của giảng viên / TA: "N việc cần xử lý hôm nay", việc xếp bằng luật cứng, buổi học sắp tới. Không hero số liệu, không thẻ KPI. */
@@ -56,7 +57,7 @@ export function StaffToday() {
             <Section title="Sắp tới" panel>
               <ActionList label="Buổi học sắp tới">
                 {d.upcoming.map((u) => (
-                  <ActionRow key={`${u.course.id}-${u.at}`} title={u.title} context={`${shortDay(u.at)} · ${hhmm(u.at)}${u.place ? ` · ${u.place}` : ""}`} meta={q.isAll ? classLabel(u.course) : undefined} href="/calendar" />
+                  <ActionRow key={`${u.course.id}-${u.at}`} title={u.title} context={`${formatWhen(u.at)}${u.place ? ` · ${u.place}` : ""}`} meta={q.isAll ? classLabel(u.course) : undefined} href="/calendar" />
                 ))}
               </ActionList>
             </Section>

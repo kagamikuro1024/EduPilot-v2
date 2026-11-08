@@ -22,7 +22,7 @@
 .uploadHead { display: flex; align-items: baseline; justify-content: space-between; gap: var(--ep-space-3); }
 .uploadName { font-weight: 550; }
 .bar { height: 4px; border-radius: var(--ep-radius-pill); background: var(--ep-rule); overflow: hidden; }
-.barFill { display: block; height: 100%; background: var(--ep-red); transition: width var(--ep-fast) linear; }
+.barFill { display: block; height: 100%; background: var(--ep-red); width: 100%; transform: scaleX(var(--p, 0)); transform-origin: left center; transition: transform var(--ep-fast) var(--ep-ease-out); }
 
 /* Tên dài xuống dòng theo từ, không ngắt giữa từ (03-AC8). */
 .name { display: block; min-width: 220px; font-weight: 550; line-height: 1.4; overflow-wrap: break-word; word-break: normal; hyphens: none; }
@@ -43,5 +43,5 @@
   color: var(--ep-ink);
   cursor: pointer;
 }
-.toggle:hover { border-color: var(--ep-rule); background: var(--ep-surface); }
+@media (hover: hover) and (pointer: fine) { .toggle:hover { border-color: var(--ep-rule); background: var(--ep-surface); } }
 .toggle[aria-pressed="false"] { color: var(--ep-ink-3); }

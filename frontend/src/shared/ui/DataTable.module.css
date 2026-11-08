@@ -29,13 +29,15 @@
 .dense td { height: 44px; }
 
 .clickable { cursor: pointer; transition: background-color var(--ep-fast) var(--ep-ease-standard); }
-.clickable:hover td, .clickable:focus-visible td { background: var(--ep-surface-subtle); }
+.clickable:focus-visible td { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .clickable:hover td { background: var(--ep-surface-subtle); } }
 .active td { background: var(--ep-surface-subtle); }
 
 .scroll[data-scroll-x] .frozen { border-right: 1px solid var(--ep-rule); }
 .frozen { position: sticky; left: 0; background: var(--ep-surface); z-index: 1; }
 th.frozen { z-index: 4; background: var(--ep-surface-subtle); }
-.clickable:hover .frozen, .active .frozen { background: var(--ep-surface-subtle); }
+.active .frozen { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .clickable:hover .frozen { background: var(--ep-surface-subtle); } }
 
 .checkCol { width: 40px; text-align: center; }
 .checkCol input { width: 16px; height: 16px; accent-color: var(--ep-red); }
@@ -46,7 +48,7 @@ th.frozen { z-index: 4; background: var(--ep-surface-subtle); }
 .item { border-bottom: 1px solid var(--ep-rule); }
 .itemLink, .itemStatic { display: grid; gap: var(--ep-space-1); padding: var(--ep-space-3) var(--ep-space-1); min-height: 56px; color: inherit; }
 .itemLink { cursor: pointer; }
-.itemLink:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .itemLink:hover { background: var(--ep-surface-subtle); } }
 .itemActive { background: var(--ep-surface-subtle); }
 .itemSelectable { display: flex; align-items: flex-start; }
 .itemSelectable > :last-child { flex: 1; min-width: 0; }
@@ -80,12 +82,12 @@ th.frozen { z-index: 4; background: var(--ep-surface-subtle); }
 .skBar, .skIdle { display: block; height: var(--ep-space-4); width: 60%; border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }
 .skIdle { visibility: hidden; }
 .retry { font: inherit; font-weight: 600; color: var(--ep-ink); background: none; border: 0; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; min-height: 32px; padding: 0 var(--ep-space-2); }
-.retry:hover { text-decoration-color: var(--ep-red); }
+@media (hover: hover) and (pointer: fine) { .retry:hover { text-decoration-color: var(--ep-red); } }
 .skCell { display: block; height: var(--ep-space-4); width: 70%; border-radius: var(--ep-radius-xs); background: var(--ep-surface-subtle); }
 .active td:first-child, .itemActive .itemMain { font-weight: 700; }
 
 .cellBox { display: inline-flex; align-items: center; gap: var(--ep-space-1); }
 .cellInput { width: 72px; min-height: 32px; padding: 0 var(--ep-space-2); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: transparent; font: inherit; font-variant-numeric: tabular-nums; text-align: right; color: var(--ep-ink); }
-.cellInput:hover { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .cellInput:hover { border-color: var(--ep-ink-3); } }
 .cellInput:focus-visible { border-color: var(--ep-ink); background: var(--ep-surface); outline: 2px solid var(--ep-ink); outline-offset: 0; }
 .cellInput[aria-invalid="true"] { border-color: var(--ep-red); }

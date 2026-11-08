@@ -9,6 +9,7 @@ export default function NotFound() {
     <Page>
       <PageHeader
         title="Không tìm thấy trang"
+        // ui-allow: trạng thái 404 nêu lý do + việc kế tiếp (DESIGN §15), không phải câu giải thích tính năng
         description="Đường dẫn bạn mở không tồn tại hoặc đã đổi. Kiểm tra lại liên kết hoặc quay về màn Hôm nay."
         actions={
           <ButtonLink href="/" variant="primary">

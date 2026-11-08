@@ -13,25 +13,44 @@
   line-height: 1.25;
   text-align: center;
   overflow-wrap: anywhere; /* nhãn dài xuống dòng, không đẩy trang tràn ngang (US-PU-02 AC4) */
-  transition: background-color var(--ep-fast) var(--ep-ease-standard), border-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
+  transition: background-color var(--ep-fast) var(--ep-ease-standard), border-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard), transform 100ms var(--ep-ease-out);
 }
+.btn:active:not(:disabled, [aria-disabled="true"]) { transform: scale(0.97); } /* phản hồi bấm (US-04 AC1) */
 .btn svg { width: 16px; height: 16px; flex: none; stroke-width: 2; }
 .sm { min-height: 30px; padding: var(--ep-space-1) var(--ep-space-3); font-size: var(--ep-text-meta); }
 
 .primary { background: var(--ep-red); color: var(--ep-surface); }
-.primary:hover:not(:disabled) { background: var(--ep-red-hover); }
+@media (hover: hover) and (pointer: fine) { .primary:hover:not(:disabled, [aria-disabled="true"]) { background: var(--ep-red-hover); } }
 
 .secondary { background: var(--ep-surface); color: var(--ep-ink); border-color: var(--ep-rule); }
-.secondary:hover:not(:disabled) { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .secondary:hover:not(:disabled, [aria-disabled="true"]) { border-color: var(--ep-ink-3); } }
 
 .ghost { background: transparent; color: var(--ep-ink-2); }
-.ghost:hover:not(:disabled) { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .ghost:hover:not(:disabled, [aria-disabled="true"]) { background: var(--ep-surface-subtle); color: var(--ep-ink); } }
 
 /* hành động dạng chữ đỏ ở cuối một hàng / section */
 .text { background: transparent; color: var(--ep-red); padding: var(--ep-space-1); min-height: 28px; }
-.text:hover:not(:disabled) { color: var(--ep-red-hover); text-decoration: underline; text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { .text:hover:not(:disabled, [aria-disabled="true"]) { color: var(--ep-red-hover); text-decoration: underline; text-underline-offset: 3px; } }
 
-.btn:disabled { opacity: 0.45; }
+.btn:disabled, .btn[aria-disabled="true"] { opacity: 0.45; }
+.btn[aria-disabled="true"] { cursor: not-allowed; }
+
+/* Lý do nút bị khoá (US-03): hiện khi rê chuột / focus bàn phím; ở màn cảm ứng hiện khi chạm và còn ~3 s sau khi nhả. Chỉ `opacity`. */
+.reasonWrap { position: relative; display: inline-flex; max-width: 100%; }
+.reason {
+  position: absolute; bottom: calc(100% + var(--ep-space-2)); right: 0; z-index: var(--ep-z-popover);
+  width: max-content; max-width: min(18rem, 80vw); padding: var(--ep-space-2) var(--ep-space-3);
+  border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface);
+  box-shadow: var(--ep-shadow-popover); /* ui-allow: cùng lớp nổi với Popover của shared/ui */
+  font-size: var(--ep-text-meta); font-weight: 400; color: var(--ep-ink-2); line-height: 1.45; text-align: left;
+  opacity: 0; pointer-events: none; transition: opacity 120ms var(--ep-ease-out);
+}
+.reasonWrap:focus-within .reason { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .reasonWrap:hover .reason { opacity: 1; } }
+@media (hover: none) {
+  .reason { transition-delay: 3s; }
+  .reasonWrap:active .reason, .reasonWrap:focus-within .reason { opacity: 1; transition-delay: 0s; }
+}
 
 .iconBtn {
   display: inline-grid;
@@ -42,9 +61,10 @@
   border-radius: var(--ep-radius-sm);
   background: transparent;
   color: var(--ep-ink-2);
-  transition: background-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
+  transition: background-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard), transform 100ms var(--ep-ease-out);
 }
-.iconBtn:hover:not(:disabled) { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+.iconBtn:active:not(:disabled) { transform: scale(0.97); }
+@media (hover: hover) and (pointer: fine) { .iconBtn:hover:not(:disabled) { background: var(--ep-surface-subtle); color: var(--ep-ink); } }
 .iconBtn:disabled { opacity: 0.45; cursor: not-allowed; }
 .iconBtn svg { width: 18px; height: 18px; stroke-width: 1.8; }
 .iconSm { width: 30px; height: 30px; }

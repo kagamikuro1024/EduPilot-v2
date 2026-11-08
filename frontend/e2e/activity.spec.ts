@@ -130,7 +130,7 @@ test("tracking notice first login: chưa Đã hiểu → hộp thoại, KHÔNG n
   const beats = await open(page, context, "/chat", { acked: false });
   const dialog = page.getByRole("dialog", { name: "Thời gian học trên EduPilot" });
   await expect(dialog).toBeVisible();
-  await expect(dialog).toContainText("EduPilot ghi thời gian bạn dùng Chat, Threads, Luyện đề, Thư viện và Lịch khi tab đang mở và bạn đang thao tác.");
+  await expect(dialog).toContainText("EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công khai, Luyện đề, Thư viện và Lịch khi tab đang mở và bạn đang thao tác.");
   await expect(dialog).toContainText("Không ghi nội dung bạn xem hay gõ.");
   await expect(dialog).toContainText("Giảng viên xem được; không dùng để tính điểm.");
   await expect(dialog).toContainText("Bạn có thể tắt ở Cài đặt.");

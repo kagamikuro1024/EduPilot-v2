@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { ButtonLink, Button, Kbd, PageHeader, PrivateMark, Section, SegmentedControl, Drawer, ActionList, ActionRow, DataTable, type Column } from "@/shared/ui";
 import { TrendChart } from "@/shared/ui/Chart";
 import { VerificationState } from "@/shared/domain";
+import { progressStyle } from "@/shared/lib/progress";
 import { NA_REASONS, REGISTRY, STATES } from "@/shared/ui/registry";
 import { CELLS } from "./cells";
 import { FIX } from "./fixtures";
@@ -174,6 +175,21 @@ export default function DevUi() {
           <VerificationState status="verified" verifier="Lê Thu Hà">Dùng kế thừa để chia sẻ phương thức chung.</VerificationState>
           <VerificationState status="edited" onViewOriginal={() => {}}>Dùng kế thừa khi quan hệ là “là một”.</VerificationState>
           <VerificationState status="awaiting">Câu hỏi của bạn đã được ghi lại.</VerificationState>
+        </div>
+      </section>
+
+      <section className={s.sub} aria-label="Ca đặc biệt" data-part="edge-cases">
+        <h2 className="ep-section-title">Ca đặc biệt (US-UX91-03 AC5, US-UX91-04 AC11)</h2>
+        <div className={s.bar}>
+          {/* có lý do nhưng KHÔNG khoá: lý do bị bỏ qua, nút bấm bình thường, không có tooltip */}
+          <Button variant="primary" disabledReason="Lý do này không được hiện" data-case="reason-not-disabled">Nút có lý do, không khoá</Button>
+        </div>
+        <div className={s.long}>
+          {[150, -10, Number.NaN, 50].map((v, i) => (
+            <span key={i} className={s.barTrack} data-case="progress" data-value={String(v)}>
+              <span className={s.barFill} style={progressStyle(v)} />
+            </span>
+          ))}
         </div>
       </section>
 

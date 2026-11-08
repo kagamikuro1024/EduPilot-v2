@@ -91,11 +91,6 @@ export function ObservabilityScreen() {
     <Page width="wide">
       <PageHeader
         title="Quan sát AI"
-        description={
-          isAdmin
-            ? "Hệ thống đang chạy thế nào, và khi có yêu cầu hỏng thì hỏng ở đâu."
-            : "Số liệu AI của lớp bạn. Nội dung câu hỏi chỉ quản trị viên hệ thống mở được, và mỗi lần mở đều bị ghi nhật ký."
-        }
         meta={
           <>
             <span>Thứ Năm, 29 tháng 10 · 09:20</span>
@@ -126,14 +121,13 @@ export function ObservabilityScreen() {
         </Panel>
 
         {!isAdmin && (
-          <Section panel title={`Lớp ${course.code} trong 7 ngày`} description="Số tổng hợp của lớp bạn phụ trách.">
+          <Section panel title={`Lớp ${course.code} trong 7 ngày`}>
             <DefinitionList items={(COURSE_SUMMARY[course.id] ?? []).map((m) => ({ term: m.label, value: m.hint ? `${m.value} · ${m.hint}` : m.value }))} />
           </Section>
         )}
 
         <Section panel
           title={`${rows.length} yêu cầu gần nhất`}
-          description={isAdmin ? "Chọn một hàng để xem nội dung đã che, công cụ đã gọi và độ tin cậy." : "Giảng viên xem được số liệu; nội dung yêu cầu không mở được từ đây."}
           action={
             <SegmentedControl
               label="Lọc yêu cầu"

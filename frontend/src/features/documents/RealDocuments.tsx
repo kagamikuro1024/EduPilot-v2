@@ -10,8 +10,8 @@ import {
 } from "@/shared/ui";
 import { STATUS_LABEL, TYPE_LABEL, docsKey, useChunks, useDocList, useDocStats, type DocRow, type DocType } from "./documentsApi";
 import r from "./RealDocuments.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
 
-const WHEN = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const MAX_PARALLEL = 3;
 const TYPES = Object.keys(TYPE_LABEL) as DocType[];
 const titleOf = (f: File) => f.name.replace(/\.[^.]+$/, "").slice(0, 200);
@@ -143,7 +143,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
         </StatusText>
       ),
     },
-    { key: "updated", header: "Cập nhật", width: "11%", render: (d) => WHEN.format(new Date(d.updated_at)) },
+    { key: "updated", header: "Cập nhật", width: "11%", render: (d) => formatWhen(d.updated_at) },
     {
       key: "more", header: <span className="ep-sr-only">Thao tác</span>, width: "4%", align: "end",
       render: (d) => {

@@ -28,7 +28,6 @@ export function AnalyticsScreen() {
     <Page>
       <PageHeader
         title="Số liệu lớp học"
-        description="Xu hướng của cả lớp để điều chỉnh cách dạy — không phải bảng theo dõi từng sinh viên."
         meta={
           <>
             <span>{course.label}</span>
@@ -68,7 +67,7 @@ export function AnalyticsScreen() {
           recovery: "Việc tổng hợp số liệu chạy mỗi giờ một lần và đang chậm. Thử lại sau vài phút; dữ liệu lớp không bị ảnh hưởng.",
         }}
       >
-        <Section panel title="Hoạt động học" description={`Câu hỏi sinh viên gửi trong ${days}`}>
+        <Section panel title="Hoạt động học">
           <p className={s.lead}>
             {`${fmtNum(a.questions)} câu hỏi trong ${days}, trung bình ${a.questionsPerDay} câu mỗi ngày. ${a.activeStudents}/${a.students} sinh viên có hỏi ít nhất một câu; ${a.students - a.activeStudents} bạn chưa hỏi câu nào.`}
           </p>
@@ -77,7 +76,7 @@ export function AnalyticsScreen() {
           <BarList items={a.topics.map((t) => ({ label: t.label, value: t.value }))} format={(v) => `${v} câu`} />
         </Section>
 
-        <Section panel title="Hỗ trợ" description="Câu AI không tự trả lời được và thời gian lớp chờ bạn">
+        <Section panel title="Hỗ trợ">
           <p className={s.lead}>
             {`AI tự trả lời ${a.aiSharePct}% trong ${fmtNum(a.questions)} câu hỏi; ${a.escalated} câu chuyển sang giảng viên vì không đủ chắc chắn hoặc sinh viên tự yêu cầu.`}
           </p>
@@ -90,14 +89,14 @@ export function AnalyticsScreen() {
           />
         </Section>
 
-        <Section panel title="Bảo vệ thông tin cá nhân" description="Thông tin cá nhân bị che trước khi câu hỏi đi tới model">
+        <Section panel title="Bảo vệ thông tin cá nhân">
           <p className={s.lead}>
             <strong>{a.piiDetected} lần</strong> hệ thống phát hiện thông tin cá nhân trong {days} và che lại trước khi gửi đi. <strong>{a.piiLeaked} lần</strong> lọt ra ngoài.
           </p>
           {a.piiChannels.length > 0 && <BarList items={a.piiChannels.map((c) => ({ label: c.label, value: c.value, tone: "amber" as const }))} format={(v) => `${v} lần`} />}
         </Section>
 
-        <Section panel title="Chất lượng chấm" description="AI chỉ ra bản nháp; con số dưới đây cho biết bạn phải sửa nhiều hay ít">
+        <Section panel title="Chất lượng chấm">
           {a.submissions === 0 ? (
             <p className={s.lead}>Lớp chưa có bài nộp nào được chấm nên chưa đo được chất lượng bản nháp.</p>
           ) : (
@@ -117,7 +116,7 @@ export function AnalyticsScreen() {
         </Section>
 
         {role === "teacher" && (
-          <Section panel title="Chi phí" description="Tiền trả cho model trong khoảng đang xem">
+          <Section panel title="Chi phí">
             <p className={s.lead}>
               <strong>{fmtVnd(a.cost)}</strong> trong {days}, khoảng {fmtVnd(a.costPerStudent)} cho mỗi sinh viên. Trần chi tiêu do quản trị viên hệ thống đặt.
             </p>

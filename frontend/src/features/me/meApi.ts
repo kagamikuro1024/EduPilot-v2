@@ -1,4 +1,5 @@
 // Hợp đồng thật: backend-go/api/openapi.yaml (`GET /courses/{id}/me/attendance`, `…/me/participation`, `…/me/study-time`).
+import { formatDay } from "@/shared/lib/datetime";
 export type MyAttendance = {
   attendance: {
     recorded: number;
@@ -37,9 +38,8 @@ export function attendanceSentence(a: MyAttendance["attendance"]): string {
   return `${parts.join(", ")}.`;
 }
 
-const ICT_DAY = new Intl.DateTimeFormat("en-GB", { day: "2-digit", month: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
-/** "08/10" theo giờ Việt Nam, cố định dấu `/` (không phụ thuộc locale của trình duyệt). */
-export const dayMonthOf = (iso: string) => ICT_DAY.format(new Date(iso));
+/** "08/10" theo giờ Việt Nam ("08/10/2025" nếu khác năm). */
+export const dayMonthOf = (iso: string) => formatDay(iso);
 
 // `GET /courses/{id}/me/grades` và `POST …/me/grades/what-if` (US-P6-09): DTO sinh viên — cột chưa công bố là PENDING và KHÔNG có `score`.
 export type MeGrades = {

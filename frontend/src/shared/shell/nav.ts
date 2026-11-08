@@ -35,7 +35,7 @@ const STUDENT: NavGroup[] = [
     items: [
       { href: "/", label: "Hôm nay", icon: House },
       { href: "/chat", label: "Chat riêng", icon: MessageSquare },
-      { href: "/threads", label: "Threads", icon: MessagesSquare },
+      { href: "/threads", label: "Hỏi đáp công khai", short: "Hỏi đáp", icon: MessagesSquare },
       { href: "/practice", label: "Luyện đề", icon: CircleHelp },
       { href: "/exams", label: "Bài thi", icon: ClipboardList },
       { href: "/library", label: "Thư viện", icon: Library },
@@ -68,7 +68,7 @@ function staff(role: "ta" | "teacher"): NavGroup[] {
     {
       label: "Nội dung",
       items: [
-        { href: "/threads", label: "Threads", icon: MessagesSquare },
+        { href: "/threads", label: "Hỏi đáp công khai", short: "Hỏi đáp", icon: MessagesSquare },
         { href: "/documents", label: "Tài liệu", icon: FileText },
         { href: "/calendar", label: "Lịch", icon: CalendarDays },
       ],
@@ -76,8 +76,8 @@ function staff(role: "ta" | "teacher"): NavGroup[] {
     {
       label: "Hiểu lớp học",
       items: [
-        { href: "/insights", label: "Insights", icon: Lightbulb },
-        { href: "/analytics", label: "Analytics", icon: ChartColumn },
+        { href: "/insights", label: "Lỗ hổng kiến thức", icon: Lightbulb },
+        { href: "/analytics", label: "Số liệu lớp học", icon: ChartColumn },
       ],
     },
   ];

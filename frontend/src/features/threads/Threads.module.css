@@ -111,7 +111,7 @@
   font-weight: 600;
   cursor: pointer;
 }
-.sourcesToggle:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .sourcesToggle:hover { color: var(--ep-ink); } }
 .sourcesToggle svg { width: 14px; height: 14px; transition: transform var(--ep-fast) var(--ep-ease-standard); }
 .sourcesToggle svg[data-open="true"] { transform: rotate(180deg); }
 .cites { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ep-space-1); font-size: var(--ep-text-label); }
@@ -133,7 +133,7 @@
   text-underline-offset: 3px;
   text-align: left;
 }
-.originalAnswerToggle:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .originalAnswerToggle:hover { color: var(--ep-ink); } }
 .originalAnswerBox {
   margin: var(--ep-space-1) 0 0;
   padding: var(--ep-space-3);
@@ -163,7 +163,7 @@
   cursor: pointer;
   border-radius: var(--ep-radius-sm);
 }
-.reportItem:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .reportItem:hover { background: var(--ep-surface-subtle); } }
 
 @media (max-width: 719px) {
   .search { min-width: 0; width: 100%; }

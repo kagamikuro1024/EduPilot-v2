@@ -1,7 +1,7 @@
 .footNote { margin: var(--ep-space-10) 0 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 
 .progress { display: block; height: 2px; background: var(--ep-rule); }
-.progressFill { display: block; height: 2px; background: var(--ep-red); transition: width var(--ep-normal) var(--ep-ease-out); }
+.progressFill { display: block; height: 2px; background: var(--ep-red); width: 100%; transform: scaleX(var(--p, 0)); transform-origin: left center; transition: transform var(--ep-fast) var(--ep-ease-out); }
 
 .question { margin: var(--ep-space-4) 0 0; font-size: var(--ep-text-section); line-height: 1.45; max-width: 64ch; }
 
@@ -21,7 +21,7 @@
   color: var(--ep-ink);
   cursor: pointer;
 }
-.option:hover:not(:disabled) { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .option:hover:not(:disabled) { border-color: var(--ep-ink-3); } }
 .option:disabled { cursor: default; }
 .optMark { flex: none; width: 22px; font-weight: 600; color: var(--ep-ink-3); }
 .optPicked { border-color: var(--ep-ink); }

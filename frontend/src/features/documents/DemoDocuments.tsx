@@ -11,6 +11,7 @@ import { simNowMs } from "@/shared/state/clock";
 import { useDemoSlice } from "@/shared/state/demo";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import s from "./Documents.module.css";
+import { progressStyle } from "@/shared/lib/progress";
 
 type Flags = Record<string, { forAi: boolean; forStudents: boolean }>;
 type Progress = { id: string; file: string; progress: number };
@@ -227,7 +228,7 @@ export function DemoDocuments() {
                 <span className={s.meta}>{u.progress < 60 ? "Đang tải lên…" : "Đang đọc nội dung…"}</span>
               </div>
               <span className={s.bar}>
-                <span className={s.barFill} style={{ width: `${u.progress}%` }} />
+                <span className={s.barFill} style={progressStyle(u.progress)} />
               </span>
             </div>
           ))}

@@ -82,7 +82,7 @@ export function RealStudents({ courseId, classCode }: { courseId: string; classC
 
   return (
     <Page width="wide">
-      <PageHeader title="Sinh viên" description={total === null ? classCode : `${total} sinh viên · ${classCode}`} />
+      <PageHeader title="Sinh viên" description={total === null ? undefined : `${total} sinh viên`} />
       <Panel>
         <Toolbar end={<FilterChips label="Lọc nhanh" value={chips} onChange={(next) => setUrl({ chips: next })} options={FILTERS} />}>
           <label className={s.search}>

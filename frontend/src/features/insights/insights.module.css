@@ -29,7 +29,7 @@
 
 .samples { margin-left: var(--ep-space-8); font-size: var(--ep-text-label); }
 .samples summary { width: fit-content; padding: var(--ep-space-1) 0; color: var(--ep-ink); font-weight: 500; text-decoration: underline; text-decoration-color: var(--ep-rule); text-underline-offset: 3px; cursor: pointer; }
-.samples summary:hover { text-decoration-color: var(--ep-red); }
+@media (hover: hover) and (pointer: fine) { .samples summary:hover { text-decoration-color: var(--ep-red); } }
 .samples ul { display: grid; gap: var(--ep-space-2); margin-top: var(--ep-space-2); padding-left: var(--ep-space-4); border-left: 2px solid var(--ep-red-soft); max-width: 68ch; color: var(--ep-ink-2); line-height: 1.5; list-style: none; }
 
 .noSamples { margin-left: var(--ep-space-8); max-width: 68ch; font-size: var(--ep-text-label); color: var(--ep-ink-3); margin-top: 0; }

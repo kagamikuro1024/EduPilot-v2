@@ -31,7 +31,7 @@ export function PIIChannelDialog({
       open={open}
       onClose={onClose}
       title="Bài này có thông tin cá nhân"
-      description={`Threads là nơi cả lớp cùng đọc. Chúng tôi tìm thấy: ${summary}.`}
+      description={`Hỏi đáp công khai là nơi cả lớp cùng đọc. Chúng tôi tìm thấy: ${summary}.`}
       footer={
         <>
           {onPrivateChat ? (

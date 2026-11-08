@@ -146,10 +146,12 @@
   transition: border-color var(--ep-fast) var(--ep-ease-standard), background-color var(--ep-fast) var(--ep-ease-standard);
 }
 
-.evidence:hover {
-  border-left-color: var(--ep-red);
-  color: var(--ep-ink);
-  background: var(--ep-surface);
+@media (hover: hover) and (pointer: fine) {
+  .evidence:hover {
+    border-left-color: var(--ep-red);
+    color: var(--ep-ink);
+    background: var(--ep-surface);
+  }
 }
 
 .evidenceTag {

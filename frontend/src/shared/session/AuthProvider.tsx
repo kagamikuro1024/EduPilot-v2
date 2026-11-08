@@ -1,10 +1,10 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useDeferredValue, useEffect, useRef, useSyncExternalStore } from "react";
 import { apiClient } from "@/shared/data/apiClient";
 import { authStore, dropSession, refreshSession, type AuthSnapshot } from "@/shared/data/authSession";
-import { setReturning } from "@/shared/session/returning";
+import { isReturning, setReturning } from "@/shared/session/returning";
 import { wipeDrafts } from "@/shared/lib/unsavedWork";
 
 type Auth = AuthSnapshot & {
@@ -23,15 +23,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // dựng cây đó theo lát thời gian (ngắt được) thay vì một khối; token vẫn đọc đồng bộ ở nơi khác (`tokenStore`).
   const snap = useDeferredValue(useSyncExternalStore(authStore.subscribe, authStore.get, authStore.server));
   const router = useRouter();
+  const pathname = usePathname();
   const started = useRef(false);
 
   useEffect(() => {
     if (started.current) return;
     started.current = true;
+    // Trang giới thiệu cho khách (FEAT-uiux-91 US-21): máy chưa từng đăng nhập thì `/` không gọi làm mới phiên (hết 401 ở console).
+    // `/login` và mọi route khác vẫn thử bằng cookie; mất cờ mà còn cookie thì bấm "Đăng nhập" là vào thẳng.
+    if (pathname === "/" && !isReturning()) {
+      dropSession("anonymous");
+      return;
+    }
     void refreshSession().then((r) => {
       if (!r.ok && authStore.get().status === "initializing") dropSession("anonymous"); // mạng lỗi lúc tải: coi như chưa đăng nhập
     });
-  }, []);
+  }, [pathname]);
 
   useEffect(() => {
     if (snap.status === "authenticated") setReturning(true); // trang chủ vẽ khung "Hôm nay" thay vì giới thiệu cho người quay lại

@@ -16,7 +16,7 @@
   line-height: 1.4;
   transition: border-color var(--ep-fast) var(--ep-ease-standard);
 }
-.control:hover:not(:disabled) { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .control:hover:not(:disabled) { border-color: var(--ep-ink-3); } }
 .control:focus-visible { border-color: var(--ep-red); }
 .control[aria-invalid="true"] { border-color: var(--ep-red); }
 .control:disabled { background: var(--ep-surface-subtle); color: var(--ep-ink-3); }
@@ -85,10 +85,10 @@
   .knob { top: 14px; left: 6px; }
 }
 
-.check:hover:not(:has(input:disabled)) span { text-decoration: underline; text-decoration-color: var(--ep-ink-3); text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { .check:hover:not(:has(input:disabled)) span { text-decoration: underline; text-decoration-color: var(--ep-ink-3); text-underline-offset: 3px; } }
 .check:has(input:disabled) { cursor: not-allowed; color: var(--ep-ink-3); }
-.switch:hover:not(:disabled) { background: var(--ep-ink-3); }
-.switch[aria-checked="true"]:hover:not(:disabled) { background: var(--ep-ink-2); }
+@media (hover: hover) and (pointer: fine) { .switch:hover:not(:disabled) { background: var(--ep-ink-3); } }
+@media (hover: hover) and (pointer: fine) { .switch[aria-checked="true"]:hover:not(:disabled) { background: var(--ep-ink-2); } }
 .switch:disabled { cursor: not-allowed; opacity: .55; }
 
 .pw { position: relative; display: block; }
@@ -108,5 +108,5 @@
   color: var(--ep-ink-3);
   border-radius: var(--ep-radius-sm);
 }
-.pwToggle:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .pwToggle:hover { color: var(--ep-ink); } }
 .pwToggle svg { width: 18px; height: 18px; }

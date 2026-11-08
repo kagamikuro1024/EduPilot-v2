@@ -29,7 +29,7 @@
 .headText { display: grid; gap: var(--ep-space-1); }
 .desc { color: var(--ep-ink-2); font-size: var(--ep-text-label); }
 .close { flex: none; display: grid; place-items: center; width: 32px; height: 32px; margin: -4px -8px 0 0; border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink-2); }
-.close:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .close:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); } }
 .close svg { width: 18px; height: 18px; }
 .body { flex: 1; overflow-y: auto; padding: 0 var(--ep-space-6) var(--ep-space-6); }
 .foot { display: flex; justify-content: flex-end; gap: var(--ep-space-2); flex-wrap: wrap; padding: var(--ep-space-4) var(--ep-space-6); border-top: 1px solid var(--ep-rule); }

@@ -16,7 +16,7 @@
   color: var(--ep-ink-2);
 }
 .back svg { width: 16px; height: 16px; }
-.back:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .back:hover { color: var(--ep-ink); } }
 .headRow { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--ep-space-6); flex-wrap: wrap; }
 .headText { display: grid; gap: var(--ep-space-2); min-width: 0; }
 .desc { color: var(--ep-ink-2); max-width: 68ch; }

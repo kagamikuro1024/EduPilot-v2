@@ -8,29 +8,6 @@
 .note { margin: var(--ep-space-4) 0 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .warnList { display: block; margin-top: var(--ep-space-1); font-size: var(--ep-text-meta); }
 
-.lock { position: relative; display: inline-flex; }
-.lockBtn[aria-disabled="true"] { opacity: .55; cursor: not-allowed; }
-.lockWhy {
-  position: absolute;
-  bottom: calc(100% + var(--ep-space-2));
-  right: 0;
-  z-index: var(--ep-z-popover);
-  width: max-content;
-  max-width: 300px;
-  padding: var(--ep-space-2) var(--ep-space-3);
-  border: 1px solid var(--ep-rule);
-  border-radius: var(--ep-radius-sm);
-  background: var(--ep-surface);
-  box-shadow: var(--ep-shadow-popover); /* ui-allow: cùng lớp nổi với Popover của shared/ui */
-  font-size: var(--ep-text-meta);
-  color: var(--ep-ink-2);
-  line-height: 1.45;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--ep-fast) var(--ep-ease-standard);
-}
-.lock:hover .lockWhy, .lock:focus-within .lockWhy { opacity: 1; }
-
 .conflict {
   position: fixed;
   z-index: var(--ep-z-popover);

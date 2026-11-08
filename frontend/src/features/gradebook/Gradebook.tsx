@@ -14,6 +14,7 @@ import { FinalizeDialog, SnapshotHistory, UnlockDialog, stamp } from "./Finalize
 import { ImportDialog } from "./ImportDialog";
 import f from "./FinalizeGrades.module.css";
 import s from "./Gradebook.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
 
 const vi = (v: string | undefined) => (v === undefined || v === "" ? "" : v.replace(".", ","));
 const SCORE_RE = /^\d{1,3}([.,]\d{1,2})?$/;
@@ -287,10 +288,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         <Button variant="primary" onClick={() => setFinalizing(true)}>Chốt điểm</Button>
       )}
       {teacher && status && status.state !== "CONFIRMED" && (
-        <span className={s.lock}>
-          <Button variant="primary" aria-disabled="true" className={s.lockBtn} aria-describedby="finalize-why" onClick={() => undefined}>Chốt điểm</Button>
-          <span id="finalize-why" role="tooltip" className={s.lockWhy}>{status.finalize_blocked_reason ?? "Chưa có công thức điểm đã xác nhận"}</span>
-        </span>
+        <Button variant="primary" disabled disabledReason={status.finalize_blocked_reason ?? "Chưa có công thức điểm đã xác nhận"}>Chốt điểm</Button>
       )}
     </>
   );
@@ -343,7 +341,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
               rowAttrs={(r) => ({ "data-part": "grade-row", "data-student-id": r.student.id })}
             />
           )}
-          <p className={s.note} data-part="official-note">{OFFICIAL_NOTE}</p>
+          {hasScheme && rows.length > 0 && <p className={s.note} data-part="official-note">{OFFICIAL_NOTE}</p>}
         </Panel>
       </PageState>
       {conflict && (
@@ -380,7 +378,7 @@ function ExplainDrawer({ courseId, row, onClose }: { courseId: string; row: GRow
   );
 }
 
-const when = (iso: string) => new Date(iso).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+const when = (iso: string) => formatWhen(iso);
 
 function HistoryDrawer({ courseId, row, onClose }: { courseId: string; row: GRow | null; onClose: () => void }) {
   const q = useHistory(courseId, row?.student.id ?? null);

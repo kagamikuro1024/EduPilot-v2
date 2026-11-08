@@ -7,15 +7,11 @@ import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { Button, ConfirmIrreversible, OverflowMenu, PageState, Section, UndoLine } from "@/shared/ui";
 import { SESSIONS_KEY, useRevokeOthers, useRevokeSession, useSessions, type DeviceSession } from "./api";
 import s from "./security.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
 
-const TIME = new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Ho_Chi_Minh" });
-const DAY = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
-
-/** "Lần cuối 09:20" (hôm nay) hoặc "Lần cuối 09:20 · 03/10". */
+/** "Lần cuối: Hôm nay, 09:20". */
 export function lastSeen(iso: string, now = new Date()): string {
-  const t = new Date(iso);
-  const same = DAY.format(t) === DAY.format(now);
-  return `Lần cuối ${TIME.format(t)}${same ? "" : ` · ${DAY.format(t)}`}`;
+  return `Lần cuối: ${formatWhen(iso, now)}`;
 }
 
 export function DevicesSection() {

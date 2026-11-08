@@ -7,14 +7,14 @@ import { AttendanceGrid, type AttendanceGridRow } from "@/shared/domain/Attendan
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Toolbar } from "@/shared/ui";
 import { useSchemeStatus } from "../gradebook/gradeApi";
-import { WD, dayLabel, fmtDM, fmtHM } from "../calendar/calendarApi";
+import { formatWhen } from "@/shared/lib/datetime";
+import { dayLabel, fmtDM, fmtHM } from "../calendar/calendarApi";
 import { sessionsKey, useSessions, type SessionRow } from "../calendar/sessionsApi";
 import { labelOf, useGrid, type Grid } from "./attendanceApi";
 import { useAttendance } from "./useAttendance";
 import s from "./RealAttendance.module.css";
 
 const SPEAK_LABEL = "+ phát biểu · +0,25";
-const dateLabel = (iso: string) => `${WD[new Date(dayLabel(iso)).getUTCDay()]}, ${fmtDM(dayLabel(iso))}`;
 
 /** Buổi mặc định: đang diễn ra, hoặc buổi đã qua gần nhất; lớp chưa có buổi nào đã qua thì buổi sắp tới sớm nhất. */
 function defaultSession(list: SessionRow[], now = Date.now()): SessionRow | undefined {
@@ -114,7 +114,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
     <>
       <PageHeader
         title="Điểm danh"
-        description={`${classCode} · buổi ${st.session_no} · ${dateLabel(st.starts_at)} ${fmtHM(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`}
+        description={`buổi ${st.session_no} · ${formatWhen(st.starts_at)}–${fmtHM(st.ends_at)}${st.room ? ` · ${st.room}` : ""}`}
         actions={
           <Button variant={saved ? "secondary" : "primary"} disabled={saved || a.conflicts.length > 0} onClick={() => void complete()}>
             {saved ? "Đã lưu" : "Lưu điểm danh"}

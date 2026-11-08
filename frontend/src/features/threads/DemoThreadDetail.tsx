@@ -111,9 +111,9 @@ export function DemoThreadDetail({ id }: { id: string }) {
   if (!view || !courses.some((c) => c.id === view.courseId)) {
     return (
       <Page>
-        <PageHeader title="Thread" back={{ href: "/threads", label: "Threads" }} />
+        <PageHeader title="Thread" back={{ href: "/threads", label: "Hỏi đáp công khai" }} />
         <Panel>
-          <EmptyState title="Không tìm thấy thread này" action={<ButtonLink href="/threads" variant="primary">Về Threads</ButtonLink>}>
+          <EmptyState title="Không tìm thấy thread này" action={<ButtonLink href="/threads" variant="primary">Về Hỏi đáp công khai</ButtonLink>}>
             Thread có thể đã bị xoá, hoặc thuộc lớp khác lớp bạn đang xem.
           </EmptyState>
         </Panel>
@@ -203,7 +203,7 @@ export function DemoThreadDetail({ id }: { id: string }) {
     <Page>
       <PageHeader
         title={view.title}
-        back={{ href: "/threads", label: "Threads" }}
+        back={{ href: "/threads", label: "Hỏi đáp công khai" }}
         meta={
           view.pinned ? (
             <span className={s.pinNote}>

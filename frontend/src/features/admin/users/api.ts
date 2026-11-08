@@ -1,4 +1,5 @@
 "use client";
+import { formatWhen } from "@/shared/lib/datetime";
 
 // Hợp đồng thật: backend-go/api/openapi.yaml (`/admin/users*`). Admin chỉ thấy dữ liệu tối thiểu: không MSSV, không mật khẩu.
 export type AdminRole = "ADMIN" | "TEACHER" | "TA" | "STUDENT";
@@ -15,12 +16,8 @@ export const STATUS_TEXT: Record<AdminStatus, { text: string; tone: "green" | "a
 
 export const USERS_KEY = ["admin", "users"] as const;
 
-const TIME = new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit", hour12: false, timeZone: "Asia/Ho_Chi_Minh" });
-const DAY = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
-
-/** "09:20" (hôm nay), "09:20 · 03/10" (ngày khác), "Chưa đăng nhập". */
+/** "Hôm nay, 09:20", "Thứ Hai, 21/09 · 14:00", … hoặc "Chưa đăng nhập". */
 export function lastSeen(iso: string | null, now = new Date()): string {
   if (!iso) return "Chưa đăng nhập";
-  const t = new Date(iso);
-  return DAY.format(t) === DAY.format(now) ? TIME.format(t) : `${TIME.format(t)} · ${DAY.format(t)}`;
+  return formatWhen(iso, now);
 }

@@ -14,7 +14,6 @@
   flex-direction: column;
   background: var(--ep-surface);
   border-right: 1px solid var(--ep-rule);
-  transition: width var(--ep-normal) var(--ep-ease-standard);
 }
 .brand { display: flex; align-items: center; height: var(--ep-topbar); padding: 0 var(--ep-space-5); flex: none; border-bottom: 1px solid var(--ep-rule); }
 .logo { height: 32px; width: auto; }
@@ -40,7 +39,7 @@
   transition: background-color var(--ep-fast) var(--ep-ease-standard), color var(--ep-fast) var(--ep-ease-standard);
 }
 .navItem svg { width: 18px; height: 18px; stroke-width: 1.8; flex: none; }
-.navItem:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .navItem:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); } }
 .navItem[aria-current="page"] { color: var(--ep-ink); font-weight: 600; background: var(--ep-surface-subtle); }
 .navItem[aria-current="page"]::before {
   content: "";
@@ -62,7 +61,7 @@
 .sideFoot { flex: none; display: grid; gap: var(--ep-space-2); padding: var(--ep-space-3) var(--ep-space-4) var(--ep-space-4); border-top: 1px solid var(--ep-rule); }
 .demo { font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-weight: 500; padding: 0 var(--ep-space-1); }
 .collapse { display: inline-flex; align-items: center; gap: var(--ep-space-2); min-height: 32px; padding: 0 var(--ep-space-1); border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-label); }
-.collapse:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .collapse:hover { color: var(--ep-ink); } }
 .collapse svg { width: 18px; height: 18px; }
 .collapsed .sideFoot { justify-items: center; padding: var(--ep-space-3) 0; }
 
@@ -79,14 +78,14 @@
   padding: 0 var(--ep-space-6);
   background: var(--ep-surface);
   border-bottom: 1px solid var(--ep-rule);
-  transition: margin-left var(--ep-normal) var(--ep-ease-standard);
 }
 .mobileBrand { display: none; }
 .demoMobile { display: none; }
 .scope { font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink); }
 
 .courseBtn { display: inline-flex; align-items: center; gap: var(--ep-space-2); min-height: 36px; padding: 0 var(--ep-space-2); border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; max-width: 360px; min-width: 0; }
-.courseBtn:hover, .courseBtn[aria-expanded="true"] { background: var(--ep-surface-subtle); }
+.courseBtn[aria-expanded="true"] { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .courseBtn:hover { background: var(--ep-surface-subtle); } }
 .courseBtn svg { width: 16px; height: 16px; color: var(--ep-ink-2); flex: none; }
 .courseCode { white-space: nowrap; }
 .courseName { font-weight: 500; color: var(--ep-ink-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
@@ -113,18 +112,20 @@
   color: var(--ep-ink-3);
   font-size: var(--ep-text-label);
 }
-.search:hover { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .search:hover { border-color: var(--ep-ink-3); } }
 .search svg { width: 16px; height: 16px; }
 .searchText { flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .searchKey { display: inline-flex; gap: 2px; }
 
 .iconBtn { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink-2); }
-.iconBtn:hover, .iconBtn[aria-expanded="true"] { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+.iconBtn[aria-expanded="true"] { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .iconBtn:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); } }
 .iconBtn svg { width: 18px; height: 18px; }
 .unreadDot { position: absolute; top: 3px; right: 2px; display: grid; place-items: center; min-width: 18px; height: 18px; padding: 0 4px; border-radius: var(--ep-radius-pill); background: var(--ep-red); color: var(--ep-surface); border: 1.5px solid var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; line-height: 1; }
 
 .profile { display: inline-flex; align-items: center; gap: var(--ep-space-2); height: 36px; padding: 0 var(--ep-space-2) 0 var(--ep-space-1); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; }
-.profile:hover, .profile[aria-expanded="true"] { border-color: var(--ep-ink-3); }
+.profile[aria-expanded="true"] { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .profile:hover { border-color: var(--ep-ink-3); } }
 .profile svg { width: 14px; height: 14px; color: var(--ep-ink-2); }
 .initials { display: grid; place-items: center; width: 26px; height: 26px; border-radius: var(--ep-radius-xs); background: var(--ep-ink); color: var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; }
 
@@ -137,7 +138,7 @@
 .noteList { max-height: min(420px, 60dvh); overflow-y: auto; overscroll-behavior: contain; }
 .notes li + li { border-top: 1px solid var(--ep-rule); }
 .note { display: flex; gap: var(--ep-space-3); padding: var(--ep-space-3); border-radius: var(--ep-radius-sm); }
-.note:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .note:hover { background: var(--ep-surface-subtle); } }
 .noteDot { flex: none; width: 7px; height: 7px; margin-top: 7px; border-radius: var(--ep-radius-pill); background: var(--ep-rule); }
 .noteUnread { background: var(--ep-red); }
 .noteTitle { display: block; font-size: var(--ep-text-label); line-height: 1.45; color: var(--ep-ink); }
@@ -147,7 +148,7 @@
 /* ---------- SV chưa vào lớp (SRS 4.3.2) ---------- */
 
 /* ---------- main ---------- */
-.main { margin-left: var(--side); min-height: calc(100dvh - var(--ep-topbar)); outline: none; transition: margin-left var(--ep-normal) var(--ep-ease-standard); }
+.main { margin-left: var(--side); min-height: calc(100dvh - var(--ep-topbar)); outline: none; } /* thu gọn / mở thanh bên đổi bề rộng TỨC THÌ: không animate width / margin (US-04 AC5) */
 .main:focus-visible { box-shadow: none; } /* ui-allow: vùng nhận focus bằng chương trình, không phải điều khiển */
 
 /* ---------- mobile ---------- */

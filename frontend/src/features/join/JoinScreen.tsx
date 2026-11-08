@@ -108,7 +108,7 @@ export function JoinScreen({ initialCode }: { initialCode?: string }) {
 
   return (
     <Page>
-      <PageHeader title="Tham gia lớp" description="Nhập mã tham gia giảng viên gửi cho bạn. Mã gồm 7 ký tự, không phân biệt chữ hoa chữ thường." />
+      <PageHeader title="Tham gia lớp" />
       <Section panel>
         {done ? (
           <div className={s.result}>

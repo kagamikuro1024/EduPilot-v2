@@ -27,14 +27,13 @@ import { TicketAction } from "./TicketAction";
 import { useChatRun, type Live } from "./useChatRun";
 import s from "./ChatScreen.module.css";
 import r from "./RealChat.module.css";
+import { formatTime, formatWhen } from "@/shared/lib/datetime";
 
 type Feedback = "HELPFUL" | "NOT_HELPFUL" | null;
 
 // Khối dữ liệu điểm do tool trả (US-P6-09): chỉ để LLM diễn đạt, không hiển thị thô cho sinh viên.
 const GRADE_BLOCKS = new Set(["grade_summary", "what_if", "grade_scheme"]);
 const BLOCK_TITLE: Record<string, string> = { upcoming_events: "Lịch sắp tới", exam_schedule: "Lịch thi", library_results: "Tài liệu" };
-const HM = new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" });
-const DAY = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const newKey = () => crypto.randomUUID();
 
 function errorLine(code: string | null, retryAfter?: number): string {
@@ -237,7 +236,7 @@ export function RealChat({ courseId }: { courseId: string }) {
               <div className={s.composer} data-part="chat-composer">
                 {locked && (
                   <p className={r.lock} role="status">
-                    Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${HM.format(until)}.` : ""}
+                    Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}
                   </p>
                 )}
                 <Composer
@@ -274,7 +273,7 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
         <li key={x.id} className={r.rowActions}>
           <button type="button" className={[s.historyItem, r.rowMain, current === x.id ? s.historyOn : ""].join(" ")} aria-pressed={current === x.id} onClick={() => onOpen(x.id)}>
             <span className={s.historyTitle}>{x.title ?? "Cuộc trò chuyện mới"}</span>
-            <span className={s.historyMeta}>{DAY.format(new Date(x.last_message_at))}</span>
+            <span className={s.historyMeta}>{formatWhen(x.last_message_at)}</span>
           </button>
           <Button variant="ghost" size="sm" className={r.rowDel} aria-label={`Xoá phiên ${x.title ?? ""}`} onClick={() => onDelete(x.id)}>
             <Trash2 aria-hidden />

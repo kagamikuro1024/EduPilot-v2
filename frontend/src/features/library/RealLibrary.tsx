@@ -6,11 +6,11 @@ import { ApiError } from "@/shared/data";
 import { ActionList, ActionRow, Button, ButtonLink, EmptyState, Field, InlineNotice, Input, OverflowMenu, Page, PageHeader, PageState, Panel, Select, Skeleton } from "@/shared/ui";
 import { TYPE_LABEL, askAboutDoc, useLibrary, type LibItem } from "./libraryApi";
 import r from "./RealLibrary.module.css";
+import { formatDay } from "@/shared/lib/datetime";
 
 const WEEKS = Array.from({ length: 20 }, (_, i) => String(i + 1));
-const AGO = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit" });
 
-export const metaOf = (d: Pick<LibItem, "type" | "week_no" | "updated_at">) => [TYPE_LABEL[d.type] ?? "Tài liệu", d.week_no ? `Tuần ${d.week_no}` : null, `cập nhật ${AGO.format(new Date(d.updated_at))}`].filter(Boolean).join(" · ");
+export const metaOf = (d: Pick<LibItem, "type" | "week_no" | "updated_at">) => [TYPE_LABEL[d.type] ?? "Tài liệu", d.week_no ? `Tuần ${d.week_no}` : null, `cập nhật ${formatDay(d.updated_at)}`].filter(Boolean).join(" · ");
 
 /** Thư viện thật của sinh viên (DESIGN §14.15): ô tìm kiếm trước, lọc loại / tuần, dòng gọn có dấu loại tệp bằng chữ. */
 export function RealLibrary({ courseId }: { courseId: string }) {

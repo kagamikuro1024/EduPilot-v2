@@ -117,9 +117,9 @@ test("active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền �
 
 type Row = [string, string];
 const NAV: Record<string, Row[]> = {
-  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Threads", "/threads"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
+  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
   "student-no-course": [["Hôm nay", "/"]],
-  ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Threads", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Insights", "/insights"], ["Analytics", "/analytics"]],
+  ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Hỏi đáp công khai", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Lỗ hổng kiến thức", "/insights"], ["Số liệu lớp học", "/analytics"]],
   teacher: [],
   admin: [["Hôm nay", "/"], ["Quan sát AI", "/observability"], ["Lớp học", "/admin/courses"], ["Người dùng", "/admin/users"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]],
 };

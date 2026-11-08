@@ -42,7 +42,8 @@ test.describe("states", () => {
     });
   const NOT_SELECTED = INTERACTIVE.split(", ").map((x) => `${x}:not([aria-selected="true"]):not([aria-checked="true"]):not([aria-pressed="true"])`).join(", ");
 
-  test("hover đổi ít nhất một thuộc tính tính toán", async ({ page }) => {
+  test("hover đổi ít nhất một thuộc tính tính toán", async ({ page }, info) => {
+    test.skip(info.project.name === "mobile", "US-UX91-04 AC2: mọi :hover nằm trong (hover: hover) and (pointer: fine); màn cảm ứng không có hover");
     await page.goto("/dev/ui");
     const bad: string[] = [];
     for (const b of HOVER) {

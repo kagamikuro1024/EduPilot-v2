@@ -37,5 +37,5 @@
 .genRow { display: flex; align-items: flex-end; gap: var(--ep-space-3); flex-wrap: wrap; }
 .genField { flex: 1; min-width: 220px; }
 .bar { height: 4px; border-radius: var(--ep-radius-pill); background: var(--ep-rule); overflow: hidden; }
-.barFill { display: block; height: 100%; background: var(--ep-red); transition: width var(--ep-fast) linear; }
+.barFill { display: block; height: 100%; background: var(--ep-red); width: 100%; transform: scaleX(var(--p, 0)); transform-origin: left center; transition: transform var(--ep-fast) var(--ep-ease-out); }
 .genText { font-size: var(--ep-text-label); color: var(--ep-ink-2); }

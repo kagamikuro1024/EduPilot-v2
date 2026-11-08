@@ -12,14 +12,15 @@
   border-radius: var(--ep-radius-md);
   background: var(--ep-surface);
   box-shadow: var(--ep-shadow-popover);
-  animation: pop var(--ep-normal) var(--ep-ease-out);
+  animation: pop var(--ep-fast) var(--ep-ease-out); /* ≤ 160 ms, gốc ở nút gọi (US-04 AC6) */
 }
-.end { right: 0; }
-.start { left: 0; }
+.end { right: 0; transform-origin: top right; }
+.start { left: 0; transform-origin: top left; }
 @keyframes pop { from { opacity: 0; transform: translateY(-4px); } }
 
 .dots { display: inline-grid; place-items: center; width: 32px; height: 32px; border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink-2); }
-.dots:hover, .dots[aria-expanded="true"] { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+.dots[aria-expanded="true"] { background: var(--ep-surface-subtle); color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .dots:hover { background: var(--ep-surface-subtle); color: var(--ep-ink); } }
 .dots svg { width: 18px; height: 18px; }
 
 .menu { display: grid; }
@@ -37,7 +38,8 @@
   font-size: var(--ep-text-label);
   text-align: left;
 }
-.item:hover, .item:focus-visible { background: var(--ep-surface-subtle); }
+.item:focus-visible { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .item:hover { background: var(--ep-surface-subtle); } }
 .item svg { width: 16px; height: 16px; color: var(--ep-ink-2); flex: none; }
 .itemLabel { flex: 1; min-width: 0; }
 .hint { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
@@ -51,6 +53,6 @@
   .dots { width: 44px; height: 44px; }
 }
 .item:disabled { color: var(--ep-ink-3); cursor: not-allowed; }
-.item:disabled:hover { background: transparent; }
+@media (hover: hover) and (pointer: fine) { .item:disabled:hover { background: transparent; } }
 .picked { font-weight: 600; }
 .tick { margin-left: auto; }

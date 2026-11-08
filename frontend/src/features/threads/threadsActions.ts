@@ -218,7 +218,7 @@ export function fireDueReplies(live: ThreadsLive, insight: InsightThreadLike[], 
       id: `note-${d.id}`,
       to: { roles: ["student"], studentId: d.studentId },
       title: `${STAFF.ta.name} đã trả lời trong «${thread.title}»`,
-      meta: "Threads",
+      meta: "Hỏi đáp công khai",
       href: `/threads/${d.threadId}#post-${postId}`,
       ms,
     });

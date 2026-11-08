@@ -7,7 +7,7 @@
   appearance: none; width: 20px; height: 20px; margin: 0; border: 1.5px solid var(--ep-rule); border-radius: var(--ep-radius-pill); background: var(--ep-surface);
   transition: border-color var(--ep-fast) var(--ep-ease-standard), background-color var(--ep-fast) var(--ep-ease-standard);
 }
-.cell:hover .radio { border-color: var(--ep-ink-3); }
+@media (hover: hover) and (pointer: fine) { .cell:hover .radio { border-color: var(--ep-ink-3); } }
 .radio:checked { border-color: var(--ep-red); border-width: 6px; }
 .radio:focus-visible { outline: 2px solid var(--ep-red); outline-offset: 2px; }
 .radio:disabled { border-color: var(--ep-rule); background: var(--ep-surface-subtle); cursor: not-allowed; }
@@ -16,7 +16,7 @@
   min-height: 44px; padding: 0 var(--ep-space-3); border: 1px solid transparent; border-radius: var(--ep-radius-sm); background: transparent;
   color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; white-space: nowrap;
 }
-.speak:hover:not(:disabled) { border-color: var(--ep-rule); color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .speak:hover:not(:disabled) { border-color: var(--ep-rule); color: var(--ep-ink); } }
 .speak:disabled { color: var(--ep-ink-3); }
 .count { color: var(--ep-ink-3); font-size: var(--ep-text-meta); margin-inline-end: var(--ep-space-2); }
 

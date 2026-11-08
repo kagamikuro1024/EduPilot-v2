@@ -4,7 +4,7 @@ import { Page, PageHeader } from "@/shared/ui";
 export function RouteStub({ title }: { title: string }) {
   return (
     <Page>
-      <PageHeader title={title} description="Màn này đang được dựng trong bản mô phỏng." />
+      <PageHeader title={title} />
     </Page>
   );
 }

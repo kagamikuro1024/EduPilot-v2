@@ -25,7 +25,7 @@ function useMine<T>(courseId: string, leaf: string, query = "") {
 }
 
 /** Kết quả của tôi (DESIGN §14.9): điểm (P6), chuyên cần, điểm cộng phát biểu, nhịp học nhỏ ở cuối. Không xếp hạng, không so sánh. */
-export function RealMe({ courseId, classCode }: { courseId: string; classCode: string }) {
+export function RealMe({ courseId }: { courseId: string }) {
   const att = useMine<MyAttendance>(courseId, "attendance", "?limit=100");
   const part = useMine<MyParticipation>(courseId, "participation", "?limit=10");
   const study = useMine<MyStudyTime>(courseId, "study-time", "?weeks=8");
@@ -37,7 +37,7 @@ export function RealMe({ courseId, classCode }: { courseId: string; classCode: s
   const failed = (!att.data && att.isError) || (!part.data && part.isError);
   return (
     <Page>
-      <PageHeader title="Kết quả của tôi" description={classCode} />
+      <PageHeader title="Kết quả của tôi" />
       {failed ? (
         <ApiErrorNotice error={att.error ?? part.error} showTechnical onRetry={retry} title="Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất." />
       ) : !att.data || !part.data ? (

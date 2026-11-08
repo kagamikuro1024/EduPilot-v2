@@ -23,7 +23,7 @@
   cursor: pointer;
 }
 .history li:first-child .historyItem { border-top: 0; }
-.historyItem:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .historyItem:hover { background: var(--ep-surface-subtle); } }
 .historyOn { background: var(--ep-surface-subtle); box-shadow: inset 2px 0 0 var(--ep-red); } /* ui-allow: vạch chọn 2px bằng token, không phải bóng */
 .historyTitle { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink); line-height: 1.35; overflow-wrap: anywhere; }
 .historyMeta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
@@ -66,7 +66,7 @@
   text-underline-offset: 3px;
   cursor: pointer;
 }
-.sourceBtn:hover, .linkBtn:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .sourceBtn:hover, .linkBtn:hover { color: var(--ep-ink); } }
 .linkBtn svg { width: 15px; height: 15px; }
 .linkBtn[aria-pressed="true"] { color: var(--ep-red); text-decoration: none; }
 .sources { list-style: none; margin: 0; padding: 0; display: grid; }
@@ -109,7 +109,7 @@
   text-align: left;
   cursor: pointer;
 }
-.sessionsBtn:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .sessionsBtn:hover { background: var(--ep-surface-subtle); } }
 .sheet { display: grid; gap: var(--ep-space-3); }
 .sheetHint { margin: 0; text-align: center; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .historyEmpty { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-3); }
