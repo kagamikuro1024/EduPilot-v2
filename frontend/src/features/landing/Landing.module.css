@@ -29,6 +29,7 @@
 .clipToggle { position: absolute; right: var(--ep-space-3); bottom: var(--ep-space-3); z-index: 1; min-height: 44px; min-width: 44px; padding: var(--ep-space-2) var(--ep-space-4); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface); color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; cursor: pointer; }
 .clipToggle[hidden] { display: none; }
 
+.wide { width: min(100% - 2 * var(--ep-space-6), 84rem); }
 .section { padding-block: clamp(4rem, 3rem + 4vw, 7.5rem); border-top: 1px solid var(--ep-rule); display: grid; gap: var(--ep-space-10); }
 
 /* ---- kể chuyện theo cuộn: mặc định (điện thoại, reduce, trình duyệt cũ) ba bước xếp dọc, mỗi bước mang ảnh của nó */
@@ -44,7 +45,7 @@
 .flow::before, .flow::after { content: ""; position: absolute; top: calc(var(--dot) / 2 - 1px); left: calc(var(--dot) / 2); right: calc((100% - 2 * var(--ep-space-8)) / 3 - var(--dot) / 2); height: 2px; transform-origin: left center; }
 .flow::before { background: var(--ep-rule); }
 .flow::after { background: var(--ep-red); }
-.step2 { position: relative; display: grid; gap: var(--ep-space-2); align-content: start; padding-top: calc(var(--dot) + var(--ep-space-4)); }
+.step2 { position: relative; display: grid; gap: var(--ep-space-1); align-content: start; padding-top: calc(var(--dot) + var(--ep-space-4)); }
 .mark { position: absolute; top: 0; left: 0; z-index: 1; display: grid; place-items: center; width: var(--dot); height: var(--dot); border-radius: 50%; border: 2px solid var(--ep-red); background: var(--ep-surface); color: var(--ep-ink); font-size: var(--ep-text-meta); font-weight: 700; }
 .specimen { display: grid; gap: var(--ep-space-1); margin-top: var(--ep-space-3); padding-block: var(--ep-space-3); border-block: 1px solid var(--ep-rule); font-size: var(--ep-text-label); font-variant-numeric: tabular-nums; }
 .specimen p { margin: 0; display: flex; justify-content: space-between; gap: var(--ep-space-3); color: var(--ep-ink-2); }
@@ -54,6 +55,10 @@
 .tagDone { border: 1px solid var(--ep-red); background: var(--ep-red-soft); color: var(--ep-ink); }
 .edit s { color: var(--ep-ink-3); text-decoration-color: var(--ep-ink-3); }
 .edit em { font-style: normal; }
+
+/* sơ đồ gọn: chỉ số bước, tên bước và mẫu (câu giải thích đã nằm ở khối kể chuyện ngay trên) */
+.compact { padding-block: clamp(2.5rem, 2rem + 2vw, 4.5rem); gap: var(--ep-space-6); }
+.compact .specimen { margin-top: var(--ep-space-2); }
 
 /* ---- số đo */
 .proofs { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--ep-space-8); }
@@ -91,7 +96,8 @@
 @media (max-width: 719px) {
   .top, .hero, .section, .foot { width: min(100% - 2 * var(--ep-space-4), 70rem); }
   .hero { padding-block: var(--ep-space-8) var(--ep-space-6); }
-  .heroText { min-height: calc(100svh - 12rem); } /* khối chữ gần đầy màn hình đầu; chỉ ~90 px mép trên poster lộ ra (nhỏ hơn diện tích h1) nên chữ vẫn là LCP, và mời cuộn */
+  .heroActions { gap: var(--ep-space-2); flex-wrap: nowrap; }
+  .heroActions > * { padding-inline: var(--ep-space-3); font-size: var(--ep-text-label); white-space: nowrap; }
   .section { gap: var(--ep-space-8); }
   .roles { grid-template-columns: 1fr; gap: var(--ep-space-8); }
   .steps { gap: var(--ep-space-10); }
@@ -151,10 +157,10 @@
   /* khung ghim (≥ 1100 px): ảnh chồng nhau trong một khung dính; bước i chiếm khung nhìn thì ảnh i hiện (mờ chéo theo dòng thời gian cuộn) */
   @media (min-width: 1100px) {
     @supports (animation-timeline: view()) {
-      .story { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--ep-space-12); align-items: start; timeline-scope: --s1, --s2, --s3; }
-      .stage { display: grid; position: sticky; top: 12vh; order: 2; }
+      .story { grid-template-columns: minmax(16rem, 21rem) minmax(0, 1fr); gap: var(--ep-space-12); align-items: start; timeline-scope: --s1, --s2, --s3; }
+      .stage { display: grid; position: sticky; top: 7vh; order: 2; }
       .steps { order: 1; gap: 0; }
-      .step { min-height: 80vh; align-content: center; }
+      .step { min-height: 52vh; align-content: center; }
       .stepFig { display: none; }
       .stageImg { grid-area: 1 / 1; }
       .step:nth-child(1) { view-timeline: --s1 block; }

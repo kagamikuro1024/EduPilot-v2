@@ -1,4 +1,4 @@
-import { getImageProps } from "next/image";
+import { Play } from "lucide-react";
 import { preload } from "react-dom";
 import Link from "next/link";
 import { Button, ButtonLink } from "@/shared/ui/Button";
@@ -18,9 +18,9 @@ const PROOFS = [
 
 // Ví dụ minh hoạ cho dòng chảy bài nộp: số mẫu, không phải số đo.
 const FLOW = [
-  { title: "AI soạn nháp", line: "Chấm theo rubric, mỗi tiêu chí kèm đoạn trích từ bài làm.", tag: "Nháp" },
-  { title: "Giảng viên duyệt", line: "Sửa từng tiêu chí, duyệt, rồi mới công bố.", tag: "Đã duyệt" },
-  { title: "Mã tính điểm", line: "Công thức trích từ quy chế và do giảng viên xác nhận. Không có AI trong phép tính.", tag: "Mã tính" },
+  { title: "AI soạn nháp", tag: "Nháp" },
+  { title: "Giảng viên duyệt", tag: "Đã duyệt" },
+  { title: "Mã tính điểm", tag: "Mã tính" },
 ] as const;
 
 // Kể chuyện theo cuộn: khung ghim đổi Chat → Duyệt bài → Sổ điểm (AC6). Ảnh chụp bằng scripts/landing-video/run.sh từ bản demo.
@@ -55,11 +55,10 @@ const STUDENT = [
   ["Hỏi đáp công khai", "Hỏi cả lớp và đọc câu trả lời đã được giảng viên xác nhận."],
 ] as const;
 
-/** Ảnh chụp màn hình (đều dưới màn hình đầu, nạp lười): WebP 1000 px đã nén sẵn, có width / height để không dịch bố cục. */
+/** Ảnh chụp màn hình (đều dưới màn hình đầu, nạp lười): WebP 1600 px (gấp đôi cho khung ~940 px) và 800 px cho điện thoại; có width / height để không dịch bố cục. */
 function Shot({ name, alt, className }: { name: string; alt: string; className?: string }) {
-  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1000, height: 625, alt, unoptimized: true, loading: "lazy", className, sizes: "(min-width: 1100px) 660px, 100vw" });
   // eslint-disable-next-line @next/next/no-img-element
-  return <img {...props} alt={alt} />;
+  return <img src={`/landing/${name}.webp`} srcSet={`/landing/${name}-800.webp 800w, /landing/${name}.webp 1600w`} sizes="(min-width: 1100px) 940px, 100vw" width={1600} height={1000} alt={alt} loading="lazy" decoding="async" className={className} />;
 }
 
 function Items({ title, rows }: { title: string; rows: ReadonlyArray<readonly [string, string]> }) {
@@ -79,8 +78,8 @@ function Items({ title, rows }: { title: string; rows: ReadonlyArray<readonly [s
 }
 
 export function Landing() {
-  // Poster clip là ảnh lớn nhất lần vẽ đầu ở ≥ 720 px: tải ngay từ <head>. Ở điện thoại khối chữ đầu trang cao gần hết màn hình, clip nằm dưới nếp gấp nên chữ là LCP.
-  preload("/landing/gioi-thieu-clip-v1.webp", { as: "image", media: "(min-width: 720px)", fetchPriority: "high" });
+  // Poster clip là ảnh lớn nhất lần vẽ đầu (cả điện thoại: nằm ngay dưới nút): tải ngay từ <head> để là LCP sớm, không đợi phông.
+  preload("/landing/gioi-thieu-clip-v1.webp", { as: "image", fetchPriority: "high" });
   return (
     <div className={s.page} data-part="landing">
       <LandingMedia />
@@ -97,10 +96,10 @@ export function Landing() {
             <h1 id="hero-title" className={s.display}>Vận hành lớp học có trợ lý AI, bảo vệ dữ liệu cá nhân</h1>
             <span className={s.thread} aria-hidden />
             <p className={s.lead}>AI soạn nháp. Giảng viên quyết. Điểm do mã tính.</p>
-            <div className={s.actions}>
+            <div className={`${s.actions} ${s.heroActions}`}>
               <ButtonLink href="/login" variant="primary">Đăng nhập</ButtonLink>
               <ButtonLink href="/register" variant="secondary">Tạo tài khoản</ButtonLink>
-              <Button variant="secondary" data-open-video>Xem video</Button>
+              <Button variant="text" icon={<Play aria-hidden width={14} height={14} fill="currentColor" />} data-open-video>Xem video</Button>
             </div>
           </div>
           <div className={`${s.heroShot} ${s.frame}`}>
@@ -110,7 +109,7 @@ export function Landing() {
           </div>
         </section>
 
-        <section className={s.section} aria-labelledby="story-title">
+        <section className={`${s.section} ${s.wide}`} aria-labelledby="story-title">
           <h2 id="story-title" className={s.h2}>Xem EduPilot làm việc</h2>
           <div className={s.story}>
             <div className={`${s.stage} ${s.frame}`} aria-hidden="true">
@@ -132,14 +131,13 @@ export function Landing() {
           </div>
         </section>
 
-        <section className={s.section} aria-labelledby="flow-title">
+        <section className={`${s.section} ${s.compact}`} aria-labelledby="flow-title">
           <h2 id="flow-title" className={s.h2}>AI soạn nháp, giảng viên quyết, mã tính điểm</h2>
           <ol className={s.flow}>
             {FLOW.map((f, i) => (
               <li key={f.title} className={s.step2} style={{ "--i": i } as React.CSSProperties}>
                 <span className={s.mark} aria-hidden>{i + 1}</span>
                 <h3 className={s.h3}>{f.title}</h3>
-                <p className={s.body}>{f.line}</p>
                 <div className={s.specimen} aria-hidden>
                   {i < 2 ? (
                     <>

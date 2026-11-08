@@ -40,16 +40,6 @@ const cursor = () => {
 };
 
 
-// Ảnh khung ghim: không phụ đề, không con trỏ (cả hai đã có ở video; ở khung ghim chúng chỉ chen vào nội dung). Dựng lại phụ đề sau khi chụp.
-async function still(page, a, name, restore) {
-  await a.cap(null);
-  await page.evaluate(() => document.querySelectorAll('div[style*="2147483647"]').forEach((e) => (e.style.visibility = "hidden")));
-  await sleep(150);
-  await page.screenshot({ path: `${OUT}/${name}.png` });
-  await page.evaluate(() => document.querySelectorAll('div[style*="2147483647"]').forEach((e) => (e.style.visibility = "")));
-  if (restore) await a.cap(restore);
-}
-
 // ---- đăng nhập không quay; giữ cookie phiên + lớp đang chọn (localStorage) trong storageState
 async function login(email, classCode) {
   const ctx = await browser.newContext({ viewport: VIEW, locale: "vi-VN" });
@@ -78,6 +68,7 @@ const meta = { poster: 0, scenes: [] };
 
 /** Một cảnh = một context. `run(page, a)`: a.start() bắt đầu ghi (gọi khi trang đã sẵn sàng), a.cap(text|null) đặt / xoá phụ đề, a.move / a.click đi chuột có đường. */
 async function scene(name, who, run, opt = {}) {
+  if (process.env.STILLS_ONLY) return; // chỉ chụp lại ba ảnh khung ghim
   const state = who && (await login(...who)); // đăng nhập MỚI cho mỗi cảnh: refresh token xoay vòng, dùng lại phiên cũ sẽ bị thu hồi
   const ctx = await browser.newContext({ viewport: VIEW, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh", storageState: state });
   await ctx.addInitScript(cursor);
@@ -156,7 +147,6 @@ await scene("s1-chat", sv, async (page, a) => {
   await sleep(1200);
   await a.cap(CAPTIONS[1]);
   await sleep(1200);
-  await still(page, a, "story-chat", CAPTIONS[1]); // ảnh khung ghim của trang giới thiệu (US-UX91-08 AC6), chụp trước phụ đề của lần quay kế
   await sleep(4300);
   await page.mouse.wheel(0, 300);
   await sleep(3500);
@@ -184,7 +174,6 @@ await scene("s2-review", gv, async (page, a) => {
   await page.mouse.move(1100, 880, { steps: 8 }); // đưa con trỏ ra khỏi vùng nội dung trước khi lấy poster
   await sleep(1500);
   a.posterHere();
-  await still(page, a, "story-review", CAPTIONS[3]);
   await sleep(3800);
   await a.cap(CAPTIONS[4]);
   await page.mouse.wheel(0, 380);
@@ -202,7 +191,6 @@ await scene("s3-gradebook", gv, async (page, a) => {
   await sleep(1000);
   const explain = page.getByRole("menuitem", { name: /Giải trình/ }).first();
   if (await explain.count()) { await a.click(explain); await sleep(900); }
-  await still(page, a, "story-gradebook", CAPTIONS[4]);
   await sleep(5100);
 });
 
@@ -241,9 +229,48 @@ await scene("s5-outro", undefined, async (page, a) => {
   await sleep(4000);
 });
 
-fs.writeFileSync(`${OUT}/frames.ffconcat`, frameLines.join("\n"));
-fs.writeFileSync(`${OUT}/clip.ffconcat`, clipLines.join("\n"));
-meta.total = +elapsed.toFixed(2);
-fs.writeFileSync(`${OUT}/meta.json`, JSON.stringify(meta, null, 2));
-console.log("tổng", meta.total, "s; poster ở", meta.poster.toFixed(1), "s");
+// ---- ba ảnh khung ghim của trang giới thiệu (US-UX91-08 AC6): chụp riêng, không quay: cửa sổ 1200 × 750 (8:5), độ phân giải gấp đôi, không phụ đề, không con trỏ.
+// Cỡ 1200 (không phải 1440) để chữ trong ảnh còn đọc được khi ảnh nằm trong khung ~940 px của trang.
+async function stills() {
+  const SHOT = { width: 1200, height: 750 };
+  const open = async (who) => browser.newContext({ viewport: SHOT, deviceScaleFactor: 2, locale: "vi-VN", timezoneId: "Asia/Ho_Chi_Minh", storageState: await login(...who) });
+  let ctx = await open(sv);
+  let p = await ctx.newPage();
+  await p.goto(`${BASE}/chat`, { waitUntil: "load" });
+  await p.getByRole("textbox").last().waitFor();
+  await sleep(1000);
+  await p.getByRole("button", { name: /Điều kiện để được dự thi/ }).first().click();
+  await p.mouse.move(SHOT.width - 4, SHOT.height - 4);
+  await sleep(1500);
+  await p.screenshot({ path: `${OUT}/story-chat.png` });
+  await ctx.close();
+
+  ctx = await open(gv);
+  p = await ctx.newPage();
+  await p.goto(`${BASE}/grading`, { waitUntil: "load" });
+  await sleep(1200);
+  await p.locator("main tbody tr").first().click();
+  await p.waitForURL(/\/grading\//);
+  await p.mouse.move(SHOT.width - 4, SHOT.height - 4);
+  await sleep(1500);
+  await p.screenshot({ path: `${OUT}/story-review.png` });
+  await p.goto(`${BASE}/gradebook`, { waitUntil: "load" });
+  await sleep(1500);
+  await p.locator("main tbody tr", { hasText: /\d{8}/ }).first().getByRole("button").last().click();
+  const explain = p.getByRole("menuitem", { name: /Giải trình/ }).first();
+  if (await explain.count()) { await explain.click(); await sleep(900); }
+  await p.mouse.move(SHOT.width - 4, SHOT.height - 4);
+  await sleep(600);
+  await p.screenshot({ path: `${OUT}/story-gradebook.png` });
+  await ctx.close();
+}
+await stills();
+
+if (!process.env.STILLS_ONLY) {
+  fs.writeFileSync(`${OUT}/frames.ffconcat`, frameLines.join("\n"));
+  fs.writeFileSync(`${OUT}/clip.ffconcat`, clipLines.join("\n"));
+  meta.total = +elapsed.toFixed(2);
+  fs.writeFileSync(`${OUT}/meta.json`, JSON.stringify(meta, null, 2));
+  console.log("tổng", meta.total, "s; poster ở", meta.poster.toFixed(1), "s");
+}
 await browser.close();
