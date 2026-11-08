@@ -45,9 +45,9 @@ const STUDENT = [
   ["Threads", "Hỏi cả lớp và đọc câu trả lời đã được giảng viên xác nhận."],
 ] as const;
 
-/** Ảnh chụp màn hình: tệp WebP đã nén sẵn (không qua bộ tối ưu của Next), điện thoại (≤ 719 px) tải bản 640 px; có width / height để không dịch bố cục. */
-function Shot({ name, alt, lazy, className, sizes }: { name: string; alt: string; lazy?: boolean; className?: string; sizes: string }) {
-  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1440, height: 900, alt, unoptimized: true, loading: lazy ? "lazy" : undefined, className, sizes });
+/** Ảnh chụp màn hình (đều dưới màn hình đầu, nạp lười để không tranh băng thông với poster video là ảnh LCP): tệp WebP đã nén sẵn (không qua bộ tối ưu của Next), điện thoại (≤ 719 px) tải bản 640 px; có width / height để không dịch bố cục. */
+function Shot({ name, alt, className, sizes }: { name: string; alt: string; className?: string; sizes: string }) {
+  const { props } = getImageProps({ src: `/landing/${name}.webp`, width: 1440, height: 900, alt, unoptimized: true, loading: "lazy", className, sizes });
   const small = getImageProps({ src: `/landing/${name}-640.webp`, width: 640, height: 400, alt, unoptimized: true });
   return (
     <picture>
