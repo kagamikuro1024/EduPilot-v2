@@ -15,7 +15,7 @@ Nhánh `sprint/9.1-uiux` (đã gộp `ops/vps-deploy`). Mọi build / test chạ
 | Playwright cả bộ, `CI=1` (2 worker, retry 1), desktop + mobile, `--grep-invert @real` | 824 passed, 464 skipped, 0 failed (12,5 phút) |
 | GitHub CI `ops/vps-deploy` @ `8c68df9a` | xanh (run 42475773053) |
 
-Đã gộp `ops/vps-deploy` vào `sprint/9.1-uiux`. Ở cuối tài liệu có số liệu của cả bộ chạy lại trên nhánh sprint.
+Đã gộp `ops/vps-deploy` vào `sprint/9.1-uiux`. Cả bộ chạy lại trên nhánh sprint (có trang giới thiệu mới) ở mục dưới.
 
 ## B. Trang giới thiệu mới + video
 
@@ -39,13 +39,13 @@ Nhánh `sprint/9.1-uiux` (đã gộp `ops/vps-deploy`). Mọi build / test chạ
 - **Không làm (xin PM xác nhận):** nút phụ "Xem video 75 giây ▶" ở hero (video nằm ngay dưới nên nút chỉ cuộn vài chục px); đường đỏ SVG chạy từ "5,25" tới "Duyệt bài" trong khung sản phẩm (hero là video, không phải ảnh tĩnh để vẽ lên); dự phòng `IntersectionObserver` cho trình duyệt thiếu `animation-timeline` (TL-1: nội dung hiện tĩnh, không mất chữ; thêm JS vào bundle của `/` không đáng).
 
 ### Số đo (bản demo công khai, VPS 12 vCPU / 32 GB, Lighthouse 12, ẩn danh)
-| Chỉ số | Di động (throttle thật, 3 lượt) | Di động (simulate) | Máy tính (simulate) |
+| Chỉ số | Di động (throttle thật, 3 lượt) | Di động (simulate, 3 lượt) | Máy tính (simulate, 3 lượt) |
 | --- | --- | --- | --- |
-| LCP | 2,14 · 2,27 · 2,28 s | 2,6 s (tính cả JS vào đồ thị, như CI ghi) | 0,55 s |
-| TBT | 146–170 ms | 56–107 ms | 0 ms |
-| CLS | 0,002–0,007 | 0 | 0 |
-| JS truyền | 215 KB | – | – |
-| Hiệu năng / A11y | 96–97 / – | 96–97 / 100 | 100 / 100 |
+| LCP | 2,30 · 2,31 · 2,32 s (phần tử LCP: h1) | 2,63 s (h1; simulate tính cả 216 KB JS vào đồ thị LCP, CI cũng không chấm LCP ở lượt này) | 0,55 · 0,55 · 0,61 s (video poster) |
+| TBT | 114–131 ms | 57–70 ms | 0 ms |
+| CLS | 0,002 | 0 | 0 |
+| JS truyền | 216 KB (< 256 KB) | – | – |
+| Hiệu năng / A11y | 97 / – | 96–97 / 100 | 100 / 100 |
 
 - **Bài học LCP di động:** poster nằm trong màn hình đầu thì LCP 3,1 s (poster 52 KB tranh băng thông 1,6 Mbps với phông + 215 KB JS; đổi poster 84 → 52 KB và nạp lười ảnh sản phẩm không giúp). Sửa: ở < 720 px khối chữ đầu trang cao gần hết màn hình, video nằm dưới nếp gấp, `preload` poster chỉ cho ≥ 720 px; chữ là LCP.
 - Không cổng tự động nào đo LCP của trang giới thiệu (`lighthouse-auth.cjs` gán `/` vào vai sinh viên); số trên là lượt đo tay: `/srv/work/dev/lh.sh` (simulate), `lhdt.sh` (throttle thật, ngoài repo).
@@ -59,6 +59,14 @@ Nhánh `sprint/9.1-uiux` (đã gộp `ops/vps-deploy`). Mọi build / test chạ
 Bản demo ở `https://v2202609419695521098.happysrv.de/` đã dựng lại **chỉ frontend** từ `sprint/9.1-uiux` (`/opt/edupilot` đang ở nhánh này). Ảnh mốc `visual.spec` chụp `/` ở vai sinh viên đã đăng nhập nên không phải sinh lại.
 
 Ảnh: `docs/sprints/9.1/handoff/dev-phase1-shots/` (1440 và 375, đầu trang, sơ đồ, số đo, đổi vai, CTA). Video: `/landing/gioi-thieu-v1.mp4` trên bản demo.
+
+## Cổng chạy trên nhánh `sprint/9.1-uiux` (VPS, mã ở `765dabfb` + CSS di động về sau)
+| Kiểm | Kết quả |
+| --- | --- |
+| `pnpm lint`, `bash scripts/ui-antipatterns.sh` | sạch (22 phép ✓) |
+| `lhci autorun` simulate, 8 URL × 5 lượt (cấu hình CI, ngưỡng JS 256 KB giữ nguyên) | không `✘` |
+| Playwright cả bộ, `CI=1`, desktop + mobile | 827 passed, 467 skipped, 0 failed (12,3 phút) |
+| GitHub CI | xanh ở `765dabfb` (run 42480063791) và `7666513f` (run 42481287269); lần đẩy cuối chỉ đổi CSS di động, chờ CI |
 
 ## Cần PM / BA
 1. Hai mục "Không làm" ở trên.
