@@ -197,8 +197,8 @@ test("study time locked on strict course: bật và khoá, tooltip lý do ở ch
   const sw = page.getByRole("switch", { name: "761987 · An ninh mạng" });
   await expect(sw).toBeChecked();
   await expect(sw).toBeDisabled();
-  await expect(sw).toHaveAttribute("title", "Lớp này luôn ghi thời gian học");
-  await expect(page.getByText("Lớp này luôn ghi thời gian học")).toHaveCount(0); // không dòng mô tả
+  await expect(sw).toHaveAccessibleDescription("Lớp này luôn ghi thời gian học"); // US-UX91-01 AC5: tooltip thật gắn aria-describedby (không còn title native)
+  await expect(page.locator("main p", { hasText: "Lớp này luôn ghi thời gian học" })).toHaveCount(0); // không dòng mô tả
 });
 
 test("study time group hidden before acknowledgement", async ({ page, context }) => {
@@ -241,7 +241,7 @@ test("class settings opt out locked: đã có sinh viên → công tắc disable
   await classSettings(page, context, "teacher", detail({ allow: true, students: 1 }));
   const sw = page.getByRole("switch", { name: "Cho sinh viên tắt đo thời gian học" });
   await expect(sw).toBeDisabled();
-  await expect(sw).toHaveAttribute("title", "Lớp đã có sinh viên");
+  await expect(sw).toHaveAccessibleDescription("Lớp đã có sinh viên");
 });
 
 test("class settings opt out race: 409 COURSE_HAS_STUDENTS → hoàn lại + một dòng", async ({ page, context }) => {

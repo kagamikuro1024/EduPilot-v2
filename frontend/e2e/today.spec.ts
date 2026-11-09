@@ -169,9 +169,9 @@ test("staff today: tiêu đề đếm việc, hàng đúng thứ tự, 'lớp 76
 
 test("staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn chữ, đúng một nút đỏ, không lặp mã lớp (US-UX91-10)", async ({ page }) => {
   const acts = [
-    item("GRADING_ERROR", "2 bài chấm lỗi", "Chạy lại ở hàng chờ.", { urgency: "overdue", course: c1, href: "/grading" }),
-    item("GRADING_REVIEW", "Bài AI cần xem kỹ", "Độ tin cậy thấp.", { urgency: "high", course: c1, href: "/grading" }),
-    item("PUBLISH_PENDING", "Công bố điểm Bài 2", "Đã duyệt đủ.", { course: c1, href: "/grading" }),
+    item("GRADING_ERROR", "Buổi 4 đã kết thúc, chưa điểm danh · 761988", "Chạy lại ở hàng chờ.", { urgency: "overdue", course: c1, href: "/grading" }),
+    item("GRADING_REVIEW", "3 yêu cầu vào lớp 761988 đang chờ duyệt", "Độ tin cậy thấp.", { urgency: "high", course: c1, href: "/grading" }),
+    item("PUBLISH_PENDING", "3 câu trả lời AI chờ xác nhận · lớp 761988", "Đã duyệt đủ.", { course: c1, href: "/grading" }),
     item("EXAM_SIMILARITY", "Hai bài thi giống nhau", "Xem khi rảnh.", { course: c1, href: "/exams" }),
     item("UNMATCHED_SUBMISSION", "1 bài chưa khớp sinh viên", "Chọn sinh viên.", { course: c1, href: "/grading" }),
   ];
@@ -184,7 +184,7 @@ test("staff today: việc chia nhóm Gấp / Hôm nay / Khi rảnh có nhãn ch�
   await expect(main(page).locator('a[data-variant="primary"]')).toHaveCount(1);
   await expect(main(page).locator('li[data-kind="GRADING_ERROR"] a[data-variant="primary"]')).toBeVisible(); // việc đầu của nhóm đầu
   await expect(main(page).locator('li[data-kind="GRADING_REVIEW"] a[data-variant="ghost"] svg')).toHaveCount(1); // ghost + mũi tên
-  await expect(main(page).locator("li[data-kind]").first()).not.toContainText("lớp 761988"); // một lớp đang chọn: không lặp mã lớp
+  expect((await main(page).locator("li[data-kind]").allInnerTexts()).join(" ")).not.toContain("761988"); // một lớp đang chọn: không lặp mã lớp (chữ máy chủ vẫn mang mã)
   await expect(main(page).getByRole("heading", { name: "Việc cần xử lý", exact: true })).toHaveCount(0); // khối trùng tiêu đề trang đã bỏ
 });
 

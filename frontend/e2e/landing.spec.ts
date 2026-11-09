@@ -143,6 +143,12 @@ test("landing video đầy đủ: không tải khi chưa bấm; `Xem video` mở
   await page.keyboard.press("Escape");
   await expect(dlg).toBeHidden();
   await expect(open).toBeFocused();
+  // US-UX91-08 AC5: đóng thì dừng và bỏ nguồn; mở lại có nguồn trở lại
+  await expect(video.locator("source")).toHaveCount(0);
+  expect(await video.evaluate((v: HTMLVideoElement) => v.currentSrc)).toBe("");
+  await open.click();
+  await expect(video.locator("source")).toHaveCount(2);
+  await page.keyboard.press("Escape");
   await expect(page.locator("#video-loi")).toContainText("AI không tự công bố");
 });
 

@@ -416,7 +416,7 @@ async function staffToday(page: Page) {
 test.describe("staff home", () => {
   for (const role of STAFF_ROLES) {
     for (const w of [1440, 1024]) {
-      test(`/ ${role} @${w}: Panel "Việc cần xử lý" + "Sắp tới", NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu`, async ({ page, context }, info) => {
+      test(`/ ${role} @${w}: nhóm việc (h3) + Panel "Sắp tới", NEST/TITLE/WALL = 0, STRONG ≤ 1, không ô số liệu`, async ({ page, context }, info) => {
         test.skip(info.project.name !== "desktop", "đo cả hai bề rộng trong một ca");
         await asDemo(context, role);
         await staffToday(page);
@@ -424,9 +424,9 @@ test.describe("staff home", () => {
         await page.goto("/");
         await page.getByRole("heading", { name: "Sắp tới", level: 2 }).waitFor();
         const v = await violations(page);
-        expect(v).toMatchObject({ nest: 0, title: 0, wall: 0, strongNested: 0, panels: 2 });
+        expect(v).toMatchObject({ nest: 0, title: 0, wall: 0, strongNested: 0, panels: 1 });
         expect(v.strongMax).toBeLessThanOrEqual(1);
-        expect(v.h2).toEqual(["Việc cần xử lý", "Sắp tới"]);
+        expect(v.h2).toEqual(["Sắp tới"]); // US-UX91-10 AC3: khối "Việc cần xử lý" trùng tiêu đề trang đã bỏ
         expect(await page.locator("main [data-part=kpi]").count()).toBe(0);
       });
     }

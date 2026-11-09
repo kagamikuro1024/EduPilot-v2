@@ -89,15 +89,20 @@ test("course picker: ?course= của lớp thuộc người này đè lựa chọ
   await expect(picker(page)).toContainText("761988");
 });
 
-test("course picker: mặc định bỏ qua lớp đã lưu trữ; chọn tay một lớp thì tải lại vẫn giữ", async ({ page }) => {
+test("course picker: lớp đã lưu trữ không là mặc định và không được nhớ (US-UX91-06 AC3, P-91-9)", async ({ page }) => {
   await login(page, "TEACHER", [item(C1, "900001", "TEACHER", "ACTIVE", "ARCHIVED"), item(C2, "761988", "TEACHER")]);
   await page.goto("/");
   await expect(picker(page)).toContainText("761988"); // lớp đầu danh sách đã lưu trữ nhưng không là mặc định
   const panel = await options(page);
   await panel.getByRole("menuitem", { name: /900001/ }).click();
-  await expect(picker(page)).toContainText("900001");
+  await expect(picker(page)).toContainText("900001"); // xem tạm trong phiên được
+  expect(await page.evaluate(() => localStorage.getItem("ep:ui:course"))).not.toBe(C1); // nhưng không ghi nhớ
   await page.reload();
-  await expect(picker(page)).toContainText("900001");
+  await expect(picker(page)).toContainText("761988");
+  await page.evaluate((id) => localStorage.setItem("ep:ui:course", id), C1); // giá trị cũ trỏ tới lớp đã lưu trữ bị bỏ
+  await page.reload();
+  await expect(picker(page)).toContainText("761988");
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("ep:ui:course"))).toBeNull();
 });
 
 test("course picker: không lớp nào → 'Chưa có lớp'; chữ dài bị cắt có title; không tràn ở 1440 / 390", async ({ page }) => {

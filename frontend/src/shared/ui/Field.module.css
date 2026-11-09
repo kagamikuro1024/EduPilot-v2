@@ -35,7 +35,18 @@
 .check { display: inline-flex; align-items: center; gap: var(--ep-space-2); font-size: var(--ep-text-label); color: var(--ep-ink); cursor: pointer; }
 .check input { width: 16px; height: 16px; accent-color: var(--ep-red); margin: 0; }
 
-.switchRow { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ep-space-6); }
+.switchRow { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: var(--ep-space-6); }
+/* Tooltip của công tắc (US-UX91-01 AC5): hiện khi rê / focus / chạm; chỉ `opacity`. */
+.tip {
+  position: absolute; top: calc(100% + var(--ep-space-1)); left: 0; z-index: var(--ep-z-popover);
+  width: max-content; max-width: min(18rem, 80vw); padding: var(--ep-space-2) var(--ep-space-3);
+  border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); background: var(--ep-surface);
+  box-shadow: var(--ep-shadow-popover); /* ui-allow: cùng lớp nổi với Popover của shared/ui */
+  font-size: var(--ep-text-meta); font-weight: 400; color: var(--ep-ink-2); line-height: 1.45;
+  opacity: 0; pointer-events: none; transition: opacity 120ms var(--ep-ease-out);
+}
+.switchRow:focus-within .tip, .switchRow:active .tip { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .switchRow:hover .tip { opacity: 1; } }
 .switch {
   flex: none;
   position: relative;

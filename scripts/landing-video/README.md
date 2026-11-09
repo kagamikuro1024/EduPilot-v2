@@ -12,7 +12,7 @@ Quay một bản chạy EduPilot đã seed (chỉ đọc, không gửi câu hỏ
 EP_HOST=<host> SEED_DEFAULT_PASSWORD=<mật khẩu seed> bash scripts/landing-video/run.sh
 # hoặc đọc từ một tệp .env
 ENV_FILE=/opt/edupilot/.env.local bash scripts/landing-video/run.sh
-# stack thử (ví dụ ep-qc) chỉ bind 127.0.0.1: chạy trên chính máy đó
+# stack thử (ví dụ ep-qc) chỉ bind 127.0.0.1: chạy trên chính máy đó, trỏ vào cổng Caddy (có /api), không phải cổng frontend
 EP_BASE_URL=http://127.0.0.1:<cổng> SEED_DEFAULT_PASSWORD=… bash scripts/landing-video/run.sh
 # chỉ chụp lại ba ảnh khung ghim (≈ 1 phút)
 STILLS_ONLY=1 EP_HOST=… SEED_DEFAULT_PASSWORD=… bash scripts/landing-video/run.sh

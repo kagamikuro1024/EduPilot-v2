@@ -6,7 +6,7 @@ import fs from "node:fs";
 
 const PW = process.env.PW;
 const OUT = process.env.OUT ?? "/out";
-const BASE = process.env.EP_BASE_URL ?? `https://${process.env.EP_HOST}`; // chạy bằng run.sh: xem README.md
+const BASE = process.env.EP_BASE_URL || `https://${process.env.EP_HOST}`; // `||`: run.sh truyền chuỗi rỗng khi chỉ có EP_HOST; xem README.md
 const VIEW = { width: 1440, height: 900 };
 
 // Phụ đề (in vào hình bằng showOverlay). PHẢI khớp VIDEO_CAPTIONS trong frontend/src/features/landing/Landing.tsx (lời thay cho video không tiếng).

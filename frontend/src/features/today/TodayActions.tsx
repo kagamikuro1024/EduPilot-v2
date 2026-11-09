@@ -6,7 +6,7 @@ import { useState } from "react";
 import { apiClient } from "@/shared/data";
 import { ActionList, ActionRow, Button, ButtonLink } from "@/shared/ui";
 import s from "./Today.module.css";
-import { classLabel } from "./format";
+import { classLabel, withoutClass } from "./format";
 import { TODAY_KEY, type TodayItem } from "./todayApi";
 
 const CTA: Record<string, string> = {
@@ -74,7 +74,7 @@ export function TodayActions({ actions, showClass, canDismiss }: { actions: Toda
                 href={a.steps ? undefined : a.href || undefined}
                 redThread={!a.steps}
                 data={{ "data-kind": a.kind }}
-                title={a.title}
+                title={showClass ? a.title : withoutClass(a.title, a.course)}
                 context={
                   <>
                     {a.reason}

@@ -125,6 +125,38 @@ test.describe("states", () => {
   });
 });
 
+// US-UX91-03 AC8 (P-91-9 (1)): kiểm bằng E2E, không bằng ảnh mốc. Ca nằm ở khối `Button`, ô `disabled`; ca "có lý do, không khoá" ở "Ca đặc biệt".
+test("nút khoá có lý do: focus / rê / chạm hiện lý do, bấm không kích hoạt; lý do mà không khoá thì bỏ qua", async ({ page }, info) => {
+  await page.goto("/dev/ui");
+  const c = cell(page, "Button", "disabled");
+  const btn = c.getByRole("button", { name: "Lưu thay đổi" });
+  const tip = c.locator("[role=tooltip]");
+  await btn.scrollIntoViewIfNeeded();
+  await expect(btn).toHaveAttribute("aria-disabled", "true");
+  await expect(tip).toHaveText("Cần xác nhận công thức trước");
+  await expect(btn).toHaveAttribute("aria-describedby", (await tip.getAttribute("id")) ?? "");
+  await expect(tip).toHaveCSS("opacity", "0");
+  await btn.focus(); // bàn phím: focus được dù khoá
+  await expect(tip).toHaveCSS("opacity", "1");
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Space");
+  await btn.blur();
+  await expect(tip).toHaveCSS("opacity", "0");
+  if (info.project.name === "desktop") {
+    await btn.hover();
+    await expect(tip).toHaveCSS("opacity", "1");
+  } else {
+    await btn.tap({ force: true }); // chạm: lý do hiện (dưới nút) và còn sau khi nhả; `force` vì aria-disabled không qua kiểm tra "enabled" của Playwright
+    await expect(tip).toHaveCSS("opacity", "1");
+  }
+  await btn.click({ force: true });
+  expect(await c.getAttribute("data-calls")).toBe("0");
+  const free = page.locator('[data-case="reason-not-disabled"]');
+  await free.scrollIntoViewIfNeeded();
+  await expect(free).not.toHaveAttribute("aria-describedby");
+  await expect(free.locator("xpath=..").locator("[role=tooltip]")).toHaveCount(0);
+});
+
 test("loading / empty / error đúng quy ước", async ({ page }) => {
   await page.goto("/dev/ui");
   const bad: string[] = [];

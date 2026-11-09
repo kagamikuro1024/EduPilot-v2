@@ -85,14 +85,24 @@ export function LandingMedia() {
 
     // ---- hộp thoại video đầy đủ
     const dlg = root.querySelector<HTMLDialogElement>("[data-video-dialog]");
-    const full = dlg?.querySelector<HTMLVideoElement>("video");
+    let full = dlg?.querySelector<HTMLVideoElement>("video") ?? null;
     const open = root.querySelector<HTMLElement>("[data-open-video]");
     if (dlg && full && open) {
+      const sources = [...full.querySelectorAll("source")].map((x) => x.cloneNode(true));
       on(open, "click", () => {
+        if (!full) return;
         if (!full.getAttribute("poster") && full.dataset.poster) full.setAttribute("poster", full.dataset.poster);
+        if (!full.querySelector("source")) full.append(...sources.map((x) => x.cloneNode(true)));
         dlg.showModal();
       });
-      on(dlg, "close", () => full.pause());
+      // đóng: dừng và bỏ nguồn (AC5). Chromium không xoá `currentSrc` khi gỡ <source> + load(), nên thay hẳn phần tử bằng bản không nguồn (huỷ luôn việc tải)
+      on(dlg, "close", () => {
+        if (!full) return;
+        full.pause();
+        const fresh = full.cloneNode(false) as HTMLVideoElement;
+        full.replaceWith(fresh);
+        full = fresh;
+      });
       on(dlg, "click", (e) => {
         if (e.target === dlg) dlg.close(); // bấm ra ngoài khung
       });
