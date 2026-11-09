@@ -93,3 +93,4 @@ th.frozen { z-index: 4; background: var(--ep-surface-subtle); }
 @media (hover: hover) and (pointer: fine) { .cellInput:hover { border-color: var(--ep-ink-3); } }
 .cellInput:focus-visible { border-color: var(--ep-ink); background: var(--ep-surface); outline: 2px solid var(--ep-ink); outline-offset: 0; }
 .cellInput[aria-invalid="true"] { border-color: var(--ep-red); }
+@media (max-width: 719px) { .cellInput { min-height: 44px; } }

@@ -317,3 +317,18 @@ for (const [state, shown] of [["NO_POLICY", true], ["DRAFT_READY", true], ["CONF
     expect(api).toBeTruthy();
   });
 }
+
+// US-UX91-12 AC7: ở di động khối cảnh báo công thức một dòng ≤ 56 px, nút vẫn ≥ 44 px
+test("attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "mobile", "đo ở di động");
+  await asDemo(context, "teacher");
+  await page.clock.setFixedTime(NOW);
+  await attApi(page);
+  await page.route("**/api/v1/courses/*/grade-scheme/status", (r) =>
+    r.fulfill(json({ state: "NO_POLICY", unclear_count: 0, has_policy: false, pending_draft: false, gradebook: { status: "OPEN", snapshot_version: 0 } })));
+  await page.goto("/attendance");
+  await expect(page.getByRole("link", { name: "Xem công thức" })).toBeVisible();
+  const box = await page.getByRole("status").filter({ hasText: "Công thức" }).boundingBox();
+  expect(box!.height).toBeLessThanOrEqual(56);
+  expect((await page.getByRole("link", { name: "Xem công thức" }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+});

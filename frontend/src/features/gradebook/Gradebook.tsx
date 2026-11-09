@@ -266,6 +266,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     cell: c.source === "MANUAL" ? {
       editable: () => canEdit,
       value: (r: GRow) => vi(r.entries[c.item_id]?.score),
+      display: (r: GRow) => (r.entries[c.item_id]?.score ? padScore(r.entries[c.item_id]?.score, dec.items[c.item_id]) : ""),
       label: (r: GRow) => `${c.name} — ${r.student.full_name}`,
       invalid: (r: GRow) => cells[`${r.student.id}:${c.item_id}`]?.kind === "error",
       status: (r: GRow) => {

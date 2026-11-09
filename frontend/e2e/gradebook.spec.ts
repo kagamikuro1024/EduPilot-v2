@@ -281,13 +281,18 @@ test("official note: đúng một dòng ghi chú cố định dưới bảng", a
 test("cell edit keys: Enter lưu và xuống ô dưới, Tab lưu và sang phải, Esc hoàn tác, xoá ô = xoá điểm; lỗi giữ chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await sheet(page, context);
+  // US-UX91-16 AC2: ⋯ của tiêu đề cột chỉ hiện khi rê / focus
+  const colMenu = page.getByRole("button", { name: /^Cột / }).first();
+  await expect(colMenu).toHaveCSS("opacity", "0");
+  await colMenu.focus();
+  await expect(colMenu).toHaveCSS("opacity", "1");
   const a = cellOf(page, 1, WEEKLY);
   await a.fill("8,5");
   await a.press("Enter");
   await expect.poll(() => api.puts().length).toBe(1);
   expect(JSON.parse(api.puts()[0].body)).toEqual({ item_id: WEEKLY, student_id: gbStudent(1).id, score: "8.5", version: null });
   await expect(cellOf(page, 2, WEEKLY)).toBeFocused();
-  await expect(a).toHaveValue("8,5");
+  await expect(a).toHaveValue("8,50");
   const b = cellOf(page, 2, WEEKLY);
   await b.fill("7");
   await b.press("Tab");
@@ -334,10 +339,12 @@ test("cell conflict choose: người sau nhận 409, hiện giá trị người 
   const key = `${gbStudent(1).id}:${WEEKLY}`;
   api.entries.set(key, { score: "6", version: 1, source: "MANUAL" });
   await page.reload();
-  await expect(cellOf(page, 1, WEEKLY)).toHaveValue("6");
+  await expect(cellOf(page, 1, WEEKLY)).toHaveValue("6,00");
   api.entries.set(key, { score: "7.5", version: 2, source: "MANUAL" }); // người kia vừa nhập
   const a = cellOf(page, 1, WEEKLY);
-  await expect(a).toHaveValue("6");
+  await expect(a).toHaveValue("6,00"); // US-UX91-16 AC1 (P-91-10): ô nhập đệm 0 khi không focus
+  await a.focus();
+  await expect(a).toHaveValue("6"); // focus → giá trị gốc
   await a.fill("9");
   await a.press("Enter");
   const pop = page.locator("[data-part=cell-conflict]");
@@ -353,7 +360,7 @@ test("cell conflict choose: người sau nhận 409, hiện giá trị người 
   await expect(pop).toBeVisible();
   await pop.getByRole("button", { name: "Dùng của họ" }).click();
   await expect(pop).toHaveCount(0);
-  await expect(a).toHaveValue("5");
+  await expect(a).toHaveValue("5,00");
 });
 
 test("explain student B: Giải trình từ menu dòng, từng dòng phép tính, căn cứ mở đoạn trích, dòng do giảng viên đặt", async ({ page, context }, info) => {
@@ -526,7 +533,7 @@ test("import xlsx flow: ba bước, nút chính theo bước, ghi xong bảng đ
   expect(api.calls.filter((c) => c.path.endsWith("/grade-entries/import") && JSON.parse(c.body).mode === "commit")).toHaveLength(0); // xem trước không ghi
   await dlg.getByRole("button", { name: "Ghi 3 dòng" }).click();
   await expect(dlg).toHaveCount(0);
-  await expect(cellOf(page, 2, WEEKLY)).toHaveValue("8");
+  await expect(cellOf(page, 2, WEEKLY)).toHaveValue("8,00");
   const commit = api.calls.find((c) => c.path.endsWith("/grade-entries/import") && JSON.parse(c.body).mode === "commit")!;
   expect(commit.idem).not.toBe("");
   expect(JSON.parse(commit.body)).toMatchObject({ skip_errors: false, mapping: { header_row: 1, student_code_col: "A", score_col: "C" } });

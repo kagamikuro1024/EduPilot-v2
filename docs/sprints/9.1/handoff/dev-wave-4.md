@@ -20,3 +20,18 @@ Commit: xem `9.1 đợt 4` trong `git log` nhánh `sprint/9.1-uiux`. Stack kiể
 
 ## Dữ liệu kiểm (P-91-5 Q4)
 - Lớp 761987: sinh viên `sv.kha` (Bùi Thanh Khải, MSSV `20229002`), bài Bài tập 03 — mẫu S7: tiêu chí 2 lệch 1,5 điểm (lượt 1 = 1,0, lượt 2 = 2,5).
+
+## Sửa QC đợt 4 (P-91-10) — commit `9.1 sửa QC đợt 4`
+| # | Lỗi QC | Sửa | Vị trí |
+| --- | --- | --- | --- |
+| 1 | US-15 AC7 lỗi duyệt không ở thanh dưới, không `Thử lại` | `approve` bắt lỗi (trừ `VERSION_CONFLICT`, vẫn hỏi giữ bên nào) và hiện `InlineNotice` + `Thử lại` ngay trong thanh dưới | `SubmissionReview.tsx`, `.module.css` (`footErr`) |
+| 2 | US-15 AC3 thanh dưới bị cắt ở 1440×900 | chiều cao cột phải = khung nhìn − vị trí đỉnh cột − 56 px (đo lúc dựng + khi resize, chỉ ≥ 1100 px) thay cho hằng 130 px | `SubmissionReview.tsx` (`panelRef`) |
+| 3 | «Đã duyệt N/M» N = 0, M co lại | N, M mang theo URL (`?n=&m=`): N tăng mỗi lần duyệt, M = số bài của hàng chờ lúc mở (P-91-10 (3)) | `SubmissionReview.tsx` |
+| 4 | US-16 AC1 ô nhập «7», «8,5» | `cell.display` mới của `DataTable`: ô không focus hiện giá trị đệm 0 (`padScore`), focus hiện giá trị gốc + chọn hết, đang có nháp thì hiện nháp (P-91-10 (2)) | `DataTable.tsx`, `DataTableVirtual.tsx`, `Gradebook.tsx` |
+| 5 | US-16 AC2 `⋯` tiêu đề cột thường trực | độ mờ đặt trên chính nút (`opacity:0`, hiện khi rê / focus-within; chỉ lộ sẵn khi `hover:none`) | `Gradebook.module.css` |
+| 6 | US-16 AC10 ô nhập 32 px ở 375 | `.cellInput { min-height: 44px }` dưới 720 px | `DataTable.module.css` |
+| 7 | US-12 AC7 khối cảnh báo 62 px ở 375 | di động: nhãn nút «Xem» (tên trợ năng vẫn «Xem công thức»), vùng chạm 44 px bù bằng lề âm để khối một dòng ≤ 56 px | `RealAttendance.tsx`, `.module.css` |
+
+Test đổi theo AC mới (không nới): `gradebook.spec.ts` ô không focus «6,00», «8,50», «8,00», focus → «6»; ô đang có nháp giữ chữ gõ. Thêm: `assignment-lifecycle.spec.ts` (thanh dưới trong 900 px, N/M, lỗi duyệt ở thanh dưới + Thử lại), `attendance.spec.ts` (di động ≤ 56 px, nút ≥ 44 px), `gradebook.spec.ts` (`⋯` cột mờ 0 → 1 khi focus).
+Gate VPS (`/srv/work/dev`): lint sạch, build xanh, `ui-antipatterns` sạch; `gradebook` + `attendance` + `assignment-lifecycle` (desktop + mobile) xanh.
+Không kiểm ở 375 bằng stack thật: đo di động ở 390 (project `mobile`); QC kiểm lại 375 + khung 1440×900 trên `ep-qc`.

@@ -3,7 +3,7 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Check, ChevronLeft, ChevronRight, FileSearch, Quote } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ApiError, useAutosaveDraft, useUndoableAction } from "@/shared/data";
 import { Button, ButtonLink, Field, InlineNotice, Input, Kbd, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
@@ -110,8 +110,23 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   });
   const order = queue.items.map((r) => r.id);
   const at = order.indexOf(submissionId);
-  const [done, setDone] = useState(0);
-  const total = order.length;
+  // N = số bài đã duyệt, M = tổng cố định của hàng chờ lúc mở: mang theo trên URL để không mất khi sang bài kế (US-UX91-15 AC3, P-91-10)
+  const done = Number(params.get("n")) || 0;
+  const total = Number(params.get("m")) || order.length;
+  const [footErr, setFootErr] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  // cột phải cao vừa phần khung nhìn còn lại sau đầu trang: thanh dưới luôn thấy khi mở bài (AC3)
+  useLayoutEffect(() => {
+    const el = panelRef.current;
+    if (!el) return;
+    const fit = () => {
+      const wide = window.matchMedia("(min-width: 1100px)").matches;
+      el.style.maxHeight = wide ? `${Math.max(320, window.innerHeight - (el.getBoundingClientRect().top + window.scrollY) - 56)}px` : "";
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
 
   const draft = useAutosaveDraft(`grading:${rid}`, { userId: identity?.sub });
   const restored = useMemo<Draft | null>(() => {
@@ -238,16 +253,28 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
 
   const approve = () =>
     void run(async () => {
-      let cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
-      if (dirtyComments.length > 0 || overallDirty) {
-        cur = await put({ version: cur.result.version, criteria: dirtyComments, overall_feedback: overallText });
+      try {
+        let cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
+        if (dirtyComments.length > 0 || overallDirty) {
+          cur = await put({ version: cur.result.version, criteria: dirtyComments, overall_feedback: overallText });
+        }
+        await reviewResult(courseId, rid, cur.result.version);
+      } catch (e) {
+        if (e instanceof ApiError && e.code === "VERSION_CONFLICT") throw e;
+        setFootErr(e instanceof ApiError ? e.userMessage : "Chưa duyệt được.");
+        return;
       }
-      await reviewResult(courseId, rid, cur.result.version);
+      setFootErr(null);
       draft.clear();
-      setDone((d) => d + 1);
       void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
-      if (at >= 0 && at + 1 < order.length) goto(at + 1);
-      else void qc.invalidateQueries({ queryKey: resultKey(courseId, submissionId) });
+      const next = new URLSearchParams(params);
+      next.set("n", String(done + 1));
+      next.set("m", String(total));
+      if (at >= 0 && at + 1 < order.length) router.push(`/grading/${order[at + 1]}?${next}`);
+      else {
+        router.replace(`/grading/${submissionId}?${next}`);
+        void qc.invalidateQueries({ queryKey: resultKey(courseId, submissionId) });
+      }
     });
 
   // Phím tắt (không chạy khi đang gõ trong ô): A duyệt rồi sang bài kế, ←/→ đổi bài, ↑/↓ đổi tiêu chí, Esc hoàn tác ô.
@@ -344,7 +371,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
 
       <div className={s.gradeCol}>
       <Panel>
-        <div className={s.panel}>
+        <div className={s.panel} ref={panelRef}>
           {view.appeal && <AppealPanel courseId={courseId} submissionId={submissionId} view={view} appeal={view.appeal} teacher={identity?.role === "teacher"} />}
           <div className={s.total} data-part="total">
             <span className={s.totalLabel}>Tổng điểm</span>
@@ -509,7 +536,14 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
           </Field>
 
           <div className={s.foot} data-part="review-bar">
-            <p className={s.footText} data-part="review-progress">{`Đã duyệt ${done}/${total || order.length || 0}`}</p>
+            {footErr && (
+              <div className={s.footErr}>
+                <InlineNotice tone="danger" compact action={<Button size="sm" onClick={approve}>Thử lại</Button>}>
+                  {footErr}
+                </InlineNotice>
+              </div>
+            )}
+            <p className={s.footText} data-part="review-progress">{`Đã duyệt ${done}/${total}`}</p>
             <span className={s.footActions}>
               <Button variant="ghost" size="sm" icon={<ChevronLeft aria-hidden />} aria-label="Bài trước" disabled={at <= 0} onClick={() => goto(at - 1)} />
               <Button variant="ghost" size="sm" icon={<ChevronRight aria-hidden />} aria-label="Bài sau" disabled={at < 0 || at + 1 >= order.length} onClick={() => goto(at + 1)} />

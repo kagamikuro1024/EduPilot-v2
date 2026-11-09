@@ -51,6 +51,8 @@ export type Column<T> = {
     editable: (row: T) => boolean;
     /** giá trị hiện có của máy chủ (chuỗi hiển thị) */
     value: (row: T) => string;
+    /** chữ hiện khi ô không focus (vd. đệm 0 tới số chữ số của cột); focus thì hiện `value` */
+    display?: (row: T) => string;
     /** nhãn trợ năng của ô nhập */
     label: (row: T) => string;
     /** nhãn ngắn cạnh ô: "Chưa lưu", "…" */

@@ -150,7 +150,7 @@ function Sheet({ courseId, userId, classCode, grid, picker }: { courseId: string
       <Panel>
         <Toolbar end={<span data-part="att-save-state">{state}</span>}>{picker}</Toolbar>
         {scheme && scheme.state !== "CONFIRMED" && (
-          <InlineNotice tone="warning" compact action={<ButtonLink href={`/gradebook/scheme?course=${courseId}`} size="sm">Xem công thức</ButtonLink>}>
+          <InlineNotice tone="warning" compact action={<span className={s.warnAction}><ButtonLink href={`/gradebook/scheme?course=${courseId}`} size="sm" aria-label="Xem công thức"><span className={s.longText}>Xem công thức</span><span className={s.shortText}>Xem</span></ButtonLink></span>}>
             <span className={s.longText}>Công thức điểm chưa xác nhận</span>
             <span className={s.shortText}>Công thức chưa xác nhận</span>
           </InlineNotice>

@@ -220,6 +220,7 @@
 .evidence svg { width: 14px; height: 14px; flex: none; margin-top: 4px; color: var(--ep-ink-3); }
 .evNote { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .fieldErr { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-red); }
+.footErr { flex: 1 0 100%; }
 .footActions { display: inline-flex; align-items: center; gap: var(--ep-space-2); }
 @media (max-width: 719px) {
   .tabs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--ep-space-1); }

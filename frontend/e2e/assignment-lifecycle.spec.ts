@@ -635,10 +635,28 @@ test("review draft restore: mở lại bài thì nhận xét đang soạn còn n
 test("review key A next: duyệt rồi sang bài kế, có thanh tiến độ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openReview(page, context, { rows: defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result })), views: { [SUB_B]: resultView(), [SUB_C]: resultView({ submission: { ...resultView().submission, id: SUB_C }, result: { ...resultView().result, id: "00000000-0000-7000-8000-0000000d0002" } }) } });
-  await expect(page.locator("[data-part=review-progress]")).toContainText("Đã duyệt 0/");
+  const progress = page.locator("[data-part=review-progress]");
+  const m = Number(/\/(\d+)$/.exec((await progress.textContent()) ?? "")?.[1]);
+  await expect(progress).toHaveText(`Đã duyệt 0/${m}`);
+  // US-UX91-15 AC3 (P-91-10): thanh dưới nằm gọn trong khung nhìn 1440×900 lúc mở bài
+  const bar = await page.locator("[data-part=review-bar]").boundingBox();
+  expect(bar!.y + bar!.height).toBeLessThanOrEqual(900);
   await page.keyboard.press("a");
   await expect.poll(() => api.reviews().length).toBe(1);
   await expect(page).toHaveURL(new RegExp(SUB_C));
+  await expect(progress).toHaveText(`Đã duyệt 1/${m}`); // N tăng, M cố định
+});
+
+test("review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let down = true;
+  await openReview(page, context, { h: { "POST grading-results/:id/review": (r, next) => (down ? r.abort("connectionfailed") : next(r)) } });
+  await page.getByRole("button", { name: "Duyệt bài" }).click();
+  const bar = page.locator("[data-part=review-bar]");
+  await expect(bar.getByRole("alert")).toBeVisible({ timeout: 20_000 });
+  down = false;
+  await bar.getByRole("button", { name: "Thử lại" }).click();
+  await expect(bar.getByRole("alert")).toHaveCount(0);
 });
 
 test("review running locked: đang chấm thì khoá Duyệt bài kèm lý do", async ({ page, context }, info) => {
