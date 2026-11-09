@@ -179,7 +179,7 @@ test("grade section: câu nhận định theo trạng thái, thành phần đã 
   await api(page, COURSE, { grades: () => inProgress() });
   await page.goto("/me");
   await expect(page.locator("[data-part=grade-sentence]")).toHaveText("Điểm quá trình hiện tại của bạn là 8,25 trên 10.");
-  const sec = page.locator("main section", { hasText: "Giữa kỳ · 20%" });
+  const sec = page.locator("main section", { hasText: "Giữa kỳ · 20 %" }); // US-UX91-20 AC1: một khối, "tên · trọng số %" cùng dòng với điểm
   await expect(sec).toContainText("8,25");
   await expect(sec).toContainText("Chưa công bố");
   await expect(page.locator("[data-part=official-note]")).toHaveCount(1);
@@ -201,10 +201,11 @@ test("calculation linear: phép tính từng dòng cùng thứ tự, Căn cứ m
   await api(page, COURSE, { grades: () => inProgress() });
   await page.goto("/me");
   const calc = page.locator("[data-part=grade-calculation]");
-  await expect(calc.locator("li")).toHaveCount(3);
-  await expect(calc.locator("li").nth(0)).toContainText("Giữa kỳ (20%)");
-  await expect(calc.locator("li").nth(1)).toContainText("min(0,5; 1,0)");
-  await expect(calc.locator("li").nth(2)).toContainText("= 8,25");
+  await expect(calc.locator("li")).toHaveCount(5); // 3 thành phần (2 đã công bố, 1 chưa) + điểm cộng + điểm quá trình
+  await expect(calc.locator("li").nth(0)).toContainText("Giữa kỳ · 20 %");
+  await expect(calc.locator("li").nth(2)).toContainText("Chưa công bố");
+  await expect(calc.locator("li").nth(3)).toContainText("min(0,5; 1,0)");
+  await expect(calc.locator("li").nth(4)).toContainText("= 8,25");
   await calc.getByRole("button", { name: /Căn cứ · tr\. 2/ }).click();
   await expect(calc).toContainText("Mỗi lần phát biểu được cộng 0,25 điểm.");
   const text = (await page.locator("main").innerText()).toLowerCase();

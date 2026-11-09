@@ -1,5 +1,6 @@
 .filters { display: grid; grid-template-columns: minmax(0, 1fr) 10rem 9rem 11rem; gap: var(--ep-space-3); align-items: end; }
-.filterToggle { display: none; justify-self: start; }
+.filterToggle { justify-self: start; }
+.majority { margin: 0 0 var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .rows { list-style: none; margin: 0; padding: 0; display: grid; }
 .row { display: grid; gap: var(--ep-space-1); padding: var(--ep-space-4) 0; border-top: 1px solid var(--ep-rule); }
 .rows > li:first-child .row { border-top: 0; }
@@ -29,9 +30,7 @@
 .collapsed { margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .similar { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ep-space-2); }
 @media (max-width: 1099px) {
-  .filterToggle { display: inline-flex; }
-  .filters { display: none; grid-template-columns: minmax(0, 1fr); }
-  .filtersOpen { display: grid; }
+  .filters { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 719px) {
   .composerRow { grid-template-columns: minmax(0, 1fr); }

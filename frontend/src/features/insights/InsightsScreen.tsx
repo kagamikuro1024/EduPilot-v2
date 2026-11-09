@@ -118,7 +118,7 @@ export function InsightsScreen() {
             </ol>
           </Section>
         ) : (
-          <>
+          <div className={s.blocks}>
             <Section panel title="Chủ đề nên dạy lại" description={report.window}>
               <ol className={s.topics}>
                 {report.topics.map((t, i) => (
@@ -211,7 +211,7 @@ export function InsightsScreen() {
                 </ul>
               </Section>
             )}
-          </>
+          </div>
         )}
       </PageState>
     </Page>

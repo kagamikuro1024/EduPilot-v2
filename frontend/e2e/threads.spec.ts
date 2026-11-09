@@ -34,6 +34,44 @@ test("layout: danh sách là một nguồn cấp, nhãn trạng thái, hành đ�
   await expect(page.locator("[data-part=thread-form]").getByRole("button", { name: "Đăng" })).toBeVisible();
 });
 
+test("US-UX91-19 đoạn trích sạch: bỏ ký tự đầu dòng, gộp dòng, ≤ 140 ký tự; rỗng thì không dòng trống", async ({ page, context }) => {
+  const long = "Câu hỏi rất dài ".repeat(30);
+  await openList(page, context, { [`GET ${T}`]: list([
+    row({ id: "e1", title: "T1", preview: "- - Individual uses email to log in" }),
+    row({ id: "e2", title: "T2", preview: "· Phisher\n* gửi thư giả\n> mạo danh" }),
+    row({ id: "e3", title: "T3", preview: long }),
+    row({ id: "e4", title: "T4", preview: "- -" }),
+  ]) });
+  const previews = page.locator("[data-part=thread-list] p");
+  await expect(previews).toHaveCount(3); // T4 chỉ có ký tự markdown: không dòng trống
+  const texts = await previews.allInnerTexts();
+  expect(texts[0]).toBe("Individual uses email to log in");
+  expect(texts[1]).toBe("Phisher gửi thư giả mạo danh");
+  expect(texts[2].length).toBeLessThanOrEqual(140);
+  expect(texts[2].endsWith("…")).toBe(true);
+});
+
+test("US-UX91-19 nhãn lặp: trạng thái đa số (≥ 80 %) nêu một lần ở đầu danh sách, chỉ hàng khác trạng thái mang nhãn", async ({ page, context }) => {
+  const pending = Array.from({ length: 5 }, (_, i) => row({ id: `p${i}`, title: `Chờ ${i}` }));
+  await openList(page, context, { [`GET ${T}`]: list([...pending, row({ id: "v1", title: "Đã xong", answer_state: "VERIFIED" })]) });
+  const rows = page.locator("[data-part=thread-list]");
+  await expect(page.getByText("5 câu chờ xác nhận")).toHaveCount(1);
+  await expect(rows.getByText("Chờ xác nhận")).toHaveCount(0);
+  await expect(rows.getByText("Đã được giảng viên xác nhận")).toHaveCount(1);
+});
+
+test("US-UX91-19 di động: Bộ lọc là nút có biểu tượng + số bộ lọc đang bật, mở bảng trượt từ đáy", async ({ page, context }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await openList(page, context);
+  const btn = page.getByRole("button", { name: /^Bộ lọc/ });
+  await expect(btn.locator("svg")).toHaveCount(1);
+  expect((await btn.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+  await btn.click();
+  const dlg = page.getByRole("dialog", { name: "Bộ lọc" });
+  await dlg.getByLabel("Tìm theo tiêu đề").fill("quy chế");
+  await dlg.getByRole("button", { name: "Xong" }).click();
+  await expect(page.getByRole("button", { name: "Bộ lọc · 1" })).toBeVisible();
+});
 test("empty: câu dạy bước kế + Đặt câu hỏi", async ({ page, context }) => {
   await openList(page, context, { [`GET ${T}`]: list([]) });
   await expect(page.getByText("Chưa có câu hỏi nào. Đặt câu hỏi đầu tiên.")).toBeVisible();

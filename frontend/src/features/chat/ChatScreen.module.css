@@ -1,6 +1,6 @@
 .page { display: grid; }
 .layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--ep-space-6); align-items: start; }
-.column { display: grid; gap: var(--ep-space-4); width: 100%; max-width: 820px; min-width: 0; justify-self: center; }
+.column { display: grid; gap: var(--ep-space-4); width: 100%; max-width: 840px; min-width: 0; justify-self: center; }
 
 /* Lịch sử phiên là một Panel riêng cạnh Panel cuộc trò chuyện (FR-X11, D59): khung do <Panel>, ở đây chỉ định vị. */
 .history {

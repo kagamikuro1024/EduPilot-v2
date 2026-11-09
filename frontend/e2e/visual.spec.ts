@@ -32,6 +32,8 @@ const ROUTES: Array<{ name: string; path: string; role?: DemoRole; admin?: boole
   { name: "gradebook", path: "/gradebook", role: "teacher" },
   { name: "settings-llm", path: "/settings/llm", role: "admin", admin: true }, // Admin bằng token dev (dán ở cổng); màn THẬT với dữ liệu giả cố định
   { name: "dev-ui", path: "/dev/ui" },
+  { name: "insights", path: "/insights", role: "teacher" }, // US-UX91-17 AC10
+  { name: "observability", path: "/observability", role: "teacher" }, // US-UX91-17 AC10
 ];
 
 /** Gateway giả cho "Hôm nay" của giảng viên: một lớp, đủ bốn kiểu việc (overdue, high, normal, EXAM_SIMILARITY) + lớp cần chú ý + buổi sắp tới. */

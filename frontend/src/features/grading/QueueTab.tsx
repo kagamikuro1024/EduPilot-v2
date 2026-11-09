@@ -438,6 +438,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
           rows={rows}
           rowKey={(r) => r.id}
           onRowClick={(r) => router.push(reviewHref(r.id, filter))}
+          rowHref={(r) => reviewHref(r.id, filter)} /* ở danh sách di động cả hàng là MỘT liên kết (không liên kết lồng liên kết) */
           rowAttrs={(r) => ({ "data-part": "queue-row", "data-submission-id": r.id })}
           virtual={narrow ? undefined : { height: 560 }}
           mobileRow={(r) => (
@@ -449,7 +450,7 @@ export function QueueTab({ courseId, teacher }: { courseId: string; teacher: boo
                 <span className={s.score}>{r.result?.total ? vi(r.result.total) : "—"}</span>
                 <StatusText tone={reviewTone(reviewStateText(r.result))}>{reviewStateText(r.result)}</StatusText>
               </span>
-              <Link href={reviewHref(r.id, filter)} className={s.mOpen}>Duyệt <ArrowRight aria-hidden /></Link>
+              <span className={s.mOpen}>Duyệt <ArrowRight aria-hidden /></span>
             </div>
           )}
           pagination={{

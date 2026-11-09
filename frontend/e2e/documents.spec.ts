@@ -29,7 +29,7 @@ test("table: tên, loại, tuần, hai cờ, trạng thái, cập nhật; dải 
   await expect(page.locator("[data-part=doc-stats]")).toHaveText("3 tài liệu · 1 đang xử lý · 1 lỗi");
   await expect(rows.getByText("Lỗi — Không đọc được")).toBeVisible();
   await expect(rows.getByText("Chia sẻ từ 761988")).toBeVisible();
-  await expect(rows.getByRole("switch", { name: /Dùng cho AI: Từ lớp khác/ })).toBeDisabled();
+  await expect(rows.getByRole("switch", { name: /Dùng cho AI: (bật|tắt) · Từ lớp khác/ })).toBeDisabled(); // US-UX91-18 AC3: nhãn nêu trạng thái
   await expect(page.locator('main [data-variant="primary"]:visible')).toHaveCount(1);
 });
 

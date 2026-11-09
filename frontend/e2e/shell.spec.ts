@@ -303,7 +303,7 @@ test.describe("session", () => {
     await page.goto("/settings/llm");
     await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" })).toBeVisible();
     await page.getByRole("link", { name: "Về Hôm nay" }).click();
-    expect((await page.locator("[data-part=sidebar] nav a").allTextContents()).map((t) => t.trim())).toEqual(NAV.student.map((r) => r[0]));
+    await expect(page.locator("[data-part=sidebar] nav a")).toHaveText(NAV.student.map((r) => r[0])); // tự thử lại: thanh bên dựng sau khi điều hướng phía máy khách
     await page.locator("[data-part=sidebar]").getByRole("link", { name: "Chat riêng" }).click(); // điều hướng trong trang: token ở bộ nhớ không mất
     await expect(page.getByRole("button", { name: /^Tài khoản: Sinh Viên Thử/ })).toBeVisible();
   });

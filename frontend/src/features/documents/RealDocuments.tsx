@@ -121,7 +121,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
       key: "type", header: "Loại", width: "13%",
       render: (d) =>
         d.shared_from ? TYPE_LABEL[d.type] : (
-          <Select aria-label={`Loại của ${d.title}`} value={d.type} onChange={(e) => void patch(d, { type: e.target.value as DocType }, "loại")}>
+          <Select className={r.type} aria-label={`Loại của ${d.title}`} value={d.type} onChange={(e) => void patch(d, { type: e.target.value as DocType }, "loại")}>
             {TYPES.map((t) => <option key={t} value={t}>{TYPE_LABEL[t]}</option>)}
           </Select>
         ),
@@ -129,11 +129,11 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
     { key: "week", header: "Tuần", width: "8%", render: (d) => (d.week_no ? `Tuần ${d.week_no}` : "—") },
     {
       key: "ai", header: "Dùng cho AI", width: "11%",
-      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.title}</span>} />,
+      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.use_for_rag ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "vis", header: "Hiện cho sinh viên", width: "13%",
-      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.title}</span>} />,
+      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "status", header: "Trạng thái", width: "12%",

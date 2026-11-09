@@ -1,16 +1,7 @@
 .loading { display: grid; gap: var(--ep-space-8); }
 
-/* Dải trạng thái: một hàng số ngăn bằng kẻ dọc, không phải năm thẻ (DESIGN §14.22). */
-.strip {
-  display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: var(--ep-space-6);
-  margin: 0;
-}
-.stripItem { display: grid; gap: var(--ep-space-1); padding-left: var(--ep-space-5); border-left: 1px solid var(--ep-rule); }
-.stripItem:first-child { padding-left: 0; border-left: none; }
-.stripItem dd { margin: 0; display: grid; gap: var(--ep-space-1); }
-.stripHint { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.45; }
+/* Số hôm nay: một dòng chữ (US-UX91-17 AC3). */
+.today { margin: 0 0 var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-2); line-height: 1.6; font-variant-numeric: tabular-nums; }
 
 .task { display: block; font-weight: 500; }
 .sub { font-size: var(--ep-text-meta); color: var(--ep-ink-3); line-height: 1.45; }
@@ -27,8 +18,3 @@
   line-height: 1.55;
 }
 .tools { display: grid; gap: var(--ep-space-1); }
-
-@media (max-width: 1099px) {
-  .strip { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--ep-space-4); }
-  .stripItem { padding-left: 0; border-left: none; }
-}

@@ -48,7 +48,9 @@
   border-radius: var(--ep-radius-sm);
   font-size: var(--ep-text-label);
   font-weight: 600;
+  transition: transform 100ms var(--ep-ease-out); /* phản hồi bấm (US-UX91-13 AC11) */
 }
+.send:active:not(:disabled), .stop:active:not(:disabled) { transform: scale(0.97); }
 .send { background: var(--ep-red); color: var(--ep-surface); }
 @media (hover: hover) and (pointer: fine) { .send:hover:not(:disabled) { background: var(--ep-red-hover); } }
 .send:disabled { background: var(--ep-surface-subtle); color: var(--ep-ink-3); }

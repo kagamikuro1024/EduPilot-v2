@@ -1,15 +1,16 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Pin } from "lucide-react";
+import { Pin, SlidersHorizontal } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useExamLock } from "@/features/chat/chatApi";
 import { useAutosaveDraft } from "@/shared/data";
 import { useSession } from "@/shared/session/session";
-import { Button, DataTable, EmptyState, Field, Input, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Tabs, Textarea } from "@/shared/ui";
-import { ANSWER_LABEL, REASON_NAME, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
+import { Button, DataTable, Drawer, EmptyState, Field, Input, InlineNotice, Page, PageHeader, PageState, Panel, Select, Skeleton, StatusText, Tabs, Textarea } from "@/shared/ui";
+import { useMinWidth } from "@/shared/lib/useMinWidth";
+import { ANSWER_LABEL, REASON_NAME, cleanExcerpt, describeReasons, pinnedOf, threadsKey, useModerationQueue, useThreadList, type ThreadRow, type ThreadView } from "./threadsApi";
 import { usePostGate } from "./usePostGate";
 import r from "./RealThreads.module.css";
 import { formatTime, formatWhen } from "@/shared/lib/datetime";
@@ -26,7 +27,8 @@ const STATES = [
 export function RealThreads({ courseId }: { courseId: string }) {
   const { role } = useSession();
   const [filter, setFilter] = useState({ q: "", tag: "", week: "", state: "" });
-  const [showFilters, setShowFilters] = useState(false);
+  const wide = useMinWidth(1100);
+  const [sheet, setSheet] = useState(false);
   const [composing, setComposing] = useState(false);
   const staff = role === "teacher" || role === "ta";
   const [moderation, setModeration] = useState(useSearchParams().get("view") === "moderation");
@@ -34,6 +36,32 @@ export function RealThreads({ courseId }: { courseId: string }) {
   const pinned = pinnedOf(list.data?.pages);
   const qc = useQueryClient();
   const filtered = filter.q !== "" || filter.tag !== "" || filter.week !== "" || filter.state !== "";
+  const activeFilters = [filter.q, filter.tag, filter.week, filter.state].filter(Boolean).length;
+  // một trạng thái chiếm ≥ 80 % thì nêu một lần ở đầu danh sách, chỉ hàng khác trạng thái mới mang nhãn (US-UX91-19 AC2); chỉ áp cho "Chờ xác nhận"
+  const rows = [...pinned, ...list.items];
+  const pendingCount = rows.filter((t) => t.answer_state === "PENDING").length;
+  const pendingMajor = rows.length > 0 && pendingCount >= rows.length * 0.8;
+  const fields = (
+    <div className={r.filters} role="search">
+      <Field label="Tìm theo tiêu đề">{(id) => <Input id={id} value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} placeholder="Ví dụ: cảnh báo học vụ" />}</Field>
+      <Field label="Chủ đề">{(id) => <Input id={id} value={filter.tag} onChange={(e) => setFilter({ ...filter, tag: e.target.value.trim().toLowerCase() })} placeholder="quy-che" />}</Field>
+      <Field label="Tuần">
+        {(id) => (
+          <Select id={id} value={filter.week} onChange={(e) => setFilter({ ...filter, week: e.target.value })}>
+            <option value="">Mọi tuần</option>
+            {WEEKS.map((w) => <option key={w} value={w}>Tuần {w}</option>)}
+          </Select>
+        )}
+      </Field>
+      <Field label="Trạng thái">
+        {(id) => (
+          <Select id={id} value={filter.state} onChange={(e) => setFilter({ ...filter, state: e.target.value })}>
+            {STATES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+          </Select>
+        )}
+      </Field>
+    </div>
+  );
 
   return (
     <Page width="full">
@@ -46,26 +74,16 @@ export function RealThreads({ courseId }: { courseId: string }) {
             <Composer courseId={courseId} canChat={role === "student"} onCancel={() => setComposing(false)} onPosted={() => { setComposing(false); void qc.invalidateQueries({ queryKey: threadsKey(courseId) }); }} />
           </Panel>
         )}
-        {!(staff && moderation) && <><Button variant="ghost" className={r.filterToggle} aria-expanded={showFilters} onClick={() => setShowFilters(!showFilters)}>Bộ lọc</Button>
-        <div className={[r.filters, showFilters ? r.filtersOpen : ""].join(" ")} role="search">
-          <Field label="Tìm theo tiêu đề">{(id) => <Input id={id} value={filter.q} onChange={(e) => setFilter({ ...filter, q: e.target.value })} placeholder="Ví dụ: cảnh báo học vụ" />}</Field>
-          <Field label="Chủ đề">{(id) => <Input id={id} value={filter.tag} onChange={(e) => setFilter({ ...filter, tag: e.target.value.trim().toLowerCase() })} placeholder="quy-che" />}</Field>
-          <Field label="Tuần">
-            {(id) => (
-              <Select id={id} value={filter.week} onChange={(e) => setFilter({ ...filter, week: e.target.value })}>
-                <option value="">Mọi tuần</option>
-                {WEEKS.map((w) => <option key={w} value={w}>Tuần {w}</option>)}
-              </Select>
-            )}
-          </Field>
-          <Field label="Trạng thái">
-            {(id) => (
-              <Select id={id} value={filter.state} onChange={(e) => setFilter({ ...filter, state: e.target.value })}>
-                {STATES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
-              </Select>
-            )}
-          </Field>
-        </div>
+        {!(staff && moderation) && <>{wide ? fields : (
+          <>
+            <Button variant="secondary" className={r.filterToggle} icon={<SlidersHorizontal aria-hidden />} onClick={() => setSheet(true)}>
+              Bộ lọc{activeFilters > 0 ? ` · ${activeFilters}` : ""}
+            </Button>
+            <Drawer open={sheet} onClose={() => setSheet(false)} title="Bộ lọc" footer={<Button variant="primary" onClick={() => setSheet(false)}>Xong</Button>}>
+              {fields}
+            </Drawer>
+          </>
+        )}
         <Panel>
           <PageState
             query={list}
@@ -77,9 +95,10 @@ export function RealThreads({ courseId }: { courseId: string }) {
               </EmptyState>
             }
           >
+            {pendingMajor && <p className={r.majority}>{pendingCount} câu chờ xác nhận</p>}
             <ul className={r.rows} data-part="thread-list">
-              {pinned.map((t) => <li key={t.id} data-part="pinned-row"><Row t={t} /></li>)}
-              {list.items.map((t) => <li key={t.id}><Row t={t} /></li>)}
+              {pinned.map((t) => <li key={t.id} data-part="pinned-row"><Row t={t} hideLabel={pendingMajor} /></li>)}
+              {list.items.map((t) => <li key={t.id}><Row t={t} hideLabel={pendingMajor} /></li>)}
             </ul>
             {list.hasNextPage && <Button onClick={() => void list.fetchNextPage()} disabled={list.isFetchingNextPage}>Xem thêm</Button>}
           </PageState>
@@ -89,13 +108,14 @@ export function RealThreads({ courseId }: { courseId: string }) {
   );
 }
 
-function Row({ t }: { t: ThreadRow }) {
-  const label = t.answer_state ? ANSWER_LABEL[t.answer_state] : null;
+function Row({ t, hideLabel }: { t: ThreadRow; hideLabel: boolean }) {
+  const label = t.answer_state && !(hideLabel && t.answer_state === "PENDING") ? ANSWER_LABEL[t.answer_state] : null;
+  const preview = cleanExcerpt(t.preview);
   return (
     <div className={r.row}>
       <Link href={`/threads/${t.id}`} className={r.rowLink}>
         <span className={r.rowTitle}>{t.pinned && <Pin className={r.pin} aria-label="Đã ghim" />}{t.title}</span>
-        <p className={r.preview}>{t.preview}</p>
+        {preview && <p className={r.preview}>{preview}</p>}
       </Link>
       <div className={r.meta}>
         <span>{t.author.full_name}</span>

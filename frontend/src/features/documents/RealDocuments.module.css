@@ -15,3 +15,4 @@
 .actions { display: flex; gap: var(--ep-space-2); flex-wrap: wrap; align-items: center; }
 .filters { display: grid; grid-template-columns: minmax(0, 1fr) 11rem 10rem; gap: var(--ep-space-3); align-items: end; }
 @media (max-width: 719px) { .filters { grid-template-columns: minmax(0, 1fr); } }
+select.type { width: auto; max-width: 100%; } /* ô Loại theo nhãn dài nhất, không cắt chữ (US-UX91-18 AC1) */
