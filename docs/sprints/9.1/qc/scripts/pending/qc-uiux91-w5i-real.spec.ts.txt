@@ -1,0 +1,72 @@
+import { expect, test, type Page } from "@playwright/test";
+
+test.skip(!process.env.QC_REAL, "cần stack thật ep-qc: chạy bằng `QC_REAL=1 playwright test -c playwright.qc-real.config.ts`");
+const PW = process.env.QC_PW ?? "Edupilot#Seed-2026";
+
+async function login(page: Page, email: string) {
+  await page.goto("/login");
+  await page.locator("input[type=email]").fill(email);
+  await page.locator("input[type=password]").fill(PW);
+  await page.keyboard.press("Enter");
+  await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+  await page.locator("[data-part=topbar]").waitFor();
+}
+const api = (page: Page, path: string) =>
+  page.evaluate(async (p) => {
+    const a = await (await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "include" })).json();
+    const r = await fetch(`/api/v1${p}`, { headers: { authorization: `Bearer ${a.access_token}` } });
+    return { status: r.status, body: await r.json().catch(() => null) };
+  }, path);
+const cid = async (page: Page, code: string) => (await api(page, "/me/courses")).body.items.find((i: { course: { class_code: string } }) => i.course.class_code === code).course.id as string;
+const fresh = async (browser: import("@playwright/test").Browser, mail: string, vp = { width: 1440, height: 900 }) => { const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: vp }); const page = await ctx.newPage(); page.setDefaultTimeout(10000); await login(page, mail); return { ctx, page }; };
+
+test("TC-UX19-10 danh sách lỗi → ApiErrorNotice + Thử lại", async ({ browser }, info) => {
+  test.skip(info.project.name !== "desktop");
+  test.setTimeout(100000);
+  const { ctx, page } = await fresh(browser, "teacher@edupilot.local");
+  let block = true;
+  await page.route(/\/api\/v1\/courses\/[0-9a-f-]+\/threads(\?.*)?$/, (r) => (block ? r.abort() : r.continue()));
+  await page.goto("/threads"); await page.waitForTimeout(5000);
+  const retry = page.getByRole("button", { name: /Thử lại/ });
+  console.log("INFO UX19-10 lỗi:", JSON.stringify((await page.locator("main").innerText()).replace(/\s+/g, " ").slice(0, 200)), "| Thử lại:", await retry.count());
+  block = false;
+  if (await retry.count()) { await retry.first().click(); await page.waitForTimeout(3000); }
+  console.log("INFO UX19-10 sau Thử lại: số hàng", await page.locator("[data-part=thread-list] > li").count());
+  await ctx.close();
+});
+
+test("TC-UX20-8 tham số user_id không đổi danh tính", async ({ browser }, info) => {
+  test.skip(info.project.name !== "desktop");
+  test.setTimeout(100000);
+  const { ctx, page } = await fresh(browser, "sv.kha@edupilot.local");
+  const c = await cid(page, "761987");
+  const own = await api(page, `/courses/${c}/me/grades`);
+  const { ctx: c2, page: p2 } = await fresh(browser, "sv.gioi@edupilot.local");
+  const other = await api(p2, `/courses/${c}/me/grades`);
+  const spoof = await api(page, `/courses/${c}/me/grades?user_id=${(await api(p2, "/auth/me").catch(() => ({ body: null }))).body?.sub ?? "00000000-0000-4000-8000-000000000000"}`);
+  console.log("INFO UX20-8 qt của A:", own.body?.qt, "| qt của B:", other.body?.qt, "| A gọi ?user_id=B:", spoof.status, spoof.body?.qt, "| bằng của A:", spoof.body?.qt === own.body?.qt);
+  expect(spoof.body?.qt).toBe(own.body?.qt);
+  await c2.close(); await ctx.close();
+});
+
+test("TC-UX13-3/4 thu gọn lịch sử: vị trí Panel; tiêu đề dài", async ({ browser }, info) => {
+  test.skip(info.project.name !== "desktop");
+  test.setTimeout(150000);
+  const { ctx, page } = await fresh(browser, "sv.kha@edupilot.local");
+  await page.goto("/chat"); await page.waitForTimeout(4500);
+  const panel = () => page.locator("[data-part=chat-inner]").evaluate((e) => { const p = e.closest("[class*=Panel-module]") as HTMLElement; const r = p.getBoundingClientRect(); const m = document.querySelector("main")!.getBoundingClientRect(); return { x: Math.round(r.x), r: Math.round(r.right), w: Math.round(r.width), mainL: Math.round(m.x), mainR: Math.round(m.right) }; });
+  console.log("INFO UX13-1 trước thu gọn:", JSON.stringify(await panel()));
+  await page.getByRole("button", { name: "Thu gọn lịch sử" }).click(); await page.waitForTimeout(900);
+  console.log("INFO UX13-3 sau thu gọn:", JSON.stringify(await panel()));
+  await page.screenshot({ path: "/out/shots-w5/chat-collapsed-1440.png" });
+  await page.getByRole("button", { name: /^Phiên trước/ }).first().click().catch(() => undefined);
+  await page.waitForTimeout(600);
+  const long = "Em muốn hỏi một câu rất dài về cách tính điểm quá trình, điểm chuyên cần, điểm cộng phát biểu và điểm trừ vắng mặt trong học phần An ninh mạng của lớp em học kỳ này";
+  await page.getByRole("textbox", { name: "Câu hỏi của bạn" }).fill(long);
+  await page.getByRole("button", { name: "Gửi", exact: true }).click();
+  await page.waitForTimeout(7000);
+  const row = page.locator("[data-part=chat-history] li").first();
+  console.log("INFO UX13-4 hàng:", JSON.stringify((await row.innerText()).replace(/\n/g, " ⏎ ")), JSON.stringify(await row.evaluate((e) => { const t = e.querySelector("button, a, p, span") as HTMLElement; const c = getComputedStyle(t); return { lh: c.lineHeight, h: Math.round(t.getBoundingClientRect().height), clamp: c.webkitLineClamp, ov: c.overflow }; })));
+  await page.screenshot({ path: "/out/shots-w5/chat-longtitle-1440.png" });
+  await ctx.close();
+});

@@ -1,7 +1,14 @@
 # QC đợt 6 — Trang giới thiệu v2, clip và video (US-UX91-08, 09)
 
-**Kết luận (kiểm lại 2026-11-09 ở `6a0e8584`): FAIL.** US-08 FAIL (chỉ còn AC5: bỏ nguồn khi đóng hộp thoại). US-09 FAIL (AC10: `run.sh`). Mọi mục FAIL khác của lượt 1 đã sửa.
+**Kết luận (kiểm lại lần 3, 2026-11-09, ở `9aea5b95`): PASS có giới hạn.** US-08 PASS (AC5 đã sửa). US-09 PASS có giới hạn (AC10: lỗi `run.sh` đã hết; chưa quay trọn được trên `ep-qc`, xem bên dưới). **AC10a của US-08: FAIL, ghi ở `wave-5.md` (TC-UX08-37).**
 Lượt 1 (ở `62f4833b`) là FAIL; bảng lượt 1 giữ nguyên bên dưới làm lịch sử. Có **một đính chính** lượt 1: TC-UX08-18 ghi PASS «bỏ nguồn» nhưng phép kiểm khi đó yếu (`getAttribute("src") === null` luôn đúng vì nguồn nằm ở thẻ `<source>`); đã kiểm lại đúng, kết quả là FAIL bên dưới.
+
+## Kiểm lại lần 3 ở `9aea5b95` (2026-11-09)
+Stack `-p ep-qc` dựng lại từ `9aea5b95` (mã sản phẩm = `ed0aa499`, gồm `43f6212c` sửa QC lượt 2), Playwright `--workers=1` (stack thật) và harness `build:gate`. Spec `qc-uiux91-w6-real.spec.ts` (TC-UX08-16…18), chạy `scripts/landing-video/run.sh` trên VPS.
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX08-16, 17, 18 (AC5) | **FAIL (Thấp)** | PASS | Mở: `currentSrc` = `…/gioi-thieu-v1.mp4`, 2 `<source>`. Đóng: `currentSrc` rỗng, 0 `<source>`, 0 request mới; Esc / bấm ngoài đều dừng. Mở lại: nguồn nạp lại. Focus trap, reduce mở tức thì giữ nguyên |
+| UX09-16 (AC10) | **FAIL (Thấp)** | PASS có giới hạn | README có đủ ba cách chạy. `EP_HOST=127.0.0.1:1 STILLS_ONLY=1 run.sh` (không `EP_BASE_URL`): `record.mjs` nay dựng `https://127.0.0.1:1/login` rồi báo `ECONNREFUSED`, không còn «Cannot navigate to invalid URL». Chưa quay trọn: `EP_BASE_URL=https://localhost:14443` (Caddy `ep-qc`) báo `net::ERR_CERT_AUTHORITY_INVALID` (chứng chỉ tự ký; `record.mjs` không có `ignoreHTTPSErrors`), cổng HTTP của Caddy chuyển hướng về `https://127.0.0.1/` (cổng 443). Bản demo công khai (chứng chỉ hợp lệ) không chạm vào theo CONTEXT mục 4. Đề nghị (không chặn): README ghi stack tự ký cần chứng chỉ hợp lệ hoặc `record.mjs` nhận `ignoreHTTPSErrors` |
 
 ## Kiểm lại ở `6a0e8584` (2026-11-09)
 Stack `-p ep-qc` dựng lại từ `6a0e8584` (frontend build lại), Playwright (`qc-uiux91-w6-real.spec.ts`, 27 ca, `--workers=1`), Lighthouse 12 devtools throttle 3 lượt × mobile + desktop, `ffprobe`, `curl`.

@@ -1,7 +1,13 @@
 # QC đợt 1 — Nền chung (US-UX91-02, 03, 04, 21)
 
-**Kết luận (kiểm lại 2026-11-09 ở `6a0e8584`): FAIL.** US-02 PASS. US-03 FAIL (chỉ còn AC8, chờ PM). US-04 PASS (AC7 chuyển sang đợt 4, P-91-8 (a)). US-21 PASS.
+**Kết luận (kiểm lại lần 3, 2026-11-09, ở `9aea5b95`): PASS.** US-02, 03, 04, 21 PASS. US-03 AC8 PASS theo P-91-9 (ca E2E trên `/dev/ui`); US-04 AC7 đã kiểm ở đợt 4 (`wave-4.md`).
 Lượt 1 (ở `62f4833b`) là FAIL; bảng chi tiết lượt 1 giữ nguyên bên dưới làm lịch sử.
+
+## Kiểm lại lần 3 ở `9aea5b95` (2026-11-09)
+Stack `-p ep-qc` dựng lại từ `9aea5b95` (mã sản phẩm = `ed0aa499`, gồm `43f6212c` sửa QC lượt 2), Playwright `--workers=1` (stack thật) và harness `build:gate`. Chỉ chạy TC của FAIL còn lại.
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX03-18 (AC8, sửa theo P-91-9) | **FAIL (Thấp)** | PASS | AC8 nay là «`/dev/ui` có ca nút khoá, kiểm bằng E2E». `dev-ui.spec.ts` › «nút khoá có lý do: focus / rê / chạm hiện lý do, bấm không kích hoạt; lý do mà không khoá thì bỏ qua» xanh; ca QC `UX03-1..4,12,14` (cùng khối `/dev/ui`) đã xanh ở lượt trước. Không còn đòi đổi ảnh mốc `dev-ui-*`, `gradebook-*` |
 
 ## Kiểm lại ở `6a0e8584` (2026-11-09)
 Stack `-p ep-qc` dựng lại từ `6a0e8584` (gồm `c7083a3d` sửa QC). Spec `qc-uiux91-w1.spec.ts`: 29 ca pass sau khi sửa hai giả định của QC (lý do có dấu chấm cuối; chữ lý do sổ điểm theo spec đã sửa).

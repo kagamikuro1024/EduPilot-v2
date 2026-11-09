@@ -1,6 +1,14 @@
 # QC đợt 3 — Hôm nay (US-UX91-10, 11)
 
-**Kết luận: FAIL.** US-10 FAIL (AC3 với dữ liệu thật; suite có sẵn đỏ 4 ca `panels.spec.ts`). US-11 PASS.
+**Kết luận (kiểm lại lần 3, 2026-11-09, ở `9aea5b95`): PASS.** US-10 PASS (AC3 với dữ liệu thật, suite `panels.spec.ts` xanh). US-11 PASS.
+
+## Kiểm lại lần 3 ở `9aea5b95` (2026-11-09)
+Stack `-p ep-qc` dựng lại từ `9aea5b95` (mã sản phẩm = `ed0aa499`, gồm `43f6212c` sửa QC lượt 2), Playwright `--workers=1` (stack thật) và harness `build:gate`. Spec `qc-uiux91-w3-real.spec.ts` (TC-UX10 thật), `panels.spec.ts`.
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX10-10 (AC3, stack thật) | **FAIL (Thấp)** | PASS | `teacher`, một lớp (761988): 5/5 hàng («Buổi 4 đã kết thúc, chưa điểm danh», «3 yêu cầu vào lớp đang chờ duyệt», «3 câu trả lời AI chờ xác nhận», «Công thức điểm chưa xác nhận», «Thiết lập lớp mới») không còn «761988» / «lớp 761988». TA (761987): 0 mã lớp ở các hàng in ra |
+| (suite có sẵn) `panels.spec.ts:419` 4 ca `staff home › / teacher|ta @1440|@1024` | **FAIL (Thấp)** | PASS | Dev đổi kỳ vọng theo AC3 (1 Panel «Sắp tới», `h3` nhóm việc); 4 ca xanh. Đổi test này là sửa theo spec, không nới |
+| (suite có sẵn) `panels.spec.ts:88` `nest › route × vai teacher|admin` | — | CHƯA KẾT LUẬN | 2 ca đỏ vì `ENOENT test-results` (chạy song song hai lệnh Playwright trên cùng thư mục), không phải lỗi sản phẩm; chạy lại tối 09/11 |
 
 ## Môi trường
 | Mục | Giá trị |

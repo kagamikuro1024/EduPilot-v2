@@ -1,9 +1,26 @@
 # QC đợt 4 — Chấm bài, sổ điểm, điểm danh (US-UX91-14, 15, 16, 12) + US-04 AC7
 
-**Kết luận: FAIL.** US-14 PASS. US-15 FAIL (AC3, AC4, AC7). US-16 FAIL (AC1, AC2, AC10). US-12 FAIL (AC7 khối cảnh báo 375 px, Thấp; AC10 chưa kiểm được). US-04 AC7 PASS.
+**Kết luận lượt 1 (`f8a744bd`): FAIL.** Lượt kiểm lại ở `1ebfa26e` đang dở (xem bảng đầu), chưa có kết luận mới. US-14 PASS. US-15 FAIL (AC3, AC4, AC7). US-16 FAIL (AC1, AC2, AC10). US-12 FAIL (AC7 khối cảnh báo 375 px, Thấp; AC10 chưa kiểm được). US-04 AC7 PASS.
 Mọi lỗi mức **Thấp** (không mất dữ liệu, không lộ dữ liệu); riêng US-15 AC7 mức **Trung bình** (lỗi duyệt bài không báo ở nơi người dùng nhìn, không có `Thử lại`).
 
-## Môi trường
+## Kiểm lại lần 2 ở `1ebfa26e` (đang kiểm dở, tiếp tục tối 09/11)
+Stack `-p ep-qc` dựng lại từ `1ebfa26e` (dev: `9.1 sửa QC đợt 4`, P-91-10). Chạy lại `qc-uiux91-w4-real.spec.ts` (15 ca, dừng theo lệnh PM sau ca 15); `w4b`, `w4c`, `w4d`, harness `gradebook` / `attendance` / `assignment-lifecycle` **chưa chạy**. Bảng dưới là phần đã có bằng chứng; hàng «CHƯA» làm tiếp.
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX15-6 (AC3 thanh dưới) | **FAIL (Thấp)** | PASS | 1440×900 lúc mở: thanh dưới `top 775, bottom 844` (< 900), nút `Duyệt bài` đủ, `position: sticky` |
+| UX15 tiến độ N/M (AC3, AC4) | **FAIL (Thấp)** | PASS | `Đã duyệt 0/9` → bấm `A` → URL `?n=1&m=9`, `Đã duyệt 1/9` |
+| UX16-21 (AC10, 375 px) | **FAIL (Thấp)** | PASS | Ô nhập cao 44 px (ô `td` 82 px), cuộn ngang trong bảng, cột tên dính, không tràn trang |
+| UX12-1, 2 (giữ nguyên) | PASS | PASS | Có mặt mực; Muộn, Vắng phép, Vắng đỏ; `+2 · +0,25×2` |
+| UX15-8, 9, 10, 15…19; UX14-4, 9, 10, PQ, PG; UX16-2…11 | PASS | PASS | Chạy lại, không đổi (phím `A`, `›`, STUDENT 403, TA, đầu bảng sticky, số khớp API, 375 thẻ duyệt bài) |
+| UX15-13 (AC7 lỗi ở thanh dưới + `Thử lại`) | **FAIL (Trung bình)** | CHƯA KẾT LUẬN | Ca `TC-UX15-12/13` đỏ ở `1ebfa26e` nhưng chạy bị dừng trước khi in lỗi; thanh dưới sau lỗi in «Đã duyệt 1/8 Duyệt bài A» (chưa thấy chữ lỗi / `Thử lại` trong phần QC lấy). Xem lại bằng ảnh và `w4c` |
+| UX16-1 (ô nhập đệm 0), UX16-5 (`⋯`), UX12-14 (375 ≤ 56 px) | **FAIL (Thấp)** | CHƯA | Ca `w4c` / `w4e` chưa chạy (`qc/scripts/pending/qc-uiux91-w4e-real.spec.ts.txt`); ca `TC-UX16-5/15/16/19/20` của `w4-real` đỏ, chưa đọc lỗi |
+| UX12-11, 19 (375 lưu ≤ 60 s) | KHÔNG KIỂM ĐƯỢC | CHƯA | Cần chạy lại bằng `w4e` |
+| UX14-1/2/…/7 và UX14-11 (ca cũ của QC) | PASS | đỏ ở ca QC, chưa rõ | Hai ca `w4-real` (hàng chờ) đỏ sau khi dev đổi cả hàng thành một liên kết ở đợt 5 (a11y); ca `TC-UX14-11/UX15-19` (đo bằng `boundingBox`) xanh. Nghi ca QC đo DOM (`tr` = 0 ở 375 px, Enter trên hàng); xem lại tối nay |
+| UX15-14, UX16-12 (409) | CHƯA CHẠY | CHƯA | Chưa chạy |
+
+---
+
+## Môi trường (lượt 1, `f8a744bd`)
 | Mục | Giá trị |
 | --- | --- |
 | Commit kiểm | `f8a744bd` (nhánh `sprint/9.1-uiux`, handoff `handoff/dev-wave-4.md`) |

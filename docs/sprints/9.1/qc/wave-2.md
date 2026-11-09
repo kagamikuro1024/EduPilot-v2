@@ -1,7 +1,15 @@
 # QC đợt 2 — Chữ và điều hướng (US-UX91-01, 05, 06, 07)
 
-**Kết luận (kiểm lại 2026-11-09 ở `6a0e8584`): FAIL.** US-05 PASS. US-07 PASS. US-01 FAIL (AC1 #3, AC5 #34). US-06 FAIL (AC3, lớp đã lưu trữ).
+**Kết luận (kiểm lại lần 3, 2026-11-09, ở `9aea5b95`): PASS.** US-01, 05, 06, 07 PASS.
 Lượt 1 (ở `62f4833b`) là FAIL; bảng lượt 1 giữ nguyên bên dưới làm lịch sử.
+
+## Kiểm lại lần 3 ở `9aea5b95` (2026-11-09)
+Stack `-p ep-qc` dựng lại từ `9aea5b95` (mã sản phẩm = `ed0aa499`, gồm `43f6212c` sửa QC lượt 2), Playwright `--workers=1` (stack thật) và harness `build:gate`. Spec `qc-uiux91-w5r-real.spec.ts`.
+| TC | Trước | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX01-4 (#3 `Mở lớp`) | **FAIL (Thấp)** | PASS | Điền 4 trường để nút bật: `aria-describedby` → `role=tooltip` «Người được gán nhận thông báo kèm mã tham gia.» (10 từ), `opacity` 0 → 1 khi focus bàn phím và khi rê; không `title` |
+| UX01-11 (#34 `Switch` «Cần giảng viên duyệt») | **FAIL (Thấp)** | PASS | `role=tooltip` «Sinh viên vào bằng mã sẽ chờ bạn duyệt.» (7 từ) qua `aria-describedby`, hiện khi focus bàn phím và khi rê, không còn `title` |
+| UX06-7 (AC3, P-91-9) | **FAIL (Thấp)** | PASS | `teacher` đặt `ep:ui:course` = lớp `QC196964` (ARCHIVED): sau nạp `ep:ui:course` = `null`, lớp đang chọn 761988. Chọn tay lớp lưu trữ từ bộ chọn: xem được trong phiên, `ep:ui:course` vẫn `null`, tải lại về 761988 |
 
 ## Kiểm lại ở `6a0e8584` (2026-11-09)
 Stack `-p ep-qc` dựng lại từ `6a0e8584`. Spec: `qc-uiux91-w2-real.spec.ts` (40 ca), `qc-uiux91-w12b-real.spec.ts`, `qc-uiux91-w12c-real.spec.ts`; chạy `--workers=1`. Ba ca (UX05-11, UX06-1, UX06-3/4/5) đỏ ở lần chạy chuỗi vì `/me/courses` trả lỗi giữa chừng (nhiễu như lượt 1); chạy riêng cả ba pass.
