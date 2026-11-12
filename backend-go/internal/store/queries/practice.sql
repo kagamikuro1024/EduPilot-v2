@@ -22,11 +22,11 @@ order by available desc, q.topic;
 
 -- name: PracticeQuestionsByIDs :many
 select id, type, topic, difficulty, stem, answer_key, explanation, citations, version
-from question_bank where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::uuid[]);
+from question_bank where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]);
 
 -- name: PracticeOptionsByQuestions :many
 select id, question_id, position, body, pinned_last
-from question_options where course_id = sqlc.arg(course_id) and question_id = any(sqlc.arg(ids)::uuid[])
+from question_options where course_id = sqlc.arg(course_id) and question_id = any(sqlc.arg(ids)::text[]::uuid[])
 order by question_id, position;
 
 -- name: PracticeRecent :many
@@ -165,4 +165,4 @@ where course_id = sqlc.arg(course_id) and student_id = sqlc.arg(student_id) and 
 -- name: PracticeDocTitles :many
 -- Tài liệu gợi ý ôn: chỉ tài liệu sinh viên được thấy (READY, hiện cho sinh viên, không phải đề / đáp án / quy chế).
 select id, title from documents
-where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER');
+where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER');

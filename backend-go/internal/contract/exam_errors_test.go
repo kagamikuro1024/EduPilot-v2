@@ -83,3 +83,22 @@ func normalizeParams(p string) string {
 	}
 	return string(out)
 }
+
+// TestPracticeErrorCodes — 12 mã lỗi mới của SRS FEAT-practice 6.1 có trong enum `Error.code` và có lời văn riêng.
+func TestPracticeErrorCodes(t *testing.T) {
+	prod, _ := loadBoth(t)
+	enum := map[string]bool{}
+	for _, v := range prod.Doc.Components.Schemas["Error"].Value.Properties["code"].Value.Enum {
+		enum[v.(string)] = true
+	}
+	codes := []string{apierr.NotEnoughQuestions, apierr.TabTakenOver, apierr.AnswerLocked, apierr.InvalidOptionID, apierr.InvalidQuestion, apierr.NotAnswered,
+		apierr.NotSubmitted, apierr.WrongDocumentType, apierr.CitationRequired, apierr.PreviewRequired, apierr.TooLong, apierr.TypeNotSupportedExam}
+	seen := map[string]bool{}
+	for _, c := range codes {
+		require.True(t, enum[c], "%s thiếu trong enum Error.code", c)
+		msg := apierr.DefaultMessage(c)
+		require.NotEmpty(t, msg, c)
+		require.False(t, seen[msg], "lời văn trùng: %s", msg)
+		seen[msg] = true
+	}
+}

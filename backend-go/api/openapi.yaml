@@ -22,6 +22,7 @@ tags:
   - name: auth
   - name: today
   - name: exam
+  - name: practice
   - name: document
   - name: chat
   - name: threads
@@ -9656,6 +9657,286 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/overview:
+    get:
+      operationId: getPracticeOverview
+      tags: [practice]
+      summary: "Luyện đề: khối khuyến nghị, chủ đề luyện được, lượt dở (sinh viên ACTIVE của lớp)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Tổng quan luyện đề
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeOverview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/practice/start:
+    post:
+      operationId: startPractice
+      tags: [practice]
+      summary: "Bắt đầu luyện theo chủ đề (TOPIC) hoặc thi thử (MOCK). Idempotency-Key bắt buộc. Mới → 201; còn lượt dở cùng (sinh viên, chế độ, chủ đề) → 200 làm tiếp"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeStartRequest"
+      responses:
+        "201":
+          description: Lượt mới
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "200":
+          description: Làm tiếp lượt dở
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/attempts/{aid}:
+    get:
+      operationId: getPracticeAttempt
+      tags: [practice]
+      summary: "Một lượt của chính mình (DTO sinh viên: không đáp án cho tới khi đến lúc lộ). Lượt của người khác → 404"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Lượt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    patch:
+      operationId: patchPracticeAttempt
+      tags: [practice]
+      summary: "Lưu vị trí câu đang làm"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticePatchRequest"
+      responses:
+        "200":
+          description: Đã lưu vị trí
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeMeta"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/attempts/{aid}/answers/{itemId}:
+    put:
+      operationId: savePracticeAnswer
+      tags: [practice]
+      summary: "Ghi / chấm một câu. TOPIC: phản hồi ngay trong response và khoá đáp án; MOCK: chỉ lưu (version + tab), không phản hồi"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: X-Practice-Tab
+          in: header
+          required: false
+          description: "Mã tab (uuid) sinh mỗi lần tải trang. Bắt buộc khi ghi vào lượt thi thử (MOCK); mở lượt ở tab thứ hai thì tab cũ nhận 409 TAB_TAKEN_OVER."
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeAnswerRequest"
+      responses:
+        "200":
+          description: Đã lưu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeSave"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/attempts/{aid}/submit:
+    post:
+      operationId: submitPracticeAttempt
+      tags: [practice]
+      summary: "Nộp lượt (Idempotency-Key bắt buộc): chấm bằng code, đóng lượt, trả kết quả; gọi lại → cùng kết quả"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Lượt đã đóng kèm kết quả
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeAttempt"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/history:
+    get:
+      operationId: listPracticeHistory
+      tags: [practice]
+      summary: "Lịch sử luyện của chính mình, mới nhất trước (cursor)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 30
+        - name: cursor
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Trang lịch sử
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeHistoryPage"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/weakness:
+    get:
+      operationId: getPracticeWeakness
+      tags: [practice]
+      summary: "Chủ đề cần ôn kèm tài liệu gợi ý (rỗng khi chưa đủ dữ liệu)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      responses:
+        "200":
+          description: Điểm yếu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeWeakness"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
 components:
   securitySchemes:
     bearerAuth:
@@ -11933,6 +12214,18 @@ components:
             - NOT_ENOUGH_GRADES
             - FINAL_ALREADY_LOCKED
             - EXTRACTION_INVALID
+            - NOT_ENOUGH_QUESTIONS
+            - TAB_TAKEN_OVER
+            - ANSWER_LOCKED
+            - INVALID_OPTION_ID
+            - INVALID_QUESTION
+            - NOT_ANSWERED
+            - NOT_SUBMITTED
+            - WRONG_DOCUMENT_TYPE
+            - CITATION_REQUIRED
+            - PREVIEW_REQUIRED
+            - TOO_LONG
+            - TYPE_NOT_SUPPORTED_IN_EXAM
         message:
           type: string
         trace_id:
@@ -17166,3 +17459,236 @@ components:
               type: string
             body:
               type: string
+    PracticeOption:
+      type: object
+      required: [id, body]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        body: {type: string}
+    PracticeQuestion:
+      type: object
+      required: [type, topic, stem, options]
+      additionalProperties: false
+      properties:
+        type: {type: string, enum: [MCQ_SINGLE, MCQ_MULTI, TRUE_FALSE, SHORT, ESSAY]}
+        topic: {type: string}
+        stem: {type: string}
+        options:
+          type: array
+          items: {$ref: "#/components/schemas/PracticeOption"}
+    PracticeAnswerView:
+      type: object
+      required: [answer, version, locked]
+      additionalProperties: false
+      properties:
+        answer: {type: object}
+        version: {type: integer}
+        locked: {type: boolean}
+    PracticeFeedback:
+      type: object
+      required: [correct, key, explanation, citations]
+      additionalProperties: false
+      properties:
+        correct: {type: [boolean, "null"]}
+        key: {type: object}
+        explanation: {type: [string, "null"]}
+        citations:
+          type: array
+          items: {type: object}
+    PracticeItem:
+      type: object
+      required: [id, position, question, answer, feedback]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        position: {type: integer}
+        question: {$ref: "#/components/schemas/PracticeQuestion"}
+        answer:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeAnswerView"}
+            - {type: "null"}
+        feedback:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeFeedback"}
+            - {type: "null"}
+    PracticeTopicResult:
+      type: object
+      required: [topic, correct, total]
+      additionalProperties: false
+      properties:
+        topic: {type: string}
+        correct: {type: integer}
+        total: {type: integer}
+    PracticeResult:
+      type: object
+      required: [correct, total, score, topics, weakest_topic, expired]
+      additionalProperties: false
+      properties:
+        correct: {type: integer}
+        total: {type: integer}
+        score: {type: string, description: "Điểm thang 10, một chữ số thập phân; phụ, không vào sổ điểm"}
+        topics:
+          type: array
+          items: {$ref: "#/components/schemas/PracticeTopicResult"}
+        weakest_topic: {type: [string, "null"]}
+        expired: {type: boolean}
+    PracticeAttempt:
+      type: object
+      required: [id, mode, topic, status, started_at, deadline_at, server_now, item_count, current_index, notes, version, items, result]
+      additionalProperties: false
+      properties:
+        id: {type: string, format: uuid}
+        mode: {type: string, enum: [TOPIC, MOCK]}
+        topic: {type: [string, "null"]}
+        status: {type: string, enum: [IN_PROGRESS, SUBMITTED, EXPIRED]}
+        started_at: {type: string, format: date-time}
+        deadline_at: {type: [string, "null"], format: date-time}
+        server_now: {type: string, format: date-time}
+        item_count: {type: integer}
+        current_index: {type: integer}
+        notes:
+          type: array
+          items: {type: string}
+        version: {type: integer}
+        items:
+          type: array
+          items: {$ref: "#/components/schemas/PracticeItem"}
+        result:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeResult"}
+            - {type: "null"}
+    PracticeSave:
+      type: object
+      required: [version, locked, feedback]
+      additionalProperties: false
+      properties:
+        version: {type: integer}
+        locked: {type: boolean}
+        feedback:
+          oneOf:
+            - {$ref: "#/components/schemas/PracticeFeedback"}
+            - {type: "null"}
+    PracticeMeta:
+      type: object
+      required: [current_index, version]
+      additionalProperties: false
+      properties:
+        current_index: {type: integer}
+        version: {type: integer}
+    PracticeStartRequest:
+      type: object
+      required: [mode]
+      additionalProperties: false
+      properties:
+        mode: {type: string, enum: [TOPIC, MOCK]}
+        topic: {type: string}
+        count: {type: integer, minimum: 5, maximum: 50}
+        duration_minutes: {type: integer, minimum: 10, maximum: 180}
+        matrix:
+          type: array
+          items:
+            type: object
+            required: [topic, count]
+            additionalProperties: false
+            properties:
+              topic: {type: string}
+              difficulty: {type: string, enum: [EASY, MEDIUM, HARD]}
+              count: {type: integer, minimum: 1}
+    PracticeAnswerRequest:
+      type: object
+      required: [answer]
+      additionalProperties: false
+      properties:
+        answer:
+          type: object
+          description: "MCQ {option_ids}, đúng–sai {value}, trả lời ngắn / tự luận {text}"
+        version: {type: integer, minimum: 0}
+        client_ts: {type: string, format: date-time}
+    PracticePatchRequest:
+      type: object
+      required: [current_index]
+      additionalProperties: false
+      properties:
+        current_index: {type: integer, minimum: 0}
+    PracticeOverview:
+      type: object
+      required: [recommended, topics, in_progress]
+      additionalProperties: false
+      properties:
+        recommended:
+          oneOf:
+            - type: object
+              required: [topic, count]
+              additionalProperties: false
+              properties:
+                topic: {type: string}
+                count: {type: integer}
+            - {type: "null"}
+        topics:
+          type: array
+          items:
+            type: object
+            required: [topic, available]
+            additionalProperties: false
+            properties:
+              topic: {type: string}
+              available: {type: integer}
+        in_progress:
+          type: array
+          items:
+            type: object
+            required: [id, mode, topic, deadline_at, item_count, current_index]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              mode: {type: string, enum: [TOPIC, MOCK]}
+              topic: {type: [string, "null"]}
+              deadline_at: {type: [string, "null"], format: date-time}
+              item_count: {type: integer}
+              current_index: {type: integer}
+    PracticeHistoryPage:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            required: [id, mode, topic, status, started_at, submitted_at, item_count, correct]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              mode: {type: string, enum: [TOPIC, MOCK]}
+              topic: {type: [string, "null"]}
+              status: {type: string, enum: [IN_PROGRESS, SUBMITTED, EXPIRED]}
+              started_at: {type: string, format: date-time}
+              submitted_at: {type: [string, "null"], format: date-time}
+              item_count: {type: integer}
+              correct: {type: [integer, "null"]}
+        next_cursor: {type: [string, "null"]}
+    PracticeWeakness:
+      type: object
+      required: [topics]
+      additionalProperties: false
+      properties:
+        topics:
+          type: array
+          items:
+            type: object
+            required: [topic, answered, wrong, documents]
+            additionalProperties: false
+            properties:
+              topic: {type: string}
+              answered: {type: integer}
+              wrong: {type: integer}
+              documents:
+                type: array
+                items:
+                  type: object
+                  required: [document_id, title]
+                  additionalProperties: false
+                  properties:
+                    document_id: {type: string, format: uuid}
+                    title: {type: string}

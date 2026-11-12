@@ -101,9 +101,9 @@ func (s *Service) Weakness(ctx context.Context, userID, courseID uuid.UUID) (Wea
 				}
 			}
 		}
-		ids := make([]uuid.UUID, 0, len(count))
+		ids := make([]string, 0, len(count))
 		for id := range count {
-			ids = append(ids, id)
+			ids = append(ids, id.String())
 		}
 		if len(ids) > 0 {
 			docs, err := q.PracticeDocTitles(ctx, store.PracticeDocTitlesParams{CourseID: courseID, Ids: ids})

@@ -20,6 +20,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/practice"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/thread"
@@ -48,6 +49,7 @@ func newTasks(d Deps) []Task {
 	tasks = append(tasks, slaTask{&escalation.SLAJob{Svc: &escalation.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt, Cfg: escalation.ConfigFrom(d.Cfg)}, Redis: d.Redis, Name: name, Every: d.Cfg.TicketSLATick, Log: d.Log}})
 	tasks = append(tasks, rollupTask{&activity.RollupJob{Svc: &activity.Service{Pool: d.DB, Redis: d.Redis, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: d.Cfg.RollupTick, Log: d.Log}})
 	tasks = append(tasks, riskTask{&crm.RiskJob{Svc: &crm.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, At: d.Cfg.RiskJobAt, Every: time.Minute, Log: d.Log}})
+	tasks = append(tasks, practiceCloseTask{&practice.CloseJob{Svc: &practice.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log}, Every: time.Minute, Log: d.Log}})
 	tasks = append(tasks, gradeRemindTask{&grade.ReminderJob{Svc: &grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}, Redis: d.Redis, Name: name, Every: time.Minute, Log: d.Log}})
 	if bs, ok := d.Blob.(submission.BlobAPI); ok { // *blob.Store thật; worker thử nghiệm không có object storage thì không chạy job
 		tasks = append(tasks, orphanTask{&submission.OrphanJob{Svc: &submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}, Redis: d.Redis, Name: name, Every: time.Hour, Log: d.Log}})
@@ -108,6 +110,12 @@ type riskTask struct{ j *crm.RiskJob }
 
 func (riskTask) Name() string                    { return "crm.risk" }
 func (t riskTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
+
+// practiceCloseTask chạy `practice.close` (US-P9-07) — mỗi phút đóng lượt thi thử quá hạn.
+type practiceCloseTask struct{ j *practice.CloseJob }
+
+func (practiceCloseTask) Name() string                    { return "practice.close" }
+func (t practiceCloseTask) Run(ctx context.Context) error { return t.j.Run(ctx) }
 
 // gradeRemindTask chạy `grade.scheme_reminder` (US-P6-05) — mỗi tuần một lần sau 08:00 thứ Hai, một bản nhờ khoá leader + dấu tuần Redis.
 type gradeRemindTask struct{ j *grade.ReminderJob }

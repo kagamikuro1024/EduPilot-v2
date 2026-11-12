@@ -31,6 +31,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/libraryhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/llmhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/mailhttp"
+	"github.com/edupilot/backend-go/internal/httpapi/practicehttp"
 	"github.com/edupilot/backend-go/internal/httpapi/threadhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/todayhttp"
 	"github.com/edupilot/backend-go/internal/httpapi/userhttp"
@@ -40,6 +41,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/crypto"
+	"github.com/edupilot/backend-go/internal/practice"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/submission"
 	"github.com/edupilot/backend-go/internal/submission/source"
@@ -113,8 +115,9 @@ func registerAPIRoutes(r chi.Router, d Deps) {
 			todaySvc := today.NewService(d.DB, d.Redis, d.Clock, d.Log, sig, today.WithSLA(escalation.ConfigFrom(d.Cfg).SLA), today.WithAttention(crmService(d)))
 			todaySvc.Agg.Timeout = d.Cfg.TodayProviderTimeout
 			(&todayhttp.Handler{Today: todaySvc, Guard: courseGuard, Log: d.Log}).Mount(r)
-			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P5-02: điểm danh, phát biểu
-			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                           // US-P5-03: heartbeat, ack, đọc thời gian học
+			(&crmhttp.Handler{Svc: crmService(d), Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), Log: d.Log}).Mount(r)              // US-P5-02: điểm danh, phát biểu
+			(&activityhttp.Handler{Svc: activityService(d), Guard: courseGuard, Log: d.Log}).Mount(r)                                                                        // US-P5-03: heartbeat, ack, đọc thời gian học
+			(&practicehttp.Handler{Svc: &practice.Service{Pool: d.DB, Clock: d.Clock, Log: d.Log}, Guard: courseGuard, Idem: RequireIdempotencyKey(d), Log: d.Log}).Mount(r) // US-P9-05…09: luyện đề, thi thử
 			(&coursehttp.Handler{Courses: svc, Guard: courseGuard, Idem: RequireIdempotencyKey(d), OptIdem: OptionalIdempotencyKey(d), ClientIP: func(r *http.Request) string { return clientIP(r, d) }, Log: d.Log}).Mount(r)
 		}
 		if d.DB != nil && d.Jobs != nil {

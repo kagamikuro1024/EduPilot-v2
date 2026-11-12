@@ -358,12 +358,12 @@ func (q *Queries) PracticeAttemptTakeTab(ctx context.Context, arg PracticeAttemp
 
 const practiceDocTitles = `-- name: PracticeDocTitles :many
 select id, title from documents
-where course_id = $1 and id = any($2::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER')
+where course_id = $1 and id = any($2::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER')
 `
 
 type PracticeDocTitlesParams struct {
 	CourseID uuid.UUID
-	Ids      []uuid.UUID
+	Ids      []string
 }
 
 type PracticeDocTitlesRow struct {
@@ -709,13 +709,13 @@ func (q *Queries) PracticeLastTopicAt(ctx context.Context, arg PracticeLastTopic
 
 const practiceOptionsByQuestions = `-- name: PracticeOptionsByQuestions :many
 select id, question_id, position, body, pinned_last
-from question_options where course_id = $1 and question_id = any($2::uuid[])
+from question_options where course_id = $1 and question_id = any($2::text[]::uuid[])
 order by question_id, position
 `
 
 type PracticeOptionsByQuestionsParams struct {
 	CourseID uuid.UUID
-	Ids      []uuid.UUID
+	Ids      []string
 }
 
 type PracticeOptionsByQuestionsRow struct {
@@ -799,12 +799,12 @@ func (q *Queries) PracticePool(ctx context.Context, arg PracticePoolParams) ([]P
 
 const practiceQuestionsByIDs = `-- name: PracticeQuestionsByIDs :many
 select id, type, topic, difficulty, stem, answer_key, explanation, citations, version
-from question_bank where course_id = $1 and id = any($2::uuid[])
+from question_bank where course_id = $1 and id = any($2::text[]::uuid[])
 `
 
 type PracticeQuestionsByIDsParams struct {
 	CourseID uuid.UUID
-	Ids      []uuid.UUID
+	Ids      []string
 }
 
 type PracticeQuestionsByIDsRow struct {

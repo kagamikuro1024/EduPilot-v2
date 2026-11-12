@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"slices"
 	"strings"
 	"time"
 
@@ -232,15 +231,11 @@ func (s *Service) build(ctx context.Context, q *store.Queries, userID, courseID 
 		return att, err
 	}
 	// chụp câu
-	uids := make([]uuid.UUID, len(ids))
-	for i, id := range ids {
-		uids[i] = uuid.MustParse(id)
-	}
-	qs, err := q.PracticeQuestionsByIDs(ctx, store.PracticeQuestionsByIDsParams{CourseID: courseID, Ids: uids})
+	qs, err := q.PracticeQuestionsByIDs(ctx, store.PracticeQuestionsByIDsParams{CourseID: courseID, Ids: ids})
 	if err != nil {
 		return att, fmt.Errorf("practice: đọc câu hỏi: %w", err)
 	}
-	opts, err := q.PracticeOptionsByQuestions(ctx, store.PracticeOptionsByQuestionsParams{CourseID: courseID, Ids: uids})
+	opts, err := q.PracticeOptionsByQuestions(ctx, store.PracticeOptionsByQuestionsParams{CourseID: courseID, Ids: ids})
 	if err != nil {
 		return att, fmt.Errorf("practice: đọc đáp án: %w", err)
 	}
@@ -253,7 +248,10 @@ func (s *Service) build(ctx context.Context, q *store.Queries, userID, courseID 
 		optsOf[o.QuestionID] = append(optsOf[o.QuestionID], o)
 	}
 	rngSeed := quiz.SeedOf(att.ID.String())
-	order := slices.Clone(uids)
+	order := make([]uuid.UUID, len(ids))
+	for i, id := range ids {
+		order[i] = uuid.MustParse(id)
+	}
 	quiz.Shuffle(order, rngSeed) // thứ tự câu xáo riêng từng lượt, ổn định theo id lượt
 	for pos, qid := range order {
 		row, ok := byQ[qid]
