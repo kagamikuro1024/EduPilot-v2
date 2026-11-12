@@ -1,5 +1,5 @@
 # SRS FEAT-uiux-91 Cải thiện UI/UX sau khảo sát (sprint 9.1)
-Phiên bản 1.1 · 2026-11-08 · Trạng thái: **APPROVED** (chủ dự án duyệt báo cáo UI/UX và trang giới thiệu v2 ngày 2026-11-08). **"Dùng thử" (US-UX91-22 / FR-25) đã gỡ theo P-91-4** (chủ dự án bỏ, huỷ P-91-3): không endpoint `/demo/sessions`, không `DEMO_MODE`, không sandbox, không đặt giá model 9router. Phiên bản 0.2 → 1.0: thêm trang giới thiệu v2 (clip sống, kể chuyện theo cuộn, chữ lớn, chiều sâu), đổi thứ tự đợt 1 → 2 → 6 → 3 → 4 → 5, `DESIGN.md` đã sửa. 1.0 → 1.1: gỡ US-22, 21 story.
+Phiên bản 1.2 · 2026-11-12 · Trạng thái: **APPROVED** (chủ dự án duyệt báo cáo UI/UX và trang giới thiệu v2 ngày 2026-11-08). **"Dùng thử" (US-UX91-22 / FR-25) đã gỡ theo P-91-4** (chủ dự án bỏ, huỷ P-91-3): không endpoint `/demo/sessions`, không `DEMO_MODE`, không sandbox, không đặt giá model 9router. Phiên bản 0.2 → 1.0: thêm trang giới thiệu v2 (clip sống, kể chuyện theo cuộn, chữ lớn, chiều sâu), đổi thứ tự đợt 1 → 2 → 6 → 3 → 4 → 5, `DESIGN.md` đã sửa. 1.0 → 1.1: gỡ US-22, 21 story.
 
 Nguồn: `docs/sprints/9.1/audit/findings.md`, `plan.md` (Quyết định của chủ dự án Q-UX91-1…5; Quyết định của PM cho TL-2), `proposals.md` P-91-1 / P-91-2, `techlead.md` TL-1 / TL-2, `US.md` cùng thư mục.
 
