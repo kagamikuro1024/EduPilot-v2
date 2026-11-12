@@ -165,7 +165,7 @@ Giao diện chỉ gọi API qua `services/` + TanStack Query; cấm `fetch` tr�
 | Bạn tự kiểm (chủ dự án) | Duyệt 20 câu AI sinh, ghi nguyên / sửa nhẹ / loại (E5); import một file Forms thật |
 
 ## 10. Câu hỏi mở và quyết định
-`QUESTIONS.md` (Q-P9-1…10). **Dùng lại:** D45, D46, D47, D51, D54–D58; luật 2, 4, 5, 10–16; `FEAT-weekly-exam` (khoá chat, Quiz Engine); P3 (che danh tính).
+`QUESTIONS.md` (Q-P9-1…12). **Dùng lại:** D45, D46, D47, D51, D54–D58; luật 2, 4, 5, 10–16; `FEAT-weekly-exam` (khoá chat, Quiz Engine); P3 (che danh tính).
 **Đề xuất đổi tài liệu nền (chờ PM; ghi ở `docs/sprints/10/proposals.md`):**
 1. **P-10-1:** `P9.md` L1 ghi "`ExtractQuestions` trong `internal/quiz`", nhưng `internal/quiz` mô tả là code thuần không import `internal/llm`. Đặt mọi việc gọi LLM ở **`internal/practice`**; `internal/quiz` chỉ thêm `SHORT` + `BuildMatrix` thuần.
 2. **P-10-2:** bỏ `practice_exams` và cột `assignment_id` khỏi `ARCHITECTURE.md` §4 (số migration `00019`); ghi chú `forms_import_*`.
