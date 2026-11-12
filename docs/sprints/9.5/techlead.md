@@ -81,13 +81,15 @@ Cách làm từng dòng SLO:
 - **Không mất việc:** `docker kill` worker giữa lượt chấm, đếm việc. Thử này không phụ thuộc phần cứng.
 - **Lighthouse:** chạy trên bản build production của frontend `ep-research`, không chạy trên `next dev`.
 
-**Lỗ hổng phát hiện khi trả lời:**
-- `scripts/seed-t1.mjs` được `SYSTEM_DESIGN.md` §5 nhắc tới nhưng **chưa có** trên `sprint/9.1-uiux` (`git ls-tree` không thấy). Đây là việc của dev trong sprint 9.5 và là điều kiện trước cho dòng "Dashboard ≤ 3 s" lẫn "Chấm 1.000 bài".
-- `deploy/vps-llm.mjs` và `benchmarks/real-llm/README.md` vẫn ghi VPS / 9router. Cần chuyển sang Mac như mục 2.
+**Đối chiếu với spec DRAFT `FEAT-nfr-eval` (BA, commit `7decaa00`):**
+- `seed-t1.mjs` chưa có trong cây mã. US-NFR-03 đã giao viết nó. Đây là điều kiện trước cho dòng "Dashboard ≤ 3 s" và "Chấm 1.000 bài".
+- `deploy/vps-llm.mjs` vẫn gắn với VPS / 9router. Việc tham số hoá ở mục 2 thuộc US-NFR-01 / US-NFR-08.
+- Q-NFR-2 mặc định "model Flash mạnh nhất mà khoá liệt kê", tức là `gemini-3.8-flash`, với RPM 15 và trần 500 lời gọi. Mục 3–4 cho thấy model này hôm nay không phản hồi, nên đề xuất thay bằng bước kiểm tra đầu phiên và RPM 5 (P-95-4). Trần 500 lời gọi giữ nguyên, chia theo ngày.
+- Q-NFR-3 mặc định "RAM > 90 % thì hạ `--scale 0.5`". Số đo RAM ở mục 5 cho thấy RAM sẽ không chạm ngưỡng này; thứ cần giữ là CPU. P-95-5 bổ sung `--cpus` cho k6 và dừng stack demo trong lượt nặng. Luật "không tuyên bố đạt T1 cho phần đã hạ" giữ nguyên.
 
 **Rủi ro:**
 - `gemini-3.8-flash` free tier quá tải kéo dài, khiến báo cáo LLM thật phải dùng 3.5-flash. Cách lùi: báo cáo theo model thực đo và ghi lý do.
 - Hết RPD giữa lượt đo. Cách lùi: chia hai ngày như mục 3.
 - Đo trên một máy, k6 và stack chung CPU. Cách lùi: giới hạn `--cpus` cho k6 và ghi rõ các hạn chế. Không đưa ra kết luận vượt T1.
 
-**Đề xuất cho PM:** đã ghi P-95-1 … P-95-3 vào `docs/sprints/9.5/proposals.md`.
+**Đề xuất cho PM:** P-95-4, P-95-5 trong `docs/sprints/9.5/proposals.md`.
