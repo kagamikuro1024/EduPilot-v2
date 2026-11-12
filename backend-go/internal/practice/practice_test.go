@@ -317,9 +317,12 @@ func TestAnswerTypes(t *testing.T) {
 	require.Equal(t, 3, res.Result.Correct)
 	require.Equal(t, "7.5", res.Result.Score)
 	// quá dài: 422 TOO_LONG, không tốn lời gọi nào
+	sv2 := r.student()
+	v, _, err = r.svc.Start(ctx, sv2, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Hỗn hợp", Count: 6}, uuid.Nil)
+	require.NoError(t, err)
 	for _, it := range v.Items {
 		if it.Question.Type == "ESSAY" {
-			_, err := r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, practice.AnswerIn{Answer: json.RawMessage(raw(t, map[string]string{"text": strings.Repeat("a", practice.MaxEssayChars+1)}))})
+			_, err := r.svc.SaveAnswer(ctx, sv2, r.course, v.ID, it.ID, uuid.Nil, practice.AnswerIn{Answer: json.RawMessage(raw(t, map[string]string{"text": strings.Repeat("a", practice.MaxEssayChars+1)}))})
 			require.Equal(t, "TOO_LONG", code(t, err))
 			break
 		}
