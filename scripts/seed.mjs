@@ -17,6 +17,7 @@ import { XLSX_MIME, lop1Column, lop1Faulty, zip } from "./grade-seed-data.mjs";
 import { FOREIGN_MAIL, PERSONAL_MAIL, TEAMS_TITLE_04, createBody, loadPlan, sampleText, teamsMeta } from "./assignment-seed-data.mjs";
 import { ROSTER1, crmPlan } from "./crm-plan.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
+import { APPROVED as P9_APPROVED, ESSAYS as P9_ESSAYS, PENDING as P9_PENDING } from "./practice-seed-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const argv = process.argv.slice(2);
@@ -63,7 +64,7 @@ const ORIGIN = new URL(API).origin;
 
 const DOMAIN = "@edupilot.local";
 const SEMESTER = "2026-2027-HK1";
-const STEPS = 19;
+const STEPS = 20;
 
 // ---- tiện ích --------------------------------------------------------------------------------------------------------
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -645,6 +646,115 @@ async function step10Exams() {
   console.log("   Đã nộp 24 lượt trắc nghiệm + 6 lượt code; bộ lập lịch sẽ đóng và công bố (≤ 3 phút).");
 }
 
+
+// ---- bước 20: Luyện đề (US-P9-12): ngân hàng đủ dùng, hàng chờ duyệt, một QUIZ, ≈ 40 lượt của 13 sinh viên -------------------------------------------
+// Khoá tự nhiên: `title` của câu; mỗi lượt có Idempotency-Key cố định theo (sinh viên, số thứ tự) nên chạy lại không tạo lượt mới (và có thêm kiểm số lượt trước khi làm).
+const P9_QUIZ_TITLE = "Quiz 01 — Hàm băm và chữ ký";
+const P9_STUDENTS = ["sv.gioi", "sv.kha", "sv.nguyco", ...Array.from({ length: 10 }, (_, i) => sv(i + 4))];
+const P9_STRENGTH = { "sv.gioi": 0.92, "sv.kha": 0.65, "sv.nguyco": 0.5 }; // còn lại 0,45–0,8 theo số thứ tự
+const P9_WEAK = { "sv.kha": "An toàn ứng dụng web" }; // B sai nhiều chủ đề này: lịch sử + điểm yếu có dữ liệu để xem
+const P9_TOPICS = ["Mật mã khối", "Hàm băm và chữ ký", "An toàn ứng dụng web", "Xác thực và phân quyền", "Mạng và tường lửa"];
+
+function p9Body(q) {
+  const body = { type: q.type, title: q.title, topic: q.topic, difficulty: q.difficulty, stem: q.stem, explanation: q.explanation ?? null };
+  if (q.type === "TRUE_FALSE") body.value = q.value;
+  else if (q.type === "SHORT") body.accepted = q.accepted;
+  else if (q.type === "ESSAY") ({ modelAnswer: body.model_answer, rubric: body.rubric } = q);
+  else {
+    body.options = q.options.map((b) => ({ body: b }));
+    body.correct = q.correct;
+  }
+  return body;
+}
+
+async function step19Practice() {
+  step(20, "Luyện đề: ngân hàng, hàng chờ duyệt, Quiz và lượt luyện của 13 sinh viên (lớp 761987)…");
+  const course = ctx.ids["761987"];
+  const t = ctx.tokens.teacher;
+  const base = `/courses/${course}/questions`;
+  const have = new Map((await listAll(base, t)).map((x) => [x.title, x]));
+  for (const q of [...P9_APPROVED, ...P9_ESSAYS]) {
+    const row = have.get(q.title) ?? (await call("POST", base, { token: t, key: `seed-p9-${q.title}`, json: p9Body(q) })).body;
+    await approveQuestion(base, row.id, t);
+  }
+  for (const q of P9_PENDING) {
+    const row = have.get(q.title) ?? (await call("POST", base, { token: t, key: `seed-p9-${q.title}`, json: p9Body(q) })).body;
+    if (row.review_status === "DRAFT") await call("PUT", `${base}/${row.id}/review`, { token: t, json: { decision: "REQUEST", version: row.version } });
+  }
+  const bank = new Map((await listAll(base, t)).map((x) => [x.title, x]));
+
+  // QUIZ: bài thi tính điểm của PE (P-10-2): 5 câu chọn một của chủ đề Hàm băm và chữ ký, mở sau 7 ngày.
+  const exams = await listAll(`/courses/${course}/exams`, t);
+  if (!exams.some((x) => x.title === P9_QUIZ_TITLE)) {
+    const ids = P9_APPROVED.filter((q) => q.topic === "Hàm băm và chữ ký" && q.type === "MCQ_SINGLE").slice(0, 5).map((q) => bank.get(q.title).id);
+    const now = Date.now();
+    const quiz = (await call("POST", `/courses/${course}/exams`, { token: t, key: `seed-p9-${P9_QUIZ_TITLE}`, json: { title: P9_QUIZ_TITLE, instructions: "Quiz tính điểm: 5 câu trắc nghiệm, 15 phút.", duration_minutes: 15, multi_scoring: "PARTIAL", opens_at: new Date(now + 7 * 86_400_000).toISOString(), closes_at: new Date(now + 7 * 86_400_000 + 3 * 3_600_000).toISOString() } })).body;
+    await call("PUT", `/courses/${course}/exams/${quiz.id}/items`, { token: t, json: { items: ids.map((id) => ({ question_id: id, points: "2" })), version: quiz.version } });
+    await call("POST", `/courses/${course}/exams/${quiz.id}/schedule`, { token: t, json: {}, ok: [200] });
+  }
+
+  // câu → đáp án đúng, theo chữ (PE + Luyện đề), để chọn đúng / sai có chủ đích
+  const truth = new Map();
+  for (const q of [...QUESTIONS, ...P9_APPROVED, ...P9_ESSAYS]) truth.set(q.stem, q);
+  const pick = (item, q, right, rnd) => {
+    const opts = item.question.options;
+    switch (q?.type ?? item.question.type) {
+      case "TRUE_FALSE": return { value: right ? q.value : !q.value };
+      case "SHORT": return { text: right ? q.accepted[0] : "không rõ" };
+      case "ESSAY": return { text: "Kẻ tấn công chèn dữ liệu nhập độc hại; phòng chống bằng truy vấn tham số hoá và kiểm tra dữ liệu nhập. Chế độ CBC dùng IV nên khác ECB." };
+      default: {
+        const good = new Set(q.correct.map((i) => q.options[i]));
+        const ok = opts.filter((o) => good.has(o.body)).map((o) => o.id);
+        const bad = opts.filter((o) => !good.has(o.body)).map((o) => o.id);
+        if (right) return { option_ids: ok };
+        return { option_ids: [bad[Math.floor(rnd() * bad.length)] ?? ok[0]] };
+      }
+    }
+  };
+  async function runAttempt(who, n, body, { leave = 0 } = {}) {
+    const token = ctx.tokens[who];
+    const tab = tabId();
+    const hdr = { "X-Practice-Tab": tab };
+    const rnd = mulberry32(Number(process.env.SEED_RNG ?? 20261029) + n * 977 + [...who].reduce((a, c) => a + c.charCodeAt(0), 0));
+    const idx = P9_STUDENTS.indexOf(who);
+    const strength = P9_STRENGTH[who] ?? 0.45 + (idx % 8) * 0.05;
+    const r = await callH("POST", `/courses/${course}/practice/start`, { token, key: `seed-p9-${who}-${n}`, headers: hdr, json: body, ok: [200, 201] });
+    const att = r.body;
+    if (att.status !== "IN_PROGRESS") return;
+    const p = P9_WEAK[who] && att.topic === P9_WEAK[who] ? 0.2 : strength;
+    for (const [i, item] of att.items.entries()) {
+      if (i >= att.items.length - leave) break;
+      const q = truth.get(item.question.stem);
+      if (!q || item.answer) continue;
+      const answer = pick(item, q, rnd() < p, rnd);
+      await callH("PUT", `/courses/${course}/practice/attempts/${att.id}/answers/${item.id}`, { token, headers: hdr, json: att.mode === "MOCK" ? { answer, version: 0 } : { answer } });
+    }
+    if (leave === 0) await callH("POST", `/courses/${course}/practice/attempts/${att.id}/submit`, { token, key: `seed-p9-${who}-${n}-submit` });
+  }
+
+  const hist = (who) => call("GET", `/courses/${course}/practice/history?limit=1`, { token: ctx.tokens[who] }).then((r) => r.body.items.length);
+  let attempts = 0;
+  await pool(P9_STUDENTS, 4, async (who) => {
+    if ((await hist(who)) > 0) return; // đã có lượt: không làm lại
+    const topics = [P9_TOPICS[P9_STUDENTS.indexOf(who) % 5], P9_TOPICS[(P9_STUDENTS.indexOf(who) + 1) % 5], P9_WEAK[who] ?? P9_TOPICS[(P9_STUDENTS.indexOf(who) + 2) % 5]];
+    for (const [n, topic] of topics.entries()) {
+      await runAttempt(who, n, { mode: "TOPIC", topic, count: 5 + ((P9_STUDENTS.indexOf(who) + n) % 6) });
+      attempts++;
+    }
+  });
+  for (const who of ["sv.gioi", "sv.kha"]) { // hai bài thi thử (20 câu / 30 phút) đã nộp
+    if ((await call("GET", `/courses/${course}/practice/history?limit=50`, { token: ctx.tokens[who] })).body.items.some((r) => r.mode === "MOCK")) continue;
+    await runAttempt(who, 10, { mode: "MOCK", count: 20, duration_minutes: 30 });
+    attempts++;
+  }
+  // một lượt đang dở (sv.nguyco dừng giữa chừng) để màn Luyện đề có "Lượt đang dở"
+  if (!(await call("GET", `/courses/${course}/practice/overview`, { token: ctx.tokens["sv.nguyco"] })).body.in_progress.length) {
+    await runAttempt("sv.nguyco", 20, { mode: "TOPIC", topic: "Xác thực và phân quyền", count: 8 }, { leave: 5 });
+  }
+  ctx.changed = true;
+  console.log(`   Đã tạo ${attempts} lượt luyện mới (còn lại giữ nguyên nếu đã có).`);
+}
+
 // ---- bước 11: tài liệu + lịch (US-P8-03 AC17) ------------------------------------------------------------------------------
 // Khoá tự nhiên: `title` của tài liệu / sự kiện trong lớp. Đi qua presign → PUT thẳng kho tệp → complete → việc nền (docling thật).
 const DOCS = [
@@ -1150,6 +1260,7 @@ async function main() {
   await step16Tickets();
   await step17Moderation();
   await step18Assignments();
+  await step19Practice();
   console.log(`Seed xong trong ${Math.round((Date.now() - started) / 1000)} s.`);
   if (!ctx.changed) console.log("Seed xong (không đổi)");
   console.log("  2 lớp: 761987 (mã AN7K2MQ, 30 sinh viên + 1 chờ duyệt EMAIL_MISMATCH), 761988 (mã BX4P9TW, 24 sinh viên + 3 chờ duyệt, tối đa 30)");
@@ -1160,6 +1271,7 @@ async function main() {
   console.log("  Lớp 761987: điểm danh buổi 1–9 (270 dòng) + ≈ 60 lần phát biểu, thời gian học 10 tuần, at-risk C (AT_RISK) + sv12 / sv19 / sv26 (WATCH); 5 ticket đủ trạng thái; kiểm duyệt Threads (2 + 3 báo cáo, 1 ghim, 1 bình luận ẩn) — `node scripts/check-crm-seed.mjs`");
   console.log("  Lớp 761987: công thức điểm CONFIRMED (trích từ quy chế học phần bằng provider giả, TEACHER xác nhận), điểm giữa kỳ / cuối kỳ nhập bằng XLSX và đã công bố, sổ CHƯA chốt; lớp 761988: chưa có quy chế — `node scripts/check-grade-seed.mjs`");
   console.log("  Lớp 761987: Bài tập 03 (26 bài nộp: 13 app, 5 ZIP, 8 thư IMAP thử; 3 chưa khớp; chưa chấm) + Bài tập 04 (kênh Teams, chưa đồng bộ) — `node scripts/check-assignments-seed.mjs`");
+  console.log("  Lớp 761987: Luyện đề — 82 câu APPROVED (8 chủ đề, gồm 8 trả lời ngắn + 2 tự luận) + 20 câu PENDING + 1 Quiz tính điểm (mở sau 7 ngày) + ≈ 40 lượt của 13 sinh viên (B sai nhiều An toàn ứng dụng web; C đang dở 1 lượt) — `node scripts/check-practice-seed.mjs`");
   console.log("  Tài khoản mẫu: admin@ teacher@ ta@ sv.gioi@ sv.kha@ sv.nguyco@ sv.moi@ (@edupilot.local)");
 }
 
