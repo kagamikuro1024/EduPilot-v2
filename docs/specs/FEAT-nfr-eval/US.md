@@ -1,11 +1,11 @@
 # FEAT-nfr-eval Seed, yêu cầu phi chức năng và đánh giá LLM thật (sprint 9.5)
 Nguồn: `docs/sprints/ops-vps/plan.md` (mục "Thu hẹp phạm vi", "Hoãn sang một sprint riêng") · `docs/sprints/ops-vps/prompts/tl-eval.md` · `docs/SYSTEM_DESIGN.md` §1.2, §5 · `docs/phases/P10.md` L3 · PRD §5, §6 · FLOWS F9–F11, F3 · `docs/team/CONTEXT.md` mục 4 (bản 2026-11-12: Mac, không VPS)
-Phase: sprint 9.5 (nằm giữa 9.1 và 10, không phải phase mới). Trạng thái: **DRAFT** (chờ PM + chủ dự án; câu hỏi mở ở `QUESTIONS.md`).
+Phase: sprint 9.5 (nằm giữa 9.1 và 10, không phải phase mới). Trạng thái: **APPROVED** (2026-11-12; PM chấp nhận P-95-1…6, chủ dự án uỷ quyền làm liền mạch; Q-NFR-1…10 đã chốt ở `QUESTIONS.md`). Sửa theo P-95-4, P-95-5, P-95-6 (SRS v1.0).
 Thiết bị đo: **MacBook Apple Silicon, Colima 6 CPU / 10 GB**. Mọi con số trong spec này, trong báo cáo và trong quyển đồ án đều ghi kèm câu đó.
 
 **Quy ước chung cho mọi story** (không lặp lại trong từng AC):
 - Sprint này **đo, không thêm tính năng**. Mã sản phẩm chỉ đổi khi một phép đo trượt SLO hoặc lộ lỗi (xem US-NFR-10).
-- Mỗi tệp kết quả `benchmarks/reports/**/*.json` có khối `meta`: `commit`, `thời điểm`, `máy` ("MacBook Apple Silicon, Colima 6 CPU / 10 GB"), `số lần chạy`, `cấu hình` (số bản gateway / worker, provider, model, `RPM`). Thiếu `meta` → phép đo không hợp lệ.
+- Mỗi tệp kết quả `benchmarks/reports/**/*.json` có khối `meta`: `commit`, `thời điểm`, `máy` ("MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU"), `số lần chạy`, `cấu hình` (số bản gateway / worker, provider, **chuỗi model thực đo**, `RPM`), `k6_cpus`, `demo_stack: stopped|running` (P-95-5). Thiếu `meta` → phép đo không hợp lệ.
 - Dữ liệu mô phỏng hoàn toàn (D44). Không tên / MSSV / email thật ở seed, báo cáo, log. Báo cáo không chứa khoá API, mật khẩu, `Authorization`.
 - Một stack test tại một thời điểm (`CONTEXT.md` mục 4); compose project `-p ep-<vai>`, cổng lệch, chỉ bind `127.0.0.1`; không đụng stack demo `~/Documents/EduPilot-demo`. Đo xong `down -v`.
 - Một phép đo nặng tại một thời điểm. Output lệnh cắt còn dòng lỗi + tóm tắt.
@@ -21,7 +21,7 @@ Thứ tự thi công đề xuất: **NFR-01 → 02 → 03 → 05 → 04 → 06 �
 
 ### Tiêu chí nghiệm thu
 - AC1. Given Mac sạch (Colima đã chạy) When làm theo `benchmarks/README.md` (tệp mới, mục "Đo trên Mac") Then dựng được stack đo `-p ep-<vai>` với cổng lệch và đo được một lệnh `smoke.js`; README **không còn** nhắc VPS, `/srv/work/research`, `ssh`, 9router.
-- AC2. Given `benchmarks/real-llm/README.md` When đọc Then dòng "Chạy trên VPS … không chạy trên Mac" đã được thay bằng quy trình Mac (stack `-p ep-research`, cổng lệch, `down -v` khi xong); đường dẫn `deploy/vps-*.mjs` không còn là bước bắt buộc.
+- AC2. Given `benchmarks/real-llm/README.md` When đọc Then dòng "Chạy trên VPS … không chạy trên Mac" đã được thay bằng quy trình Mac (stack `-p ep-research`, cổng lệch, `down -v` khi xong); `deploy/vps-llm.mjs` được tham số hoá (P-95-6): `API` lấy từ env `BASE`; nhánh `live` tạo provider `gemini-chat` (`type: gemini`) với `MODEL` / `FALLBACK` từ env và `gemini-embed`; không còn đọc khoá 9router / sqlite, không còn `https://EP_HOST` cứng; khoá lấy từ `GEMINI_API_KEY` trong `.env.local` của stack `ep-research`, không in.
 - AC3. Given bất kỳ lệnh đo nào trong sprint When chạy Then đầu ra JSON có khối `meta` đủ trường ở "Quy ước chung"; một script kiểm `benchmarks/check-meta.mjs` (hoặc tương đương) trả lỗi nếu thiếu.
 - AC4 (nhánh lỗi). Given `BASE` trỏ vào cổng của stack demo (`:3000`, project mặc định) When chạy lệnh ghi dữ liệu (`setup`, `grade-run`, seed T1) Then script **từ chối chạy** và in lý do (một dòng); chạy với stack `-p ep-*` thì chạy.
 - AC5 (phân quyền / bí mật). Given repo When quét bằng `scripts/canary-scan.sh` và grep khoá `AIza` / `sk-` / `Bearer ` trong `benchmarks/**`, `docs/research/**` Then 0 kết quả.
@@ -65,7 +65,7 @@ Thứ tự thi công đề xuất: **NFR-01 → 02 → 03 → 05 → 04 → 06 �
 - AC4. Given T1 xong When chạy `ANALYZE` rồi gọi 6 trang chính bằng STUDENT / TEACHER Then không `5xx`; STUDENT lớp X không đọc được dữ liệu lớp Y (`403`/`404` trên ≥ 20 cặp ngẫu nhiên).
 - AC5 (nhánh lỗi). Given hết dung lượng đĩa hoặc Postgres bị ngắt giữa chừng When seed T1 Then thoát mã ≠ 0 và in bảng đang ghi; chạy lại bằng cờ `--reset` xoá sạch `edupilot_t1` (không đụng DB `edupilot`) rồi chạy được.
 - AC6 (an toàn). Given `--reset` When `DATABASE_URL` trỏ vào DB tên `edupilot` (không phải `edupilot_t1`) Then từ chối chạy.
-- AC7 (kích thước). Given T1 xong Then kích thước DB và RAM Postgres nghỉ ghi vào báo cáo; nếu seed T1 vượt RAM Colima (OOM) thì ghi rõ và dùng cờ thu nhỏ `--scale 0.5` (xem Q-NFR-3), số liệu ghi đúng quy mô thực.
+- AC7 (kích thước). Given T1 xong Then kích thước DB và RAM Postgres nghỉ ghi vào báo cáo; **không thu nhỏ trước** (P-95-5; TL-1 mục 5: cả stack lúc rảnh ≈ 0,35 GB RAM). Chỉ khi OOM-kill xảy ra thật mới dùng cờ `--scale 0.5` (Q-NFR-3), và số liệu ghi đúng quy mô thực, không tuyên bố "đạt T1" cho phần đã hạ.
 
 ### Ngoài phạm vi của story này
 - Dữ liệu thật; nhãn người gán cho E1/E3 (P10).
@@ -85,7 +85,9 @@ Thứ tự thi công đề xuất: **NFR-01 → 02 → 03 → 05 → 04 → 06 �
 - AC4. Given mọi kịch bản When STUDENT gọi 100 lần một API chỉ giảng viên (vd. `GET …/gradebook`) giữa lúc tải Then 100% trả `403`, không lần nào `200` (phân quyền không hỏng dưới tải).
 - AC5. Given (b) When đo sự kiện SSE đầu tiên và TTFT Then sự kiện đầu ≤ 300 ms (D47); TTFT chat ≤ 1,5 s (cache hit) / ≤ 4 s (RAG) ở p95 — ghi riêng hai nhóm.
 - AC6 (nhánh lỗi / trung thực). Given một SLO trượt trên Mac When báo cáo Then ghi FAIL + số thật + lần thử lại (nếu có) + nghi ngờ nguyên nhân (k6 và server dùng chung 6 CPU; RAM); không đổi ngưỡng. Lỗi hiệu năng thật chuyển US-NFR-10.
-- AC7 (an toàn tài nguyên). Given đo (a) hoặc (c) When RAM Colima > 90% hoặc OOM-kill xảy ra Then dừng lượt, ghi sự kiện vào báo cáo và hạ số VU theo Q-NFR-3; không chạy hai kịch bản cùng lúc.
+- AC7 (an toàn tài nguyên). Given đo (a) hoặc (c) When OOM-kill xảy ra hoặc CPU stack bị nghẽn kéo dài (`docker stats`: container stack ≥ 95% trần CPU suốt ≥ 60 s mà k6 chưa đạt tải đặt) Then dừng lượt, ghi sự kiện vào báo cáo; hạ quy mô chỉ theo Q-NFR-3; không chạy hai kịch bản cùng lúc.
+- AC8 (môi trường k6, P-95-5). Given mọi lượt k6 When chạy Then bằng container `grafana/k6` vào **cùng mạng docker** của `ep-<vai>` với `--cpus 1.5 --memory 1.5g` (không bắn từ macOS qua cổng chuyển tiếp Colima); trong lượt nặng thì `docker compose -p edupilot stop` (không `down`, không xoá volume), đo xong `start` lại; không dừng được thì ghi `demo_stack: running` vào `meta`; báo cáo nêu hạn chế: mạng là loopback trong VM nên p95 là **cận dưới**, k6 và stack chung 6 vCPU.
+- AC9 (chấm 1.000 bài thời gian thật). Given (c) When chạy Then provider `fake` trễ ≈ 20 s mỗi lượt, 5 luồng BATCH, chạy **thời gian thật ≈ 2,2 h, không ngoại suy**, ban đêm; k6 `grading-vs-chat.js` song song đo TTFT; với LLM thật chỉ chạy `VUS=4` trên BT03 (US-NFR-08 AC7), ghi rõ là mẫu nhỏ.
 
 ### Ngoài phạm vi của story này
 - Đo bằng LLM thật (US-NFR-08).
@@ -141,7 +143,7 @@ Thứ tự thi công đề xuất: **NFR-01 → 02 → 03 → 05 → 04 → 06 �
 - AC1. Given stack T0 nghỉ 5 phút When `docker stats --no-stream` Then bảng RAM / CPU nghỉ từng container (gateway, worker, postgres, pgbouncer, redis, minio, docling-serve nếu bật, caddy, frontend) vào `benchmarks/reports/baseline.json` + `.md`; tổng RAM của stack.
 - AC2. Given image đã build When đo Then kích thước image gateway, worker, frontend (MB) và thời gian từ `docker compose up` đến `/api/v1/readyz` = 200 (lạnh, 3 lần, trung vị).
 - AC3. Given T0 When đo p50/p95 của ≥ 12 endpoint đại diện (đọc: Hôm nay, danh sách thread, sổ điểm, hồ sơ 360, thư viện; ghi: điểm danh, gửi chat không LLM, nộp bài) × 200 lần tuần tự Then p95 đọc ≤ 300 ms, ghi ≤ 500 ms, hoặc FAIL kèm số.
-- AC4. Given 6 route người dùng của `lighthouserc*.json` When chạy Lighthouse (mô phỏng và devtools) trên Mac Then bảng LCP / TBT / script size; đối chiếu ngưỡng hiện hành (LCP ≤ 2.500 ms devtools; TBT ≤ 200 ms mô phỏng; script ≤ 256 KB); route nào trượt ghi rõ, **không nới ngưỡng**; `/assignments/[id]` (nợ G7-23, LCP 4,7 s) có dòng riêng.
+- AC4. Given 6 route người dùng của `lighthouserc*.json` When chạy Lighthouse (mô phỏng và devtools) trên Mac, **trên bản build production** của frontend `ep-<vai>` (không `next dev`) Then bảng LCP / TBT / script size; đối chiếu ngưỡng hiện hành (LCP ≤ 2.500 ms devtools; TBT ≤ 200 ms mô phỏng; script ≤ 256 KB); route nào trượt ghi rõ, **không nới ngưỡng**; `/assignments/[id]` (nợ G7-23, LCP 4,7 s) có dòng riêng.
 - AC5 (nhánh lỗi). Given đo bị nhiễu (CPU nền > 30%) When phát hiện Then dừng và đo lại sau khi tắt tiến trình nền; ghi lần nhiễu.
 - AC6 (trung thực). Given báo cáo When viết Then không đối chiếu với hệ cũ (D45) và không so với VPS cũ; ghi "đo trên MacBook Apple Silicon, Colima 6 CPU / 10 GB".
 
@@ -156,7 +158,9 @@ Thứ tự thi công đề xuất: **NFR-01 → 02 → 03 → 05 → 04 → 06 �
 ## US-NFR-08: Giảng viên / chủ dự án muốn đo các việc LLM bằng mô hình thật, để báo cáo thôi ghi "chưa test LLM thật"
 Ưu tiên: Must · Ước lượng: L · Sprint: 9.5
 
-Mô hình: **Gemini** qua khoá API của chủ dự án (Q-NFR-2: tên model). Harness có sẵn `benchmarks/real-llm/real_llm.py` (chỉ gọi HTTP API gateway). Tổng lời gọi ≈ 330 (bảng ở README harness); tôn trọng hạn mức: tuần tự, `429`/`503` thì lùi theo `Retry-After`.
+Mô hình: **Gemini Free Tier** qua khoá API của chủ dự án (P-95-4, P-95-6; hạn mức tính theo **project**, RPD đặt lại lúc 15:00 giờ Việt Nam). Cấu hình: hai provider `type: gemini` tách nhau — `gemini-chat` (6 tuyến sinh chữ, `rpm_limit` 5) và `gemini-embed` (`gemini-embedding-001`, `dims` 1536, `rpm_limit` 60); chỉ trên stack đo `LLM_REQUEST_TIMEOUT=90s` (mặc định sản phẩm 30 s không đổi; báo cáo ghi rõ). Harness có sẵn `benchmarks/real-llm/real_llm.py` (chỉ gọi HTTP API gateway). Tổng lời gọi ≈ 330, **chia hai ngày, mỗi ngày < 200 lời gọi sinh chữ** (ngày 1: trích công thức + chấm EVAL03 + chat + che danh tính ≈ 125; ngày 2: chấm BT03 + Threads + việc khác + k6 `VUS=4` ≈ 190). Tuần tự; `429`/`503` thì lùi theo `Retry-After`. Trong lúc đo, không bật LLM thật ở stack nào khác.
+
+**Chọn model đầu mỗi phiên (P-95-4):** gửi 3 lời gọi ngắn có `json_schema` tới từng model theo thứ tự `gemini-3.8-flash` → `gemini-3.5-flash` → `gemini-3.1-flash-lite`; model **qua** nếu ≥ 2/3 trả `200` trong 30 s; chuỗi dùng = tối đa 2 model đầu tiên qua (tốn ≤ 9 lời gọi, tính vào ngân sách); chạy `PHASE=seed` (embedding thật, chat giả) → `seed.mjs` → `PHASE=live`, để tài liệu seed được nhúng bằng Gemini ngay từ đầu.
 
 ### Tiêu chí nghiệm thu
 - AC1 (R1, trích công thức). Given `quy-che-lop1.pdf`, `quy-che-lop2.pdf` When trích mỗi cái ≥ 5 lần Then báo cáo có: % đúng trọng số / tham số so với `docs/specs/FEAT-gradebook/fixtures/extraction-lop*.json`; tỷ lệ phát hiện mục "chưa rõ" (lớp 2 thiếu làm tròn); % trích dẫn có thật và đúng trang; % đầu ra đúng schema ngay lần đầu; độ trễ và token.
@@ -166,14 +170,17 @@ Mô hình: **Gemini** qua khoá API của chủ dự án (Q-NFR-2: tên model). 
 - AC5 (R4, chat riêng + Threads + phân loại). Given 20–30 câu từ `DEMO_SCRIPT.md` / seed When chạy Then bảng: sự kiện đầu (≤ 300 ms ở p95, D47), TTFT, tổng thời gian; % phân loại intent đúng; % câu trả lời bám tài liệu (người đánh dấu); câu hỏi điểm cá nhân đi đúng đường tool với danh tính từ JWT; hỏi điểm người khác → từ chối 100%; không câu nào lộ điểm nháp.
 - AC6 (R5, việc khác). Given SuggestRubric, nhận xét tổng hợp hồ sơ 360, sinh lại câu trả lời Threads, tin nhắn khủng hoảng, escalation theo độ tin cậy When mỗi việc ≥ 3 mẫu Then đúng schema 100% (hoặc ghi % sai), đánh giá định tính một dòng mỗi mẫu; tin nhắn khủng hoảng luôn đi đường an toàn (không do LLM tự do quyết định).
 - AC7 (R6, chấm hàng loạt không làm chậm chat). Given `grading-vs-chat.js` với LLM thật `VUS=4` When chạy hai pha nền / chấm Then TTFT chat p95 xấu đi ≤ 20%; hoặc FAIL kèm số.
-- AC8 (hạn mức). Given toàn bộ lượt đo When thống kê Then số lời gọi LLM thực tế, token vào / ra, số `429`, tổng chi phí ước tính (hoặc "free tier") ghi vào báo cáo; không vượt trần ngân sách do chủ dự án đặt (Q-NFR-2).
+- AC8 (hạn mức). Given toàn bộ lượt đo When thống kê Then số lời gọi LLM thực tế **mỗi ngày** (< 200 sinh chữ) và tổng (≤ 500, Q-NFR-2), token vào / ra, số `429` / `503`, chi phí = "free tier" ghi vào báo cáo; báo cáo ghi chuỗi model đã chọn và kết quả kiểm tra đầu phiên.
+- AC12 (số theo model thực đo, P-95-4). Given đọc `llm_audit` (`model`, `fallback_index`) When mục đo nào có > 20% lời gọi rơi xuống model dự phòng Then báo số **theo từng model**, không gộp dưới tên "Gemini 3.8 Flash"; model không phản hồi thì không được ghi là model đã đo.
+- AC13 (hết hạn mức). Given `429` liên tiếp có `Retry-After` > 60 s (hết RPD) When gặp Then harness dừng lượt, ghi "chưa hoàn tất — hết hạn mức", chạy tiếp bằng `--resume` sau 15:00 giờ Việt Nam; không chờ vô hạn, không dội lại.
+- AC14 (dữ liệu gửi Gemini Free). Given báo cáo / luận văn When viết Then có một câu nêu rõ: dữ liệu gửi Gemini Free (nội dung có thể được Google dùng để cải thiện sản phẩm) chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV.
 - AC9 (nhánh lỗi). Given khoá hết hạn mức / `429` kéo dài / mất mạng giữa lượt When xảy ra Then harness lưu tiến độ, dừng sạch, chạy tiếp từ chỗ dừng (`--resume`), kết quả từng phần ghi nhận "chưa hoàn tất"; không dội lại.
 - AC10 (bí mật / riêng tư). Given khoá Gemini When chạy Then khoá chỉ nằm trong `.env.local` ngoài git (hoặc biến môi trường) và vào hệ thống qua màn Cấu hình LLM của Admin; không có ở log, `benchmarks/**`, `docs/research/**`, ảnh chụp; ADMIN xem `llm_audit` có ghi `audit_log`; TEACHER / STUDENT không đọc được payload.
 - AC11 (đường tool, phân quyền). Given STUDENT B When hỏi điểm của A qua chat Then bị từ chối và `llm_audit` không có lời gọi LLM sinh chữ chứa điểm của A.
 
 ### Ngoài phạm vi của story này
 - E3 chấm tay người (P10); E4 so ≥ 2 provider (P10; sprint này đo 1 provider, ghi rõ).
-- Embedding thật (Q-NFR-2: dùng Gemini embedding nếu khoá có, ngoài ra provider giả).
+- Embedding thật ngoài `gemini-embed` (P-95-4: embedding Gemini, không đo recall@k).
 - Đo độ chính xác tìm kiếm RAG (recall@k).
 
 ### Phụ thuộc

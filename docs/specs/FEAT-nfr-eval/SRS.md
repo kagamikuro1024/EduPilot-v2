@@ -1,6 +1,7 @@
 # SRS FEAT-nfr-eval Seed, yêu cầu phi chức năng và đánh giá LLM thật
-Phiên bản 0.1 · 2026-11-12 · Trạng thái: **DRAFT**
-Nguồn: `docs/sprints/ops-vps/plan.md` · `docs/sprints/ops-vps/prompts/tl-eval.md` · `docs/SYSTEM_DESIGN.md` §1–§6 · `docs/phases/P10.md` L3 · `docs/team/CONTEXT.md` mục 4 (2026-11-12) · `benchmarks/**` · `scripts/seed*.mjs` · PRD §5, §6
+Phiên bản 1.0 · 2026-11-12 · Trạng thái: **APPROVED** (PM chấp nhận P-95-1…6; chủ dự án uỷ quyền làm liền mạch)
+**v1.0:** áp P-95-4 (Gemini Free Tier, chuỗi model chọn đầu phiên, RPM 5 / 60, hai ngày), P-95-5 (T1 đủ, k6 trong VM `--cpus 1.5`, dừng stack demo trong lượt nặng, `meta` thêm `k6_cpus`, `demo_stack`), P-95-6 (tham số hoá `deploy/vps-llm.mjs`; luận văn nêu dữ liệu gửi Gemini Free). P-95-1…3 đã áp ở v0.1.
+Nguồn: `docs/sprints/9.5/techlead.md` TL-1 · `docs/sprints/9.5/proposals.md` (P-95-1…6) · `docs/sprints/ops-vps/plan.md` · `docs/sprints/ops-vps/prompts/tl-eval.md` · `docs/SYSTEM_DESIGN.md` §1–§6 · `docs/phases/P10.md` L3 · `docs/team/CONTEXT.md` mục 4 (2026-11-12) · `benchmarks/**` · `scripts/seed*.mjs` · PRD §5, §6
 Truy vết: US ở `US.md` (US-NFR-01…10).
 
 ## 1. Mục đích và phạm vi
@@ -44,7 +45,9 @@ flowchart LR
 | --- | --- | --- |
 | `BASE` trỏ stack demo | Script ghi từ chối (kiểm cổng / tên project) | Một dòng lỗi, mã ≠ 0 |
 | `SEED_DEFAULT_PASSWORD` thiếu | Dừng trước khi ghi | Một dòng tiếng Việt |
-| RAM Colima > 90% / OOM | Dừng lượt, ghi sự kiện, hạ quy mô theo Q-NFR-3 | Báo cáo có dòng "hạ quy mô: …" |
+| OOM-kill thật / CPU stack nghẽn kéo dài | Dừng lượt, ghi sự kiện; hạ quy mô chỉ theo Q-NFR-3 (không hạ trước) | Báo cáo có dòng "hạ quy mô: …" |
+| Model Gemini không phản hồi lúc kiểm tra đầu phiên | Bỏ khỏi chuỗi, dùng model kế (tối đa 2); ghi lý do | Báo cáo ghi chuỗi thực đo |
+| Hết RPD (`429`, `Retry-After` > 60 s) | Dừng lượt, `--resume` sau 15:00 giờ Việt Nam | "Chưa hoàn tất — hết hạn mức" |
 | Khoá Gemini hết hạn mức / `429` kéo dài | Lùi theo `Retry-After`; lưu tiến độ; `--resume` | Kết quả "chưa hoàn tất" từng phần |
 | Khoá hết hiệu lực / sai | Dừng ngay, không thử lại vô hạn | Một dòng lỗi, không in khoá |
 | SLO trượt | Ghi FAIL + số thật + nghi ngờ; mở lỗi nếu có nguyên nhân mã | Bảng SLO có ô FAIL |
@@ -87,7 +90,8 @@ Không có API mới. Script dùng API công khai theo `openapi.yaml` (đăng nh
 | k6 | `benchmarks/load/*.js` | HTTP + SSE → JSON |
 | Đo LLM thật | `benchmarks/real-llm/real_llm.py` | HTTP API → JSON; `llm_audit` đọc chỉ-đọc (`begin read only`) |
 | Kiểm `meta` | `benchmarks/check-meta.mjs` (mới) | JSON → exit code |
-| Lighthouse | `lighthouserc*.json` hiện có | URL stack đo → báo cáo |
+| Lighthouse | `lighthouserc*.json` hiện có | URL của bản build production trên stack đo → báo cáo |
+| Cấu hình LLM thật | `deploy/vps-llm.mjs` (tham số hoá: `BASE`, `MODEL`, `FALLBACK`, `PHASE=seed|live`, `GEMINI_API_KEY` từ `.env.local`) | API admin `POST /admin/llm/providers`, `PUT /admin/llm/routes` → `gemini-chat`, `gemini-embed` |
 
 **Giới hạn tần suất khi đo:** k6 chạy từ một IP nên chạm `RATE_LIMIT_IP_PER_MIN`. Dùng override có sẵn `benchmarks/load/k6-stack.yml` (nới hạn mức IP / người, `LLM_MAX_CONCURRENCY`, `FAKE_LLM_LATENCY=5000-15000`) **chỉ ở stack đo**; báo cáo ghi rõ các giá trị này (đo hiệu năng, không đo bộ giới hạn tần suất — bộ này đã có test riêng).
 
@@ -104,8 +108,8 @@ Không có màn hình mới. Ngoại lệ duy nhất: chủ dự án cấu hình
 | Idempotency | Seed T0 chạy lại không tạo trùng; `seed-t1 --reset` an toàn; harness `--resume` không chấm lại bài đã chấm |
 | Phân trang / N+1 | Truy vấn nặng nhất do (d) lộ ra được xét theo luật 13; N+1 phát hiện thì ghi lỗi (US-NFR-10) |
 | Cache | Dữ liệu điểm / điểm danh không cache phía server (luật 15) — kịch bản (d) đo đúng đường không cache |
-| Tài nguyên Mac | Một stack, một phép đo nặng; RAM Colima 10 GB; `--scale gateway=2 worker=2` cần đo RAM trước, hạ VU nếu > 90% |
-| Chi phí LLM | Tổng lời gọi ≈ 330 (README harness); tôn trọng RPM mặc định thấp (≤ 20); không vượt trần Q-NFR-2 |
+| Tài nguyên Mac | Một stack, một phép đo nặng; nghẽn thật là **CPU** (6 vCPU chung), không phải RAM (stack nghỉ ≈ 0,35 GB); k6 trong VM `--cpus 1.5 --memory 1.5g`, stack ≈ 4,5 vCPU ≈ S1; `stop` stack demo trong lượt nặng; `--scale gateway=2 worker=2` đo RAM trước |
+| Chi phí LLM | Gemini Free Tier: tổng ≈ 330 lời gọi chia 2 ngày, < 200 sinh chữ / ngày; `rpm_limit` 5 (chat) / 60 (embedding); Scheduler không có bucket RPD nên harness tự dừng khi 429 dài; không vượt trần Q-NFR-2 (≤ 500) |
 
 ## 9. Kiểm thử
 | Lớp | Kiểm |
@@ -118,9 +122,9 @@ Không có màn hình mới. Ngoại lệ duy nhất: chủ dự án cấu hình
 | Dữ liệu seed cần | `seed.mjs` (T0) + `seed-t1.mjs`; bài `BT03` 22 bài; 2 quy chế PDF; `data/injection/*` của harness |
 
 ## 10. Câu hỏi mở và quyết định
-Xem `QUESTIONS.md` (Q-NFR-1…8). **Quyết định đã chốt dùng lại:** D44 (dữ liệu mô phỏng), D45 (không đối chiếu hệ cũ), D46 (không service Python; script offline chỉ gọi HTTP), D47 (luật tốc độ), D58 (seccomp tắt trên arm64); CONTEXT 2026-11-12 (Mac, một stack, tiết kiệm token).
+Xem `QUESTIONS.md` (Q-NFR-1…10, đã chốt). **Quyết định đã chốt dùng lại:** D44 (dữ liệu mô phỏng), D45 (không đối chiếu hệ cũ), D46 (không service Python; script offline chỉ gọi HTTP), D47 (luật tốc độ), D58 (seccomp tắt trên arm64); CONTEXT 2026-11-12 (Mac, một stack, tiết kiệm token).
 
-**Đề xuất đổi tài liệu nền (chờ PM):**
+**Đề xuất đổi tài liệu nền (PM đã chấp nhận P-95-1…3 ngày 2026-11-12; PM / dev vá tệp nền):**
 1. `ROADMAP.md`: thêm dòng sprint 9.5; chuyển khỏi P10 L3: `seed-t1`, k6 (a)–(d), chaos, EXPLAIN + chỉ mục; P10 giữ `make eval` E1–E6 (gồm E3 chấm tay, E4 ≥ 2 provider), `make load-t1` / `make chaos` chỉ còn là lệnh bọc gọi lại script của 9.5.
 2. `P10.md` L3: sửa số migration `00015 indexes_tuning` → `00018` (số `00015` đã là `observation`).
 3. `ARCHITECTURE.md` §4 bảng migration: thêm `00018 indexes_tuning | 9.5`.
