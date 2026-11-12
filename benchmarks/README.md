@@ -1,6 +1,6 @@
 # Đo trên Mac
 
-Thiết bị: MacBook Apple Silicon, Colima 6 CPU / 10 GB. Mỗi lúc một stack đo (`-p ep-<vai>`, cổng lệch); không ghi lên stack demo. Xong thì `docker compose -p ep-<vai> down -v`.
+Thiết bị: MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU. Mỗi lúc một stack đo (`-p ep-<vai>`, cổng lệch); không ghi lên stack demo. Xong thì `docker compose -p ep-<vai> down -v`.
 Mọi tệp `benchmarks/reports/**/*.json` có khối `meta` (`node benchmarks/check-meta.mjs` kiểm).
 
 ## Dựng stack đo T1 (1.000 SV)

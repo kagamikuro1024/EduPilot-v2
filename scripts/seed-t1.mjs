@@ -169,10 +169,17 @@ sql("analyze", "analyze");
 
 const tables = ["users", "courses", "enrollments", "class_sessions", "attendance_records", "participation_events", "study_time_daily", "chat_sessions", "chat_messages", "grade_components", "grade_entries", "assignments", "submissions", "grading_results", "documents", "content_chunks"];
 const rows = Object.fromEntries(sql(tables.map((t) => `select '${t}', count(*) from ${t}`).join(" union all ") + ";").split("\n").map((l) => l.split("|")).map(([t, n]) => [t, Number(n)]));
+/** RAM của container postgres ngay sau seed (AC7); chỉ có khi chạy qua compose. */
+function pgMem() {
+  if (process.env.T1_PSQL) return null;
+  const id = spawnSync("docker", ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-p", project, "ps", "-q", "postgres"], { cwd: root, encoding: "utf8" }).stdout.trim();
+  return id ? spawnSync("docker", ["stats", "--no-stream", "--format", "{{.MemUsage}}", id], { encoding: "utf8" }).stdout.trim() : null;
+}
 const out = {
   meta: meta({ scale: SCALE, students: S, courses: C, per_course: PER, vectors: VECTORS, seed_rng: RNG, db: "edupilot_t1", provider: "none", compose_project: project || "(T1_PSQL)" }),
   seconds_total: Math.round((Date.now() - t0) / 1000), seconds_by_step: durations, rows,
   db_mb: Math.round(Number(sql("select pg_database_size('edupilot_t1')")) / 1048576),
+  postgres_mem: pgMem(),
   note: SCALE < 1 ? "Đã thu nhỏ: không được tuyên bố đạt T1 cho phần này." : "Quy mô T1 đầy đủ.",
 };
 const file = path.join(root, "benchmarks", "reports", "seed-t1.json");

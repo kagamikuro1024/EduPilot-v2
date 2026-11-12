@@ -1,8 +1,10 @@
 // Dùng chung cho mọi lệnh đo (FEAT-nfr-eval US-NFR-01): khối `meta` của tệp kết quả + chặn ghi nhầm lên stack demo.
 import { execFileSync } from "node:child_process";
 
-export const MACHINE = "MacBook Apple Silicon, Colima 6 CPU / 10 GB";
+export const MACHINE = "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU";
 export const META_FIELDS = ["commit", "timestamp", "machine", "runs", "config"];
+/** Tệp kết quả k6 (`load-*.json`) cần thêm hai trường này (P-95-5). */
+export const K6_FIELDS = ["k6_cpus", "demo_stack"];
 
 /** Cổng của stack demo (project `edupilot`, không lệch cổng). Lệnh GHI dữ liệu từ chối chạy ở đây. */
 const DEMO_PORTS = new Set(["", "80", "443", "3000"]);
