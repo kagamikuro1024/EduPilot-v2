@@ -356,6 +356,42 @@ func (q *Queries) PracticeAttemptTakeTab(ctx context.Context, arg PracticeAttemp
 	return err
 }
 
+const practiceDocTitles = `-- name: PracticeDocTitles :many
+select id, title from documents
+where course_id = $1 and id = any($2::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER')
+`
+
+type PracticeDocTitlesParams struct {
+	CourseID uuid.UUID
+	Ids      []uuid.UUID
+}
+
+type PracticeDocTitlesRow struct {
+	ID    uuid.UUID
+	Title string
+}
+
+// Tài liệu gợi ý ôn: chỉ tài liệu sinh viên được thấy (READY, hiện cho sinh viên, không phải đề / đáp án / quy chế).
+func (q *Queries) PracticeDocTitles(ctx context.Context, arg PracticeDocTitlesParams) ([]PracticeDocTitlesRow, error) {
+	rows, err := q.db.Query(ctx, practiceDocTitles, arg.CourseID, arg.Ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PracticeDocTitlesRow{}
+	for rows.Next() {
+		var i PracticeDocTitlesRow
+		if err := rows.Scan(&i.ID, &i.Title); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const practiceDue = `-- name: PracticeDue :many
 select id, course_id from practice_attempts
 where status = 'IN_PROGRESS' and mode = 'MOCK' and deadline_at + $1::int * interval '1 second' < now()
@@ -1000,30 +1036,30 @@ func (q *Queries) PracticeTopics(ctx context.Context, arg PracticeTopicsParams) 
 }
 
 const practiceWrongCitations = `-- name: PracticeWrongCitations :many
-select i.question -> 'citations' as citations
+select (i.question -> 'citations')::jsonb as citations
 from practice_answers a
 join practice_items i on i.course_id = a.course_id and i.id = a.item_id
 join practice_attempts t on t.course_id = a.course_id and t.id = a.attempt_id
 where a.course_id = $1 and t.student_id = $2 and a.is_correct = false and a.answered_at > now() - interval '30 days'
-  and (i.question ->> 'topic') = $3
+  and (i.question ->> 'topic') = $3::text
 `
 
 type PracticeWrongCitationsParams struct {
 	CourseID  uuid.UUID
 	StudentID uuid.UUID
-	Topic     json.RawMessage
+	Topic     string
 }
 
 // `citations` của các câu SAI trong một chủ đề (30 ngày) của một sinh viên, để gợi ý tài liệu.
-func (q *Queries) PracticeWrongCitations(ctx context.Context, arg PracticeWrongCitationsParams) ([]interface{}, error) {
+func (q *Queries) PracticeWrongCitations(ctx context.Context, arg PracticeWrongCitationsParams) ([]json.RawMessage, error) {
 	rows, err := q.db.Query(ctx, practiceWrongCitations, arg.CourseID, arg.StudentID, arg.Topic)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []interface{}{}
+	items := []json.RawMessage{}
 	for rows.Next() {
-		var citations interface{}
+		var citations json.RawMessage
 		if err := rows.Scan(&citations); err != nil {
 			return nil, err
 		}

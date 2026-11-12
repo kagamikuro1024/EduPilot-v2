@@ -50,12 +50,12 @@ order by wrong desc, topic;
 
 -- name: PracticeWrongCitations :many
 -- `citations` của các câu SAI trong một chủ đề (30 ngày) của một sinh viên, để gợi ý tài liệu.
-select i.question -> 'citations' as citations
+select (i.question -> 'citations')::jsonb as citations
 from practice_answers a
 join practice_items i on i.course_id = a.course_id and i.id = a.item_id
 join practice_attempts t on t.course_id = a.course_id and t.id = a.attempt_id
 where a.course_id = sqlc.arg(course_id) and t.student_id = sqlc.arg(student_id) and a.is_correct = false and a.answered_at > now() - interval '30 days'
-  and (i.question ->> 'topic') = sqlc.arg(topic);
+  and (i.question ->> 'topic') = sqlc.arg(topic)::text;
 
 -- name: PracticeSignals :many
 -- Tín hiệu tổng hợp cho giảng viên (P10): theo chủ đề, KHÔNG định danh; chủ đề < k sinh viên bị loại ngay trong truy vấn (k-ẩn danh).
@@ -161,3 +161,8 @@ order by started_at desc;
 select coalesce(max(started_at), 'epoch'::timestamptz)::timestamptz as last_at
 from practice_attempts
 where course_id = sqlc.arg(course_id) and student_id = sqlc.arg(student_id) and topic = sqlc.arg(topic);
+
+-- name: PracticeDocTitles :many
+-- Tài liệu gợi ý ôn: chỉ tài liệu sinh viên được thấy (READY, hiện cho sinh viên, không phải đề / đáp án / quy chế).
+select id, title from documents
+where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER');
