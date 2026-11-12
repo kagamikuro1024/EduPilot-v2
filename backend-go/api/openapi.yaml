@@ -10020,6 +10020,139 @@ paths:
           $ref: "#/components/responses/RateLimited"
         "503":
           $ref: "#/components/responses/Unavailable"
+  /api/v1/courses/{id}/questions/extract:
+    post:
+      operationId: extractQuestions
+      tags: [practice]
+      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`; 409 DOCUMENT_NOT_READY; 422 WRONG_DOCUMENT_TYPE"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeExtractRequest"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/generate:
+    post:
+      operationId: generateQuestions
+      tags: [practice]
+      summary: "Sinh câu hỏi từ tài liệu / đoạn (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.generate`; ANSWER_KEY không làm nguồn (422 WRONG_DOCUMENT_TYPE)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeGenerateRequest"
+      responses:
+        "202":
+          description: Đã xếp việc
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JobAccepted"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/bulk:
+    post:
+      operationId: bulkReviewQuestions
+      tags: [practice]
+      summary: "Duyệt / loại / gắn nhãn hàng loạt (≤ 50; kết quả TỪNG id, một id lỗi không huỷ lô). 422 CITATION_REQUIRED theo từng id"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: false
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PracticeBulkRequest"
+      responses:
+        "200":
+          description: Kết quả từng id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeBulkResponse"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/questions/gen-stats:
+    get:
+      operationId: questionGenStats
+      tags: [practice]
+      summary: "Số liệu thô E5 của một lô trích / sinh: nguyên / sửa nhẹ / loại / chờ duyệt"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: job_id
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Số liệu
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeGenStats"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
 components:
   securitySchemes:
     bearerAuth:
@@ -17794,3 +17927,66 @@ components:
                 type: array
                 items: {type: string}
         injected: {type: boolean}
+    PracticeExtractRequest:
+      type: object
+      required: [document_id]
+      additionalProperties: false
+      properties:
+        document_id: {type: string, format: uuid}
+        answer_key_document_id: {type: [string, "null"], format: uuid}
+    PracticeGenerateRequest:
+      type: object
+      required: [topic, difficulty, count]
+      additionalProperties: false
+      properties:
+        document_ids:
+          type: array
+          maxItems: 5
+          items: {type: string, format: uuid}
+        chunk_ids:
+          type: array
+          maxItems: 40
+          items: {type: string, format: uuid}
+        topic: {type: string, minLength: 1, maxLength: 80}
+        difficulty: {type: string, enum: [EASY, MEDIUM, HARD]}
+        count: {type: integer, minimum: 1, maximum: 10}
+        types:
+          type: array
+          items: {type: string, enum: [MCQ_SINGLE, MCQ_MULTI, TRUE_FALSE]}
+    PracticeBulkRequest:
+      type: object
+      required: [action, ids]
+      additionalProperties: false
+      properties:
+        action: {type: string, enum: [APPROVE, REJECT, SET_TAGS]}
+        ids:
+          type: array
+          minItems: 1
+          maxItems: 50
+          items: {type: string, format: uuid}
+        topic: {type: string, minLength: 1, maxLength: 80}
+        difficulty: {type: string, enum: [EASY, MEDIUM, HARD]}
+    PracticeBulkResponse:
+      type: object
+      required: [results]
+      additionalProperties: false
+      properties:
+        results:
+          type: array
+          items:
+            type: object
+            required: [id, ok]
+            additionalProperties: false
+            properties:
+              id: {type: string, format: uuid}
+              ok: {type: boolean}
+              code: {type: string}
+    PracticeGenStats:
+      type: object
+      required: [unchanged, edited, rejected, pending]
+      additionalProperties: false
+      properties:
+        unchanged: {type: integer}
+        edited: {type: integer}
+        rejected: {type: integer}
+        pending: {type: integer}

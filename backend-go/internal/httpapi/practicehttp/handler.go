@@ -21,15 +21,21 @@ import (
 
 // Handler là nhóm đường luyện đề của sinh viên.
 type Handler struct {
-	Svc   *practice.Service
-	Guard func(auth.GuardMode) func(http.Handler) http.Handler
-	Idem  func(http.Handler) http.Handler
-	Log   *slog.Logger
+	Svc     *practice.Service
+	Guard   func(auth.GuardMode) func(http.Handler) http.Handler
+	Idem    func(http.Handler) http.Handler
+	OptIdem func(http.Handler) http.Handler // Idempotency-Key tuỳ chọn (bulk)
+	Log     *slog.Logger
 }
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware. Đường tĩnh (`overview`, `start`, `history`, `weakness`) không đụng `attempts/{aid}`.
 func (h *Handler) Mount(r chi.Router) {
-	student := h.Guard(auth.StudentRole)
+	student, staff := h.Guard(auth.StudentRole), h.Guard(auth.StaffRole)
+	const q = "/courses/{id}/questions"
+	r.With(staff, h.Idem).Post(q+"/extract", h.extract)
+	r.With(staff, h.Idem).Post(q+"/generate", h.generate)
+	r.With(staff, h.OptIdem).Post(q+"/bulk", h.bulk)
+	r.With(staff).Get(q+"/gen-stats", h.genStats)
 	const p = "/courses/{id}/practice"
 	r.With(student).Get(p+"/overview", h.overview)
 	r.With(student, h.Idem).Post(p+"/start", h.start)
@@ -287,6 +293,77 @@ func (h *Handler) feedback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v, err := h.Svc.Feedback(r.Context(), c.user, c.course, c.attempt, c.item)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	noStore(w)
+	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+func (h *Handler) extract(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	var in practice.ExtractIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	id, err := h.Svc.EnqueueExtract(r.Context(), c.user, c.course, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, map[string]uuid.UUID{"job_id": id})
+}
+
+func (h *Handler) generate(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	var in practice.GenerateIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	id, err := h.Svc.EnqueueGenerate(r.Context(), c.user, c.course, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusAccepted, map[string]uuid.UUID{"job_id": id})
+}
+
+func (h *Handler) bulk(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	var in practice.BulkIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	res, err := h.Svc.Bulk(r.Context(), c.user, c.course, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	noStore(w)
+	httpx.WriteJSON(w, http.StatusOK, map[string]any{"results": res})
+}
+
+func (h *Handler) genStats(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	jid, err := uuid.Parse(r.URL.Query().Get("job_id"))
+	if err != nil {
+		apierr.Write(w, r, apierr.Validation(apierr.FieldError{Field: "job_id", Code: "uuid", Message: "job_id phải là uuid."}))
+		return
+	}
+	v, err := h.Svc.GenStatsOf(r.Context(), c.course, jid)
 	if err != nil {
 		h.fail(w, r, err)
 		return

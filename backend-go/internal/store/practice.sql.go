@@ -356,6 +356,114 @@ func (q *Queries) PracticeAttemptTakeTab(ctx context.Context, arg PracticeAttemp
 	return err
 }
 
+const practiceChunksByIDs = `-- name: PracticeChunksByIDs :many
+select c.id, c.document_id, c.page_no, c.text, d.type::text as doc_type, d.status::text as doc_status
+from content_chunks c join documents d on d.id = c.document_id
+where d.course_id = $1 and c.course_ids @> array[$1::uuid] and c.id = any($2::text[]::uuid[])
+`
+
+type PracticeChunksByIDsParams struct {
+	CourseID uuid.UUID
+	Ids      []string
+}
+
+type PracticeChunksByIDsRow struct {
+	ID         uuid.UUID
+	DocumentID uuid.UUID
+	PageNo     *int32
+	Text       string
+	DocType    string
+	DocStatus  string
+}
+
+// Đoạn do giảng viên chọn làm nguồn sinh câu hỏi, kèm loại tài liệu (để chặn ANSWER_KEY).
+func (q *Queries) PracticeChunksByIDs(ctx context.Context, arg PracticeChunksByIDsParams) ([]PracticeChunksByIDsRow, error) {
+	rows, err := q.db.Query(ctx, practiceChunksByIDs, arg.CourseID, arg.Ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PracticeChunksByIDsRow{}
+	for rows.Next() {
+		var i PracticeChunksByIDsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.DocumentID,
+			&i.PageNo,
+			&i.Text,
+			&i.DocType,
+			&i.DocStatus,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const practiceDocBrief = `-- name: PracticeDocBrief :one
+select id, type::text as type, status::text as status from documents where course_id = $1 and id = $2
+`
+
+type PracticeDocBriefParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type PracticeDocBriefRow struct {
+	ID     uuid.UUID
+	Type   string
+	Status string
+}
+
+// Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái.
+func (q *Queries) PracticeDocBrief(ctx context.Context, arg PracticeDocBriefParams) (PracticeDocBriefRow, error) {
+	row := q.db.QueryRow(ctx, practiceDocBrief, arg.CourseID, arg.ID)
+	var i PracticeDocBriefRow
+	err := row.Scan(&i.ID, &i.Type, &i.Status)
+	return i, err
+}
+
+const practiceDocChunks = `-- name: PracticeDocChunks :many
+select id, page_no, text from content_chunks
+where document_id = $1 and course_ids @> array[$2::uuid]
+order by ord
+`
+
+type PracticeDocChunksParams struct {
+	DocumentID uuid.UUID
+	CourseID   uuid.UUID
+}
+
+type PracticeDocChunksRow struct {
+	ID     uuid.UUID
+	PageNo *int32
+	Text   string
+}
+
+func (q *Queries) PracticeDocChunks(ctx context.Context, arg PracticeDocChunksParams) ([]PracticeDocChunksRow, error) {
+	rows, err := q.db.Query(ctx, practiceDocChunks, arg.DocumentID, arg.CourseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PracticeDocChunksRow{}
+	for rows.Next() {
+		var i PracticeDocChunksRow
+		if err := rows.Scan(&i.ID, &i.PageNo, &i.Text); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const practiceDocTitles = `-- name: PracticeDocTitles :many
 select id, title from documents
 where course_id = $1 and id = any($2::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER')
@@ -429,6 +537,41 @@ func (q *Queries) PracticeDue(ctx context.Context, arg PracticeDueParams) ([]Pra
 		return nil, err
 	}
 	return items, nil
+}
+
+const practiceGenStats = `-- name: PracticeGenStats :one
+select count(*) filter (where qb.review_status = 'APPROVED' and coalesce((a.before ->> 'version')::int, 1) = 1)::int as unchanged,
+       count(*) filter (where qb.review_status = 'APPROVED' and coalesce((a.before ->> 'version')::int, 1) > 1)::int as edited,
+       count(*) filter (where qb.review_status = 'REJECTED')::int as rejected,
+       count(*) filter (where qb.review_status in ('DRAFT', 'PENDING'))::int as pending
+from question_bank qb
+left join lateral (select before from audit_log where entity = 'question' and entity_id = qb.id::text and action = 'question.review' order by created_at desc limit 1) a on true
+where qb.course_id = $1 and qb.ai_job_id = $2
+`
+
+type PracticeGenStatsParams struct {
+	CourseID uuid.UUID
+	JobID    *uuid.UUID
+}
+
+type PracticeGenStatsRow struct {
+	Unchanged int32
+	Edited    int32
+	Rejected  int32
+	Pending   int32
+}
+
+// Số liệu thô E5 của một lô sinh / trích: nguyên = duyệt khi chưa sửa (version lúc duyệt = 1); sửa nhẹ = duyệt sau khi có sửa; loại = REJECTED; chờ = chưa duyệt.
+func (q *Queries) PracticeGenStats(ctx context.Context, arg PracticeGenStatsParams) (PracticeGenStatsRow, error) {
+	row := q.db.QueryRow(ctx, practiceGenStats, arg.CourseID, arg.JobID)
+	var i PracticeGenStatsRow
+	err := row.Scan(
+		&i.Unchanged,
+		&i.Edited,
+		&i.Rejected,
+		&i.Pending,
+	)
+	return i, err
 }
 
 const practiceHistory = `-- name: PracticeHistory :many
@@ -777,6 +920,82 @@ func (q *Queries) PracticePool(ctx context.Context, arg PracticePoolParams) ([]P
 	return items, nil
 }
 
+const practiceQuestionBrief = `-- name: PracticeQuestionBrief :one
+select id, version, origin::text as origin, review_status::text as review_status, jsonb_array_length(citations)::int as n_citations, (archived_at is not null)::bool as archived
+from question_bank where course_id = $1 and id = $2
+`
+
+type PracticeQuestionBriefParams struct {
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+type PracticeQuestionBriefRow struct {
+	ID           uuid.UUID
+	Version      int32
+	Origin       string
+	ReviewStatus string
+	NCitations   int32
+	Archived     bool
+}
+
+func (q *Queries) PracticeQuestionBrief(ctx context.Context, arg PracticeQuestionBriefParams) (PracticeQuestionBriefRow, error) {
+	row := q.db.QueryRow(ctx, practiceQuestionBrief, arg.CourseID, arg.ID)
+	var i PracticeQuestionBriefRow
+	err := row.Scan(
+		&i.ID,
+		&i.Version,
+		&i.Origin,
+		&i.ReviewStatus,
+		&i.NCitations,
+		&i.Archived,
+	)
+	return i, err
+}
+
+const practiceQuestionSetCitations = `-- name: PracticeQuestionSetCitations :exec
+update question_bank set citations = $1::jsonb where course_id = $2 and id = $3
+`
+
+type PracticeQuestionSetCitationsParams struct {
+	Citations json.RawMessage
+	CourseID  uuid.UUID
+	ID        uuid.UUID
+}
+
+func (q *Queries) PracticeQuestionSetCitations(ctx context.Context, arg PracticeQuestionSetCitationsParams) error {
+	_, err := q.db.Exec(ctx, practiceQuestionSetCitations, arg.Citations, arg.CourseID, arg.ID)
+	return err
+}
+
+const practiceQuestionSetTags = `-- name: PracticeQuestionSetTags :execrows
+update question_bank set topic = coalesce($1::text, topic), difficulty = coalesce($2::question_difficulty, difficulty), version = version + 1, updated_at = now()
+where course_id = $3 and id = $4 and version = $5 and archived_at is null and review_status in ('DRAFT', 'PENDING')
+`
+
+type PracticeQuestionSetTagsParams struct {
+	Topic           *string
+	Difficulty      *QuestionDifficulty
+	CourseID        uuid.UUID
+	ID              uuid.UUID
+	ExpectedVersion int32
+}
+
+// Gắn chủ đề / độ khó hàng loạt: chỉ câu chưa duyệt (DRAFT / PENDING) và chưa lưu trữ.
+func (q *Queries) PracticeQuestionSetTags(ctx context.Context, arg PracticeQuestionSetTagsParams) (int64, error) {
+	result, err := q.db.Exec(ctx, practiceQuestionSetTags,
+		arg.Topic,
+		arg.Difficulty,
+		arg.CourseID,
+		arg.ID,
+		arg.ExpectedVersion,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const practiceQuestionsByIDs = `-- name: PracticeQuestionsByIDs :many
 select id, type, topic, difficulty, stem, answer_key, explanation, citations, version
 from question_bank where course_id = $1 and id = any($2::text[]::uuid[])
@@ -919,6 +1138,30 @@ func (q *Queries) PracticeSignals(ctx context.Context, arg PracticeSignalsParams
 			return nil, err
 		}
 		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const practiceStemsOfCourse = `-- name: PracticeStemsOfCourse :many
+select stem from question_bank where course_id = $1 and archived_at is null
+`
+
+func (q *Queries) PracticeStemsOfCourse(ctx context.Context, courseID uuid.UUID) ([]string, error) {
+	rows, err := q.db.Query(ctx, practiceStemsOfCourse, courseID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var stem string
+		if err := rows.Scan(&stem); err != nil {
+			return nil, err
+		}
+		items = append(items, stem)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

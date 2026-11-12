@@ -14,6 +14,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/practice"
 	"github.com/edupilot/backend-go/internal/testutil"
 )
@@ -129,3 +130,5 @@ func (r *rig) deadline(attempt uuid.UUID) (t0 time.Time) {
 	require.NoError(r.t, r.pool.QueryRow(r.t.Context(), `select deadline_at from practice_attempts where id = $1`, attempt).Scan(&t0))
 	return t0
 }
+
+func outboxMsg(payload []byte) outbox.Message { return outbox.Message{Payload: payload} }

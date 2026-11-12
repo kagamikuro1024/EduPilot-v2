@@ -206,6 +206,11 @@ func (s *Service) insertQuestion(ctx context.Context, q *store.Queries, courseID
 	return row, nil
 }
 
+// InsertDraft ghi một câu đã qua `Validate` do việc nền (trích / sinh, US-P9-02/03) tạo; `origin` EXTRACTED / GENERATED, luôn PENDING.
+func (s *Service) InsertDraft(ctx context.Context, q *store.Queries, courseID, actor uuid.UUID, c Checked, origin store.QuestionOrigin, aiJob *uuid.UUID) (store.QuestionBank, error) {
+	return s.insertQuestion(ctx, q, courseID, actor, c, origin, store.QuestionReviewStatusPENDING, aiJob)
+}
+
 // Get trả câu đầy đủ cho Staff; câu của lớp khác → 404.
 func (s *Service) Get(ctx context.Context, courseID, id uuid.UUID) (QuestionDetail, error) {
 	q := store.New(s.Pool)

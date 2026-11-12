@@ -21,11 +21,15 @@ type Route struct {
 	Idem   Idem
 }
 
-// Routes trả các thao tác của sinh viên (#5–#14, trừ #11–#12 SSE / feedback ở file riêng) và của staff / giảng viên ở các file khác.
+// Routes trả các thao tác #1–#14 của SRS FEAT-practice 6 (#15–#16 nhập Forms: Teacher, thêm ở US-P9-11).
 func Routes() []Route {
 	const a = "/practice/attempts/{aid}"
-	student := auth.StudentRole
+	student, staff := auth.StudentRole, auth.StaffRole
 	return []Route{
+		{1, "POST", "/questions/extract", staff, IdemRequired},
+		{2, "POST", "/questions/generate", staff, IdemRequired},
+		{3, "POST", "/questions/bulk", staff, IdemOptional},
+		{4, "GET", "/questions/gen-stats", staff, IdemNone},
 		{5, "GET", "/practice/overview", student, IdemNone},
 		{6, "POST", "/practice/start", student, IdemRequired},
 		{7, "GET", a, student, IdemNone},

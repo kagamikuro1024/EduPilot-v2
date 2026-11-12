@@ -45,6 +45,9 @@ func newRegistry(d Deps) *outbox.Registry {
 	if bs, ok := d.Blob.(submission.BlobAPI); ok {
 		(&submission.Service{Pool: d.DB, Redis: d.Redis, Blob: bs, Clock: clock.Real{}, Log: d.Log}).RegisterZip(runner) // submission.zip (US-P7-04)
 	}
+	if d.LLM != nil {
+		(&practice.Worker{Pool: d.DB, Exam: &exam.Service{Pool: d.DB}, LLM: d.LLM}).Register(runner) // question.extract, question.generate (US-P9-02, US-P9-03)
+	}
 	ew.Register(runner)                                                     // code.verify_reference, question.suggest (US-PE-03)
 	(&grading.Service{Pool: d.DB, LLM: d.LLM, Log: d.Log}).Register(runner) // grade_scheme.extract (US-P6-03)
 	if ts := newTeamsSync(d); ts != nil {

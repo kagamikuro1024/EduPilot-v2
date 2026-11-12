@@ -17,7 +17,9 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
@@ -47,6 +49,8 @@ type Service struct {
 	// Grace: dung sai ghi ngoại tuyến và độ trễ đóng lượt hết giờ (Q-P9-5; 0 = 60 s).
 	Grace time.Duration
 	LLM   LLMClient        // nil = không giải thích / nhận xét được (503 ở hai đường đó; phần còn lại của luyện đề không cần LLM)
+	Exam  *exam.Service    // duyệt hàng loạt dùng lại Review của PE (nil = bulk không dùng được)
+	Jobs  *jobs.Service    // xếp việc trích / sinh câu hỏi (nil = các đường đó không dùng được)
 	Redis *appredis.Client // cache giải thích + hạn mức nhận xét; nil = không cache, không giới hạn
 }
 

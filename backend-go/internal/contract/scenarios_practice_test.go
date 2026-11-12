@@ -182,6 +182,61 @@ func (r *runner) practiceScenarios(x examRig) {
 		r.t.Fatalf("feedback → %d: %s", st, b)
 	}
 
+	// 1–4: trích, sinh, duyệt hàng loạt, số liệu lô (giảng viên / TA).
+	mkDoc := func(course, typ, status string) string {
+		var id string
+		if err := db.QueryRow(ctx, `insert into documents (course_id, title, type, status, visible_to_students) values ($1, 'Tài liệu thử', $2::document_type, $3::document_status, $2 <> 'ANSWER_KEY') returning id`, course, typ, status).Scan(&id); err != nil {
+			r.t.Fatal(err)
+		}
+		return id
+	}
+	Q := "/api/v1/courses/" + x.cid + "/questions"
+	paperID, pendingPaper, lecID, keyID := mkDoc(x.cid, "EXAM_PAPER", "READY"), mkDoc(x.cid, "EXAM_PAPER", "PROCESSING"), mkDoc(x.cid, "LECTURE", "READY"), mkDoc(x.cid, "ANSWER_KEY", "READY")
+	ext := func(doc string) string { return `{"document_id":"` + doc + `"}` }
+	r.must(call{method: "POST", path: Q + "/extract", token: x.gv, headers: x.idem(), body: ext(paperID)}, 202)
+	r.must(call{method: "POST", path: Q + "/extract", token: x.ta, headers: x.idem(), body: ext(paperID)}, 202)
+	r.must(call{method: "POST", path: Q + "/extract", headers: x.idem(), body: ext(paperID)}, 401)
+	r.must(call{method: "POST", path: Q + "/extract", token: x.sv, headers: x.idem(), body: ext(paperID)}, 403)
+	r.must(call{method: "POST", path: Q + "/extract", token: x.gv, headers: x.idem(), body: ext(uuid.NewString())}, 404)
+	r.must(call{method: "POST", path: Q + "/extract", token: x.gv, headers: x.idem(), body: ext(pendingPaper)}, 409) // DOCUMENT_NOT_READY
+	r.must(call{method: "POST", path: Q + "/extract", token: x.gv, headers: x.idem(), body: ext(keyID)}, 422)        // WRONG_DOCUMENT_TYPE
+	r.must(call{method: "POST", path: Q + "/extract", token: x.gv, body: ext(paperID)}, 422)                         // thiếu Idempotency-Key
+
+	gen := func(body string) call {
+		return call{method: "POST", path: Q + "/generate", token: x.gv, headers: x.idem(), body: body}
+	}
+	r.must(gen(`{"document_ids":["`+lecID+`"],"topic":"Mạng","difficulty":"EASY","count":3}`), 202)
+	r.must(call{method: "POST", path: Q + "/generate", headers: x.idem(), body: `{"document_ids":["` + lecID + `"],"topic":"Mạng","difficulty":"EASY","count":3}`}, 401)
+	r.must(call{method: "POST", path: Q + "/generate", token: x.sv, headers: x.idem(), body: `{"document_ids":["` + lecID + `"],"topic":"Mạng","difficulty":"EASY","count":3}`}, 403)
+	r.must(gen(`{"document_ids":["`+uuid.NewString()+`"],"topic":"Mạng","difficulty":"EASY","count":3}`), 404)
+	r.must(gen(`{"document_ids":["`+mkDoc(x.cid, "LECTURE", "PROCESSING")+`"],"topic":"Mạng","difficulty":"EASY","count":3}`), 409)
+	r.must(gen(`{"document_ids":["`+keyID+`"],"topic":"Mạng","difficulty":"EASY","count":3}`), 422) // ANSWER_KEY không làm nguồn
+	r.must(gen(`{"document_ids":["`+lecID+`"],"topic":"Mạng","difficulty":"EASY","count":11}`), 422)
+
+	// bulk + gen-stats trên hai câu PENDING của một lô.
+	jobID := uuid.NewString()
+	var bq [2]string
+	for i := range bq {
+		if err := db.QueryRow(ctx, `insert into question_bank (course_id, type, title, topic, difficulty, stem, answer_key, review_status, origin, created_by, ai_job_id)
+			values ($1, 'TRUE_FALSE', 'bulk', 'Lô', 'EASY', $2, '{"value":true}', 'PENDING', 'EXTRACTED', $3, $4) returning id`, x.cid, "Nhận định lô "+uuid.NewString()[:6], gvID, jobID).Scan(&bq[i]); err != nil {
+			r.t.Fatal(err)
+		}
+	}
+	bulk := func(tok, body string) call { return call{method: "POST", path: Q + "/bulk", token: tok, body: body} }
+	r.must(bulk(x.gv, `{"action":"SET_TAGS","ids":["`+bq[0]+`","`+uuid.NewString()+`"],"topic":"Nhãn mới"}`), 200)
+	r.must(bulk(x.ta, `{"action":"APPROVE","ids":["`+bq[0]+`"]}`), 200)
+	r.must(bulk(x.gv, `{"action":"REJECT","ids":["`+bq[1]+`"]}`), 200)
+	r.must(bulk("", `{"action":"APPROVE","ids":["`+bq[0]+`"]}`), 401)
+	r.must(bulk(x.sv, `{"action":"APPROVE","ids":["`+bq[0]+`"]}`), 403)
+	r.must(call{method: "POST", path: "/api/v1/courses/khong-phai-uuid/questions/bulk", token: x.gv, body: `{"action":"APPROVE","ids":["` + bq[0] + `"]}`}, 404)
+	r.must(call{method: "POST", path: "/api/v1/courses/" + x.arch + "/questions/bulk", token: x.gv, body: `{"action":"APPROVE","ids":["` + bq[0] + `"]}`}, 409) // COURSE_ARCHIVED
+	r.must(bulk(x.gv, `{"action":"DELETE","ids":["`+bq[0]+`"]}`), 422)
+	r.must(call{method: "GET", path: Q + "/gen-stats?job_id=" + jobID, token: x.gv}, 200)
+	r.must(call{method: "GET", path: Q + "/gen-stats?job_id=" + jobID}, 401)
+	r.must(call{method: "GET", path: Q + "/gen-stats?job_id=" + jobID, token: x.sv}, 403)
+	r.must(call{method: "GET", path: Q + "/gen-stats?job_id=" + uuid.NewString(), token: x.gv}, 404)
+	r.must(call{method: "GET", path: Q + "/gen-stats?job_id=khong", token: x.gv}, 422)
+
 	// 13, 14: lịch sử, điểm yếu.
 	r.must(call{method: "GET", path: p + "/history?limit=5", token: x.sv}, 200)
 	r.must(call{method: "GET", path: p + "/history"}, 401)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
+	"github.com/edupilot/backend-go/internal/practice"
 )
 
 // TestExamErrorCodes — US-PE-01 AC13: 12 mã lỗi mới của SRS FEAT-weekly-exam 6.1 có trong enum `Error.code` của openapi.yaml,
@@ -43,6 +44,9 @@ func TestExamRoutesNotAheadOfSpec(t *testing.T) {
 			p = "/api/v1" + r.Path
 		}
 		known[r.Method+" "+normalizeParams(p)] = true
+	}
+	for _, r := range practice.Routes() { // extract / generate / bulk / gen-stats nằm dưới /questions nhưng thuộc P9 (practice.Routes)
+		known[r.Method+" "+normalizeParams("/api/v1/courses/{id}"+r.Path)] = true
 	}
 	for path, item := range prod.Doc.Paths.Map() {
 		isExam := containsAny(path, "/questions", "/exams", "/exam-lock")

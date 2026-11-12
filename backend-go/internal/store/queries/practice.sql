@@ -174,3 +174,43 @@ order by started_at desc;
 -- Tài liệu gợi ý ôn: chỉ tài liệu sinh viên được thấy (READY, hiện cho sinh viên, không phải đề / đáp án / quy chế).
 select id, title from documents
 where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER');
+
+-- name: PracticeDocBrief :one
+-- Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái.
+select id, type::text as type, status::text as status from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
+
+-- name: PracticeDocChunks :many
+select id, page_no, text from content_chunks
+where document_id = sqlc.arg(document_id) and course_ids @> array[sqlc.arg(course_id)::uuid]
+order by ord;
+
+-- name: PracticeChunksByIDs :many
+-- Đoạn do giảng viên chọn làm nguồn sinh câu hỏi, kèm loại tài liệu (để chặn ANSWER_KEY).
+select c.id, c.document_id, c.page_no, c.text, d.type::text as doc_type, d.status::text as doc_status
+from content_chunks c join documents d on d.id = c.document_id
+where d.course_id = sqlc.arg(course_id) and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.id = any(sqlc.arg(ids)::text[]::uuid[]);
+
+-- name: PracticeStemsOfCourse :many
+select stem from question_bank where course_id = sqlc.arg(course_id) and archived_at is null;
+
+-- name: PracticeQuestionSetCitations :exec
+update question_bank set citations = sqlc.arg(citations)::jsonb where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
+
+-- name: PracticeQuestionBrief :one
+select id, version, origin::text as origin, review_status::text as review_status, jsonb_array_length(citations)::int as n_citations, (archived_at is not null)::bool as archived
+from question_bank where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
+
+-- name: PracticeQuestionSetTags :execrows
+-- Gắn chủ đề / độ khó hàng loạt: chỉ câu chưa duyệt (DRAFT / PENDING) và chưa lưu trữ.
+update question_bank set topic = coalesce(sqlc.narg(topic)::text, topic), difficulty = coalesce(sqlc.narg(difficulty)::question_difficulty, difficulty), version = version + 1, updated_at = now()
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and version = sqlc.arg(expected_version) and archived_at is null and review_status in ('DRAFT', 'PENDING');
+
+-- name: PracticeGenStats :one
+-- Số liệu thô E5 của một lô sinh / trích: nguyên = duyệt khi chưa sửa (version lúc duyệt = 1); sửa nhẹ = duyệt sau khi có sửa; loại = REJECTED; chờ = chưa duyệt.
+select count(*) filter (where qb.review_status = 'APPROVED' and coalesce((a.before ->> 'version')::int, 1) = 1)::int as unchanged,
+       count(*) filter (where qb.review_status = 'APPROVED' and coalesce((a.before ->> 'version')::int, 1) > 1)::int as edited,
+       count(*) filter (where qb.review_status = 'REJECTED')::int as rejected,
+       count(*) filter (where qb.review_status in ('DRAFT', 'PENDING'))::int as pending
+from question_bank qb
+left join lateral (select before from audit_log where entity = 'question' and entity_id = qb.id::text and action = 'question.review' order by created_at desc limit 1) a on true
+where qb.course_id = sqlc.arg(course_id) and qb.ai_job_id = sqlc.arg(job_id);
