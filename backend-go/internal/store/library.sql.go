@@ -163,11 +163,12 @@ func (q *Queries) LibList(ctx context.Context, arg LibListParams) ([]LibListRow,
 
 const libSearchTool = `-- name: LibSearchTool :many
 select d.id, d.title, d.type, d.week_no,
-       (select c.page_no from content_chunks c where c.document_id = d.id and c.course_ids @> array[$1::uuid] and c.tsv @@ vn_bigram_query($2::text) order by c.ord limit 1)::int as page_no,
+       coalesce((select c.page_no from content_chunks c where c.document_id = d.id and c.course_ids @> array[$1::uuid] and c.tsv @@ vn_bigram_query($2::text) order by c.ord limit 1), 0)::int as page_no, -- khớp theo tên, chưa có đoạn → 0 (trước đây NULL làm Scan lỗi)
        coalesce((select left(regexp_replace(c.text, '\s+', ' ', 'g'), 160) from content_chunks c where c.document_id = d.id and c.course_ids @> array[$1::uuid] and c.tsv @@ vn_bigram_query($2::text) order by c.ord limit 1), '')::text as snippet
 from documents d
 where (d.course_id = $1 or exists (select 1 from document_courses dc where dc.document_id = d.id and dc.course_id = $1))
   and d.status = 'READY' and d.visible_to_students and d.type <> 'ANSWER_KEY' and d.category is distinct from 'THREAD_KNOWLEDGE'
+  and (not $3::bool or d.type <> 'EXAM_PAPER')
   and (vn_fold(d.title) like '%' || vn_fold($2::text) || '%' escape '\'
        or exists (select 1 from content_chunks c where c.document_id = d.id and c.course_ids @> array[$1::uuid] and c.tsv @@ vn_bigram_query($2::text)))
 order by d.updated_at desc, d.id desc
@@ -175,8 +176,9 @@ limit 5
 `
 
 type LibSearchToolParams struct {
-	CourseID uuid.UUID
-	Q        string
+	CourseID          uuid.UUID
+	Q                 string
+	ExcludeExamPapers bool
 }
 
 type LibSearchToolRow struct {
@@ -190,7 +192,7 @@ type LibSearchToolRow struct {
 
 // Cho tool search_library: tối đa 5 tài liệu cùng bộ lọc của danh sách, kèm đoạn khớp đầu tiên (trang).
 func (q *Queries) LibSearchTool(ctx context.Context, arg LibSearchToolParams) ([]LibSearchToolRow, error) {
-	rows, err := q.db.Query(ctx, libSearchTool, arg.CourseID, arg.Q)
+	rows, err := q.db.Query(ctx, libSearchTool, arg.CourseID, arg.Q, arg.ExcludeExamPapers)
 	if err != nil {
 		return nil, err
 	}

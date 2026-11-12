@@ -1,7 +1,9 @@
 package practice_test
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
 	"os"
 	"reflect"
 	"slices"
@@ -13,6 +15,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 
+	"github.com/edupilot/backend-go/internal/agent"
+	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/library"
 	"github.com/edupilot/backend-go/internal/practice"
 )
 
@@ -244,4 +249,39 @@ func TestPracticeIsolation(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, hb, 1)
 	require.Equal(t, vb.ID, hb[0].ID)
+}
+
+type stubLock struct {
+	locked bool
+	err    error
+}
+
+func (s stubLock) IsLocked(context.Context, uuid.UUID) (exam.Lock, bool, error) {
+	return exam.Lock{}, s.locked, s.err
+}
+
+// US-P9-10 AC4 (FR-23): sinh viên đang có lượt bài thi IN_PROGRESS thì search_library không trả đề thi; lỗi tra khoá → coi như khoá; tài liệu khác vẫn trả.
+func TestLibraryToolHidesExamPaperWhileLocked(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	ctx := t.Context()
+	sv := r.student()
+	r.exec(`insert into documents (course_id, title, type, status, visible_to_students) values ($1, 'Đề mạng cũ', 'EXAM_PAPER', 'READY', true), ($1, 'Bài giảng mạng', 'LECTURE', 'READY', true)`, r.course)
+	tc := agent.TrustedContext{UserID: sv, CourseID: r.course, Role: "STUDENT"}
+	titles := func(l library.Service) []string {
+		f, _, ok, err := l.Search(ctx, tc, "mạng")
+		require.NoError(t, err)
+		if !ok {
+			return nil
+		}
+		var out []string
+		for _, m := range f["results"].([]map[string]any) {
+			out = append(out, m["title"].(string))
+		}
+		return out
+	}
+	free := library.Service{Pool: r.pool, Lock: stubLock{}}
+	require.ElementsMatch(t, []string{"Đề mạng cũ", "Bài giảng mạng"}, titles(free), "không khoá: thấy cả hai")
+	require.Equal(t, []string{"Bài giảng mạng"}, titles(library.Service{Pool: r.pool, Lock: stubLock{locked: true}}), "đang thi: không thấy đề")
+	require.Equal(t, []string{"Bài giảng mạng"}, titles(library.Service{Pool: r.pool, Lock: stubLock{err: errors.New("redis chết")}}), "lỗi tra khoá: coi như khoá")
 }
