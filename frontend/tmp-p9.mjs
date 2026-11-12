@@ -1,0 +1,18 @@
+import { chromium } from "@playwright/test";
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, locale: "vi-VN" });
+const p = await ctx.newPage();
+const errs = [];
+p.on("console", (m) => m.type() === "error" && errs.push(m.text().slice(0, 200)));
+p.on("pageerror", (e) => errs.push("PAGEERR " + e.message.slice(0, 200)));
+await p.goto("http://localhost:3099/login");
+await p.getByLabel(/email/i).fill("sv1@p9.local");
+await p.getByLabel(/mật khẩu/i).first().fill("Dev@12345");
+await p.getByRole("button", { name: /đăng nhập/i }).click();
+await p.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 20000 });
+await p.goto("http://localhost:3099/practice");
+await p.waitForTimeout(2500);
+await p.getByRole("button", { name: "Đã hiểu" }).click().catch(() => {}); await p.waitForTimeout(500); await p.screenshot({ path: "/tmp/p9shots/home.png" });
+console.log("TITLE", await p.locator("h1").first().innerText());
+console.log(errs.join("\n") || "no errors");
+await b.close();

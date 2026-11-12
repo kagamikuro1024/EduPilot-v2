@@ -103,3 +103,4 @@
   .foot { bottom: calc(56px + env(safe-area-inset-bottom)); }
   .foot > * { min-height: 44px; }
 }
+.runBody { display: grid; gap: var(--ep-space-4); }

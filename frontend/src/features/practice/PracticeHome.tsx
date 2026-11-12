@@ -74,7 +74,7 @@ function Home({ courseId }: { courseId: string }) {
               <ActionRow
                 tone="red"
                 redThread
-                title={`Ôn ${rec.topic}`}
+                title={`Luyện ${rec.topic}`}
                 meta={`${rec.count} câu · phản hồi ngay sau mỗi câu`}
                 action={<Button variant="primary" loading={starting === "rec"} disabled={starting !== null} onClick={() => go("rec", { mode: "TOPIC", topic: rec.topic, count: rec.count })}>Luyện {rec.count} câu</Button>}
               />

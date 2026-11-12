@@ -1,0 +1,55 @@
+import { chromium } from "@playwright/test";
+const b = await chromium.launch();
+const U = "http://localhost:3098";
+async function session(vp) {
+  const ctx = await b.newContext({ viewport: vp, locale: "vi-VN" });
+  const p = await ctx.newPage();
+  await p.goto(U + "/login");
+  await p.getByLabel(/email/i).fill("sv2@p9.local");
+  await p.getByLabel(/mật khẩu/i).first().fill("Dev@12345");
+  await p.getByRole("button", { name: /đăng nhập/i }).click();
+  await p.waitForURL((u) => !u.pathname.startsWith("/login"), { timeout: 20000 });
+  return { ctx, p };
+}
+const { ctx, p } = await session({ width: 1440, height: 900 });
+const errs = [];
+p.on("pageerror", (e) => errs.push("PAGEERR " + e.message.slice(0, 200)));
+await p.goto(U + "/practice");
+await p.getByRole("button", { name: "Đã hiểu" }).click({ timeout: 4000 }).catch(() => {});
+await p.getByRole("tab", { name: /Thi thử/ }).click();
+await p.screenshot({ path: "/tmp/p9shots/mock-home.png" });
+await p.getByRole("button", { name: "Bắt đầu thi thử" }).click();
+await p.waitForURL(/\/practice\/[0-9a-f-]{36}/);
+await p.waitForTimeout(1500);
+await p.locator("main ul button").first().click();
+await p.getByRole("button", { name: "Câu sau" }).click();
+await p.locator("main ul button").nth(1).click();
+await p.waitForTimeout(2800);
+await p.screenshot({ path: "/tmp/p9shots/mock-run.png" });
+console.log("STATUS:", await p.locator("[role=status]").first().innerText());
+// mất mạng: chọn tiếp → hàng đợi
+await ctx.setOffline(true);
+await p.getByRole("button", { name: "Câu sau" }).click();
+await p.locator("main ul button").nth(2).click();
+await p.waitForTimeout(2800);
+console.log("OFFLINE:", await p.locator("header [role=status]").first().innerText());
+await p.screenshot({ path: "/tmp/p9shots/mock-offline.png" });
+await ctx.setOffline(false);
+await p.waitForTimeout(4000);
+console.log("ONLINE:", await p.locator("header [role=status]").first().innerText());
+await p.getByRole("button", { name: "Nộp bài" }).first().click();
+await p.waitForTimeout(500);
+await p.screenshot({ path: "/tmp/p9shots/mock-confirm.png" });
+await p.getByRole("button", { name: /^Nộp bài$/ }).last().click();
+await p.waitForTimeout(2500);
+console.log("H1:", await p.locator("h1").first().innerText());
+await p.screenshot({ path: "/tmp/p9shots/mock-result.png" });
+// 375
+const m = await session({ width: 375, height: 812 });
+await m.p.goto(U + "/practice");
+await m.p.getByRole("button", { name: "Đã hiểu" }).click({ timeout: 4000 }).catch(() => {});
+await m.p.waitForTimeout(1500);
+await m.p.screenshot({ path: "/tmp/p9shots/home-375.png", fullPage: true });
+console.log("scrollW", await m.p.evaluate(() => document.documentElement.scrollWidth));
+console.log(errs.join("\n") || "no page errors");
+await b.close();

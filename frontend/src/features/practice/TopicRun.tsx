@@ -68,6 +68,7 @@ export function TopicRun({ courseId, initial, tab, onDone }: { courseId: string;
         meta={<><span>Câu {index + 1}/{items.length}</span><span>Đúng {rightCount}</span></>}
       />
       <Section panel>
+        <div className={s.runBody}>
         <div className={s.progress} aria-hidden><span className={s.progressFill} style={{ "--p": index / items.length } as React.CSSProperties} /></div>
         <div className={s.question}><Markdown source={item.question.stem} /></div>
         <QuestionInput q={item.question} value={answered ? (item.answer!.answer as Ans) : draft} onChange={setDraft} disabled={answered || busy} fb={fb} />
@@ -100,6 +101,7 @@ export function TopicRun({ courseId, initial, tab, onDone }: { courseId: string;
           ) : (
             <Button variant="primary" onClick={next}>Câu tiếp theo</Button>
           )}
+        </div>
         </div>
       </Section>
     </Page>
