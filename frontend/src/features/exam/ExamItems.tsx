@@ -117,7 +117,7 @@ export function ExamItems({ courseId, detail, onSaved }: { courseId: string; det
           taken={new Set(rows.map((r) => r.question_id))}
           onClose={() => setPicking(false)}
           onPick={(qs) => {
-            setRows([...rows, ...qs.map((q) => ({ question_id: q.id, title: q.title, type: q.type, topic: q.topic, points: "1,00" }))]);
+            setRows([...rows, ...qs.filter((q): q is QuestionRow & { type: Row["type"] } => q.type !== "SHORT" && q.type !== "ESSAY").map((q) => ({ question_id: q.id, title: q.title, type: q.type, topic: q.topic, points: "1,00" }))]);
             setPicking(false);
           }}
         />
@@ -156,7 +156,7 @@ function Picker({ courseId, taken, onClose, onPick }: { courseId: string; taken:
           <EmptyState title="Không có câu phù hợp">{q ? "Thử từ khoá khác." : "Chưa có câu nào được duyệt. Duyệt câu ở Ngân hàng câu hỏi trước."}</EmptyState>
         ) : (
           <ul className={s.pickList} aria-label="Câu đã duyệt">
-            {list.items.map((r) => (
+            {list.items.filter((r) => r.type !== "SHORT" && r.type !== "ESSAY").map((r) => ( // trả lời ngắn / tự luận chỉ để luyện đề, không vào bài thi tính điểm
               <li key={r.id} className={s.pickRow}>
                 <Checkbox
                   label={<span className={s.itemText}><span className={s.itemTitle}>{r.title}</span><span className={s.meta}>{TYPE_LABEL[r.type]} · {DIFF_LABEL[r.difficulty]} · {r.topic}{taken.has(r.id) ? " · đã có trong bài" : ""}</span></span>}

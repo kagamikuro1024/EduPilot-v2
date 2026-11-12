@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Check, Copy, Pencil, Send, X, Archive } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { ApiError, ApiErrorNotice, apiClient } from "@/shared/data";
 import { Markdown } from "@/shared/domain";
@@ -114,6 +115,23 @@ export function QuestionReview({ courseId, id, userId, canEditTests, onClose, on
                 </ul>
               )}
               {d.type === "TRUE_FALSE" && <p className={s.optionRight}>Đáp án đúng: <strong>{d.answer_key?.value ? "Đúng" : "Sai"}</strong></p>}
+              {d.type === "SHORT" && <p className={s.optionRight}>Đáp án chấp nhận: <strong>{(d.answer_key?.accepted ?? []).join(" / ")}</strong></p>}
+              {d.type === "ESSAY" && (
+                <div className={s.detail}>
+                  <div><h3 className={s.h3}>Đáp án mẫu</h3><Markdown source={d.answer_key?.model_answer ?? ""} /></div>
+                  <div><h3 className={s.h3}>Rubric</h3><Markdown source={d.answer_key?.rubric ?? ""} /></div>
+                </div>
+              )}
+              {d.citations.length > 0 && (
+                <div>
+                  <h3 className={s.h3}>Nguồn</h3>
+                  <ul className={s.cites}>
+                    {d.citations.map((c, i) => (
+                      <li key={i}>{c.document_id ? <Link href={`/library/${c.document_id}${c.page ? `?page=${c.page}` : ""}`}>Tài liệu{c.page ? `, trang ${c.page}` : ""}</Link> : "Tài liệu"}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
               {d.explanation && (
                 <div>
                   <h3 className={s.h3}>Giải thích</h3>

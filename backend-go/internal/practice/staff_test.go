@@ -249,6 +249,8 @@ func TestGenerateCitations(t *testing.T) {
 	// Câu GENERATED bị xoá trích dẫn → APPROVE bị chặn.
 	r.exec(`update question_bank set citations = '[]' where id = $1`, res.Created[0])
 	extra := r.approvedPending(t, "GENERATED")
+	_, err = r.ex.Review(ctx, r.teacher, r.course, extra, exam.DecisionApprove, 1)
+	require.Equal(t, "VALIDATION_FAILED", code(t, err), "duyệt tay câu sinh không có trích dẫn cũng bị chặn (details: CITATION_REQUIRED)")
 	out, err = r.svc.Bulk(ctx, r.teacher, r.course, practice.BulkIn{Action: "APPROVE", IDs: []uuid.UUID{extra}})
 	require.NoError(t, err)
 	require.Equal(t, "CITATION_REQUIRED", out[0].Code)

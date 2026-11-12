@@ -13627,7 +13627,7 @@ components:
           $ref: "#/components/schemas/TestStats"
     QuestionDetail:
       type: object
-      required: [id, type, title, topic, difficulty, stem, explanation, origin, review_status, options, answer_key, used_in_exams, reviewed_by, reviewed_at, archived_at, ai_job_id, version, created_at, updated_at]
+      required: [id, type, title, topic, difficulty, stem, explanation, origin, review_status, options, answer_key, citations, used_in_exams, reviewed_by, reviewed_at, archived_at, ai_job_id, version, created_at, updated_at]
       additionalProperties: false
       properties:
         id:
@@ -13659,6 +13659,10 @@ components:
             $ref: "#/components/schemas/QuestionOption"
         answer_key:
           type: [object, "null"]
+        citations:
+          type: array
+          items:
+            type: object
         code:
           $ref: "#/components/schemas/CodeDetail"
         used_in_exams:

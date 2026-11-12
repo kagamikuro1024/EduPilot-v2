@@ -79,6 +79,7 @@ type QuestionDetail struct {
 	ReviewStatus string          `json:"review_status"`
 	Options      []Option        `json:"options"`
 	AnswerKey    json.RawMessage `json:"answer_key"`
+	Citations    json.RawMessage `json:"citations"`
 	Code         *CodeDetail     `json:"code,omitempty"`
 	UsedInExams  []ExamRef       `json:"used_in_exams"`
 	ReviewedBy   *uuid.UUID      `json:"reviewed_by"`
@@ -92,6 +93,13 @@ type QuestionDetail struct {
 	Warnings []apierr.FieldError `json:"-"`
 }
 
+func citationsOrEmpty(c json.RawMessage) json.RawMessage {
+	if len(c) == 0 {
+		return json.RawMessage(`[]`)
+	}
+	return c
+}
+
 func lockingStatus(st string) bool {
 	return st == "SCHEDULED" || st == "OPEN" || st == "CLOSED" || st == "PUBLISHED"
 }
@@ -99,7 +107,7 @@ func lockingStatus(st string) bool {
 func (s *Service) detail(ctx context.Context, q *store.Queries, row store.QuestionBank) (QuestionDetail, error) {
 	d := QuestionDetail{
 		ID: row.ID, Type: string(row.Type), Title: row.Title, Topic: row.Topic, Difficulty: string(row.Difficulty), Stem: row.Stem, Explanation: row.Explanation,
-		Origin: string(row.Origin), ReviewStatus: string(row.ReviewStatus), AnswerKey: row.AnswerKey, ReviewedBy: row.ReviewedBy, ReviewedAt: row.ReviewedAt,
+		Origin: string(row.Origin), ReviewStatus: string(row.ReviewStatus), AnswerKey: row.AnswerKey, Citations: citationsOrEmpty(row.Citations), ReviewedBy: row.ReviewedBy, ReviewedAt: row.ReviewedAt,
 		ArchivedAt: row.ArchivedAt, AIJobID: row.AiJobID, Version: int(row.Version), CreatedAt: row.CreatedAt, UpdatedAt: row.UpdatedAt, Options: []Option{}, UsedInExams: []ExamRef{},
 	}
 	opts, err := q.QuestionOptions(ctx, store.QuestionOptionsParams{CourseID: row.CourseID, QuestionID: row.ID})
