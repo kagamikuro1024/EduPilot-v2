@@ -49,7 +49,7 @@ test("TC-UX17 Insights thật 761988: Panel, khung lồng, chữ, khoảng cách
   console.log("INFO UX17-6 khoảng giữa Panel:", JSON.stringify(gaps));
   const lines = await page.locator("main").evaluate((m) => [...m.querySelectorAll("h1 ~ *, h2 ~ p, h2 + *, p")].filter((e) => e.tagName === "P" || /meta|sub|note|hint/i.test(e.className.toString())).slice(0, 12).map((e) => { const t = (e as HTMLElement).innerText.replace(/\s+/g, " ").trim(); return `${t.split(/\s+/).filter((w) => /\p{L}|\d/u.test(w)).length}t: ${t.slice(0, 90)}`; }));
   console.log("INFO UX17-3 các dòng phụ:", JSON.stringify(lines));
-  await page.screenshot({ path: "/out/shots-w5/insights-1440-full.png", fullPage: true });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/insights-1440-full.png", fullPage: true });
   // :active và hoạt cảnh
   const btn = page.getByRole("button", { name: "Tạo báo cáo mới" });
   const bb = (await btn.boundingBox())!;
@@ -71,7 +71,7 @@ test("TC-UX17 Insights thật 761988: Panel, khung lồng, chữ, khoảng cách
   await p2.waitForTimeout(4500);
   const t2 = (await p2.locator("main").innerText()).replace(/\n+/g, " ⏎ ");
   console.log("INFO UX17-9 /insights lớp không có báo cáo:", JSON.stringify(t2.slice(0, 400)), "| nút:", JSON.stringify(await p2.locator("main button").allInnerTexts()));
-  await p2.screenshot({ path: "/out/shots-w5/insights-empty-1440.png" });
+  await p2.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/insights-empty-1440.png" });
   // UX17-10: tạo báo cáo mới
   const create = p2.getByRole("button", { name: "Tạo báo cáo mới" });
   if (await create.count()) {
@@ -109,7 +109,7 @@ test("TC-UX17 Quan sát AI thật: số liệu đúng một chỗ, bảng 7 ngà
   await rows.first().click().catch(() => undefined);
   await page.waitForTimeout(1200);
   console.log("INFO UX17-7 sau chọn hàng: dialog", await page.getByRole("dialog").count(), "| text:", JSON.stringify((await page.locator("body").innerText()).replace(/\s+/g, " ").match(/(Nội dung|prompt|Prompt|câu hỏi của sinh viên)[^.]{0,80}/g)?.slice(0, 3)));
-  await page.screenshot({ path: "/out/shots-w5/observability-1440-full.png", fullPage: true });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/observability-1440-full.png", fullPage: true });
   await ctx.close();
   // quyền
   const c761988 = await (async () => { const c = await browser.newContext({ ignoreHTTPSErrors: true }); const p = await c.newPage(); await login(p, "teacher@edupilot.local"); const id = await cid(p, "761988"); await c.close(); return id; })();

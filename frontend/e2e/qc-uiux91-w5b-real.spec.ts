@@ -54,7 +54,7 @@ test("TC-UX19 giảng viên: đoạn trích, nhãn đa số, nhãn từng thread
     console.log(`INFO UX19 pending=${pending} dòng đầu:`, JSON.stringify((await page.locator("main").innerText()).match(/\d+ câu chờ xác nhận/)), "| số hàng có «Chờ xác nhận»:", data.filter((d) => d.meta.includes("Chờ xác nhận")).length, "| nhãn khác:", JSON.stringify(data.filter((d) => /Đã được|Đã sửa|Đã loại/.test(d.meta)).map((d) => d.title)));
     const t7 = data[6].prev;
     console.log("INFO UX19-2 T7:", t7.length, JSON.stringify(t7.slice(0, 30)), t7.endsWith("…"));
-    if (pending === 17) await page.screenshot({ path: "/out/shots-w5/threads-gv-fixture-1440.png" });
+    if (pending === 17) await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/threads-gv-fixture-1440.png" });
     await ctx.close();
   }
 });
@@ -101,7 +101,7 @@ test("TC-UX19 thật: giảng viên, SV 375 bộ lọc, thời gian, phân trang
   await dlg.getByRole("button", { name: "Xong" }).tap().catch(() => undefined);
   await p2.waitForTimeout(800);
   console.log("INFO UX19-7 sau đặt 2 bộ lọc:", JSON.stringify(await fb.first().innerText()), JSON.stringify(await fb.first().boundingBox()));
-  await p2.screenshot({ path: "/out/shots-w5/threads-sv-375.png" });
+  await p2.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/threads-sv-375.png" });
   console.log("INFO UX19-6 SV: danh sách có nội dung AI chưa xác nhận?", JSON.stringify((await rowsOf(p2).first().innerText()).replace(/\s+/g, " ").slice(0, 200)));
   // PII dialog: SV viết bài có MSSV
   await c2.close();
@@ -117,7 +117,7 @@ test("TC-UX19 thật: giảng viên, SV 375 bộ lọc, thời gian, phân trang
   await form.getByRole("button", { name: /Đăng|Gửi/ }).first().click();
   await p3.waitForTimeout(2500);
   console.log("INFO UX19-12 hộp thoại:", await p3.getByRole("dialog").count(), JSON.stringify((await p3.getByRole("dialog").first().innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 300)), "| status:", JSON.stringify(await p3.locator("[data-part=pii-notice]").allInnerTexts()));
-  await p3.screenshot({ path: "/out/shots-w5/threads-pii-1440.png" });
+  await p3.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/threads-pii-1440.png" });
   await c3.close();
   // 403 SV không thuộc lớp
   const c4 = await browser.newContext({ ignoreHTTPSErrors: true });
@@ -149,7 +149,7 @@ test("TC-UX20 Kết quả của tôi: một khối, số khớp API, chưa công
   console.log("INFO UX20-1 «Căn cứ» số lần:", (txt.match(/Căn cứ/g) ?? []).length, "| «Giữa kỳ · 20 %» lặp:", (txt.match(/Giữa kỳ/g) ?? []).length, "| mã lớp trần:", /^761987$/m.test(await page.locator("main").innerText()), "| đã công bố nút xem lại:", JSON.stringify(txt.match(/Yêu cầu xem lại/g)));
   // nửa dưới: bài tập / điểm nháp
   console.log("INFO UX20-4 từ nháp / rủi ro / ghi chú:", JSON.stringify(txt.match(/nháp|rủi ro|ghi chú quan sát|DRAFT/gi)));
-  await page.screenshot({ path: "/out/shots-w5/me-1440.png", fullPage: true });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/me-1440.png", fullPage: true });
   // SV chưa có điểm
   const c2 = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
   const p2 = await c2.newPage();
@@ -157,7 +157,7 @@ test("TC-UX20 Kết quả của tôi: một khối, số khớp API, chưa công
   await p2.goto("/me");
   await p2.waitForTimeout(4500);
   console.log("INFO UX20-6 sv.moi /me:", JSON.stringify((await p2.locator("main").innerText()).replace(/\n+/g, " ⏎ ").slice(0, 500)));
-  await p2.screenshot({ path: "/out/shots-w5/me-moi-1440.png" });
+  await p2.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/me-moi-1440.png" });
   // 403 SV A gọi dữ liệu SV B
   const cs = await api(p2, "/me/courses");
   console.log("INFO UX20-8 sv.moi lớp:", JSON.stringify(cs.body.items?.map((i: any) => i.course.class_code)));
@@ -176,7 +176,7 @@ test("TC-UX20 Kết quả của tôi: một khối, số khớp API, chưa công
   await p3.goto("/me");
   await p3.waitForTimeout(4500);
   console.log("INFO UX20-9 375: scrollHeight", await p3.evaluate(() => document.documentElement.scrollHeight), "| tràn ngang:", await p3.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth));
-  await p3.screenshot({ path: "/out/shots-w5/me-375-full.png", fullPage: true });
+  await p3.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/me-375-full.png", fullPage: true });
   await c3.close();
 });
 
@@ -195,7 +195,7 @@ test("TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, l
     const sw = await page.locator("main tbody tr [role=switch]").evaluateAll((els) => els.map((e) => ({ name: e.getAttribute("aria-label") ?? "", on: e.getAttribute("aria-checked"), dis: (e as HTMLButtonElement).disabled || e.getAttribute("aria-disabled"), w: Math.round(e.getBoundingClientRect().width), h: Math.round(e.getBoundingClientRect().height), bg: getComputedStyle(e).backgroundColor, op: getComputedStyle(e).opacity })));
     console.log(`INFO UX18-4 @${w} công tắc:`, JSON.stringify(sw));
     if (w === 1440) {
-      await page.screenshot({ path: "/out/shots-w5/documents-1440.png" });
+      await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/documents-1440.png" });
       // UX18-7: chặn API, đổi công tắc
       const first = page.locator("main tbody tr [role=switch]").first();
       const before = await first.getAttribute("aria-checked");
@@ -232,7 +232,7 @@ test("TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, l
   await p3.goto("/documents");
   await p3.waitForTimeout(4500);
   console.log("INFO UX18-5/9 375: tràn ngang", await p3.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), "| công tắc:", JSON.stringify(await p3.locator("[role=switch]").evaluateAll((els) => els.slice(0, 4).map((e) => `${Math.round(e.getBoundingClientRect().width)}x${Math.round(e.getBoundingClientRect().height)}`))));
-  await p3.screenshot({ path: "/out/shots-w5/documents-375.png" });
+  await p3.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/documents-375.png" });
   await c3.close();
   // SV, lớp lạ
   const c4 = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
