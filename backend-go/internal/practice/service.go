@@ -19,6 +19,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	"github.com/edupilot/backend-go/internal/platform/outbox"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -147,4 +148,15 @@ func parseSnapshot(raw []byte) (snapshot, error) {
 		return sn, fmt.Errorf("practice: đọc bản chụp câu: %w", err)
 	}
 	return sn, nil
+}
+
+// TopicUpdated: sinh viên vừa bắt đầu / nộp một lượt → "Hôm nay" của chính họ làm mới (PRACTICE_WEAK_TOPIC biến mất ≤ 5 s). Payload {user_id, student_id, course_id}
+// theo khoá của `today.Invalidator`; `course_id` không đưa vào để không làm mới cache của staff mỗi lần có người luyện (lệch SRS FR-19, ghi ở handoff).
+const TopicUpdated = "practice.updated"
+
+func emitUpdated(ctx context.Context, tx pgx.Tx, userID uuid.UUID) error {
+	if _, err := outbox.Write(ctx, tx, TopicUpdated, map[string]string{"user_id": userID.String(), "student_id": userID.String()}); err != nil {
+		return fmt.Errorf("practice: outbox %s: %w", TopicUpdated, err)
+	}
+	return nil
 }

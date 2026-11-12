@@ -132,7 +132,7 @@ func (s *Service) Start(ctx context.Context, userID, courseID uuid.UUID, in Star
 	for try := 0; ; try++ {
 		var v AttemptView
 		created := false
-		err := s.tx(ctx, func(q *store.Queries, _ pgx.Tx) error {
+		err := s.tx(ctx, func(q *store.Queries, tx pgx.Tx) error {
 			if err := writable(ctx, q, courseID); err != nil {
 				return err
 			}
@@ -153,6 +153,9 @@ func (s *Service) Start(ctx context.Context, userID, courseID uuid.UUID, in Star
 				return err
 			}
 			created = true
+			if err := emitUpdated(ctx, tx, userID); err != nil {
+				return err
+			}
 			v, err = s.view(ctx, q, a, uuid.Nil)
 			return err
 		})

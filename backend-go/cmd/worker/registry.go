@@ -23,6 +23,7 @@ import (
 	"github.com/edupilot/backend-go/internal/notify"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	"github.com/edupilot/backend-go/internal/practice"
 	"github.com/edupilot/backend-go/internal/privacy"
 	"github.com/edupilot/backend-go/internal/rag"
 	"github.com/edupilot/backend-go/internal/store"
@@ -89,6 +90,7 @@ func newRegistry(d Deps) *outbox.Registry {
 	reg.Register(thread.TopicUnhidden, outbox.Chain(tn.HandleUnhidden, inv.Handle))
 	reg.Register(thread.TopicDeleted, outbox.Chain(tn.HandleDeleted, inv.Handle))
 	reg.Register(grade.TopicFinalized, (&grade.Service{Pool: d.DB, Clock: clock.Real{}, Log: d.Log, Notify: nt}).HandleFinalized) // US-P6-08: chốt điểm → GRADE_FINALIZED / GRADE_CHANGED (chỉ chuông)
+	reg.Register(practice.TopicUpdated, inv.Handle)                                                                               // US-P9-09: luyện / nộp lượt → PRACTICE_WEAK_TOPIC biến mất
 	reg.Register(grade.TopicSchemeConfirmed, inv.Handle)                                                                          // US-P6-05: xác nhận công thức → GRADE_SCHEME_UNCONFIRMED biến mất
 	asg := &assignment.Service{Pool: d.DB, Log: d.Log, Notify: nt}
 	reg.Register(assignment.TopicPublished, outbox.Chain(asg.HandlePublished, inv.Handle))                                    // US-P7-02: công bố bài → chuông ASSIGNMENT_PUBLISHED + xoá cache "Hôm nay"

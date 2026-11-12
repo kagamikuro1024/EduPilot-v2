@@ -48,6 +48,20 @@ where a.course_id = sqlc.arg(course_id) and t.student_id = sqlc.arg(student_id) 
 group by 1
 order by wrong desc, topic;
 
+-- name: PracticeTopicStatsMany :many
+-- Như PracticeTopicStats cho NHIỀU lớp của một sinh viên (một truy vấn cho "Hôm nay") + lần cuối bắt đầu luyện đúng chủ đề đó.
+with s as (
+  select a.course_id, (i.question ->> 'topic')::text as topic, count(*)::int as answered, (count(*) filter (where not a.is_correct))::int as wrong
+  from practice_answers a
+  join practice_items i on i.course_id = a.course_id and i.id = a.item_id
+  join practice_attempts t on t.course_id = a.course_id and t.id = a.attempt_id
+  where a.course_id = any(sqlc.arg(course_ids)::text[]::uuid[]) and t.student_id = sqlc.arg(student_id) and a.is_correct is not null and a.answered_at > now() - interval '30 days'
+  group by 1, 2
+)
+select s.course_id, s.topic, s.answered, s.wrong,
+       coalesce((select max(p.started_at) from practice_attempts p where p.course_id = s.course_id and p.student_id = sqlc.arg(student_id) and p.topic = s.topic), 'epoch'::timestamptz)::timestamptz as last_started_at
+from s;
+
 -- name: PracticeWrongCitations :many
 -- `citations` của các câu SAI trong một chủ đề (30 ngày) của một sinh viên, để gợi ý tài liệu.
 select (i.question -> 'citations')::jsonb as citations
@@ -155,12 +169,6 @@ select id, mode, topic, started_at, deadline_at, item_count, current_index
 from practice_attempts
 where course_id = sqlc.arg(course_id) and student_id = sqlc.arg(student_id) and status = 'IN_PROGRESS'
 order by started_at desc;
-
--- name: PracticeLastTopicAt :one
--- Lần cuối sinh viên luyện (bất kỳ lượt) một chủ đề trong lớp; epoch nếu chưa. Dùng cho nguồn Hôm nay "ôn chủ đề" (chưa luyện trong 3 ngày).
-select coalesce(max(started_at), 'epoch'::timestamptz)::timestamptz as last_at
-from practice_attempts
-where course_id = sqlc.arg(course_id) and student_id = sqlc.arg(student_id) and topic = sqlc.arg(topic);
 
 -- name: PracticeDocTitles :many
 -- Tài liệu gợi ý ôn: chỉ tài liệu sinh viên được thấy (READY, hiện cho sinh viên, không phải đề / đáp án / quy chế).

@@ -405,12 +405,15 @@ func (s *Service) SetIndex(ctx context.Context, userID, courseID, attemptID, tab
 // Submit nộp lượt (FR-15): chấm câu chưa chấm, đóng lượt; gọi lại → cùng kết quả. Lượt MOCK nộp quá hạn + dung sai tính là hết giờ (EXPIRED).
 func (s *Service) Submit(ctx context.Context, userID, courseID, attemptID uuid.UUID) (AttemptView, error) {
 	var out AttemptView
-	err := s.tx(ctx, func(q *store.Queries, _ pgx.Tx) error {
+	err := s.tx(ctx, func(q *store.Queries, tx pgx.Tx) error {
 		att, err := owned(ctx, q, userID, courseID, attemptID, true)
 		if err != nil {
 			return err
 		}
 		if att.Status == store.PracticeStatusINPROGRESS {
+			if err := emitUpdated(ctx, tx, userID); err != nil {
+				return err
+			}
 			status := store.PracticeStatusSUBMITTED
 			if att.DeadlineAt != nil && s.now().After(att.DeadlineAt.Add(s.grace())) {
 				status = store.PracticeStatusEXPIRED

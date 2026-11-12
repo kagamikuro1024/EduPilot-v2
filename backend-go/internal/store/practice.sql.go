@@ -687,26 +687,6 @@ func (q *Queries) PracticeItemsWithAnswers(ctx context.Context, arg PracticeItem
 	return items, nil
 }
 
-const practiceLastTopicAt = `-- name: PracticeLastTopicAt :one
-select coalesce(max(started_at), 'epoch'::timestamptz)::timestamptz as last_at
-from practice_attempts
-where course_id = $1 and student_id = $2 and topic = $3
-`
-
-type PracticeLastTopicAtParams struct {
-	CourseID  uuid.UUID
-	StudentID uuid.UUID
-	Topic     *string
-}
-
-// Lần cuối sinh viên luyện (bất kỳ lượt) một chủ đề trong lớp; epoch nếu chưa. Dùng cho nguồn Hôm nay "ôn chủ đề" (chưa luyện trong 3 ngày).
-func (q *Queries) PracticeLastTopicAt(ctx context.Context, arg PracticeLastTopicAtParams) (time.Time, error) {
-	row := q.db.QueryRow(ctx, practiceLastTopicAt, arg.CourseID, arg.StudentID, arg.Topic)
-	var last_at time.Time
-	err := row.Scan(&last_at)
-	return last_at, err
-}
-
 const practiceOptionsByQuestions = `-- name: PracticeOptionsByQuestions :many
 select id, question_id, position, body, pinned_last
 from question_options where course_id = $1 and question_id = any($2::text[]::uuid[])
@@ -983,6 +963,60 @@ func (q *Queries) PracticeTopicStats(ctx context.Context, arg PracticeTopicStats
 			&i.Answered,
 			&i.Wrong,
 			&i.LastAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const practiceTopicStatsMany = `-- name: PracticeTopicStatsMany :many
+with s as (
+  select a.course_id, (i.question ->> 'topic')::text as topic, count(*)::int as answered, (count(*) filter (where not a.is_correct))::int as wrong
+  from practice_answers a
+  join practice_items i on i.course_id = a.course_id and i.id = a.item_id
+  join practice_attempts t on t.course_id = a.course_id and t.id = a.attempt_id
+  where a.course_id = any($2::text[]::uuid[]) and t.student_id = $1 and a.is_correct is not null and a.answered_at > now() - interval '30 days'
+  group by 1, 2
+)
+select s.course_id, s.topic, s.answered, s.wrong,
+       coalesce((select max(p.started_at) from practice_attempts p where p.course_id = s.course_id and p.student_id = $1 and p.topic = s.topic), 'epoch'::timestamptz)::timestamptz as last_started_at
+from s
+`
+
+type PracticeTopicStatsManyParams struct {
+	StudentID uuid.UUID
+	CourseIds []string
+}
+
+type PracticeTopicStatsManyRow struct {
+	CourseID      uuid.UUID
+	Topic         string
+	Answered      int32
+	Wrong         int32
+	LastStartedAt time.Time
+}
+
+// Như PracticeTopicStats cho NHIỀU lớp của một sinh viên (một truy vấn cho "Hôm nay") + lần cuối bắt đầu luyện đúng chủ đề đó.
+func (q *Queries) PracticeTopicStatsMany(ctx context.Context, arg PracticeTopicStatsManyParams) ([]PracticeTopicStatsManyRow, error) {
+	rows, err := q.db.Query(ctx, practiceTopicStatsMany, arg.StudentID, arg.CourseIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []PracticeTopicStatsManyRow{}
+	for rows.Next() {
+		var i PracticeTopicStatsManyRow
+		if err := rows.Scan(
+			&i.CourseID,
+			&i.Topic,
+			&i.Answered,
+			&i.Wrong,
+			&i.LastStartedAt,
 		); err != nil {
 			return nil, err
 		}

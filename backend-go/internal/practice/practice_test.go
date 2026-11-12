@@ -12,6 +12,7 @@ import (
 
 	"github.com/edupilot/backend-go/internal/exam"
 	"github.com/edupilot/backend-go/internal/practice"
+	"github.com/edupilot/backend-go/internal/today"
 )
 
 func raw(t *testing.T, v any) string {
@@ -385,4 +386,44 @@ func TestOverviewWeakness(t *testing.T) {
 	require.NoError(t, err)
 	require.Len(t, next, 1)
 	require.Equal(t, "Mạng", *next[0].Topic)
+}
+
+// US-P9-09 AC3: PRACTICE_WEAK_TOPIC chỉ cho STUDENT, chỉ khi chủ đề yếu chưa luyện trong 3 ngày; luyện / nộp ghi `practice.updated`.
+func TestTodayWeakTopic(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	sv := r.student()
+	ctx := t.Context()
+	r.approved("Mạng", 10)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 10}, uuid.Nil)
+	require.NoError(t, err)
+	for _, it := range v.Items {
+		_, err := r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, opt(r.wrongOption(it.ID)))
+		require.NoError(t, err)
+	}
+	_, err = r.svc.Submit(ctx, sv, r.course, v.ID)
+	require.NoError(t, err)
+	var events int
+	require.NoError(t, r.pool.QueryRow(ctx, `select count(*) from outbox where topic = $1 and payload ->> 'user_id' = $2`, practice.TopicUpdated, sv.String()).Scan(&events))
+	require.Equal(t, 2, events, "bắt đầu + nộp")
+
+	p := today.PracticeProvider{Pool: r.pool}
+	view := today.Viewer{UserID: sv, Role: today.RoleStudent, Courses: []today.CourseRef{{ID: r.course, ClassCode: "X", RoleInCourse: "STUDENT"}}}
+	items, err := p.Items(ctx, view, today.Scope{})
+	require.NoError(t, err)
+	require.Empty(t, items, "vừa luyện xong chủ đề: chưa nhắc")
+
+	r.exec(`update practice_attempts set started_at = now() - interval '4 days' where student_id = $1`, sv)
+	items, err = p.Items(ctx, view, today.Scope{})
+	require.NoError(t, err)
+	require.Len(t, items, 1)
+	require.Equal(t, today.KindPracticeWeakTopic, items[0].Kind)
+	require.Equal(t, 85, items[0].Tier)
+	require.Equal(t, "Ôn chủ đề Mạng", items[0].Title)
+	require.Contains(t, items[0].Href, "/practice?topic=M")
+
+	view.Role = today.RoleTeacher
+	items, err = p.Items(ctx, view, today.Scope{})
+	require.NoError(t, err)
+	require.Empty(t, items, "chỉ STUDENT")
 }

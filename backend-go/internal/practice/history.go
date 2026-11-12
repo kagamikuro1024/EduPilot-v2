@@ -56,31 +56,13 @@ func (s *Service) Weakness(ctx context.Context, userID, courseID uuid.UUID) (Wea
 	if err != nil {
 		return out, fmt.Errorf("practice: đọc thống kê chủ đề: %w", err)
 	}
-	total := 0
-	for _, st := range stats {
-		total += int(st.Answered)
+	in := make([]TopicStat, len(stats))
+	for i, st := range stats {
+		in[i] = TopicStat{Topic: st.Topic, Answered: int(st.Answered), Wrong: int(st.Wrong)}
 	}
-	if total < minAnswered {
-		return out, nil
-	}
-	cand := stats[:0:0]
-	for _, st := range stats {
-		if st.Answered >= minTopicAnswered && st.Wrong > 0 {
-			cand = append(cand, st)
-		}
-	}
-	sort.SliceStable(cand, func(i, j int) bool { // tỉ lệ sai giảm dần (so chéo), hoà thì nhiều câu sai hơn
-		a, b := cand[i], cand[j]
-		if l, r := int(a.Wrong)*int(b.Answered), int(b.Wrong)*int(a.Answered); l != r {
-			return l > r
-		}
-		return a.Wrong > b.Wrong
-	})
-	if len(cand) > maxWeakTopics {
-		cand = cand[:maxWeakTopics]
-	}
+	cand := WeakTopics(in)
 	for _, st := range cand {
-		w := WeakTopic{Topic: st.Topic, Answered: int(st.Answered), Wrong: int(st.Wrong), Documents: []DocSuggested{}}
+		w := WeakTopic{Topic: st.Topic, Answered: st.Answered, Wrong: st.Wrong, Documents: []DocSuggested{}}
 		cites, err := q.PracticeWrongCitations(ctx, store.PracticeWrongCitationsParams{CourseID: courseID, StudentID: userID, Topic: st.Topic})
 		if err != nil {
 			return out, fmt.Errorf("practice: đọc trích dẫn câu sai: %w", err)
@@ -147,4 +129,42 @@ func (s *Service) WrongAnswerSignals(ctx context.Context, courseID uuid.UUID, fr
 		out[i] = Signal{Topic: r.Topic, WrongAnswers: int(r.WrongAnswers), StudentsAffected: int(r.StudentsAffected), SampleQuestionIDs: r.SampleQuestionIds}
 	}
 	return out, nil
+}
+
+// TopicStat là số câu đã chấm / sai của một chủ đề trong 30 ngày.
+type TopicStat struct {
+	Topic           string
+	Answered, Wrong int
+}
+
+// WeakTopics chọn chủ đề yếu (FR-18): cần ≥ 10 câu đã chấm toàn lớp; chủ đề ≥ 3 câu và có sai; tỉ lệ sai giảm dần, hoà thì nhiều sai hơn; tối đa 3.
+// Dùng chung cho `Weakness` và nguồn Hôm nay để hai nơi không lệch nhau.
+func WeakTopics(stats []TopicStat) []TopicStat {
+	total := 0
+	for _, st := range stats {
+		total += st.Answered
+	}
+	if total < minAnswered {
+		return nil
+	}
+	var cand []TopicStat
+	for _, st := range stats {
+		if st.Answered >= minTopicAnswered && st.Wrong > 0 {
+			cand = append(cand, st)
+		}
+	}
+	sort.SliceStable(cand, func(i, j int) bool {
+		a, b := cand[i], cand[j]
+		if l, r := a.Wrong*b.Answered, b.Wrong*a.Answered; l != r {
+			return l > r
+		}
+		if a.Wrong != b.Wrong {
+			return a.Wrong > b.Wrong
+		}
+		return a.Topic < b.Topic
+	})
+	if len(cand) > maxWeakTopics {
+		cand = cand[:maxWeakTopics]
+	}
+	return cand
 }
