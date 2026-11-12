@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"reflect"
 	"slices"
 	"time"
 
@@ -333,6 +334,12 @@ func sameValue(old json.RawMessage, v *bool) bool {
 	return k.Value != nil && v != nil && *k.Value == *v
 }
 
+// sameJSON so hai giá trị JSON theo nội dung (không theo định dạng).
+func sameJSON(a, b []byte) bool {
+	var x, y any
+	return json.Unmarshal(a, &x) == nil && json.Unmarshal(b, &y) == nil && reflect.DeepEqual(x, y)
+}
+
 // Update sửa câu (khoá lạc quan theo `version`). Câu đang được bài thi SCHEDULED+ dùng chỉ cho sửa chủ đề / độ khó / giải thích (409 QUESTION_IN_USE).
 // Sửa đề / đáp án đưa câu APPROVED / REJECTED về DRAFT.
 func (s *Service) Update(ctx context.Context, courseID, id uuid.UUID, in QuestionIn, version int) (QuestionDetail, error) {
@@ -372,6 +379,8 @@ func (s *Service) Update(ctx context.Context, courseID, id uuid.UUID, in Questio
 			same = optionsSame(old, row.AnswerKey, c)
 		case store.QuestionTypeTRUEFALSE:
 			same = sameValue(row.AnswerKey, c.Value)
+		case store.QuestionTypeSHORT, store.QuestionTypeESSAY:
+			same = sameJSON(row.AnswerKey, AnswerKey(c, nil))
 		default:
 			same = true
 		}
@@ -398,7 +407,7 @@ func (s *Service) Update(ctx context.Context, courseID, id uuid.UUID, in Questio
 				}
 			}
 			key = AnswerKey(c, ids)
-		} else if !same && row.Type == store.QuestionTypeTRUEFALSE {
+		} else if !same && (row.Type == store.QuestionTypeTRUEFALSE || row.Type == store.QuestionTypeSHORT || row.Type == store.QuestionTypeESSAY) {
 			key = AnswerKey(c, nil)
 		}
 		upd, err := q.QuestionUpdateContent(ctx, store.QuestionUpdateContentParams{

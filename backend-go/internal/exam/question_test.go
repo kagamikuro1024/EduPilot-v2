@@ -164,16 +164,45 @@ func TestCreateTrueFalse(t *testing.T) {
 	require.Contains(t, codes(exam.QuestionIn{Type: "TRUE_FALSE", Title: "tf", Topic: "t", Stem: "x", Value: new(true), Options: opts("a", "b")}), "OPTION_COUNT")
 }
 
-// TestTypeNotSupportedYet — AC2: SHORT / ESSAY → 422 TYPE_NOT_SUPPORTED (P9); loại lạ → 422.
-func TestTypeNotSupportedYet(t *testing.T) {
+// TestShortEssayTypes — US-P9-01 AC4, AC6 (P-10-5): SHORT / ESSAY lưu được ở DRAFT; đáp án rỗng → ANSWER_EMPTY; không vào bài thi tính điểm; loại lạ → INVALID_TYPE.
+func TestShortEssayTypes(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
-	for _, ty := range []string{"SHORT", "ESSAY", "ORAL"} {
-		_, err := r.svc.Create(t.Context(), r.teacher, r.course, exam.QuestionIn{Type: ty, Title: "x", Topic: "t", Stem: "s"})
+	short, err := r.svc.Create(t.Context(), r.teacher, r.course, exam.QuestionIn{Type: "SHORT", Title: "Thủ đô", Topic: "Địa lý", Stem: "Thủ đô của Việt Nam?", Accepted: []string{"Hà Nội", " hà nội. ", "Ha Noi"}})
+	require.NoError(t, err)
+	require.Equal(t, "DRAFT", short.ReviewStatus)
+	require.Empty(t, short.Options)
+	require.JSONEq(t, `{"accepted":["Hà Nội","Ha Noi"]}`, string(short.AnswerKey), "trùng sau chuẩn hoá bị gộp")
+	essay, err := r.svc.Create(t.Context(), r.teacher, r.course, exam.QuestionIn{Type: "ESSAY", Title: "Phân tích", Topic: "ATTT", Stem: "Phân tích một vụ tấn công.", ModelAnswer: new("Nêu tác nhân, bề mặt, biện pháp."), Rubric: new("Tác nhân 2đ; bề mặt 2đ")})
+	require.NoError(t, err)
+	require.JSONEq(t, `{"model_answer":"Nêu tác nhân, bề mặt, biện pháp.","rubric":"Tác nhân 2đ; bề mặt 2đ"}`, string(essay.AnswerKey))
+
+	for name, in := range map[string]exam.QuestionIn{
+		"đáp án rỗng":          {Type: "SHORT", Title: "x", Topic: "t", Stem: "s"},
+		"chỉ dấu câu":          {Type: "SHORT", Title: "x", Topic: "t", Stem: "s", Accepted: []string{"...", "  "}},
+		"có phương án chọn":    {Type: "SHORT", Title: "x", Topic: "t", Stem: "s", Accepted: []string{"a"}, Options: opts("a", "b")},
+		"tự luận thiếu mẫu":    {Type: "ESSAY", Title: "x", Topic: "t", Stem: "s", Rubric: new("r")},
+		"tự luận thiếu rubric": {Type: "ESSAY", Title: "x", Topic: "t", Stem: "s", ModelAnswer: new("m")},
+	} {
+		_, err := r.svc.Create(t.Context(), r.teacher, r.course, in)
 		var ae *apierr.Error
-		require.True(t, errors.As(err, &ae), ty)
-		require.Equal(t, 422, ae.Status)
-		fe := ae.Details.([]apierr.FieldError)
-		require.Equal(t, map[string]string{"SHORT": "TYPE_NOT_SUPPORTED", "ESSAY": "TYPE_NOT_SUPPORTED", "ORAL": "INVALID_TYPE"}[ty], fe[0].Code)
+		require.True(t, errors.As(err, &ae), name)
+		require.Equal(t, 422, ae.Status, name)
 	}
+	require.Equal(t, []string{"ANSWER_EMPTY"}, codes(exam.QuestionIn{Type: "SHORT", Title: "x", Topic: "t", Stem: "s", Accepted: []string{"?!"}}))
+	require.Equal(t, []string{"INVALID_TYPE"}, codes(exam.QuestionIn{Type: "ORAL", Title: "x", Topic: "t", Stem: "s"}))
+
+	// sửa đáp án chấp nhận: giữ nội dung → không về DRAFT; đổi → về DRAFT
+	upd, err := r.svc.Update(t.Context(), r.course, short.ID, exam.QuestionIn{Type: "SHORT", Title: "Thủ đô", Topic: "Địa lý", Stem: "Thủ đô của Việt Nam?", Accepted: []string{"Hà Nội", "Hanoi"}}, short.Version)
+	require.NoError(t, err)
+	require.JSONEq(t, `{"accepted":["Hà Nội","Hanoi"]}`, string(upd.AnswerKey))
+
+	// không vào bài thi tính điểm
+	ap, err := r.svc.Review(t.Context(), r.teacher, r.course, upd.ID, "APPROVE", upd.Version)
+	require.NoError(t, err)
+	e := r.newExam(goodIn("Thi"))
+	_, err = r.putItems(e, ap.ID)
+	var ae *apierr.Error
+	require.True(t, errors.As(err, &ae))
+	require.Equal(t, "TYPE_NOT_SUPPORTED_IN_EXAM", ae.Details.([]apierr.FieldError)[0].Code)
 }

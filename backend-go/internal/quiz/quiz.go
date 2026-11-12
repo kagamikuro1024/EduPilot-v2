@@ -16,6 +16,7 @@ const (
 	MCQSingle Type = "MCQ_SINGLE"
 	MCQMulti  Type = "MCQ_MULTI"
 	TrueFalse Type = "TRUE_FALSE"
+	Short     Type = "SHORT" // trả lời ngắn: so khớp sau chuẩn hoá (NormalizeShort), không LLM
 )
 
 // Mode là cách chấm câu nhiều đáp án của bài thi.
@@ -26,16 +27,18 @@ const (
 	Partial      Mode = "PARTIAL"
 )
 
-// Key là đáp án đúng (`question_bank.answer_key`): `OptionIDs` cho MCQ, `Value` cho TRUE_FALSE.
+// Key là đáp án đúng (`question_bank.answer_key`): `OptionIDs` cho MCQ, `Value` cho TRUE_FALSE, `Accepted` cho SHORT.
 type Key struct {
 	OptionIDs []string
 	Value     *bool
+	Accepted  []string
 }
 
-// Answer là câu trả lời của sinh viên; con trỏ nil = bỏ trống.
+// Answer là câu trả lời của sinh viên; con trỏ nil = bỏ trống. `Text` là câu trả lời ngắn.
 type Answer struct {
 	OptionIDs []string
 	Value     *bool
+	Text      *string
 }
 
 // ErrInvalidOption: câu trả lời chọn id không thuộc câu (API lưu → 422 INVALID_OPTION_ID; khi chấm lại: coi như chưa chọn).
@@ -50,6 +53,8 @@ func Grade(t Type, points decimal.Decimal, key Key, a *Answer, mode Mode, option
 		return decimal.Zero, fmt.Errorf("quiz: points âm")
 	}
 	switch t {
+	case Short:
+		return gradeShort(points, key, a)
 	case TrueFalse:
 		if key.Value == nil {
 			return decimal.Zero, ErrBadKey
