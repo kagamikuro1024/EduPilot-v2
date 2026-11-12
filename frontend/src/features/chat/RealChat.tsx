@@ -293,6 +293,7 @@ function Intro({ suggestions, onPick }: { suggestions: string[]; onPick: (text: 
   return (
     <div className={s.intro}>
       <p className="ep-item-title">Hỏi bất cứ điều gì về lớp này.</p>
+      <p className={s.introText}>Phiên chat này chỉ bạn đọc được.</p>
       <ul className={r.suggest} data-part="chat-suggestions">
         {suggestions.map((t) => (
           <li key={t}>

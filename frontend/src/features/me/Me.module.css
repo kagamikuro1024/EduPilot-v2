@@ -4,3 +4,10 @@
 .whatif { display: grid; gap: var(--ep-space-2); margin-top: var(--ep-space-3); }
 .whatifLabel { display: flex; align-items: center; gap: var(--ep-space-3); flex-wrap: wrap; }
 .whatifInput { width: 88px; }
+/* < 720 px: ngày và nội dung cùng một dòng (US-UX91-20 AC8: trang ngắn hơn). */
+@media (max-width: 719px) {
+  .dense dl > div { grid-template-columns: auto minmax(0, 1fr); gap: var(--ep-space-3); padding: var(--ep-space-2) 0; }
+}
+@media (max-width: 719px) {
+  .stack.stack > section + section { margin-top: var(--ep-space-8); }
+}

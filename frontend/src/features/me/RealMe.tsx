@@ -36,7 +36,7 @@ export function RealMe({ courseId }: { courseId: string }) {
   };
   const failed = (!att.data && att.isError) || (!part.data && part.isError);
   return (
-    <Page>
+    <Page className={s.stack}>
       <PageHeader title="Kết quả của tôi" />
       {failed ? (
         <ApiErrorNotice error={att.error ?? part.error} showTechnical onRetry={retry} title="Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất." />
@@ -90,11 +90,23 @@ function Attendance({ a }: { a: MyAttendance["attendance"] }) {
       ) : (
         <>
           <p className={s.headline}>{attendanceSentence(a)}</p>
-          {missed.length > 0 && <DefinitionList items={missed.map((x) => ({ term: `Buổi ${x.session_no} · ${dayMonthOf(x.starts_at)}`, value: STATUS_LABEL[x.status] ?? x.status }))} />}
+          {missed.length > 0 && <div className={s.dense}><DefinitionList items={missed.map((x) => ({ term: `Buổi ${x.session_no} · ${dayMonthOf(x.starts_at)}`, value: STATUS_LABEL[x.status] ?? x.status }))} /></div>}
         </>
       )}
     </Section>
   );
+}
+
+/** Cùng loại và cùng điểm gom một dòng: "Phát biểu +0,25 — 20/10, 19/10". Thứ tự lần đầu xuất hiện. */
+function groupEvents(events: MyParticipation["participation"]["events"]) {
+  const groups = new Map<string, { term: string; days: string[] }>();
+  for (const e of events) {
+    const term = `${EVENT_LABEL[e.type] ?? e.type} ${signedPoints(e.points)}`;
+    const g = groups.get(term) ?? { term, days: [] };
+    g.days.push(dayMonth(e.date));
+    groups.set(term, g);
+  }
+  return [...groups.values()].map((g) => ({ term: g.term, value: g.days.join(", ") }));
 }
 
 function Participation({ p }: { p: MyParticipation["participation"] }) {
@@ -105,7 +117,7 @@ function Participation({ p }: { p: MyParticipation["participation"] }) {
       ) : (
         <>
           <p className={s.headline}>{`Phát biểu ${p.speak_count} lần · ${signedPoints(p.points_total)}.`}</p>
-          <DefinitionList items={p.events.map((e) => ({ term: dayMonth(e.date), value: `${EVENT_LABEL[e.type] ?? e.type} ${signedPoints(e.points)}` }))} />
+          <div className={s.dense}><DefinitionList items={groupEvents(p.events)} /></div>
         </>
       )}
     </Section>

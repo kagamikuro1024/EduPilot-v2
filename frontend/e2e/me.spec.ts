@@ -252,7 +252,7 @@ test("grade states: lỗi → nguyên nhân + Thử lại; chưa công bố gì 
   await expect(page.getByText("Bạn có mặt 7/9 buổi, vắng 2.")).toBeVisible();
   broken = false;
   await page.locator("main section", { hasText: "Không tải được điểm của bạn." }).getByRole("button", { name: "Thử lại" }).click();
-  await expect(page.getByText("Chưa có điểm được công bố.")).toBeVisible();
+  await expect(page.getByText("Chưa có điểm nào được công bố.")).toBeVisible();
 });
 
 test("grade mobile 375: khối điểm một cột, không tràn ngang", async ({ page }) => {
