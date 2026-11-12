@@ -1,0 +1,21 @@
+# QUESTIONS FEAT-nfr-eval
+Trạng thái spec: **DRAFT** (2026-11-12). Chủ dự án yêu cầu làm một mạch các sprint còn lại, không dừng chờ hỏi: mọi câu dưới đây **không chặn** — BA đã chọn phương án an toàn ghi ở cột 3 và viết spec theo đó. PM / chủ dự án đổi ý thì sửa spec bằng proposal (`docs/sprints/9.5/proposals.md`).
+
+| # | Câu hỏi | Phương án BA đề xuất (đã áp dụng trong spec) | Trả lời của chủ dự án | Ngày |
+| --- | --- | --- | --- | --- |
+| Q-NFR-1 | Sprint 9.5 lấy phần nào của P10 L3, phần nào P10 giữ? (`ROADMAP.md` chưa có dòng 9.5; `P10.md` L3 gồm cả seed-t1, k6, chaos, EXPLAIN, `make eval`) | 9.5 lấy: `seed-t1`, k6 (a)–(d), `--scale ×2`, chaos, `EXPLAIN` + `00018_indexes_tuning`, số đo nền (E6), Lighthouse, đo LLM thật R1–R6. P10 giữ: `make eval` E1–E6 gói lại (E3 chấm tay người, E4 ≥ 2 provider, E5 từ P9), observability UI, `/insights`, thống kê điểm thi, L4 hoàn thiện. `make load-t1` và `make chaos` ở P10 chỉ còn là lệnh bọc | | |
+| Q-NFR-2 | Model Gemini nào, hạn mức và trần chi phí? Khoá do chủ dự án cấp (CONTEXT mục 4) | Model Flash mạnh nhất mà khoá liệt kê được (`GET /models`), ghi tên + ngày vào `meta`. Trần mặc định: **≤ 500 lời gọi LLM sinh chữ cho cả sprint**, RPM 15, dừng khi chạm `429` ba lần liên tiếp rồi `--resume` hôm sau. Embedding: Gemini embedding nếu khoá có (đã có kinh nghiệm ở `deploy/vps-llm.mjs`: `gemini-embedding-001`, `dimensions=1536`), nếu không có thì provider giả / tất định (tìm lai còn nhánh `tsv`) | | |
+| Q-NFR-3 | T1 đầy đủ (1.000 SV, 300 VU, `--scale ×2`) có vừa Colima 6 CPU / 10 GB không? | Thử đủ T1 ở ×1 trước; đo RAM trước khi ×2. Nếu RAM > 90% hoặc OOM: hạ `--scale 0.5` (500 SV, 10 lớp) và/hoặc VU 150, **ghi quy mô thực vào `meta`**; không tuyên bố "đạt T1" cho phần đã hạ. Phần hạ ghi vào Nợ chuyển P10 / PR | | |
+| Q-NFR-4 | Judge amd64 có seccomp (nợ PE 7, ops-vps "hoãn") không đo được trên Mac arm64 (D58). Làm gì? | Không đo trong 9.5; ghi "chưa đo được, cần máy amd64" ở báo cáo US-NFR-09 và chuyển PR (cần VPS / máy amd64 mới). Không giả lập QEMU (không chứng minh được seccomp thật) | | |
+| Q-NFR-5 | SLO trượt trên Mac (k6 và server chung 6 CPU) — kết luận thế nào, có nới ngưỡng không? | Không nới. Ghi FAIL + số thật + nghi ngờ. Kết luận trong luận văn chỉ ghi "đạt / không đạt **trên MacBook Apple Silicon, Colima 6 CPU / 10 GB**". Trượt do lỗi mã (N+1, thiếu chỉ mục) → US-NFR-10; trượt do tài nguyên máy → ghi giới hạn, không sửa mã | | |
+| Q-NFR-6 | Ngân sách sửa lỗi trong sprint (US-NFR-10)? | Lỗi **cao** (rò đáp án / điểm / PII; chèn lệnh kéo điểm mà không cờ; việc thất lạc; TTFT hoặc 5xx trượt) sửa ngay trong 9.5, tối đa 5 story sửa; còn lại vào Nợ. Lỗi vừa / thấp không sửa trong 9.5. PM đóng sprint khi lỗi cao đã sửa hoặc có quyết định hoãn bằng văn bản | | |
+| Q-NFR-7 | Đo LLM thật ở stack nào? | Stack riêng `-p ep-research` (cổng lệch) trên Mac, **không** stack demo `~/Documents/EduPilot-demo` (đo làm mất bài BT03 chưa chấm của kịch bản demo). Xong thì `down -v` | | |
+| Q-NFR-8 | Chủ dự án có tự chấm đối chiếu một mẫu kết quả trích công thức (R1) không? | Không chặn sprint. Báo cáo ghi "đối chiếu theo `extraction-lop*.json` do người soạn spec viết" và nêu giới hạn; chủ dự án chấm tay A, B, C (nợ G6-30) làm sau, độc lập | | |
+| Q-NFR-9 | `/assignments/[id]` LCP 4,7 s > 2,5 s (nợ G7-23) — sprint 9.5 có sửa không? | Chỉ **đo lại** trên Mac và ghi số. Chủ dự án vẫn phải quyết "đổi thiết kế màn đầu hay chấp nhận"; nếu chọn đổi, đó là story riêng (UI) ngoài 9.5 | | |
+| Q-NFR-10 | Ngưỡng "tốt" của đo LLM thật (R1–R5): có ngưỡng đạt / không đạt không? | Không đặt ngưỡng đạt / không đạt cho chất lượng LLM (chưa có nền so sánh). Chỉ đặt ngưỡng **an toàn** (cứng): 0 lộ tên / MSSV trong payload; hỏi điểm người khác bị từ chối 100%; chèn lệnh không kéo điểm mà không cờ; đầu ra sai schema phải bị Go loại trước khi lưu. Chất lượng (MAE, % đúng) ghi số, không phán PASS / FAIL | | |
+
+## Đính chính / ghi chú (không phải câu hỏi)
+- `benchmarks/real-llm/README.md` ghi "không chạy trên Mac" — đã lỗi thời sau 2026-11-12; sửa trong US-NFR-01.
+- `P10.md` L3 ghi `00015 indexes_tuning`; số này đã là `observation`. Dùng `00018` (xem SRS §5, §10).
+- `benchmarks/README.md` chưa có tệp (chỉ `real-llm/README.md`): US-NFR-01 tạo mới.
+- Hai tài khoản người dùng thật không được tạo ở T1; mật khẩu mô phỏng lấy từ biến môi trường.

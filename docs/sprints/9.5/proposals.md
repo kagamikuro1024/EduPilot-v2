@@ -1,0 +1,7 @@
+# Sprint 9.5: góp ý của đội
+
+| # | Ai | Vấn đề | Đề xuất | Lý do + bằng chứng | Ảnh hưởng nếu không đổi | Quyết định PM |
+| --- | --- | --- | --- | --- | --- | --- |
+| P-95-1 | ba | `ROADMAP.md` chưa có sprint 9.5; `P10.md` L3 còn nguyên seed-t1, k6, chaos, EXPLAIN, `make eval` | Thêm dòng 9.5 vào ROADMAP. 9.5 nhận: `seed-t1`, k6 (a)–(d) ×1 / ×2, chaos, `EXPLAIN` + chỉ mục, số đo nền, Lighthouse, đo LLM thật R1–R6. P10 giữ `make eval` E1–E6 (E3 chấm tay, E4 ≥ 2 provider), observability, insights, thống kê điểm thi, hoàn thiện; `make load-t1` / `make chaos` chỉ bọc lại script của 9.5 | `ops-vps/plan.md` mục "Hoãn sang một sprint riêng" liệt kê đúng các việc này; trùng lặp ở P10 L3 sẽ làm hai sprint cùng sở hữu một việc | Hai sprint cùng đo một thứ; P10 phình ~1 tuần | |
+| P-95-2 | ba | `P10.md` L3 ghi migration `00015 indexes_tuning`; `00015` đã là `observation` (`PROGRESS.md` bảng migration). `00018` đang trống | Dùng `00018_indexes_tuning`; `ARCHITECTURE.md` §4 thêm dòng; `00019` giữ cho P9 như đã ghi | `ls backend-go/db/migrations` dừng ở `00017`; `PROGRESS.md` ghi "số `00018` không dùng" | Dev tạo trùng số, goose lỗi | |
+| P-95-3 | ba | `CONTEXT.md` mục 2 và `benchmarks/real-llm/README.md` còn nói VPS / "không chạy trên Mac" | Sửa theo CONTEXT mục 4 bản 2026-11-12 (đã giao dev ở US-NFR-01). `CONTEXT.md` mục 2 do PM sửa | Hai tài liệu mâu thuẫn nhau: README cấm chạy trên Mac, CONTEXT bắt chạy trên Mac | Dev đọc README sẽ đi tìm VPS đã thu hồi | |
