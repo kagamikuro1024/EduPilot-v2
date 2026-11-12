@@ -14,6 +14,8 @@ type Cfg<A> = {
   /** thao tác bù ghi lên máy chủ */
   compensate: (arg: A) => Promise<unknown>;
   label: (arg: A) => ReactNode;
+  /** `commit` lỗi mà màn hình đã tự xử lý (vd. 409 hiện hộp "Giữ của tôi / Dùng của họ"): KHÔNG lùi giá trị, KHÔNG báo lỗi thứ hai; chỉ bỏ dòng "Hoàn tác". */
+  handled?: (e: unknown) => boolean;
   itemKey?: (arg: A) => string;
 };
 
@@ -44,8 +46,9 @@ export function useUndoableAction<A>(cfg: Cfg<A>) {
       try {
         await c.commit(arg);
       } catch (e) {
-        c.rollback(arg);
         setLine(null);
+        if (c.handled?.(e)) return;
+        c.rollback(arg);
         setError({ message: e instanceof ApiError ? e.userMessage : "Chưa lưu được. Thử lại.", retry: () => void api.current.run(arg) });
       } finally {
         setPending(false);

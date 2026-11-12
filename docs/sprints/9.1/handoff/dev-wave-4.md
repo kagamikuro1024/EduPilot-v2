@@ -35,3 +35,8 @@ Commit: xem `9.1 đợt 4` trong `git log` nhánh `sprint/9.1-uiux`. Stack kiể
 Test đổi theo AC mới (không nới): `gradebook.spec.ts` ô không focus «6,00», «8,50», «8,00», focus → «6»; ô đang có nháp giữ chữ gõ. Thêm: `assignment-lifecycle.spec.ts` (thanh dưới trong 900 px, N/M, lỗi duyệt ở thanh dưới + Thử lại), `attendance.spec.ts` (di động ≤ 56 px, nút ≥ 44 px), `gradebook.spec.ts` (`⋯` cột mờ 0 → 1 khi focus).
 Gate VPS (`/srv/work/dev`): lint sạch, build xanh, `ui-antipatterns` sạch; `gradebook` + `attendance` + `assignment-lifecycle` (desktop + mobile) xanh.
 Không kiểm ở 375 bằng stack thật: đo di động ở 390 (project `mobile`); QC kiểm lại 375 + khung 1440×900 trên `ep-qc`.
+
+## Sửa QC đợt 4 lỗi #8 (US-15 AC7, 409)
+- `SubmissionReview.tsx`: khi `PUT grading-results` trả 409, ô điểm GIỮ giá trị đã gõ (không lùi); một hộp duy nhất "Người khác vừa nhập {điểm của họ}" + `Giữ của tôi` (ghi đúng điểm đã gõ, chỉ tiêu chí đang sửa, trên version của họ) / `Dùng của họ` (ô lấy giá trị của họ). Không còn dải đỏ thứ hai, không còn dòng "Hoàn tác" cho lần lưu bị 409.
+- `useUndoableAction`: thêm `handled?(e)` — lỗi màn hình đã tự xử lý thì không rollback, không báo lỗi thứ hai.
+- E2E: `assignment-lifecycle.spec.ts` — "review version conflict" (giữ giá trị, một thông báo, PUT version 9) + "Dùng của họ". Xanh trên bản build cổng (desktop).

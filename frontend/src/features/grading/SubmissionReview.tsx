@@ -143,7 +143,8 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   const [lateText, setLateText] = useState<string | null>(null);
   const [fieldErr, setFieldErr] = useState<{ id: string; message: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [conflict, setConflict] = useState<ResultView | null>(null);
+  /** 409: bản hiện tại của người kia + điểm TÔI đã gõ cho tiêu chí đang lưu (giữ nguyên trong ô cho tới khi chọn). */
+  const [conflict, setConflict] = useState<{ theirs: ResultView; id: string; mine: string } | null>(null);
   const [undone, setUndone] = useState(false);
   const [activeEv, setActiveEv] = useState<{ start: number; end: number } | null>(null);
   const [fading, setFading] = useState(false);
@@ -180,9 +181,11 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     [courseId, rid, qc, submissionId],
   );
 
-  function handle(e: unknown, critId?: string) {
+  function handle(e: unknown, critId?: string, mine?: string) {
     if (e instanceof ApiError && e.code === "VERSION_CONFLICT") {
-      setConflict(((e.details as { current?: ResultView } | undefined)?.current ?? null));
+      const theirs = (e.details as { current?: ResultView } | undefined)?.current ?? e.conflict?.current as ResultView | undefined;
+      if (theirs && critId && mine !== undefined) setConflict({ theirs, id: critId, mine });
+      else void qc.invalidateQueries({ queryKey: resultKey(courseId, submissionId) });
       return;
     }
     if (e instanceof ApiError && critId && (e.code === "SCORE_STEP" || e.code === "SCORE_OUT_OF_RANGE" || e.code === "SCORE_PRECISION")) {
@@ -202,10 +205,11 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
         await put({ version: view.result.version, criteria: [{ id, score: after.replace(",", ".") }] });
         flashSaved(`score:${id}`);
       } catch (e) {
-        handle(e, id);
+        handle(e, id, after);
         throw e;
       }
     },
+    handled: (e) => e instanceof ApiError && e.code === "VERSION_CONFLICT",
     compensate: async ({ id, before }) => {
       const cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
       await put({ version: cur.result.version, criteria: [{ id, score: before.replace(",", ".") }] });
@@ -430,18 +434,20 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
           {conflict && (
             <InlineNotice
               tone="warning"
-              title="Người khác vừa sửa kết quả này"
+              title={`Người khác vừa nhập ${vi(conflict.theirs.criteria.find((x) => x.id === conflict.id)?.score ?? "") || "—"}`}
               action={
                 <>
-                  <Button size="sm" onClick={() => void run(async () => { await put({ version: conflict.result.version, criteria: view.criteria.map((c) => ({ id: c.id, score: scoreOf(c).replace(",", ".") })) }); setConflict(null); })}>
+                  <Button size="sm" variant="primary" onClick={() => void run(async () => { await put({ version: conflict.theirs.result.version, criteria: [{ id: conflict.id, score: conflict.mine.replace(",", ".") }] }); setConflict(null); })}>
                     Giữ của tôi
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => { qc.setQueryData(resultKey(courseId, submissionId), conflict); setScores({}); setConflict(null); }}>
+                  <Button size="sm" onClick={() => { qc.setQueryData(resultKey(courseId, submissionId), conflict.theirs); setScores((p) => { const n = { ...p }; delete n[conflict.id]; return n; }); setConflict(null); }}>
                     Dùng của họ
                   </Button>
                 </>
               }
-            />
+            >
+              {`Bạn đã nhập ${conflict.mine}.`}
+            </InlineNotice>
           )}
           {notice && (
             <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => setNotice(null)}>Đã hiểu</Button>}>
