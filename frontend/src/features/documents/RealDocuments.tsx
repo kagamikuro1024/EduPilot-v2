@@ -29,7 +29,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
   const [over, setOver] = useState(false);
   const [pendingType, setPendingType] = useState<DocType>("LECTURE");
   const [patched, setPatched] = useState<Record<string, Partial<DocRow>>>({});
-  const [failed, setFailed] = useState<string | null>(null);
+  const [failed, setFailed] = useState<{ text: string; retry?: () => void } | null>(null);
   const [open, setOpen] = useState<DocRow | null>(null);
   const [del, setDel] = useState<DocRow | null>(null);
   const picker = useRef<HTMLInputElement>(null);
@@ -88,7 +88,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
       refresh();
     } catch (e) {
       setPatched((p) => ({ ...p, [d.id]: { ...p[d.id], ...before } }));
-      setFailed(e instanceof ApiError && e.code === "VERSION_CONFLICT" ? "Có người vừa đổi tài liệu này. Tải lại để xem bản mới." : "Chưa lưu được. Thử lại.");
+      setFailed(e instanceof ApiError && e.code === "VERSION_CONFLICT" ? { text: "Có người vừa đổi tài liệu này. Tải lại để xem bản mới." } : { text: "Chưa lưu được.", retry: () => void patch(d, change, label) });
     }
   }
 
@@ -97,7 +97,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
       await apiClient.post(`/courses/${courseId}/documents/${d.id}/${what}`);
       refresh();
     } catch (e) {
-      setFailed(e instanceof ApiError ? e.userMessage : "Chưa làm được. Thử lại.");
+      setFailed({ text: e instanceof ApiError ? e.userMessage : "Chưa làm được.", retry: () => void action(d, what) });
     }
   };
 
@@ -214,7 +214,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
               )}
             </Field>
           </div>
-          {failed && <InlineNotice tone="danger" compact>{failed}</InlineNotice>}
+          {failed && <InlineNotice tone="danger" compact action={failed.retry && <Button size="sm" onClick={failed.retry}>Thử lại</Button>}>{failed.text}</InlineNotice>}
           {undo.node}
           <PageState
             query={list}

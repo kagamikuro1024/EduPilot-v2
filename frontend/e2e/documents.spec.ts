@@ -143,7 +143,8 @@ test("patch: đổi cờ lạc quan + Đã đổi · Hoàn tác; version trong t
   await expect(page.getByText("Đã đổi cờ Hiện cho sinh viên")).toBeVisible();
   expect(JSON.parse(calls.find((c) => c.method === "PATCH")!.body)).toEqual({ visible_to_students: false, version: 1 });
   await vis.click(); // lần 2: máy chủ lỗi 500 → hoàn lại và báo
-  await expect(page.getByText("Chưa lưu được. Thử lại.")).toBeVisible();
+  await expect(page.getByText("Chưa lưu được.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Thử lại" })).toBeVisible();
   await expect(vis).toHaveAttribute("aria-checked", "false");
 });
 

@@ -79,7 +79,7 @@ export function RealThreads({ courseId }: { courseId: string }) {
             <Button variant="secondary" className={r.filterToggle} icon={<SlidersHorizontal aria-hidden />} onClick={() => setSheet(true)}>
               Bộ lọc{activeFilters > 0 ? ` · ${activeFilters}` : ""}
             </Button>
-            <Drawer open={sheet} onClose={() => setSheet(false)} title="Bộ lọc" footer={<Button variant="primary" onClick={() => setSheet(false)}>Xong</Button>}>
+            <Drawer sheet open={sheet} onClose={() => setSheet(false)} title="Bộ lọc" footer={<Button variant="primary" onClick={() => setSheet(false)}>Xong</Button>}>
               {fields}
             </Drawer>
           </>

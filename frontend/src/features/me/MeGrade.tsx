@@ -42,7 +42,7 @@ function GradeBody({ courseId, g }: { courseId: string; g: MeGrades }) {
   const lines = explainLines(comps, g.calculation ?? []);
   const published = comps.filter((c) => c.status === "PUBLISHED");
   const sentence = gradeSentence(g);
-  if (published.length === 0 && !sentence) return <EmptyState title="Chưa có điểm được công bố." />;
+  if (published.length === 0 && !sentence) return <EmptyState title="Chưa có điểm nào được công bố.">Điểm sẽ hiện ở đây khi giảng viên công bố.</EmptyState>;
   return (
     <>
       {sentence && <p className={s.headline} data-part="grade-sentence">{sentence}</p>}

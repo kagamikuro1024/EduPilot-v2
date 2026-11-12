@@ -11,6 +11,8 @@
 .aside { display: contents; }
 /* < 720 px: tên + giá trị một hàng, phép tính + căn cứ hàng dưới (US-UX91-20 AC8). */
 @media (max-width: 719px) {
+  .list { gap: var(--ep-space-2); }
+  .line { padding-bottom: var(--ep-space-2); }
   .main { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--ep-space-1) var(--ep-space-3); }
   .label { min-width: 0; }
   .value { grid-column: 2; grid-row: 1; margin-left: 0; }

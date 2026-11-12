@@ -22,7 +22,7 @@ const CAPTIONS = [
 
 fs.rmSync(`${OUT}/frames`, { recursive: true, force: true });
 fs.mkdirSync(`${OUT}/frames`, { recursive: true });
-const browser = await chromium.launch();
+const browser = await chromium.launch({ args: process.env.EP_BASE_URL?.startsWith("https://") ? ["--ignore-certificate-errors"] : [] }); // stack thử dùng chứng chỉ nội bộ của Caddy
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Con trỏ tự vẽ (showActions của Playwright luôn in nhãn "Mouse move" / "Click" lên hình, tắt không được): vòng đỏ theo chuột, thu nhỏ khi nhấn.
