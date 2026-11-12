@@ -282,7 +282,7 @@ test.describe("student mock routes", () => {
     await page.goto(`/threads/${TID}`);
     await page.locator("[data-part=thread-question]").waitFor();
     expect(await page.locator("[data-part=thread-question]").evaluate((e) => !!e.closest("[data-ep-panel]"))).toBe(true);
-    await page.goto("/practice/at-symmetric");
+    await page.goto("/practice/history");
     await page.locator("main [data-ep-panel]:visible").first().waitFor();
     expect((await violations(page)).panels).toBeGreaterThanOrEqual(1);
     await page.goto("/me");
