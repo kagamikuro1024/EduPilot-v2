@@ -27,6 +27,9 @@ func Exemptions() []Exemption {
 		{"PUT /api/v1/courses/{id}/sessions/{sid}/attendance", 503, "503 chỉ khi DB không dùng được giữa lúc lưu; không kéo sập Postgres dùng chung của bộ hợp đồng. `crm.TestPutGridDBDownAtomic` kiểm 503 và không ghi nửa chừng bằng pool đã đóng."},
 		{"POST /api/v1/courses/{id}/students/{uid}/ai-summary", 503, "Cần provider chết / quá tải: `crm.TestAISummaryLLMDown503` kiểm với LLM giả báo lỗi; đường 200 đi qua llm.Gateway thật + provider giả ở kịch bản này và `crm.TestAISummaryThroughRealGateway`."},
 		{"PATCH /api/v1/courses/{id}/documents/{docId}/chunks/{chunkId}", 503, "503 chỉ khi nhúng lỗi; bộ hợp đồng chạy nhà cung cấp `fake` luôn nhúng được. `document.TestEditChunkEmbedFailureKeepsOld` kiểm 503 + giữ nguyên đoạn cũ bằng hàm nhúng lỗi."},
+		{"POST /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback", 200, "Nhận xét cần LLM trả đúng schema nhận xét; nhà cung cấp `fake` của bộ hợp đồng không có bản ghi đó. `practice.TestEssayFeedback` kiểm 200 với LLM giả có schema."},
+		{"POST /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback", 429, "Hạn mức 10 lần / giờ / sinh viên cần 11 lời gọi LLM; `practice.TestEssayFeedback` kiểm 429 và không tốn lời gọi."},
+		{"POST /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback", 503, "503 khi LLM lỗi / sai schema; kịch bản hợp đồng dùng `fake` nên không dựng được lỗi có kiểm soát."},
 	}
 }
 

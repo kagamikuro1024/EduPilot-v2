@@ -3,7 +3,9 @@
 package practicehttp
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -37,6 +39,8 @@ func (h *Handler) Mount(r chi.Router) {
 	r.With(student).Patch(p+"/attempts/{aid}", h.patch)
 	r.With(student).Put(p+"/attempts/{aid}/answers/{itemId}", h.saveAnswer)
 	r.With(student, h.Idem).Post(p+"/attempts/{aid}/submit", h.submit)
+	r.With(student).Post(p+"/attempts/{aid}/items/{itemId}/explain", h.explain)
+	r.With(student, h.Idem).Post(p+"/attempts/{aid}/items/{itemId}/feedback", h.feedback)
 }
 
 type ids struct {
@@ -229,6 +233,60 @@ func (h *Handler) weakness(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	v, err := h.Svc.Weakness(r.Context(), c.user, c.course)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	noStore(w)
+	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+// explain là SSE (#11): 409 NOT_ANSWERED / NOT_SUBMITTED trả JSON TRƯỚC khi mở luồng; từ lúc mở luồng, lỗi LLM chỉ là `event: error` (phản hồi đúng / sai không bị ảnh hưởng).
+func (h *Handler) explain(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	job, err := h.Svc.PrepareExplain(r.Context(), c.user, c.course, c.attempt, c.item)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	hd := w.Header()
+	hd.Set("Content-Type", "text/event-stream")
+	hd.Set("Cache-Control", "no-cache, no-transform")
+	hd.Set("X-Accel-Buffering", "no")
+	w.WriteHeader(http.StatusOK)
+	rc := http.NewResponseController(w)
+	frame := func(event string, v any) error {
+		b, _ := json.Marshal(v)
+		if _, err := fmt.Fprintf(w, "event: %s\ndata: %s\n\n", event, b); err != nil {
+			return err
+		}
+		if err := rc.Flush(); err != nil && !errors.Is(err, http.ErrNotSupported) {
+			return err
+		}
+		return nil
+	}
+	if err := frame("ready", map[string]bool{"cached": job.Cached != ""}); err != nil {
+		return
+	}
+	if err := job.Run(r.Context(), func(s string) error { return frame("token", map[string]string{"text": s}) }); err != nil {
+		if r.Context().Err() == nil {
+			h.Log.WarnContext(r.Context(), "practice: giải thích lỗi", "error", err.Error())
+			_ = frame("error", map[string]string{"code": "EXPLAIN_FAILED"})
+		}
+		return
+	}
+	_ = frame("done", map[string]bool{"ok": true})
+}
+
+func (h *Handler) feedback(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	v, err := h.Svc.Feedback(r.Context(), c.user, c.course, c.attempt, c.item)
 	if err != nil {
 		h.fail(w, r, err)
 		return

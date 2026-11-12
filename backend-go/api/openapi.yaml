@@ -9937,6 +9937,89 @@ paths:
           $ref: "#/components/responses/Forbidden"
         "404":
           $ref: "#/components/responses/NotFound"
+  /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/explain:
+    post:
+      operationId: explainPracticeAnswer
+      tags: [practice]
+      summary: "Giải thích thêm một câu đã trả lời (SSE; một lời gọi LLM làn INTERACTIVE, cache 24 giờ). 409 NOT_ANSWERED | NOT_SUBMITTED (trả JSON trước khi mở luồng); 422 INVALID_QUESTION (tự luận)"
+      description: |
+        `text/event-stream`: `ready` → `token`* → `done` | `error` (`EXPLAIN_FAILED`: chỉ phần giải thích lỗi, phản hồi đúng / sai còn nguyên).
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Luồng SSE
+          content:
+            text/event-stream:
+              schema:
+                type: string
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback:
+    post:
+      operationId: practiceEssayFeedback
+      tags: [practice]
+      summary: "Nhận xét gợi ý cho câu tự luận (Idempotency-Key bắt buộc; không điểm, không vào sổ điểm). 409 NOT_ANSWERED | NOT_SUBMITTED; 422 INVALID_QUESTION | TOO_LONG; 429 RATE_LIMITED (10 lần / giờ)"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: aid
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Nhận xét theo từng tiêu chí, kèm trích đoạn bằng chứng
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PracticeEssayFeedback"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/Unavailable"
 components:
   securitySchemes:
     bearerAuth:
@@ -17692,3 +17775,22 @@ components:
                   properties:
                     document_id: {type: string, format: uuid}
                     title: {type: string}
+    PracticeEssayFeedback:
+      type: object
+      required: [overall, criteria, injected]
+      additionalProperties: false
+      properties:
+        overall: {type: string}
+        criteria:
+          type: array
+          items:
+            type: object
+            required: [name, comment, evidence]
+            additionalProperties: false
+            properties:
+              name: {type: string}
+              comment: {type: string}
+              evidence:
+                type: array
+                items: {type: string}
+        injected: {type: boolean}

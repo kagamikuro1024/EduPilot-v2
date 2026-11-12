@@ -20,6 +20,7 @@ import (
 	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/platform/clock"
 	"github.com/edupilot/backend-go/internal/platform/outbox"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/store"
 )
 
@@ -45,6 +46,8 @@ type Service struct {
 	Log   *slog.Logger
 	// Grace: dung sai ghi ngoại tuyến và độ trễ đóng lượt hết giờ (Q-P9-5; 0 = 60 s).
 	Grace time.Duration
+	LLM   LLMClient        // nil = không giải thích / nhận xét được (503 ở hai đường đó; phần còn lại của luyện đề không cần LLM)
+	Redis *appredis.Client // cache giải thích + hạn mức nhận xét; nil = không cache, không giới hạn
 }
 
 func (s *Service) now() time.Time {

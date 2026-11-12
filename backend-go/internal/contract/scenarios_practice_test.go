@@ -130,6 +130,58 @@ func (r *runner) practiceScenarios(x examRig) {
 	r.must(call{method: "PATCH", path: A, token: x.sv, body: `{"current_index":1}`}, 409)                                                  // ATTEMPT_CLOSED
 	r.must(call{method: "PUT", path: A + "/answers/" + att.Items[2].ID, token: x.sv, body: ans(att.Items[2].Question.Options[0].ID)}, 409) // ATTEMPT_CLOSED
 
+	// 11: giải thích (SSE). A đã nộp.
+	X := A + "/items/" + it.ID + "/explain"
+	r.must(call{method: "POST", path: X, token: x.sv}, 200)
+	r.must(call{method: "POST", path: X}, 401)
+	r.must(call{method: "POST", path: X, token: x.gv}, 403)
+	r.must(call{method: "POST", path: X, token: sv2}, 404)
+	r.must(call{method: "POST", path: A + "/items/" + uuid.NewString() + "/explain", token: x.sv}, 404)
+
+	// 12: nhận xét tự luận. Lượt riêng có một câu ESSAY.
+	const essayTopic = "Tự luận hợp đồng"
+	mkQ(essayTopic, 4)
+	var eq uuid.UUID
+	ekey, _ := json.Marshal(map[string]string{"model_answer": "Nêu A và B.", "rubric": "A 5đ; B 5đ"})
+	if err := db.QueryRow(ctx, `insert into question_bank (course_id, type, title, topic, difficulty, stem, answer_key, review_status, created_by, reviewed_by, reviewed_at)
+		values ($1, 'ESSAY', 'luận', $2, 'MEDIUM', 'Phân tích A và B.', $3::jsonb, 'APPROVED', $4, $4, now()) returning id`, x.cid, essayTopic, string(ekey), gvID).Scan(&eq); err != nil {
+		r.t.Fatal(err)
+	}
+	_, eb := r.must(call{method: "POST", path: p + "/start", token: x.sv, headers: x.idem(), body: `{"mode":"TOPIC","topic":"` + essayTopic + `","count":5}`}, 201)
+	var ea struct {
+		ID    string `json:"id"`
+		Items []struct {
+			ID       string `json:"id"`
+			Question struct {
+				Type string `json:"type"`
+			} `json:"question"`
+		} `json:"items"`
+	}
+	if err := json.Unmarshal(eb, &ea); err != nil {
+		r.t.Fatal(err)
+	}
+	var essayID, mcqID string
+	for _, i := range ea.Items {
+		if i.Question.Type == "ESSAY" {
+			essayID = i.ID
+		} else if mcqID == "" {
+			mcqID = i.ID
+		}
+	}
+	E := p + "/attempts/" + ea.ID + "/items/"
+	r.must(call{method: "POST", path: E + mcqID + "/explain", token: x.sv}, 409)                       // NOT_ANSWERED: lượt còn mở, câu chưa trả lời
+	r.must(call{method: "POST", path: E + essayID + "/explain", token: x.sv}, 422)                     // INVALID_QUESTION: tự luận không có đáp án đúng để giải thích
+	r.must(call{method: "POST", path: E + essayID + "/feedback", token: x.sv, headers: x.idem()}, 409) // NOT_ANSWERED
+	r.must(call{method: "POST", path: E + mcqID + "/feedback", token: x.sv, headers: x.idem()}, 422)   // INVALID_QUESTION: chỉ tự luận
+	r.must(call{method: "POST", path: E + essayID + "/feedback", token: x.sv}, 422)                    // thiếu Idempotency-Key
+	r.must(call{method: "POST", path: E + essayID + "/feedback", headers: x.idem()}, 401)
+	r.must(call{method: "POST", path: E + essayID + "/feedback", token: x.gv, headers: x.idem()}, 403)
+	r.must(call{method: "POST", path: E + essayID + "/feedback", token: sv2, headers: x.idem()}, 404)
+	r.must(call{method: "PUT", path: p + "/attempts/" + ea.ID + "/answers/" + essayID, token: x.sv, body: `{"answer":{"text":"Ý A là quan trọng."}}`}, 200)
+	if st, _, b := r.do(call{method: "POST", path: E + essayID + "/feedback", token: x.sv, headers: x.idem()}); st != 200 && st != 503 {
+		r.t.Fatalf("feedback → %d: %s", st, b)
+	}
+
 	// 13, 14: lịch sử, điểm yếu.
 	r.must(call{method: "GET", path: p + "/history?limit=5", token: x.sv}, 200)
 	r.must(call{method: "GET", path: p + "/history"}, 401)
