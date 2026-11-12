@@ -51,7 +51,7 @@ test("TC-UX15-14 xung đột phiên bản thật: hiện giá trị của ngư�
   await inp.blur();
   await page.waitForTimeout(2500);
   const txt = (await page.locator("main").innerText()).replace(/\s+/g, " ");
-  const hasNotice = /Người khác vừa sửa/.test(txt);
+  const hasNotice = /Người khác vừa (sửa|nhập)/.test(txt);
   const btns = await page.getByRole("button", { name: /Giữ của tôi|Dùng của họ/ }).allInnerTexts();
   console.log("INFO sau 409: thông báo:", hasNotice, "| nút:", JSON.stringify(btns), "| ô điểm:", await inp.inputValue(), "| bản của họ:", theirs);
   await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-4/review-409.png" });
@@ -59,7 +59,9 @@ test("TC-UX15-14 xung đột phiên bản thật: hiện giá trị của ngư�
   expect(btns.length, "hai lựa chọn giữ bên nào").toBe(2);
   const shown = (await inp.inputValue()).replace(",", ".");
   console.log("INFO ô điểm sau 409 (mong đợi: của tôi", mine2, "hoặc của họ", theirs, "):", shown, "| ban đầu:", old);
-  expect.soft([mine2.replace(",", "."), theirs], "UX15-14: ô điểm hiện giá trị tôi nhập hoặc của người kia, không bản cũ").toContain(shown.replace(/0$/, "") === shown ? shown : shown);
+  expect(txt, "thông báo nêu giá trị của người kia").toContain(`vừa nhập ${theirs.replace(".", ",").replace(/0$/, "")}`);
+  expect(txt, "thông báo nêu giá trị của tôi").toContain(`Bạn đã nhập ${mine2}`);
+  expect(Number(shown), "ô điểm giữ số tôi đã nhập (không lùi về bản cũ)").toBe(Number(mine2.replace(",", ".")));
   await page.getByRole("button", { name: "Giữ của tôi" }).click();
   await page.waitForTimeout(2500);
   const fin = await api(`/courses/${c}/grading-results/${cur.body.result.id}`);

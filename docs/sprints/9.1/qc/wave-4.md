@@ -1,15 +1,15 @@
 # QC đợt 4 — Chấm bài, sổ điểm, điểm danh (US-UX91-14, 15, 16, 12) + US-04 AC7
 
-**Kết luận lượt 2 (`8ae5393f`, gồm sửa của dev `1ebfa26e` + `ed0aa499`): FAIL.** US-14 PASS · US-12 PASS · US-16 PASS (riêng TC-UX16-24 chờ chạy lại trên DB sạch, xem dưới) · US-15 **FAIL** vì AC7 nhánh 409 (lỗi mới #8, mức Trung bình). 7 lỗi lượt 1: 7 đã sửa. Lượt 1 (`f8a744bd`): FAIL (US-15, 16, 12).
+**Kết luận lượt 3 (`673441c5`, dev: «sửa QC đợt 4 lỗi #8»): PASS.** US-14, 15, 16, 12 PASS; US-04 AC7 PASS. 8/8 lỗi đã sửa. Lượt 2 (`8ae5393f`): FAIL vì US-15 AC7 nhánh 409 (lỗi #8, Trung bình). Lượt 1 (`f8a744bd`): FAIL (US-15, 16, 12).
 Môi trường lượt 2: Mac (Apple Silicon, Colima), stack `-p ep-qc` `EP_PORT_OFFSET=500` (`https://localhost:943`), mock LLM, seed 30 SV + docling; spec `qc-uiux91-w4*-real` (+ `w4f`, `w4g` mới).
 
-## Kiểm lại lần 2 ở `8ae5393f`
+## Kiểm lại lần 2 (`8ae5393f`) và lần 3 (`673441c5`)
 | TC | Trước | Nay | Ghi chú |
 | --- | --- | --- | --- |
 | UX15-6 (AC3 thanh dưới) | FAIL (Thấp) | PASS | 1440×900 lúc mở: `top 775, bottom 844` (< 900), `sticky`, nút `Duyệt bài` đủ |
 | UX15 tiến độ N/M (AC3, AC4) | FAIL (Thấp) | PASS | `Đã duyệt 0/7` → bấm → `?n=1&m=7`, `Đã duyệt 1/7`; phím `A` → `2/7` (M cố định) |
 | UX15-13 (AC7 lỗi mạng) | FAIL (TB) | PASS | Chặn `POST …/review`: thanh dưới «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. `Thử lại` Đã duyệt 0/3 Duyệt bài A»; điểm còn nguyên; bỏ chặn → `Thử lại` duyệt được |
-| **UX15-14 (AC7 409 thật)** | CHƯA CHẠY | **FAIL (TB)** | Lỗi #8. Xem dưới |
+| **UX15-14 (AC7 409 thật)** | CHƯA CHẠY (lượt 1) → FAIL (TB) (lượt 2) | **PASS (lượt 3, `673441c5`)** | Người kia `PUT` trước; ô tôi sửa giữ `0,75` (không lùi); một thông báo «Người khác vừa nhập 1,50 · Bạn đã nhập 0,75» + `Giữ của tôi` / `Dùng của họ`, không còn dải đỏ thứ hai; `Giữ của tôi` → API lưu `0.75`. Ảnh `shots/wave-4/review-409.png` |
 | UX16-1 (ô nhập đệm 0) | FAIL (Thấp) | PASS | 24 giá trị ô nhập đều `x,xx` (`5,00 … 10,00 9,75`); focus hiện thô «5» |
 | UX16-4/5 (`⋯` tiêu đề) | FAIL (Thấp) | PASS | Nút `⋯` ở tiêu đề cột nhập: opacity 0 → 1 khi rê, → 1 khi focus. Nút «Hành động — tên» mỗi hàng vẫn thường trực (AC2 chỉ nói tiêu đề cột; ghi chú, không tính lỗi) |
 | UX16-21 (AC10, 375) | FAIL (Thấp) | PASS | Ô nhập 44 px, không tràn trang |
@@ -22,15 +22,11 @@ Môi trường lượt 2: Mac (Apple Silicon, Colima), stack `-p ep-qc` `EP_PORT
 | UX14-11 (AC8, 375) | PASS | PASS | Danh sách thẻ; hộp `Duyệt` 309×44, không tràn ngang |
 | UX16-15/16/19/20 | PASS | PASS | Hộp «Chốt 30 sinh viên · phân bố … · 1 sinh viên liệt», Esc không chốt (`OPEN`); TA `POST finalize` 403, không có nút |
 | UX04-12/13/14 | PASS | PASS | `ep-saved` 200 ms ở sổ điểm, điểm danh, nhận xét |
-| UX16-24 (khớp CSV) | PASS (30/30) | **CHƯA KẾT LUẬN** | Lượt này 29/30: `20229002` API 7,5 ≠ CSV 7,0. Do QC tự ghi thêm phát biểu ở UX12 (hàng này `+5`, mỗi lượt +2). Sẽ chạy lại đầu tiên trên DB seed sạch |
+| UX16-24 (khớp CSV) | PASS (30/30) | **PASS (30/30)** | Lượt 2 trên DB đã bị QC ghi thêm phát biểu: 29/30 (`20229002` 7,5 ≠ 7,0). Chạy lại ngay sau khi dựng DB sạch (`down -v` + seed) ở `b02eeb68`: `khớp 30/30; lệch: (không)` |
 | UX16-10 (cột Trạng thái) | PASS có ghi chú | PASS có ghi chú | Còn 1 SV «Liệt» nên cột còn (như lượt 1) |
 
-### Lỗi mới #8 — US-15 AC7 (409): mất điểm đã nhập, không hiện giá trị người kia — Trung bình
-Tái hiện (đã chạy thật, `w4g-real`): mở `/grading/‹id›` của một bài DRAFT; người kia `PUT /courses/‹c›/grading-results/‹result_id›` `{version, criteria:[{id, score:"1.25"}]}` (version + 1); trong trang, sửa điểm tiêu chí 2 thành `0,75` rồi rời ô.
-- UI hiện «Người khác vừa sửa kết quả này [Giữ của tôi] [Dùng của họ]» **và thêm** dải đỏ «Có người vừa sửa mục này. Chọn giữ bản nào. [Thử lại]» (hai thông báo cho một lỗi; ảnh `shots/wave-4/review-409.png`).
-- Ô điểm **tự lùi về giá trị cũ** (`1,50`), không phải `0,75` (của tôi) cũng không phải `1,25` (của người kia). Thông báo không nêu giá trị của người kia.
-- Bấm `Giữ của tôi` → API lưu `1.50` (không phải `0.75`). Chữ người dùng gõ bị mất; trái AC7 («hiện giá trị của người kia và hỏi giữ bên nào») và `CLAUDE.md` («không làm mất chữ người dùng đã gõ»).
-- Nghi: `frontend/src/features/grading/SubmissionReview.tsx` — `useUndoableAction.rollback` (≈ dòng 190–200) chạy trước/cùng `handle()` khi `VERSION_CONFLICT`, nên `scores` mất giá trị đã gõ; nút `Giữ của tôi` (≈ dòng 436) lấy `scoreOf(c)` đã bị lùi; `setNotice` hiện thêm dải đỏ. Sổ điểm (UX16-12) làm đúng, có thể lấy làm mẫu.
+### Lỗi #8 — US-15 AC7 (409): đã sửa ở `673441c5`
+Lượt 2 (`8ae5393f`): sau 409, ô điểm tự lùi về giá trị cũ, thông báo không nêu giá trị người kia, `Giữ của tôi` lưu số cũ, kèm dải đỏ thừa (Trung bình). Lượt 3: xem hàng UX15-14. Hồi quy: 6 ca `TC-UX15` (`w4-real`, `w4c`) PASS ở `673441c5` (thanh dưới `775 → 844`, lỗi mạng ở thanh dưới + `Thử lại`, phím `A`, `N/M`).
 
 ## Môi trường (lượt 1, `f8a744bd`)
 | Mục | Giá trị |
@@ -127,4 +123,4 @@ UX15-14 (409 điểm), UX16-12 (xung đột ô), UX16-17 (hai lần xác nhận 
 | # | Mức | Vị trí | Trạng thái |
 | --- | --- | --- | --- |
 | 1–7 | Trung bình / Thấp | US-15 AC7 (lỗi mạng), AC3, AC3/4; US-16 AC1, AC2, AC10; US-12 AC7 | Đã sửa, PASS ở `8ae5393f` |
-| 8 | Trung bình | US-15 AC7 (409) | **Mở.** Xem «Lỗi mới #8» |
+| 8 | Trung bình | US-15 AC7 (409) | Đã sửa ở `673441c5`, PASS |
