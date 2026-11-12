@@ -1,5 +1,5 @@
 # SRS FEAT-practice Ngân hàng câu hỏi mở rộng, luyện đề, thi thử, form trắc nghiệm
-Phiên bản 0.1 · 2026-11-12 · Trạng thái: **DRAFT**
+Phiên bản 0.2 · 2026-11-12 · Trạng thái: **DRAFT** (chờ PM trả lời Q-P9-3, 4, 7, 8, 10; P-10-1…6 đã CHẤP NHẬN)
 Nguồn: PRD M4, M8, M15 · FLOWS F12, F14 · `docs/phases/P9.md` · `ARCHITECTURE.md` §4–§7 · `SYSTEM_DESIGN.md` §3.1, §3.4, §5 · `DESIGN.md` §13, §14.17–§14.20 · `UX.md` mục 6 · `FEAT-weekly-exam` SRS (4.1, 5.2, 6) · `FEAT-docs-calendar` SRS (loại tài liệu, `audience`) · `FEAT-crm-360` SRS (4.6, bảng bậc Hôm nay) · `FEAT-gradebook` SRS (4.3.6, 5)
 Truy vết: US-P9-01…12 ở `US.md`.
 
@@ -166,7 +166,7 @@ Giao diện chỉ gọi API qua `services/` + TanStack Query; cấm `fetch` tr�
 
 ## 10. Câu hỏi mở và quyết định
 `QUESTIONS.md` (Q-P9-1…12). **Dùng lại:** D45, D46, D47, D51, D54–D58; luật 2, 4, 5, 10–16; `FEAT-weekly-exam` (khoá chat, Quiz Engine); P3 (che danh tính).
-**Đề xuất đổi tài liệu nền (chờ PM; ghi ở `docs/sprints/10/proposals.md`):**
+**Đề xuất đổi tài liệu nền (PM đã CHẤP NHẬN P-10-1…6 ngày 2026-11-12; `docs/sprints/10/proposals.md`):**
 1. **P-10-1:** `P9.md` L1 ghi "`ExtractQuestions` trong `internal/quiz`", nhưng `internal/quiz` mô tả là code thuần không import `internal/llm`. Đặt mọi việc gọi LLM ở **`internal/practice`**; `internal/quiz` chỉ thêm `SHORT` + `BuildMatrix` thuần.
 2. **P-10-2:** bỏ `practice_exams` và cột `assignment_id` khỏi `ARCHITECTURE.md` §4 (số migration `00019`); ghi chú `forms_import_*`.
 3. **P-10-3:** `P9.md` L2 "→ hồ sơ 360" đổi thành "chỉ tín hiệu tổng hợp k ≥ 3, không hồ sơ 360 từng sinh viên" (Q-P9-1).
