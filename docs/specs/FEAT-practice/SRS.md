@@ -189,5 +189,5 @@ Giao diện chỉ gọi API qua `services/` + TanStack Query; cấm `fetch` tr�
 | M4 (tự luận) | F12 | P9 L2 | P9-08 | 10 | unit + E2E |
 | M4 (điểm yếu), M13-B | F12, F14 | P9 L2 | P9-09 | 18–20 | `TestWrongAnswerSignalsNoIdentity` |
 | M4 (liêm chính), PRD F12 | F12 | P9 L2b | P9-10 | 21–24 | `quiz-integrity.spec.ts`, `TestPracticeNoAnswerLeak` |
-| M8 (Forms) | – | P9 L3 | P9-11 | 25–26 | `forms-import_test.go` |
+| M8 (Forms) | – | P9 L3 | P9-11 | 25–27 | `forms-import_test.go` |
 | – | F12 | P9 L3 | P9-12 | – | cổng P9, `check-practice-seed.mjs` |
