@@ -62,6 +62,11 @@ export function RealChat({ courseId }: { courseId: string }) {
   const endRef = useRef<HTMLDivElement>(null);
   const resumed = useRef<string | null>(null);
 
+  // phiên đang xem nằm trong URL: tải lại mở đúng phiên đó, nháp (khoá theo phiên) còn nguyên (UX13-19)
+  useEffect(() => {
+    window.history.replaceState(null, "", sid ? `/chat?session=${sid}` : "/chat");
+  }, [sid]);
+
   const sessions = useChatSessions(courseId);
   const messages = useChatMessages(sid);
   const lock = useExamLock();
