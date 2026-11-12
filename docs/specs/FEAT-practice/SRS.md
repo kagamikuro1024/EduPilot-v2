@@ -1,5 +1,6 @@
 # SRS FEAT-practice Ngân hàng câu hỏi mở rộng, luyện đề, thi thử, form trắc nghiệm
-Phiên bản 0.2 · 2026-11-12 · Trạng thái: **DRAFT** (chờ PM trả lời Q-P9-3, 4, 7, 8, 10; P-10-1…6 đã CHẤP NHẬN)
+Phiên bản 1.0 · 2026-11-12 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+**v1.0:** áp Q-P9-8 (Forms: chỉ TEACHER import + xem trước + xác nhận, không tự công bố, không LLM — US-P9-11 AC10–AC12), Q-P9-10 (thi thử: `{đúng}/{tổng}` chính, thang 10 một chữ số phụ — FR-15, US-P9-07 AC7), Q-P9-3, 4, 7 giữ nguyên như đã viết.
 Nguồn: PRD M4, M8, M15 · FLOWS F12, F14 · `docs/phases/P9.md` · `ARCHITECTURE.md` §4–§7 · `SYSTEM_DESIGN.md` §3.1, §3.4, §5 · `DESIGN.md` §13, §14.17–§14.20 · `UX.md` mục 6 · `FEAT-weekly-exam` SRS (4.1, 5.2, 6) · `FEAT-docs-calendar` SRS (loại tài liệu, `audience`) · `FEAT-crm-360` SRS (4.6, bảng bậc Hôm nay) · `FEAT-gradebook` SRS (4.3.6, 5)
 Truy vết: US-P9-01…12 ở `US.md`.
 
@@ -72,7 +73,7 @@ flowchart LR
 - **FR-12** `POST …/practice/start` (bắt buộc `Idempotency-Key`): `TOPIC` {topic,count 5–50 mặc định 10}; `MOCK` {matrix?,count mặc định 20,duration_minutes 10–180 mặc định 30}; tạo `practice_attempts` + `practice_items` (snapshot `answer_key`, `option_order`, `question_version`); trả `201` mới / `200` lượt dở cùng (student, course, mode, topic) — US-P9-06 AC2, US-P9-07 AC1.
 - **FR-13** `PUT …/answers/{itemId}` (`version`, `X-Practice-Tab`): `TOPIC` trả phản hồi `{correct,key,explanation,citations}` **trong cùng response** và khoá đáp án; `MOCK` chỉ lưu — US-P9-06 AC4, US-P9-07 AC3.
 - **FR-14** `PATCH …/practice/attempts/{aid} {current_index}`: lưu vị trí; tải lại quay đúng câu — US-P9-06 AC10, US-P9-07 AC6.
-- **FR-15** `POST …/submit` (bắt buộc `Idempotency-Key`): chấm `decimal`, điểm thang 10 làm tròn 2 chữ số bằng `decimal` (không `float64`); `MOCK` trả kết quả từng câu; gọi lại → cùng kết quả — US-P9-06 AC7, US-P9-07 AC7.
+- **FR-15** `POST …/submit` (bắt buộc `Idempotency-Key`): chấm `decimal`, kết quả chính `{đúng}/{tổng}`, điểm thang 10 làm tròn **1 chữ số** bằng `decimal` (phụ, không vào sổ điểm, không xếp hạng) (không `float64`); `MOCK` trả kết quả từng câu; gọi lại → cùng kết quả — US-P9-06 AC7, US-P9-07 AC7.
 - **FR-16** Worker `practice.close` (tick 1 phút): `MOCK` `IN_PROGRESS` quá `deadline_at + 60 s` → `EXPIRED`, chấm câu đã lưu; idempotent — US-P9-07 AC8.
 - **FR-17** Dung sai ghi ngoại tuyến: câu có `client_ts ≤ deadline_at + 60 s` được nhận khi nộp muộn do mất mạng (Q-P9-5) — US-P9-07 AC4.
 - **FR-18** `GET …/practice/history?cursor&limit` và `GET …/practice/weakness` — US-P9-09 AC1–AC2, AC8.
@@ -87,6 +88,7 @@ flowchart LR
 
 ### 4.5 Form trắc nghiệm
 - **FR-25** `POST …/forms-import/preview {upload_id}` → 20 dòng đầu + cột; `POST …/forms-import {upload_id, mapping, item_id, answer_source}` (`Idempotency-Key`) → chấm bằng `quiz.Grade` / `NormalizeShort`; ghi `grade_entries(source='QUIZ')` vào `grade_items` MANUAL do giảng viên chọn; khớp sinh viên chỉ theo email đã xác minh / MSSV trong danh sách lớp; dòng lệch → "Chưa khớp" — US-P9-11.
+- **FR-27** Chỉ TEACHER thực hiện `preview` + `Xem trước kết quả` + `Xác nhận`; `POST …/forms-import` yêu cầu `upload_id` đã `preview`; không đặt `published_at`, công bố chỉ qua `POST …/grade-items/{itemId}/publish` có sẵn; không gọi LLM; điểm bằng `quiz.Grade` + `decimal` — US-P9-11 AC10–AC12.
 - **FR-26** Tệp lưu `platform/blob` ≤ 90 ngày; hash để idempotent; không gửi LLM — US-P9-11 AC4, AC8.
 
 ## 5. Dữ liệu
@@ -94,7 +96,7 @@ Migration **`00019_practice.sql`** (số theo `ARCHITECTURE.md` §4; `00018` dà
 **Enum mới:** `practice_mode` (`TOPIC`, `MOCK`), `practice_status` (`IN_PROGRESS`, `SUBMITTED`, `EXPIRED`).
 | Bảng | Cột chính | Ràng buộc / chỉ mục |
 | --- | --- | --- |
-| `practice_attempts` | `id`, `course_id`, `student_id`, `mode`, `topic text NULL`, `status`, `started_at`, `deadline_at NULL`, `submitted_at NULL`, `item_count int`, `current_index int DEFAULT 0`, `correct_count int NULL`, `score numeric(4,2) NULL`, `matrix jsonb NULL`, `notes jsonb`, `tab_id text NULL`, `version int DEFAULT 1` | FK `(course_id, student_id) → enrollments(course_id, user_id)`; `CHECK (mode='MOCK') = (deadline_at IS NOT NULL)`; UNIQUE từng phần `(course_id, student_id, mode, COALESCE(topic,'')) WHERE status='IN_PROGRESS'`; chỉ mục `(course_id, student_id, started_at DESC, id DESC)`; `(status, deadline_at) WHERE status='IN_PROGRESS' AND mode='MOCK'` cho worker |
+| `practice_attempts` | `id`, `course_id`, `student_id`, `mode`, `topic text NULL`, `status`, `started_at`, `deadline_at NULL`, `submitted_at NULL`, `item_count int`, `current_index int DEFAULT 0`, `correct_count int NULL`, `score numeric(3,1) NULL`, `matrix jsonb NULL`, `notes jsonb`, `tab_id text NULL`, `version int DEFAULT 1` | FK `(course_id, student_id) → enrollments(course_id, user_id)`; `CHECK (mode='MOCK') = (deadline_at IS NOT NULL)`; UNIQUE từng phần `(course_id, student_id, mode, COALESCE(topic,'')) WHERE status='IN_PROGRESS'`; chỉ mục `(course_id, student_id, started_at DESC, id DESC)`; `(status, deadline_at) WHERE status='IN_PROGRESS' AND mode='MOCK'` cho worker |
 | `practice_items` | `id`, `course_id`, `attempt_id`, `question_id`, `position`, `option_order jsonb`, `answer_key jsonb` (chỉ phía máy chủ), `question_version int` | FK `(course_id, attempt_id)`, `(course_id, question_id) → question_bank` (không CASCADE); UNIQUE `(attempt_id, position)`; chỉ mục `(course_id, question_id)` |
 | `practice_answers` | `id`, `course_id`, `attempt_id`, `item_id`, `answer jsonb`, `is_correct bool NULL`, `answered_at`, `locked bool`, `version int` | UNIQUE `(item_id)`; FK phức hợp; chỉ mục `(course_id, attempt_id)` |
 | `forms_import_batches` (chỉ khi làm US-P9-11) | `id`, `course_id`, `item_id`, `file_hash`, `blob_key`, `mapping jsonb`, `matched int`, `unmatched int`, `created_by`, `created_at` | UNIQUE `(course_id, item_id, file_hash)` |
@@ -121,7 +123,7 @@ Migration **`00019_practice.sql`** (số theo `ARCHITECTURE.md` §4; `00018` dà
 | 13 | `GET practice/history?cursor&limit` | STUDENT | – | 200 cursor | – |
 | 14 | `GET practice/weakness` | STUDENT | – | 200 | – |
 | 15 | `POST forms-import/preview {upload_id}` | Teacher | – | 200 | 422 |
-| 16 | `POST forms-import {upload_id, mapping, item_id, answer_source}` | Teacher | bắt buộc | 201 | 409 sổ điểm `LOCKED`, 422 |
+| 16 | `POST forms-import {upload_id, mapping, item_id, answer_source}` | Teacher | bắt buộc | 201 | 409 `PREVIEW_REQUIRED`, 409 sổ điểm `LOCKED`, 422 |
 Cập nhật `openapi.yaml` + contract test; `purpose=forms_import` thêm vào `uploads/presign` (đề xuất đổi ARCHITECTURE).
 **Đã có, không đổi:** `GET/POST/PUT …/questions*`, `PUT …/questions/{id}/review`, `POST …/questions/suggest`, `GET /me/exam-lock`.
 **Tool agent:** không thêm. `search_library`: xem FR-23.
@@ -166,7 +168,7 @@ Giao diện chỉ gọi API qua `services/` + TanStack Query; cấm `fetch` tr�
 
 ## 10. Câu hỏi mở và quyết định
 `QUESTIONS.md` (Q-P9-1…12). **Dùng lại:** D45, D46, D47, D51, D54–D58; luật 2, 4, 5, 10–16; `FEAT-weekly-exam` (khoá chat, Quiz Engine); P3 (che danh tính).
-**Đề xuất đổi tài liệu nền (PM đã CHẤP NHẬN P-10-1…6 ngày 2026-11-12; `docs/sprints/10/proposals.md`):**
+**Đề xuất đổi tài liệu nền (PM đã CHẤP NHẬN P-10-1…6 ngày 2026-11-12; `docs/sprints/10/proposals.md`; PM / dev vá tệp nền):**
 1. **P-10-1:** `P9.md` L1 ghi "`ExtractQuestions` trong `internal/quiz`", nhưng `internal/quiz` mô tả là code thuần không import `internal/llm`. Đặt mọi việc gọi LLM ở **`internal/practice`**; `internal/quiz` chỉ thêm `SHORT` + `BuildMatrix` thuần.
 2. **P-10-2:** bỏ `practice_exams` và cột `assignment_id` khỏi `ARCHITECTURE.md` §4 (số migration `00019`); ghi chú `forms_import_*`.
 3. **P-10-3:** `P9.md` L2 "→ hồ sơ 360" đổi thành "chỉ tín hiệu tổng hợp k ≥ 3, không hồ sơ 360 từng sinh viên" (Q-P9-1).
