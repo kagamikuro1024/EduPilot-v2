@@ -32,15 +32,12 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 - Không thoả hiệp ngang hàng; góp ý qua `docs/sprints/N/proposals.md`, PM quyết. Ngoại lệ: dev hỏi Tech Lead (`research`) câu hỏi kỹ thuật qua `docs/sprints/N/techlead.md` (`docs/team/RESEARCH.md`).
 - Quyển đồ án do `writer` viết ở `~/Documents/EduPilot-thesis/` (ngoài repo, `docs/team/WRITER.md`). Đó là văn bản nộp trường nên mọi số liệu trong `report.md`, QC report, `thesis-notes` phải đúng và có nguồn.
 - Không mở subagent (task/agent con) trừ khi PM cho phép: mỗi subagent đọc lại bối cảnh + spec từ đầu, tốn token gấp nhiều lần. Làm tuần tự trong phiên của mình.
-- **Mọi build và mọi test chạy trên VPS; máy Mac của chủ dự án chỉ để sửa mã + git** (chủ dự án yêu cầu 2026-11-01; Docker / Colima, `node_modules`, cache Go trên Mac đã bị xoá):
-  - Gồm `go vet` / `golangci-lint` / `go test` (`scripts/go-test-all.sh`), `sqlc`, `pnpm lint` / `build`, Playwright, k6 / tải, Lighthouse, p95, test 1.000 sinh viên, kiểm cổng mạng, mọi `docker build` / `docker compose`. Không chạy `colima start`, không `pnpm install` trên Mac.
-  - Cách làm: commit + push nhánh của bạn, rồi trên VPS dùng **thư mục làm việc riêng của vai** `/srv/work/<vai>` (`git clone`/`fetch` từ GitHub, checkout nhánh), chạy lệnh ở đó. Không làm trong thư mục của vai khác và không làm ở `/opt/edupilot` (stack demo).
-  - **Ngoại lệ cho QC (chủ dự án chốt 2026-11-02):** nghiệm thu tay / khám phá bằng `playwright-cli` chạy **trình duyệt trên Mac**, trỏ vào stack trên VPS. Stack test của QC (`-p ep-qc`) xem qua `ssh -L <cổng Mac>:127.0.0.1:<cổng VPS> root@152.53.64.175`, bản demo xem qua URL công khai. Mac chỉ có trình duyệt (`playwright-cli install`), không Docker, không `pnpm install`. Bộ e2e đầy đủ (`pnpm exec playwright test`), ảnh mốc, axe, Lighthouse vẫn chạy trên VPS.
-  - Docker trên VPS: stack test của mỗi vai dùng compose project riêng `-p ep-<vai>` + cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`. Xong lượt thì `docker compose -p ep-<vai> down -v`. Muốn xem giao diện từ Mac thì dùng SSH tunnel (`ssh -L`).
-  - VPS: `ssh root@152.53.64.175` (khoá), netcup 12 vCPU / 32 GB amd64, Debian 13. Go, Node / pnpm, k6, Playwright cài trên host hoặc chạy trong container (dev dựng lần đầu, ghi ở `deploy/README.md`).
-  - **Stack demo** ở `/opt/edupilot` (cách dựng ở `deploy/README.md`) là bản chủ dự án demo: **không reset DB, không `down -v`**; chỉ dev / PM cập nhật nó.
-  - **Không đụng** `9router` (container, `/root/9router`, cron) và không in / commit khoá của nó. LLM thật qua 9router chỉ dùng khi việc cần (đo LLM), tôn trọng hạn mức.
-  - Một lượt đo nặng tại một thời điểm; ghi số đo kèm "trên VPS 12 vCPU / 32 GB" trong report.
+- **VPS đã bị thu hồi (2026-11-12). Mọi build / test / demo chạy trên Mac của chủ dự án** (Apple Silicon, 18 GB RAM, Colima 6 CPU / 10 GB):
+  - **Stack demo** ở `~/Documents/EduPilot-demo` (worktree, `pnpm dev`, compose project mặc định): là bản chủ dự án xem / demo. **Không `down -v`, không reset DB**; chỉ PM / dev cập nhật (`git pull` + `pnpm dev`). URL: `http://localhost:3000`.
+  - Stack test của mỗi vai: compose project riêng `-p ep-<vai>` + cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; xong lượt thì `docker compose -p ep-<vai> down -v`. **Một stack test chạy tại một thời điểm** (RAM 18 GB): ai cần thì báo PM; QC ưu tiên.
+  - Chạy trong worktree của vai mình. `go test`, `pnpm lint` / `build`, Playwright, Lighthouse chạy trực tiếp trên Mac. Một lượt đo nặng tại một thời điểm; ghi số đo kèm "trên MacBook Apple Silicon, Colima 6 CPU / 10 GB".
+  - Chỉ chạy bộ test liên quan tới thay đổi; cả bộ một lần trước handoff. Cắt output test (chỉ dòng lỗi) để tiết kiệm token.
+  - LLM: mặc định provider giả (`fake`). LLM thật chỉ khi việc cần (đo / đánh giá), qua Gemini API key của chủ dự án; tôn trọng hạn mức. Bản sao lưu cấu hình / DB của VPS cũ: `~/Documents/EduPilot-vps-backup-2026-11-12/` (chmod 700, không commit, không in khoá).
 
 ## 5. Mỗi vai đọc gì cho việc hiện tại
 | Vai | Đọc |
