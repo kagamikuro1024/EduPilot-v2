@@ -24,7 +24,8 @@ const PASSWORD = __ENV.SEED_DEFAULT_PASSWORD || 'Edupilot#Seed-2026';
 const SCENARIO = __ENV.SCENARIO || 'first_event';
 const DOMAIN = '@edupilot.local';
 // 30 sinh viên lớp 761987 + 20 sinh viên chỉ học lớp 761988 (sv31…sv50): mỗi người ghi danh ACTIVE nên chat được; đều là tài khoản seed.
-const SEED_STUDENTS = ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: 47 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
+// ACCOUNTS=t1: 50 sinh viên rải khắp dữ liệu `seed-t1.mjs` (t1sv0001, t1sv0021, …) thay vì 50 tài khoản seed T0.
+const SEED_STUDENTS = __ENV.ACCOUNTS === 't1' ? Array.from({ length: 50 }, (_, i) => `t1sv${String(i * 20 + 1).padStart(4, '0')}`) : ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: 47 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
 
 const firstEvent = new Trend('first_event_ms', true);
 const ttftCache = new Trend('ttft_cache_ms', true);
