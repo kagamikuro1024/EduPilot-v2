@@ -5,9 +5,9 @@ Tệp mẫu QC (tạo bằng script, `docs/sprints/10/qc/scripts/forms-fixtures/
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
 | TC-11-01 | AC1 | GV; `grade_item` MANUAL G1 (chưa công bố) | `POST uploads/presign {purpose:"forms_import",…}`; PUT tệp; `POST …/forms-import/preview {upload_id}` | `200`: 20 dòng đầu + cột phát hiện; **không ghi gì** (DB `grade_entries`, `forms_import_*` không đổi) | API + DB |
-| TC-11-02 | AC1 | Đã preview | Ánh xạ cột ↔ câu ngân hàng hoặc «đáp án chuẩn» nhập tay + cột định danh (`Email`/`MSSV`) — cấu trúc `mapping` (Q-S10-23) | Cả hai kiểu ánh xạ được chấp nhận | API |
+| TC-11-02 | AC1 | Đã preview | Ánh xạ cột ↔ câu ngân hàng hoặc «đáp án chuẩn» nhập tay + cột định danh (`Email`/`MSSV`) — cấu trúc `mapping`/`answer_source`: **chờ handoff + openapi** (P-10-7 Q23) | Cả hai kiểu ánh xạ được chấp nhận | API |
 | TC-11-03 | AC2, AC12 | TC-11-02 | `IDEM=i1 api teacher POST …/forms-import '{upload_id,mapping,item_id:G1,answer_source}'` | `201`; mỗi SV một kết quả; ghi `grade_entries(source='QUIZ')` vào G1; dòng không khớp vào «Chưa khớp»; `published_at` **NULL** | API + DB |
-| TC-11-04 | AC2 | TC-11-03 | Điểm ghi vào `grade_entries` của từng SV | Điểm tính từ `đúng/tổng` theo quy tắc nêu ở Q-S10-24 (thang điểm của `grade_item`); đối chiếu ≥ 5 SV bằng **tính tay**; làm tròn `decimal` | API + DB |
+| TC-11-04 | AC2 | TC-11-03 | Điểm ghi vào `grade_entries` của từng SV | Điểm tính từ `đúng/tổng` = `đúng/tổng × max_score` của `grade_item`, làm tròn theo bước của `grade_item`, `decimal` (P-10-7 Q24); đối chiếu ≥ 5 SV bằng **tính tay**; làm tròn `decimal` | API + DB |
 | TC-11-05 | AC3 | Hàng: email đã xác minh = SV1; email lệch MSSV; MSSV có trong lớp; MSSV tự khai không có trong lớp | Nhập | Chỉ khớp theo email đã xác minh hoặc MSSV trong danh sách lớp; email lệch MSSV → «Chưa khớp»; không tạo tài khoản; không nối tài khoản vào danh sách lớp theo MSSV tự khai | API + DB |
 | TC-11-06 | AC4 | Tệp có SV X hai dòng (ts1 < ts2) | Nhập | Lấy dòng **mới nhất theo dấu thời gian Forms**; ghi chú «n dòng trùng» | API |
 | TC-11-07 | AC4 | Đã nhập `forms-ok` | Chạy lại cùng tệp (cùng hash), khoá mới | Idempotent: điểm không đổi, không bản ghi trùng (`UNIQUE (course_id,item_id,file_hash)`); phản hồi cho biết đã nhập | API + DB |
@@ -27,4 +27,4 @@ Tệp mẫu QC (tạo bằng script, `docs/sprints/10/qc/scripts/forms-fixtures/
 TC-11-11, 12; GV lớp khác → `403`; `item_id` của lớp khác → `404`/`422`.
 
 ## Lịch sử sửa TC
-(trống)
+- 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-11-02 (Q23 chờ handoff), TC-11-04 (Q24: `đúng/tổng × max_score` của grade_item).

@@ -19,7 +19,7 @@ Nguồn: US-P9-06 + SRS FR-9, 11–15, §3, §6 #5–#11, §7. 375 px là ngư�
 | TC-06-14 | AC5 | – | Đọc payload `explain` ở `llm_audit` (ADMIN, `audit_log`) | Chỉ có đề, đáp án đúng, giải thích, chunk trích dẫn, đáp án SV đã chọn; **không** tên / MSSV / email (đặt tên giả vào `display_name` SV rồi kiểm 0 xuất hiện) | DB |
 | TC-06-15 | AC6 | – | Quét mọi `llm_audit` task `PRACTICE_*` từ phiên | 0 chuỗi tên / MSSV / email thật | DB |
 | TC-06-16 | AC7 | Lượt 10 câu đã trả lời đủ | `IDEM=s1 api sv.kha POST …/attempts/{aid}/submit`; gửi lại `s1`; gửi `s2` | `200` tóm tắt: `{đúng}/{tổng}`, chủ đề yếu nhất, nút `Luyện tiếp chủ đề này` / `Về Luyện đề`; **không** điểm / xếp hạng / pháo hoa; gọi lại (cả khoá mới) cùng kết quả | API + E2E |
-| TC-06-17 | AC7 | Lượt còn câu chưa trả lời | `submit` | Hành vi theo spec: `200` với câu bỏ trống tính 0, hoặc lỗi (ghi mã thật; Q-S10-11) | API |
+| TC-06-17 | AC7 | Lượt còn câu chưa trả lời | `submit` | `200`, câu bỏ trống tính 0 (P-10-7 Q11) | API |
 | TC-06-18 | AC8 | Lượt của A | `sv.gioi`: `GET attempt`, `PUT answers`, `explain`, `submit`, `PATCH`; | Cả năm `404` (không lộ) | API |
 | TC-06-19 | AC8 | – | TEACHER, TA, ADMIN: `POST practice/start`, `PUT answers` | `403` (`reason: role`) | API |
 | TC-06-20 | AC9 | `fake_llm.json` trả `OVERLOADED` cho explain | Bấm `Giải thích thêm` | Tại chỗ: «Chưa giải thích được. Thử lại.»; phản hồi đúng/sai và giải thích sẵn có **không** đổi; làm tiếp + `submit` bình thường | E2E |
@@ -28,6 +28,7 @@ Nguồn: US-P9-06 + SRS FR-9, 11–15, §3, §6 #5–#11, §7. 375 px là ngư�
 | TC-06-23 | AC11 | Lớp 2 xoá hết ngân hàng (hoặc lớp thử chưa có câu `APPROVED`; tạo lớp thử qua `/admin/courses`) | Mở `/practice` | Một dòng «Giảng viên chưa mở câu hỏi», không nút | E2E |
 | TC-06-24 | AC12 | 375×812 touch | Làm trọn lượt 10 câu bằng thao tác chạm | Không cuộn ngang (`scrollWidth ≤ clientWidth` mỗi câu); mọi nút ≥ 44 px (đo `getBoundingClientRect`); thanh hành động cố định dưới (`position: sticky/fixed`, không bị cắt) | E2E |
 | TC-06-25 | SRS §7 | – | `/practice` và `/practice/<id>` ở trạng thái tải / lỗi (`route.abort`) / rỗng | `PageState` đúng: skeleton; lỗi + `Thử lại`; rỗng như TC-06-23 | E2E |
+| TC-06-25b | AC4, AC7 | Câu `MCQ_MULTI` đáp án đúng {a,b,c} | Trả lời lần lượt `{a,b,c}`; `{a,b}`; `{a,b,c,d}`; `{a,d}` | Chỉ `{a,b,c}` là **đúng** (trùng toàn bộ tập, P-10-7 Q25); ba cái còn lại **sai**; `đúng/tổng` luôn số nguyên (không điểm một phần) | API |
 | TC-06-26 | UI | – | Quét chữ SV 375 px: `/practice`, `/practice/<id>`, `/practice/history` | Không có «AI», «RAG», «citation», «model», «LLM», «prompt», «token»; dùng «Nguồn trong tài liệu»; nút là động từ (`Luyện ngay`, `Trả lời`, `Giải thích thêm`, `Nộp bài`) | E2E |
 
 ## Nhánh lỗi (SRS §3)
@@ -37,4 +38,4 @@ Phủ bởi TC-06-10 (mất mạng), 12, 17, 20, 22.
 TC-06-18, 19; SV lớp khác `start` ở `C1` → `403`/`404`; `sv.moi` → `403`/`404`.
 
 ## Lịch sử sửa TC
-(trống)
+- 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-06-17 (Q11), thêm TC-06-25b (Q25: `MCQ_MULTI` đúng = trùng toàn bộ tập).
