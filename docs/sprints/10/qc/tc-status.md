@@ -3,13 +3,13 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 
 | Trạng thái | Số TC |
 | --- | --- |
-| chờ stack | 214 |
+| chờ stack | 215 |
 | PASS một phần (mức Go); phần API/E2E chờ stack | 15 |
 | PASS (không stack) | 12 |
 | chờ quyết định PM | 4 |
 | NGOÀI PHẠM VI | 1 |
 | FAIL (Thấp) | 1 |
-| **Tổng** | 247 |
+| **Tổng** | 248 |
 
 | TC | Trạng thái | Ghi chú |
 | --- | --- | --- |
@@ -35,6 +35,7 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 | TC-01-P4 | chờ stack |  |
 | TC-02-01 | chờ stack |  |
 | TC-02-02 | chờ stack |  |
+| TC-02-02b | chờ stack | Thêm sau khi đọc fixture (trích không kèm đáp án) |
 | TC-02-03 | chờ stack |  |
 | TC-02-04 | PASS (không stack) | `TestExtractQuestions` PASS (đề 24 câu) |
 | TC-02-05 | PASS một phần (mức Go); phần API/E2E chờ stack | `TestExtractQuestions`; fixture `dap-an-mau.pdf` đối chiếu `de-mau.json` 24/24 khớp (mục 5) |

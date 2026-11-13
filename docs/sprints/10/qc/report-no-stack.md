@@ -1,5 +1,5 @@
 # QC sprint 10 — pha 2, phần KHÔNG cần stack (2026-11-14)
-Nhánh `sprint/10-practice` ở `345c8866` (dev: «Q13 dung sai 60 s»). Bản sao của QC: `~/Documents/TA_Agent_qc5`. **Chưa dựng `ep-qc`**; không chạy e2e / k6 / Lighthouse / axe (lệnh PM). Trạng thái từng TC: `tc-status.md` (247 TC: 12 PASS, 15 PASS một phần mức Go, 1 FAIL Thấp, 4 chờ quyết định PM, 1 ngoài phạm vi, 214 chờ stack).
+Nhánh `sprint/10-practice` ở `345c8866` (dev: «Q13 dung sai 60 s»). Bản sao của QC: `~/Documents/TA_Agent_qc5`. **Chưa dựng `ep-qc`**; không chạy e2e / k6 / Lighthouse / axe (lệnh PM). Trạng thái từng TC: `tc-status.md` (248 TC: 12 PASS, 15 PASS một phần mức Go, 1 FAIL Thấp, 4 chờ quyết định PM, 1 ngoài phạm vi, 215 chờ stack).
 
 **Kết luận tạm (chưa phải kết luận story): không có FAIL mức Trung bình / Cao ở phần kiểm được. Một FAIL Thấp (TC-12-12), bốn mục cần PM quyết định (F1, F3 + hai câu hỏi), phần còn lại chờ stack.** Các story chưa thể kết luận PASS/FAIL vì AC chính (API / E2E / hiệu năng) cần stack.
 
