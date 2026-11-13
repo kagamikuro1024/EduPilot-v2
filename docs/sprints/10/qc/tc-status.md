@@ -1,15 +1,19 @@
 # Trạng thái pha 2 theo từng TC — sprint 10 (phần không cần stack)
-Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các TC chạy được **không cần stack** có kết quả; mọi TC khác «chờ stack». Chưa chạy e2e / k6 / Lighthouse / axe. Chi tiết: `report-no-stack.md`.
+Cập nhật 2026-11-14 sau P-10-8 (PM quyết F1–F7, Q-S10-27…31). Nhánh `sprint/10-practice` ở `8983abd5`. Chỉ các TC chạy được **không cần stack** có kết quả; mọi TC khác «chờ stack». Chưa chạy e2e / k6 / Lighthouse / axe. Chi tiết: `report-no-stack.md`.
 
 | Trạng thái | Số TC |
 | --- | --- |
 | chờ stack | 215 |
-| PASS một phần (mức Go); phần API/E2E chờ stack | 15 |
+| PASS một phần (mức Go); phần API/E2E chờ stack | 14 |
 | PASS (không stack) | 12 |
-| chờ quyết định PM | 4 |
+| chờ dev (BẮT BUỘC) | 3 |
+| chờ stack + handoff | 1 |
+| chờ stack + dev | 1 |
 | NGOÀI PHẠM VI | 1 |
-| FAIL (Thấp) | 1 |
-| **Tổng** | 248 |
+| FAIL (Thấp) — chờ dev xoá | 1 |
+| PASS một phần (mức Go); chờ dev | 1 |
+| PASS có điều kiện; chờ dev | 1 |
+| **Tổng** | 250 |
 
 | TC | Trạng thái | Ghi chú |
 | --- | --- | --- |
@@ -47,13 +51,13 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 | TC-02-11 | chờ stack |  |
 | TC-02-12 | chờ stack |  |
 | TC-02-13 | chờ stack |  |
-| TC-02-14 | chờ stack | Cần bật lỗi `OVERLOADED` của provider giả trên stack (Q-S10-29) |
+| TC-02-14 | chờ stack + handoff | P-10-8 Q29: dev nêu cách bật `OVERLOADED` ở handoff |
 | TC-02-15 | chờ stack |  |
 | TC-02-16 | chờ stack |  |
 | TC-02-17 | chờ stack |  |
 | TC-02-18 | chờ stack |  |
-| TC-02-19 | chờ quyết định PM | Trần 5 việc/lớp/giờ chưa có trong mã; không có AC/FR/openapi 429 cho `extract` (Q-S10-27) |
-| TC-02-20 | chờ quyết định PM | Trần ≤ 60 trang chưa có trong mã (Q-S10-27) |
+| TC-02-19 | chờ dev (BẮT BUỘC) | P-10-8 F3: BA thêm AC/FR, dev cài + openapi. Hiện chưa cài = FAIL nếu chạy bây giờ |
+| TC-02-20 | chờ dev (BẮT BUỘC) | P-10-8 F3: `extract` ≤ 60 trang |
 | TC-02-P1 | chờ stack |  |
 | TC-02-P2 | chờ stack |  |
 | TC-02-P3 | chờ stack |  |
@@ -71,7 +75,7 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 | TC-03-10 | chờ stack |  |
 | TC-03-11 | chờ stack |  |
 | TC-03-12 | chờ stack |  |
-| TC-03-13 | chờ quyết định PM | Như TC-02-19 (Q-S10-27) |
+| TC-03-13 | chờ dev (BẮT BUỘC) | P-10-8 F3: `generate` ≤ 5 việc/lớp/giờ |
 | TC-04-01 | chờ stack |  |
 | TC-04-02 | chờ stack |  |
 | TC-04-03 | chờ stack |  |
@@ -94,6 +98,7 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 | TC-04-P3 | chờ stack |  |
 | TC-04-P4 | chờ stack |  |
 | TC-04-P5 | chờ stack |  |
+| TC-04-06b | chờ stack + dev | P-10-8 Q31: rời trang/đóng tab trong 5 s → lệnh `Loại` gửi ngay (`fetch keepalive`); dev sửa |
 | TC-05-01 | PASS (không stack) | `TestBuildMatrix` PASS |
 | TC-05-02 | chờ stack |  |
 | TC-05-03 | chờ stack |  |
@@ -239,8 +244,9 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 | TC-11-16 | chờ stack |  |
 | TC-11-17 | chờ stack |  |
 | TC-11-18 | chờ stack |  |
+| TC-11-19 | chờ stack | P-10-8 Q30: liên kết «Nhập ở Sổ điểm» ở hàng Chưa khớp |
 | TC-12-01 | chờ stack |  |
-| TC-12-02 | chờ stack | Handoff ghi 82 `APPROVED` (US: 80) — Q-S10-28 |
+| TC-12-02 | chờ stack | P-10-8 Q28: ≥ 80 `APPROVED` đạt (handoff: 82) |
 | TC-12-03 | chờ stack |  |
 | TC-12-04 | chờ stack |  |
 | TC-12-05 | chờ stack | `check-practice-seed.mjs` cần seed trên stack |
@@ -250,9 +256,9 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 | TC-12-09 | chờ stack |  |
 | TC-12-10 | chờ stack |  |
 | TC-12-11 | chờ stack |  |
-| TC-12-12 | FAIL (Thấp) | `grep @/mock/practice frontend/src` = 0 và `mock/practice.ts` đã xoá (đạt); **`frontend/src/mock/questions.ts` (235 dòng) còn, không ai import** — AC4 nói xoá cùng đợt nếu không còn người dùng |
+| TC-12-12 | FAIL (Thấp) — chờ dev xoá | F2 (P-10-8): dev xoá `frontend/src/mock/questions.ts`; `@/mock/practice` đã 0 |
 | TC-12-13 | chờ stack |  |
-| TC-12-14 | PASS một phần (mức Go); phần API/E2E chờ stack | 16/16 thao tác SRS §6 có trong `openapi.yaml` (304 thao tác); `go test -tags testroutes ./internal/contract` ok. Lệch: `explain` thiếu `429` (SRS #11); `extract`/`generate` không khai `429` (Q-S10-27) |
+| TC-12-14 | PASS một phần (mức Go); chờ dev | 16/16 thao tác + contract ok. Chờ dev thêm `429` cho `explain` (F4) và `extract`/`generate` (F3) vào openapi |
 | TC-12-15 | chờ stack |  |
 | TC-12-16 | chờ stack |  |
 | TC-12-17 | chờ stack |  |
@@ -260,4 +266,4 @@ Cập nhật 2026-11-14, nhánh `sprint/10-practice` ở `345c8866`. Chỉ các 
 | TC-12-19 | PASS một phần (mức Go); phần API/E2E chờ stack | `bash scripts/ui-antipatterns.sh` sạch; axe chờ stack |
 | TC-12-20 | chờ stack |  |
 | TC-12-21 | chờ stack |  |
-| TC-12-22 | chờ quyết định PM | Không `t.Skip`, không secret, không `float64` điểm, không `fetch(` trần, không thư viện mới. **Có sửa test có sẵn:** `today/staff_test.go` nới ngưỡng truy vấn «sinh viên» 6 → 7 (commit `4f44403f`, không số proposal) — xem F1 trong report |
+| TC-12-22 | PASS có điều kiện; chờ dev | F1 chấp nhận (P-10-8): ngưỡng Hôm nay SV 6 → 7 (1 truy vấn gộp cố định, không N+1). Còn lại sạch (không SKIP / secret / float64 / fetch trần / thư viện mới). **Điều kiện:** commit test phải ghi số P-10-8 — QC kiểm lại khi dev sửa |
