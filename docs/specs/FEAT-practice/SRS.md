@@ -1,5 +1,6 @@
 # SRS FEAT-practice Ngân hàng câu hỏi mở rộng, luyện đề, thi thử, form trắc nghiệm
-Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+Phiên bản 1.2 · 2026-11-14 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+**v1.2 (P-10-8 F3, Q-S10-27):** thêm trần LLM cho `extract` / `generate` — US-P9-02 AC9, US-P9-03 AC8, FR-28, `429` ở API #1, #2.
 **v1.1 (P-10-7):** vá US-P9-01 AC1 (không `practice_exams`), AC2 (mọi dấu câu cuối, không bỏ dấu tiếng Việt), US-P9-07 AC4, AC8, FR-1, FR-17 (dung sai 60 s thống nhất).
 **v1.0:** áp Q-P9-8 (Forms: chỉ TEACHER import + xem trước + xác nhận, không tự công bố, không LLM — US-P9-11 AC10–AC12), Q-P9-10 (thi thử: `{đúng}/{tổng}` chính, thang 10 một chữ số phụ — FR-15, US-P9-07 AC7), Q-P9-3, 4, 7 giữ nguyên như đã viết.
 Nguồn: PRD M4, M8, M15 · FLOWS F12, F14 · `docs/phases/P9.md` · `ARCHITECTURE.md` §4–§7 · `SYSTEM_DESIGN.md` §3.1, §3.4, §5 · `DESIGN.md` §13, §14.17–§14.20 · `UX.md` mục 6 · `FEAT-weekly-exam` SRS (4.1, 5.2, 6) · `FEAT-docs-calendar` SRS (loại tài liệu, `audience`) · `FEAT-crm-360` SRS (4.6, bảng bậc Hôm nay) · `FEAT-gradebook` SRS (4.3.6, 5)
@@ -90,6 +91,7 @@ flowchart LR
 ### 4.5 Form trắc nghiệm
 - **FR-25** `POST …/forms-import/preview {upload_id}` → 20 dòng đầu + cột; `POST …/forms-import {upload_id, mapping, item_id, answer_source}` (`Idempotency-Key`) → chấm bằng `quiz.Grade` / `NormalizeShort`; ghi `grade_entries(source='QUIZ')` vào `grade_items` MANUAL do giảng viên chọn; khớp sinh viên chỉ theo email đã xác minh / MSSV trong danh sách lớp; dòng lệch → "Chưa khớp" — US-P9-11.
 - **FR-27** Chỉ TEACHER thực hiện `preview` + `Xem trước kết quả` + `Xác nhận`; `POST …/forms-import` yêu cầu `upload_id` đã `preview`; không đặt `published_at`, công bố chỉ qua `POST …/grade-items/{itemId}/publish` có sẵn; không gọi LLM; điểm bằng `quiz.Grade` + `decimal` — US-P9-11 AC10–AC12.
+- **FR-28** Trần chi phí LLM (Q-P9-12, P-10-8 F3), kiểm **trước** khi tạo việc và trước mọi lời gọi LLM: `extract` ≤ 60 trang / tài liệu và ≤ 5 việc / lớp / 60 phút; `generate` ≤ 5 việc / lớp / 60 phút (bộ đếm riêng từng loại, cửa sổ trượt, tính cả việc lỗi, gọi lại cùng `Idempotency-Key` không tính thêm); chạm trần → `429 RATE_LIMITED {reason: pages|jobs}` + `Retry-After` (khi `jobs`); cài bằng rate limit Redis sẵn có (`ep:rl:practice:{extract|generate}:{course_id}`); hạn mức chi phí ngày của Scheduler vẫn áp — US-P9-02 AC9, US-P9-03 AC8.
 - **FR-26** Tệp lưu `platform/blob` ≤ 90 ngày; hash để idempotent; không gửi LLM — US-P9-11 AC4, AC8.
 
 ## 5. Dữ liệu
@@ -109,8 +111,8 @@ Migration **`00019_practice.sql`** (số theo `ARCHITECTURE.md` §4; `00018` dà
 ## 6. API (`/api/v1/courses/{courseId}/…`; mọi trả lỗi theo `apierr`)
 | # | Thao tác | Quyền | `Idempotency-Key` | Thành công | Lỗi chính |
 | --- | --- | --- | --- | --- | --- |
-| 1 | `POST questions/extract {document_id, answer_key_document_id?}` | Staff | bắt buộc | 202 `{job_id}` | 409 `DOCUMENT_NOT_READY`, 422 `WRONG_DOCUMENT_TYPE` |
-| 2 | `POST questions/generate {document_ids[]\|chunk_ids[], topic, difficulty, count≤10, types[]}` | Staff | bắt buộc | 202 `{job_id}` | 422 `VALIDATION_FAILED` |
+| 1 | `POST questions/extract {document_id, answer_key_document_id?}` | Staff | bắt buộc | 202 `{job_id}` | 409 `DOCUMENT_NOT_READY`, 422 `WRONG_DOCUMENT_TYPE`, 429 `RATE_LIMITED` |
+| 2 | `POST questions/generate {document_ids[]\|chunk_ids[], topic, difficulty, count≤10, types[]}` | Staff | bắt buộc | 202 `{job_id}` | 422 `VALIDATION_FAILED`, 429 `RATE_LIMITED` |
 | 3 | `POST questions/bulk {action, ids[≤50], topic?, difficulty?}` | Staff | tuỳ chọn | 200 `{results:[{id,ok,code?}]}` | 422 `CITATION_REQUIRED` từng id |
 | 4 | `GET questions/gen-stats?job_id` | Staff | – | 200 `{unchanged,edited,rejected}` | 404 |
 | 5 | `GET practice/overview` | STUDENT | – | 200 | – |

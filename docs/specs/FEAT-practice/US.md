@@ -50,6 +50,7 @@ Thứ tự thi công đề xuất (cắt theo `WORKFLOW.md` §6: `GenerateQuesti
 - AC5 (idempotent). Given cùng `document_id` + `Idempotency-Key` When gửi lại Then trả cùng `job_id`, không tạo trùng câu; chạy lại **không** `Idempotency-Key` mới trên cùng tài liệu → câu trùng nội dung (cùng `stem` chuẩn hoá) bị bỏ qua ("đã có").
 - AC6 (nhánh lỗi). Given tài liệu chưa `READY`, không phải `EXAM_PAPER`, hoặc thuộc lớp khác When gọi Then `409 DOCUMENT_NOT_READY` / `422 WRONG_DOCUMENT_TYPE` / `404` (không lộ tồn tại); LLM quá tải (`OVERLOADED`) → retry 3 lần rồi dead-letter, giảng viên thấy "Chưa trích được. Thử lại."; mất kết nối giữa chừng → câu đã lưu giữ nguyên, việc chạy tiếp theo trang chưa xong.
 - AC7 (phân quyền). Given STUDENT, hoặc ADMIN không thuộc lớp When `POST …/questions/extract` Then `403 FORBIDDEN` (`reason: role|course`). TA gọi được (kiểm `Staff`).
+- AC9 (trần chi phí LLM — Q-P9-12, P-10-8 F3). Given `extract` When tài liệu có **> 60 trang** hoặc lớp đã có **5 việc `extract` trong 60 phút gần nhất** (cửa sổ trượt, tính cả việc lỗi, không tính gọi lại cùng `Idempotency-Key`; TEACHER và TA của lớp dùng chung một bộ đếm) Then `429 RATE_LIMITED` `{reason: pages|jobs}`, header `Retry-After` (giây, khi `reason=jobs`), **không** tạo việc, **không** gọi LLM; luồng `Tạo câu hỏi` hiện câu thông báo tại chỗ (không toast); hết cửa sổ thì gọi lại được. Kiểm: 6 lần liên tiếp → lần 6 `429`; lớp khác không bị ảnh hưởng; tài liệu 61 trang `429 reason=pages`.
 - AC8 (riêng tư). Given đề có tên người ra đề / giảng viên When gửi LLM Then bị che; `stem` lưu **sau khi khôi phục** chỉ giữ chữ của đề (không thêm tên).
 
 ### Ngoài phạm vi của story này
@@ -71,6 +72,7 @@ Thứ tự thi công đề xuất (cắt theo `WORKFLOW.md` §6: `GenerateQuesti
 - AC4 (nhánh lỗi). Given `count > 10`, `types` rỗng, `document_ids` ngoài lớp Then `422 VALIDATION_FAILED`; lỗi LLM → như US-P9-02 AC6.
 - AC5 (không trùng). Given câu mới trùng `stem` chuẩn hoá với câu đã có (mọi trạng thái, kể cả `REJECTED`) When lưu Then bỏ qua ("đã có").
 - AC6 (phân quyền). Given STUDENT Then `403`.
+- AC8 (trần chi phí LLM — Q-P9-12, P-10-8 F3). Given `generate` When lớp đã có **5 việc `generate` trong 60 phút gần nhất** (cửa sổ trượt, tính cả việc lỗi, không tính gọi lại cùng `Idempotency-Key`; bộ đếm riêng, không chung với `extract`) Then `429 RATE_LIMITED` `{reason: jobs}` + `Retry-After`, không tạo việc, không gọi LLM; `count ≤ 10` giữ (AC4, `422`); luồng `Tạo câu hỏi` hiện thông báo tại chỗ. Kiểm: 6 lần liên tiếp → lần 6 `429`.
 - AC7 (số liệu E5). Given giảng viên duyệt xong lô Then API `GET …/questions/gen-stats?job_id=` trả `{nguyên, sửa nhẹ, loại}` (tính từ `version` và `review_status` của câu: `nguyên` = APPROVE không sửa; `sửa nhẹ` = có `PUT` trước APPROVE; `loại` = REJECT) để chủ dự án ghi số liệu E5.
 
 ### Ngoài phạm vi của story này
