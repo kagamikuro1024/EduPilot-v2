@@ -10125,6 +10125,69 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/forms-import/preview:
+    post:
+      operationId: previewFormsImport
+      tags: [practice]
+      summary: "Đọc tệp kết quả Forms đã tải lên (purpose=forms_import; chỉ TEACHER) và đánh dấu 'đã xem trước'. Chưa có ánh xạ: trả cột + 20 dòng đầu + gợi ý cột. Có ánh xạ + item_id + answer_source: trả thêm bảng điểm đã chấm (không ghi). 404 UPLOAD_NOT_FOUND; 422 FILE_INVALID | FILE_TOO_LARGE | TOO_MANY_ROWS | lỗi ánh xạ theo từng ô"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormsImportRequest"
+      responses:
+        "200":
+          description: Cột, dòng đầu, gợi ý ánh xạ; kèm bảng điểm khi đã ánh xạ
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormsPreview"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
+  /api/v1/courses/{id}/forms-import:
+    post:
+      operationId: importFormsResults
+      tags: [practice]
+      summary: "Xác nhận nhập kết quả Forms (chỉ TEACHER; Idempotency-Key bắt buộc). Chấm bằng Quiz Engine (không LLM), ghi grade_entries(source=QUIZ) vào cột điểm MANUAL đã chọn, KHÔNG đặt published_at (công bố qua grade-items/{id}/publish). Cùng tệp (cùng hash) vào cùng cột → trả lại lô cũ (replayed=true), không ghi gì. 409 PREVIEW_REQUIRED | GRADEBOOK_LOCKED | ITEM_NOT_EDITABLE | SCHEME_NOT_CONFIRMED"
+      parameters:
+        - $ref: "#/components/parameters/CourseId"
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/FormsImportRequest"
+      responses:
+        "201":
+          description: Kết quả lô nhập
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FormsResult"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "403":
+          $ref: "#/components/responses/Forbidden"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "409":
+          $ref: "#/components/responses/Conflict"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
   /api/v1/courses/{id}/questions/gen-stats:
     get:
       operationId: questionGenStats
@@ -12458,7 +12521,7 @@ components:
       properties:
         purpose:
           type: string
-          enum: [document, grade_import, submission_upload]
+          enum: [document, grade_import, forms_import, submission_upload]
         filename:
           type: string
           maxLength: 255
@@ -17985,6 +18048,107 @@ components:
               id: {type: string, format: uuid}
               ok: {type: boolean}
               code: {type: string}
+    FormsMapping:
+      type: object
+      required: [header_row, questions]
+      additionalProperties: false
+      properties:
+        header_row: {type: integer, minimum: 1, maximum: 100}
+        email_col: {type: string}
+        code_col: {type: string}
+        time_col: {type: string}
+        questions:
+          type: array
+          maxItems: 100
+          items:
+            type: object
+            required: [col]
+            additionalProperties: false
+            properties:
+              col: {type: string}
+              question_id: {type: [string, "null"], format: uuid}
+              accepted:
+                type: [array, "null"]
+                items: {type: string}
+    FormsImportRequest:
+      type: object
+      required: [upload_id]
+      additionalProperties: false
+      properties:
+        upload_id: {type: string, format: uuid}
+        item_id: {type: [string, "null"], format: uuid}
+        answer_source: {type: string, enum: [BANK, MANUAL]}
+        mapping:
+          oneOf:
+            - $ref: "#/components/schemas/FormsMapping"
+            - type: "null"
+    FormsResult:
+      type: object
+      required: [matched, unmatched, duplicates, items, unmatched_rows, written, replayed]
+      additionalProperties: false
+      properties:
+        matched: {type: integer}
+        unmatched: {type: integer}
+        duplicates: {type: integer}
+        written: {type: integer}
+        replayed: {type: boolean}
+        batch_id: {type: string, format: uuid}
+        items:
+          type: array
+          items:
+            type: object
+            required: [student, correct, total, score, mismatch]
+            additionalProperties: false
+            properties:
+              student:
+                type: object
+                required: [id, full_name, student_code]
+                additionalProperties: false
+                properties:
+                  id: {type: string, format: uuid}
+                  full_name: {type: string}
+                  student_code: {type: string}
+              correct: {type: integer}
+              total: {type: integer}
+              score: {type: string, description: "Thập phân dạng chuỗi, thang của cột điểm, 2 chữ số"}
+              mismatch: {type: integer}
+        unmatched_rows:
+          type: array
+          items:
+            type: object
+            required: [row, identifier, reason, correct, total, score]
+            additionalProperties: false
+            properties:
+              row: {type: integer}
+              identifier: {type: string, description: "Đã che"}
+              reason: {type: string, enum: [NOT_FOUND, MISMATCH]}
+              correct: {type: integer}
+              total: {type: integer}
+              score: {type: string}
+    FormsPreview:
+      type: object
+      required: [columns, rows, rows_total, suggested_mapping]
+      additionalProperties: false
+      properties:
+        columns:
+          type: array
+          items:
+            type: object
+            required: [col, header]
+            additionalProperties: false
+            properties:
+              col: {type: string}
+              header: {type: string}
+        rows:
+          type: array
+          items:
+            type: array
+            items: {type: string}
+        rows_total: {type: integer}
+        suggested_mapping:
+          $ref: "#/components/schemas/FormsMapping"
+        result:
+          $ref: "#/components/schemas/FormsResult"
     PracticeGenStats:
       type: object
       required: [unchanged, edited, rejected, pending]

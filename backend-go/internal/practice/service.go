@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log/slog"
 	"net/http"
 	"time"
@@ -41,6 +42,11 @@ const (
 	KAnonymity = 3
 )
 
+// BlobReader là phần của object storage mà nhập Forms dùng.
+type BlobReader interface {
+	Get(ctx context.Context, key string) (io.ReadCloser, error)
+}
+
 // Service là nghiệp vụ luyện đề phía gateway.
 type Service struct {
 	Pool  *pgxpool.Pool
@@ -51,6 +57,7 @@ type Service struct {
 	LLM   LLMClient        // nil = không giải thích / nhận xét được (503 ở hai đường đó; phần còn lại của luyện đề không cần LLM)
 	Exam  *exam.Service    // duyệt hàng loạt dùng lại Review của PE (nil = bulk không dùng được)
 	Jobs  *jobs.Service    // xếp việc trích / sinh câu hỏi (nil = các đường đó không dùng được)
+	Blob  BlobReader       // đọc lại tệp Forms đã tải lên (nil = nhập Forms không dùng được)
 	Redis *appredis.Client // cache giải thích + hạn mức nhận xét; nil = không cache, không giới hạn
 }
 

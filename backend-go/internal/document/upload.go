@@ -44,6 +44,10 @@ const (
 	GradeImportMaxBytes = 2 << 20
 	// PurposeGradeImport là mục đích tải lên của nhập điểm XLSX; vé của nó KHÔNG hoàn tất được thành tài liệu.
 	PurposeGradeImport = "grade_import"
+	// FormsImportMaxBytes: cỡ tệp kết quả Forms (US-P9-11) — cùng giá trị với `practice.FormsMaxBytes`.
+	FormsImportMaxBytes = 5 << 20
+	// PurposeFormsImport là mục đích tải lên của nhập kết quả Microsoft / Google Forms (.xlsx / .csv); vé của nó chỉ dùng cho `…/forms-import`.
+	PurposeFormsImport = "forms_import"
 	// PurposeSubmissionUpload là mục đích tải bài nộp (tệp lẻ / ZIP) của TA / TEACHER (US-P7-04): vé của nó chỉ hoàn tất được ở `…/submissions/upload`, không thành tài liệu.
 	PurposeSubmissionUpload = "submission_upload"
 	// SubmissionZipMaxBytes: cỡ ZIP bài nộp (`ZIP_MAX_BYTES`).
@@ -96,6 +100,17 @@ func kindOf(ext string) (fileKind, bool) {
 func gradeImportKind(ext string) (fileKind, bool) {
 	if ext == ".xlsx" {
 		return fileKind{xlsxMime, []byte("PK\x03\x04")}, true
+	}
+	return fileKind{}, false
+}
+
+// formsImportKind: kết quả Forms là `.xlsx` hoặc `.csv` (CSV không có chữ ký đầu tệp).
+func formsImportKind(ext string) (fileKind, bool) {
+	switch ext {
+	case ".xlsx":
+		return fileKind{xlsxMime, []byte("PK\x03\x04")}, true
+	case ".csv":
+		return fileKind{"text/csv", nil}, true
 	}
 	return fileKind{}, false
 }
@@ -154,7 +169,7 @@ func (s *Service) Presign(ctx context.Context, actor, course uuid.UUID, in Presi
 	if err := s.requireActive(ctx, course); err != nil {
 		return PresignOut{}, err
 	}
-	if in.Purpose != "document" && in.Purpose != PurposeGradeImport && in.Purpose != PurposeSubmissionUpload {
+	if in.Purpose != "document" && in.Purpose != PurposeGradeImport && in.Purpose != PurposeFormsImport && in.Purpose != PurposeSubmissionUpload {
 		return PresignOut{}, field("purpose", "enum", "Mục đích tải lên không hợp lệ.")
 	}
 	name := in.Filename
@@ -164,6 +179,9 @@ func (s *Service) Presign(ctx context.Context, actor, course uuid.UUID, in Presi
 	kindFn, limit, folder := kindOf, s.maxBytes(), "documents"
 	if in.Purpose == PurposeGradeImport {
 		kindFn, limit, folder = gradeImportKind, GradeImportMaxBytes, "grade-imports"
+	}
+	if in.Purpose == PurposeFormsImport {
+		kindFn, limit, folder = formsImportKind, FormsImportMaxBytes, "forms-imports"
 	}
 	var kind fileKind
 	var ok bool

@@ -41,6 +41,8 @@ export async function gradebookApi(p: Page, opts: Opts = {}) {
   const calls: Array<{ method: string; path: string; body: string; idem: string }> = [];
   const scheme = opts.scheme ?? true;
   let locked = opts.locked ?? false;
+  let previewed = false; // `forms-import` chỉ chạy sau `forms-import/preview` (US-P9-11 AC10)
+  const formsResult = { matched: 2, unmatched: 1, duplicates: 1, written: 0, replayed: false, items: [1, 2].map((i) => ({ student: student(i), correct: 3 - i, total: 3, score: i === 1 ? "6.67" : "3.33", mismatch: i === 1 ? 1 : 0 })), unmatched_rows: [{ row: 4, identifier: "vô***@danh.test", reason: "NOT_FOUND", correct: 0, total: 3, score: "0" }] };
   let snapVersion = opts.locked ? 2 : 0;
   const versions: Array<{ version: number; students: number; locked_at: string; locked_by: string; unlock_reason: string | null }> = opts.locked ? [{ version: 2, students: n, locked_at: "2026-10-30T03:00:00Z", locked_by: "Lê Thu Hà", unlock_reason: "Phúc khảo sv04" }, { version: 1, students: n, locked_at: "2026-10-29T03:00:00Z", locked_by: "Lê Thu Hà", unlock_reason: null }] : [];
   let lastReason = "";
@@ -115,6 +117,21 @@ export async function gradebookApi(p: Page, opts: Opts = {}) {
       }
       return route.fulfill(j(out));
     }
+    if (key === "GET questions") {
+      const q = (id: string, title: string) => ({ id, type: "MCQ_SINGLE", title, topic: "Mật mã", difficulty: "EASY", review_status: "APPROVED", origin: "MANUAL", used_in_exams: 0, version: 1, archived_at: null, updated_at: "2026-10-01T00:00:00Z" });
+      return route.fulfill(j({ items: [q("00000000-0000-7000-8000-0000000000b1", "AES là gì"), q("00000000-0000-7000-8000-0000000000b2", "RSA dùng khoá nào")], next_cursor: null }));
+    }
+    if (key === "POST forms-import/preview") {
+      previewed = true;
+      const b = JSON.parse(body) as { mapping?: unknown };
+      const base = { columns: [["A", "Email"], ["B", "MSSV"], ["C", "Completion time"], ["D", "Q1"], ["E", "Q2"]].map(([col, header]) => ({ col, header })), rows: [["an@x.test", "20220001", "2026-11-01 10:00:00", "B", "A"]], rows_total: 3, suggested_mapping: { header_row: 1, email_col: "A", code_col: "B", time_col: "C", questions: [] } };
+      return route.fulfill(j(b.mapping ? { ...base, result: formsResult } : base));
+    }
+    if (key === "POST forms-import") {
+      if (!previewed) return route.fulfill(e(409, "PREVIEW_REQUIRED"));
+      for (const r of formsResult.items) entries.set(`${r.student.id}:${WEEKLY}`, { score: r.score, version: 1, source: "QUIZ" });
+      return route.fulfill(j({ ...formsResult, batch_id: "00000000-0000-7000-8000-0000000000c1", written: formsResult.items.length }, 201));
+    }
     if (key === "GET gradebook/preview") {
       const all = Array.from({ length: n }, (_, k) => result(k + 1));
       const distribution: Record<string, number> = {};
@@ -163,7 +180,7 @@ export async function gradebookApi(p: Page, opts: Opts = {}) {
     }
     return route.fulfill(e(404, "NOT_FOUND"));
   };
-  await p.route(/\/api\/v1\/courses\/[^/]+\/(gradebook|grade-entries|grade-items\/[^/]+\/publish|grade-scheme\/status|uploads\/presign)/, (r) => handle(r));
+  await p.route(/\/api\/v1\/courses\/[^/]+\/(gradebook|grade-entries|grade-items\/[^/]+\/publish|grade-scheme\/status|uploads\/presign|forms-import|questions)/, (r) => handle(r));
   await p.route(/\/__blob\//, (r) => r.fulfill({ status: 200, headers: cors, body: "" }));
   return { calls, entries, puts: () => calls.filter((c) => c.method === "PUT") };
 }

@@ -263,5 +263,8 @@ func practiceService(d Deps) *practice.Service {
 	if d.LLM != nil {
 		s.LLM = d.LLM.Gateway
 	}
+	if d.Blob != nil { // nhập Forms đọc lại tệp từ object storage (luật 10)
+		s.Blob = d.Blob
+	}
 	return s
 }

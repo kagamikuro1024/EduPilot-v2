@@ -30,12 +30,14 @@ type Handler struct {
 
 // Mount đăng ký trong nhóm đã qua auth.Middleware. Đường tĩnh (`overview`, `start`, `history`, `weakness`) không đụng `attempts/{aid}`.
 func (h *Handler) Mount(r chi.Router) {
-	student, staff := h.Guard(auth.StudentRole), h.Guard(auth.StaffRole)
+	student, staff, teacher := h.Guard(auth.StudentRole), h.Guard(auth.StaffRole), h.Guard(auth.TeacherRole)
 	const q = "/courses/{id}/questions"
 	r.With(staff, h.Idem).Post(q+"/extract", h.extract)
 	r.With(staff, h.Idem).Post(q+"/generate", h.generate)
 	r.With(staff, h.OptIdem).Post(q+"/bulk", h.bulk)
 	r.With(staff).Get(q+"/gen-stats", h.genStats)
+	r.With(teacher).Post("/courses/{id}/forms-import/preview", h.formsPreview)
+	r.With(teacher, h.Idem).Post("/courses/{id}/forms-import", h.formsImport)
 	const p = "/courses/{id}/practice"
 	r.With(student).Get(p+"/overview", h.overview)
 	r.With(student, h.Idem).Post(p+"/start", h.start)
@@ -370,4 +372,38 @@ func (h *Handler) genStats(w http.ResponseWriter, r *http.Request) {
 	}
 	noStore(w)
 	httpx.WriteJSON(w, http.StatusOK, v)
+}
+
+func (h *Handler) formsPreview(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	var in practice.FormsIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Svc.Preview(r.Context(), c.user, c.course, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusOK, out)
+}
+
+func (h *Handler) formsImport(w http.ResponseWriter, r *http.Request) {
+	c, ok := h.parse(w, r)
+	if !ok {
+		return
+	}
+	var in practice.FormsIn
+	if !httpx.DecodeJSON(w, r, &in) {
+		return
+	}
+	out, err := h.Svc.Import(r.Context(), c.user, c.course, in)
+	if err != nil {
+		h.fail(w, r, err)
+		return
+	}
+	httpx.WriteJSON(w, http.StatusCreated, out)
 }

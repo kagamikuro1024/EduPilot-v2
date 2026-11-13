@@ -21,10 +21,10 @@ type Route struct {
 	Idem   Idem
 }
 
-// Routes trả các thao tác #1–#14 của SRS FEAT-practice 6 (#15–#16 nhập Forms: Teacher, thêm ở US-P9-11).
+// Routes trả các thao tác #1–#16 của SRS FEAT-practice 6 (#15–#16 nhập Forms, US-P9-11: chỉ TEACHER).
 func Routes() []Route {
 	const a = "/practice/attempts/{aid}"
-	student, staff := auth.StudentRole, auth.StaffRole
+	student, staff, teacher := auth.StudentRole, auth.StaffRole, auth.TeacherRole
 	return []Route{
 		{1, "POST", "/questions/extract", staff, IdemRequired},
 		{2, "POST", "/questions/generate", staff, IdemRequired},
@@ -40,5 +40,7 @@ func Routes() []Route {
 		{12, "POST", a + "/items/{itemId}/feedback", student, IdemRequired},
 		{13, "GET", "/practice/history", student, IdemNone},
 		{14, "GET", "/practice/weakness", student, IdemNone},
+		{15, "POST", "/forms-import/preview", teacher, IdemNone},
+		{16, "POST", "/forms-import", teacher, IdemRequired},
 	}
 }
