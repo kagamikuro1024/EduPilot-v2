@@ -63,7 +63,7 @@ func TestDemoModeRecordingsCoverPolicies(t *testing.T) {
 			got["grading"]++
 		}
 	}
-	require.Equal(t, map[string]int{"quy-che": 3, "suggest": 1, "grading": 12}, got) // 3 quy chế (v2, lớp 1, lớp 2); 6 mẫu × 2 lượt
+	require.Equal(t, map[string]int{"quy-che": 3, "suggest": 1, "grading": 14}, got) // 3 quy chế (v2, lớp 1, lớp 2); 6 mẫu × 2 lượt + 2 bản của seed-t1 (9.5)
 	e := newEnv(t, demoLLM(t))
 	res, err := e.run(e.policyDoc("quy-che-lop1.md"), false, 0)
 	require.NoError(t, err)

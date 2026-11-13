@@ -583,6 +583,84 @@
    }
   },
   {
+   "name": "t1-grading-p1",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c1, c2, c3, c4.",
+    "Phân tích mô phỏng về tấn công chuỗi cung ứng phần mềm."
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c1",
+      "score": "2.5",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c4",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "8.5"
+   }
+  },
+  {
+   "name": "t1-grading-p2",
+   "match": [
+    "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",
+    "Phân tích mô phỏng về tấn công chuỗi cung ứng phần mềm."
+   ],
+   "response": {
+    "criteria": [
+     {
+      "id": "c4",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c3",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c2",
+      "score": "2.0",
+      "evidence_quotes": [],
+      "comment": "."
+     },
+     {
+      "id": "c1",
+      "score": "2.5",
+      "evidence_quotes": [],
+      "comment": "."
+     }
+    ],
+    "overall_feedback": ".",
+    "confidence": 0.9,
+    "flags": [],
+    "total": "8.5"
+   }
+  },
+  {
    "name": "bt03-s1-p2",
    "match": [
     "Thứ tự tiêu chí trong kết quả: c4, c3, c2, c1.",

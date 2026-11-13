@@ -131,7 +131,7 @@ from st join co on co.n = ((st.n - 1) / ${PER}) + 1 join grade_items i on i.cour
   ["assignments", `${PRE}
 insert into assignments (course_id, title, description, max_score, due_at, allow_late, submission_code, reference_answer, rubric, published_at, created_by)
 select tch.course_id, 'Bài tập mô phỏng ' || k, 'Phân tích một vụ tấn công theo đề mô phỏng ' || k, 10, now() + (case k when 1 then -70 when 2 then -42 when 3 then -14 else 2 end) * interval '1 day', false, 'BT' || k,
- 'Đáp án tham khảo mô phỏng.', '[{"name":"Tác nhân và bề mặt","max_score":"2.5","guidance":"Nêu đủ tác nhân và bề mặt."},{"name":"Phân tích","max_score":"2.5","guidance":"Chuỗi bước có căn cứ."},{"name":"Biện pháp","max_score":"2.5","guidance":"Biện pháp cụ thể."},{"name":"Trình bày","max_score":"2.5","guidance":"Mạch lạc."}]'::jsonb,
+ 'Đáp án tham khảo mô phỏng.', '[{"id":"c1","name":"Tác nhân và bề mặt","max_score":"2.5","guidance":"Nêu đủ tác nhân và bề mặt."},{"id":"c2","name":"Phân tích","max_score":"2.5","guidance":"Chuỗi bước có căn cứ."},{"id":"c3","name":"Biện pháp","max_score":"2.5","guidance":"Biện pháp cụ thể."},{"id":"c4","name":"Trình bày","max_score":"2.5","guidance":"Mạch lạc."}]'::jsonb,
  now() - interval '80 days', tch.user_id
 from tch, generate_series(1, 4) k;`],
   ["submissions", `${PRE}

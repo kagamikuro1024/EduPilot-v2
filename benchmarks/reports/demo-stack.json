@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "commit": "e3ca8377",
+    "timestamp": "2026-11-13T17:42:26.469Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "note": "Bằng chứng dừng / chạy lại stack demo (project `edupilot`) quanh các lượt đo 9.5"
+    }
+  },
+  "events": [
+    {
+      "event": "stopped",
+      "at": "2026-11-13T17:42:26.469Z",
+      "note": "docker compose -p edupilot stop lúc ~17:14Z trước lượt đo T1; stack ep-t1 dựng sau đó",
+      "compose_ls": "NAME                STATUS                   CONFIG FILES\nedupilot            exited(14)               /Users/kuro/Documents/EduPilot-demo/docker-compose.local.yml\nep-t1               exited(1), running(12)   /Users/kuro/Documents/TA_Agent_v2-s95/docker-compose.local.yml,/Users/kuro/Documents/TA_Agent_v2-s95/benchmarks/load/pg-stats.yml,/Users/kuro/Documents/TA_Agent_v2-s95/benchmarks/load/k6-stack.yml",
+      "containers": [
+        {
+          "name": "edupilot-caddy-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:46.217201169Z",
+          "started_at": "2026-11-12T12:48:47.64462282Z"
+        },
+        {
+          "name": "edupilot-docling-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:50.850366162Z",
+          "started_at": "2026-11-12T12:58:16.420411859Z"
+        },
+        {
+          "name": "edupilot-frontend-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:46.257387139Z",
+          "started_at": "2026-11-12T12:48:31.10003053Z"
+        },
+        {
+          "name": "edupilot-gateway-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:49.54551208Z",
+          "started_at": "2026-11-12T12:48:42.050484786Z"
+        },
+        {
+          "name": "edupilot-judge-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:47.478501448Z",
+          "started_at": "2026-11-12T12:48:31.537423813Z"
+        },
+        {
+          "name": "edupilot-mailpit-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:47.793556206Z",
+          "started_at": "2026-11-12T12:48:31.382316257Z"
+        },
+        {
+          "name": "edupilot-migrate-1",
+          "status": "exited",
+          "finished_at": "2026-11-12T12:48:37.236472451Z",
+          "started_at": "2026-11-12T12:48:36.972457916Z"
+        },
+        {
+          "name": "edupilot-minio-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:49.691313667Z",
+          "started_at": "2026-11-12T12:48:31.179315096Z"
+        },
+        {
+          "name": "edupilot-mock-graph-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:49.67551166Z",
+          "started_at": "2026-11-12T12:48:30.943274311Z"
+        },
+        {
+          "name": "edupilot-mock-imap-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:46.206926433Z",
+          "started_at": "2026-11-12T12:48:30.863147895Z"
+        },
+        {
+          "name": "edupilot-pgbouncer-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:50.000009247Z",
+          "started_at": "2026-11-12T12:48:36.885637666Z"
+        },
+        {
+          "name": "edupilot-postgres-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:50.140618858Z",
+          "started_at": "2026-11-12T12:48:31.276872594Z"
+        },
+        {
+          "name": "edupilot-redis-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:49.790145909Z",
+          "started_at": "2026-11-12T12:48:31.017145935Z"
+        },
+        {
+          "name": "edupilot-worker-1",
+          "status": "exited",
+          "finished_at": "2026-11-13T17:14:47.325635137Z",
+          "started_at": "2026-11-12T12:48:42.146196854Z"
+        }
+      ]
+    }
+  ]
+}

@@ -11,11 +11,11 @@
       "gateways": 1,
       "workers": 1,
       "provider": "fake",
-      "k6_cpus": "1.5",
-      "demo_stack": "stopped",
       "compose_project": "ep-t1",
       "tag": ""
-    }
+    },
+    "k6_cpus": "1.5",
+    "demo_stack": "stopped"
   },
   "scenario": "ttft",
   "metrics": {
