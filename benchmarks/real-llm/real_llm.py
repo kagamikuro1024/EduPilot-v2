@@ -182,7 +182,7 @@ def sql(q):
     cmd = os.environ.get("AUDIT_PSQL")
     if not cmd:
         return None
-    wrapped = f"begin read only; select coalesce(json_agg(t), '[]') from ({q}) t; rollback;"
+    wrapped = f"begin read only; select coalesce(jsonb_agg(t), '[]'::jsonb) from ({q}) t; rollback;"
     r = subprocess.run(shlex.split(cmd), input=wrapped, capture_output=True, text=True, timeout=60)
     if r.returncode != 0:
         raise Fail(f"AUDIT_PSQL lỗi: {r.stderr[:300]}")
@@ -289,7 +289,7 @@ def wait_job(api, job, auth, timeout=600):
 
 
 def upload_doc(api, course, path, title, dtype):
-    b = path.read_bytes()
+    b = path.read_bytes() + b"\n%EVAL-LLM\n"  # hậu tố chú thích PDF: khác sha256 với tệp seed, nếu không gateway từ chối DOCUMENT_DUPLICATE_ELSEWHERE
     p = api.req("POST", f"/courses/{course}/uploads/presign", {"purpose": "document", "filename": path.name, "mime_type": "application/pdf",
                                                                "size_bytes": len(b), "sha256": hashlib.sha256(b).hexdigest()}, auth="teacher")
     api.put_blob(p["url"], p["headers"], b)
@@ -472,19 +472,22 @@ def cmd_grade_run(api, a):
     ids = list(q)
     rounds = []
     for rnd in range(1, a.rounds + 1):
-        t0 = now()
+        t0, win_end = now(), None
         if rnd == 1 and any(not s.get("result") for s in q.values()):
             r = api.req("POST", f"/courses/{course}/assignments/{aid}/grade-all", {}, auth="teacher", idem=True)
             print(f"vòng 1: grade-all xếp {r['queued']} bài")
         elif rnd > 1 or all(s.get("result") for s in q.values()):
             if rnd == 1:
                 print("vòng 1: đã có kết quả (chấm trước đó) — lấy nguyên")
+                w = (sql(f"select min(created_at) a, max(created_at) b from llm_audit where course_id = {lit(course)} and task = 'GRADING'") or [{}])[0]
+                if w.get("a"):  # cửa sổ audit của lần chấm trước, không phải cửa sổ của lần chạy này
+                    t0, win_end = datetime.fromisoformat(w["a"]), datetime.fromisoformat(w["b"])
             else:
                 for sid in ids:
                     api.req("POST", f"/courses/{course}/submissions/{sid}/grade", {}, auth="teacher", idem=True)
                 print(f"vòng {rnd}: xếp chấm lại {len(ids)} bài")
         q = wait_queue(api, course, aid, ids)
-        t1 = now()
+        t1 = win_end if win_end else now()
         details = {}
         for sid, s in q.items():
             details[sid] = api.req("GET", f"/courses/{course}/grading-results/{s['result']['id']}", auth="teacher")

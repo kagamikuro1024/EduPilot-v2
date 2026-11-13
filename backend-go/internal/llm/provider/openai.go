@@ -140,6 +140,9 @@ func (p *oaClient) applySchema(prm *openai.ChatCompletionNewParams, schema json.
 	_ = json.Unmarshal(schema, &sch)
 	switch p.typ {
 	case "openai", "gemini":
+		if p.typ == "gemini" {
+			dropArrayBounds(sch) // đo thật (9.5): Gemini trả 400 INVALID_ARGUMENT khi schema có minItems/maxItems lồng nhau; Go vẫn kiểm đầy đủ schema ở đầu ra
+		}
 		prm.ResponseFormat = openai.ChatCompletionNewParamsResponseFormatUnion{OfJSONSchema: &shared.ResponseFormatJSONSchemaParam{
 			JSONSchema: shared.ResponseFormatJSONSchemaJSONSchemaParam{Name: "result", Schema: sch, Strict: openai.Bool(p.typ == "openai")},
 		}}
@@ -152,6 +155,22 @@ func (p *oaClient) applySchema(prm *openai.ChatCompletionNewParams, schema json.
 		}}
 	default:
 		prm.ResponseFormat = openai.ChatCompletionNewParamsResponseFormatUnion{OfJSONObject: &shared.ResponseFormatJSONObjectParam{}} // chỉ dẫn schema đã gộp vào tin system ở params()
+	}
+}
+
+// dropArrayBounds xoá minItems / maxItems ở mọi tầng của schema (sửa tại chỗ).
+func dropArrayBounds(n any) {
+	switch v := n.(type) {
+	case map[string]any:
+		delete(v, "minItems")
+		delete(v, "maxItems")
+		for _, c := range v {
+			dropArrayBounds(c)
+		}
+	case []any:
+		for _, c := range v {
+			dropArrayBounds(c)
+		}
 	}
 }
 

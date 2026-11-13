@@ -219,7 +219,7 @@ func TestChatSuccessAndUsage(t *testing.T) {
 
 func TestStructuredRequestShape(t *testing.T) {
 	t.Parallel()
-	schema := json.RawMessage(`{"type":"object","properties":{"a":{"type":"string"}},"required":["a"],"additionalProperties":false}`)
+	schema := json.RawMessage(`{"type":"object","properties":{"a":{"type":"string"},"l":{"type":"array","maxItems":3,"items":{"type":"object","properties":{"m":{"type":"array","minItems":1,"items":{"type":"string"}}}}}},"required":["a"],"additionalProperties":false}`)
 	toolResp := `{"id":"1","object":"chat.completion","model":"m","choices":[{"index":0,"finish_reason":"tool_calls","message":{"role":"assistant","content":null,"tool_calls":[{"id":"c1","type":"function","function":{"name":"emit_result","arguments":"{\"a\":\"x\"}"}}]}}],"usage":{"prompt_tokens":5,"completion_tokens":3,"total_tokens":8}}`
 	for _, tc := range []struct {
 		typ   string
@@ -233,10 +233,17 @@ func TestStructuredRequestShape(t *testing.T) {
 			if rf["type"] != "json_schema" || js["strict"] != true || js["schema"] == nil {
 				t.Errorf("response_format = %v", rf)
 			}
+			if s, _ := json.Marshal(rf); !strings.Contains(string(s), "maxItems") || !strings.Contains(string(s), "minItems") {
+				t.Errorf("openai phải giữ minItems / maxItems: %s", s)
+			}
 		}, "xin chào"},
 		{"gemini", okChat, func(t *testing.T, b map[string]any) {
-			if rf := b["response_format"].(map[string]any); rf["type"] != "json_schema" {
+			rf := b["response_format"].(map[string]any)
+			if rf["type"] != "json_schema" {
 				t.Errorf("response_format = %v", rf)
+			}
+			if s, _ := json.Marshal(rf); strings.Contains(string(s), "maxItems") || strings.Contains(string(s), "minItems") {
+				t.Errorf("Gemini trả 400 với minItems / maxItems lồng nhau: phải bỏ: %s", s)
 			}
 		}, "xin chào"},
 		{"anthropic", toolResp, func(t *testing.T, b map[string]any) {
