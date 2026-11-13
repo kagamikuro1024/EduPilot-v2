@@ -173,11 +173,11 @@ order by started_at desc;
 -- name: PracticeDocTitles :many
 -- Tài liệu gợi ý ôn: chỉ tài liệu sinh viên được thấy (READY, hiện cho sinh viên, không phải đề / đáp án / quy chế).
 select id, title from documents
-where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER');
+where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER') and type::text <> 'THREAD_KNOWLEDGE';
 
 -- name: PracticeDocBrief :one
 -- Tài liệu của lớp (cho trích / sinh câu hỏi): loại + trạng thái.
-select id, type::text as type, status::text as status from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
+select id, type::text as type, status::text as status from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and type::text <> 'THREAD_KNOWLEDGE';
 
 -- name: PracticeDocChunks :many
 select id, page_no, text from content_chunks
@@ -188,7 +188,7 @@ order by ord;
 -- Đoạn do giảng viên chọn làm nguồn sinh câu hỏi, kèm loại tài liệu (để chặn ANSWER_KEY).
 select c.id, c.document_id, c.page_no, c.text, d.type::text as doc_type, d.status::text as doc_status
 from content_chunks c join documents d on d.id = c.document_id
-where d.course_id = sqlc.arg(course_id) and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.id = any(sqlc.arg(ids)::text[]::uuid[]);
+where d.course_id = sqlc.arg(course_id) and d.type::text <> 'THREAD_KNOWLEDGE' and c.course_ids @> array[sqlc.arg(course_id)::uuid] and c.id = any(sqlc.arg(ids)::text[]::uuid[]);
 
 -- name: PracticeStemsOfCourse :many
 select stem from question_bank where course_id = sqlc.arg(course_id) and archived_at is null;

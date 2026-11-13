@@ -359,7 +359,7 @@ func (q *Queries) PracticeAttemptTakeTab(ctx context.Context, arg PracticeAttemp
 const practiceChunksByIDs = `-- name: PracticeChunksByIDs :many
 select c.id, c.document_id, c.page_no, c.text, d.type::text as doc_type, d.status::text as doc_status
 from content_chunks c join documents d on d.id = c.document_id
-where d.course_id = $1 and c.course_ids @> array[$1::uuid] and c.id = any($2::text[]::uuid[])
+where d.course_id = $1 and d.type::text <> 'THREAD_KNOWLEDGE' and c.course_ids @> array[$1::uuid] and c.id = any($2::text[]::uuid[])
 `
 
 type PracticeChunksByIDsParams struct {
@@ -405,7 +405,7 @@ func (q *Queries) PracticeChunksByIDs(ctx context.Context, arg PracticeChunksByI
 }
 
 const practiceDocBrief = `-- name: PracticeDocBrief :one
-select id, type::text as type, status::text as status from documents where course_id = $1 and id = $2
+select id, type::text as type, status::text as status from documents where course_id = $1 and id = $2 and type::text <> 'THREAD_KNOWLEDGE'
 `
 
 type PracticeDocBriefParams struct {
@@ -466,7 +466,7 @@ func (q *Queries) PracticeDocChunks(ctx context.Context, arg PracticeDocChunksPa
 
 const practiceDocTitles = `-- name: PracticeDocTitles :many
 select id, title from documents
-where course_id = $1 and id = any($2::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER')
+where course_id = $1 and id = any($2::text[]::uuid[]) and status = 'READY' and visible_to_students and type::text in ('LECTURE', 'OTHER') and type::text <> 'THREAD_KNOWLEDGE'
 `
 
 type PracticeDocTitlesParams struct {
