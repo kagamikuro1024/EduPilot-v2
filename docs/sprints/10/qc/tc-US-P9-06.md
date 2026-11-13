@@ -38,4 +38,5 @@ Phủ bởi TC-06-10 (mất mạng), 12, 17, 20, 22.
 TC-06-18, 19; SV lớp khác `start` ở `C1` → `403`/`404`; `sv.moi` → `403`/`404`.
 
 ## Lịch sử sửa TC
+- 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): Q29: dev thêm bản ghi `explain` vào `fake_llm.json` và nêu cách bật `OVERLOADED` ở handoff — TC-06-20 chờ stack + handoff.
 - 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-06-17 (Q11), thêm TC-06-25b (Q25: `MCQ_MULTI` đúng = trùng toàn bộ tập).

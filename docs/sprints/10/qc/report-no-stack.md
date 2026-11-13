@@ -81,3 +81,16 @@ TC-02-01, TC-02-02 (trích kèm đáp án), thêm TC-02-02b (không kèm đáp �
 
 ## 9. Việc còn lại (cần stack, đúng thứ tự `tc-00-chung.md`)
 Dựng `ep-qc` với `docker-compose.test.yml` (route thử `_test/llm/fake` để bật lỗi LLM; Q-S10-29), `--profile ingest`, seed (`STEPS=20`), `check-practice-seed.mjs`; API (curl) cho TC trích đề, dựng đề, thi thử, Forms; E2E `qc-practice-*.spec.ts` 1440 + 375; k6 và Lighthouse ở cuối khi PM báo hết đo tải.
+
+## 10. Quyết định PM (P-10-8, 2026-11-14) và ảnh hưởng
+| Mục | Quyết định | Việc / TC |
+| --- | --- | --- |
+| F1 | Chấp nhận ngưỡng Hôm nay SV 6 → 7 (1 truy vấn gộp cố định, không N+1); commit test phải ghi số P-10-8 | TC-12-22: QC kiểm commit ghi số P-10-8 khi dev sửa |
+| F2 | Dev xoá `frontend/src/mock/questions.ts` | TC-12-12 chờ dev |
+| F3 / Q27 | **Bắt buộc**: `extract` ≤ 60 trang, ≤ 5 việc/lớp/giờ; `generate` ≤ 5 việc/lớp/giờ; `429 RATE_LIMITED` + `Retry-After`; BA thêm AC/FR; dev cài + openapi | TC-02-19, 02-20, 03-13 chờ dev (hiện FAIL nếu chạy) |
+| F4 | Dev thêm `429` cho `explain` vào openapi | TC-12-14 |
+| Q28 | ≥ 80 đạt | TC-12-02 |
+| Q29 | Dev thêm bản ghi `explain` vào `fake_llm.json`, nêu cách bật `OVERLOADED` ở handoff | TC-02-14, 06-20, 08-11 chờ handoff + stack |
+| Q30 | Đủ: hàng Chưa khớp có liên kết «Nhập ở Sổ điểm», không dòng giải thích | Thêm TC-11-19 |
+| Q31 | Không chấp nhận mất lệnh: rời trang / đóng tab trong 5 s thì gửi ngay (`fetch keepalive` lúc `pagehide`); dev sửa | Thêm TC-04-06b |
+F5 (Forms gán tay), F6 (Loại hoãn 5 s) và F7 (seed 82) đã khép bằng Q30, Q31, Q28. Không còn mục chờ PM ở phần không stack.

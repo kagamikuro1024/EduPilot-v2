@@ -35,5 +35,6 @@ Nguồn: US-P9-02 + SRS §3 (nhánh trích), §4.2 FR-5, 7, 8, §6 #1. Cần doc
 | TC-02-P5 | GV lớp 2 gọi trên `C1` | `403` |
 
 ## Lịch sử sửa TC
+- 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): F3/Q27 BẮT BUỘC: TC-02-19 (≤ 5 việc/lớp/giờ → `429 RATE_LIMITED` + `Retry-After`), TC-02-20 (≤ 60 trang) là yêu cầu chính thức; BA thêm AC/FR, dev cài + openapi (chờ). Chạy lại TC khi có.
 - 2026-11-14 — handoff dev trả lời Q4/Q5/Q6: TC-02-01 trích kèm đáp án (fixture `de-mau` không có đáp án trong LLM), thêm TC-02-02b, `GET /jobs/{id}`; fixture ở `seed/practice/`.
 - 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-02 ghi «chờ handoff» cho Q4, Q5, Q6, Q7; Q8 (k6 cuối pha 2).

@@ -22,4 +22,5 @@ Nguồn: US-P9-08 + SRS FR-10, §6 #12, Q-P9-6. Cần ≥ 1 câu `ESSAY` `APPROV
 STUDENT lớp khác / lượt người khác → `404`; staff gọi `feedback` → `403`.
 
 ## Lịch sử sửa TC
+- 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): Q29: TC-08-11 (LLM lỗi) chờ handoff cách bật `OVERLOADED`.
 - 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-08-08 → NGOÀI PHẠM VI (Q16); TC-08-06, TC-08-14 ghi mặc định Q15, Q17.

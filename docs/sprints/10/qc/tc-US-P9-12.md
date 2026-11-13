@@ -30,4 +30,5 @@ Nguồn: US-P9-12 + SRS §9, FLOWS F12. Đây là story «đóng phase»: QC ch�
 Phủ ở các story; ở đây TC-12-04 (cách ly lớp).
 
 ## Lịch sử sửa TC
+- 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): F1: TC-12-22 — ngưỡng Hôm nay SV 6 → 7 được chấp nhận; kiểm commit test có số P-10-8. Q28: TC-12-02 ≥ 80 `APPROVED` đạt. F2: TC-12-12 chờ dev xoá `mock/questions.ts`. F4: TC-12-14 thêm kiểm `429` ở openapi cho `explain`, `extract`, `generate`.
 (trống)
