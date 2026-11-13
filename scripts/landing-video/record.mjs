@@ -142,7 +142,7 @@ await scene("s1-chat", sv, async (page, a) => {
   await a.cap(CAPTIONS[0]);
   await sleep(2800);
   // mở một cuộc hỏi đáp đã có (dữ liệu seed), không gửi câu mới
-  const session = page.getByRole("button", { name: /Điều kiện để được dự thi/ }).first();
+  const session = page.getByRole("button", { name: /Giải thích giúp em|Điều kiện để được dự thi/ }).first();
   await a.click(session);
   await sleep(1200);
   await a.cap(CAPTIONS[1]);
@@ -239,7 +239,7 @@ async function stills() {
   await p.goto(`${BASE}/chat`, { waitUntil: "load" });
   await p.getByRole("textbox").last().waitFor();
   await sleep(1000);
-  await p.getByRole("button", { name: /Điều kiện để được dự thi/ }).first().click();
+  await p.getByRole("button", { name: /Giải thích giúp em|Điều kiện để được dự thi/ }).first().click();
   await p.mouse.move(SHOT.width - 4, SHOT.height - 4);
   await sleep(1500);
   await p.screenshot({ path: `${OUT}/story-chat.png` });
@@ -249,11 +249,13 @@ async function stills() {
   p = await ctx.newPage();
   await p.goto(`${BASE}/grading`, { waitUntil: "load" });
   await sleep(1200);
-  await p.locator("main tbody tr").first().click();
-  await p.waitForURL(/\/grading\//);
-  await p.mouse.move(SHOT.width - 4, SHOT.height - 4);
-  await sleep(1500);
-  await p.screenshot({ path: `${OUT}/story-review.png` });
+  if (await p.locator("main tbody tr").count()) {
+    await p.locator("main tbody tr").first().click();
+    await p.waitForURL(/\/grading\//);
+    await p.mouse.move(SHOT.width - 4, SHOT.height - 4);
+    await sleep(1500);
+    await p.screenshot({ path: `${OUT}/story-review.png` });
+  } else console.warn("Hàng chờ chấm trống: bỏ qua ảnh story-review (cần bản chạy có bài nộp chưa duyệt)");
   await p.goto(`${BASE}/gradebook`, { waitUntil: "load" });
   await sleep(1500);
   await p.locator("main tbody tr", { hasText: /\d{8}/ }).first().getByRole("button").last().click();

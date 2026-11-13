@@ -282,3 +282,20 @@ test("assignments section: mỗi bài một dòng tên · hạn · trạng thái
   const titles = await page.locator("main section h2, main [data-ep-panel] h2").allInnerTexts();
   expect(titles).toEqual(["Điểm", "Chuyên cần", "Điểm cộng đã ghi", "Bài tập", "Thời gian học"]);
 });
+
+test("me 375: Thời gian học và Bài tập gập sẵn, Mở hiện nội dung; trang ≤ 1.600 px (US-UX91-20 AC8)", async ({ page }) => {
+  await page.setViewportSize({ width: 375, height: 812 });
+  await api(page, COURSE, { grades: () => inProgress() });
+  await studentApi(page, { items: [studentItem(), studentItem({ id: A2, title: "Bài tập 04 · Mã độc", my: { state: "SUBMITTED", late_days: 0, submitted_at: "2026-10-23T01:10:00.000Z" } })] });
+  await page.goto("/me");
+  await expect(page.getByText("Bạn có mặt 7/9 buổi, vắng 2.")).toBeVisible();
+  await expect(page.locator("[data-part=me-assignment-row]")).toHaveCount(0);
+  await expect(page.getByText("Tuần này: 45 phút")).toHaveCount(0);
+  const h = await page.evaluate(() => document.documentElement.scrollHeight);
+  console.log("INFO me 375 scrollHeight", h);
+  expect(h).toBeLessThanOrEqual(1600);
+  await page.locator('[data-part=me-assignments]').getByRole("button", { name: "Mở" }).click();
+  await expect(page.locator("[data-part=me-assignment-row]")).toHaveCount(2);
+  await page.getByRole("button", { name: "Gập" }).click();
+  await expect(page.locator("[data-part=me-assignment-row]")).toHaveCount(0);
+});

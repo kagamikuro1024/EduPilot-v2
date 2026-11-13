@@ -77,7 +77,7 @@ test("TC-UX16 sổ điểm thật: cột Trạng thái, menu ⋯, Chốt điểm
     expect(st.body.gradebook?.status).not.toBe("LOCKED");
   }
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.screenshot({ path: "/out/shots-w4/gradebook-1440.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-4/gradebook-1440.png" });
   await ctx.close();
   const t = await who(browser, 1440, 900, "ta");
   const fin = await api(t.page, `/courses/${t.c}/gradebook/finalize`, { method: "POST", body: {} });
@@ -220,9 +220,9 @@ test("K7 ảnh sau đợt 4 (1440 + 375)", async ({ browser }, info) => {
       await page.goto(url);
       await page.waitForTimeout(2000);
       await prep(page);
-      await page.screenshot({ path: `/out/shots-w4/${name}-${w}.png` });
+      await page.screenshot({ path: `../docs/sprints/9.1/qc/shots/wave-4/${name}-${w}.png` });
     }
-    if (w === 375) { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await page.waitForTimeout(500); await page.screenshot({ path: "/out/shots-w4/attendance-375-cuoi.png" }); }
+    if (w === 375) { await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)); await page.waitForTimeout(500); await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-4/attendance-375-cuoi.png" }); }
     await ctx.close();
   }
 });

@@ -84,7 +84,7 @@ test("TC-UX13 chat 1440: bố cục, lịch sử, gợi ý, Phiên mới, xoá c
   const txt = (await page.locator("main").innerText()).replace(/\s+/g, " ");
   console.log("INFO UX13-15 dòng che:", JSON.stringify(txt.match(/Đã ẩn \d+ thông tin cá nhân trước khi gửi cho AI/)), "| lộ tên/MSSV/email trong màn:", /Nguyễn Minh Trung|20229002|sv\.kha@/.test(txt));
   console.log("INFO UX13-14 từ kỹ thuật sau gửi:", JSON.stringify(txt.match(BAD)));
-  await page.screenshot({ path: "/out/shots-w5/chat-after-send-1440.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/chat-after-send-1440.png" });
 
   // --- xoá có hoàn tác (phiên PII vừa tạo là hàng đầu)
   await page.waitForTimeout(500);
@@ -173,7 +173,7 @@ test("TC-UX13-18/21/22/23 chat: gõ khi đang trả lời, gửi lại cùng Ide
     const a = await (await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "include" })).json();
     const h = { authorization: `Bearer ${a.access_token}` };
     const out: string[] = [];
-    for (const id of ids.slice(0, 3)) { const r = await fetch(`/api/v1/chat/sessions/${id}/messages?limit=5`, { headers: h }); out.push(`${r.status}:${(await r.text()).includes("Tin QC") || (await r.clone().text()).includes("content") && r.status === 200 ? "LỘ" : "ok"}`); }
+    for (const id of ids.slice(0, 3)) { const r = await fetch(`/api/v1/chat/sessions/${id}/messages?limit=5`, { headers: h }); out.push(`${r.status}:${((t) => (t.includes("Tin QC") || (t.includes("content") && r.status === 200) ? "LỘ" : "ok"))(await r.text())}`); }
     return out;
   }, cnt.ids);
   console.log("INFO UX13-23 SV khác đọc phiên của SV A:", JSON.stringify(res));
@@ -224,7 +224,7 @@ test("TC-UX13-24/14/25 chat 375: bảng phiên, ô nhập, vùng chạm, hoạt 
   console.log("INFO UX13-24 bảng phiên:", await dlg.count(), JSON.stringify(db), "| hàng:", await dlg.first().locator("button, a, [role=option], li").count());
   const hits = await dlg.first().locator("button, a, [role=menuitem], [role=option]").evaluateAll((es) => es.slice(0, 12).map((e) => `${(e as HTMLElement).innerText.trim().slice(0, 18)}:${Math.round(e.getBoundingClientRect().width)}x${Math.round(e.getBoundingClientRect().height)}`));
   console.log("INFO UX13-24 vùng chạm trong bảng:", JSON.stringify(hits));
-  await page.screenshot({ path: "/out/shots-w5/chat-sheet-375.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/chat-sheet-375.png" });
   await page.keyboard.press("Escape");
   await ctx.close();
 });

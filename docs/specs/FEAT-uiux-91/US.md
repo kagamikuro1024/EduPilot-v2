@@ -430,7 +430,7 @@ Căn cứ: DESIGN §14.8; UX.md §5 `/attendance`; Q-UX91-4 (đã chốt: "Có m
 Căn cứ: DESIGN §14.2; `findings.md` UX-11 và mẫu 3.C.
 
 ### Tiêu chí nghiệm thu
-- AC1 (một Panel). Given `/chat` ở 1440 px When mở Then có **một** Panel hội thoại căn giữa, rộng tối đa 840 px; lịch sử phiên là cột phẳng bên trái (đường kẻ 1 px, không Panel thứ hai), thu gọn được; `ui-antipatterns.sh` phép "nhiều Panel trong một vùng làm việc" sạch.
+- AC1 (một Panel). Given `/chat` ở 1440 px When mở Then có **một** Panel hội thoại rộng tối đa 840 px, căn giữa **trong phần bên phải cột lịch sử** (cột lịch sử rộng 240 px + khoảng cách 24 px nằm ngoài phép căn; ở 1440 px lề trái / phải của Panel trong phần còn lại bằng nhau, P-91-13); lịch sử phiên là cột phẳng bên trái (đường kẻ 1 px, không Panel thứ hai), thu gọn được; `ui-antipatterns.sh` phép "nhiều Panel trong một vùng làm việc" sạch.
 - AC2 (lịch sử). Given ≥ 1 phiên trước When xem lịch sử Then mỗi hàng hiện tiêu đề (tối đa 2 dòng, cắt có dấu `…`) + ngày giờ theo US-UX91-02; **không** hiện biểu tượng thùng rác trên mọi hàng; xoá nằm trong menu `⋯` của hàng.
 - AC3 (xoá có hoàn tác). Given chọn xoá phiên When xác nhận bằng một chạm Then phiên biến ngay và hiện dòng "Đã xoá · Hoàn tác" 5 giây (hành vi `useUndoableAction` hiện có); không hộp thoại xác nhận; quá 5 giây xoá thật.
 - AC4 (Phiên mới). Given phiên hiện tại chưa có tin nhắn When xem Then **không** có nút `Phiên mới` (không nút khoá); có ≥ 1 tin → hiện nút `Phiên mới` (nút phụ, không đỏ).
@@ -533,8 +533,8 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 - AC2 (chữ). Given trang When xem Then áp US-UX91-01 dòng 23–28 (không còn câu giải thích; hộp riêng tư thành `meta` ngắn).
 - AC3 (Quan sát AI: không lặp). Given `/observability` When xem Then mỗi chỉ số (yêu cầu, độ trễ p95, tỷ lệ lỗi, chuyển giảng viên, lần che thông tin) hiện **đúng một chỗ**: số "hôm nay" là một dòng chữ (không dải 5 ô KPI cùng cỡ), số 7 ngày là bảng; hàng đầu bảng không trống.
 - AC4 (khoảng cách). Given hai khối liên tiếp When xem Then khoảng cách trên tiêu đề khối ≥ 32 px (§6: nhiều hơn dưới), không dính sát Panel trước.
-- AC5 (nội dung prompt). Given giảng viên mở `/observability` Then **không** đọc được nội dung câu hỏi / prompt (chỉ ADMIN, có `audit_log`); không đổi.
-- AC6 (nhánh lỗi / rỗng). Given chưa có báo cáo Insights When mở Then `EmptyState` + một nút `Tạo báo cáo mới`; đang tạo → chỉ báo giai đoạn ("Đang nhóm 66 câu hỏi…"), rời trang được, báo cáo cũ vẫn xem được (UX.md §5).
+- AC5 (nội dung prompt). Given giảng viên mở `/observability` Then **không** đọc được nội dung câu hỏi / prompt (chỉ ADMIN, có `audit_log`); không đổi. **Kiểm sau khi nối API thật (nợ P10, P-91-15): TC UX17-8 «KHÔNG KIỂM ĐƯỢC» ở sprint 9.1 vì `/observability` đang dữ liệu mô phỏng, không tính FAIL.**
+- AC6 (nhánh lỗi / rỗng; **kiểm sau khi nối API thật, nợ P10 — UX17-9 không tính FAIL ở 9.1, P-91-15**). Given chưa có báo cáo Insights When mở Then `EmptyState` + một nút `Tạo báo cáo mới`; đang tạo → chỉ báo giai đoạn ("Đang nhóm 66 câu hỏi…"), rời trang được, báo cáo cũ vẫn xem được (UX.md §5).
 - AC7 (phân quyền). Given STUDENT / TA không có quyền Then 403; giảng viên không đọc chat riêng chưa escalate qua trang này.
 - AC8 (di động). Given 375 px Then khối xếp dọc, không tràn ngang.
 - AC9 (chuyển động). Không thêm chuyển động; `Tạo báo cáo mới` có `:active` theo US-UX91-04.
@@ -602,7 +602,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 - AC5 (yêu cầu xem lại). Given điểm đã công bố When bấm "Yêu cầu xem lại" Then hành vi hiện có (không đổi), đúng một nút phụ.
 - AC6 (nhánh lỗi / rỗng). Given chưa có điểm công bố Then `EmptyState` "Chưa có điểm nào được công bố." + nêu nơi sẽ xuất hiện; API lỗi → `ApiErrorNotice` + `Thử lại`.
 - AC7 (phân quyền). Given sinh viên A When gọi dữ liệu của sinh viên B Then 403 (danh tính từ JWT, không từ tham số).
-- AC8 (di động 375). Given 375 px Then trang dài ≤ 1.600 px cho lớp mẫu (hiện 2.645 px), không tràn ngang, dòng giải trình xuống dòng gọn.
+- AC8 (di động 375). Given 375 px (< 720 px) Then «Thời gian học» và «Bài tập» **gập sẵn** (mở dần bằng một chạm, nội dung giữ nguyên, tiêu đề kèm số tóm tắt) và trang dài ≤ 1.600 px cho lớp mẫu khi hai khối đang gập (hiện 2.645 px; P-91-14), không tràn ngang, dòng giải trình xuống dòng gọn.
 - AC9 (e2e). Given `me.spec.ts` When đổi Then sửa theo AC1–AC2 (QC sửa theo spec).
 - AC10 (ảnh mốc). Thêm ảnh mốc `me-390` (QC quyết).
 

@@ -1,6 +1,16 @@
 # QC đợt 6 — Trang giới thiệu v2, clip và video (US-UX91-08, 09)
 
-**Kết luận (kiểm lại lần 3, 2026-11-09, ở `9aea5b95`): PASS có giới hạn.** US-08 PASS (AC5 đã sửa). US-09 PASS có giới hạn (AC10: lỗi `run.sh` đã hết; chưa quay trọn được trên `ep-qc`, xem bên dưới). **AC10a của US-08: FAIL, ghi ở `wave-5.md` (TC-UX08-37).**
+**Kết luận (kiểm lại lần 4, 2026-11-13; AC10a cập nhật ở `18400636`): PASS có giới hạn.** US-08 AC10a đã PASS ở `18400636` (`wave-5.md`, TC-UX08-37 / UX91-X1). Mã đợt 6 không đổi từ lượt 3 (`3002ce33` chỉ sửa đợt 5 và ảnh khung ghim). Chạy lại `qc-uiux91-w6-real.spec.ts` trên Mac: **26 / 27 xanh**; 1 ca không chạy được vì Firefox (xem dưới). US-09 AC10 vẫn có giới hạn (chưa quay trọn bản video trên `ep-qc`).
+
+## Kiểm lại lần 4 ở `3002ce33` (Mac, 2026-11-13)
+| TC | Lượt 3 | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX08-1, 3/4, 6…12, 14…19, 21…27, 29…36, 38…42, 46, 48, 51…54 | PASS | PASS | 24 ca trên Chromium: màn đầu 1 nút đỏ, LCP là poster clip, clip tải sau load, tab ẩn 0 → 1 request, `Xem video` không tải trước và bỏ nguồn khi đóng, khung ghim 3 ảnh đúng thứ tự, chỉ animate `transform` / `opacity` / màu, đếm 0 → 146, chữ 64 / 44 px (375: 41,25 / 28), bóng `--ep-shadow-popover`, tắt JS vẫn đủ nội dung |
+| UX09-11/13 (375, WebKit) | PASS (VPS) | **PASS** | WebKit cài mới trên Mac: video rộng 337 px không tràn; tua 30 s phát tiếp (Chromium `31,97 s`, WebKit `31,97 s`, mp4) |
+| UX08-28/48 WebKit | PASS (VPS) | PASS | WebKit trên Mac **có** `animation-timeline` (`true`): nhánh «không hỗ trợ» không được thử, nhưng đủ nội dung, 0 khối ẩn, 146 hiện |
+| UX08-28/48 Firefox | PASS (VPS) | **KHÔNG CHẠY ĐƯỢC** | Firefox 155 (Playwright 1543) trên macOS arm64 không khởi động: `Could not find profile folder`. Giới hạn môi trường Mac, không phải lỗi sản phẩm; lượt 3 trên VPS đã PASS và mã đợt 6 không đổi |
+| UX08-37 / AC10a | FAIL | **PASS (ở `18400636`)** | Xem `wave-5.md` (UX91-X1): `story-review-v1.webp` chụp lại, 79.546 B ≤ 90 KB, khớp UI hiện hành. Ở `3002ce33` còn FAIL |
+
 Lượt 1 (ở `62f4833b`) là FAIL; bảng lượt 1 giữ nguyên bên dưới làm lịch sử. Có **một đính chính** lượt 1: TC-UX08-18 ghi PASS «bỏ nguồn» nhưng phép kiểm khi đó yếu (`getAttribute("src") === null` luôn đúng vì nguồn nằm ở thẻ `<source>`); đã kiểm lại đúng, kết quả là FAIL bên dưới.
 
 ## Kiểm lại lần 3 ở `9aea5b95` (2026-11-09)

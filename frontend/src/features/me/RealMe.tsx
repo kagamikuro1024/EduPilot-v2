@@ -1,13 +1,15 @@
 "use client";
 
+import { useEffect, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ApiErrorNotice } from "@/shared/data/ApiErrorNotice";
 import { apiClient } from "@/shared/data";
-import { ActionList, ActionRow, DefinitionList, EmptyState, Page, PageHeader, Panel, Section, Skeleton, TrendChart } from "@/shared/ui";
+import { ActionList, ActionRow, Button, DefinitionList, EmptyState, Page, PageHeader, Panel, Section, Skeleton, TrendChart } from "@/shared/ui";
 import { STATE_LABEL, dueLabel, useMyAssignments } from "@/features/assignments/assignmentApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
 import { withCourse } from "@/shared/lib/courseHref";
-import { MeGrade } from "./MeGrade";
+import { useMinWidth } from "@/shared/lib/useMinWidth";
+import { MeGrade, useMyGrades } from "./MeGrade";
 import { EVENT_LABEL, STATUS_LABEL, attendanceSentence, dayMonthOf, signedPoints, type MyAttendance, type MyParticipation, type MyStudyTime } from "./meApi";
 import s from "./Me.module.css";
 
@@ -29,39 +31,73 @@ export function RealMe({ courseId }: { courseId: string }) {
   const att = useMine<MyAttendance>(courseId, "attendance", "?limit=100");
   const part = useMine<MyParticipation>(courseId, "participation", "?limit=10");
   const study = useMine<MyStudyTime>(courseId, "study-time", "?weeks=8");
+  const grades = useMyGrades(courseId);
+  const assigns = useMyAssignments(courseId);
   const retry = () => {
     void att.refetch();
     void part.refetch();
     void study.refetch();
   };
+  // Chỉ dựng khi đủ dữ liệu của các khối trên (khối Điểm đổi chiều cao khi có dữ liệu: dựng sớm thì đẩy các khối dưới = CLS), rồi hiện từng lớp
+  // khối ở các tác vụ riêng (một lần dựng cả trang là một tác vụ dài = TBT). Khối hiện sau luôn nằm DƯỚI khối hiện trước nên không đẩy gì.
+  const [seen, setSeen] = useState(false); // chỉ chờ LẦN ĐẦU: "Thử lại" của khối Điểm đưa truy vấn về pending nhưng không được thay cả trang bằng khung xương
+  if (!seen && att.data && part.data && !grades.isPending) setSeen(true);
+  const stage = useStages(seen, 2);
   const failed = (!att.data && att.isError) || (!part.data && part.isError);
   return (
     <Page className={s.stack}>
       <PageHeader title="Kết quả của tôi" />
       {failed ? (
         <ApiErrorNotice error={att.error ?? part.error} showTechnical onRetry={retry} title="Không tải được kết quả của bạn. Dữ liệu của bạn không bị mất." />
-      ) : !att.data || !part.data ? (
+      ) : !seen || !att.data || !part.data ? (
         <Panel><Skeleton lines={6} /></Panel>
       ) : (
         <>
           <MeGrade courseId={courseId} />
           <Attendance a={att.data.attendance} />
-          <Participation p={part.data.participation} />
-          <Assignments courseId={courseId} />
-          {study.data && <StudyTrend t={study.data} />}
+          {stage >= 1 && <Participation p={part.data.participation} />}
+          {stage >= 1 && <Assignments courseId={courseId} list={assigns} />}
+          {stage >= 2 && !assigns.isPending && study.data && <StudyTrend t={study.data} />}
         </>
       )}
     </Page>
   );
 }
 
+/** Số lớp khối đã được phép hiện (0…n): mỗi lớp thêm ở một tác vụ riêng sau khi lớp trước đã vẽ. */
+function useStages(go: boolean, n: number) {
+  const [k, setK] = useState(0);
+  useEffect(() => {
+    if (!go || k >= n) return;
+    const id = window.setTimeout(() => setK((x) => x + 1), 0);
+    return () => window.clearTimeout(id);
+  }, [go, k, n]);
+  return k;
+}
+
+/** Khối phụ: ở < 720 px gập sẵn (nút Mở / Gập ở hàng tiêu đề) để /me ≤ 1.600 px ở 375 (US-UX91-20 AC8); từ 720 px luôn mở. */
+function Fold({ title, part, children }: { title: string; part?: string; children: ReactNode }) {
+  const wide = useMinWidth(720);
+  const [manual, setManual] = useState<boolean | null>(null);
+  const open = wide || (manual ?? false);
+  return (
+    <Section
+      panel={open}
+      title={title}
+      part={part}
+      action={!wide && <Button size="sm" variant="ghost" aria-expanded={open} onClick={() => setManual(!open)}>{open ? "Gập" : "Mở"}</Button>}
+    >
+      {open ? children : null}
+    </Section>
+  );
+}
+
 /** Bài tập đã công bố của lớp: tên · hạn · trạng thái bằng chữ, mở sang `/assignments/{id}` (US-P7-03 AC10). */
-function Assignments({ courseId }: { courseId: string }) {
-  const list = useMyAssignments(courseId);
+function Assignments({ courseId, list }: { courseId: string; list: ReturnType<typeof useMyAssignments> }) {
   if (list.isPending) return <Section panel title="Bài tập" part="me-assignments"><ActionList label="Bài tập" loading={2} /></Section>;
   if (list.isError) return null; // lỗi của khối phụ không che các khối đã tải
   return (
-    <Section panel title="Bài tập" part="me-assignments">
+    <Fold title="Bài tập" part="me-assignments">
       {list.items.length === 0 ? (
         <EmptyState title="Lớp chưa có bài tập." />
       ) : (
@@ -77,7 +113,7 @@ function Assignments({ courseId }: { courseId: string }) {
           ))}
         </ActionList>
       )}
-    </Section>
+    </Fold>
   );
 }
 
@@ -129,11 +165,11 @@ function StudyTrend({ t }: { t: MyStudyTime }) {
   if (!t.tracking.enabled) return <Section panel title="Thời gian học"><p className={s.sub}>Đang tắt</p></Section>;
   if (t.weeks.length === 0) return null;
   return (
-    <Section panel title="Thời gian học">
+    <Fold title="Thời gian học">
       <div className={s.trend}>
         <TrendChart label="Phút học mỗi tuần" height={96} points={t.weeks.map((w) => ({ x: dayMonthOf(w.week_start), full: `Tuần từ ${dayMonthOf(w.week_start)}`, y: w.minutes }))} format={(v) => `${v} phút`} />
       </div>
       <p className={s.sub}>{`Tuần này: ${t.this_week_minutes} phút`}</p>
-    </Section>
+    </Fold>
   );
 }

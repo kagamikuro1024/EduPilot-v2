@@ -588,27 +588,45 @@ test("review edit score undo: lưu lạc quan, bước 0,25 báo tại ô, hoàn
   await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
 });
 
-test("review version conflict: 409 hỏi giữ bên nào", async ({ page, context }, info) => {
+test("review version conflict: 409 giữ điểm đã gõ, nêu giá trị người kia, MỘT thông báo (US-15 AC7, lỗi #8)", async ({ page, context }, info) => {
   desktopOnly(info);
-  const theirs = resultView({ result: { ...resultView().result, version: 9, overall_feedback: "Bản của người khác" } });
+  const base = resultView();
+  const theirs = resultView({ result: { ...base.result, version: 9 }, criteria: base.criteria.map((c) => (c.id === "c2" ? { ...c, score: "1.25" } : c)) });
   let n = 0;
-  await openReview(page, context, {
+  const api = await openReview(page, context, {
     h: {
       "PUT grading-results/:id": (r) => {
         n += 1;
-        return n === 1
-          ? r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current: theirs } }, 409))
-          : r.fulfill(json(theirs));
+        return n === 1 ? r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current: theirs } }, 409)) : r.fulfill(json(theirs));
       },
     },
   });
   const box = page.locator('[data-part=criterion][data-criterion="c2"]').getByLabel(/^Điểm /);
-  await box.fill("2,25");
+  await box.fill("0,75");
   await box.blur();
-  await expect(page.getByText("Người khác vừa sửa kết quả này")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Giữ của tôi" })).toBeVisible();
+  await expect(page.getByText("Người khác vừa nhập 1,25")).toBeVisible();
+  await expect(box).toHaveValue("0,75"); // chữ đã gõ không lùi
+  await expect(page.getByText("Có người vừa sửa mục này")).toHaveCount(0); // không có dải lỗi thứ hai
+  await expect(page.locator("[data-part=undo-line]")).toHaveCount(0);
+  await page.getByRole("button", { name: "Giữ của tôi" }).click();
+  await expect.poll(() => api.puts().length).toBe(2);
+  const kept = JSON.parse(api.puts()[1].body) as { version: number; criteria: Array<{ id: string; score: string }> };
+  expect(kept.version).toBe(9); // ghi đè lên bản của người kia, chỉ tiêu chí đang sửa
+  expect(kept.criteria).toEqual([{ id: "c2", score: "0.75" }]);
+  await expect(page.getByText("Người khác vừa nhập 1,25")).toHaveCount(0);
+});
+
+test("review version conflict: Dùng của họ đổi ô sang giá trị người kia", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const base = resultView();
+  const theirs = resultView({ result: { ...base.result, version: 9 }, criteria: base.criteria.map((c) => (c.id === "c2" ? { ...c, score: "1.25" } : c)) });
+  await openReview(page, context, { h: { "PUT grading-results/:id": (r) => r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current: theirs } }, 409)) } });
+  const box = page.locator('[data-part=criterion][data-criterion="c2"]').getByLabel(/^Điểm /);
+  await box.fill("0,75");
+  await box.blur();
   await page.getByRole("button", { name: "Dùng của họ" }).click();
-  await expect(page.getByText("Người khác vừa sửa kết quả này")).toHaveCount(0);
+  await expect(box).toHaveValue("1,25");
+  await expect(page.getByText("Người khác vừa nhập 1,25")).toHaveCount(0);
 });
 
 test("review comment autosave: nháp lưu vào máy mỗi 2 giây", async ({ page, context }, info) => {

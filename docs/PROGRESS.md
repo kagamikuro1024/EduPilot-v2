@@ -4,8 +4,8 @@ Claude Code: ĐỌC file này đầu mỗi phiên, CẬP NHẬT cuối mỗi phi
 
 ## Đang ở đâu
 - Repo: `origin` = `github.com/kagamikuro1024/EduPilot-v2` (**public** từ 2026-10-09; lịch sử đã làm sạch secret của Project III bằng `git filter-repo`). Repo cũ `TA_Agent_v2` (private, lịch sử chưa làm sạch) = remote `old-private`, **không push thêm**; nhánh cục bộ `chore/edupilot-v2-docs`, `legacy-main` thuộc lịch sử cũ, **không bao giờ push lên `origin`**. `main` = sprint 1 + 1.5 + 2 + 3 + 4 + 5 + 5.5 + 6 + 7 + 8 + 9. Repo Project III `TA_Agent` = remote `old-origin`, không push thêm.
-- Lộ trình: **11 sprint + 1.5 + 5.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu. Mỗi sprint merge xong: `writer` viết phần quyển đồ án, PM + BA review.
-- Sprint gần nhất: **8 — P6 Sổ điểm** (`docs/sprints/8/report.md`) và **9 — P7 Bài tập + chấm** (`docs/sprints/9/report.md`), cổng P6 / P7 ĐẠT kỹ thuật; chủ dự án chốt 2026-11-01, đã vào `main`; quyển đồ án ĐẠT tới sprint 9 (190 trang). Kế tiếp: sprint 10 (P9 Luyện đề).
+- Lộ trình: **11 sprint + 1.5 + 5.5 + 9.5 chen giữa** (`docs/sprints/ROADMAP.md`). Chạy cuốn chiếu. Mỗi sprint merge xong: `writer` viết phần quyển đồ án, PM + BA review.
+- Sprint gần nhất: **9.1 — Khảo sát + cải thiện UI/UX** (`docs/sprints/9.1/qc/summary.md`, báo cáo `docs/sprints/9.1/bao-cao-uiux.html`): 21 story PASS (có giới hạn: video chưa quay trọn trên stack test; UX17-8/9 → P10). Merge `main` 2026-11-14, CI xanh @`e050e566`. Trước đó: 8 P6 Sổ điểm, 9 P7 Bài tập. VPS bị thu hồi 2026-11-12: build / test / demo chạy trên Mac (CONTEXT §4). Đang làm: 9.5 (NFR, LLM thật Gemini) và 10 (P9 Luyện đề) song song.
 - Workflow giữ HF Space cũ thức đã dời vào `legacy/.github/` ở repo mới (repo cũ vẫn tự chạy bản của nó).
 
 ## Bảng phase
@@ -40,6 +40,7 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
 - Bước kế tiếp cụ thể: CI `main` xanh; chủ dự án quyết LCP `/assignments/[id]` (#10 sprint 9), duyệt `golang.org/x/text`, tính tay A, B, C; PM lập kế hoạch sprint 10 (P9 Luyện đề).
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
+- 9.1 UX17-8, UX17-9 (`/insights`, `/observability` còn dữ liệu mô phỏng; Admin xem hàng → `audit_log`, lớp chưa có báo cáo) → kiểm khi P10 nối API thật (P-91-15).
 - Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).
 - `typescript` ghim `^5` (typescript-eslint chưa hỗ trợ TS 7).
 - GitHub Actions ghim theo major, chưa theo SHA.

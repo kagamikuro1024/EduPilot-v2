@@ -22,7 +22,7 @@ test("TC-UX16-24 điểm học phần 30/30 khớp expected_final_grades.csv", a
     const g = await (await fetch(`/api/v1/courses/${c}/gradebook?limit=100`, { headers: h })).json();
     return g.rows.map((r: { student: { student_code: string }; result: { hp?: string; letter?: string } | null }) => [r.student.student_code, r.result?.hp ?? "", r.result?.letter ?? ""]);
   });
-  const csv = readFileSync("/repo/seed/expected_final_grades.csv", "utf8").trim().split("\n").slice(1).map((l) => l.split(","));
+  const csv = readFileSync("../seed/expected_final_grades.csv", "utf8").trim().split("\n").slice(1).map((l) => l.split(","));
   const exp = new Map(csv.map((c) => [c[1], { hp: c[12], letter: c[13] }]));
   let ok = 0; const bad: string[] = [];
   for (const [code, hp, letter] of rows as string[][]) {

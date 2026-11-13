@@ -10,7 +10,7 @@ Người dùng: sinh viên (chủ yếu điện thoại), trợ giảng và gi�
 ## 2. Đang ở đâu
 - Repo: `github.com/kagamikuro1024/EduPilot-v2` (public, 2026-10-09). Repo cũ `TA_Agent_v2` đã bỏ: **không push lên đó, không push nhánh có lịch sử cũ** (lịch sử cũ chứa secret của Project III).
 - Lộ trình 11 sprint + 1.5 + 5.5: `docs/sprints/ROADMAP.md`. Tiến độ, nợ: `docs/PROGRESS.md`.
-- **Việc hiện tại:** sprint 8 (P6 Sổ điểm và điểm cuối kỳ từ quy chế), nhánh `sprint/8-p6`, kế hoạch `docs/sprints/8/plan.md`. `main` = sprint 1 → 7. Worktree: dev `../TA_Agent_v2-s7`, PM `../TA_Agent_v2-s6` (detached), BA `/tmp/ba-wt`, QC `../TA_Agent_qc5`; không làm trong worktree của vai khác. Sprint 8 thay mock của `/gradebook`, `/gradebook/scheme`.
+- **Việc hiện tại:** `main` = sprint 1 → 9 (merge 2026-11-01). Đang làm OPS-VPS (`docs/sprints/ops-vps/plan.md`, nhánh `ops/vps-deploy`): demo trên VPS + đo LLM thật. Sprint 10 (P9) chưa lập kế hoạch. Worktree: dev `../TA_Agent_v2-s7`, PM `../TA_Agent_v2-s6` (detached), BA `/tmp/ba-wt`, QC `../TA_Agent_qc5`; không làm trong worktree của vai khác.
 - Prototype sprint 1.5 là MOCK (D51): màn mock được thay dần bằng màn thật; spec thật ở `docs/specs/<FEAT>/` thắng spec prototype `docs/sprints/1.5/spec/`. Sprint 7 thay mock của `/inbox`, `/attendance`, `/students`, `/students/[id]`, `/me`.
 
 ## 3. Đã chốt — không mở lại
@@ -32,7 +32,12 @@ Danh sách đầy đủ: `docs/DECISIONS.md`.
 - Không thoả hiệp ngang hàng; góp ý qua `docs/sprints/N/proposals.md`, PM quyết. Ngoại lệ: dev hỏi Tech Lead (`research`) câu hỏi kỹ thuật qua `docs/sprints/N/techlead.md` (`docs/team/RESEARCH.md`).
 - Quyển đồ án do `writer` viết ở `~/Documents/EduPilot-thesis/` (ngoài repo, `docs/team/WRITER.md`). Đó là văn bản nộp trường nên mọi số liệu trong `report.md`, QC report, `thesis-notes` phải đúng và có nguồn.
 - Không mở subagent (task/agent con) trừ khi PM cho phép: mỗi subagent đọc lại bối cảnh + spec từ đầu, tốn token gấp nhiều lần. Làm tuần tự trong phiên của mình.
-- **Dọn rác Docker định kỳ** (chủ dự án yêu cầu 2026-10-03; ổ máy từng bị colima ăn 57 GB vì volume vô danh của test): mỗi agent chạy Docker, sau mỗi story / lượt test, chạy `docker volume prune -f` (chỉ xoá volume vô danh không container nào dùng, an toàn khi người khác đang test). PM dọn sâu ở mỗi lần đóng sprint và khi chủ dự án bảo dừng: `docker volume prune -f && docker builder prune -af && docker image prune -f && colima ssh -- sudo fstrim -a`. Không dùng `docker system prune -a --volumes`; không xoá volume có tên.
+- **VPS đã bị thu hồi (2026-11-12). Mọi build / test / demo chạy trên Mac của chủ dự án** (Apple Silicon, 18 GB RAM, Colima 6 CPU / 10 GB):
+  - **Stack demo** ở `~/Documents/EduPilot-demo` (worktree, `pnpm dev`, compose project mặc định): là bản chủ dự án xem / demo. **Không `down -v`, không reset DB**; chỉ PM / dev cập nhật (`git pull` + `pnpm dev`). URL: `http://localhost:3000`.
+  - Stack test của mỗi vai: compose project riêng `-p ep-<vai>` + cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; xong lượt thì `docker compose -p ep-<vai> down -v`. **Một stack test chạy tại một thời điểm** (RAM 18 GB): ai cần thì báo PM; QC ưu tiên.
+  - Chạy trong worktree của vai mình. `go test`, `pnpm lint` / `build`, Playwright, Lighthouse chạy trực tiếp trên Mac. Một lượt đo nặng tại một thời điểm; ghi số đo kèm "trên MacBook Apple Silicon, Colima 6 CPU / 10 GB".
+  - Chỉ chạy bộ test liên quan tới thay đổi; cả bộ một lần trước handoff. Cắt output test (chỉ dòng lỗi) để tiết kiệm token.
+  - LLM: mặc định provider giả (`fake`). LLM thật chỉ khi việc cần (đo / đánh giá), qua Gemini API key của chủ dự án; tôn trọng hạn mức. Bản sao lưu cấu hình / DB của VPS cũ: `~/Documents/EduPilot-vps-backup-2026-11-12/` (chmod 700, không commit, không in khoá).
 
 ## 5. Mỗi vai đọc gì cho việc hiện tại
 | Vai | Đọc |

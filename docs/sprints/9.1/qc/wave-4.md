@@ -1,24 +1,32 @@
 # QC đợt 4 — Chấm bài, sổ điểm, điểm danh (US-UX91-14, 15, 16, 12) + US-04 AC7
 
-**Kết luận lượt 1 (`f8a744bd`): FAIL.** Lượt kiểm lại ở `1ebfa26e` đang dở (xem bảng đầu), chưa có kết luận mới. US-14 PASS. US-15 FAIL (AC3, AC4, AC7). US-16 FAIL (AC1, AC2, AC10). US-12 FAIL (AC7 khối cảnh báo 375 px, Thấp; AC10 chưa kiểm được). US-04 AC7 PASS.
-Mọi lỗi mức **Thấp** (không mất dữ liệu, không lộ dữ liệu); riêng US-15 AC7 mức **Trung bình** (lỗi duyệt bài không báo ở nơi người dùng nhìn, không có `Thử lại`).
+**Kết luận lượt 3 (`673441c5`, dev: «sửa QC đợt 4 lỗi #8»): PASS.** US-14, 15, 16, 12 PASS; US-04 AC7 PASS. 8/8 lỗi đã sửa. Lượt 2 (`8ae5393f`): FAIL vì US-15 AC7 nhánh 409 (lỗi #8, Trung bình). Lượt 1 (`f8a744bd`): FAIL (US-15, 16, 12).
+Môi trường lượt 2: Mac (Apple Silicon, Colima), stack `-p ep-qc` `EP_PORT_OFFSET=500` (`https://localhost:943`), mock LLM, seed 30 SV + docling; spec `qc-uiux91-w4*-real` (+ `w4f`, `w4g` mới).
 
-## Kiểm lại lần 2 ở `1ebfa26e` (đang kiểm dở, tiếp tục tối 09/11)
-Stack `-p ep-qc` dựng lại từ `1ebfa26e` (dev: `9.1 sửa QC đợt 4`, P-91-10). Chạy lại `qc-uiux91-w4-real.spec.ts` (15 ca, dừng theo lệnh PM sau ca 15); `w4b`, `w4c`, `w4d`, harness `gradebook` / `attendance` / `assignment-lifecycle` **chưa chạy**. Bảng dưới là phần đã có bằng chứng; hàng «CHƯA» làm tiếp.
+## Kiểm lại lần 2 (`8ae5393f`) và lần 3 (`673441c5`)
 | TC | Trước | Nay | Ghi chú |
 | --- | --- | --- | --- |
-| UX15-6 (AC3 thanh dưới) | **FAIL (Thấp)** | PASS | 1440×900 lúc mở: thanh dưới `top 775, bottom 844` (< 900), nút `Duyệt bài` đủ, `position: sticky` |
-| UX15 tiến độ N/M (AC3, AC4) | **FAIL (Thấp)** | PASS | `Đã duyệt 0/9` → bấm `A` → URL `?n=1&m=9`, `Đã duyệt 1/9` |
-| UX16-21 (AC10, 375 px) | **FAIL (Thấp)** | PASS | Ô nhập cao 44 px (ô `td` 82 px), cuộn ngang trong bảng, cột tên dính, không tràn trang |
-| UX12-1, 2 (giữ nguyên) | PASS | PASS | Có mặt mực; Muộn, Vắng phép, Vắng đỏ; `+2 · +0,25×2` |
-| UX15-8, 9, 10, 15…19; UX14-4, 9, 10, PQ, PG; UX16-2…11 | PASS | PASS | Chạy lại, không đổi (phím `A`, `›`, STUDENT 403, TA, đầu bảng sticky, số khớp API, 375 thẻ duyệt bài) |
-| UX15-13 (AC7 lỗi ở thanh dưới + `Thử lại`) | **FAIL (Trung bình)** | CHƯA KẾT LUẬN | Ca `TC-UX15-12/13` đỏ ở `1ebfa26e` nhưng chạy bị dừng trước khi in lỗi; thanh dưới sau lỗi in «Đã duyệt 1/8 Duyệt bài A» (chưa thấy chữ lỗi / `Thử lại` trong phần QC lấy). Xem lại bằng ảnh và `w4c` |
-| UX16-1 (ô nhập đệm 0), UX16-5 (`⋯`), UX12-14 (375 ≤ 56 px) | **FAIL (Thấp)** | CHƯA | Ca `w4c` / `w4e` chưa chạy (`qc/scripts/pending/qc-uiux91-w4e-real.spec.ts.txt`); ca `TC-UX16-5/15/16/19/20` của `w4-real` đỏ, chưa đọc lỗi |
-| UX12-11, 19 (375 lưu ≤ 60 s) | KHÔNG KIỂM ĐƯỢC | CHƯA | Cần chạy lại bằng `w4e` |
-| UX14-1/2/…/7 và UX14-11 (ca cũ của QC) | PASS | đỏ ở ca QC, chưa rõ | Hai ca `w4-real` (hàng chờ) đỏ sau khi dev đổi cả hàng thành một liên kết ở đợt 5 (a11y); ca `TC-UX14-11/UX15-19` (đo bằng `boundingBox`) xanh. Nghi ca QC đo DOM (`tr` = 0 ở 375 px, Enter trên hàng); xem lại tối nay |
-| UX15-14, UX16-12 (409) | CHƯA CHẠY | CHƯA | Chưa chạy |
+| UX15-6 (AC3 thanh dưới) | FAIL (Thấp) | PASS | 1440×900 lúc mở: `top 775, bottom 844` (< 900), `sticky`, nút `Duyệt bài` đủ |
+| UX15 tiến độ N/M (AC3, AC4) | FAIL (Thấp) | PASS | `Đã duyệt 0/7` → bấm → `?n=1&m=7`, `Đã duyệt 1/7`; phím `A` → `2/7` (M cố định) |
+| UX15-13 (AC7 lỗi mạng) | FAIL (TB) | PASS | Chặn `POST …/review`: thanh dưới «Không kết nối được tới máy chủ. Chữ bạn đã nhập vẫn được giữ. `Thử lại` Đã duyệt 0/3 Duyệt bài A»; điểm còn nguyên; bỏ chặn → `Thử lại` duyệt được |
+| **UX15-14 (AC7 409 thật)** | CHƯA CHẠY (lượt 1) → FAIL (TB) (lượt 2) | **PASS (lượt 3, `673441c5`)** | Người kia `PUT` trước; ô tôi sửa giữ `0,75` (không lùi); một thông báo «Người khác vừa nhập 1,50 · Bạn đã nhập 0,75» + `Giữ của tôi` / `Dùng của họ`, không còn dải đỏ thứ hai; `Giữ của tôi` → API lưu `0.75`. Ảnh `shots/wave-4/review-409.png` |
+| UX16-1 (ô nhập đệm 0) | FAIL (Thấp) | PASS | 24 giá trị ô nhập đều `x,xx` (`5,00 … 10,00 9,75`); focus hiện thô «5» |
+| UX16-4/5 (`⋯` tiêu đề) | FAIL (Thấp) | PASS | Nút `⋯` ở tiêu đề cột nhập: opacity 0 → 1 khi rê, → 1 khi focus. Nút «Hành động — tên» mỗi hàng vẫn thường trực (AC2 chỉ nói tiêu đề cột; ghi chú, không tính lỗi) |
+| UX16-21 (AC10, 375) | FAIL (Thấp) | PASS | Ô nhập 44 px, không tràn trang |
+| UX16-12 (AC5, 409 ô, thật) | CHƯA CHẠY | PASS | Người kia `PUT /grade-entries` trước; UI hiện «TS. Lê Thu Hà vừa nhập 6,75 · vừa xong» + `Giữ của tôi` / `Dùng của họ`; ô giữ 9,50; `Giữ của tôi` → API lưu 9.5. Đã trả ô về 5,25 |
+| UX12-11/19 (AC4, 375 lưu ≤ 60 s) | KHÔNG KIỂM ĐƯỢC | PASS | Chạm 2 SV sang Vắng (+2 vắng), lưu → «Đã lưu · 26 có mặt · 4 vắng» sau 3 s, 0 hộp thoại, 0 `confirm()` |
+| UX12-14/15 (AC6, 375) | FAIL (Thấp) | PASS | Lớp 761988: khối «Công thức chưa xác nhận [Xem]» cao 46 px (≤ 56); 1440: 48 px |
+| UX12-1/2/3, 6 (giữ nguyên) | PASS | PASS | Muộn / Vắng phép / Vắng đều đỏ, Có mặt mực; `+N · +0,25×N` (N cộng 2 sau 2 lần bấm) |
+| UX12-5 (phím `P`) | PASS | PASS có ghi chú | «Đang chọn» = hàng chọn bằng phím mũi tên (aria-label của lưới); bấm chuột vào hàng không đổi hàng chọn (`aria-current` giữ hàng 0). `P` ghi đúng hàng chọn bằng mũi tên |
+| UX14-3/5 (Enter) | PASS có ghi chú | PASS có ghi chú | Hàng desktop không focus được; `Enter` trên liên kết `Duyệt` trong hàng mở `/grading/‹id›`. 375: cả thẻ là một `<a>` |
+| UX14-11 (AC8, 375) | PASS | PASS | Danh sách thẻ; hộp `Duyệt` 309×44, không tràn ngang |
+| UX16-15/16/19/20 | PASS | PASS | Hộp «Chốt 30 sinh viên · phân bố … · 1 sinh viên liệt», Esc không chốt (`OPEN`); TA `POST finalize` 403, không có nút |
+| UX04-12/13/14 | PASS | PASS | `ep-saved` 200 ms ở sổ điểm, điểm danh, nhận xét |
+| UX16-24 (khớp CSV) | PASS (30/30) | **PASS (30/30)** | Lượt 2 trên DB đã bị QC ghi thêm phát biểu: 29/30 (`20229002` 7,5 ≠ 7,0). Chạy lại ngay sau khi dựng DB sạch (`down -v` + seed) ở `b02eeb68`: `khớp 30/30; lệch: (không)` |
+| UX16-10 (cột Trạng thái) | PASS có ghi chú | PASS có ghi chú | Còn 1 SV «Liệt» nên cột còn (như lượt 1) |
 
----
+### Lỗi #8 — US-15 AC7 (409): đã sửa ở `673441c5`
+Lượt 2 (`8ae5393f`): sau 409, ô điểm tự lùi về giá trị cũ, thông báo không nêu giá trị người kia, `Giữ của tôi` lưu số cũ, kèm dải đỏ thừa (Trung bình). Lượt 3: xem hàng UX15-14. Hồi quy: 6 ca `TC-UX15` (`w4-real`, `w4c`) PASS ở `673441c5` (thanh dưới `775 → 844`, lỗi mạng ở thanh dưới + `Thử lại`, phím `A`, `N/M`).
 
 ## Môi trường (lượt 1, `f8a744bd`)
 | Mục | Giá trị |
@@ -111,13 +119,8 @@ Stack `-p ep-qc` dựng lại từ `1ebfa26e` (dev: `9.1 sửa QC đợt 4`, P-9
 ## Chưa chạy
 UX15-14 (409 điểm), UX16-12 (xung đột ô), UX16-17 (hai lần xác nhận chốt, tránh khoá sổ thật), UX12-11/19 (375 lưu ≤ 60 s), UX15-15/17 (không có màn SV). Lượt kiểm lại đợt 1, 2, 3, 6 chờ dev «sửa QC lượt 2».
 
-## Lỗi cần sửa (tóm tắt)
-| # | Mức | Vị trí | Tái hiện |
+## Lỗi cần sửa (tóm tắt, lượt 2)
+| # | Mức | Vị trí | Trạng thái |
 | --- | --- | --- | --- |
-| 1 | Trung bình | US-15 AC7 | `/grading/‹id›` → chặn `POST …/grading-results/‹id›/review` → bấm «Duyệt bài»: không lỗi ở thanh dưới, khối lỗi giữa cột, không `Thử lại` |
-| 2 | Thấp | US-15 AC3 | 1440×900 mở bài chấm: thanh dưới cắt mép dưới (bottom 932) |
-| 3 | Thấp | US-15 AC3/4 | «Đã duyệt N/M» N = 0, M giảm dần |
-| 4 | Thấp | US-16 AC1 | Sổ điểm: ô nhập hiện «7», «8,5» thay vì «7,00», «8,50» |
-| 5 | Thấp | US-16 AC2 | `⋯` thường trực ở tiêu đề cột nhập và mỗi hàng |
-| 6 | Thấp | US-16 AC10 | 375: ô nhập cao 32 px < 44 px |
-| 7 | Thấp | US-12 AC7 | 375, lớp 761988: khối cảnh báo công thức cao 62 px > 56 |
+| 1–7 | Trung bình / Thấp | US-15 AC7 (lỗi mạng), AC3, AC3/4; US-16 AC1, AC2, AC10; US-12 AC7 | Đã sửa, PASS ở `8ae5393f` |
+| 8 | Trung bình | US-15 AC7 (409) | Đã sửa ở `673441c5`, PASS |

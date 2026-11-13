@@ -3,7 +3,7 @@ import { test } from "@playwright/test";
 test.skip(!process.env.QC_REAL, "cần stack thật ep-qc: chạy bằng `QC_REAL=1 playwright test -c playwright.qc-real.config.ts`");
 
 // QC đợt 6: ảnh mốc trang giới thiệu (TC-UX08-56). Ghi vào /out/shots-w6 (bind mount /srv/work/qc/out).
-const OUT = "/out/shots-w6";
+const OUT = "../docs/sprints/9.1/qc/shots/wave-6";
 const H2 = ["Xem EduPilot làm việc", "AI soạn nháp, giảng viên quyết, mã tính điểm", "Khác biệt, có số đo", "Cho giảng viên và sinh viên", "Bắt đầu với lớp của bạn"];
 test("TC-UX08-56 ảnh mốc 1440 / 390", async ({ browser }, info) => {
   test.skip(info.project.name !== "desktop");
