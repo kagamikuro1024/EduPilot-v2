@@ -85,9 +85,11 @@ const msOf = (body, event) => {
   return m ? Number(m[1]) : null;
 };
 
+const tokens = {}; // token đăng nhập lại, riêng từng VU
 export function chatVU(d) {
   const i = (exec.vu.idInTest - 1) % POOL; // mỗi VU một phiên riêng, không dùng chung (dùng chung → CHAT_BUSY giả)
   const s = d.sessions[i];
+  if (s) s.token = tokens[i] ?? s.token; // phiên dài (lượt 1.000 bài ≈ 2,3 h): token truy cập hết hạn nên đăng nhập lại khi gặp 401
   if (!s) { // không bao giờ quay vòng nóng (vòng lặp rỗng làm nhiễu số đo)
     console.error(`chat: không có phiên cho VU ${exec.vu.idInTest}`);
     sleep(3.5);
@@ -97,6 +99,7 @@ export function chatVU(d) {
   const r = http.post(`${API}/chat/sessions/${s.sid}/messages`, JSON.stringify({ content: q }), {
     headers: { ...json(s.token), Accept: 'text/event-stream', 'Idempotency-Key': crypto.randomUUID() }, tags: { name: 'chat_send' }, timeout: '90s',
   });
+  if (r.status === 401 && s) { tokens[i] = login(SEED_STUDENTS[i]); sleep(1); return; }
   if (check(r, { 'chat 200': (x) => x.status === 200 })) {
     firstEvent.add(r.timings.waiting);
     nFirst.add(1);

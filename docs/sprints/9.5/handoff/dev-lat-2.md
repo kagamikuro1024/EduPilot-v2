@@ -1,0 +1,58 @@
+# Dev · lát 2 sprint 9.5: đo T1 trên Mac, trả lời Q-N (P-95-7), bằng chứng stack demo
+
+Nhánh `sprint/9.5-nfr` (đã gộp `main` sau khi đóng 9.1). Mọi số trong tệp này ghi kèm: **MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU**, stack `ep-t1` (DB `edupilot_t1`), stack demo `edupilot` **đã `stop`** suốt các lượt đo (`meta.demo_stack: stopped`). Nguồn mọi số nằm trong `benchmarks/reports/` (`node benchmarks/check-meta.mjs`: "meta đủ").
+
+## Trả lời câu hỏi QC (P-95-7)
+| Q | Trả lời |
+| --- | --- |
+| Q-N-2 | Thời gian seed T0: `benchmarks/reports/seed-t0.json`, khoá `seconds_total` và `seconds_by_step` (giây mỗi bước 1…19). `scripts/seed.mjs` tự ghi khi thoát mã 0 và `API_URL` không phải cổng 80 / 443 / 3000 (không ghi khi seed vào stack demo). **Chưa chạy** (cần stack `ep-research` có docling); tệp chưa tồn tại cho tới lúc đó. Seed T1: `benchmarks/reports/seed-t1.json` (`seconds_total`, `seconds_by_step`). |
+| Q-N-8 | QC không động vào stack demo. Bằng chứng dừng / chạy lại: `benchmarks/reports/demo-stack.json` (`events[]`: `stopped` rồi `started`, mỗi mục có `docker compose ls -a` và `State.Status / FinishedAt / StartedAt` từng container `edupilot-*`); lệnh `node benchmarks/demo-stack-evidence.mjs stopped|started`. Mục `stopped` đầu tiên: 14/14 container thoát lúc 17:14:46–17:14:51 UTC ngày 2026-11-13, trước mọi lượt k6. `chaos.json.demo_stack` có trạng thái trước / sau chaos. |
+| Q-N-9 | Kích thước DB T1 và RAM Postgres nghỉ: `benchmarks/reports/seed-t1.json`, khoá `db_mb` (402) và `postgres_mem` ("199MiB / 9.69GiB"); sau tải: `benchmarks/reports/baseline.json` → `idle.containers[]` (`ep-t1-postgres-1`: 329,6 MiB) và `idle.total_mem_mib`; DB 409 MB, chỉ mục 138 MB trong `docs/research/2026-11-14-explain.md`. |
+| Q-N-14 | Khoá `meta` là **ASCII, không dấu**: `commit`, `timestamp`, `machine`, `runs`, `config` (mọi tệp) cộng `k6_cpus`, `demo_stack` (tệp `load-*.json`, ở cấp `meta`, không nằm trong `config`). Nguồn: `benchmarks/lib/meta.mjs` (`META_FIELDS`, `K6_FIELDS`, `MACHINE`); `node benchmarks/check-meta.mjs` thoát 1 nếu thiếu khoá hoặc `machine` sai. `config.chain_models` (chuỗi model) do harness LLM ghi. |
+| Q-N-18 | «Việc mồ côi» = `grading_results.run_state ∈ (QUEUED, RUNNING)` còn lại sau thời hạn chờ 10 phút, hoặc `XPENDING ep:grading grading` > 0 khi đã xong. Việc vào / xong / dead-letter đếm ở `benchmarks/chaos.mjs` (đầu tệp có định nghĩa): vào = số dòng `grading_results` vòng 1 sinh bởi `grade-all`; xong = `run_state = DONE`; dead-letter = `run_state = FAILED` (có `error_code`) và phần tăng thêm của `XLEN ep:grading.dead`; chấm hai lần = `submission_id` có > 1 dòng cùng `round`. Bảng đối chiếu: `benchmarks/reports/chaos.json` → `scenarios.<tên>` (`in`, `done`, `failed_dead_letter`, `orphan`, `graded_twice`, `never_enqueued`, `xpending`, `dead_stream_new`, `pass`). |
+| Q-N-20 | Trước `down -v` stack đo LLM: `COMPOSE_PROJECT_NAME=ep-research node benchmarks/real-llm/export-evidence.mjs` ghi vào `benchmarks/reports/real-llm/`: kết quả thô (`extract.json`, `mask.json`, `chat.json`, … do `real_llm.py` ghi), `llm-audit-summary.json` (llm_audit tổng hợp theo ngày VN / model / `fallback_index` / task / status / `error_kind`; **không payload**, `llm_audit` không có cột payload), `masked-payloads.json` (≥ 15 payload đã che). Lệnh thoát ≠ 0 nếu thiếu. **Giới hạn trung thực:** gateway không lưu payload gửi nhà cung cấp, nên `masked-payloads.json` lấy từ `TestNoPayloadLeak` (đường che thật + provider giả ghi lại, roster mô phỏng) chứ không phải từ lời gọi Gemini. Chưa có khoá Gemini nên chưa chạy (xem "Chưa làm"). |
+| Q-N-23 | Test hồi quy và commit: `docs/sprints/9.5/techlead.md` mục TL-2 (mỗi dòng: tái hiện, test, commit). Hiện có TL-2a (seed T1 thiếu `id` tiêu chí → chấm hỏng; test `TestDemoModeRecordingsCoverPolicies` + commit `9.5: (b)(c) T1 ×1, seed-t1 rubric id, …`), TL-2b (ngưỡng k6 sai), TL-2c (truy vấn tìm lai), TL-2d, TL-2e, TL-2f (xem dưới). Chưa có lỗi mức cao nào cần sửa mã sản phẩm, nên chưa có cặp commit cha (FAIL) / commit sửa (PASS) cho mã sản phẩm. |
+
+## Kết quả đo (SLO → số đo → kết quả)
+| SLO (SYSTEM_DESIGN §5) | ×1 | ×2 (`--scale gateway=2 worker=2`) | Kết quả | Tệp |
+| --- | --- | --- | --- | --- |
+| (a) đọc p95 ≤ 300 ms, 300 người duyệt + 300 SSE + heartbeat 10/s, 5 phút | 11,5 ms | 11,4 ms | PASS | `load-a.json`, `load-a-x2.json` (và `load-a-lan1.json`, `load-a-x2-lan1.json`: lần đầu, trước khi thêm bước 403) |
+| (a) ghi p95 ≤ 500 ms | 4,9 ms | 4,9 ms | PASS | cùng tệp |
+| (a) sự kiện SSE đầu p95 ≤ 300 ms | 97,5 ms | 144,2 ms | PASS | cùng tệp |
+| (a) 5xx < 0,5 % | 0 | 0 | PASS | cùng tệp |
+| (a) STUDENT gọi `gradebook` ≥ 100 lần: 100 % `403` | 300 lần 403, 0 lần 200 | 301 lần 403, 0 lần 200 | PASS | cùng tệp (`forbidden_403`, `forbidden_leak`) |
+| (b) sự kiện đầu của chat p95 ≤ 300 ms (50 luồng, provider giả 5–15 s) | 66,9 ms | 118,9 ms | PASS | `load-b-first_event.json`, `-x2` |
+| (b) TTFT cache p95 ≤ 1,5 s | 103,8 ms | 102,3 ms | PASS | `load-b-ttft.json`, `-x2` |
+| (b) TTFT RAG p95 ≤ 4 s | 633,9 ms | 626,4 ms | PASS | cùng tệp |
+| (c) TTFT chat lúc chấm xấu đi ≤ 20 % (50 bài, provider giả 300 ms) | nền 410 ms → chấm 381 ms (−7 %) | nền 415 ms → chấm 401 ms (−3,5 %) | PASS | `load-c-baseline*.json`, `load-c-grading*.json` |
+| (c) chấm 1.000 bài thời gian thật ≤ 3 giờ | đang chạy (xem dòng dưới) | – | chưa có kết quả | `load-c-1000.json` |
+| (d) dashboard / 360 / sổ điểm p95 ≤ 3 s | 18,3 ms | – (AC3 chỉ (a)–(c)) | PASS | `load-d.json` |
+| Baseline: p95 13 endpoint tuần tự × 200 (10 đọc ≤ 300 ms, 3 ghi ≤ 500 ms) | đọc ≤ 11,0 ms; ghi lớn nhất `w_thread` 327,5 ms | – | PASS | `load-baseline-p95.json`, `baseline.md` |
+| RAM nghỉ cả stack · khởi động lạnh (up → readyz 200) | 570 MiB · 18,1 s (18,1 / 18,1 / 18,9) | – | ghi nhận | `baseline.json` |
+| Image (MB) | gateway 17,7 · worker 16,7 · frontend 96,2 | – | ghi nhận | `baseline.json` |
+| Chaos: `kill -9` worker giữa lượt chấm 150 bài | 150 vào = 150 xong, 0 mồ côi, 0 chấm hai lần, `XPENDING` 0 | – | PASS | `chaos.json` |
+| Chaos: Redis tắt 70 s giữa lượt chấm 150 bài | 150 = 150, 0 mồ côi, 0 chấm hai lần | – | PASS (xem TL-2d về chat) | `chaos.json` |
+| Lighthouse (build production, đăng nhập thật) | LCP devtools (≤ 2.500) / TBT mô phỏng (≤ 200) / CLS (≤ 0,1) / script KB (≤ 256): `/` 1574 / 28 / 0 / 191; `/chat` 1554 / 32 / 0.01 / 225; `/threads` 4896 / 33 / 0 / 216; `/inbox` 6717 / 32 / 0 / 215; `/gradebook` 5887 / 29 / 0 / 248; `/me` 6256 / 35 / 0 / 223; `/settings/llm` 4786 / 32 / 0 / 228; `/assignments/[id]` 4639 / 36 / 0.028 / 222 | – | FAIL: LCP devtools trượt ở `/threads`, `/inbox`, `/gradebook`, `/me`, `/settings/llm`, `/assignments/[id]`; TBT, CLS, script đạt mọi route | `lighthouse.json` |
+| EXPLAIN 10 truy vấn | ≤ 13,1 ms (1 truy vấn), chín truy vấn ≤ 1,3 ms | – | không cần chỉ mục | `explain.json`, `docs/research/2026-11-14-explain.md` |
+
+Cấu hình đáng ghi: (a) lần đầu chạy trên gateway dev thường (hạn mức IP 5.000/phút) nên các tệp `*-lan1` không dùng `k6-stack.yml`; các lần sau dùng `benchmarks/load/k6-stack.yml` (nới hạn mức IP / người, `LLM_MAX_CONCURRENCY` 100; chat ở gateway `K6_LAT`, chấm ở worker `K6_GRADE_LAT`). `workers` ở ×2 là 2 container. `load-d.json` đo trước khi bật `k6-stack.yml`. Bản gateway / worker ×2 không đổi mã. k6 và stack chung 6 vCPU nên số đo là **cận trên bảo thủ** của độ trễ [INFERENCE: chưa kiểm bằng máy đo riêng] nhưng mạng là loopback trong VM nên p95 là **cận dưới** về phần mạng. Không so với hệ cũ (D45) hay VPS cũ.
+
+## Phát hiện (chuyển PM)
+- **TL-2d (vừa):** Redis tắt thì `POST /chat/sessions/{id}/messages` **treo ≈ 19 s** rồi trả 200 kèm câu suy giảm "Mình chưa tìm thấy nội dung này trong tài liệu của lớp." (lần đầu quá 20 s thì client bỏ). Không có `5xx` thô, nhưng AC2 US-NFR-06 đòi "đang bận, thử lại, không treo". Tái hiện: `docker compose -p ep-t1 stop redis` rồi gửi một tin chat (lệnh đầy đủ ở TL-2d). Đề xuất: bỏ giới hạn số lần thử kết nối Redis ở đường chat (fail-fast 2 s) rồi trả 503 `OVERLOADED` + `Retry-After`. Chưa sửa (cần PM duyệt theo US-NFR-10 AC2; mức vừa).
+- **TL-2e (vừa, [INFERENCE]):** `POST /courses/{id}/threads` mất ≈ 317 ms p50 vì có một lượt nhúng (embedding INTERACTIVE) trong request (`llm_audit`: 540 lượt `EMBEDDING`, 303 ms mỗi lượt với provider giả trễ 300 ms). Ở mức SLO ghi 500 ms, nhúng Gemini thật (chưa đo) có thể làm p95 ghi vượt 500 ms. Cần đo với `gemini-embed` trước khi kết luận.
+- **TL-2f (vừa):** Lighthouse devtools trên build production, đăng nhập thật, dữ liệu T1: LCP `/threads` 4,9 s, `/inbox` 6,7 s, `/gradebook` 5,9 s, `/me` 6,3 s, `/settings/llm` 4,8 s, `/assignments/[id]` 4,6 s (ngưỡng 2,5 s); `/` và `/chat` 1,6 s. Không nới ngưỡng. Nguyên nhân chưa điều tra; kịch bản CI với API giả để `largest-contentful-paint: off` nên chưa từng thấy. Tái hiện: `LH_ORIGIN=https://localhost:<cổng> SEED_DEFAULT_PASSWORD=… LHCI=… bash benchmarks/lighthouse/run.sh` rồi `node benchmarks/lighthouse/summarize.mjs`. Đề xuất: PM quyết có mở sprint tối ưu LCP không (US-NFR-10 AC3: mức vừa → Nợ).
+- **TL-2c (vừa):** xem `docs/research/2026-11-14-explain.md`.
+- **P-95-8:** không tạo `00018_indexes_tuning` (không truy vấn nào cần chỉ mục).
+
+## Việc công cụ đã làm
+`benchmarks/load/run-t1.mjs` chạy cả sáu kịch bản (`browse`, `dashboard`, `baseline`, `chat-first_event`, `chat-ttft`, `grading-baseline`, `grading-grading`; cờ `--tag x2`, `--accounts t0|t1`), `chat.js` và `grading-vs-chat.js` xuất `meta` + p99; `t1.js` thêm bước 403; `baseline.js`; `benchmarks/explain.mjs`; `benchmarks/chaos.mjs`; `benchmarks/baseline.mjs`; `benchmarks/check-t1-api.mjs` (AC4 US-NFR-03: 6 trang chính × 8 SV + GV không 5xx, 24 cặp chéo lớp × 3 route đều 403, 0 rò: `benchmarks/reports/t1-api-check.json`); `scripts/check-t1-seed.mjs` (số dòng ±10 %, không mồ côi, mật khẩu băm); `benchmarks/lighthouse/` (đăng nhập thật, mô phỏng + devtools); `benchmarks/demo-stack-evidence.mjs`; `benchmarks/real-llm/export-evidence.mjs`; `TestNoPayloadLeak` có thể xuất `masked-payloads.json` (`EXPORT_MASKED_PAYLOADS`); `scripts/seed.mjs` ghi `seed-t0.json`; `benchmarks/load/pg-stats.yml` (bật `pg_stat_statements` chỉ ở stack đo); `seed-t1.mjs` thêm `id` tiêu chí; `seed/demo/fake_llm.json` thêm hai bản ghi chấm T1; dọn VPS: xoá `deploy/vps-seed.sh`, bỏ 9router khỏi `deploy/vps.compose.yml`, viết lại `deploy/README.md` và `benchmarks/real-llm/README.md` (Mac, Gemini).
+
+## Chưa làm
+| Việc | Lý do | Cần |
+| --- | --- | --- |
+| US-NFR-08 (đo LLM thật Gemini), `PHASE=probe/seed/live` | `.env.local` không có `GEMINI_API_KEY` | Khoá của chủ dự án đặt vào `/Users/kuro/Documents/TA_Agent_v2-s95/.env.local`; chia hai ngày < 200 lời gọi sinh chữ / ngày (P-95-4) |
+| US-NFR-02 (seed T0 sạch + `check-*-seed.mjs` + chạy lại) | cần stack `ep-research` với `--profile ingest` (docling) | dựng sau khi `down -v` `ep-t1` |
+| Chaos `docling-serve` dừng 2 phút | stack T1 dựng không có profile `ingest` | cùng stack T0 |
+| (c) 1.000 bài thời gian thật (≈ 2,2 h) | đang chạy từ 2026-11-14 ~02:40 (ban đêm), kết quả ghi vào `load-c-1000.json` khi xong | `grade-all-t1.mjs` + `K6_GRADE_LAT=20000-20000` |
+| `00018_indexes_tuning`, goose up/down/up | không có chỉ mục nào cần thêm (P-95-8) | PM quyết |
+| `go test -race ./...` cả bộ, `playwright` cả bộ | 9.5 không đổi mã sản phẩm; chỉ chạy `go test ./internal/grading ./internal/integration -run 'DemoMode|NoPayloadLeak'` (xanh) | – |
