@@ -1,6 +1,15 @@
 # QC đợt 5 — Chat riêng, Hỏi đáp, Kết quả của tôi, Tài liệu, Insights (US-UX91-13, 19, 20, 18, 17)
 
-**Kết luận lượt 3 (`3002ce33`, dev: «9.1 sửa QC đợt 5 lượt 2»): FAIL (2 lỗi Thấp).** US-13 PASS, US-19 PASS, US-18 PASS, US-17 PASS (UX17-8/9 chuyển Nợ P10 theo P-91-15). **US-20 FAIL** (AC8: `/me` 375 cao 1.647 px > 1.600). **US-08 AC10a FAIL** (`story-review-v1` vẫn là UI cũ). Không có lỗi mức Trung bình. Bảng lượt 2 và lượt 1 ở dưới giữ nguyên làm lịch sử.
+**Kết luận lượt 4 (`18400636`, dev: «9.1 sửa QC đợt 5 lượt 3»): PASS.** US-13, 19, 20, 18 PASS; US-17 PASS có ghi chú (UX17-8/9 Nợ P10, P-91-15). US-20 AC8 đạt (1.571 px); US-08 AC10a đạt. Không còn lỗi mở. Bảng lượt 3 trở xuống giữ nguyên làm lịch sử.
+
+## Kiểm lại lần 4 ở `18400636` (Mac, 2026-11-13)
+Chỉ kiểm hai mục còn mở. Stack `-p ep-qc` dựng lại ở `18400636` (volume cũ, DB giữ), `https://localhost:943`.
+| TC | Lượt 3 | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| **UX20-9 (AC8, 375)** | FAIL (Thấp) | **PASS** | `sv.kha` ở 375: `scrollHeight` **1.571 px** (≤ 1.600; lượt 3: 1.647), tràn ngang 0. Dev chỉ đổi `Me.module.css` ở < 720 px (khoảng cách khối 32 → 24, tiêu đề → khối 16 → 12, đệm dòng `.dense` 8 → 4); không bớt chữ. UX20-1/3/4/6/8 xanh cùng lượt chạy: 3 nút `Căn cứ`, 5 `h2`, không lộ nháp / rủi ro / ghi chú, `?user_id=‹B›` vẫn trả `qt` của A |
+| **UX91-X1 / TC-UX08-37 (US-08 AC10a)** | FAIL (Thấp) | **PASS** | `story-review-v1.webp` đổi (90.202 → **79.546 B** ≤ 90 KB; `-800` 36.638 B). Ảnh khớp UI hiện hành: nhãn «Xác định tác nhân và bề mặt tấn công» một dòng cạnh ô điểm `2` / 2,5, dòng «Bấm một dòng trích để xem trong bài.», hai khối trích có dấu ngoặc, thanh đáy `Đã duyệt 0/4 · ‹ › · Duyệt bài · A` không bị cắt. `story-chat`, `story-gradebook` không đổi (đạt từ lượt 3). Handoff `dev-wave-5-lan3.md` ghi rõ việc chụp lại |
+
+Ghi chú (không đổi kết luận): bài làm và điểm nháp trong ảnh review là dữ liệu mẫu do dev dựng thẳng vào DB dev (demo không có bài nộp), không phải bài sinh viên thật; ảnh dùng làm minh hoạ trang giới thiệu nên chấp nhận được. Tên nhãn rủi ro / tên sinh viên không xuất hiện trong ảnh.
 
 ## Kiểm lại lần 3 ở `3002ce33` (Mac, 2026-11-13)
 Môi trường: Mac, stack `-p ep-qc` dựng sạch từ `b02eeb68` rồi giữ (DB không đổi mã đợt 5 vì frontend dựng lại ở `3002ce33`), `https://localhost:943`, mock LLM, docling healthy. Chạy `w5a…w5g`, `w5i` (stack thật). Lần chạy đầu 14 pass / 5 fail; năm ca fail là lỗi môi trường / spec của QC, không phải lỗi sản phẩm (xem cuối bảng), đã sửa spec và chạy lại: tất cả xanh.
@@ -161,7 +170,10 @@ Tái hiện (đã chạy thật, `sv.kha`): `/chat` → gửi «Điểm danh c�
 | UX91-X3 | PASS có ghi chú | Không migration mới; không `fetch(` trần mới; 3 `Demo*.tsx` bị sửa từ đợt 1+2 (đổi chữ «Threads» → «Hỏi đáp công khai» theo US-07 AC4; `DemoDocuments` đổi `progressStyle`), trái câu «không sửa `Demo*.tsx`» của US-01 nhưng cần cho US-07 AC4 |
 | UX91-X4 | CHƯA CHẠY | `w5h-real.spec.ts` đã viết, chưa chạy |
 
-## Lỗi cần sửa (tóm tắt, lượt 3)
+## Lỗi cần sửa (tóm tắt, lượt 4)
+Không còn lỗi mở. US-20 AC8 (lỗi 5) và US-08 AC10a (lỗi 7) đã sửa, PASS. US-17 AC5, AC6 (UX17-8, 9): Nợ P10 (P-91-15), không tính FAIL.
+
+## Lỗi cần sửa (tóm tắt, lượt 3, lịch sử)
 | # | Mức | Vị trí | Trạng thái |
 | --- | --- | --- | --- |
 | 1 (lượt 2) | Thấp | US-13 AC1 Panel căn giữa | Đóng (P-91-13, AC sửa) |
