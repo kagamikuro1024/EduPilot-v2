@@ -3,9 +3,10 @@ Nguồn: US-P9-02 + SRS §3 (nhánh trích), §4.2 FR-5, 7, 8, §6 #1. Cần doc
 
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
-| TC-02-01 | AC1 | `EXAM_PAPER` `READY` (đề mẫu) | `IDEM=$(uuidgen) api teacher POST /courses/$C1/questions/extract '{"document_id":"<D>"}'`; mở SSE `job.progress` (`GET /events` hoặc kênh theo openapi) | `202 {job_id}`; nhận ≥ 2 sự kiện `job.progress` với tiến độ tăng, kết thúc ở hoàn tất; nội dung không có PII | API |
+| TC-02-01 | AC1 | `EXAM_PAPER` `READY` (đề mẫu) + `ANSWER_KEY` `dap-an-mau.pdf` `READY` (`seed/practice/`, không phải `testdata/`) | `IDEM=$(uuidgen) api teacher POST /courses/$C1/questions/extract '{"document_id":"<D>","answer_key_document_id":"<K>"}'`; mở SSE `job.progress` (`GET /events` hoặc kênh theo openapi) | `202 {job_id}`; nhận ≥ 2 sự kiện `job.progress` với tiến độ tăng, kết thúc ở hoàn tất; nội dung không có PII | API |
 | TC-02-02 | AC2 | TC-02-01 xong, provider `fake` | `GET /courses/$C1/questions?origin=EXTRACTED&review_status=PENDING&limit=100` | ≥ 20 câu; mỗi câu `stem` không rỗng, ≥ 2 phương án, đúng 1 hoặc nhiều đáp án đúng đã đánh dấu (không câu nào thiếu `answer_key`), `citations[]` có `document_id=<D>` và `page` số nguyên ≥ 1 | API |
-| TC-02-03 | AC2 | – | Lấy danh sách «bỏ qua» của việc (API đọc danh sách: **chờ handoff + openapi**, P-10-7 Q5) | Có mục từng câu bỏ qua kèm trang và lý do «không tìm thấy đáp án»; số lưu + số bỏ qua = 24 (hoặc số câu đề mẫu; ghi số thật) | API |
+| TC-02-02b | AC2 | Cùng đề, **không** `answer_key_document_id` (DB sạch câu trích) | Trích rồi `GET /jobs/{job_id}` | Bản ghi `fake_llm` không có `correct_label` → **0 câu lưu**, 24 mục `skipped` với `reason=NO_ANSWER`, kèm số trang (fixture dev, P-10-7 Q4/Q5) | API |
+| TC-02-03 | AC2 | – | Lấy danh sách «bỏ qua» của việc (`GET /api/v1/jobs/{id}` → `result{created,skipped[{number,page,reason}]}`; `reason` ∈ NO_ANSWER, NO_ANSWER_MATCH, DUPLICATE, INVALID — handoff Q5) | Có mục từng câu bỏ qua kèm trang và lý do «không tìm thấy đáp án»; số lưu + số bỏ qua = 24 (hoặc số câu đề mẫu; ghi số thật) | API |
 | TC-02-04 | AC2 | – | `go test ./internal/practice -run TestExtractQuestions -v` | PASS | GO |
 | TC-02-05 | AC3 | Thêm `ANSWER_KEY` `dap-an-mau.pdf` `READY` | Trích với `{"document_id":"<D>","answer_key_document_id":"<K>"}` (cùng đề, DB sạch câu trích) | Đáp án đúng của từng câu = đáp án trong `dap-an-mau.pdf` theo **số câu** (đối chiếu tay 24 cặp: kết quả khớp 100% với bảng đáp án); câu số không có trong đáp án → vào «bỏ qua» có lý do, không lưu | API |
 | TC-02-06 | AC3 | TC-02-05 | `llm_audit` của `batch_id` việc trích: đọc payload đã che (ADMIN, ghi `audit_log`) | `ANSWER_KEY` chỉ vào prompt trích vì người gọi là staff; 0 lời gọi LLM **kênh sinh viên** chứa chuỗi đáp án (`grep` một đoạn lạ của `dap-an-mau.pdf` trong mọi `llm_audit` task chat / practice explain của SV: 0 dòng) | DB |
@@ -34,4 +35,5 @@ Nguồn: US-P9-02 + SRS §3 (nhánh trích), §4.2 FR-5, 7, 8, §6 #1. Cần doc
 | TC-02-P5 | GV lớp 2 gọi trên `C1` | `403` |
 
 ## Lịch sử sửa TC
+- 2026-11-14 — handoff dev trả lời Q4/Q5/Q6: TC-02-01 trích kèm đáp án (fixture `de-mau` không có đáp án trong LLM), thêm TC-02-02b, `GET /jobs/{id}`; fixture ở `seed/practice/`.
 - 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-02 ghi «chờ handoff» cho Q4, Q5, Q6, Q7; Q8 (k6 cuối pha 2).
