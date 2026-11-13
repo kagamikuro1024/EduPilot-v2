@@ -11,7 +11,9 @@
 // Lệnh dừng / giết nhắm theo project (`docker compose -p …` / nhãn com.docker.compose.project), không theo tên chung. Stack demo được kiểm trước / sau.
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { meta } from "./lib/meta.mjs";
+import { miniPdf } from "../scripts/chat-seed-data.mjs";
 
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const project = process.env.COMPOSE_PROJECT_NAME ?? "";
@@ -23,7 +25,7 @@ if (!port || port === "443" || !PW) die("Cần EP_PORT_HTTPS (≠ 443) và SEED_
 const BASE = `https://localhost:${port}/api/v1`;
 const run = (cmd, args, input) => { const r = spawnSync(cmd, args, { encoding: "utf8", input }); if (r.status !== 0) throw new Error(`${cmd} ${args.join(" ")}: ${r.stderr}`); return r.stdout.trim(); };
 const compose = (...a) => run("docker", ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-f", "benchmarks/load/pg-stats.yml", "-f", "benchmarks/load/k6-stack.yml", "-p", project, ...a]);
-const psql = (sql) => run("docker", ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-p", project, "exec", "-T", "postgres", "psql", "-U", "edupilot", "-d", "edupilot_t1", "-qAt", "-v", "ON_ERROR_STOP=1"], sql);
+const psql = (sql) => run("docker", ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-p", project, "exec", "-T", "postgres", "psql", "-U", "edupilot", "-d", process.env.PGDATABASE ?? "edupilot_t1", "-qAt", "-v", "ON_ERROR_STOP=1"], sql);
 const redis = (...a) => run("docker", ["compose", "--env-file", ".env.local", "-f", "docker-compose.local.yml", "-p", project, "exec", "-T", "redis", "redis-cli", ...a]);
 const sleep = (s) => new Promise((r) => setTimeout(r, s * 1000));
 const demoState = () => run("docker", ["ps", "-aq", "--filter", "label=com.docker.compose.project=edupilot"]).split("\n").filter(Boolean).map((id) => run("docker", ["inspect", "-f", "{{.State.Status}}", id])).join(",");
@@ -104,6 +106,45 @@ if (which.includes("redis")) {
   const waited = await waitDone(targets, 600);
   doc.scenarios.redis_down_70s = { at: t0, queued, statuses_during_outage: [...new Set(during)], status_5xx_raw_during: during.filter((s) => typeof s === "number" && s >= 500 && s !== 503).length, ...reconcile(targets, waited, d0) };
   console.log("redis_down_70s", JSON.stringify(doc.scenarios.redis_down_70s));
+}
+if (which.includes("docling")) { // stack ep-research (có --profile ingest); PGDATABASE=edupilot, CHAOS_TEACHER=teacher, CHAOS_COURSE=761987
+  const course = psql(`select id from courses where class_code = '${process.env.CHAOS_COURSE ?? "761987"}'`).trim();
+  const tok = await login(process.env.CHAOS_TEACHER ?? "teacher");
+  const stamp = Date.now();
+  const upload = async (n) => {
+    const bytes = miniPdf([`Chaos docling ${stamp} tài liệu ${n}`, "Điều 1. Điểm quá trình chiếm 40% điểm học phần.", `Điều 2. Mã kiểm thử ${stamp}-${n}.`]);
+    const sha = createHash("sha256").update(bytes).digest("hex");
+    const pre = await (await api(`/courses/${course}/uploads/presign`, tok, { method: "POST", body: JSON.stringify({ purpose: "document", filename: `chaos-${stamp}-${n}.pdf`, mime_type: "application/pdf", size_bytes: bytes.length, sha256: sha }) })).json();
+    const put = await fetch(pre.url, { method: pre.method, headers: pre.headers, body: bytes });
+    if (!put.ok) throw new Error(`PUT → ${put.status}`);
+    const done = await api(`/courses/${course}/uploads/complete`, tok, { method: "POST", body: JSON.stringify({ upload_id: pre.upload_id, title: `chaos-docling-${stamp}-${n}`, type: "OTHER" }), headers: { "Idempotency-Key": `chaos-doc-${pre.upload_id}` } });
+    if (![200, 202].includes(done.status)) throw new Error(`complete → ${done.status} ${await done.text()}`);
+  };
+  const victim = containerOf("docling")[0];
+  if (!victim) die("Không có container docling: dựng stack với COMPOSE_PROFILES=ingest.");
+  const t0 = new Date().toISOString();
+  for (const n of [1, 2, 3]) await upload(n);
+  run("docker", ["stop", victim]); // dừng ngay sau khi 3 tài liệu vào hàng
+  await sleep(120);
+  run("docker", ["start", victim]);
+  const back = Date.now();
+  const q = `select title, status, coalesce(error,'') from documents where course_id = '${course}' and title like 'chaos-docling-${stamp}-%' order by title`;
+  let rows = [];
+  while (Date.now() - back < 600_000) {
+    rows = psql(q).split("\n").filter(Boolean).map((l) => l.split("|"));
+    if (rows.length === 3 && rows.every((r) => ["READY", "FAILED"].includes(r[1]))) break;
+    await sleep(5);
+  }
+  const recoveredAfter = Math.round((Date.now() - back) / 1000);
+  // docling đã chạy lại: một tài liệu mới phải đọc được (hệ thống tự hồi phục, không cần can thiệp)
+  await upload(4);
+  const t4 = Date.now(); let fresh = "";
+  while (Date.now() - t4 < 300_000) { fresh = psql(`select status from documents where course_id = '${course}' and title = 'chaos-docling-${stamp}-4'`).trim(); if (["READY", "FAILED"].includes(fresh)) break; await sleep(5); }
+  const ready = rows.filter((r) => r[1] === "READY").length, failed = rows.filter((r) => r[1] === "FAILED");
+  const jobsOpen = Number(psql(`select count(*) from jobs where status in ('QUEUED','RUNNING') and created_at > now() - interval '30 minutes'`));
+  doc.scenarios.docling_down_120s = { at: t0, in: rows.length, ready, failed_dead_letter: failed.length, failed_errors: failed.map((r) => r[2].slice(0, 80)), orphan: rows.length - ready - failed.length, jobs_open_after: jobsOpen, seconds_to_terminal_after_restart: recoveredAfter, new_document_after_restart: fresh,
+    pass: rows.length === 3 && ready + failed.length === 3 && failed.every((r) => /EXTRACT_UNAVAILABLE/.test(r[2])) && fresh === "READY" };
+  console.log("docling_down_120s", JSON.stringify(doc.scenarios.docling_down_120s));
 }
 doc.demo_stack = { before: demoBefore, after: demoState(), note: "trạng thái các container của project edupilot trước / sau chaos (không bị đụng)" };
 writeFileSync(file, JSON.stringify(doc, null, 2));
