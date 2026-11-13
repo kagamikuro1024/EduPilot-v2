@@ -1,0 +1,405 @@
+{
+ "at": "2026-11-13T23:01:14.822Z",
+ "runs": [
+  {
+   "doc": "quy-che-lop1.md",
+   "run": 1,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 3.2,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 782,
+     "p90": 782,
+     "p95": 782,
+     "max": 782,
+     "mean": 782
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 0,
+     "p90": 0,
+     "p95": 0,
+     "max": 0,
+     "mean": 0
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop1.md",
+   "run": 2,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 6.1,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 4670,
+     "p90": 4670,
+     "p95": 4670,
+     "max": 4670,
+     "mean": 4670
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 4018,
+     "p90": 4018,
+     "p95": 4018,
+     "max": 4018,
+     "mean": 4018
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop1.md",
+   "run": 3,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 9.1,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 7093,
+     "p90": 7093,
+     "p95": 7093,
+     "max": 7093,
+     "mean": 7093
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 5025,
+     "p90": 5025,
+     "p95": 5025,
+     "max": 5025,
+     "mean": 5025
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop1.md",
+   "run": 4,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 6.0,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 2850,
+     "p90": 2850,
+     "p95": 2850,
+     "max": 2850,
+     "mean": 2850
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 2527,
+     "p90": 2527,
+     "p95": 2527,
+     "max": 2527,
+     "mean": 2527
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop1.md",
+   "run": 5,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 6.1,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 4208,
+     "p90": 4208,
+     "p95": 4208,
+     "max": 4208,
+     "mean": 4208
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 3529,
+     "p90": 3529,
+     "p95": 3529,
+     "max": 3529,
+     "mean": 3529
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop2.md",
+   "run": 1,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 6.1,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 4367,
+     "p90": 4367,
+     "p95": 4367,
+     "max": 4367,
+     "mean": 4367
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 4040,
+     "p90": 4040,
+     "p95": 4040,
+     "max": 4040,
+     "mean": 4040
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop2.md",
+   "run": 2,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 6.1,
+   "audit": {
+    "calls": 0,
+    "status": {},
+    "error_kind": {},
+    "models": {},
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {},
+    "queue_wait_ms": {},
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop2.md",
+   "run": 3,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 9.1,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 6359,
+     "p90": 6359,
+     "p95": 6359,
+     "max": 6359,
+     "mean": 6359
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 6034,
+     "p90": 6034,
+     "p95": 6034,
+     "max": 6034,
+     "mean": 6034
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop2.md",
+   "run": 4,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 6.1,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 3789,
+     "p90": 3789,
+     "p95": 3789,
+     "max": 3789,
+     "mean": 3789
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 3541,
+     "p90": 3541,
+     "p95": 3541,
+     "max": 3541,
+     "mean": 3541
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  },
+  {
+   "doc": "quy-che-lop2.md",
+   "run": 5,
+   "job_status": "FAILED",
+   "job_error": {
+    "code": "EXTRACTION_INVALID",
+    "message": "Không đọc được công thức từ quy chế."
+   },
+   "wall_s": 6.1,
+   "audit": {
+    "calls": 1,
+    "status": {
+     "error": 1
+    },
+    "error_kind": {
+     "BAD_REQUEST": 1
+    },
+    "models": {
+     "gemini-chat/gemini-3.1-flash-lite": 1
+    },
+    "attempts_gt1": 0,
+    "fallback_used": 0,
+    "latency_ms": {
+     "n": 1,
+     "p50": 4850,
+     "p90": 4850,
+     "p95": 4850,
+     "max": 4850,
+     "mean": 4850
+    },
+    "queue_wait_ms": {
+     "n": 1,
+     "p50": 4541,
+     "p90": 4541,
+     "p95": 4541,
+     "max": 4541,
+     "mean": 4541
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+   }
+  }
+ ]
+}

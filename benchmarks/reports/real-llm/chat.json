@@ -1,0 +1,1566 @@
+{
+ "at": "2026-11-13T23:13:58.329Z",
+ "summary": {
+  "n": 26,
+  "intent_accuracy": "24/26",
+  "first_event_ms": {
+   "n": 26,
+   "p50": 12,
+   "p90": 15,
+   "p95": 15,
+   "max": 16,
+   "mean": 11
+  },
+  "first_token_ms": {
+   "n": 26,
+   "p50": 7067,
+   "p90": 8931,
+   "p95": 9547,
+   "max": 9848,
+   "mean": 6301
+  },
+  "done_ms": {
+   "n": 26,
+   "p50": 7226,
+   "p90": 9170,
+   "p95": 9687,
+   "max": 9945,
+   "mean": 6622
+  },
+  "errors": [],
+  "llm_calls": 23
+ },
+ "results": [
+  {
+   "http": 200,
+   "ms_headers": 5,
+   "ms_first_event": 5,
+   "ms_first_token": 4381,
+   "ms_done": 5201,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72c-2afb-71c0-9510-aaae7ea8facf",
+   "content": "Chào bạn, dựa trên các tài liệu được cung cấp, mình xin trả lời câu hỏi của bạn như sau:\n\nDữ liệu không định nghĩa trực tiếp thuật ngữ \"Phishing\". Tuy nhiên, theo [2], hành vi lừa đảo qua email được mô tả là việc cá nhân sử dụng email hoặc các phương tiện khác nhằm đánh lừa người khác để lấy thông tin nhạy cảm (ví dụ: số thẻ tín dụng hoặc mật khẩu).\n\nĐể nhận diện các nỗ lực lừa đảo hoặc tấn công qua email, bạn có thể lưu ý các dấu hiệu sau [7]:\n*   Giả danh đồng nghiệp, nhân viên của đối tác, nhà cung cấp, cơ quan chức năng hoặc người có thẩm quyền.\n*   Cung cấp sự trợ giúp khi có vấn đề xảy ra, sau đó cố tình tạo ra vấn đề để thao túng nạn nhân gọi cho họ.\n*   Gửi phần mềm hoặc bản vá lỗi miễn phí để bạn cài đặt.\n*   Gửi virus hoặc Trojan Horse dưới dạng tệp đính kèm trong email.\n*   Sử dụng cửa sổ bật lên (pop-up) giả mạo yêu cầu người dùng đăng nhập lại hoặc cung cấp mật khẩu.\n*   Sử dụng thuật ngữ nội bộ để tạo lòng tin.\n*   Hứa hẹn giải thưởng khi đăng ký tại một trang web bằng tên người dùng và mật khẩu.",
+   "citations": 2,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": true,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.582,
+    "trace_id": "c5117a2a1c3d5d0290e722b0f24022d7",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 365,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q01",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 10,
+   "ms_first_event": 10,
+   "ms_first_token": 7067,
+   "ms_done": 7226,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72c-4f48-7fde-9342-e000244752e8",
+   "content": "Rất tiếc, thông tin trong tài liệu bạn cung cấp chưa đề cập đến cách thức hoạt động của Ransomware.",
+   "citations": 0,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": true,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.467,
+    "trace_id": "93198ab876bc798e1cf55b60cecf9e77",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 410,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q02",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": false,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 8,
+   "ms_first_event": 8,
+   "ms_first_token": 7769,
+   "ms_done": 8083,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72c-7b98-7b00-a5b9-0a3ad404e24b",
+   "content": "Chào bạn, dựa trên tài liệu được cung cấp, tấn công DDoS khác với tấn công DoS ở những điểm sau:\n\n*   **Quy mô:** DDoS sử dụng các phương thức tấn công tương tự như DoS nhưng hoạt động trên quy mô lớn hơn nhiều [2].\n*   **Điểm tấn công:** Trong khi DoS là các cuộc tấn công đơn lẻ, thì DDoS thường sử dụng hàng trăm hoặc hàng nghìn điểm tấn công để làm quá tải mục tiêu [2].\n\nHy vọng thông tin này hữu ích cho bạn!",
+   "citations": 1,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.6,
+    "trace_id": "5e7b54ebfb29de75f60faff6b6671164",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 403,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     },
+     {
+      "task": "CHAT",
+      "model": "gemini-3.1-flash-lite",
+      "status": "ok",
+      "latency_ms": 7655,
+      "queue_wait_ms": 4124,
+      "pii_masked_count": 0,
+      "tokens_in": 1425,
+      "tokens_out": 113,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q03",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": true,
+   "llm_calls": 2
+  },
+  {
+   "http": 200,
+   "ms_headers": 6,
+   "ms_first_event": 6,
+   "ms_first_token": 8262,
+   "ms_done": 8816,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72c-ab6d-7534-a6b0-289d1e08ecc9",
+   "content": "Chào bạn, dựa trên các tài liệu được cung cấp, sâu máy tính (worm) khác virus ở những điểm chính sau:\n\n*   **Sự can thiệp của người dùng:** Virus cần có sự can thiệp của người dùng (user intervention) để phát tán [2]. Ngược lại, worm không đòi hỏi sự tham gia của người dùng và có khả năng tự phát tán cực nhanh qua mạng [3].\n*   **Cách thức hoạt động:** Virus là phần mềm độc hại gắn vào một chương trình khác để thực thi chức năng không mong muốn [2]. Trong khi đó, worm thực thi mã tùy ý, cài đặt các bản sao của chính nó vào bộ nhớ của máy tính bị nhiễm và từ đó lây nhiễm sang các máy chủ khác [2].\n*   **Tác động:** Worm thường làm chậm mạng [1].",
+   "citations": 3,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.6,
+    "trace_id": "17dc7ff46d9dd2c26a54e3371cc6dadd",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 414,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     },
+     {
+      "task": "CHAT",
+      "model": "gemini-3.1-flash-lite",
+      "status": "ok",
+      "latency_ms": 8370,
+      "queue_wait_ms": 3874,
+      "pii_masked_count": 0,
+      "tokens_in": 1206,
+      "tokens_out": 176,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q04",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": true,
+   "llm_calls": 2
+  },
+  {
+   "http": 200,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 7083,
+   "ms_done": 8636,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72c-de30-7091-a46a-8d70df5cc140",
+   "content": "Chào bạn, các kỹ thuật tấn công phi kỹ thuật (social engineering) được đề cập trong tài liệu bao gồm:\n\n*   **Các hình thức cơ bản:**\n    *   Tấn công qua điện thoại [1].\n    *   \"Dumpster diving\" (lục thùng rác tìm thông tin) [1].\n    *   \"Reverse social engineering\" (tấn công phi kỹ thuật ngược) [1].\n    *   \"Shoulder surfing\" (nhìn lén qua vai) [7].\n\n*   **Các chiêu thức thao túng cụ thể:**\n    *   Giả danh: đồng nghiệp, nhân viên của nhà cung cấp, đối tác, cơ quan thực thi pháp luật, người có thẩm quyền, nhân viên mới cần giúp đỡ, hoặc nhà sản xuất hệ thống gọi đến để cung cấp bản vá [5].\n    *   Tạo ra vấn đề rồi đề nghị giúp đỡ [5].\n    *   Gửi phần mềm hoặc bản vá miễn phí, gửi virus hoặc Trojan Horse qua email [5].\n    *   Sử dụng cửa sổ pop-up giả yêu cầu đăng nhập lại [5].\n    *   Để lại USB hoặc CD chứa phần mềm độc hại tại nơi làm việc [5].\n    *   Sử dụng thuật ngữ nội bộ để tạo lòng tin [5].\n    *   Đưa ra giải thưởng để lừa người dùng đăng ký tên tài khoản và mật khẩu [5].\n    *   Các hành vi thao túng khác: gửi tài liệu/tệp tin đến phòng thư, giả mạo tiêu đề fax, yêu cầu chuyển tệp, thiết lập hộp thư thoại giả, giả danh từ văn phòng từ xa [6].\n\n*   **Dấu hiệu nhận biết kẻ tấn công:**\n    *   Từ chối cung cấp số điện thoại gọi lại, đưa ra các yêu cầu bất thường, khẳng định quyền hạn, nhấn mạnh tính khẩn cấp, đe dọa hậu quả nếu không tuân thủ, tỏ ra khó chịu khi bị chất vấn, hoặc sử dụng các hình thức như khen ngợi, tán tỉnh, lấy lòng [6].\n    *   Giả vờ bối rối để nhờ đổi mật khẩu, giả làm giám đốc để yêu cầu cấp quyền truy cập ngay lập tức, hoặc tự tin chỉ dẫn nhân viên vận hành nhập lệnh [7].",
+   "citations": 4,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.6,
+    "trace_id": "884f6cc6464dcf7162bfc5298cf00e3e",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 397,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q05",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 14,
+   "ms_first_event": 14,
+   "ms_first_token": 4702,
+   "ms_done": 5301,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72d-1040-7f9c-969f-331e697eebf1",
+   "content": "Tấn công xen giữa (man-in-the-middle) là một loại tấn công truy cập (access attack) được thực hiện nhằm các mục đích sau: đánh cắp thông tin, chiếm đoạt phiên làm việc để truy cập tài nguyên mạng nội bộ, phân tích lưu lượng để thu thập thông tin về mạng và người dùng, tấn công từ chối dịch vụ (DoS), làm hỏng dữ liệu truyền đi, hoặc chèn thông tin mới vào các phiên mạng [1, 3].\n\nVí dụ về tấn công xen giữa là khi một nhân viên của nhà cung cấp dịch vụ Internet (ISP) truy cập được tất cả các gói tin mạng truyền tải giữa mạng của bạn và bất kỳ mạng nào khác [1].",
+   "citations": 1,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.6,
+    "trace_id": "fc69a86498b765017704ad54c0b8ca75",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 444,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q06",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 8,
+   "ms_first_event": 8,
+   "ms_first_token": 8203,
+   "ms_done": 8552,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72d-34ec-7b7e-bd59-2cd5b26d4d5f",
+   "content": "Dựa trên ngữ cảnh được cung cấp, tôi chưa có đủ thông tin để trả lời cụ thể về các loại tường lửa và tầng mà chúng thực hiện lọc.\n\nTrong ngữ cảnh [3], tài liệu có đề cập đến \"Scanning Engines\" là các thiết bị cấp mạng dùng để kiểm tra nội dung và xác thực người dùng, có thể bao gồm \"firewall/IPS\", nhưng không phân loại chi tiết các loại tường lửa hay tầng lọc cụ thể của chúng.",
+   "citations": 1,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.478,
+    "trace_id": "67803d7cbeec41df3c1bd3da8b58a167",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 379,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q07",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 6193,
+   "ms_done": 6295,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72d-66b0-76d7-b56b-2d32d2123b7a",
+   "content": "Chào bạn, rất tiếc là trong tài liệu được cung cấp không có thông tin giải thích \"botnet\" là gì và cách thức nó được sử dụng trong các cuộc tấn công. Vì vậy, tôi chưa đủ thông tin để trả lời câu hỏi của bạn.",
+   "citations": 0,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.59,
+    "trace_id": "490fcca425e8315023abb6f9362fb248",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 392,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q08",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": false,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 7,
+   "ms_first_event": 8,
+   "ms_first_token": 8373,
+   "ms_done": 9170,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72d-8f69-70b6-a466-efeefd4e4e07",
+   "content": "Chào bạn, sinh viên bị cảnh báo học vụ khi vi phạm hai trong ba điều kiện a, b, c sau đây:\n\n*   **Điều kiện a (Điểm trung bình chung tích lũy):**\n    *   <1.20 đối với sinh viên trình độ tương đương năm thứ nhất.\n    *   <1.40 đối với sinh viên trình độ tương đương năm thứ hai.\n    *   <1.60 đối với sinh viên trình độ tương đương năm thứ ba.\n    *   <1.80 đối với sinh viên tiếp theo và cuối khóa [1].\n\n*   **Điều kiện b (Điểm trung bình chung học kì):**\n    *   <0.80 đối với học kì đầu của khóa học.\n    *   <1.0 đối với các học kì tiếp theo [4].\n\n*   **Điều kiện c:**\n    *   Tổng số tín chỉ các học phần bị điểm F còn tồn đọng tính từ đầu khóa học đến thời điểm xét vượt quá 24 tín chỉ [4].\n    *   Tổng số tín chỉ không đạt trong học kì vượt quá 50% khối lượng đăng kí học trong học kì (áp dụng cho sinh viên tuyển sinh từ năm 2022 trở đi) [4].\n\nNgoài ra, sinh viên cũng bị cảnh báo học vụ nếu bị cảnh báo hai lần liên tiếp hoặc bị cảnh báo đến lần thứ ba không liên tiếp [2].\n\nLưu ý: Quy chế xét học vụ dựa trên kết quả học tập không áp dụng với một số trường hợp sinh viên năm thứ nhất hoặc sinh viên đang nghỉ học tạm thời và bảo lưu kết quả [3].",
+   "citations": 4,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "aad48a913fb2f5aeac49cebf0b220e75",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 408,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q09",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 6312,
+   "ms_done": 6524,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1d72d-c3a6-74f1-ad21-8b7ccfdce6bd",
+   "content": "Chào bạn, hiện tại tôi chưa thấy thông tin nào trong tài liệu quy định về việc có được mang tờ A4 ghi chú vào phòng thi hay không. Thông tin này không có trong ngữ cảnh được cung cấp.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 1,
+    "low_confidence": false,
+    "confidence": 0.966,
+    "trace_id": "f784dcd8a3089de79f538912d6efa87c",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 405,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q10",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "escalated": false,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 14,
+   "ms_first_event": 14,
+   "ms_first_token": 9547,
+   "ms_done": 9687,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1d72d-ed35-7988-94ef-87c74516013c",
+   "content": "Chào bạn, hiện tại tôi chưa có thông tin về địa điểm tòa nhà tổ chức phòng thi cuối kỳ của lớp trong ngữ cảnh được cung cấp.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 1,
+    "low_confidence": false,
+    "confidence": 0.941,
+    "trace_id": "dd884d2ff1d943fd0c8936d4d4c13085",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 377,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q11",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "escalated": false,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 7044,
+   "ms_done": 7155,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72e-2340-79ad-af8c-f6cb2903f087",
+   "content": "Chào bạn, dựa trên dữ liệu hiện có, bạn đã nghỉ tổng cộng 2 buổi.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "PERSONAL_ATTENDANCE",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "1083907aa6c187a09d2811a76aa4c5a9",
+    "llm": []
+   },
+   "id": "Q12",
+   "expect_intent": "PERSONAL_ATTENDANCE",
+   "intent": "PERSONAL_ATTENDANCE",
+   "intent_ok": true,
+   "numbers_ok": true,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 10,
+   "ms_first_event": 10,
+   "ms_first_token": 5873,
+   "ms_done": 6172,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "attendance",
+     "data": {
+      "absent": 2,
+      "excused": 0,
+      "late": 1,
+      "present": 6,
+      "recent_absent": [
+       {
+        "date": "2026-10-17",
+        "session_no": 6
+       },
+       {
+        "date": "2026-09-26",
+        "session_no": 3
+       }
+      ],
+      "recorded": 9
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72e-4f75-73b3-bfb8-9a2ea194609d",
+   "content": "Chào bạn, dựa trên dữ liệu ghi nhận, tình hình chuyên cần của bạn như sau:\n\n*   Tổng số buổi đã ghi nhận: 9 buổi.\n*   Có mặt: 6 buổi.\n*   Vắng mặt: 2 buổi (vào ngày 2026-10-17 và 2026-09-26).\n*   Đi muộn: 1 buổi.\n*   Vắng có phép: 0 buổi.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "PERSONAL_ATTENDANCE",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "eaed439a629bcf6505fd758b5d9a716a",
+    "llm": []
+   },
+   "id": "Q13",
+   "expect_intent": "PERSONAL_ATTENDANCE",
+   "intent": "PERSONAL_ATTENDANCE",
+   "intent_ok": true,
+   "numbers_ok": true,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 14,
+   "ms_first_event": 14,
+   "ms_first_token": 9848,
+   "ms_done": 9945,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "participation",
+     "data": {
+      "points_total": "0.50",
+      "recent": [
+       {
+        "date": "2026-11-14",
+        "points": "0.25",
+        "type": "SPEAK"
+       },
+       {
+        "date": "2026-11-14",
+        "points": "0.25",
+        "type": "SPEAK"
+       }
+      ],
+      "speak_count": 2
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72e-77a6-775b-bcca-0aae97f7c687",
+   "content": "Chào bạn, dựa trên dữ liệu hiện có, bạn đã được cộng tổng cộng 0.50 điểm phát biểu [points_total].",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "PERSONAL_PARTICIPATION",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "4efa4ece9f8d8e29c828415a4353f931",
+    "llm": []
+   },
+   "id": "Q14",
+   "expect_intent": "PERSONAL_PARTICIPATION",
+   "intent": "PERSONAL_PARTICIPATION",
+   "intent_ok": true,
+   "numbers_ok": true,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 14,
+   "ms_first_event": 14,
+   "ms_first_token": 5803,
+   "ms_done": 5910,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "grade_summary",
+     "data": {
+      "bonus": {
+       "applied": "0.5",
+       "cap": "1",
+       "raw": "0.5"
+      },
+      "calculation": [
+       {
+        "expr": "7,5",
+        "label": "Giữa kỳ (20%)",
+        "page": 1,
+        "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+        "value": "7,5"
+       },
+       {
+        "expr": "8",
+        "label": "Kiểm tra hằng tuần (20%)",
+        "value": "8"
+       },
+       {
+        "expr": "min(0,5; 1)",
+        "label": "Điểm cộng",
+        "page": 1,
+        "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+        "value": "0,5"
+       },
+       {
+        "expr": "max(0; 2 − 2) × 0,5 + 0",
+        "label": "Điểm trừ",
+        "page": 1,
+        "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+        "value": "0"
+       },
+       {
+        "expr": "(20 × 7,5 + 20 × 8) ÷ 40",
+        "label": "Điểm quá trình trước điểm cộng / trừ",
+        "value": "7,75"
+       },
+       {
+        "expr": "min(10; max(0; 7,75 + 0,5 − 0))",
+        "label": "Điểm quá trình",
+        "value": "8,25"
+       }
+      ],
+      "components": [
+       {
+        "key": "midterm",
+        "name": "Giữa kỳ",
+        "score": "7.5",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "weekly",
+        "name": "Kiểm tra hằng tuần",
+        "score": "8",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "final",
+        "name": "Thi cuối kỳ",
+        "score": "6.5",
+        "status": "PUBLISHED",
+        "weight": "60"
+       }
+      ],
+      "official_note": "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
+      "penalty": {
+       "absent": 2,
+       "free": 2,
+       "per": "0.5",
+       "value": "0"
+      },
+      "qt": "8.25",
+      "scheme": {
+       "components": [
+        {
+         "grp": "QT",
+         "key": "midterm",
+         "name": "Giữa kỳ",
+         "weight": "20"
+        },
+        {
+         "grp": "QT",
+         "key": "weekly",
+         "name": "Kiểm tra hằng tuần",
+         "weight": "20"
+        },
+        {
+         "grp": "CK",
+         "key": "final",
+         "name": "Thi cuối kỳ",
+         "weight": "60"
+        }
+       ],
+       "confirmed_at": "2026-11-13T22:55:48.123475Z",
+       "scheme_no": 1
+      },
+      "status": "IN_PROGRESS"
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72e-aecd-7e86-adba-52c62a50aca9",
+   "content": "Điểm giữa kỳ của bạn là 7,5.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "PERSONAL_GRADE",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "b0a511b471a56e182a6964caf561fd6a",
+    "llm": [
+     {
+      "task": "CHAT",
+      "model": "gemini-3.1-flash-lite",
+      "status": "ok",
+      "latency_ms": 5874,
+      "queue_wait_ms": 4390,
+      "pii_masked_count": 0,
+      "tokens_in": 774,
+      "tokens_out": 14,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q15",
+   "expect_intent": "PERSONAL_GRADE",
+   "intent": "PERSONAL_GRADE",
+   "intent_ok": true,
+   "mentions_bt03_score": false,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 16,
+   "ms_first_event": 16,
+   "ms_first_token": 7290,
+   "ms_done": 7510,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "grade_summary",
+     "data": {
+      "bonus": {
+       "applied": "0.5",
+       "cap": "1",
+       "raw": "0.5"
+      },
+      "calculation": [
+       {
+        "expr": "7,5",
+        "label": "Giữa kỳ (20%)",
+        "page": 1,
+        "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+        "value": "7,5"
+       },
+       {
+        "expr": "8",
+        "label": "Kiểm tra hằng tuần (20%)",
+        "value": "8"
+       },
+       {
+        "expr": "min(0,5; 1)",
+        "label": "Điểm cộng",
+        "page": 1,
+        "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+        "value": "0,5"
+       },
+       {
+        "expr": "max(0; 2 − 2) × 0,5 + 0",
+        "label": "Điểm trừ",
+        "page": 1,
+        "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+        "value": "0"
+       },
+       {
+        "expr": "(20 × 7,5 + 20 × 8) ÷ 40",
+        "label": "Điểm quá trình trước điểm cộng / trừ",
+        "value": "7,75"
+       },
+       {
+        "expr": "min(10; max(0; 7,75 + 0,5 − 0))",
+        "label": "Điểm quá trình",
+        "value": "8,25"
+       }
+      ],
+      "components": [
+       {
+        "key": "midterm",
+        "name": "Giữa kỳ",
+        "score": "7.5",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "weekly",
+        "name": "Kiểm tra hằng tuần",
+        "score": "8",
+        "status": "PUBLISHED",
+        "weight": "20"
+       },
+       {
+        "key": "final",
+        "name": "Thi cuối kỳ",
+        "score": "6.5",
+        "status": "PUBLISHED",
+        "weight": "60"
+       }
+      ],
+      "official_note": "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường.",
+      "penalty": {
+       "absent": 2,
+       "free": 2,
+       "per": "0.5",
+       "value": "0"
+      },
+      "qt": "8.25",
+      "scheme": {
+       "components": [
+        {
+         "grp": "QT",
+         "key": "midterm",
+         "name": "Giữa kỳ",
+         "weight": "20"
+        },
+        {
+         "grp": "QT",
+         "key": "weekly",
+         "name": "Kiểm tra hằng tuần",
+         "weight": "20"
+        },
+        {
+         "grp": "CK",
+         "key": "final",
+         "name": "Thi cuối kỳ",
+         "weight": "60"
+        }
+       ],
+       "confirmed_at": "2026-11-13T22:55:48.123475Z",
+       "scheme_no": 1
+      },
+      "status": "IN_PROGRESS"
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72e-d630-7747-b962-bfbda31b9a04",
+   "content": "Chào bạn, dựa trên dữ liệu hiện có, mình không tìm thấy thông tin cụ thể về điểm số của \"Bài tập 03\". Trong ngữ cảnh chỉ có dữ liệu về điểm Giữa kỳ (7,5), Kiểm tra hằng tuần (8,0) và Thi cuối kỳ (6,5) [components].",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "PERSONAL_GRADE",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "206fa6bb3471b80f600bd3af1105f3c2",
+    "llm": []
+   },
+   "id": "Q16",
+   "expect_intent": "PERSONAL_GRADE",
+   "intent": "PERSONAL_GRADE",
+   "intent_ok": true,
+   "mentions_bt03_score": false,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 8424,
+   "ms_done": 8543,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "what_if",
+     "data": {
+      "calculation": [
+       {
+        "expr": "7,5",
+        "label": "Giữa kỳ (20%)",
+        "page": 1,
+        "source_quote": "Điểm quá trình gồm hai thành phần: điểm kiểm tra giữa kỳ có trọng số 20% của điểm học phần, và điểm kiểm tra hằng tuần có trọng số 20% của điểm học phần.",
+        "value": "7,5"
+       },
+       {
+        "expr": "8",
+        "label": "Kiểm tra hằng tuần (20%)",
+        "value": "8"
+       },
+       {
+        "expr": "min(0,5; 1)",
+        "label": "Điểm cộng",
+        "page": 1,
+        "source_quote": "Mỗi lần phát biểu được giảng viên ghi nhận thì cộng 0,25 điểm vào điểm quá trình; tổng điểm cộng tối đa là 1,0 điểm.",
+        "value": "0,5"
+       },
+       {
+        "expr": "max(0; 2 − 2) × 0,5 + 0",
+        "label": "Điểm trừ",
+        "page": 1,
+        "source_quote": "Mỗi buổi vắng không phép từ buổi vắng thứ ba trở đi thì trừ 0,5 điểm vào điểm quá trình; hai buổi vắng không phép đầu tiên không bị trừ.",
+        "value": "0"
+       },
+       {
+        "expr": "(20 × 7,5 + 20 × 8) ÷ 40",
+        "label": "Điểm quá trình trước điểm cộng / trừ",
+        "value": "7,75"
+       },
+       {
+        "expr": "min(10; max(0; 7,75 + 0,5 − 0))",
+        "label": "Điểm quá trình",
+        "value": "8,25"
+       },
+       {
+        "expr": "8",
+        "label": "Điểm cuối kỳ (giả định)",
+        "value": "8"
+       },
+       {
+        "expr": "(40 × 8,25 + 60 × 8) ÷ 100",
+        "label": "Điểm học phần thô",
+        "value": "8,1"
+       },
+       {
+        "expr": "round(8,1 ÷ 0,5) × 0,5",
+        "label": "Làm tròn đến 0,5 (nửa lên)",
+        "page": 2,
+        "source_quote": "Điểm học phần được làm tròn đến 0,5 điểm; điểm nằm đúng giữa hai mức thì làm tròn lên mức cao hơn.",
+        "value": "8"
+       }
+      ],
+      "hp": "8",
+      "letter": "B+"
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72f-03e8-78ea-9ebd-95876a9dc811",
+   "content": "Chào bạn,\n\nNếu điểm cuối kỳ của bạn là 8, điểm học phần của bạn sẽ là 8,0.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "WHAT_IF_GRADE",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "f52c421ec2a1de0ac874650ea4f98bae",
+    "llm": []
+   },
+   "id": "Q17",
+   "expect_intent": "WHAT_IF_GRADE",
+   "intent": "WHAT_IF_GRADE",
+   "intent_ok": true,
+   "mentions_bt03_score": false,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 15,
+   "ms_first_event": 15,
+   "ms_first_token": 7688,
+   "ms_done": 8382,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [
+    {
+     "masked": 1
+    }
+   ],
+   "error": null,
+   "message_id": "01a1d72f-35a8-7cbd-91a6-9cc987f97af7",
+   "content": "Chào bạn, cách tính điểm học phần cho môn này như sau:\n\nĐiểm học phần là tổng của điểm quá trình (trọng số 40%) và điểm thi cuối kỳ (trọng số 60%) [1].\n\nTrong đó:\n- Điểm quá trình gồm: điểm kiểm tra giữa kỳ (trọng số 20% điểm học phần) và điểm kiểm tra hằng tuần (trọng số 20% điểm học phần) [1].\n- Điểm quá trình có thể thay đổi dựa trên các quy định sau:\n    - Cộng tối đa 1,0 điểm nếu phát biểu được giảng viên ghi nhận (mỗi lần cộng 0,25 điểm) [7].\n    - Trừ 0,5 điểm vào điểm quá trình từ buổi vắng không phép thứ ba trở đi (hai buổi đầu không trừ) [7].\n    - Nộp bài muộn bị trừ 0,5 điểm mỗi ngày [3].\n\nLưu ý: Điểm học phần được làm tròn đến 0,5 điểm [2]. Sinh viên có điểm thi cuối kỳ dưới 3,0 thì bị điểm F, bất kể điểm quá trình [2]. Điểm trên EduPilot chỉ hỗ chỉ mang tính chất trợ tính và giải trình [2].",
+   "citations": 4,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 1,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "e0ad99bfb0a9b61beeca77ae0e3149be",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 393,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     },
+     {
+      "task": "CHAT",
+      "model": "gemini-3.1-flash-lite",
+      "status": "ok",
+      "latency_ms": 7941,
+      "queue_wait_ms": 5482,
+      "pii_masked_count": 1,
+      "tokens_in": 1521,
+      "tokens_out": 273,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q18",
+   "expect_intent": "GRADE_FORMULA",
+   "intent": "COURSE_QA",
+   "intent_ok": false,
+   "numbers_ok": true,
+   "llm_calls": 2
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 15,
+   "ms_done": 16,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72f-66ce-758f-a8df-e230195f1797",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "OTHER_PERSON",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": null,
+    "trace_id": "e4e9e48e066fc5e53b47819274b332c4",
+    "llm": []
+   },
+   "id": "Q19",
+   "expect_intent": "OTHER_PERSON",
+   "intent": "OTHER_PERSON",
+   "intent_ok": true,
+   "refused_other": true,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 14,
+   "ms_done": 17,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72f-76f9-72b4-9829-f9e6226bd4fc",
+   "content": "Mình chỉ xem được dữ liệu của chính bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "OTHER_PERSON",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": null,
+    "trace_id": "07dd13b4d80b6fe8c14ee160dbd47a11",
+    "llm": []
+   },
+   "id": "Q20",
+   "expect_intent": "OTHER_PERSON",
+   "intent": "OTHER_PERSON",
+   "intent_ok": true,
+   "refused_other": true,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 14,
+   "ms_first_event": 15,
+   "ms_first_token": 3422,
+   "ms_done": 3608,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72f-8722-7e27-90a6-69232b40f0d7",
+   "content": "Hiện tại, các thông tin trong ngữ cảnh được cung cấp không đề cập đến lịch trình cụ thể hay thời gian diễn ra bài kiểm tra tuần tiếp theo cho lớp [[761987]]. Bạn vui lòng theo dõi thông báo từ giảng viên hoặc hệ thống học tập nhé.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 0.981,
+    "trace_id": "06daad28969e4837ed9b3743a1ac13d2",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 629,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     },
+     {
+      "task": "CHAT",
+      "model": "gemini-3.1-flash-lite",
+      "status": "ok",
+      "latency_ms": 2949,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 1358,
+      "tokens_out": 58,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q21",
+   "expect_intent": "EXAM_SCHEDULE",
+   "intent": "COURSE_QA",
+   "intent_ok": false,
+   "llm_calls": 2
+  },
+  {
+   "http": 200,
+   "ms_headers": 9,
+   "ms_first_event": 9,
+   "ms_first_token": 8113,
+   "ms_done": 8293,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [
+    {
+     "kind": "upcoming_events",
+     "data": {
+      "days": 7,
+      "events": [
+       {
+        "ends": "Thứ Bảy, 14/11 · 11:30",
+        "location": "P.302",
+        "starts": "Thứ Bảy, 14/11 · 09:00",
+        "title": "Buổi 10",
+        "type": "CLASS_SESSION"
+       },
+       {
+        "starts": "Thứ Bảy, 21/11 · 05:57",
+        "title": "Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams)",
+        "type": "DEADLINE"
+       }
+      ]
+     }
+    }
+   ],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72f-a542-7ce6-81b8-3d4fb85e1bee",
+   "content": "Dựa trên thông tin được cung cấp, trong tuần này (tính đến Thứ Bảy, 14/11), bạn không có hạn nộp bài nào. Hạn nộp bài gần nhất là \"Bài tập 04 — Phân tích một vụ tấn công thực tế (Teams)\" vào ngày 21/11.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "UPCOMING_EVENTS",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 1.0,
+    "trace_id": "51d701481f0ead67f3786b99819f61e9",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 502,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q22",
+   "expect_intent": "UPCOMING_EVENTS",
+   "intent": "UPCOMING_EVENTS",
+   "intent_ok": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 15,
+   "ms_first_event": 15,
+   "ms_first_token": 8931,
+   "ms_done": 9072,
+   "stages": [
+    "received",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d72f-d5b4-7926-bc52-9cff531af71c",
+   "content": "Chào bạn, rất sẵn lòng hỗ trợ bạn! Bạn có câu hỏi nào về nội dung môn học không?",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "SMALLTALK",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": null,
+    "trace_id": "0469e9f1bafd481c107599c3c91afdfe",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 501,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q23",
+   "expect_intent": "SMALLTALK",
+   "intent": "SMALLTALK",
+   "intent_ok": true,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 11,
+   "ms_first_event": 11,
+   "ms_first_token": 486,
+   "ms_done": 491,
+   "stages": [
+    "received"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d730-0957-7090-9d05-efacc4929e2b",
+   "content": "Mình rất tiếc khi nghe điều này. Bạn không phải một mình, hãy nói chuyện với giảng viên của bạn nhé. Phòng Công tác sinh viên, phòng 101 nhà A1, giờ hành chính",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "CRISIS",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": null,
+    "trace_id": "101c958ebe9bcd213406ca22da555782",
+    "llm": []
+   },
+   "id": "Q24",
+   "expect_intent": "CRISIS",
+   "intent": "CRISIS",
+   "intent_ok": true,
+   "llm_calls": 0
+  },
+  {
+   "http": 200,
+   "ms_headers": 11,
+   "ms_first_event": 11,
+   "ms_first_token": 4437,
+   "ms_done": 4826,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d730-1b51-742a-9bb2-c234914b0382",
+   "content": "Dựa trên các tài liệu được cung cấp, hiện chưa có thông tin về sự khác biệt giữa mã hóa đối xứng và bất đối xứng.",
+   "citations": 0,
+   "low_confidence": true,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": true,
+    "confidence": 0.402,
+    "trace_id": "1c83f1d2d847d6c7ad1650160e917594",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 422,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q25",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": false,
+   "llm_calls": 1
+  },
+  {
+   "http": 200,
+   "ms_headers": 12,
+   "ms_first_event": 12,
+   "ms_first_token": 8557,
+   "ms_done": 8740,
+   "stages": [
+    "received",
+    "searching",
+    "generating"
+   ],
+   "blocks": [],
+   "notices": [],
+   "error": null,
+   "message_id": "01a1d730-3e3a-756e-9298-1c4ec3827e7e",
+   "content": "Bạn thân mến, các tài liệu trong <ngữ_cảnh> được cung cấp không chứa thông tin về lỗ hổng zero-day. Vì vậy, mình chưa đủ thông tin để trả lời câu hỏi này giúp bạn.",
+   "citations": 0,
+   "low_confidence": false,
+   "degraded": false,
+   "ticket": false,
+   "db": {
+    "intent": "COURSE_QA",
+    "masked_count": 0,
+    "low_confidence": false,
+    "confidence": 0.886,
+    "trace_id": "80846aed247229506a74bbd25779c232",
+    "llm": [
+     {
+      "task": "EMBEDDING",
+      "model": "gemini-embedding-001",
+      "status": "ok",
+      "latency_ms": 443,
+      "queue_wait_ms": 0,
+      "pii_masked_count": 0,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "fallback_index": 0
+     },
+     {
+      "task": "CHAT",
+      "model": "gemini-3.1-flash-lite",
+      "status": "ok",
+      "latency_ms": 8260,
+      "queue_wait_ms": 3043,
+      "pii_masked_count": 0,
+      "tokens_in": 1744,
+      "tokens_out": 48,
+      "fallback_index": 0
+     }
+    ]
+   },
+   "id": "Q26",
+   "expect_intent": "COURSE_QA",
+   "intent": "COURSE_QA",
+   "intent_ok": true,
+   "has_citations": false,
+   "llm_calls": 2
+  }
+ ]
+}
