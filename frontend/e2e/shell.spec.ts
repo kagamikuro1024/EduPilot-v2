@@ -132,6 +132,7 @@ test("nav per role: nhãn + href + thứ tự khớp SRS 7.5", async ({ page, co
     const noCourse = ctx === "student-no-course";
     await asDemo(context, ctx.startsWith("student") ? "student" : (ctx as DemoRole), { person: noCourse ? "sv-4" : undefined });
     await page.goto("/");
+    await expect(page.locator("[data-part=sidebar] nav a")).toHaveCount(rows.length); // chờ phiên + khung dựng xong (CI chậm hơn máy dev)
     const got = await page.locator("[data-part=sidebar] nav a").evaluateAll((as) => as.map((a) => [(a.textContent ?? "").replace(/\d+$/, "").trim(), a.getAttribute("href")]));
     expect(got, ctx).toEqual(rows);
     if (ctx === "student") expect(await page.locator("body").innerText()).not.toContain("Cấu hình LLM");
