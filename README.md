@@ -300,8 +300,8 @@ flowchart LR
 | 7 | ✅ Xong | P4 + P5 | "Nhờ giảng viên", `/inbox`, chuông tức thì, thư đúng một lần, SLA ticket, kiểm duyệt Threads; điểm danh, hồ sơ 360 (audit), at-risk, thời gian học có công tắc |
 | 8 | ✅ Xong | P6 | Sổ điểm kiểu bảng tính, AI trích công thức từ quy chế → giảng viên xác nhận → code tính (decimal, 30/30 khớp đáp án tính tay), chốt / mở khoá có lý do, nhập / xuất XLSX, điểm của tôi + tính thử |
 | 9 | ✅ Xong | P7 | Bài tập nộp trong app / ZIP / mail / Teams giả lập, khớp sinh viên an toàn, AI chấm nháp hai lượt có bằng chứng, duyệt cạnh nhau, chỉ giảng viên công bố, phúc khảo |
-| 9.1 | | UI/UX | Khảo sát + cải thiện UI/UX, trang giới thiệu mới có chuyển động + video |
-| 9.5 | | NFR | Seed đầy đủ, đo tải / hiệu năng trên VPS, đánh giá LLM thật (Gemini) |
+| 9.1 | ✅ Xong | UI/UX | Khảo sát 34 màn × 4 vai × 1440 / 375 (27 vấn đề), sửa theo 6 đợt: nút có lý do khoá, giờ ICT, menu tiếng Việt, "Hôm nay" chia nhóm, sổ điểm / duyệt bài gọn, trang giới thiệu v2 + video có phụ đề |
+| 9.5 | | NFR | Seed đầy đủ, đo tải / hiệu năng trên Mac (VPS đã thu hồi), đánh giá LLM thật (Gemini) |
 | 10 | | P9 | Luyện đề (dùng lại ngân hàng câu hỏi của PE), QUIZ |
 | 11 | | P10 | Observation, đánh giá E1–E6, test tải T1, hoàn thiện → **vạch bảo vệ** |
 
