@@ -32,18 +32,18 @@ test("topic run: chấm ngay, khoá câu đã trả lời, giải thích thêm, 
   expect(start.headers["x-practice-tab"]).toMatch(/^[0-9a-f-]{36}$/);
 
   // câu 1: sai → phản hồi + đáp án đúng; không đổi được
-  await page.getByRole("button", { name: /^A\s*Phương án A/ }).click();
+  await page.getByRole("button", { name: /^Phương án A của câu 1/ }).click();
   await page.getByRole("button", { name: "Kiểm tra" }).click();
   await expect(page.getByText("Chưa đúng")).toBeVisible();
   await expect(page.getByText("Đáp án đúng: Phương án B của câu 1")).toBeVisible();
-  await expect(page.getByRole("button", { name: /^A\s*Phương án A/ })).toBeDisabled();
+  await expect(page.getByRole("button", { name: /^Phương án A của câu 1/ })).toBeDisabled();
   await page.getByRole("button", { name: "Giải thích thêm" }).click();
   await expect(page.getByText("Giải thích thêm: B đúng vì khoá đối xứng.")).toBeVisible();
   await page.getByRole("button", { name: "Câu tiếp theo" }).click();
 
   // các câu còn lại: đúng cả → "Xem kết quả"
   for (let i = 2; i <= 5; i++) {
-    await page.getByRole("button", { name: new RegExp(`^B\\s*Phương án B của câu ${i}`) }).click();
+    await page.getByRole("button", { name: new RegExp(`^Phương án B của câu ${i}`) }).click();
     await page.getByRole("button", { name: "Kiểm tra" }).click();
     await expect(page.getByText("Đúng rồi")).toBeVisible();
     await page.getByRole("button", { name: i === 5 ? "Xem kết quả" : "Câu tiếp theo" }).click();
@@ -70,14 +70,14 @@ test("mock run: không lộ đúng / sai trước khi nộp, mất mạng giữ 
   await expect(mock.getByText("Đáp án đúng")).toHaveCount(0);
   await expect(mock.getByRole("button", { name: "Giải thích thêm" })).toHaveCount(0);
 
-  await mock.getByRole("button", { name: /^B\s*Phương án B của câu 1/ }).click();
+  await mock.getByRole("button", { name: /^Phương án B của câu 1/ }).click();
   await expect(mock.getByRole("status").first()).toContainText("Đã lưu lúc");
   await expect(mock.getByText("Đáp án đúng")).toHaveCount(0); // vẫn không có phản hồi sau khi lưu
 
   // mất mạng: lựa chọn giữ trên máy, báo "Chưa gửi được 1 câu"
   await context.setOffline(true);
   await mock.getByRole("button", { name: "Câu sau" }).click();
-  await mock.getByRole("button", { name: /^B\s*Phương án B của câu 2/ }).click();
+  await mock.getByRole("button", { name: /^Phương án B của câu 2/ }).click();
   await expect(mock.getByText(/Chưa gửi được 1 câu/)).toBeVisible();
   await context.setOffline(false);
   await expect(mock.getByRole("status").first()).toContainText("Đã lưu lúc", { timeout: 20_000 });
@@ -86,7 +86,7 @@ test("mock run: không lộ đúng / sai trước khi nộp, mất mạng giữ 
   await page.reload();
   await expect(page.locator("[data-part=practice-mock]")).toBeVisible();
   await page.getByRole("button", { name: "Câu sau" }).click();
-  await expect(page.getByRole("button", { name: /^B\s*Phương án B của câu 2/ })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: /^Phương án B của câu 2/ })).toHaveAttribute("aria-pressed", "true");
 
   await page.getByRole("button", { name: "Nộp bài" }).first().click();
   await expect(page.getByRole("dialog")).toContainText("Bạn đã trả lời 2/5 câu");
@@ -99,7 +99,7 @@ test("mock run: không lộ đúng / sai trước khi nộp, mất mạng giữ 
 test("ATTEMPT_CLOSED: máy chủ đã đóng lượt (hết giờ) → báo hết giờ và nộp theo phần đã lưu, không mất bài", async ({ page }) => {
   const api = await practiceApi(page, { "PUT answers": (route) => { api.closeOnServer("att-1", true); return route.fulfill(err(409, "ATTEMPT_CLOSED")); } }, { mockCount: 5 });
   await startMock(page, api);
-  await page.getByRole("button", { name: /^B\s*Phương án B của câu 1/ }).click();
+  await page.getByRole("button", { name: /^Phương án B của câu 1/ }).click();
   await expect(page.getByRole("heading", { name: /^Bạn đúng 0\/5 câu$/, level: 1 })).toBeVisible(); // tự nộp theo phần đã lưu (chưa có câu nào)
   await expect(page.getByText("Hết giờ — bài được nộp theo các câu đã lưu.")).toBeVisible();
 });
@@ -107,7 +107,7 @@ test("ATTEMPT_CLOSED: máy chủ đã đóng lượt (hết giờ) → báo hế
 test("TAB_TAKEN_OVER: tab khác giành quyền ghi → tab này chỉ xem, có Làm tiếp ở tab này", async ({ page }) => {
   const api = await practiceApi(page, { "PUT answers": (route) => route.fulfill(err(409, "TAB_TAKEN_OVER")) }, { mockCount: 5 });
   await startMock(page, api);
-  await page.getByRole("button", { name: /^B\s*Phương án B của câu 1/ }).click();
+  await page.getByRole("button", { name: /^Phương án B của câu 1/ }).click();
   await expect(page.getByText("Bài đang mở ở tab khác")).toBeVisible();
   await expect(page.getByRole("button", { name: "Làm tiếp ở tab này" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Nộp bài" }).first()).toBeDisabled();
@@ -116,7 +116,7 @@ test("TAB_TAKEN_OVER: tab khác giành quyền ghi → tab này chỉ xem, có L
 test("COURSE khớp: lời gọi API đi tới đúng lớp của sinh viên", async ({ page }) => {
   const api = await practiceApi(page);
   const seen: string[] = [];
-  page.on("request", (r) => /\/practice\//.test(r.url()) && seen.push(r.url()));
+  page.on("request", (r) => /\/api\/v1\/.*\/practice\//.test(r.url()) && seen.push(r.url()));
   await page.goto("/practice");
   await expect(page.getByText("Luyện Mật mã khối")).toBeVisible();
   expect(seen.length).toBeGreaterThan(0);

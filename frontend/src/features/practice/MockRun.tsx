@@ -46,6 +46,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
   const [other, setOther] = useState(false); // tab khác đã giành quyền ghi
   const versions = useRef<Record<string, number>>(Object.fromEntries(items.filter((i) => i.answer).map((i) => [i.id, i.answer!.version])));
   const submitKey = useRef<string | null>(null);
+  const closedByServer = useRef(false); // máy chủ đã đóng lượt (ATTEMPT_CLOSED): phần còn chờ trong hàng đợi không gửi được nữa, nộp lấy kết quả theo phần đã lưu
 
   const sender = useCallback<Sender<Qd>>(async (batch) => {
     for (const b of batch) {
@@ -56,7 +57,7 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
       } catch (e) {
         if (!(e instanceof ApiError)) return { ok: false as const };
         if (e.code === "TAB_TAKEN_OVER") { setOther(true); return { ok: false as const, fatal: true }; }
-        if (e.code === "ATTEMPT_CLOSED") { setExpired(true); return { ok: false as const, fatal: true }; }
+        if (e.code === "ATTEMPT_CLOSED") { closedByServer.current = true; setExpired(true); return { ok: false as const, fatal: true }; }
         if (e.code === "VERSION_CONFLICT") {
           const v = (e.details as { version?: number } | undefined)?.version;
           if (typeof v === "number") versions.current[b.item_id] = v;
@@ -117,8 +118,8 @@ export function MockRun({ courseId, initial, tab, clock, userId, onDone, onTakeO
     const delays = [1000, 2000, 4000, 8000, 15000];
     for (let n = 0; ; n++) {
       try {
-        if (!other) await queue.flush(); // bản cuối lên máy chủ trước khi nộp (chấm theo phần đã lưu)
-        if (!other && queue.state.pending > 0) throw new ApiError({ status: 0, code: "NETWORK" });
+        if (!other && !closedByServer.current) await queue.flush(); // bản cuối lên máy chủ trước khi nộp (chấm theo phần đã lưu)
+        if (!other && !closedByServer.current && queue.state.pending > 0) throw new ApiError({ status: 0, code: "NETWORK" });
         const r = await submitAttempt(courseId, initial.id, submitKey.current);
         queue.clear();
         onDone(r);
