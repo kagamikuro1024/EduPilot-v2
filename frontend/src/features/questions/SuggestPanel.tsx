@@ -7,6 +7,7 @@ import { ApiErrorNotice, apiClient, fieldErrors, useJob } from "@/shared/data";
 import { Button, Field, InlineNotice, Input, Select, Textarea } from "@/shared/ui";
 import { DIFF_LABEL, qPath, type Difficulty } from "./questionsApi";
 import s from "./Questions.module.css";
+import { progressStyle } from "@/shared/lib/progress";
 
 /** `Gợi ý từ AI` (D57): AI chỉ soạn NHÁP câu trắc nghiệm; câu vào ngân hàng ở trạng thái "Chờ duyệt", chỉ vào bài thi sau khi giảng viên / TA duyệt. */
 export function SuggestPanel({ courseId, onDone, onCancel }: { courseId: string; onDone: (created: number) => void; onCancel: () => void }) {
@@ -53,7 +54,7 @@ export function SuggestPanel({ courseId, onDone, onCancel }: { courseId: string;
       {err !== null && Object.keys(fe).length === 0 && <ApiErrorNotice error={err} showTechnical />}
       {running && (
         <div role="status">
-          <div className={s.bar}><span className={s.barFill} style={{ width: `${job.progress}%` }} /></div>
+          <div className={s.bar}><span className={s.barFill} style={progressStyle(job.progress)} /></div>
           <p className={s.genText}>AI đang soạn nháp… {job.progress}%</p>
         </div>
       )}

@@ -500,7 +500,8 @@ async function openReview(page: Page, context: Parameters<typeof asDemo>[0], opt
 test("queue default filter and flags: bảng ảo hoá, lọc Cần xem kỹ + Chưa duyệt, lý do cờ bằng chữ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openQueue(page, context);
-  await expect(page.locator("main table th")).toHaveText(["Sinh viên", "Bài tập", "Nguồn", "Điểm", "Trạng thái duyệt", "Lý do cờ", "Thời gian nộp"]);
+  // US-UX91-14 AC1, AC2, AC3: lý do cờ gộp vào ô Sinh viên (bỏ cột Lý do cờ); thêm cột hành động "Duyệt"
+  await expect(page.locator("main table th")).toHaveText(["Sinh viên", "Bài tập", "Nguồn", "Điểm", "Trạng thái duyệt", "Thời gian nộp", "Duyệt"]);
   await expect(qRows(page)).toHaveCount(1); // mặc định chỉ bài có cờ, chưa duyệt
   await expect(qRows(page).first()).toContainText("Trần Thu Uyên");
   await expect(qRows(page).first()).toContainText("Thư");
@@ -562,7 +563,7 @@ test("review amber notice for disagree: nêu đúng số của hai lượt chấ
   desktopOnly(info);
   await openReview(page, context);
   const crit = page.locator('[data-part=criterion][data-criterion="c2"]');
-  await expect(crit.locator("[data-part=disagree]")).toContainText("Hai lượt chấm lệch 1,5 điểm (1 và 2,5)");
+  await expect(crit.locator("[data-part=disagree]")).toContainText("Lệch 1,5 điểm so với lượt 2 (1 và 2,5)");
   await expect(page.locator('[data-part=criterion][data-criterion="c1"] [data-part=disagree]')).toHaveCount(0);
   expect(await page.locator("main").innerText()).not.toMatch(/trace|model/i);
 });
@@ -587,27 +588,45 @@ test("review edit score undo: lưu lạc quan, bước 0,25 báo tại ô, hoàn
   await expect(page.getByRole("status").filter({ hasText: "Thành công" })).toHaveCount(0);
 });
 
-test("review version conflict: 409 hỏi giữ bên nào", async ({ page, context }, info) => {
+test("review version conflict: 409 giữ điểm đã gõ, nêu giá trị người kia, MỘT thông báo (US-15 AC7, lỗi #8)", async ({ page, context }, info) => {
   desktopOnly(info);
-  const theirs = resultView({ result: { ...resultView().result, version: 9, overall_feedback: "Bản của người khác" } });
+  const base = resultView();
+  const theirs = resultView({ result: { ...base.result, version: 9 }, criteria: base.criteria.map((c) => (c.id === "c2" ? { ...c, score: "1.25" } : c)) });
   let n = 0;
-  await openReview(page, context, {
+  const api = await openReview(page, context, {
     h: {
       "PUT grading-results/:id": (r) => {
         n += 1;
-        return n === 1
-          ? r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current: theirs } }, 409))
-          : r.fulfill(json(theirs));
+        return n === 1 ? r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current: theirs } }, 409)) : r.fulfill(json(theirs));
       },
     },
   });
   const box = page.locator('[data-part=criterion][data-criterion="c2"]').getByLabel(/^Điểm /);
-  await box.fill("2,25");
+  await box.fill("0,75");
   await box.blur();
-  await expect(page.getByText("Người khác vừa sửa kết quả này")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Giữ của tôi" })).toBeVisible();
+  await expect(page.getByText("Người khác vừa nhập 1,25")).toBeVisible();
+  await expect(box).toHaveValue("0,75"); // chữ đã gõ không lùi
+  await expect(page.getByText("Có người vừa sửa mục này")).toHaveCount(0); // không có dải lỗi thứ hai
+  await expect(page.locator("[data-part=undo-line]")).toHaveCount(0);
+  await page.getByRole("button", { name: "Giữ của tôi" }).click();
+  await expect.poll(() => api.puts().length).toBe(2);
+  const kept = JSON.parse(api.puts()[1].body) as { version: number; criteria: Array<{ id: string; score: string }> };
+  expect(kept.version).toBe(9); // ghi đè lên bản của người kia, chỉ tiêu chí đang sửa
+  expect(kept.criteria).toEqual([{ id: "c2", score: "0.75" }]);
+  await expect(page.getByText("Người khác vừa nhập 1,25")).toHaveCount(0);
+});
+
+test("review version conflict: Dùng của họ đổi ô sang giá trị người kia", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const base = resultView();
+  const theirs = resultView({ result: { ...base.result, version: 9 }, criteria: base.criteria.map((c) => (c.id === "c2" ? { ...c, score: "1.25" } : c)) });
+  await openReview(page, context, { h: { "PUT grading-results/:id": (r) => r.fulfill(json({ code: "VERSION_CONFLICT", message: "x", trace_id: "t", details: { current: theirs } }, 409)) } });
+  const box = page.locator('[data-part=criterion][data-criterion="c2"]').getByLabel(/^Điểm /);
+  await box.fill("0,75");
+  await box.blur();
   await page.getByRole("button", { name: "Dùng của họ" }).click();
-  await expect(page.getByText("Người khác vừa sửa kết quả này")).toHaveCount(0);
+  await expect(box).toHaveValue("1,25");
+  await expect(page.getByText("Người khác vừa nhập 1,25")).toHaveCount(0);
 });
 
 test("review comment autosave: nháp lưu vào máy mỗi 2 giây", async ({ page, context }, info) => {
@@ -634,10 +653,28 @@ test("review draft restore: mở lại bài thì nhận xét đang soạn còn n
 test("review key A next: duyệt rồi sang bài kế, có thanh tiến độ", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await openReview(page, context, { rows: defaultRows().map((r) => ({ ...r, result: r.result ? { ...r.result, needs_review: true } : r.result })), views: { [SUB_B]: resultView(), [SUB_C]: resultView({ submission: { ...resultView().submission, id: SUB_C }, result: { ...resultView().result, id: "00000000-0000-7000-8000-0000000d0002" } }) } });
-  await expect(page.locator("[data-part=review-progress]")).toContainText("Đã duyệt 0/");
+  const progress = page.locator("[data-part=review-progress]");
+  const m = Number(/\/(\d+)$/.exec((await progress.textContent()) ?? "")?.[1]);
+  await expect(progress).toHaveText(`Đã duyệt 0/${m}`);
+  // US-UX91-15 AC3 (P-91-10): thanh dưới nằm gọn trong khung nhìn 1440×900 lúc mở bài
+  const bar = await page.locator("[data-part=review-bar]").boundingBox();
+  expect(bar!.y + bar!.height).toBeLessThanOrEqual(900);
   await page.keyboard.press("a");
   await expect.poll(() => api.reviews().length).toBe(1);
   await expect(page).toHaveURL(new RegExp(SUB_C));
+  await expect(progress).toHaveText(`Đã duyệt 1/${m}`); // N tăng, M cố định
+});
+
+test("review approve fails: lỗi hiện ở thanh dưới kèm Thử lại, điểm đã nhập còn nguyên", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let down = true;
+  await openReview(page, context, { h: { "POST grading-results/:id/review": (r, next) => (down ? r.abort("connectionfailed") : next(r)) } });
+  await page.getByRole("button", { name: "Duyệt bài" }).click();
+  const bar = page.locator("[data-part=review-bar]");
+  await expect(bar.getByRole("alert")).toBeVisible({ timeout: 20_000 });
+  down = false;
+  await bar.getByRole("button", { name: "Thử lại" }).click();
+  await expect(bar.getByRole("alert")).toHaveCount(0);
 });
 
 test("review running locked: đang chấm thì khoá Duyệt bài kèm lý do", async ({ page, context }, info) => {
@@ -664,7 +701,7 @@ test("grading states: khung xương, rỗng kèm Tải bài lên, lỗi kèm Th�
   await gradingApi(page, { rows: [] });
   await page.reload();
   await expect(page.getByText("Chưa có bài nộp")).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tải bài lên" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tải bài lên" }).first()).toBeVisible(); // thanh công cụ + nút trong trạng thái rỗng (US-UX91-05 AC3)
   await page.unrouteAll({ behavior: "ignoreErrors" });
 
   const api = await gradingApi(page, { h: { "GET submissions": (r) => r.fulfill(json({ code: "INTERNAL", message: "x", trace_id: "t" }, 500)) } });
@@ -831,7 +868,7 @@ test("demo step 5: B nộp muộn đang chấm → giảng viên sửa tiêu ch�
   await page.unrouteAll({ behavior: "ignoreErrors" });
   const api = await openReview(page, context);
   const c2 = page.locator('[data-part=criterion][data-criterion="c2"]');
-  await expect(c2.locator("[data-part=disagree]")).toContainText("Hai lượt chấm lệch 1,5 điểm (1 và 2,5)");
+  await expect(c2.locator("[data-part=disagree]")).toContainText("Lệch 1,5 điểm so với lượt 2 (1 và 2,5)");
   await c2.getByLabel(/^Điểm /).fill("2");
   await c2.getByLabel(/^Điểm /).blur();
   await expect.poll(() => api.puts().length).toBeGreaterThanOrEqual(1);

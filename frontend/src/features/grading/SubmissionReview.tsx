@@ -2,10 +2,10 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Check, FileSearch } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Check, ChevronLeft, ChevronRight, FileSearch, Quote } from "lucide-react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { ApiError, useAutosaveDraft, useUndoableAction } from "@/shared/data";
-import { Button, ButtonLink, Field, InlineNotice, Input, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
+import { Button, ButtonLink, Field, InlineNotice, Input, Kbd, Page, PageHeader, PageState, Panel, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import { useSession } from "@/shared/session/session";
 import { fromUnits, toUnits, vi } from "@/features/assignments/assignmentApi";
 import { fmtLong } from "@/features/calendar/calendarApi";
@@ -110,8 +110,23 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   });
   const order = queue.items.map((r) => r.id);
   const at = order.indexOf(submissionId);
-  const [done, setDone] = useState(0);
-  const total = order.length;
+  // N = số bài đã duyệt, M = tổng cố định của hàng chờ lúc mở: mang theo trên URL để không mất khi sang bài kế (US-UX91-15 AC3, P-91-10)
+  const done = Number(params.get("n")) || 0;
+  const total = Number(params.get("m")) || order.length;
+  const [footErr, setFootErr] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  // cột phải cao vừa phần khung nhìn còn lại sau đầu trang: thanh dưới luôn thấy khi mở bài (AC3)
+  useLayoutEffect(() => {
+    const el = panelRef.current;
+    if (!el) return;
+    const fit = () => {
+      const wide = window.matchMedia("(min-width: 1100px)").matches;
+      el.style.maxHeight = wide ? `${Math.max(320, window.innerHeight - (el.getBoundingClientRect().top + window.scrollY) - 56)}px` : "";
+    };
+    fit();
+    window.addEventListener("resize", fit);
+    return () => window.removeEventListener("resize", fit);
+  }, []);
 
   const draft = useAutosaveDraft(`grading:${rid}`, { userId: identity?.sub });
   const restored = useMemo<Draft | null>(() => {
@@ -128,9 +143,20 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   const [lateText, setLateText] = useState<string | null>(null);
   const [fieldErr, setFieldErr] = useState<{ id: string; message: string } | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
-  const [conflict, setConflict] = useState<ResultView | null>(null);
+  /** 409: bản hiện tại của người kia + điểm TÔI đã gõ cho tiêu chí đang lưu (giữ nguyên trong ô cho tới khi chọn). */
+  const [conflict, setConflict] = useState<{ theirs: ResultView; id: string; mine: string } | null>(null);
   const [undone, setUndone] = useState(false);
   const [activeEv, setActiveEv] = useState<{ start: number; end: number } | null>(null);
+  const [fading, setFading] = useState(false);
+  const [tab, setTab] = useState<"doc" | "grade">("grade");
+  const [savedKey, setSavedKey] = useState<string | null>(null); // ô vừa lưu xong: nháy nền xanh nhạt 200 ms (US-UX91-04 AC7)
+  const flashTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const evTimers = useRef<Array<ReturnType<typeof setTimeout>>>([]);
+  const flashSaved = (key: string) => {
+    setSavedKey(key);
+    clearTimeout(flashTimer.current);
+    flashTimer.current = setTimeout(() => setSavedKey(null), 400);
+  };
   const [activeCrit, setActiveCrit] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const running = useRef(false);
@@ -155,9 +181,11 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
     [courseId, rid, qc, submissionId],
   );
 
-  function handle(e: unknown, critId?: string) {
+  function handle(e: unknown, critId?: string, mine?: string) {
     if (e instanceof ApiError && e.code === "VERSION_CONFLICT") {
-      setConflict(((e.details as { current?: ResultView } | undefined)?.current ?? null));
+      const theirs = (e.details as { current?: ResultView } | undefined)?.current ?? e.conflict?.current as ResultView | undefined;
+      if (theirs && critId && mine !== undefined) setConflict({ theirs, id: critId, mine });
+      else void qc.invalidateQueries({ queryKey: resultKey(courseId, submissionId) });
       return;
     }
     if (e instanceof ApiError && critId && (e.code === "SCORE_STEP" || e.code === "SCORE_OUT_OF_RANGE" || e.code === "SCORE_PRECISION")) {
@@ -175,11 +203,13 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
       setFieldErr(null);
       try {
         await put({ version: view.result.version, criteria: [{ id, score: after.replace(",", ".") }] });
+        flashSaved(`score:${id}`);
       } catch (e) {
-        handle(e, id);
+        handle(e, id, after);
         throw e;
       }
     },
+    handled: (e) => e instanceof ApiError && e.code === "VERSION_CONFLICT",
     compensate: async ({ id, before }) => {
       const cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
       await put({ version: cur.result.version, criteria: [{ id, score: before.replace(",", ".") }] });
@@ -227,16 +257,28 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
 
   const approve = () =>
     void run(async () => {
-      let cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
-      if (dirtyComments.length > 0 || overallDirty) {
-        cur = await put({ version: cur.result.version, criteria: dirtyComments, overall_feedback: overallText });
+      try {
+        let cur = qc.getQueryData<ResultView>(resultKey(courseId, submissionId)) ?? view;
+        if (dirtyComments.length > 0 || overallDirty) {
+          cur = await put({ version: cur.result.version, criteria: dirtyComments, overall_feedback: overallText });
+        }
+        await reviewResult(courseId, rid, cur.result.version);
+      } catch (e) {
+        if (e instanceof ApiError && e.code === "VERSION_CONFLICT") throw e;
+        setFootErr(e instanceof ApiError ? e.userMessage : "Chưa duyệt được.");
+        return;
       }
-      await reviewResult(courseId, rid, cur.result.version);
+      setFootErr(null);
       draft.clear();
-      setDone((d) => d + 1);
       void qc.invalidateQueries({ queryKey: ["grading-queue", courseId] });
-      if (at >= 0 && at + 1 < order.length) goto(at + 1);
-      else void qc.invalidateQueries({ queryKey: resultKey(courseId, submissionId) });
+      const next = new URLSearchParams(params);
+      next.set("n", String(done + 1));
+      next.set("m", String(total));
+      if (at >= 0 && at + 1 < order.length) router.push(`/grading/${order[at + 1]}?${next}`);
+      else {
+        router.replace(`/grading/${submissionId}?${next}`);
+        void qc.invalidateQueries({ queryKey: resultKey(courseId, submissionId) });
+      }
     });
 
   // Phím tắt (không chạy khi đang gõ trong ô): A duyệt rồi sang bài kế, ←/→ đổi bài, ↑/↓ đổi tiêu chí, Esc hoàn tác ô.
@@ -270,7 +312,11 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   ];
 
   function showEvidence(ev: { start: number; end: number }) {
+    // tô nền giữ ≈ 1 s (trạng thái), rồi mờ đi trong 200 ms, rồi gỡ (US-UX91-15 AC2)
+    evTimers.current.forEach(clearTimeout);
+    setFading(false);
     setActiveEv(ev);
+    evTimers.current = [setTimeout(() => setFading(true), 1000), setTimeout(() => setActiveEv(null), 1200)];
     const idx = paras.findIndex((p) => ev.start >= p.start && ev.start < p.end);
     docRef.current?.querySelector(`[data-para="${idx}"]`)?.scrollIntoView({ block: "center", behavior: "auto" });
   }
@@ -290,7 +336,12 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
   const otherFlags = view.flags.filter((f) => f !== "NEEDS_REVIEW");
 
   return (
-    <div className={s.reviewGrid}>
+    <div className={s.reviewGrid} data-tab={tab}>
+      <div className={s.tabs} role="tablist" aria-label="Chế độ xem">
+        <button type="button" role="tab" aria-selected={tab === "doc"} onClick={() => setTab("doc")}>Bài làm</button>
+        <button type="button" role="tab" aria-selected={tab === "grade"} onClick={() => setTab("grade")}>Chấm</button>
+      </div>
+      <div className={s.docCol}>
       <Panel>
         <div className={s.doc} ref={docRef} data-part="submission-text">
           <div className={s.docMeta}>
@@ -311,7 +362,7 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                 seg.kind === null ? (
                   <span key={k}>{seg.text}</span>
                 ) : (
-                  <mark key={k} className={seg.kind === "injection" ? s.injected : s.evidenceMark} data-part={seg.kind === "injection" ? "injection" : "evidence-hit"}>
+                  <mark key={k} className={seg.kind === "injection" ? s.injected : s.evidenceMark} data-fading={seg.kind === "evidence" && fading ? "" : undefined} data-part={seg.kind === "injection" ? "injection" : "evidence-hit"}>
                     {seg.text}
                   </mark>
                 ),
@@ -320,9 +371,11 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
           ))}
         </div>
       </Panel>
+      </div>
 
+      <div className={s.gradeCol}>
       <Panel>
-        <div className={s.panel}>
+        <div className={s.panel} ref={panelRef}>
           {view.appeal && <AppealPanel courseId={courseId} submissionId={submissionId} view={view} appeal={view.appeal} teacher={identity?.role === "teacher"} />}
           <div className={s.total} data-part="total">
             <span className={s.totalLabel}>Tổng điểm</span>
@@ -376,22 +429,25 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
               {FLAG_TODO[f] ?? ""}
             </InlineNotice>
           ))}
+          {view.criteria.some((c) => c.evidence.length > 0) && <p className={s.evNote}>Bấm một dòng trích để xem trong bài.</p>}
           {restored && <InlineNotice compact>Đã khôi phục nhận xét bạn đang soạn dở.</InlineNotice>}
           {conflict && (
             <InlineNotice
               tone="warning"
-              title="Người khác vừa sửa kết quả này"
+              title={`Người khác vừa nhập ${vi(conflict.theirs.criteria.find((x) => x.id === conflict.id)?.score ?? "") || "—"}`}
               action={
                 <>
-                  <Button size="sm" onClick={() => void run(async () => { await put({ version: conflict.result.version, criteria: view.criteria.map((c) => ({ id: c.id, score: scoreOf(c).replace(",", ".") })) }); setConflict(null); })}>
+                  <Button size="sm" variant="primary" onClick={() => void run(async () => { await put({ version: conflict.theirs.result.version, criteria: [{ id: conflict.id, score: conflict.mine.replace(",", ".") }] }); setConflict(null); })}>
                     Giữ của tôi
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => { qc.setQueryData(resultKey(courseId, submissionId), conflict); setScores({}); setConflict(null); }}>
+                  <Button size="sm" onClick={() => { qc.setQueryData(resultKey(courseId, submissionId), conflict.theirs); setScores((p) => { const n = { ...p }; delete n[conflict.id]; return n; }); setConflict(null); }}>
                     Dùng của họ
                   </Button>
                 </>
               }
-            />
+            >
+              {`Bạn đã nhập ${conflict.mine}.`}
+            </InlineNotice>
           )}
           {notice && (
             <InlineNotice tone="danger" compact action={<Button size="sm" onClick={() => setNotice(null)}>Đã hiểu</Button>}>
@@ -412,21 +468,13 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
             const gap = u1 !== null && u2 !== null ? Math.abs(u1 - u2) : 0;
             return (
               <section key={c.id} className={s.crit} data-part="criterion" data-criterion={c.id} data-active={activeCrit === c.id || undefined}>
-                {gap > 100 && (
-                  <span data-part="disagree">
-                    <InlineNotice tone="warning" compact>
-                      {`Hai lượt chấm lệch ${vi(fromUnits(gap))} điểm (${vi(pd!.pass1!)} và ${vi(pd!.pass2!)})`}
-                    </InlineNotice>
-                  </span>
-                )}
                 <div className={s.critHead}>
                   <span className={s.critName}>{c.name}</span>
-                  <Field label={`Điểm ${c.name}`} error={fieldErr?.id === c.id ? fieldErr.message : undefined} className={s.critScore}>
-                    {(id) => (
+                  <span className={s.critScore}>
                       <span className={s.scoreBox}>
                         <Input
-                          id={id}
-                          className={s.scoreInput}
+                          aria-label={`Điểm ${c.name}`}
+                          className={[s.scoreInput, savedKey === `score:${c.id}` ? "ep-saved ep-motion-safe" : ""].join(" ")}
                           inputMode="decimal"
                           data-part="score-input"
                           value={scoreOf(c)}
@@ -439,14 +487,21 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                         />
                         <span className={s.stepMax}>{` / ${vi(c.max)}`}</span>
                       </span>
-                    )}
-                  </Field>
+                  </span>
                 </div>
+                {fieldErr?.id === c.id && <p className={s.fieldErr} role="alert">{fieldErr.message}</p>}
+                {gap > 100 && (
+                  <span data-part="disagree">
+                    <InlineNotice tone="warning" compact>
+                      {`Lệch ${vi(fromUnits(gap))} điểm so với lượt 2 (${vi(pd!.pass1!)} và ${vi(pd!.pass2!)})`}
+                    </InlineNotice>
+                  </span>
+                )}
                 {c.edited && <p className={s.aiTag} data-part="edited">Đã sửa bởi giảng viên</p>}
                 {c.evidence.map((ev, i) => (
                   <button key={i} type="button" className={s.evidence} data-part="evidence" onClick={() => showEvidence(ev)}>
-                    <span className={s.evidenceTag}>Đoạn trích từ bài làm · bấm để xem trong bài</span>
-                    {`“${ev.quote}”`}
+                    <Quote aria-hidden />
+                    <span>{`“${ev.quote}”`}</span>
                   </button>
                 ))}
                 <Field label="Nhận xét cho sinh viên">
@@ -455,13 +510,14 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
                       id={id}
                       rows={2}
                       data-part="criterion-comment"
+                      className={savedKey === `comment:${c.id}` ? "ep-saved ep-motion-safe" : undefined}
                       value={commentOf(c)}
                       onChange={(e) => {
                         setComments((p) => ({ ...p, [c.id]: e.target.value }));
                         saveDraft({ comments: { [c.id]: e.target.value } });
                       }}
                       onBlur={() => {
-                        if (commentOf(c) !== c.comment) void run(() => put({ version: view.result.version, criteria: [{ id: c.id, comment: commentOf(c) }] }).then(() => undefined));
+                        if (commentOf(c) !== c.comment) void run(() => put({ version: view.result.version, criteria: [{ id: c.id, comment: commentOf(c) }] }).then(() => flashSaved(`comment:${c.id}`)));
                       }}
                     />
                   )}
@@ -485,17 +541,30 @@ function Body({ courseId, submissionId, view }: { courseId: string; submissionId
             )}
           </Field>
 
-          <div className={s.foot}>
-            <p className={s.footText} data-part="review-progress">{`Đã duyệt ${done}/${total || order.length || 0}`}</p>
-            <Button variant="primary" icon={<Check aria-hidden />} loading={busy} disabled={Boolean(lockedReason) || view.result.status === "PUBLISHED"} title={lockedReason} onClick={approve}>
-              {view.result.status === "REVIEWED" ? "Đã duyệt" : "Duyệt bài"}
-            </Button>
+          <div className={s.foot} data-part="review-bar">
+            {footErr && (
+              <div className={s.footErr}>
+                <InlineNotice tone="danger" compact action={<Button size="sm" onClick={approve}>Thử lại</Button>}>
+                  {footErr}
+                </InlineNotice>
+              </div>
+            )}
+            <p className={s.footText} data-part="review-progress">{`Đã duyệt ${done}/${total}`}</p>
+            <span className={s.footActions}>
+              <Button variant="ghost" size="sm" icon={<ChevronLeft aria-hidden />} aria-label="Bài trước" disabled={at <= 0} onClick={() => goto(at - 1)} />
+              <Button variant="ghost" size="sm" icon={<ChevronRight aria-hidden />} aria-label="Bài sau" disabled={at < 0 || at + 1 >= order.length} onClick={() => goto(at + 1)} />
+              <Button variant="primary" icon={<Check aria-hidden />} loading={busy} disabled={Boolean(lockedReason) || view.result.status === "PUBLISHED"} title={lockedReason} onClick={approve}>
+                {view.result.status === "REVIEWED" ? "Đã duyệt" : "Duyệt bài"}
+              </Button>
+              <Kbd>A</Kbd>
+            </span>
           </div>
           <ButtonLink href="/grading" variant="ghost" size="sm">
             Về hàng chờ chấm
           </ButtonLink>
         </div>
       </Panel>
+      </div>
     </div>
   );
 }

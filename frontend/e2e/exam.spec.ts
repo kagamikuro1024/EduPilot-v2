@@ -437,7 +437,7 @@ test("exam editor: tạo bài, lỗi lên lịch có danh sách, chọn câu, đ
 
   // chọn câu từ ngân hàng (chỉ câu đã duyệt), đổi thứ tự bằng nút Lên / Xuống, lưu
   await page.getByRole("button", { name: "Thêm câu từ ngân hàng" }).click();
-  const drawer = page.getByRole("dialog", { name: "Chọn câu từ ngân hàng" });
+  const drawer = page.getByRole("dialog", { name: "Chọn câu đã duyệt từ ngân hàng" });
   await expect(drawer.getByText("Tính a+b")).toHaveCount(0); // câu code chưa duyệt không có trong danh sách
   await drawer.getByRole("checkbox", { name: /AES là thuật toán gì\?/ }).check();
   await drawer.getByRole("checkbox", { name: /RSA dựa trên bài toán nào\?/ }).check();

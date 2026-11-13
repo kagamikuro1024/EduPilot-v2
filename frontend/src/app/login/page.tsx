@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: "Đăng nhập" };
 
 export default function LoginPage() {
   return (
-    <AuthShell>
+    <AuthShell homeLink>
       <Suspense fallback={null}>
         <LoginForm />
       </Suspense>

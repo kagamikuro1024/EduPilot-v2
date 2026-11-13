@@ -10,7 +10,7 @@ import { useDemoSlice } from "@/shared/state/demo";
 import { useAuth } from "./AuthProvider";
 import { ALL_COURSES } from "./cookies";
 import { checkToken, type Claims } from "./jwt";
-import { mockCourseFor, readStoredCourse, useMyCourses, writeStoredCourse, type RealCourse } from "./myCourses";
+import { clearStoredCourse, mockCourseFor, readStoredCourse, useFirstCourseWithData, useMyCourses, writeStoredCourse, type RealCourse } from "./myCourses";
 
 type Session = {
   role: Role;
@@ -66,11 +66,19 @@ export function SessionProvider({
   const [pickedCourseId, setJwtCourseId] = useState<string | null>(null); // id lớp thật hoặc "all"; null = chưa chọn trong phiên này → localStorage, rồi lớp đầu
   const mine = useMyCourses(!!identity);
   const real = useMemo(() => (identity && mine.data ? mine.data.filter((c) => c.enrollment_status === "ACTIVE") : null), [identity, mine.data]);
+  // lớp ARCHIVED còn trong danh sách nhưng không được nhớ / làm lớp mặc định (US-UX91-06 AC3, P-91-9)
+  const live = useMemo(() => (real ? real.filter((c) => c.status === "ACTIVE") : null), [real]);
+
+  // lần đầu (chưa nhớ lớp, hoặc lớp đã nhớ không còn) với nhân sự ≥ 2 lớp: chọn lớp đầu tiên có dữ liệu (US-UX91-06). Chỉ tính ở trang chủ: màn khác (kể cả màn bị chặn quyền) không gọi thêm API
+  const pathname = usePathname();
+  const needFirst = pathname === "/" && !!identity && !!live && live.length > 1 && (identity.role === "teacher" || identity.role === "ta") && pickedCourseId === null && readStoredCourse() !== ALL_COURSES && !live.some((c) => c.id === readStoredCourse());
+  const first = useFirstCourseWithData(needFirst, live);
+  const firstId = needFirst ? (first.data ?? null) : null;
 
   const setCourse = useCallback((id: string) => {
     setJwtCourseId(id);
-    writeStoredCourse(id);
-  }, []);
+    if (id === ALL_COURSES || live?.some((c) => c.id === id)) writeStoredCourse(id);
+  }, [live]);
 
   const logout = useCallback(() => {
     void auth.logout();
@@ -92,9 +100,10 @@ export function SessionProvider({
     let isAll: boolean;
     let realCourseId: string | null = null;
     if (identity && real && role !== "admin") {
-      const jwtCourseId = pickedCourseId ?? readStoredCourse(); // chỉ chạy ở client sau khi có phiên thật (identity ≠ null)
+      const stored = readStoredCourse(); // chỉ chạy ở client sau khi có phiên thật (identity ≠ null)
+      const jwtCourseId = pickedCourseId ?? (stored === ALL_COURSES || live?.some((c) => c.id === stored) ? stored : null);
       // Lớp THẬT quyết định ai thấy lớp nào; màn mô phỏng dùng lớp mô phỏng tương ứng theo class_code (AC13), không gọi API lớp.
-      const pick = jwtCourseId === ALL_COURSES && role !== "student" && real.length > 1 ? ALL_COURSES : (real.find((c) => c.id === jwtCourseId) ?? real.find((c) => c.status === "ACTIVE") ?? real[0])?.id ?? null; // mặc định: lớp đang hoạt động đầu tiên, không phải lớp đã lưu trữ
+      const pick = jwtCourseId === ALL_COURSES && role !== "student" && real.length > 1 ? ALL_COURSES : (real.find((c) => c.id === jwtCourseId) ?? real.find((c) => c.id === firstId) ?? real.find((c) => c.status === "ACTIVE") ?? real[0])?.id ?? null; // mặc định: lớp đang hoạt động đầu tiên, không phải lớp đã lưu trữ
       realCourseId = pick;
       courses = [...new Map(real.map((c) => mockCourseFor(c.class_code)).map((c) => [c.id, c])).values()];
       isAll = pick === ALL_COURSES;
@@ -109,10 +118,17 @@ export function SessionProvider({
       course = courses.find((c) => c.id === courseId) ?? courses[0] ?? COURSES[0];
     }
     return {
-      role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, realCourses: identity ? real : null, realPending: !!identity && role !== "admin" && mine.isPending, realCourseId,
+      role, user, studentId: role === "student" ? student.id : undefined, course, courses, isAll, hasCourse: courses.length > 0, realCourses: identity ? real : null, realPending: !!identity && role !== "admin" && (mine.isPending || (needFirst && first.isPending)), realCourseId,
       setCourse, identity, logout,
     };
-  }, [identity, fullName, pickedCourseId, real, mine.isPending, members, setCourse, logout]);
+  }, [identity, fullName, pickedCourseId, real, live, mine.isPending, needFirst, first.isPending, firstId, members, setCourse, logout]);
+
+  // lớp đã nhớ không còn trong danh sách lớp của tôi (id lạ, bị xoá lớp): bỏ giá trị, dùng lớp mặc định (US-UX91-06 AC3)
+  useEffect(() => {
+    if (!live || mine.isPending) return;
+    const stored = readStoredCourse();
+    if (stored && stored !== ALL_COURSES && !live.some((c) => c.id === stored)) clearStoredCourse();
+  }, [live, mine.isPending]);
 
   // phiên thật chưa tải xong lớp thật (đang tải / lỗi) → chưa xử lý tham số, tránh bỏ nhầm một id hợp lệ
   useCourseDeepLink(value.realCourses ? value.realCourses.map((c) => c.id) : identity && value.role !== "admin" ? null : value.courses.map((c) => c.id), setCourse);

@@ -8,7 +8,7 @@ import { KEYS, type CalendarExtra, type InsightThread } from "@/mock/state";
 import { useUndoLine } from "@/shared/lib/useUndoLine";
 import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
-import { Button, ButtonLink, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, useRouteState } from "@/shared/ui";
+import { Button, ButtonLink, EmptyState, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, useRouteState } from "@/shared/ui";
 import s from "./insights.module.css";
 
 const STEPS = ["Gom câu hỏi của lớp và bỏ tên, mã số sinh viên", "Nhóm câu hỏi theo chủ đề", "Xếp hạng chủ đề và soạn gợi ý dạy lại"];
@@ -42,7 +42,7 @@ export function InsightsScreen() {
     const id = `ith-${course.id}-${topic.id}`;
     // Một chủ đề chỉ có MỘT thread ghim: bấm lại (hay quay lại màn) không tạo thêm (04-AC9).
     setThreads((prev) => (prev.some((t) => t.id === id) ? prev : [...prev, { id, courseId: course.id, title: `Chủ đề đang vướng: ${topic.title}`, topic: topic.title, body: topic.threadBody }]));
-    undo.push(`Đã ghim thread “${topic.title}” vào Threads của lớp ${course.code}`, () => setThreads((prev) => prev.filter((t) => t.id !== id)));
+    undo.push(`Đã ghim thread “${topic.title}” vào Hỏi đáp công khai của lớp ${course.code}`, () => setThreads((prev) => prev.filter((t) => t.id !== id)));
   }
 
   function addReview(topic: InsightTopic) {
@@ -62,7 +62,6 @@ export function InsightsScreen() {
     <Page>
       <PageHeader
         title="Lỗ hổng kiến thức"
-        description="Câu hỏi của lớp, đã bỏ tên và mã số sinh viên, nhóm theo chủ đề để bạn quyết định dạy lại phần nào."
         actions={canWrite && !noReport ? createButton : undefined}
         meta={
           <>
@@ -75,6 +74,7 @@ export function InsightsScreen() {
                 <span>
                   {report.questions} câu hỏi đã nhóm chủ đề · {report.students} sinh viên
                 </span>
+                <span>Đã bỏ tên và MSSV · chủ đề dưới 3 sinh viên không hiện câu mẫu</span>
               </>
             )}
             {!canWrite && <span>Trợ giảng xem báo cáo; giảng viên là người tạo báo cáo và mở thread</span>}
@@ -107,7 +107,7 @@ export function InsightsScreen() {
         }}
       >
         {step !== null ? (
-          <Section panel title="Đang tạo báo cáo" description="Việc chạy nền, bạn đi làm việc khác được; báo cáo sẽ hiện ở đây khi xong.">
+          <Section panel title="Đang tạo báo cáo">
             <ol className={s.steps} aria-live="polite">
               {STEPS.map((text, i) => (
                 <li key={text} className={s.step}>
@@ -118,14 +118,8 @@ export function InsightsScreen() {
             </ol>
           </Section>
         ) : (
-          <>
-            <div className={s.privacy}>
-              <InlineNotice tone="privacy" compact>
-                Báo cáo chỉ dùng câu hỏi của {course.label}. Tên và mã số sinh viên đã bị bỏ trước khi nhóm chủ đề; chủ đề dưới 3 sinh viên hỏi không hiện câu mẫu.
-              </InlineNotice>
-            </div>
-
-            <Section panel title="Chủ đề nên dạy lại" description={`${report.window} · xếp theo mức độ cả lớp đang vướng`}>
+          <div className={s.blocks}>
+            <Section panel title="Chủ đề nên dạy lại" description={report.window}>
               <ol className={s.topics}>
                 {report.topics.map((t, i) => (
                   <li key={t.id} className={s.topic}>
@@ -194,7 +188,7 @@ export function InsightsScreen() {
               {undo.node}
             </Section>
 
-            <Section panel title="Tài liệu chưa đề cập" description="Sinh viên hỏi nhưng không tài liệu nào của lớp trả lời được — AI phải chuyển sang bạn.">
+            <Section panel title="Tài liệu chưa đề cập">
               <ul className={s.gaps}>
                 {report.uncovered.map((g) => (
                   <li key={g.title} className={s.gap}>
@@ -209,7 +203,7 @@ export function InsightsScreen() {
             </Section>
 
             {report.comparison && (
-              <Section panel title="So với báo cáo trước" description="Bản trước tạo ngày 22/10; chỉ liệt kê thay đổi đáng kể.">
+              <Section panel title="So với báo cáo ngày 22/10">
                 <ul className={s.compare}>
                   {report.comparison.map((line) => (
                     <li key={line}>{line}</li>
@@ -217,7 +211,7 @@ export function InsightsScreen() {
                 </ul>
               </Section>
             )}
-          </>
+          </div>
         )}
       </PageState>
     </Page>

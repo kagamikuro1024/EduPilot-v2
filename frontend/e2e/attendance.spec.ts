@@ -144,17 +144,17 @@ test("attendance complete không có thay đổi vẫn gửi complete:true cho c
 test("attendance speak plus undo: + phát biểu · +0,25 tăng đếm ngay, POST có client_event_id, ba lần bấm = ba sự kiện, Hoàn tác = DELETE", async ({ page, context }, info) => {
   desktopOnly(info);
   const api = await open(page, context);
-  const speak = row(page, 6).getByRole("button", { name: "+ phát biểu · +0,25" });
+  const speak = row(page, 6).getByRole("button", { name: /^Ghi phát biểu/ });
   await speak.click();
-  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText("1");
+  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText(/^\+1\b/);
   await speak.click();
   await speak.click();
-  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText("3");
+  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText(/^\+3\b/);
   await expect.poll(() => api.calls.filter((c) => c.method === "POST").length).toBe(3);
   const ids = api.calls.filter((c) => c.method === "POST").map((c) => (JSON.parse(c.body) as { client_event_id: string; type: string }).client_event_id);
   expect(new Set(ids).size).toBe(3);
   await page.getByRole("button", { name: "Hoàn tác" }).click();
-  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText("2");
+  await expect(row(page, 6).locator("[data-part=speak-count]")).toHaveText(/^\+2\b/);
   await expect.poll(() => api.calls.filter((c) => c.method === "DELETE").length).toBe(1);
 });
 
@@ -280,8 +280,7 @@ test("attendance 375 scripted under 15s: 3 vắng, 1 muộn, 1 phát biểu rồ
   }
   for (const i of [2, 5, 8]) await mark(i, "Vắng");
   await mark(10, "Muộn");
-  await rows.nth(12).getByRole("button").first().click();
-  await page.getByRole("button", { name: "+ phát biểu · +0,25" }).click();
+  await rows.nth(12).getByRole("button", { name: /^Ghi phát biểu/ }).click();
   await page.getByRole("button", { name: "Lưu điểm danh" }).click();
   await expect(page.getByText("Đã lưu điểm danh · 30 sinh viên · vắng 3")).toBeVisible();
   expect(Date.now() - t0).toBeLessThan(15000);
@@ -318,3 +317,18 @@ for (const [state, shown] of [["NO_POLICY", true], ["DRAFT_READY", true], ["CONF
     expect(api).toBeTruthy();
   });
 }
+
+// US-UX91-12 AC7: ở di động khối cảnh báo công thức một dòng ≤ 56 px, nút vẫn ≥ 44 px
+test("attendance notice mobile: khối cảnh báo công thức cao ≤ 56 px", async ({ page, context }, info) => {
+  test.skip(info.project.name !== "mobile", "đo ở di động");
+  await asDemo(context, "teacher");
+  await page.clock.setFixedTime(NOW);
+  await attApi(page);
+  await page.route("**/api/v1/courses/*/grade-scheme/status", (r) =>
+    r.fulfill(json({ state: "NO_POLICY", unclear_count: 0, has_policy: false, pending_draft: false, gradebook: { status: "OPEN", snapshot_version: 0 } })));
+  await page.goto("/attendance");
+  await expect(page.getByRole("link", { name: "Xem công thức" })).toBeVisible();
+  const box = await page.getByRole("status").filter({ hasText: "Công thức" }).boundingBox();
+  expect(box!.height).toBeLessThanOrEqual(56);
+  expect((await page.getByRole("link", { name: "Xem công thức" }).boundingBox())!.height).toBeGreaterThanOrEqual(44);
+});

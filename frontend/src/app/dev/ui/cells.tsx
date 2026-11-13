@@ -138,7 +138,7 @@ function ComposerDemo({ st, act }: { st: UiState; act: () => void }) {
 
 export const CELLS: Record<string, Cell> = {
   Button: (st, act) => (
-    <Button variant="primary" disabled={st === "disabled"} loading={st === "loading"} onClick={act}>
+    <Button variant="primary" disabled={st === "disabled"} disabledReason="Cần xác nhận công thức trước" loading={st === "loading"} onClick={act}>
       Lưu thay đổi
     </Button>
   ),

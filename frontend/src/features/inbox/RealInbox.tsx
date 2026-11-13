@@ -11,6 +11,7 @@ import { ActionList, ActionRow, Button, Composer, EmptyState, InlineNotice, Page
 import { KnowledgeBox } from "./KnowledgeBox";
 import { ticketsKey, useTicketDetail, useTicketList, waitLabel, type InboxFilter, type TicketDetail, type TicketRow, type TicketStatus } from "./inboxApi";
 import s from "./RealInbox.module.css";
+import { formatTime } from "@/shared/lib/datetime";
 
 const FILTERS: Array<{ value: InboxFilter; label: string }> = [
   { value: "open", label: "Đang chờ" },
@@ -26,7 +27,6 @@ const STATUS: Record<TicketStatus, { label: string; tone: "red" | "amber" | "gre
   CLOSED: { label: "Đã đóng", tone: "neutral" },
 };
 
-const HM = new Intl.DateTimeFormat("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", hour: "2-digit", minute: "2-digit", hour12: false });
 
 const DISMISS: Array<{ value: string; label: string }> = [
   { value: "OUT_OF_SCOPE", label: "Ngoài phạm vi" },
@@ -121,8 +121,8 @@ export function RealInbox({ courseId }: { courseId: string }) {
                   options={FILTERS}
                 />
                 {rows.length === 0 ? (
-                  <EmptyState title="Không có câu hỏi nào đang chờ.">
-                    {filter !== "all" && <Button variant="text" onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button>}
+                  <EmptyState title="Chưa có câu hỏi nào cần thầy/cô xử lý." action={filter !== "all" ? <Button variant="ghost" onClick={() => { setLastSel(null); setFilter("all"); }}>Xem tất cả</Button> : undefined}>
+                    Khi AI không đủ chắc chắn hoặc sinh viên nhờ hỗ trợ, câu sẽ hiện ở đây.
                   </EmptyState>
                 ) : (
                   <ActionList label="Câu hỏi cần xử lý">
@@ -136,7 +136,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
                 )}
               </section>
 
-              <section className={s.detail} data-part="inbox-detail" aria-label="Chi tiết câu hỏi">
+              {(rows.length > 0 || selected) && <section className={s.detail} data-part="inbox-detail" aria-label="Chi tiết câu hỏi">
                 {selected ? (
                   <>
                     <Button className={s.back} variant="text" size="sm" icon={<ArrowLeft aria-hidden />} onClick={backToList}>Hộp thư</Button>
@@ -149,7 +149,7 @@ export function RealInbox({ courseId }: { courseId: string }) {
                 ) : (
                   <EmptyState title="Chọn một câu hỏi để xem" />
                 )}
-              </section>
+              </section>}
             </div>
           </Panel>
         </div>
@@ -237,7 +237,7 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
     <>
       <header className={s.detailHead}>
         <h3 className="ep-section-title">{t.student.full_name}</h3>
-        <p className="ep-meta">{t.course.class_code}</p>
+        <p className="ep-meta"><StatusText tone={STATUS[t.status].tone}>{STATUS[t.status].label}</StatusText> · {waitLabel(t.age_minutes)}</p>
       </header>
 
       <div className={s.info}>
@@ -248,16 +248,6 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
             {d.ai_answer.confidence ? <span className="ep-meta"> · Độ tin cậy {Number(d.ai_answer.confidence).toFixed(2).replace(".", ",")}</span> : null}
           </p>
         )}
-        <dl className={s.facts}>
-          <div>
-            <dt>Đã chờ</dt>
-            <dd>{waitLabel(t.age_minutes)}</dd>
-          </div>
-          <div>
-            <dt>Trạng thái</dt>
-            <dd><StatusText tone={STATUS[t.status].tone}>{STATUS[t.status].label}</StatusText></dd>
-          </div>
-        </dl>
       </div>
 
       {d.transcript.length > 0 && (
@@ -287,7 +277,7 @@ function TicketPanel({ d, userId, me, onNext }: { d: TicketDetail; userId?: stri
         >
           {(lost || claimedByOther) && (
             <InlineNotice tone="warning" compact>
-              {lost ? `${lost.name} đã nhận${lost.at ? ` lúc ${HM.format(new Date(lost.at))}` : ""}.` : `${t.claimed_by?.full_name} đã nhận.`}
+              {lost ? `${lost.name} đã nhận${lost.at ? ` lúc ${formatTime(lost.at)}` : ""}.` : `${t.claimed_by?.full_name} đã nhận.`}
             </InlineNotice>
           )}
           {t.status === "OPEN" && (

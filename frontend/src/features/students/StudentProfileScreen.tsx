@@ -7,7 +7,7 @@ import { EmptyState, Page, PageHeader, Panel } from "@/shared/ui";
 const RealProfile = dynamic(() => import("./RealProfile").then((m) => m.RealProfile), { loading: () => null });
 
 export function StudentProfileScreen({ id }: { id: string }) {
-  const { realCourseId, realCourses, realPending, role, identity } = useSession();
+  const { realCourseId, realPending, role, identity } = useSession();
   if (realPending) return null;
   if ((role !== "teacher" && role !== "ta") || !realCourseId || realCourseId === "all")
     return (
@@ -21,7 +21,6 @@ export function StudentProfileScreen({ id }: { id: string }) {
       key={`${realCourseId}:${id}`}
       courseId={realCourseId}
       studentId={id}
-      classCode={realCourses?.find((c) => c.id === realCourseId)?.class_code ?? ""}
       userId={identity?.sub ?? "anon"}
       canManage={role === "teacher"}
     />

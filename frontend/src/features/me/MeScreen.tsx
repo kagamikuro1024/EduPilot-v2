@@ -7,7 +7,7 @@ import { EmptyState, Page, PageHeader, Panel } from "@/shared/ui";
 const RealMe = dynamic(() => import("./RealMe").then((m) => m.RealMe), { loading: () => null });
 
 export function MeScreen() {
-  const { realCourseId, realCourses, realPending } = useSession();
+  const { realCourseId, realPending } = useSession();
   if (realPending) return null;
   if (!realCourseId || realCourseId === "all")
     return (
@@ -16,5 +16,5 @@ export function MeScreen() {
         <Panel><EmptyState title="Chưa có lớp nào." /></Panel>
       </Page>
     );
-  return <RealMe key={realCourseId} courseId={realCourseId} classCode={realCourses?.find((c) => c.id === realCourseId)?.class_code ?? ""} />;
+  return <RealMe key={realCourseId} courseId={realCourseId} />;
 }

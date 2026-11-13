@@ -203,7 +203,7 @@ test("appeal locked gradebook drift: sửa điểm khi sổ đã chốt ⇒ Khá
   const dlg = page.getByRole("dialog", { name: "Chốt điểm" });
   await dlg.getByRole("button", { name: "Chốt điểm" }).click();
   await expect(dlg).toHaveCount(0);
-  await expect(page.getByText(/^Đã chốt v3 · \d{1,2}[:/]\d{2}/)).toBeVisible();
+  await expect(page.getByText(/^Đã chốt v3 · .*\d{2}:\d{2}/)).toBeVisible();
 
   // 4) sinh viên nhận thông báo điểm đổi
   const p2 = await context.newPage();

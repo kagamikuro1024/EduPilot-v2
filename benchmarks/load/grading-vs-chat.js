@@ -23,7 +23,8 @@ const DOMAIN = '@edupilot.local';
 const COURSE_ID = __ENV.COURSE_ID;
 const ASSIGNMENT_ID = __ENV.ASSIGNMENT_ID;
 const BASELINE = Number(__ENV.BASELINE_TTFT_MS || 0);
-const VUS = 20;
+const VUS = Number(__ENV.VUS || 20); // LLM thật có hạn mức (OPS-VPS): chạy với VUS nhỏ, ví dụ 4
+const CHAT_CLASS = __ENV.CHAT_CLASS || '761987'; // chat ở lớp có tài liệu, kể cả khi sinh viên còn ở lớp khác (lớp đo EVALLLM)
 const POOL = PHASE === 'grading' ? VUS + 1 : VUS; // k6 cấp id cho cả VU của kịch bản `grade` (id nằm giữa các VU chat): 21 id liên tiếp → 21 phiên khác nhau (BUG-P7-07-4)
 const SEED_STUDENTS = ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: POOL - 3 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
 const QUESTIONS = [
@@ -67,7 +68,8 @@ export function setup() {
   const sessions = [];
   for (let i = 0; i < POOL; i++) {
     const token = login(SEED_STUDENTS[i]);
-    const course = http.get(`${API}/me/courses`, { headers: json(token) }).json('items')[0]?.course.id;
+    const items = http.get(`${API}/me/courses`, { headers: json(token) }).json('items') || [];
+    const course = (items.find((x) => x.course.class_code === CHAT_CLASS) || items[0])?.course.id;
     if (!course) fail(`${SEED_STUDENTS[i]} chưa có lớp (chạy node scripts/seed.mjs)`);
     const r = http.post(`${API}/chat/sessions`, JSON.stringify({ course_id: course }), { headers: { ...json(token), 'Idempotency-Key': `k6-gvc-${PHASE}-${Date.now()}-${i}` } });
     if (r.status !== 201 && r.status !== 200) fail(`tạo phiên chat → ${r.status} ${r.body}`);

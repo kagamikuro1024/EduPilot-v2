@@ -14,21 +14,21 @@
   min-height: 44px;
   transition: background-color var(--ep-fast) var(--ep-ease-standard);
 }
-.row:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .row:hover { background: var(--ep-surface-subtle); } }
 .row svg { flex: none; width: 18px; height: 18px; color: var(--ep-ink-3); }
-.row:hover svg { color: var(--ep-red); }
+@media (hover: hover) and (pointer: fine) { .row:hover svg { color: var(--ep-red); } }
 .text { display: grid; gap: var(--ep-space-1); min-width: 0; }
 .who { font-size: var(--ep-text-label); color: var(--ep-ink-2); overflow-wrap: anywhere; }
 .sees { font-size: var(--ep-text-label); color: var(--ep-ink-3); }
 .step { display: grid; gap: var(--ep-space-4); }
 .back { display: inline-flex; align-items: center; gap: var(--ep-space-1); width: fit-content; min-height: 44px; padding: 0; border: 0; background: transparent; color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 500; }
-.back:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .back:hover { color: var(--ep-ink); } }
 .back svg { width: 16px; height: 16px; }
 .form { display: grid; gap: var(--ep-space-4); }
 .problem { color: var(--ep-red); font-size: var(--ep-text-label); }
 .links { display: grid; gap: var(--ep-space-1); }
 .links a { display: inline-flex; align-items: center; min-height: 44px; width: fit-content; color: var(--ep-ink-2); text-decoration: underline; text-underline-offset: 3px; }
-.links a:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .links a:hover { color: var(--ep-ink); } }
 .dev { margin-top: var(--ep-space-8); border-top: 1px solid var(--ep-rule); padding-top: var(--ep-space-4); font-size: var(--ep-text-label); color: var(--ep-ink-3); }
 .dev summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; }
 .hint { color: var(--ep-ink-2); font-size: var(--ep-text-label); }

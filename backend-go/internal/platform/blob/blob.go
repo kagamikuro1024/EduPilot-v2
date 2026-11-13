@@ -48,6 +48,7 @@ type Config struct {
 	SecretKey      string // BLOB_SECRET_KEY
 	Region         string // BLOB_REGION; trống ⇒ DefaultRegion
 	UseSSL         bool   // BLOB_USE_SSL
+	PublicUseSSL   *bool  // BLOB_PUBLIC_USE_SSL; nil ⇒ = UseSSL (endpoint nội bộ http, địa chỉ công khai sau Caddy https)
 	EnsureBucket   bool   // tạo bucket nếu chưa có (APP_ENV ≠ production)
 	GetTTL         time.Duration
 	PutTTL         time.Duration
@@ -81,20 +82,24 @@ func New(ctx context.Context, cfg Config) (*Store, error) {
 	if region == "" {
 		region = DefaultRegion
 	}
-	opts := func() *minio.Options {
+	opts := func(secure bool) *minio.Options {
 		return &minio.Options{
 			Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
-			Secure: cfg.UseSSL,
+			Secure: secure,
 			Region: region, // region cố định ⇒ presign không cần gọi GetBucketLocation
 		}
 	}
-	cli, err := minio.New(cfg.Endpoint, opts())
+	cli, err := minio.New(cfg.Endpoint, opts(cfg.UseSSL))
 	if err != nil {
 		return nil, fmt.Errorf("blob: endpoint %q không hợp lệ: %w", cfg.Endpoint, err)
 	}
 	signer := cli
 	if cfg.PublicEndpoint != "" && cfg.PublicEndpoint != cfg.Endpoint {
-		signer, err = minio.New(cfg.PublicEndpoint, opts())
+		pub := cfg.UseSSL
+		if cfg.PublicUseSSL != nil {
+			pub = *cfg.PublicUseSSL
+		}
+		signer, err = minio.New(cfg.PublicEndpoint, opts(pub))
 		if err != nil {
 			return nil, fmt.Errorf("blob: public endpoint %q không hợp lệ: %w", cfg.PublicEndpoint, err)
 		}

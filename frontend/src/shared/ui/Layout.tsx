@@ -99,10 +99,10 @@ export function Section({
 }
 
 /** Thanh công cụ gọn phía trên bảng/danh sách: tìm kiếm, bộ lọc, hành động phụ. */
-export function Toolbar({ children, end }: { children: ReactNode; end?: ReactNode }) {
+export function Toolbar({ children, end, alignEnd }: { children: ReactNode; end?: ReactNode; /** căn đáy: ô chọn có nhãn và chip lọc nằm cùng một đường đáy */ alignEnd?: boolean }) {
   return (
     <div className={s.toolbar}>
-      <div className={s.toolbarStart}>{children}</div>
+      <div className={s.toolbarStart} data-align={alignEnd ? "end" : undefined}>{children}</div>
       {end && <div className={s.toolbarEnd}>{end}</div>}
     </div>
   );

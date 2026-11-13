@@ -30,6 +30,7 @@ export const idleEvents = (cors: Record<string, string>) => ({ status: 200, head
  * tài khoản seed tương ứng vai / người, `GET /me/courses` trả lớp thật tương ứng. Gateway không chạy: mọi lời gọi khác bị bỏ qua.
  */
 export async function asDemo(context: BrowserContext, role: DemoRole, opts: { person?: string; expIn?: number } = {}) {
+  await context.addInitScript(() => localStorage.setItem("ep_returning", "1")); // máy đã từng đăng nhập: `/` vẽ khung "Hôm nay" thay vì trang giới thiệu (OPS-VPS landing)
   const person = role === "student" ? (opts.person ?? "sv-2") : role;
   const email = SEED_EMAIL[person];
   const jwtRole: JwtRole = role === "student" ? "STUDENT" : (role.toUpperCase() as JwtRole);
@@ -140,6 +141,7 @@ export const sessionBody = (role: JwtRole, opts: { email?: string; fullName?: st
 export async function asJwt(page: Page, role: JwtRole, opts: { email?: string; fullName?: string; expIn?: number } = {}) {
   const calls = { refresh: 0, logout: 0 };
   const cors = { "Access-Control-Allow-Origin": BASE_URL, "Access-Control-Allow-Credentials": "true", Vary: "Origin" };
+  await page.addInitScript(() => localStorage.setItem("ep_returning", "1")); // US-UX91-21: `/` chỉ làm mới phiên khi máy đã từng đăng nhập
   await page.route("**/api/v1/auth/refresh", async (route) => {
     calls.refresh++;
     return route.fulfill({ status: 200, contentType: "application/json", headers: cors, body: JSON.stringify(sessionBody(role, { ...opts, now: await pageNowSec(route) })) });

@@ -20,7 +20,7 @@ export function PracticeHistory() {
       <PageHeader
         title="Lịch sử luyện tập"
         back={{ href: "/practice", label: "Luyện đề" }}
-        description={rows.length > 0 ? `${rows.length} lượt gần đây. Bấm một lượt để xem lại từng câu và giải thích.` : "Chưa có lượt luyện nào."}
+        meta={rows.length > 0 ? <span>{rows.length} lượt gần đây</span> : undefined}
       />
       <PageState
         state={rows.length === 0 ? "empty" : undefined}
@@ -56,7 +56,7 @@ export function PracticeHistory() {
         </Section>
 
         {weak.length > 0 && (
-          <Section panel title="Chủ đề bạn hay sai" description="Tính trên các câu đã làm trong các lượt gần nhất.">
+          <Section panel title="Chủ đề bạn hay sai">
             <div className={s.weak}>
               <BarList
                 items={weak.map((w) => ({ label: w.topic, value: Math.round((w.wrong / w.total) * 100), tone: w.wrong / w.total >= 0.5 ? "red" : "ink" }))}

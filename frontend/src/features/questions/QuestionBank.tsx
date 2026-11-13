@@ -92,7 +92,6 @@ function Bank({ courseId, code, isTeacher }: { courseId: string; code: string; i
     <Page width="wide">
       <PageHeader
         title="Ngân hàng câu hỏi"
-        description={`Câu hỏi dùng cho bài thi và luyện đề của lớp ${code}. Chỉ giảng viên và trợ giảng thấy.`}
         meta={pending > 0 ? <span>{pending} câu chờ duyệt</span> : undefined}
         actions={
           <Popover

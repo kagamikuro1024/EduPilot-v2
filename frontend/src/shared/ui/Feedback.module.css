@@ -72,7 +72,7 @@
 }
 .undo svg { width: 16px; height: 16px; color: var(--ep-green); }
 .undoBtn { border: 0; background: transparent; padding: 0; color: var(--ep-ink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: var(--ep-rule); }
-.undoBtn:hover { text-decoration-color: var(--ep-red); }
+@media (hover: hover) and (pointer: fine) { .undoBtn:hover { text-decoration-color: var(--ep-red); } }
 @keyframes undoIn { from { opacity: 0; transform: translateY(2px); } }
 
 .kbd {

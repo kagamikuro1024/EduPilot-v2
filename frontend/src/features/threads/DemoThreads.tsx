@@ -126,7 +126,7 @@ export function DemoThreadsScreen() {
       id = r.id;
       return hidden > 0 ? { ...r.live, flash: `Đã ẩn ${hidden} thông tin cá nhân` } : r.live;
     });
-    pushNote({ to: { roles: ["teacher", "ta"], courseId: course.id }, title: `Câu hỏi mới trong Threads: «${title}»`, meta: "Threads", href: `/threads/${id}`, ms: nowMs });
+    pushNote({ to: { roles: ["teacher", "ta"], courseId: course.id }, title: `Câu hỏi mới trong Hỏi đáp công khai: «${title}»`, meta: "Hỏi đáp công khai", href: `/threads/${id}`, ms: nowMs });
     setForm(EMPTY_FORM);
     setOpen(false);
     setGuard(null);
@@ -155,7 +155,7 @@ export function DemoThreadsScreen() {
   return (
     <Page>
       <PageHeader
-        title="Threads"
+        title="Hỏi đáp công khai"
         description={`Câu hỏi công khai của ${isAll ? "các lớp bạn phụ trách" : course.label}. Câu trả lời có nhãn xác nhận là đã được giảng viên duyệt.`}
         meta={`${rows.length} thread · tuần ${course.week}`}
         actions={

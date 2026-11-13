@@ -107,7 +107,7 @@ export function CoursePanel({ mode, onDone, onClose }: { mode: PanelMode; onDone
   const submitLabel = mode.kind === "open" ? "Mở lớp" : mode.kind === "edit" ? "Lưu thay đổi" : "Gán lại";
 
   return (
-    <Section panel title={title} description={mode.kind === "open" ? "Người được gán nhận thông báo kèm mã tham gia ngay khi lớp mở; sinh viên vào sau bằng mã đó." : undefined}>
+    <Section panel title={title}>
       <form onSubmit={submit} className={s.form} noValidate>
         {mode.kind !== "assign" && (
           <>
@@ -182,7 +182,7 @@ export function CoursePanel({ mode, onDone, onClose }: { mode: PanelMode; onDone
           </InlineNotice>
         )}
         <div className={s.formActions}>
-          <Button type="submit" variant="primary" loading={pending} disabled={mode.kind !== "assign" && (!classCode.trim() || !name.trim())}>
+          <Button type="submit" variant="primary" loading={pending} hint={mode.kind === "open" ? "Người được gán nhận thông báo kèm mã tham gia." : undefined} disabled={mode.kind !== "assign" && (!classCode.trim() || !name.trim())}>
             {submitLabel}
           </Button>
           <Button variant="ghost" onClick={onClose} disabled={pending}>

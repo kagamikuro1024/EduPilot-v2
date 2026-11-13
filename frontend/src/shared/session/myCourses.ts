@@ -29,6 +29,12 @@ export function readStoredCourse(): string | null {
   }
 }
 
+export function clearStoredCourse() {
+  try {
+    localStorage.removeItem(COURSE_STORAGE_KEY);
+  } catch { /* như trên */ }
+}
+
 export function writeStoredCourse(id: string) {
   try {
     localStorage.setItem(COURSE_STORAGE_KEY, id);
@@ -68,4 +74,21 @@ export function useMyCourses(enabled: boolean) {
 /** Màn mô phỏng chưa dựng lại dùng lớp mô phỏng tương ứng theo `class_code` (761987 ↔ int1006-1, 761988 ↔ int1006-2); lớp khác → lớp đầu. */
 export function mockCourseFor(classCode: string): Course {
   return COURSES.find((c) => c.code === classCode) ?? COURSES[0];
+}
+
+/**
+ * Lần đầu (chưa nhớ lớp) giảng viên / trợ giảng có ≥ 2 lớp (FEAT-uiux-91 US-06 AC2): lớp mặc định là lớp ĐẦU TIÊN theo thứ tự `GET /me/courses`
+ * mà `GET /me/today` có ≥ 1 mục thuộc lớp đó; không lớp nào có thì `null` (dùng lớp đầu danh sách). Không đổi API.
+ */
+export function useFirstCourseWithData(enabled: boolean, courses: RealCourse[] | null) {
+  return useQuery({
+    queryKey: ["me", "today", "first-course"] as const,
+    enabled: enabled && !!courses,
+    staleTime: 60_000,
+    queryFn: async ({ signal }) => {
+      const t = (await apiClient.get<{ actions?: Array<{ course: { id: string } | null }>; attention?: Array<{ course: { id: string } }>; upcoming?: Array<{ course: { id: string } }> }>("/me/today", { signal })).data;
+      const withData = new Set<string>([...(t.actions ?? []).map((a) => a.course?.id), ...(t.attention ?? []).map((a) => a.course.id), ...(t.upcoming ?? []).map((a) => a.course.id)].filter((x): x is string => !!x));
+      return courses?.find((c) => withData.has(c.id))?.id ?? null;
+    },
+  });
 }

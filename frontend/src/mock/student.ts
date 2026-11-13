@@ -134,7 +134,7 @@ export function recommendationFor(student: Student, quizDone: boolean): Recommen
 
 /** Học dở: thread và phiên chat gần nhất của sinh viên; nhãn thời gian do màn tính bằng `agoLabel` (N6). */
 export const CONTINUE_LEARNING = [
-  { title: "CBC khác ECB ở điểm nào?", context: "Threads · bạn đọc dở", at: new Date(NOW.getTime() - 2 * 3600_000), href: "/threads/t-cbc" },
+  { title: "CBC khác ECB ở điểm nào?", context: "Hỏi đáp công khai · bạn đọc dở", at: new Date(NOW.getTime() - 2 * 3600_000), href: "/threads/t-cbc" },
   { title: "Cách chọn độ dài khoá RSA", context: "Chat riêng · phiên trước", at: new Date("2026-10-28T20:10:00+07:00"), href: "/chat" },
 ];
 

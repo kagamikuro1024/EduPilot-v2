@@ -94,10 +94,11 @@ export function Switch({
   title?: string;
 }) {
   const id = useId();
+  const tipId = useId();
   return (
     <div className={s.switchRow}>
       <div>
-        <label htmlFor={id} className={s.label} title={title}>
+        <label htmlFor={id} className={s.label}>
           {label}
         </label>
         {description && <p className={s.helper}>{description}</p>}
@@ -107,13 +108,14 @@ export function Switch({
         type="button"
         role="switch"
         aria-checked={checked}
+        aria-describedby={title ? tipId : undefined}
         disabled={disabled}
-        title={title}
         className={s.switch}
         onClick={() => onChange(!checked)}
       >
         <span className={s.knob} />
       </button>
+      {title && <span id={tipId} role="tooltip" className={s.tip}>{title}</span>}
     </div>
   );
 }

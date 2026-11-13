@@ -4,3 +4,17 @@
   .picker { flex: 1; }
   .picker select { flex: 1; }
 }
+.desktopOnly { display: contents; }
+.longText { display: inline; }
+.shortText { display: none; }
+.saveBar { display: none; }
+@media (max-width: 719px) {
+  .sheet { padding-bottom: calc(var(--ep-space-20) + 56px); }
+  .desktopOnly { display: none; }
+  .longText { display: none; }
+  .shortText { display: inline; }
+  .warnAction { margin-block: calc(var(--ep-space-2) * -1); } /* vùng chạm 44 px không làm khối cảnh báo cao thêm: ≤ 56 px (AC7) */
+  /* thanh lưu dính trên thanh điều hướng đáy (56 px), không che hàng cuối nhờ .sheet có đệm (US-UX91-12 AC4) */
+  .saveBar { position: fixed; inset: auto 0 calc(56px + env(safe-area-inset-bottom)) 0; z-index: var(--ep-z-topbar); display: grid; padding: var(--ep-space-2) var(--ep-space-4); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+  .saveBar button { min-height: 44px; width: 100%; }
+}

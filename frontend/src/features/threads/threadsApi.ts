@@ -36,6 +36,12 @@ export const ANSWER_LABEL: Record<string, { tone: "amber" | "green" | "neutral";
   CORRECTED: { tone: "green", text: "Đã sửa bởi giảng viên" },
   REJECTED: { tone: "neutral", text: "Đã loại" },
 };
+
+/** Đoạn trích của danh sách (US-UX91-19 AC1): bỏ ký tự đầu dòng markdown (`-`, `·`, `*`, `#`, `>`), gộp xuống dòng thành khoảng trắng, tổng ≤ 140 ký tự kèm `…`. Rỗng thì không hiện dòng. */
+export function cleanExcerpt(s: string | null | undefined): string {
+  const t = (s ?? "").split(/\r?\n/).map((l) => l.replace(/^\s*(?:[-*·#>]+\s*)+/, "")).join(" ").replace(/\s+/g, " ").trim();
+  return t.length > 140 ? `${t.slice(0, 139).trimEnd()}…` : t;
+}
 export const SKIP_LABEL: Record<string, string> = { NO_CONTEXT: "Không có tài liệu liên quan", LOW_SCORE: "Tài liệu chưa đủ sát", LLM_UNAVAILABLE: "AI đang gián đoạn" };
 
 export const REPORT_REASONS = [

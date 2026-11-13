@@ -14,6 +14,7 @@ import { FinalizeDialog, SnapshotHistory, UnlockDialog, stamp } from "./Finalize
 import { ImportDialog } from "./ImportDialog";
 import f from "./FinalizeGrades.module.css";
 import s from "./Gradebook.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
 
 const vi = (v: string | undefined) => (v === undefined || v === "" ? "" : v.replace(".", ","));
 const SCORE_RE = /^\d{1,3}([.,]\d{1,2})?$/;
@@ -24,13 +25,34 @@ const OFFICIAL_NOTE = "Điểm chính thức nằm ở hệ thống quản lý �
 type CellState = { kind: "offline" | "error"; message?: string };
 type Conflict = { rowId: string; col: string; name: string; mine: string; theirs: { score: string; version: number; updated_by?: { name: string }; updated_at?: string }; at: { top: number; left: number } };
 
+/** Trạng thái dòng: chỉ nói điều cần chú ý. "Đủ điểm" để trống (US-UX91-16 AC4). */
 const statusText = (r: GRow) => {
   if (r.locked) return `Đã chốt v${r.locked.version}`;
   if (!r.result) return "";
   if (r.result.status === "INCOMPLETE") return "Thiếu điểm";
   if (r.result.status === "INVALID") return "Chưa tính được";
-  return r.result.verdict.startsWith("LIET") ? "Liệt" : "Đủ";
+  return r.result.verdict.startsWith("LIET") ? "Liệt" : "";
 };
+
+/** Hiển thị điểm KHÔNG làm tròn: đệm số 0 bên phải tới số chữ số lẻ lớn nhất của cột (tối thiểu 2), dấu phẩy (US-UX91-16 AC1). */
+const decimalsOf = (values: Array<string | undefined>) => Math.max(2, ...values.map((v) => (v && v.includes(".") ? v.split(".")[1].length : 0)));
+const padScore = (v: string | undefined, d: number) => {
+  if (!v) return "—";
+  const [i, f = ""] = v.split(".");
+  return `${i},${f.padEnd(d, "0")}`;
+};
+
+/** Chiều cao vùng cuộn của bảng = khung nhìn còn lại sau phần đầu trang (một vùng cuộn, US-UX91-16 AC3). */
+function useTableHeight(offset: number) {
+  const [h, setH] = useState(560);
+  useEffect(() => {
+    const on = () => setH(Math.max(320, window.innerHeight - offset));
+    on();
+    window.addEventListener("resize", on);
+    return () => window.removeEventListener("resize", on);
+  }, [offset]);
+  return h;
+}
 
 const ago = (iso?: string) => {
   if (!iso) return "";
@@ -56,6 +78,14 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
   const [explainOf, setExplainOf] = useState<GRow | null>(null);
   const [historyOf, setHistoryOf] = useState<GRow | null>(null);
   const [warnOpen, setWarnOpen] = useState(false);
+  const [onlyMissing, setOnlyMissing] = useState(false);
+  const [savedCells, setSavedCells] = useState<ReadonlySet<string>>(new Set());
+  const savedTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const flashCell = useCallback((key: string) => {
+    setSavedCells(new Set([key]));
+    clearTimeout(savedTimer.current);
+    savedTimer.current = setTimeout(() => setSavedCells(new Set()), 400);
+  }, []);
   const [importing, setImporting] = useState(false);
   const [finalizing, setFinalizing] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
@@ -112,6 +142,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
           return { ...r, entries, result: out.row_result, bonus: out.bonus, penalty: out.penalty };
         });
         setCells((c) => { const n = { ...c }; delete n[key]; return n; });
+        flashCell(key);
         setDrafts((d) => { if (d.get(key) !== text) return d; const n = new Map(d); n.delete(key); return n; }); // chữ gõ tiếp trong lúc chờ không bị xoá
         const again = latest.current.get(key);
         latest.current.delete(key);
@@ -145,7 +176,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         }
       }
     },
-    [courseId, patchRow, setDraft, mark, qc, q],
+    [courseId, patchRow, setDraft, mark, qc, q, flashCell],
   );
 
   const commit = useCallback(
@@ -203,25 +234,39 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     qc.setQueryData<InfiniteData<GradebookPage>>(gradebookKey(courseId), (old) => (old ? { ...old, pages: old.pages.map((p, i) => (i === 0 ? { ...p, columns: p.columns.map((c) => (c.item_id === item ? { ...c, published: on } : c)) } : p)) } : old));
   }
 
+  const dec = {
+    items: Object.fromEntries(columns.map((c) => [c.item_id, decimalsOf(rows.map((r) => r.entries[c.item_id]?.score))])),
+    bonus: decimalsOf(rows.map((r) => r.bonus)),
+    penalty: decimalsOf(rows.map((r) => r.penalty)),
+    qt: decimalsOf(rows.map((r) => r.result?.qt)),
+    hp: decimalsOf(rows.map((r) => r.result?.hp)),
+  };
+  const missing = rows.filter((r) => statusText(r) === "Thiếu điểm");
+  const shownRows = onlyMissing ? missing : rows;
+  const showStatus = rows.some((r) => statusText(r) !== "" || r.drift);
+  const tableHeight = useTableHeight(300);
+  const hasPublished = columns.some((c) => c.source === "MANUAL" && c.published);
+
   const itemCols: TableColumn<GRow>[] = columns.map((c) => ({
     key: c.item_id,
     align: "end",
     width: "104px",
     part: `col-${c.key}`,
     header: (
-      <span className={s.colHead}>
+      <span className={s.colHead} title={c.source === "ASSIGNMENT" ? "Điểm từ bài tập" : c.source === "EXAM" ? "Điểm từ bài thi" : undefined}>
+        {c.source === "MANUAL" && c.published && <i className={s.pubDot} role="img" aria-label="Đã công bố" />}
         <span className={s.colName}>{c.name}</span>
-        <span className={s.colMeta}>
-          {c.source === "MANUAL" ? (c.published ? "Đã công bố" : "Chưa công bố") : c.source === "ASSIGNMENT" ? "Bài tập" : "Bài thi"}
-        </span>
         {teacher && c.source === "MANUAL" && !locked && (
-          <OverflowMenu label={`Cột ${c.name}`} items={[c.published ? { label: "Gỡ công bố", onSelect: () => void publish(c, false) } : { label: "Công bố cho sinh viên", onSelect: () => void publish(c, true) }]} />
+          <span className={s.colMenu}>
+            <OverflowMenu label={`Cột ${c.name}`} items={[c.published ? { label: "Gỡ công bố", onSelect: () => void publish(c, false) } : { label: "Công bố cho sinh viên", onSelect: () => void publish(c, true) }]} />
+          </span>
         )}
       </span>
     ),
     cell: c.source === "MANUAL" ? {
       editable: () => canEdit,
       value: (r: GRow) => vi(r.entries[c.item_id]?.score),
+      display: (r: GRow) => (r.entries[c.item_id]?.score ? padScore(r.entries[c.item_id]?.score, dec.items[c.item_id]) : ""),
       label: (r: GRow) => `${c.name} — ${r.student.full_name}`,
       invalid: (r: GRow) => cells[`${r.student.id}:${c.item_id}`]?.kind === "error",
       status: (r: GRow) => {
@@ -231,22 +276,26 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
     } : undefined,
     render: (r: GRow) => {
       const e: GEntry | undefined = r.entries[c.item_id];
-      if (c.source === "EXAM") return <span title="Điểm lấy từ bài thi, sửa ở bài thi">{e ? vi(e.score) : "—"}</span>;
-      if (c.source === "ASSIGNMENT") return <span title="Điểm lấy từ bài tập, sửa ở màn chấm">{e ? vi(e.score) : "—"}</span>;
-      return <span>{e ? vi(e.score) : "—"}</span>;
+      const shown = padScore(e?.score, dec.items[c.item_id]);
+      if (c.source === "EXAM") return <span title="Điểm lấy từ bài thi, sửa ở bài thi">{shown}</span>;
+      if (c.source === "ASSIGNMENT") return <span title="Điểm lấy từ bài tập, sửa ở màn chấm">{shown}</span>;
+      return <span>{shown}</span>;
     },
   }));
 
-  const calc = (r: GRow, v: string | undefined) => (pending.has(r.student.id) ? "…" : v ? vi(v) : "—");
+  const calc = (r: GRow, v: string | undefined, d: number) => (pending.has(r.student.id) ? "…" : padScore(v, d));
   const tableCols: TableColumn<GRow>[] = [
     { key: "student", header: "Sinh viên", frozen: true, width: "220px", render: (r) => <span className={s.who}><span>{r.student.full_name}</span><span className={s.code}>{r.student.student_code}</span></span> },
     ...itemCols,
-    { key: "bonus", header: "Điểm cộng", align: "end", width: "88px", render: (r) => calc(r, r.bonus) },
-    { key: "penalty", header: "Điểm trừ", align: "end", width: "88px", render: (r) => calc(r, r.penalty) },
-    { key: "qt", header: "Quá trình", align: "end", width: "92px", part: "col-qt", render: (r) => calc(r, r.result?.qt) },
-    { key: "hp", header: "Điểm học phần", align: "end", width: "112px", part: "col-hp", render: (r) => calc(r, r.result?.hp) },
+    { key: "bonus", header: "Điểm cộng", align: "end", width: "88px", render: (r) => calc(r, r.bonus, dec.bonus) },
+    { key: "penalty", header: "Điểm trừ", align: "end", width: "88px", render: (r) => calc(r, r.penalty, dec.penalty) },
+    { key: "qt", header: "Quá trình", align: "end", width: "92px", part: "col-qt", render: (r) => calc(r, r.result?.qt, dec.qt) },
+    { key: "hp", header: "Điểm học phần", align: "end", width: "112px", part: "col-hp", render: (r) => calc(r, r.result?.hp, dec.hp) },
     { key: "letter", header: "Điểm chữ", align: "center", width: "88px", part: "col-letter", render: (r) => (pending.has(r.student.id) ? "…" : r.result?.letter ?? "—") },
-    { key: "status", header: "Trạng thái", width: "120px", part: "col-status", render: (r) => <span data-part="row-status">{pending.has(r.student.id) ? "…" : statusText(r)}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span> },
+    ...(showStatus ? [{ key: "status", header: "Trạng thái", width: "130px", part: "col-status", render: (r: GRow) => {
+      const t = pending.has(r.student.id) ? "…" : statusText(r);
+      return <span data-part="row-status">{t === "Thiếu điểm" && <i className={s.missDot} aria-hidden />}{t}{r.drift && <span className={s.drift} data-part="row-drift">Khác bản chốt</span>}</span>;
+    } }] : []),
     {
       key: "menu", header: <span className="ep-sr-only">Hành động</span>, width: "56px", align: "end",
       render: (r) => <OverflowMenu label={`Hành động — ${r.student.full_name}`} items={[{ label: "Giải trình", onSelect: () => setExplainOf(r) }, { label: "Lịch sử", onSelect: () => setHistoryOf(r) }]} />,
@@ -287,10 +336,7 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         <Button variant="primary" onClick={() => setFinalizing(true)}>Chốt điểm</Button>
       )}
       {teacher && status && status.state !== "CONFIRMED" && (
-        <span className={s.lock}>
-          <Button variant="primary" aria-disabled="true" className={s.lockBtn} aria-describedby="finalize-why" onClick={() => undefined}>Chốt điểm</Button>
-          <span id="finalize-why" role="tooltip" className={s.lockWhy}>{status.finalize_blocked_reason ?? "Chưa có công thức điểm đã xác nhận"}</span>
-        </span>
+        <Button variant="primary" disabled disabledReason={status.finalize_blocked_reason ?? "Chưa có công thức điểm đã xác nhận"}>Chốt điểm</Button>
       )}
     </>
   );
@@ -302,7 +348,16 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
         loading={<><PageHeader title="Sổ điểm" /><Panel><Skeleton lines={10} /></Panel></>}
         showTechnical
       >
-        <PageHeader title="Sổ điểm" actions={actions} meta={locked ? <StatusText tone="green">{`Đã chốt v${first?.state.snapshot_version}${snaps?.[0] ? ` · ${stamp(snaps[0].locked_at)}` : ""}`}</StatusText> : undefined} />
+        <PageHeader title="Sổ điểm" actions={actions} meta={
+          <>
+            {locked && <StatusText tone="green">{`Đã chốt v${first?.state.snapshot_version}${snaps?.[0] ? ` · ${stamp(snaps[0].locked_at)}` : ""}`}</StatusText>}
+            {missing.length > 0 && (
+              <button type="button" className={s.missLink} aria-pressed={onlyMissing} data-part="missing-filter" onClick={() => setOnlyMissing((v) => !v)}>
+                {`Thiếu điểm: ${missing.length} sinh viên`}
+              </button>
+            )}
+          </>
+        } />
         <Panel>
           {banner}
           {incomplete && (
@@ -334,16 +389,17 @@ function RealGradebook({ courseId, teacher }: { courseId: string; teacher: boole
           ) : (
             <DataTable
               columns={tableCols}
-              rows={rows}
+              rows={shownRows}
               rowKey={(r) => r.student.id}
               caption="Bảng điểm của lớp"
-              virtual={{ height: 560 }}
-              cellNav={{ drafts, onDraft: setDraft, onCommit: (row, col, text) => commit(row, col, text), focus: focusReq }}
+              virtual={{ height: tableHeight }}
+              cellNav={{ drafts, onDraft: setDraft, onCommit: (row, col, text) => commit(row, col, text), focus: focusReq, saved: savedCells }}
               pagination={{ nextCursor: q.hasNextPage ? (q.data?.pages.at(-1)?.next_cursor ?? null) : null, onLoadMore: () => void q.fetchNextPage(), loading: q.isFetchingNextPage }}
               rowAttrs={(r) => ({ "data-part": "grade-row", "data-student-id": r.student.id })}
             />
           )}
-          <p className={s.note} data-part="official-note">{OFFICIAL_NOTE}</p>
+          {hasPublished && rows.length > 0 && <p className={s.note} data-part="published-legend"><i className={s.pubDot} aria-hidden /> đã công bố</p>}
+          {hasScheme && rows.length > 0 && <p className={s.note} data-part="official-note">{OFFICIAL_NOTE}</p>}
         </Panel>
       </PageState>
       {conflict && (
@@ -380,7 +436,7 @@ function ExplainDrawer({ courseId, row, onClose }: { courseId: string; row: GRow
   );
 }
 
-const when = (iso: string) => new Date(iso).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+const when = (iso: string) => formatWhen(iso);
 
 function HistoryDrawer({ courseId, row, onClose }: { courseId: string; row: GRow | null; onClose: () => void }) {
   const q = useHistory(courseId, row?.student.id ?? null);

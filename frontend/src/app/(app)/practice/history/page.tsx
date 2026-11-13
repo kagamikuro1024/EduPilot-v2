@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PracticeHistory } from "@/features/practice/PracticeHistory";
+import { PracticeHistory } from "@/features/practice/PracticeLazy";
 
 export const metadata: Metadata = { title: "Lịch sử luyện tập" };
 

@@ -298,6 +298,28 @@ func TestBlob_Cancel(t *testing.T) {
 
 // --- 02-AC12 -----------------------------------------------------------------
 
+// TestPresign_PublicSchemeIndependent — OPS-VPS: endpoint nội bộ http (Secure=false) nhưng URL ký sẵn cho trình duyệt phải https khi PublicUseSSL = true (Caddy chấm dứt TLS); nil ⇒ theo UseSSL.
+func TestPresign_PublicSchemeIndependent(t *testing.T) {
+	t.Parallel()
+	ctx := t.Context()
+	yes, no := true, false
+	for name, c := range map[string]struct {
+		pub  *bool
+		want string
+	}{"công khai https": {&yes, "https"}, "công khai http": {&no, "http"}, "mặc định theo UseSSL (false)": {nil, "http"}} {
+		s, err := blob.New(ctx, blob.Config{Endpoint: "minio-internal-not-reachable:9000", PublicEndpoint: "edupilot.example.vn", PublicUseSSL: c.pub, Bucket: "bkt",
+			AccessKey: testutil.MinIOAccessKey, SecretKey: testutil.MinIOSecretKey})
+		require.NoError(t, err, name)
+		raw, err := s.PresignPut(ctx, "k/x.txt", "")
+		require.NoError(t, err, name)
+		u, err := url.Parse(raw)
+		require.NoError(t, err, name)
+		require.Equal(t, c.want, u.Scheme, name)
+		require.Equal(t, "edupilot.example.vn", u.Host, name)
+		require.True(t, strings.HasPrefix(u.Path, "/bkt/k/x.txt"), "đường dẫn kiểu path-style /{bucket}/…: %s", u.Path)
+	}
+}
+
 func TestPresign_PublicHost(t *testing.T) {
 	t.Parallel()
 	ctx := t.Context()

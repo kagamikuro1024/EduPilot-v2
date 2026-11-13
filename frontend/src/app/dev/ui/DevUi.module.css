@@ -11,3 +11,5 @@
 .long { display: grid; gap: var(--ep-space-2); min-width: 0; }
 .long p { margin: 0; overflow-wrap: anywhere; }
 .layer { display: grid; gap: var(--ep-space-4); min-width: 0; }
+.barTrack { display: block; height: 4px; border-radius: var(--ep-radius-pill); background: var(--ep-rule); overflow: hidden; max-width: 320px; }
+.barFill { display: block; height: 100%; background: var(--ep-red); width: 100%; transform: scaleX(var(--p, 0)); transform-origin: left center; }

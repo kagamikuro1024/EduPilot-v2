@@ -38,3 +38,7 @@ backend-go/bin/
 # binaries dựng tay
 backend-go/gateway
 backend-go/worker
+
+# scripts/landing-video (khung hình trung gian, Playwright)
+.landing-out/
+.landing-pw/

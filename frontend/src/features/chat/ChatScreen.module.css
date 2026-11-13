@@ -1,6 +1,6 @@
 .page { display: grid; }
 .layout { display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: var(--ep-space-6); align-items: start; }
-.column { display: grid; gap: var(--ep-space-4); width: 100%; max-width: 820px; min-width: 0; justify-self: center; }
+.column { display: grid; gap: var(--ep-space-4); width: 100%; max-width: 840px; min-width: 0; justify-self: center; }
 
 /* Lịch sử phiên là một Panel riêng cạnh Panel cuộc trò chuyện (FR-X11, D59): khung do <Panel>, ở đây chỉ định vị. */
 .history {
@@ -23,7 +23,7 @@
   cursor: pointer;
 }
 .history li:first-child .historyItem { border-top: 0; }
-.historyItem:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .historyItem:hover { background: var(--ep-surface-subtle); } }
 .historyOn { background: var(--ep-surface-subtle); box-shadow: inset 2px 0 0 var(--ep-red); } /* ui-allow: vạch chọn 2px bằng token, không phải bóng */
 .historyTitle { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink); line-height: 1.35; overflow-wrap: anywhere; }
 .historyMeta { font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
@@ -44,7 +44,7 @@
   max-width: 54ch;
 }
 .caret { display: inline-block; width: 2px; height: 1em; margin-left: 2px; background: var(--ep-red); vertical-align: -2px; animation: blink 1s steps(2, start) infinite; }
-@keyframes blink { to { visibility: hidden; } }
+@keyframes blink { to { opacity: 0; } }
 
 .privacy { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ep-space-2); margin: 0; font-size: var(--ep-text-meta); color: var(--ep-ink-2); }
 .privacy svg { width: 14px; height: 14px; color: var(--ep-green); }
@@ -66,7 +66,7 @@
   text-underline-offset: 3px;
   cursor: pointer;
 }
-.sourceBtn:hover, .linkBtn:hover { color: var(--ep-ink); }
+@media (hover: hover) and (pointer: fine) { .sourceBtn:hover, .linkBtn:hover { color: var(--ep-ink); } }
 .linkBtn svg { width: 15px; height: 15px; }
 .linkBtn[aria-pressed="true"] { color: var(--ep-red); text-decoration: none; }
 .sources { list-style: none; margin: 0; padding: 0; display: grid; }
@@ -109,7 +109,7 @@
   text-align: left;
   cursor: pointer;
 }
-.sessionsBtn:hover { background: var(--ep-surface-subtle); }
+@media (hover: hover) and (pointer: fine) { .sessionsBtn:hover { background: var(--ep-surface-subtle); } }
 .sheet { display: grid; gap: var(--ep-space-3); }
 .sheetHint { margin: 0; text-align: center; font-size: var(--ep-text-meta); color: var(--ep-ink-3); }
 .historyEmpty { margin: 0; font-size: var(--ep-text-label); color: var(--ep-ink-3); }

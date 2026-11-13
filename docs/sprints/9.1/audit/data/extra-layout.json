@@ -1,0 +1,714 @@
+{
+ "layout": [
+  {
+   "role": "teacher",
+   "route": "/",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/inbox",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/inbox",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/students",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/students",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/attendance",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/attendance",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook/scheme",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook/scheme",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/grading",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/grading",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/questions",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/questions",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/exams",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/exams",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/threads",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/threads",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/documents",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/documents",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/calendar",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/calendar",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/insights",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/insights",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/analytics",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/analytics",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/class/members",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/class/members",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/class/settings",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/class/settings",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/observability",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/observability",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/settings/llm",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/settings/llm",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/settings/integrations",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/settings/integrations",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/settings",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "teacher",
+   "route": "/settings",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/chat",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/chat",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/threads",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/threads",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/practice",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/practice",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/exams",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/exams",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/library",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/library",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/calendar",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/calendar",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/me",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "student",
+   "route": "/me",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/observability",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/observability",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/admin/courses",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/admin/courses",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/admin/users",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/admin/users",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/settings/llm",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/settings/llm",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/settings/integrations",
+   "rep": 0,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  },
+  {
+   "role": "admin",
+   "route": "/settings/integrations",
+   "rep": 1,
+   "navRight": 215,
+   "mainLeft": 216,
+   "headingLeft": 240,
+   "mainPadLeft": "0px",
+   "mainWidth": 1224
+  }
+ ],
+ "lateError": [
+  {
+   "role": "student",
+   "route": "/",
+   "file": "home@error-late__student__1440.png",
+   "text": "Chào Trung Chủ Nhật, 8/11",
+   "hasRetryButton": false
+  },
+  {
+   "role": "teacher",
+   "route": "/",
+   "file": "home@error-late__teacher__1440.png",
+   "text": "Hôm nay Chủ Nhật, 8/11 · Tất cả lớp của tôi ",
+   "hasRetryButton": false
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook",
+   "file": "gradebook@error-late__teacher__1440.png",
+   "text": "",
+   "hasRetryButton": false
+  },
+  {
+   "role": "student",
+   "route": "/me",
+   "file": "me@error-late__student__1440.png",
+   "text": "Kết quả của tôi Chưa có lớp nào.",
+   "hasRetryButton": false
+  }
+ ]
+}

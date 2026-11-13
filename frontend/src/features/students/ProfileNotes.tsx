@@ -8,8 +8,9 @@ import { useCursorList } from "@/shared/data/useCursorList";
 import { Button, EmptyState, InlineNotice, PrivateMark, Section, StatusText, Textarea } from "@/shared/ui";
 import { draftText, type AiDraft, type Observation } from "./studentsApi";
 import s from "./StudentProfile.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
 
-const when = (iso: string) => new Date(iso).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
+const when = (iso: string) => formatWhen(iso);
 
 /**
  * Tab `Ghi chú` (US-P5-05 AC3, AC5, AC6, AC9): ghi chú riêng của nhân viên + `Soạn nhận xét tổng hợp` bằng AI.

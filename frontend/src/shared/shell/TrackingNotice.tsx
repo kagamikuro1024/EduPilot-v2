@@ -51,7 +51,7 @@ export function StudyTimeTracker() {
         </Button>
       }
     >
-      <p>EduPilot ghi thời gian bạn dùng Chat, Threads, Luyện đề, Thư viện và Lịch khi tab đang mở và bạn đang thao tác.</p>
+      <p>EduPilot ghi thời gian bạn dùng Chat, Hỏi đáp công khai, Luyện đề, Thư viện và Lịch khi tab đang mở và bạn đang thao tác.</p>
       <p>Không ghi nội dung bạn xem hay gõ.</p>
       <p>Giảng viên xem được; không dùng để tính điểm.</p>
       {notice.data?.optOutAvailable && <p>Bạn có thể tắt ở Cài đặt.</p>}

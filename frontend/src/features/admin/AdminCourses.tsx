@@ -81,7 +81,6 @@ export function AdminCourses() {
     <Page width="wide">
       <PageHeader
         title="Lớp học"
-        description="Mở lớp, phân công giảng viên và lưu trữ lớp đã kết thúc."
         meta={list.isPending ? undefined : <span>{running} lớp đang chạy</span>}
         actions={
           panel ? undefined : (

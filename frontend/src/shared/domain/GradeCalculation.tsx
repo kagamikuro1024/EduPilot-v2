@@ -20,19 +20,21 @@ export function GradeCalculation({ lines, caption }: { lines: CalcLine[]; captio
         <li key={i} className={s.line}>
           <div className={s.main}>
             <span className={s.label}>{l.label}</span>
-            <span className={s.expr}>{vi(l.expr)}</span>
-            <span className={s.value}>{`= ${vi(l.value)}`}</span>
+            {(l.expr || l.quote || l.filled_by_user) && (
+              <span className={s.aside}>
+                {l.expr && <span className={s.expr}>{vi(l.expr)}</span>}
+                {l.quote ? (
+                  <button type="button" className={s.cite} aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>
+                    {`Căn cứ · tr. ${l.page ?? ""}`}
+                  </button>
+                ) : l.filled_by_user ? (
+                  <StatusText tone="neutral">do giảng viên đặt</StatusText>
+                ) : null}
+              </span>
+            )}
+            <span className={s.value}>{l.expr ? `= ${vi(l.value)}` : vi(l.value)}</span>
           </div>
-          {l.quote ? (
-            <>
-              <button type="button" className={s.cite} aria-expanded={open === i} onClick={() => setOpen(open === i ? null : i)}>
-                {`Căn cứ · tr. ${l.page ?? ""}`}
-              </button>
-              {open === i && <blockquote className={s.quote}>{l.quote}</blockquote>}
-            </>
-          ) : l.filled_by_user ? (
-            <StatusText tone="neutral">do giảng viên đặt</StatusText>
-          ) : null}
+          {l.quote && open === i && <blockquote className={s.quote}>{l.quote}</blockquote>}
         </li>
       ))}
     </ol>

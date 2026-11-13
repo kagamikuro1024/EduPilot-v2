@@ -12,6 +12,7 @@ import { ProfileNotes } from "./ProfileNotes";
 import { ProfileOutreach } from "./ProfileOutreach";
 import { STATUS_LABEL, signedPoints, type AttendanceRow, type Profile } from "./studentsApi";
 import s from "./StudentProfile.module.css";
+import { formatDay } from "@/shared/lib/datetime";
 
 type TabId = "overview" | "attendance" | "grades" | "activity" | "notes";
 const TABS: Array<{ value: TabId; label: string }> = [
@@ -21,13 +22,13 @@ const TABS: Array<{ value: TabId; label: string }> = [
   { value: "activity", label: "Hoạt động học" },
   { value: "notes", label: "Ghi chú" },
 ];
-const shortDate = (iso: string) => new Date(iso).toLocaleDateString("vi-VN", { day: "2-digit", month: "2-digit", timeZone: "Asia/Ho_Chi_Minh" });
+const shortDate = (iso: string) => formatDay(iso);
 
 /**
  * Hồ sơ 360 thật (US-P5-05, DESIGN §14.7). MỖI lần mở trang là MỘT request `…/profile` và một dòng `audit_log` (TLR-7): truy vấn `staleTime: 0`, `refetchOnMount: "always"`, `gcTime: 0`,
  * không tự làm mới (đổi cửa sổ / mạng cũng không gọi lại), không thử lại tự động.
  */
-export function RealProfile({ courseId, studentId, classCode, userId, canManage }: { courseId: string; studentId: string; classCode: string; userId: string; canManage: boolean }) {
+export function RealProfile({ courseId, studentId, userId, canManage }: { courseId: string; studentId: string; userId: string; canManage: boolean }) {
   const [tab, setTab] = useState<TabId>("overview");
   const [composeNote, setComposeNote] = useState(0); // tăng mỗi lần bấm `Thêm ghi chú`: mở tab Ghi chú và đặt con trỏ vào ô nhập
   const [messaging, setMessaging] = useState(false);
@@ -48,7 +49,7 @@ export function RealProfile({ courseId, studentId, classCode, userId, canManage 
       <PageHeader
         title={p?.student.full_name ?? "Hồ sơ sinh viên"}
         back={{ href: "/students", label: "Sinh viên" }}
-        description={p ? `${p.student.student_code ?? ""} · ${classCode}` : undefined}
+        description={p?.student.student_code ?? undefined}
         actions={
           p && (
             <>

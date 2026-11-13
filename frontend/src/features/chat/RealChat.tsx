@@ -1,14 +1,14 @@
 "use client";
 
-import { useQueryClient } from "@tanstack/react-query";
-import { ShieldCheck, ThumbsDown, ThumbsUp, Trash2 } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { PanelLeftClose, ShieldCheck, ThumbsDown, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { ApiError, apiClient, useAutosaveDraft, useUndoableAction } from "@/shared/data";
 import { CitationList, Markdown } from "@/shared/domain";
 import { useSession } from "@/shared/session/session";
-import { Button, Composer, Page, PageHeader, PageState, Panel, Skeleton } from "@/shared/ui";
+import { Button, Composer, IconButton, OverflowMenu, Page, PageHeader, PageState, Panel, Skeleton } from "@/shared/ui";
 import {
   LOCK_KEY,
   messagesKey,
@@ -27,14 +27,15 @@ import { TicketAction } from "./TicketAction";
 import { useChatRun, type Live } from "./useChatRun";
 import s from "./ChatScreen.module.css";
 import r from "./RealChat.module.css";
+import { formatTime, formatWhen } from "@/shared/lib/datetime";
+import { useMinWidth } from "@/shared/lib/useMinWidth";
+import { TODAY_KEY, type StudentToday } from "@/features/today/todayApi";
 
 type Feedback = "HELPFUL" | "NOT_HELPFUL" | null;
 
 // Khối dữ liệu điểm do tool trả (US-P6-09): chỉ để LLM diễn đạt, không hiển thị thô cho sinh viên.
 const GRADE_BLOCKS = new Set(["grade_summary", "what_if", "grade_scheme"]);
 const BLOCK_TITLE: Record<string, string> = { upcoming_events: "Lịch sắp tới", exam_schedule: "Lịch thi", library_results: "Tài liệu" };
-const HM = new Intl.DateTimeFormat("vi-VN", { hour: "2-digit", minute: "2-digit" });
-const DAY = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const newKey = () => crypto.randomUUID();
 
 function errorLine(code: string | null, retryAfter?: number): string {
@@ -51,6 +52,8 @@ export function RealChat({ courseId }: { courseId: string }) {
   const params = useSearchParams();
   const [sid, setSid] = useState<string | null>(() => params.get("session")); // `/chat?session=…`: phiên mở từ "Chuyển sang chat riêng" (nháp đã đặt sẵn)
   const [sheet, setSheet] = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // thu gọn cột lịch sử ở ≥ 1100 px
+  const wide = useMinWidth(1100);
   const [hidden, setHidden] = useState<Set<string>>(new Set());
   const [fb, setFb] = useState<Record<string, Feedback>>({});
   const [sendError, setSendError] = useState<ApiError | null>(null);
@@ -58,6 +61,11 @@ export function RealChat({ courseId }: { courseId: string }) {
   const keyRef = useRef<{ text: string; key: string } | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
   const resumed = useRef<string | null>(null);
+
+  // phiên đang xem nằm trong URL: tải lại mở đúng phiên đó, nháp (khoá theo phiên) còn nguyên (UX13-19)
+  useEffect(() => {
+    window.history.replaceState(null, "", sid ? `/chat?session=${sid}` : "/chat");
+  }, [sid]);
 
   const sessions = useChatSessions(courseId);
   const messages = useChatMessages(sid);
@@ -180,32 +188,39 @@ export function RealChat({ courseId }: { courseId: string }) {
   };
 
   const showEmpty = !sid || (messages.isSuccess && list.length === 0 && !live);
+  const hasMessages = (!!sid && list.length > 0) || !!live;
+  const today = useQuery({
+    queryKey: [...TODAY_KEY, "/me/today"],
+    enabled: showEmpty && !live,
+    staleTime: 60_000,
+    retry: false,
+    queryFn: async ({ signal }) => (await apiClient.get<StudentToday>("/me/today", { signal })).data,
+  });
+  const rec = today.data?.recommended;
+  const suggestions = [...(rec && rec.kind !== "JOIN_CODE" ? [`Tôi nên làm gì với “${rec.title}”?`] : []), "Điểm quá trình của tôi hiện là bao nhiêu?", "Tuần này tôi có những buổi học nào?"];
+
 
   return (
     <Page width="full" className={s.page}>
-      <PageHeader
-        title="Chat riêng"
-        actions={
-          <Button onClick={() => open(null)} disabled={!sid && !live}>
-            Phiên mới
-          </Button>
-        }
-      />
-      <div className={`${s.layout} ${r.layout}`}>
-        <nav className={s.history} data-part="chat-history" aria-label="Phiên trước">
-          <Panel>
-            <p className={s.historyLabel}>Phiên trước</p>
+      <PageHeader title="Chat riêng" actions={hasMessages ? <Button onClick={() => open(null)}>Phiên mới</Button> : undefined} />
+      <div className={`${s.layout} ${r.layout} ${collapsed ? r.collapsed : ""}`}>
+        {!collapsed && (
+          <nav className={`${s.history} ${r.flat}`} data-part="chat-history" aria-label="Phiên trước">
+            <div className={r.historyHead}>
+              <p className={s.historyLabel}>Phiên trước</p>
+              <IconButton label="Thu gọn lịch sử" size="sm" onClick={() => setCollapsed(true)}><PanelLeftClose aria-hidden /></IconButton>
+            </div>
             <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
             {del.node}
-          </Panel>
-        </nav>
+          </nav>
+        )}
 
         <div className={s.column}>
-          <button type="button" className={s.sessionsBtn} data-part="chat-sessions-button" onClick={() => setSheet(true)} aria-haspopup="dialog">
+          <button type="button" className={`${s.sessionsBtn} ${collapsed ? r.showSessions : ""}`} data-part="chat-sessions-button" onClick={() => (wide ? setCollapsed(false) : setSheet(true))} aria-haspopup={wide ? undefined : "dialog"}>
             Phiên trước ({items.length})
           </button>
           <Panel>
-            <div className={s.inner}>
+            <div className={`${s.inner} ${showEmpty && !live ? r.empty : ""}`} data-part="chat-inner">
               <PageState
                 query={sid ? messages : undefined}
                 loading={
@@ -217,12 +232,7 @@ export function RealChat({ courseId }: { courseId: string }) {
               >
                 <div className={s.thread} data-part="chat-thread" aria-live="polite">
                   {showEmpty && !live ? (
-                    <div className={s.intro}>
-                      <p className="ep-item-title">Hỏi bất cứ điều gì về lớp này.</p>
-                      <Button onClick={() => draft.setValue("Quy chế thi cuối kỳ nói gì về tài liệu được mang vào phòng thi?")}>
-                        Quy chế thi cuối kỳ nói gì về tài liệu?
-                      </Button>
-                    </div>
+                    <Intro suggestions={suggestions} onPick={draft.setValue} />
                   ) : (
                     <>
                       {list.map((m) => (live?.mid === m.id ? null : <Row key={m.id} m={m} fb={fb[m.id] ?? m.feedback} onVote={(v) => void vote.run({ mid: m.id, value: v, prev: fb[m.id] ?? m.feedback })} onRetry={() => void retry(m.id)} disabled={busy || locked} openTickets={openTickets} userId={identity?.sub} lastStaff={lastStaff.has(m.id)} onTicket={() => void qc.invalidateQueries({ queryKey: messagesKey(sid ?? "") })} />))}
@@ -237,7 +247,7 @@ export function RealChat({ courseId }: { courseId: string }) {
               <div className={s.composer} data-part="chat-composer">
                 {locked && (
                   <p className={r.lock} role="status">
-                    Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${HM.format(until)}.` : ""}
+                    Chat tạm khóa trong lúc bạn làm bài thi.{until ? ` Dùng lại được sau ${formatTime(until)}.` : ""}
                   </p>
                 )}
                 <Composer
@@ -258,7 +268,7 @@ export function RealChat({ courseId }: { courseId: string }) {
         </div>
       </div>
 
-      <ChatSessionSheet open={sheet} onClose={() => setSheet(false)} onNew={() => open(null)}>
+      <ChatSessionSheet open={sheet} onClose={() => setSheet(false)} onNew={hasMessages ? () => open(null) : undefined}>
         <SessionList items={items} current={sid} loading={sessions.isPending} onOpen={open} onDelete={(id) => void del.run(id)} />
       </ChatSessionSheet>
     </Page>
@@ -273,15 +283,30 @@ function SessionList({ items, current, loading, onOpen, onDelete }: { items: Cha
       {items.map((x) => (
         <li key={x.id} className={r.rowActions}>
           <button type="button" className={[s.historyItem, r.rowMain, current === x.id ? s.historyOn : ""].join(" ")} aria-pressed={current === x.id} onClick={() => onOpen(x.id)}>
-            <span className={s.historyTitle}>{x.title ?? "Cuộc trò chuyện mới"}</span>
-            <span className={s.historyMeta}>{DAY.format(new Date(x.last_message_at))}</span>
+            <span className={`${s.historyTitle} ${r.clamp}`}>{x.title ?? "Cuộc trò chuyện mới"}</span>
+            <span className={s.historyMeta}>{formatWhen(x.last_message_at)}</span>
           </button>
-          <Button variant="ghost" size="sm" className={r.rowDel} aria-label={`Xoá phiên ${x.title ?? ""}`} onClick={() => onDelete(x.id)}>
-            <Trash2 aria-hidden />
-          </Button>
+          <OverflowMenu label={`Thao tác với phiên ${x.title ?? ""}`} items={[{ label: "Xoá", danger: true, onSelect: () => onDelete(x.id) }]} />
         </li>
       ))}
     </ul>
+  );
+}
+
+/** Trạng thái đầu của phiên trống (US-UX91-13 AC5): lời chào + ≤ 3 gợi ý dạng hàng chữ; bấm chỉ điền vào ô nhập, không tự gửi. */
+function Intro({ suggestions, onPick }: { suggestions: string[]; onPick: (text: string) => void }) {
+  return (
+    <div className={s.intro}>
+      <p className="ep-item-title">Hỏi bất cứ điều gì về lớp này.</p>
+      <p className={s.introText}>Phiên chat này chỉ bạn đọc được.</p>
+      <ul className={r.suggest} data-part="chat-suggestions">
+        {suggestions.map((t) => (
+          <li key={t}>
+            <button type="button" className={r.suggestBtn} onClick={() => onPick(t)}>{t}</button>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
@@ -343,7 +368,7 @@ function LiveRow({ live, onRetry }: { live: Live; onRetry?: () => void }) {
   const done = live.status === "done";
   return (
     <>
-      {live.userText && <div className={s.fromSv}><p className={s.who}>Bạn</p><p className={s.text}>{live.userText}</p></div>}
+      {live.userText && <div className={s.fromSv}><p className={s.who}>Bạn</p><p className={`${s.text} ${r.enter}`}>{live.userText}</p></div>}
       <div className={s.fromAi} data-part="chat-live">
         <p className={s.who}>Trợ lý AI</p>
         <Masked n={live.masked} />

@@ -75,28 +75,6 @@
   overflow-wrap: anywhere;
 }
 
-.facts {
-  display: grid;
-  margin: 0;
-  border-top: 1px solid var(--ep-rule);
-}
-.facts > div {
-  display: grid;
-  grid-template-columns: minmax(96px, 28%) minmax(0, 1fr);
-  gap: var(--ep-space-4);
-  padding: var(--ep-space-3) 0;
-  border-bottom: 1px solid var(--ep-rule);
-  font-size: var(--ep-text-label);
-}
-.facts dt {
-  color: var(--ep-ink-2);
-}
-.facts dd {
-  margin: 0;
-  font-weight: 500;
-  overflow-wrap: anywhere;
-}
-
 .reply {
   display: grid;
   gap: var(--ep-space-3);
@@ -178,10 +156,6 @@
   .list,
   .detail {
     padding: var(--ep-space-4);
-  }
-  .facts > div {
-    grid-template-columns: 1fr;
-    gap: var(--ep-space-1);
   }
 }
 

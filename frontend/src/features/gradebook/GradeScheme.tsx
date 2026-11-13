@@ -12,6 +12,8 @@ import { confirmScheme, schemeStatusKey, toWorking, useSchemes, type Citation, t
 import { useSchemeEditor } from "./useSchemeEditor";
 import { usePolicyUpload, type PolicyUpload } from "./usePolicyUpload";
 import s from "./GradeScheme.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
+import { progressStyle } from "@/shared/lib/progress";
 
 const vi = (v: unknown) => String(v ?? "").replace(".", ",");
 const WIDE = "(min-width: 1024px)";
@@ -29,7 +31,7 @@ function useWide() {
   );
 }
 
-const at = (iso?: string) => (iso ? new Date(iso).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "");
+const at = (iso?: string) => (iso ? formatWhen(iso) : "");
 
 /** Công thức điểm: chỉ có thật, Giảng viên / TA của lớp (TA chỉ đọc). */
 export function GradeScheme() {
@@ -131,7 +133,7 @@ function UploadProgress({ up }: { up: PolicyUpload }) {
   const label = state.phase === "uploading" ? "Đang tải" : state.phase === "reading" ? "Đang đọc" : "Đang trích";
   return (
     <div className={s.progress} data-part="policy-progress" role="status">
-      <span className={s.bar}><span className={s.barFill} style={{ width: `${percent}%` }} /></span>
+      <span className={s.bar}><span className={s.barFill} style={progressStyle(percent)} /></span>
       <span className={s.progressText}>{`${label} · ${state.file?.name ?? ""}`}</span>
     </div>
   );
@@ -235,12 +237,9 @@ function Review({ courseId, draft, confirmed, editable, compare, diff, onCompare
         {saving && <span data-part="save-state"><StatusText tone="amber">{saving}</StatusText></span>}
         {confirmed && <Button size="sm" variant="ghost" aria-pressed={compare} onClick={() => onCompare(!compare)}>{compare ? "Bản nháp" : "So sánh"}</Button>}
         {editable && (
-          <span className={s.lock}>
-            <Button variant="primary" aria-disabled={locked || undefined} className={locked ? s.lockBtn : undefined} aria-describedby={locked ? "confirm-why" : undefined} onClick={() => (locked ? undefined : setAsking(true))}>
-              Xác nhận công thức
-            </Button>
-            {locked && <span id="confirm-why" role="tooltip" className={s.lockWhy}>{reason ?? "Đang tính"}</span>}
-          </span>
+          <Button variant="primary" disabled={locked} disabledReason={locked ? (reason ?? "Đang tính") : undefined} onClick={() => setAsking(true)}>
+            Xác nhận công thức
+          </Button>
         )}
       </div>
       <div className={s.review}>

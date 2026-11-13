@@ -71,7 +71,6 @@ export function PracticeScreen() {
     <Page>
       <PageHeader
         title="Luyện đề"
-        description="Luyện theo chủ đề bạn hay sai, hoặc thi thử với đề cũ."
         actions={<ButtonLink href="/practice/history">Lịch sử luyện tập</ButtonLink>}
       />
       <PageState

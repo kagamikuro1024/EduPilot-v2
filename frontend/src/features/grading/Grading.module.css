@@ -7,6 +7,16 @@
 
 .progressText { font-size: var(--ep-text-label); color: var(--ep-ink-2); font-variant-numeric: tabular-nums; }
 .tabsRow { margin-bottom: var(--ep-space-6); }
-.filterField { min-width: 180px; }
+.filterField { min-width: 0; }
 .picker { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
 .failedList { list-style: none; margin: 0 0 var(--ep-space-2); padding: 0; display: grid; gap: var(--ep-space-1); font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.clip { display: block; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.open { display: inline-flex; align-items: center; gap: var(--ep-space-1); min-height: 44px; padding-inline: var(--ep-space-2); color: var(--ep-ink-2); font-size: var(--ep-text-label); font-weight: 600; text-decoration: none; }
+.open svg { width: 14px; height: 14px; }
+@media (hover: hover) and (pointer: fine) { .open:hover { color: var(--ep-ink); } }
+.open:focus-visible, .mOpen:focus-visible { outline: none; box-shadow: var(--ep-focus); border-radius: var(--ep-radius-xs); }
+.mItem { display: grid; gap: var(--ep-space-1); font-weight: 400; }
+.mMeta { display: flex; align-items: center; gap: var(--ep-space-3); }
+.mOpen { display: inline-flex; align-items: center; justify-content: space-between; gap: var(--ep-space-1); min-height: 44px; padding-inline: var(--ep-space-3); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); color: var(--ep-ink); font-size: var(--ep-text-label); font-weight: 600; text-decoration: none; }
+.mOpen svg { width: 14px; height: 14px; }
+.filterField.filterField select { width: auto; min-width: 0; }

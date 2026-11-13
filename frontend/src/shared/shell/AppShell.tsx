@@ -472,6 +472,7 @@ function NoCourse() {
     <Page>
       <PageHeader
         title="Bạn chưa vào lớp nào"
+        // ui-allow: trạng thái "chưa vào lớp" nêu lý do + việc kế tiếp (US-UX91-01 #58)
         description="Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này."
         actions={<ButtonLink href="/join" variant="primary">Tham gia lớp bằng mã</ButtonLink>}
       />

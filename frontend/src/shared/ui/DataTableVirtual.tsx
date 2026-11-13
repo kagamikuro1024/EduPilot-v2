@@ -1,7 +1,7 @@
 "use client";
 
 import { useVirtualizer } from "@tanstack/react-virtual";
-import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode } from "react";
 import type { CellNav, Column, Pagination } from "./DataTable";
 import { InlineNotice } from "./Feedback";
 import s from "./DataTable.module.css";
@@ -63,6 +63,10 @@ export default function VirtualTable<T>({
   const pendingFocus = useRef<{ idx: number; col: string } | null>(null);
   const skipBlur = useRef(false); // Esc hoàn tác: rời ô sau đó không được lưu lại nháp vừa bỏ
   const [, bump] = useState(0);
+  const [focused, setFocused] = useState<string | null>(null); // ô đang focus hiện giá trị gốc, ô khác hiện `display`
+  useLayoutEffect(() => {
+    if (focused) parentRef.current?.querySelector<HTMLInputElement>(`input[data-cell="${CSS.escape(focused)}"]`)?.select();
+  }, [focused]);
   useEffect(() => {
     const p = pendingFocus.current;
     if (!p || !cellNav) return;
@@ -202,15 +206,16 @@ export default function VirtualTable<T>({
                       {edit && c.cell ? (
                         <span className={s.cellBox}>
                           <input
-                            className={s.cellInput}
+                            className={[s.cellInput, cellNav.saved?.has(ck) ? "ep-saved ep-motion-safe" : ""].join(" ")}
                             data-cell={ck}
                             inputMode="decimal"
                             aria-label={c.cell.label(row)}
                             aria-invalid={c.cell.invalid?.(row) ? true : undefined}
-                            value={cellNav.drafts.get(ck) ?? c.cell.value(row)}
+                            value={cellNav.drafts.get(ck) ?? (focused === ck || !c.cell.display ? c.cell.value(row) : c.cell.display(row))}
                             onChange={(e) => cellNav.onDraft(ck, e.target.value)}
-                            onFocus={(e) => e.currentTarget.select()}
+                            onFocus={() => setFocused(ck)}
                             onBlur={(e) => {
+                              setFocused(null);
                               if (skipBlur.current) {
                                 skipBlur.current = false;
                                 return;

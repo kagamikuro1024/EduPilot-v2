@@ -6,10 +6,11 @@ import { ApiError, newIdempotencyKey } from "@/shared/data";
 import { Button, ConfirmIrreversible, DataTable, Drawer, EmptyState, Field, Skeleton, Textarea } from "@/shared/ui";
 import s from "./FinalizeGrades.module.css";
 import { finalizeGradebook, gradebookKey, schemeStatusKey, snapshotsKey, unlockGradebook, usePreviewSummary, useSnapshotRows, useSnapshots, type Incomplete } from "./gradeApi";
+import { formatWhen } from "@/shared/lib/datetime";
 
 const LETTERS = ["A+", "A", "B+", "B", "C+", "C", "D+", "D", "F"];
 const vi = (v: string) => v.replace(".", ",");
-export const stamp = (iso: string) => new Date(iso).toLocaleString("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+export const stamp = (iso: string) => formatWhen(iso);
 
 /** "A+ 3, A 3, B+ 3, …": chỉ những chữ có sinh viên, theo thứ tự thang. */
 function distribution(d: Record<string, number>) {

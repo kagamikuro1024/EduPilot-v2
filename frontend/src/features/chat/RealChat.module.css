@@ -10,8 +10,27 @@
 .sheetList { list-style: none; margin: 0; padding: 0; display: grid; }
 .rowActions { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-2); }
 .rowMain { flex: 1; min-width: 0; }
-.rowDel { min-width: 44px; min-height: 44px; }
 @media (max-width: 1099px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* Lịch sử là cột phẳng, ngăn bằng đường kẻ 1 px — không Panel thứ hai (US-UX91-13 AC1). */
+.flat { border-right: 1px solid var(--ep-rule); padding-right: var(--ep-space-3); overflow-y: auto; }
+.historyHead { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-2); }
+@media (min-width: 720px) { .layout.collapsed > :last-child { grid-template-rows: auto minmax(0, 1fr); } } /* có nút `Phiên trước` phía trên khung */
+.layout.collapsed { grid-template-columns: minmax(0, 1fr); }
+.showSessions.showSessions { display: flex; }
+.clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* Gợi ý của phiên trống: hàng chữ, không nút bo (AC5). */
+.suggest { list-style: none; margin: 0; padding: 0; display: grid; max-width: 60ch; }
+.suggestBtn { width: 100%; min-height: 44px; padding: var(--ep-space-2) 0; border: 0; border-top: 1px solid var(--ep-rule); background: none; font: inherit; font-size: var(--ep-text-label); color: var(--ep-ink-2); text-align: left; cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .suggestBtn:hover { color: var(--ep-ink); } }
+.suggestBtn:focus-visible { outline: 2px solid var(--ep-red); outline-offset: 2px; }
+/* Phiên trống: lời chào và ô nhập đứng gần nhau, không dạt xuống đáy khung (AC5). */
+@media (min-width: 720px) { .empty.empty { grid-template-rows: auto auto; align-content: center; } }
+
+/* Tin mới của bạn hiện dần (AC11); tin AI đang sinh chữ không hoạt cảnh, `reduce` không hoạt cảnh. */
+@keyframes msgIn { from { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: no-preference) { .enter { animation: msgIn 160ms var(--ep-ease-out); } }
 
 .events { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--ep-space-1); font-size: var(--ep-text-label); }
 .when { color: var(--ep-ink-3); }

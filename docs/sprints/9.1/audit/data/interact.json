@@ -1,0 +1,1162 @@
+{
+ "writes": [],
+ "actions": [
+  {
+   "role": "teacher",
+   "route": "/",
+   "width": 1440,
+   "name": "bell",
+   "opened": true,
+   "file": "home@dlg-bell__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 0,
+    "details": 0,
+    "focus": "button[Thông báo, 8 chưa đọc]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/",
+   "width": 1440,
+   "name": "usermenu",
+   "opened": true,
+   "file": "home@dlg-usermenu__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button[Tài khoản: TS. Lê Thu Hà]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/",
+   "width": 1440,
+   "name": "courseswitch",
+   "opened": true,
+   "file": "home@dlg-courseswitch__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 2,
+    "details": 0,
+    "focus": "button[Chọn lớp, đang xem 761987 · An]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/",
+   "width": 1440,
+   "name": "cmdk",
+   "opened": true,
+   "file": "home@dlg-cmdk__teacher__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "input[Tìm nhanh hoặc đi đến]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 16,
+    "moderate": 0,
+    "minor": 0,
+    "items": [
+     "nested-interactive (serious) ×16: #_r_3_-opt-0"
+    ]
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/inbox",
+   "width": 1440,
+   "name": "ticket",
+   "opened": false,
+   "file": "inbox@dlg-ticket__teacher__1440.png",
+   "motion": [
+    "background-color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/inbox",
+   "width": 375,
+   "name": "ticket",
+   "opened": false,
+   "file": "inbox@dlg-ticket__teacher__375.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook",
+   "width": 1440,
+   "name": "chotdiem",
+   "opened": true,
+   "file": "gradebook@dlg-chotdiem__teacher__1440.png",
+   "motion": [
+    "Dialog-module__rUw9Ha__fadeIn:250ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 0,
+    "details": 0,
+    "focus": "button[Đóng]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook",
+   "width": 1440,
+   "name": "themhanhdong",
+   "opened": true,
+   "file": "gradebook@dlg-themhanhdong__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook",
+   "width": 1440,
+   "name": "hanghd",
+   "opened": true,
+   "file": "gradebook@dlg-hanghd__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/grading",
+   "width": 1440,
+   "name": "chamtatca-khoa",
+   "opened": true,
+   "file": "grading@dlg-chamtatca-khoa__teacher__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/questions",
+   "width": 1440,
+   "name": "taocauhoi",
+   "opened": true,
+   "file": "questions@dlg-taocauhoi__teacher__1440.png",
+   "motion": [
+    "background-color:140ms",
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/threads",
+   "width": 1440,
+   "name": "datcauhoi",
+   "opened": false,
+   "file": "threads@dlg-datcauhoi__teacher__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/documents",
+   "width": 1440,
+   "name": "taitailieu",
+   "opened": false,
+   "file": "documents@dlg-taitailieu__teacher__1440.png",
+   "motion": [
+    "background-color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/documents",
+   "width": 1440,
+   "name": "thaotac",
+   "opened": true,
+   "file": "documents@dlg-thaotac__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/calendar",
+   "width": 1440,
+   "name": "themsukien",
+   "opened": false,
+   "file": "calendar@dlg-themsukien__teacher__1440.png",
+   "motion": [
+    "border-bottom-color:140ms",
+    "border-left-color:140ms",
+    "border-right-color:140ms",
+    "border-top-color:140ms",
+    "border-bottom-color:140ms",
+    "border-left-color:140ms",
+    "border-right-color:140ms",
+    "border-top-color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "input"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/calendar",
+   "width": 1440,
+   "name": "taolichbuoihoc",
+   "opened": true,
+   "file": "calendar@dlg-taolichbuoihoc__teacher__1440.png",
+   "motion": [
+    "Dialog-module__rUw9Ha__slideIn:250ms",
+    "Feedback-module__VRpUaW__shimmer:1400ms",
+    "Feedback-module__VRpUaW__shimmer:1400ms",
+    "Feedback-module__VRpUaW__shimmer:1400ms",
+    "Feedback-module__VRpUaW__shimmer:1400ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 0,
+    "details": 0,
+    "focus": "button[Đóng]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "teacher",
+   "route": "/class/members",
+   "width": 1440,
+   "name": "nhapds",
+   "opened": false,
+   "file": "class-members@dlg-nhapds__teacher__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/class/members",
+   "width": 1440,
+   "name": "thaotac",
+   "opened": true,
+   "file": "class-members@dlg-thaotac__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 1,
+    "moderate": 0,
+    "minor": 0,
+    "items": [
+     "target-size (serious) ×1: td:nth-child(4) > .Menu-module__W6EquG__root > .Menu-module__W6EquG__dots[aria-l"
+    ]
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/class/settings",
+   "width": 1440,
+   "name": "taolaima",
+   "opened": true,
+   "file": "class-settings@dlg-taolaima__teacher__1440.png",
+   "motion": [
+    "Dialog-module__rUw9Ha__fadeIn:250ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 0,
+    "details": 0,
+    "focus": "button[Đóng]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/insights",
+   "width": 1440,
+   "name": "cauhoiandanh",
+   "opened": true,
+   "file": "insights@dlg-cauhoiandanh__teacher__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 1,
+    "focus": "summary"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": false,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/settings/llm",
+   "width": 1440,
+   "name": "nangcao",
+   "opened": false,
+   "file": "settings-llm@dlg-nangcao__teacher__1440.png",
+   "motion": [
+    "background-color:140ms",
+    "color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/settings",
+   "width": 1440,
+   "name": "thietbi",
+   "opened": true,
+   "file": "settings@dlg-thietbi__teacher__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "teacher",
+   "route": "/grading/01a19817-4b65-7416-a4ac-55a834f6662f",
+   "width": 1440,
+   "name": "trichdoan",
+   "opened": false,
+   "file": "grading-ID@dlg-trichdoan__teacher__1440.png",
+   "motion": [
+    "background-color:140ms",
+    "border-left-color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/_next/static/chunks/2k36rc48tuz-5.css was preloaded using link preload but not used within a few seconds from the window's load event. Please make",
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "admin",
+   "route": "/admin/users",
+   "width": 1440,
+   "name": "moigv",
+   "opened": false,
+   "file": "admin-users@dlg-moigv__admin__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "admin",
+   "route": "/admin/users",
+   "width": 1440,
+   "name": "thaotac",
+   "opened": true,
+   "file": "admin-users@dlg-thaotac__admin__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "admin",
+   "route": "/admin/courses",
+   "width": 1440,
+   "name": "molop",
+   "opened": false,
+   "file": "admin-courses@dlg-molop__admin__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "admin",
+   "route": "/admin/courses",
+   "width": 1440,
+   "name": "hanhdong",
+   "opened": true,
+   "file": "admin-courses@dlg-hanhdong__admin__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "admin",
+   "route": "/settings/llm",
+   "width": 1440,
+   "name": "themncc",
+   "opened": false,
+   "file": "settings-llm@dlg-themncc__admin__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "admin",
+   "route": "/settings/llm",
+   "width": 1440,
+   "name": "nangcao",
+   "opened": false,
+   "file": "settings-llm@dlg-nangcao__admin__1440.png",
+   "motion": [
+    "background-color:140ms",
+    "color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "student",
+   "route": "/",
+   "width": 1440,
+   "name": "bell",
+   "opened": true,
+   "file": "home@dlg-bell__student__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 0,
+    "details": 0,
+    "focus": "button[Thông báo, 8 chưa đọc]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "student",
+   "route": "/",
+   "width": 1440,
+   "name": "usermenu",
+   "opened": true,
+   "file": "home@dlg-usermenu__student__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button[Tài khoản: Nguyễn Minh Trung]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "student",
+   "route": "/",
+   "width": 1440,
+   "name": "courseswitch",
+   "opened": true,
+   "file": "home@dlg-courseswitch__student__1440.png",
+   "motion": [
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 2,
+    "details": 0,
+    "focus": "button[Chọn lớp, đang xem 761987 · An]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "student",
+   "route": "/",
+   "width": 375,
+   "name": "them",
+   "opened": true,
+   "file": "home@dlg-them__student__375.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 1,
+    "menu": 0,
+    "details": 0,
+    "focus": "button[Đóng]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "student",
+   "route": "/threads",
+   "width": 1440,
+   "name": "datcauhoi",
+   "opened": false,
+   "file": "threads@dlg-datcauhoi__student__1440.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "student",
+   "route": "/threads",
+   "width": 375,
+   "name": "datcauhoi",
+   "opened": false,
+   "file": "threads@dlg-datcauhoi__student__375.png",
+   "motion": [],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "body"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  },
+  {
+   "role": "student",
+   "route": "/library",
+   "width": 1440,
+   "name": "them",
+   "opened": true,
+   "file": "library@dlg-them__student__1440.png",
+   "motion": [
+    "border-bottom-color:140ms",
+    "border-left-color:140ms",
+    "border-right-color:140ms",
+    "border-top-color:140ms",
+    "Menu-module__W6EquG__pop:200ms"
+   ],
+   "overlay": {
+    "dialog": 1,
+    "menu": 1,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "student",
+   "route": "/calendar",
+   "width": 1440,
+   "name": "themvaolich",
+   "opened": false,
+   "file": "calendar@dlg-themvaolich__student__1440.png",
+   "motion": [
+    "border-bottom-color:140ms",
+    "border-left-color:140ms",
+    "border-right-color:140ms",
+    "border-top-color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "button"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "student",
+   "route": "/chat",
+   "width": 1440,
+   "name": "soanthao",
+   "opened": true,
+   "file": "chat@dlg-soanthao__student__1440.png",
+   "motion": [
+    "border-bottom-color:140ms",
+    "border-left-color:140ms",
+    "border-right-color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "textarea[Câu hỏi của bạn]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": [
+    "warning: The resource https://v2202609419695521098.happysrv.de/landing/giang-vien-duyet-bai.webp was preloaded using link preload but not used within a few seconds from the window's load event. Please make sur"
+   ]
+  },
+  {
+   "role": "student",
+   "route": "/chat",
+   "width": 375,
+   "name": "soanthao",
+   "opened": true,
+   "file": "chat@dlg-soanthao__student__375.png",
+   "motion": [
+    "border-bottom-color:140ms",
+    "border-left-color:140ms",
+    "border-right-color:140ms"
+   ],
+   "overlay": {
+    "dialog": 0,
+    "menu": 0,
+    "details": 0,
+    "focus": "textarea[Câu hỏi của bạn]"
+   },
+   "axe": {
+    "critical": 0,
+    "serious": 0,
+    "moderate": 0,
+    "minor": 0,
+    "items": []
+   },
+   "closedByEscape": true,
+   "console": []
+  }
+ ],
+ "focus": [
+  {
+   "role": "teacher",
+   "route": "/",
+   "width": 1440,
+   "stops": [
+    "a «Bỏ qua điều hướng» vòng=shadow 8",
+    "button «Chọn lớp, đang xem 761987 · An» vòng=shadow 10",
+    "button «Tìm nhanh hoặc đi đến» vòng=shadow 11",
+    "button «Thông báo, 8 chưa đọc» vòng=shadow 10",
+    "button «Tài khoản: TS. Lê Thu Hà» vòng=shadow 10",
+    "a «EduPilot — Hôm nay» vòng=shadow 0",
+    "a «Hôm nay» vòng=shadow 96",
+    "a «Hộp thư hỗ trợ» vòng=shadow 131",
+    "a «Sinh viên» vòng=shadow 166",
+    "a «Điểm danh» vòng=shadow 201"
+   ],
+   "file": "home@focus__teacher__1440.png"
+  },
+  {
+   "role": "teacher",
+   "route": "/inbox",
+   "width": 1440,
+   "stops": [
+    "a «Bỏ qua điều hướng» vòng=shadow 8",
+    "button «Chọn lớp, đang xem 761987 · An» vòng=shadow 10",
+    "button «Tìm nhanh hoặc đi đến» vòng=shadow 11",
+    "button «Thông báo, 8 chưa đọc» vòng=shadow 10",
+    "button «Tài khoản: TS. Lê Thu Hà» vòng=shadow 10",
+    "a «EduPilot — Hôm nay» vòng=shadow 0",
+    "a «Hôm nay» vòng=shadow 96",
+    "a «Hộp thư hỗ trợ» vòng=shadow 131",
+    "a «Sinh viên» vòng=shadow 166",
+    "a «Điểm danh» vòng=shadow 201"
+   ],
+   "file": "inbox@focus__teacher__1440.png"
+  },
+  {
+   "role": "teacher",
+   "route": "/gradebook",
+   "width": 1440,
+   "stops": [
+    "a «Bỏ qua điều hướng» vòng=shadow 8",
+    "button «Chọn lớp, đang xem 761987 · An» vòng=shadow 10",
+    "button «Tìm nhanh hoặc đi đến» vòng=shadow 11",
+    "button «Thông báo, 8 chưa đọc» vòng=shadow 10",
+    "button «Tài khoản: TS. Lê Thu Hà» vòng=shadow 10",
+    "a «EduPilot — Hôm nay» vòng=shadow 0",
+    "a «Hôm nay» vòng=shadow 96",
+    "a «Hộp thư hỗ trợ» vòng=shadow 131",
+    "a «Sinh viên» vòng=shadow 166",
+    "a «Điểm danh» vòng=shadow 201"
+   ],
+   "file": "gradebook@focus__teacher__1440.png"
+  },
+  {
+   "role": "student",
+   "route": "/chat",
+   "width": 1440,
+   "stops": [
+    "textarea «Câu hỏi của bạn» vòng=KHÔNG 771",
+    "(body)",
+    "a «Bỏ qua điều hướng» vòng=shadow 8",
+    "button «Chọn lớp, đang xem 761987 · An» vòng=shadow 10",
+    "button «Tìm nhanh hoặc đi đến» vòng=shadow 11",
+    "button «Thông báo, 8 chưa đọc» vòng=shadow 10",
+    "button «Tài khoản: Nguyễn Minh Trung» vòng=shadow 10",
+    "a «EduPilot — Hôm nay» vòng=shadow 0",
+    "a «Hôm nay» vòng=shadow 65",
+    "a «Chat riêng» vòng=shadow 100"
+   ],
+   "file": "chat@focus__student__1440.png"
+  },
+  {
+   "role": "student",
+   "route": "/",
+   "width": 375,
+   "stops": [
+    "a «Bỏ qua điều hướng» vòng=shadow 8",
+    "a «EduPilot — Hôm nay» vòng=shadow 6",
+    "button «Chọn lớp, đang xem 761987 · An» vòng=shadow 6",
+    "button «Tìm nhanh hoặc đi đến» vòng=shadow 6",
+    "button «Thông báo, 8 chưa đọc» vòng=shadow 6",
+    "button «Tài khoản: Nguyễn Minh Trung» vòng=shadow 6",
+    "a «Bài tập 04 — Phân tích một vụ » vòng=shadow 239",
+    "a «Mở bài tập» vòng=shadow 364",
+    "a «Buổi 11 · An ninh mạng Thứ 2, » vòng=shadow 550",
+    "a «Hôm nay» vòng=shadow 756"
+   ],
+   "file": "home@focus__student__375.png"
+  }
+ ]
+}

@@ -1,0 +1,13 @@
+import { chromium } from "playwright-core";
+const b = await chromium.launch();
+const ctx = await b.newContext({ viewport: { width: 1440, height: 900 } });
+const page = await ctx.newPage();
+await page.screencast.start({ path: "pw2.webm", size: { width: 1440, height: 900 } });
+await page.screencast.showActions({ cursor: "pointer", duration: 400, fontSize: 0 });
+await page.goto("https://v2202609419695521098.happysrv.de/login", { waitUntil: "networkidle" });
+const ff = await page.evaluate(() => getComputedStyle(document.body).fontFamily);
+console.log("body font:", ff);
+await page.screencast.showOverlay(`<div style="position:fixed;left:50%;bottom:48px;transform:translateX(-50%);padding:10px 18px;border-radius:8px;background:rgba(20,20,20,.82);color:#fff;font:600 26px/1.4 ${ff}">Đăng nhập — giảng viên vào lớp An ninh mạng</div>`);
+await page.locator("input").first().click(); await page.waitForTimeout(700);
+await page.locator("input").nth(1).click(); await page.waitForTimeout(1200);
+await page.screencast.stop(); await ctx.close(); await b.close();

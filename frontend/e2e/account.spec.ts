@@ -16,6 +16,7 @@ type Mock = { refresh: number; login: number; logout: number; loginBodies: strin
 async function mockAuth(page: Page, who: { role: JwtRole; email: string; fullName?: string; password?: string; loggedIn?: boolean; delayLogin?: number; refreshDelay?: number }): Promise<Mock> {
   const m: Mock = { refresh: 0, login: 0, logout: 0, loginBodies: [], active: who.loggedIn ? { role: who.role, email: who.email, fullName: who.fullName ?? "Người Thử" } : null };
   const pw = who.password ?? "Edupilot#2026-demo";
+  if (who.loggedIn) await page.addInitScript(() => localStorage.setItem("ep_returning", "1")); // US-UX91-21: `/` chỉ làm mới phiên khi máy đã từng đăng nhập
   await page.route("**/api/v1/auth/refresh", async (route) => {
     m.refresh++;
     if (who.refreshDelay) await new Promise((r) => setTimeout(r, who.refreshDelay));
@@ -226,6 +227,7 @@ test("two tabs refresh: hai tab cùng tải ⇒ refresh tuần tự, không ch�
     inflight--;
     return json(route, 200, sessionBody("STUDENT", { email: "sv.gioi@edupilot.local" }));
   };
+  await context.addInitScript(() => localStorage.setItem("ep_returning", "1")); // US-UX91-21
   const other = await context.newPage();
   await page.route("**/api/v1/auth/refresh", handler);
   await other.route("**/api/v1/auth/refresh", handler);
@@ -508,7 +510,7 @@ test("settings security: đổi mật khẩu (3 ô, 1 nút primary, lỗi tại 
   await expect(rows.nth(0)).toContainText("Thiết bị này");
   await expect(rows.nth(0).getByRole("button")).toHaveCount(0); // hàng hiện tại không có menu
   await expect(rows.nth(1)).toContainText("113.190.*.*");
-  await expect(rows.nth(1)).toContainText(/Lần cuối \d{2}:\d{2}/);
+  await expect(rows.nth(1)).toContainText(/Lần cuối: .*\d{2}:\d{2}/);
   const others = page.getByRole("button", { name: "Đăng xuất mọi thiết bị khác" });
   await expect(others).toBeVisible();
   await expect(others).not.toHaveAttribute("data-variant", "primary");

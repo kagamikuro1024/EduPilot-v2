@@ -9,7 +9,7 @@ type FailedMailRow = { id: string; template: string; to_masked: string; attempts
 
 const TEMPLATE: Record<string, string> = {
   escalation_answered: "Trả lời của giảng viên", outreach_message: "Tin nhắn của giảng viên", ticket_reminder: "Nhắc câu hỏi quá hạn", ticket_new: "Câu hỏi mới",
-  thread_reply: "Trả lời trên Threads", verify_email: "Xác minh email", reset_password: "Đặt lại mật khẩu", invite_staff: "Lời mời", invite_student: "Lời mời vào lớp",
+  thread_reply: "Trả lời trên Hỏi đáp công khai", verify_email: "Xác minh email", reset_password: "Đặt lại mật khẩu", invite_staff: "Lời mời", invite_student: "Lời mời vào lớp",
   email_exists: "Email đã đăng ký", password_changed: "Đổi mật khẩu", account_locked: "Khoá tài khoản", reminder: "Nhắc lịch",
 };
 

@@ -30,6 +30,33 @@ test("layout / empty: một Panel, gợi ý bấm được, không nút nhờ gi
   expect(w).toBeLessThanOrEqual(840);
 });
 
+test("US-UX91-13 trạng thái đầu: ≤ 3 gợi ý hàng chữ (1 từ Hôm nay + 2 cố định), bấm chỉ điền ô nhập, không tự gửi", async ({ page, context }) => {
+  await page.route("**/api/v1/me/today**", (r) => r.fulfill(json({ no_course: false, email_verified: true, recommended: { id: "a", kind: "ASSIGNMENT_DUE", title: "Nộp Bài tập 02", reason: "Hạn ngày mai", urgency: "high", href: "/assignments", course: null }, timeline: [], continue: [] })));
+  const calls = await open(page, context);
+  const items = page.locator("[data-part=chat-suggestions] button");
+  await expect(items).toHaveCount(3);
+  await expect(items.first()).toContainText("Nộp Bài tập 02");
+  await items.nth(1).click();
+  await expect(composer(page)).toHaveValue("Điểm quá trình của tôi hiện là bao nhiêu?");
+  expect(calls.filter((c) => c.method === "POST")).toEqual([]);
+});
+
+test("US-UX91-13 phiên mới + xoá: không nút `Phiên mới` khi phiên trống, có khi ≥ 1 tin; xoá nằm trong menu ⋯ của hàng, không thùng rác", async ({ page, context }) => {
+  await open(page, context, {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: json({ items: [msg()], next_cursor: null }),
+    [`DELETE /chat/sessions/${SID}`]: noContent,
+  });
+  await expect(page.getByRole("button", { name: "Phiên mới" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /^Xoá phiên/ })).toHaveCount(0);
+  await page.getByRole("button", { name: /Quy chế thi/ }).first().click();
+  await expect(page.getByRole("button", { name: "Phiên mới" })).toHaveCount(1);
+  await expect(page.getByRole("button", { name: "Phiên mới" })).not.toHaveAttribute("data-variant", "primary");
+  await page.getByRole("button", { name: /^Thao tác với phiên/ }).click();
+  await page.getByRole("menuitem", { name: "Xoá" }).click();
+  await expect(page.getByText("Đã xoá phiên")).toBeVisible();
+});
+
 test("send: token chạy ra, trích nguồn mở tại chỗ, phản hồi có Hoàn tác, không placeholder", async ({ page, context }) => {
   let sent = false; // lịch sử chỉ có tin sau khi máy chủ giả nhận POST (không đếm số lần GET: React Query có thể gộp / huỷ lượt tải)
   const calls = await open(page, context, {
@@ -122,6 +149,21 @@ test("draft: nháp tự lưu 2 s và khôi phục sau tải lại", async ({ pag
   await page.reload();
   await page.locator("[data-part=chat-thread]").waitFor();
   await expect(composer(page)).toHaveValue("nháp của tôi");
+});
+
+test("draft theo phiên: đang xem một phiên, gõ nháp, tải lại → vẫn đúng phiên đó và nháp còn (UX13-19)", async ({ page, context }) => {
+  const h = {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: json({ items: [msg()], next_cursor: null }),
+  };
+  await open(page, context, h);
+  await page.getByRole("button", { name: /Quy chế thi/ }).first().click();
+  await composer(page).fill("nháp sau khi gửi");
+  await page.waitForTimeout(2500);
+  await page.reload();
+  await page.locator("[data-part=chat-thread]").waitFor();
+  expect(new URL(page.url()).searchParams.get("session")).toBe(SID);
+  await expect(composer(page)).toHaveValue("nháp sau khi gửi");
 });
 
 test("reload mid-stream: tin đang sinh được nối lại bằng Last-Event-ID, câu trả lời đủ", async ({ page, context }) => {

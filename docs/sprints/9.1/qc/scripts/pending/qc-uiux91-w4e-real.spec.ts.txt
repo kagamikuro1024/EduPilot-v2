@@ -1,0 +1,95 @@
+import { test, type Page } from "@playwright/test";
+
+test.skip(!process.env.QC_REAL, "cần stack thật ep-qc: chạy bằng `QC_REAL=1 playwright test -c playwright.qc-real.config.ts`");
+const PW = process.env.QC_PW ?? "Edupilot#Seed-2026";
+
+async function login(page: Page, email: string) {
+  await page.goto("/login");
+  await page.locator("input[type=email]").fill(email);
+  await page.locator("input[type=password]").fill(PW);
+  await page.keyboard.press("Enter");
+  await page.waitForURL((u) => !u.pathname.startsWith("/login"));
+  await page.locator("[data-part=topbar]").waitFor();
+}
+const courseId = (page: Page, code: string) =>
+  page.evaluate(async (cc) => {
+    const a = await (await fetch("/api/v1/auth/refresh", { method: "POST", credentials: "include" })).json();
+    const m = await (await fetch("/api/v1/me/courses", { headers: { authorization: `Bearer ${a.access_token}` } })).json();
+    return m.items.find((i: { course: { class_code: string } }) => i.course.class_code === cc).course.id as string;
+  }, code);
+
+test("TC-UX12-11/19 điểm danh 375: chạm 2 SV sang Vắng, lưu, đo thời gian", async ({ browser }, info) => {
+  test.skip(info.project.name !== "desktop");
+  test.setTimeout(150000);
+  const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 375, height: 812 }, hasTouch: true, isMobile: true });
+  const page = await ctx.newPage();
+  page.setDefaultTimeout(8000);
+  await login(page, "teacher@edupilot.local");
+  const c = await courseId(page, "761987");
+  await page.goto(`/attendance?course=${c}`);
+  await page.waitForTimeout(4500);
+  const dialogs: string[] = [];
+  page.on("dialog", (d) => { dialogs.push(d.message()); void d.dismiss(); });
+  const bar = async () => (await page.getByRole("button", { name: /Lưu điểm danh|Đã lưu/ }).first().innerText()).replace(/\s+/g, " ");
+  console.log("INFO UX12-19 thanh trước:", await bar());
+  const t0 = Date.now();
+  for (const name of ["Bùi Khánh Việt", "Bùi Minh Yến"]) {
+    const step = Date.now();
+    const rowBtn = page.getByRole("button", { name: new RegExp(name) }).first();
+    await rowBtn.click();
+    console.log(`INFO UX12-19 mở hàng ${name} (${Date.now() - step} ms)`);
+    await page.getByRole("button", { name: "Vắng", exact: true }).first().click();
+    await page.waitForTimeout(500);
+    console.log(`INFO UX12-19 sau Vắng cho ${name}: ${await bar()} (${Date.now() - step} ms)`);
+  }
+  await page.getByRole("button", { name: /Lưu điểm danh/ }).first().click();
+  await page.waitForTimeout(2000);
+  console.log("INFO UX12-19 sau lưu:", await bar(), "| hộp thoại xác nhận:", await page.getByRole("dialog").count(), "| confirm():", dialogs.length, "| tổng thao tác:", Math.round((Date.now() - t0) / 1000), "s");
+  await page.screenshot({ path: "/out/shots-w4/attendance-375-sau-luu.png" });
+  for (const name of ["Bùi Khánh Việt", "Bùi Minh Yến"]) {
+    await page.getByRole("button", { name: new RegExp(name) }).first().click();
+    await page.getByRole("button", { name: "Có mặt", exact: true }).first().click();
+    await page.waitForTimeout(300);
+  }
+  await page.getByRole("button", { name: /Lưu điểm danh/ }).first().click();
+  await page.waitForTimeout(1500);
+  console.log("INFO UX12-19 trả lại:", await bar());
+  await ctx.close();
+});
+
+test("TC-UX16-5/21 sổ điểm: nút ⋯ tiêu đề / hàng, ô nhập 375", async ({ browser }, info) => {
+  test.skip(info.project.name !== "desktop");
+  test.setTimeout(120000);
+  const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
+  const page = await ctx.newPage();
+  page.setDefaultTimeout(8000);
+  await login(page, "teacher@edupilot.local");
+  const c = await courseId(page, "761987");
+  await page.goto(`/gradebook?course=${c}`);
+  await page.waitForTimeout(5000);
+  const snap = () => page.evaluate(() => [...document.querySelectorAll("main thead th button, main tbody tr:first-child button, main tbody tr:nth-child(2) button")].map((b) => `${b.closest("thead") ? "th" : "row"}:${(b as HTMLElement).getAttribute("aria-label")?.slice(0, 22) ?? (b as HTMLElement).innerText.trim().slice(0, 10)}:op=${getComputedStyle(b).opacity}`));
+  console.log("INFO UX16-5 trước rê:", JSON.stringify(await snap()));
+  const th = page.locator("main thead th").nth(1);
+  const box = (await th.boundingBox())!;
+  await page.mouse.move(box.x + 20, box.y + 20);
+  await page.waitForTimeout(500);
+  console.log("INFO UX16-5 rê tiêu đề cột 2:", JSON.stringify(await snap()));
+  await page.mouse.move(5, 5);
+  const rowBtn = page.locator("main tbody tr").first().locator("button").first();
+  if (await rowBtn.count()) { await rowBtn.focus(); await page.waitForTimeout(400); console.log("INFO UX16-5 focus nút ⋯ hàng:", JSON.stringify(await snap())); }
+  const inp = page.locator("main tbody tr").first().locator("input").first();
+  console.log("INFO UX16-1 ô nhập không focus:", JSON.stringify(await page.locator("main tbody tr").first().locator("input").evaluateAll((es) => es.map((e) => (e as HTMLInputElement).value))));
+  await inp.focus();
+  console.log("INFO UX16-1 ô nhập focus:", JSON.stringify(await inp.inputValue()));
+  await page.keyboard.press("Escape");
+  await ctx.close();
+  const c2 = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 375, height: 812 }, hasTouch: true, isMobile: true });
+  const p2 = await c2.newPage();
+  p2.setDefaultTimeout(8000);
+  await login(p2, "teacher@edupilot.local");
+  await p2.goto(`/gradebook?course=${c}`);
+  await p2.waitForTimeout(5000);
+  console.log("INFO UX16-21 ô nhập 375:", JSON.stringify(await p2.locator("main tbody tr").first().locator("input").evaluateAll((es) => es.map((e) => `${Math.round(e.getBoundingClientRect().width)}x${Math.round(e.getBoundingClientRect().height)}`))), "| tràn ngang trang:", await p2.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth));
+  await p2.screenshot({ path: "/out/shots-w4/gradebook-375-sau.png" });
+  await c2.close();
+});

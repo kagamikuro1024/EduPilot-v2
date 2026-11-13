@@ -117,9 +117,9 @@ test("active indicator: vạch đỏ 2px, nền không đỏ, khung vỏ nền �
 
 type Row = [string, string];
 const NAV: Record<string, Row[]> = {
-  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Threads", "/threads"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
+  student: [["Hôm nay", "/"], ["Chat riêng", "/chat"], ["Hỏi đáp công khai", "/threads"], ["Luyện đề", "/practice"], ["Bài thi", "/exams"], ["Thư viện", "/library"], ["Lịch", "/calendar"], ["Kết quả của tôi", "/me"]],
   "student-no-course": [["Hôm nay", "/"]],
-  ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Threads", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Insights", "/insights"], ["Analytics", "/analytics"]],
+  ta: [["Hôm nay", "/"], ["Hộp thư hỗ trợ", "/inbox"], ["Sinh viên", "/students"], ["Điểm danh", "/attendance"], ["Sổ điểm", "/gradebook"], ["Chấm bài", "/grading"], ["Ngân hàng câu hỏi", "/questions"], ["Bài thi", "/exams"], ["Hỏi đáp công khai", "/threads"], ["Tài liệu", "/documents"], ["Lịch", "/calendar"], ["Lỗ hổng kiến thức", "/insights"], ["Số liệu lớp học", "/analytics"]],
   teacher: [],
   admin: [["Hôm nay", "/"], ["Quan sát AI", "/observability"], ["Lớp học", "/admin/courses"], ["Người dùng", "/admin/users"], ["Cấu hình LLM", "/settings/llm"], ["Tích hợp", "/settings/integrations"]],
 };
@@ -132,6 +132,7 @@ test("nav per role: nhãn + href + thứ tự khớp SRS 7.5", async ({ page, co
     const noCourse = ctx === "student-no-course";
     await asDemo(context, ctx.startsWith("student") ? "student" : (ctx as DemoRole), { person: noCourse ? "sv-4" : undefined });
     await page.goto("/");
+    await expect(page.locator("[data-part=sidebar] nav a")).toHaveCount(rows.length); // chờ phiên + khung dựng xong (CI chậm hơn máy dev)
     const got = await page.locator("[data-part=sidebar] nav a").evaluateAll((as) => as.map((a) => [(a.textContent ?? "").replace(/\d+$/, "").trim(), a.getAttribute("href")]));
     expect(got, ctx).toEqual(rows);
     if (ctx === "student") expect(await page.locator("body").innerText()).not.toContain("Cấu hình LLM");
@@ -303,7 +304,7 @@ test.describe("session", () => {
     await page.goto("/settings/llm");
     await expect(page.getByRole("heading", { name: "Bạn không có quyền xem màn này" })).toBeVisible();
     await page.getByRole("link", { name: "Về Hôm nay" }).click();
-    expect((await page.locator("[data-part=sidebar] nav a").allTextContents()).map((t) => t.trim())).toEqual(NAV.student.map((r) => r[0]));
+    await expect(page.locator("[data-part=sidebar] nav a")).toHaveText(NAV.student.map((r) => r[0])); // tự thử lại: thanh bên dựng sau khi điều hướng phía máy khách
     await page.locator("[data-part=sidebar]").getByRole("link", { name: "Chat riêng" }).click(); // điều hướng trong trang: token ở bộ nhớ không mất
     await expect(page.getByRole("button", { name: /^Tài khoản: Sinh Viên Thử/ })).toBeVisible();
   });

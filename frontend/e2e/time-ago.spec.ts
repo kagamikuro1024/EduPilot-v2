@@ -4,7 +4,7 @@ import { timeAgo } from "../src/shared/lib/timeAgo";
 // US-P2-08 AC11 — thời điểm tương đối theo NGÀY LỊCH giờ Việt Nam (UTC+7), không theo 24 giờ trượt.
 const now = new Date("2026-10-03T10:00:00Z"); // 17:00 ICT, 03/10
 
-test("timeAgo: vừa xong, phút, giờ (cùng ngày lịch), hôm qua kèm giờ, dd/MM", () => {
+test("timeAgo: vừa xong, phút, giờ (cùng ngày lịch), sau đó theo quy ước formatWhen", () => {
   const at = (ms: number) => new Date(now.getTime() - ms).toISOString();
   expect(timeAgo(at(0), now)).toBe("vừa xong");
   expect(timeAgo(at(59_000), now)).toBe("vừa xong");
@@ -18,8 +18,8 @@ test("timeAgo: vừa xong, phút, giờ (cùng ngày lịch), hôm qua kèm gi�
 
 test("timeAgo: qua nửa đêm giờ Việt Nam là 'hôm qua' dù chưa đủ 24 giờ", () => {
   const justAfterMidnight = new Date("2026-10-02T17:30:00Z"); // 00:30 ICT 03/10
-  expect(timeAgo("2026-10-02T16:40:00Z", justAfterMidnight)).toBe("hôm qua 23:40"); // chỉ 50 phút trước nhưng khác ngày lịch
-  expect(timeAgo("2026-10-02T09:40:00Z", now)).toBe("hôm qua 16:40");
-  expect(timeAgo("2026-10-01T09:40:00Z", now)).toBe("01/10");
-  expect(timeAgo("2025-12-31T09:40:00Z", now)).toBe("31/12");
+  expect(timeAgo("2026-10-02T16:40:00Z", justAfterMidnight)).toBe("Hôm qua, 23:40"); // chỉ 50 phút trước nhưng khác ngày lịch
+  expect(timeAgo("2026-10-02T09:40:00Z", now)).toBe("Hôm qua, 16:40");
+  expect(timeAgo("2026-10-01T09:40:00Z", now)).toBe("Thứ Năm, 16:40"); // 2 ngày trước, cùng tuần
+  expect(timeAgo("2025-12-31T09:40:00Z", now)).toBe("Thứ Tư, 31/12/2025 · 16:40"); // khác năm
 });

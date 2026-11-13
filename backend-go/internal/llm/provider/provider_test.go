@@ -252,8 +252,21 @@ func TestStructuredRequestShape(t *testing.T) {
 			rf := b["response_format"].(map[string]any)
 			msgs := b["messages"].([]any)
 			first := msgs[0].(map[string]any)
+			if v, ok := b["stream"]; !ok || v != false {
+				t.Errorf("openai_compatible Chat phải gửi stream:false tường minh (9router trả SSE nếu thiếu): stream=%v", v)
+			}
 			if rf["type"] != "json_object" || first["role"] != "system" || !strings.Contains(first["content"].(string), `"additionalProperties":false`) {
 				t.Errorf("json_object + schema trong lời nhắc: %v", b)
+			}
+			// chỉ MỘT tin system: chỉ dẫn schema gộp vào tin system của người gọi (nếu có), không tách thành hai tin system
+			sys := 0
+			for _, m := range msgs {
+				if m.(map[string]any)["role"] == "system" {
+					sys++
+				}
+			}
+			if sys != 1 {
+				t.Errorf("openai_compatible: cần đúng 1 tin system, có %d: %v", sys, msgs)
 			}
 		}, "xin chào"},
 	} {
@@ -523,5 +536,25 @@ func TestProviderNoRedirectFollow(t *testing.T) {
 	}
 	if calls.Load() != 1 || hits.Load() != 0 {
 		t.Errorf("calls=%d hits=%d: không được theo chuyển hướng", calls.Load(), hits.Load())
+	}
+}
+
+// TestCompatSchemaMergedIntoCallerSystem — OPS-VPS: openai_compatible gộp chỉ dẫn schema vào tin system của người gọi (một tin system duy nhất, schema đứng trước chỉ dẫn gốc).
+func TestCompatSchemaMergedIntoCallerSystem(t *testing.T) {
+	t.Parallel()
+	srv, _, bodies := server(t, func(int, string, map[string]any) reply { return reply{200, okChat, nil} })
+	o := chatOpts()
+	o.Messages = []provider.Message{{Role: "system", Content: "CHỈ DẪN GỐC"}, {Role: "user", Content: "xin chào"}}
+	o.Schema = json.RawMessage(`{"type":"object","additionalProperties":false}`)
+	if _, err := newP("openai_compatible", srv.URL, "k").Chat(t.Context(), o); err != nil {
+		t.Fatal(err)
+	}
+	msgs := (*bodies)[0]["messages"].([]any)
+	if len(msgs) != 2 {
+		t.Fatalf("2 tin (system + user), có %d: %v", len(msgs), msgs)
+	}
+	sys := msgs[0].(map[string]any)["content"].(string)
+	if !strings.Contains(sys, `"additionalProperties":false`) || !strings.HasSuffix(sys, "CHỈ DẪN GỐC") || strings.Index(sys, "JSON Schema") > strings.Index(sys, "CHỈ DẪN GỐC") {
+		t.Errorf("schema + chỉ dẫn gốc trong cùng tin system: %q", sys)
 	}
 }

@@ -10,8 +10,8 @@ import {
 } from "@/shared/ui";
 import { STATUS_LABEL, TYPE_LABEL, docsKey, useChunks, useDocList, useDocStats, type DocRow, type DocType } from "./documentsApi";
 import r from "./RealDocuments.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
 
-const WHEN = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 const MAX_PARALLEL = 3;
 const TYPES = Object.keys(TYPE_LABEL) as DocType[];
 const titleOf = (f: File) => f.name.replace(/\.[^.]+$/, "").slice(0, 200);
@@ -29,7 +29,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
   const [over, setOver] = useState(false);
   const [pendingType, setPendingType] = useState<DocType>("LECTURE");
   const [patched, setPatched] = useState<Record<string, Partial<DocRow>>>({});
-  const [failed, setFailed] = useState<string | null>(null);
+  const [failed, setFailed] = useState<{ text: string; retry?: () => void } | null>(null);
   const [open, setOpen] = useState<DocRow | null>(null);
   const [del, setDel] = useState<DocRow | null>(null);
   const picker = useRef<HTMLInputElement>(null);
@@ -88,7 +88,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
       refresh();
     } catch (e) {
       setPatched((p) => ({ ...p, [d.id]: { ...p[d.id], ...before } }));
-      setFailed(e instanceof ApiError && e.code === "VERSION_CONFLICT" ? "Có người vừa đổi tài liệu này. Tải lại để xem bản mới." : "Chưa lưu được. Thử lại.");
+      setFailed(e instanceof ApiError && e.code === "VERSION_CONFLICT" ? { text: "Có người vừa đổi tài liệu này. Tải lại để xem bản mới." } : { text: "Chưa lưu được.", retry: () => void patch(d, change, label) });
     }
   }
 
@@ -97,7 +97,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
       await apiClient.post(`/courses/${courseId}/documents/${d.id}/${what}`);
       refresh();
     } catch (e) {
-      setFailed(e instanceof ApiError ? e.userMessage : "Chưa làm được. Thử lại.");
+      setFailed({ text: e instanceof ApiError ? e.userMessage : "Chưa làm được.", retry: () => void action(d, what) });
     }
   };
 
@@ -121,7 +121,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
       key: "type", header: "Loại", width: "13%",
       render: (d) =>
         d.shared_from ? TYPE_LABEL[d.type] : (
-          <Select aria-label={`Loại của ${d.title}`} value={d.type} onChange={(e) => void patch(d, { type: e.target.value as DocType }, "loại")}>
+          <Select className={r.type} aria-label={`Loại của ${d.title}`} value={d.type} onChange={(e) => void patch(d, { type: e.target.value as DocType }, "loại")}>
             {TYPES.map((t) => <option key={t} value={t}>{TYPE_LABEL[t]}</option>)}
           </Select>
         ),
@@ -129,11 +129,11 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
     { key: "week", header: "Tuần", width: "8%", render: (d) => (d.week_no ? `Tuần ${d.week_no}` : "—") },
     {
       key: "ai", header: "Dùng cho AI", width: "11%",
-      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.title}</span>} />,
+      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.use_for_rag ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "vis", header: "Hiện cho sinh viên", width: "13%",
-      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.title}</span>} />,
+      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "status", header: "Trạng thái", width: "12%",
@@ -143,7 +143,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
         </StatusText>
       ),
     },
-    { key: "updated", header: "Cập nhật", width: "11%", render: (d) => WHEN.format(new Date(d.updated_at)) },
+    { key: "updated", header: "Cập nhật", width: "11%", render: (d) => formatWhen(d.updated_at) },
     {
       key: "more", header: <span className="ep-sr-only">Thao tác</span>, width: "4%", align: "end",
       render: (d) => {
@@ -214,7 +214,7 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
               )}
             </Field>
           </div>
-          {failed && <InlineNotice tone="danger" compact>{failed}</InlineNotice>}
+          {failed && <InlineNotice tone="danger" compact action={failed.retry && <Button size="sm" onClick={failed.retry}>Thử lại</Button>}>{failed.text}</InlineNotice>}
           {undo.node}
           <PageState
             query={list}

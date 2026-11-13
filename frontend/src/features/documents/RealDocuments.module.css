@@ -6,7 +6,7 @@
 .uploads { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--ep-space-2); }
 .upload { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-3); flex-wrap: wrap; font-size: var(--ep-text-label); }
 .name { font-weight: 600; color: var(--ep-ink); overflow-wrap: anywhere; background: none; border: 0; padding: 0; text-align: start; cursor: pointer; font: inherit; font-weight: 600; min-height: 32px; }
-.name:hover { text-decoration: underline; text-underline-offset: 3px; }
+@media (hover: hover) and (pointer: fine) { .name:hover { text-decoration: underline; text-underline-offset: 3px; } }
 .meta { color: var(--ep-ink-3); font-size: var(--ep-text-meta); }
 .keyNote { display: grid; gap: 2px; color: var(--ep-ink-3); font-size: var(--ep-text-meta); }
 .chunk { display: grid; gap: var(--ep-space-2); padding: var(--ep-space-3) 0; border-top: 1px solid var(--ep-rule); }
@@ -15,3 +15,4 @@
 .actions { display: flex; gap: var(--ep-space-2); flex-wrap: wrap; align-items: center; }
 .filters { display: grid; grid-template-columns: minmax(0, 1fr) 11rem 10rem; gap: var(--ep-space-3); align-items: end; }
 @media (max-width: 719px) { .filters { grid-template-columns: minmax(0, 1fr); } }
+select.type { width: auto; max-width: 100%; } /* ô Loại theo nhãn dài nhất, không cắt chữ (US-UX91-18 AC1) */

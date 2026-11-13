@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Kiểm phản mẫu giao diện: docs/design/DESIGN.md §21, docs/design/INTEGRATION.md mục 5, docs/specs/FEAT-ui-foundation/SRS.md 4.1 + 4.3, docs/specs/FEAT-ui-panels/SRS.md 4.3.
-# 22 phép (D59: 20–22 là luật của Panel); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
+# 23 phép (D59: 20–22 là luật của Panel; 23 = luật chữ UI: không câu giải thích dưới tiêu đề); mỗi phép in `✓ <tên>` hoặc `✗ <tên>` + tối đa 20 vi phạm; thoát 1 nếu có `✗`.
 # Danh sách trắng: thêm chú thích `ui-allow: <lý do>` trên CÙNG dòng (trần 10 chỗ — QC đếm).
-# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 22 phép bắt được`.
+# `--selftest`: sao frontend/src sang thư mục tạm (UI_SRC), gieo từng vi phạm, mong `✗`, in `N / 23 phép bắt được`.
 # Chạy ở gốc repo. UI_SRC đổi thư mục nguồn (dùng cho --selftest).
 set -uo pipefail
 export LC_ALL=C
@@ -35,6 +35,7 @@ if [ "${1:-}" = "--selftest" ]; then
     "Bóng elevation ngoài Panel|features/_selftest/f.module.css|.e { box-shadow: var(--ep-elevation-1); }"
     "Bóng elevation ngoài Panel|shared/ui/Panel.module.css|.h { box-shadow: 0 2px 4px #000; }"
     "Bo góc panel ngoài Panel|features/_selftest/g.module.css|.g { border-radius: var(--ep-radius-panel); }"
+    "Câu mô tả tĩnh dưới tiêu đề|features/_selftest/desc.tsx|export const D = () => <PageHeader title=\"x\" description=\"Câu giải thích rất dài nằm dưới tiêu đề của trang này đấy\" />;"
     "Panel lồng Panel (cùng tệp)|features/_selftest/nest.tsx|export const N = () => (<Panel"$'\n'"  aria-label=\"a\">"$'\n'"<Panel>x</Panel></Panel>);"
   )
   miss=0; names=""
@@ -136,4 +137,13 @@ out=$(find "$SRC" -name '*.tsx' ! -path '*/shared/ui/Panel.tsx' -print0 2>/dev/n
   } continue { close ARGV if eof }
 ' 2>/dev/null | grep -v "ui-allow:" || true)
 if [ -n "$out" ]; then echo "✗ Panel lồng Panel (cùng tệp)"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ Panel lồng Panel (cùng tệp)"; fi
+# 23: luật chữ UI (CLAUDE.md 09/10/2026, FEAT-uiux-91 US-01 AC6): `description=` của <PageHeader> / <Section> là chuỗi tĩnh > 40 ký tự thì là câu giải thích → xoá.
+# Dữ liệu (`description={`…`}`, biểu thức) và chuỗi ngắn thì được. Bỏ qua Demo*.tsx (chỉ phiên mô phỏng dùng) và shared/ui. `ui-allow:` cùng dòng thẻ mở để miễn.
+out=$(find "$SRC" -name '*.tsx' ! -path '*/shared/ui/*' ! -path '*/app/dev/*' ! -name 'Demo*.tsx' -print0 2>/dev/null | xargs -0 perl -0777 -ne '
+  while (/<(?:PageHeader|Section)(?=[\s>])((?:[^>"{]|"[^"]*"|\{(?:[^{}]|\{[^{}]*\})*\})*)>/g) {
+    my $attrs = $1; my $at = $-[0];
+    if ($attrs =~ /\bdescription="([^"]{41,})"/ && $attrs !~ /ui-allow:/) { my $l = 1 + (substr($_, 0, $at) =~ tr/\n//); print "$ARGV:$l: description tĩnh dài\n"; }
+  } continue { close ARGV if eof }
+' 2>/dev/null || true)
+if [ -n "$out" ]; then echo "✗ Câu mô tả tĩnh dưới tiêu đề"; echo "$out" | head -20; echo; FAIL=1; else echo "✓ Câu mô tả tĩnh dưới tiêu đề"; fi
 exit $FAIL

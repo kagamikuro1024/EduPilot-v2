@@ -29,6 +29,7 @@ import { useSession } from "@/shared/session/session";
 import { useDemoSlice } from "@/shared/state/demo";
 import { Button, ButtonLink, ConfirmIrreversible, EmptyState, InlineNotice, Page, PageHeader, PageState, Panel, Section, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import s from "./Practice.module.css";
+import { progressStyle } from "@/shared/lib/progress";
 
 /** Làm bài: luyện theo chủ đề (có phản hồi ngay) hoặc bài tính điểm (có giờ) — DESIGN §14.19. */
 export function AttemptScreen({ attemptId }: { attemptId: string }) {
@@ -194,7 +195,7 @@ function TopicRun({ attempt }: { attempt: Attempt }) {
         ) : (
           <Section panel>
             <div className={s.progress} aria-hidden>
-              <span className={s.progressFill} style={{ width: `${(index / questions.length) * 100}%` }} />
+              <span className={s.progressFill} style={progressStyle((index / questions.length) * 100)} />
             </div>
             <p className={s.question}>{q.text}</p>
 
@@ -366,7 +367,7 @@ function QuizRun({ title, questions, minutes }: { title: string; questions: Ques
         <Section panel>
           <InlineNotice compact>Trong lúc làm bài, Chat riêng chỉ trả lời câu hỏi thủ tục. Bài không chấm từng câu cho tới khi bạn nộp.</InlineNotice>
           <div className={s.progress} aria-hidden>
-            <span className={s.progressFill} style={{ width: `${(answered / questions.length) * 100}%` }} />
+            <span className={s.progressFill} style={progressStyle((answered / questions.length) * 100)} />
           </div>
           <p className={s.question}>{q.text}</p>
           <ul className={s.options}>

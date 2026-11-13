@@ -12,8 +12,8 @@ import { ANSWER_LABEL, SKIP_LABEL, confidenceLabel, describeReasons, threadKey, 
 import { EditForm, HiddenNotice, PostMenu } from "./ThreadModeration";
 import { usePostGate } from "./usePostGate";
 import r from "./RealThreads.module.css";
+import { formatWhen } from "@/shared/lib/datetime";
 
-const WHEN = new Intl.DateTimeFormat("vi-VN", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 
 /** Chi tiết thread thật (DESIGN §14.4): câu hỏi, bài AI kèm nguồn và nhãn xác nhận, bình luận, thread tương tự; Staff có Xác nhận / Chỉnh sửa / Loại cạnh bản nháp. */
 export function RealThreadDetail({ courseId, id }: { courseId: string; id: string }) {
@@ -35,7 +35,7 @@ export function RealThreadDetail({ courseId, id }: { courseId: string; id: strin
               <div className={r.question} data-part="thread-question">
                 <div className={r.head}>
                   <span className={r.who}>{q.data.thread.author.full_name}</span>
-                  <span>{WHEN.format(new Date(q.data.thread.created_at))}</span>
+                  <span>{formatWhen(q.data.thread.created_at)}</span>
                   {q.data.thread.week_no !== null && <span>Tuần {q.data.thread.week_no}</span>}
                   {q.data.thread.tags.map((t) => <span key={t}>#{t}</span>)}
                   {q.data.thread.edited && <span>đã sửa</span>}
@@ -94,7 +94,7 @@ function HumanPost({ courseId, p, staff, canChat }: { courseId: string; p: Threa
       <div className={r.head}>
         <span className={r.who}>{p.author?.full_name}</span>
         {p.author && p.author.role !== "STUDENT" && <span>{p.author.role === "TEACHER" ? "Giảng viên" : p.author.role === "TA" ? "Trợ giảng" : ""}</span>}
-        <span>{WHEN.format(new Date(p.created_at))}</span>
+        <span>{formatWhen(p.created_at)}</span>
         {p.edited && <span>đã sửa</span>}
         <PostMenu courseId={courseId} target={target} mine={p.author?.is_me ?? false} staff={staff} hidden={p.hidden} canEdit onEdit={() => setEditing(true)} />
       </div>

@@ -121,7 +121,6 @@ export function AdminUsers() {
     <Page width="wide">
       <PageHeader
         title="Người dùng"
-        description="Mời giảng viên và trợ giảng, khoá hoặc mở khoá tài khoản. Sinh viên tự đăng ký rồi vào lớp bằng mã tham gia."
         actions={
           inviting ? undefined : (
             <Button variant="primary" icon={<Mail aria-hidden />} onClick={() => setInviting(true)}>

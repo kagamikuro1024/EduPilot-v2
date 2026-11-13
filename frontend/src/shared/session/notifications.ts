@@ -16,8 +16,8 @@ const TYPE_TEXT: Record<string, string> = {
   TICKET_NEW: "Hộp thư hỗ trợ",
   TICKET_STALE: "Hộp thư hỗ trợ",
   TICKET_ANSWERED: "Câu hỏi của bạn",
-  AI_PENDING: "Threads",
-  POST_REPORTED: "Threads",
+  AI_PENDING: "Hỏi đáp công khai",
+  POST_REPORTED: "Hỏi đáp công khai",
   COURSE_TICKETS_STALLED: "Quản trị",
 };
 

@@ -40,6 +40,7 @@ F1 ☐ · F2 ☐ · F3 ☑ (sprint 6) · F4 ☑ (sprint 7) · F5 ☑ (sprint 7) 
 - Bước kế tiếp cụ thể: CI `main` xanh; chủ dự án quyết LCP `/assignments/[id]` (#10 sprint 9), duyệt `golang.org/x/text`, tính tay A, B, C; PM lập kế hoạch sprint 10 (P9 Luyện đề).
 
 ## Nợ (việc thấy cần nhưng ngoài phạm vi phase)
+- 9.1 UX17-8, UX17-9 (`/insights`, `/observability` còn dữ liệu mô phỏng; Admin xem hàng → `audit_log`, lớp chưa có báo cáo) → kiểm khi P10 nối API thật (P-91-15).
 - Image object storage lâu dài (đang `pgsty/minio` fork) → lát blob của PG chốt + ghi D mới (proposals #7).
 - `typescript` ghim `^5` (typescript-eslint chưa hỗ trợ TS 7).
 - GitHub Actions ghim theo major, chưa theo SHA.

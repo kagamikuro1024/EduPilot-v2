@@ -39,7 +39,7 @@ The interface should feel like a precise academic instrument with a human red-pe
 EduPilot has four jobs. Every screen must clearly belong to one.
 
 1. **Learn** — private AI chat, practice, library, calendar, personal progress.
-2. **Discuss** — Threads, Verify, citations, public academic discussion.
+2. **Discuss** — Hỏi đáp công khai (Threads), Verify, citations, public academic discussion.
 3. **Operate class** — inbox/escalation, attendance, students, gradebook, grading, questions, documents.
 4. **Understand system** — insights, analytics, observability, LLM/integration settings.
 
@@ -53,7 +53,7 @@ Primary question: **“Hôm nay mình nên làm gì?”**
 Primary navigation:
 - Hôm nay
 - Chat riêng
-- Threads
+- Hỏi đáp công khai
 - Luyện đề
 - Thư viện
 - Lịch
@@ -74,8 +74,8 @@ Primary navigation:
 - Ngân hàng câu hỏi
 - Tài liệu
 - Lịch
-- Insights
-- Analytics
+- Lỗ hổng kiến thức
+- Số liệu lớp học
 
 Teacher-only / system tools live under **Hệ thống**:
 - Observability
@@ -483,7 +483,9 @@ Purpose: communicate state, not decorate.
 Timing:
 - Hover/focus: 120–160ms.
 - Local state change: 160–220ms.
-- Drawer/dialog: 200–250ms.
+- Drawer/dialog: ≤ 200ms.
+
+Signed-in app motion is **functional only** and ≤ 200 ms: press feedback (`:active` scale .97), drawer/dialog/popover open and close, state change, save confirmation. No motion library in the app. `prefers-reduced-motion: reduce` removes movement and keeps only short opacity/colour changes that confirm state. Hover effects are gated by `@media (hover: hover) and (pointer: fine)`.
 
 Easing:
 
@@ -494,10 +496,29 @@ Easing:
 
 One authored signature interaction:
 
-**Red Thread Transition** — when the user chooses the next recommended task from “Hôm nay”, a thin red line briefly extends from the selected row toward the destination title before the content settles. It must last < 300ms and respect `prefers-reduced-motion`.
+**Red Thread Transition** — when the user chooses the next recommended task from “Hôm nay”, a thin red line briefly extends from the selected row toward the destination title before the content settles. It must last < 300ms (currently 280 ms; the one documented exception to the 200 ms app limit) and respect `prefers-reduced-motion`.
 
-No staggered page-load choreography.
-No bounce/elastic easing.
+No staggered page-load choreography **in the signed-in app** (the signed-out landing page follows §11.1).
+No bounce/elastic easing anywhere.
+
+---
+
+## 11.1 Landing page (Persuade): scoped exception to §0, §7 and §11
+
+The signed-out `/` is a **Persuade** surface, not an Operate surface. §0 refusals, §7 and §11 govern the signed-in app; the landing follows this section. Same `--ep-*` tokens, same family Be Vietnam Pro, red keeps its three meanings (where I am, what needs action, what was corrected/verified).
+
+Allowed on the landing only:
+- **Entrance** ≤ 600 ms. The LCP element (`h1` below 720 px, the product poster at 720 px and up) never starts from `opacity: 0`.
+- **Scroll-driven motion** with `animation-timeline: view()` / `scroll()`, only `transform` and `opacity`, wrapped in `@media (prefers-reduced-motion: no-preference)` and `@supports (animation-timeline: view())`. No fallback is required: unsupported browsers see the full static content.
+- **Pinned product frame:** one sticky frame stays while three steps scroll past and its content changes Chat → Duyệt bài → Sổ điểm. Below 720 px and under `reduce`, the steps are stacked and each carries its own image (final state, no pinning).
+- **Live clip:** one muted loop of 6–8 s in the first screen. Poster first (it protects LCP); the clip loads after the `load` event; it never plays under `reduce` or `Save-Data`. The full video opens only on user action (`Xem video`), has no audio track and uses `preload="none"`.
+- **Count-up numbers** (integers only), line-drawing of the three-step diagram, once per visit.
+- **Type:** a larger scale than the app. `h1` ≥ 56 px (≥ 36 px at 375), `h2` ≥ 40 px (≥ 28 px), body 18 px; `clamp()` is allowed here. One idea per screen; vertical rhythm ≥ 96 px (≥ 64 px at 375).
+- **Depth:** product frames may carry one static shadow from the popover family (§7, no new colour) and lift ≤ 6 px with `translateY` in ≤ 200 ms on hover, only under `@media (hover: hover) and (pointer: fine)` and `no-preference`.
+
+Budgets: LCP ≤ 2.5 s on mobile 4G; JS of `/` ≤ 256 KB gzip (extra JS limited to one inline script ≤ 0.5 KB and one small client component for opening the video); CLS ≤ 0.1; axe 0 serious/critical; no animation library.
+
+Still forbidden: bounce/elastic, sound, carousels or timed tabs, confetti, tilt, glass, gradient text, coloured glow.
 
 ---
 
@@ -568,9 +589,10 @@ Primary job: resolve work requiring human judgment.
 
 First viewport:
 1. `5 việc cần xử lý hôm nay`.
-2. ActionList ordered by urgency and consequence.
-3. A narrow “Lớp cần chú ý” summary below the action list.
-4. Upcoming class/deadline strip.
+2. Work grouped by urgency under text labels (`h3`): **Gấp** (`urgency` overdue or high), **Hôm nay**, **Khi rảnh** (similarity findings, unmatched submissions). Empty groups are not shown. Server order is kept inside each group; the client sets no new thresholds.
+3. Exactly one primary (red) button: the first item of the first group. Other rows use a `ghost` button with an arrow.
+4. At ≥ 1440 px the right column (≤ 320 px) holds “Lớp cần chú ý” (students at risk) and the upcoming class/deadline strip; below 1100 px they follow the list.
+5. The class code appears only when “Tất cả lớp” is selected.
 
 No hero metrics.
 
@@ -597,7 +619,7 @@ Confidence:
 
 ---
 
-## 14.3 `/threads` — Threads
+## 14.3 `/threads` — Hỏi đáp công khai
 
 Primary job: browse and ask public academic questions.
 
@@ -695,15 +717,17 @@ This is a dense keyboard-first working surface.
 Top:
 - session/date selector,
 - save state,
-- `Lưu điểm danh` primary action.
+- `Lưu điểm danh` primary action (on mobile a sticky bottom bar: `Lưu điểm danh · N có mặt · M vắng`).
 
 Table:
 - Student
-- Có mặt
+- Có mặt (default, ink dot)
 - Muộn
 - Vắng phép
 - Vắng
-- Participation quick add
+- Participation quick add (shown on row hover/focus or key `P`; always visible as a `+` icon on mobile)
+
+Colour: the default "Có mặt" dot is ink, never red. Red marks only Muộn, Vắng phép and Vắng; each also has a text label.
 
 Use radio-like keyboard cells with visible focus.
 Sticky student/name column and header on desktop.
@@ -746,6 +770,9 @@ If scheme not confirmed:
 
 Table:
 - Student, components, bonuses/penalties, current total, final exam, final grade, status.
+- Scores are displayed exactly as the server returns them, never rounded; each column pads zeros to its longest fraction, comma decimal, right-aligned, `tabular-nums`.
+- One vertical scroll area as tall as the remaining viewport, virtualised; header and student column are sticky inside it.
+- Status column reads **Thiếu điểm** (amber) only for students missing a component score, blank otherwise, and is hidden when nobody is missing.
 - Freeze name and key total columns where useful.
 - Editing is inline.
 - Audit/history entry appears from row context, not always-visible button.
@@ -800,7 +827,8 @@ Right panel structure:
 5. AI comment, editable.
 
 Flag discrepancy >1 point as an inline amber notice.
-Primary action at bottom: `Duyệt bài`.
+Evidence highlight in the submission: the background is held about 1 s, then fades out in 200 ms (the hold is a state, not motion; under `reduce` it is held then removed instantly).
+Primary action at bottom, always fully visible in a sticky bar with progress (`Đã duyệt 12/85`) and key hint `A`: `Duyệt bài`.
 Publish remains a separate deliberate action.
 
 ---
@@ -983,7 +1011,7 @@ Teams explains admin-consent dependency in plain language.
 
 ---
 
-## 14.25 `/analytics` — Analytics lớp học
+## 14.25 `/analytics` — Số liệu lớp học
 
 Primary job: understand class-level patterns, not monitor students obsessively.
 

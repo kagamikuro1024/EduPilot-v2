@@ -32,7 +32,7 @@ function StaffExams() {
         </Panel>
       </Page>
     );
-  return <Board courseId={cc.course.id} code={cc.course.class_code} />;
+  return <Board courseId={cc.course.id} />;
 }
 
 const GROUPS: Array<{ title: string; of: (e: ExamRow) => boolean; order: (a: ExamRow, b: ExamRow) => number }> = [
@@ -42,14 +42,13 @@ const GROUPS: Array<{ title: string; of: (e: ExamRow) => boolean; order: (a: Exa
   { title: "Nháp", of: (e) => e.effective_status === "DRAFT", order: (a, b) => b.created_at.localeCompare(a.created_at) },
 ];
 
-function Board({ courseId, code }: { courseId: string; code: string }) {
+function Board({ courseId }: { courseId: string }) {
   const [creating, setCreating] = useState(false);
   const list = useCursorList<ExamRow>(eKey(courseId, "list"), ePath(courseId), { limit: 100 });
   return (
     <Page width="wide">
       <PageHeader
         title="Bài thi"
-        description={`Bài kiểm tra tính điểm của lớp ${code}: soạn từ ngân hàng câu hỏi, đặt khung giờ rồi lên lịch.`}
         actions={
           <Button variant="primary" icon={<Plus aria-hidden />} onClick={() => setCreating(true)} aria-expanded={creating}>
             Tạo bài thi
@@ -141,7 +140,7 @@ function StudentExams() {
     );
   return (
     <Page>
-      <PageHeader title="Bài thi" description="Bài kiểm tra tính điểm của lớp. Đồng hồ chạy khi bạn bấm Bắt đầu làm bài." />
+      <PageHeader title="Bài thi" />
       {mine.map((c) => (
         <CourseExams key={c.id} courseId={c.id} code={mine.length > 1 ? c.class_code : undefined} />
       ))}
@@ -196,7 +195,7 @@ function CourseExams({ courseId, code }: { courseId: string; code?: string }) {
                     title={e.title}
                     context={contextFor(e)}
                     meta={STATUS_LABEL[e.status]}
-                    action={act ? <ButtonLink href={`/exams/${e.id}/take`} variant="secondary">{act.label}</ButtonLink> : undefined}
+                    action={act ? <ButtonLink href={`/exams/${e.id}/take`} variant="secondary" title={act.label === "Bắt đầu làm bài" ? "Đồng hồ chạy ngay khi bấm." : undefined}>{act.label}</ButtonLink> : undefined}
                   />
                 );
               })}

@@ -12,7 +12,8 @@
 .point { fill: var(--ep-surface); stroke: var(--ep-ink); stroke-width: 2; cursor: pointer; }
 .red .point { stroke: var(--ep-red); }
 .green .point { stroke: var(--ep-green); }
-.point:hover, .point:focus-visible { fill: var(--ep-ink); outline: none; }
+.point:focus-visible { fill: var(--ep-ink); outline: none; }
+@media (hover: hover) and (pointer: fine) { .point:hover { fill: var(--ep-ink); outline: none; } }
 .pointLabel, .lastValue { fill: var(--ep-ink); font-size: var(--ep-text-meta); font-weight: 600; font-family: var(--ep-font); font-variant-numeric: tabular-nums; }
 .caption { margin-top: var(--ep-space-2); font-size: var(--ep-text-meta); color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
 

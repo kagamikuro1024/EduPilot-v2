@@ -144,7 +144,7 @@ function Picker({ courseId, taken, onClose, onPick }: { courseId: string; taken:
       return next;
     });
   return (
-    <Drawer open wide onClose={onClose} title="Chọn câu từ ngân hàng" description="Chỉ hiện câu đã duyệt và chưa lưu trữ."
+    <Drawer open wide onClose={onClose} title="Chọn câu đã duyệt từ ngân hàng"
       footer={<><Button variant="primary" disabled={chosen.size === 0} onClick={() => onPick([...chosen.values()])}>{chosen.size > 0 ? `Thêm ${chosen.size} câu` : "Thêm câu"}</Button><Button variant="text" onClick={onClose}>Đóng</Button></>}>
       <div className={s.picker}>
         <Field label="Tìm câu hỏi">{(id) => <Input id={id} type="search" placeholder="Tiêu đề…" value={text} maxLength={100} onChange={(e) => setText(e.target.value)} />}</Field>

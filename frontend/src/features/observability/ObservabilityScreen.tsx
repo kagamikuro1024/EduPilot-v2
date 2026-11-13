@@ -9,20 +9,14 @@ import { Button, type Column, DataTable, DefinitionList, Drawer, EmptyState, Fie
 import { FailedMail } from "./FailedMail";
 import s from "./observability.module.css";
 
-/** Dải trạng thái gọn: nhãn nhỏ, số lớn, ngăn bằng đường kẻ dọc — không phải thẻ số liệu. */
-export function StatusStrip({ items }: { items: Array<{ label: string; value: string; hint?: string }> }) {
+type SummaryRow = { label: string; value: string; hint?: string };
+
+/** Số "hôm nay": một dòng chữ, không dải ô số liệu cùng cỡ (US-UX91-17 AC3). Số 7 ngày nằm ở bảng bên dưới, mỗi chỉ số đúng một chỗ. */
+export function TodayLine({ items }: { items: Array<{ label: string; value: string; hint?: string }> }) {
   return (
-    <dl className={s.strip}>
-      {items.map((m) => (
-        <div key={m.label} className={s.stripItem}>
-          <dt className="ep-meta">{m.label}</dt>
-          <dd>
-            <span className="ep-data">{m.value}</span>
-            {m.hint && <span className={s.stripHint}>{m.hint}</span>}
-          </dd>
-        </div>
-      ))}
-    </dl>
+    <p className={s.today} data-part="obs-today">
+      {items.map((m) => `${m.label} ${m.value}${m.hint ? ` (${m.hint})` : ""}`).join(" · ")}
+    </p>
   );
 }
 
@@ -91,11 +85,6 @@ export function ObservabilityScreen() {
     <Page width="wide">
       <PageHeader
         title="Quan sát AI"
-        description={
-          isAdmin
-            ? "Hệ thống đang chạy thế nào, và khi có yêu cầu hỏng thì hỏng ở đâu."
-            : "Số liệu AI của lớp bạn. Nội dung câu hỏi chỉ quản trị viên hệ thống mở được, và mỗi lần mở đều bị ghi nhật ký."
-        }
         meta={
           <>
             <span>Thứ Năm, 29 tháng 10 · 09:20</span>
@@ -121,19 +110,26 @@ export function ObservabilityScreen() {
           recovery: "Việc ghi nhật ký vẫn chạy, không mất dữ liệu. Thử lại; nếu vẫn lỗi, xem hàng chờ xử lý lỗi trước khi đổi cấu hình.",
         }}
       >
-        <Panel>
-          <StatusStrip items={STATUS_STRIP} />
-        </Panel>
+        <TodayLine items={STATUS_STRIP} />
 
         {!isAdmin && (
-          <Section panel title={`Lớp ${course.code} trong 7 ngày`} description="Số tổng hợp của lớp bạn phụ trách.">
-            <DefinitionList items={(COURSE_SUMMARY[course.id] ?? []).map((m) => ({ term: m.label, value: m.hint ? `${m.value} · ${m.hint}` : m.value }))} />
+          <Section panel title={`Lớp ${course.code} trong 7 ngày`}>
+            <DataTable
+              caption="Số liệu 7 ngày của lớp"
+              columns={[
+                { key: "label", header: "Chỉ số", primary: true, render: (m: SummaryRow) => m.label },
+                { key: "value", header: "Giá trị", render: (m: SummaryRow) => m.value },
+                { key: "hint", header: "Ghi chú", render: (m: SummaryRow) => m.hint ?? "—" },
+              ]}
+              rows={COURSE_SUMMARY[course.id] ?? []}
+              rowKey={(m: SummaryRow) => m.label}
+              dense
+            />
           </Section>
         )}
 
         <Section panel
           title={`${rows.length} yêu cầu gần nhất`}
-          description={isAdmin ? "Chọn một hàng để xem nội dung đã che, công cụ đã gọi và độ tin cậy." : "Giảng viên xem được số liệu; nội dung yêu cầu không mở được từ đây."}
           action={
             <SegmentedControl
               label="Lọc yêu cầu"
