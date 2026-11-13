@@ -28,7 +28,7 @@ const BROWSE = {
 const OPTIONS = {
   browse: {
     scenarios: BROWSE,
-    thresholds: { 'http_req_duration{kind:read}': ['p(95)<300'], 'http_req_duration{kind:write}': ['p(95)<500'], sse_first_ms: ['p(95)<300', 'count>0'], http_req_failed: ['rate<0.005'] },
+    thresholds: { 'http_req_duration{kind:read}': ['p(95)<300'], 'http_req_duration{kind:write}': ['p(95)<500'], sse_first_ms: ['p(95)<300', 'max>0'], http_req_failed: ['rate<0.005'] },
   },
   dashboard: {
     scenarios: { dashboard: { executor: 'constant-vus', exec: 'dashboard', vus: 5, duration: DURATION } },

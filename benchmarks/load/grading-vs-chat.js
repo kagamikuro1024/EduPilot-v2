@@ -26,7 +26,9 @@ const BASELINE = Number(__ENV.BASELINE_TTFT_MS || 0);
 const VUS = Number(__ENV.VUS || 20); // LLM thật có hạn mức (OPS-VPS): chạy với VUS nhỏ, ví dụ 4
 const CHAT_CLASS = __ENV.CHAT_CLASS || '761987'; // chat ở lớp có tài liệu, kể cả khi sinh viên còn ở lớp khác (lớp đo EVALLLM)
 const POOL = PHASE === 'grading' ? VUS + 1 : VUS; // k6 cấp id cho cả VU của kịch bản `grade` (id nằm giữa các VU chat): 21 id liên tiếp → 21 phiên khác nhau (BUG-P7-07-4)
-const SEED_STUDENTS = ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: POOL - 3 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
+const T1 = __ENV.ACCOUNTS === 't1'; // seed-t1: t1sv0001… (lớp đầu), TEACHER t1gv1
+const DURATION = __ENV.DURATION || '40s';
+const SEED_STUDENTS = T1 ? Array.from({ length: POOL }, (_, i) => `t1sv${String(i + 1).padStart(4, '0')}`) : ['sv.gioi', 'sv.kha', 'sv.nguyco', ...Array.from({ length: POOL - 3 }, (_, i) => `sv${String(i + 4).padStart(2, '0')}`)];
 const QUESTIONS = [
   'Phishing là gì và làm sao nhận ra một email lừa đảo?',
   'Ransomware hoạt động như thế nào?',
@@ -45,7 +47,7 @@ http.setResponseCallback(http.expectedStatuses({ min: 200, max: 399 }));
 if (!['baseline', 'grading'].includes(PHASE)) fail(`PHASE phải là baseline | grading (nhận: ${PHASE})`);
 if (PHASE === 'grading' && (!COURSE_ID || !ASSIGNMENT_ID || !BASELINE)) fail('PHASE=grading cần COURSE_ID, ASSIGNMENT_ID và BASELINE_TTFT_MS (p95 TTFT của lượt baseline)');
 
-const scenarios = { chat: { executor: 'constant-vus', exec: 'chatVU', vus: VUS, duration: '40s', gracefulStop: '30s' } };
+const scenarios = { chat: { executor: 'constant-vus', exec: 'chatVU', vus: VUS, duration: DURATION, gracefulStop: '30s' } };
 const thresholds = { ttft_samples: ['count>0'], first_event_samples: ['count>0'], http_req_failed: ['rate<0.01'] };
 if (PHASE === 'grading') {
   scenarios.grade = { executor: 'per-vu-iterations', exec: 'gradeAll', vus: 1, iterations: 1, startTime: '5s', maxDuration: '30s' };
@@ -53,7 +55,7 @@ if (PHASE === 'grading') {
   thresholds.ttft_ms = [`p(95)<${Math.round(BASELINE * 1.2)}`];
   thresholds.grading_queued = ['count>0'];
 }
-export const options = { insecureSkipTLSVerify: true, summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'max'], scenarios, thresholds };
+export const options = { insecureSkipTLSVerify: true, summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'], scenarios, thresholds };
 
 const json = (token) => ({ 'Content-Type': 'application/json', Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) });
 
@@ -75,7 +77,7 @@ export function setup() {
     if (r.status !== 201 && r.status !== 200) fail(`tạo phiên chat → ${r.status} ${r.body}`);
     sessions.push({ token, sid: r.json('id') });
   }
-  return { sessions, teacher: PHASE === 'grading' ? login('teacher') : null };
+  return { sessions, teacher: PHASE === 'grading' ? login(T1 ? 't1gv1' : 'teacher') : null };
 }
 
 const msOf = (body, event) => {
@@ -115,4 +117,11 @@ export function gradeAll(d) {
   });
   if (check(r, { 'grade-all 202': (x) => x.status === 202 })) nQueued.add(r.json('queued'));
   else console.error(`grade-all → ${r.status} ${String(r.body).slice(0, 160)}`);
+}
+
+export function handleSummary(data) {
+  const out = __ENV.OUT;
+  if (!out) return {}; // chạy tay như cũ: bản tóm tắt mặc định của k6
+  const m = __ENV.META ? JSON.parse(__ENV.META) : null; // thiếu META → check-meta.mjs báo lỗi: không có số đo hợp lệ
+  return { [out]: JSON.stringify({ meta: m, scenario: PHASE, metrics: data.metrics, thresholds: Object.fromEntries(Object.entries(data.metrics).filter(([, v]) => v.thresholds).map(([k, v]) => [k, v.thresholds])) }, null, 2), stdout: `\n${out}\n` };
 }

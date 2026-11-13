@@ -1,0 +1,33 @@
+{
+  "meta": {
+    "commit": "e006e845",
+    "timestamp": "2026-11-13T17:18:15.629Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "scenario": "t1-api-check",
+      "base": "https://localhost:843"
+    }
+  },
+  "pairs": 24,
+  "leaks": 0,
+  "errors_5xx": 0,
+  "errors_4xx_valid": [],
+  "summary": {
+    "GV /me/courses 200": 1,
+    "GV /me/today 200": 1,
+    "GV /courses/:id/today 200": 1,
+    "GV /courses/:id/students?limit=100 200": 1,
+    "GV /courses/:id/gradebook 200": 1,
+    "GV /courses/:id/students/:id/profile 200": 1,
+    "SV /me/courses 200": 8,
+    "SV /me/today 200": 8,
+    "SV /courses/:id/me/grades 200": 8,
+    "SV /courses/:id/me/attendance?limit=100 200": 8,
+    "SV /courses/:id/threads?limit=30 200": 8,
+    "SV /courses/:id/library 200": 8,
+    "SV-x /courses/:id/me/grades 403": 24,
+    "SV-x /courses/:id/threads?limit=30 403": 24,
+    "SV-x /courses/:id/library 403": 24
+  }
+}

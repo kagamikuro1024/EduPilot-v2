@@ -63,7 +63,7 @@ const OPTIONS = {
   },
 }[SCENARIO];
 if (!OPTIONS) fail(`SCENARIO phải là first_event | ttft (nhận: ${SCENARIO})`);
-export const options = { insecureSkipTLSVerify: true, summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'max'], ...OPTIONS };
+export const options = { insecureSkipTLSVerify: true, summaryTrendStats: ['avg', 'med', 'p(90)', 'p(95)', 'p(99)', 'max'], ...OPTIONS };
 
 const json = (token) => ({ 'Content-Type': 'application/json', Accept: 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) });
 
@@ -123,4 +123,11 @@ export function ttftVU(d) {
     console.error(`chat → ${r.status} ${String(r.body).slice(0, 120)}`); // lỗi thật KHÔNG bị che: vẫn tính vào http_req_failed
   }
   sleep(3.5); // mỗi người ≤ ~17 tin / phút: dưới CHAT_RATE_PER_MIN mặc định (20) — đo TTFT dưới hạn mức THẬT, không nới hạn mức
+}
+
+export function handleSummary(data) {
+  const out = __ENV.OUT;
+  if (!out) return {}; // chạy tay như cũ: bản tóm tắt mặc định của k6
+  const m = __ENV.META ? JSON.parse(__ENV.META) : null; // thiếu META → check-meta.mjs báo lỗi: không có số đo hợp lệ
+  return { [out]: JSON.stringify({ meta: m, scenario: SCENARIO, metrics: data.metrics, thresholds: Object.fromEntries(Object.entries(data.metrics).filter(([, v]) => v.thresholds).map(([k, v]) => [k, v.thresholds])) }, null, 2), stdout: `\n${out}\n` };
 }

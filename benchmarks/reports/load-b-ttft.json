@@ -1,0 +1,291 @@
+{
+  "meta": {
+    "commit": "e006e845",
+    "timestamp": "2026-11-13T17:34:16.156Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "scenario": "chat-ttft",
+      "SCENARIO": "ttft",
+      "ACCOUNTS": "t1",
+      "gateways": 1,
+      "workers": 1,
+      "provider": "fake",
+      "k6_cpus": "1.5",
+      "demo_stack": "stopped",
+      "compose_project": "ep-t1",
+      "tag": ""
+    }
+  },
+  "scenario": "ttft",
+  "metrics": {
+    "ttft_cache_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "max": 173.769241,
+        "avg": 34.138461652694616,
+        "med": 25.201743,
+        "p(90)": 48.6942042,
+        "p(95)": 103.76813329999995,
+        "p(99)": 159.86743352
+      },
+      "thresholds": {
+        "p(95)<1500": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_blocked": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 0.0021793000000000003,
+        "p(95)": 2.8255005999999803,
+        "p(99)": 10.644788789999998,
+        "max": 12.415135,
+        "avg": 0.4124962638190959,
+        "med": 0.00075
+      }
+    },
+    "http_req_tls_handshaking": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 0,
+        "p(95)": 1.8270555499999908,
+        "p(99)": 6.1136988,
+        "max": 7.449514,
+        "avg": 0.2328003140703518,
+        "med": 0
+      }
+    },
+    "http_req_sending": {
+      "values": {
+        "max": 1.520053,
+        "avg": 0.16977782663316593,
+        "med": 0.136772,
+        "p(90)": 0.3369859,
+        "p(95)": 0.38817609999999986,
+        "p(99)": 0.6537272699999999
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_waiting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(90)": 28.455428700000166,
+        "p(95)": 98.8036917499977,
+        "p(99)": 217.86283486000002,
+        "max": 443.308107,
+        "avg": 22.075342467336657,
+        "med": 8.4653955
+      }
+    },
+    "ttft_rag_ms": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 404.812315006024,
+        "med": 338.87976649999996,
+        "p(90)": 630.0380045,
+        "p(95)": 633.99312075,
+        "p(99)": 654.7201622499999,
+        "max": 679.854191
+      },
+      "thresholds": {
+        "p(95)<4000": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_duration": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 227.7965851683417,
+        "med": 128.7623775,
+        "p(90)": 447.5959166000001,
+        "p(95)": 891.25924285,
+        "p(99)": 919.50662953,
+        "max": 968.559603
+      }
+    },
+    "http_req_duration{expected_response:true}": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "avg": 227.7965851683417,
+        "med": 128.7623775,
+        "p(90)": 447.5959166000001,
+        "p(95)": 891.25924285,
+        "p(99)": 919.50662953,
+        "max": 968.559603
+      }
+    },
+    "iterations": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 333,
+        "rate": 4.722349190072613
+      }
+    },
+    "ttft_rag_samples": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 166,
+        "rate": 2.354083980636798
+      },
+      "thresholds": {
+        "count>0": {
+          "ok": true
+        }
+      }
+    },
+    "http_req_connecting": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "p(95)": 0.048023449999998476,
+        "p(99)": 4.553389779999999,
+        "max": 6.174337,
+        "avg": 0.1655183065326633,
+        "med": 0,
+        "p(90)": 0
+      }
+    },
+    "checks": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 1,
+        "passes": 333,
+        "fails": 0
+      }
+    },
+    "http_reqs": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 398,
+        "rate": 5.644129062008709
+      }
+    },
+    "iteration_duration": {
+      "values": {
+        "med": 3684.068564,
+        "p(90)": 4379.6607664,
+        "p(95)": 4400.1432004,
+        "p(99)": 4425.05595392,
+        "max": 4476.914557,
+        "avg": 3754.7191421441453
+      },
+      "type": "trend",
+      "contains": "time"
+    },
+    "http_req_receiving": {
+      "type": "trend",
+      "contains": "time",
+      "values": {
+        "med": 34.499423,
+        "p(90)": 387.08925150000005,
+        "p(95)": 880.68405325,
+        "p(99)": 909.36897341,
+        "max": 921.481793,
+        "avg": 205.5514648743719
+      }
+    },
+    "http_req_failed": {
+      "type": "rate",
+      "contains": "default",
+      "values": {
+        "rate": 0,
+        "passes": 0,
+        "fails": 398
+      },
+      "thresholds": {
+        "rate<0.01": {
+          "ok": true
+        }
+      }
+    },
+    "vus": {
+      "contains": "default",
+      "values": {
+        "max": 20,
+        "value": 3,
+        "min": 0
+      },
+      "type": "gauge"
+    },
+    "vus_max": {
+      "type": "gauge",
+      "contains": "default",
+      "values": {
+        "max": 20,
+        "value": 20,
+        "min": 20
+      }
+    },
+    "data_sent": {
+      "type": "counter",
+      "contains": "data",
+      "values": {
+        "count": 119945,
+        "rate": 1700.967488298077
+      }
+    },
+    "data_received": {
+      "values": {
+        "count": 410968,
+        "rate": 5828.0312370743595
+      },
+      "type": "counter",
+      "contains": "data"
+    },
+    "ttft_cache_samples": {
+      "type": "counter",
+      "contains": "default",
+      "values": {
+        "count": 167,
+        "rate": 2.368265209435815
+      },
+      "thresholds": {
+        "count>0": {
+          "ok": true
+        }
+      }
+    }
+  },
+  "thresholds": {
+    "http_req_failed": {
+      "rate<0.01": {
+        "ok": true
+      }
+    },
+    "ttft_cache_samples": {
+      "count>0": {
+        "ok": true
+      }
+    },
+    "ttft_cache_ms": {
+      "p(95)<1500": {
+        "ok": true
+      }
+    },
+    "ttft_rag_ms": {
+      "p(95)<4000": {
+        "ok": true
+      }
+    },
+    "ttft_rag_samples": {
+      "count>0": {
+        "ok": true
+      }
+    }
+  }
+}
