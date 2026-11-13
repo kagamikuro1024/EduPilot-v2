@@ -1,12 +1,12 @@
 # QC test case — US-NFR-06 Thử hỗn loạn nhỏ (giết worker, Redis 70 s, `docling-serve` 2 phút)
-Nguồn: US-NFR-06 + SRS FR-11, §3, §6. Tải: chấm 200 bài + ingest 3 tài liệu + chat 1 QPS. QC kiểm `chaos.json` và **tự chạy lại ít nhất một tình huống** (đề xuất: `docling-serve` 2 phút, ít tốn CPU nhất; Q-N-17). Lệnh dừng/giết của QC luôn có `-p ep-qc`, không `docker kill <tên>` trần.
+Nguồn: US-NFR-06 + SRS FR-11, §3, §6. Tải: chấm 200 bài + ingest 3 tài liệu + chat 1 QPS. QC kiểm `chaos.json` và **tự chạy lại ít nhất một tình huống** (đề xuất: `docling-serve` 2 phút, ít tốn CPU nhất; P-95-7 Q17). Lệnh dừng/giết của QC luôn có `-p ep-qc`, không `docker kill <tên>` trần.
 
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
 | TC-N06-01 | AC4 | `benchmarks/reports/chaos.json` | `jq`; `node benchmarks/check-meta.mjs` | `meta` hợp lệ; 3 tình huống (kill worker, Redis 70 s, docling 2 phút); mỗi tình huống có bảng đối chiếu: tổng việc vào, việc xong, dead-letter (kèm lý do), thất lạc, chấm đôi | FILE |
 | TC-N06-02 | AC4 | – | Tính lại: `vào == xong + dead-letter` mỗi tình huống | Đúng; thất lạc = 0; chấm đôi = 0 (đếm theo `submission_id`); dead-letter nào cũng có lý do | FILE |
-| TC-N06-03 | AC1 | Stack `ep-qc`, tải chấm (200 bài) | Giữa hai lượt chấm: `docker compose -p ep-qc kill -s KILL worker` (hoặc `kill -9` trong container); đợi tối đa 10 phút; worker tự lên lại / `up -d worker` nếu spec cho phép | Sau ≤ 10 phút: mọi bài có **đúng một** kết quả: `SELECT submission_id, count(*) FROM <bảng kết quả chấm> GROUP BY 1 HAVING count(*) > 1` rỗng; 0 việc `PENDING` mồ côi (`grading.jobs`; định nghĩa «mồ côi»: Q-N-18); số bài có kết quả = 200 | RERUN |
-| TC-N06-04 | AC2 | Tải chat 1 QPS + SSE thông báo | `docker compose -p ep-qc stop redis`; sau 70 s `start redis`; trong lúc đó gửi chat bằng SV | Trong lúc Redis tắt: phản hồi chat là lỗi **suy giảm có kiểm soát** (mã và thông điệp theo spec: «đang bận, thử lại»; Q-N-15), **không** `5xx` thô, **không** treo (mỗi lời gọi trả trong ≤ 10 s, ghi số thật) | RERUN |
+| TC-N06-03 | AC1 | Stack `ep-qc`, tải chấm (200 bài) | Giữa hai lượt chấm: `docker compose -p ep-qc kill -s KILL worker` (hoặc `kill -9` trong container); đợi tối đa 10 phút; worker tự lên lại / `up -d worker` nếu spec cho phép | Sau ≤ 10 phút: mọi bài có **đúng một** kết quả: `SELECT submission_id, count(*) FROM <bảng kết quả chấm> GROUP BY 1 HAVING count(*) > 1` rỗng; 0 việc `PENDING` mồ côi (`grading.jobs`; định nghĩa «mồ côi»: chờ handoff, P-95-7 Q18); số bài có kết quả = 200 | RERUN |
+| TC-N06-04 | AC2 | Tải chat 1 QPS + SSE thông báo | `docker compose -p ep-qc stop redis`; sau 70 s `start redis`; trong lúc đó gửi chat bằng SV | Trong lúc Redis tắt: phản hồi chat là lỗi **suy giảm có kiểm soát** (mã và thông điệp theo spec: «đang bận, thử lại»; P-95-7 Q15), **không** `5xx` thô, **không** treo (mỗi lời gọi trả trong ≤ 10 s, ghi số thật) | RERUN |
 | TC-N06-05 | AC2 | Client SSE đã mở trước khi dừng Redis, ghi `id:` mỗi sự kiện | Sau khi Redis lên: client nối lại bằng `Last-Event-ID` = id cuối đã nhận | Nối lại được; **không mất sự kiện** (chuỗi id liên tục, hoặc server phát lại phần thiếu); không sự kiện trùng ngoài phát lại có chủ ý | RERUN |
 | TC-N06-06 | AC2 | Có lô chấm đang chạy khi Redis tắt | Sau khi Redis lên | Không lô chấm mồ côi (`grading.batch` mất ánh xạ lô — nợ sprint 8–9): nếu xảy ra → ghi **thành lỗi** (TL-n), không «dọn» | RERUN |
 | TC-N06-07 | AC3 | Ingest 3 tài liệu đang chạy (tải lên mới) | `docker compose -p ep-qc stop docling` 2 phút rồi `start` | Job ingest: retry theo luật (3 lần) rồi dead-letter **hoặc** hoàn tất sau khi dịch vụ về; không tài liệu nào kẹt `PROCESSING` > 10 phút sau khi docling lên (`SELECT status, count(*) FROM documents`) | RERUN |
@@ -22,4 +22,4 @@ Nguồn: US-NFR-06 + SRS FR-11, §3, §6. Tải: chấm 200 bài + ingest 3 tài
 Không có route mới. Kiểm chéo: khi Redis tắt, STUDENT vẫn không đọc được dữ liệu người khác (`403`/`404`; không lộ qua lỗi suy giảm).
 
 ## Lịch sử sửa TC
-(trống)
+- 2026-11-14 — PM trả lời P-95-7 (Q-N-1…23 chấp nhận theo đề xuất QC): Q15, Q17 áp dụng; Q18 chờ handoff.

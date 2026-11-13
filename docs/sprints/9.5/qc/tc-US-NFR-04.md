@@ -16,11 +16,11 @@ Nguồn: US-NFR-04 + SRS FR-6–8, §3, §6 (giới hạn tần suất), §8, `S
 | TC-N04-11 | AC6 | – | Lỗi hiệu năng do mã (N+1, thiếu chỉ mục) | Có dòng chuyển sang US-NFR-10 (`techlead.md` TL-n) với tệp chứng cứ | FILE |
 | TC-N04-12 | AC7 | `load-a/c.json` | Có mục `docker stats` mẫu hoặc sự kiện OOM / CPU ≥ 95% suốt ≥ 60 s | Nếu có sự kiện: lượt bị dừng và ghi; không chạy hai kịch bản cùng lúc (`thời điểm` các lượt không chồng lấp); nếu hạ quy mô, chỉ theo Q-NFR-3 (OOM thật) | FILE |
 | TC-N04-13 | AC8 | QC chạy lại 1 kịch bản | Chạy k6 theo README: `docker run --rm --network <mạng project ep-qc> --cpus 1.5 --memory 1.5g grafana/k6 run …`; trong lúc chạy: `docker inspect <k6> --format '{{.HostConfig.NanoCpus}} {{.HostConfig.Memory}} {{.HostConfig.NetworkMode}}'` | `1500000000 1610612736` (hoặc tương đương 1,5 GiB), mạng = mạng compose của `ep-qc`; **không** bắn từ macOS qua cổng chuyển tiếp Colima (không dùng `localhost:943` từ host) | RERUN |
-| TC-N04-14 | AC8 | `load-*.json` | Đọc `meta.demo_stack`; đối chiếu với bằng chứng dừng/chạy lại stack demo (`docker compose ls` / ghi chú trong báo cáo; Q-N-8) | `stopped` chỉ khi có bằng chứng `docker compose -p edupilot stop` (không `down`, không xoá volume) rồi `start` lại; không bằng chứng → phải là `running`; stack demo **còn nguyên volume** sau đó (QC không động vào) | FILE |
+| TC-N04-14 | AC8 | `load-*.json` | Đọc `meta.demo_stack`; đối chiếu với bằng chứng dừng/chạy lại stack demo (`docker compose ls` / ghi chú trong báo cáo; P-95-7 Q8) | `stopped` chỉ khi có bằng chứng `docker compose -p edupilot stop` (không `down`, không xoá volume) rồi `start` lại; không bằng chứng → phải là `running`; **báo cáo không có bằng chứng dừng/chạy lại stack demo = FAIL (dev bắt buộc, P-95-7 Q8)**; stack demo **còn nguyên volume** sau đó (QC không động vào) | FILE |
 | TC-N04-15 | AC8 | Báo cáo | `grep -in 'cận dưới\|loopback\|6 vCPU\|chung' benchmarks/reports/load-*.md` | Có nêu hạn chế: mạng loopback trong VM nên p95 là **cận dưới**, k6 và stack chung 6 vCPU | FILE |
-| TC-N04-16 | AC9 | `load-c.json` | Đọc `start/end`, số bài chấm, độ trễ `fake`, số luồng BATCH | Thời gian thật ≈ 2,2 h (khoảng 1,8–2,8 h; Q-N-10), 5 luồng BATCH, trễ `fake` ≈ 20 s, **1.000** bài đã chấm; **không ngoại suy** (nếu báo cáo ghi «ước tính từ mẫu 100 bài» → FAIL) | FILE |
+| TC-N04-16 | AC9 | `load-c.json` | Đọc `start/end`, số bài chấm, độ trễ `fake`, số luồng BATCH | Thời gian thật ≈ 2,2 h (khoảng 1,8–2,8 h; P-95-7 Q10), 5 luồng BATCH, trễ `fake` ≈ 20 s, **1.000** bài đã chấm; **không ngoại suy** (nếu báo cáo ghi «ước tính từ mẫu 100 bài» → FAIL) | FILE |
 | TC-N04-17 | AC9 | – | Lượt LLM thật `VUS=4` trên BT03 | Ghi rõ «mẫu nhỏ» và thuộc US-NFR-08 AC7 (kiểm ở NFR-08) | FILE |
-| TC-N04-18 | AC1 | QC chạy lại kịch bản (d) | Dựng stack T1 (giữ DB T1 nếu còn), chạy (d) bằng container k6 (TC-N04-13), cùng `k6-stack.yml` | Ra `load-d.qc.json` có `meta` hợp lệ; so từng dòng SLO với `load-d.json`: cùng PASS/FAIL; p95 mỗi dòng trong ±30% hoặc nhỏ hơn (Q-N-7); khác → ghi, không tự kết luận | RERUN |
+| TC-N04-18 | AC1 | QC chạy lại kịch bản (d) | Dựng stack T1 (giữ DB T1 nếu còn), chạy (d) bằng container k6 (TC-N04-13), cùng `k6-stack.yml` | Ra `load-d.qc.json` có `meta` hợp lệ; so từng dòng SLO với `load-d.json`: cùng PASS/FAIL; p95 mỗi dòng trong ±30% hoặc nhỏ hơn (P-95-7 Q7: PASS/FAIL từng dòng SLO giống dev; p95 trong ±30% hoặc tốt hơn; khác → «cần quyết định», không FAIL ngay); khác → ghi, không tự kết luận | RERUN |
 | TC-N04-19 | SRS §6 | – | `benchmarks/load/k6-stack.yml` nới hạn mức IP/người, `LLM_MAX_CONCURRENCY`, `FAKE_LLM_LATENCY=5000-15000` | Báo cáo **nêu giá trị đã nới**; override chỉ áp cho stack đo (không nằm trong `docker-compose.local.yml` / prod: `grep` 0) | FILE + SCAN |
 | TC-N04-20 | Quy ước | – | `jq`/`grep` mọi báo cáo `load-*`: `Authorization`, `Bearer `, email thật | 0 token / khoá / PII | SCAN |
 
@@ -28,4 +28,4 @@ Nguồn: US-NFR-04 + SRS FR-6–8, §3, §6 (giới hạn tần suất), §8, `S
 TC-N04-07, 08.
 
 ## Lịch sử sửa TC
-(trống)
+- 2026-11-14 — PM trả lời P-95-7 (Q-N-1…23 chấp nhận theo đề xuất QC): Q7 (±30%), Q10 (1,8–2,8 h); Q8: thiếu bằng chứng stack demo = FAIL.
