@@ -54,7 +54,7 @@
 - TLR-1…20 với hai lựa chọn phương án: TLR-3 chọn A, TLR-14 chọn A.
 - Proposals #1–#17.
 
-**Các mục [ĐIỂM], chủ dự án xem lại.** Không mục nào đổi điểm đã có của lớp 1.
+**Các mục [ĐIỂM]: chủ dự án đã duyệt toàn bộ (2026-11-14).** Không mục nào đổi điểm đã có của lớp 1.
 - **Q2:** trừ muộn 0,5 điểm/ngày, cấu hình mỗi bài.
 - **Q3:** công thức lớp 1 giữ nguyên; bản 2 có thành phần bài tập chỉ là bản nháp để demo.
 - **Q4:** điểm nháp lấy từ lượt 1; bước điểm tiêu chí 0,25.

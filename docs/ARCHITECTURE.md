@@ -92,7 +92,7 @@ Mỗi module: `handler.go` (mỏng) · `service.go` (logic, transaction, audit) 
 | Mail gửi / nhận | `wneessen/go-mail` + `html/template` / `emersion/go-imap` v2 (kéo theo `go-sasl`) + `go-message` — **go-imap v2 mới ở beta**: ghim `v2.0.0-beta.8` + `go-message v0.18.2` (rủi ro: API có thể đổi; nâng bản chỉ qua `proposals.md`); test dùng `imapserver` + `imapmemserver` của chính thư viện (Mailpit không có IMAP) — TLR-19 |
 | XLSX | `xuri/excelize` v2 |
 | Thập phân | `shopspring/decimal` |
-| Chuẩn hoá Unicode (NFC) | `golang.org/x/text` (`norm.NFC`) — **chờ chủ dự án duyệt** (`proposals.md` / `techlead.md` sprint 9 TL-3): module của nhóm Go, đã nằm trong đồ thị `go.mod` từ sprint 8 (bắc cầu, cùng phiên bản), sprint 9 chuyển thành trực tiếp; dùng ở `internal/grading` để chuẩn hoá NFC văn bản bài làm trước khi lưu `extracted_text` (SRS FEAT-assignments 4.6.1; thư viện chuẩn không có NFC) |
+| Chuẩn hoá Unicode (NFC) | `golang.org/x/text` (`norm.NFC`) — **chủ dự án đã duyệt 2026-11-14** (`proposals.md` / `techlead.md` sprint 9 TL-3): module của nhóm Go, đã nằm trong đồ thị `go.mod` từ sprint 8 (bắc cầu, cùng phiên bản), sprint 9 chuyển thành trực tiếp; dùng ở `internal/grading` để chuẩn hoá NFC văn bản bài làm trước khi lưu `extracted_text` (SRS FEAT-assignments 4.6.1; thư viện chuẩn không có NFC) |
 | Cron | `robfig/cron` v3 |
 | OpenAPI | `oapi-codegen` |
 | Quan sát | OpenTelemetry Go + `log/slog` |
