@@ -28,9 +28,9 @@ var explainPrompt string
 
 // Giới hạn và hạn cache của phần dùng LLM (SRS FR-9, FR-10).
 const (
-	ExplainTTL     = 24 * time.Hour
-	FeedbackPerHr  = 10
-	feedbackWindow = time.Hour
+	ExplainTTL    = 24 * time.Hour
+	FeedbackPerHr = 10
+	ExplainPerHr  = 30
 )
 
 // LLMClient là phần của `llm.Client` mà luyện đề dùng: một `Stream` (giải thích) và một `Structured` (nhận xét tự luận). Khác `internal/quiz` (không import llm), gói này được dùng LLM.
@@ -86,6 +86,9 @@ func (s *Service) PrepareExplain(ctx context.Context, userID, courseID, attemptI
 		if b, err := s.Redis.Get(ctx, key).Bytes(); err == nil && len(b) > 0 {
 			return &ExplainJob{Cached: string(b)}, nil
 		}
+	}
+	if err := s.hourLimit(ctx, "explain", userID.String(), ExplainPerHr); err != nil { // chỉ lượt cần LLM mới tính; câu đã cache không tốn
+		return nil, err
 	}
 	temp := 0.3
 	course := courseID
@@ -255,23 +258,33 @@ func (s *Service) Feedback(ctx context.Context, userID, courseID, attemptID, ite
 	return FeedbackOut{Overall: res.Overall, Criteria: res.Criteria, Injected: res.Injected}, nil
 }
 
-// feedbackLimit: ≤ 10 lần / giờ / sinh viên (cửa sổ cố định theo giờ). Redis lỗi hoặc không có → cho qua (fail-open như hạn mức khác của gateway).
-func (s *Service) feedbackLimit(ctx context.Context, userID uuid.UUID) error {
+// hourLimit: cửa sổ cố định theo giờ, tối đa `max` lần cho (kind, subject); vượt → 429 RATE_LIMITED + Retry-After. Redis lỗi hoặc không có → cho qua (fail-open như hạn mức khác của gateway).
+func (s *Service) hourLimit(ctx context.Context, kind, subject string, max int64) error {
 	if s.Redis == nil {
 		return nil
 	}
 	now := s.now()
-	key := appredis.Key("rl", "practice-feedback", userID.String(), fmt.Sprint(now.Unix()/int64(feedbackWindow.Seconds())))
+	win := int64(time.Hour.Seconds())
+	key := appredis.Key("rl", "practice-"+kind, subject, fmt.Sprint(now.Unix()/win))
 	n, err := s.Redis.Incr(ctx, key).Result()
 	if err != nil {
 		return nil
 	}
 	if n == 1 {
-		_ = s.Redis.Expire(ctx, key, feedbackWindow).Err()
+		_ = s.Redis.Expire(ctx, key, time.Hour).Err()
 	}
-	if n > FeedbackPerHr {
-		wait := int(feedbackWindow.Seconds()) - int(now.Unix()%int64(feedbackWindow.Seconds()))
-		return apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithRetryAfter(wait)
+	if n > max {
+		return apierr.New(http.StatusTooManyRequests, apierr.RateLimited).WithRetryAfter(int(win - now.Unix()%win))
 	}
 	return nil
+}
+
+// feedbackLimit: ≤ FeedbackPerHr lần / giờ / sinh viên.
+func (s *Service) feedbackLimit(ctx context.Context, userID uuid.UUID) error {
+	return s.hourLimit(ctx, "feedback", userID.String(), FeedbackPerHr)
+}
+
+// jobLimit: ≤ MaxJobsPerHr việc `extract` / `generate` mỗi lớp mỗi giờ (P-10-8 F3, Q-P9-12; kiểm soát chi phí LLM); hạn mức ngày của Scheduler vẫn áp.
+func (s *Service) jobLimit(ctx context.Context, kind string, courseID uuid.UUID) error {
+	return s.hourLimit(ctx, kind, courseID.String(), MaxJobsPerHr)
 }

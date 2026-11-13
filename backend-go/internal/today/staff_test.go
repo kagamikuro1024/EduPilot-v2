@@ -637,7 +637,7 @@ func TestTodayQueryBudget(t *testing.T) {
 	} {
 		before := r.qc.n.Load()
 		require.Equal(t, http.StatusOK, r.tgetC(tc.s, tc.path).code, name)
-		require.LessOrEqual(t, r.qc.n.Load()-before, tc.limit, fmt.Sprintf("%s: ≤ %d truy vấn kể cả guard (#28; sinh viên 7 = 6 + 1 truy vấn gộp luyện đề, không đổi theo số lớp)", name, tc.limit))
+		require.LessOrEqual(t, r.qc.n.Load()-before, tc.limit, fmt.Sprintf("%s: ≤ %d truy vấn kể cả guard (#28; sinh viên 7 = 6 + 1 truy vấn gộp luyện đề, không đổi theo số lớp; PM chấp nhận P-10-8 F1)", name, tc.limit))
 	}
 	// #13 / #16: giảng viên 2 lớp, cả hai có bản nháp có trích dẫn → số truy vấn không tăng theo số bản nháp (số mục chưa rõ đọc từ cột, không đọc toàn văn).
 	for _, c := range []cls{c1, c2} {

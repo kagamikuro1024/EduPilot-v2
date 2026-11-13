@@ -314,6 +314,9 @@ func (p *Provider) Stream(ctx context.Context, o provider.ChatOpts) (<-chan prov
 		return nil, err
 	}
 	text := answer(o)
+	if d, ok := p.c.demoMatch(o); ok { // bản ghi demo dạng chuỗi JSON cũng áp cho luồng (giải thích luyện đề, P-10-8 Q29)
+		text = d
+	}
 	if s.ReplayDir != "" {
 		r, rerr := replayChat(s.ReplayDir, o)
 		if rerr != nil {
@@ -429,6 +432,12 @@ next:
 		for _, m := range r.Match {
 			if !strings.Contains(prompt, m) {
 				continue next
+			}
+		}
+		if r.Response[0] == '"' { // response là chuỗi JSON: văn bản thuần (luồng), không phải đối tượng có cấu trúc
+			var s string
+			if json.Unmarshal(r.Response, &s) == nil {
+				return s, true
 			}
 		}
 		return string(r.Response), true

@@ -564,6 +564,7 @@ test("forms import flow: ba bước, xem trước có bảng điểm + dòng ch�
   // bước 3: chưa ghi gì
   await expect(dlg.locator("[data-part=forms-summary]")).toHaveText("2 khớp · 1 chưa khớp · 1 dòng trùng · 1 ô không khớp lựa chọn");
   await expect(dlg.locator("[data-part=forms-unmatched]")).toContainText("Dòng 4 · vô***@danh.test · Không có trong lớp");
+  await expect(dlg.getByRole("button", { name: "Nhập ở Sổ điểm" })).toBeVisible();
   await expect(dlg.locator("[data-part=forms-sample]")).toContainText("6,67");
   expect(api.calls.some((c) => c.method === "POST" && c.path.endsWith("/forms-import"))).toBe(false);
   await dlg.getByRole("button", { name: "Ghi 2 điểm" }).click();

@@ -262,3 +262,20 @@ func TestDemoFixturesValidSchemas(t *testing.T) {
 	}
 	require.Equal(t, 6, n)
 }
+
+// P-10-8 Q29: bản ghi `practice-explain` áp cho luồng của provider giả (DEMO_MODE) và khớp lời nhắc giải thích thật.
+func TestDemoFixturesExplainStream(t *testing.T) {
+	t.Parallel()
+	sys, err := os.ReadFile("prompts/explain.txt")
+	require.NoError(t, err)
+	p := fake.NewNamed(fake.NewController(fake.Settings{DemoFile: "../../../seed/demo/fake_llm.json"}), "demo", "")
+	ch, err := p.Stream(t.Context(), provider.ChatOpts{Messages: []provider.Message{{Role: "system", Content: string(sys)}, {Role: "user", Content: "ĐỀ: x\nĐÁP ÁN ĐÚNG: B."}}})
+	require.NoError(t, err)
+	var sb strings.Builder
+	for c := range ch {
+		require.NoError(t, c.Err)
+		sb.WriteString(c.Text)
+	}
+	require.Contains(t, sb.String(), "Phương án đúng khớp với nội dung đã học")
+	require.NotContains(t, sb.String(), "giả lập")
+}

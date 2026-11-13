@@ -2090,6 +2090,13 @@
      }
     ]
    }
+  },
+  {
+   "name": "practice-explain",
+   "match": [
+    "Bạn là trợ giảng giải thích một câu trắc nghiệm cho sinh viên đang luyện tập"
+   ],
+   "response": "Phương án đúng khớp với nội dung đã học: đó là khái niệm cốt lõi của chủ đề này. Lựa chọn còn lại thường bị nhầm vì nghe quen thuộc nhưng chỉ đúng ở một tình huống hẹp hơn. Khi gặp câu tương tự, hãy đối chiếu từng phương án với định nghĩa trước khi chọn."
   }
  ]
 }

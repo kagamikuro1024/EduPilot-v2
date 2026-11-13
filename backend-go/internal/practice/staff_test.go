@@ -14,10 +14,13 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/jobs"
 	"github.com/edupilot/backend-go/internal/llm"
 	"github.com/edupilot/backend-go/internal/platform/clock"
+	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/practice"
+	"github.com/edupilot/backend-go/internal/testutil"
 )
 
 // fakeStructured trả JSON dựng sẵn và ghi lại mọi prompt đã gửi (để kiểm không lộ đáp án).
@@ -281,4 +284,69 @@ func (r *rig) approvedPending(t *testing.T, origin string) uuid.UUID {
 	require.NoError(t, err)
 	r.exec(`update question_bank set origin = $2::question_origin, review_status = 'PENDING' where id = $1`, d.ID, origin)
 	return d.ID
+}
+
+// P-10-8 F3 / Q-P9-12: ≤ 5 việc extract và ≤ 5 việc generate mỗi lớp mỗi giờ; việc thứ 6 → 429 RATE_LIMITED + Retry-After (không xếp việc); lớp khác không bị ảnh hưởng.
+func TestJobLimitsPerCourse(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.staff()
+	rdb, err := appredis.New(t.Context(), testutil.RedisURL(t))
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = rdb.Close() })
+	r.svc.Redis = rdb
+	ctx := t.Context()
+	paperID := r.doc("EXAM_PAPER", "Đề", "Câu 1. a?\nA. x\nB. y\n")
+	lecture := r.doc("LECTURE", "Bài giảng", "Nội dung bài giảng.")
+	for i := range practice.MaxJobsPerHr {
+		_, err := r.svc.EnqueueExtract(ctx, r.teacher, r.course, practice.ExtractIn{DocumentID: paperID})
+		require.NoError(t, err, "việc %d", i+1)
+		_, err = r.svc.EnqueueGenerate(ctx, r.teacher, r.course, practice.GenerateIn{DocumentIDs: []uuid.UUID{lecture}, Topic: "Mạng", Difficulty: "EASY", Count: 2})
+		require.NoError(t, err, "việc %d", i+1)
+	}
+	var ae *apierr.Error
+	_, err = r.svc.EnqueueExtract(ctx, r.teacher, r.course, practice.ExtractIn{DocumentID: paperID})
+	require.ErrorAs(t, err, &ae)
+	require.Equal(t, 429, ae.Status)
+	require.Equal(t, "RATE_LIMITED", ae.Code)
+	require.Positive(t, ae.RetryAfter)
+	require.LessOrEqual(t, ae.RetryAfter, 3600)
+	_, err = r.svc.EnqueueGenerate(ctx, r.teacher, r.course, practice.GenerateIn{DocumentIDs: []uuid.UUID{lecture}, Topic: "Mạng", Difficulty: "EASY", Count: 2})
+	require.Equal(t, 429, status(t, err))
+	var n int
+	require.NoError(t, r.pool.QueryRow(ctx, `select count(*) from jobs where kind in ('question.extract','question.generate')`).Scan(&n))
+	require.Equal(t, 2*practice.MaxJobsPerHr, n, "việc thứ 6 không được xếp")
+}
+
+// P-10-8 F3: đề > 60 trang chỉ được trích 60 trang đầu; phần cắt được báo bằng PAGE_LIMIT.
+func TestExtractPageCap(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.staff()
+	pages := make([]string, 62)
+	for i := range pages {
+		pages[i] = fmt.Sprintf("Câu %d. Nội dung câu số %d?\nA. một\nB. hai\n", i+1, i+1)
+	}
+	paperID := r.doc("EXAM_PAPER", "Đề dài", pages...)
+	keyID := r.doc("ANSWER_KEY", "Đáp án", func() string {
+		var b strings.Builder
+		for i := 1; i <= 62; i++ {
+			fmt.Fprintf(&b, "%d. A\n", i)
+		}
+		return b.String()
+	}())
+	w := &practice.Worker{Pool: r.pool, Exam: r.ex, LLM: &fakeStructured{reply: paperReply}}
+	status, raw, ec := r.runJob(w, r.teacher, practice.KindExtract, practice.ExtractPayload{CourseID: r.course, ExtractIn: practice.ExtractIn{DocumentID: paperID, AnswerKeyDocumentID: &keyID}})
+	require.Equal(t, "SUCCEEDED", status, ec)
+	var res practice.ExtractResult
+	require.NoError(t, json.Unmarshal(raw, &res))
+	require.Len(t, res.Created, practice.MaxExtractPages)
+	require.Equal(t, []int{practice.MaxExtractPages + 1}, func() (p []int) {
+		for _, s := range res.Skipped {
+			if s.Reason == "PAGE_LIMIT" {
+				p = append(p, s.Page)
+			}
+		}
+		return
+	}())
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/edupilot/backend-go/internal/exam"
+	"github.com/edupilot/backend-go/internal/httpapi/apierr"
 	"github.com/edupilot/backend-go/internal/llm"
 	appredis "github.com/edupilot/backend-go/internal/platform/redis"
 	"github.com/edupilot/backend-go/internal/practice"
@@ -173,4 +174,29 @@ func TestEssayFeedback(t *testing.T) {
 	_, err = r.svc.Feedback(ctx, sv, r.course, v.ID, essay)
 	require.Equal(t, "RATE_LIMITED", code(t, err))
 	require.Equal(t, calls, stub.structs.Load(), "429 không tốn lời gọi LLM")
+}
+
+// P-10-8 F4: giải thích cần LLM ≤ ExplainPerHr lần / giờ / sinh viên; lần kế → 429 RATE_LIMITED + Retry-After trước khi mở luồng; câu đã cache không tính.
+func TestExplainRateLimit(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.withLLM(t, &stubLLM{})
+	sv := r.student()
+	ctx := t.Context()
+	r.approved("Mạng", 5)
+	v, _, err := r.svc.Start(ctx, sv, r.course, practice.StartIn{Mode: "TOPIC", Topic: "Mạng", Count: 5}, uuid.Nil)
+	require.NoError(t, err)
+	it := v.Items[0]
+	_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, it.ID, uuid.Nil, opt(r.wrongOption(it.ID)))
+	require.NoError(t, err)
+	for i := range practice.ExplainPerHr { // không chạy Run nên không có cache: mỗi lần đều tốn một suất
+		_, err = r.svc.PrepareExplain(ctx, sv, r.course, v.ID, it.ID)
+		require.NoError(t, err, "lần %d", i+1)
+	}
+	_, err = r.svc.PrepareExplain(ctx, sv, r.course, v.ID, it.ID)
+	var ae *apierr.Error
+	require.ErrorAs(t, err, &ae)
+	require.Equal(t, 429, ae.Status)
+	require.Equal(t, "RATE_LIMITED", ae.Code)
+	require.Positive(t, ae.RetryAfter)
 }

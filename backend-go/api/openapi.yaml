@@ -9941,7 +9941,7 @@ paths:
     post:
       operationId: explainPracticeAnswer
       tags: [practice]
-      summary: "Giải thích thêm một câu đã trả lời (SSE; một lời gọi LLM làn INTERACTIVE, cache 24 giờ). 409 NOT_ANSWERED | NOT_SUBMITTED (trả JSON trước khi mở luồng); 422 INVALID_QUESTION (tự luận)"
+      summary: "Giải thích thêm một câu đã trả lời (SSE; một lời gọi LLM làn INTERACTIVE, cache 24 giờ; ≤ 30 lượt cần LLM / giờ / sinh viên, quá → 429 RATE_LIMITED + Retry-After trước khi mở luồng, câu đã cache không tính). 409 NOT_ANSWERED | NOT_SUBMITTED (trả JSON trước khi mở luồng); 422 INVALID_QUESTION (tự luận)"
       description: |
         `text/event-stream`: `ready` → `token`* → `done` | `error` (`EXPLAIN_FAILED`: chỉ phần giải thích lỗi, phản hồi đúng / sai còn nguyên).
       parameters:
@@ -9975,6 +9975,8 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/practice/attempts/{aid}/items/{itemId}/feedback:
     post:
       operationId: practiceEssayFeedback
@@ -10024,7 +10026,7 @@ paths:
     post:
       operationId: extractQuestions
       tags: [practice]
-      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`. Kết quả đọc ở GET /jobs/{id} → result {created: [uuid], skipped: [{number, page, reason}]}, reason ∈ NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID (cũng có ở SSE job.progress cuối). Đề / đáp án sai loại 422 WRONG_DOCUMENT_TYPE (`document_id` phải là EXAM_PAPER, `answer_key_document_id` phải là ANSWER_KEY); thuộc lớp khác hoặc không tồn tại 404; chưa READY 409 DOCUMENT_NOT_READY. AI trả sai schema: việc FAILED, error.code LLM_UNAVAILABLE, không lưu câu nào"
+      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`. Kết quả đọc ở GET /jobs/{id} → result {created: [uuid], skipped: [{number, page, reason}]}, reason ∈ NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID (cũng có ở SSE job.progress cuối). Đề / đáp án sai loại 422 WRONG_DOCUMENT_TYPE (`document_id` phải là EXAM_PAPER, `answer_key_document_id` phải là ANSWER_KEY); thuộc lớp khác hoặc không tồn tại 404; chưa READY 409 DOCUMENT_NOT_READY. AI trả sai schema: việc FAILED, error.code LLM_UNAVAILABLE, không lưu câu nào. Trần chi phí: ≤ 5 việc extract / lớp / giờ → 429 RATE_LIMITED + Retry-After (việc thứ 6 không được xếp); chỉ 60 trang đầu của đề được trích, phần cắt báo bằng skipped[].reason = PAGE_LIMIT"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: Idempotency-Key
@@ -10055,11 +10057,13 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/questions/generate:
     post:
       operationId: generateQuestions
       tags: [practice]
-      summary: "Sinh câu hỏi từ tài liệu / đoạn (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.generate`; ANSWER_KEY không làm nguồn (422 WRONG_DOCUMENT_TYPE). Kết quả ở GET /jobs/{id} → result {created, skipped: [{number, reason}]}, reason ∈ CITATION_REQUIRED | TYPE_NOT_ALLOWED | INVALID | DUPLICATE | EXTRA (vượt `count`). Sai schema: việc FAILED, error.code LLM_UNAVAILABLE"
+      summary: "Sinh câu hỏi từ tài liệu / đoạn (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.generate`; ANSWER_KEY không làm nguồn (422 WRONG_DOCUMENT_TYPE). Kết quả ở GET /jobs/{id} → result {created, skipped: [{number, reason}]}, reason ∈ CITATION_REQUIRED | TYPE_NOT_ALLOWED | INVALID | DUPLICATE | EXTRA (vượt `count`). Sai schema: việc FAILED, error.code LLM_UNAVAILABLE. Trần chi phí: ≤ 5 việc generate / lớp / giờ → 429 RATE_LIMITED + Retry-After"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: Idempotency-Key
@@ -10090,6 +10094,8 @@ paths:
           $ref: "#/components/responses/Conflict"
         "422":
           $ref: "#/components/responses/ValidationFailed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
   /api/v1/courses/{id}/questions/bulk:
     post:
       operationId: bulkReviewQuestions

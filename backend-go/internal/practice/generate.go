@@ -110,6 +110,9 @@ func (s *Service) EnqueueGenerate(ctx context.Context, owner, courseID uuid.UUID
 			}
 		}
 	}
+	if err := s.jobLimit(ctx, "generate", courseID); err != nil {
+		return uuid.Nil, err
+	}
 	j, err := s.Jobs.Enqueue(ctx, owner, KindGenerate, GeneratePayload{CourseID: courseID, GenerateIn: in})
 	if err != nil {
 		return uuid.Nil, fmt.Errorf("practice: xếp việc sinh: %w", err)

@@ -53,7 +53,7 @@ type ExtractPayload struct {
 type Skipped struct {
 	Number int    `json:"number"`
 	Page   int    `json:"page"`
-	Reason string `json:"reason"` // NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID | CITATION_REQUIRED | TYPE_NOT_ALLOWED
+	Reason string `json:"reason"` // NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID | CITATION_REQUIRED | TYPE_NOT_ALLOWED | PAGE_LIMIT
 }
 
 // ExtractResult là `jobs.result` của `question.extract` / `question.generate`.
@@ -93,6 +93,9 @@ func (s *Service) EnqueueExtract(ctx context.Context, owner, courseID uuid.UUID,
 		if err := checkDoc(ctx, q, courseID, *in.AnswerKeyDocumentID, "ANSWER_KEY"); err != nil {
 			return uuid.Nil, err
 		}
+	}
+	if err := s.jobLimit(ctx, "extract", courseID); err != nil {
+		return uuid.Nil, err
 	}
 	j, err := s.Jobs.Enqueue(ctx, owner, KindExtract, ExtractPayload{CourseID: courseID, ExtractIn: in})
 	if err != nil {
@@ -225,6 +228,21 @@ func (w *Worker) extract(ctx context.Context, j jobs.JobCtx) (any, error) {
 	if len(chunks) == 0 {
 		return nil, &jobs.UserError{Code: "EMPTY_DOCUMENT", Message: "Không đọc được văn bản."}
 	}
+	res := ExtractResult{Created: []uuid.UUID{}, Skipped: []Skipped{}}
+	if kept := chunks[:0:0]; true { // trần 60 trang (Q-P9-12): chỉ trích phần đầu, báo rõ phần bị cắt
+		cut := false
+		for _, c := range chunks {
+			if ptrOr(c.PageNo, 0) > MaxExtractPages {
+				cut = true
+				continue
+			}
+			kept = append(kept, c)
+		}
+		if cut {
+			res.Skipped = append(res.Skipped, Skipped{Page: MaxExtractPages + 1, Reason: "PAGE_LIMIT"})
+		}
+		chunks = kept
+	}
 	var key map[int]int
 	if p.AnswerKeyDocumentID != nil {
 		ak, err := q.PracticeDocChunks(ctx, store.PracticeDocChunksParams{DocumentID: *p.AnswerKeyDocumentID, CourseID: p.CourseID})
@@ -247,7 +265,6 @@ func (w *Worker) extract(ctx context.Context, j jobs.JobCtx) (any, error) {
 		seen[quiz.NormalizeShort(s)] = true
 	}
 	wins := windows(chunks, 6000)
-	res := ExtractResult{Created: []uuid.UUID{}, Skipped: []Skipped{}}
 	byNumber := map[int]bool{}
 	for i, win := range wins {
 		raw, err := w.call(ctx, extractPrompt, win, extractSchema)

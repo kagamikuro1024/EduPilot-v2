@@ -183,20 +183,20 @@ export function FormsImportDialog({ course, columns, onClose }: { course: string
             </div>
           </>
         )}
-        {step === 3 && out && <FormsResultView out={out} />}
+        {step === 3 && out && <FormsResultView out={out} onClose={onClose} />}
       </div>
     </Dialog>
   );
 }
 
-function FormsResultView({ out }: { out: FormsResult }) {
+function FormsResultView({ out, onClose }: { out: FormsResult; onClose: () => void }) {
   const mismatch = out.items.reduce((n, r) => n + r.mismatch, 0);
   return (
     <>
       <p className={s.summary} data-part="forms-summary">{`${out.matched} khớp · ${out.unmatched} chưa khớp${out.duplicates > 0 ? ` · ${out.duplicates} dòng trùng` : ""}${mismatch > 0 ? ` · ${mismatch} ô không khớp lựa chọn` : ""}`}</p>
       {out.unmatched_rows.length > 0 && (
         <ul className={s.errors} data-part="forms-unmatched">
-          {out.unmatched_rows.slice(0, 100).map((u) => <li key={u.row}>{`Dòng ${u.row} · ${u.identifier} · ${REASON[u.reason]}`}</li>)}
+          {out.unmatched_rows.slice(0, 100).map((u) => <li key={u.row}>{`Dòng ${u.row} · ${u.identifier} · ${REASON[u.reason]} · `}<Button variant="text" size="sm" onClick={onClose}>Nhập ở Sổ điểm</Button></li>)}
           {out.unmatched_rows.length > 100 && <li>{`…và ${out.unmatched_rows.length - 100} dòng nữa`}</li>}
         </ul>
       )}

@@ -76,3 +76,42 @@ test("trích từ đề → câu chờ duyệt → duyệt hàng loạt: tiến 
   expect(bulk.idem).not.toBe("");
   expect(JSON.parse(bulk.body)).toEqual({ action: "APPROVE", ids: ["q-1", "q-2", "q-3"] });
 });
+
+// P-10-8 Q-S10-31: lệnh Loại đang hoãn 5 s phải gửi NGAY khi rời trang (pagehide → fetch keepalive); Hoàn tác thì không gửi gì.
+test("Loại hàng loạt: pagehide trong 5 s gửi lệnh ngay; sau Hoàn tác thì không gửi", async ({ page }) => {
+  const qs: Q[] = [{ id: "q-a", review_status: "PENDING", origin: "EXTRACTED", title: "Câu A" }, { id: "q-b", review_status: "PENDING", origin: "EXTRACTED", title: "Câu B" }];
+  const bulks: Array<{ body: string; idem: string; keepalive: boolean }> = [];
+  await page.route(/\/api\/v1\/courses\/[^/]+\/(questions|documents)/, async (route: Route) => {
+    const req = route.request();
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: cors });
+    const path = new URL(req.url()).pathname.replace(/^.*\/courses\/[^/]+/, "");
+    if (path === "/documents") return route.fulfill(json({ items: [], next_cursor: null }));
+    if (path === "/questions" && req.method() === "GET") return route.fulfill(json({ items: qs.map(row), next_cursor: null }));
+    if (path === "/questions/bulk") {
+      bulks.push({ body: req.postData() ?? "", idem: req.headers()["idempotency-key"] ?? "", keepalive: false });
+      const b = JSON.parse(req.postData() ?? "{}") as { ids: string[] };
+      return route.fulfill(json({ results: b.ids.map((id) => ({ id, ok: true })) }));
+    }
+    return route.fulfill(json({ code: "NOT_FOUND", message: "m", trace_id: "t" }, 404));
+  });
+  await page.goto("/questions");
+  await expect(page.getByRole("row", { name: /Câu A/ })).toBeVisible();
+
+  // Hoàn tác trước pagehide: không có lệnh nào
+  await page.getByRole("row", { name: /Câu A/ }).getByRole("checkbox").check();
+  await page.getByRole("toolbar").getByRole("button", { name: "Loại", exact: true }).click();
+  await page.getByRole("button", { name: "Hoàn tác" }).click();
+  await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
+  await page.waitForTimeout(300);
+  expect(bulks).toHaveLength(0);
+
+  // Loại rồi pagehide ngay: lệnh REJECT đi trước hạn 5 s, kèm Idempotency-Key
+  await page.getByRole("row", { name: /Câu A/ }).getByRole("checkbox").check();
+  await page.getByRole("toolbar").getByRole("button", { name: "Loại", exact: true }).click();
+  await page.evaluate(() => window.dispatchEvent(new Event("pagehide")));
+  await expect.poll(() => bulks.length, { timeout: 2000 }).toBe(1);
+  expect(JSON.parse(bulks[0].body)).toEqual({ action: "REJECT", ids: ["q-a"] });
+  expect(bulks[0].idem).not.toBe("");
+  await page.waitForTimeout(5500);
+  expect(bulks).toHaveLength(1); // hết 5 s không gửi lần hai
+});

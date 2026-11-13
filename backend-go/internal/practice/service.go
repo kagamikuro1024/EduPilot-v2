@@ -38,6 +38,9 @@ const (
 	DefaultDuration = 30
 	MaxEssayChars   = 4000
 	MaxShortChars   = 1000
+	// MaxJobsPerHr: việc trích / sinh câu hỏi mỗi lớp mỗi giờ; MaxExtractPages: trang đầu của đề được trích (P-10-8 F3).
+	MaxJobsPerHr    = 5
+	MaxExtractPages = 60
 	// KAnonymity: chủ đề có ít sinh viên sai hơn mức này bị loại khỏi tín hiệu tổng hợp (FR-20).
 	KAnonymity = 3
 )

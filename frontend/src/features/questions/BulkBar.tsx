@@ -12,6 +12,9 @@ type Result = { id: string; ok: boolean; code?: string };
 type Undo = { push: (m: React.ReactNode, onUndo?: () => void) => void; clear: () => void };
 const MAX = 50;
 const REJECT_DELAY_MS = 5000;
+/** Lệnh `Loại` đang hoãn 5 s: rời trang / đóng tab (`pagehide`) thì gửi NGAY bằng `fetch keepalive`, không để mất (P-10-8 Q-S10-31). Ở mức module vì BulkBar bị gỡ ngay khi vùng chọn rỗng. */
+const pendingRejects = new Set<(keepalive: boolean) => void>();
+if (typeof window !== "undefined") window.addEventListener("pagehide", () => [...pendingRejects].forEach((run) => run(true)));
 
 /**
  * Thanh hành động khi chọn hàng (US-P9-04 AC3): `Duyệt`, `Loại`, gắn chủ đề / độ khó. Kết quả TỪNG id: id lỗi ở lại trong vùng chọn, hàng lỗi hiện lý do tại chỗ.
@@ -37,13 +40,13 @@ export function BulkBar({ courseId, selected, topics, onSelected, onFailed, onHi
   const tooMany = selected.size > MAX;
   const ids = [...selected].slice(0, MAX);
 
-  async function send(body: Record<string, unknown>, sendIds: string[]) {
+  async function send(body: Record<string, unknown>, sendIds: string[], keepalive = false) {
     key.current ??= newIdempotencyKey();
     last.current = { body, ids: sendIds };
     setBusy(true);
     setErr(null);
     try {
-      const r = await apiClient.post<{ results: Result[] }>(`${qPath(courseId)}/bulk`, { ...body, ids: sendIds }, { idempotencyKey: key.current });
+      const r = await apiClient.post<{ results: Result[] }>(`${qPath(courseId)}/bulk`, { ...body, ids: sendIds }, { idempotencyKey: key.current, keepalive });
       key.current = null;
       const bad = new Map(r.data.results.filter((x) => !x.ok).map((x) => [x.id, userMessageFor(x.code ?? "INTERNAL")]));
       onFailed(bad);
@@ -61,8 +64,15 @@ export function BulkBar({ courseId, selected, topics, onSelected, onFailed, onHi
     const sendIds = ids;
     onHide((p) => new Set([...p, ...sendIds]));
     onSelected(new Set());
-    timer.current = window.setTimeout(() => void send({ action: "REJECT" }, sendIds), REJECT_DELAY_MS);
+    const run = (keepalive: boolean) => {
+      pendingRejects.delete(run);
+      if (timer.current) window.clearTimeout(timer.current);
+      void send({ action: "REJECT" }, sendIds, keepalive);
+    };
+    pendingRejects.add(run);
+    timer.current = window.setTimeout(() => run(false), REJECT_DELAY_MS);
     undo.push(`Đã loại ${sendIds.length} câu`, () => {
+      pendingRejects.delete(run);
       if (timer.current) window.clearTimeout(timer.current);
       onHide((p) => new Set([...p].filter((id) => !sendIds.includes(id))));
       onSelected(new Set(sendIds));
