@@ -138,6 +138,10 @@ update practice_attempts set current_index = sqlc.arg(current_index), tab_id = c
 where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and status = 'IN_PROGRESS'
 returning *;
 
+-- name: PracticeAttemptAddNote :exec
+update practice_attempts set notes = case when notes @> jsonb_build_array(sqlc.arg(note)::text) then notes else notes || jsonb_build_array(sqlc.arg(note)::text) end
+where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
+
 -- name: PracticeAttemptTakeTab :exec
 update practice_attempts set tab_id = sqlc.arg(tab_id) where course_id = sqlc.arg(course_id) and id = sqlc.arg(id);
 

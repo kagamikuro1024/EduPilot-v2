@@ -281,6 +281,9 @@ func tabCheck(att store.PracticeAttempt, tab uuid.UUID) error {
 	return nil
 }
 
+// lateDroppedNote là dòng ghi chú khi một lựa chọn ghi sau hạn bị bỏ (hiện ở kết quả lượt).
+const lateDroppedNote = "Một số lựa chọn gửi sau giờ làm bài đã không được tính."
+
 func closedErr() *apierr.Error { return apierr.New(http.StatusConflict, apierr.AttemptClosed) }
 
 // SaveAnswer ghi / chấm một câu (FR-13). TOPIC: chấm ngay, trả phản hồi trong cùng response và khoá đáp án. MOCK: chỉ lưu (version + tab); không phản hồi.
@@ -302,9 +305,15 @@ func (s *Service) SaveAnswer(ctx context.Context, userID, courseID, attemptID, i
 		}
 		at := s.now()
 		if att.Mode == store.PracticeModeMOCK && att.DeadlineAt != nil && at.After(*att.DeadlineAt) {
-			// Quá hạn trên máy chủ: chỉ nhận lựa chọn ghi ngoại tuyến có dấu thời gian cục bộ ≤ hạn + dung sai, và chỉ tới khi worker đóng lượt (FR-17).
-			if in.ClientTS == nil || in.ClientTS.After(att.DeadlineAt.Add(s.grace())) || at.After(att.DeadlineAt.Add(s.grace())) {
+			// Quá hạn trên máy chủ (FR-17, P-10-7 Q13): trong dung sai chỉ nhận lựa chọn ghi ngoại tuyến có client_ts ≤ hạn; client_ts > hạn bị bỏ và ghi `notes`; sau dung sai hoặc thiếu client_ts → ATTEMPT_CLOSED.
+			if in.ClientTS == nil || at.After(att.DeadlineAt.Add(s.grace())) {
 				return closedErr()
+			}
+			if in.ClientTS.After(*att.DeadlineAt) {
+				if err := q.PracticeAttemptAddNote(ctx, store.PracticeAttemptAddNoteParams{CourseID: courseID, ID: attemptID, Note: lateDroppedNote}); err != nil {
+					return fmt.Errorf("practice: ghi chú lựa chọn bị bỏ: %w", err)
+				}
+				return nil
 			}
 		}
 		it, err := q.PracticeItemGet(ctx, store.PracticeItemGetParams{CourseID: courseID, AttemptID: attemptID, ItemID: itemID})

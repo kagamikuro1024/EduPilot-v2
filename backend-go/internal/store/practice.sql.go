@@ -75,6 +75,22 @@ func (q *Queries) PracticeAnswerUpsert(ctx context.Context, arg PracticeAnswerUp
 	return version, err
 }
 
+const practiceAttemptAddNote = `-- name: PracticeAttemptAddNote :exec
+update practice_attempts set notes = case when notes @> jsonb_build_array($1::text) then notes else notes || jsonb_build_array($1::text) end
+where course_id = $2 and id = $3
+`
+
+type PracticeAttemptAddNoteParams struct {
+	Note     string
+	CourseID uuid.UUID
+	ID       uuid.UUID
+}
+
+func (q *Queries) PracticeAttemptAddNote(ctx context.Context, arg PracticeAttemptAddNoteParams) error {
+	_, err := q.db.Exec(ctx, practiceAttemptAddNote, arg.Note, arg.CourseID, arg.ID)
+	return err
+}
+
 const practiceAttemptClose = `-- name: PracticeAttemptClose :one
 update practice_attempts
 set status = $1, submitted_at = now(), correct_count = $2, score = $3, version = version + 1

@@ -223,7 +223,7 @@ func TestMockFlow(t *testing.T) {
 	require.Equal(t, "ATTEMPT_CLOSED", code(t, err))
 }
 
-// TestMockOfflineTolerance — FR-17 / US-P9-07 AC4: lựa chọn ghi ngoại tuyến có client_ts ≤ hạn + 60 s được nhận khi gửi muộn trong dung sai; sau dung sai thì không.
+// TestMockOfflineTolerance — FR-17 / US-P9-07 AC4: trong 60 s sau hạn chỉ nhận lựa chọn có client_ts ≤ hạn; client_ts > hạn bỏ và ghi notes; sau 60 s: ATTEMPT_CLOSED.
 func TestMockOfflineTolerance(t *testing.T) {
 	t.Parallel()
 	r := newRig(t)
@@ -245,11 +245,24 @@ func TestMockOfflineTolerance(t *testing.T) {
 	in.ClientTS = &ts
 	_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[0].ID, tab, in)
 	require.NoError(t, err, "client_ts trước hạn, gửi muộn trong dung sai")
-	late := deadline.Add(2 * time.Minute)
+	late := deadline.Add(2 * time.Second) // client_ts sau hạn (vẫn trong dung sai gửi): bỏ, ghi notes, không lưu (P-10-7 Q13)
 	in2 := opt(r.correctOption(v.Items[1].ID))
 	in2.ClientTS = &late
 	_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[1].ID, tab, in2)
-	require.Equal(t, "ATTEMPT_CLOSED", code(t, err), "client_ts sau hạn + dung sai")
+	require.NoError(t, err)
+	var stored int
+	require.NoError(t, r.pool.QueryRow(ctx, `select count(*) from practice_answers where attempt_id = $1`, v.ID).Scan(&stored))
+	require.Equal(t, 1, stored, "chỉ lựa chọn có client_ts ≤ hạn được lưu")
+	var notes int
+	require.NoError(t, r.pool.QueryRow(ctx, `select jsonb_array_length(notes) from practice_attempts where id = $1`, v.ID).Scan(&notes))
+	require.Equal(t, 1, notes)
+	_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[1].ID, tab, in2)
+	require.NoError(t, err)
+	require.NoError(t, r.pool.QueryRow(ctx, `select jsonb_array_length(notes) from practice_attempts where id = $1`, v.ID).Scan(&notes))
+	require.Equal(t, 1, notes, "ghi chú không lặp")
+	r.exec(`update practice_attempts set deadline_at = now() - interval '2 minutes' where id = $1`, v.ID)
+	_, err = r.svc.SaveAnswer(ctx, sv, r.course, v.ID, v.Items[1].ID, tab, in)
+	require.Equal(t, "ATTEMPT_CLOSED", code(t, err), "sau 60 s")
 
 	// worker: quá hạn + dung sai → đóng EXPIRED, chấm câu đã lưu (1 đúng / 5)
 	r.exec(`update practice_attempts set deadline_at = now() - interval '5 minutes' where id = $1`, v.ID)
