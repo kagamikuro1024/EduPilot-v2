@@ -10024,7 +10024,7 @@ paths:
     post:
       operationId: extractQuestions
       tags: [practice]
-      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`; 409 DOCUMENT_NOT_READY; 422 WRONG_DOCUMENT_TYPE"
+      summary: "Trích câu hỏi từ đề cũ (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.extract`. Kết quả đọc ở GET /jobs/{id} → result {created: [uuid], skipped: [{number, page, reason}]}, reason ∈ NO_ANSWER | NO_ANSWER_MATCH | DUPLICATE | INVALID (cũng có ở SSE job.progress cuối). Đề / đáp án sai loại 422 WRONG_DOCUMENT_TYPE (`document_id` phải là EXAM_PAPER, `answer_key_document_id` phải là ANSWER_KEY); thuộc lớp khác hoặc không tồn tại 404; chưa READY 409 DOCUMENT_NOT_READY. AI trả sai schema: việc FAILED, error.code LLM_UNAVAILABLE, không lưu câu nào"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: Idempotency-Key
@@ -10059,7 +10059,7 @@ paths:
     post:
       operationId: generateQuestions
       tags: [practice]
-      summary: "Sinh câu hỏi từ tài liệu / đoạn (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.generate`; ANSWER_KEY không làm nguồn (422 WRONG_DOCUMENT_TYPE)"
+      summary: "Sinh câu hỏi từ tài liệu / đoạn (Giảng viên / TA; Idempotency-Key bắt buộc). Việc nền BATCH `question.generate`; ANSWER_KEY không làm nguồn (422 WRONG_DOCUMENT_TYPE). Kết quả ở GET /jobs/{id} → result {created, skipped: [{number, reason}]}, reason ∈ CITATION_REQUIRED | TYPE_NOT_ALLOWED | INVALID | DUPLICATE | EXTRA (vượt `count`). Sai schema: việc FAILED, error.code LLM_UNAVAILABLE"
       parameters:
         - $ref: "#/components/parameters/CourseId"
         - name: Idempotency-Key
@@ -13617,6 +13617,19 @@ components:
           type: [boolean, "null"]
         explanation:
           type: [string, "null"]
+        accepted:
+          type: array
+          maxItems: 10
+          description: "SHORT: các đáp án chấp nhận (≥ 1, mỗi đáp án sau chuẩn hoá không rỗng); loại khác bỏ qua. Không có `options`/`correct`."
+          items:
+            type: string
+        model_answer:
+          type: [string, "null"]
+          description: "ESSAY: đáp án mẫu (bắt buộc với ESSAY)."
+        rubric:
+          type: [string, "null"]
+          maxLength: 2000
+          description: "ESSAY: rubric ngắn (bắt buộc với ESSAY)."
         version:
           type: integer
     ExamRef:
@@ -17827,7 +17840,7 @@ components:
         status: {type: string, enum: [IN_PROGRESS, SUBMITTED, EXPIRED]}
         started_at: {type: string, format: date-time}
         deadline_at: {type: [string, "null"], format: date-time}
-        server_now: {type: string, format: date-time}
+        server_now: {type: string, format: date-time, description: "Giờ máy chủ lúc trả lời; có ở thân của start và GET attempt (không dùng header Date). Đồng hồ trình duyệt lệch thì tính còn lại = deadline_at − server_now."}
         item_count: {type: integer}
         current_index: {type: integer}
         notes:
@@ -18074,6 +18087,19 @@ components:
       type: object
       required: [upload_id]
       additionalProperties: false
+      example:
+        upload_id: "0192f6a0-0000-7000-8000-000000000001"
+        item_id: "0192f6a0-0000-7000-8000-000000000002"
+        answer_source: BANK
+        mapping:
+          header_row: 1
+          email_col: "Email"
+          code_col: "Mã số sinh viên"
+          time_col: "Completion time"
+          questions:
+            - {col: "Câu 1", question_id: "0192f6a0-0000-7000-8000-0000000000a1"}
+            - {col: "Câu 2", question_id: "0192f6a0-0000-7000-8000-0000000000a2"}
+      description: "answer_source=BANK: mỗi cột câu hỏi trỏ `question_id` trong ngân hàng (đáp án lấy từ ngân hàng). answer_source=MANUAL: bỏ `question_id`, điền `accepted` (đáp án đúng gõ tay, ví dụ [\"B\"]). Điểm = đúng/tổng × max_score của item_id, làm tròn nửa lên 2 chữ số (decimal)."
       properties:
         upload_id: {type: string, format: uuid}
         item_id: {type: [string, "null"], format: uuid}

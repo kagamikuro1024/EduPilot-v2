@@ -1118,6 +1118,978 @@
      }
     ]
    }
+  },
+  {
+   "name": "practice-extract-de-mau",
+   "match": [
+    "ĐỀ MẪU LUYỆN TẬP — MẠNG MÁY TÍNH"
+   ],
+   "response": {
+    "questions": [
+     {
+      "number": 1,
+      "stem": "Tầng nào của mô hình OSI chịu trách nhiệm định tuyến gói tin giữa các mạng?",
+      "page": 1,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Tầng liên kết dữ liệu"
+       },
+       {
+        "body": "Tầng mạng"
+       },
+       {
+        "body": "Tầng giao vận"
+       },
+       {
+        "body": "Tầng phiên"
+       }
+      ]
+     },
+     {
+      "number": 2,
+      "stem": "Giao thức nào đảm bảo truyền dữ liệu tin cậy, có thiết lập kết nối?",
+      "page": 1,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "TCP"
+       },
+       {
+        "body": "ARP"
+       },
+       {
+        "body": "UDP"
+       },
+       {
+        "body": "ICMP"
+       }
+      ]
+     },
+     {
+      "number": 3,
+      "stem": "Địa chỉ IPv4 có độ dài bao nhiêu bit?",
+      "page": 1,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "48"
+       },
+       {
+        "body": "128"
+       },
+       {
+        "body": "16"
+       },
+       {
+        "body": "32"
+       }
+      ]
+     },
+     {
+      "number": 4,
+      "stem": "Thiết bị nào làm việc chủ yếu ở tầng 2 và chuyển khung theo địa chỉ MAC?",
+      "page": 1,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Modem"
+       },
+       {
+        "body": "Hub"
+       },
+       {
+        "body": "Switch"
+       },
+       {
+        "body": "Repeater"
+       }
+      ]
+     },
+     {
+      "number": 5,
+      "stem": "Cổng mặc định của giao thức HTTPS là gì?",
+      "page": 1,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "21"
+       },
+       {
+        "body": "443"
+       },
+       {
+        "body": "25"
+       },
+       {
+        "body": "80"
+       }
+      ]
+     },
+     {
+      "number": 6,
+      "stem": "Giao thức DNS dùng để làm gì?",
+      "page": 1,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Phân giải tên miền thành địa chỉ IP"
+       },
+       {
+        "body": "Mã hoá đường truyền"
+       },
+       {
+        "body": "Gửi thư điện tử"
+       },
+       {
+        "body": "Cấp địa chỉ IP động"
+       }
+      ]
+     },
+     {
+      "number": 7,
+      "stem": "Giao thức nào tự động cấp địa chỉ IP cho máy trạm?",
+      "page": 2,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "DNS"
+       },
+       {
+        "body": "FTP"
+       },
+       {
+        "body": "SNMP"
+       },
+       {
+        "body": "DHCP"
+       }
+      ]
+     },
+     {
+      "number": 8,
+      "stem": "Địa chỉ MAC dài bao nhiêu bit?",
+      "page": 2,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "128"
+       },
+       {
+        "body": "32"
+       },
+       {
+        "body": "48"
+       },
+       {
+        "body": "64"
+       }
+      ]
+     },
+     {
+      "number": 9,
+      "stem": "Mạng bao phủ một toà nhà hoặc khuôn viên nhỏ được gọi là gì?",
+      "page": 2,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "PAN"
+       },
+       {
+        "body": "LAN"
+       },
+       {
+        "body": "WAN"
+       },
+       {
+        "body": "MAN"
+       }
+      ]
+     },
+     {
+      "number": 10,
+      "stem": "Giao thức nào dùng để kiểm tra khả năng kết nối bằng lệnh ping?",
+      "page": 2,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "ICMP"
+       },
+       {
+        "body": "SMTP"
+       },
+       {
+        "body": "TCP"
+       },
+       {
+        "body": "HTTP"
+       }
+      ]
+     },
+     {
+      "number": 11,
+      "stem": "Mặt nạ mạng 255.255.255.0 tương ứng tiền tố nào?",
+      "page": 2,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "/8"
+       },
+       {
+        "body": "/30"
+       },
+       {
+        "body": "/16"
+       },
+       {
+        "body": "/24"
+       }
+      ]
+     },
+     {
+      "number": 12,
+      "stem": "Giao thức nào dùng để nhận thư điện tử từ máy chủ về máy khách?",
+      "page": 2,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "TFTP"
+       },
+       {
+        "body": "SMTP"
+       },
+       {
+        "body": "POP3"
+       },
+       {
+        "body": "SNMP"
+       }
+      ]
+     },
+     {
+      "number": 13,
+      "stem": "Tường lửa (firewall) chủ yếu dùng để làm gì?",
+      "page": 3,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Tăng tốc đường truyền"
+       },
+       {
+        "body": "Lọc lưu lượng theo quy tắc bảo mật"
+       },
+       {
+        "body": "Cấp địa chỉ IP"
+       },
+       {
+        "body": "Nén dữ liệu"
+       }
+      ]
+     },
+     {
+      "number": 14,
+      "stem": "Trong TCP, cơ chế bắt tay ba bước dùng để làm gì?",
+      "page": 3,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Thiết lập kết nối"
+       },
+       {
+        "body": "Phân giải tên miền"
+       },
+       {
+        "body": "Định tuyến gói tin"
+       },
+       {
+        "body": "Mã hoá dữ liệu"
+       }
+      ]
+     },
+     {
+      "number": 15,
+      "stem": "Cáp quang truyền tín hiệu bằng gì?",
+      "page": 3,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Từ trường"
+       },
+       {
+        "body": "Dòng điện"
+       },
+       {
+        "body": "Sóng vô tuyến"
+       },
+       {
+        "body": "Ánh sáng"
+       }
+      ]
+     },
+     {
+      "number": 16,
+      "stem": "Giao thức nào truyền tệp và thường dùng cổng 21?",
+      "page": 3,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "DNS"
+       },
+       {
+        "body": "NTP"
+       },
+       {
+        "body": "FTP"
+       },
+       {
+        "body": "SSH"
+       }
+      ]
+     },
+     {
+      "number": 17,
+      "stem": "VLAN được dùng để làm gì?",
+      "page": 3,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Mở rộng vùng phủ sóng Wi-Fi"
+       },
+       {
+        "body": "Chia một switch thành nhiều mạng logic"
+       },
+       {
+        "body": "Tăng dung lượng ổ đĩa"
+       },
+       {
+        "body": "Chuyển đổi tên miền"
+       }
+      ]
+     },
+     {
+      "number": 18,
+      "stem": "Địa chỉ nào sau đây là địa chỉ IPv4 riêng (private)?",
+      "page": 3,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "172.16.5.4"
+       },
+       {
+        "body": "203.0.113.9"
+       },
+       {
+        "body": "1.1.1.1"
+       },
+       {
+        "body": "8.8.8.8"
+       }
+      ]
+     },
+     {
+      "number": 19,
+      "stem": "Giao thức nào cung cấp truy cập từ xa có mã hoá?",
+      "page": 4,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "TFTP"
+       },
+       {
+        "body": "RIP"
+       },
+       {
+        "body": "Telnet"
+       },
+       {
+        "body": "SSH"
+       }
+      ]
+     },
+     {
+      "number": 20,
+      "stem": "Đơn vị dữ liệu ở tầng giao vận của TCP được gọi là gì?",
+      "page": 4,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Khung"
+       },
+       {
+        "body": "Gói"
+       },
+       {
+        "body": "Đoạn (segment)"
+       },
+       {
+        "body": "Bit"
+       }
+      ]
+     },
+     {
+      "number": 21,
+      "stem": "Giao thức định tuyến nào dựa trên số bước nhảy (hop count)?",
+      "page": 4,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "BGP"
+       },
+       {
+        "body": "RIP"
+       },
+       {
+        "body": "EIGRP"
+       },
+       {
+        "body": "OSPF"
+       }
+      ]
+     },
+     {
+      "number": 22,
+      "stem": "NAT thường được dùng để làm gì?",
+      "page": 4,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Dịch địa chỉ IP riêng sang địa chỉ công cộng"
+       },
+       {
+        "body": "Mã hoá email"
+       },
+       {
+        "body": "Nén ảnh"
+       },
+       {
+        "body": "Sao lưu dữ liệu"
+       }
+      ]
+     },
+     {
+      "number": 23,
+      "stem": "Độ trễ (latency) của mạng là gì?",
+      "page": 4,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Số thiết bị trong mạng"
+       },
+       {
+        "body": "Độ dài của cáp"
+       },
+       {
+        "body": "Lượng dữ liệu tối đa truyền được"
+       },
+       {
+        "body": "Thời gian để một gói tin đi từ nguồn đến đích"
+       }
+      ]
+     },
+     {
+      "number": 24,
+      "stem": "Giao thức UDP khác TCP ở điểm nào?",
+      "page": 4,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "Chỉ chạy trên Wi-Fi"
+       },
+       {
+        "body": "Dùng địa chỉ MAC"
+       },
+       {
+        "body": "Không thiết lập kết nối và không đảm bảo tin cậy"
+       },
+       {
+        "body": "Luôn mã hoá dữ liệu"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "practice-extract-loi-cau",
+   "match": [
+    "ĐỀ MẪU LỖI CÂU — MẠNG MÁY TÍNH"
+   ],
+   "response": {
+    "questions": [
+     {
+      "number": 1,
+      "stem": "Tầng nào của mô hình OSI chịu trách nhiệm định tuyến gói tin giữa các mạng?",
+      "page": 1,
+      "correct_label": "B",
+      "options": [
+       {
+        "body": "Tầng liên kết dữ liệu"
+       },
+       {
+        "body": "Tầng mạng"
+       },
+       {
+        "body": "Tầng giao vận"
+       },
+       {
+        "body": "Tầng phiên"
+       }
+      ]
+     },
+     {
+      "number": 2,
+      "stem": "",
+      "page": 1,
+      "correct_label": "A",
+      "options": [
+       {
+        "body": "TCP"
+       },
+       {
+        "body": "ARP"
+       },
+       {
+        "body": "UDP"
+       },
+       {
+        "body": "ICMP"
+       }
+      ]
+     },
+     {
+      "number": 3,
+      "stem": "Địa chỉ IPv4 có độ dài bao nhiêu bit?",
+      "page": 1,
+      "correct_label": "A",
+      "options": [
+       {
+        "body": "48"
+       }
+      ]
+     },
+     {
+      "number": 4,
+      "stem": "Thiết bị nào làm việc chủ yếu ở tầng 2 và chuyển khung theo địa chỉ MAC?",
+      "page": 1,
+      "correct_label": "F",
+      "options": [
+       {
+        "body": "Modem"
+       },
+       {
+        "body": "Hub"
+       },
+       {
+        "body": "Switch"
+       },
+       {
+        "body": "Repeater"
+       }
+      ]
+     },
+     {
+      "number": 5,
+      "stem": "Cổng mặc định của giao thức HTTPS là gì?",
+      "page": 1,
+      "correct_label": null,
+      "options": [
+       {
+        "body": "21"
+       },
+       {
+        "body": "443"
+       },
+       {
+        "body": "25"
+       },
+       {
+        "body": "80"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "practice-extract-loi-schema",
+   "match": [
+    "ĐỀ MẪU LỖI SCHEMA — MẠNG MÁY TÍNH"
+   ],
+   "response": {
+    "questions": [
+     {
+      "number": 1,
+      "stem": "Thiếu phương án, trang và nhãn đáp án"
+     }
+    ]
+   }
+  },
+  {
+   "name": "practice-generate-mau",
+   "match": [
+    "Chủ đề: Mẫu sinh câu"
+   ],
+   "response": {
+    "questions": [
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh câu 1: Giao thức nào thiết lập kết nối trước khi truyền dữ liệu?",
+      "options": [
+       {
+        "body": "UDP",
+        "correct": false
+       },
+       {
+        "body": "TCP",
+        "correct": true
+       },
+       {
+        "body": "ICMP",
+        "correct": false
+       },
+       {
+        "body": "ARP",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh câu 2: Thiết bị nào chuyển khung theo địa chỉ MAC?",
+      "options": [
+       {
+        "body": "Switch",
+        "correct": true
+       },
+       {
+        "body": "Repeater",
+        "correct": false
+       },
+       {
+        "body": "Modem",
+        "correct": false
+       },
+       {
+        "body": "Antenna",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh câu 3: Tầng nào của OSI chịu trách nhiệm định tuyến?",
+      "options": [
+       {
+        "body": "Tầng vật lý",
+        "correct": false
+       },
+       {
+        "body": "Tầng mạng",
+        "correct": true
+       },
+       {
+        "body": "Tầng ứng dụng",
+        "correct": false
+       },
+       {
+        "body": "Tầng phiên",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh câu 4: Cổng mặc định của HTTPS là bao nhiêu?",
+      "options": [
+       {
+        "body": "21",
+        "correct": false
+       },
+       {
+        "body": "25",
+        "correct": false
+       },
+       {
+        "body": "443",
+        "correct": true
+       },
+       {
+        "body": "110",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh câu 5: DNS dùng để làm gì?",
+      "options": [
+       {
+        "body": "Cấp địa chỉ IP",
+        "correct": false
+       },
+       {
+        "body": "Phân giải tên miền",
+        "correct": true
+       },
+       {
+        "body": "Mã hoá đường truyền",
+        "correct": false
+       },
+       {
+        "body": "Lọc thư rác",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "practice-generate-loi",
+   "match": [
+    "Chủ đề: Mẫu sinh lỗi"
+   ],
+   "response": {
+    "questions": [
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh lỗi 1: Hợp lệ, dẫn nguồn đúng?",
+      "options": [
+       {
+        "body": "Đúng",
+        "correct": true
+       },
+       {
+        "body": "Sai",
+        "correct": false
+       },
+       {
+        "body": "Không rõ",
+        "correct": false
+       },
+       {
+        "body": "Tất cả",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh lỗi 2: Dẫn nguồn không tồn tại?",
+      "options": [
+       {
+        "body": "A",
+        "correct": true
+       },
+       {
+        "body": "B",
+        "correct": false
+       },
+       {
+        "body": "C",
+        "correct": false
+       },
+       {
+        "body": "D",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C99"
+      ]
+     },
+     {
+      "type": "TRUE_FALSE",
+      "stem": "Mẫu sinh lỗi 3: Loại không được yêu cầu.",
+      "options": [],
+      "value": true,
+      "explanation": "Theo [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh lỗi 4: Hai đáp án đúng ở câu một đáp án?",
+      "options": [
+       {
+        "body": "A",
+        "correct": true
+       },
+       {
+        "body": "B",
+        "correct": true
+       },
+       {
+        "body": "C",
+        "correct": false
+       },
+       {
+        "body": "D",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh lỗi 1: Hợp lệ, dẫn nguồn đúng?",
+      "options": [
+       {
+        "body": "Đúng",
+        "correct": true
+       },
+       {
+        "body": "Sai",
+        "correct": false
+       },
+       {
+        "body": "Không rõ",
+        "correct": false
+       },
+       {
+        "body": "Tất cả",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     },
+     {
+      "type": "MCQ_SINGLE",
+      "stem": "Mẫu sinh lỗi 6: Câu vượt số lượng yêu cầu?",
+      "options": [
+       {
+        "body": "A",
+        "correct": true
+       },
+       {
+        "body": "B",
+        "correct": false
+       },
+       {
+        "body": "C",
+        "correct": false
+       },
+       {
+        "body": "D",
+        "correct": false
+       }
+      ],
+      "value": null,
+      "explanation": "Theo đoạn tài liệu [C1].",
+      "sources": [
+       "C1"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "name": "practice-generate-loi-schema",
+   "match": [
+    "Chủ đề: Mẫu sinh sai schema"
+   ],
+   "response": {
+    "questions": [
+     {
+      "type": "MCQ_SINGLE"
+     }
+    ]
+   }
+  },
+  {
+   "name": "practice-feedback-sql",
+   "match": [
+    "Nhận xét bài viết sau",
+    "SQL injection"
+   ],
+   "response": {
+    "overall": "Bài viết nắm được ý chính; còn thiếu ví dụ cụ thể để làm rõ.",
+    "criteria": [
+     {
+      "name": "Cơ chế chèn mã",
+      "comment": "Nêu được ý kẻ tấn công chèn mã qua dữ liệu nhập; nên mô tả bước ghép chuỗi vào truy vấn.",
+      "evidence": []
+     },
+     {
+      "name": "Prepared statement",
+      "comment": "Nhắc đến truy vấn tham số hoá nhưng chưa giải thích vì sao ngăn được chèn mã.",
+      "evidence": []
+     },
+     {
+      "name": "Biện pháp thứ hai",
+      "comment": "Cần thêm một biện pháp độc lập như kiểm tra dữ liệu nhập hoặc giới hạn quyền.",
+      "evidence": []
+     }
+    ]
+   }
+  },
+  {
+   "name": "practice-feedback-ecb-cbc",
+   "match": [
+    "Nhận xét bài viết sau",
+    "ECB và CBC"
+   ],
+   "response": {
+    "overall": "Bài viết nắm được ý chính; còn thiếu ví dụ cụ thể để làm rõ.",
+    "criteria": [
+     {
+      "name": "Chế độ ECB",
+      "comment": "Mô tả đúng việc mã hoá từng khối độc lập; thêm ví dụ lộ mẫu lặp sẽ rõ hơn.",
+      "evidence": []
+     },
+     {
+      "name": "Chế độ CBC và IV",
+      "comment": "Cần nêu vai trò của IV và việc XOR với bản mã trước.",
+      "evidence": []
+     },
+     {
+      "name": "Giải thích lộ mẫu",
+      "comment": "Phần so sánh còn ngắn, nên nối với hậu quả khi dữ liệu có mẫu lặp.",
+      "evidence": []
+     }
+    ]
+   }
   }
  ]
 }
