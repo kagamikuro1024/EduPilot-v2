@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Đánh giá LLM thật trên stack đã deploy (OPS-VPS): client NGOÀI, chỉ gọi HTTP API của gateway (AGENTS.md: không SDK provider).
+"""Đánh giá LLM thật trên stack đã deploy (sprint 9.5): client NGOÀI, chỉ gọi HTTP API của gateway (AGENTS.md: không SDK provider).
 
 Lệnh (chạy theo thứ tự; mỗi lệnh ghi JSON vào $OUT, mặc định benchmarks/reports/real-llm/):
   setup                  lớp đo EVALLLM (ADMIN mở, gán giảng viên seed) + nạp 2 quy chế + 12 sinh viên seed vào lớp đo

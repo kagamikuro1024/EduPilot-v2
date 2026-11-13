@@ -1,28 +1,26 @@
-# Đo LLM thật (OPS-VPS)
+# Đo LLM thật (Gemini Free Tier, sprint 9.5)
 
-> **Trạng thái 2026-11-02: CHƯA CHẠY.** Chủ dự án hoãn đánh giá LLM thật và đo phi chức năng sang một sprint riêng. Bộ đo đã viết xong, phần chấm điểm đã tự kiểm offline với fixtures, nhưng chưa có số đo nào; `benchmarks/reports/real-llm/` và `docs/research/2026-11-01-real-llm-eval.md` chưa có. Khi làm lại: đọc `docs/team/CONTEXT.md` mục 4 (chạy trên VPS `/srv/work/research`, stack `-p ep-research`) rồi làm theo các bước dưới đây.
+Script `real_llm.py` là client ngoài: chỉ gọi HTTP API của gateway, chỉ dùng thư viện chuẩn của Python. Mô hình đo là mô hình stack đang cấu hình (`gemini-chat` + `gemini-embed`, chuỗi model chọn đầu phiên bằng `PHASE=probe node deploy/vps-llm.mjs`).
+- Kết quả ghi vào `benchmarks/reports/real-llm/*.json` (có khối `meta`). Báo cáo: `docs/research/2026-11-xx-nfr-real-llm.md`.
+- Dữ liệu gửi Gemini Free (nội dung có thể được Google dùng để cải thiện sản phẩm) chỉ gồm dữ liệu mô phỏng (D44) đã che tên / MSSV.
 
-Script `real_llm.py` là client ngoài: nó chỉ gọi HTTP API của gateway và chỉ dùng thư viện chuẩn của Python. Mô hình được đo là mô hình mà stack đang cấu hình (OPS-VPS: `ag/gemini-3.8-flash` qua 9router).
-- Kết quả ghi vào `benchmarks/reports/real-llm/*.json`.
-- Báo cáo nằm ở `docs/research/2026-11-01-real-llm-eval.md`.
+**Chạy trên Mac, stack `-p ep-research`, cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`; không dùng stack demo.** Khoá `GEMINI_API_KEY` chỉ ở `.env.local` của stack đo (không in, không commit). Hạn mức Gemini Free theo project, đặt lại 15:00 giờ Việt Nam: < 200 lời gọi sinh chữ mỗi ngày, chia hai ngày; hết hạn mức thì `--resume` sau 15:00.
 
-**Chạy trên VPS, trong thư mục `/srv/work/research`, trên stack `-p ep-research`; không chạy trên stack demo `/opt/edupilot`, không chạy trên Mac** (luật `docs/team/CONTEXT.md` mục 4). Không dùng stack demo vì lần đo này có ghi dữ liệu (kết quả chấm nháp của `BT03`, lớp `EVALLLM`, ticket); chạy ở đó thì `Chấm tất cả` ở bước 5 của `DEMO_SCRIPT.md` không còn bài nào để chấm.
+Dựng stack như `benchmarks/README.md` (project `ep-research`, `EP_PORT_OFFSET=300`), `PHASE=seed` → `node scripts/seed.mjs` (cần `--profile ingest`) → `PHASE=live`.
 
-Dựng stack đo theo `deploy/README.md`, với `-p ep-research` và cổng lệch (`EP_PORT_OFFSET`), chỉ bind `127.0.0.1`, không mở 80/443. Sau đó seed bằng `scripts/seed.mjs` rồi chạy `deploy/vps-llm.mjs` để chuyển sang LLM thật. Đo xong thì `docker compose -p ep-research down -v` và `docker volume prune -f`. Mỗi lần chỉ chạy một lượt đo nặng.
+**Trước khi `down -v` stack đo** (P-95-7 Q20) bắt buộc: `node benchmarks/real-llm/export-evidence.mjs` — gom kết quả thô, `llm_audit` tổng hợp (không payload) và ≥ 15 mẫu che danh tính vào `benchmarks/reports/real-llm/`; lệnh thoát mã ≠ 0 nếu thiếu.
 
 ```bash
-ssh root@152.53.64.175
-cd /srv/work/research && git fetch && git checkout ops/vps-deploy && git pull
-export BASE=http://127.0.0.1:<cổng gateway / caddy của ep-research>
+export BASE=https://localhost:<443+offset của ep-research> NODE_TLS_REJECT_UNAUTHORIZED=0
 # đọc llm_audit / chat_messages; CHỈ ĐỌC (script tự bọc mỗi truy vấn trong `begin read only`)
 export AUDIT_PSQL="docker exec -i ep-research-postgres-1 psql -U edupilot -d edupilot -tA -v ON_ERROR_STOP=1"
 cd benchmarks/real-llm
 python3 real_llm.py setup                       # lớp đo EVALLLM + 2 quy chế + 12 sinh viên seed (không phải A, B, C)
 python3 real_llm.py extract --runs 5            # mục 1
 python3 real_llm.py grade-setup                 # mục 2: EVAL03 + 7 bài mẫu + 5 biến thể chèn lệnh (data/injection)
-# mục 6 (k6, chạy trên VPS bằng image grafana/k6) trước vòng 1 của EVAL03, vì k6 bấm "Chấm tất cả" ở giây 5:
-#   docker run --rm --network host -v $PWD/..:/b grafana/k6 run /b/load/grading-vs-chat.js -e BASE=$BASE -e VUS=4 -e PHASE=baseline
-#   … -e PHASE=grading -e COURSE_ID=<eval> -e ASSIGNMENT_ID=<eval_assignment> -e BASELINE_TTFT_MS=<p95>
+# mục 6 (k6, chạy trong VM Colima bằng image grafana/k6) trước vòng 1 của EVAL03, vì k6 bấm "Chấm tất cả" ở giây 5:
+#   COMPOSE_PROJECT_NAME=ep-research node benchmarks/load/run-t1.mjs grading-baseline --vus 4 --course <eval> --assignment <eval_assignment>
+#   … grading-grading … --baseline <p95 TTFT ms>   (k6 trong VM, chung mạng với caddy; thêm `--accounts t0` cho tài khoản seed T0)
 python3 real_llm.py grade-run --target eval --rounds 3
 python3 real_llm.py grade-run --target bt03 --rounds 2
 python3 real_llm.py grade-report

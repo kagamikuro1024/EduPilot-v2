@@ -5,7 +5,7 @@
 // Tài khoản: t1sv0001… / t1gv1…3 @edupilot.local, mật khẩu SEED_DEFAULT_PASSWORD. `META` (JSON) do run-t1.mjs truyền để ghi vào tệp kết quả.
 import http from 'k6/http';
 import { check, sleep } from 'k6';
-import { Trend } from 'k6/metrics';
+import { Counter, Trend } from 'k6/metrics';
 
 const BASE = (__ENV.BASE || 'https://localhost').replace(/\/$/, '');
 const API = `${BASE}/api/v1`;
@@ -17,18 +17,22 @@ const DURATION = __ENV.DURATION || '5m';
 const pad = (n, w = 4) => String(n).padStart(w, '0');
 
 const sseFirst = new Trend('sse_first_ms', true);
+// US-NFR-04 AC4: STUDENT gọi API chỉ giảng viên giữa lúc tải: mọi lần phải 403, không lần nào 200.
+const forbiddenOk = new Counter('forbidden_403');
+const forbiddenLeak = new Counter('forbidden_leak');
 // Chỉ 2xx / 3xx là thành công; heartbeat trả 204 (đã nằm trong dải).
 http.setResponseCallback(http.expectedStatuses({ min: 200, max: 399 }));
 
 const BROWSE = {
   browse: { executor: 'constant-vus', exec: 'browse', vus: VUS, duration: DURATION, gracefulStop: '10s' },
   sse: { executor: 'constant-vus', exec: 'sse', vus: VUS, duration: DURATION, gracefulStop: '130s' },
+  forbidden: { executor: 'constant-arrival-rate', exec: 'forbidden', rate: 1, timeUnit: '1s', duration: DURATION, preAllocatedVUs: 2, maxVUs: 4 },
   heartbeat: { executor: 'constant-arrival-rate', exec: 'heartbeat', rate: 10, timeUnit: '1s', duration: DURATION, preAllocatedVUs: 20, maxVUs: 60 },
 };
 const OPTIONS = {
   browse: {
     scenarios: BROWSE,
-    thresholds: { 'http_req_duration{kind:read}': ['p(95)<300'], 'http_req_duration{kind:write}': ['p(95)<500'], sse_first_ms: ['p(95)<300', 'max>0'], http_req_failed: ['rate<0.005'] },
+    thresholds: { 'http_req_duration{kind:read}': ['p(95)<300'], 'http_req_duration{kind:write}': ['p(95)<500'], sse_first_ms: ['p(95)<300', 'max>0'], http_req_failed: ['rate<0.005'], forbidden_leak: ['count==0'], forbidden_403: ['count>=100'] },
   },
   dashboard: {
     scenarios: { dashboard: { executor: 'constant-vus', exec: 'dashboard', vus: 5, duration: DURATION } },
@@ -95,6 +99,13 @@ export function heartbeat(d) {
   const u = pick(d.users);
   const r = http.post(`${API}/activity/heartbeat`, JSON.stringify({ course_id: u.course, area: pick(AREAS), tab_id: '00000000-0000-4000-8000-000000000001' }), { headers: hdr(u.token), tags: { name: 'heartbeat', kind: 'write' } });
   check(r, { 'heartbeat 204': (x) => x.status === 204 });
+}
+
+export function forbidden(d) {
+  const u = pick(d.users);
+  const r = http.get(`${API}/courses/${u.course}/gradebook`, { headers: hdr(u.token), tags: { name: 'student_gradebook', kind: 'forbidden' }, responseCallback: http.expectedStatuses(403) });
+  if (r.status === 403) forbiddenOk.add(1);
+  else forbiddenLeak.add(1);
 }
 
 export function dashboard(d) {

@@ -16,14 +16,15 @@ const opt = (name, d) => (rest.includes(name) ? rest[rest.indexOf(name) + 1] : d
 const die = (m) => { console.error(m); process.exit(1); };
 const project = process.env.COMPOSE_PROJECT_NAME ?? "";
 const SCEN = {
+  baseline: { file: "load-baseline-p95", script: "baseline.js", env: (o) => ({ ITERATIONS: o("--iterations", 200) }) },
   browse: { file: "load-a", script: "t1.js", env: (o) => ({ SCENARIO: "browse", DURATION: o("--duration", "5m"), VUS: o("--vus", 300), STUDENTS: o("--students", 1000) }) },
   dashboard: { file: "load-d", script: "t1.js", env: (o) => ({ SCENARIO: "dashboard", DURATION: o("--duration", "2m"), STUDENTS: o("--students", 1000) }) },
-  "chat-first_event": { file: "load-b-first_event", script: "chat.js", env: () => ({ SCENARIO: "first_event", ACCOUNTS: "t1" }) },
-  "chat-ttft": { file: "load-b-ttft", script: "chat.js", env: () => ({ SCENARIO: "ttft", ACCOUNTS: "t1" }) },
-  "grading-baseline": { file: "load-c-baseline", script: "grading-vs-chat.js", env: (o) => ({ PHASE: "baseline", VUS: o("--vus", 20), ACCOUNTS: "t1", DURATION: o("--duration", "40s"), COURSE_ID: o("--course", ""), ASSIGNMENT_ID: o("--assignment", ""), CHAT_CLASS: o("--course", "") }) },
-  "grading-grading": { file: "load-c-grading", script: "grading-vs-chat.js", env: (o) => ({ PHASE: "grading", VUS: o("--vus", 20), ACCOUNTS: "t1", DURATION: o("--duration", "40s"), COURSE_ID: o("--course", ""), ASSIGNMENT_ID: o("--assignment", ""), BASELINE_TTFT_MS: o("--baseline", ""), CHAT_CLASS: o("--course", "") }) },
+  "chat-first_event": { file: "load-b-first_event", script: "chat.js", env: (o) => ({ SCENARIO: "first_event", ACCOUNTS: o("--accounts", "t1") }) },
+  "chat-ttft": { file: "load-b-ttft", script: "chat.js", env: (o) => ({ SCENARIO: "ttft", ACCOUNTS: o("--accounts", "t1") }) },
+  "grading-baseline": { file: "load-c-baseline", script: "grading-vs-chat.js", env: (o) => ({ PHASE: "baseline", VUS: o("--vus", 20), ACCOUNTS: o("--accounts", "t1"), DURATION: o("--duration", "40s"), COURSE_ID: o("--course", ""), ASSIGNMENT_ID: o("--assignment", ""), CHAT_CLASS: o("--course", "") }) },
+  "grading-grading": { file: "load-c-grading", script: "grading-vs-chat.js", env: (o) => ({ PHASE: "grading", VUS: o("--vus", 20), ACCOUNTS: o("--accounts", "t1"), DURATION: o("--duration", "40s"), COURSE_ID: o("--course", ""), ASSIGNMENT_ID: o("--assignment", ""), BASELINE_TTFT_MS: o("--baseline", ""), CHAT_CLASS: o("--course", "") }) },
 }[scenario];
-if (!SCEN) die("Dùng: run-t1.mjs browse|dashboard|chat-first_event|chat-ttft|grading-baseline|grading-grading [--tag x2] …");
+if (!SCEN) die("Dùng: run-t1.mjs browse|dashboard|baseline|chat-first_event|chat-ttft|grading-baseline|grading-grading [--tag x2] …");
 if (!/^ep-/.test(project)) die("Từ chối: COMPOSE_PROJECT_NAME phải là stack đo ep-<vai> (không phải stack demo).");
 if (!process.env.SEED_DEFAULT_PASSWORD) die("Thiếu SEED_DEFAULT_PASSWORD.");
 

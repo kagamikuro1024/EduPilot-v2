@@ -1,0 +1,52 @@
+{
+  "meta": {
+    "commit": "6402ddff",
+    "timestamp": "2026-11-13T18:17:47.229Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "compose_project": "ep-t1",
+      "note": "tải: chấm 150 bài (3 lớp × BT4) + chat; provider giả trễ 2 s mỗi lượt chấm (K6_GRADE_LAT=2000-2000)"
+    }
+  },
+  "scenarios": {
+    "worker_kill9": {
+      "at": "2026-11-13T18:18:08.990Z",
+      "queued": 150,
+      "workers_before": 2,
+      "in": 150,
+      "done": 150,
+      "failed_dead_letter": 0,
+      "orphan": 0,
+      "graded_twice": 0,
+      "never_enqueued": 0,
+      "xpending": 0,
+      "dead_stream_len": 50,
+      "waited_seconds": 113,
+      "pass": true
+    },
+    "redis_down_70s": {
+      "at": "2026-11-13T18:20:18.509Z",
+      "queued": 150,
+      "statuses_during_outage": [
+        200
+      ],
+      "status_5xx_raw_during": 0,
+      "in": 150,
+      "done": 150,
+      "failed_dead_letter": 0,
+      "orphan": 0,
+      "graded_twice": 0,
+      "never_enqueued": 0,
+      "xpending": 0,
+      "dead_stream_len": 50,
+      "waited_seconds": 129,
+      "pass": true
+    }
+  },
+  "demo_stack": {
+    "before": "exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited",
+    "after": "exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited",
+    "note": "trạng thái các container của project edupilot trước / sau chaos (không bị đụng)"
+  }
+}

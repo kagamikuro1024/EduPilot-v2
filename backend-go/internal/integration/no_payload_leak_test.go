@@ -2,9 +2,11 @@ package integration_test
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
 	"strings"
 	"testing"
 	"time"
@@ -174,6 +176,24 @@ func TestNoPayloadLeak(t *testing.T) {
 	}
 	require.GreaterOrEqual(t, placeholders, 10, "payload phải chứa placeholder (kiểm có nghĩa)")
 	t.Logf("payload đã quét: %d, phần nội dung: %d, placeholder: %d", len(payloads), scanned, placeholders)
+	// P-95-7 Q20: xuất mẫu payload ĐÃ CHE (đường che thật qua provider giả; cùng đường với lời gọi Gemini) để QC kiểm sau khi stack đo bị `down -v`.
+	if path := os.Getenv("EXPORT_MASKED_PAYLOADS"); path != "" {
+		type sample struct {
+			Task  string   `json:"task"`
+			Parts []string `json:"parts"`
+		}
+		var out []sample
+		for _, p := range payloads {
+			parts := append(append([]string(nil), p.Messages...), p.Inputs...)
+			if strings.Contains(strings.Join(parts, "\n"), "[[") {
+				out = append(out, sample{Task: p.Task, Parts: parts})
+			}
+		}
+		require.GreaterOrEqual(t, len(out), 15, "cần ≥ 15 payload đã che")
+		b, err := json.MarshalIndent(map[string]any{"note": "Payload gửi tới provider sau khi che (roster mô phỏng D44, provider giả ghi lại); không có tên / MSSV / email / SĐT / CCCD thật", "count": len(out), "samples": out[:min(len(out), 40)]}, "", " ")
+		require.NoError(t, err)
+		require.NoError(t, os.WriteFile(path, b, 0o644)) //nolint:gosec // báo cáo đo
+	}
 }
 
 type noLock struct{}

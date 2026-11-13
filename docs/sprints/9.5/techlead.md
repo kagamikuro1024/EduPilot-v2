@@ -93,3 +93,15 @@ Cách làm từng dòng SLO:
 - Đo trên một máy, k6 và stack chung CPU. Cách lùi: giới hạn `--cpus` cho k6 và ghi rõ các hạn chế. Không đưa ra kết luận vượt T1.
 
 **Đề xuất cho PM:** P-95-4, P-95-5 trong `docs/sprints/9.5/proposals.md`.
+
+## TL-2 (dev): phát hiện từ phép đo, trả lời Q-N-23
+
+Mỗi dòng: tái hiện · mức · đề xuất · bằng chứng · test / commit. Chưa có lỗi mức cao.
+
+| # | Phát hiện | Tái hiện | Mức | Đề xuất | Bằng chứng | Test hồi quy / commit |
+| --- | --- | --- | --- | --- | --- | --- |
+| TL-2a | `seed-t1.mjs` ghi `assignments.rubric` không có `id` tiêu chí; "Chấm tất cả" trên T1 chấm hỏng toàn bộ (`LLM_UNAVAILABLE` rồi mạch LLM mở) | `node benchmarks/load/run-t1.mjs grading-grading …` trước commit sửa | Thấp (lỗi công cụ đo, không phải mã sản phẩm) | Đã sửa trong seed (id `c1`…`c4`) và thêm hai bản ghi `t1-grading-p1/p2` vào `seed/demo/fake_llm.json` | `benchmarks/reports/load-c-grading.json` (lần sau khi sửa: 50 bài `DONE`) | `go test ./internal/grading -run TestDemoModeRecordingsCoverPolicies` (đếm 14 bản ghi chấm); commit `9.5: (b)(c) T1 ×1, seed-t1 rubric id, bản ghi chấm T1` |
+| TL-2b | `t1.js` đặt ngưỡng `count>0` lên `Trend` (k6 không hỗ trợ), k6 thoát ngay | `run-t1.mjs browse` ở commit `93cbb959` | Thấp (công cụ đo) | Đổi thành `max>0` | `benchmarks/load/t1.js` | Chạy lại (a): `load-a.json` |
+| TL-2c | `rag_hybrid`: phép nối `content_chunks × documents` không lọc `documents` theo lớp, Nested Loop 100 × 1.000, `Rows Removed by Join Filter: 99000`; chi phí ~ bình phương theo số lớp | `node benchmarks/explain.mjs before` (truy vấn 1) | Vừa (13 ms ở T1, SLO không trượt) | Chuyển Nợ (`PROGRESS.md`); sửa SQL `internal/rag`, không phải chỉ mục | `docs/research/2026-11-14-explain.md` | – (chưa sửa theo AC3 US-NFR-10) |
+| TL-2d | Redis tắt thì gửi tin chat treo ≈ 19 s rồi trả 200 + câu suy giảm "Mình chưa tìm thấy nội dung này trong tài liệu của lớp."; lần đầu quá 20 s (client bỏ). Không 5xx thô nhưng AC2 US-NFR-06 đòi "đang bận, thử lại, không treo" | `docker compose -p ep-t1 stop redis`, rồi `POST /chat/sessions/{id}/messages` (UUID `Idempotency-Key`, `Accept: text/event-stream`) bằng token SV T1; 3 lần đo: timeout 20 s, 19,1 s, 19,2 s; sau khi bật lại Redis: 200 bình thường | Vừa (chưa trượt SLO nào vì SLO đo khi Redis sống; vi phạm kỳ vọng suy giảm) | Chờ PM: fail-fast 2 s ở đường chat khi Redis không dial được rồi 503 `OVERLOADED` + `Retry-After` (US-NFR-10 AC2, AC3) | `benchmarks/reports/chaos.json` (kịch bản `redis_down_70s` không gồm bước chat); số đo chat nằm trong handoff lát 2 | – (chưa sửa; test hồi quy sẽ là `TestChatRedisDownFailsFast` khi PM duyệt) |
+| TL-2e | `POST /courses/{id}/threads` có một lượt nhúng INTERACTIVE trong request: p50 316,8 ms = trễ provider giả 300 ms + 17 ms; với `gemini-embed` thật, p95 ghi có thể vượt 500 ms | `node benchmarks/load/run-t1.mjs baseline` (endpoint `w_thread`); `llm_audit` 540 dòng `EMBEDDING` | Vừa [INFERENCE: chưa đo embedding thật] | Đo `gemini-embed` trong US-NFR-08 trước khi quyết; nếu vượt: đẩy nhúng ra khỏi request (gán sau, như xếp việc) | `benchmarks/reports/load-baseline-p95.json` | – |

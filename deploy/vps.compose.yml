@@ -1,4 +1,4 @@
-# Chồng lên docker-compose.local.yml cho VPS (OPS-VPS): `docker compose --env-file .env.local -f docker-compose.local.yml -f deploy/vps.compose.yml -p edupilot …`
+# Chồng lên docker-compose.local.yml cho một máy chủ công khai (bộ VPS cũ, không còn dùng để đo từ 2026-11-12; sẽ là nền của docker-compose.prod ở P10 L4): `docker compose --env-file .env.local -f docker-compose.local.yml -f deploy/vps.compose.yml -p edupilot …`
 # Chỉ Caddy mở cổng ra ngoài (80/443). Postgres, Redis, MinIO, mailpit, mock-* chỉ bind 127.0.0.1 (xem qua SSH tunnel). Không thêm service mới.
 services:
   postgres:
@@ -20,13 +20,3 @@ services:
       - ./deploy/caddy/Caddyfile.vps:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
-  gateway:
-    # 9router: gateway gọi http://9router:20128/v1 qua network ngoài của stack 9router (không đụng container đó)
-    networks: [default, ninerouter]
-  worker:
-    networks: [default, judge_net, ninerouter]
-
-networks:
-  ninerouter:
-    external: true
-    name: 9router_default

@@ -23,7 +23,7 @@ const DOMAIN = '@edupilot.local';
 const COURSE_ID = __ENV.COURSE_ID;
 const ASSIGNMENT_ID = __ENV.ASSIGNMENT_ID;
 const BASELINE = Number(__ENV.BASELINE_TTFT_MS || 0);
-const VUS = Number(__ENV.VUS || 20); // LLM thật có hạn mức (OPS-VPS): chạy với VUS nhỏ, ví dụ 4
+const VUS = Number(__ENV.VUS || 20); // LLM thật có hạn mức (sprint 9.5): chạy với VUS nhỏ, ví dụ 4
 const CHAT_CLASS = __ENV.CHAT_CLASS || '761987'; // chat ở lớp có tài liệu, kể cả khi sinh viên còn ở lớp khác (lớp đo EVALLLM)
 const POOL = PHASE === 'grading' ? VUS + 1 : VUS; // k6 cấp id cho cả VU của kịch bản `grade` (id nằm giữa các VU chat): 21 id liên tiếp → 21 phiên khác nhau (BUG-P7-07-4)
 const T1 = __ENV.ACCOUNTS === 't1'; // seed-t1: t1sv0001… (lớp đầu), TEACHER t1gv1

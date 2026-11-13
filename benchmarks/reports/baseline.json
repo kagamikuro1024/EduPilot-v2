@@ -1,0 +1,192 @@
+{
+  "meta": {
+    "commit": "6402ddff",
+    "timestamp": "2026-11-13T18:09:18.575Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "compose_project": "ep-t1",
+      "note": "stack T1 (DB edupilot_t1) lúc nghỉ; không so với hệ cũ (D45) hay VPS cũ"
+    }
+  },
+  "idle": {
+    "containers": [
+      {
+        "name": "ep-t1-worker-1",
+        "cpu_pct": 4.12,
+        "mem_mib": 14.6
+      },
+      {
+        "name": "ep-t1-gateway-1",
+        "cpu_pct": 3.3,
+        "mem_mib": 17.1
+      },
+      {
+        "name": "ep-t1-mailpit-1",
+        "cpu_pct": 0,
+        "mem_mib": 6.7
+      },
+      {
+        "name": "ep-t1-redis-1",
+        "cpu_pct": 0.92,
+        "mem_mib": 20.8
+      },
+      {
+        "name": "ep-t1-minio-1",
+        "cpu_pct": 0,
+        "mem_mib": 81.7
+      },
+      {
+        "name": "ep-t1-postgres-1",
+        "cpu_pct": 0.59,
+        "mem_mib": 329.6
+      },
+      {
+        "name": "ep-t1-caddy-1",
+        "cpu_pct": 0.03,
+        "mem_mib": 20.7
+      },
+      {
+        "name": "ep-t1-pgbouncer-1",
+        "cpu_pct": 2.26,
+        "mem_mib": 7.8
+      },
+      {
+        "name": "ep-t1-mock-graph-1",
+        "cpu_pct": 0,
+        "mem_mib": 3.9
+      },
+      {
+        "name": "ep-t1-mock-imap-1",
+        "cpu_pct": 0,
+        "mem_mib": 4.7
+      },
+      {
+        "name": "ep-t1-judge-1",
+        "cpu_pct": 0.06,
+        "mem_mib": 10.1
+      },
+      {
+        "name": "ep-t1-frontend-1",
+        "cpu_pct": 1.84,
+        "mem_mib": 52.5
+      }
+    ],
+    "total_mem_mib": 570.2
+  },
+  "images": {
+    "gateway": {
+      "image": "edupilot-gateway",
+      "mb": 17.7
+    },
+    "worker": {
+      "image": "edupilot-worker",
+      "mb": 16.7
+    },
+    "frontend": {
+      "image": "ep-t1-frontend",
+      "mb": 96.2
+    }
+  },
+  "startup_seconds": {
+    "runs": [
+      18.1,
+      18.1,
+      18.9
+    ],
+    "median": 18.1
+  },
+  "p95_endpoints": {
+    "sv_me_attendance": {
+      "p50": 2.4604615,
+      "p95": 4.35903865,
+      "p99": 5.3976561799999985,
+      "max": 6.763895,
+      "ok": true
+    },
+    "gv_course_today": {
+      "p50": 7.62595,
+      "p95": 9.782455099999998,
+      "p99": 11.265912069999999,
+      "max": 12.696054,
+      "ok": true
+    },
+    "w_thread": {
+      "p50": 316.8012995,
+      "p95": 327.489538,
+      "p99": 330.87761071,
+      "max": 338.038931,
+      "ok": true
+    },
+    "w_heartbeat": {
+      "p50": 1.056651,
+      "p95": 1.6294142999999999,
+      "p99": 1.8320386499999999,
+      "max": 4.400183,
+      "ok": true
+    },
+    "sv_threads": {
+      "p50": 3.5220915,
+      "p95": 5.23229705,
+      "p99": 7.438041849999998,
+      "max": 8.428626,
+      "ok": true
+    },
+    "w_chat_session": {
+      "p50": 3.0447265,
+      "p95": 4.481596699999999,
+      "p99": 6.925745579999997,
+      "max": 16.85816,
+      "ok": true
+    },
+    "gv_students": {
+      "p50": 7.7225705,
+      "p95": 9.4095646,
+      "p99": 10.375764139999996,
+      "max": 12.501181,
+      "ok": true
+    },
+    "gv_gradebook": {
+      "p50": 8.645621,
+      "p95": 10.694463249999998,
+      "p99": 14.057088499999992,
+      "max": 19.67603,
+      "ok": true
+    },
+    "sv_me_today": {
+      "p50": 1.7158495,
+      "p95": 2.8117674,
+      "p99": 4.073453929999993,
+      "max": 8.911611,
+      "ok": true
+    },
+    "sv_me_grades": {
+      "p50": 5.8398295000000005,
+      "p95": 7.827471399999999,
+      "p99": 9.152226209999995,
+      "max": 12.348103,
+      "ok": true
+    },
+    "gv_profile_360": {
+      "p50": 4.3587039999999995,
+      "p95": 5.74201115,
+      "p99": 9.37037118,
+      "max": 11.103368,
+      "ok": true
+    },
+    "gv_me_today": {
+      "p50": 8.367667999999998,
+      "p95": 10.993890049999992,
+      "p99": 13.79564099,
+      "max": 17.030276,
+      "ok": true
+    },
+    "sv_library": {
+      "p50": 2.0982825,
+      "p95": 3.3612860999999996,
+      "p99": 4.799074469999999,
+      "max": 6.280152,
+      "ok": true
+    }
+  }
+}

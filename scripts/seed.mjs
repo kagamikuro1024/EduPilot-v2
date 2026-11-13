@@ -8,7 +8,7 @@
 //       SEED_BASE_DATE (hôm nay, YYYY-MM-DD), SEED_ADMIN_CMD (mặc định: docker compose exec gateway /gateway admin create; bước 15–16 dùng cùng tiền tố, bỏ `create`).
 // Idempotent: mỗi bước kiểm trạng thái trước khi làm; chạy lại không tạo bản ghi / thư mới.
 import { spawnSync } from "node:child_process";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { ANSWER_KEY_LINES, EVENTS, EXAM_PAPER_LINES, THREADS_1, THREADS_2, OUTSIDE, chatQuestions, miniPdf } from "./chat-seed-data.mjs";
@@ -16,6 +16,7 @@ import { createHash } from "node:crypto";
 import { XLSX_MIME, lop1Column, lop1Faulty, zip } from "./grade-seed-data.mjs";
 import { FOREIGN_MAIL, PERSONAL_MAIL, TEAMS_TITLE_04, createBody, loadPlan, sampleText, teamsMeta } from "./assignment-seed-data.mjs";
 import { ROSTER1, crmPlan } from "./crm-plan.mjs";
+import { meta } from "../benchmarks/lib/meta.mjs";
 import { CODE, CODE_ATTEMPTS, EXAM_MCQ, MCQ_STUDENTS, QUESTIONS, SOLUTIONS, mcqAnswers } from "./exam-seed-data.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -69,7 +70,18 @@ const STEPS = 19;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 /** Che mật khẩu và mọi chuỗi giống token trong dòng log (AC11). */
 const mask = (s) => String(s).split(PASSWORD).join("***").replace(/[A-Za-z0-9_-]{40,}/g, "***");
-const step = (n, text) => console.log(`[${n}/${STEPS}] ${text}`);
+const t0 = Date.now(), marks = [];
+const step = (n, text) => { marks.push([n, Date.now()]); console.log(`[${n}/${STEPS}] ${text}`); };
+// US-NFR-02 AC1 (P-95-7 Q2): thời gian chạy ghi ở benchmarks/reports/seed-t0.json (`seconds_total`, `seconds_by_step`); bỏ qua khi seed vào stack demo (cổng 80/443/3000).
+process.on("exit", (code) => {
+  const port = new URL(API).port;
+  if (code !== 0 || ["", "80", "443", "3000"].includes(port)) return;
+  const by = {};
+  marks.forEach(([n, at], i) => { by[n] = Math.round(((marks[i + 1]?.[1] ?? Date.now()) - at) / 1000); });
+  const dir = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "benchmarks", "reports");
+  mkdirSync(dir, { recursive: true });
+  writeFileSync(path.join(dir, "seed-t0.json"), JSON.stringify({ meta: meta({ api: API, seed_rng: process.env.SEED_RNG ?? "20261029" }), seconds_total: Math.round((Date.now() - t0) / 1000), seconds_by_step: by }, null, 2));
+});
 const vlog = (...a) => VERBOSE && console.log("   ", mask(a.join(" ")));
 
 class ApiFail extends Error {
