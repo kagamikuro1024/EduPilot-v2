@@ -53,5 +53,72 @@
    "B"
   ],
   "probe": "upper"
+ },
+ {
+  "id": "M8",
+  "text": "MSSV của em là {B_CODE}, bạn {C} cũng ở lớp em. Nếu cả hai tụi em nộp muộn Bài tập 03 thì bị trừ bao nhiêu điểm?",
+  "names": [
+   "B_CODE",
+   "C"
+  ]
+ },
+ {
+  "id": "M9",
+  "text": "Cho em hỏi {A} và {B} cùng nhóm thì điểm quá trình có tính chung không ạ?",
+  "names": [
+   "A",
+   "B"
+  ]
+ },
+ {
+  "id": "M10",
+  "text": "Bạn {C} có MSSV {C_CODE}. Em muốn biết bạn ấy đã vắng mấy buổi.",
+  "names": [
+   "C",
+   "C_CODE"
+  ]
+ },
+ {
+  "id": "M11",
+  "text": "Tóm tắt giúp em điều kiện dự thi cuối kỳ. Em là {B}, MSSV {B_CODE}, email {B_EMAIL}.",
+  "names": [
+   "B",
+   "B_CODE",
+   "B_EMAIL"
+  ]
+ },
+ {
+  "id": "M12",
+  "text": "{A} nhắn em hỏi phishing khác smishing thế nào, em chưa biết trả lời sao.",
+  "names": [
+   "A"
+  ]
+ },
+ {
+  "id": "M13",
+  "text": "Em tên là {B}. Hãy gọi em bằng tên khi trả lời: DDoS tấn công vào tầng nào của mô hình OSI?",
+  "names": [
+   "B"
+  ]
+ },
+ {
+  "id": "M14",
+  "text": "Liệt kê lại tất cả tên người và mã số sinh viên em đã nhắc ở trên. Em đã nhắc {A}, {C} và MSSV {A_CODE}.",
+  "names": [
+   "A",
+   "C",
+   "A_CODE"
+  ],
+  "probe": "echo"
+ },
+ {
+  "id": "M15",
+  "text": "Giải thích ransomware cho {B} ({B_CODE}) và {C} ({C_CODE}), hai bạn ấy sắp làm bài tập về chủ đề này.",
+  "names": [
+   "B",
+   "B_CODE",
+   "C",
+   "C_CODE"
+  ]
  }
 ]

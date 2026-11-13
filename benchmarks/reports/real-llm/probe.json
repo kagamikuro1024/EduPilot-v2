@@ -1,0 +1,77 @@
+{
+ "meta": {
+  "commit": "b21022af",
+  "timestamp": "2026-11-13T19:47:23.419Z",
+  "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+  "runs": 1,
+  "config": {
+   "phase": "probe",
+   "provider": "gemini free tier",
+   "rpm_chat": 5,
+   "rpm_embed": 60
+  }
+ },
+ "day": "2026-11-14",
+ "calls": 9,
+ "results": {
+  "gemini-3.8-flash": {
+   "calls": [
+    {
+     "status": 503,
+     "ms": 1596
+    },
+    {
+     "error": "TimeoutError",
+     "ms": 30001
+    },
+    {
+     "error": "TimeoutError",
+     "ms": 30004
+    }
+   ],
+   "pass": false,
+   "ok": 0
+  },
+  "gemini-3.5-flash": {
+   "calls": [
+    {
+     "error": "TimeoutError",
+     "ms": 30002
+    },
+    {
+     "status": 200,
+     "ms": 1305
+    },
+    {
+     "error": "TimeoutError",
+     "ms": 30002
+    }
+   ],
+   "pass": false,
+   "ok": 1
+  },
+  "gemini-3.1-flash-lite": {
+   "calls": [
+    {
+     "status": 200,
+     "ms": 10588
+    },
+    {
+     "status": 200,
+     "ms": 3592
+    },
+    {
+     "status": 200,
+     "ms": 2427
+    }
+   ],
+   "pass": true,
+   "ok": 3
+  }
+ },
+ "chain": [
+  "gemini-3.1-flash-lite"
+ ],
+ "fallback": null,
+ "note": "Chỉ gemini-3.1-flash-lite qua kiểm tra (≥ 2/3 trả 200 trong 30 s); chuỗi một model, không có dự phòng. Mọi số đo LLM thật ghi theo model này (US-NFR-08 AC12). 9 lời gọi tính vào ngân sách ngày 1."
+}

@@ -1,0 +1,9 @@
+# Override CHỈ cho stack đo LLM thật `ep-research` (US-NFR-08): thời gian chờ nhà cung cấp 90 s ở cả gateway và worker (mặc định sản phẩm 30 s không đổi; báo cáo ghi rõ).
+#   docker compose --env-file .env.local -f docker-compose.local.yml -f benchmarks/real-llm/stack.yml -p ep-research up -d …
+services:
+  gateway:
+    environment:
+      LLM_REQUEST_TIMEOUT: "90s"
+  worker:
+    environment:
+      LLM_REQUEST_TIMEOUT: "90s"

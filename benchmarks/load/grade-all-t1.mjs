@@ -41,7 +41,7 @@ const last = progress.at(-1);
 const twice = Number(psql(`select count(*) from (select submission_id, round from grading_results where ${where} group by 1, 2 having count(*) > 1) x`));
 const hours = Number(((Date.now() - started) / 3.6e6).toFixed(2));
 const demo = spawnSync("docker", ["ps", "-q", "--filter", "label=com.docker.compose.project=edupilot"], { encoding: "utf8" }).stdout.trim() ? "running" : "stopped";
-const out = { meta: { ...meta({ scenario: "grade-1000", courses: targets.length, provider: "fake", worker_fake_latency: process.env.K6_GRADE_LAT ?? "(xem docker compose)", compose_project: project }), k6_cpus: "1.5", demo_stack: demo }, queued, hours, done: last.DONE ?? 0, failed: last.FAILED ?? 0, orphan: (last.QUEUED ?? 0) + (last.RUNNING ?? 0), graded_twice: twice, slo_hours: 3, pass: (last.DONE ?? 0) === queued && hours <= 3 && twice === 0, progress };
+const out = { meta: { ...meta({ scenario: "grade-1000", courses: targets.length, provider: "fake", worker_fake_latency: process.env.K6_GRADE_LAT ?? "(xem docker compose)", grading_workers: process.env.GRADING_WORKERS ?? "2 (mặc định)", compose_project: project }), k6_cpus: "1.5", demo_stack: demo }, queued, hours, done: last.DONE ?? 0, failed: last.FAILED ?? 0, orphan: (last.QUEUED ?? 0) + (last.RUNNING ?? 0), graded_twice: twice, slo_hours: 3, pass: (last.DONE ?? 0) === queued && hours <= 3 && twice === 0, progress };
 writeFileSync("benchmarks/reports/load-c-1000.json", JSON.stringify(out, null, 2));
 console.log(JSON.stringify({ ...out, progress: undefined }));
 process.exit(out.pass ? 0 : 1);

@@ -622,7 +622,7 @@ def chat_once(api, account, course, text):
 def class1_people(api, st):
     m = {x["email"].split("@")[0]: x for x in st.get("c1_members") or members(api, st["c1"])}
     return {"A": m["sv.gioi"]["full_name"], "B": m["sv.kha"]["full_name"], "B_CODE": m["sv.kha"]["student_code"], "B_EMAIL": m["sv.kha"]["email"],
-            "C": m["sv.nguyco"]["full_name"]}
+            "C": m["sv.nguyco"]["full_name"], "A_CODE": m["sv.gioi"]["student_code"], "C_CODE": m["sv.nguyco"]["student_code"]}
 
 
 def fill(text, people):
