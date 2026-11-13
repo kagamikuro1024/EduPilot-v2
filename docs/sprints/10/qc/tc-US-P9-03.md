@@ -21,4 +21,5 @@ Nguồn: US-P9-03 + SRS FR-6, §6 #2, #4. **Chỉ chạy nếu handoff ghi đã 
 STUDENT → `403` (TC-03-10); TA → `202`; GV lớp khác → `403`; thiếu `Idempotency-Key` → lỗi.
 
 ## Lịch sử sửa TC
+- 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): F3/Q27 BẮT BUỘC: TC-03-13 (`generate` ≤ 5 việc/lớp/giờ → `429`) là yêu cầu chính thức (chờ BA/dev).
 (trống)

@@ -9,6 +9,7 @@ Nguồn: US-P9-04 + SRS §6 #3, §7 (`/questions`), DESIGN §14.17. Staff dùng 
 | TC-04-04 | AC3 | ≥ 5 câu `PENDING` | Chọn 3 hàng; xem thanh hành động | Hiện `Duyệt`, `Loại`, gắn chủ đề / độ khó hàng loạt; chọn 51 hàng → bị chặn ở 50 (ô thứ 51 không chọn thêm hoặc nút khoá, ghi hành vi) | E2E |
 | TC-04-05 | AC3 | 4 id: 2 `PENDING` hợp lệ, 1 id `EXTRACTED` có `citations=[]` (dev tạo qua DB), 1 id lớp 2 | `POST /courses/$C1/questions/bulk '{"action":"APPROVE","ids":[…4]}'` | `200 {results:[{id,ok,code?}×4]}`: 2 `ok:true`; câu `citations` rỗng `ok:false code=CITATION_REQUIRED`; id lớp 2 `ok:false` (mã `NOT_FOUND`/`FORBIDDEN`, không lộ nội dung); lô **không** bị huỷ (2 câu hợp lệ đã `APPROVED`) | API |
 | TC-04-06 | AC3 | – | `bulk` `REJECT` 3 câu qua UI | Bảng cập nhật ngay (lạc quan); hiện dòng `Hoàn tác` tại chỗ; **không** hộp xác nhận, **không** toast «Thành công»; `Hoàn tác` trong cửa sổ cho phép → 3 câu trở về `PENDING` | E2E |
+| TC-04-06b | AC3, AC7 | Cùng; bấm `Loại` 2 câu (hộp `Hoàn tác` đang đếm 5 s) | **Trong 5 s** đóng tab (`page.close({runBeforeUnload:true})`) hoặc điều hướng đi (`pagehide`/`visibilitychange`) | Lệnh `Loại` **được gửi ngay** (`fetch keepalive` lúc `pagehide`, P-10-8 Q-S10-31): mở lại `/questions` thì 2 câu `REJECTED`; DB không còn `PENDING`; không gửi hai lần (cùng `Idempotency-Key`); bấm `Hoàn tác` **trước** khi rời thì không gửi gì | E2E + DB |
 | TC-04-07 | AC3 | – | `bulk` `SET_TAGS {topic,difficulty}` 3 câu, rồi `ids` rỗng, rồi `ids` 51 phần tử, rồi `action` lạ | Lần 1: 3 `ok` và đúng `topic`/`difficulty`; còn lại `422 VALIDATION_FAILED` | API |
 | TC-04-08 | AC2 | US-P9-03 chưa làm | Mở luồng `Tạo câu hỏi` | Không có `Sinh từ tài liệu`; không route `generate` mở (nếu có → `404`/`501`) | E2E |
 | TC-04-09 | AC4 | Câu `PENDING` | Mở Drawer; sửa đề, phương án, đáp án đúng, giải thích, chủ đề, độ khó; `Duyệt` trong Drawer | Lưu; trạng thái `APPROVED`; không cần mở trang khác | E2E |
@@ -31,4 +32,5 @@ Nguồn: US-P9-04 + SRS §6 #3, §7 (`/questions`), DESIGN §14.17. Staff dùng 
 | TC-04-P5 | ADMIN | `403` |
 
 ## Lịch sử sửa TC
+- 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): thêm TC-04-06b (Q31: rời trang / đóng tab trong 5 s → lệnh `Loại` gửi ngay, không mất).
 (trống)

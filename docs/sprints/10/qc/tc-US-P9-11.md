@@ -21,10 +21,12 @@ Tệp mẫu QC (tạo bằng script, `docs/sprints/10/qc/scripts/forms-fixtures/
 | TC-11-15 | AC9 | Sổ điểm `LOCKED` (P6) | Nhập | `409` («Sổ điểm đã chốt»); sau «mở khoá có lý do» nhập được | API |
 | TC-11-16 | AC11 | Import xong, G1 chưa công bố | `sv.kha` `GET /courses/$C1/me/grades` | **Không** thấy điểm Forms; sau `POST …/grade-items/{G1}/publish` (GV) → thấy; không có route công bố mới | API |
 | TC-11-17 | AC11 | – | `audit_log` | Có bản ghi người import, hash tệp, số dòng khớp / chưa khớp | DB |
+| TC-11-19 | AC2 | Tệp có dòng chưa khớp | Xem trước / kết quả (UI) | Mỗi hàng «Chưa khớp» có liên kết `Nhập ở Sổ điểm` (mở đúng cột / sổ điểm); **không** thêm dòng giải thích; định danh đã che (P-10-8 Q30) | E2E |
 | TC-11-18 | – | Story **không** làm | Gọi các route `forms-import*`, `purpose=forms_import` | `404`/`422`; không có route nửa vời | API |
 
 ## Phân quyền
 TC-11-11, 12; GV lớp khác → `403`; `item_id` của lớp khác → `404`/`422`.
 
 ## Lịch sử sửa TC
+- 2026-11-14 — PM quyết P-10-8 (F1–F7, Q-S10-27…31): thêm TC-11-19 (Q30: liên kết «Nhập ở Sổ điểm» ở hàng Chưa khớp, không dòng giải thích).
 - 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): TC-11-02 (Q23 chờ handoff), TC-11-04 (Q24: `đúng/tổng × max_score` của grade_item).

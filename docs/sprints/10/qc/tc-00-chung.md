@@ -43,3 +43,4 @@ P9-01 → 02 → 04 → 05 → 06 → 07 → 09 → 10 → 08 → 12; P9-03 và 
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
 - 2026-11-14 — cập nhật theo spec v1.1 và P-10-7: xem «Lịch sử sửa TC» từng tệp.
+- 2026-11-14 — áp dụng P-10-8 (F1–F7, Q-S10-27…31): xem `tc-status.md` và «Lịch sử sửa TC» từng tệp.
