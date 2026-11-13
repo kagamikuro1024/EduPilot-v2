@@ -1,5 +1,5 @@
 # QC test case — US-P9-10 Liêm chính: luyện đề không phá bài thi tính điểm
-Nguồn: US-P9-10 + SRS FR-21–24, Q-P9-2, 3, 4. Bài thi PE: GV tạo qua `POST …/exams` (FEAT-weekly-exam), trạng thái `DRAFT→SCHEDULED→OPEN→CLOSED→PUBLISHED`. Cách dựng nhanh: Q-S10-9.
+Nguồn: US-P9-10 + SRS FR-21–24, Q-P9-2, 3, 4. Bài thi PE: GV tạo qua `POST …/exams` (FEAT-weekly-exam), trạng thái `DRAFT→SCHEDULED→OPEN→CLOSED→PUBLISHED`. Cách dựng: đi đúng quy trình thật bằng API, chỉ ép trạng thái bằng DB khi cần và ghi rõ (P-10-7 Q9).
 
 | TC | AC | Tiền điều kiện | Bước / lệnh | Kết quả mong đợi | Loại |
 | --- | --- | --- | --- | --- | --- |
@@ -13,7 +13,7 @@ Nguồn: US-P9-10 + SRS FR-21–24, Q-P9-2, 3, 4. Bài thi PE: GV tạo qua `POS
 | TC-10-08 | AC3 | Hết giờ / nộp bài thi | Hỏi lại cùng câu | Chat mở lại, trả lời; `exam-lock` mở | API + E2E |
 | TC-10-09 | AC3 | `quiz-integrity.spec.ts` | `pnpm -C frontend exec playwright test quiz-integrity.spec.ts` | Xanh; chứng minh cả hai chiều (từ chối khi đang làm, mở lại khi hết giờ) **trên cùng màn làm bài** với bài QUIZ (bài thi PE) GV giao; QC đọc spec: không phải mock | E2E |
 | TC-10-10 | AC4 | `EXAM_PAPER` `READY` (nội dung chứa chuỗi lạ «ZQ-DE-THI-17») và `ANSWER_KEY` (chuỗi «ZQ-DAP-AN-17») | **Ngoài giờ thi**: hỏi chat «tìm tài liệu ZQ-DE-THI-17» | Đề `EXAM_PAPER` tìm được như hiện tại (`audience ALL`); `ANSWER_KEY` **không** (`audience GRADING`) | API |
-| TC-10-11 | AC4 | `sv.kha` đang có lượt bài thi PE `IN_PROGRESS` | Gọi `search_library` qua agent (hỏi chat nội dung chứa chuỗi lạ) hoặc test tool: `go test ./internal/agent -run SearchLibrary… -v` (tên test: Q-S10-22) | **Không** trả đoạn của `EXAM_PAPER` lẫn `ANSWER_KEY`; sau giờ thi lại tìm được `EXAM_PAPER` | API + GO |
+| TC-10-11 | AC4 | `sv.kha` đang có lượt bài thi PE `IN_PROGRESS` | Gọi `search_library` qua agent (hỏi chat nội dung chứa chuỗi lạ) hoặc test tool: `go test ./internal/agent -run SearchLibrary… -v` (tên test: **chờ handoff**, P-10-7 Q22; mặc định `go test ./internal/agent/... -run SearchLibrary -v`) | **Không** trả đoạn của `EXAM_PAPER` lẫn `ANSWER_KEY`; sau giờ thi lại tìm được `EXAM_PAPER` | API + GO |
 | TC-10-12 | AC4 | – | Cùng TC-10-11 nhưng SV **khác** (không có lượt thi) trong lúc `sv.kha` đang thi | SV khác vẫn tìm được `EXAM_PAPER` (khoá theo từng sinh viên) | API |
 | TC-10-13 | AC5 | `sv.kha` chỉ có lượt luyện `TOPIC` / `MOCK` | `GET /me/exam-lock`; hỏi chat nội dung môn học | `exam-lock` không khoá; chat trả lời bình thường, cả khi MOCK đang làm; thi thử đang làm **không** đổi `exam-lock` (so JSON trước/sau) | API |
 | TC-10-14 | AC6 | MOCK hết giờ (ép `deadline_at`) và đóng bởi worker | `SELECT count(*) FROM exam_events WHERE …` (SV, thời điểm lượt) trước/sau | Không có dòng nào mới (kể cả rời tab / dán) | DB |
@@ -28,4 +28,4 @@ Phủ bởi TC-10-04 (lỗi cũng không rò), 15, 16.
 STUDENT lớp khác → `403`/`404`; staff gọi API làm bài → `403`.
 
 ## Lịch sử sửa TC
-(trống)
+- 2026-11-14 — spec FEAT-practice v1.1 + PM trả lời P-10-7 (Q-S10-1…26): Ghi Q9 (quy trình dựng bài thi), Q22 (tên test `search_library`: chờ handoff).

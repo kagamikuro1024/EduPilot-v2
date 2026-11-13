@@ -1,6 +1,6 @@
 # QC sprint 10 (FEAT-practice, P9) — quy ước chung của bộ test case
 
-Viết ở **pha 1** (2026-11-14) từ `docs/specs/FEAT-practice/{US,SRS,QUESTIONS}.md` v1.0 APPROVED. Không đọc mã, handoff hay test của dev. Chưa chạy gì. Câu hỏi còn mở: `qc/questions.md` (TC phụ thuộc câu hỏi ghi «(Q-S10-n)»; chạy theo cách hiểu ghi ở TC, kết quả khác thì báo PM, không tự đoán).
+Viết ở **pha 1** (2026-11-14) từ `docs/specs/FEAT-practice/{US,SRS,QUESTIONS}.md` v1.0 APPROVED. Không đọc mã, handoff hay test của dev. Chưa chạy gì. Câu hỏi: `qc/questions.md`; **PM đã trả lời Q-S10-1…26 ở P-10-7 (2026-11-14)**, spec lên v1.1. TC ghi «P-10-7 Qn» là đã chốt; «**chờ handoff**» = dev trả lời ở handoff + openapi (TC chạy theo mặc định QC, đối chiếu lại khi có handoff, kết quả khác → báo PM, không tự đoán).
 
 ## Môi trường pha 2
 | Mục | Giá trị |
@@ -42,4 +42,4 @@ P9-01 → 02 → 04 → 05 → 06 → 07 → 09 → 10 → 08 → 12; P9-03 và 
 `tc-US-P9-01.md` … `tc-US-P9-12.md`, `questions.md`.
 
 ## Lịch sử sửa TC (chỉ khi SPEC đổi: ngày, TC nào, lý do)
-(trống)
+- 2026-11-14 — cập nhật theo spec v1.1 và P-10-7: xem «Lịch sử sửa TC» từng tệp.

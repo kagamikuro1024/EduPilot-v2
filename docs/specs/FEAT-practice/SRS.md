@@ -1,5 +1,6 @@
 # SRS FEAT-practice Ngân hàng câu hỏi mở rộng, luyện đề, thi thử, form trắc nghiệm
-Phiên bản 1.0 · 2026-11-12 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM chấp nhận P-10-1…6 và Q-P9-1…12; chủ dự án uỷ quyền làm liền mạch)
+**v1.1 (P-10-7):** vá US-P9-01 AC1 (không `practice_exams`), AC2 (mọi dấu câu cuối, không bỏ dấu tiếng Việt), US-P9-07 AC4, AC8, FR-1, FR-17 (dung sai 60 s thống nhất).
 **v1.0:** áp Q-P9-8 (Forms: chỉ TEACHER import + xem trước + xác nhận, không tự công bố, không LLM — US-P9-11 AC10–AC12), Q-P9-10 (thi thử: `{đúng}/{tổng}` chính, thang 10 một chữ số phụ — FR-15, US-P9-07 AC7), Q-P9-3, 4, 7 giữ nguyên như đã viết.
 Nguồn: PRD M4, M8, M15 · FLOWS F12, F14 · `docs/phases/P9.md` · `ARCHITECTURE.md` §4–§7 · `SYSTEM_DESIGN.md` §3.1, §3.4, §5 · `DESIGN.md` §13, §14.17–§14.20 · `UX.md` mục 6 · `FEAT-weekly-exam` SRS (4.1, 5.2, 6) · `FEAT-docs-calendar` SRS (loại tài liệu, `audience`) · `FEAT-crm-360` SRS (4.6, bảng bậc Hôm nay) · `FEAT-gradebook` SRS (4.3.6, 5)
 Truy vết: US-P9-01…12 ở `US.md`.
@@ -45,7 +46,7 @@ flowchart LR
 | Dựng đề: thiếu câu | Đề ngắn hơn + `notes`; < 5 câu → `409 NOT_ENOUGH_QUESTIONS` | "Chưa đủ câu để luyện chủ đề này" |
 | TOPIC: trả lời khi mất mạng | Hàng chờ cục bộ; gửi lại có `Idempotency-Key` | "Chưa gửi được" tại câu |
 | TOPIC: `explain` LLM lỗi | Chỉ lỗi phần giải thích; phản hồi đúng / sai còn | "Chưa giải thích được. Thử lại." |
-| MOCK: hết giờ máy chủ | `409 ATTEMPT_CLOSED` cho ghi mới; worker đóng lượt; chấm trên câu đã lưu | Kết quả hiện khi mở lại |
+| MOCK: hết giờ máy chủ | Trong 60 s sau hạn nhận `client_ts ≤ deadline_at`, bỏ `client_ts > deadline_at`; sau 60 s `409 ATTEMPT_CLOSED` cho ghi mới; worker đóng lượt; chấm trên câu đã lưu | Kết quả hiện khi mở lại |
 | MOCK: mở ở tab thứ hai | `409 TAB_TAKEN_OVER` cho tab cũ | Tab cũ chỉ đọc + `Làm tiếp ở tab này` |
 | MOCK: nộp thất bại mạng | Thử lại tự động cùng `Idempotency-Key` | "Chưa nộp được. Đang thử lại." |
 | Sinh viên đọc lượt người khác | `404` | Trang không tìm thấy |
@@ -55,7 +56,7 @@ flowchart LR
 
 ## 4. Yêu cầu chức năng
 ### 4.1 Quiz Engine (`internal/quiz`, code thuần — không import `internal/llm`)
-- **FR-1** Chấm `SHORT` bằng chuẩn hoá `NormalizeShort` (NFC; trim; gộp khoảng trắng; hoa thường; bỏ dấu câu cuối; **giữ dấu tiếng Việt**) so với tập đáp án chấp nhận; trả `decimal` — AC US-P9-01 AC2–AC3.
+- **FR-1** Chấm `SHORT` bằng chuẩn hoá `NormalizeShort` (NFC; trim; gộp khoảng trắng; hoa thường; bỏ **mọi** dấu câu ở cuối; **giữ dấu tiếng Việt**, "ha noi" ≠ "Hà Nội" nếu không nằm trong tập đáp án — P-10-7 Q26) so với tập đáp án chấp nhận; trả `decimal` — AC US-P9-01 AC2–AC3.
 - **FR-2** `BuildMatrix(pool, matrix, history, seed)` thuần, tất định theo `seed` (id lượt); không lặp; ưu tiên chưa làm / làm sai trong 30 ngày; bù ô thiếu; trả `notes` — US-P9-05 AC1–AC4.
 - **FR-3** Xáo thứ tự câu và phương án theo `seed` (id lượt), ổn định khi tải lại — US-P9-05 AC5.
 - **FR-4** `Validate` của PE chấp nhận `SHORT` (đáp án chấp nhận ≥ 1, không rỗng) và `ESSAY` (đáp án mẫu + rubric ngắn); `exam_items` từ chối hai loại này (`422 TYPE_NOT_SUPPORTED_IN_EXAM`) — US-P9-01 AC4, AC6.
@@ -75,7 +76,7 @@ flowchart LR
 - **FR-14** `PATCH …/practice/attempts/{aid} {current_index}`: lưu vị trí; tải lại quay đúng câu — US-P9-06 AC10, US-P9-07 AC6.
 - **FR-15** `POST …/submit` (bắt buộc `Idempotency-Key`): chấm `decimal`, kết quả chính `{đúng}/{tổng}`, điểm thang 10 làm tròn **1 chữ số** bằng `decimal` (phụ, không vào sổ điểm, không xếp hạng) (không `float64`); `MOCK` trả kết quả từng câu; gọi lại → cùng kết quả — US-P9-06 AC7, US-P9-07 AC7.
 - **FR-16** Worker `practice.close` (tick 1 phút): `MOCK` `IN_PROGRESS` quá `deadline_at + 60 s` → `EXPIRED`, chấm câu đã lưu; idempotent — US-P9-07 AC8.
-- **FR-17** Dung sai ghi ngoại tuyến: câu có `client_ts ≤ deadline_at + 60 s` được nhận khi nộp muộn do mất mạng (Q-P9-5) — US-P9-07 AC4.
+- **FR-17** Dung sai ghi ngoại tuyến (Q-P9-5, P-10-7 Q13): `PUT answers` kèm `client_ts`; trong 60 s sau `deadline_at` chỉ nhận lựa chọn có `client_ts ≤ deadline_at`, `client_ts > deadline_at` bỏ (ghi `notes`); sau 60 s → `409 ATTEMPT_CLOSED` — US-P9-07 AC4, AC8.
 - **FR-18** `GET …/practice/history?cursor&limit` và `GET …/practice/weakness` — US-P9-09 AC1–AC2, AC8.
 - **FR-19** Nguồn Hôm nay `PRACTICE_WEAK_TOPIC` (STUDENT, bậc **85**) đăng ký ở `today.NewService`; Kind thêm vào `allowed`; sự kiện `practice.updated {course_id,student_id}` → `today.invalidate` — US-P9-09 AC3.
 - **FR-20** `WrongAnswerSignals(ctx, courseID, from, to)` trả theo chủ đề, loại chủ đề `students_affected < 3`, không định danh — US-P9-09 AC4.
