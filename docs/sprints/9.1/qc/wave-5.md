@@ -1,6 +1,31 @@
 # QC đợt 5 — Chat riêng, Hỏi đáp, Kết quả của tôi, Tài liệu, Insights (US-UX91-13, 19, 20, 18, 17)
 
-**Kết luận lượt 2 (`b02eeb68`, dev: «9.1 sửa QC đợt 5»): FAIL.** 4 trong 7 lỗi lượt 1 đã sửa (UX13-17, UX19-7, UX20-6, UX18-7). Còn mở: UX13-1 và UX20-9 (chờ PM quyết P-91-13, P-91-14), lỗi mới UX13-19 (Thấp), US-08 AC10a ảnh khung ghim (Thấp), UX17-8/9 không kiểm được (P-91-15). Không có lỗi mức Trung bình. Bảng «lượt 1» ở dưới giữ nguyên làm lịch sử.
+**Kết luận lượt 3 (`3002ce33`, dev: «9.1 sửa QC đợt 5 lượt 2»): FAIL (2 lỗi Thấp).** US-13 PASS, US-19 PASS, US-18 PASS, US-17 PASS (UX17-8/9 chuyển Nợ P10 theo P-91-15). **US-20 FAIL** (AC8: `/me` 375 cao 1.647 px > 1.600). **US-08 AC10a FAIL** (`story-review-v1` vẫn là UI cũ). Không có lỗi mức Trung bình. Bảng lượt 2 và lượt 1 ở dưới giữ nguyên làm lịch sử.
+
+## Kiểm lại lần 3 ở `3002ce33` (Mac, 2026-11-13)
+Môi trường: Mac, stack `-p ep-qc` dựng sạch từ `b02eeb68` rồi giữ (DB không đổi mã đợt 5 vì frontend dựng lại ở `3002ce33`), `https://localhost:943`, mock LLM, docling healthy. Chạy `w5a…w5g`, `w5i` (stack thật). Lần chạy đầu 14 pass / 5 fail; năm ca fail là lỗi môi trường / spec của QC, không phải lỗi sản phẩm (xem cuối bảng), đã sửa spec và chạy lại: tất cả xanh.
+| TC | Lượt 2 | Nay | Ghi chú |
+| --- | --- | --- | --- |
+| UX13-1 (AC1 Panel) | FAIL (Thấp), chờ PM | **PASS** | P-91-13 chấp nhận, AC1 đã sửa «căn giữa trong phần bên phải cột lịch sử»: Panel `x 540 → 1380` (840), lề 36 / 36 trong `504 → 1416` |
+| UX13-19 (AC7 nháp sau tải lại) | FAIL (Thấp) | **PASS** | Gửi 1 tin → gõ «nháp sau khi gửi (3002ce33)» → đợi 2,6 s → tải lại: URL giữ `/chat?session=‹id›`, ô nhập còn nguyên chữ. 19b: bấm phiên cũ, gõ, tải lại → «nháp trong phiên cũ» còn. Phiên trống: «nháp QC hai giây» còn |
+| UX13-3 (thu gọn) | PASS | PASS | Panel `x 540 → 408`, rộng 840 → 840, CLS 0, nút mở lại 1 |
+| UX13-17, 20, 22, 23 | PASS | PASS | «chỉ bạn đọc được» có ở `main` và `body`; mất mạng giữa stream: dải «Mất kết nối mạng…», nối lại hoàn tất; SV B đọc phiên SV A → 404 ×3; GV / TA API phiên SV → 403 ×2, `/chat` bị chặn |
+| UX19-6, 7 (375) | PASS | PASS | Bảng lọc `y 203 → 812`, nút `Bộ lọc` 102×44 → `Bộ lọc · 2` 122×44; lọc 2 ô trả rỗng cho SV (không lộ nội dung AI chưa xác nhận) |
+| UX19 khác | PASS | PASS | 20 hàng / `limit=30`, T7 cắt 140 ký tự, trạng thái trong `meta` |
+| UX18 (AC1…AC9) | PASS | PASS | Cột Loại 197 / 197, công tắc, `Thử lại` (1), SV `/documents` 403, `/library` không có «Đáp án», TA lớp lạ 403 |
+| UX20-6, 8 | PASS | PASS | Rỗng: «Chưa có điểm nào được công bố…»; `?user_id=‹B›` vẫn trả `qt` của chính A |
+| **UX20-9 (AC8, 375)** | FAIL (Thấp), chờ PM | **FAIL (Thấp)** | P-91-14 chấp nhận phương án gập sẵn, ngưỡng giữ ≤ 1.600. `sv.kha` ở 375: **1.647 px** (lượt 2: 2.059), không tràn ngang; «Thời gian học» và «Bài tập» gập sẵn (nút `Mở`, 44 px), ba nút `Căn cứ · tr. 1` hiện. Còn vượt **47 px (≈ 3 %)**. Từ 720 px mở hết (`1.741 px`, đúng AC) |
+| UX17-1…7, 10, 13 | PASS | PASS | Không đổi |
+| UX17-8, 9 | KHÔNG KIỂM ĐƯỢC | **PASS có ghi chú (Nợ P10)** | P-91-15: AC5, AC6 ghi «không tính FAIL ở 9.1». Dữ liệu mô phỏng vẫn đúng như lượt 2; lớp rỗng `QC117283` hiện báo cáo mô phỏng. Kiểm sau khi nối API thật |
+| **UX91-X1 (US-08 AC10a)** | FAIL (Thấp) | **FAIL (Thấp)** | Dev đã chụp lại (`3002ce33`) nhưng demo không có bài nộp nên **`story-review-v1*.webp` giữ ảnh cũ** (dev tự khai trong handoff). Ảnh: bố cục tiêu chí cũ (nhãn xuống dòng bên trái ô điểm, khối trích tách hai thẻ «Đoạn trích từ bài làm · bấm để xem trong bài»), không có dòng «Bấm một dòng trích…», thanh `Duyệt bài` bị cắt ở đáy (`Đã duyệt 0/4`). UI hiện hành: nhãn một dòng, một khối trích có dấu ngoặc, thanh `Đã duyệt 0/1 · Duyệt bài` đủ. `story-chat-v1` và `story-gradebook-v1` đạt (chrome khớp UI hiện hành; dữ liệu khác chỉ do bản demo) |
+| UX91-X2 | PASS có giới hạn | PASS có giới hạn | Không chạy lại (dev báo bộ đầy đủ) |
+
+**Chi tiết AC10a.** QC chạy `STILLS_ONLY=1 bash scripts/landing-video/run.sh` trên `ep-qc` (có 4 bài nộp chưa duyệt): ra ảnh review khớp UI mới nhưng **95.496 B > 90 KB** (ngân sách US-08 AC4), nên dev phải chụp rồi tối ưu (giảm `quality` hoặc cắt vùng) trước khi nộp. QC **không** commit các ảnh này (chỉ để đối chiếu).
+
+**Năm ca fail ở lần chạy đầu — nguyên nhân (không do sản phẩm):**
+1. `w5g` UX17-8/9 và UX18-4/…: spec cần hai lớp thử `QC117283` (rỗng) và `QC196964` (ARCHIVED) có từ VPS cũ; DB sạch không có. QC tạo lại qua `/admin/courses` + `archive`.
+2. `w5b` UX19 (hàng đầu SV sau lọc 2 ô: danh sách rỗng, `locator.innerText` treo) và UX18 (công tắc đầu bị khoá theo trạng thái tài liệu sau seed; sau khi QC tạo lớp thử, lớp mặc định của teacher đổi nên bảng rỗng): sửa spec (đếm hàng trước khi đọc; ghim `ep:ui:course` = 761987; chọn công tắc không `disabled`).
+3. `w5c` UX13-19: nút `Phiên trước…` không tồn tại (dòng chữ, không phải nút); `click()` không có timeout → treo hết 240 s. Sửa `{ timeout }`. Sản phẩm đạt (log INFO ở bảng trên).
 
 ## Kiểm lại lần 2 ở `b02eeb68`
 Môi trường: Mac (Apple Silicon, Colima), stack `-p ep-qc` dựng lại **sạch** (`down -v` + seed 30 SV + docling) từ `b02eeb68`, `https://localhost:943`, mock LLM. Chạy `qc-uiux91-w5a…w5h`, `w5i` (stack thật, 21 + 3 ca), 123 ca dev (`documents`, `me`, `threads`, `private-chat`, `panels`), `ui-antipatterns.sh`, `eslint`, `tsc`.
@@ -136,7 +161,16 @@ Tái hiện (đã chạy thật, `sv.kha`): `/chat` → gửi «Điểm danh c�
 | UX91-X3 | PASS có ghi chú | Không migration mới; không `fetch(` trần mới; 3 `Demo*.tsx` bị sửa từ đợt 1+2 (đổi chữ «Threads» → «Hỏi đáp công khai» theo US-07 AC4; `DemoDocuments` đổi `progressStyle`), trái câu «không sửa `Demo*.tsx`» của US-01 nhưng cần cho US-07 AC4 |
 | UX91-X4 | CHƯA CHẠY | `w5h-real.spec.ts` đã viết, chưa chạy |
 
-## Lỗi cần sửa (tóm tắt, lượt 2)
+## Lỗi cần sửa (tóm tắt, lượt 3)
+| # | Mức | Vị trí | Trạng thái |
+| --- | --- | --- | --- |
+| 1 (lượt 2) | Thấp | US-13 AC1 Panel căn giữa | Đóng (P-91-13, AC sửa) |
+| 8 | Thấp | US-13 AC7 nháp sau tải lại | Đã sửa, PASS |
+| 5 | Thấp | US-20 AC8 `/me` 375 cao 1.647 px > 1.600 | **Mở**: dev cắt ≥ 47 px (ví dụ gập cả «Điểm cộng đã ghi» như hai khối kia, hoặc bớt đệm đáy) hoặc PM đổi ngưỡng |
+| 7 | Thấp | US-08 AC10a `story-review-v1*.webp` chưa chụp lại | **Mở**: chụp trên bản chạy có bài nộp chưa duyệt (`ep-qc` hoặc seed demo), giữ ≤ 90 KB (QC chụp được 95,5 KB) |
+| — | — | US-17 AC5, AC6 (UX17-8, 9) | Nợ P10 (P-91-15), không tính FAIL |
+
+## Lỗi cần sửa (tóm tắt, lượt 2 (lịch sử))
 | # | Mức | Vị trí | Trạng thái |
 | --- | --- | --- | --- |
 | 2, 3, 4, 6 (lượt 1) | Thấp | US-13 AC6, US-19 AC4, US-20 AC6, US-18 AC5 | Đã sửa, PASS |

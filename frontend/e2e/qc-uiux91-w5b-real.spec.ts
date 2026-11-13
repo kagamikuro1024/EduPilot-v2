@@ -102,7 +102,7 @@ test("TC-UX19 thật: giảng viên, SV 375 bộ lọc, thời gian, phân trang
   await p2.waitForTimeout(800);
   console.log("INFO UX19-7 sau đặt 2 bộ lọc:", JSON.stringify(await fb.first().innerText()), JSON.stringify(await fb.first().boundingBox()));
   await p2.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/threads-sv-375.png" });
-  console.log("INFO UX19-6 SV: danh sách có nội dung AI chưa xác nhận?", JSON.stringify((await rowsOf(p2).first().innerText()).replace(/\s+/g, " ").slice(0, 200)));
+  console.log("INFO UX19-6 SV: danh sách có nội dung AI chưa xác nhận?", JSON.stringify(((await rowsOf(p2).count()) ? await rowsOf(p2).first().innerText() : "(rỗng sau lọc)").replace(/\s+/g, " ").slice(0, 200)));
   // PII dialog: SV viết bài có MSSV
   await c2.close();
   const c3 = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: 1440, height: 900 } });
@@ -187,6 +187,7 @@ test("TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, l
     const ctx = await browser.newContext({ ignoreHTTPSErrors: true, viewport: { width: w, height: h } });
     const page = await ctx.newPage();
     await login(page, "teacher@edupilot.local");
+    await page.evaluate((id) => localStorage.setItem("ep:ui:course", id), await courseId(page, "761987"));
     await page.goto("/documents");
     await page.waitForTimeout(4500);
     const cells = await page.locator("main tbody tr").evaluateAll((trs) => trs.map((tr) => { const tds = [...tr.querySelectorAll("td")]; const sel = tds[1]; return { type: sel?.innerText.trim(), sw: Math.round(sel?.scrollWidth ?? 0), cw: Math.round(sel?.clientWidth ?? 0), title: (tds[0] as HTMLElement)?.innerText.replace(/\n/g, " | ") }; }));
@@ -197,7 +198,7 @@ test("TC-UX18 Tài liệu: nhãn Loại, Chia sẻ từ, công tắc, 375, SV, l
     if (w === 1440) {
       await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/documents-1440.png" });
       // UX18-7: chặn API, đổi công tắc
-      const first = page.locator("main tbody tr [role=switch]").first();
+      const first = page.locator("main tbody tr [role=switch]:not([disabled])").first();
       const before = await first.getAttribute("aria-checked");
       await page.route(/\/api\/v1\/courses\/[0-9a-f-]+\/documents\/[0-9a-f-]+/, (r) => (r.request().method() === "PATCH" || r.request().method() === "PUT" || r.request().method() === "POST" ? r.abort() : r.continue()));
       await first.click();

@@ -36,9 +36,9 @@ test("TC-UX13-19/20/22/23 nháp 2 s, mất mạng giữa stream, phân quyền",
   await page.waitForTimeout(4000);
   console.log("INFO UX13-19 phiên trống → tải lại, nháp:", JSON.stringify(await composer(page).inputValue()));
   // 19b: nháp trong phiên có tin
-  await page.getByRole("button", { name: /^Phiên trước/ }).first().click().catch(() => undefined);
+  await page.getByRole("button", { name: /^Phiên trước/ }).first().click({ timeout: 1500 }).catch(() => undefined);
   const row = page.locator("[data-part=chat-history] li").first();
-  await row.locator("button, a").first().click().catch(() => undefined);
+  await row.locator("button, a").first().click({ timeout: 5000 }).catch(() => undefined);
   await page.waitForTimeout(2500);
   await composer(page).fill("nháp trong phiên cũ");
   await page.waitForTimeout(2400);
