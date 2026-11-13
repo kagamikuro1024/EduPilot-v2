@@ -41,7 +41,7 @@ test("TC-UX19-6/12 SV: danh sách không lộ câu trả lời AI chưa xác nh�
   await form.getByRole("button", { name: /Đăng|Gửi/ }).first().click({ timeout: 8000 });
   await page.waitForTimeout(2500);
   console.log("INFO UX19-12 hộp thoại:", await page.getByRole("dialog").count(), JSON.stringify((await page.getByRole("dialog").first().innerText().catch(() => "")).replace(/\s+/g, " ").slice(0, 400)));
-  await page.screenshot({ path: "/out/shots-w5/threads-pii-1440.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/threads-pii-1440.png" });
   await ctx.close();
 });
 

@@ -38,7 +38,7 @@ test("TC-UX18 Tài liệu lớp 761987 (tài liệu của chính lớp): công t
   console.log("INFO UX18-4 công tắc 761987:", JSON.stringify(info1.slice(0, 8)), "| tên truy cập:", JSON.stringify(named));
   const nameOf = async (i: number) => page.evaluate((idx) => { const e = document.querySelectorAll("[role=switch]")[idx] as HTMLElement; const lb = e.getAttribute("aria-labelledby"); return e.getAttribute("aria-label") ?? (lb ? lb.split(" ").map((x) => document.getElementById(x)?.textContent).join(" ") : (e.closest("label")?.textContent ?? "")); }, i);
   console.log("INFO UX18-4 tên:", JSON.stringify([await nameOf(0), await nameOf(1), await nameOf(2)]));
-  await page.screenshot({ path: "/out/shots-w5/documents-761987-1440.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/documents-761987-1440.png" });
   const first = page.getByRole("switch").first();
   const before = await first.getAttribute("aria-checked");
   await page.route(/\/api\/v1\/courses\/[0-9a-f-]+\/documents\/[0-9a-f-]+/, (r) => (["PATCH", "PUT", "POST"].includes(r.request().method()) ? r.abort() : r.continue()));
@@ -65,7 +65,7 @@ test("TC-UX18 Tài liệu lớp 761987 (tài liệu của chính lớp): công t
   await p3.evaluate((id) => localStorage.setItem("ep:ui:course", id), c);
   await p3.goto("/documents"); await p3.waitForTimeout(5000);
   console.log("INFO UX18-5/9 375 761987: tràn", await p3.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth), "| công tắc (hộp công tắc / nhãn bọc):", JSON.stringify(await p3.getByRole("switch").evaluateAll((els) => els.slice(0, 4).map((e) => { const l = e.closest("label") ?? e; const r = l.getBoundingClientRect(); const s = e.getBoundingClientRect(); return `sw ${Math.round(s.width)}x${Math.round(s.height)} / bọc ${Math.round(r.width)}x${Math.round(r.height)}`; }))));
-  await p3.screenshot({ path: "/out/shots-w5/documents-761987-375.png", fullPage: true });
+  await p3.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/documents-761987-375.png", fullPage: true });
   await c3.close();
 });
 
@@ -79,6 +79,6 @@ test("TC-UX19-7 bảng bộ lọc 375: trượt từ đáy", async ({ browser },
   await page.waitForTimeout(900);
   const box = await page.evaluate(() => { const d = document.querySelector("dialog[open], [role=dialog]") as HTMLElement; const out: unknown[] = []; let e: HTMLElement | null = d; for (let i = 0; i < 3 && e; i++) { const r = e.getBoundingClientRect(); out.push({ tag: e.tagName, cls: e.className.toString().slice(0, 30), y: Math.round(r.y), b: Math.round(r.bottom), h: Math.round(r.height), radius: getComputedStyle(e).borderTopLeftRadius }); e = e.firstElementChild as HTMLElement | null; } return out; });
   console.log("INFO UX19-7 khung:", JSON.stringify(box));
-  await page.screenshot({ path: "/out/shots-w5/threads-sheet-375.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/threads-sheet-375.png" });
   await ctx.close();
 });

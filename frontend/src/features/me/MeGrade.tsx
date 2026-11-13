@@ -13,14 +13,18 @@ const comma = (v: string) => v.replace(".", ",");
 const SCORE = /^\d{1,2}([.,]\d{1,2})?$/;
 
 /** Điểm của tôi (US-P6-09): câu nhận định, thành phần đã công bố, phép tính tuyến tính, tính thử "nếu cuối kỳ được X" tại chỗ. Chỉ đọc; không so sánh, không động viên. */
-export function MeGrade({ courseId }: { courseId: string }) {
-  const q = useQuery({
+/** Điểm của tôi: dùng chung một truy vấn giữa khối `MeGrade` và `RealMe` (RealMe chờ nó xong để các khối dưới không bị đẩy xuống: CLS). */
+export const useMyGrades = (courseId: string) =>
+  useQuery({
     queryKey: ["me", courseId, "grades"],
     staleTime: 0,
     refetchOnMount: "always",
     retry: false,
     queryFn: async ({ signal }) => (await apiClient.get<MeGrades>(`/courses/${courseId}/me/grades`, { signal })).data,
   });
+
+export function MeGrade({ courseId }: { courseId: string }) {
+  const q = useMyGrades(courseId);
   const g = q.data;
   return (
     <Section panel title="Điểm">
@@ -42,7 +46,7 @@ function GradeBody({ courseId, g }: { courseId: string; g: MeGrades }) {
   const lines = explainLines(comps, g.calculation ?? []);
   const published = comps.filter((c) => c.status === "PUBLISHED");
   const sentence = gradeSentence(g);
-  if (published.length === 0 && !sentence) return <EmptyState title="Chưa có điểm được công bố." />;
+  if (published.length === 0 && !sentence) return <EmptyState title="Chưa có điểm nào được công bố.">Điểm sẽ hiện ở đây khi giảng viên công bố.</EmptyState>;
   return (
     <>
       {sentence && <p className={s.headline} data-part="grade-sentence">{sentence}</p>}

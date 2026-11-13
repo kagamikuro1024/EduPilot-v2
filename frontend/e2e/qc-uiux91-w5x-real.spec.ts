@@ -32,8 +32,8 @@ for (const [name, email, url] of PAGES) {
       await login(page, email);
       await page.goto(url);
       await page.waitForTimeout(4500);
-      await page.screenshot({ path: `/out/shots-w5/${name}-${w}.png` });
-      await page.screenshot({ path: `/out/shots-w5/${name}-${w}-full.png`, fullPage: true });
+      await page.screenshot({ path: `../docs/sprints/9.1/qc/shots/wave-5/${name}-${w}.png` });
+      await page.screenshot({ path: `../docs/sprints/9.1/qc/shots/wave-5/${name}-${w}-full.png`, fullPage: true });
       const t = (await page.locator("main").innerText()).replace(/\n+/g, " ⏎ ");
       console.log(`INFO ${name}@${w} H=${await page.evaluate(() => document.documentElement.scrollHeight)} :: ${t.slice(0, w === 1440 ? 1800 : 400)}`);
       await ctx.close();

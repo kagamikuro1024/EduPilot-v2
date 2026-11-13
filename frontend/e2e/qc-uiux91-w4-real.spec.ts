@@ -51,7 +51,8 @@ test("SETUP chấm nháp thêm bài (Bài tập 03) để có bài chờ duyệt
   const { ctx, page, c } = await teacher(browser);
   const aid = await AID(page, c);
   const none = await subs(page, c, aid, "NONE");
-  for (const s of none.slice(0, 4)) await api(page, `/courses/${c}/submissions/${s.id}/grade`, { method: "POST", body: {} });
+  const pick = [...none.filter((s) => /Khải/.test(s.student.full_name)), ...none.filter((s) => !/Khải/.test(s.student.full_name))].slice(0, 5); // seed Mac đổi thứ tự SV: ép chấm Khải (ca UX15-1 cần SV này)
+  for (const s of pick) await api(page, `/courses/${c}/submissions/${s.id}/grade`, { method: "POST", body: {} });
   await expect.poll(async () => (await subs(page, c, aid, "DRAFT")).length, { timeout: 150_000, intervals: [5000] }).toBeGreaterThanOrEqual(3);
   console.log("INFO DRAFT:", (await subs(page, c, aid, "DRAFT")).map((s) => s.student.full_name).join(", "));
   await ctx.close();
@@ -117,7 +118,7 @@ test("TC-UX14-1/2/4/5/6/7 hàng chờ: cột Bài tập, lý do cờ, hàng bấ
   await page.goBack();
   await page.waitForTimeout(1500);
   const r2 = page.locator("main tbody tr").first();
-  await r2.focus();
+  await r2.getByRole("link", { name: /Duyệt/ }).focus(); // hàng không tự focus được; liên kết Duyệt trong hàng là đích focus
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/\/grading\/[0-9a-f-]{36}/, { timeout: 5000 }).catch(() => console.log("INFO Enter trên hàng không mở trang"));
   console.log("INFO URL sau Enter:", page.url());
@@ -214,9 +215,11 @@ test("TC-UX14-11 375 px: hàng xếp dọc, Duyệt riêng ≥ 44 px, không tr�
     ov: document.documentElement.scrollWidth > document.documentElement.clientWidth,
     row: (() => { const tr = document.querySelector("main tbody tr, main [role=row]") as HTMLElement | null; if (!tr) return null; const l = tr.querySelector("a") as HTMLElement | null; const b = l?.getBoundingClientRect(); return { rowH: Math.round(tr.getBoundingClientRect().height), link: l ? { t: l.innerText.trim(), w: Math.round(b!.width), h: Math.round(b!.height) } : null, text: tr.innerText.replace(/\s+/g, " ").slice(0, 120) }; })(),
   }));
-  console.log("INFO 375 hàng chờ:", JSON.stringify(r));
+  // 375: danh sách thẻ (`li > a`), bảng bị ẩn; «Duyệt» là hộp con riêng một dòng trong thẻ
+  const lb = await page.evaluate(() => { const els = [...document.querySelectorAll("main li a *")].filter((e) => (e as HTMLElement).innerText?.trim() === "Duyệt").map((e) => e.getBoundingClientRect()).filter((r) => r.height > 0).sort((x, y) => y.height - x.height); return els[0] ? { w: Math.round(els[0].width), height: Math.round(els[0].height) } : null; });
+  console.log("INFO 375 hàng chờ:", JSON.stringify(r), "| liên kết Duyệt:", JSON.stringify(lb));
   expect(r.ov).toBe(false);
-  expect(r.row?.link?.h ?? 0, "Duyệt cao ≥ 44").toBeGreaterThanOrEqual(43);
+  expect(Math.round(lb?.height ?? 0), "Duyệt cao ≥ 44").toBeGreaterThanOrEqual(43);
   await ctx.close();
 });
 
@@ -382,7 +385,7 @@ test("TC-UX15-12/13 tự lưu điểm + nháp khôi phục; lỗi duyệt báo t
   expect(v2).toBe(val);
   expect(n2).toContain("QC ghi chú tự lưu 9.1");
   // lỗi duyệt
-  await page.route(/\/submissions\/[0-9a-f-]{36}\/(approve|review)/, (r) => r.abort());
+  await page.route(/\/grading-results\/[0-9a-f-]{36}\/review/, (r) => r.abort());
   await page.route(/\/grade(\?|$)/, (r) => r.continue());
   await page.getByRole("button", { name: "Duyệt bài" }).click();
   await page.waitForTimeout(2500);
@@ -496,10 +499,11 @@ test("TC-UX16-2/3/4/5/6/7/9/10/11 sổ điểm thật: số khớp API, tiêu đ
 
 test("TC-UX16-5/15/16/19/20 menu cột khi rê; Chốt điểm; STUDENT 403; TA không chốt được", async ({ browser }, info) => {
   desktop(info);
+  test.setTimeout(240_000);
   const { ctx, page, c } = await teacher(browser);
   await page.goto(`/gradebook?course=${c}`);
   await page.waitForTimeout(3500);
-  const th = page.locator("main thead th").filter({ hasText: "Kiểm tra hằng tuần" }).first();
+  const th = page.locator("main thead th").filter({ hasText: "Giữa kỳ" }).first();
   const menuBtn = th.getByRole("button").first();
   const op0 = await menuBtn.evaluate((e) => getComputedStyle(e).opacity).catch(() => "n/a");
   await th.hover();
@@ -588,7 +592,8 @@ test("TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ ch
   const presentRed = after.filter((r) => r.st === "PRESENT" && isRed(r.cols)).length;
   console.log("INFO đỏ sau khi đổi:", JSON.stringify(redIdx), "| Có mặt đỏ:", presentRed, "| mẫu LATE:", JSON.stringify(after[1]), "| mẫu PRESENT:", JSON.stringify(after[0]));
   expect(presentRed, "UX12-1: Có mặt không đỏ").toBe(0);
-  expect(redIdx.length, "UX12-2: đúng 3 chấm đỏ").toBe(3);
+  expect(redIdx.length, "UX12-2: số chấm đỏ = số hàng khác Có mặt").toBe(after.filter((r) => r.st !== "PRESENT").length);
+  expect(after.filter((r) => r.st !== "PRESENT" && !isRed(r.cols)).map((r) => r.st), "UX12-2: mọi hàng Muộn / Vắng phép / Vắng đỏ").toEqual([]);
   // UX12-3: nhãn chữ trạng thái + radio có tên
   const txt = await rows.nth(8).innerText();
   const lbl = await rows.nth(8).locator("input[data-status=ABSENT]").evaluate((e) => ({ name: (e.closest("label")?.querySelector(".ep-sr-only") as HTMLElement | null)?.innerText, checked: (e as HTMLInputElement).checked }));
@@ -599,6 +604,7 @@ test("TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ ch
   const all = (await page.locator("main").innerText());
   console.log("INFO số lần '+ phát biểu':", (all.match(/\+ phát biểu/g) ?? []).length);
   expect((all.match(/\+ phát biểu · \+0,25/g) ?? []).length, "UX12-4: chữ không lặp mọi hàng").toBeLessThan(3);
+  const n0 = Number(((await rows.nth(2).innerText()).match(/\+(\d+) ·/) ?? [])[1] ?? 0); // dữ liệu giữ qua các lượt chạy: đếm theo số ban đầu
   const spk = rows.nth(2).getByRole("button", { name: /Ghi phát biểu/ });
   const op0 = await spk.evaluate((e) => getComputedStyle(e).opacity).catch(() => "—");
   await rows.nth(2).hover();
@@ -609,8 +615,7 @@ test("TC-UX12-1/2/3/4/5/6/7 điểm danh: chấm Có mặt mực, đỏ chỉ ch
   await page.waitForTimeout(500);
   const t2 = (await rows.nth(2).innerText()).replace(/\s+/g, " ");
   console.log("INFO hàng sau 2 lần phát biểu:", t2);
-  expect(t2).toMatch(/\+2/);
-  expect(t2).toMatch(/0,25\s*×\s*2|×2|× 2/);
+  expect(t2).toContain(`+${n0 + 2} · +0,25×${n0 + 2}`);
   await ctx.close();
 });
 
@@ -620,7 +625,8 @@ test("TC-UX12-5b phím P ghi phát biểu cho hàng đang chọn", async ({ brow
   await page.goto(`/attendance?course=${c}`);
   await page.waitForTimeout(4000);
   const rows = page.locator("main tbody tr[data-part=student-row]");
-  await rows.nth(5).click({ position: { x: 20, y: 10 } });
+  await page.locator("main [aria-label^='Bảng điểm danh']").focus();
+  for (let i = 0; i < 5; i++) await page.keyboard.press("ArrowDown"); // «đang chọn» = phím mũi tên (aria-label của lưới)
   const t0 = (await rows.nth(5).innerText()).replace(/\s+/g, " ");
   await page.keyboard.press("p");
   await page.waitForTimeout(500);

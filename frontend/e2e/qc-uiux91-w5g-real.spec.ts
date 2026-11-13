@@ -32,7 +32,7 @@ test("TC-UX20-6/7 /me rỗng và lỗi", async ({ browser }, info) => {
   await page.route(/\/courses\/[0-9a-f-]+\/me\/grades(\?.*)?$/, (r) => r.fulfill({ json: empty }));
   await page.goto("/me"); await page.waitForTimeout(4500);
   console.log("INFO UX20-6 rỗng:", JSON.stringify((await page.locator("main").innerText()).replace(/\s+/g, " ").slice(0, 300)));
-  await page.screenshot({ path: "/out/shots-w5/me-empty-1440.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/me-empty-1440.png" });
   await page.unroute(/\/courses\/[0-9a-f-]+\/me\/grades(\?.*)?$/);
   await page.route(/\/courses\/[0-9a-f-]+\/me\/grades(\?.*)?$/, (r) => r.abort());
   await page.goto("/me"); await page.waitForTimeout(4500);
@@ -91,7 +91,7 @@ test("TC-UX17-8/9 admin xem prompt; lớp chưa có báo cáo", async ({ browser
   await page.evaluate((id) => localStorage.setItem("ep:ui:course", id), c);
   await page.goto("/insights"); await page.waitForTimeout(4500);
   console.log("INFO UX17-9 lớp QC117283:", JSON.stringify((await page.locator("main").innerText()).replace(/\n+/g, " ⏎ ").slice(0, 300)), "| nút:", JSON.stringify(await page.locator("main button").allInnerTexts()));
-  await page.screenshot({ path: "/out/shots-w5/insights-empty-qc-1440.png" });
+  await page.screenshot({ path: "../docs/sprints/9.1/qc/shots/wave-5/insights-empty-qc-1440.png" });
   await ctx.close();
   const { ctx: c2, page: p2 } = await fresh(browser, "admin@edupilot.local");
   await p2.goto("/observability"); await p2.waitForTimeout(4500);

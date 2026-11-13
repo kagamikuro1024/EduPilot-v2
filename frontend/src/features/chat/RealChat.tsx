@@ -62,6 +62,11 @@ export function RealChat({ courseId }: { courseId: string }) {
   const endRef = useRef<HTMLDivElement>(null);
   const resumed = useRef<string | null>(null);
 
+  // phiên đang xem nằm trong URL: tải lại mở đúng phiên đó, nháp (khoá theo phiên) còn nguyên (UX13-19)
+  useEffect(() => {
+    window.history.replaceState(null, "", sid ? `/chat?session=${sid}` : "/chat");
+  }, [sid]);
+
   const sessions = useChatSessions(courseId);
   const messages = useChatMessages(sid);
   const lock = useExamLock();
@@ -293,6 +298,7 @@ function Intro({ suggestions, onPick }: { suggestions: string[]; onPick: (text: 
   return (
     <div className={s.intro}>
       <p className="ep-item-title">Hỏi bất cứ điều gì về lớp này.</p>
+      <p className={s.introText}>Phiên chat này chỉ bạn đọc được.</p>
       <ul className={r.suggest} data-part="chat-suggestions">
         {suggestions.map((t) => (
           <li key={t}>

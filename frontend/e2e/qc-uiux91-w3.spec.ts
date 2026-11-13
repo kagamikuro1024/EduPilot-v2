@@ -282,6 +282,7 @@ test("TC-UX11-1/2/3/4/6 SV: thứ tự lời chào → Việc nên làm tiếp �
   const cont = [chat("s1", "Sâu Morris là gì", "2026-11-02T02:00:00Z"), chat("s2", "Sâu Morris là gì", "2026-11-05T02:00:00Z"), chat("s3", "Ransomware hoạt động", "2026-11-04T02:00:00Z"), chat("s4", "Mỗi lần phát biểu", "2026-11-03T02:00:00Z"), chat("s5", "sâu morris là gì", "2026-11-01T02:00:00Z"), chat("s6", "Sâu Morris là gì", "2026-11-06T02:00:00Z", c1)];
   await open(page, "STUDENT", [mine(C2, "761987", "STUDENT"), mine(C1, "761988", "STUDENT")], () => sv({ continue: cont.slice(0, 5) }));
   await page.getByRole("heading", { level: 1 }).waitFor();
+  await page.getByRole("heading", { name: /^Tiếp tục học/ }).waitFor(); // khối cuối: chờ dữ liệu "Hôm nay" về hết rồi mới đo thứ tự (CI chậm hơn máy dev)
   const order = await page.evaluate(() => {
     const pos = (re: RegExp) => { const h = [...document.querySelectorAll("main h1, main h2, main h3")].find((e) => re.test((e as HTMLElement).innerText.trim())); return h ? { y: Math.round(h.getBoundingClientRect().top + scrollY), t: (h as HTMLElement).innerText.trim() } : null; };
     return [pos(/^Chào /), pos(/^Việc nên làm tiếp/), pos(/^Hôm nay$/), pos(/^Tiếp tục học/)];

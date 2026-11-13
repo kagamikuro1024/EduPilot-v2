@@ -151,6 +151,21 @@ test("draft: nháp tự lưu 2 s và khôi phục sau tải lại", async ({ pag
   await expect(composer(page)).toHaveValue("nháp của tôi");
 });
 
+test("draft theo phiên: đang xem một phiên, gõ nháp, tải lại → vẫn đúng phiên đó và nháp còn (UX13-19)", async ({ page, context }) => {
+  const h = {
+    "GET /chat/sessions": json({ items: [session()], next_cursor: null }),
+    [`GET /chat/sessions/${SID}/messages`]: json({ items: [msg()], next_cursor: null }),
+  };
+  await open(page, context, h);
+  await page.getByRole("button", { name: /Quy chế thi/ }).first().click();
+  await composer(page).fill("nháp sau khi gửi");
+  await page.waitForTimeout(2500);
+  await page.reload();
+  await page.locator("[data-part=chat-thread]").waitFor();
+  expect(new URL(page.url()).searchParams.get("session")).toBe(SID);
+  await expect(composer(page)).toHaveValue("nháp sau khi gửi");
+});
+
 test("reload mid-stream: tin đang sinh được nối lại bằng Last-Event-ID, câu trả lời đủ", async ({ page, context }) => {
   let gets = 0;
   const calls = await open(page, context, {
