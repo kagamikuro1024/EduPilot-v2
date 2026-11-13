@@ -1,0 +1,91 @@
+{
+  "meta": {
+    "commit": "aafd87f0",
+    "timestamp": "2026-11-13T20:01:17.624Z",
+    "machine": "MacBook Apple Silicon 18 GB, Colima 6 CPU / 10 GB, k6 trong VM 1,5 CPU",
+    "runs": 1,
+    "config": {
+      "scenario": "grade-1000",
+      "courses": 20,
+      "provider": "fake",
+      "worker_fake_latency": "20000-20000",
+      "grading_workers": "5",
+      "compose_project": "ep-t1"
+    },
+    "k6_cpus": "1.5",
+    "demo_stack": "stopped"
+  },
+  "queued": 1000,
+  "hours": 0.17,
+  "done": 150,
+  "failed": 0,
+  "orphan": 0,
+  "graded_twice": 0,
+  "slo_hours": 3,
+  "pass": false,
+  "progress": [
+    {
+      "minute": 0,
+      "RUNNING": 5,
+      "QUEUED": 145
+    },
+    {
+      "minute": 1,
+      "RUNNING": 5,
+      "QUEUED": 130,
+      "DONE": 15
+    },
+    {
+      "minute": 2,
+      "RUNNING": 5,
+      "QUEUED": 115,
+      "DONE": 30
+    },
+    {
+      "minute": 3,
+      "RUNNING": 5,
+      "QUEUED": 100,
+      "DONE": 45
+    },
+    {
+      "minute": 4,
+      "RUNNING": 5,
+      "QUEUED": 85,
+      "DONE": 60
+    },
+    {
+      "minute": 5,
+      "RUNNING": 5,
+      "QUEUED": 70,
+      "DONE": 75
+    },
+    {
+      "minute": 6,
+      "RUNNING": 5,
+      "QUEUED": 55,
+      "DONE": 90
+    },
+    {
+      "minute": 7,
+      "RUNNING": 5,
+      "QUEUED": 40,
+      "DONE": 105
+    },
+    {
+      "minute": 8,
+      "RUNNING": 5,
+      "QUEUED": 25,
+      "DONE": 120
+    },
+    {
+      "minute": 9,
+      "RUNNING": 5,
+      "QUEUED": 10,
+      "DONE": 135
+    },
+    {
+      "minute": 10,
+      "DONE": 150
+    }
+  ]
+}
