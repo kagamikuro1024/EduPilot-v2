@@ -87,5 +87,6 @@
       "minute": 10,
       "DONE": 150
     }
-  ]
+  ],
+  "note": "LƯỢT KHÔNG HỢP LỆ (lỗi script đo, không phải giới hạn sản phẩm): `grade-all-t1.mjs` đặt Idempotency-Key bằng 8 ký tự đầu của id lớp; id lớp UUIDv7 tạo cùng một mili-giây nên 20 lớp trùng khoá, mỗi giảng viên (3 người) chỉ xếp được MỘT lớp, các lần còn lại bị phát lại (200 `queued: 50` của lần đầu) — 3 lớp × 50 = 150 việc, khớp `done` 150, trong khi tổng `queued` cộng từ các phản hồi phát lại ra 1000. Driver còn dừng khi chưa có dòng QUEUED / RUNNING. Đã sửa cả hai (khoá dùng id lớp đầy đủ, chờ tới khi DONE + FAILED = queued). Chưa chạy lại: stack ep-t1 đã `down -v`."
 }

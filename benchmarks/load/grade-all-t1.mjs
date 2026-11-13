@@ -23,7 +23,7 @@ if (!targets.length) die("Không còn BT4 nào chưa chấm (xoá grading_result
 const started = Date.now();
 let queued = 0;
 for (const [course, assignment, email] of targets) {
-  const r = await api(`/courses/${course}/assignments/${assignment}/grade-all`, await login(email.split("@")[0]), { method: "POST", body: "{}", headers: { "Idempotency-Key": `g1000-${course.slice(0, 8)}-${started}` } });
+  const r = await api(`/courses/${course}/assignments/${assignment}/grade-all`, await login(email.split("@")[0]), { method: "POST", body: "{}", headers: { "Idempotency-Key": `g1000-${course}-${started}` } });
   if (r.status !== 202) die(`grade-all ${course} → ${r.status}`);
   queued += (await r.json()).queued;
 }
@@ -33,7 +33,7 @@ const progress = [];
 for (;;) {
   const st = Object.fromEntries(psql(`select run_state, count(*) from grading_results where ${where} group by 1`).split("\n").filter(Boolean).map((l) => l.split("|")).map(([k, v]) => [k, Number(v)]));
   progress.push({ minute: Math.round((Date.now() - started) / 60000), ...st });
-  if (!(st.QUEUED || st.RUNNING)) break;
+  if ((st.DONE ?? 0) + (st.FAILED ?? 0) >= queued) break; // dòng grading_results được sinh dần theo lô: không được dừng chỉ vì lúc đó chưa có dòng QUEUED / RUNNING
   if ((Date.now() - started) / 3.6e6 > maxHours) break;
   await new Promise((r) => setTimeout(r, 60000));
 }
