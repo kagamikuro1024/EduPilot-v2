@@ -252,6 +252,7 @@ Khoá xếp và khuôn `Item` theo `FEAT-course-foundation` 4.7. Bảng bậc d�
 | 60 | `UNMATCHED_SUBMISSION` | P7 (dự kiến) | |
 | 70 | `GRADE_SCHEME_UNCONFIRMED` | P6 (dự kiến) | |
 | 80 | `COURSE_SETUP` | P2 (có) | `TierCourseSetup` |
+| **85** | **`PRACTICE_WEAK_TOPIC`** | **P9 (có)** | `TierPracticeWeakTopic`; chỉ STUDENT: "Ôn chủ đề {tên}" → `/practice?topic=…` (P-10-6, `FEAT-practice` FR-19) |
 | 90 | `QUESTION_REVIEW` | PE (có — không phải P9) | `TierQuestionReview` |
 | **95** | **`STUDENT_ATTENTION`** | **P5** | "{n} sinh viên mới vào diện cần chú ý · {mã lớp}" (`student_risk.entered_at ≥ now() − 7 ngày`, `level='AT_RISK'`); `Href=/students?filter=attention&course=…` |
 
