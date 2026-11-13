@@ -42,11 +42,23 @@
       "dead_stream_len": 50,
       "waited_seconds": 129,
       "pass": true
+    },
+    "docling_down_120s": {
+      "at": "2026-11-13T22:48:28.505Z",
+      "in": 3,
+      "ready": 3,
+      "failed_dead_letter": 0,
+      "failed_errors": [],
+      "orphan": 0,
+      "jobs_open_after": 0,
+      "seconds_to_terminal_after_restart": 41,
+      "new_document_after_restart": "READY",
+      "pass": true
     }
   },
   "demo_stack": {
-    "before": "exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited",
-    "after": "exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited,exited",
+    "before": "running,running,running,exited,running,running,running,running,running,running,running,running,running,running",
+    "after": "running,running,running,exited,running,running,running,running,running,running,running,running,running,running",
     "note": "trạng thái các container của project edupilot trước / sau chaos (không bị đụng)"
   }
 }
