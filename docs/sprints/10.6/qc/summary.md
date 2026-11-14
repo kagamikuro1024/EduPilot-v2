@@ -37,3 +37,6 @@ Hoãn (PM): `benchmarks/guidance/run.sh`, `cmd/regress run` / `evaluate` thật,
 
 ## Trạng thái stack
 `ep-qc` giữ ở `975f9541` (gateway / worker / frontend dựng lại, DB giữ nguyên nhưng **bẩn**: lưu ý v0…v4, 4 nháp đã duyệt / loại, 2 ca hồi quy, route `GRADING` trỏ **stub QC** cổng 8777). Muốn kiểm chứng giaovien sạch → dựng lại DB + seed (≈ 9 phút) rồi trả route về mặc định.
+
+## Đang dở (tạm dừng 2026-11-14)
+Không có việc dở. `ep-qc` sạch ở `c183c3a4`, route chữ → 9router, URL `http://localhost:580`, hướng dẫn `~/kc-giaovien/TRUY-CAP.md`; chờ dev nạp lớp KC106. Còn gác: đợt R (smoke hồi quy F1–F19), TC sprint 11 pha 2.
