@@ -100,3 +100,5 @@ Không sửa: L2/X1 của `analytics`, `observability` (mô phỏng, chỉ gọi
 - observability «Lớp … 7 ngày»: luôn có Section; không số → `EmptyState` «Chưa có số liệu».
 - chat: khối rỗng lệch −4 px do `padding-right` chừa thanh cuộn → bỏ khi chưa có tin.
 - `useScrollRow`: vùng cuộn ngang không có điều khiển nào tự nhận `tabindex=0` (axe `scrollable-region-focusable`).
+
+**Đang dở / bước tiếp (tạm dừng theo PM):** không có thay đổi dở; P-107-15 đã push (`be299a3e`). Bước tiếp: QC build lại ep-qc đo @be299a3e; nếu `visual` đổi thì lấy ảnh mốc từ artifact CI (`e2e-reports-N`) và sinh lại; sau đó mới tới sprint 11 (P-11-13, rebase `wip/11-wave1`).
