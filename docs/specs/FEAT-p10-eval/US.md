@@ -178,15 +178,16 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
 ---
 
 ## US-P10-08: Đội muốn 8 trang đạt LCP ≤ 2,5 s trên build production, để giữ ngân sách hiệu năng không nới
-Ưu tiên: Must · Ước lượng: L · Sprint: 11 · **Đợt 3** · Nợ G7-23 + 9.5 TL-2f; chủ dự án chốt 2026-11-14: **sửa mã, không nới ngưỡng**
+Ưu tiên: Must · Ước lượng: L · Sprint: 11 · **Đợt 3** · Nợ G7-23 + 9.5 TL-2f; chủ dự án chốt 2026-11-14: **sửa mã, không nới ngưỡng**; PM P-11-5, P-11-6: đo ở trạng thái quay lại, chỉ hướng (a)
 
 ### Tiêu chí nghiệm thu
-- AC1 (bộ đo). Given `benchmarks/lighthouse/run.sh` (devtools throttle, build production, đăng nhập thật, dữ liệu T1) Then đo 8 route: `/`, `/chat`, `/threads`, `/inbox`, `/gradebook`, `/me`, `/settings/llm`, `/assignments/[id]`; `/dev/ui` không đo (Q-E-11).
+- AC1 (bộ đo). Given `benchmarks/lighthouse/run.sh` (devtools throttle, build production, đăng nhập thật, dữ liệu T1) Then đo 8 route: `/`, `/chat`, `/threads`, `/inbox`, `/gradebook`, `/me`, `/settings/llm`, `/assignments/[id]`; `/dev/ui` không đo (Q-E-11). **Trạng thái đo (P-11-5):** tài khoản đo đã bấm «Đã hiểu» ở hộp thoại thời gian học một lần trước lượt đo (người dùng quay lại; dữ liệu T1 không đổi); số đo **lần đầu** (chưa bấm) báo riêng, không tính vào ngưỡng.
 - AC2 (đạt). Given lần đo Then `largest-contentful-paint` **trung vị 3 lượt ≤ 2.500 ms** ở cả 8 route; ngưỡng `lighthouserc.devtools.json` **giữ 2.500** (cấm nới).
 - AC3 (nguyên nhân). Given mỗi route từng trượt (`/threads`, `/inbox`, `/gradebook`, `/me`, `/settings/llm`, `/assignments/[id]`) Then handoff nêu nguyên nhân từ waterfall (làm mới phiên → dữ liệu → vẽ) và cách sửa; sửa **ở mã** (ví dụ tải song song, bỏ chuỗi phụ thuộc, dữ liệu đầu trang theo mức mở dần), không cắt tính năng, không đổi dữ liệu đo.
+- AC3a (đổi chữ khối lớn nhất, P-11-6a; BA xác nhận theo luật chữ UI). Given khối chữ lớn nhất sau phiên vượt PreShell Then đổi theo bảng, **không thêm câu giải thích, không tooltip mới**: `/settings/llm` trạng thái rỗng → «Chưa có nhà cung cấp» + nút `Thêm nhà cung cấp`; `/gradebook` thông báo điểm cộng ghi tay → nhãn «Ghi tay» gắn cạnh cột / ô liên quan (không câu dài); `/me` headline → một dòng `nhãn + giá trị` «Điểm quá trình  8,75 / 10» cỡ chữ ≤ h1 của PreShell; `/inbox` dòng ticket còn 1 dòng ở 412 px. Chữ khác trong các màn này giữ nguyên. Đổi chữ nào có trong SRS thì vá SRS cùng đợt (CLAUDE.md luật chữ UI).
 - AC4 (không hồi quy). Given sau sửa Then TBT các route vẫn ≤ ngưỡng hiện có; e2e liên quan xanh; không route nào xấu đi > 10% LCP ở nhóm đang đạt (`/`, `/chat`).
 - AC5 (CI). Given CI Then job Lighthouse đo cùng bộ route và đỏ nếu LCP > 2.500; số đo ghi «trên MacBook Apple Silicon, Colima 6 CPU / 10 GB».
-- AC6 (nhánh lỗi). Given route nào chưa đạt sau lượt sửa cuối Then **không nới ngưỡng**: ghi route, số đo, nguyên nhân, đề xuất vào `proposals.md` để PM quyết; story **FAIL** cho route đó.
+- AC6 (route còn trượt; P-11-6). Given route nào còn LCP > 2.500 ms sau U1–U4 và (a) Then **không nới ngưỡng** và **không** làm SSR dữ liệu đầu trang / làm mới phiên phía máy chủ ((b) đụng auth, chưa có quyết định chủ dự án): ghi route, số đo thật (trung vị 3 lượt, cả trạng thái quay lại lẫn lần đầu), phần tử LCP, nguyên nhân vào handoff + `docs/PROGRESS.md` mục Nợ; **story không tính FAIL** vì route đó. Báo cáo ghi thêm thời điểm dữ liệu đầu trang vẽ xong để không trình bày LCP-theo-PreShell như thể dữ liệu đã hiện.
 
 ### Ngoài phạm vi của story này
 - Đo trên điện thoại thật; tối ưu máy chủ (SLO máy chủ đã đạt ở 9.5).
@@ -216,7 +217,7 @@ Mã vai: ADMIN, TEACHER, TA, STUDENT. «Lớp» = `course_id` của đường d�
 Ưu tiên: Must · Ước lượng: L · Sprint: 11 · **Đợt 4** · «KHÔNG ĐƯỢC CẮT» (P10)
 
 ### Tiêu chí nghiệm thu
-- AC1 (một lệnh). Given repo When `make eval` Then chạy E1–E6 theo PRD §Đánh giá và ghi `benchmarks/reports/e{1..6}.json` + `.md` + biểu đồ PNG; mục đang chờ dữ liệu người ghi `status:"WAITING_HUMAN"` (không chạy giả).
+- AC1 (một lệnh). Given repo When `make eval` Then chạy E1–E6 theo PRD §Đánh giá và ghi `benchmarks/reports/e{1..6}.json` + `.md` + biểu đồ **SVG** (sinh bằng thư viện chuẩn Python, không `matplotlib`; P-11-2); mục đang chờ dữ liệu người ghi `status:"WAITING_HUMAN"` (không chạy giả).
 - AC2 (chỉ HTTP). Given mã đánh giá Then ở `benchmarks/`, Python, **chỉ gọi HTTP API của gateway**; không import mã Go; không service Python thường trực (D46). Kiểm: `grep -r "import.*backend" benchmarks` = 0.
 - AC3 (E1 PII). Given bộ 200 bài gắn nhãn (nhãn do người gán) Then báo P / R / F1 kênh + từng loại PII, tỉ lệ chặn nhầm, rò rỉ payload; mục tiêu F1 kênh ≥ 0.90, **rò rỉ = 0** (đề xuất mục tiêu, Q-E-14).
 - AC4 (E2 ngưỡng). Given golden set quy chế + 100 câu học thuật có nhãn Then đường cong escalate-rate / error-rate theo ngưỡng (≥ 7 điểm).

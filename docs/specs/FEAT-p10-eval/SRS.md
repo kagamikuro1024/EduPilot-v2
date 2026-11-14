@@ -1,5 +1,7 @@
 # SRS FEAT-p10-eval Observation A + B, đánh giá, hoàn thiện
-Phiên bản 1.1 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+Phiên bản 1.2 · 2026-11-14 · Trạng thái: **APPROVED** (PM uỷ quyền; Q-E-1, Q-E-4, Q-E-21 theo phương án **an toàn nhất**, PM xác nhận P-11-1 — `QUESTIONS.md`)
+
+**v1.2 (P-11-2, P-11-5, P-11-6):** US-P10-10 AC1 biểu đồ PNG → SVG; US-P10-08 AC1 trạng thái đo, AC3a đổi chữ, AC6 route trượt ghi Nợ (không FAIL); FR-19, FR-20.
 
 ## 1. Mục đích và phạm vi
 Hoàn tất M13 (Observation A: `/observability`; B: `/insights`), thống kê điểm thi PE trên `/analytics`, đóng Nợ (UX17-8/9, LCP, L6), đo đạc E1–E6, E2E F1–F17, rà bảo mật và hoàn thiện cho buổi bảo vệ.
@@ -66,7 +68,7 @@ sequenceDiagram
 | Lớp chưa có báo cáo | `404` ở `latest` | `EmptyState` + `Tạo báo cáo mới` |
 | Chủ đề < 3 SV | `examples=[]`, nhãn «Ít người hỏi» | Không mục gập câu mẫu |
 | Cảnh báo cùng loại trong 6 giờ | Bỏ qua | Không thông báo lặp |
-| Lỗi LCP không đạt sau lượt cuối | Không nới ngưỡng; `proposals.md` | Story FAIL route đó |
+| LCP còn > 2.500 ms sau U1–U4 + (a) | Không nới ngưỡng, không SSR / đổi auth (P-11-6); ghi số thật + Nợ | Story không FAIL vì route đó |
 | Gateway chưa chạy khi `make eval` | Thoát ≠ 0, không báo cáo rỗng | «Gateway chưa chạy» |
 
 ## 4. Yêu cầu chức năng
@@ -90,8 +92,8 @@ sequenceDiagram
 | FR-16 | `/insights`: danh sách biên tập, trạng thái rỗng / đang tạo / lỗi, nháp thread ghim, form buổi ôn tập, in PDF bằng trình duyệt | P10-05 |
 | FR-17 | Thống kê điểm thi: phân bố, trung bình / trung vị / tỉ lệ đạt, xu hướng, câu sai nhiều, tụt 3 bài liên tiếp, so sánh lớp (≥ 5 bài nộp/lớp); chỉ bài `PUBLISHED`; ADMIN chỉ tổng | P10-06 |
 | FR-18 | `StartIn.Count` phân biệt «thiếu» (mặc định 10) và «0 / âm / > 50» (`422`) | P10-09 |
-| FR-19 | Bộ đo Lighthouse 8 route, LCP trung vị ≤ 2.500 ms, ngưỡng không đổi | P10-08 |
-| FR-20 | `make eval` E1–E6 → JSON + MD + PNG; chỉ HTTP; `WAITING_HUMAN` khi thiếu chuẩn người | P10-10 |
+| FR-19 | Bộ đo Lighthouse 8 route ở trạng thái người dùng quay lại (P-11-5), LCP trung vị ≤ 2.500 ms, ngưỡng không đổi; đổi chữ khối lớn nhất theo luật chữ UI (P-11-6a); route còn trượt → số thật + Nợ | P10-08 |
+| FR-20 | `make eval` E1–E6 → JSON + MD + SVG (thư viện chuẩn, P-11-2); chỉ HTTP; `WAITING_HUMAN` khi thiếu chuẩn người | P10-10 |
 | FR-21 | Bảng luồng × spec × kết quả F1–F17; spec bù cho luồng thiếu | P10-11 |
 | FR-22 | Rà bảo mật, README, compose production, visual QA 2 lượt, 10 câu nghiệm thu, demo 15 phút | P10-12 |
 | FR-23 | Seed A + B + điểm thi và `check-p10-seed.mjs` idempotent | P10-07 |
