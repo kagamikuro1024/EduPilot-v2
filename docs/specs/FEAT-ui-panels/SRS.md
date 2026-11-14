@@ -189,7 +189,7 @@ type PanelSectionProps = { title?: ReactNode; action?: ReactNode; tone?: "defaul
 
 | Phần | Nền | Cạnh | Ghi chú |
 | --- | --- | --- | --- |
-| `<body>` / `main` | `--ep-canvas` | — | cuộn; `Page` giữ `reading` 960 / `wide` 1440 / `full`; **< 720 px `padding-inline: var(--ep-space-3)`** (12 px, một quy tắc lề — TLR-4) |
+| `<body>` / `main` | `--ep-canvas` | — | cuộn; `Page` có hai kiểu (`DESIGN.md` §23.1; P-107-1, P-107-4): `work` (≤ `--ep-page-work` 100 rem; `LEFT` `h1` = 240 ở 1440) và `read` (`--ep-page-read` 800 px căn giữa; `LEFT` `h1` = 428 ở 1440); ở 390 / 375 cả hai = 16 / 12; **< 720 px `padding-inline: var(--ep-space-3)`** (12 px, một quy tắc lề — TLR-4) |
 | Sidebar (cố định) | `--ep-surface` | `border-right: 1px solid var(--ep-rule)` | mục `hover` / đang chọn nền `--ep-surface-subtle`; vạch đỏ 2 px "đang ở đâu" giữ |
 | Thanh trên (cố định, 56 px) | `--ep-surface` | `border-bottom: 1px solid var(--ep-rule)` | đặc, không `backdrop-filter` |
 | Thanh dưới mobile | `--ep-surface` | `border-top: 1px solid var(--ep-rule)` | 4 đích + "Thêm" |
