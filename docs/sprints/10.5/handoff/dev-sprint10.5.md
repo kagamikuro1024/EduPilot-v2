@@ -14,7 +14,7 @@ Bản giả không gọi mạng, tất định. Khoá phát lại = `sha256(đ�
 | Có trong replay, `choice` conf ≥ τ | `choice` | nhãn + xác suất của replay | `Symmetric`: FAST |
 | **Không có trong replay (đầu vào lạ)** | `noul` | **0,25** (trung tính, dưới ngưỡng "có", trên ε 0,01–0,20) | FALLBACK |
 | Không có trong replay | `choice` | các nhãn chia đều, confidence = 1/n | FALLBACK |
-| bất kỳ, `FAKE_DECISION_PROB=p` | `noul` / `choice` | `noul` = p; nhãn đứng đầu (theo bảng chữ cái) có confidence p | theo p |
+| không có trong replay, `FAKE_DECISION_PROB=p` (replay thắng) | `noul` / `choice` | `noul` = p; nhãn đứng đầu (theo bảng chữ cái) có confidence p | theo p |
 | bất kỳ, `LLM_DECISION_FAKE_MODE=always_yes` / `always_no` | `noul` | 0,99 / 0,01 | FAST |
 | bất kỳ, `…MODE=error` | — | HTTP 503 giả | FALLBACK (hoặc FAIL_CLOSED nếu fallback cũng lỗi) |
 | bất kỳ, `…MODE=timeout` | — | treo tới hết hạn ctx | FALLBACK |
@@ -36,3 +36,8 @@ Bản thật gọi `POST {base}/decisions` (header `x-goog-api-key`). `{base}` l
 - Cấu hình cổng ở hai bảng `decision_gates` / `course_decision_gates` (không phải cột trên `courses`); ngưỡng ở `decision_gates`.
 - `Client` có 5 hàm: `TestClientSurface` đổi từ 4 → 5 (đúng SRS 4.1). Tên kiểu cổng là `llm.DecideGate` (`llm.Gate` đã là giao diện Scheduler).
 - Migration seed một nhà `decision` nên `ListProviders` trả thêm 1 hàng: `TestNoNPlusOne` đổi `Len 20 → 21`; hạn mức 20 nhà không tính nhà `decision` (`CountLLMProviders`).
+
+## P-105-2 (đã làm)
+
+- `TestStudentNeverSeesDraftGrade`: «6.37» khớp vào dấu thời gian `…46.379254Z` (dương tính giả theo giờ chạy). Không bề mặt nào lộ điểm nháp (kiểm lại cả 8 trạng thái × 7 bề mặt + tool tóm tắt). Phép kiểm số đổi từ chuỗi con sang `leaksNumber` (số đứng riêng, ranh giới chữ số / dấu chấm; thử cả dấu phẩy); chuỗi canary chữ và các khoá cấm giữ nguyên. Thêm `TestLeaksNumber` (dấu thời gian không báo nhầm; số thật, chuỗi `"6,37"`, `"được 6.37 điểm"` vẫn bị bắt, kể cả khi cùng body có dấu thời gian vô hại).
+- Hai test sửa ở L1 theo spec: `TestClientSurface` 4→5 hàm; `TestNoNPlusOne` `Len 20→21` (seed nhà `decision`).
