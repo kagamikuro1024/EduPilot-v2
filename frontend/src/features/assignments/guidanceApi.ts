@@ -53,7 +53,7 @@ export const useGuidanceStats = (course: string, aid: string, enabled: boolean) 
     enabled,
     staleTime: 0,
     retry: false,
-    queryFn: async ({ signal }) => (await apiClient.get<{ items: GuidanceStatsRow[] }>(`${base(course, aid)}/guidance/stats`, { signal })).data.items,
+    queryFn: async ({ signal }) => (await apiClient.get<{ items: GuidanceStatsRow[]; regression_cases: number }>(`${base(course, aid)}/guidance/stats`, { signal })).data,
   });
 
 export const reflectGuidance = async (course: string, aid: string, idempotencyKey: string) =>

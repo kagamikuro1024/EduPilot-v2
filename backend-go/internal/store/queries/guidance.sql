@@ -227,3 +227,10 @@ join forum_posts p on p.course_id = c.course_id and p.id = c.source_id
 join courses co on co.id = c.course_id
 where c.course_id = sqlc.arg(course_id) and c.kind in ('THREAD_CORRECTED', 'THREAD_REJECTED')
 order by c.created_at, c.id limit sqlc.arg(page_limit);
+
+-- name: GuidanceRegressionCount :one
+-- Số ca hồi quy chấm của bài tập (P-106-10, US-GD-07 AC6): GRADING_EDIT / GRADING_APPEAL có source_id là kết quả chấm của bài tập. Chỉ là số; không theo phiên bản.
+select count(*)::int from grading_regression_cases c
+where c.course_id = sqlc.arg(course_id) and c.kind in ('GRADING_EDIT', 'GRADING_APPEAL')
+  and exists (select 1 from grading_results r join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+              where r.course_id = c.course_id and r.id = c.source_id and s.assignment_id = sqlc.arg(assignment_id));

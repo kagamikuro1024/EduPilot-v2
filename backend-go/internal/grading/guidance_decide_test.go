@@ -413,3 +413,24 @@ func TestGuidanceDeleteStudent(t *testing.T) {
 	require.NotContains(t, items, stu.String(), "lưu ý không chứa id sinh viên")
 	require.NotContains(t, items, "Sinh Vien Bi Xoa")
 }
+
+// TestGuidanceStatsRegressionCases — P-106-10 / US-GD-07 AC6: `regression_cases` đếm ca chấm (GRADING_EDIT + GRADING_APPEAL) của ĐÚNG bài tập; không đếm ca Threads hay ca của kết quả khác; không có thì 0.
+func TestGuidanceStatsRegressionCases(t *testing.T) {
+	g := newGradeEnv(t, nil)
+	svc, _ := newGuidanceSvc(t, g, true)
+	v, err := svc.Stats(t.Context(), g.course, g.asg)
+	require.NoError(t, err)
+	require.Zero(t, v.RegressionCases)
+	a, b := g.staleRes("RA", "REVIEWED", 0, 1, "1.00", true), g.staleRes("RB", "REVIEWED", 0, 1, "1.00", true)
+	ins := func(kind string, src uuid.UUID) {
+		g.exec(`insert into grading_regression_cases (course_id, kind, source_id, criterion_id, expected) values ($1, $2, $3, 'c1', '{"direction":"STRICTER"}'::jsonb)`, g.course, kind, src)
+	}
+	ins("GRADING_EDIT", a)
+	ins("GRADING_EDIT", b)
+	ins("GRADING_APPEAL", a)
+	ins("THREAD_CORRECTED", uuid.New()) // ca của lớp, không thuộc bài tập
+	ins("GRADING_EDIT", uuid.New())     // tham chiếu không phải kết quả của bài tập
+	v, err = svc.Stats(t.Context(), g.course, g.asg)
+	require.NoError(t, err)
+	require.Equal(t, 3, v.RegressionCases)
+}

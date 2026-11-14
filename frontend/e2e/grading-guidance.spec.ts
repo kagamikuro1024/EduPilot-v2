@@ -23,7 +23,7 @@ async function openDrawer(page: Page, context: Parameters<typeof asDemo>[0], ov:
   const api = await assignmentsApi(page, {
     h: {
       "GET assignments/:id/guidance": (r) => r.fulfill(json(ov())),
-      "GET assignments/:id/guidance/stats": (r) => r.fulfill(json({ items: [] })),
+      "GET assignments/:id/guidance/stats": (r) => r.fulfill(json({ items: [], regression_cases: 3 })),
       ...h,
     },
   });
@@ -47,6 +47,7 @@ test("ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expect
   });
   const panel = page.locator("[data-part=guidance-panel]");
   await expect(panel).toContainText("Bản v1");
+  await expect(panel.locator("[data-part=guidance-cases]")).toHaveText("Ca kiểm thử 3");
   await expect(panel.locator("[data-part=guidance-item]")).toContainText("Chấm chặt hơn khi chỉ nêu tên tác nhân");
   await expect(panel.getByRole("button", { name: "Áp dụng" })).toBeDisabled();
   await panel.getByRole("button", { name: "Duyệt" }).click();

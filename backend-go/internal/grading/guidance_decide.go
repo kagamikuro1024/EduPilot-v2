@@ -292,7 +292,8 @@ type VersionStats struct {
 
 // StatsView là phản hồi #8.
 type StatsView struct {
-	Items []VersionStats `json:"items"`
+	Items           []VersionStats `json:"items"`
+	RegressionCases int            `json:"regression_cases"` // P-106-10: số ca GRADING_EDIT / GRADING_APPEAL của bài tập (chỉ số, không trả ca)
 }
 
 // minStatsN là cỡ mẫu tối thiểu để công bố số trung bình (SRS 4.2.13).
@@ -343,6 +344,11 @@ func (s *GuidanceService) Stats(ctx context.Context, course, assignment uuid.UUI
 	}
 	slices.Sort(vers)
 	out := StatsView{Items: []VersionStats{}}
+	cases, err := q.GuidanceRegressionCount(ctx, store.GuidanceRegressionCountParams{CourseID: course, AssignmentID: &assignment})
+	if err != nil {
+		return StatsView{}, fmt.Errorf("guidance: đếm ca hồi quy: %w", err)
+	}
+	out.RegressionCases = int(cases)
 	for _, v := range vers {
 		a := by[v]
 		it := VersionStats{Version: v, N: a.n, EditedCriteria: a.edited, CriteriaCounted: a.crit}

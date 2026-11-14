@@ -568,6 +568,26 @@ func (q *Queries) GuidanceMaxReviewedAt(ctx context.Context, arg GuidanceMaxRevi
 	return at, err
 }
 
+const guidanceRegressionCount = `-- name: GuidanceRegressionCount :one
+select count(*)::int from grading_regression_cases c
+where c.course_id = $1 and c.kind in ('GRADING_EDIT', 'GRADING_APPEAL')
+  and exists (select 1 from grading_results r join submissions s on s.course_id = r.course_id and s.id = r.submission_id
+              where r.course_id = c.course_id and r.id = c.source_id and s.assignment_id = $2)
+`
+
+type GuidanceRegressionCountParams struct {
+	CourseID     uuid.UUID
+	AssignmentID *uuid.UUID
+}
+
+// Số ca hồi quy chấm của bài tập (P-106-10, US-GD-07 AC6): GRADING_EDIT / GRADING_APPEAL có source_id là kết quả chấm của bài tập. Chỉ là số; không theo phiên bản.
+func (q *Queries) GuidanceRegressionCount(ctx context.Context, arg GuidanceRegressionCountParams) (int32, error) {
+	row := q.db.QueryRow(ctx, guidanceRegressionCount, arg.CourseID, arg.AssignmentID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
+}
+
 const guidanceReset = `-- name: GuidanceReset :execrows
 update grading_guidance_items set status = 'DRAFT', decided_by = null, decided_at = null, version = version + 1
 where course_id = $1 and assignment_id = $2 and id = $3 and version = $4

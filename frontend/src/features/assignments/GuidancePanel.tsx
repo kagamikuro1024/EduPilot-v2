@@ -170,7 +170,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
   const waiting = d.items.filter((i) => i.status === "APPROVED" && (i.approved_in_version === null || i.pending_retire)).length;
   const reflecting = job.status === "QUEUED" || job.status === "RUNNING" || (reflectJob !== null && job.status === "UNKNOWN");
   const regrading = regrade.status === "QUEUED" || regrade.status === "RUNNING";
-  const rows = (stats.data ?? []).filter((r) => r.mae_criterion !== null);
+  const rows = (stats.data?.items ?? []).filter((r) => r.mae_criterion !== null);
 
   async function reflect() {
     setErr(null);
@@ -290,6 +290,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
           {`v${r.version} · ${r.n} bài · lệch tiêu chí ${fmt(r.mae_criterion)} · lệch tổng ${fmt(r.mae_total)} · sửa ${pct(r.edited_rate)}`}
         </p>
       ))}
+      {(stats.data?.regression_cases ?? 0) > 0 && <p className={s.stats} data-part="guidance-cases">{`Ca kiểm thử ${stats.data?.regression_cases}`}</p>}
     </div>
   );
 }
