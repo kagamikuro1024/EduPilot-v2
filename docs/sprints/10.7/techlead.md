@@ -669,3 +669,28 @@ X3 viết lại, thay dòng «Nút ở đầu trang» ở 14.2. Khi đang tải 
 - nút được `disabled`.
 
 Cùng luật cho L1 (đang tải). QC đo thêm ở trạng thái đang tải; nếu các màn khác cũng rút gọn đầu trang khi tải thì ghi cùng mã X3.
+
+### 14.7 X1: `/settings` có hai mục độc lập, lỗi cả hai ra hai alert
+
+**Quyết: hai alert hợp lệ, không gộp. Luật là một alert cho mỗi truy vấn hỏng, đặt tại chỗ vùng mà truy vấn đó nuôi.**
+
+- §23.5 ghi khối lỗi nằm «in place of the region». Ở `/settings` mỗi mục là một vùng có truy vấn riêng: «Thiết bị đang đăng nhập» gọi `/me/sessions`, «Thư» gọi `/me/settings`.
+- Lỗi phải nằm tại chỗ: «Mật khẩu» không gọi gì và vẫn dùng được; một mục hỏng thì mục kia vẫn chạy. Gộp thành một alert cấp trang là che vùng còn chạy, hoặc báo sai phạm vi.
+- «Thử lại» của alert nào gọi lại đúng truy vấn của vùng đó.
+
+Giới hạn, và là lệch thật đang có ở vai sinh viên: đếm theo **truy vấn**, không theo mục. «Thư», «Nhắc trước 24 giờ» và «Thời gian học» cùng đọc một khoá `["me", "settings"]` (`MailSection.tsx`, `RemindersSection.tsx`, `StudyTimeSection.tsx`), nên `/me/settings` hỏng một lần thì ra ba alert giống hệt nhau. Sửa: ba mục đó nằm trong **một** `PageState`, một alert thay chỗ cả ba.
+
+Hình của mỗi alert không đổi so với §23.5: tiêu đề mục (`h2`) giữ nguyên, alert thay chỗ panel của mục (không nằm trong đệm panel), rộng bằng cột, có «Thử lại» riêng.
+
+X1 viết lại:
+
+| Đo | Đạt khi |
+| --- | --- |
+| Số `[role=alert]` trong mỗi `[data-ep-section]` | ≤ 1 |
+| Trang không có mục | đúng 1 |
+| Tổng số alert của trang | ≥ 1 và ≤ số yêu cầu `GET /api/v1` khác nhau bị trả lỗi |
+| Mỗi alert | rộng = cột (±2), có nút «Thử lại» của riêng nó |
+
+Sửa cách đo: `frame.ts` dòng 119 đang đòi `alerts.length === 1` trên cả trang; đổi theo bảng trên. QC đã chặn `/api/v1` nên đếm được số `GET` hỏng khác nhau ngay trong lượt đo.
+
+`teacher/settings` hiện là `alert×0` trong `qc/audit.md`; đó vẫn là lệch thật như QC ghi, quyết định này chỉ nói kết quả đúng sau khi sửa là hai alert.
