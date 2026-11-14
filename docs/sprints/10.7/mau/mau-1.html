@@ -8,9 +8,11 @@
   MẪU THAM CHIẾU sprint 10.7 (UI-R). KHÔNG phải mã sản phẩm, không chép vào frontend/.
   Áp: (1) hợp đồng khung trang (nháp DESIGN.md §23): một mẫu đầu trang, Page kiểu `work`, mỗi vùng một Panel rộng đúng cột, cao theo nội dung;
        (2) bộ màu theo nhận diện Đại học Bách khoa Hà Nội: đỏ + vàng điểm nhấn + trắng.
-  MÃ MÀU TẠM (chưa đối chiếu sổ tay nhận diện, làm ở TL-1):
-    đỏ  #B41D24, đỏ đậm #9D1D1F  = màu chủ đạo trong CSS cổng hust.edu.vn (themes/hust/css/hust.css, custom.css; đọc 2026-11-14)
-    vàng #FFD200                 = màu vàng trong CSS cổng qldt.hust.edu.vn (css/index.css; đọc 2026-11-14)
+  MÃ MÀU CHÍNH THỨC: «Sổ tay nhận diện thương hiệu ĐHBK Hà Nội – version 2026» (hust.edu.vn › Hệ thống nhận diện thương hiệu, PDF ngày 23/10/2026), trang 4 «Hệ màu quy chuẩn»:
+    đỏ  RGB 206, 22, 40  = #CE1628 (CMYK 0, 100, 90, 15)
+    vàng RGB 243, 193, 8 = #F3C108 (CMYK 0, 20, 100, 5)
+    đen RGB 35, 31, 32   = #231F20 (CMYK 0, 0, 0, 100)
+  Đỏ đậm, đỏ nhạt, vàng nhạt, xám là màu SUY RA từ ba màu trên (không có trong sổ tay).
   Vàng chỉ làm NỀN / chấm / vạch (chữ vàng trên trắng không đạt AA). Đỏ vẫn là tín hiệu: đang ở đâu, cần hành động, số việc chờ.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,14 +22,14 @@
 :root {
   color-scheme: light;
   /* ---- bộ màu Bách khoa (đề xuất; chỉ đổi ở tokens.css) ---- */
-  --ep-red: #B41D24;
-  --ep-red-hover: #9D1D1F;
-  --ep-red-soft: #FBEFEF;
-  --ep-yellow: #FFD200;        /* MỚI: điểm nhấn hiếm, chỉ làm nền / chấm / vạch */
-  --ep-yellow-soft: #FFF6CC;   /* MỚI: nền nhãn «cần chú ý», chữ --ep-ink */
+  --ep-red: #CE1628;          /* đỏ Bách khoa (sổ tay tr. 4) */
+  --ep-red-hover: #A81220;    /* suy ra: đỏ đậm khi rê / nhấn */
+  --ep-red-soft: #FDEEF0;     /* suy ra: nền mục đang chọn */
+  --ep-yellow: #F3C108;       /* vàng Bách khoa (sổ tay tr. 4). MỚI: điểm nhấn hiếm, chỉ làm nền / chấm / vạch */
+  --ep-yellow-soft: #FDF4CF;  /* suy ra. MỚI: nền nhãn «cần chú ý», chữ --ep-ink */
   --ep-canvas: #F4F2F1; --ep-surface: #FFFFFF; --ep-surface-subtle: #FAF6F6;
-  --ep-ink: #231A1B; --ep-ink-2: #55494A; --ep-ink-3: #746869; --ep-rule: #E4DCDC;
-  --ep-green: #1F7A3A; --ep-blue: #1F5FA8;
+  --ep-ink: #231F20; --ep-ink-2: #554F50; --ep-ink-3: #726C6D; --ep-rule: #E3DEDE; /* --ep-ink = đen Bách khoa (sổ tay tr. 4) */
+  --ep-green: #1F7A3A; --ep-blue: #003366;
   /* ---- không đổi ---- */
   --ep-font: "Be Vietnam Pro", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
   --ep-text-page: 1.75rem; --ep-text-section: 1.25rem; --ep-text-item: 1rem; --ep-text-body: .9375rem; --ep-text-label: .875rem; --ep-text-meta: .75rem;
@@ -88,7 +90,7 @@ h1, h2, h3, p { margin: 0; } ul { margin: 0; padding: 0; list-style: none; } svg
 .row + .row { border-top: 1px solid var(--ep-rule); }
 .dot { flex: none; width: 8px; height: 8px; border-radius: var(--ep-radius-pill); background: var(--ep-ink-3); align-self: flex-start; margin-top: 9px; }
 .dot.red { background: var(--ep-red); }
-.dot.yellow { background: var(--ep-yellow); box-shadow: 0 0 0 1px #C79A00; } /* viền đậm hơn một bậc: chấm vàng vẫn đọc được trên trắng */
+.dot.yellow { background: var(--ep-yellow); box-shadow: 0 0 0 1px #B8900A; } /* viền đậm hơn một bậc: chấm vàng vẫn đọc được trên trắng */
 .text { flex: 1; min-width: 0; display: grid; gap: 2px; }
 .itemTitle { font-size: var(--ep-text-item); font-weight: 600; line-height: 1.4; }
 .context { font-size: var(--ep-text-label); line-height: 1.5; color: var(--ep-ink-2); font-variant-numeric: tabular-nums; }
@@ -151,15 +153,15 @@ h1, h2, h3, p { margin: 0; } ul { margin: 0; padding: 0; list-style: none; } svg
   <div class="brand"><svg width="188" height="40" viewBox="0 0 188 40" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>EduPilot</title>
   <g>
-    <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#251D1E" stroke-width="2" stroke-linejoin="round"/>
-    <path d="M35.25 10.25C31.15 9.2 27.35 9.65 23.75 11.75" stroke="#251D1E" stroke-width="2" stroke-linecap="round"/>
-    <path d="M35.25 12.8V28.15C30.05 26.7 25.3 27.55 20 31.6" stroke="#251D1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-    <path d="M20 31.55C20.05 24.9 20.75 19.5 23.15 15.25C25.45 11.15 28.55 8.75 33.55 7.15" stroke="#B41D24" stroke-width="2.7" stroke-linecap="round"/>
-    <path d="M29.4 6.65L34.1 6.9L31.9 11.1" stroke="#B41D24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-    <circle cx="20" cy="31.55" r="2.2" fill="#B41D24"/>
+    <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#231F20" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M35.25 10.25C31.15 9.2 27.35 9.65 23.75 11.75" stroke="#231F20" stroke-width="2" stroke-linecap="round"/>
+    <path d="M35.25 12.8V28.15C30.05 26.7 25.3 27.55 20 31.6" stroke="#231F20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M20 31.55C20.05 24.9 20.75 19.5 23.15 15.25C25.45 11.15 28.55 8.75 33.55 7.15" stroke="#CE1628" stroke-width="2.7" stroke-linecap="round"/>
+    <path d="M29.4 6.65L34.1 6.9L31.9 11.1" stroke="#CE1628" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="20" cy="31.55" r="2.2" fill="#CE1628"/>
   </g>
-  <text x="51" y="27" fill="#251D1E" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Edu</text>
-  <text x="88" y="27" fill="#B41D24" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Pilot</text>
+  <text x="51" y="27" fill="#231F20" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Edu</text>
+  <text x="88" y="27" fill="#CE1628" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Pilot</text>
 </svg></div>
   <nav class="nav" aria-label="Điều hướng chính">
     <div class="group"><div class="groupLabel">Làm việc</div>

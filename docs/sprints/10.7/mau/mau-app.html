@@ -6,7 +6,7 @@
 <title>EduPilot · Mẫu app · Điểm danh bằng mã QR (sinh viên) · bộ màu Bách khoa</title>
 <!--
   MẪU THAM CHIẾU sprint 10.7 / 10.8. KHÔNG phải mã sản phẩm. Màn sinh viên trên app điện thoại (390 × 844), điểm danh bằng mã QR của sprint 10.8.
-  Cùng bộ màu tạm với mau-1.html: đỏ #B41D24 / #9D1D1F (CSS cổng hust.edu.vn), vàng #FFD200 (CSS cổng qldt.hust.edu.vn); đối chiếu sổ tay nhận diện ở TL-1.
+  Mã màu chính thức theo «Sổ tay nhận diện thương hiệu ĐHBK Hà Nội – version 2026», trang 4: đỏ #CE1628 (RGB 206, 22, 40), vàng #F3C108 (RGB 243, 193, 8), đen #231F20 (RGB 35, 31, 32). Màu nhạt / đậm là suy ra.
   Một nút chính ở vùng ngón cái; trạng thái 1–2 từ, có chữ + biểu tượng (không truyền nghĩa chỉ bằng màu); vùng chạm ≥ 44 px.
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,9 +15,9 @@
 <style>
 :root {
   color-scheme: light;
-  --ep-red: #B41D24; --ep-red-hover: #9D1D1F; --ep-red-soft: #FBEFEF; --ep-yellow: #FFD200; --ep-yellow-soft: #FFF6CC;
+  --ep-red: #CE1628; --ep-red-hover: #A81220; --ep-red-soft: #FDEEF0; --ep-yellow: #F3C108; --ep-yellow-soft: #FDF4CF;
   --ep-canvas: #F4F2F1; --ep-surface: #FFFFFF; --ep-surface-subtle: #FAF6F6;
-  --ep-ink: #231A1B; --ep-ink-2: #55494A; --ep-ink-3: #746869; --ep-rule: #E4DCDC; --ep-green: #1F7A3A;
+  --ep-ink: #231F20; --ep-ink-2: #554F50; --ep-ink-3: #726C6D; --ep-rule: #E3DEDE; --ep-green: #1F7A3A;
   --ep-font: "Be Vietnam Pro", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
   --ep-text-page: 1.75rem; --ep-text-item: 1rem; --ep-text-body: .9375rem; --ep-text-label: .875rem; --ep-text-meta: .75rem;
   --ep-space-1: .25rem; --ep-space-2: .5rem; --ep-space-3: .75rem; --ep-space-4: 1rem; --ep-space-5: 1.25rem; --ep-space-6: 1.5rem;
@@ -124,12 +124,12 @@ h1, h2, p { margin: 0; } svg { display: block; } button { font: inherit; }
   <header class="topbar">
     <svg class="mark" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
   <title>EduPilot mark</title>
-  <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#251D1E" stroke-width="2" stroke-linejoin="round"/>
-  <path d="M35.25 10.25C31.15 9.2 27.35 9.65 23.75 11.75" stroke="#251D1E" stroke-width="2" stroke-linecap="round"/>
-  <path d="M35.25 12.8V28.15C30.05 26.7 25.3 27.55 20 31.6" stroke="#251D1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M20 31.55C20.05 24.9 20.75 19.5 23.15 15.25C25.45 11.15 28.55 8.75 33.55 7.15" stroke="#B41D24" stroke-width="2.7" stroke-linecap="round"/>
-  <path d="M29.4 6.65L34.1 6.9L31.9 11.1" stroke="#B41D24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="20" cy="31.55" r="2.2" fill="#B41D24"/>
+  <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#231F20" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M35.25 10.25C31.15 9.2 27.35 9.65 23.75 11.75" stroke="#231F20" stroke-width="2" stroke-linecap="round"/>
+  <path d="M35.25 12.8V28.15C30.05 26.7 25.3 27.55 20 31.6" stroke="#231F20" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 31.55C20.05 24.9 20.75 19.5 23.15 15.25C25.45 11.15 28.55 8.75 33.55 7.15" stroke="#CE1628" stroke-width="2.7" stroke-linecap="round"/>
+  <path d="M29.4 6.65L34.1 6.9L31.9 11.1" stroke="#CE1628" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="20" cy="31.55" r="2.2" fill="#CE1628"/>
 </svg>
     <div class="course">761987 · An ninh mạng<svg class="ic"><use href="#i-chevron-down"/></svg></div>
     <button class="iconBtn" aria-label="Thông báo"><svg class="ic"><use href="#i-bell"/></svg></button>
