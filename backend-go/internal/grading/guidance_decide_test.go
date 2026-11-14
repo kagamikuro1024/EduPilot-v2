@@ -327,3 +327,49 @@ func decimalZero(a string) bool { return decimal.RequireFromString(a).IsZero() }
 func subDec(a, b string) string {
 	return decimal.RequireFromString(a).Sub(decimal.RequireFromString(b)).String()
 }
+
+// TestGuidanceRevert — P-106-8: Duyệt / Bỏ / Cho nghỉ đảo ngược được TRƯỚC khi Áp dụng (trả DRAFT + chữ gốc; chờ nghỉ → đang dùng); mục đã vào phiên bản đã áp dụng thì không.
+func TestGuidanceRevert(t *testing.T) {
+	g := newGradeEnv(t, nil)
+	svc, _ := newGuidanceSvc(t, g, true)
+	a := grading.GuidanceActor{UserID: g.teacher}
+	i1, i2 := g.draftItem("c1", "Bản gốc của AI."), g.draftItem("c2", "Cần ví dụ thực tế.")
+	txt := "Bản giảng viên sửa."
+	v, err := svc.Resolve(t.Context(), a, g.course, g.asg, i1, "APPROVE", &txt, 1)
+	require.NoError(t, err)
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, v.Version)
+	require.NoError(t, err)
+	require.Equal(t, "DRAFT", v.Status)
+	require.Equal(t, "Bản gốc của AI.", v.Text, "chữ gốc được trả lại")
+	require.Nil(t, v.TextOriginal)
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, v.Version)
+	_, code := apiCode(t, err)
+	require.Equal(t, "CONFLICT", code, "đang là nháp: không có gì để hoàn tác")
+	r, err := svc.Resolve(t.Context(), a, g.course, g.asg, i2, "REJECT", nil, 1)
+	require.NoError(t, err)
+	r, err = svc.Resolve(t.Context(), a, g.course, g.asg, i2, "REVERT", nil, r.Version)
+	require.NoError(t, err)
+	require.Equal(t, "DRAFT", r.Status)
+	_, err = svc.Resolve(t.Context(), a, g.course, g.asg, i2, "REVERT", nil, 1)
+	_, code = apiCode(t, err)
+	require.Equal(t, "VERSION_CONFLICT", code)
+
+	// đã áp dụng: không hoàn tác duyệt; hoàn tác «Cho nghỉ» thì được
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "APPROVE", nil, v.Version)
+	require.NoError(t, err)
+	_, err = svc.Apply(t.Context(), a, g.course, g.asg, 0)
+	require.NoError(t, err)
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, g.itemVersion(i1))
+	_, code = apiCode(t, err)
+	require.Equal(t, "CONFLICT", code, "đã vào phiên bản 1")
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "RETIRE", nil, g.itemVersion(i1))
+	require.NoError(t, err)
+	require.True(t, v.PendingRetire)
+	v, err = svc.Resolve(t.Context(), a, g.course, g.asg, i1, "REVERT", nil, v.Version)
+	require.NoError(t, err)
+	require.False(t, v.PendingRetire)
+	require.Equal(t, "APPROVED", v.Status)
+	_, err = svc.Apply(t.Context(), a, g.course, g.asg, 1)
+	_, code = apiCode(t, err)
+	require.Equal(t, "NOTHING_TO_APPLY", code, "sau hoàn tác không còn gì chờ áp dụng")
+}

@@ -59,7 +59,7 @@ export const useGuidanceStats = (course: string, aid: string, enabled: boolean) 
 export const reflectGuidance = async (course: string, aid: string, idempotencyKey: string) =>
   (await apiClient.post<{ job_id: string }>(`${base(course, aid)}/guidance/reflect`, {}, { idempotencyKey })).data;
 
-export const decideGuidance = async (course: string, aid: string, id: string, body: { decision: "APPROVE" | "REJECT" | "RETIRE"; text?: string; version: number }) =>
+export const decideGuidance = async (course: string, aid: string, id: string, body: { decision: "APPROVE" | "REJECT" | "RETIRE" | "REVERT"; text?: string; version: number }) =>
   (await apiClient.post<GuidanceItem>(`${base(course, aid)}/guidance/items/${id}/decide`, body)).data;
 
 export const applyGuidance = async (course: string, aid: string, expectedVersion: number, idempotencyKey: string) =>

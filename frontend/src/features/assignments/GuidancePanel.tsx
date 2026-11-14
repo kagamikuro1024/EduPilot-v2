@@ -2,7 +2,7 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
-import { ApiError, newIdempotencyKey, useAutosaveDraft, useJob } from "@/shared/data";
+import { ApiError, newIdempotencyKey, useAutosaveDraft, useJob, useUndoableAction } from "@/shared/data";
 import { Button, InlineNotice, Skeleton, StatusText, Textarea } from "@/shared/ui";
 import type { Criterion } from "./assignmentApi";
 import {
@@ -22,63 +22,86 @@ function stateOf(i: GuidanceItem): { text: string; tone: "amber" | "green" | "ne
   return { text: i.status === "REJECTED" ? "Đã bỏ" : "Đã nghỉ", tone: "neutral" };
 }
 
+type Act = "APPROVE" | "REJECT" | "RETIRE";
+const DONE_LABEL: Record<Act, string> = { APPROVE: "Đã duyệt lưu ý", REJECT: "Đã bỏ lưu ý", RETIRE: "Đã cho nghỉ lưu ý" };
+
 function ItemRow({ courseId, aid, item, teacher, userId, onDecided, onError }: {
-  courseId: string; aid: string; item: GuidanceItem; teacher: boolean; userId?: string; onDecided: () => void; onError: (e: unknown) => void;
+  courseId: string; aid: string; item: GuidanceItem; teacher: boolean; userId?: string; onDecided: (id: string) => void; onError: (e: unknown) => void;
 }) {
   const draft = useAutosaveDraft(`guidance:${aid}:${item.id}`, { userId });
   const [editing, setEditing] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [rejected, setRejected] = useState(false);
-  const st = stateOf(item);
+  // lạc quan: trạng thái hiện ngay, hết hiệu lực khi máy chủ trả bản mới của mục (version đổi)
+  const [local, setLocal] = useState<{ act: Act; v: number } | null>(null);
+  const ver = useRef(item.version); // version mới nhất sau lần ghi gần nhất (để Hoàn tác đúng bản)
+  const view: GuidanceItem = local && local.v === item.version
+    ? { ...item, status: local.act === "REJECT" ? "REJECTED" : "APPROVED", pending_retire: local.act === "RETIRE", approved_in_version: item.approved_in_version }
+    : item;
+  const st = stateOf(view);
   const text = draft.value || item.text;
-  const isDraft = item.status === "DRAFT";
-  const active = item.status === "APPROVED" && item.approved_in_version !== null && !item.pending_retire;
+  const isDraft = view.status === "DRAFT";
+  const active = view.status === "APPROVED" && view.approved_in_version !== null && !view.pending_retire;
 
-  async function decide(decision: "APPROVE" | "REJECT" | "RETIRE") {
+  const undo = useUndoableAction<Act>({
+    apply: (act) => setLocal({ act, v: item.version }),
+    rollback: () => setLocal(null),
+    commit: async (act) => {
+      try {
+        const out = await decideGuidance(courseId, aid, item.id, { decision: act, version: item.version, ...(act === "APPROVE" && text !== item.text ? { text } : {}) });
+        ver.current = out.version;
+        draft.clear();
+        setEditing(false);
+        onDecided(item.id);
+      } catch (e) {
+        setLocal(null);
+        if (e instanceof ApiError && e.code === "GUIDANCE_TEXT_REJECTED") setRejected(true);
+        else if (e instanceof ApiError && (e.code === "VERSION_CONFLICT" || e.code === "ITEM_NOT_DRAFT")) onError(e); // mục đã đổi: báo tại panel, tải lại
+        throw e;
+      }
+    },
+    compensate: async () => {
+      await decideGuidance(courseId, aid, item.id, { decision: "REVERT", version: ver.current });
+      onDecided(item.id);
+    },
+    handled: (e) => e instanceof ApiError && (e.code === "GUIDANCE_TEXT_REJECTED" || e.code === "VERSION_CONFLICT" || e.code === "ITEM_NOT_DRAFT"), // đã báo tại chỗ
+    label: (act) => DONE_LABEL[act],
+  });
+  const busy = undo.pending;
+  const go = (act: Act) => {
     if (busy) return;
-    setBusy(true);
     setRejected(false);
-    try {
-      await decideGuidance(courseId, aid, item.id, { decision, version: item.version, ...(decision === "APPROVE" && text !== item.text ? { text } : {}) });
-      draft.clear();
-      setEditing(false);
-      onDecided();
-    } catch (e) {
-      if (e instanceof ApiError && e.code === "GUIDANCE_TEXT_REJECTED") setRejected(true);
-      else onError(e);
-    } finally {
-      setBusy(false);
-    }
-  }
+    void undo.run(act);
+  };
 
   return (
-    <div className={s.item} data-part="guidance-item" data-status={item.status}>
+    <div className={s.item} data-part="guidance-item" data-status={view.status}>
       <div className={s.itemMain}>
         {editing ? (
           <Textarea aria-label="Chữ lưu ý" value={text} maxLength={400} rows={2} invalid={rejected} onChange={(e) => draft.setValue(e.target.value)} />
         ) : (
-          <p className={s.text}>{item.text}</p>
+          <p className={s.text}>{view.text}</p>
         )}
         {teacher && (
           <div className={s.actions}>
             {isDraft && (
               <>
-                <Button size="sm" variant="primary" loading={busy} onClick={() => void decide("APPROVE")}>Duyệt</Button>
-                <Button size="sm" variant="ghost" disabled={busy} onClick={() => void decide("REJECT")}>Bỏ</Button>
+                <Button size="sm" variant="primary" loading={busy} onClick={() => go("APPROVE")}>Duyệt</Button>
+                <Button size="sm" variant="ghost" disabled={busy} onClick={() => go("REJECT")}>Bỏ</Button>
                 <Button size="sm" variant="ghost" onClick={() => setEditing((v) => !v)}>{editing ? "Giữ chữ gốc" : "Sửa"}</Button>
               </>
             )}
-            {active && <Button size="sm" variant="ghost" loading={busy} onClick={() => void decide("RETIRE")}>Cho nghỉ</Button>}
+            {active && <Button size="sm" variant="ghost" disabled={busy} onClick={() => go("RETIRE")}>Cho nghỉ</Button>}
           </div>
         )}
       </div>
       {rejected && <InlineNotice tone="danger" compact>Chữ này không dùng được. Bỏ phần nhắc điểm tổng, phạt, làm tròn hoặc tên người.</InlineNotice>}
       <div className={s.meta}>
         <StatusText tone={st.tone}>{st.text}</StatusText>
-        <span>{DIRECTION_TEXT[item.direction]}</span>
-        <span>{item.support} bài</span>
-        {item.needs_recheck && <StatusText tone="amber">Cần xem lại</StatusText>}
+        <span>{DIRECTION_TEXT[view.direction]}</span>
+        <span>{view.support} bài</span>
+        {view.needs_recheck && <StatusText tone="amber">Cần xem lại</StatusText>}
       </div>
+      {undo.node}
     </div>
   );
 }
@@ -96,6 +119,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
   const [reflectJob, setReflectJob] = useState<string | null>(null);
   const [regradeJob, setRegradeJob] = useState<string | null>(null);
   const [note, setNote] = useState<string | null>(null);
+  const [keep, setKeep] = useState<Set<string>>(new Set()); // mục vừa quyết định: còn hiện trong lúc dòng «Hoàn tác» sống
   const [busy, setBusy] = useState<"reflect" | "apply" | "regrade" | null>(null);
   const rkey = useRef<string | null>(null);
   const job = useJob(reflectJob);
@@ -122,7 +146,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
   if (!d || !d.enabled) return null;
 
   const names = new Map(rubric.map((c) => [c.id, c.name]));
-  const groups = rubric.map((c) => ({ id: c.id, name: c.name, items: d.items.filter((i) => i.criterion_id === c.id && (i.status === "DRAFT" || i.status === "APPROVED")) })).filter((g) => g.items.length > 0);
+  const groups = rubric.map((c) => ({ id: c.id, name: c.name, items: d.items.filter((i) => i.criterion_id === c.id && (i.status === "DRAFT" || i.status === "APPROVED" || keep.has(i.id))) })).filter((g) => g.items.length > 0);
   const waiting = d.items.filter((i) => i.status === "APPROVED" && (i.approved_in_version === null || i.pending_retire)).length;
   const reflecting = job.status === "QUEUED" || job.status === "RUNNING" || (reflectJob !== null && job.status === "UNKNOWN");
   const regrading = regrade.status === "QUEUED" || regrade.status === "RUNNING";
@@ -224,7 +248,7 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
         <div key={g.id} className={s.group}>
           <p className={s.crit}>{names.get(g.id)}</p>
           {g.items.map((i) => (
-            <ItemRow key={`${i.id}:${i.version}`} courseId={courseId} aid={aid} item={i} teacher={teacher} userId={userId} onDecided={refresh} onError={setErr} />
+            <ItemRow key={i.id} courseId={courseId} aid={aid} item={i} teacher={teacher} userId={userId} onDecided={(id) => { setKeep((k) => new Set(k).add(id)); setTimeout(() => setKeep((k) => { const n = new Set(k); n.delete(id); return n; }), 7000); refresh(); }} onError={setErr} />
           ))}
         </div>
       ))}

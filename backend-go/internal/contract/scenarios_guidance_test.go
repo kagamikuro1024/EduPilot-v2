@@ -150,6 +150,9 @@ func (r *runner) guidanceDecideScenarios(x examRig, asg, course, gd, put, fl str
 	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"LA","version":1}`}, 422)
 	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"APPROVE","text":"Bản sửa của giảng viên.","version":1}`}, 200)
 	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"APPROVE","version":2}`}, 409) // ITEM_NOT_DRAFT
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"REVERT","version":2}`}, 200)  // hoàn tác trước khi Áp dụng (P-106-8)
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"REVERT","version":3}`}, 409)  // đang là nháp
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"APPROVE","version":3}`}, 200)
 	r.must(call{method: "POST", path: dec(i2), token: x.gv, body: `{"decision":"REJECT","version":1}`}, 200)
 
 	// #6 apply: 200 / 401 / 403 / 404 / 409 / 422
@@ -162,6 +165,7 @@ func (r *runner) guidanceDecideScenarios(x examRig, asg, course, gd, put, fl str
 	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{}`}, 422)
 	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{"expected_version":5}`}, 409) // VERSION_CONFLICT
 	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{"expected_version":0}`}, 200)
+	r.must(call{method: "POST", path: dec(i1), token: x.gv, body: `{"decision":"REVERT","version":4}`}, 409)    // đã vào phiên bản 1
 	r.must(call{method: "POST", path: ap, token: x.gv, headers: x.idem(), body: `{"expected_version":1}`}, 409) // NOTHING_TO_APPLY
 
 	// #7 regrade-stale: 200 / 202 / 401 / 403 / 404 / 409

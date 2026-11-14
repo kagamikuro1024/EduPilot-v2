@@ -50,7 +50,8 @@ test("ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expect
   await expect(panel.locator("[data-part=guidance-item]")).toContainText("Chấm chặt hơn khi chỉ nêu tên tác nhân");
   await expect(panel.getByRole("button", { name: "Áp dụng" })).toBeDisabled();
   await panel.getByRole("button", { name: "Duyệt" }).click();
-  await expect(panel.getByText("Chờ áp dụng")).toBeVisible();
+  await expect(panel.getByText("Chờ áp dụng", { exact: true })).toBeVisible();
+  await expect(panel.locator("[data-part=undo-line]")).toContainText("Đã duyệt lưu ý");
   const decide = api.calls.find((c) => c.path.endsWith(`/items/${ITEM}/decide`))!;
   expect(JSON.parse(decide.body)).toEqual({ decision: "APPROVE", version: 1 });
   await panel.getByRole("button", { name: "Áp dụng (1)" }).click();
@@ -146,4 +147,24 @@ test("màn duyệt: lớp tắt tính năng (không có khối guidance) → kh�
   await expect(page.locator("[data-part=submission-text]")).toBeVisible();
   await expect(page.locator("[data-part=guidance-meta]")).toHaveCount(0);
   await expect(page.getByText("Bản cũ", { exact: true })).toHaveCount(0);
+});
+
+test("Hoàn tác: Bỏ lưu ý hiện dòng «Hoàn tác»; bấm thì gửi REVERT đúng version và lưu ý về Nháp", async ({ page, context }, info) => {
+  desktopOnly(info);
+  let cur = overview();
+  const api = await openDrawer(page, context, () => cur, {
+    [`POST assignments/:id/guidance/items/${ITEM}/decide`]: (r) => {
+      const b = JSON.parse(r.request().postData() ?? "{}") as { decision: string };
+      cur = b.decision === "REJECT" ? overview({ items: [item({ status: "REJECTED", version: 2 })], counts: { rejected: 1 } }) : overview();
+      return r.fulfill(json(cur.items[0]));
+    },
+  });
+  const panel = page.locator("[data-part=guidance-panel]");
+  await panel.getByRole("button", { name: "Bỏ", exact: true }).click();
+  await expect(panel.getByText("Đã bỏ", { exact: true })).toBeVisible();
+  await expect(panel.locator("[data-part=undo-line]")).toContainText("Đã bỏ lưu ý");
+  await panel.getByRole("button", { name: "Hoàn tác" }).click();
+  await expect.poll(() => api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`)).length).toBe(2);
+  expect(JSON.parse(api.calls.filter((c) => c.path.endsWith(`/items/${ITEM}/decide`))[1].body)).toEqual({ decision: "REVERT", version: 2 });
+  await expect(panel.getByText("Nháp", { exact: true })).toBeVisible();
 });

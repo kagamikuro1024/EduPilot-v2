@@ -76,6 +76,18 @@ update grading_guidance_items set pending_retire = true, version = version + 1
 where course_id = sqlc.arg(course_id) and assignment_id = sqlc.arg(assignment_id) and id = sqlc.arg(id) and version = sqlc.arg(version)
   and status = 'APPROVED' and approved_in_version is not null and not pending_retire;
 
+-- Hoàn tác (P-106-8): đưa lưu ý đã duyệt / bỏ NHƯNG CHƯA ÁP DỤNG về DRAFT, trả chữ gốc nếu giảng viên đã sửa.
+-- name: GuidanceRevertDecision :execrows
+update grading_guidance_items set status = 'DRAFT', decided_by = null, decided_at = null,
+    text = coalesce(text_original, text), text_original = null, version = version + 1
+where course_id = sqlc.arg(course_id) and assignment_id = sqlc.arg(assignment_id) and id = sqlc.arg(id) and version = sqlc.arg(version)
+  and status in ('APPROVED', 'REJECTED') and approved_in_version is null;
+
+-- name: GuidanceRevertRetire :execrows
+update grading_guidance_items set pending_retire = false, version = version + 1
+where course_id = sqlc.arg(course_id) and assignment_id = sqlc.arg(assignment_id) and id = sqlc.arg(id) and version = sqlc.arg(version)
+  and status = 'APPROVED' and approved_in_version is not null and pending_retire;
+
 -- Áp dụng (mục 5 TL-1, một giao dịch): khoá assignments, rồi hai lệnh sau.
 -- name: GuidanceLockAssignment :one
 select guidance_version from assignments where course_id = sqlc.arg(course_id) and id = sqlc.arg(assignment_id) for update;

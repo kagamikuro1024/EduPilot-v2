@@ -568,6 +568,60 @@ func (q *Queries) GuidanceMaxReviewedAt(ctx context.Context, arg GuidanceMaxRevi
 	return at, err
 }
 
+const guidanceRevertDecision = `-- name: GuidanceRevertDecision :execrows
+update grading_guidance_items set status = 'DRAFT', decided_by = null, decided_at = null,
+    text = coalesce(text_original, text), text_original = null, version = version + 1
+where course_id = $1 and assignment_id = $2 and id = $3 and version = $4
+  and status in ('APPROVED', 'REJECTED') and approved_in_version is null
+`
+
+type GuidanceRevertDecisionParams struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+	ID           uuid.UUID
+	Version      int32
+}
+
+// Hoàn tác (P-106-8): đưa lưu ý đã duyệt / bỏ NHƯNG CHƯA ÁP DỤNG về DRAFT, trả chữ gốc nếu giảng viên đã sửa.
+func (q *Queries) GuidanceRevertDecision(ctx context.Context, arg GuidanceRevertDecisionParams) (int64, error) {
+	result, err := q.db.Exec(ctx, guidanceRevertDecision,
+		arg.CourseID,
+		arg.AssignmentID,
+		arg.ID,
+		arg.Version,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const guidanceRevertRetire = `-- name: GuidanceRevertRetire :execrows
+update grading_guidance_items set pending_retire = false, version = version + 1
+where course_id = $1 and assignment_id = $2 and id = $3 and version = $4
+  and status = 'APPROVED' and approved_in_version is not null and pending_retire
+`
+
+type GuidanceRevertRetireParams struct {
+	CourseID     uuid.UUID
+	AssignmentID uuid.UUID
+	ID           uuid.UUID
+	Version      int32
+}
+
+func (q *Queries) GuidanceRevertRetire(ctx context.Context, arg GuidanceRevertRetireParams) (int64, error) {
+	result, err := q.db.Exec(ctx, guidanceRevertRetire,
+		arg.CourseID,
+		arg.AssignmentID,
+		arg.ID,
+		arg.Version,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const guidanceSetAt = `-- name: GuidanceSetAt :many
 select id, criterion_id, text, approved_in_version
 from grading_guidance_items

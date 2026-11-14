@@ -59,7 +59,7 @@ func (s *GuidanceService) Resolve(ctx context.Context, a GuidanceActor, course, 
 		return ItemView{}, disabled()
 	}
 	if text != nil {
-		if decision == "RETIRE" {
+		if decision == "RETIRE" || decision == "REVERT" {
 			return ItemView{}, apierr.Validation(apierr.FieldError{Field: "text", Code: "not_allowed", Message: "Chỉ sửa chữ khi chưa duyệt."})
 		}
 		if ValidateText(ctx, s.Det, course, *text, s.Cfg.TextMax) != "" {
@@ -79,7 +79,7 @@ func (s *GuidanceService) Resolve(ctx context.Context, a GuidanceActor, course, 
 			return apierr.New(http.StatusConflict, apierr.VersionConflict).WithDetails(map[string]any{"current": modelView(cur)})
 		}
 		before := map[string]any{"status": cur.Status, "text": cur.Text, "support": cur.Support}
-		action := "grading_guidance." + map[string]string{"APPROVE": "approve", "REJECT": "reject", "RETIRE": "retire"}[decision]
+		action := "grading_guidance." + map[string]string{"APPROVE": "approve", "REJECT": "reject", "RETIRE": "retire", "REVERT": "revert"}[decision]
 		var n int64
 		switch decision {
 		case "APPROVE", "REJECT":
@@ -101,6 +101,16 @@ func (s *GuidanceService) Resolve(ctx context.Context, a GuidanceActor, course, 
 				return apierr.New(http.StatusConflict, apierr.ItemNotDraft)
 			}
 			n, err = q.GuidanceMarkRetire(ctx, store.GuidanceMarkRetireParams{CourseID: course, AssignmentID: assignment, ID: item, Version: int32(version)}) //nolint:gosec // version nhỏ
+		case "REVERT": // hoàn tác trước khi Áp dụng: đã duyệt / đã bỏ → DRAFT; chờ nghỉ → đang dùng
+			action = "grading_guidance.revert"
+			switch {
+			case cur.Status == store.GuidanceItemStatusAPPROVED && cur.ApprovedInVersion != nil && cur.PendingRetire:
+				n, err = q.GuidanceRevertRetire(ctx, store.GuidanceRevertRetireParams{CourseID: course, AssignmentID: assignment, ID: item, Version: int32(version)}) //nolint:gosec // version nhỏ
+			case (cur.Status == store.GuidanceItemStatusAPPROVED || cur.Status == store.GuidanceItemStatusREJECTED) && cur.ApprovedInVersion == nil:
+				n, err = q.GuidanceRevertDecision(ctx, store.GuidanceRevertDecisionParams{CourseID: course, AssignmentID: assignment, ID: item, Version: int32(version)}) //nolint:gosec // version nhỏ
+			default: // đã nằm trong một phiên bản đã áp dụng (hoặc còn là nháp): không hoàn tác được
+				return apierr.New(http.StatusConflict, apierr.Conflict)
+			}
 		default:
 			return apierr.Validation(apierr.FieldError{Field: "decision", Code: "invalid", Message: "Quyết định không hợp lệ."})
 		}

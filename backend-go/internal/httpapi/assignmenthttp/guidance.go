@@ -140,7 +140,7 @@ func (h *Handler) guidanceDecide(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var in struct {
-		Decision string  `json:"decision" validate:"required,oneof=APPROVE REJECT RETIRE"`
+		Decision string  `json:"decision" validate:"required,oneof=APPROVE REJECT RETIRE REVERT"`
 		Text     *string `json:"text"`
 		Version  *int    `json:"version"`
 	}
