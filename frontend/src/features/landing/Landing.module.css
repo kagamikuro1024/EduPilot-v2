@@ -114,7 +114,7 @@
 
 /* ---------- 4. ba số đo ---------- */
 .stats { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: 24px; align-items: start; } .stats__list { grid-column: 1 / span 6; }
-.stats__shot { grid-column: 7 / -1; align-self: stretch; min-height: 0; } .stats__shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+.stats__shot { grid-column: 7 / -1; align-self: stretch; min-height: 0; } .stats__shot img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: right top; } /* hiện ngăn «Giải trình» bên phải */
 .stat { position: relative; display: block; padding: 28px 0; }
 .stat::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 1px; background: var(--ep-rule); transform-origin: left; }
 .stat:last-child { border-bottom: 1px solid var(--ep-rule); } .stat:first-child { padding-top: 0; } .stat:first-child::before { display: none; } /* cột chữ và cột ảnh cùng mép trên (split-pair) */
@@ -241,4 +241,4 @@
 .page[data-js] .vai__text { display: grid; } .page[data-js] .vai__text > [role="tabpanel"] { grid-area: 1 / 1; } .page[data-js] .vai__text > [role="tabpanel"][hidden] { display: block; visibility: hidden; }
 
 @media (max-width: 1099px) { .stats { grid-template-columns: minmax(0, 1fr); row-gap: 24px; } .stats__list, .stats__shot { grid-column: 1; } .stats__shot { aspect-ratio: 16 / 7; } }
-@media (max-width: 639px) { .stats { row-gap: 16px; } .stats__shot { aspect-ratio: 10 / 11; } }
+@media (max-width: 639px) { .stats { row-gap: 16px; } .stats__shot { aspect-ratio: 9 / 16; } }

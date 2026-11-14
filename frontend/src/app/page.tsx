@@ -14,7 +14,7 @@ export default function Home() {
   return (
     <>
       <script dangerouslySetInnerHTML={{ __html: `try{if(localStorage.getItem(${JSON.stringify(RETURNING_KEY)})==="1")document.documentElement.dataset.returning="1"}catch(e){}` }} />
-      <HomeGate landing={<Landing />} pre={<PreShell intro={introFor("/")!} />} />
+      <HomeGate landing={<Landing />} pre={<PreShell intro={introFor("/")!} landmark="div" />} />
     </>
   );
 }
