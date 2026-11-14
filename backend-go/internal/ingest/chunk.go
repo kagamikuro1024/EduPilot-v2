@@ -66,20 +66,23 @@ type block struct {
 // mỗi đoạn ≤ max rune, mẩu < min gộp vào mẩu kề (nếu vẫn ≤ max), bỏ đoạn trùng văn bản.
 func ChunkMarkdown(md string, maxRunes, minRunes int) []Chunk {
 	var blocks []block
-	page, heading := 1, ""
+	page, heading, bare := 1, "", false // bare: tiêu đề hiện tại chưa có thân (vd. tên đề ngay trước "Câu 1.")
 	for _, pg := range strings.Split(md, PageMarker) {
 		for _, para := range strings.Split(pg, "\n\n") {
 			var body []string
 			flush := func() {
 				if len(body) > 0 {
 					blocks = append(blocks, block{page: page, heading: heading, text: strings.Join(body, "\n")})
-					body = nil
+					body, bare = nil, false
 				}
 			}
 			for _, line := range strings.Split(para, "\n") {
 				if m := reHeading.FindStringSubmatch(line); m != nil {
 					flush()
-					heading = truncRunes(m[1], maxHeading)
+					if bare { // tiêu đề liền tiêu đề: giữ tiêu đề cũ thành một khối, không để bị ghi đè
+						blocks = append(blocks, block{page: page, heading: heading, text: heading})
+					}
+					heading, bare = truncRunes(m[1], maxHeading), true
 					continue
 				}
 				if strings.TrimSpace(line) != "" {
@@ -89,6 +92,9 @@ func ChunkMarkdown(md string, maxRunes, minRunes int) []Chunk {
 			flush()
 		}
 		page++
+	}
+	if bare {
+		blocks = append(blocks, block{page: page - 1, heading: heading, text: heading})
 	}
 
 	// Tách khối quá dài; gom khối cùng tiêu đề tới khi đầy.
@@ -132,27 +138,39 @@ func ChunkMarkdown(md string, maxRunes, minRunes int) []Chunk {
 	return out
 }
 
-// mergeShort gộp mẩu < min vào mẩu trước (cùng hoặc khác tiêu đề đều được, miễn tổng ≤ max), không thì vào mẩu sau.
+// mergeShort gộp mẩu < min vào mẩu trước (khác tiêu đề đều được), không thì vào mẩu sau, miễn tổng ≤ max và CÙNG TRANG (trích dẫn trang phải đúng).
+// Tiêu đề của mẩu bị gộp được đưa vào đầu phần nối thêm: bỏ đi là mất chữ (vd. "Câu N. …" của đề thi) khỏi `text`, `heading` và embedding.
 func mergeShort(cs []Chunk, maxRunes, minRunes int) []Chunk {
 	for i := 0; i < len(cs); i++ {
 		n := utf8.RuneCountInString(cs[i].Text)
 		if n >= minRunes {
 			continue
 		}
-		if i > 0 && utf8.RuneCountInString(cs[i-1].Text)+1+n <= maxRunes {
-			cs[i-1].Text += "\n" + cs[i].Text
-			cs = append(cs[:i], cs[i+1:]...)
-			i--
-			continue
+		if i > 0 && cs[i-1].PageNo == cs[i].PageNo {
+			if t := cs[i-1].Text + "\n" + headed(cs[i], cs[i-1].Heading); utf8.RuneCountInString(t) <= maxRunes {
+				cs[i-1].Text = t
+				cs = append(cs[:i], cs[i+1:]...)
+				i--
+				continue
+			}
 		}
-		if i+1 < len(cs) && n+1+utf8.RuneCountInString(cs[i+1].Text) <= maxRunes {
-			cs[i+1].Text = cs[i].Text + "\n" + cs[i+1].Text
-			cs[i+1].PageNo, cs[i+1].Heading = cs[i].PageNo, cs[i].Heading
-			cs = append(cs[:i], cs[i+1:]...)
-			i--
+		if i+1 < len(cs) && cs[i+1].PageNo == cs[i].PageNo {
+			if t := cs[i].Text + "\n" + headed(cs[i+1], cs[i].Heading); utf8.RuneCountInString(t) <= maxRunes {
+				cs[i+1].Text, cs[i+1].Heading = t, cs[i].Heading
+				cs = append(cs[:i], cs[i+1:]...)
+				i--
+			}
 		}
 	}
 	return cs
+}
+
+// headed là văn bản của c, kèm tiêu đề của c nếu nó khác tiêu đề `into` của đoạn nhận.
+func headed(c Chunk, into string) string {
+	if c.Heading == "" || c.Heading == into {
+		return c.Text
+	}
+	return c.Heading + "\n" + c.Text
 }
 
 // splitLong cắt một khối dài hơn max theo câu, rồi khoảng trắng, rồi (cùng lắm) giữa hai rune; không bao giờ cắt giữa một rune.

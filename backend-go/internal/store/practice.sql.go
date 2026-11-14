@@ -444,7 +444,7 @@ func (q *Queries) PracticeDocBrief(ctx context.Context, arg PracticeDocBriefPara
 }
 
 const practiceDocChunks = `-- name: PracticeDocChunks :many
-select id, page_no, text from content_chunks
+select id, page_no, heading, text from content_chunks
 where document_id = $1 and course_ids @> array[$2::uuid]
 order by ord
 `
@@ -455,9 +455,10 @@ type PracticeDocChunksParams struct {
 }
 
 type PracticeDocChunksRow struct {
-	ID     uuid.UUID
-	PageNo *int32
-	Text   string
+	ID      uuid.UUID
+	PageNo  *int32
+	Heading *string
+	Text    string
 }
 
 func (q *Queries) PracticeDocChunks(ctx context.Context, arg PracticeDocChunksParams) ([]PracticeDocChunksRow, error) {
@@ -469,7 +470,12 @@ func (q *Queries) PracticeDocChunks(ctx context.Context, arg PracticeDocChunksPa
 	items := []PracticeDocChunksRow{}
 	for rows.Next() {
 		var i PracticeDocChunksRow
-		if err := rows.Scan(&i.ID, &i.PageNo, &i.Text); err != nil {
+		if err := rows.Scan(
+			&i.ID,
+			&i.PageNo,
+			&i.Heading,
+			&i.Text,
+		); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

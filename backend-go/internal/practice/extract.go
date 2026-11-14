@@ -178,11 +178,19 @@ func ParseAnswerKey(text string) map[int]int {
 }
 
 // pages gộp các đoạn thành cửa sổ ≤ maxChars chữ, mỗi đoạn đánh dấu "[Trang N]".
+// Tiêu đề của đoạn (heading) là dòng đầu thật của nội dung: bộ tách đoạn rút dòng "Câu N. …" / tên đề ra khỏi `text`, nên phải đưa lại vào lời nhắc (L1).
+func chunkBody(c store.PracticeDocChunksRow) string {
+	if c.Heading != nil && *c.Heading != "" && !strings.HasPrefix(c.Text, *c.Heading) {
+		return *c.Heading + "\n" + c.Text
+	}
+	return c.Text
+}
+
 func windows(chunks []store.PracticeDocChunksRow, maxChars int) []string {
 	var out []string
 	var b strings.Builder
 	for _, c := range chunks {
-		part := fmt.Sprintf("[Trang %d]\n%s\n", ptrOr(c.PageNo, 0), c.Text)
+		part := fmt.Sprintf("[Trang %d]\n%s\n", ptrOr(c.PageNo, 0), chunkBody(c))
 		if b.Len() > 0 && b.Len()+len(part) > maxChars {
 			out = append(out, b.String())
 			b.Reset()
@@ -251,7 +259,7 @@ func (w *Worker) extract(ctx context.Context, j jobs.JobCtx) (any, error) {
 		}
 		var sb strings.Builder
 		for _, c := range ak {
-			sb.WriteString(c.Text)
+			sb.WriteString(chunkBody(c))
 			sb.WriteByte('\n')
 		}
 		key = ParseAnswerKey(sb.String())

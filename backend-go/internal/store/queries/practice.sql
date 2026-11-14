@@ -184,7 +184,7 @@ where course_id = sqlc.arg(course_id) and id = any(sqlc.arg(ids)::text[]::uuid[]
 select id, type::text as type, status::text as status from documents where course_id = sqlc.arg(course_id) and id = sqlc.arg(id) and type::text <> 'THREAD_KNOWLEDGE';
 
 -- name: PracticeDocChunks :many
-select id, page_no, text from content_chunks
+select id, page_no, heading, text from content_chunks
 where document_id = sqlc.arg(document_id) and course_ids @> array[sqlc.arg(course_id)::uuid]
 order by ord;
 

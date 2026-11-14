@@ -20,7 +20,7 @@ import (
 // Loại câu đưa vào luyện đề (Q-P9-6): CODE không bao giờ; ESSAY chỉ ở lượt TOPIC.
 var (
 	topicTypes = []string{"MCQ_SINGLE", "MCQ_MULTI", "TRUE_FALSE", "SHORT", "ESSAY"} //nolint:gochecknoglobals // tập loại cho phép, bất biến
-	mockTypes  = []string{"MCQ_SINGLE", "MCQ_MULTI", "TRUE_FALSE", "SHORT"} //nolint:gochecknoglobals // tập loại cho phép, bất biến
+	mockTypes  = []string{"MCQ_SINGLE", "MCQ_MULTI", "TRUE_FALSE", "SHORT"}          //nolint:gochecknoglobals // tập loại cho phép, bất biến
 )
 
 // StartIn là thân `POST …/practice/start`.
