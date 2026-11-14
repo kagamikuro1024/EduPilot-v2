@@ -26,5 +26,8 @@ Viết ở **pha 1** (2026-11-14) từ `docs/specs/FEAT-p10-eval/{US,SRS,QUESTIO
 ## Kiểm chéo áp cho mọi story (pha 2)
 Phân quyền 4 vai + SV ngoài lớp; không PII trong log / payload LLM / `llm_request_payloads`; `POST` có tác dụng phụ nhận `Idempotency-Key`; danh sách có cursor; mỗi màn có tải / rỗng / lỗi; 375 px; `bash scripts/ui-antipatterns.sh`; không `fetch(` trần; không `OFFSET` mới ở `internal/store/queries/`; không sửa test cũ (`git diff <gốc>... -- '*_test.go' 'frontend/e2e'` chỉ thêm).
 
+## Quy tắc chi phí (PM 2026-11-14, bổ sung)
+Không gọi Gemini trực tiếp ở bất kỳ TC nào (kể cả decision model `gemini-decision-1`, đo, eval, smoke, PoC). Sinh chữ chỉ qua 9router. Embedding: stack `ep-qc` dùng embedding giả (`fake`), không nạp lại / reindex bằng Gemini trừ khi PM cho phép; TC cần embedding thật (RAG, insight cụm) ghi «chờ PM cho phép embedding thật» và kiểm bằng embedding giả (thứ hạng / cô lập lớp / PII vẫn kiểm được). TC đợt 6 (decision cascade): thiết kế + kiểm bằng provider giả.
+
 ## Lịch sử sửa TC
 - 2026-11-14: tc-00-chung, TC-04-11, TC-10-10, TC-12-30 — luật LLM mới của chủ dự án (PM): LLM sinh chữ chỉ qua 9router; Gemini trực tiếp chỉ decision model + embedding. Thêm kiểm chéo ở pha 2: `llm_audit.provider`/`route` của lời gọi sinh chữ ≠ Gemini trực tiếp; không khoá Gemini trong cấu hình provider sinh chữ.
