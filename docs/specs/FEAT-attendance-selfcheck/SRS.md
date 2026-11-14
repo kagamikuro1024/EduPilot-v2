@@ -1,5 +1,5 @@
 # SRS FEAT-attendance-selfcheck Điểm danh tự phục vụ chống gian lận (web + app Android)
-Phiên bản 1.0 · 2026-11-14 · Trạng thái: **DRAFT** (chờ PM duyệt; câu CHỜ PM ở `QUESTIONS.md` Q-A-1, Q-A-2)
+Phiên bản 1.1 · 2026-11-14 · Trạng thái: **DRAFT** (PM đã chốt Q-A-1, Q-A-2, Q-A-4 ở **P-108-2**; chờ PM duyệt toàn bộ). **v1.1 (P-108-2):** xoá hẳn lượt thô sau 30 ngày; `CHECKIN_UNRESOLVED` cho buổi có cửa sổ; **bỏ App Links** — trong app quét bằng `BarcodeDetector` trong WebView, thiếu thì nhập **mã ngắn** hiện dưới QR (FR-3a, FR-10, FR-22).
 
 Nguồn: `US.md` (US-AS-01…14), PRD M5, FLOWS F7 + F7b, `docs/sprints/10.8/techlead.md` TL-1, `docs/research/2026-11-14-attendance-anti-cheat.md` (viết tắt «research»), **P-108-1**. Phần lệch có chủ đích so với research ghi ở mục 10.
 
@@ -16,7 +16,7 @@ Kết quả đóng cửa sổ ghi vào `attendance_records` có sẵn; lưới �
 
 **Trong phạm vi:** migration `00024_attendance_checkin.sql` (3 bảng), package `internal/attendance`, 12 route mới + mở rộng `PUT …/settings`, `GET /courses/{id}/me/attendance`, `GET /me/today`; màn `/attendance` (mở rộng), `/attendance/display`, `/checkin`; PWA manifest; vỏ Capacitor Android `mobile/`; plugin Kotlin; kiểm Key Attestation bằng stdlib; việc nền `attendance.sweep`, `attendance.purge`; seed, E2E, k6.
 
-**Ngoài phạm vi:** selfie / sinh trắc, chặn chụp màn hình, NFC, BLE, mã số đọc to, iOS native, Play Integrity, App Attest, ML Kit, thông báo đẩy, SSE, tự phạt, đọc «cùng máy với ai».
+**Ngoài phạm vi:** selfie / sinh trắc, chặn chụp màn hình, NFC, BLE, cờ riêng cho «mã đọc to» (mã ngắn dưới QR thì có), iOS native, Android App Links, Play Integrity, App Attest, ML Kit, thông báo đẩy, SSE, tự phạt, đọc «cùng máy với ai».
 
 **Mục tiêu tải (T1):** 200 SV / 30 s ≈ 7 req/s; dồn 5 s ≈ 40 req/s. PoC: 200 lượt kiểm mã + chữ ký song song 1,7 ms.
 
@@ -65,9 +65,9 @@ sequenceDiagram
     DP->>GW: GET …/display
     GW-->>DP: {qr_url (token bước hiện tại), checked_in, closes_at, server_time}
   end
-  SV->>SV: camera hệ thống quét QR → mở /checkin?c=…#token
+  SV->>SV: quét QR (web: camera hệ thống → /checkin?c=…#token; app: nút «Quét mã điểm danh» → BarcodeDetector) hoặc nhập mã ngắn dưới QR
   SV->>SV: ký "edupilot-checkin-v1|token|user_id" (WebCrypto / Keystore)
-  SV->>GW: POST /courses/{id}/checkins {token, device, geo?}
+  SV->>GW: POST /courses/{id}/checkins {token | code, device, geo?}
   GW->>GW: JWT → quyền lớp → cửa sổ → MAC → đóng? → bước → hạn mức
   GW->>PG: INSERT attendance_checkins … ON CONFLICT (khoá tự nhiên) → đọc lại
   GW->>PG: tính cờ (hai SELECT có chỉ mục)
@@ -145,6 +145,11 @@ stateDiagram-v2
 | Nonce thiết bị sai / hết hạn | `422 DEVICE_CHALLENGE_INVALID` | App thử lại tự động một lần |
 | Chuỗi chứng thực giả / APK lạ / bị thu hồi | `422 ATTESTATION_FAILED` | App điểm danh như web (mức 1) |
 | Danh sách thu hồi không tải được, chưa có bản đệm | `503 ATTESTATION_UNAVAILABLE` (chỉ đăng ký) | App điểm danh như web, thử đăng ký lại sau |
+| Nhập mã ngắn sai / hết hạn / lớp không có cửa sổ khớp | `422 TOKEN_INVALID` (không phân biệt) | «Mã không đúng hoặc đã hết hạn. Nhập mã đang hiện trên màn chiếu.» |
+| Nhập mã ngắn đúng nhưng cửa sổ đã đóng | `409 WINDOW_CLOSED` | «Đã đóng điểm danh.» |
+| Nhập sai ≥ 5 lần / phút | `429` + `Retry-After` (cả khi đúng sau đó, hết phút) | «Thử lại sau {n} giây.» |
+| `token` và `code` cùng có / cùng thiếu | `422 VALIDATION_FAILED` | – (không xảy ra từ giao diện) |
+| App: WebView không có `BarcodeDetector` / từ chối camera | Hiện ô nhập mã ngắn, `channel = CODE` | «Chưa cấp quyền camera.» (khi bị từ chối) |
 | Mất mạng khi `close` | Hàng đợi cục bộ, `Idempotency-Key` cũ | «Chưa đóng» + tự thử lại |
 | Mất mạng ở màn chiếu | Giữ QR cuối, thử lại | «Mất kết nối» |
 | Gateway khởi động thiếu `ATTENDANCE_TOKEN_KEY` (cờ bật) | Gateway không chạy, nêu tên biến | – |
@@ -168,6 +173,9 @@ stateDiagram-v2
 | `HEADCOUNT_TOLERANCE` | `max(2, ⌈5 % × headcount⌉)` | dung sai `OVER_HEADCOUNT` |
 | `SPOT_CHECK_DEFAULT` / `_MAX` | `5` / `10` | số người gọi ngẫu nhiên |
 | `CHECKIN_RATE_PER_MIN` | `10` | lượt / người / phút (`POST …/checkins`) |
+| `CHECKIN_CODE_LEN` | `6` | độ dài mã ngắn (Crockford base32, 30 bit) |
+| `CHECKIN_CODE_FAIL_PER_MIN` | `5` | số lần nhập **sai** mã ngắn / người / phút trước khi `429` |
+| `CHECKIN_CODE_LOOKBACK_MIN` | `15` | dò mã ngắn trong cửa sổ có `closes_at > now() − N phút` của lớp |
 | `DISPLAY_RATE_PER_MIN` | `30` | `GET …/display` / người / phút |
 | `DEVICE_CHALLENGE_RATE_PER_MIN` / `DEVICE_CHALLENGE_TTL_S` | `5` / `300` | thử thách đăng ký thiết bị |
 | `CHECKIN_SWEEP_INTERVAL_S` | `60` | nhịp worker đóng cửa sổ hết giờ |
@@ -186,7 +194,9 @@ stateDiagram-v2
 
 **FR-3 (mã).** `token = window_id + "." + step + "." + base32(HMAC-SHA256(K_w, decimal(step)))[:16]`, `K_w = HMAC-SHA256(ATTENDANCE_TOKEN_KEY, "att-v1|" + window_id)`, `step = ⌊unix_s / rotate_seconds⌋`; nhận `step ∈ {s, s−1}`; `token_age_ms = now_ms − step × rotate × 1000`. Không lưu bí mật theo buổi; so MAC bằng `hmac.Equal`. → US-AS-03 AC2.
 
-**FR-4 (màn chiếu).** `GET …/checkin-windows/{wid}/display` → `{qr_url, step_expires_at, server_time, rotate_seconds, round, checked_in, headcount, closes_at}`; `qr_url = APP_PUBLIC_URL + "/checkin?c=" + courseId + "#" + token`; `checked_in` = `count(distinct student_id)` của cửa sổ; `no-store`; cửa sổ đã đóng / quá hạn → `409 WINDOW_CLOSED`; hạn mức `DISPLAY_RATE_PER_MIN`. Không SSE. → US-AS-02 AC4, AC8.
+**FR-3a (mã ngắn).** `short = crockford32(HMAC-SHA256(K_w, "short|" + decimal(step)))[:CHECKIN_CODE_LEN]` (bảng `0-9A-Z` trừ `I L O U`); hiển thị nhóm 3 + 3; chuẩn hoá khi nhập: bỏ khoảng trắng / `-`, in hoa, `O→0`, `I`/`L→1`; nhận `step ∈ {s, s−1}`; so bằng `subtle.ConstantTimeCompare`. Đổi **cùng nhịp** với `token` (cùng `step`). Mã ngắn không chứa `window_id`, nên server tìm cửa sổ theo **lớp** (FR-10). → US-AS-03 AC3a.
+
+**FR-4 (màn chiếu).** `GET …/checkin-windows/{wid}/display` → `{qr_url, short_code, step_expires_at, server_time, rotate_seconds, round, checked_in, headcount, closes_at}`; `qr_url = APP_PUBLIC_URL + "/checkin?c=" + courseId + "#" + token`; `checked_in` = `count(distinct student_id)` của cửa sổ; `no-store`; cửa sổ đã đóng / quá hạn → `409 WINDOW_CLOSED`; hạn mức `DISPLAY_RATE_PER_MIN`. Không SSE. → US-AS-02 AC4, AC8.
 
 **FR-5 (số đầu người, liệt kê).** `PATCH …/checkin-windows/{wid} {headcount}`; `GET …/sessions/{sid}/checkin-windows`; `over_headcount` tính khi đọc. → US-AS-02 AC5–AC6; US-AS-07 AC1.
 
@@ -209,13 +219,13 @@ Vòng ≥ 2: thêm `RECHECK_MISS` (FR-14). Trả `written{present,late}`, `unche
 
 **FR-8 (đánh vắng).** `POST …/sessions/{sid}/absent-unchecked` (`Idempotency-Key`): buổi có ≥ 1 cửa sổ (`NO_WINDOW`), không cửa sổ mở (`WINDOW_OPEN`); `INSERT … SELECT` từ `enrollments ACTIVE` không có dòng, `ABSENT`, `marked_by = actor`, `ON CONFLICT DO NOTHING`; `audit_log` `attendance`/`absent_unchecked` (số đếm + `[{student_id,to}]`, không tên); outbox `crm.attendance_saved`. → US-AS-05 AC5, AC7.
 
-**FR-9 (chặn hoàn tất — Q-A-2).** Trong `PUT …/sessions/{sid}/attendance` (4.3.3 `FEAT-crm-360`): nếu `complete:true` và buổi có ≥ 1 cửa sổ và sau khi áp thân vẫn còn sinh viên `ACTIVE` không có dòng → `ROLLBACK`, `422 CHECKIN_UNRESOLVED {count}` (**thay** cho bước «điền `PRESENT`»). Buổi không có cửa sổ: hành vi cũ không đổi. → US-AS-05 AC6.
+**FR-9 (chặn hoàn tất — P-108-2).** Trong `PUT …/sessions/{sid}/attendance` (4.3.3 `FEAT-crm-360`): nếu `complete:true` và buổi có ≥ 1 cửa sổ và sau khi áp thân vẫn còn sinh viên `ACTIVE` không có dòng → `ROLLBACK`, `422 CHECKIN_UNRESOLVED {count}` (**thay** cho bước «điền `PRESENT`»). Buổi không có cửa sổ: hành vi cũ không đổi. → US-AS-05 AC6.
 
 ### 4.3 `internal/attendance` — lượt điểm danh
 
-**FR-10 (điểm danh).** `POST /courses/{id}/checkins {token, device?, geo?, app?}` (STUDENT, `CourseAccessGuard`, `student_id` = `sub`). Thứ tự: hạn mức `CHECKIN_RATE_PER_MIN` (middleware có sẵn, theo `uid`) → cú pháp thân (`422`) → lớp bật `self_checkin` → cửa sổ theo `window_id` **và** `course_id` → MAC → `closed_at`/`closes_at` (`409`) → `step` (`422 TOKEN_EXPIRED`) → `SELECT` lượt hiện có `(course, window, student)` → có ⇒ `200` bản cũ → chưa ⇒ kiểm chữ ký, tính cờ (FR-11…FR-13), `INSERT … ON CONFLICT (course_id, window_id, student_id) DO NOTHING RETURNING`; mất cuộc đua ⇒ đọc lại, `200`. Phản hồi `{checked_in_at, round}` — **cùng hình dạng** mọi trường hợp. → US-AS-03.
+**FR-10 (điểm danh).** `POST /courses/{id}/checkins {token | code, device?, geo?, app?}` (đúng một trong `token`, `code`) (STUDENT, `CourseAccessGuard`, `student_id` = `sub`). Thứ tự: hạn mức `CHECKIN_RATE_PER_MIN` (middleware có sẵn, theo `uid`) → cú pháp thân (`422`) → lớp bật `self_checkin` → **đường `token`:** cửa sổ theo `window_id` **và** `course_id` → MAC; **đường `code`:** kiểm bộ đếm sai `ep:att:codefail:{uid}` (≥ `CHECKIN_CODE_FAIL_PER_MIN` ⇒ `429`) → nạp cửa sổ của lớp có `closes_at > now() − CHECKIN_CODE_LOOKBACK_MIN` → khớp mã ngắn (FR-3a) bước hiện tại / trước ⇒ cửa sổ đó; không khớp ⇒ `INCR` bộ đếm, `422 TOKEN_INVALID` → `closed_at`/`closes_at` (`409`) → `step` (đường `token`: `422 TOKEN_EXPIRED`; đường `code` đã kiểm bước ở bước khớp) → `SELECT` lượt hiện có `(course, window, student)` → có ⇒ `200` bản cũ → chưa ⇒ kiểm chữ ký, tính cờ (FR-11…FR-13), `INSERT … ON CONFLICT (course_id, window_id, student_id) DO NOTHING RETURNING`; mất cuộc đua ⇒ đọc lại, `200`. `channel` = `CODE` khi đường `code`, ngược lại `APP` nếu `app` có mặt, còn lại `WEB`. Phản hồi `{checked_in_at, round}` — **cùng hình dạng** mọi trường hợp. → US-AS-03.
 
-**FR-11 (chữ ký và thiết bị).** Chuỗi ký `"edupilot-checkin-v1|" + token + "|" + user_id`. `WEB_KEY`: nhận `public_key` (SPKI, ≤ 512 byte), `key_sha256 = sha256(public_key)`, `INSERT user_devices … ON CONFLICT (key_sha256) DO NOTHING`, kiểm ECDSA P-256 (chữ ký 64 byte `r‖s` hoặc DER). `ANDROID_KEY`: `key_id` (= base64url `key_sha256`) phải có trong `user_devices` với `attested`; kiểm chữ ký bằng `public_key` đã lưu. Không có `device` ⇒ `NO_DEVICE_KEY`; có nhưng sai / chưa đăng ký ⇒ `DEVICE_UNTRUSTED`. **Không bao giờ** từ chối vì chữ ký. → US-AS-04 AC1, AC9.
+**FR-11 (chữ ký và thiết bị).** Chuỗi ký `"edupilot-checkin-v1|" + token + "|" + user_id` (đường `code`: `"edupilot-checkin-v1|code:" + CODE_CHUẨN_HOÁ + "|" + user_id`). `WEB_KEY`: nhận `public_key` (SPKI, ≤ 512 byte), `key_sha256 = sha256(public_key)`, `INSERT user_devices … ON CONFLICT (key_sha256) DO NOTHING`, kiểm ECDSA P-256 (chữ ký 64 byte `r‖s` hoặc DER). `ANDROID_KEY`: `key_id` (= base64url `key_sha256`) phải có trong `user_devices` với `attested`; kiểm chữ ký bằng `public_key` đã lưu. Không có `device` ⇒ `NO_DEVICE_KEY`; có nhưng sai / chưa đăng ký ⇒ `DEVICE_UNTRUSTED`. **Không bao giờ** từ chối vì chữ ký. → US-AS-04 AC1, AC9.
 
 **FR-12 (cờ thiết bị / mã).** `DEVICE_SHARED`: tồn tại hàng `attendance_checkins` cùng `course_id`, cùng `device_id`, `student_id` khác (chỉ mục `(course_id, device_id)`); khi có, thêm cờ vào lượt mới **và** vào mọi lượt của những sinh viên đó trong cùng buổi (`UPDATE … SET flags = array_append(...) WHERE NOT 'DEVICE_SHARED' = ANY(flags)` trong cùng giao dịch, khoá hàng `user_devices` `FOR UPDATE` để hai lượt đồng thời không mất cờ). `DEVICE_NEW`: sinh viên có lượt với thiết bị khác và chưa có lượt nào với thiết bị này. `TOKEN_LATE`: `token_age_ms > rotate × 1000 + TOKEN_LATE_EXTRA_MS`. `NOT_APP`: `require = APP` và `assurance < 3`. → US-AS-04 AC3–AC7.
 
@@ -269,7 +279,7 @@ Vòng ≥ 2: thêm `RECHECK_MISS` (FR-14). Trả `written{present,late}`, `unche
 
 **FR-21 (`attendance.purge`).** Hằng ngày: lô ≤ 1.000 hàng — xoá `attendance_checkins` của cửa sổ có `closed_at < now() − 30 ngày`; sau đó xoá `user_devices` mồ côi quá 30 ngày; log chỉ có số hàng. Xoá tài khoản xoá ngay hàng của người đó. → US-AS-13.
 
-**FR-22 (mobile).** `mobile/` (Capacitor 8, Android): `capacitor.config.ts` (`server.url = APP_SERVER_URL`, `allowNavigation`, không cleartext), `android/` với intent filter `autoVerify` cho `/checkin`, plugin Kotlin `EduPilotAttest` (`sign`, `isMockLocation`, `registerDevice`), `README.md` (dựng, ký, cài, bật «Mở liên kết được hỗ trợ»); `frontend/public/.well-known/assetlinks.json`. → US-AS-11.
+**FR-22 (mobile).** `mobile/` (Capacitor 8, Android): `capacitor.config.ts` (`server.url = APP_SERVER_URL`, `allowNavigation`, không cleartext), `android/` với quyền `CAMERA` (**không** intent filter `autoVerify`, **không** `assetlinks.json` — P-108-2), plugin Kotlin `EduPilotAttest` (`sign`, `isMockLocation`, `registerDevice`), `README.md` (dựng, ký, cài; «Dùng nút Quét mã điểm danh trong app»). Quét: trang `/checkin` (native) dùng `getUserMedia` + `BarcodeDetector` (`qr_code`), chấp nhận QR chỉ khi `origin` = `origin` ứng dụng, đường dẫn `/checkin`, `c` UUID, có `#token`; dừng camera ngay sau khi chấp nhận / rời trang; không có `BarcodeDetector` / bị từ chối quyền → ô nhập mã ngắn. → US-AS-11 AC3, AC3a, AC3b.
 
 **FR-23 (frontend).** Xem mục 7. **FR-24 (seed, E2E, k6).** Xem mục 9. **FR-25 (openapi).** Mọi route mới, thân, mã lỗi, `CourseSettingsInput.attendance`, `MeAttendance.checked_in_at` có trong `openapi.yaml`; test hợp đồng khớp.
 
@@ -307,7 +317,7 @@ Vòng ≥ 2: thêm `RECHECK_MISS` (FR-14). Trả `written{present,late}`, `unche
 Migration **`00024_attendance_checkin.sql`** (một tệp, một giao dịch; chỉ `CREATE`; không sửa migration đã merge; 00021–00023 giữ chỗ). Chính sách lớp **không** cần bảng: `courses.settings.attendance` (jsonb có sẵn từ `00003`).
 
 ```sql
-CREATE TYPE checkin_channel AS ENUM ('WEB', 'APP');
+CREATE TYPE checkin_channel AS ENUM ('WEB', 'APP', 'CODE');   -- CODE = nhập mã ngắn (P-108-2)
 CREATE TYPE device_kind     AS ENUM ('WEB_KEY', 'ANDROID_KEY');
 
 CREATE TABLE checkin_windows (                      -- một buổi tối đa 3 vòng
@@ -371,14 +381,14 @@ Dưới `/api/v1`; `…` = `/courses/{id}`. Mọi ghi quan trọng: `Idempotency
 | 1 | `PUT …/settings {attendance:{…}, version}` | TEACHER | route có sẵn; `409 VERSION_CONFLICT`; `422 VALIDATION_FAILED` |
 | 2 | `POST …/sessions/{sid}/checkin-windows {minutes?}` | Staff | `Idempotency-Key`; `201 {id, round, rotate_seconds, closes_at}`; `409 WINDOW_ALREADY_OPEN`, `ROUND_LIMIT`, `SELF_CHECKIN_DISABLED`, `COURSE_ARCHIVED` |
 | 3 | `GET …/sessions/{sid}/checkin-windows` | Staff | tối đa 3 cửa sổ |
-| 4 | `GET …/sessions/{sid}/checkin-windows/{wid}/display` | Staff | `no-store`; `409 WINDOW_CLOSED`; `429` |
+| 4 | `GET …/sessions/{sid}/checkin-windows/{wid}/display` | Staff | `{qr_url, short_code, …}`; `no-store`; `409 WINDOW_CLOSED`; `429` |
 | 5 | `PATCH …/checkin-windows/{wid} {headcount}` | Staff | `422` |
 | 6 | `POST …/checkin-windows/{wid}/close` | Staff | idempotent tự nhiên; `{window, written, unchecked, skipped_existing}` |
 | 7 | `POST …/checkin-windows/{wid}/spot-check {n?}` | Staff | `{students:[{student_id, full_name, student_code, reason: FLAGGED\|RANDOM}]}`; không ghi |
 | 8 | `POST …/sessions/{sid}/absent-unchecked` | Staff | `Idempotency-Key`; `409 WINDOW_OPEN`, `NO_WINDOW`; `{marked}` |
 | 9 | `GET …/sessions/{sid}/checkins?flagged=&round=&cursor=&limit=` | Staff | con trỏ, `limit ≤ 100` |
 | 10 | `POST …/checkins/{cid}/clear-flags` | Staff | `audit_log`; idempotent |
-| 11 | `POST …/checkins {token, device?, geo?, app?}` | STUDENT | `201`/`200 {checked_in_at, round}`; `409 SELF_CHECKIN_DISABLED`, `WINDOW_CLOSED`, `COURSE_ARCHIVED`; `422 TOKEN_INVALID`, `TOKEN_EXPIRED`, `VALIDATION_FAILED`; `403 NOT_IN_COURSE`; `429` |
+| 11 | `POST …/checkins {token \| code, device?, geo?, app?}` | STUDENT | `201`/`200 {checked_in_at, round}`; `409 SELF_CHECKIN_DISABLED`, `WINDOW_CLOSED`, `COURSE_ARCHIVED`; `422 TOKEN_INVALID`, `TOKEN_EXPIRED`, `VALIDATION_FAILED`; `403 NOT_IN_COURSE`; `429` (kể cả quá 5 lần nhập sai mã ngắn / phút) |
 | 12 | `POST /me/devices/challenge` → `{nonce}` | STUDENT | `429` |
 | 13 | `POST /me/devices {kind, public_key, attestation_chain[]}` | STUDENT | `201`/`200 {key_id}`; `422 DEVICE_CHALLENGE_INVALID`, `ATTESTATION_FAILED`; `503 ATTESTATION_UNAVAILABLE` |
 | 14 | `GET …/me/attendance` | STUDENT | thêm `checked_in_at` |
@@ -395,9 +405,9 @@ Tech Lead bổ sung `DESIGN.md` §14 cho `/attendance/display` và `/checkin` (n
 
 | Route | Khung nhìn đầu | Trạng thái | Mobile |
 | --- | --- | --- | --- |
-| `/attendance` (Staff, mở rộng 7.2 `FEAT-crm-360`) | Dòng trạng thái cửa sổ «Đang mở · k/n · còn mm:ss» + `Mở màn chiếu`, `Đóng`; hành động phụ `Mở điểm danh` (chính vẫn `Lưu điểm danh`); hàng có «Điểm danh lúc», chip nhãn cờ, «Chưa điểm danh», bộ lọc `Cần xem (k)`, `Đã xem`; menu `⋯`: `Mở vòng 2`, `Nhập số đầu người`, `Gọi ngẫu nhiên 5 người` (`Drawer`) | tải = khung xương; lỗi = nguyên nhân + `Thử lại`; `WINDOW_ALREADY_OPEN` → «Đang có cửa sổ mở»; `CHECKIN_UNRESOLVED` → `InlineNotice` + `Đánh vắng n SV chưa điểm danh` (xác nhận chuẩn) | danh sách hàng, nút ≥ 44 px |
-| `/attendance/display?course=&session=` (Staff) | toàn màn hình: QR (`uqr`, SVG), số đã điểm danh (chữ lớn), đồng hồ đếm ngược, vòng; `Đóng điểm danh`, `Thoát`; poll theo `step_expires_at`, bù lệch bằng `server_time` | mất mạng: giữ QR cuối + «Mất kết nối»; hết giờ: «Đã đóng»; STUDENT → màn chặn | tối thiểu 1280×720 (chiếu); trên điện thoại vẫn dùng được |
-| `/checkin?c=…#token` (STUDENT) | một màn: đang gửi → «Đã điểm danh 07:03» (chữ lớn, một dấu xác nhận đỏ — «đã xác nhận»); không nút khi thành công | lỗi một câu theo bảng 3.5; mất mạng: «Chưa có mạng.» + `Thử lại`; geofence bật: dòng «Lớp này kiểm tra vị trí khi điểm danh.» trước khi xin quyền; TA / TEACHER / ADMIN → màn chặn | 375 px một màn; nút ≥ 44 px |
+| `/attendance` (Staff, mở rộng 7.2 `FEAT-crm-360`) | Dòng trạng thái cửa sổ «Đang mở · k/n · còn mm:ss» + `Mở màn chiếu`, `Đóng`; hành động phụ `Mở điểm danh` (chính vẫn `Lưu điểm danh`); hàng có «Điểm danh lúc», chip «Nhập mã» khi `channel = CODE`, chip nhãn cờ, «Chưa điểm danh», bộ lọc `Cần xem (k)`, `Đã xem`; menu `⋯`: `Mở vòng 2`, `Nhập số đầu người`, `Gọi ngẫu nhiên 5 người` (`Drawer`) | tải = khung xương; lỗi = nguyên nhân + `Thử lại`; `WINDOW_ALREADY_OPEN` → «Đang có cửa sổ mở»; `CHECKIN_UNRESOLVED` → `InlineNotice` + `Đánh vắng n SV chưa điểm danh` (xác nhận chuẩn) | danh sách hàng, nút ≥ 44 px |
+| `/attendance/display?course=&session=` (Staff) | toàn màn hình: QR (`uqr`, SVG) + **mã ngắn** 6 ký tự (nhóm 3 + 3, chữ lớn) ngay dưới QR đổi cùng nhịp, số đã điểm danh (chữ lớn), đồng hồ đếm ngược, vòng; `Đóng điểm danh`, `Thoát`; poll theo `step_expires_at`, bù lệch bằng `server_time` | mất mạng: giữ QR cuối + «Mất kết nối»; hết giờ: «Đã đóng»; STUDENT → màn chặn | tối thiểu 1280×720 (chiếu); trên điện thoại vẫn dùng được |
+| `/checkin?c=…#token` (STUDENT) | **có token:** một màn: đang gửi → «Đã điểm danh 07:03» (chữ lớn, một dấu xác nhận đỏ — «đã xác nhận»); không nút khi thành công. **Không token** (app / dán tay): app có `BarcodeDetector` → nút chính «Quét mã điểm danh» (khung camera, `Thoát`) và liên kết `Nhập mã`; web / app không quét được → ô «Mã điểm danh» (6 ký tự) + «Lớp {mã lớp}» + `Điểm danh` | lỗi một câu theo bảng 3.5; mất mạng: «Chưa có mạng.» + `Thử lại`; geofence bật: dòng «Lớp này kiểm tra vị trí khi điểm danh.» trước khi xin quyền; TA / TEACHER / ADMIN → màn chặn | 375 px một màn; nút ≥ 44 px |
 | `/me` (STUDENT) | hàng buổi hiện «Điểm danh lúc hh:mm» nếu `checked_in_at` | rỗng = như cũ | như cũ |
 | `/courses/{id}` cài đặt (TEACHER) | khối «Điểm danh bằng mã»: công tắc, `Chu kỳ mã`, `Tính muộn sau`, `Yêu cầu`; mục «Vị trí» (công tắc + vị trí hiện tại / bán kính) và «Mạng trường» (CIDR) mở dần; dòng «Lớp này kiểm tra vị trí khi điểm danh.» khi bật vị trí | lỗi `422` tại ô | một cột |
 
@@ -418,41 +428,41 @@ Tech Lead bổ sung `DESIGN.md` §14 cho `/attendance/display` và `/checkin` (n
 - **Riêng tư (Luật 91/2025):** không sinh trắc; vị trí = dữ liệu cá nhân → thông báo một câu + tuỳ chọn theo lớp + chỉ lưu khoảng cách / độ chính xác; IP chỉ `in_campus`; không IMEI; thiết bị không gắn người; 30 ngày rồi xoá; sinh viên không thấy cờ (đúng luật «không thấy nhãn rủi ro của mình»).
 - **Bảo mật:** `hmac.Equal`; mã sau `#`; không log bí mật; `Idempotency-Key`; hạn mức; CSP chặt cho `/checkin` (plugin gọi được từ mọi trang cùng tên miền); APK ký bằng khoá ngoài repo; không secret trong repo.
 - **Rủi ro còn lại (chấp nhận, ghi cho PM):**
-  - **T2** người trong lớp chuyển mã thời gian thực: giảm bằng vòng 2, đếm đầu người, gọi tên, cờ vị trí — không loại bỏ.
+  - **T2** người trong lớp chuyển mã thời gian thực: giảm bằng vòng 2, đếm đầu người, gọi tên, cờ vị trí — không loại bỏ. **Mã ngắn** dễ đọc qua điện thoại hơn QR (cùng nhịp, cùng lớp bảo vệ, kênh ghi `CODE` để Staff thấy); dò mã: 30 bit + tối đa 5 lần sai / phút / người ⇒ xác suất đoán đúng trong một cửa sổ 20 s ≲ 10⁻⁷ mỗi người.
   - **T10** TA / lớp trưởng mở màn chiếu trên máy khác: chỉ Staff mở được `display`; không chặn hai máy.
   - Lượt **đầu tiên** của một tài khoản với khoá web mới (trình duyệt ẩn danh) không bị `DEVICE_NEW`; từ lượt thứ hai trở đi mới lộ.
   - Web chỉ có khoá phần mềm; mức 3 chỉ có ở app Android.
   - `isMock()` do app tự báo; APK sửa có thể nói dối — giảm bằng chứng thực gói + chữ ký APK.
-  - Demo cần HTTPS (Cloudflare Tunnel); App Links cần tên miền ổn định (Q-A-4).
+  - Demo cần HTTPS (Cloudflare Tunnel) cho WebCrypto, camera, vị trí; **không** cần tên miền cố định (không App Links — P-108-2). `BarcodeDetector` trong Android WebView phụ thuộc máy / bản WebView: có thể không có → nhập mã ngắn. Quét bằng camera hệ thống luôn mở trình duyệt (lượt web).
 - **Cách lùi:** tắt `ATTENDANCE_SELF_CHECKIN_ENABLED` hoặc `self_checkin` của lớp → về điểm danh tay như cũ (không đụng `attendance_records`); bỏ L5 → còn web mức 1–2.
 
 ## 9. Kiểm thử
 
-**Go (`internal/attendance`, table-driven, `-race`):** `TestTokenMAC`, `TestTokenStepWindow`, `TestCheckinHappyPath`, `TestCheckinIdempotent` (F5 / hai tab / đua), `TestCheckinRejectOrder` (thứ tự kiểm + mã lỗi), `TestCheckinNeverRejectsOnSignals` (bảng ca: mọi tổ hợp tín hiệu → 2xx), `TestCheckinResponseHidesFlags` (so byte), `TestCheckinIdentityFromJWT`, `TestCheckinRBAC` (STUDENT ✓; TA / TEACHER / ADMIN 403; ngoài lớp), `TestCheckinRateLimit`, `TestSelfCheckinDisabled`, `TestWindowOpenIdempotent`, `TestWindowSingleOpen` (hai mở song song), `TestRoundLimit`, `TestRound2NoNotification`, `TestDisplayNoStore`, `TestCloseWritesRecords` (PRESENT / LATE, không ghi đè, không ABSENT), `TestCloseIdempotent`, `TestCloseVsGridRace`, `TestSweepAutoClose`, `TestAbsentUnchecked`, `TestCompleteBlockedByUnresolved`, `TestCompleteUnchangedWithoutWindow`, `TestFlagDeviceShared` + `TestDeviceSharedRace`, `TestFlagDeviceNew`, `TestFlagTokenLate`, `TestFlagGeo` + `TestFlagCampus`, `TestFlagRecheckMiss`, `TestOverHeadcount`, `TestAssuranceLevels`, `TestSpotCheck`, `TestClearFlagsAudit`, `TestCheckinsListCursor`, `TestSettingsAttendanceValidation`, `TestSettingsAttendanceAuditNoCoords`, `TestAttestChain` (hai chuỗi mẫu `caiman…` / `akita…` + chứng chỉ giả), `TestAttestChallenge`, `TestAttestPackageMismatch`, `TestAttestRevocation`, `TestDeviceChallengeOnce`, `TestPurge30Days`, `TestPurgeSkipsOpenWindow`, `TestAccountDeleteRemovesCheckins`, `TestNoCoordsOrIPStored` (kiểm lược đồ + dump), `TestLogsNoCheckinSecrets`, `TestTodayCheckinReview`, `TestMeAttendanceCheckedAt`, `TestAgentToolNoCheckinFlags`, `TestOpenapiCheckinRoutes` (contract).
+**Go (`internal/attendance`, table-driven, `-race`):** `TestTokenMAC`, `TestTokenStepWindow`, `TestCheckinHappyPath`, `TestCheckinIdempotent` (F5 / hai tab / đua), `TestCheckinRejectOrder` (thứ tự kiểm + mã lỗi), `TestCheckinByCode` (đúng / sai / hết hạn / cửa sổ đóng / nhiều cửa sổ / hai cửa sổ lớp khác không lẫn), `TestCodeNormalize`, `TestCodeFailRateLimit` (chỉ đếm lần sai; `429` từ lần 6), `TestShortCodeRotatesWithToken`, `TestCodeSignatureMessage`, `TestCheckinNeverRejectsOnSignals` (bảng ca: mọi tổ hợp tín hiệu → 2xx), `TestCheckinResponseHidesFlags` (so byte), `TestCheckinIdentityFromJWT`, `TestCheckinRBAC` (STUDENT ✓; TA / TEACHER / ADMIN 403; ngoài lớp), `TestCheckinRateLimit`, `TestSelfCheckinDisabled`, `TestWindowOpenIdempotent`, `TestWindowSingleOpen` (hai mở song song), `TestRoundLimit`, `TestRound2NoNotification`, `TestDisplayNoStore`, `TestCloseWritesRecords` (PRESENT / LATE, không ghi đè, không ABSENT), `TestCloseIdempotent`, `TestCloseVsGridRace`, `TestSweepAutoClose`, `TestAbsentUnchecked`, `TestCompleteBlockedByUnresolved`, `TestCompleteUnchangedWithoutWindow`, `TestFlagDeviceShared` + `TestDeviceSharedRace`, `TestFlagDeviceNew`, `TestFlagTokenLate`, `TestFlagGeo` + `TestFlagCampus`, `TestFlagRecheckMiss`, `TestOverHeadcount`, `TestAssuranceLevels`, `TestSpotCheck`, `TestClearFlagsAudit`, `TestCheckinsListCursor`, `TestSettingsAttendanceValidation`, `TestSettingsAttendanceAuditNoCoords`, `TestAttestChain` (hai chuỗi mẫu `caiman…` / `akita…` + chứng chỉ giả), `TestAttestChallenge`, `TestAttestPackageMismatch`, `TestAttestRevocation`, `TestDeviceChallengeOnce`, `TestPurge30Days`, `TestPurgeSkipsOpenWindow`, `TestAccountDeleteRemovesCheckins`, `TestNoCoordsOrIPStored` (kiểm lược đồ + dump), `TestLogsNoCheckinSecrets`, `TestTodayCheckinReview`, `TestMeAttendanceCheckedAt`, `TestAgentToolNoCheckinFlags`, `TestOpenapiCheckinRoutes` (contract).
 
 **Tích hợp:** kiểm migration `00024` chạy trên DB sạch + DB đã có dữ liệu; `sqlc diff` sạch.
 
-**Frontend / E2E (Playwright):** `attendance-checkin.spec.ts` (US-AS-14 AC2), `attendance-display.spec.ts` (QR đổi theo bước, mất mạng, vai sai), `checkin-token-leak.spec.ts` (US-AS-09 AC9). `ui-antipatterns.sh` sạch. Lighthouse / axe cho `/checkin`, `/attendance/display`.
+**Frontend / E2E (Playwright):** `attendance-checkin.spec.ts` (US-AS-14 AC2), `attendance-display.spec.ts` (QR + mã ngắn đổi cùng bước, mất mạng, vai sai), `checkin-code.spec.ts` (nhập mã ngắn; ô quét với `BarcodeDetector` giả: QR đúng / QR lạ / không hỗ trợ / từ chối camera), `checkin-token-leak.spec.ts` (US-AS-09 AC9). `ui-antipatterns.sh` sạch. Lighthouse / axe cho `/checkin`, `/attendance/display`.
 
 **Tải:** `k6 run benchmarks/load/checkin.js` (US-AS-14 AC3).
 
-**Android:** `docs/sprints/10.8/qc/android-checklist.md` — dựng APK, cài, quét QR, App Links, đăng ký thiết bị, điểm danh mức 2 (emulator) / 3 (máy thật nếu có); `go test ./internal/attendance/attest` dùng chuỗi mẫu cho mức 3.
+**Android:** `docs/sprints/10.8/qc/android-checklist.md` — dựng APK, cài, quét QR trong app (nút «Quét mã điểm danh»; máy không có `BarcodeDetector` → nhập mã ngắn), đăng ký thiết bị, điểm danh mức 2 (emulator) / 3 (máy thật nếu có); `go test ./internal/attendance/attest` dùng chuỗi mẫu cho mức 3.
 
 **Seed (US-AS-14 AC1):** lớp 761988, một buổi riêng; không đổi `seed/expected_crm.csv`; `gateway admin seed-checkin-demo --course 761988` chỉ `APP_ENV ∈ {dev,test}`, in số dòng đã đổi, chạy lại không nhân đôi.
 
 ## 10. Câu hỏi mở và quyết định đã chốt
 
-`QUESTIONS.md`: Q-A-1, Q-A-2 **CHỜ PM** (dữ liệu cá nhân; đổi hành vi hợp đồng cũ); Q-A-3…Q-A-9 BA chốt theo đề xuất, PM xác nhận khi duyệt.
+`QUESTIONS.md`: Q-A-1, Q-A-2, Q-A-4 **đã đóng** (P-108-2); Q-A-3 điều chỉnh (mã ngắn có, không cờ riêng); Q-A-5…Q-A-16 BA chốt phương án an toàn, PM xác nhận khi duyệt.
 
 **Đã chốt bởi P-108-1 (PM, 2026-11-14):** 5 lớp chỉ gắn cờ; QR HMAC 10 s dạng URL; khoá thiết bị; vị trí tuỳ chọn mặc định tắt; không selfie / chặn chụp / NFC / BLE; app Capacitor Android tải web từ máy chủ, APK cài trực tiếp, iPhone dùng web / PWA; **Q1** hết buổi không tự ghi vắng, giảng viên bấm «Đánh vắng các SV chưa điểm danh»; **Q2** lớp «chỉ app» nhận lượt từ web: ghi + cờ; **Q3** đổi máy: cho đổi + cờ; **Q4** `uqr` + Capacitor 8; **Q5** geofence tuỳ chọn, một câu xin quyền; **Q6/Q7** không mua tài khoản Apple / Play; **Q8** Cloudflare Tunnel; **Q9** tín hiệu thô giữ 30 ngày; migration 00024; lát L1–L5, L7.
 
 **BA lệch / bổ sung so với research (cần Tech Lead nhìn):**
-1. Bỏ enum `CODE` và cờ `CODE_SPOKEN` (mã số đọc to) — P-108-1 không liệt kê; ghi nợ (Q-A-3).
-2. `checkin_channel` chỉ `WEB`/`APP`; `device_kind` bỏ `IOS_ATTEST` (iOS ngoài 10.8).
+1. **Mã ngắn có** (P-108-2) — hiện dưới QR, cùng nhịp, kênh `CODE`; **không** có cờ `CODE_SPOKEN` (Q-A-3, Q-A-12).
+2. `checkin_channel` = `WEB`/`APP`/`CODE`; `device_kind` bỏ `IOS_ATTEST` (iOS ngoài 10.8); không App Links.
 3. Thêm chỉ mục duy nhất một phần «một cửa sổ mở mỗi buổi» và việc nền `attendance.sweep`.
-4. Thêm `POST …/absent-unchecked` và guard `CHECKIN_UNRESOLVED` (hệ quả Q1; Q-A-2).
+4. Thêm `POST …/absent-unchecked` và guard `CHECKIN_UNRESOLVED` (hệ quả Q1; P-108-2 Q-A-2, PM đồng ý).
 5. Bỏ tham số `round` ở request mở: vòng = kế tiếp.
-6. Thêm `purge` xoá hàng thay vì để null (Q-A-1).
+6. Thêm `purge` xoá hàng thay vì để null (P-108-2 Q-A-1: PM chốt xoá hẳn).
 7. `assurance` mức 2/3 có điều kiện vị trí (theo research §4.2); cờ vị trí vẫn độc lập.
 
 ## 11. Truy vết
