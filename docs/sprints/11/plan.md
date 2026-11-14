@@ -25,3 +25,5 @@ Thứ tự: BA spec `FEAT-p10-eval` (US + SRS + QUESTIONS) → QC TC → dev the
 - `docs/FLOWS.md`: F-chat riêng, F-Threads (tường lửa chỉ-thêm-cờ), F-chấm bài (cờ chèn lệnh) — sơ đồ + nhánh lỗi (decision lỗi / hết hạn → fallback) — BA.
 - `docs/PRD.md` (nếu AC module đổi) + `docs/PRODUCTION_READINESS.md` (gói trả phí) — BA / techlead.
 - `backend-go/api/openapi.yaml` nếu có trường mới — dev. Quyển đồ án (kiến trúc + luồng) — writer sau merge.
+
+> **Đổi kế hoạch (chủ dự án 2026-11-14):** đợt 6 (decision model) tách thành **sprint 10.5** (`docs/sprints/10.5/plan.md`), làm trước; US-P10-13 chuyển sang `FEAT-decision-model`. Bench 9.5 chạy tiếp sau 10.5.
