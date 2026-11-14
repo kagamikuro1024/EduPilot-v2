@@ -36,7 +36,7 @@ test.describe("tokens", () => {
     expect(parseFloat(radius)).toBeGreaterThanOrEqual(12);
     expect(parseFloat(radius)).toBeLessThanOrEqual(16);
     const get = (n: string) => rgbOf(page, `var(${n})`);
-    expect(await get("--ep-canvas")).toBe(await rgbOf(page, "oklch(95% 0.008 60)"));
+    expect(await get("--ep-canvas")).toBe(await rgbOf(page, "#FFFFFF")); // P-107-10: nền trang trắng, panel tách bằng viền + bóng
     expect(await get("--ep-surface-strong")).toBe(await rgbOf(page, "oklch(96% 0.012 25)"));
     expect(await get("--ep-panel-border")).toBe(await get("--ep-rule"));
     const shadow = await page.evaluate(() => { const s = document.createElement("span"); document.body.appendChild(s); s.style.boxShadow = "var(--ep-elevation-1)"; const v = getComputedStyle(s).boxShadow; s.remove(); return v; });
