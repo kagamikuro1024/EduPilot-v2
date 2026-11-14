@@ -50,7 +50,7 @@
   font-size: var(--ep-text-meta); font-weight: 400; color: var(--ep-ink-2); line-height: 1.45;
   opacity: 0; pointer-events: none; transition: opacity 120ms var(--ep-ease-out);
 }
-.switchRow:focus-within .tip, .switchRow:active .tip { opacity: 1; }
+.switchRow:focus-within .tip, .switchRow:active .tip, .switchRow[data-tip-open] .tip { opacity: 1; }
 @media (hover: hover) and (pointer: fine) { .switchRow:hover .tip { opacity: 1; } }
 .switch {
   flex: none;
@@ -102,9 +102,9 @@
 
 @media (hover: hover) and (pointer: fine) { .check:hover:not(:has(input:disabled)) span { text-decoration: underline; text-decoration-color: var(--ep-ink-3); text-underline-offset: 3px; } }
 .check:has(input:disabled) { cursor: not-allowed; color: var(--ep-ink-3); }
-@media (hover: hover) and (pointer: fine) { .switch:hover:not(:disabled)::before { background: var(--ep-ink-3); } }
-@media (hover: hover) and (pointer: fine) { .switch[aria-checked="true"]:hover:not(:disabled)::before { background: var(--ep-ink-2); } }
-.switch:disabled { cursor: not-allowed; opacity: .55; }
+@media (hover: hover) and (pointer: fine) { .switch:hover:not(:disabled):not([aria-disabled="true"])::before { background: var(--ep-ink-3); } }
+@media (hover: hover) and (pointer: fine) { .switch[aria-checked="true"]:hover:not(:disabled):not([aria-disabled="true"])::before { background: var(--ep-ink-2); } }
+.switch:disabled, .switch[aria-disabled="true"] { cursor: not-allowed; opacity: .55; }
 
 .pw { position: relative; display: block; }
 .pw .control { width: 100%; padding-right: 48px; }

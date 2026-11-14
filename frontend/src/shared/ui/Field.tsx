@@ -95,8 +95,11 @@ export function Switch({
 }) {
   const id = useId();
   const tipId = useId();
+  const [tipOpen, setTipOpen] = useState(false);
+  // Khoá có lý do: dùng aria-disabled (không `disabled`) để công tắc vẫn nhận focus bàn phím và chạm → mở được lý do; bấm không đổi giá trị
+  const locked = Boolean(disabled && title);
   return (
-    <div className={s.switchRow}>
+    <div className={s.switchRow} data-tip-open={tipOpen ? "" : undefined}>
       <div>
         <label htmlFor={id} className={s.label}>
           {label}
@@ -109,9 +112,12 @@ export function Switch({
         role="switch"
         aria-checked={checked}
         aria-describedby={title ? tipId : undefined}
-        disabled={disabled}
+        disabled={disabled && !locked}
+        aria-disabled={locked || undefined}
         className={s.switch}
-        onClick={() => onChange(!checked)}
+        onClick={() => (locked ? setTipOpen((v) => !v) : onChange(!checked))}
+        onBlur={() => setTipOpen(false)}
+        onKeyDown={(e) => { if (e.key === "Escape") setTipOpen(false); }}
       >
         <span className={s.knob} />
       </button>

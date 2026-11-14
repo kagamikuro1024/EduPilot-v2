@@ -52,6 +52,20 @@ test("answer key: công tắc Hiện cho sinh viên khoá, lý do ở chính cô
   await expect(row.getByRole("switch", { name: /Hiện cho sinh viên/ })).toHaveAccessibleDescription("Đáp án không hiển thị cho sinh viên");
 });
 
+test("công tắc khoá có lý do: focus bàn phím mở lý do, bấm không đổi giá trị (hàng chia sẻ và đáp án)", async ({ page, context }) => {
+  const calls = await open(page, context, { [`GET ${D}`]: list([doc({ id: "s1", title: "Slide chia sẻ", shared_from: "761988" }), doc({ id: "k1", title: "Đáp án", type: "ANSWER_KEY", visible_to_students: false })]) });
+  for (const [row, name, reason] of [["s1", /Dùng cho AI/, "Chỉ đổi được ở lớp gốc"], ["k1", /Hiện cho sinh viên/, "Đáp án không hiển thị cho sinh viên"]] as const) {
+    const sw = page.locator(`[data-doc-id=${row}]`).getByRole("switch", { name });
+    await expect(sw).toHaveAttribute("aria-disabled", "true");
+    await sw.focus();
+    await expect(sw).toHaveAccessibleDescription(reason);
+    await expect(sw.locator("xpath=following-sibling::span[@role='tooltip']")).toHaveCSS("opacity", "1");
+    const before = calls.length;
+    await sw.click({ force: true });
+    expect(calls.length).toBe(before); // không PATCH
+  }
+});
+
 test("course policy reminder: một dòng khi thiếu quy chế, nút mở chọn tệp; có rồi thì biến mất", async ({ page, context }) => {
   await open(page, context, { [`GET ${D}/stats`]: json(stats({ has_course_policy: false })) });
   await expect(page.getByText("Lớp chưa có quy chế môn học.")).toHaveCount(1);

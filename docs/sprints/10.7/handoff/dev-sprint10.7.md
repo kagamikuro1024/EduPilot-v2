@@ -93,3 +93,10 @@ Không sửa: L2/X1 của `analytics`, `observability` (mô phỏng, chỉ gọi
 - E2/E6/E7 chat: khối rỗng thật (`EmptyState` «Hỏi bất cứ điều gì về lớp này») nằm trong vật chứa riêng 150 px; cột phiên rỗng không còn dựng khối ẩn (nguồn lệch tâm −828).
 - E6 observability: «Quyết định nhanh» không lời gọi → chỉ `EmptyState`; mục «Lớp … 7 ngày» ẩn khi không có số.
 - P5 attendance rỗng 375: thanh dính đáy khoá nằm CUỐI trang, không chen giữa đầu trang và thân.
+
+### P-107-15
+
+- `Switch` khoá có lý do (`disabled` + `title`): dùng `aria-disabled` nên nhận focus bàn phím và chạm; focus hoặc chạm mở lý do (`data-tip-open`), Esc / blur đóng, bấm không đổi giá trị. Hàng `shared_from` ở `/documents` có lý do «Chỉ đổi được ở lớp gốc».
+- observability «Lớp … 7 ngày»: luôn có Section; không số → `EmptyState` «Chưa có số liệu».
+- chat: khối rỗng lệch −4 px do `padding-right` chừa thanh cuộn → bỏ khi chưa có tin.
+- `useScrollRow`: vùng cuộn ngang không có điều khiển nào tự nhận `tabindex=0` (axe `scrollable-region-focusable`).

@@ -103,19 +103,23 @@ export function ObservabilityScreen() {
           </div>
         </Section>
 
-        {!isAdmin && (COURSE_SUMMARY[course.id] ?? []).length > 0 && (
+        {!isAdmin && (
           <Section title={`Lớp ${course.code} trong 7 ngày`}>
-            <DataTable
-              caption="Số liệu 7 ngày của lớp"
-              columns={[
-                { key: "label", header: "Chỉ số", primary: true, render: (m: SummaryRow) => m.label },
-                { key: "value", header: "Giá trị", render: (m: SummaryRow) => m.value },
-                { key: "hint", header: "Ghi chú", render: (m: SummaryRow) => m.hint ?? "—" },
-              ]}
-              rows={COURSE_SUMMARY[course.id] ?? []}
-              rowKey={(m: SummaryRow) => m.label}
-              dense
-            />
+            {(COURSE_SUMMARY[course.id] ?? []).length === 0 ? (
+              <EmptyState title="Chưa có số liệu" />
+            ) : (
+              <DataTable
+                caption="Số liệu 7 ngày của lớp"
+                columns={[
+                  { key: "label", header: "Chỉ số", primary: true, render: (m: SummaryRow) => m.label },
+                  { key: "value", header: "Giá trị", render: (m: SummaryRow) => m.value },
+                  { key: "hint", header: "Ghi chú", render: (m: SummaryRow) => m.hint ?? "—" },
+                ]}
+                rows={COURSE_SUMMARY[course.id] ?? []}
+                rowKey={(m: SummaryRow) => m.label}
+                dense
+              />
+            )}
           </Section>
         )}
 

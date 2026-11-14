@@ -109,6 +109,7 @@
 .sessionActions { margin: 0; }
 
 .thread { min-height: 0; overflow-y: auto; padding-right: var(--ep-space-2); }
+.thread:has(> .intro) { padding-right: 0; } /* khối rỗng ở giữa cột (E2): không chừa chỗ thanh cuộn khi chưa có tin */
 
 /* < 1100px: lịch sử thu lại, thay bằng nút `Phiên trước (n)` mở bảng trượt từ đáy (01-AC22). */
 @media (max-width: 1099px) {

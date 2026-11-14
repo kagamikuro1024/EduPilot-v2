@@ -124,11 +124,11 @@ export function RealDocuments({ courseId, canDelete }: { courseId: string; canDe
     { key: "week", header: "Tuần", width: "8%", render: (d) => (d.week_no ? `Tuần ${d.week_no}` : "—") },
     {
       key: "ai", header: "Dùng cho AI", width: "11%",
-      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.use_for_rag ? "bật" : "tắt"} · {d.title}</span>} />,
+      render: (d) => <Switch checked={d.use_for_rag} disabled={Boolean(d.shared_from)} title={d.shared_from ? "Chỉ đổi được ở lớp gốc" : undefined} onChange={(v) => void patch(d, { use_for_rag: v }, "cờ Dùng cho AI")} label={<span className="ep-sr-only">Dùng cho AI: {d.use_for_rag ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "vis", header: "Hiện cho sinh viên", width: "13%",
-      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} title={d.type === "ANSWER_KEY" ? "Đáp án không hiển thị cho sinh viên" : undefined} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
+      render: (d) => <Switch checked={d.visible_to_students} disabled={Boolean(d.shared_from) || d.type === "ANSWER_KEY"} title={d.type === "ANSWER_KEY" ? "Đáp án không hiển thị cho sinh viên" : d.shared_from ? "Chỉ đổi được ở lớp gốc" : undefined} onChange={(v) => void patch(d, { visible_to_students: v }, "cờ Hiện cho sinh viên")} label={<span className="ep-sr-only">Hiện cho sinh viên: {d.visible_to_students ? "bật" : "tắt"} · {d.title}</span>} />,
     },
     {
       key: "status", header: "Trạng thái", width: "12%",
