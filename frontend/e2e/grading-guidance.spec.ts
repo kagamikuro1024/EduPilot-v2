@@ -23,7 +23,7 @@ async function openDrawer(page: Page, context: Parameters<typeof asDemo>[0], ov:
   const api = await assignmentsApi(page, {
     h: {
       "GET assignments/:id/guidance": (r) => r.fulfill(json(ov())),
-      "GET assignments/:id/guidance/stats": (r) => r.fulfill(json({ items: [], regression_cases: 3 })),
+      "GET assignments/:id/guidance/stats": (r) => r.fulfill(json({ items: [{ version: 0, n: 20, mae_criterion: "0.18", mae_total: "0.70", bias_total: "0.70", edited_criteria: 19, edited_rate: "0.24", criteria_counted: 80 }], regression_cases: 3 })),
       ...h,
     },
   });
@@ -48,6 +48,10 @@ test("ngăn bài tập: Duyệt → Chờ áp dụng → Áp dụng gửi expect
   const panel = page.locator("[data-part=guidance-panel]");
   await expect(panel).toContainText("Bản v1");
   await expect(panel.locator("[data-part=guidance-cases]")).toHaveText("Ca kiểm thử 3");
+  // (h)(i): nhãn tự giải thích — «đổi điểm», «N bài đổi điểm»; dòng bản đang dùng luôn có mặt dù chưa đủ bài để đo
+  await expect(panel.locator("[data-part=guidance-stats]").first()).toHaveText("Bản v0 · 20 bài đã duyệt · lệch tiêu chí 0,18 · lệch tổng 0,70 · đổi điểm 24%");
+  await expect(panel.locator("[data-part=guidance-stats]").nth(1)).toHaveText("Bản v1 (đang dùng) · chưa đủ bài đã duyệt để đo");
+  await expect(panel.locator("[data-part=guidance-item]")).toContainText("bài đổi điểm");
   await expect(panel.locator("[data-part=guidance-item]")).toContainText("Chấm chặt hơn khi chỉ nêu tên tác nhân");
   await expect(panel.getByRole("button", { name: "Áp dụng" })).toBeDisabled();
   await panel.getByRole("button", { name: "Duyệt" }).click();

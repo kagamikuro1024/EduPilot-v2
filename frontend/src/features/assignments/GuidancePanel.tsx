@@ -116,7 +116,7 @@ function ItemRow({ courseId, aid, item, teacher, userId, onDecided, onError }: {
       <div className={s.meta}>
         <StatusText tone={st.tone}>{st.text}</StatusText>
         <span>{DIRECTION_TEXT[view.direction]}</span>
-        <span>{view.support} bài</span>
+        <span>{view.support} bài đổi điểm</span>
         {view.needs_recheck && <StatusText tone="amber">Cần xem lại</StatusText>}
       </div>
       {undo.node}
@@ -308,9 +308,12 @@ export function GuidancePanel({ courseId, aid, teacher, userId, rubric }: { cour
 
       {rows.map((r) => (
         <p key={r.version} className={s.stats} data-part="guidance-stats">
-          {`v${r.version} · ${r.n} bài · lệch tiêu chí ${fmt(r.mae_criterion)} · lệch tổng ${fmt(r.mae_total)} · sửa ${pct(r.edited_rate)}`}
+          {`Bản v${r.version}${r.version === d.current_version ? " (đang dùng)" : ""} · ${r.n} bài đã duyệt · lệch tiêu chí ${fmt(r.mae_criterion)} · lệch tổng ${fmt(r.mae_total)} · đổi điểm ${pct(r.edited_rate)}`}
         </p>
       ))}
+      {d.current_version > 0 && !rows.some((r) => r.version === d.current_version) && (
+        <p className={s.stats} data-part="guidance-stats">{`Bản v${d.current_version} (đang dùng) · chưa đủ bài đã duyệt để đo`}</p>
+      )}
       {(stats.data?.regression_cases ?? 0) > 0 && <p className={s.stats} data-part="guidance-cases">{`Ca kiểm thử ${stats.data?.regression_cases}`}</p>}
     </div>
   );
