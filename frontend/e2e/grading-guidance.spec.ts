@@ -90,6 +90,18 @@ test("ngăn bài tập: sửa chữ khi duyệt gửi text; 422 hiện lỗi t�
   await expect.poll(() => api.calls.some((c) => c.path.endsWith("/regrade-stale"))).toBe(true);
 });
 
+test("rút lưu ý xong: dòng «N lưu ý bị loại · tiêu chí: lý do» (P-106-12), mục trùng không tính", async ({ page, context }, info) => {
+  desktopOnly(info);
+  const JOB = "00000000-0000-7000-8000-0000000e0007";
+  await page.route(/\/api\/v1\/jobs\/[^/]+$/, (r) =>
+    r.fulfill(json({ id: JOB, status: "SUCCEEDED", progress: 100, result: { drafts: 1, dropped: { keyword: 1, duplicate: 2, by_criterion: { c2: { keyword: 1 }, c1: { duplicate: 2 } } } } })),
+  );
+  await openDrawer(page, context, () => overview(), { "POST assignments/:id/guidance/reflect": (r) => r.fulfill(json({ job_id: JOB }, 202)) });
+  const panel = page.locator("[data-part=guidance-panel]");
+  await panel.getByRole("button", { name: "Rút lưu ý" }).click();
+  await expect(panel.locator("[data-part=guidance-dropped]")).toHaveText(/^1 lưu ý bị loại · .+: nhắc tổng điểm, trừ điểm hoặc phạt$/);
+});
+
 test("lớp tắt tính năng: ngăn bài tập không có khối «Lưu ý chấm»", async ({ page, context }, info) => {
   desktopOnly(info);
   await openDrawer(page, context, () => overview({ enabled: false }));

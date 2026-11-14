@@ -95,6 +95,8 @@ func TestReflectValidate(t *testing.T) {
 		{"case_id trùng đếm một lần", rawItem{"c1", "Chấm chặt hơn khi thiếu ví dụ", "STRICTER", []string{"a", "a"}}, "support", 0},
 		{"từ khoá: trừ điểm muộn", rawItem{"c1", "Nhớ trừ điểm nếu nộp muộn", "STRICTER", []string{"a", "b"}}, "keyword", 0},
 		{"từ khoá: tổng điểm", rawItem{"c1", "Tổng điểm không quá 10", "STRICTER", []string{"a", "b"}}, "keyword", 0},
+		{"cụm vô hại: tổng quát / ngoại trừ / loại trừ", rawItem{"c1", "Nhận xét tổng quát không đủ; ngoại trừ ví dụ cụ thể, loại trừ chung chung", "STRICTER", []string{"a", "b"}}, "", 2},
+		{"cụm vô hại nhưng còn từ khoá thật", rawItem{"c1", "Nhận xét tổng quát nhưng nhớ trừ điểm", "STRICTER", []string{"a", "b"}}, "keyword", 0},
 		{"'trừu tượng' không khớp 'trừ'", rawItem{"c1", "Tránh nhận xét trừu tượng, nêu bằng chứng cụ thể", "STRICTER", []string{"a", "b"}}, "", 2},
 		{"PII: tên trong roster", rawItem{"c1", "Bài của Nguyễn Văn A hay bị chấm cao", "STRICTER", []string{"a", "b"}}, "pii", 0},
 		{"trùng (Jaccard ≥ 0,8)", rawItem{"c1", "Chỉ cho điểm tối đa khi có ví dụ thực tế rõ", "STRICTER", []string{"a", "b"}}, "duplicate", 0},
@@ -103,8 +105,11 @@ func TestReflectValidate(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			got, drop := validateItems(t.Context(), []rawItem{tc.it}, refs, rubric, existing, pii, uuid.New(), cfg)
 			var want ReflectDropped
-			if tc.drop != "" {
-				want.add(tc.drop)
+			if tc.drop == "criterion" {
+				want.add(tc.drop) // tiêu chí lạ: không thuộc rubric nên không có mục theo tiêu chí
+				require.Empty(t, got)
+			} else if tc.drop != "" {
+				want.addFor(tc.drop, tc.it.CriterionID)
 				require.Empty(t, got)
 			} else {
 				require.Len(t, got, 1)
@@ -131,4 +136,24 @@ func TestReflectValidate(t *testing.T) {
 		require.Len(t, got, 1)
 		require.Equal(t, 1, drop.Duplicate)
 	})
+}
+
+// TestReflectDroppedByCriterion — P-106-12: job result ghi số mục bị bỏ THEO tiêu chí và lý do (không chữ), để giảng viên thấy lưu ý c2 bị loại vì từ khoá.
+func TestReflectDroppedByCriterion(t *testing.T) {
+	rubric := []RubricItem{{ID: "c1"}, {ID: "c2"}}
+	refs := map[string]caseRef{
+		"a": {ResultID: uuid.New(), CriterionID: "c1", AI: dec("2.00"), Teacher: dec("1.00")},
+		"b": {ResultID: uuid.New(), CriterionID: "c1", AI: dec("2.50"), Teacher: dec("1.50")},
+		"c": {ResultID: uuid.New(), CriterionID: "c2", AI: dec("2.00"), Teacher: dec("1.00")},
+		"d": {ResultID: uuid.New(), CriterionID: "c2", AI: dec("2.00"), Teacher: dec("1.25")},
+	}
+	got, drop := validateItems(t.Context(), []rawItem{
+		{"c1", "Chấm chặt hơn khi thiếu ví dụ cụ thể", "STRICTER", []string{"a", "b"}},
+		{"c2", "Tính tổng điểm của các ý trước", "STRICTER", []string{"c", "d"}},
+		{"c9", "Lưu ý", "STRICTER", []string{"a", "b"}},
+	}, refs, rubric, nil, namePII{}, uuid.New(), DefaultGuidanceConfig())
+	require.Len(t, got, 1)
+	require.Equal(t, map[string]map[string]int{"c2": {"keyword": 1}}, drop.ByCriterion, "tiêu chí lạ không vào ByCriterion")
+	require.Equal(t, 1, drop.Keyword)
+	require.Equal(t, 1, drop.Criterion)
 }

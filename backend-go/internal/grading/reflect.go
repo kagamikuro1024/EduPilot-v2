@@ -69,6 +69,23 @@ type ReflectDropped struct {
 	PII       int `json:"pii"`
 	Duplicate int `json:"duplicate"`
 	Overflow  int `json:"overflow"`
+	// ByCriterion: tiêu chí → lý do → số mục bị bỏ (P-106-12). Chỉ số đếm + mã tiêu chí của rubric, không chữ lưu ý: giảng viên biết lưu ý của tiêu chí nào bị loại và vì sao.
+	ByCriterion map[string]map[string]int `json:"by_criterion"`
+}
+
+// addFor ghi một mục bị bỏ ở bước `reason` của tiêu chí `crit` (crit rỗng = không thuộc tiêu chí hợp lệ nào).
+func (d *ReflectDropped) addFor(reason, crit string) {
+	d.add(reason)
+	if crit == "" {
+		return
+	}
+	if d.ByCriterion == nil {
+		d.ByCriterion = map[string]map[string]int{}
+	}
+	if d.ByCriterion[crit] == nil {
+		d.ByCriterion[crit] = map[string]int{}
+	}
+	d.ByCriterion[crit][reason]++
 }
 
 func (d *ReflectDropped) add(reason string) {
@@ -260,9 +277,16 @@ type GuidanceDraft struct {
 // forbidden: từ khoá về tổng / trừ / muộn / làm tròn / phạt, so trên chữ đã bỏ dấu và theo ranh giới từ ("trừu tượng" → "truu tuong" không khớp "tru").
 var forbidden = regexp.MustCompile(`(^|[^a-z0-9])(tong|tru|muon|lam tron|phat)([^a-z0-9]|$)`) //nolint:gochecknoglobals // biểu thức bất biến
 
-// ForbiddenText báo chữ lưu ý có nhắc tổng điểm / trừ / muộn / làm tròn / phạt (SRS 4.2.8 (v)).
+// harmless: cụm vô hại chứa từ khoá đơn (P-106-12): «tổng quát / quan / thể / hợp / kết», «trừ khi», «ngoại trừ», «loại trừ». Từ khoá đơn vẫn bị chặn ngoài các cụm này.
+var harmless = regexp.MustCompile(`(^|[^a-z0-9])(?:tong (?:quat|quan|the|hop|ket)|tru khi|ngoai tru|loai tru)([^a-z0-9]|$)`) //nolint:gochecknoglobals // biểu thức bất biến
+
+// ForbiddenText báo chữ lưu ý có nhắc tổng điểm / trừ / muộn / làm tròn / phạt (SRS 4.2.8 (v)); bỏ qua các cụm vô hại ở `harmless`.
 func ForbiddenText(text string) bool {
-	return forbidden.MatchString(strings.ToLower(textfold.Fold(text)))
+	f := strings.ToLower(textfold.Fold(text))
+	for harmless.MatchString(f) { // thay dần (hai cụm liền nhau dùng chung ranh giới)
+		f = harmless.ReplaceAllString(f, "$1 $2")
+	}
+	return forbidden.MatchString(f)
 }
 
 // PIIDetector là phần của privacy.Detector mà bước (vi) dùng.
@@ -358,21 +382,21 @@ func validateItems(ctx context.Context, items []rawItem, refs map[string]caseRef
 			}
 		}
 		if bad {
-			drop.add("case")
+			drop.addFor("case", it.CriterionID)
 			continue
 		}
 		ids = uniqUUIDs(ids)
 		if len(ids) < cfg.MinSupport { // (iv) support = số ca hợp lệ cùng chiều (code đếm, không tin số LLM khai)
-			drop.add("support")
+			drop.addFor("support", it.CriterionID)
 			continue
 		}
 		text := strings.TrimSpace(it.Text)
 		switch ValidateText(ctx, det, course, text, cfg.TextMax) { // (v) + (vi)
 		case "keyword":
-			drop.add("keyword")
+			drop.addFor("keyword", it.CriterionID)
 			continue
 		case "pii", "length":
-			drop.add("pii")
+			drop.addFor("pii", it.CriterionID)
 			continue
 		}
 		dup := false
@@ -389,11 +413,11 @@ func validateItems(ctx context.Context, items []rawItem, refs map[string]caseRef
 			}
 		}
 		if dup {
-			drop.add("duplicate")
+			drop.addFor("duplicate", it.CriterionID)
 			continue
 		}
 		if len(out) >= cfg.MaxItems { // (viii)
-			drop.add("overflow")
+			drop.addFor("overflow", it.CriterionID)
 			continue
 		}
 		out = append(out, GuidanceDraft{CriterionID: it.CriterionID, Text: text, Direction: it.Direction, Support: len(ids), SourceResultIDs: ids})

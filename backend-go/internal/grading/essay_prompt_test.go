@@ -282,10 +282,11 @@ func TestGuidanceBlockDeterministic(t *testing.T) {
 // TestGuidanceNoTotalsInPrompt — khối lưu ý không có trường tổng / phạt / làm tròn: chỉ chữ của lưu ý đã qua ForbiddenText.
 func TestGuidanceNoTotalsInPrompt(t *testing.T) {
 	t.Parallel()
-	for _, text := range []string{"Tổng điểm tối đa 10", "Trừ 1 điểm nếu muộn", "Làm tròn lên 0,5", "Phạt nộp trễ"} {
+	for _, text := range []string{"Tổng điểm tối đa 10", "Trừ 1 điểm nếu muộn", "Làm tròn lên 0,5", "Phạt nộp trễ", "Tổng quát nhưng trừ điểm", "Tổng điểm quá cao"} {
 		require.True(t, grading.ForbiddenText(text), text)
 	}
-	for _, text := range []string{"Tránh nhận xét trừu tượng", "Cần ví dụ cụ thể", "Chỉ cho điểm tối đa khi có số liệu"} {
+	for _, text := range []string{"Tránh nhận xét trừu tượng", "Cần ví dụ cụ thể", "Chỉ cho điểm tối đa khi có số liệu",
+		"Nhận xét tổng quát chưa đủ", "tổng quan tình huống", "tổng thể bài viết", "tổng hợp các nguồn", "tổng kết cuối bài", "chỉ đạt điểm cao trừ khi có ví dụ", "ngoại trừ phần mở bài", "loại trừ ý lặp"} {
 		require.False(t, grading.ForbiddenText(text), text)
 	}
 }
