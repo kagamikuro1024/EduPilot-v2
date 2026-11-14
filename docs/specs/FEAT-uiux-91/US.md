@@ -115,7 +115,7 @@ Hành động: **Xoá** = bỏ chuỗi; **Giữ (dữ liệu)** = số liệu / 
 | 53 | `today/AdminToday.tsx:15` | `{ngày dài} · việc của hệ thống` | Giữ (dữ liệu) | — |
 | 54 | `today/StaffToday.tsx:19` | `{ngày dài} · {Tất cả lớp / Lớp N}` | Giữ (dữ liệu) | Chỉ hiện phần phạm vi khi "Tất cả lớp" (US-UX91-10) |
 | 55 | `today/StudentToday.tsx:29` | `{ngày dài}` + "bạn chưa vào lớp nào" | Giữ (dữ liệu) | — |
-| 56 | `today/StudentToday.tsx:59` | "Bạn chưa vào lớp nào. Nhập mã do giảng viên cung cấp…" | Giữ (trạng thái) | Trạng thái rỗng "chưa vào lớp" |
+| 56 | `today/StudentToday.tsx:59` | "Bạn chưa vào lớp nào. Nhập mã do giảng viên cung cấp…" | Rút còn "Bạn chưa vào lớp nào." (ui-empty) | Trạng thái rỗng "chưa vào lớp" + một hành động `Nhập mã` (cú pháp mã ở `placeholder`) |
 | 57 | `shared/shell/AppShell.tsx:360` | `whoCanOpen(pathname)` | Giữ (trạng thái / 403) | — |
 | 58 | `shared/shell/AppShell.tsx:475` | "Nhập mã tham gia do giảng viên cung cấp để dùng tính năng này." | Giữ (trạng thái) | — |
 | 59 | `shared/shell/intro.ts` | `INBOX_INTRO.description`, `/threads` (+ nhãn "Threads" → "Hỏi đáp công khai"), `/me`, `/gradebook`, `/chat` (`description` và `body` nói về riêng tư của phiên), `/` | Xoá `description` (giữ `title`; `body` của `/chat` giữ vì là khối chữ lớn nhất của màn đầu và là cam kết riêng tư, chỉ đổi nếu `lcp.spec` đòi) | Khung máy chủ phải khớp màn thật (AC3) |
@@ -211,13 +211,15 @@ Căn cứ: plan 9.1 "Hướng chuyển động" (ứng dụng: chỉ chuyển đ
 
 ---
 
-## US-UX91-05: Người dùng muốn trạng thái rỗng nói vì sao rỗng và có việc kế tiếp
+## US-UX91-05: Người dùng muốn trạng thái rỗng gọn, có tối đa một việc kế tiếp
 Ưu tiên: Should · Ước lượng: S · Sprint: 9.1 · **Đợt 2**
 
+**ui-empty (chủ dự án 2026-11-14; luật chữ UI 09/10/2026):** trạng thái rỗng = **tiêu đề ngắn + tối đa một hành động**, không câu giải thích; thay luật cũ «nói vì sao rỗng». AC1, AC3, AC6 dưới đây đã sửa theo đó.
+
 ### Tiêu chí nghiệm thu
-- AC1 (hộp thư). Given giảng viên mở `/inbox` với tab "Đang chờ" không có ticket When tải xong Then hiện `EmptyState`: tiêu đề "Chưa có câu hỏi nào cần thầy/cô xử lý." + một câu "Khi AI không đủ chắc chắn hoặc sinh viên nhờ hỗ trợ, câu sẽ hiện ở đây." (đúng mẫu DESIGN §15); **không** hiện vùng chi tiết "Chọn một câu hỏi để xem" khi danh sách rỗng; liên kết "Xem tất cả" thành nút `ghost` căn trái cùng lề tiêu đề.
+- AC1 (hộp thư). Given giảng viên mở `/inbox` với tab "Đang chờ" không có ticket When tải xong Then hiện `EmptyState`: **chỉ** tiêu đề "Chưa có câu hỏi nào cần thầy/cô xử lý.", không câu giải thích, căn giữa vùng danh sách; **không** hiện vùng chi tiết "Chọn một câu hỏi để xem" khi danh sách rỗng; **không** có nút "Xem tất cả" (trùng tab «Tất cả»).
 - AC2 (chi tiết hộp thư). Given ticket đang mở When xem chi tiết Then không còn hai hàng "Đã chờ …" và "Trạng thái …" lặp thông tin; tuổi ticket hiện một lần cạnh tên sinh viên.
-- AC3 (hàng chờ chấm). Given `/grading` chưa có bài nộp When tải xong Then `EmptyState`: "Chưa có bài nộp." + "Sinh viên nộp trong ứng dụng, hoặc thầy/cô tải ZIP lên." + nút `Tải bài lên` (nếu có quyền).
+- AC3 (hàng chờ chấm). Given `/grading` chưa có bài nộp When tải xong Then `EmptyState`: "Chưa có bài nộp." + nút `Tải bài lên` (nếu có quyền); không câu giải thích.
 - AC4 (sổ điểm trống). Given lớp chưa có công thức When mở `/gradebook` Then `EmptyState` có một nút chính `Thiết lập công thức`; câu nhỏ "Điểm chính thức nằm ở hệ thống quản lý đào tạo của trường." không còn ở trạng thái rỗng (nếu cần, đặt ở chân bảng khi **có** dữ liệu, một dòng `meta`).
 - AC5 (nhánh lỗi tải). Given API lỗi When tải Then thông báo lỗi nêu chuyện gì xảy ra, dữ liệu có an toàn không, nút `Thử lại` (đã có `ApiErrorNotice`); không đổi.
 - AC6 (phân quyền). Given STUDENT mở `/inbox`, `/grading`, `/gradebook` When vào Then vẫn thấy thông báo 403 hiện có, không thấy `EmptyState` của giảng viên.
@@ -600,7 +602,7 @@ Căn cứ: DESIGN §5 (`tabular-nums`), §14.10; Q-UX91-3 (đã chốt: "Đủ" 
 - AC3 (số chính xác). Given điểm When hiển thị Then dùng đúng giá trị máy chủ trả (không tự tính lại hay làm tròn ở UI; điểm là code thuần).
 - AC4 (không lộ). Given sinh viên chưa được công bố điểm nháp / ghi chú quan sát / nhãn rủi ro When xem Then **không** hiện; chỉ điểm đã công bố.
 - AC5 (yêu cầu xem lại). Given điểm đã công bố When bấm "Yêu cầu xem lại" Then hành vi hiện có (không đổi), đúng một nút phụ.
-- AC6 (nhánh lỗi / rỗng). Given chưa có điểm công bố Then `EmptyState` "Chưa có điểm nào được công bố." + nêu nơi sẽ xuất hiện; API lỗi → `ApiErrorNotice` + `Thử lại`.
+- AC6 (nhánh lỗi / rỗng). Given chưa có điểm công bố Then `EmptyState` "Chưa có điểm nào được công bố." (không câu giải thích); API lỗi → `ApiErrorNotice` + `Thử lại`.
 - AC7 (phân quyền). Given sinh viên A When gọi dữ liệu của sinh viên B Then 403 (danh tính từ JWT, không từ tham số).
 - AC8 (di động 375). Given 375 px (< 720 px) Then «Thời gian học» và «Bài tập» **gập sẵn** (mở dần bằng một chạm, nội dung giữ nguyên, tiêu đề kèm số tóm tắt) và trang dài ≤ 1.600 px cho lớp mẫu khi hai khối đang gập (hiện 2.645 px; P-91-14), không tràn ngang, dòng giải trình xuống dòng gọn.
 - AC9 (e2e). Given `me.spec.ts` When đổi Then sửa theo AC1–AC2 (QC sửa theo spec).
