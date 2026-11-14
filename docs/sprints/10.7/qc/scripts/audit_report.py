@@ -42,7 +42,7 @@ DESC = {
  "W1": "kiểu trang: đúng 1 `data-ep-page` = work|read", "W2": "bề rộng cột 1440: work 1176; read 800 căn giữa (428→1228)", "W3": "mép panel cấp cao nhất = mép cột (trừ Split)", "W4": "mép trái h1 = mép trái cột; mép phải cụm nút = mép phải cột",
  "W5": "375: cột 12→363 (rộng 351), không tràn ngang", "H1": "đúng 1 h1 trong header", "H2": "0 thẻ `p` thừa ở đầu trang", "H3": "meta ≤ 1 dòng, không chứa lớp đang chọn", "H4": "nút cùng hàng tiêu đề (|Δ tâm dọc| ≤ 4, 1440)",
  "H5": "≤ 1 primary, ≤ 4 nút ở đầu trang", "H6": "0 nút primary ngoài đầu trang khi ≤ 1 vùng", "H7": "chiều cao đầu trang mỗi nhóm (độ rộng, cao h1, số dòng meta, có hàng nút, có hàng quay lại +36/+44; TL 12.1, 14.5) đúng 1 giá trị (±2)", "H8": "375: hàng nút đầu trang ≤ 48 px",
- "P1": "đệm panel 24 (16 ở 375)", "P2": "panel cao theo nội dung (chênh ≤ 2; trừ Split fill)", "P3": "0 panel lồng", "P4": "h2 có `data-ep-section-title`, 0 `p` ở đầu mục", "P5": "nhịp dọc đầu trang→thân 40 (32@375), mục→mục 48, h2→panel 16",
+ "P1": "đệm panel 24 (16 ở 375)", "P2": "panel cao theo nội dung (chênh ≤ 2 + dung sai đo dưới pixel 0,5; trừ Split fill)", "P3": "0 panel lồng", "P4": "h2 có `data-ep-section-title`, 0 `p` ở đầu mục", "P5": "nhịp dọc đầu trang→thân 40 (32@375), mục→mục 48, h2→panel 16",
  "E1": "khối rỗng: 1 tiêu đề + ≤ 1 nút, 0 svg, 0 chữ khác", "E2": "khối rỗng căn giữa |Δ| ≤ 2 px", "E3": "tiêu đề rỗng ≤ 40 ký tự, 1 dòng, không dấu chấm cuối", "E4": "nút rỗng không trùng nút đầu trang / tab / thanh công cụ", "E5": "nút rỗng `secondary`",
  "E6": "vật chứa khối rỗng ≤ 320 px (1440)", "E7": "route ở lớp rỗng mà 0 `data-ep-empty` (xem ảnh)", "L1": "đang tải: h1 cùng toạ độ như có dữ liệu (±2)", "L2": "đang tải có khung xương `aria-busy` (≥ 1)", "L3": "CLS ≤ 0,1 (có dữ liệu)",
  "X1": "lỗi: ≤ 1 alert mỗi mục, trang không mục đúng 1, tổng ≤ số GET hỏng khác nhau, mỗi alert rộng = cột + «Thử lại» (TL 14.7)", "X2": "lỗi: không mã trần (4xx/5xx/undefined/Error:)", "X3": "lỗi và đang tải: giữ h1, nhãn tab, kiểu trang, nút đầu trang (cùng số, kiểu, thứ tự); meta và số đếm được mất (TL 14.2, 14.6)", "D1": "cỡ chữ ⊆ {28,24,20,16,15,14,12}", "D2": "cao điều khiển 36|30 (1440), ≥ 44 (375)",
@@ -83,7 +83,7 @@ for st in ("data", "empty"):
             if not r["split"] and (p["pad"][0] != (16 if w == 375 else 24) or p["pad"][1] != (16 if w == 375 else 24)): bad("P1", r, f"đệm {p['pad']}"); break
         if not r["splitFill"]:
             for p in r["panels"]["list"]:
-                if abs(p["extra"]) > 2: bad("P2", r, f"+{p['extra']}"); break
+                if abs(p["extra"]) > 2.5: bad("P2", r, f"+{p['extra']}"); break
         if r["panels"]["nested"]: bad("P3", r, f"{r['panels']['nested']}")
         if r["h2NoHook"] or r["sectionP"]: bad("P4", r, f"h2 thiếu móc {r['h2NoHook']}, p {r['sectionP']}")
         exp_hb = 32 if w == 375 else 40

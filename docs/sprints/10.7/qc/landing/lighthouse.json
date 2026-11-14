@@ -1,0 +1,84 @@
+{
+ "mobile": [
+  {
+   "perf": 97,
+   "lcp": 1947,
+   "cls": 0.096,
+   "tbt": 32,
+   "fcp": 1385,
+   "js_kb": 192.5,
+   "el": "<p class=\"Landing-module__H_TZ-W__lead\" data-up=\"true\" style=\"--i:0\">",
+   "rtt": 150,
+   "kbps": 1638,
+   "cpu": 4,
+   "method": "devtools"
+  },
+  {
+   "perf": 97,
+   "lcp": 1936,
+   "cls": 0.096,
+   "tbt": 32,
+   "fcp": 869,
+   "js_kb": 192.5,
+   "el": "<p class=\"Landing-module__H_TZ-W__lead\" data-up=\"true\" style=\"--i:0\">",
+   "rtt": 150,
+   "kbps": 1638,
+   "cpu": 4,
+   "method": "devtools"
+  },
+  {
+   "perf": 97,
+   "lcp": 1912,
+   "cls": 0.096,
+   "tbt": 29,
+   "fcp": 866,
+   "js_kb": 192.5,
+   "el": "<p class=\"Landing-module__H_TZ-W__lead\" data-up=\"true\" style=\"--i:0\">",
+   "rtt": 150,
+   "kbps": 1638,
+   "cpu": 4,
+   "method": "devtools"
+  }
+ ],
+ "desktop": [
+  {
+   "perf": 100,
+   "lcp": 286,
+   "cls": 0,
+   "tbt": 0,
+   "fcp": 278,
+   "js_kb": 194.9,
+   "el": "<span class=\"Landing-module__H_TZ-W__ln\">",
+   "rtt": 40,
+   "kbps": 10240,
+   "cpu": 1,
+   "method": "devtools"
+  },
+  {
+   "perf": 100,
+   "lcp": 80,
+   "cls": 0,
+   "tbt": 0,
+   "fcp": 71,
+   "js_kb": 194.9,
+   "el": "<span class=\"Landing-module__H_TZ-W__ln\">",
+   "rtt": 40,
+   "kbps": 10240,
+   "cpu": 1,
+   "method": "devtools"
+  },
+  {
+   "perf": 100,
+   "lcp": 102,
+   "cls": 0,
+   "tbt": 0,
+   "fcp": 89,
+   "js_kb": 194.9,
+   "el": "<span class=\"Landing-module__H_TZ-W__ln\">",
+   "rtt": 40,
+   "kbps": 10240,
+   "cpu": 1,
+   "method": "devtools"
+  }
+ ]
+}

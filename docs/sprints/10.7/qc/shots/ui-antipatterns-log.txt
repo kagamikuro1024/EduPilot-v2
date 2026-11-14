@@ -1,0 +1,6 @@
+✓ Tiêu đề tự dựng ngoài shared/ui
+✓ Nút rỗng trùng nút đầu trang
+✓ Tiêu đề rỗng là câu
+✓ Vàng làm chữ
+ui-antipatterns exit=1
+31 / 31 phép bắt được

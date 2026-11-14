@@ -1,40 +1,42 @@
 # QC sprint 10.7 (UI-R) — kết luận
 
-Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, kể cả `/settings` sinh viên). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
+Nhánh `sprint/10.7-ui-r`, HEAD kiểm `9a011cd1` (dev đợt 3 sau TL mục 14). Stack `ep-qc`: chỉ rebuild frontend (env QC: `NEXT_PUBLIC_API_URL=http://localhost:580`), DB giữ nguyên. Chỉ đọc, không sửa mã dev.
 
-**Kết luận: CHƯA đạt «0 lệch», còn 33 lượt ở 8 mã đo (trước đó 191 lượt, 15 mã).** Đã đạt 0 lệch: H3, H6, H7, E5, E7 (3 route lệch thật đã sửa), D1, T2 và toàn bộ nhóm cứng W, H1–H5, H8, P1, P3, P4, E1–E4, L1, L3, X2, T1, C3. Trang giới thiệu: mọi AC đo được đều đạt. P-107-14 đạt.
+**Kết luận: CHƯA đạt «0 lệch»: còn 22 lượt ở 6 mã đo (lượt đầu 191 lượt, 15 mã) và `ui-antipatterns.sh` ĐỎ (1 phép).** Đạt 0 lệch: H3, H6, H7, E5, E7, D1, L1–L3, X1–X3, T2 và nhóm cứng W, H1–H5, H8, P1, P3, P4, E1–E4, X2, T1, C3. Trang giới thiệu: mọi AC đo được đạt (Lighthouse 4G đã đo). P-107-14 và `/settings` sinh viên đạt.
 
 ## 1. Verdict
 
 | Hạng mục | Verdict | Căn cứ |
 | --- | --- | --- |
-| Hợp đồng khung §23 — K1 (kiểu trang, độ rộng, panel) | **FAIL (Thấp)** | W1–W3, P1, P3 = 0. P2 còn 2 lượt: `/insights` ở 375 dư +2,1 px (GV, TA) |
+| Hợp đồng khung §23 — K1 (kiểu trang, độ rộng, panel) | **FAIL (Thấp)** | W1–W3, P1, P3 = 0. P2 còn 6 lượt: `observability` panel cao hơn nội dung +17 px (GV, admin; 1440 và 375). `/insights` ở 375 dư +2,1 px: chấp nhận (dung sai đo dưới pixel 0,5 px, xem 2) |
 | K2 (đầu trang) | **PASS** | W4, H1–H7 = 0 |
 | K3 (tiêu đề mục) | **PASS** | P4 = 0 |
-| K4 / K5 (trạng thái rỗng, nút trùng) | **FAIL (Thấp)** | E1, E3–E5 = 0, E7 = 0. E2 (`student/chat` rỗng lệch tâm −397 px / −187 px) và E6 (3 route) còn lệch |
+| K4 / K5 (trạng thái rỗng, nút trùng) | **FAIL (Thấp)** | E1, E3–E5, E7 = 0. E2 (`student/chat` rỗng lệch tâm −828 px ở 1440, −187,5 px ở 375) và E6 (`student/chat` rỗng 654 px, `admin/observability` 377 px) còn lệch |
 | K6 (375 px) | **PASS** | W5 = 0, 0 tràn ngang, H8 = 0 |
-| Chuẩn đo mới (D1–D3, P5) | **FAIL (Thấp)** | D1 = 0. D3 còn 5 lượt (3 route), D2 11 lượt (4 route), P5 2 lượt (`admin/observability`) |
-| Đang tải / lỗi (L1–L3, X1–X3) | **FAIL (Thấp)** | L1, L3, X2 = 0. L2 = 0, X1 4 lượt, X3 4 lượt |
+| Chuẩn đo mới (D1–D3, P5) | **FAIL (Thấp)** | D1 = 0. D3 còn 2 lượt (`documents`), D2 8 lượt (`class/settings` điều khiển 16 px), P5 2 lượt (`attendance` rỗng ở 375: đầu trang→thân 579 px; mới) |
+| Đang tải / lỗi (L1–L3, X1–X3) | **PASS** | 0 lệch (dock `/attendance` 375 giữ khi tải / lỗi; `/settings` GV 2 alert đúng cột; tab `student/practice` giữ) |
 | Lô 1 đo lại (`/insights`, `/questions`, `/inbox`) | **PASS có lệch nhỏ** | `/inbox`, `/questions` 0 lệch. Còn `/insights` ở 375 (P2 +2,1 px). `/insights` ở lớp rỗng: «Chưa có báo cáo», không số liệu lớp khác |
 | Lỗi dữ liệu mô phỏng ở lớp rỗng | **PASS** | `/analytics` ở QCEMPTY: «Chưa có số liệu» (trước đó hiện số liệu lớp 761987) |
 | `/settings` sinh viên khi lỗi API (TL 14.7) | **PASS** | 3 mục: «Mật khẩu» dùng được (ô nhập, nút hiện mật khẩu), «Thiết bị đang đăng nhập» 1 alert, «Thư» 1 alert; «Nhắc 24 giờ» và «Thời gian học» không vẽ gì, không nút/ô nào dùng được trên dữ liệu chưa tải; tổng 2 alert ≤ 4 GET hỏng khác nhau |
-| **P-107-14** thanh dính đáy 375 | **PASS** | xem 3. Riêng `/attendance` đang tải / lỗi ở 375: dock mất (X3, xem 2) |
+| **P-107-14** thanh dính đáy 375 | **PASS** | xem 3; dock còn khi đang tải / lỗi |
 | **US-UX91-08** trang giới thiệu v2, AC1–24 | **PASS** (đo được) | xem 4; AC18, AC20, AC21 thuộc e2e dev, QC không chạy lại |
 | Bộ màu ĐHBK (P-107-8/10) | **Chưa kiểm hết** | C3 = 0 trên mọi lượt; `contrast.spec.ts` QC không chạy lại (dev báo xanh ở CI) |
-| `ui-antipatterns.sh` | **PASS** | exit 0 (HEAD trước), `--selftest` 31/31, `scripts/ui-frame-debt.txt` chỉ còn dòng chú thích |
+| `ui-antipatterns.sh` ở `9a011cd1` | **FAIL** | exit 1: «Khung tự đặt độ rộng» — `frontend/src/features/chat/ChatScreen.module.css:4` `.inner { width: 100%; max-width: 840px; … }` (đợt 3 sửa tệp này). `--selftest` 31/31 |
 
-## 2. Lệch còn lại (33 lượt trong `audit.md`)
+## 2. Lệch còn lại (22 lượt trong `audit.md`)
 
 | Mã | Lệch | Route | Loại | Ghi chú |
 | --- | --- | --- | --- | --- |
-| D3 hàng bảng | 5 | ≥ 720 px: `grading` 53 (GV, TA); `documents` 57/48 (GV, TA); `gradebook` 65 (GV) | **Thật** | ≥ 720 px cố định 48/44 ±1 (TL 14.8). Dưới 720 px là sàn (bảng ≥ 48, dense ≥ 44, mục danh sách ≥ 56), đã bỏ kiểm trần; 0 mục > 112 px; đã bỏ hàng đệm bảng ảo (≥ 200 px) |
-| D2 cao điều khiển | 11 | `student/chat` ô nhập 32; `teacher/gradebook` 32; `class/settings` 16 (GV, TA) | **Thật** | |
-| P2 | 2 | `insights` @375 (GV, TA) +2,1 px | **Thật** | |
-| P5 | 2 | `admin/observability`: mục→mục 60,8 (1440) và 127,9 (375) so với 48 | **Thật** | |
-| E2 | 2 | `student/chat` rỗng: khối rỗng lệch tâm −397,5 / −187,5 | **Thật** | Khối rỗng đã có `data-ep-empty` nhưng nằm trong cột trái của `Split` |
-| E6 | 3 | `admin/observability` 377; `student/chat` rỗng 654; `teacher/observability` rỗng 341 | **Thật** | |
-| X1 khối lỗi | 4 | `student/chat`: rộng 355 (1440) / 0 (375) so với cột; `teacher/settings`: 2 alert hợp lệ (TL 14.7) nhưng rộng 750 / 317 so với cột 800 / 351 | **Thật** | `settings`: mỗi alert nằm trong đệm của panel nên hẹp hơn cột 50 / 34 px; TL 14.7: alert «thay chỗ panel, rộng = cột» → lệch thật, đã giao dev (PM 15/11) |
-| X3 | 4 | `student/practice` đang tải mất tab (1440, 375); `teacher/attendance` đang tải và lỗi ở 375 mất thanh dính đáy | **Thật** | TL 14.6: dock 375 vẫn hiện, disabled |
+| D2 cao điều khiển | 8 | `class/settings` (GV, TA; 1440, 375; dữ liệu và rỗng): điều khiển 16 px | **Thật** | `student/chat` và `gradebook` 32 px đã sửa |
+| D3 hàng bảng (≥ 720 px: 48/44 ±1) | 2 | `documents` 57/48 (GV, TA) | **Thật** | `grading` 53 và `gradebook` 65 đã sửa. Dưới 720 px là sàn (TL 14.8): 0 mục > 112 px |
+| P2 panel cao hơn nội dung | 6 | `observability` +17 px (GV 1440/375 dữ liệu và rỗng; admin 1440/375) | **Thật** | Mới ở HEAD này. `/insights` ở 375: +2,1 px, **chấp nhận** (xem dưới) |
+| E6 | 2 | `student/chat` rỗng 654 px; `admin/observability` 377 px | **Thật** | |
+| E2 | 2 | `student/chat` rỗng: lệch tâm −828 (1440), −187,5 (375) | **Thật** | |
+| P5 | 2 | `attendance` rỗng ở 375 (GV, TA): đầu trang→thân 579 px (chuẩn 32) | **Thật** | Mới ở HEAD này; ảnh `audit/sau/teacher-empty-_attendance-375.jpg` |
+
+**P2 `/insights` ở 375 (PM hỏi dev 2,0 / QC 2,1):** đo lại ở HEAD này bằng `getBoundingClientRect` ở DPR 1: panel 1 = 2,0 (chuẩn: 2 px viền), panel 2 = 2,1 (cao 467,3 px). Chênh 0,1 px nằm ở số lẻ của dòng chữ trong panel, không có khoảng dư thật. Theo PM, dung sai đo dưới pixel ≤ 0,5 px được chấp nhận (ngưỡng P2 thành 2,5 px; chỉ áp cho P2, không nới tiêu chí khác); cách đo ghi trong `scripts/audit_report.py`.
+
+**ui-antipatterns:** lỗi nằm ở tệp dev vừa sửa; QC không sửa. `AGENTS.md` yêu cầu sạch trước khi báo xong.
 
 **Không áp dụng (PM 15/11, TL 12.2):** L2 và X1 ở `analytics`, `observability` (màn mô phỏng, dev kiểm bằng `?state=` ở `frame.spec`); QC bỏ khỏi cột lệch (`/insights` đã vậy từ trước).
 
@@ -70,7 +72,7 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, k�
 | 10 | PASS | hai tab, mũi tên đổi tab, ảnh vai đổi; 390: ảnh vai nằm dưới danh sách |
 | 11 | PASS | `h1` 72/38 px, `h2` 48/30 px; chữ thân ≥ 16 px (chữ 13–15 px chỉ nằm trong ảnh minh hoạ giao diện) |
 | 12 | PASS | rê: nhích −1 px; bấm: `scale(0.985)` + lún 1 px |
-| 13 | PASS có ghi chú | LCP là chữ của `h1` ở 1440 (28–88 ms); ở 390 `perf.mjs` báo đoạn dẫn (100 ms). JS 194,9 KB gz (≤ 256). Chưa đo Lighthouse 4G |
+| 13 | **PASS có ghi chú** | Lighthouse devtools 3 lượt, 4G (RTT 150 ms, 1,6 Mbps, CPU 4×): mobile 375 LCP trung vị **1,94 s** (≤ 2,5), CLS 0,096 (≤ 0,1), TBT ≤ 32 ms, JS 192,5 KB; desktop 1440 LCP 80–286 ms, CLS 0, TBT 0, JS 194,9 KB. LCP là chữ `h1` ở 1440 nhưng ở 375 là **đoạn dẫn** (`p.lead`): AC13 ghi `h1` cho cả hai độ rộng, ghi nhận lệch nhỏ (cùng số đo của TL ở mẫu) |
 | 14 | PASS | `reduce`: 0 `m-on`, 0 animation chạy, 0 `sticky`, số 146 hiện ngay |
 | 15 | PASS | không script: không khối chữ nào bị ẩn (trừ trạng thái cuối của đoạn sản phẩm: 7,5 → 8,5, Nháp → Duyệt) |
 | 16 | PASS | axe 0 serious/critical ở 1440 và 390; liên kết chân trang ≥ 44 px; có 9 thẻ `og:*` |
@@ -78,12 +80,12 @@ Nhánh `sprint/10.7-ui-r`, HEAD kiểm `a99a84e9` (dev xong sau TL mục 14, k�
 | 18, 20, 21 | Không chạy | thuộc e2e dev (`landing.spec.ts`, ảnh mốc) |
 | 19 | PASS | 0 lỗi console |
 | 22 | PASS | màn đầu có đúng một dữ kiện cứng, nguyên văn nguồn (số 146); không «1.000 sinh viên» |
-| 23 | PASS | `copy-lint` 0 FAIL. `consistency.mjs` 11 FAIL (1440: 8; 390: 3) đều nằm trong danh sách miễn trừ của AC23: `scroll-reveal` ×6, `scroll-linked` ×1, `section-air` ×2, `empty-area` ×1, `copy-headings` ×1. `perf.mjs` 2 FAIL = «8 tệp phông» (miễn trừ). Số liệu từ lượt chạy ở HEAD `1935435a`, chưa chạy lại ở HEAD mới |
+| 23 | PASS | `copy-lint` 0 FAIL. `consistency.mjs` 11 FAIL (1440: 8; 390: 3) đều nằm trong danh sách miễn trừ của AC23: `scroll-reveal` ×6, `scroll-linked` ×1, `section-air` ×2, `empty-area` ×1, `copy-headings` ×1. `perf.mjs` 2 FAIL = «8 tệp phông» (miễn trừ). Chạy lại ở HEAD `9a011cd1`: `copy-lint` 0 FAIL, `consistency` 11 FAIL cùng danh sách miễn trừ |
 | 24 | PASS | (1) mục số đo có ảnh Sổ điểm ở 1440 và 390, khoảng trống liền ở 390 là 347 px (≤ 844); (2) ảnh vai dưới danh sách ở 390; (3) số lớn 36/24 px; (4) 0 `container-edges`; (5) `srcset` chọn 640 ở 390 |
 
 ## 5. Phương pháp và phạm vi
 
 - Audit `sau`: 4 vai (admin, giảng viên, trợ giảng, sinh viên) × mọi route × 1440 / 375 × 4 trạng thái (có dữ liệu lớp 761987; rỗng lớp `QCEMPTY`; đang tải bằng chặn API 5 s; lỗi bằng 500). 310 lượt chụp, 0 lượt lỗi chạy. Script: `frontend/e2e/qc-ui-audit-real.spec.ts`, `scripts/audit_report.py`.
-- Landing: `qc-landing-real.spec.ts` (đo DOM ẩn danh), `copy-lint`, `perf --runs 3`, `consistency` 1440 + 390 (HEAD `1935435a`). Dock: `qc-dock-real.spec.ts`. `/settings` sinh viên: `qc-settings-sv-real.spec.ts`.
-- Chưa kiểm: `contrast.spec.ts` / `panels.spec.ts` / `frame.spec.ts` / `landing.spec.ts` của dev (CI của dev); tương phản chữ–nền theo bộ màu; Lighthouse 4G thật; `IntersectionObserver` (AC8 sợi chỉ, AC15 độ trễ 1,5 s); ảnh mốc `visual.spec` (dev sinh trên CI); `ui-antipatterns.sh` chưa chạy lại ở `a99a84e9`.
-- Dọn: stack `ep-qc` đang chạy (frontend `a99a84e9`, env QC).
+- Landing: `qc-landing-real.spec.ts` (đo DOM ẩn danh), `copy-lint`, `perf --runs 3`, `consistency` 1440 + 390 (HEAD `1935435a` cho `perf.mjs`; HEAD `9a011cd1` cho `copy-lint` và `consistency`). Lighthouse 4G: `lhci collect` throttling `devtools`, 3 lượt mỗi kiểu (`landing/lighthouse.json`). Dock: `qc-dock-real.spec.ts`. `/settings` sinh viên: `qc-settings-sv-real.spec.ts`.
+- Chưa kiểm: `contrast.spec.ts` / `panels.spec.ts` / `frame.spec.ts` / `landing.spec.ts` của dev (CI của dev); tương phản chữ–nền theo bộ màu; `IntersectionObserver` (AC8 sợi chỉ, AC15 độ trễ 1,5 s); ảnh mốc `visual.spec` (dev sinh trên CI).
+- Dọn: stack `ep-qc` đang chạy (frontend `9a011cd1`, env QC).

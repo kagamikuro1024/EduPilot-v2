@@ -1,7 +1,7 @@
 {
  "page": "http://localhost:580/",
  "url": "http://localhost:580/",
- "at": "2026-11-14T21:16:55.378Z",
+ "at": "2026-11-14T22:36:25.808Z",
  "out": "/Users/kuro/Documents/TA_Agent_qc106/docs/sprints/10.7/qc/landing/consistency",
  "widths": [
   {
@@ -152,7 +152,7 @@
      "sev": "WARN",
      "sel": "head",
      "text": "",
-     "msg": "the head lacks og:title, og:description, og:image, twitter:card, theme-color: a shared link shows no picture or title of its own",
+     "msg": "the head lacks theme-color: a shared link shows no picture or title of its own",
      "stop": null,
      "fix": "copy the head block of starter.html: og tags, twitter:card, the icon and theme-color (references/system.md, Head)"
     },
