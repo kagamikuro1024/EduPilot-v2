@@ -41,7 +41,7 @@ def reflect_items(mode, data):
     elif mode == "rf_many":
         for (cid, d), ids in good:
             for i, t in enumerate(MANY): items.append({"criterion_id": cid, "text": t.format(c=cid) + f" Mẫu {i}.", "direction": d, "case_ids": ids[:3]})
-        items = items[:12]
+        items = items[:8]  # schema strict maxItems = GUIDANCE_MAX_ITEMS (8): vượt thì cổng gateway chặn trước
     elif mode == "rf_bad_criterion":
         (cid, d), ids = good[0]; items.append({"criterion_id": "c99", "text": "Tiêu chí không có trong rubric cần chú ý thêm ví dụ.", "direction": d, "case_ids": ids[:3]})
     elif mode == "rf_bad_case":
@@ -90,6 +90,12 @@ class H(BaseHTTPRequestHandler):
             data = json.loads(x.group(1)) if x else {}
             json.dump(data, open("/tmp/stub_reflect_in.json", "w"), ensure_ascii=False)
             content = json.dumps({"items": reflect_items(mode if mode.startswith("rf_") else "rf_ok", data)}, ensure_ascii=False)
+        elif "RUBRIC (thứ tự chấm)" in system:  # chấm bài tự luận: ghi system vào /tmp/stub_grading_sys.jsonl, trả đầu ra hợp lệ
+            with open("/tmp/stub_grading_sys.jsonl", "a") as f: f.write(json.dumps({"t": time.time(), "system": system}, ensure_ascii=False) + "\n")
+            sm = re.search(r"JSON Schema sau[^\n]*\n(\{.*\})", system)
+            ids = json.loads(sm.group(1))["properties"]["criteria"]["items"]["properties"]["id"]["enum"] if sm else []
+            content = json.dumps({"criteria": [{"id": i, "score": "1.00", "evidence_quotes": [], "comment": f"Nhận xét giả của stub cho {i}."} for i in ids],
+                                  "overall_feedback": "Nhận xét tổng quát giả của stub.", "confidence": 0.8, "flags": [], "total": f"{len(ids):.2f}"}, ensure_ascii=False)
         else:
             schema = (((body.get("response_format") or {}).get("json_schema") or {}).get("schema")) or {}
             if not schema:
