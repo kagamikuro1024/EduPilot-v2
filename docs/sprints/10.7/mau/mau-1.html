@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EduPilot · Mẫu 1 · Hôm nay (giảng viên) · bộ màu Bách khoa</title>
+<!--
+  MẪU THAM CHIẾU sprint 10.7 (UI-R). KHÔNG phải mã sản phẩm, không chép vào frontend/.
+  Áp: (1) hợp đồng khung trang (nháp DESIGN.md §23): một mẫu đầu trang, Page kiểu `work`, mỗi vùng một Panel rộng đúng cột, cao theo nội dung;
+       (2) bộ màu theo nhận diện Đại học Bách khoa Hà Nội: đỏ + vàng điểm nhấn + trắng.
+  MÃ MÀU TẠM (chưa đối chiếu sổ tay nhận diện, làm ở TL-1):
+    đỏ  #B41D24, đỏ đậm #9D1D1F  = màu chủ đạo trong CSS cổng hust.edu.vn (themes/hust/css/hust.css, custom.css; đọc 2026-11-14)
+    vàng #FFD200                 = màu vàng trong CSS cổng qldt.hust.edu.vn (css/index.css; đọc 2026-11-14)
+  Vàng chỉ làm NỀN / chấm / vạch (chữ vàng trên trắng không đạt AA). Đỏ vẫn là tín hiệu: đang ở đâu, cần hành động, số việc chờ.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  /* ---- bộ màu Bách khoa (đề xuất; chỉ đổi ở tokens.css) ---- */
+  --ep-red: #B41D24;
+  --ep-red-hover: #9D1D1F;
+  --ep-red-soft: #FBEFEF;
+  --ep-yellow: #FFD200;        /* MỚI: điểm nhấn hiếm, chỉ làm nền / chấm / vạch */
+  --ep-yellow-soft: #FFF6CC;   /* MỚI: nền nhãn «cần chú ý», chữ --ep-ink */
+  --ep-canvas: #F4F2F1; --ep-surface: #FFFFFF; --ep-surface-subtle: #FAF6F6;
+  --ep-ink: #231A1B; --ep-ink-2: #55494A; --ep-ink-3: #746869; --ep-rule: #E4DCDC;
+  --ep-green: #1F7A3A; --ep-blue: #1F5FA8;
+  /* ---- không đổi ---- */
+  --ep-font: "Be Vietnam Pro", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --ep-text-page: 1.75rem; --ep-text-section: 1.25rem; --ep-text-item: 1rem; --ep-text-body: .9375rem; --ep-text-label: .875rem; --ep-text-meta: .75rem;
+  --ep-space-1: .25rem; --ep-space-2: .5rem; --ep-space-3: .75rem; --ep-space-4: 1rem; --ep-space-5: 1.25rem; --ep-space-6: 1.5rem; --ep-space-8: 2rem; --ep-space-10: 2.5rem; --ep-space-20: 5rem;
+  --ep-radius-xs: 4px; --ep-radius-sm: 6px; --ep-radius-panel: 14px; --ep-radius-pill: 999px;
+  --ep-sidebar: 216px; --ep-topbar: 56px;
+  --ep-elevation-1: 0 1px 2px rgb(60 20 24 / .05), 0 6px 18px rgb(60 20 24 / .07);
+  --ep-page-work: 100rem;
+}
+* { box-sizing: border-box; }
+html { font-family: var(--ep-font); background: var(--ep-canvas); color: var(--ep-ink); -webkit-font-smoothing: antialiased; }
+body { margin: 0; font-size: var(--ep-text-body); line-height: 1.6; min-height: 100dvh; }
+h1, h2, h3, p { margin: 0; } ul { margin: 0; padding: 0; list-style: none; } svg { display: block; } button { font: inherit; cursor: pointer; } a { color: inherit; text-decoration: none; }
+.ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* ---------- vỏ ứng dụng (bố cục giữ nguyên) ---------- */
+.sidebar { position: fixed; inset: 0 auto 0 0; width: var(--ep-sidebar); display: flex; flex-direction: column; background: var(--ep-surface); border-right: 1px solid var(--ep-rule); }
+.brand { display: flex; align-items: center; gap: var(--ep-space-3); height: var(--ep-topbar); padding: 0 var(--ep-space-5); border-bottom: 1px solid var(--ep-rule); flex: none; }
+.brand svg { height: 32px; width: auto; }
+.nav { flex: 1; overflow-y: auto; padding: var(--ep-space-2) 0 var(--ep-space-4); }
+.group + .group { margin-top: var(--ep-space-3); }
+.groupLabel { padding: var(--ep-space-2) var(--ep-space-5) var(--ep-space-1); font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-ink-3); }
+.navItem { position: relative; display: flex; align-items: center; gap: var(--ep-space-3); min-height: 34px; margin: 1px var(--ep-space-2); padding: 0 var(--ep-space-3); border-radius: var(--ep-radius-sm); font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink-2); }
+.navItem span { flex: 1; }
+.navItem[aria-current] { color: var(--ep-ink); font-weight: 600; background: var(--ep-red-soft); }
+.navItem[aria-current]::before { content: ""; position: absolute; left: calc(-1 * var(--ep-space-2)); top: 8px; bottom: 8px; width: 2px; background: var(--ep-red); }
+.navItem[aria-current] .ic { color: var(--ep-red); }
+.badge { font-size: var(--ep-text-meta); font-weight: 600; color: var(--ep-red); font-variant-numeric: tabular-nums; }
+.sideFoot { padding: var(--ep-space-3) var(--ep-space-4) var(--ep-space-4); border-top: 1px solid var(--ep-rule); display: flex; align-items: center; gap: var(--ep-space-2); font-size: var(--ep-text-label); color: var(--ep-ink-2); }
+.topbar { position: sticky; top: 0; z-index: 30; margin-left: var(--ep-sidebar); height: var(--ep-topbar); display: flex; align-items: center; gap: var(--ep-space-4); padding: 0 var(--ep-space-6); background: var(--ep-surface); border-bottom: 1px solid var(--ep-rule); }
+.courseBtn { display: inline-flex; align-items: center; gap: var(--ep-space-2); min-height: 36px; font-size: var(--ep-text-label); font-weight: 600; }
+.courseBtn span { font-weight: 500; color: var(--ep-ink-2); } .courseBtn .ic { width: 16px; height: 16px; color: var(--ep-ink-2); }
+.topEnd { margin-left: auto; display: flex; align-items: center; gap: var(--ep-space-2); }
+.search { display: inline-flex; align-items: center; gap: var(--ep-space-2); height: 34px; width: 300px; padding: 0 var(--ep-space-3); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); color: var(--ep-ink-3); font-size: var(--ep-text-label); }
+.search .ic { width: 16px; height: 16px; } .search kbd { margin-left: auto; font: 600 var(--ep-text-meta)/1 var(--ep-font); color: var(--ep-ink-2); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-xs); padding: 3px 5px; }
+.iconBtn { position: relative; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: var(--ep-radius-sm); background: transparent; color: var(--ep-ink-2); }
+.unread { position: absolute; top: 7px; right: 8px; width: 8px; height: 8px; border-radius: var(--ep-radius-pill); background: var(--ep-red); border: 1.5px solid var(--ep-surface); }
+.profile { display: inline-flex; align-items: center; gap: var(--ep-space-2); height: 36px; padding: 0 var(--ep-space-2) 0 var(--ep-space-1); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-sm); font-size: var(--ep-text-label); font-weight: 600; }
+.profile .ic { width: 14px; height: 14px; color: var(--ep-ink-2); }
+.initials { display: grid; place-items: center; width: 26px; height: 26px; border-radius: var(--ep-radius-xs); background: var(--ep-ink); color: var(--ep-surface); font-size: var(--ep-text-meta); font-weight: 700; }
+.main { margin-left: var(--ep-sidebar); min-height: calc(100dvh - var(--ep-topbar)); }
+
+/* ---------- §23 khung trang ---------- */
+.page { margin-inline: auto; max-width: calc(var(--ep-page-work) + 2 * var(--ep-space-6)); padding: var(--ep-space-10) var(--ep-space-6) var(--ep-space-20); }
+.header { display: grid; gap: var(--ep-space-2); margin-bottom: var(--ep-space-8); }
+.headRow { display: flex; align-items: center; justify-content: space-between; gap: var(--ep-space-6); min-height: 36px; }
+.title { font-size: var(--ep-text-page); font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; }
+.meta { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink-3); }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--ep-space-6); align-items: start; }
+.panel { background: var(--ep-surface); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-panel); box-shadow: var(--ep-elevation-1); padding: var(--ep-space-6); min-width: 0; }
+.panelSection + .panelSection { border-top: 1px solid var(--ep-rule); margin-top: var(--ep-space-3); padding-top: var(--ep-space-5); }
+.groupTitle { display: flex; align-items: baseline; gap: var(--ep-space-2); font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink-2); margin-bottom: var(--ep-space-1); }
+.groupTitle b { font-weight: 600; color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
+.groupTitle b::before { content: "· "; }
+
+/* ---------- ActionList (primitive sẵn có) ---------- */
+.row { display: flex; align-items: center; gap: var(--ep-space-4); padding: var(--ep-space-3) 0; }
+.row + .row { border-top: 1px solid var(--ep-rule); }
+.dot { flex: none; width: 8px; height: 8px; border-radius: var(--ep-radius-pill); background: var(--ep-ink-3); align-self: flex-start; margin-top: 9px; }
+.dot.red { background: var(--ep-red); }
+.dot.yellow { background: var(--ep-yellow); box-shadow: 0 0 0 1px #C79A00; } /* viền đậm hơn một bậc: chấm vàng vẫn đọc được trên trắng */
+.text { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.itemTitle { font-size: var(--ep-text-item); font-weight: 600; line-height: 1.4; }
+.context { font-size: var(--ep-text-label); line-height: 1.5; color: var(--ep-ink-2); font-variant-numeric: tabular-nums; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: var(--ep-space-2); min-height: 36px; padding: var(--ep-space-2) var(--ep-space-4); border: 1px solid transparent; border-radius: var(--ep-radius-sm); font-size: var(--ep-text-label); font-weight: 600; line-height: 1.25; white-space: nowrap; flex: none; }
+.btn .ic { width: 16px; height: 16px; stroke-width: 2; }
+.btn.primary { background: var(--ep-red); color: var(--ep-surface); }
+.btn.ghost { background: transparent; color: var(--ep-ink); padding-inline: var(--ep-space-2); }
+.btn.text { background: transparent; color: var(--ep-red); padding: var(--ep-space-1) 0; min-height: 28px; }
+.flag { display: inline-flex; align-items: center; padding: 1px var(--ep-space-2); border-radius: var(--ep-radius-pill); background: var(--ep-yellow-soft); color: var(--ep-ink); font-size: var(--ep-text-meta); font-weight: 600; white-space: nowrap; }
+.when { font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.aside .row { align-items: flex-start; gap: var(--ep-space-3); }
+.aside .itemTitle { font-size: var(--ep-text-body); }
+.next { position: relative; }
+.next::before { content: ""; position: absolute; left: calc(-1 * var(--ep-space-6)); top: 10px; bottom: 10px; width: 3px; background: var(--ep-yellow); } /* buổi kế tiếp: một vạch vàng, điểm nhấn hiếm */
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></symbol>
+<symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+<symbol id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></symbol>
+<symbol id="i-list-checks" viewBox="0 0 24 24"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></symbol>
+<symbol id="i-circle-question-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+<symbol id="i-messages-square" viewBox="0 0 24 24"><path d="M16 10a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 14.286V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M20 9a2 2 0 0 1 2 2v10.286a.71.71 0 0 1-1.212.502l-2.202-2.202A2 2 0 0 0 17.172 19H10a2 2 0 0 1-2-2v-1"/></symbol>
+<symbol id="i-message-square" viewBox="0 0 24 24"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-file-text" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+<symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></symbol>
+<symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+<symbol id="i-chart-column" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
+<symbol id="i-sliders-horizontal" viewBox="0 0 24 24"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></symbol>
+<symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M15 8V2"/><path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z"/><path d="M9 8V2"/></symbol>
+<symbol id="i-panel-left-close" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></symbol>
+<symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+<symbol id="i-circle-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></symbol>
+<symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol>
+<symbol id="i-calendar-plus" viewBox="0 0 24 24"><path d="M16 18h6"/><path d="M16 2v3"/><path d="M19 15v6"/><path d="M21 11.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8.3"/><path d="M3 9h18"/><path d="M8 2v3"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+<symbol id="i-qr-code" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></symbol>
+<symbol id="i-scan-line" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-library" viewBox="0 0 24 24"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+</defs></svg>
+
+<aside class="sidebar">
+  <div class="brand"><svg width="188" height="40" viewBox="0 0 188 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>EduPilot</title>
+  <g>
+    <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#251D1E" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M35.25 10.25C31.15 9.2 27.35 9.65 23.75 11.75" stroke="#251D1E" stroke-width="2" stroke-linecap="round"/>
+    <path d="M35.25 12.8V28.15C30.05 26.7 25.3 27.55 20 31.6" stroke="#251D1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M20 31.55C20.05 24.9 20.75 19.5 23.15 15.25C25.45 11.15 28.55 8.75 33.55 7.15" stroke="#B41D24" stroke-width="2.7" stroke-linecap="round"/>
+    <path d="M29.4 6.65L34.1 6.9L31.9 11.1" stroke="#B41D24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="20" cy="31.55" r="2.2" fill="#B41D24"/>
+  </g>
+  <text x="51" y="27" fill="#251D1E" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Edu</text>
+  <text x="88" y="27" fill="#B41D24" font-family="Be Vietnam Pro, Noto Sans, Arial, sans-serif" font-size="21" font-weight="700" letter-spacing="-0.5">Pilot</text>
+</svg></div>
+  <nav class="nav" aria-label="Điều hướng chính">
+    <div class="group"><div class="groupLabel">Làm việc</div>
+      <a class="navItem" aria-current="page"><svg class="ic"><use href="#i-house"/></svg><span>Hôm nay</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-inbox"/></svg><span>Hộp thư hỗ trợ</span><b class="badge">3</b></a>
+      <a class="navItem"><svg class="ic"><use href="#i-users"/></svg><span>Sinh viên</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-clipboard-check"/></svg><span>Điểm danh</span></a></div>
+    <div class="group"><div class="groupLabel">Đánh giá</div>
+      <a class="navItem"><svg class="ic"><use href="#i-notebook-pen"/></svg><span>Sổ điểm</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-list-checks"/></svg><span>Chấm bài</span><b class="badge">2</b></a>
+      <a class="navItem"><svg class="ic"><use href="#i-circle-question-mark"/></svg><span>Ngân hàng câu hỏi</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-clipboard-list"/></svg><span>Bài thi</span></a></div>
+    <div class="group"><div class="groupLabel">Nội dung</div>
+      <a class="navItem"><svg class="ic"><use href="#i-messages-square"/></svg><span>Hỏi đáp công khai</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-file-text"/></svg><span>Tài liệu</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-calendar-days"/></svg><span>Lịch</span></a></div>
+    <div class="group"><div class="groupLabel">Hiểu lớp học</div>
+      <a class="navItem"><svg class="ic"><use href="#i-lightbulb"/></svg><span>Lỗ hổng kiến thức</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-chart-column"/></svg><span>Số liệu lớp học</span></a></div>
+    <div class="group"><div class="groupLabel">Hệ thống</div>
+      <a class="navItem"><svg class="ic"><use href="#i-activity"/></svg><span>Quan sát AI</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-sliders-horizontal"/></svg><span>Cấu hình LLM</span></a>
+      <a class="navItem"><svg class="ic"><use href="#i-plug"/></svg><span>Tích hợp</span></a></div>
+  </nav>
+  <div class="sideFoot"><svg class="ic"><use href="#i-panel-left-close"/></svg>Thu gọn</div>
+</aside>
+
+<header class="topbar">
+  <div class="courseBtn">761987 <span>· An ninh mạng</span><svg class="ic"><use href="#i-chevron-down"/></svg></div>
+  <div class="topEnd">
+    <div class="search"><svg class="ic"><use href="#i-search"/></svg>Tìm nhanh hoặc đi đến…<kbd>⌘ K</kbd></div>
+    <button class="iconBtn" aria-label="Thông báo"><svg class="ic"><use href="#i-bell"/></svg><i class="unread"></i></button>
+    <div class="profile"><span class="initials">H</span>TS. Lê Thu Hà<svg class="ic"><use href="#i-chevron-down"/></svg></div>
+  </div>
+</header>
+
+<main class="main">
+  <div class="page" data-ep-page="work">
+    <div class="header">
+      <div class="headRow"><h1 class="title">5 việc cần xử lý hôm nay</h1></div>
+      <p class="meta">Thứ Bảy, 14/11</p>
+    </div>
+
+    <div class="split">
+      <div class="panel">
+        <div class="panelSection">
+          <h2 class="groupTitle">Gấp <b>2</b></h2>
+          <div class="row"><i class="dot red"></i><div class="text"><p class="itemTitle">3 yêu cầu vào lớp đang chờ duyệt</p><p class="context">Cũ nhất đã chờ 2 ngày</p></div><button class="btn primary">Xem yêu cầu</button></div>
+          <div class="row"><i class="dot yellow"></i><div class="text"><p class="itemTitle">2 bài AI chấm cần xem kỹ</p><p class="context">Bài tập 03 · hai lượt chấm lệch hơn 1 điểm</p></div><button class="btn ghost">Xem bài<svg class="ic"><use href="#i-arrow-right"/></svg></button></div>
+        </div>
+        <div class="panelSection">
+          <h2 class="groupTitle">Hôm nay <b>2</b></h2>
+          <div class="row"><i class="dot"></i><div class="text"><p class="itemTitle">Công bố điểm Bài tập 02</p><p class="context">Đã duyệt đủ 18 bài</p></div><button class="btn ghost">Công bố<svg class="ic"><use href="#i-arrow-right"/></svg></button></div>
+          <div class="row"><i class="dot"></i><div class="text"><p class="itemTitle">1 yêu cầu xem lại điểm</p><p class="context">Gửi hôm qua, 21:40</p></div><button class="btn ghost">Xem yêu cầu<svg class="ic"><use href="#i-arrow-right"/></svg></button></div>
+        </div>
+        <div class="panelSection">
+          <h2 class="groupTitle">Khi rảnh <b>1</b></h2>
+          <div class="row"><i class="dot"></i><div class="text"><p class="itemTitle">Hai bài thi có đáp án giống nhau</p><p class="context">Kiểm tra tuần 7 · trùng 9/10 câu</p></div><button class="btn ghost">Mở<svg class="ic"><use href="#i-arrow-right"/></svg></button></div>
+        </div>
+      </div>
+
+      <div class="panel aside">
+        <div class="panelSection">
+          <h2 class="groupTitle">Lớp cần chú ý <b>2</b></h2>
+          <div class="row"><div class="text"><p class="itemTitle">Trần Thu Uyên</p><p class="context">Vắng 3/4 buổi gần nhất</p></div><span class="flag">Chuyên cần</span></div>
+          <div class="row"><div class="text"><p class="itemTitle">Lê Quang Huy</p><p class="context">Chưa nộp 2 bài liên tiếp</p></div><span class="flag">Bài tập</span></div>
+        </div>
+        <div class="panelSection">
+          <h2 class="groupTitle">Sắp tới</h2>
+          <div class="row next"><div class="text"><p class="itemTitle">Buổi 11 · Mã hoá khối</p><p class="context">P.302 · D9</p></div><span class="when">Mai, 09:00</span></div>
+          <div class="row"><div class="text"><p class="itemTitle">Hạn nộp Bài tập 04</p><p class="context">12/30 đã nộp</p></div><span class="when">17/11, 23:59</span></div>
+          <div class="row"><div class="text"><p class="itemTitle">Kiểm tra tuần 9</p><p class="context">20 câu · 30 phút</p></div><span class="when">19/11, 14:00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+</body>
+</html>

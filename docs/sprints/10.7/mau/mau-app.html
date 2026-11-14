@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EduPilot · Mẫu app · Điểm danh bằng mã QR (sinh viên) · bộ màu Bách khoa</title>
+<!--
+  MẪU THAM CHIẾU sprint 10.7 / 10.8. KHÔNG phải mã sản phẩm. Màn sinh viên trên app điện thoại (390 × 844), điểm danh bằng mã QR của sprint 10.8.
+  Cùng bộ màu tạm với mau-1.html: đỏ #B41D24 / #9D1D1F (CSS cổng hust.edu.vn), vàng #FFD200 (CSS cổng qldt.hust.edu.vn); đối chiếu sổ tay nhận diện ở TL-1.
+  Một nút chính ở vùng ngón cái; trạng thái 1–2 từ, có chữ + biểu tượng (không truyền nghĩa chỉ bằng màu); vùng chạm ≥ 44 px.
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  color-scheme: light;
+  --ep-red: #B41D24; --ep-red-hover: #9D1D1F; --ep-red-soft: #FBEFEF; --ep-yellow: #FFD200; --ep-yellow-soft: #FFF6CC;
+  --ep-canvas: #F4F2F1; --ep-surface: #FFFFFF; --ep-surface-subtle: #FAF6F6;
+  --ep-ink: #231A1B; --ep-ink-2: #55494A; --ep-ink-3: #746869; --ep-rule: #E4DCDC; --ep-green: #1F7A3A;
+  --ep-font: "Be Vietnam Pro", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --ep-text-page: 1.75rem; --ep-text-item: 1rem; --ep-text-body: .9375rem; --ep-text-label: .875rem; --ep-text-meta: .75rem;
+  --ep-space-1: .25rem; --ep-space-2: .5rem; --ep-space-3: .75rem; --ep-space-4: 1rem; --ep-space-5: 1.25rem; --ep-space-6: 1.5rem;
+  --ep-radius-sm: 6px; --ep-radius-md: 8px; --ep-radius-panel: 14px; --ep-radius-pill: 999px;
+  --ep-elevation-1: 0 1px 2px rgb(60 20 24 / .05), 0 6px 18px rgb(60 20 24 / .07);
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: #FFFFFF; font-family: var(--ep-font); color: var(--ep-ink); -webkit-font-smoothing: antialiased; }
+body { min-height: 100dvh; display: grid; place-items: center; font-size: var(--ep-text-body); line-height: 1.5; }
+h1, h2, p { margin: 0; } svg { display: block; } button { font: inherit; }
+.ic { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* khung điện thoại đơn giản: chỉ để trình bày, không thuộc thiết kế */
+.device { width: 414px; height: 868px; padding: 12px; border-radius: 52px; background: #1B1516; }
+.screen { position: relative; width: 390px; height: 844px; border-radius: 40px; overflow: hidden; background: var(--ep-canvas); display: flex; flex-direction: column; }
+
+.statusbar { flex: none; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: var(--ep-surface); font-size: var(--ep-text-label); font-weight: 600; font-variant-numeric: tabular-nums; }
+.statusbar i { width: 24px; height: 11px; border: 1.5px solid var(--ep-ink); border-radius: 3px; position: relative; }
+.statusbar i::after { content: ""; position: absolute; inset: 1.5px 6px 1.5px 1.5px; background: var(--ep-ink); border-radius: 1px; }
+.topbar { flex: none; height: 56px; display: flex; align-items: center; gap: var(--ep-space-3); padding: 0 var(--ep-space-3) 0 var(--ep-space-4); background: var(--ep-surface); border-bottom: 1px solid var(--ep-rule); }
+.topbar .mark { width: 28px; height: 28px; }
+.course { display: inline-flex; align-items: center; gap: var(--ep-space-1); font-size: var(--ep-text-label); font-weight: 600; min-height: 44px; }
+.course .ic { width: 16px; height: 16px; color: var(--ep-ink-2); }
+.iconBtn { margin-left: auto; display: grid; place-items: center; width: 44px; height: 44px; border: 0; background: transparent; color: var(--ep-ink-2); }
+
+.page { flex: 1; overflow: hidden; padding: var(--ep-space-6) var(--ep-space-3) 0; display: grid; gap: var(--ep-space-5); align-content: start; }
+.header { display: grid; gap: var(--ep-space-1); padding: 0 var(--ep-space-1); }
+.title { font-size: var(--ep-text-page); font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; }
+.meta { font-size: var(--ep-text-label); font-weight: 500; color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
+.section { display: grid; gap: var(--ep-space-2); }
+.sectionTitle { padding: 0 var(--ep-space-1); font-size: var(--ep-text-label); font-weight: 600; color: var(--ep-ink-2); }
+.panel { background: var(--ep-surface); border: 1px solid var(--ep-rule); border-radius: var(--ep-radius-panel); box-shadow: var(--ep-elevation-1); padding: 0 var(--ep-space-4); }
+.row { display: flex; align-items: center; gap: var(--ep-space-3); min-height: 60px; padding: var(--ep-space-3) 0; }
+.row + .row { border-top: 1px solid var(--ep-rule); }
+.time { flex: none; width: 44px; font-size: var(--ep-text-label); font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ep-ink-2); }
+.text { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.itemTitle { font-size: var(--ep-text-body); font-weight: 600; line-height: 1.4; }
+.context { font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-3); font-variant-numeric: tabular-nums; }
+.state { flex: none; display: inline-flex; align-items: center; gap: var(--ep-space-1); font-size: var(--ep-text-label); font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.state .ic { width: 16px; height: 16px; stroke-width: 2.2; }
+.state.ok { color: var(--ep-green); }
+.state.open { color: var(--ep-red); }
+.state.open::before { content: ""; width: 8px; height: 8px; border-radius: var(--ep-radius-pill); background: var(--ep-red); }
+.state.late { padding: 2px var(--ep-space-2); border-radius: var(--ep-radius-pill); background: var(--ep-yellow-soft); color: var(--ep-ink); font-size: var(--ep-text-meta); }
+.state.off { color: var(--ep-ink-2); font-weight: 500; }
+.now { position: relative; }
+.now::before { content: ""; position: absolute; left: calc(-1 * var(--ep-space-4)); top: 12px; bottom: 12px; width: 3px; background: var(--ep-yellow); } /* buổi đang mở: một vạch vàng */
+
+.cta { flex: none; padding: var(--ep-space-3) var(--ep-space-3) var(--ep-space-4); background: linear-gradient(to bottom, transparent, var(--ep-canvas) 28%); }
+.btn { width: 100%; min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: var(--ep-space-2); border: 0; border-radius: var(--ep-radius-md); background: var(--ep-red); color: var(--ep-surface); font-size: var(--ep-text-item); font-weight: 600; }
+.btn .ic { width: 22px; height: 22px; stroke-width: 2; }
+.tabbar { flex: none; height: 76px; padding-bottom: 20px; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--ep-surface); border-top: 1px solid var(--ep-rule); }
+.tab { position: relative; display: grid; justify-items: center; align-content: center; gap: 2px; font-size: var(--ep-text-meta); font-weight: 500; color: var(--ep-ink-2); }
+.tab[aria-current] { color: var(--ep-ink); font-weight: 600; }
+.tab[aria-current] .ic { color: var(--ep-red); }
+.tab[aria-current]::before { content: ""; position: absolute; top: -1px; left: 30%; right: 30%; height: 2px; background: var(--ep-red); }
+.homebar { position: absolute; left: 50%; bottom: 8px; width: 134px; height: 5px; margin-left: -67px; border-radius: var(--ep-radius-pill); background: var(--ep-ink); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-house" viewBox="0 0 24 24"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-6a2 2 0 0 1 2.582 0l7 6A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+<symbol id="i-inbox" viewBox="0 0 24 24"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><path d="M16 3.128a4 4 0 0 1 0 7.744"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><circle cx="9" cy="7" r="4"/></symbol>
+<symbol id="i-clipboard-check" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></symbol>
+<symbol id="i-notebook-pen" viewBox="0 0 24 24"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></symbol>
+<symbol id="i-list-checks" viewBox="0 0 24 24"><path d="M13 5h8"/><path d="M13 12h8"/><path d="M13 19h8"/><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/></symbol>
+<symbol id="i-circle-question-mark" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+<symbol id="i-clipboard-list" viewBox="0 0 24 24"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></symbol>
+<symbol id="i-messages-square" viewBox="0 0 24 24"><path d="M16 10a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 14.286V4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/><path d="M20 9a2 2 0 0 1 2 2v10.286a.71.71 0 0 1-1.212.502l-2.202-2.202A2 2 0 0 0 17.172 19H10a2 2 0 0 1-2-2v-1"/></symbol>
+<symbol id="i-message-square" viewBox="0 0 24 24"><path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-file-text" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></symbol>
+<symbol id="i-calendar-days" viewBox="0 0 24 24"><path d="M8 2v3"/><path d="M16 2v3"/><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M8 13h.01"/><path d="M12 13h.01"/><path d="M16 13h.01"/><path d="M8 17h.01"/><path d="M12 17h.01"/><path d="M16 17h.01"/></symbol>
+<symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+<symbol id="i-chart-column" viewBox="0 0 24 24"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></symbol>
+<symbol id="i-activity" viewBox="0 0 24 24"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></symbol>
+<symbol id="i-sliders-horizontal" viewBox="0 0 24 24"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></symbol>
+<symbol id="i-plug" viewBox="0 0 24 24"><path d="M12 22v-5"/><path d="M15 8V2"/><path d="M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z"/><path d="M9 8V2"/></symbol>
+<symbol id="i-panel-left-close" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m16 15-3-3 3-3"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></symbol>
+<symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+<symbol id="i-chevron-right" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="M12 5v14"/></symbol>
+<symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/><path d="M20 2v4"/><path d="M22 4h-4"/><circle cx="4" cy="20" r="2"/></symbol>
+<symbol id="i-refresh-cw" viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></symbol>
+<symbol id="i-circle-alert" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></symbol>
+<symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 3v12"/><path d="m17 8-5-5-5 5"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></symbol>
+<symbol id="i-ellipsis" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></symbol>
+<symbol id="i-calendar-plus" viewBox="0 0 24 24"><path d="M16 18h6"/><path d="M16 2v3"/><path d="M19 15v6"/><path d="M21 11.5V5a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2h8.3"/><path d="M3 9h18"/><path d="M8 2v3"/></symbol>
+<symbol id="i-arrow-right" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+<symbol id="i-qr-code" viewBox="0 0 24 24"><rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3"/><path d="M21 21v.01"/><path d="M12 7v3a2 2 0 0 1-2 2H7"/><path d="M3 12h.01"/><path d="M12 3h.01"/><path d="M12 16v.01"/><path d="M16 12h1"/><path d="M21 12v.01"/><path d="M12 21v-1"/></symbol>
+<symbol id="i-scan-line" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M7 12h10"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+<symbol id="i-circle-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 9-5.5 5.5L8 12"/></symbol>
+<symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-library" viewBox="0 0 24 24"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+</defs></svg>
+
+<div class="device"><div class="screen">
+  <div class="statusbar"><span>13:28</span><i></i></div>
+  <header class="topbar">
+    <svg class="mark" width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>EduPilot mark</title>
+  <path d="M4.75 10.25C10.3 8.85 15.35 10.15 20 14.15V31.6C15.35 27.8 10.3 26.6 4.75 28.15V10.25Z" stroke="#251D1E" stroke-width="2" stroke-linejoin="round"/>
+  <path d="M35.25 10.25C31.15 9.2 27.35 9.65 23.75 11.75" stroke="#251D1E" stroke-width="2" stroke-linecap="round"/>
+  <path d="M35.25 12.8V28.15C30.05 26.7 25.3 27.55 20 31.6" stroke="#251D1E" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M20 31.55C20.05 24.9 20.75 19.5 23.15 15.25C25.45 11.15 28.55 8.75 33.55 7.15" stroke="#B41D24" stroke-width="2.7" stroke-linecap="round"/>
+  <path d="M29.4 6.65L34.1 6.9L31.9 11.1" stroke="#B41D24" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="20" cy="31.55" r="2.2" fill="#B41D24"/>
+</svg>
+    <div class="course">761987 · An ninh mạng<svg class="ic"><use href="#i-chevron-down"/></svg></div>
+    <button class="iconBtn" aria-label="Thông báo"><svg class="ic"><use href="#i-bell"/></svg></button>
+  </header>
+
+  <main class="page">
+    <div class="header">
+      <h1 class="title">Điểm danh</h1>
+      <p class="meta">Có mặt 9/11 buổi</p>
+    </div>
+
+    <section class="section">
+      <h2 class="sectionTitle">Hôm nay · Thứ Bảy, 14/11</h2>
+      <div class="panel">
+        <div class="row"><span class="time">08:00</span><div class="text"><p class="itemTitle">Buổi 11 · Mã hoá khối</p><span class="state ok"><svg class="ic"><use href="#i-circle-check"/></svg>Đã điểm danh 08:02</span></div><span class="context">P.302 · D9</span></div>
+        <div class="row now"><span class="time">13:30</span><div class="text"><p class="itemTitle">Thực hành 6 · AES</p><span class="state open">Đang mở</span></div><span class="context">P.501 · B1</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="sectionTitle">Gần đây</h2>
+      <div class="panel">
+        <div class="row"><span class="time">07/11</span><div class="text"><p class="itemTitle">Buổi 10 · Hàm băm</p></div><span class="state ok">Có mặt 08:01</span></div>
+        <div class="row"><span class="time">31/10</span><div class="text"><p class="itemTitle">Buổi 9 · Chữ ký số</p></div><span class="state late">Muộn 08:14</span></div>
+        <div class="row"><span class="time">24/10</span><div class="text"><p class="itemTitle">Buổi 8 · Trao đổi khoá</p></div><span class="state ok">Có mặt 07:58</span></div>
+        <div class="row"><span class="time">17/10</span><div class="text"><p class="itemTitle">Buổi 7 · RSA</p></div><span class="state off">Vắng</span></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="cta"><button class="btn"><svg class="ic"><use href="#i-qr-code"/></svg>Quét mã điểm danh</button></div>
+  <nav class="tabbar" aria-label="Điều hướng chính">
+    <a class="tab"><svg class="ic"><use href="#i-house"/></svg>Hôm nay</a>
+    <a class="tab"><svg class="ic"><use href="#i-messages-square"/></svg>Hỏi đáp</a>
+    <a class="tab" aria-current="page"><svg class="ic"><use href="#i-scan-line"/></svg>Điểm danh</a>
+    <a class="tab"><svg class="ic"><use href="#i-calendar-days"/></svg>Lịch</a>
+    <a class="tab"><svg class="ic"><use href="#i-ellipsis"/></svg>Thêm</a>
+  </nav>
+  <div class="homebar"></div>
+</div></div>
+</body>
+</html>
