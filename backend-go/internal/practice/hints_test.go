@@ -69,3 +69,32 @@ func TestRejectReasonHints(t *testing.T) {
 	_, err = r.ex.ReviewWithReason(ctx, r.teacher, r.course, id, exam.DecisionApprove, 1, &mo)
 	require.Equal(t, "VALIDATION_FAILED", code(t, err))
 }
+
+// TestRejectDefaultsUnspecified — GD-BUG-10 / US-GD-09 AC1: loại câu hỏi mà không chọn lý do (nút Loại đơn, hoặc hàng loạt không `reason`) lưu `UNSPECIFIED`, không NULL; có lý do thì giữ nguyên.
+func TestRejectDefaultsUnspecified(t *testing.T) {
+	t.Parallel()
+	r := newRig(t)
+	r.staff()
+	ctx := t.Context()
+	reasonOf := func(id uuid.UUID) *string {
+		var got *string
+		require.NoError(t, r.pool.QueryRow(ctx, `select reject_reason from question_bank where id = $1`, id).Scan(&got))
+		return got
+	}
+	single := r.approvedPending(t, "GENERATED") //nolint:contextcheck // rig dùng t.Context()
+	_, err := r.ex.Review(ctx, r.teacher, r.course, single, exam.DecisionReject, 1)
+	require.NoError(t, err)
+	require.Equal(t, "UNSPECIFIED", *reasonOf(single))
+
+	bulk := r.approvedPending(t, "GENERATED") //nolint:contextcheck // rig dùng t.Context()
+	out, err := r.svc.Bulk(ctx, r.teacher, r.course, practice.BulkIn{Action: "REJECT", IDs: []uuid.UUID{bulk}})
+	require.NoError(t, err)
+	require.True(t, out[0].OK)
+	require.Equal(t, "UNSPECIFIED", *reasonOf(bulk))
+
+	kept := r.approvedPending(t, "GENERATED") //nolint:contextcheck // rig dùng t.Context()
+	mo := "MO_HO"
+	_, err = r.ex.ReviewWithReason(ctx, r.teacher, r.course, kept, exam.DecisionReject, 1, &mo)
+	require.NoError(t, err)
+	require.Equal(t, "MO_HO", *reasonOf(kept))
+}

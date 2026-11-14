@@ -67,6 +67,10 @@ func (s *Service) ReviewWithReason(ctx context.Context, actor, courseID, id uuid
 		to = store.QuestionReviewStatusAPPROVED
 	case DecisionReject:
 		to = store.QuestionReviewStatusREJECTED
+		if reason == nil { // GD-BUG-10 / US-GD-09 AC1: không chọn lý do = UNSPECIFIED (không sinh chữ gợi ý)
+			u := "UNSPECIFIED"
+			reason = &u
+		}
 	default:
 		return QuestionDetail{}, fieldErr("decision", "decision", "decision phải là REQUEST, APPROVE hoặc REJECT.")
 	}
